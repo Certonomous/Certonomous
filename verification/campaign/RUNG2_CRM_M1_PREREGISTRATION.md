@@ -1,7 +1,8 @@
 # RUNG 2 pre-registration — NASA CRM / DPW5 — `R2-M1`, the SUCCESSOR to `R2-M0`: the LAST UNTESTED REMEDY, a MECHANISM INSTRUMENT THAT WAS REHEARSED BEFORE IT WAS REGISTERED, and a 2×2 THAT DE-CONFOUNDS M0's A2
 
-**Team: cfd. Case id `RUNG2-CRM-M1`. v1.1, drafted 2026-09-06 by a `lab-lane` for the cfd supervisor.
-v1.1 carries Amendment 1 (§13), landed PRE-COMPUTE, altering NO gate, threshold, cap or label.**
+**Team: cfd. Case id `RUNG2-CRM-M1`. v1.2, drafted 2026-09-06 by a `lab-lane` for the cfd supervisor.
+v1.1 carries Amendment 1 (§13) and v1.2 Amendment 2 (§14), both landed PRE-COMPUTE, altering NO
+gate, threshold, cap or label.**
 
 > # ⚠ DRAFT — NOT AUTHORISED TO LAUNCH. CHECK 4 HAS NOT BEEN PERFORMED.
 >
@@ -669,7 +670,8 @@ no run root, no queue row.
 | queue row | **NONE PLACED.** Placement is the chief's, under its own captured grant |
 | run root | **ABSENT**, plant-verified 0 → 1 → 0 (§1.3) |
 | grading path | `cases/committee-grids/grade_r2_m1.py` — **exists, committed, 12/12 controls, driven on real data** |
-| driver | `cases/committee-grids/run_r2_m1.sh` — **exists (Amendment 1, §13). Cap selftest 7/7; root guard driven refusing on the real path.** |
+| driver | `cases/committee-grids/run_r2_m1.sh` — **exists. Cap selftest 7/7; root guard driven refusing; PRODUCTION SEQUENCE executed end to end on a stand-in (Amendment 2, §14), `rc=0`, two defects found and fixed.** |
+| dry-run record | `cases/committee-grids/R2_M1_DRYRUN_RECORD.md` — **NOT A RESULT**; its §3 says what a green does not cover |
 | solver core-min spent under this registration | **0.0219**, all of it the §3.3 rehearsal on a 125-cell box |
 | Rung 2 (a) | **BLOCKED**, untouched, binding ground **(iii)** |
 
@@ -739,3 +741,78 @@ is absent again. A bare invocation prints usage and launches nothing.
 - It does **not** place a queue row. **None has been placed and this lane placed none.**
 - It spends **no additional solver core-minutes**. The cap and guard controls are shell arithmetic
   and a `sleep`; no solver, no MPI job, no mesh operation, no DPW5 grid.
+
+---
+
+## 14. AMENDMENT 2 — 2026-09-06, **PRE-COMPUTE**, the dry run ruled by the cfd supervisor
+
+**THE CONDITION, AND HOW IT WAS CHECKED.** As §13. The registered run root
+**`verification/runs/RUNG2_CRM_runs/M1_mechanism_and_warmstart`** is **ABSENT**, re-verified at
+amendment time (**2026-09-06T16:50:30Z**) under a live planted control — **0 → 1 → 0,
+DISCRIMINATES**, no residue. No `COST.tsv`, no `STATUS.R2_M1`, no arm directory, no queue row.
+**NO GATE, THRESHOLD, CAP OR LABEL IS ALTERED.** §11 item 4 remains struck as in §13.
+
+**Why it happened.** §11 disclosed that the driver's `--go` path had never executed end to end —
+`L-495`'s class, named by this lane against itself. The cfd supervisor ruled: **buy the exposure
+down on a stand-in before check 4, not on the real grid**, because *the risk is not the 5.27
+core-min, it is that a defect in assembly could produce a plausible wrong artifact rather than a
+crash* — a crash on the real grid would be seen; a mis-assembled arm might be graded.
+
+**The record is `cases/committee-grids/R2_M1_DRYRUN_RECORD.md`**, and it is written for whoever
+launches rather than for this file: it leads with **NOT A RESULT** and its §3 enumerates what a
+green does **not** cover. Builder: `cases/committee-grids/build_r2_m1_standin.sh`.
+
+### 14.1 It found two defects, and neither was findable part-wise
+
+1. **A fixture defect that the driver was RIGHT to refuse.** The first stand-in wrote
+   `stopAt endTime; endTime 120;` on one line; `set_endtime` anchors line-wise and the real seed has
+   them on separate lines (`A0/system/controlDict:12-13`). The driver **failed loudly at exit 7**
+   rather than silently leaving B1 at `endTime 120` — which would have made **`R2M1-G4` grade the
+   wrong thing**. The builder's anchor-assertion list, which had checked three anchors and
+   **omitted `endTime`**, now checks it.
+2. **A stale note in `STATUS`.** `b1_warmstart_note=not attempted` was emitted beside
+   `b1_warmstart_mapped=1`. ⚠ **That is this campaign's own disease** — M0's `WARMSTART.txt` said
+   "FAILED TO MAP" about a map that had succeeded — so it is fixed and the reasoning is in the code.
+
+**Neither is in a part.** One is in the **order**, one in a **variable's lifetime across** the
+sequence. That is L-495, measured.
+
+### 14.2 What it establishes, and what it explicitly does not
+
+**Establishes:** the sequence runs in order, `rc = 0`; **the warm-start chain executes in full** —
+`reconstructPar` → the guard's own run-time both-directions control (**DISCRIMINATES**) → the
+binary-safe guard → `decomposePar -fields` → `WARMSTART_MAPPED`; **the warm field genuinely lands**
+(`B1/0/U` 9,920 bytes against the seed's 334, binary, re-decomposed); and **all seven arms assemble
+exactly as §4 specifies**, checked field by field, with the 2×2 correctly wired and W1 records ==
+steps completed on every arm.
+
+**Does NOT establish** (§3 of the record, in full): the real seed's **638,976 cells** against a
+216-cell box, the real **14-way** decomposition against 4, the real physics (**these arms
+completed; R2-M1's are expected to abort at iteration ≤ 2**), the real 15.6 MB warm field, or the
+registered cap value. ⚠ **`decomposePar -fields` HAS STILL NEVER RUN ON THE REAL GRID** — its
+success on the stand-in is evidence about **plumbing**, its cost stays **ESTIMATED**, and
+`R2M1-G3` still returns **`BLOCKED`, not `GATE FAIL`**, if it fails. **The first `--go` remains the
+first execution against the real seed at 14 ranks.**
+
+### 14.3 Two safety properties added, both driven
+
+- **`--dry-go` can never touch the registered run root.** Asserted in both directions; pointed at
+  the registered root it **refuses (exit 2)**, and that refusal was driven. The registered root was
+  **absent before and after** every dry pass.
+- **The `EXIT` sweep is now scoped to this run's own root.** M0's driver sweeps
+  `pkill -f "rhoSimpleFoam -parallel"`, which matches **every** `rhoSimpleFoam` on this box —
+  **including another team's, mid-campaign**, from a trap that fires on the way out of an unrelated
+  failure. CLAUDE.md's standing instruction is **do not touch running solvers**. The child's command
+  line carries `-case <ROOT>/<arm>`, so keying on `$ROOT` kills this probe's arms and nothing else.
+
+### 14.4 Cost, and it is charged to this registration
+
+**0.2667 core-min** per completed dry pass by the driver's own accounting; **≈ 2.7 core-min** as a
+**conservative upper BOUND** on the gross across three dry passes and three stand-in builds
+(~40 wall s priced as if every second were 4-rank; the true figure is lower, most steps being
+serial). **Stated as a bound, not a measurement.** **$0.0023 DERIVED, NOT MEASURED.**
+**Zero DPW5 grid solves.**
+
+**Running total spent under this registration: 0.0219 core-min (§3.3 rehearsal) + ≤ 2.7 core-min
+(this dry run) ≈ ≤ 2.72 core-min**, none of it on the committee grid, all of it outside the §6.3
+headline — **which prices the graded run and is unchanged at 5.27 core-min.**

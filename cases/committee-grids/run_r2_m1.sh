@@ -69,10 +69,21 @@ endtime_for() {
 
 say() { echo "[$(date -u +%H:%M:%SZ)] $*"; }
 
+# ⚠ SCOPED TO THIS RUN'S OWN ROOT, AND THE SCOPE IS THE POINT.
+# M0's driver sweeps `pkill -f "rhoSimpleFoam -parallel"`, which matches EVERY
+# rhoSimpleFoam on this box -- including another team's, mid-campaign, on the way out of an
+# unrelated failure. CLAUDE.md's standing instruction is DO NOT TOUCH RUNNING SOLVERS, and a
+# trap that fires on EXIT is exactly where that gets violated silently.
+# The child's command line carries `-case <ROOT>/<arm>`, so keying on $ROOT kills this
+# probe's arms and nothing else. $ROOT is absolute and unique to this run.
+# It also cannot match the driver's own shell (whose cmdline is `bash run_r2_m1.sh ...`),
+# which is the OTHER way this idiom misfires -- a pattern that matches the invoking process
+# kills the shell and every chained command after it silently never runs.
 sweep() {
-    pkill -TERM -f "rhoSimpleFoam -parallel" 2>/dev/null
+    [ -n "${ROOT:-}" ] || return 0
+    pkill -TERM -f "rhoSimpleFoam -case $ROOT" 2>/dev/null
     sleep 2
-    pkill -KILL -f "rhoSimpleFoam -parallel" 2>/dev/null
+    pkill -KILL -f "rhoSimpleFoam -case $ROOT" 2>/dev/null
     return 0
 }
 
@@ -93,12 +104,28 @@ die() {
 budget_left_core_s() { echo $((CAP_CORE_S - SPENT_CORE_S)); }
 
 # timeout_for <ranks> -- the wall-second timeout that the REMAINING budget buys at <ranks>.
-# Shrinks as spend grows. Floors at 1 so a nearly-exhausted budget cannot produce `0s`,
-# which `timeout` treats as NO LIMIT AT ALL -- that is a runaway, not a stop.
+# Shrinks as spend grows.
+#
+# ⚠⚠ THE CLAMP BELOW IS NOT DEFENSIVE TIDYING. READ THIS BEFORE TOUCHING THE ARITHMETIC.
+#
+#     `timeout 0s cmd` DOES NOT MEAN "no time". IT MEANS NO LIMIT AT ALL -- coreutils
+#     treats a zero duration as "never time out", so the command runs FOREVER.
+#
+# Integer division makes 0 the NATURAL result exactly when the budget is nearly exhausted:
+# at 14 ranks any remaining budget below 14 core-s gives `left / ranks == 0`. So without
+# the floor, the cap would apply a shrinking, correct-looking limit at every step right up
+# to the LAST one -- and then hand the solver an UNLIMITED run, at the precise moment there
+# was no budget left to pay for it.
+#
+# THAT IS A RUNAWAY WEARING THE COSTUME OF A CAP. The log would show a timeout being set
+# at every step, including the one that never ends, and neither the registration nor the
+# cost row would catch it. The floor of 1 s is what makes an exhausted budget produce a
+# STOP rather than an unbounded run; `budget_left <= 0` in run_step is what refuses before
+# it gets here. Control K1 exists to keep both properties honest.
 timeout_for() {
     local ranks=$1 left; left=$(budget_left_core_s)
     local to=$(( left / ranks ))
-    [ "$to" -lt 1 ] && to=1
+    [ "$to" -lt 1 ] && to=1          # NEVER 0 -- see the runaway note above
     echo "$to"
 }
 
@@ -348,14 +375,47 @@ set_transonic_yes() {
 # MAIN
 # =====================================================================================
 
+DRY=0
+REGISTERED_ROOT="$ROOT"
+
 case "${1:-}" in
     --selftest-cap) selftest_cap; exit $? ;;
     --go)           : ;;
-    *) echo "usage: run_r2_m1.sh --go | --selftest-cap"
-       echo "  --go            assemble and run the seven arms, then grade"
+    --dry-go)
+        # DRY RUN. Exercises the PRODUCTION SEQUENCE -- assembly, the warm-start
+        # reconstruct/guard/decompose chain, the solve loop, the cost accounting, the
+        # status write -- IN ORDER, on a stand-in seed where a defect costs nothing.
+        # L-495: running the parts is not running the sequence.
+        DRY=1
+        DRYDIR=${2:?usage: run_r2_m1.sh --dry-go <stand-in dir built by build_r2_m1_standin.sh>}
+        SEED="$DRYDIR/seed"
+        WARM="$DRYDIR/warm"
+        ROOT="$DRYDIR/run"
+        STATUS="$ROOT/STATUS.R2_M1"
+        RANKS=4
+        CAP_CORE_S=600          # the dry run's OWN cap. It is NOT the registered 3300.
+        ;;
+    *) echo "usage: run_r2_m1.sh --go | --dry-go <stand-in dir> | --selftest-cap"
+       echo "  --go            assemble and run the seven arms on the DPW5 grid, then grade"
+       echo "  --dry-go <dir>  the same sequence on a stand-in seed. NOT A RESULT."
        echo "  --selftest-cap  drive the cap arithmetic, refusal and charging; no solve"
        exit 0 ;;
 esac
+
+# ⚠ THE DRY RUN MUST NEVER BE ABLE TO CREATE OR TOUCH THE REGISTERED RUN ROOT.
+# Creating it would trip rule 4's guard for the real run afterwards, and -- far worse --
+# would leave a directory that LOOKS like a graded run at the registered path. Asserted,
+# not assumed, and in both directions so a future edit cannot quietly collapse the modes.
+if [ "$DRY" -eq 1 ]; then
+    [ "$ROOT" != "$REGISTERED_ROOT" ] \
+        || { echo "REFUSED: --dry-go resolved to the REGISTERED run root. Refusing."; exit 2; }
+    case "$ROOT" in
+        "$REGISTERED_ROOT"*) echo "REFUSED: --dry-go root is inside the registered run root."; exit 2 ;;
+    esac
+else
+    [ "$ROOT" = "$REGISTERED_ROOT" ] \
+        || { echo "REFUSED: --go did not resolve to the registered run root."; exit 2; }
+fi
 
 trap 'sweep' EXIT
 
@@ -375,6 +435,7 @@ done
 # it can drive an exhausted budget; running it in this shell would leave the registered cap
 # overwritten by whatever the last control set. A restore afterwards would work only for
 # the variables somebody remembered to list -- the subshell is exhaustive by construction.
+EXPECT_CAP=$CAP_CORE_S; EXPECT_ROOT=$ROOT      # captured BEFORE, compared AFTER
 CAPLOG=$(mktemp)
 if ! ( selftest_cap ) > "$CAPLOG" 2>&1; then
     cat "$CAPLOG"; rm -f "$CAPLOG"
@@ -383,17 +444,58 @@ if ! ( selftest_cap ) > "$CAPLOG" 2>&1; then
 fi
 CAPTEST=$(cat "$CAPLOG"); rm -f "$CAPLOG"
 
-# And assert the registered values SURVIVED it, rather than trusting that they did.
-[ "$CAP_CORE_S" -eq 3300 ] && [ "$SPENT_CORE_S" -eq 0 ] \
-    && [ "$ROOT" = "$REPO/verification/runs/RUNG2_CRM_runs/M1_mechanism_and_warmstart" ] \
-    || { echo "REFUSED: the cap selftest leaked into the registered budget (CAP=$CAP_CORE_S SPENT=$SPENT_CORE_S ROOT=$ROOT)"; exit 2; }
+# And assert the budget SURVIVED it, rather than trusting that it did. Compared against
+# values captured before the call, so this check cannot rot when a cap or root changes.
+[ "$CAP_CORE_S" -eq "$EXPECT_CAP" ] && [ "$SPENT_CORE_S" -eq 0 ] && [ "$ROOT" = "$EXPECT_ROOT" ] \
+    || { echo "REFUSED: the cap selftest leaked into the run's budget (CAP=$CAP_CORE_S expected $EXPECT_CAP; SPENT=$SPENT_CORE_S; ROOT=$ROOT expected $EXPECT_ROOT)"; exit 2; }
 
 mkdir -p "$ROOT" || exit 7
 date -u +%s > "$ROOT/RUN_ROOT_CREATED_EPOCH"
 printf 'name\trc\twall_s\tranks\tcore_s\n' > "$ROOT/COST.tsv"
 echo "$CAPTEST" > "$ROOT/log.capselftest"
-say "run root created; cap ${CAP_CORE_S} core-s (55.0 core-min), HEADLINE estimate ${ESTIMATE_CORE_MIN} core-min"
+say "run root created; cap ${CAP_CORE_S} core-s, HEADLINE estimate ${ESTIMATE_CORE_MIN} core-min"
 say "cap selftest: $CAPTEST"
+
+# ⚠ THE DRY RUN LABELS ITSELF, IN ITS OWN RUN ROOT, BEFORE IT PRODUCES ANYTHING.
+# The report a lane writes is read once; this file is read by whoever opens the directory.
+if [ "$DRY" -eq 1 ]; then
+cat > "$ROOT/DRY_RUN_NOT_A_RESULT" <<EOF
+NOT A RESULT.
+
+This directory is a DRY RUN of run_r2_m1.sh's PRODUCTION SEQUENCE against a STAND-IN SEED.
+It is not R2-M1, it grades nothing, and no number in it may be quoted as a measurement of
+anything on the DPW5 CRM grid.
+
+WHAT IT DOES ESTABLISH: that the driver's steps execute IN ORDER on a case of the right
+SHAPE -- assembly of seven arms from a seed, the registered per-arm mutations landing in
+real dictionary text, the warm-start reconstructPar -> binary-safe guard -> decomposePar
+chain, the solve loop, the cost accounting and the status write. That ORDER is what the
+part-by-part controls could not cover (L-495).
+
+WHAT IT DOES NOT COVER, AND A GREEN HERE MUST NOT BE READ AS ANY OF IT:
+  - THE REAL SEED. This stand-in is a 216-cell box. The DPW5 L1.T hex grid is 638,976
+    cells -- roughly 3,000x -- with max non-orthogonality 89.7134, 11,506 severe
+    non-orthogonal faces, max skewness 14.0594 and max aspect ratio 14,426.8. Nothing
+    about mesh quality, memory, or I/O at that size is tested here.
+  - THE REAL DECOMPOSITION. This runs $RANKS subdomains; the registered run is 14.
+  - THE REAL PHYSICS. These arms are expected to RUN, not to abort. R2-M1's arms abort at
+    iteration <= 2 on the real grid. This dry run therefore says NOTHING about whether the
+    compressible path is admissible, and its comparator verdict is meaningless: R2M1-G0 is
+    a reproduction control that expects rc=136 and a thermophysical frame, and a stand-in
+    that completes cannot satisfy it. G0 returning NOT A RESULT here is CORRECT BEHAVIOUR
+    of the gate, not a finding about the arms.
+  - THE REAL WARM-START FIELD. The warm source here is a few-hundred-kilobyte binary
+    field; the real one is 15.6 MB reconstructed from 14 subdomains, and decomposePar
+    -fields HAS NEVER RUN ON THE REAL GRID -- its cost is ESTIMATED, not measured, and its
+    success is NOT assumed (registration sections 2.4 and 6.2).
+  - THE REGISTERED CAP. This run carries its own cap of ${CAP_CORE_S} core-s, NOT the
+    registered 3300 core-s (55.0 core-min).
+
+Built by cases/committee-grids/build_r2_m1_standin.sh. Registration:
+verification/campaign/RUNG2_CRM_M1_PREREGISTRATION.md. Generated $(date -u +%Y-%m-%dT%H:%M:%SZ).
+EOF
+say "DRY RUN: $ROOT/DRY_RUN_NOT_A_RESULT written BEFORE anything else"
+fi
 
 # OpenFOAM. `set -u` is lifted ONLY across the source line: v2606's etc/bashrc reads
 # WM_PROJECT_DIR before setting it, and an unbound variable inside a SOURCED file kills the
@@ -493,6 +595,13 @@ fi
 rm -rf "$WARMTMP"
 
 if [ "$B1_OK" -eq 1 ]; then
+    # ⚠ CLEAR THE FAILURE NOTE ON SUCCESS. Its initial value is "not attempted", and the
+    # dry run caught it being written into STATUS as `b1_warmstart_note=not attempted`
+    # BESIDE `b1_warmstart_mapped=1` -- a stale sentence contradicting the fact next to it.
+    # That is this campaign's own disease: M0's WARMSTART.txt said "FAILED TO MAP" about a
+    # map that had succeeded. A note that outlives the state it described is exactly how a
+    # false sentence gets quoted later.
+    B1_FAIL_REASON="none -- mapped"
     echo "MAPPED via reconstructPar($WARM_TIME) -> guard(binary-safe, discriminated) -> decomposePar -fields" \
         > "$ROOT/B1/WARMSTART_MAPPED"
     say "B1 warm start MAPPED and re-decomposed onto this arm's own addressing"
@@ -573,11 +682,13 @@ run_step "grade" 1 "$ROOT/log.grade" python3 "$GRADER" "$ROOT"
 GRADE_RC=${LAST_RC:-1}
 
 {
-    echo "case_id=RUNG2-CRM-M1"
+    [ "$DRY" -eq 1 ] && echo "DRY_RUN=1 -- NOT A RESULT, stand-in seed, see DRY_RUN_NOT_A_RESULT"
+    echo "case_id=RUNG2-CRM-M1$([ "$DRY" -eq 1 ] && echo '-DRYRUN')"
     echo "prereg=verification/campaign/RUNG2_CRM_M1_PREREGISTRATION.md"
+    echo "ranks=$RANKS"
     echo "spent_core_s=$SPENT_CORE_S"
     echo "spent_core_min=$(python3 -c "print('%.4f'%($SPENT_CORE_S/60.0))")"
-    echo "cap_core_min=55.0"
+    echo "cap_core_min=$(python3 -c "print('%.4f'%($CAP_CORE_S/60.0))")"
     echo "headline_estimate_core_min=$ESTIMATE_CORE_MIN"
     echo "cap_hit=$CAP_HIT"
     echo "b1_warmstart_mapped=$B1_OK"
