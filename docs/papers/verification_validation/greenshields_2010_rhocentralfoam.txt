@@ -1,0 +1,1717 @@
+Edinburgh Research Explorer
+Implementation of semi-discrete, non-staggered central schemes
+in a colocated, polyhedral, finite volume framework, for highspeed viscous flows
+Citation for published version:
+Greenshields, CJ, Weller, HG, Gasparini, L & Reese, JM 2010, 'Implementation of semi-discrete, nonstaggered central schemes in a colocated, polyhedral, finite volume framework, for high-speed viscous
+flows', International Journal for Numerical Methods in Fluids, vol. 63, no. 1, pp. 1-21.
+https://doi.org/10.1002/fld.2069
+
+Digital Object Identifier (DOI):
+10.1002/fld.2069
+Link:
+Link to publication record in Edinburgh Research Explorer
+Document Version:
+Peer reviewed version
+
+Published In:
+International Journal for Numerical Methods in Fluids
+
+General rights
+Copyright for the publications made accessible via the Edinburgh Research Explorer is retained by the author(s)
+and / or other copyright owners and it is a condition of accessing these publications that users recognise and
+abide by the legal requirements associated with these rights.
+Take down policy
+The University of Edinburgh has made every reasonable effort to ensure that Edinburgh Research Explorer
+content complies with UK legislation. If you believe that the public display of this file breaches copyright please
+contact openaccess@ed.ac.uk providing details, and we will remove access to the work immediately and
+investigate your claim.
+
+Download date: 06. Sep. 2026
+
+Int.	  J.	  Numer.	  Meth.	  Fluids	  (2010)	  63:1–21
+
+Implementation of semi-discrete, non-staggered central schemes in
+a colocated, polyhedral, finite volume framework, for high-speed
+viscous flows
+C. J. Greenshields1,2⇤ , H. G. Weller2 , L. Gasparini3 and J. M. Reese1
+1 Department of Mechanical Engineering, University of Strathclyde, Glasgow G1 1XJ, UK
+2 OpenCFD Ltd., 9 Albert Road, Caversham, Reading RG4 7AN, UK
+3 Fondmetal Technologies S.r.l., Via Bondenese 31, 44041 Casumaro (FE), Italy
+
+SUMMARY
+We describe the implementation of a computational fluid dynamics solver for the simulation of high
+speed flows. It comprises a finite volume discretisation using semi-discrete, non-staggered central
+schemes for colocated variables prescribed on a mesh of polyhedral cells that have an arbitrary
+number of faces. We describe the solver in detail, explaining the choice of variables whose face
+interpolation is limited, the choice of limiter, and a method for limiting the interpolation of a vector
+field that is independent of the coordinate system. The solution of momentum and energy transport
+in the Navier-Stokes equations uses an operator-splitting approach: first we solve an explicit predictor
+equation for convection of conserved variables, then an implicit corrector equation for di↵usion of
+primitive variables. Our solver is validated against four sets of data: (1) an analytical solution of the
+one-dimensional shock tube case; (2) a numerical solution of two-dimensional, transient, supersonic
+flow over a forward-facing step; (3) interferogram density measurements of a supersonic jet from a
+circular nozzle; (4) pressure and heat transfer measurements in hypersonic flow over a 25 -55 biconic.
+Our results indicate that the central-upwind scheme of Kurganov, Noelle and Petrova (SIAM J. Sci.
+
+⇤ Correspondence to: chris.greenshields@strath.ac.uk
+
+Contract/grant sponsor: Engineering and Physical Sciences Research Council and Dstl (UK); contract/grant
+number: GR/T05028/01
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+1
+
+Computing, 2001, pp. 707–740) is competitive with the best methods previously published (e.g. PPM,
+Roe solver with van Leer limiting) and that it is inherently simple and well-suited to a colocated,
+polyhedral finite volume framework.
+key words:
+
+finite volume, polyhedral, semi-discrete, central schemes, hypersonic flows, biconic,
+
+supersonic jet, forward-facing step, compressible viscous flows, Navier-Stokes equations
+
+1. Introduction
+The development of computational fluid dynamics (CFD) methods for industrial use is mainly
+driven by demands to perform simulations on large, complex, 3D geometries and to model
+complex physical behaviour and flow systems. The finite volume (FV) method is generally
+preferred for industrial CFD because it is relatively inexpensive and lends itself well to solution
+of large sets of equations associated with complex flows, and to parallel solution by domain
+decomposition. Usually, solution variables such as velocity and pressure are colocated, i.e. they
+are specified at the same set of discrete locations (the cell centres) e.g. [1, 2]. Colocation is
+popular in industrial CFD because it allows greater freedom in mesh structure for complex
+3D geometries and for features such as refinement, grading and surface layers. Today, there
+is a preference for unstructured meshes of polyhedral cells with 6 faces (hexahedra) or more,
+rather than tetrahedral cells that are prone to numerical inaccuracy and other problems, and
+are unsuitable for features such as boundary layers [3]. It is no coincidence that colocated,
+polyhedral, finite volume numerics are adopted by several of the best known industrial CFD
+software packages, including FLUENT R , STAR CCM+ R and OPENFOAM R .
+The presence of discontinuities, such as shocks and contact surfaces, in high speed
+compressible flows requires numerical schemes that can capture these features while avoiding
+spurious oscillations. Notable methods that are e↵ective in producing accurate non-oscillatory
+solutions are: Monotone Upstream-centred Schemes for Conservation Laws (MUSCL) [4];
+Piecewise Parabolic Method (PPM) [5]; Essentially Non-oscillatory (ENO) schemes [6];
+Weighted ENO (WENO) schemes [7]; and the Runge-Kutta Discontinuous Galerkin (RKDG)
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+2
+
+C. J. GREENSHIELDS ET AL.
+
+method [8]. The methods typically involve Riemann solvers, characteristic decomposition
+and Jacobian evaluation, making them complex and difficult to implement in a colocated,
+polyhedral framework.
+However, an alternative approach for accurate, non-oscillatory solution exists, using socalled central schemes, that does not involve Riemann solvers or characteristic decomposition,
+and can avoid Jacobian evaluation. These central schemes were proposed by Nessyahu and
+Tadmor [9] as a second order generalisation of the Lax-Friedrichs scheme. The method has been
+developed for multidimensional systems and unstructured meshes, principally using vertexstaggered (or overlapping) meshes of triangles [10, 11, 12, 13, 14, 15, 16], tetrahedra [17, 18],
+quadrilaterals [13, 19, 20, 21, 16, 22, 23, 24] and hexahedra [25]. However, the staggered
+approach requires generation of a dual mesh: it can be difficult to ensure quality of both these
+meshes, particularly at boundaries of 3D geometries that contain complex features such as
+sharp edges or corners. For these reasons, this paper investigates whether it is possible to
+simulate compressible flows and perform shock-capturing reliably in a colocated, polyhedral,
+finite volume framework using central schemes. We require that the method can be used for
+steady-state or di↵usion-dominated problems, so are concerned only with semi-discrete, nonstaggered central scheme formulations, beginning with that of Kurganov and Tadmor [26]. The
+present paper begins by describing a generic implementation of semi-discrete central schemes
+on polyhedral meshes and then goes on to test the method on a range of compressible flow
+cases.
+
+2. Governing Equations
+We wish to solve the standard governing fluid equations in an Eulerian frame of reference:
+• Conservation of mass
+
+@⇢
++ r · [u⇢] = 0 ;
+@t
+
+(1)
+
+• Conservation of momentum (neglecting body forces)
+@(⇢u)
++ r · [u(⇢u)] + rp + r · T = 0 ;
+@t
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+(2)
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+3
+
+• Conservation of total energy
+@(⇢E)
++ r · [u(⇢E)] + r · [up] + r · (T · u) + r · j = 0 ,
+@t
+
+(3)
+
+where: ⇢ is the mass density; u is the fluid velocity; p is the pressure; the total energy density
+E = e + |u|2 /2 with e the specific internal energy; j is the di↵usive flux of heat; T is the
+viscous stress tensor, defined as positive in compression.
+In the case of inviscid flows, T = 0 and j = 0, and Eqs. 1-3 reduce to Euler’s equations.
+For viscous flows, the stress tensor can be represented by Newton’s law (assuming zero bulk
+viscosity),
+T =
+
+2µ dev(D) ,
+
+(4)
+
+⇥
+⇤
+where µ is the dynamic viscosity, the deformation gradient tensor D ⌘ 12 ru + (ru)T and
+its deviatoric component dev(D) ⌘ D
+
+(1/3) tr(D)I, where I is the unit tensor. The di↵usive
+
+flux of heat can be represented by Fourier’s law,
+j=
+
+krT ,
+
+(5)
+
+where T is the temperature and k is the conductivity. The Navier-Stokes equations are
+produced by substitution of the viscous and heat conduction constitutive relations, Eq. 4
+and Eq. 5, respectively, into the governing equations.
+In this paper we consider only a calorically perfect gas for which p = ⇢RT and e = cv T =
+(
+
+1)RT , where R is the gas constant and
+
+= cp /cv is the ratio of specific heats at constant
+
+pressure and volume, cp and cv respectively.
+
+3. Computational Method
+We use the FV method ascribed on meshes of polyhedral cells with an arbitrary number of
+faces, each with an arbitrary number of vertices. The spatial domain is therefore divided into
+a number of contiguous control volumes, or cells. In general, there is no alignment of the mesh
+with the co-ordinate system and the number of neighbouring cells can vary from cell to cell.
+The only general statement that can be made about cell connectivity is that a cell face is either
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+4
+
+C. J. GREENSHIELDS ET AL.
+
+internal and intersects two cells only, or comprises part of an external boundary and belongs
+to a single cell only. In presenting the numerical scheme, we must dispense with notations
+based on nodal values at ‘j’ and ‘k’ or those based on points of the compass, etc., and instead
+present generic expressions based on cell and face interpolated values.
+We assign each face an owner cell and a neighbour cell. The face area vector Sf is a vector
+normal to the face surface pointing out of the owner cell, whose magnitude is that of the area
+of the face, as shown in Fig. 1. In this colocated system, all dependent variables and material
+properties are stored at each cell centroid, e.g. ‘P’ in Fig. 1. The vector d connects the centroid
+of the owner cell P to that of neighbouring cell N and the vector dfN connects the centre of
+the face to the centroid of the cell N.
+Application of the FV method begins by expressing the di↵erential equations we wish to solve
+within an integral over a cell volume V , assumed fixed in space in this paper. Divergence and
+gradient terms are then converted to integrals over the cell surface S using a generalised form
+of Gauss’s theorem. The integration requires fluxes at cell faces, evaluated by interpolation of
+cell centre values to the faces. For polyhedra with an arbitrary number of faces, it is desirable
+that the interpolation to a given face is between owner and neighbour cells only, otherwise
+it becomes excessively complex. The second-order semi-discrete, non-staggered schemes of
+Kurganov and Tadmor (KT) [26] and Kurganov, Noelle and Petrova (KNP) [27] permit
+this. They can ultimately be described as interpolation procedures rather than processes of
+‘reconstruction’, ‘evolution’ and ‘projection’. There is therefore no need for a mathematical
+notation for polynomial functions, so in the following sections we simply describe discretisation
+of a general dependent tensor field
+to values
+
+of any rank by interpolation of values
+
+P at cell centres
+
+f at cell faces.
+
+In the present study we are principally concerned with the spatial accuracy of the schemes
+under investigation. Therefore time derivatives are discretised by a simple Euler implicit scheme
+rather than more elaborate methods, such as higher-order Runge-Kutta time integration; there
+is, however, no difficulty in incorporating such methods for time integration.
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+5
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+3.1. Convective terms
+The convective terms in Eqs. 1-3 are r · [u⇢], r · [u(⇢u)], r · [u(⇢E)] and r · [up]. Their
+treatment is a critical aspect of central schemes. Each is integrated over a control volume and
+linearised as follows:
+Z
+Z
+X
+r · [u ] dV =
+dS · [u ] ⇡
+S f · uf
+V
+
+where
+
+P
+
+S
+
+X
+
+f =
+
+f
+
+f denotes a summation over cell faces and
+
+f
+
+f,
+
+(6)
+
+f
+
+f = Sf · uf is the volumetric flux, i.e. the
+
+volume of fluid flowing through the face per second. The simplest method for evaluating uf
+and
+
+f , often used for incompressible flows, is: linear interpolation of u from neighbouring
+
+cells (central di↵erencing); interpolation of
+
+according to one of many schemes that usually
+
+use some degree of upwinding to stabilise the solution. The upwind direction is based on the
+flow velocity and so is characterised by the sign of
+
+f . Linear interpolation of
+
+is evaluated
+
+using the weighting coefficient wf = |Sf · dfN |/|Sf · d|, according to
+f = wf
+
+P + (1
+
+wf )
+
+N.
+
+For compressible flows, however, fluid properties are not only transported by the flow but
+also by the propagation of waves. This requires the flux interpolation to be stabilised based
+on transport that can occur in any direction. Since we are interpolating to a given face only
+from neighbouring cell values, we apply the KT and KNP methods in their original form for
+multidimensional systems using the so-called ‘dimension-by-dimension’ reconstruction [26, 27]
+(perhaps better termed a ‘face-by-face’ reconstruction in a polyhedral framework), rather than
+some genuinely multidimensional form of reconstruction [15].
+The interpolation procedure is split into two directions corresponding to flow outward and
+inward of the face owner cell. We denote these directions f+, coinciding with the direction
++Sf , and f , coinciding with
+X
+
+f
+
+f
+
+f
+
+=
+
+X
+
+Sf . The discretisation is as follows:
+[↵ f+
+
+f+ + (1
+
+↵) f
+
+f
+
++ !f (
+
+f
+
+f+ )] .
+
+(7)
+
+f
+
+The first two terms on the right hand side of Eq. 7 are flux evaluations in the f+ and f
+directions, respectively. The third term is strictly only required in cases where the convection
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+6
+
+C. J. GREENSHIELDS ET AL.
+
+term is part of a substantive derivative, e.g. r · [u(⇢u)] in Eq. 2, for which @(⇢u)/@t completes
+the substantive derivative of ⇢u. It is an additional di↵usion term using a volumetric flux !f
+based on the maximum speed of propagation of any discontinuity that may exist at a face
+between values interpolated in the f+ and f
+In the KT method, the f+ and f
+
+directions.
+
+contributions are weighted equally so that the weighting
+
+coefficient ↵ = 0.5, hence its description as a central scheme. The KNP method calculates ↵
+based on one-sided local speeds of propagation. The weighting is then biased in the upwind
+direction, hence these schemes are termed central-upwind. Volumetric fluxes associated with
+local speeds of propagation can be calculated as follows, noting that they are both defined
+here as positive in their respective directions f+ and f :
+f+ = max (cf+ |Sf | +
+
+f+ , cf
+
+|Sf | +
+
+f
+
+, 0) ;
+
+= max (cf+ |Sf |
+
+f+ , cf
+
+|Sf |
+
+f
+
+, 0) .
+
+f
+
+Here, cf± =
+
+p
+
+(8)
+
+RTf± are the speeds of sound of the gas at the face, outward and inward of
+
+the owner cell. The weighting factor is:
+8
+>
+1
+>
+<
+↵= 2
+>
+f+
+>
+:
+f+ + f
+
+for the KT method ;
+(9)
+for the KNP method .
+
+The di↵usive volumetric flux is calculated according to:
+
+!f =
+
+8
+>
+<↵ max ( f+ ,
+>
+:↵(1
+
+f
+
+)
+
+↵)( f+ +
+
+The method involves f+ and f
+
+for the KT method ;
+f
+
+)
+
+(10)
+
+for the KNP method .
+
+face interpolations of a number of variables (T, ⇢, etc.)
+
+from values at neighbouring cell centres. The interpolation procedure uses a limiter to switch
+between low and high order schemes based on a flux limiter function (r), where r represents
+the ratio of successive gradients of the interpolated variable, constrained to r
+
+0. On a
+
+polyhedral mesh, r can be described as follows for the f+ direction:
+r=2
+
+d · (r )P
+(rd )f
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+1,
+
+(scalar
+
+),
+
+(11)
+October 1, 2014
+
+7
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+where: (r )P is the full gradient calculated at the owner cell P as described in section 3.2
+with linear interpolation and (rd )f =
+
+P is the gradient component normal to the
+
+N
+
+face, scaled by |d|.
+The f+ and f
+
+interpolations in this paper are based on limiting standard first order upwind
+
+and second order linear interpolations. We choose limiters that are total variation diminishing
+(TVD) and symmetric, for which
+
+(r)/r =
+
+(1/r), namely Minmod [28] and van Leer [29],
+
+whose limiter functions are (r) = max[0, min(1, r)] and (r) = (r + |r|)/(1 + r), respectively.
+Then, the f+ interpolation of
+
+, for example, is simply evaluated as
+f+ = (1
+
+where gf+ = (1
+
+gf+ )
+
+wf ). It is evident that
+
+P + gf +
+
+N.
+
+= 0 gives upwind interpolation and
+
+linear interpolation; it should also be noted that 0 
+
+ 2, such that
+
+= 1 gives
+
+= 2 corresponds to
+
+downwind interpolation.
+3.2. Gradient terms
+The gradient terms present in the fluid governing equations include rp in Eq. 2. Such terms
+are usually integrated over a control volume and discretised as follows:
+Z
+Z
+X
+r dV =
+dS ⇡
+Sf f .
+V
+
+For incompressible flows,
+
+S
+
+f is typically calculated by linear interpolation. The KT and KNP
+
+schemes, however, split the interpolation procedure into f+ and f
+X
+f
+
+The f+ and f
+
+(12)
+
+f
+
+Sf
+
+f
+
+=
+
+X
+
+[↵Sf
+
+f+ + (1
+
+↵)Sf
+
+f
+
+directions according to:
+].
+
+(13)
+
+f
+
+interpolation uses the limiter described in the previous section.
+
+3.3. Laplacian terms
+For the sake of completeness, it is worth describing the discretisation of Laplacian terms with
+di↵usion coefficient
+Z
+
+V
+
+for polyhedral meshes. They are initially discretised as follows:
+Z
+X
+r · ( r ) dV =
+dS · ( r ) ⇡
+f Sf · (r )f .
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+S
+
+(14)
+
+f
+
+October 1, 2014
+
+8
+
+C. J. GREENSHIELDS ET AL.
+
+Usually,
+
+f
+
+is interpolated linearly from cell centre values. For the general case that a face
+
+is non-orthogonal (i.e. Sf is not parallel to d), the evaluation of Sf · (r )f is split into an
+orthogonal component in terms of neighbour and owner cell values, and a non-orthogonal
+component in terms of a full gradient, calculated at cell centres and itself interpolated to the
+face, i.e.
+Sf · (r )f = A (
+|
+
+P) +
+
+N
+
+{z
+
+orthogonal
+
+2
+
+where A = |Sf | /(Sf · d) and a = Sf
+
+Ad.
+
+}
+
+a · (r )f
+| {z }
+
+,
+
+(15)
+
+non orthogonal
+
+3.4. Boundary conditions
+Boundary conditions are applied as follows. For a Dirichlet condition a fixed value
+
+b
+
+is
+
+specified at the boundary. The discretisation of a convection term requires the value of
+at all faces, in which case
+
+b
+
+may be directly substituted at such a boundary face. The
+
+discretisation of a Laplacian term requires the normal gradient of
+evaluated at a boundary face by di↵erencing
+
+b and
+
+at each face, which is
+
+i , where i denotes the cell adjacent to
+
+the boundary face.
+For a Neumann condition, a fixed normal gradient (n · r )b is specified at the boundary.
+This can be directly substituted at such a boundary face for the discretisation of a Laplacian
+term. For a convection term, a boundary face value must be evaluated by extrapolation from
+i using the normal gradient.
+
+3.5. Implementation in OpenFOAM
+Based on the computational method described above, we wrote a solver called
+rhoCentralFoam, released with version 1.5 of OpenFOAM [30], the open source CFD toolbox.
+Written in C++, OpenFOAM uses FV numerics to solve systems of partial di↵erential
+equations ascribed on any 3-dimensional unstructured mesh of polygonal cells. All solvers
+developed within OpenFOAM are, by default, 3-dimensional, but can be used for 1- or 2dimensional problems by the application of particular conditions on boundaries lying in the
+plane of the direction(s) of no interest. In this paper we choose specific validation cases
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+9
+
+that present particular practical difficulties that need to be met by a robust solver for real,
+engineering applications.
+
+4. Inviscid Solver
+Initially, we developed a solver for inviscid flow and tested it on the shock tube problem of
+Sod [31] to make a general assessment of its accuracy. It is worth stating that this problem
+is of limited use because it is 1-dimensional and, with a Mach number approaching 0.9 in
+critical regions, it does not provide a strong test of the solver’s ability to control oscillations
+due to disturbances travelling in the direction opposing the flow. Indeed, good solutions may
+be obtained for the shock tube problem without any form of flux splitting.
+Instead, some regions of low speed flow are needed to test the handling of the propagation
+of disturbances in the direction opposing the flow. Two-dimensional supersonic problems
+generally provide a better test of shock capturing capability and, while there is no propagation
+of disturbances upstream of the principal flow direction, disturbances can freely travel in the
+transverse direction, transporting spurious oscillations in the process. We therefore chose the
+forward step problem of Woodward and Colella [32] to investigate the oscillatory behaviour of
+the solver and, additionally, difficulties associated with flow around sharp corners.
+For the inviscid solver, the set of governing equations in section 2 are solved explicitly in
+an iterative sequence. We solve for density-weighted fields: ⇢, momentum density û = ⇢u, and
+total energy density Ê = ⇢E.
+An important issue when solving the set of equations for ⇢, û and Ê in an iterative sequence
+is maintaining boundedness on T . A problem arises because T is evaluated by the subtraction
+of kinetic energy from the total energy according to:
+1
+T =
+cv
+
+Ê
+⇢
+
+|u|2
+2
+
+!
+
+.
+
+(16)
+
+With the decoupling of solutions for û and Ê, which includes some values lagged from old times,
+there is the possibility that T can fall below 0 and the solution fail. During the early stages of
+our solver development, it became apparent that a good strategy to prevent unboundedness
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+10
+
+C. J. GREENSHIELDS ET AL.
+
+in T was to construct f+ and f
+
+interpolations of Ê from f+ and f
+
+interpolations of ⇢, û
+
+and T in the discretisation of r · (uÊ). In the f+ direction, for example, rather than directly
+interpolate Ê itself, we evaluate Êf+ = ⇢f+ cv Tf+ + |(ûf+ /⇢f+ )2 |/2 . In all, only ⇢, û and T
+were interpolated to faces in the f+ and f
+the f+ and f
+
+directions. Fluxes of other fields interpolated in
+
+directions were calculated from those for ⇢, û and T , e.g. pf+ = ⇢f+ RTf+ .
+
+4.1. The shock tube problem
+The first validation case is that of unsteady wave motion in a shock tube. In this problem, a
+diaphragm separates a region of high-pressure gas to the left, denoted by subscript L, from a
+region of low-pressure gas to the right, denoted by subscript R. When the diaphragm is broken,
+a shock wave propagates into the low pressure region from left to right and an expansion wave
+propagates into the high pressure region from right to left. An analytical solution is available
+for this transient problem if the shock tube is idealised as 1-dimensional and the gas considered
+calorically perfect [33]. Sod [31] adopted a case setup in which the gas was initially at rest
+with ⇢L = 1.0 and ⇢R = 0.125. We followed this setup, with pL = 105 Pa and pR = 104 Pa,
+so that for R = 287 J/(kg K), TL = 348.4 K and TR = 278.7 K. Our solution domain was
+1-dimensional in the range
+
+5 m  x  5 m, with the diaphragm located at x = 0 m. A coarse
+
+mesh of 100 cells was used in order to highlight the relative accuracy of di↵erent numerical
+schemes. The case was run with a fixed time-step corresponding to a Courant-Friedrichs-Lewy
+(CFL) number 0.2, below the stability limit of 0.5 of the central schemes. Results are presented
+here for ⇢ at time t = 7 ms.
+The first set of test simulations compared the purely central KT scheme with the centralupwind KNP scheme. The face interpolations for the f+ and f
+
+flux evaluations were calculated
+
+using the Minmod limiter, which is the scheme generally cited in the principal references to the
+KT [26] and KNP [27] methods. Our results in Fig. 2 show smooth solutions for both methods,
+with very good resolution of the shock. The results for the KNP method are, however, clearly
+more accurate. In particular, the upstream and downstream ends of the expansion are resolved
+much better with the KNP method, and the contact region is less di↵use.
+On switching from the Minmod to the van Leer limiter, the results in Fig. 3 show better
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+11
+
+resolution while not sharpening solutions excessively in di↵use regions, as expected. As before,
+the KNP method yields more accurate results than the KT method, particularly in the
+resolution of the expansion corners and contact region. The accuracy is significantly better
+using the van Leer limiter than using Minmod, even to the extent that the KT method with
+van Leer limiter produces more accurate solutions than the KNP method with Minmod.
+For such a simple, non-Riemann type method, the KNP approach with van Leer limiter
+produces impressive solutions that are non-oscillatory and generally accurate. It is only at the
+contact region (at x ⇡ 2 in Figs 2 and 3), that the accuracy of the scheme is questionable.
+The shock tube problem therefore informs our initial choice of a solver using the KNP method
+with a van Leer flux limiter. In the next section we examine and develop our solver further
+through tests on a 2-dimensional problem.
+4.2. The forward step problem (Woodward & Colella)
+The case of uniform Mach 3 flow in a wind tunnel containing a forward-facing step was
+originally introduced by Emery [34] as a test for numerical schemes and later adopted by
+Woodward and Colella [32]. The wind tunnel is 1 unit length high and 3 units long. The step
+is 0.2 units high and is located 0.6 units from the inlet on the left. The tunnel is assumed
+to be infinitely wide in the direction orthogonal to the computational plane. The case uses
+a gas with
+R=
+
+= 1.4 and is initialised with p = 1, T = 1 and Mach 3. For simplicity, we set
+p
+1
+= 0.714, so that the speed of sound c =
+RT = 1, and the flow velocity u = (3, 0, 0)
+
+corresponds directly to the Mach number.
+Woodward and Colella presented their results using the Piecewise Parabolic Method with
+Lagrangian Remap (PPMLR) [5], a form of nonlinear Riemann solver that is generally
+considered very accurate. Their method includes an applied ‘fix’ to eliminate unphysical
+production of entropy at the step corner that results in an ‘entropy layer’ along the step
+surface and a spurious Mach stem. The KNP method we use here includes no entropy fix.
+Cockburn and Shu [8] similarly applied no such fix when applying their RKDG solver to the
+forward step case. Their results using the third-order P 2 scheme on a mesh of rectangular cells
+exhibited high accuracy, particularly at contact surfaces.
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+12
+
+C. J. GREENSHIELDS ET AL.
+
+Woodward and Colella discretised the tunnel height into a regular mesh of 80 cells, with
+240 along the length, to produce a mesh of square cells of side length 1/80. Cockburn and
+Shu refined the mesh further to a cell length of 1/160. We therefore ran simulations on both
+these mesh densities to enable direct comparison between PPMLR with entropy fix, RKDG,
+and the numerical method presented here. We ran the simulations at a CFL number of 0.2.
+4.2.1. TVD schemes for vector fields
+
+Where face interpolation of a non-scalar field, such as
+
+u, is required, there is some flexibility in how the limiting is performed. A common approach
+is to limit each component of the field separately, calculating a di↵erent r, and hence
+
+(r),
+
+for each component. This approach is questionable since it must produce solutions that vary
+depending on the orientation of the coordinate system. We therefore sought an alternative
+approach that uses the same limiter on all components to make it invariant under a coordinate
+transformation. Initial attempts involved choosing a function to convert the vector field, e.g.
+u, to a scalar field from which a single r could be calculated by Eq. 11. This approach was
+= |u| was found to be
+
+generally unsuccessful: for example, calculating r( ) based on
+
+unstable in the forward step case, with T falling below the lower bound of 0 K at t = 0.165 s
+in cells along the top surface of the step adjacent to the corner. Fig. 4a) shows a vector plot
+of velocity in cells in that region at t = 0.15 s, in which there is clear evidence of oscillations
+in the velocity as the flow moves past the step corner. This result suggests insufficient limiting
+in a region of high flow curvature.
+We therefore propose here an alternative method to maximise the limiting based on the
+‘worst-case’ direction, i.e. the direction of steepest gradient in
+
+at the cell face. This results
+
+in a single expression for r for a vector field:
+r=2
+
+(r )f · d · (r )P
+(rd )f · (rd )f
+
+1,
+
+(vector
+
+).
+
+(17)
+
+This generic scheme for TVD limiting of vector fields, which we term the V-scheme, produces
+stable solutions in the forward step case. Fig. 4b) shows a comparative vector plot of velocity
+in cells adjacent to the step corner in which the oscillations have clearly disappeared. We
+therefore adopted the V-scheme to limit the interpolation of vector fields in all subsequent
+simulations presented in this paper.
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+4.2.2. Results
+
+13
+
+The solution to this problem evolves from t = 0 to t = 4 as shown in Fig. 5:
+
+(a) a detached bow shock immediately develops ahead of the step, initially curving strongly
+towards the upper surface of the step; (b) the curvature of the bow shock decreases rapidly
+and strikes the upper boundary of the domain; (c) the shock is reflected downwards and strikes
+the upper surface of the step; (d) the bow shock continues to flatten until its incident angle to
+the upper boundary of the domain is so large that a Mach reflection forms; (e-h) the point of
+intersection of incident, normal and reflected waves gradually moves upstream and away from
+the upper surface — a slip surface separating regions of di↵erent velocity emanates horizontally
+from the intersecting shocks. There also exists a weak shock formed where the overexpanded
+flow around the step corner strikes the upper surface of the step.
+Woodward and Colella, and Cockburn and Shu, presented results for density at t = 4.
+Fig. 6 compares their results with those from our KNP method with van Leer limiting. All
+methods capture the principal features of the flow, agreeing on the locations of those features
+and resolving the shocks to a similar thickness (considering the di↵erent mesh densities in the
+figures). The area in which the KNP method is apparently inferior to PPMLR and RKDG
+is in the resolution of the slip discontinuity: even with an additional level of refinement in
+Fig. 6c) compared to Fig. 6a) the discontinuity is more di↵use than with PPMLR, and the
+RKDG method clearly resolves the slip discontinuity extremely well.
+The entropy fix in the PPMLR eliminates the Mach stem at the upper surface of the step,
+whereas a Mach stem is clearly visible in the solutions of our KNP method and the RKDG
+method. As one would expect, the stem length decreases as the entropy layer decreases with
+mesh refinement. The Mach stem is longer in the RKDG method than in our KNP method.
+
+5. Navier-Stokes Solver
+Momentum and heat di↵usion can be introduced to the flow solver by the inclusion of the
+necessary di↵usive terms in the governing equations. These terms, from Eq. 4 and Eq. 5, are
+functions of u and T , respectively, so must be evaluated explicitly since the momentum and
+energy equations are solved for û and Ê respectively. The resulting solution procedure would
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+14
+
+C. J. GREENSHIELDS ET AL.
+
+then be completely explicit: all new solutions at the current time level would be calculated
+from convection, di↵usion and boundary conditions at the previous time level. This approach
+gives low computational cost per time step since it only requires a diagonal solver, but it can
+su↵er a severe time step limit — increasingly so as di↵usion dominates.
+To remedy this we therefore apply sequential operator-splitting to introduce the di↵usive
+terms as implicit corrections to the original inviscid equations. For solution of both the
+momentum and energy equations, the following procedure is adopted: (1) solve the inviscid
+equation, where the time derivative represents that due solely to inviscid fluxes, (@/@t)I ; (2)
+update the primitive variable, e.g. u or T , that we wish to di↵use; (3) solve a di↵usion correction
+equation implicitly for the primitive variable, where the time derivative represents that due
+to di↵usion only, (@/@t)V . The solution of the momentum equation therefore proceeds by first
+solving for û:
+
+✓
+
+@ û
+@t
+
+◆
+
+I
+
++ r · [uû] + rp = 0 .
+
+(18)
+
+(The momentum equation is represented above in its more ‘physical’ form, with the convective
+and pressure gradient terms separated, rather than combining their fluxes into a single
+divergence term. Please note, however, that the treatment of the fluxes in the numerical
+implementation of the equation ensures that it is strongly conservative.)
+Velocity is then updated by u = û/⇢ before solving a di↵usion correction equation for u:
+✓
+◆
+@(⇢u)
+r · (µru) r · (Texp ) = 0 ,
+(19)
+@t
+V
+where terms in the stress tensor containing inter-component coupling are treated explicitly,
+⇥
+⇤
+Texp = µ (ru)T (2/3)tr(ru)I . The Laplacian term r · (µru) is implemented implicitly
+in u, i.e. it forms coefficients within the solution matrix, rather than values in the source
+vector. Boundary conditions in u are also implemented implicitly, e.g. a gradient, or Neumann,
+condition is applied by direct substitution of the gradient at a boundary face.
+The solution of the energy equation similarly proceeds by first solving for Ê:
+!
+@ Ê
++ r · [u(Ê + p)] + r · (T · u) = 0 .
+@t
+
+(20)
+
+I
+
+Temperature is then updated from Ê, u and ⇢ according to Eq. 16 before solving a di↵usion
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+correction equation for T :
+
+✓
+
+@(⇢cv T )
+@t
+
+◆
+
+V
+
+r · (krT ) = 0 .
+
+15
+
+(21)
+
+Below we present the full algorithm for the Navier-Stokes solver in which µ and k are
+functions of T and updated within the iterative sequence.
+Algorithm 1 Compressible flow solver
+while t < tend do
+Set t := t +
+
+t
+
+Evaluate ⇢f± , ûf± and Tf± from ⇢, û and T using van Leer limiter
+p
+Calculate: uf± = ûf± /⇢f± ; pf± = ⇢f± RTf± ; f± = Sf · uf± ; cf± =
+RTf± .
+
+Calculate convective derivatives and rp from f± interpolates using Eqs. 7 to 13
+Update Texp , µ and k
+Solve Eq. 1 for ⇢ {density equation}
+Solve Eq. 18 for û {inviscid momentum prediction}
+Update u from û and ⇢
+Solve Eq. 19 for u {di↵usive velocity correction}
+Solve Eq. 20 for Ê {inviscid energy prediction}
+Update T by Eq. 16 from Ê, u and ⇢
+Solve Eq. 21 for T {di↵usive temperature correction}
+Update p by p = ⇢RT
+end while
+
+5.1. The supersonic jet problem (Ladenburg)
+The supersonic jet problem we use as a test case is taken from Ladenburg et al. [35]. In their
+experiments, dry air was discharged into the open atmosphere from a pressurised tank through
+a circular nozzle that converges to 10 mm diameter at the exit orifice. The nozzle is essentially
+a tapered circular hole bored out of a cylindrical block of material [36] so that there is a flat
+solid wall in the plane of the exit orifice. Here, we examine the case in which the tank pressure
+is 60 lb/in2 , or 4.14 bar, since it produces a Mach disc feature that is challenging to reproduce
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+16
+
+C. J. GREENSHIELDS ET AL.
+
+numerically. The inlet conditions at the nozzle throat were p = 2.72 bar, u = (315.6, 0, 0) m/s
+and T = 247.1 K. Freestream conditions were p = 1.01 bar, u = (0, 0, 0) m/s and T = 297 K.
+The thermodynamic properties for dry air used in the simulation were R = 287 J/(kg K) and
+= 1.4. A Prandtl number Pr = µcp /k = 0.75 was assumed and the viscosity was modelled
+by Sutherland’s Law:
+µ = As
+
+T 1.5
+,
+T + Ts
+
+(22)
+
+with As = 1.458 ⇥ 10 6 Pas/K0.5 and Ts = 110.4 K.
+The case is simulated as axisymmetric with a domain of height 10 mm, i.e. 2⇥ the orifice
+radius, and length 30 mm. A mesh of 240 cells along the length and 80 cells in the radial
+direction was used, which was sufficiently fine to produce a solution in which the location of
+the Mach disc did not change appreciably under further mesh refinement. The solver was run
+to a steady state at a CFL number of 0.5; typically, it took approximately 20 characteristic
+flow times to reach steady state, where the characteristic flow time is the time that a particle
+would take to travel the length of the geometry moving at the jet discharge velocity, i.e.
+approximately 2 ms in this case. The results in Fig. 7 show contours of ⇢ with separation of
+3
+
+0.2 kg/m3 . The air expands from the nozzle orifice from ⇢ = 3.8 kg/m , creating a weak shock
+that extends from the orifice edge towards the nozzle axis. It approaches the axis at such a
+shallow angle (relative to the nozzle axis), that a Mach disc forms with a triple point at the
+intersection of the incident and reflected shocks, and the disc itself.
+The data of Ladenburg, obtained by analysis of an interferogram, are reproduced in Fig. 7,
+showing the triple point at (13.3, 1.7) mm. The results from our simulation show the triple
+point at (13.7, 1.64) mm, i.e. within ⇠3% of the experimental data. The error of 0.4 mm in the
+location in the x-direction seems to originate at the domain inlet, where the predicted contour
+at ⇢ = 3.6 is already displaced 0.4 mm in the downstream direction. It is possible that this
+error is caused by di↵erences in the inlet conditions between the experiment and simulation.
+5.2. Hypersonic flow over a 25 -55 biconic (Holden & Wadhams)
+The case of hypersonic flow over a sharp 25 -55 biconic presents particular challenges that
+provide a good test for the accuracy of a numerical method. Here we investigate Run 35 of the
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+17
+
+hypersonic flow experiments conducted in the Large Energy National Shock (LENS) tunnel
+at Calspan University at Bu↵alo Research Centre (CUBRC), specifically to provide data for
+code validation [37]. That experiment was conducted using nitrogen gas at low temperature
+and density. The freestream boundary conditions specified for this validation case are not
+directly measured but calculated from measured quantities in other regions of the tunnel
+using a quasi-1-dimensional computation. The conditions are T = 138.9 K, p = 22.74 Pa and
+u = (2713, 0, 0) m/s, corresponding to a Mach number of 11.3. In our simulations we used the
+Sutherland Law model for viscosity, Eq. 22, with Pr = 0.72, R = 296.8 J/(kg K) and
+
+= 1.4.
+
+The case has been carefully simulated many times by other researchers [38, 39, 40] with
+results that consistently overpredict the heat transfer along the leading cone surface. It is
+thought that this is mainly due to the freestream conditions being inaccurate, particularly
+because the original calculation did not account for a finite rate of relaxation of vibrational
+energy during expansion of the gas up to high Mach number [39]. While we adopt these
+specified freestream conditions in the knowledge that they are probably incorrect, it will allow
+us to compare results with those from other numerical schemes [40].
+The physical aspects of the flow problem are best described by examining Fig. 8, which
+shows a cross section of the biconic with results from our simulations presented as blocks of
+a single colour, each representing a range of Mach number. An oblique shock forms from the
+25 cone tip, located along the upper edge of the red region near its surface. A boundary layer
+develops along that surface which separates, creating a shock that interacts with the oblique
+shock and meets the bow shock from the 55 cone. A low speed recirculation region forms at
+the junction between the 25 and 55 cones, clearly visible as the large blue triangle in the
+figure. Other features include a subsonic region downstream of the bow shock (blue) and a
+supersonic jet along the 55 cone surface (green).
+The main challenge for the numerics in this case is accurate prediction of the separation point
+along the 25 cone surface, and reattachment on the 55 cone surface, i.e. the overall length of
+the recirculation zone. Prediction of the length of the recirculation zone is extremely sensitive
+to dissipation in the numerical scheme; the more dissipation, the shorter the recirculation zone.
+It is therefore generally considered that better numerical schemes predict a larger recirculation
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+18
+
+C. J. GREENSHIELDS ET AL.
+
+zone, with solutions from the best schemes converging to 56.1 mm with mesh refinement [40].
+We simulated this case as an axisymmetric geometry and boundary conditions. Our initial
+simulation used a mesh created by previous researchers [40] with ⇠32k cells, consisting of
+256 grid points in the axial, streamwise direction and 128 points in the radial, wall normal
+direction. It was carefully created with grading of cells towards the cone surface such that
+in the first column of cells, projecting radially from the 25 tip, the cell height ranges from
+⇠0.5 µm at the surface to ⇠0.2 mm at the upper boundary of the domain. This 256 ⇥ 128
+mesh is considered coarse for the solution of this problem.
+Careful time convergence studies show that the Run 35 case does not converge to steadystate until after approximately 100 characteristic flow times are completed [41]; with the length
+of the double cone geometry being approximately 0.18 m, this equates to ⇠6.6 ms. We obtained
+steady-state results on the 256 ⇥ 128 mesh at 7 ms with a CFL number of 0.5.
+Fig. 9 shows the pressure distribution along the cone surface compared with the experimental
+data [37]. The surface pressure downstream of the oblique shock from the cone tip is predicted
+well. The separation point is predicted slightly further upstream than indicated by the increase
+in pressure at ⇠60 mm in the experiment. A pressure spike of ⇠7 kPa occurs at ⇠110 mm,
+consistent with the experimental measurements. Beyond that, the pressure oscillates at a
+frequency that is in good agreement with experiment, but with a larger amplitude.
+Fig. 10 compares our predicted surface heat flux with experimental data. The heat flux
+along the leading edge of the 25 cone is overpredicted to a level consistent with results
+from other successful methods [40], which is believed to be primarily caused by using the
+incorrect freestream conditions, mentioned previously. The jumps in heat transfer across the
+recirculation region mirror those in pressure and the simulation shows similar good agreement.
+The comparisons with experimental data show that our method is competitive with the best
+methods previously published [38, 39, 40], namely modified-Steger-Warming and a Roe solver
+with a number of limiters for gradient reconstruction, including van Leer and Minmod. By
+way of comparison, the recirculation zone size for the Roe solver with van Leer limiter was
+49.1 mm, compared to 47.5 mm with our KNP solver with van Leer limiter. A Roe solver with
+Minmod limiter gives a recirculation zone size of 42.2 mm. We can tentatively conclude that
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+19
+
+the accuracy of the KNP solver is close to that of an equivalent Roe solver.
+In order to test the KNP method on polyhedral cells, the 256 ⇥ 128 mesh was refined by
+splitting cells in critical regions of the flow such as shocks, boundary layers and recirculation
+regions. The cells marked for splitting were initially those for which |r⇢| > 0.2 kg/m4 . The
+regions of cells were then extended to include 2 additional layers of neighbouring cells covering
+a region shown in Fig. 11a). The cells were then split 2 ⇥ 2 in the streamwise and wall normal
+directions, as shown in Fig. 11b).
+Unsplit cells adjacent to a region of split cells have more than four faces lying in the
+circumferential plane. Faces connecting these polyhedral cells to hexahedra formed by the
+splitting process have appreciable non-orthogonality and skewness. Our refined mesh therefore
+contained ⇠78k cells, 40% fewer than the 130k cells that would have been obtained by a simple
+2 ⇥ 2 refinement of all cells in the original mesh.
+Steady-state results for surface heat flux and pressure using this new 78k cell mesh are
+also shown in Figs. 9 and 10 respectively. (Additionally, the contour map of Mach number in
+Fig. 8 was obtained using the 78k cell mesh.) The results are broadly similar to those with
+the original 32k cell mesh, with the exception that the recirculation zone has grown further
+to 52.6 mm. This is still a little shorter than 54.4 mm, the zone length predicted by a Roe
+solver with van Leer limiter [40] on a 130k cell mesh. However, we can again conclude that the
+accuracy of the KNP solver is close to that of an equivalent Roe solver.
+
+6. Conclusions
+The details of a finite volume solver based on non-oscillatory central schemes have been
+presented. The KNP method o↵ers clear improvements in accuracy over its predecessor, the
+KT method. We recommend as best practice to interpolate only ⇢, û and T in the f+ and f
+directions using the van Leer limiter, and derive other face-interpolated fields from these fields.
+Our new V-scheme o↵ers a stable approach to limiting a vector field that is invariant under
+a coordinate transformation. Solution of momentum and energy transport is performed by a
+predictor equation for convection of conserved variables followed by a corrector equation for
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+20
+
+C. J. GREENSHIELDS ET AL.
+
+di↵usion of primitive variables. This enables the convection component to be solved quickly
+with a diagonal solver while the di↵usion component is solved implicitly to assist stability.
+Results from four test simulations show the method presented is competitive with the best
+methods previously published. The 25 -55 biconic case is a particularly difficult CFD problem,
+but we were able to obtain good quality solutions. The mesh for that case was selectively refined
+by splitting cells in regions of high density gradient, which increased the number of faces in
+layers of polygonal cells, and introduced some appreciable non-orthogonality. The performance
+of the KNP method with van Leer limiting did not appear to degrade on such meshes.
+
+ACKNOWLEDGEMENTS
+
+CJG and JMR acknowledge the support of the UK’s Engineering and Physical Sciences Research
+Council under grant EP/F014155/01. The authors wish to thank Steve Daley of Dstl Farnborough
+(UK). FLUENT is a registered trademark of ANSYS, Inc. STAR CCM+ is a registered trademark of
+Computational Dynamics Ltd. OPENFOAM is a registered trademark of OpenCFD Ltd.
+
+REFERENCES
+
+1. Ferziger JH, Peric M. Computational Methods for Fluid Dynamics. Springer-Verlag: Berlin, Germany,
+1996.
+2. Versteeg HK, Malalasekera W. An Introduction to Computational Fluid Dynamics: the Finite Volume
+Method. Prentice Hall, 1995.
+3. Peric M, Ferguson S. The advantage of polyhedral meshes. http://www.cd-adapco.com/press room/dynamics/24/testVspoly.html 2005.
+4. van Leer B. Towards the ultimate conservative di↵erence scheme, V: a second-order sequel to Godunov’s
+method. Journal of Computational Physics 1979; 32:101–136.
+5. Colella P, Woodward P. The Piecewise Parabolic Method (PPM) for gas-dynamical simulations. Journal
+of Computational Physics 1984; 54:174–201.
+6. Harten A, Engquist B, Osher S, Chakravarthy SR. Uniformly high order accuracy essentially nonoscillatory schemes III. Journal of Computational Physics 1987; 71:231–303.
+7. Liu XD, Osher S, Chan T. Weighted essentially non-oscillatory schemes. Journal of Computational Physics
+1994; 115:200–212.
+8. Cockburn B, Shu CW. The Runge-Kutta discontinuous Galerkin method for conservation laws, V:
+multidimensional systems. Journal of Computational Physics 1998; 141:199–224.
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+21
+
+9. Nessyahu H, Tadmor E. Non-oscillatory central di↵erencing for hyperbolic conservation laws. Journal of
+Computational Physics 1990; 87:408–447.
+10. Arminjon P, Viallon MC. Convergence of a finite volume extension of the Nessyahu-Tadmor scheme on
+unstructured grids for a two-dimensional linear hyperbolic equations. SIAM Journal on Numerical Analysis
+1999; 36:738–771.
+11. Christov I, Popov B. New non-oscillatory central schemes on unstructured triangulations for hyperbolic
+systems of conservation laws. Journal of Computational Physics 2008; 227:5736–5757.
+12. Haasdonk B, Kroner B, Rohde D. Convergence of a staggered Lax-Friedrichs scheme for nonlinear
+conservation laws on unstructured two-dimensional grids. Numerische Mathematik 2001; 88:459–484.
+13. Huynh H. Analysis and improvement of upwind and centered schemes on quadrilateral and triangular
+meshes. AIAA Paper 2003-3541, 16th AIAA Computational Fluid Dynamics Conference, Orlando, FL
+2003.
+14. Katsaounis T, Levy D. A modified structured central scheme for 2d hyperbolic conservation laws. Applied
+Mathematics Letters 1999; 12:89–96.
+15. Kurganov A, Petrova G. Central-upwind schemes on triangular grids for hyperbolic systems of conservation
+laws. Numerical Methods for Partial Di↵erential Equations 2005; 21:536–552.
+16. Kuther M. Error estimates for the staggered Lax-Friedrichs scheme on unstructured grids. SIAM Journal
+on Numerical Analysis 2001; 39:1269–1301.
+17. Arminjon P, Madrane A, St-Cyr A. Non-oscillatory Lax-Friedrichs type central finite volume methods
+for 3-D flows on unstructured tetrahedral grids. Hyperbolic Problems: Theory, Numerics, Applications:
+Eighth International Conference in Magdeburg, February/March 2000, vol. 140, Freistühler H, Warnecke
+G (eds.), Birkhäuser, 2001; 59–68.
+18. Arminjon P, St-Cyr A. Nessyahu-Tadmor-type central finite volume methods without predictor for 3D
+Cartesian and unstructured tetrahedral grids. Applied Numerical Mathematics 2003; 46:135–155.
+19. Jiang GS, Tadmor E. Non-oscillatory central schemes for multidimensional hyperbolic conservation laws.
+SIAM Journal on Scientific Computing 1998; 19:1892–1917.
+20. Kurganov A, Lin CT. On the reduction of numerical dissipation in central-upwind schemes.
+Communications in Computational Physics 2007; 2:141–163.
+21. Kurganov A, Petrova G. A third-order semi-discrete genuinely multidimensional central scheme for
+hyperbolic conservation laws and related problems. Numerische Mathematik 2001; 88:683–729.
+22. Levy D, Puppo G, Russo G. Central WENO schemes for hyperbolic systems of conservation laws.
+Mathematical Modelling and Numerical Analysis 1999; 33:547–571.
+23. Liu Y. Central schemes on overlapping cells. Journal of Computational Physics 2005; 209:82–104.
+24. Liu YJ, Shu CW, Tadmor E, Zhang M. Non-oscillatory hierarchical reconstruction for central and finite
+volume schemes. Communications in Mathematical Physics 2007; 2:933–963.
+25. Noelle S, Rosenbaum W, Rumpf M. 3d adaptive central schemes: Part I. Algorithms for assembling the
+dual mesh. Applied Numerical Mathematics 2006; 56:778–799.
+26. Kurganov A, Tadmor E. New high-resolution central schemes for nonlinear conservation laws and
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+22
+
+C. J. GREENSHIELDS ET AL.
+
+convection-di↵usion equations. Journal of Computational Physics 2001; 160:241–282.
+27. Kurganov A, Noelle S, Petrova G. Semi-discrete central-upwind schemes for hyperbolic conservation laws
+and Hamilton-Jacobi equations. SIAM Journal on Scientific Computing 2001; 23:707–740.
+28. Roe PL. Characteristic-based schemes for the Euler equations. Annual Review of Fluid Mechanics 1986;
+18:337–365.
+29. van Leer B. Towards the ultimate conservative di↵erence scheme, II: monotonicity and conservation
+combined in a second order scheme. Journal of Computational Physics 1974; 17:361–370.
+30. OpenCFD Ltd. http://www.openfoam.org 2004.
+31. Sod G. A survey of several finite di↵erence methods for systems of nonlinear hyperbolic conservation laws.
+Journal of Computational Physics 1978; 22:1–31.
+32. Woodward P, Colella P. The numerical simulation of two-dimensional fluid flow with strong shocks. Journal
+of Computational Physics 1984; 54:115–173.
+33. Anderson JD. Modern Compressible Flow. Third edn., McGraw-Hill: New York, USA, 2003.
+34. Emery AE. An evaluation of several di↵erencing methods for inviscid fluid flow problems. Journal of
+Computational Physics 1968; 2:306–331.
+35. Ladenburg R, van Voorhis CC, Winkler J. Interferometric studies of faster than sound phenomena. Part
+II. Analysis of supersonic air jets. Physical Review 1949; 76:662–677.
+36. Winkler J. The Mach interferometer applied to studying an axially symmetric supersonic air jet. Review
+of Scientific Instruments 1948; 19:307–322.
+37. Holden MS, Wadhams TP. Code validation study of laminar shock/boundary layer and shock/shock
+interactions in hypersonic flow. Part A: Experimental measurements. AIAA Paper 2001-1031A, 39th
+Aerospace Sciences Meeting and Exhibit, Reno NV 2001.
+38. Harvey JK, Holden MS, Wadhams TP. Code validation study of laminar shock/boundary layer and
+shock/shock interactions in hypersonic flow. Part B: Comparison with Navier-Stokes and DSMC solutions.
+AIAA Paper 2001-1031B, 39th Aerospace Sciences Meeting and Exhibit, Reno NV 2001.
+39. Candler GV, Nompelis I, Druguet MC, Holden MS, Wadhams TP, Boyd ID, Wang WL. CFD validations
+for hypersonic flight: hypersonic double-cone flow simulations. AIAA Paper 2002-0581, 40th Aerospace
+Sciences Meeting and Exhibit, Reno NV 2002.
+40. Druguet MC, Candler GV, Nompelis I. E↵ect of numerics on Navier-Stokes computations of hypersonic
+double-cone flows. AIAA Journal 2005; 43:616–623.
+41. Gaitonde DV, Canupp PW, Holden MS. Heat transfer predictions in a laminar hypersonic viscous/inviscid
+interaction. Journal of Thermophysics and Heat Transfer 2002; 16:481–489.
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+23
+
+f
+Sf
+
+P
+
+dfN
+d
+
+N
+
+Figure 1: Finite volume discretisation.
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+24
+
+C. J. GREENSHIELDS ET AL.
+
+1.0
+Analytical
+KT, Minmod
+
+0.8
+
+Density, ⇢ (kg/m3 )
+
+Density, ⇢ (kg/m3 )
+
+1.0
+
+0.6
+0.4
+0.2
+0.0
+
+Analytical
+KNP, Minmod
+
+0.8
+0.6
+0.4
+0.2
+0.0
+
+-4
+
+-2
+
+0
+
+2
+
+Distance along tube x (m)
+(a) KT scheme.
+
+4
+
+-4
+
+-2
+
+0
+
+2
+
+4
+
+Distance along tube x (m)
+(b) KNP scheme.
+
+Figure 2: Comparison of shock tube density profile results for KT and KNP schemes with
+Minmod limiter; CFL number 0.2.
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+25
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+1.0
+Analytical
+KT, vanLeer
+
+0.8
+
+Density, ⇢ (kg/m3 )
+
+Density, ⇢ (kg/m3 )
+
+1.0
+
+0.6
+0.4
+0.2
+0.0
+
+Analytical
+KNP, vanLeer
+
+0.8
+0.6
+0.4
+0.2
+0.0
+
+-4
+
+-2
+
+0
+
+2
+
+Distance along tube x (m)
+(a) KT scheme.
+
+4
+
+-4
+
+-2
+
+0
+
+2
+
+4
+
+Distance along tube x (m)
+(b) KNP scheme.
+
+Figure 3: Comparison of shock tube density profile results for KT and KNP schemes with
+van Leer limiter; CFL number 0.2.
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+26
+
+C. J. GREENSHIELDS ET AL.
+
+(a) Non-‘V’-scheme.
+
+(b) ‘V’-scheme.
+
+Figure 4: Velocity near step corner with and without ‘V’-scheme, van Leer limiter, t = 0.15 s
+(glyphs scaled by 0.003|u|).
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+(a) t = 0.5 s.
+
+(b) t = 1.0 s.
+
+(c) t = 1.5 s.
+
+(d) t = 2.0 s.
+
+(e) t = 2.5 s.
+
+(f) t = 3.0 s.
+
+(g) t = 3.5 s.
+
+(h) t = 4.0 s.
+
+27
+
+Figure 5: Forward-facing step, transient flow solutions at various times, t; cell size = 1/160;
+40 density contours in the range 0 < ⇢ < 8.
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+28
+
+C. J. GREENSHIELDS ET AL.
+
+(a) PPMLR, cell size = 1/80 (after Woodward and Colella [32]).
+
+(b) KNP with van Leer, cell size = 1/80.
+
+(c) KNP with van Leer, cell size = 1/160.
+
+(d) RKDG third-order (P 2 ), cell size = 1/160 (after Cockburn and Shu [8]).
+
+Figure 6: Forward-facing step; density solution at t = 4 s; 30 contours in the range 0.2568 <
+⇢ < 6.067.
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+29
+
+0.6
+
+1.0
+
+1.4
+
+1.8
+
+2.2
+
+2.6
+
+3.4
+
+3.0
+
+3.8
+
+Figure 7: Density contours in the Ladenburg jet; our simulation (top) and original experimental
+data (bottom).
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+30
+
+C. J. GREENSHIELDS ET AL.
+
+55
+
+25
+
+0.0 < Ma < 1.0
+1.0 < Ma < 2.5
+2.5 < Ma < 3.5
+3.5 < Ma < 5.0
+
+Figure 8: Mach number contour map for the 25 -55 biconic; 78k cells; freestream Mach 11.3.
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+31
+
+8
+78k cells
+32k cells
+Run 35 experiment
+
+Pressure, p (kPa)
+
+7
+6
+5
+4
+3
+2
+1
+0
+0
+
+20
+
+40
+
+60
+
+80
+
+100
+
+120
+
+140
+
+160
+
+Distance along cone axis, x (mm)
+Figure 9: Surface pressure for the 25 -55 biconic, Run 35 configuration.
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+32
+
+2
+
+Heat transfer rate, qn (MW/m )
+
+C. J. GREENSHIELDS ET AL.
+
+78k cells
+32k cells
+Run 35 experiment
+
+0.8
+
+0.6
+
+0.4
+
+0.2
+
+0.0
+0
+
+20
+
+40
+
+60
+
+80
+
+100
+
+120
+
+140
+
+160
+
+Distance along cone axis, x (mm)
+Figure 10: Surface heat transfer rate for the 25 -55 biconic, Run 35 configuration.
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+CENTRAL SCHEMES IN A POLYHEDRAL, FINITE VOLUME FRAMEWORK
+
+(a) Map of split cells.
+
+33
+
+(b) Split cells, grey: |r⇢| > 0.2.
+
+Figure 11: Adaptive mesh refinement for the 25 -55 biconic.
+
+Preprint submitted to John Wiley & Sons, Ltd.
+Prepared using fldauth.cls
+
+October 1, 2014
+
+
