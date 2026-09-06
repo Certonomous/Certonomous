@@ -3,6 +3,19 @@
   "case_id": "W3S",
   "prereg_commit": "e1070c022678efe3a27f6dc75391380225a30380",
   "prereg_path": "cases/dafoam/curriculum_D12R2/W3S_PREREGISTRATION_DRAFT.md",
+  "grading_freeze": [
+    "cases/dafoam/curriculum_D12R2/w3s_grade.py",
+    "cases/dafoam/curriculum_D12R2/d12y_grade_w3.py"
+  ],
+  "_grading_freeze_basis": {
+    "why_this_key_exists": "The 2026-09-06T02:50:52Z launch recorded GRADER-FREEZE UNPINNED because this row declared no 'grading_freeze'. scripts/grader_freeze_gate.py:551-558 returns UNPINNED with the words 'that absence is recorded rather than read as a pass'. Reproduced by driving grading_freeze_record() on this row AS PARKED: verdict=UNPINNED, predicts=NO_PREDICTION_NOT_PINNED, source=NONE.",
+    "contract": "grading_freeze is a list of REPO-RELATIVE paths to the comparator(s) that will grade this case. The gate resolves each path's blob at prereg_commit and compares it to the blob on disk; all equal => PINNED / GRADING_WILL_PROCEED. Field name ruled by chief 2026-09-03 (grader_freeze_gate.py:108-109); schema grading_freeze/2.",
+    "why_these_two_paths": "w3s_grade.py is the W3S comparator (--gscan). It does not re-implement its gate: it IMPORTS the FROZEN parent d12y_grade_w3.py after checking its md5, and that parent's g0_completion IS the rule-4 assertion (registration sec.2 line 353, line 359). Pinning only the successor would leave the file that actually carries the gate unpinned, so BOTH are named.",
+    "why_the_record_producer_is_NOT_named": "w3s_stage_record.py produces every graded field but GRADES NOTHING, and the field's ruled meaning is 'the script that will grade case X'. Naming a non-comparator would mis-type rows in the calibration dataset, which joins one row per declared comparator. Its drift coverage exists elsewhere and is DRIVEN: the launcher pins it at MD5_RECORD=093ac4ed34a51fdd2eb46d09333a99b5 and preflight_instruments refuses rc=4 on drift, exercised by the selftest control 'PINS-PLANT-a-drifted-md5-REFUSES-with-MD5_DRIFT'. Stated here so the gap is visible rather than silent: this key does not cover the row producer.",
+    "verified_by_driving_the_gate": "grading_freeze_record() run against this row on 2026-09-06 at prereg_commit e1070c022678efe3a27f6dc75391380225a30380. WITH the key: verdict=PINNED, predicts=GRADING_WILL_PROCEED, source=ENTRY, both paths state=PINNED (w3s_grade.py blob e2232dcb218a, d12y_grade_w3.py blob 4b08098f7d2c, each identical at the freeze commit and on disk). NEGATIVE CONTROL, so the PINNED is not a reader that cannot see anything else: substituting one absent path yields verdict=ABSENT-AT-FREEZE, predicts=GRADING_WILL_REFUSE.",
+    "registration_precedence_checked": "grader_freeze_gate.py applies VERIFICATION_CHARTER §2s.6: a declaration in the FROZEN REGISTRATION outranks the entry, and a disagreement is DECLARATION-CONFLICT, never a choice. The frozen blob of W3S_PREREGISTRATION_DRAFT.md at e1070c02 was searched for GRADING_FREEZE:/GRADING_PATHS: declarations and carries NONE, so the entry is the source and no conflict is possible. Measured, not assumed.",
+    "this_predicts_nothing_about_the_physics": "PINNED is a PREDICTION about grading, not a verdict (kind=PREDICTION). Sanaa 2026-09-03 ~21:00Z: a pre-registration mismatch never prevents a launch. Adding this key would not have prevented the 02:50:52Z refusal and does not authorise a re-fire."
+  },
   "launch_cmd": [
     "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/w3s_chain_driver.sh"
   ],
@@ -81,12 +94,13 @@
     "positive_control": "/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady -- EXISTS, read by the same test in the same invocation. A reader not shown able to see a directory that exists is not evidence of absence."
   },
   "_container_boundary_check": {
-    "docker_run_sites": "w3s_stage_and_run.sh:1118 (every compute stage) and :1170 (the S0 mesh bootstrap).",
+    "docker_run_sites": "w3s_stage_and_run.sh:1232 (every compute stage) and :1284 (the S0 mesh bootstrap). CORRECTED 2026-09-06. The previous text read ':1118 ... and :1170' and those line numbers were ALREADY WRONG BEFORE the age-guard repair: at the commit this row was drafted against, the two `docker run` sites stood at :1210 and :1262, while :1118 held a comment and :1170 held a `return 4`. The repair then moved them by +22. Both the pre-existing error and the shift are disclosed rather than quietly overwritten.",
     "e_flags_passed": 0,
     "os_environ_reads_in_entry_script": 0,
     "entry_script": "d12y_run_script.py, md5 2790c39a09cd458d5a3263d7f1811da5, matching the registered value at sec.2 line 93 and the driver's MD5_RUNPY.",
     "planted_control": "The zero was planted before it was believed: the same reader and regex counted 2 occurrences on a copy carrying one os.environ[...] and one os.environ.get(...), and 0 on the real file.",
-    "verdict": "NO GAP. Nothing is read from the environment, so nothing needed to be passed. Per-leg configuration reaches the container by argv (--task, --dvIndex, --dvDelta, --out) and the window by a generated controlDict written per leg at w3s_stage_and_run.sh:1249 and bind-mounted, never by an environment variable. This item cannot die the way A1WRT2 SEAM died."
+    "verdict": "NO GAP. Nothing is read from the environment, so nothing needed to be passed. Per-leg configuration reaches the container by argv (--task, --dvIndex, --dvDelta, --out) and the window by a generated controlDict written per leg at w3s_stage_and_run.sh:1328 and :1362 (the two `mk_cd` call sites; CORRECTED 2026-09-06 -- the previous ':1249' was already wrong before the age-guard repair, where the call sites stood at :1306 and :1340) and bind-mounted, never by an environment variable. This item cannot die the way A1WRT2 SEAM died.",
+    "citation_audit_2026_09_06": "Every line citation in this block was re-derived from the file rather than trusted. THREE of three were stale BEFORE the age-guard repair. The COUNTS this check rests on -- e_flags_passed=0, os_environ_reads_in_entry_script=0 -- are not line-indexed and are unaffected; the planted control that established the zero still stands."
   },
   "_instrument_identity_at_this_commit": {
     "checked": "by execution 2026-09-06: w3s_chain_driver.sh --selfcheck 18/18 PASS and w3s_stage_and_run.sh --selftest 53/53 EXERCISED-PASS with 0 NOT-EXERCISED. --preflight-only reports PREFLIGHT 0 and PREFLIGHT 1 both pass, NOTHING LAUNCHED.",
