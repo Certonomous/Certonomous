@@ -952,3 +952,31 @@ dated. None is to be repaired by editing** (`CLAUDE.md` rule 6).
 this document until it is frozen, and freezing it is not this lane's act.***
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## §14. FREEZE — 2026-09-06T18:55:28Z, BY THE dafoam-supervisor. **THE GRADING PATH IS BUILT, CHECK-1-READ AND DRIVEN 18/18; THE LAUNCH PATH IS PROVEN-S1, NOT A BESPOKE UNTESTED LAUNCHER. THIS COMMIT IS THE FREEZE.**
+
+**The head banner and P4/P6 are STRUCK by this section, not by editing them** — they stand as the record of what this document was. From this commit,  rule 2 closes every gate below and rule 6 forbids editing anything above. **Lines renumbered above this section: 0, proved on bytes by `cmp -n` against the HEAD blob in this invocation.**
+
+### §14.1 THE FREEZE-OWED CHECKLIST, DISCHARGED
+
+* **F1 / P4 / P6 — banners STRUCK.** The item **IS** a registration, **IS** frozen at this commit, its comparator **DOES** exist (§14.2), and a queue row **is owed** (F9, §14.4).
+* **F3 / C1 — RUN ROOT ABSENT BY EXECUTION IN THIS FREEZING INVOCATION:** `/home/ubuntu/certonomous-runs/W4-reanchor` **ABSENT** at 2026-09-06T18:55:28Z. *A drafting-time absence is not a freeze-time absence; this is the freeze-time one.* 0 solver core-minutes; no container has ever existed for this arm.
+* **F5 — THE GRADING PATH EXISTS, IS COMMITTED, AND IS CHECK-1-READ.** `cases/dafoam/ladder-b/W4_reanchor/analyse_w4_reanchor.py` md5 **`9cd767520a5125326ff38dbbdff92b1b`**; its imported control `w4ra_accept_floor_control.py` md5 **`ee29f8d4f42093eae9e915954954a832`**. Both **disk == HEAD**, and `freeze_check` (no hardcoded blob) compares disk == the committed blob at HEAD for every `FROZEN_PATHS` entry at grading. **I read the full 1208-line derivation diff as a diff (§3 check 1):** no verdict is manufacturable (PASS requires all cells inside the bar, F_W complete, not withdrawn, with W0/W2/plant refusing earlier rather than degrading); F_W grades against the **registered** 19.1195 % prediction, not a recompute; F_W-UNRESOLVED ⇒ every W1 UNRESOLVED is a proper precondition; the plateau denominator is fixed to `|d(0.05)|`; and the S1-specific "reproduce a published number" reader-control is appropriately replaced (a re-anchor produces its own reference) with rule 3 carried by the retained planted-zero control.
+* **F4 — LAUNCH AUTHORISED by this section.** No agent message is Sanaa's consent (rule 9); the launch is authorised here by the supervisor, and PLACEMENT is the chief's act under Sanaa's captured queue-row grant (`9f708e81`).
+* **F7 — billing on the `--cpus=2` convention, PROVISIONAL pending Sanaa's rule-12 unit ruling** (§5.3), and the comparator **REFUSES** if the ledger bills at any ranks but `[2]`. Unchanged from the draft.
+
+### §14.2 WHY THIS FREEZE DOES NOT REPEAT D6RF4
+
+D6RF4 aborted **five times, one guard per launch,** because it was frozen with a **bespoke launcher never driven past `:515`** — its 27/27 guard drive covered none of the launch path. **W4 is different in the two ways that matter:**
+1. **The grading path was DRIVEN END TO END before this freeze** — `analyse_w4_reanchor_drive.py`, 18/18 gates traversed on a mocked completed run tree, every control driven both ways. **That is the D6RF4 lesson applied prospectively.**
+2. **The launcher is the PROVEN S1 orchestration** (`run_one.sh`/`run_plateau.sh`, which carried S1FDP to a graded verdict) — not a bespoke untested one — and **the mutable part, the queue row's `launch_cmd`, is OUTSIDE the freeze.** So a leg mis-production is a cheap queue-row correction, **not** a frozen-file pre-compute amendment. D6RF4's expensive cycle is structurally absent here.
+
+### §14.3 ⚠ THE ONE BINDING LAUNCH COUPLING — F9 MUST HONOUR IT
+`runScript.py:50` defaults `-gradout cbfs_beta_grad.npy`; the comparator reads the reference gradient from **`anchor8w_grad.npy`** (`ANCHOR_GRAD_NAME`). **Leg 5 (`anchor8w`, `compute_totals`) MUST be launched with `-gradout anchor8w_grad.npy`** or the comparator correctly reports `REFERENCE_NOT_PRODUCED`. **This is a binding requirement on the F9 queue row's `launch_cmd`, recorded here so it is not discovered at launch.** The 1e-6 gradient `cbfs_beta_grad.npy` (md5 `06fe8c5097872496e8d1354624d19f03`) is **REFUSED as reference and never read** (§2.2).
+
+### §14.4 STILL OWED — F9, and it is the supervisor's
+A queue row citing THIS freeze commit, carrying: `cost_core_min_estimate` **133.230**, `cap_core_min` **150.0**, `memory_floor_gb` **22.0** (GiB, **unconverted** — `queue_runner.py:195-200` divides kB by 1024²), `ranks` **2**, the `-gradout anchor8w_grad.npy` coupling of §14.3, and a `grading_freeze` key pinning the comparator + its imported control. **Built beside the case as READY-NOT-PLACED; placement is the chief's under the grant.**
+
+**SUBMISSIONS PARKED.**
