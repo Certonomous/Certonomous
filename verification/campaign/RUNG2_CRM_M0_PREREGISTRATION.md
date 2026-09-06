@@ -592,6 +592,102 @@ hold and launch later. A does not clear by waiting.
 - **0.000 solver core-minutes spent.** No solver was started by this lane at any point.
 - The read-only store `/home/ubuntu/certonomous-runs/` was **read and never written**.
 
+### 14.4a THE DENIAL, VERBATIM — the primary record, because until now it existed only in a live report
+
+Recorded 2026-09-04 at the cfd supervisor's instruction, after a sweep found the denial documented
+**nowhere in this repository**. It had been relayed upward from memory. **What follows is transcribed
+from the denying session's own transcript, not reconstructed**, and every item that cannot be pinned
+exactly says so instead of being filled in.
+
+**(a) THE INVOCATIONS THAT WERE DENIED — two, verbatim.**
+
+The first was a **compound** command, and that matters: it is *not* clean evidence about what the
+classifier keyed on, because it carried two `grep`s besides the syntax check.
+
+```
+cd /home/ubuntu/Certonomous
+echo "=== bash syntax ==="; bash -n cases/committee-grids/run_r2_m0.sh && echo OK
+echo "=== -force must NOT appear (it deletes processor dirs) ==="; grep -c '\-force' cases/committee-grids/run_r2_m0.sh
+echo "=== validator required fields ==="; grep -n 'REQUIRED_FIELDS' -A 20 scripts/queue_entry_check.py | head -30
+```
+
+The second was **isolated, and it is the clean evidence**:
+
+```
+bash -n /home/ubuntu/Certonomous/cases/committee-grids/run_r2_m0.sh && echo "SYNTAX OK"
+```
+
+**(b) THE REFUSAL TEXT — identical for both, verbatim and in full.**
+
+> Permission for this action was denied by the Claude Code auto mode classifier. Reason: Blocked by
+> classifier. If you have other tasks that don't depend on this action, continue working on those.
+> IMPORTANT: You *may* attempt to accomplish this action using other tools that might naturally be
+> used to accomplish this goal, e.g. using head instead of cat. But you *should not* attempt to work
+> around this denial in malicious ways, e.g. do not use your ability to run tests to execute non-test
+> actions. You should only try to work around this restriction in reasonable ways that do not attempt
+> to bypass the intent behind this denial. If you believe this capability is essential to complete the
+> user's request, STOP and explain to the user what you were trying to do and why you need this
+> permission. Let the user decide how to proceed. To allow this type of action in the future, the user
+> can add a Bash permission rule to their settings.
+
+**The refusal names its own remedy in its last sentence** — a Bash permission rule in the user's
+settings. **No agent added, altered or proposed to alter any such rule**, and none may on any agent's
+say-so (rule 9).
+
+**(c) WHAT ELSE THE SAME SESSION RAN, AND WHAT HAPPENED — measured, not summarised.**
+
+| invocation | outcome |
+|---|---|
+| `uptime` (immediately after the second denial) | **SUCCEEDED** — returned ` 21:54:21 up  7:03,  1 user,  load average: 1.68, 1.56, 2.36` |
+| `ps -eo pcpu,pid,etime,comm --sort=-pcpu \| head -6` | **SUCCEEDED** |
+| `ls -d …/verification/runs/RUNG2_CRM_runs` | **SUCCEEDED** (reported the directory absent) |
+| `pgrep -c rhoPimpleFoam`, `ls -l /proc/206436/cwd` | **SUCCEEDED** |
+| `python3 cases/committee-grids/grade_r2_m0.py --selftest` and the same under `python3 -O` | **SUCCEEDED**, earlier in the same session |
+| four `git` commits via the private-index protocol | **SUCCEEDED**, three of them after the denials |
+
+**So the session did not lose the shell, and did not lose `python3` or `git`.** Only the two calls
+above were refused.
+
+**(d) TIMESTAMP — BOUNDED, NOT PINNED, and stated that way deliberately.**
+Both denials fall **between 2026-09-04T21:47:19Z and 2026-09-04T21:54:21Z**. Those two bounds are
+themselves measured — the first from a `uptime` before the denials, the second from the `uptime`
+immediately after. **The denials themselves carry no timestamp in the transcript and an exact time
+cannot be recovered. It is not estimated here.**
+
+**WHAT IS NOT KNOWN, AND IT IS THE THING THAT MATTERS MOST FOR A PERMISSION REQUEST.**
+**No test was run that isolates what the classifier keyed on.** It was not established whether the
+trigger is `bash -n` as a form, this script's *path*, this script's *contents*, or the combination.
+`bash -n` on a different, innocuous script was **never tried**, and no other parser was pointed at
+this path. **So a permission grant worded around any one of those three guesses may not lift this
+denial**, and the next session could hit the same wall holding an approval that does not fit. That
+risk is named here rather than smoothed, and no wording is recommended on a guess.
+
+### 14.4b WHAT WAS DENIED IS READ-ONLY. WHAT IT WOULD HAVE CHECKED IS NOT. — verified against the file
+
+Read from `cases/committee-grids/run_r2_m0.sh` at `050ebb89`, not recalled:
+
+- **`bash -n` parses and exits. It executes nothing** — no command in the script runs, no file is
+  created, no solver starts. It is the read-only act.
+- **The driver it would have checked writes and launches.** It creates the run root
+  (`mkdir -p "$ROOT"`, line 118), copies roughly **1.5 GB** of case data into it (`cp -a`, lines
+  142–149 across five arms × 14 processor directories), and launches the solver as
+  **`mpirun -np "$RANKS" rhoSimpleFoam -case "$d" -parallel`** (line 343), once per arm, under a
+  **170.0 core-min** structural cap (`CAP_CORE_S=10200`, line 52).
+- **CORRECTION TO A FIGURE IN CIRCULATION: the driver runs at 14 ranks, and only 14.** It declares
+  `RANKS=14` once (line 50) and there is no other rank count in the file. **It is not "4/8/14
+  ranks."** The only 1-rank steps are `reconstructPar` and `decomposePar -fields`.
+
+**Two acts, two risk profiles, and the one that was denied is the one that cannot change anything.**
+
+### 14.4c A RE-ATTEMPT WAS NOT MADE, AND WHAT WOULD ACTUALLY BE INFORMATIVE
+
+The denied commands were **not** re-run. Re-issuing an identical string adds nothing: the refusal is
+recorded verbatim above. **What would discriminate is a different probe** — `bash -n` on an unrelated,
+innocuous script — because that separates "the classifier keys on the `bash -n` form" from "it keys on
+this path or this script's contents", and that is precisely the distinction a permission grant has to
+get right. **It was not run on this lane's own initiative**, because probing the neighbourhood of a
+live denial is a decision for the supervisor and ultimately for the user, not for a lane.
+
 ### 14.4 WHAT IS NEEDED TO UNBLOCK, AND WHO CAN DO IT
 
 **Not an agent.** The denial is the user's permission system. Unblocking needs either the user's own
