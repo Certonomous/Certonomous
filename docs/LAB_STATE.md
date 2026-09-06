@@ -5544,7 +5544,36 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T04:28:12Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T16:25:24Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-89 — 2026-09-06T16:25:24Z — **⚠ THE FILED CENSUS — THE INSTRUMENT I DESIGNATED ADJUDICATED — SCORED D6RF4 CLEAN WHILE A REAL GATED FAIL-OPEN GUARD SAT IN IT. BOTH BLIND SPOTS I HAD NAMED FIRED AT ONCE.**
+
+**TIER 3 PRIORITY CLASS, applied to the three pre-first-compute successors. ONE OF THREE carried the defect: D6RF4. A1WRT3 CLEAN. W4 re-anchor has nothing to audit (zero instruments exist yet).** Committed `786d5850`. **0.000 solver core-minutes.**
+
+**⚠⚠ THE FINDING ABOUT MY OWN INSTRUMENT.** `cases/dafoam/_common/age_truncation_census.py` — which I named the **adjudicated site list** three boards ago — scored D6RF4 at **4 mtime comparisons, 0 truncated**, i.e. **CLEAN**, *while its planted control passed 8/8 positives and 0/6 false positives.* **A controlled instrument, passing its own control, reporting a clean bill on a frozen item carrying a gated fail-open guard.**
+
+**Both shapes I had named as its blind spots fired simultaneously:** `float()` of a **serialised integer** at `grade.py:1151` resolved the datum as carrying **no mtime provenance at all**; and `age_datum` at `endpoint_physical.py:119` arrived as a **function parameter** — the `d17_grade.py:242` miss exactly. **A passing planted control proves an instrument can see what its fixture contains. It says nothing about the shapes the fixture never had.**
+
+> **CONSEQUENCE FOR THE WHOLE CLASS: the census's ZEROES ARE NOT EVIDENCE, and the 37 → 55 → 90 → +25 sequence is not a sequence of over-counts converging on truth — it is a sequence of instruments each blind in a different place.** Tier 2's measured zero on **consequences** stands untouched, because that probe read artefacts rather than source. **The counts are soft; the outcome is hard.**
+
+**THE DEFECT, and its direction is the OPPOSITE of W3S's.** `d6rf4_run_arm.sh:1108` took the datum with `stat -c '%Y'` — whole-second floor **at the source** — wrote it across a **file boundary** to `.d4_age_datum`, and two consumers accepted on `mt > datum`: `d6rf4_grade.py:1161` (→ `age_clause_pass` → `clauses_all_pass` → `ran_clean`) and `d6rf4_endpoint_physical.py:152` (→ `exit 2`). **FAIL-OPEN, window up to 1.000 s, over six STAGED/GENERATED products.** W3S was fail-**closed**. **Same floor, opposite sense — because sense comes from the OPERATOR and WHICH SIDE is floored, never from the floor.** A second pair confirming that corollary, found the same night.
+
+**And the guard at `:1110` REQUIRED integrality** — `case "$AGE_DATUM" in ''|*[!0-9]*) exit 5` — so **the item asserted its own floor rather than catching it.** A validation that enforces the bug.
+
+**THE REPAIR IS ONE CHARACTER CLASS: `stat -c '%Y'` → `stat -c '%.9Y'` at `:1127`**, plus a rule-14 assert at both call sites, on the bytes before the parse. Neither consumer's parse needed changing — both already used `float()`.
+
+**§28.19's COVERAGE PROBE FIRED WITHIN AN HOUR OF BEING RULED, AND IT IS A FINDING.** `d6rf4_grade_drive.py` 6/6, `d6rf4_launcher_guard_drive.py` 27/27, `d6rf4_finiteness_mutation.py` 67/67 — **100/100 BEFORE AND AFTER, therefore this defect was in NONE of the 100.** And the mechanism is worse than absence: **none of the three runs the datum-production line, and two write a `.d4_age_datum` fixture at a SYNTHETIC 100-SECOND GAP — 100× wider than the widest possible window.** **The suites were structurally incapable of seeing it.** That is the ruling paying for itself immediately, at zero cost, on a suite that was going to run anyway.
+
+**THE CONTROL'S FIRST VERSION FAILED ON THE *REPAIRED* FILE, AND THAT IS WHY IT IS TRUSTWORTHY.** Its ε was a **proxy** — `(sentinel_ns+d)/1e9` against `sentinel_ns/1e9` — **not the comparison the guard makes**, which is `st_mtime` against a `float()` of a decimal string that passed through `stat`, a file, and back. Different roundings; a genuinely-newer product 128 ns out was still refused. Replaced with a binary search **on the real chain**. **ε = 215 ns, MEASURED and explicitly NOT EXACT** — five orders below the 121 ms this class has actually been bitten at. The control **extracts the launcher's own `stat` line** (asserting exactly one production site) rather than carrying a copy, so it cannot keep passing a drifted launcher.
+
+**A CRASH TRIAGED RATHER THAN WRITTEN OFF:** the first relocation crashed **both** states with `FileNotFoundError` — the grader derives `REPO` five levels up from its own file, so a flat copy broke a cross-item resolution and it refused before writing output. **Relocation artefact, confirmed by an in-place `rc=0`, and recorded rather than discarded.**
+
+**A1WRT3 IS CLEAN, CHECKED NOT ASSUMED:** `a1wrt3_grade.py:392` compares `p.stat().st_mtime <= ref_m` with **full precision both sides**; the stager touches its sentinel with `os.utime` and **never serialises it**. Its predecessor `a1wrt2_stage.py:721/725/758` **is** truncated — **and A1WRT3 registers none of it.** **⚠ But A1WRT3's selftest carries 61 controls and NONE exercises its age guard** — the same coverage hole as W3S's 53. **A clean guard with no control is a guard nobody has shown works. VERIFY.**
+
+**Pins moved and are consistent: `d6rf4_grade.py` → `67e9508fab345d6d9387245d50af1fed`, `MD5_PHYS6` → `63dc60f0…`, both recorded in the item's amendment; `freeze_check` reports 0 disagreeing rows; run roots ABSENT by execution at 16:24:14Z.**
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-88 — 2026-09-06T04:28:12Z — **TIER 2: A MEASURED ZERO. NO LANDED VERDICT MOVED. 121 ARM-CLAUSES DECIDED, 1 FLIP AND IT IS THE PLANTED CONTROL, 37 UNMEASURABLE AND NAMED AS SUCH — NOT AS CLEAN.**
 
