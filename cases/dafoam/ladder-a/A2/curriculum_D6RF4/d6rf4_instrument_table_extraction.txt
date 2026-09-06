@@ -1,5 +1,5 @@
 D6RF4 INSTRUMENT TABLE -- EXTRACTED, NOT WRITTEN FROM MEMORY
-generated 2026-09-06T02:41:43Z  dir /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4
+generated 2026-09-06T02:44:08Z  dir /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4
 extractor  d6rf4_instrument_table_extraction.py (a TOOL, not an instrument: the grader neither imports nor executes it, and it is
            deliberately NOT in FROZEN_PATHS -- freezing the thing that derives the frozen set would make the derivation
            depend on itself.  The executable half is d6rf4_grade.py:frozen_path_coverage(), run at EVERY grading.)
@@ -66,10 +66,10 @@ EXTRACTOR NOTES (1)-(3) are D6RF3's, carried verbatim; (4) is this item's own.  
   d6rf4_grade.py                              155261  4085f678997ef6abe45c6946abd0626e  0
   d6rf4_grade_drive.py                         16680  f432a6b8b4bab573bb4a6a086a8a18fb  0
   d6rf4_instrument_table_extraction.py         17092  1e1c183dd09bf36dfe27cda321d9e6fa  0
-  d6rf4_instrument_table_extraction.txt        14365  7ebed63a01e4977651b3d02d3fba6215  
+  d6rf4_instrument_table_extraction.txt        14229  5499781b76c98ed3a0a884eb1a3db897  
   d6rf4_launcher_guard_drive.py                15401  9b6b00418ef5e92a5f7e4e0ed865f488  0
   d6rf4_opt_runScript.py                       13122  137539e0a99be27f27fdb69e063b2a87  0
-  d6rf4_run_arm.sh                             79112  a738d9103c47f80862c926802bfe6655  
+  d6rf4_run_arm.sh                             79244  3520b4b4895ceaa6c4324ff07989bf88  
   d6rf4_units_assert.py                        18270  8ee53841aed3dfd10f2cf414be39518a  0
 
 === THE FROZEN SET, AND THE GIT BLOB BESIDE THE DISK ===
@@ -87,7 +87,7 @@ EXTRACTOR NOTES (1)-(3) are D6RF3's, carried verbatim; (4) is this item's own.  
   d6rf4_opt_runScript.py                                         disk 137539e0a99be27f27fdb69e063b2a87  HEAD 137539e0a99be27f27fdb69e063b2a87  AGREE
   d6rf4_units_assert.py                                          disk 8ee53841aed3dfd10f2cf414be39518a  HEAD 8ee53841aed3dfd10f2cf414be39518a  AGREE
   d6rf4_finiteness_mutation.py                                   disk 8aeaf30a9a3e177c406ad235c5e2c54e  HEAD 8aeaf30a9a3e177c406ad235c5e2c54e  AGREE
-  d6rf4_run_arm.sh                                               disk a738d9103c47f80862c926802bfe6655  HEAD a738d9103c47f80862c926802bfe6655  AGREE
+  d6rf4_run_arm.sh                                               disk 3520b4b4895ceaa6c4324ff07989bf88  HEAD 3520b4b4895ceaa6c4324ff07989bf88  AGREE
   d6rf4_fvSolution_TIGHT                                         disk 0ac5bd00c63b9109d22a8e73b0795aa4  HEAD 0ac5bd00c63b9109d22a8e73b0795aa4  AGREE
   d6rf4_fvSolution_D6RF3_ORIGINAL                                disk 9e2669956be778acf7e7d8aa67a90ff6  HEAD 9e2669956be778acf7e7d8aa67a90ff6  AGREE
   d4_opt_runScript.py                                            disk 2906d52a5dbed2bacbaeaf85a37d3fe8  HEAD 2906d52a5dbed2bacbaeaf85a37d3fe8  AGREE
@@ -112,8 +112,8 @@ EXTRACTOR NOTES (1)-(3) are D6RF3's, carried verbatim; (4) is this item's own.  
   d6rf4_grade_DELTAS_from_d6rf3.diff                    1765 lines  parent 639d23c4cfea45187561604001c21b44  derived 4085f678997ef6abe45c6946abd0626e
   d6rf4_grade_SUBSTANTIVE_after_rename.diff             1744 lines  parent -  derived 4085f678997ef6abe45c6946abd0626e  (rename-stripped view; no parent file)
   d6rf4_opt_runScript_DELTAS_from_d6rf3.diff               0 lines  parent 137539e0a99be27f27fdb69e063b2a87  derived 137539e0a99be27f27fdb69e063b2a87  BYTE-IDENTICAL CARRY, asserted on both md5s
-  d6rf4_run_arm_DELTAS_from_d6rf3.diff                   978 lines  parent 58684b91f6aced35f500fc947517a8e4  derived a738d9103c47f80862c926802bfe6655
-  d6rf4_run_arm_SUBSTANTIVE_after_rename.diff            687 lines  parent -  derived a738d9103c47f80862c926802bfe6655  (rename-stripped view; no parent file)
+  d6rf4_run_arm_DELTAS_from_d6rf3.diff                   978 lines  parent 58684b91f6aced35f500fc947517a8e4  derived 3520b4b4895ceaa6c4324ff07989bf88
+  d6rf4_run_arm_SUBSTANTIVE_after_rename.diff            687 lines  parent -  derived 3520b4b4895ceaa6c4324ff07989bf88  (rename-stripped view; no parent file)
   d6rf4_units_assert_DELTAS_from_d6rf3.diff               38 lines  parent 885ce236ed20d4be0337f4382346500a  derived 8ee53841aed3dfd10f2cf414be39518a
   -> every DELTAS diff agrees with the md5s of the pair it describes
 
