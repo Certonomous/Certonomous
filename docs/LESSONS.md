@@ -24440,3 +24440,28 @@ when **a fourth instance arrives that is not a reader's key, not a test method's
 control's assertion.** Three instances that each fit an existing child are evidence *the children
 are right*, not that a parent is needed; a fourth that fits none of them is evidence the root is
 real. Whoever finds it should know that is what they are holding.
+
+## L-494 — `setsid`'s EXIT STATUS IS CONDITIONAL ON THE CALLER: IT RETURNS 0 ONLY WHEN IT ACTUALLY FORKS, AND IT FORKS ONLY IF THE CALLER IS ALREADY A SESSION/PROCESS-GROUP LEADER. OTHERWISE THE CHILD'S rc PASSES STRAIGHT THROUGH
+
+*2026-09-06, `closure`, the Ling arm-2 completion monitor. Cost: zero compute. Found by a lane whose selftest arm asserted the standing lesson and FAILED against the machine.*
+
+**The standing lab note says `setsid <cmd>` exits 0 for every outcome, so capture rc inside the detached wrapper, never around the setsid line.** The rule is right. **Its stated reason is only half true, and the half that is false is dangerous in the opposite direction.**
+
+**Measured on this box, same failing script (`exit 7`), three ways:**
+
+```
+plain                                    rc = 7
+setsid, caller NOT a leader              rc = 7      <-- rc PASSES THROUGH
+setsid, caller IS a leader               rc = 0      <-- rc is DESTROYED
+```
+
+**Mechanism.** `setsid` calls `setsid(2)`, which fails if the caller is already a process-group leader. So `setsid` **forks first only when it must**: from an ordinary shell (not a leader) it `setsid()`s and **execs in place**, and the exec'd program's status is the one the caller sees. From a leader — e.g. Python's `subprocess` with `start_new_session=True`, or a job-control shell — it forks, the parent exits 0 immediately, and the child's status is unreachable.
+
+**Why this bites in both directions.**
+- Trusting *"setsid always returns 0"*: in the non-leader case a **real failure rc is silently discarded** as meaningless when it was the truth.
+- Trusting *"I got rc=7, so setsid passes rc through"*: in the leader case the **0 is not success**, and a wrapper built on that reading reports a failed run as clean. This is the shape that produced the original lesson.
+- The caller's process-group state is **not visible at the call site** and changes with how the script was invoked — interactively, from cron, from a Python `subprocess`, from another wrapper. **The same line has two different semantics depending on its caller.**
+
+> **THE RULE, UNCHANGED IN ACTION AND CORRECTED IN REASON: capture the rc INSIDE the detached wrapper, on the line immediately after the command, and never take a status from around a `setsid` line — not because setsid always returns 0, but because WHETHER IT DOES DEPENDS ON THE CALLER AND IS NOT VISIBLE WHERE YOU ARE STANDING. A test that asserts either behaviour must set the caller's session state explicitly and assert BOTH modes.**
+
+**The corollary that makes this checkable.** A detach test should launch with `start_new_session=True` **on purpose**: that guarantees the fork, which guarantees the outer 0 is meaningless **by construction rather than by luck** — and then the wrapper's recorded rc is the only status that exists, which is exactly what the rule wants.

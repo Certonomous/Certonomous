@@ -1430,6 +1430,42 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**2026-09-06T~03:5xZ — B4 IS CLOSED AS FAR AS ZERO COMPUTE CAN CLOSE IT: THE MONITOR EXISTS,
+18/18 ARMS, RUN BY ME.** `arm2/watch_arm2_completion.py`. Polls from THIS box (a monitor on the node
+dies with the node at self-shutdown — the event it most needs to see), detaches via `setsid` with rc
+captured INSIDE the wrapper, reads only named artefacts, **grades nothing** and is not in §9's frozen
+grading path, so it needs no amendment.
+**⚠ I PLANTED MY OWN MUTATION AND THE MODULE REFUSED TO LOAD.** Rewriting the unreachable-branch map
+so absence yields `COMPLETE` raises at **import**: *"node absence would be readable as completion.
+Refusing to load."* **That is stronger than a test, because a test can be skipped.** Completion memory
+has exactly ONE writer, requiring a reachable probe AND a parsed marker.
+**⚠ THREE OF MY OWN DESIGN RULES WERE WRONG AND THE LANE SAID SO. ALL THREE ACCEPTED; TWO I
+RE-VERIFIED IN THE DRIVER SOURCE MYSELF:**
+**(1) My `FAILED-HALT` rule would have fired on EVERY SUCCESSFUL SHUTDOWN.** `train_gpu_ling_v2.py`
+writes `COMPLETE.json`, then `shutdown_attempt.json` — its own comment reads *"intent BEFORE the
+call"* — and only then halts. The node is reachable-with-intent-file for the seconds a halt takes,
+which was **exactly my alarm condition**. Bounded halt grace (300 s, ~$0.067 derived) ADOPTED:
+it delays, never suppresses, and timestamps the first sighting regardless. **An alarm that cries
+wolf on every clean run is worse than no alarm — it trains its reader to ignore it.**
+**(2) `shutdown_attempt.json` has TWO meanings** — the driver also writes it on the hostname/CUDA
+REFUSAL path (`allowed: false`). One state kept (node up and billing either way), the alert
+distinguishes; **deliberately not split, because a fifth state would divide the loudest alarm.**
+**(3) `spend.json` is at `out/spend.json`**, not top level. Both named explicitly, neither a glob.
+**AND A LABEL MY FOUR STATES HAD NO ROOM FOR: `IN-PROGRESS`** — a normally-running node had nowhere
+to go, and forcing it into one of my four would have been **precisely the collapse I was guarding
+against.** Documented as *no conclusion*, never a verdict.
+**L-494 LANDED — AND IT CORRECTS A STANDING LAB NOTE.** Measured by me on this box, same `exit 7`
+script: `setsid` from a NON-leader returns **7** (rc passes through); from a leader
+(`start_new_session=True`) returns **0** (rc destroyed). `setsid(2)` fails for an existing
+process-group leader, so **setsid forks only when it must** and otherwise execs in place. The lab's
+rule (capture rc inside the wrapper) is RIGHT; its stated reason was half true, and **the false half
+is dangerous in the opposite direction — a real failure rc silently discarded as meaningless.**
+**The same line has two semantics depending on a caller state not visible at the call site.**
+**NOT DONE, NOT ASSUMED: the monitor is NOT ARMED** (that is step 7, at launch). **Nothing on `gpu1`
+is exercised** — the probe's only real run was against a down host (`ssh rc=255`), which correctly
+gave `GONE-WITHOUT-COMPLETE` with no crash and no conclusion. Remote script, `$HOME` resolution and
+key auth under `BatchMode=yes` **meet a live node for the first time at launch.**
+
 **2026-09-06T~03:2xZ — LING ARM 2 IS **READY-PARKED** ON AWS CAPACITY. SANAA VERBATIM:**
 > *"gpu cant run rn due to aws capacity rn. Its fine ill turn it on whenever thats possible."*
 **THIS IS A DEFERRAL ON AN EXTERNAL CONSTRAINT, NOT DRIFT AND NOT A WITHDRAWAL.** Her approval

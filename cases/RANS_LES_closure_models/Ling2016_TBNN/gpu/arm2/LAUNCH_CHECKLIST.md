@@ -478,3 +478,38 @@ IS treated as local, and `""` is inside the runner's accepted set — but it is 
 *writing such a row*, not a description of arm 2's state. **The operationally important half of
 that warning was always the second half, and it stands: nothing will pick this run up
 automatically. If the card is powered on and no one types the launch line, it idles and bills.**
+
+## B4 UPDATE, 2026-09-06 — THE MONITOR EXISTS. IT IS NOT YET ARMED, AND ARMING IS A LAUNCH-TIME ACT
+
+`watch_arm2_completion.py` is written and its suite runs **18 arms, 18 passed**, run by the
+supervisor and not relayed. It polls from THIS box over ssh (a monitor on the node dies with the
+node at self-shutdown, which is the event it most needs to see), detaches via `setsid` with the rc
+captured **inside** the wrapper, reads only named artefacts, and **grades nothing** — it is not part
+of §9's frozen grading path and needs no amendment.
+
+**Three of the supervisor's design rules were WRONG and the lane said so. All three corrections are
+accepted, and two were re-verified in the driver source by the supervisor:**
+
+1. **FAILED-HALT as literally specified would have fired on EVERY SUCCESSFUL SHUTDOWN.**
+   `train_gpu_ling_v2.py:937-962` writes `COMPLETE.json`, then `shutdown_attempt.json` — the source
+   comment reads *"intent BEFORE the call"* — and only then runs `sudo shutdown -h now`. The node is
+   therefore reachable-with-intent-file for the seconds a halt takes, which was exactly the alarm
+   condition. **A bounded halt grace (default 300 s, ~$0.067 derived) is ADOPTED.** It delays the
+   alarm and never suppresses it; the first sighting is timestamped regardless. **An alarm that cries
+   wolf on every clean run is worse than no alarm, because it trains its reader to ignore it.**
+2. **`shutdown_attempt.json` has TWO meanings**: the driver also writes it on the hostname/CUDA
+   refusal path with `allowed: false`. One state is kept — the node is up and billing either way,
+   which is the operative fact — and the alert distinguishes them. **Not split, deliberately: a
+   fifth state would divide the loudest alarm.**
+3. **`spend.json` lives at `out/spend.json`**, not the top level. Both paths are named explicitly.
+
+**And a fifth label the supervisor's design had no room for: `IN-PROGRESS`** — reachable, nothing
+conclusive. Four states left a normally-running node with nowhere to go, and forcing it into one
+would have been precisely the collapse the design was guarding against. **It is documented as "no
+conclusion", never a verdict.**
+
+**What is NOT done, and must not be assumed:** the monitor is **not armed** — arming is step 7, at
+launch, before the launch line is typed. Nothing on `gpu1` has been exercised: the probe's only real
+run was against a down host (`ssh rc=255`), which correctly produced `GONE-WITHOUT-COMPLETE` with no
+crash and no conclusion. The remote script, `$HOME` resolution for the ssh user, and key auth under
+`BatchMode=yes` are **unverified against a live node** and will be met for the first time at launch.
