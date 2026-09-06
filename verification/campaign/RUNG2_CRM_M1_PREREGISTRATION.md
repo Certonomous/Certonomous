@@ -1,6 +1,7 @@
 # RUNG 2 pre-registration — NASA CRM / DPW5 — `R2-M1`, the SUCCESSOR to `R2-M0`: the LAST UNTESTED REMEDY, a MECHANISM INSTRUMENT THAT WAS REHEARSED BEFORE IT WAS REGISTERED, and a 2×2 THAT DE-CONFOUNDS M0's A2
 
-**Team: cfd. Case id `RUNG2-CRM-M1`. v1.0, drafted 2026-09-06 by a `lab-lane` for the cfd supervisor.**
+**Team: cfd. Case id `RUNG2-CRM-M1`. v1.1, drafted 2026-09-06 by a `lab-lane` for the cfd supervisor.
+v1.1 carries Amendment 1 (§13), landed PRE-COMPUTE, altering NO gate, threshold, cap or label.**
 
 > # ⚠ DRAFT — NOT AUTHORISED TO LAUNCH. CHECK 4 HAS NOT BEEN PERFORMED.
 >
@@ -273,6 +274,38 @@ the DPW5 grid, and nothing about the physics. An arm that writes here can still 
 is what the graded run is for. It establishes one thing only, and that thing is the one M0 lacked:
 **the registered writers write, per arm, one record per completed step, and the reader that will
 grade them can tell a record from its absence.**
+
+### 3.5 ⚠ AN OBSERVATION THAT WAS ON DISK THE WHOLE TIME — recorded here, and it is NOT a mechanism claim
+
+M0's `R2-G2` is `NOT A RESULT` and **nothing has licensed a cause.** But one measured fact about
+what the solver saw before it died has been sitting in the run root since 2026-09-06 09:09, unread,
+and it belongs in the file where the mechanism arms are specified rather than being rediscovered
+later:
+
+> `verification/runs/RUNG2_CRM_runs/M0_compressible_admission/A0/log.solve:145`
+> ```
+> pressureControl: p min -252762.6
+> ```
+
+**That is a negative ABSOLUTE pressure — −252,762.6 Pa — reported by the solver during A0's first
+time step**, one step before the abort. Beside it, from the same arm's `Time = 1` record
+(`A0/postProcessing/r2m0MinMax/0/fieldMinMax.dat`):
+
+| quantity | value at `Time = 1` | for comparison |
+|---|---|---|
+| `min(rho)` | **0.096767402** | the arm's own registered `rhoMin` is **0.1** — the field is **outside its own bound** |
+| `max(mag(U))` | **690.81616** m s⁻¹ | registered `magUInf` is **295** |
+| `min(p)` (end of step, after limiting) | 8613.056 Pa | — |
+| `max(p)` | 642624.31 Pa | — |
+
+**WHAT THIS IS AND IS NOT.** It is a **measurement of the state the solver was in before it died**,
+with its path and line. It is **not** a cause, **not** a mechanism, and **not** a verdict — `R2-G2`
+returned `NOT A RESULT` and this registration does not reopen it. It is recorded here for three
+reasons, all of them about the design rather than the physics: it is the empirical basis of §5.6's
+named prediction; it is why `rho` and `p` are in the registered writer's field list; and it
+demonstrates the §3.2 point concretely — **this was the last SURVIVED state, and the state that
+actually killed the run was never written by anything**. Naming a mechanism remains `R2M1-G2`'s
+job, and `R2M1-G2` rests on B2.
 
 ---
 
@@ -619,10 +652,11 @@ no run root, no queue row.
    defended.
 3. **Check 4 — the pre-registration committed before compute — is the cfd supervisor's and is not
    taken here.**
-4. **The driver `run_r2_m1.sh` is NOT written.** This registration fixes the grading path, the arm
-   set, the gates, the writer block and the cost; the driver that assembles and launches the arms
-   remains to be written and reviewed, and **the registration is not freeze-ready for launch until
-   it exists**. The grading path — the thing rule 2 freezes and check 4 hashes — **does** exist.
+4. ~~**The driver `run_r2_m1.sh` is NOT written.**~~ **STRUCK by Amendment 1, §13 — the driver
+   exists.** Original text preserved: *"This registration fixes the grading path, the arm set, the
+   gates, the writer block and the cost; the driver that assembles and launches the arms remains to
+   be written and reviewed, and the registration is not freeze-ready for launch until it exists.
+   The grading path — the thing rule 2 freezes and check 4 hashes — does exist."*
 
 ---
 
@@ -635,6 +669,73 @@ no run root, no queue row.
 | queue row | **NONE PLACED.** Placement is the chief's, under its own captured grant |
 | run root | **ABSENT**, plant-verified 0 → 1 → 0 (§1.3) |
 | grading path | `cases/committee-grids/grade_r2_m1.py` — **exists, committed, 12/12 controls, driven on real data** |
-| driver | **NOT WRITTEN** (§11 item 4) |
+| driver | `cases/committee-grids/run_r2_m1.sh` — **exists (Amendment 1, §13). Cap selftest 7/7; root guard driven refusing on the real path.** |
 | solver core-min spent under this registration | **0.0219**, all of it the §3.3 rehearsal on a 125-cell box |
 | Rung 2 (a) | **BLOCKED**, untouched, binding ground **(iii)** |
+
+---
+
+## 13. AMENDMENT 1 — 2026-09-06, **PRE-COMPUTE**, on the cfd supervisor's instruction
+
+**THE CONDITION, AND HOW IT WAS CHECKED.** Rule 2 permits amendment **only before first compute**,
+and requires the condition to be stated and checked, naming the run directory that does not exist.
+
+> **Condition: no compute has been run under this registration.** Checked, not asserted: the
+> registered run root **`verification/runs/RUNG2_CRM_runs/M1_mechanism_and_warmstart`** is
+> **ABSENT**, re-verified at amendment time (2026-09-06T16:38:10Z) under a live planted control —
+> **0 → 1 → 0, DISCRIMINATES**, no residue. No `COST.tsv`, no `STATUS.R2_M1`, no arm directory and
+> no queue row exists. **The only core-minutes spent under this registration remain the 0.0219 of
+> the §3.3 writer rehearsal on a 125-cell box, which is not a run against any gate here.**
+
+**NO GATE, THRESHOLD, CAP OR LABEL IS ALTERED BY THIS AMENDMENT.** The seven gates of §9, the
+55.0 core-min cap of §6.5, the 5.27 core-min headline and every label are **unchanged**. §11 item 4
+is **struck, not rewritten**, and its original text is preserved verbatim beside the strike.
+
+### 13.1 What this amendment adds
+
+1. **§3.5** — the `pressureControl: p min -252762.6` observation, with its path and line, recorded
+   **as an observation and explicitly not as a cause or a mechanism claim.**
+2. **The driver now exists**: `cases/committee-grids/run_r2_m1.sh`, committed with this amendment.
+
+### 13.2 The driver, and the two things it was required to demonstrate rather than assert
+
+**(i) THE CAP HAS BEEN SHOWN TO WORK.** M0's calibration row is explicit that its cap path was
+**never exercised**: *"both remain UNEXERCISED and this run is not evidence that either works."*
+`run_r2_m1.sh --selftest-cap` drives it, costs nothing, and the driver **runs it before any compute
+is bought and refuses to continue if it does not pass**. Measured 2026-09-06, **7/7**:
+
+| | control | result |
+|---|---|---|
+| K0 | `budget_left` is `CAP − SPENT` | 1000−0=1000, 1000−400=600 |
+| K1 | the timeout **shrinks** with spend and **never reaches 0 s** (`timeout 0s` means *no limit* — a runaway, not a stop) | 100 s → 50 s → 1 s |
+| **K2** | **an exhausted cap returns 66 AND THE COMMAND DOES NOT RUN** — planted: the refused command would have created a witness file | rc **66**, **witness absent** |
+| **K3** | the **same** command **does** run with budget left — a refusal that refuses everything is not a cap, it is a broken driver | rc 0, **witness present** |
+| K4 | the step is **charged** `wall × ranks` — a cap that never charges never bites | 2 wall-s at 14 ranks charged **28 core-s** |
+| **K5** | **the timeout actually fires**: `sleep 60` under a 28 core-s budget | killed at 2 s, **rc 124** |
+| K6 | the budget is then exhausted, so the run **stops** and does not get a new one | 0 core-s left |
+
+**(ii) THE GUARD IS NOT TRUSTED UNTIL IT HAS BEEN WATCHED DISCRIMINATE.** §2 established that M0
+recorded a map failure that never happened, because **a crashed guard's exit code is
+indistinguishable from the failure it was watching for**, and that sentence then travelled up four
+levels unchallenged. `run_r2_m1.sh` therefore drives its own warm-start guard **at run time, on the
+real reconstructed field**, watching it accept the good field and **refuse** a copy with `farfield`
+scrubbed. **If it does not discriminate, B1 is recorded `BLOCKED` and the guard's verdict is
+discarded** — not believed in either direction.
+
+**And when B1 does not map, the driver writes `B1/WARMSTART_NOT_MAPPED` carrying the reason
+verbatim** — never the words "FAILED TO MAP", which is precisely the sentence M0 wrote about a map
+that had already succeeded.
+
+**Rule 4's root guard was also driven in the REFUSING direction on the real registered path**: with
+the root present the driver exits **3** and starts nothing; the probe left no residue and the root
+is absent again. A bare invocation prints usage and launches nothing.
+
+### 13.3 What this amendment does NOT do
+
+- It does **not** run `decomposePar -fields`. That stays **NAMED AND STOPPED** (§2.4, §11 item 1):
+  its cost is **ESTIMATED, not measured**, its success is **not assumed**, and `R2M1-G3` returns
+  **`BLOCKED`, not `GATE FAIL`**, if it fails.
+- It does **not** perform check 4. **That is the cfd supervisor's and non-delegable.**
+- It does **not** place a queue row. **None has been placed and this lane placed none.**
+- It spends **no additional solver core-minutes**. The cap and guard controls are shell arithmetic
+  and a `sleep`; no solver, no MPI job, no mesh operation, no DPW5 grid.
