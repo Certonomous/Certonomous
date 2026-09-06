@@ -24551,3 +24551,127 @@ a disaster.**)*
 **absolute post-image** — every OTHER section's bytes recovered by name from the parent — never
 on a difference of two slices of the thing you are editing. And **read the commit's `--stat`**:
 a five-figure deletion count is a question, not a formality.
+
+---
+
+## L-496 — A GUARD THAT CRASHES REPORTS THE WRONG FAILURE. ITS EXIT CODE IS INDISTINGUISHABLE FROM THE FAILURE IT WAS WATCHING FOR, AND THE ARTIFACT IT WRITES IS BELIEVED ALL THE WAY UP
+
+*2026-09-06, `cfd`, R2-M0 → R2-M1. Cost: 0.0333 core-min of `reconstructPar` charged as waste in
+M0's calibration row, and **one remedy recorded as untestable for a day** — but the real cost is
+that a false sentence travelled through a lane, a supervisor, the chief and to Sanaa unchallenged.*
+
+**The shape.** A guard sits between a thing that might fail and the record of whether it failed. It
+is written to return non-zero when the thing failed. **It also returns non-zero when the guard
+itself dies** — and nothing downstream can tell those two apart, because they are the same integer.
+The driver then writes the *watched* failure into an artifact, and **the artifact is the only thing
+anyone reads afterwards.**
+
+**The measured instance.** `R2-M0`'s A3 arm recorded, in
+`M0_compressible_admission/A3/WARMSTART.txt`:
+
+> `A3 warm start: FAILED TO MAP. Arm BLOCKED, not run, no conclusion drawn.`
+
+**The map did not fail.** `A3/log.reconstructPar` carries `rc = 0`, an `End` line, and all three
+registered fields reconstructed at `Time = 200`; the driver's own `cp` landed them, and
+**`A3/0/U` is 15,656,211 bytes on disk to this day.** What failed was the post-map patch guard at
+`run_r2_m0.sh:306-316`:
+
+```python
+s = open(sys.argv[1]).read()        # TEXT mode
+```
+
+against a `writeFormat binary` field — `UnicodeDecodeError: … can't decode byte 0xfd in position
+900`, exit **1**. `if [ $? -eq 0 ]` was therefore false, `decomposePar` never ran, `A3_OK` stayed
+`0`, and the driver wrote "FAILED TO MAP".
+
+⚠ **AND THE GUARD'S OWN TEST WAS SATISFIED ALL ALONG.** Read binary-safe, that file contains all
+three patch names the guard was looking for. **The guard never got far enough to find out.** It did
+not detect a problem and it did not fail to detect one — it *died on the way to looking*, and its
+corpse was read as a verdict.
+
+**THE OPERATIONAL TEST, and it is one question:**
+
+> ⚠ **WHEN A GUARD REPORTS A FAILURE, ASK WHETHER THE GUARD ITSELF COULD HAVE PRODUCED THAT EXIT
+> CODE WITHOUT THE FAILURE OCCURRING.**
+
+If it could, the report is not evidence of the failure — it is evidence of *one of two things*, and
+you do not yet know which. The cheap discriminator is almost always available: here, the **absence**
+of `A3/log.decomposePar` and of any `A3_decompose_fields` row in `COST.tsv` proves the branch was
+never entered, which no amount of reading `WARMSTART.txt` would ever have shown.
+
+**THE REPAIR IS NOT "MAKE THE GUARD MORE ROBUST".** It is to make the guard **prove it can
+discriminate, in the run that trusts it.** `run_r2_m1.sh` will not accept its warm-start guard's
+verdict — in *either* direction — until it has watched that guard, on the real reconstructed field
+in that run, accept the good field **and refuse** a copy with a patch scrubbed. If it does not
+discriminate, the arm is `BLOCKED` and **the guard's verdict is discarded rather than believed.**
+And when the arm genuinely does not map, the driver writes the reason **verbatim**, never the words
+"FAILED TO MAP" — a summary sentence is what travels, so the summary must not be a guess.
+
+**Why this is its own class and not one already recorded.**
+
+- **Not `L-490`.** Nothing here confused a subject with an adjacent one; the guard's key was fine.
+  Its closest relative is `L-490` instance #5 — *a guard's own refusal* mistaken for *an unrelated
+  refusal downstream* — but that is a **reader** matching the wrong refusal. Here **there is only
+  one refusal, and the guard manufactured it.**
+- **Not `L-491`.** That is a check that never runs. **This guard ran.** It ran, entered, and died
+  inside — which is worse, because a check that never runs leaves no artifact and a check that dies
+  leaves a *confident* one.
+- **Not `L-494`.** That is an exit status meaning something other than you assume for a documented
+  reason. Here the exit status means exactly what the guard's author intended — **it is just also
+  what a crash produces.**
+
+**Related:** `L-493` — *"if the system produced this answer for completely the wrong reason, would
+my control still be green?"* This is that question asked of a **failure** rather than a pass, and it
+is the more dangerous half: a wrong green is eventually contradicted by a run, while **a wrong red
+closes the question and nobody looks again.**
+
+---
+
+## L-497 — `cmd || echo <default>` IS A TRAP FOR ANY COMMAND THAT PRINTS A VALID ANSWER *AND* EXITS NON-ZERO. `grep -c` IS EXACTLY THAT COMMAND, AND IT PRODUCED A FALSE NEGATIVE ON THE DISCRIMINATION LINE ITSELF
+
+*2026-09-06, `cfd`, the R2-M1 writer rehearsal. Cost: one check-repair cycle, ~0.014 core-min of
+re-run. Found because the harness REFUSED rather than reporting.*
+
+**The defect, in one line.** `grep -c PAT file || echo 0` emits **two** lines when nothing matches:
+`grep -c` prints `0` **and** exits **1**, so the `||` fires as well. The reader returns `"0\n0"`.
+
+The `|| default` idiom is written on the assumption that a failing command produces **no** output.
+**That assumption is false for every command whose non-zero exit means "I looked and found none"
+rather than "I could not look"** — `grep -c` and `grep -q`-adjacent counting forms are the everyday
+case, and `diff`, `cmp` and `test` all have the same property in their own idioms.
+
+**Why this instance is worth a lesson and not just a fix.** The reader was the one counting
+intra-step lines **inside a rule-3 planted control**. All seven arms were scored
+**`DOES_NOT_DISCRIMINATE`** — and the arithmetic they were scored on was never evaluated at all:
+`[ "0\n0" -eq 0 ]` is not a comparison, it is `integer expression expected` on stderr and a
+non-zero `[`. **So the control line went red for a reason that had nothing to do with
+discrimination.**
+
+⚠ **THIS IS A FALSE NEGATIVE ON THE ONE LINE THIS LAB TRUSTS MOST.** Rule 3 makes the
+`DISCRIMINATES` line the load-bearing sentence of every zero we report. A defect that can turn that
+line red *without any loss of discrimination having occurred* is dangerous in a specific way:
+**the tempting repair is to loosen the control.** Faced with seven arms failing a plant that "looks
+right", the cheap move is to relax the assertion until it goes green — and that would have
+destroyed exactly the instrument the run existed to establish. The harness was saved from this only
+because it **refused (exit 2) and reported nothing**, rather than degrading to a number.
+
+**THE REPAIR.** Use a reader that returns **exactly one value on every path** — matched, unmatched,
+file present, file absent:
+
+```bash
+read_count() { awk '/PATTERN/ { n++ } END { print n+0 }' "$1" 2>/dev/null || echo 0; }
+```
+
+`awk` prints `n+0` once and exits 0 in all four cases, so the `||` never fires and the caller always
+receives a single integer.
+
+⚠ **AND THE GENERAL RULE, WHICH IS THE PART THAT TRANSFERS:** before writing `cmd || default`, ask
+**"does this command print a legitimate answer when it exits non-zero?"** If yes, `||` is not a
+default — it is an **append**, and the caller gets both.
+
+**Related:** `L-494`, an exit status that does not mean what the caller assumes; this is the same
+root reached from the other side — the *output* is valid while the *status* says failure, and the
+idiom trusts the status. `L-490`'s standing consequence — that a control which does not print
+whether its plant discriminated has reported a hope — gains a corollary here: **a control that
+prints `DOES_NOT_DISCRIMINATE` has not necessarily reported a discrimination failure. Read why
+before you touch the assertion.**
