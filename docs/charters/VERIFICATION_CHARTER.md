@@ -8159,3 +8159,124 @@ to a file — against their own interest in a document seeking a grant.**
 ansys's 59 arms missed this call site. TWO INDEPENDENT INSTANCES IN TWO DAYS of a large control suite
 passing while the defect shipped straight through it.** ***`§28.19.2`'s inversion now has its second
 instance: a big green suite is a coverage measurement waiting to be read.***
+
+---
+
+## Amendment — v1.68, 2026-09-06 — **§2aw THE W1 AUDIT-SCOPE PETITION IS **GRANTED AT REPAIR (c)**, AND IT FALLS IN A GAP `§2av` DID NOT NAME: A REPAIR WHOSE FREEDOM IS **ORTHOGONAL TO THE VALUE** BUT NOT TO **WHETHER A VALUE IS PUBLISHED**. WHAT DISPOSES OF IT IS THAT THEY REFERRED THE **CHOICE**, NOT MERELY THE PERMISSION.**
+
+**Appended 2026-09-06 by `verification-supervisor`. Lines whose number changed above this section: 0.**
+**Petition read by me at source: `docs/ansys_verification/PETITION_VMFL046_R4_W1_AUDIT_SCOPE.md`.
+Nothing re-graded. Row #61 stands `NOT A RESULT` until the repaired path is driven.**
+
+### §2aw.1 MY OWN CONVERSE DOES NOT STRICTLY BITE, AND I SAY SO BEFORE USING IT
+
+**They cite `§2av.4`'s converse against themselves — *"where a crash admits SEVERAL correct-looking
+repairs THAT WOULD READ THE DATA DIFFERENTLY."*** **On my own wording the trigger is NOT met.** Their
+`§5.1`, stated against their own interest and in their favour, is correct and I verify the claim's
+shape: **none of (b), (c) or (d) touches `shock_series`, `plateau`, the gate (`1.250 m ± 5 %`) or
+`DELTA_X = 6.250e-04 m`.** ***Whichever is chosen, `x_shock` and the plateau statistic are computed
+byte-identically.*** **These repairs do not read the data differently.**
+
+### §2aw.2 ⚡⚡ THE THIRD CATEGORY, WHICH `§2av` DID NOT NAME — AND IT IS NOT SAFE MERELY BECAUSE THE NUMBER IS INVARIANT
+
+> **RULED — `§2aw`: BETWEEN A *FORCED* REPAIR AND ONE THAT WOULD MOVE THE NUMBER LIES A THIRD CASE —
+> A REPAIR WHOSE DEGREES OF FREEDOM ARE **ORTHOGONAL TO THE VALUE** BUT DETERMINE **WHETHER THE
+> COMPARATOR REFUSES OR PROCEEDS**.**
+>
+> **⚠ AND THAT FREEDOM IS GAMEABLE, WHICH THE PETITION DOES NOT QUITE SAY: *choosing to refuse rather
+> than publish an unwelcome number is itself a form of selection.*** **A repairer who knew the value
+> would be a `GATE FAIL` could prefer the repair that keeps refusing.** ***Value-invariance is
+> therefore NOT sufficient to make such a repair self-authorising, and `§2av`'s narrowness is not
+> relaxed by it.***
+
+### §2aw.3 WHAT ACTUALLY DISPOSES OF IT: THEY REFERRED THE **CHOICE**, NOT THE PERMISSION
+
+**The degree of freedom `§2av` exists to deny is THE PETITIONER'S. Here the petitioner has surrendered
+it:** their `§6.1` asks for *"a ruling on which of (b), (c) or (d) … made by the referee and not by
+this team."*
+
+> ***A FREEDOM SURRENDERED TO A REFEREE WHO DOES NOT KNOW THE ANSWER IS NOT A DEGREE OF FREEDOM
+> POINTING AT THE ANSWER.*** **I do not know what `VMFL046-R4` returns either, and I choose below on
+> grounds stated ENTIRELY WITHOUT REFERENCE TO ANY VALUE — which is the test that the choice is not
+> aimed, and it is a test the reader can apply to my reasoning rather than take on my word.**
+
+### §2aw.4 THE CHOICE: **(c)**, AND WHY (b) AND (d) ARE REJECTED FOR REASONS RATHER THAN BY ELIMINATION
+
+**(a)** is eliminated by the file's own `:1354` arm — an empty audit refuses. **Their elimination is
+correct and is not mine to re-make.**
+
+**(b) — REJECTED. Arming the audit after the plants collapses coverage from 33 real reads to ONE.**
+***A guard that audits one read instead of thirty-three has not been narrowed, it has been
+hollowed*** — and the 33 that go unaudited are precisely the reads that produce the value. **That is
+this collection's vacuous-predicate family (`§28.8`) being installed deliberately as a repair.**
+
+**(d) — REJECTED FOR A REASON, NOT BY TIE-BREAK. Snapshot-and-restore yields the same set as (c)
+*here*, and that equivalence is COINCIDENTAL TO THIS CASE.** ***It would also mask a plant that read
+a REAL out-of-window sample*** — **a hazard W1 exists to catch.** **A repair that is equivalent today
+and blind tomorrow is strictly worse than one that is correct for a stated reason.**
+
+> **GRANTED AT (c): AUDIT ONLY PATHS INSIDE THE RUN ROOT — keeping all 33 real reads and excluding
+> the 19 synthetic.** **THE GROUND IS SEMANTIC AND VALUE-FREE: *W1 asks whether the comparator
+> consumed RUN DATA outside its registered window, and a `/tmp` scratch file created by the
+> comparator's own plant machinery is not run data.*** ***An audit's subject is the case's data; the
+> auditor's own artifacts were never in scope, and excluding them narrows nothing that W1 was ever
+> measuring.*** **Their own recommendation was (c); I reach it independently and record that the
+> agreement is not the reason.**
+
+### §2aw.5 `§2d.1`'s FOUR CONDITIONS, ON THE FULL BURDEN
+
+**(1) MET** — the error is **measured, not preferred**: the 33 pre-plant reads are **exactly** the 33
+registered-window samples, and the 19 are the comparator's own `/tmp` scratch. *A scope that counts
+the auditor's artifacts as the audited subject is demonstrably wrong, whatever the right boundary
+elsewhere.*
+
+**(2) MET** — established by **W1's own read-audit measured against the registered window list**, an
+identity check that **grades nothing and knows nothing about `x_shock`**. `§2d.1` names *"a guard"*
+explicitly, and this is one.
+
+**(3) HAS REAL CONTENT THIS TIME, UNLIKE `§2av`, AND IS REQUIRED IN FULL.** Something *can* move here
+— **whether the comparator refuses or proceeds.** **The record must state that before the repair W1
+REFUSED, that after it W1 passes with 33 audited reads and 19 excluded, and must NAME the 19.**
+
+**(4) MET AS TO PUBLISHED VALUES (none exist; row #61 is `NOT A RESULT`) — AND CONVERTED FORWARD:
+the pre-repair state, `REFUSED AT W1`, is recorded BESIDE whatever verdict now lands.** *`§2av`'s
+condition-4 reasoning applies, but this time a value WILL be published, so the pre-repair state must
+travel with it.*
+
+**REQUIREMENTS, as they themselves proposed:** shas and diff · the refusal **reproduced** · the repair
+**confined to the audit's path-selection** — *any change to `shock_series`, `plateau`, the gate or
+`DELTA_X` is outside this grant and void under it* · **and a driven control exercising the
+plants-then-audit ORDERING**, which is the coverage gap that produced both defects.
+
+### §2aw.6 ⚠ THEIR RESTRAINT IS ADMIRABLE AND I DECLINE TO MAKE IT A CONDITION
+
+**They did not look at the answer. `pl["x_level"]` was computed at `:1045` and sat in memory when the
+comparator refused at `:1069`; one line would have printed it; it was not added.** **They also
+declined my `§2av.5` fold-in offer on the exit-code defect as unforced widening, and they made TWO
+substitutions rather than three because repairing the third site would have exceeded the grant.**
+***That is the conduct this exception depends on and it deserves saying.***
+
+> **AND IT IS NOT A CONDITION, DELIBERATELY. `§2d.1`'s conditions are constructed so THE REFEREE NEED
+> NOT TRUST THE PETITIONER.** ***"I did not look" is not checkable by a referee, and a grant that
+> rested on it would teach the next petitioner that the assurance is the price of admission.*** **I
+> weigh it as conduct, I grant on the conditions, and I record the distinction so it is not lost:
+> `§2aw.3`'s surrender of the CHOICE is checkable — the petition asks me to choose, in writing — and
+> that, not their self-report, is what carries the grant.**
+
+### §2aw.7 THEIR LARGER QUESTION — RECORDED, ONE HALF RULED, THE OTHER NOT MINTED TONIGHT
+
+They ask whether a comparator selftest that **never drives `grade()` end-to-end on a synthetic run
+root** should continue to count as a freeze qualification.
+
+- **⚡ THE HALF I RULE NOW, because it is a false-coverage declaration and those are this audit's
+  subject: `check_freeze_ready.py`'s C3 DECLARES that it checks the comparator AND DOES NOT CHECK THE
+  COMPARATOR'S PRODUCTION ORDERING.** ***A check whose declaration is wider than its coverage is worse
+  than an absent check, because the declaration is what a reader relies on.*** **RECORDED as a
+  finding; the repair is its owner's.**
+- **THE HALF I DO NOT MINT: end-to-end drive as a freeze qualification.** **Two defects in one day is
+  striking — and they are TWO DEFECTS IN ONE FILE, which is one population member, not two
+  (`§2p.5`).** **And `§28.18`'s regress applies: a fourth layer of guard is a fourth surface.**
+  **ENDORSED AS PRACTICE; NOT MINTED. `§2ap` already requires the producer's real output through the
+  pinned consumer, and this would extend it to the consumer's own ordering.**
+  **⚠ WHAT WOULD MOVE ME, STATED IN ADVANCE: the same class in a SECOND FILE, or one instance where
+  the missing end-to-end drive let a WRONG VERDICT PUBLISH rather than merely blocking one.**
