@@ -1005,3 +1005,88 @@ The surviving `g = 0` run is **still grossly segregated**: at endTime **`CoV(alp
 **`residualRe` in `phaseProperties` is a false comfort.** In `SchillerNaumann::CdRe()` the floor is applied **only** to the high-Re branch — `pos0(Re−1000)*0.44*max(Re, residualRe_)` — while the **low-Re branch `pow(Re, 0.687)` consumes raw `Re`.** It structurally cannot guard the `pow` argument. *(Not operative here — `max(NaN, 1e-3) = NaN` regardless — but a reader would reasonably assume that dictionary entry protects this exact call, and it does not.)*
 
 > **RULED — the remedy is NOT observability and R3 as I scoped it was refused, correctly.** Fixing `writeInterval` alone would have reproduced the identical SIGFPE at t ≈ 0.082 with fields on disk — **a knowingly doomed freeze cycle.** The lane declined to build it and escalated instead, which is what `§24` requires: **no remedy is registered that has not been measured to survive as a graded result.** The one remedy measured (g = 0) survives the crash and **still fails well-mixedness by 36×**, so no configuration available below the supervisor yields a `PASS`-eligible run.
+
+---
+
+## Row #61 — VMFL046-R4 — Supersonic Flow with a Normal Shock in a Converging–Diverging Nozzle (VM2026R1 p. 155) — **`NOT A RESULT`**
+
+**Graded 2026-09-06 through the §2av-repaired frozen comparator. Verdict: `NOT A RESULT`.**
+**The comparator REFUSES at exit 2. Nothing was graded, so there is no `GATE FAIL` here.**
+
+### What the run did — all three levels COMPLETED, and completed well
+
+| level | rc | `End` line | last `Time` | endTime | centreline samples | ranks | ClockTime | core-min |
+|---|---|---|---|---|---|---|---|---|
+| L1 | 0 | present | 0.08 | 0.08 | 160 | 1 (serial) | 484 s | 8.07 |
+| L2 | 0 | present | 0.08 | 0.08 | 160 | 1 (serial) | 3,280 s | 54.67 |
+| L3 | 0 | present | 0.08 | 0.08 | 160 | 1 (serial) | 25,576 s | 426.27 |
+
+**The R4 cost repair WORKED.** R3's L2 and L3 were killed by their caps; R4 re-estimated from a
+probe covering a representative fraction of the graded clock instead of 10 % of it, and all three
+levels ran to `endTime` **inside estimate — 489.0 of 536 core-min, 0.912×**. The `§27` trap was
+avoided in the direction the charter wanted: the estimate was made good rather than the cap
+loosened to rescue a bad one.
+
+### Why the verdict is nonetheless `NOT A RESULT`
+
+The frozen comparator, repaired under the `§2av` grant, refuses:
+
+> `REFUSE: L1: W1 VIOLATED -- the comparator opened 19 centreline sample(s) OUTSIDE its
+> registered window t in (0.064, 0.08]`
+
+**Measured, not inferred:** the 33 reads recorded before any planted control runs are **exactly
+the 33 samples of the registered window**; all **19** offending paths are the comparator's **own
+plant scratch files under `/tmp`**, and **none is inside the run root**. `grade()` arms the audit
+at `:1042`, runs the plants at `:1062–1066`, and checks the audit at `:1069` — so the plants'
+synthetic reads are charged against W1.
+
+This is a **second, independent instrument defect, structurally hidden behind the first**: the
+shipped code crashed at `:1063` and never reached `:1069`. It is **not covered by the `§2av`
+grant** and, unlike that one, **its repair is not forced** — four repairs are available and they
+audit different sets. It is therefore **petitioned, not self-repaired**:
+`docs/ansys_verification/PETITION_VMFL046_R4_W1_AUDIT_SCOPE.md`.
+
+### How far the instrument DID get, before refusing
+
+For L1 the frozen comparator passed, in order: `check_completion` (the rule-4 strict-completion
+transliteration), `assert_refining_sampler`, `check_limiters_nonbinding` (N4),
+`centreline_history` (160 samples), `registered_window`, `shock_series`, `plateau` — **and all
+five planted controls fired**: `pa`, `pb`, `pc1`, `pc2`, `pd`.
+
+**Two of those five, `pb` and `pc2`, had never once executed in production before the `§2av`
+repair.** They fire. **The `§2av` repair is vindicated as a repair.** The audit's scope, and
+nothing else, stops the grade.
+
+### ⚡ WHAT THIS ROW REFUSES TO CLAIM, AND ONE THING IT REFUSES TO KNOW
+
+- **No `x_shock`, no plateau result, no deviation from 1.250 m, no order, no GCI.**
+- **No `GATE FAIL`** — the gate quantity was never read out.
+- **R4 does NOT establish that R2's limit cycle is cured**, and does not deny it either.
+- **The level value was computed inside the process and DELIBERATELY NOT PRINTED OR READ.**
+  `plateau()` runs at `:1045`, before the audit is checked at `:1069`, so `pl["x_level"]` existed
+  in memory when the comparator refused. **One line would have printed it. It was not added.**
+  No lane has read it. The petition is therefore ruled by a referee **without the petitioner
+  being able to know, or to be suspected of knowing, which way the repair moves the verdict.**
+
+### Provenance
+
+- **Comparator:** `cases/ansys_verification/VMFL046-R4/grade_vmfl046_r4.py`
+  - frozen blob at `d4243c03`: `e09bbf3cea03c633a7dbd6b04365bfc7fe2d9ca2`
+  - repaired blob at `8c25032b`: `83826c1fa6964fe28cc623206f6ff5456bce6134`
+  - repair authorised by `VERIFICATION_CHARTER` v1.67 `§2av` (`8bdd5351`); all four requirements
+    discharged; selftest **63 ok, 0 FAILED** (was 59 arms, none covering the call site).
+  - **The queue rows' `grading_freeze` pin names the PRE-REPAIR blob.** That pin is superseded
+    for this grade by the `§2av` grant, and this row records both shas so the supersession is
+    legible rather than silent.
+- **Gate and thresholds, UNCHANGED and byte-identical from R1/R2/R3:** `x_shock` vs `1.250 m`,
+  band `±5.0 %` (`±0.0625 m`); plateau `ptp` and mean drift `≤ DELTA_X = 6.250e-04 m`.
+- **Run root:** `verification/runs/ansys_verification/VMFL046-R4/{L1,L2,L3}` with
+  `STATUS.queue.VMFL046-R4-L{1,2,3}` and `RUN_RC`.
+- **Pre-registration:** `cases/ansys_verification/VMFL046-R4/PREREGISTRATION.md` — point estimate
+  **536 core-min** (:123), per-level 8.85 / 60.86 / 465.99 (:143–145), caps 27 / 183 / 1,400,
+  total cap 1,610 (:146).
+- **Cost:** **489.0 core-min actual / 536 predicted = 0.912×**; `$0.418` **derived, not measured**
+  at the recorded `$0.0513`/core-h — the box cannot read its own billing
+  (`COMPUTE_BUDGET_CHARTER` §5). Calibration row landed in `docs/COST_CALIBRATION.md`.
+- **The 489 core-min is HELD — neither vindicated nor written off.** The solve data is complete
+  and on disk; only a legal instrument is missing.

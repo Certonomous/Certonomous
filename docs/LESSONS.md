@@ -24465,3 +24465,54 @@ setsid, caller IS a leader               rc = 0      <-- rc is DESTROYED
 > **THE RULE, UNCHANGED IN ACTION AND CORRECTED IN REASON: capture the rc INSIDE the detached wrapper, on the line immediately after the command, and never take a status from around a `setsid` line — not because setsid always returns 0, but because WHETHER IT DOES DEPENDS ON THE CALLER AND IS NOT VISIBLE WHERE YOU ARE STANDING. A test that asserts either behaviour must set the caller's session state explicitly and assert BOTH modes.**
 
 **The corollary that makes this checkable.** A detach test should launch with `start_new_session=True` **on purpose**: that guarantees the fork, which guarantees the outer 0 is meaningless **by construction rather than by luck** — and then the wrapper's recorded rc is the only status that exists, which is exactly what the rule wants.
+
+## L-495 — A selftest that exercises the PARTS but never the PRODUCTION SEQUENCE measures its own coverage, not the instrument — and it hides defects BEHIND each other
+
+**2026-09-06, ansys-verification, `VMFL046-R4`. Two independent defects in one frozen comparator,
+in one day, both invisible to 59 passing selftest arms, and the second one only reachable after
+the first was repaired.**
+
+**Defect 1.** `grade()` passed `pl["A"]` — a list of `(t, x_shock)` series points — to
+`plant_plateau_reducer` and `plant_field_readback_per_sample`, whose signatures take a window of
+`(t, path)`. `TypeError`, rc = 1, pre-verdict. **59 arms passed.** Every arm called those
+functions with a *correct* argument; not one exercised the argument `grade()` actually passes.
+
+**Defect 2, found only because defect 1 was repaired.** `grade()` arms the W1 read audit at
+`:1042`, runs five planted controls at `:1062–1066` — each writing and re-reading `/tmp` scratch
+samples through the audited reader — and *then* checks the audit at `:1069`. The audit charges the
+comparator's own plant scratch files against its registered window and refuses. **The shipped code
+crashed at `:1063` and could never reach `:1069`, so no run and no arm had ever been able to
+observe this.** The selftest exercises `audit_window_only()` in isolation at `:1317`; the
+plants-then-audit ordering that `grade()` actually uses is exercised **nowhere**.
+
+### The rule
+
+> **A comparator selftest that never drives `grade()` end-to-end is not evidence about the
+> comparator. It is evidence about the selftest's own coverage.** Arms that call each function
+> with a hand-built, correct argument test the functions and leave the *call sites* — the
+> arguments, the ordering, the shared mutable state between them — completely unmeasured. That
+> is `§2p.3(d)`'s class exactly: *a pass is attributable only if the code that produced it is the
+> code that runs.*
+
+**And the corollary that cost the second discovery:** **defects in an unexercised sequence QUEUE
+UP BEHIND EACH OTHER.** Finding and fixing one tells you nothing about how many remain, because
+the first crash was the only thing anyone had ever observed. **Do not report a repaired crash as
+"the comparator is now correct" — report it as "the comparator now reaches further".**
+
+### What to do instead
+
+1. **Drive `grade()` itself against a synthetic run root** in the selftest, not only its parts.
+   The synthetic root is cheap: a handful of time directories and sample files.
+2. **Where a global or module-level accumulator is shared between phases** — here `_CL_READS` —
+   an arm must exercise the phases *in production order*, because the bug lives in the ordering
+   and in nothing else.
+3. **Count arms that exercise a call site, separately from arms that exercise a function.** 63
+   arms sounds like coverage. Before this lesson, the number of arms covering the four plant call
+   sites was **zero**.
+
+**Related:** `§2p.3(d)`, `§28.19`, `§2av.5` requirement 4, and this team's own recurring shape —
+*"I verified the artifact and not its contract with the machinery around it"* — of which this is
+instances five and six. `cases/ansys_verification/FREEZE_CHECK/check_freeze_ready.py`
+(`181cd921`) does **not** catch this class either: its C3 checks the comparator and not the
+comparator's **production ordering**, and that gap should now be declared in the file rather than
+discovered a seventh time.
