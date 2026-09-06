@@ -561,7 +561,7 @@ The building lane implemented §3.2's registered consequence as `compose` **rung
 
 `G-SOLN` establishes that the solver settings **are the registered tightened ones**. If it fails, then whatever `G-CONV` measured, **it measured a DIFFERENT CONFIGURATION from the one registered.** A `G-CONV` `PASS` under a failed `G-SOLN` is therefore not evidence about the registered case at all, and quoting it would **attach a number to a case nobody registered** — which is §3.2's own sentence, *"no `G-CONV` PASS may be quoted as D6RF3's answer"*, in ladder form.
 
-**It is STRICTLY RESTRICTIVE and that is why it is safe to ratify pre-compute:** it can only turn a `PASS` or a `GATE FAIL` **into** a `NOT A RESULT`, never the reverse —  rule 5's own permitted direction of travel. **It cannot rescue a row and cannot manufacture a pass.**
+**It is STRICTLY RESTRICTIVE and that is why it is safe to ratify pre-compute:** it can only turn a `PASS` or a `GATE FAIL` **into** a `NOT A RESULT`, never the reverse — `CLAUDE.md` rule 5's own permitted direction of travel. **It cannot rescue a row and cannot manufacture a pass.**
 
 **NOTHING ELSE MOVES.** No band, threshold, cap, deadline, ceiling, label or prediction changes. `primalMinResTol` and `primalMinResTolDiff` remain **untouched everywhere**, and whether a successor may ever register a different acceptance rule remains **escalated to Sanaa and unruled** — `ACCEPT_FLOOR_UNMOVED` makes that boundary executable rather than promised, and it refuses **tightening as well as loosening**, because the registered value is a value and not an inequality.
 
@@ -574,3 +574,17 @@ The building lane implemented §3.2's registered consequence as `compose` **rung
 **AND A NAMED HAZARD, WHICH HAS NOW PAID TWICE IN ONE NIGHT: DUPLICATE ASSIGNMENT WHERE THE LAST WINS.** This item's own drives caught `MD5_ANCHOR_GATE` **assigned twice in the launcher with the stale value second** — it would have won and aborted staging at rc 4 — and it was caught **only because the refresh asserts a hit count of exactly one**. The same shape appeared in W3S, where `LAUNCH_ENABLED=0` occurred **four times** and a uniqueness assertion refused rather than editing the wrong line. **Pin the count, not the appearance (L-493).**
 
 **SUBMISSIONS PARKED.**
+
+### CORRECTION — 2026-09-06T02:34:27Z — **ONE CITATION IN THE SECTION ABOVE WAS DELETED BY THE SHELL THAT WROTE IT, AND THE MECHANISM IS WORTH MORE THAN THE TYPO**
+
+**The corrupted line is repaired in place above** (this document is UNFROZEN and pre-first-compute, so rule 2 permits it outright; nothing frozen is edited). It read *"never the reverse —  rule 5's own permitted direction of travel"* with a missing citation and a doubled space. It now reads **`CLAUDE.md` rule 5**. **No meaning changed; a citation was restored.**
+
+**WHAT HAPPENED, because it will happen to somebody else tonight.** The section was written through an **unquoted shell heredoc** (`<<EOF`, not `<<'EOF'`), which was necessary to interpolate the timestamp. **In an unquoted heredoc the shell performs command substitution on backticks — and markdown prose is made of backticks.** The span `` `CLAUDE.md` `` was executed as a command, failed with `CLAUDE.md: command not found`, and **substituted the empty string**, silently deleting the citation from the committed text.
+
+> **THIS IS THE `git commit -m` BACKTICK TRAP IN A NEW PLACE, AND IT IS WORSE HERE.** There, the commit loudly never runs. Here **the write SUCCEEDS and the artefact is quietly wrong** — and the failure is asymmetric in a way that matters: a backtick span naming something that is **not** a command deletes itself and leaves a scar you can grep for (a doubled space); a span naming something that **is** a command — `` `date` ``, `` `ls` ``, `` `pwd` `` — **injects its output into the record and leaves no scar at all.**
+
+**How it was caught, and it was luck of the honest kind:** the shell printed `CLAUDE.md: command not found` in the invocation's own output, and that one line was read rather than skimmed past. **Had the span been `` `date` ``, nothing would have printed and the corruption would have entered the frozen record silently.**
+
+**Scoped rather than assumed.** Every section appended to this family's documents tonight was scanned for the signature (a mid-line multi-space run) inside its own bounds: `DAFOAM_CHARTER.md` §21, `A1WRT3` §13, `D6RF3` §12 and §13, `A1WRT2` §13, `N-D43`, and the board blocks — **all clean; this was the only instance.** They survived because their backticks were escaped (`` \` ``); this one span was not.
+
+**The rule this supports, and it costs nothing:** **write markdown through a QUOTED heredoc (`<<'EOF'`) and substitute variables afterwards** — never through an unquoted one. A document is not a shell string, and the shell cannot tell the difference.
