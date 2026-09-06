@@ -1,0 +1,73 @@
+age_truncation_census.py -- CONTROL EVIDENCE
+Recorded 2026-09-06 by the dafoam lane that built the instrument.
+
+THE CONTROL GATE RUNS BEFORE THE CENSUS REPORTS ANYTHING, AND IT HAS BEEN DRIVEN
+IN THE REFUSING DIRECTION.  Each of the instrument's three historical failures was
+reintroduced as a mutation of the production text; each mutation REFUSED, and each
+reddened a DIFFERENT fixture.  A fourth mutation removed the fixture entirely.
+
+  MUT A  FAILURE 2 reintroduced (read-back target-name limb removed)
+  MUT B  FAILURE 1(a) reintroduced (st_mtime_ns classed as floored)
+  MUT D  FAILURE 1(b) reintroduced (module-wide name resolution)
+  MUT C  the planted fixture removed
+
+NOTE ON HOW `neg6` CAME TO EXIST, because it is the honest part of this record:
+the FIRST mutation run showed the control could NOT catch FAILURE 1(b) -- MUT D
+passed 8/8, 0/5.  The gap was in the FIXTURE, not in the instrument, and the
+fixture was extended with `neg6.py` (the two-function shape that falsely accused
+`analyse_f28.py`) until the mutation reddened it.  A control that has never been
+shown to fail is not a control.
+
+--------------------------------------------------------------------------------
+$ python3 age_truncation_census.py --selftest
+PLANTED CONTROL PASS  positives 8/8  false positives 0/6
+
+--- MUT A: FAILURE 2 reintroduced ---
+REFUSED: PLANTED CONTROL FAILED: 6/8 positives detected, 0/6 negatives wrongly flagged. missed=['pos2.py', 'pos5.py'] wrongly_flagged=[].  A reader not shown able to see a non-zero is not evidence (CLAUDE.md rule 3); THIS CENSUS REPORTS NOTHING.
+--- MUT B: FAILURE 1(a) reintroduced ---
+REFUSED: PLANTED CONTROL FAILED: 8/8 positives detected, 1/6 negatives wrongly flagged. missed=[] wrongly_flagged=['neg2.py'].  A reader not shown able to see a non-zero is not evidence (CLAUDE.md rule 3); THIS CENSUS REPORTS NOTHING.
+--- MUT D: FAILURE 1(b) reintroduced ---
+REFUSED: PLANTED CONTROL FAILED: 8/8 positives detected, 1/6 negatives wrongly flagged. missed=[] wrongly_flagged=['neg6.py'].  A reader not shown able to see a non-zero is not evidence (CLAUDE.md rule 3); THIS CENSUS REPORTS NOTHING.
+--- MUT C: planted fixture absent ---
+REFUSED: the planted fixture is MISSING (No module named 'age_truncation_census_fixture').  A census that cannot run its own control reports nothing.
+
+--------------------------------------------------------------------------------
+$ python3 age_truncation_census.py --repo /home/ubuntu/Certonomous
+PLANTED CONTROL PASS  positives 8/8  false positives 0/6
+scripts scanned            : 2361
+mtime comparisons          : 355 in 235 files
+truncated on >=1 side      : 89 in 45 files
+  floor ON the compare line: 29
+  floor ELSEWHERE          : 60   <- invisible to a line-level pass
+round()/ceil() on a datum  : 0   (a floor moves a datum EARLIER; a round does not)
+truncated by area          : {'cases/dafoam': 80, 'scripts/auto-stop.sh': 2, 'scripts/auto_stop_patched.sh': 2, 'verification/runs': 5}
+
+--------------------------------------------------------------------------------
+$ python3 age_truncation_census.py --sweep
+The FP/FN possibility table, enumerated over sub-second offsets rather than argued.
+It is what makes FAIL-OPEN vs FAIL-CLOSED derivable: the direction is NOT the operator.
+op     artefact  datum     canFP  canFN 
+Gt     exact     exact     False  False 
+Gt     exact     FLOORED   True   False 
+Gt     FLOORED   exact     False  True  
+Gt     FLOORED   FLOORED   False  True  
+GtE    exact     exact     False  False 
+GtE    exact     FLOORED   True   False 
+GtE    FLOORED   exact     False  True  
+GtE    FLOORED   FLOORED   True   False 
+Lt     exact     exact     False  False 
+Lt     exact     FLOORED   False  True  
+Lt     FLOORED   exact     True   False 
+Lt     FLOORED   FLOORED   False  True  
+LtE    exact     exact     False  False 
+LtE    exact     FLOORED   False  True  
+LtE    FLOORED   exact     True   False 
+LtE    FLOORED   FLOORED   True   False 
+Eq     exact     exact     False  False 
+Eq     exact     FLOORED   True   True  
+Eq     FLOORED   exact     True   True  
+Eq     FLOORED   FLOORED   True   False 
+NotEq  exact     exact     False  False 
+NotEq  exact     FLOORED   True   True  
+NotEq  FLOORED   exact     True   True  
+NotEq  FLOORED   FLOORED   False  True  
