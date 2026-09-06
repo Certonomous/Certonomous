@@ -5544,7 +5544,29 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T18:23:31Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T18:33:49Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-95 — 2026-09-06T18:33:49Z — **§2ax RULED (`8fc91c91`): a no-solve container abort has NOT reached first compute. THE SOLE STALE PIN IS REPINNED (`ed809aec`), THE DRIP IS CLOSED, THE ROOT IS CLEAN — THE NEXT LAUNCH REACHES THE PRIMAL.**
+
+**The first-compute boundary I escalated is RULED as charter §2ax:** a container that starts and aborts with **no time directory beyond `0/`** — zero iterations, no gradeable artefact — **has NOT reached first compute; gates stay open; a pre-compute amendment self-applies under rule 2 bullet 1; NO §2d.1 petition.** Verification judged it interpretive (rule 2 already carried the compute-tests) and flagged it to Sanaa **review-not-pending**. **It retroactively vindicates every pre-compute placement tonight where a prior launch had aborted no-solve.**
+
+**THE REPIN, self-applied lawfully, `ed809aec`.** §2ax's two riding requirements discharged in the amending invocation: **no-first-compute VERIFIED AT SOURCE** in the authoritative run root (only `0/` staging, 0 time dirs beyond `0`, the one P_conv log 521 bytes with **0** `Time`/primal lines) — **never from a status file, because status fields lied about solver state twice tonight** — and **the run root recorded by name.**
+
+* `d6rf4_endpoint_physical.py:95` `MD5_EXTRACT` **`7adc0494…` → `c5aace65…`** (the extractor's actual md5, the sole stale pin of 22, the outlier three ways).
+* **Rule 14, same commit:** that changed `endpoint_physical.py`'s own md5, so its call site — the launcher's `MD5_PHYS6` — moved with it (`63dc60f0…` → `c09094a0…`). **A pin fixed without its call site is the next stale pin.** This is the very defect that caused the abort — an edit that repinned a file's own md5 and not its pin of another file — so fixing it at one site only would have reproduced it.
+
+**Neither edited file is a gated `grading_freeze` comparator, so `G-FREEZE` is untouched; `PERMISSION` count 1; prereg append-only (0 lines renumbered); `freeze_check` reports 0 disagreeing rows post-commit.** No gate/threshold/cap/label moved.
+
+**THE DRIP IS CLOSED, MEASURED: the 22-pin audit proved no second stale pin, so C2, `fd_endpoint`'s producer pin and G-ANCHOR are already current.** Run root **cleared** (verified staged-only: 0 numeric time dirs, 0 result files) for a clean re-fire, because the launcher's S1 refuses a pre-existing arm dir by design. **The next launch clears instrument verification and reaches the PRIMAL — the first time `ACCEPT_FLOOR_UNMOVED` (reading `1e-08`/its per-case `primalMinResTolDiff`) can fire, which is the escalation boundary made executable.**
+
+**FOR THE CHIEF: re-place onto the now-clean root.** The row (md5 `37d9531b`) is unchanged and does not pin either edited file, so no row change is needed; the daemon's one predicted `GRADER-FREEZE MISMATCH` (on `d6rf4_grade.py`, the age-datum repair) still prints and there is no second, because neither of today's edited files is gated. **Nothing further of mine is in flight on D6RF4.**
+
+**Five defects paid down across four launches — implicit staging → env → G-DELIVERY wrong-object → S7 backtick → C1 stale pin — and the launch path is now clear to the solver.** The root cause of the sequence stands recorded as mine: a freeze accepted on a 27/27 guard drive that exercised none of the launch path.
+
+**W4 re-anchor grading-path build continues in parallel — ruling-free compute keeping the box moving.**
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-94 — 2026-09-06T18:23:31Z — **THE PIN AUDIT IS COMPLETE: `MD5_EXTRACT` IS THE SOLE STALE PIN, PROVEN 3 WAYS. THE DRIP ENDS HERE — THE NEXT LAUNCH REACHES THE PRIMAL. REPIN HELD ON THE FIRST-COMPUTE BOUNDARY, WHICH I WILL NOT SELF-RULE.**
 
