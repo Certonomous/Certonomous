@@ -13,9 +13,8 @@
  ],
  "launch_cmd": [
   "bash",
-  "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_run_arm.sh",
-  "P_conv",
-  "dafoam-idwarp-rot:v1"
+  "-c",
+  "bash /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_stage_root.sh && bash /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_run_arm.sh P_conv dafoam-idwarp-rot:v1"
  ],
  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4",
  "ranks": 4,
@@ -204,5 +203,23 @@
   "case_id D6RF4-P_conv": "A COMPOSED LABEL, and named as such rather than presented as a registered string: the item id from PREREGISTRATION.md:3 ('D6RF4 -- A2 MACH wing, multipoint FD verification. Successor to D6RF3.') joined to the one registered arm from :451. The frozen document registers no case_id token of its own."
  },
  "_A_NOTE_ON_THE_WORD_CEILING_BECAUSE_TWO_DIFFERENT_QUANTITIES_CARRY_IT": "d6rf4_grade.py:696 and :2792 set ceiling_core_min = sum(CAPS.values()), which with the single registered arm equals 54.00 core-min -- the --cap-arithmetic ceiling, identical to the cap here only because one arm is registered. d6rf4_run_arm.sh:1267-1268 computes a DIFFERENT ceiling, CEILING = 3.0 x CAP = 162.0 core-min, the fleet safety stop: crossing it docker-stops the container and breaks the watch loop (:1279-1284), while crossing the CAP at :1275-1278 only echoes D6RF4_CAP_CROSSED with action=REPORTED_RUN_CONTINUES and lets the run continue for the supervisor to decide. 54.0 AND 162.0 ARE BOTH CORRECT AND THEY ARE NOT THE SAME QUANTITY. A report quoting 'the ceiling' without saying which instrument's is ambiguous. RATIFIED BY THE SUPERVISOR AGAINST THEMSELVES: amendment d77ed304 section 4 records \"'Ceiling 54.0' conflated two quantities ... two numbers, two behaviours, one word -- and I used the word without the distinction.\" NEITHER NUMBER MOVED; the amendment moves no cap and no ceiling, only the word.",
- "_SUBMISSIONS_PARKED": "Nothing in this item is sent, filed, uploaded, registered, posted or commented outside this box (CLAUDE.md rule 7; DAFOAM_CHARTER.md section 10). Placing a queue row inside this repository is not a submission; it is a launch, and it is the chief session's act under the grant quoted above."
+ "_SUBMISSIONS_PARKED": "Nothing in this item is sent, filed, uploaded, registered, posted or commented outside this box (CLAUDE.md rule 7; DAFOAM_CHARTER.md section 10). Placing a queue row inside this repository is not a submission; it is a launch, and it is the chief session's act under the grant quoted above.",
+ "_LAUNCH_CMD_RULING_BY_THE_dafoam_supervisor_2026_09_06": {
+  "what_changed": "The argv now runs d6rf4_stage_root.sh BEFORE d6rf4_run_arm.sh, joined by &&.",
+  "previous_argv": [
+   "bash",
+   "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_run_arm.sh",
+   "P_conv",
+   "dafoam-idwarp-rot:v1"
+  ],
+  "why_the_arm_aborted_at_1633_09Z": "d6rf4_run_arm.sh contains ZERO mkdir and never creates its own run root. In D6RF3 that work lived in a CHAIN DRIVER (d6rf3_chain_driver.sh:92-104, 'ROOT STAGING on the first fire only'). D6RF4 registered one arm, DROPPED THE CHAIN DRIVER, and the staging went with it -- while the launcher still assumes a populated root at :515 (exists, mode 777), :518-527 (NINE md5 assertions) and :632-636 (the reference mesh). Deterministic, not a race: the same argv aborts identically. Creating the directory alone is NOT the repair -- it then aborts at the first md5 check.",
+  "the_ruling": "TWO lawful shapes existed: run the stager as a separate act before placement, or make it part of the launch argv. I TAKE THE ARGV. A staging step that depends on somebody REMEMBERING to run it first is the same class of implicit precondition that caused this abort -- the chain driver's staging was implicit too, right up until the layer holding it was dropped. Putting it in the argv makes it reproducible, recorded in the row, and impossible to omit.",
+  "why_it_is_legible_when_it_refuses": "The stager's exit codes (40-44) are DISJOINT from the launcher's, deliberately, so a single launcher_rc on the queue row names WHICH LAYER refused. A combined argv with overlapping codes would have traded one implicit precondition for one ambiguous rc.",
+  "stager_md5": "652b3cdcd3ac66a8955d2190784c3bff",
+  "lawfulness": "PRE-FIRST-COMPUTE under CLAUDE.md rule 2, which closes gates at FIRST COMPUTE and not at freeze. This item has burned 0 SOLVER core-minutes and no container has ever existed for it. No gate, threshold, band, cap, deadline, ceiling, verdict or label moves; d6rf4_run_arm.sh is NOT edited and NOT re-pinned.",
+  "what_is_still_owed_and_is_not_silently_dropped": {
+   "C28_final_spend_readback": "The chain driver read the final spend back through item_ceiling_guard.py --cap 0. The stager runs BEFORE the fire and cannot. OWED AT COMPLETION per section 8.3 and rule 12.",
+   "C23_aggregate_container_ceiling": "The runner is verified to enforce this item's MemAvailable floor; it is NOT verified to enforce an aggregate-of-container-caps ceiling. If a sibling is live at the re-fire, this clause is UNREPLACED."
+  }
+ }
 }
