@@ -203,3 +203,15 @@ at $0.0513/core-h (c7a.4xlarge, reported-by-owner — the box cannot read its ow
   it to fit is not permitted.
 - **May NOT:** carry `primalMinResTolDiff = 1000` to a different case family — it is
   `100` on the S1 CBFS family (`N-D43 CORRECTION`, 2026-09-06).
+
+---
+
+## AMENDMENT — 2026-09-06T23:11:56Z — **§2.3's OPEN QUESTION RESOLVED: THE BINDING FIELD IS p's UNCORRECTED FIRST SOLVE, NOT nuTilda. And the failure is RECOVERABLE by sourced fixes — capability gap NOT proven (SANAA-DIRECT 4ae4b33).**
+
+**§2.3 left open which field `primalMaxRes` reads. RESOLVED, verified by the supervisor at source:** the log's `Primal min residual 1.658293702e-05` (`:2121`) is **byte-identical to `p`'s uncorrected first-solve `initRes`** (`:2107`) — so the max-over-states DAFoam refused on is **`p`'s first solve at 1.66× the 1e-5 floor, NOT `nuTilda`** (1.409e-5, 1.41× — a genuine SECOND over-floor field, but not the binding one). My prior boards said "nuTilda binds"; the correct statement is **p's first solve is the binding (max) field; nuTilda is a real second.** Both are nonlinear steady-state plateaus (the linear solves reach 1e-8/1e-9). **Mechanistic cause, sourced:** the mesh's max non-orthogonality **71.48 exceeds DAFoam's own default `maxNonOrth: 70`** (in this log at `:217/:275/:578`), and the p first-solve floor IS the magnitude of the explicit non-orthogonal correction term.
+
+**UNDER SANAA'S LAW: RECOVERABLE by named, sourced fixes — capability gap NOT proven.** Full analysis and citations: `docs/dafoam/D6RF4_CONVERGENCE_RESEARCH.md` (`1586fcf9`). Ranked, all to a **D6RF5 successor** (never a D6RF4 edit — gates closed by first compute): (1) `limited corrected 0.333` on laplacian+snGrad — caps the explicit correction that IS the binding residual; (2) `nNonOrthogonalCorrectors 1→3` (caveat: the bind is the FIRST p-solve, so measure, don't assume); (3) nuTilda under-relaxation for the second field; (4) bounded upwind div; then (7) re-mesh <70. **The accept floor stays 1e-5.**
+
+**⚠ DAFoam's OWN documented remedy for "Primal solution failed" is to raise `primalMinResTol`/`primalMinResTolDiff` — i.e. WIDEN the accept floor, which the lab FORBIDS (N-D43). The stock fix is off-limits; the fix must be the numerics/mesh, which the ranked list supplies.** **A capability-gap claim would require RANK 1 + RANK 2 + a re-mesh below ~40° to STILL fail 1e-5, filed with that measurement; that proof does not exist today** — so this is a waypoint owing D6RF5, not a gap.
+
+**SUBMISSIONS PARKED.**
