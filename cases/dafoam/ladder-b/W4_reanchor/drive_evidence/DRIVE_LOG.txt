@@ -1,0 +1,141 @@
+W4-REANCHOR PRODUCTION DRIVE -- prereg section 16 fix step 2 (RUN THE REAL DRIVERS, mock the container)
+Generated 2026-09-06T19:36:46Z by a dafoam lab-lane. The run root was a THROWAWAY SANDBOX; the real
+run root /home/ubuntu/certonomous-runs/W4-reanchor stays ABSENT (freeze C1). The drivers run here are
+the REAL repo run_one.sh (md5 da96cb58cc3904a2232a700c2bf9895d) and run_plateau.sh (md5
+7700b1b45a5464673c6659dd57dc23e6) with ONLY the single BASE= line redirected to the sandbox (proven
+by diff below). The container is MOCKED (mock_solver.py); no real solver, no real container ran.
+The comparator graded is the FROZEN analyse_w4_reanchor.py with ONLY its 2 STAGED_INSTRUMENTS md5s
+re-pinned to the new drivers (the supervisor's re-pin, simulated here for the drive; --skip-freeze).
+The graded verdict PASS is on SYNTHETIC mock objectives -- it proves leg PRODUCTION + grading, NOT physics.
+======================================================================================================
+[A] the only difference between the sandbox drivers run here and the committed repo drivers:
+17c17
+< BASE=/home/ubuntu/certonomous-runs/W4-reanchor
+---
+> BASE=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/w4_drive/run
+34c34
+< BASE=/home/ubuntu/certonomous-runs/W4-reanchor
+---
+> BASE=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/w4_drive/run
+======================================================================================================
+[B] RUNNING THE REAL W4 run_plateau.sh (16 legs, section 6 order):
+W4-REANCHOR START 2026-09-06T19:36:46Z  CAP=150.0 core-min
+== p050_5491_plus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:46Z
+== p050_5491_minus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:46Z
+== fw750_5491_plus rc=0 wall=1s cpus=2 core_min=0.03 2026-09-06T19:36:47Z
+== fw750_5491_minus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:47Z
+== anchor8w rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:47Z
+== base8w rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:47Z
+== p025_5491_plus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:47Z
+== p025_5491_minus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:47Z
+== p025_6740_plus rc=0 wall=1s cpus=2 core_min=0.03 2026-09-06T19:36:48Z
+== p025_6740_minus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:48Z
+== p050_6740_plus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:48Z
+== p050_6740_minus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:48Z
+== p025_12486_plus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:48Z
+== p025_12486_minus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:48Z
+== p050_12486_plus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:49Z
+== p050_12486_minus rc=0 wall=0s cpus=2 core_min=0.00 2026-09-06T19:36:49Z
+W4-REANCHOR DONE 2026-09-06T19:36:49Z  spent=0.0600 core-min of CAP=150.0
+======================================================================================================
+[C] LEGS PRODUCED AT THE RUN ROOT (read from disk, not asserted):
+logs: 16   ledger END rows: 16   fields_ dirs: 16
+anchor8w_grad.npy at run root: 168128 bytes  (moved out of cbfs_beta by the driver)
+======================================================================================================
+[D] FROZEN COMPARATOR (re-pinned copy, --skip-freeze) GRADING THE DRIVER-PRODUCED TREE:
+==============================================================================
+W4 CBFS RE-ANCHOR -- FROZEN COMPARATOR (derived from S1FDP 5f55c742)
+accept floor 1e-8 x 100 = 1e-6 (N-D43: the PRODUCT; diff is 100 NOT 1000)
+==============================================================================
+
+[0] FREEZE + COVERAGE + STAGED-INSTRUMENT md5s
+      frozen_path_coverage: 6 referenced, all in FROZEN_PATHS and on disk
+      null_reading_coverage: 11 run-derived quantities, all have a registered null reading
+      imported_symbol_identity: all 6 identity checks hold (the plant plants into the gate's own functions)
+      staged runScript.py         md5 565307ddfd2affd7184011f60834edd8 == registered  OK
+      staged run_one.sh           md5 da96cb58cc3904a2232a700c2bf9895d == registered  OK
+      staged run_plateau.sh       md5 7700b1b45a5464673c6659dd57dc23e6 == registered  OK
+      staged fd_beta_ones.npy     md5 661e027867ffa48d5b64297a5e990238 == registered  OK
+      freeze_check: SKIPPED (--skip-freeze; fixture drive only)
+
+[1] W2 -- TOLERANCE READBACK from EVERY leg's own log (imported control)
+      registered  tol=1e-08  diff=100  floor=1e-06   read back unmoved on 16/16 legs
+
+[2] anchor gradient (arm's OWN anchor8w at 1e-8)  /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/w4_drive/run/anchor8w_grad.npy  md5 05e6be1f1050526b3ee60749338a1a86
+      NOT the refused 1e-6 gradient (md5 06fe8c5097872496e8d1354624d19f03, prereg 2.2 -- NOT READ)
+      J_adj[5491] = 1.527927890636e-06
+      J_adj[6740] = 1.527927890636e-06
+      J_adj[12486] = 1.527927890636e-06
+
+[3] RULE 4 STRICT COMPLETION -- declared 16, executed 16, blocked 0
+      field list for this family: U p k omega nut phi  (rule 4 names the THERMAL family's fields; this is the DASimpleFoam analogue)
+      fw750_5491_plus        COMPLETE              rc=0 last_time=2500 core_min=0.03 floor=FLOOR_STATE_UNREADABLE
+      fw750_5491_minus       COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      anchor8w               COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      base8w                 COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      p025_5491_plus         COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      p025_5491_minus        COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      p025_6740_plus         COMPLETE              rc=0 last_time=2500 core_min=0.03 floor=FLOOR_STATE_UNREADABLE
+      p025_6740_minus        COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      p025_12486_plus        COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      p025_12486_minus       COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      p050_5491_plus         COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      p050_5491_minus        COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      p050_6740_plus         COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      p050_6740_minus        COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      p050_12486_plus        COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+      p050_12486_minus       COMPLETE              rc=0 last_time=2500 core_min=0.0 floor=FLOOR_STATE_UNREADABLE
+
+[4] W0 -- base consistency: OBJ varianceU(anchor8w) == OBJ varianceU(base8w), 16 digits
+      anchor8w OBJ 0.015279278906359758   base8w OBJ 0.015279278906359758   -> EQUAL
+
+[5] PLANTED-ZERO CONTROL -- PLANT = 1.234000e-03 relative into the + leg of cell 6740 ONLY, by line index, re-read from disk, on a COPY
+      cell 6740: d moved 1.528214377058e-06 -> 3.786217606943e-04
+      observed delta 3.770935463172e-04   implied by the plant 3.770935463172e-04
+      cell 5491: unchanged to the last digit (1.5282143770584122e-06)
+      cell 12486: unchanged to the last digit (1.5282143770584122e-06)
+      PLANT SEEN. The comparator can report disagreement.
+
+[6] F_W -- the registered trivial baseline: cell 5491 at h_F = 0.75
+      REGISTERED PREDICTION (not recomputed): plateau statistic vs |d(0.05)| = 19.1195 % > 10 %  -> FAILS W1
+      MEASURED  d(h_F=0.75) = 1.785765722182e-06   d(0.05) = 1.529073836559e-06
+      MEASURED  plateau statistic vs |d(0.05)| = 16.7874 %  (registered prediction 19.1195 %)  -> FAILS W1 as predicted
+      MEASURED  alternative denominator |d(h_F)| = 14.3743 %  (registered prediction 23.6392 %)
+
+[7] W1 -- |d(0.05) - d(0.025)| / |d(0.05)| <= 10 %, PER COMPONENT
+      cell 5491: d(0.025) = 1.528214377058e-06   d(0.05) = 1.529073836559e-06
+               W1 move = 0.0562 %  bar 10 %  -> PASS
+               rel.err vs anchor8w: 0.0187 % at 0.025, 0.0750 % at 0.05  (reported, no gate attached)
+      cell 6740: d(0.025) = 1.528214377058e-06   d(0.05) = 1.529073836559e-06
+               W1 move = 0.0562 %  bar 10 %  -> PASS
+               rel.err vs anchor8w: 0.0187 % at 0.025, 0.0750 % at 0.05  (reported, no gate attached)
+      cell 12486: d(0.025) = 1.528214377058e-06   d(0.05) = 1.529073836559e-06
+               W1 move = 0.0562 %  bar 10 %  -> PASS
+               rel.err vs anchor8w: 0.0187 % at 0.025, 0.0750 % at 0.05  (reported, no gate attached)
+
+[8] REGISTERED CONSEQUENCE: not triggered -- the wrong step does not pass W1's bar, so the gate discriminates step quality.
+
+[9] SIGN-FLIP DUTY (VERIFICATION_CHARTER section 7 step 3, separate from W1)
+      cell 5491: move 0.06 % of own magnitude, sign MATCHES -> not flagged
+      cell 6740: move 0.06 % of own magnitude, sign MATCHES -> not flagged
+      cell 12486: move 0.06 % of own magnitude, sign MATCHES -> not flagged
+
+[10] RULE 12 -- registered estimate 133.23 core-min, HARD CAP 150.0, ACTUAL 0.060 core-min (ratio actual/predicted 0.0005 if EST>0)
+      billing convention: --cpus=2 (wall_s x 2 / 60), PROVISIONAL pending the rule-12 unit ruling (prereg F7); ranks-in-ledger seen: [2]
+      derived $ at the owner-stated c7a.4xlarge rate $0.0513/core-h: $0.0001  [DERIVED, NOT MEASURED -- the box cannot read its own billing]
+      rows over 3600 wall s (stalls): none
+      CAP respected
+
+==============================================================================
+VERDICT -- produced by this frozen path, not composed by hand
+==============================================================================
+
+ITEM TOKEN: PASS
+REASON:     all three components sit inside the registered 10 % plateau bar, the falsifier failed the bar as predicted, W0 held, and the planted zero was seen.
+  cell 5491: PASS
+  cell 6740: PASS
+  cell 12486: PASS
+  F_W (h_F=0.75): measured 16.7874 % vs registered prediction 19.1195 % -> MET (fails W1)
+  cost: 0.060 core-min actual vs 133.23 registered, cap 150.0
+
+machine record: /home/ubuntu/Certonomous/cases/dafoam/ladder-b/W4_reanchor/drive_evidence/drive_grade.json

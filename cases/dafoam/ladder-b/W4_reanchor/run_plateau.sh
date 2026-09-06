@@ -1,49 +1,61 @@
 #!/usr/bin/env bash
-# S1 FD PLATEAU -- Arm F (the registered falsifier) then Arm P (the plateau step).
-# Frozen registration: cases/dafoam/ladder-b/S1_FD_PLATEAU_PREREGISTRATION.md
-# frozen at commit a1727bd01c4012e1350cd7138460606a3d103338 (blob md5 4c40181966d39acc39489b094e4b824a).
+# W4 CBFS RE-ANCHOR -- the program driver. Produces EXACTLY the 16 legs the frozen
+# comparator (analyse_w4_reanchor.py) expects, at run-root W4-reanchor, in the
+# prereg section 6 order.
 #
-# PROVENANCE: this file is /home/ubuntu/certonomous-runs/S1-cbfs-reinversion/run_fd8.sh
-# with the STEP and the CELL LIST changed, as briefed. What is added is not an
-# instrument: it is (a) the rule-12 hard-cap STOP, which the registration demands
-# ("an overrun STOPS the item"), and (b) preservation of each primal's decomposed
-# fields, which is what makes rule 4's AGE GUARD checkable PER PRIMAL instead of only
-# for whichever primal happened to run last. run_fd8.sh deleted the processor dirs
-# before every run; deleting the physics artefact would make the registered completion
-# rule ungradeable, so they are MOVED aside rather than removed.
+# Frozen registration: cases/dafoam/ladder-b/W4_REANCHOR_PREREGISTRATION.md
+# (draft frozen at the dafoam-supervisor's section 14 commit; section 16 AMENDMENT
+# retracts section 14.2's "launch path driven" claim -- THIS FILE is the missing
+# leg-production path that amendment reserves to a driven rebuild).
 #
-# WHAT IS NOT RE-BOUGHT: the unperturbed baseline. `fd8_base` = 6.1509017109920479e-04
-# is STEP-INDEPENDENT -- a central difference (J+ - J-)/(2h) does not use it at all --
-# and the registration budgets no new baseline primal (prereg 2.8). It is reused from
-# /home/ubuntu/certonomous-runs/S1-cbfs-reinversion/log.fd8_base and this is said out
-# loud rather than left to be noticed.
+# DERIVATION: this file is the S1-FD-PLATEAU run_plateau.sh (I3, md5
+# e82b5569510a3d1ce2370edaafd92f87, prereg 4.1) with the RUN ROOT, CAP, CASE DIR,
+# and LEG PROGRAM changed as prereg sections 3/6/8 register, and with a second
+# entry function one_base() added for the two beta = 1 legs (anchor8w, base8w)
+# that S1's program did not contain. What is NOT changed is one()'s discipline,
+# on which rule 4 and the comparator depend:
+#   * the beta-bound assert BEFORE the primal (prereg 11.1);
+#   * the cold reset of processor{0..3} before every primal;
+#   * per-primal field preservation into fields_<tag>/ so rule 4's AGE GUARD is
+#     checkable PER PRIMAL (prereg 6), not only for the primal that ran last;
+#   * the rule-12 remaining-budget-IS-the-timeout hard cap (prereg 11.2).
 #
-# ARM ORDER: F BEFORE P, deliberately. Arm F is the DAFOAM_CHARTER section 4 trivial
-# baseline, and prereg 2.5 registers that if the deliberately-wrong step PASSES, P1's
-# verdict is WITHDRAWN for every component. The falsifier is therefore a PRECONDITION
-# for being entitled to read P1 at all, so a budget stop must never be able to leave
-# this item holding a P1 reading it may not use. Buying F first also smoke-tests the
-# whole chain (staged case, container, objective extraction) for 15 core-min instead
-# of 45.
+# WHAT IS NOT RE-BOUGHT vs S1: nothing is inherited as a value here -- this arm
+# runs on W4's OWN case state (cbfs_beta), and its baseline (base8w) and reference
+# (anchor8w) are BOUGHT as legs 6 and 5. A re-anchor produces its own reference
+# (prereg 2.2 / 14.1); the 1e-6 gradient cbfs_beta_grad.npy is REFUSED and never read.
+#
+# ARM ORDER (prereg 6): the falsifier statistic and the graded 0.05 pair on cell
+# 5491 come FIRST (legs 1-4), because F_W is a PRECONDITION for reading W1 at all
+# (prereg 7.3 / 10.4): a budget stop must never leave this item holding a W1 reading
+# it may not use. The anchor (leg 5, the arm's most expensive single leg) is bought
+# only AFTER the falsifier has been produced.
 set -uo pipefail
-BASE=/home/ubuntu/certonomous-runs/S1-fd-plateau
+BASE=/home/ubuntu/certonomous-runs/W4-reanchor
 cd "$BASE"
 
-CAP=75.0        # REGISTERED HARD CAP in core-min (prereg 2.8). NOT a target, a stop.
-RANKS=2         # --cpus=2 -- the measured cost basis, and what run_one.sh bills at
-NEED=8.35       # 7.5889 measured core-min/primal x 1.10. Do not START what cannot finish.
-NCELLS=21000
+CAP=150.0       # REGISTERED HARD CAP in core-min (prereg 8.1, INHERITED). NOT a target, a stop.
+RANKS=2         # --cpus=2 -- the measured cost basis and what run_one.sh bills at (prereg 5.3)
+NCELLS=21000    # W4 cbfs_beta cell count (prereg 3), same as S1
+
+# Per-leg "do not START what cannot finish one primal" thresholds (basis x 1.10),
+# from prereg 6 / 8.2 measured bases. Unlike S1 (uniform ~7.6 core-min/leg) W4's
+# legs are heterogeneous -- the anchor is ~19.967 -- so NEED is per leg, passed in.
+NEED_P=8.35     # p025 / p050 perturbed FD legs: 7.5889 x 1.10 (prereg 6, unchanged from S1)
+NEED_F=9.30     # fw750 falsifier legs: 8.43 x 1.10 (prereg 8.2, f500 rows at ratio 1.109)
+NEED_A=22.00    # anchor8w compute_totals: 19.967 x 1.10 (prereg 6)
+NEED_B=5.90     # base8w run_model: 5.367 x 1.10 (prereg 6)
 
 spent() { awk -F, '$2=="END"{split($7,a,"=");s+=a[2]}END{printf "%.4f", s+0}' "$BASE/ledger.csv" 2>/dev/null; }
 
-# One perturbed primal: write beta, clear the decomposition, run, preserve the fields.
+# One PERTURBED primal: write beta, clear the decomposition, run, preserve the fields.
 one() {
-  local tag="$1" cell="$2" step="$3" sgn="$4"
+  local tag="$1" cell="$2" step="$3" sgn="$4" need="$5"
   local sp rem tmo
   sp=$(spent); [ -z "$sp" ] && sp=0
   rem=$(awk "BEGIN{printf \"%.4f\", $CAP-$sp}")
-  if awk "BEGIN{exit !($rem < $NEED)}"; then
-    echo "RULE-12 STOP before $tag: spent=$sp core-min of CAP=$CAP, remaining=$rem < $NEED needed for one primal. THE ITEM STOPS; IT DOES NOT GET A NEW BUDGET." | tee -a "$BASE/RULE12_STOP.txt"
+  if awk "BEGIN{exit !($rem < $need)}"; then
+    echo "RULE-12 STOP before $tag: spent=$sp core-min of CAP=$CAP, remaining=$rem < $need needed for one primal. THE ITEM STOPS; IT DOES NOT GET A NEW BUDGET." | tee -a "$BASE/RULE12_STOP.txt"
     return 9
   fi
   # The remaining budget IS the timeout. Cumulative spend therefore cannot exceed CAP.
@@ -52,33 +64,93 @@ one() {
 import numpy as np
 b = np.ones($NCELLS); b[$cell] += ($step if '$sgn'=='plus' else -$step)
 assert 0.2 <= b[$cell] <= 4.0, 'beta outside the registered [0.2,4.0] bounds'
-np.save('$BASE/cbfs_inv/beta_fd.npy', b)" || return 8
-  rm -rf "$BASE"/cbfs_inv/processor{0,1,2,3}
+np.save('$BASE/cbfs_beta/beta_fd.npy', b)" || return 8
+  rm -rf "$BASE"/cbfs_beta/processor{0,1,2,3}
   "$BASE/run_one.sh" "$tag" "$RANKS" "$tmo" -task run_model -betafile beta_fd.npy -primalTol 1e-8
   local rc=$?
   # PRESERVE the decomposed fields for this tag: rule 4's age guard is read off them.
   mkdir -p "$BASE/fields_${tag}"
   for p in 0 1 2 3; do
-    [ -d "$BASE/cbfs_inv/processor$p" ] && mv "$BASE/cbfs_inv/processor$p" "$BASE/fields_${tag}/"
+    [ -d "$BASE/cbfs_beta/processor$p" ] && mv "$BASE/cbfs_beta/processor$p" "$BASE/fields_${tag}/"
   done
   return $rc
 }
 
-echo "S1-FD-PLATEAU START $(date -u +%FT%TZ)  CAP=${CAP} core-min"
-
-# ---- ARM F : the registered falsifier. cell 5363 at h = 0.5, central pair. 2 primals.
-# Registered prediction: rel. err against the anchor8 gradient > 2 %.
-for sgn in plus minus; do
-  one "f500_5363_${sgn}" 5363 0.5 "$sgn" || echo "ARM F $sgn returned non-zero"
-done
-
-# ---- ARM P : the plateau step. cells 5363 / 5428 / 5491 at h = 0.025, central pairs.
-# 6 primals. s_lo = 0.025 is fixed by N-D21's pair constraint s_hi >= 2*s_lo with
-# s_hi at the already-graded 0.05; it is not this lane's taste.
-for cell in 5363 5428 5491; do
-  for sgn in plus minus; do
-    one "p025_${cell}_${sgn}" "$cell" 0.025 "$sgn" || echo "ARM P $cell $sgn returned non-zero"
+# One BETA = 1 primal: no perturbation. Uses I4 (fd_beta_ones.npy, prereg 4.1) as the
+# beta vector directly -- the arm's registered beta = 1 base vector -- so there is no
+# perturbation to write and hence no beta-bound assert (beta == 1 is trivially in
+# [0.2,3.0]). Same cold reset, same field preservation as one(). Extra runScript args
+# (e.g. -gradout for the anchor) are passed through in $extra.
+one_base() {
+  local tag="$1" task="$2" need="$3"; shift 3
+  local extra="$*"
+  local sp rem tmo gout
+  sp=$(spent); [ -z "$sp" ] && sp=0
+  rem=$(awk "BEGIN{printf \"%.4f\", $CAP-$sp}")
+  if awk "BEGIN{exit !($rem < $need)}"; then
+    echo "RULE-12 STOP before $tag: spent=$sp core-min of CAP=$CAP, remaining=$rem < $need needed for one primal. THE ITEM STOPS; IT DOES NOT GET A NEW BUDGET." | tee -a "$BASE/RULE12_STOP.txt"
+    return 9
+  fi
+  tmo=$(awk "BEGIN{printf \"%d\", $rem*60/$RANKS}")
+  rm -rf "$BASE"/cbfs_beta/processor{0,1,2,3}
+  "$BASE/run_one.sh" "$tag" "$RANKS" "$tmo" -task "$task" -betafile fd_beta_ones.npy -primalTol 1e-8 $extra
+  local rc=$?
+  # -gradout writes RELATIVE to the container cwd (/mnt/cbfs_beta), so the gradient
+  # lands in cbfs_beta/. The comparator reads the reference at the RUN ROOT
+  # (root/anchor8w_grad.npy, prereg 14.3 binding coupling). MOVE it there.
+  gout=$(printf '%s\n' "$extra" | sed -n 's/.*-gradout \([^ ]*\).*/\1/p')
+  if [ -n "$gout" ] && [ -f "$BASE/cbfs_beta/$gout" ]; then
+    mv "$BASE/cbfs_beta/$gout" "$BASE/$gout"
+  fi
+  mkdir -p "$BASE/fields_${tag}"
+  for p in 0 1 2 3; do
+    [ -d "$BASE/cbfs_beta/processor$p" ] && mv "$BASE/cbfs_beta/processor$p" "$BASE/fields_${tag}/"
   done
+  return $rc
+}
+
+echo "W4-REANCHOR START $(date -u +%FT%TZ)  CAP=${CAP} core-min"
+
+# ---- legs 1-2 : the graded 0.05 pair on the falsifier's cell 5491. Needed FIRST
+#      because F_W's statistic reads d(0.05) on cell 5491, and F_W gates W1 (prereg 6).
+for sgn in plus minus; do
+  one "p050_5491_${sgn}" 5491 0.05 "$sgn" "$NEED_P" || echo "leg p050_5491_$sgn returned non-zero"
 done
 
-echo "S1-FD-PLATEAU DONE $(date -u +%FT%TZ)  spent=$(spent) core-min of CAP=${CAP}"
+# ---- legs 3-4 : the REGISTERED FALSIFIER, cell 5491 at h_F = 0.75 (prereg 7.3).
+#      Registered prediction: plateau statistic 19.1195 % > 10 % bar -> FAILS W1.
+for sgn in plus minus; do
+  one "fw750_5491_${sgn}" 5491 0.75 "$sgn" "$NEED_F" || echo "leg fw750_5491_$sgn returned non-zero"
+done
+
+# ---- leg 5 : the REFERENCE. anchor8w, compute_totals at beta = 1, writing the arm's
+#      OWN 1e-8 gradient to anchor8w_grad.npy (prereg 14.3: the default cbfs_beta_grad.npy
+#      would give REFERENCE_NOT_PRODUCED). Bought only after the falsifier is produced.
+one_base "anchor8w" compute_totals "$NEED_A" "-gradout anchor8w_grad.npy" || echo "leg anchor8w returned non-zero"
+
+# ---- leg 6 : the FD baseline. base8w, run_model at beta = 1, same container as leg 5,
+#      so W0 (OBJ varianceU(anchor8w) == OBJ varianceU(base8w), 16 digits) is meaningful.
+one_base "base8w" run_model "$NEED_B" "" || echo "leg base8w returned non-zero"
+
+# ---- legs 7-8 : p025 on cell 5491 (completes the {0.025, 0.05} plateau pair there).
+for sgn in plus minus; do
+  one "p025_5491_${sgn}" 5491 0.025 "$sgn" "$NEED_P" || echo "leg p025_5491_$sgn returned non-zero"
+done
+
+# ---- legs 9-12 : cell 6740, both steps.
+for sgn in plus minus; do
+  one "p025_6740_${sgn}" 6740 0.025 "$sgn" "$NEED_P" || echo "leg p025_6740_$sgn returned non-zero"
+done
+for sgn in plus minus; do
+  one "p050_6740_${sgn}" 6740 0.05 "$sgn" "$NEED_P" || echo "leg p050_6740_$sgn returned non-zero"
+done
+
+# ---- legs 13-16 : cell 12486, both steps.
+for sgn in plus minus; do
+  one "p025_12486_${sgn}" 12486 0.025 "$sgn" "$NEED_P" || echo "leg p025_12486_$sgn returned non-zero"
+done
+for sgn in plus minus; do
+  one "p050_12486_${sgn}" 12486 0.05 "$sgn" "$NEED_P" || echo "leg p050_12486_$sgn returned non-zero"
+done
+
+echo "W4-REANCHOR DONE $(date -u +%FT%TZ)  spent=$(spent) core-min of CAP=${CAP}"
