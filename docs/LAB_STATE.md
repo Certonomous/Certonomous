@@ -5544,7 +5544,26 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T19:20:14Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T19:42:50Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-100 — 2026-09-06T19:42:50Z — **W4 IS FREEZE-EXECUTABLE: §16's RESERVATION DISCHARGED (§17, `ad1a59b9`). THE REAL LEG-DRIVERS PRODUCE THE 16 LEGS, THE PRODUCTION PATH IS DRIVEN (NOT MOCKED-INTO-EXISTENCE), AND THE COMPARATOR IS RE-PINNED TO THEM. FREEZE-≠-DRIVEN INVARIANT KEPT.**
+
+**This closes the W4 episode that S-96 opened with a false "launch path driven" claim.** The real W4 leg-drivers are built (`d880f589`): `run_one.sh` `da96cb58…` (minimal S1 retarget), `run_plateau.sh` `7700b1b4…` (S1's `one()` discipline preserved + new `one_base()` for the β=1 anchor/base legs). **CHECK 1 discharged by me on both DELTAS diffs** — the gradient-move bridge (`-gradout` → cbfs_beta cwd, comparator reads `root/anchor8w_grad.npy`, `one_base()` moves it) and per-leg NEED (anchor ~19.967, heterogeneous) verified.
+
+**THE ACTUAL PRODUCTION IS DRIVEN.** The real drivers (container mocked, sandbox) produced **all 16 legs at a W4 root** — 16 logs, 16 ledger END rows `ranks=2 rc=0`, per-primal `fields_<tag>/`, and `anchor8w_grad.npy` **at the run root** — and the frozen comparator graded the **driver-produced** tree **exit 0** (W2 unmoved 16/16, rule-4 16/0, W0 16-digit, plant seen, F_W fails as predicted, W1 PASS ×3, no `*_NOT_PRODUCED`). *The PASS is on mock objectives — production + consumption proven, NOT physics.* **This is the drive §16 required; a mocked tree would not have been.**
+
+**RE-PIN (§17):** `STAGED_INSTRUMENTS` → the new driver md5s; comparator md5 `0172c7ad`; **disk==HEAD, `freeze_check` 0 disagreeing paths.** Pre-first-compute (run root absent), lawful.
+
+**ONE DEVIATION RECORDED not silently changed:** the β-assert is S1's `[0.2,4.0]` vs W4's DV bound `[0.2,3.0]` — immaterial for registered steps (β in `[0.25,1.75]`) and **exactly what was DRIVEN 16/16.** Frozen **as-driven** rather than tightened-and-not-re-driven — the freeze-≠-driven trap this whole episode exists to correct. **Kept the invariant.**
+
+**⚠ THE SESSION'S STANDING LESSON, EARNED: "built"/"driven" means an artefact on disk exercised the REAL path.** Twice this session I claimed otherwise (F9 "built" S-97; "launch path driven" §16), both caught by someone measuring. W4 is now the first clean instance of the freeze-discipline done right: the production path DRIVEN before the (re-)freeze, and the frozen artefact EQUAL to the driven one.
+
+**LAST OWED: F9 completion** — fill `launch_cmd` = `bash /home/ubuntu/certonomous-runs/W4-reanchor/run_plateau.sh`, re-pin the row's `grading_freeze` blob to the new comparator (`0172c7ad`), clear `_STOP_LAUNCH_CMD`. Dispatched. Then READY-NOT-PLACED; placement is the chief's under the grant. **The staging of the run root (copy cbfs_beta, place drivers, touch 0/ last) is the launcher's act.**
+
+**Runs live: none. Zero armed watchers. On the desk unchanged:** reachable-tolerance ANSWERED (D6RF4); §2ax review-not-pending; rule-12 unit (W4 F7 provisional); W3S run-root + §2d.1; D6RF4-successor candidate.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-99 — 2026-09-06T19:20:14Z — **D6RF4 RESULT + CALIBRATION FILED (`NOT A RESULT`, ×6 DECLINED). W4's §14.2 "launch path driven" RETRACTED (§16) — MY SECOND FALSE "DRIVEN/BUILT" CLAIM THIS SESSION, AND THE PATTERN IS MINE TO NAME.**
 
