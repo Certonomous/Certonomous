@@ -1,0 +1,46 @@
+# DELTA BEYOND THE APPROVED GAP-3 ARTIFACT -- the ordered three-costume record.
+#
+# BASELINE RECONSTRUCTED FROM COMMITTED OBJECTS ONLY (standing practice):
+#   approved state = git show 6d24ec11:verification/runs/F5_runs/run_rung.py
+#                    PATCHED BY 6d24ec11:verification/runs/F5_runs/GAP3_PROPOSED_DIFF.txt
+#                    (sha256 6dd45e15bf546a514b0bec9cbd7282d0d774425b797dbc91e8e584f28c028ea2)
+#   current        = HEAD after this commit
+#
+# SINGLE CAUSE, ORDERED: record the absence-into-datum conversion's THREE COSTUMES together
+# where the harvest structure is defined -- the FIELD (zero for unknown), the AGGREGATE (a
+# sum standing in for a run's wall time), and the TOTAL FOR A VOIDED RUN (a plausible number
+# attached to a result that does not exist) -- so a reader who meets one recognises the
+# others. Not scope creep.
+
+--- APPROVED (6dd45e15 applied to 6d24ec11)
++++ HEAD  verification/runs/F5_runs/run_rung.py
+@@ -343,6 +343,29 @@
+ # unverifiable supports any gate is the GRADER'S question under its own registration.
+ # A HARVEST THAT ANSWERED IT WOULD BE A COMPARATOR WEARING A HARVESTER'S NAME.
+ # =====================================================================================
++# =====================================================================================
++# ⚠ THE ABSENCE-INTO-DATUM CONVERSION HAS THREE COSTUMES IN THIS FILE. A READER WHO MEETS
++# ONE SHOULD RECOGNISE THE OTHERS, WHICH IS WHY THEY ARE LISTED TOGETHER RATHER THAN EACH
++# BESIDE ITS OWN LINE.
++#
++# Rule 3 says a zero from a READER not shown able to see a non-zero is not evidence. Its
++# dual is about WRITERS: a writer that emits a number where it means "unknown" MANUFACTURES
++# the very false datum the reader-side rule exists to catch. It has appeared here three
++# times, each time wearing a plausible name:
++#
++#   1. THE FIELD.  `timings["pimpleFoam"] = 0.0` where the wall time is unknown.
++#      NONE SAYS "NOT KNOWN"; ZERO SAYS "KNOWN TO BE NOTHING". Adjacent and opposite.
++#   2. THE AGGREGATE.  `wall_seconds = sum(...)` over the surviving stage timings, which
++#      produces a number that LOOKS like the run's wall time and is not. THE FIELD-LEVEL
++#      RULE WAS RIGHT AND INCOMPLETE: a rule about a value needs a matching rule about its
++#      SUMS, because the absence leaks back in one level up.
++#   3. THE TOTAL FOR A VOIDED RUN.  Accumulating restart legs into a total wall time for a
++#      run that §6c has ALREADY REFUSED -- a plausible number attached to a result that does
++#      not exist. The most seductive of the three, because the arithmetic is correct and
++#      only the result it describes is void.
++#
++# ALL THREE ARE REFUSED HERE, AND `None` IS USED IN EVERY CASE.
++# =====================================================================================
+ LOG_DEPENDENT_CLAUSES = {
+     "solver_return_code": "rc == 0 -- known only to the process that ran the solver",
+     "end_line_present": "an `End` line -- written by the solver into the log",

@@ -232,8 +232,27 @@ def harvest(name: str, out_dir: Path, ranks: int = 1, *,
     from workflows.cylinder_vortex_shedding import DIAMETER, U_INF
     strouhal = (DIAMETER / (period * U_INF)) if period else None
 
-    # wall time: parse ExecutionTime of the LAST line in the log for the
-    # true solver wall time regardless of how many restarts contributed.
+    # GAP 3 -- RESTART ABSORPTION.  THE COMMENT THAT STOOD HERE WAS FALSE AND IS STRUCK BY
+    # QUOTE RATHER THAN REWRITTEN:
+    #     "wall time: parse ExecutionTime of the LAST line in the log for the
+    #      true solver wall time REGARDLESS OF HOW MANY RESTARTS CONTRIBUTED."
+    # ⚠ IT IS NOT REGARDLESS.  OpenFOAM's `ExecutionTime` counts from the start of THE
+    # CURRENT INVOCATION and RESETS on a restart, so `exec_times[-1]` is THE LAST LEG'S
+    # wall time, not the run's.  A restarted rung therefore UNDER-REPORTS, and the comment
+    # asserted the opposite -- which is worse than saying nothing, because it tells the next
+    # reader the question has already been dealt with.
+    #
+    # ⚠ AND THE REPAIR IS *NOT* TO ACCUMULATE THE LEGS.  §6c of
+    # `F5a_HIGH_RE_RUNGS_PREREGISTRATION.md` registers these rungs SINGLE-SHOT: "no restart.
+    # If one is restarted, the run is `NOT A RESULT` under this document and a successor
+    # registration is required."  Summing the legs would manufacture a total wall time FOR A
+    # RUN THE REGISTRATION HAS ALREADY REFUSED -- a plausible number for a void result, which
+    # is the same absence-into-datum conversion the `None`-not-zero rule above exists to stop.
+    #
+    # SO THE REAL GAP IS NOT THE ARITHMETIC.  IT IS THAT NOTHING DETECTED THE CONDITION §6c
+    # GATES ON.  A restarted run would have produced a record carrying a last-leg wall time
+    # and NO INDICATION THAT THE CLAUSE VOIDING IT HAD BEEN TRIPPED.  What is added is
+    # DETECTION AND DISCLOSURE, not accounting.
     import re
     if tail is None:
         # ⚠ None, NOT 0.0, AND THE DISTINCTION IS THE WHOLE POINT.  None says "NOT KNOWN";
@@ -244,8 +263,16 @@ def harvest(name: str, out_dir: Path, ranks: int = 1, *,
         # reader-side rule exists to catch.
         solve_wall = None
     else:
-        exec_times = re.findall(r"ExecutionTime = ([\d.]+) s", "\n".join(tail))
-        solve_wall = float(exec_times[-1]) if exec_times else None
+        exec_times = [float(x) for x in
+                      re.findall(r"ExecutionTime = ([\d.]+) s", "\n".join(tail))]
+        solve_wall = exec_times[-1] if exec_times else None
+        restart = _restart_evidence(exec_times)
+        if restart["restart_detected"]:
+            print(f"[{name}] ⚠ RESTART DETECTED: ExecutionTime resets at "
+                  f"{restart['reset_indices']}. §6c registers these rungs SINGLE-SHOT -- a "
+                  "restarted run is NOT A RESULT under that document and needs a successor "
+                  "registration. The wall time below is THE LAST LEG ONLY and is NOT the "
+                  "run's total; it is deliberately not accumulated.")
     timings["pimpleFoam"] = solve_wall
 
     record = {
@@ -274,6 +301,8 @@ def harvest(name: str, out_dir: Path, ranks: int = 1, *,
         "stationary": drift["relative_drift"] <= 0.10,
         "final_time_reached": times[-1] if times else None,
     }
+    if tail is not None:
+        record["wall_time_provenance"] = restart
     if tail is None:
         # THE PARTIALITY IS MACHINE-READABLE AND SITS AT THE TOP LEVEL, so a consumer cannot
         # reach the numbers without passing it.
@@ -313,6 +342,29 @@ def harvest(name: str, out_dir: Path, ranks: int = 1, *,
 # ⚠ AND THIS FUNCTION EMITS NO VERDICT.  Whether three-of-six with three permanently
 # unverifiable supports any gate is the GRADER'S question under its own registration.
 # A HARVEST THAT ANSWERED IT WOULD BE A COMPARATOR WEARING A HARVESTER'S NAME.
+# =====================================================================================
+# =====================================================================================
+# ⚠ THE ABSENCE-INTO-DATUM CONVERSION HAS THREE COSTUMES IN THIS FILE. A READER WHO MEETS
+# ONE SHOULD RECOGNISE THE OTHERS, WHICH IS WHY THEY ARE LISTED TOGETHER RATHER THAN EACH
+# BESIDE ITS OWN LINE.
+#
+# Rule 3 says a zero from a READER not shown able to see a non-zero is not evidence. Its
+# dual is about WRITERS: a writer that emits a number where it means "unknown" MANUFACTURES
+# the very false datum the reader-side rule exists to catch. It has appeared here three
+# times, each time wearing a plausible name:
+#
+#   1. THE FIELD.  `timings["pimpleFoam"] = 0.0` where the wall time is unknown.
+#      NONE SAYS "NOT KNOWN"; ZERO SAYS "KNOWN TO BE NOTHING". Adjacent and opposite.
+#   2. THE AGGREGATE.  `wall_seconds = sum(...)` over the surviving stage timings, which
+#      produces a number that LOOKS like the run's wall time and is not. THE FIELD-LEVEL
+#      RULE WAS RIGHT AND INCOMPLETE: a rule about a value needs a matching rule about its
+#      SUMS, because the absence leaks back in one level up.
+#   3. THE TOTAL FOR A VOIDED RUN.  Accumulating restart legs into a total wall time for a
+#      run that §6c has ALREADY REFUSED -- a plausible number attached to a result that does
+#      not exist. The most seductive of the three, because the arithmetic is correct and
+#      only the result it describes is void.
+#
+# ALL THREE ARE REFUSED HERE, AND `None` IS USED IN EVERY CASE.
 # =====================================================================================
 LOG_DEPENDENT_CLAUSES = {
     "solver_return_code": "rc == 0 -- known only to the process that ran the solver",
@@ -561,6 +613,114 @@ def selftest_harvest_delegation() -> int:
     return 0 if ok else 1
 
 
+def _restart_evidence(exec_times: list[float]) -> dict:
+    """DETECT a restart from the ExecutionTime series, and DISCLOSE what detection cannot see.
+
+    `ExecutionTime` counts from the start of the current invocation, so within ONE leg it is
+    monotonically non-decreasing and a RESET is a value LOWER than its predecessor.
+
+    ⚠ THE BLIND SPOT IS DECLARED IN THE RETURNED STRUCTURE, NOT ONLY IN THIS DOCSTRING.
+    This sees a restart ONLY WHEN BOTH LEGS ARE IN THE LOG IT READS. If a relaunch OVERWROTE
+    `log.pimpleFoam` rather than appending, the surviving log holds one monotone leg and is
+    INDISTINGUISHABLE from a single-shot run. So `restart_detected: False` MEANS "NO RESET
+    WAS VISIBLE", NOT "NO RESTART HAPPENED" -- and the field is named `restart_detected`
+    rather than `single_shot` for exactly that reason. A detector that cannot see a case must
+    say so where its answer is read, or its negative will be quoted as a positive.
+    """
+    resets = [i for i in range(1, len(exec_times))
+              if exec_times[i] < exec_times[i - 1]]
+    return {
+        "wall_time_basis":
+            "the LAST `ExecutionTime` value in the log -- i.e. THE LAST LEG ONLY. It is NOT "
+            "the run's total when a restart occurred, and the legs are deliberately NOT "
+            "summed: §6c registers these rungs single-shot, so a restarted run is NOT A "
+            "RESULT and a total for it would be a plausible number for a void result.",
+        "execution_time_samples": len(exec_times),
+        "reset_indices": resets,
+        "restart_detected": bool(resets),
+        "detection_blind_spot":
+            "A reset is visible only when BOTH legs are present in the log read. If a "
+            "relaunch OVERWROTE log.pimpleFoam instead of appending, one monotone leg "
+            "survives and is indistinguishable from a single-shot run. `restart_detected: "
+            "false` therefore means NO RESET WAS VISIBLE, not NO RESTART HAPPENED.",
+        "registration_clause":
+            "F5a_HIGH_RE_RUNGS_PREREGISTRATION.md §6c -- single-shot: no restart. If one is "
+            "restarted, the run is NOT A RESULT under that document and a successor "
+            "registration is required.",
+    }
+
+
+def selftest_restart_absorption() -> int:
+    """GAP 3 -- THE RESTART DETECTOR'S PLANTED CONTROLS.
+
+    The limb that matters is the LAST one: the detector must REPORT ITS OWN BLIND SPOT, not
+    merely have one. A negative from a detector that cannot see a case will be quoted as a
+    positive by the next reader unless the structure says otherwise.
+    """
+    ok, fired = True, []
+
+    monotone = [1.2, 3.4, 9.9, 41.7]
+    restarted = [1.2, 3.4, 9.9, 0.8, 5.5]        # the reset at index 3
+    twice = [1.0, 5.0, 0.5, 4.0, 0.2]            # two resets
+
+    clean = _restart_evidence(monotone)
+    plant = _restart_evidence(restarted)
+    if clean["restart_detected"] is False and plant["restart_detected"] is True:
+        fired.append("DELTA: a monotone series reports NO restart AND a series with a reset "
+                     f"reports one at {plant['reset_indices']} -- the detector is shown able "
+                     "to see both states, not just the one it was built for")
+    else:
+        ok = False
+        fired.append(f"DELTA: clean={clean['restart_detected']}, "
+                     f"planted={plant['restart_detected']} (want False then True)")
+
+    two = _restart_evidence(twice)
+    if two["reset_indices"] == [2, 4]:
+        fired.append("MULTIPLE: two resets are both located, at indices [2, 4] -- the "
+                     "detector counts legs rather than answering yes/no")
+    else:
+        ok = False
+        fired.append(f"MULTIPLE: got {two['reset_indices']}, expected [2, 4]")
+
+    empty = _restart_evidence([])
+    if empty["restart_detected"] is False and empty["execution_time_samples"] == 0:
+        fired.append("EMPTY: no samples -> no restart claimed, and the sample count says 0 "
+                     "so a reader can tell 'nothing seen' from 'nothing there'")
+    else:
+        ok = False
+        fired.append(f"EMPTY: {empty['restart_detected']}, {empty['execution_time_samples']}")
+
+    # ⚠ THE BLIND-SPOT LIMB. A single surviving leg is INDISTINGUISHABLE from a single-shot
+    # run, and the control asserts the structure SAYS SO rather than pretending otherwise.
+    second_leg_only = _restart_evidence([0.8, 5.5])
+    says_so = ("NO RESET WAS VISIBLE" in second_leg_only["detection_blind_spot"]
+               and "restart_detected" in second_leg_only["detection_blind_spot"])
+    if second_leg_only["restart_detected"] is False and says_so:
+        fired.append("BLIND SPOT: an overwritten log leaves ONE monotone leg and is reported "
+                     "as no-reset-visible -- AND the structure states that this means NO "
+                     "RESET WAS VISIBLE, not NO RESTART HAPPENED. The limit is disclosed "
+                     "where the answer is read, not only in a docstring")
+    else:
+        ok = False
+        fired.append(f"BLIND SPOT: detected={second_leg_only['restart_detected']}, "
+                     f"disclosure present={says_so}")
+
+    if "not summed" in clean["wall_time_basis"] or "NOT summed" in clean["wall_time_basis"]:
+        fired.append("BASIS: the record states the wall time is THE LAST LEG ONLY and that "
+                     "the legs are deliberately NOT summed -- a total for a run §6c has "
+                     "already voided would be a plausible number for a void result")
+    else:
+        ok = False
+        fired.append("BASIS: wall_time_basis does not state that the legs are not summed")
+
+    for line in fired:
+        print(f"  RESTART {line}")
+    print("  DISCRIMINATES: a monotone series reports no restart AND a reset series reports "
+          f"one; the blind spot is declared where the answer is read = {ok}")
+    print("RESTART-ABSORPTION SELFTEST " + ("PASS" if ok else "FAIL"))
+    return 0 if ok else 1
+
+
 def selftest_without_log_harvest() -> int:
     """GAP 1 -- THE LOG-LESS HARVEST'S PLANTED CONTROLS.
 
@@ -700,6 +860,8 @@ if __name__ == "__main__":
         sys.exit(selftest_harvest_delegation())
     if "--selftest-without-log-harvest" in sys.argv[1:]:
         sys.exit(selftest_without_log_harvest())
+    if "--selftest-restart-absorption" in sys.argv[1:]:
+        sys.exit(selftest_restart_absorption())
 
     import argparse
     p = argparse.ArgumentParser()
