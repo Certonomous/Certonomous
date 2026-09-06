@@ -1,5 +1,5 @@
 D6RF4 INSTRUMENT TABLE -- EXTRACTED, NOT WRITTEN FROM MEMORY
-generated 2026-09-06T02:37:20Z  dir /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4
+generated 2026-09-06T02:39:29Z  dir /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4
 extractor  d6rf4_instrument_table_extraction.py (a TOOL, not an instrument: the grader neither imports nor executes it, and it is
            deliberately NOT in FROZEN_PATHS -- freezing the thing that derives the frozen set would make the derivation
            depend on itself.  The executable half is d6rf4_grade.py:frozen_path_coverage(), run at EVERY grading.)
@@ -66,7 +66,7 @@ EXTRACTOR NOTES (1)-(3) are D6RF3's, carried verbatim; (4) is this item's own.  
   d6rf4_grade.py                              155261  4085f678997ef6abe45c6946abd0626e  0
   d6rf4_grade_drive.py                         16680  f432a6b8b4bab573bb4a6a086a8a18fb  0
   d6rf4_instrument_table_extraction.py         17092  1e1c183dd09bf36dfe27cda321d9e6fa  0
-  d6rf4_instrument_table_extraction.txt        14206  3268554a17feeced4034f45ef53cc692  
+  d6rf4_instrument_table_extraction.txt        14371  ac527f72449fcb8b43e9a773e6b57b9b  
   d6rf4_launcher_guard_drive.py                13137  7476774e118f18c68ac33b96ba4bec46  0
   d6rf4_opt_runScript.py                       13122  137539e0a99be27f27fdb69e063b2a87  0
   d6rf4_run_arm.sh                             76755  6cd796cb32e8d1520b93219c86817b76  
@@ -77,8 +77,8 @@ EXTRACTOR NOTES (1)-(3) are D6RF3's, carried verbatim; (4) is this item's own.  
   A row reading `NOT IN HEAD` is a file this item EXECUTES that is not committed yet, which is what the freeze commit fixes.
   PREREGISTRATION.md                                             disk 04f3260a54f76e09455c17e3e2c49b16  HEAD 04f3260a54f76e09455c17e3e2c49b16  AGREE
   d6rf4_grade.py                                                 disk 4085f678997ef6abe45c6946abd0626e  HEAD 4085f678997ef6abe45c6946abd0626e  AGREE
-  d6rf4_cd_plant_control.py                                      disk 693758c20a9556ab6205bb7e9fa17bbe  HEAD 1521411eac85e831595b5e11adce1e99  DISAGREE
-  d6rf4_accept_floor_control.py                                  disk 2fc0b320affac2397c3bb7301eb9ec35  HEAD 196d0fc510526036af5edd336db3a155  DISAGREE
+  d6rf4_cd_plant_control.py                                      disk 693758c20a9556ab6205bb7e9fa17bbe  HEAD 693758c20a9556ab6205bb7e9fa17bbe  AGREE
+  d6rf4_accept_floor_control.py                                  disk 2fc0b320affac2397c3bb7301eb9ec35  HEAD 2fc0b320affac2397c3bb7301eb9ec35  AGREE
   d6rf4_endpoint_locus.py                                        disk 341189ca866f302a7e1bba8eefad3a57  HEAD 341189ca866f302a7e1bba8eefad3a57  AGREE
   d6rf4_endpoint_physical.py                                     disk ca75db3e036b9f4e7cfca6462037c021  HEAD ca75db3e036b9f4e7cfca6462037c021  AGREE
   d6rf4_extract_endpoint.py                                      disk c5aace65e1830fddace55e1bac2761c9  HEAD c5aace65e1830fddace55e1bac2761c9  AGREE
@@ -87,13 +87,12 @@ EXTRACTOR NOTES (1)-(3) are D6RF3's, carried verbatim; (4) is this item's own.  
   d6rf4_opt_runScript.py                                         disk 137539e0a99be27f27fdb69e063b2a87  HEAD 137539e0a99be27f27fdb69e063b2a87  AGREE
   d6rf4_units_assert.py                                          disk 8ee53841aed3dfd10f2cf414be39518a  HEAD 8ee53841aed3dfd10f2cf414be39518a  AGREE
   d6rf4_finiteness_mutation.py                                   disk 8aeaf30a9a3e177c406ad235c5e2c54e  HEAD 8aeaf30a9a3e177c406ad235c5e2c54e  AGREE
-  d6rf4_run_arm.sh                                               disk 6cd796cb32e8d1520b93219c86817b76  HEAD db0f4d390beb58309eef4efaba33040d  DISAGREE
+  d6rf4_run_arm.sh                                               disk 6cd796cb32e8d1520b93219c86817b76  HEAD 6cd796cb32e8d1520b93219c86817b76  AGREE
   d6rf4_fvSolution_TIGHT                                         disk 0ac5bd00c63b9109d22a8e73b0795aa4  HEAD 0ac5bd00c63b9109d22a8e73b0795aa4  AGREE
   d6rf4_fvSolution_D6RF3_ORIGINAL                                disk 9e2669956be778acf7e7d8aa67a90ff6  HEAD 9e2669956be778acf7e7d8aa67a90ff6  AGREE
   d4_opt_runScript.py                                            disk 2906d52a5dbed2bacbaeaf85a37d3fe8  HEAD 2906d52a5dbed2bacbaeaf85a37d3fe8  AGREE
   d6r_opt_runScript.py                                           disk 93edb4a231e13a7af065368f61a468ef  HEAD 93edb4a231e13a7af065368f61a468ef  AGREE
-  -> 0 of 17 frozen paths NOT IN HEAD; 3 COMMITTED BUT EDITED SINCE; 14 agree
-     freeze_check WOULD REFUSE THIS GRADING (rule 2: the grading path is fixed at the pre-registration commit). Commit, then re-run.
+  -> 0 of 17 frozen paths NOT IN HEAD; 0 COMMITTED BUT EDITED SINCE; 17 agree
 
 === THE DERIVATION LEDGER: parent -> derived, and the diff beside it ===
   This family's practice: every instrument is written BY DERIVATION from
