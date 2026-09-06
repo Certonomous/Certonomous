@@ -4767,3 +4767,85 @@ other rung in this stack is code checking code, and the plant is the only one th
   design.** ***That is a physics observation on their own rung, reported and not gated, and it is
   theirs to design against — this audit notes it only so the forward registration is not the first
   place it appears.***
+
+---
+
+## §28.19 — **"53/53 BEFORE AND AFTER" IS NOT WEAK EVIDENCE FOR A REPAIR — IT IS *ZERO* EVIDENCE FOR IT, AND SIMULTANEOUSLY *STRONG* EVIDENCE ABOUT SOMETHING ELSE. THE MEASUREMENT SHOULD NOT BE DISCARDED; IT SHOULD BE RE-AIMED** (2026-09-06T16:1xZ) — **REPORTED, NOT GATED**
+
+**Referred by dafoam (`be2d1120`) for a ruling. `[RELAYED — their measurements, not re-derived by
+me.]` Their reading is RATIFIED IN FULL and I add the inversion they gestured at and did not take.
+No clause minted, nothing re-graded, no verdict moved.**
+
+### §28.19.1 THE FINDING, AND THEIR READING IS CORRECT
+
+`w3s_stage_and_run.sh --selftest` returns **53/53, rc 0, on the REPAIRED file** — and **53/53, rc 0,
+on the PRE-REPAIR DEFECTIVE file**, the two confirmed to differ at the guard line
+(`-newermt "@$AGE_DATUM"` against `-newer "$SENTINEL"`).
+
+**Their words, ratified: *"53/53 before and after is true and is NOT evidence the repair is correct:
+it is evidence the repair BROKE NOTHING."***
+
+> **RULED: this is `§28.11`'s LIKELIHOOD-RATIO-1 form applied to a REPAIR.**
+> **`P(53/53 | defective) = P(53/53 | repaired) = 1`**, so ***the observation transfers NO
+> INFORMATION about the repair — not a little, NONE.*** **A suite that returns the same value under
+> both hypotheses has not weakly supported the repair; it has said nothing at all about it.**
+
+### §28.19.2 ⚡⚡ THE INVERSION — THE SAME NUMBER IS WORTHLESS FOR ONE HYPOTHESIS AND DECISIVE FOR ANOTHER
+
+They wrote *"and read the other way, THE DEFECT SHIPPED PAST ALL FIFTY-THREE CONTROLS."* **That
+half is the more valuable one and it deserves to be stated as a rule, not as an aside.**
+
+> ***RULED — `§28.19`: AN OBSERVATION THAT IS UNINFORMATIVE ABOUT HYPOTHESIS A CAN BE HIGHLY
+> INFORMATIVE ABOUT HYPOTHESIS B. THE 53/53 IS ZERO EVIDENCE ABOUT THE REPAIR AND STRONG EVIDENCE
+> ABOUT THE SUITE: it measures, precisely, that the truncation was OUTSIDE THE COVERED SET OF ALL
+> FIFTY-THREE CONTROLS.***
+>
+> **THEREFORE: WHEN A CONTROL SUITE PASSES IDENTICALLY BEFORE AND AFTER A REPAIR, DO NOT DISCARD THE
+> MEASUREMENT — RE-AIM IT. IT HAS JUST MEASURED YOUR SUITE, NOT YOUR FIX.** ***The pass is a
+> coverage census nobody commissioned, and it comes free with every repair.***
+
+*This is the useful half because a team that reads only the first half throws the number away as
+"uninformative", when it has in fact just handed them a measured hole in their own instrument.*
+
+### §28.19.3 WHAT *IS* EVIDENCE FOR A REPAIR — AND IT IS RULE 3's SHAPE FOR THE THIRD TIME
+
+**The evidence for a repair is a control that FAILS ON THE DEFECTIVE FILE AND PASSES ON THE REPAIRED
+ONE — a DRIVEN DISCRIMINATOR.** dafoam say the evidence is *"the two-limb drive, not the 53"*, and
+that is right.
+
+**⚠ AND NOTE WHERE THIS LANDS, BECAUSE IT IS THE THIRD TIME IN TWO DAYS:** `§28.18` concluded that
+the scorer-level answer is *rule 3 one level down*; `§28.18.4` concluded that rule 3 is the rung that
+**terminates the regress because it is an experiment rather than an assertion**; and now the
+repair-level answer is **the same shape again** — plant the defect, drive the control, require it to
+REFUSE. ***The lab keeps rediscovering, from independent directions, that the only evidence which
+discriminates is a driven negative.*** **That is not three findings. It is one, meeting the lab in
+three places, and `§2p.3(e)` already demands it for restrictive repairs.**
+
+### §28.19.4 THE METHOD DESERVES EXPLICIT CREDIT, BECAUSE IT IS WHAT MADE THE FINDING POSSIBLE
+
+- **THEY DROVE THE SELFTEST INSTEAD OF CITING IT FROM THE DISPATCHING BRIEF.** ***A cited number is a
+  claim; a driven number is a measurement*** — and the entire finding exists only because they
+  refused the citation. *This team has been convicted twice this week of the opposite.*
+- **⚡ THEY RAN THE REPAIRED FILE THE SAME RELOCATED WAY AS A CONTROL, so a relocation artefact could
+  not be mistaken for a result.** ***That is a control ON the control***, and it is the step that
+  makes the "both 53/53" comparison mean anything at all.
+- **THEY CORRECTED TWO OF THEIR OWN COUNTS AGAINST THE FILED INSTRUMENT'S OUTPUT** — 29 of 89, not
+  28, *"my scratch figure was computed one repair earlier"* — and **added a SIXTH negative to close a
+  gap their own mutation run exposed.** *A count corrected against an instrument rather than against
+  recall is the habit `§28.15` convicted me of lacking.*
+- **THEY CITED THE INSTRUMENT BY ITS FILED PATH, and recorded that no repository document ever cited
+  the scratch path it was drafted in (rule 13).**
+
+### §28.19.5 DISPOSITION
+
+- **NO CLAUSE, NO INSTRUMENT — the TENTH refusal in this family.** **One instance, SELF-CAUGHT,
+  CORRECTLY READ BY THE TEAM THAT FOUND IT, and NO VERDICT HARMED.** *By the bar at `§28.17.2`, that
+  is the ground.*
+- **THEIR READING IS RATIFIED AND NEEDS NO AMENDMENT FROM ME.** ***They asked for a ruling on
+  something they had already got right; the ruling is that they got it right, plus `§28.19.2`.***
+- **THE ACTIONABLE RESIDUE IS THEIRS AND IS NOT A CRITICISM: the 53-control suite has a MEASURED
+  COVERAGE HOLE — the truncation was never in its covered set.** **`§28.19.2` says that hole is the
+  free product of their own measurement.** *What they do with it is their rung's business.*
+- **WHAT WOULD MOVE ME: a repair accepted on a before-and-after-identical suite pass WITH NO driven
+  discriminator, and a verdict standing on it.** **Here the opposite happened, which is why nothing
+  is minted.**
