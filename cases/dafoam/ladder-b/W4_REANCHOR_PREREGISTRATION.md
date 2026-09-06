@@ -1019,3 +1019,28 @@ The **grading logic** is sound (check-1-read, §14.1) — it correctly grades a 
 **Until that lands, W4 is NOT freeze-executable and its F9 row correctly STOPS at `launch_cmd` absent.** The F9 row (`QUEUE_ROW_W4_REANCHOR_READY_NOT_PLACED.json`, `607809d9`) stands READY-NOT-PLACED and schema-incomplete by design.
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## §17. RE-FREEZE — 2026-09-06T19:41:54Z — **§16's RESERVATION DISCHARGED: THE W4 LEG-DRIVERS ARE BUILT, THE ACTUAL PRODUCTION IS DRIVEN, AND THE COMPARATOR IS RE-PINNED TO THEM. W4 IS NOW FREEZE-EXECUTABLE.**
+
+**PRE-FIRST-COMPUTE under rule 2 bullet 1. Run root `/home/ubuntu/certonomous-runs/W4-reanchor` ABSENT by execution in this invocation — 0 W4 compute. Lines renumbered above this section: 0.**
+
+### WHAT §16 SAID WAS MISSING, NOW BUILT AND DRIVEN
+§16 retracted §14.2's false "launch path driven": the staged drivers were S1's, pinned, and could not produce W4's legs. **That is fixed.** The real W4 leg-drivers are committed (`d880f589`): `run_one.sh` md5 **`da96cb58…`** (minimal retarget of S1's — BASE, container name, cwd `cbfs_beta`; image/`--cpus`/`--memory`/`-e DAFOAM_SUBPC_TYPE=lu`/`-np`/argv unchanged) and `run_plateau.sh` md5 **`7700b1b4…`** (S1's `one()` discipline preserved — β-assert, cold reset, per-primal field preservation, rule-12 timeout-is-remaining-budget — plus a new `one_base()` for the β=1 anchor/base legs).
+
+**THE ACTUAL PRODUCTION IS DRIVEN, NOT MOCKED-INTO-EXISTENCE.** The real drivers, container mocked, ran in a sandbox and **produced all 16 legs the comparator expects** at a W4 root — 16 `log.<tag>`, 16 ledger END rows `ranks=2 rc=0`, per-primal `fields_<tag>/processor{0-3}/2500/`, and **`anchor8w_grad.npy` at the RUN ROOT** (§14.3). The frozen comparator then graded the **driver-produced** tree, **exit 0**, with W2 unmoved 16/16, rule-4 executed 16/blocked 0, W0 equal to 16 digits, plant seen, F_W failing as predicted, W1 PASS all three — **no `REFERENCE_NOT_PRODUCED`/`STATISTIC_NOT_PRODUCED`.** *(The PASS is on synthetic mock objectives — it proves production + grading consumption, NOT physics.)* **This is the drive §16 required; a mocked tree would not have been.**
+
+### CHECK 1, DISCHARGED BY ME ON BOTH DRIVER DIFFS
+I read `run_one_DELTAS_from_s1.diff` (44 lines) and `run_plateau_DELTAS_from_s1.diff` (205 lines) as diffs. The two load-bearing derivation decisions, verified: **(1) the gradient-move bridge** — `-gradout` writes relative to the container cwd `cbfs_beta/`, the comparator reads `root/anchor8w_grad.npy`, so `one_base()` MOVES it out; correct and necessary. **(2) per-leg NEED** — the anchor is ~19.967 core-min, heterogeneous from the FD legs' ~7.6, so the rule-12 "don't start what can't finish" threshold is per leg; correct.
+
+### RE-PIN, and it is the whole point of this section
+`analyse_w4_reanchor.py` `STAGED_INSTRUMENTS` re-pinned: `run_one.sh` → `da96cb58…`, `run_plateau.sh` → `7700b1b4…`. **Comparator md5 moves to `0172c7ad33b1725f4a554de0879614df`; disk == HEAD after this commit, and `freeze_check` (disk == committed blob at HEAD) passes for every `FROZEN_PATHS` entry.** The comparator is NOT one of its own pins; the re-pin is a lawful pre-compute amendment.
+
+### ONE DEVIATION, RECORDED NOT SILENTLY CHANGED — the β-bound
+`run_plateau.sh`'s β-assert is S1's `[0.2, 4.0]`; W4's own DV bound is `[0.2, 3.0]`. **Immaterial for the registered program** — every registered step keeps β in `[0.25, 1.75]`, inside both — and **this `[0.2,4.0]` bound is exactly what was DRIVEN 16/16.** It is frozen **as-driven** rather than tightened-and-not-re-driven, because freezing something other than what was driven is the trap this whole W4 episode exists to correct. A successor may tighten it to `[0.2,3.0]` (a one-token change) and re-drive; here it is a known, recorded looseness that gates no verdict.
+
+### F9 IS NOW BUILDABLE
+`launch_cmd`: **`bash /home/ubuntu/certonomous-runs/W4-reanchor/run_plateau.sh`** — the `-gradout anchor8w_grad.npy` coupling is now INSIDE the driver (the anchor leg plus the grad-move), so no per-leg manual override. Staging the run root (copy `cbfs_beta` read-only per §3, place both drivers at BASE, `fd_beta_ones.npy` in `cbfs_beta`, touch `0/` last for the age guard) remains the launcher's act. F9's `_STOP_LAUNCH_CMD` is discharged.
+
+**SUBMISSIONS PARKED.**

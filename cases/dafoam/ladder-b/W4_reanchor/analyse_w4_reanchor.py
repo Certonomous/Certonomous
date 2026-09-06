@@ -127,8 +127,8 @@ FIELDS = ("U", "p", "k", "omega", "nut", "phi")
 # about what ran (prereg 4.3).
 STAGED_INSTRUMENTS = {
     "runScript.py":     "565307ddfd2affd7184011f60834edd8",
-    "run_one.sh":       "1b269bb9b95cafe5ce3945b9e665c5c3",
-    "run_plateau.sh":   "e82b5569510a3d1ce2370edaafd92f87",
+    "run_one.sh":       "da96cb58cc3904a2232a700c2bf9895d",
+    "run_plateau.sh":   "7700b1b45a5464673c6659dd57dc23e6",
     "fd_beta_ones.npy": "661e027867ffa48d5b64297a5e990238",
 }
 
