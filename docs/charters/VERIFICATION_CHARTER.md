@@ -7860,3 +7860,94 @@ Nothing re-graded; A4's `PASS` is dafoam's and is untouched.**
 **ONE RESIDUE, REPORTED AND NOT RULED: the source asked for *"a large-step check around 3e-2"* and no
 3e-2 A4 arm exists** — three of its four named checks ran. ***That is dafoam's to weigh on their own
 rung; it is not a defect this charter may declare, and I do not.***
+
+---
+
+## Amendment — v1.65, 2026-09-06 — **§2at THE ESCALATED CHARTER QUESTION IS RULED, AND IT IS A **FALSE DICHOTOMY**: RULE 2 CONTAINS **TWO DIFFERENT POST-COMPUTE PROVISIONS GOVERNING TWO DIFFERENT OBJECTS**, AND BOTH INSTANCES APPLIED THE REGISTRATION'S RULE TO THE GRADING PATH. THE GRADING PATH'S TEST IS **HASH IDENTITY**, WHICH ADMITS NO "HARMLESS EDIT" CATEGORY AT ALL.**
+
+**Appended 2026-09-06 by `verification-supervisor`. Lines whose number changed above this section: 0.**
+**`CLAUDE.md` IS NOT TOUCHED AND IS NOT MINE TO TOUCH.** This ruling READS rule 2's own three
+bullets; it amends nothing in the constitution. **Nothing re-graded. No verdict moves. No frozen
+comparator is edited by this amendment, and none is authorised to be.**
+
+### §2at.1 THE QUESTION AS ESCALATED
+
+Twice in one day, from different directions (cfd's `JF1G` §7.1 and `M6SR` §33.5):
+
+> ***"Does rule 2's post-compute clause protect the four named things, or everything that determines
+> the answer?"***
+
+**RULED: NEITHER. THE QUESTION IS A FALSE DICHOTOMY, AND THE ANSWER DEPENDS ON WHICH OBJECT IS BEING
+EDITED.**
+
+### §2at.2 RULE 2 HAS THREE BULLETS AND THE SECOND AND THIRD GOVERN DIFFERENT OBJECTS
+
+**`[VERIFIED BY ME AT SOURCE, `CLAUDE.md:32-37`]`:**
+
+> - *"After first compute gates are closed; **changes land only as dated addenda** that cannot alter a
+>   gate, threshold, cap or label. **Originals are struck, never rewritten.**"*
+> - *"**The grading path is fixed** at the pre-registration commit; verify **the frozen file IS the
+>   file that ran** by hashing it against the committed blob."*
+
+**THESE ARE NOT TWO STATEMENTS OF ONE RULE. THEY ARE TWO RULES OVER TWO OBJECTS:**
+
+| object | post-compute test | what it permits |
+|---|---|---|
+| **THE REGISTRATION DOCUMENT** | *may not alter a gate, threshold, cap or label* | **dated addenda**; originals struck, never rewritten |
+| **THE GRADING PATH** (comparator, grader, reader) | ***hash identity* — the frozen file IS the file that ran** | ***NOTHING.*** A hash admits no harmless category |
+
+> **⚡ RULED — `§2at`: THE FOUR-NAMED-THINGS TEST IS THE WRONG TEST TO APPLY TO A COMPARATOR. It
+> governs ADDENDA TO A DOCUMENT. A GRADING PATH IS PROTECTED BY BYTE IDENTITY, AND BYTE IDENTITY HAS
+> NO CONCEPT OF CONSEQUENCE — a display-only edit breaks it exactly as completely as a threshold
+> edit.** ***"It alters none of the four named things" is not a defence for touching a comparator,
+> because the four named things were never what protected it.***
+
+**AND THIS EXPLAINS THE ARCHITECTURE RATHER THAN INVENTING ANYTHING: it is precisely WHY `§2d.1`'s
+four-condition exception exists and why it reaches the COMPARATOR.** *If a comparator were governed
+by the four-named-things test, every display-only repair would be self-authorising and `§2d.1` would
+have been unnecessary for exactly the cases it was written for.* **The exception exists because the
+comparator's rule is absolute.**
+
+### §2at.3 APPLIED TO `JF1G`: THE INSTINCT WAS RIGHT, THE READING WAS WRONG, AND THE OUTCOME IS UNCHANGED
+
+**cfd HELD, did not edit, characterised both defects, and measured on two independent counts that
+neither can move the verdict. That disposition is CORRECT and is endorsed.** Their reasoning —
+*"on the LETTER of rule 2's post-compute clause it is permitted … BUT it moves the blob and breaks
+the freeze"* — **reached the right answer through the wrong clause: on the letter of the clause that
+actually governs a grading path, it was never permitted.** *There is no tension to resolve.*
+
+> **⚡ AND THE POINT THAT MATTERS MORE THAN THE RULING: A DEFECT THAT PROVABLY CANNOT MOVE A VERDICT
+> DOES NOT NEED REPAIRING IN THE FROZEN FILE AT ALL.** ***The record IS the repair.*** **The
+> characterisation stands beside the case; the SUCCESSOR registration gets the corrected comparator.**
+> **`§2d.1` is for a defect that MOVED A VALUE — not for one measured to be incapable of moving one.**
+> *Invoking a repair exception for a harmless defect spends the exception's credibility on nothing.*
+
+**The two `JF1G` defects — an aggregation that discards a correct per-level `NOT A RESULT`, and a
+`[:60]` truncation printing `endTime 3000` for `30000` with no ellipsis — are REAL, are RECORDED, and
+are REPAIRED IN THE SUCCESSOR, NOT IN THE FROZEN FILE.** ***The truncation is the sharper of the two:
+a reader sees a number wrong by an order of magnitude that is RIGHT IN MEMORY*** — the silent-
+corruption family in a display rather than in a graded artifact, and it belongs in that collection.
+
+### §2at.4 ⚠ `M6SR` §33.5 IS **NOT** RULED HERE, AND THE REASON IS THE RULING ITSELF
+
+**The two instances are NOT the same object, which is exactly what `§2at.2` predicts, so I decline to
+dispose of both with one stroke.** **Relaxation factors are not a display and may not be a grading
+path at all** — *if they live in the CASE SETUP they are part of the RUN, and changing them
+post-compute does not produce an amended registration, it produces A DIFFERENT RUN, which is a NEW
+REGISTRATION and not an addendum question.* **HELD for its own reading against this framework. I have
+not read it and I assert nothing about it.** ***Two instances arriving together is a reason to check
+whether they are one class, not a licence to assume it.***
+
+### §2at.5 WHY THIS IS MINE TO RULE, STATED SO IT IS NOT MISTAKEN FOR OVERREACH
+
+**`CLAUDE.md` is Sanaa's alone and is untouched.** **What I have done is READ ITS THREE BULLETS AND
+NAMED WHICH OBJECT EACH GOVERNS** — the `§2am` distinction: *naming the reader a document already
+uses is INTERPRETATION; selecting a reader it never used would be ALTERATION and goes to her.*
+**Rule 2's own provenance line names `VERIFICATION_CHARTER` §2b/§2d/§2d.1 as its operationalisation,
+which is this charter's to hold.** **If Sanaa reads rule 2 differently, her reading governs and this
+section yields to it without argument.**
+
+**AND THE ESCALATION WAS RIGHT EVEN THOUGH THE GAP WAS NOT REAL.** *Two teams, from different
+directions, hit the same sentence and neither invented a permission for itself; both HELD and asked.*
+***A question that turns out to have an answer already in the text is not a wasted escalation — it is
+the system working, and the answer is now written down where the third instance will find it.***
