@@ -5544,7 +5544,28 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T18:33:49Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T18:58:16Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-96 — 2026-09-06T18:58:16Z — **W4 RE-ANCHOR IS FROZEN (§14, `07526cfe`), CHECK-1-READ ON ITS FULL 1208-LINE DIFF AND DRIVEN 18/18 END-TO-END BEFORE THE FREEZE — THE D6RF4 LESSON APPLIED PROSPECTIVELY. ONE BACKTICK SCAR IN THE FREEZE SECTION, OWNED AND CORRECTED (§15).**
+
+**W4 FROZEN.** Grading path `analyse_w4_reanchor.py` (`9cd76752`) + its imported `w4ra_accept_floor_control.py` (`ee29f8d4`), both disk==HEAD, `freeze_check` compares disk==committed-blob for every `FROZEN_PATHS` entry. Run root `W4-reanchor` **ABSENT by execution in the freezing invocation**, 0 solver core-min.
+
+**CHECK 1 DISCHARGED ON THE FULL DERIVATION DIFF (not a summary):** no verdict is manufacturable — PASS requires all three cells inside the 10 % bar, F_W complete, not withdrawn, with W0/W2/planted-zero all refusing *earlier* rather than degrading. F_W grades against the **registered 19.1195 %** prediction, not a recompute; F_W-UNRESOLVED ⇒ every W1 UNRESOLVED is a proper precondition; the plateau denominator is fixed to `|d(0.05)|` (the 9 % ambiguity closed); the S1 "reproduce a published number" reader-control is appropriately replaced (a re-anchor produces its own reference) with rule 3 carried by the retained planted-zero control.
+
+**WHY THIS DOES NOT REPEAT D6RF4** (five aborts, one guard per launch, frozen with a bespoke launcher never driven past `:515`): (1) **the grading path was DRIVEN END TO END before the freeze** — 18/18 gates on a mocked run, controls both ways; (2) **the launcher is the PROVEN S1 orchestration** (`run_one.sh`/`run_plateau.sh`, which carried S1FDP to a graded verdict), not a bespoke untested one, and **the mutable `launch_cmd` is OUTSIDE the freeze**, so a leg mis-production is a cheap queue-row fix, not a frozen-file amendment. **The freeze-discipline lesson, kept.**
+
+**⚠ ACCEPT FLOOR CORRECT PER N-D43: `primalMinResTol = 1e-8`, `primalMinResTolDiff = 100` (NOT 1000), floor = product = 1e-6**, read from the S1 1e-8 archive logs by the lane, not carried from D6RF4. `imported_symbol_identity` asserts the file grades against the instrument's own object and that the plant plants into the gate's own functions.
+
+**⚠ ONE BINDING LAUNCH COUPLING FOR F9 (§14.3):** `runScript.py:50` defaults `-gradout cbfs_beta_grad.npy`, but the comparator reads `anchor8w_grad.npy` — **leg 5 (anchor8w) MUST be launched with `-gradout anchor8w_grad.npy`** or it reports `REFERENCE_NOT_PRODUCED`. Recorded on the freeze section so the queue row honours it; the 1e-6 gradient is refused as reference and never read.
+
+**⚠⚠ THIRD BACKTICK-IN-UNQUOTED-HEREDOC INCIDENT TONIGHT, AND I OWN THE PATTERN.** §14 was written through an unquoted heredoc to interpolate md5s; one `` `CLAUDE.md` `` span kept live backticks and was substituted to empty, leaving *"From this commit,  rule 2 closes"* (doubled space). **Same trap that ate a citation from the D6RF4 amendment (`648a6ea1`) and ran `cp -a` from the W3S refusal line.** I filed the rule after the first — quoted heredoc, substitute after — and broke it here. **Corrected by appended §15 (`8f2700fa`), written the right way (quoted heredoc, `2026-09-06T18:58:16Z` placeholder); one scar, no meaning changed, no command output injected, every md5/sha in §14 a literal the shell did not touch.** The lesson is not "know the trap" — I did — it is "apply the rule every time, especially when interpolation tempts the unquoted form."
+
+**STILL OWED: F9, the queue row** — `cost_core_min_estimate` 133.230, cap 150.0, `memory_floor_gb` 22.0 (GiB unconverted), ranks 2, the `-gradout` coupling, a `grading_freeze` key pinning the comparator + control. Built READY-NOT-PLACED beside the case; placement is the chief's under the grant.
+
+**Commits: `07526cfe` (§14 freeze), `8f2700fa` (§15 correction).**
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-95 — 2026-09-06T18:33:49Z — **§2ax RULED (`8fc91c91`): a no-solve container abort has NOT reached first compute. THE SOLE STALE PIN IS REPINNED (`ed809aec`), THE DRIP IS CLOSED, THE ROOT IS CLEAN — THE NEXT LAUNCH REACHES THE PRIMAL.**
 
