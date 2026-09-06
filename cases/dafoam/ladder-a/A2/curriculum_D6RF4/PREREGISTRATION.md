@@ -715,3 +715,236 @@ Run on the pre-repair blobs and on the repaired files, **relocated identically**
 **SUBMISSIONS PARKED.**
 
 **lines whose number changed above this section: 0**
+
+---
+
+## AMENDMENT — 2026-09-06T16:57Z — **THE RUN ROOT WAS NEVER CREATED BY ANYTHING. `d6rf4_run_arm.sh` HAS ZERO `mkdir`; THE STAGING LAYER LIVED IN A CHAIN DRIVER THAT WAS DROPPED WITH THE SECOND ARM, AND THE LAUNCHER STILL ASSUMES A POPULATED ROOT IN THREE PLACES. THE THIRD DROPPED-LAYER FAILURE IN THIS FAMILY IN ONE NIGHT.**
+
+**PRE-FIRST-COMPUTE, `CLAUDE.md` rule 2.** Condition stated and **CHECKED BY EXECUTION IN THE AMENDING
+INVOCATION**, three independent ways at `2026-09-06T16:56:56Z`: the registered run root
+`/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe` is **ABSENT**;
+`ls -d /home/ubuntu/certonomous-runs/*D6RF4*` matched **0** directories; and
+`docker ps -a` names **0** containers carrying this item's prefix — no `d6rf4_*` container has ever
+existed on this box. **0 SOLVER CORE-MINUTES HAVE BEEN SPENT AGAINST THIS DOCUMENT.** Rule 2's gates
+close at **first compute, not at freeze**, so they are still open and this is a **repair**.
+**NO GATE, THRESHOLD, BAND, CAP, DEADLINE, CEILING, VERDICT OR LABEL MOVES.** `d6rf4_run_arm.sh` is
+**NOT EDITED** and its md5 is **NOT RE-PINNED** — it is `f624bba5b30ecf49debcb5f2899c6ceb` before this
+amendment and after it. *lines whose number changed above this section: 0.*
+
+### 1. THE DEFECT, MEASURED ON THE ARTEFACT
+
+`P_conv` was placed at `16:32:07Z` and **aborted `launcher_rc=4` at `16:33:09Z`, 62 s later, having
+burned ZERO SOLVER CORE-MINUTES.** `STATUS.queue.D6RF4-P_conv` carries the rc; `launcher.queue.out`
+carries the cause, and its last three lines are
+
+```
+stat: cannot statx '/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe': No such file or directory
+stat: cannot statx '/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe': No such file or directory
+ABORT L-251 run root mode
+```
+
+— `d6rf4_run_arm.sh:515`, with an **empty mode field**, because there is nothing to `stat`.
+
+**THE RUN ROOT NEVER EXISTED, AND NOTHING IN THIS ITEM WAS EVER GOING TO CREATE IT.**
+`d6rf4_run_arm.sh` contains **ZERO `mkdir`** — verified by grep on its own bytes. The launcher has
+never created its own run root, in this item or in its parent. It nonetheless **assumes a populated
+root in THREE places**:
+
+| site | assumption | rc if unmet |
+|---|---|---|
+| `:515` | `$BASE` exists and its mode is **exactly** `777` (L-251) | `4` |
+| `:518-527` | **NINE** files md5-asserted directly in `$BASE/` | `4` |
+| `:632-636` | `$BASE/base/constant/polyMesh/points{,.gz}`, md5 == `MD5_REF_MESH` | `5` |
+
+**This is DETERMINISTIC, not a race: the same argv aborts identically.** And **merely creating the
+directory is NOT the repair** — it would then abort at the first md5 check, `:518`.
+
+**In `D6RF3` that work lived in a CHAIN DRIVER**, `d6rf3_chain_driver.sh:92-112`, headed *"ROOT
+STAGING on the first fire only"*: `mkdir -p "$BASE"`, `chmod 777 "$BASE"` (commented `(L-251)`),
+`cp -a "$D4_BASE_SRC" "$BASE/base"`, and `cp -a` of twelve instruments into `$BASE/`. **`D6RF4`
+registered ONE arm, dropped the chain driver, and the root-staging block went with it.**
+
+**⚠ THE LAUNCHER'S OWN COMMENT IS THE FOSSIL OF THE DROPPED LAYER.** `d6rf4_run_arm.sh:1025-1026`
+reads *"`$BASE` is the md5-verified source: `d6rf4_chain_driver.sh` asserts all twelve instrument
+md5s there before any arm runs."* **`d6rf4_chain_driver.sh` DOES NOT EXIST** — that string appears
+exactly once in the entire repository, in that comment — **and the count is wrong too: this item
+asserts NINE files at `$BASE`, not twelve.** The comment is inherited from `D6RF3` and survived the
+deletion of the thing it names. **It is disclosed here and NOT repaired, because repairing it would
+mean editing a frozen file for a comment.**
+
+**⚠ A SECOND FINDING, FROM THE SAME ARTEFACT.** `launcher.queue.out` line 2 reads
+`D6RF4_G_ROOT_PASS item=D6RF4 base=... ledger_clean=yes` — **printed 62 s before the abort, about a
+root that did not exist.** G-ROOT.3 is `if [ -f "$BASE/ledger.txt" ]` (`:241`), so on an absent root
+it **passes vacuously and announces the root clean**. That is a fail-open reading in the launcher's
+own evidence line. It is **REPORTED, NOT GATED** here, and the repair below closes it in the only
+lawful direction available — by making the ledger EXIST and carry an exact `ITEM=D6RF4` line, so the
+pass is on evidence rather than on absence.
+
+### 2. THIS IS THE THIRD DROPPED-LAYER FAILURE IN THIS FAMILY TONIGHT, AND THE ACCOUNTING WAS ALREADY OWED
+
+`A1WRT2` deleted a `cmd.sh` wrapper and lost **four** clauses — the `loadDAFoam.sh` source, the
+`AOA_*` translation (which killed a run at 4 s), a runScript-present refusal, and the `G-WALLTREAT`
+assertion — **two of which are still missing.** Its successor's repair brief demanded: *"enumerate
+what the deleted layer did, CLAUSE BY CLAUSE, and account for every clause — restored, deliberately
+dropped with a reason, or replaced. An unaccounted clause is the same defect a third time."*
+**That accounting was not performed for `D6RF4` when the chain driver was dropped, and this abort is
+the direct consequence.** Section 3 performs it.
+
+### 3. THE CLAUSE-BY-CLAUSE ACCOUNTING OF `d6rf3_chain_driver.sh`, WITH ITS DENOMINATOR
+
+**THE DENOMINATOR, SO THE TABLE IS AUDITABLE AND NOT MERELY ASSERTED.**
+`cases/dafoam/ladder-a/A2/curriculum_D6RF3/d6rf3_chain_driver.sh` is **282 lines**, of which **171
+are non-comment and non-blank** (a line is a comment if its first non-space character is `#`; the
+shebang is counted as a comment). It is partitioned into **29 clauses** whose line ranges are
+**disjoint and cover 1-282 exhaustively**, and whose non-comment non-blank counts **sum to 171**,
+matching an independent count of the whole file. **UNACCOUNTED CLAUSES: 0.**
+
+| # | lines | ncnb | clause | disposition |
+|---|---|---|---|---|
+| C01 | 1-23 | 0 | file header: derivation, deltas, detached form, rc-capture doctrine, cwd rule | **REPLACED** — `d6rf4_stage_root.sh`'s own header states the same operating facts for the one-arm shape |
+| C02 | 24 | 1 | `set -uo pipefail` | **RESTORED** verbatim |
+| C03 | 25-33 | 9 | `HERE LAUNCHER IMG BASE D4_CASE_DIR D6R_CASE_DIR D4_BASE_SRC AGGREGATE_READER PERMISSION` | **RESTORED** for `HERE LAUNCHER BASE D4_BASE_SRC`; **DELIBERATELY DROPPED** for `IMG` (the stager launches nothing), `D6R_CASE_DIR`/`AGGREGATE_READER` (dropped with C23), `D4_CASE_DIR` (see C10), and `PERMISSION` — **a second copy of the freeze field is exactly the duplicate-hand-list defect that produced this abort; G-FREEZE stays the launcher's, at `:97-183`, singly** |
+| C04 | 34-36 | 1 | `ITEM_CEILING_CORE_MIN=670.0` | **RESTORED** as `54.00`, **QUOTED NOT CHOSEN**: `d6rf4_grade.py:184` registers `CAPS = {"P_conv": 54.00}` and `:696` computes `ceiling_core_min = sum(CAPS.values())`. With ONE registered arm the item ceiling **is** the arm cap. **No new threshold is minted** |
+| C05 | 37-52 | 3 | `H5_FLOOR_GIB H5_SAMPLES H5_WINDOW_S AGG_CEILING_GIB AGG_POLL_S AGG_BOUND_S H5_RETRY_S H5_BOUND_S` | **DELIBERATELY DROPPED** with C22/C23 |
+| C06 | 53-77 | 15 | fifteen transcribed `MD5_*` pins | **REPLACED** — `d6rf4_stage_root.sh` writes **no instrument name and no md5 of its own**. It parses the launcher's `echo "$MD5_X  $BASE/<f>" \| md5sum -c -` lines and resolves each pin against that launcher's own `^MD5_X=` line. **The transcription that could drift is deleted, not duplicated.** The one exception is `MD5_CEILING_GUARD` (C17), which the launcher does not assert |
+| C07 | 78-86 | 8 | usage check and `F_mp\|REF_off` arm-name validation | **REPLACED** — `D6RF4` registers one arm; the launcher already refuses `F_mp` and `REF_off` **by name** rather than by an unknown-arm default (header delta A) |
+| C08 | 87-88 | 2 | `STATUS`/`PIDFILE` paths, `cd "$HERE"` | **REPLACED** — evidence goes to `D6RF4_ROOT_STAGING.txt` in the case directory; every path in the stager is absolute so no `cd` is required. `PIDFILE` is still **read** (C13) |
+| C09 | 89-90 | 2 | launcher md5 and aggregate-reader md5, asserted before staging | **REPLACED** — the stager **reads and prints** the launcher md5 (`f624bba5b30ecf49debcb5f2899c6ceb`) and **does not pin it**. A third copy of the launcher hash is a third thing to drift; the launcher's identity is the supervisor's freeze. Aggregate reader dropped with C23 |
+| C10 | 91-112 | 18 | **ROOT STAGING** — `mkdir -p`, `chmod 777` (L-251), `cp -a` the D4 base, `cp -a` twelve instruments, write `ITEM=` + `STAGED` ledger lines, emit `*_ROOT_STAGED` | **RESTORED — THIS IS THE CLAUSE THAT BIT US.** With one measured difference that is **not a choice**: `D6RF3` staged twelve files including D4's four and `d6rf3_ref_off.py`; **`D6RF4`'s launcher asserts NINE at `$BASE`, all `d6rf4_*`.** `MD5_EXTRACT4/RUNSCRIPT4/LOCUS4/PHYS4` are declared at `:363-366` and **used nowhere** (kept as reference, per that block's own comment), and `d6rf4_ref_off.py` is **deliberately not staged** (`:787-791`). Because the stager derives its list from the launcher, it stages nine **by construction**, not by my transcription |
+| C11 | 113-127 | 15 | staged-instrument md5 assertion at `$BASE` | **RESTORED AND STRENGTHENED** — asserted on the **source side first**, so a bad instrument refuses **before** any directory is created, and again at `$BASE` after the copy |
+| C12 | 128-129 | 1 | `test -f "$BASE/base/FFD/wingFFD.xyz"` | **RESTORED**, source side and staged side |
+| C13 | 130-136 | 7 | driver-liveness pidfile guard — two records for one run | **RESTORED**, and **widened** with the launcher's own `docker ps` reading. **The docker read reports `UNMEASURED` when it fails rather than `none`** (rule 3); it does not refuse, because the stager never removes anything and the launcher's G-ROOT.5 reads it again immediately before anything destructive |
+| C14 | 137 | 1 | `trap ... EXIT` writing `CHAIN_DONE` | **DELIBERATELY DROPPED** — it recorded a *chain's* completion. **REPLACED** by the stager's terminal `D6RF4_STAGE_ROOT COMPLETE` line |
+| C15 | 138-140 | 2 | start banner, `chain=started` into `STATUS.chain` | **REPLACED** by the `D6RF4_STAGE_ROOT begin` line; `STATUS.chain` itself **DELIBERATELY DROPPED** — there is no chain |
+| C16 | 141-143 | 3 | `mem_gib()`, `cap_mem_gib()`, `arm_cap()` | **DELIBERATELY DROPPED** — the first two feed C22/C23; `arm_cap` is replaced by the single registered `54.00` read out of the frozen grader |
+| C17 | 144-168 | 3 | ceiling-guard existence + `MD5_CEILING_GUARD` | **RESTORED** verbatim, same file, same pin `1ea97c9245dedbc451d62e1bcfe26eb9`, existence asserted before the hash |
+| C18 | 169-170 | 2 | `for ARM in $ARMS`, launcher md5 re-asserted per arm | **REPLACED** — one arm, no loop; launcher md5 read once, per C09 |
+| C19 | 171 | 1 | `preflight arm=...` into `STATUS.<arm>` | **REPLACED** by the queue runner's own `STATUS.queue.D6RF4-P_conv`, which exists and carried `launcher_rc=4 end=2026-09-06T16:33:09Z` |
+| C20 | 172-177 | 5 | `ALREADY_BOUGHT` — refuse on an `rc=0` ledger row | **RESTORED** verbatim in effect |
+| C21 | 178-197 | 12 | **the cumulative item-ceiling guard, asserted before every arm** | **RESTORED.** The guard answers on its **exit code**; no spend figure reaches a shell arithmetic context. Because the stager is **idempotent and re-asserts on a present root**, the guard runs before **every** fire, not only the first — control direction D13 |
+| C22 | 198-220 | 20 | the H5 MemAvailable window, wait-and-retry, `BLOCKED` at the bound | **REPLACED** — the queue runner enforces this item's registered `memory_floor_gb = 20.0` (this document's `2026-09-06T03:51:07Z` amendment §1; consumed at `scripts/queue_runner.py:195-200`, GiB, unconverted). **The hold moved from the driver to the runner; it was not deleted** |
+| C23 | 221-236 | 14 | the aggregate-memory hold against `AGG_CEILING_GIB=30.6` | **DELIBERATELY DROPPED, WITH THE RESIDUE NAMED.** `D6RF3`'s rationale was a live 8 GiB sibling plus this item's 20 GiB against a 30.6 GiB ceiling. **MEASURED at the 16:33Z fire: `D6RF4_HOST_PRE ... MemAvailable_GiB=28.93 ... siblings_pre=[]`** — zero sibling containers, so the arithmetic that motivated the hold does not reproduce. **HONEST RESIDUE: I verified the runner enforces a MemAvailable floor; I did NOT verify it enforces an aggregate-of-container-caps ceiling.** If a sibling is live at the re-fire, this clause is unreplaced |
+| C24 | 237-242 | 6 | fire the launcher, capture rc **inside** the wrapper, write `STATUS.<arm>` and `STATUS.chain` rows | **DELIBERATELY DROPPED** — **`d6rf4_stage_root.sh` LAUNCHES NOTHING**, by design and by its own closing line. **REPLACED** by the queue runner's argv and its `STATUS.queue.*` file, which is where the `rc=4` above came from |
+| C25 | 243-245 | 3 | the `rc=77` units-refusal annotation | **DELIBERATELY DROPPED** with C24 — the launcher writes its own `rc=77` line into the ledger at `:1370` |
+| C26 | 246-257 | 9 | stop-at-first-nonzero, and the `not_run` census naming the arms that will not run | **DELIBERATELY DROPPED** — with **one** registered arm the `not_run` set is empty by construction and the "first nonzero" is the only outcome |
+| C27 | 258 | 1 | `done` | dropped with C18 |
+| C28 | 259-280 | 5 | **the final spend, read back through the same guard at `--cap 0`, written into the ledger** | **⚠ REPLACED IN PART, AND THE GAP IS NAMED RATHER THAN PAPERED OVER.** The stager runs **before** the fire and cannot report a final spend. The launcher writes `D6RF4_CAP_CROSSED`/`D6RF4_CEILING_HIT` rows into the ledger (`:1304`, `:1308`), and §8.3 plus `CLAUDE.md` rule 12 owe the estimate-versus-actual comparison into `docs/COST_CALIBRATION.md` at completion. **THERE IS CURRENTLY NO INSTRUMENT THAT READS THE FINAL SPEND BACK THROUGH `item_ceiling_guard.py` AT `--cap 0`. THAT IS OWED AT COMPLETION AND IS RECORDED HERE SO IT DOES NOT BECOME THE FOURTH DROPPED CLAUSE.** |
+| C29 | 281-282 | 2 | `chain=COMPLETE`, `exit 0` | **RESTORED** as `D6RF4_STAGE_ROOT COMPLETE` and `exit 0` |
+
+**TOTALS: 29 clauses; 171 non-comment non-blank lines accounted; RESTORED 11, REPLACED 10, DELIBERATELY DROPPED 8; UNACCOUNTED 0.**
+
+### 4. THE REPAIR — `d6rf4_stage_root.sh`
+
+**md5 `652b3cdcd3ac66a8955d2190784c3bff`**, `cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_stage_root.sh`.
+
+**WHAT MAKES IT DIFFERENT FROM THE THING THAT BROKE.** `D6RF3` carried the instrument names and md5s
+**twice** — once in the launcher, once in the chain driver — and when the driver was dropped the
+launcher's list was left asserting files nobody staged. So this file **writes no instrument name and
+no md5 of its own**: it parses `d6rf4_run_arm.sh` for its `$BASE`-side assertion lines, resolves each
+`MD5_<NAME>` against that launcher's own `^MD5_<NAME>=` line, and stages precisely that set.
+**If the launcher gains a tenth assertion, the stager stages a tenth file without being edited.**
+Each pin is asserted **assigned exactly once** — `d6rf4_run_arm.sh:92-96` and `:372-378` both record
+that `MD5_ANCHOR_GATE` was once assigned twice with the **stale** value second, and in shell the last
+assignment wins. **A parser that finds ZERO assertions REFUSES (`rc 40`)**; it does not report
+"nothing to stage", which is the planted-zero shape in a stager (rule 3).
+
+**WHAT IT DOES NOT DO.** It **launches nothing** — no container, no launcher, no queue row. It
+contains **no `rm -rf`, no `rm -r`, no `find -delete`**: it creates and copies and never removes, and
+a root that already exists is **re-asserted, never re-staged and never cleaned**. It does not edit
+`d6rf4_run_arm.sh` and does not re-pin it. **The re-fire remains the dafoam-supervisor's decision.**
+
+**ITS EXIT CODES ARE DISJOINT FROM THE LAUNCHER'S** (`3/4/5/7/8/64/65/77`) so that a queue row's
+`launcher_rc` names *which layer* refused: `40` shape/derivation, `41` md5, `42` ceiling or
+UNMEASURED spend, `43` refusal (foreign root, ALREADY_BOUGHT, live driver, pre-existing arm dir),
+`44` filesystem.
+
+**MEASURED, NOT ASSERTED:** driven against a sandbox root it derives **9** `$BASE`-side assertions
+from launcher lines **518,519,520,521,522,523,524,526,527**, resolves `MD5_REF_MESH =
+0fb1935a9b8781b73ac4ccb136e3ec68`, and completes `rc=0`.
+
+**⚠ ITS OWN CONTROL CAUGHT A DEFECT IN IT ON THE FIRST DRIVE.** Direction D8 — a root whose ledger
+reads `ITEM=D19T` — came back `rc=41 "ABORT STAGED md5"` instead of `rc=43`: the foreign-item check
+sat **after** the staged-instrument assertions, so another item's run root was reported as a `D6RF4`
+md5 failure — **a true refusal with a false reason**, which sends its reader hunting the wrong
+defect. The check is now hoisted ahead of every write. *This is recorded because a repair whose
+control never failed it has not been shown to discriminate.*
+
+### 5. THE CONTROL — `d6rf4_stage_root_control.py`, **17 DIRECTIONS, ALL AS REGISTERED**
+
+**md5 `03391398bd229b7a0b021439029e68de`**; evidence `d6rf4_stage_root_DRIVE_EVIDENCE.txt`.
+
+**IT DOES NOT RE-IMPLEMENT THE LAUNCHER'S ASSERTIONS. IT EXTRACTS THEM VERBATIM, BY LINE NUMBER** —
+`:515`, `:518-527`, `:632-636` — **together with the launcher's own `field_path()`/`assert_field()`
+helpers**, and evaluates those exact lines against a sandbox root the stager built. **Each extracted
+line must also match its registered shape; if the launcher is renumbered the control REFUSES
+(exit 2) rather than testing whatever moved into that slot and reporting a pass.**
+
+**BOTH DIRECTIONS, AND THE POSITIVE ONE IS THE PLANT.** A harness in which everything aborts would
+score every failure direction green while proving nothing. **D1** is therefore the plant: the same
+extracted launcher lines, against a properly staged root, **PASS** and print
+`LAUNCHER_ASSUMPTIONS_ALL_PASS`. Every refusal below is evidence only because D1 does not refuse.
+
+- **D1 POSITIVE (THE PLANT)** — staged root → `:515`, `:518-527`, `:632-636` **all pass**, rc 0.
+- **D2 ROOT ABSENT** — unstaged root → `:515` aborts **rc 4** with `ABORT L-251 run root mode ` and an
+  **empty mode field**: byte-for-byte the `16:33:09Z` abort. **The defect is reproduced, not inferred.**
+- **D3 MODE 775** — staged then `chmod 775` → `:515` aborts rc 4 naming `775`. **L-251 is a MODE gate,
+  so creating the directory alone is not the repair.**
+- **D4 ONE MD5 WRONG, DRIVEN 9 TIMES** — each staged instrument corrupted **in turn** → the launcher
+  aborts rc 4 at **that file's own** assertion every time. **Untested assertions: NONE.**
+- **D5 / D6 / D7 MESH** — polyMesh directory removed → rc 5 distinguishing a missing **directory**
+  from a missing field; both `points` and `points.gz` removed with the directory kept → rc 5 saying
+  the directory exists but holds **neither** name; the mesh perturbed → rc 5 at the `MD5_REF_MESH`
+  comparison. **Presence alone does not satisfy `:636`.**
+- **D8 FOREIGN ROOT** → stager rc 43. **D9 PRE-EXISTING ARM DIRECTORY** → rc 43 **and the partial
+  result is still on disk**. **D10 BAD SOURCE** → rc 41 **and the run root was never created**.
+- **D11 REFUSE-EMPTY** — the `$BASE`-side assertions stripped from a launcher copy → rc 40. **D12
+  REFUSE-PIN** — a duplicate `MD5_ANCHOR_GATE=` planted → rc 40.
+- **D13 IDEMPOTENCE** — a second run over a present root → rc 0, `D6RF4_ROOT_PRESENT`, **nothing
+  re-staged and nothing removed (instrument mtimes identical)**, and **the ceiling guard runs again**.
+- **D14 THE CEILING GUARD BITES** — 10.000 core-min planted into the ledger → 10.000 + the 54.00 cap
+  = 64.000 over the 54.00 ceiling → rc 42. **D15 ABSENT LEDGER** → rc 41: **UNMEASURED, never 0.0.**
+- **D16** — the registered run root is **still ABSENT** after all directions. Every direction ran in a
+  throwaway sandbox whose path is **redacted** from the evidence file (rule 13: a repository document
+  never cites a scratch path).
+
+**`RESULT ALL 17 DIRECTIONS AS REGISTERED`, rc 0. Solver core-minutes spent by this control: 0.000 —
+no container is created by any direction.**
+
+### 6. ⚠ THE COVERAGE PROBE — `FAIL_OPEN_GATE_AUDIT.md` §28.19.2, AND THIS ITEM HAS NOW BEEN BITTEN TWICE
+
+§28.19.2 rules that a suite passing identically either side of a repair **has measured the suite, not
+the fix** — so re-aim it. Every suite driven in this invocation is reported in those terms.
+
+| suite | result | staging tokens in its own bytes | the §28.19.2 reading |
+|---|---|---|---|
+| `d6rf4_launcher_guard_drive.py` | **27/27, rc 0** — and **27/27 with the run root absent, which is the state it was in when the arm aborted** | `L-251` **0**, `run root` **0**, `stat -c` **0**, `777` **0**, `BASE` **0**, `mkdir` **0**, `polyMesh` **0** | **THE GUARD THAT ACTUALLY STOPPED THIS ARM WAS IN NONE OF THE 27.** All 27 legs are freeze- and permission-shaped. The 27/27 is **zero** evidence about the staging path and **strong** evidence about the suite: the staging path was never in its covered set |
+| `d6rf4_grade_drive.py` | 6/6 scenarios, rc 0 | 3 hits | grading-side; the run-root staging path is not among its scenarios |
+| `d6rf4_age_datum_control.py` | `CONTROL PASSED`, rc 0 | 6 hits | age-datum precision only — the hole §28.19.2 named for this item **hours earlier** |
+| `d6rf4_stage_root_control.py` | **17/17, rc 0 — NEW** | the whole file | **this is the re-aiming.** It is the first instrument in this item whose covered set contains `:515`, `:518-527` and `:632-636` |
+
+**THIS IS THE SECOND MEASURED COVERAGE HOLE IN THIS ONE ITEM IN ONE NIGHT** — after the age-datum
+guard sat outside all 100 of its suites. **The pattern is not that the suites are weak; it is that a
+guard reaches the covered set only when someone writes its control.** Section 5 is that control for
+the staging path.
+
+### 7. WHAT THIS AMENDMENT DOES **NOT** DO
+
+1. **It moves nothing.** No gate, threshold, band, cap, deadline, ceiling, verdict or label. `G-CONV`,
+   `G-SOLN`, the accept floor `1e-08 × 1000 = 1.0e-05`, the `54.00` cap and the `720 s` deadline are
+   untouched, and `primalMinResTol`/`primalMinResTolDiff` remain untouched everywhere.
+2. **It does not edit `d6rf4_run_arm.sh`.** The launcher's md5 is `f624bba5b30ecf49debcb5f2899c6ceb`
+   before and after. The stale `d6rf4_chain_driver.sh` comment at `:1025-1026` is **disclosed and
+   left in place**.
+3. **It does not create the registered run root**, place a queue row, or fire anything. **0 solver
+   core-minutes**, asserted by execution at the head of this amendment.
+4. **It does not change the queue row.** `QUEUE_ROW_D6RF4_READY_NOT_PLACED.json` carries
+   `launch_cmd = ["bash", ".../d6rf4_run_arm.sh", "P_conv", "dafoam-idwarp-rot:v1"]`, **which does not
+   run the stager**. Placing it unchanged reproduces the `16:33:09Z` abort exactly. **The re-fire, and
+   whether the stager runs as a separate act before placement or inside the placed argv, is the
+   dafoam-supervisor's decision and is not taken here.**
+5. **It leaves C28 owed** — the final spend read back through `item_ceiling_guard.py --cap 0` at
+   completion, named in §3 so it does not become the fourth dropped clause.
+6. **It leaves C23's residue named** — an aggregate-of-container-caps ceiling is not verified to be
+   enforced by the runner; measured at the fire, `siblings_pre=[]`.
+
+**SUBMISSIONS PARKED.**
