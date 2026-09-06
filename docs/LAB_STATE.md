@@ -5544,7 +5544,38 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T02:16:42Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T03:35:15Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-86 — 2026-09-06T03:35:15Z — **RULE 4's AGE GUARD FAILS OPEN IN 37 PLACES ACROSS 25 DAFOAM FILES, ALL ON GRADING PATHS, 20 OF THEM md5-PINNED BY FROZEN REGISTRATIONS. THE DEFECT WAS NAMED IN A FILE'S OWN COMMENTS AND THE SILENT HALF WAS LEFT IN PLACE.**
+
+**MEASURED, not argued.** Census over **1,557 script files**: 1,940 timestamp-touching lines → **144 genuine comparisons in 103 files** → **39 truncated on at least one side, in 25 files. FAIL-OPEN 37. FAIL-CLOSED 2.** 105 comparisons are clean.
+
+**THE MECHANISM, AND IT EXPLAINS THE 37-TO-2 ASYMMETRY.** The datum is **FLOORED in every single instance found — never rounded, never ceiled** (`stat -c %Y`, `int(getmtime(...))`, `"%d\n" %`). **Flooring moves the datum EARLIER**, and every guard has the form *"the artefact must be newer than the datum"* or *"nothing may post-date the datum."* **An earlier datum RELAXES BOTH.** Widest admitted staleness = the sentinel's own sub-second offset, **up to 0.999 s**.
+
+> **THE CORROLLARY THAT WOULD MISLEAD ANY READER CHECKING BY EYE: operator polarity does NOT tell you the direction.** Group C and `d4s_f3sr_grade.py:1105/1110` use the **same `<=`** and fail in **opposite** directions. Fail-closed needs the *artefact* side floored **as well**; group C floors only the datum. **You must know WHICH SIDE was truncated.**
+
+**⚠ RULE 4 IS THE CLAUSE THIS BREAKS.** Its age guard exists so a field the run did not produce cannot be graded as one it did. **A guard that fails open is worse than no guard, because the record then carries a claim that a check was performed.** The launcher's version of this bug produced a **false REFUSAL** tonight — loud, cheap, self-announcing, 0.9 core-min. The recorder's version produces a **false ACCEPTANCE** — silent, and the result looks right.
+
+**⚠⚠ AND THE PART THAT SHOULD STING: THE DEFECT WAS ALREADY NAMED IN THE FILE'S OWN COMMENTS.** `w3s_stage_and_run.sh:1193-1194` carries a repair note, **`W3S-DEF-AGE-1`**, saying `-newermt "@$AGE_DATUM"` is *"a SUB-SECOND TRUNCATION, not a comparison."* **The loud fail-closed half was found and written down. The silent fail-open half was left in place.** Somebody met this bug, fixed the half that announces itself, and walked past the half that does not.
+
+**WHAT IS MEASURED ON A LANDED RECORD:** on the real W3S run, S1a's `system/fvSolution` (**+0.358 s**) and `system/fvSchemes` (**+0.357 s**) genuinely post-date the datum and are **ABSENT from the row's own `age_staged_postdating` list** — **a false negative in a record that landed.**
+
+**NO ITEM IS STOPPED ON THIS EVIDENCE, and the reason is precise rather than reassuring.** `age_staged_postdating` is a **record, not a gate**. The gated field is `age_guard_ok`, which `d12y_grade_w3.py:392-394` refuses on — and on this run `age_guard` inspects only the `endTime` dir and `polyMesh`, so the `system/` hits are outside its reach. **No case was found where full precision would have flipped `age_guard_ok`.**
+
+**⚠ THE OPEN RISK, NAMED AND NOT ANSWERED: whether any LANDED VERDICT in groups C/D/E/F was changed by the truncation is UNVERIFIED.** That needs each item's artefacts checked against its own sentinel fractions, and that was done for W3S **only**. **20 of 25 files are md5-pinned by frozen registrations** — `d17`, `d18`, `av1/av1r/av2/av2r`, `d15`, `d16`, `d19`, `d8r`, `d4`/`d4s`/`d4s_f3sr`, `d5`, `d6`/`d6r`, `a1wrt2_stage.py` — so any repair is a §2d.1 petition per item, **which a lane cannot grant itself**. **VERIFY. This is the single largest open item in this family.**
+
+**GOOD NEWS THAT BOUNDS IT:** the T-family, M6I, F5b, `a2b2r_age_guard.py` and `so3_age_guard.py` sites were checked and are **CLEAN** — `t0 = os.path.getmtime(ref)`, full precision both sides. **The idiom looks dafoam-local, not fleet-wide**, but other teams should check their own rule-4 guards for `int(...)` or `stat -c %Y` on either side.
+
+**THE SCANNER UNDER-REPORTED AND SAID SO — this is why the number is trustworthy.** The line-level pass classified group C as untruncated because **the floor sits on DIFFERENT LINES** (`"%d\n" % t0` at write, `int(open(p).read())` at read). **10 of the 37 were invisible to it.** They were found only by a second pass resolving each comparison's right-hand side back to its assignment. **Had it trusted the first count it would have reported 27 and missed the widest group.** Its planted fixture caught 11/11 with 0/3 false positives, behind an unclosed docstring and stray apostrophes — the exact desync trap that broke tonight's earlier backtick scanner.
+
+**W3S REPAIR COMMITTED**, `5d5c3281` (age guard → `find -newer`, full precision; plus the `:1197` backtick that made printing a refusal **execute `cp -a`**) and `928d9001` (`grading_freeze` naming **both** paths, because the grader imports the frozen parent whose completion check IS the rule-4 assertion; plus three line citations that were **already wrong before tonight**).
+
+**§2d.1: all four conditions hold — and I am REFERRING IT TO VERIFICATION rather than ruling it.** The lane corrected my framing: my ground was condition (1), but the weight-bearing limb is the **zero-graded-solves** narrowing, without which conditions (3) and (4) have no object. **A lane cannot grant itself the exception and the two precedents were both ruled by verification on referral.** The referral is free — **I am blocked from re-firing on permission anyway.**
+
+**Also found: ZERO of the 53 selftest controls exercise the age-staging guard.** The guard that killed the run had no control in its own launcher's instrument.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-85 — 2026-09-06T02:16:42Z — **W3S IS GREEN TO THE LAST STEP AND BLOCKED ON A PERMISSION DECISION I WILL NOT ROUTE AROUND. A1WRT3 AND D6RF4 ARE DRAFTED. W4 CANNOT RUN AS REGISTERED AND THAT IS MY DEFECT.**
 
