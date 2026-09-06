@@ -1190,12 +1190,34 @@ PYCD2
   # (i) NOTHING STAGED MAY POST-DATE THE DATUM.  This is the preserved-mtime hazard
   #     actually occurring and it refuses BEFORE the container starts.
   local POSTDATING
-  POSTDATING="$(find "$D" -type f -newermt "@$AGE_DATUM" 2>/dev/null | head -5)"
+  # REPAIRED 2026-09-06 (W3S-DEF-AGE-1).  WAS: `-newermt "@$AGE_DATUM"`, and that is a
+  # SUB-SECOND TRUNCATION, not a comparison.  `$AGE_DATUM` comes from `stat -c %Y`, which
+  # is WHOLE SECONDS, and `-newermt "@N"` means STRICTLY AFTER N.000000000 -- so every
+  # file staged in the SAME WALL-CLOCK SECOND as the sentinel was accused of post-dating a
+  # sentinel it PRECEDES.  Measured on the 02:50:52Z refusal: the sentinel
+  # `.w3s_age_ref.SETUP_S2a` stands at 1788663109.804247776 and the accused
+  # `S2a/system/controlDict` at 1788663109.683474790 -- the file is 120.772986 ms OLDER.
+  # S0/S1a/S1b passed only because their sentinels happened to straddle a second boundary,
+  # so this was a RACE and re-firing unrepaired would have been a lottery.
+  # `-newer "$SENTINEL"` compares FULL-PRECISION mtimes directly and truncates nothing; it
+  # is strictly more faithful to the registered condition at :125-126 and :1190, which says
+  # POST-DATE and not "falls in the same second or later".  No gate, band, threshold, cap
+  # or label moves: this variable is read at the two lines below and NOWHERE else, feeds no
+  # manifest row, and produces no number.  The row's own `age_staged_postdating` is
+  # recomputed independently by `w3s_stage_record.py` and is NOT touched by this repair.
+  POSTDATING="$(find "$D" -type f -newer "$SENTINEL" 2>/dev/null | head -5)"
   if [ -n "$POSTDATING" ]; then
     say "ABORT AGE_STAGING: staged file(s) POST-DATE the age sentinel:"
     printf '  %s\n' $POSTDATING
-    say "  `cp -a` preserves mtimes, so a staged file newer than the datum would let a"
-    say "  field this run did not produce pass the age guard. REFUSED."
+    # SINGLE-QUOTED, and that is the repair, not a style choice.  This line previously read
+    # `say "  `cp -a` preserves mtimes, ..."` -- BACKTICKS INSIDE DOUBLE QUOTES ARE COMMAND
+    # SUBSTITUTION, so printing this refusal EXECUTED `cp -a` with no operands and the
+    # message went out with the words `cp -a` REPLACED BY THE COMMAND'S EMPTY STDOUT.  That
+    # is the `cp: missing file operand` in `launcher.queue.out`.  It survived because `cp`
+    # with no operands fails loudly and changes nothing; a quoted span naming a command
+    # that DOES something would have injected its effect and left no scar.
+    say '  `cp -a` preserves mtimes, so a staged file newer than the datum would let a'
+    say '  field this run did not produce pass the age guard. REFUSED.'
     return 2
   fi
 
