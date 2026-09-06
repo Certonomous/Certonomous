@@ -5544,7 +5544,30 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T17:09:55Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T17:19:33Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-91 — 2026-09-06T17:19:33Z — **D6RF4 ABORTED A THIRD TIME (G-DELIVERY, :1047, rc=8, 0 solver core-min). THE PATTERN IS THE FINDING, AND ITS ROOT CAUSE IS MINE: I FROZE A LAUNCHER NEVER DRIVEN PAST :515.**
+
+**Progress is real: the stager fix carried the arm PAST `:515` for the first time, through clean staging (S1-S9, tightened `fvSolution` at 4/4 sites), to a NEW frontier.** Then `G-DELIVERY` refused at `:1047`, `exit 8`, `REFUSE-UNPARSEABLE`, before any container.
+
+**TRIAGE, VERIFIED BY ME ON THE ARTEFACTS (§3 check 2):**
+- **Pre-first-compute confirmed:** no D6RF4 container has ever existed, no arm log, **0 solver core-min**. Rule 2's amendment limb is OPEN.
+- **The run root EXISTS from the aborted staging** and holds `0/`/`0.orig/` but **NO numeric time dir** — staged inputs, not solver output, so no rule-4 cold-start block on re-fire.
+- **The launcher is pinned 18× in the registration but is NOT one of the four gated `grading_freeze` comparators** — editing it moves no `G-FREEZE` gate, and `786d5850` already edited it lawfully.
+- **Mechanism:** `derive_delivery()`'s harvester regex at `:903` matches the launcher's own S6 md5-echo lines **including the two `fvSolution` lines**, seeds them as delivery requirements, and `declared_py()` `ast.parse()`s an OpenFOAM dictionary → `SyntaxError` → refusal. **The SIXTH appearance of the wrong-object/file-class family tonight** — a derivation choking on a file class it was not built for.
+
+**⚠⚠ THE ROOT CAUSE OF THE PATTERN IS MINE, AND IT IS A FREEZE-TIME MISS.** Three sequential aborts — `:515` twice, `:1047` now — are three latent false-refusal guards on the launch path, **each surfacing only when the previous fix let the arm reach it.** They exist together because **I FROZE D6RF4 WITH A LAUNCHER NEVER DRIVEN PAST `:515`.** The 27/27 guard drive I accepted as check-1 evidence at the freeze is **entirely freeze/permission-shaped and exercises NONE of the staging→delivery→container path.**
+
+> **§28.19 TURNED ON THE FREEZE ITSELF: a 27/27 guard drive that covers none of the launch path is not 27 passing guards, it is a coverage hole wearing a green number — and I read it as coverage.** Had I asked "how many launch-path guards does this drive exercise?" at freeze time, the answer was zero, and these three aborts were all visible then, offline, at zero daemon ticks.
+
+**THE CORRECTION IS SANAA'S RULING APPLIED PROPERLY, NOT ANOTHER SINGLE-GUARD FIX.** *"Past some time the lab must take action and launch the run with its attached watcher to fix/debug and see what happens."* We HAVE driven — three live launches — and each surfaced one guard. **Fixing them one live tick at a time is the loop she warned against, in slow motion.** So: **one END-TO-END OFFLINE DRIVE of the launcher, container MOCKED, from `:515` past the `docker run`, enumerating EVERY remaining false-refusal guard at once, fixed as ONE pre-first-compute amendment, each driven both ways.** Dispatched. That drive is the coverage the freeze never had.
+
+**GRADER-FREEZE MISMATCH remains benign and verified twice** — `d6rf4_grade.py` `67e9508f` is the lawful age-datum repair, recorded as a prediction under the launch-rule inversion, not drift. **ACCEPT_FLOOR_UNMOVED could not fire (no container log) → UNRESOLVED naming its producer, NOT a moved value; the launcher-level floor guard passed with a PLANTED control, so the escalation boundary is intact.** No calibration ratio — 0 solver legs.
+
+**THE STALE WATCHER FROM THE 16:33 CORPSE WAS REAPED** (explicit pid); a fresh watcher (pid 53579, `P_conv_WATCH_live.txt`) is armed on the current state and its `resolve_root_state` checks `isdir` before rc, so it cannot conflate a corpse's rc with a live root.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-90 — 2026-09-06T17:09:55Z — **D6RF4 STAGER FIX WORKS: THE ARM REACHED STAGING FOR THE FIRST TIME (17:07:16Z). AND THE IMPLICIT-PRECONDITION LESSON IS NOW PROVEN LIVE, TWICE.**
 
