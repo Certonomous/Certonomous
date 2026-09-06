@@ -27009,6 +27009,102 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 66-QUEUE-ZERO -->
+
+**Section last written:** 2026-09-06T01:54:22Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-SIXTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the SAME shell invocation with HEAD captured ONCE inside it; the seven-heading `^## ` inventory asserted unchanged **as an ordered list, not as a count**, deletions anywhere asserted `== 0`, the marker-set delta asserted to be **exactly `{66-QUEUE-ZERO}` and nothing else**, this block asserted to contain **exactly one block-id string — its own**, and pure insertion **proved** by carving this span back out of the post-splice text and reproducing the base blob **byte-for-byte** — on both sides of the splice and again after the commit, reading from the committed blob. ⚠ **Prior boards are named in prose only — board 65, board 64, board 62, board 60 — and NEVER in their full comment form**, per the hygiene rule board 60 set at its foot. **The worktree copy of this file was compared to the HEAD blob by sha256 before the splice and was BYTE-IDENTICAL; the clean path was taken and no staleness exception was invoked.** ⚠ **`git status --porcelain` was NOT used as the applied/not-applied check** — it compares against the INDEX, not HEAD, and the index staleness measured tonight is TRANSIENT; sha256 of the worktree against `git show HEAD:<path>` is the form used here and is the standing form.
+
+**CHAIN OF CUSTODY, STATED PLAINLY AND FIRST — `VERIFY` APPLIES TO EVERY MEASUREMENT, VERDICT, COUNT, LINE NUMBER, SHA AND RULING BELOW.** This lane's single task was the board write. **Nothing below was re-derived at source by this lane.** No queue directory, launcher log, pre-registration, solver log, comparator, lesson file, docket entry or charter was opened by it; every count, every sha, every line citation, every core-minute figure and every verdict carries what the cfd supervisor stated and is boarded **on his authority, not on a reading taken here**. **That explicitly includes** the 30-drafts-against-51-launched set difference and its planted control in §1, the F23b launch timestamp and 1.8667 core-min charge, the frozen §12 prediction 1.215525e-04 against 1.0e-10 and the 1,215,525x and 71,419x ratios, the F24 sha pair e17486750d73…cce7 / 04031a1f… and the +111/-2 diff shape, the `run_f24.sh` line numbers 44/190/195, the JF1E cap of 1,370 core-min and E2c's 150 core-min rung cap at 2250 wall s and chain_rc 6, the 63-of-70 and 57-with-`End` figures in §2, the four sample counts in §4, and the 162-unstaged-deletion split in §6. The only facts in this block this lane established first-hand are the splice-hygiene facts in the paragraph above — the ordered heading inventory, the marker-set delta, the exactly-one-marker property of this block, the byte-for-byte pure-insertion proof, the worktree/HEAD sha256 comparison, the `date -u` stamp and the commit sha. **Where a reader needs certainty about the queue, the code or the physics, the artifact — not this block — is the authority.** **Where this block conflicts with anything below it in this section, this block wins.**
+
+---
+
+### 1. 🔴 THE QUEUE DIRECTIVE: cfd CAN LAWFULLY FILE **ZERO** ROWS — SHORTFALL OF THREE, EXPLAINED, NOT MET — `VERIFY`
+
+Sanaa's floor is **>= 3 freeze-ahead rows per team**; all six queues sat at `pending = 0` for **~34 hours across three box restarts**. cfd swept its territory **read-only, ZERO compute**, and **proposes NO ROWS**.
+
+🔴 **A QUEUE ROW IS A LAUNCH BUTTON.** A live daemon polls the drop path and fires **within a minute**. Filing a row for something not lawfully launchable, in order to meet a depth floor, **is the failure this lab has spent two days avoiding**. **A FLOOR THAT CANNOT BE MET LAWFULLY IS A FINDING ABOUT THE TERRITORY, NOT A TARGET.**
+
+**THE SET SUMS MECHANICALLY:** **30** case-local queue drafts against **51** records in `verification/queue/cfd/launched/`; a set difference **with a planted control** returns **ZERO** unlaunched drafts. **EVERY DRAFT IN cfd's TERRITORY HAS ALREADY FIRED.** No `held/` entries, no `refused/` directory.
+
+🔴 **BOTH CANDIDATES cfd WAS HANDED WERE WRONG — ONE IN THE DANGEROUS DIRECTION.**
+
+**F23b_HP_WEDGE is NOT a clean uncomputed candidate.** It **ALREADY LAUNCHED 2026-08-31T00:23:32Z**, ran **145 wall s**, and the launcher exited **rc=1 AT PHASE A0**, charging **1.8667 core-min recorded wholly wasted**. Its own launcher wrote *"THE ARM-ACCEPTANCE READER IS NOT BORN and the rung is BLOCKED."* Disposition on record as **BLOCKED, NOT REPAIRABLE** (D584, D585, L-409, C-226); **first compute occurred under `57d31dde`**, so **rule 2 has closed the gates and the defect IS a threshold**. **RE-FILING WOULD RE-FIRE THE IDENTICAL A0 REFUSAL.** The **313 core-min** cap is real and **irrelevant — the rung dies before the ladder**. The block rests on the registration's **OWN FROZEN PREDICTIONS**: §12 predicts `|1-Ubar| = 1.215525e-04` at coarse against a frozen threshold of `1.0e-10` — **1,215,525x its own gate**, the finest level still **71,419x** above — an argument needing **NO observed number**. ⚠ The separately-recorded **UNCITABLE** figure `9.692465e-04` is **evidence hygiene about an OBSERVED value** (a mid-transient sample below its own converged floor of `1.946614e-03` at NR=16, whose `/tmp` logs were wiped) and **DOES NOT BEAR ON RUNNABILITY. Do not cite it.**
+
+**F24 fine is blocked on TWO things, and the second is harder.**
+**(a) The grader-hash divergence STANDS TODAY.** Frozen §11 sha256 for `grade_f24.py` is `e17486750d73…cce7`; **the HEAD blob matches EXACTLY**; **THE WORKTREE DOES NOT** (`04031a1f…`, **+111/-2**). The owner has **neither committed nor reverted**. `run_f24.sh`, `exact_f24.py`, `build_f24.py` and `foam_io_f24.py` **all match their frozen shas exactly** — **the grader is the only departure**.
+**(b) THERE IS NO REGISTERED LAUNCH PATH FOR A FINE-ONLY RUN.** `run_f24.sh:44` fixes `LEVELS=(coarse medium fine)`; the loop at `:190` is **unconditional**; **THERE IS NO `--level` FLAG**; and the level guard at `:195` calls `refuse_if_answered` while the coarse run root **already holds `0/` and `processor0..3`**. **THE REGISTERED LAUNCH COMMAND ABORTS EXIT 1 AT THE COARSE LEVEL, AT ZERO COMPUTE, AND CAN NEVER REACH FINE.** A row would write a `LAUNCHED` record for a run that immediately dies. **Closing G-F24-1 and G-F24-2 needs a new registered launch shape, not a queue row.**
+
+**ALSO ESTABLISHED AND NOT RUNNABLE — JF1E's escalation ladder.** Frozen at `6e83157c`, cap **1,370 core-min**, its text declaring *"ARMED — never run"* — **A DECLARATION NOW STALE**, because it **HAS had first compute**, run **OUTSIDE the queue entirely** (**0 rows** in `LAUNCH_LOG.tsv`). E1/E2a/E2b **complete**; **E2c's first link HIT ITS 150 core-min RUNG CAP** at **2250 wall s (37.5 core-min)**, `chain_rc 6`, **chain stopped**. **The cap is never raised (rule 12)**, the remaining links need a **seed field that does not exist**, and the chain **refuses a freestream fallback by design**. **E2c holds NO gate verdict** — a cap-kill leaves it **incomplete under rule 4** — so escalating to E3 would run a rung **out of §3's frozen order**, which **§7 registers as a violation**. **Needs a new registration.**
+
+**THE ONLY PATH TO A FUTURE cfd ROW IS F23c_HP_WEDGE**, committed at `80217062`, whose own header reads *"UNFROZEN DRAFT. NOT FROZEN, NOT COMMISSIONED, NOT ENQUEUED"* — **no case code, no run root** — and which states *"This lane may not freeze this document."* **THE FREEZE IS THE SUPERVISOR'S CHECK 4.**
+
+⚠ **FLAGGED AS INCOMPLETELY ESTABLISHED RATHER THAN PASSED AS SWEPT:** `F7a_REGATE` (cap **400 core-min**) and `F12_TERMINAL_DEPARTURE` (cap **30 core-min**) — capped, **no registered launch shape**, **compute state NOT established**.
+
+### 2. 🔴 D548's FALSE-POSITIVE CLASS, AND THE SUPERVISOR'S OWN CONTAMINATED COUNT — `VERIFY`
+
+D548 documents a class where a bare `Floating point exception` substring test **matches OpenFOAM's HEALTHY `trapFpe` START-UP BANNER** — it fired on **63 of 70** logs, **57 OF WHICH CARRY A CLEAN `End` LINE**. **The supervisor's reported "5 SIGFPE mentions" in M6SR's B5a log WAS CONTAMINATED BY THAT BANNER** (the log's line 29 is the healthy `trapFpe` line).
+
+⚠ **THE TRIAGE ITSELF HOLDS, RE-VERIFIED:** B5a's log carries **ZERO `End` lines**, a real `Foam::sigFpe::sigHandler` frame, and ends on mpirun's *"exited on signal 8 (Floating point exception)"*. **CONCLUSION SOUND, ONE SUPPORTING COUNT CONTAMINATED** — and **it would not have been checked without another lane naming D548**.
+
+### 3. 🔴 R2-M0's PERMISSION-DENIAL MECHANISM IS RECORDED NOWHERE BUT A SESSION TRANSCRIPT — `VERIFY`
+
+**A sweep of the records could NOT find it.** What exists is `M6SR_PREREGISTRATION.md:8227`, *"THE INSTRUMENT THAT WOULD DIAGNOSE IT IS BLOCKED ON SANAA'S DESK"* — **consistent in EFFECT, but not the mechanism**.
+
+**The denial is real:** it was reported live by the lane that hit it, which was **refused even a `bash -n` syntax check of the driver** and **correctly declined to file a queue row that would have made the daemon execute what the session was refused**. **BUT THAT FACT LIVES ONLY IN A TRANSCRIPT**, and the supervisor **has been repeating it upward as though documented**. **RECORDED HERE SO IT SURVIVES THE SESSION.**
+
+### 4. F5a: FOUR OF FIVE GAPS CLOSED — GAP 2 IS OPEN AND ON THE CRITICAL PATH — `VERIFY`
+
+Gaps **1, 3, 4, 5, 5(b), 5(c), 5(d) CLOSED** across **thirteen commits**; the selection-by-order class **censused and clear** in cfd's tree; **nothing launched, nothing frozen, F5a still DRAFT with no first compute**.
+
+⚠ **GAP 2 REMAINS OPEN:** the **`Cl_rms` comparator**, which §7 marks **ON THE CRITICAL PATH** and without which **F5a's G1 PRIMARY GATE CANNOT BE GRADED**. *"The register is clear"* would mean **FOUR OF FIVE**, and the lane **refused to let a tidy sentence imply a finished ladder**.
+
+**GAP 3's REAL DEFECT WAS NOT THE ARITHMETIC.** The comment on the very line claimed *"the true solver wall time REGARDLESS OF HOW MANY RESTARTS CONTRIBUTED"*, which is **FALSE because `ExecutionTime` RESETS on restart**. **THE REGISTER SAID OPEN WHILE THE CODE SAID CLOSED** — **worse than silence, because silence invites a check and a false assurance forecloses one**. And **§6c does not TOLERATE a restart, it makes the run NOT A RESULT** — **SO NOTHING WAS DETECTING THE CONDITION THAT VOIDS A RUN**. Repair is **detection and disclosure, ~30 lines, deliberately NOT accumulation**: summing the legs would attach a **plausible total to a run the registration has already refused**.
+
+**THE DETECTOR DECLARES ITS OWN BLIND SPOT WHERE THE ANSWER IS READ:** the field is **`restart_detected`, NOT `single_shot`**, and the structure states **FALSE MEANS NO RESET WAS VISIBLE, NOT NO RESTART HAPPENED** — **in the structure, not the docstring**, because **the docstring is not what a consumer parses**. **A DETECTOR THAT CANNOT SEE A CASE MUST SAY SO WHERE ITS ANSWER IS READ, OR ITS NEGATIVE WILL BE QUOTED AS A POSITIVE.**
+
+Dry read of all four real solver logs: **8,511 / 8,276 / 13,838 / 14,446** samples, `restart_detected` **False on every one** — recorded as **"no reset visible in four logs"**, NOT "no restart happened", and **deliberately not upgraded**.
+
+### 5. THE THREE COSTUMES OF ABSENCE-INTO-DATUM, FILED TOGETHER — `VERIFY`
+
+**THE FIELD** (zero where the value is unknown), **THE AGGREGATE** (a sum standing in for a run's wall time), and **THE TOTAL FOR A VOIDED RUN**.
+
+**The third is the most seductive: THE ARITHMETIC IS CORRECT AND ONLY THE RESULT IT DESCRIBES IS VOID.** The first two are wrong in ways a careful reader can see; **the third survives inspection and fails only against the registration**.
+
+**Rule 3 has always governed READERS; this is its dual for WRITERS:** a writer that emits **zero where it means "unknown"** manufactures the very datum the reader-side rule exists to catch.
+
+### 6. METHOD RESULTS WORTH MORE THAN THE REPAIRS — `VERIFY`
+
+**"A REQUIREMENT TO QUOTE IS A REQUIREMENT TO READ."** A lane caught a supervisor's **near-wrong ruling on gap 3** ONLY BECAUSE **L-492 obliged it to fetch §6c's exact wording** to cite in a code comment — **the citation rule, written to stop false citations, forced a supervisor's framing to be checked against the clause it came from**. **L-492 paying out sideways.**
+
+**THE RECONSTRUCTED BASELINE SAVED A TASK WITHIN THE HOUR OF BEING ADOPTED.** Check-1 artifacts now rebuild their baseline **FROM COMMITTED OBJECTS** (`git show <sha>:<file>` patched by the committed artifact) rather than from scratch. **THE SCRATCHPAD WAS THEN WIPED MID-TASK, between approval and apply, taking the working copy — and nothing was lost.** **L-186 firing live on the night the guard against it was adopted.** **HAD THE BASELINE LIVED IN SCRATCH, THE APPROVAL WOULD HAVE BECOME UNVERIFIABLE.**
+
+**COMPLETENESS BY REPLAY IS NOW REQUIRED ON EVERY DELTA:** applying the delta to the reconstructed approved state must **reproduce HEAD exactly**. **A DELTA THAT IS MERELY NON-EMPTY PROVES IT FOUND SOMETHING; ONLY THE REPLAY PROVES IT FOUND EVERYTHING.** Every earlier artifact this session **proved presence and none proved completeness**.
+
+🔴 **`git status --porcelain` IS NOT A RELIABLE APPLIED/NOT-APPLIED CHECK** — it compares against the **INDEX**, not HEAD. **sha256 of the worktree against `git show HEAD:<path>` is the standing form.**
+
+**INDEX STATE:** staged deletions now **ZERO**; **162 UNSTAGED deletions** remain and are **DAEMON-CONSUMED LAUNCHES** (**80 closure, 22 heat-transfer, 21 dafoam, 17 ansys-verification, 6 verification**), **matching the queue census** — **real work awaiting their owners, NOT lost files**. ⚠ **The staleness is TRANSIENT, which is worse than persistent**: it produced phantom staged deletions and phantom reversions at different moments, and **a check that passes now may fail in a minute**.
+
+### 7. SUPERVISOR CORRECTIONS THIS CYCLE — `VERIFY`
+
+**(a)** Reported **"5 SIGFPE mentions"** contaminated by the healthy `trapFpe` banner — **D548's exact trap**; triage conclusion unaffected.
+**(b)** Repeated **R2-M0's permission-denial mechanism upward as though documented**; **it is not in any record**.
+**(c)** Excluded **F28G H5B for the wrong reason** — its §9 cap is **"2.67 core-min, set by cfd-supervisor, unpadded"**, **a NUMBER not an unmeasured formula**, so **rule 12 does not disqualify it**; the sufficient reason is that **it is a DRAFT**. Its honest caveat stands: **the per-iteration surcharge is AN UPPER BOUND, NOT A VALUE, and may never be cited as measured.**
+**(d)** Nearly ruled **gap 3 closeable by documentation**, which would have **left the DETECTION gap open while appearing to close the item**.
+**(e)** **M6SR blocker 10** (§2568, *"no registered artifact runs B5a/B5b/B5c and none of §8's case files exists"*) **READS STALE** against tonight's events — **B5a ran and crashed** — and is **flagged `VERIFY` rather than relied on**.
+
+### 8. §2at RULED, AND ITS BOUNDARY — `VERIFY`
+
+The **JF1G escalation is ruled**: **BYTE IDENTITY GOVERNS COMPARATORS**, not the four-named-things test, and the harmless defects **need no frozen-file repair** — **"THE RECORD IS THE REPAIR"**. The `[:60]` truncation joins the **silent-corruption collection**.
+
+⚠ **M6SR §33.5 HELD FOR ITS OWN READING AND IS NOT COVERED BY §2at** — **the charter question stands at TWO instances pulling in OPPOSITE directions**.
+
+### 9. LIVE / DESK / BLOCKED — `VERIFY`
+
+**LIVE:** **no cfd solvers**. One lane characterising **M6F's D1, D3 and D5**.
+
+**ON SANAA'S DESK, NINE:** R2-M0's permission denial (**now recorded**, and blocking **her named first physics** as well as **Rung 2**); the committee-grid mesh-quality tension; `queue_runner.py:598-606`; F28G's **35,544-cell** provenance gap; queue **route B**; `r = 2.000` as a disclosure; the cross-family scheduling conflict; `grade_f24.py`'s interim state; and the **transient index staleness**. **PLUS** the **charter question at two instances**, and the **24-instance sdk defect class which has NO SINGLE OWNER** — **which is why it is hers**.
+
+**BLOCKED:** M6SR's solve ladder (**B5a NOT A RESULT**, B5b/B5c **PENDING**, window shut); **R2-M0**; **Rung 2 (a)**; F28G's H5 arm with **H5B drafted and check-4 passed but unfrozen**; **F24 fine on both blockers**; **F5a on gap 2**; and **the whole cfd queue at zero lawful rows**.
+
 <!-- BOARD-BLOCK-ID: 65-SDK-CLASS -->
 
 **Section last written:** 2026-09-05T23:48:27Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-FIFTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the SAME shell invocation with HEAD captured ONCE inside it; the seven-heading `^## ` inventory asserted unchanged **as an ordered list, not as a count**, deletions anywhere asserted `== 0`, the marker-set delta asserted to be **exactly `{65-SDK-CLASS}` and nothing else**, this block asserted to contain **exactly one block-id string — its own**, and pure insertion **proved** by removing this span from the post-splice text and reproducing the base blob **byte-for-byte** — on both sides of the splice and again after the commit, reading from the committed blob. ⚠ **Prior boards are named in prose only — board 64, board 63, board 62, board 60 — and NEVER in their full comment form**, per the hygiene rule board 60 set at its foot. **The worktree copy of this file was compared to the HEAD blob before the splice and was BYTE-IDENTICAL; the clean path was taken and no staleness exception was invoked.**
