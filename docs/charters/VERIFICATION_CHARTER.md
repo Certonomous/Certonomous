@@ -8383,3 +8383,112 @@ be fitted later:**
 > carried by the filesystem — the run root, checked — and by nothing a wrapper wrote about itself.***
 > **A supervisor invoking `§2ax` records, in the amendment, the run root it checked and that it held
 > no time directory beyond `0`.**
+
+---
+
+## Amendment — v1.70, 2026-09-06 — **§2ay THE COMPLETION-ENFORCEMENT CHECK: SANAA ORDERS "FIX UNTIL IT RUNS" MADE EXECUTABLE, "NOW AND GOING FORWARD." A STANDING INSTRUMENT ENUMERATES EVERY LANDED `GATE FAIL` / `NOT A RESULT` AND FLAGS ANY IN NEITHER ACCEPTABLE STATE. IT **FLAGS ONLY** — IT NEVER MOVES A VERDICT — AND IT CARRIES ITS OWN PLANT, BECAUSE AN ENFORCER THAT CANNOT SEE A VIOLATION IS §28's DISEASE APPLIED TO THE LAW ITSELF.**
+
+**Appended 2026-09-06 by `verification-supervisor` on Sanaa's explicit order,
+`etc/sessions/2026-09-06T2145Z_sanaa_enforce_fix_until_runs.md`, capture `19656f09`, her verbatim
+*"yes so i want it to be enforced. Now and going forward."* `[CAPTURE READ BY ME AT SOURCE — rule 9.]`
+This clause is the STANDARD; the instrument is built beside it and is diff-read by me before it is
+believed (`SUPERVISION` §3 check 1). Landed in the CHARTER, not `CLAUDE.md` — whether any part touches
+the constitution is hers.**
+
+### §2ay.1 THE ROOT CAUSE SHE IS FIXING, STATED PLAINLY
+
+**A written standard with no enforcing instrument behaves like a suggestion.** *"Fix until it runs"*
+(the mandatory-completion orders of 2026-09-04, and `§2an`) had no standing check the way a freeze or
+a gate does, **so it degraded to "fix when you get to it."** ***This is `§28`'s own repeated lesson —
+an invariant with no executable enforcer is not an invariant — applied for the first time to a
+DOCTRINE rather than to a comparator.*** **That application is exactly what makes the instrument
+warranted under the governance posture: it changes whether the lab's own law is obeyed.**
+
+### §2ay.2 THE CHECK
+
+> **RULED — `§2ay`: A STANDING INSTRUMENT ENUMERATES EVERY LANDED `GATE FAIL` AND `NOT A RESULT`
+> ACROSS ALL TEAMS AND FLAGS ANY THAT IS NOT IN ONE OF TWO ACCEPTABLE STATES:**
+>
+> **(a) PROVEN A GENUINE OpenFOAM CAPABILITY GAP** — unrecoverability **MEASURED and recorded**,
+> with **each of bug / solver-selection / preconditioner / numerics-scheme / config / model-form
+> EXPLICITLY RULED OUT** (`§2an`'s five process classes, plus model-form discharged via the closure
+> ladder `§2an`), **and the gap FILED ON SANAA'S DESK.**
+>
+> **(b) CARRYING AN ACTIVE, DATED FIX-SUCCESSOR** — a registered next attempt (a successor
+> registration or a closure-ladder rung) that **changes what failed and re-runs** — *or its terminal
+> form:* **DISCHARGED by a landed passing successor whose lineage is recorded** (the failed row keeps
+> its verdict per `§2an.2`; the successor's pass is the discharge).
+>
+> **Anything in NEITHER state is a STANDING VIOLATION, surfaced to the owning team and the chief.**
+
+### §2ay.3 ⚠ "DIAGNOSED TO A MECHANISM" IS NOT "PROVEN UNRECOVERABLE", AND THE CHECK MUST REFUSE TO TREAT IT AS SUCH
+
+**This is the clause most likely to be gamed and it is stated sharply.** **A fail annotated
+*"diverges because of the k-omega wall treatment"* or *"the limiter is too diffusive"* is DIAGNOSED,
+not DISPOSED.** ***A diagnosis names what failed; state (a) requires proof that what failed CANNOT be
+recovered, and a diagnosis to a mechanism is usually the FIRST RUNG of state (b), not an entry to
+state (a).***
+
+> **State (a) is reachable ONLY when every one of the five process classes AND model-form has been
+> ruled out AT SOURCE, the unrecoverability is MEASURED, and the filing is on her desk. A
+> mechanism-diagnosis with no successor and no five-point rule-out is a VIOLATION, not a capability
+> gap — and the check flags it as one.** *A model-form diagnosis in particular routes into the
+> closure ladder, which is an active successor (state b), never a capability-gap filing (state a).*
+
+### §2ay.4 THE BOUNDARIES — IT FLAGS, AND FLAGS ONLY
+
+**Every boundary below is `§2at`'s and `§2an`'s law restated so the enforcer cannot become the thing
+it enforces against:**
+
+- **IT NEVER WIDENS A GATE, COMPOSES A VERDICT, OR CONVERTS A FAIL TO A PASS.** ***A fail clears in
+  exactly two ways: a real fix that makes the case RUN to a passing gate, or a measured
+  capability-gap filing. Never by the check's own action.*** The check's only output is a **flag**.
+- **IT READS VERDICTS FROM RECORDS AND REGISTERS, NOT FROM BOARDS** — and **where a record and its
+  board disagree, the ARTIFACT governs** (`§2al` and `§28.15`'s lesson: a board is a claim, the
+  artifact is the measurement).
+- **IT IS COMPUTE-PROTECTIVE AND COMPLETENESS-ENFORCING, NOT INSTRUMENT-MEASURING-INSTRUMENT** — it
+  does not re-grade; it reads what is already graded and asks whether the fail is being worked.
+- **INBOUND RESEARCH IS THE MANDATED FIX METHOD; OUTBOUND CONTACT STAYS PARKED (rule 7).** *A
+  successor may draw on papers, docs, OpenFOAM issues; it may not file anything outside the box.*
+
+### §2ay.5 ⚡⚡ THE CHECK CARRIES ITS OWN PLANT — BECAUSE AN ENFORCER THAT CANNOT SEE A VIOLATION IS THE EXACT DISEASE IT EXISTS TO CURE
+
+**`§28.18`'s regress property applies with full force: this check is CODE, it adds surface, and the
+surface it adds is of exactly the kind it detects.** ***An enforcement check that silently sees zero
+violations is indistinguishable from one that cannot see violations at all — which is `§28`'s
+founding failure, now one level up, at the enforcer of the law.***
+
+> **MANDATORY, AND NOT OPTIONAL: the instrument carries a PLANTED CONTROL with TWO limbs, driven
+> RED-then-GREEN, `§28.8`'s non-vacuity discipline applied to the enforcer itself:**
+>
+> **LIMB 1 — a fail with NO successor and NO gap-filing MUST be flagged. Plant one; confirm it is
+> flagged.**
+> **LIMB 2 — a properly-covered fail (state a or state b) MUST NOT be flagged. Plant one; confirm it
+> is NOT flagged.**
+>
+> **A run reporting zero violations is believed ONLY when both limbs fired in the same run. A zero
+> from a checker not shown able to see a non-zero is not evidence (rule 3), and this checker's zero
+> is a claim about the lab's compliance — the highest-stakes zero it could print.**
+
+### §2ay.6 FIRST DISCHARGE, AND WHAT IT IS NOT
+
+**The check runs against the EXISTING backlog on its first pass and on every future fail thereafter
+(*"now and going forward"*):** ansys's ~35-row set (whose per-case five-point rule-out sweep IS this
+check's first discharge), the T-family `NOT A RESULT`s, and the closure / cfd / dafoam fails.
+
+- **THE FIRST SCAN FLAGS; IT DOES NOT FIX.** *A flagged row is surfaced to its owning team, which
+  then either registers a dated successor (state b) or drives the five-point rule-out to a filed
+  capability gap (state a). The check does neither for them.*
+- **A FLAG IS NOT A REBUKE.** ***It is a measurement that a fail is not yet being worked*** — and
+  under a standing order to work every case, that measurement is the point. **A team with a large
+  flagged set has a backlog, not a failing grade.**
+- **THE CHECK'S OWN VERDICT VOCABULARY IS RULE 1's**: a flagged row is reported, never re-graded; the
+  flag rides beside the verdict, it does not replace it.
+
+### §2ay.7 WHAT IS LANDED HERE VERSUS WHAT FOLLOWS
+
+**This clause is the STANDARD. The INSTRUMENT is built beside it, diff-read by me before its output
+is believed, and its planted control must fire both limbs in the run that produces the first scan.**
+**Until the instrument's plant is verified by me at source, its scan is a DRAFT and no team is held to
+its flags.** ***An enforcement instrument believed before its own plant fired would be this clause
+violating itself on its first use.***
