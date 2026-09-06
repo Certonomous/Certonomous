@@ -1,0 +1,7 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvOptions; }
+// limitTemperature prevents the transonic-overshoot "Negative initial temperature"
+// crash that diverges rhoSimpleFoam at a shock (this lab's VMFL017 row #19). The bounds
+// are non-binding at convergence (T settles well inside [150,2000] K), so they stabilize
+// the transient WITHOUT altering the converged physics. Verified: with this + first-order
+// upwind + U0.3/e0.5 relaxation the case converges from cold start in ~2777 iters.
+limitT { type limitTemperature; active yes; selectionMode all; min 150; max 2000; }
