@@ -5544,7 +5544,31 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T20:41:55Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T23:06:26Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-106 — 2026-09-06T23:06:26Z — **SWEEP-COMPLETION AUDIT FOR SANAA: measured from disk. THE HEADLINE UNDER 4ae4b33 — NOT ONE dafoam SWEEP IS A PROVEN OpenFOAM CAPABILITY GAP. Every fail is RECOVERED, a WAYPOINT owing a specific fix, or blocked-on-a-decision.**
+
+**~60 sweep-shaped deliverables audited from their records (RESULTS/PREREGISTRATION/launcher.queue.out), fixed-vocabulary verdicts quoted, not recalled. CHECK 3 on the headline discharged by me: 0 of the failed records self-declare a proven capability gap.**
+
+**BUCKET COUNTS (landed verdicts):** PASS ~14 · GATE REACHED 3 (D19M, D19O, D8) · GATE FAIL 9 · NOT A RESULT ~16 · BLOCKED 8 · in-flight/PENDING/prereg-only ~11 · NO-VERDICT-by-design (feasibility/readings) 5.
+
+**UNDER SANAA'S LAW (4ae4b33 — only acceptable fail = PROVEN OpenFOAM capability gap), the dafoam fails classify as:**
+- **RECOVERED, fix on record (the IDWarp rotation defect):** SO1a, SO1aR, SO1c→SO1cR, D15, D16 — `GATE FAIL` on the SHIPPED row, **`PASS` on the PATCHED row.** The patch IS the fix, recorded. **DONE by her bar.**
+- **CLEAN PASS / GATE REACHED (no fail):** D17, D18, D18R_P7 (cones), D7FR (M6), D8R (CRM twist patched), D14, d460, SO3, SO1bR, SO2a, D19M, D19O.
+- **WAYPOINTS owing a specific fix (the bulk of the fails), NONE a proven gap:** D6RF3/D6RF4 (nuTilda binds — research in flight), D9 (SLSQP driver failure), D10 (rule-3 refusal fired), S1_FD_PLATEAU (→W4-reanchor LIVE), SO3a/SO3aR (comparator refusals→successors), D12R chain (step-admissibility→W4-reanchor), D6R, SO2M, D2/D13 (physics GATE FAIL, learning), S1 inversion/weighted (physics GATE FAIL→reinversion), B3/S1_FIML (adjoint conditioning), D1/D4/D7 (driver/units BLOCKED — Python bugs, fixes owed).
+- **BLOCKED-ON-A-DECISION (not the team's to fix alone):** W4 M1M2/O2 O3 (cgroup OOM at 20 GiB — *"Sanaa's to unblock"*); FADR (DAFoam's shipped forward-AD regression fails in its own image — **a TOOLCHAIN finding, upstream draft NOT FILED — Sanaa's send decision**, not an OpenFOAM-numerics gap).
+- **OWES MY RULING:** **SO3DR `GATE FAIL`** — dose-response not monotone, and its own §3.4 says *"the gate could not express what it meant"* (H2 dose-response REFUTED). A gate-expressiveness/physics §7 tension the lane flagged for me; not a capability gap.
+
+**THE ITEMS SANAA NAMED:** **D6RF4** — WAYPOINT; my verdict established tightening `relTol` won't reach the floor and nuTilda binds, but that is NOT yet a tried-different-numerics nor a proven gap, so under her law it owes the research (LIVE, lane `a7327ac` producing sourced fixes → a D6RF5 successor). **SO3** PASS (done); **SO3a/SO3aR/SO3aR2** waypoint ladder; **SO3D→SO3DR** the physics GATE FAIL owing my §7 ruling.
+
+**WHAT HER LAW NOW MAKES A STANDING PROGRAM:** every waypoint fail owes its *specific sourced next-fix or measured capability-gap proof* — the D6RF4 research is the template; the others (D9 SLSQP, S1_FIML adjoint `DIVERGED_NANORINF`, B3 adjoint, SO2M, the driver-bug BLOCKEDs) each owe the same inbound-research treatment. Inbound mandated; outbound PARKED.
+
+**⚠ HONEST CAVEATS ON THE AUDIT (conservative, for Sanaa):** it read verdict lines/sections, NOT every record end-to-end. **STATE UNDETERMINED FROM DISK:** S1 sensitivity-vs-error (no fixed-token line — may be an analysis record not a gated sweep); D1_Cprime item-token not captured; several triage/probe/reverify dirs (`compressible_wallresolved_triage`, `reverify_patched_idwarp_np1`, `D11_mrf_probe*`, `B3/*` subdirs) not opened. **VOCABULARY-HYGIENE (for the verification line):** S1 weighted-loss variant uses a bespoke token `CAPTURABLE` (not one of the six); S1 reinversion carries a struck `GATE PASS`→`PASS` by-quote repair. Both disclosed in their own records.
+
+**Runs live: W4-reanchor (watched). Blocked: nothing of mine. On the desk: this audit (for Sanaa), the D6RF4 research, SO3DR §7 ruling (mine), §2ax, rule-12 unit, W3S §2d.1, W4 M1M2/O2 O3 memory (Sanaa's), FADR send (Sanaa's).**
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-105 — 2026-09-06T20:41:55Z — **W4's ESCALATION BOUNDARY IS EXERCISED-INTACT ON REAL LEG DATA — the bar I flagged all night as must-not-move fired EXERCISED-PASS at the correct S1-CBFS diff=100. 1/16 legs done, watcher self-terminates on the DONE marker.**
 
