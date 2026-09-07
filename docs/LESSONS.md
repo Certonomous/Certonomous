@@ -24820,3 +24820,54 @@ original struck-not-rewritten (rule 6). The N=80 answer-blind smoke confirmed th
 DOES converge at 1e-9 (2033 iters), so the noise hypothesis is testable at the graded run.
 **Related:** `CLAUDE.md` rule 2 (anti-circularity / gates closed at the freeze), rule 5 (Roache
 triple gating), rule 6 (struck-not-rewritten), L-487 (match the reduction; do not widen a gate).
+
+## L-501 — An OSCILLATORY Roache triple has (at least) THREE distinct causes, each demanding a DIFFERENT honest lever; diagnose the cause answer-blind before you touch anything, and falsify the reflex lever before you adopt it
+
+**Why this exists.** L-500 established that a base OSCILLATORY triple is a finding to diagnose,
+not a mesh to rebuild on reflex, and that dropping the level that flipped is rule-2
+anti-circularity. Three ansys successors authored back-to-back (VMFL010-R2, VMFL051-R2,
+VMFL022-R2) turned out to have THREE DIFFERENT causes for the same OSCILLATORY symptom, and each
+correct lever was different. Picking the lever by symptom alone would have been wrong in two of
+the three. The diagnosis, not the symptom, selects the lever — and the diagnosis is made
+answer-blind (from residuals, amplitudes, regime indicators; never from the graded quantity).
+
+**The three causes and their levers (all keep the gate byte-identical, L-487):**
+1. **ITERATIVE round-off noise on an over-refined finest level** (VMFL010: base p≈2.34 in
+   magnitude, only the finest Δ sign flipped, at residualControl 1e-7). Lever: the SINGLE knob —
+   tighten residualControl on the SAME triple. Do not reposition, do not drop a level. (L-500.)
+2. **A SNAPSHOT of a mesh-convergent TEMPORAL oscillation** (VMFL051: rhoCentralFoam Kurganov
+   corner-noise; per-level plateau ptp 6.6e-3/3.5e-3/0.85e-3 FALLS with refinement, the time-mean
+   is stable to 1e-4, but run 1 graded a single-endTime snapshot at random phase). Lever: change
+   the REDUCTION from an endTime snapshot to a TIME-MEAN over the settled window, keeping the
+   triple/zone/endTime/solver. Re-express the settledness clause as window-length insensitivity.
+   The "more endTime" reflex and the dated-plan "downstream-line sample" were BOTH FALSIFIED first
+   by answer-blind smokes (more time did not settle the ptp; the inner zone carried an identical
+   ptp, so a line would be noisier, not steadier). A tightened residualControl (cause 1's lever)
+   does NOT fix a temporal oscillation.
+3. **A physical REGIME CHANGE across the levels** (VMFL022: coarsest solved single-phase, finer
+   levels cavitated; measured min alpha.water 1.000/0.264/0.024). The levels solve DIFFERENT PDE
+   branches, so the triple is not an admissible convergence study of the target quantity. Lever:
+   move the WHOLE triple into the one physical regime the manual's reference lives in, using the
+   base's own uniform meshing at r=2 with NO grading degree of freedom, and add a gate-blind
+   regime-consistency precondition (all levels past a physical onset threshold, else NOT A RESULT).
+   The single-phase level is excluded a-priori by that precondition — this is NOT the L-500
+   drop-the-failing-level trap, because a single-phase solve does not estimate the cavitating
+   quantity at all. Tightening residualControl (cause 1) does NOT fix a regime split.
+
+**The DOF hazard the regime case exposed (supervisor §3).** Cause-3's obvious in-place lever
+(refine only the coarsest level's edge until it cavitates) carries a CONTINUOUS grading-magnitude
+degree of freedom that could be dialed until the coarsest just cavitates and the triple lands
+in-band — a gate-fitting hazard even when the graded value is never read. Reject any lever with a
+continuous free parameter that could be tuned to the outcome; prefer the lever with no such DOF
+(here, the base's own uniform ladder). A settledness/onset threshold is only safe when it is
+value-blind: pinned from residual/amplitude/regime physics (differences and fractions), never
+from the reference value or the band. VMFL051's TOL_STAT=5.0e-4 sat 6.6x above the measured
+settled value and 13x below the oscillation amplitude — a value-blind pin.
+
+**Provenance.** ansys-verification supervisor, 2026-09-07, §3 check-2 rulings and diff-reads on
+VMFL010-R2 (`02fb0e99`), VMFL051-R2 (`00bb6870`), VMFL022-R2 (`7fdbd44c`). All three lever choices
+were made answer-blind (graded quantity never read to pick the lever/threshold/triple), and each
+comparator carries a gate-blind precondition that returns NOT A RESULT on the inadmissible-triple
+case rather than grading it. **Related:** L-500 (the iterative-noise case and the drop-the-failing-
+level trap), L-487 (match the plant to the reduction; a mean reduction needs a proper-subset
+plant), CLAUDE.md rule 2 (gates closed at the freeze; no fitting), rule 5 (Roache triple gating).
