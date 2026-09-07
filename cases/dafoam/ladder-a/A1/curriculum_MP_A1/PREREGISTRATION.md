@@ -1,4 +1,4 @@
-DRAFT — NOT FROZEN — awaiting supervisor check-1 read and freeze.  SUBMISSIONS PARKED.
+FROZEN 2026-09-07 by the dafoam-supervisor (this commit is the freeze; §8) — grading path hash-locked (mpa1_INSTRUMENT_MD5_TABLE.md; grader `9b9cb934…`, runScript `bb3ba3a6…`). SUBMISSIONS PARKED.
 
 # CURRICULUM MP-A1 — NACA0012 ALPHA-MULTIPOINT DRAG-MIN **AT FIXED LIFT**, INCOMPRESSIBLE, BOTH TOOLCHAIN ROWS, np = 1. PRE-REGISTRATION (DRAFT)
 
@@ -8,7 +8,7 @@ DRAFT — NOT FROZEN — awaiting supervisor check-1 read and freeze.  SUBMISSIO
 **Mandate:** Sanaa 2026-09-07 ~03:30Z — *"yes and for the dafoam: we need to have the multipoint optimizations as well"* (`etc/sessions/2026-09-07T0330Z_sanaa_dafoam_multipoint_mandatory.md`). MP-A1 is the **clean incompressible multipoint drag-min-at-fixed-lift** milestone named in that memo's plan ("MP-A1 = SO-3 with per-point CL constraints").
 **Predecessor of record:** `CURRICULUM-SO3` (`cases/dafoam/ladder-a/A1/curriculum_SO3/`), which landed **PASS** as an incompressible multipoint optimisation but **with CL UNCONSTRAINED and the lift collapsing negative at operating point 0**. MP-A1 exists to remove exactly that caveat.
 
-**Status: DRAFT.** This document is **NOT FROZEN**. No gate, threshold, cap or label below is frozen until the dafoam-supervisor's check-1 read is complete and the freeze commit is taken (rule 2). No arm of this item has run; nothing here is a result. The costed core-min figure is brought to the chief AS IT FREEZES, before compute, per the mandate.
+**Status: FROZEN 2026-09-07** (this commit; §8). Every gate, threshold, cap and label below is bound as of this commit (rule 2); the grading path is hash-locked (§8). No arm of this item has run; the costed core-min figure (estimate **58.63**, ceiling **183.5**) is brought to the chief AS IT FREEZES, before compute, per the mandate. **Compute is NOT launched by this freeze** — the `NOT_FROZEN` sentinel is retained deliberately as the launch-block (§8).
 
 ---
 
@@ -299,3 +299,45 @@ authoring lane must ASSERT in `mpa1_grade.py` that `G5C` covers all three `dCL�
 `mpa1_grade.py` with all gates incl. the G5C-covers-`dCLᵢ/dx` assertion and the G-CLHOLD planted-zero
 reader, and the carried controls) — **none written yet** — plus my check-1 read of THOSE diffs, then
 the freeze by sha. An authoring lane is dispatched to this ruled design.
+
+---
+
+## §8. FREEZE STATEMENT — TAKEN 2026-09-07 by the dafoam-supervisor personally
+
+**FROZEN.** This commit is the freeze. The gates (§2), thresholds (band 5.0 %, TOL_CL_ABS 1e-3,
+CL_TARGET_TOL 1e-12, OPT intermediate 1.0 %), the six-token composition (§2e), the CL-EQUALITY
+formulation and per-point targets (§1.4/§1.5), cpuset 8, the cost (estimate **58.63 core-min**, ceiling
+**183.5 core-min** = Σ caps) and every label are bound as of this commit and cannot move (`CLAUDE.md`
+rule 2). **The grading path is hash-locked**: `mpa1_grade.py` md5 `9b9cb93419797f99cf968d74f320f8b2`,
+`mpa1_runScript.py` md5 `bb3ba3a61b19dc8564e247cdb11e9147` (`mpa1_INSTRUMENT_MD5_TABLE.md`); their
+committed blobs were verified equal to disk at the freeze, and `mpa1_chain_driver.sh` asserts the
+grader md5 before staging so the frozen file that ran is the file that is graded.
+
+**The four `SUPERVISION_CHARTER.md` §3 checks, discharged personally before this freeze:**
+1. **Check-1 (measurement-script diffs, read as diffs).** Both `mpa1_grade_DELTAS_from_so3.diff` (+418/-114)
+   and `mpa1_runScript_DELTAS_from_so3.diff` (+125/-79) were read at source. The new gates G-CLHOLD,
+   G-DRAG, G-CLTGT and the G5C dCL coverage `refuse()` are correctly implemented and folded into the row
+   (row = min over [endpoint, opt, G-CLHOLD, G-DRAG]) and item composition; the selftest units U6a–U6i
+   drive every new gate both ways; the runScript's one physics change is the correct per-point
+   `add_constraint(...CL, equals=CL_TARGET[i])` loop with keys derived from SCENARIOS, the NOT_FROZEN
+   gate before heavy imports, and the np=1 guard. One stale comment ("CL is UNCONSTRAINED in this item")
+   was found on the first read, sent back, fixed (verified comment-only: the non-comment diff is empty),
+   and the runScript `assert`→`raise` nit corrected (L-332).
+2. **Crash triage.** N/A — no compute has run; this is a pre-launch freeze.
+3. **Check-3 (big-claim verification).** The admissibility claim is upheld and gated, not asserted: MP-A1
+   adds no new unverified gradient because the CL-equality constraints ride SO-3aR2's FD-verified
+   `dCLᵢ/dx` at fixed α, and G5C re-verifies all three `dCLᵢ/dx` at MP-A1's OWN final design point
+   (charter §9) with G-PROV travelling the SO-3aR2/SO-1a GATE FAIL chain — so the only licensed claim is
+   "on the patched toolchain …".
+4. **Check-4 (pre-registration committed before compute).** The prereg and all instruments are committed;
+   this freeze commit precedes any compute (run root ABSENT, NOT_FROZEN sentinel present, zero solver
+   core-minutes).
+
+**Compute is NOT launched by this freeze, and the deviation from the instruments' "freeze removes the
+sentinel" docstring is deliberate and stated:** the `NOT_FROZEN` sentinel is **retained** as the
+launch-block so no compute can fire until the separate launch step removes it — the costed figure is
+brought to the chief BEFORE compute, per the standing directive. cpuset 8 is registered; the launcher
+re-reads live occupancy at launch and `G12` gates it against the registered constant.
+
+**NOT ENQUEUED. NOT LAUNCHED. ZERO SOLVER CORE-MINUTES. SUBMISSIONS PARKED.** The upstream provenance
+(SO-3aR2/SO-1a) is GATE FAIL and travels with every claim; nothing in this item is filed (§5, §2d).
