@@ -96,7 +96,7 @@ say() { printf '%s\n' "$*"; }
 # returns, superseding this one with the identical meaning.
 write_status() {
   local R=$1
-  printf 'launcher_rc=%s end=%s note=exit-status-of-run_f27_successor.sh-NOT-the-solver-rc cap_core_min=%s spent_core_min=%s\n' \
+  printf 'launcher_rc=%s end=%s note=exit-status-of-run_f27_successor_r2.sh-NOT-the-solver-rc cap_core_min=%s spent_core_min=%s\n' \
     "$R" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$CAP_CORE_MIN" "${SPENT:-0}" > "$STATUS"
 }
 on_exit() { local R=$?; write_status "$R"; }
@@ -274,9 +274,9 @@ fi
 # STATUS there.  This branch re-execs THIS script without --detach.
 if [ "$DETACH" = "1" ]; then
   trap - EXIT
-  ME="$HERE/run_f27_successor.sh"
+  ME="$HERE/run_f27_successor_r2.sh"
   OUT="$HERE/launcher.detached.out"
-  nohup setsid bash -c "cd '$HERE' && bash '$ME' --prereg-commit=$PREREG_COMMIT > '$OUT' 2>&1; R=\$?; printf 'launcher_rc=%s end=%s note=exit-status-of-run_f27_successor.sh-NOT-the-solver-rc\n' \"\$R\" \"\$(date -u +%Y-%m-%dT%H:%M:%SZ)\" > '$STATUS'" \
+  nohup setsid bash -c "cd '$HERE' && bash '$ME' --prereg-commit=$PREREG_COMMIT > '$OUT' 2>&1; R=\$?; printf 'launcher_rc=%s end=%s note=exit-status-of-run_f27_successor_r2.sh-NOT-the-solver-rc\n' \"\$R\" \"\$(date -u +%Y-%m-%dT%H:%M:%SZ)\" > '$STATUS'" \
     > /dev/null 2>&1 < /dev/null &
   say "DETACHED: pid $!, output $OUT, status $STATUS (rc captured INSIDE the wrapper)."
   exit 0

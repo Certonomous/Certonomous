@@ -269,8 +269,42 @@ never edited); no gate/threshold/cap/label changed by this build:
 - **Frozen originals unedited:** grader blob `07206330` / sha256 `53f74800…`, driver
   sha256 `43555a43…`, builder `build_f27_successor.py` sha256 `fa3b4d5d…` (reused unchanged).
 
-These blobs/shas are what the supervisor pins at the R2 freeze commit. The supervisor
-takes check-1 on the diffs; this lane neither authorises nor launches.
+**CHECK-1 FIX APPLIED TO THE R2 DRIVER (additive, 2026-09-07; DRAFT, NOT AUTHORISED —
+banner unchanged; no gate/threshold/cap/label change).** The cfd supervisor's check-1
+on the R2-B instrument pair found ONE functional defect in the R2 driver, now fixed
+(the frozen parent `run_f27_successor.sh` / `grade_f27_successor.py` were NOT touched;
+rule 6):
+
+- **`--detach` self-reference (functional).** `run_f27_successor_r2.sh:277`
+  `ME="$HERE/run_f27_successor.sh"` → `ME="$HERE/run_f27_successor_r2.sh"`. Without it a
+  `--detach` launch of the R2 driver would re-exec the FROZEN PARENT (cap 500, parent
+  run root) instead of itself. This is a config SELF-PATH correction — the same class
+  as the `:61`/`:64`/`:67` pointers — not an accounting/guard/halt/projection/rule-2
+  logic change.
+- **STATUS-note honesty (string literals only, zero logic).** The two STATUS-note
+  strings at `:99` and `:279` reading
+  `note=exit-status-of-run_f27_successor.sh-NOT-the-solver-rc` now embed
+  `run_f27_successor_r2.sh`, so the STATUS file the R2 run writes honestly names the R2
+  driver. Note strings only; no logic touched.
+
+Diff vs the frozen driver is now **seven lines**: the four original config lines
+(`:61` grader ptr, `:64` run-root, `:67` grader-rel, `:69` cap 625) plus `:277` (ME
+self-path, config-path) plus `:99`/`:279` (note-string script name). **Zero changes**
+to cost-accounting, the `proj_f27.py` projection call, the cap-consistency check
+(`:168–171`), the run-root guard, `refuse_if_answered`, the rc-inside-wrapper, the halt
+logic, or the rule-2 blob-hash block. Re-checks, no solver: R2 grader `--selftest`
+rc 0 and `-O --selftest` rc 2; R2 driver `bash -n` rc 0 and `--selftest-projector` rc 0.
+
+- **R2 driver (post-fix)** `cases/F27_WOMERSLEY_PIPE/successor_numerics/run_f27_successor_r2.sh`
+  — git blob `2105b6ccbb71da1959e589714c47e36603ffa125`, sha256
+  `d016f2ca975dd3414d79ac505bf2c84f90d64cfffd64239905234fd7c3b84854`. This **supersedes**
+  the pre-fix driver sha256 `a025c48f…` recorded above.
+- **R2 grader UNCHANGED by this fix** — git blob `706f4a4df5143b7fda6b821c321acba5564ea1fd`,
+  sha256 `83b9b483d55a55e06f2e2eb0b47829031c5996b922023ab639244d9ae651c277` (as above).
+
+These blobs/shas are what the supervisor pins at the R2 freeze commit (the R2 driver
+blob is now `2105b6cc…`). The supervisor re-takes check-1 on the diff; this lane
+neither authorises nor launches.
 
 ---
 
