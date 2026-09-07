@@ -1,0 +1,78 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+
+// VMFL017-R3. TRANSIENT explicit rhoCentralFoam on a HIGH-Re WALL-FUNCTION mesh
+// (y+ ~ 30 first cell, held constant across the L1/L2/L3 family). endTime is a
+// PHYSICAL SETTLING TIME in seconds, NOT an iteration count (PREREGISTRATION.md
+// line 8/12). The value 0.05 s is the value FROZEN IN THE COMPARATOR
+// grade_vmfl017_r3.py (ENDTIME_PHYS = 0.05); the comparator REFUSES a level whose
+// last written time is not within 1e-4 s of it. endTime is never silently reduced
+// to fit a cap (prereg line 12; CLAUDE.md rule 12).
+
+application     rhoCentralFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         0.05;
+
+deltaT          1e-9;
+adjustTimeStep  yes;
+maxCo           0.2;
+maxDeltaT       1e-5;
+
+// adjustableRunTime makes the solver land EXACTLY on the write times, so the last
+// written time is 0.05 exactly and the comparator's endTime check is met on an
+// adaptive-step solver.
+writeControl    adjustableRunTime;
+writeInterval   0.05;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  10;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    forceCoeffs1
+    {
+        type            forceCoeffs;
+        libs            (forces);
+        // ~500 samples over the run -> >= 20 in the comparator's final 20% window
+        // (grade_vmfl017_r3.py PLATEAU_MIN_SAMPLES = 20, WINDOW_FRAC = 0.20).
+        executeControl  runTime;
+        executeInterval 1e-4;
+        writeControl    runTime;
+        writeInterval   1e-4;
+        patches         (aerofoil);
+        rho             rho;
+        rhoInf          0.50823;
+        magUInf         253.4664;
+        lRef            1.0;
+        Aref            1.0;
+        CofR            (0.25 0 0);
+        dragDir         (0.9988146480 0.0486754445 0);
+        liftDir         (-0.0486754445 0.9988146480 0);
+        pitchAxis       (0 0 1);
+    }
+
+    // yPlus on the aerofoil wall: the WALL-FUNCTION REGIME PRECONDITION channel.
+    // The comparator (grade_vmfl017_r3.py) reads postProcessing/yPlus/<t>/yPlus.dat
+    // and returns NOT A RESULT if the wall y+ leaves the value-blind log-law band
+    // (Y_PLUS_MAX / Y_PLUS_MIN, pinned from wall-function validity physics, NOT from
+    // the reference or the bands -- L-501 cause-3 regime-consistency precondition).
+    yPlus1
+    {
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        executeControl  runTime;
+        executeInterval 1e-4;
+        writeControl    runTime;
+        writeInterval   1e-4;
+    }
+}
