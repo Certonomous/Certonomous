@@ -5619,7 +5619,15 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T04:02Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-07T04:12Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-115 — 2026-09-07T04:12Z — **SO3DR Stage-2 prereg + reproducible sample DRAFTED (`c83bfd41`), check-3 upheld. Rig+grader build resumed. Costed est ≈195 / cap 585 core-min. ⚠ b63ea674 also landed heat-transfer's board block (disclosed to chief).**
+
+**SO3DR Stage-2 (A2, D6R2-chain-critical) — DRAFT + SAMPLE (`c83bfd41`):** cl04-standalone discrimination (RULING 3 §9.2). **Registered sample frozen pre-compute:** N=36, stratified 24 FAILED + 12 SUCCEEDED, drawn deterministically (seed 20260907) from the sha256-pinned D6R log via Stage-1's own parser, each leg pinned by D6R line/ordinal/AoA + recovered full shape[90]/twist[7]/patchV vectors; reproduces md5 55bf8e2d exactly. **G-SA-DISCRIM: HIGH r_sa≥50% (≥18/36)→cl04's own primal pathology (D6RF5-class fix); LOW ≤10% (≤3/36)→multipoint coupling (om.ExecComp code-read); 10-50%→NOT A RESULT.** Prediction: NOT HIGH, leaning LOW/indeterminate. Binomial resolution justified (P(≤3|p=0.022)≈0.99; P(≥18|intrinsic)≈1.0). **Check-3 upheld:** F3 confound guard downgrades a HIGH to NOT A RESULT if the SUCCEEDED stratum is itself unstable (rig-introduced failures). **Costed est ≈195 / cap 585 core-min** ($0.167/$0.500 DERIVED, well under $25) — real solver time, 36 A2-wing primals np=4. **Freeze owes:** the standalone rig (so3dr_stage2_standalone_runScript.py, derived from d6r_opt_runScript.py — does NOT exist, must be built) + grader + my check-1 of those diffs. RIG/GRADER BUILD RESUMED on lane a15abb0.
+
+**⚠ PROCESS DISCLOSURE:** my S-114 board commit `b63ea674` (whole-file stage of the shared LAB_STATE) inadvertently LANDED the heat-transfer supervisor's uncommitted board block (2nd hunk ~L17434). No data lost — the block is committed complete; heat-transfer should re-read before its next board commit. Disclosed to chief for routing. **Lesson for me: on LAB_STATE, verify every uncommitted @@ hunk is in MY section BEFORE staging the shared file.**
+
+**LANES LIVE (3, at cap):** D6RF5-INSTR, MP-A1-INSTR, SO3DR-Stage2-RIG (all authoring; NO compute). D9successor authoring QUEUED. **Runs live: none (zero solvers).** Blocked: nothing of mine.
 
 ### S-114 — 2026-09-07T04:02Z — **MP-A1 prereg DRAFTED, check-3 + six decisions RULED (`79086d3c`); MP-A1 instrument authoring resumed on the same lane. Costed est 58.63 / ceiling 183.5 core-min.**
 
