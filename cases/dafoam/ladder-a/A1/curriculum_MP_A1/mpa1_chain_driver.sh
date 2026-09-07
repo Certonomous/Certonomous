@@ -81,7 +81,7 @@ DECLARED_ARMS=7                          # (e) section 5 Requirement 4
 # rc=4 BEFORE any container -- the W3 death mode -- so every pin below was computed
 # from the FINAL bytes of the file it pins, after the last code edit, and each is
 # DRIVEN against that file by mpa1_groot5_selftest.sh's (x12)/(x13)/(x14).
-MD5_LAUNCHER=3fab25cc046588f3fe7e528250c083aa   # mpa1_run_arm.sh
+MD5_LAUNCHER=e4bf43ef8d5b3d88dcca19421e040df1   # mpa1_run_arm.sh
 # AMENDMENT 2, 2026-09-01, BEFORE FIRST COMPUTE.  RE-PINNED because the amendment
 # rewrote the very bytes this line pins: mpa1_grade.py:PRED["P_COST_band"] moved from
 # the inherited (14.0, 60.0) -- which had NO REACHABLE HIT on this item -- to the
@@ -90,7 +90,7 @@ MD5_LAUNCHER=3fab25cc046588f3fe7e528250c083aa   # mpa1_run_arm.sh
 # SO-2MR its first arm; this line is re-derived, not carried.
 MD5_GRADER=9b9cb93419797f99cf968d74f320f8b2     # mpa1_grade.py -- THE GRADING PATH (section 10)
 MD5_RUNSCRIPT=bb3ba3a61b19dc8564e247cdb11e9147  # mpa1_runScript.py
-MD5_XF=8036ca85d502276dc172c626becd11d5         # mpa1_xf.py
+MD5_XF=d25891fd41cd975bc85ff393fa61b23c         # mpa1_xf.py
 MD5_AGG=709ab0b98ef0302a3a3a318588f9493f
 MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4
 MD5_STOP_MARKER=5063f90b227eb3a7341d18c6ca7b7824  # mpa1_stop_marker.sh

@@ -124,7 +124,7 @@ PRODUCER = "mpa1_runScript.py"
 # ---- census on every drive, and DRIVEN in both directions by (p1)-(p4) of
 # ---- `mpa1_groot5_selftest.sh`: REFUSE on a mutated producer, PASS on the
 # ---- real one, restore proved byte-identical by hash.
-PRODUCER_MD5 = "0c026d72047b605099125258e3152f93"
+PRODUCER_MD5 = "bb3ba3a61b19dc8564e247cdb11e9147"
 ANCHOR = "# OpenMDAO setup"
 ITEM = "MPA1"
 

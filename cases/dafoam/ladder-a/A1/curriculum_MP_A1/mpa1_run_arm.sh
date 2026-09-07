@@ -513,7 +513,7 @@ IMG_SHIPPED_DIGEST=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33a
 # would be counted as a pin by the completeness leg that now compares
 # pins-DECLARED against pins-DRIVEN.
 MD5_RUNSCRIPT=bb3ba3a61b19dc8564e247cdb11e9147   # mpa1_runScript.py
-MD5_XF=8036ca85d502276dc172c626becd11d5          # mpa1_xf.py
+MD5_XF=d25891fd41cd975bc85ff393fa61b23c          # mpa1_xf.py
 # mpa1_decomposeParDict is ADOPTED BYTE-IDENTICALLY from the parent (one line
 # changed from the tutorial's: numberOfSubdomains 1), it EXISTS, and this is the
 # value mpa1_chain_driver.sh:70 already pins it at.  It is not a partial table: it
