@@ -1,11 +1,13 @@
 # F27-WOMERSLEY NUMERICS SUCCESSOR — RE-REGISTRATION R2 (COST-CAP CORRECTION)
 
-> **NOT AUTHORISED — DRAFT — 2026-09-07.**
-> Awaiting the cfd supervisor's non-delegable check 4 (pre-registration committed
-> before compute; gates/thresholds/bands byte-identical to the frozen parent) and,
-> because the instrument path changes below, check 1 (measurement-script diff read
-> as a diff). The banner stays NOT AUTHORISED and NOTHING is launched until the
-> supervisor takes both checks. No solver was run in preparing this draft.
+> **AUTHORISED — 2026-09-07.**
+> The cfd supervisor took both non-delegable checks: check 4 (pre-registration
+> committed before compute; gates/thresholds/bands byte-identical to the frozen
+> parent) and check 1 (both R2 instruments read as diffs). This document is FROZEN
+> at its own commit; the grading path is pinned here (rule 2).
+> **FREEZE STAMP (2026-09-07):** grading path pinned to R2 grader git blob
+> `706f4a4df5143b7fda6b821c321acba5564ea1fd` and R2 driver git blob
+> `2105b6ccbb71da1959e589714c47e36603ffa125`. No solver was run in preparing this draft.
 
 ---
 
