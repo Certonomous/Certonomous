@@ -1,5 +1,5 @@
---- curriculum_SO3/so3_runScript.py	2026-09-01 02:19:35.696748653 +0000
-+++ curriculum_MP_A1/mpa1_runScript.py	2026-09-07 03:58:36.645313696 +0000
+--- ../curriculum_SO3/so3_runScript.py	2026-09-01 02:19:35.696748653 +0000
++++ mpa1_runScript.py	2026-09-07 04:19:25.466492719 +0000
 @@ -1,5 +1,5 @@
  #!/usr/bin/env python
 -"""CURRICULUM SO-3 -- THE PRODUCER.  NACA0012 ALPHA-MULTIPOINT, INCOMPRESSIBLE.
@@ -192,7 +192,7 @@
  
  # ---- THE ROW IS READ FROM THE TOOLCHAIN'S OWN IDENTITY, NEVER FROM A FLAG. ---
  # `DAFOAM_CHARTER.md` section 11 makes the IMAGE ID and the LIBRARY HASH the
-@@ -246,12 +270,24 @@
+@@ -246,12 +270,28 @@
  # ---- OBJECTIVE and would need its own row; section "G-WT" registers why the
  # ---- shuffled-weight probe is NOT bought.
  WEIGHTS = [1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0]
@@ -211,7 +211,11 @@
 +# at point0).  Written out to the exact bits the grader's `G-CLTGT` reads back
 +# and compares to 1e-12; a floating-point subtraction cannot move one of them.
 +CL_TARGET = [0.31189588769251864, 0.49876526085592926, 0.6639763551107052]
-+assert len(CL_TARGET) == len(ALPHAS), "one CL target per operating point"
++# Explicit raise, not assert: `python3 -O` strips asserts (L-332), and one CL
++# target per operating point is a load-bearing invariant, not a debug check.
++if len(CL_TARGET) != len(ALPHAS):
++    raise SystemExit("MPA1_CONFIG one CL target per operating point required: "
++                     "%d targets vs %d alphas" % (len(CL_TARGET), len(ALPHAS)))
 +
  # ===========================================================================
 -# THE PER-POINT RUN DIRECTORIES -- THE WHOLE REASON SO-3 EXISTS.
@@ -219,7 +223,7 @@
  #
  # SO-3aR built one `DAFoamBuilder` per operating point and gave NONE of them a
  # `run_directory`, so three independent `DASolver` instances shared one case
-@@ -275,7 +311,7 @@
+@@ -275,7 +315,7 @@
  # THE KEYS ARE DERIVED FROM `SCENARIOS`, NEVER SPELLED OUT.  A hand-written map
  # is one more call site of the scenario label, and a scenario added above with no
  # row here would silently fall back to the shared directory -- which is exactly
@@ -228,7 +232,7 @@
  # that the map is total and injective over `SCENARIOS`, and drives it RED on the
  # unfixed source.
  RUN_DIRS = {sc: "mp%d" % i for i, sc in enumerate(SCENARIOS)}
-@@ -329,7 +365,7 @@
+@@ -329,7 +369,7 @@
  }
  
  # Mesh deformation setup.  The `symmetryPlanes` and `fileType` are UNCHANGED from
@@ -237,7 +241,7 @@
  # D6R's shape, `d6r_opt_runScript.py:117-124`: each point owns a full case copy and
  # reads its mesh out of that copy, so no two IDWarp instances and no two DASolvers
  # address the same directory.
-@@ -447,17 +483,32 @@
+@@ -447,17 +487,32 @@
          # ---- see (C).  The parent's `add_design_var("patchV", ...)` is GONE.
          self.add_design_var("shape", lower=-1.0, upper=1.0, scaler=10.0)
  
@@ -276,7 +280,7 @@
  
  # OpenMDAO setup
  prob = om.Problem()
-@@ -474,7 +525,7 @@
+@@ -474,7 +529,7 @@
  if NPROCS != 1:
      if MPI.COMM_WORLD.rank == 0:
          sys.stderr.write(
@@ -285,7 +289,7 @@
              "np = %d.  SO-3aR2's FD table -- the only reason this optimisation is "
              "admissible -- was measured at np = 1, and DAFOAM_CHARTER section 5 "
              "forbids carrying an FD reference across np.  REFUSED.\n" % NPROCS)
-@@ -485,12 +536,12 @@
+@@ -485,12 +540,12 @@
  # ---- THE ROW, PROVED FROM THE LIBRARY'S OWN BYTES. -------------------------
  SO_MD5, SO_PATH = libidwarp_md5()
  ROW = SO_MD5_ROW.get(SO_MD5)
@@ -302,7 +306,7 @@
          "This file will not stamp a row it cannot prove, and the endpoint arms "
          "read that stamp to decide which optimum they are allowed to verify.\n"
          % SO_MD5)
-@@ -504,20 +555,20 @@
+@@ -504,20 +559,20 @@
          _x = json.load(_fh)
      if _x.get("row") != ROW:
          sys.stderr.write(
@@ -327,7 +331,7 @@
  
  if args.task == "run_driver":
      # =======================================================================
-@@ -526,12 +577,12 @@
+@@ -526,12 +581,12 @@
      # `output_file` is NAMED so the stall watchdog and the grader read the SAME
      # bytes the optimiser wrote.  `print_level` is high enough that the
      # iteration table -- `iter objective inf_pr inf_du lg(mu) ||d|| lg(rg)
@@ -342,7 +346,7 @@
                           % (OPTIMIZER_REGISTERED, args.optimizer))
          MPI.COMM_WORLD.Abort(69)
      prob.driver = om.pyOptSparseDriver()
-@@ -546,7 +597,7 @@
+@@ -546,7 +601,7 @@
          "mu_strategy": "adaptive",
          "limited_memory_max_history": 10,
      }
@@ -351,7 +355,7 @@
  
      # THE BASELINE IS EVALUATED AND RECORDED BEFORE THE DRIVER MOVES ANYTHING.
      # A drag reduction quoted against a baseline the same run did not measure is
-@@ -555,7 +606,7 @@
+@@ -555,7 +610,7 @@
      base = {"J": float(prob.get_val("obj.J")[0]),
              "CD": [float(prob.get_val("%s.aero_post.CD" % sc)[0]) for sc in SCENARIOS],
              "CL": [float(prob.get_val("%s.aero_post.CL" % sc)[0]) for sc in SCENARIOS]}
@@ -360,7 +364,7 @@
  
      t_start = time.time()
      fail = prob.run_driver()
-@@ -586,26 +637,26 @@
+@@ -586,26 +641,26 @@
          # ---- grader.  A producer that also graded could launder its own stop.
          stall, exit_stmt = None, None
          try:
@@ -396,7 +400,7 @@
              "nprocs": NPROCS, "optimizer": OPTIMIZER_REGISTERED,
              "max_iter_registered": MAX_MAJORS, "tol_registered": OPT_TOL,
              "opt_settings": dict(prob.driver.opt_settings),
-@@ -625,19 +676,19 @@
+@@ -625,19 +680,19 @@
              "converged_to_optimizer_tolerance": None,
              "converged_note": ("this file records IPOPT's own statement and NEVER "
                                 "decides convergence; section 9's mapping is "
@@ -420,7 +424,7 @@
  elif args.task == "run_model":
      # just run the primals once -- one multipoint evaluation is THREE primals
      prob.run_model()
-@@ -651,11 +702,11 @@
+@@ -651,11 +706,11 @@
          print(totals)
  elif args.task == "check_totals":
      # OpenMDAO's own FD check.  It is a CONVENIENCE, not this item's gate: the

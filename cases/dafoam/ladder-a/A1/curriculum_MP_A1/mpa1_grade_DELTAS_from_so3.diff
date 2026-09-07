@@ -1,5 +1,5 @@
---- curriculum_SO3/so3_grade.py	2026-09-01 03:15:32.223621963 +0000
-+++ curriculum_MP_A1/mpa1_grade.py	2026-09-07 04:11:19.448806320 +0000
+--- ../curriculum_SO3/so3_grade.py	2026-09-01 03:15:32.223621963 +0000
++++ mpa1_grade.py	2026-09-07 04:19:16.357460046 +0000
 @@ -1,5 +1,5 @@
  #!/usr/bin/env python3
 -"""CURRICULUM SO-3 -- THE FROZEN COMPARATOR.
@@ -390,7 +390,7 @@
      and O-P arms run IPOPT by registration, so the item-level claim is GONE.
      Carrying the old sentence across the rename would have been a false claim
      with a green gate under it -- a mechanical rename moves tokens, it cannot
-@@ -1700,11 +1724,11 @@
+@@ -1700,13 +1724,16 @@
  #      drag 28.275488 % and its own `opt_IPOPT.txt` carries NO `EXIT` line -- this
  #      lane RE-MEASURED that on the artefact rather than quoting it.
  #   2. It will not call a stall a convergence.  The stall reading comes from
@@ -400,11 +400,18 @@
  #      that ended `Maximum Number of Iterations Exceeded`.
  #   3. It will not let a drag number travel without its `CL` pair.  `CL` is
 -#      UNCONSTRAINED in this item (so3_runScript docstring (C)), so a weighted-drag
-+#      UNCONSTRAINED in this item (mpa1_runScript docstring (C)), so a weighted-drag
- #      reduction bought by shedding lift is a live possibility and the record says
- #      so beside the number, not below it.
+-#      reduction bought by shedding lift is a live possibility and the record says
+-#      so beside the number, not below it.
++#      CONSTRAINED by a per-point EQUALITY in MP-A1 (mpa1_runScript docstring (C):
++#      CL is HELD), so the `CL` pair travels beside every drag number to PROVE the
++#      hold -- `G-CLHOLD` gates that each point held its target and never collapsed
++#      negative.  A drag reduction quoted at NON-held or negative `CL` is the
++#      forbidden reading (SO-3's failure: it left CL unconstrained and the lift
++#      collapsed).  The record says so beside the number, not below it.
  #   4. It will not upgrade `GATE REACHED` to `PASS` because the endpoint FD passed.
-@@ -1714,14 +1738,18 @@
+ #      The endpoint FD makes the DESIGN CHANGE validated; it says nothing about
+ #      whether the optimiser converged, and conflating them is the laundering.
+@@ -1714,14 +1741,18 @@
  # THE REGISTERED INTERMEDIATE THRESHOLD, frozen before any compute.  Section 9
  # distinguishes `GATE REACHED` from `NOT A RESULT` by whether one was met, and
  # leaving it unnamed would let the distinction be chosen after the fact:
@@ -425,7 +432,7 @@
      Returns a dict whose `verdict` is one of rule 1's six tokens and NEVER
      `PASS` unless the optimiser printed its own convergence statement."""
      if O is None:
-@@ -1828,7 +1856,8 @@
+@@ -1828,7 +1859,8 @@
              "grading this row from the SIZE of its improvement",
              "using the word `converged` of a run whose optimiser printed no convergence statement",
              "quoting the weighted-drag reduction without CL_baseline and CL_final beside it, "
@@ -435,7 +442,7 @@
              "upgrading GATE REACHED to PASS because the endpoint FD passed -- the endpoint FD "
              "validates the DESIGN, not the optimiser's convergence",
          ],
-@@ -1927,20 +1956,49 @@
+@@ -1927,20 +1959,49 @@
  
  def grade_lift_gradients(X, F):
      """G5C -- the SAME test on each scenario's `dCL_i/dx`, all three scenarios,
@@ -489,7 +496,7 @@
  
  
  # ===================== G-MP-STRUCT: the assembly identity =============================
-@@ -2062,7 +2120,7 @@
+@@ -2062,7 +2123,7 @@
  
  # ===================== read the O artefact ============================================
  def read_O(path):
@@ -498,7 +505,7 @@
  
      There is no recursive hunt for a key by name anywhere in this file: a read
      that goes looking until it finds something will always find something.  A
-@@ -2078,15 +2136,174 @@
+@@ -2078,15 +2139,174 @@
      return j
  
  
@@ -675,7 +682,7 @@
      section 9's whole requirement would be silently unmet with every gate green.
      So the producer stamps `design_point_record` and this gate reads it.
  
-@@ -2122,7 +2339,7 @@
+@@ -2122,7 +2342,7 @@
              "requirement": ("DAFOAM_CHARTER section 9: every optimisation reports an FD check "
                              "AT ITS FINAL DESIGN POINT, not only at the baseline"),
              "why_it_is_gated": ("an XE/FE arm launched without -xopt yields a valid artefact that "
@@ -684,7 +691,7 @@
                                  "every other gate in this file would stay green")}
  
  
-@@ -2147,7 +2364,7 @@
+@@ -2147,7 +2367,7 @@
  
  # ===================== G-PROV =========================================================
  def require_travelling_provenance():
@@ -693,7 +700,7 @@
      The comparator refuses to emit ANY verdict unless all five clauses hold.
      Clause (5) compares BYTES against `compose_verdict_line()` because this lab
      lost the words `GATE FAIL` from `docs/LAB_STATE.md` to an unquoted heredoc
-@@ -2158,7 +2375,7 @@
+@@ -2158,7 +2378,7 @@
          refuse("G-PROV", {"upstream_provenance_block_absent": True})
      if p.get("rows", {}).get("SHIPPED") != "GATE FAIL":
          refuse("G-PROV", {"shipped_row_status_not_GATE_FAIL": p.get("rows", {}).get("SHIPPED")})
@@ -702,7 +709,7 @@
      # ---- THE HEAD.  A derivation that repointed the head at SO-3aR2 and dropped
      # ---- SO-1a would have lost a GATE FAIL from the record while every clause
      # ---- above still passed -- which is the exact shape of a laundering, and it
-@@ -2166,7 +2383,7 @@
+@@ -2166,7 +2386,7 @@
      chain = p.get("chain")
      if not isinstance(chain, list) or len(chain) < 2:
          refuse("G-PROV", {"upstream_chain_absent_or_shorter_than_two_links": chain,
@@ -711,7 +718,7 @@
                                    "SO-1a; both are GATE FAIL and both must travel"})
      for link in chain:
          if link.get("item_verdict") != "GATE FAIL":
-@@ -2196,7 +2413,7 @@
+@@ -2196,7 +2416,7 @@
                            {"stored": line, "composed": compose_verdict_line()},
                            "note": "L-405: this lab lost the words GATE FAIL to an unquoted heredoc"})
      return {"verdict": "SATISFIED", "clauses": 6, "upstream": p,
@@ -720,7 +727,7 @@
                       "the incompressible ground `verified` and the record is narrower than that "
                       "word")}
  
-@@ -2333,7 +2550,7 @@
+@@ -2333,7 +2553,7 @@
      # ---- AND THE OPTIMUM THEY READ MUST BE THEIR OWN ROW'S.
      # Section 9's requirement is an FD check AT THE FINAL DESIGN POINT.  An XE/FE
      # artefact that silently evaluated at the BASELINE would satisfy every other
@@ -729,7 +736,7 @@
      # `UNSPECIFIED` -- the producer's fail-closed default -- refuses here, because
      # a builder that defaulted to "BASELINE" would let exactly that happen.
      gdp = g_design_point(X, F, O)
-@@ -2358,7 +2575,7 @@
+@@ -2358,7 +2578,7 @@
      # The UNPLANTED G5J reading, taken FIRST, purely to choose a plant target the
      # gate actually grades.  It is recomputed below for the published record.
      graded_k = {}
@@ -738,7 +745,7 @@
      # plant is now sized RELATIVE to the very reference the gate divides by.  The
      # index alone was enough for an absolute plant and is not enough for this one.
      graded_ref = {}
-@@ -2382,6 +2599,11 @@
+@@ -2382,6 +2602,11 @@
      if "MESH" in ran:
          controls["grader_plant_cells"] = grader_plant_cells(root, cmpath)
      controls["grader_plant_c5"] = grader_plant_c5(root, rows, g1)
@@ -750,7 +757,7 @@
      # THE CONTROL KEYS ARE BUILT FROM `ROWS`, NEVER SPELLED OUT.  A hand-written
      # list is one more call site of the row label, and this file has already lost
      # one that way -- the same shape that killed SO-1c at its second arm.
-@@ -2450,7 +2672,7 @@
+@@ -2450,7 +2675,7 @@
          mp = g_mp_struct(X[rk], True)
          tb = g_tb(X[rk], F[rk], j)
          # ---- THE ENDPOINT FD ROW VERDICT.  This is what SO-3aR2 produced at
@@ -759,7 +766,7 @@
          # ---- row's verdict on its own: an optimisation row is the CONJUNCTION of
          # ---- section 9's reading of the optimiser and this reading of the
          # ---- gradient at the design the optimiser reached.
-@@ -2458,6 +2680,10 @@
+@@ -2458,6 +2683,10 @@
          opt = g_opt_section9(O.get(rk), endpoint,
                               (g10.get("per_arm") or {}).get(O_ARM[rk]))
          gopt[rk] = opt
@@ -770,7 +777,7 @@
          # ---- THE ROW COMPOSITION, AND THE ONE DIRECTION IT MAY NOT GO.
          # A row is PASS only if BOTH the optimiser converged on its own tolerance
          # AND the gradient at the final design point passed its band.  Every
-@@ -2465,13 +2691,18 @@
+@@ -2465,13 +2694,18 @@
          # lift a GATE REACHED optimiser to PASS, because the endpoint FD
          # validates the DESIGN and says nothing about convergence, and treating
          # them as interchangeable is the laundering section 9 forbids.
@@ -790,7 +797,7 @@
                    "G_MP_STRUCT_assembly_identity": mp, "G_TB_trivial_baseline": tb,
                    # THE HARNESS FLOOR, PUBLISHED BESIDE THE AGGREGATE IT QUALIFIES.
                    # VERIFICATION section 7 step 4.  SO-3aR2's PATCHED aggregate was
-@@ -2573,9 +2804,15 @@
+@@ -2573,9 +2807,15 @@
      # ---- item verdict: the composition registered in PREREGISTRATION section 3 -----
      rowv = tuple(g5[rk]["row_verdict"] for rk in ROWS)
      optv = tuple(gopt[rk]["verdict"] for rk in ROWS)
@@ -807,7 +814,7 @@
      if gstages["verdict"] == "NOT A RESULT" or "NOT A RESULT" in rowv:
          verdict = "NOT A RESULT"
      elif gstages["verdict"] == "BLOCKED":
-@@ -2603,8 +2840,8 @@
+@@ -2603,8 +2843,8 @@
  
      # ---- THE PUBLISHED RECORD.  Its shape is the CONTRACT with the frozen
      # ---- consumers -- see (I).  `verdict` and `rows` are TOP LEVEL because
@@ -818,7 +825,7 @@
      return {"item": "CURRICULUM-%s" % ITEM, "verdict": verdict,
              "rows": {w: g5[w]["row_verdict"] for w in ROWS},
              "upstream_provenance": prov,
-@@ -2618,6 +2855,26 @@
+@@ -2618,6 +2858,26 @@
                          "band_D_pct": FD_BAND_PCT, "band_E_pct": AGG_BAND_PCT,
                          "plateau_tol_pct": PLATEAU_TOL_PCT,
                          "min_graded_pairs": MIN_GRADED_PAIRS},
@@ -845,7 +852,7 @@
                  "G-NOOPT-ENDPOINT_no_optimiser_in_the_endpoint_arms": gnoopt,
                  "G-DESIGNPOINT_endpoint_arms_evaluated_at_the_optimum": gdp,
                  "G-OPT9_optimisation_per_row": {
-@@ -2684,11 +2941,14 @@
+@@ -2684,11 +2944,14 @@
                  "the ENDPOINT verification SO-3aR2's own cell says it establishes NOTHING about; "
                  "what it still establishes NOTHING about is MACH (this is DASimpleFoam, "
                  "incompressible, M ~ 0.03, and a `multipoint` here is an ALPHA sweep -- Sanaa's "
@@ -864,7 +871,7 @@
  
  
  # ===================== the fixture: BUILT BY THE INSTRUMENT'S OWN WRITERS ==============
-@@ -2699,7 +2959,7 @@
+@@ -2699,7 +2962,7 @@
  # sourcing it lives in `rows_out`, a DIFFERENT NAME.  The call site guards the
  # PATH with `os.path.isfile` and returns a DISTINCT sentinel so a missing
  # launcher cannot masquerade as a parse failure.
@@ -873,7 +880,7 @@
  LAUNCHER_ABSENT = "LAUNCHER_ABSENT"
  LAUNCHER_UNPARSEABLE = "LAUNCHER_UNPARSEABLE"
  
-@@ -2718,7 +2978,7 @@
+@@ -2718,7 +2981,7 @@
  
  def _ledger_rows_via_launcher(k):
      """R1's BIRTH: the fixture's ledger rows are emitted by SOURCING THE LAUNCHER'S
@@ -882,7 +889,7 @@
      format string here.  If the launcher's format and this reader's regex ever
      diverge, this returns rows the reader cannot parse and the suite fails loudly.
  
-@@ -2732,7 +2992,7 @@
+@@ -2732,7 +2995,7 @@
      for arm in ARMS_DECLARED:
          ke = NOT_MEASURED if arm in k["rc_record"] else k["ke"].get(arm, k["rc"][arm])
          cmd = ('. %s --source-only >/dev/null 2>&1; '
@@ -891,7 +898,7 @@
                 '"%s" "" "" %s x'
                 % (LAUNCHER_PATH, arm, ARM_ROW[arm], IMG_DIGEST[ARM_ROW[arm]], k["rc"][arm],
                    ARM_RANKS[arm], k["cm"][arm], CAPS[arm], CAPS[arm], ke, k["oom"][arm],
-@@ -2757,7 +3017,7 @@
+@@ -2757,7 +3020,7 @@
  def _fix(tmp, tweak=None):
      """Build a clean fixture.
  
@@ -900,7 +907,7 @@
      ROW BY THE LAUNCHER'S OWN FUNCTION.  Nothing on the positive path hand-rolls a
      schema -- see (IV).  The MESH log and the arm logs are REAL OpenFOAM bytes
      from `reference/`."""
-@@ -2775,11 +3035,11 @@
+@@ -2775,11 +3038,11 @@
           "mp_break": {"SHIPPED": None, "PATCHED": None}, # k whose assembled J adjoint is moved off the sum
           "alphas": None, "weights": None, "alpha_none": None,
           "of_drop": None,                    # an adjoint `of` key removed
@@ -914,7 +921,7 @@
           "opt_exit": {a: "Optimal Solution Found." for a in ("O-S", "O-P")},
           "opt_stall": {a: "NO_STALL" for a in ("O-S", "O-P")},
           "opt_reduction_pct": {a: 12.5 for a in ("O-S", "O-P")},
-@@ -2796,6 +3056,11 @@
+@@ -2796,6 +3059,11 @@
           "datum": {a: ("plain" if a == "MESH" else "gz") for a in ARMS_DECLARED},
           "write_compression": "on", "evals_failed": {"SHIPPED": 1, "PATCHED": 1},
           "cl_base": [0.31, 0.50, 0.69], "cd_base": [0.0181, 0.0209, 0.0248],
@@ -926,7 +933,7 @@
           "dl": "0.99 n=10 max_nr_throttled=0", "ledger_via_launcher": True}
      if tweak:
          tweak(k)
-@@ -2821,7 +3086,7 @@
+@@ -2821,7 +3089,7 @@
          if w is None:
              return None
          return {"design_point": w,
@@ -935,7 +942,7 @@
                  "xopt_row": (kk["xopt_row"].get(a) if w == "FINAL" else None),
                  "xopt_sha256": ("f" * 64 if w == "FINAL" else None),
                  "xopt_linf": ("0.008" if w == "FINAL" else None),
-@@ -2886,7 +3151,7 @@
+@@ -2886,7 +3154,7 @@
                  # ---- THE OPTIMISATION ARTEFACT.  Built here rather than by the
                  # producer's own writer for one honest reason: the producer
                  # cannot be imported on the host (it needs mphys, dafoam, pygeo
@@ -944,7 +951,7 @@
                  # STRUCTURE on the host and this fixture drives the COMPARATOR
                  # against a record of the registered shape.  That split is
                  # stated rather than papered over -- the O record is the one
-@@ -2910,22 +3175,31 @@
+@@ -2910,22 +3178,31 @@
                           "condition_B_inf_du_nondecreasing": {"fired": False,
                                                                "ends_at_major": None,
                                                                "window": None}}
@@ -981,7 +988,7 @@
                         "optimiser_exit_statement": k["opt_exit"][arm],
                         "convergence_statement_in_log": k["opt_exit"][arm] is not None,
                         "converged_to_optimizer_tolerance": None,
-@@ -3028,12 +3302,12 @@
+@@ -3028,12 +3305,12 @@
                  fh.write("%s %s 2026-08-31T00:00:00Z 2026-08-31T00:01:00Z %s 12884901888 %s\n"
                           % (ke, k["oom"][arm], k["cs"][arm], IMG_DIGEST[ARM_ROW[arm]]))
  
@@ -996,7 +1003,7 @@
              "hand-written row, which CANNOT catch a launcher/reader format divergence" % rows_out)
          rows_out = [("ARM=%s ROW=%s IMG=img DIGEST=%s rc=%d wall_s=60 ranks=%d core_min=%s "
                       "cap_core_min=%s enforced_wall_s=600 enforced_core_min=%s memory=12g "
-@@ -3060,10 +3334,10 @@
+@@ -3060,10 +3337,10 @@
  
  
  # ===================== the selftest ===================================================
@@ -1009,7 +1016,7 @@
      p = os.path.join(root, name)
      with open(p, "w") as fh:
          json.dump(rec, fh, indent=1, sort_keys=True, default=str)
-@@ -3073,8 +3347,8 @@
+@@ -3073,8 +3350,8 @@
  def stop_marker_basename():
      """THE MARKER'S NAME IS READ OUT OF THE FROZEN SCRIPT, NEVER GUESSED.
  
@@ -1020,7 +1027,7 @@
      at an address nothing ever wrote and read `None` -- the SAME defect shape as
      SO-1c's, found here only because the consumer was DRIVEN rather than read.
      Binding the name to the producer's own line means a future rename REFUSES
-@@ -3097,7 +3371,7 @@
+@@ -3097,7 +3374,7 @@
      `cmd | tail` would hand back tail's rc, and three agents on this team misread
      an exit code that way in one day."""
      if not os.path.isfile(STOP_MARKER_PATH):
@@ -1029,7 +1036,7 @@
      p = subprocess.run(["bash", STOP_MARKER_PATH, root, "0", str(N_DECLARED),
                          str(executed), gpath], capture_output=True, text=True)
      marker = os.path.join(root, stop_marker_basename())
-@@ -3163,6 +3437,52 @@
+@@ -3163,6 +3440,52 @@
           all(r["gates"]["G5J"][w]["G_TB_trivial_baseline"]["verdict"] == "PASS"
               and r["gates"]["G5J"][w]["G_TB_trivial_baseline"]["n_passing_at_the_wrong_step"] == 0
               for w in ("SHIPPED", "PATCHED")))
@@ -1082,7 +1089,7 @@
      unit("U7 clean fixture -> every plateau proved PER PAIR, never once for the item",
           all("plateau_neighbour_pct" in p and len(p["plateau_neighbour_pct"]) == 2
               for w in ("SHIPPED", "PATCHED")
-@@ -3178,26 +3498,26 @@
+@@ -3178,26 +3501,26 @@
      # ---- B. THE SCHEMA CONTRACT WITH THE FROZEN CONSUMERS -- see (I) ---------------
      gp = _write_grade(root0, r)
      sm = _run_stop_marker(root0, gp)
@@ -1114,7 +1121,7 @@
      sm_b2 = _run_stop_marker(root0, gp_b2)
      unit("U14 SCHEMA a verdict moved one level down reads PENDING, never a silent PASS",
           sm_b2["state"] == "EXERCISED" and sm_b2["marker"] is not None
-@@ -3237,7 +3557,7 @@
+@@ -3237,7 +3560,7 @@
      unit("U28b CONTROL the flip control is COMPARATIVE: a row below the graded-pair floor "
           "reads NOT A RESULT planted AND unplanted, and is not refused",
           grade(_fix(tmp, tw(noplateau={"PATCHED": {0, 3}})))["rows"]["PATCHED"] == "NOT A RESULT")
@@ -1123,7 +1130,7 @@
      # ---- cross, and the sufficiency claim is DRIVEN AT AN INSUFFICIENT K.
      _pc = r["controls"]["grader_plant_X_%s" % ROWS[0]]
      unit("U28c PLANT SIZING: the production plant is RELATIVE, not absolute, and names "
-@@ -3483,9 +3803,9 @@
+@@ -3483,9 +3806,9 @@
           == os.path.isfile(LAUNCHER_PATH))
  
      # ---- I. THE ROW-LABEL CALL-SITE SWEEP, ACROSS EVERY INSTRUMENT ----------------
@@ -1135,7 +1142,7 @@
           "literals and positional row derivations (%d files swept, %d not yet built)"
           % (len(present), len(absent)),
           all(v == [] for v in sweep.values()))
-@@ -3511,7 +3831,7 @@
+@@ -3511,7 +3834,7 @@
      # actually missing.  This plant carries ONLY the suffix-glob form, assembled
      # from parts so this file does not itself contain the token the sweep hunts,
      # and it must be caught by exactly the rule whose absence let
@@ -1144,7 +1151,7 @@
      # The DISCRIMINATOR is the second half: a case list of FULL arm names is the
      # REGISTERED form and must come back CLEAN through the same reader in the same
      # unit -- a rule that flagged both would forbid the repair it is asking for.
-@@ -3578,7 +3898,7 @@
+@@ -3578,7 +3901,7 @@
      for i, a in enumerate(sys.argv):
          if a == "--root" and i + 1 < len(sys.argv):
              root = sys.argv[i + 1]
@@ -1153,7 +1160,7 @@
          # this comparator with it and reads the artefact back from that exact path.
          # Adopting the parent's self-composed stamped path would have written to an
          # address the driver never looks at.
-@@ -3591,7 +3911,7 @@
+@@ -3591,7 +3914,7 @@
          return 2
      if out is None:
          stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())

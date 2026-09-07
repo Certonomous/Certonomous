@@ -284,7 +284,11 @@ SCENARIOS = ["point%d" % i for i in range(len(ALPHAS))]
 # at point0).  Written out to the exact bits the grader's `G-CLTGT` reads back
 # and compares to 1e-12; a floating-point subtraction cannot move one of them.
 CL_TARGET = [0.31189588769251864, 0.49876526085592926, 0.6639763551107052]
-assert len(CL_TARGET) == len(ALPHAS), "one CL target per operating point"
+# Explicit raise, not assert: `python3 -O` strips asserts (L-332), and one CL
+# target per operating point is a load-bearing invariant, not a debug check.
+if len(CL_TARGET) != len(ALPHAS):
+    raise SystemExit("MPA1_CONFIG one CL target per operating point required: "
+                     "%d targets vs %d alphas" % (len(CL_TARGET), len(ALPHAS)))
 
 # ===========================================================================
 # THE PER-POINT RUN DIRECTORIES -- THE WHOLE REASON MP-A1 EXISTS.

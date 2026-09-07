@@ -1728,9 +1728,12 @@ def g_noopt(recs, rec_kind, logs):
 #      condition A fires on exactly the 2 known stalls and on none of the 7 runs
 #      that ended `Maximum Number of Iterations Exceeded`.
 #   3. It will not let a drag number travel without its `CL` pair.  `CL` is
-#      UNCONSTRAINED in this item (mpa1_runScript docstring (C)), so a weighted-drag
-#      reduction bought by shedding lift is a live possibility and the record says
-#      so beside the number, not below it.
+#      CONSTRAINED by a per-point EQUALITY in MP-A1 (mpa1_runScript docstring (C):
+#      CL is HELD), so the `CL` pair travels beside every drag number to PROVE the
+#      hold -- `G-CLHOLD` gates that each point held its target and never collapsed
+#      negative.  A drag reduction quoted at NON-held or negative `CL` is the
+#      forbidden reading (SO-3's failure: it left CL unconstrained and the lift
+#      collapsed).  The record says so beside the number, not below it.
 #   4. It will not upgrade `GATE REACHED` to `PASS` because the endpoint FD passed.
 #      The endpoint FD makes the DESIGN CHANGE validated; it says nothing about
 #      whether the optimiser converged, and conflating them is the laundering.

@@ -9,8 +9,8 @@ preserving carry (no SO3/so3 token and no content change); where they differ the
 
 | instrument | EXISTS | md5 (MP-A1) | md5 (SO-3 parent) | carry/changed |
 |---|---|---|---|---|
-| `mpa1_runScript.py` | yes | `6cef4ad56b3b9d053d464c9dbeb7123f` | `0c026d72047b605099125258e3152f93` | changed (see diff) |
-| `mpa1_grade.py` | yes | `7050d38e8fe4165677c0842c5dd4b5b9` | `0ac111ef144a62111e36f676e8114af1` | changed (see diff) |
+| `mpa1_runScript.py` | yes | `bb3ba3a61b19dc8564e247cdb11e9147` | `0c026d72047b605099125258e3152f93` | changed (see diff) |
+| `mpa1_grade.py` | yes | `9b9cb93419797f99cf968d74f320f8b2` | `0ac111ef144a62111e36f676e8114af1` | changed (see diff) |
 | `mpa1_xf.py` | yes | `8036ca85d502276dc172c626becd11d5` | `58fd0e2600ce6836ddd039beb8677477` | changed (see diff) |
 | `mpa1_stall.py` | yes | `5d112800fc34dc729c80c584d873eec7` | `c0719b7fad530a34391280139fe7aa6c` | changed (see diff) |
 | `mpa1_age_guard.py` | yes | `7fe4352d36b7b48a5bb2885e225e455a` | `1bcbe57cb708d8e6a7a89ceb2235a35c` | changed (see diff) |
