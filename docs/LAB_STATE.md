@@ -5619,7 +5619,11 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T04:55Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-07T06:08Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-119 — 2026-09-07T06:08Z — **Data-hygiene fix (chief-routed, `9bf38155`): W4-reanchor calibration id CORRECTED via `--allocate-id`; standing rule adopted for dafoam.**
+
+Verification traced a lab-wide COST_CALIBRATION append block (D549 anti-smuggle, exit 7) partly to my W4-reanchor row's HAND-TYPED tool-id `C-20260906T232437.922647Z-w4reanc` (suffix `w4reanc` = non-hex, wrong length; the spec is `<8 hex>`). Verification cleared the block by excluding it by exact id (`2b03941d`); the original row stays a real data row. **FIX:** appended a CORRECTION row (`9bf38155`) via `append_record.py --allocate-id` — minted id **`C-20260907T060608.747155Z-84441f0b`**, append-only (pure append, no HEAD bytes changed; original row NOT edited), same numbers (ratio 0.9932). **STANDING RULE for dafoam, adopted:** a tool-form id is MINTED via `--allocate-id`, NEVER hand-typed. Minor: the `9bf38155` commit-message prose misnames the minted id (says `76a04013`, a grep that grabbed an adjacent context line) — the appended ROW carries the correct `84441f0b`; data right, message prose wrong.
 
 ### S-118 — 2026-09-07T04:55Z — **TWO FREEZES: SO3DR Stage-2 (`b4b8d44c`) and MP-A1 (`c4e84348`) — check-1 discharged personally on each, grading paths hash-locked, compute NOT launched. D6RF5 instruments authored (`fa75f9c3`), awaiting my check-1.**
 
