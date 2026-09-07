@@ -68,8 +68,14 @@ and 88.5 at 40.4°.
    `MESH_STANDARD.md` guidance);
 3. gradient `Gauss linear` → **`cellLimited Gauss linear 1`** (bounds reconstructed
    gradients, suppressing the cross-plane over/undershoot);
-4. divergence, if `Gauss linear` at present, → **`Gauss linearUpwindV grad(U)`**
-   (bounded, second order) as a fallback lever if 1–3 are insufficient.
+**NOT part of this freeze — a NON-registered future lever, recorded only for transparency:**
+were 1–3 insufficient, a divergence change `div(phi,U)` `Gauss linear` →
+`Gauss linearUpwindV grad(U)` (bounded, second order) would be a SEPARATE successor
+carrying its own pre-registration and its own freeze. It is **NOT applied here**: the
+frozen method changes **exactly levers 1–3** and **`div(phi,U)` remains the parent's
+`Gauss linear`**. A frozen method must be deterministic; a contingent "if insufficient"
+lever cannot sit inside it, so it is demoted out of the registered set (cfd `lab-lane`,
+2026-09-07, pre-freeze; changes no gate, threshold, cap or label).
 
 **Diagnostic to confirm or refute the hypothesis (mandated, reported-not-gated):**
 `E_perp` and `A_theta` are read at the fine level. If the changed numerics drop
@@ -117,6 +123,56 @@ A **fresh pre-registration commit** is required for the successor (its own
 `--prereg-commit`), and the supervisor hashes the changed `fvSchemes`/`fvSolution`
 against the committed blobs at check 4. Grading is **zero-new-compute** after the
 solves.
+
+---
+
+**AUTHORING NOTE — cfd `lab-lane`, 2026-09-07 (pre-freeze; changes no gate, threshold, cap or label).**
+A prior lane correctly refused this freeze because two rule-2 essentials were on disk only as prose.
+They are now authored:
+
+- **(d) changed-method artifacts authored** (no longer prose), byte-identical to the frozen parent
+  `cases/F27_WOMERSLEY_PIPE/case/system/` files EXCEPT the registered levers 1–3:
+  - `cases/F27_WOMERSLEY_PIPE/successor_numerics/system/fvSchemes` — sha256
+    `59b77114798bad38ccfd5c9ebedcf8d69b0765b236e96472f13872c91a4fe81f`
+    (gradSchemes → `cellLimited Gauss linear 1`; laplacianSchemes → `Gauss linear limited 0.5`;
+    snGradSchemes → `limited 0.5`; **`div(phi,U)` stays parent `Gauss linear`; nothing else changes**).
+  - `cases/F27_WOMERSLEY_PIPE/successor_numerics/system/fvSolution` — sha256
+    `fea071de85b6dfc8257c88d5910cd30c8ec53078a7dd558beba6343ca72fa32f`
+    (nNonOrthogonalCorrectors 1 → 3; nothing else changes).
+  A byte diff against the parent shows exactly those four lines and no other. The parent's explanatory
+  comment block naming `corrected`/`nNonOrthogonalCorrectors 1` is retained VERBATIM under the §2ay
+  byte-identical discipline, so it now documents the parent's rationale rather than the successor's
+  settings — flagged here, deliberately not edited.
+
+- **(a) distinct successor run root declared:** `verification/runs/F27_NUMERICS_SUCCESSOR_runs`
+  (the parent's `verification/runs/F27_WOMERSLEY_PIPE_runs` already exists from the parent run, so the
+  successor takes its OWN root). Confirmed ABSENT on disk at authoring.
+
+- **band constants confirmed against the grader source of truth:** the four §3 band literals each parse to
+  the EXACT IEEE double emitted by `grade_f27.py::bands()` (grader blob
+  `e334615966bfd9ba1d7d6988fbca775208edca9e`, unchanged since freeze commit `4bb0226d`) —
+  G-F27R-1 `[6.0527387533618279e-05, 0.001513184688340457]`,
+  G-F27R-2 `[0.00011397841172247245, 0.0028494602930618112]`. No §3 correction was needed.
+
+**A FURTHER CHECK-4 BLOCKER, surfaced here and NOT resolvable by a lane authoring config files.**
+The claim above that the grader is "re-used unchanged so the successor is graded by the identical
+instrument" does **not hold for a method change**, because the frozen harness is method-locked to the
+PARENT template:
+  - `grade_f27.py::control_solver_dicts_match()` reads the FIXED path `HERE/case`
+    (`cases/F27_WOMERSLEY_PIPE/case/system/`) and HARD-REFUSES unless it finds `nNonOrthogonalCorrectors 1`,
+    `laplacianSchemes default Gauss linear corrected` and `snGradSchemes default corrected` — the PARENT
+    method. Run unchanged it reads the untouched parent template and CERTIFIES the parent numerics (which
+    the successor did not use); pointed at the successor template it REFUSES (exit 2).
+  - `run_f27.sh` (frozen) hard-codes `CASE_SRC=$ROOT/case`, a single
+    `RUN_ROOT=.../F27_WOMERSLEY_PIPE_runs`, and an embedded pre-flight asserting the same parent scheme
+    lines (`:183`–`:186`).
+  - `build_f27.py` (frozen) hard-codes `CASE_SRC = HERE/case` and copies the parent fvSchemes/fvSolution.
+Consequently the successor cannot be run OR graded by the frozen scripts without either editing the frozen
+parent template (forbidden by rule 6 and the §2ay discipline) or standing up a PARALLEL successor instrument
+set — a successor driver and builder, and (because `control_solver_dicts_match` is method-locked) a
+successor grader with its own controls and its own freeze. That is a research-direction / supervisor
+decision, not lane config authoring. **The scheme artifacts and run root above are necessary but NOT
+sufficient: F27 is NOT freeze-ready until the supervisor rules on the successor instrument set.**
 
 ---
 
