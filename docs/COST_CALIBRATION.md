@@ -40,8 +40,12 @@ the 2026-08-23 amendment at the foot of
 **Divergence-by-design — the docket precedent (`CLAUDE.md` rule 11).** The
 worktree copy of this file routinely diverges from HEAD and is never "fixed",
 synced, or used as a base: private-index commits land rows at HEAD without
-writing the worktree, and the worktree may carry a peer's unlanded tail rows,
-which `scripts/append_record.py` preserves by design. `git status` and
+writing the worktree, and the worktree may carry a peer's unlanded tail rows
+or an aborted append's orphan. Since 2026-09-07 `scripts/append_record.py`
+builds its output from the HEAD blob of this file plus the appended row(s) and
+DISCARDS that worktree tail — it does NOT preserve or merge it — so an aborted
+append leaves nothing a peer's next append can sweep into its commit (it earlier
+did: the VMFL046-R5 orphan swept into 9bf38155). `git status` and
 `git diff HEAD` read this file against the stale shared index and report
 phantom whole-file deletions — that output is not evidence about content
 (measured 2026-08-23: a staged-deletion reading of every line while all rows

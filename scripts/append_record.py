@@ -1,5 +1,45 @@
 #!/usr/bin/env python3
-r"""Append rows to an append-only record by MERGE, never by overwrite.
+r"""Append rows to an append-only record: HEAD's committed blob plus your rows.
+
+AMENDMENT 2026-09-07 -- THE WORKTREE TAIL IS DISCARDED, NOT PRESERVED
+====================================================================
+THE HISTORICAL BODY BELOW describes the ORIGINAL design, in which this module
+built the output by MERGE -- HEAD's blob PLUS the worktree's own tail PLUS your
+rows -- to keep D369 from destroying worktree bytes on write-back. That merge is
+NO LONGER the production behaviour, and every "preserves the tail", "the tail is
+an arithmetic input" and "PRESERVED ahead of the appended rows" claim below is
+superseded by this amendment. The historical text is kept, not rewritten,
+because it is the provenance for WHY the merge machinery exists.
+
+WHAT CHANGED, AND WHY. The merge PRESERVED the shared worktree tail by design,
+and that turned an aborted append into a cross-team sweep: an append that dies
+after writing its row but before committing leaves that row in the SHARED
+worktree, and THE NEXT TEAM'S APPEND folded the orphan into ITS commit. It bit
+twice; most recently ansys's aborted VMFL046-R5 append orphaned a row that
+dafoam's next append swept into commit 9bf38155 (2026-09-07).
+
+THE REPAIR. The base is now HEAD's committed blob ALONE. `merge()`'s production
+path (`preserve_worktree_tail=False`, the default and the only path `main()`
+takes) writes `head_text + rows_text` and NOTHING from the worktree beyond HEAD.
+So:
+  * the tool's output for a path = (HEAD blob of the path) + (this run's rows),
+    never HEAD + worktree-orphans + rows;
+  * an aborted append leaves nothing a peer can sweep -- the orphan sits in the
+    worktree and is simply DISCARDED by the next append;
+  * the worktree tail is NO LONGER an arithmetic input: the id maximum, the D549
+    shape audit and the tool-allocated-id uniqueness backstop all judge the
+    bytes actually written (HEAD's blob + the rows), never the discarded tail;
+  * the UNCONDITIONAL prefix test is KEPT: an edit INSIDE HEAD's own committed
+    bytes still refuses (exit 2) rather than being silently reverted -- that is
+    the D369 protection, and it is independent of the tail question;
+  * multi-row batching is unaffected -- every row in a single --rows file lands,
+    because they are all inside `rows_text`;
+  * the id-minting, format/column validation, D549 shape-audit, smuggle-guard
+    and `corrects:` logic are UNCHANGED -- only the BASE CONTENT SOURCING moved
+    from "HEAD + worktree tail" to "HEAD".
+The old preserve-the-tail path is RETAINED behind `preserve_worktree_tail=True`
+SOLELY as the RED reference the selftest's discard limb drives, proving the
+production path actually differs from the pre-fix behaviour.
 
 WHY THIS EXISTS (docket D369, D461/D-13; docs/USING_THIS_LAB.md section 8.5)
 ===========================================================================
@@ -1600,10 +1640,26 @@ def utf8_len(text: str) -> int:
     return len(text.encode("utf-8"))
 
 
-def merge(head_text: str, worktree_text: str, rows_text: str) -> dict:
-    """The merge itself. Pure, so the controls can drive it on fixtures.
+def merge(head_text: str, worktree_text: str, rows_text: str, *,
+          preserve_worktree_tail: bool = False) -> dict:
+    """Build the file content to write. Pure, so the controls drive it on fixtures.
 
-    Returns a dict; `ok` False means REFUSE and `merged` is None.
+    The prefix test is UNCONDITIONAL: if the worktree diverges from `head_text`
+    INSIDE the committed blob's own bytes, this REFUSES (`ok` False, `merged`
+    None), because that is an edit to committed content, not an append.
+
+    On success the output depends on ONE keyword:
+      * preserve_worktree_tail=False (DEFAULT, and the only path main() takes):
+        the base is HEAD's committed blob and the worktree tail is DISCARDED --
+        `merged` = head_text + rows_text. An aborted append leaves nothing a peer
+        can sweep (2026-09-07; see the module amendment at the head of the file).
+      * preserve_worktree_tail=True: the pre-2026-09-07 behaviour, folding the
+        worktree tail in ahead of the rows. RETAINED ONLY so run_controls can
+        drive the old sweep as the RED reference for the discard limb.
+
+    `tail` in the returned dict is always the actual worktree bytes beyond HEAD,
+    for REPORTING what was discarded; it is not folded into `merged` unless the
+    keyword asks for it.
     """
     if not worktree_text.startswith(head_text):
         # Locate the first differing CHARACTER -- `at` indexes `str`, so it is a
@@ -1648,8 +1704,25 @@ def merge(head_text: str, worktree_text: str, rows_text: str) -> dict:
             "merged": None, "tail": None, "separator_inserted": False,
         }
     tail = worktree_text[len(head_text):]
-    separator = bool(tail) and not tail.endswith("\n")
-    merged = head_text + tail + ("\n" if separator else "") + rows_text
+    if preserve_worktree_tail:
+        # THE PRE-2026-09-07 BEHAVIOUR, RETAINED ONLY AS A TEST REFERENCE. It
+        # folds the worktree tail into the output ahead of the rows. main() never
+        # takes this path; it exists so run_controls can drive the OLD sweep and
+        # prove the production path below actually differs from it (RED-then-GREEN).
+        separator = bool(tail) and not tail.endswith("\n")
+        merged = head_text + tail + ("\n" if separator else "") + rows_text
+    else:
+        # PRODUCTION, 2026-09-07: the base is HEAD's committed blob and the
+        # worktree tail is DISCARDED, never folded in. `merged` is HEAD's blob
+        # plus this invocation's own rows and NOTHING else, so an ABORTED append
+        # -- which leaves its row in the SHARED worktree -- leaves nothing the
+        # next team's append can sweep into its commit (the VMFL046-R5 sweep into
+        # 9bf38155, 2026-09-07, and one before it). Multi-row batching is
+        # unaffected: every row in a single --rows file is inside rows_text and
+        # all still land. The separator guards the (committed records do not hit
+        # it) case of a blob not ending in a newline.
+        separator = bool(head_text) and not head_text.endswith("\n")
+        merged = head_text + ("\n" if separator else "") + rows_text
     return {"ok": True, "reason": "", "merged": merged, "tail": tail,
             "separator_inserted": separator}
 
@@ -1748,11 +1821,19 @@ def run_allocation_disk_control() -> tuple[dict, dict, list[str]]:
         planted["the file actually changed (the writer can write)"] = (
             after1 != before)
 
+        # 2026-09-07: each real append is COMMITTED before the next builds on it
+        # (the private-index workflow), so run 1's row must land in HEAD before
+        # run 2 -- the production base is HEAD's committed blob, not the worktree.
+        # An uncommitted run 1 would be DISCARDED by run 2, which is the whole
+        # point of the repair and is proved by the sweep-discard limb elsewhere.
+        git(repo, "add", "--", path)
+        git(repo, "commit", "-q", "-m", "land run 1's allocated row")
+
         # A SECOND run, same rows file, same placeholder. This is the collision
-        # limb AND the exit-7 limb at once: run 1's tool-id row is now sitting
-        # in the PRESERVED WORKTREE TAIL, where `shape_audit` will meet it. If
-        # the tool-id clause in `shape_audit` were missing, this run would
-        # refuse at exit 7 -- the tool refusing the row it had just allocated.
+        # limb AND the exit-7 limb at once: run 1's tool-id row is now in HEAD's
+        # committed blob, where `shape_audit` will meet it. If the tool-id clause
+        # in `shape_audit` were missing, this run would refuse at exit 7 -- the
+        # tool refusing the row it had just allocated.
         rc2 = run_main(repo, rows_ok, "--allocate-id")
         after2 = record.read_text()          # <- bytes written by main(), again
         ids2 = re.findall(tool_id_pattern(path), after2)
@@ -2706,6 +2787,11 @@ def _corrects_disk_control() -> tuple[dict, dict, list[str]]:
             rc_t == EXIT_OK and len(target_ids) == 1)
         target = target_ids[0]
         n_entries_before = len(parse_record_ids(after_target, path))
+        # 2026-09-07: land the target row in HEAD before the correction builds on
+        # it -- the production base is HEAD's committed blob, and an uncommitted
+        # target would be DISCARDED by the next append rather than corrected.
+        git(repo, "add", "--", path)
+        git(repo, "commit", "-q", "-m", "land the row to be corrected")
 
         # (2) THE POSITIVE CONTROL (`§2p.3(e)`), through main(): a correction
         # row citing that very id inside the field.
@@ -2734,6 +2820,11 @@ def _corrects_disk_control() -> tuple[dict, dict, list[str]]:
             f"citing {target}; the id appears "
             f"{after_corr.count(target)}x in the bytes and "
             f"{parse_record_ids(after_corr, path).count(target)}x as an entry")
+
+        # 2026-09-07: land the correction too, so the empty-input arm below reads
+        # a HEAD that carries it (the production base is HEAD's committed blob).
+        git(repo, "add", "--", path)
+        git(repo, "commit", "-q", "-m", "land the correction row")
 
         # (3) THE REFUSALS, through the same main(), with the record required
         # BYTE-IDENTICAL afterwards. A refusal that wrote anything would be a
@@ -3236,9 +3327,18 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     }
     pattern = RECORDS["docs/DOCKET.md"]
     planted, notes = {}, []
+    # 2026-09-07 REFRAME. Production (main) NO LONGER preserves the worktree tail
+    # -- it discards it (see limb group 8 below and the module amendment). The
+    # tail-preservation and tail-id limbs in this group and the next three now
+    # drive the RETAINED old path explicitly via `preserve_worktree_tail=True`,
+    # so they still prove that path behaves exactly as the pre-fix code did. That
+    # is what makes the old path a MEANINGFUL RED reference for the discard limb:
+    # a negative that no longer reproduces the bug is a no-op, and these limbs
+    # prove it still does. The prefix-test refusals (edited/truncated, below) are
+    # unconditional and need no keyword.
     for name, tail in forms.items():
         wt = head + tail
-        got = merge(head, wt, rows)
+        got = merge(head, wt, rows, preserve_worktree_tail=True)
         preserved = bool(got["ok"]) and tail.rstrip("\n") in (got["merged"] or "")
         # Control (d) after the tail-id repair: an ID-LESS tail must still merge,
         # still be preserved, AND still not block the append. A repair that made
@@ -3276,7 +3376,7 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
         # Plant the zero: the reader must be shown able to SEE this id, or a
         # refusal that failed to fire would be indistinguishable from blindness.
         assert parse_ids(tail, pattern), name
-        got_id = merge(head, head + tail, rows)
+        got_id = merge(head, head + tail, rows, preserve_worktree_tail=True)
         v = check_first_id(parse_ids(head, pattern),
                            parse_ids(got_id["tail"] or "", pattern),
                            parse_ids(rows, pattern))
@@ -3296,7 +3396,7 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     # pattern DOES see `G7` is what stops this from being a vacuous pass.
     cross_tail = "| G7 | another series, unlanded |\n"
     assert parse_ids(cross_tail, pattern) == ["G7"], "cross-series form vacuous"
-    cross_m = merge(head, head + cross_tail, rows)
+    cross_m = merge(head, head + cross_tail, rows, preserve_worktree_tail=True)
     cross_v = check_first_id(parse_ids(head, pattern),
                              parse_ids(cross_m["tail"] or "", pattern),
                              parse_ids(rows, pattern))
@@ -3336,7 +3436,7 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
         # Visible first, exactly as the D-series forms above: a refusal that
         # failed to fire and a reader that cannot see the id look identical.
         assert parse_ids(tail, c_pattern), name
-        c_m = merge(c_head, c_head + tail, c_rows)
+        c_m = merge(c_head, c_head + tail, c_rows, preserve_worktree_tail=True)
         c_v = check_first_id(parse_ids(c_head, c_pattern),
                              parse_ids(c_m["tail"] or "", c_pattern),
                              parse_ids(c_rows, c_pattern))
@@ -3625,6 +3725,57 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     size_planted, size_negative, size_notes = run_size_report_control()
     notes += size_notes
 
+    # ---- limb group 8: THE WORKTREE TAIL IS DISCARDED, NOT SWEPT (2026-09-07) --
+    # THE DEFECT, measured and docketed: an ABORTED append leaves its row in the
+    # SHARED worktree, and until this repair the NEXT team's append FOLDED that
+    # orphan into its own commit -- two cross-team sweeps, most recently the
+    # VMFL046-R5 row swept into commit 9bf38155 on 2026-09-07. THE REPAIR sources
+    # the base from HEAD's committed blob and DISCARDS the worktree tail, so an
+    # aborted append leaves nothing a peer can sweep.
+    #
+    # RED-then-GREEN ON ONE FIXTURE, so the limb catches a real sweep and not a
+    # no-op. GREEN is the PRODUCTION path -- `merge(...)` with the default
+    # `preserve_worktree_tail=False`, exactly as main() calls it, and exactly the
+    # bytes main() writes at `wt_file.write_text(got["merged"])`. RED drives the
+    # RETAINED old preserve path on the SAME inputs and must reproduce the sweep;
+    # if it did not, the GREEN "orphan absent" assertions would be vacuous.
+    sweep_head = ("| id | date | team | process |\n|---|---|---|---|\n"
+                  "| C-1 | 2026-09-07 | a | one |\n"
+                  "| C-2 | 2026-09-07 | b | two |\n")
+    sweep_orphan = ("| C-3 | 2026-09-07 | ABORTED-PEER | orphan left in the "
+                    "shared worktree by an aborted append |\n")
+    sweep_worktree = sweep_head + sweep_orphan   # HEAD + an orphan NOT in HEAD
+    sweep_rows = "| C-4 | 2026-09-07 | mine | my new row |\n"
+    # PLANT THE ZERO on the reader: the orphan MUST genuinely be in the worktree
+    # fixture, or "the orphan did not appear in the output" is indistinguishable
+    # from a fixture that never carried a sweepable orphan (CLAUDE.md rule 3).
+    assert sweep_orphan in sweep_worktree, "sweep fixture: orphan not planted"
+    green = merge(sweep_head, sweep_worktree, sweep_rows)          # production
+    red = merge(sweep_head, sweep_worktree, sweep_rows,           # retained old
+                preserve_worktree_tail=True)
+    sweep_planted = {
+        "the fixed append keeps HEAD's own committed rows": (
+            green["ok"] and "| C-1 |" in green["merged"]
+            and "| C-2 |" in green["merged"]),
+        "the fixed append lands this invocation's own new row": (
+            green["ok"] and sweep_rows in green["merged"]),
+        "the fixed append DISCARDS the aborted peer's orphan row": (
+            green["ok"] and sweep_orphan not in green["merged"]),
+    }
+    # NEGATIVE (must be FALSE): the retained old path must DIFFER -- it must still
+    # fold the orphan in. If it ALSO dropped the orphan, the fix changes nothing
+    # and the GREEN discard assertion above proves nothing about this repair.
+    sweep_negative = {
+        "the retained old preserve path ALSO drops the orphan (fix is a no-op)": (
+            red["ok"] and sweep_orphan not in red["merged"]),
+    }
+    if red["ok"] and sweep_orphan in red["merged"]:
+        notes.append(
+            "    sweep proved BOTH WAYS on one fixture: production path DISCARDS "
+            "the aborted peer's orphan (C-3 ABORTED-PEER), the retained old "
+            "preserve path FOLDS it in -- reproducing the VMFL046-R5 cross-team "
+            "sweep the repair closes")
+
     ledger = control_kind.ControlLedger(
         claim_class="worktree-only bytes that match no id pattern")
     ledger.plant("merge preserves the invisible tail",
@@ -3685,6 +3836,12 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                             "coincide",
                  planted=size_planted,
                  negative=size_negative)
+    ledger.plant("the worktree tail is DISCARDED, not swept into the commit -- "
+                 "the output is HEAD's blob plus these rows only (2026-09-07)",
+                 vocabulary="an aborted peer's orphan row sitting in the shared "
+                            "worktree tail, on the production path main() takes",
+                 planted=sweep_planted,
+                 negative=sweep_negative)
 
     failures = [n for n, ok in planted.items() if not ok]
     if overwrite_kept:
@@ -3736,6 +3893,12 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     failures += [f"size-report NEGATIVE WAS matched -- a reported size is a "
                  f"CHARACTER count wearing the label 'bytes': {n}"
                  for n, hit in size_negative.items() if hit]
+    failures += [f"sweep-discard limb did not hold: {n}"
+                 for n, ok in sweep_planted.items() if not ok]
+    failures += [f"sweep-discard NEGATIVE WAS matched -- the retained old path "
+                 f"also dropped the orphan, so the RED reference no longer "
+                 f"reproduces the sweep and the discard proof is a no-op: {n}"
+                 for n, hit in sweep_negative.items() if hit]
     notes.append(
         "    D549 clause 1a proved BOTH WAYS on the same call: repaired -> "
         f"exit {ev_none['code']} (refused); pre-repair gate restored -> exit "
@@ -3791,10 +3954,11 @@ def selftest() -> int:
           "its own `N-[A-Z]+` expressions, and a tool-allocated NUMERICS entry "
           "carries no series letter, so it is absent from that index. That is a "
           "stated residue, not a discovered one.")
-    print("CANNOT SEE: whether a preserved tail is wanted or abandoned; any "
-          "commit (this module touches the working tree only); or a peer "
-          "landing between your `git show` and your write -- capture HEAD once "
-          "and pass the same rev here that you pass to `commit-tree -p`.")
+    print("CANNOT SEE: the worktree tail is DISCARDED (2026-09-07), not "
+          "preserved, so this module no longer judges whether it was wanted or "
+          "abandoned; any commit (this module touches the working tree only); or "
+          "a peer landing between your `git show` and your write -- capture HEAD "
+          "once and pass the same rev here that you pass to `commit-tree -p`.")
     return EXIT_OK if n_fail == 0 else EXIT_SELFTEST
 
 
@@ -3855,16 +4019,15 @@ def main(argv: list[str] | None = None) -> int:
         print("Nothing was written.", file=sys.stderr)
         return alloc["code"]
 
-    # The tail is needed BEFORE allocation, for the non-presence assert, so it
-    # is probed with empty rows. `merge` is pure and cheap; the authoritative
-    # merge is still computed below, over the rows as they will actually land.
-    tail_probe = merge(head_text, worktree_text, "")
-    tail_text = tail_probe["tail"] if tail_probe["ok"] else ""
-
+    # 2026-09-07: the worktree tail is DISCARDED, not folded into the output, so
+    # a minted id only has to be unique against the bytes actually written --
+    # HEAD's committed blob. It CANNOT collide with a worktree-only row that this
+    # run will not write, so the uniqueness backstop is judged against HEAD alone
+    # rather than HEAD + tail.
     allocated: list[str] = []
     if args.allocate_id:
         rows_text, allocated = allocate_into_rows(rows_text, args.path)
-        uniq = check_allocated_unique(allocated, head_text + tail_text)
+        uniq = check_allocated_unique(allocated, head_text)
         if not uniq["ok"]:
             print(f"REFUSED: {uniq['reason']}", file=sys.stderr)
             return uniq["code"]
@@ -3879,16 +4042,18 @@ def main(argv: list[str] | None = None) -> int:
     new_ids = parse_ids(rows_text, pattern)
 
     # The merge is computed HERE, before the id assert, so the arithmetic can
-    # see the very bytes this module is about to write: HEAD's blob plus the
-    # preserved tail. The REFUSAL ORDER is deliberately unchanged -- an id
+    # see the very bytes this module is about to write. 2026-09-07: those bytes
+    # are HEAD's committed blob plus these rows and NOTHING ELSE -- the worktree
+    # tail is DISCARDED, not folded in -- so the tail is NOT an arithmetic input:
+    # the maximum below, the shape audit and the uniqueness check all judge the
+    # written bytes only. The REFUSAL ORDER is deliberately unchanged -- an id
     # refusal is still reported before a prefix refusal, so exit 3 keeps its
-    # precedence over exit 2 exactly as it had before this repair. When the
-    # prefix test has failed there is no trustworthy tail, so the arithmetic
-    # falls back to HEAD alone and the run refuses with 2 below regardless;
-    # nothing is written on either path.
+    # precedence over exit 2 exactly as before. The prefix test still runs, so an
+    # edit INSIDE HEAD's own bytes still refuses (exit 2) rather than reverting;
+    # nothing is written on that path.
     got = merge(head_text, worktree_text, rows_text)
-    tail_text = got["tail"] if got["ok"] else ""
-    tail_ids = parse_ids(tail_text, pattern)
+    discarded = got["tail"] if got["ok"] else ""
+    tail_ids: list[str] = []
 
     print("=" * 78)
     print("append_record.py -- MERGE (D369's repair, not the overwrite)")
@@ -3913,20 +4078,25 @@ def main(argv: list[str] | None = None) -> int:
               f"reading and a hash, derived from nothing this record contains, "
               f"so there is no shared maximum to be stale about")
     if got["ok"]:
-        print(f"  tail ids         : "
-              f"{tail_ids if tail_ids else '(none in the preserved tail)'}")
+        if discarded:
+            print(f"  DISCARDED tail   : {utf8_len(discarded)} worktree bytes "
+                  f"beyond HEAD -- NOT folded in and NOT counted (an aborted peer "
+                  f"append leaves nothing this run can sweep; 2026-09-07)")
+        else:
+            print("  DISCARDED tail   : none -- the worktree equals HEAD's blob")
     else:
-        print("  tail ids         : (not read -- the prefix test failed, so "
-              "there is no trustworthy tail; the id report below is HEAD-only "
-              "and this run refuses either way)")
+        print("  DISCARDED tail   : (not read -- the prefix test failed; this "
+              "run refuses at exit 2 below either way)")
 
-    # ---- D549 CLAUSE 1b, over ALL THREE SIDES -------------------------------
-    # HEAD's blob and the preserved tail are ARITHMETIC INPUTS -- the maximum is
-    # taken over them -- so an unparsed line on either side corrupts the answer
-    # exactly as one in the rows does. That is the `L-343`-reported-while-`L-398`
-    # -exists defect, and this is where it becomes a refusal instead of a number.
+    # ---- D549 CLAUSE 1b, over the WRITTEN bytes -----------------------------
+    # HEAD's blob and the rows are the bytes being written, so the maximum is
+    # taken over them and an unparsed line on either side corrupts the answer.
+    # 2026-09-07: the worktree tail is NO LONGER audited here, because it is
+    # DISCARDED -- it is not in the output, so a candidate-shaped orphan sitting
+    # unlanded in the worktree can no longer refuse a peer's append (exit 7); it
+    # is simply dropped. That is the `L-343`-reported-while-`L-398`-exists defect
+    # over the written sides, and this is where it becomes a refusal, not a number.
     offenders = (shape_audit(head_text, args.path, f"{args.rev}:{args.path}")
-                 + shape_audit(tail_text, args.path, "the preserved worktree tail")
                  + shape_audit(rows_text, args.path, args.rows))
     if offenders:
         print(f"  SHAPE AUDIT      : {len(offenders)} line(s) match the "
@@ -3960,10 +4130,11 @@ def main(argv: list[str] | None = None) -> int:
         return ev["code"]
 
     if new_ids:
+        # tail_ids is [] since 2026-09-07 (the tail is discarded, not counted),
+        # so the effective maximum is HEAD's alone. check_first_id is unchanged.
         v = check_first_id(head_ids, tail_ids, new_ids)
         print(f"  series {v['series']!r}: maximum existing number -- committed "
-              f"blob {v['head_max']}, preserved worktree tail {v['tail_max']}, "
-              f"EFFECTIVE {v['effective_max']}")
+              f"blob {v['head_max']} (the discarded worktree tail is NOT counted)")
         if not v["ok"]:
             print(f"REFUSED: {v['reason']}", file=sys.stderr)
             return v["code"]
@@ -3971,8 +4142,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"REFUSED: --expect-first-id {args.expect_first_id!r} but the "
                   f"rows begin {new_ids[0]!r}", file=sys.stderr)
             return EXIT_REFUSED_ID
-        print(f"  ID ASSERT ok     : {new_ids[0]} == max+1 over HEAD AND the "
-              f"preserved tail")
+        print(f"  ID ASSERT ok     : {new_ids[0]} == max+1 over HEAD (the "
+              f"discarded tail is not counted)")
 
     if not got["ok"]:
         print(f"REFUSED: {got['reason']}", file=sys.stderr)
@@ -3980,20 +4151,17 @@ def main(argv: list[str] | None = None) -> int:
               "(ESCALATION_CHARTER.md section 3).", file=sys.stderr)
         return EXIT_REFUSED_DISAGREES
 
-    tail = got["tail"]
-    if tail:
-        print(f"  WORKTREE TAIL    : {utf8_len(tail)} bytes beyond the committed "
-              f"blob, PRESERVED ahead of the appended rows")
-        preview = tail if len(tail) <= 200 else tail[:200] + " ..."
+    if discarded:
+        print(f"  WORKTREE TAIL    : {utf8_len(discarded)} bytes beyond the "
+              f"committed blob, DISCARDED -- the output is HEAD's blob plus these "
+              f"rows ONLY, so an aborted peer append leaves nothing to sweep "
+              f"(2026-09-07)")
+        preview = discarded if len(discarded) <= 200 else discarded[:200] + " ..."
         for line in preview.splitlines()[:6]:
             print(f"      | {line}")
-        if got["separator_inserted"]:
-            print("  NOTE             : the tail did not end in a newline (a "
-                  "partial line -- somebody is mid-edit); a separator was "
-                  "inserted and is reported here rather than fixed silently")
     else:
         print("  WORKTREE TAIL    : none -- the worktree equals the committed "
-              "blob, so merge and overwrite coincide on this run")
+              "blob")
 
     if args.dry_run:
         print("  --dry-run: nothing written")
@@ -4013,9 +4181,10 @@ def main(argv: list[str] | None = None) -> int:
           "its own `N-[A-Z]+` expressions, and a tool-allocated NUMERICS entry "
           "carries no series letter, so it is absent from that index. That is a "
           "stated residue, not a discovered one.")
-    print("CANNOT SEE: whether a preserved tail is wanted or abandoned; any "
-          "commit -- the private-index sequence, the CAS and the post-commit "
-          "verification remain the caller's.")
+    print("CANNOT SEE: the worktree tail is DISCARDED (2026-09-07), so this "
+          "module no longer judges whether it was wanted or abandoned -- it is "
+          "simply not written; any commit -- the private-index sequence, the CAS "
+          "and the post-commit verification -- remains the caller's.")
     return EXIT_OK
 
 
