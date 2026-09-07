@@ -94,7 +94,7 @@ BASE="${BASE:-$REGISTERED_BASE}"
 # assignment wins, so the stale one would have won and aborted staging at rc 4.
 # A field a human edits by searching for its name is exactly where that
 # recurs, so the count is PINNED here rather than the appearance trusted.
-PERMISSION=991adf07  # FROZEN 2026-09-07 by dafoam-supervisor: freeze sha 991adf07 (final frozen instrument bytes after the crash-triage pin fix; supervisor check-1 on d6rf5_fd_endpoint.py + d6rf5_grade.py DELTAS CLEAN, S9 dual-install + SIMPLE-scoped awk crash-triage SOUND, stager container-test exit 0). That commit's tree carries PREREGISTRATION.md (CLAUDE.md rule 2). est 62.0 / cap 186.0 core-min.
+PERMISSION=c3b2217f  # RE-FROZEN 2026-09-07 by dafoam-supervisor: freeze sha c3b2217f (supersedes 991adf07; adds the rule-2 pre-compute REGISTERED_BASE rebase from the parent D6RF4 root to the D6RF5-owned root, stager+launcher, fixing the rc=43 foreign-item abort; container-test against the real base exit 0). All four supervisor checks discharged: crash-triage (S9 awk SOUND; 5 stale md5 pins repaired; base-path rebased), check-1 on both measurement-script DELTAS CLEAN, grader freeze-selfcheck + cap-arithmetic exit 0. c3b2217f's tree carries PREREGISTRATION.md (CLAUDE.md rule 2). NOTE: §11.4's launcher/stager md5 table is documentary (nothing executable reads it; the grader freeze_check compares disk==HEAD blob) and is superseded by this re-freeze. est 62.0 / cap 186.0 core-min.
 PERM_ASSIGNMENTS=$(grep -cE '^PERMISSION=' "${BASH_SOURCE[0]}" || true)
 case "$PERM_ASSIGNMENTS" in ''|*[!0-9]*) PERM_ASSIGNMENTS=UNMEASURED ;; esac
 if [ "$PERM_ASSIGNMENTS" != "1" ]; then
