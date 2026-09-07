@@ -24675,3 +24675,38 @@ idiom trusts the status. `L-490`'s standing consequence — that a control which
 whether its plant discriminated has reported a hope — gains a corollary here: **a control that
 prints `DOES_NOT_DISCRIMINATE` has not necessarily reported a discrimination failure. Read why
 before you touch the assertion.**
+
+## L-498. append_record.py's worktree-tail preservation turns an ABORTED append into a peer's swept-in orphan — commit one row from the HEAD blob, and never "sync the worktree to HEAD" (rule 10 forbids the checkout it needs).
+
+**Mechanism.** `scripts/append_record.py` (the writer for the four lab-wide registers,
+including `docs/COST_CALIBRATION.md`) builds new content by MERGING HEAD's blob with the
+CURRENT SHARED WORKTREE tail, then writes the shared worktree. When an append ABORTS after
+that write — e.g. its own stale-worktree guard correctly refuses to clobber a peer's
+concurrent append — the new row is left sitting in the SHARED worktree. The NEXT team's
+append then merges that orphan into ITS OWN commit. This has fired at least TWICE across
+teams; the recorded instance is VMFL046-R5 (2026-09-07): ansys's aborted correction
+orphaned a row that dafoam's next append swept into commit `9bf38155`, producing a
+duplicate calibration row that verification then had to dedup by landing order
+(`c261a3e3`; `docs/DEAD_LEVER_AUDIT.md` §23.4).
+
+**Correct mitigation.** Commit exactly ONE row, built from the HEAD blob —
+`git cat-file -p HEAD:<path>` (or `git show HEAD:<path>`) + your row, staged via
+`git hash-object -w` then `git update-index --add --cacheinfo 100644,<blob>,<path>`, under
+the rule-10 private-index protocol. This is immune to whatever orphans sit in the shared
+worktree AND to a concurrent peer (rebuild from HEAD on each CAS retry). The tool's
+`--allocate-id` still mints the id; only the COMMIT is taken from the HEAD blob, not the tree.
+
+**⚠ The forbidden mitigation, named so no one reaches for it.** "Sync the worktree to HEAD
+after an aborted run" is NOT available: it requires `git checkout -- <path>` (or
+`git reset --hard` / `git clean`), all of which **CLAUDE.md rule 10 bans outright**. Do not
+reach for it — an unexpected worktree state is inspected, never reverted. The HEAD-blob
+rebuild above needs no worktree reset and is the sanctioned path.
+
+**Durable fix.** append_record.py is being changed (chief-approved 2026-09-07; verification
+owns the tool and these registers) to build content from the HEAD blob and NOT preserve the
+worktree tail, so an aborted append leaves nothing a peer can sweep. Until it lands, use the
+HEAD-blob rebuild above.
+
+**Related:** `docs/DEAD_LEVER_AUDIT.md` §23.4 (landing-order tiebreak for duplicate ids);
+`CLAUDE.md` rule 10 (private-index protocol; the checkout/reset/clean ban); rule 11
+(id/number append discipline).
