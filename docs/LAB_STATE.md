@@ -17730,6 +17730,18 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-07 (update 15): VF driven-sweep comparator BUILT + §3 check-1 DONE (`analyse_t10avf2_sweep.py`, blob f3619318, UNCOMMITTED draft) → HANDED to verification for its §3 plant-drive; freeze HELD for O-1 (S(case) ruling). No new commit in this block. Supersedes update 14.
+
+*(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. **0 solver core-min.** No commit in this block — the comparator stays an uncommitted draft until O-1 + verification's plant-drive, then I freeze it.)*
+
+- **VF-3'/VF-6'/0.20 driven-sweep comparator — BUILT, §3 check-1 DONE (mine), NOT frozen.** `verification/runs/T-family/T10aVF2_runs/analyse_t10avf2_sweep.py` (blob **f3619318**, UNCOMMITTED — persists on disk, safe from peers; will change when O-1 flips S_MODE). §3 check-1: imports the FROZEN `analyse_t10avf2.py` (ebe19800) by path + asserts its blob at import (refuse on mismatch); AST self-check proves no reader reimplemented / no `av2.*` monkeypatch; VF-ADM 3-part gate faithful to prereg §3.3 (GATE FAIL → VF-3'/VF-6' NOT A RESULT, deferred/not-widened, V-121); BOTH rule-3 plants fire (PLANT_ROWSUM via frozen reader; PLANT_RATIO=0.15 flips VF-ADM to GATE FAIL, blind invariance detector CAUGHT → refuse); refusals correct; `--selftest` rc 0. `S_MODE="min"` = single PROVISIONAL O-1 site; `EXPECTED_SELF_BLOB=None` (I set it at freeze).
+- **HANDED to verification (via chief) for its §3 plant-drive.** Chief's routing: I build → verification §3 plant-drives → freeze after O-1 ruling. **FREEZE HELD on two verification items:** (1) **O-1** — the S(case) definition (min/max/mean); freeze flips the one `S_MODE` constant. (2) two operationalization choices to bless: VF-3'(b) spread = per-SPH-level mean E/n_ev then (max−min)/mean; VF-6' twin = `meta['twin']` else `name+"_afix"`.
+- **Both (b)-OWED successors resolved (PASS) this session:** T10aVF2 (`0f0e9b4b`) + K2bU3R3 (`43824a6c`). §2ay carrier count **17** (T10a-R cleared by verification's instrument fix).
+- **LIVE JOBS:** T4d FINE pid 18993 (watcher 19113), cwd `.../T4d_IJ_f`, endTime 64000, **ETA ~25 h**, PENDING. UNTOUCHED. 0 lab-lanes live.
+- **On Sanaa's desk (rule 9):** clause-5 rule-4 transient-dt instantiation (gates K0g + T8 AND the formal completion of the landed K2bU3R3); permission-gated rm of answerless T21_CYL_c (blocks T21 freeze); Vogel&Eaton 1985 / Blay 1992 NOT OBTAINED.
+- **On verification's desk (via chief):** VF sweep O-1 ruling + §3 plant-drive of `analyse_t10avf2_sweep.py` (blob f3619318) + the two operationalization choices.
+- **Next actions:** on verification's O-1 ruling → set S_MODE + re-check → verification plant-drives → I set EXPECTED_SELF_BLOB + freeze the sweep comparator; grade T4d at fine endTime; T9aD/T10aR2/T9aH real successors; T23G2 per-row naming.
+
 ##### heat-transfer 2026-09-07 (update 14): K2bU3R3 GRADED **PASS** (`43824a6c`) — stationarity discriminator DAMPS in 3D; completion clean but formally CLAUSE-5-dependent (adaptive-dt n_exec==n_time). T10a-R CLEARED by verification's instrument fix → §2ay 17. VF sweep comparator building (freeze held for O-1). Supersedes update 13.
 
 *(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. **0 solver core-min in this block.** Guarded `commit_private.sh` path.)*
