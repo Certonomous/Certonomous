@@ -173,12 +173,16 @@ PASS_VERDICTS = ("PASS", "GATE REACHED")
 
 # Case-id patterns, ordered most-specific first.  A row's case id is the first
 # match in its content.  Suffixes -R2 / _R2 / -M2 / -L1 etc are part of the id.
-CASE_ID_RE = re.compile(
-    r"\b("
+# The alternation BODY is factored into a constant so the same pattern drives both
+# the \b-wrapped scan (CASE_ID_RE) and the ^...$-anchored validation used by the
+# authoritative filename-first keying rule in _row_case (CASE_ID_ANCHORED_RE) --
+# §2ay.4: one body, no drift between "found a case id" and "this basename token IS
+# a whole case id".
+_CASE_ID_BODY = (
     r"FIX\d{3}(?:[-_][A-Za-z0-9]+)*"          # synthetic ids used ONLY by --selftest fixtures
     r"|VMFLGPU\d{3}(?:[-_][A-Za-z0-9]+)*"     # ansys GPU cases
     r"|VMFL\d{3}(?:[-_][A-Za-z0-9]+)*"        # ansys cases
-    r"|K0[a-z]?(?:R\d+)?"                       # F14 cooling rungs (K0, K0c, K0eR3)
+    r"|K(?:\d+[a-z]*[A-Z]?|V\d+)(?:R\d+)?"     # F14/K-family rungs: K0,K0c,K0cS,K0cG,K0cT,K0cX,K2b,K2c,K2e,K0eR3,KV1 (SUPERSET of old K0[a-z]?(?:R\d+)?, pure recognition)
     r"|T\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"        # T-family rungs (T1b, T23G2)
     r"|R\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"        # closure R-ladder
     r"|FS\d+(?:[-_][A-Za-z0-9]+)*"             # feature ladder
@@ -187,8 +191,23 @@ CASE_ID_RE = re.compile(
     r"|[GO]-\d+(?:[-_][A-Za-z0-9]+)*"          # dafoam MATRIX_CONTRIBUTION row ids (G-01, O-13)
     r"|[ABSW]\d+(?:[-_][A-Za-z0-9]+)*"         # dafoam ladders (A1, B3, S1, W4)
     r"|F\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"        # cfd F-campaigns
-    r")\b"
 )
+CASE_ID_RE = re.compile(r"\b(" + _CASE_ID_BODY + r")\b")
+# Whole-token validation for the filename-first rule: the basename's <CASEID> part
+# (split on the FIRST '_') must be a case id in its ENTIRETY, e.g. K0cS validates.
+# Anchored with ^...$ so it does NOT rely on \b, which cannot terminate a
+# multi-letter suffix immediately before the '_' of a results-file basename.
+CASE_ID_ANCHORED_RE = re.compile(r"^(?:" + _CASE_ID_BODY + r")$")
+
+# Authoritative results-file suffixes for the filename-first keying rule.  A row
+# that cites `<CASEID>_<SUFFIX>.md` is stating its OWN validating record; that
+# citation is more authoritative than any scenario row-label in another cell.
+# Case-sensitive UPPERCASE; the multi-word suffixes carry internal underscores and
+# are matched AFTER splitting the basename on its FIRST '_' (so <CASEID> is the head).
+RESULTS_FILE_SUFFIXES = frozenset({
+    "RESULTS", "PREREGISTRATION", "REGRADE", "GATE", "SYNTHESIS",
+    "PILOT_RESULTS", "NUSSELT_REGRADE", "UNSTEADINESS_PREREGISTRATION",
+})
 
 # A successor id extends a base id with a re-run / model suffix.
 SUCCESSOR_SUFFIX_RE = re.compile(r"^(.*?)[-_](R\d+|M\d+|L\d+|S\d+|b|c)(?:[-_].*)?$")
@@ -264,12 +283,59 @@ def _row_verdict(row_text: str) -> str | None:
     return None
 
 
+# Path-basename token: a run of non-whitespace, non-cell-delimiter, non-bracket
+# characters ending in `.md` (so a markdown link `](../K0cS_RESULTS.md)` yields the
+# bare basename after the last '/').
+_MD_TOKEN_RE = re.compile(r"[^\s|()\[\]]+\.md")
+
+
+def _authoritative_case_from_results_file(cells: list[str]) -> str | None:
+    """AUTHORITATIVE FILENAME-FIRST keying (§2ay.4): scan ALL cells for an artifact
+    path whose basename is `<CASEID>_<SUFFIX>.md`, where SUFFIX is one of the
+    RESULTS_FILE_SUFFIXES (case-sensitive UPPERCASE) and <CASEID> matches CASE_ID_RE
+    in its ENTIRETY (CASE_ID_ANCHORED_RE, so K0cS validates).  Return that CASEID.
+
+    Precedence rationale: a row's explicit results-file citation is more
+    authoritative than a scenario row-label (e.g. `**S4**`) sitting in another cell.
+    Defect it repairs: a heat-transfer fail whose real id (K0cS) appears ONLY inside
+    a path -- terminated by '_' -- can never be extracted by the \\b-anchored
+    first-matching-cell scan (\\b cannot fire before '_', a word char), so _row_case
+    fell through to a scenario label (dafoam `[ABSW]\\d+` branch grabbing `S4`) or to
+    the artifact DIRECTORY name (`F14-cooling-ladder`).  Basename split on the FIRST
+    '_' bypasses the underscore-boundary problem entirely -- no reliance on \\b inside
+    the path.  Returns None if no cell carries such an authoritative basename, and the
+    caller then uses the EXISTING first-matching-cell logic unchanged.
+    """
+    for c in cells:
+        for tok in _MD_TOKEN_RE.findall(c):
+            base = tok.rsplit("/", 1)[-1]
+            if "_" not in base:
+                continue
+            candidate, rest = base.split("_", 1)
+            if not rest.endswith(".md"):
+                continue
+            suffix = rest[:-len(".md")]
+            if suffix in RESULTS_FILE_SUFFIXES and CASE_ID_ANCHORED_RE.match(candidate):
+                return candidate
+    return None
+
+
 def _row_case(row_text: str) -> str | None:
-    """Extract the case id from a table row: first case-id match in its cells,
-    skipping the leading index cell (e.g. `**1**`)."""
+    """Extract the case id from a table row.
+
+    FIRST an AUTHORITATIVE filename-first pass: if a cell cites a
+    `<CASEID>_<SUFFIX>.md` results/registration file, that CASEID governs (a row's
+    own results-file citation outranks a scenario row-label).  ONLY if no such
+    authoritative basename is found does it fall back to the EXISTING first-case-id
+    match in the cells (skipping the leading index cell, e.g. `**1**`)."""
     if "|" not in row_text:
         return None
     cells = [_strip_wrappers(c) for c in row_text.split("|")]
+    # (1) authoritative filename-first
+    auth = _authoritative_case_from_results_file(cells)
+    if auth is not None:
+        return auth
+    # (2) fallback: first case-id match in a cell (UNCHANGED)
     for c in cells:
         # skip pure row-index cells like "1", "#1", ""
         if re.fullmatch(r"#?\d+", c) or c == "":
@@ -648,6 +714,19 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         "| **9** | **G-90** | **`NOT A RESULT`** | dafoam matrix-shaped id -- must ENUMERATE |\n"
         "| **10** | **D6RF9** | **`GATE FAIL`** | dafoam curriculum-shaped id -- must ENUMERATE |\n"
         "| **11** | **SO-9** | **`NOT A RESULT`** | dafoam SO-shaped id -- must ENUMERATE |\n"
+        # --- filename-first keying arms (PART 2 / §2ay.4) ---
+        # ARM (a): a SCENARIO-LABEL row **S4** whose REAL case (K0cS) is cited ONLY in
+        # its results-file path.  MUST key to K0cS (filename-first), NOT the S4 label.
+        # Covered by a Predecessor: K0cS registration (GREEN).  With filename-first
+        # DISABLED (RED-3) it mis-keys to S4 (the [ABSW]\\d+ branch) -> re-flagged.
+        f"| **12** | **S4** | **`GATE FAIL`** | scenario label; real case at {base.name}/K0cS_RESULTS.md |\n"
+        # ARM (b): a heat-transfer row cited via K2b_PILOT_RESULTS.md, NO S-label, path
+        # under an F14-cooling-ladder directory.  MUST key to K2b.  With filename-first
+        # DISABLED it mis-keys to the DIRECTORY fragment F14-cooling-ladder -> re-flagged.
+        "| **13** | Nusselt regrade | **`GATE FAIL`** | see runs/F14-cooling-ladder/K2b_PILOT_RESULTS.md |\n"
+        # ARM (c): a dafoam matrix row (G-11) whose cited path is NOT a <CASEID>_<SUFFIX>.md
+        # shape.  filename-first MUST NOT fire; MUST still key to G-11 (no-regression guard).
+        "| **14** | **G-11** | **`NOT A RESULT`** | dafoam row -> cases/dafoam/ladder-a/A3/grading/RESULTS.md |\n"
     )
 
     # LIMB 2a: a registered successor directory for FIX003
@@ -677,6 +756,21 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
     )
     # LIMB 2d(ii): a gate JSON declaring supersedes -> FIX008 (the one STRUCTURED form).
     (cases / "gate_fix008.json").write_text('{\n  "supersedes": "FIX008"\n}\n')
+
+    # ARM (a) lineage: a registration whose line-leading Predecessor field names K0cS.
+    # K0cS has NO id-suffix successor, NO passing successor, NO gap filing -- once the
+    # filename-first rule keys the S4 row to K0cS, this registration CLEARS it (GREEN).
+    (cases / "K0cSx_PREREGISTRATION.md").write_text(
+        "# K0cSx pre-registration\n"
+        "Predecessor: **K0cS**\n"
+        "A next attempt on the K0cS rung that changes the numerics scheme and re-runs.\n"
+    )
+    # ARM (b) lineage: a registration naming K2b as its predecessor.
+    (cases / "K2bx_PREREGISTRATION.md").write_text(
+        "# K2bx pre-registration\n"
+        "Predecessor: **K2b**\n"
+        "A next attempt on the K2b rung that re-runs against the same frozen gate.\n"
+    )
     return [register], [cases, desk]
 
 
@@ -685,7 +779,7 @@ def selftest() -> int:
     and BOTH red drives were seen to blind the checker; else 2.  Limbs: 1 (bare +
     mechanism-only fail flagged), 1c (dafoam-shaped ids enumerated), 2 (successor /
     discharged / gap-filing not flagged), 2d (recorded-lineage successor not flagged)."""
-    global _find_lineage_successor
+    global _find_lineage_successor, _authoritative_case_from_results_file
     print("=" * 78)
     print("PLANTED CONTROL -- §2ay.5 / rule 3.  Two limbs, RED-then-GREEN.")
     print("An enforcer whose zero has not been shown able to become non-zero is worthless.")
@@ -726,6 +820,20 @@ def selftest() -> int:
         dafoam_enumerated = dafoam_ids <= set(by_case)
         dafoam_flagged = dafoam_ids <= flagged
 
+        # ARMS (a)/(b): filename-first keying.  The S4 row and the Nusselt-regrade row
+        # MUST enumerate under their REAL ids K0cS / K2b (NOT the S4 label, NOT the
+        # F14-cooling-ladder directory) and be CLEARED by their Predecessor: registrations.
+        fnfirst_cases = {"K0cS", "K2b"}
+        fnfirst_enumerated = fnfirst_cases <= set(by_case)
+        fnfirst_covered = fnfirst_cases <= covered
+        # the phantom keys must NOT appear now (proves the mis-key is gone, not merely
+        # that the real id ALSO appears)
+        no_phantom = {"S4", "F14-cooling-ladder"}.isdisjoint(set(by_case))
+        fnfirst_ok = fnfirst_enumerated and fnfirst_covered and no_phantom
+        # ARM (c): a dafoam matrix row whose path is NOT a <CASEID>_<SUFFIX>.md shape MUST
+        # still key to G-11 (filename-first does not fire; existing logic governs).
+        dafoam_nofire_ok = "G-11" in by_case
+
         print(f"\n  LIMB 1 (must flag {sorted(limb1_cases)})     : "
               f"{'GREEN' if limb1_ok else 'FAILED'}  "
               f"[mechanism WHY on FIX002: {'yes' if mech_ok else 'NO'}]")
@@ -750,6 +858,17 @@ def selftest() -> int:
               f"[all flagged (no successor): {'yes' if dafoam_flagged else 'NO'}]")
         for c in sorted(dafoam_ids):
             print(f"      {c}: {'ENUMERATED' if c in by_case else 'MISSING (dropped to unparsed)'}")
+        print(f"  ARMS a/b (filename-first keys {sorted(fnfirst_cases)}, phantoms S4/F14 gone, cleared): "
+              f"{'GREEN' if fnfirst_ok else 'FAILED'}  "
+              f"[phantom keys absent: {'yes' if no_phantom else 'NO'}]")
+        for c in sorted(fnfirst_cases):
+            r = by_case.get(c)
+            if r:
+                print(f"      {c}: flagged={r.flagged}  state=({r.coverage.state}) {r.coverage.evidence}")
+            else:
+                print(f"      {c}: MISSING (row mis-keyed -- filename-first did not fire)")
+        print(f"  ARM c (dafoam G-11 path is NOT results-file shape; still keys G-11): "
+              f"{'GREEN' if dafoam_nofire_ok else 'FAILED'}")
 
         # ---------- RED: cripple the coverage-finder to always-true ----------
         # This is the blind checker §2ay.5 warns of: if the coverage-finder always
@@ -785,8 +904,39 @@ def selftest() -> int:
         print(f"  LIMB 2d fails re-flag with lineage blinded: "
               f"{'YES -- the lineage path is load-bearing' if lineage_red_ok else 'NO'}")
 
-        both_green = limb1_ok and mech_ok and limb2_ok and lineage_ok and dafoam_enumerated
-        red_ok = red_blinded and lineage_red_ok
+        # ---------- RED-3: cripple ONLY the filename-first keying rule ----------
+        # Proves the NEW filename-first path is load-bearing (§28.8): with only the
+        # authoritative-filename keyer disabled, the S4 row mis-keys back to its scenario
+        # label (S4) and the Nusselt row to the directory fragment (F14-cooling-ladder) --
+        # neither of which has a Predecessor registration -- so both RE-FLAG, and the REAL
+        # ids K0cS / K2b vanish from the enumeration.  If they did NOT re-break, the GREEN
+        # coverage above would have been reachable without the filename rule (vacuous arm).
+        _saved_auth = _authoritative_case_from_results_file
+        _authoritative_case_from_results_file = lambda cells: None
+        try:
+            red3_results, _ = scan(sources, base, roots)
+        finally:
+            _authoritative_case_from_results_file = _saved_auth
+        red3_cases = {r.row.case for r in red3_results}
+        red3_flagged = {r.row.case for r in red3_results if r.flagged}
+        # the real ids must have DISAPPEARED (mis-keyed away) and the phantom mis-keys
+        # must now be present AND flagged.
+        fnfirst_red_ok = (
+            fnfirst_cases.isdisjoint(red3_cases)
+            and "S4" in red3_flagged
+            and "F14-cooling-ladder" in red3_flagged
+        )
+        print(f"\nRED-3 run (ONLY the filename-first keying rule crippled):")
+        print(f"  real ids {sorted(fnfirst_cases)} still enumerated: "
+              f"{sorted(fnfirst_cases & red3_cases) if (fnfirst_cases & red3_cases) else '(none -- mis-keyed away, as expected)'}")
+        print(f"  phantom mis-keys now flagged: "
+              f"{sorted({'S4','F14-cooling-ladder'} & red3_flagged)}")
+        print(f"  ARMS a/b re-break with filename-first blinded: "
+              f"{'YES -- the filename-first path is load-bearing' if fnfirst_red_ok else 'NO'}")
+
+        both_green = (limb1_ok and mech_ok and limb2_ok and lineage_ok
+                      and dafoam_enumerated and fnfirst_ok and dafoam_nofire_ok)
+        red_ok = red_blinded and lineage_red_ok and fnfirst_red_ok
         print("\n" + "=" * 78)
         if both_green and red_ok:
             print("PLANT VERDICT: BOTH LIMBS FIRED GREEN, AND THE RED DRIVE BLINDED THE CHECKER.")
@@ -797,9 +947,11 @@ def selftest() -> int:
             return 0
         print("PLANT VERDICT: REFUSED -- the planted control did NOT fire as required.")
         print(f"  all limbs GREEN: {both_green}  (limb1={limb1_ok} mech={mech_ok} "
-              f"limb2={limb2_ok} lineage={lineage_ok} dafoam-enum={dafoam_enumerated})")
-        print(f"  both RED drives blinded checker: {red_ok}  "
-              f"(whole-coverage={red_blinded} lineage-only={lineage_red_ok})")
+              f"limb2={limb2_ok} lineage={lineage_ok} dafoam-enum={dafoam_enumerated} "
+              f"fnfirst={fnfirst_ok} dafoam-nofire={dafoam_nofire_ok})")
+        print(f"  all RED drives blinded checker: {red_ok}  "
+              f"(whole-coverage={red_blinded} lineage-only={lineage_red_ok} "
+              f"filename-first-only={fnfirst_red_ok})")
         print("A checker whose plant does not fire prints NO admissible zero (rule 3).")
         print("=" * 78)
         return 2
