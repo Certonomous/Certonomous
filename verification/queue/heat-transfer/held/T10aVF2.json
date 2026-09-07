@@ -1,0 +1,33 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T10aVF2",
+  "prereg_commit": "c4d1e30ab7fb427e200caf101fe6245a3c4a618c",
+  "prereg_path": "docs/campaigns/T-family/T10aVF2_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF2_runs/run_t10avf2.sh",
+    "--root",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF2_runs/cases",
+    "--cap-core-min",
+    "53",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF2_runs",
+  "ranks": 1,
+  "cost_core_min_estimate": 17.6,
+  "cap_core_min_registered": 53.0,
+  "cost_basis": "derived, not measured: T10aVF2_PREREGISTRATION.md section 7 registers ~17.6 core-min POINT for the 35-case blockMesh+viewFactorsGen sweep plus the Python comparator, from the predecessor's MEASURED rate 2.84e-8 core-min per n^2 over sum n^2 ~= 1.51e8 (viewFactorsGen ~4.3, blockMesh/checkMesh ~2.3, analysis Python ~11.0). CAP 53 core-min = the registered ceiling (3x contingency + reruns, prereg section 7); an overrun STOPS the run and gets no new budget (CLAUDE.md rule 12). Serial sweep at ranks 1, so core-min == wall-min and the cap arms a 3180 s hard wall ceiling in run_t10avf2.sh. USD ~= $0.015 at the owner-stated $0.0513/core-h -- REPORTED-BY-OWNER, DERIVED NOT MEASURED: this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Core-minutes are the measured unit and come from per-case STATUS wall_s at grade time.",
+  "memory_floor_gb": 2.0,
+  "memory_basis": "ESTIMATED, NOT MEASURED: the largest case is SPH L4 at 4800 radiative faces; the dense F row-matrix is ~4800^2 x 8 B ~= 0.18 GB, plus globalFaceFaces and the CGAL ray/visibility structures, serial (WM_NCOMPPROCS=1). The 34-case predecessor sweep ran on this box with no recorded peak-RSS, so 2.0 GB is a generous estimate carrying no memory record behind it.",
+  "enqueued_by": "heat-transfer lane (staging) -- PREPARED, NOT AUTHORISED; supervisor SUPERVISION_CHARTER section 3 check 4 (pre-registration committed before compute) is the SUPERVISOR'S OWN and is NOT performed by this lane. This file is HELD in held/ and is INERT because queue_runner.py globs *.json non-recursively (README CORRECTION 2026-08-27); releasing it into the parent directory LAUNCHES within one minute.",
+  "_staging_notes": {
+    "state_at_staging": "The T10aVF2 run tree did not exist at staging time (a prior builder/stager lane died mid-task). This lane created verification/runs/T-family/T10aVF2_runs/ and staged 35 case input directories (system/ + constant/ dicts, CASE.json; NO 0/ or numeric time directory -- the queue age guard is satisfied). viewFactorsGen writes constant/F at LAUNCH, not at staging.",
+    "UNFROZEN_UNPINNED_scripts_for_supervisor_section3_diffread": {
+      "build_t10avf2.py": "git blob f38d332ba1e1d478602db07c07f79fc4fe12f423 -- verification/runs/T-family/T10aVF2_runs/build_t10avf2.py. Reuses the FROZEN predecessor build_t10avf.py geometry/dict logic VERBATIM by import; adds only the CASE.json meta keys (role/twin/N_control/family/gaussQuadTol) the frozen comparator reads.",
+      "run_t10avf2.sh": "git blob 51bd42bdb0f26a3979431c3e84d2cba10b2f199e -- the blockMesh+viewFactorsGen sweep driver with hard --cap-core-min enforcement (timeout -k). Per prereg section 6 both scripts are 'cut at BUILD/launch ... diff-read and pinned before the run' -- that diff-read is the supervisor's undelegable check and is NOT done here."
+    },
+    "frozen_grading_path": "analyse_t10avf2.py git blob ebe19800f0a338664e74f40a89f9c2f35f0d2e05 at verification/runs/T-family/T10aVF_runs/ -- confirmed UNTOUCHED by this lane (VF-4' Limb A + VF-7' only; VF-3'/VF-6'/0.20 DEFERRED).",
+    "OPEN_DESIGN_DECISION_flagged_to_supervisor": "The frozen comparator's graded-case contract (role in {None,graded} AND alpha==0.21 => must own a convex n_ev==0 CONTROL patch, name an _afix twin that is also analysed, and supply N_control + a family with >=2 order-guard levels) is met cleanly ONLY by the concentric SPHERE family (S1_SPH_L1..L4 + _afix). The S2 single-body geometries as the predecessor case_list builds them do NOT meet it (BOX/BALL/CYL have no convex internal control patch; SHELL_c has no _afix twin), so this draft marks them role='report' to EXCLUDE them from VF-4' Limb A. Whether S2 geometries are meant to enter VF-4' Limb A (and with which added control patches/_afix twins) is embedded in the frozen comparator's intent and is NOT pinned by the prereg text -- the supervisor resolves it before launch. The comparator REFUSES (exit 2) on any mismatch, so a wrong mapping fails safe."
+  }
+}
