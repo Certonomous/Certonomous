@@ -1,6 +1,6 @@
 # RUNG 2 pre-registration — NASA CRM / DPW5 — `R2-M2`, the SUCCESSOR to `R2-M1`: a FOCUSED RE-TEST OF THE ONE ARM THAT RAN, with the COUPLED-SETTING FIX that M1's `GATE FAIL` diagnosed and a WRITER REHEARSAL THAT PROVES THE SNAPSHOT LANDS BEFORE THE RUN PAYS
 
-**Team: cfd. Case id `RUNG2-CRM-M2`. v1.0, drafted 2026-09-06 by a `lab-lane` for the cfd supervisor.**
+**Team: cfd. Case id `RUNG2-CRM-M2`. v1.1, drafted 2026-09-06 by a `lab-lane` for the cfd supervisor; pre-compute amendment 2026-09-07 (§13) records the driver and grading path now exist and pins the grader sha256. Gates remain OPEN — no compute has run.**
 
 > # ⚠ DRAFT — NOT AUTHORISED TO LAUNCH. CHECK 4 HAS NOT BEEN PERFORMED.
 >
@@ -82,6 +82,8 @@ warm start fails to map (contra M1), B1 is `BLOCKED` and `R2M2-G3` is `BLOCKED`,
 | DPW5 `L1.T` hex committee grid | case input | `/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/` | 638,976 cells, sha-pinned in `cases/committee-grids/COMMITTEE_GRID_NUMERICS.md` §1 |
 | the archived converged **incompressible** solution, `Time = 200` | case input (warm start) | `/home/ubuntu/certonomous-runs/dpw5-committee-probe/run_hex_base_incompressible_a2.11/` | 14 processor dirs; the source B1 maps from |
 | **`R2-M2` snapshot rehearsal** | **validation record** | `cases/committee-grids/R2_M2_SNAPSHOT_REHEARSAL.tsv` | **DISCRIMINATES — see §5.** |
+| **`R2-M2` driver** | code | `cases/committee-grids/run_r2_m2.sh` | git blob `4f821a3549b928bbc354af3b1be29cf427394b6a`, sha256 `b336575b8a0bb86c7591ff578972866913fdb2c3137ede7ac588ae3f5ba0be73`. **EXISTS** — carries `set_run_window` (§2.3), the pre-solve write-window guard (§2.4), and B1's M1-proven warm-start chain (§4). Written after v1.0; reconciled by the §13 pre-compute amendment. |
+| **`R2-M2` grading path** | comparator | `cases/committee-grids/grade_r2_m2.py` | git blob `b40e7dfd4dca04eb4cfff15fec747bbe3f33f275`, **sha256 `7f8089d81fa78e8b863cc0ea35271de61877b7e21e7ecdff1e7f46f247f9c089`** (rule-2 pin — hash the on-disk file against this and against the committed blob before grading). **EXISTS**, imports no frozen comparator, 15/15 selftest controls fire (§13). |
 
 ### 1.2 What does not exist
 
@@ -90,8 +92,8 @@ warm start fails to map (contra M1), B1 is `BLOCKED` and `R2M2-G3` is `BLOCKED`,
 | any `verification/runs/RUNG2_CRM_runs/M2*` directory | run output |
 | any queue row naming `M2` in `verification/queue/cfd` | queue entry |
 | any `RUNG2-CRM-M2` row in `docs/COST_CALIBRATION.md` | cost record |
-| **`cases/committee-grids/run_r2_m2.sh` (the M2 driver)** | code — **NOT YET WRITTEN; §12** |
-| **`cases/committee-grids/grade_r2_m2.py` (the M2 grading path)** | comparator — **NOT YET WRITTEN; §8** |
+| ~~`cases/committee-grids/run_r2_m2.sh` (the M2 driver)~~ | code — **STRUCK: now EXISTS**, see §1.1 and §13 (pre-compute amendment 2026-09-07) |
+| ~~`cases/committee-grids/grade_r2_m2.py` (the M2 grading path)~~ | comparator — **STRUCK: now EXISTS**, see §1.1 and §13 (pre-compute amendment 2026-09-07) |
 
 ### 1.3 THE PLANT — the absences above are measured, not assumed
 
@@ -372,11 +374,12 @@ survives (M1's row had to state it absent because the daemon fired unattended).
 
 ## 8. THE GRADING PATH — NOT YET WRITTEN, AND WHAT IT MUST BE
 
-**`cases/committee-grids/grade_r2_m2.py` DOES NOT YET EXIST.** M0 v1.0 **failed check 4** for naming a
-comparator that was not in git; this registration is **not freeze-ready until that file exists,
-imports nothing from the frozen `grade_r2_m1.py` (rule 6), passes its own selftest with the reader
-plants firing in the refusing direction, and is committed in the same commit as the frozen
-registration.** It should reuse M1's proven control structure conceptually (not by import):
+**`cases/committee-grids/grade_r2_m2.py` NOW EXISTS** (pre-compute amendment 2026-09-07, §13; sha256
+`7f8089d8…f9c089`). M0 v1.0 **failed check 4** for naming a comparator that was not in git; this
+file **exists, imports nothing from the frozen `grade_r2_m1.py` (rule 6), passes its own selftest
+15/15 with the field-at-endTime plant proven to fire in the refusing direction, and is committed
+together with this registration's amendment (§13).** It reuses M1's proven control structure
+conceptually (not by import):
 
 - the completion rule (rule 4) driven in the **refusing** direction — each of the six clauses failing
   on its own clause, all six together passing (M1's C11);
@@ -387,9 +390,9 @@ registration.** It should reuse M1's proven control structure conceptually (not 
 - the writer gate (M1's C10) and W1/W2 reader plants (M1's C8/C9), carried for `R2M2-G1`;
 - `R2M2-G0` reproduction classification against the real archived abort/clean logs (M1's C1–C5).
 
-**This lane did not write it: the task scoped compute to the §5 rehearsal only, and building and
-driving a comparator selftest is out of that scope. It is the immediate next artifact and is named,
-not silently deferred.**
+**Original v1.0 note (STRUCK 2026-09-07):** ~~This lane did not write it: the task scoped compute to
+the §5 rehearsal only… It is the immediate next artifact and is named, not silently deferred.~~ It
+has since been written, selftested and committed — see §13.
 
 ---
 
@@ -452,12 +455,71 @@ MPI job against the CRM grid, no RUNG2_CRM run root, no queue row.
 
 | | |
 |---|---|
-| registration | **v1.0 DRAFT — gates OPEN, amendments legal until first compute** |
+| registration | **v1.1 DRAFT — gates OPEN, amendments legal until first compute; §13 pre-compute amendment 2026-09-07 landed the driver + grading path and pinned the grader sha256** |
 | check 4 | **NOT PERFORMED** — the cfd supervisor's, non-delegable |
 | queue row | **NONE PLACED.** Placement is the chief's, under its own captured grant |
 | run root | `verification/runs/RUNG2_CRM_runs/M2_snapshot_admission/` — **ABSENT**, plant-verified 0 → 1 → 0 (§1.3) |
-| grading path | `cases/committee-grids/grade_r2_m2.py` — **DOES NOT EXIST.** Must be written, selftested with reader plants in the refusing direction, and committed with the frozen registration (§8). **This registration is NOT freeze-ready until it does.** |
-| driver | `cases/committee-grids/run_r2_m2.sh` — **DOES NOT EXIST.** Must carry the §2.3 coupled `set_run_window`, the §2.4 pre-solve assertion, and B1's M1-proven warm-start chain (§4). |
+| grading path | `cases/committee-grids/grade_r2_m2.py` — **EXISTS**, sha256 `7f8089d8…f9c089` (§1.1). Selftested 15/15 with the field-at-endTime plant proven to fire in the refusing direction (§13). **Freeze-ready pending the cfd supervisor's check 4.** |
+| driver | `cases/committee-grids/run_r2_m2.sh` — **EXISTS**, sha256 `b336575b…0be73` (§1.1). Carries the §2.3 coupled `set_run_window`, the §2.4 pre-solve write-window guard, and B1's M1-proven warm-start chain (§4). `--selftest-window` 5/5, `--selftest-cap` 7/7, bare call exits 8 (§13). |
 | snapshot rehearsal | `cases/committee-grids/R2_M2_SNAPSHOT_REHEARSAL.tsv` — **DISCRIMINATES** (§5), committed with this draft |
 | solver core-min spent under this registration | **≤ 0.04 (bound)**, all of it the §5 rehearsal on a 400-cell box |
 | Rung 2 (a) | **BLOCKED**, untouched, binding ground **(iii)** |
+
+---
+
+## 13. PRE-COMPUTE AMENDMENT — 2026-09-07 — THE DRIVER AND GRADING PATH EXIST, AND THE GRADER SHA IS PINNED
+
+**This is a rule-2 pre-first-compute amendment. It states its condition and how it was checked.**
+**Condition:** no compute has run under this registration. **Checked at source 2026-09-07T03:40Z:**
+the registered run root `verification/runs/RUNG2_CRM_runs/M2_snapshot_admission/` is **ABSENT**
+(`ls -d` errored, no such directory); there is **no** `M2*` run directory under
+`verification/runs/RUNG2_CRM_runs/`; there is **no** `RUNG2-CRM-M2` row in
+`docs/COST_CALIBRATION.md`. Gates are therefore still OPEN and this amendment is legal. **It alters
+no gate, threshold, cap or label.** The banner (NOT AUTHORISED) and check 4 (the cfd supervisor's,
+non-delegable) are untouched by it.
+
+**What it reconciles.** v1.0 §1.2, §8 and §12 asserted the driver and grading path *did not exist* —
+true when v1.0 was drafted, false now. Both were written and committed at `a2996ed0` (2026-09-06,
+after the v1.0 registration commit `4214375c`). This amendment strikes the "does not exist" cells
+(they are struck, not silently rewritten), records the artifacts in §1.1, and pins the grader by
+sha256 so rule 2's "hash the frozen file against what ran" check has a registered target.
+
+**The artifacts, pinned.**
+
+| artifact | git blob | sha256 |
+|---|---|---|
+| `cases/committee-grids/grade_r2_m2.py` | `b40e7dfd4dca04eb4cfff15fec747bbe3f33f275` | `7f8089d81fa78e8b863cc0ea35271de61877b7e21e7ecdff1e7f46f247f9c089` |
+| `cases/committee-grids/run_r2_m2.sh` | `4f821a3549b928bbc354af3b1be29cf427394b6a` | `b336575b8a0bb86c7591ff578972866913fdb2c3137ede7ac588ae3f5ba0be73` |
+
+The driver's run-time rule-2 check (`run_r2_m2.sh:681-687`) compares `git hash-object` of the grader
+against `git rev-parse HEAD:<grader>` and records `comparator_matches_committed_blob`. The sha256
+above is the additional content pin for a hash-against-the-committed-blob check off the git object.
+
+**The evidence, measured 2026-09-07 (no solver launched — all of it pure comparator/driver logic).**
+
+1. **Grader selftest — present → PASS.** `python3 grade_r2_m2.py --selftest` → **15/15 controls fire,
+   exit 0.** The field-at-endTime plant is present as **C12** (synthetic: reader sees all 7 fields
+   PRESENT, then ABSENT for an empty time dir and for a missing time dir — DISCRIMINATES) and **C13**
+   (the plant driven in the refusing direction on M1's REAL B1 arm, which reached `endTime` and wrote
+   no snapshot: the reader reports 0 fields at `50/` — the exact zero M1's `R2M1-G4` GATE FAIL turned
+   on). C14 confirms the §5 rehearsal record DISCRIMINATES.
+2. **Grader — reader-cannot-see → REFUSE (the falsifying half).** A scratch mutant that blinds the
+   field-at-endTime reader (`read_endtime_fields` forced to return `[]`) makes **C12, C11 and C6 FAIL
+   and the comparator REFUSE with exit 2** (`R2M2-G4: NOT A RESULT — 12/15`). So the plant fires in
+   the refusing direction: a comparator whose reader cannot see the planted-present field does not
+   grade — exactly the control M1's comparator lacked. The mutant lived only in the scratchpad; the
+   committed grader's sha256 is unchanged.
+3. **Driver `--selftest-window` → 5/5.** `set_run_window(50)` couples top-level `writeInterval := 50`
+   while preserving the function-object's indented `writeInterval 1`; the pre-solve guard PASSES the
+   coupled dict and B0's untouched seed, and **REFUSES M1's exact defect** (endTime 50 with
+   writeInterval 120 > 50 steps) and a sub-one-step window.
+4. **Driver `--selftest-cap` → 7/7**; bare call **exits 8** (never a clean-looking no-op run).
+
+**Freeze-readiness.** With the grading path committed, sha-pinned, selftested in both directions, and
+the driver's write-window guard shown to refuse the M1 defect, this registration is **freeze-ready
+pending the cfd supervisor's check 4**, which this lane does not take. No queue row is placed; no
+solver is launched; the run root stays ABSENT.
+
+**`lines whose number changed above this section: N/A — this is a DRAFT with open gates, not a frozen
+file; rule 6's line-stability assertion applies only after the freeze.`** No other record cites this
+draft by line.
