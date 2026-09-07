@@ -1,25 +1,36 @@
 # RUNG 2 grid-family acquisition pre-registration — DPW5 refinement triple L1.T / L2.C / L3.M (hex)
 
-**Team: cfd. Case id `RUNG2-GRID-ACQ`. v1.0, drafted 2026-09-07 by a `lab-lane` for the cfd supervisor,
+**Team: cfd. Case id `RUNG2-GRID-ACQ`. v1.1, drafted 2026-09-07 by a `lab-lane` for the cfd supervisor,
 under Sanaa's directive 2026-09-06T2115Z ("the designated family needs to upload the different levels
 of committee grids as well to do the [G]CI") and the cfd supervisor's ruling at
-`verification/campaign/RUNG2_CRM_M0_PREREGISTRATION.md` §15.**
+`verification/campaign/RUNG2_CRM_M0_PREREGISTRATION.md` §15. v1.1 carries the check-4 authorisation
+(§12), landed PRE-COMPUTE — no fetch, no conversion, no compute has run.**
 
-> # ⚠ DRAFT — NOT AUTHORISED. CHECK 4 NOT TAKEN.
+> # ✅ AUTHORISED — CHECK 4 TAKEN BY THE cfd SUPERVISOR 2026-09-07, VERDICT: GO.
 >
-> **NO FETCH, NO CONVERSION AND NO COMPUTE HAS BEEN RUN UNDER THIS FILE. NOTHING IS ENQUEUED.**
+> **STILL PRE-COMPUTE: no fetch, no conversion, no bulk download and no screen has run under this file.
+> The bulk fetch waits on the supervisor's check 1 (measurement-script diff of the grader), which is a
+> separate non-delegable check and has NOT yet been taken.**
 >
-> This lane drafted and froze the text, verified upstream availability by read-only HEAD requests
-> (inbound acquisition, allowed; nothing was posted, registered, emailed or filed outward — rule 7),
-> and spent **0.000 solver core-minutes** and **0 bytes of bulk download**. It did **NOT** authorise
-> the acquisition and did **NOT** launch the bulk fetch.
+> **Check 4, taken and recorded verbatim in §12.** The supervisor verified the registration is sound
+> and that the acquisition is DIRECTED by Sanaa (2026-09-06T2115Z). **The §5 caveat was weighed and
+> ACCEPTED:** the credential validated-force path stays `BLOCKED` on ground (i)
+> (`RUNG2_CRM_M0_PREREGISTRATION.md` §15) UNLESS the §4.B mesh-gate screen surprisingly clears the hard
+> gates; the deliverables this refinement triple carries are the **GCI / numerical-uncertainty
+> measurement** (achievable on the triple even under the adverse mesh-gate prior) and **ranking /
+> model-form-band** work — each registered as its own deliverable, each carrying the mesh-gate caveat
+> on every figure. The spend is inbound, under the $25 line, within the ladder envelope.
 >
-> **The rule-2 freeze — pre-registration committed before compute — and the go/no-go on this fetch
-> are the cfd supervisor's non-delegable check 4** (`SUPERVISION_CHARTER.md` §3). This lane does not
-> take it. The supervisor must decide, with §5's honest caveat in front of him, whether the fetch and
-> its mesh-gate screen are worth spending, because the strong prior is that the fetched levels FAIL the
-> same hard mesh gates L1.T fails — in which case the fetch buys a refinement triple that still cannot
-> carry a credential validated force.
+> **No gate, threshold, cap or label is altered by v1.1.** The amendment changes only the
+> authorisation banner and adds §12; every gate, threshold and cap in §6–§7 stands exactly as frozen
+> in v1.0. **This is a legal pre-compute amendment** (rule 2): the condition — the registered run root
+> is absent and no compute has occurred — is checked and stated in §9 and §12, not assumed.
+>
+> **What still gates the bulk spend (supervisor's check 1, not yet taken):** the screen/verify
+> comparator `cases/committee-grids/grade_grid_acq.py` (§8) must pass the supervisor's personal
+> measurement-script diff and its planted-zero `--selftest` before any grid is fetched or believed.
+> This lane wrote that comparator and ran its `--selftest` (§12.2) but does NOT take check 1 and has
+> fetched and screened NOTHING.
 
 ---
 
@@ -290,6 +301,10 @@ acquisition exists and none was filed.
 
 ## 11. WHAT REMAINS FOR THE SUPERVISOR'S CHECK 4 BEFORE ANY FETCH SPEND
 
+> ⚠ **CHECK 4 IS NOW TAKEN — SEE §12 (2026-09-07, GO).** Items 1–3 below are DISCHARGED; item 4 stands
+> at launch time; item 5's precondition is now the supervisor's **check 1** (grader measurement-script
+> diff), not check 4. This section is **left standing and not rewritten** — it was true when written.
+
 1. **Freeze this file** (rule 2) and verify it against its committed blob.
 2. **Weigh §5's caveat** — decide, knowing the strong prior is that the levels fail the hard gates and
    the fetch would then buy a triple that cannot carry a credential force, whether ≈ 8 core-min /
@@ -304,3 +319,65 @@ acquisition exists and none was filed.
 *Drafted by a cfd `lab-lane`, 2026-09-07. Upstream availability in §2 is this lane's own measurement
 by read-only HEAD; the cost basis is anchored on the cited Rung-0b and 2026-08-01 records. This lane
 authorised nothing and launched nothing.*
+
+---
+
+## 12. AMENDMENT — 2026-09-07, PRE-COMPUTE. CHECK 4 TAKEN BY THE cfd SUPERVISOR, VERDICT: GO
+
+**Rule-2 status.** This document is a DRAFT and no compute has occurred; amendments before first
+compute are legal and must state the condition and how it was checked. **The condition:** the
+registered run root does not exist and no fetch/convert/screen has run. **How checked:**
+`verification/runs/RUNG2_GRID_ACQUISITION*` read and **ABSENT**; L2.C/L3.M absent on the box
+(plant-verified `RUNG2_CRM_M0_PREREGISTRATION.md` §15.3); bulk download bytes 0; solver/convert
+core-minutes 0.000 (only the §2 read-only HEAD metadata requests were issued). **This amendment
+alters no gate, threshold, cap or label** — it records an authorisation and adds a comparator.
+
+### 12.1 The authorisation, as given
+
+The cfd supervisor took check 4 on this registration (v1.0, commit `ed30afdb`) and returned **GO**:
+the registration is sound and the acquisition is DIRECTED by Sanaa (2026-09-06T2115Z). The **§5
+caveat was weighed and ACCEPTED**: the GCI / numerical-uncertainty deliverable is achievable on this
+refinement triple even under the adverse mesh-gate prior; the credential validated-force path stays
+governed by ground (i) (`RUNG2_CRM_M0_PREREGISTRATION.md` §15) and that caveat travels on every
+figure. Spend is inbound, under the $25 line, within the ladder envelope.
+
+### 12.2 The screen/verify comparator was written and self-tested — but check 1 is NOT yet taken
+
+Per §8 the grading path is fixed at commit and lives beside the case as
+**`cases/committee-grids/grade_grid_acq.py`**, next to the committed `grade_rung0b.py`. It was written
+and its planted-zero `--selftest` was run 2026-09-07. It reuses the committed, unmodified readers
+`read_ugrid_identity.py` (`sniff_layout` for the §4.A title page — self-validating by byte-budget;
+`read_checkmesh_quality` for the §4.B metrics — numbers only, verdict lines discarded, L-459).
+
+- **Its committed sha256:** `8a4ed26b3b52fd091bd3e4450595f202b2b554cfa686093476d844de3e409fdb`
+  (git blob `40effb60762597a47f63efd354911f066a4f8dce`). This is an addendum recording the frozen
+  grading path; it moves no gate.
+- **`--selftest`:** **10/10 controls fired** in the refusing/flagging direction, byte-identical under
+  `python3` and `python3 -O` (both rc=0), `__pycache__` cleared before each run. Reproducible by
+  `python3 cases/committee-grids/grade_grid_acq.py --selftest`. The controls: C0 assert-free by AST
+  (detector planted first); C1 correct synthetic grid + matching spec → title page VERIFIED; **C2 a
+  PLANTED WRONG node count (expected 104 vs header 103) → REFUSED** (the required planted-wrong-node
+  control); C3 planted byte-length mismatch → REFUSED; C4 a tampered header inconsistent with the
+  bytes → the byte-budget sniffer REFUSED; C5 an out-of-band node/cell ratio → REFUSED; **C6 the REAL
+  archived L1.T hex checkMesh log (89.7134°/14.0594) → both hard gates FLAGGED failing, screen does
+  NOT clear** (the required planted/real over-gate control); C7 the REAL F24 log (15.0°/0.268) →
+  clears both gates (the reader flips between two real artifacts); C8 a planted over-gate 89.9985°
+  into a clean log → screen flips to FAIL; C9 an ABSENT checkMesh log → REFUSED (never reads clean).
+
+**What is still NOT done, and gates the bulk spend:** the cfd supervisor's **check 1** — the
+non-delegable measurement-script diff of `grade_grid_acq.py` — has NOT been taken. Nothing is fetched,
+converted or screened until it is. This lane wrote the comparator and ran its selftest; it does not
+take check 1.
+
+### 12.3 Cost of this amendment
+
+Solver/convert core-minutes **0.000**; no fetch, no bulk bytes. What was spent: reading, the banner
+edit, writing the comparator and running its selftest (serial, seconds). No calibration row is owed
+(rule 12): no process completed. `cost_basis: not applicable — no compute performed.`
+
+**SUBMISSIONS PARKED.** Nothing here is sent, filed, uploaded, registered, posted or commented outside
+the box.
+
+*Recorded by a cfd `lab-lane` at the cfd supervisor's instruction, 2026-09-07, against HEAD as
+captured inside the committing invocation. The GO verdict is the supervisor's; the comparator and its
+selftest are this lane's own.*
