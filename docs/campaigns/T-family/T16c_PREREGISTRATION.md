@@ -10,6 +10,13 @@
 Verdict vocabulary fixed by `CLAUDE.md` rule 1: **PASS / GATE REACHED / GATE
 FAIL / NOT A RESULT / BLOCKED / PENDING.**
 
+**Predecessor: `T16` (explicit, for §2ay linkage).** This registration is the
+registered successor to T16's `C_ORDER` clause; the line above records that
+lineage in the form the §2ay completion-enforcement reader
+(`scripts/check_completion_enforcement.py`) reads from a registration. It is a
+pure lineage annotation: it changes no gate, threshold, band, cap, label or
+verdict, and T16's graded verdict stands unchanged.
+
 ---
 
 ## 0. **T16c IS NOT BLIND, AND EXACTLY HOW UNBLIND IS ITSELF A REGISTERED FACT**
