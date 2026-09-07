@@ -330,3 +330,51 @@ missing:
 **NEXT ZERO-COMPUTE ITEM: write `entries/b_qcr2000_spalart2000.md`.** Until it exists, the duct-first
 plan names a correction the library cannot hand to a lane — and running `kOmegaSSTQCR` under the
 SST-QCRC entry instead would be the exact name-match failure SCHEMA Addendum 2 was written to stop.
+
+**DISCHARGED 2026-09-07:** `entries/b_qcr2000_spalart2000.md` landed; the duct-first Phase-2/Phase-3
+pre-registration is now drafted at `cases/RANS_LES_closure_models/LR1_duct_qcr_ladder/PREREGISTRATION.md`
+(`PENDING_SUPERVISOR_FREEZE`, reproduction-target OPTION (ii)).
+
+---
+
+## 11. ROUTED-IN FLOWS FROM OTHER TEAMS — Sanaa's model-form ladder, 2026-09-07
+
+**This is a LEDGER entry, not a scope change or a design decision. Zero compute. It moves NO verdict
+and enacts NO new correction family — it records that three flows are now on the closure ladder's
+backlog so they do not fall between teams.** `[lab-attributed]`, per the chief's cross-team routing.
+
+Under Sanaa's 2026-09-04 ruling (a measured model-form GATE FAIL is a routing signal into the four-rung
+closure ladder, not a terminus), the **heat-transfer** team routed three turbulent-thermal model-form
+GATE FAILs into the closure ladder and correction library (their dated state-(b) routing successor,
+`721a162c`, `docs/campaigns/F14-cooling-ladder/K0c_MODELFORM_CLOSURE_LADDER_SUCCESSOR_2026-09-07.md`).
+**Closure owns ladder execution; the K0c GATE FAIL verdicts stay put and stay in heat-transfer's
+records — nothing here re-grades them.**
+
+| id | flow | Ra / class | reference | what fails (from the K0c gate tables) |
+|---|---|---|---|---|
+| **K0cS** | Ampofo square cavity | Ra 1.58e9, turbulent NC | Ampofo & Karayiannis 2003; Tian & Karayiannis 2000 | `kOmegaSST` 8/9 rows, `kEpsilon` 6/9 rows GATE FAIL — mainly **Nu** (hot/cold/bot/top/max), plus `Sp`, `Vpeak`, `uv_peak`; `LaunderSharmaKE` refused (non-convergence) |
+| **K0cT** | Betts & Bokhari tall cavity | turbulent NC | Betts & Bokhari | model-form GATE FAIL (`K0cT_RESULTS.md`) |
+| **K0cX** | tall-cavity 3-model sweep | turbulent NC | (via `K0cX_RESULTS.md`) | model-form GATE FAIL |
+
+**The correction axis these need is NEW to this library and is recorded, not enacted.** Families (a)–(g)
+here are momentum stress/anisotropy corrections for separated flows. The K0c failures are dominated by
+**Nusselt-number error in buoyancy-driven turbulent convection** — a **turbulent heat-flux / buoyancy
+closure** deficiency: the candidate literature axis is the algebraic/generalised-gradient heat-flux
+hierarchy (SGDH constant-`Prt` → GGDH → AFM), buoyancy production in the `k` and `ε`/`ω` equations, a
+variable turbulent Prandtl number, and low-Re near-wall treatment (the `LaunderSharmaKE`
+non-convergence is itself a near-wall/stiffness signal, not necessarily model-form). **Adding a thermal
+heat-flux family to the taxonomy is a SCHEMA/ARCHITECTURE decision to be made WHEN the ladder reaches
+these cases, likely with Sanaa (it widens the library's declared scope) — it is deliberately not made
+in this routing note.**
+
+**Reference partner: heat-transfer.** The chief relays that heat-transfer has already read three
+relevant references in full; the successor working these cases should request those titles from
+heat-transfer (via the chief — cross-team SendMessage is chief-routed) to seed the correction-library
+provenance, rather than re-retrieving them.
+
+**Sequencing UNCHANGED:** these sit behind M6/CRM's first rungs and build as the F6 separated-flow
+cases come online — the same sequence as the rest of this plan. Nothing runs now. When the ladder
+reaches a K0c case it climbs the four rungs (exhaust stock RANS → rule out numerics §0 → literature
+corrections gated individually → GP closures), gated against the **same reference** the K0c GATE FAIL
+used, and the exhausted-ladder outcome ("all known closures fail this flow at these numbers") is itself
+a certified product per the 2026-09-04 ruling.
