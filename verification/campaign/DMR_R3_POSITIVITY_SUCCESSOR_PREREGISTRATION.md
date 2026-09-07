@@ -1,10 +1,22 @@
-# DMR POSITIVITY-LIMITED SUCCESSOR — a new numerics family — pre-registration (DRAFT)
+# DMR POSITIVITY-LIMITED SUCCESSOR — a new numerics family — pre-registration (AUTHORISED)
 
-> **DRAFT — NOT AUTHORISED — CHECK-4 NOT TAKEN.**
-> A cfd `lab-lane` draft. Not frozen; no sha commits it; **no solver launched** in
-> producing it. The rule-2 freeze (gate/threshold/cap/label by sha, grading path
-> hashed against the committed blob) is the cfd supervisor's non-delegable check 4.
-> Editable until frozen. Drafted 2026-09-07.
+> **AUTHORISED — FROZEN — CHECK-4 TAKEN.**
+> The cfd supervisor took **check 4 PERSONALLY AND UNDELEGATED** (`SUPERVISION_CHARTER.md`
+> §3), 2026-09-07, **PASS**. The supervisor read the successor driver
+> `run_dmr_positivity_successor.sh` (sha256
+> `9d8635e2c3b27f7b826d9164361b191e30fa7558bb8542131c6a9be4232ff7a3`), the generator
+> `make_case_successor.py` (sha256
+> `5e19df5b5d966e90135a21000bee857dfe4b1cf0a4d9c95e4e0756156c2d156a`) diff vs the parent
+> `make_case.py` (confirmed **EXACTLY** the registered levers `maxCo` 0.2->0.1 and
+> `reconstruct` rho/U/T vanLeer/vanLeerV->Minmod/MinmodV, nothing else), and confirmed the
+> frozen method-agnostic grader `dmr_locator_v2.py` (blob `52aacf9669…`, hashed at grade
+> time by the driver, refuses on mismatch). **§2ay state-(b):** the method is changed, Gate
+> V' tol 0.0231 and all bands are **HELD EXACTLY** at the frozen parent's values and **NOT
+> widened**, the total 60.0 core-min hard cap stops the run on breach (rule 12), and the
+> successor may honestly **GATE FAIL on accuracy** (Minmod's diffusivity) — a real result,
+> not a failure of the process. Run roots **ABSENT** (gates open) when taken. **AUTHORISED.**
+> No queue row placed — placement is the chief's routing act (rule 9); approval of this item
+> is approval of **ITS 60 core-min cap, not a new ceiling**.
 
 **§2ay classification of the parent.** Parent verdict: **DMR R3 NOT A RESULT** with
 **Gate T BLOCKED** — `verification/campaign/DMR_R3_RESULTS.md:12-14`. `rhoCentralFoam`
