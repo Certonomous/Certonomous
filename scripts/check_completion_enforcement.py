@@ -37,6 +37,18 @@ rule.  This ADMITS MORE ids and AUTO-CLEARS NOTHING; surfacing a hidden under-fl
 the flagged count (the correct direction, §2ay.6).  A RED-4 sub-drive reverts the regex to the
 old narrow body and confirms T9aD/T9aH/E4a re-vanish -- proving the branches are load-bearing.
 
+SOURCE-SCOPING PASS 2026-09-07 (verification-supervisor, own instrument): the dafoam-specific
+token classes ([GO]-, [ABSW], D#, SO#) were firing on heat-transfer §4.3 data-row labels
+B0/B2/B4/B6 in the NON-dafoam source docs/campaigns/T-family/MATRIX_CONTRIBUTION.md, which were
+then SPURIOUSLY cleared by a dafoam successor draft (A1WRT2_SUCCESSOR_DRAFT.md) that merely
+CONTAINS the string "B2" -- a false clear = UNDER-FLAG (the dangerous direction).  Fix: the
+fallback first-cell scan in _row_case is now SOURCE-SCOPED -- it uses the full pattern only for
+sources under cases/dafoam/, and CASE_ID_RE_NONDAFOAM (dafoam classes omitted) everywhere else.
+The filename-first rule is NOT scoped (full anchored validator) so a legitimately-cited dafoam
+results file still validates in any source.  Result: B0/B2/B4/B6 in a non-dafoam source become
+honestly UNPARSED (not falsely covered, not falsely flagged).  A RED-5 sub-drive removes the
+gate and confirms the B6 under-flag returns -- proving the gate is load-bearing (§28.8).
+
 WHAT IT DOES  (§2ay.2)
 ----------------------
 It ENUMERATES every landed `GATE FAIL` and `NOT A RESULT` it can read from the
@@ -192,7 +204,11 @@ PASS_VERDICTS = ("PASS", "GATE REACHED")
 # authoritative filename-first keying rule in _row_case (CASE_ID_ANCHORED_RE) --
 # §2ay.4: one body, no drift between "found a case id" and "this basename token IS
 # a whole case id".
-_CASE_ID_BODY = (
+# The body is factored into THREE segments so the four dafoam-SPECIFIC token classes
+# can be SOURCE-SCOPED (see CASE_ID_RE_NONDAFOAM below).  Concatenated HEAD+DAFOAM+TAIL
+# they reproduce the EXACT original body byte-for-byte (order preserved: the cfd F-branch
+# stays LAST), so CASE_ID_RE / CASE_ID_ANCHORED_RE are unchanged.
+_CASE_ID_BODY_HEAD = (
     r"FIX\d{3}(?:[-_][A-Za-z0-9]+)*"          # synthetic ids used ONLY by --selftest fixtures
     r"|VMFLGPU\d{3}(?:[-_][A-Za-z0-9]+)*"     # ansys GPU cases
     r"|VMFL\d{3}(?:[-_][A-Za-z0-9]+)*"        # ansys cases
@@ -201,18 +217,45 @@ _CASE_ID_BODY = (
     r"|E\d+[a-z]*[A-Z]?\d*(?:[-_][A-Za-z0-9]+)*"  # heat-transfer E-family rungs (E4a, E4a2)
     r"|R\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"        # closure R-ladder
     r"|FS\d+(?:[-_][A-Za-z0-9]+)*"             # feature ladder
+)
+# DAFOAM-SPECIFIC classes -- meaningful ONLY in dafoam sources (cases/dafoam/).  In a
+# NON-dafoam source they COLLIDE with heat-transfer §4.3 data-row labels B0/B2/B4/B6
+# ([ABSW]\d+) and with scenario labels, FALSELY clearing them (an under-flag: the
+# dangerous direction).  Omitted from CASE_ID_RE_NONDAFOAM used for the fallback scan of
+# non-dafoam sources.  ORDER within is unchanged from the original body.
+_DAFOAM_BRANCHES = (
     r"|SO[-_]?\d+(?:[-_][A-Za-z0-9]+)*"        # dafoam super-optimisation ids (SO-3, SO3, SO3DR)
     r"|D\d+[A-Za-z]*\d*(?:[-_][A-Za-z0-9]+)*"  # dafoam curriculum ids (D6R, D6RF4, D19R, D12R2, D9)
     r"|[GO]-\d+(?:[-_][A-Za-z0-9]+)*"          # dafoam MATRIX_CONTRIBUTION row ids (G-01, O-13)
     r"|[ABSW]\d+(?:[-_][A-Za-z0-9]+)*"         # dafoam ladders (A1, B3, S1, W4)
-    r"|F\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"        # cfd F-campaigns
 )
+_CASE_ID_BODY_TAIL = (
+    r"|F\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"        # cfd F-campaigns (NON-dafoam; stays LAST as in the original body)
+)
+# FULL body (dafoam sources + filename-first validator): EXACT original value.
+_CASE_ID_BODY = _CASE_ID_BODY_HEAD + _DAFOAM_BRANCHES + _CASE_ID_BODY_TAIL
+# NON-DAFOAM body: the dafoam-specific classes removed (F-branch and dafoam classes are
+# disjoint in leading char, so the F-branch's position change is semantically inert).
+_CASE_ID_BODY_CORE = _CASE_ID_BODY_HEAD + _CASE_ID_BODY_TAIL
 CASE_ID_RE = re.compile(r"\b(" + _CASE_ID_BODY + r")\b")
 # Whole-token validation for the filename-first rule: the basename's <CASEID> part
 # (split on the FIRST '_') must be a case id in its ENTIRETY, e.g. K0cS validates.
 # Anchored with ^...$ so it does NOT rely on \b, which cannot terminate a
-# multi-letter suffix immediately before the '_' of a results-file basename.
+# multi-letter suffix immediately before the '_' of a results-file basename.  Uses the
+# FULL body: a legitimately-cited dafoam results file must validate regardless of source.
 CASE_ID_ANCHORED_RE = re.compile(r"^(?:" + _CASE_ID_BODY + r")$")
+# SOURCE-SCOPED fallback pattern (§2ay.4): used by _row_case's first-cell fallback ONLY
+# for NON-dafoam sources, so a dafoam-shaped label (B2) in docs/campaigns/T-family/... is
+# NOT mis-keyed to a dafoam id and then falsely cleared by a dafoam draft that merely
+# mentions the string "B2".  Filename-first (above) is unaffected and still fires first.
+CASE_ID_RE_NONDAFOAM = re.compile(r"\b(" + _CASE_ID_BODY_CORE + r")\b")
+
+
+def _is_dafoam_source(rel: str) -> bool:
+    """A source is a DAFOAM source iff its repo-relative path is under cases/dafoam/.
+    Only in a dafoam source do the dafoam-specific token classes ([GO]-, [ABSW], D#, SO#)
+    fire in the fallback scan; everywhere else they are omitted (CASE_ID_RE_NONDAFOAM)."""
+    return "cases/dafoam/" in rel.replace("\\", "/")
 
 # Authoritative results-file suffixes for the filename-first keying rule.  A row
 # that cites `<CASEID>_<SUFFIX>.md` is stating its OWN validating record; that
@@ -335,27 +378,36 @@ def _authoritative_case_from_results_file(cells: list[str]) -> str | None:
     return None
 
 
-def _row_case(row_text: str) -> str | None:
+def _row_case(row_text: str, dafoam_source: bool = True) -> str | None:
     """Extract the case id from a table row.
 
     FIRST an AUTHORITATIVE filename-first pass: if a cell cites a
     `<CASEID>_<SUFFIX>.md` results/registration file, that CASEID governs (a row's
     own results-file citation outranks a scenario row-label).  ONLY if no such
-    authoritative basename is found does it fall back to the EXISTING first-case-id
-    match in the cells (skipping the leading index cell, e.g. `**1**`)."""
+    authoritative basename is found does it fall back to the first-case-id match in
+    the cells (skipping the leading index cell, e.g. `**1**`).
+
+    SOURCE-SCOPING (§2ay.4): the fallback scan uses the FULL pattern for dafoam
+    sources but the NON-dafoam pattern (dafoam-specific classes omitted) otherwise,
+    so a dafoam-shaped label (B2/B4/B6, S4) in a heat-transfer register is NOT
+    mis-keyed to a dafoam id.  `dafoam_source` defaults to True -- the SAFE default:
+    a forgotten flag errs toward MORE matching (toward flagging), never toward a
+    silent under-flag.  Filename-first is NOT source-scoped: it uses the full
+    validator so a legitimately-cited dafoam results file still validates anywhere."""
     if "|" not in row_text:
         return None
     cells = [_strip_wrappers(c) for c in row_text.split("|")]
-    # (1) authoritative filename-first
+    # (1) authoritative filename-first (FULL validator, not source-scoped)
     auth = _authoritative_case_from_results_file(cells)
     if auth is not None:
         return auth
-    # (2) fallback: first case-id match in a cell (UNCHANGED)
+    # (2) fallback: first case-id match in a cell, with the SOURCE-SCOPED pattern
+    scan_re = CASE_ID_RE if dafoam_source else CASE_ID_RE_NONDAFOAM
     for c in cells:
         # skip pure row-index cells like "1", "#1", ""
         if re.fullmatch(r"#?\d+", c) or c == "":
             continue
-        m = CASE_ID_RE.search(c)
+        m = scan_re.search(c)
         if m:
             return m.group(1)
     return None
@@ -372,11 +424,12 @@ def enumerate_fails(sources: list[Path], repo: Path) -> tuple[list[FailRow], lis
             unparsed.append((str(src.relative_to(repo)) if src.is_absolute() else str(src), 0, "SOURCE MISSING"))
             continue
         rel = str(src.relative_to(repo)) if src.is_absolute() and str(src).startswith(str(repo)) else str(src)
+        daf = _is_dafoam_source(rel)
         for i, line in enumerate(src.read_text(errors="replace").splitlines(), 1):
             v = _row_verdict(line)
             if v is None:
                 continue
-            case = _row_case(line)
+            case = _row_case(line, dafoam_source=daf)
             if case is None:
                 unparsed.append((rel, i, f"fail verdict {v!r} but no case id extractable"))
                 continue
@@ -583,13 +636,14 @@ def build_pass_index(sources: list[Path], repo: Path) -> dict[str, list[tuple[st
         if not src.exists():
             continue
         rel = str(src.relative_to(repo)) if src.is_absolute() and str(src).startswith(str(repo)) else str(src)
+        daf = _is_dafoam_source(rel)
         for i, line in enumerate(src.read_text(errors="replace").splitlines(), 1):
             if "|" not in line:
                 continue
             for c in line.split("|"):
                 s = _strip_wrappers(c).upper()
                 if s in PASS_VERDICTS or s.startswith("PASS ") or s.startswith("GATE REACHED"):
-                    case = _row_case(line)
+                    case = _row_case(line, dafoam_source=daf)
                     if case:
                         idx.setdefault(case, []).append((rel, i))
                     break
@@ -713,7 +767,14 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
     #  FIX003  -> LIMB 2a: has a registered successor         -> MUST NOT flag (state b)
     #  FIX004  -> LIMB 2b: discharged by a passing successor  -> MUST NOT flag (state b)
     #  FIX005  -> LIMB 2c: capability-gap filing on the desk  -> MUST NOT flag (state a)
-    register = base / "FIXTURE_REGISTER.md"
+    # The main register is placed UNDER cases/dafoam/ so it is a DAFOAM source: every
+    # existing arm (LIMB 1c dafoam ids, the S4 [ABSW] mis-key resurrected by RED-3, RED-4's
+    # full-body revert) then behaves EXACTLY as before the source-scoping pass -- the full
+    # pattern applies to it.  The NEW source-scoping arm lives in a separate NON-dafoam
+    # source (docs/T_FAMILY_MATRIX.md) written below.
+    dafoam_dir = cases / "dafoam"
+    dafoam_dir.mkdir(parents=True, exist_ok=True)
+    register = dafoam_dir / "FIXTURE_REGISTER.md"
     register.write_text(
         "# fixture register\n"
         "| # | Case | Verdict | note |\n"
@@ -815,7 +876,44 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         "Predecessor: **E4a**\n"
         "A next attempt on the E4a rung that re-runs against the same frozen gate.\n"
     )
-    return [register], [cases, desk]
+
+    # ---- SOURCE-SCOPING arm (2026-09-07): dafoam-specific token classes must fire ONLY in
+    # dafoam sources.  Live defect fixed: heat-transfer §4.3 data-row labels B0/B2/B4/B6 in
+    # docs/campaigns/T-family/MATRIX_CONTRIBUTION.md (a NON-dafoam source) were matched by
+    # [ABSW]\d+ and then SPURIOUSLY cleared by the DAFOAM draft A1WRT2_SUCCESSOR_DRAFT.md,
+    # which merely CONTAINS the string "B2" -- a false clear = under-flag (the dangerous
+    # direction).  These three fixtures reproduce that exactly.
+    docs = base / "docs"
+    docs.mkdir(parents=True, exist_ok=True)
+    # (i) NON-dafoam source whose ONLY token is a dafoam-shaped label (B6).  Under source
+    # scoping it MUST become UNPARSED -- not enumerated, not falsely covered, not flagged.
+    nondaf_src = docs / "T_FAMILY_MATRIX.md"
+    nondaf_src.write_text(
+        "# heat-transfer matrix (NON-dafoam source)\n"
+        "| # | Case | Verdict | note |\n"
+        "|---|---|---|---|\n"
+        "| **1** | B6 | **`NOT A RESULT`** | heat-transfer 4.3 data-row unit label; collides with a dafoam ladder id |\n"
+    )
+    # (ii) DAFOAM source: genuine dafoam ladder rungs A1/B2 that MUST still enumerate.
+    dafoam_src = dafoam_dir / "LADDER_MATRIX.md"
+    dafoam_src.write_text(
+        "# dafoam ladder matrix (DAFOAM source)\n"
+        "| # | Case | Verdict | note |\n"
+        "|---|---|---|---|\n"
+        "| **1** | **A1** | **`GATE FAIL`** | genuine dafoam ladder rung -- must ENUMERATE |\n"
+        "| **2** | **B2** | **`GATE FAIL`** | genuine dafoam ladder rung -- must ENUMERATE |\n"
+    )
+    # (iii) the DAFOAM successor-draft that merely MENTIONS B6 (the exact under-flag being
+    # fixed): a *SUCCESSOR* file whose TEXT contains the token "b6" (its name carries A1WRT2,
+    # but the coverage-finder searches the TEXT, and "a1wrt2" is not the token "a1", so the
+    # genuine A1 row stays flagged).  Gate ON: the non-dafoam B6 row is UNPARSED so this
+    # draft never clears it.  Gate OFF (RED-5): B6 re-enumerates via [ABSW] and this draft
+    # SPURIOUSLY covers it -- proving the source-gate is load-bearing (§28.8).
+    (dafoam_dir / "A1WRT2_SUCCESSOR_DRAFT.md").write_text(
+        "# A1WRT2 successor draft (dafoam)\n"
+        "This dafoam A1WRT2 attempt also touches the B6 sub-case.\n"
+    )
+    return [register, nondaf_src, dafoam_src], [cases, desk]
 
 
 def selftest() -> int:
@@ -824,7 +922,7 @@ def selftest() -> int:
     mechanism-only fail flagged), 1c (dafoam-shaped ids enumerated), 2 (successor /
     discharged / gap-filing not flagged), 2d (recorded-lineage successor not flagged)."""
     global _find_lineage_successor, _authoritative_case_from_results_file
-    global CASE_ID_RE, CASE_ID_ANCHORED_RE
+    global CASE_ID_RE, CASE_ID_ANCHORED_RE, CASE_ID_RE_NONDAFOAM
     print("=" * 78)
     print("PLANTED CONTROL -- §2ay.5 / rule 3.  Two limbs, RED-then-GREEN.")
     print("An enforcer whose zero has not been shown able to become non-zero is worthless.")
@@ -896,6 +994,19 @@ def selftest() -> int:
         recog_ok = (newT_enumerated and newT_covered and efam_enumerated
                     and efam_distinct and e4a_covered and e4a2_distinct_flagged)
 
+        # SOURCE-SCOPING (2026-09-07): dafoam-specific classes fire ONLY in dafoam sources.
+        # (1) the NON-dafoam B6 row MUST be UNPARSED (seen as a fail token, no case id
+        #     extracted) -- NOT enumerated, so it cannot be falsely covered.
+        # (2) the genuine DAFOAM A1/B2 rows MUST still ENUMERATE (dafoam source, full pattern).
+        b6_unparsed = ("B6" not in by_case) and any(
+            p.replace("\\", "/").endswith("docs/T_FAMILY_MATRIX.md") for p, _ln, _w in unparsed)
+        dafoam_scoped_ids = {"A1", "B2"}
+        dafoam_scoped_enum = dafoam_scoped_ids <= set(by_case)
+        dafoam_scoped_src_ok = all(
+            "cases/dafoam/" in by_case[c].row.source.replace("\\", "/")
+            for c in dafoam_scoped_ids if c in by_case)
+        srcscope_ok = b6_unparsed and dafoam_scoped_enum and dafoam_scoped_src_ok
+
         print(f"\n  LIMB 1 (must flag {sorted(limb1_cases)})     : "
               f"{'GREEN' if limb1_ok else 'FAILED'}  "
               f"[mechanism WHY on FIX002: {'yes' if mech_ok else 'NO'}]")
@@ -941,6 +1052,13 @@ def selftest() -> int:
                       f"{r.coverage.evidence or r.coverage.why}")
             else:
                 print(f"      {c}: MISSING (not enumerated -- new branch did not fire)")
+        print(f"  SOURCE-SCOPING (non-dafoam B6 UNPARSED; dafoam A1/B2 still enumerate): "
+              f"{'GREEN' if srcscope_ok else 'FAILED'}  "
+              f"[B6 unparsed in non-dafoam src={b6_unparsed}, dafoam A1/B2 enumerate={dafoam_scoped_enum}]")
+        print(f"      non-dafoam B6 in by_case (must be False): {'B6' in by_case}")
+        for c in sorted(dafoam_scoped_ids):
+            r = by_case.get(c)
+            print(f"      {c}: {'ENUMERATED from ' + r.row.source if r else 'MISSING'}")
 
         # ---------- RED: cripple the coverage-finder to always-true ----------
         # This is the blind checker §2ay.5 warns of: if the coverage-finder always
@@ -1040,9 +1158,34 @@ def selftest() -> int:
         print(f"  RECOGNISER ids re-break with the old body: "
               f"{'YES -- the new branches are load-bearing' if recog_red_ok else 'NO'}")
 
+        # ---------- RED-5: REMOVE the source gate (non-dafoam pattern := full pattern) ----------
+        # Proves the source-gate is load-bearing (§28.8): with the non-dafoam fallback pattern
+        # made equal to the FULL pattern, the dafoam-specific [ABSW]\d+ class fires again in the
+        # NON-dafoam source, so the B6 row RE-ENUMERATES and is then SPURIOUSLY covered by the
+        # dafoam A1WRT2 draft that merely mentions "B6" -- the exact under-flag being fixed.  If
+        # B6 did NOT re-enumerate-and-cover, the source-scoping arm above would be vacuous.
+        _saved_nd = CASE_ID_RE_NONDAFOAM
+        CASE_ID_RE_NONDAFOAM = CASE_ID_RE
+        try:
+            red5_results, _ = scan(sources, base, roots)
+        finally:
+            CASE_ID_RE_NONDAFOAM = _saved_nd
+        red5_by = {r.row.case: r for r in red5_results}
+        b6_reenum = "B6" in red5_by
+        b6_spuriously_covered = b6_reenum and not red5_by["B6"].flagged
+        srcscope_red_ok = b6_reenum and b6_spuriously_covered
+        print(f"\nRED-5 run (source gate removed -- non-dafoam pattern := full pattern):")
+        print(f"  non-dafoam B6 re-enumerates via [ABSW]: {b6_reenum}")
+        print(f"  and is SPURIOUSLY covered by the dafoam A1WRT2 draft: {b6_spuriously_covered}"
+              + (f"  [{red5_by['B6'].coverage.evidence}]" if b6_reenum else ""))
+        print(f"  SOURCE-GATE is load-bearing (the under-flag returns when removed): "
+              f"{'YES' if srcscope_red_ok else 'NO'}")
+
         both_green = (limb1_ok and mech_ok and limb2_ok and lineage_ok
-                      and dafoam_enumerated and fnfirst_ok and dafoam_nofire_ok and recog_ok)
-        red_ok = red_blinded and lineage_red_ok and fnfirst_red_ok and recog_red_ok
+                      and dafoam_enumerated and fnfirst_ok and dafoam_nofire_ok and recog_ok
+                      and srcscope_ok)
+        red_ok = (red_blinded and lineage_red_ok and fnfirst_red_ok and recog_red_ok
+                  and srcscope_red_ok)
         print("\n" + "=" * 78)
         if both_green and red_ok:
             print("PLANT VERDICT: BOTH LIMBS FIRED GREEN, AND THE RED DRIVE BLINDED THE CHECKER.")
@@ -1054,10 +1197,12 @@ def selftest() -> int:
         print("PLANT VERDICT: REFUSED -- the planted control did NOT fire as required.")
         print(f"  all limbs GREEN: {both_green}  (limb1={limb1_ok} mech={mech_ok} "
               f"limb2={limb2_ok} lineage={lineage_ok} dafoam-enum={dafoam_enumerated} "
-              f"fnfirst={fnfirst_ok} dafoam-nofire={dafoam_nofire_ok} recog={recog_ok})")
+              f"fnfirst={fnfirst_ok} dafoam-nofire={dafoam_nofire_ok} recog={recog_ok} "
+              f"srcscope={srcscope_ok})")
         print(f"  all RED drives blinded checker: {red_ok}  "
               f"(whole-coverage={red_blinded} lineage-only={lineage_red_ok} "
-              f"filename-first-only={fnfirst_red_ok} recogniser-body={recog_red_ok})")
+              f"filename-first-only={fnfirst_red_ok} recogniser-body={recog_red_ok} "
+              f"source-gate={srcscope_red_ok})")
         print("A checker whose plant does not fire prints NO admissible zero (rule 3).")
         print("=" * 78)
         return 2
