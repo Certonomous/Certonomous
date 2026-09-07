@@ -37631,14 +37631,14 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-09-06, after the §2ay discharge (ansys flags 18→0) and R5 launch.
+**Section last written:** 2026-09-07, after VERIFYING R5 FINISHED (board's "RUNNING" was stale) and dispatching the frozen grade.
 
 ### Last commit
 `db7d42f8` — §2ay discharge: FIX_SUCCESSOR_REGISTRY moves all 18 flagged ansys fails to state (b); ansys flagged 42→0.
 
 ### Live jobs
-- **VMFL046-R5 — RUNNING** (launch confirmed): L1 completed (RUN_RC written); **L2 pid 157408, L3 pid 157768** solving at 99.9% CPU. Single-variable non-reflecting-outlet experiment; grades through the frozen path (comparator `476de16a`) to (a) plateau=config artifact, (b) still hunts=escalate R6, or (c) cap.
-- No lane running.
+- **VMFL046-R5 — FINISHED, grading in progress** (board correction 2026-09-07). VERIFIED on disk: all three legs L1/L2/L3 completed **rc=0, End line, last Time 0.08 == endTime 0.08**, fields T/U/p/phi/rho present. pids 157408/157768 are DEAD — normal reaping, NOT a crash. Cost L1 3.1 / L2 22.6 / L3 171.583 = **197.28 core-min** (well under the 489 basis — non-reflecting outlet settled the flow faster, branch (a)'s expected COST signature; the PLATEAU not the cost decides the verdict). Grade lane running the pinned frozen comparator (`476de16a`, blob re-verified by supervisor). Branch (c) budget-kill RULED OUT (no rc 124). Verdict PENDING the frozen path: (a) plateau→config artifact→first VMFL046 graded result; (b) still hunts→NOT A RESULT→escalate R6 rhoCentralFoam.
+- 1 opus grade lane live.
 
 ### §2ay enforcement — ansys DISCHARGED (green is the FLOOR, not "done")
 Instrument `check_completion_enforcement.py` (75463642) flagged **18 distinct ansys cases** (42 rows). All → state (b), **zero capability gaps**. Registry: `docs/ansys_verification/FIX_SUCCESSOR_REGISTRY.md`. Verified myself: selftest fired both plant limbs; my own re-run = **ansys 0 flags** (repo-wide 74→32, residual all other teams'). §2ay.7 diff-read discharged personally — each entry a genuine lever+re-run, not a diagnosis.
