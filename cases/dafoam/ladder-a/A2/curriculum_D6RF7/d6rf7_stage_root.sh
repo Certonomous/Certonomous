@@ -103,16 +103,28 @@ CEILING_GUARD="$HERE/../../../_common/item_ceiling_guard.py"
 MD5_CEILING_GUARD=1ea97c9245dedbc451d62e1bcfe26eb9
 
 # ---- THE ITEM CEILING, AND IT IS QUOTED, NOT CHOSEN -----------------------
-# `d6rf7_grade.py:184` registers `CAPS = {"P_conv": 54.00}` and `:696` computes
-# `ceiling_core_min = sum(CAPS.values())`.  WITH ONE REGISTERED ARM THE ITEM
-# CEILING **IS** THE ARM CAP, and both numbers below are that same registered
-# 54.00 read out of the frozen grader -- NOT a new threshold, and nothing here
-# moves a cap.  PREREGISTRATION.md section 8.2 registers the cap; the amendment
-# at line 621 of that file distinguishes it from the LAUNCHER's own
-# `CEILING = 3.0 x CAP = 162.0`, which is a different quantity with a different
-# consequence and is NOT the figure used here.
-ITEM_CEILING_CORE_MIN=54.00
-ARM_CAP_CORE_MIN=54.00
+# `d6rf7_grade.py:200` registers `CAPS = {"P_conv": 186.00}` -- THAT LINE IS THE
+# AUTHORITY -- and `:756` computes `ceiling_core_min = sum(CAPS.values())`.  WITH
+# ONE REGISTERED ARM THE ITEM CEILING **IS** THE ARM CAP, and both numbers below
+# are that same registered 186.00 read out of the frozen grader
+# (d6rf7_grade.py:200; PREREGISTRATION.md section 5 est 62.0 / cap 186.0, adopted
+# in sections 7/10.6 as the MAX form max(3.0*62.0, 1.6667*62.0) = 186.00) -- NOT
+# a new threshold, and nothing here moves a cap.  The LAUNCHER's own runaway
+# CEILING is a DIFFERENT quantity, 3.0 x CAP = 558.00 (d6rf7_run_arm.sh:1343,
+# report-then-graceful-stop), and is NOT the figure used here.
+#
+# RECONCILIATION 2026-09-07: these two assignments were inherited BYTE-FOR-BYTE
+# from D6RF6 carrying a STALE 54.00, alongside a comment that cited a grader line
+# no longer holding that value; the frozen grading path registers 186.00 at
+# d6rf7_grade.py:200.  This edit brings the stager into agreement with the grader
+# (and with the launcher, which already registers cap 186.00 at
+# d6rf7_run_arm.sh:310).  D6RF7's OFFICIAL VERDICT IS UNAFFECTED: the grader
+# graded at 186.00, the arm spent 13.6 core-min, and 13.6 < 54.00 < 186.00, so
+# the stale 54.00 ceiling guard passed exactly as the true 186.00 guard would --
+# no cap ever fired.  This is a cap RECONCILIATION to the frozen authority, not a
+# cap change.
+ITEM_CEILING_CORE_MIN=186.00
+ARM_CAP_CORE_MIN=186.00
 
 # Overridable for the same reason `BASE` is: so the control can drive this file
 # without overwriting the real root's staging record.
