@@ -612,7 +612,7 @@ considered and rejected on measured evidence**, because it shifts every line num
 A sweep for every reference to `TOOLCHAIN_INVENTORY.md` anywhere in the repository — tracked,
 untracked and gitignored, across `cases/`, `docs/`, `scripts/`, `sdk/`, `verification/` and
 `harness/` — found **74 tracked hits in 43 files** plus untracked hits in
-`cases/dafoam/ladder-a/A2/curriculum_D14/PREREGISTRATION_DRAFT.md` and `docs/lab_state/dafoam.md`.
+`cases/dafoam/ladder-a/A2/curriculum_D14/PREREGISTRATION_DRAFT.md` and `docs/lab_state/dafoam.md` (a DORMANT per-team-source board file carrying a NOT-LIVE banner — that per-team-source system was never cut over; the LIVE board is the monolith `docs/LAB_STATE.md`, committed via `commit_private.sh`).
 The reader was controlled with a positive plant (a file known to contain the token, fed to the same
 reader, which returned it), so the sweep is not an uncontrolled zero.
 
