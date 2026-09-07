@@ -1,0 +1,25 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     simpleFoam;
+startFrom       startTime;   startTime 0;
+stopAt          endTime;     endTime   __ENDTIME__;
+deltaT          1;
+writeControl    runTime;     writeInterval __ENDTIME__;
+writePrecision  12;  writeCompression off;  timeFormat general;  runTimeModifiable false;
+functions
+{
+    // GATE CHANNEL -- X-velocity on the vertical line bisecting the base (x = 0),
+    // manual Figure .11.2.  401 UNIFORM points at FIXED physical locations so the
+    // sample set is identical at all three levels.  The comparator interpolates
+    // these onto the 46 benchmark abscissae.
+    bisector
+    {
+        type            sets;  libs (sampling);
+        setFormat       raw;  fields (U);  interpolationScheme cellPoint;
+        writeControl    writeTime;
+        sets
+        (
+            bisect { type uniform; axis y; start (0 -4 0.05); end (0 0 0.05); nPoints 401; }
+        );
+    }
+    resid { type solverInfo; libs (utilityFunctionObjects); fields (U p); }
+}

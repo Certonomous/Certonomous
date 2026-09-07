@@ -1,0 +1,5 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// VMFL011 manual p.41: rho = 1 kg/m3, mu = 0.01 kg/m-s -> nu = 0.01 m2/s.
+// Re = U_wall * base / nu = 2 * 2 / 0.01 = 400.
+transportModel  Newtonian;
+nu              0.01;

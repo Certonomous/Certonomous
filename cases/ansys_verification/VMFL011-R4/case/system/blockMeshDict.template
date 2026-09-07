@@ -1,0 +1,34 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// VMFL011 manual p.41: isoceles triangular cavity, base (top) width 2 m, height 4 m.
+// Apex at (0,-4); moving base from (-1,0) to (1,0), U = 2 m/s in +x (manual p.41).
+//
+// THE APEX IS EXPRESSED BY REUSING VERTEX INDEX 2 (and 5) IN TWO SLOTS OF THE HEX.
+// That is the idiom blockMesh recognises as a degenerate hex: it emits PRISM cells
+// with the apex faces properly COLLAPSED.  Declaring two SEPARATE vertices at the
+// same coordinates does NOT collapse them -- it leaves 20 zero-area faces, and
+// MEASURED on this box (pre-flight smoke, 2026-08-25) that killed simpleFoam with
+// SIGFPE on the coarse level.  This line is the fix and the smoke test is why it
+// is here: a comparator --selftest proves the GRADER, never the CASE.
+//
+// __NB__ is EVEN at every level, so the bisector x = 0 is a cell-FACE plane at all
+// three levels and the sample line is identically placed under refinement.
+scale 1;
+vertices
+(
+    ( 1  0  0)      // 0  base, right
+    (-1  0  0)      // 1  base, left
+    ( 0 -4  0)      // 2  APEX
+    ( 1  0  0.1)    // 3
+    (-1  0  0.1)    // 4
+    ( 0 -4  0.1)    // 5  APEX
+);
+blocks ( hex (0 1 2 2 3 4 5 5) (__NB__ __NH__ 1) simpleGrading (1 1 1) );
+edges ();
+boundary
+(
+    movingWall { type wall; faces ((0 1 4 3)); }              // the base, y = 0
+    sideWalls  { type wall; faces ((0 3 5 2) (1 2 5 4)); }
+    frontAndBack { type empty; faces ((0 2 2 1) (3 4 5 5)); } // triangles, z = 0 / 0.1
+);
+// ************************************************************************* //
