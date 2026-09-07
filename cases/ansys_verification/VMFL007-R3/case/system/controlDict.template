@@ -1,0 +1,79 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL007 controlDict template.  __ENDTIME__ / __WRITEINTERVAL__ substituted by
+  run_vmfl007.sh; this template is never edited by a run.
+
+  STEADY solver, so there is NO Courant number in this run at all.  That is a
+  MEASURED exemption from MONITOR_STANDARD S8 (lines 456-489), not an omission:
+  grade_vmfl007.py ASSERTS that the solver log contains ZERO "Courant Number"
+  lines, so "S8 does not apply" is a fact read off the artifact rather than a
+  claim about the solver.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   __WRITEINTERVAL__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+functions
+{
+    // ---- THE GATE SERIES: kinematic p area-averaged on each end patch ----
+    pInlet
+    {
+        type surfaceFieldValue; libs (fieldFunctionObjects);
+        writeControl timeStep; writeInterval 1; log false; writeFields false;
+        regionType patch; name inlet; operation areaAverage; fields (p);
+    }
+    pOutlet
+    {
+        type surfaceFieldValue; libs (fieldFunctionObjects);
+        writeControl timeStep; writeInterval 1; log false; writeFields false;
+        regionType patch; name outlet; operation areaAverage; fields (p);
+    }
+    // ---- THE INLET-PROFILE ASSERT, two independent channels ----
+    // sum(phi) = volumetric flow -> proves the MEAN is 2 m/s
+    // max(U)   = peak axial velocity -> proves the SHAPE is the power-law
+    //            profile and not a uniform 2 m/s inlet (3.1429 vs 2.0000).
+    QInlet
+    {
+        type surfaceFieldValue; libs (fieldFunctionObjects);
+        writeControl timeStep; writeInterval 1; log false; writeFields false;
+        regionType patch; name inlet; operation sum; fields (phi);
+    }
+    UmaxInlet
+    {
+        type surfaceFieldValue; libs (fieldFunctionObjects);
+        writeControl timeStep; writeInterval 1; log false; writeFields false;
+        regionType patch; name inlet; operation max; fields (U);
+    }
+    // ---- THE VISCOSITY-CLASS ASSERT ----
+    // The archive sets BOTH Fluent viscosity limits to zero
+    // (`non-newtonian-power-law 10 0.4 0 0`) -- i.e. NO clipping.  OpenFOAM's
+    // viscosityModels::powerLaw REQUIRES nuMin/nuMax, so this run must PROVE
+    // that neither ever bound.  It must also prove which powerLaw class ran:
+    // class A (k = 0.01) gives nu_wall = 4.298435325556426e-05 m2/s;
+    // class B seeded from a Newtonian nu0 = 1e-05 would give ~4.3e-08.
+    nuMinAll
+    {
+        type volFieldValue; libs (fieldFunctionObjects);
+        writeControl timeStep; writeInterval 1; log false; writeFields false;
+        regionType all; operation min; fields (nu);
+    }
+    nuMaxAll
+    {
+        type volFieldValue; libs (fieldFunctionObjects);
+        writeControl timeStep; writeInterval 1; log false; writeFields false;
+        regionType all; operation max; fields (nu);
+    }
+}

@@ -1,0 +1,45 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// VMFL007.  Manual p.29 Boundary Conditions: "Fully developed velocity profile
+// at inlet with an average velocity of 2 m/s".  The inlet is NOT uniform.
+//
+// Fully developed laminar power-law pipe profile (Rabinowitsch-Mooney):
+//     u(r) = u_max * ( 1 - (r/R)^((n+1)/n) ),  u_max = V*(3n+1)/(n+1)
+// n = 0.4  ->  exponent 3.5, u_max = 2*2.2/1.4 = 3.142857142857143 m/s.
+// CROSS-CHECKED AGAINST THE ARCHIVE'S OWN EXPORTED PROFILE
+// (VMFL007_powerlaw-visc.set.prof, 20 points at x = 0.1 m): the formula
+// reproduces its velocity-magnitude column to 0.09-0.15 % on a 20-cell mesh.
+//
+// THIS FILE IS THE AGE-GUARD LAUNCH MARKER (CLAUDE.md rule 4): run_vmfl007.sh
+// touches 0/U LAST at launch, so every field at endTime must be NEWER than it.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (2 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            codedFixedValue;
+        value           uniform (2 0 0);
+        name            vmfl007PowerLawInlet;
+        code
+        #{
+            const vectorField& Cf = this->patch().Cf();
+            const scalar Rpipe = 1.25e-03;
+            const scalar umax  = 3.142857142857143;
+            const scalar expo  = 3.5;
+            vectorField v(Cf.size(), Foam::vector::zero);
+            forAll(Cf, i)
+            {
+                scalar r = Foam::sqrt(Foam::sqr(Cf[i].y()) + Foam::sqr(Cf[i].z()));
+                scalar s = r/Rpipe;
+                if (s > 1.0) { s = 1.0; }
+                v[i] = Foam::vector(umax*(1.0 - Foam::pow(s, expo)), 0.0, 0.0);
+            }
+            this->operator==(v);
+        #};
+    }
+    outlet { type zeroGradient; }
+    walls  { type noSlip; }
+    wedge1 { type wedge; }
+    wedge2 { type wedge; }
+}
