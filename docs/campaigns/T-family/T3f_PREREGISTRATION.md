@@ -213,3 +213,17 @@ T3e's by registered substitution only, each **delta-proved to 0 differing lines*
 | `verification/runs/T-family/T3_runs/mark_done_t3.py` (§6) | `5da28c733e47a4a6c8046dfdf8674c2af27ab81a` |
 
 **§7.3's condition is met and this document is FROZEN.**
+
+---
+
+## AMENDMENT 2 — 2026-09-07 — §2ay LINEAGE ANNOTATION (recorded predecessor)
+
+**Appended by a heat-transfer lab lane. Lines whose number changed above this section: 0.**
+
+This dated addendum records, in the line-leading form the §2ay completion-enforcement
+reader (`scripts/check_completion_enforcement.py`, recorded-lineage limb) reads from a
+registration, the attempt this rung follows. It is a **pure lineage annotation**: it
+alters no gate, threshold, band, cap, label or verdict — T3e's graded verdict stands
+unchanged, nothing above is reopened, and no frozen sha moves.
+
+**Predecessor: `T3e` (explicit, for §2ay linkage).**
