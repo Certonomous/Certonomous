@@ -322,3 +322,77 @@ neither authorises nor launches.
 **Nothing is sent, filed, uploaded, registered or posted (rule 7). Draft handed to the
 cfd supervisor for check 4 (and check 1 on the R2-B instrument diffs). Banner stays
 NOT AUTHORISED until then.**
+
+---
+
+## §2d.1 ADDENDUM — grading-path REPAIR, re-pin of the repaired grader blob (2026-09-07; cfd-supervisor check-1 PASS → FROZEN) — v1.1
+
+**Lines whose number changed above this section: 0.** The §1–§7 body above is
+unedited (rule 6); this addendum is appended at the foot and re-pins only the
+grading-path blob. The cfd supervisor took **check-1** on the one-line
+measurement-script diff, read it at source, and **PASSED** it (2026-09-07): exactly
+one line at 1126, `--root` argparse default parent → R2, on-disk blob `9cee2282`
+confirmed, value-invariant. This addendum is frozen with that clearance; the
+document banner stays **AUTHORISED**.
+
+**The confirmed defect (the condition).** The grading path pinned in §4/§6 uses
+`grade_f27_successor_r2.py`, whose `--root` argument **defaulted to the PARENT root**
+`verification/runs/F27_NUMERICS_SUCCESSOR_runs` (line 1126), and the R2 driver
+`run_f27_successor_r2.sh` invokes the grader **without `--root`**
+(`python3 $GRADER --prereg-commit=<sha>`, driver line 376). **The frozen grading
+path, run as written, would therefore grade the WRONG (parent) root.** The correct
+R2 grade recorded in `F27_NUMERICS_SUCCESSOR_R2_RESULTS.md` required an explicit
+`--root=…F27_NUMERICS_SUCCESSOR_R2_runs` override.
+
+**The repair (one line, value-invariant).** The R2 grader's `--root` default is
+changed from the parent root to its own R2 root
+`verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs`, so the frozen path grades the R2
+root **by default**. Diff is a single line at 1126:
+`…"F27_NUMERICS_SUCCESSOR_runs"` → `…"F27_NUMERICS_SUCCESSOR_R2_runs"`.
+
+**How it was checked (the §2d.1 four conditions).**
+1. **Demonstrable error, not a preference.** With the pre-repair default the grader
+   grades the parent root and returns **PENDING** (both gates) — the stray untracked
+   `verification/runs/F27_NUMERICS_SUCCESSOR_runs/F27_GRADED.json` (mtime
+   2026-09-07T20:44:43Z) is that wrong-root artifact; the parent fine level HALTED on
+   the parent cap and is incomplete. With the R2 root the grade is the complete
+   PASS/GATE FAIL result. The default pointing at the parent root is a factual error.
+2. **Established by an instrument independent of the hypothesis.** The error is
+   exposed by (a) the root-mismatch itself — parent root PENDING vs R2 root graded, a
+   fact about which directory holds the completed run, not a verdict-direction choice;
+   and (b) a **byte-identical value-invariance re-run**: the repaired grader run with
+   the fixed default (no `--root`) writes a verdict **byte-for-byte identical** to the
+   recorded R2 grade. Neither check can have been chosen to move a verdict, because
+   **no value moves.**
+3. **Record discloses it, names the instrument, quantifies what moved.** Disclosed
+   here and in the RESULTS §4; the instrument is the parent-root-PENDING vs
+   R2-root-graded comparison plus the byte-identical re-run. **What moved: NOTHING** —
+   the repair is value-invariant (same PASS on E2, same GATE FAIL on Einf, same fine
+   values `7.285879634110018e-04` and `4.136254537709814e-03`).
+4. **Pre-repair values recorded beside the published ones.** The published R2 grade
+   (produced pre-repair via the explicit `--root` override) is exactly the grade the
+   repaired default reproduces; both are the values in §1 of the RESULTS. There is no
+   value delta to record because there is none.
+
+**NO GATE CHANGE — ASSERTION.** This §2d.1 repair alters **no** gate, threshold,
+band, `BAND_FACTOR`, reference, cap, label or verdict. Every gate/threshold/band in
+§2/§4 is unchanged; the only change is a default argument value on the run-root path,
+which enters no band, gate, rule-4/5 gating, cost or reader. The recorded verdict is
+value-invariant to it (byte-identical re-run).
+
+**RE-PIN of the grading-path blob (superseding the §4/§6/freeze-stamp pins on
+supervisor freeze).**
+
+- Repaired R2 grader `cases/F27_WOMERSLEY_PIPE/successor_numerics/grade_f27_successor_r2.py`
+  — **new git blob `9cee2282d8c603cf7562f981017734fdefa8af9f`**, sha256
+  `50819bdbf5d9c9a9310d27aa419586aff4001399958f896eee691151fd95e4c1`. This
+  **supersedes** the pre-repair blob `706f4a4df5143b7fda6b821c321acba5564ea1fd`
+  (sha256 `83b9b483d55a55e06f2e2eb0b47829031c5996b922023ab639244d9ae651c277`) once the
+  supervisor clears check-1 and freezes.
+- Re-checks (no solver): repaired grader `--selftest` rc 0; `-O --selftest` rc 2
+  (refusal armed). Value-invariance re-run: byte-identical to the recorded R2 grade.
+
+**Status: check-1 PASS → FROZEN (2026-09-07).** The cfd supervisor took check-1 on
+the one-line measurement-script diff at source and PASSED it; this addendum is frozen
+with that clearance and the grading path is re-pinned to blob `9cee2282…`. Nothing is
+sent (rule 7).

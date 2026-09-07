@@ -1123,7 +1123,7 @@ def selftest_predicate(controls, demo, census):
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root", default=os.path.join(REPO, "verification", "runs", "F27_NUMERICS_SUCCESSOR_runs"))
+    ap.add_argument("--root", default=os.path.join(REPO, "verification", "runs", "F27_NUMERICS_SUCCESSOR_R2_runs"))
     ap.add_argument("--out", default=None)
     ap.add_argument("--prereg-commit")
     ap.add_argument("--selftest", action="store_true")
