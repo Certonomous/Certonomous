@@ -80,9 +80,9 @@ die() {
 # Condition 5: STOP THE PARENT BEFORE THE CHILD, THEN SWEEP. A load average is a decaying
 # mean and never confirms a stop; only an empty process list does.
 sweep() {
-    pkill -TERM -f "rhoSimpleFoam -parallel" 2>/dev/null
+    pkill -TERM -f "rhoSimpleFoam -case $ROOT" 2>/dev/null
     sleep 2
-    pkill -KILL -f "rhoSimpleFoam -parallel" 2>/dev/null
+    pkill -KILL -f "rhoSimpleFoam -case $ROOT" 2>/dev/null
     return 0
 }
 trap 'sweep' EXIT
@@ -406,3 +406,39 @@ say "STATUS written to $STATUS"
 [ "$SELFTEST_RC" -ne 0 ] && exit 2
 [ "$GRADE_RC" -eq 2 ] && exit 2
 exit 0
+
+# ===== DATED AMENDMENT 2026-09-07 — §2d.1 KILL-SCOPE REPAIR (verification GRANTED) — version bump =====
+#
+# CHANGE (the ONLY change):
+#   The box-wide kill pattern "rhoSimpleFoam -parallel" on lines 83 and 85 (inside sweep())
+#   was scoped to "rhoSimpleFoam -case $ROOT". Only the pkill PATTERN on those two lines
+#   was changed. No other line was touched; no line was inserted or deleted above this addendum.
+#
+# WHY (disclosed incident):
+#   The original box-wide sweep matched ANY rhoSimpleFoam -parallel process on the box, not
+#   only this run's own children. It fired ONCE, at 2026-09-06T09:09:44Z, at driver exit
+#   (trap EXIT -> sweep()), with an UNMEASURED and now-unknowable foreign blast radius: any
+#   sibling team's rhoSimpleFoam -parallel alive at that instant would have been signalled.
+#   The scoped pattern "rhoSimpleFoam -case $ROOT" matches ONLY this run's own children:
+#   ROOT is set absolute at line 57, and children are launched as
+#   `rhoSimpleFoam -case "$d" -parallel` with $d under $ROOT at line 353, so "-case $ROOT"
+#   is the unique common prefix of exactly this run's arms and nothing else. This is the
+#   proven sibling idiom (run_r2_m2.sh lines 78/80 carry the identical scoped pattern).
+#
+# VALUE-INVARIANCE ASSERTION:
+#   The pkill lives inside sweep(), which runs only via `trap 'sweep' EXIT` (and die()), i.e.
+#   only at driver exit. Scoping the kill changes ONLY the blast radius of a teardown signal,
+#   NOT any field the solver computes and NOT any quantity the grader reads. NO computed value
+#   changes; NO graded value changes; NO re-grade is owed; NO verdict is reopened.
+#   R2-M0 stays GATE FAIL.
+#
+# RULE-6 ASSERTION:
+#   lines whose number changed above this section: 0
+#   (Only the CONTENT of lines 83 and 85 changed; no line was inserted or deleted above
+#   this addendum, so no downstream line number shifted.)
+#
+# AUTHORITY:
+#   Sanaa approved the repair CHOICE (option 1: scope the kill, do not retire the instrument),
+#   captured at commit 476f2f27. Verification GRANTED the §2d.1 forced-repair ruling for a
+#   frozen file (routed by the chief). SUBMISSIONS PARKED — internal repair, nothing sent.
+# =====================================================================================
