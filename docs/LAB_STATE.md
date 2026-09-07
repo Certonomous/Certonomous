@@ -37881,17 +37881,22 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-09-07, after GRADING VMFL046-R5 → `NOT A RESULT` (register row #62).
+**Section last written:** 2026-09-07, after freezing+checking VMFL072-R3 and VMFL046-R6, then hitting a LAUNCH-PERMISSION BLOCK now on Sanaa's desk.
 
 ### Last commit
 `edf5bdb8` — VMFL046-R5 GRADED NOT A RESULT (register #62); shock washed out (lInf 2.0 un-anchored back-pressure); FIX_SUCCESSOR_REGISTRY → R6(outlet-anchored). (Calibration row C-20260907T030000 filed next commit: 197.283 vs 489 = 0.403×.)
 
 ### Live jobs
-- **NONE.** No solvers on the box; no lane live. VMFL046-R5 graded and closed this turn.
+- **NONE running.** No solver on the box. VMFL046-R5 graded and closed. **TWO frozen, supervisor-checked runs are BLOCKED on launch permission** (VMFL072-R3, VMFL046-R6 — see the launch-block section below and On Sanaa's desk).
 
 ### VMFL046-R5 — GRADED `NOT A RESULT` (register row #62, 2026-09-07)
 Frozen comparator REFUSED (exit 2) — blob re-verified `476de16a`, selftest 67/67 both interpreters. All three legs SOUND (rc=0, End, last Time 0.08==endTime, fields present); cost **197.283 core-min** (L1 3.10 / L2 22.60 / L3 171.583), $0.169 derived, 0.403× the 489 basis — VINDICATED, not waste. **TRIAGE (my check #2): the shock WASHED OUT.** `waveTransmissive lInf 2.0` un-anchored the back-pressure — outlet p collapsed to ~10% of the 176 325 Pa target (18126/17880/17757 Pa at L1/L2/L3); nozzle ran fully supersonic (Mmax~2.5, M_outlet~2.4), zero downward M=1 crossings in all 33 window samples at all 3 levels. NOT a hunt, not level-dependent. Independent diagnostic `verification/runs/ansys_verification/VMFL046-R5_DIAGNOSTIC/diag_r5_shock_fate.py`, both planted controls fired. **Branch mapping:** not (a), not (c); technically (b) but branch (b)'s "still hunts" interpretation REFUTED. **R4's outlet-reflection question stays OPEN** — R4 (fully reflecting) hunts, R5 (effectively advective) washes out, the manual's partially-reflecting middle achieved by neither. This is state (b) config/BC lever, NOT a capability gap.
 - **Successor: VMFL046-R6 (outlet-anchored)** — the pre-committed rhoCentralFoam/Kurganov recipe carries the SAME defective `lInf 2.0` outlet and MUST fix back-pressure anchoring before freeze, else it reproduces the wash-out at ~489 core-min. FIX_SUCCESSOR_REGISTRY updated (R5→R6, whole VMFL046 lineage now → R6). Owed research (fix-until-runs): a gate-blind partially-reflecting subsonic outlet that anchors p≈176 325 Pa (smaller lInf / alternative BC / Fluent pressure-outlet equivalent).
+
+### VMFL072-R3 & VMFL046-R6 — FROZEN, SUPERVISOR-CHECKED, BLOCKED ON LAUNCH PERMISSION (2026-09-07)
+Both are OWED-DATED-PLAN successors converted to frozen runs this turn; both passed my non-delegable checks #4 (prereg committed before compute, run root absent) and #1 (I read the comparator/driver diffs myself). **Neither can launch: the auto-mode permission classifier blocks the launch-AUTHORING intent via every route** — the frozen-driver solver spawn AND even a pure `json.dump` writing an inert queue-entry JSON ("Blocked by classifier"). Ephemeral answer-blind smokes ARE allowed (R6's smoke ran). NOT routed around — writing the entries from any tool or session would bypass the same permission-system intent (laundering, rule 9), and citing Sanaa's standing sub-$25/anti-idle directives to override a live block is the blanket-vs-per-item laundering rule 9 forbids. Escalated to Sanaa's desk.
+- **VMFL072-R3** — freeze `305e4962`, comparator `2fcc0ced` (selftest 33/33). Precursor-film remedy for the R2 dewetting SIGFPE (h₀ 1e-7→1e-5); δ_N* recomputed 5.468015742732e-04; e_A prediction 1.477% inside the unchanged 2.12% band; L-487 anti-circularity preserved. 5 levels, caps 1.5/9/65/100/9 (92 core-min). Worked-out queue entries ready. Grader lane a31f8af8 standing by.
+- **VMFL046-R6** — freeze `14d40c9b` (amendments A1 thermo `hePsiThermo` + A2 driver parity-assert, both pre-first-compute), comparator `bad1408f` (selftest 70/70, N4→gate-blind physical-range T refusal, no gate quantity moved). Density-based rhoCentralFoam/Kurganov + `waveTransmissive lInf 0.3` outlet (gate-blind τ_relax/t_acoustic=0.15) repairing R5's wash-out. Smoke CONFIRMED startup + outlet acceptance. 3 levels, caps 27/181/1410 (538 core-min). Grader lane a5c286ab standing by.
 
 ### §2ay enforcement — ansys DISCHARGED (green is the FLOOR, not "done")
 Instrument `check_completion_enforcement.py` (75463642) flagged **18 distinct ansys cases** (42 rows). All → state (b), **zero capability gaps**. Registry: `docs/ansys_verification/FIX_SUCCESSOR_REGISTRY.md`. Verified myself: selftest fired both plant limbs; my own re-run = **ansys 0 flags** (repo-wide 74→32, residual all other teams'). §2ay.7 diff-read discharged personally — each entry a genuine lever+re-run, not a diagnosis.
@@ -37909,8 +37914,8 @@ Instrument `check_completion_enforcement.py` (75463642) flagged **18 distinct an
 `docs/ansys_verification/RECOVERABILITY_SWEEP.md`; two false-terminal CASE_MAP claims corrected; Greenshields 2010 rhoCentralFoam paper filed.
 
 ### On Sanaa's desk
-- Nothing terminal, no capability gap.
+- **LAUNCH-PERMISSION BLOCK (2026-09-07).** Two frozen, supervisor-checked, sub-$25 runs (VMFL072-R3 freeze `305e4962`, 92 core-min; VMFL046-R6 freeze `14d40c9b`, 538 core-min, smoke-confirmed) CANNOT launch. The auto-mode permission classifier blocks the launch-authoring intent via every route the lanes tried: the frozen-driver solver spawn, AND authoring an inert queue-entry JSON (pure `json.dump`, no OpenFOAM). Ephemeral answer-blind smokes are permitted. This appears to conflict with Sanaa's standing directives (launch sub-$25 compute; don't be idle; queues run as OS daemons) — but the permission SYSTEM is the operative gate and I will NOT override it by finding an unblocked session (laundering). **UNBLOCK options:** (i) relax the classifier for queue-entry authoring / solver launch this session; (ii) Sanaa (or an authorized session) writes the five R3 + three R6 queue JSONs (content fully worked out by the lanes); (iii) confirm whether these graded runs should launch. The queue daemon (pid 2534) is running and will launch the entries the moment they exist.
 
 ### Blocked
-- Nothing. R5 running; the 13 OWED plans await their frozen builds, not a blocker.
+- **VMFL072-R3 and VMFL046-R6 graded launches** — blocked by the auto-mode permission classifier on the launch-authoring intent (both solver spawn and inert queue-entry authoring). Unblocked by Sanaa relaxing the classifier or writing/authorizing the queue entries (see On Sanaa's desk). Both freezes are intact and the grader lanes stand by; nothing is lost — the runs launch as soon as the entries can be written.
 
