@@ -234,3 +234,68 @@ All run 2026-09-07 by the authoring lane; verdicts recorded, not the transcripts
 authorised, no compute launched. Freeze and launch are the cfd supervisor's, after
 check-1 (STEP-0 reader) and check-4 (generator/driver/prereg gates) are taken
 PERSONALLY.**
+
+---
+
+## PRE-COMPUTE AMENDMENT 1 — 2026-09-07T19:34Z (v1.0 → v1.1)
+
+> **STATUS UNCHANGED: AUTHORISED — FROZEN 2026-09-07.** This is a dated PRE-COMPUTE
+> amendment under CLAUDE.md rule 2 ("before first compute, amendments are legal and
+> must state the condition and how it was checked"): the STEP-0 diagnostic produced
+> **NO measurement** — its solver never ran — so this box is pre-first-compute for the
+> STEP-0 probe. Appended at the foot per rule 6; the frozen driver
+> `run_dmr_step0_diagnostic.sh` is **NEVER edited** and its pin (§5, sha256
+> `e3f1c44e…c262`) stands. The repair is a **PARALLEL new driver**.
+> **lines whose number changed above this section: 0.**
+
+**CONDITION (what was observed).** On first attempt to run the STEP-0 diagnostic
+driver, the frozen `run_dmr_step0_diagnostic.sh` halted at its OpenFOAM bashrc source
+(line 93) because it carries `set -u` (line 25) and does **not** drop `-u` around that
+source: L-339 was not applied. The OpenFOAM v2606 bashrc reads an **unbound
+`WM_PROJECT_DIR` at its line 184**, which under `set -u` kills the shell before
+`rhoCentralFoam` is ever on PATH. **No solver ran; no field was written; no measurement
+was produced.** The partial root
+`verification/runs/DMR_R3_STEP0_DIAG_runs/` holds only the copied read-only R3p case
+(`STEP0/`) and the crash evidence `log.sourceerr`; it is **inspected, not reverted**
+(rule 10) and left in place.
+
+**HOW CHECKED (evidence, two ways).**
+1. The crash log line, verbatim, from
+   `verification/runs/DMR_R3_STEP0_DIAG_runs/log.sourceerr`:
+   `"/usr/lib/openfoam/openfoam2606/etc/bashrc: line 184: WM_PROJECT_DIR: unbound
+   variable"` — the exact L-339 mechanism, at the exact bashrc line the F27 launcher
+   comment names.
+2. An **isolated `set -u` repro of the guarded block** (no solver launched):
+   `set -u; export USER=…; set +u; source …/etc/bashrc; set -u; echo REACHED; command -v
+   rhoCentralFoam` printed **`REACHED`** and resolved
+   `…/platforms/linux64GccDPInt32Opt/bin/rhoCentralFoam` (rc 0) — proving the L-339
+   guard clears the unbound-variable halt that the frozen driver hit.
+
+**THE REPAIR (parallel driver, re-pinned).** A new driver
+`verification/runs/DMR_runs/run_dmr_step0_diagnostic_v2.sh` is authored as the frozen
+STEP-0 driver with **only** two changes, verified by `diff` to be the *sole* changes:
+- (a) the **L-339 guard** around the bashrc source (line 93): `export USER` from
+  `LOGNAME`/`id -un` first (L-343), `set +u` immediately before the source, `set -u`
+  immediately after — the source line itself unchanged byte-for-byte;
+- (b) `RUN_ROOT` retargeted to a **FRESH root**
+  `verification/runs/DMR_R3_STEP0_DIAG_v2_runs` (so the driver's own exit-90
+  "never overwrite a prior diagnostic" guard is satisfied with no cleanup and the old
+  partial root is left untouched).
+
+`bash -n` is clean. **Repaired driver re-pinned by sha256:**
+`run_dmr_step0_diagnostic_v2.sh` = `4c65d50e9bb72e3396969a7c245a40cac6324fabce78c840ccb3f08194b76b63`.
+**Fresh root named:** `verification/runs/DMR_R3_STEP0_DIAG_v2_runs` — **confirmed ABSENT
+at 2026-09-07T19:34Z** (rule 2 absence condition holds; the driver's own guard refuses
+if it exists).
+
+**NO GATE / THRESHOLD / BAND / CAP / LABEL ALTERED — asserted.** Gate V' tol **0.0231**
+(§4) unchanged; Gate T' grid-convergence triple (rule 5, Fs 1.25) unchanged; the L1
+family HARD CAP **60 core-min** and the STEP-0 probe HARD CAP **5 core-min** (§6)
+unchanged; the STEP-0-is-a-diagnostic-probe label and the NOT-A-RESULT-on-non-CONVERGING
+label unchanged; the reused grader `dmr_locator_v2.py` (blob `52aacf96…`) unchanged. This
+amendment changes only the *infrastructure* by which STEP 0 reaches the solver; it moves
+no evidentiary threshold. The STEP-0 reader (`step0_negativity_reader.py`, sha256
+`c7da80ce…`) and all §5 grading-path pins stand.
+
+**Freeze and re-launch remain the cfd supervisor's** after check-1 (the guard diff) and
+check-4 (this amendment). Nothing is sent, filed, uploaded, registered or posted (rule 7).
