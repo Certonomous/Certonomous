@@ -145,6 +145,19 @@ The driver **hashes the grader on disk against its committed git blob at grade t
 (rule 2); the grading path is fixed at **this R2 re-registration's commit**. Grading is
 zero-new-compute after the solves.
 
+**R2-B INSTRUMENT PAIR BUILT AND CITED (additive, 2026-09-07 — no gate/threshold/cap/label
+change; DRAFT, still NOT AUTHORISED).** Per the supervisor's check-4 ruling selecting
+**R2-B** (§6), the parallel new-file instrument pair was built by copying the frozen
+instruments (rule 6: the frozen files are NEVER edited). The verdict instrument that
+will grade the R2 run is the **R2 grader**:
+`cases/F27_WOMERSLEY_PIPE/successor_numerics/grade_f27_successor_r2.py` — git blob
+`706f4a4df5143b7fda6b821c321acba5564ea1fd`, sha256
+`83b9b483d55a55e06f2e2eb0b47829031c5996b922023ab639244d9ae651c277`. It is byte-identical
+to the frozen successor grader (blob `07206330`, sha256 `53f74800…`) **except the single
+line** `CAP_CORE_MIN = 500.0` → `625.0` (line 128) — a reported-budget constant read only
+by `cost_claim()` and the cost print/JSON, entering **no** band, gate or rule-4/5 verdict.
+This blob/sha is what the supervisor pins at the R2 freeze.
+
 ---
 
 ## 5. RUN APPROACH — RECOMMENDATION AND CONFIRMED-ABSENT TARGET
@@ -233,6 +246,31 @@ direction, so **it is left for the supervisor at check-4**; the diffs above are 
 enough that a lane can create both files in minutes on that direction. Until then the
 grading path cited in §4 is the **verdict authority** (unchanged); the R2-B grader would
 carry a new blob to be pinned at the R2 freeze commit.
+
+**R2-B PAIR BUILT (additive, 2026-09-07; DRAFT, NOT AUTHORISED — banner unchanged).** Both
+new files now exist on disk, copied from the frozen instruments (rule 6 — frozen files
+never edited); no gate/threshold/cap/label changed by this build:
+
+- **R2 grader** `cases/F27_WOMERSLEY_PIPE/successor_numerics/grade_f27_successor_r2.py`
+  — git blob `706f4a4df5143b7fda6b821c321acba5564ea1fd`, sha256
+  `83b9b483d55a55e06f2e2eb0b47829031c5996b922023ab639244d9ae651c277`. Diff vs the frozen
+  grader is **one hunk, one line**: `CAP_CORE_MIN = 500.0` → `625.0` (line 128).
+- **R2 driver** `cases/F27_WOMERSLEY_PIPE/successor_numerics/run_f27_successor_r2.sh`
+  — sha256 `a025c48fbd4cf7c29b42f43502cb0bc277d834c5ce8b17c36dd1a08de5e03e5c`. Diff vs the
+  frozen driver is the **four config lines only** — `CAP_CORE_MIN=500`→`625` (:69),
+  `RUN_ROOT`→`…/F27_NUMERICS_SUCCESSOR_R2_runs` (:64), `GRADER`/`GRADER_REL`→the R2 grader
+  (:61/:67); **no logic line changed** (cost-accounting, `proj_f27.py` projection, the
+  cap-consistency check :168–171, the run-root guard, `refuse_if_answered`, the rc-inside-
+  wrapper and halt logic all byte-identical).
+- **Checks (no solver):** the driver cap-consistency check (:168–171) now compares grader
+  `625.0` vs driver `625` → **MATCH**; R2 grader `--selftest` rc 0 (planted control fires,
+  16 controls green), `-O` rc 2 (refusal armed); R2 driver `bash -n` clean,
+  `--selftest-projector` rc 0.
+- **Frozen originals unedited:** grader blob `07206330` / sha256 `53f74800…`, driver
+  sha256 `43555a43…`, builder `build_f27_successor.py` sha256 `fa3b4d5d…` (reused unchanged).
+
+These blobs/shas are what the supervisor pins at the R2 freeze commit. The supervisor
+takes check-1 on the diffs; this lane neither authorises nor launches.
 
 ---
 
