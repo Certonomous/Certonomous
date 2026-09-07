@@ -56,8 +56,17 @@ HIGH_THRESH = 0.50            # r_sa >= 0.50 -> HIGH
 LOW_THRESH = 0.10             # r_sa <= 0.10 -> LOW
 F3_SUCC_CONFOUND = 0.10       # SUCCEEDED-stratum standalone rate above this confounds a HIGH
 AOA_ECHO_TOL = 1.0e-6
-ENDTIME = 1000                # the A2-wing primal endTime (D6R / D6RF4)
-FIELDS = ("U", "p", "T", "nuTilda", "phi")   # primal fields for completion (no adjoint)
+ENDTIME = 1000                # the A2-wing primal endTime (D6R / D6RF4, controlDict endTime 1000)
+# The A2-wing solver is COMPRESSIBLE DARhoSimpleFoam, run DECOMPOSED (np=4) with
+# GZIPPED fields. Field sets VERIFIED on disk against a real endTime directory:
+#   endTime: /home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp04/processor0/1000/
+#            -> {T,U,alphat,nuTilda,nut,p,phi,rho, betaFINuTilda,fvSource,fvSourceEnergy,meshPhi} (all .gz)
+#   0/     : .../P_conv/mp04/processor0/0/  -> {T,U,alphat,nuTilda,nut,p} (all .gz)
+# FIELDS_ENDTIME are the primal STATE fields the solver writes at endTime (phi
+# added on Sanaa's 2026-09-06 approval, rule 4). FIELDS_ZERO are those also
+# present in 0/ (phi is NOT in 0/), used for the age-guard reference mtime.
+FIELDS_ENDTIME = ("U", "p", "T", "nut", "alphat", "nuTilda", "phi")
+FIELDS_ZERO = ("U", "p", "T", "nut", "alphat", "nuTilda")
 
 # the ONLY banner that counts -- byte-identical to Stage-1's RE_FAIL_BANNER
 RE_FAIL_BANNER = re.compile(r"^Primal solution failed!$")
@@ -171,6 +180,25 @@ def d6r_block_reference(log_lines, dv_block_line):
 # --------------------------------------------------------------------------
 # strict completion + age guard (rule 4), per leg
 # --------------------------------------------------------------------------
+def _field_path(time_dir, fld):
+    """Return the path to a field written either plain or gzipped, else None.
+    The A2-wing solver writes gzipped fields (<fld>.gz)."""
+    for cand in (os.path.join(time_dir, fld), os.path.join(time_dir, fld + ".gz")):
+        if os.path.exists(cand):
+            return cand
+    return None
+
+
+def _time_dirs_for(leg_dir):
+    """Resolve the 0 and endTime directories, handling the DECOMPOSED layout
+    (processor0/0, processor0/1000) the solver actually writes at np=4, and a
+    reconstructed root layout (0, 1000) as a fallback."""
+    proc0 = os.path.join(leg_dir, "processor0")
+    if os.path.isdir(proc0):
+        return os.path.join(proc0, "0"), os.path.join(proc0, str(ENDTIME))
+    return os.path.join(leg_dir, "0"), os.path.join(leg_dir, str(ENDTIME))
+
+
 def leg_completed(leg_dir, log_lines):
     """Returns (True, note) if the leg is a completed primal; (False, reason)
     otherwise. A DAFoam post-End acceptance refusal (the banner) is STILL a
@@ -181,24 +209,24 @@ def leg_completed(leg_dir, log_lines):
     times = [m.group(1) for ln in log_lines for m in [RE_TIME.match(ln)] if m]
     if not times:
         return False, "no Time lines"
-    # last solver time must reach endTime
     try:
         last_t = max(float(t) for t in times)
     except ValueError:
         return False, "non-numeric Time token"
     if last_t < ENDTIME:
         return False, "last time %s < endTime %d" % (last_t, ENDTIME)
-    # fields present at endTime, and every field newer than the leg's own 0/
-    endt = os.path.join(leg_dir, str(ENDTIME))
-    zerot = os.path.join(leg_dir, "0")
+    zerot, endt = _time_dirs_for(leg_dir)
     if not os.path.isdir(endt) or not os.path.isdir(zerot):
-        return False, "missing 0/ or %d/ time dir" % ENDTIME
-    z_mtime = max((os.path.getmtime(os.path.join(zerot, f))
-                   for f in os.listdir(zerot)), default=0)
-    for fld in FIELDS:
-        ef = os.path.join(endt, fld)
-        if not os.path.exists(ef):
-            return False, "field %s absent at endTime" % fld
+        return False, "missing 0/ or %d/ time dir (looked in %s)" % (ENDTIME, os.path.dirname(endt))
+    # age-guard reference: newest mtime among the 0/ state fields
+    z_paths = [p for f in FIELDS_ZERO for p in [_field_path(zerot, f)] if p]
+    if not z_paths:
+        return False, "no state fields found in 0/ (%s)" % zerot
+    z_mtime = max(os.path.getmtime(p) for p in z_paths)
+    for fld in FIELDS_ENDTIME:
+        ef = _field_path(endt, fld)
+        if ef is None:
+            return False, "field %s (or %s.gz) absent at endTime" % (fld, fld)
         if os.path.getmtime(ef) <= z_mtime:
             return False, "age guard: field %s at endTime not newer than 0/" % fld
     return True, "completed"
@@ -245,19 +273,40 @@ def falsifier_f6_sample(sample_path):
 # G-SA-DISCRIM
 # --------------------------------------------------------------------------
 def g_sa_discrim(n_failed, n_completed, r_succ):
-    """Apply the gate. r_sa over completed legs. F3 downgrades a HIGH reading if
-    the SUCCEEDED stratum is itself unstable standalone (rig confound)."""
+    """Apply the gate. r_sa over completed legs.
+
+    Returns (verdict, discrimination, finding, r_sa, basis).
+
+    `verdict` is ALWAYS one of the fixed six tokens (CLAUDE.md rule 1;
+    DAFOAM_CHARTER.md §8) -- never a descriptive string. Registered mapping
+    (PREREGISTRATION.md §2):
+      * a CLEAR discrimination (HIGH or LOW) -> **GATE REACHED**: the item
+        reached its registered informative endpoint. The direction and the fix
+        it routes are carried in `discrimination` / `finding`, NOT in `verdict`.
+      * indeterminate (10-50%) -> **NOT A RESULT**.
+      * a HIGH reading with the SUCCEEDED stratum itself unstable (F3 rig
+        confound) -> **NOT A RESULT**.
+      * no completed legs -> **NOT A RESULT**.
+    RULING 2's bar: no ratio here is a verdict; the 39.7x is never computed."""
     if n_completed <= 0:
-        return "NOT A RESULT", None, "no completed legs"
+        return "NOT A RESULT", None, "no completed legs", None, "no completed legs"
     r_sa = n_failed / n_completed
     if r_sa >= HIGH_THRESH:
         if r_succ is not None and r_succ > F3_SUCC_CONFOUND:
-            return "NOT A RESULT", r_sa, ("F3 rig-confound: SUCCEEDED-stratum standalone rate %.4f > %.2f, "
-                                          "a HIGH reading cannot be attributed to intrinsic pathology" % (r_succ, F3_SUCC_CONFOUND))
-        return "HIGH: cl04's OWN primal is the pathology (coupling-primary REFUTED)", r_sa, "r_sa >= 0.50"
+            return ("NOT A RESULT", "HIGH-CONFOUNDED",
+                    "F3 rig-confound: SUCCEEDED-stratum standalone rate %.4f > %.2f; a HIGH reading "
+                    "cannot be attributed to intrinsic pathology" % (r_succ, F3_SUCC_CONFOUND),
+                    r_sa, "F3 rig confound")
+        return ("GATE REACHED", "HIGH",
+                "cl04's own primal is the pathology; route to D6RF5-class fix",
+                r_sa, "r_sa >= 0.50")
     if r_sa <= LOW_THRESH:
-        return "LOW: the MULTIPOINT ABORTED-TRIAL COUPLING is the cause (routes to om.ExecComp code-read)", r_sa, "r_sa <= 0.10"
-    return "NOT A RESULT", r_sa, "indeterminate: 0.10 < r_sa < 0.50, the sample did not discriminate"
+        return ("GATE REACHED", "LOW",
+                "multipoint aborted-trial coupling; route to the om.ExecComp code-read",
+                r_sa, "r_sa <= 0.10")
+    return ("NOT A RESULT", "INDETERMINATE",
+            "indeterminate: 0.10 < r_sa < 0.50, the sample did not discriminate",
+            r_sa, "indeterminate band")
 
 
 # --------------------------------------------------------------------------
@@ -285,7 +334,8 @@ def grade(runs_root, sample_path, out_path):
               "status": "PENDING"}
     report["freeze_check"] = freeze_check()
     report["plant_control"] = control_planted_zero()      # raises Refusal if blind
-    report["sample"] = "verified" and bool(falsifier_f6_sample(sample_path))
+    falsifier_f6_sample(sample_path)                       # F6: raises Refusal on tamper
+    report["sample"] = "verified"
     if sha256_of(D6R_LOG) != D6R_LOG_SHA256:
         raise Refusal("D6R log sha256 != registered -- UNMEASURED")
     d6r_lines = open(D6R_LOG, encoding="utf-8", errors="replace").read().splitlines()
@@ -327,14 +377,17 @@ def grade(runs_root, sample_path, out_path):
     report["r_succ_stratum"] = r_succ
     if incomplete:
         report["status"] = "PENDING"
+        report["verdict"] = "PENDING"          # six-token: not yet run -- re-run the incomplete legs
         report["note"] = ("%d of %d legs not completed (rule 4) -- re-run before a final verdict; "
                           "no G-SA-DISCRIM verdict is emitted on a partial run" % (len(incomplete), N_TOTAL))
     else:
-        verdict, r_sa, why = g_sa_discrim(n_failed, n_completed, r_succ)
+        verdict, discrimination, finding, r_sa, why = g_sa_discrim(n_failed, n_completed, r_succ)
         report["status"] = "GRADED"
         report["r_sa"] = r_sa
         report["n_failed"] = n_failed
-        report["verdict"] = verdict
+        report["verdict"] = verdict            # six-token: GATE REACHED / NOT A RESULT
+        report["discrimination"] = discrimination   # HIGH / LOW / INDETERMINATE / HIGH-CONFOUNDED
+        report["finding"] = finding            # the routing, NEVER the verdict token
         report["verdict_basis"] = why
     report["legs"] = legs
     if out_path:
@@ -358,20 +411,21 @@ def main():
             print("freeze_check instruments (from code):", fc["instruments_from_code"])
             print("assert nodes in grader:", fc["assert_nodes"])
             print("plant control:", pc)
-            # F5 band arithmetic demonstration (no compute)
+            # F5 band arithmetic -- six-token verdict + discrimination (no compute)
             for nf in (3, 4, 17, 18):
-                v, r, why = g_sa_discrim(nf, 36, 0.0)
-                print("  F5 band: %2d/36 = %.3f -> %s" % (nf, r, v.split(":")[0]))
-            # F3 demonstration: HIGH downgraded when SUCCEEDED stratum unstable
-            v, r, why = g_sa_discrim(20, 36, 0.25)
-            print("  F3 confound: 20/36 with r_succ=0.25 ->", v)
+                v, disc, finding, r, why = g_sa_discrim(nf, 36, 0.0)
+                print("  F5 band: %2d/36 = %.3f -> verdict=%s discrimination=%s" % (nf, r, v, disc))
+            # F3: a HIGH reading downgraded to NOT A RESULT when SUCCEEDED stratum unstable
+            v, disc, finding, r, why = g_sa_discrim(20, 36, 0.25)
+            print("  F3 confound: 20/36 with r_succ=0.25 -> verdict=%s discrimination=%s" % (v, disc))
+            print("  verdict tokens used:", sorted({g_sa_discrim(n, 36, 0.0)[0] for n in (3, 10, 18)} | {"PENDING"}))
             print("SELFTEST OK")
             return 0
         if not args.runs_root:
             sys.stderr.write("grade mode needs --runs-root (leg directories). None given.\n")
             return 2
         rep = grade(args.runs_root, args.sample, args.out)
-        print(json.dumps({k: rep[k] for k in ("status", "r_sa", "verdict") if k in rep}, indent=1))
+        print(json.dumps({k: rep[k] for k in ("status", "verdict", "discrimination", "finding", "r_sa") if k in rep}, indent=1))
         return 0
     except Refusal as e:
         sys.stderr.write("STAGE2 GRADER REFUSE (exit 2): %s\n" % e)

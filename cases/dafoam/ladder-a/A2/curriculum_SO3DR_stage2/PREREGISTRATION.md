@@ -180,19 +180,34 @@ echo-check the injected vector against the block (F4, §4).
 ## 2. THE GATE — G-SA-DISCRIM (thresholds, prediction, controls) — REGISTERED BEFORE COMPUTE
 
 > **G-SA-DISCRIM.** `r_sa` = fraction of the 36 registered standalone legs carrying the
-> `Primal solution failed!` banner.
-> - **`r_sa ≥ 50 %` (≥ 18/36) → HIGH → verdict: "cl04's OWN primal is the pathology"** — the A2-wing
->   convergence pathology; the D6RF5-class numerics/mesh fix is the **candidate** remedy (never
->   established by this stage). **This is a RESULT**: the hypothesis that the multipoint coupling is
->   primary is **REFUTED**.
-> - **`r_sa ≤ 10 %` (≤ 3/36) → LOW → verdict: "the MULTIPOINT ABORTED-TRIAL COUPLING is the cause"**
->   — routed to the `om.ExecComp` propagation code-read that §3.3/§4 H5 leaves NOT DONE. **This is a
->   RESULT.**
-> - **`10 % < r_sa < 50 %` (4–17 / 36) → NOT A RESULT** — indeterminate; the sample did not
->   discriminate.
+> `Primal solution failed!` banner. **The grader emits a SIX-TOKEN verdict** (`CLAUDE.md` rule 1;
+> `DAFOAM_CHARTER.md` §8) — the discrimination direction is a SEPARATE `finding`/`discrimination`
+> field beside it, never the verdict token itself:
+> - **`r_sa ≥ 50 %` (≥ 18/36) → verdict `GATE REACHED`; discrimination HIGH; finding "cl04's own
+>   primal is the pathology; route to D6RF5-class fix".** The A2-wing convergence pathology; the
+>   D6RF5-class numerics/mesh fix is the **candidate** remedy (never established by this stage). The
+>   hypothesis that the multipoint coupling is primary is **REFUTED**.
+> - **`r_sa ≤ 10 %` (≤ 3/36) → verdict `GATE REACHED`; discrimination LOW; finding "multipoint
+>   aborted-trial coupling; route to the om.ExecComp code-read"** (the code-read §3.3/§4 H5 leaves
+>   NOT DONE).
+> - **`10 % < r_sa < 50 %` (4–17 / 36) → verdict `NOT A RESULT`; discrimination INDETERMINATE** — the
+>   sample did not discriminate.
+> - **A HIGH reading with the SUCCEEDED stratum itself unstable (F3 rig confound, `r_succ > 10 %`) →
+>   verdict `NOT A RESULT`; discrimination HIGH-CONFOUNDED.**
+> - **Any leg not completed to rule 4 → verdict `PENDING`** (re-run the incomplete legs; no
+>   G-SA-DISCRIM verdict is emitted on a partial run). A control failure or any F-refusal →
+>   the grader **refuses, exit 2** (no verdict emitted).
 
-**Boundary arithmetic, fixed now:** 18/36 = 50.0 % → HIGH; 17/36 = 47.2 % → NOT A RESULT;
-3/36 = 8.33 % → LOW; 4/36 = 11.1 % → NOT A RESULT. `≥` and `≤` are inclusive at the bands.
+**Why `GATE REACHED` and not `PASS`.** This is a discrimination gate, not a pass/fail bound: a
+CLEAR outcome in EITHER direction is the item reaching its registered informative endpoint, so both
+HIGH and LOW map to `GATE REACHED` with the routing carried in `finding`. It is never `PASS`
+(there is no pre-registered "good" value to be inside) and never `GATE FAIL` (neither direction is a
+failure — both are results). RULING 2's bar holds: no `r_sa` value and no ratio is quoted as a
+verdict, and the 39.7× is never computed.
+
+**Boundary arithmetic, fixed now:** 18/36 = 50.0 % → GATE REACHED (HIGH); 17/36 = 47.2 % → NOT A
+RESULT; 3/36 = 8.33 % → GATE REACHED (LOW); 4/36 = 11.1 % → NOT A RESULT. `≥` and `≤` are inclusive
+at the bands.
 
 **Controls already measured and on record** (SO3DR RESULTS §3.6, §3.2), which bracket the bands:
 D4 single-point control **2.222 %**; D5 single-point control **1.1696 %**; multipoint `cl04`
