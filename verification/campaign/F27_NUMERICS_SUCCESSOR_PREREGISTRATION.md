@@ -114,15 +114,25 @@ T25 ruling forbids, and is not done.
 
 ## 4. GRADING PATH — FIXED AT THE FREEZE, PLANTED-ZERO CONTROL
 
-The grader is the frozen `cases/F27_WOMERSLEY_PIPE/grade_f27.py` (blob at the parent
-freeze), re-used **unchanged** so the successor is graded by the identical instrument
-that graded the parent. Its planted-zero controls (rule 3) already exist and passed
-on the parent: `PZ-F27-READERS` (four channel-separated plants, each seen only by its
-own channel), the on-disk per-gate plants, and `PZ-F27-PERIODICITY_AND_UNIFORMITY`.
-A **fresh pre-registration commit** is required for the successor (its own
-`--prereg-commit`), and the supervisor hashes the changed `fvSchemes`/`fvSolution`
-against the committed blobs at check 4. Grading is **zero-new-compute** after the
-solves.
+The grader is the **parallel successor instrument**
+`cases/F27_WOMERSLEY_PIPE/successor_numerics/grade_f27_successor.py` (see the
+2026-09-07 authoring note below for path + sha256 + commit). It is the frozen
+parent grader with a **single** substantive change — its method-consistency control
+checks the SUCCESSOR numerics and REFUSES a case carrying the parent method — while
+**every band, `BAND_FACTOR = 5.0`, the four reported-not-gated channels and all
+rule-4 / rule-5 gating are IDENTICAL to the frozen parent** (verified by `--selftest`;
+bands are the exact IEEE doubles the parent `grade_f27.py::bands()` emits, not widened
+by a single digit). A parallel grader is REQUIRED, not optional: the frozen parent
+`control_solver_dicts_match` method-locks to the parent numerics and hard-refuses the
+changed method (see the check-4-blocker note below, now resolved). Its planted-zero
+controls (rule 3) are carried in full: `PZ-F27-READERS` (four channel-separated
+plants, each seen only by its own channel), the on-disk per-gate plants driven both
+ways, and `PZ-F27-PERIODICITY_AND_UNIFORMITY`; the selftest runs first and
+unconditionally and REFUSES (exit 2) rather than degrades. A **fresh pre-registration
+commit** is required for the successor (its own `--prereg-commit`), the driver hashes
+the grader on disk against its committed git blob before any launch (rule 2), and the
+supervisor hashes the changed `fvSchemes`/`fvSolution` and the grader against their
+committed blobs at check 4. Grading is **zero-new-compute** after the solves.
 
 ---
 
@@ -173,6 +183,51 @@ set — a successor driver and builder, and (because `control_solver_dicts_match
 successor grader with its own controls and its own freeze. That is a research-direction / supervisor
 decision, not lane config authoring. **The scheme artifacts and run root above are necessary but NOT
 sufficient: F27 is NOT freeze-ready until the supervisor rules on the successor instrument set.**
+
+**AUTHORING NOTE — cfd `lab-lane`, 2026-09-07 (pre-freeze; changes no gate, threshold, cap or label).
+THE PARALLEL INSTRUMENT SET IS NOW BUILT (chief-directed, fix-until-runs).** The check-4 blocker above is
+resolved by three NEW artifacts under `cases/F27_WOMERSLEY_PIPE/successor_numerics/` (the frozen parent
+`grade_f27.py` / `run_f27.sh` / `build_f27.py` were NEVER edited; the shared `exact_f27.py` /
+`foam_io_f27.py` / `proj_f27.py` / `roache_triple.py` are imported unchanged):
+
+- **NEW GRADER** `cases/F27_WOMERSLEY_PIPE/successor_numerics/grade_f27_successor.py` —
+  sha256 `53f748006c6acfa7c28123077a338d12434831641fad609e0ce3e9d997aeb0b4`, commit
+  `cccce4d2cf3e5b45bca67cfc735e98fcfaad7d8f`. Its `control_solver_dicts_match` reads the CHANGED dicts from
+  `successor_numerics/system/` and the UNCHANGED physics from the frozen parent `case/`; it REQUIRES the
+  successor levers (nNonOrthogonalCorrectors 3, `Gauss linear limited 0.5`, `limited 0.5`,
+  `cellLimited Gauss linear 1`, div(phi,U) unchanged `Gauss linear`) and EXPLICITLY refuses a case still
+  carrying any parent lever. `--selftest`: **16 controls green, exit 0**; **exit 2 under `python3 -O`**;
+  the method-lock **refuses the parent numerics (exit 2)** when driven that direction. The two gate bands it
+  emits are the exact IEEE doubles of the parent — G-F27R-1 `[6.052738753361828e-05, 0.001513184688340457]`,
+  G-F27R-2 `[0.00011397841172247245, 0.002849460293061811]` — with `BAND_FACTOR = 5.0` and the four
+  reported-not-gated channels (E_perp, A_z, A_theta, W) unchanged; `CAP_CORE_MIN = 500.0`.
+
+- **NEW DRIVER** `cases/F27_WOMERSLEY_PIPE/successor_numerics/run_f27_successor.sh` —
+  sha256 `43555a430af64571e71581c2b78e4d315f0d469e571d0d1245c4d50e3e606d19`, commit
+  `42f3141b65d3b3c21dc5549a823e887109f2770d`. Mirrors the parent's proven idioms (rc captured inside the
+  wrapper; `proj_f27.py` pre-spend projector; rule-4 ABSENT guards; refuse-never-delete), builds with the
+  successor builder from the successor schemes, pre-flight-asserts the successor numerics (rejecting the
+  parent method), writes to the fresh run root **`verification/runs/F27_NUMERICS_SUCCESSOR_runs`
+  (declared and confirmed ABSENT)**, carries **HARD CAP 500 core-min**, hashes the grader on disk against
+  its committed git blob before any launch (rule 2), and writes a `CAP_BREACH` file at any projected or
+  actual cap crossing. `bash -n` parses; its `CAP_CORE_MIN` (500) agrees with the grader's.
+
+- **NEW BUILDER** `cases/F27_WOMERSLEY_PIPE/successor_numerics/build_f27_successor.py` —
+  sha256 `fa3b4d5d80a065a2ad71af1a649bcf48728550a71f0f9aaefdbe895994b488d3`, commit
+  `48e8af0b8546050d433e5da8da5711a052b55f26`. Copies `fvSchemes`/`fvSolution` from the successor
+  `system/` and every other dictionary/template from the frozen parent `case/`, refuses a destination
+  inside either instrument tree, and read-back-refuses if the built case does not carry the successor
+  levers. Diff-confirmed: the produced successor case differs from the produced parent case **ONLY** in
+  `fvSchemes`/`fvSolution`, and within those **only in the four registered levers** (3 in fvSchemes,
+  1 in fvSolution).
+
+This resolves the "grader re-used unchanged" tension flagged above: for a method change it does NOT hold,
+and §4 is rewritten accordingly to cite the parallel grader. It also resolves the prior internal cap
+inconsistency (the frozen parent `grade_f27.py` carries `CAP_CORE_MIN = 680`, the parent run's cap; the
+successor grader and driver both carry the §5 HARD CAP of **500**). **The draft REMAINS NOT AUTHORISED:**
+the rule-2 freeze (gate/threshold/cap/label by sha, and the hash of the grading path against the committed
+blob) is the cfd supervisor's non-delegable check 4, and the read of `grade_f27_successor.py` as a diff is
+check 1. No solver was launched in building or self-testing these instruments.
 
 ---
 
