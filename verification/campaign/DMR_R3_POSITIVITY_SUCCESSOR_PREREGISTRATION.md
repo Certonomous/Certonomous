@@ -122,11 +122,35 @@ planted-absence control (`:189-193`), and the regression that reproduces the
 
 The grading path is the frozen DMR Gate V / triple grader (parent's, blob at this
 successor's fresh registration commit), re-used unchanged so R1'/R2'/R3' are graded
-by the identical instrument. The driver mirrors `verification/runs/DMR_runs/run_r3.sh`
-— detached under `setsid`, **rc captured inside the wrapper at every step** (L-"setsid
-parent returns zero"), a hard core-min cap that **stops the run and writes a
-CAP_BREACH file** on breach, and the rule-4 ABSENT guard (refuse if a run dir already
-exists). The **planted-zero controls of §4 are mandated** and must pass before any
+by the identical instrument. **The run driver is authored and on disk:**
+`verification/runs/DMR_runs/run_dmr_positivity_successor.sh` — sha256
+`9d8635e2c3b27f7b826d9164361b191e30fa7558bb8542131c6a9be4232ff7a3`. (Location choice,
+recorded here because this §5 designated no driver path: the driver sits alongside
+`run_r3.sh` and the successor generator in `verification/runs/DMR_runs/`, named to mark
+it a successor; its RUN OUTPUT goes to the fresh successor roots of §5.1(a), never to
+the parent `res240`.) It mirrors `run_r3.sh`'s proven idioms exactly and changes only
+what the three-level successor requires: it iterates the three registered levels R1'
+(N=60, 240×60), R2' (N=120, 480×120), R3' (N=240, 960×240) nested exactly 2:1;
+generates each with `make_case_successor.py` (**not** the parent `make_case.py`); writes
+each to its own root `verification/runs/DMR_R3_POSITIVITY_SUCCESSOR_runs/{R1p,R2p,R3p}`;
+carries **rc captured inside the wrapper at every step** (L-"setsid parent returns
+zero"), the rule-4 **ABSENT guard per level** (refuse if that level's run dir already
+exists), and the parent's step sequence (blockMesh, checkMesh, setExprFields,
+decomposePar, `rhoCentralFoam -parallel` on 4 ranks, reconstructPar, writeCellCentres).
+Before grading each level it hashes `dmr_locator_v2.py` against its frozen blob
+`52aacf9669bcf23e88a0bf7984b299fa8aaf286e` and refuses if it differs, then grades with
+it (grade-path integrity, rule 2).
+
+**Cap wiring — the ONE registered hard cap.** The §6 table registers a SINGLE hard cap:
+**total 60 core-min**. Its per-level figures (R1' ~0.25, R2' ~1.9, R3' ~33, overhead
+~1.5) are **estimates** ("MEASURED-ANCHORED" / "ESTIMATED"), not registered per-level
+caps — only "HARD CAP 60 core-min" carries the word cap. The driver therefore enforces
+that one registered cap as a single core-second accumulator carried across all steps of
+all three levels — mirroring `run_r3.sh`'s single-accumulator design — that **stops the
+run and writes a `CAP_BREACH` file** on breach, with no new budget (rule 12). The §6
+per-level estimates are printed by the driver as advisory rule-12 calibration
+watermarks only and **never** trigger a breach; **no per-level hard cap was invented**
+(CLAUDE.md rule 2/12). The **planted-zero controls of §4 are mandated** and must pass before any
 verdict: a located shock front is evidence only from a reader shown able to see the
 planted 7·dx displacement and the planted absence. Grading is zero-new-compute after
 the solves.
@@ -166,6 +190,22 @@ They are now authored:
   (`DMR_R3_TRIPLE_PREREGISTRATION.md:130`) and to this successor's §4. Nothing in this session touched the
   grader. *(The board-70-era grader sha `a062778d` does not resolve as any object in the current repo; the
   verifiable identity is the blob/commit cited here.)*
+
+- **(e) run driver — the successor DRIVER — authored (2026-09-07, pre-freeze; changes no gate,
+  threshold, cap or label).** §5 previously said only "the driver mirrors `run_r3.sh`". The parent
+  `run_r3.sh` is hard-wired — a single root `res240`, a single level N=240, a 35.0 core-min cap, and
+  it calls the PARENT `make_case.py` — so it could not be reused for a three-level successor. The
+  concrete driver is now on disk: `verification/runs/DMR_runs/run_dmr_positivity_successor.sh` — sha256
+  `9d8635e2c3b27f7b826d9164361b191e30fa7558bb8542131c6a9be4232ff7a3`, `bash -n` clean. It iterates the
+  three registered levels R1'/R2'/R3' (240×60 / 480×120 / 960×240, nested 2:1), calls
+  `make_case_successor.py`, writes to the §5.1(a) successor roots (never `res240`), and mirrors
+  `run_r3.sh` idiom-for-idiom: rc captured inside the wrapper per step, the rule-4 ABSENT guard per
+  level, and — for the ONE registered §6 hard cap (total 60 core-min) — a single core-second
+  accumulator across all three levels that stops the run and writes `CAP_BREACH.txt` on breach. **The
+  §6 per-level figures are estimates, not registered caps; no per-level hard cap was invented.** Before
+  grading a level the driver hashes `dmr_locator_v2.py` against the frozen blob
+  `52aacf9669bcf23e88a0bf7984b299fa8aaf286e` and refuses on mismatch (rule 2 grade-path integrity),
+  then grades. **No solver was launched authoring it.**
 
 Because the DMR grader reads position and not schemes, the F27-style method-lock does NOT arise for DMR:
 the successor is genuinely buildable and gradeable by the frozen instrument. **STATUS: with the generator,
