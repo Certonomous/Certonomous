@@ -929,7 +929,7 @@ def parse_check_mesh(text: str) -> dict[str, Any]:
     out: dict[str, Any] = {"failed_checks": []}
     for line in text.splitlines():
         s = line.strip()
-        if s.startswith("Max cell openness") and "aspect ratio" in s:
+        if s.startswith("Max aspect ratio") or (s.startswith("Max cell openness") and "aspect ratio" in s):
             out["max_aspect_ratio"] = float(s.split("=")[-1].split()[0].rstrip("."))
         elif "Mesh non-orthogonality Max:" in s:
             parts = s.split()

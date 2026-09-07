@@ -145,6 +145,39 @@ through the same reader, and refuse (exit 2) if unseen — a zero deviation is e
 only from a reader shown able to see a non-zero. The mesh-quality gate is already
 fail-closed (`:523-525`, a `None` counts as a breach) and stays so.
 
+**LANE REPAIR NOTE — grading-path defects (2026-09-07, cfd `lab-lane`; additive,
+alters no gate/threshold/cap/label/prediction; subject to the supervisor's
+check-1 diff read before any output counts).** Both §4 defects were repaired in
+the grading path ahead of the freeze:
+- **Aspect-ratio parse bug — FIXED.** `parse_check_mesh` (in
+  `sdk/workflows/rae2822_case9.py`, cited **by symbol**) matched the aspect ratio
+  only on a *combined* line (`startswith("Max cell openness")` **and**
+  `"aspect ratio" in s`), which never fires on v2606 — v2606 prints
+  `Max aspect ratio = 805.199 OK.` on its **own** line (real disk evidence in the
+  `mesh_audit_2026-08-25` checkMesh logs). The repair widens the branch condition
+  to also match a standalone `Max aspect ratio` line; the existing body
+  (`split("=")[-1]`) already reads both forms. It is a **single-line condition
+  change (zero net lines added)**, so it shifts no downstream line numbers.
+  Verified by a planted-value control at
+  `verification/runs/F12_runs/mesh_parse_selftest_2026-09-07/selftest_parse_check_mesh.py`
+  (repaired reader SEES a planted 805.199; the pre-repair combined-line reader is
+  shown BLIND; `mesh_gate` stays fail-closed on the gated quantities).
+- **Stale line citation — DIAGNOSED; repaired by content-anchoring here (L-492).**
+  The frozen parent `F12_PREREGISTRATION.md` cites this live grading file **by
+  line**, and all three resolved lines are now **stale** (verified 2026-09-07):
+  `:229`→`rae2822_case9.py:577` (cited as the `rhoSimpleFoam` solver line; line 577
+  is a docstring terminator `"""`); `:330`→`:903` (cited as the mesh-stretch
+  `build_case`; line 903 is a boundary-condition entry); `:366`→`:930` (cited as
+  `timeout: float = 7200.0`; line 930 is `for line in text.splitlines():` inside
+  `parse_check_mesh`). The parent is frozen (rule 6) and is **not edited**. This
+  successor therefore cites the grading path **by symbol** — `build_case`,
+  `run_case`, `parse_check_mesh`, `mesh_gate`, `solver_converged` in
+  `sdk/workflows/rae2822_case9.py`; `gci`/`gci_unequal`/`grade_ladder` in
+  `scripts/roache_triple.py`; the TMR reference reader in
+  `sdk/workflows/tmr_verification.py` — and its **blob sha is pinned at the
+  check-4 freeze**, never by line (L-492: a quote fails loudly, a line number
+  fails silently).
+
 ---
 
 ## 5. COST — rule 12 (anchored to the parent's frozen estimates and the C-50 rate)
