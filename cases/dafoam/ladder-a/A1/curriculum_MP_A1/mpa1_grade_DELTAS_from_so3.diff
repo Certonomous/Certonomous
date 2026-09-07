@@ -1,0 +1,1164 @@
+--- curriculum_SO3/so3_grade.py	2026-09-01 03:15:32.223621963 +0000
++++ curriculum_MP_A1/mpa1_grade.py	2026-09-07 04:11:19.448806320 +0000
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""CURRICULUM SO-3 -- THE FROZEN COMPARATOR.
++"""CURRICULUM MP-A1 -- THE FROZEN COMPARATOR.
+ 
+ Grades the ALPHA-MULTIPOINT weighted-objective gradient on SO-1's NACA0012 case:
+ `J = SUM_i w_i * CD_i(alpha_i)` over one shared `shape` vector, against a
+@@ -7,16 +7,16 @@
+ at np = 1.  `PREREGISTRATION.md` IN THIS DIRECTORY governs every gate, threshold,
+ cap and label; nothing here may move one.
+ 
+-THE FREEZE SHA IS DELIBERATELY NOT WRITTEN HERE.  SO-3a's copy of this line
++THE FREEZE SHA IS DELIBERATELY NOT WRITTEN HERE.  MP-A1a's copy of this line
+ cited `1a06a7d6`, its own Stage-1 freeze commit, because there its document was
+-frozen BEFORE its instruments existed.  SO-3 freezes the document and the
++frozen BEFORE its instruments existed.  MP-A1 freezes the document and the
+ instruments in ONE commit, so no sha exists at the moment this file is written
+ and a sha written here could only be wrong or back-dated.  The binding runs the
+ other way instead and is checkable: `PREREGISTRATION.md` section 10 pins THIS
+-file by md5, and `so3_chain_driver.sh:MD5_GRADER` asserts it before staging.
++file by md5, and `mpa1_chain_driver.sh:MD5_GRADER` asserts it before staging.
+ 
+ Derived from `curriculum_SO2a/so2a_grade.py` with the deltas in
+-`so3_grade_DELTAS_from_so2a.diff`.  FIVE of those deltas are the point of the
++`mpa1_grade_DELTAS_from_so2a.diff`.  FIVE of those deltas are the point of the
+ item and are stated here, at the top, because a reader who reads nothing else
+ must read these.
+ 
+@@ -26,21 +26,21 @@
+ On 2026-08-31 SO-1c refused because its consumer read `gates` at the TOP LEVEL
+ while its producer wrote them at `grade.gates`, and a 51-leg suite could not see
+ it BECAUSE THE SUITE'S FIXTURES WERE HAND-BUILT FROM THE CONSUMER'S OWN
+-EXPECTATIONS -- a tautology on schema.  SO-3's comparator is written AFTER two
++EXPECTATIONS -- a tautology on schema.  MP-A1's comparator is written AFTER two
+ of its consumers were frozen, so the contract runs the other way and is checkable
+ TODAY:
+ 
+-  * `so3_chain_driver.sh:234` invokes `python3 $GRADER --root $BASE --out $GRADE_OUT`.
++  * `mpa1_chain_driver.sh:234` invokes `python3 $GRADER --root $BASE --out $GRADE_OUT`.
+     **`--out` IS MANDATORY.**  The parent comparator has no `--out` and composes
+     its own stamped path; adopting the parent unchanged would have produced an
+     artefact at an address the frozen driver never looks at.
+-  * `so3_stop_marker.sh:97,101,105` reads `verdict` at the TOP LEVEL, `rows` at
++  * `mpa1_stop_marker.sh:97,101,105` reads `verdict` at the TOP LEVEL, `rows` at
+     the TOP LEVEL, and G5J at `g["G5J"]` or `g["gates"]["G5J"]` -- the LITERAL
+     key `G5J`.  The parent publishes `gates["G5g_SHIPPED"]` / `gates["G5g_PATCHED"]`,
+     which that reader cannot see.  **`gates["G5J"]` therefore EXISTS here**, and
+     the per-row detail hangs beneath it.
+ 
+-Neither fact is asserted in prose.  `selftest` RUNS `so3_stop_marker.sh` on a
++Neither fact is asserted in prose.  `selftest` RUNS `mpa1_stop_marker.sh` on a
+ real grade artefact this module wrote and requires the marker to carry the
+ verdict and a non-absent G5J; then it RENAMES the key and requires the marker to
+ report it ABSENT.  A schema contract that cannot fail is not a contract.
+@@ -51,7 +51,7 @@
+ D6 registered a chain stop as a meaningful outcome and its grader refused, exit 2,
+ with ZERO gate readings when an arm carried no ledger row; 2,257.933 core-min of
+ real optimisation sat behind an instrument that could not read it (L-322).  The
+-parent refuses on `ledger_row_absent` and on `arm_log_absent`.  **SO-3 prints
++parent refuses on `ledger_row_absent` and on `arm_log_absent`.  **MP-A1 prints
+ `RAN` / `NOT RUN` per arm, grades every arm that ran, and REFUSES ONLY ON A
+ MALFORMED ARTEFACT, NEVER ON AN ABSENT ONE** (PREREGISTRATION section 3
+ G-EVALFAIL, section 6).  The shortfall is not merely recorded: `G-STAGES` reads
+@@ -89,11 +89,11 @@
+ --------------------------------------------------------------------------
+ (IV) FIXTURES FOR THE POSITIVE PATH COME FROM THE PRODUCER, NOT FROM THE READER.
+ --------------------------------------------------------------------------
+-Every X and F artefact in `_fix` is written by CALLING `so3_xf.build_X_record`,
++Every X and F artefact in `_fix` is written by CALLING `mpa1_xf.build_X_record`,
+ `build_F_record`, `build_fd_row` and `build_ctrl_row` -- THE INSTRUMENT'S OWN
+ WRITERS, the same functions its `main()` calls -- so a fixture cannot carry a key
+ the producer does not emit nor miss one it does.  Every ledger row is emitted by
+-SOURCING `so3_run_arm.sh`'s own `so3_ledger_row`; when that launcher is absent
++SOURCING `mpa1_run_arm.sh`'s own `mpa1_ledger_row`; when that launcher is absent
+ the fixture says so and `R1_read_ledger` is recorded **NOT BORN**, never green.
+ The MESH cells reader and the C5 / convergence log readers are driven on REAL
+ OPENFOAM BYTES in `reference/`.  Synthetic dicts appear ONLY on refusal branches,
+@@ -142,17 +142,17 @@
+ # ---- (so the old form is gone).  BOTH halves are driven by U80/U81 below --
+ # ---- SO1bR's derivation introduced a self-destruct by verifying only the first
+ # ---- half, which is structurally blind to a collision.
+-import so3_xf as XF
++import mpa1_xf as XF
+ # THE STALL DETECTOR IS IMPORTED, NOT REIMPLEMENTED.  Section 9's mapping lives
+ # here; the READING lives there, is calibrated on 33 real IPOPT logs, and is the
+ # same module the in-run watchdog and the producer use -- so the number in the
+ # record, the number that stopped the run and the number the grader gates on are
+ # one number from one file.
+-import so3_stall as STALL
++import mpa1_stall as STALL
+ 
+ # ---- REGISTERED CONSTANTS (PREREGISTRATION.md; the document governs) ----------------
+-ITEM = "SO3"
+-BASE = "/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation"
++ITEM = "MPA1"
++BASE = "/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1-a1-naca0012-alpha-multipoint-fixedlift-optimisation"
+ # DECLARED = 7 (section 5 Requirement 4).  The list is the DECLARED program; the
+ # arms that RAN are a census taken at grade time.
+ ARMS_DECLARED = ["MESH", "O-S", "XE-S", "FE-S", "O-P", "XE-P", "FE-P"]
+@@ -168,8 +168,8 @@
+ # of ONE mesh (np=4 scotch 8.95 % against np=4 simple 4x1x1 0.00054 %), which is
+ # what any np != 1 arm would readmit.
+ ARM_RANKS = {a: 1 for a in ARMS_DECLARED}
+-OUT_O = "so3_O.json"
+-TERMINAL_O = "SO3_O_WRITTEN"
++OUT_O = "mpa1_O.json"
++TERMINAL_O = "MPA1_O_WRITTEN"
+ ARTEFACT = {"MESH": "checkMesh.log",
+             "O-S": OUT_O, "XE-S": XF.OUT_X, "FE-S": XF.OUT_F,
+             "O-P": OUT_O, "XE-P": XF.OUT_X, "FE-P": XF.OUT_F}
+@@ -182,7 +182,7 @@
+ # ---- were THREE (chain driver, run_arm's G-OPTDEP, the grader's G-XSTAR), and
+ # ---- the two unrepaired ones killed the run.  CLAUDE.md rule 14: a lesson is not
+ # ---- applied until EVERY call site asserts it.
+-# ---- SO-3's answer is not a better MAPPING, it is the ABSENCE of a second label
++# ---- MP-A1's answer is not a better MAPPING, it is the ABSENCE of a second label
+ # ---- set.  There is no short form here.  The internal key, the published key in
+ # ---- `rows`, and `ARM_ROW`'s value are THE SAME STRINGS, so there is nothing to
+ # ---- map and no call site that can be missed.  The two labels share no prefix
+@@ -204,7 +204,7 @@
+ DATUM_CANDIDATES = {"MESH": ("0.orig/U", "0.orig/U.gz")}
+ for _a in ("O-S", "XE-S", "FE-S", "O-P", "XE-P", "FE-P"):
+     DATUM_CANDIDATES[_a] = ("0/U", "0/U.gz")
+-DATUM_FILE = ".so3_age_datum"
++DATUM_FILE = ".mpa1_age_datum"
+ CONTROLDICT_REL = os.path.join("system", "controlDict")
+ 
+ # ---- C5 and the BANNER DISCRIMINATOR.  See (III) at the top of this file. ----------
+@@ -249,15 +249,19 @@
+ # AND THE STALL BRANCH C-188 DEMANDS ("the successor's estimate must carry a
+ # stall branch").  The stall abort fires at the FIRST reach of the 8-major
+ # window; MEASURED on C-188's own artefact it fires at major 34 of 65.  A stalled
+-# SO-3 arm therefore costs ~34 x 2.061 = 70.1 core-min, BELOW the converging
++# MP-A1 arm therefore costs ~34 x 2.061 = 70.1 core-min, BELOW the converging
+ # prediction -- so the stall branch is a floor on the saving, not an extra cost,
+ # and the cap is sized on the CONVERGING branch.
+-CAPS = {"MESH": 5.0, "O-S": 240.0, "XE-S": 15.0, "FE-S": 40.0,
+-        "O-P": 240.0, "XE-P": 15.0, "FE-P": 40.0}
+-ITEM_CEILING_CORE_MIN = 595.0          # == sum(CAPS.values()), asserted in main()
+-PREDICTED_CORE_MIN = {"MESH": 0.19, "O-S": 103.0, "XE-S": 3.7, "FE-S": 7.5,
+-                      "O-P": 103.0, "XE-P": 3.7, "FE-P": 7.5}
+-PREDICTED_STALL_CORE_MIN = {"O-S": 70.1, "O-P": 70.1}
++CAPS = {"MESH": 5.0, "O-S": 72.0, "XE-S": 7.5, "FE-S": 14.0,
++        "O-P": 63.0, "XE-P": 8.0, "FE-P": 14.0}
++ITEM_CEILING_CORE_MIN = 183.5          # == sum(CAPS.values()), asserted in main()
++# PREDICTED: MP-A1 O arms = SO-3's MEASURED O-arm cost x M=3.0 (DERIVED; m_iter 2.0
++# x m_adj 1.5 -- PREREGISTRATION section 4.1); the five non-O arms carried at SO-3's
++# MEASURED costs (they already computed dCL_i/dx).  M is the calibration quantity
++# the O arm measures at completion (ratio actual/predicted -> docs/COST_CALIBRATION).
++PREDICTED_CORE_MIN = {"MESH": 0.17, "O-S": 23.75, "XE-S": 2.35, "FE-S": 4.45,
++                      "O-P": 20.85, "XE-P": 2.53, "FE-P": 4.53}
++PREDICTED_STALL_CORE_MIN = {"O-S": 12.0, "O-P": 11.0}
+ 
+ # ---- THE HARNESS-SOUND FLOOR.  `VERIFICATION_CHARTER.md` section 7 step 4,
+ # ---- verbatim: *"The harness-sound floor on this stack, for a case with no
+@@ -326,7 +330,7 @@
+ 
+ # ===========================================================================
+ # THE PLANT IS SIZED **RELATIVE TO THE BAND IT MUST CROSS**, NOT ABSOLUTELY.
+-# SO-3 REGISTERED DELTA.  This is the change that has to be argued, not just
++# MP-A1 REGISTERED DELTA.  This is the change that has to be argued, not just
+ # made, so the argument is here beside the constant.
+ #
+ # WHAT WENT WRONG.  SO-2M was lost because it inherited `PLANT = 1.234e-03` -- an
+@@ -371,12 +375,26 @@
+ # AND IT IS PROVED SUFFICIENT BY BEING DRIVEN INSUFFICIENT.  `PLANT_K_INSUFF`
+ # reproduces the SO-2M geometry exactly -- a plant BELOW the band -- and the
+ # selftest requires the flip to FAIL to happen at that K.  A sufficiency claim
+-# that is not driven at an insufficient K is the same shape as SO-3a's leg `A5`,
++# that is not driven at an insufficient K is the same shape as MP-A1a's leg `A5`,
+ # which asserted a pin was a sentinel and went on passing after the pin should
+ # have been set.
+ PLANT_K = 3.0
+ PLANT_K_INSUFF = 0.2         # 1 % against a 5 % band -- SO-2M's geometry, driven RED
+ 
++# ---- MP-A1 REGISTERED CONSTANTS (PREREGISTRATION section 1.4 / section 7). ----
++# The per-point CL EQUALITY targets = SO-3's MEASURED undeformed baseline CL, so
++# `shape = 0` is a feasible seed.  G-CLTGT reads them back from the artefact to
++# 1e-12; G-CLHOLD gates that each point HOLDS its target at the final design and
++# that lift never went negative (the SO-3 collapse).
++CL_TARGET = [0.31189588769251864, 0.49876526085592926, 0.6639763551107052]
++CL_TARGET_TOL = 1.0e-12       # G-CLTGT: the artefact's targets must equal these bits
++TOL_CL_ABS = 1.0e-3           # G-CLHOLD: |CL_i,final - CL_target_i| <= this, per point
++                              # (100x IPOPT's own constr_viol_tol 1e-5; section 7 decision 4)
++# G-DRAG (section 2b / section 7 decision 5): the constrained optimiser must improve
++# on its FEASIBLE shape=0 seed; the reduction is REPORTED (with the CL triple), the
++# magnitude NEVER gates a PASS.
++DRAG_REDUCTION_FLOOR_PCT = 0.0   # final J strictly < baseline J
++
+ 
+ def plant_for(scale):
+     """The rule-3 perturbation for a gate that normalises by `scale`.
+@@ -403,11 +421,12 @@
+ SO_MD5 = {"SHIPPED": "f0fcb488e0e98156575cd19548e91663", "PATCHED": "85f59e87253e0a71a813f64ca6e4c425"}
+ # STAGE-2 PLACEMENT DISCLOSURE (section 5: "cpuset fixed at Stage 2 and disclosed
+ # there against every live sibling's registered set").  Registered: cpuset 14.
+-# It is NOT core 0.  Live siblings' registered sets on this 16-core box at the
+-# time of writing: SO-1c holds 10 (MESH) and 10,11,12,13 (solver arms)
+-# [so1c_run_arm.sh:172-178]; SO-2a held 9 [so2a_run_arm.sh:178].  14 is disjoint
+-# from both.
+-CPUSET_REGISTERED = "14"
++# It is NOT core 0.  MP-A1 registered cpuset 8 (PREREGISTRATION section 3.3 /
++# section 7 decision 3), PROVISIONAL: the launcher RE-READS live occupancy at the
++# freeze and G12 gates the launcher's value against this constant, so the two
++# cannot drift apart silently.  SO-3 held 14; a draft-time sweep of registered
++# sibling .sh showed sets on {0,1,2,3,4,11,12,14,15}, so 8 is disjoint.
++CPUSET_REGISTERED = "8"
+ DELIVERED_CORES_FLOOR = 1.5   # NOT COMPOSED at np = 1 (section 3, G12)
+ 
+ # ---- P_COST'S BAND, RE-DERIVED FOR THIS ITEM.  AMENDMENT 2, 2026-09-01, BEFORE
+@@ -420,7 +439,7 @@
+ # WHAT WAS WRONG.  `(14.0, 60.0)` was inherited BYTE-IDENTICAL from SO-3aR2, whose
+ # predicted total was 21.99 core-min and whose measured total, 14.318, HIT it.  It
+ # was carried across a derivation that added TWO 103.0-core-min optimiser arms and
+-# was never re-derived.  SO-3's registered point is 228.59 core-min -- 3.81x that
++# was never re-derived.  MP-A1's registered point is 228.59 core-min -- 3.81x that
+ # band's upper edge -- so `P_COST` had NO REACHABLE HIT: it read `MISS` with
+ # certainty on the full-chain path and `NOT MEASURED` on every other path, and
+ # could not discriminate between any two outcomes.  A prediction that cannot HIT is
+@@ -469,12 +488,12 @@
+ VOCAB = {"PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"}
+ 
+ # ---- G-PROV: THE TRAVELLING SHIPPED `GATE FAIL`, ENFORCED IN CODE (section 2).
+-# ---- SO-3 rests on SO-1a's PATCHED row while SO-1a's ITEM verdict is GATE FAIL.
++# ---- MP-A1 rests on SO-1a's PATCHED row while SO-1a's ITEM verdict is GATE FAIL.
+ # ---- Clause (5) -- verdict_line byte-identical to what this module composes --
+ # ---- exists because this lab lost the words `GATE FAIL` from docs/LAB_STATE.md
+ # ---- to an unquoted heredoc on 2026-08-30 (L-405).
+-# ---- SO-3 REGISTERED DELTA: THE PROVENANCE IS A CHAIN, NOT ONE LINK. --------
+-# SO-3's DIRECT upstream is SO-3aR2, not SO-1a, and SO-3aR2's ITEM VERDICT IS
++# ---- MP-A1 REGISTERED DELTA: THE PROVENANCE IS A CHAIN, NOT ONE LINK. --------
++# MP-A1's DIRECT upstream is SO-3aR2, not SO-1a, and SO-3aR2's ITEM VERDICT IS
+ # `GATE FAIL` -- `rows {PATCHED: PASS, SHIPPED: GATE FAIL}`, graded
+ # 2026-08-31T23:02:21Z.  SO-3aR2 in turn carries its own `upstream_provenance`
+ # from CURRICULUM-SO1a, whose note reads: *"the SHIPPED GATE FAIL TRAVELS with
+@@ -490,7 +509,7 @@
+     {"item": "CURRICULUM-SO3aR2",
+      "item_verdict": "GATE FAIL",
+      "rows": {"SHIPPED": "GATE FAIL", "PATCHED": "PASS"},
+-     "relation": "DIRECT -- SO-3's optimisation is admissible only because SO-3aR2 "
++     "relation": "DIRECT -- MP-A1's optimisation is admissible only because SO-3aR2 "
+                  "FD-verified the multipoint objective's gradient at np = 1",
+      "basis": "/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR2-a1-naca0012-alpha-"
+               "multipoint-gradient/SO3aR2_grade_20260831T230221Z.json",
+@@ -516,7 +535,7 @@
+                          "reason is this toolchain: the IDWarp rotation defect fires at the "
+                          "undeformed baseline and behaves differently just above threshold, "
+                          "so a gradient verified at iteration 0 is NOT verified at iteration "
+-                         "47.  SO-3's XE/FE arms are what close that gap"}},
++                         "47.  MP-A1's XE/FE arms are what close that gap"}},
+     {"item": "CURRICULUM-SO1a",
+      "item_verdict": "GATE FAIL",
+      "rows": {"SHIPPED": "GATE FAIL", "PATCHED": "PASS"},
+@@ -547,7 +566,7 @@
+     line mangled in transit (an unquoted heredoc, a stray shell expansion) is a
+     REFUSAL and not a silently shortened sentence."""
+     return ("UPSTREAM CHAIN %s -- EVERY LINK GATE FAIL AT ITEM LEVEL, SHIPPED row GATE FAIL "
+-            "at every link, PATCHED row PASS; SO-3 builds on the PATCHED row and the SHIPPED "
++            "at every link, PATCHED row PASS; MP-A1 builds on the PATCHED row and the SHIPPED "
+             "GATE FAIL TRAVELS with every claim this item makes.  A PATCHED row alone supports "
+             "`on the patched toolchain, the optimiser reduced weighted drag by X` and NEVER "
+             "`DAFoam reduces weighted drag by X`"
+@@ -607,7 +626,7 @@
+ # ---- graded number, with the unit that bore it in BOTH directions.
+ READERS = {
+     "R1_read_ledger": {"produces": "core_min, rc, cpuset, DIGEST, oomkilled -> G1/G9/G10/G12",
+-                       "producer": "so3_run_arm.sh:so3_ledger_row",
++                       "producer": "mpa1_run_arm.sh:mpa1_ledger_row",
+                        "born_by": ["U40", "U41"], "born": True},
+     "R2_fatal_token_sites": {"produces": "C5 site count -> G1 (READS A ZERO AS A PASS)",
+                              "producer": "OpenFOAM / the arm shell, via reference/*.log",
+@@ -619,12 +638,12 @@
+                            "producer": "checkMesh, via reference/REAL_SO1a_MESH_checkMesh.log",
+                            "born_by": ["U54", "U55"], "born": True},
+     "R4_read_X": {"produces": "adjoint totals -> G5J, G5C, G-MP-STRUCT (ALL CAN PASS ON A SMALL NUMBER)",
+-                  "producer": "so3_xf.build_X_record", "born_by": ["U60", "U61", "U62"], "born": True},
++                  "producer": "mpa1_xf.build_X_record", "born_by": ["U60", "U61", "U62"], "born": True},
+     "R5_read_F": {"produces": "FD derivative table -> G5J, G5C, G-TB",
+-                  "producer": "so3_xf.build_F_record / build_fd_row / build_ctrl_row",
++                  "producer": "mpa1_xf.build_F_record / build_fd_row / build_ctrl_row",
+                   "born_by": ["U63", "U64", "U65"], "born": True},
+     "R6_read_multipoint_identity": {"produces": "alphas and weights -> G-ALPHA",
+-                                    "producer": "so3_xf.build_identity_block",
++                                    "producer": "mpa1_xf.build_identity_block",
+                                     "born_by": ["U66", "U67"], "born": True},
+     "R7_arm_datum": {"produces": "age-guard mtime comparison -> G1/C4",
+                      "producer": "the filesystem + the launcher's touch",
+@@ -659,11 +678,11 @@
+ # constant exists to force.  The added unit is U101b: the row-label sweep's SHELL
+ # rule set had no suffix-glob rule while its PYTHON rule set always had one, and
+ # the single unrepaired consumer of the arm->row mapping in this item
+-# (so3_chain_driver.sh's `img_of`) was in shell -- so eight files were swept and
++# (mpa1_chain_driver.sh's `img_of`) was in shell -- so eight files were swept and
+ # the fourth call site was structurally invisible.  U101b proves the new rule
+ # fires on a suffix glob AND stays silent on the registered full-name table.
+ # No gate, threshold, cap or label moved; this adds a check and removes none.
+-# SO-3, 2026-08-31: BUMPED DELIBERATELY 92 -> 97, and the five are named so the
++# MP-A1, 2026-08-31: BUMPED DELIBERATELY 92 -> 97, and the five are named so the
+ # bump is a decision and not a drift.  U28c/U28d/U28e establish that the rule-3
+ # plant is sized RELATIVE to the band it must cross and that its planted relative
+ # error is `PLANT_K * band_D` by construction; U28f is the SUFFICIENCY LEG DRIVEN
+@@ -674,7 +693,12 @@
+ # `CMZ` reference against a 5 % band: an EXERCISED control that could not cross its
+ # own band and therefore demonstrated nothing.  No gate, threshold, band, cap or
+ # label moved; this adds five checks and removes none.
+-EXPECTED_UNITS = 97
++# BUMPED 97 -> 106 DELIBERATELY for MP-A1: nine units (U6a-U6i) drive the three
++# new MP-A1 gates -- G-CLHOLD (lift held / collapsed both ways), G-DRAG (final J <
++# baseline), G-CLTGT (targets as registered), the G5C dCL_i/dx coverage assertion
++# (check-3), and the G-CLHOLD planted control firing both ways off disk.  No SO-3
++# unit was removed; nine were added.
++EXPECTED_UNITS = 106
+ 
+ 
+ class Refusal(Exception):
+@@ -878,7 +902,7 @@
+ # SO-1c died at its second arm because ONE of THREE call sites of a row label was
+ # repaired.  A fence written in the singular ("the row-label comparison") set the
+ # scope, and the two it did not name killed the run.  This sweep is the plural
+-# form: it reads EVERY SO-3 instrument and reports EVERY site that either
++# form: it reads EVERY MP-A1 instrument and reports EVERY site that either
+ # reintroduces a short-form row literal or DERIVES a row label from another
+ # identifier's spelling.  It is a REPORT over this item's own files, not a new
+ # lab-wide tool.
+@@ -887,7 +911,7 @@
+ _ROW_SWEEP_PY = (
+     # a bare short-form row literal, in any position
+     (re.compile(r"""(?<![A-Za-z0-9_])(['"])(%s)\1""" % "|".join(ROW_SHORT_FORMS)),
+-     "a SHORT-FORM row literal; SO-3 has ONE label set and no short form"),
++     "a SHORT-FORM row literal; MP-A1 has ONE label set and no short form"),
+     # a row label derived from a position in another string
+     (re.compile(r"(?<![A-Za-z0-9_])(row|rk|ROW|arm|ARM)\w*\s*\[\s*-?\d+\s*\]"),
+      "a row label DERIVED FROM A POSITION in another identifier -- taking index zero "
+@@ -905,7 +929,7 @@
+     # ---- THE ASYMMETRY THAT HID THE FOURTH CONSUMER, CLOSED.
+     # The PYTHON rule set above has carried a suffix rule from the start
+     # (`.endswith("-S")`).  The SHELL rule set did NOT, and the ONE surviving
+-    # unrepaired call site in this item -- `so3_chain_driver.sh`'s `img_of`,
++    # unrepaired call site in this item -- `mpa1_chain_driver.sh`'s `img_of`,
+     # `case "$1" in MESH|*-S) ... *-P)` -- was in shell, so the sweep swept it and
+     # saw nothing.  A sweep that carries a rule in one language and not the other
+     # reports a zero that is a statement about the rule set, not about the code.
+@@ -948,20 +972,20 @@
+     return out
+ 
+ 
+-def so3_instrument_files():
++def mpa1_instrument_files():
+     """The instrument set the sweep covers.  Files not yet built are REPORTED AS
+     ABSENT rather than silently skipped -- a sweep that reads four files and calls
+     itself complete over nine is the SO2a-DRIVER-DEF-1 shape."""
+-    # ELEVEN, not SO-3aR's ten and not SO-3a's eight.  `so3_collision_leg.py`
++    # ELEVEN, not SO-3aR's ten and not MP-A1a's eight.  `mpa1_collision_leg.py`
+     # is the eleventh and it joins the sweep IN THE SAME COMMIT THAT CREATES IT --
+     # a new instrument that joins the item without joining the sweep is the SAME
+     # SHAPE OF GAP as the pin the census could not see, one rule set away, and
+     # this item exists because a repair that was already written on A2 did not
+     # cross to A1.
+-    names = ["so3_grade.py", "so3_xf.py", "so3_runScript.py", "so3_run_arm.sh",
+-             "so3_groot5_selftest.sh", "so3_chain_driver.sh", "so3_stop_marker.sh",
+-             "so3_aggregate_memory.py", "so3_pin_census.py", "so3_xf_selftest.py",
+-             "so3_collision_leg.py"]
++    names = ["mpa1_grade.py", "mpa1_xf.py", "mpa1_runScript.py", "mpa1_run_arm.sh",
++             "mpa1_groot5_selftest.sh", "mpa1_chain_driver.sh", "mpa1_stop_marker.sh",
++             "mpa1_aggregate_memory.py", "mpa1_pin_census.py", "mpa1_xf_selftest.py",
++             "mpa1_collision_leg.py"]
+     present, absent = [], []
+     for nm in names:
+         fp = os.path.join(_HERE, nm)
+@@ -1414,7 +1438,7 @@
+ def grader_plant_X(base, xpath, tag, k, scale=None, plant_k=None):
+     """THE BIRTH OF THE GATES THAT PASS ON A SMALL NUMBER.
+ 
+-    SO-3 REGISTERED DELTA: `scale` is `d_ref` for the pair this plant lands on,
++    MP-A1 REGISTERED DELTA: `scale` is `d_ref` for the pair this plant lands on,
+     and the perturbation is `PLANT_K*(band_D/100)*|d_ref|` -- see `plant_for`.
+     `plant_k` overrides `PLANT_K` and exists ONLY so the selftest can drive the
+     control at an INSUFFICIENT K and require the flip not to happen.  Production
+@@ -1631,9 +1655,9 @@
+ def g_noopt(recs, rec_kind, logs):
+     """THE ENDPOINT ARMS ran no optimiser, ASSERTED AGAINST THEIR ARTEFACTS.
+ 
+-    SO-3 REGISTERED INVERSION, AND IT IS NAMED RATHER THAN QUIETLY NARROWED.
++    MP-A1 REGISTERED INVERSION, AND IT IS NAMED RATHER THAN QUIETLY NARROWED.
+     SO-3aR2's version of this gate asserted that THE ITEM ran no optimiser, and
+-    that was right for a gradient rung.  SO-3 IS THE OPTIMISATION RUNG: its O-S
++    that was right for a gradient rung.  MP-A1 IS THE OPTIMISATION RUNG: its O-S
+     and O-P arms run IPOPT by registration, so the item-level claim is GONE.
+     Carrying the old sentence across the rename would have been a false claim
+     with a green gate under it -- a mechanical rename moves tokens, it cannot
+@@ -1700,11 +1724,11 @@
+ #      drag 28.275488 % and its own `opt_IPOPT.txt` carries NO `EXIT` line -- this
+ #      lane RE-MEASURED that on the artefact rather than quoting it.
+ #   2. It will not call a stall a convergence.  The stall reading comes from
+-#      `so3_stall.py`, which is calibrated on 33 real IPOPT logs on this box:
++#      `mpa1_stall.py`, which is calibrated on 33 real IPOPT logs on this box:
+ #      condition A fires on exactly the 2 known stalls and on none of the 7 runs
+ #      that ended `Maximum Number of Iterations Exceeded`.
+ #   3. It will not let a drag number travel without its `CL` pair.  `CL` is
+-#      UNCONSTRAINED in this item (so3_runScript docstring (C)), so a weighted-drag
++#      UNCONSTRAINED in this item (mpa1_runScript docstring (C)), so a weighted-drag
+ #      reduction bought by shedding lift is a live possibility and the record says
+ #      so beside the number, not below it.
+ #   4. It will not upgrade `GATE REACHED` to `PASS` because the endpoint FD passed.
+@@ -1714,14 +1738,18 @@
+ # THE REGISTERED INTERMEDIATE THRESHOLD, frozen before any compute.  Section 9
+ # distinguishes `GATE REACHED` from `NOT A RESULT` by whether one was met, and
+ # leaving it unnamed would let the distinction be chosen after the fact:
+-OPT_INTERMEDIATE_THRESHOLD_PCT = 5.0   # weighted-drag reduction against the run's own baseline
++# MP-A1 ruling (PREREGISTRATION section 2a / section 7 decision 5): the intermediate
++# threshold is 1.0 % (NOT SO-3's 5.0 %) because a CL-constrained drag-min reduces
++# less than the unconstrained SO-3; it labels ONLY the GATE REACHED path and NEVER
++# a PASS (a PASS comes solely from IPOPT's own printed convergence statement).
++OPT_INTERMEDIATE_THRESHOLD_PCT = 1.0   # weighted-drag reduction at HELD CL, vs the run's own baseline
+ OPT_MIN_MAJORS = 5                     # a run of fewer majors has not searched
+ 
+ 
+ def g_opt_section9(O, endpoint_row_verdict, cap_row):
+     """Grade ONE row's optimisation arm under section 9.
+ 
+-    `O` is the row's `so3_O.json` record, or None if the arm did not run.
++    `O` is the row's `mpa1_O.json` record, or None if the arm did not run.
+     Returns a dict whose `verdict` is one of rule 1's six tokens and NEVER
+     `PASS` unless the optimiser printed its own convergence statement."""
+     if O is None:
+@@ -1828,7 +1856,8 @@
+             "grading this row from the SIZE of its improvement",
+             "using the word `converged` of a run whose optimiser printed no convergence statement",
+             "quoting the weighted-drag reduction without CL_baseline and CL_final beside it, "
+-            "because CL is UNCONSTRAINED in this item",
++            "because a drag reduction is only a drag-min-at-fixed-lift claim if the HELD CL "
++            "is shown (MP-A1 CONSTRAINS CL by equality; G-CLHOLD gates that it was held)",
+             "upgrading GATE REACHED to PASS because the endpoint FD passed -- the endpoint FD "
+             "validates the DESIGN, not the optimiser's convergence",
+         ],
+@@ -1927,20 +1956,49 @@
+ 
+ def grade_lift_gradients(X, F):
+     """G5C -- the SAME test on each scenario's `dCL_i/dx`, all three scenarios,
+-    same bands, same per-pair plateau proof.  The optimisation rung will carry
+-    lift constraints; a multipoint objective gradient verified without them
+-    cannot support a constrained multipoint optimisation."""
++    same bands, same per-pair plateau proof.
++
++    MP-A1 CHECK-3 REQUIREMENT (supervisor, PREREGISTRATION section 7): in MP-A1 the
++    per-point CL is a CONSTRAINT the optimiser drives, so `dCL_i/dx` is a gradient
++    the optimiser ACTUALLY USED -- not merely a diagnostic beside the objective's
++    `dCD_i/dx`.  G5C's whole legitimacy for MP-A1 is that it FD-verifies all three
++    `dCL_i/dx` at the FINAL design point (charter section 9), which is what keeps
++    MP-A1 admissible with NO new unverified gradient.  This function therefore
++    REFUSES (never a silent pass) unless it covered all N_SCEN scenarios' CL
++    gradients over the registered components."""
+     per, verdict = {}, "PASS"
++    of_cl_covered = []
+     for i in range(N_SCEN):
+         c = _grade_family(X, F, [_pair(X, F, OF_CL[i], "CL", i, k) for _dv, k in XF.COMPONENTS],
+                           "G5C CL scenario %d" % i)
+         c["alpha_deg"] = ALPHAS_REGISTERED[i]
++        c["is_constraint_gradient"] = True   # MP-A1: dCL_i/dx is a CONSTRAINT gradient
++        c["of_key"] = OF_CL[i]
+         per[SCENARIOS[i]] = c
++        of_cl_covered.append(OF_CL[i])
+         if c["verdict"] == "NOT A RESULT":
+             verdict = "NOT A RESULT"
+         elif c["verdict"] == "GATE FAIL" and verdict == "PASS":
+             verdict = "GATE FAIL"
+-    return {"per_scenario": per, "verdict": verdict}
++    # ---- THE EXPLICIT dCL_i/dx COVERAGE ASSERTION (refuse(), not assert: `python3
++    # ---- -O` strips asserts, L-332).  All three CL constraint gradients must be
++    # ---- graded, over the same registered components as G5J, or the row is not a
++    # ---- result -- a constrained optimisation whose constraint gradient went
++    # ---- ungraded at the design point cannot be a PASS.
++    if len(per) != N_SCEN or len(set(of_cl_covered)) != N_SCEN:
++        refuse("G5C_COVERAGE",
++               {"scenarios_graded": len(per), "n_scen_registered": N_SCEN,
++                "distinct_cl_of_keys": sorted(set(of_cl_covered)),
++                "detail": "G5C must FD-verify all three dCL_i/dx constraint gradients "
++                          "at the final design point; it did not"})
++    n_graded = {SCENARIOS[i]: per[SCENARIOS[i]].get("n_graded_pairs") for i in range(N_SCEN)}
++    return {"per_scenario": per, "verdict": verdict,
++            "covers_constraint_gradients": True,
++            "n_cl_constraint_gradients_graded": N_SCEN,
++            "of_cl_keys": of_cl_covered,
++            "n_graded_pairs_per_scenario": n_graded,
++            "coverage_assertion": "all %d dCL_i/dx CONSTRAINT gradients FD-verified at "
++                                  "the final design point (charter section 9)" % N_SCEN}
+ 
+ 
+ # ===================== G-MP-STRUCT: the assembly identity =============================
+@@ -2062,7 +2120,7 @@
+ 
+ # ===================== read the O artefact ============================================
+ def read_O(path):
+-    """The optimisation record `so3_O.json`, read by EXPLICIT keys.
++    """The optimisation record `mpa1_O.json`, read by EXPLICIT keys.
+ 
+     There is no recursive hunt for a key by name anywhere in this file: a read
+     that goes looking until it finds something will always find something.  A
+@@ -2078,15 +2136,174 @@
+     return j
+ 
+ 
++# ===================== G-CLTGT / G-CLHOLD / G-DRAG: THE MP-A1 GATES ===================
++def _read_final_cl(O):
++    """The reader G-CLHOLD grades through -- and the SAME reader the planted control
++    reads back off disk (rule 3: a zero from a reader not shown able to see a
++    non-zero is not evidence).  Returns the final-design CL list, or None."""
++    if not isinstance(O, dict):
++        return None
++    final = O.get("final") or {}
++    cl = final.get("CL")
++    if cl is None:
++        return None
++    try:
++        return [float(v) for v in cl]
++    except (TypeError, ValueError):
++        return None
++
++
++def g_cltgt(O):
++    """G-CLTGT: the CL equality TARGETS carried in the artefact equal the registered
++    CL_TARGET to CL_TARGET_TOL.  A run that quietly optimised to different targets
++    than the ones registered is not this item.  Reads O['cl_target'] if the producer
++    stamped it; if absent, REPORTED as not-stamped (not a silent pass)."""
++    if O is None:
++        return {"verdict": NOT_MEASURED, "state": "NOT RUN"}
++    stamped = O.get("cl_target")
++    if stamped is None:
++        return {"verdict": NOT_MEASURED, "state": "RAN",
++                "note": "the producer did not stamp cl_target into mpa1_O.json; "
++                        "G-CLHOLD still gates satisfaction against the registered targets",
++                "registered_targets": list(CL_TARGET)}
++    try:
++        st = [float(v) for v in stamped]
++    except (TypeError, ValueError):
++        refuse("G-CLTGT_SCHEMA", {"cl_target_not_numeric": stamped})
++    if len(st) != N_SCEN:
++        return {"verdict": "GATE FAIL", "stamped": st, "registered_targets": list(CL_TARGET),
++                "reason": "wrong number of CL targets"}
++    devs = [abs(st[i] - CL_TARGET[i]) for i in range(N_SCEN)]
++    ok = all(d <= CL_TARGET_TOL for d in devs)
++    return {"verdict": "PASS" if ok else "GATE FAIL", "stamped": st,
++            "registered_targets": list(CL_TARGET), "abs_deviations": devs,
++            "tol": CL_TARGET_TOL}
++
++
++def g_clhold(O):
++    """G-CLHOLD (MP-A1 gate b -- THE GATE THIS ITEM EXISTS TO EARN): at the final
++    design, every operating point HOLDS its registered CL target
++    (|CL_i - CL_target_i| <= TOL_CL_ABS) AND CL_i > 0.  SO-3 left CL unconstrained
++    and the lift COLLAPSED negative at point0; this gate reads that failure mode
++    directly and refuses to call it held."""
++    if O is None:
++        return {"verdict": NOT_MEASURED, "state": "NOT RUN",
++                "note": "the optimisation arm did not run; no CL-hold reading exists"}
++    cl = _read_final_cl(O)
++    if cl is None or len(cl) != N_SCEN:
++        refuse("G-CLHOLD_SCHEMA",
++               {"final_CL_unreadable_or_wrong_length": cl, "n_scen": N_SCEN,
++                "row": O.get("row")})
++    per, ok = {}, True
++    for i in range(N_SCEN):
++        dev = abs(cl[i] - CL_TARGET[i])
++        held = dev <= TOL_CL_ABS
++        positive = cl[i] > 0.0
++        per[SCENARIOS[i]] = {"cl_final": cl[i], "cl_target": CL_TARGET[i],
++                             "abs_deviation": dev, "tol_abs": TOL_CL_ABS,
++                             "held": held, "cl_positive": positive,
++                             "alpha_deg": ALPHAS_REGISTERED[i]}
++        if not (held and positive):
++            ok = False
++    return {"verdict": "PASS" if ok else "GATE FAIL", "per_point": per,
++            "tol_cl_abs": TOL_CL_ABS, "targets": list(CL_TARGET), "row": O.get("row"),
++            "requirement": ("MP-A1 holds lift at fixed alpha by a per-point CL EQUALITY "
++                            "constraint; each point must hold its target within TOL_CL_ABS "
++                            "and CL must never collapse negative (SO-3's failure)")}
++
++
++def _clhold_synth(cl_list, row="PATCHED"):
++    """A minimal O-shaped object for the G-CLHOLD reader/control -- final CL only."""
++    return {"row": row, "final": {"CL": list(cl_list)}}
++
++
++def g_clhold_control(base):
++    """Rule-3 planted control for the G-CLHOLD reader.  Written to grader_controls/
++    ONLY (never the graded artefact), read BACK OFF DISK through the SAME reader,
++    and REFUSES unless the reader distinguishes held from planted-violation.
++
++    Sized RELATIVE to the band: the plant is PLANT_K * TOL_CL_ABS on point0, clear
++    of the band by 3x by construction.  Three substrates, all synthetic so the
++    demonstration is independent of the real run's outcome:
++      held      -> CL == targets exactly                 -> must grade PASS
++      planted   -> point0 pushed PLANT_K*TOL_CL_ABS out  -> must grade GATE FAIL
++      collapsed -> point0 driven NEGATIVE (SO-3's mode)  -> must grade GATE FAIL"""
++    d = _plant_dir(base)
++    plant = PLANT_K * TOL_CL_ABS
++    held = _clhold_synth([CL_TARGET[i] for i in range(N_SCEN)])
++    planted = _clhold_synth([CL_TARGET[i] for i in range(N_SCEN)])
++    planted["final"]["CL"][0] = CL_TARGET[0] + plant
++    collapsed = _clhold_synth([CL_TARGET[i] for i in range(N_SCEN)])
++    collapsed["final"]["CL"][0] = -abs(CL_TARGET[0])
++    paths = {}
++    for name, obj in (("held", held), ("planted", planted), ("collapsed", collapsed)):
++        p = os.path.join(d, "plant_clhold_%s.json" % name)
++        with open(p, "w") as fh:
++            json.dump(obj, fh, sort_keys=True)
++        paths[name] = p
++    # READ BACK OFF DISK through the same reader, then grade.
++    held_back = _read_final_cl(json.load(open(paths["held"])))
++    planted_back = _read_final_cl(json.load(open(paths["planted"])))
++    collapsed_back = _read_final_cl(json.load(open(paths["collapsed"])))
++    v_held = g_clhold(json.load(open(paths["held"])))["verdict"]
++    v_planted = g_clhold(json.load(open(paths["planted"])))["verdict"]
++    v_collapsed = g_clhold(json.load(open(paths["collapsed"])))["verdict"]
++    seen = (planted_back is not None
++            and abs(planted_back[0] - (CL_TARGET[0] + plant)) < 1e-15)
++    flipped = (v_held == "PASS" and v_planted == "GATE FAIL" and v_collapsed == "GATE FAIL")
++    if not (seen and flipped):
++        refuse("G-CLHOLD_CONTROL",
++               {"detail": "the G-CLHOLD reader did not distinguish held from planted; "
++                          "a reader that cannot see a planted non-zero CL deviation is "
++                          "not evidence the constraint held",
++                "plant_read_back": seen, "v_held": v_held, "v_planted": v_planted,
++                "v_collapsed": v_collapsed, "plant_value": plant})
++    return {"exercised": True, "plant_seen": seen, "flipped": flipped,
++            "plant_sizing": "RELATIVE -- PLANT_K*TOL_CL_ABS", "plant_value": plant,
++            "plant_k": PLANT_K, "v_held": v_held, "v_planted": v_planted,
++            "v_collapsed": v_collapsed, "read_back_point0": planted_back[0],
++            "controls_written_to": d,
++            "note": "plants live ONLY under grader_controls/; the graded verdict is "
++                    "composed from the unplanted artefact"}
++
++
++def g_drag(O):
++    """G-DRAG (MP-A1 gate c): the constrained optimiser must IMPROVE on its FEASIBLE
++    shape=0 seed -- final weighted J strictly < baseline J.  The reduction PERCENT
++    and the full CL triple are REPORTED (a drag number without its CL triple is
++    forbidden); the MAGNITUDE never gates a PASS and never upgrades a GATE REACHED
++    optimiser (charter section 9)."""
++    if O is None:
++        return {"verdict": NOT_MEASURED, "state": "NOT RUN"}
++    base, final = O.get("baseline") or {}, O.get("final") or {}
++    jb, jf = base.get("J"), final.get("J")
++    red = O.get("weighted_drag_reduction_pct")
++    if jb is None or jf is None:
++        refuse("G-DRAG_SCHEMA", {"missing_J": {"baseline": jb, "final": jf}, "row": O.get("row")})
++    improved = jf < jb
++    return {"verdict": "PASS" if improved else "GATE FAIL",
++            "J_baseline": jb, "J_final": jf,
++            "weighted_drag_reduction_pct": red,
++            "floor_pct": DRAG_REDUCTION_FLOOR_PCT,
++            "CL_baseline": base.get("CL"), "CL_final": final.get("CL"),
++            "row": O.get("row"),
++            "so3_unconstrained_reduction_pct_for_comparison": -16.16,
++            "reported_not_gated_for_pass": ("the magnitude is REPORTED (cost of the CL "
++                "constraint vs SO-3's ~16.16 %% unconstrained); charter section 9 forbids "
++                "grading an optimiser by the size of its improvement, so only J_final<J_baseline "
++                "gates here and the endpoint FD never upgrades a GATE REACHED optimiser to PASS"),
++            "forbidden_reading": "quoting this reduction without CL_baseline and CL_final beside it"}
++
++
+ # ===================== G-DESIGNPOINT ==================================================
+ def g_design_point(X, F, O):
+     """Every endpoint artefact states WHICH design point it evaluated at, and the
+     optimum it read is stamped with ITS OWN ROW.
+ 
+-    THE FAILURE THIS GATE EXISTS FOR.  SO-3's XE/FE arms are byte-for-byte the
++    THE FAILURE THIS GATE EXISTS FOR.  MP-A1's XE/FE arms are byte-for-byte the
+     same instrument SO-3aR2 ran; the only thing that makes them ENDPOINT arms is
+     the `-xopt` argument.  An arm launched without it produces a perfectly valid
+-    artefact that is SO-3aR2's baseline measurement under SO-3's arm name, and
++    artefact that is SO-3aR2's baseline measurement under MP-A1's arm name, and
+     section 9's whole requirement would be silently unmet with every gate green.
+     So the producer stamps `design_point_record` and this gate reads it.
+ 
+@@ -2122,7 +2339,7 @@
+             "requirement": ("DAFOAM_CHARTER section 9: every optimisation reports an FD check "
+                             "AT ITS FINAL DESIGN POINT, not only at the baseline"),
+             "why_it_is_gated": ("an XE/FE arm launched without -xopt yields a valid artefact that "
+-                                "is SO-3aR2's BASELINE measurement wearing SO-3's arm name, and "
++                                "is SO-3aR2's BASELINE measurement wearing MP-A1's arm name, and "
+                                 "every other gate in this file would stay green")}
+ 
+ 
+@@ -2147,7 +2364,7 @@
+ 
+ # ===================== G-PROV =========================================================
+ def require_travelling_provenance():
+-    """SO-3 rests on SO-1a's PATCHED row while SO-1a's ITEM verdict is GATE FAIL.
++    """MP-A1 rests on SO-1a's PATCHED row while SO-1a's ITEM verdict is GATE FAIL.
+     The comparator refuses to emit ANY verdict unless all five clauses hold.
+     Clause (5) compares BYTES against `compose_verdict_line()` because this lab
+     lost the words `GATE FAIL` from `docs/LAB_STATE.md` to an unquoted heredoc
+@@ -2158,7 +2375,7 @@
+         refuse("G-PROV", {"upstream_provenance_block_absent": True})
+     if p.get("rows", {}).get("SHIPPED") != "GATE FAIL":
+         refuse("G-PROV", {"shipped_row_status_not_GATE_FAIL": p.get("rows", {}).get("SHIPPED")})
+-    # ---- CLAUSE (6), SO-3's OWN: EVERY LINK IN THE CHAIN IS CHECKED, NOT JUST
++    # ---- CLAUSE (6), MP-A1's OWN: EVERY LINK IN THE CHAIN IS CHECKED, NOT JUST
+     # ---- THE HEAD.  A derivation that repointed the head at SO-3aR2 and dropped
+     # ---- SO-1a would have lost a GATE FAIL from the record while every clause
+     # ---- above still passed -- which is the exact shape of a laundering, and it
+@@ -2166,7 +2383,7 @@
+     chain = p.get("chain")
+     if not isinstance(chain, list) or len(chain) < 2:
+         refuse("G-PROV", {"upstream_chain_absent_or_shorter_than_two_links": chain,
+-                          "note": "SO-3's direct upstream is SO-3aR2 and SO-3aR2 carries "
++                          "note": "MP-A1's direct upstream is SO-3aR2 and SO-3aR2 carries "
+                                   "SO-1a; both are GATE FAIL and both must travel"})
+     for link in chain:
+         if link.get("item_verdict") != "GATE FAIL":
+@@ -2196,7 +2413,7 @@
+                           {"stored": line, "composed": compose_verdict_line()},
+                           "note": "L-405: this lab lost the words GATE FAIL to an unquoted heredoc"})
+     return {"verdict": "SATISFIED", "clauses": 6, "upstream": p,
+-            "note": ("the SHIPPED GATE FAIL travels with every claim SO-3 makes; the ruling calls "
++            "note": ("the SHIPPED GATE FAIL travels with every claim MP-A1 makes; the ruling calls "
+                      "the incompressible ground `verified` and the record is narrower than that "
+                      "word")}
+ 
+@@ -2333,7 +2550,7 @@
+     # ---- AND THE OPTIMUM THEY READ MUST BE THEIR OWN ROW'S.
+     # Section 9's requirement is an FD check AT THE FINAL DESIGN POINT.  An XE/FE
+     # artefact that silently evaluated at the BASELINE would satisfy every other
+-    # gate in this file and would be SO-3aR2's number wearing SO-3's arm name.
++    # gate in this file and would be SO-3aR2's number wearing MP-A1's arm name.
+     # `UNSPECIFIED` -- the producer's fail-closed default -- refuses here, because
+     # a builder that defaulted to "BASELINE" would let exactly that happen.
+     gdp = g_design_point(X, F, O)
+@@ -2358,7 +2575,7 @@
+     # The UNPLANTED G5J reading, taken FIRST, purely to choose a plant target the
+     # gate actually grades.  It is recomputed below for the published record.
+     graded_k = {}
+-    # SO-3 REGISTERED DELTA: `d_ref` is carried beside the index, because the
++    # MP-A1 REGISTERED DELTA: `d_ref` is carried beside the index, because the
+     # plant is now sized RELATIVE to the very reference the gate divides by.  The
+     # index alone was enough for an absolute plant and is not enough for this one.
+     graded_ref = {}
+@@ -2382,6 +2599,11 @@
+     if "MESH" in ran:
+         controls["grader_plant_cells"] = grader_plant_cells(root, cmpath)
+     controls["grader_plant_c5"] = grader_plant_c5(root, rows, g1)
++    # ---- MP-A1: the G-CLHOLD reader's rule-3 planted control.  Written to
++    # ---- grader_controls/ ONLY, read BACK OFF DISK through the same reader, and
++    # ---- REFUSES unless the reader distinguishes held from planted-violation and
++    # ---- from a negative-lift collapse.  Independent of the real run's outcome.
++    controls["grader_plant_clhold"] = g_clhold_control(root)
+     # THE CONTROL KEYS ARE BUILT FROM `ROWS`, NEVER SPELLED OUT.  A hand-written
+     # list is one more call site of the row label, and this file has already lost
+     # one that way -- the same shape that killed SO-1c at its second arm.
+@@ -2450,7 +2672,7 @@
+         mp = g_mp_struct(X[rk], True)
+         tb = g_tb(X[rk], F[rk], j)
+         # ---- THE ENDPOINT FD ROW VERDICT.  This is what SO-3aR2 produced at
+-        # ---- iteration 0 and what SO-3 produces at the optimum.  It is NOT the
++        # ---- iteration 0 and what MP-A1 produces at the optimum.  It is NOT the
+         # ---- row's verdict on its own: an optimisation row is the CONJUNCTION of
+         # ---- section 9's reading of the optimiser and this reading of the
+         # ---- gradient at the design the optimiser reached.
+@@ -2458,6 +2680,10 @@
+         opt = g_opt_section9(O.get(rk), endpoint,
+                              (g10.get("per_arm") or {}).get(O_ARM[rk]))
+         gopt[rk] = opt
++        # ---- THE MP-A1 GATES: CL held, drag improved, targets as registered. ----
++        clh = g_clhold(O.get(rk))         # gate (b): lift HELD, never collapsed
++        drg = g_drag(O.get(rk))           # gate (c): final J < baseline J
++        clt = g_cltgt(O.get(rk))          # targets stamped == registered
+         # ---- THE ROW COMPOSITION, AND THE ONE DIRECTION IT MAY NOT GO.
+         # A row is PASS only if BOTH the optimiser converged on its own tolerance
+         # AND the gradient at the final design point passed its band.  Every
+@@ -2465,13 +2691,18 @@
+         # lift a GATE REACHED optimiser to PASS, because the endpoint FD
+         # validates the DESIGN and says nothing about convergence, and treating
+         # them as interchangeable is the laundering section 9 forbids.
++        # G-CLHOLD and G-DRAG fold into the row: a row cannot be PASS if the lift was
++        # not held (gate b) or the constrained optimiser did not improve (gate c).
++        # They can only DEGRADE the row, exactly like the endpoint FD.
+         order = ["NOT A RESULT", "GATE FAIL", "GATE REACHED", "BLOCKED", "PASS"]
+-        cand = [endpoint, opt["verdict"]]
++        cand = [endpoint, opt["verdict"], clh["verdict"], drg["verdict"]]
+         if NOT_MEASURED in cand:
+             row_verdict = NOT_MEASURED
+         else:
+             row_verdict = min(cand, key=lambda w: order.index(w))
+         g5[rk] = {"G5J_objective": j, "G5C_lift_per_scenario": c,
++                  "G_CLHOLD_cl_satisfaction": clh, "G_DRAG_reduction": drg,
++                  "G_CLTGT_targets_registered": clt,
+                   "G_MP_STRUCT_assembly_identity": mp, "G_TB_trivial_baseline": tb,
+                   # THE HARNESS FLOOR, PUBLISHED BESIDE THE AGGREGATE IT QUALIFIES.
+                   # VERIFICATION section 7 step 4.  SO-3aR2's PATCHED aggregate was
+@@ -2573,9 +2804,15 @@
+     # ---- item verdict: the composition registered in PREREGISTRATION section 3 -----
+     rowv = tuple(g5[rk]["row_verdict"] for rk in ROWS)
+     optv = tuple(gopt[rk]["verdict"] for rk in ROWS)
++    # MP-A1 per-row gates (G-CLHOLD/G-DRAG already fold into rowv; G-CLTGT does not,
++    # so its GATE FAIL is added here as a belt to braces -- PREREGISTRATION section 2e).
++    mpa1_rowgate_words = []
++    for rk in ROWS:
++        for gk in ("G_CLHOLD_cl_satisfaction", "G_DRAG_reduction", "G_CLTGT_targets_registered"):
++            mpa1_rowgate_words.append((g5[rk].get(gk) or {}).get("verdict"))
+     gate_words = (gm2, galpha.get("verdict"), gnoopt.get("verdict"),
+                   gdp.get("verdict"),
+-                  g9["verdict"], g10["verdict"], g12["verdict"])
++                  g9["verdict"], g10["verdict"], g12["verdict"]) + tuple(mpa1_rowgate_words)
+     if gstages["verdict"] == "NOT A RESULT" or "NOT A RESULT" in rowv:
+         verdict = "NOT A RESULT"
+     elif gstages["verdict"] == "BLOCKED":
+@@ -2603,8 +2840,8 @@
+ 
+     # ---- THE PUBLISHED RECORD.  Its shape is the CONTRACT with the frozen
+     # ---- consumers -- see (I).  `verdict` and `rows` are TOP LEVEL because
+-    # ---- so3_stop_marker.sh:97,105 reads them there; `gates["G5J"]` carries the
+-    # ---- literal key so3_stop_marker.sh:101 looks for.
++    # ---- mpa1_stop_marker.sh:97,105 reads them there; `gates["G5J"]` carries the
++    # ---- literal key mpa1_stop_marker.sh:101 looks for.
+     return {"item": "CURRICULUM-%s" % ITEM, "verdict": verdict,
+             "rows": {w: g5[w]["row_verdict"] for w in ROWS},
+             "upstream_provenance": prov,
+@@ -2618,6 +2855,26 @@
+                         "band_D_pct": FD_BAND_PCT, "band_E_pct": AGG_BAND_PCT,
+                         "plateau_tol_pct": PLATEAU_TOL_PCT,
+                         "min_graded_pairs": MIN_GRADED_PAIRS},
++                "G-CLHOLD_cl_satisfaction_per_row": {
++                    ROWS[0]: (g5[ROWS[0]].get("G_CLHOLD_cl_satisfaction") or {"verdict": NOT_MEASURED}),
++                    ROWS[1]: (g5[ROWS[1]].get("G_CLHOLD_cl_satisfaction") or {"verdict": NOT_MEASURED}),
++                    "reading": ("MP-A1 gate (b): each operating point HOLDS its registered CL "
++                                "target within TOL_CL_ABS=%g at the final design AND CL never "
++                                "collapses negative -- the SO-3 failure this item removes"
++                                % TOL_CL_ABS),
++                    "tol_cl_abs": TOL_CL_ABS, "targets": list(CL_TARGET)},
++                "G-DRAG_reduction_per_row": {
++                    ROWS[0]: (g5[ROWS[0]].get("G_DRAG_reduction") or {"verdict": NOT_MEASURED}),
++                    ROWS[1]: (g5[ROWS[1]].get("G_DRAG_reduction") or {"verdict": NOT_MEASURED}),
++                    "reading": ("MP-A1 gate (c): final weighted J strictly < baseline J (the "
++                                "constrained optimiser improved on its feasible shape=0 seed).  "
++                                "The reduction magnitude is REPORTED with the CL triple, never "
++                                "used to grade a PASS (charter section 9)")},
++                "G-CLTGT_targets_registered_per_row": {
++                    ROWS[0]: (g5[ROWS[0]].get("G_CLTGT_targets_registered") or {"verdict": NOT_MEASURED}),
++                    ROWS[1]: (g5[ROWS[1]].get("G_CLTGT_targets_registered") or {"verdict": NOT_MEASURED}),
++                    "reading": "the CL equality targets in the artefact equal the registered "
++                               "CL_TARGET to %g" % CL_TARGET_TOL},
+                 "G-NOOPT-ENDPOINT_no_optimiser_in_the_endpoint_arms": gnoopt,
+                 "G-DESIGNPOINT_endpoint_arms_evaluated_at_the_optimum": gdp,
+                 "G-OPT9_optimisation_per_row": {
+@@ -2684,11 +2941,14 @@
+                 "the ENDPOINT verification SO-3aR2's own cell says it establishes NOTHING about; "
+                 "what it still establishes NOTHING about is MACH (this is DASimpleFoam, "
+                 "incompressible, M ~ 0.03, and a `multipoint` here is an ALPHA sweep -- Sanaa's "
+-                "SO-3 sentence says `2-3 Mach/alpha` and THIS ITEM ANSWERS THE ALPHA HALF ONLY), "
++                "MP-A1 sentence says `2-3 Mach/alpha` and THIS ITEM ANSWERS THE ALPHA HALF ONLY), "
+                 "np != 1 (registered at np = 1; DAFOAM section 5 forbids carrying the FD "
+-                "reference across np), and TRIMMED LIFT (CL is unconstrained here, so a drag "
+-                "reduction may have been bought by shedding lift and the CL pair travels with "
+-                "every drag number)")}
++                "reference across np), and an AOA-TRIMMED result (MP-A1 holds CL by a per-point "
++                "EQUALITY constraint on the shared shape at FIXED alpha -- NOT a per-point aoa "
++                "trim DV, which would introduce d/dalpha gradients SO-3aR2 never verified; that "
++                "is a separate rung).  What MP-A1 ADDS over SO-3 is exactly the fixed-lift "
++                "constraint: G-CLHOLD gates that the lift was HELD and never collapsed, so the "
++                "drag reduction here IS a drag-min-at-fixed-lift, unlike SO-3's")}
+ 
+ 
+ # ===================== the fixture: BUILT BY THE INSTRUMENT'S OWN WRITERS ==============
+@@ -2699,7 +2959,7 @@
+ # sourcing it lives in `rows_out`, a DIFFERENT NAME.  The call site guards the
+ # PATH with `os.path.isfile` and returns a DISTINCT sentinel so a missing
+ # launcher cannot masquerade as a parse failure.
+-LAUNCHER_PATH = os.path.join(_HERE, "so3_run_arm.sh")
++LAUNCHER_PATH = os.path.join(_HERE, "mpa1_run_arm.sh")
+ LAUNCHER_ABSENT = "LAUNCHER_ABSENT"
+ LAUNCHER_UNPARSEABLE = "LAUNCHER_UNPARSEABLE"
+ 
+@@ -2718,7 +2978,7 @@
+ 
+ def _ledger_rows_via_launcher(k):
+     """R1's BIRTH: the fixture's ledger rows are emitted by SOURCING THE LAUNCHER'S
+-    OWN `so3_ledger_row` -- the real producer's code -- not by a copy of its
++    OWN `mpa1_ledger_row` -- the real producer's code -- not by a copy of its
+     format string here.  If the launcher's format and this reader's regex ever
+     diverge, this returns rows the reader cannot parse and the suite fails loudly.
+ 
+@@ -2732,7 +2992,7 @@
+     for arm in ARMS_DECLARED:
+         ke = NOT_MEASURED if arm in k["rc_record"] else k["ke"].get(arm, k["rc"][arm])
+         cmd = ('. %s --source-only >/dev/null 2>&1; '
+-               'so3_ledger_row %s %s img %s %d 60 %d %s %s 600 %s 12g "%s %s" 20.00 "%s" "%s" '
++               'mpa1_ledger_row %s %s img %s %d 60 %d %s %s 600 %s 12g "%s %s" 20.00 "%s" "%s" '
+                '"%s" "" "" %s x'
+                % (LAUNCHER_PATH, arm, ARM_ROW[arm], IMG_DIGEST[ARM_ROW[arm]], k["rc"][arm],
+                   ARM_RANKS[arm], k["cm"][arm], CAPS[arm], CAPS[arm], ke, k["oom"][arm],
+@@ -2757,7 +3017,7 @@
+ def _fix(tmp, tweak=None):
+     """Build a clean fixture.
+ 
+-    EVERY X AND F ARTEFACT IS WRITTEN BY `so3_xf`'s OWN WRITERS and EVERY LEDGER
++    EVERY X AND F ARTEFACT IS WRITTEN BY `mpa1_xf`'s OWN WRITERS and EVERY LEDGER
+     ROW BY THE LAUNCHER'S OWN FUNCTION.  Nothing on the positive path hand-rolls a
+     schema -- see (IV).  The MESH log and the arm logs are REAL OpenFOAM bytes
+     from `reference/`."""
+@@ -2775,11 +3035,11 @@
+          "mp_break": {"SHIPPED": None, "PATCHED": None}, # k whose assembled J adjoint is moved off the sum
+          "alphas": None, "weights": None, "alpha_none": None,
+          "of_drop": None,                    # an adjoint `of` key removed
+-         # ---- SO-3's OWN FIXTURE KNOBS: the optimisation arm's shape.
++         # ---- MP-A1's OWN FIXTURE KNOBS: the optimisation arm's shape.
+          # The DEFAULT is the honest one for this ladder: the optimiser CONVERGES
+          # on its own tolerance, which is the only state that can support a PASS.
+          # Every other state is reachable by a knob and every one is DRIVEN by
+-         # `so3_grade_selftest.py`.
++         # `mpa1_grade_selftest.py`.
+          "opt_exit": {a: "Optimal Solution Found." for a in ("O-S", "O-P")},
+          "opt_stall": {a: "NO_STALL" for a in ("O-S", "O-P")},
+          "opt_reduction_pct": {a: 12.5 for a in ("O-S", "O-P")},
+@@ -2796,6 +3056,11 @@
+          "datum": {a: ("plain" if a == "MESH" else "gz") for a in ARMS_DECLARED},
+          "write_compression": "on", "evals_failed": {"SHIPPED": 1, "PATCHED": 1},
+          "cl_base": [0.31, 0.50, 0.69], "cd_base": [0.0181, 0.0209, 0.0248],
++         # MP-A1: the final-design CL offset from each registered target.  DEFAULT is
++         # HELD (within TOL_CL_ABS, positive) -> G-CLHOLD PASS; a tweak pushes a point
++         # out of band or negative to drive G-CLHOLD RED.
++         "cl_hold_offset": [2.0e-4, 2.0e-4, 2.0e-4],
++         "cl_target_override": False,   # stamp WRONG CL targets -> drive G-CLTGT RED
+          "dl": "0.99 n=10 max_nr_throttled=0", "ledger_via_launcher": True}
+     if tweak:
+         tweak(k)
+@@ -2821,7 +3086,7 @@
+         if w is None:
+             return None
+         return {"design_point": w,
+-                "xopt_file": ("so3_xopt.json" if w == "FINAL" else None),
++                "xopt_file": ("mpa1_xopt.json" if w == "FINAL" else None),
+                 "xopt_row": (kk["xopt_row"].get(a) if w == "FINAL" else None),
+                 "xopt_sha256": ("f" * 64 if w == "FINAL" else None),
+                 "xopt_linf": ("0.008" if w == "FINAL" else None),
+@@ -2886,7 +3151,7 @@
+                 # ---- THE OPTIMISATION ARTEFACT.  Built here rather than by the
+                 # producer's own writer for one honest reason: the producer
+                 # cannot be imported on the host (it needs mphys, dafoam, pygeo
+-                # and idwarp), so `so3_runScript_selftest.py` drives its
++                # and idwarp), so `mpa1_runScript_selftest.py` drives its
+                 # STRUCTURE on the host and this fixture drives the COMPARATOR
+                 # against a record of the registered shape.  That split is
+                 # stated rather than papered over -- the O record is the one
+@@ -2910,22 +3175,31 @@
+                          "condition_B_inf_du_nondecreasing": {"fired": False,
+                                                               "ends_at_major": None,
+                                                               "window": None}}
+-                rec = {"item": "SO-3", "row": rk, "libidwarp_so_md5": k["so"][arm],
++                rec = {"item": "MP-A1", "row": rk, "libidwarp_so_md5": k["so"][arm],
+                        "nprocs": 1, "optimizer": "IPOPT",
+                        "max_iter_registered": 50, "tol_registered": 1.0e-5,
+                        "driver_fail_flag": k["opt_fail_flag"][arm],
+                        "wall_s": 1234.5,
+                        "alphas": list(ALPHAS_REGISTERED), "weights": list(weights),
+                        "scenarios": list(SCENARIOS),
++                       # MP-A1 fixture: the CL is HELD at the registered targets
++                       # (shape=0 is the feasible seed, so baseline CL == targets),
++                       # and the final CL stays within TOL_CL_ABS of them -- the run
++                       # this item is BUILT to earn.  `k["cl_hold_offset"]` lets a
++                       # tweak push a point out of band to drive G-CLHOLD RED.
+                        "baseline": {"J": base_J, "CD": list(k["cd_base"]),
+-                                    "CL": list(k["cl_base"])},
++                                    "CL": list(CL_TARGET)},
+                        "final": {"J": fin_J,
+                                  "CD": [v * (1.0 - red / 100.0) for v in k["cd_base"]],
+-                                 "CL": [v * 0.97 for v in k["cl_base"]]},
++                                 "CL": [CL_TARGET[i] + k["cl_hold_offset"][i]
++                                        for i in range(N_SCEN)]},
+                        "shape_final": [0.001 * (i + 1) for i in range(8)],
+                        "weighted_drag_reduction_pct": red,
+-                       "CL_baseline": list(k["cl_base"]),
+-                       "CL_final": [v * 0.97 for v in k["cl_base"]],
++                       "cl_target": ([t + 0.01 for t in CL_TARGET]
++                                     if k["cl_target_override"] else list(CL_TARGET)),
++                       "CL_baseline": list(CL_TARGET),
++                       "CL_final": [CL_TARGET[i] + k["cl_hold_offset"][i]
++                                    for i in range(N_SCEN)],
+                        "optimiser_exit_statement": k["opt_exit"][arm],
+                        "convergence_statement_in_log": k["opt_exit"][arm] is not None,
+                        "converged_to_optimizer_tolerance": None,
+@@ -3028,12 +3302,12 @@
+                 fh.write("%s %s 2026-08-31T00:00:00Z 2026-08-31T00:01:00Z %s 12884901888 %s\n"
+                          % (ke, k["oom"][arm], k["cs"][arm], IMG_DIGEST[ARM_ROW[arm]]))
+ 
+-    led = ["ITEM=SO3\n", "STAGED stamp=x\n"]
++    led = ["ITEM=MPA1\n", "STAGED stamp=x\n"]
+     rows_out = _ledger_rows_via_launcher(k) if k["ledger_via_launcher"] else LAUNCHER_ABSENT
+     if isinstance(rows_out, str):
+         READERS["R1_read_ledger"]["born"] = False
+         READERS["R1_read_ledger"]["not_born_reason"] = (
+-            "so3_run_arm.sh:so3_ledger_row could not be sourced (%s); the fixture fell back to a "
++            "mpa1_run_arm.sh:mpa1_ledger_row could not be sourced (%s); the fixture fell back to a "
+             "hand-written row, which CANNOT catch a launcher/reader format divergence" % rows_out)
+         rows_out = [("ARM=%s ROW=%s IMG=img DIGEST=%s rc=%d wall_s=60 ranks=%d core_min=%s "
+                      "cap_core_min=%s enforced_wall_s=600 enforced_core_min=%s memory=12g "
+@@ -3060,10 +3334,10 @@
+ 
+ 
+ # ===================== the selftest ===================================================
+-STOP_MARKER_PATH = os.path.join(_HERE, "so3_stop_marker.sh")
++STOP_MARKER_PATH = os.path.join(_HERE, "mpa1_stop_marker.sh")
+ 
+ 
+-def _write_grade(root, rec, name="SO3_grade_selftest.json"):
++def _write_grade(root, rec, name="MPA1_grade_selftest.json"):
+     p = os.path.join(root, name)
+     with open(p, "w") as fh:
+         json.dump(rec, fh, indent=1, sort_keys=True, default=str)
+@@ -3073,8 +3347,8 @@
+ def stop_marker_basename():
+     """THE MARKER'S NAME IS READ OUT OF THE FROZEN SCRIPT, NEVER GUESSED.
+ 
+-    This lane's first draft hardcoded `SO3_STOP_MARKER.json`; the frozen writer
+-    writes `SO3_STOP_MARKER.json` (so3_stop_marker.sh:59), so the check looked
++    This lane's first draft hardcoded `MPA1_STOP_MARKER.json`; the frozen writer
++    writes `MPA1_STOP_MARKER.json` (mpa1_stop_marker.sh:59), so the check looked
+     at an address nothing ever wrote and read `None` -- the SAME defect shape as
+     SO-1c's, found here only because the consumer was DRIVEN rather than read.
+     Binding the name to the producer's own line means a future rename REFUSES
+@@ -3097,7 +3371,7 @@
+     `cmd | tail` would hand back tail's rc, and three agents on this team misread
+     an exit code that way in one day."""
+     if not os.path.isfile(STOP_MARKER_PATH):
+-        return {"state": "NOT EXERCISED -- so3_stop_marker.sh absent", "rc": None, "marker": None}
++        return {"state": "NOT EXERCISED -- mpa1_stop_marker.sh absent", "rc": None, "marker": None}
+     p = subprocess.run(["bash", STOP_MARKER_PATH, root, "0", str(N_DECLARED),
+                         str(executed), gpath], capture_output=True, text=True)
+     marker = os.path.join(root, stop_marker_basename())
+@@ -3163,6 +3437,52 @@
+          all(r["gates"]["G5J"][w]["G_TB_trivial_baseline"]["verdict"] == "PASS"
+              and r["gates"]["G5J"][w]["G_TB_trivial_baseline"]["n_passing_at_the_wrong_step"] == 0
+              for w in ("SHIPPED", "PATCHED")))
++    # ---- MP-A1 GATES: G-CLHOLD, G-DRAG, G-CLTGT, G5C dCL_i/dx coverage ------------
++    unit("U6a MP-A1 clean -> G-CLHOLD PASS both rows: lift HELD at all 3 targets, none negative",
++         all(r["gates"]["G-CLHOLD_cl_satisfaction_per_row"][w]["verdict"] == "PASS"
++             and all(p["held"] and p["cl_positive"]
++                     for p in r["gates"]["G-CLHOLD_cl_satisfaction_per_row"][w]["per_point"].values())
++             for w in ("SHIPPED", "PATCHED")))
++    unit("U6b MP-A1 clean -> G-DRAG PASS both rows: final weighted J < baseline J",
++         all(r["gates"]["G-DRAG_reduction_per_row"][w]["verdict"] == "PASS"
++             and r["gates"]["G-DRAG_reduction_per_row"][w]["J_final"]
++                 < r["gates"]["G-DRAG_reduction_per_row"][w]["J_baseline"]
++             for w in ("SHIPPED", "PATCHED")))
++    unit("U6c MP-A1 clean -> G-CLTGT PASS: stamped targets == registered CL_TARGET",
++         all(r["gates"]["G-CLTGT_targets_registered_per_row"][w]["verdict"] == "PASS"
++             for w in ("SHIPPED", "PATCHED")))
++    unit("U6d G5C COVERS all THREE dCL_i/dx CONSTRAINT gradients at the final design (check-3)",
++         all(r["gates"]["G5J"][w]["G5C_lift_per_scenario"].get("covers_constraint_gradients") is True
++             and r["gates"]["G5J"][w]["G5C_lift_per_scenario"].get("n_cl_constraint_gradients_graded") == N_SCEN
++             for w in ("SHIPPED", "PATCHED")))
++    # G-CLHOLD fires RED both ways: out-of-band, and a NEGATIVE collapse (SO-3's mode).
++    r_oob = grade(_fix(tmp, tw(cl_hold_offset=[2.0e-3, 2.0e-4, 2.0e-4])))
++    unit("U6e G-CLHOLD RED: a point out of band (dev 2e-3 > TOL 1e-3) -> row + item GATE FAIL",
++         r_oob["gates"]["G-CLHOLD_cl_satisfaction_per_row"]["PATCHED"]["verdict"] == "GATE FAIL"
++         and r_oob["gates"]["G-CLHOLD_cl_satisfaction_per_row"]["PATCHED"]["per_point"][SCENARIOS[0]]["held"] is False
++         and r_oob["rows"]["PATCHED"] == "GATE FAIL" and r_oob["verdict"] == "GATE FAIL")
++    r_neg = grade(_fix(tmp, tw(cl_hold_offset=[-(CL_TARGET[0] + 0.05), 2.0e-4, 2.0e-4])))
++    unit("U6f G-CLHOLD RED: lift driven NEGATIVE at point0 (SO-3's collapse) -> GATE FAIL",
++         r_neg["gates"]["G-CLHOLD_cl_satisfaction_per_row"]["PATCHED"]["per_point"][SCENARIOS[0]]["cl_positive"] is False
++         and r_neg["gates"]["G-CLHOLD_cl_satisfaction_per_row"]["PATCHED"]["verdict"] == "GATE FAIL"
++         and r_neg["rows"]["PATCHED"] == "GATE FAIL")
++    # G-DRAG fires RED: the constrained optimiser did not improve on the feasible seed.
++    r_nod = grade(_fix(tmp, tw(opt_reduction_pct={"O-S": 0.0, "O-P": 0.0})))
++    unit("U6g G-DRAG RED: final J == baseline J (no improvement) -> row + item GATE FAIL",
++         r_nod["gates"]["G-DRAG_reduction_per_row"]["PATCHED"]["verdict"] == "GATE FAIL"
++         and r_nod["rows"]["PATCHED"] == "GATE FAIL" and r_nod["verdict"] == "GATE FAIL")
++    # G-CLTGT fires RED: the run stamped targets other than the registered ones.
++    r_tgt = grade(_fix(tmp, tw(cl_target_override=True)))
++    unit("U6h G-CLTGT RED: stamped targets != registered CL_TARGET -> GATE FAIL",
++         r_tgt["gates"]["G-CLTGT_targets_registered_per_row"]["PATCHED"]["verdict"] == "GATE FAIL"
++         and r_tgt["verdict"] == "GATE FAIL")
++    # THE G-CLHOLD PLANTED CONTROL fired BOTH ways in the clean grade (rule 3).
++    unit("U6i G-CLHOLD planted control fired both ways: held->PASS, planted->GATE FAIL, collapse->GATE FAIL, plant seen off disk",
++         r["controls"]["grader_plant_clhold"]["exercised"] is True
++         and r["controls"]["grader_plant_clhold"]["plant_seen"] is True
++         and r["controls"]["grader_plant_clhold"]["v_held"] == "PASS"
++         and r["controls"]["grader_plant_clhold"]["v_planted"] == "GATE FAIL"
++         and r["controls"]["grader_plant_clhold"]["v_collapsed"] == "GATE FAIL")
+     unit("U7 clean fixture -> every plateau proved PER PAIR, never once for the item",
+          all("plateau_neighbour_pct" in p and len(p["plateau_neighbour_pct"]) == 2
+              for w in ("SHIPPED", "PATCHED")
+@@ -3178,26 +3498,26 @@
+     # ---- B. THE SCHEMA CONTRACT WITH THE FROZEN CONSUMERS -- see (I) ---------------
+     gp = _write_grade(root0, r)
+     sm = _run_stop_marker(root0, gp)
+-    unit("U11 SCHEMA the FROZEN so3_stop_marker.sh reads this artefact's verdict",
++    unit("U11 SCHEMA the FROZEN mpa1_stop_marker.sh reads this artefact's verdict",
+          sm["state"] == "EXERCISED" and sm["rc"] == 0 and sm["marker"] is not None
+          and sm["marker"]["verdict"] == r["verdict"]
+          and sm["marker"]["verdict_source"] == "COPIED FROM THE COMPARATOR ARTEFACT")
+     unit("U11b SCHEMA the marker ADDRESS is read out of the frozen writer, never guessed",
+-         stop_marker_basename() == "SO3_STOP_MARKER.json"
+-         and sm["marker_path"].endswith("SO3_STOP_MARKER.json"))
++         stop_marker_basename() == "MPA1_STOP_MARKER.json"
++         and sm["marker_path"].endswith("MPA1_STOP_MARKER.json"))
+     unit("U12 SCHEMA the FROZEN consumer finds gates.G5J -- the LITERAL key it looks for",
+          sm["state"] == "EXERCISED" and sm["marker"] is not None
+          and sm["marker"]["G5J"] != "NOT PRESENT IN THE ARTEFACT")
+     r_break = json.loads(json.dumps(r, default=str))
+     r_break["gates"]["G5J_PATCHED"] = r_break["gates"].pop("G5J")
+-    gp_b = _write_grade(root0, r_break, "SO3_grade_schemabreak.json")
++    gp_b = _write_grade(root0, r_break, "MPA1_grade_schemabreak.json")
+     sm_b = _run_stop_marker(root0, gp_b)
+     unit("U13 SCHEMA the SAME check FAILS when the key is renamed -- the contract can fail",
+          sm_b["state"] == "EXERCISED" and sm_b["marker"] is not None
+          and sm_b["marker"]["G5J"] == "NOT PRESENT IN THE ARTEFACT")
+     r_break2 = json.loads(json.dumps(r, default=str))
+     r_break2["grade"] = {"verdict": r_break2.pop("verdict")}
+-    gp_b2 = _write_grade(root0, r_break2, "SO3_grade_verdictbreak.json")
++    gp_b2 = _write_grade(root0, r_break2, "MPA1_grade_verdictbreak.json")
+     sm_b2 = _run_stop_marker(root0, gp_b2)
+     unit("U14 SCHEMA a verdict moved one level down reads PENDING, never a silent PASS",
+          sm_b2["state"] == "EXERCISED" and sm_b2["marker"] is not None
+@@ -3237,7 +3557,7 @@
+     unit("U28b CONTROL the flip control is COMPARATIVE: a row below the graded-pair floor "
+          "reads NOT A RESULT planted AND unplanted, and is not refused",
+          grade(_fix(tmp, tw(noplateau={"PATCHED": {0, 3}})))["rows"]["PATCHED"] == "NOT A RESULT")
+-    # ---- SO-3's PLANT-SIZING UNITS.  The plant is RELATIVE to the band it must
++    # ---- MP-A1's PLANT-SIZING UNITS.  The plant is RELATIVE to the band it must
+     # ---- cross, and the sufficiency claim is DRIVEN AT AN INSUFFICIENT K.
+     _pc = r["controls"]["grader_plant_X_%s" % ROWS[0]]
+     unit("U28c PLANT SIZING: the production plant is RELATIVE, not absolute, and names "
+@@ -3483,9 +3803,9 @@
+          == os.path.isfile(LAUNCHER_PATH))
+ 
+     # ---- I. THE ROW-LABEL CALL-SITE SWEEP, ACROSS EVERY INSTRUMENT ----------------
+-    present, absent = so3_instrument_files()
++    present, absent = mpa1_instrument_files()
+     sweep = {os.path.basename(f): row_label_call_sites(f) for f in present}
+-    unit("U100 ROW-LABEL every built SO-3 instrument is free of short-form row "
++    unit("U100 ROW-LABEL every built MP-A1 instrument is free of short-form row "
+          "literals and positional row derivations (%d files swept, %d not yet built)"
+          % (len(present), len(absent)),
+          all(v == [] for v in sweep.values()))
+@@ -3511,7 +3831,7 @@
+     # actually missing.  This plant carries ONLY the suffix-glob form, assembled
+     # from parts so this file does not itself contain the token the sweep hunts,
+     # and it must be caught by exactly the rule whose absence let
+-    # so3_chain_driver.sh's `img_of` through eight files of sweeping.
++    # mpa1_chain_driver.sh's `img_of` through eight files of sweeping.
+     # The DISCRIMINATOR is the second half: a case list of FULL arm names is the
+     # REGISTERED form and must come back CLEAN through the same reader in the same
+     # unit -- a rule that flagged both would forbid the repair it is asking for.
+@@ -3578,7 +3898,7 @@
+     for i, a in enumerate(sys.argv):
+         if a == "--root" and i + 1 < len(sys.argv):
+             root = sys.argv[i + 1]
+-        # `--out` IS THE FROZEN DRIVER'S CONTRACT: so3_chain_driver.sh:234 invokes
++        # `--out` IS THE FROZEN DRIVER'S CONTRACT: mpa1_chain_driver.sh:234 invokes
+         # this comparator with it and reads the artefact back from that exact path.
+         # Adopting the parent's self-composed stamped path would have written to an
+         # address the driver never looks at.
+@@ -3591,7 +3911,7 @@
+         return 2
+     if out is None:
+         stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+-        out = os.path.join(root, "SO3_grade_%s.json" % stamp)
++        out = os.path.join(root, "MPA1_grade_%s.json" % stamp)
+     with open(out, "w") as fh:
+         json.dump(rec, fh, indent=1, sort_keys=True, default=str)
+     sys.stdout.write("VERDICT %s  rows=%s  declared=%d executed=%d  written=%s\n"

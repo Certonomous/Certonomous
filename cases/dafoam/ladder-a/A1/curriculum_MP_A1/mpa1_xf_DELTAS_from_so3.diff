@@ -1,0 +1,205 @@
+--- curriculum_SO3/so3_xf.py	2026-09-01 02:37:33.915269009 +0000
++++ curriculum_MP_A1/mpa1_xf.py	2026-09-07 03:59:24.355889407 +0000
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python
+-"""Curriculum SO-3 -- NACA0012, THE ALPHA-MULTIPOINT WEIGHTED OBJECTIVE
++"""Curriculum MP-A1 -- NACA0012, THE ALPHA-MULTIPOINT WEIGHTED OBJECTIVE
+ `J = SUM_i w_i * CD_i(alpha_i)` on the verified incompressible ground: the
+ FD-VERIFIED MULTIPOINT GRADIENT RUNG.  PREREGISTRATION.md section 7 row 3,
+ frozen 1a06a7d6.  Modes X (adjoint / compute_totals) and F (central FD table).
+@@ -29,13 +29,13 @@
+     alpha is the OPERATING POINT that distinguishes the scenarios, so it cannot
+     simultaneously be a design variable trimmed to a lift target.  Consequently
+     SO-2a's `STEPS["patchV"]` and its G-STRUCT exact-zero probe are BOTH gone;
+-    SO-3's structural gate is G-MP-STRUCT, on the assembly identity, and the
++    MP-A1's structural gate is G-MP-STRUCT, on the assembly identity, and the
+     per-scenario adjoint decomposition this file writes is what buys it.
+ 
+   * THE STEP-BASED TRIVIAL BASELINE IS BACK, at h = 1e-8, and that is a
+     registered REVERSAL of SO-2a's decision with SO-2a's own stated reason.
+     SO-2a refused a step-based baseline because a GEOMETRIC constraint is
+-    bit-repeatable and h = 1e-8 never enters subtractive cancellation.  SO-3's
++    bit-repeatable and h = 1e-8 never enters subtractive cancellation.  MP-A1's
+     quantity is a FLOW FUNCTIONAL again -- D15 measured eta_F = 1.30e-10 on this
+     mesh -- so h = 1e-8 IS in the cancellation regime and IS a valid wrong step.
+     That is SO-1a's `TB_STEPS` reading, restored for the quantity it fits.
+@@ -77,7 +77,7 @@
+     dead plant REFUSED.  A guard that cannot be driven is a guard nobody has
+     tested (the SO-1b inline-heredoc lesson, applied one level down).
+ 
+-  * Printed tokens SO2A_* -> SO3_*; artefact names so2a_* -> so3_*.
++  * Printed tokens SO2A_* -> MPA1_*; artefact names so2a_* -> mpa1_*.
+   * The two-primal eta measurement, the CTRL planted-zero component with its
+     disk read-back refusal, the emit/fsync discipline, the producer-md5 refusal
+     and the MPI rank-0 file rule are SO-1a's / SO-2a's / D15's / D5's / D4's
+@@ -98,18 +98,18 @@
+ import sys
+ import time
+ 
+-PRODUCER = "so3_runScript.py"
+-# ---- THE PRODUCER PIN.  THIS CONSTANT IS THE WHOLE REASON SO-3 EXISTS.
++PRODUCER = "mpa1_runScript.py"
++# ---- THE PRODUCER PIN.  THIS CONSTANT IS THE WHOLE REASON MP-A1 EXISTS.
+ # ----
+-# ---- SO-3a shipped this line still holding a SENTINEL.  Its container started,
++# ---- MP-A1a shipped this line still holding a SENTINEL.  Its container started,
+ # ---- its solver exited 2 in ten seconds, and its log carried, verbatim:
+ # ----
+-# ----   SO3A_XF REFUSE producer md5 c0821199159026ec597549ee034b73ac
++# ----   MPA1A_XF REFUSE producer md5 c0821199159026ec597549ee034b73ac
+ # ----           != frozen UNSET-PRODUCER-PIN-SENTINEL-FAILS-CLOSED
+ # ----
+ # ---- The pin WORKED.  It refused to run the instrument against an unverified
+ # ---- producer, and the md5 it printed was the correct md5 of the real
+-# ---- producer.  SO-3a could never have launched; item verdict NOT A RESULT.
++# ---- producer.  MP-A1a could never have launched; item verdict NOT A RESULT.
+ # ----
+ # ---- The sentinel's design was RIGHT and its census was WRONG.  The value was
+ # ---- deliberately NOT 32 hex, so it could never accidentally equal a file's
+@@ -117,16 +117,16 @@
+ # ---- set, which selected pins by the SHAPE OF THE VALUE and read only the
+ # ---- chain driver.  The census reported "13 declared, 13 driven" and was
+ # ---- right about thirteen md5-shaped constants in one file and silent about a
+-# ---- fourteenth that was not.  `so3_pin_census.py` sweeps BY ROLE and
++# ---- fourteenth that was not.  `mpa1_pin_census.py` sweeps BY ROLE and
+ # ---- asserts, in A2, that a pin of this kind holds a real md5.
+ # ----
+-# ---- SET, and equal to md5(so3_runScript.py).  It is asserted by A3 of the
++# ---- SET, and equal to md5(mpa1_runScript.py).  It is asserted by A3 of the
+ # ---- census on every drive, and DRIVEN in both directions by (p1)-(p4) of
+-# ---- `so3_groot5_selftest.sh`: REFUSE on a mutated producer, PASS on the
++# ---- `mpa1_groot5_selftest.sh`: REFUSE on a mutated producer, PASS on the
+ # ---- real one, restore proved byte-identical by hash.
+ PRODUCER_MD5 = "0c026d72047b605099125258e3152f93"
+ ANCHOR = "# OpenMDAO setup"
+-ITEM = "SO3"
++ITEM = "MPA1"
+ 
+ # ---- registered constants (PREREGISTRATION.md THE TEN LINES; that document
+ # ---- governs and NOTHING here may move a gate, threshold, cap or label) -------
+@@ -182,12 +182,12 @@
+                   + len(COMPONENTS) * len(STEPS["shape"]) * 2
+                   + len(COMPONENTS) * len(TB_STEPS["shape"]) * 2)
+ 
+-OUT_X = "so3_X.json"
+-OUT_F = "so3_F.json"
+-JSONL_F = "so3_F.jsonl"
+-JSONL_X = "so3_X.jsonl"
+-TERMINAL_X = "SO3_X_WRITTEN"
+-TERMINAL_F = "SO3_F_WRITTEN"
++OUT_X = "mpa1_X.json"
++OUT_F = "mpa1_F.json"
++JSONL_F = "mpa1_F.jsonl"
++JSONL_X = "mpa1_X.jsonl"
++TERMINAL_X = "MPA1_X_WRITTEN"
++TERMINAL_F = "MPA1_F_WRITTEN"
+ 
+ 
+ def md5_of(path):
+@@ -381,7 +381,7 @@
+             "evaluations_failed": int(evaluations_failed),
+             "evaluation_failures": list(eval_failures or []),
+             "optimiser": None,
+-            "optimiser_note": ("G-NOOPT-ENDPOINT: NO OPTIMISER RUNS IN THIS ARM.  SO-3 is an "
++            "optimiser_note": ("G-NOOPT-ENDPOINT: NO OPTIMISER RUNS IN THIS ARM.  MP-A1 is an "
+                                "OPTIMISATION item and its O arms DO run IPOPT -- so the item-level "
+                                "no-optimiser claim SO-3aR2 could make is GONE, and saying otherwise "
+                                "here would be a false claim carried across a rename.  What survives, "
+@@ -389,7 +389,7 @@
+                                "the X/F arms this instrument writes run `run_model` and "
+                                "`compute_totals` only, so no run_driver, no major count and no IPOPT "
+                                "EXIT line may appear in THIS artefact.  The O arm's own record is "
+-                               "so3_O.json and it is graded under DAFOAM_CHARTER section 9, not here")}
++                               "mpa1_O.json and it is graded under DAFOAM_CHARTER section 9, not here")}
+ 
+ 
+ def build_F_record(nprocs, producer_md5, identity, mp_identity, rows,
+@@ -502,7 +502,7 @@
+         if a == "-mode" and i + 1 < len(argv):
+             mode = argv[i + 1]
+     if mode not in ("X", "F"):
+-        sys.stderr.write("SO3_XF usage: so3_xf.py -mode X|F [-xopt so3_xopt.json]\n")
++        sys.stderr.write("MPA1_XF usage: mpa1_xf.py -mode X|F [-xopt mpa1_xopt.json]\n")
+         sys.exit(64)
+     return mode
+ 
+@@ -510,7 +510,7 @@
+ def parse_xopt(argv):
+     """The path to the final design point, or `""` for the baseline.
+ 
+-    SO-3 REGISTERED DELTA.  `DAFOAM_CHARTER.md` section 9 requires the FD check
++    MP-A1 REGISTERED DELTA.  `DAFOAM_CHARTER.md` section 9 requires the FD check
+     AT THE FINAL DESIGN POINT, and the charter's stated reason is THIS toolchain:
+     the IDWarp rotation defect is GUARANTEED to fire at the undeformed baseline
+     (`axisMag = 1e-15 < tol = sqrt(eps)` makes branch 0 certain at every
+@@ -519,7 +519,7 @@
+     (`ROOTCAUSE_getRotationMatrix3d.md` sections 1.6 and 6.4).  **A gradient
+     verified at iteration 0 is not verified at iteration 47**, and the two
+     regimes sit on OPPOSITE SIDES of the guard.  SO-3aR2 supplies iteration 0
+-    only; this argument is how SO-3 supplies the other end."""
++    only; this argument is how MP-A1 supplies the other end."""
+     for i, a in enumerate(argv):
+         if a == "-xopt" and i + 1 < len(argv):
+             return argv[i + 1]
+@@ -543,12 +543,12 @@
+     got_md5 = ident.get("libidwarp_so_md5")
+     row_here = ROW_BY_SO_MD5.get(got_md5)
+     if row_here is None:
+-        sys.stderr.write("SO3_XF REFUSE_XOPT_ROW libidwarp.so md5 %r matches neither "
++        sys.stderr.write("MPA1_XF REFUSE_XOPT_ROW libidwarp.so md5 %r matches neither "
+                          "registered toolchain; this instrument will not verify an "
+                          "endpoint it cannot attribute\n" % (got_md5,))
+         sys.exit(2)
+     if rec.get("row") != row_here:
+-        sys.stderr.write("SO3_XF REFUSE_XOPT_ROW %s is stamped row=%r but this "
++        sys.stderr.write("MPA1_XF REFUSE_XOPT_ROW %s is stamped row=%r but this "
+                          "container is row=%r\n" % (path, rec.get("row"), row_here))
+         sys.exit(2)
+     return rec, row_here
+@@ -558,21 +558,21 @@
+     mode = parse_mode(sys.argv)
+     got = md5_of(PRODUCER)
+     if got != PRODUCER_MD5:
+-        sys.stderr.write("SO3_XF REFUSE producer md5 %s != frozen %s\n"
++        sys.stderr.write("MPA1_XF REFUSE producer md5 %s != frozen %s\n"
+                          % (got, PRODUCER_MD5))
+         sys.exit(2)
+ 
+     with open(PRODUCER) as fh:
+         src = fh.read()
+     if src.count(ANCHOR) != 1:
+-        sys.stderr.write("SO3_XF REFUSE anchor %r appears %d times\n"
++        sys.stderr.write("MPA1_XF REFUSE anchor %r appears %d times\n"
+                          % (ANCHOR, src.count(ANCHOR)))
+         sys.exit(2)
+     header = src.split(ANCHOR)[0]
+ 
+     saved_argv = list(sys.argv)
+     sys.argv = [PRODUCER, "-task", "run_model", "-optimizer", "IPOPT"]
+-    ns = {"__name__": "so3_frozen_header", "__file__": PRODUCER}
++    ns = {"__name__": "mpa1_frozen_header", "__file__": PRODUCER}
+     exec(compile(header, PRODUCER, "exec"), ns)
+     sys.argv = saved_argv
+ 
+@@ -618,7 +618,7 @@
+         xshape = np.array(xrec["shape"], dtype=float)
+         cur = np.array(prob.get_val("shape"), dtype=float)
+         if xshape.shape != cur.shape:
+-            sys.stderr.write("SO3_XF REFUSE_XOPT_SHAPE %r vs %r\n"
++            sys.stderr.write("MPA1_XF REFUSE_XOPT_SHAPE %r vs %r\n"
+                              % (xshape.shape, cur.shape))
+             sys.exit(2)
+         prob.set_val("shape", xshape)
+@@ -831,10 +831,10 @@
+         # drivable on the host without a container -- see `ctrl_readback_check`.
+         ok, detail = ctrl_readback_check(jsonl)
+         if not ok:
+-            sys.stderr.write("SO3_XF REFUSE planted-zero control not seen on read-back: %s\n"
++            sys.stderr.write("MPA1_XF REFUSE planted-zero control not seen on read-back: %s\n"
+                              % json.dumps(detail, sort_keys=True, default=str))
+             sys.exit(2)
+-        sys.stdout.write("SO3_PLANTED_ZERO_CONTROL_SEEN n_zero_entries=%d want=%r\n"
++        sys.stdout.write("MPA1_PLANTED_ZERO_CONTROL_SEEN n_zero_entries=%d want=%r\n"
+                          % (detail["n_zero_entries_read"], detail["want"]))
+         rec = build_F_record(nprocs, got, ident, mp_ident, rows, b0["J"], b1["J"],
+                              b0["CD"], b1["CD"], b0["CL"], b1["CL"],

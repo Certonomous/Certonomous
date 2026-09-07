@@ -1,0 +1,4 @@
+MP-A1 is a DRAFT pre-registration and is NOT FROZEN. CLAUDE.md rule 2 forbids compute
+before the freeze by sha. The launcher and mpa1_runScript.py both refuse while this
+sentinel exists. The freeze act (dafoam-supervisor, after check-1 of the instrument
+diffs) removes this file. SUBMISSIONS PARKED.

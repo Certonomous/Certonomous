@@ -1,0 +1,38 @@
+--- curriculum_SO3/so3_stall.py	2026-09-01 02:10:55.083135346 +0000
++++ curriculum_MP_A1/mpa1_stall.py	2026-09-07 03:59:24.376531300 +0000
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""SO-3 STALL DETECTOR -- the registered numerical stop for a backtracking optimiser.
++"""MP-A1 STALL DETECTOR -- the registered numerical stop for a backtracking optimiser.
+ 
+ WHY THIS FILE EXISTS, AND IT IS NOT A CONVENIENCE
+ -------------------------------------------------
+@@ -82,7 +82,7 @@
+ -------------------------------
+ It emits `STALL` or `NO_STALL` and the evidence.  It NEVER emits a verdict from
+ `CLAUDE.md` rule 1's vocabulary.  The mapping from a stall to `GATE REACHED` or
+-`NOT A RESULT` lives in `so3_grade.py` and is section 9's, not this module's --
++`NOT A RESULT` lives in `mpa1_grade.py` and is section 9's, not this module's --
+ because that mapping depends on a registered intermediate threshold this module
+ cannot see.  A detector that also graded would be able to launder a stop into a
+ pass by relabelling it here.
+@@ -305,7 +305,7 @@
+ 
+ def selftest():
+     ok = True
+-    print("SO-3 STALL DETECTOR SELFTEST")
++    print("MP-A1 STALL DETECTOR SELFTEST")
+ 
+     # ---- (s1) THE C-188 GEOMETRY, REPRODUCED FROM ITS OWN RECORDED STATISTICS.
+     # A backtracking run: alpha_pr collapses, inf_du worsens, restoration majors
+@@ -511,8 +511,8 @@
+         print(json.dumps(scan_file(argv[2]), indent=2, sort_keys=True))
+         return 0
+     print(__doc__)
+-    print("usage: so3_stall.py scan <ipopt_output_file>\n"
+-          "       so3_stall.py selftest")
++    print("usage: mpa1_stall.py scan <ipopt_output_file>\n"
++          "       mpa1_stall.py selftest")
+     return 1
+ 
+ 

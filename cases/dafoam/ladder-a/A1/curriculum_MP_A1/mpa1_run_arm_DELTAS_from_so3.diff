@@ -1,0 +1,602 @@
+--- curriculum_SO3/so3_run_arm.sh	2026-09-01 02:37:33.940082327 +0000
++++ curriculum_MP_A1/mpa1_run_arm.sh	2026-09-07 04:12:58.494142073 +0000
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env bash
+-# Curriculum SO-3 arm launcher -- NACA0012 INCOMPRESSIBLE (DASimpleFoam),
++# Curriculum MP-A1 arm launcher -- NACA0012 INCOMPRESSIBLE (DASimpleFoam),
+ # ALPHA-MULTIPOINT.  Derived from curriculum_SO2a/so2a_run_arm.sh; every
+ # reference to SO-2a below its title is a CITATION OF THE PARENT, not a stale
+ # self-reference -- this line was one, and it survived the rename because the
+@@ -10,7 +10,7 @@
+ #
+ # DERIVED from `cases/dafoam/ladder-a/A1/curriculum_D15/d15_run_arm.sh`
+ # (md5 796a2de5b894e8fcdbfab99af6fbf09d) with the REGISTERED DELTAS listed in
+-# PREREGISTRATION.md section 7 and recorded in so3_run_arm_DELTAS_from_d15.diff:
++# PREREGISTRATION.md section 7 and recorded in mpa1_run_arm_DELTAS_from_d15.diff:
+ # item/root names; the INCOMPRESSIBLE tutorial as the source; forbidden roots
+ # extended with D15's, D16's, D17's, AV-1's and AV-2's; RANKS 1 ON EVERY ARM
+ # (DAFOAM_CHARTER.md section 5, serial before parallel); cpuset 9; the cap table;
+@@ -22,7 +22,7 @@
+ # artefact intact because a frozen grader pinned the datum to the NAME `0/U` while
+ # this tutorial's `writeCompression on` rewrites it as `0/U.gz` on a serial arm.
+ # This launcher resolves the datum over BOTH names and writes the one it used to
+-# `.so3_age_datum_ref` beside the epoch, so the grader is not left inferring it.
++# `.mpa1_age_datum_ref` beside the epoch, so the grader is not left inferring it.
+ #
+ # CAP DISCIPLINE (the failure this file exists not to repeat).  A peer lane
+ # today registered a 3.0 core-min cap and its launcher enforced 6.0 by
+@@ -49,20 +49,20 @@
+ # real producer is THIS FILE.  SO-1a's comparator selftest reproduced the row
+ # format in a Python constant (`ROWFMT`), so a launcher/reader divergence would
+ # have left the suite green and the reader blind on the real run.  Here
+-# `so3_grade.py:_ledger_rows_via_launcher` runs
+-#     bash -c '. so3_run_arm.sh --source-only; so3_ledger_row ...'
++# `mpa1_grade.py:_ledger_rows_via_launcher` runs
++#     bash -c '. mpa1_run_arm.sh --source-only; mpa1_ledger_row ...'
+ # and every fixture row comes out of these bytes.  If this format and the
+ # reader's regex ever diverge, the fixture rows stop parsing and the suite
+ # fails LOUDLY instead of passing quietly.
+ #
+ # 21 positional arguments, in the order the row prints them.
+ # ===========================================================================
+-so3_ledger_row() {
++mpa1_ledger_row() {
+   echo "ARM=$1 ROW=$2 IMG=$3 DIGEST=$4 rc=$5 wall_s=$6 ranks=$7 core_min=$8 cap_core_min=$9 enforced_wall_s=${10} enforced_core_min=${11} memory=${12} inspect(exit,oomkilled)=[${13}] memavail_pre_GiB=${14} memavail_post_GiB=${15} cpuset=${16} delivered_cores_mean=[${17}] siblings_pre=[${18}] siblings_post=[${19}] log=${20} stamp=${21}"
+ }
+ 
+ # ===========================================================================
+-# THE REGISTERED TABLES LIVE ABOVE `--source-only`, AND THAT IS A SO-3 DELTA.
++# THE REGISTERED TABLES LIVE ABOVE `--source-only`, AND THAT IS A MP-A1 DELTA.
+ #
+ # The parent defined cap_core_min/cap_memory/ranks_of and its cpuset BELOW the
+ # early return, so `--source-only` exposed the LEDGER ROW and nothing else.  A
+@@ -73,13 +73,14 @@
+ # COMPARATOR'S own constants and never reads the launcher's.
+ #
+ # These are PURE TABLES: they read nothing, write nothing, and abort nothing.
+-# Moving them above the early return exposes them to so3_groot5_selftest.sh's
++# Moving them above the early return exposes them to mpa1_groot5_selftest.sh's
+ # (x) legs and changes no runtime behaviour -- EVERY GUARD, EVERY READ AND
+ # EVERY DESTRUCTIVE ACT REMAINS BELOW IT, which is the property the parent's
+ # comment is actually protecting.
+ # ===========================================================================
+ 
+-CPUSET=14   # see the placement disclosure below, at first use
++CPUSET=8   # MP-A1 registered cpuset 8 (PROVISIONAL; re-read live occupancy at freeze).
++           # G12 gates this against mpa1_grade.py:CPUSET_REGISTERED.  NOT core 0.
+ 
+ cap_core_min() {
+   case "$1" in
+@@ -102,7 +103,7 @@
+ # SO-3aR2's capability cell says in terms that it establishes "NOTHING about
+ # Mach, an optimum, or np != 1", and `DAFOAM_CHARTER.md` section 5 forbids
+ # carrying an FD reference across np: *"A gradient verified at one np is a
+-# statement about that np and is never carried to another."*  SO-3's FD
++# statement about that np and is never carried to another."*  MP-A1's FD
+ # inheritance from SO-3aR2 is VOID at any other rank count, so the table below is
+ # not a performance choice -- it is the condition on the inheritance.  A4's
+ # 16,600x decomposition effect (np=4 scotch 8.95 % against np=4 simple 4x1x1
+@@ -250,6 +251,20 @@
+   return 0 2>/dev/null || exit 0
+ fi
+ 
++# ---- THE NOT_FROZEN PERMISSION GATE.  Placed AFTER the --source-only return so
++# ---- the selftest can still source the functions above, and BEFORE every guard,
++# ---- read and destructive act below.  This item is a DRAFT and is NOT FROZEN;
++# ---- CLAUDE.md rule 2 forbids compute before the freeze.  While a `NOT_FROZEN`
++# ---- sentinel sits beside this launcher a real arm invocation REFUSES to stage
++# ---- or launch, before it touches a run root.  The freeze act removes it.
++MPA1_HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
++if [ -e "$MPA1_HERE/NOT_FROZEN" ]; then
++  echo "MPA1_REFUSE_NOT_FROZEN a NOT_FROZEN sentinel is present beside mpa1_run_arm.sh:" >&2
++  echo "  this pre-registration is NOT frozen; CLAUDE.md rule 2 forbids compute before the" >&2
++  echo "  freeze.  REFUSED.  (The freeze act removes the sentinel.)" >&2
++  exit 70
++fi
++
+ # ===========================================================================
+ # D4-LAUNCHER-DEF-1 -- THE DEFECT THIS FILE EXISTS NOT TO REPEAT.
+ #
+@@ -271,8 +286,8 @@
+ # fire is ceremony -- and this is the guard standing between a re-fire and
+ # 384 MB of irreplaceable graded evidence.
+ # ===========================================================================
+-ITEM=SO3
+-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation
++ITEM=MPA1
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1-a1-naca0012-alpha-multipoint-fixedlift-optimisation
+ BASE="${BASE:-$REGISTERED_BASE}"
+ 
+ # ---- G-ROOT.1 -- BASE must be THIS item's registered root, normalised, so a
+@@ -293,7 +308,7 @@
+ # ---- something did not match.  Explicit, because the specific message is what
+ # ---- a future reader in a hurry actually acts on.
+ #
+-# ---- SO-3 REGISTERED DELTA, AND IT IS A REPAIR OF A FICTION THIS FAMILY HAS NOW
++# ---- MP-A1 REGISTERED DELTA, AND IT IS A REPAIR OF A FICTION THIS FAMILY HAS NOW
+ # ---- CARRIED THROUGH THREE GENERATIONS.  A MECHANICAL RENAME MOVES TOKENS; IT
+ # ---- CANNOT MAKE PROSE TRUE.
+ # ----
+@@ -310,7 +325,7 @@
+ # ----   * `so3ar2_run_arm.sh:174-178` describes that entry, in terms, as one of
+ # ----     "FOUR roots that DO exist, and hold real evidence".  Three of the four
+ # ----     do; that one does not, and did not when the sentence was written.  The
+-# ----     sentence was TRUE OF SO-3a's ROOT and was carried across two renames
++# ----     sentence was TRUE OF MP-A1a's ROOT and was carried across two renames
+ # ----     that each moved the token and left the claim standing.
+ # ----   * The two DEAD entries the ancestor's comment names --
+ # ----     `CURRICULUM-SO1b-a1-naca0012-dragmin-opt` and
+@@ -319,10 +334,10 @@
+ # ----
+ # ---- WHAT THIS FILE DOES ABOUT IT.  `CURRICULUM-SO3aF-...` is ADDED under its
+ # ---- real name; the three gradient-rung roots of this item's own ancestry --
+-# ---- SO-3a, SO-3aR and SO-3aR2 -- are ADDED, because SO-3aR2's holds a GRADED,
++# ---- MP-A1a, SO-3aR and SO-3aR2 -- are ADDED, because SO-3aR2's holds a GRADED,
+ # ---- CLOSED record (item GATE FAIL, graded 2026-08-31T23:02:21Z) and this
+ # ---- launcher's staging path begins `rm -rf "$WORK"`.  The renamed ghost
+-# ---- `CURRICULUM-SO3F-...` is KEPT, because a name that is free today can be
++# ---- `CURRICULUM-MP-A1F-...` is KEPT, because a name that is free today can be
+ # ---- taken tomorrow and keeping it costs one string comparison -- but it is
+ # ---- named here as A GHOST and is no longer described as a root that exists.
+ # ----
+@@ -338,7 +353,7 @@
+ # ---- differently.  Recording the smaller true finding rather than the larger
+ # ---- false one is the point -- and that sentence, unlike the one above it, was
+ # ---- carried forward because it was RE-CHECKED, not because it was inherited.
+-# ---- `so3_run_arm_selftest.sh` leg (r6) drives every entry in this list against
++# ---- `mpa1_run_arm_selftest.sh` leg (r6) drives every entry in this list against
+ # ---- the disk and prints `GHOST` beside the ones that are not there, so the next
+ # ---- derivation inherits a measurement instead of a claim.
+ FORBIDDEN_ROOTS="/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin
+@@ -365,7 +380,7 @@
+ /home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt
+ /home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-dragmin-npinv
+ /home/ubuntu/certonomous-runs/CURRICULUM-SO2a-a1-naca0012-geometric-constraint-gradient
+-/home/ubuntu/certonomous-runs/CURRICULUM-SO3F-a1-naca0012-alpha-feasibility
++/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1F-a1-naca0012-alpha-feasibility
+ /home/ubuntu/certonomous-runs/CURRICULUM-SO3aF-a1-naca0012-alpha-feasibility
+ /home/ubuntu/certonomous-runs/CURRICULUM-SO3a-a1-naca0012-alpha-multipoint-gradient
+ /home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient
+@@ -411,39 +426,39 @@
+ # four distinct cores.  So: PIN, and MEASURE the placement rather than infer it
+ # from the flag that was passed.
+ #
+-# SO-3 STAGE-2 PLACEMENT (PREREGISTRATION.md section 5: "cpuset fixed at Stage 2
++# MP-A1 STAGE-2 PLACEMENT (PREREGISTRATION.md section 5: "cpuset fixed at Stage 2
+ # and DISCLOSED THERE AGAINST EVERY LIVE SIBLING'S REGISTERED SET").  cpuset 14,
+ # ONE core, because every arm runs at np = 1.  NOT core 0.
+ #
+ # THE DISCLOSURE, read rather than recalled, on this 16-core box:
+ #   SO-1c  holds 10 (MESH) and 10,11,12,13 (solver arms)  [so1c_run_arm.sh:172-178]
+ #   SO-2a  held  9                                        [so2a_run_arm.sh:178]
+-# 14 is disjoint from both, so SO-3 does NOT inherit the parent's DISCLOSED
++# 14 is disjoint from both, so MP-A1 does NOT inherit the parent's DISCLOSED
+ # OVERLAP with D4-SHIPPED's registered 5,6,7,9.  At np = 1 the grader's
+-# delivered-cores floor does not apply (so3_grade.py g_placement: dl_ok is True
++# delivered-cores floor does not apply (mpa1_grade.py g_placement: dl_ok is True
+ # when ARM_RANKS == 1), so an overlap would cost WALL TIME and could not fail G12
+ # -- but a disjoint placement is AVAILABLE here, and taking it is cheaper than
+-# reporting the exposure.  G12 compares this value against so3_grade.py's
++# reporting the exposure.  G12 compares this value against mpa1_grade.py's
+ # CPUSET_REGISTERED, so the two cannot drift apart silently.
+ 
+ # For containerised MPI the conditioning variable is CONCURRENT CONTAINERS, not
+ # loadavg -- `uptime` will lie.  Censused before and after every arm.
+ container_census() {
+-  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^so3_" | tr '\n' ',' | sed 's/,$//'
++  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^mpa1_" | tr '\n' ',' | sed 's/,$//'
+ }
+ 
+ # ---- REGISTERED CAP TABLE (PREREGISTRATION.md §4, verbatim) ---------------
+-# SO-3's registered caps (PREREGISTRATION.md section 4).  THIS TABLE IS A
++# MP-A1's registered caps (PREREGISTRATION.md section 4).  THIS TABLE IS A
+ # COMMENT AND THE CODE BELOW IS THE AUTHORITY; the derivation inherited the
+ # PARENT's numbers here (5.0/10.0/10.0/25.0/25.0 at 4g) while the code already
+-# carried SO-3's, so the two disagreed for a while and only the code was right.
+-# so3_groot5_selftest.sh now PARSES BOTH and refuses if they diverge, because a
++# carried MP-A1's, so the two disagreed for a while and only the code was right.
++# mpa1_groot5_selftest.sh now PARSES BOTH and refuses if they diverge, because a
+ # comment table that contradicts its own code is what a reviewer in a hurry reads.
+ # AND THE WALL COLUMN IS THE **REPAIRED** ONE.  Every `in-container wall` below
+ # is `floor(cap*60/ranks) - CAP_MARGIN_S`, NOT `cap*60/ranks`: the 180 s host-
+ # frame margin is charged to the CEILING here so the ledger cannot record
+ # `core_min > cap` on an arm that reaches its deadline.  See the C-188 CAP FRAME
+-# block.  `so3_run_arm_selftest.sh` leg (r2) PARSES this comment and the code and
++# block.  `mpa1_run_arm_selftest.sh` leg (r2) PARSES this comment and the code and
+ # refuses if they diverge, because a comment table that contradicts its own code
+ # is what a reviewer in a hurry reads.
+ #   arm    ranks  core-min cap   in-container wall   memory cap
+@@ -484,30 +499,30 @@
+ # run against a mis-pinned instrument.
+ #
+ # THE PINS ARE SET ONCE, AT THE STAGE-2 AMENDMENT, FOR ALL NINE TOGETHER, and not
+-# before -- even though so3_runScript.py and so3_xf.py now exist and their md5s
++# before -- even though mpa1_runScript.py and mpa1_xf.py now exist and their md5s
+ # could be written here today.  A pin table filled in for the files that happen to
+ # exist, inside the executable that stages every arm, is the SO2a-DRIVER-DEF-1
+ # shape in the place it does the most damage: it would read agreement on every pin
+ # it holds while a file this launcher copies is still missing.  Existence is a
+ # DIFFERENT question from md5 agreement and cannot be inferred from any level of
+-# it.  so3_chain_driver.sh:60-71 makes the same choice for the same reason.
++# it.  mpa1_chain_driver.sh:60-71 makes the same choice for the same reason.
+ # ---- STAGE-2 AMENDMENT, 2026-08-31: THE PINS ARE SET, ALL NINE TOGETHER.
+ # The fail-closed sentinel `MD5_UNSET` is REMOVED rather than left defined at
+ # 32 zeros, for two reasons.  It has no remaining consumer; and a dead constant
+ # whose VALUE is a well-formed md5 is a fail-open waiting to be re-used -- and it
+ # would be counted as a pin by the completeness leg that now compares
+ # pins-DECLARED against pins-DRIVEN.
+-MD5_RUNSCRIPT=0c026d72047b605099125258e3152f93   # so3_runScript.py
+-MD5_XF=58fd0e2600ce6836ddd039beb8677477          # so3_xf.py
+-# so3_decomposeParDict is ADOPTED BYTE-IDENTICALLY from the parent (one line
++MD5_RUNSCRIPT=0c026d72047b605099125258e3152f93   # mpa1_runScript.py
++MD5_XF=58fd0e2600ce6836ddd039beb8677477          # mpa1_xf.py
++# mpa1_decomposeParDict is ADOPTED BYTE-IDENTICALLY from the parent (one line
+ # changed from the tutorial's: numberOfSubdomains 1), it EXISTS, and this is the
+-# value so3_chain_driver.sh:70 already pins it at.  It is not a partial table: it
++# value mpa1_chain_driver.sh:70 already pins it at.  It is not a partial table: it
+ # is the one file whose bytes are unchanged from an already-frozen ancestor.
+ MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4
+ 
+ ARM="${1:-}"; IMG="${2:-}"
+-test -n "$ARM" || { echo "ABORT usage: so3_run_arm.sh <MESH|O-S|XE-S|FE-S|O-P|XE-P|FE-P> <image>"; exit 64; }
+-test -n "$IMG" || { echo "ABORT usage: so3_run_arm.sh <MESH|O-S|XE-S|FE-S|O-P|XE-P|FE-P> <image>"; exit 64; }
++test -n "$ARM" || { echo "ABORT usage: mpa1_run_arm.sh <MESH|O-S|XE-S|FE-S|O-P|XE-P|FE-P> <image>"; exit 64; }
++test -n "$IMG" || { echo "ABORT usage: mpa1_run_arm.sh <MESH|O-S|XE-S|FE-S|O-P|XE-P|FE-P> <image>"; exit 64; }
+ RANKS=$(ranks_of "$ARM"); test -n "$RANKS" || { echo "ABORT arm $ARM carries no registered rank count"; exit 64; }
+ 
+ # ---- G-ROOT.5 (ADDENDUM 2) -- A LIVE ARM IS NEVER RE-STAGED.  G-ROOT.1-.3
+@@ -519,13 +534,13 @@
+ # ----   (b) a driver pidfile in the run root naming a LIVE pid that is not an
+ # ----       ancestor of this process (a second driver), or whose cwd is the
+ # ----       run root.  A stale pidfile (dead pid) does not block.
+-LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^so3_${ARM}_" 2>/dev/null | grep "^so3_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^mpa1_${ARM}_" 2>/dev/null | grep "^mpa1_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+ if [ -n "$LIVE_SAME_ARM" ]; then
+   echo "ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [$LIVE_SAME_ARM]"
+   echo "  Re-staging would remove the live arm directory under it.  REFUSED."
+   exit 3
+ fi
+-PIDFILE="$BASE/so3_driver.pid"
++PIDFILE="$BASE/mpa1_driver.pid"
+ if [ -f "$PIDFILE" ]; then
+   DPID=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+   if [ -n "$DPID" ] && kill -0 "$DPID" 2>/dev/null; then
+@@ -574,8 +589,8 @@
+ OLD_WORST=$(python3 -c "print('%.6f' % (($OLD_TMO + $CAP_KILL_GRACE_S + 8) * $RANKS / 60.0))")
+ NEW_WORST=$(python3 -c "print('%.6f' % (($TMO + $CAP_KILL_GRACE_S + 8) * $RANKS / 60.0))")
+ echo "D4_CAP_ASSERT arm=$ARM registered_core_min=$CAP ranks=$RANKS enforced_wall_s=$TMO enforced_core_min=$BACKCHECK memory=$MEM margin_s=$CAP_MARGIN_S"
+-echo "SO3_C188_FRAME arm=$ARM repaired_tmo_s=$TMO ancestor_tmo_s=$OLD_TMO"
+-echo "SO3_C188_FRAME arm=$ARM worst_case_host_core_min repaired=$NEW_WORST ancestor=$OLD_WORST cap=$CAP overhead_s=8_MEASURED_C188 kill_grace_s=$CAP_KILL_GRACE_S"
++echo "MPA1_C188_FRAME arm=$ARM repaired_tmo_s=$TMO ancestor_tmo_s=$OLD_TMO"
++echo "MPA1_C188_FRAME arm=$ARM worst_case_host_core_min repaired=$NEW_WORST ancestor=$OLD_WORST cap=$CAP overhead_s=8_MEASURED_C188 kill_grace_s=$CAP_KILL_GRACE_S"
+ 
+ # ---- host state, read before ranks are claimed ---------------------------
+ MEMAVAIL_KB=$(awk '/MemAvailable/{print $2}' /proc/meminfo)
+@@ -587,8 +602,8 @@
+ test "$(stat -c '%a' "$BASE")" = "777" || { echo "ABORT L-251 run root mode $(stat -c '%a' "$BASE")"; exit 4; }
+ 
+ # ---- staged-instrument identity, re-asserted before EVERY launch ---------
+-echo "$MD5_RUNSCRIPT  $BASE/so3_runScript.py"       | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
+-echo "$MD5_XF  $BASE/so3_xf.py"                     | md5sum -c - || { echo "ABORT so3_xf.py md5"; exit 4; }
++echo "$MD5_RUNSCRIPT  $BASE/mpa1_runScript.py"       | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
++echo "$MD5_XF  $BASE/mpa1_xf.py"                     | md5sum -c - || { echo "ABORT mpa1_xf.py md5"; exit 4; }
+ echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict" | md5sum -c - || { echo "ABORT decomposeParDict md5"; exit 4; }
+ 
+ # ---- image identity by DIGEST, resolved from the local store -------------
+@@ -613,11 +628,11 @@
+ # singular.  A glob also cannot refuse an arm this item never declared -- `Q-S`
+ # would have matched `*-S` and been handed the SHIPPED row.  This table lists
+ # every DECLARED arm by its FULL NAME, so an undeclared arm falls through to the
+-# empty case and REFUSES, and it is the same mapping so3_grade.py registers as
++# empty case and REFUSES, and it is the same mapping mpa1_grade.py registers as
+ # ARM_ROW (MESH/O-S/XE-S/FE-S -> SHIPPED, O-P/XE-P/FE-P -> PATCHED).
+ WANT_ROW=$(row_of "$ARM")
+ test -n "$WANT_ROW" || {
+-  echo "ABORT arm $ARM carries no registered row.  SO-3 declares MESH O-S XE-S FE-S O-P XE-P FE-P"
++  echo "ABORT arm $ARM carries no registered row.  MP-A1 declares MESH O-S XE-S FE-S O-P XE-P FE-P"
+   echo "  and nothing else; a row is READ FROM THE TABLE, never derived from a name suffix."
+   exit 64; }
+ test "$ROW" = "$WANT_ROW" || {
+@@ -628,7 +643,7 @@
+ echo "D4_IMAGE_OK row=$ROW image=$IMG digest=$GOT_DIGEST"
+ 
+ STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
+-NAME="so3_${ARM}_${STAMP}"
++NAME="mpa1_${ARM}_${STAMP}"
+ WORK="$BASE/$ARM"
+ LOG="$BASE/${ARM}_${STAMP}.log"
+ 
+@@ -649,8 +664,8 @@
+   else echo "ABORT G-COLD neither 0.orig/U nor 0.orig/U.gz is present"; exit 5; fi
+   touch "$WORK/0.orig"/* || { echo "ABORT age-guard datum"; exit 5; }
+   AGE_DATUM=$(stat -c '%Y' "$WORK/$DATUM_NAME")
+-  echo "$AGE_DATUM" > "$WORK/.so3_age_datum"
+-  echo "$DATUM_NAME" > "$WORK/.so3_age_datum_ref"
++  echo "$AGE_DATUM" > "$WORK/.mpa1_age_datum"
++  echo "$DATUM_NAME" > "$WORK/.mpa1_age_datum_ref"
+   echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM datum_file=$DATUM_NAME resolved_by=EXISTENCE"
+ else
+   test -d "$BASE/MESH" || { echo "ABORT arm $ARM expects an existing MESH/ from arm MESH"; exit 5; }
+@@ -658,29 +673,29 @@
+   { [ -f "$BASE/MESH/0/U" ] || [ -f "$BASE/MESH/0/U.gz" ]; } || { echo "ABORT arm $ARM: MESH/ carries neither 0/U nor 0/U.gz"; exit 5; }
+   sudo -n rm -rf "$WORK" 2>/dev/null
+   cp -a "$BASE/MESH" "$WORK" || { echo "ABORT stage copy from MESH"; exit 4; }
+-  rm -f "$WORK/so3_cmd.sh" "$WORK/checkMesh.log" "$WORK/logMeshGeneration.txt" "$WORK/volumeMesh.xyz" "$WORK/surfaceMesh.xyz" "$WORK/.so3_age_datum" "$WORK/.so3_age_datum_ref" 2>/dev/null
+-  # `so3_stall.py` is staged INTO THE ARM because the producer imports it inside
+-  # the container to write its own stall reading; `so3_age_guard.py` is NOT
++  rm -f "$WORK/mpa1_cmd.sh" "$WORK/checkMesh.log" "$WORK/logMeshGeneration.txt" "$WORK/volumeMesh.xyz" "$WORK/surfaceMesh.xyz" "$WORK/.mpa1_age_datum" "$WORK/.mpa1_age_datum_ref" 2>/dev/null
++  # `mpa1_stall.py` is staged INTO THE ARM because the producer imports it inside
++  # the container to write its own stall reading; `mpa1_age_guard.py` is NOT
+   # staged into the arm -- it runs on the HOST, against the arm directory, and a
+   # guard living inside the thing it guards is one `rm -rf` from being absent.
+-  cp -a "$BASE/so3_runScript.py" "$BASE/so3_xf.py" "$BASE/so3_stall.py" "$WORK/" \
++  cp -a "$BASE/mpa1_runScript.py" "$BASE/mpa1_xf.py" "$BASE/mpa1_stall.py" "$WORK/" \
+     || { echo "ABORT stage instruments"; exit 4; }
+-  # ---- SO-3 REGISTERED DELTA: ONE FULL CASE COPY PER OPERATING POINT ------
++  # ---- MP-A1 REGISTERED DELTA: ONE FULL CASE COPY PER OPERATING POINT ------
+   # This is the whole repair.  SO-3aR gave three DAFoamBuilders no run_directory,
+   # so three DASolvers renamed into one /mnt/X-S/0.0001 and the item died at arm
+   # 2 of 5 [MEASURED, curriculum_SO3aR/RESULTS.md section 6].  D6R had already
+   # solved it on A2 -- `d6r_run_arm.sh:313` stages mp04/ mp05/ mp06/, one per
+   # point -- and A1 never carried it forward.  The names here are `mp0 mp1 mp2`
+-  # and MUST equal `so3_runScript.py:RUN_DIRS`'s values; `so3_collision_leg.py`
++  # and MUST equal `mpa1_runScript.py:RUN_DIRS`'s values; `mpa1_collision_leg.py`
+   # limb L4 drives that agreement and limb L4b proves the check able to fail.
+   # The FFD and the instruments stay at the arm directory, which is the
+   # container's working directory, so each point's `run_directory` holds a case
+   # and nothing else.
+   for mp in mp0 mp1 mp2; do
+     cp -a "$BASE/MESH" "$WORK/$mp" || { echo "ABORT stage $mp copy from MESH"; exit 4; }
+-    rm -f "$WORK/$mp/so3_cmd.sh" "$WORK/$mp/checkMesh.log" "$WORK/$mp/logMeshGeneration.txt" \
++    rm -f "$WORK/$mp/mpa1_cmd.sh" "$WORK/$mp/checkMesh.log" "$WORK/$mp/logMeshGeneration.txt" \
+           "$WORK/$mp/volumeMesh.xyz" "$WORK/$mp/surfaceMesh.xyz" \
+-          "$WORK/$mp/.so3_age_datum" "$WORK/$mp/.so3_age_datum_ref" 2>/dev/null
++          "$WORK/$mp/.mpa1_age_datum" "$WORK/$mp/.mpa1_age_datum_ref" 2>/dev/null
+     test -n "$(ls -d "$WORK/$mp"/processor* 2>/dev/null)" && { echo "ABORT G-COLD $mp processor* present"; exit 5; }
+     for d in "$WORK/$mp"/*/; do
+       n=$(basename "$d")
+@@ -691,8 +706,8 @@
+   # COLD START, verified BEFORE the launch (D2 G8), and the AGE GUARD's datum:
+   # 0/ is touched LAST at stage time, so every artifact the run produces must
+   # be strictly newer than 0/U or it did not come from this run.
+-  for bad in "$WORK/reports" "$WORK/so3_X.json" "$WORK/so3_F.json" "$WORK/so3_F.jsonl" "$WORK/so3_X.jsonl" \
+-             "$WORK/so3_O.json" "$WORK/so3_xopt.json" "$WORK/opt_IPOPT.txt" "$WORK/SO3_STALL_ABORT" \
++  for bad in "$WORK/reports" "$WORK/mpa1_X.json" "$WORK/mpa1_F.json" "$WORK/mpa1_F.jsonl" "$WORK/mpa1_X.jsonl" \
++             "$WORK/mpa1_O.json" "$WORK/mpa1_xopt.json" "$WORK/opt_IPOPT.txt" "$WORK/MPA1_STALL_ABORT" \
+              "$WORK/dRdWColoring_2.bin"; do
+     test -e "$bad" && { echo "ABORT G-COLD $bad exists"; exit 5; }
+   done
+@@ -706,11 +721,11 @@
+   else echo "ABORT G-COLD neither 0/U nor 0/U.gz is present"; exit 5; fi
+   touch "$WORK/0"/* || { echo "ABORT age-guard datum"; exit 5; }
+   AGE_DATUM=$(stat -c '%Y' "$WORK/$DATUM_NAME")
+-  echo "$AGE_DATUM" > "$WORK/.so3_age_datum"
+-  echo "$DATUM_NAME" > "$WORK/.so3_age_datum_ref"
+-  echo "SO3_WRITE_COMPRESSION $(grep -a writeCompression "$WORK/system/controlDict" 2>/dev/null | head -1 | tr -d ';')"
++  echo "$AGE_DATUM" > "$WORK/.mpa1_age_datum"
++  echo "$DATUM_NAME" > "$WORK/.mpa1_age_datum_ref"
++  echo "MPA1_WRITE_COMPRESSION $(grep -a writeCompression "$WORK/system/controlDict" 2>/dev/null | head -1 | tr -d ';')"
+   echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM datum_file=$DATUM_NAME resolved_by=EXISTENCE"
+-  # ---- G-IC0's DATUM, PER POINT.  SO-3 REGISTERED DELTA -------------------
++  # ---- G-IC0's DATUM, PER POINT.  MP-A1 REGISTERED DELTA -------------------
+   # The dafoam-supervisor MEASURED on D19, 2026-08-31T21:54Z, that DAFoam REWRITES
+   # `0/U` IN THE CASE DIRECTORY DURING a SERIAL (ranks=1) run -- S1/0/U.gz mtime
+   # 21:53:52, 43 s into a 51 s run, on the only ranks=1 arm.  Parallel arms write
+@@ -731,10 +746,10 @@
+     else echo "ABORT G-IC0 $mp neither 0/U nor 0/U.gz"; exit 5; fi
+     touch "$WORK/$mp/0"/* || { echo "ABORT age-guard datum $mp"; exit 5; }
+     MPE=$(stat -c '%Y' "$WORK/$mp/$MPD")
+-    echo "$MPE" > "$WORK/$mp/.so3_age_datum"
+-    echo "$MPD" > "$WORK/$mp/.so3_age_datum_ref"
+-    md5sum "$WORK/$mp/0"/* > "$WORK/$mp/.so3_ic0_md5" 2>/dev/null || { echo "ABORT G-IC0 md5 $mp"; exit 5; }
+-    echo "SO3_G_IC0_DATUM point=$mp age_datum_epoch=$MPE datum_file=$MPD n_ic_fields=$(wc -l < "$WORK/$mp/.so3_ic0_md5")"
++    echo "$MPE" > "$WORK/$mp/.mpa1_age_datum"
++    echo "$MPD" > "$WORK/$mp/.mpa1_age_datum_ref"
++    md5sum "$WORK/$mp/0"/* > "$WORK/$mp/.mpa1_ic0_md5" 2>/dev/null || { echo "ABORT G-IC0 md5 $mp"; exit 5; }
++    echo "MPA1_G_IC0_DATUM point=$mp age_datum_epoch=$MPE datum_file=$MPD n_ic_fields=$(wc -l < "$WORK/$mp/.mpa1_ic0_md5")"
+   done
+ 
+   # ---- G-XOPT.  THE ENDPOINT ARMS READ THEIR OWN ROW'S OPTIMUM, BY TABLE. ----
+@@ -755,7 +770,7 @@
+   # derivation -- and an arm not in it gets an empty answer and is refused.
+   XOPT_ARM=$(xopt_arm_of "$ARM")
+   if [ -n "$XOPT_ARM" ]; then
+-    XOPT_SRC="$BASE/$XOPT_ARM/so3_xopt.json"
++    XOPT_SRC="$BASE/$XOPT_ARM/mpa1_xopt.json"
+     test -f "$XOPT_SRC" || {
+       echo "ABORT G-XOPT arm $ARM needs the final design point from arm $XOPT_ARM,"
+       echo "  and $XOPT_SRC does not exist.  The endpoint FD check section 9"
+@@ -774,10 +789,10 @@
+       echo "  on row [$(row_of "$ARM")].  An endpoint gradient must be verified at the"
+       echo "  design point ITS OWN toolchain produced.  REFUSED."
+       exit 5; }
+-    cp -a "$XOPT_SRC" "$WORK/so3_xopt.json" || { echo "ABORT G-XOPT stage copy"; exit 4; }
+-    XOPT_SHA=$(sha256sum "$WORK/so3_xopt.json" | cut -d' ' -f1)
+-    echo "SO3_G_XOPT arm=$ARM row=$XOPT_ROW source_arm=$XOPT_ARM sha256=$XOPT_SHA n_dv=$(python3 -c "
+-import json; print(len(json.load(open('$WORK/so3_xopt.json')).get('shape',[])))")"
++    cp -a "$XOPT_SRC" "$WORK/mpa1_xopt.json" || { echo "ABORT G-XOPT stage copy"; exit 4; }
++    XOPT_SHA=$(sha256sum "$WORK/mpa1_xopt.json" | cut -d' ' -f1)
++    echo "MPA1_G_XOPT arm=$ARM row=$XOPT_ROW source_arm=$XOPT_ARM sha256=$XOPT_SHA n_dv=$(python3 -c "
++import json; print(len(json.load(open('$WORK/mpa1_xopt.json')).get('shape',[])))")"
+   fi
+ 
+   # ---- THE MANIFEST AGE GUARD IS PINNED HERE, POST-STAGE AND PRE-LAUNCH. -----
+@@ -795,23 +810,23 @@
+   # `T.gz`) under `writeCompression on`.  The write-target exclusion is ENFORCING
+   # rather than descriptive: it is derived from the SAME enumeration the pinning
+   # loop consumes, in one pass, so a record can never assert an exclusion the
+-  # code does not honour.  `so3_age_guard.py` leg (a3) proves a disagreement
++  # code does not honour.  `mpa1_age_guard.py` leg (a3) proves a disagreement
+   # between the two REFUSES.
+-  test -f "$BASE/so3_age_guard.py" || { echo "ABORT age guard instrument absent: $BASE/so3_age_guard.py"; exit 4; }
+-  python3 "$BASE/so3_age_guard.py" pin "$WORK" "$WORK/.so3_manifest.json" \
++  test -f "$BASE/mpa1_age_guard.py" || { echo "ABORT age guard instrument absent: $BASE/mpa1_age_guard.py"; exit 4; }
++  python3 "$BASE/mpa1_age_guard.py" pin "$WORK" "$WORK/.mpa1_manifest.json" \
+     || { echo "ABORT age-guard manifest pin failed for arm $ARM"; exit 5; }
+ fi
+ 
+ # ---- THE ARM COMMANDS.  A TABLE OVER FULL ARM NAMES; an undeclared arm leaves
+ # ---- CMD empty and is refused below.
+ case "$ARM" in
+-  MESH)       CMD="bash preProcessing.sh && checkMesh > checkMesh.log 2>&1; echo SO3_CHECKMESH_RC \$?; sha256sum constant/polyMesh/points* ; grep -a 'cells:' checkMesh.log" ;;
+-  O-S|O-P)    CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python so3_runScript.py -task run_driver -optimizer IPOPT" ;;
+-  XE-S|XE-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python so3_xf.py -mode X -xopt so3_xopt.json" ;;
+-  FE-S|FE-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python so3_xf.py -mode F -xopt so3_xopt.json" ;;
++  MESH)       CMD="bash preProcessing.sh && checkMesh > checkMesh.log 2>&1; echo MPA1_CHECKMESH_RC \$?; sha256sum constant/polyMesh/points* ; grep -a 'cells:' checkMesh.log" ;;
++  O-S|O-P)    CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python mpa1_runScript.py -task run_driver -optimizer IPOPT" ;;
++  XE-S|XE-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python mpa1_xf.py -mode X -xopt mpa1_xopt.json" ;;
++  FE-S|FE-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python mpa1_xf.py -mode F -xopt mpa1_xopt.json" ;;
+ esac
+ test -n "${CMD:-}" || {
+-  echo "ABORT arm $ARM carries no registered command.  SO-3 declares"
++  echo "ABORT arm $ARM carries no registered command.  MP-A1 declares"
+   echo "  MESH O-S XE-S FE-S O-P XE-P FE-P and nothing else."
+   exit 64; }
+ 
+@@ -819,7 +834,7 @@
+ # ---- its OWN `timeout` at the registered cap wall (TMO), so the deadline is
+ # ---- INSIDE the container and survives every host shell.  `-k 60` escalates
+ # ---- TERM to KILL; the kernel exit code (124/137) is then the record.
+-CMDFILE="$WORK/so3_cmd.sh"
++CMDFILE="$WORK/mpa1_cmd.sh"
+ printf '%s\n' "$CMD" > "$CMDFILE" || { echo "ABORT cmd file"; exit 4; }
+ echo "D4S_CMDFILE arm=$ARM md5=$(md5sum "$CMDFILE" | cut -d' ' -f1) deadline_in_container_s=$TMO"
+ CPUSAMPLE="$BASE/${ARM}_${STAMP}.cpu.jsonl"
+@@ -880,7 +895,7 @@
+      echo D4S_CONTAINER_UID: \$(id -u) && \
+      python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4S_IDWARP_IMPORTED_FROM:\",p); print(\"D4S_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
+      echo D4S_DEADLINE_IN_CONTAINER_S: $TMO && \
+-     timeout -k 60 $TMO bash /mnt/$ARM/so3_cmd.sh" > /dev/null 2>&1 \
++     timeout -k 60 $TMO bash /mnt/$ARM/mpa1_cmd.sh" > /dev/null 2>&1 \
+   || { echo "ABORT could not start container"; exit 4; }
+ 
+ # ===========================================================================
+@@ -892,7 +907,7 @@
+ # watchdog reads IPOPT's own iteration table through the frozen detector and
+ # stops the container when a REGISTERED numerical condition fires:
+ #
+-#   A. so3_stall.N_STALL (=8) consecutive majors with alpha_pr < 1e-3
++#   A. mpa1_stall.N_STALL (=8) consecutive majors with alpha_pr < 1e-3
+ #   B. dual infeasibility NON-DECREASING over 8 consecutive majors
+ #
+ # MEASURED ON C-188'S OWN ARTEFACT: condition A fires at major 34 of D6's 65,
+@@ -907,19 +922,19 @@
+ # failure cannot turn a stall into a pass -- an absent marker is reported
+ # NOT_MEASURED by the grader, and the grader RE-READS `opt_IPOPT.txt` itself.
+ # THE STOP IS NOT THE GATE.  Mapping a stall to `GATE REACHED` or `NOT A RESULT`
+-# is section 9's and lives in `so3_grade.py`; a watchdog that also graded could
++# is section 9's and lives in `mpa1_grade.py`; a watchdog that also graded could
+ # launder a stop into a pass by relabelling it here.
+ # ===========================================================================
+-STALL_MARKER="$WORK/SO3_STALL_ABORT"
++STALL_MARKER="$WORK/MPA1_STALL_ABORT"
+ STALLDOG=""
+ case "$ARM" in
+   O-S|O-P)
+-    if [ -f "$BASE/so3_stall.py" ]; then
++    if [ -f "$BASE/mpa1_stall.py" ]; then
+       (
+         while sudo -n docker ps -q --filter "name=^${NAME}$" 2>/dev/null | grep -q .; do
+           sleep 30
+           [ -f "$WORK/opt_IPOPT.txt" ] || continue
+-          VERD=$(python3 "$BASE/so3_stall.py" scan "$WORK/opt_IPOPT.txt" 2>/dev/null \
++          VERD=$(python3 "$BASE/mpa1_stall.py" scan "$WORK/opt_IPOPT.txt" 2>/dev/null \
+                  | python3 -c "
+ import sys, json
+ try: d = json.load(sys.stdin)
+@@ -929,22 +944,22 @@
+           case "$VERD" in
+             STALL\ *)
+               set -- $VERD
+-              printf 'SO3_STALL_ABORT arm=%s stop_at_major=%s condition_A=%s condition_B=%s n_stall_window=8 alpha_pr_min=1e-3 stamp=%s\n' \
++              printf 'MPA1_STALL_ABORT arm=%s stop_at_major=%s condition_A=%s condition_B=%s n_stall_window=8 alpha_pr_min=1e-3 stamp=%s\n' \
+                      "$ARM" "$2" "$3" "$4" "$(date -u +%Y%m%dT%H%M%SZ)" > "$STALL_MARKER"
+-              echo "SO3_STALL_ABORT arm=$ARM stop_at_major=$2 condition_A=$3 condition_B=$4 action=DOCKER_STOP" | tee -a "$BASE/ledger.txt"
++              echo "MPA1_STALL_ABORT arm=$ARM stop_at_major=$2 condition_A=$3 condition_B=$4 action=DOCKER_STOP" | tee -a "$BASE/ledger.txt"
+               sudo -n docker stop -t 30 "$NAME" >/dev/null 2>&1
+               break ;;
+           esac
+         done
+       ) &
+       STALLDOG=$!
+-      echo "SO3_STALLDOG arm=$ARM armed=yes pid=$STALLDOG poll_s=30 detector=$BASE/so3_stall.py"
++      echo "MPA1_STALLDOG arm=$ARM armed=yes pid=$STALLDOG poll_s=30 detector=$BASE/mpa1_stall.py"
+     else
+       # AN ABSENT WATCHDOG IS DECLARED, NEVER SILENTLY SKIPPED.  A guard whose
+       # absence is invisible is worse than one that never fired.
+-      echo "SO3_STALLDOG arm=$ARM armed=NO reason=detector_absent_at_$BASE/so3_stall.py -- THE STALL STOP IS NOT ARMED FOR THIS ARM"
++      echo "MPA1_STALLDOG arm=$ARM armed=NO reason=detector_absent_at_$BASE/mpa1_stall.py -- THE STALL STOP IS NOT ARMED FOR THIS ARM"
+     fi ;;
+-  *) echo "SO3_STALLDOG arm=$ARM armed=no reason=not_an_optimisation_arm" ;;
++  *) echo "MPA1_STALLDOG arm=$ARM armed=no reason=not_an_optimisation_arm" ;;
+ esac
+ 
+ # The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25), not a budget
+@@ -981,9 +996,9 @@
+ kill $SAMPLER 2>/dev/null; wait $SAMPLER 2>/dev/null
+ if [ -n "$STALLDOG" ]; then kill "$STALLDOG" 2>/dev/null; wait "$STALLDOG" 2>/dev/null; fi
+ if [ -f "$STALL_MARKER" ]; then
+-  echo "SO3_STALL_FIRED arm=$ARM $(cat "$STALL_MARKER")"
++  echo "MPA1_STALL_FIRED arm=$ARM $(cat "$STALL_MARKER")"
+ else
+-  echo "SO3_STALL_NOT_FIRED arm=$ARM -- the registered stall conditions did not fire; this is REPORTED, not read as convergence"
++  echo "MPA1_STALL_NOT_FIRED arm=$ARM -- the registered stall conditions did not fire; this is REPORTED, not read as convergence"
+ fi
+ SIBLINGS_POST=$(container_census)
+ DELIVERED=$(python3 -c "
+@@ -1033,10 +1048,10 @@
+     sep=""
+     for mp in mp0 mp1 mp2; do
+       NB=0; NC=0; PRE="ABSENT"
+-      if [ -f "$WORK/$mp/.so3_ic0_md5" ]; then
+-        PRE=$(cat "$WORK/$mp/.so3_age_datum" 2>/dev/null)
+-        NB=$(wc -l < "$WORK/$mp/.so3_ic0_md5")
+-        NC=$(md5sum -c "$WORK/$mp/.so3_ic0_md5" 2>/dev/null | grep -c ': FAILED$')
++      if [ -f "$WORK/$mp/.mpa1_ic0_md5" ]; then
++        PRE=$(cat "$WORK/$mp/.mpa1_age_datum" 2>/dev/null)
++        NB=$(wc -l < "$WORK/$mp/.mpa1_ic0_md5")
++        NC=$(md5sum -c "$WORK/$mp/.mpa1_ic0_md5" 2>/dev/null | grep -c ': FAILED$')
+       fi
+       PM=$(stat -c '%Y' "$WORK/$mp/0" 2>/dev/null || echo 0)
+       printf '%s{"point": "%s", "n_ic_fields": %s, "n_changed_during_run": %s, "stage_datum_epoch": "%s", "post_run_0_mtime_epoch": %s}' \
+@@ -1045,7 +1060,7 @@
+     done
+     printf '], "note": "n_changed_during_run > 0 means DAFoam rewrote the initial condition inside that point private case copy during this arm -- the D19 mechanism, MEASURED here rather than assumed. It is reported with its count and never gates."}\n'
+   } > "$IC0"
+-  echo "SO3_G_IC0 arm=$ARM file=$(basename "$IC0") $(python3 -c "
++  echo "MPA1_G_IC0 arm=$ARM file=$(basename "$IC0") $(python3 -c "
+ import json
+ d=json.load(open('$IC0'))
+ print(' '.join('%s:%d/%d' % (p['point'], p['n_changed_during_run'], p['n_ic_fields']) for p in d['points']))
+@@ -1059,24 +1074,24 @@
+ # ---- physics clauses from the infrastructure ones and this is the grader's
+ # ---- input, not its conclusion.
+ AGE_OUT="$BASE/${ARM}_ageguard.txt"
+-if [ -f "$WORK/.so3_manifest.json" ] && [ -f "$BASE/so3_age_guard.py" ]; then
+-  DATUM_REF_FILE="$WORK/$(cat "$WORK/.so3_age_datum_ref" 2>/dev/null)"
++if [ -f "$WORK/.mpa1_manifest.json" ] && [ -f "$BASE/mpa1_age_guard.py" ]; then
++  DATUM_REF_FILE="$WORK/$(cat "$WORK/.mpa1_age_datum_ref" 2>/dev/null)"
+   ARTS=""
+-  for a in "$WORK/so3_X.json" "$WORK/so3_F.json" "$WORK/so3_O.json" "$WORK/so3_xopt.json" "$WORK/checkMesh.log"; do
++  for a in "$WORK/mpa1_X.json" "$WORK/mpa1_F.json" "$WORK/mpa1_O.json" "$WORK/mpa1_xopt.json" "$WORK/checkMesh.log"; do
+     [ -f "$a" ] && ARTS="$ARTS $a"
+   done
+-  python3 "$BASE/so3_age_guard.py" verify "$WORK" "$WORK/.so3_manifest.json" \
++  python3 "$BASE/mpa1_age_guard.py" verify "$WORK" "$WORK/.mpa1_manifest.json" \
+           "$DATUM_REF_FILE" $ARTS > "$AGE_OUT" 2>&1
+-  echo "SO3_AGE_GUARD arm=$ARM rc=$? file=$(basename "$AGE_OUT") first_line=[$(head -1 "$AGE_OUT" 2>/dev/null)]"
++  echo "MPA1_AGE_GUARD arm=$ARM rc=$? file=$(basename "$AGE_OUT") first_line=[$(head -1 "$AGE_OUT" 2>/dev/null)]"
+ else
+-  echo "SO3_AGE_GUARD arm=$ARM rc=NOT_RUN reason=manifest_or_instrument_absent -- REPORTED as NOT_MEASURED, never as a pass" | tee "$AGE_OUT"
++  echo "MPA1_AGE_GUARD arm=$ARM rc=NOT_RUN reason=manifest_or_instrument_absent -- REPORTED as NOT_MEASURED, never as a pass" | tee "$AGE_OUT"
+ fi
+ 
+ CORE_MIN=$(python3 -c "print(round($WALL*$RANKS/60.0,3))")
+ MEMAVAIL_POST=$(python3 -c "print('%.2f' % ($(awk '/MemAvailable/{print $2}' /proc/meminfo)/1048576.0))")
+ LEDGER="$BASE/ledger.txt"
+ {
+-  so3_ledger_row "$ARM" "$ROW" "$IMG" "$GOT_DIGEST" "$rc" "$WALL" "$RANKS" "$CORE_MIN" "$CAP" "$TMO" "$BACKCHECK" "$MEM" "$INSPECT" "$MEMAVAIL_GIB" "$MEMAVAIL_POST" "$CPUSET" "$DELIVERED" "$SIBLINGS_PRE" "$SIBLINGS_POST" "$(basename "$LOG")" "$STAMP"
++  mpa1_ledger_row "$ARM" "$ROW" "$IMG" "$GOT_DIGEST" "$rc" "$WALL" "$RANKS" "$CORE_MIN" "$CAP" "$TMO" "$BACKCHECK" "$MEM" "$INSPECT" "$MEMAVAIL_GIB" "$MEMAVAIL_POST" "$CPUSET" "$DELIVERED" "$SIBLINGS_PRE" "$SIBLINGS_POST" "$(basename "$LOG")" "$STAMP"
+   grep -a "D4S_CONTAINER_UID\|D4S_IDWARP_SO_MD5\|D4S_DEADLINE_IN_CONTAINER_S" "$LOG" | head -3   # the strings the container prints
+ } | tee -a "$LEDGER"
+ test -s "$LOG" && touch "$LOG.ok.${STAMP}"   # L-252 provenance sentinel

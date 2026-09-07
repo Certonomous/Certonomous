@@ -1,0 +1,215 @@
+--- curriculum_SO3/so3_age_guard.py	2026-09-01 02:17:22.557572227 +0000
++++ curriculum_MP_A1/mpa1_age_guard.py	2026-09-07 03:59:24.397053083 +0000
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""SO-3 age guard: the SO-3aR2 datum form PLUS a manifest by NAME AND CONTENT HASH.
++"""MP-A1 age guard: the SO-3aR2 datum form PLUS a manifest by NAME AND CONTENT HASH.
+ 
+ WHAT IS CARRIED UNCHANGED FROM SO-3aR2, AND WHY IT IS NOT REPLACED
+ -------------------------------------------------------------------
+@@ -11,7 +11,7 @@
+     `0/U.gz`), because `system/controlDict` sets `writeCompression on` and a
+     guard pinned to the plain name would refuse a run whose artefact is intact
+     -- or, worse, pass by not finding anything to check;
+-  * the name actually used is RECORDED (`.so3_age_datum_ref`) rather than left
++  * the name actually used is RECORDED (`.mpa1_age_datum_ref`) rather than left
+     for the grader to infer, and `is_compressed_twin` and `write_compression`
+     travel with the reading;
+   * the datum is stamped PER OPERATING POINT, because DAFoam rewrites `0/U`
+@@ -55,10 +55,10 @@
+     predicate must not eat it: `0.orig` does not fullmatch `\\d+(\\.\\d+)?`, and
+     leg (a1) drives that classification explicitly because it is one character
+     away from being wrong.
+-  * **`opt_IPOPT.txt`, `SO3_STALL_ABORT`, `so3_O.json`, `so3_xopt.json`,
++  * **`opt_IPOPT.txt`, `MPA1_STALL_ABORT`, `mpa1_O.json`, `mpa1_xopt.json`,
+     `mphys.html`, `OptView.hst`, `reports/` are WRITE TARGETS** -- this item runs
+     an optimiser and its ancestor did not.
+-  * **`so3_xopt.json` IS A WRITE TARGET ON THE O ARM AND A PINNED INPUT ON THE
++  * **`mpa1_xopt.json` IS A WRITE TARGET ON THE O ARM AND A PINNED INPUT ON THE
+     ENDPOINT ARMS.**  It is the ONE file whose role depends on the arm, so the
+     role is passed in explicitly (`--xopt-is-input`) rather than guessed from the
+     directory: a predicate that guessed would classify the endpoint arms' only
+@@ -101,13 +101,13 @@
+     "OptView.hst",
+     "opt_IPOPT.txt",
+     "opt_IPOPT.out",
+-    "SO3_STALL_ABORT",
+-    "so3_O.json",
+-    "so3_X.json",
+-    "so3_F.json",
+-    "so3_X.jsonl",
+-    "so3_F.jsonl",
+-    "so3_cmd.sh",
++    "MPA1_STALL_ABORT",
++    "mpa1_O.json",
++    "mpa1_X.json",
++    "mpa1_F.json",
++    "mpa1_X.jsonl",
++    "mpa1_F.jsonl",
++    "mpa1_cmd.sh",
+     "checkMesh.log",
+     "logMeshGeneration.txt",
+     "volumeMesh.xyz",
+@@ -119,11 +119,11 @@
+ _WRITTEN_EXACT = frozenset({"system/decomposeParDict"})
+ # Written by THIS launcher after the manifest is pinned, so they must never be
+ # pinned by it.
+-_LAUNCHER_WRITES = frozenset({".so3_manifest.json"})
++_LAUNCHER_WRITES = frozenset({".mpa1_manifest.json"})
+ 
+-# The default role of `so3_xopt.json`: a WRITE TARGET (the O arm produces it).
++# The default role of `mpa1_xopt.json`: a WRITE TARGET (the O arm produces it).
+ # On an endpoint arm it is a PINNED INPUT and the caller says so.
+-XOPT = "so3_xopt.json"
++XOPT = "mpa1_xopt.json"
+ 
+ 
+ def is_write_target(rel, xopt_is_input=False):
+@@ -147,7 +147,7 @@
+         return True
+     if head.startswith("._"):           # AppleDouble spill
+         return True
+-    if head.startswith(".so3_"):        # the launcher's own datum sidecars
++    if head.startswith(".mpa1_"):        # the launcher's own datum sidecars
+         return True
+     if head.endswith(".log"):
+         return True
+@@ -227,7 +227,7 @@
+     # This is the guard's own PLANTED CONTROL and it is checked at PIN time, when
+     # a wrong predicate can still be repaired before any compute.
+     for must_pin in ("system/fvSchemes", "system/fvSolution", "0.orig/U",
+-                     "FFD/wingFFD.xyz", "so3_runScript.py", "so3_xf.py"):
++                     "FFD/wingFFD.xyz", "mpa1_runScript.py", "mpa1_xf.py"):
+         if must_pin in rels and is_write_target(must_pin, xopt_is_input):
+             _refuse("REFUSE_PREDICATE_OVERMATCH", must_pin)
+     datum = resolve_datum(case_dir)
+@@ -262,7 +262,7 @@
+ 
+     # (1) THE EXCLUSION IS ENFORCING.  Re-classify every pinned name with the
+     #     SAME predicate the pinning loop used, and with the SAME role for
+-    #     `so3_xopt.json` -- read from the manifest, never re-guessed here.
++    #     `mpa1_xopt.json` -- read from the manifest, never re-guessed here.
+     _still, wrongly_pinned = partition(sorted(man["pinned"]), xin)
+     if wrongly_pinned:
+         _refuse("REFUSE_PIN_EXCLUSION_DISAGREE", ",".join(sorted(wrongly_pinned)[:8]))
+@@ -338,23 +338,23 @@
+     import shutil
+     import tempfile
+     ok = True
+-    print("SO-3 AGE GUARD SELFTEST")
++    print("MP-A1 AGE GUARD SELFTEST")
+ 
+     # ---- (a1) THE PREDICATE, on paths that actually occur in THIS case.
+     print("\n[a1] classification of paths that occur in this case's own tree")
+     must_exclude = ["0/U", "0/U.gz", "0/p", "0.0001/U.gz", "mp0/0/U.gz",
+-                    "mp2/constant/polyMesh/points.gz", "mp1/so3_cmd.sh",
++                    "mp2/constant/polyMesh/points.gz", "mp1/mpa1_cmd.sh",
+                     "processor0/0/U.gz", "constant/polyMesh/points",
+-                    "system/decomposeParDict", "opt_IPOPT.txt", "so3_O.json",
+-                    "so3_X.json", "so3_F.jsonl", "SO3_STALL_ABORT",
++                    "system/decomposeParDict", "opt_IPOPT.txt", "mpa1_O.json",
++                    "mpa1_X.json", "mpa1_F.jsonl", "MPA1_STALL_ABORT",
+                     "reports/r.html", "mphys.html", "OptView.hst",
+-                    "checkMesh.log", ".so3_age_datum", ".so3_manifest.json"]
++                    "checkMesh.log", ".mpa1_age_datum", ".mpa1_manifest.json"]
+     must_pin = ["system/fvSchemes", "system/controlDict", "system/fvSolution",
+                 "0.orig/U", "0.orig/p", "0.orig/nuTilda",
+                 "constant/transportProperties", "FFD/wingFFD.xyz",
+                 "profiles/NACA0012PS.profile", "genAirFoilMesh.py",
+-                "preProcessing.sh", "so3_runScript.py", "so3_xf.py",
+-                "so3_stall.py"]
++                "preProcessing.sh", "mpa1_runScript.py", "mpa1_xf.py",
++                "mpa1_stall.py"]
+     for r in must_exclude:
+         good = is_write_target(r)
+         print("  EXCLUDE %-44s %s" % (r, "PASS" if good else "FAIL"))
+@@ -372,17 +372,17 @@
+     ok &= good
+ 
+     # ---- (a2) THE ROLE-DEPENDENT FILE, DRIVEN IN BOTH DIRECTIONS.
+-    print("\n[a2] so3_xopt.json's role is PASSED IN, never guessed")
++    print("\n[a2] mpa1_xopt.json's role is PASSED IN, never guessed")
+     good = is_write_target(XOPT, xopt_is_input=False)
+-    print("  %-52s %s" % ("O arm: so3_xopt.json is a WRITE TARGET",
++    print("  %-52s %s" % ("O arm: mpa1_xopt.json is a WRITE TARGET",
+                           "PASS" if good else "FAIL"))
+     ok &= good
+     good = not is_write_target(XOPT, xopt_is_input=True)
+-    print("  %-52s %s" % ("endpoint arm: so3_xopt.json is PINNED",
++    print("  %-52s %s" % ("endpoint arm: mpa1_xopt.json is PINNED",
+                           "PASS" if good else "FAIL"))
+     ok &= good
+ 
+-    tmp = tempfile.mkdtemp(prefix="so3_guard_selftest_")
++    tmp = tempfile.mkdtemp(prefix="mpa1_guard_selftest_")
+     try:
+         case = os.path.join(tmp, "arm")
+         for d in ("system", "0.orig", "constant", "FFD", "0", "mp0/0", "mp1/0"):
+@@ -396,9 +396,9 @@
+                           ("0.orig/p", "p0"),
+                           ("constant/transportProperties", "nu"),
+                           ("FFD/wingFFD.xyz", "ffd"),
+-                          ("so3_runScript.py", "producer"),
+-                          ("so3_xf.py", "instrument"),
+-                          ("so3_stall.py", "detector"),
++                          ("mpa1_runScript.py", "producer"),
++                          ("mpa1_xf.py", "instrument"),
++                          ("mpa1_stall.py", "detector"),
+                           ("0/U.gz", "field-U"),
+                           ("mp0/0/U.gz", "mp0-U"),
+                           ("mp1/0/U.gz", "mp1-U")):
+@@ -417,7 +417,7 @@
+         ok &= good
+         good = ("0/U.gz" not in m["pinned"] and "mp0/0/U.gz" not in m["pinned"]
+                 and "system/decomposeParDict" not in m["pinned"]
+-                and "0.orig/U" in m["pinned"] and "so3_runScript.py" in m["pinned"])
++                and "0.orig/U" in m["pinned"] and "mpa1_runScript.py" in m["pinned"])
+         print("  %-52s %s" % ("exclusion derived from the census, not asserted",
+                               "PASS" if good else "FAIL"))
+         ok &= good
+@@ -427,10 +427,10 @@
+         os.utime(datum, None)                      # the launcher's `touch 0/*`
+         t0 = os.path.getmtime(datum)
+         time.sleep(0.05)
+-        for rel in ("so3_O.json", "so3_xopt.json", "opt_IPOPT.txt"):
++        for rel in ("mpa1_O.json", "mpa1_xopt.json", "opt_IPOPT.txt"):
+             open(os.path.join(case, rel), "w").write("{}")
+         open(os.path.join(case, "mp0/0/U.gz"), "w").write("rewritten mid-run")
+-        arts = [os.path.join(case, "so3_O.json")]
++        arts = [os.path.join(case, "mpa1_O.json")]
+ 
+         print("\n[a4] the GREEN leg")
+         ok &= _leg("clean run", lambda: cmd_verify(case, man, datum, arts), None)
+@@ -448,7 +448,7 @@
+                    "REFUSE_PIN_EXCLUSION_DISAGREE")
+ 
+         # RED 1b -- THE ROLE DISAGREEMENT.  A manifest pinned on an ENDPOINT arm
+-        # (xopt an input) verified with that role must accept `so3_xopt.json`
++        # (xopt an input) verified with that role must accept `mpa1_xopt.json`
+         # pinned; the SAME manifest with the role flipped must refuse.  This is
+         # the leg that proves the role travels in the manifest rather than being
+         # re-guessed at verify time.
+@@ -459,7 +459,7 @@
+                    lambda: cmd_pin(endcase, endman, xopt_is_input=True), None)
+         me = json.load(open(endman))
+         good = XOPT in me["pinned"]
+-        print("  %-52s %s" % ("endpoint manifest PINS so3_xopt.json",
++        print("  %-52s %s" % ("endpoint manifest PINS mpa1_xopt.json",
+                               "PASS" if good else "FAIL"))
+         ok &= good
+         flip = os.path.join(tmp, "m_roleflip.json")
+@@ -566,10 +566,10 @@
+                                                          len(excluded)))
+         return 0
+     print(__doc__)
+-    print("usage: so3_age_guard.py pin <case_dir> <manifest.json> [--xopt-is-input]\n"
+-          "       so3_age_guard.py verify <case_dir> <manifest.json> <datum_file> <artifact>...\n"
+-          "       so3_age_guard.py census <case_dir> [--xopt-is-input]\n"
+-          "       so3_age_guard.py selftest")
++    print("usage: mpa1_age_guard.py pin <case_dir> <manifest.json> [--xopt-is-input]\n"
++          "       mpa1_age_guard.py verify <case_dir> <manifest.json> <datum_file> <artifact>...\n"
++          "       mpa1_age_guard.py census <case_dir> [--xopt-is-input]\n"
++          "       mpa1_age_guard.py selftest")
+     return 1
+ 
+ 

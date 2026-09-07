@@ -1,0 +1,436 @@
+--- curriculum_SO3/so3_runScript.py	2026-09-01 02:19:35.696748653 +0000
++++ curriculum_MP_A1/mpa1_runScript.py	2026-09-07 03:58:36.645313696 +0000
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python
+-"""CURRICULUM SO-3 -- THE PRODUCER.  NACA0012 ALPHA-MULTIPOINT, INCOMPRESSIBLE.
++"""CURRICULUM MP-A1 -- THE PRODUCER.  NACA0012 ALPHA-MULTIPOINT, INCOMPRESSIBLE.
+ 
+ Three operating points differing ONLY in angle of attack, one shared `shape`
+ design-variable vector, one shared geometry component, and a weighted objective
+@@ -19,9 +19,9 @@
+ checked the artefacts to prove it.  That was RIGHT FOR A GRADIENT RUNG: an
+ optimisation taken before its own gradient is verified inherits the guess as a
+ measurement.  SO-3aR2 has now bought that gradient
+-(`SO3aR2_grade_20260831T230221Z.json`, PATCHED row `PASS`), and SO-3 is the
+-optimisation rung the scope memo names -- `SO3_MULTIPOINT_SCOPE_MEMO.md` section
+-5 item 2: *"SO-3 proper is its optimisation rung."*  So the driver comes BACK,
++(`SO3aR2_grade_20260831T230221Z.json`, PATCHED row `PASS`), and MP-A1 is the
++constrained optimisation rung the scope memo names -- `SO3_MULTIPOINT_SCOPE_MEMO.md`
++section 2 (the CL-equality formulation).  So the driver comes BACK,
+ deliberately, and `G-NOOPT` is REPLACED by `G-OPT`, which asserts the opposite
+ and is no weaker for it.
+ 
+@@ -29,7 +29,7 @@
+ `DAFOAM_CHARTER.md` section 5: *"A gradient verified at one np is a statement
+ about that np and is never carried to another."*  SO-3aR2's FD table was measured
+ at np = 1.  This file runs at np = 1 or the inheritance is VOID, and the rank
+-count is enforced in `so3_run_arm.sh:ranks_of`, asserted here at import, and
++count is enforced in `mpa1_run_arm.sh:ranks_of`, asserted here at import, and
+ recorded in every artefact.
+ 
+ **WHAT SECTION 9 DEMANDS OF THIS FILE, AND IT IS NOT THE OPTIMUM.**  An
+@@ -38,7 +38,7 @@
+ cap or a budget is `GATE REACHED` or `NOT A RESULT` and **never `PASS`**.  A2's
+ own 48-row history is the incident: 47 majors, 28.275488 % drag reduction, and
+ `opt_IPOPT.txt` carries NO `EXIT` line anywhere -- which this lane RE-MEASURED on
+-the artefact (`so3_stall.py` leg s8: `A2-mach-wing/opt_IPOPT.txt`, 48 majors,
++the artefact (`mpa1_stall.py` leg s8: `A2-mach-wing/opt_IPOPT.txt`, 48 majors,
+ `exit=None`).  So this file writes IPOPT's own output to a named file, records
+ whether an `EXIT` statement exists, and NEVER writes a verdict of its own.
+ 
+@@ -48,7 +48,7 @@
+ Section 0, in the frozen document's own words: the multipoint adjoint *"runs one
+ `DASolver` instance per operating point behind ONE SHARED `OM_DVGEOCOMP` and sums
+ through an `om.ExecComp`."*  `d6_opt_runScript.py:143` builds `geometry_<pt>` PER
+-SCENARIO.  SO-3 does not, and the difference is the point of the item: with one
++SCENARIO.  MP-A1 does not, and the difference is the point of the item: with one
+ geometry there is exactly one `shape` -> surface map, so `G-MP-STRUCT`'s identity
+ `J_adj[J,k] == SUM_i w_i J_adj[CD_i,k]` tests the ASSEMBLY rather than three
+ independent single-point problems that happen to share a DV name.
+@@ -73,45 +73,52 @@
+ docstring claims it works; the MESH and X-S arms are what measure it.
+ 
+ --------------------------------------------------------------------------
+-(C) `patchV` IS STILL NOT A DESIGN VARIABLE, AND THE CHOICE IS REGISTERED.
++(C) THE ONE CHANGE vs SO-3: CL IS NOW HELD BY A PER-POINT EQUALITY CONSTRAINT.
+ --------------------------------------------------------------------------
+-Line 4: alpha is this item's OPERATING POINT and cannot simultaneously be a design
+-variable trimmed to a lift target.  `add_design_var("patchV", ...)` stays REMOVED,
+-and `CL_target` survives only as a recorded provenance constant -- the angle
+-`aoa0` is the tutorial's own trimmed angle AT that target, which is why the number
+-is quoted rather than re-derived.  **NOTHING IS TRIMMED HERE, AND THAT IS A
+-LIMITATION OF THIS ITEM, NOT A PROPERTY OF THE PROBLEM.**
+-
+-The scope memo names this as an open registration question and it is answered
+-HERE rather than left open: *"either each carries its own `aoa` DV and its own
+-`CL` equality (N constraints, N extra DVs), or the points are specified at fixed
+-`aoa` and `CL` floats.  THESE ARE DIFFERENT PROBLEMS and the choice changes the
+-objective's meaning"* (`SO3_MULTIPOINT_SCOPE_MEMO.md` section 2).  **SO-3 takes
+-the fixed-alpha, floating-`CL` branch**, for one reason that is checkable rather
+-than aesthetic: SO-3aR2 verified `dCD_i/dx` and `dCL_i/dx` AT FIXED ALPHA, at
+-np = 1, on this exact assembly.  A per-point `aoa` design variable would make the
+-optimiser's gradient a DIFFERENT quantity from the one that was verified, and
+-`DAFOAM_CHARTER.md` section 2 bars an unverified gradient from entering an
+-optimisation.  Adding the trim is a rung of its own.
+-
+-**THE CONSEQUENCE IS STATED SO IT CANNOT BE DISCOVERED IN THE FIGURE.**  With
+-`CL` unconstrained, a weighted-drag minimisation can and probably will buy drag
+-by shedding lift.  `CL` per point is therefore RECORDED at the baseline and at
+-the optimum in `so3_O.json`, and the record must carry it beside any drag number:
+-"the optimiser reduced weighted drag by X" is only a claim about drag, and
+-`so3_grade.py` refuses to compose a drag-reduction line without the `CL` pair
+-beside it.
++This file is DERIVED FROM `curriculum_SO3/so3_runScript.py` (parent md5
++`0c026d72047b605099125258e3152f93`, verified on disk).  The ONLY physics change
++is the CL-equality block in `configure()`; everything else -- the np = 1
++`MPI.Abort` guard, the `mp0/mp1/mp2` `run_directory` separation, the shared
++`OM_DVGEOCOMP`, the IPOPT settings, the FFD/shape construction, the geometric
++constraints -- is byte-identical to the parent modulo the SO-3 -> MP-A1 identity
++rename (which PRESERVES the SO3aR2/SO1a provenance tokens).
++
++SO-3 left `CL` UNCONSTRAINED and its lift COLLAPSED -- negative at point0 on both
++rows (SO-3 RESULTS.md section 2.1).  MP-A1 adds, at each operating point, an
++EQUALITY constraint `CL_i = CL_TARGET[i]` (section 1.5 of the pre-registration;
++supervisor ruling section 7 decision 1 = EQUALITY).  `alpha` is STILL the
++operating point and `patchV` is STILL NOT a design variable: the lift is held by
++the shared `shape` vector, not by an aoa trim.
++
++**WHY NO aoa DV, AND WHY THAT KEEPS MP-A1 ADMISSIBLE.**  SO-3aR2 verified
++`dCD_i/dx` AND `dCL_i/dx` AT FIXED ALPHA, at np = 1, on this exact assembly, and
++SO-3 already spent `dCL_i/dx` for its G5C gate.  MP-A1's new constraints are
++driven by that SAME already-verified `dCL_i/dx`, so NO new unverified gradient
++enters the optimiser and `DAFOAM_CHARTER.md` section 2 is satisfied.  A per-point
++`aoa` design variable would introduce `d/dalpha` gradients SO-3aR2 never verified
++-- a SEPARATE rung (a future aoa-trimmed MP-A2), not this one
++(`SO3_MULTIPOINT_SCOPE_MEMO.md` section 2 named both formulations; MP-A1 is the
++fixed-alpha, CL-held-by-shape one).  `G5C` re-verifies `dCL_i/dx` at MP-A1's OWN
++final design point (section 9's mandatory final-point FD).
++
++**THE CONSEQUENCE IS STATED SO IT CANNOT BE DISCOVERED IN THE FIGURE.**  Holding
++`CL` costs drag reduction: MP-A1 will reduce weighted drag LESS than SO-3's
++unconstrained ~16 %.  `CL` per point is RECORDED at the baseline and at the
++optimum in `mpa1_O.json`, and the record must carry it beside any drag number:
++`mpa1_grade.py` refuses to compose a drag-reduction line without the `CL` pair
++beside it, and `G-CLHOLD` gates that the lift was actually HELD (within
++`TOL_CL_ABS` and never negative) at the final design.
+ 
+ --------------------------------------------------------------------------
+-(D) THE HEADER/ANCHOR CONTRACT WITH `so3_xf.py`.
++(D) THE HEADER/ANCHOR CONTRACT WITH `mpa1_xf.py`.
+ --------------------------------------------------------------------------
+-`so3_xf.py:112` holds an ANCHOR string; the instrument splits this file at it and
++`mpa1_xf.py:112` holds an ANCHOR string; the instrument splits this file at it and
+ `exec`s everything ABOVE it.  Everything the instrument needs is therefore defined
+ above the anchor: `Top`, `daOptions`, `U0`, `p0`, `CL_target`, `ALPHAS`, `WEIGHTS`.
+ The instrument then queries, by these exact paths:
+ 
+-    obj.J                        the assembled objective          (so3_xf.OBJ_PATH)
+-    point{i}.aero_post.CD / .CL  per-scenario forces              (so3_xf.SCENARIOS)
++    obj.J                        the assembled objective          (mpa1_xf.OBJ_PATH)
++    point{i}.aero_post.CD / .CL  per-scenario forces              (mpa1_xf.SCENARIOS)
+     point{i}.patchV, patchV{i}   the operating point, BOTH paths  (G-ALPHA's source)
+     shape                        the shared 8-component DV vector
+ 
+@@ -124,14 +131,14 @@
+ --------------------------------------------------------------------------
+ (E) THE ANCHOR IS NEVER SPELLED IN THIS DOCSTRING, AND THAT IS LOAD-BEARING.
+ --------------------------------------------------------------------------
+-`so3_xf.py:478` REFUSES (exit 2) unless the anchor appears in this file EXACTLY
++`mpa1_xf.py:478` REFUSES (exit 2) unless the anchor appears in this file EXACTLY
+ ONCE.  This lane's first draft quoted the anchor's literal bytes twice while
+ explaining it, so the file carried it THREE times and the instrument would have
+ refused every arm before writing a single artefact -- the chain would have
+ produced nothing and the reason would have been a docstring.  It was caught by
+ DRIVING the instrument's own split against this file, not by reading either.  The
+ anchor is therefore referred to by NAME and by its line number in the instrument,
+-never by its bytes.  The same discipline is why `so3_grade.py` reconstructs the
++never by its bytes.  The same discipline is why `mpa1_grade.py` reconstructs the
+ old instrument alias from parts at U88 and assembles its row-label known positive
+ from parts at U101: a file must not spell a token whose count it has to control.
+ 
+@@ -154,6 +161,23 @@
+ import json
+ import time
+ import argparse
++
++# ---- THE NOT_FROZEN PERMISSION GATE, BEFORE ANY HEAVY IMPORT OR COMPUTE. -----
++# This item is a DRAFT and is NOT FROZEN; CLAUDE.md rule 2 forbids compute before
++# the pre-registration is frozen by sha.  A `NOT_FROZEN` sentinel sits beside this
++# file; while it exists this producer REFUSES to run, before it even imports the
++# solver stack.  The launcher carries the same gate; this one guards a direct
++# `python mpa1_runScript.py` invocation.  The freeze act (dafoam-supervisor, after
++# check-1 of the instrument diffs) removes the sentinel.
++_HERE = os.path.dirname(os.path.abspath(__file__))
++if os.path.exists(os.path.join(_HERE, "NOT_FROZEN")):
++    sys.stderr.write(
++        "MPA1_REFUSE_NOT_FROZEN a `NOT_FROZEN` sentinel is present beside "
++        "mpa1_runScript.py: this pre-registration is NOT frozen and CLAUDE.md "
++        "rule 2 forbids compute before the freeze.  REFUSED.  (The freeze act "
++        "removes the sentinel.)\n")
++    raise SystemExit(70)
++
+ import numpy as np
+ from mpi4py import MPI
+ import openmdao.api as om
+@@ -168,7 +192,7 @@
+                     type=str, default="IPOPT")
+ parser.add_argument("-task", help="run_driver, run_model, compute_totals, check_totals",
+                     type=str, default="run_model")
+-parser.add_argument("-xopt", help="path to a so3_xopt.json whose `shape` is applied "
++parser.add_argument("-xopt", help="path to a mpa1_xopt.json whose `shape` is applied "
+                                   "BEFORE the task runs (the endpoint arms' entry point)",
+                     type=str, default="")
+ args = parser.parse_args()
+@@ -189,8 +213,8 @@
+ MAX_MAJORS = 50
+ OPT_TOL = 1.0e-5
+ OPT_OUTPUT_FILE = "opt_IPOPT.txt"
+-OPT_RECORD = "so3_O.json"
+-XOPT_OUT = "so3_xopt.json"
++OPT_RECORD = "mpa1_O.json"
++XOPT_OUT = "mpa1_xopt.json"
+ 
+ # ---- THE ROW IS READ FROM THE TOOLCHAIN'S OWN IDENTITY, NEVER FROM A FLAG. ---
+ # `DAFOAM_CHARTER.md` section 11 makes the IMAGE ID and the LIBRARY HASH the
+@@ -246,12 +270,24 @@
+ # ---- OBJECTIVE and would need its own row; section "G-WT" registers why the
+ # ---- shuffled-weight probe is NOT bought.
+ WEIGHTS = [1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0]
+-# The scenario group names.  `so3_xf.SCENARIOS` is the same tuple and the
++# The scenario group names.  `mpa1_xf.SCENARIOS` is the same tuple and the
+ # comparator refuses an artefact whose scenario names are not these.
+ SCENARIOS = ["point%d" % i for i in range(len(ALPHAS))]
+ 
++# ---- THE MP-A1 DELTA vs SO-3: THE PER-POINT CL EQUALITY TARGETS. -----------
++# PREREGISTRATION.md section 1.4 / section 7 (supervisor ruling: EQUALITY).
++# Each target is the SO-3-MEASURED undeformed baseline CL at that operating
++# point (SO-3 RESULTS.md section 2.1), so `shape = 0` is a FEASIBLE seed (all
++# three equality constraints hold exactly at the baseline) and any drag the
++# optimiser sheds is genuinely lift-neutral.  All three are POSITIVE, so a held
++# constraint structurally excludes the SO-3 lift collapse (which went NEGATIVE
++# at point0).  Written out to the exact bits the grader's `G-CLTGT` reads back
++# and compares to 1e-12; a floating-point subtraction cannot move one of them.
++CL_TARGET = [0.31189588769251864, 0.49876526085592926, 0.6639763551107052]
++assert len(CL_TARGET) == len(ALPHAS), "one CL target per operating point"
++
+ # ===========================================================================
+-# THE PER-POINT RUN DIRECTORIES -- THE WHOLE REASON SO-3 EXISTS.
++# THE PER-POINT RUN DIRECTORIES -- THE WHOLE REASON MP-A1 EXISTS.
+ #
+ # SO-3aR built one `DAFoamBuilder` per operating point and gave NONE of them a
+ # `run_directory`, so three independent `DASolver` instances shared one case
+@@ -275,7 +311,7 @@
+ # THE KEYS ARE DERIVED FROM `SCENARIOS`, NEVER SPELLED OUT.  A hand-written map
+ # is one more call site of the scenario label, and a scenario added above with no
+ # row here would silently fall back to the shared directory -- which is exactly
+-# the failure being repaired.  `so3_collision_leg.py` DRIVES the invariant
++# the failure being repaired.  `mpa1_collision_leg.py` DRIVES the invariant
+ # that the map is total and injective over `SCENARIOS`, and drives it RED on the
+ # unfixed source.
+ RUN_DIRS = {sc: "mp%d" % i for i, sc in enumerate(SCENARIOS)}
+@@ -329,7 +365,7 @@
+ }
+ 
+ # Mesh deformation setup.  The `symmetryPlanes` and `fileType` are UNCHANGED from
+-# so2a_runScript.py:87-92; `gridFile` is now PER POINT, which is the SO-3 delta.
++# so2a_runScript.py:87-92; `gridFile` is now PER POINT, which is the MP-A1 delta.
+ # D6R's shape, `d6r_opt_runScript.py:117-124`: each point owns a full case copy and
+ # reads its mesh out of that copy, so no two IDWarp instances and no two DASolvers
+ # address the same directory.
+@@ -447,17 +483,32 @@
+         # ---- see (C).  The parent's `add_design_var("patchV", ...)` is GONE.
+         self.add_design_var("shape", lower=-1.0, upper=1.0, scaler=10.0)
+ 
+-        # ---- the objective and the geometric constraints are DECLARED so the
+-        # ---- model is the one the later optimisation rung will use, and so the
+-        # ---- constraint components are built.  NO DRIVER EXISTS TO CONSUME THEM
+-        # ---- IN THIS ITEM -- see (A).  The per-scenario CL is NOT constrained
+-        # ---- here: alpha is the operating point, nothing is trimmed, and G5C
+-        # ---- verifies dCL_i/dx as a GRADIENT rather than enforcing a target.
++        # ---- the objective and the geometric constraints, UNCHANGED from SO-3.
+         self.add_objective("obj.J", scaler=1.0)
+         self.add_constraint("geometry.thickcon", lower=0.5, upper=3.0, scaler=1.0)
+         self.add_constraint("geometry.volcon", lower=1.0, scaler=1.0)
+         self.add_constraint("geometry.rcon", lower=0.8, scaler=1.0)
+ 
++        # ---- THE ONE MP-A1 CODE CHANGE: THE PER-POINT CL EQUALITY CONSTRAINTS.
++        # PREREGISTRATION.md section 1.5 / section 7 ruling.  Each operating point
++        # HOLDS its lift at the registered baseline target while the SHARED shape
++        # minimises weighted drag -- the drag-min-AT-FIXED-LIFT that SO-3 lacked
++        # (SO-3 left CL unconstrained and the lift collapsed NEGATIVE at point0).
++        #
++        # ADMISSIBILITY, and it is why NO aoa DV is added: the constraint gradient
++        # dCL_i/dx AT FIXED ALPHA was already FD-verified by SO-3aR2 at np = 1 (and
++        # spent by SO-3's own G5C), so no new unverified gradient enters the
++        # optimiser and DAFOAM_CHARTER section 2 is satisfied.  Adding a per-point
++        # aoa DV would introduce d/dalpha gradients SO-3aR2 never verified -- a
++        # SEPARATE rung, not this one.  The endpoint FD arms re-verify dCL_i/dx at
++        # MP-A1's OWN final design point (section 9), which is what G5C grades.
++        #
++        # EQUALITY (`equals=`), scaler 1.0, target read from CL_TARGET above.  The
++        # keys are DERIVED from SCENARIOS, never spelled out, so a scenario added
++        # above cannot leave a point unconstrained.
++        for i, sc in enumerate(SCENARIOS):
++            self.add_constraint("%s.aero_post.CL" % sc, equals=CL_TARGET[i], scaler=1.0)
++
+ 
+ # OpenMDAO setup
+ prob = om.Problem()
+@@ -474,7 +525,7 @@
+ if NPROCS != 1:
+     if MPI.COMM_WORLD.rank == 0:
+         sys.stderr.write(
+-            "SO3_REFUSE_NP this item is registered at np = 1 and is running at "
++            "MPA1_REFUSE_NP this item is registered at np = 1 and is running at "
+             "np = %d.  SO-3aR2's FD table -- the only reason this optimisation is "
+             "admissible -- was measured at np = 1, and DAFOAM_CHARTER section 5 "
+             "forbids carrying an FD reference across np.  REFUSED.\n" % NPROCS)
+@@ -485,12 +536,12 @@
+ # ---- THE ROW, PROVED FROM THE LIBRARY'S OWN BYTES. -------------------------
+ SO_MD5, SO_PATH = libidwarp_md5()
+ ROW = SO_MD5_ROW.get(SO_MD5)
+-print("SO3_IDWARP_SO_MD5: %s" % SO_MD5)
+-print("SO3_IDWARP_IMPORTED_FROM: %s" % SO_PATH)
+-print("SO3_ROW: %s" % (ROW or "UNREGISTERED"))
++print("MPA1_IDWARP_SO_MD5: %s" % SO_MD5)
++print("MPA1_IDWARP_IMPORTED_FROM: %s" % SO_PATH)
++print("MPA1_ROW: %s" % (ROW or "UNREGISTERED"))
+ if ROW is None:
+     sys.stderr.write(
+-        "SO3_REFUSE_ROW libidwarp.so md5 %s matches NEITHER registered toolchain.  "
++        "MPA1_REFUSE_ROW libidwarp.so md5 %s matches NEITHER registered toolchain.  "
+         "This file will not stamp a row it cannot prove, and the endpoint arms "
+         "read that stamp to decide which optimum they are allowed to verify.\n"
+         % SO_MD5)
+@@ -504,20 +555,20 @@
+         _x = json.load(_fh)
+     if _x.get("row") != ROW:
+         sys.stderr.write(
+-            "SO3_REFUSE_XOPT_ROW %s is stamped row=%r but this container is row=%r.  "
++            "MPA1_REFUSE_XOPT_ROW %s is stamped row=%r but this container is row=%r.  "
+             "An endpoint gradient must be verified at the design point ITS OWN "
+             "toolchain produced.\n" % (args.xopt, _x.get("row"), ROW))
+         MPI.COMM_WORLD.Abort(68)
+     _shape = np.array(_x["shape"], dtype=float)
+     if _shape.shape != prob.get_val("shape").shape:
+-        sys.stderr.write("SO3_REFUSE_XOPT_SHAPE %r vs %r\n"
++        sys.stderr.write("MPA1_REFUSE_XOPT_SHAPE %r vs %r\n"
+                          % (_shape.shape, prob.get_val("shape").shape))
+         MPI.COMM_WORLD.Abort(68)
+     prob.set_val("shape", _shape)
+-    print("SO3_XOPT_APPLIED file=%s row=%s n_dv=%d linf=%.6e"
++    print("MPA1_XOPT_APPLIED file=%s row=%s n_dv=%d linf=%.6e"
+           % (args.xopt, ROW, _shape.size, float(np.max(np.abs(_shape)))))
+ else:
+-    print("SO3_XOPT_APPLIED none -- this task runs at the BASELINE design")
++    print("MPA1_XOPT_APPLIED none -- this task runs at the BASELINE design")
+ 
+ if args.task == "run_driver":
+     # =======================================================================
+@@ -526,12 +577,12 @@
+     # `output_file` is NAMED so the stall watchdog and the grader read the SAME
+     # bytes the optimiser wrote.  `print_level` is high enough that the
+     # iteration table -- `iter objective inf_pr inf_du lg(mu) ||d|| lg(rg)
+-    # alpha_du alpha_pr ls` -- is present, because `so3_stall.py` parses those
++    # alpha_du alpha_pr ls` -- is present, because `mpa1_stall.py` parses those
+     # columns and a truncated table would make the stall detector blind rather
+     # than wrong, which is worse.
+     # =======================================================================
+     if args.optimizer != OPTIMIZER_REGISTERED:
+-        sys.stderr.write("SO3_REFUSE_OPTIMIZER registered=%s got=%s\n"
++        sys.stderr.write("MPA1_REFUSE_OPTIMIZER registered=%s got=%s\n"
+                          % (OPTIMIZER_REGISTERED, args.optimizer))
+         MPI.COMM_WORLD.Abort(69)
+     prob.driver = om.pyOptSparseDriver()
+@@ -546,7 +597,7 @@
+         "mu_strategy": "adaptive",
+         "limited_memory_max_history": 10,
+     }
+-    prob.add_recorder(om.SqliteRecorder("so3_driver_history.sql"))
++    prob.add_recorder(om.SqliteRecorder("mpa1_driver_history.sql"))
+ 
+     # THE BASELINE IS EVALUATED AND RECORDED BEFORE THE DRIVER MOVES ANYTHING.
+     # A drag reduction quoted against a baseline the same run did not measure is
+@@ -555,7 +606,7 @@
+     base = {"J": float(prob.get_val("obj.J")[0]),
+             "CD": [float(prob.get_val("%s.aero_post.CD" % sc)[0]) for sc in SCENARIOS],
+             "CL": [float(prob.get_val("%s.aero_post.CL" % sc)[0]) for sc in SCENARIOS]}
+-    print("SO3_BASELINE J=%.10e CD=%r CL=%r" % (base["J"], base["CD"], base["CL"]))
++    print("MPA1_BASELINE J=%.10e CD=%r CL=%r" % (base["J"], base["CD"], base["CL"]))
+ 
+     t_start = time.time()
+     fail = prob.run_driver()
+@@ -586,26 +637,26 @@
+         # ---- grader.  A producer that also graded could launder its own stop.
+         stall, exit_stmt = None, None
+         try:
+-            import so3_stall
++            import mpa1_stall
+             if os.path.isfile(OPT_OUTPUT_FILE):
+                 _txt = open(OPT_OUTPUT_FILE, errors="replace").read()
+-                exit_stmt = so3_stall.read_exit_statement(_txt)
+-                _rows = so3_stall.parse_majors(_txt)
+-                if len(_rows) > so3_stall.N_STALL:
+-                    stall = so3_stall.detect_stall(_rows)
++                exit_stmt = mpa1_stall.read_exit_statement(_txt)
++                _rows = mpa1_stall.parse_majors(_txt)
++                if len(_rows) > mpa1_stall.N_STALL:
++                    stall = mpa1_stall.detect_stall(_rows)
+                 else:
+                     stall = {"stall": "NOT_MEASURED",
+                              "why": "fewer majors (%d) than the registered window "
+                                     "(%d); the detector REFUSES rather than "
+                                     "grading a window it does not have"
+-                                    % (len(_rows), so3_stall.N_STALL)}
++                                    % (len(_rows), mpa1_stall.N_STALL)}
+         except SystemExit:
+-            stall = {"stall": "NOT_MEASURED", "why": "so3_stall refused this log"}
++            stall = {"stall": "NOT_MEASURED", "why": "mpa1_stall refused this log"}
+         except Exception as e:                              # noqa: BLE001
+-            stall = {"stall": "NOT_MEASURED", "why": "so3_stall unavailable: %r" % e}
++            stall = {"stall": "NOT_MEASURED", "why": "mpa1_stall unavailable: %r" % e}
+ 
+         rec = {
+-            "item": "SO-3", "row": ROW, "libidwarp_so_md5": SO_MD5,
++            "item": "MP-A1", "row": ROW, "libidwarp_so_md5": SO_MD5,
+             "nprocs": NPROCS, "optimizer": OPTIMIZER_REGISTERED,
+             "max_iter_registered": MAX_MAJORS, "tol_registered": OPT_TOL,
+             "opt_settings": dict(prob.driver.opt_settings),
+@@ -625,19 +676,19 @@
+             "converged_to_optimizer_tolerance": None,
+             "converged_note": ("this file records IPOPT's own statement and NEVER "
+                                "decides convergence; section 9's mapping is "
+-                               "so3_grade.py's and a producer that graded itself "
++                               "mpa1_grade.py's and a producer that graded itself "
+                                "could launder its own stop"),
+             "stall": stall,
+-            "stall_abort_marker_present": os.path.isfile("SO3_STALL_ABORT"),
++            "stall_abort_marker_present": os.path.isfile("MPA1_STALL_ABORT"),
+             "output_file": OPT_OUTPUT_FILE,
+         }
+         with open(OPT_RECORD, "w") as fh:
+             json.dump(rec, fh, indent=2, sort_keys=True)
+-        print("SO3_O_WRITTEN %s J %.10e -> %.10e (%.6f%%) exit=%r stall=%r"
++        print("MPA1_O_WRITTEN %s J %.10e -> %.10e (%.6f%%) exit=%r stall=%r"
+               % (OPT_RECORD, base["J"], final["J"],
+                  rec["weighted_drag_reduction_pct"], exit_stmt,
+                  (stall or {}).get("stall")))
+-        print("SO3_XOPT_WRITTEN %s row=%s n_dv=%d" % (XOPT_OUT, ROW, len(shape)))
++        print("MPA1_XOPT_WRITTEN %s row=%s n_dv=%d" % (XOPT_OUT, ROW, len(shape)))
+ elif args.task == "run_model":
+     # just run the primals once -- one multipoint evaluation is THREE primals
+     prob.run_model()
+@@ -651,11 +702,11 @@
+         print(totals)
+ elif args.task == "check_totals":
+     # OpenMDAO's own FD check.  It is a CONVENIENCE, not this item's gate: the
+-    # gate is `so3_grade.py`'s FD table at steps proved to lie in the plateau
++    # gate is `mpa1_grade.py`'s FD table at steps proved to lie in the plateau
+     # PER PAIR, and no number printed here reaches a verdict.
+     prob.run_model()
+     prob.check_totals(compact_print=False, step=1e-3, form="central", step_calc="abs")
+ else:
+-    print("task arg not valid for SO-3: run_driver, run_model, compute_totals, "
++    print("task arg not valid for MP-A1: run_driver, run_model, compute_totals, "
+           "check_totals")
+     exit(1)

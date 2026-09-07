@@ -1,0 +1,74 @@
+--- curriculum_SO3/so3_stop_marker.sh	2026-09-01 02:05:57.758492004 +0000
++++ curriculum_MP_A1/mpa1_stop_marker.sh	2026-09-07 03:59:24.437520916 +0000
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env bash
+-# SO-3 STOP MARKER WRITER -- PREREGISTRATION.md section 7 row 9.  NEW FILE, NO PARENT.
++# MP-A1 STOP MARKER WRITER -- PREREGISTRATION.md section 7 row 9.  NEW FILE, NO PARENT.
+ #
+-# WHY THIS EXISTS (section 2, limb 2).  SO-3's duty to its successor is a FIXED
++# WHY THIS EXISTS (section 2, limb 2).  MP-A1's duty to its successor is a FIXED
+ # ADDRESS the successor's precondition can read.  Two hard lessons, both already
+ # paid for by this family, are designed into the shape of this file:
+ #
+@@ -34,8 +34,8 @@
+ #
+ # IT IS WRITTEN ON EVERY EXIT PATH, INCLUDING THE PATHS WHERE NOTHING RAN.  A
+ # marker that appears only on success is exactly the address a successor cannot
+-# rely on, and the successor must be able to distinguish "SO-3 said NOT A RESULT"
+-# from "SO-3 never got far enough to say anything" -- so both are RECORDED
++# rely on, and the successor must be able to distinguish "MP-A1 said NOT A RESULT"
++# from "MP-A1 never got far enough to say anything" -- so both are RECORDED
+ # STATES here, and neither is an absent file.
+ #
+ # IT READS AND REPORTS.  IT DOES NOT GRADE, AND IT NEVER COMPOSES A VERDICT.
+@@ -44,24 +44,24 @@
+ # rule-1 token whose plain reading is NOT success -- never a blank and never an
+ # optimistic default.
+ #
+-# Usage:  so3_stop_marker.sh <RUN_ROOT> <CHAIN_RC> <DECLARED> <EXECUTED> [GRADE_JSON]
++# Usage:  mpa1_stop_marker.sh <RUN_ROOT> <CHAIN_RC> <DECLARED> <EXECUTED> [GRADE_JSON]
+ set -uo pipefail
+ 
+ BASE="${1:-}"; CHAIN_RC="${2:-}"; DECLARED="${3:-}"; EXECUTED="${4:-}"; GRADE_JSON="${5:-}"
+-test -n "$BASE" || { echo "ABORT so3_stop_marker.sh: no run root given"; exit 64; }
+-test -n "$CHAIN_RC" || { echo "ABORT so3_stop_marker.sh: no chain rc given"; exit 64; }
+-test -n "$DECLARED" || { echo "ABORT so3_stop_marker.sh: no DECLARED count given"; exit 64; }
+-test -n "$EXECUTED" || { echo "ABORT so3_stop_marker.sh: no EXECUTED count given"; exit 64; }
+-test -d "$BASE" || { echo "ABORT so3_stop_marker.sh: run root absent: $BASE"; exit 4; }
++test -n "$BASE" || { echo "ABORT mpa1_stop_marker.sh: no run root given"; exit 64; }
++test -n "$CHAIN_RC" || { echo "ABORT mpa1_stop_marker.sh: no chain rc given"; exit 64; }
++test -n "$DECLARED" || { echo "ABORT mpa1_stop_marker.sh: no DECLARED count given"; exit 64; }
++test -n "$EXECUTED" || { echo "ABORT mpa1_stop_marker.sh: no EXECUTED count given"; exit 64; }
++test -d "$BASE" || { echo "ABORT mpa1_stop_marker.sh: run root absent: $BASE"; exit 4; }
+ 
+ # THE FIXED ADDRESS.  One name, no timestamp, no glob.  Registered in
+ # PREREGISTRATION.md section 7 row 9 and read by the successor by ABSOLUTE PATH.
+-MARKER="$BASE/SO3_STOP_MARKER.json"
++MARKER="$BASE/MPA1_STOP_MARKER.json"
+ 
+ # The write is ATOMIC: a successor polling this address must never read a
+ # half-written file and conclude anything from it.  Write to a temp name in the
+ # SAME directory (so the rename cannot cross a filesystem) and mv into place.
+-TMP="$BASE/.SO3_STOP_MARKER.json.tmp.$$"
++TMP="$BASE/.MPA1_STOP_MARKER.json.tmp.$$"
+ 
+ python3 - "$MARKER" "$TMP" "$CHAIN_RC" "$DECLARED" "$EXECUTED" "$GRADE_JSON" <<'PY'
+ import json, os, sys, hashlib, datetime
+@@ -72,7 +72,7 @@
+     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+ 
+ rec = {
+-    "item": "SO3",
++    "item": "MPA1",
+     "marker_version": 1,
+     "written_utc": utc(),
+     "chain_rc": int(chain_rc),
+@@ -144,7 +144,7 @@
+ if back.get("verdict") != rec["verdict"] or back.get("chain_rc") != rec["chain_rc"]:
+     sys.stderr.write("ABORT stop marker read-back disagrees with what was written\n")
+     sys.exit(2)
+-print("SO3_STOP_MARKER written=%s verdict=%s chain_rc=%d declared=%d executed=%d truncated=%s"
++print("MPA1_STOP_MARKER written=%s verdict=%s chain_rc=%d declared=%d executed=%d truncated=%s"
+       % (marker, back["verdict"], back["chain_rc"], back["stages_declared"],
+          back["stages_executed"], back["truncated"]))
+ PY

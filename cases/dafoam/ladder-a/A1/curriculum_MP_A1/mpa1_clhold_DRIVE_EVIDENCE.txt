@@ -1,0 +1,34 @@
+=== MP-A1 CONTROLS & NEW-GATE DRIVE EVIDENCE (grader md5 below; no compute) ===
+clean fixture: item verdict=PASS rows={'SHIPPED': 'PASS', 'PATCHED': 'PASS'}
+
+--- G-CLHOLD planted-zero control (rule 3), read BACK OFF DISK ---
+  exercised=True  plant_sizing=RELATIVE -- PLANT_K*TOL_CL_ABS  plant_value=0.003 (PLANT_K=3.0 x TOL_CL_ABS)
+  plant_seen_off_disk=True  read_back_point0=0.314895888
+  BOTH WAYS: held->PASS   planted->GATE FAIL   collapsed(negative)->GATE FAIL
+  controls_written_to=grader_controls (grader_controls/ ONLY; never the graded artefact)
+
+--- G-CLHOLD gate, clean (lift HELD) ---
+  SHIPPED: verdict=PASS
+    point0 a=3.1392  CL_final=0.312095888  target=0.311895888  |dev|=2.00e-04  held=True positive=True
+    point1 a=5.1392  CL_final=0.498965261  target=0.498765261  |dev|=2.00e-04  held=True positive=True
+    point2 a=7.1392  CL_final=0.664176355  target=0.663976355  |dev|=2.00e-04  held=True positive=True
+  PATCHED: verdict=PASS
+    point0 a=3.1392  CL_final=0.312095888  target=0.311895888  |dev|=2.00e-04  held=True positive=True
+    point1 a=5.1392  CL_final=0.498965261  target=0.498765261  |dev|=2.00e-04  held=True positive=True
+    point2 a=7.1392  CL_final=0.664176355  target=0.663976355  |dev|=2.00e-04  held=True positive=True
+
+--- G-CLHOLD gate driven RED (both failure modes) ---
+  out-of-band (point0 dev 2e-3 > TOL 1e-3): G-CLHOLD=GATE FAIL  row=GATE FAIL  item=GATE FAIL
+  NEGATIVE collapse (SO-3's mode): point0 CL_final=-0.050000 positive=False  G-CLHOLD=GATE FAIL row=GATE FAIL
+
+--- G-DRAG gate both ways ---
+  clean: verdict=PASS  J 0.0212666667 -> 0.0186083333  reduction=12.5000%  (SO-3 unconstrained was ~16.16%)
+  RED (no improvement): verdict=GATE FAIL  J 0.0212666667 -> 0.0212666667  item=GATE FAIL
+
+--- G5C dCL_i/dx CONSTRAINT-GRADIENT COVERAGE (supervisor check-3) ---
+  covers_constraint_gradients=True  n_cl_constraint_gradients_graded=3  of_cl_keys=['CL0', 'CL1', 'CL2']
+  n_graded_pairs_per_scenario={'point0': 4, 'point1': 4, 'point2': 4}  assertion=all 3 dCL_i/dx CONSTRAINT gradients FD-verified at the final design point (charter section 9)
+
+--- the pre-existing planted-zero controls (carried from SO-3) still fire ---
+  grader_plant_X_PATCHED: {'plant_sizing': 'RELATIVE -- PLANT_K*(band_D/100)*|d_ref|', 'G5J_unplanted': 'PASS', 'G5J_planted': 'GATE FAIL'}
+  grader_plant_c5: {}
