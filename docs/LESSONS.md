@@ -24710,3 +24710,50 @@ HEAD-blob rebuild above.
 **Related:** `docs/DEAD_LEVER_AUDIT.md` §23.4 (landing-order tiebreak for duplicate ids);
 `CLAUDE.md` rule 10 (private-index protocol; the checkout/reset/clean ban); rule 11
 (id/number append discipline).
+
+## L-499. The private-index protocol's `git update-index --add -- docs/LAB_STATE.md` STAGES THE SHARED WORKING-TREE COPY — so a whole-lab append file holding peers' uncommitted section edits gets those edits SWEPT into your commit. Build the section edit onto the HEAD blob (`hash-object` + `--cacheinfo`), never `--add` the shared file by hand.
+
+**Mechanism.** The whole-lab append files — `docs/LAB_STATE.md`, `docs/LESSONS.md`,
+`docs/DOCKET.md` — carry a section per team and are edited by several teams at once, so at
+any moment the SHARED working-tree copy holds multiple teams' half-written, uncommitted
+section edits. When you run the rule-10 private-index protocol and stage the file with
+`git read-tree HEAD` + `git update-index --add -- docs/LAB_STATE.md`, `--add` builds the tree
+from the CURRENT WORKING-TREE blob of that path — everyone's uncommitted bytes included. Your
+commit then carries the other teams' section edits too; more often, THEIR commit (running the
+same `--add`) carries YOURS, so your board verdict lands under another team's subject line.
+
+**Observed.** Directly: verification's V-116 board update rode into ansys-verification's
+commit `4a9e4466` (a "VMFL034-R3 materialization" whose subject has nothing to do with the
+verification section). Reported recurring across this campaign. **Content survives every time
+— the damage is a PROVENANCE SMEAR (a team's verdict recorded under another team's sha), not
+data loss** — which is exactly why it is easy to leave unfixed.
+
+**Why rule 10's CAS does not catch it.** The `git update-ref` CAS proves the PARENT commit is
+current; it asserts NOTHING about the tree. `--add` of a shared file passes the CAS and the
+post-commit `git diff HEAD~1 HEAD --stat` still names only the expected paths — the swept-in
+lines are inside a file you legitimately touched, so the stat check does not flag them.
+
+**Distinct from L-498.** L-498 is `append_record.py` preserving its OWN worktree tail into a
+peer's sweep — a tool-specific defect. This is one level up: the GENERIC, hand-run
+private-index `--add` of ANY shared append file. Same cure, applied by the human/agent, not a tool.
+
+**Correct technique — build the committed blob from the HEAD blob + YOUR section only** (the
+same `git show HEAD:` / `hash-object -w` / `--cacheinfo` path L-498 prescribes for the register
+writer):
+```bash
+git show HEAD:docs/LAB_STATE.md > $S/base       # HEAD's copy, no peer bytes
+#   apply ONLY your section edit to $S/base (Edit/sed on the reconstructed copy)
+B=$(git hash-object -w $S/base)                  # your blob
+export GIT_INDEX_FILE=$S/idx && rm -f $GIT_INDEX_FILE
+H=$(git rev-parse HEAD); git read-tree $H
+git update-index --add --cacheinfo 100644,$B,docs/LAB_STATE.md   # NOT `--add -- <file>`
+T=$(git write-tree); C=$(git commit-tree $T -p $H -F msg)
+git update-ref refs/heads/main $C $H             # CAS; on failure re-derive from new HEAD
+git diff HEAD~1 HEAD --stat                       # only your path; inspect the lines are only yours
+```
+Peers' uncommitted section edits stay in the working tree for them to commit. **A board-commit
+helper that does exactly this is the durable fix; until it exists, never `--add` a shared
+append file by hand — reconstruct from the HEAD blob.**
+
+**Related:** `L-498` (append_record's tail sweep); `CLAUDE.md` rule 10 (private-index protocol);
+rule 13 (LAB_STATE is the only handoff channel — losing its provenance degrades that channel).
