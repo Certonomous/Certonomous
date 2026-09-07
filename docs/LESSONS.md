@@ -24757,3 +24757,46 @@ append file by hand — reconstruct from the HEAD blob.**
 
 **Related:** `L-498` (append_record's tail sweep); `CLAUDE.md` rule 10 (private-index protocol);
 rule 13 (LAB_STATE is the only handoff channel — losing its provenance degrades that channel).
+
+## L-500 — A base OSCILLATORY Roache triple can be iterative round-off NOISE on an over-refined finest level, not mesh non-similarity — diagnose before you pick a lever, and never "fix" it by dropping the level that flipped
+
+**What happened.** VMFL010 (90° tee-junction flow split) graded `NOT A RESULT` in the
+register (#14) because its r=2 triple was `OSCILLATORY` (0.8859 / 0.8845 / 0.8847 — the
+second difference changes sign at the finest level). The dated successor plan HYPOTHESISED the
+base mesh "did not refine cleanly by r=2" and prescribed rebuilding the mesh family. Inspection
+FALSIFIED that: the base blockMesh was already a self-similar uniform-hex mesh, birth-certified
+×4 cells/level (junction included, aspect 1.0, non-orthogonality 0.0). The sequence is textbook
+2nd-order in MAGNITUDE (|Δ32/Δ21| ≈ 0.198 vs 0.25 for p=2; implied p ≈ 2.34); only the SIGN of
+the tiny finest-level Δ32 ≈ +3e-4 flipped — the signature of a ~1e-4 iterative/round-off
+perturbation on a finest level (N=80) whose functional difference had fallen into the noise
+floor at a loose `residualControl` 1e-7. The oscillation was NOISE, not physics.
+
+**The anti-circularity trap in the "obvious" fix.** The first R2 freeze REPOSITIONED the triple
+to drop N=80 (the level whose sign flip caused the failure) and land the new finest on the
+in-band value. However well-argued the rationale, "remove the level that produced the FAIL"
+has the exact shape `CLAUDE.md` rule 2 forbids, and the verification-team audit can challenge
+any credential built on it. A dropped-failing-level triple is gate-fitting even when the gate
+constants never move.
+
+**The rule.** A non-monotone Roache triple is a FINDING to diagnose, not a mesh to rebuild on
+reflex. Before choosing a lever, ask whether the finest level's functional difference is above
+the iterative noise floor: compare |Δ32| against the residual tolerance's likely functional
+footprint, and check whether the magnitudes are otherwise textbook-order. If iterative noise is
+the credible cause, the UNIMPEACHABLE test is the SINGLE LEVER on the SAME triple: tighten
+`residualControl` (and the linear-solver tolerance below it) and re-grade the identical levels.
+- If the same triple becomes monotone `CONVERGING` at the tighter tolerance → the diagnosis is
+  confirmed and the verdict is earned on the levels that "failed".
+- If it STILL oscillates → `NOT A RESULT` with an honest finding that the cause was NOT noise
+  (genuine mesh-sensitivity), NOT rescued by dropping a level or widening the band. Only THEN,
+  as a SEPARATE later registration, may a repositioned triple be justified — using the
+  tightened-tolerance oscillation as DOCUMENTED data (data-driven), never as an a-priori guess.
+Keep the choice a-priori: never run the finest level, read the graded quantity, and then pick
+the triple that lands in band.
+
+**Provenance.** ansys-verification supervisor §3 check-2 ruling on VMFL010-R2, 2026-09-07:
+first freeze `934605f3` (repositioned N=10/20/40) HELD and superseded by the single-lever
+re-freeze `02fb0e99` (base triple N=20/40/80 kept, `residualControl` 1e-7→1e-9 only), the
+original struck-not-rewritten (rule 6). The N=80 answer-blind smoke confirmed the finest level
+DOES converge at 1e-9 (2033 iters), so the noise hypothesis is testable at the graded run.
+**Related:** `CLAUDE.md` rule 2 (anti-circularity / gates closed at the freeze), rule 5 (Roache
+triple gating), rule 6 (struck-not-rewritten), L-487 (match the reduction; do not widen a gate).
