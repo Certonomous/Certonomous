@@ -48,11 +48,12 @@ extracts them, so each clears its every duplicate row.
   back-pressure-anchoring outlet** (the pre-committed `rhoCentralFoam` R6 recipe carries the same
   defective `lInf 2.0` outlet and MUST fix it before freeze). State (b), a config/BC lever, not a
   capability gap.
-- **REGISTERED (successor dir exists):** 2 — VMFL007-R2 → `VMFL007-R3`; VMFL011-R2 → `VMFL011-R3`.
-- **OWED-DATED-PLAN (next attempt registered here):** 17 — the four VMFL046 lineage rows
+- **REGISTERED (successor dir exists):** 3 — VMFL007-R2 → `VMFL007-R3`; VMFL011-R2 → `VMFL011-R3`;
+  **VMFL054-R2 → `VMFL054-R3` (prereg + comparator FROZEN 2026-09-07, freeze `addd8240`; --selftest 16/16; LAUNCH HELD on Sanaa's desk)**.
+- **OWED-DATED-PLAN (next attempt registered here):** 16 — the four VMFL046 lineage rows
   (VMFL046-INVISCID, VMFL046-R2, VMFL046-R3, **VMFL046-R5**, all → the outlet-anchored
-  **VMFL046-R6**, dated 2026-09-07) plus the thirteen dated 2026-09-06: VMFL003-M2, VMFL010,
-  VMFL011-R3, VMFL017-R2, VMFL022, VMFL034-R2, VMFL051, VMFL054-R2, VMFL063, VMFL072-R2,
+  **VMFL046-R6**, dated 2026-09-07) plus the twelve dated 2026-09-06: VMFL003-M2, VMFL010,
+  VMFL011-R3, VMFL017-R2, VMFL022, VMFL034-R2, VMFL051, VMFL063, VMFL072-R2,
   VMFLGPU002, VMFLGPU003, VMFLGPU005.
 
 **GPU note (Task 1 finding).** VMFLGPU002, VMFLGPU003 and VMFLGPU005 are **LANDED, GRADED
@@ -82,7 +83,7 @@ legitimate lever.
 | **VMFL046-R3** | `NOT A RESULT` | config / numerics (outlet reflection at the boundary) | **VMFL046-R6 (outlet-anchored)** — same lineage successor; R6 = `rhoCentralFoam`/Kurganov with a back-pressure-anchoring outlet (R5's `lInf 2.0` washed out, #62). Re-runs. | OWED-DATED-PLAN |
 | **VMFL046-R5** | `NOT A RESULT` | config / numerics (outlet un-anchored the back-pressure — the shock washed out; register #62, diagnosed 2026-09-07) | **VMFL046-R6 (outlet-anchored)** — the `waveTransmissive lInf 2.0` outlet relaxed the exit pressure to ~10% of target and the shock washed out of the domain (not a hunt, uniform at L1/L2/L3). R6 keeps the density-based `rhoCentralFoam`/Kurganov shock-capturing path but **must replace the outlet with a partially-reflecting subsonic outlet that anchors `p≈176 325 Pa`** (candidates to research/pin gate-blind: a smaller geometric `lInf`, an alternative anchoring BC, or the Fluent pressure-outlet equivalent) — a density-based solver does not restore a lost back-pressure. Re-runs. | OWED-DATED-PLAN |
 | **VMFL051** | `NOT A RESULT` | #2 grid (triple OSCILLATORY) | **VMFL051-R2** — a **monotone grid triple** plus a **Mach functional sampled on a downstream line** (less shock/expansion-position sensitive than a volume zone), sibling to the VMFL045 oblique-shock recovery; re-runs against the frozen ±0.5% band. | OWED-DATED-PLAN |
-| **VMFL054-R2** | `GATE FAIL` | #2 grid (order not asymptotic — observed p=3.438 ∉ [1,3]) | **VMFL054-R3** — adds a **4th finer level** for a 4-point order estimate in the asymptotic range (the band [1,3] is frozen and is NOT widened); re-runs the extended ladder. | OWED-DATED-PLAN |
+| **VMFL054-R2** | `GATE FAIL` | #2 grid (order not asymptotic — observed p=3.438 ∉ [1,3]) | **VMFL054-R3** — adds a **4th finer level L4 = 320×320 (r=2)** so the order is graded on the FIXED finest triple L2/L3/L4 (nearest the asymptotic range), with a 4-point settling diagnostic; band [1,3] AND GCI ≤ 5 % frozen **BYTE-IDENTICAL** to R2 and **NOT widened** (L-487 anti-circularity). Directory `cases/ansys_verification/VMFL054-R3/` exists; prereg + comparator FROZEN at **`addd8240`** (comparator blob `fd959928`, driver blob `f451c24c`; `--selftest` 16/16; L4 mesh checkMesh OK, L4 solve de-risked converging within cap). Re-runs the extended ladder. **LAUNCH HELD** (Sanaa's desk, rule 9). | REGISTERED |
 | **VMFL063** | `GATE FAIL` | #2 grid (GCI_fine 120.6% ≫ the 40% deviation) | **VMFL063-R2** — **refines the triple** (finer, separation-region graded mesh) to bring GCI below the deviation, plus higher-order convection (linearUpwind→linear), so the reattachment length is read on a converged grid; re-runs. | OWED-DATED-PLAN |
 | **VMFL072-R2** | `NOT A RESULT` | numerics / model (film dewetting), per supervisor routing 2026-09-06 | **VMFL072-R3** — dewetting remedy: an alternate film model `kinematicSingleLayer`, **or** precursor-film regularization, **or** a VOF re-formulation; the anti-circularity property (L-487) is kept; re-runs. | OWED-DATED-PLAN |
 | **VMFLGPU002** | `NOT A RESULT` | #2 grid (GPU triple OSCILLATORY, R=−0.197; limb B GPU=CPU at 4.07e-10) | **VMFLGPU002-R2** — a **monotone grid triple** for the flow-split functional (structured, r=2 cleanly refined near the split), re-run **on the GPU path** (petsc4Foam) so the split converges monotonically; the verified GPU=CPU agreement is unaffected. Re-runs. | OWED-DATED-PLAN |
