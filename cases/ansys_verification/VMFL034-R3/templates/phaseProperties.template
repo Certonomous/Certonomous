@@ -1,0 +1,222 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: v2606  VMFL034-R2                      |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      phaseProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// VMFL034-R2 -- constant-kernel aggregation in a CMSMPR box.
+//   phase 'air'   = the DISPERSED, AGGREGATING PARTICLE PHASE (velocityGroup +
+//                   sectional sizeGroups). Name inherited from the template
+//                   (PREREGISTRATION s.D.1 disclosure: no air, no bubbles here).
+//   phase 'water' = continuous carrier (rho=998.2, mu=0.00103 via thermo);
+//                   constant drag diameter 1e-5 m (flow decoupled by construction;
+//                   single shared dispersed velocity via velocityGroup).
+// Sectional grid is NOMINAL O(1) (Ruling 4), geometric d in [0.45, 22.0].
+// THIS INSTANCE: @NGROUPS@ size groups -- one level of the r=2 (N_g/2N_g/4N_g)
+//   section-7 triple 16/32/64. The sizeGroups list below is emitted by the PINNED
+//   generator gen_sizegroups.py (Wheeler quadrature + Kumar-Ramkrishna fixed pivot)
+//   from the frozen archive feed moments; it is FROZEN material, not synthesised at
+//   grade time.
+// coalescenceModels: constant rate 2000 [m3/s] = beta0_OF = Da/(alpha2*tau) =
+//   100/(1e-2*5) at the RESCALED tau=5 s (PREREGISTRATION s.C.A/RULING A).
+
+type            populationBalanceTwoPhaseSystem;
+
+phases          (air water);
+
+populationBalances (bubbles);
+
+air
+{
+    type            purePhaseModel;
+    diameterModel   velocityGroup;
+    velocityGroupCoeffs
+    {
+        populationBalance    bubbles;
+
+        formFactor      0.5235987756;   // pi/6, spheres
+
+        sizeGroups
+        (
+@SIZEGROUPS@
+        );
+    }
+
+    residualAlpha   1e-6;
+}
+
+water
+{
+    type            purePhaseModel;
+    diameterModel   constant;
+    constantCoeffs
+    {
+        d               1e-5;   // Ruling 3: constant drag diameter, flow decoupled
+    }
+
+    residualAlpha   1e-6;
+}
+
+populationBalanceCoeffs
+{
+    bubbles
+    {
+        continuousPhase water;
+
+        coalescenceModels
+        (
+            constant
+            {
+                rate    rate [0 3 -1 0 0 0 0] 2000;
+            }
+        );
+
+        binaryBreakupModels
+        ();
+
+        breakupModels
+        ();
+
+        driftModels
+        ();
+
+        nucleationModels
+        ();
+    }
+}
+
+blending
+{
+    default
+    {
+        type            linear;
+        minFullyContinuousAlpha.air 0.7;
+        minPartlyContinuousAlpha.air 0.3;
+        minFullyContinuousAlpha.water 0.7;
+        minPartlyContinuousAlpha.water 0.3;
+    }
+
+    drag
+    {
+        type            linear;
+        minFullyContinuousAlpha.air 0.7;
+        minPartlyContinuousAlpha.air 0.5;
+        minFullyContinuousAlpha.water 0.7;
+        minPartlyContinuousAlpha.water 0.5;
+    }
+}
+
+surfaceTension
+(
+    (air and water)
+    {
+        type            constant;
+        sigma           0.07;
+    }
+);
+
+aspectRatio
+(
+    (air in water)
+    {
+        type            constant;
+        E0              1.0;
+    }
+
+    (water in air)
+    {
+        type            constant;
+        E0              1.0;
+    }
+);
+
+drag
+(
+    (air in water)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (water in air)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (air and water)
+    {
+        type            segregated;
+        m               0.5;
+        n               8;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+);
+
+virtualMass
+(
+    (air in water)
+    {
+        type            constantCoefficient;
+        Cvm             0.5;
+    }
+
+    (water in air)
+    {
+        type            constantCoefficient;
+        Cvm             0.5;
+    }
+);
+
+heatTransfer
+(
+    (air in water)
+    {
+        type            RanzMarshall;
+        residualAlpha   1e-4;
+    }
+
+    (water in air)
+    {
+        type            RanzMarshall;
+        residualAlpha   1e-4;
+    }
+);
+
+phaseTransfer
+(
+);
+
+lift
+(
+);
+
+wallLubrication
+(
+);
+
+turbulentDispersion
+(
+);
+
+pMin            10000;
+
+
+// ************************************************************************* //

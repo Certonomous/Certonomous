@@ -1,0 +1,19 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+// VMFL034-R3 Stage-1 carrier (single-phase simpleFoam k-epsilon). Steady; SIMPLE
+// residualControl (fvSolution) stops it at convergence. The driver's core-min cap
+// bounds it regardless. endTime is an iteration ceiling.
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         5000;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   5000;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  10;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;

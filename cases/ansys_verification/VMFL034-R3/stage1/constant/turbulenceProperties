@@ -1,0 +1,14 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL034-R3 Stage-1 CARRIER (answer-blind): single-phase simpleFoam k-epsilon.  |
+| Produces the FROZEN carrier U/phi/k/epsilon/nut for the Stage-2 frozen solve.  |
+| Decoupled from the moments (they never feed back) -> cannot be tuned to answer. |
+\*---------------------------------------------------------------------------*/FoamFile { version 2.0; format ascii; class dictionary; object turbulenceProperties; }
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+simulationType  RAS;
+RAS
+{
+    RASModel        kEpsilon;      // manual: standard k-epsilon carrier ("ke yes")
+    turbulence      on;
+    printCoeffs     on;
+}
+// ************************************************************************* //

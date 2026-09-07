@@ -1,0 +1,15 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| OpenFOAM: v2606  VMFL034                                                     |
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object topoSetDict; }
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Cells adjacent to the outlet opening (x in [0.09,0.1], y in [0.04,0.06]) --
+// the "outlet of the tank" the manual reads. Used only by the sizeDistribution
+// function object; the graded comparator reads the outlet PATCH directly.
+actions
+(
+    { name outletZone; type cellSet;     action new; source boxToCell;
+      box (0.09 0.04 -1) (0.1001 0.06 1); }
+    { name outletZone; type cellZoneSet; action new; source setToCellZone; set outletZone; }
+);
+// ************************************************************************* //
