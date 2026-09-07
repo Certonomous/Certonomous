@@ -1,4 +1,4 @@
-# DRAFT — NOT_FROZEN — check-1 CLEAR (dafoam-supervisor 2026-09-07); freeze HELD pending check-2 (addToAdjoint-honoured probe)
+# FROZEN — PERMISSION=60dddc2c04c42008357574aa6a523b7e16bad110 (dafoam-supervisor aa9d27fdd1bd4b695, 2026-09-07); grading path pinned at that sha; freeze commit mechanically executed by the authoring lane on the supervisor's explicit direction. See §11.
 
 **`D9successor` — U-BEND PRESSURE-LOSS MINIMISATION WITH A MESH-QUALITY CONSTRAINT. Successor to `D9`.**
 
@@ -501,4 +501,54 @@ corrections applied: `source` is `allCells` (not the older `objFunc`-block `boxT
 overflow guard is the `1e200` summation cap (`DAFunctionMeshQualityKS.C:146-150`), not double-precision
 overflow — `coeffKS = 1.0` is safe under it.
 
-**SUBMISSIONS PARKED. DRAFT — NOT_FROZEN.**
+**SUBMISSIONS PARKED. (§10 was authored at draft time; superseded by the §11 FREEZE RECORD below.)**
+
+---
+
+## 11. FREEZE RECORD — dafoam-supervisor, 2026-09-07 (PERMISSION SET, GATES CLOSED)
+
+**PERMISSION = `60dddc2c04c42008357574aa6a523b7e16bad110`** (the DRAFT instrument-set commit). The
+gate, threshold, cap and label of this pre-registration are CLOSED as of this freeze; the grading
+path (`d9succ_run_script.py`, `d9succ_grade.py`, `d9succ_stage_and_run.sh`) is pinned BYTE-IDENTICAL
+to that sha, verified by the md5 fixpoint below. Decision by the dafoam-supervisor
+(`aa9d27fdd1bd4b695`) after its personal §3 checks — check-1 diff-reads (run_script + grade DELTAS),
+crash-triage of the bounded API-exposure probe, and big-claim corroboration; the freeze commit was
+executed mechanically by the authoring lane on the supervisor's explicit direction. **No gate,
+threshold, cap or label is changed by this freeze commit.**
+
+**L-504 PRE-FREEZE CHECKLIST — every item verified before this freeze (rule 14):**
+
+- **(a) md5 FIXPOINT — `ALL_PINS_MATCH=1`.** Each of the six instrument/diff files was re-hashed; the
+  current md5 equals both the §10 table value AND the `60dddc2c` git blob. Parent-md5 citations
+  (`af5f07bc`, `baf7d69b`, `7bb4234f`) resolve to the actual D9 parent files. No pin equal to a
+  parent value where the file changed.
+- **(b) CAP RECONCILED to its registered authority.** In the D9 lineage the cap authority is the
+  prereg literal (`REGISTERED CAP: 120.0 core-min`, §5 line 321) + the launcher assertion
+  (`REGISTERED_CAP_CORE_MIN = CAP_CORE_MIN = 120.0`, which asserts equality and greps the prereg
+  literal). Both = 120.0, reconciled. **The grader carries NO cap/CAPS/ceiling constant** — the same
+  as its parent `d9_grade.py`/`d9_grade_SUPPLEMENT.py`; the D6RF7 grader-CAPS mechanism does not
+  transfer to this lineage, and the supervisor ruled (2026-09-07) that the prereg+launcher authority
+  satisfies L-504(d) here. No stale `110`/`54` constant; no false "read out of the frozen grader"
+  provenance comment.
+- **(c) EXPECTED-REFUSAL PATHS GUARDED.** Grader `Refuse` on malformed/short/empty records,
+  empty/absent `J_an`, different-design-point, unmoved physical plant; `checkmesh_reader_plant` fires
+  before any G-MESH pass; `reader_plant` + `require_plant_fired` for the FD reader. Selftest **23/23**
+  (the refusal arms are proven to fire, including the new G-MESH directions and the checkMesh
+  reader-plant).
+- **(d) REAL-LAUNCH VALIDATION.** The bounded pre-freeze API-exposure probe (rc=0, 1.4167 core-min,
+  `/home/ubuntu/certonomous-runs/PROBE-D9SUCCESSOR-apiexposure-20260907T184123Z_139435/`) confirmed
+  at runtime: `scenario.aero_post.nonOrtho` appears (KS 9.86 over-bounding raw checkMesh maxNonOrth
+  3.51 at baseline, as the KS design requires); the constraint gradient `d(nonOrtho)/d(shapexUpper)`
+  computes cleanly and matches central-FD to ~6 significant figures — **`addToAdjoint: True` is
+  HONOURED and STAYS True** (supervisor crash-triage ruling: CLEAN, no amendment).
+
+**FROZEN INSTRUMENT md5 (== §10, == `60dddc2c` blobs):** `d9succ_run_script.py`
+`dd10e3c598aa6edd6751810e7ffc2df0`; `d9succ_grade.py` `7740937d752e10a10796a88d7f6d3bee`;
+`d9succ_stage_and_run.sh` `87d61d898d56757af5a76388a143d428`.
+
+**SELF-GRADE:** the launcher prints the grade command but does not invoke it; the authoring lane runs
+`d9succ_grade.py --root <run root> --meshlog <endpoint checkMesh log>` (NO `--skip-freeze`) at run
+completion or on kill, and reports the verdict with its numbers and the rule-12 est-vs-actual
+calibration row.
+
+**SUBMISSIONS PARKED. FROZEN.**
