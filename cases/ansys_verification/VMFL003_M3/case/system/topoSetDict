@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3 -- THE FROZEN SAMPLING RULE for the DEVELOPED-REGION DIAGNOSTIC.
+  BYTE-IDENTICAL to VMFL003-M2: these two cell zones are NOT the gate.  The GATE
+  is the inlet-to-outlet pressure difference (manual p. 19).
+
+  The zones support the DECLARED DIAGNOSTIC (PREREGISTRATION.md section 3.3):
+  the fully-developed axial pressure gradient, from which the friction factor
+  actually realised by the turbulence model is recovered as
+        f_dev = (dp/dx) * D / (0.5 rho U^2).
+  It can NEVER change the gate verdict; it is printed beside it.
+
+  slabA  centred x = 1.00 m ; slabB centred x = 1.80 m ; separation 0.80 m.
+  At NX = 1000 (dx = 0.002 m) each slab (0.04 m) holds 20 axial x NR radial
+  cells; at the axial-ladder coarsest (NX = 500) 10 x NR.  Neither can be empty
+  -- run_vmfl003_m3.sh REFUSES to start the solver if topoSet leaves either
+  zone empty, and grade_vmfl003_m3.py REFUSES (exit 2) if the `# Cells` header
+  of either volFieldValue output is absent or 0.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+actions
+(
+    {
+        name    slabACells;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        box     (0.98 -1 -1) (1.02 1 1);
+    }
+    {
+        name    slabA;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     slabACells;
+    }
+
+    {
+        name    slabBCells;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        box     (1.78 -1 -1) (1.82 1 1);
+    }
+    {
+        name    slabB;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     slabBCells;
+    }
+);
+
+// ************************************************************************* //

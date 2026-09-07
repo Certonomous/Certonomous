@@ -1,0 +1,118 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3 -- Pressure Drop in Turbulent Flow Through a Pipe, WALL-RESOLVED.
+  (Ansys Fluid Dynamics Verification Manual, Release 2026 R1, pp. 19-20.)
+
+  Axisymmetric WEDGE, single cell thick, HALF-ANGLE 2.5 deg (5 deg total), same
+  exact-radius vertices as VMFL003-M2 / run 1:
+        y_w = R cos(2.5 deg) = 0.0019980964431637158
+        z_w = R sin(2.5 deg) = 8.7238774730672e-05
+  so |(y_w, z_w)| = R = 0.002 m to machine precision.  Pipe axis +x, 0 <= x <= 2.
+
+  THE M3 MESH DIFFERENCE.  Run 1 and all four M2 arms used a UNIFORM radial mesh
+  (NR = 5, simpleGrading (1 1 1)) so the first-cell y+ ~ 40.8 sat in the log
+  layer for the wall FUNCTION.  M3 integrates the model TO THE WALL: the radial
+  edge (axis -> wall, the LOCAL y direction of this block) is geometrically
+  GRADED so the wall cell is small enough for y+ ~ 1.  __GR__ is the blockMesh
+  simpleGrading ratio (last cell / first cell) along the radial edge; it is < 1
+  because the LAST cell (at the wall, high index) is the SMALL one.  __GR__ is
+  computed once per level and FROZEN in PREREGISTRATION.md section 4 and in
+  run_vmfl003_m3.sh (LEVELS), not solved at run time.
+
+  THE PRIMARY ROACHE TRIPLE IS RADIAL (wall-normal).  __NR__ = 25 / 50 / 100 at
+  fixed __NX__ = 1000, halving the wall-cell height each level (y+ ~ 1 / 0.5 /
+  0.25).  This refines the friction-controlling direction directly and, unlike
+  the wall-function predecessors, is a VALID ratio-2 radial triple: N-AV10's
+  R+ = 408 log-law-window obstruction applies ONLY to a wall FUNCTION and is
+  removed by wall resolution (y+ 1, 0.5, 0.25 are all valid inside the resolved
+  sublayer).
+
+  N-AV9 -- THE AZIMUTHAL AREA DEFICIT of a flat-sided 5 deg wedge (dp high by
+  sec(2.5 deg) - 1 = +0.09526851633199218 %) is unchanged by this mesh and by
+  any refinement of it; it is AZIMUTHAL, not radial or axial, and is carried in
+  the PREREGISTRATION.md error budget exactly as in M2.
+
+  __NX__  axial cells (x), UNIFORM
+  __NR__  radial cells (r), GRADED toward the wall by __GR__
+  Substituted by run_vmfl003_m3.sh; this template is never edited by a run.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+mergeType points;   // Wedge geometry -- merge coincident axis points
+
+scale   1;
+
+vertices
+(
+    (0.0  0                      0                     )   // 0  inlet  axis
+    (2.0  0                      0                     )   // 1  outlet axis
+    (0.0  0.0019980964431637158 -8.7238774730672e-05   )   // 2  inlet  wall back  (z<0)
+    (2.0  0.0019980964431637158 -8.7238774730672e-05   )   // 3  outlet wall back
+    (0.0  0.0019980964431637158  8.7238774730672e-05   )   // 4  inlet  wall front (z>0)
+    (2.0  0.0019980964431637158  8.7238774730672e-05   )   // 5  outlet wall front
+);
+
+blocks
+(
+    hex (0 1 3 2  0 1 5 4) (__NX__ __NR__ 1) simpleGrading (1 __GR__ 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (0 2 4 0)
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (1 3 5 1)
+        );
+    }
+    walls
+    {
+        type wall;
+        faces
+        (
+            (2 3 5 4)
+        );
+    }
+    wedge1
+    {
+        type wedge;
+        faces
+        (
+            (0 2 3 1)
+        );
+    }
+    wedge2
+    {
+        type wedge;
+        faces
+        (
+            (0 1 5 4)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

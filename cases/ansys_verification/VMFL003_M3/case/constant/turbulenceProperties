@@ -1,0 +1,48 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3 -- kOmegaSST, integrated to the wall (y+ ~ 1).
+
+  THE MODEL IS PINNED A PRIORI TO kOmegaSST, AND THE REASON IS PURELY
+  METHODOLOGICAL, never the arm ranking or proximity to the target.  kOmegaSST
+  natively integrates through the viscous sublayer without the wall-damping
+  functions the low-Re k-epsilon variants require, so a single, honest,
+  well-posed wall-resolved model exists without introducing damping-function
+  degrees of freedom.  This is standard OpenFOAM low-Re practice for a mesh
+  with y+ ~ 1.  "kOmegaSST OR low-Re kEpsilon" is deliberately NOT left open:
+  choosing among candidate models after seeing results is model-shopping, and
+  M3 carries exactly one model, fixed before compute (PREREGISTRATION.md
+  section 2).
+
+  CONTAMINATION NOTE.  VMFL003-M2 ARM D also ran kOmegaSST, but with the log-law
+  wall FUNCTION (nutkWallFunction), and its finest-level Delta p is on the
+  permanent record.  M3 is a DIFFERENT configuration -- kOmegaSST integrated to
+  the wall (nutLowReWallFunction, k LowRe, y+ ~ 1 mesh) -- whose answer has
+  never been computed or seen.  The M3 model choice is therefore NOT inherited
+  from arm D's ranking; arm D's value is cited in the pre-registration only as
+  the state-(b) prior-art diagnosis that motivates trying wall resolution.
+
+  COEFFICIENTS.  kOmegaSST's default constant set (Menter 2003) is used as
+  shipped in OpenFOAM v2606
+  (src/TurbulenceModels/turbulenceModels/RAS/kOmegaSST); the model has a large
+  blended coefficient set and is left at its documented library defaults, with
+  printCoeffs on so the run log records the set actually used.  This is the
+  honest reading of "the standard SST model".
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType  RAS;
+
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+}
+
+// ************************************************************************* //

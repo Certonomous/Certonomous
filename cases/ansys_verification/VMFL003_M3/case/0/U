@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3 -- velocity U [m/s].  Wall-RESOLVED kOmegaSST successor.
+  U is BYTE-IDENTICAL to VMFL003-M2 (all arms) and to run 1: the wall-resolution
+  lever changes the near-wall TREATMENT (nut / k / mesh), never the momentum BC,
+  which is noSlip at the pipe wall in every treatment.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (50 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform (50 0 0);
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform (0 0 0);
+        value           uniform (50 0 0);
+    }
+
+    walls
+    {
+        type            noSlip;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3 -- turbulent kinetic energy k [m2/s2].  Wall-RESOLVED kOmegaSST.
+
+  THE ONLY CHANGE vs VMFL003-M2 (all arms) is the WALL boundary condition:
+      kqRWallFunction  ->  kLowReWallFunction
+  The internal field and the inlet / outlet BCs are BYTE-IDENTICAL to M2 and
+  run 1 (k_in = 9.375 m2/s2), so the inlet freestream turbulence STATE is held
+  fixed and the M3 lever is purely the NEAR-WALL TREATMENT.
+
+  kLowReWallFunction is the low-Reynolds-number-consistent wall condition: it
+  reduces to the resolved viscous-sublayer behaviour when the first cell sits at
+  y+ ~ 1 (as it does here by mesh construction) and blends to the log-law k only
+  if the mesh coarsens.  It is standard OpenFOAM low-Re practice for a mesh
+  integrated to the wall, and the choice is METHODOLOGICAL -- it is the wall k
+  condition that matches a y+ ~ 1 mesh -- never chosen from any Delta p result.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      k;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 9.375;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 9.375;
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 9.375;
+        value           uniform 9.375;
+    }
+
+    walls
+    {
+        type            kLowReWallFunction;
+        value           uniform 9.375;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

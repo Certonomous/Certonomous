@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3 -- turbulent (eddy) kinematic viscosity nut [m2/s].  Wall-RESOLVED
+  kOmegaSST.
+
+  THE M3 LEVER LIVES HERE.  The single registered change of this successor is
+  the near-wall TREATMENT, and its clearest expression is this wall BC:
+      nutkWallFunction  ->  nutLowReWallFunction
+  All four VMFL003-M2 arms held nutkWallFunction FIXED as a control (the log-law
+  algebraic wall function that IMPOSES the wall shear from the first-cell k and
+  is valid only for 30 < y+ < 300).  nutLowReWallFunction instead returns
+  nut = 0 wherever the first cell lies inside the viscous sublayer (y+ ~ 1 here
+  by mesh construction), so the wall shear is COMPUTED by the resolved momentum
+  and turbulence fields rather than imposed by an algebraic law.
+
+  This is standard OpenFOAM low-Re practice for a mesh integrated to the wall.
+  kOmegaSST natively integrates through the viscous sublayer without the
+  damping functions the low-Re k-epsilon variants need, which is exactly why
+  the model was pinned to kOmegaSST a priori (PREREGISTRATION.md section 2,
+  reason METHODOLOGICAL).  The choice is not, and must not be read as, chosen
+  from any observed pressure drop.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      nut;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -1 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        type            calculated;
+        value           uniform 0;
+    }
+
+    outlet
+    {
+        type            calculated;
+        value           uniform 0;
+    }
+
+    walls
+    {
+        type            nutLowReWallFunction;
+        value           uniform 0;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

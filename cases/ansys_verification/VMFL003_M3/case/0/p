@@ -1,0 +1,52 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3 -- kinematic pressure p [m2/s2].  Wall-RESOLVED kOmegaSST
+  successor.  p is BYTE-IDENTICAL to VMFL003-M2 and run 1: the domain is open
+  (velocity fixed at inlet, pressure fixed 0 at outlet), so the pressure level
+  is pinned by the outlet BC and no pRefCell/pRefValue is set.  simpleFoam
+  solves KINEMATIC pressure; the comparator applies rho = 1.225 explicitly
+  (grade_vmfl003_m3.py, and its first planted-zero control proves it at grade
+  time).
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        type            zeroGradient;
+    }
+
+    outlet
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

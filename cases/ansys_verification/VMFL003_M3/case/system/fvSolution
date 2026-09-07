@@ -1,0 +1,92 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3 -- turbulent pipe, steady simpleFoam + wall-RESOLVED kOmegaSST.
+
+  ONE registered numerics change vs VMFL003-M2 ARM D, and it is an INSTRUMENT
+  fix, never a physics lever (VERIFICATION_CHARTER section 2ay: "if it's the
+  numerics, change the numerics"):
+
+      p solver:  GAMG (GaussSeidel)  ->  PCG with DIC preconditioner
+
+  WHY, and it is MEASURED, not a precaution.  The wall-resolved radial mesh has
+  a near-wall cell aspect ratio of 204 (L1) to 817 (L3).  In an answer-blind
+  scratch smoke (y+ and linear-solver iteration counts read; Delta p NEVER
+  read), GAMG+GaussSeidel hit its 1000-iteration ceiling EVERY outer SIMPLE step
+  on the aspect-409 mesh -- it does not converge the pressure equation on
+  high-aspect cells -- which would make the graded run ~1000x too slow and blow
+  the compute budget (CLAUDE.md rule 12).  PCG with the DIC preconditioner
+  solved the same pressure equation in 0-1 inner iterations per step and drove
+  the outer residuals of p, Ux, k and omega down monotonically.  DIC-
+  preconditioned CG is the standard robust choice for the ill-conditioned
+  pressure matrix of a high-aspect-ratio boundary-layer mesh.
+
+  This touches NEITHER the gate (Delta p band, Colebrook diagnostic) NOR the
+  frozen iterative-convergence RESIDUAL floor RESID_TOL = 1e-8, which is carried
+  BYTE-IDENTICAL from M2 and is NOT relaxed.  The linear-solver tolerances below
+  govern how well each equation is solved PER outer iteration; the verdict-
+  determining quantity is the FINAL INITIAL residual of the outer SIMPLE loop,
+  read by the comparator after the run.
+
+  NO residualControl: the run ALWAYS reaches endTime, so rule 4's clauses
+  "last time == endTime" and "ExecutionTime count == endTime" are meaningful.
+  Iterative convergence is judged AFTER the run, PER LEVEL and BEFORE the Roache
+  triple is formed (CLAUDE.md rule 5 step 1), from BOTH the final initial
+  residuals AND the plateau of the gate quantity.
+
+  EVERY VARIABLE simpleFoam+kOmegaSST SOLVES HAS AN ENTRY: p and U (simpleFoam),
+  k and omega (kOmegaSST); nut is algebraic.  The regex "(U|k|omega)" covers all
+  transported variables as a CLASS (the L-221/L-222 posture: fix the class, not
+  the instance).  The domain is OPEN, so the pressure level is pinned by the
+  outlet BC and NO pRefCell/pRefValue is set.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-12;
+        relTol          0.01;
+    }
+
+    "(U|k|omega)"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-13;
+        relTol          0.01;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+    consistent      no;
+    residualControl
+    {
+    }
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U               0.7;
+        k               0.7;
+        omega           0.7;
+    }
+    fields
+    {
+        p               0.3;
+    }
+}
+
+// ************************************************************************* //

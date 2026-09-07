@@ -1,0 +1,70 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3 -- turbulent pipe, wall-RESOLVED kOmegaSST, steady simpleFoam.
+
+  The DISCRETISATION SCHEMES are carried BYTE-IDENTICAL from VMFL003-M2 ARM D
+  (div(phi,omega) in place of div(phi,epsilon); every other scheme unchanged):
+  the M3 lever is the near-wall TREATMENT and the radial MESH, not the numerical
+  schemes.
+
+  The cell Peclet number based on the MOLECULAR viscosity is enormous
+  (|u| dx / nu ~ 1.4e7 at NX = 1000), so a central div(phi,U) is out of the
+  question: `bounded Gauss linearUpwind grad(U)` -- second order, stable -- is
+  used, as on VMFL005 and every VMFL003 predecessor.  The turbulence transport
+  terms use `bounded Gauss limitedLinear 1`.
+
+  OBSERVED-ORDER EXPECTATION FOR M3.  The PRIMARY Roache triple is now RADIAL
+  (wall-normal), refining the friction-controlling direction directly (y+ ~ 1
+  -> 0.5 -> 0.25).  The wall-normal gradients of U, k and omega are smooth and
+  well resolved on a y+ ~ 1 mesh, so a second-order (p ~ 2) observed order on
+  the radial triple is expected; the comparator does not gate on the order and
+  flags any order outside [0.5, 2.5] as untrusted, exactly as its predecessors.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         Gauss linear;
+    div(phi,U)      bounded Gauss linearUpwind grad(U);
+    div(phi,k)      bounded Gauss limitedLinear 1;
+    div(phi,omega) bounded Gauss limitedLinear 1;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+wallDist
+{
+    method          meshWave;
+}
+
+// ************************************************************************* //

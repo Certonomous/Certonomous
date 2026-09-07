@@ -1,0 +1,26 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3.  Manual p. 19: Density = 1.225 kg/m3, Viscosity = 1.7894e-5
+  kg/m-s.  BYTE-IDENTICAL to VMFL003-M2 and run 1.  simpleFoam is incompressible
+  and wants the KINEMATIC viscosity:
+
+      nu = mu / rho = 1.7894e-5 / 1.225 = 1.4607346938775508e-05 m2/s
+
+  DERIVED FROM THE MANUAL'S OWN MATERIAL PROPERTIES BLOCK -- nothing assumed.
+  The same two numbers give Re = rho U D / mu = 13691.740248127866, which the
+  manual states as "1.37 X 10^4" (p. 19).  The wall-resolution lever does not
+  touch the material properties.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+transportModel  Newtonian;
+
+nu              1.4607346938775508e-05;
+
+// ************************************************************************* //

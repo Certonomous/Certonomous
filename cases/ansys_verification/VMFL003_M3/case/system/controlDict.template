@@ -1,0 +1,121 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3 -- turbulent pipe, wall-RESOLVED kOmegaSST.  Steady simpleFoam,
+  run to a FIXED iteration count: there is NO residualControl, so the run always
+  ends at endTime and rule 4's "last time == endTime" and "ExecutionTime count
+  == endTime" clauses are meaningful.
+
+  THE MONITORS ARE BYTE-IDENTICAL to VMFL003-M2: the gate quantity is the
+  inlet-to-outlet pressure difference (manual p. 19: "pressure difference
+  between inlet and outlet"), read from pInletMonitor / pOutletMonitor at
+  endTime, converted to Pa by the comparator (dp = 1.225 * (p_in - p_out),
+  simpleFoam solving KINEMATIC pressure).  pSlabA / pSlabB support the
+  developed-region friction-factor DIAGNOSTIC (never the gate).  yPlusWall is
+  the WALL-RESOLUTION ADEQUACY instrument: on M3 the pre-registered clause is
+  max(y+) <= 5.0 on patch `walls` at endTime (viscous-sublayer edge -- the mesh
+  must actually resolve to the wall), against a designed y+ ~ 1 / 0.5 / 0.25 at
+  L1 / L2 / L3 (PREREGISTRATION.md section 4).
+
+  The monitors write every iteration (writeInterval 1), so the inlet/outlet
+  series is also the PLATEAU leg of the per-level iterative-convergence test.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+
+writeControl    timeStep;
+writeInterval   __ENDTIME__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    pInletMonitor
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            inlet;
+        operation       areaAverage;
+        fields          (p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    pOutletMonitor
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            outlet;
+        operation       areaAverage;
+        fields          (p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    pSlabA
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            slabA;
+        operation       volAverage;
+        fields          (p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    pSlabB
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            slabB;
+        operation       volAverage;
+        fields          (p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    yPlusWall
+    {
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        writeControl    timeStep;
+        writeInterval   200;
+        writePrecision  12;
+        log             false;
+    }
+}
+
+// ************************************************************************* //

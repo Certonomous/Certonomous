@@ -1,0 +1,65 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M3 -- specific dissipation rate omega [1/s], for wall-RESOLVED
+  kOmegaSST.
+
+  omega is BYTE-IDENTICAL to VMFL003-M2 ARM D, INCLUDING the wall BC.
+  omegaWallFunction is NOT a coarse-mesh-only device: it implements Menter's
+  AUTOMATIC (blended) wall treatment, returning the analytical viscous-sublayer
+  value omega_vis = 6 nu / (beta1 y^2) when the first cell sits at y+ ~ 1 (as it
+  does here by mesh construction) and the log-law value when the mesh coarsens.
+  It is therefore the CORRECT and standard omega wall condition for a kOmegaSST
+  mesh integrated to the wall, and no change is needed or made.  Keeping it
+  byte-identical to arm D is deliberate: it isolates the M3 lever to the nut / k
+  wall treatment and the radial mesh, not the omega BC.
+
+  INLET omega is DERIVED, NOT GUESSED, and reproduces run 1's / M2's inlet
+  turbulence STATE so M3 is a controlled comparison: with beta* = 0.09,
+      omega_in = epsilon_in / (Cmu * k_in)
+               = 16845.37817870935 / (0.09 * 9.375) = 19964.892656248117 1/s.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      omega;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 -1 0 0 0 0];
+
+internalField   uniform 19964.892656248117;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 19964.892656248117;
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 19964.892656248117;
+        value           uniform 19964.892656248117;
+    }
+
+    walls
+    {
+        type            omegaWallFunction;
+        value           uniform 19964.892656248117;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //
