@@ -1,6 +1,6 @@
 # DMR R3 L2 COURANT PROBE — FINE-ONLY dt lever — PRE-REGISTRATION
 
-> **STATUS: DRAFT — NOT AUTHORISED — NOT FROZEN — NO COMPUTE RUN.**
+> **STATUS: AUTHORISED — FROZEN — 2026-09-07 — NO COMPUTE RUN YET.**
 > Authored by a cfd `lab-lane`, 2026-09-07. This becomes a frozen pre-registration
 > ONLY when the cfd supervisor takes **check-1** (the L-339 guarded source region of
 > the driver) and **check-4** (generator / driver / prereg gates) PERSONALLY and
@@ -12,6 +12,17 @@
 > only, no grid-convergence triple, **no GCI, no Gate T'**. Heeds L-501: a SIGFPE of
 > this probe is a MEASURED negative result diagnosed answer-blind by the check-1'd
 > reader, never a capability inference from one crash.
+>
+> **FREEZE STAMP — 2026-09-07 (cfd supervisor).** check-1 (the L-339 guarded
+> source region of the driver) and check-4 (generator / driver / prereg gates)
+> taken PERSONALLY: both PASS. Frozen by sha against four pinned instruments
+> verified on-disk at freeze:
+> - generator `make_case_tadmor_co05.py` sha256 `da5e5d0036bf540058c910c4b2fee4ca6dd94fdc08403e9b3b146d3b1a9543ed`
+> - driver `run_dmr_l2_courant_probe.sh` sha256 `f244e54c5394739a3f822e7d693c337acaa60bdd49f379c2543d20ea2e839d5d`
+> - grader `dmr_locator_v2.py` git blob `52aacf9669bcf23e88a0bf7984b299fa8aaf286e`
+> - reader `step0_negativity_reader.py` sha256 `c7da80cee99b5d7143d28beb8af51e02d819e67050c8dbc730a244e3db1e02e3`
+> Run root `verification/runs/DMR_R3_L2_COURANT_PROBE_runs` ABSENT at freeze. No
+> gate / threshold / cap / label altered by this freeze — banner + this stamp only.
 
 ---
 
