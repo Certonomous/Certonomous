@@ -184,3 +184,71 @@ full `DAFOAM_CHARTER.md` §6 verdict about DAFoam and must not be reported as on
   FD-vs-adjoint verification. But any DOWNSTREAM optimisation item built on this re-meshed base **does** —
   RANK 7 changes the delivered gradient (`docs/dafoam/D6RF4_CONVERGENCE_RESEARCH.md:305-313`). Flagged for the
   ladder, not resolved here.
+
+---
+
+## AMENDMENT 2026-09-07 — the A2 base is a pyHyp mesh, NOT a blockMesh mesh; re-mesh METHOD escalated to the chief (PENDING)
+
+**Status: pre-compute amendment (CLAUDE.md rule 2).** D6RF8 is NOT_FROZEN and has NOT computed, so this
+amendment is legal; it states the CONDITION corrected and HOW it was checked. Nothing above this section is
+rewritten — the false lines are **STRUCK** here and corrected here (rule 2, "originals are struck, never
+rewritten"). No line number above this section changed.
+
+**Condition corrected.** §5(b) and the §5/§7 mesh-gen framing rest on a FALSE PREMISE: that the A2 base is a
+`blockMesh` mesh. It is not.
+
+**How it was checked.** The dafoam-supervisor's APPROVED bounded mesh-gen probe (single-core blockMesh + checkMesh,
+cap 15 core-min, 2026-09-07). blockMesh was run on `…/CURRICULUM-D4-a2-wing-cdmin/base/system/blockMeshDict`: it
+produced a **4,400-cell U-bend DUCT** (patches `inlet/outlet/ubend`, boundingBox `(0 -0.0945 0)–(0.8445 0.0945
+0.075)`), rc 0, 0.10 wall s — **the wrong geometry entirely.** The registered A2 base has **38,304 cells** and
+patches **`wing` (wall, 1008 faces) / `inout` / `sym`**. EVERY blockMeshDict in the D4 run tree is the same stale
+U-bend leftover; there is NO `snappyHexMeshDict`, STL, pyHyp input or CGNS in that tree. Cross-checked against
+`cases/dafoam/A2_GC_GRID_CONVERGENCE_PREREGISTRATION.md:28-30` and `cases/dafoam/actd_reproduce_a2_grid.py:6-7,67`.
+
+**The corrected finding (MEASURED / cited).** The A2 wing mesh is built by a **pyHyp hyperbolic-extrusion
+pipeline**, not blockMesh: `cgns_utils coarsen → genWingMesh.py (pyHyp) → plot3dToFoam → autoPatch → createPatch
+→ renumberMesh`, giving **38,304 cells = 1008 surface faces × 38 cell layers** (`A2_GC_…:28-30`;
+`A2_mesh_time.json` `measured_cells: 38304`, `mesher: "pyHyp hyperbolic extrusion from a CGNS surface mesh …"`).
+
+**STRUCK lines (§5(b)), replaced by this amendment:**
+- ~~"The A2 base is a **blockMesh** mesh (`…/base/system/blockMeshDict`) … One `blockMesh` + `checkMesh` (+
+  `renumberMesh`) pass on ~38k cells is single-core and trivial (~0.2–0.4 core-min per attempt). Driving max
+  non-orthogonality below 70° requires blockMeshDict topology / grading edits … est ~5 core-min / cap 15
+  core-min (single-core blockMesh; ~15–40 attempts)."~~ — **STRUCK: false premise.** blockMesh does not and
+  cannot produce this mesh; there is no A2-wing blockMeshDict.
+- ~~"Toolchain risk (UNVERIFIED): whether max non-orthogonality < 70° is achievable … with `blockMesh` alone …
+  a switch to `snappyHexMesh` / `pyHyp` … may be needed."~~ — **STRUCK: mis-framed.** pyHyp is not a "switch"
+  or a fallback; it is the mesh's ONLY toolchain.
+
+**STRUCK framing (§7), corrected here:** the §7 references to "the mesh-gen line" and "once the supervisor
+approves the mesh-gen line" assumed the blockMesh line above. They are re-read against the pyHyp finding:
+`MD5_REF_MESH` and `max non-orthogonality achieved` remain **PENDING**, now pending a **chief decision on the
+pyHyp re-extrusion**, not a blockMesh attempt.
+
+**Re-mesh METHOD — PENDING a chief decision (NOT re-registered here).** Reducing the A2 wing's max
+non-orthogonality below 70° requires a **pyHyp re-extrusion with adjusted marching / `s0` / smoothing
+parameters**. This produces a **NEW mesh identity** (a new `MD5_REF_MESH`) and a **NEW CD baseline** (the primal,
+CD and delivered gradient all shift on the new mesh). Per the supervisor's hard stop, a pyHyp re-mesh is the
+**chief's / supervisor's call, not a lane's**, and is **ESCALATED**. No specific pyHyp approach is registered as
+decided; this amendment records only that the method is pyHyp and the decision is the chief's.
+
+**Corrected mesh-gen COST (rule 12) — replaces the STRUCK blockMesh est/cap.**
+- **Per-pipeline-pass cost — MEASURED**, from `cases/dafoam/ladder-a/A2_mesh_time.json` (pre-registered
+  `6e911354`, identity-asserted 38,304 cells): the full serial pipeline (coarsen 0.225 s, **pyHyp 5.547 s**,
+  plot3dToFoam 0.506 s, autoPatch 0.551 s, createPatch 0.571 s, renumberMesh 0.622 s, checkMesh 0.227 s) =
+  **8.774 container wall s** → **0.1462 core-min at 1 rank executing / 0.5849 core-min on the 4-core reserved
+  quota** the recorded A2 run used (the pipeline is serial; the quota reserves 4 cores).
+- **Iteration count to reach < 70° with margin — REASONED, not measured:** the base is only ~1.48° over the 70°
+  default (71.48°), so modest pyHyp smoothing increases may suffice, but a comfortable margin (aim < 65°) on a
+  wing whose LE/TE curvature concentrates non-orthogonality could need more. **est ~15 passes / cap ~40 passes.**
+- **Re-mesh tuning-loop est / cap (4-core reserved basis, matching the A2 container — conservative):**
+  **est ~9 core-min ($0.0077 DERIVED) / cap 25 core-min ($0.0214 DERIVED).** On the 1-rank-executing basis:
+  est ~2.2 / cap ~5.9 core-min. Dollars DERIVED at $0.0513/core-h, reported-by-owner, not measured
+  (COMPUTE_BUDGET_CHARTER §5). Trivial, well under $25.
+- **Not guaranteed:** this costs the ATTEMPT, not a success. Whether pyHyp CAN reach < 70° on this geometry is
+  not established; if it cannot at cap, that is itself a measured finding to report.
+
+**Unchanged by this amendment:** every gate, threshold, band, accept-floor (`1.0e-05`, N-D43) and the cap
+(186.00). The graded-primal cost line §5(a) (est 62.0 / cap 186.0) is unchanged. `ALL_PINS_MATCH` remains NOT
+asserted (§4). The single physics lever remains the mesh; only its GENERATION METHOD is corrected (pyHyp) and
+its DECISION escalated.
