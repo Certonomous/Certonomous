@@ -1,0 +1,35 @@
+{
+  "team": "heat-transfer",
+  "case_id": "K2bU3R3",
+  "prereg_commit": "41e18d7178d4a254448b24d8af873feb9d09c1a3",
+  "prereg_path": "docs/campaigns/F14-cooling-ladder/K2bU3R3_PREREGISTRATION.md",
+  "launch_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/build_k2bU3R3.py",
+    "run",
+    "--case",
+    "K2bU3R3_D59",
+    "--cap-core-min",
+    "66",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59",
+  "ranks": 1,
+  "cost_core_min_estimate": 43.6,
+  "cap_core_min_registered": 66.0,
+  "cost_basis": "derived, not measured: K2bU3R3_PREREGISTRATION.md §6 POINT 43.6 core-min from the rung's MEASURED 3D transient rate 4.26e4 cell-steps/(core-s) x 137,000 builder-measured cells x 814 steps (dt = 2*0.059/1.2 = 0.0983 s at maxCo 2.0, endTime 80 s) = 1.04x the frozen R2 42 core-min (mesh only 1.7% finer). Dollars 0.7267 core-h x $0.0513 = $0.0373 DERIVED, NOT MEASURED (cap 66 core-min = 1.10 core-h = $0.0564 derived). Rate owner-stated (COMPUTE_BUDGET_CHARTER §5); this box cannot read its own billing. Under $25.",
+  "memory_floor_gb": 3.0,
+  "memory_basis": "ESTIMATED, NOT MEASURED: 137,000-cell 3D transient thermal (T U p_rgh alphat nut k omega phi) at ~1 GB per 100k cells with headroom; no memory record exists for this case. Labelled an estimate.",
+  "enqueued_by": "heat-transfer supervisor -- FROZEN 41e18d71, SUPERVISION §3 check-1 DONE. Comparator analyse_k2bU3R3.py (blob aa2c44b7) = re-point-ONLY of frozen R2 (120464450c), imported predecessor analyse_k2bU3 (d1500a5f) UNTOUCHED, --selftest rc 0 plant fires RED/GREEN/CAUGHT. Wrapper build_k2bU3R3.py (7c7a7668) §3-read: stage runs frozen build_3d body verbatim (frozen blobs unedited); run enforces cap 66 not-argv-widenable, ranks=1, age guard, COST first/unconditional, rc-124->BLOCKED; solver buoyantBoussinesqPimpleFoam matches prereg §6 + frozen controlDict (Euler, endTime 80 s). GRADING NOTE: this entry omits a 'grading_freeze' input field, so the daemon will record _grading_freeze=UNPINNED; the comparator IS frozen at 41e18d71 and the supervisor HASHES it against aa2c44b7 at grade time (rule 2). check-4 (prereg committed before compute) satisfied by 41e18d71.",
+  "_provenance": {
+    "rung": "K2bU3R3",
+    "predecessor": "K2b (supersedes the build-infeasible K2bU3R2, which never ran -> nothing to void)",
+    "registration_frozen_at": "41e18d7178d4a254448b24d8af873feb9d09c1a3",
+    "case_dir": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59",
+    "mesh": "59 mm uniform, 137,000 cells (nearest-to-60mm size passing the frozen build_k2bU3.divs() 2% guard on all 5 intervals; 60 mm asserts)",
+    "gates_reused_unchanged_from": "frozen analyse_k2bU3.py blob d1500a5f",
+    "age_guard": "K2bU3R3_D59 staged with 0.orig, CASE.txt, constant/, system/ -- NO 0/ and NO numeric time dir; the run wrapper arms 0/ from 0.orig at launch"
+  }
+}
