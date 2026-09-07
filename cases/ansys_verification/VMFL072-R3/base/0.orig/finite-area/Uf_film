@@ -1,0 +1,59 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072 -- depth-averaged film velocity on the finite-area mesh.
+//
+// @U_IN@ is substituted by apply_level.sh, and is ALWAYS Gamma/(rho*h_in) so
+// that EVERY level and EVERY control carries the IDENTICAL registered mass
+// flux Gamma = 0.381000 kg/m/s (PREREGISTRATION.md 3.3, 6.4):
+//   L1 L2 L3  h_in = 1.30 delta_N  ->  U_in = 0.534145 m/s
+//   B2        h_in = 0.70 delta_N  ->  U_in = 0.991983 m/s
+//   C1        h_in = 1.00 delta_N  ->  U_in = 0.694388 m/s   (= U_eq)
+// Each satisfies rho*h_in*U_in = 0.381000 kg/m/s to 6 decimal places.
+//
+// Direction is (+x 0 0): +x is DOWN the slope (see system/blockMeshDict), and
+// the vector is tangential to the z = 0 plate as a finite-area field must be.
+//
+// side: slip. This forces the edge-normal (spanwise) velocity to zero at
+// y = 0 and y = 0.1, which together with zeroGradient h retains the exactly
+// one-dimensional film 6.3's whole-plate retention test requires. Copied from
+// the shipped filmPanel0 tutorial, which uses `slip` on its side fa-patch.
+// ---------------------------------------------------------------------------
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       areaVectorField;
+    object      Uf_film;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (@U_IN@ 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform (@U_IN@ 0 0);
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    side
+    {
+        type            slip;
+        value           $internalField;
+    }
+}
+
+// ************************************************************************* //

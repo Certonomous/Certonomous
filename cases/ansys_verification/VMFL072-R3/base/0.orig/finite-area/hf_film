@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072 -- film thickness on the finite-area mesh. THE GATE QUANTITY.
+//
+// @H_IN@ is substituted by apply_level.sh (PREREGISTRATION.md 3.3, 6.3, 6.4):
+//   L1 L2 L3  h_in = 1.30 delta_N = 7.1514924e-04 m   (nominal, OFF equilibrium)
+//   B2        h_in = 0.70 delta_N = 3.8508036e-04 m   (bracket, SAME Gamma)
+//   C1        h_in = 1.00 delta_N = 5.5011480e-04 m   (exact-solution retention)
+//
+// THE ANTI-CIRCULARITY MEASURE, AND IT IS LOAD-BEARING (3.3). The inlet is
+// deliberately set OFF equilibrium, so the monitor value at x = 450 mm is a
+// SOLVED RELAXATION, never a boundary condition read back. The internalField
+// is initialised to the SAME off-equilibrium value, so nothing anywhere in
+// this case is initialised at delta_N for the nominal levels -- the film must
+// relax to it. (C1 is the deliberate exception: 6.3's retention control starts
+// AT the exact solution and asks whether the solver holds it.)
+//
+// side: zeroGradient. The film is a continuous FULL-SPAN sheet (2.4 reading
+// R1) and 6.3 requires |h - delta_N|/delta_N < 0.05 % over the WHOLE plate,
+// which a no-slip span-wise wall condition could not satisfy by construction.
+// zeroGradient on h with slip on Uf_film retains the exactly one-dimensional
+// solution, which is the only reading of the frozen document under which C1
+// is a test of the solver rather than of the side-wall boundary layer.
+//
+// outlet: zeroGradient at a pure outflow, 50 mm downstream of the monitor.
+// ---------------------------------------------------------------------------
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       areaScalarField;
+    object      hf_film;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 0 0 0 0 0];
+
+internalField   uniform @H_IN@;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform @H_IN@;
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    side
+    {
+        type            zeroGradient;
+    }
+}
+
+// ************************************************************************* //

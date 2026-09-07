@@ -1,0 +1,176 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072 -- primary (gas) region velocity, and the FILM SHELL.
+//
+// THE REGISTERED FILM CONFIGURATION (PREREGISTRATION.md 3.3), verbatim:
+//     turbulence        laminar;
+//     laminarCoeffs { shearStress simple;  friction quadraticProfile;  Cf 0; }
+//     injectionModels ();
+//     forces          ();
+//     region          film;
+//     liquidFilmModel kinematicThinFilm;
+//
+// friction quadraticProfile IS THE LOAD-BEARING CHOICE (3.2). Verified in the
+// installed source at
+//   src/regionFaModels/liquidFilm/subModels/kinematic/filmTurbulenceModel/
+//     filmTurbulenceModel/filmTurbulenceModel.C, Cw(), case mquadraticProfile:
+//       Cw.primitiveFieldRef() = 3*mu/((h + h0)*rho);
+// which reduces exactly to the Nusselt balance and is what makes Limb B a
+// code-verification gate. The shipped inclinedPlaneFilm tutorial uses
+// `ManningStrickler` with n = 0.1 and Cf = 0.9 -- an empirical open-channel
+// law, WRONG for a laminar film. It is NOT used here. filmPanel0 is the
+// template for these coefficients.
+//
+// Cf 0: the manual states air flow is zero. With shearStress simple,
+// primaryRegionFriction contributes -Sp(Cf,U) + Cf*Up, which vanishes
+// identically at Cf = 0, so the gas cannot damp the film (3.3).
+//
+// forces (): NO contact-angle force. The tutorials carry dynamicContactAngle,
+// an edge/rivulet term. VMFL072 is a continuous full-span sheet with no dry
+// patch; including it would break 6.2 condition 1 (3.3).
+//
+// THERMO: the registered 2.5 property closure is set EXPLICITLY, as a generic
+// `liquid` whose rho and mu are constant Function1s, because the stock H2O
+// correlation does not return the registered values:
+//     Gamma = 0.381000 kg/m/s      (76.2 kg/m2s x 5 mm, printed inputs)
+//     mu    = 9.136691e-04 Pa.s    (Gamma/Re, Re = 417)
+//     rho   = 997.4 kg/m3
+// liquidFilmModel evaluates rho/mu/sigma/Cp through liquidMixtureProperties
+// with mole fraction X = 1 for the single component, for which the mixing
+// rules return the component values identically (rho) or to one ulp (mu, via
+// exp(1*log(mu))). sigma is evaluated through Raoult's law and therefore needs
+// pv, which is why pv is given even though surface tension is inert on a
+// gradient-free film.
+//
+// ** R3 REMEDY (the ONE deliberate change from VMFL072-R2). ** h0 is RAISED
+// from the liquidFilmBase.C:74 default of 1e-7 m to 1e-5 m -- a mesoscopic
+// PRECURSOR-FILM regularization of the dewetting singularity that killed R2's
+// L3 (register #58: h driven to the 1e-7 floor gave a vanishing/poisoned
+// diagonal in DILUPreconditioner::calcReciprocalD and a SIGFPE at t=6.605 s).
+// h0 IS the film's own precursor mechanism, at TWO source sites:
+//   - kinematicThinFilm.C:159   h_ = max(h_, h0_)   (hard post-solve floor)
+//   - filmTurbulenceModel.C:157 Cw = 3*mu/((h + h0)*rho)  (friction denom;
+//       Cw.clamp_max(5000) does NOT catch a NEGATIVE (h+h0), so a transient
+//       undershoot below -h0 poisons the diagonal -- R2's 1e-7 guard was
+//       breached, 1e-5 is a 100x larger guard).
+// h0 = 1e-5 m == the existing deltaWet, and is 1.818 % of dN, so the fully-wet
+// monitor at x=450 mm is uncorrupted beyond an EXACTLY-computable shift of the
+// exact discrete state: dN* is recomputed to solve h^2(h+h0)=3*nu*q/gs with
+// this h0 (PREREGISTRATION.md 2.4, 3.8), so Limb B's reference tracks the
+// solver and Limb B stays exact/non-circular. THE 1.30 dN* OVER-THICK INLET IS
+// UNCHANGED (3.4): the L-487 anti-circularity is preserved at FULL strength.
+// Cw.clamp_max(5000) still never fires (binds below h+h0=5.496e-10 << 1e-5).
+// Literature ground: Wu, Long, Wang & Gao, arXiv:2609.01444 (2026) -- a
+// "relatively thick precursor film ... preserving the macroscopic flow
+// dynamics" (docs/papers/thin_film_flows/).
+// ---------------------------------------------------------------------------
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    film
+    {
+        type            velocityFilmShell;
+        active          true;
+        U               U;
+        pRef            1e5;
+        T0              297.05;         // = 23.9 degC, the 2.5 implied
+                                        // temperature. Inert: every property
+                                        // below is constant in T.
+        h0              1e-5;           // R3 REMEDY: precursor floor, raised
+                                        // from 1e-7 (see header). dN* recomputed.
+        deltaWet        1e-5;           // wet/dry switch == h0 in R3
+
+        thermo
+        {
+            water
+            {
+                type        liquid;
+
+                // liquidProperties(dict) base data. Real-water values; none of
+                // them enters the film momentum balance, but the constructor
+                // requires them and Tc must exceed T0/0.999.
+                W           18.0153;
+                Tc          647.13;
+                Pc          22.055e6;
+                Vc          0.05595;
+                Zc          0.229;
+                Tt          273.16;
+                Pt          611.657;
+                Tb          373.124;
+                dipm        1.85;
+                omega       0.3449;
+                delta       47.87e3;
+
+                // THE REGISTERED 2.5 CLOSURE. These two are the gate.
+                rho         constant 997.4;
+                mu          constant 9.136691e-04;
+
+                // Present because liquidMixtureProperties evaluates them;
+                // none affects a gradient-free film.
+                sigma       constant 0.0722;
+                Cp          constant 4181.0;
+                pv          constant 2985.0;
+                hl          constant 2.442e6;
+                h           constant 0.0;
+                Cpg         constant 1900.0;
+                B           constant -0.0012;
+                mug         constant 1.0e-05;
+                kappa       constant 0.606;
+                kappag      constant 0.025;
+                D           constant 2.4e-05;
+            }
+        }
+
+        turbulence          laminar;
+        laminarCoeffs
+        {
+            shearStress     simple;
+            friction        quadraticProfile;
+            Cf              0;
+        }
+
+        injectionModels ();
+        forces          ();
+
+        region              film;
+        liquidFilmModel     kinematicThinFilm;
+
+        value               uniform (0 0 0);
+    }
+
+    // Quiescent gas. The box is open at x = 0 and x = 0.5 so the small drag
+    // the moving film exerts on the air vents instead of spinning up a
+    // driven-cavity recirculation. With Cf 0 the gas is dynamically
+    // DISCONNECTED from the film in any case.
+    "(inlet|outlet)"
+    {
+        type            pressureInletOutletVelocity;
+        value           uniform (0 0 0);
+    }
+
+    "(side|top)"
+    {
+        type            slip;
+    }
+
+    #includeEtc "caseDicts/setConstraintTypes"
+}
+
+// ************************************************************************* //

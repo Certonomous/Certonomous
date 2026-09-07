@@ -1,0 +1,29 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072 -- PRIMARY (GAS) region transport. Air at ~24 degC.
+//
+// PREREGISTRATION.md IS SILENT on the gas properties; it states only that
+// "air flow is zero". The value below is DECLARED, and it is INERT: with
+// laminarCoeffs { shearStress simple; Cf 0; } the primary-region friction term
+// -Sp(Cf,U) + Cf*Up vanishes identically, so no gas property can enter the
+// film momentum balance. The liquid properties that DO enter are the 2.5
+// registered closure and are set in 0.orig/U's film thermo block.
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+transportModel  Newtonian;
+nu              1.5e-05;
+rhoInf          1.19;
+
+// ************************************************************************* //

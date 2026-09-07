@@ -1,0 +1,1205 @@
+SIDECAR (text extract) of docs/papers/thin_film_flows/wu_2026_precursor_film_dewetting.pdf
+TITLE-PAGE VERIFIED per CLAUDE.md rule 15 on 2026-09-07 against page 1 of the PDF as retrieved:
+  Title:   Macroscopic simulations of thin film wetting/dewetting using a precursor film model
+  Authors: Xi-Hu Wu, Zhuo Long, Xue-Li Wang, Peng Gao (USTC, Hefei)
+  Source:  arXiv:2609.01444v1 [physics.flu-dyn], submitted 1 Sep 2026; Preprint submitted to Elsevier
+  Downloaded from https://arxiv.org/pdf/2609.01444 ; text extracted from https://arxiv.org/html/2609.01444v1
+  The PDF title page, its authors and the arXiv id were read visually and match this header (not by filename/hash).
+================================================================================================
+
+Macroscopic simulations of thin film wetting/dewetting using a precursor film model 
+
+Report GitHub Issue 
+× 
+
+Title: 
+
+Content selection saved. Describe the issue below: 
+
+Description: 
+
+Submit without GitHub 
+Submit in GitHub 
+
+arXiv is now an independent nonprofit! 
+Learn more 
+× 
+
+Back to arXiv 
+
+Why HTML? 
+
+Report Issue 
+
+Back to Abstract 
+
+Download PDF 
+
+Abstract 
+
+1 Introduction 
+
+2 Formulation and mesoscopic precursor film model 
+
+3 Numerical method 
+
+4 Examples 
+
+4.1 Axisymmetric drop spreading and retraction 
+
+4.1.1 Axisymmetric drop spreading 
+
+4.1.2 Axisymmetric drop retraction 
+
+4.2 Drop sliding on a plate 
+
+4.2.1 2D drop sliding 
+
+4.2.2 3D drop sliding 
+
+4.3 Drop coalescence 
+
+4.4 Breakup of liquid ridge 
+
+5 Conclusions 
+
+A Active region of the disjoining pressure modification factor Θ \Theta 
+
+B Formulation of axisymmetric drop spreading/retracting 
+
+References 
+
+License: arXiv.org perpetual non-exclusive license
+
+arXiv:2609.01444v1 [physics.flu-dyn] 01 Sep 2026 
+
+[style=chinese,orcid=0000-0002-8019-9384] 
+
+[style=chinese]
+[style=chinese] 
+
+[style=chinese] 
+
+Macroscopic simulations of thin film wetting/dewetting using a precursor film model 
+
+Xi-Hu Wu
+
+organization=
+State Key Laboratory of High Temperature Gas Dynamics, School of Engineering Science, University of Science and Technology of China, Hefei, Anhui 230026, PR China
+
+   
+Zhuo Long
+
+   
+Xue-Li Wang
+
+   
+Peng Gao
+
+gaopeng@ustc.edu.cn
+
+Abstract 
+
+Numerical simulation of dynamic wetting processes remains challenging due to the multiscale feature of the moving contact line. This paper presents a finite element method for two- or three-dimensional dynamic wetting problems within the framework of the lubrication equation and the precursor film model. By reconstructing the disjoining pressure formulation, a mesoscopic precursor film model is implemented to enable a relatively thick precursor film to reproduce the intermediate-region interfacial behavior of a physically thin precursor film. The proposed model reduces the requirement for excessive spatial resolution near the contact line, thereby significantly reducing the computational cost while preserving the macroscopic flow dynamics. This method does not incorporate any moving boundary and easily handles topological changes. Its capability and accuracy are validated through various simulations, including the spreading, retraction, sliding, and coalescence of drops, as well as the breakup of liquid ridges. Numerical results (with the mesoscopic precursor film model adopted) show good agreement with the available exact solutions and asymptotic theories. 
+
+keywords 
+moving contact line ,precursor film ,wetting ,lubrication equation 
+† † corresponding: Corresponding author 
+
+1 Introduction 
+
+The evolution of free surfaces and contact lines in wetting processes is crucial to various industrial applications  [ 1 , 2 , 3 ] . In moving contact line problems, a purely hydrodynamic description with the conventional no-slip boundary condition induces a singularity in both viscous stress and pressure at the contact line, posing challenges for both numerical simulations and theoretical analyses  [ 4 , 5 ] . Researchers have proposed various microscopic contact line models to regularize this singularity, such as the slip model and the precursor film model. The widely adopted Navier slip model assumes a slip velocity at the solid wall that is proportional to the local shear rate via a nanoscale length, termed the slip length  [ 4 ] ; the precursor film model assumes the existence of an ultra-thin liquid film (characterized by a nanoscale equilibrium film thickness) surrounding the macroscopic bulk liquid  [ 6 ] . For numerical simulations of moving contact lines, the slip model and the precursor film model each have distinct advantages and disadvantages. Compared to the precursor film model, the slip model is more straightforward and allows for direct extraction of the contact line position and velocity  [ 7 , 8 , 9 ] . However, it introduces moving boundaries into the computation, which requires the Arbitrary Lagrangian-Eulerian method or other coordinate transformation techniques  [ 10 , 11 ] . The precursor film model does not incorporate any moving boundary associated with the contact line and easily handles topological changes, such as drop breakup or coalescence  [ 12 , 9 ] . 
+
+The microscopic contact line models inherently introduce a multiscale nature to the moving contact line problems, wherein relevant length scales can span approximately six orders of magnitude, ranging from the macroscopic capillary length (millimeter scale) down to the molecular level (nanometer scale)  [ 5 ] . Incorporating realistic microscopic lengths into numerical simulations remains challenging due to the prohibitive computational cost. Previously, full-scale simulations with physical microscopic scales were mostly limited to two-dimensional (2D) or axisymmetric situations, typically for steady problems based on Navier-Stokes equations [ 13 , 14 , 15 , 16 ] or unsteady flows using reduced models such as the lubrication equation and the boundary integral equation [ 17 , 18 , 19 ] . The Navier-Stokes simulations of full-scale unsteady flows with moving contact lines are too expensive to be performed, even for 2D configurations [ 20 ] . For time-dependent and especially three-dimensional (3D) problems, researchers commonly use artificial slip lengths or precursor film thicknesses that are orders of magnitude larger than actual microscopic values  [ 21 , 8 , 22 ] . Although such approximations can capture qualitative behaviors, they often lead to quantitative discrepancies compared to reality. 
+
+Early works have demonstrated that in slow wetting processes, the fluid interface can generally be divided into three regions  [ 23 , 24 , 25 , 26 , 27 , 28 , 29 , 30 , 31 ] . In the outer region, the interface shape is mainly controlled by body forces and flow geometry. In the inner region, the local flow and the interface deformation are significantly influenced by microscopic effects (e.g., slip or precursor film). In the intermediate region, the interface is governed by the balance between viscous and capillary forces, and is hardly affected by microscopic contact line effects and macroscopic configurations. The asymptotic behavior of the interface in the intermediate region, also known as mesoscopic behavior, has been discussed in many studies [ 25 , 27 , 28 , 31 ] . In the framework of hydrodynamic theory, the cube of the slope angle in the intermediate region varies logarithmically with respect to the distance to the contact line, known as the Cox-Voinov law [ 23 , 26 ] . 
+
+In practical applications, the primary focus of interfacial flows is typically on macroscopic behaviors. The computational cost can be significantly reduced by resolving only the macroscopic dynamics and incorporating the small-scale details near the contact line into an appropriate model  [ 7 , 22 ] . In light of this compromise, various macroscopic methods have been proposed to simulate dynamic wetting processes by incorporating physically realistic microscopic slip lengths. The core of these methods lies in establishing the relationship between dynamic contact angle and contact line velocity. Glasner  [ 32 ] used the Tanner law to solve the contact-line profile, from which the macroscopic drop shape follows under the quasi-static assumption. Building on Glasner’s work  [ 32 ] , Savva et al.  [ 33 ] derived and used a more accurate Cox law that can distinguish different slip lengths. Somalinga and Bose  [ 34 ] employed Cox’s theory  [ 26 ] as a boundary condition to simulate slow wetting flows. A numerical model incorporating the dynamic contact angle was proposed by Afkhami et al. [ 35 ] , achieving grid-convergent simulations of moving contact lines. Dupont and Legendre [ 36 ] applied the dynamic contact angle at a micrometer scale to model drop spreading, with results in good agreement with experimental observations. Furthermore, Sui et al.  [ 37 ] formulated a more rigorous contact-line model and validated its accuracy through quantitative benchmarks against full-scale computations. Solomenko et al.  [ 38 ] extended the method in Ref.  [ 37 ] to 3D geometries. Qin et al.  [ 39 ] and Zhang and Gao  [ 40 ] adopted a different strategy, where the computational domain is truncated inward from the contact line to the intermediate region, thereby bypassing the inner region that consumes the computational cost. They proposed a mesoscopic contact-line model and impose the mesoscopic behavior derived by Hocking [ 24 , 25 ] on the truncated boundary.
+The accuracy of these macroscopic methods depends on the validity of the underlying contact-line models. 
+
+The methods discussed above are all based on the slip models and cannot handle topological changes of the liquid film. For dynamic wetting processes involving film topological changes, precursor film models are preferable, but numerical simulation with a actual microscopic precursor film thickness remains challenging. Additionally, the lubrication approximation is widely applied to model thin film flows since it greatly simplifies the governing equations via the quasi-parallel flow assumptions  [ 41 , 42 , 39 , 18 ] . Compared with the full Navier-Stokes simulations, the lubrication equation involves only the film thickness, substantially reducing the computational cost in 3D simulations. The resulting predictions under the lubrication approximation are generally considered valid for moderate contact angles  [ 5 ] . Inspired by the mesoscopic contact-line model proposed in Refs.  [ 39 , 40 ] , we here propose a mesoscopic precursor film model for slow wetting processes under the lubrication approximation. In this model, a thicker precursor film and a thinner (actual microscopic) one exhibit similar interfacial behaviors in the intermediate region. The small yet finite contact angle is introduced through the disjoining pressure. The core of this model lies in modifying the disjoining pressure to dynamically adjust the contact angle on a partially wetting substrate. By solving the lubrication equation with a thicker precursor film, this model significantly reduces the computational cost while ensuring that the macroscopic flow properties remain essentially identical to those obtained with a much thinner precursor film. Moreover, the present model retains the capability to handle topological changes, such as drop coalescence and breakup, offering an advantage over the slip models. 
+
+The remainder of this paper is organized as follows. Section  2 introduces the mathematical formulation of the lubrication equation and the proposed mesoscopic precursor film model. Section  3 details the numerical method. In Section  4 , the validity of this method is demonstrated through several numerical examples, accompanied by quantitative comparisons with exact solutions and asymptotic theories. Finally, conclusions are offered in Section  5 . 
+
+2 Formulation and mesoscopic precursor film model 
+
+We consider a thin-film flow on the substrate denoted by the ( x , y ) (x,y) -plane, where the lubrication approximation is adopted  [ 41 ] . The wall is assumed to be stationary. The interface is described by z = h ⁡ ( 𝐱 , t ) z=h(\mathbf{x},t) , where 𝐱 \mathbf{x} denotes the coordinate ( x , y ) (x,y) . 
+
+The contact-line stress singularity is regularized by the precursor film model, which assumes the existence of an ultra-thin liquid film surrounding the macroscopic film  [ 6 ] . The physical equilibrium precursor film thickness h ¯ e \bar{h}_{e} is of molecular scale and remains much smaller than the macroscale characteristic film thickness. The microscopic physics associated with the contact line is incorporated into the governing equations through the disjoining pressure Π \Pi , which depends on the local film thickness h ⁡ ( 𝐱 , t ) h(\mathbf{x},t) . Researchers have proposed various forms of Π \Pi . A widely adopted expression of Π \Pi combines intermolecular attractive and repulsive forces, taking the form: 
+
+Π = − A h m + B h n , \Pi=-\frac{A}{h^{m}}+\frac{B}{h^{n}}, 
+
+(1) 
+
+where m m and n n are the positive integers satisfying 3 ≤ m < n 3\leq m<n   [ 6 , 41 , 21 , 43 , 8 ] . According to Ref.  [ 27 ] , the coefficients A A and B B are positive and related to h ¯ e \bar{h}_{e} and the equilibrium contact angle θ ¯ e \bar{\theta}_{e} as 
+
+A = ( m − 1 ) ​ ( n − 1 ) 2 ​ ( n − m ) ​ σ ​ h ¯ e m − 1 ​ θ ¯ e 2 , B = ( m − 1 ) ​ ( n − 1 ) 2 ​ ( n − m ) ​ σ ​ h ¯ e n − 1 ​ θ ¯ e 2 , A=\frac{(m-1)(n-1)}{2(n-m)}\sigma\bar{h}_{e}^{m-1}\bar{\theta}_{e}^{2},\quad B=\frac{(m-1)(n-1)}{2(n-m)}\sigma\bar{h}_{e}^{n-1}\bar{\theta}_{e}^{2}, 
+
+(2) 
+
+where σ \sigma denotes the surface tension. The disjoining pressure can thus be written as 
+
+Π ⁡ ( h , h ¯ e , θ ¯ e ) = ( m − 1 ) ​ ( n − 1 ) 2 ​ ( n − m ) ​ ( − h ¯ e m − 1 h m + h ¯ e n − 1 h n ) ​ σ ​ θ ¯ e 2 . \Pi(h;\bar{h}_{e},\bar{\theta}_{e})=\frac{(m-1)(n-1)}{2(n-m)}\left(-\frac{\bar{h}_{e}^{m-1}}{h^{m}}+\frac{\bar{h}_{e}^{n-1}}{h^{n}}\right)\sigma\bar{\theta}_{e}^{2}. 
+
+(3) 
+
+Specific values of m m and n n exert a negligible quantitative influence on the macroscopic characteristics of the problem  [ 44 ] .
+A conventional contact line vanishes when the precursor film model is adopted. In this work, the position of the effective contact line is defined as the location where the film interface exhibits its local maximum curvature  [ 8 ] . 
+
+The evolution of h ⁡ ( 𝐱 , t ) h(\mathbf{x},t) is governed by the lubrication equation  [ 41 , 27 ] 
+
+∂ h ∂ t + ∇ ⋅ ( h 𝐮 a ​ v ​ g ) = 0 , 𝐮 a ​ v ​ g = σ 3 ​ μ h 2 ∇ [ ∇ 2 h − ϕ + Π ( h ; h ¯ e , θ ¯ e ) ] , \frac{\partial h}{\partial t}+\nabla\cdot\left(h~\mathbf{u}_{avg}\right)=0,\quad\mathbf{u}_{avg}=\frac{\sigma}{3\mu}h^{2}\nabla\left[\nabla^{2}h-\phi+\Pi(h;\bar{h}_{e},\bar{\theta}_{e})\right], 
+
+(4) 
+
+where μ \mu denotes the liquid viscosity, and ϕ \phi is the body-force potential. In numerical simulations, the computational domain is extended to the far-field region encompassing the equilibrium precursor film where the film profile remains uniform and flat, yielding the following boundary conditions: 
+
+𝐧 b ⋅ ∇ h = 0 , 𝐧 b ⋅ ∇ ( ∇ 2 h ) = 0 , \mathbf{n}_{b}\cdot\nabla h=0,\quad\mathbf{n}_{b}\cdot\nabla(\nabla^{2}h)=0, 
+
+(5) 
+
+where 𝐧 b \mathbf{n}_{b} is the unit normal vector pointing outward from the border. 
+
+Numerically solving problem ( 4 ) and ( 5 ) is generally computationally expensive. Because of the extremely small precursor film thickness h ¯ e \bar{h}_{e} , a highly refined mesh is required near the contact line to capture its dynamics. Motivated by Refs.  [ 39 , 40 ] , we propose a mesoscopic precursor film model, wherein a thicker precursor film exhibits similar interfacial behaviors in the intermediate region to those of a thinner precursor film. By employing a thicker precursor film thickness h e h_{e} , the proposed model aims to reduce the heavy computational cost while ensuring that the macroscopic flow properties remain essentially identical to those obtained with a thinner precursor film thickness h ¯ e \bar{h}_{e} . A sketch of the mesoscopic precursor film model is presented in Fig.  1 . The detailed implementation procedure of this model is shown below. 
+
+Figure 1: 
+Schematic of the mesoscopic precursor film model: the interface profile with a thicker precursor film ( h e h_{e} ) exhibits similar behavior within the intermediate region to that of the physically realistic, thinner film ( h ¯ e \bar{h}_{e} ).
+
+Within the precursor film model, the asymptotic behavior of the interface in the intermediate region is independent of the macroscopic effects and have been discussed in early studies  [ 27 , 44 ] , i.e., 
+
+| ∇ h | 3 ≈ θ ¯ e 3 + 9 ​ μ σ ​ u c ​ l ​ ln ⁡ α ​ x ∗ ​ θ ¯ e h ¯ e , |\nabla h|^{3}\approx\bar{\theta}_{e}^{3}+\frac{9\mu}{\sigma}u_{cl}\ln\frac{\alpha x^{*}\bar{\theta}_{e}}{\bar{h}_{e}}, 
+
+(6) 
+
+where x ∗ x^{*} is the distance from the contact line, α \alpha is a constant depending on m m and n n , and u c ​ l u_{cl} is the contact line velocity relative to the substrate. We stipulate that u c ​ l > 0 u_{cl}>0 for advancing contact lines and u c ​ l < 0 u_{cl}<0 for receding contact lines. 
+
+We next consider the film dynamics with an artificially thicker precursor film characterized by a uniform thickness h e h_{e} and a dynamic contact angle θ d \theta_{d} that is locally adjustable. The film evolution is still governed by the lubrication equation 
+
+∂ h ∂ t + ∇ ⋅ ( h 𝐮 a ​ v ​ g ) = 0 , 𝐮 a ​ v ​ g = σ 3 ​ μ h 2 ∇ [ ∇ 2 h − ϕ + Π ( h ; h e , θ d ) ] , \frac{\partial h}{\partial t}+\nabla\cdot\left(h~\mathbf{u}_{avg}\right)=0,\quad\mathbf{u}_{avg}=\frac{\sigma}{3\mu}h^{2}\nabla\left[\nabla^{2}h-\phi+\Pi(h;h_{e},\theta_{d})\right], 
+
+(7) 
+
+where the disjoining pressure is still formally given by Eq. ( 3 ) but parameterized by h e h_{e} and θ d \theta_{d} . While h e h_{e} is constant, the dynamic contact angle θ d \theta_{d} can vary with time and space and should be carefully selected. It is expected that the disjoining pressure primarily acts near the contact line, where we prefer that θ d \theta_{d} does not depend on the distance to the contact line such that the local dynamics can still be described by the one-dimensional theory of Eggers [ 27 ] . Specifically, in the intermediate region near the contact line, we have 
+
+| ∇ h | 3 ≈ θ d 3 + 9 ​ μ σ ​ u c ​ l ​ ln ⁡ α ​ x ∗ ​ θ d h e . |\nabla h|^{3}\approx\theta_{d}^{3}+\frac{9\mu}{\sigma}u_{cl}\ln\frac{\alpha x^{*}\theta_{d}}{h_{e}}. 
+
+(8) 
+
+To ensure that the contact line velocities and the asymptotic behaviors in the intermediate region for thin and thick precursor films are consistent, we match the asymptotic behaviors ( 6 ) and ( 8 ) and derive the relationship 
+
+θ d 3 = θ ¯ e 3 + 9 ​ μ σ ​ u c ​ l ​ ln ⁡ ( h e h ¯ e ​ θ ¯ e θ d ) , \theta_{d}^{3}=\bar{\theta}_{e}^{3}+\frac{9\mu}{\sigma}u_{cl}\ln\left(\frac{{h}_{e}}{\bar{h}_{e}}\frac{\bar{\theta}_{e}}{\theta_{d}}\right), 
+
+(9) 
+
+which can be used to determine θ d \theta_{d} near the contact line provided that the remaining parameters are known. 
+
+A direct way to determine u c ​ l u_{cl} is to track the contact line, i.e., u c ​ l = 𝐧 c ​ l ⋅ d ​ 𝐱 c ​ l / d ​ t u_{cl}=\mathbf{n}_{cl}\cdot d\mathbf{x}_{cl}/dt , where 𝐱 c ​ l \mathbf{x}_{cl} is the contact line position and 𝐧 c ​ l \mathbf{n}_{cl} is the outward normal to the contact line. This procedure, however, requires an explicit extraction of the contact line, which is not convenient under the precursor film model. Instead, u c ​ l u_{cl} is globally extended to 
+
+u c ​ l = h h − h e ​ 𝐮 a ​ v ​ g ⋅ 𝐧 , u_{cl}=\frac{h}{h-h_{e}}\mathbf{u}_{avg}\cdot\mathbf{n}, 
+
+(10) 
+
+where 𝐧 \mathbf{n} is the vector field directing to − ∇ h -\nabla h . Near the contact line, we require 𝐧 = 𝐧 c ​ l \mathbf{n}=\mathbf{n}_{cl} and can easily verify that Eq. ( 10 ) is the one-dimensional equation governing the local film profile, equivalent to Eq. (7) of Ref.  [ 27 ] . An additional advantage of Eq. ( 10 ) is that it naturally extends u c ​ l u_{cl} (and thus θ d \theta_{d} ) into a global field function, facilitating the numerical solution of Eq. ( 7 ). We expect that u c ​ l u_{cl} given by Eq. ( 10 ) converges to the contact-line velocity when the distance to the contact line is sufficiently small, as confirmed numerically in the following. Note that u c ​ l ≠ 𝐮 a ​ v ​ g ⋅ 𝐧 c ​ l u_{cl}\neq\mathbf{u}_{avg}\cdot\mathbf{n}_{cl} at the contact line due to the mass flux carried by the precursor film. Away from the contact line, u c ​ l u_{cl} calculated by Eq. ( 10 ) does not play a role in the solution since the disjoining pressure can be neglected. 
+
+Denoting R R as the characteristic lateral length of the macroscopic film, we introduce the following nondimensionalization scheme, 
+
+( X , Y ) = 1 R ​ ( x , y ) , ( H , H e , H ¯ e ) = 1 θ ¯ e ​ R ​ ( h , h e , h ¯ e ) , T = σ ​ θ ¯ e 3 3 ​ μ ​ R ​ t , Φ = R θ ¯ e ​ ϕ , Θ = θ d θ ¯ e . (X,Y)=\frac{1}{R}(x,y),\quad(H,H_{e},\bar{H}_{e})=\frac{1}{\bar{\theta}_{e}R}(h,h_{e},\bar{h}_{e}),\quad T=\frac{\sigma\bar{\theta}_{e}^{3}}{3\mu R}t,\quad\Phi=\frac{R}{\bar{\theta}_{e}}\phi,\quad\Theta=\frac{\theta_{d}}{\bar{\theta}_{e}}. 
+
+(11) 
+
+Then the lubrication equation ( 7 ) with the thicker precursor film can be written as 
+
+∂ H ∂ T + ∇ ⋅ ( H ​ 𝐔 a ​ v ​ g ) = 0 , \displaystyle\frac{\partial H}{\partial T}+\nabla\cdot\left(H\mathbf{U}_{avg}\right)=0, 
+
+(12a) 
+
+𝐔 a ​ v ​ g = H 2 ∇ [ ∇ 2 H − Φ + ( m − 1 ) ​ ( n − 1 ) 2 ​ ( n − m ) ( − H e m − 1 H m + H e n − 1 H n ) Θ 2 ] , \displaystyle\mathbf{U}_{avg}=H^{2}\nabla\left[\nabla^{2}H-\Phi+\frac{(m-1)(n-1)}{2(n-m)}\left(-\frac{H_{e}^{m-1}}{H^{m}}+\frac{H_{e}^{n-1}}{H^{n}}\right)\Theta^{2}\right], 
+
+(12b) 
+
+supplemented by 
+
+Θ 3 = 1 + 3 ​ U c ​ l ​ ln ⁡ K Θ , with U c ​ l = H H − H e ​ 𝐔 a ​ v ​ g ⋅ 𝐧 . \Theta^{3}=1+3U_{cl}\ln\frac{K}{\Theta},\quad\text{with}\quad U_{cl}=\frac{H}{H-H_{e}}\mathbf{U}_{avg}\cdot\mathbf{n}. 
+
+(13) 
+
+Here K = h e / h ¯ e = H e / H ¯ e K=h_{e}/\bar{h}_{e}=H_{e}/\bar{H}_{e} is the ratio of the precursor film thicknesses, and is prescribed as a fixed value (e.g., 100 100 ) in numerical simulations. For K = 1 K=1 , we have Θ = 1 \Theta=1 according to Eq. ( 13 ), and the proposed mesoscopic precursor film model reduces to the original model. 
+
+In summary, by modifying the disjoining pressure with a dynamic contact angle, the intermediate and hence macroscopic interfacial behavior of a physically realistic thin precursor film can be modeled using a much thicker one. 
+
+3 Numerical method 
+
+In this work, we follow Refs.  [ 27 , 44 ] and choose m = 3 , n = 5 m=3,n=5 under which we have α = e / 4 \alpha=\text{e}/4 in Eqs. ( 6 ) and ( 8 ) such that theoretical validation becomes more convenient. Notably, the present framework applies to more general configurations of m m and n n . 
+
+The core of the proposed mesoscopic precursor film model relies on an appropriate disjoining pressure modification factor, i.e., Θ \Theta . By performing numerical simulations of the spreading process of axisymmetric drops, Appendix A identifies the precise active region of Θ \Theta . The results indicate that Θ \Theta plays a significant role only within a narrow, localized zone near the contact line, specifically for H ∈ [ 1.1 , 20 ] ​ H e H\in[1.1,20]H_{e} . Beyond this range, modifying the disjoining pressure exerts a negligible impact on the macroscopic film dynamics. Moreover, the macroscopic film dynamics exhibit high sensitivity to the lower bound of this localized region: even a minor shift in the lower bound from 1.1 ​ H e 1.1H_{e} to 1.5 ​ H e 1.5H_{e} leads to a noticeable deviation. Consequently, a standard decoupled solution procedure fails to yield accurate results, where Θ \Theta is first calculated explicitly from the relationship ( 13 ) and subsequently substituted into the governing equation ( 12a ) and ( 12b ) for the next time step. During time integration, such an explicit decoupling inevitably causes a spatial misalignment of the Θ \Theta -active window, thereby leading to a significant deviation in the macroscopic film dynamics. 
+
+Equations ( 12a ), ( 12b ) and ( 13 ) should be solved in a coupled manner. However, when solving the coupled system of ( 12a ), ( 12b ) and ( 13 ), the denominator ( H − H e ) (H-H_{e}) in relationship ( 13 ) vanishes in the flat precursor-film region where H = H e H=H_{e} , leading to numerical divergence. To regularize this singularity as well as for numerical convenience, given that the contact line velocity U c ​ l U_{cl} is typically small, we approximate Eq. ( 13 ) to 
+
+Θ 2 ≈ 1 + 2 ​ H H − H e ​ 𝐔 a ​ v ​ g ⋅ 𝐧 ​ ln ⁡ K Θ . \Theta^{2}\approx 1+\frac{2H}{H-H_{e}}\mathbf{U}_{avg}\cdot\mathbf{n}\ln\frac{K}{\Theta}. 
+
+(14) 
+
+Substituting ( 14 ) back into the governing equation ( 12a ) and ( 12b ) yields the regularized system: 
+
+∂ H ∂ T + ∇ ⋅ ( H ​ 𝐔 a ​ v ​ g ) = 0 , \displaystyle\frac{\partial H}{\partial T}+\nabla\cdot\left(H\mathbf{U}_{avg}\right)=0, 
+
+(15a) 
+
+𝐔 a ​ v ​ g = H 2 ∇ [ ∇ 2 H − Φ − 2 ​ H e 2 H 3 + 2 ​ H e 4 H 5 − 4 ​ H e 2 ​ ( H + H e ) H 4 𝐔 a ​ v ​ g ⋅ 𝐧 ln K Θ ] , \displaystyle\mathbf{U}_{avg}=H^{2}\nabla\left[\nabla^{2}H-\Phi-\frac{2H_{e}^{2}}{H^{3}}+\frac{2H_{e}^{4}}{H^{5}}-\frac{4H_{e}^{2}(H+H_{e})}{H^{4}}\mathbf{U}_{avg}\cdot\mathbf{n}\ln\frac{K}{\Theta}\right], 
+
+(15b) 
+
+wherein the vanishing denominator ( H − H e ) (H-H_{e}) is analytically eliminated except in the logarithmic function. Note that this approximation does not violate the cubic dependence of the film slope on the contact line velocity in the intermediate region, i.e., Eqs. ( 6 ) and ( 8 ). 
+
+We employ a finite element method to solve the coupled problem ( 15a ) and ( 15b ). By introducing an auxiliary pressure f f with 𝐔 a ​ v ​ g = H 2 ∇ f \mathbf{U}_{avg}=H^{2}\nabla f to decompose the fourth-order equation into two coupled second-order equations and incorporating the natural boundary conditions derived from ( 5 ), the weak forms of ( 15a ) and ( 15b ) are expressed as: 
+
+∫ Ω ∂ H ∂ T v 1 d Ω − ∫ Ω H 3 ∇ f ⋅ ∇ v 1 d Ω = 0 , \displaystyle\int_{\Omega}\frac{\partial H}{\partial T}v_{1}{\rm d}\Omega-\int_{\Omega}H^{3}\nabla f\cdot\nabla v_{1}{\rm d}\Omega=0, 
+
+(16a) 
+
+∫ Ω [ f + Φ + 2 ​ H e 2 H 3 − 2 ​ H e 4 H 5 + 4 ​ H e 2 ​ ( H + H e ) H 2 ∇ f ⋅ 𝐧 ln K Θ ] v 2 d Ω + ∫ Ω ∇ H ⋅ ∇ v 2 d Ω = 0 , \displaystyle\int_{\Omega}\left[f+\Phi+\frac{2H_{e}^{2}}{H^{3}}-\frac{2H_{e}^{4}}{H^{5}}+\frac{4H_{e}^{2}(H+H_{e})}{H^{2}}\nabla f\cdot\mathbf{n}\ln\frac{K}{\Theta}\right]v_{2}{\rm d}\Omega+\int_{\Omega}\nabla H\cdot\nabla v_{2}{\rm d}\Omega=0, 
+
+(16b) 
+
+where Ω \Omega is the computational domain, and v 1 , v 2 v_{1},v_{2} represent test functions. 
+
+Figure 2: 
+Variation of ℱ ⁡ ( K ) \mathcal{F}(K) against the scaling ratio K K (on a logarithmic scale).
+
+Regarding the remaining variables 𝐧 \mathbf{n} and Θ \Theta in ( 16b ), a natural approach is to treat them explicitly. To define a global vector filed 𝐧 \mathbf{n} throughout the entire domain, we utilize the normalized negative gradient of H H : 
+
+𝐧 = − ∇ H | ∇ H | 2 + ϵ , \mathbf{n}=\frac{-\nabla H}{\sqrt{|\nabla H|^{2}+\epsilon}}, 
+
+(17) 
+
+where ϵ \epsilon is a small regularization parameter introduced to prevent division by zero in the flat precursor-film region. This definition naturally reduces to 𝐧 c ​ l \mathbf{n}_{cl} in the vicinity of the contact line. 
+
+When explicitly evaluating Θ \Theta via relationship ( 13 ), two numerical issues arise. First, the denominator ( H − H e ) (H-H_{e}) vanishes in the flat precursor-film region. Second, for Θ > 0 \Theta>0 , the algebraic term ( Θ 3 − 1 ) / ln ⁡ ( K / Θ ) (\Theta^{3}-1)/\ln(K/\Theta) possesses a minimum value denoted as ℱ ⁡ ( K ) \mathcal{F}(K) . The variation of ℱ ⁡ ( K ) \mathcal{F}(K) as a function of K K is illustrated in Fig. 2 . Consequently, relationship ( 13 ) becomes unsolvable at any grid point where 3 ​ U c ​ l 3U_{cl} drops below the threshold ℱ ⁡ ( K ) \mathcal{F}(K) . Physically, this indicates that the velocity of a receding contact line cannot exceed a threshold. To circumvent these two issues, we regularize and modify the relation ( 13 ) to 
+
+Θ 3 = 1 + max [ 3 ​ H 3 ( H − H e ) 2 + H e 2 / 10 ∇ f ⋅ 𝐧 , ℱ ( K ) ] ln K Θ . \Theta^{3}=1+{\rm max}\left[\frac{3H^{3}}{\sqrt{(H-{H}_{e})^{2}+{H}_{e}^{2}/10}}\nabla f\cdot\mathbf{n},\mathcal{F}(K)\right]\ln\frac{K}{\Theta}. 
+
+(18) 
+
+In our simulations, the regularization parameters H e 2 / 10 {H}_{e}^{2}/10 and ϵ = 10 − 3 \epsilon=10^{-3} are verified to ensure numerical stability without sacrificing accuracy. 
+
+In summary, an explicit-implicit (or semi-implicit) time-stepping scheme is adopted: the remaining 𝐧 \mathbf{n} and Θ \Theta in ( 15b ) are treated explicitly using values from the current time step T n T^{n} , while the film thickness H H and auxiliary pressure f f are solved implicitly at the next time step T n + 1 T^{n+1} . The temporal derivative of the film thickness is approximated via the first-order backward difference: 
+
+∂ H ∂ T ​ ( 𝐗 , T n + 1 ) ≈ H ⁡ ( 𝐗 , T n + 1 ) − H ⁡ ( 𝐗 , T n ) Δ ​ T . \frac{\partial H}{\partial T}(\mathbf{X},T^{n+1})\approx\frac{H(\mathbf{X},T^{n+1})-H(\mathbf{X},T^{n})}{\Delta T}. 
+
+(19) 
+
+The detailed solution procedure is summarized as follows: 
+
+Initialization and relaxation: 
+
+1. 
+
+Generate initial domain Ω 0 \Omega^{0} and mesh 𝐗 0 \mathbf{X}^{0} . Initialize H i ​ n ​ i ​ t H^{init} and f i ​ n ​ i ​ t f^{init} . 
+
+2. 
+
+Relax the system for a few small time steps without applying the mesoscopic precursor film model, allowing the initial non-physical H i ​ n ​ i ​ t H^{init} and f i ​ n ​ i ​ t f^{init} to relax into a physical state ( H 0 H^{0} and f 0 f^{0} ). 
+
+3. 
+
+Initialize T 0 = 0 , 𝐧 0 = 𝟎 , Θ 0 = 1 T^{0}=0,~\mathbf{n}^{0}=\mathbf{0},~\Theta^{0}=1 . 
+
+Do n = 0 , 1 , 2 , … n=0,1,2,\dots 
+
+1. 
+
+Select the time step Δ ​ T \Delta T adaptively based on the initial Newton residual of the previous step: T n + 1 = T n + Δ ​ T T^{n+1}=T^{n}+\Delta T . 
+
+2. 
+
+With explicitly prescribed 𝐧 ⁡ ( T n ) \mathbf{n}(T^{n}) and Θ ⁡ ( T n ) \Theta(T^{n}) , solve the coupled weak forms ( 16a ) and ( 16b ) for H ⁡ ( T n + 1 ) H(T^{n+1}) and f ⁡ ( T n + 1 ) f(T^{n+1}) using Newton’s iterative method. 
+
+3. 
+
+Update the vector field 𝐧 ⁡ ( T n + 1 ) \mathbf{n}(T^{n+1}) from
+H ⁡ ( T n + 1 ) H(T^{n+1}) via ( 17 ). Then solve the regularized relationship ( 18 ) for Θ ⁡ ( T n + 1 ) \Theta(T^{n+1}) using H ⁡ ( T n + 1 ) , f ⁡ ( T n + 1 ) , 𝐧 ⁡ ( T n + 1 ) H(T^{n+1}),~f(T^{n+1}),~\mathbf{n}(T^{n+1}) . 
+
+4. 
+
+Linearly stretch or shrink the mesh according to the position of the contact line at each time step. Additionally, perform adaptive remeshing based on the distribution of H − 1 H^{-1} every 20 time steps. 
+
+End Do 
+
+The algorithm is implemented in FreeFem++  [ 45 ] , an open-source finite element solver well-suited for moving-mesh problems  [ 39 , 46 ] . The mesh moving is realized via built-in function movemesh , and the adaptive remeshing is executed by the built-in function adaptmesh . This remeshing is driven by the spatial distribution of H − 1 H^{-1} , which automatically refines the mesh in the vicinity of the contact line. 
+
+4 Examples 
+
+The present method is validated by examining the spreading, retraction, sliding, and coalescence of the drops, as well as the breakup of a liquid ridge. Both 2D and 3D configurations are considered. For comparison, the precursor film thickness is varied among 3 × 10 − 3 3\times 10^{-3} , 2 × 10 − 3 2\times 10^{-3} , 10 − 3 10^{-3} , 10 − 4 10^{-4} and 10 − 5 10^{-5} , where 10 − 5 10^{-5} is considered as the same order of magnitude as the physically realistic value for millimeter-sized drops or liquid ridges. For convenience, the mesoscopic precursor film model is referred to as the ”Meso-Model” (all targeting H ¯ e = 10 − 5 \bar{H}_{e}=10^{-5} with different values of K K ), while the original model is designated as the ”Orig-Model” ( K = 1 K=1 with different values of H ¯ e \bar{H}_{e} ). 
+
+All numerical test cases have undergone time-step and mesh-independence validations. The results demonstrate that a minimum mesh size equal to the precursor film thickness H e H_{e} is sufficient to ensure numerical accuracy. 
+
+4.1 Axisymmetric drop spreading and retraction 
+
+The first example considers the spreading or retraction of the axisymmetric drops, which can be reduced to a 1D equation characterized by a single advancing or receding contact line  [ 47 , 48 , 49 ] . Formulations of the axisymmetric drop spreading and retraction are detailed in Appendix B . The drop exhibits spreading when the initial radius R 0 < 1 R_{0}<1 , corresponding to an advancing contact line, whereas it undergoes retraction when R 0 > 1 R_{0}>1 , corresponding to a receding contact line. 
+
+4.1.1 Axisymmetric drop spreading 
+
+To evaluate the performance of the Meso-Model under an advancing contact line, the initial drop radius is set to R 0 = 3 / 2 < 1 R_{0}=\sqrt{3}/2<1 . Five sets of numerical simulations are performed for comparison: three using the Orig-Models with H ¯ e = 10 − 3 \bar{H}_{e}=10^{-3} , 10 − 4 10^{-4} , and 10 − 5 10^{-5} , and the other two using the Meso-Models (targeting H ¯ e = 10 − 5 \bar{H}_{e}=10^{-5} ) with K = 100 K=100 and K = 10 K=10 . 
+
+Figure 3: 
+Axisymmetric drop spreading: temporal evolution of the ( a ) drop radius (advancing contact line position X a ​ d ​ v X_{adv} ) and ( b ) maximum drop height H ⁡ ( 0 ) H(0) . The solid and dashed lines denote the Orig-Models and Meso-Models, respectively.
+
+Figure 4: 
+Drop interface profiles near the contact line during axisymmetric drop spreading at T = 1.0 T=1.0 with ( a ) a logarithmic H H -axis and ( b ) a linear H H -axis. The legend is identical to that in Fig.  3 .
+
+Fig.  3 presents the temporal evolution of the macroscopic drop parameters, including the drop radius (equal to the advancing contact line position X a ​ d ​ v X_{adv} ) and the maximum drop height H ⁡ ( 0 ) H(0) . As illustrated, a smaller H ¯ e \bar{H}_{e} results in a slower spreading rate, whereas the Orig-Model with H ¯ e = 10 − 3 \bar{H}_{e}=10^{-3} exhibits the fastest spreading and is considered to deviate most from the physical reality. The macroscopic evolutions of the Meso-Models agree well with those of the corresponding Orig-Models. 
+
+Fig.  4 shows the drop interface profiles near the contact line at T = 1.0 T=1.0 , which clearly illustrates that the Meso-Models and the Orig-Model exhibit similar interface behaviors in the intermediate region. To further investigate the interface slope variation described by the Cox–Voinov theory [ 27 ] 
+
+( H ′ ) 3 ≈ 1 + 3 ​ U c ​ l ​ ln ⁡ e ​ ( X a ​ d ​ v − X ) 4 ​ H ¯ e , (H^{\prime})^{3}\approx 1+3U_{cl}\ln\frac{\text{e}\left(X_{adv}-X\right)}{4\bar{H}_{e}}, 
+
+(20) 
+
+we compare in Fig.  5 (a) the distribution of ( H ′ ) 3 (H^{\prime})^{3} among the Meso-Models, the Orig-Models and the Cox-Voinov theory at an identical advancing contact line velocity of 0.04 0.04 . First, a smaller H ¯ e \bar{H}_{e} leads to a more pronounced intermediate region as described by the Cox-Voinov theory. Second, the Meso-Models accurately match the interface behavior of the corresponding Orig-Models within the intermediate region. Furthermore, Fig.  5 (b) depicts the spatial distribution of the extended contact line velocity U c ​ l U_{cl} . Notably, a distinct intermediate platform exists where U c ​ l U_{cl} remains nearly constant. This plateau implies that the disjoining pressure correction factor Θ \Theta is also invariant within this region, further substantiating the validity of the Meso-Models. 
+
+Figure 5: 
+Profiles near the contact line for axisymmetric drop spreading at a velocity of 0.04 0.04 : ( a ) distribution of the third power of the interface slope plotted against the distance to the advancing contact line with a logarithmic X X -axis; ( b ) extended contact line velocity U c ​ l U_{cl} as a function of the drop thickness H × 10 5 H\times 10^{5} (only the Orig-Model with H ¯ e = 10 − 5 \bar{H}_{e}=10^{-5} and the Meso-Model with K = 10 K=10 and 100 100 are shown).
+
+4.1.2 Axisymmetric drop retraction 
+
+To evaluate the performance of the Meso-Model under a receding contact line, the initial drop radius is set to R 0 = 1.2 > 1 R_{0}=1.2>1 , which drives the drop to retract toward its equilibrium state. Correspondingly, five sets of numerical simulations are performed using identical parameter configurations to those in the spreading case in Section 4.1.1 . 
+
+Figure 6: 
+Axisymmetric drop retraction: ( a ) temporal evolution of the drop radius (receding contact line position X r ​ e ​ c X_{rec} ); ( b ) drop interface profiles near the receding contact line during axisymmetric drop retraction at T = 1.0 T=1.0 with a logarithmic H H -axis.
+
+Fig.  6 (a) shows the temporal evolution of the macroscopic drop radius (the receding contact line position X r ​ e ​ c X_{rec} ), and Fig.  6 (b) depicts the drop interface profiles near the receding contact line at T = 1.0 T=1.0 . The distribution of the cubed interface slope ( H ′ ) 3 (H^{\prime})^{3} is compared in Fig.  7 (a) among the Meso-Models, the Orig-Models, and the Cox-Voinov theory at a uniform receding contact line velocity of − 0.03 -0.03 . Furthermore, Fig.  7 (b) illustrates the spatial variation of the extended contact line velocity U c ​ l U_{cl} , where a well-defined intermediate plateau is visible where U c ​ l U_{cl} maintains a nearly constant value of approximately − 0.03 -0.03 . 
+
+Figure 7: 
+Profiles near the contact line for axisymmetric drop retraction at a velocity of − 0.03 -0.03 : ( a ) distribution of the third power of the interface slope plotted against the distance to the receding contact line with a logarithmic X X -axis, where the legend is identical to that in Fig.  6 ; ( b ) extended contact line velocity U c ​ l U_{cl} as a function of the drop thickness H × 10 5 H\times 10^{5} (only the Orig-Model with H ¯ e = 10 − 5 \bar{H}_{e}=10^{-5} and the Meso-Model with K = 10 K=10 and 100 100 are shown).
+
+Similar to the spreading process, the macroscopic behaviors predicted by the Meso-Models agree remarkably well with the Orig-Models, as the Meso-Models faithfully reproduce the localized interfacial features within the intermediate region. Furthermore, the persistent constant plateau of U c ​ l U_{cl} implies the invariance of the correction factor Θ \Theta in this region, also confirming the validity of the proposed Meso-Model under a receding contact line. 
+
+4.2 Drop sliding on a plate 
+
+The second example is the sliding of a drop on a plate driven by gravity, in which both advancing and receding contact lines simultaneously exist. Both 2D and 3D cases are considered here. This problem has been studied in experiments [ 50 , 51 ] and numerical simulations [ 52 , 38 , 53 ] , where the plate can be inclined at some angle. Here, the plate is set to be vertical for simplicity. Consequently, gravity is incorporated by defining the potential as Φ = − B ​ o ​ X \Phi=-BoX , where the Bond number B ​ o = ρ ​ g ​ R 2 / ( σ ​ θ ¯ e ) Bo=\rho gR^{2}/(\sigma\bar{\theta}_{e}) represents the relative importance of gravitational effects over capillary forces. 
+
+In the simulations, the drop is set to slide from rest. The initial drop profile is prescribed as a hydrostatic cap without gravity, i.e., 
+
+H ⁡ ( X , 0 ) = max ⁡ ( 1 − X 2 2 , H e ) , for the 2D case , \displaystyle H(X,0)=\max\left(\frac{1-X^{2}}{2},H_{e}\right),\quad\text{for the 2D case}, 
+
+(21a) 
+
+H ⁡ ( X , 0 ) = max ⁡ ( 1 − X 2 − Y 2 2 , H e ) , for the 3D case . \displaystyle H(X,0)=\max\left(\frac{1-X^{2}-Y^{2}}{2},H_{e}\right),\quad\text{for the 3D case}. 
+
+(21b) 
+
+4.2.1 2D drop sliding 
+
+We first consider the 2D drop sliding case. Under gravity, the drop begins to slide down and eventually reaches a constant steady-state velocity U s U_{s} . Following the same parameter configurations as in Section 4.1 , five sets of simulations are performed using both the Orig-Models and the Meso-Models for comparison. 
+
+Figure 8: 
+2D drop sliding: steady-state sliding velocity U s U_{s} plotted against the Bond number B ​ o Bo .
+
+Figure 9: 
+Temporal evolution of the receding contact line position X r ​ e ​ c X_{rec} for 2D drop sliding: ( a ) B ​ o = 1.0 Bo=1.0 and ( b ) B ​ o = 2.5 Bo=2.5 .
+
+Figure 10: 
+Drop interface profiles at T = 5.0 T=5.0 plotted with a logarithmic H H -axis for 2D drop sliding: ( a ) B ​ o = 1.0 Bo=1.0 and ( b ) B ​ o = 2.5 Bo=2.5 . The legend is identical to that in Fig.  9 .
+
+Fig.  8 shows the steady-state sliding velocity U s U_{s} as a function of B ​ o Bo for 0 ≤ B ​ o ≤ 3.0 0\leq Bo\leq 3.0 . For the Orig-Models, a thick precursor film ( H ¯ e = 10 − 3 \bar{H}_{e}=10^{-3} ) severely overestimates the steady-state sliding velocity. As H ¯ e \bar{H}_{e} decreases to 10 − 5 10^{-5} , U s U_{s} reduces significantly and converges toward the physical limit. For two typical Bond numbers, B ​ o = 1.0 Bo=1.0 and B ​ o = 2.5 Bo=2.5 , Fig.  9 presents the temporal evolution of the receding contact line position X r ​ e ​ c X_{rec} , and Fig.  10 presents the drop interface profiles with a logarithmic H H -axis at T = 5.0 T=5.0 . Due to the axisymmetric action of gravity, an elongated tail has gradually formed near the receding contact line in Fig.  10 . The Meso-Models successfully captures the interface behavior of the Orig-Models within the intermediate region despite using a thicker precursor film. 
+
+Figs.  8 - 10 indicate that both the steady-state and unsteady macroscopic behaviors predicted by the Meso-Models agree well with those from the corresponding Orig-Models. However, as B ​ o Bo increases, the deviation among the Orig-Model and corresponding Meso-Models gradually expands. This discrepancy is attributed to the use of the approximation ( 14 ), whose accuracy diminishes as the contact line velocity increases. 
+
+4.2.2 3D drop sliding 
+
+For the 3D sliding case, due to symmetry, only half of the drop domain is simulated to reduce the computational cost. Nevertheless, due to the relatively large computational cost, the Orig-Models with H ¯ e = 10 − 5 \bar{H}_{e}=10^{-5} or H ¯ e = 10 − 4 \bar{H}_{e}=10^{-4} are not simulated here. Instead, three Meso-Models with the parameter configurations as K = 100 K=100 , K = 200 K=200 and K = 300 K=300 , are carried out to approximate the Orig-Model with H ¯ e = 10 − 5 \bar{H}_{e}=10^{-5} and to check if their results are consistent. Additionally, the unphysical Orig-Model with H ¯ e = 10 − 3 \bar{H}_{e}=10^{-3} is also simulated for comparison. 
+
+As reported by Ref. [ 50 ] , a critical Bond number exists beyond which a wetting transition occurs. Before this transition, a sharp corner typically emerges at the rear of the drop. Furthermore, at high Bond numbers, the sliding drop undergo a pinch-off process during its evolution. Consequently, we select B ​ o = 2.0 Bo=2.0 (before the wetting transition) and B ​ o = 4.0 Bo=4.0 (where both transition and pinch-off occur) as two representative cases to test our models. 
+
+Figure 11: 
+Comparison between the Orig-Model and the Meso-Models (with different scaling ratios K K all targeting H ¯ e = 10 − 5 \bar{H}_{e}=10^{-5} ) for 3D drop sliding at B ​ o = 2.0 Bo=2.0 : ( a ) drop contours (with the precursor film truncated) at T = 20 T=20 and T = 80 T=80 ; ( b ) temporal evolution of the receding contact line position X r ​ e ​ c X_{rec} .
+
+Figure 12: 
+Comparison of drop contours (with the precursor film truncated) for 3D drop sliding obtained from the Meso-Models with different scaling ratios K K (all targeting H ¯ e = 10 − 5 \bar{H}_{e}=10^{-5} ): ( a ) T = 75 T=75 ; ( b ) T = 100 T=100 ; ( c ) T = 125 T=125 .
+
+For the case of B ​ o = 2.0 Bo=2.0 , comparisons among the Orig-Model and the Meso-Models are presented in Fig.  11 . Specifically, Fig.  11 (a) displays the drop contours at T = 20 T=20 and T = 80 T=80 , while Fig.  11 (b) shows the temporal evolution of the receding contact line. As shown in Fig.  11 (a), while the unphysical Orig-Model with H ¯ e = 10 − 3 \bar{H}_{e}=10^{-3} severely deviates from the others, the temporal evolution results from the three Meso-Models show good consistency. In Fig.  11 (a), the sliding drops have all reached a constant steady-state velocity at T = 80 T=80 . At this stage, the drop tail predicted by the Meso-Model with K = 100 K=100 is slightly sharper than those from the other two Meso-Model configurations. Ref. [ 38 ] indicated that such a corner profile can be captured numerically only when a physically small slip length is adopted. Furthermore, Refs. [ 27 , 54 ] demonstrated that slip models and precursor film models are macroscopically equivalent. Therefore, it can be inferred that the sharp corner profile can be resolved only if a physically small precursor film thickness is utilized, which is successfully achieved here by the present Meso-Models. Although the Meso-Model with K = 100 K=100 is considered to be more accurate, the discrepancy produced by the other two Meso-Models remains within an acceptable range. 
+
+For the case of B ​ o = 4.0 Bo=4.0 , temporal comparisons among the three Meso-Models are presented in Fig.  12 . At T = 75 T=75 , the drop tail elongates and forms a sharp corner. As time progresses to T = 100 T=100 , a pinch-off event occurs at the rear, shedding a satellite drop. At T = 125 T=125 , the drop neck further breaks up, leaving behind two satellite drops. The three Meso-Models show good consistency, validating the capability of the Meso-Model in handling complex topological changes such as drop pinch-off. 
+
+4.3 Drop coalescence 
+
+The third example is the coalescence of two drops resting on a flat substrate without any external forces ( Φ = 0 \Phi=0 ), which has been studied both experimentally [ 55 , 56 ] and numerically [ 57 , 58 ] . The initial film thickness profile H ⁡ ( 𝐗 , 0 ) H(\mathbf{X},0) is defined as 
+
+H ⁡ ( 𝐗 , 0 ) = max ⁡ ( R 0 2 − [ X 2 + ( Y + 0.95 ) 2 ] 2 ​ R 0 4 , R 0 2 − [ X 2 + ( Y − 0.95 ) 2 ] 2 ​ R 0 4 , H e ) , H(\mathbf{X},0)=\max\left(\frac{R_{0}^{2}-[X^{2}+(Y+0.95)^{2}]}{2R_{0}^{4}},\frac{R_{0}^{2}-[X^{2}+(Y-0.95)^{2}]}{2R_{0}^{4}},H_{e}\right), 
+
+(22) 
+
+where the initial drop radius is set to R 0 = 0.9 < 1 R_{0}=0.9<1 . Driven by capillarity, the two drops will spontaneously spread and subsequently undergo coalescence. 
+
+We conducted numerical simulations for target thin precursor film thickness H ¯ e = 10 − 5 \bar{H}_{e}=10^{-5} using three different Meso-Models with scaling ratios K = 100,200 K=100,200 and 300 300 . The results from these three configurations are mutually consistent and show good convergence; therefore, for clarity, only the temporal evolution obtained with K = 300 K=300 (where H e = 3 × 10 − 3 H_{e}=3\times 10^{-3} ) are presented in Fig.  13 . At the beginning ( T = 0.0 T=0.0 ), two identical, separate drops are initially deposited in close proximity on the substrate. As time progresses, the two drops make contact with each other, and their contact lines start to merge. Eventually, at T = 50.0 T=50.0 , the fluid merges into a single larger circular drop. This dynamic process demonstrates the capability of the proposed Meso-Model in handling complex topological changes during drop coalescence. 
+
+Figure 13: 
+Drop contours (with the precursor film truncated) for drop coalescence obtained from the Meso-Model with H e = 3 × 10 − 3 , K = 300 H_{e}=3\times 10^{-3},~K=300 at t = 0 t=0 , 1 1 , 2 2 , 10 10 and 50 50 .
+
+4.4 Breakup of liquid ridge 
+
+The fourth example considers the breakup of a liquid ridge on a flat substrate without any external forces ( Φ = 0 \Phi=0 ). Previous studies indicate that stationary ridges are susceptible to the Rayleigh-Plateau instability [ 59 , 60 ] . This problem has been investigated both experimentally and numerically, showing that a liquid ridge will spontaneously break up and shed smaller satellite droplets [ 61 , 62 ] . 
+
+Figure 14: 
+Evolution of morphology (with the precursor film truncated) during the breakup of a liquid ridge, obtained from the Meso-Model with H e = 3 × 10 − 3 H_{e}=3\times 10^{-3} and K = 300 K=300 at T = 0 T=0 , 80 80 , 110 110 , 135 135 , and 200 200 .
+
+The initial film thickness profile H ⁡ ( 𝐗 , 0 ) H(\mathbf{X},0) is constructed by adding a perturbation along the Y Y -direction to a liquid ridge: 
+
+H ⁡ ( 𝐗 , 0 ) = max ⁡ ( 1 2 − [ X − 0.1 ​ cos ⁡ ( λ ​ Y ) ] 2 2 , H e ) , H(\mathbf{X},0)=\max\left(\frac{1}{2}-\frac{[X-0.1\cos(\lambda Y)]^{2}}{2},H_{e}\right), 
+
+(23) 
+
+where the perturbation wavenumber is set to λ = 0.8 \lambda=0.8 . The computational domain is restricted to [ 0 , 2.5 ] × [ 0 , 2 ​ π / λ ] [0,2.5]\times[0,2\pi/\lambda] by applying Neumann boundary conditions on all boundaries. Due to this setup, the full numerical results can be obtained by mirroring the solution across the X ​ Z XZ - and Y ​ Z YZ -planes. 
+
+We conducted numerical simulations using three different Meso-Models with scaling ratios K = 100,200 K=100,200 , and 300 300 . The results from these three configurations are mutually consistent and show good convergence; therefore, for clarity, only the results obtained with K = 300 K=300 (where H e = 3 × 10 − 3 H_{e}=3\times 10^{-3} ) are presented in Fig.  14 . Driven by the Rayleigh-Plateau instability, the liquid ridge undergoes significant spanwise dynamic deformation, where fluid gradually drains from the thinner neck regions into the bulging regions, as shown at T = 80 T=80 and T = 110 T=110 . By T = 135 T=135 , the neck region pinches off, leading to the breakup of the liquid ridge. During this pinch-off process, a series of satellite droplets are shed, forming a distinct droplet cascade structure that is clearly visible at T = 200 T=200 . The formation of satellite droplets and the cascaded morphology show good agreement with both the numerical simulations and experimental observations reported in [ 61 ] . 
+
+Table 1: Comparison of computational costs (in core-hours) among different configurations of Meso-Models or Orig-Models for various examples. The recorded core-hours are approximate rounded values. 
+
+2D problems 
+H ¯ e = 1 × 10 − 5 \bar{H}_{e}=1\times 10^{-5} 
+H e = 1 × 10 − 4 , K = 10 H_{e}=1\times 10^{-4},~K=10 
+H e = 1 × 10 − 3 , K = 100 H_{e}=1\times 10^{-3},~K=100 
+
+Axisymmetric drop spreading 
+1000 
+120 
+5 
+
+Axisymmetric drop retraction 
+900 
+100 
+4 
+
+2D drop sliding ( B ​ o = 4 Bo=4 ) 
+1500 
+180 
+10 
+
+3D problems 
+H e = 1 × 10 − 3 , K = 100 H_{e}=1\times 10^{-3},~K=100 
+H e = 2 × 10 − 3 , K = 200 H_{e}=2\times 10^{-3},~K=200 
+H e = 3 × 10 − 3 , K = 300 H_{e}=3\times 10^{-3},~K=300 
+
+3D drop sliding ( B ​ o = 4 Bo=4 ) 
+300 
+60 
+40 
+
+Drop coalescence 
+40 
+12 
+8 
+
+Breakup of liquid ridge 
+80 
+20 
+14 
+
+For the six numerical examples across different model configurations, Table  1 summarizes the computational costs (measured in core-hours), and quantitatively demonstrate the remarkable enhancement in computational efficiency achieved by the proposed Meso-Models compared to the physically realistic thin precursor film model ( H ¯ e = 10 − 5 \bar{H}_{e}=10^{-5} ). For the first three 2D examples, transitioning from the Orig-Model to the Meso-Model with K = 100 K=100 leads to a substantial reduction in computational cost, achieving an approximate 200-fold acceleration. For the 3D problems presented in the lower half of the table, a vertical comparison among the Meso-Models reveals that increasing the scaling ratio K K from 100 to 300 further slashes the computational overhead by approximately 70 % 70\% . As verified in the above subsections, this acceleration is accomplished without sacrificing the accuracy of the macroscopic flow dynamics. Therefore, to maximize computational efficiency while maintaining high accuracy, the Meso-Model with K = 300 K=300 is highly recommended for practical simulations of dynamic wetting processes. 
+
+5 Conclusions 
+
+In this work, a finite element method has been presented within the framework of lubrication theory and the precursor film model to simulate dynamic wetting processes. By modifying the disjoining pressure, the proposed mesoscopic precursor film model enables a relatively thick precursor film to accurately reproduce the intermediate-region interfacial behavior of a physically thin precursor film, thereby keeping the macroscopic flow dynamics essentially unchanged. Through a series of 2D and 3D simulations, the accuracy and capability of the proposed model are validated by examples including the spreading, retraction, sliding, and coalescence of the drops, as well as the breakup of liquid ridges. The numerical results show good agreement with available exact solutions, asymptotic theories, and experimental observations. The adoption of a thicker precursor film significantly reduces the computational cost. To maximize computational efficiency while maintaining high accuracy, the Meso-Model
+with K = 300 K=300 is highly recommended for practical simulations of dynamic wetting processes. The present method efficiently handles complex topological changes in wetting and dewetting problems, which the slip models fail to capture. 
+
+Declarations of Interests 
+
+The authors report no conflict of interest. 
+
+Funding 
+
+This work was supported by the NSFC (grant nos 12241204, 12325208 and 12388101) and China Postdoctoral Science Foundation (grant nos GZC20261072 and 2025M781801). 
+
+Appendix A Active region of the disjoining pressure modification factor Θ \Theta 
+
+An axisymmetric drop spreading case is selected as the benchmark (see Appendix B for formulation details). By comparing the numerical results under different configurations of disjoining pressure modifications Θ \Theta , its precise active region can be identified. 
+
+The initial drop radius is set to R 0 = 2 / 2 R_{0}=\sqrt{2}/2 , the precursor film thickness to H ¯ e = 10 − 3 \bar{H}_{e}=10^{-3} , and the temporal step size to a constant value of Δ ​ T = 10 − 4 \Delta T=10^{-4} . Various configurations of Θ \Theta are prescribed to investigate their influence on the macroscopic drop evolution. Figure 15 (a) illustrates the temporal evolution of the drop radius (i.e., the advancing contact line position). Here, Θ = 1 \Theta=1 corresponds to the baseline model with the original disjoining pressure, whereas Θ = 1.5 \Theta=1.5 represents the modified model that effectively mimics a thinner precursor film, thereby slowing down the drop spreading. By varying the active window of Θ = 1.5 \Theta=1.5 , we find that the disjoining pressure correction plays a significant role only within a narrow, localized zone near the contact line, specifically for H ∈ [ 1.0 , 20 ] ​ H ¯ e H\in[1.0,20]\bar{H}_{e} , as shown in Fig. 15 (b). Beyond this threshold, modifying the disjoining pressure exerts a negligible impact on the macroscopic flow dynamics. Moreover, the drop dynamics exhibit a high sensitivity to the lower bound of this localized region; as shown in Fig. 15 (a), even a minor shift in the lower bound from 1.1 ​ H ¯ e 1.1\bar{H}_{e} to 1.5 ​ H ¯ e 1.5\bar{H}_{e} leads to a noticeable deviation. 
+
+In summary, the application of the proposed mesoscopic precursor film model requires a constant Θ \Theta within the localized zone H ∈ [ 1.0 , 20 ] ​ H ¯ e H\in[1.0,20]\bar{H}_{e} near the contact line. Furthermore, any upward shift or numerical discontinuity at the lower bound of this interval should be avoided. 
+
+Figure 15: ( a ) Temporal evolution of the dimensionless drop radius (advancing contact line position X a ​ d ​ v X_{adv} ) during axisymmetric spreading under various active regions of Θ \Theta .
+( b ) Dimensionless drop profiles H ⁡ ( X ) H(X) at different times, where the inset illustrates the spatial window of the localized disjoining pressure correction restricted within the thickness interval H ∈ [ 1.0 , 20.0 ] ​ H ¯ e H\in[1.0,20.0]\bar{H}_{e} .
+
+Appendix B Formulation of axisymmetric drop spreading/retracting 
+
+We consider the axisymmetric spreading and retraction of a drop on a flat substrate as the benchmark problem. Gravity is neglected for simplicity, giving Φ = 0 \Phi=0 . 
+
+The equilibrium drop radius is set to 1 for convenience, corresponding to the choice of the characteristic lateral length scale: 
+
+R = ( 4 ​ V ​ θ ¯ e π ) 1 / 3 , R=\left(\frac{4V\bar{\theta}_{e}}{\pi}\right)^{1/3}, 
+
+(24) 
+
+where V V denotes the volume of the drop. Accordingly, the equilibrium drop bulk profile in the X ​ – ​ Z X\text{--}Z plane is approximately given by H = ( 1 − X 2 ) / 2 H=(1-X^{2})/2 . The initial drop profile is prescribed as a circular paraboloid combined with a flat equilibrium precursor film: 
+
+H ⁡ ( X , 0 ) = max ⁡ ( 1 2 ​ R 0 2 − X 2 2 ​ R 0 4 , H ¯ e ) , H(X,0)=\max\left(\frac{1}{2R_{0}^{2}}-\frac{X^{2}}{2R_{0}^{4}},\,\bar{H}_{e}\right), 
+
+(25) 
+
+where R 0 R_{0} denotes the initial drop radius. The drop undergoes retraction when R 0 > 1 R_{0}>1 , whereas it exhibits spreading when R 0 < 1 R_{0}<1 . 
+
+The original, unregularized dimensionless axisymmetric lubrication equation is 
+
+∂ H ∂ T + 1 X ​ ∂ ∂ X ​ { X ​ H 3 ​ ∂ ∂ X ​ [ 1 X ​ ∂ ∂ X ​ ( X ​ ∂ H ∂ X ) − 2 ​ H ¯ e 2 H 3 + 2 ​ H ¯ e 4 H 5 ] } = 0 . \frac{\partial H}{\partial T}+\frac{1}{X}\frac{\partial}{\partial X}\left\{XH^{3}\frac{\partial}{\partial X}\left[\frac{1}{X}\frac{\partial}{\partial X}\left(X\frac{\partial H}{\partial X}\right)-\frac{2\bar{H}_{e}^{2}}{H^{3}}+\frac{2\bar{H}_{e}^{4}}{H^{5}}\right]\right\}=0. 
+
+(26) 
+
+Due to axisymmetry, the computational domain is restricted to the interval X ∈ [ 0 , 1.5 ] X\in[0,1.5] in the first quadrant. Boundary conditions at the symmetry center ( X = 0 X=0 ) and the far-field boundary ( X = 1.5 X=1.5 ) are imposed as follows: 
+
+∂ H ∂ X = ∂ ∂ X ​ [ 1 X ​ ∂ ∂ X ​ ( X ​ ∂ H ∂ X ) ] = 0 . \frac{\partial H}{\partial X}=\frac{\partial}{\partial X}\left[\frac{1}{X}\frac{\partial}{\partial X}\left(X\frac{\partial H}{\partial X}\right)\right]=0. 
+
+(27) 
+
+Notably, due to the presence of a unidirectional contact line, the global vector field 𝐧 \mathbf{n} within the Meso-Model numerical simulations simplifies to 𝐧 = 𝟏 \mathbf{n}=\mathbf{1} . 
+
+References 
+
+[1] 
+S. Kumar (2015) 
+
+Liquid transfer in printing processes: liquid bridges with moving contact lines .
+
+Annu. Rev. Fluid Mech. 47 , pp. 67–94 .
+
+Cited by: §1 .
+
+[2] 
+D. Lohse (2022) 
+
+Fundamental fluid dynamics challenges in inkjet printing .
+
+Annu. Rev. Fluid Mech. 54 , pp. 349–382 .
+
+Cited by: §1 .
+
+[3] 
+B. He (2020) 
+
+Formation of watermark defects during immersion lithography .
+
+PhD thesis , Technische Universiteit Eindhoven .
+
+Cited by: §1 .
+
+[4] 
+C. Huh and L. E. Scriven (1971) 
+
+Hydrodynamic model of steady movement of a solid/liquid/fluid contact line .
+
+J. Colloid Interface Sci. 35 ( 1 ), pp. 85–101 .
+
+Cited by: §1 .
+
+[5] 
+J. H. Snoeijer and A. B. (2013) 
+
+Moving contact lines: scales, regimes, and dynamical transitions .
+
+Annu. Rev. Fluid Mech. 45 , pp. 269–292 .
+
+Cited by: §1 ,
+§1 ,
+§1 .
+
+[6] 
+P.-G. De Gennes (1985) 
+
+Wetting: statics and dynamics .
+
+Rev. Mod. Phys. 57 ( 3 ), pp. 827 .
+
+Cited by: §1 ,
+§2 ,
+§2 .
+
+[7] 
+D. Bonn, J. Eggers, J. Indekeu, J. Meunier, and E. Rolley (2009) 
+
+Wetting and spreading .
+
+Rev. Mod. Phys. 81 , pp. 739–805 .
+
+Cited by: §1 ,
+§1 .
+
+[8] 
+Y. Xia, J. Qin, and P. Gao (2020) 
+
+Dynamical wetting transition on a chemically striped incline .
+
+Phys. Fluids 32 , pp. 022101 .
+
+Cited by: §1 ,
+§1 ,
+§2 ,
+§2 .
+
+[9] 
+N. V. Mhatre and S. Kumar (2024) 
+
+Shear-induced depinning of thin droplets on rough substrates .
+
+J. Fluid Mech. 990 , pp. A14 .
+
+Cited by: §1 .
+
+[10] 
+D. Peschka (2015) 
+
+Thin-film free boundary problems for partial wetting .
+
+J. Comput. Phys. 295 , pp. 770–778 .
+
+Cited by: §1 .
+
+[11] 
+N. Savva and S. Kalliadasis (2009) 
+
+Two-dimensional droplet spreading over topographical substrates .
+
+Phys. Fluids 21 ( 9 ).
+
+Cited by: §1 .
+
+[12] 
+S. Engelnkemper, M. Wilczek, S. V. Gurevich, and U. Thiele (2016) 
+
+Morphological transitions of sliding drops: dynamics and bifurcations .
+
+Phys. Rev. Fluids 1 ( 7 ), pp. 073901 .
+
+Cited by: §1 .
+
+[13] 
+J. Lowndes (1980) 
+
+The numerical simulation of the steady movement of a fluid meniscus in a capillary tube .
+
+J. Fluid Mech. 101 ( 3 ), pp. 631–646 .
+
+Cited by: §1 .
+
+[14] 
+J. E. Sprittles and Y. D. Shikhmurzaev (2012) 
+
+Finite element framework for describing dynamic wetting phenomena .
+
+Int. J. Numer. Meth. Fluids 68 ( 10 ), pp. 1257–1298 .
+
+Cited by: §1 .
+
+[15] 
+J. E. Sprittles (2015) 
+
+Air entrainment in dynamic wetting: Knudsen effects and the influence of ambient air pressure .
+
+J. Fluid Mech. 769 , pp. 444–481 .
+
+Cited by: §1 .
+
+[16] 
+E. Vandre, M. S. Carvalho, and S. Kumar (2012) 
+
+Delaying the onset of dynamic wetting failure through meniscus confinement .
+
+J. Fluid Mech. 707 , pp. 496–520 .
+
+Cited by: §1 .
+
+[17] 
+J. H. Snoeijer and J. Eggers (2010) 
+
+Asymptotic analysis of the dewetting rim .
+
+Phys. Rev. E 82 ( 5 ), pp. 056314 .
+
+Cited by: §1 .
+
+[18] 
+X. L. Wang, J. Qin, and P. Gao (2025) 
+
+Axisymmetric evolution of thin films in spin coating .
+
+J. Fluid Mech. 1007 , pp. A56 .
+
+Cited by: §1 ,
+§1 .
+
+[19] 
+H. Ming, J. Qin, and P. Gao (2023) 
+
+Early stage of bubble spreading in a viscous ambient liquid .
+
+J. Fluid Mech. 964 , pp. A41 .
+
+Cited by: §1 .
+
+[20] 
+Y. Sui and P. D. M. Spelt (2013) 
+
+Validation and modification of asymptotic analysis of slow and rapid droplet spreading by numerical simulation .
+
+J. Fluid Mech. 715 , pp. 283–313 .
+
+Cited by: §1 .
+
+[21] 
+J. A. Diez and L. Kondic (2002) 
+
+Computing three-dimensional thin film flows including contact lines .
+
+J. Comput. Phys. 183 ( 1 ), pp. 274–306 .
+
+Cited by: §1 ,
+§2 .
+
+[22] 
+Y. Sui, H. Ding, and P. D. M. Spelt (2014) 
+
+Numerical simulations of flows with moving contact lines .
+
+Annu. Rev. Fluid Mech. 46 ( 1 ), pp. 97–119 .
+
+Cited by: §1 ,
+§1 .
+
+[23] 
+O. V. Voinov (1976) 
+
+Hydrodynamics of wetting .
+
+Fluid Dyn. 11 , pp. 714–721 .
+
+Cited by: §1 .
+
+[24] 
+L. M. Hocking and A. D. Rivers (1982) 
+
+The spreading of a drop by capillary action .
+
+J. Fluid Mech. 121 , pp. 425–442 .
+
+Cited by: §1 ,
+§1 .
+
+[25] 
+L. M. Hocking (1983) 
+
+The spreading of a thin drop by gravity and capillarity .
+
+Q. J. Mech. Appl. Math. 36 , pp. 55–69 .
+
+Cited by: §1 ,
+§1 .
+
+[26] 
+R. G. Cox (1986) 
+
+The dynamics of the spreading of liquids on a solid surface. part 1. viscous flow .
+
+J. Fluid Mech. 168 , pp. 169–194 .
+
+Cited by: §1 ,
+§1 .
+
+[27] 
+J. Eggers (2005) 
+
+Contact line motion for partially wetting fluids .
+
+Phys. Rev. E 72 , pp. 061605 .
+
+Cited by: §1 ,
+§2 ,
+§2 ,
+§2 ,
+§2 ,
+§2 ,
+§3 ,
+§4.1.1 ,
+§4.2.2 .
+
+[28] 
+J. Eggers (2005) 
+
+Existence of receding and advancing contact lines .
+
+Phys. Fluids 17 , pp. 082106 .
+
+Cited by: §1 .
+
+[29] 
+W. Ren, P. H. Trinh, and W. E (2015) 
+
+On the distinguished limits of the navier slip model of the moving contact line problem .
+
+J. Fluid Mech. 772 , pp. 107–126 .
+
+Cited by: §1 .
+
+[30] 
+Z. Zhang and W. Ren (2019) 
+
+Distinguished limits of the navier slip model for moving contact lines in Stokes flow .
+
+SIAM J. Appl. Math. 79 ( 5 ), pp. 1654–1674 .
+
+Cited by: §1 .
+
+[31] 
+J. Luo and P. Gao (2025) 
+
+Explicit theory of moving contact lines .
+
+J. Fluid Mech. 1019 , pp. A52 .
+
+Cited by: §1 .
+
+[32] 
+K. B. Glasner (2005) 
+
+A boundary integral formulation of quasi-steady fluid wetting .
+
+J. Comput. Phys. 207 ( 2 ), pp. 529–541 .
+
+Cited by: §1 .
+
+[33] 
+N. Savva, D. Groves, and S. Kalliadasis (2019) 
+
+Droplet dynamics on chemically heterogeneous substrates .
+
+J. Fluid Mech. 859 , pp. 321–361 .
+
+Cited by: §1 .
+
+[34] 
+S. Somalinga and A. Bose (2000) 
+
+Numerical investigation of boundary conditions for moving contact line problems .
+
+Phys. Fluids 12 ( 3 ), pp. 499–510 .
+
+Cited by: §1 .
+
+[35] 
+S. Afkhami, S. Zaleski, and M. Bussmann (2009) 
+
+A mesh-dependent model for applying dynamic contact angles to vof simulations .
+
+J. Comput. Phys. 228 , pp. 5370–5389 .
+
+Cited by: §1 .
+
+[36] 
+J.-B. Dupont and D. Legendre (2010) 
+
+Numerical simulation of static and sliding drop with contact angle hysteresis .
+
+J. Comput. Phys. 229 ( 7 ), pp. 2453–2478 .
+
+Cited by: §1 .
+
+[37] 
+Y. Sui and P. D. M. Spelt (2013) 
+
+An efficient computational model for macroscale simulations of moving contact lines .
+
+J. Comput. Phys. 242 , pp. 37–52 .
+
+Cited by: §1 .
+
+[38] 
+Z. Solomenko, P. D. M. Spelt, and P. Alix (2017) 
+
+A level-set method for large-scale simulations of three-dimensional flows with moving contact lines .
+
+J. Comput. Phys. 348 , pp. 151–170 .
+
+Cited by: §1 ,
+§4.2.2 ,
+§4.2 .
+
+[39] 
+J. Qin, W. Lu, and P. Gao (2024) 
+
+A numerical method for dynamicwetting using mesoscopic contact-line models .
+
+Commun. Comput. Phys. 36 , pp. 977–995 .
+
+Cited by: §1 ,
+§1 ,
+§2 ,
+§3 .
+
+[40] 
+Z. Zhang and P. Gao (2024) 
+
+Boundary element simulations of dynamic wetting with a mesoscale contact line model .
+
+Phys. Fluids 36 ( 12 ).
+
+Cited by: §1 ,
+§1 ,
+§2 .
+
+[41] 
+A. Oron, S. H. Davis, and S. G. Bankoff (1997) 
+
+Long-scale evolution of thin liquid films .
+
+Rev. Mod. Phys. 69 , pp. 931–980 .
+
+Cited by: §1 ,
+§2 ,
+§2 ,
+§2 .
+
+[42] 
+J. Qin and P. Gao (2018) 
+
+Asymptotic theory of fluid entrainment in dip coating .
+
+J. Fluid Mech. 844 , pp. 1026–1037 .
+
+Cited by: §1 .
+
+[43] 
+M. Galvagno, D. Tseluiko, H. Lopez, and U. Thiele (2014) 
+
+Continuous and discontinuous dynamic unbinding transitions in drawn film flow .
+
+Phys. Rev. Lett. 112 , pp. 137803 .
+
+Cited by: §2 .
+
+[44] 
+L. M. Pismen and J. Eggers (2008) 
+
+Solvability condition for the moving contact line .
+
+Phys. Rev. E 78 , pp. 056304 .
+
+Cited by: §2 ,
+§2 ,
+§3 .
+
+[45] 
+F. Hecht (2012) 
+
+New development in freefem++ .
+
+J. Numer. Math. 20 , pp. 251–265 .
+
+Cited by: §3 .
+
+[46] 
+A. Decoene and B. Maury (2012) 
+
+Moving meshes with freefem++ .
+
+J. Numer. Math. 20 , pp. 195–214 .
+
+Cited by: §3 .
+
+[47] 
+Y. M. Jung and J. C. Hyun (2003) 
+
+Droplet spreading and retraction on solid surfaces: experiments with polymer solutions .
+
+J. Non-Newton. Fluid Mech. 111 , pp. 87–104 .
+
+Cited by: §4.1 .
+
+[48] 
+A. Mistry and K. Muralidhar (2015) 
+
+Axisymmetric model of drop spreading on a horizontal surface .
+
+Phys. Fluids 27 , pp. 092103 .
+
+Cited by: §4.1 .
+
+[49] 
+J. Qin (2023) 
+
+Asymptotic analysis of contact line dynamics of spreading/retracting drops on spherical surfaces .
+
+Phys. Fluids 35 , pp. 082109 .
+
+Cited by: §4.1 .
+
+[50] 
+T. Podgorski, J. M. Flesselles, and L. Limat (2001) 
+
+Corners, cusps, and pearls in running drops .
+
+Phys. Rev. Lett. 87 , pp. 036102 .
+
+Cited by: §4.2.2 ,
+§4.2 .
+
+[51] 
+I. Peters, J. H. Snoeijer, A. Daerr, and L. Limat (2009) 
+
+Coexistence of two singularities in dewetting flows: regularizing the corner tip .
+
+Phys. Rev. Lett. 103 , pp. 114501 .
+
+Cited by: §4.2 .
+
+[52] 
+E. S. Benilov and M. S. Benilov (2015) 
+
+A thin drop sliding down an inclined plate .
+
+J. Fluid Mech. 773 , pp. 75–102 .
+
+Cited by: §4.2 .
+
+[53] 
+Q. Zhao, S. Xu, and W. Ren (2022) 
+
+A level set method for the simulation of moving contact lines in three dimensions .
+
+Commun. Comput. Phys. 32 ( 5 ), pp. 1310–1331 .
+
+Cited by: §4.2 .
+
+[54] 
+D. N. Sibley, A. Nold, and S. Kalliadasis (2015) 
+
+The asymptotics of the moving contact line: cracking an old nut .
+
+J. Fluid Mech. 764 , pp. 445–462 .
+
+Cited by: §4.2.2 .
+
+[55] 
+J. F. Hernández-Sánchez, L. A. Lubbers, A. Eddi, and J. H. Snoeijer (2012) 
+
+Symmetric and asymmetric coalescence of drops on a substrate .
+
+Phys. Rev. Lett. 109 ( 18 ), pp. 184502 .
+
+Cited by: §4.3 .
+
+[56] 
+A. Eddi, K. G. Winkels, and J. H. Snoeijer (2013) 
+
+Short time dynamics of viscous drop spreading .
+
+Phys. fluids 25 ( 1 ).
+
+Cited by: §4.3 .
+
+[57] 
+J. Eggers, J. R. Lister, and H. A. Stone (1999) 
+
+Coalescence of liquid drops .
+
+J. Fluid Mech. 401 , pp. 293–310 .
+
+Cited by: §4.3 .
+
+[58] 
+J. Eggers, J. E. Sprittles, and J. H. Snoeijer (2025) 
+
+Coalescence dynamics .
+
+Annu. Rev. Fluid Mech. 57 , pp. 61–87 .
+
+Cited by: §4.3 .
+
+[59] 
+J. R. King, A. Münch, and B. Wagner (2006) 
+
+Linear stability of a ridge .
+
+Nonlinearity 19 , pp. 2813–2831 .
+
+Cited by: §4.4 .
+
+[60] 
+J. A. Diez, A. G. González, and L. Kondic (2009) 
+
+On the breakup of fluid rivulets .
+
+Phys. Fluids 21 , pp. 082105 .
+
+Cited by: §4.4 .
+
+[61] 
+D. Peschka, S. Haefner, L. Marquant, K. Jacobs, A. Münch, and B. Wagner (2019) 
+
+Signatures of slip in dewetting polymer films .
+
+Proc. Natl. Acad. Sci. U. S. A. 116 ( 19 ), pp. 9275–9284 .
+
+Cited by: §4.4 ,
+§4.4 .
+
+[62] 
+D. Peschka and L. Heltai (2022) 
+
+Model hierarchies and higher-order discretisation of time-dependent thin-film free boundary problems with dynamic contact angle .
+
+J. Comput. Phys. 464 , pp. 111325 .
+
+Cited by: §4.4 .
+
+Experimental support, please
+view the build logs 
+for errors. Generated by
+
+L
+A 
+T
+E 
+
+xml 
+
+.
+
+Instructions for reporting errors 
+
+We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+methods listed below: 
+
+Click the "Report Issue" ( 
+
+) button, located in the page header. 
+
+Tip: You can select the relevant text first, to include it in your report. 
+
+Our team has already identified the following issues . We appreciate your time reviewing and reporting rendering errors we
+may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+all. 
+
+Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion , and welcome developer contributions . 
+
+We gratefully acknowledge support from
+our major funders ,
+member institutions , ,
+and all contributors.
+
+About 
+· 
+Help 
+· 
+Contact 
+· 
+Subscribe 
+· 
+Copyright 
+· 
+Privacy 
+· 
+Accessibility 
+· 
+Operational Status (opens in new tab) 
+
+Major funding support from
