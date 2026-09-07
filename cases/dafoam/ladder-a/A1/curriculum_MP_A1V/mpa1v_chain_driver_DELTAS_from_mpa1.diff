@@ -1,0 +1,249 @@
+--- cases/dafoam/ladder-a/A1/curriculum_MP_A1/mpa1_chain_driver.sh	2026-09-07 15:29:53.649996614 +0000
++++ /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_MP_A1V/mpa1v_chain_driver.sh	2026-09-07 19:38:04.729408058 +0000
+@@ -1,23 +1,25 @@
+ #!/usr/bin/env bash
+-# MP-A1 chain driver -- DERIVED from curriculum_SO2a/so2a_chain_driver.sh
+-# (md5 asserted in mpa1_chain_driver_DELTAS_from_so2a.diff) with the REGISTERED
+-# DELTAS below.  PREREGISTRATION.md section 7 row 1, frozen 1a06a7d6.
++# MP-A1V chain driver -- DERIVED from curriculum_MP_A1/mpa1_chain_driver.sh
++# (md5 asserted in mpa1v_chain_driver_DELTAS_from_mpa1.diff) with the REGISTERED
++# DELTAS below.  PREREGISTRATION.md (curriculum_MP_A1V) governs.  DRAFT -- NOT FROZEN.
+ #
+-# THE REGISTERED DELTAS FROM THE PARENT, each traceable to a frozen line:
+-#   (a) NAMES: so2a_ -> mpa1_, SO2A_ -> MPA1_, SO2a -> MPA1; run root
+-#       CURRICULUM-MP-A1-a1-naca0012-alpha-multipoint-fixedlift-optimisation; the instrument is
+-#       mpa1_xf.py (modes X and F), NOT so2a_xg.py.
+-#   (b) ARMS: MESH O-S XE-S FE-S O-P XE-P FE-P.  DECLARED = 7, BOTH ROWS.
+-#       BOTH ROWS RUN, and the two-row verdict DAFOAM_CHARTER section 6 demands
+-#       is nearly free here: SO-3aR2's own MEASURED arm costs make SHIPPED the
+-#       CHEAPER side, not the dearer -- shipped 4.367 + 2.517 core-min against
+-#       patched 4.750 + 2.517.  A WORSE OR FAILED SHIPPED OPTIMISATION IS THE
+-#       RESULT, not waste: it is the finding this family exists to produce, and
+-#       SO-3aR2's own SHIPPED row already GATE FAILed at 31.498 % aggregate.
+-#       ORDER: MESH first (one mesh, generated once, in the SHIPPED image), then
+-#       the SHIPPED triple, then the PATCHED triple.  Each row's XE/FE arms read
+-#       THEIR OWN row's optimum, so O must precede XE/FE within a row -- that
+-#       dependency is enforced in mpa1_run_arm.sh:xopt_arm_of, not by this order.
++# THE REGISTERED DELTAS FROM MP-A1, each traceable:
++#   (a) NAMES: mpa1_ -> mpa1v_, MPA1_ -> MPA1V_; run root
++#       CURRICULUM-MP-A1V-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral.
++#       EXCEPTION: the PRODUCER runScript is STAGED as mpa1_runScript.py (the name
++#       mpa1v_xf.py's UNCHANGED PRODUCER pin execs); its SOURCE is mpa1v_runScript.py
++#       (byte-identical, md5 bb3ba3a6).  The FD instrument is mpa1v_xf.py mode F ONLY.
++#   (a2) RIDE: MP-A1V rides MP-A1's DEMONSTRATED final design + FROZEN adjoint.  There
++#       is NO O arm and NO X arm here; the adjoint is read read-only from MP-A1's run
++#       root BY THE GRADER, and the FD arm's xopt is staged from MP-A1's run root by
++#       mpa1v_run_arm.sh.  This driver runs only MESH + the two FD arms + the grader.
++#   (b) ARMS: MESH FV-S FV-P.  DECLARED = 3, BOTH ROWS (FD-verification only).
++#       BOTH ROWS RUN (DAFOAM_CHARTER section 6).  ORDER: MESH first (one mesh,
++#       generated once, in the SHIPPED image), then FV-S (SHIPPED direct-DV central
++#       -difference at MP-A1's ridden SHIPPED design), then FV-P (PATCHED).  There
++#       is NO O arm and NO X arm: the optimum and the adjoint are RIDDEN from MP-A1's
++#       run root, so no within-row O->XE/FE ordering dependency exists here.  Each FV
++#       arm reads ITS OWN row's ridden optimum (mpa1v_run_arm.sh:xopt_arm_of).
+ #   (c) MEMORY CAP 12 GiB per arm, raised from the family's 4 g (section 5, with
+ #       the arithmetic there: 3 x 1.70 GiB EXTRAPOLATED + shared footprint, >2x
+ #       headroom).  H5 FLOOR 16.0 GiB = 12 g cap + 4 GiB headroom.
+@@ -32,7 +34,7 @@
+ #       NO block-and-continue anywhere: that is how W3 compounded a 3.03 %
+ #       per-stage guard into 60.6 % of its declared program.
+ #   (e) G-STAGES / section 18.7 Requirement 4: the completion line carries
+-#       DECLARED=5 EXECUTED=<n>, and where n < 5 the token is one of rule 1's six
++#       DECLARED=3 EXECUTED=<n>, and where n < 3 the token is one of rule 1's six
+ #       -- NEVER `COMPLETE`, never a word whose plain reading is success.  W3
+ #       printed PHASE1_COMPLETE unconditionally over 20 blocked stages and that
+ #       token misled a triage.
+@@ -46,20 +48,20 @@
+ # Permission for detached launches: bc0e687e (Sanaa, boarded verbatim).
+ set -uo pipefail
+ HERE="$(cd "$(dirname "$0")" && pwd)"
+-LAUNCHER="$HERE/mpa1_run_arm.sh"
+-GRADER="$HERE/mpa1_grade.py"
+-AGG_SCRIPT="$HERE/mpa1_aggregate_memory.py"
+-STOP_MARKER="$HERE/mpa1_stop_marker.sh"
++LAUNCHER="$HERE/mpa1v_run_arm.sh"
++GRADER="$HERE/mpa1v_grade.py"
++AGG_SCRIPT="$HERE/mpa1v_aggregate_memory.py"
++STOP_MARKER="$HERE/mpa1v_stop_marker.sh"
+ IMG_SHIPPED=dafoam/opt-packages:latest
+ IMG_PATCHED=dafoam-idwarp-rot:v1
+-BASE=/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1-a1-naca0012-alpha-multipoint-fixedlift-optimisation
++BASE=/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1V-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral
+ TUT_SRC=/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
+ PERMISSION=bc0e687e
+ # ---- registered resource constants (PREREGISTRATION.md section 5) -----------
+ H5_FLOOR_GIB=16.0; H5_SAMPLES=45; H5_WINDOW_S=60
+ H5_POLL_S=30; H5_BOUND_S=3600            # (d) WAIT form; expiry TERMINATES rc=7
+ AGG_CEILING_GIB=30.6; AGG_POLL_S=30; AGG_BOUND_S=14400
+-DECLARED_ARMS=7                          # (e) section 5 Requirement 4
++DECLARED_ARMS=3                          # (b/e) MESH FV-S FV-P -- FD-verification, ride
+ #
+ # ---- INSTRUMENT PINS -- section 18.3: EXISTENCE IS ASSERTED BEFORE ANY MD5 AND
+ # ---- NO MD5 IS CLAIMED FOR A FILE THAT DOES NOT EXIST.
+@@ -81,21 +83,19 @@
+ # rc=4 BEFORE any container -- the W3 death mode -- so every pin below was computed
+ # from the FINAL bytes of the file it pins, after the last code edit, and each is
+ # DRIVEN against that file by mpa1_groot5_selftest.sh's (x12)/(x13)/(x14).
+-MD5_LAUNCHER=e4bf43ef8d5b3d88dcca19421e040df1   # mpa1_run_arm.sh
+-# AMENDMENT 2, 2026-09-01, BEFORE FIRST COMPUTE.  RE-PINNED because the amendment
+-# rewrote the very bytes this line pins: mpa1_grade.py:PRED["P_COST_band"] moved from
+-# the inherited (14.0, 60.0) -- which had NO REACHABLE HIT on this item -- to the
+-# re-derived (60.0, 300.0).  STRUCK: d786e10d81d99233610fe8c636c3a47e.
+-# A pin inherited through a change that rewrites the bytes it pins is what cost
+-# SO-2MR its first arm; this line is re-derived, not carried.
+-MD5_GRADER=9b9cb93419797f99cf968d74f320f8b2     # mpa1_grade.py -- THE GRADING PATH (section 10)
+-MD5_RUNSCRIPT=bb3ba3a61b19dc8564e247cdb11e9147  # mpa1_runScript.py
+-MD5_XF=d25891fd41cd975bc85ff393fa61b23c         # mpa1_xf.py
+-MD5_AGG=709ab0b98ef0302a3a3a318588f9493f
+-MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4
+-MD5_STOP_MARKER=5063f90b227eb3a7341d18c6ca7b7824  # mpa1_stop_marker.sh
+-MD5_STALL=5d112800fc34dc729c80c584d873eec7       # mpa1_stall.py
+-MD5_AGEGUARD=7fe4352d36b7b48a5bb2885e225e455a    # mpa1_age_guard.py
++# ALL PINS FIXPOINTED TO THE mpa1v_* BYTES (PREREGISTRATION freeze checklist / L-504).
++# MD5_LAUNCHER is CROSS-REPINNED LAST, after mpa1v_run_arm.sh is final; until the
++# fixpoint completes it holds a NON-md5 sentinel so this chain aborts rc=4 fail-closed
++# (a stale/absent launcher pin can NEVER read as agreement).
++MD5_LAUNCHER=eaf76e1b994f6209df784a82ed51c2cd   # mpa1v_run_arm.sh -- FIXPOINTED (see §fixpoint below)
++MD5_GRADER=0a41208ee834df2b413b944938587a67     # mpa1v_grade.py -- THE GRADING PATH
++MD5_RUNSCRIPT=bb3ba3a61b19dc8564e247cdb11e9147  # mpa1v_runScript.py (staged AS mpa1_runScript.py)
++MD5_XF=ea53c04314f20c438de233101d5ce84d         # mpa1v_xf.py
++MD5_AGG=709ab0b98ef0302a3a3a318588f9493f         # mpa1v_aggregate_memory.py (byte-identical carry)
++MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4      # mpa1v_decomposeParDict (byte-identical carry)
++MD5_STOP_MARKER=5063f90b227eb3a7341d18c6ca7b7824  # mpa1v_stop_marker.sh (byte-identical carry)
++MD5_STALL=5d112800fc34dc729c80c584d873eec7       # mpa1v_stall.py (byte-identical carry)
++MD5_AGEGUARD=7fe4352d36b7b48a5bb2885e225e455a    # mpa1v_age_guard.py (byte-identical carry)
+ # the shipped tutorial's INPUT bytes, frozen here because the checkout is not
+ MD5_TUT_RUNSCRIPT=0557da51f6f179f6de865144343c499f
+ MD5_TUT_GEN=681f10659eb90457fca13fc933008b93
+@@ -103,8 +103,8 @@
+ MD5_TUT_PS=51dfed28e1bdb4cd33e0d8d7dabd586a
+ MD5_TUT_SS=4a6b8ef4501494c7693b71e88a2eabbf
+ MD5_TUT_FFD=6ddf378b028d03d8a18270488bee1759
+-test $# -ge 1 || { echo "ABORT usage: mpa1_chain_driver.sh <MESH|O-S|XE-S|FE-S|O-P|XE-P|FE-P ...>"; exit 64; }
+-ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/mpa1_driver.pid"
++test $# -ge 1 || { echo "ABORT usage: mpa1v_chain_driver.sh <MESH|FV-S|FV-P ...>"; exit 64; }
++ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/mpa1v_driver.pid"
+ cd "$HERE" || exit 4
+ EXECUTED=0
+ 
+@@ -115,17 +115,17 @@
+ # ---- driver executed -- was absent, and the chain was on a guaranteed
+ # ---- no-launch branch for four hours.
+ for _dep in "$LAUNCHER" "$GRADER" "$AGG_SCRIPT" "$STOP_MARKER" \
+-            "$HERE/mpa1_runScript.py" "$HERE/mpa1_xf.py" "$HERE/mpa1_decomposeParDict" \
+-            "$HERE/mpa1_stall.py" "$HERE/mpa1_age_guard.py"; do
++            "$HERE/mpa1v_runScript.py" "$HERE/mpa1v_xf.py" "$HERE/mpa1v_decomposeParDict" \
++            "$HERE/mpa1v_stall.py" "$HERE/mpa1v_age_guard.py"; do
+   test -f "$_dep" || { echo "ABORT section 18.3 dependency ABSENT before any md5: $_dep"; exit 4; }
+ done
+-echo "MPA1_DEPS_EXIST n=9 checked_before_any_md5=yes"
++echo "MPA1V_DEPS_EXIST n=9 checked_before_any_md5=yes"
+ echo "$MD5_LAUNCHER  $LAUNCHER" | md5sum -c - || { echo "ABORT launcher md5 drifted or UNSET before staging"; exit 4; }
+ echo "$MD5_GRADER  $GRADER" | md5sum -c - || { echo "ABORT grader md5 drifted or UNSET before staging"; exit 4; }
+ echo "$MD5_AGG  $AGG_SCRIPT" | md5sum -c - || { echo "ABORT aggregate-reader md5 drifted"; exit 4; }
+ echo "$MD5_STOP_MARKER  $STOP_MARKER" | md5sum -c - || { echo "ABORT stop-marker md5 drifted or UNSET"; exit 4; }
+-echo "$MD5_STALL  $HERE/mpa1_stall.py" | md5sum -c - || { echo "ABORT stall-detector md5 drifted or UNSET"; exit 4; }
+-echo "$MD5_AGEGUARD  $HERE/mpa1_age_guard.py" | md5sum -c - || { echo "ABORT age-guard md5 drifted or UNSET"; exit 4; }
++echo "$MD5_STALL  $HERE/mpa1v_stall.py" | md5sum -c - || { echo "ABORT stall-detector md5 drifted or UNSET"; exit 4; }
++echo "$MD5_AGEGUARD  $HERE/mpa1v_age_guard.py" | md5sum -c - || { echo "ABORT age-guard md5 drifted or UNSET"; exit 4; }
+ 
+ # ---- ROOT STAGING on the first fire only -----------------------------------
+ if [ ! -d "$BASE" ]; then
+@@ -138,17 +138,19 @@
+   mkdir -p "$BASE/base" || exit 4
+   cp -a "$TUT_SRC/0.orig" "$TUT_SRC/FFD" "$TUT_SRC/constant" "$TUT_SRC/system" "$TUT_SRC/profiles" "$TUT_SRC/genAirFoilMesh.py" "$TUT_SRC/preProcessing.sh" "$BASE/base/" || { echo "ABORT copy tutorial inputs"; exit 4; }
+   rm -rf "$BASE/base/constant/polyMesh" 2>/dev/null
+-  cp -a "$HERE/mpa1_decomposeParDict" "$BASE/base/system/decomposeParDict" || { echo "ABORT overlay decomposeParDict"; exit 4; }
+-  cp -a "$HERE/mpa1_runScript.py" "$HERE/mpa1_xf.py" "$HERE/mpa1_stall.py" "$HERE/mpa1_age_guard.py" \
++  cp -a "$HERE/mpa1v_decomposeParDict" "$BASE/base/system/decomposeParDict" || { echo "ABORT overlay decomposeParDict"; exit 4; }
++  # PRODUCER runScript STAGED under the name mpa1v_xf.py's UNCHANGED PRODUCER pin execs.
++  cp -a "$HERE/mpa1v_runScript.py" "$BASE/mpa1_runScript.py" || { echo "ABORT copy runScript (staged as PRODUCER name)"; exit 4; }
++  cp -a "$HERE/mpa1v_xf.py" "$HERE/mpa1v_stall.py" "$HERE/mpa1v_age_guard.py" \
+        "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
+-  echo "ITEM=MPA1" > "$BASE/ledger.txt"
++  echo "ITEM=MPA1V" > "$BASE/ledger.txt"
+   echo "STAGED stamp=$(date -u +%Y%m%dT%H%M%SZ) tut_src=$TUT_SRC tut_commit=$(git -C "$TUT_SRC" rev-parse HEAD 2>/dev/null || echo NOT_MEASURED) permission=$PERMISSION" >> "$BASE/ledger.txt"
+-  echo "MPA1_ROOT_STAGED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ) mode=$(stat -c '%a' "$BASE") permission=$PERMISSION"
++  echo "MPA1V_ROOT_STAGED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ) mode=$(stat -c '%a' "$BASE") permission=$PERMISSION"
+ else
+-  echo "MPA1_ROOT_PRESENT base=$BASE (not re-staged)"
++  echo "MPA1V_ROOT_PRESENT base=$BASE (not re-staged)"
+ fi
+-{ echo "$MD5_RUNSCRIPT  $BASE/mpa1_runScript.py"; echo "$MD5_XF  $BASE/mpa1_xf.py"; echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict";
+-  echo "$MD5_STALL  $BASE/mpa1_stall.py"; echo "$MD5_AGEGUARD  $BASE/mpa1_age_guard.py";
++{ echo "$MD5_RUNSCRIPT  $BASE/mpa1_runScript.py"; echo "$MD5_XF  $BASE/mpa1v_xf.py"; echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict";
++  echo "$MD5_STALL  $BASE/mpa1v_stall.py"; echo "$MD5_AGEGUARD  $BASE/mpa1v_age_guard.py";
+   echo "$MD5_TUT_GEN  $BASE/base/genAirFoilMesh.py"; echo "$MD5_TUT_PREPROC  $BASE/base/preProcessing.sh";
+   echo "$MD5_TUT_PS  $BASE/base/profiles/NACA0012PS.profile"; echo "$MD5_TUT_SS  $BASE/base/profiles/NACA0012SS.profile"; echo "$MD5_TUT_FFD  $BASE/base/FFD/wingFFD.xyz"; } | md5sum -c - || { echo "ABORT staged instrument/input md5"; exit 4; }
+ test -f "$BASE/base/0.orig/U" || { echo "ABORT staged base/ has no 0.orig/U"; exit 4; }
+@@ -160,7 +162,7 @@
+ fi
+ echo "$$" > "$PIDFILE"
+ trap 'rm -f "$PIDFILE"' EXIT
+-echo "MPA1_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] declared=$DECLARED_ARMS permission=$PERMISSION"
++echo "MPA1V_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] declared=$DECLARED_ARMS permission=$PERMISSION"
+ echo "chain=started arms=[$ARMS] declared=$DECLARED_ARMS pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" >> "$STATUS"
+ mem_gib() { python3 -c "print('%.2f' % ($(awk '/MemAvailable/{print $2}' /proc/meminfo)/1048576.0))"; }
+ cap_mem_gib() { echo 12; }   # every arm 12 GiB (PREREGISTRATION.md section 5)
+@@ -190,12 +192,8 @@
+ row_of_arm() {
+   case "$1" in
+     MESH)   echo SHIPPED ;;
+-    O-S)    echo SHIPPED ;;
+-    XE-S)   echo SHIPPED ;;
+-    FE-S)   echo SHIPPED ;;
+-    O-P)    echo PATCHED ;;
+-    XE-P)   echo PATCHED ;;
+-    FE-P)   echo PATCHED ;;
++    FV-S)   echo SHIPPED ;;
++    FV-P)   echo PATCHED ;;
+     *)      echo "" ;;
+   esac
+ }
+@@ -230,7 +228,7 @@
+       [ "$(python3 -c "print(1 if $s < $H5_FLOOR_GIB else 0)")" = "1" ] && BELOW=$((BELOW+1))
+       sleep "$STEP"
+     done
+-    echo "MPA1_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW waited_s=$H5_WAITED file=$(basename "$H5_FILE")"
++    echo "MPA1V_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW waited_s=$H5_WAITED file=$(basename "$H5_FILE")"
+     if [ "$BELOW" -eq 0 ] && [ "$N" -eq "$H5_SAMPLES" ]; then break; fi
+     if [ "$H5_WAITED" -ge "$H5_BOUND_S" ]; then
+       echo "ABORT H5 still short of $H5_FLOOR_GIB GiB after ${H5_WAITED}s.  BOUND REACHED; THE CHAIN STOPS."
+@@ -280,11 +278,11 @@
+     sleep "$AGG_POLL_S"; WAITED=$((WAITED+AGG_POLL_S))
+   done
+   if [ "$AGG_BLOCKED" = "yes" ]; then CHAIN_RC=6; break; fi
+-  echo "MPA1_AGGREGATE arm=$ARM waited=$WAITED $AGG_JSON"
+-  echo "MPA1_DRIVER arm=$ARM image=$IMG begin=$(date -u +%Y%m%dT%H%M%SZ) ppid_now=$PPID permission=$PERMISSION"
++  echo "MPA1V_AGGREGATE arm=$ARM waited=$WAITED $AGG_JSON"
++  echo "MPA1V_DRIVER arm=$ARM image=$IMG begin=$(date -u +%Y%m%dT%H%M%SZ) ppid_now=$PPID permission=$PERMISSION"
+   bash "$LAUNCHER" "$ARM" "$IMG" > "$BASE/${ARM}_launch.out" 2>&1
+   rc=$?
+-  echo "MPA1_DRIVER arm=$ARM end=$(date -u +%Y%m%dT%H%M%SZ) rc=$rc"
++  echo "MPA1V_DRIVER arm=$ARM end=$(date -u +%Y%m%dT%H%M%SZ) rc=$rc"
+   echo "rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM source=launcher_exit=docker_inspect_ExitCode launch_out=${ARM}_launch.out h5_min_GiB=$MIN h5_waited_s=$H5_WAITED aggregate_waited_s=$WAITED permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+   echo "arm=$ARM rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"
+   if [ "$rc" -ne 0 ]; then echo "chain=STOPPED_AT_FIRST_NONZERO arm=$ARM rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; CHAIN_RC=$rc; break; fi
+@@ -304,10 +302,10 @@
+ fi
+ # ---- the FROZEN grader on the artefacts (zero compute); its rc is INFRASTRUCTURE (L-342)
+ GSTAMP=$(date -u +%Y%m%dT%H%M%SZ)
+-GRADE_OUT="$BASE/MPA1_grade_${GSTAMP}.json"
++GRADE_OUT="$BASE/MPA1V_grade_${GSTAMP}.json"
+ if echo "$MD5_GRADER  $GRADER" | md5sum -c - > /dev/null; then
+-  python3 "$GRADER" --root "$BASE" --out "$GRADE_OUT" > "$BASE/MPA1_grade_${GSTAMP}.out" 2>&1; GRC=$?
+-  echo "grader_rc=$GRC stamp=$GSTAMP out=MPA1_grade_${GSTAMP}.json note=comparator-exit-status-NOT-the-verdict" >> "$STATUS"
++  python3 "$GRADER" --root "$BASE" --out "$GRADE_OUT" > "$BASE/MPA1V_grade_${GSTAMP}.out" 2>&1; GRC=$?
++  echo "grader_rc=$GRC stamp=$GSTAMP out=MPA1V_grade_${GSTAMP}.json note=comparator-exit-status-NOT-the-verdict" >> "$STATUS"
+ else
+   echo "grader_rc=NOT_RUN stamp=$GSTAMP note=grader-md5-drifted-at-chain-end" >> "$STATUS"
+   GRADE_OUT=""
+@@ -318,6 +316,6 @@
+ # ---- the arm loop rather than exiting the script.  A marker written only on
+ # ---- success is exactly the address a successor cannot rely on.
+ bash "$STOP_MARKER" "$BASE" "$CHAIN_RC" "$DECLARED_ARMS" "$EXECUTED" "$GRADE_OUT" \
+-  || echo "MPA1_STOP_MARKER_FAILED rc=$? -- the marker did not land; the successor has no fixed address for this run"
+-echo "MPA1_DRIVER end=$(date -u +%Y%m%dT%H%M%SZ) chain_rc=$CHAIN_RC declared=$DECLARED_ARMS executed=$EXECUTED"
++  || echo "MPA1V_STOP_MARKER_FAILED rc=$? -- the marker did not land; the successor has no fixed address for this run"
++echo "MPA1V_DRIVER end=$(date -u +%Y%m%dT%H%M%SZ) chain_rc=$CHAIN_RC declared=$DECLARED_ARMS executed=$EXECUTED"
+ exit "$CHAIN_RC"

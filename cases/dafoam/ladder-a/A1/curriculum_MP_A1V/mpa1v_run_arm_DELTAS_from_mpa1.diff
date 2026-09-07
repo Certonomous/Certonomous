@@ -1,0 +1,202 @@
+--- cases/dafoam/ladder-a/A1/curriculum_MP_A1/mpa1_run_arm.sh	2026-09-07 15:29:40.789898626 +0000
++++ /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_MP_A1V/mpa1v_run_arm.sh	2026-09-07 19:37:50.464757090 +0000
+@@ -1,6 +1,10 @@
+ #!/usr/bin/env bash
+-# Curriculum MP-A1 arm launcher -- NACA0012 INCOMPRESSIBLE (DASimpleFoam),
+-# ALPHA-MULTIPOINT.  Derived from curriculum_SO2a/so2a_run_arm.sh; every
++# Curriculum MP-A1V arm launcher -- NACA0012 INCOMPRESSIBLE (DASimpleFoam),
++# ALPHA-MULTIPOINT FD-VERIFICATION (ride).  DERIVED from curriculum_MP_A1/
++# mpa1_run_arm.sh with the DELTAS in mpa1v_run_arm_DELTAS_from_mpa1.diff: arms
++# MESH/FV-S/FV-P (FD-verification only, no O/X arm); the FD arm's xopt is RIDDEN
++# from MP-A1's frozen run root (MPA1_BASE, read-only); pins fixpointed to mpa1v_*;
++# cpuset 12.  The line below is a CITATION OF THE MP-A1/SO-2a lineage, not a stale
+ # reference to SO-2a below its title is a CITATION OF THE PARENT, not a stale
+ # self-reference -- this line was one, and it survived the rename because the
+ # rename swept `SO2a` and the title spelled it `SO-2a`.
+@@ -79,22 +83,22 @@
+ # comment is actually protecting.
+ # ===========================================================================
+ 
+-CPUSET=8   # MP-A1 registered cpuset 8 (PROVISIONAL; re-read live occupancy at freeze).
+-           # G12 gates this against mpa1_grade.py:CPUSET_REGISTERED.  NOT core 0.
++CPUSET=12   # FREE core chosen at authoring (only d9succ/15 live; 12 in 1 registered set,
++           # not 0, not 15, not T4d).  Re-confirm occupancy at launch.  Provisional to freeze;
++           # re-read then; NOT core 0, NOT 15/D9successor, NOT T4d's).  G12 gates this
++           # against mpa1v_grade.py:CPUSET_REGISTERED, so the two cannot drift apart.
+ 
+ cap_core_min() {
+   case "$1" in
+     MESH)       echo 5.0 ;;
+-    O-S|O-P)    echo 240.0 ;;
+-    XE-S|XE-P)  echo 15.0 ;;
+-    FE-S|FE-P)  echo 40.0 ;;
++    FV-S|FV-P)  echo 14.0 ;;
+     *)  echo "" ;;
+   esac
+ }
+ 
+ cap_memory() {
+   case "$1" in
+-    MESH|O-S|O-P|XE-S|XE-P|FE-S|FE-P) echo 12g ;;
++    MESH|FV-S|FV-P) echo 12g ;;
+     *) echo "" ;;
+   esac
+ }
+@@ -110,7 +114,7 @@
+ # 0.00054 % on ONE mesh) is what a np != 1 arm would readmit.
+ ranks_of() {
+   case "$1" in
+-    MESH|O-S|O-P|XE-S|XE-P|FE-S|FE-P) echo 1 ;;
++    MESH|FV-S|FV-P) echo 1 ;;
+     *) echo "" ;;
+   esac
+ }
+@@ -118,12 +122,8 @@
+ row_of() {
+   case "$1" in
+     MESH)   echo SHIPPED ;;
+-    O-S)    echo SHIPPED ;;
+-    XE-S)   echo SHIPPED ;;
+-    FE-S)   echo SHIPPED ;;
+-    O-P)    echo PATCHED ;;
+-    XE-P)   echo PATCHED ;;
+-    FE-P)   echo PATCHED ;;
++    FV-S)   echo SHIPPED ;;
++    FV-P)   echo PATCHED ;;
+     *)      echo "" ;;
+   esac
+ }
+@@ -137,11 +137,14 @@
+ # ---- site of a row label was repaired and two were not.  This is a TABLE over
+ # ---- full names, never a suffix derivation: `Q-S` falls through to empty and
+ # ---- the caller refuses.
++# RIDE: the FD arm's optimum comes from MP-A1's frozen O arm (under MPA1_BASE), by
++# ROW.  FV-S rides MP-A1's SHIPPED optimum (O-S), FV-P the PATCHED (O-P).  A TABLE
++# over full names; an arm not in it gets empty and is refused.
+ xopt_arm_of() {
+   case "$1" in
+-    XE-S|FE-S)  echo O-S ;;
+-    XE-P|FE-P)  echo O-P ;;
+-    *)          echo "" ;;
++    FV-S)  echo O-S ;;
++    FV-P)  echo O-P ;;
++    *)     echo "" ;;
+   esac
+ }
+ 
+@@ -286,9 +289,14 @@
+ # fire is ceremony -- and this is the guard standing between a re-fire and
+ # 384 MB of irreplaceable graded evidence.
+ # ===========================================================================
+-ITEM=MPA1
+-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1-a1-naca0012-alpha-multipoint-fixedlift-optimisation
++ITEM=MPA1V
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1V-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral
+ BASE="${BASE:-$REGISTERED_BASE}"
++# RIDE (PREREGISTRATION 1.1, O-1): MP-A1V's FD arms are verified at MP-A1's
++# DEMONSTRATED final design.  MPA1_BASE is MP-A1's frozen run root, READ-ONLY, and
++# is used ONLY to source mpa1_xopt.json for the ride (G-XOPT below).  It is NOT this
++# item's registered root; the G-ROOT.1 guard still binds BASE to REGISTERED_BASE.
++MPA1_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1-a1-naca0012-alpha-multipoint-fixedlift-optimisation
+ 
+ # ---- G-ROOT.1 -- BASE must be THIS item's registered root, normalised, so a
+ # ---- trailing slash, a `.`, a `..` or a symlink cannot walk around the check.
+@@ -461,14 +469,13 @@
+ # block.  `mpa1_run_arm_selftest.sh` leg (r2) PARSES this comment and the code and
+ # refuses if they diverge, because a comment table that contradicts its own code
+ # is what a reviewer in a hurry reads.
+-#   arm    ranks  core-min cap   in-container wall   memory cap
+-#   MESH     1        5.0            120 s             12g
+-#   O-S      1      240.0          14220 s             12g
+-#   O-P      1      240.0          14220 s             12g
+-#   XE-S     1       15.0            720 s             12g
+-#   XE-P     1       15.0            720 s             12g
+-#   FE-S     1       40.0           2220 s             12g
+-#   FE-P     1       40.0           2220 s             12g
++#   arm    ranks  core-min cap   in-container wall (=cap*60/ranks, C-188 frame in code)   memory cap
++#   MESH     1        5.0            (see code)                                            12g
++#   FV-S     1       14.0            (see code)                                            12g
++#   FV-P     1       14.0            (see code)                                            12g
++#   (MP-A1V: no O arm, no X arm -- both RIDDEN; the FD caps carry MP-A1's proven
++#    FE cap 14.0 for divergence headroom.  Item ceiling 33.0 = 5.0+14.0+14.0, the
++#    authority for which is mpa1v_grade.py:ITEM_CEILING_CORE_MIN, asserted in main().)
+ # SECTION 5: 12 GiB per arm, RAISED from the family's 4 g convention with the
+ # arithmetic shown -- D13 MEASURED peak RSS 1.70 GiB for this 4,032-cell 2-D case
+ # at np = 1, and three DASolver instances in one process is bounded CRUDELY above
+@@ -512,8 +519,8 @@
+ # whose VALUE is a well-formed md5 is a fail-open waiting to be re-used -- and it
+ # would be counted as a pin by the completeness leg that now compares
+ # pins-DECLARED against pins-DRIVEN.
+-MD5_RUNSCRIPT=bb3ba3a61b19dc8564e247cdb11e9147   # mpa1_runScript.py
+-MD5_XF=d25891fd41cd975bc85ff393fa61b23c          # mpa1_xf.py
++MD5_RUNSCRIPT=bb3ba3a61b19dc8564e247cdb11e9147   # mpa1v_runScript.py (staged AS mpa1_runScript.py)
++MD5_XF=ea53c04314f20c438de233101d5ce84d          # mpa1v_xf.py
+ # mpa1_decomposeParDict is ADOPTED BYTE-IDENTICALLY from the parent (one line
+ # changed from the tutorial's: numberOfSubdomains 1), it EXISTS, and this is the
+ # value mpa1_chain_driver.sh:70 already pins it at.  It is not a partial table: it
+@@ -521,8 +528,8 @@
+ MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4
+ 
+ ARM="${1:-}"; IMG="${2:-}"
+-test -n "$ARM" || { echo "ABORT usage: mpa1_run_arm.sh <MESH|O-S|XE-S|FE-S|O-P|XE-P|FE-P> <image>"; exit 64; }
+-test -n "$IMG" || { echo "ABORT usage: mpa1_run_arm.sh <MESH|O-S|XE-S|FE-S|O-P|XE-P|FE-P> <image>"; exit 64; }
++test -n "$ARM" || { echo "ABORT usage: mpa1v_run_arm.sh <MESH|FV-S|FV-P> <image>"; exit 64; }
++test -n "$IMG" || { echo "ABORT usage: mpa1v_run_arm.sh <MESH|FV-S|FV-P> <image>"; exit 64; }
+ RANKS=$(ranks_of "$ARM"); test -n "$RANKS" || { echo "ABORT arm $ARM carries no registered rank count"; exit 64; }
+ 
+ # ---- G-ROOT.5 (ADDENDUM 2) -- A LIVE ARM IS NEVER RE-STAGED.  G-ROOT.1-.3
+@@ -603,7 +610,7 @@
+ 
+ # ---- staged-instrument identity, re-asserted before EVERY launch ---------
+ echo "$MD5_RUNSCRIPT  $BASE/mpa1_runScript.py"       | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
+-echo "$MD5_XF  $BASE/mpa1_xf.py"                     | md5sum -c - || { echo "ABORT mpa1_xf.py md5"; exit 4; }
++echo "$MD5_XF  $BASE/mpa1v_xf.py"                    | md5sum -c - || { echo "ABORT mpa1v_xf.py md5"; exit 4; }
+ echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict" | md5sum -c - || { echo "ABORT decomposeParDict md5"; exit 4; }
+ 
+ # ---- image identity by DIGEST, resolved from the local store -------------
+@@ -678,7 +685,7 @@
+   # the container to write its own stall reading; `mpa1_age_guard.py` is NOT
+   # staged into the arm -- it runs on the HOST, against the arm directory, and a
+   # guard living inside the thing it guards is one `rm -rf` from being absent.
+-  cp -a "$BASE/mpa1_runScript.py" "$BASE/mpa1_xf.py" "$BASE/mpa1_stall.py" "$WORK/" \
++  cp -a "$BASE/mpa1_runScript.py" "$BASE/mpa1v_xf.py" "$BASE/mpa1v_stall.py" "$WORK/" \
+     || { echo "ABORT stage instruments"; exit 4; }
+   # ---- MP-A1 REGISTERED DELTA: ONE FULL CASE COPY PER OPERATING POINT ------
+   # This is the whole repair.  SO-3aR gave three DAFoamBuilders no run_directory,
+@@ -770,11 +777,13 @@
+   # derivation -- and an arm not in it gets an empty answer and is refused.
+   XOPT_ARM=$(xopt_arm_of "$ARM")
+   if [ -n "$XOPT_ARM" ]; then
+-    XOPT_SRC="$BASE/$XOPT_ARM/mpa1_xopt.json"
++    # RIDE: the optimum is MP-A1's frozen mpa1_xopt.json, read READ-ONLY from
++    # MPA1_BASE (MP-A1V runs no O arm).  The row stamped inside it is checked below.
++    XOPT_SRC="$MPA1_BASE/$XOPT_ARM/mpa1_xopt.json"
+     test -f "$XOPT_SRC" || {
+-      echo "ABORT G-XOPT arm $ARM needs the final design point from arm $XOPT_ARM,"
+-      echo "  and $XOPT_SRC does not exist.  The endpoint FD check section 9"
+-      echo "  requires cannot be run against a design that was never produced."
++      echo "ABORT G-XOPT arm $ARM needs MP-A1's ridden final design from arm $XOPT_ARM,"
++      echo "  and $XOPT_SRC does not exist under MPA1_BASE.  The endpoint FD check"
++      echo "  section 9 requires cannot be run against a design that was never produced."
+       exit 5; }
+     # THE ROW STAMPED INSIDE THE ARTEFACT MUST BE THIS ARM'S ROW.  Reading the
+     # filename is not a check: the file could have been copied.  The producer
+@@ -820,14 +829,12 @@
+ # ---- THE ARM COMMANDS.  A TABLE OVER FULL ARM NAMES; an undeclared arm leaves
+ # ---- CMD empty and is refused below.
+ case "$ARM" in
+-  MESH)       CMD="bash preProcessing.sh && checkMesh > checkMesh.log 2>&1; echo MPA1_CHECKMESH_RC \$?; sha256sum constant/polyMesh/points* ; grep -a 'cells:' checkMesh.log" ;;
+-  O-S|O-P)    CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python mpa1_runScript.py -task run_driver -optimizer IPOPT" ;;
+-  XE-S|XE-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python mpa1_xf.py -mode X -xopt mpa1_xopt.json" ;;
+-  FE-S|FE-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python mpa1_xf.py -mode F -xopt mpa1_xopt.json" ;;
++  MESH)       CMD="bash preProcessing.sh && checkMesh > checkMesh.log 2>&1; echo MPA1V_CHECKMESH_RC \$?; sha256sum constant/polyMesh/points* ; grep -a 'cells:' checkMesh.log" ;;
++  FV-S|FV-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python mpa1v_xf.py -mode F -xopt mpa1_xopt.json" ;;
+ esac
+ test -n "${CMD:-}" || {
+-  echo "ABORT arm $ARM carries no registered command.  MP-A1 declares"
+-  echo "  MESH O-S XE-S FE-S O-P XE-P FE-P and nothing else."
++  echo "ABORT arm $ARM carries no registered command.  MP-A1V declares"
++  echo "  MESH FV-S FV-P and nothing else (no O arm, no X arm -- both RIDDEN)."
+   exit 64; }
+ 
+ # ---- ADDENDUM 2: the arm command goes to a FILE the container executes under

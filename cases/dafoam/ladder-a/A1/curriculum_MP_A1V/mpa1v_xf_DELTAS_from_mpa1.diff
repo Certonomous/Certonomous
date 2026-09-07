@@ -1,0 +1,131 @@
+--- cases/dafoam/ladder-a/A1/curriculum_MP_A1/mpa1_xf.py	2026-09-07 15:29:26.567789756 +0000
++++ cases/dafoam/ladder-a/A1/curriculum_MP_A1V/mpa1v_xf.py	2026-09-07 18:31:49.092730121 +0000
+@@ -1,8 +1,31 @@
+ #!/usr/bin/env python
+-"""Curriculum MP-A1 -- NACA0012, THE ALPHA-MULTIPOINT WEIGHTED OBJECTIVE
+-`J = SUM_i w_i * CD_i(alpha_i)` on the verified incompressible ground: the
+-FD-VERIFIED MULTIPOINT GRADIENT RUNG.  PREREGISTRATION.md section 7 row 3,
+-frozen 1a06a7d6.  Modes X (adjoint / compute_totals) and F (central FD table).
++"""Curriculum MP-A1V -- MP-A1 GRADIENT FD-VERIFICATION SUCCESSOR, by DIRECT
++DESIGN-VARIABLE CENTRAL DIFFERENCE over a 3-MEMBER DV set {shape[3], shape[6],
++shape[k_clean]}, riding MP-A1's DEMONSTRATED FINAL DESIGN and its FROZEN ADJOINT.
++`PREREGISTRATION.md` IN THIS DIRECTORY (curriculum_MP_A1V) governs.  DRAFT --
++NOT FROZEN.
++
++DERIVED FROM `curriculum_MP_A1/mpa1_xf.py` (md5 verified on disk before this file
++was written) with EXACTLY the REGISTERED DELTAS below and no other; the DELTAS
++are enumerated in `mpa1v_xf_DELTAS_from_mpa1.diff` beside this file:
++
++  D1  STEPS["shape"] = [3e-3, 1e-3, 3e-4, 1e-4] -- the 4-step ladder RE-SIZED
++      strictly BELOW MP-A1's MEASURED-divergent 1e-2 (which crashed the primal at
++      point2 for shape[3]/shape[6]: `FE-S/mpa1_F.json` evaluation_failures) and
++      ABOVE the measured repeatability floor eta ~ 2.21e-08.  (PREREGISTRATION 1.5)
++  D2  COMPONENTS = {shape[3], shape[6], shape[k_clean]} -- the two components whose
++      FD diverged at the coarse step (verifying the adjoint where FD was fragile is
++      the scientific point) plus ONE clean interior representative at the mid-chord
++      FFD station (K_CLEAN below).  NO SUBSTITUTION.  (PREREGISTRATION 1.4)
++  D3  ITEM/TERMINAL/OUTPUT names -> MPA1V so the artefacts are unambiguous.
++  D4  PRODUCER is UNCHANGED (mpa1_runScript.py, md5 bb3ba3a6...): mode F execs its
++      header to BUILD THE SAME MODEL the ridden design was produced with -- the
++      runScript is CARRIED BYTE-IDENTICAL into the run root.  MP-A1V rides MP-A1's
++      frozen adjoint (mpa1_X.json), so MODE X IS NOT INVOKED by MP-A1V's arm
++      program (the code path is retained, dead, unchanged).
++
++Modes X (adjoint / compute_totals -- retained, UNUSED in MP-A1V) and F (central
++FD table -- the graded arm).
+ 
+ DERIVED FROM `curriculum_SO2a/so2a_xg.py` (the parent named in section 7 row 3)
+ with EXACTLY the registered deltas below and no other.
+@@ -126,7 +149,7 @@
+ # ---- real one, restore proved byte-identical by hash.
+ PRODUCER_MD5 = "bb3ba3a61b19dc8564e247cdb11e9147"
+ ANCHOR = "# OpenMDAO setup"
+-ITEM = "MPA1"
++ITEM = "MPA1V"
+ 
+ # ---- registered constants (PREREGISTRATION.md THE TEN LINES; that document
+ # ---- governs and NOTHING here may move a gate, threshold, cap or label) -------
+@@ -149,7 +172,13 @@
+ OBJ_PATH = "obj.J"          # the om.ExecComp output that assembles J
+ 
+ STEPS = {
+-    "shape": [1.0e-2, 1.0e-3, 1.0e-4],     # registered step set, FFD y units
++    # D1 (PREREGISTRATION 1.5): 4-step ladder RE-SIZED strictly BELOW MP-A1's
++    # MEASURED-divergent 1e-2 step (which crashed the primal at point2 for
++    # shape[3]/shape[6]) and ABOVE the measured repeatability floor eta ~2.21e-08.
++    # This sizes an INSTRUMENT PARAMETER from the predecessor's MEASURED divergence
++    # threshold; it moves no gate, band, plateau tol or label (the lineage practice,
++    # D6RF7 section 10.2).
++    "shape": [3.0e-3, 1.0e-3, 3.0e-4, 1.0e-4],     # registered step set, FFD y units
+ }
+ # THE CHARTER-4 TRIVIAL BASELINE, REGISTERED BEFORE ITS OWN RUN: the SAME probe
+ # at a DELIBERATELY WRONG step five orders below the registered middle step.  On
+@@ -161,33 +190,53 @@
+ TB_STEPS = {
+     "shape": [1.0e-8],
+ }
+-# THE REGISTERED DV SUBSET (line 3): four `shape` components, SO-1a's and SO-2a's
+-# own, so the three items' readings sit on the same components.  `patchV` is NOT
+-# here -- line 4 removes it, because alpha is this item's OPERATING POINT.
++# D2 (PREREGISTRATION 1.4): the REGISTERED 3-MEMBER DV SET, a priori, NO
++# SUBSTITUTION.  shape[3] and shape[6] are the EXACT components whose FD diverged
++# at the coarse step in MP-A1 (`FE-S/mpa1_F.json` evaluation_failures:
++# `FD shape[3]+0.01`, `FD shape[6]+0.01`) -- verifying the frozen adjoint at the
++# DVs where FD was fragile is the scientific point of this successor.  K_CLEAN is
++# ONE clean interior representative (mid-chord FFD station x=0.500, maximally
++# distant from the LE (x=-0.010) and TE (x=+1.010) branch corners where
++# getRotationMatrix3d's degenerate branch fires).
++#
++# K_CLEAN PINNED FROM THE FFD->shape MAP (mpa1_runScript.py:453-462), by the
++# mid-chord GEOMETRIC criterion -- NEVER by MP-A1 FD agreement.  The 8 shape
++# functions map: interior loop `for i in (1,2,3): for j in (0,1)` -> shape[0..5],
++# then LE/TE loop `for i in (0,4)` -> shape[6]=LE, shape[7]=TE.  Chordwise stations
++# x = {-0.010(i=0,LE), 0.245(i=1), 0.500(i=2,MID), 0.755(i=3), 1.010(i=4,TE)}.  So:
++#   shape[2] = (i=2, j=0): MID-CHORD x=0.500, MAX-distant from LE/TE branch corners
++#   shape[3] = (i=2, j=1): MID-CHORD interior (the j=1 partner; a fragile member)
++#   shape[6] = LE shape function (x=-0.010): AT the getRotationMatrix3d branch corner
++#   shape[7] = TE shape function (x=+1.010): AT the TE branch corner
++# The clean interior representative is therefore shape[2] -- the j=0 partner of the
++# fragile shape[3], maximally distant from both branches.  If shape[2]'s ridden
++# adjoint fails the clearance floor (NEAR_ZERO) the member is NOT A RESULT and a
++# SUCCESSOR re-registers a different component (DAFOAM_CHARTER.md section 3); the
++# member is NEVER re-chosen after seeing agreement.  (Freeze pin; PREREGISTRATION 1.4)
++K_CLEAN = 2                 # mid-chord x=0.500, j=0 -- the clean interior representative
+ COMPONENTS = [
+-    ("shape", 0),
+     ("shape", 3),
+     ("shape", 6),
+-    ("shape", 7),
++    ("shape", K_CLEAN),
+ ]
+-CTRL_STEP = 1.0e-3
++CTRL_STEP = 1.0e-3          # within the re-sized ladder
+ PLANT = 1.234e-03            # rule 3
+ 
+ # Section 4's evaluation census, COMPUTED FROM THE CONSTANTS ABOVE rather than
+ # copied as a literal, so a step or component added here cannot leave a stale
+-# count in the artefact.  2 baselines + 4 components x 3 steps x 2 signs
+-# + 4 components x 1 wrong step x 2 signs = 2 + 24 + 8 = 34 EVALUATIONS,
+-# each of which is 3 primals -> 102 primals per F arm.
++# count in the artefact.  2 baselines + 3 components x 4 steps x 2 signs
++# + 3 components x 1 wrong step x 2 signs = 2 + 24 + 6 = 32 EVALUATIONS,
++# each of which is 3 primals -> 96 primals per F arm.  (PREREGISTRATION 4.1)
+ EVALS_DECLARED = (2
+                   + len(COMPONENTS) * len(STEPS["shape"]) * 2
+                   + len(COMPONENTS) * len(TB_STEPS["shape"]) * 2)
+ 
+-OUT_X = "mpa1_X.json"
+-OUT_F = "mpa1_F.json"
+-JSONL_F = "mpa1_F.jsonl"
+-JSONL_X = "mpa1_X.jsonl"
+-TERMINAL_X = "MPA1_X_WRITTEN"
+-TERMINAL_F = "MPA1_F_WRITTEN"
++OUT_X = "mpa1v_X.json"
++OUT_F = "mpa1v_F.json"
++JSONL_F = "mpa1v_F.jsonl"
++JSONL_X = "mpa1v_X.jsonl"
++TERMINAL_X = "MPA1V_X_WRITTEN"
++TERMINAL_F = "MPA1V_F_WRITTEN"
+ 
+ 
+ def md5_of(path):

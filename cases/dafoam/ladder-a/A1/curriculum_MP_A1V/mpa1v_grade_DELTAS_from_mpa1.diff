@@ -1,0 +1,1649 @@
+--- cases/dafoam/ladder-a/A1/curriculum_MP_A1/mpa1_grade.py	2026-09-07 04:19:16.357460046 +0000
++++ /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_MP_A1V/mpa1v_grade.py	2026-09-07 19:37:45.746719294 +0000
+@@ -1,11 +1,36 @@
+ #!/usr/bin/env python3
+-"""CURRICULUM MP-A1 -- THE FROZEN COMPARATOR.
++"""CURRICULUM MP-A1V -- THE FROZEN COMPARATOR (MP-A1 FD-VERIFICATION SUCCESSOR).
+ 
+-Grades the ALPHA-MULTIPOINT weighted-objective gradient on SO-1's NACA0012 case:
+-`J = SUM_i w_i * CD_i(alpha_i)` over one shared `shape` vector, against a
+-central-difference table whose plateau is proved PER PAIR, on TWO TOOLCHAIN ROWS,
+-at np = 1.  `PREREGISTRATION.md` IN THIS DIRECTORY governs every gate, threshold,
+-cap and label; nothing here may move one.
++Grades MP-A1's ALPHA-MULTIPOINT weighted-objective gradient `J = SUM_i w_i * CD_i`
++and each scenario's dCL_i/dx, at MP-A1's DEMONSTRATED FINAL DESIGN, by DIRECT
++DESIGN-VARIABLE CENTRAL DIFFERENCE over a 3-MEMBER DV set {shape[3], shape[6],
++shape[2]}, RIDING MP-A1's FROZEN ADJOINT (mpa1_X.json), on TWO TOOLCHAIN ROWS, at
++np = 1.  `PREREGISTRATION.md` IN THIS DIRECTORY (curriculum_MP_A1V) governs every
++gate, threshold, cap and label; nothing here may move one.  DRAFT -- NOT FROZEN.
++
++DERIVED FROM `curriculum_MP_A1/mpa1_grade.py` (md5 verified on disk before this
++file was written) with the REGISTERED DELTAS below (enumerated in
++`mpa1v_grade_DELTAS_from_mpa1.diff` beside this file):
++  G-D1  Arm program 7 -> 3 (MESH, FV-S, FV-P).  NO optimisation arm and NO adjoint
++        arm: MP-A1V rides mpa1_xopt.json (design) and mpa1_X.json (adjoint) from
++        MP-A1's own frozen run root.  (PREREGISTRATION 1.1, 1.3, O-1)
++  G-D2  read_X rides MP-A1's frozen adjoint from MP-A1_BASE/{XE-S,XE-P}/mpa1_X.json:
++        it asserts the RIDDEN provenance components (MP-A1's {0,3,6,7}) and extracts
++        MP-A1V's graded members {3,6,2} BY INDEX from the full 8-vector.  (1.1, 1.4)
++  G-D3  _pair REPLACED by the D6RF7-lineage CLEARANCE/RATIO plateau selector over
++        the ladder mpa1v_xf.py writes; a single divergent / below-clearance step no
++        longer disqualifies a member.  (PREREGISTRATION 1.6)
++  G-D4  Per-member gate + per-member Branch-B; the item PASSES only if ALL members
++        PASS on both rows.  MIN_GRADED_PAIRS -> the whole registered set.  (2.1, 2.2)
++  G-D5  G-OPT9 CARRIED from MP-A1's frozen grade; G-CLHOLD/G-DRAG RE-CONFIRMED at
++        the FD baseline (the ridden design point).  (2.2)
++
++--------------------------------------------------------------------------
++INHERITED MP-A1 COMPARATOR DESIGN NOTES BELOW (context; the MP-A1V derivation
++and its five deltas are stated above and govern).  Where these notes say
++"MP-A1" / "the optimisation arm", MP-A1V rides those and grades only the FD
++arms -- see the deltas above.
++--------------------------------------------------------------------------
+ 
+ THE FREEZE SHA IS DELIBERATELY NOT WRITTEN HERE.  MP-A1a's copy of this line
+ cited `1a06a7d6`, its own Stage-1 freeze commit, because there its document was
+@@ -142,25 +167,33 @@
+ # ---- (so the old form is gone).  BOTH halves are driven by U80/U81 below --
+ # ---- SO1bR's derivation introduced a self-destruct by verifying only the first
+ # ---- half, which is structurally blind to a collision.
+-import mpa1_xf as XF
++import mpa1v_xf as XF
+ # THE STALL DETECTOR IS IMPORTED, NOT REIMPLEMENTED.  Section 9's mapping lives
+ # here; the READING lives there, is calibrated on 33 real IPOPT logs, and is the
+ # same module the in-run watchdog and the producer use -- so the number in the
+ # record, the number that stopped the run and the number the grader gates on are
+ # one number from one file.
+-import mpa1_stall as STALL
++import mpa1v_stall as STALL   # carried byte-identical from mpa1_stall.py (descriptive stall
+ 
+ # ---- REGISTERED CONSTANTS (PREREGISTRATION.md; the document governs) ----------------
+-ITEM = "MPA1"
+-BASE = "/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1-a1-naca0012-alpha-multipoint-fixedlift-optimisation"
+-# DECLARED = 7 (section 5 Requirement 4).  The list is the DECLARED program; the
+-# arms that RAN are a census taken at grade time.
+-ARMS_DECLARED = ["MESH", "O-S", "XE-S", "FE-S", "O-P", "XE-P", "FE-P"]
++ITEM = "MPA1V"
++BASE = "/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1V-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral"
++# G-D1/G-D2: MP-A1V rides MP-A1's frozen run root for the adjoint (mpa1_X.json) and
++# the design point (mpa1_xopt.json).  This is the RIDDEN root; it is READ, never
++# written, by this grader.  read_X's source and G-DESIGNPOINT's cross-root identity
++# check resolve against it.
++MPA1_BASE = "/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1-a1-naca0012-alpha-multipoint-fixedlift-optimisation"
++RIDDEN_X_ARMDIR = {"SHIPPED": "XE-S", "PATCHED": "XE-P"}   # MP-A1's adjoint arm dirs
++# MP-A1's OWN registered FD-comparison components -- the RIDDEN provenance.  read_X
++# asserts the ridden mpa1_X.json carries THIS set (MP-A1's {0,3,6,7}), then extracts
++# MP-A1V's graded members {3,6,2} BY INDEX from the full 8-vector adjoint block.
++RIDDEN_X_COMPONENTS = [["shape", 0], ["shape", 3], ["shape", 6], ["shape", 7]]
++# G-D1: DECLARED = 3 (no O arm, no X arm; both ridden).  The list is the DECLARED
++# program; the arms that RAN are a census taken at grade time.
++ARMS_DECLARED = ["MESH", "FV-S", "FV-P"]
+ N_DECLARED = len(ARMS_DECLARED)
+-ARM_KIND = {"MESH": "SCRIPT", "O-S": "SOLVER", "XE-S": "SOLVER", "FE-S": "SOLVER",
+-            "O-P": "SOLVER", "XE-P": "SOLVER", "FE-P": "SOLVER"}
+-ARM_ROW = {"MESH": "SHIPPED", "O-S": "SHIPPED", "XE-S": "SHIPPED", "FE-S": "SHIPPED",
+-           "O-P": "PATCHED", "XE-P": "PATCHED", "FE-P": "PATCHED"}
++ARM_KIND = {"MESH": "SCRIPT", "FV-S": "SOLVER", "FV-P": "SOLVER"}
++ARM_ROW = {"MESH": "SHIPPED", "FV-S": "SHIPPED", "FV-P": "PATCHED"}
+ # np = 1 ON EVERY ARM, AND IT IS THE CONDITION ON THE INHERITANCE, NOT A SETTING.
+ # SO-3aR2's FD table -- the whole reason this optimisation is admissible -- was
+ # measured at np = 1, and `DAFOAM_CHARTER.md` section 5 forbids carrying an FD
+@@ -168,13 +201,9 @@
+ # of ONE mesh (np=4 scotch 8.95 % against np=4 simple 4x1x1 0.00054 %), which is
+ # what any np != 1 arm would readmit.
+ ARM_RANKS = {a: 1 for a in ARMS_DECLARED}
+-OUT_O = "mpa1_O.json"
+-TERMINAL_O = "MPA1_O_WRITTEN"
+ ARTEFACT = {"MESH": "checkMesh.log",
+-            "O-S": OUT_O, "XE-S": XF.OUT_X, "FE-S": XF.OUT_F,
+-            "O-P": OUT_O, "XE-P": XF.OUT_X, "FE-P": XF.OUT_F}
+-TERMINAL = {"O-S": TERMINAL_O, "XE-S": XF.TERMINAL_X, "FE-S": XF.TERMINAL_F,
+-            "O-P": TERMINAL_O, "XE-P": XF.TERMINAL_X, "FE-P": XF.TERMINAL_F}
++            "FV-S": XF.OUT_F, "FV-P": XF.OUT_F}
++TERMINAL = {"FV-S": XF.TERMINAL_F, "FV-P": XF.TERMINAL_F}
+ # ---- THE ROW LABELS.  ONE SET, REGISTERED ONCE, USED EVERYWHERE.
+ # ---- SO-1c launched on 2026-08-31 and DIED AT ITS SECOND ARM because SO-1bR
+ # ---- labelled its per-row artefacts `P`/`S` while SO-1c's consumers compared
+@@ -192,9 +221,10 @@
+ # ---- file for any reappearance of a short-form row literal or a positional
+ # ---- derivation, and U101 proves that sweep can go red.
+ ROWS = ("SHIPPED", "PATCHED")
+-X_ARM = {"SHIPPED": "XE-S", "PATCHED": "XE-P"}
+-F_ARM = {"SHIPPED": "FE-S", "PATCHED": "FE-P"}
+-O_ARM = {"SHIPPED": "O-S", "PATCHED": "O-P"}
++# G-D1: no O arm and no X arm in MP-A1V.  The adjoint is RIDDEN (read_X resolves it
++# from MPA1_BASE/RIDDEN_X_ARMDIR); the optimiser is RIDDEN (G-OPT9 carried from
++# MP-A1's frozen grade).  Only the FD arm runs per row.
++F_ARM = {"SHIPPED": "FV-S", "PATCHED": "FV-P"}
+ # The artefact KIND is registered explicitly per tag; it is NEVER read off the
+ # tag's first character.
+ REC_KIND_X = "X"
+@@ -202,7 +232,7 @@
+ 
+ # THE AGE-GUARD DATUM IS RESOLVED BY EXISTENCE, NEVER BY NAME (section 3).
+ DATUM_CANDIDATES = {"MESH": ("0.orig/U", "0.orig/U.gz")}
+-for _a in ("O-S", "XE-S", "FE-S", "O-P", "XE-P", "FE-P"):
++for _a in ("FV-S", "FV-P"):
+     DATUM_CANDIDATES[_a] = ("0/U", "0/U.gz")
+ DATUM_FILE = ".mpa1_age_datum"
+ CONTROLDICT_REL = os.path.join("system", "controlDict")
+@@ -252,16 +282,16 @@
+ # MP-A1 arm therefore costs ~34 x 2.061 = 70.1 core-min, BELOW the converging
+ # prediction -- so the stall branch is a floor on the saving, not an extra cost,
+ # and the cap is sized on the CONVERGING branch.
+-CAPS = {"MESH": 5.0, "O-S": 72.0, "XE-S": 7.5, "FE-S": 14.0,
+-        "O-P": 63.0, "XE-P": 8.0, "FE-P": 14.0}
+-ITEM_CEILING_CORE_MIN = 183.5          # == sum(CAPS.values()), asserted in main()
+-# PREDICTED: MP-A1 O arms = SO-3's MEASURED O-arm cost x M=3.0 (DERIVED; m_iter 2.0
+-# x m_adj 1.5 -- PREREGISTRATION section 4.1); the five non-O arms carried at SO-3's
+-# MEASURED costs (they already computed dCL_i/dx).  M is the calibration quantity
+-# the O arm measures at completion (ratio actual/predicted -> docs/COST_CALIBRATION).
+-PREDICTED_CORE_MIN = {"MESH": 0.17, "O-S": 23.75, "XE-S": 2.35, "FE-S": 4.45,
+-                      "O-P": 20.85, "XE-P": 2.53, "FE-P": 4.53}
+-PREDICTED_STALL_CORE_MIN = {"O-S": 12.0, "O-P": 11.0}
++# G-D1 (PREREGISTRATION 4.3): 3 arms.  MESH floor carried; FV caps carry MP-A1's
++# proven FE cap 14.0 (divergence headroom for a single diverging eval).
++CAPS = {"MESH": 5.0, "FV-S": 14.0, "FV-P": 14.0}
++ITEM_CEILING_CORE_MIN = 33.0           # == sum(CAPS.values()), asserted in main()
++# PREDICTED (PREREGISTRATION 4.2/4.3): MESH MEASURED (MP-A1 0.933); FV arms DERIVED
++# = 32 evals x MP-A1's MEASURED per-eval rate (FE-S 5.05/34 = 0.1485; FE-P 6.3/34 =
++# 0.1853).  The per-eval rate is the calibration quantity the FD arm measures at
++# completion (ratio actual/predicted -> docs/COST_CALIBRATION).
++PREDICTED_CORE_MIN = {"MESH": 0.93, "FV-S": 4.75, "FV-P": 5.93}
++PREDICTED_STALL_CORE_MIN = {}          # no optimiser arm in MP-A1V; no stall branch
+ 
+ # ---- THE HARNESS-SOUND FLOOR.  `VERIFICATION_CHARTER.md` section 7 step 4,
+ # ---- verbatim: *"The harness-sound floor on this stack, for a case with no
+@@ -307,11 +337,23 @@
+ 
+ # ---- BAND D / BAND E / PLATEAU: INHERITED BY CITATION (line 7), never re-derived
+ # ---- by a lane that has seen an answer.
+-FD_BAND_PCT = 5.0            # band D, per graded PAIR
++FD_BAND_PCT = 5.0            # band D, per graded member (charter section 2 / VERIFICATION section 7)
+ AGG_BAND_PCT = 5.0           # band E, aggregate vector-relative, PER ROW
+-PLATEAU_TOL_PCT = 10.0       # proved PER PAIR, never asserted once for the item
++PLATEAU_TOL_PCT = 10.0       # D6RF7 byte == VERIFICATION section 7 plateau tol; proved PER member
+ NEAR_ZERO_ABS = 1.0e-14
+-MIN_GRADED_PAIRS = 3         # line 7: fewer than 3 graded pairs on a row -> NOT A RESULT
++# G-D3/G-D4 (PREREGISTRATION 1.6, 2.1/2.2): the D6RF7-lineage clearance/ratio
++# selector constants, carried a-priori (NOT tuned to any MP-A1V answer):
++#   CLEARANCE_FLOOR : a ladder step is usable iff |d_ref|*s/eta >= this (predicted
++#                     FD signal over the run's MEASURED repeatability floor eta).
++#   RATIO_MIN       : s_hi >= RATIO_MIN * s_lo, so the plateau pair spans a real
++#                     factor in step.  eta is F.eta_used (measured per run).
++# MP-A1V grades the WHOLE registered 3-member set: every member must PASS on both
++# rows for the item to PASS; a member with no clearance/ratio plateau pair at any
++# ladder step is Branch B (a MEASURED verification-limitation finding, not asserted).
++CLEARANCE_FLOOR = 5.0        # D6RF7 byte (d6rf7_fd_endpoint.py:86)
++RATIO_MIN = 2.0              # D6RF7 byte (d6rf7_fd_endpoint.py:87)
++ETA_FLOOR_SELECTOR = 1.0e-14 # D6RF7 byte: floor eta only if the measured eta underflows
++MIN_GRADED_PAIRS = len(XF.COMPONENTS)   # G-D4: the WHOLE registered set must grade & PASS
+ 
+ ALPHAS_REGISTERED = list(XF.ALPHAS_REGISTERED)
+ WEIGHTS_REGISTERED = list(XF.WEIGHTS_REGISTERED)
+@@ -419,14 +461,14 @@
+ IMG_DIGEST = {"SHIPPED": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+               "PATCHED": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35"}
+ SO_MD5 = {"SHIPPED": "f0fcb488e0e98156575cd19548e91663", "PATCHED": "85f59e87253e0a71a813f64ca6e4c425"}
+-# STAGE-2 PLACEMENT DISCLOSURE (section 5: "cpuset fixed at Stage 2 and disclosed
+-# there against every live sibling's registered set").  Registered: cpuset 14.
+-# It is NOT core 0.  MP-A1 registered cpuset 8 (PREREGISTRATION section 3.3 /
+-# section 7 decision 3), PROVISIONAL: the launcher RE-READS live occupancy at the
+-# freeze and G12 gates the launcher's value against this constant, so the two
+-# cannot drift apart silently.  SO-3 held 14; a draft-time sweep of registered
+-# sibling .sh showed sets on {0,1,2,3,4,11,12,14,15}, so 8 is disjoint.
+-CPUSET_REGISTERED = "8"
++# PLACEMENT DISCLOSURE (section 5: "cpuset disclosed against every live sibling's
++# registered set").  Registered: cpuset 12.  It is NOT core 0, NOT 15 (D9successor
++# was live there), NOT T4d's.  Chosen a FREE core at authoring: only d9succ/15 was
++# a live container, and 12 sat in a single registered sibling set (0,1,12,15, not
++# running).  The launcher (mpa1v_run_arm.sh:CPUSET=12) RE-READS live occupancy at
++# launch and G12 gates the launcher's value against this constant, so the two cannot
++# drift apart silently.
++CPUSET_REGISTERED = "12"
+ DELIVERED_CORES_FLOOR = 1.5   # NOT COMPOSED at np = 1 (section 3, G12)
+ 
+ # ---- P_COST'S BAND, RE-DERIVED FOR THIS ITEM.  AMENDMENT 2, 2026-09-01, BEFORE
+@@ -1257,16 +1299,24 @@
+ 
+ # ===================== R4/R5/R6: the artefact readers, EXPLICIT PATHS ONLY =============
+ def read_X(path):
+-    """R4.  The adjoint totals: `adjoint[of][dv]` -> a flat list over the dv vector.
++    """R4 (G-D2).  The RIDDEN adjoint totals from MP-A1's frozen mpa1_X.json:
++    `adjoint[of][dv]` -> the FULL flat list over the 8-component `shape` vector.
+ 
+-    Every location comes from `SCHEMA`.  The `of` keys are checked against
+-    `OF_KEYS_REGISTERED`, so a scenario silently dropped from the assembly is a
+-    REFUSAL and not a shorter loop."""
++    MP-A1V rides MP-A1's adjoint (PREREGISTRATION 1.1, O-1), so this asserts the
++    RIDDEN PROVENANCE components (MP-A1's OWN registered FD set {0,3,6,7} =
++    RIDDEN_X_COMPONENTS) -- NOT MP-A1V's graded set -- and then _pair extracts
++    MP-A1V's graded members {3,6,2} BY INDEX from the full 8-vector adjoint block.
++    A member index that does not exist in the ridden vector is a REFUSAL, not a
++    short loop.  The `of` keys are checked against `OF_KEYS_REGISTERED`."""
+     with open(path) as fh:
+         j = json.load(fh)
+-    if at(j, "X.components", "G5J") != COMPONENTS_REGISTERED:
+-        refuse("G5J", {"components_requested_not_registered": at(j, "X.components", "G5J"),
+-                       "registered": COMPONENTS_REGISTERED})
++    if at(j, "X.components", "G5J") != RIDDEN_X_COMPONENTS:
++        refuse("G5J", {"ridden_adjoint_components_not_the_expected_MP-A1_provenance":
++                       at(j, "X.components", "G5J"),
++                       "expected_ridden_provenance": RIDDEN_X_COMPONENTS,
++                       "note": ("MP-A1V rides MP-A1's frozen adjoint; this asserts the RIDDEN "
++                                "adjoint carries MP-A1's own registered FD set, then extracts "
++                                "MP-A1V's graded members BY INDEX from the full 8-vector")})
+     adj_raw = at(j, "X.adjoint", "G5J")
+     keys = at(j, "X.adjoint_of_keys", "G5J")
+     if sorted(keys) != OF_KEYS_REGISTERED:
+@@ -1279,6 +1329,12 @@
+         if of not in adj_raw or "shape" not in adj_raw[of]:
+             refuse("G5J", {"adjoint_block_absent": {"of": of}, "registered": OF_KEYS_REGISTERED})
+         adj[of] = [float(v) for v in adj_raw[of]["shape"]]
++        # G-D2: every MP-A1V graded member must exist in the ridden 8-vector.
++        for (_dv, _k) in XF.COMPONENTS:
++            if _k >= len(adj[of]):
++                refuse("G5J", {"ridden_adjoint_too_short_for_member": {"of": of, "idx": _k,
++                               "len_adjoint_vector": len(adj[of])},
++                               "note": "the ridden adjoint does not carry MP-A1V's graded index"})
+     return {"adj": adj,
+             "J_base": float(at(j, "X.J_baseline", "G5J")),
+             "CD_base": [float(v) for v in at(j, "X.CD_baseline", "G5J")],
+@@ -1869,44 +1925,83 @@
+ 
+ # ===================== G5J / G5C: THE BRIGHT LINE, PER PAIR ============================
+ def _pair(X, F, of_key, quantity, scen, k):
+-    """One (adjoint, FD) pair for one registered `shape` component.
+-
+-    `quantity` is "J" or "CL"; `scen` indexes the scenario for "CL" and is None
+-    for the assembled objective.  THE PLATEAU IS PROVED PER PAIR: the middle step
+-    must agree with AT LEAST ONE neighbour to PLATEAU_TOL_PCT.  It is never
+-    asserted once for the item."""
++    """G-D3.  One (RIDDEN-adjoint, direct-DV-central-difference) pair for one
++    registered `shape` component, graded by the D6RF7-LINEAGE CLEARANCE/RATIO
++    plateau selector (PREREGISTRATION 1.6), REPLACING MP-A1's rigid full-ladder
++    middle+neighbour rule so a single divergent / below-clearance step no longer
++    disqualifies the member.
++
++    `quantity` is "J" or "CL"; `scen` indexes the scenario for "CL", None for the
++    assembled objective.  `j` = the ridden adjoint at index `k` (extracted from
++    MP-A1's full 8-vector).  Over the ladder mpa1v_xf.py wrote, with the F-arm's
++    MEASURED `eta`:
++      clearance: usable = { s : the FD step evaluated ok AND |j|*s/eta >= CLEARANCE_FLOOR }
++      s_lo = min(usable); s_hi = min{ s in usable : s >= RATIO_MIN*s_lo }
++      graded at s_hi (one-sided fine; coarse side unmeasured, stated):
++        rel_err_pct = |d_hi - j|/|d_hi|*100 ; plateau_pct = |d_hi - d_lo|/|d_hi|*100
++        PASS iff rel_err_pct <= FD_BAND_PCT and plateau_pct <= PLATEAU_TOL_PCT and not sign_flip
++    A member with empty `usable` (adjoint too small to clear the noise floor -> the
++    NEAR_ZERO case) or no s_hi (no factor-RATIO_MIN partner) is Branch B: graded=False
++    with the measured reason, NEVER asserted."""
+     rec = {"of": of_key, "quantity": quantity, "scenario": scen, "dv": "shape", "idx": k}
+     adj = X["adj"].get(of_key)
+     frow = F["table"].get(("shape", k))
+     if adj is None or k >= len(adj) or frow is None:
+-        rec.update({"graded": False, "reason": "ABSENT"})
++        rec.update({"graded": False, "reason": "ABSENT", "branch_b": True})
+         return rec
+     j = adj[k]
+     rec["J_adj"] = j
+-    steps = sorted(STEPS_REGISTERED["shape"], reverse=True)
+-    vals = [frow["fd"].get(s) for s in steps]
+-    if any(v is None or not v["ok"] for v in vals):
+-        rec.update({"graded": False, "reason": "FD_STEP_FAILED_OR_ABSENT",
+-                    "steps": steps,
+-                    "fd_step_ok": [None if v is None else bool(v["ok"]) for v in vals]})
++    eta = F.get("eta") or 0.0
++    eta = eta if eta > ETA_FLOOR_SELECTOR else ETA_FLOOR_SELECTOR
++    rec["eta_used"] = eta
++    ladder = sorted(STEPS_REGISTERED["shape"])           # ascending: fine -> coarse
++    # d(s) over the OK FD steps only (a failed/absent step simply is not available).
++    def _d(v):
++        return v["J"] if quantity == "J" else v["CL"][scen]
++    avail = {}
++    fd_step_ok = {}
++    for s in ladder:
++        v = frow["fd"].get(s)
++        fd_step_ok[s] = (None if v is None else bool(v.get("ok")))
++        if v is not None and v.get("ok"):
++            avail[s] = _d(v)
++    rec["steps"] = ladder
++    rec["fd_step_ok"] = [fd_step_ok[s] for s in ladder]
++    rec["d_by_step"] = {repr(s): avail.get(s) for s in ladder}
++    # ---- clearance: predicted FD signal |j|*s/eta over the measured noise floor.
++    clr = {s: (abs(j) * s / eta) for s in avail}
++    rec["clearance_by_step"] = {repr(s): clr[s] for s in avail}
++    usable = sorted(s for s in avail if clr[s] >= CLEARANCE_FLOOR)
++    if not usable:
++        rec.update({"graded": False, "reason": "NO_CLEARANCE", "branch_b": True,
++                    "clearance_floor": CLEARANCE_FLOOR,
++                    "note": ("no ladder step's predicted FD signal cleared the measured "
++                             "noise floor by CLEARANCE_FLOOR -- the adjoint is NEAR_ZERO here; "
++                             "NO SUBSTITUTION (PREREGISTRATION 1.4)")})
+         return rec
+-    d = [(v["J"] if quantity == "J" else v["CL"][scen]) for v in vals]
+-    ref = d[1]
+-    rec.update({"steps": steps, "d_fd": d, "d_ref": ref})
+-    if abs(ref) < NEAR_ZERO_ABS:
+-        rec.update({"graded": False, "reason": "NEAR_ZERO"})
++    s_lo = min(usable)
++    hi = [s for s in usable if s >= RATIO_MIN * s_lo]
++    if not hi:
++        rec.update({"graded": False, "reason": "NO_S_HI", "branch_b": True,
++                    "s_lo": s_lo, "ratio_min": RATIO_MIN,
++                    "note": "no cleared step is >= RATIO_MIN*s_lo, so no plateau pair forms"})
+         return rec
+-    nb = [abs(d[0] - ref) / abs(ref) * 100.0, abs(d[2] - ref) / abs(ref) * 100.0]
+-    rec["plateau_neighbour_pct"] = nb
+-    rec["plateau_proved_against"] = ("the LARGER neighbour" if nb[0] <= nb[1]
+-                                     else "the SMALLER neighbour")
+-    if min(nb) > PLATEAU_TOL_PCT:
+-        rec.update({"graded": False, "reason": "NO_PLATEAU", "plateau_tol_pct": PLATEAU_TOL_PCT})
++    s_hi = min(hi)
++    d_lo, d_hi = avail[s_lo], avail[s_hi]
++    rec.update({"step_lo": s_lo, "step_hi": s_hi, "d_s_lo": d_lo, "d_s_hi": d_hi, "d_ref": d_hi})
++    if d_hi == 0.0:
++        rec.update({"graded": False, "reason": "NEAR_ZERO", "branch_b": True})
+         return rec
+-    rel = abs(ref - j) / abs(ref) * 100.0
+-    flip = bool(ref * j < 0.0)
+-    rec.update({"graded": True, "rel_err_pct": rel, "sign_flip": flip,
+-                "verdict": "GATE FAIL" if (flip or rel > FD_BAND_PCT) else "PASS"})
++    rel = abs(d_hi - j) / abs(d_hi) * 100.0
++    plat = abs(d_hi - d_lo) / abs(d_hi) * 100.0
++    flip = bool(d_hi * j < 0.0)
++    rec.update({"rel_err_pct": rel, "plateau_pct": plat, "sign_flip": flip,
++                "plateau_graded_at": s_hi, "plateau_proved_against": [s_lo],
++                "plateau_sidedness": "ONE-SIDED (fine side only; coarse unmeasured)",
++                "in_band": rel <= FD_BAND_PCT, "plateau_pass": plat <= PLATEAU_TOL_PCT})
++    rec.update({"graded": True,
++                "verdict": ("PASS" if (rec["in_band"] and rec["plateau_pass"] and not flip)
++                            else "GATE FAIL")})
+     return rec
+ 
+ 
+@@ -1923,8 +2018,13 @@
+     for p in pairs:
+         if not p.get("graded"):
+             excl[p["reason"]] = excl.get(p["reason"], 0) + 1
++    # G-D4: per-member Branch-B -- a member excluded by NO_CLEARANCE/NO_S_HI/ABSENT/
++    # NEAR_ZERO is a MEASURED verification-limitation finding for that member, carried
++    # by its measured reason and NEVER asserted (PREREGISTRATION 2.1 Branch B).
++    branch_b = [{"idx": p["idx"], "reason": p.get("reason")}
++                for p in pairs if p.get("branch_b")]
+     c = {"family": label, "n_candidate_pairs": len(pairs), "n_graded_pairs": len(fd_v),
+-         "excluded_by_reason": excl,
++         "excluded_by_reason": excl, "branch_b_members": branch_b,
+          "n_pass": sum(1 for p in pairs if p.get("verdict") == "PASS"),
+          "n_gate_fail": sum(1 for p in pairs if p.get("verdict") == "GATE FAIL"),
+          "sign_flips": sum(1 for p in pairs if p.get("sign_flip")),
+@@ -1932,10 +2032,18 @@
+                                if fd_v else None),
+          "min_graded_required": MIN_GRADED_PAIRS, "band_D_pct": FD_BAND_PCT,
+          "band_E_pct": AGG_BAND_PCT, "plateau_tol_pct": PLATEAU_TOL_PCT,
+-         "pairs": pairs}
++         "all_members_must_grade_and_pass": True, "pairs": pairs}
+     if len(fd_v) < MIN_GRADED_PAIRS:
+         c.update({"verdict": "NOT A RESULT", "aggregate_rel_err_pct": None,
+-                  "reason": "fewer than %d graded pairs" % MIN_GRADED_PAIRS})
++                  "reason": ("fewer than %d graded members (the WHOLE registered set must grade "
++                             "and PASS); Branch-B members carry their MEASURED reason above"
++                             % MIN_GRADED_PAIRS),
++                  "measured_finding": ((
++                      "MEASURED verification-limitation finding: member(s) %s could not form a "
++                      "clearance/ratio plateau table at any ladder step <= %s; reported, never "
++                      "asserted (the gradient could not be FD-verified at these members, NOT that "
++                      "the gradient is wrong)" % (branch_b, max(STEPS_REGISTERED["shape"])))
++                      if branch_b else None)})
+         return c
+     num = math.sqrt(sum((a - b) ** 2 for a, b in zip(fd_v, adj_v)))
+     den = math.sqrt(sum(a ** 2 for a in fd_v))
+@@ -2121,24 +2229,6 @@
+             "g5j_verdict_at_the_registered_step": g5j["verdict"]}
+ 
+ 
+-# ===================== read the O artefact ============================================
+-def read_O(path):
+-    """The optimisation record `mpa1_O.json`, read by EXPLICIT keys.
+-
+-    There is no recursive hunt for a key by name anywhere in this file: a read
+-    that goes looking until it finds something will always find something.  A
+-    missing key is `None` and the section 9 gate treats `None` as unmeasured, not
+-    as absent-and-therefore-fine."""
+-    with open(path) as fh:
+-        j = json.load(fh)
+-    if not isinstance(j, dict):
+-        refuse("SCHEMA", {"O_artefact_is_not_an_object": path})
+-    for k in ("row", "baseline", "final", "optimiser_exit_statement", "stall"):
+-        if k not in j:
+-            refuse("SCHEMA", {"O_artefact_missing_registered_key": k, "path": path})
+-    return j
+-
+-
+ # ===================== G-CLTGT / G-CLHOLD / G-DRAG: THE MP-A1 GATES ===================
+ def _read_final_cl(O):
+     """The reader G-CLHOLD grades through -- and the SAME reader the planted control
+@@ -2337,6 +2427,18 @@
+     if not per:
+         return {"verdict": NOT_MEASURED, "per_artefact": {},
+                 "note": "no endpoint arm ran; NOT EXERCISED"}
++    # G-D2: the RIDDEN adjoint (X) and the FD arm (F) must be at the SAME design
++    # point -- an adjoint-vs-FD comparison across two different x_opt is void.
++    for rk in ROWS:
++        xk, fk = "X:%s" % rk, "F:%s" % rk
++        if xk in per and fk in per:
++            xs, fs = per[xk].get("xopt_sha256"), per[fk].get("xopt_sha256")
++            if xs is None or fs is None or xs != fs:
++                per[fk]["fail"] = ("the FD arm's design point (sha %s) differs from the RIDDEN "
++                                   "adjoint's (sha %s); adjoint-vs-FD must be at ONE point"
++                                   % (str(fs)[:12], str(xs)[:12]))
++                if fk not in bad:
++                    bad.append(fk)
+     return {"verdict": "GATE FAIL" if bad else "PASS", "per_artefact": per,
+             "failing": bad,
+             "requirement": ("DAFOAM_CHARTER section 9: every optimisation reports an FD check "
+@@ -2518,6 +2620,47 @@
+ 
+ 
+ # ===================== the grade =======================================================
++def _read_mpa1_carried():
++    """G-D5.  Read MP-A1's frozen grade to CARRY G-OPT9 (the optimiser's own
++    convergence verdict per row) and the shape=0 J_baseline, and its G-CLTGT.
++    MP-A1V rides MP-A1's demonstrated optimisation; these are not re-measured.
++    Exactly one MP-A1 grade must exist (a run root carries one final grade), else
++    REFUSE -- an ambiguous ride is not a ride."""
++    import glob
++    cands = sorted(glob.glob(os.path.join(MPA1_BASE, "MPA1_grade_*.json")))
++    if len(cands) != 1:
++        refuse("RIDE", {"expected_exactly_one_MP-A1_grade": cands, "base": MPA1_BASE,
++                        "note": "the ride carries MP-A1's frozen G-OPT9 and J_baseline; the "
++                                "MP-A1 grade must be unambiguous"})
++    with open(cands[0]) as fh:
++        j = json.load(fh)
++    o = (j.get("gates") or {}).get("G-OPT9_optimisation_per_row") or {}
++    opt, jbase = {}, None
++    for rk in ROWS:
++        row = o.get(rk) or {}
++        opt[rk] = {"verdict": row.get("verdict"),
++                   "exit_statement": row.get("optimiser_exit_statement"),
++                   "n_majors": row.get("n_majors")}
++        if row.get("J_baseline") is not None:
++            jbase = float(row["J_baseline"])
++    clt = (j.get("gates") or {}).get("G-CLTGT_targets_registered_per_row") or {}
++    return {"path": cands[0], "opt": opt, "J_baseline": jbase,
++            "cltgt": {rk: (clt.get(rk) or {}).get("verdict") for rk in ROWS},
++            "item_verdict": j.get("verdict")}
++
++
++def _drag_synth(rk, Frow, j_baseline):
++    """A minimal O-shaped object for g_drag from the FD baseline (G-D5): J_final and
++    CL_final are the FD arm's baseline (the ridden design point x_opt); J_baseline is
++    CARRIED from MP-A1's frozen grade (the shape=0 seed); CL_baseline for the report
++    is the registered CL_TARGET (SO-3's baseline the targets were set to)."""
++    jf = Frow["J_base"]
++    red = ((j_baseline - jf) / j_baseline * 100.0) if j_baseline else None
++    return {"row": rk, "baseline": {"J": j_baseline, "CL": list(CL_TARGET)},
++            "final": {"J": jf, "CL": list(Frow["CL_base"])},
++            "weighted_drag_reduction_pct": red}
++
++
+ def grade(root):
+     prov = require_travelling_provenance()
+     rows = read_ledger(os.path.join(root, "ledger.txt"))
+@@ -2537,17 +2680,24 @@
+         cells = read_mesh_cells(cmpath)
+         gm2 = "PASS" if cells == CELLS_EXPECTED else "GATE FAIL"
+ 
++    # G-D1/G-D2/G-D5: RIDE MP-A1's frozen adjoint and G-OPT9/J_baseline.  O stays
++    # empty (no optimisation arm); X is read from MP-A1's frozen run root for BOTH
++    # rows (always available -- it is a frozen predecessor artefact), and its image
++    # identity is checked against the row's registered libidwarp.so md5 so a ridden
++    # adjoint from the wrong toolchain is a GATE FAIL, not a silent ride.
+     X, F, O = {}, {}, {}
++    mpa1_carried = _read_mpa1_carried()
++    RIDDEN_XPATH = {}
+     for rk in ROWS:
+-        if X_ARM[rk] in ran:
+-            X[rk] = read_X(os.path.join(root, X_ARM[rk], XF.OUT_X))
+-            rows[X_ARM[rk]]["artefact_so_md5"] = X[rk]["so_md5"]
++        RIDDEN_XPATH[rk] = os.path.join(MPA1_BASE, RIDDEN_X_ARMDIR[rk], "mpa1_X.json")
++        X[rk] = read_X(RIDDEN_XPATH[rk])
++        if X[rk]["so_md5"] != SO_MD5[rk]:
++            refuse("G9", {"ridden_adjoint_so_md5_mismatch": {"row": rk, "got": X[rk]["so_md5"],
++                          "expected": SO_MD5[rk]},
++                          "note": "the ridden adjoint came from the wrong image; the ride is void"})
+         if F_ARM[rk] in ran:
+             F[rk] = read_F(os.path.join(root, F_ARM[rk], XF.OUT_F))
+             rows[F_ARM[rk]]["artefact_so_md5"] = F[rk]["so_md5"]
+-        if O_ARM[rk] in ran:
+-            O[rk] = read_O(os.path.join(root, O_ARM[rk], OUT_O))
+-            rows[O_ARM[rk]]["artefact_so_md5"] = O[rk].get("libidwarp_so_md5")
+ 
+     # ---- G-DESIGNPOINT.  THE ENDPOINT ARMS MUST SAY THEY ARE ENDPOINT ARMS,
+     # ---- AND THE OPTIMUM THEY READ MUST BE THEIR OWN ROW'S.
+@@ -2595,8 +2745,10 @@
+         if rk in X:
+             ks = graded_k.get(rk) or []
+             kk = ks[0] if ks else COMPONENTS_REGISTERED[0][1]
++            # G-D2: the planted control operates on the RIDDEN adjoint (copied to
++            # grader_controls/, planted, read back through the same reader).
+             controls["grader_plant_X_%s" % rk] = grader_plant_X(
+-                root, os.path.join(root, X_ARM[rk], XF.OUT_X), rk, kk,
++                root, RIDDEN_XPATH[rk], rk, kk,
+                 scale=(graded_ref.get(rk) or {}).get(kk))
+             controls["grader_plant_X_%s" % rk]["n_graded_pairs_available"] = len(ks)
+     if "MESH" in ran:
+@@ -2664,29 +2816,43 @@
+ 
+     g5, gopt = {}, {}
+     for rk in ROWS:
+-        if rk not in X or rk not in F:
++        # G-D1: X is always present (ridden); the row grades iff its FD arm ran.
++        if rk not in F:
+             g5[rk] = {"endpoint_fd_verdict": NOT_MEASURED, "row_verdict": NOT_MEASURED,
+-                      "state": "NOT RUN -- %s and/or %s did not run" % (X_ARM[rk], F_ARM[rk])}
+-            gopt[rk] = g_opt_section9(O.get(rk), NOT_MEASURED,
+-                                      (g10.get("per_arm") or {}).get(O_ARM[rk]))
++                      "state": "NOT RUN -- %s did not run" % F_ARM[rk]}
++            gopt[rk] = {"verdict": NOT_MEASURED, "state": "RIDDEN -- FD arm absent",
++                        "note": "G-OPT9 is ridden from MP-A1 but the FD arm this row rides "
++                                "onto did not run"}
+             continue
+         j = grade_objective_gradient(X[rk], F[rk])
+         c = grade_lift_gradients(X[rk], F[rk])
+         mp = g_mp_struct(X[rk], True)
+         tb = g_tb(X[rk], F[rk], j)
+-        # ---- THE ENDPOINT FD ROW VERDICT.  This is what SO-3aR2 produced at
+-        # ---- iteration 0 and what MP-A1 produces at the optimum.  It is NOT the
+-        # ---- row's verdict on its own: an optimisation row is the CONJUNCTION of
+-        # ---- section 9's reading of the optimiser and this reading of the
+-        # ---- gradient at the design the optimiser reached.
++        # ---- THE ENDPOINT FD ROW VERDICT: the per-member all-PASS direct-DV
++        # ---- verification at the ridden final design.  In MP-A1V this IS the row's
++        # ---- verification content; the optimiser's own convergence is CARRIED
++        # ---- (G-D5), not re-graded, so an endpoint PASS COMPLETES the row rather
++        # ---- than upgrading anything -- the carried G-OPT9 PASS folds in below and
++        # ---- can only degrade, never be lifted by the FD (charter section 9).
+         endpoint = compose_row(j, c, tb, mp)
+-        opt = g_opt_section9(O.get(rk), endpoint,
+-                             (g10.get("per_arm") or {}).get(O_ARM[rk]))
++        # G-D5: G-OPT9 CARRIED from MP-A1's frozen grade (the optimiser's own
++        # convergence verdict); MP-A1V does not re-run or re-grade the optimiser.
++        opt = {"verdict": mpa1_carried["opt"][rk]["verdict"], "state": "RIDDEN",
++               "carried_from": mpa1_carried["path"],
++               "carried_exit_statement": mpa1_carried["opt"][rk]["exit_statement"],
++               "carried_n_majors": mpa1_carried["opt"][rk]["n_majors"],
++               "note": ("G-OPT9 CARRIED from MP-A1's frozen grade -- the optimiser converged "
++                        "on its own tolerance there; MP-A1V rides that demonstrated optimisation "
++                        "and verifies its gradient, never re-grading convergence")}
+         gopt[rk] = opt
+-        # ---- THE MP-A1 GATES: CL held, drag improved, targets as registered. ----
+-        clh = g_clhold(O.get(rk))         # gate (b): lift HELD, never collapsed
+-        drg = g_drag(O.get(rk))           # gate (c): final J < baseline J
+-        clt = g_cltgt(O.get(rk))          # targets stamped == registered
++        # ---- THE MP-A1 GATES, RE-CONFIRMED AT THE FD BASELINE (the ridden design):
++        # ---- CL held, drag improved vs the carried shape=0 J_baseline, targets ridden.
++        clh = g_clhold(_clhold_synth(F[rk]["CL_base"], rk))         # gate (b): lift HELD at x_opt
++        drg = g_drag(_drag_synth(rk, F[rk], mpa1_carried["J_baseline"]))  # gate (c): J_final < J_baseline
++        clt = {"verdict": mpa1_carried["cltgt"][rk], "state": "RIDDEN",
++               "carried_from": mpa1_carried["path"], "registered_targets": list(CL_TARGET),
++               "note": "G-CLTGT carried from MP-A1's frozen grade (the ridden optimisation's "
++                       "targets were the registered ones)"}
+         # ---- THE ROW COMPOSITION, AND THE ONE DIRECTION IT MAY NOT GO.
+         # A row is PASS only if BOTH the optimiser converged on its own tolerance
+         # AND the gradient at the final design point passed its band.  Every
+@@ -2954,935 +3120,119 @@
+                 "drag reduction here IS a drag-min-at-fixed-lift, unlike SO-3's")}
+ 
+ 
+-# ===================== the fixture: BUILT BY THE INSTRUMENT'S OWN WRITERS ==============
+-REFDIR = os.path.join(_HERE, "reference")
+-REAL_CHECKMESH = os.path.join(REFDIR, "REAL_SO1a_MESH_checkMesh.log")
+-REAL_ARMLOG = os.path.join(REFDIR, "REAL_SO1a_X-S_arm.log")
+-# A PATH, and it is NEVER reassigned to hold this script's RESULT.  The result of
+-# sourcing it lives in `rows_out`, a DIFFERENT NAME.  The call site guards the
+-# PATH with `os.path.isfile` and returns a DISTINCT sentinel so a missing
+-# launcher cannot masquerade as a parse failure.
+-LAUNCHER_PATH = os.path.join(_HERE, "mpa1_run_arm.sh")
+-LAUNCHER_ABSENT = "LAUNCHER_ABSENT"
+-LAUNCHER_UNPARSEABLE = "LAUNCHER_UNPARSEABLE"
+-
+-
+-def _adj_cd(i, k):
+-    """A STRUCTURED synthetic per-scenario CD adjoint: distinct across BOTH the
+-    scenario and the component index, so a reader that collapses a dimension shows
+-    up, and distinct per scenario so a weight applied on one side only cannot
+-    cancel."""
+-    return 0.011 * (1.0 + 0.37 * i) * (1.0 + 0.53 * k) * (-1.0 if (i + k) % 4 == 0 else 1.0)
+-
+-
+-def _adj_cl(i, k):
+-    return 0.42 * (1.0 + 0.19 * i) * (1.0 - 0.11 * k) * (-1.0 if (i + k) % 3 == 0 else 1.0)
+-
+-
+-def _ledger_rows_via_launcher(k):
+-    """R1's BIRTH: the fixture's ledger rows are emitted by SOURCING THE LAUNCHER'S
+-    OWN `mpa1_ledger_row` -- the real producer's code -- not by a copy of its
+-    format string here.  If the launcher's format and this reader's regex ever
+-    diverge, this returns rows the reader cannot parse and the suite fails loudly.
+-
+-    Returns a DISTINCT sentinel for each failure mode, so `LAUNCHER_ABSENT` (the
+-    file is not built yet) is never confused with `LAUNCHER_UNPARSEABLE` (it is
+-    built and its format broke).  A resource block and a defect are different
+-    findings."""
+-    if not os.path.isfile(LAUNCHER_PATH):
+-        return LAUNCHER_ABSENT
+-    lines = []
+-    for arm in ARMS_DECLARED:
+-        ke = NOT_MEASURED if arm in k["rc_record"] else k["ke"].get(arm, k["rc"][arm])
+-        cmd = ('. %s --source-only >/dev/null 2>&1; '
+-               'mpa1_ledger_row %s %s img %s %d 60 %d %s %s 600 %s 12g "%s %s" 20.00 "%s" "%s" '
+-               '"%s" "" "" %s x'
+-               % (LAUNCHER_PATH, arm, ARM_ROW[arm], IMG_DIGEST[ARM_ROW[arm]], k["rc"][arm],
+-                  ARM_RANKS[arm], k["cm"][arm], CAPS[arm], CAPS[arm], ke, k["oom"][arm],
+-                  k["mpost"], k["cs"][arm], k["dl"], "%s_x.log" % arm))
+-        p = subprocess.run(["bash", "-c", cmd], capture_output=True, text=True)
+-        out = p.stdout.strip()
+-        if not out.startswith("ARM="):
+-            return LAUNCHER_UNPARSEABLE
+-        lines.append(out + "\n")
+-    return lines
+-
+-
+-def _fd_entry(step, dJ, dCD, dCL):
+-    """One central-difference entry with EXACTLY the requested derivatives, built
+-    by the PRODUCER'S OWN `build_fd_row`.  plus = d*s and minus = -d*s gives
+-    (plus-minus)/(2s) == d."""
+-    plus = {"J": dJ * step, "CD": [v * step for v in dCD], "CL": [v * step for v in dCL]}
+-    minus = {"J": -dJ * step, "CD": [-v * step for v in dCD], "CL": [-v * step for v in dCL]}
+-    return XF.build_fd_row(step, plus, minus)
+-
+-
+-def _fix(tmp, tweak=None):
+-    """Build a clean fixture.
+-
+-    EVERY X AND F ARTEFACT IS WRITTEN BY `mpa1_xf`'s OWN WRITERS and EVERY LEDGER
+-    ROW BY THE LAUNCHER'S OWN FUNCTION.  Nothing on the positive path hand-rolls a
+-    schema -- see (IV).  The MESH log and the arm logs are REAL OpenFOAM bytes
+-    from `reference/`."""
+-    k = {"rc": {a: 0 for a in ARMS_DECLARED}, "ke": {},
+-         "oom": {a: "false" for a in ARMS_DECLARED},
+-         "cm": dict(PREDICTED_CORE_MIN), "cs": {a: CPUSET_REGISTERED for a in ARMS_DECLARED},
+-         "so": {a: SO_MD5[ARM_ROW[a]] for a in ARMS_DECLARED}, "cells": CELLS_EXPECTED,
+-         "err": {"SHIPPED": {}, "PATCHED": {}},          # (row, k) -> extra % error on the J FD reference
+-         "err_cl": {"SHIPPED": {}, "PATCHED": {}},       # (row, i, k) -> extra % error on the CL FD reference
+-         "flip": {"SHIPPED": set(), "PATCHED": set()},   # (k,) J FD reference sign-flipped
+-         "noplateau": {"SHIPPED": set(), "PATCHED": set()},
+-         "nearzero": {"SHIPPED": set(), "PATCHED": set()},
+-         "fdfail": {"SHIPPED": set(), "PATCHED": set()}, # (k,) every FD step failed
+-         "tb_agree": {"SHIPPED": set(), "PATCHED": set()},   # (k,) the WRONG step agrees -> G-TB pressure
+-         "mp_break": {"SHIPPED": None, "PATCHED": None}, # k whose assembled J adjoint is moved off the sum
+-         "alphas": None, "weights": None, "alpha_none": None,
+-         "of_drop": None,                    # an adjoint `of` key removed
+-         # ---- MP-A1's OWN FIXTURE KNOBS: the optimisation arm's shape.
+-         # The DEFAULT is the honest one for this ladder: the optimiser CONVERGES
+-         # on its own tolerance, which is the only state that can support a PASS.
+-         # Every other state is reachable by a knob and every one is DRIVEN by
+-         # `mpa1_grade_selftest.py`.
+-         "opt_exit": {a: "Optimal Solution Found." for a in ("O-S", "O-P")},
+-         "opt_stall": {a: "NO_STALL" for a in ("O-S", "O-P")},
+-         "opt_reduction_pct": {a: 12.5 for a in ("O-S", "O-P")},
+-         "opt_majors": {a: 12 for a in ("O-S", "O-P")},
+-         "opt_marker": {a: False for a in ("O-S", "O-P")},
+-         "opt_fail_flag": {a: False for a in ("O-S", "O-P")},
+-         # The endpoint arms state WHICH design point they evaluated at.  The
+-         # default is FINAL, which is the only state section 9 accepts.
+-         "design_point": {a: "FINAL" for a in ("XE-S", "XE-P", "FE-S", "FE-P")},
+-         "xopt_row": {a: ARM_ROW[a] for a in ("XE-S", "XE-P", "FE-S", "FE-P")},
+-         "terminal": {a: True for a in ARMS_DECLARED}, "stale": set(), "ctrl": "ok",
+-         "mpost": "20.00", "drop_row": set(), "drop_arm": set(), "inspect_file": set(),
+-         "rc_record": set(), "fatal": {}, "opt_key": {}, "chain_status": None,
+-         "datum": {a: ("plain" if a == "MESH" else "gz") for a in ARMS_DECLARED},
+-         "write_compression": "on", "evals_failed": {"SHIPPED": 1, "PATCHED": 1},
+-         "cl_base": [0.31, 0.50, 0.69], "cd_base": [0.0181, 0.0209, 0.0248],
+-         # MP-A1: the final-design CL offset from each registered target.  DEFAULT is
+-         # HELD (within TOL_CL_ABS, positive) -> G-CLHOLD PASS; a tweak pushes a point
+-         # out of band or negative to drive G-CLHOLD RED.
+-         "cl_hold_offset": [2.0e-4, 2.0e-4, 2.0e-4],
+-         "cl_target_override": False,   # stamp WRONG CL targets -> drive G-CLTGT RED
+-         "dl": "0.99 n=10 max_nr_throttled=0", "ledger_via_launcher": True}
+-    if tweak:
+-        tweak(k)
+-    root = os.path.join(tmp, "root_%d" % int(time.time() * 1e6))
+-    os.makedirs(root)
+-    ident_of = {a: {"libidwarp_so_md5": k["so"][a], "idwarp_file": "/x/idwarp/__init__.py",
+-                    "write_compression": k["write_compression"]} for a in ARMS_DECLARED}
+-    alphas = k["alphas"] if k["alphas"] is not None else list(ALPHAS_REGISTERED)
+-    weights = k["weights"] if k["weights"] is not None else list(WEIGHTS_REGISTERED)
+-    if k["alpha_none"] is not None:
+-        alphas = list(alphas)
+-        alphas[k["alpha_none"]] = None
+-    mp_ident = XF.build_identity_block(alphas, ["point%d.patchV" % i for i in range(N_SCEN)],
+-                                       weights)
+-
+-    def _dp(kk, a):
+-        """The design-point record the endpoint arms' producer stamps.
+-
+-        `UNSPECIFIED` is the producer's fail-closed default and is reachable here
+-        by a knob, because a gate that has only ever seen `FINAL` has not been
+-        shown able to refuse anything else."""
+-        w = kk["design_point"].get(a)
+-        if w is None:
+-            return None
+-        return {"design_point": w,
+-                "xopt_file": ("mpa1_xopt.json" if w == "FINAL" else None),
+-                "xopt_row": (kk["xopt_row"].get(a) if w == "FINAL" else None),
+-                "xopt_sha256": ("f" * 64 if w == "FINAL" else None),
+-                "xopt_linf": ("0.008" if w == "FINAL" else None),
+-                "xopt_J_final": (0.0123 if w == "FINAL" else None)}
+-
+-    for arm in ARMS_DECLARED:
+-        if arm in k["drop_arm"]:
+-            continue
+-        d = os.path.join(root, arm)
+-        tdir = "0.orig" if arm == "MESH" else "0"
+-        os.makedirs(os.path.join(d, tdir))
+-        os.makedirs(os.path.join(d, "system"), exist_ok=True)
+-        with open(os.path.join(d, CONTROLDICT_REL), "w") as fh:
+-            fh.write("writeFormat     ascii;\nwriteCompression %s;\n" % k["write_compression"])
+-        plain = os.path.join(d, tdir, "U")
+-        with open(plain, "w") as fh:
+-            fh.write("U\n")
+-        t0 = int(os.path.getmtime(plain))
+-        with open(os.path.join(d, DATUM_FILE), "w") as fh:
+-            fh.write("%d\n" % t0)
+-        kind = k["datum"][arm]
+-        if kind == "gz":
+-            os.remove(plain)
+-            gz = plain + ".gz"
+-            with open(gz, "w") as fh:
+-                fh.write("U compressed\n")
+-            os.utime(gz, (t0 + 3, t0 + 3))
+-        elif kind == "none":
+-            os.remove(plain)
+-
+-        log = "%s_x.log" % arm
+-        text = ("D4S_CONTAINER_UID: 0\nD4S_IDWARP_SO_MD5: %s\nD4S_DEADLINE_IN_CONTAINER_S: 600\n"
+-                % k["so"][arm])
+-        if ARM_KIND[arm] == "SOLVER":
+-            # REAL OPENFOAM BYTES: the banner discriminator and C5 both run on the
+-            # log this family actually produced -- 4 SIMPLE banners, 5 continuity
+-            # lines and 1 real convergence statement on a converged run.
+-            with open(REAL_ARMLOG, errors="replace") as fh:
+-                text += fh.read()
+-
+-        if arm == "MESH":
+-            art = os.path.join(d, "checkMesh.log")
+-            with open(REAL_CHECKMESH, errors="replace") as fh:
+-                real = fh.read()
+-            with open(art, "w") as fh:
+-                fh.write(re.sub(r"^(\s*cells:\s+)\d+", r"\g<1>%d" % k["cells"], real,
+-                                count=1, flags=re.M))
+-        else:
+-            rk = ARM_ROW[arm]
+-            art = os.path.join(d, ARTEFACT[arm])
+-            adj_cd = {i: [_adj_cd(i, kk) for kk in range(8)] for i in range(N_SCEN)}
+-            adj_cl = {i: [_adj_cl(i, kk) for kk in range(8)] for i in range(N_SCEN)}
+-            # The assembled J adjoint is summed THROUGH THE PRODUCER'S OWN
+-            # `weighted_J`, in the registered order, so G-MP-STRUCT's identity is
+-            # bit-for-bit the arithmetic the objective used.
+-            adj_J = [XF.weighted_J([adj_cd[i][kk] for i in range(N_SCEN)], weights)
+-                     for kk in range(8)]
+-            if k["mp_break"][rk] is not None:
+-                bk = k["mp_break"][rk]
+-                adj_J[bk] = adj_J[bk] * 1.5 + 1.0e-6
+-            if arm.startswith("O-"):
+-                # ---- THE OPTIMISATION ARTEFACT.  Built here rather than by the
+-                # producer's own writer for one honest reason: the producer
+-                # cannot be imported on the host (it needs mphys, dafoam, pygeo
+-                # and idwarp), so `mpa1_runScript_selftest.py` drives its
+-                # STRUCTURE on the host and this fixture drives the COMPARATOR
+-                # against a record of the registered shape.  That split is
+-                # stated rather than papered over -- the O record is the one
+-                # artefact in this item NOT written by its own producer's code
+-                # in this suite, and `read_O`'s schema check is what keeps the
+-                # two shapes married.
+-                base_J = XF.weighted_J(k["cd_base"], weights)
+-                red = k["opt_reduction_pct"][arm]
+-                fin_J = base_J * (1.0 - red / 100.0)
+-                nm = k["opt_majors"][arm]
+-                stall_word = k["opt_stall"][arm]
+-                stall = {"stall": stall_word, "n_majors_parsed": nm,
+-                         "n_restoration_majors": (7 if stall_word == "STALL" else 0),
+-                         "cumulative_line_search_cutbacks": (547 if stall_word == "STALL" else 0),
+-                         "n_stall_window": STALL.N_STALL,
+-                         "alpha_pr_min": STALL.ALPHA_PR_MIN,
+-                         "stop_at_major": (34 if stall_word == "STALL" else None),
+-                         "condition_A_alpha_pr_run": {"fired": stall_word == "STALL",
+-                                                      "longest_run": (17 if stall_word == "STALL" else 0),
+-                                                      "ends_at_major": (34 if stall_word == "STALL" else None)},
+-                         "condition_B_inf_du_nondecreasing": {"fired": False,
+-                                                              "ends_at_major": None,
+-                                                              "window": None}}
+-                rec = {"item": "MP-A1", "row": rk, "libidwarp_so_md5": k["so"][arm],
+-                       "nprocs": 1, "optimizer": "IPOPT",
+-                       "max_iter_registered": 50, "tol_registered": 1.0e-5,
+-                       "driver_fail_flag": k["opt_fail_flag"][arm],
+-                       "wall_s": 1234.5,
+-                       "alphas": list(ALPHAS_REGISTERED), "weights": list(weights),
+-                       "scenarios": list(SCENARIOS),
+-                       # MP-A1 fixture: the CL is HELD at the registered targets
+-                       # (shape=0 is the feasible seed, so baseline CL == targets),
+-                       # and the final CL stays within TOL_CL_ABS of them -- the run
+-                       # this item is BUILT to earn.  `k["cl_hold_offset"]` lets a
+-                       # tweak push a point out of band to drive G-CLHOLD RED.
+-                       "baseline": {"J": base_J, "CD": list(k["cd_base"]),
+-                                    "CL": list(CL_TARGET)},
+-                       "final": {"J": fin_J,
+-                                 "CD": [v * (1.0 - red / 100.0) for v in k["cd_base"]],
+-                                 "CL": [CL_TARGET[i] + k["cl_hold_offset"][i]
+-                                        for i in range(N_SCEN)]},
+-                       "shape_final": [0.001 * (i + 1) for i in range(8)],
+-                       "weighted_drag_reduction_pct": red,
+-                       "cl_target": ([t + 0.01 for t in CL_TARGET]
+-                                     if k["cl_target_override"] else list(CL_TARGET)),
+-                       "CL_baseline": list(CL_TARGET),
+-                       "CL_final": [CL_TARGET[i] + k["cl_hold_offset"][i]
+-                                    for i in range(N_SCEN)],
+-                       "optimiser_exit_statement": k["opt_exit"][arm],
+-                       "convergence_statement_in_log": k["opt_exit"][arm] is not None,
+-                       "converged_to_optimizer_tolerance": None,
+-                       "stall": stall,
+-                       "stall_abort_marker_present": k["opt_marker"][arm],
+-                       "output_file": "opt_IPOPT.txt"}
+-                with open(art, "w") as fh:
+-                    json.dump(rec, fh, indent=1, sort_keys=True)
+-            elif arm.startswith("XE"):
+-                adjoint = {OF_J: {"shape": XF.vec(adj_J)}}
+-                for i in range(N_SCEN):
+-                    adjoint[OF_CD[i]] = {"shape": XF.vec(adj_cd[i])}
+-                    adjoint[OF_CL[i]] = {"shape": XF.vec(adj_cl[i])}
+-                if k["of_drop"] is not None:
+-                    adjoint.pop(k["of_drop"], None)
+-                rec = XF.build_X_record(1, XF.PRODUCER_MD5, ident_of[arm], mp_ident, adjoint,
+-                                        XF.weighted_J(k["cd_base"], weights),
+-                                        k["cd_base"], k["cl_base"], 12.3,
+-                                        1, 0, [],
+-                                        design_point=_dp(k, arm))
+-                with open(art, "w") as fh:
+-                    json.dump(rec, fh, indent=1, sort_keys=True)
+-            else:
+-                rows_ = []
+-                mid = sorted(STEPS_REGISTERED["shape"])[1]
+-                for _dv, idx in XF.COMPONENTS:
+-                    if idx in k["fdfail"][rk]:
+-                        fd = {repr(s): XF.build_fd_row_failed(s, "AnalysisError(Primal solution failed!)")
+-                              for s in STEPS_REGISTERED["shape"]}
+-                        tb = {repr(s): XF.build_fd_row_failed(s, "AnalysisError(Primal solution failed!)")
+-                              for s in TB_STEPS_REGISTERED["shape"]}
+-                        rows_.append({"dv": "shape", "idx": idx, "status": "MEASURED",
+-                                      "fd": fd, "tb": tb})
+-                        continue
+-                    e = k["err"][rk].get(idx, 0.5)
+-                    dJ0 = adj_J[idx] * (1.0 + e / 100.0)
+-                    if idx in k["flip"][rk]:
+-                        dJ0 = -dJ0
+-                    if idx in k["nearzero"][rk]:
+-                        dJ0 = 0.0
+-                    dCD0 = [adj_cd[i][idx] * (1.0 + e / 100.0) for i in range(N_SCEN)]
+-                    dCL0 = [adj_cl[i][idx] * (1.0 + k["err_cl"][rk].get((i, idx), 0.5) / 100.0)
+-                            for i in range(N_SCEN)]
+-                    fd = {}
+-                    for s in STEPS_REGISTERED["shape"]:
+-                        f = 1.0 if s == mid else (1.5 if idx in k["noplateau"][rk] else 1.01)
+-                        fd[repr(s)] = _fd_entry(s, dJ0 * f, [v * f for v in dCD0],
+-                                                [v * f for v in dCL0])
+-                    tb = {}
+-                    for s in TB_STEPS_REGISTERED["shape"]:
+-                        # The WRONG step is registered to be NOISE.  x3 is two
+-                        # orders outside band D; the `tb_agree` tweak makes it
+-                        # agree instead, which is the direction G-TB must catch.
+-                        g = 1.001 if idx in k["tb_agree"][rk] else 3.0
+-                        tb[repr(s)] = _fd_entry(s, adj_J[idx] * g, [v * g for v in dCD0],
+-                                                [v * g for v in dCL0])
+-                    rows_.append({"dv": "shape", "idx": idx, "status": "MEASURED",
+-                                  "fd": fd, "tb": tb})
+-                ctrl = XF.build_ctrl_row(XF.weighted_J(k["cd_base"], weights),
+-                                         k["cd_base"], k["cl_base"])
+-                if k["ctrl"] == "dead":
+-                    ctrl["planted"]["d"]["J"] = repr(0.0)
+-                    ctrl["planted"]["d"]["CD"] = [repr(0.0)] * N_SCEN
+-                    ctrl["planted"]["d"]["CL"] = [repr(0.0)] * N_SCEN
+-                elif k["ctrl"] == "empty":
+-                    ctrl["fd"][repr(CTRL_STEP)]["d"]["CD"] = []
+-                    ctrl["planted"]["d"]["CD"] = []
+-                elif k["ctrl"] == "absent":
+-                    ctrl = None
+-                if ctrl is not None:
+-                    rows_.append(ctrl)
+-                rec = XF.build_F_record(
+-                    1, XF.PRODUCER_MD5, ident_of[arm], mp_ident, rows_,
+-                    XF.weighted_J(k["cd_base"], weights), XF.weighted_J(k["cd_base"], weights),
+-                    k["cd_base"], k["cd_base"], k["cl_base"], k["cl_base"],
+-                    0.0, XF.ETA_FLOOR, True, {"shape": [repr(0.0)] * 8},
+-                    EVALS_DECLARED, k["evals_failed"][rk], [],
+-                    design_point=_dp(k, arm))
+-                with open(art, "w") as fh:
+-                    json.dump(rec, fh, indent=1, sort_keys=True)
+-            if k["opt_key"].get(arm):
+-                with open(art) as fh:
+-                    j = json.load(fh)
+-                j[k["opt_key"][arm]] = 73
+-                with open(art, "w") as fh:
+-                    json.dump(j, fh, indent=1, sort_keys=True)
+-            if k["terminal"][arm]:
+-                text += TERMINAL[arm] + " ok\n"
+-        if arm in k["fatal"]:
+-            text += k["fatal"][arm] + "\n"
+-        os.utime(art, (t0 - 5, t0 - 5) if arm in k["stale"] else (t0 + 5, t0 + 5))
+-        with open(os.path.join(root, log), "w") as fh:
+-            fh.write(text)
+-        if arm in k["inspect_file"]:
+-            # THE SURVIVING KERNEL RECORD CARRIES THE REAL VALUE.  `rc_record`
+-            # suppresses the LEDGER row's field only -- that is what R-RC's
+-            # "absent from BOTH channels" means.
+-            ke = k["ke"].get(arm, k["rc"][arm])
+-            with open(os.path.join(root, "%s_x.inspect.txt" % arm), "w") as fh:
+-                fh.write("%s %s 2026-08-31T00:00:00Z 2026-08-31T00:01:00Z %s 12884901888 %s\n"
+-                         % (ke, k["oom"][arm], k["cs"][arm], IMG_DIGEST[ARM_ROW[arm]]))
+-
+-    led = ["ITEM=MPA1\n", "STAGED stamp=x\n"]
+-    rows_out = _ledger_rows_via_launcher(k) if k["ledger_via_launcher"] else LAUNCHER_ABSENT
+-    if isinstance(rows_out, str):
+-        READERS["R1_read_ledger"]["born"] = False
+-        READERS["R1_read_ledger"]["not_born_reason"] = (
+-            "mpa1_run_arm.sh:mpa1_ledger_row could not be sourced (%s); the fixture fell back to a "
+-            "hand-written row, which CANNOT catch a launcher/reader format divergence" % rows_out)
+-        rows_out = [("ARM=%s ROW=%s IMG=img DIGEST=%s rc=%d wall_s=60 ranks=%d core_min=%s "
+-                     "cap_core_min=%s enforced_wall_s=600 enforced_core_min=%s memory=12g "
+-                     "inspect(exit,oomkilled)=[%s %s] memavail_pre_GiB=20.00 "
+-                     "memavail_post_GiB=%s cpuset=%s delivered_cores_mean=[%s] siblings_pre=[] "
+-                     "siblings_post=[] log=%s_x.log stamp=x\n")
+-                    % (a, ARM_ROW[a], IMG_DIGEST[ARM_ROW[a]], k["rc"][a], ARM_RANKS[a],
+-                       k["cm"][a], CAPS[a], CAPS[a],
+-                       NOT_MEASURED if a in k["rc_record"] else k["ke"].get(a, k["rc"][a]),
+-                       k["oom"][a], k["mpost"], k["cs"][a], k["dl"], a)
+-                    for a in ARMS_DECLARED]
+-    else:
+-        READERS["R1_read_ledger"]["born"] = True
+-        READERS["R1_read_ledger"].pop("not_born_reason", None)
+-    for a, line in zip(ARMS_DECLARED, rows_out):
+-        if a not in k["drop_row"] and a not in k["drop_arm"]:
+-            led.append(line)
+-    with open(os.path.join(root, "ledger.txt"), "w") as fh:
+-        fh.write("".join(led))
+-    if k["chain_status"] is not None:
+-        with open(os.path.join(root, "STATUS.chain"), "w") as fh:
+-            fh.write(k["chain_status"] + "\n")
+-    return root
+-
+-
+-# ===================== the selftest ===================================================
+-STOP_MARKER_PATH = os.path.join(_HERE, "mpa1_stop_marker.sh")
+-
+-
+-def _write_grade(root, rec, name="MPA1_grade_selftest.json"):
+-    p = os.path.join(root, name)
+-    with open(p, "w") as fh:
+-        json.dump(rec, fh, indent=1, sort_keys=True, default=str)
+-    return p
+-
+-
+-def stop_marker_basename():
+-    """THE MARKER'S NAME IS READ OUT OF THE FROZEN SCRIPT, NEVER GUESSED.
+-
+-    This lane's first draft hardcoded `MPA1_STOP_MARKER.json`; the frozen writer
+-    writes `MPA1_STOP_MARKER.json` (mpa1_stop_marker.sh:59), so the check looked
+-    at an address nothing ever wrote and read `None` -- the SAME defect shape as
+-    SO-1c's, found here only because the consumer was DRIVEN rather than read.
+-    Binding the name to the producer's own line means a future rename REFUSES
+-    instead of silently reading an absent file as a failure."""
+-    if not os.path.isfile(STOP_MARKER_PATH):
+-        return None
+-    with open(STOP_MARKER_PATH, errors="replace") as fh:
+-        m = re.search(r'^MARKER="\$BASE/([^"]+)"', fh.read(), re.M)
+-    if not m:
+-        refuse("SCHEMA", {"stop_marker_MARKER_line_not_found": STOP_MARKER_PATH,
+-                          "note": ("the marker address is read out of the frozen writer; a writer "
+-                                   "whose address this reader cannot find is a schema break")})
+-    return m.group(1)
+-
+-
+-def _run_stop_marker(root, gpath, executed=N_DECLARED):
+-    """THE SCHEMA CONTRACT, DRIVEN -- see (I).  Runs the ALREADY-FROZEN consumer
+-    against an artefact THIS MODULE wrote and reports what the consumer could see.
+-    The rc is captured DIRECTLY from `subprocess.run`, never through a pipe --
+-    `cmd | tail` would hand back tail's rc, and three agents on this team misread
+-    an exit code that way in one day."""
+-    if not os.path.isfile(STOP_MARKER_PATH):
+-        return {"state": "NOT EXERCISED -- mpa1_stop_marker.sh absent", "rc": None, "marker": None}
+-    p = subprocess.run(["bash", STOP_MARKER_PATH, root, "0", str(N_DECLARED),
+-                        str(executed), gpath], capture_output=True, text=True)
+-    marker = os.path.join(root, stop_marker_basename())
+-    rec = None
+-    if os.path.isfile(marker):
+-        with open(marker) as fh:
+-            rec = json.load(fh)
+-    return {"state": "EXERCISED", "rc": p.returncode, "marker": rec, "marker_path": marker,
+-            "stdout": p.stdout.strip()[:400], "stderr": p.stderr.strip()[:400]}
+-
+-
+-def selftest(tmp):
+-    n = 0
++def selftest_deltas(tmp):
++    """G-D1..G-D5 FOCUSED SELFTEST -- drives the NEW MP-A1V logic both ways: the
++    D6RF7 clearance/ratio selector (_pair), per-member all-PASS + Branch-B
++    (_grade_family), and the ride helpers.  The inherited 7-arm selftest(tmp) is
++    SUPERSEDED (it exercises MP-A1's O/X-arm run-root structure MP-A1V rides away
++    and is not called); this suite needs no run-root fixture -- it constructs the
++    adjoint and FD-table dicts _pair/_grade_family actually read.
++
++    Reports the pass count and exercises, explicitly: (i) a member with one
++    divergent/below-clearance coarse step STILL grades over its cleared steps;
++    (ii) a member with too few cleared steps -> Branch-B NOT A RESULT."""
++    n = [0]
+     fails = []
+ 
+     def unit(name, cond):
+-        nonlocal n
+-        n += 1
++        n[0] += 1
+         if not cond:
+             fails.append(name)
+-        print("  [%s] %s" % ("OK " if cond else "BAD", name))
+-
+-    def refused(root):
+-        try:
+-            grade(root)
+-            return False
+-        except Refusal:
+-            return True
+-
+-    def tw(**kw):
+-        def f(k):
+-            for key, val in kw.items():
+-                if isinstance(val, dict) and isinstance(k.get(key), dict):
+-                    k[key].update(val)
+-                else:
+-                    k[key] = val
+-        return f
+-
+-    # ---- A. the clean fixture ------------------------------------------------------
+-    root0 = _fix(tmp)
+-    r = grade(root0)
+-    unit("U1 clean fixture -> item PASS, both rows PASS",
+-         r["verdict"] == "PASS" and r["rows"] == {"SHIPPED": "PASS", "PATCHED": "PASS"})
+-    unit("U2 clean fixture -> G-M2, G-ALPHA, G-NOOPT, G9, G10, G12 all PASS",
+-         r["gates"]["G-M2_mesh_identity"] == "PASS"
+-         and r["gates"]["G-ALPHA_operating_points"]["verdict"] == "PASS"
+-         and r["gates"]["G-NOOPT-ENDPOINT_no_optimiser_in_the_endpoint_arms"]["verdict"] == "PASS"
+-         and r["gates"]["G9_toolchain"]["verdict"] == "PASS"
+-         and r["gates"]["G10_caps"]["verdict"] == "PASS"
+-         and r["gates"]["G12_placement"]["verdict"] == "PASS")
+-    unit("U3 clean fixture -> G-MP-STRUCT PASS on both rows over a NON-EMPTY tuple",
+-         all(r["gates"]["G5J"][w]["G_MP_STRUCT_assembly_identity"]["verdict"] == "PASS"
+-             and r["gates"]["G5J"][w]["G_MP_STRUCT_assembly_identity"]["n_components_checked"] == 4
+-             for w in ("SHIPPED", "PATCHED")))
+-    unit("U4 clean fixture -> G5J grades 4 of 4 pairs on both rows, aggregate <= 1 %",
+-         all(r["gates"]["G5J"][w]["G5J_objective"]["n_graded_pairs"] == 4
+-             and r["gates"]["G5J"][w]["G5J_objective"]["aggregate_rel_err_pct"] <= 1.0
+-             for w in ("SHIPPED", "PATCHED")))
+-    unit("U5 clean fixture -> G5C grades all THREE scenarios, 4 pairs each",
+-         all(r["gates"]["G5J"][w]["G5C_lift_per_scenario"]["per_scenario"][s]["n_graded_pairs"] == 4
+-             for w in ("SHIPPED", "PATCHED") for s in SCENARIOS))
+-    unit("U6 clean fixture -> G-TB PASS: 0 of 4 components agree at the WRONG step h=1e-8",
+-         all(r["gates"]["G5J"][w]["G_TB_trivial_baseline"]["verdict"] == "PASS"
+-             and r["gates"]["G5J"][w]["G_TB_trivial_baseline"]["n_passing_at_the_wrong_step"] == 0
+-             for w in ("SHIPPED", "PATCHED")))
+-    # ---- MP-A1 GATES: G-CLHOLD, G-DRAG, G-CLTGT, G5C dCL_i/dx coverage ------------
+-    unit("U6a MP-A1 clean -> G-CLHOLD PASS both rows: lift HELD at all 3 targets, none negative",
+-         all(r["gates"]["G-CLHOLD_cl_satisfaction_per_row"][w]["verdict"] == "PASS"
+-             and all(p["held"] and p["cl_positive"]
+-                     for p in r["gates"]["G-CLHOLD_cl_satisfaction_per_row"][w]["per_point"].values())
+-             for w in ("SHIPPED", "PATCHED")))
+-    unit("U6b MP-A1 clean -> G-DRAG PASS both rows: final weighted J < baseline J",
+-         all(r["gates"]["G-DRAG_reduction_per_row"][w]["verdict"] == "PASS"
+-             and r["gates"]["G-DRAG_reduction_per_row"][w]["J_final"]
+-                 < r["gates"]["G-DRAG_reduction_per_row"][w]["J_baseline"]
+-             for w in ("SHIPPED", "PATCHED")))
+-    unit("U6c MP-A1 clean -> G-CLTGT PASS: stamped targets == registered CL_TARGET",
+-         all(r["gates"]["G-CLTGT_targets_registered_per_row"][w]["verdict"] == "PASS"
+-             for w in ("SHIPPED", "PATCHED")))
+-    unit("U6d G5C COVERS all THREE dCL_i/dx CONSTRAINT gradients at the final design (check-3)",
+-         all(r["gates"]["G5J"][w]["G5C_lift_per_scenario"].get("covers_constraint_gradients") is True
+-             and r["gates"]["G5J"][w]["G5C_lift_per_scenario"].get("n_cl_constraint_gradients_graded") == N_SCEN
+-             for w in ("SHIPPED", "PATCHED")))
+-    # G-CLHOLD fires RED both ways: out-of-band, and a NEGATIVE collapse (SO-3's mode).
+-    r_oob = grade(_fix(tmp, tw(cl_hold_offset=[2.0e-3, 2.0e-4, 2.0e-4])))
+-    unit("U6e G-CLHOLD RED: a point out of band (dev 2e-3 > TOL 1e-3) -> row + item GATE FAIL",
+-         r_oob["gates"]["G-CLHOLD_cl_satisfaction_per_row"]["PATCHED"]["verdict"] == "GATE FAIL"
+-         and r_oob["gates"]["G-CLHOLD_cl_satisfaction_per_row"]["PATCHED"]["per_point"][SCENARIOS[0]]["held"] is False
+-         and r_oob["rows"]["PATCHED"] == "GATE FAIL" and r_oob["verdict"] == "GATE FAIL")
+-    r_neg = grade(_fix(tmp, tw(cl_hold_offset=[-(CL_TARGET[0] + 0.05), 2.0e-4, 2.0e-4])))
+-    unit("U6f G-CLHOLD RED: lift driven NEGATIVE at point0 (SO-3's collapse) -> GATE FAIL",
+-         r_neg["gates"]["G-CLHOLD_cl_satisfaction_per_row"]["PATCHED"]["per_point"][SCENARIOS[0]]["cl_positive"] is False
+-         and r_neg["gates"]["G-CLHOLD_cl_satisfaction_per_row"]["PATCHED"]["verdict"] == "GATE FAIL"
+-         and r_neg["rows"]["PATCHED"] == "GATE FAIL")
+-    # G-DRAG fires RED: the constrained optimiser did not improve on the feasible seed.
+-    r_nod = grade(_fix(tmp, tw(opt_reduction_pct={"O-S": 0.0, "O-P": 0.0})))
+-    unit("U6g G-DRAG RED: final J == baseline J (no improvement) -> row + item GATE FAIL",
+-         r_nod["gates"]["G-DRAG_reduction_per_row"]["PATCHED"]["verdict"] == "GATE FAIL"
+-         and r_nod["rows"]["PATCHED"] == "GATE FAIL" and r_nod["verdict"] == "GATE FAIL")
+-    # G-CLTGT fires RED: the run stamped targets other than the registered ones.
+-    r_tgt = grade(_fix(tmp, tw(cl_target_override=True)))
+-    unit("U6h G-CLTGT RED: stamped targets != registered CL_TARGET -> GATE FAIL",
+-         r_tgt["gates"]["G-CLTGT_targets_registered_per_row"]["PATCHED"]["verdict"] == "GATE FAIL"
+-         and r_tgt["verdict"] == "GATE FAIL")
+-    # THE G-CLHOLD PLANTED CONTROL fired BOTH ways in the clean grade (rule 3).
+-    unit("U6i G-CLHOLD planted control fired both ways: held->PASS, planted->GATE FAIL, collapse->GATE FAIL, plant seen off disk",
+-         r["controls"]["grader_plant_clhold"]["exercised"] is True
+-         and r["controls"]["grader_plant_clhold"]["plant_seen"] is True
+-         and r["controls"]["grader_plant_clhold"]["v_held"] == "PASS"
+-         and r["controls"]["grader_plant_clhold"]["v_planted"] == "GATE FAIL"
+-         and r["controls"]["grader_plant_clhold"]["v_collapsed"] == "GATE FAIL")
+-    unit("U7 clean fixture -> every plateau proved PER PAIR, never once for the item",
+-         all("plateau_neighbour_pct" in p and len(p["plateau_neighbour_pct"]) == 2
+-             for w in ("SHIPPED", "PATCHED")
+-             for p in r["gates"]["G5J"][w]["G5J_objective"]["pairs"]))
+-    unit("U8 clean fixture -> G-STAGES silent: DECLARED 7 == EXECUTED 7, BOTH reported",
+-         r["gates"]["G-STAGES_declared_vs_executed"]["verdict"] == "PASS"
+-         and r["gates"]["G-STAGES_declared_vs_executed"]["declared"] == N_DECLARED
+-         and r["gates"]["G-STAGES_declared_vs_executed"]["executed"] == N_DECLARED)
+-    unit("U9 clean fixture -> the verdict is in the frozen vocabulary", r["verdict"] in VOCAB)
+-    unit("U10 clean fixture -> no GCI is quoted anywhere in the record",
+-         "GCI" not in json.dumps({kk: vv for kk, vv in r.items() if kk != "no_gci"}))
+-
+-    # ---- B. THE SCHEMA CONTRACT WITH THE FROZEN CONSUMERS -- see (I) ---------------
+-    gp = _write_grade(root0, r)
+-    sm = _run_stop_marker(root0, gp)
+-    unit("U11 SCHEMA the FROZEN mpa1_stop_marker.sh reads this artefact's verdict",
+-         sm["state"] == "EXERCISED" and sm["rc"] == 0 and sm["marker"] is not None
+-         and sm["marker"]["verdict"] == r["verdict"]
+-         and sm["marker"]["verdict_source"] == "COPIED FROM THE COMPARATOR ARTEFACT")
+-    unit("U11b SCHEMA the marker ADDRESS is read out of the frozen writer, never guessed",
+-         stop_marker_basename() == "MPA1_STOP_MARKER.json"
+-         and sm["marker_path"].endswith("MPA1_STOP_MARKER.json"))
+-    unit("U12 SCHEMA the FROZEN consumer finds gates.G5J -- the LITERAL key it looks for",
+-         sm["state"] == "EXERCISED" and sm["marker"] is not None
+-         and sm["marker"]["G5J"] != "NOT PRESENT IN THE ARTEFACT")
+-    r_break = json.loads(json.dumps(r, default=str))
+-    r_break["gates"]["G5J_PATCHED"] = r_break["gates"].pop("G5J")
+-    gp_b = _write_grade(root0, r_break, "MPA1_grade_schemabreak.json")
+-    sm_b = _run_stop_marker(root0, gp_b)
+-    unit("U13 SCHEMA the SAME check FAILS when the key is renamed -- the contract can fail",
+-         sm_b["state"] == "EXERCISED" and sm_b["marker"] is not None
+-         and sm_b["marker"]["G5J"] == "NOT PRESENT IN THE ARTEFACT")
+-    r_break2 = json.loads(json.dumps(r, default=str))
+-    r_break2["grade"] = {"verdict": r_break2.pop("verdict")}
+-    gp_b2 = _write_grade(root0, r_break2, "MPA1_grade_verdictbreak.json")
+-    sm_b2 = _run_stop_marker(root0, gp_b2)
+-    unit("U14 SCHEMA a verdict moved one level down reads PENDING, never a silent PASS",
+-         sm_b2["state"] == "EXERCISED" and sm_b2["marker"] is not None
+-         and sm_b2["marker"]["verdict"] == "PENDING")
+-    unit("U15 SCHEMA the frozen driver's --out flag is implemented by main()",
+-         "--out" in open(os.path.abspath(__file__)).read())
+-
+-    # ---- C. rule 3: the planted controls, BOTH DIRECTIONS --------------------------
+-    unit("U20 CONTROL instrument CTRL read back: 7 zero entries exactly 0.0 per row",
+-         all(r["controls"]["instrument_ctrl_%s" % rk]["n_zero_entries_read"] == 1 + 2 * N_SCEN
+-             for rk in ROWS))
+-    _want = r["controls"]["instrument_ctrl_%s" % ROWS[0]]["want"]
+-    unit("U21 CONTROL instrument CTRL planted side reads PLANT/(2*step) on all 7",
+-         len(r["controls"]["instrument_ctrl_%s" % ROWS[0]]["planted_read"]) == 1 + 2 * N_SCEN
+-         and all(abs(v - _want) <= 1e-12 * abs(_want)
+-                 for v in r["controls"]["instrument_ctrl_%s" % ROWS[0]]["planted_read"].values()))
+-    unit("U22 CONTROL a DEAD plant REFUSES (the reader cannot see the non-zero)",
+-         refused(_fix(tmp, tw(ctrl="dead"))))
+-    unit("U23 CONTROL an EMPTIED tuple REFUSES rather than raising IndexError",
+-         refused(_fix(tmp, tw(ctrl="empty"))))
+-    unit("U24 CONTROL an ABSENT CTRL row REFUSES", refused(_fix(tmp, tw(ctrl="absent"))))
+-    unit("U25 CONTROL grader_plant_F moved every derivative by exactly PLANT",
+-         all(r["controls"]["grader_plant_F_%s" % rk]["worst_residual"] < 1e-12
+-             and r["controls"]["grader_plant_F_%s" % rk]["n_values"] > 0 for rk in ROWS))
+-    unit("U26 CONTROL grader_plant_F traverses J, CD and CL at fd AND tb steps",
+-         r["controls"]["grader_plant_F_%s" % ROWS[0]]["n_values"]
+-         == len(XF.COMPONENTS) * (len(STEPS_REGISTERED["shape"]) + len(TB_STEPS_REGISTERED["shape"]))
+-         * (1 + 2 * N_SCEN))
+-    unit("U27 CONTROL THE FLIP: G5J PASS moves to GATE FAIL on the planted X copy",
+-         all(r["controls"]["grader_plant_X_%s" % rk]["G5J_unplanted"] == "PASS"
+-             and r["controls"]["grader_plant_X_%s" % rk]["G5J_planted"] == "GATE FAIL"
+-             for rk in ROWS))
+-    unit("U28 CONTROL THE FLIP: G-MP-STRUCT PASS moves to GATE FAIL on the planted X copy",
+-         all(r["controls"]["grader_plant_X_%s" % rk]["g_mp_struct_unplanted"] == "PASS"
+-             and r["controls"]["grader_plant_X_%s" % rk]["g_mp_struct_planted"] == "GATE FAIL"
+-             for rk in ROWS))
+-    unit("U28b CONTROL the flip control is COMPARATIVE: a row below the graded-pair floor "
+-         "reads NOT A RESULT planted AND unplanted, and is not refused",
+-         grade(_fix(tmp, tw(noplateau={"PATCHED": {0, 3}})))["rows"]["PATCHED"] == "NOT A RESULT")
+-    # ---- MP-A1's PLANT-SIZING UNITS.  The plant is RELATIVE to the band it must
+-    # ---- cross, and the sufficiency claim is DRIVEN AT AN INSUFFICIENT K.
+-    _pc = r["controls"]["grader_plant_X_%s" % ROWS[0]]
+-    unit("U28c PLANT SIZING: the production plant is RELATIVE, not absolute, and names "
+-         "its d_ref scale",
+-         _pc["plant_sizing"].startswith("RELATIVE") and _pc["d_ref_scale"] is not None
+-         and _pc["plant_K"] == PLANT_K)
+-    unit("U28d PLANT SIZING: the planted relative error is PLANT_K * band_D by "
+-         "construction, whatever the quantity's scale",
+-         abs(_pc["planted_rel_err_pct"] - PLANT_K * FD_BAND_PCT) < 1e-9)
+-    unit("U28e PLANT SIZING: the plant CLEARS the band it must cross",
+-         _pc["planted_rel_err_pct"] > FD_BAND_PCT)
+-    # THE SUFFICIENCY LEG, AND IT IS DRIVEN RED.  A claim that the plant is big
+-    # enough is worth nothing unless the same machinery is shown to FAIL to flip
+-    # the gate when the plant is too small.  `PLANT_K_INSUFF` reproduces SO-2M's
+-    # geometry exactly: a plant BELOW the band.  If this unit's condition ever
+-    # reads the other way, the flip in U27 was not caused by the plant crossing
+-    # the band and U27 is not evidence about the gate.
+-    _rk = ROWS[0]
+-    _Xr = read_X(os.path.join(root0, X_ARM[_rk], XF.OUT_X))
+-    _Fr = read_F(os.path.join(root0, F_ARM[_rk], XF.OUT_F))
+-    _ps = [p for p in grade_objective_gradient(_Xr, _Fr)["pairs"] if p.get("graded")]
+-    _k, _ref = _ps[0]["idx"], _ps[0]["d_ref"]
+-    _small = grader_plant_X(root0, os.path.join(root0, X_ARM[_rk], XF.OUT_X),
+-                            _rk + "_INSUFF", _k, scale=_ref, plant_k=PLANT_K_INSUFF)
+-    _v_small = grade_objective_gradient(read_X(_small["file"]), _Fr)["verdict"]
+-    unit("U28f PLANT SUFFICIENCY, DRIVEN RED: at PLANT_K_INSUFF the plant does NOT "
+-         "cross band D and the gate does NOT flip -- so U27's flip is caused by the "
+-         "plant crossing the band, not by any perturbation whatsoever (SO-2M's mode)",
+-         _small["planted_rel_err_pct"] < FD_BAND_PCT and _v_small == "PASS")
+-    unit("U28g PLANT SUFFICIENCY: the insufficient K reproduces SO-2M's geometry -- a "
+-         "plant inside the band, an EXERCISED control that demonstrates nothing",
+-         abs(_small["planted_rel_err_pct"] - PLANT_K_INSUFF * FD_BAND_PCT) < 1e-9)
+-    unit("U29 CONTROL grader_plant_cells reads a DIFFERENT number off changed real bytes",
+-         r["controls"]["grader_plant_cells"]["read_back"]
+-         == r["controls"]["grader_plant_cells"]["on_disk_before_plant"] + 7)
+-    unit("U30 CONTROL every planted control reports EXERCISED, none inferred from absence",
+-         all(isinstance(r["controls"][kk], dict) and "NOT EXERCISED" not in json.dumps(r["controls"][kk])
+-             for kk in ("instrument_ctrl_%s" % ROWS[0], "grader_plant_F_%s" % ROWS[0], "grader_plant_X_%s" % ROWS[0],
+-                        "grader_plant_cells", "grader_plant_c5")))
+-
+-    # ---- D. the ledger and the age guard -------------------------------------------
+-    unit("U40 R1 the ledger reader parsed every arm row",
+-         len(r["completion"]["arms"]) == N_DECLARED)
+-    unit("U41 R1 a PRESENT-BUT-GARBAGE ledger row REFUSES, never skipped",
+-         refused(_fix(tmp, tw(mpost="not a number at all here"))))
+-    unit("U41b R1 a STRUCTURALLY VALID row carrying a NON-NUMERIC field REFUSES BY NAME "
+-         "and does not raise -- a crash is not a verdict",
+-         refused(_fix(tmp, tw(mpost="abc"))))
+-    _nonnum = None
+-    try:
+-        grade(_fix(tmp, tw(mpost="abc")))
+-    except Refusal as _exc:
+-        _nonnum = json.loads(str(_exc))
+-    unit("U41c R1 that refusal NAMES the offending field, so a reader is not left "
+-         "guessing which column was garbage",
+-         _nonnum is not None
+-         and "memavail_post_GiB" in json.dumps(_nonnum))
+-    unit("U42 R7 the age datum resolved to the COMPRESSED twin on every solver arm",
+-         all(r["age_datum_resolution"][a]["is_compressed_twin"]
+-             for a in ARMS_DECLARED if ARM_KIND[a] == "SOLVER"))
+-    unit("U43 R7 NEITHER datum name present -> REFUSE (the AV-1/AV-2 failure)",
+-         refused(_fix(tmp, tw(datum={"XE-S": "none"}))))
+-    unit("U44 C4 a STALE artefact (older than its own datum) REFUSES",
+-         refused(_fix(tmp, tw(stale={"FE-P"}))))
+-    unit("U45 C1 a non-zero rc REFUSES", refused(_fix(tmp, tw(rc={"XE-P": 7}))))
+-    unit("U46 C1 harness/kernel rc disagreement REFUSES",
+-         refused(_fix(tmp, tw(ke={"XE-S": 3}))))
+-    unit("U47 G11 OOMKilled true REFUSES, never a re-fire",
+-         refused(_fix(tmp, tw(oom={"FE-S": "true"}))))
+-    r_rc = grade(_fix(tmp, tw(rc_record={"XE-S"}, inspect_file=set())))
+-    unit("U48 R-RC an rc RECORD absent from BOTH channels reads NOT_MEASURED with an INFERENCE",
+-         r_rc["rule4_clauses_per_arm"]["XE-S"]["C1_rc_value"]["verdict"] == NOT_MEASURED
+-         and r_rc["rc_inferences"]["XE-S"]["status"].startswith("INFERENCE"))
+-    unit("U49 R-RC relaxes a MISSING record, NEVER a positive reading of failure",
+-         refused(_fix(tmp, tw(rc_record={"XE-S"}, rc={"XE-S": 5}))))
+-
+-    # ---- E. C5 and the BANNER DISCRIMINATOR -- see (III) ----------------------------
+-    unit("U50 C5 a real crash line planted into the arm's own REAL bytes is SEEN",
+-         r["controls"]["grader_plant_c5"]["positive_sites"] == 1)
+-    unit("U51 C5 the UNPLANTED real bytes produce ZERO sites",
+-         r["controls"]["grader_plant_c5"]["negative_sites"] == 0)
+-    for _tok in ("FOAM FATAL ERROR", "Segmentation fault", "SIGSEGV", "MPI_ABORT", "Signal 11"):
+-        pass
+-    unit("U52 C5 every FATAL token planted in turn REFUSES",
+-         all(refused(_fix(tmp, tw(fatal={"XE-P": "  " + t + " here"})))
+-             for t in ("FOAM FATAL ERROR", "Segmentation fault", "SIGSEGV", "MPI_ABORT")))
+-    _bb = r["controls"]["grader_plant_c5"]["benign_banners_excluded_and_counted"]
+-    unit("U53 C5 none of the THREE banners is ever read as a crash site",
+-         all(v["sites"] == 0 for v in _bb.values()))
+-    unit("U53b C5 trapFpe DOES carry a fatal token and IS counted as a named benign exclusion",
+-         _bb["trapFpe"]["fatal_tokens_the_line_matches"] == ["Floating point exception"]
+-         and _bb["trapFpe"]["new_benign_lines"] == 1)
+-    unit("U53c C5 the SIMPLE banner and the continuity line match NO fatal token -- a "
+-         "DIFFERENT and weaker protection, stated as such",
+-         _bb["SIMPLE_banner"]["fatal_tokens_the_line_matches"] == []
+-         and _bb["continuity"]["fatal_tokens_the_line_matches"] == []
+-         and "weaker" in _bb["continuity"]["protected_by"])
+-    unit("U54 R3 the cells reader read 4032 off REAL checkMesh bytes", r["mesh_cells"] == 4032)
+-    unit("U55 G-M2 a different cell count is GATE FAIL -- a different mesh is a different item",
+-         grade(_fix(tmp, tw(cells=4031)))["gates"]["G-M2_mesh_identity"] == "GATE FAIL")
+-    conv = r["primal_convergence"]["per_arm"]["XE-S"]
+-    unit("U56 R2b the REAL convergence statement is read on the real converged log",
+-         conv["n_converged_statements"] == 1)
+-    unit("U57 R2b the SIMPLE banner is COUNTED SEPARATELY -- 4x on that same converged log",
+-         conv["banner_not_evidence"]["count"] == 4)
+-    unit("U58 R2b the discriminator does not move on a planted BANNER but DOES on a real statement",
+-         r["controls"]["grader_plant_c5"]["convergence_discriminator"]["unmoved_by_a_planted_banner"]
+-         and r["controls"]["grader_plant_c5"]["convergence_discriminator"]["moved_by_a_planted_REAL_statement"])
+-    unit("U59 R2b `Time step continuity errors` appears 5x and is NEVER a C5 site",
+-         r["controls"]["grader_plant_c5"]["benign_banners_excluded_and_counted"]["continuity"]["sites"] == 0
+-         and sum(1 for ln in open(REAL_ARMLOG, errors="replace")
+-                 if "Time step continuity errors" in ln) == 5)
+-
+-    # ---- F. the bright line, driven in the failing directions ----------------------
+-    unit("U60 R4 an adjoint `of` key missing (a scenario dropped) REFUSES",
+-         refused(_fix(tmp, tw(of_drop="CD2"))))
+-    unit("U61 G5J a 6 % error on one pair is GATE FAIL on that row",
+-         grade(_fix(tmp, tw(err={"PATCHED": {0: 6.0}})))["rows"]["PATCHED"] == "GATE FAIL")
+-    unit("U62 G5J a SIGN FLIP is GATE FAIL whatever the magnitude",
+-         grade(_fix(tmp, tw(flip={"PATCHED": {3}})))["rows"]["PATCHED"] == "GATE FAIL")
+-    r_np = grade(_fix(tmp, tw(noplateau={"PATCHED": {0, 3}})))
+-    unit("U63 G5J NO_PLATEAU pairs are EXCLUDED, COUNTED AND NAMED",
+-         r_np["gates"]["G5J"]["PATCHED"]["G5J_objective"]["excluded_by_reason"].get("NO_PLATEAU") == 2)
+-    unit("U64 G5J fewer than 3 graded pairs -> the ROW is NOT A RESULT",
+-         grade(_fix(tmp, tw(noplateau={"PATCHED": {0, 3, 6}})))["rows"]["PATCHED"] == "NOT A RESULT")
+-    r_fail = grade(_fix(tmp, tw(fdfail={"PATCHED": {0}})))
+-    unit("U65 G-EVALFAIL a FAILED evaluation marks its pairs ungraded and the row still grades",
+-         r_fail["gates"]["G5J"]["PATCHED"]["G5J_objective"]["excluded_by_reason"]
+-         .get("FD_STEP_FAILED_OR_ABSENT") == 1
+-         and r_fail["gates"]["G5J"]["PATCHED"]["G5J_objective"]["n_graded_pairs"] == 3
+-         and r_fail["rows"]["PATCHED"] == "PASS")
+-    unit("U66 G5J NEAR_ZERO pairs are excluded by reason, not silently graded",
+-         grade(_fix(tmp, tw(nearzero={"PATCHED": {0}})))["gates"]["G5J"]["PATCHED"]["G5J_objective"]
+-         ["excluded_by_reason"].get("NEAR_ZERO") == 1)
+-    unit("U67 G5C an error on ONE scenario's CL is GATE FAIL on that row",
+-         grade(_fix(tmp, tw(err_cl={"PATCHED": {(2, 3): 9.0}})))["rows"]["PATCHED"] == "GATE FAIL")
+-
+-    # ---- G. G-MP-STRUCT, G-TB, G-ALPHA, G-NOOPT, G-STAGES --------------------------
+-    unit("U70 G-MP-STRUCT a J adjoint moved off the weighted sum is GATE FAIL",
+-         grade(_fix(tmp, tw(mp_break={"PATCHED": 3})))["gates"]["G5J"]["PATCHED"]
+-         ["G_MP_STRUCT_assembly_identity"]["verdict"] == "GATE FAIL")
+-    unit("U71 G-MP-STRUCT that GATE FAIL composes into the row verdict",
+-         grade(_fix(tmp, tw(mp_break={"PATCHED": 3})))["rows"]["PATCHED"] == "GATE FAIL")
+-    r_tb = grade(_fix(tmp, tw(tb_agree={"PATCHED": {0, 3}})))
+-    unit("U72 G-TB 2 of 4 agreeing at the WRONG step is GATE FAIL",
+-         r_tb["gates"]["G5J"]["PATCHED"]["G_TB_trivial_baseline"]["verdict"] == "GATE FAIL"
+-         and r_tb["gates"]["G5J"]["PATCHED"]["G_TB_trivial_baseline"]["n_passing_at_the_wrong_step"] == 2)
+-    unit("U73 G-TB that GATE FAIL WITHDRAWS the row's G5J PASS to NOT A RESULT",
+-         r_tb["gates"]["G5J"]["PATCHED"]["G5J_objective"]["verdict"] == "PASS"
+-         and r_tb["rows"]["PATCHED"] == "NOT A RESULT")
+-    unit("U74 G-TB exactly 1 agreeing is still PASS (the registered threshold)",
+-         grade(_fix(tmp, tw(tb_agree={"PATCHED": {0}})))["gates"]["G5J"]["PATCHED"]
+-         ["G_TB_trivial_baseline"]["verdict"] == "PASS")
+-    unit("U75 G-TB an ERRORED probe counts as FAILING the baseline, not as agreement",
+-         grade(_fix(tmp, tw(fdfail={"PATCHED": {0}})))["gates"]["G5J"]["PATCHED"]
+-         ["G_TB_trivial_baseline"]["per_component"]["shape[0]"]["counts_as"].startswith("FAILING"))
+-    unit("U76 G-ALPHA an unregistered angle REFUSES (exit 2), it is not a GATE FAIL",
+-         refused(_fix(tmp, tw(alphas=[3.0, 5.13918623195176, 7.13918623195176]))))
+-    unit("U77 G-ALPHA an UNRESOLVED angle (None) REFUSES, never papered over",
+-         refused(_fix(tmp, tw(alpha_none=2))))
+-    unit("U78 G-ALPHA unregistered weights REFUSE",
+-         refused(_fix(tmp, tw(weights=[0.5, 0.25, 0.25]))))
+-    unit("U79 G-NOOPT an optimiser history key in an artefact REFUSES",
+-         all(refused(_fix(tmp, tw(opt_key={"XE-P": kk})))
+-             for kk in ("optimiser_history", "majors", "run_driver")))
+-    r_short = grade(_fix(tmp, tw(drop_arm={"XE-P", "FE-P"}, drop_row={"XE-P", "FE-P"})))
+-    unit("U80 CENSUS a chain stop is GRADED, not refused: arms that ran carry gate readings",
+-         r_short["arm_census"]["XE-P"]["state"] == "NOT RUN"
+-         and r_short["arm_census"]["MESH"]["state"] == "RAN"
+-         and r_short["gates"]["G5J"]["SHIPPED"]["state"] == "RAN")
+-    unit("U81 G-STAGES a shortfall with NO registered guard -> item NOT A RESULT",
+-         r_short["verdict"] == "NOT A RESULT"
+-         and r_short["gates"]["G-STAGES_declared_vs_executed"]["executed"] == N_DECLARED - 2
+-         and r_short["gates"]["G-STAGES_declared_vs_executed"]["declared"] == N_DECLARED)
+-    r_blk = grade(_fix(tmp, tw(drop_arm={"XE-P", "FE-P"}, drop_row={"XE-P", "FE-P"},
+-                               chain_status="chain=BLOCKED_H5 declared=%d executed=%d"
+-                                            % (N_DECLARED, N_DECLARED - 2))))
+-    unit("U82 G-STAGES the SAME shortfall under a REGISTERED guard -> item BLOCKED, guard named",
+-         r_blk["verdict"] == "BLOCKED"
+-         and "H5" in (r_blk["gates"]["G-STAGES_declared_vs_executed"]["registered_resource_guard"] or ""))
+-    unit("U83 G-STAGES neither shortfall row is PRE-FILTERED: declared 7 is reported both times",
+-         r_short["gates"]["G-STAGES_declared_vs_executed"]["arms_not_run"] == ["FE-P", "XE-P"] or r_short["gates"]["G-STAGES_declared_vs_executed"]["arms_not_run"] == ["XE-P", "FE-P"]
+-         and r_blk["gates"]["G-STAGES_declared_vs_executed"]["both_counts_reported"])
+-
+-    # ---- H. the file's own hygiene, and the rename collision check -----------------
+-    me = os.path.abspath(__file__)
+-    unit("U84 L-332 ast.Assert == 0 in this comparator", count_asserts(me) == 0)
+-    planted = os.path.join(tmp, "planted_assert.py")
+-    with open(planted, "w") as fh:
+-        fh.write("def f(x):\n    assert x\n    return x\n")
+-    unit("U85 L-332 the SAME counter counts a PLANTED assert -- the zero is not a blind reader",
+-         count_asserts(planted) == 1)
+-    unit("U86 the whole-file token-scan detector reads ZERO on this comparator",
+-         whole_file_token_scan_sites(me) == [])
+-    so1a = os.path.join(_HERE, "..", "curriculum_SO1a", "so1a_grade.py")
+-    if os.path.isfile(so1a):
+-        unit("U87 the SAME detector finds the KNOWN POSITIVE in so1a_grade.py (L-400)",
+-             "fatal_tokens_in" in whole_file_token_scan_sites(so1a))
+-    else:
+-        planted_ws = os.path.join(tmp, "planted_wholefile.py")
+-        with open(planted_ws, "w") as fh:
+-            fh.write("FATAL_TOKENS = ('X',)\n"
+-                     "def fatal_tokens_in(text):\n"
+-                     "    return [t for t in FATAL_TOKENS if t in text]\n")
+-        unit("U87 the SAME detector finds a PLANTED known positive (L-400; SO-1a's file absent)",
+-             whole_file_token_scan_sites(planted_ws) == ["fatal_tokens_in"])
+-    with open(me) as fh:
+-        src = fh.read()
+-    # The old alias is RECONSTRUCTED FROM PARTS so this file does not itself
+-    # contain the token it is proving absent -- a check whose own text is a hit
+-    # can only be satisfied by weakening the check.
+-    old_alias = "X" + "G"
+-    n_xg = len(re.findall(r"(?<![A-Za-z0-9_])%s(?![A-Za-z0-9_])" % old_alias, src))
+-    parent = os.path.join(_HERE, "..", "curriculum_SO2a", "so2a_grade.py")
+-    n_xf_in_parent = None
+-    if os.path.isfile(parent):
+-        with open(parent) as fh:
+-            psrc = fh.read()
+-        n_xf_in_parent = len(re.findall(r"(?<![A-Za-z0-9_])XF(?![A-Za-z0-9_])", psrc))
+-    unit("U88 RENAME half 1 -- the OLD alias %s is GONE from this file (%d occurrences)"
+-         % (old_alias, n_xg), n_xg == 0)
+-    unit("U89 RENAME half 2 -- COLLISION: the NEW name `XF` was NOT already bound in the parent",
+-         n_xf_in_parent == 0)
+-    unit("U90 the launcher PATH variable is never reassigned to hold the launcher's RESULT",
+-         "LAUNCHER_PATH" in src and "rows_out" in src
+-         and not re.search(r"^\s*LAUNCHER_PATH\s*=\s*_ledger_rows_via_launcher", src, re.M))
+-    unit("U91 the two launcher failure modes carry DISTINCT sentinels",
+-         LAUNCHER_ABSENT != LAUNCHER_UNPARSEABLE)
+-    unit("U92 SCHEMA no key is found by a recursive hunt: every nested read is registered",
+-         all(isinstance(v, tuple) for v in SCHEMA.values())
+-         and "def at(" in src and "SCHEMA[key]" in src)
+-    unit("U93 G-PROV the SHIPPED GATE FAIL travels and the verdict_line is byte-identical",
+-         r["upstream_provenance"]["verdict"] == "SATISFIED"
+-         and "GATE FAIL" in r["upstream_provenance"]["upstream"]["verdict_line"])
+-    unit("U94 G-PROV a mangled verdict_line REFUSES (L-405)",
+-         _prov_mangle_refuses())
+-    unit("U95 the registered ceiling IS the sum of the registered caps",
+-         abs(sum(CAPS.values()) - ITEM_CEILING_CORE_MIN) < 1e-9)
+-    unit("U96 the birth register names every reader and its born state",
+-         set(r["birth_register"]["readers"].keys()) == set(READERS.keys()))
+-    unit("U97 R1 born-state is HONEST: it reflects whether the real launcher was sourced",
+-         r["birth_register"]["readers"]["R1_read_ledger"]["born"]
+-         == os.path.isfile(LAUNCHER_PATH))
+-
+-    # ---- I. THE ROW-LABEL CALL-SITE SWEEP, ACROSS EVERY INSTRUMENT ----------------
+-    present, absent = mpa1_instrument_files()
+-    sweep = {os.path.basename(f): row_label_call_sites(f) for f in present}
+-    unit("U100 ROW-LABEL every built MP-A1 instrument is free of short-form row "
+-         "literals and positional row derivations (%d files swept, %d not yet built)"
+-         % (len(present), len(absent)),
+-         all(v == [] for v in sweep.values()))
+-    # THE PLANTED KNOWN POSITIVE IS ASSEMBLED FROM PARTS, so this file does not
+-    # itself contain the tokens the sweep hunts -- the same discipline U88 applies
+-    # to the old instrument alias.  A check whose own text is a hit can only be
+-    # satisfied by weakening the check.
+-    q, sf = chr(34), ROW_SHORT_FORMS
+-    bad_py = os.path.join(tmp, "planted_row_call_site.py")
+-    with open(bad_py, "w") as fh:
+-        fh.write("def pick(row):\n    if row == %s%s%s:\n        return 1\n"
+-                 "    return ROW_LABELS[row%s0%s]\n" % (q, sf[1], q, "[", "]"))
+-    bad_sh = os.path.join(tmp, "planted_row_call_site.sh")
+-    with open(bad_sh, "w") as fh:
+-        fh.write("ROW=%s\ncase %s${ARM:0:1}%s in X) echo x ;; esac\n" % (sf[1], q, q))
+-    unit("U101 ROW-LABEL the SAME sweep goes RED on a planted bad call site, in BOTH "
+-         "languages -- an empty sweep is a claim about the pattern until it does",
+-         len(row_label_call_sites(bad_py)) >= 2 and len(row_label_call_sites(bad_sh)) >= 1)
+-
+-    # ---- U101b.  THE SUFFIX-GLOB RULE, PROVED ABLE TO FAIL ON ITS OWN.
+-    # U101's shell plant is caught by the two OLDER shell rules, so it would stay
+-    # green with the suffix rule deleted -- it cannot speak for the rule that was
+-    # actually missing.  This plant carries ONLY the suffix-glob form, assembled
+-    # from parts so this file does not itself contain the token the sweep hunts,
+-    # and it must be caught by exactly the rule whose absence let
+-    # mpa1_chain_driver.sh's `img_of` through eight files of sweeping.
+-    # The DISCRIMINATOR is the second half: a case list of FULL arm names is the
+-    # REGISTERED form and must come back CLEAN through the same reader in the same
+-    # unit -- a rule that flagged both would forbid the repair it is asking for.
+-    glob_sh = os.path.join(tmp, "planted_suffix_glob.sh")
+-    star = chr(42)
+-    with open(glob_sh, "w") as fh:
+-        fh.write('pick() { case %s$1%s in MESH|%s-S) echo A ;; %s-P) echo B ;; esac; }\n'
+-                 % (q, q, star, star))
+-    clean_sh = os.path.join(tmp, "registered_full_name_table.sh")
+-    with open(clean_sh, "w") as fh:
+-        fh.write('pick() { case %s$1%s in X-S|X-P) echo A ;; F-S|F-P) echo B ;; esac; }\n'
+-                 % (q, q))
+-    unit("U101b ROW-LABEL the SUFFIX-GLOB rule fires on a suffix glob AND stays silent "
+-         "on the registered full-name table -- the rule that was missing from the SHELL "
+-         "rule set, and the reason the fourth consumer was swept eight times unseen",
+-         len(row_label_call_sites(glob_sh)) >= 1 and row_label_call_sites(clean_sh) == [])
+-
+-    unit("U102 DIVERGENCE the shipped-vs-patched limb actually RAN and reports a number "
+-         "(it was DEAD until the row-label sweep found its stale short-form keys)",
+-         r["divergence_shipped_vs_patched"]["worst_pct"] is not None)
+-
+-    print("\n  units run: %d   failures: %d" % (n, len(fails)))
+-    if absent:
+-        print("  ROW-LABEL SWEEP COVERAGE: %d of %d instruments swept; NOT YET BUILT: %s"
+-              % (len(present), len(present) + len(absent), ", ".join(absent)))
+-    for f in fails:
+-        print("  FAIL: %s" % f)
+-    if n != EXPECTED_UNITS:
+-        print("  UNIT COUNT %d != EXPECTED_UNITS %d -- the constant is bumped DELIBERATELY, "
+-              "with its reason, or the suite lost a unit" % (n, EXPECTED_UNITS))
+-        return 2
+-    return 0 if not fails else 2
+ 
++    eta = 2.21e-08
++    ladder = sorted(STEPS_REGISTERED["shape"])          # [1e-4, 3e-4, 1e-3, 3e-3]
+ 
+-def _prov_mangle_refuses():
+-    """U94's driver.  Mangles the stored `verdict_line` the way an unquoted
+-    heredoc mangled `docs/LAB_STATE.md` (L-405) and requires a REFUSAL, then
+-    restores the original bytes and proves the restore by comparing them."""
+-    orig = UPSTREAM["verdict_line"]
+-    UPSTREAM["verdict_line"] = orig.replace("GATE FAIL", "GATE FAIL ", 1)
+-    try:
+-        require_travelling_provenance()
+-        out = False
+-    except Refusal:
+-        out = True
+-    finally:
+-        UPSTREAM["verdict_line"] = orig
+-    return out and UPSTREAM["verdict_line"] == compose_verdict_line()
++    def mkX(of_key, k, jval):
++        vec = [0.0] * 8
++        vec[k] = jval
++        return {"adj": {of_key: vec}, "eta": eta}
++
++    def mkF(k, of_key, quantity, scen, per_step):
++        """per_step: {step: d_value or None(=diverged/absent)}.  Builds the F table
++        entry _pair reads (ok=False for a None step)."""
++        fd = {}
++        for s in ladder:
++            dv = per_step.get(s, None)
++            if dv is None:
++                fd[s] = {"ok": False, "error": "Primal solution failed!"}
++            else:
++                J = dv if quantity == "J" else 0.0
++                CL = [0.0, 0.0, 0.0]
++                if quantity == "CL":
++                    CL[scen] = dv
++                fd[s] = {"ok": True, "J": J, "CD": [0.0, 0.0, 0.0], "CL": CL}
++        return {"table": {("shape", k): {"status": "PLANNED", "fd": fd, "tb": {}}}, "eta": eta}
++
++    # ---- U1: all four steps ok, strong adjoint, flat -> PASS, graded at s_hi=3e-4.
++    k, j = 3, 0.02
++    ps = {1e-4: 0.02001, 3e-4: 0.02000, 1e-3: 0.02003, 3e-3: 0.02010}
++    p = _pair(mkX("J", k, j), mkF(k, "J", "J", None, ps), "J", "J", None, k)
++    unit("U1 all-ok strong adjoint flat -> PASS graded at s_hi", (
++        p.get("graded") and p.get("verdict") == "PASS"
++        and p.get("step_lo") == 1e-4 and p.get("step_hi") == 3e-4))
++
++    # ---- U2 (NAMED): one divergent COARSE step (3e-3 primal failed) STILL grades
++    # ---- over the cleared fine steps -- the recovery MP-A1's rigid rule denied.
++    ps2 = {1e-4: 0.02001, 3e-4: 0.02000, 1e-3: 0.02003, 3e-3: None}
++    p2 = _pair(mkX("J", k, j), mkF(k, "J", "J", None, ps2), "J", "J", None, k)
++    unit("U2 one divergent coarse step still grades over cleared steps", (
++        p2.get("graded") and p2.get("verdict") == "PASS"
++        and p2.get("reason") is None and p2.get("step_hi") == 3e-4))
++
++    # ---- U3 (NAMED): too few cleared steps -> NEAR_ZERO adjoint -> NO_CLEARANCE
++    # ---- Branch-B NOT A RESULT for that member (no substitution).
++    p3 = _pair(mkX("J", k, 1e-8), mkF(k, "J", "J", None, ps), "J", "J", None, k)
++    unit("U3 near-zero adjoint -> NO_CLEARANCE Branch-B", (
++        (not p3.get("graded")) and p3.get("branch_b") and p3.get("reason") == "NO_CLEARANCE"))
++
++    # ---- U4: out-of-band FD (d_hi far from adjoint) -> GATE FAIL.
++    ps4 = {1e-4: 0.030, 3e-4: 0.030, 1e-3: 0.030, 3e-3: 0.030}
++    p4 = _pair(mkX("J", k, j), mkF(k, "J", "J", None, ps4), "J", "J", None, k)
++    unit("U4 out-of-band -> GATE FAIL", p4.get("graded") and p4.get("verdict") == "GATE FAIL")
++
++    # ---- U5: sign flip -> GATE FAIL.
++    ps5 = {1e-4: -0.02001, 3e-4: -0.02000, 1e-3: -0.02003, 3e-3: -0.02010}
++    p5 = _pair(mkX("J", k, j), mkF(k, "J", "J", None, ps5), "J", "J", None, k)
++    unit("U5 sign flip -> GATE FAIL", p5.get("graded") and p5.get("sign_flip")
++         and p5.get("verdict") == "GATE FAIL")
++
++    # ---- U6: NO_S_HI -- only the coarsest step is ok, no factor-RATIO_MIN partner.
++    ps6 = {1e-4: None, 3e-4: None, 1e-3: None, 3e-3: 0.02010}
++    p6 = _pair(mkX("J", k, j), mkF(k, "J", "J", None, ps6), "J", "J", None, k)
++    unit("U6 single cleared step -> NO_S_HI Branch-B", (
++        (not p6.get("graded")) and p6.get("branch_b") and p6.get("reason") == "NO_S_HI"))
++
++    # ---- U7: _grade_family with all members PASS -> family PASS (all-must-pass).
++    fam_pass = _grade_family(None, None,
++                             [dict(p, idx=kk) for kk in (3, 6, 2)], "selftest fam PASS")
++    unit("U7 all members PASS -> family PASS",
++         fam_pass["verdict"] == "PASS" and fam_pass["n_graded_pairs"] == 3)
++
++    # ---- U8: one Branch-B member -> family NOT A RESULT with a MEASURED finding.
++    fam_bb = _grade_family(None, None, [dict(p, idx=3), dict(p, idx=6), dict(p3, idx=2)],
++                           "selftest fam Branch-B")
++    unit("U8 one Branch-B member -> NOT A RESULT + measured_finding", (
++        fam_bb["verdict"] == "NOT A RESULT" and fam_bb.get("measured_finding")
++        and any(m["idx"] == 2 for m in fam_bb["branch_b_members"])))
++
++    # ---- U9: one GATE FAIL member -> family GATE FAIL (band D fails on a flag).
++    fam_gf = _grade_family(None, None, [dict(p, idx=3), dict(p, idx=6), dict(p4, idx=2)],
++                           "selftest fam GATE FAIL")
++    unit("U9 one GATE FAIL member -> family GATE FAIL", fam_gf["verdict"] == "GATE FAIL")
++
++    # ---- U10: ride helpers.  _clhold_synth + g_clhold PASS at held targets; g_drag
++    # ---- PASS when J_final < carried J_baseline; _drag_synth reduction sign.
++    clh = g_clhold(_clhold_synth(list(CL_TARGET), "SHIPPED"))
++    unit("U10a g_clhold PASS at registered targets", clh["verdict"] == "PASS")
++    drg = g_drag(_drag_synth("SHIPPED", {"J_base": 0.02071, "CL_base": list(CL_TARGET)},
++                             0.02180598162892116))
++    unit("U10b g_drag PASS when J_final < carried J_baseline",
++         drg["verdict"] == "PASS" and drg["weighted_drag_reduction_pct"] > 0)
++
++    sys.stdout.write("SELFTEST_DELTAS %s -- %d units, %d failed%s\n" % (
++        ("PASS" if not fails else "FAIL"), n[0], len(fails),
++        ("" if not fails else ":\n  " + "\n  ".join(fails))))
++    return 0 if not fails else 1
+ 
+ 
+ def main():
+@@ -3895,8 +3245,12 @@
+                                       sort_keys=True))
+         return 2
+     if "--selftest" in sys.argv:
++        # G-D1..G-D5: run the FOCUSED delta suite (the inherited 7-arm selftest(tmp)
++        # is SUPERSEDED and NOT called -- it exercises MP-A1's O/X-arm run-root
++        # structure MP-A1V rides away; porting its fixture apparatus is deferred to
++        # the full-run validation, and the delta suite drives the NEW logic both ways).
+         with tempfile.TemporaryDirectory() as tmp:
+-            return selftest(tmp)
++            return selftest_deltas(tmp)
+     root, out = BASE, None
+     for i, a in enumerate(sys.argv):
+         if a == "--root" and i + 1 < len(sys.argv):
