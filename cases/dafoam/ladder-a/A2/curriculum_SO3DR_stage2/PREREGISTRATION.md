@@ -86,7 +86,7 @@ is derived from `d6r_opt_runScript.py` by:
    The registered `patchV_cl04 = [100, AoA]` from the D6R block is set directly; **AoA is NOT
    re-trimmed** (using the exact evaluated AoA is what holds design fixed). The primal is run once via
    `prob.run_model()` (`task="run"`), not `run_driver`.
-3. **Exact design injection** — `dvs.shape` (90 values), `dvs.twist` (7 values) and
+3. **Exact design injection** — `dvs.shape` (96 values, measured from the D6R log blocks — 5×17+11), `dvs.twist` (7 values) and
    `dvs.patchV_cl04` ([100, AoA]) are set to the exact arrays parsed from the registered
    `dv_block_line` in the D6R log, then the mesh is warped by DVGeo/idwarp exactly as the multipoint
    would. The geometry is therefore the identical warped mesh the multipoint evaluated.
@@ -171,7 +171,7 @@ pooled `r_sa` land near **24/36 ≈ 67 %** under the intrinsic hypothesis (clear
 | 235144 | 235200 | 869 | 0.88226794 | FAILED |
 | 249576 | 249632 | 922 | 0.86290253 | FAILED |
 
-The full design vectors (shape[90], twist[7], patchV_cl04) are recovered from each `dv_block_line`
+The full design vectors (shape[96], twist[7], patchV_cl04) are recovered from each `dv_block_line`
 at run time; only the block line and the corroborating AoA are tabulated here. Each leg's rig must
 echo-check the injected vector against the block (F4, §4).
 
@@ -298,7 +298,7 @@ convergence** (§3.3), never a banner.
 - **F4 — wrong design injected.** A rig bug that injects the wrong shape/twist/patchV makes the leg a
   different design. Guarded by an **echo check**: the leg's own log must print
   `Setting UMag = 100 AoA = <aoa>` matching the registered `cl04 AoA` to `|Δ| ≤ 1e-6`, **and** the
-  md5 of the injected shape[90]+twist[7] arrays must equal the md5 of the arrays parsed from the
+  md5 of the injected shape[96]+twist[7] arrays must equal the md5 of the arrays parsed from the
   registered `dv_block_line`. Any mismatch **REFUSES that leg** (NOT A RESULT for the leg), never a
   silent count. Arithmetic: |AoA_log − AoA_registered| > 1e-6 OR shape/twist md5 mismatch → REFUSE.
 - **F5 — indeterminate-band honesty.** A rate between the bands is not rounded into one.
