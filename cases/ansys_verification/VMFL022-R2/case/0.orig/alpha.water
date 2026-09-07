@@ -1,0 +1,14 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object alpha.water; }
+dimensions [0 0 0 0 0 0 0];
+internalField uniform 1;
+boundaryField
+{
+    inlet   { type inletOutlet; inletValue uniform 1; value uniform 1; }
+    outlet  { type inletOutlet; inletValue uniform 1; value uniform 1; }
+    orificeWall { type zeroGradient; }
+    stepWall    { type zeroGradient; }
+    pipeWall    { type zeroGradient; }
+    wedgeFront  { type wedge; }
+    wedgeBack   { type wedge; }
+    axis        { type empty; }
+}

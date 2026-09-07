@@ -1,0 +1,38 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+// VMFL022-R2 fvSolution.  DIFFERS from the base VMFL022 in ONE respect only:
+// the linear-solver tolerance set is TIGHTENED ~2 orders (L-500 applied at both
+// ends of the triple).  Rationale: in the base run the level-to-level Cd
+// difference (L2->L3 = 1.73e-3, i.e. 0.23% of Cd) was comparable to the finest
+// level's window CoV (0.22%) -- the L-500 / VMFL010 signature of a functional
+// difference sinking toward the iterative noise floor.  This transient PIMPLE
+// has NO outer-corrector residualControl loop (nOuterCorrectors 1), so the
+// per-step iterative noise floor is governed by the LINEAR-SOLVER tolerances;
+// tightening THOSE is the faithful transient-PIMPLE form of "tighten
+// residualControl" (supervisor's §3 ruling requirement 3).  The SAME tightened
+// values are applied to ALL THREE levels (N2R 24/48/96) -- a uniform a-priori
+// setting, never tuned per level and never chosen by reading Cd.
+solvers
+{
+    "alpha.water.*"
+    {
+        cAlpha 0; nAlphaCorr 2; nAlphaSubCycles 1;
+        MULESCorr yes; nLimiterIter 5;
+        solver smoothSolver; smoother symGaussSeidel;
+        tolerance 1e-10; relTol 0; maxIter 10;   // base 1e-8 -> 1e-10 (L-500)
+    }
+    "U.*" { solver smoothSolver; smoother symGaussSeidel; tolerance 1e-9; relTol 0; }   // base 1e-7 -> 1e-9
+    "(k|epsilon).*" { solver smoothSolver; smoother symGaussSeidel; tolerance 1e-10; relTol 0; }   // base 1e-8 -> 1e-10
+    p_rgh { solver GAMG; tolerance 1e-10; relTol 0.005; smoother DICGaussSeidel; maxIter 50; }   // base tol 1e-8 relTol 0.05 -> 1e-10 / 0.005
+    p_rghFinal { $p_rgh; relTol 0; }
+    "pcorr.*" { $p_rgh; relTol 0; }
+    Phi { $p_rgh; relTol 0; }
+}
+potentialFlow { nNonOrthogonalCorrectors 3; }
+PIMPLE
+{
+    momentumPredictor no;
+    nOuterCorrectors 1;
+    nCorrectors 3;
+    nNonOrthogonalCorrectors 1;
+}
+relaxationFactors { equations { "U.*" 1; "(k|epsilon).*" 1; } }
