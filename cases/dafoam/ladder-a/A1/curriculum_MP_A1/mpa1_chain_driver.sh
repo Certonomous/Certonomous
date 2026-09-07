@@ -81,7 +81,7 @@ DECLARED_ARMS=7                          # (e) section 5 Requirement 4
 # rc=4 BEFORE any container -- the W3 death mode -- so every pin below was computed
 # from the FINAL bytes of the file it pins, after the last code edit, and each is
 # DRIVEN against that file by mpa1_groot5_selftest.sh's (x12)/(x13)/(x14).
-MD5_LAUNCHER=f884672c32738b549ee79f4f400660ff   # mpa1_run_arm.sh
+MD5_LAUNCHER=3fab25cc046588f3fe7e528250c083aa   # mpa1_run_arm.sh
 # AMENDMENT 2, 2026-09-01, BEFORE FIRST COMPUTE.  RE-PINNED because the amendment
 # rewrote the very bytes this line pins: mpa1_grade.py:PRED["P_COST_band"] moved from
 # the inherited (14.0, 60.0) -- which had NO REACHABLE HIT on this item -- to the
