@@ -1,0 +1,81 @@
+{
+  "level": "L2",
+  "surface_cgns": "/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-coarse/surfaceMesh.cgns",
+  "surface_sha256": "1e11aae4e0e5a4caaffeb63f98a2626734075fb486de8dca93e32f554d143921",
+  "pyhyp_N": 47,
+  "cell_layers": 46,
+  "s0_REQUESTED_NOT_MEASURED": 0.0002,
+  "marchDist": 50.0,
+  "gates": {
+    "non_orth": 70.0,
+    "skew": 4.0
+  },
+  "planted_control": {
+    "control_log": "/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_R2_runs/L3/log.checkMesh",
+    "seen_max_non_orthogonality": 109.219,
+    "seen_negative_volume_cells": 2,
+    "control_PASSES": true
+  },
+  "cost": [
+    {
+      "stage": "pyhyp",
+      "wall_s": 47.9,
+      "ranks": 1,
+      "core_min": 0.7988,
+      "rc": 0
+    },
+    {
+      "stage": "plot3dToFoam",
+      "wall_s": 0.7,
+      "ranks": 1,
+      "core_min": 0.0115,
+      "rc": 0
+    },
+    {
+      "stage": "checkMesh",
+      "wall_s": 0.6,
+      "ranks": 1,
+      "core_min": 0.0101,
+      "rc": 0
+    }
+  ],
+  "level_result": {
+    "cells": "71760",
+    "points": "74965",
+    "max_non_orthogonality": "61.4646",
+    "avg_non_orthogonality": "13.0519",
+    "severe_non_ortho_faces": null,
+    "max_skewness": "2.05915",
+    "max_aspect_ratio": "304.711",
+    "min_cell_volume": "2.83391e-10",
+    "negative_volume_cells": null,
+    "face_orientation_errors": null,
+    "regions": "1",
+    "bounding_box": "(-43.9067 -45.5776 0) (48.4516 45.5798 45.1455)",
+    "mesh_ok_line": true,
+    "failed_checks_line": null,
+    "classification_evidence": {
+      "n_boundary_faces": 6248,
+      "symmetry_faces": 3128,
+      "wall_faces": 1560,
+      "farfield_faces": 1560,
+      "gap_width": 42.17830907372296
+    },
+    "points_sha256": "2b0ce2609edfacc7b5fbb1879733f6794df133f683f8bf6954f98b73daabee70",
+    "cells_expected": 71760,
+    "cells_match_expected": true,
+    "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/case/log.checkMesh",
+    "screen_clears_hard_gates": true,
+    "screen_detail": {
+      "max_non_orthogonality": 61.4646,
+      "gate_non_orth": 70.0,
+      "non_orth_clears": true,
+      "max_skewness": 2.05915,
+      "gate_skew": 4.0,
+      "skew_clears": true,
+      "negative_volume_cells": 0
+    }
+  },
+  "total_core_min_generation": 0.8204,
+  "generated_at_utc": "2026-09-07T21:35:34Z"
+}
