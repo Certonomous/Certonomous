@@ -20,6 +20,14 @@
 # cutover, every run would refuse and log rc=3, and the live hand-maintained board
 # would be untouched. The dangerous ordering is not merely documented; it is
 # unrepresentable from this wrapper, which never passes --adopt.
+#
+# 2026-09-07 (verification-supervisor, board hygiene): a SECOND, stronger interlock was
+# added to the merger -- a NOT-LIVE GUARD that HARD-REFUSES every real invocation with
+# rc 7 (a banner) until MERGE_LAB_STATE_CUTOVER_AUTHORIZED=1 is set in the environment.
+# This wrapper does NOT set that env, so if it were ever scheduled before cutover every
+# run would log rc=7 and do nothing. The system is DORMANT / not cut over; the live
+# board is the monolith docs/LAB_STATE.md via commit_private.sh. See
+# docs/lab_state/00_NOT_LIVE_READ_FIRST.md and docs/BOARD_MIGRATION_PROPOSAL.md.
 
 set -u
 REPO=/home/ubuntu/Certonomous

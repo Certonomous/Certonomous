@@ -27,6 +27,9 @@ validator in `lab_state_sources.validate()` answers one way that could happen.
   exit 5  REFUSED: the LIVE PLANTED CONTROL failed. Nothing written.
   exit 6  REFUSED-AFTER-WRITE: the board read back from disk is not the board that
           was built. The target is left in place and must be treated as suspect.
+  exit 7  NOT LIVE: the per-team-source system is not cut over. Every real run
+          refuses (banner to stderr) until MERGE_LAB_STATE_CUTOVER_AUTHORIZED=1
+          arms the deliberate cutover. --selftest is exempt. (Added 2026-09-07.)
 
 CUTOVER INTERLOCK. Until the board is adopted, docs/LAB_STATE.md is a hand-maintained
 file that six supervisors are actively splicing, and overwriting it would destroy
@@ -71,6 +74,36 @@ import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import lab_state_sources as M  # noqa: E402
+
+
+# ---------------------------------------------------------------------------
+# NOT-LIVE GUARD (2026-09-07, verification-supervisor, board-hygiene owner).
+# This per-team-source board system was COMMITTED WITHOUT CUTOVER and is DORMANT.
+# The LIVE board is the monolith docs/LAB_STATE.md, written via the guarded
+# scripts/../commit_private.sh (which carries the BOARD-CLOBBER GUARD). The
+# docs/lab_state/*.md source files are UNTRACKED and STALE (2026-08-31, pre-
+# convergence) -- they are NOT the board; do not read or write them as such.
+# A half-state already cost a team a stall (it read an empty/stale source).
+# Until a deliberate, chief-sequenced CUTOVER, this tool HARD-REFUSES every real
+# invocation (merge / --check / --adopt) with rc 7, printing this banner.
+# --selftest is exempt (the tool must stay self-verifiable). Cutover is armed by
+# setting MERGE_LAB_STATE_CUTOVER_AUTHORIZED=1 in the environment -- one explicit
+# human act, on top of the existing --adopt interlock. See docs/BOARD_MIGRATION_PROPOSAL.md.
+# ---------------------------------------------------------------------------
+CUTOVER_ENV = "MERGE_LAB_STATE_CUTOVER_AUTHORIZED"
+NOT_LIVE_BANNER = (
+    "=" * 78 + "\n"
+    "merge_lab_state.py is NOT LIVE -- the per-team-source board system has NOT\n"
+    "been cut over. REFUSED (rc 7); nothing read as the board, nothing written.\n"
+    "\n"
+    "  The LIVE board is docs/LAB_STATE.md, written via commit_private.sh\n"
+    "  (which carries the board-clobber guard). Write your section THERE.\n"
+    "  docs/lab_state/*.md are UNTRACKED, STALE (2026-08-31), and are NOT the board.\n"
+    "\n"
+    f"  Cutover is a deliberate, chief-sequenced act: set {CUTOVER_ENV}=1 AND run\n"
+    "  --adopt once. Until then this tool does nothing. See docs/BOARD_MIGRATION_PROPOSAL.md.\n"
+    + "=" * 78 + "\n"
+)
 
 
 def sha(b):
@@ -629,6 +662,10 @@ def main():
     if a.selftest:
         print("merge_lab_state.py --selftest")
         return selftest()
+    # NOT-LIVE GUARD: refuse every real invocation until a deliberate cutover arms it.
+    if os.environ.get(CUTOVER_ENV) != "1":
+        sys.stderr.write(NOT_LIVE_BANNER)
+        return 7
     return run_merge(src_dir=a.src_dir, out=a.out, check=a.check, adopt=a.adopt,
                      quiet=False)
 
