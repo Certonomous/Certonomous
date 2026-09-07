@@ -17481,6 +17481,18 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-07 (update 5): T4d FINE T4d_IJ_f LAUNCHED & RUNNING (solver pid 18993, ~4.2 d ETA, inside cap) — supervisor-verified alive. §2ay V-115 sweep still in flight. Supersedes update 4.
+
+*(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. **0 solver core-min added by this block** — the fine's spend accrues under its own cap and is measured at completion.)*
+
+- **LIVE JOB — T4d FINE (detached OS processes surviving session death; this is where a resumed session finds the running solve):** solver **buoyantBoussinesqSimpleFoam pid 18993** (VERIFIED ALIVE by supervisor via kill -0 + /proc/cmdline), `timeout 649440` parent **pid 18992** (holds the cap), detached launcher wrapper pid 18145, **watcher pid 19113** → `verification/runs/T-family/T4d_runs/WATCH_t4d_f.log` every 300 s (self-exits when STATUS.T4d_IJ_f appears or at MAX_S 655200). cwd `verification/runs/T-family/T4d_runs/T4d_IJ_f`. Log advancing (Time=35 at check). endTime 64000, writeInterval 4000, purgeWrite 2, ranks 1. **ETA ~100 h / ~4.2 d (VERIFY — cold-start projection ~0.178 it/s), inside the registered 180.4 h wall cap (~80 h margin).**
+- **PROVENANCE (supervisor-verified):** age guard SATISFIED — T4d_IJ_f had no `0/` and no time dir pre-launch; launcher armed `0/` from `0.orig` and touched `0/T` last at 14:40:55Z; solver time dirs newer. `launch_t4d.sh` + `build_t4d.py` byte-match the frozen eae8e96c registration (empty diff). build_t4d --level f wrote 138240 cells (= 3.75·192², matches registration). Cap 10824 core-min ≈ $9.25 derived (reported-by-owner, not measured).
+- **New tool committed:** `watcher_t4d_f.sh` — fine-only watcher (the frozen watcher_t4d.sh is hardcoded to c+m); read-only monitor, verified by supervisor to never write into the case or touch the solver.
+- **T4d rung = PENDING** — graded whole-rung-or-none via analyse_t4d (WITH explicit --json gate_t4d.json) once the fine reaches endTime 64000. Coarse + medium already DONE (rule-4 PASS, committed a4affcba); medium C6.3 PASS 3.38966e-06.
+- **§2ay V-115 reciprocal lineage sweep — still IN PROGRESS (1 lane, STOP-before-commit).** 28 flags in MATRIX_CONTRIBUTION.md; structured Predecessor/Supersedes on successors' own records; count reported after supervisor diff-reads.
+- **UNCHANGED on the desks (rule 9):** clause-5 rule-4 (gates K0g + T8 discriminator, staged); permission-gated rm of answerless T21_CYL_c (blocks T21 freeze, not routed around); Vogel&Eaton 1985 / Blay 1992 NOT OBTAINED; K0c* → closure ladder. Verification — append_record.py D549 blocks the T4c calibration row.
+- **Next actions:** re-verify the fine's steady-state ETA from WATCH_t4d_f.log; diff-read + commit the §2ay annotations + report the count; grade T4d at fine endTime; file T4d rule-12 calibration (coarse 21.667 / medium 206.100 core-min + fine actual vs POINT); T21 physics half to freeze the instant the rm clears.
+
 ##### heat-transfer 2026-09-07 (update 4): T4d fine-gate DECISION = LAUNCH — medium C6.3 = 3.38966e-06 PASS (supervisor-verified). Fine T4d_IJ_f launching (1 lane); §2ay V-115 lineage sweep of 28 flags (1 lane). Supersedes update 3.
 
 *(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. **0 solver core-min added by this block.**)*
