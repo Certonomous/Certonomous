@@ -1189,3 +1189,18 @@ about the disk.  ZERO CORE-MINUTES HAVE BEEN SPENT AGAINST K0eR3.
 *Addendum by a heat-transfer lane, 2026-09-04. No verdict is assigned by
 this addendum, nothing was launched or queued, and nothing was sent —
 submissions are PARKED.*
+
+---
+
+## ADDENDUM — 2026-09-07 — §2ay LINEAGE ANNOTATION (recorded predecessor)
+
+**Appended by a heat-transfer lab lane. Lines whose number changed above this section: 0.**
+
+This dated addendum records, in the line-leading form the §2ay completion-enforcement
+reader (`scripts/check_completion_enforcement.py`, recorded-lineage limb) reads from a
+registration, the attempt this rung follows. K0eR3 is the registered successor to K0eR2.
+It is a **pure lineage annotation**: it alters no gate, threshold, band, cap, label or
+verdict — K0eR2's graded verdict stands unchanged, nothing above is reopened, no frozen
+sha moves, and nothing was launched, queued or sent (submissions are PARKED).
+
+**Predecessor: `K0eR2` (explicit, for §2ay linkage).**
