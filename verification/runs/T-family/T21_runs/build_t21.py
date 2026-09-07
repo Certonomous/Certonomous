@@ -76,6 +76,16 @@ MAT = {  # rho, cp, k  -- S1 line 1
 }
 FIELDS = ("T", "p")   # S6 conjunct 4: solid regions carry exactly T and p
 
+# ---- PHYSICS-DICT HALF (S3 heat source, S5.1 boundary, S6.2 g, S10 omissions) ----
+T_OUTER = 288.0        # K, housing_outer fixedValue sink (S5.1)
+T_INIT = 288.0         # K, uniform initial field (== the sink, a benign start)
+P_DUMMY = 1.0e5        # Pa, solid p is a REQUIRED-but-INERT field (S6 conjunct 4)
+SRC_NAME = "motorLoss"  # the registered source name; S9 S10 forge "...motorLoss...
+                        # for field T but never used" so this name is load-bearing
+# molWeight is INERT here: rhoConst sets density directly and molWeight does not
+# enter steady solid conduction (S10 omission 7).  Documented, not defaulted.
+MOLW = {"core": 55.0, "housing": 27.0}
+
 
 def refuse(msg):
     print("REFUSE: " + msg)
@@ -252,11 +262,217 @@ def build(case):
     return 0, p_sector, theta_read
 
 
+# ===========================================================================
+# THE PHYSICS-DICT HALF.
+#
+# WHY IT IS A SEPARATE PHASE (--physics) FROM THE MESH HALF (--case).
+#   splitMeshRegions creates system/<region>/{fvSchemes,fvSolution} as EMPTY
+#   STUBS -- measured: the on-disk post-split system/core/fvSchemes has empty
+#   divSchemes/gradSchemes/laplacianSchemes.  A physics dict written BEFORE the
+#   split would be clobbered.  So the physics half runs AFTER blockMesh +
+#   splitMeshRegions, into the split tree.  The mesh half (build/--case) is
+#   UNTOUCHED by this phase.
+#
+# THE ENTHALPY fvOptions TRAP (S3.1-3.4), avoided in ONE place each:
+#   * field is h, NOT T           -> sources { h (Su Sp); }  (a T source is
+#                                    silently never applied -> uniform solid)
+#   * key is `sources`, NOT       -> the 2206+ form; injectionRate does not
+#     injectionRate                  exist at v2606
+#   * volumeMode absolute         -> Su is the TOTAL sector power in W; OpenFOAM
+#                                    divides by the volume IT measured
+#   * P_sector = P_full*theta/2pi -> computed from theta READ BACK from the
+#                                    generated blockMeshDict via X.p_sector, the
+#                                    single place; written at full double
+#                                    precision so the comparator's 1e-12 check
+#                                    round-trips.  Source lives in core ONLY.
+#   fvOptions is read from constant/<region>/ (verified: fvOptions.C:50-83 tries
+#   constant then system; absent in both -> NO_READ, a SILENT zero source).
+# ===========================================================================
+
+import re                                                          # noqa: E402
+
+
+def read_region_patches(dst, region):
+    """Return [(name, type), ...] for a split region, read from its own
+    polyMesh/boundary.  The 0.orig boundaryField is generated FROM this, never
+    hard-coded, so a patch the split produced can never be missing from the
+    field (the classic 'boundaryField for patch X not found' first-launch
+    fatal) and a patch that vanished can never linger in the field."""
+    path = os.path.join(dst, "constant", region, "polyMesh", "boundary")
+    txt = open(path).read()
+    pats = []
+    for name, ptype in re.findall(r"(\w+)\s*\{[^{}]*?\btype\s+(\w+)\s*;", txt, re.S):
+        if name == "FoamFile":
+            continue
+        pats.append((name, ptype))
+    return pats
+
+
+def _classify(name, ptype):
+    """Map a patch to its (T-kind, p-kind).  Registered semantics (S5.1, S8.1):
+    wedge planes are wedge; the region interface is the solid-solid couple;
+    housing_outer is the fixedValue 288 K sink; every other wall (core_bore,
+    ends) is adiabatic."""
+    if ptype == "wedge":
+        return ("wedge", "wedge")
+    if ptype == "mappedWall" or name.endswith("_to_core") or name.endswith("_to_housing"):
+        return ("coupled", "calculated")
+    if name == "housing_outer":
+        return ("fixed", "calculated")
+    return ("adiabatic", "calculated")   # core_bore, ends -- adiabatic walls
+
+
+def _field_T(patches):
+    parts = []
+    for name, ptype in patches:
+        kind = _classify(name, ptype)[0]
+        if kind == "wedge":
+            body = "        type wedge;\n"
+        elif kind == "coupled":
+            # solid-solid couple; the ONLY couple this rung exercises (S10 om.3)
+            body = ("        type compressible::turbulentTemperatureRadCoupledMixed;\n"
+                    "        Tnbr T;\n        kappaMethod solidThermo;\n"
+                    "        qrNbr none;\n        qr none;\n"
+                    "        value uniform %.10g;\n" % T_INIT)
+        elif kind == "fixed":
+            body = "        type fixedValue;\n        value uniform %.10g;\n" % T_OUTER
+        else:
+            body = "        type zeroGradient;\n"          # adiabatic (S8.1)
+        parts.append("    %s\n    {\n%s    }\n" % (name, body))
+    return ("dimensions [0 0 0 1 0 0 0];\n\ninternalField uniform %.10g;\n\n"
+            "boundaryField\n{\n%s}\n" % (T_INIT, "".join(parts)))
+
+
+def _field_p(patches):
+    parts = []
+    for name, ptype in patches:
+        if _classify(name, ptype)[1] == "wedge":
+            body = "        type wedge;\n"
+        else:
+            body = "        type calculated;\n        value uniform %.10g;\n" % P_DUMMY
+        parts.append("    %s\n    {\n%s    }\n" % (name, body))
+    return ("dimensions [1 -1 -2 0 0 0 0];\n\ninternalField uniform %.10g;\n\n"
+            "boundaryField\n{\n%s}\n" % (P_DUMMY, "".join(parts)))
+
+
+def _thermo(region):
+    rho, cp, k = MAT[region]
+    return ("\nthermoType\n{\n    type heSolidThermo;\n    mixture pureMixture;\n"
+            "    transport constIso;\n    thermo hConst;\n"
+            "    equationOfState rhoConst;\n    specie specie;\n"
+            "    energy sensibleEnthalpy;\n}\n\n"
+            "mixture\n{\n    specie { molWeight %.6g; }\n"
+            "    transport { kappa %.10g; }\n"
+            "    thermodynamics { Hf 0; Cp %.10g; }\n"
+            "    equationOfState { rho %.10g; }\n}\n"
+            % (MOLW[region], k, cp, rho))
+
+
+def _fvoptions(p_sector):
+    """The enthalpy source, core region only.  field h; `sources` form;
+    volumeMode absolute; selectionMode all; Su = P_sector [W] at full double
+    precision (S3.1-3.4).  A source named T here would be SILENT."""
+    return ("\n%s\n{\n    type scalarSemiImplicitSource;\n    active true;\n"
+            "    selectionMode all;\n    volumeMode absolute;\n"
+            "    sources\n    {\n        h (%.17g 0);\n    }\n}\n"
+            % (SRC_NAME, p_sector))
+
+
+def _radiation():
+    return "\nradiationModel none;\n"     # S10 omission 4, explicit not defaulted
+
+
+def _region_fvschemes():
+    return ("\nddtSchemes { default steadyState; }\n"
+            "gradSchemes { default Gauss linear; }\n"
+            "divSchemes { default none; }\n"
+            "laplacianSchemes { default Gauss linear corrected; }\n"
+            "interpolationSchemes { default linear; }\n"
+            "snGradSchemes { default corrected; }\n")
+
+
+def _region_fvsolution():
+    # NO residualControl (T-6): the full endTime is run, convergence asserted.
+    return ("\nsolvers\n{\n    h\n    {\n        solver PCG;\n"
+            "        preconditioner DIC;\n        tolerance 1e-11;\n"
+            "        relTol 0;\n    }\n}\n\n"
+            "SIMPLE\n{\n    nNonOrthogonalCorrectors 0;\n}\n\n"
+            "relaxationFactors\n{\n    equations\n    {\n        h 0.99;\n    }\n}\n")
+
+
+def write_physics(dst, spec, p_sector, region_patches):
+    """Write the physics dicts into an already-split two-region tree.  The mesh
+    half is not read or written here."""
+    for r in ("core", "housing"):
+        if not region_patches.get(r):
+            refuse("region %r has no patches -- the tree is not split" % r)
+    # g -- MANDATORY even with zero fluid regions (S6.2; probe arm D fatal)
+    write(os.path.join(dst, "constant", "g"), "uniformDimensionedVectorField", "g",
+          "\ndimensions [0 1 -2 0 0 0 0];\nvalue (0 0 0);\n")
+    # regionProperties -- fluid () / solid (core housing)
+    write(os.path.join(dst, "constant", "regionProperties"), "dictionary",
+          "regionProperties", "\nregions\n(\n    fluid ()\n    solid (core housing)\n);\n")
+    for r in ("core", "housing"):
+        os.makedirs(os.path.join(dst, "constant", r), exist_ok=True)
+        os.makedirs(os.path.join(dst, "system", r), exist_ok=True)
+        os.makedirs(os.path.join(dst, "0.orig", r), exist_ok=True)
+        write(os.path.join(dst, "constant", r, "thermophysicalProperties"),
+              "dictionary", "thermophysicalProperties", _thermo(r))
+        write(os.path.join(dst, "constant", r, "radiationProperties"),
+              "dictionary", "radiationProperties", _radiation())
+        write(os.path.join(dst, "system", r, "fvSchemes"), "dictionary",
+              "fvSchemes", _region_fvschemes())
+        write(os.path.join(dst, "system", r, "fvSolution"), "dictionary",
+              "fvSolution", _region_fvsolution())
+        write(os.path.join(dst, "0.orig", r, "T"), "volScalarField", "T",
+              _field_T(region_patches[r]))
+        write(os.path.join(dst, "0.orig", r, "p"), "volScalarField", "p",
+              _field_p(region_patches[r]))
+    # THE SOURCE lives in core ONLY (S3.3); housing gets no fvOptions
+    write(os.path.join(dst, "constant", "core", "fvOptions"), "dictionary",
+          "fvOptions", _fvoptions(p_sector))
+    return 0
+
+
+def physics(case):
+    """--physics phase: write the physics dicts into a split tree."""
+    cases_intact_or_refuse()
+    if case not in CASES:
+        refuse("unknown case %r; registered set is %s" % (case, CASES_BASELINE))
+    spec = CASES[case]
+    dst = os.path.join(HERE, case)
+    for r in ("core", "housing"):
+        if not os.path.isfile(os.path.join(dst, "constant", r, "polyMesh", "boundary")):
+            refuse("%s: region %r not split -- run blockMesh + splitMeshRegions "
+                   "before --physics" % (dst, r))
+    # age guard: physics is NEVER written over an answer (0/ or a time dir)
+    for n in os.listdir(dst):
+        if n == "0" or (n.replace(".", "", 1).isdigit() and n != "0.orig"):
+            refuse("%s already holds %r -- physics is never written over an answer" % (dst, n))
+    # theta read BACK from the generated blockMeshDict -> p_sector, one place (T-4)
+    bmd = os.path.join(dst, "system", "blockMeshDict")
+    theta_read = theta_from_blockmeshdict(bmd)
+    if theta_read is None or abs(math.degrees(theta_read) - spec["theta"]) > 1e-6:
+        refuse("theta read back from %s is %s, expected %g deg -- the one-place "
+               "wedge-factor rule is broken" % (bmd, theta_read, spec["theta"]))
+    p_sec = X.p_sector(spec["pw"], theta_read)
+    patches = {r: read_region_patches(dst, r) for r in ("core", "housing")}
+    write_physics(dst, spec, p_sec, patches)
+    cases_intact_or_refuse()
+    print("physics %s: source %s h=%.9f W on core (P_full %.1f, theta %.4f deg "
+          "read back); housing_outer fixedValue %.1f K; core<->housing coupled; "
+          "radiation none; g (0 0 0)"
+          % (case, SRC_NAME, p_sec, spec["pw"], math.degrees(theta_read), T_OUTER))
+    return 0
+
+
 def main(argv):
     if "--selftest" in argv:
         return selftest()
+    if "--physics" in argv:
+        return physics(argv[argv.index("--physics") + 1])
     if "--case" not in argv:
-        refuse("usage: build_t21.py --case <name> | --selftest")
+        refuse("usage: build_t21.py --case <name> | --physics <name> | --selftest")
     return build(argv[argv.index("--case") + 1])[0]
 
 
@@ -290,6 +506,69 @@ def selftest():
             "blockMeshDict written")
         chk(not os.path.isdir(os.path.join(tmp, "T21_CYL_c", "0")),
             "no 0/ written -- the launcher makes it from 0.orig/ (T-7)")
+
+        # -------- PHYSICS-DICT HALF, on SYNTHETIC patches (no mesh needed) ----
+        print("  -- physics-dict half --")
+        cdst = os.path.join(tmp, "T21_CYL_c")
+        # the registered post-split patch set (measured from the proven mesh)
+        syn = {
+            "core":    [("core_bore", "wall"), ("wedge_front", "wedge"),
+                        ("wedge_back", "wedge"), ("ends", "wall"),
+                        ("core_to_housing", "mappedWall")],
+            "housing": [("housing_outer", "wall"), ("wedge_front", "wedge"),
+                        ("wedge_back", "wedge"), ("ends", "wall"),
+                        ("housing_to_core", "mappedWall")],
+        }
+        ps = X.p_sector(100.0, math.radians(5.0))
+        write_physics(cdst, CASES["T21_CYL_c"], ps, syn)
+
+        fvo = open(os.path.join(cdst, "constant", "core", "fvOptions")).read()
+        chk("scalarSemiImplicitSource" in fvo, "core fvOptions is scalarSemiImplicitSource")
+        chk("volumeMode absolute" in fvo, "volumeMode absolute (Su is total W, S3.3)")
+        chk("injectionRate" not in fvo, "injectionRate NOT written (does not exist at v2606, S3.2)")
+        m = re.search(r"sources\s*\{\s*h\s*\(\s*([-\d.eE+]+)\s+0\s*\)", fvo)
+        chk(m is not None, "source is on field h, `sources` form (S3.1) -- NOT on T")
+        chk(m and abs(float(m.group(1)) - ps) == 0.0,
+            "fvOptions Su round-trips EXACTLY to X.p_sector = %.12g W (anti-72x, S3.4)" % ps)
+        chk("field T " not in fvo and "T (" not in fvo.replace("h (", ""),
+            "no source on field T (a T source is the SILENT-zero trap, S3.1)")
+        chk(not os.path.isfile(os.path.join(cdst, "constant", "housing", "fvOptions")),
+            "housing has NO fvOptions -- the source is in core ONLY (S3.3)")
+
+        th_c = open(os.path.join(cdst, "constant", "core", "thermophysicalProperties")).read()
+        th_h = open(os.path.join(cdst, "constant", "housing", "thermophysicalProperties")).read()
+        chk("energy sensibleEnthalpy" in th_c, "core energy sensibleEnthalpy (equation is in h)")
+        chk("kappa 40" in th_c, "core kappa 40 W/mK (S1)")
+        chk("kappa 167" in th_h, "housing kappa 167 W/mK (S1)")
+
+        Th = open(os.path.join(cdst, "0.orig", "housing", "T")).read()
+        Tc = open(os.path.join(cdst, "0.orig", "core", "T")).read()
+        chk("fixedValue" in Th and "288" in Th, "housing_outer T fixedValue 288 K (S5.1)")
+        chk("turbulentTemperatureRadCoupledMixed" in Th and
+            "turbulentTemperatureRadCoupledMixed" in Tc,
+            "core<->housing solid-solid couple on both sides")
+        # every mesh patch appears in the field, and no extra (first-launch guard)
+        for r in ("core", "housing"):
+            names = {n for n, _ in syn[r]}
+            Tf = open(os.path.join(cdst, "0.orig", r, "T")).read()
+            got = set(re.findall(r"^    (\w+)\n    \{", Tf, re.M))
+            chk(got == names, "%s/T boundaryField covers EXACTLY its mesh patches" % r)
+
+        g = open(os.path.join(cdst, "constant", "g")).read()
+        chk("value (0 0 0)" in g, "constant/g value (0 0 0) -- mandatory, zero (S6.2)")
+        rp = open(os.path.join(cdst, "constant", "regionProperties")).read()
+        chk("fluid ()" in rp and "solid (core housing)" in rp, "regionProperties fluid()/solid(core housing)")
+        rad = open(os.path.join(cdst, "constant", "core", "radiationProperties")).read()
+        chk("radiationModel none" in rad, "radiationModel none, explicit (S10 om.4)")
+        fvsol = open(os.path.join(cdst, "system", "core", "fvSolution")).read()
+        chk("residualControl" not in fvsol, "NO residualControl (T-6, the T19 killer)")
+
+        # write_physics REFUSES on an unsplit region (empty patch list)
+        try:
+            write_physics(cdst, CASES["T21_CYL_c"], ps, {"core": [], "housing": syn["housing"]})
+            chk(False, "write_physics should refuse an unsplit region")
+        except SystemExit as e:
+            chk(e.code == 2, "write_physics REFUSES an unsplit region (exit %s)" % e.code)
     finally:
         HERE = real
         shutil.rmtree(tmp, ignore_errors=True)
