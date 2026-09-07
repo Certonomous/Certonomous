@@ -1430,6 +1430,83 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**TWENTY-FIRST SESSION, 2026-09-07 (closure-supervisor). CONTINUE. ZERO COMPUTE (0 solver
+core-min [MEASURED], 0 GPU-h, $0.00). ONE COMMITTABLE INCREMENT: the LR1 grade comparator
+`grade_lr1.py` is WRITTEN, my §3 diff-read done, a genuine defect CAUGHT AND FIXED before commit.
+This DISCHARGES LR1 freeze precondition (b) — the only precondition advanceable at zero compute.
+No solver, no case staged, no queue row, nothing frozen. HEAD at session start 3320b009 (peers).**
+
+**═══ NEW ARTIFACT — `cases/RANS_LES_closure_models/LR1_duct_qcr_ladder/grade_lr1.py` (DRAFT) ═══**
+The a-posteriori secondary-velocity comparator for the duct model-form ladder, freeze precondition
+(b) of `LR1_duct_qcr_ladder/PREREGISTRATION.md` §8. Written by a drafting lane on my dispatch,
+modelled on `G2_grid_triple_duct/grade_g2.py`; every threshold marked `DRAFT PENDING-FREEZE`, bound
+by sha256 at the freeze commit. Verified GREEN by ME: `--selftest` rc0 under BOTH `python3` and
+`python3 -O` (L-332), 0 "CONTROL DID NOT FIRE"; absent-root REFUSES rc2 (correct while all 27 run
+dirs ABSENT). Implements rule-3 planted-zero (round-trip a real U through the production `read_Usec`,
+recovery + inverse + blind arms), rule-5 Roache gating (only CONVERGING reaches p/f_ext/GCI), rule-1
+vocabulary refusal, rule-4 per-model completion+age-guard (physics/infra split L-342), IC1/IC2.
+Component indexing verified correct (V,W = vector [1],[2]). The f_ext-only gate (NO p-band/GCI
+ceiling, unlike G2) is FAITHFUL to LR1 §5.2, confirmed by me — not a defect.
+
+**═══ §3 CHECK #4/#1 — A DEFECT THE LANE'S OWN SELFTEST MISSED, CAUGHT BY MY DIFF-READ ═══**
+Assume-wrong-until-defended found a real defect in the linear-null BASELINE path (two parts, both
+destroying the §5.2-row-1 baseline PASS that "recovers where SST could not" rests on):
+- **E1** — the IC2 `|U_sec|` plateau applied a RELATIVE-movement test to a converged linear EVM's
+  round-off in-plane field (~1e-14 m/s, jitters O(100%) relative) → blocked the baseline to
+  NOT A RESULT, contradicting §6.3's "at the null the plateau is trivially satisfied." FIXED:
+  null-regime guard `abs(last) < FLOOR*U_BULK` (~0.085 m/s) → trivially plateaued; relative test
+  applies only to a signal above the floor. Consistent with `binary_class` since `last = ff_*U_BULK`.
+- **E2** — `grade()` ran `roache()` on linear-null noise BEFORE the binary; an exact-zero-fine
+  CONVERGING noise triple fired `roache`'s zero-fine refusal → exit-2 CRASH of the whole grade over a
+  model whose verdict ignores the triple. FIXED: compute `binary_class` first; `res = None` for
+  linear-null; `roache` runs only for a recovering model (rule 5 governs the RECOVERING metric only).
+The selftest passed pre-fix because it tested `model_verdict` in ISOLATION, never the integrated null
+path. Lane added a full-path arm (`_grade_linear_null_full_path`, LEVELS global-swap restored in
+`finally`) that fails-before/passes-after — I re-diffed the fix and re-ran green. LESSON CANDIDATE
+(a next action, not yet filed): a comparator selftest that exercises verdict-mapping as a unit can
+pass while the integrated grade path spuriously refuses the baseline model on round-off — test the
+null/baseline path END-TO-END through the real grader.
+
+**═══ FREEZE-PREP SETTLED (zero compute, my analytical call) — the BASELINES reconciliation ═══**
+LR1 §3.2 flagged a disagreement for me to settle: `_common/BASELINES.md` §4 row `AR_1_Ret_360` cites
+`in-plane |U| LES = 1.508 % of bulk` (EXACT; the board's "1.5%" was rounded) while my peak extraction
+gives 2.05 %. RESOLVED: different statistics — BASELINES' column sits among the field-RMS columns
+(U_rms/k_rms/tau_rms) and is a field-AGGREGATE (mean/RMS class, NOT pinned to mean-vs-RMS by §1's
+definitions table), while LR1's metric is the PEAK `|U_sec|_max/U_bulk`. Peak 2.05 % > aggregate
+1.508 % by ~1.36× is physically expected. NO contradiction. The LR1 band [0.0123,0.0287] binds to the
+PEAK 0.0205 with its artifact; BASELINES' 1.508 % does not enter it. To fold into the LR1 pre-freeze
+amendment (rule 2 amendments legal before freeze) at actual freeze time.
+
+**═══ DESIGN ITEM C — freeze-blocking, recorded (NOT a code bug) ═══**
+The certified binary currently rests on peak `|U_sec|` magnitude alone; corner-vortex TOPOLOGY is a
+PENDING sub-channel (§4.3 allowance), so a NON-CORNER spurious max could read "recovering". Corner-
+localization needs the real G2 mesh cell-centres, absent until G2 runs, so deferral to freeze-time is
+correct. AT FREEZE the certified-binary definition must be decided: magnitude-alone vs
+magnitude+corner-localization vs magnitude+full-topology — this defines what the wall-of-credentials
+claim asserts and may need Sanaa (it widens/sharpens the claim). ON HER DESK as a freeze-time item.
+
+**RUNGS WITHOUT VERDICTS — UNCHANGED, LR1 precondition (b) now DISCHARGED.** M1 ungraded · M1b/M1-C/
+R4b-Ib three drafts CHECK1 NOT DONE · R4b-I+R4b arm BLOCKED · M2 UNRULED since 08-28 · RC1/RC2 unfrozen ·
+Ling arm 2 frozen+UNFILED · G1b xr null (D550) · **LR1 DRAFTED, PENDING_SUPERVISOR_FREEZE**: of its 5
+freeze preconditions, (b) [comparator written+diff-read] is now DONE; (a) G2 run+CONVERGING and (e)
+sequencing remain compute/sequencing-gated, (c) 27 dirs absent is freeze-time, (d) OPTION (ii)
+confirmable at freeze. G2 also PENDING freeze (LR1's rung-2 prereq). FS2 and FS5 remain STANDING GATES.
+
+**NEXT ACTIONS.** (1) File the round-off/baseline-path lesson candidate (above) — separate commit,
+re-derive max L-number in-shell (rule 11). (2) LR1 freeze remains gated on G2 run (compute, sequenced
+behind M6/CRM+F6) — not this session. (3) At LR1 freeze: fold in the BASELINES reconciliation, decide
+design item C, confirm OPTION (ii), hash grade_lr1.py + PREREGISTRATION.md into the freeze commit.
+
+**ON SANAA'S DESK — five items UNCHANGED, plus the LR1 design-item-C freeze decision (new).**
+(a) GPU YES Ling arm 2, 40 GPU-h=$32.19 DERIVED, UNFILED; (b) R4b increment ruling owed since 08-28;
+(c) four withdrawn attributions; (d) two 2026-08-24 R3 quotations; (e) institutional-pull gap register
+(18 outstanding; Shih 1995 + Craft/Launder/Suga 1996 highest zero-compute leverage). NEW: LR1
+certified-binary definition (design item C) — a freeze-time decision, not a send. SUBMISSIONS PARKED.
+
+**BLOCKED — nothing blocks the zero-compute library/prep work. LR1 SOLVES sequenced behind M6/CRM + F6
+duct online + G2 freeze; library RUNNABLE growth blocked on Sanaa's institutional pull.**
+
+
 **TWENTIETH SESSION, 2026-09-07 (closure-supervisor). CONTINUE. ZERO COMPUTE, HEAD fda590b5.
 ONE COMMITTABLE INCREMENT: the duct-first ladder pre-registration DRAFT now exists. TWO lanes
 out-and-back (both returned); one blind-reader claim CAUGHT AND REFUTED by me before it reached
