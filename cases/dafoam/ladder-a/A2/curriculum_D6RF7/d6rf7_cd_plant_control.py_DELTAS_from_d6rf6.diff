@@ -1,0 +1,136 @@
+--- a/(rename-only-from-d6rf6) d6rf7_cd_plant_control.py	2026-09-07 16:39:32.459931242 +0000
++++ b/(D6RF7-fixed) d6rf7_cd_plant_control.py	2026-09-07 16:41:01.888571509 +0000
+@@ -150,6 +150,57 @@
+             "unperturbed": before}
+ 
+ 
++# =================== THE REGISTERED PRESENT-BUT-EMPTY DETECTOR ===============
++def points_empty_by_primal_raise(path, point=PLANT_POINT):
++    """D6RF7's ONE class of DELTA, and the ONE detector of the registered
++    present-but-empty product state.  Returns a detail dict when the artefact
++    is PRESENT ON DISK but carries NO CD to plant into BECAUSE THE PRIMAL RAISED
++    BY DESIGN (`primal_raised` truthy), else None.
++
++    WHY THIS EXISTS.  `P_conv` is the convergence probe: its registered
++    prediction is that the baseline primal FAILS G-CONV's floor, so DAFoam
++    raises `Primal solution failed!` after `End` and the producer's guard STILL
++    writes its product -- with `points = {}` and `primal_raised = True`
++    (d6rf7_fd_endpoint.py).  That present-but-empty state is the SAME
++    "nothing to plant into" condition as a file that never appeared, and it must
++    be handled the SAME WAY file-absence is: the control is NOT EXERCISED and
++    every CD-dependent gate reads NOT A RESULT for want of an input.  D6RF6
++    handled only file-ABSENCE and HARD-REFUSED here (points_present=[]), which
++    stopped grading before it could reach G-CONV and produce the very verdict
++    the probe predicts.  This detector is that gap closed.
++
++    FAIL-CLOSED.  A product whose points are empty WITHOUT `primal_raised` set
++    is NOT excused here -- it returns None and falls through to the reader's
++    own refusal.  Only the REGISTERED failure path (primal raised by design) is
++    treated as NOT EXERCISED; an unexpected empty product still refuses.  The
++    detection is read FROM THE ARTEFACT, never assumed.  This is the ONE
++    function both the control and the grader consult, so the state the control
++    excuses is byte-for-byte the state the gates route to no-input on."""
++    if path is None or not os.path.isfile(path):
++        return None
++    try:
++        with open(path) as fh:
++            doc = json.load(fh)
++    except (OSError, ValueError):
++        return None
++    pts = doc.get("points")
++    has_cd = (isinstance(pts, dict)
++              and isinstance(pts.get(point), dict)
++              and "CD" in pts[point])
++    if has_cd:
++        return None
++    if not doc.get("primal_raised"):
++        return None
++    return {"present_but_empty": True,
++            "points_present": sorted(pts) if isinstance(pts, dict) else None,
++            "registered_key_absent": "points.%s.CD" % point,
++            "primal_raised": True,
++            "primal_error": str(doc.get("primal_error"))[:400],
++            "n_primals_completed": doc.get("n_primals_completed"),
++            "legs_run": doc.get("legs_run"),
++            "artefact": path}
++
++
+ # ============================== THE CONTROL =================================
+ def run_cd_control(ctrl_dir, cd_path, reader=read_cd, point=PLANT_POINT):
+     """Section 3e's third control.  Plants into a COPY, reads it back FROM DISK
+@@ -176,6 +227,29 @@
+                              "REPORTED, never counted as a pass and never "
+                              "inferred from the absence of a failure.")})
+         return base
++    # ---- D6RF7: PRESENT-BUT-EMPTY, detected the SAME WAY file-absence is -----
++    # The artefact is on disk but carries no CD because the primal RAISED by
++    # design (points={}, primal_raised=True). There is nothing to plant into,
++    # exactly as for a file that never appeared, so the control is NOT
++    # EXERCISED -- never a refuse, never a pass. The parent D6RF6 refused here
++    # (points_present=[]) and stopped grading before G-CONV; this returns the
++    # token instead so grading survives the predicted failure path.
++    empty = points_empty_by_primal_raise(cd_path, point)
++    if empty is not None:
++        base.update({"state": NOT_EXERCISED,
++                     "reader_saw_the_plant": None,
++                     "present_but_empty": empty,
++                     "why": ("the producing arm's baseline primal RAISED BY "
++                             "DESIGN (P_conv is the convergence probe), so its "
++                             "product was written with points={} and there is "
++                             "no CD to plant into. This is the SAME "
++                             "nothing-to-plant-into state as an absent "
++                             "artefact and is handled the same way: NOT "
++                             "EXERCISED, REPORTED, never a pass and never a "
++                             "refuse. A refusal here would stop grading before "
++                             "G-CONV, which reads p from the LOG and is the "
++                             "gate the probe's prediction actually lands on.")})
++        return base
+     m_before = md5_of(cd_path)
+     unperturbed = float(reader(cd_path, point))
+     planted_copy = os.path.join(ctrl_dir, "d6rf7_fd_endpoint.PLANTED.json")
+@@ -337,11 +411,42 @@
+     if not ok3:
+         rc = 1
+ 
++    # ---- direction 4: D6RF7's own path -- PRESENT-BUT-EMPTY (primal raised) --
++    # The registered failure state of the P_conv probe: the product is on disk
++    # but points={} and primal_raised=True. The control MUST return NOT
++    # EXERCISED (not refuse, not pass), and the detector MUST also decline to
++    # excuse an empty product that does NOT carry primal_raised (fail-closed).
++    empty_prod = os.path.join(tmp, "empty_" + CD_ARTEFACT)
++    with open(empty_prod, "w") as fh:
++        json.dump({"points": {}, "primal_raised": True,
++                   "primal_error": "AnalysisError('Primal solution failed!')",
++                   "n_primals_completed": 1, "legs_run": ["baseline_RAISED"],
++                   "points_source": "FD_BASELINE_PRIMAL"},
++                  fh, indent=1, sort_keys=True)
++    em = run_cd_control(os.path.join(tmp, "ctrl_empty"), empty_prod)
++    ok4a = (em["state"] == NOT_EXERCISED and em["reader_saw_the_plant"] is None
++            and em.get("present_but_empty", {}).get("primal_raised") is True)
++    # fail-closed: empty WITHOUT primal_raised is NOT excused (detector -> None,
++    # the reader refuses as before). A control that excused ANY empty product
++    # would excuse a genuinely broken arm.
++    broken_prod = os.path.join(tmp, "broken_" + CD_ARTEFACT)
++    with open(broken_prod, "w") as fh:
++        json.dump({"points": {}}, fh, indent=1, sort_keys=True)
++    ok4b = points_empty_by_primal_raise(broken_prod) is None
++    ok4c = points_empty_by_primal_raise(empty_prod) is not None
++    ok4 = ok4a and ok4b and ok4c
++    print("  %-5s direction 4  present-but-empty(primal_raised) -> state=%s ; "
++          "fail-closed on empty-without-primal_raised=%s"
++          % ("OK" if ok4 else "FAIL", em["state"], ok4b))
++    if not ok4:
++        rc = 1
++
+     results["n_not_exercised_on_a_real_grading_run"] = (
+         "0 is REQUIRED at the freeze drive; this drive builds its own product "
+-        "so direction 1 is EXERCISED-PASS and direction 3 is the token's own "
+-        "test, not a skipped control")
+-    print("  RESULT %s  (positive=1  blind=%d  not-exercised-token=1)"
++        "so direction 1 is EXERCISED-PASS and directions 3/4 are the token's "
++        "own tests, not skipped controls")
++    print("  RESULT %s  (positive=1  blind=%d  not-exercised-token=2: absent + "
++          "present-but-empty)"
+           % ("ALL DIRECTIONS AS REGISTERED" if rc == 0 else "NOT AS REGISTERED",
+              len(BLIND)))
+     return rc

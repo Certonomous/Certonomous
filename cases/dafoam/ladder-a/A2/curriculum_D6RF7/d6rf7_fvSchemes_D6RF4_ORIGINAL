@@ -1,0 +1,90 @@
+/*--------------------------------*- C++ -*---------------------------------*\
+| ========                 |                                                 |
+| \      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \    /   O peration     | Version:  v1812                                 |
+|   \  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \/     M anipulation  |                                                 |
+\*--------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// ==========================================================================
+// D6RF5 -- THE `F5` DELIBERATELY-WRONG SCHEME BASELINE.
+//
+// DERIVED FROM the A2-wing base case fvSchemes actually run by D6RF4
+// (.../CURRICULUM-D6RF4-a2-wing-convergence-probe/base/system/fvSchemes,
+// md5 58dbed0a5b5b3b9f4baec1e257efcce5, verified on disk before this file was
+// written).  D6RF4 carried NO fvSchemes instrument of its own -- it changed
+// only fvSolution -- so the base case's fvSchemes IS the D6RF4 scheme, and it
+// is carried here BYTE-IDENTICAL below the FoamFile header, with only this
+// comment block added.  The deltas from this file to d6rf5_fvSchemes_LIMITED
+// are in d6rf5_fvSchemes_DELTAS_from_d6rf4.diff beside it.
+//
+// WHAT THIS FILE IS FOR.  This is the SCHEME the `F5` trivial baseline (leg L3)
+// runs: laplacianSchemes `Gauss linear corrected` (psi = 1, the full uncapped
+// non-orthogonal correction) and snGradSchemes `corrected`, at
+// nNonOrthogonalCorrectors 1.  PREREGISTRATION.md section 5 registers its
+// predicted G-CONV datum -- the p FIRST-solve initRes 1.658293702e-05
+// (MEASURED, D6RF4's own P_conv log :2107), 1.658x the 1.0e-05 accept floor --
+// as the value that FAILS G-CONV's own bar at zero additional compute.  It is
+// the wrong scheme on purpose; a G-CONV PASS at THIS scheme would withdraw
+// G-CONV's verdict (section 5 withdrawal clause).
+//
+// primalMinResTol/primalMinResTolDiff DO NOT APPEAR in any fvSchemes file and
+// are not touched by this item (the bright line, PREREGISTRATION.md section 0).
+// ==========================================================================
+
+ddtSchemes
+{
+    default                                             steadyState;
+}
+
+gradSchemes
+{
+    default                                             Gauss linear;
+}
+
+divSchemes
+{
+    default                                             none;
+    div(phi,U)                                          bounded Gauss linearUpwindV grad(U);
+    div(phi,e)                                          bounded Gauss upwind;
+    div(phi,h)                                          bounded Gauss upwind;
+    div(pc)                                             bounded Gauss upwind;
+    div(((rho*nuEff)*dev2(T(grad(U)))))                 Gauss linear;
+    div(phi,nuTilda)                                    bounded Gauss upwind;
+    div(phi,k)                                          bounded Gauss upwind;
+    div(phi,omega)                                      bounded Gauss upwind;
+    div(phi,epsilon)                                    bounded Gauss upwind;
+    div(phi,K)                                          bounded Gauss upwind;
+    div(phi,Ekp)                                        bounded Gauss upwind;
+}
+
+interpolationSchemes
+{
+    default                                             linear;
+}
+
+laplacianSchemes
+{
+    default                                             Gauss linear corrected;
+}
+
+snGradSchemes
+{
+    default                                             corrected;
+}
+
+wallDist
+{
+    method                                              meshWave;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -1,0 +1,185 @@
+--- a/(rename-only-from-d6rf6) d6rf7_grade.py	2026-09-07 16:39:32.618432052 +0000
++++ b/(D6RF7-fixed) d6rf7_grade.py	2026-09-07 16:52:46.567228724 +0000
+@@ -186,6 +186,15 @@
+ NOT_REGISTERED_STATE = "NOT_REGISTERED_AT_THIS_FREEZE"
+ NOT_REGISTERED_REASON = "ARM_NOT_REGISTERED_AT_THIS_FREEZE"
+ ARM_RAN_ARTEFACT_NOT_WRITTEN = "ARM_RAN_ARTEFACT_NOT_WRITTEN"
++# D6RF7's fourth no-input state, and the ONE class of DELTA this successor
++# carries. The arm RAN and the artefact IS on disk, but its `points` block is
++# EMPTY because the baseline primal RAISED BY DESIGN (P_conv is the convergence
++# probe; primal_raised=True). This is NOT `ARM_RAN_ARTEFACT_NOT_WRITTEN` -- the
++# artefact WAS written; saying otherwise is a false statement about the run --
++# and it is NOT a GATE FAIL. It is the SAME nothing-to-read state as an absent
++# artefact, and every CD-dependent gate reads NOT A RESULT for want of an input
++# under THIS token. Detected from the artefact by cdc.points_empty_by_primal_raise.
++ARM_RAN_PRIMAL_RAISED_POINTS_EMPTY = "ARM_RAN_PRIMAL_RAISED_POINTS_EMPTY"
+ 
+ RANKS = 4
+ CAPS = {"P_conv": 186.00}   # PREREGISTRATION.md sec 7/10.6, adopted MAX form: max(3.0*62.0, 1.6667*62.0)
+@@ -430,7 +439,7 @@
+ # is EMPTY BY REGISTRATION, and the rule-3 FD control over it is NOT EXERCISED
+ # rather than refused.  `full` is deliberately ABSENT from this set: a `full`
+ # arm with an empty product is a broken FD arm and must still refuse.
+-NO_FD_MODES = ("P_conv", "F5_loose")
++NO_FD_MODES = ("P_conv", "F5_scheme")  # D6RF7: the producer's modes are P_conv/F5_scheme/full (d6rf7_fd_endpoint.py MODES); the retired F5_loose name is gone. Both P_conv and the F5_scheme falsifier take NO FD step, so a product from either is empty BY REGISTRATION and the rule-3 FD control over it is NOT EXERCISED, never refused.
+ LEG_ROLE = {"L1": "the LIMITED-scheme cl04 baseline -- G-CONV's and G-SCHEME's subject",
+             "L2": "the LIMITED-scheme cl04 baseline_repeat -- it BUYS eta_raw, "
+                   "which is falsifier F1's bar (D6RF4-DEF-8 repair part 1)",
+@@ -664,6 +673,27 @@
+                           "not run, so this gate has NO INPUT. That is NOT a "
+                           "GATE FAIL -- nothing was measured that could fail.")
+         return "ARM_DID_NOT_RUN", detail
++    # D6RF7's OWN STATE: arm RAN, artefact PRESENT, but its points are EMPTY
++    # because the primal RAISED BY DESIGN. Distinguished from the two states
++    # below by reading the artefact -- never assumed -- with the SAME detector
++    # the section-3e control uses, so the record cannot say "not written" about
++    # a file that IS on disk. This is the state P_conv is registered to reach.
++    if artefact is not None and root is not None:
++        _p = os.path.join(root, ARM_DIR.get(arm, arm), artefact)
++        _empty = cdc.points_empty_by_primal_raise(_p)
++        if _empty is not None:
++            detail["artefact"] = artefact
++            detail["expected_at"] = _p
++            detail["present_but_empty"] = _empty
++            detail["note"] = (
++                "the producing arm RAN and its artefact IS on disk, but its "
++                "`points` block is EMPTY because the baseline primal RAISED BY "
++                "DESIGN (P_conv is the convergence probe; primal_raised=True). "
++                "There is no CD to read, so this gate has NO INPUT. That is NOT "
++                "a GATE FAIL and NOT an artefact that was never written -- the "
++                "prediction is that G-CONV, which reads p from the LOG, fails; "
++                "the CD-dependent gates simply have nothing to grade.")
++            return ARM_RAN_PRIMAL_RAISED_POINTS_EMPTY, detail
+     # THE STATE D6RF3 ACTUALLY HIT AND HAD NO TOKEN FOR.
+     detail["note"] = (
+         "the producing arm RAN and the registered artefact was NOT WRITTEN. "
+@@ -966,6 +996,9 @@
+             cdc.read_cd is _cdc_again.read_cd,
+         "cdc.run_cd_control defaults to that same reader":
+             (cdc.run_cd_control.__defaults__ or (None,))[0] is cdc.read_cd,
++        "the present-but-empty detector the gates route on IS the control's":
++            _cdc_again.points_empty_by_primal_raise
++            is cdc.points_empty_by_primal_raise,
+         "afc.read_accept_floor is the gate's accept-floor reader":
+             afc.read_accept_floor is _afc_again.read_accept_floor,
+         "afc.run_floor_control defaults to that same reader":
+@@ -1759,9 +1792,36 @@
+                 continue
+             if s.startswith(LEG_BEGIN):
+                 parts = s.split()
+-                cur = {"tag": parts[1] if len(parts) > 1 else None,
+-                       "mode": next((x.split("=", 1)[1] for x in parts
+-                                     if x.startswith("mode=")), None),
++                tag = parts[1] if len(parts) > 1 else None
++                mode = next((x.split("=", 1)[1] for x in parts
++                             if x.startswith("mode=")), None)
++                # ---- D6RF7: COLLAPSE RANK-DUPLICATE LEG_BEGIN MARKERS --------
++                # `d6rf7_fd_endpoint.py`'s `leg_say` writes the marker to stdout
++                # from EVERY MPI rank (it is NOT rank-guarded; only the jsonl
++                # `emit` is), so an N-rank container prints N identical
++                # consecutive LEG_BEGIN lines before any residual is printed
++                # (measured: 4 ranks -> 4 begins per leg -> n_segments = 2 legs
++                # x 4 = 8). The parent bound L1/L2 to the FIRST TWO of those, i.e.
++                # to EMPTY rank-duplicates, so gate_conv read SEGMENT_WITHOUT_
++                # RESIDUALS and the p residual that FAILS the floor -- the whole
++                # point of the probe -- was in an UNBOUND segment. A consecutive
++                # LEG_BEGIN of the SAME tag and mode, while the current segment
++                # is still open and carries NO content yet (no Time block, no
++                # residual), is a rank duplicate of the leg just opened and is
++                # FOLDED INTO IT rather than starting a new empty segment. A
++                # begin with a DIFFERENT tag or mode, or one arriving after the
++                # current leg produced content, is a real new leg and still
++                # starts one. This changes NO gate, threshold, band or scheme --
++                # it makes the log SEGMENTATION survive the real multi-rank
++                # container so gate_conv reads the leg that actually ran.
++                if (cur is not None and cur.get("tag") == tag
++                        and cur.get("mode") == mode
++                        and not cur["times"] and not cur["fields"]):
++                    cur.setdefault("rank_duplicate_begins", 1)
++                    cur["rank_duplicate_begins"] += 1
++                    out["markers_seen"] += 1
++                    continue
++                cur = {"tag": tag, "mode": mode,
+                        "begin_line": ln, "end_line": None, "times": [],
+                        "fields": {}, "n_p_solves": 0, "CD": None, "CL": None,
+                        "execution_time_s": None, "primal_failed": None,
+@@ -1820,7 +1880,13 @@
+     # the producer printed and by ORDER OF APPEARANCE -- never by assuming
+     # three segments exist, because a truncated arm has fewer.
+     pconv = [s for s in segs if s.get("mode") == "P_conv"]
+-    f5 = [s for s in segs if s.get("mode") == "F5_loose"]
++    # D6RF7: the producer's falsifier mode is `F5_scheme` (d6rf7_fd_endpoint.py
++    # MODES/LEG_MODE and R3), never the retired `F5_loose`. The parent's binding
++    # filter still read `F5_loose`, so L3 -- falsifier F5's leg -- would NEVER
++    # bind on the log the producer actually emits, and F5 would read UNRESOLVED
++    # on a run that DID produce L3. Bound on LEG_MODE["L3"] so the filter and the
++    # registered mode cannot drift apart again.
++    f5 = [s for s in segs if s.get("mode") == LEG_MODE["L3"]]
+     for leg, seg in list(zip(("L1", "L2"), pconv)) + list(zip(("L3",), f5)):
+         seg["leg"] = leg
+         seg["registered_role"] = LEG_ROLE[leg]
+@@ -2171,6 +2237,34 @@
+     path = os.path.join(root, ARM_DIR[producer], art)
+     if not os.path.isfile(path):
+         refuse("G-FD", {"artefact_absent_although_producer_ran": path})
++    # ---- D6RF7: PRESENT-BUT-EMPTY (primal raised by design) -----------------
++    # The arm RAN and its product IS on disk, but `points` is empty and there
++    # are no FD rows because the baseline primal RAISED (P_conv is the
++    # convergence probe). eta_used is then NaN, and the parent read it through
++    # `_ff` (below) and returned NOT A RESULT with reason NON_FINITE_INPUT --
++    # which compose's rung 0/3 HOISTS ABOVE G-CONV, so the item reported "a
++    # gated input was NaN" and NEVER surfaced the G-CONV GATE FAIL the probe
++    # exists to produce. This is the SAME want-of-input state gate_off and
++    # gate_price take, and it is routed the SAME WAY: NOT A RESULT under
++    # ARM_RAN_PRIMAL_RAISED_POINTS_EMPTY (NOT the non-finite reason), so the
++    # ladder does not mask the convergence verdict. No FD step was registered
++    # for P_conv anyway (section 8.2), so this reads exactly as the "no FD
++    # component" state it always was, without a NaN wearing the wrong reason.
++    if cdc.points_empty_by_primal_raise(path) is not None:
++        _r, _d = _no_input_reason(census, producer, art, root)
++        base.update(dict({"verdict": "NOT A RESULT", "reason": _r}, **_d))
++        base.update(NULL_READINGS["G-FD"])
++        base["bar_state"] = BAR_NOT_PRODUCED
++        base["plateau_bar_state"] = BAR_NOT_PRODUCED
++        base["plateau_bar_exercised"] = None
++        base["plateau_bar_report"] = (
++            "section 12.4: NO COMPONENT WAS GRADED because the producing arm's "
++            "baseline primal RAISED BY DESIGN and its product is present but "
++            "empty, so the %.1f %% plateau bar was NOT PRODUCED and is NOT "
++            "EXERCISED. Reported as its own state, never inferred from the "
++            "absence of a failure. %s"
++            % (PLATEAU_TOL_PCT, PLATEAU_BAR_UNINFORMATIVE_EVIDENCE))
++        return base
+     doc = read_fd(path)
+     comps, flips, num, den = [], 0, 0.0, 0.0
+     n_planned = 0
+@@ -2370,13 +2464,28 @@
+ 
+ def _cd_path(root, census):
+     """The path of section 2a's registered CD source, or None if its producing
+-    arm did not run."""
++    arm did not run OR wrote a PRESENT-BUT-EMPTY product because the primal
++    raised by design (D6RF7).
++
++    Returning None on the present-but-empty state is the whole comprehensive
++    fix: gate_off, gate_price and report_cdlog each already branch on
++    `cdp is None` into their registered NO-INPUT path, so the single detection
++    here routes ALL THREE CD-dependent readers to NOT A RESULT / NOT PRODUCED
++    for want of an input -- without any of them refusing. The detector is
++    cdc.points_empty_by_primal_raise, the SAME function the section-3e control
++    consults, so the state the control declares NOT EXERCISED is byte-for-byte
++    the state the gates route to no-input on."""
+     producer = ARTEFACT_PRODUCER[CD_ARTEFACT]
+     if census[producer]["state"] != "RAN":
+         return None, producer
+     p = os.path.join(root, ARM_DIR[producer], CD_ARTEFACT)
+     if not os.path.isfile(p):
+         refuse("CD_SOURCE", {"absent_although_producer_ran": p})
++    if cdc.points_empty_by_primal_raise(p) is not None:
++        # PRESENT-BUT-EMPTY (primal raised by design): there is no CD to read.
++        # Handled the SAME WAY absence is -- return None so the gates take their
++        # no-input branch; _no_input_reason names ARM_RAN_PRIMAL_RAISED_POINTS_EMPTY.
++        return None, producer
+     return p, producer
+ 
+ 

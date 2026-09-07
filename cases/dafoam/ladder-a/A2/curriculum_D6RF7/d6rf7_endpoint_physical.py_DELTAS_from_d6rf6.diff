@@ -1,0 +1,11 @@
+--- a/(rename-only-from-d6rf6) d6rf7_endpoint_physical.py	2026-09-07 16:39:32.494331325 +0000
++++ b/(D6RF7-fixed) d6rf7_endpoint_physical.py	2026-09-07 16:40:03.304107233 +0000
+@@ -92,7 +92,7 @@
+ EXTRACTOR = "d6rf7_extract_endpoint.py"
+ RUNSCRIPT = "d6rf7_opt_runScript.py"
+ # PREREGISTRATION.md section 7.  These are the FREEZE, not a preference.
+-MD5_EXTRACT = "c93adc8b4d20c6097bb35e82592e6dae"  # 2026-09-07 rule-2 pre-compute: was c5aace65 (the PARENT d6rf4_extract_endpoint.py md5, a rename-omission that made C1 refuse and abort the container exit 2); d6rf7_extract_endpoint.py on disk is 95630a22
++MD5_EXTRACT = "baedb673e9c88291f6724794681bc9a7"  # 2026-09-07 D6RF7 derivation: re-pinned to d6rf7_extract_endpoint.py (rename d6rf6->d6rf7); parent D6RF6 value was c93adc8b (rule-2 pre-compute, single-variable successor changes ONLY the grading failure-path handling, no scheme/mesh/gate change)
+ MD5_RUNSCRIPT = "137539e0a99be27f27fdb69e063b2a87"
+ 
+ SCALED_OUT = "d6rf7_endpoint_dvs.json"                 # the frozen extractor writes this
