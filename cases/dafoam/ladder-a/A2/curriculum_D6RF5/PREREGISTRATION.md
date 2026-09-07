@@ -807,3 +807,61 @@ commit is the dafoam-supervisor's act after the non-delegable check-1 read of th
 `d6rf5_run_arm.sh` was **not** launched.
 
 **SUBMISSIONS PARKED. Freeze gates NOT re-opened.**
+
+## 13. AMENDMENT — 2026-09-07, RULE-2 PRE-COMPUTE REPAIR OF STALE INTERNAL md5 PINS (lab-lane)
+
+**Nature: CLAUDE.md rule-2 PRE-COMPUTE amendment.** D6RF5 still carries **zero solver compute** — no
+solve has run for this item; the only container invocations aborted at their in-container self-checks
+in ~3 s (ledger `rc=2 ROW=PATCHED container_wall_s=3`). This amendment corrects **md5 pin VALUES
+only**; it changes **no gate, threshold, band, cap, deadline, label or instrument logic**, and it does
+**not re-open the freeze's gates** (§3 gates and the §11 instrument set are logic-untouched). Pure
+append: nothing above this section is struck, edited or renumbered. `lines whose number changed above
+this section: 0`.
+
+**CONDITION (the defect).** The D6RF5 instrument set was derived from D6RF4 by rename, and md5 pins
+were left at parent D6RF4 values across three previously-repaired layers (5 launcher pins → 991adf07;
+`REGISTERED_BASE` → §12/c3b2217f). A **fourth** stale pin remained **inside** a frozen instrument:
+`d6rf5_endpoint_physical.py:95` held `MD5_EXTRACT = "c5aace65…"`, which is the md5 of the **parent**
+`../curriculum_D6RF4/d6rf4_extract_endpoint.py` (confirmed on disk), not of the D6RF5 extractor
+`d6rf5_extract_endpoint.py` (`95630a22…`). Physical's in-container check C1 re-hashes the extractor and
+**refuses** when it disagrees, so the container died **exit 2 in ~3 s AFTER every launcher gate had
+passed** — the failure the launcher's own md5sum gates could not see, because the launcher pins the
+extractor correctly (`MD5_EXTRACT6=95630a22`) while the instrument it stages carried the parent value.
+
+**HOW CHECKED (full fixpoint audit).** Every 32-hex constant in **every** `.py` and `.sh` in the item
+dir was enumerated and classified as active guard vs. documentary provenance, and each active guard's
+pinned value was compared to its guarded file's **actual on-disk md5**. Result: **16 active guard
+pins**; exactly **one** stale (`physical.py:95`). The `MD5_*4`-suffix and `MD5_FVSCHEMES_BASE` launcher
+constants are **documentary parent/registered-base provenance** (never dereferenced as guards — `$MD5_*4`
+appears nowhere) and correctly hold parent values; `MD5_CEILING_GUARD` (stage_root:103) matches the
+external `_common/item_ceiling_guard.py` on disk; the `.py` instruments `units_assert`, `anchor_gate`,
+`cd_plant_control`, `accept_floor_control`, `finiteness_mutation`, `age_datum_control`,
+`endpoint_locus`, `extract_endpoint` carry **no** md5 pins. No circular pin dependency exists
+(`physical` pins `extract`+`opt_runScript`; `extract` pins nothing; `stage_root` **parses** the launcher
+for its expected md5s rather than hardcoding them, so editing the launcher does not cascade).
+
+**THE FIX (2 pins across 2 files; fixpoint in 2 edit-iterations).**
+(1) `d6rf5_endpoint_physical.py:95` `MD5_EXTRACT`: `c5aace65e1830fddace55e1bac2761c9` (parent D6RF4
+extractor) → `95630a223c638095cdfb4de5727d7a88` (the D6RF5 extractor on disk).
+(2) That edit shifted `d6rf5_endpoint_physical.py`'s own md5 from `288ce6d17f462993177250a13c9d4ce6`
+to `2d7c7f5c3587365c1f528be42f792942`, so `d6rf5_run_arm.sh:337` `MD5_PHYS6` was repinned to the new
+value to keep the launcher's own gate of physical consistent (part of the fixpoint). A third full
+audit pass then found **zero** stale pins across all 16 guards → **ALL_PINS_MATCH=1**.
+
+**STAGING CLEARED for a clean cold re-fire.** The aborted run root
+`CURRICULUM-D6RF5-a2-wing-convergence-probe` was asserted to hold **zero real solver output** (no
+numeric solver time dirs, no `log.*`, no `forceCoeffs`/`postProcessing`; `OptView.hst` present is the
+**staged D4 reference input**, md5 `70fafa07…`, mtime 2026-08-29; the `mp0x/dRdWColoring_4.bin` are
+pre-staged adjoint colorings) — only staging plus the 3 s self-check abort row. Per the launcher's own
+re-fire prescription (`d6rf5_run_arm.sh:625-631`: "THE DESTINATION MUST BE ABSENT … a re-fire needs the
+partial root ARCHIVED by mv, not deleted"), the root was archived by `mv` to
+`…-a2-wing-convergence-probe.ABORTED_SELFCHECK_20260907T150917Z` (evidence preserved). The canonical
+path is now absent, so stage S1 (`dst does not exist`) passes and the idempotent stager re-stages a
+fresh root from `D4_BASE_SRC` (verified still present).
+
+**NOT re-opened, NOT launched.** `PERMISSION` is untouched by this amendment (the re-freeze to the fix
+commit and the launch are the dafoam-supervisor's acts after the non-delegable check-1 read of these
+pin deltas). `d6rf5_run_arm.sh` was **not** launched. After commit, disk == HEAD blob for every edited
+FROZEN_PATHS entry, so the grader's `freeze_check` holds.
+
+**SUBMISSIONS PARKED. Freeze gates NOT re-opened.**

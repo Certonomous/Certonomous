@@ -334,7 +334,11 @@ MD5_LOCUS6=341189ca866f302a7e1bba8eefad3a57
 # because `d6rf5_endpoint_physical.py`'s C3 gained the rule-14 assertion that its
 # `--age-datum` carries a fractional part, and its evidence line now prints
 # `%.6f` and the margin instead of `%.0f` (a 121 ms margin was not displayable).
-MD5_PHYS6=288ce6d17f462993177250a13c9d4ce6
+# 2026-09-07 PRE-FIRST-COMPUTE: was 288ce6d17f462993177250a13c9d4ce6.  Repinned
+# because d6rf5_endpoint_physical.py:95 MD5_EXTRACT was corrected from the stale
+# PARENT d6rf4 value (c5aace65) to the real d6rf5 extractor (95630a22); that edit
+# shifts d6rf5_endpoint_physical.py's own md5.  Fixpoint pair with that fix.
+MD5_PHYS6=2d7c7f5c3587365c1f528be42f792942
 MD5_UNITS=ba3389592ab8882732031e61975fc3c4
 MD5_ANCHOR_GATE=28a7bb6b884002c810939e4370fb5557
 # THE D6RF5 DISCRETISATION FILES, AND THE WHOLE ITEM TURNS ON THEM.
