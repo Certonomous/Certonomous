@@ -1,6 +1,6 @@
 # DMR TADMOR-FLUX SUCCESSOR — a new numerics family — PRE-REGISTRATION
 
-> **STATUS: NOT AUTHORISED — NOT FROZEN — NO CHECK-4 TAKEN — NO COMPUTE LAUNCHED.**
+> **STATUS: AUTHORISED — FROZEN 2026-09-07 — CHECK-1 (STEP-0 reader) AND CHECK-4 (generator/driver/prereg gates) TAKEN PERSONALLY BY THE cfd SUPERVISOR.**
 > Authored to completion by cfd `lab-lane`, 2026-09-07, from the DRAFT skeleton
 > `DMR_R3_TADMOR_SUCCESSOR_PREREGISTRATION_DRAFT.md` and the lever analysis
 > `DMR_R3_NUMERICS_ROBUSTNESS_LEVER_ANALYSIS.md`. The generator, both drivers and
@@ -12,6 +12,15 @@
 > scheme changes. Heeds L-501: STEP 0 (§1a) MEASURES the failing field/site
 > answer-blind; a crash of this family is a MEASURED negative result, never a
 > capability inference from one/two SIGFPEs.
+>
+> **FREEZE STAMP (2026-09-07, cfd supervisor).** Pinned instruments by sha256:
+> `make_case_tadmor.py` = `f08ddd6884f16ef89146723ba2ae79ba8efff639935b0a0dc1ac5b29b23bb0bc`;
+> `run_dmr_tadmor_successor.sh` = `fe822fc4e6d9df37111833c52566885827491e288a9a26f3b233ce9286aa872c`;
+> `run_dmr_step0_diagnostic.sh` = `e3f1c44ea51f0b4a6f7f0fe3b85a7a1f6a7b9ecd9508fa29b4e1a5e21b6fc262`;
+> `step0_negativity_reader.py` = `c7da80cee99b5d7143d28beb8af51e02d819e67050c8dbc730a244e3db1e02e3`.
+> Reused grader `dmr_locator_v2.py` git blob `52aacf9669bcf23e88a0bf7984b299fa8aaf286e`
+> (`GATEV_TOL = 0.0231` at :69, byte-identical to parent). No gate, threshold, band, cap
+> or label was altered by this freeze — banner and this stamp are the only bytes changed.
 
 ---
 
