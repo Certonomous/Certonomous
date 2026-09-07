@@ -28,7 +28,7 @@ deltas are:
       the draft `{1e-2..1e-6}`/`1%` as mis-sized below the shape-DV harness floor
       and registers this proven machinery instead.
 
-  R3  `F5_scheme` REPLACES `F5_scheme`.  D6RF5's falsifier F5 re-runs the baseline
+  R3  `F5_scheme` REPLACES `F5_loose`.  D6RF5's falsifier F5 re-runs the baseline
       primal at D6RF4's SCHEME (laplacianSchemes `Gauss linear corrected`,
       snGradSchemes `corrected`, nNonOrthogonalCorrectors 1 -- installed by the
       LAUNCHER via d6rf5_fvSchemes_D6RF4_ORIGINAL, not by this script), everything

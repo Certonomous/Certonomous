@@ -327,16 +327,16 @@ IMG_SHIPPED_DIGEST=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33a
 
 # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md sections 7a and 7b) -----
 MD5_RUNSCRIPT6=137539e0a99be27f27fdb69e063b2a87
-MD5_FD=06ac0a171bde0ac3b17192f1819fa0ca
-MD5_EXTRACT6=c5aace65e1830fddace55e1bac2761c9
+MD5_FD=1c045eb598267252f1900f72c0601b1b
+MD5_EXTRACT6=95630a223c638095cdfb4de5727d7a88
 MD5_LOCUS6=341189ca866f302a7e1bba8eefad3a57
 # 2026-09-06 PRE-FIRST-COMPUTE: was ca75db3e036b9f4e7cfca6462037c021.  Repinned
 # because `d6rf5_endpoint_physical.py`'s C3 gained the rule-14 assertion that its
 # `--age-datum` carries a fractional part, and its evidence line now prints
 # `%.6f` and the margin instead of `%.0f` (a 121 ms margin was not displayable).
-MD5_PHYS6=c09094a098f993430185d17e2cb4a0f5
-MD5_UNITS=8ee53841aed3dfd10f2cf414be39518a
-MD5_ANCHOR_GATE=f5a5216a557ff8c34ac084c96feabc39
+MD5_PHYS6=288ce6d17f462993177250a13c9d4ce6
+MD5_UNITS=ba3389592ab8882732031e61975fc3c4
+MD5_ANCHOR_GATE=28a7bb6b884002c810939e4370fb5557
 # THE D6RF5 DISCRETISATION FILES, AND THE WHOLE ITEM TURNS ON THEM.
 # d6rf5_fvSchemes_LIMITED carries `Gauss linear limited corrected 0.333` /
 # `limited corrected 0.333` (Fix #1); d6rf5_fvSchemes_D6RF4_ORIGINAL carries
