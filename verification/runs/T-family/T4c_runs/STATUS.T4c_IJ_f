@@ -1,0 +1,17 @@
+case=T4c_IJ_f
+rc=143
+wall_s=1698
+ranks=1
+core_min=28.300
+timeout_s=172800
+capped=no
+checkmesh_rc=0
+solver=buoyantBoussinesqSimpleFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqSimpleFoam
+note=KILLED_BY_SIGNAL_15
+started_utc=2026-09-07T04:32:07Z
+ended_utc=2026-09-07T05:00:25Z
+last_iteration=335
+per_cell_core_s=3.67e-05
+ratio_to_T4b_basis=3.76
+supervisor_stop=T4c NOT A RESULT by non-completion (supervisor verdict 2026-09-07). Supervisor-stopped before cap by targeted SIGTERM (rc 143), NOT a crash and NOT a natural cap-stop; settled per-cell rate ~3.76x the registered T4b basis (flat ~0.19 it/s) guaranteed a cap-stop before endTime 64000; running to the 2880 core-min cap would waste ~48 core-h (rule 12).
