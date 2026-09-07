@@ -5619,7 +5619,13 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T03:47Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-07T04:02Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-114 — 2026-09-07T04:02Z — **MP-A1 prereg DRAFTED, check-3 + six decisions RULED (`79086d3c`); MP-A1 instrument authoring resumed on the same lane. Costed est 58.63 / ceiling 183.5 core-min.**
+
+**MP-A1 (A1, the demo-grade incompressible multipoint milestone) — DRAFT + RULINGS (`79086d3c`, §7):** SO-3 + per-point CL EQUALITY constraint (drag-min at fixed lift), the fix for SO-3's lift-collapse caveat. **Check-3 upheld the load-bearing admissibility claim:** no new unverified gradient enters — the CL constraints ride SO-3aR2's FD-verified `dCLᵢ/dx` at fixed α, gated by G5C at MP-A1's OWN final design point + G-PROV travelling the SO-3aR2 GATE FAIL chain (so the only licensed sentence is "on the patched toolchain…"). **Six §6 decisions ruled:** CL=EQUALITY; DV=shape-only fixed-α (aoa DVs = separate rung MP-A2); cpuset 8 provisional; TOL_CL_ABS 1e-3; G-DRAG final J<baseline + 1% intermediate over ≥5 majors; M=3.0 DERIVED, ceiling 183.5 (cap-safe checked). **Costed est 58.63 / ceiling 183.5 core-min** ($0.0501/$0.1569 DERIVED), brought to chief before compute. Op-points/CL-targets = SO-3 baseline CL (point0 0.3119, point1 0.4988, point2 0.6640) so shape=0 is a feasible seed. **Freeze owes:** authored instruments (mpa1_runScript.py, mpa1_grade.py w/ G5C-covers-dCLᵢ/dx assertion + G-CLHOLD planted-zero) + my check-1 of those diffs. Authoring RESUMED on lane a63532f.
+
+**LANES LIVE (3, at cap):** D6RF5-INSTR, SO3DR-Stage2, MP-A1-INSTR (all authoring; NO compute). D9successor authoring QUEUED. **Runs live: none (zero solvers).** Blocked: nothing of mine.
 
 ### S-113 — 2026-09-07T03:47Z — **Step 3 (D6R2 chain) advanced: D9successor SCOPING RULED (`cdca4d1e`, constraint ALONE); SO3DR Stage-2 DESIGNED + authoring lane dispatched. 3 lanes at cap; D9successor authoring queued.**
 
@@ -17427,6 +17433,22 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+
+##### heat-transfer session 2026-09-07 — §2ay actionable set worked: T4 CLEARED to state (b), T8 scoped to (c) + spine referral recommendation entered; T4b/K0f successor drafts and T4/T8 triage dispatched to lanes.
+
+*(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. **0 solver core-min.**)*
+
+- **Last commit:** this block's own commit.
+- **Actionable §2ay set (4 rungs), true states after this session's triage:**
+  - **T4 → state (b), NO successor owed.** Crash-triaged CLOSED (three pre-amendment-2 crashes = CONFIG/BUG-class, repaired pre-compute by Amendment 2, do not recur); superseded-forward by T4b (registered, ran; `T4b_RESULTS.md` `NOT A RESULT` 3/3, all triples CONVERGING). Ruling verbatim in `COMPLETION_ENFORCEMENT_TRIAGE_2026-09-06.md §5`.
+  - **T8 → state (c), successor GATED.** Ground 1 axis-precondition = settled CONFIG/BUG (successor comparator reads r1,r2 from disk). Ground 2 convergence = UNRESOLVED fork (config/solver-selection vs model-form → closure ladder). Successor gated on registering+running an unsteady discriminator (single resolution, stationarity criterion registered before the run). Spine referral now recommendation-complete and awaiting Sanaa via chief. Ruling verbatim in `COMPLETION_ENFORCEMENT_TRIAGE_2026-09-06.md §5`.
+  - **T4b → successor pre-registration being drafted by a lane** (endTime-schedule + coarse pipe/mesh fix; STOP-before-freeze, supervisor to check the pre-registration). VERIFY (lane dispatch not personally re-verified this session).
+  - **K0f → continuation-successor being triaged by a lane** (one registered §7.1 extension exhausted; investigating steady-vs-unsteady cavity + method change; STOP-before-freeze). VERIFY (lane dispatch not personally re-verified this session).
+- **Live jobs:** no heat-transfer solvers on the box (no `verification/runs/T-family` run-dir mtime inside 15 min; no solver process; fleet agents are invisible to `pgrep`, L-41). Three `lab-lane`s dispatched this session (T4b successor draft; K0f successor triage; T4/T8 triage — the last now complete and recorded). VERIFY on the first two (their existence not personally re-verified here).
+- **On Sanaa's desk:** (1) **T8 spine-placement referral**, recommendation now entered, ready for the chief to surface — options 3/4 (spine change) are hers, conditional on the discriminator AND a closure-ladder attempt both failing. (2) **Vogel & Eaton 1985** (T3g refs) and **Blay/Mergui/Niculae 1992** (K0d, K0f column P) NOT OBTAINED — missing papers, not solver gaps (`COMPLETION_ENFORCEMENT_TRIAGE_2026-09-06.md §2.2`). (3) **K0c\* cavity model-form GATE FAILs** routing into the closure ladder — cross-team call with closure/verification (`§2.3`).
+- **Next actions:** check the T4b and K0f successor pre-registrations when the lanes return (non-delegable §3 check 4) before any freeze/compute; register the T8 unsteady discriminator; T21 physics-dict half toward §2ap freeze (queued behind the 3-lane cap).
+
+---
 
 ##### ⚡ **T3d's RUN IS COMPLETE (4 723.200 core-min MEASURED, 13.21 % UNDER) AND THE D-J1 OBLIGATION IS DISCHARGED: BOTH DENOMINATORS ARE NON-ZERO, D-J1 DID **NOT** FIRE — AND THE HONEST BRANCH THEN REPORTED A GENUINE FAILURE. `|U|` IS **NOT ITERATIVELY CONVERGED** AT 3.69× TOLERANCE, SO `convergence_state` COMPOSES TO `NOT_CONVERGED`. THE POWER-CYCLE STORY I WAS BRIEFED ON IS **REFUTED ON BOTH LIMBS**.** (2026-09-04T15:15Z)
 
