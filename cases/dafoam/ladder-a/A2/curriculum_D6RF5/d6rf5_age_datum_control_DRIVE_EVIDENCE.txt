@@ -1,0 +1,26 @@
+D6RF5 AGE-DATUM CONTROL -- 0.000 SOLVER CORE-MIN, NOTHING HERE IS A RESULT ABOUT THE A2 WING
+
+--- ROW C  THE DEFECTIVE LAUNCHER (`%.9Y` -> `%Y`, one site, nothing else)
+  launcher            : /tmp/d6rf5_age_drive_lx66faaf/d6rf5_run_arm_DEFECTIVE.sh
+  stat format IN USE  : '%Y'  (extracted from the launcher, not copied)
+  datum on disk       : '1788754892'   fractional part present = False
+  sentinel            : 1788754892900000000 ns (…900000000)
+  float epsilon HERE  : 1 ns   <- MEASURED, the residual after repair
+  ROW A   +1 ns       : resolved as newer = True   (a double at epoch magnitude cannot hold 1 ns; this row MEASURES that, it does not assert it)
+  ROW A'  +1 ns      : ACCEPTED = True   (must be True: a genuinely newer product is still caught)
+  ROW B   -300 ms     : ACCEPTED = True   margin +0.600000 s   (must be False: same whole second, GENUINELY OLDER)
+  CONTROL REFUSED, AS REQUIRED:
+    AGE-DATUM CONTROL REFUSES:
+        - the datum on disk carries NO fractional part -- it is floored to the whole second (raw='1788754892')
+        - ROW B FAILED: a product 300 ms OLDER than the sentinel, in the SAME whole second, was ACCEPTED (margin +0.600000 s) -- the guard is FAIL-OPEN over a window up to 1.000 s and every artefact it guards is STAGED/GENERATED
+
+--- ROW D  THE REPAIRED LAUNCHER (the committed file)
+  launcher            : /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF5/d6rf5_run_arm.sh
+  stat format IN USE  : '%.9Y'  (extracted from the launcher, not copied)
+  datum on disk       : '1788754892.900000000'   fractional part present = True
+  sentinel            : 1788754892900000000 ns (…900000000)
+  float epsilon HERE  : 215 ns   <- MEASURED, the residual after repair
+  ROW A   +1 ns       : resolved as newer = False   (a double at epoch magnitude cannot hold 1 ns; this row MEASURES that, it does not assert it)
+  ROW A'  +215 ns      : ACCEPTED = True   (must be True: a genuinely newer product is still caught)
+  ROW B   -300 ms     : ACCEPTED = False   margin -0.300000 s   (must be False: same whole second, GENUINELY OLDER)
+  CONTROL PASSED on the repaired launcher.

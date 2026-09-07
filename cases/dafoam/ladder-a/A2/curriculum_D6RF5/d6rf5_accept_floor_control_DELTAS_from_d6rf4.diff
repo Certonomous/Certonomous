@@ -1,0 +1,60 @@
+# DELTAS diff -- d6rf4_accept_floor_control.py -> d6rf5_accept_floor_control.py
+# parent md5 : 2fc0b320affac2397c3bb7301eb9ec35  (VERIFIED on disk before this diff was written)
+# registered : self-rename only; PRIMAL_MIN_RES_TOL 1e-08 / PRIMAL_MIN_RES_TOL_DIFF 1000 / ACCEPT_FLOOR 1.0e-05 UNCHANGED (the bright line); D6RF3 historical refs (incl. the real-log reader-validation at direction 6) preserved intact as they remain TRUE
+# freeze NOT taken (PERMISSION=NOT_FROZEN)
+#
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_accept_floor_control.py	2026-09-06 02:36:21.856059509 +0000
++++ /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF5/d6rf5_accept_floor_control.py	2026-09-07 03:51:31.726564690 +0000
+@@ -1,8 +1,8 @@
+ #!/usr/bin/env python3
+-"""Curriculum D6RF4 -- `ACCEPT_FLOOR_UNMOVED`, this item's own non-regression
++"""Curriculum D6RF5 -- `ACCEPT_FLOOR_UNMOVED`, this item's own non-regression
+ instrument (`PREREGISTRATION.md` section 7 instrument 4).
+ 
+-WHAT IT IS FOR, AND IT IS THE ONLY REASON IT EXISTS.  `D6RF4` is lawful as a
++WHAT IT IS FOR, AND IT IS THE ONLY REASON IT EXISTS.  `D6RF5` is lawful as a
+ successor to `D6RF3` on ONE ground: it tightens the linear-solver stopping rule,
+ which makes the solve HARDER at an UNCHANGED acceptance bar.  Loosening the
+ acceptance bar instead -- raising `primalMinResTol` or `primalMinResTolDiff` so
+@@ -314,7 +314,7 @@
+              "    printIntervalUnsteady 1;\n"
+              "    primalMinResTolDiff %s;\n"
+              "    adjUseColoring  1;\n" % (tol, diff))
+-    body = ["D6RF4_LEG_BEGIN baseline mode=P_conv"]
++    body = ["D6RF5_LEG_BEGIN baseline mode=P_conv"]
+     for i in range(dumps):
+         body.append("Setting UMag = 100 AoA = 0.8829754496 degs   # point %d" % i)
+         body.append(block)
+@@ -322,7 +322,7 @@
+              "p initRes: 1.316217833e-05 finalRes: 1.098439549e-06 nIters: 1",
+              "nuTilda initRes: 1.050443706e-05 finalRes: 4.697819428e-07 nIters: 1",
+              "ExecutionTime = 19.71 s  ClockTime = 20 s", "", "End",
+-             "D6RF4_LEG_END baseline mode=P_conv", "Finalising parallel run"]
++             "D6RF5_LEG_END baseline mode=P_conv", "Finalising parallel run"]
+     with open(path, "w") as fh:
+         fh.write("\n".join(body) + "\n")
+     return path
+@@ -396,9 +396,9 @@
+ def drive():
+     """Runs `ACCEPT_FLOOR_UNMOVED` in BOTH directions and prints an auditable
+     record.  Returns 0 only if every direction behaved as registered."""
+-    tmp = tempfile.mkdtemp(prefix="d6rf4_floor_ctrl_")
++    tmp = tempfile.mkdtemp(prefix="d6rf5_floor_ctrl_")
+     rc = 0
+-    print("D6RF4 ACCEPT_FLOOR_UNMOVED -- DRIVEN IN BOTH DIRECTIONS")
++    print("D6RF5 ACCEPT_FLOOR_UNMOVED -- DRIVEN IN BOTH DIRECTIONS")
+     print("  no `assert` statement appears in this file")
+     print("  registered  primalMinResTol=%g  primalMinResTolDiff=%g  "
+           "accept_floor=%g" % (PRIMAL_MIN_RES_TOL, PRIMAL_MIN_RES_TOL_DIFF,
+@@ -575,9 +575,9 @@
+     if a.log:
+         try:
+             r = run_floor_control(a.ctrl_dir or tempfile.mkdtemp(
+-                prefix="d6rf4_floor_"), a.log)
++                prefix="d6rf5_floor_"), a.log)
+         except AcceptFloorRefusal as e:
+-            sys.stderr.write("D6RF4_ACCEPT_FLOOR REFUSED %s\n" % e)
++            sys.stderr.write("D6RF5_ACCEPT_FLOOR REFUSED %s\n" % e)
+             return 2
+         print(json.dumps(r, indent=1, sort_keys=True, default=str))
+         return 0

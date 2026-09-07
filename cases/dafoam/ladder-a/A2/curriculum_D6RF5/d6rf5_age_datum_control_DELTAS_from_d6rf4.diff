@@ -1,0 +1,132 @@
+# DELTAS diff -- d6rf4_age_datum_control.py -> d6rf5_age_datum_control.py
+# parent md5 : a9d3d6fbb03f0838caba879a91fae7ca  (VERIFIED on disk before this diff was written)
+# registered : self-rename only; LAUNCHER -> d6rf5_run_arm.sh; %.9Y age-datum guard + defective-launcher drive carried; .d4_age_datum datum filename preserved (carried lineage name, matches the derived launcher)
+# freeze NOT taken (PERMISSION=NOT_FROZEN)
+#
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_age_datum_control.py	2026-09-06 16:15:57.196434383 +0000
++++ /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF5/d6rf5_age_datum_control.py	2026-09-07 03:51:31.729993154 +0000
+@@ -1,26 +1,26 @@
+ #!/usr/bin/env python3
+-"""D6RF4 -- THE CONTROL ON THE AGE-DATUM STAGING GUARD.
++"""D6RF5 -- THE CONTROL ON THE AGE-DATUM STAGING GUARD.
+ 
+ WHY THIS FILE EXISTS
+ ====================
+ `W3S` was killed by its age-staging guard, and **zero of that item's 53 controls
+ exercised the age-staging guard at all**.  The guard that decided the run had no
+ control in its own instrument, so a `53/53` green suite said nothing about it.
+-This file is that missing control for `D6RF4`, and it is written to be able to
++This file is that missing control for `D6RF5`, and it is written to be able to
+ FAIL: `--drive` runs it against a DELIBERATELY DEFECTIVE launcher and REQUIRES
+ the refusal.  A control that has never been shown to fail is not a control
+ (`CLAUDE.md` rule 3).
+ 
+ WHAT IT GUARDS, AND WHAT IT DOES NOT
+ ====================================
+-It guards ONE line -- the production of the age datum in `d6rf4_run_arm.sh` --
++It guards ONE line -- the production of the age datum in `d6rf5_run_arm.sh` --
+ and the two call sites that consume it.  It is **not** a solver check and
+ **nothing here is a result about the A2 wing**: every input is a file this
+ script creates, and it burns 0.000 solver core-minutes.
+ 
+ THE LINE IS EXTRACTED FROM THE LAUNCHER, NOT COPIED INTO HERE
+ ============================================================
+-`datum_command()` reads `d6rf4_run_arm.sh` and pulls out its actual
++`datum_command()` reads `d6rf5_run_arm.sh` and pulls out its actual
+ `AGE_DATUM=$(stat -c '...' ...)` line, ASSERTING that exactly one such line
+ exists.  A control that carried its own copy of the command would keep passing
+ after the launcher drifted -- which is precisely how a guard goes stale without
+@@ -30,7 +30,7 @@
+ THE FOUR ROWS
+ =============
+ Rows are driven on REAL mtimes set with nanosecond `os.utime`, never on a
+-synthetic pair.  (`d6rf4_grade_drive.py` writes its fixture datum as
++synthetic pair.  (`d6rf5_grade_drive.py` writes its fixture datum as
+ `now - 100.0`; a 100-SECOND gap cannot see a defect whose window is at most
+ 1.000 s wide, which is why that drive stayed green over this defect.)
+ 
+@@ -45,7 +45,7 @@
+   C  rows A'/B against the DEFECTIVE launcher -> row B must FLIP to ACCEPT and
+      this control must REFUSE.
+ 
+-DIRECTION.  `D6RF4`'s defect is FAIL-**OPEN**, not fail-closed.  `stat -c '%Y'`
++DIRECTION.  `D6RF5`'s defect is FAIL-**OPEN**, not fail-closed.  `stat -c '%Y'`
+ floors the datum EARLIER than the sentinel; both consumers accept on
+ `mt > datum`; so a product written in the same second as `0/U` but GENUINELY
+ OLDER was accepted as this arm's.  (W3S's was the other way round -- a generated
+@@ -59,8 +59,8 @@
+ solver-produced.  That is the class that can actually be bitten.
+ 
+ Usage:
+-    python3 d6rf4_age_datum_control.py            # the four rows
+-    python3 d6rf4_age_datum_control.py --drive    # + the defective-launcher drive
++    python3 d6rf5_age_datum_control.py            # the four rows
++    python3 d6rf5_age_datum_control.py --drive    # + the defective-launcher drive
+ """
+ import argparse
+ import os
+@@ -71,7 +71,7 @@
+ import tempfile
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+-LAUNCHER = os.path.join(HERE, "d6rf4_run_arm.sh")
++LAUNCHER = os.path.join(HERE, "d6rf5_run_arm.sh")
+ 
+ # The launcher's own line, matched not reproduced.
+ DATUM_LINE = re.compile(r'^AGE_DATUM=\$\(stat -c \'([^\']+)\' "\$AGE_SRC"\)$', re.M)
+@@ -98,7 +98,7 @@
+ def produce_datum(fmt, sentinel, work):
+     """Run the launcher's own command, serialise it the way the launcher does
+     (`echo > .d4_age_datum`), and READ IT BACK OFF DISK with `float()` exactly
+-    as `d6rf4_grade.py` does.  The floor this control hunts crosses a FILE
++    as `d6rf5_grade.py` does.  The floor this control hunts crosses a FILE
+     BOUNDARY, so a control that kept the value in memory would not see it."""
+     out = subprocess.run(["stat", "-c", fmt, sentinel],
+                          capture_output=True, text=True)
+@@ -114,8 +114,8 @@
+ 
+ 
+ def accepts(product, datum):
+-    """THE PREDICATE BOTH CONSUMERS USE, verbatim in sense: `d6rf4_grade.py`
+-    (`age_pass = age_pass and mt > datum`) and `d6rf4_endpoint_physical.py`
++    """THE PREDICATE BOTH CONSUMERS USE, verbatim in sense: `d6rf5_grade.py`
++    (`age_pass = age_pass and mt > datum`) and `d6rf5_endpoint_physical.py`
+     (`if mt <= age_datum: refuse(...)`).  TRUE means ACCEPT."""
+     return os.stat(product).st_mtime > datum
+ 
+@@ -183,7 +183,7 @@
+ 
+ def rows(launcher=LAUNCHER, tmp=None, verbose=True):
+     fmt = datum_command(launcher)
+-    tmp = tmp or tempfile.mkdtemp(prefix="d6rf4_age_control_")
++    tmp = tmp or tempfile.mkdtemp(prefix="d6rf5_age_control_")
+     work, sentinel, sent_ns = build(tmp)
+     raw, datum = produce_datum(fmt, sentinel, work)
+     eps_ns = float_epsilon(work, sent_ns, datum)
+@@ -247,7 +247,7 @@
+     launcher is the repaired one with `%.9Y` put back to `%Y` and the
+     fractional-part assertion removed, so the ONLY thing that differs is the
+     defect itself."""
+-    tmp = tmp or tempfile.mkdtemp(prefix="d6rf4_age_drive_")
++    tmp = tmp or tempfile.mkdtemp(prefix="d6rf5_age_drive_")
+     with open(LAUNCHER, encoding="utf-8") as fh:
+         src = fh.read()
+     mutated, n = DATUM_LINE.subn(
+@@ -259,7 +259,7 @@
+     if mutated == src:
+         raise Refusal("the mutation changed NOTHING -- the launcher is already "
+                       "defective, or the pattern no longer matches")
+-    bad = os.path.join(tmp, "d6rf4_run_arm_DEFECTIVE.sh")
++    bad = os.path.join(tmp, "d6rf5_run_arm_DEFECTIVE.sh")
+     with open(bad, "w") as fh:
+         fh.write(mutated)
+ 
+@@ -286,7 +286,7 @@
+     ap.add_argument("--drive", action="store_true",
+                     help="also drive the control against a DEFECTIVE launcher")
+     a = ap.parse_args(argv)
+-    print("D6RF4 AGE-DATUM CONTROL -- 0.000 SOLVER CORE-MIN, NOTHING HERE IS A "
++    print("D6RF5 AGE-DATUM CONTROL -- 0.000 SOLVER CORE-MIN, NOTHING HERE IS A "
+           "RESULT ABOUT THE A2 WING")
+     try:
+         if a.drive:

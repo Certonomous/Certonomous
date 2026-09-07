@@ -1,0 +1,1193 @@
+# DELTAS diff -- d6rf4_grade.py -> d6rf5_grade.py
+# parent md5 : 67e9508fab345d6d9387245d50af1fed  (VERIFIED on disk)
+# registered : self-rename (D6RF4-DEF/CURRICULUM-D6RF4 preserved); CONV_FIELDS split p->{p_first_uncorrected,p_corrected}; read_legs records first/last per-corrector p-solve and COUNTS them; CONV_MEASURED_D6RF4 (D6RF4 measured baseline); gate_soln REPLACED by gate_scheme (fvSchemes md5 + p-solve-count correctors + coefficient_equality + accept-floor, strictly restrictive); F5 predicted 1.658293702e-05; leg discriminator LEG_FVSCHEMES; NULL_READINGS/RUN_DERIVED G-SOLN->G-SCHEME; compose rung 3b -> G-SCHEME NOT A RESULT; FROZEN_PATHS -> fvSchemes+fvSolution; CAPS 186.0/TMO 2700/PREDICTED 62.0; coefficient_equality_check() added
+# freeze NOT taken (PERMISSION=NOT_FROZEN)
+#
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_grade.py	2026-09-06 16:14:11.683339161 +0000
++++ d6rf5_grade.py	2026-09-07 04:19:08.987735448 +0000
+@@ -1,14 +1,21 @@
+ #!/usr/bin/env python3
+-"""Curriculum D6RF4 -- THE FROZEN GRADING PATH for `P_conv`.
++"""Curriculum D6RF5 -- THE FROZEN GRADING PATH for `P_conv`.
+ 
+-DERIVED FROM `curriculum_D6RF3/d6rf3_grade.py`
+-(md5 `639d23c4cfea45187561604001c21b44`, 87,818 bytes, re-hashed on disk before
+-this file was written).  The deltas are in `d6rf4_grade_DELTAS_from_d6rf3.diff`
+-beside this file, with the rename stripped out in
+-`d6rf4_grade_SUBSTANTIVE_after_rename.diff`.  THERE ARE SEVEN MECHANISMS, all
+-registered in `PREREGISTRATION.md` before compute:
++DERIVED FROM `curriculum_D6RF4/d6rf4_grade.py`
++(md5 `67e9508fab345d6d9387245d50af1fed`, re-hashed on disk before this file was
++written) with the REGISTERED DELTAS of `D6RF5 PREREGISTRATION.md` sections 2, 3
++and 10, enumerated in `d6rf5_grade_DELTAS_from_d6rf4.diff` beside this file.  The
++SUBSTANTIVE D6RF5 deltas over the carried D6RF4 machinery are: G-CONV reads p's
++FIRST (uncorrected) solve separately from the corrected one (CONV_FIELDS split;
++read_legs records the first/last of the per-corrector `p initRes:` lines and
++COUNTS them); G-SCHEME REPLACES G-SOLN as an anti-cheat on the registered
++DISCRETISATION (not a CD/CL match); the measured baseline is D6RF4's
++(CONV_MEASURED_D6RF4); F5's trivial baseline is D6RF4's SCHEME (predicted p-first
++1.658293702e-05); and the leg discriminator is fvSchemes (LIMITED vs
++D6RF4_ORIGINAL), not fvSolution.  THE SEVEN INHERITED MECHANISMS, all registered
++in `PREREGISTRATION.md` before compute:
+ 
+-  N1  `ACCEPT_FLOOR_UNMOVED` (section 7 instrument 4).  `d6rf4_accept_floor_
++  N1  `ACCEPT_FLOOR_UNMOVED` (section 7 instrument 4).  `d6rf5_accept_floor_
+       control.py` is IMPORTED, not re-implemented, and the grading REFUSES
+       (exit 2) unless `primalMinResTol` and `primalMinResTolDiff`, read back
+       out of the arm's OWN container log, are exactly `1e-08` and `1000` and
+@@ -64,7 +71,7 @@
+ INHERITED FROM `curriculum_D6RF2/d6rf2_grade.py` THROUGH `D6RF3`
+ (md5 `32a539780e34fe6d7945b7e301badc0f`, 43,462 bytes, re-hashed on disk before
+ this file was written).  The deltas are in
+-`d6rf4_grade_DELTAS_from_d6rf2.diff` beside this file and there are SIX
++`d6rf5_grade_DELTAS_from_d6rf2.diff` beside this file and there are SIX
+ mechanisms in them, all registered in `PREREGISTRATION.md` before compute:
+ 
+   M1  `CD_i(mp)` HAS A NEW SOURCE (section 2a).  `gate_off` and `gate_price`
+@@ -87,7 +94,7 @@
+       key and the token as read.  STRICTLY RESTRICTIVE: it can only turn a PASS
+       or GATE FAIL INTO a NOT A RESULT.
+   M3  A THIRD PLANTED-ZERO CONTROL (section 3e), because the source moved: the
+-      CD reader.  Its reader is IMPORTED from `d6rf4_cd_plant_control.py` and
++      CD reader.  Its reader is IMPORTED from `d6rf5_cd_plant_control.py` and
+       is the same function the gates call.  All three controls now report one
+       of `EXERCISED-PASS` / `EXERCISED-FAIL` / `NOT EXERCISED`, printed beside
+       the verdict, never counted as a pass and never inferred from the absence
+@@ -156,7 +163,7 @@
+ 
+ # ============================ REGISTERED CONSTANTS ==========================
+ # Every value in this block is frozen by PREREGISTRATION.md before compute.
+-ITEM = "D6RF4"
++ITEM = "D6RF5"
+ # ONE ARM AT THIS FREEZE (PREREGISTRATION.md section 8.2).  The reason is
+ # arithmetic, not caution: the full FD arm prices at 934 core-min at the
+ # tightened settings, and it is not defensible to buy a 934 core-min arm to
+@@ -181,8 +188,8 @@
+ ARM_RAN_ARTEFACT_NOT_WRITTEN = "ARM_RAN_ARTEFACT_NOT_WRITTEN"
+ 
+ RANKS = 4
+-CAPS = {"P_conv": 54.00}
+-TMO = {"P_conv": 720}
++CAPS = {"P_conv": 186.00}   # PREREGISTRATION.md sec 7/10.6, adopted MAX form: max(3.0*62.0, 1.6667*62.0)
++TMO = {"P_conv": 2700}    # cap_wall = 186.0*60/4 = 2790 s == TMO 2700 + frame 90 (sec 9 item 7 reachability identity)
+ FRAME_ALLOWANCE_S = 90
+ KILL_GRACE_S = 60
+ FRAME_GAP_ALLOWANCE_S = FRAME_ALLOWANCE_S - KILL_GRACE_S      # 30
+@@ -225,18 +232,18 @@
+ PLANT_REL_TOL = 1.0e-9
+ 
+ # ---------------------- section 2a: WHERE CD_i(mp) COMES FROM ---------------
+-# The gated source, FIXED BEFORE COMPUTE.  `d6rf4_major_history.json` is NOT
++# The gated source, FIXED BEFORE COMPUTE.  `d6rf5_major_history.json` is NOT
+ # the source and CANNOT be: D6RF3-DEF-4 enumerated the producing history
+ # COMPLETELY (OptView.hst md5 70fafa07bdee618fef13039433c01114; 1,013 rows,
+ # 1,007 iteration records, 863 carrying `funcs`) and found NO CD in any
+ # structure of any record.  A file that cannot contain the quantity is not a
+ # source for it.
+-CD_ARTEFACT = "d6rf4_fd_endpoint.json"
++CD_ARTEFACT = "d6rf5_fd_endpoint.json"
+ CD_JSON_PATH = ("points", "<pt>", "CD")     # section 2a's registered path
+ CD_MP_SOURCE_LABEL = "FD_BASELINE_PRIMAL"
+ CD_MP_SOURCE_STATEMENT = (
+     "CD_i(mp) is prob.get_val('<pt>.aero_post.CD') in the `baseline` primal of "
+-    "d6rf4_fd_endpoint.py, at the endpoint design vector reconstructed to "
++    "d6rf5_fd_endpoint.py, at the endpoint design vector reconstructed to "
+     "PHYSICAL units. It is NOT D6RF section 0a's `last accepted major of a "
+     "failed optimisation`; the two agree only to primal convergence and THIS "
+     "ITEM MAKES NO CLAIM THAT THEY ARE THE SAME NUMBER. No result of this item "
+@@ -294,19 +301,19 @@
+ # that is UNPRICED quietly becomes never.  This is `F_mp`'s own estimate: a
+ # SHIPPED row is the same arm on stock IDWarp at the same cap.
+ SHIPPED_ROW_PRICE_CORE_MIN = 155.70
+-PREDICTED_CORE_MIN = {"P_conv": 17.90}
++PREDICTED_CORE_MIN = {"P_conv": 62.00}   # PREREGISTRATION.md sec 7 estimate (full-run; realised ~20.6 if G-CONV fails, L4-L8 gated)
+ 
+ # ---- DAFOAM_CHARTER.md section 18.3, applied to PRODUCTS as well as to -----
+ # ---- instruments.  D6RF3-DEF-6: in the frozen D6RF2 set the grader, the -----
+ # ---- launcher and the writer disagreed on the name of a registered product.
+-LAUNCHER = "d6rf4_run_arm.sh"
++LAUNCHER = "d6rf5_run_arm.sh"
+ PRODUCT_WRITER = {
+-    "d6rf4_endpoint_dvs_PHYSICAL.json": "d6rf4_endpoint_physical.py",
+-    "d6rf4_endpoint_dvs_DRIVERSCALED.json": "d6rf4_endpoint_physical.py",
+-    "d6rf4_endpoint_dvs.json": "d6rf4_extract_endpoint.py",
+-    "d6rf4_major_history.json": "d6rf4_extract_endpoint.py",
+-    "d6rf4_fd_endpoint.json": "d6rf4_fd_endpoint.py",
+-    "d6rf4_f5_endpoint.json": "d6rf4_fd_endpoint.py",
++    "d6rf5_endpoint_dvs_PHYSICAL.json": "d6rf5_endpoint_physical.py",
++    "d6rf5_endpoint_dvs_DRIVERSCALED.json": "d6rf5_endpoint_physical.py",
++    "d6rf5_endpoint_dvs.json": "d6rf5_extract_endpoint.py",
++    "d6rf5_major_history.json": "d6rf5_extract_endpoint.py",
++    "d6rf5_fd_endpoint.json": "d6rf5_fd_endpoint.py",
++    "d6rf5_f5_endpoint.json": "d6rf5_fd_endpoint.py",
+ }
+ 
+ REGISTERED_CHAIN_OUTCOMES = ("STOPPED_AT_FIRST_NONZERO", "STOPPED_H5",
+@@ -314,12 +321,12 @@
+                              "REFUSED_ALREADY_BOUGHT", "ABORT")
+ 
+ ARTEFACT_PRODUCER = {
+-    "d6rf4_endpoint_dvs_PHYSICAL.json": "P_conv",
+-    "d6rf4_endpoint_dvs_DRIVERSCALED.json": "P_conv",
+-    "d6rf4_endpoint_dvs.json": "P_conv",
+-    "d6rf4_major_history.json": "P_conv",
+-    "d6rf4_fd_endpoint.json": "P_conv",
+-    "d6rf4_f5_endpoint.json": "P_conv",
++    "d6rf5_endpoint_dvs_PHYSICAL.json": "P_conv",
++    "d6rf5_endpoint_dvs_DRIVERSCALED.json": "P_conv",
++    "d6rf5_endpoint_dvs.json": "P_conv",
++    "d6rf5_major_history.json": "P_conv",
++    "d6rf5_fd_endpoint.json": "P_conv",
++    "d6rf5_f5_endpoint.json": "P_conv",
+     # NOT REGISTERED AT THIS FREEZE.  Kept in the map ON PURPOSE: deleting the
+     # row would make the gates that read them silently disappear, and a gate
+     # that vanishes is worse than one that reads NOT A RESULT with its reason
+@@ -327,18 +334,18 @@
+     # token (section 3.3, section 9 item 6).
+     "d4_endpoint_dvs_PHYSICAL.json": "REF_off",
+     "d4_endpoint_dvs.json": "REF_off",
+-    "d6rf4_ref_off.json": "REF_off",
++    "d6rf5_ref_off.json": "REF_off",
+ }
+ REGISTERED_PRODUCTS = {
+-    "P_conv": ["d6rf4_endpoint_dvs_PHYSICAL.json", "d6rf4_endpoint_dvs_DRIVERSCALED.json",
+-               "d6rf4_endpoint_dvs.json", "d6rf4_major_history.json",
+-               "d6rf4_fd_endpoint.json", "d6rf4_f5_endpoint.json"],
++    "P_conv": ["d6rf5_endpoint_dvs_PHYSICAL.json", "d6rf5_endpoint_dvs_DRIVERSCALED.json",
++               "d6rf5_endpoint_dvs.json", "d6rf5_major_history.json",
++               "d6rf5_fd_endpoint.json", "d6rf5_f5_endpoint.json"],
+ }
+ TERMINAL_STATEMENT = "Finalising parallel run"
+ 
+ # ==================== section 3.1: G-CONV, NEW AND GATED ====================
+ # THE BAR IS THE INHERITED ACCEPT FLOOR, RESTATED, NOT MOVED.  It is imported
+-# from `d6rf4_accept_floor_control` rather than re-declared, so this file and
++# from `d6rf5_accept_floor_control` rather than re-declared, so this file and
+ # the instrument that refuses on drift cannot disagree about what the floor is.
+ # `N-D43`: the floor is the PRODUCT `primalMinResTol x primalMinResTolDiff`,
+ # never the tolerance alone -- the wrong denominator was reported twice before
+@@ -348,70 +355,91 @@
+ # floor -- `p` at 1.3162x AND `nuTilda` at 1.0504x -- and a maximum names
+ # neither, so a repair that fixed only `p` would still have failed and the
+ # record would not have said why.
+-CONV_FIELDS = ("U0", "U1", "U2", "he", "p", "nuTilda")
+-CONV_MEASURED_D6RF3 = {          # the parent's OWN measured final-iteration
+-    "U0": 1.381819607e-07,       # initRes, log :2088-:2096, Time = 1000
+-    "U1": 5.862105833e-07,
+-    "U2": 3.746855799e-08,
+-    "he": 7.03533873e-09,
+-    "p": 1.316217833e-05,        # the binding field, 1.3162x the floor
+-    "nuTilda": 1.050443706e-05,  # the SECOND binding field, 1.0504x the floor
++CONV_FIELDS = ("U0", "U1", "U2", "he", "p_first_uncorrected",
++               "p_corrected", "nuTilda")
++CONV_MEASURED_D6RF4 = {          # D6RF4's OWN measured final-iteration initRes,
++    "U0": 2.050400149e-07,       # P_conv log Time = 1000 (PREREGISTRATION.md sec 1)
++    "U1": 7.782685238e-07,
++    "U2": 5.580946633e-08,
++    "he": 9.791852881e-09,
++    # THE p SOLVE IS SPLIT: the FIRST (uncorrected) solve is the binding field,
++    # the corrected final solve is under floor -- D6RF4/RESULTS.md sec 2.3 had to
++    # disentangle these by hand; G-CONV reads them separately here.
++    "p_first_uncorrected": 1.658293702e-05,  # the BINDING field, 1.658x the floor (log :2107)
++    "p_corrected": 6.337682167e-08,          # corrected final p-solve, under floor (log :2108)
++    "nuTilda": 1.40915531e-05,   # the genuine SECOND over-floor field, 1.409x the floor
+ }
+ PRIMAL_FAILURE_BANNER = "Primal solution failed!"
+ 
+-# ==================== section 3.2: G-SOLN, NEW AND GATED ====================
+-# THE ANTI-CHEAT GATE.  A different `fvSolution` could compute a different
+-# ANSWER rather than a better-converged one; `N-D42` establishes that
+-# `primalMinResTolDiff` changes only the LABEL, and no such result exists for
+-# a linear-solver stopping rule.  So it is measured instead of assumed.
+-# D6RF3's own values, MEASURED, log :2098-:2099 at Time = 1000.
+-G_SOLN_POINT = "cl04"
+-G_SOLN_CD_D6RF3 = 0.0184758685
+-G_SOLN_CL_D6RF3 = 0.3999751808
+-G_SOLN_REL_TOL = 1.0e-03
+-# Predicted: the two solutions differ by the residual level, O(1e-05) relative.
+-# 1e-05 < 1e-03 -- predicted PASS with two decades of margin.  Written down
+-# because a gate whose predicted value nobody wrote down is a gate nobody sized.
+-G_SOLN_PREDICTED_REL = 1.0e-05
++# ============ section 3.3: G-SCHEME, NEW AND GATED (replaces G-SOLN) =========
++# THE ANTI-CHEAT GATE FOR A SCHEME CHANGE.  D6RF4's G-SOLN required CD/CL to
++# MATCH the ancestor (right when only the linear-solver stopping rule moved);
++# it is INAPPLICABLE to D6RF5, which DELIBERATELY changes the discretisation --
++# a match would be surprising, a mismatch is expected, and re-using G-SOLN would
++# gate against the very effect the fix is designed to have.  G-SCHEME instead
++# proves the run USED THE REGISTERED DISCRETISATION, read back out of the run's
++# own container log: the graded leg L1 must show d6rf5_fvSchemes_LIMITED
++# installed (by md5), the laplacian and snGrad coefficients EQUAL at 0.333
++# (coefficient_equality_check, section 11 item 4), and nNonOrthogonalCorrectors
++# == 3 -- the LAST read from the RUN by COUNTING the per-corrector p solves in
++# the final outer iteration (1 + nNonOrthogonalCorrectors of them), not from a
++# staged file.  STRICTLY RESTRICTIVE: it turns a PASS or GATE FAIL INTO a NOT A
++# RESULT, never the reverse (CLAUDE.md rule 5).  The accept floor is verified
++# UNMOVED (afc); CD/CL are REPORTED (their shift is the price of `limited
++# 0.333`), never gated.
++G_SCHEME_LEG = "L1"
++G_SCHEME_LAPLACIAN = "Gauss linear limited corrected 0.333"
++G_SCHEME_SNGRAD = "limited corrected 0.333"
++G_SCHEME_COEFF = 0.333
++G_SCHEME_NCORR = 3            # 1 + nNonOrthogonalCorrectors == 4 p-solves per outer iter
++G_SCHEME_FILE = "d6rf5_fvSchemes_LIMITED"
++# REPORTED, NOT GATED: D6RF4's measured CD/CL at cl04, for the shift report only.
++G_SCHEME_CD_D6RF4 = 0.0184758685
++G_SCHEME_CL_D6RF4 = 0.3999751808
+ 
+ # ====================== section 8.2: THE THREE LEGS =========================
+-# The arm runs ONE container and three legs inside it.  `d6rf4_fd_endpoint.py`
+-# prints `D6RF4_LEG_BEGIN`/`D6RF4_LEG_END` markers, which is how one container
++# The arm runs ONE container and three legs inside it.  `d6rf5_fd_endpoint.py`
++# prints `D6RF5_LEG_BEGIN`/`D6RF5_LEG_END` markers, which is how one container
+ # log is split into per-leg segments.  Without a marker the three legs are one
+ # undifferentiated log and NO PER-LEG NUMBER CAN BE CITED.
+-LEG_BEGIN = "D6RF4_LEG_BEGIN"
+-LEG_END = "D6RF4_LEG_END"
++LEG_BEGIN = "D6RF5_LEG_BEGIN"
++LEG_END = "D6RF5_LEG_END"
+ LEGS = ("L1", "L2", "L3")
+ LEG_TAG = {"L1": "baseline", "L2": "baseline_repeat", "L3": "baseline"}
+-LEG_MODE = {"L1": "P_conv", "L2": "P_conv", "L3": "F5_loose"}
+-LEG_FVSOLUTION = {"L1": "d6rf4_fvSolution_TIGHT",
+-                  "L2": "d6rf4_fvSolution_TIGHT",
+-                  "L3": "d6rf4_fvSolution_D6RF3_ORIGINAL"}
++LEG_MODE = {"L1": "P_conv", "L2": "P_conv", "L3": "F5_scheme"}
++# THE LEG DISCRIMINATOR IS fvSchemes, not fvSolution: D6RF5 changes the
++# non-orthogonal-correction SCHEME, and L1/L2 run the LIMITED scheme while L3
++# (F5) runs D6RF4's ORIGINAL scheme.  The stopping rule (relTol/tol/minIter) is
++# the SAME tightened rule on every leg; the corrector count is read from the RUN
++# (p-solve count), so no F5-specific fvSolution file is registered here.
++LEG_FVSCHEMES = {"L1": "d6rf5_fvSchemes_LIMITED",
++                 "L2": "d6rf5_fvSchemes_LIMITED",
++                 "L3": "d6rf5_fvSchemes_D6RF4_ORIGINAL"}
+ # THE BYTES EACH LEG IS REGISTERED TO RUN.  The launcher installs the file and
+-# PRINTS `D6RF4_FVSOLUTION_INSTALLED leg=<L> md5=<m> sites=<n>` into the log;
++# PRINTS `D6RF5_FVSOLUTION_INSTALLED leg=<L> md5=<m> sites=<n>` into the log;
+ # this is what lets the grader ASSERT that L1 ran the tightened rule and L3 ran
+ # D6RF3's original one, instead of taking the launcher's word for it.
+ # WITHOUT THIS CHECK THE WHOLE ITEM IS UNFALSIFIABLE: a swap that silently
+ # failed would run L3 at the TIGHT settings, F5 would "fail to fail" for a
+ # bookkeeping reason, and its withdrawal clause would never fire.
+-FVSOL_MD5 = {"d6rf4_fvSolution_TIGHT": "0ac5bd00c63b9109d22a8e73b0795aa4",
+-             "d6rf4_fvSolution_D6RF3_ORIGINAL": "9e2669956be778acf7e7d8aa67a90ff6"}
+-FVSOL_INSTALL_MARKER = "D6RF4_FVSOLUTION_INSTALLED"
++FVSCHEMES_MD5 = {"d6rf5_fvSchemes_LIMITED": "8374443e7a374e9d353cffccdb654aaf",
++                 "d6rf5_fvSchemes_D6RF4_ORIGINAL": "cf8f745dcc594ce7a9c67ad2d41e4b06"}
++FVSCHEMES_INSTALL_MARKER = "D6RF5_FVSCHEMES_INSTALLED"
+ LEG_INSTALL_TAG = {"L1": "L1_L2", "L2": "L1_L2", "L3": "L3"}
+ # THE MODES REGISTERED TO TAKE NO FD STEP.  A product written by one of these
+ # is EMPTY BY REGISTRATION, and the rule-3 FD control over it is NOT EXERCISED
+ # rather than refused.  `full` is deliberately ABSENT from this set: a `full`
+ # arm with an empty product is a broken FD arm and must still refuse.
+ NO_FD_MODES = ("P_conv", "F5_loose")
+-LEG_ROLE = {"L1": "the tightened cl04 baseline -- G-CONV's and G-SOLN's subject",
+-            "L2": "the tightened cl04 baseline_repeat -- it BUYS eta_raw, "
++LEG_ROLE = {"L1": "the LIMITED-scheme cl04 baseline -- G-CONV's and G-SCHEME's subject",
++            "L2": "the LIMITED-scheme cl04 baseline_repeat -- it BUYS eta_raw, "
+                   "which is falsifier F1's bar (D6RF4-DEF-8 repair part 1)",
+-            "L3": "falsifier F5: the identical primal at D6RF3's ORIGINAL "
+-                  "fvSolution, predicted p initRes 1.3162e-05 > G-CONV's own "
+-                  "bar 1.0e-05, i.e. bound to FAIL its named gate at zero "
++            "L3": "falsifier F5: the identical primal at D6RF4's ORIGINAL "
++                  "SCHEME, predicted p FIRST-solve initRes 1.658e-05 > G-CONV's "
++                  "own bar 1.0e-05, i.e. bound to FAIL its named gate at zero "
+                   "compute (DAFOAM_CHARTER.md section 21.3)"}
+ F5_LEG = "L3"
+-F5_PREDICTED_P_INITRES = 1.316217833e-05
++F5_PREDICTED_P_INITRES = 1.658293702e-05
+ F5_NAMED_GATE = "G-CONV"
+ 
+ # ============ section 5: D6RF4-DEF-8, THE REGISTERED NULL READINGS ==========
+@@ -428,12 +456,12 @@
+     "F1": {"run_derived_quantity": "eta_raw = |J - J_repeat|",
+            "producing_leg": "L2 (baseline_repeat)",
+            "token": "UNRESOLVED", "bar_state": BAR_NOT_PRODUCED,
+-           "bar_artefact": "d6rf4_fd_endpoint.json:eta_raw",
++           "bar_artefact": "d6rf5_fd_endpoint.json:eta_raw",
+            "gated": False},
+     "F3": {"run_derived_quantity": "G-FD aggregate, sign-flip count",
+            "producing_leg": "the FD legs (NOT REGISTERED at this freeze)",
+            "token": "UNRESOLVED", "bar_state": BAR_NOT_PRODUCED,
+-           "bar_artefact": "d6rf4_fd_endpoint.json:rows",
++           "bar_artefact": "d6rf5_fd_endpoint.json:rows",
+            "gated": False},
+     "F5": {"run_derived_quantity": "per-field final initRes at the WRONG setting",
+            "producing_leg": "L3 (F5_loose baseline)",
+@@ -445,46 +473,48 @@
+                "token": "NOT A RESULT", "bar_state": BAR_NOT_PRODUCED,
+                "bar_artefact": "the arm log segment between L1's LEG_BEGIN/LEG_END",
+                "gated": True},
+-    "G-SOLN": {"run_derived_quantity": "tightened CD, CL at cl04",
+-               "producing_leg": "L1 (P_conv tight baseline)",
+-               "token": "NOT A RESULT", "bar_state": BAR_NOT_PRODUCED,
+-               "bar_artefact": "d6rf4_fd_endpoint.json:points.cl04.{CD,CL}",
+-               "gated": True},
++    "G-SCHEME": {"run_derived_quantity": "installed fvSchemes md5 + p-solve "
++                 "count (nNonOrthogonalCorrectors) at L1",
++                 "producing_leg": "L1 (LIMITED-scheme baseline)",
++                 "token": "NOT A RESULT", "bar_state": BAR_NOT_PRODUCED,
++                 "bar_artefact": "the arm log segment between L1's LEG_BEGIN/END "
++                                 "and its D6RF5_FVSCHEMES_INSTALLED marker",
++                 "gated": True},
+     "X-CDLOG": {"run_derived_quantity": "points.<pt>.CD",
+                 "producing_leg": "L1 (the baseline point-primals)",
+                 "token": "NOT PRODUCED", "bar_state": BAR_NOT_PRODUCED,
+-                "bar_artefact": "d6rf4_fd_endpoint.json:points.<pt>.CD",
++                "bar_artefact": "d6rf5_fd_endpoint.json:points.<pt>.CD",
+                 "gated": False},
+     "R-RED": {"run_derived_quantity": "composite reduction pct",
+               "producing_leg": "the optimiser history (NOT REGISTERED here)",
+               "token": "UNRESOLVED", "bar_state": BAR_NOT_PRODUCED,
+-              "bar_artefact": "d6rf4_major_history.json",
++              "bar_artefact": "d6rf5_major_history.json",
+               "gated": False},
+     "G-FD": {"run_derived_quantity": "per-component rel_err_pct, plateau_pct",
+              "producing_leg": "the FD legs (NOT REGISTERED at this freeze)",
+              "token": "NOT A RESULT", "bar_state": BAR_NOT_PRODUCED,
+-             "bar_artefact": "d6rf4_fd_endpoint.json:rows",
++             "bar_artefact": "d6rf5_fd_endpoint.json:rows",
+              "gated": True},
+     "G-OFF": {"run_derived_quantity": "CD_REF_off, CL_REF_off",
+               "producing_leg": "REF_off (NOT REGISTERED at this freeze)",
+               "token": "NOT A RESULT", "bar_state": BAR_NOT_PRODUCED,
+-              "bar_artefact": "d6rf4_ref_off.json",
++              "bar_artefact": "d6rf5_ref_off.json",
+               "gated": True},
+     "G-PRICE": {"run_derived_quantity": "CD_mp against D4's CD_f",
+                 "producing_leg": "L1 (the baseline point-primals)",
+                 "token": "NOT A RESULT", "bar_state": BAR_NOT_PRODUCED,
+-                "bar_artefact": "d6rf4_fd_endpoint.json:points.cl05.CD",
++                "bar_artefact": "d6rf5_fd_endpoint.json:points.cl05.CD",
+                 "gated": True},
+     "G-DVL": {"run_derived_quantity": "the design vector on disk",
+               "producing_leg": "L1 (the staging wrapper)",
+               "token": "NOT A RESULT", "bar_state": BAR_NOT_PRODUCED,
+-              "bar_artefact": "d6rf4_endpoint_dvs_PHYSICAL.json",
++              "bar_artefact": "d6rf5_endpoint_dvs_PHYSICAL.json",
+               "gated": True},
+ }
+ # THE COVERAGE ASSERTION'S SUBJECT.  Every name here must have a NULL_READINGS
+ # row, and `freeze_check` refuses if one does not.  It is the list of things
+ # this file grades or reports whose value comes OUT OF THE RUN.
+-RUN_DERIVED = ("F1", "F3", "F5", "G-CONV", "G-SOLN", "X-CDLOG", "R-RED",
++RUN_DERIVED = ("F1", "F3", "F5", "G-CONV", "G-SCHEME", "X-CDLOG", "R-RED",
+                "G-FD", "G-OFF", "G-PRICE", "G-DVL")
+ 
+ # =============== section 12.4: THE PLATEAU BAR'S OWN REPORT =================
+@@ -514,13 +544,13 @@
+ # THE ONE CD READER OF THIS ITEM.  Imported, not re-implemented: the reader the
+ # section 3e control plants into must be BYTE-FOR-BYTE the reader the gate uses,
+ # or the control controls nothing.
+-import d6rf4_cd_plant_control as cdc                               # noqa: E402
++import d6rf5_cd_plant_control as cdc                               # noqa: E402
+ # THE ONE ACCEPT-FLOOR READER OF THIS ITEM.  Imported, not re-implemented, for
+ # the same reason `cdc` is: the control that plants a drift must be planting
+ # into THE SAME FUNCTION the gate reads through, or the control controls
+ # nothing.  `freeze_check` asserts the IDENTITY of the imported symbol, not the
+ # module name (section 7 carried strength 2).
+-import d6rf4_accept_floor_control as afc                           # noqa: E402
++import d6rf5_accept_floor_control as afc                           # noqa: E402
+ 
+ # The accept floor is DEFINED IN ONE PLACE and read from it here, so this file
+ # and the instrument that refuses on drift cannot disagree about the number.
+@@ -768,7 +798,7 @@
+ 
+ 
+ # ------------------------------------------------------------ freeze check
+-ITEM_DIR_REL = "cases/dafoam/ladder-a/A2/curriculum_D6RF4"
++ITEM_DIR_REL = "cases/dafoam/ladder-a/A2/curriculum_D6RF5"
+ # EVERY FILE THIS GRADING PATH EXECUTES OR IMPORTS.  `frozen_path_coverage`
+ # below EXTRACTS that set FROM THIS FILE'S OWN BYTES and REFUSES if this tuple
+ # does not contain it -- so the tuple is checkable rather than remembered.
+@@ -778,20 +808,21 @@
+ # driver ran.
+ FROZEN_PATHS = tuple("%s/%s" % (ITEM_DIR_REL, n) for n in (
+     "PREREGISTRATION.md",
+-    "d6rf4_grade.py",
+-    "d6rf4_cd_plant_control.py",
+-    "d6rf4_accept_floor_control.py",
+-    "d6rf4_endpoint_locus.py",
+-    "d6rf4_endpoint_physical.py",
+-    "d6rf4_extract_endpoint.py",
+-    "d6rf4_fd_endpoint.py",
+-    "d6rf4_anchor_gate.py",
+-    "d6rf4_opt_runScript.py",
+-    "d6rf4_units_assert.py",
+-    "d6rf4_finiteness_mutation.py",
+-    "d6rf4_run_arm.sh",
+-    "d6rf4_fvSolution_TIGHT",
+-    "d6rf4_fvSolution_D6RF3_ORIGINAL",
++    "d6rf5_grade.py",
++    "d6rf5_cd_plant_control.py",
++    "d6rf5_accept_floor_control.py",
++    "d6rf5_endpoint_locus.py",
++    "d6rf5_endpoint_physical.py",
++    "d6rf5_extract_endpoint.py",
++    "d6rf5_fd_endpoint.py",
++    "d6rf5_anchor_gate.py",
++    "d6rf5_opt_runScript.py",
++    "d6rf5_units_assert.py",
++    "d6rf5_finiteness_mutation.py",
++    "d6rf5_run_arm.sh",
++    "d6rf5_fvSchemes_LIMITED",
++    "d6rf5_fvSchemes_D6RF4_ORIGINAL",
++    "d6rf5_fvSolution",
+ ))
+ # CROSS-ITEM DEPENDENCIES, NAMED RATHER THAN EXCLUDED.  `d4_opt_runScript.py`
+ # is D4's own instrument, staged unchanged and read here as `G-DVL`'s D4-side
+@@ -801,7 +832,7 @@
+ CROSS_ITEM = {
+     "d4_opt_runScript.py":
+         "cases/dafoam/ladder-a/A2/curriculum_D4/d4_opt_runScript.py",
+-    # Opened by d6rf4_anchor_gate.py:167/:177 and d6rf4_endpoint_locus.py:554,
++    # Opened by d6rf5_anchor_gate.py:167/:177 and d6rf5_endpoint_locus.py:554,
+     # in their SELFTEST paths.  A selftest path is still an executed path, and
+     # D6RF3's own extraction listed this row for the same reason.
+     "d6r_opt_runScript.py":
+@@ -814,7 +845,7 @@
+     """DAFOAM_CHARTER.md section 18.3, APPLIED TO THIS FILE BY EXTRACTION.
+ 
+     Reads THIS FILE'S OWN BYTES with `ast`, collects every LOCAL module it
+-    imports and every `d6rf4_*` / `d4_*` filename literal it names, and REFUSES
++    imports and every `d6rf5_*` / `d4_*` filename literal it names, and REFUSES
+     if any of them is absent from `FROZEN_PATHS` or absent from disk.  EXISTENCE
+     IS ASSERTED FIRST AND SEPARATELY, before any md5 -- section 18.3's own
+     sentence: an md5-agreement figure over a subset is NOT evidence the set is
+@@ -830,14 +861,14 @@
+     for node in _ast.walk(tree):
+         if isinstance(node, _ast.Import):
+             for a in node.names:
+-                if a.name.startswith(("d6rf4_", "d4_")):
++                if a.name.startswith(("d6rf5_", "d4_")):
+                     imported.add(a.name + ".py")
+         elif isinstance(node, _ast.ImportFrom) and node.module:
+-            if node.module.startswith(("d6rf4_", "d4_")):
++            if node.module.startswith(("d6rf5_", "d4_")):
+                 imported.add(node.module + ".py")
+         elif isinstance(node, _ast.Constant) and isinstance(node.value, str):
+             v = node.value
+-            if (v.startswith(("d6rf4_", "d4_"))
++            if (v.startswith(("d6rf5_", "d4_"))
+                     and v.endswith((".py", ".sh"))):
+                 literals.add(v)
+     referenced = sorted(imported | literals)
+@@ -928,8 +959,8 @@
+     not into a re-implementation of it.  Checking the MODULE NAME would pass on
+     a module that had been re-implemented; this asserts that the object the
+     gate reads through IS the object the control drives, by identity."""
+-    import d6rf4_cd_plant_control as _cdc_again
+-    import d6rf4_accept_floor_control as _afc_again
++    import d6rf5_cd_plant_control as _cdc_again
++    import d6rf5_accept_floor_control as _afc_again
+     checks = {
+         "cdc.read_cd is the gate's CD reader":
+             cdc.read_cd is _cdc_again.read_cd,
+@@ -951,6 +982,35 @@
+     return {k: bool(v) for k, v in checks.items()}
+ 
+ 
++def coefficient_equality_check():
++    """PREREGISTRATION.md section 11 item 4, EXECUTABLE.  Reads the frozen
++    d6rf5_fvSchemes_LIMITED and returns the laplacian and snGrad non-orthogonal
++    correction coefficients with `equal` set iff BOTH are 0.333 ([W1]: a
++    mismatched coefficient causes subtle residual errors difficult to diagnose).
++    Existence asserted before any read; REFUSES if the file is absent or a
++    coefficient is unreadable.  The EQUALITY itself is folded by G-SCHEME and by
++    --freeze-selfcheck, so a lane sees the numbers rather than only a boolean."""
++    path = os.path.join(HERE, G_SCHEME_FILE)
++    if not os.path.isfile(path):
++        refuse("COEFF_EQUALITY", {"fvSchemes_absent": path})
++    txt = open(path, errors="replace").read()
++    lap = re.search(r'laplacianSchemes\s*\{[^}]*?default\s+Gauss\s+linear\s+'
++                    r'limited\s+corrected\s+([0-9.]+)\s*;', txt, re.S)
++    sng = re.search(r'snGradSchemes\s*\{[^}]*?default\s+limited\s+corrected'
++                    r'\s+([0-9.]+)\s*;', txt, re.S)
++    if not lap or not sng:
++        refuse("COEFF_EQUALITY",
++               {"path": path, "laplacian_found": bool(lap),
++                "snGrad_found": bool(sng),
++                "note": "the limited-correction coefficient could not be read "
++                        "from one or both blocks"})
++    lc, sc = float(lap.group(1)), float(sng.group(1))
++    return {"laplacian_coeff": lc, "snGrad_coeff": sc,
++            "registered_coeff": G_SCHEME_COEFF,
++            "equal": (lc == sc == G_SCHEME_COEFF),
++            "file": G_SCHEME_FILE, "path": path}
++
++
+ def freeze_check(paths):
+     """The frozen file IS the file that ran: disk == git blob at HEAD."""
+     out = {}
+@@ -1150,7 +1210,7 @@
+         with open(datum_file) as fh:
+             datum_raw = fh.read().strip()
+         # CALL SITE 2 OF 2 OF THE UN-TRUNCATED DATUM (CLAUDE.md rule 14; the
+-        # other is `d6rf4_endpoint_physical.py`'s C3).  `float()` of a
++        # other is `d6rf5_endpoint_physical.py`'s C3).  `float()` of a
+         # SERIALISED INTEGER is invisible to the committed truncation census --
+         # it resolves `datum` as carrying no mtime provenance at all -- so the
+         # floor has to be caught HERE, on the bytes, by asserting the decimal
+@@ -1378,16 +1438,16 @@
+     """Re-read BOTH published physical artefacts from disk and re-assert the two
+     locus controls at GRADING time.  Never trusts the producer's say-so."""
+     sys.path.insert(0, HERE)
+-    import d6rf4_endpoint_locus as locus
++    import d6rf5_endpoint_locus as locus
+     res = {"gate": "G-DVL_endpoint_locus", "arms": {}}
+     verdicts = []
+     # THE REGISTERED ARM IS `P_conv`, NOT `F_mp`.  Caught by the section 3f
+     # mutation harness: the parent's hard-coded `F_mp` made this gate look for
+-    # `root/F_mp/d6rf4_endpoint_dvs_PHYSICAL.json` on a run that writes to
++    # `root/F_mp/d6rf5_endpoint_dvs_PHYSICAL.json` on a run that writes to
+     # `root/P_conv/`, and it REFUSED `artefact_absent_although_producer_ran`
+     # on a clean fixture.  A refusal is not the registered behaviour and it
+     # would have fired on the real run too.
+-    for arm, art, rs in ((ARMS[0], "d6rf4_endpoint_dvs_PHYSICAL.json", runscript_d6r),
++    for arm, art, rs in ((ARMS[0], "d6rf5_endpoint_dvs_PHYSICAL.json", runscript_d6r),
+                          ("REF_off", "d4_endpoint_dvs_PHYSICAL.json", runscript_d4)):
+         if census[arm]["state"] != "RAN":
+             _r, _d = _no_input_reason(census, arm, art, root)
+@@ -1398,7 +1458,7 @@
+         path = os.path.join(root, ARM_DIR[arm], art)
+         # ---- section 3f binds G-DVL --------------------------------------
+         # Checked HERE, at the grader's boundary, and NOT by editing
+-        # `d6rf4_endpoint_locus.py`: a non-finite design component makes every
++        # `d6rf5_endpoint_locus.py`: a non-finite design component makes every
+         # locus control (pinned witness, bounds containment) return False for
+         # a reason that has nothing to do with the locus, which would read as
+         # `GATE FAIL -- the design point is not the one the registration
+@@ -1670,7 +1730,8 @@
+     each leg's OWN final-iteration per-field `initRes`.
+ 
+     WHY SEGMENTS AND NOT A WHOLE-LOG SCAN.  `P_conv` runs three primals in one
+-    container at TWO DIFFERENT `fvSolution` settings.  A whole-log reader would
++    container at TWO DIFFERENT `fvSchemes` (L1/L2 the LIMITED scheme, L3
++    D6RF4's ORIGINAL scheme).  A whole-log reader would
+     hand `G-CONV` the LAST `Time = 1000` block it found, which is `L3`'s -- the
+     DELIBERATELY WRONG SETTING -- and the gate would grade the falsifier as if
+     it were the repair.  The segmentation is what keeps those apart, and it is
+@@ -1691,7 +1752,7 @@
+     with open(log_path, errors="replace") as fh:
+         for ln, line in enumerate(fh, 1):
+             s = line.rstrip("\n")
+-            if s.startswith(FVSOL_INSTALL_MARKER):
++            if s.startswith(FVSCHEMES_INSTALL_MARKER):
+                 kv = dict(x.split("=", 1) for x in s.split()[1:] if "=" in x)
+                 kv["line"] = ln
+                 installs.append(kv)
+@@ -1702,7 +1763,7 @@
+                        "mode": next((x.split("=", 1)[1] for x in parts
+                                      if x.startswith("mode=")), None),
+                        "begin_line": ln, "end_line": None, "times": [],
+-                       "fields": {}, "CD": None, "CL": None,
++                       "fields": {}, "n_p_solves": 0, "CD": None, "CL": None,
+                        "execution_time_s": None, "primal_failed": None,
+                        "primal_raised": None}
+                 segs.append(cur)
+@@ -1722,12 +1783,27 @@
+             if m:
+                 cur["times"].append(int(m.group("t")))
+                 cur["fields"] = {}          # the LAST time block is the graded one
++                cur["n_p_solves"] = 0       # reset the per-corrector p-solve count
+                 continue
+             m = _RES_LINE.match(s)
+             if m:
+-                cur["fields"][m.group("f")] = {
+-                    "initRes": m.group("i"), "finalRes": m.group("r"),
+-                    "nIters": int(m.group("n")), "line": ln}
++                f = m.group("f")
++                rec = {"initRes": m.group("i"), "finalRes": m.group("r"),
++                       "nIters": int(m.group("n")), "line": ln}
++                if f == "p":
++                    # section 3.1: p is solved (1 + nNonOrthogonalCorrectors)
++                    # times per outer iteration and DAFoam prints each solve as
++                    # its own `p initRes:` line (D6RF4 log :2107 first/uncorrected
++                    # = the BINDING primalMinResidual, :2108..last = corrected).
++                    # The FIRST is p_first_uncorrected; the LAST overwrites
++                    # p_corrected; and we COUNT the solves so G-SCHEME can read
++                    # nNonOrthogonalCorrectors back off the RUN (= count - 1).
++                    if "p_first_uncorrected" not in cur["fields"]:
++                        cur["fields"]["p_first_uncorrected"] = rec
++                    cur["fields"]["p_corrected"] = rec
++                    cur["n_p_solves"] = cur.get("n_p_solves", 0) + 1
++                else:
++                    cur["fields"][f] = rec
+                 continue
+             m = _CDCL_LINE.match(s)
+             if m:
+@@ -1748,7 +1824,7 @@
+     for leg, seg in list(zip(("L1", "L2"), pconv)) + list(zip(("L3",), f5)):
+         seg["leg"] = leg
+         seg["registered_role"] = LEG_ROLE[leg]
+-        seg["registered_fvSolution"] = LEG_FVSOLUTION[leg]
++        seg["registered_fvSchemes"] = LEG_FVSCHEMES[leg]
+         seg["final_time"] = seg["times"][-1] if seg["times"] else None
+         if not seg["fields"]:
+             seg["state"] = "SEGMENT_WITHOUT_RESIDUALS"
+@@ -1756,26 +1832,26 @@
+             seg["state"] = "READ"
+         out["segments"][leg] = seg
+         out["order"].append(leg)
+-    out["fvSolution_installs"] = installs
++    out["fvSchemes_installs"] = installs
+     # BIND EACH LEG TO THE LAST INSTALL THAT PRECEDED ITS `LEG_BEGIN`.  By
+     # LINE ORDER, because that is the order the container executed in.
+     for leg, seg in out["segments"].items():
+         prior = [i for i in installs if i["line"] < seg["begin_line"]]
+         got = prior[-1] if prior else None
+-        want_name = LEG_FVSOLUTION[leg]
+-        want_md5 = FVSOL_MD5[want_name]
+-        seg["fvSolution_install"] = got
++        want_name = LEG_FVSCHEMES[leg]
++        want_md5 = FVSCHEMES_MD5[want_name]
++        seg["fvSchemes_install"] = got
+         if got is None:
+-            seg["fvSolution_state"] = "INSTALL_MARKER_NOT_PRODUCED"
++            seg["fvSchemes_state"] = "INSTALL_MARKER_NOT_PRODUCED"
+         elif got.get("md5") != want_md5:
+-            seg["fvSolution_state"] = "WRONG_FVSOLUTION"
++            seg["fvSchemes_state"] = "WRONG_FVSCHEMES"
+         elif got.get("leg") not in (None, LEG_INSTALL_TAG[leg]):
+-            seg["fvSolution_state"] = "WRONG_FVSOLUTION"
++            seg["fvSchemes_state"] = "WRONG_FVSCHEMES"
+         else:
+-            seg["fvSolution_state"] = "AS_REGISTERED"
+-        seg["fvSolution_registered_md5"] = want_md5
+-        seg["fvSolution_installed_md5"] = (got or {}).get("md5")
+-        seg["fvSolution_sites"] = (got or {}).get("sites")
++            seg["fvSchemes_state"] = "AS_REGISTERED"
++        seg["fvSchemes_registered_md5"] = want_md5
++        seg["fvSchemes_installed_md5"] = (got or {}).get("md5")
++        seg["fvSchemes_sites"] = (got or {}).get("sites")
+     out["n_segments"] = len(segs)
+     out["n_bound"] = len(out["segments"])
+     out["state"] = BAR_PRODUCED if out["segments"] else BAR_NOT_PRODUCED
+@@ -1805,11 +1881,11 @@
+                 "carried forward from D6RF3 UNCHANGED. N-D43: the accept floor "
+                 "is the PRODUCT, never the tolerance alone. This gate RESTATES "
+                 "the bar DAFoam already applies post-End; it does not move it, "
+-                "and d6rf4_accept_floor_control.py refuses if it has moved."),
++                "and d6rf5_accept_floor_control.py refuses if it has moved."),
+             "graded_leg": "L1", "reported_legs": ["L2", "L3"],
+-            "d6rf3_measured": CONV_MEASURED_D6RF3,
++            "d6rf4_measured": CONV_MEASURED_D6RF4,
+             "per_leg": {}}
+-    producer = ARTEFACT_PRODUCER["d6rf4_fd_endpoint.json"]
++    producer = ARTEFACT_PRODUCER["d6rf5_fd_endpoint.json"]
+     if census[producer]["state"] != "RAN":
+         _r, _d = _no_input_reason(census, producer, None, root)
+         base.update(dict({"verdict": "NOT A RESULT", "reason": _r}, **_d))
+@@ -1829,11 +1905,11 @@
+     verds, nonfinite = [], []
+     for leg, seg in sorted(legs["segments"].items()):
+         row = {"leg": leg, "role": seg["registered_role"],
+-               "fvSolution": seg["registered_fvSolution"],
+-               "fvSolution_state": seg.get("fvSolution_state"),
+-               "fvSolution_registered_md5": seg.get("fvSolution_registered_md5"),
+-               "fvSolution_installed_md5": seg.get("fvSolution_installed_md5"),
+-               "fvSolution_sites": seg.get("fvSolution_sites"),
++               "fvSchemes": seg["registered_fvSchemes"],
++               "fvSchemes_state": seg.get("fvSchemes_state"),
++               "fvSchemes_registered_md5": seg.get("fvSchemes_registered_md5"),
++               "fvSchemes_installed_md5": seg.get("fvSchemes_installed_md5"),
++               "fvSchemes_sites": seg.get("fvSchemes_sites"),
+                "final_time": seg["final_time"],
+                "primal_failure_banner": bool(seg.get("primal_failed")),
+                "per_field": {}, "fields_absent": []}
+@@ -1841,13 +1917,13 @@
+         # NOT A RESULT, never GATE FAIL: a leg that ran the wrong fvSolution
+         # did not measure the thing this gate's name says, so its number is
+         # not evidence about the repair in EITHER direction.
+-        if seg.get("fvSolution_state") != "AS_REGISTERED":
++        if seg.get("fvSchemes_state") != "AS_REGISTERED":
+             row.update({"verdict": "NOT A RESULT",
+-                        "reason": "FVSOLUTION_NOT_AS_REGISTERED",
++                        "reason": "FVSCHEMES_NOT_AS_REGISTERED",
+                         "note": "this leg's log does not show the registered "
+-                                "fvSolution installed before it. A leg that "
+-                                "may have run the other stopping rule cannot "
+-                                "grade the stopping rule."})
++                                "fvSchemes installed before it. A leg that may "
++                                "have run the other discretisation cannot grade "
++                                "the non-orthogonal-correction scheme."})
+             base["per_leg"][leg] = row
+             if leg == "L1":
+                 verds.append("NOT A RESULT")
+@@ -1880,9 +1956,9 @@
+                 "initRes": v, "finalRes": got["finalRes"],
+                 "nIters": got["nIters"], "log_line": got["line"],
+                 "ratio_to_bar": ratio,
+-                "d6rf3_measured": CONV_MEASURED_D6RF3.get(f),
+-                "improvement_vs_d6rf3": (CONV_MEASURED_D6RF3[f] / v
+-                                         if f in CONV_MEASURED_D6RF3 and v > 0
++                "d6rf4_measured": CONV_MEASURED_D6RF4.get(f),
++                "improvement_vs_d6rf4": (CONV_MEASURED_D6RF4[f] / v
++                                         if f in CONV_MEASURED_D6RF4 and v > 0
+                                          else None),
+                 "verdict": "PASS" if v < CONV_BAR else "GATE FAIL"}
+             if worst is None or v > worst:
+@@ -1915,18 +1991,19 @@
+     IT NAMES THE GATE IT IS PREDICTED TO FAIL -- `G-CONV` -- AND THAT IS THE
+     GATE ITS WITHDRAWAL CLAUSE WITHDRAWS.  The predicted value is not an
+     estimate: it is `D6RF3`'s MEASURED `p initRes` at the identical settings,
+-    `1.316217833e-05`, against `G-CONV`'s OWN bar of `1.0e-05`.  The inequality
+-    `1.3162e-05 > 1.0e-05` fails that gate by `1.3162x` AT ZERO COMPUTE, which
++    `1.658293702e-05` (D6RF4's MEASURED p FIRST-solve initRes at D6RF4's
++    scheme), against `G-CONV`'s OWN bar of `1.0e-05`.  The inequality
++    `1.658e-05 > 1.0e-05` fails that gate by `1.658x` AT ZERO COMPUTE, which
+     is the property section 21.1 found missing in `S1FDP`'s limb 2."""
+     res = {"falsifier": "F5_wrong_setting_must_fail_G-CONV",
+            "named_gate": F5_NAMED_GATE,
+            "named_gates_own_bar": CONV_BAR,
+            "predicted_value": F5_PREDICTED_P_INITRES,
+            "predicted_value_provenance": (
+-               "D6RF3's MEASURED primalMaxRes / p initRes at Time = 1000 at "
+-               "the identical fvSolution settings, log "
+-               "F_mp_20260905T222250Z_43793.log :2092. MEASURED, not estimated."),
+-           "the_inequality": "1.3162e-05 > 1.0e-05 -- FAILS G-CONV by 1.3162x",
++               "D6RF4's MEASURED p FIRST-solve initRes at Time = 1000 at "
++               "D6RF4's ORIGINAL scheme (Gauss linear corrected, 1 corr), "
++               "P_conv log :2107. MEASURED, not estimated."),
++           "the_inequality": "1.658e-05 > 1.0e-05 -- FAILS G-CONV by 1.658x",
+            "predicted_to_fail_its_named_gate": (
+                F5_PREDICTED_P_INITRES > CONV_BAR),
+            "withdrawal_clause": (
+@@ -1971,64 +2048,104 @@
+ 
+ 
+ # ------------------------------------------------------------ G-SOLN
+-def gate_soln(root, census, legs):
+-    """`G-SOLN`, section 3.2.  NEW AND GATED.  THE ANTI-CHEAT GATE.
+-
+-    The one honest objection to this item is that a different `fvSolution`
+-    computes a different ANSWER, not a better-converged one.  `N-D42` shows
+-    that `primalMinResTolDiff` computes the SAME answer and changes only the
+-    LABEL; NO SUCH RESULT EXISTS for a linear-solver stopping rule, so it is
+-    MEASURED here rather than assumed.
+-
+-    A `GATE FAIL` means the change MOVED THE SOLUTION.  The repair would then
+-    be a different case, not a better solve, and NO `G-CONV` PASS MAY BE
+-    QUOTED AS `D6RF3`'s ANSWER."""
+-    res = {"gate": "G-SOLN_solution_unmoved", "point": G_SOLN_POINT,
+-           "rel_tol": G_SOLN_REL_TOL,
+-           "reference": {"CD": G_SOLN_CD_D6RF3, "CL": G_SOLN_CL_D6RF3,
+-                         "source": ("D6RF3 F_mp_20260905T222250Z_43793.log "
+-                                    ":2098-:2099, Time = 1000. MEASURED.")},
+-           "predicted_rel": G_SOLN_PREDICTED_REL,
+-           "the_inequality": ("predicted 1e-05 < bar 1e-03 -- predicted PASS "
+-                              "with two decades of margin"),
+-           "consequence_of_a_GATE_FAIL": (
+-               "the fvSolution change MOVED THE SOLUTION rather than "
+-               "converging it; the repair is then a different case and no "
+-               "G-CONV PASS may be quoted as D6RF3's answer.")}
+-    producer = ARTEFACT_PRODUCER["d6rf4_fd_endpoint.json"]
++def gate_scheme(root, census, legs, floor):
++    """`G-SCHEME`, section 3.3.  NEW AND GATED.  THE ANTI-CHEAT for a SCHEME
++    change (replaces D6RF4's inapplicable `G-SOLN`, which required a CD/CL MATCH).
++
++    It PROVES the graded leg used the REGISTERED discretisation, read back out of
++    the run's own container log, and reads NOT A RESULT otherwise:
++      * L1's installed fvSchemes md5 == d6rf5_fvSchemes_LIMITED;
++      * laplacian and snGrad coefficients EQUAL at 0.333
++        (coefficient_equality_check, section 11 item 4, from the frozen file);
++      * nNonOrthogonalCorrectors == 3, read from the RUN by COUNTING L1's
++        per-corrector p-solves in the final outer iteration (1 + nCorr of them);
++      * the accept floor is UNMOVED (afc's EXERCISED-PASS).
++    STRICTLY RESTRICTIVE: it can only turn a PASS or GATE FAIL INTO a NOT A
++    RESULT.  CD/CL and their shift from D6RF4 are REPORTED, never gated -- the
++    shift is the physical price of `limited 0.333`."""
++    res = {"gate": "G-SCHEME_registered_discretisation_ran", "leg": G_SCHEME_LEG,
++           "registered": {"fvSchemes": G_SCHEME_FILE,
++                          "fvSchemes_md5": FVSCHEMES_MD5[G_SCHEME_FILE],
++                          "laplacian": G_SCHEME_LAPLACIAN,
++                          "snGrad": G_SCHEME_SNGRAD, "coeff": G_SCHEME_COEFF,
++                          "nNonOrthogonalCorrectors": G_SCHEME_NCORR},
++           "reported_not_gated": {
++               "D6RF4_CD_cl04": G_SCHEME_CD_D6RF4,
++               "D6RF4_CL_cl04": G_SCHEME_CL_D6RF4,
++               "note": "the CD/CL shift is the price of `limited 0.333` and is "
++                       "REPORTED for the successor, NEVER used to pass or fail."}}
++    producer = ARTEFACT_PRODUCER["d6rf5_fd_endpoint.json"]
+     if census[producer]["state"] != "RAN":
+         _r, _d = _no_input_reason(census, producer, None, root)
+         res.update(dict({"verdict": "NOT A RESULT", "reason": _r}, **_d))
+-        res.update(NULL_READINGS["G-SOLN"])
++        res.update(NULL_READINGS["G-SCHEME"])
+         return res
+-    seg = (legs.get("segments") or {}).get("L1")
+-    if not seg or seg.get("CD") is None or seg.get("CL") is None:
+-        res.update({"verdict": "NOT A RESULT",
+-                    "reason": "SEGMENT_NOT_PRODUCED",
++    seg = (legs.get("segments") or {}).get(G_SCHEME_LEG)
++    if not seg:
++        res.update({"verdict": "NOT A RESULT", "reason": "SEGMENT_NOT_PRODUCED",
+                     "bar_state": BAR_NOT_PRODUCED,
+-                    "producing_leg": NULL_READINGS["G-SOLN"]["producing_leg"],
++                    "producing_leg": NULL_READINGS["G-SCHEME"]["producing_leg"],
+                     "legs_seen": sorted(legs.get("segments", {})),
+-                    "note": "L1 produced no CD/CL line, so there is nothing "
+-                            "to compare. NOT A RESULT for want of an input."})
++                    "note": "L1 produced no log segment, so the schemes it ran "
++                            "cannot be read back. NOT A RESULT for want of an "
++                            "input."})
+         return res
+-    try:
+-        cd = _ff(seg["CD"], os.path.basename(legs["log"]), "L1.CD")
+-        cl = _ff(seg["CL"], os.path.basename(legs["log"]), "L1.CL")
+-    except NonFinite as e:
+-        return _nar_non_finite(res, e)
+-    res["measured"] = {"CD": cd, "CL": cl, "final_time": seg["final_time"]}
+-    res["rel_CD"] = abs(cd - G_SOLN_CD_D6RF3) / abs(G_SOLN_CD_D6RF3)
+-    res["rel_CL"] = abs(cl - G_SOLN_CL_D6RF3) / abs(G_SOLN_CL_D6RF3)
+-    res["worst_rel"] = max(res["rel_CD"], res["rel_CL"])
+     res["bar_state"] = BAR_PRODUCED
+-    res["verdict"] = ("PASS" if res["worst_rel"] <= G_SOLN_REL_TOL
+-                      else "GATE FAIL")
++    # 1. the fvSchemes installed before L1 (by md5, from read_legs binding)
++    res["fvSchemes_state"] = seg.get("fvSchemes_state")
++    res["fvSchemes_installed_md5"] = seg.get("fvSchemes_installed_md5")
++    res["fvSchemes_registered_md5"] = seg.get("fvSchemes_registered_md5")
++    # 2. nNonOrthogonalCorrectors, read from the RUN (p-solve count - 1)
++    n_p = seg.get("n_p_solves")
++    res["n_p_solves_final_iter"] = n_p
++    res["nCorr_read_from_run"] = ((n_p - 1) if isinstance(n_p, int) and n_p > 0
++                                  else None)
++    # 3. coefficient equality, read from the frozen file
++    res["coefficient_equality"] = coefficient_equality_check()
++    # 4. the accept floor, verified UNMOVED (afc, run in grade())
++    res["accept_floor_state"] = (floor or {}).get("state")
++    res["accept_floor_unmoved"] = (floor or {}).get("accept_floor_unmoved")
++    # report the measured CD/CL and shift (NOT GATED)
++    if seg.get("CD") is not None and seg.get("CL") is not None:
++        try:
++            cd = _ff(seg["CD"], os.path.basename(legs["log"]), "L1.CD")
++            cl = _ff(seg["CL"], os.path.basename(legs["log"]), "L1.CL")
++            res["measured"] = {"CD": cd, "CL": cl,
++                               "final_time": seg["final_time"],
++                               "CD_shift_from_D6RF4": cd - G_SCHEME_CD_D6RF4,
++                               "CL_shift_from_D6RF4": cl - G_SCHEME_CL_D6RF4}
++        except NonFinite as e:
++            return _nar_non_finite(res, e)
++    # the verdict: every clause must hold, else NOT A RESULT (strictly restrictive)
++    bad = []
++    if seg.get("fvSchemes_state") != "AS_REGISTERED":
++        bad.append("fvSchemes_state=%s (want AS_REGISTERED, md5 %s)"
++                   % (seg.get("fvSchemes_state"), FVSCHEMES_MD5[G_SCHEME_FILE]))
++    if res["nCorr_read_from_run"] != G_SCHEME_NCORR:
++        bad.append("nNonOrthogonalCorrectors read from run = %s (want %d); "
++                   "p-solves in final iter = %s"
++                   % (res["nCorr_read_from_run"], G_SCHEME_NCORR, n_p))
++    if not res["coefficient_equality"].get("equal"):
++        bad.append("laplacian/snGrad coefficients not equal at %g: %s"
++                   % (G_SCHEME_COEFF, res["coefficient_equality"]))
++    if (floor or {}).get("accept_floor_unmoved") is not True:
++        bad.append("accept floor not verified UNMOVED (state=%s)"
++                   % (floor or {}).get("state"))
++    if bad:
++        res.update({"verdict": "NOT A RESULT",
++                    "reason": "SCHEME_NOT_AS_REGISTERED", "failures": bad,
++                    "note": "the run did not use the registered discretisation "
++                            "(or the accept floor moved), so a G-CONV/G-FD "
++                            "reading would describe a case nobody registered. "
++                            "STRICTLY RESTRICTIVE -- NOT A RESULT only."})
++        return res
++    res["verdict"] = "PASS"
+     return res
+ 
+ 
+ # ---------------------------------------------------------------- G-FD
+ def gate_fd(root, census):
+-    art = "d6rf4_fd_endpoint.json"
++    art = "d6rf5_fd_endpoint.json"
+     producer = ARTEFACT_PRODUCER[art]
+     base = {"gate": "G-FD_bright_line_on_J", "artefact": art,
+             "producing_arm": producer, "band_pct": FD_BAND_PCT,
+@@ -2240,7 +2357,7 @@
+ 
+ # ------------------------------------------------------- G-OFF / G-PRICE
+ def _major_history(root, census):
+-    art = "d6rf4_major_history.json"
++    art = "d6rf5_major_history.json"
+     producer = ARTEFACT_PRODUCER[art]
+     if census[producer]["state"] != "RAN":
+         return None, producer, art
+@@ -2273,7 +2390,7 @@
+     refused first, all three points would have read `GATE FAIL` off a
+     non-number, because `NaN <= cd_ref` is False."""
+     res = {"gate": "G-OFF_per_point",
+-           "artefacts": [CD_ARTEFACT, "d6rf4_ref_off.json"],
++           "artefacts": [CD_ARTEFACT, "d6rf5_ref_off.json"],
+            "CD_mp_source": CD_MP_SOURCE_LABEL,
+            "CD_mp_source_statement": CD_MP_SOURCE_STATEMENT,
+            "caveat": ("The producing optimisation exited `Invalid number in "
+@@ -2295,16 +2412,16 @@
+         res.update(NULL_READINGS["G-OFF"])
+         return res
+     if census["REF_off"]["state"] != "RAN":
+-        _r, _d = _no_input_reason(census, "REF_off", "d6rf4_ref_off.json", root)
++        _r, _d = _no_input_reason(census, "REF_off", "d6rf5_ref_off.json", root)
+         res.update(dict({"verdict": "NOT A RESULT", "reason": _r,
+-                         "artefact": "d6rf4_ref_off.json",
++                         "artefact": "d6rf5_ref_off.json",
+                          "per_point": {p: {"verdict": "NOT A RESULT",
+                                            "reason": _r,
+                                            "CD_mp_source": CD_MP_SOURCE_LABEL}
+                                        for p in POINTS}}, **_d))
+         res.update(NULL_READINGS["G-OFF"])
+         return res
+-    rp = os.path.join(root, ARM_DIR["REF_off"], "d6rf4_ref_off.json")
++    rp = os.path.join(root, ARM_DIR["REF_off"], "d6rf5_ref_off.json")
+     if not os.path.isfile(rp):
+         refuse("G-OFF", {"artefact_absent_although_producer_ran": rp})
+     with open(rp) as fh:
+@@ -2318,9 +2435,9 @@
+         try:
+             # ONE reader for CD, shared with the section 3e control.
+             cd_mp = _ff(cdc.read_cd(cdp, p), CD_ARTEFACT, "points.%s.CD" % p)
+-            cd_ref = _ff(ref["points"][p]["CD"], "d6rf4_ref_off.json",
++            cd_ref = _ff(ref["points"][p]["CD"], "d6rf5_ref_off.json",
+                          "points.%s.CD" % p)
+-            cl_ref = _ff(ref["points"][p]["CL"], "d6rf4_ref_off.json",
++            cl_ref = _ff(ref["points"][p]["CL"], "d6rf5_ref_off.json",
+                          "points.%s.CL" % p)
+         except cdc.CDRefusal as e:
+             refuse("G-OFF", {"cd_reader_refused": str(e)[:1200]})
+@@ -2395,7 +2512,7 @@
+                 "THE ARM RAN AND THE GATED ARTEFACT WAS NOT WRITTEN. The "
+                 "producer now writes `points.<pt>.CD` AS EACH BASELINE "
+                 "POINT-PRIMAL COMPLETES, BEFORE ANY FD LEG "
+-                "(d6rf4_fd_endpoint.py `_write_out`), so a run that dies at "
++                "(d6rf5_fd_endpoint.py `_write_out`), so a run that dies at "
+                 "point k still leaves points 0..k-1 readable. Reaching this "
+                 "branch after a run therefore means the arm died BEFORE its "
+                 "first baseline primal completed, and the record says that "
+@@ -2523,8 +2640,8 @@
+     # disclosure is the whole obligation, and a reduction printed from a NaN
+     # would be exactly the "evidence annotated as non-binding" failure.
+     try:
+-        j0 = _ff(J[0], "d6rf4_major_history.json", "J[0]")
+-        jf = _ff(J[-1], "d6rf4_major_history.json", "J[-1]")
++        j0 = _ff(J[0], "d6rf5_major_history.json", "J[0]")
++        jf = _ff(J[-1], "d6rf5_major_history.json", "J[-1]")
+     except NonFinite as e:
+         res.update({"J0": J[0], "Jf": J[-1], "value_pct": None,
+                     "reason": NON_FINITE_REASON, "non_finite": e.detail,
+@@ -2546,7 +2663,7 @@
+ 
+ # ------------------------------------------------------------- composition
+ def compose(g1, dvl, fd, off, price, caps, tool, place, census,
+-            conv=None, soln=None, f5=None):
++            conv=None, scheme=None, f5=None):
+     """THE REGISTERED VERDICT LADDER, in order.  A NOT A RESULT can only turn a
+     PASS or GATE FAIL INTO a NOT A RESULT, never the reverse."""
+     reasons = []
+@@ -2598,7 +2715,7 @@
+     # or PASS is not evidence about the design point OR about the gradient, and
+     # attributing it to either would be the confident wrong finding.
+     nf = []
+-    for g in (dvl, fd, off, price, conv or {}, soln or {}):
++    for g in (dvl, fd, off, price, conv or {}, scheme or {}):
+         if g.get("reason") == NON_FINITE_REASON:
+             nf.append({"gate": g.get("gate"), "non_finite": g.get("non_finite")})
+         for p, row in (g.get("per_point") or {}).items():
+@@ -2631,9 +2748,9 @@
+     if (f5 or {}).get("withdraws"):
+         reasons.append(
+             "rung 3a: falsifier F5 FIRED -- the DELIBERATELY WRONG setting "
+-            "(D6RF3's original fvSolution, L3) ALSO passed %s. That gate is "
++            "(D6RF4's original SCHEME, L3) ALSO passed %s. That gate is "
+             "therefore not measuring the linear-solver stopping rule, "
+-            "section 1.3's mechanism is refuted, %s's VERDICT IS WITHDRAWN "
++            "section 1's mechanism is refuted, %s's VERDICT IS WITHDRAWN "
+             "and NO CLAIM ABOUT THE REPAIR MAY BE MADE FROM THIS ITEM. "
+             "F5 detail: %s"
+             % (f5.get("named_gate"), f5.get("named_gate"),
+@@ -2642,19 +2759,19 @@
+                             "G-CONV_verdict_at_the_wrong_setting")},
+                           sort_keys=True, default=str)[:600]))
+         return "NOT A RESULT", reasons
+-    # ---- rung 3b: G-SOLN GATE FAIL -- THE SOLUTION MOVED ------------------
+-    # Section 3.2's own registered consequence.  A tightened fvSolution that
+-    # computes a DIFFERENT answer is a different case, not a better solve, so
+-    # no G-CONV PASS may be quoted as D6RF3's answer.  STRICTLY RESTRICTIVE:
+-    # it can only turn a PASS or a GATE FAIL INTO a NOT A RESULT.
+-    if (soln or {}).get("verdict") == "GATE FAIL":
++    # ---- rung 3b: G-SCHEME NOT A RESULT -- THE REGISTERED DISCRETISATION --
++    # ---- DID NOT RUN (section 3.3, the anti-cheat).  STRICTLY RESTRICTIVE. -
++    # G-SCHEME never GATE FAILs; it reads NOT A RESULT if the run did not use
++    # d6rf5_fvSchemes_LIMITED with 3 correctors and equal 0.333 coefficients,
++    # or if the accept floor moved.  A G-CONV/G-FD reading off such a run
++    # describes a case nobody registered, so it cannot be quoted.
++    if (scheme or {}).get("verdict") == "NOT A RESULT" \
++            and (scheme or {}).get("reason") == "SCHEME_NOT_AS_REGISTERED":
+         reasons.append(
+-            "rung 3b: G-SOLN GATE FAIL -- the tightened fvSolution MOVED THE "
+-            "SOLUTION (worst relative difference %s against a bar of %s at "
+-            "point %s) rather than converging it. The repair is then a "
+-            "DIFFERENT CASE, not a better solve, and NO G-CONV PASS MAY BE "
+-            "QUOTED AS D6RF3's ANSWER."
+-            % (soln.get("worst_rel"), soln.get("rel_tol"), soln.get("point")))
++            "rung 3b: G-SCHEME NOT A RESULT -- the run did not use the "
++            "registered discretisation (or the accept floor moved): %s. No "
++            "G-CONV/G-FD reading may be quoted for a case nobody registered."
++            % scheme.get("failures"))
+         return "NOT A RESULT", reasons
+     if dvl["verdict"] == "GATE FAIL":
+         reasons.append("rung 4: G-DVL GATE FAIL -- the design point on disk is "
+@@ -2668,13 +2785,13 @@
+         reasons.append("rung 5: negative single-point price -- a finding about "
+                        "D4, named in advance")
+         return "NOT A RESULT", reasons
+-    nar = [g["gate"] for g in (dvl, fd, off, price, conv or {}, soln or {})
++    nar = [g["gate"] for g in (dvl, fd, off, price, conv or {}, scheme or {})
+            if g.get("verdict") == "NOT A RESULT"]
+     if nar:
+         reasons.append("rung 6: gate(s) %s NOT A RESULT for want of an input" % nar)
+         return "NOT A RESULT", reasons
+     gf = [g["gate"] for g in (dvl, fd, off, price, caps, tool, place,
+-                             conv or {}, soln or {})
++                             conv or {}, scheme or {})
+           if g.get("verdict") == "GATE FAIL"]
+     if gf:
+         reasons.append("rung 7: gate(s) %s GATE FAIL" % gf)
+@@ -2698,12 +2815,12 @@
+         # SEPARATELY, and `freeze_check` does exactly that (`absent_on_disk`
+         # refuses before any md5 is taken).  The list is EVERY file this
+         # grading path EXECUTES OR IMPORTS, extracted from the code rather than
+-        # written from memory -- `d6rf4_cd_plant_control.py` is on it because
++        # written from memory -- `d6rf5_cd_plant_control.py` is on it because
+         # this file imports it, and it is the row a list written from memory
+         # would have missed, which is SO2a-DRIVER-DEF-1's exact shape.
+         frozen = freeze_check(list(FROZEN_PATHS))
+     coverage = frozen_path_coverage()        # section 18.3, on THIS file
+-    rs6 = runscript_d6r or os.path.join(HERE, "d6rf4_opt_runScript.py")
++    rs6 = runscript_d6r or os.path.join(HERE, "d6rf5_opt_runScript.py")
+     rs4 = runscript_d4 or os.path.join(
+         HERE, os.pardir, "curriculum_D4", "d4_opt_runScript.py")
+     rs6, rs4 = os.path.abspath(rs6), os.path.abspath(rs4)
+@@ -2716,9 +2833,9 @@
+     ctrl_dir = os.path.join(os.path.dirname(os.path.abspath(out_path)),
+                             "grader_controls")
+     fd_path = None
+-    _fd_arm = ARTEFACT_PRODUCER["d6rf4_fd_endpoint.json"]
++    _fd_arm = ARTEFACT_PRODUCER["d6rf5_fd_endpoint.json"]
+     if census[_fd_arm]["state"] == "RAN":
+-        fd_path = os.path.join(root, ARM_DIR[_fd_arm], "d6rf4_fd_endpoint.json")
++        fd_path = os.path.join(root, ARM_DIR[_fd_arm], "d6rf5_fd_endpoint.json")
+     controls = run_planted_controls(ctrl_dir, fd_path)
+ 
+     # ========== ACCEPT_FLOOR_UNMOVED -- section 7 instrument 4 ============
+@@ -2750,13 +2867,13 @@
+     off = gate_off(root, census)
+     price = gate_price(root, census, controls)
+     conv = gate_conv(root, census, legs)
+-    soln = gate_soln(root, census, legs)
++    scheme = gate_scheme(root, census, legs, floor)
+     f5 = falsifier_f5(conv)
+     red = report_reduction(root, census)
+     cdlog = report_cdlog(root, census, g1, legs)
+ 
+     verdict, reasons = compose(g1, dvl, fd, off, price, caps, tool, place,
+-                               census, conv, soln, f5)
++                               census, conv, scheme, f5)
+     spend = sum(g1["arms"][a].get("core_min", 0.0) for a in ARMS)
+     doc = {
+         "item": ITEM,
+@@ -2775,7 +2892,7 @@
+         "planted_controls": controls,
+         "grade": {"G1": g1, "G-DVL": dvl, "G-FD": fd, "G-OFF": off,
+                   "G-PRICE": price, "G-CAPS": caps, "G9": tool, "G12": place,
+-                  "G-CONV": conv, "G-SOLN": soln},
++                  "G-CONV": conv, "G-SCHEME": scheme},
+         "falsifiers": {"F5": f5},
+         "reported_not_gated": {"R-RED": red, "X-CDLOG": cdlog},
+         # ---- DAFOAM_CHARTER.md section 6, ON THE ARTEFACT'S OWN FACE -------
+@@ -2813,13 +2930,13 @@
+         json.dump(doc, fh, indent=1, sort_keys=True)
+         fh.flush()
+         os.fsync(fh.fileno())
+-    print("D6RF4_VERDICT %s  spend %.3f core-min of a %.1f ceiling  -> %s"
++    print("D6RF5_VERDICT %s  spend %.3f core-min of a %.1f ceiling  -> %s"
+           % (verdict, spend, sum(CAPS.values()), out_path))
+     # G1 reports TWO SEPARATE FACTS and they are never the same verdict:
+     # a chain stop makes `all_arms_ran` false and can leave `ran_clean` true.
+     print("  %-26s ran_clean=%s all_arms_ran=%s"
+           % (g1["gate"], g1["ran_clean"], g1["all_arms_ran"]))
+-    for g in (conv, soln, dvl, fd, off, price, caps, tool, place):
++    for g in (conv, scheme, dvl, fd, off, price, caps, tool, place):
+         print("  %-26s %s%s" % (g["gate"], g.get("verdict", "-"),
+                                 ("  reason=%s" % g["reason"])
+                                 if g.get("reason") == NON_FINITE_REASON else ""))
+@@ -2834,7 +2951,7 @@
+             continue
+         print("  %-26s %-3s %-11s fvSolution=%s  worst=%s %s (%.4gx the bar "
+               "%g)  banner=%s"
+-              % ("G-CONV per leg", leg, row["verdict"], row["fvSolution"],
++              % ("G-CONV per leg", leg, row["verdict"], row["fvSchemes"],
+                  row.get("worst_field"), row.get("worst_initRes"),
+                  row.get("worst_ratio_to_bar") or float("nan"), CONV_BAR,
+                  row.get("primal_failure_banner")))
+@@ -2920,10 +3037,11 @@
+             n = null_reading_coverage()
+             s = imported_symbol_identity()
+             c = frozen_path_coverage()
++            coeff = coefficient_equality_check()
+         except Refusal as e:
+-            sys.stderr.write("D6RF4_GRADE REFUSED %s\n" % e)
++            sys.stderr.write("D6RF5_GRADE REFUSED %s\n" % e)
+             return 2
+-        print("D6RF4 FREEZE SELF-CHECK -- no compute, no run root")
++        print("D6RF5 FREEZE SELF-CHECK -- no compute, no run root")
+         print("  null readings (DEF-8): %d run-derived, %d registered, "
+               "coverage_complete=%s"
+               % (n["n_run_derived"], n["n_registered"], n["coverage_complete"]))
+@@ -2940,14 +3058,21 @@
+         print("  FROZEN_PATHS (%d): %s"
+               % (len(FROZEN_PATHS),
+                  " ".join(p.rsplit("/", 1)[-1] for p in FROZEN_PATHS)))
++        print("  coefficient equality (sec 11 item 4): laplacian=%g snGrad=%g "
++              "registered=%g equal=%s file=%s"
++              % (coeff["laplacian_coeff"], coeff["snGrad_coeff"],
++                 coeff["registered_coeff"], coeff["equal"], coeff["file"]))
++        if not coeff["equal"]:
++            sys.stderr.write("D6RF5_GRADE REFUSED coefficient inequality %r\n" % coeff)
++            return 2
+         return 0
+     if a.cap_arithmetic:
+         try:
+             r = cap_reachability()
+         except Refusal as e:
+-            sys.stderr.write("D6RF4_GRADE REFUSED %s\n" % e)
++            sys.stderr.write("D6RF5_GRADE REFUSED %s\n" % e)
+             return 2
+-        print("D6RF4 CAP / DEADLINE REACHABILITY -- ranks=%d frame_allowance_s=%d"
++        print("D6RF5 CAP / DEADLINE REACHABILITY -- ranks=%d frame_allowance_s=%d"
+               % (r["ranks"], r["frame_allowance_s"]))
+         for arm in ARMS:
+             x = r["arms"][arm]
+@@ -2973,21 +3098,21 @@
+         # disk -- `--selftest` was an ImportError in the frozen D6RF2 set.
+         # This item's section 3f harness IS the selftest that matters and it
+         # is a real file beside this one.
+-        import d6rf4_finiteness_mutation as st
++        import d6rf5_finiteness_mutation as st
+         rc = st.drive()
+         rc2 = afc.drive()
+         rc3 = cdc.drive()
+-        print("D6RF4 SELFTEST  finiteness=%d accept_floor=%d cd_plant=%d"
++        print("D6RF5 SELFTEST  finiteness=%d accept_floor=%d cd_plant=%d"
+               % (rc, rc2, rc3))
+         return max(rc, rc2, rc3)
+     if not a.root or not a.out:
+-        sys.stderr.write("usage: d6rf4_grade.py --root <run root> --out <json>\n")
++        sys.stderr.write("usage: d6rf5_grade.py --root <run root> --out <json>\n")
+         return 64
+     try:
+         grade(a.root, a.out, a.skip_freeze, a.runscript_d6r, a.runscript_d4,
+               a.d4_ref)
+     except Refusal as e:
+-        sys.stderr.write("D6RF4_GRADE REFUSED %s\n" % e)
++        sys.stderr.write("D6RF5_GRADE REFUSED %s\n" % e)
+         return 2
+     return 0
+ 

@@ -1,0 +1,10 @@
+D6RF5 CD PLANT CONTROL -- BOTH DIRECTIONS, no `assert` statement anywhere in this file
+  product /tmp/d6rf5_cd_ctrl_5ye96xcz/d6rf5_fd_endpoint.json
+  registered key points.cl05.CD = 0.02176156349
+  OK    direction 1  state=EXERCISED-PASS delta=1.234000e-03 (PLANT 1.234000e-03) original_unchanged=True
+  OK    direction 2  blind=wrong_top_level_block__points_baseline     outcome=REFUSED   reason_is_PLANT_CD_with_reader_saw_the_plant_false=True
+  OK    direction 2  blind=wrong_point__always_cl04                   outcome=REFUSED   reason_is_PLANT_CD_with_reader_saw_the_plant_false=True
+  OK    direction 2  blind=wrong_quantity__CL_for_CD                  outcome=REFUSED   reason_is_PLANT_CD_with_reader_saw_the_plant_false=True
+  OK    direction 2  blind=ignores_its_argument__returns_a_constant   outcome=REFUSED   reason_is_PLANT_CD_with_reader_saw_the_plant_false=True
+  OK    direction 3  absent artefact -> state=NOT EXERCISED (reported, never counted as a pass)
+  RESULT ALL DIRECTIONS AS REGISTERED  (positive=1  blind=4  not-exercised-token=1)

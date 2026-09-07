@@ -1,0 +1,397 @@
+# DELTAS diff -- d6rf4_fd_endpoint.py -> d6rf5_fd_endpoint.py
+# parent md5 : 06ac0a171bde0ac3b17192f1819fa0ca  (VERIFIED on disk before this diff was written)
+# registered : rep DV shape[46] SINGLE (sec 10.3, no substitution); 2-point clearance/ratio mini-sweep carried VERBATIM; F5_loose->F5_scheme (D6RF4 scheme, predicted p-first 1.658293702e-05 > 1.0e-05); leg markers D6RF5_*; per-field p-first/p-corrected extraction lives in grader read_legs (disclosed); producer d6rf5_opt_runScript.py (byte-identical carry, md5 137539e0 unchanged, bright line intact)
+# freeze NOT taken (PERMISSION=NOT_FROZEN)
+#
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_fd_endpoint.py	2026-09-06 01:57:43.732301144 +0000
++++ d6rf5_fd_endpoint.py	2026-09-07 03:55:53.593314551 +0000
+@@ -1,116 +1,65 @@
+ #!/usr/bin/env python
+-"""Curriculum D6RF4 -- the CONVERGENCE PROBE `P_conv`, and (in `full` mode)
+-the endpoint finite-difference spot-check of the COMPOSITE J.
+-
+-DERIVED FROM `curriculum_D6RF3/d6rf4_fd_endpoint.py`
+-(md5 `24586c9ab7f733cd2b642775aaf7fbe3`, verified on disk before this file was
+-written) with the REGISTERED DELTAS of `D6RF4 PREREGISTRATION.md` sections 4
+-and 5, enumerated in `d6rf4_fd_endpoint_DELTAS_from_d6rf3.diff` beside this
+-file.  FOUR mechanisms, all registered before compute:
+-
+-  N1  `D6RF4-DEF-7`, REPAIR PART 1 (section 4).  THE GATED PRODUCT IS WRITTEN
+-      INCREMENTALLY.  The parent wrote `OUT` exactly once, at the very end,
+-      AFTER every FD leg -- so a run that died at its first primal left NO
+-      `.json` at all and `X-CDLOG` had no source to read.  Here `_write_out()`
+-      is called AFTER THE BASELINE PRIMAL, BEFORE ANY FD LEG, and again after
+-      every subsequent primal.  A run that dies at point k leaves the CD block
+-      for everything up to k on disk and readable.  The `.jsonl` stays what it
+-      always was -- a progress log -- and is never a gated source.
+-
+-  N2  `D6RF4-DEF-8`, REPAIR PART 1 (section 5).  `baseline_repeat` runs
+-      IMMEDIATELY after `baseline` and BEFORE ANY FD LEG, so `eta_raw` -- the
+-      bar falsifier `F1` is read against -- exists at the cheapest possible
+-      point in the program.  The parent already had this ORDER; what it did
+-      not have is an EXECUTABLE assertion of it, so a successor could reorder
+-      the program and lose the bar silently.  `_LEGS_RUN` records every primal
+-      as it completes and `_require_bar_before_fd()` REFUSES (exit 2) if an FD
+-      leg is reached with `baseline_repeat` not in it.
+-
+-  N3  `--mode`, section 8.2's three legs.  `P_conv` runs `baseline` then
+-      `baseline_repeat` AND STOPS -- no `compute_totals`, no FD legs, because
+-      `D6RF4` buys a convergence measurement and not a gradient.  `F5_loose`
+-      runs `baseline` ONLY, at `D6RF3`'s original `fvSolution`, and is
+-      falsifier `F5`.  `full` is the parent's whole program, unchanged in
+-      shape, and is NOT registered at this freeze.
+-
+-  N4  LEG MARKERS.  Each leg prints `D6RF4_LEG_BEGIN <leg>` and
+-      `D6RF4_LEG_END <leg> ...` to stdout, which is how the grader SPLITS one
+-      container log into per-leg segments and reads each leg's own final-
+-      iteration residuals for `G-CONV`.  Without a marker the three legs are
+-      one undifferentiated log and no per-leg number can be cited.
+-
+-  N5  `F5_loose` DOES NOT PROPAGATE THE PRIMAL FAILURE.  Its registered
+-      prediction IS that DAFoam refuses the primal post-`End` at
+-      `1.3162e-05 > 1.0e-05`; that refusal is the falsifier's DATUM, not the
+-      arm crashing.  The exception is caught, recorded in the product AND in
+-      the leg marker as `leg_primal_raised=True`, and the leg exits 0 so the
+-      arm completes and `G1` can grade it.  THE ACCEPT FLOOR IS NOT TOUCHED TO
+-      MAKE THIS HAPPEN -- `primalMinResTol` and `primalMinResTolDiff` are
+-      unchanged at `1e-08` and `1000` and `d6rf4_accept_floor_control.py`
+-      REFUSES the whole grading if either has moved.
+-
+-INHERITED VERBATIM below this line.
+-
+-DERIVED FROM `curriculum_D6RF2/d6rf2_fd_endpoint.py`
+-(md5 `0ce81a0b038abe12728b5b062e4420df`, verified on disk before this file was
+-written) with the REGISTERED DELTAS of `D6RF4 PREREGISTRATION.md` section 2a,
+-enumerated in `d6rf4_fd_endpoint_DELTAS_from_d6rf2.diff` beside this file:
+-
+-  * PRODUCER is this item's own staged `d6rf4_opt_runScript.py`.  ITS md5 IS
+-    UNCHANGED at `137539e0a99be27f27fdb69e063b2a87` -- the staged copy is
+-    BYTE-IDENTICAL to `D6RF2`'s, deliberately, so that `G-ANCHOR`'s single-
+-    occurrence assertion on `# OpenMDAO setup` (`D6RF-BLOCKING-1`'s repair)
+-    carries over unaltered rather than being re-established.
+-  * PRODUCTS carry this item's names: `d6rf4_fd_endpoint.json` / `.jsonl`, and
+-    the endpoint DVs are read from `d6rf4_endpoint_dvs.json`.
+-  * THE ONE SUBSTANTIVE DELTA: the JSON product now carries a TOP-LEVEL
+-    `points` block, which is the path `PREREGISTRATION.md` section 2a
+-    registers as the source of `CD_i(mp)`.  The parent already MEASURED these
+-    numbers -- `d6rf2_fd_endpoint.py:114-118` calls
+-    `prob.get_val("<pt>.aero_post.CD")` for all three points at every primal
+-    including `baseline` -- but wrote them only under `points_baseline`, so
+-    the registered path did not exist in the product.  Zero marginal
+-    core-minutes: nothing new is computed.
+-
+-INHERITED VERBATIM from the parent chain (D6 -> D6R -> D6RF -> D6RF2): the step
+-ladder, clearance rule, plateau tolerance, eta floor and the emit/plan/FD logic
+-are D4's bytes.  The A6 step-rule limitation is inherited VERBATIM:
+-  "One item, five components, one case, one eta.  The rule has not been tried
+-   where the proxy |J_adj| is itself wrong -- which is the case it would be
+-   worst at, since it sizes the step from the very quantity under test."
+-
+-THE PLATEAU.  The `s_lo`/`s_hi` pair this program evaluates IS
+-`VERIFICATION_CHARTER.md` section 7 step 1's "two or three point mini-sweep",
+-which `DAFOAM_CHARTER.md` section 3 delegates the definition of and section 20
+-(addendum 2026-09-04) rules SATISFIES section 3.  **No caveat that a plateau
+-proof is not claimed belongs on this artefact; writing one would be a false
+-self-deprecation.**  What IS true and is reported by the grader per component:
+-the pair grades at `s_hi` with its only neighbour BELOW it, so the coarse side
+-is unmeasured -- a strength-of-evidence fact, not a compliance one.  This family
+-has a measured instance of that blind side firing (`D15_D16_FD_STEP_TABLE.md:234`,
+-D16 PATCHED CL `shape[6]`: 14.0978 % coarse against 1.1268 % fine).  Buying a
+-third, coarser point is a STRENGTHENING and is not bought here; not buying it is
+-not a breach (`DAFOAM_CHARTER.md` section 20.2).
+-
+-DERIVED FROM curriculum_D5/d5_fd_endpoint.py (itself D4's d4_fd_endpoint.py,
+-md5 c6112b0ec3bfdb5287345e350500f64a, re-pointed) with the REGISTERED DELTAS of
+-D6 PREREGISTRATION.md section 3:
+-  * PRODUCER is d6r_opt_runScript.py (frozen md5 below); the header up to the
+-    literal anchor `# OpenMDAO setup` is exec'd so daOptions, Top, POINTS,
+-    WEIGHTS and the DVs are the producer's own bytes;
+-  * the graded function is the composite objective `obj.J`; each primal also
+-    records CD and CL at every point (the per-point numbers G-D6-1 reads);
+-  * the endpoint DVs come from d6r_endpoint_dvs.json (twist, shape,
+-    patchV_cl04/05/06);
+-  * the five COMPONENTS are shape[46], shape[18], shape[0], twist[0] and
+-    patchV_cl05[1] (the AoA of the CL 0.5 point), NAMED IN ADVANCE.
+-Step ladder, clearance rule, plateau tolerance, eta floor and the emit/plan/FD
+-logic are D4's bytes.  The A6 step-rule limitation is inherited VERBATIM:
+-  "One item, five components, one case, one eta.  The rule has not been tried
+-   where the proxy |J_adj| is itself wrong -- which is the case it would be
+-   worst at, since it sizes the step from the very quantity under test."
+-EVERY graded number is written to a FILE by rank 0 (MPI log splicing on this
+-case is MEASURED, A2 per_component_table 2.2, commit 79679a84).
++"""Curriculum D6RF5 -- the CONVERGENCE PROBE `P_conv`, and (in `full` mode)
++the endpoint finite-difference spot-check of the composite J, on the
++NON-ORTHOGONAL-CORRECTION repair (successor to D6RF4, NOT A RESULT).
++
++DERIVED FROM `curriculum_D6RF4/d6rf4_fd_endpoint.py`
++(md5 `06ac0a171bde0ac3b17192f1819fa0ca`, verified on disk before this file was
++written) with the REGISTERED DELTAS of `D6RF5 PREREGISTRATION.md` sections 2,
++3, 4, 5 and 10, enumerated in `d6rf5_fd_endpoint_DELTAS_from_d6rf4.diff` beside
++this file.  The FD MACHINERY IS CARRIED VERBATIM -- D6RF5 changes the
++DISCRETISATION (staged fvSchemes/fvSolution), not the FD method.  The registered
++deltas are:
++
++  R1  REPRESENTATIVE DV = `shape[46]`, SINGLE (section 10.3).  `COMPONENTS` is
++      reduced from the lineage's five named components to the one interior FFD
++      shape control point section 10.3 fixes -- high index, away from the LE/TE
++      corner where `getRotationMatrix3d`'s degenerate branch fires.  NO
++      SUBSTITUTION: if `shape[46]`'s adjoint fails the clearance floor (plan
++      status `NEAR_ZERO`/`NO_S_HI`), G-FD reads NOT A RESULT and a SUCCESSOR
++      re-registers a different component; the step/DV is NEVER re-chosen after
++      seeing which one agrees (DAFOAM_CHARTER.md section 3).
++
++  R2  THE 2-POINT CLEARANCE/RATIO MINI-SWEEP IS CARRIED VERBATIM (section 10.3
++      [H-SET]).  `CLEARANCE_FLOOR = 5.0`, `RATIO_MIN = 2.0`, `PLATEAU_TOL = 10.0`,
++      `ETA_FLOOR = 1e-14`, `LADDER["shape"] = {1e-3, 3e-3, 1e-2, 3e-2}` are the
++      lineage bytes.  This is NOT a 5-step full-ladder rule: clearance selects
++      `s_lo`, ratio selects `s_hi`, the pair is graded.  Section 10.2 REJECTS
++      the draft `{1e-2..1e-6}`/`1%` as mis-sized below the shape-DV harness floor
++      and registers this proven machinery instead.
++
++  R3  `F5_scheme` REPLACES `F5_scheme`.  D6RF5's falsifier F5 re-runs the baseline
++      primal at D6RF4's SCHEME (laplacianSchemes `Gauss linear corrected`,
++      snGradSchemes `corrected`, nNonOrthogonalCorrectors 1 -- installed by the
++      LAUNCHER via d6rf5_fvSchemes_D6RF4_ORIGINAL, not by this script), everything
++      else held.  Its REGISTERED PREDICTED DATUM is the p FIRST-solve initRes
++      1.658293702e-05 (MEASURED, D6RF4 P_conv log :2107), 1.658x the 1.0e-05
++      floor: `1.658e-05 > 1.0e-05` FAILS G-CONV by 1.658x at zero extra compute
++      (section 5).  A refusal here is the prediction landing, not the arm
++      crashing; the accept floor is NOT moved to make it happen.
++
++  N4  LEG MARKERS, CARRIED.  Each leg prints `D6RF5_LEG_BEGIN <leg>` /
++      `D6RF5_LEG_END <leg> ...`, which is how the GRADER splits one container log
++      into per-leg segments.
++
++  N5  THE PER-FIELD G-CONV FIRST-P-SOLVE EXTRACTION LIVES IN THE GRADER, NOT
++      HERE (a deliberate design choice, disclosed).  DAFoam prints the p solve
++      once per corrector as `p initRes: <X> finalRes: <Y> nIters: <n>` (D6RF4
++      log :2107 first/uncorrected = binding, :2108..last corrected); with
++      nNonOrthogonalCorrectors 3 there are FOUR such lines per outer iteration.
++      `d6rf5_grade.py:read_legs` records the FIRST p line of the final Time block
++      as `p_first_uncorrected` and the LAST as `p_corrected`, and `gate_conv`
++      grades both against the floor.  Those lines only exist in the container log
++      the grader parses; this script's contribution to G-CONV is the leg markers
++      (N4) that make the per-corrector p lines segmentable -- putting a second
++      log parser here would violate the single-reader discipline the controls
++      rest on (CLAUDE.md rule 3).  This is stated so the omission is deliberate,
++      not an oversight of section 3.1.
++
++INHERITED VERBATIM below this line (the DEF-7/DEF-8 incremental-write and
++bar-before-FD repairs, the emit/plan/FD logic, and the A6 step-rule limitation)
++are D6RF4's bytes, unchanged in shape.  EVERY graded number is written to a FILE
++by rank 0.
+ """
+ import argparse
+ import hashlib
+@@ -119,7 +68,7 @@
+ import sys
+ import time
+ 
+-PRODUCER = "d6rf4_opt_runScript.py"
++PRODUCER = "d6rf5_opt_runScript.py"
+ PRODUCER_MD5 = "137539e0a99be27f27fdb69e063b2a87"
+ ANCHOR = "# OpenMDAO setup"
+ 
+@@ -133,24 +82,24 @@
+     "patchV_cl05": [1.0e-3, 3.0e-3, 1.0e-2, 3.0e-2, 1.0e-1, 3.0e-1],
+ }
+ COMPONENTS = [
++    # PREREGISTRATION.md section 10.3: the SINGLE registered representative DV.
++    # NO SUBSTITUTION -- if shape[46]'s adjoint is NEAR_ZERO/NO_S_HI the plan
++    # marks it so and G-FD reads NOT A RESULT (a successor re-registers a
++    # different component; the DV is never re-chosen after seeing agreement).
+     ("shape", 46),
+-    ("shape", 18),
+-    ("shape", 0),
+-    ("twist", 0),
+-    ("patchV_cl05", 1),
+ ]
+ DV_KEYS = ("twist", "shape", "patchV_cl04", "patchV_cl05", "patchV_cl06")
+-OUT = "d6rf4_fd_endpoint.json"
+-JSONL = "d6rf4_fd_endpoint.jsonl"
++OUT = "d6rf5_fd_endpoint.json"
++JSONL = "d6rf5_fd_endpoint.jsonl"
+ 
+ # ---------------------------------------------------------------- section 8.2
+ # THE REGISTERED LEGS.  `P_conv` is the ONLY arm registered at this freeze and
+ # it runs L1 then L3; L2 is inside L1's mode.  `full` is priced but NOT bought
+ # (PREREGISTRATION.md section 8.2), and is kept here so the successor that buys
+ # it inherits one file rather than a re-derivation.
+-MODES = ("P_conv", "F5_loose", "full")
+-MODE_OUT = {"P_conv": OUT, "F5_loose": "d6rf4_f5_endpoint.json", "full": OUT}
+-MODE_JSONL = {"P_conv": JSONL, "F5_loose": "d6rf4_f5_endpoint.jsonl",
++MODES = ("P_conv", "F5_scheme", "full")
++MODE_OUT = {"P_conv": OUT, "F5_scheme": "d6rf5_f5_endpoint.json", "full": OUT}
++MODE_JSONL = {"P_conv": JSONL, "F5_scheme": "d6rf5_f5_endpoint.jsonl",
+               "full": JSONL}
+ 
+ # `D6RF4-DEF-8`.  THE ORDER IS ASSERTED, NOT MERELY INTENDED.  Every primal
+@@ -191,7 +140,7 @@
+     rather than left to whoever edits `main()` next."""
+     if BAR_LEG not in _LEGS_RUN:
+         sys.stderr.write(
+-            "D6RF4_FD REFUSE mode=%s reached an FD leg with legs_run=%r -- "
++            "D6RF5_FD REFUSE mode=%s reached an FD leg with legs_run=%r -- "
+             "`%s` has not run, so `eta_raw` does not exist and F1's bar would "
+             "be UNRESOLVED with FD rows already bought. Order refused.\n"
+             % (mode, _LEGS_RUN, BAR_LEG))
+@@ -200,22 +149,22 @@
+ 
+ def main(mode):
+     if mode not in MODES:
+-        sys.stderr.write("D6RF4_FD REFUSE unknown mode %r; registered: %r\n"
++        sys.stderr.write("D6RF5_FD REFUSE unknown mode %r; registered: %r\n"
+                          % (mode, MODES))
+         sys.exit(2)
+     got = md5_of(PRODUCER)
+     if got != PRODUCER_MD5:
+-        sys.stderr.write("D6RF4_FD REFUSE producer md5 %s != frozen %s\n" % (got, PRODUCER_MD5))
++        sys.stderr.write("D6RF5_FD REFUSE producer md5 %s != frozen %s\n" % (got, PRODUCER_MD5))
+         sys.exit(2)
+     with open(PRODUCER) as fh:
+         src = fh.read()
+     if src.count(ANCHOR) != 1:
+-        sys.stderr.write("D6RF4_FD REFUSE anchor %r appears %d times\n" % (ANCHOR, src.count(ANCHOR)))
++        sys.stderr.write("D6RF5_FD REFUSE anchor %r appears %d times\n" % (ANCHOR, src.count(ANCHOR)))
+         sys.exit(2)
+     header = src.split(ANCHOR)[0]
+     saved_argv = list(sys.argv)
+     sys.argv = [PRODUCER, "-task", "run_model", "-optimizer", "IPOPT"]
+-    ns = {"__name__": "d6rf4_frozen_header", "__file__": PRODUCER}
++    ns = {"__name__": "d6rf5_frozen_header", "__file__": PRODUCER}
+     exec(compile(header, PRODUCER, "exec"), ns)
+     sys.argv = saved_argv
+ 
+@@ -241,11 +190,11 @@
+     prob.model = Top()
+     prob.setup(mode="rev")
+ 
+-    with open("d6rf4_endpoint_dvs.json") as fh:
++    with open("d6rf5_endpoint_dvs.json") as fh:
+         dvs = json.load(fh)
+     for key in DV_KEYS:
+         if key not in dvs:
+-            sys.stderr.write("D6RF4_FD REFUSE endpoint dv file missing %s\n" % key)
++            sys.stderr.write("D6RF5_FD REFUSE endpoint dv file missing %s\n" % key)
+             sys.exit(2)
+         prob.set_val(key, np.array(dvs[key], dtype=float))
+     emit({"kind": "endpoint_dvs", "source": dvs.get("_source"),
+@@ -284,11 +233,11 @@
+             "funcs rows are non-finite (D6RF3-DEF-5). This is a design point, "
+             "not an optimum."),
+         "fvSolution_statement": (
+-            "THE ONLY THING D6RF4 CHANGES ABOUT THE PRIMAL IS THE LINEAR-"
++            "THE ONLY THING D6RF5 CHANGES ABOUT THE PRIMAL IS THE LINEAR-"
+             "SOLVER STOPPING RULE IN system/fvSolution, and it TIGHTENS it. "
+             "primalMinResTol (1e-08) and primalMinResTolDiff (1000) are "
+             "carried forward byte-identical, so the accept floor is 1.0e-05 "
+-            "in every leg of this item. d6rf4_accept_floor_control.py reads "
++            "in every leg of this item. d6rf5_accept_floor_control.py reads "
+             "both values back out of the container log and REFUSES the "
+             "grading if either has moved."),
+     }
+@@ -308,13 +257,13 @@
+             fh.flush()
+             os.fsync(fh.fileno())
+         os.replace(tmp, out_path)
+-        leg_say("D6RF4_FD_ENDPOINT_WRITTEN", out_path,
++        leg_say("D6RF5_FD_ENDPOINT_WRITTEN", out_path,
+                 "legs_run=%s" % ",".join(_LEGS_RUN),
+                 "n_rows=%d" % len(_state.get("rows", [])))
+ 
+     def primal(tag):
+         t0 = time.time()
+-        leg_say("D6RF4_LEG_BEGIN", tag, "mode=%s" % mode)
++        leg_say("D6RF5_LEG_BEGIN", tag, "mode=%s" % mode)
+         prob.run_model()
+         j = float(prob.get_val(J)[0])
+         per = {}
+@@ -324,17 +273,18 @@
+         emit({"kind": "primal", "tag": tag, "J": repr(j), "points": per,
+               "wall_s": round(time.time() - t0, 3)})
+         _LEGS_RUN.append(tag)
+-        leg_say("D6RF4_LEG_END", tag, "mode=%s" % mode, "J=%r" % j,
++        leg_say("D6RF5_LEG_END", tag, "mode=%s" % mode, "J=%r" % j,
+                 "wall_s=%.3f" % (time.time() - t0), "primal_raised=False")
+         return j, per
+ 
+     # ================= LEG 1 / LEG 3: THE BASELINE PRIMAL ===================
+-    # In `F5_loose` this is falsifier F5 at D6RF3's ORIGINAL fvSolution and its
+-    # registered prediction is that DAFoam refuses it post-`End`.  That refusal
+-    # is F5's DATUM (section 6), not the arm crashing, so it is caught, recorded
+-    # and reported -- and the accept floor it fails against is NOT moved to let
+-    # it through.
+-    if mode == "F5_loose":
++    # In `F5_scheme` this is falsifier F5 at D6RF4's ORIGINAL SCHEME (the
++    # launcher stages d6rf5_fvSchemes_D6RF4_ORIGINAL + 1 corrector before it)
++    # and its registered prediction is that DAFoam refuses it post-`End` at the
++    # p first-solve 1.658293702e-05.  That refusal is F5's DATUM (section 5),
++    # not the arm crashing, so it is caught, recorded and reported -- and the
++    # accept floor it fails against is NOT moved to let it through.
++    if mode == "F5_scheme":
+         try:
+             j0, per0 = primal("baseline")
+             _state.update({"J_baseline": repr(j0), "points_baseline": per0,
+@@ -345,9 +295,9 @@
+                            "primal_raised": True,
+                            "primal_error": repr(exc)[:800],
+                            "primal_raised_statement": (
+-                               "F5 is the DELIBERATELY WRONG SETTING and its "
+-                               "registered predicted value, 1.3162e-05, FAILS "
+-                               "G-CONV's own bar of 1.0e-05 by 1.3162x. A "
++                               "F5 is the DELIBERATELY WRONG SCHEME and its "
++                               "registered predicted value, 1.658293702e-05, "
++                               "FAILS G-CONV's own bar of 1.0e-05 by 1.658x. A "
+                                "refusal here is the prediction landing, not "
+                                "the arm failing. The per-field residuals the "
+                                "gate actually reads are in this leg's own log "
+@@ -355,10 +305,10 @@
+                                "markers.")})
+             emit({"kind": "primal_raised", "tag": "baseline", "mode": mode,
+                   "error": repr(exc)[:800]})
+-            leg_say("D6RF4_LEG_END", "baseline", "mode=%s" % mode,
++            leg_say("D6RF5_LEG_END", "baseline", "mode=%s" % mode,
+                     "primal_raised=True")
+         _write_out()
+-        leg_say("D6RF4_MODE_COMPLETE", mode,
++        leg_say("D6RF5_MODE_COMPLETE", mode,
+                 "legs_run=%s" % ",".join(_LEGS_RUN))
+         MPI.COMM_WORLD.Barrier()
+         return
+@@ -387,13 +337,13 @@
+     _write_out()
+ 
+     if mode == "P_conv":
+-        # THE REGISTERED ARM STOPS HERE.  D6RF4 buys a CONVERGENCE measurement,
++        # THE REGISTERED ARM STOPS HERE.  D6RF5 buys a CONVERGENCE measurement,
+         # not a gradient: section 8.2 prices the full FD arm at 934 core-min at
+         # the tightened settings and refuses to buy a 934 core-min arm to learn
+         # a 17.9 core-min fact.  G-FD, band D, G-OFF and G-PRICE therefore have
+         # NO INPUTS in this arm and read NOT A RESULT for want of one -- which
+         # is section 5's null-reading table, not a silence.
+-        leg_say("D6RF4_MODE_COMPLETE", mode,
++        leg_say("D6RF5_MODE_COMPLETE", mode,
+                 "legs_run=%s" % ",".join(_LEGS_RUN))
+         MPI.COMM_WORLD.Barrier()
+         return
+@@ -522,8 +472,8 @@
+             fh.flush()
+             os.fsync(fh.fileno())
+         os.replace(tmp, out_path)
+-        leg_say("D6RF4_FD_ENDPOINT_WRITTEN", out_path, "n_rows=%d" % len(rows))
+-    leg_say("D6RF4_MODE_COMPLETE", mode, "legs_run=%s" % ",".join(_LEGS_RUN))
++        leg_say("D6RF5_FD_ENDPOINT_WRITTEN", out_path, "n_rows=%d" % len(rows))
++    leg_say("D6RF5_MODE_COMPLETE", mode, "legs_run=%s" % ",".join(_LEGS_RUN))
+     MPI.COMM_WORLD.Barrier()
+ 
+ 
+@@ -531,7 +481,7 @@
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--mode", required=True, choices=list(MODES),
+                     help="P_conv = baseline + baseline_repeat and STOP; "
+-                         "F5_loose = baseline only at D6RF3's original "
+-                         "fvSolution (falsifier F5); full = the parent "
++                         "F5_scheme = baseline only at D6RF4's original "
++                         "SCHEME (falsifier F5); full = the parent "
+                          "program, PRICED BUT NOT BOUGHT at this freeze")
+     main(ap.parse_args().mode)

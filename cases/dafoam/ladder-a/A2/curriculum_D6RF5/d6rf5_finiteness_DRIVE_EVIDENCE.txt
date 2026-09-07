@@ -1,0 +1,80 @@
+D6RF5 SECTION 3f FINITENESS MUTATION HARNESS -- BOTH DIRECTIONS
+  the fixture census gives REF_off a RAN state so the G-OFF fold is reachable; on a REAL grading run REF_off is NOT_REGISTERED_AT_THIS_FREEZE and G-OFF reads NOT A RESULT
+  fixture root /tmp/d6rf5_finmut_ge04ijx3/run
+  binding list (section 3f, VERBATIM, not widened): G-OFF, G-PRICE, G-FD, G-DVL, R-RED, G-CAPS, G1
+  OK   G-OFF   CD_i(mp)       direction 2  unmutated -> PASS
+      OK   G-OFF   CD_i(mp)       NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=points.cl05.CD token='nan'
+      OK   G-OFF   CD_i(mp)       +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=points.cl05.CD token='inf'
+      OK   G-OFF   CD_i(mp)       -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=points.cl05.CD token='-inf'
+  OK   G-OFF   CD_i(REF_off)  direction 2  unmutated -> PASS
+      OK   G-OFF   CD_i(REF_off)  NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_ref_off.json key=points.cl04.CD token='nan'
+      OK   G-OFF   CD_i(REF_off)  +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_ref_off.json key=points.cl04.CD token='inf'
+      OK   G-OFF   CD_i(REF_off)  -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_ref_off.json key=points.cl04.CD token='-inf'
+  OK   G-OFF   CL_i(REF_off)  direction 2  unmutated -> PASS
+      OK   G-OFF   CL_i(REF_off)  NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_ref_off.json key=points.cl04.CL token='nan'
+      OK   G-OFF   CL_i(REF_off)  +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_ref_off.json key=points.cl04.CL token='inf'
+      OK   G-OFF   CL_i(REF_off)  -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_ref_off.json key=points.cl04.CL token='-inf'
+  OK   G-PRICE CD_cl05(mp)    direction 2  unmutated -> PASS
+      OK   G-PRICE CD_cl05(mp)    NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=points.cl05.CD token='nan'
+      OK   G-PRICE CD_cl05(mp)    +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=points.cl05.CD token='inf'
+      OK   G-PRICE CD_cl05(mp)    -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=points.cl05.CD token='-inf'
+  OK   G-FD    J_adj          direction 2  unmutated -> PASS
+      OK   G-FD    J_adj          NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=rows[shape[46]].J_adj token=nan
+      OK   G-FD    J_adj          +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=rows[shape[46]].J_adj token=inf
+      OK   G-FD    J_adj          -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=rows[shape[46]].J_adj token=-inf
+  OK   G-FD    d(s_hi)        direction 2  unmutated -> PASS
+      OK   G-FD    d(s_hi)        NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=rows[shape[46]].fd.s_hi.d token=nan
+      OK   G-FD    d(s_hi)        +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=rows[shape[46]].fd.s_hi.d token=inf
+      OK   G-FD    d(s_hi)        -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=rows[shape[46]].fd.s_hi.d token=-inf
+  OK   G-FD    d(s_lo)        direction 2  unmutated -> PASS
+      OK   G-FD    d(s_lo)        NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=rows[shape[46]].fd.s_lo.d token=nan
+      OK   G-FD    d(s_lo)        +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=rows[shape[46]].fd.s_lo.d token=inf
+      OK   G-FD    d(s_lo)        -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=rows[shape[46]].fd.s_lo.d token=-inf
+  OK   G-FD    eta_used       direction 2  unmutated -> PASS
+      OK   G-FD    eta_used       NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=eta_used token=nan
+      OK   G-FD    eta_used       +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=eta_used token=inf
+      OK   G-FD    eta_used       -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_fd_endpoint.json key=eta_used token=-inf
+  OK   G-DVL   shape[0]       direction 2  unmutated -> GATE FAIL
+      OK   G-DVL   shape[0]       NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_endpoint_dvs_PHYSICAL.json key=shape[0] token='nan'
+      OK   G-DVL   shape[0]       +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_endpoint_dvs_PHYSICAL.json key=shape[0] token='inf'
+      OK   G-DVL   shape[0]       -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf5_endpoint_dvs_PHYSICAL.json key=shape[0] token='-inf'
+  OK   R-RED   J[-1]          direction 2  unmutated -> REPORTED value_pct=21.923076923076927
+      OK   R-RED   J[-1]          NaN   -> REPORTED      reason=NON_FINITE_INPUT artefact=d6rf5_major_history.json key=J[-1] token=nan
+      OK   R-RED   J[-1]          +Inf  -> REPORTED      reason=NON_FINITE_INPUT artefact=d6rf5_major_history.json key=J[-1] token=inf
+      OK   R-RED   J[-1]          -Inf  -> REPORTED      reason=NON_FINITE_INPUT artefact=d6rf5_major_history.json key=J[-1] token=-inf
+  --- the 2026-09-05 WIDENING to G-CAPS and G1, driven the same way
+  OK   G-CAPS  core_min       direction 2  unmutated -> PASS
+      OK   G-CAPS  core_min       NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT key=P_conv.core_min
+      OK   G-CAPS  core_min       +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=P_conv.core_min
+      OK   G-CAPS  core_min       -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=P_conv.core_min
+  OK   G-CAPS  container_wall direction 2  unmutated -> PASS
+      OK   G-CAPS  container_wall NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT key=P_conv.container_wall_s
+      OK   G-CAPS  container_wall +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=P_conv.container_wall_s
+      OK   G-CAPS  container_wall -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=P_conv.container_wall_s
+  OK   G-CAPS  frame_allow    direction 2  unmutated -> PASS
+      OK   G-CAPS  frame_allow    NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT key=P_conv.frame_allowance_s
+      OK   G-CAPS  frame_allow    +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=P_conv.frame_allowance_s
+      OK   G-CAPS  frame_allow    -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=P_conv.frame_allowance_s
+  OK   G1      core_min       direction 2  unmutated -> ran_clean=True
+      OK   G1      core_min       NaN   -> G1            reason=NON_FINITE_INPUT key=P_conv.core_min
+      OK   G1      core_min       +Inf  -> G1            reason=NON_FINITE_INPUT key=P_conv.core_min
+      OK   G1      core_min       -Inf  -> G1            reason=NON_FINITE_INPUT key=P_conv.core_min
+  OK   G1      wall_s         direction 2  unmutated -> ran_clean=True
+      OK   G1      wall_s         NaN   -> G1            reason=NON_FINITE_INPUT key=P_conv.wall_s
+      OK   G1      wall_s         +Inf  -> G1            reason=NON_FINITE_INPUT key=P_conv.wall_s
+      OK   G1      wall_s         -Inf  -> G1            reason=NON_FINITE_INPUT key=P_conv.wall_s
+  --- section 3.4 on the TWO NEW GATES: G-CONV (p split) and G-SCHEME
+  OK   G-CONV                direction 2  unmutated -> PASS
+  OK   G-SCHEME              direction 2  unmutated -> PASS
+      OK   G-CONV  p_first_unc   nan      -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=mut_conv_p0.log key=L1.p_first_uncorrected.initRes token='nan'
+      OK   G-CONV  p_corrected   -inf     -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=mut_conv_p3.log key=L1.p_corrected.initRes token='-inf'
+      OK   G-CONV  nuTilda       -inf     -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=mut_conv_nut.log key=L1.nuTilda.initRes token='-inf'
+      OK   G-SCHEME CD           nan      -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=mut_scheme_cd.log key=L1.CD token='nan'
+      OK   G-SCHEME CL           inf      -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=mut_scheme_cl.log key=L1.CL token='inf'
+  ----------------------------------------------------------------
+  section 3f AS DRAFTED : G-OFF, G-PRICE, G-FD, G-DVL, R-RED
+  section 3f WIDENED TO : G-CAPS, G1   (pre-compute; run root asserted ABSENT; only ever ADDS refusals)
+  direction 1 (mutated -> NOT A RESULT, reason asserted) : 50 of 50
+  direction 2 (unmutated -> NOT `NOT A RESULT`)          : 17 of 17
+  NOT EXERCISED                                          : 0
+  F2: the section 3f clause IS ESTABLISHED in both directions

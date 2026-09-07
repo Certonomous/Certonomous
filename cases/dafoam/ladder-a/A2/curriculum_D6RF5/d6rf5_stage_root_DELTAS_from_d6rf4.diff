@@ -1,0 +1,275 @@
+# DELTAS diff -- d6rf4_stage_root.sh -> d6rf5_stage_root.sh
+# parent md5 : 652b3cdcd3ac66a8955d2190784c3bff  (VERIFIED on disk)
+# registered : self-rename only (d6rf4->d6rf5, D6RF4->D6RF5); CURRICULUM-D6RF4 base-case source path preserved; no substantive staging change (stage_root has no fvSchemes/fvSolution logic)
+# freeze NOT taken (PERMISSION=NOT_FROZEN)
+#
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_stage_root.sh	2026-09-06 16:54:48.788848790 +0000
++++ d6rf5_stage_root.sh	2026-09-07 04:13:55.265633467 +0000
+@@ -1,18 +1,18 @@
+ #!/usr/bin/env bash
+ # ===========================================================================
+-# D6RF4 RUN-ROOT STAGER.  IT LAUNCHES NOTHING.
++# D6RF5 RUN-ROOT STAGER.  IT LAUNCHES NOTHING.
+ #
+ # WHY THIS FILE EXISTS, STATED FIRST BECAUSE IT IS THE WHOLE POINT.
+ #
+-# D6RF4's P_conv arm was placed at 16:32:07Z and ABORTED `launcher_rc=4` at
+-# 16:33:09Z having burned ZERO SOLVER CORE-MINUTES, at d6rf4_run_arm.sh:515:
++# D6RF5's P_conv arm was placed at 16:32:07Z and ABORTED `launcher_rc=4` at
++# 16:33:09Z having burned ZERO SOLVER CORE-MINUTES, at d6rf5_run_arm.sh:515:
+ #
+ #     test "$(stat -c '%a' "$BASE")" = "777" || { echo "ABORT L-251 ..."; exit 4; }
+ #
+-# THE RUN ROOT NEVER EXISTED.  `d6rf4_run_arm.sh` contains ZERO `mkdir`: the
++# THE RUN ROOT NEVER EXISTED.  `d6rf5_run_arm.sh` contains ZERO `mkdir`: the
+ # launcher has never created its own run root, in this item or in its parent.
+ # In D6RF3 that work lived in `d6rf3_chain_driver.sh:92-112`, headed "ROOT
+-# STAGING on the first fire only".  D6RF4 registered ONE arm, dropped the chain
++# STAGING on the first fire only".  D6RF5 registered ONE arm, dropped the chain
+ # driver, and THE ROOT-STAGING BLOCK WENT WITH IT -- while the launcher still
+ # assumes a populated root in THREE places:
+ #
+@@ -29,7 +29,7 @@
+ # A1WRT2 deleted a `cmd.sh` wrapper and lost FOUR clauses, two of which are
+ # still missing.  The lesson its successor was handed -- "enumerate what the
+ # deleted layer did, CLAUSE BY CLAUSE, and account for every clause" -- is
+-# discharged for D6RF4 in PREREGISTRATION.md's 2026-09-06 ROOT-STAGING
++# discharged for D6RF5 in PREREGISTRATION.md's 2026-09-06 ROOT-STAGING
+ # amendment: 282 lines, 171 non-comment non-blank, 29 clauses, ZERO
+ # unaccounted.  THIS FILE IS THE "RESTORED" COLUMN OF THAT TABLE.
+ #
+@@ -40,7 +40,7 @@
+ # instrument names and md5s TWICE -- once in the launcher and once in the chain
+ # driver -- and the two lists could drift; when the driver was dropped, the
+ # launcher's list was left asserting files nobody staged.  So this file writes
+-# NO instrument name and NO md5 of its own.  It PARSES `d6rf4_run_arm.sh` for
++# NO instrument name and NO md5 of its own.  It PARSES `d6rf5_run_arm.sh` for
+ # the exact assertion lines
+ #
+ #     echo "$MD5_<NAME>  $BASE/<file>" | md5sum -c -
+@@ -50,13 +50,13 @@
+ # FILE STAGES A TENTH FILE WITHOUT BEING EDITED.  A parser that finds ZERO
+ # assertions REFUSES (rc 40) -- it does not report "nothing to stage", which is
+ # the planted-zero shape in a stager (CLAUDE.md rule 3).  Each `MD5_<NAME>` is
+-# asserted assigned EXACTLY ONCE in the launcher: `d6rf4_run_arm.sh:92-96`
++# asserted assigned EXACTLY ONCE in the launcher: `d6rf5_run_arm.sh:92-96`
+ # records that `MD5_ANCHOR_GATE` was once assigned twice with the STALE value
+ # second, and in shell the last assignment wins.
+ #
+ # ---------------------------------------------------------------------------
+ # NO GATE, THRESHOLD, BAND, CAP, DEADLINE OR LABEL IS TOUCHED BY THIS FILE.
+-# `d6rf4_run_arm.sh` IS NOT EDITED and its md5 is not re-pinned.  This file is
++# `d6rf5_run_arm.sh` IS NOT EDITED and its md5 is not re-pinned.  This file is
+ # ADDITIVE: it puts on disk the state the launcher has always assumed.
+ #
+ # THERE IS NO `rm -rf`, NO `rm -r` AND NO `find -delete` IN THIS FILE.  It
+@@ -83,16 +83,16 @@
+ set -uo pipefail
+ 
+ HERE="$(cd "$(dirname "$0")" && pwd)"
+-ITEM=D6RF4
++ITEM=D6RF5
+ ARM=P_conv
+ REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe
+-# `BASE` is overridable ONLY so d6rf4_stage_root_control.py can drive this file
+-# against a sandbox root.  `d6rf4_run_arm.sh:82` takes the override the same
++# `BASE` is overridable ONLY so d6rf5_stage_root_control.py can drive this file
++# against a sandbox root.  `d6rf5_run_arm.sh:82` takes the override the same
+ # way, so the control drives the launcher's assertions against the same root
+ # this stager built -- the two agree by construction, not by transcription.
+ BASE="${BASE:-$REGISTERED_BASE}"
+ D4_BASE_SRC="${D4_BASE_SRC:-/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/base}"
+-LAUNCHER="$HERE/d6rf4_run_arm.sh"
++LAUNCHER="$HERE/d6rf5_run_arm.sh"
+ CEILING_GUARD="$HERE/../../../_common/item_ceiling_guard.py"
+ 
+ # ---- THE ONE MD5 THIS FILE PINS ITSELF, AND WHY IT IS THE EXCEPTION -------
+@@ -103,7 +103,7 @@
+ MD5_CEILING_GUARD=1ea97c9245dedbc451d62e1bcfe26eb9
+ 
+ # ---- THE ITEM CEILING, AND IT IS QUOTED, NOT CHOSEN -----------------------
+-# `d6rf4_grade.py:184` registers `CAPS = {"P_conv": 54.00}` and `:696` computes
++# `d6rf5_grade.py:184` registers `CAPS = {"P_conv": 54.00}` and `:696` computes
+ # `ceiling_core_min = sum(CAPS.values())`.  WITH ONE REGISTERED ARM THE ITEM
+ # CEILING **IS** THE ARM CAP, and both numbers below are that same registered
+ # 54.00 read out of the frozen grader -- NOT a new threshold, and nothing here
+@@ -116,15 +116,15 @@
+ 
+ # Overridable for the same reason `BASE` is: so the control can drive this file
+ # without overwriting the real root's staging record.
+-STAGE_EVID="${STAGE_EVID:-$HERE/D6RF4_ROOT_STAGING.txt}"
++STAGE_EVID="${STAGE_EVID:-$HERE/D6RF5_ROOT_STAGING.txt}"
+ say() { echo "$*"; echo "$*" >> "$STAGE_EVID"; }
+ 
+ : > "$STAGE_EVID"
+-say "D6RF4_STAGE_ROOT begin utc=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ item=$ITEM arm=$ARM base=$BASE launches=NOTHING"
++say "D6RF5_STAGE_ROOT begin utc=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ item=$ITEM arm=$ARM base=$BASE launches=NOTHING"
+ 
+ test -f "$LAUNCHER" || { say "ABORT SHAPE launcher absent: $LAUNCHER -- the staging list is DERIVED from it and cannot be guessed"; exit 40; }
+ LAUNCHER_MD5=$(md5sum "$LAUNCHER" | cut -d' ' -f1)
+-say "D6RF4_STAGE_ROOT launcher=$LAUNCHER md5=$LAUNCHER_MD5 (READ, not pinned here -- this file never re-pins the launcher)"
++say "D6RF5_STAGE_ROOT launcher=$LAUNCHER md5=$LAUNCHER_MD5 (READ, not pinned here -- this file never re-pins the launcher)"
+ 
+ # ===========================================================================
+ # THE DERIVATION.  Emits one `VAR FILE MD5` triple per `$BASE/` assertion the
+@@ -164,7 +164,7 @@
+     raise SystemExit(0)
+ 
+ # EVERY PIN RESOLVED AGAINST ITS OWN ASSIGNMENT, AND THE ASSIGNMENT COUNTED.
+-# d6rf4_run_arm.sh:92-96: MD5_ANCHOR_GATE was assigned TWICE in an early draft
++# d6rf5_run_arm.sh:92-96: MD5_ANCHOR_GATE was assigned TWICE in an early draft
+ # and the STALE value came second.  In shell the last assignment wins.  The
+ # count is PINNED, not the appearance trusted.
+ pins, counts = {}, {}
+@@ -206,7 +206,7 @@
+ case "$N_INSTR" in ''|*[!0-9]*) say "ABORT SHAPE instrument count is not a number: '$N_INSTR'"; exit 40 ;; esac
+ test "$N_INSTR" -gt 0 || { say "ABORT SHAPE instrument count is $N_INSTR"; exit 40; }
+ test -n "$REFMESH_MD5" || { say "ABORT SHAPE MD5_REF_MESH did not resolve"; exit 40; }
+-say "D6RF4_STAGE_ROOT DERIVED $N_INSTR \$BASE-side assertion(s) from the launcher's own bytes, at lines [$ASSERT_LINES]; MD5_REF_MESH=$REFMESH_MD5"
++say "D6RF5_STAGE_ROOT DERIVED $N_INSTR \$BASE-side assertion(s) from the launcher's own bytes, at lines [$ASSERT_LINES]; MD5_REF_MESH=$REFMESH_MD5"
+ 
+ # ---- SOURCE SIDE FIRST.  Nothing is created until every source file exists
+ # ---- and already hashes to the value the launcher will demand.  A stager that
+@@ -217,7 +217,7 @@
+   test -f "$HERE/$F" || { say "ABORT SOURCE $F is asserted by the launcher ($V) and is ABSENT from the item directory $HERE"; exit 41; }
+   G=$(md5sum "$HERE/$F" | cut -d' ' -f1)
+   test "$G" = "$M" || { say "ABORT SOURCE md5 $F got=$G want=$M ($V) -- the item directory does not hold the bytes the launcher asserts, so staging it would only move the abort from :515 to :518"; exit 41; }
+-  say "D6RF4_STAGE_ROOT SOURCE OK $F md5=$M ($V)"
++  say "D6RF5_STAGE_ROOT SOURCE OK $F md5=$M ($V)"
+ done
+ 
+ test -d "$D4_BASE_SRC" || { say "ABORT SOURCE D4 base source absent: $D4_BASE_SRC"; exit 41; }
+@@ -229,7 +229,7 @@
+ SRC_MESH_MD5=$(md5sum "$SRC_MESH" | cut -d' ' -f1)
+ test "$SRC_MESH_MD5" = "$REFMESH_MD5" || { say "ABORT SOURCE reference mesh md5 $SRC_MESH_MD5 != launcher's MD5_REF_MESH $REFMESH_MD5 -- staging this would warp the FD perturbation from an already-deformed mesh, the confound that killed D4's arm F"; exit 41; }
+ test -f "$D4_BASE_SRC/FFD/wingFFD.xyz" || { say "ABORT SOURCE $D4_BASE_SRC has no FFD/wingFFD.xyz"; exit 41; }
+-say "D6RF4_STAGE_ROOT SOURCE OK base=$D4_BASE_SRC mesh=$(basename "$SRC_MESH") md5=$SRC_MESH_MD5 FFD/wingFFD.xyz present"
++say "D6RF5_STAGE_ROOT SOURCE OK base=$D4_BASE_SRC mesh=$(basename "$SRC_MESH") md5=$SRC_MESH_MD5 FFD/wingFFD.xyz present"
+ 
+ # ---- LIVE-WORK GUARD, BEFORE ANY CREATE.  Carried from d6rf3_chain_driver.sh
+ # ---- :130-136 (the driver pidfile) and widened with the launcher's own
+@@ -244,17 +244,17 @@
+ # G-ROOT.5 reads it again immediately before anything destructive.
+ if PS_OUT=$(sudo -n docker ps --format '{{.Names}}' 2>/dev/null); then
+   DOCKER_READ=MEASURED
+-  LIVE=$(printf '%s\n' "$PS_OUT" | grep "^d6rf4_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++  LIVE=$(printf '%s\n' "$PS_OUT" | grep "^d6rf5_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+ else
+   DOCKER_READ=UNMEASURED
+   LIVE=""
+ fi
+-say "D6RF4_STAGE_ROOT LIVE_READ docker=$DOCKER_READ same_arm_containers=[${LIVE:-none}]"
++say "D6RF5_STAGE_ROOT LIVE_READ docker=$DOCKER_READ same_arm_containers=[${LIVE:-none}]"
+ if [ -n "$LIVE" ]; then
+   say "ABORT LIVE a RUNNING container already carries this item's prefix and arm: [$LIVE].  Staging under a live arm is two records for one run.  REFUSED."
+   exit 43
+ fi
+-PIDFILE="$BASE/d6rf4_driver.pid"
++PIDFILE="$BASE/d6rf5_driver.pid"
+ if [ -f "$PIDFILE" ]; then
+   OLD=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+   if [ -n "$OLD" ] && kill -0 "$OLD" 2>/dev/null; then
+@@ -263,14 +263,14 @@
+   fi
+ fi
+ 
+-# ---- FOREIGN ROOT, REFUSED BEFORE ANY WRITE AND BEFORE ANY D6RF4 ASSERTION.
++# ---- FOREIGN ROOT, REFUSED BEFORE ANY WRITE AND BEFORE ANY D6RF5 ASSERTION.
+ # THIS ORDERING WAS A DEFECT AND ITS OWN CONTROL CAUGHT IT.  On the control's
+ # FIRST drive, direction D8 (a root whose ledger reads `ITEM=D19T`) came back
+ # rc=41 "ABORT STAGED md5" instead of rc=43: the foreign-item check sat AFTER
+ # the staged-instrument assertions, so another item's run root was reported as
+-# a D6RF4 md5 failure -- a true refusal with a false reason, which sends its
++# a D6RF5 md5 failure -- a true refusal with a false reason, which sends its
+ # reader hunting the wrong defect.  The check is hoisted here, ahead of every
+-# write and every D6RF4-shaped assertion.  The later ledger block is NOT
++# write and every D6RF5-shaped assertion.  The later ledger block is NOT
+ # removed: this one is a PRE-WRITE REFUSAL, that one is a POST-STAGE
+ # ASSERTION, and they answer different questions.
+ if [ -f "$BASE/ledger.txt" ]; then
+@@ -293,16 +293,16 @@
+     rest=${t#*:}; F=${rest%%:*}
+     cp -a "$HERE/$F" "$BASE/$F" || { say "ABORT FS copy instrument $F into $BASE/"; exit 44; }
+   done
+-  # G-ROOT.3 accepts ONLY an exact `ITEM=D6RF4` line; staging metadata goes on a
++  # G-ROOT.3 accepts ONLY an exact `ITEM=D6RF5` line; staging metadata goes on a
+   # line that does not start with ITEM= (D5-DRIVER-DEF-1, inherited through
+   # d6rf3_chain_driver.sh:105-108).
+   echo "ITEM=$ITEM" > "$BASE/ledger.txt" || { say "ABORT FS cannot write $BASE/ledger.txt"; exit 44; }
+-  echo "STAGED stamp=$(date -u +%Y%m%dT%H%M%SZ) base_src=$D4_BASE_SRC launcher_md5=$LAUNCHER_MD5 stager=d6rf4_stage_root.sh" >> "$BASE/ledger.txt"
++  echo "STAGED stamp=$(date -u +%Y%m%dT%H%M%SZ) base_src=$D4_BASE_SRC launcher_md5=$LAUNCHER_MD5 stager=d6rf5_stage_root.sh" >> "$BASE/ledger.txt"
+   STAGED_NOW=yes
+-  say "D6RF4_ROOT_STAGED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ) mode=$(stat -c '%a' "$BASE") instruments=$N_INSTR base_src=$D4_BASE_SRC"
++  say "D6RF5_ROOT_STAGED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ) mode=$(stat -c '%a' "$BASE") instruments=$N_INSTR base_src=$D4_BASE_SRC"
+ else
+   STAGED_NOW=no
+-  say "D6RF4_ROOT_PRESENT base=$BASE (NOT re-staged, NOTHING removed) -- every assertion below still runs"
++  say "D6RF5_ROOT_PRESENT base=$BASE (NOT re-staged, NOTHING removed) -- every assertion below still runs"
+ fi
+ 
+ # ===========================================================================
+@@ -315,28 +315,28 @@
+ # (1) :515 -- exists, and mode EXACTLY 777.
+ MODE=$(stat -c '%a' "$BASE" 2>/dev/null)
+ test -n "$MODE" || { say "ABORT FS cannot read the mode of $BASE -- it does not exist after staging"; exit 44; }
+-test "$MODE" = "777" || { say "ABORT L-251 run root mode $MODE != 777 at $BASE -- d6rf4_run_arm.sh:515 would refuse this root"; exit 44; }
+-say "D6RF4_STAGE_ROOT (1/3) OK $BASE exists, mode=$MODE -- d6rf4_run_arm.sh:515 satisfied"
++test "$MODE" = "777" || { say "ABORT L-251 run root mode $MODE != 777 at $BASE -- d6rf5_run_arm.sh:515 would refuse this root"; exit 44; }
++say "D6RF5_STAGE_ROOT (1/3) OK $BASE exists, mode=$MODE -- d6rf5_run_arm.sh:515 satisfied"
+ 
+ # (2) :518-527 -- every asserted file present at $BASE with the launcher's md5.
+ for t in $TRIPLES; do
+   V=${t%%:*}; rest=${t#*:}; F=${rest%%:*}; M=${rest##*:}
+   echo "$M  $BASE/$F" | md5sum -c - >/dev/null 2>&1 || {
+-    say "ABORT STAGED md5 $F at $BASE ($V want=$M got=$(md5sum "$BASE/$F" 2>/dev/null | cut -d' ' -f1 || echo ABSENT)) -- d6rf4_run_arm.sh would refuse this at its \$BASE assertion"
++    say "ABORT STAGED md5 $F at $BASE ($V want=$M got=$(md5sum "$BASE/$F" 2>/dev/null | cut -d' ' -f1 || echo ABSENT)) -- d6rf5_run_arm.sh would refuse this at its \$BASE assertion"
+     exit 41; }
+ done
+-say "D6RF4_STAGE_ROOT (2/3) OK all $N_INSTR staged instrument md5s match the launcher's own pins at $BASE -- d6rf4_run_arm.sh:$ASSERT_LINES satisfied"
++say "D6RF5_STAGE_ROOT (2/3) OK all $N_INSTR staged instrument md5s match the launcher's own pins at $BASE -- d6rf5_run_arm.sh:$ASSERT_LINES satisfied"
+ 
+ # (3) :632 -- the undeformed reference mesh, under either name, md5 anchored.
+ STAGED_MESH=""
+ for c in "$BASE/base/constant/polyMesh/points" "$BASE/base/constant/polyMesh/points.gz"; do
+   [ -f "$c" ] && { STAGED_MESH="$c"; break; }
+ done
+-test -n "$STAGED_MESH" || { say "ABORT STAGED $BASE/base/constant/polyMesh holds NEITHER points NOR points.gz -- d6rf4_run_arm.sh:632 would refuse"; exit 41; }
++test -n "$STAGED_MESH" || { say "ABORT STAGED $BASE/base/constant/polyMesh holds NEITHER points NOR points.gz -- d6rf5_run_arm.sh:632 would refuse"; exit 41; }
+ STAGED_MESH_MD5=$(md5sum "$STAGED_MESH" | cut -d' ' -f1)
+ test "$STAGED_MESH_MD5" = "$REFMESH_MD5" || { say "ABORT STAGED reference mesh md5 $STAGED_MESH_MD5 != $REFMESH_MD5"; exit 41; }
+ test -f "$BASE/base/FFD/wingFFD.xyz" || { say "ABORT STAGED base/ has no FFD/wingFFD.xyz (d6rf3_chain_driver.sh:128's clause)"; exit 41; }
+-say "D6RF4_STAGE_ROOT (3/3) OK $STAGED_MESH md5=$STAGED_MESH_MD5, FFD/wingFFD.xyz present -- d6rf4_run_arm.sh:632 satisfied"
++say "D6RF5_STAGE_ROOT (3/3) OK $STAGED_MESH md5=$STAGED_MESH_MD5, FFD/wingFFD.xyz present -- d6rf5_run_arm.sh:632 satisfied"
+ 
+ # ---- G-ROOT.3's own precondition, asserted rather than left vacuous -------
+ # THE LAUNCHER'S G-ROOT.3 IS `if [ -f "$BASE/ledger.txt" ]`, so ON AN ABSENT
+@@ -348,7 +348,7 @@
+ FOREIGN=$(grep -a "^ITEM=" "$BASE/ledger.txt" | grep -av "^ITEM=$ITEM$" | head -1)
+ test -z "$FOREIGN" || { say "ABORT REFUSE the ledger at $BASE/ledger.txt carries another item: $FOREIGN"; exit 43; }
+ grep -aq "ROW=SHIPPED" "$BASE/ledger.txt" && { say "ABORT REFUSE the ledger already carries SHIPPED rows; D6RF is registered PATCHED-ONLY"; exit 43; }
+-say "D6RF4_STAGE_ROOT LEDGER OK exact ITEM=$ITEM line present, no foreign item, no SHIPPED row -- G-ROOT.3 now passes on EVIDENCE, not on an absent file"
++say "D6RF5_STAGE_ROOT LEDGER OK exact ITEM=$ITEM line present, no foreign item, no SHIPPED row -- G-ROOT.3 now passes on EVIDENCE, not on an absent file"
+ 
+ # ---- ALREADY_BOUGHT -- d6rf3_chain_driver.sh:172-176's clause, RESTORED ---
+ if grep -aq "^ARM=$ARM .* rc=0 " "$BASE/ledger.txt" 2>/dev/null; then
+@@ -375,7 +375,7 @@
+ # UNMEASURED and REFUSES; it is never 0.0.
+ #
+ # WITH ONE REGISTERED ARM the cumulative check and the per-arm cap coincide:
+-# both are the 54.00 core-min `d6rf4_grade.py:184` registers.  That is not a
++# both are the 54.00 core-min `d6rf5_grade.py:184` registers.  That is not a
+ # reason to drop the guard -- a re-fire after a NON-ZERO rc can spend again,
+ # and ALREADY_BOUGHT only covers the rc=0 case.
+ # ===========================================================================
+@@ -396,8 +396,8 @@
+   say "  and an unreadable ledger is UNMEASURED, which refuses like a breach."
+   exit 42
+ fi
+-say "D6RF4_STAGE_ROOT CEILING OK cap=$ARM_CAP_CORE_MIN ceiling=$ITEM_CEILING_CORE_MIN guard_rc=$GUARD_RC | $GUARD_LINE"
++say "D6RF5_STAGE_ROOT CEILING OK cap=$ARM_CAP_CORE_MIN ceiling=$ITEM_CEILING_CORE_MIN guard_rc=$GUARD_RC | $GUARD_LINE"
+ 
+-say "D6RF4_STAGE_ROOT COMPLETE base=$BASE staged_now=$STAGED_NOW instruments=$N_INSTR mode=$MODE utc=$(date -u +%Y%m%dT%H%M%SZ)"
+-say "D6RF4_STAGE_ROOT THIS FILE LAUNCHED NOTHING.  The re-fire is the dafoam-supervisor's decision."
++say "D6RF5_STAGE_ROOT COMPLETE base=$BASE staged_now=$STAGED_NOW instruments=$N_INSTR mode=$MODE utc=$(date -u +%Y%m%dT%H%M%SZ)"
++say "D6RF5_STAGE_ROOT THIS FILE LAUNCHED NOTHING.  The re-fire is the dafoam-supervisor's decision."
+ exit 0

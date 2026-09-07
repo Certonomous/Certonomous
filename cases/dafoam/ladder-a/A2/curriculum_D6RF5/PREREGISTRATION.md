@@ -628,3 +628,132 @@ by sha is taken only after I read the authored measurement-script diffs.**
 core-min if `G-CONV` fails** (L4–L8 gated on `G-CONV` PASS). Ranks 4. Dollars DERIVED: est
 $0.053 / cap $0.159 at $0.0513/core-h — far under the $25 pre-authorisation. The sizing carries the
 2-point mini-sweep the §7 table already priced, so no cost figure moves.
+
+---
+
+## 11. AUTHORED-INSTRUMENT ADDENDUM — lab-lane, 2026-09-07 (draft still NOT FROZEN)
+
+This section discharges §9 items 1 and 4–8 for the authored D6RF5 instruments. It is an
+**addendum**; it does **not** edit §10 or any struck text, and it registers no new gate,
+threshold, cap or label. **The freeze is NOT taken here** — every `run_arm.sh` carries
+`PERMISSION=NOT_FROZEN` and aborts at G-FREEZE, and the dafoam-supervisor's check-1 read of the
+authored measurement-script diffs (§9 item 9) and the freeze by sha (§9 item 10) remain owed.
+
+### 11.1 §9 item 1 — the instruments, authored, each with its DELTAS diff
+
+Every file below was derived from the frozen D6RF4 instrument of the same role, the parent md5
+verified on disk before the derived file was written, with a `*_DELTAS_from_d6rf4.diff` beside it.
+The producer `d6rf5_opt_runScript.py` is a **byte-identical carry** of `d6rf4_opt_runScript.py`
+(md5 `137539e0a99be27f27fdb69e063b2a87` unchanged) — the bright line
+(`primalMinResTol 1e-8`/`primalMinResTolDiff 1e3`) lives in its `daOptions` and is therefore
+carried untouched. The producer-chain instruments (`endpoint_locus`, `endpoint_physical`,
+`extract_endpoint`, `anchor_gate`, `units_assert`) are self-rename carries with no substantive
+logic change. The load-bearing substantive changes are in `d6rf5_grade.py`, `d6rf5_fd_endpoint.py`,
+`d6rf5_finiteness_mutation.py`, the three config files, and `d6rf5_run_arm.sh`.
+
+### 11.2 §9 item 4 — the coefficient-equality freeze check, EXECUTABLE
+
+`d6rf5_grade.py:coefficient_equality_check()` reads the frozen `d6rf5_fvSchemes_LIMITED`, extracts
+the `limited corrected <c>` coefficient from the `laplacianSchemes` and `snGradSchemes` blocks, and
+reports `equal` iff **both are `0.333`**. It is folded by `gate_scheme` (a mismatch → `NOT A RESULT`)
+and by `--freeze-selfcheck` (which refuses if not equal). Existence is asserted before any read.
+Run at authoring: `laplacian=0.333 snGrad=0.333 registered=0.333 equal=True`.
+
+### 11.3 §9 item 5 — clause-by-clause accounting of the staging/chain layers
+
+`d6rf5_run_arm.sh` and `d6rf5_stage_root.sh` are derived from D6RF4's **post-repair** versions. No
+layer is dropped; the discretisation-install layer is *changed in kind* (fvSolution→fvSchemes) and
+*added to* (a second per-leg install of `d6rf5_fvSolution`), never removed:
+
+- **G-FREEZE guard** — carried; `PERMISSION=NOT_FROZEN` aborts before any staging (exactly one
+  `PERMISSION=` assignment in the file).
+- **Instrument md5 staging (S6)** — carried; the two fvSolution files are replaced in the staged set
+  by `d6rf5_fvSchemes_LIMITED`, `d6rf5_fvSchemes_D6RF4_ORIGINAL` and `d6rf5_fvSolution`, each md5-asserted on both sides of the copy.
+- **Discretisation install (S9)** — REWORKED: installs `d6rf5_fvSchemes_LIMITED` over the base scheme
+  at every fvSchemes site (pre-image asserted `= 58dbed0a…`, the base D6RF4 ran), and
+  `d6rf5_fvSolution` (correctors 3) at every fvSolution site; both loops assert their own trip count,
+  and the whole-tree read-back refuses if any fvSchemes still carries the base (unlimited) md5.
+- **Runtime per-leg install** — REWORKED: `install_fvschemes` swaps the scheme per leg
+  (LIMITED for L1/L2, D6RF4_ORIGINAL for L3) and sets `nNonOrthogonalCorrectors` in the SIMPLE block
+  only (3 for L1/L2, 1 for L3/F5) via a SIMPLE-scoped `awk`, printing
+  `D6RF5_FVSCHEMES_INSTALLED leg=… md5=… sites=… nNonOrthogonalCorrectors=…`.
+- **Age-datum production (`%.9Y`)** — carried verbatim; `d6rf5_age_datum_control.py` extracts and
+  drives it, and PASSES (defective-launcher discriminator fires).
+- **Leg-present + placeholder + units-gate assertions** — carried, adapted to `--mode F5_scheme` and
+  the two `install_fvschemes` sites.
+
+**Honest caveat (crash-triage owed to the supervisor):** `run_arm.sh`/`stage_root.sh` are syntax-clean
+(`bash -n`) and the age-datum control passes on the launcher, but they were **NOT container-tested**
+(no compute ran). The S9 dual-install and the SIMPLE-scoped corrector `awk` are the parts to review;
+the F5-leg corrector-1 choice implements §5 literally, and note that F5's *datum* (the p first-solve
+1.658e-05) is by §2.2's own mechanism independent of corrector count.
+
+### 11.4 §9 item 6 — the instrument table with md5s (existence asserted before hash)
+
+| instrument | md5 | role |
+|---|---|---|
+| `d6rf5_fvSchemes_LIMITED` | `8374443e7a374e9d353cffccdb654aaf` | Fix #1 scheme (graded, L1/L2) |
+| `d6rf5_fvSchemes_D6RF4_ORIGINAL` | `cf8f745dcc594ce7a9c67ad2d41e4b06` | F5 wrong scheme (L3) |
+| `d6rf5_fvSolution` | `67fed3c2ffd2765e51f2563270060648` | Fix #2 (correctors 3) |
+| `d6rf5_fd_endpoint.py` | `ad5335a477d278698935017be4913845` | rep DV shape[46], 2-pt sweep, F5_scheme |
+| `d6rf5_grade.py` | `69706d0dc03508a66b0460bfec878e6e` | G-CONV (p split) + G-SCHEME + F5 |
+| `d6rf5_opt_runScript.py` | `137539e0a99be27f27fdb69e063b2a87` | producer (byte-identical carry) |
+| `d6rf5_accept_floor_control.py` | `372062b2cc91ca71ae8e7fec8b88a30b` | ACCEPT_FLOOR_UNMOVED |
+| `d6rf5_cd_plant_control.py` | `0fea4d9ae118a73714fa042c18f523fd` | planted-zero (PLANT 1.234e-03) |
+| `d6rf5_age_datum_control.py` | `f3ea2b728cb452e97b1384624b353dd5` | age-datum guard |
+| `d6rf5_finiteness_mutation.py` | `7d890ea6d70f9a168489a7f542e87ae7` | finiteness harness (F-FINITE) |
+| `d6rf5_run_arm.sh` | `7cecbc6a65b6dacfb63b3778df42a7c0` | launcher (PERMISSION=NOT_FROZEN) |
+| `d6rf5_stage_root.sh` | `9a0fdf03700961af3a0a759c28cd45b3` | stager |
+| `d6rf5_endpoint_locus.py` | `341189ca866f302a7e1bba8eefad3a57` | DV locus (carry) |
+| `d6rf5_endpoint_physical.py` | `288ce6d17f462993177250a13c9d4ce6` | DV physical (carry) |
+| `d6rf5_extract_endpoint.py` | `95630a223c638095cdfb4de5727d7a88` | DV extract (carry) |
+| `d6rf5_anchor_gate.py` | `28a7bb6b884002c810939e4370fb5557` | producer anchor (carry) |
+| `d6rf5_units_assert.py` | `ba3389592ab8882732031e61975fc3c4` | units gate (carry) |
+
+md5s are **as authored** and will move if any file is edited before the freeze; the freeze re-hashes
+disk against the committed blob (`d6rf5_grade.py:freeze_check`). Controls shown to fire **both ways**,
+with evidence beside the case: `d6rf5_accept_floor_DRIVE_EVIDENCE.txt` (1 clean pass, 5 planted drifts
+refused in both senses, 3 blind readers refused, real-log exercise), `d6rf5_cd_plant_DRIVE_EVIDENCE.txt`
+(positive + 4 blind readers refused), `d6rf5_age_datum_control_DRIVE_EVIDENCE.txt` (defective launcher
+refused, repaired passes), `d6rf5_finiteness_DRIVE_EVIDENCE.txt` (F2 established, 50/50 direction 1,
+17/17 direction 2 — G-CONV on the p split and G-SCHEME both driven).
+
+### 11.5 §9 item 7 — TMO, frame, and the `--cap-arithmetic` reachability identity
+
+Registered (from §7/§10.6): **cap `186.00` core-min, ranks 4, frame `90` s.** TMO is set so the two
+stopping conditions reconcile exactly:
+
+```
+cap_wall = 186.00 × 60 / 4 = 2790.0 s
+TMO + frame = 2700 + 90    = 2790.0 s      residual = 0.0e+00 s
+max spend at TMO = 2700 × 4 / 60 = 180.00 core-min   (cap headroom 6.00)
+predicted 62.00 core-min ≤ cap 186.00 : OK
+```
+
+`d6rf5_grade.py --cap-arithmetic` prints this and `cap_reachability()` REFUSES unless the identity
+holds. `d6rf5_run_arm.sh` computes `TMO = CAP×60/RANKS − frame` from `cap_core_min P_conv = 186.00`,
+so launcher and grader agree by construction.
+
+### 11.6 §9 item 8 — the pre-freeze fragility sweep (L-493: pin the COUNT, not the appearance)
+
+Each duplicate-prone assignment was counted and is **exactly one** at authoring:
+
+| assignment | file | count |
+|---|---|---|
+| `^PERMISSION=` (and `=NOT_FROZEN`) | `d6rf5_run_arm.sh` | 1 / 1 |
+| `^PLANT = ` | `d6rf5_cd_plant_control.py` | 1 |
+| `^PLANT = ` | `d6rf5_grade.py` | 1 |
+| `^ACCEPT_FLOOR = ` | `d6rf5_accept_floor_control.py` | 1 |
+| `^PRIMAL_MIN_RES_TOL = ` | `d6rf5_accept_floor_control.py` | 1 |
+| `^CONV_FIELDS = ` / `^G_SCHEME_NCORR = ` / `^F5_PREDICTED_P_INITRES = ` | `d6rf5_grade.py` | 1 / 1 / 1 |
+| `cap_core_min P_conv → 186.00` | `d6rf5_run_arm.sh` | 1 |
+| `install_fvschemes()` def | `d6rf5_run_arm.sh` | 1 |
+| line-1 `NOT FROZEN` DRAFT banner | `PREREGISTRATION.md` | 1 |
+
+Safety properties resting on a value the freeze changes: (a) the line-1 DRAFT banner and every
+`NOT_FROZEN`/`NOT FROZEN` assertion state the pre-freeze state and are struck/replaced only by the
+freeze act; (b) `run_arm.sh`'s `PERM_ASSIGNMENTS` guard asserts exactly one `PERMISSION=` line, so the
+freeze cannot leave a second stale one; (c) `freeze_check` re-hashes every FROZEN_PATHS entry against
+the committed blob, so any post-authoring edit is caught at grading.
+
+**SUBMISSIONS PARKED. Freeze NOT taken.**
