@@ -1,4 +1,4 @@
-DRAFT — NOT FROZEN — awaiting supervisor check-1 read and freeze
+FROZEN 2026-09-07 by the dafoam-supervisor (this commit is the freeze; §8) — grading path hash-locked in §7; SUBMISSIONS PARKED
 
 # CURRICULUM SO-3D-R — STAGE 2. THE cl04-STANDALONE DISCRIMINATION EXPERIMENT. PRE-REGISTRATION (DRAFT).
 
@@ -381,8 +381,8 @@ includes per-leg container + DVGeo warp overhead.
 
 | file | role | status |
 |---|---|---|
-| `so3dr_stage2_standalone_runScript.py` | the standalone single-point rig | **TO BE BUILT**, pinned at freeze |
-| `so3dr_stage2_grade.py` | the banner reader / `r_sa` grader + F1–F6 controls | **TO BE BUILT**, pinned at freeze |
+| `so3dr_stage2_standalone_runScript.py` | the standalone single-point rig | **FROZEN**, md5 `dc67cced46235f897f6257353402ea57` |
+| `so3dr_stage2_grade.py` | the banner reader / `r_sa` grader + F1–F6 controls | **FROZEN**, md5 `2d32ec9b933764b5eb3e3bb61e6657cd` |
 | `so3dr_stage2_build_sample.py` | deterministic sample builder | present, md5 `89828c709c30b95205db0e37fd9dfc84` |
 | `so3dr_stage2_registered_sample.json` | the frozen 36-leg sample | present, md5 `55bf8e2dcc07fbe3197f2c53421ad019` |
 | `so3dr_stage2_replay.json`, `so3dr_stage2_plant_report.json`, `RESULTS.md` | outputs | produced at run |
@@ -393,14 +393,42 @@ before invoking, and verify the frozen files are the files that ran.
 
 ---
 
-## 8. FREEZE STATEMENT — NOT YET TAKEN
+## 8. FREEZE STATEMENT — TAKEN 2026-09-07 by the dafoam-supervisor personally
 
-This document is a **DRAFT**. Its gate (`G-SA-DISCRIM`), thresholds (HIGH ≥ 50 %, LOW ≤ 10 %),
-prediction (leaning LOW, NOT HIGH), registered sample (36 legs, md5
-`55bf8e2dcc07fbe3197f2c53421ad019`), cap (585 core-min) and labels are set out **before any Stage-2
-compute** so the freeze can bind them. **The freeze itself, and the `SUPERVISION_CHARTER.md` §3
-check-1 read of the rig/grader diff and check-4 committed-before-compute, are the `dafoam-supervisor`'s
-and are NOT discharged here.**
+**FROZEN.** This commit is the freeze. Its gate (`G-SA-DISCRIM`), thresholds (HIGH ≥ 50 %, r_sa ≥ 18/36;
+LOW ≤ 10 %, r_sa ≤ 3/36; indeterminate 10–50 % → NOT A RESULT; F3 HIGH-confound → NOT A RESULT), the
+six-token verdict mapping (clear discrimination → **GATE REACHED**, with the HIGH/LOW direction and its
+fix-routing in the separate `discrimination`/`finding` fields; incomplete → PENDING), the registered
+prediction (leaning LOW, NOT HIGH), the registered 36-leg sample (md5 `55bf8e2dcc07fbe3197f2c53421ad019`,
+24 FAILED + 12 SUCCEEDED, drawn deterministically from the sha256-pinned D6R log), the cost
+(estimate ≈ 195 core-min, cap **585 core-min**) and the labels are bound as of this commit and cannot
+move (`CLAUDE.md` rule 2). The grading path is **hash-locked in §7** — rig `dc67cced46235f897f6257353402ea57`,
+grader `2d32ec9b933764b5eb3e3bb61e6657cd`; before any grading the launcher verifies each instrument's
+md5 against these pins, and the frozen file that ran is the file that is graded.
 
-**NOT FROZEN. NOT ENQUEUED. NO QUEUE ENTRY. NOT LAUNCHED. ZERO SOLVER CORE-MINUTES. SUBMISSIONS
-PARKED.**
+**The four `SUPERVISION_CHARTER.md` §3 checks, discharged personally by the dafoam-supervisor before
+this freeze:**
+1. **Check-1 (measurement-script diffs, read as diffs).** The rig `*_DELTAS_from_d6r.diff` (505 lines)
+   and the grader were read at source: rig runs one cl04 scenario cold (coupling/optimiser/constraints
+   removed), injects the exact D6R design vector (shape 96 / twist 7 / patchV) with count guards, guards
+   cold-start and the unmoved accept floor, zero asserts; grader emits a six-token verdict with the
+   discrimination/finding separate, resolves the decomposed+gzipped endTime layout, banner reader and
+   G-CLHOLD-class plant fire both ways, F3/F4/F6 correct, zero asserts. Two defects found on the first
+   read (descriptive-not-six-token verdict; a FIELDS list that would have marked every leg incomplete)
+   were sent back and fixed; the corrections were re-read at source (grader md5 `2d32ec9b`).
+2. **Crash triage.** N/A — no compute has run; this is a pre-launch freeze.
+3. **Big-claim verification.** The discrimination design is sound: the stratified 24/12 sample makes
+   r_sa ≈ 67 % under the intrinsic hypothesis (clear HIGH) and ≈ 0 % under coupling (clear LOW), the F3
+   confound guard downgrades a HIGH reading to NOT A RESULT if the SUCCEEDED stratum is itself unstable,
+   and the rig reproduces the multipoint cl04 primal faithfully (byte-identical daOptions, exact injected
+   design, cold start) so the only difference from the multipoint is the assembly context.
+4. **Check-4 (pre-registration committed before compute).** The prereg and instruments are committed;
+   this freeze commit precedes any Stage-2 compute (run root ABSENT, no `so3dr_stage2_FREEZE.marker`
+   placed, zero solver core-minutes).
+
+**Compute is NOT launched by this freeze.** The rig refuses until `so3dr_stage2_FREEZE.marker` is placed
+in the case directory; that placement is the separate launch step and is not taken here — the costed
+figure is brought to the chief BEFORE compute, per the standing directive.
+
+**RULING 2's bar is preserved: the 39.7× is a DATUM, never a verdict.** NOT ENQUEUED. NOT LAUNCHED.
+ZERO SOLVER CORE-MINUTES. SUBMISSIONS PARKED.
