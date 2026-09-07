@@ -5619,7 +5619,21 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T04:30Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-07T04:55Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-118 — 2026-09-07T04:55Z — **TWO FREEZES: SO3DR Stage-2 (`b4b8d44c`) and MP-A1 (`c4e84348`) — check-1 discharged personally on each, grading paths hash-locked, compute NOT launched. D6RF5 instruments authored (`fa75f9c3`), awaiting my check-1.**
+
+**SO3DR Stage-2 (A2) — FROZEN `b4b8d44c`.** cl04-standalone discrimination (RULING 3 §9.2). Check-1 done at source on the rig DELTAS (505 lines) + grader; found 2 defects on first read (descriptive-not-six-token verdict; FIELDS list that would mark every leg incomplete), sent back, fixed (grader `2d32ec9b`, rig `dc67cced` — committed blobs verified == disk). G-SA-DISCRIM: HIGH≥18/36→GATE REACHED "cl04's own primal"; LOW≤3/36→GATE REACHED "coupling"; 10-50%→NOT A RESULT; F3 confound→NOT A RESULT; incomplete→PENDING. **Cost est ≈195 / cap 585 core-min.** Compute NOT launched (no FREEZE.marker placed).
+
+**MP-A1 (A1, the demo-grade incompressible multipoint milestone) — FROZEN `c4e84348`.** SO-3 + per-point CL EQUALITY (drag-min at fixed lift; fixes the SO-3 lift-collapse caveat). Check-1 done at source on both DELTAS diffs (grade +418/-114, runScript +125/-79); check-3 upheld the admissibility claim (no new unverified gradient — rides SO-3aR2's `dCLᵢ/dx`, G5C re-verifies at the final design, G-PROV travels the GATE FAIL chain). One stale comment found+fixed (verified comment-only), assert→raise nit. Grader `9b9cb934`, runScript `bb3ba3a6` (committed blobs == disk; chain_driver asserts grader md5). **Cost est 58.63 / ceiling 183.5 core-min.** Compute NOT launched — NOT_FROZEN sentinel RETAINED deliberately as the launch-block (deviation from "freeze removes sentinel" docstring, stated in §8).
+
+**D6RF5 (A2) — INSTRUMENTS AUTHORED `fa75f9c3` (38 files), NOT FROZEN.** Authored to my §10 sizing; §9 items 4-8 discharged (coefficient-equality check, cap/TMO reachability residual 0.0, instrument-md5 table, fragility counts, staging accounting). **OWED (mine): check-1 read of the DELTAS diffs (d6rf5_fd_endpoint.py `ad5335a4`, d6rf5_grade.py `69706d0d`, 4 controls) + crash-triage of the launcher/stager (NOT container-tested — the S9 dual-install + SIMPLE-scoped corrector awk).** Then freeze. Cost est 62 / cap 186. Judgment calls to review: §3.1 first-p-solve extraction lives in the grader not fd_endpoint (single-reader discipline); G-SCHEME reads nNonOrthogonalCorrectors from the RUN.
+
+**§2ay (`d06f4211`):** 6/11 flagged matrix fails cleared to (b), 5 owe a successor (A3 rung-3 group; D2 AB2), 0 capability gaps.
+
+**⚠ SHARED-INDEX ANOMALY (not mine, not touched):** `git status` shows pre-existing MM on some dafoam files' shared-index entries (stale staged versions). My private-index commits read from HEAD (== disk, verified) so are unaffected; flagged to chief; I did NOT touch the shared index (rule 10).
+
+**LANES: all authoring lanes DONE.** Queued behind cap: D9successor authoring, A3-rung-3 working-PC successor, O-10 successor. **Runs live: none (zero solvers). Blocked: nothing of mine.** Next: my check-1 + crash-triage on D6RF5 → freeze; then dispatch the queued successors.
 
 ### S-117 — 2026-09-07T04:30Z — **SO3DR Stage-2 check-1 (mine, on so3dr_stage2_grade.py) FOUND TWO must-fix defects — NOT FROZEN, back to the lane. Check-1 did its job.**
 
