@@ -633,6 +633,24 @@ KNOWN_EXCLUDED = {
     # check, so this exclusion is as narrow as the measurement allows.
     "docs/COST_CALIBRATION.md": (
         r"^\|[ \t]*~~\**C-\d+\**~~",
+        # TWO REAL DATA ROWS with MALFORMED tool-id BODIES, hand-landed by
+        # private-index appends that bypassed `--allocate-id` (which mints a valid
+        # 8-hex body).  Their bodies fail TOOL_ID_BODY -- `w4reanc` is 7 chars and
+        # non-hex, `vmfl046r5` is 9 and non-hex -- so no id pattern parses them,
+        # yet each matches the id-bearing candidate shape, and clause 1b (which
+        # audits HEAD's WHOLE blob) therefore refused EVERY team's future
+        # COST_CALIBRATION append at exit 7: a lab-wide rule-12 block.
+        # RULED by verification 2026-09-07: excluded by EXACT id (the full unique
+        # timestamp+suffix), NOT by a "malformed body" pattern that would silently
+        # admit FUTURE bad ids and hollow the smuggle guard.  These stay real data
+        # rows -- parse_ids never saw them either way, and this register feeds
+        # shape_audit ALONE; append-only rule 1 is intact (zero rows edited), and
+        # the owning teams (dafoam, ansys) may append a CORRECTION ROW re-issuing a
+        # valid id via `--allocate-id`.  PREVENTION: a tool-form id is MINTED by
+        # `--allocate-id`, never hand-typed.  The near-miss fixture drives a
+        # DIFFERENT bad body to prove this exclusion does not over-reach.
+        r"^\|[ \t]*C-20260906T232437\.922647Z-w4reanc[ \t]*\|",
+        r"^\|[ \t]*C-20260907T030000\.000000Z-vmfl046r5[ \t]*\|",
     ),
 }
 
@@ -3467,10 +3485,23 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
         "docs/COST_CALIBRATION.md": {
             "refuse": "| C-9999 the first cell never closes, so no id parses\n",
             "excluded": ("| ~~**C-9104**~~ **STRUCK - DUPLICATE ID; RE-ISSUED "
-                         "AS C-9114**, see that row |\n",),
+                         "AS C-9114**, see that row |\n",
+                         # the two exact hand-landed malformed-body ids (see
+                         # KNOWN_EXCLUDED): candidates that parse no id, so the
+                         # (ii) limbs prove each neither parses nor refuses AND
+                         # that dropping the exclusion set makes it refuse again.
+                         "| C-20260906T232437.922647Z-w4reanc | 2026-09-06 | dafoam | probe |\n",
+                         "| C-20260907T030000.000000Z-vmfl046r5 | 2026-09-07 | ansys | probe |\n"),
             # The struck exclusion needs the `~~` to OPEN the cell; a row that
             # is merely bold is an ordinary unparseable row.
-            "near_miss": ("| **C-9105** annotated in-cell, never struck |\n",),
+            "near_miss": ("| **C-9105** annotated in-cell, never struck |\n",
+                          # a DIFFERENT malformed-body pseudo-tool-id: an 8-char
+                          # NON-hex body, matching the candidate, parsing no id,
+                          # and NOT one of the two exact-excluded ids -- so it MUST
+                          # still refuse.  This is the arm the reported gap lacked:
+                          # without it a "malformed body" bug ships unseen
+                          # (selftest rc 0 while the live file blocks at rc 7).
+                          "| C-20260102T030405.060708Z-nothexch | 2026-01-02 | x | probe |\n"),
             "furniture": ("| id | date | team | process |\n",
                           "|---|---|---|---|\n"),
         },
