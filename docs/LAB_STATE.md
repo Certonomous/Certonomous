@@ -17559,6 +17559,18 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-07 (update 6): §2ay V-115 sweep DONE — 6 flags CLEARED (28→22, supervisor-verified by re-running the instrument); 7 genuinely unworked + 15 check-keying defects referred to verification. Fine T4d_IJ_f still running. Supersedes update 5.
+
+*(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. **0 solver core-min added by this block.**)*
+
+- **Last commit:** `64bd31df` — "§2ay V-115 reciprocal lineage: 6 flags CLEARED via structured Predecessor on 5 frozen successor pre-registrations".
+- **§2ay V-115 — 6 CLEARED, supervisor-verified.** Ran `scripts/check_completion_enforcement.py` myself post-commit: heat-transfer FLAGGED block now holds **22 entries, down from 28**. Cleared via structured `Predecessor:` foot-amendments (rule-6 dated, "lines changed above: 0", no gate/threshold/band/cap/label/verdict moved — all 5 diff-read by me append-only before commit): **T3→T3c, T10a→T10aR, T9a→T9aR1b, T3(unclassed)→T3c, T1b-L4→T1b_L4_EXT2, T10a-R→T10aR2**.
+- **Residual 22 (NOT gamed):** (a) **7 genuinely unworked** real-rung keys — T1c×3 (254/1119/1153), T8 (1154, only a NOT-FILED draft + gated on clause-5), T10a-VF (1156, fix PARKED upstream rule 7), T10a-R2×2 (1180/1181, terminal) — each needs a real state-(b) successor or state-(a) capability-gap filing later; nothing fabricated. (b) **15 NOT clearable by honest lineage = two check-keying defects REFERRED TO VERIFICATION (check owner), not worked around:** CASE_ID_RE keys K0cS/K0cT/K0cX and K2b to the `F14-cooling-ladder` path fragment (5 flags: 1121/1122/1123/1124/1184); the §3 sub-row/data-row ids S4/S5/S7/S12/S14/S20/S23/S24×2/B0 (10 flags) key to matrix bookkeeping labels not rung names — annotating a real successor cannot move them, and a false `Predecessor:` id would be gaming. Instrument is itself DRAFT (§2ay.7).
+- **LIVE JOB — T4d FINE (unchanged from update 5):** solver pid 18993 ALIVE, timeout parent 18992, watcher pid 19113 → `WATCH_t4d_f.log`; cwd `.../T4d_IJ_f`; endTime 64000; ETA ~4.2 d (VERIFY). Rung T4d = PENDING (graded whole-rung at fine endTime; coarse+medium DONE, medium C6.3 PASS 3.38966e-06).
+- **On Sanaa's desk (rule 9):** clause-5 rule-4 (gates K0g + T8 discriminator — and T8's §2ay flag is one of the 7 genuinely-unworked, i.e. its clearance is downstream of the same clause-5 sign-off); permission-gated rm of answerless T21_CYL_c (blocks T21 freeze); Vogel&Eaton 1985 / Blay 1992 NOT OBTAINED; K0c* → closure ladder.
+- **To verification (via chief):** the two §2ay check-keying defects above (CASE_ID_RE trailing-\b failure on K0[a-z]{2,} + K2b; §3 sub-row/B0 ids keyed as rung names) — 15 heat-transfer flags cannot clear until the check keys them to their rung, not a path fragment or bookkeeping label.
+- **Next actions:** grade T4d at fine endTime (analyse_t4d, explicit --json gate_t4d.json); file T4d rule-12 calibration; produce real state-(a)/(b) work for the 7 genuinely-unworked once their gates clear (T8 behind clause-5); T21 physics half to freeze the instant the rm clears.
+
 ##### heat-transfer 2026-09-07 (update 5): T4d FINE T4d_IJ_f LAUNCHED & RUNNING (solver pid 18993, ~4.2 d ETA, inside cap) — supervisor-verified alive. §2ay V-115 sweep still in flight. Supersedes update 4.
 
 *(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. **0 solver core-min added by this block** — the fine's spend accrues under its own cap and is measured at completion.)*
