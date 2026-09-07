@@ -17700,6 +17700,26 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-07 (update 12): T10aVF2 GRADED **PASS** (`0f0e9b4b`) — VF-4' Limb A PASS + VF-7' PASS, planted control fired, comparator frozen-verified; **T10a-VF §2ay flag DISCHARGED by a landed passing successor**; rule-12 calibration landed (2.708 vs 17.6 core-min, 0.154). Supersedes update 11.
+
+*(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. **0 solver core-min in this block.** Guarded `commit_private.sh` path.)*
+
+- **Last commit:** `0f0e9b4b` — T10aVF2 GRADE (gate_t10avf2.json + rule-12 calibration row).
+- **VERDICT — T10aVF2 = `PASS` (supervisor-verified, not just relayed).** The re-registered VF gate (VF-4'+VF-7', the fix for the 4 original T10a-VF GATE-DESIGN fails) PASSES:
+  - **VF-4' Limb A PASS:** SPH order-guard **p = 2.28787** (≥ 1.5 VALID); mechanism-leak guard VALID ×4; **B_ctrl monotone 1.06e-2 → 1.28e-3** over 384 → 2400 faces (floor valid).
+  - **VF-7' PASS:** **max_move 0.0008038 pp** (≤ 0.05 pp) over GaussQuadTol {0.01, 0.001, 1e-6}.
+  - **VF-11** reported-only (never gated): collapsed rowSum 0.16136 (intTol ray-shrink).
+  - **rule-3 planted-zero control FIRED** on all 4 SPH levels (red_ok + green_ok; no blind reader) — not a plant-didn't-fire NOT A RESULT.
+  - **rule-2:** comparator `analyse_t10avf2.py` on-disk == committed blob **ebe19800** @ c4d1e30a (I re-hashed it myself). 35/35 cases wrote constant/F.
+  - **§2ay:** **T10a-VF (1156) is now DISCHARGED** — a landed PASSING successor whose lineage is recorded (state-(b) terminal), not merely carrying an active successor.
+- **rule-12 calibration (`docs/COST_CALIBRATION.md`, id C-20260907T183339…):** actual **2.708 core-min** vs POINT **17.6** (ratio **0.154**), cap 53 never approached — FAVOURABLE OVER-ESTIMATE (the POINT bundled comparator + contingency into the mesh-side figure), not waste, not contention. $0.002316 derived.
+- **RUN B — K2bU3R2 STILL BLOCKED (build-infeasibility, §3 triage done):** 60 mm uniform mesh fails the reused frozen builder's 2% even-division guard (0.70 m gap → 2.86% dev); nearest feasible uniform coarse 50 mm breaches cap 63. Remedy = a recalibrated successor **K2bU3R3** (50 mm + recalibrated cap, or graded ceiling-gap mesh), deliberate re-registration — NEXT design task (lane draft → my §3 → freeze); NOT a bare edit of the frozen builder, NOT routing around the guard. Draft `held/K2bU3R2.json` + REASON uncommitted; comparators 120464450c / d1500a5f UNTOUCHED.
+- **§2ay carrier state:** 18 FLAGGED (all heat-transfer). **T10a-R = FALSE FLAG → REFERRED to verification** (successor exists at `T10aR2_PREREGISTRATION.md:443`; instrument crediting defect, cause left to verification; NO false lineage from me). Genuinely owed real successors: T9aD, T10aR2, T9aH (successor not diagnosis), T1c×4, T23G2×8 (per-row unit naming); T8 gated on Sanaa clause-5; B0 honestly UNPARSED.
+- **VF-3'/VF-6'/0.20 driven-sweep prereg DRAFTED** (`docs/campaigns/T-family/T10aVF2_DRIVEN_SWEEP_PREREGISTRATION.md`, §3-reviewed, does not widen the frozen gate). Settled by me per V-121: O-3 full-range, O-4 GATE FAIL→NOT A RESULT, O-2 independent build. **ESCALATED: O-1** (signal `S(case)` definition) needs verification's V-121 concurrence BEFORE freeze. Comparator not written (premature). No timing pressure.
+- **LIVE JOBS:** T4d FINE pid 18993 (watcher 19113), cwd `verification/runs/T-family/T4d_runs/T4d_IJ_f`, endTime 64000, **ETA ~26 h**, PENDING (whole-rung grade at fine endTime, explicit --json). UNTOUCHED. 0 lab-lanes live.
+- **On Sanaa's desk (rule 9):** clause-5 rule-4 (K0g + T8); permission-gated rm of answerless T21_CYL_c (blocks T21 freeze); Vogel&Eaton 1985 / Blay 1992 NOT OBTAINED.
+- **Next actions:** draft K2bU3R3 recalibrated successor (lane, STOP-before-freeze); on verification's O-1 concurrence write+diff-read the sweep comparator then freeze; grade T4d at fine endTime; T9aD/T10aR2/T9aH real successors.
+
 ##### heat-transfer 2026-09-07 (update 11): T10aVF2 §3-checked, PINNED (`b93d2f8c`) and PLACED — daemon LAUNCHED it (pid 133508, mesh-side, ~4–17 min). K2bU3R2 BLOCKED (build-infeasibility triage). §2ay: T10a-VF now COVERED, T10a-R FALSE FLAG referred to verification. VF driven-sweep drafted; O-1 escalated. Supersedes update 10.
 
 *(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. **0 solver core-min in this block** — T10aVF2 is a mesh-side viewFactorsGen sweep, costed at completion. Guarded `commit_private.sh` path.)*
