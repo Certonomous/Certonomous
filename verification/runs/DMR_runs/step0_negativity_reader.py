@@ -59,9 +59,20 @@ import argparse
 import tempfile
 from pathlib import Path
 
-# The physical scalar fields whose negativity is unphysical.  mag(U) is a
+# The physical scalar fields REPORTED as diagnostic context.  mag(U) is a
 # magnitude (>= 0 by construction) so it is reported but never a negativity flag.
 PHYS_SCALARS = ("T", "e", "p", "rho")
+
+# The fields whose negativity is PHYSICALLY unbounded-below and so DRIVES
+# first_negative and the mechanism attribution: T (thermodynamic temperature,
+# > 0 required for the sqrt in the cell-centre sound speed) and rho (density,
+# > 0 required).  `e` and `p` are DELIBERATELY EXCLUDED from the trigger: under
+# this thermo `e` is SENSIBLE internal energy (Hf 0, sensible baseline) and is
+# REFERENCE-RELATIVE, so it is legitimately negative from the first step and, left
+# in the trigger, emits a FALSE-EARLY first_negative on `e` that MASKS the physical
+# T signal; `p` follows T*rho and is reported, not triggered.  `e` and `p` remain
+# in PHYS_SCALARS for diagnostic-context reporting only.
+POSITIVITY_SCALARS = ("T", "rho")
 
 # The planted control's known negative extremum.  Integer-free, distinctive.
 PLANT_FIELD = "T"
@@ -143,9 +154,11 @@ def parse_fieldminmax(dat_path):
 
 
 def first_negative(records, blind=False):
-    """Earliest (time, field) among PHYS_SCALARS whose min < 0.
+    """Earliest (time, field) among POSITIVITY_SCALARS (T, rho) whose min < 0.
 
     Returns the record dict of the first-negative, or None if none is negative.
+    Keyed on T and rho ONLY -- `e` (reference-relative sensible energy) and `p`
+    are diagnostic context, never a negativity trigger (see POSITIVITY_SCALARS).
     `blind` disables the negativity test (simulating a reader that cannot see a
     negative) -- used ONLY by the control's blind arm to prove the control
     fails closed.
@@ -153,7 +166,7 @@ def first_negative(records, blind=False):
     blind = blind or _blind_env()
     hits = []
     for r in records:
-        if r["field"] not in PHYS_SCALARS:
+        if r["field"] not in POSITIVITY_SCALARS:
             continue
         is_neg = (r["min"] < 0.0) and not blind
         if is_neg:
@@ -236,7 +249,7 @@ def measure(dat_path):
             mn = min(fr, key=lambda r: r["min"])
             per_field[f] = dict(min=mn["min"], time=mn["time"], loc_min=list(mn["loc_min"]))
     if hit is None:
-        verdict = ("NO NEGATIVE OBSERVED in (T e p rho) across the written steps; "
+        verdict = ("NO NEGATIVE OBSERVED in (T rho) across the written steps; "
                    "the failing step may not have been captured, or the FPE argument "
                    "went negative between writes -- inconclusive, not a clean pass.")
         site = None
@@ -244,7 +257,7 @@ def measure(dat_path):
         # cell vs face is NOT read from the .dat (the probe records cell-centre
         # field extrema); the LOCATION + which field disambiguates the mechanism.
         site = ("rhoCentralFoam.C:136 cell-centre sound speed (post-update "
-                "energy/positivity failure)" if hit["field"] in ("T", "e")
+                "energy/positivity failure)" if hit["field"] in ("T",)
                 else "flux/energy field first-negative")
         verdict = (f"FIRST NEGATIVE: field {hit['field']} min={hit['min']:.6e} "
                    f"at t={hit['time']:g}, location {tuple(hit['loc_min'])} "
