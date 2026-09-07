@@ -466,6 +466,20 @@ class RepoIndex:
     lineage_preds: dict[str, str] = field(default_factory=dict)  # predecessor case id -> evidence string
 
 
+def _canon_lineage_id(s: str) -> str:
+    """Canonicalize a case id for LINEAGE-EDGE comparison ONLY: strip hyphens so an
+    edge keyed hyphenated (`T10a-R`) and a row keyed un-hyphenated (`T10aR`, from
+    filename-first T10aR_RESULTS.md) compare equal.  Applied SYMMETRICALLY -- to the
+    STORE key (both extraction sites) AND the LOOKUP key (_find_lineage_successor) --
+    so same-hyphenation rows (T10a-VF row + `Predecessor: T10a-VF`) still match
+    canon-to-canon.  Dehyphenate only; do NOT uppercase (casing already matches;
+    folding case would risk new conflation).  Root cause + referral
+    (verification-supervisor, 2026-09-07): the mismatch is asymmetric hyphen SPELLING
+    between the row key and the pred key, NOT regex truncation -- CASE_ID_RE already
+    captures the full hyphenated id.  Touches neither _row_case nor CASE_ID_RE."""
+    return s.replace("-", "")
+
+
 def build_repo_index(repo: Path, search_roots: list[Path]) -> RepoIndex:
     idx = RepoIndex()
     # successor-shaped case directories under cases/
@@ -518,7 +532,7 @@ def build_repo_index(repo: Path, search_roots: list[Path]) -> RepoIndex:
                         pm = CASE_ID_RE.search(l)
                         if pm:
                             idx.lineage_preds.setdefault(
-                                pm.group(1),
+                                _canon_lineage_id(pm.group(1)),  # canon KEY (see _canon_lineage_id); evidence keeps raw form
                                 f"registration {f.name} names it predecessor ({l.strip()[:80]})",
                             )
     # gate_*.json "supersedes" keys -- the one STRUCTURED lineage field in the repo
@@ -537,7 +551,8 @@ def build_repo_index(repo: Path, search_roots: list[Path]) -> RepoIndex:
                 pm = CASE_ID_RE.search(mo.group(1))
                 if pm:
                     idx.lineage_preds.setdefault(
-                        pm.group(1), f'gate JSON {jf.name} "supersedes":"{mo.group(1)}"'
+                        _canon_lineage_id(pm.group(1)),  # canon KEY (see _canon_lineage_id); evidence keeps raw form
+                        f'gate JSON {jf.name} "supersedes":"{mo.group(1)}"'
                     )
     return idx
 
@@ -570,7 +585,7 @@ def _find_lineage_successor(case: str, idx: RepoIndex) -> str | None:
     integrity fault the cross-team gate audit backstops, not something this check can
     detect.  What this reader does NOT do is trust a board or a prose mention -- only a
     registration or a gate JSON, gated in build_repo_index."""
-    ev = idx.lineage_preds.get(case)
+    ev = idx.lineage_preds.get(_canon_lineage_id(case))  # canon LOOKUP key -- symmetric with the store side
     return f"recorded-lineage successor -- {ev}" if ev else None
 
 
@@ -814,6 +829,15 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         f"| **16** | multi-letter T rung | **`NOT A RESULT`** | see {base.name}/T9aH_RESULTS.md |\n"
         f"| **17** | E-family rung       | **`GATE FAIL`**    | see {base.name}/E4a_RESULTS.md |\n"
         f"| **18** | E-family sibling    | **`GATE FAIL`**    | DISTINCT from E4a; see {base.name}/E4a2_RESULTS.md |\n"
+        # --- SYMMETRIC hyphen-canon lineage rows (2026-09-07) ---
+        # (row 19) ASYMMETRIC: row keys UN-hyphenated (T10aR) but its ONLY coverage is a
+        # registration whose Predecessor is HYPHENATED (`T10a-R`).  Symmetric canon clears
+        # it; RED (canon->identity) re-flags it.  (This is the real-repo T10aR @1179 case.)
+        "| **19** | **T10aR** | **`GATE FAIL`** | cleared ONLY by a HYPHENATED `Predecessor: T10a-R` registration |\n"
+        # (row 20) NO-REGRESSION: row AND pred both HYPHENATED (T10a-VF / `Predecessor:
+        # T10a-VF`).  MUST stay covered under the fix AND under the RED drive (identity canon
+        # still matches hyphen-to-hyphen) -- this is the exact class the one-sided strip broke.
+        "| **20** | **T10a-VF** | **`GATE FAIL`** | row hyphenated; cleared by `Predecessor: T10a-VF` (same spelling both sides) |\n"
     )
 
     # LIMB 2a: a registered successor directory for FIX003
@@ -876,6 +900,21 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         "Predecessor: **E4a**\n"
         "A next attempt on the E4a rung that re-runs against the same frozen gate.\n"
     )
+    # SYMMETRIC hyphen-canon (2026-09-07): ASYMMETRIC spelling -- HYPHENATED pred `T10a-R`
+    # clears the UN-hyphenated row T10aR (row 19).  Canon store+lookup makes them match.
+    (cases / "T10aR2_PREREGISTRATION.md").write_text(
+        "# T10aR2 pre-registration\n"
+        "Predecessor: `T10a-R` (explicit, for §2ay linkage).\n"
+        "A next attempt on the T10a-R rung that re-runs against the same frozen gate.\n"
+    )
+    # NO-REGRESSION: SAME hyphen spelling both sides -- HYPHENATED pred `T10a-VF` clears the
+    # HYPHENATED row T10a-VF (row 20).  Covered under the fix (canon-to-canon) AND under the
+    # RED identity drive (hyphen-to-hyphen) -- the class the one-sided strip broke.
+    (cases / "T10aVFx_PREREGISTRATION.md").write_text(
+        "# T10aVFx pre-registration\n"
+        "Predecessor: `T10a-VF` (explicit, for §2ay linkage).\n"
+        "A next attempt on the T10a-VF rung that re-runs against the same frozen gate.\n"
+    )
 
     # ---- SOURCE-SCOPING arm (2026-09-07): dafoam-specific token classes must fire ONLY in
     # dafoam sources.  Live defect fixed: heat-transfer §4.3 data-row labels B0/B2/B4/B6 in
@@ -921,7 +960,7 @@ def selftest() -> int:
     and BOTH red drives were seen to blind the checker; else 2.  Limbs: 1 (bare +
     mechanism-only fail flagged), 1c (dafoam-shaped ids enumerated), 2 (successor /
     discharged / gap-filing not flagged), 2d (recorded-lineage successor not flagged)."""
-    global _find_lineage_successor, _authoritative_case_from_results_file
+    global _find_lineage_successor, _authoritative_case_from_results_file, _canon_lineage_id
     global CASE_ID_RE, CASE_ID_ANCHORED_RE, CASE_ID_RE_NONDAFOAM
     print("=" * 78)
     print("PLANTED CONTROL -- §2ay.5 / rule 3.  Two limbs, RED-then-GREEN.")
@@ -956,6 +995,14 @@ def selftest() -> int:
         # successor, NO gap filing -- they are covered ONLY by recorded lineage.
         lineage_cases = {"FIX006", "FIX008"}
         lineage_ok = lineage_cases.isdisjoint(flagged) and lineage_cases <= covered
+        # LIMB 2d-hyphen (2026-09-07, SYMMETRIC canon):
+        #  (i) ASYMMETRIC: un-hyphenated row T10aR cleared by HYPHENATED pred `T10a-R`.
+        #  (ii) NO-REGRESSION: same-spelling row T10a-VF cleared by HYPHENATED pred `T10a-VF`
+        #       -- MUST also stay covered (the class the one-sided strip broke).
+        hyphen_case = "T10aR"
+        noregress_case = "T10a-VF"
+        hyphen_ok = (hyphen_case in covered) and (hyphen_case not in flagged)
+        noregress_ok = (noregress_case in covered) and (noregress_case not in flagged)
         # LIMB 1c: dafoam-shaped ids MUST be ENUMERATED (extracted, not dropped to the
         # unparsed channel) -- proving the CASE_ID_RE G-/D/SO branches.  They carry no
         # successor so they are ALSO flagged; the assertion is that they were SEEN.
@@ -1026,6 +1073,16 @@ def selftest() -> int:
             r = by_case.get(c)
             if r:
                 print(f"      {c}: flagged={r.flagged}  state=({r.coverage.state}) {r.coverage.evidence}")
+        print(f"  LIMB 2d-hyphen (SYMMETRIC canon: hyphenated pred clears both un-hyphenated "
+              f"{hyphen_case} AND same-spelling {noregress_case}): "
+              f"{'GREEN' if (hyphen_ok and noregress_ok) else 'FAILED'}  "
+              f"[T10aR cleared={hyphen_ok}, T10a-VF no-regression={noregress_ok}]")
+        for c in [hyphen_case, noregress_case]:
+            r = by_case.get(c)
+            if r:
+                print(f"      {c}: flagged={r.flagged}  state=({r.coverage.state}) {r.coverage.evidence}")
+            else:
+                print(f"      {c}: MISSING (not enumerated)")
         print(f"  LIMB 1c (dafoam ids {sorted(dafoam_ids)} enumerated): "
               f"{'GREEN' if dafoam_enumerated else 'FAILED'}  "
               f"[all flagged (no successor): {'yes' if dafoam_flagged else 'NO'}]")
@@ -1181,11 +1238,35 @@ def selftest() -> int:
         print(f"  SOURCE-GATE is load-bearing (the under-flag returns when removed): "
               f"{'YES' if srcscope_red_ok else 'NO'}")
 
-        both_green = (limb1_ok and mech_ok and limb2_ok and lineage_ok
+        # ---------- RED-6: cripple ONLY the lineage-id canonicalization (canon -> identity) ----------
+        # Proves the SYMMETRIC canon is load-bearing for the asymmetric case AND does not
+        # break the same-spelling case (§28.8).  With _canon_lineage_id reverted to identity:
+        #  - the un-hyphenated row T10aR no longer matches the hyphenated pred `T10a-R` (edge
+        #    stored raw `T10a-R`, lookup raw `T10aR`) -> T10aR RE-FLAGS (load-bearing);
+        #  - the same-spelling row T10a-VF still matches its `T10a-VF` pred hyphen-to-hyphen
+        #    -> STAYS COVERED (proving the canon is not what covered it, so symmetric canon
+        #    introduces NO regression on same-hyphenation rows -- the class the one-sided
+        #    strip broke).
+        _saved_canon = _canon_lineage_id
+        _canon_lineage_id = lambda s: s
+        try:
+            red6_results, _ = scan(sources, base, roots)
+        finally:
+            _canon_lineage_id = _saved_canon
+        red6_flagged = {r.row.case for r in red6_results if r.flagged}
+        hyphen_red_ok = hyphen_case in red6_flagged            # asymmetric row re-flags
+        noregress_red_ok = noregress_case not in red6_flagged  # same-spelling row unaffected
+        print(f"\nRED-6 run (ONLY the lineage-id canonicalization crippled to identity):")
+        print(f"  asymmetric {hyphen_case} re-flags: {'YES' if hyphen_red_ok else 'NO'}  "
+              f"(canon is load-bearing)")
+        print(f"  same-spelling {noregress_case} STAYS covered: {'YES' if noregress_red_ok else 'NO'}  "
+              f"(symmetric canon introduces no regression)")
+
+        both_green = (limb1_ok and mech_ok and limb2_ok and lineage_ok and hyphen_ok and noregress_ok
                       and dafoam_enumerated and fnfirst_ok and dafoam_nofire_ok and recog_ok
                       and srcscope_ok)
         red_ok = (red_blinded and lineage_red_ok and fnfirst_red_ok and recog_red_ok
-                  and srcscope_red_ok)
+                  and srcscope_red_ok and hyphen_red_ok and noregress_red_ok)
         print("\n" + "=" * 78)
         if both_green and red_ok:
             print("PLANT VERDICT: BOTH LIMBS FIRED GREEN, AND THE RED DRIVE BLINDED THE CHECKER.")
@@ -1196,13 +1277,15 @@ def selftest() -> int:
             return 0
         print("PLANT VERDICT: REFUSED -- the planted control did NOT fire as required.")
         print(f"  all limbs GREEN: {both_green}  (limb1={limb1_ok} mech={mech_ok} "
-              f"limb2={limb2_ok} lineage={lineage_ok} dafoam-enum={dafoam_enumerated} "
+              f"limb2={limb2_ok} lineage={lineage_ok} hyphen={hyphen_ok} noregress={noregress_ok} "
+              f"dafoam-enum={dafoam_enumerated} "
               f"fnfirst={fnfirst_ok} dafoam-nofire={dafoam_nofire_ok} recog={recog_ok} "
               f"srcscope={srcscope_ok})")
         print(f"  all RED drives blinded checker: {red_ok}  "
               f"(whole-coverage={red_blinded} lineage-only={lineage_red_ok} "
               f"filename-first-only={fnfirst_red_ok} recogniser-body={recog_red_ok} "
-              f"source-gate={srcscope_red_ok})")
+              f"source-gate={srcscope_red_ok} hyphen-canon={hyphen_red_ok} "
+              f"noregress={noregress_red_ok})")
         print("A checker whose plant does not fire prints NO admissible zero (rule 3).")
         print("=" * 78)
         return 2
