@@ -1,0 +1,1035 @@
+{
+  "rung": "F27-WOMERSLEY-PIPE-3D-NUMERICS-SUCCESSOR",
+  "prereg_commit": "6aabb3c1",
+  "prereg": "verification/campaign/F27_NUMERICS_SUCCESSOR_PREREGISTRATION.md",
+  "capability_cell": "3D . unsteady . incompressible",
+  "assert_census": {
+    "files_checked": 5,
+    "assert_nodes": 0,
+    "planted_assert_seen": true
+  },
+  "controls": [
+    {
+      "control": "symbolic_substitution_into_unsteady_axisymmetric_axial_momentum",
+      "residual": "0",
+      "numeric_residual_max": 2.7755575615628914e-16,
+      "wall_value_max": 0.0,
+      "alpha": 4.0,
+      "nu": 0.39269908169872414,
+      "passed": true
+    },
+    {
+      "control": "PZ-F27-LAMBDA_planted_1.1lambda_must_be_nonzero_symbolically_and_numerically",
+      "planted_factor": 1.1,
+      "residual_is_zero": false,
+      "max_profile_shift": 0.008718306168361611,
+      "passed": true
+    },
+    {
+      "control": "PZ-F27-BESSEL_scipy_vs_mpmath_and_J0_i32_form_with_planted_order",
+      "scipy_vs_mpmath_rel": 4.011800717075927e-16,
+      "J0_form_rel": 0.0,
+      "planted_order_shift": 1.0,
+      "passed": true
+    },
+    {
+      "control": "constant_ratio_refinement_h_dt_and_model_nr_recipe_fixed_no_grading_anywhere",
+      "h_ratios": [
+        1.9999999999999998,
+        2.0
+      ],
+      "dt_ratios": [
+        2.0,
+        2.0
+      ],
+      "cell_ratios": [
+        8.0,
+        8.0
+      ],
+      "model_nr_ratios": [
+        2.0,
+        2.0
+      ],
+      "grading": "simpleGrading (1 1 1) in every block at every level; no first-cell or expansion parameter exists, so MESH_STANDARD 9.2's branch-flip hazard cannot arise",
+      "passed": true
+    },
+    {
+      "control": "model_second_order_and_sees_planted_wall_and_axis_stencil_defects",
+      "model_orders": {
+        "E2": 1.9734109752016487,
+        "W": 1.8495366663386241
+      },
+      "planted_wall_E2": 0.7429586674915024,
+      "planted_axis_E2": 0.13762396371302266,
+      "clean_E2": 0.004732635985609876,
+      "courant_max": 0.01815338957314327,
+      "passed": true
+    },
+    {
+      "control": "PZ-F27-L345_model_triples_through_the_grading_classifier_with_a_degenerate_positive_control",
+      "dim": 3,
+      "gated": [
+        "E2",
+        "Einf"
+      ],
+      "reported_not_gated": [
+        "W_reported_not_gated"
+      ],
+      "states": {
+        "E2": "CONVERGING",
+        "Einf": "CONVERGING",
+        "W_reported_not_gated": "CONVERGING"
+      },
+      "orders": {
+        "E2": 1.9665866557609468,
+        "Einf": 1.8194197018869513,
+        "W_reported_not_gated": 2.034289898307109
+      },
+      "GCI_pct": {
+        "E2": 128.17169666326495,
+        "Einf": 139.0304762734331,
+        "W_reported_not_gated": 0.028302750014538264
+      },
+      "r21": 2.0,
+      "r32": 2.0,
+      "degenerate_positive_control": "DEGENERATE",
+      "passed": true
+    },
+    {
+      "control": "PZ-F27-L346_every_floor_derived_from_THIS_ladders_predicted_fine_error",
+      "inherited_from_a_coarser_ladder": "nothing: N_PERIODS, STEPS_PER_PERIOD, both plateau tolerances and both solver tolerances are set here",
+      "checks": [
+        {
+          "tolerance": "PERIOD_TOL",
+          "value": 1e-06,
+          "window": [
+            7.283864521018128e-07,
+            3.0263693766809143e-05
+          ],
+          "model_worst_change": 7.283864521018128e-08,
+          "predicted_fine_error": 0.0003026369376680914
+        },
+        {
+          "tolerance": "W_PERIOD_TOL",
+          "value": 2e-06,
+          "window": [
+            6.064346678902637e-07,
+            2.798440712902941e-05
+          ],
+          "model_worst_change": 6.064346678902638e-08,
+          "predicted_fine_error": 0.0002798440712902941
+        },
+        {
+          "tolerance": "iterative_floor_bound",
+          "value": 2.688e-07,
+          "window": [
+            0.0,
+            3.0263693766809143e-05
+          ],
+          "basis": "steps_fine x max(p_tol, U_tol): a per-step final residual can move the graded quantity by at most that much, and the bound assumes NO cancellation over steps"
+        }
+      ],
+      "n_periods": 5,
+      "measured_transient_decay_at_fine": [
+        4.158663961406668e-05,
+        4.275167367504829e-06,
+        4.409406704868839e-07,
+        4.547861057597041e-08,
+        4.6906626855259015e-09
+      ],
+      "decay_first_over_last": 8865.834617012995,
+      "passed": true
+    },
+    {
+      "control": "diffusion_number_registered_with_the_F21_failure_recorded_beside_it",
+      "Fo": {
+        "coarse": 0.44178646691106466,
+        "medium": 0.8835729338221293,
+        "fine": 1.7671458676442586
+      },
+      "Fo_ceiling": 5.0,
+      "Fo_doubling_ratios": [
+        2.0,
+        2.0
+      ],
+      "Courant": {
+        "coarse": 0.018135256918837758,
+        "medium": 0.018149751059126,
+        "fine": 0.01815338957314327
+      },
+      "F21_fine_Fo_that_diverged": 42.89,
+      "F22_fine_Fo_that_passed": 0.59,
+      "mechanism_claim": "NONE: Fo is the measured distinguishing group, not a demonstrated cause (cfd-supervisor triage 2026-08-27, held to explicitly)",
+      "uniformity_tolerances": {
+        "coarse": 0.0004732635985609876,
+        "medium": 0.00012051669252831151,
+        "fine": 3.0263693766809143e-05
+      },
+      "passed": true
+    },
+    {
+      "control": "same_stencil_reference_registered_as_numbers_and_converging_at_order_2",
+      "references": {
+        "coarse": 0.64982005876099,
+        "medium": 0.644677639755022,
+        "fine": 0.643390292465464
+      },
+      "state": "CONVERGING",
+      "order": 1.9980458622075505,
+      "continuum_bulk_mean": 0.6429610302390971,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "control": "PZ-F27-GRADE_LADDER_CALLSITE_ast_census_plus_grep_both_ways",
+      "ast_call_nodes": [
+        1053
+      ],
+      "passed": true
+    },
+    {
+      "control": "successor_solver_dictionaries_agree_with_registration_and_reject_the_parent_method",
+      "method_source": {
+        "changed_dicts_from": "/home/ubuntu/Certonomous/cases/F27_WOMERSLEY_PIPE/successor_numerics/system",
+        "unchanged_dicts_from": "/home/ubuntu/Certonomous/cases/F27_WOMERSLEY_PIPE/case"
+      },
+      "nu": 0.39269908169872414,
+      "p_tol": 1e-10,
+      "U_tol": 1e-12,
+      "endTime": 5.25,
+      "ddt": "backward",
+      "laplacian": "Gauss linear limited 0.5",
+      "snGrad": "limited 0.5",
+      "gradient": "cellLimited Gauss linear 1",
+      "nNonOrthogonalCorrectors": 3,
+      "div_phi_U": "Gauss linear (parent, unchanged; a bounded divergence is a separate future successor)",
+      "drive": "cosine f=1 A=1 z-hat, specific, all",
+      "decomposition": "simple (1 1 4)",
+      "passed": true
+    },
+    {
+      "control": "reader_parses_real_solver_written_U_on_this_box",
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL019/L1_30/5/U",
+      "cells": 120,
+      "passed": true
+    },
+    {
+      "control": "PZ-F27-READERS_zero_on_the_exact_field_and_four_planted_defects_each_seen_by_its_own_channel_and_no_other",
+      "readings": {
+        "clean": {
+          "E2": 0.0,
+          "Einf": 0.0,
+          "W": 0.6512835589736095,
+          "E_perp": 0.0,
+          "A_z": 0.0,
+          "A_theta": 0.0
+        },
+        "radial": {
+          "E2": 0.0005794485946727744,
+          "Einf": 0.0009930555555555842,
+          "W": 0.651790503418054,
+          "E_perp": 0.0,
+          "A_z": 0.0,
+          "A_theta": 0.0
+        },
+        "axial": {
+          "E2": 0.0007071067811865611,
+          "Einf": 0.0007071067811865962,
+          "W": 0.6512835589736096,
+          "E_perp": 0.0,
+          "A_z": 0.0007071067811865612,
+          "A_theta": 0.0
+        },
+        "azimuthal": {
+          "E2": 0.000707106781186556,
+          "Einf": 0.0009876883405961923,
+          "W": 0.6512835589736097,
+          "E_perp": 0.0,
+          "A_z": 0.0,
+          "A_theta": 0.001000000000000012
+        },
+        "crossflow": {
+          "E2": 0.001,
+          "Einf": 0.0,
+          "W": 0.6512835589736095,
+          "E_perp": 0.001,
+          "A_z": 0.0,
+          "A_theta": 0.0
+        }
+      },
+      "azimuthal_plant_wavenumber": 3,
+      "declared_blind_spot": "A_theta reads exactly zero on any D4-invariant azimuthal mode (wavenumber 4k), which is why the plant is wavenumber 3; that class of error is carried in full by G-F27-1 and G-F27-2, which have no null space",
+      "passed": true
+    },
+    {
+      "control": "PZ-F27-PERIODICITY_AND_UNIFORMITY_driven_both_ways_with_a_planted_change_and_planted_axial_and_azimuthal_modes",
+      "identical_fields": 0.0,
+      "planted_change": 0.007753450669059642,
+      "expected_planted": 0.00775345066905961,
+      "uniformity_tolerances": {
+        "coarse": 0.0004732635985609876,
+        "medium": 0.00012051669252831151,
+        "fine": 3.0263693766809143e-05
+      },
+      "model_worst_period_change": 7.283864521018128e-08,
+      "passed": true
+    },
+    {
+      "control": "PZ-F27-ITERATIVE_census_flags_one_bad_p_and_one_bad_Uz_reading",
+      "clean": "CONVERGED",
+      "bad_p": "NOT_CONVERGED_1_READINGS_ABOVE_TOL",
+      "bad_Uz": "NOT_CONVERGED_1_READINGS_ABOVE_TOL",
+      "passed": true
+    },
+    {
+      "control": "PZ-F27-L342_infrastructure_vs_physics_fields_driven_both_ways_incl_age_guard",
+      "infrastructure_deleted": "verdict channel unchanged, cost claim refused, defect lines printed",
+      "physics_corrupted": "NOT A RESULT",
+      "age_guard": "tripped by a stale endTime field",
+      "passed": true
+    }
+  ],
+  "gate_demonstration": [
+    {
+      "gate": "G-F27R-1_E2_velocity_locked_phase",
+      "construction": "exact(T) + 0.0005231 x a smooth radial error field",
+      "value": 0.0003026369376680809,
+      "band": [
+        6.052738753361828e-05,
+        0.001513184688340457
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F27R-2_Einf_axial_velocity_locked_phase",
+      "construction": "exact(T) + 0.0005231 x a smooth radial error field",
+      "value": 0.0005210904271202719,
+      "band": [
+        0.00011397841172247245,
+        0.002849460293061811
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F27R-1_E2_velocity_locked_phase",
+      "construction": "exact(T) + 0.02093 x a smooth radial error field",
+      "value": 0.012105477506723656,
+      "band": [
+        6.052738753361828e-05,
+        0.001513184688340457
+      ],
+      "inside": false,
+      "intended": "outside"
+    },
+    {
+      "gate": "G-F27R-2_Einf_axial_velocity_locked_phase",
+      "construction": "exact(T) + 0.02093 x a smooth radial error field",
+      "value": 0.020843617084809828,
+      "band": [
+        0.00011397841172247245,
+        0.002849460293061811
+      ],
+      "inside": false,
+      "intended": "outside"
+    }
+  ],
+  "write_path": "OpenFOAM ascii volVectorField `U` at a write time inside a processor<k>/<t>/ directory: `internalField nonuniform List<vector>` NEWLINE N NEWLINE `(` one `(ux uy uz)` per line `)`; volVectorField `C` and volScalarField `V` in processor<k>/0/ written by `postProcess -func writeCellCentres` and `-func writeCellVolumes` before decomposePar; pinned against REAL solver output on this box, verification/runs/ansys_verification/VMFL019/L1_30/5/U, parsed at selftest.",
+  "cap_core_min": 625.0,
+  "field_classes": {
+    "PHYSICS_CRITICAL": [
+      "log.pimpleFoam `End` line and `Time =` count (fixed-deltaT identity)",
+      "RC.txt (solver rc, written by the launcher in the shell that ran the solver)",
+      "processor*/<endTime>/U and p present in every one of the RANKS directories and NEWER than the serial 0/U (age guard)",
+      "processor*/<endTime - PERIOD>/U present (the periodicity limb)",
+      "processor*/0/C cell centres and processor*/0/V cell volumes (every gate quantity is undefined without them)",
+      "every time step's final Ux, Uy, Uz and p residual in log.pimpleFoam (rule 5 limb 1 census)"
+    ],
+    "INFRASTRUCTURE": [
+      "ClockTime in log.pimpleFoam (cost actual)",
+      "box_before.txt / box_after.txt",
+      "MESH_LINE.txt (the mesh gate reading and the MESH_STANDARD 9.2 grading read-back)",
+      "STATUS.* / launcher.queue.out / LAUNCH_LOG rows written by a queue runner",
+      "calibration figures derived from any of the above"
+    ]
+  },
+  "cost_claim": {
+    "fields": "INFRASTRUCTURE",
+    "core_min_claim": 417.6666666666667,
+    "partial_sum_core_min": 417.6666666666667,
+    "cap_core_min": 625.0,
+    "defects": [],
+    "note": "ClockTime x 4 ranks / 60; dollars at $0.0513/core-h DERIVED, NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5: the box cannot read its own billing)"
+  },
+  "rows": [
+    {
+      "quantity": "G-F27R-1_E2_velocity_locked_phase",
+      "dim": 3,
+      "fs": 1.25,
+      "value": 0.0007285879634110018,
+      "reference": 0.0,
+      "band": [
+        6.052738753361828e-05,
+        0.001513184688340457
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 3840,
+          "value": 0.007649837768717366
+        },
+        {
+          "name": "medium",
+          "cells": 30720,
+          "value": 0.0020620229128663656
+        },
+        {
+          "name": "fine",
+          "cells": 245760,
+          "value": 0.0007285879634110018
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 2.0671367740336732,
+          "dim": 3,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.007649837768717366,
+            0.0020620229128663656,
+            0.0007285879634110018
+          ],
+          "cells": [
+            3840,
+            30720,
+            245760
+          ],
+          "e21": 0.0013334349494553638,
+          "e32": 0.005587814855851001,
+          "GCI_pct": 71.70268515804656,
+          "GCI_abs": 0.0005224171335040142,
+          "richardson": 0.0003106542566077905,
+          "richardson_parent_convention": 0.0011465216702142133
+        }
+      ],
+      "orders": [
+        2.0671367740336732
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.006580960175274278,
+        "read_back_delta": 0.006580960175274305,
+        "reader_delta": 0.006580960175274305,
+        "reader": "e2_of",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/fine/processor*/5.25/U",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "coarse/uniformity": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "medium/uniformity": "PLATEAUED",
+        "fine": "PLATEAUED",
+        "fine/uniformity": "PLATEAUED"
+      },
+      "verdict": "PASS",
+      "order": 2.0671367740336732,
+      "GCI_pct": 71.70268515804656,
+      "GCI_abs": 0.0005224171335040142,
+      "richardson": 0.0003106542566077905,
+      "richardson_parent_convention": 0.0011465216702142133,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 3, observed order 2.0671, GCI 71.7027 % = 0.000522417 absolute at Fs = 1.25",
+      "gate": "G-F27R-1_E2_velocity_locked_phase",
+      "band_principle": "COMPOSITE discretisation-model prediction E2 = 3.026369377e-04 at the FINE level (radial cells 48, dt = 0.00195312, wall at the radius of the circle with the built mesh's own cross-sectional area R_eff = 0.999799206), times [1/5, 5]",
+      "model_prediction_at_fine": 0.0003026369376680914,
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "present": true,
+          "done": true,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/coarse/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 672,
+            "latest": 5.25,
+            "dt": 0.0078125,
+            "done": true,
+            "why": "rc 0; End; latest + dt > endTime; 672 `Time` lines == endTime/dt; U, p at endTime newer than 0/U in all 4 processor directories; U at endTime - PERIOD present; 0/C and 0/V present"
+          },
+          "cells": 3840,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/coarse/processor*/5.25/U",
+          "E2": 0.007649837768717366,
+          "Einf": 0.011936366142236239,
+          "W": 0.6425603656272163,
+          "E_perp": 4.375898098651546e-15,
+          "A_z": 2.528336727206746e-14,
+          "A_theta": 2.347385484924073e-12,
+          "W_ref_mesh": 0.64982005876099,
+          "W_minus_ref": -0.007259693133773726,
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p, Ux, Uy and Uz residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 5376,
+              "Ux": 672,
+              "Uy": 672,
+              "Uz": 672
+            },
+            "tolerances": {
+              "p": 1e-10,
+              "Ux": 1e-12,
+              "Uy": 1e-12,
+              "Uz": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0,
+              "Uy": 0,
+              "Uz": 0
+            },
+            "worst": {
+              "p": 9.99938894312e-11,
+              "Ux": 9.99128561953e-13,
+              "Uy": 9.9949653803e-13,
+              "Uz": 9.99982251527e-13
+            }
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2,V / U_REF over every cell",
+            "change": 1.5873714200693642e-07,
+            "tolerance": 1e-06
+          },
+          "uniformity": "PLATEAUED",
+          "uniformity_detail": {
+            "basis": "A_z (each cell against its own z-column mean) and A_theta (each cell against its image under the mesh's exact 90-degree rotation), both volume weighted / U_REF",
+            "A_z": 2.528336727206746e-14,
+            "A_theta": 2.347385484924073e-12,
+            "tolerance": 0.0004732635985609876,
+            "tolerance_basis": "exact_f27.UNIFORMITY_FRACTION x this level's predicted E2"
+          }
+        },
+        {
+          "name": "medium",
+          "present": true,
+          "done": true,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/medium/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 1344,
+            "latest": 5.25,
+            "dt": 0.00390625,
+            "done": true,
+            "why": "rc 0; End; latest + dt > endTime; 1344 `Time` lines == endTime/dt; U, p at endTime newer than 0/U in all 4 processor directories; U at endTime - PERIOD present; 0/C and 0/V present"
+          },
+          "cells": 30720,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/medium/processor*/5.25/U",
+          "E2": 0.0020620229128663656,
+          "Einf": 0.006420554980443741,
+          "W": 0.6428406052003023,
+          "E_perp": 2.6731799061398068e-14,
+          "A_z": 1.7595943765233335e-13,
+          "A_theta": 3.8802411809222205e-12,
+          "W_ref_mesh": 0.644677639755022,
+          "W_minus_ref": -0.0018370345547197298,
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p, Ux, Uy and Uz residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 10752,
+              "Ux": 1344,
+              "Uy": 1344,
+              "Uz": 1344
+            },
+            "tolerances": {
+              "p": 1e-10,
+              "Ux": 1e-12,
+              "Uy": 1e-12,
+              "Uz": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0,
+              "Uy": 0,
+              "Uz": 0
+            },
+            "worst": {
+              "p": 9.99982738748e-11,
+              "Ux": 9.98239467921e-13,
+              "Uy": 9.99162820947e-13,
+              "Uz": 9.99756684557e-13
+            }
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2,V / U_REF over every cell",
+            "change": 6.898287951690669e-08,
+            "tolerance": 1e-06
+          },
+          "uniformity": "PLATEAUED",
+          "uniformity_detail": {
+            "basis": "A_z (each cell against its own z-column mean) and A_theta (each cell against its image under the mesh's exact 90-degree rotation), both volume weighted / U_REF",
+            "A_z": 1.7595943765233335e-13,
+            "A_theta": 3.8802411809222205e-12,
+            "tolerance": 0.00012051669252831151,
+            "tolerance_basis": "exact_f27.UNIFORMITY_FRACTION x this level's predicted E2"
+          }
+        },
+        {
+          "name": "fine",
+          "present": true,
+          "done": true,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/fine/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 2688,
+            "latest": 5.25,
+            "dt": 0.001953125,
+            "done": true,
+            "why": "rc 0; End; latest + dt > endTime; 2688 `Time` lines == endTime/dt; U, p at endTime newer than 0/U in all 4 processor directories; U at endTime - PERIOD present; 0/C and 0/V present"
+          },
+          "cells": 245760,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/fine/processor*/5.25/U",
+          "E2": 0.0007285879634110018,
+          "Einf": 0.004136254537709814,
+          "W": 0.642924864618285,
+          "E_perp": 3.70341194661724e-13,
+          "A_z": 5.007854504214429e-13,
+          "A_theta": 1.6304410701870858e-11,
+          "W_ref_mesh": 0.643390292465464,
+          "W_minus_ref": -0.00046542784717895636,
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p, Ux, Uy and Uz residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 21504,
+              "Ux": 2688,
+              "Uy": 2688,
+              "Uz": 2688
+            },
+            "tolerances": {
+              "p": 1e-10,
+              "Ux": 1e-12,
+              "Uy": 1e-12,
+              "Uz": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0,
+              "Uy": 0,
+              "Uz": 0
+            },
+            "worst": {
+              "p": 9.99990907545e-11,
+              "Ux": 9.994684078e-13,
+              "Uy": 9.99008390097e-13,
+              "Uz": 9.97230115432e-13
+            }
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2,V / U_REF over every cell",
+            "change": 3.190114121010223e-08,
+            "tolerance": 1e-06
+          },
+          "uniformity": "PLATEAUED",
+          "uniformity_detail": {
+            "basis": "A_z (each cell against its own z-column mean) and A_theta (each cell against its image under the mesh's exact 90-degree rotation), both volume weighted / U_REF",
+            "A_z": 5.007854504214429e-13,
+            "A_theta": 1.6304410701870858e-11,
+            "tolerance": 3.0263693766809143e-05,
+            "tolerance_basis": "exact_f27.UNIFORMITY_FRACTION x this level's predicted E2"
+          }
+        }
+      ],
+      "plateau_note": "two plateau-class limbs, both measured at every level: PERIODICITY (||U(T) - U(T-T)||_2,V / U_REF <= 1e-06) and UNIFORMITY (A_z and A_theta <= 0.1 x that level's own predicted E2) -- the second is the instrument that would have caught F21_WOMERSLEY's wall-localized mode directly",
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    },
+    {
+      "quantity": "G-F27R-2_Einf_axial_velocity_locked_phase",
+      "dim": 3,
+      "fs": 1.25,
+      "value": 0.004136254537709814,
+      "reference": 0.0,
+      "band": [
+        0.00011397841172247245,
+        0.002849460293061811
+      ],
+      "band_verdict": "GATE FAIL",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 3840,
+          "value": 0.011936366142236239
+        },
+        {
+          "name": "medium",
+          "cells": 30720,
+          "value": 0.006420554980443741
+        },
+        {
+          "name": "fine",
+          "cells": 245760,
+          "value": 0.004136254537709814
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 1.2718206521583209,
+          "dim": 3,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.011936366142236239,
+            0.006420554980443741,
+            0.004136254537709814
+          ],
+          "cells": [
+            3840,
+            30720,
+            245760
+          ],
+          "e21": 0.002284300442733927,
+          "e32": 0.005515811161792498,
+          "GCI_pct": 48.7981776152905,
+          "GCI_abs": 0.002018416835932148,
+          "richardson": 0.0025215210689640954,
+          "richardson_parent_convention": 0.005750988006455533
+        }
+      ],
+      "orders": [
+        1.2718206521583209
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.0050731353464567265,
+        "read_back_delta": 0.0050731353464567195,
+        "reader_delta": 0.0050731353464567195,
+        "reader": "einf_of",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/fine/processor*/5.25/U",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "coarse/uniformity": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "medium/uniformity": "PLATEAUED",
+        "fine": "PLATEAUED",
+        "fine/uniformity": "PLATEAUED"
+      },
+      "verdict": "GATE FAIL",
+      "order": 1.2718206521583209,
+      "GCI_pct": 48.7981776152905,
+      "GCI_abs": 0.002018416835932148,
+      "richardson": 0.0025215210689640954,
+      "richardson_parent_convention": 0.005750988006455533,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 3, observed order 1.2718, GCI 48.7982 % = 0.00201842 absolute at Fs = 1.25",
+      "gate": "G-F27R-2_Einf_axial_velocity_locked_phase",
+      "band_principle": "COMPOSITE discretisation-model prediction Einf = 5.698920586e-04 at the FINE level (same model, max over the model's radial cells), times [1/5, 5]",
+      "model_prediction_at_fine": 0.0005698920586123623,
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "present": true,
+          "done": true,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/coarse/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 672,
+            "latest": 5.25,
+            "dt": 0.0078125,
+            "done": true,
+            "why": "rc 0; End; latest + dt > endTime; 672 `Time` lines == endTime/dt; U, p at endTime newer than 0/U in all 4 processor directories; U at endTime - PERIOD present; 0/C and 0/V present"
+          },
+          "cells": 3840,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/coarse/processor*/5.25/U",
+          "E2": 0.007649837768717366,
+          "Einf": 0.011936366142236239,
+          "W": 0.6425603656272163,
+          "E_perp": 4.375898098651546e-15,
+          "A_z": 2.528336727206746e-14,
+          "A_theta": 2.347385484924073e-12,
+          "W_ref_mesh": 0.64982005876099,
+          "W_minus_ref": -0.007259693133773726,
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p, Ux, Uy and Uz residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 5376,
+              "Ux": 672,
+              "Uy": 672,
+              "Uz": 672
+            },
+            "tolerances": {
+              "p": 1e-10,
+              "Ux": 1e-12,
+              "Uy": 1e-12,
+              "Uz": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0,
+              "Uy": 0,
+              "Uz": 0
+            },
+            "worst": {
+              "p": 9.99938894312e-11,
+              "Ux": 9.99128561953e-13,
+              "Uy": 9.9949653803e-13,
+              "Uz": 9.99982251527e-13
+            }
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2,V / U_REF over every cell",
+            "change": 1.5873714200693642e-07,
+            "tolerance": 1e-06
+          },
+          "uniformity": "PLATEAUED",
+          "uniformity_detail": {
+            "basis": "A_z (each cell against its own z-column mean) and A_theta (each cell against its image under the mesh's exact 90-degree rotation), both volume weighted / U_REF",
+            "A_z": 2.528336727206746e-14,
+            "A_theta": 2.347385484924073e-12,
+            "tolerance": 0.0004732635985609876,
+            "tolerance_basis": "exact_f27.UNIFORMITY_FRACTION x this level's predicted E2"
+          }
+        },
+        {
+          "name": "medium",
+          "present": true,
+          "done": true,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/medium/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 1344,
+            "latest": 5.25,
+            "dt": 0.00390625,
+            "done": true,
+            "why": "rc 0; End; latest + dt > endTime; 1344 `Time` lines == endTime/dt; U, p at endTime newer than 0/U in all 4 processor directories; U at endTime - PERIOD present; 0/C and 0/V present"
+          },
+          "cells": 30720,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/medium/processor*/5.25/U",
+          "E2": 0.0020620229128663656,
+          "Einf": 0.006420554980443741,
+          "W": 0.6428406052003023,
+          "E_perp": 2.6731799061398068e-14,
+          "A_z": 1.7595943765233335e-13,
+          "A_theta": 3.8802411809222205e-12,
+          "W_ref_mesh": 0.644677639755022,
+          "W_minus_ref": -0.0018370345547197298,
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p, Ux, Uy and Uz residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 10752,
+              "Ux": 1344,
+              "Uy": 1344,
+              "Uz": 1344
+            },
+            "tolerances": {
+              "p": 1e-10,
+              "Ux": 1e-12,
+              "Uy": 1e-12,
+              "Uz": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0,
+              "Uy": 0,
+              "Uz": 0
+            },
+            "worst": {
+              "p": 9.99982738748e-11,
+              "Ux": 9.98239467921e-13,
+              "Uy": 9.99162820947e-13,
+              "Uz": 9.99756684557e-13
+            }
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2,V / U_REF over every cell",
+            "change": 6.898287951690669e-08,
+            "tolerance": 1e-06
+          },
+          "uniformity": "PLATEAUED",
+          "uniformity_detail": {
+            "basis": "A_z (each cell against its own z-column mean) and A_theta (each cell against its image under the mesh's exact 90-degree rotation), both volume weighted / U_REF",
+            "A_z": 1.7595943765233335e-13,
+            "A_theta": 3.8802411809222205e-12,
+            "tolerance": 0.00012051669252831151,
+            "tolerance_basis": "exact_f27.UNIFORMITY_FRACTION x this level's predicted E2"
+          }
+        },
+        {
+          "name": "fine",
+          "present": true,
+          "done": true,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/fine/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 2688,
+            "latest": 5.25,
+            "dt": 0.001953125,
+            "done": true,
+            "why": "rc 0; End; latest + dt > endTime; 2688 `Time` lines == endTime/dt; U, p at endTime newer than 0/U in all 4 processor directories; U at endTime - PERIOD present; 0/C and 0/V present"
+          },
+          "cells": 245760,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F27_NUMERICS_SUCCESSOR_R2_runs/fine/processor*/5.25/U",
+          "E2": 0.0007285879634110018,
+          "Einf": 0.004136254537709814,
+          "W": 0.642924864618285,
+          "E_perp": 3.70341194661724e-13,
+          "A_z": 5.007854504214429e-13,
+          "A_theta": 1.6304410701870858e-11,
+          "W_ref_mesh": 0.643390292465464,
+          "W_minus_ref": -0.00046542784717895636,
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p, Ux, Uy and Uz residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 21504,
+              "Ux": 2688,
+              "Uy": 2688,
+              "Uz": 2688
+            },
+            "tolerances": {
+              "p": 1e-10,
+              "Ux": 1e-12,
+              "Uy": 1e-12,
+              "Uz": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0,
+              "Uy": 0,
+              "Uz": 0
+            },
+            "worst": {
+              "p": 9.99990907545e-11,
+              "Ux": 9.994684078e-13,
+              "Uy": 9.99008390097e-13,
+              "Uz": 9.97230115432e-13
+            }
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2,V / U_REF over every cell",
+            "change": 3.190114121010223e-08,
+            "tolerance": 1e-06
+          },
+          "uniformity": "PLATEAUED",
+          "uniformity_detail": {
+            "basis": "A_z (each cell against its own z-column mean) and A_theta (each cell against its image under the mesh's exact 90-degree rotation), both volume weighted / U_REF",
+            "A_z": 5.007854504214429e-13,
+            "A_theta": 1.6304410701870858e-11,
+            "tolerance": 3.0263693766809143e-05,
+            "tolerance_basis": "exact_f27.UNIFORMITY_FRACTION x this level's predicted E2"
+          }
+        }
+      ],
+      "plateau_note": "two plateau-class limbs, both measured at every level: PERIODICITY (||U(T) - U(T-T)||_2,V / U_REF <= 1e-06) and UNIFORMITY (A_z and A_theta <= 0.1 x that level's own predicted E2) -- the second is the instrument that would have caught F21_WOMERSLEY's wall-localized mode directly",
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    }
+  ],
+  "reported_not_gated": [
+    {
+      "quantity": "R-F27-W_bulk_mean_axial_velocity",
+      "verdict": null,
+      "values": {
+        "coarse": 0.6425603656272163,
+        "medium": 0.6428406052003023,
+        "fine": 0.642924864618285
+      },
+      "dim": 3,
+      "triple_state": "CONVERGING",
+      "observed_order": 1.733750839756746,
+      "GCI_pct": 0.0070432743235120015,
+      "why": "REPORTED-NOT-GATED: no verdict is attached to this quantity. The registered model mis-predicts the bulk mean's error on this mesh by SIGN and by 7.6x (coarse pilot, before freeze), so a band around it would be a band around a prediction already known to be wrong (L-345's remedy)."
+    },
+    {
+      "quantity": "R-F27-E_perp_spurious_cross_flow",
+      "verdict": null,
+      "values": {
+        "coarse": 4.375898098651546e-15,
+        "medium": 2.6731799061398068e-14,
+        "fine": 3.70341194661724e-13
+      },
+      "dim": 3,
+      "triple_state": "DIVERGENT",
+      "observed_order": -3.9420418917764537,
+      "GCI_pct": null,
+      "why": "REPORTED-NOT-GATED: no verdict is attached to this quantity. This channel is pure error for an exactly axial, z-invariant, axisymmetric solution; A_z and A_theta additionally enter rule 5 limb 1 as UNIFORMITY states, where they DO bite."
+    },
+    {
+      "quantity": "R-F27-A_z_axial_non_uniformity",
+      "verdict": null,
+      "values": {
+        "coarse": 2.528336727206746e-14,
+        "medium": 1.7595943765233335e-13,
+        "fine": 5.007854504214429e-13
+      },
+      "dim": 3,
+      "triple_state": "DIVERGENT",
+      "observed_order": -1.1082168577677074,
+      "GCI_pct": null,
+      "why": "REPORTED-NOT-GATED: no verdict is attached to this quantity. This channel is pure error for an exactly axial, z-invariant, axisymmetric solution; A_z and A_theta additionally enter rule 5 limb 1 as UNIFORMITY states, where they DO bite."
+    },
+    {
+      "quantity": "R-F27-A_theta_azimuthal_non_uniformity",
+      "verdict": null,
+      "values": {
+        "coarse": 2.347385484924073e-12,
+        "medium": 3.8802411809222205e-12,
+        "fine": 1.6304410701870858e-11
+      },
+      "dim": 3,
+      "triple_state": "DIVERGENT",
+      "observed_order": -3.0188556274702845,
+      "GCI_pct": null,
+      "why": "REPORTED-NOT-GATED: no verdict is attached to this quantity. This channel is pure error for an exactly axial, z-invariant, axisymmetric solution; A_z and A_theta additionally enter rule 5 limb 1 as UNIFORMITY states, where they DO bite."
+    }
+  ]
+}
