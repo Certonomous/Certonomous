@@ -1,4 +1,4 @@
-# DRAFT — NOT FROZEN — awaiting supervisor check-1 read and freeze
+# DRAFT — NOT_FROZEN — check-1 CLEAR (dafoam-supervisor 2026-09-07); freeze HELD pending check-2 (addToAdjoint-honoured probe)
 
 **`D9successor` — U-BEND PRESSURE-LOSS MINIMISATION WITH A MESH-QUALITY CONSTRAINT. Successor to `D9`.**
 
@@ -462,3 +462,43 @@ authored measurement-script diffs** (§8 item 5, not the draft prose — the scr
 authoring lane is queued behind the 3-lane cap; the freeze by sha is taken only after I read those
 diffs.** Costed core-min stands at **estimate ≈ 39, cap 120.0** (§5), brought to the chief before
 compute.
+
+---
+
+## 10. INSTRUMENT-MD5 TABLE (`DAFOAM_CHARTER.md` §18.3) — DRAFT, RE-HASHED AT FREEZE
+
+Authored 2026-09-07 by a `lab-lane`; **existence asserted before any hash** — all six files below
+were confirmed present on disk in `cases/dafoam/ladder-a/A5/curriculum_D9successor/` before md5s were
+computed. These md5s are the DRAFT freeze candidates; per `CLAUDE.md` rule 2 the dafoam-supervisor
+**re-hashes each against the committed blob at freeze** and pins the grading path at the freeze commit.
+**Check-1 CLEAR (dafoam-supervisor 2026-09-07) on the run_script and grade DELTAS; freeze HELD pending
+check-2** (the `addToAdjoint`-honoured-or-ignored question, via a bounded `run_model` probe the
+supervisor dispatches — NOT launched by the authoring lane).
+
+| instrument | role | md5 | derived from (parent) | parent md5 |
+|---|---|---|---|---|
+| `d9succ_run_script.py` | run script (adds the meshQualityKS `nonOrtho` constraint ALONE) | `dd10e3c598aa6edd6751810e7ffc2df0` | `curriculum_D9/d9_run_script.py` | `af5f07bc1d3b4aca4fb427e089df0761` |
+| `d9succ_grade.py` | grader (adds `G-MESH`, `G-FDPERF`, the 3-step set) | `7740937d752e10a10796a88d7f6d3bee` | `curriculum_D9/d9_grade_SUPPLEMENT.py` (the **repaired** grader, D9-DEF-1) | `baf7d69b3f6c32f64d5a47bf9d88c717` |
+| `d9succ_stage_and_run.sh` | launcher/controls (cap 120.0, `mesh` stage, probe) | `87d61d898d56757af5a76388a143d428` | `curriculum_D9/d9_stage_and_run.sh` | `7bb4234f75fa53556303c0c2408bb5a7` |
+| `d9succ_run_script_DELTAS_from_d9.diff` | run-script departures (188 lines) | `6cfdf491d627110f9f08a66503663b37` | — | — |
+| `d9succ_grade_DELTAS_from_d9.diff` | grader departures (527 lines) | `bbeaed8551ea6e1b62d6c90b75e0d242` | — | — |
+| `d9succ_stage_and_run_DELTAS_from_d9.diff` | launcher departures (211 lines) | `d72251d220f820ba955a54494ec0c7d8` | — | — |
+
+**Anchor / case-input instruments** (FFD `FFD/UBendDuctFFDSym.xyz`, `system/controlDict`,
+`system/fvSolution`, `system/fvSchemes`, `0/` and `constant/` dicts) are carried BYTE-IDENTICAL from
+`D9` via the shared `SRC` staging root `/home/ubuntu/certonomous-runs/W5-regrade/a5pl_stock`
+(`D9/PREREGISTRATION.md` §11); they are not re-authored here and their md5s are the D9 table's, to be
+re-asserted at freeze.
+
+**Verified-on-disk pins in the frozen candidate** (image `dafoam-idwarp-rot:v1`, `sha256:2927768a…`):
+`coeffKS = 1.0`, constraint `scaler = 1.0`, `upper = 70.0`, `metric = nonOrthoAngle`,
+`source = allCells`. The `meshQualityKS`→`aero_post` exposure is confirmed at
+`dafoam/mphys/mphys_dafoam.py:724-727` (`DAFoamFunctions.setup()` adds one output per `"function"` key,
+no type filter), `:109-110`/`:229` (`get_post_coupling_subsystem` → `DAFoamPostcouplingGroup` promotes
+`["*"]`), and the live newer-API precedent `dafoam-tutorials/30N30P_MultiElement_Airfoil/runScript.py:263`
+(`add_constraint("scenario1.aero_post.nonOrtho", upper=70.0, scaler=1.0)`). §8-item-1(a) draft
+corrections applied: `source` is `allCells` (not the older `objFunc`-block `boxToCell`); the coeffKS
+overflow guard is the `1e200` summation cap (`DAFunctionMeshQualityKS.C:146-150`), not double-precision
+overflow — `coeffKS = 1.0` is safe under it.
+
+**SUBMISSIONS PARKED. DRAFT — NOT_FROZEN.**

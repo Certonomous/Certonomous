@@ -1,0 +1,211 @@
+--- curriculum_D9/d9_stage_and_run.sh	2026-08-25 18:13:11.371380251 +0000
++++ curriculum_D9successor/d9succ_stage_and_run.sh	2026-09-07 18:17:01.777671083 +0000
+@@ -1,42 +1,55 @@
+ #!/usr/bin/env bash
+-# CURRICULUM D9 -- U-BEND PRESSURE-LOSS MINIMISATION, ladder A5.  Frozen instrument.
++# CURRICULUM D9successor -- U-BEND PRESSURE-LOSS MINIMISATION WITH A meshQualityKS
++# NON-ORTHOGONALITY CONSTRAINT, ladder A5.  DRAFT INSTRUMENT -- NOT FROZEN (awaiting
++# the dafoam-supervisor's check-1 read and freeze).
++#
++# DERIVED FROM cases/dafoam/ladder-a/A5/curriculum_D9/d9_stage_and_run.sh
++# (md5 7bb4234f75fa53556303c0c2408bb5a7).  CHANGES FROM D9, and nowhere else (each is
++# a line in the _DELTAS_from_d9.diff):
++#
++#   D9SUCC-L1  RUNPY -> d9succ_run_script.py; PREREG -> D9successor/PREREGISTRATION.md.
++#   D9SUCC-L2  REGISTERED_CAP_CORE_MIN 110.0 -> 120.0, asserted equal to the literal
++#              'REGISTERED CAP: 120.0 core-min' in the frozen D9successor pre-registration
++#              (PREREG section 5).  There is deliberately NO env override.
++#   D9SUCC-L3  FD_STEPS re-registered to the 3 a-priori USABLE steps {5e-5,1e-4,2e-4}
++#              (PREREG section 2.3); the probe 1e-3 is run SEPARATELY as the F-CEIL falsifier
++#              (PREREG section 6), expected to invert the mesh, and is NEVER a usable step.
++#   D9SUCC-L4  NEW `mesh` stage for the G-MESH headline: a run_model at the OPTIMISED
++#              endpoint DV, whose primal-startup checkMesh block reports the RAW unperturbed
++#              maxNonOrth -- the SAME mechanism by which D9 measured 80.93 (D9/RESULTS.md
++#              section 2).  Its log is handed to the grader as --meshlog.
+ #
+ # STAGE ORDER IS REGISTERED AND IS NOT AN IMPLEMENTATION DETAIL:
+-#   1. cal          run_driver -maxit 1     THE CALIBRATION MAJOR, FIRST.  It measures the
+-#                                           cost of one SLSQP major and proves the driver
+-#                                           runs, before any budget is committed to a buy.
+-#   2. rep1, rep2   run_model x2            delta_repeat, MEASURED BEFORE ANY FD STEP IS
+-#                                           SIZED.  A step chosen before its noise floor is
+-#                                           known is a step chosen to fit the answer.
+-#   3. opt          run_driver -maxit 20    the buy.
+-#   4. fd_<h>       check_totals            the endpoint FD table, at FOUR registered steps,
+-#                                           at the OPTIMISED design point.
++#   1. cal          run_driver -maxit 1     THE CALIBRATION MAJOR, FIRST.
++#   2. rep1, rep2   run_model x2            delta_repeat, MEASURED BEFORE ANY FD STEP.
++#   3. opt          run_driver -maxit 20    the buy, NOW WITH THE meshQualityKS CONSTRAINT.
++#   4. mesh         run_model @ endpoint    G-MESH: raw checkMesh maxNonOrth at the endpoint.
++#   5. fd_<h>       check_totals            the endpoint FD table, 3 USABLE steps.
++#   6. fd_probe     check_totals @ 1e-3     F-CEIL falsifier, EXPECTED to invert (not usable).
+ #
+-# OPERATIONAL FACTS CARRIED IN, NOT REDISCOVERED:
+-#   * `-flag=value`.  argparse reads a bare `-fdStep -1e-3` as an OPTION FLAG.  Every flag
+-#     below uses the `=` form.  That defect cost the D11 chain three attempts.
+-#   * mpirun inside `--cpus=N` binds rank 0 to the FIRST CORE OF THE HOST TOPOLOGY, so
+-#     concurrent containers collide on one core while the box reports itself idle.  Every
+-#     container is pinned with `--cpuset-cpus` AND the placement is READ BACK from the
+-#     process into each JSON record; the grader compares the reading, never the flag.
++# OPERATIONAL FACTS CARRIED IN, NOT REDISCOVERED (verbatim from D9):
++#   * `-flag=value`.  argparse reads a bare `-fdStep -1e-3` as an OPTION FLAG. Use `=`.
++#   * mpirun inside `--cpus=N` binds rank 0 to the FIRST CORE OF THE HOST TOPOLOGY;
++#     every container is pinned with `--cpuset-cpus` AND the placement is READ BACK.
+ #   * no `--rm`, so `docker inspect` survives the container.
+-#   * `set -e` does not gate at the top level of a harness Bash call, and `( set -e; ... )`
+-#     does not either; every step carries its own explicit `|| { echo ABORT...; exit 1; }`.
+-#   * THE PATCHED IMAGE IS THE ONE BOUGHT.  A5's `OBJ.val wrt shapexUpper` is GATE FAIL on
+-#     stock (46.840 %, 2 sign flips) and PASS on `dafoam-idwarp-rot:v1` (2.768 %, 0 flips).
+-#     An optimiser driven by the stock gradient would be driving on a broken derivative.
++#   * `set -e` does not gate at the top level of a harness Bash call; every step carries
++#     its own explicit `|| { echo ABORT...; exit 1; }`.
++#   * THE PATCHED IMAGE IS THE ONE BOUGHT (dafoam-idwarp-rot:v1); stock is GATE FAIL on
++#     A5's OBJ.val wrt shapexUpper (2 sign flips), so an optimiser on the stock gradient
++#     would be driving on a broken derivative.
+ set -uo pipefail
+ 
+ IMG="${IMG:-dafoam-idwarp-rot:v1}"
+ BASE="${BASE:-}"
+ SRC="${SRC:-/home/ubuntu/certonomous-runs/W5-regrade/a5pl_stock}"
+-RUNPY="${RUNPY:-/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A5/curriculum_D9/d9_run_script.py}"
+-PREREG="/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A5/curriculum_D9/PREREGISTRATION.md"
++RUNPY="${RUNPY:-/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A5/curriculum_D9successor/d9succ_run_script.py}"
++PREREG="/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A5/curriculum_D9successor/PREREGISTRATION.md"
++GRADER="/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A5/curriculum_D9successor/d9succ_grade.py"
+ 
+ # ---- THE REGISTERED CAP.  One literal, asserted equal to the figure in the frozen
+ # ---- pre-registration.  There is deliberately NO env override.
+-REGISTERED_CAP_CORE_MIN="110.0"
+-CAP_CORE_MIN="110.0"
++REGISTERED_CAP_CORE_MIN="120.0"
++CAP_CORE_MIN="120.0"
+ python3 -c "
+ assert abs(float('$CAP_CORE_MIN') - float('$REGISTERED_CAP_CORE_MIN')) < 1e-12, 'ENFORCED CAP != REGISTERED CAP'
+ " || { echo "ABORT: enforced cap $CAP_CORE_MIN != registered cap $REGISTERED_CAP_CORE_MIN"; exit 1; }
+@@ -46,7 +59,8 @@
+ 
+ MAXIT_CAL=1
+ MAXIT_OPT=20
+-FD_STEPS="1.0e-5 1.0e-4 1.0e-3 1.0e-2"
++FD_STEPS="5.0e-5 1.0e-4 2.0e-4"      # D9SUCC-L3: the 3 USABLE steps
++PROBE_STEP="1.0e-3"                   # D9SUCC-L3: F-CEIL falsifier, expected to invert
+ TMO_CAL=900
+ TMO_REP=600
+ TMO_FD=1200
+@@ -62,7 +76,7 @@
+ mkdir -p "$BASE" || { echo "ABORT: cannot mkdir $BASE"; exit 1; }
+ chmod 777 "$BASE"
+ LEDGER="$BASE/ledger.txt"
+-echo "=== D9 RUN $STAMP cpuset=$CPUSET cap=$CAP_CORE_MIN image=$IMG ===" | tee -a "$LEDGER"
++echo "=== D9successor RUN $STAMP cpuset=$CPUSET cap=$CAP_CORE_MIN image=$IMG ===" | tee -a "$LEDGER"
+ 
+ # image identity is an ID, never a tag (DAFOAM_CHARTER section 6)
+ IMGID=$(sudo -n docker images --no-trunc --format '{{.ID}}' "$IMG" 2>/dev/null | head -1)
+@@ -70,11 +84,7 @@
+ echo "IMAGE $IMG ID=$IMGID" | tee -a "$LEDGER"
+ 
+ # ---------------------------------------------------------------------------
+-# stage_arm <name> -- destroy and re-copy the arm tree, then PROVE COLD START
+-# BEFORE the container is allowed to start.  Rule 4's age guard is unsatisfiable
+-# on this family (DAFoam gzips 0/U -> 0/U.gz mid-solve, so the file the guard
+-# dates against ceases to exist).  A pre-launch proof that no answer file existed
+-# is strictly stronger than a post-hoc mtime inference, and it can only REFUSE.
++# stage_arm <name> -- destroy and re-copy the arm tree, then PROVE COLD START.
+ # ---------------------------------------------------------------------------
+ stage_arm() {
+   local name="$1"
+@@ -102,7 +112,7 @@
+   local name="$1"; shift
+   local tmo="$1"; shift
+   local arm="$BASE/$name"
+-  local cname="d9_${name}_${STAMP}"
++  local cname="d9succ_${name}_${STAMP}"
+   local log="$BASE/${name}_${STAMP}.log"
+ 
+   # CAP CHECK BEFORE the stage, not after.  An overrun STOPS the run (rule 12).
+@@ -158,12 +168,6 @@
+ echo "CALIBRATION_MAJOR rc=$CAL_RC wall_s=$CAL_WALL" | tee -a "$LEDGER"
+ 
+ # THE FROZEN PROJECTION RULE.  Formula frozen before compute; input MEASURED.
+-#   The calibration major runs ONE SLSQP major plus the whole one-off startup
+-#   (imports, mesh load, dRdW colouring) that the buy pays exactly once.  A single
+-#   major therefore cannot cost more than the entire calibration stage, so
+-#       T_opt = min(3600, ceil(t_cal * (1 + MAXIT_OPT)))
+-#   is a genuine UPPER BOUND, clipped at 3600 s -- the ceiling implied by the
+-#   registered 110 core-min cap once the other seven stages are paid for.
+ TMO_OPT=$(python3 -c "import math; t=float('$CAL_WALL') if float('$CAL_WALL')>0 else 300.0; print(int(min(3600, math.ceil(t*(1+$MAXIT_OPT)))))")
+ echo "TMO_OPT_PROJECTED=$TMO_OPT s (frozen rule: min(3600, ceil(t_cal * (1 + MAXIT_OPT))))" | tee -a "$LEDGER"
+ 
+@@ -176,15 +180,13 @@
+ run_stage rep2 "$TMO_REP" "-task=run_model" "-out=d9_out.json"
+ 
+ # ===========================================================================
+-# 3.  THE BUY.
++# 3.  THE BUY -- now with the meshQualityKS constraint.
+ # ===========================================================================
+ stage_arm opt
+ run_stage opt "$TMO_OPT" "-task=run_driver" "-optimizer=SLSQP" "-maxit=$MAXIT_OPT" "-out=d9_out.json"
+ OPT_RC=$?
+ 
+-# The endpoint design point.  If the driver left no record, the endpoint chain does
+-# NOT run against a fabricated design point -- it is simply absent, and the grader
+-# reads that absence as NOT A RESULT.
++# The endpoint design point.
+ DVFILE="$BASE/opt_dv.json"
+ if [ -f "$BASE/opt/d9_out.json" ]; then
+   python3 -c "
+@@ -196,11 +198,33 @@
+ print('ENDPOINT_DV_WRITTEN n=%d l2=%.10e'%(len(dv), sum(v*v for v in dv)**0.5))
+ " 2>&1 | tee -a "$LEDGER"
+ else
+-  echo "ENDPOINT_DV_ABSENT: the driver left no record; the FD chain does not run" | tee -a "$LEDGER"
++  echo "ENDPOINT_DV_ABSENT: the driver left no record; the endpoint chain does not run" | tee -a "$LEDGER"
++fi
++
++# ===========================================================================
++# 4.  THE G-MESH STAGE -- run_model at the endpoint, whose primal-startup checkMesh
++#     block reports the RAW unperturbed maxNonOrth (D9's proven mechanism).
++# ===========================================================================
++MESHLOG=""
++if [ -f "$DVFILE" ]; then
++  stage_arm mesh
++  cp "$DVFILE" "$BASE/mesh/opt_dv.json" || { echo "ABORT: cannot stage dv file for mesh"; exit 1; }
++  chmod 666 "$BASE/mesh/opt_dv.json"
++  run_stage mesh "$TMO_REP" "-task=run_model" "-dvFile=opt_dv.json" "-out=d9_out.json"
++  MESHLOG="$BASE/mesh_${STAMP}.log"
++  # report the raw maxNonOrth that G-MESH will grade (READ, not graded, here)
++  python3 -c "
++import re
++v=None
++for ln in open('$MESHLOG', errors='replace'):
++    m=re.search(r'Mesh non-orthogonality Max:\s*([-+0-9.eE]+)', ln)
++    if m: v=float(m.group(1))
++print('G-MESH_RAW_MAXNONORTH_READ_FROM_LOG=%s (threshold 70.0)'%v)
++" 2>&1 | tee -a "$LEDGER"
+ fi
+ 
+ # ===========================================================================
+-# 4.  THE ENDPOINT FD TABLE -- four registered steps, at the OPTIMISED point.
++# 5.  THE ENDPOINT FD TABLE -- 3 registered USABLE steps, at the OPTIMISED point.
+ # ===========================================================================
+ if [ -f "$DVFILE" ]; then
+   for h in $FD_STEPS; do
+@@ -210,7 +234,18 @@
+     chmod 666 "$BASE/$tag/opt_dv.json"
+     run_stage "$tag" "$TMO_FD" "-task=check_totals" "-dvFile=opt_dv.json" "-fdStep=$h" "-out=d9_out.json"
+   done
++
++  # ===========================================================================
++  # 6.  THE F-CEIL PROBE -- 1e-3, EXPECTED to invert the mesh. NOT a usable step.
++  # ===========================================================================
++  tag="fd_$(echo "$PROBE_STEP" | sed 's/\./p/; s/-/m/; s/+/p/')"
++  stage_arm "$tag"
++  cp "$DVFILE" "$BASE/$tag/opt_dv.json" || { echo "ABORT: cannot stage dv file for $tag"; exit 1; }
++  chmod 666 "$BASE/$tag/opt_dv.json"
++  run_stage "$tag" "$TMO_FD" "-task=check_totals" "-dvFile=opt_dv.json" "-fdStep=$PROBE_STEP" "-out=d9_out.json"
++  echo "F-CEIL_PROBE stage=$tag step=$PROBE_STEP -- expected to AnalysisError (invert); its outcome is REPORTED, not a usable plateau step" | tee -a "$LEDGER"
+ fi
+ 
+ echo "TOTAL_SPENT_CORE_MIN=$SPENT_CORE_MIN CAP=$CAP_CORE_MIN" | tee -a "$LEDGER"
+ echo "STAMP=$STAMP" | tee -a "$LEDGER"
++echo "TO GRADE: python3 $GRADER --root $BASE --cpuset $CPUSET --meshlog ${MESHLOG:-$BASE/mesh_${STAMP}.log}" | tee -a "$LEDGER"

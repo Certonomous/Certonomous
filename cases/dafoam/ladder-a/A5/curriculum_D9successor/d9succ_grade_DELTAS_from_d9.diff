@@ -1,0 +1,527 @@
+--- curriculum_D9/d9_grade_SUPPLEMENT.py	2026-08-25 18:27:54.458402197 +0000
++++ curriculum_D9successor/d9succ_grade.py	2026-09-07 18:14:24.669423127 +0000
+@@ -1,34 +1,66 @@
+ #!/usr/bin/env python3
+ """
+-CURRICULUM D9 GRADER -- U-bend pressure-loss minimisation, ladder A5.  Frozen instrument.
++CURRICULUM D9successor GRADER -- U-bend pressure-loss minimisation with a
++meshQualityKS non-orthogonality constraint, ladder A5.  DRAFT INSTRUMENT -- NOT
++FROZEN (awaiting the dafoam-supervisor's check-1 read and freeze).
++
++DERIVED FROM cases/dafoam/ladder-a/A5/curriculum_D9/d9_grade_SUPPLEMENT.py
++(md5 baf7d69b3f6c32f64d5a47bf9d88c717) -- the REPAIRED D9 grader (D9-DEF-1: the
++reader plant is asserted to have FIRED, not silently skipped).  The supplement, not
++the pre-repair d9_grade.py, is the correct base: D9successor inherits the fired-plant
++assertion.  CHANGES FROM THE SUPPLEMENT, and nowhere else (each is a line in the
++_DELTAS_from_d9.diff):
++
++  D9SUCC-G1  FD_STEPS is RE-REGISTERED to the a-priori-derived 3-step usable set
++        {5e-5, 1e-4, 2e-4} (PREREGISTRATION.md section 2.3).  D9's {1e-5,1e-4,1e-3,1e-2}
++        collided with a noise floor from below (1e-5) and a mesh-inversion ceiling from
++        above (1e-3,1e-2); the new set is chosen from D9's MEASURED noise floor and
++        inversion ceiling, NOT from which D9 steps crashed.  A legitimate re-set only
++        because this is a NEW pre-registration (D9/RESULTS.md section 10 point 1).
++        PLATEAU_MIN_STEPS stays 3, so ALL THREE must produce a table AND lie in a common
++        plateau -- a strictly harder bar than D9's 3-of-4.
++
++  D9SUCC-G2  PROBE_STEP = 1e-3 is the F-CEIL falsifier (PREREG section 6), NOT a usable
++        step; it is predicted to invert the mesh at the constrained endpoint and is never
++        counted toward the plateau.  Its outcome is reported by the launcher, not graded
++        here.
++
++  D9SUCC-G3  NEW HEADLINE GATE G-MESH (PREREG section 3.1): the RAW checkMesh
++        "Mesh non-orthogonality Max" at the unperturbed optimised endpoint must be
++        <= MAXNONORTH_MAX (70.0, the case's own checkMeshThreshold).  Graded on the RAW
++        checkMesh value, NEVER on the KS aggregate the optimiser saw (KS >= true max, so
++        KS <= 70 forces raw <= 70; the raw is what D9's 80.93 failure was measured in).
++        The KS value the driver reported (nonOrtho_KS, recorded by D9SUCC-3 in the run
++        script) is printed beside the raw value with the gap, as a measurement of the KS
++        slack.  RULE 3: the checkMesh reader is PROVEN ABLE to see a planted non-zero
++        (checkmesh_reader_plant) before any G-MESH zero/pass is trusted; if the reader
++        cannot see it, the grader REFUSES.
++
++  D9SUCC-G4  The G9-4 endpoint-table-completeness gate is relabelled G-FDPERF (PREREG
++        section 3.2) with the 3-of-3 language; its logic (fewer than PLATEAU_MIN_STEPS
++        tables -> NOT A RESULT) is D9's, unchanged.
+ 
+-L-302 IS A DESIGN CONSTRAINT HERE, NOT A HISTORY NOTE:
++  D9SUCC-G5  reader_plant iterates the (usable) FD_STEPS for an endpoint record to plant
++        into, instead of hardcoding fd_1p0em3 first -- 1e-3 is no longer a usable step.
++
++L-302 IS A DESIGN CONSTRAINT HERE, NOT A HISTORY NOTE (carried verbatim):
+   AN INSTRUMENT THAT CANNOT SAY "I MEASURED NOTHING" WILL REPORT A NUMBER IT DID NOT
+-  MEASURE.  Concretely, and each of these is exercised by --selftest:
+-    * an EMPTY or SHORT component set REFUSES (exit 2) BY COUNT, with the count printed.
+-      It is not enough to test that a key is present; `d3_grade.py` does exactly that and
+-      returns PASS at 0.0000 % over an empty set.
+-    * no exception is swallowed into a declared constant.  A malformed record REFUSES.
+-    * the plateau loop CANNOT select a step from a zero-iteration search: if no window of
+-      PLATEAU_MIN_STEPS consecutive usable steps exists, the component is UNGRADEABLE and
+-      is COUNTED as such -- never silently defaulted to the first or last step.
+-    * a component set in which NOTHING is gradeable does not average to a clean number; it
+-      REFUSES.
+-  `rc=1` and `rc=2` are different failures and a harness exit code is not a solver exit
+-  code: a MISSING stage record maps to NOT A RESULT, never to BLOCKED, so this lane's own
+-  harness cannot record a capability as absent that was never reached.
+-
+-THE PLANT (rule 3).  Two plants, both on quantities that REACH THE VERDICT:
+-  * READER PLANT: a known perturbation is written into a copy of the endpoint record and
+-    read back from disk; if the reader cannot see it, the grader REFUSES.
+-  * PHYSICAL PLANT: the optimiser must have MOVED the design point.  If the endpoint
+-    `shapexUpper` is bit-identical to the all-zero baseline, the FD table is a table about
+-    the baseline geometry wearing the endpoint's name, and the grader REFUSES.
++  MEASURE.  Empty/short component set REFUSES BY COUNT; no exception swallowed into a
++  constant; the plateau loop cannot select from a zero-iteration search; a set in which
++  nothing is gradeable REFUSES.  rc=1 and rc=2 are different failures; a MISSING stage is
++  NOT A RESULT, never BLOCKED.
++
++THE PLANT (rule 3).  THREE plants now, each on a quantity that REACHES A VERDICT:
++  * READER PLANT (FD): a known perturbation into a copy of the endpoint J_an, read back.
++  * PHYSICAL PLANT: the optimiser must have MOVED the design point.
++  * CHECKMESH READER PLANT (D9SUCC-G3): a known maxNonOrth planted into a synthetic
++    checkMesh log and read back, so G-MESH's reader is shown able to see a non-zero.
+ """
+ import argparse
+ import json
+ import math
+ import os
++import re
+ import sys
+ 
+ # ===========================================================================
+@@ -43,10 +75,13 @@
+ MIN_GRADED_FRACTION = 0.70      # >= 19 of 27 gradeable, else NOT A RESULT
+ MAX_SIGN_FLIPS = 0              # sign flips permitted on gradeable components
+ OBJ_IMPROVE_FACTOR = 10.0       # improvement must exceed this many measured noise floors
+-FD_STEPS = [1.0e-5, 1.0e-4, 1.0e-3, 1.0e-2]
++FD_STEPS = [5.0e-5, 1.0e-4, 2.0e-4]   # D9SUCC-G1: the 3 a-priori usable steps
++PROBE_STEP = 1.0e-3                    # D9SUCC-G2: F-CEIL falsifier probe, NOT usable
+ REGISTERED_CPUSET = None        # set from --cpuset; placement is READ BACK, never inferred
+ FLOOR_DERIV = 1.0e-12
+-PLANT = 1.234e-03               # the reader plant
++PLANT = 1.234e-03               # the FD reader plant
++MAXNONORTH_MAX = 70.0           # D9SUCC-G3: G-MESH threshold = case's own checkMeshThreshold
++CHECKMESH_PLANT = 42.42         # D9SUCC-G3: planted non-zero for the checkMesh reader control
+ 
+ # Named IN ADVANCE as potentially FD-ungradeable (pre-registration section 5c).
+ IDX16_CLASS = [8, 16, 17]
+@@ -92,25 +127,72 @@
+     return n
+ 
+ 
++# ===========================================================================
++# D9SUCC-G3  THE checkMesh READER and ITS PLANTED-ZERO CONTROL (rule 3).
++# ===========================================================================
++_CHECKMESH_RE = re.compile(r"Mesh non-orthogonality Max:\s*([-+0-9.eE]+)")
++
++
++def read_checkmesh_maxnonorth(log_path):
++    """Return (value, status).  status: PRESENT / MISSING / UNPARSEABLE.
++
++    Parses checkMesh's 'Mesh non-orthogonality Max: <v> average: ...' line and returns
++    the LAST such value in the log (checkMesh may print it more than once; the last is
++    the mesh as finally checked).
++    """
++    if not os.path.isfile(log_path):
++        return None, "MISSING"
++    val = None
++    with open(log_path, errors="replace") as f:
++        for line in f:
++            m = _CHECKMESH_RE.search(line)
++            if m:
++                try:
++                    val = float(m.group(1))
++                except ValueError:
++                    return None, "UNPARSEABLE"
++    if val is None:
++        return None, "UNPARSEABLE"
++    return val, "PRESENT"
++
++
++def checkmesh_reader_plant(root):
++    """RULE 3: prove the checkMesh reader can SEE a non-zero before its zero is trusted.
++
++    Writes a synthetic checkMesh log carrying a KNOWN maxNonOrth, reads it back through
++    the SAME reader G-MESH uses, and REFUSES if the reader cannot see it.  A reader not
++    shown able to see a non-zero cannot be trusted to report a passing (small) value.
++    """
++    tmp = os.path.join(root, ".d9succ_checkmesh_plant.log")
++    with open(tmp, "w") as f:
++        f.write("Some checkMesh preamble\n")
++        f.write("    Mesh non-orthogonality Max: %.4f average: 11.0\n" % CHECKMESH_PLANT)
++        f.write("Mesh OK.\n")
++    seen, st = read_checkmesh_maxnonorth(tmp)
++    os.remove(tmp)
++    if st != "PRESENT" or seen is None or abs(seen - CHECKMESH_PLANT) > 1e-9:
++        raise Refuse("CHECKMESH READER PLANT NOT SEEN: planted maxNonOrth %.4f and read "
++                     "back %r (status %s). A zero from a reader not shown able to see a "
++                     "non-zero is not evidence (rule 3)." % (CHECKMESH_PLANT, seen, st))
++    return seen
++
++
+ def reader_plant(root):
+     """Plant a known perturbation, read it back FROM DISK, refuse if unseen."""
+-    src = os.path.join(root, "fd_1p0em3", "d9_out.json")
+-    if not os.path.isfile(src):
+-        # try any fd stage
+-        for h in FD_STEPS:
+-            cand = os.path.join(root, "fd_" + fmt_tag(h), "d9_out.json")
+-            if os.path.isfile(cand):
+-                src = cand
+-                break
+-    if not os.path.isfile(src):
+-        # REPAIR (D9-DEF-1): an EXPLICIT, TAGGED status. A bare `None` here made the
+-        # plant silently not run, and nothing downstream could tell "the plant fired
+-        # and the reader saw it" from "the plant never ran" -- rule 3 exactly.
++    src = None
++    # D9SUCC-G5: iterate the USABLE FD_STEPS for an endpoint record to plant into
++    # (1e-3 is the probe now, not a usable step, and may have no J_an).
++    for h in FD_STEPS:
++        cand = os.path.join(root, "fd_" + fmt_tag(h), "d9_out.json")
++        if os.path.isfile(cand):
++            src = cand
++            break
++    if src is None or not os.path.isfile(src):
++        # REPAIR (D9-DEF-1): an EXPLICIT, TAGGED status.
+         return ("NO_ENDPOINT", None)
+     with open(src) as f:
+         d = json.load(f)
+     if "J_an" not in d:
+-        # REPAIR (D9-DEF-1): key ABSENCE, as distinct from key EMPTINESS below.
+         return ("NO_J_AN", None)
+     planted = dict(d)
+     planted["J_an"] = list(d["J_an"])
+@@ -132,10 +214,7 @@
+ 
+ 
+ def require_plant_fired(status, value):
+-    """REPAIR (D9-DEF-1).  The caller's ASSERTION, which the frozen grader lacked:
+-    `reader_plant(root)` was called with its return value DISCARDED, so two silent
+-    `None` paths could make the plant not run at all.  This can only turn an outcome
+-    INTO a refusal, never the reverse."""
++    """REPAIR (D9-DEF-1).  The caller's ASSERTION, which the pre-repair grader lacked."""
+     if status != "PLANTED" or value is None:
+         raise Refuse("PLANT DID NOT FIRE (status=%r): the grader was about to report an "
+                      "endpoint table without a reader shown able to see a planted "
+@@ -196,9 +275,11 @@
+     return steps[mid], fds[mid], best, usable
+ 
+ 
+-def grade(root, cpuset, quiet=False):
++def grade(root, cpuset, meshlog=None, quiet=False):
+     lines = []
+     worst = 0
++    if meshlog is None:
++        meshlog = os.path.join(root, "mesh", "checkMesh.log")
+ 
+     def emit(gate, verdict, msg):
+         nonlocal worst
+@@ -269,7 +350,9 @@
+              "pressure loss DECREASED by %.6e (%.4f %%): OBJ_baseline = %.15e -> "
+              "OBJ_final = %.15e, against a threshold of %.1f x the measured noise floor "
+              "= %.6e; driver_iter_count = %s. NO REFERENCE VALUE EXISTS for a single-DV-"
+-             "group U-bend optimisation, so the MAGNITUDE is reported, not gated."
++             "group U-bend optimisation, so the MAGNITUDE is reported, not gated. A "
++             "CONSTRAINED optimum is generally WORSE (higher OBJ) than the unconstrained "
++             "one; that is expected and is not a failure (PREREG section 3.4)."
+              % (improvement, 100.0 * improvement / abs(obj_base), obj_base, obj_final,
+                 OBJ_IMPROVE_FACTOR, thresh, opt.get("driver_iter_count")))
+     else:
+@@ -286,7 +369,36 @@
+                      "to the all-zero baseline (l2 = 0). An FD table taken there is a table "
+                      "about the BASELINE geometry wearing the endpoint's name.")
+ 
+-    # ---------------- G9-4 / G9-5 / G9-6  the endpoint FD table -------------
++    # ---------------- D9SUCC-G3  G-MESH  THE HEADLINE ----------------------
++    # RULE 3: the checkMesh reader is proven able to see a planted non-zero FIRST.
++    checkmesh_reader_plant(root)
++    mval, mstat = read_checkmesh_maxnonorth(meshlog)
++    ks_ep = opt.get("nonOrtho_KS")
++    ks_txt = ("%.4f" % ks_ep) if isinstance(ks_ep, (int, float)) else "unavailable"
++    if mstat == "MISSING":
++        emit("G-MESH", "NOT A RESULT",
++             "endpoint checkMesh log absent at %s; the raw maxNonOrth cannot be read, so the "
++             "headline is NOT A RESULT (the stage was never reached), never a silent pass."
++             % meshlog)
++    elif mstat == "UNPARSEABLE" or mval is None or not math.isfinite(mval):
++        emit("G-MESH", "NOT A RESULT",
++             "endpoint checkMesh log at %s carries no parseable finite 'Mesh non-orthogonality "
++             "Max:' value (read %r)." % (meshlog, mval))
++    elif mval <= MAXNONORTH_MAX:
++        gap = (ks_ep - mval) if isinstance(ks_ep, (int, float)) else None
++        gap_txt = ("%.4f" % gap) if gap is not None else "unavailable"
++        emit("G-MESH", "PASS",
++             "THE FIX WORKS: raw checkMesh maxNonOrth %.4f <= %.1f (the case's own "
++             "checkMeshThreshold). D9's unconstrained endpoint was 80.93. KS value the driver "
++             "saw = %s; KS-minus-raw slack = %s (KS is a smooth OVER-BOUND of the true max, so "
++             "KS <= 70 forces raw <= 70)." % (mval, MAXNONORTH_MAX, ks_txt, gap_txt))
++    else:
++        emit("G-MESH", "GATE FAIL",
++             "raw checkMesh maxNonOrth %.4f > %.1f: the constraint did NOT hold at convergence "
++             "(the mechanism as configured does not bind). KS value the driver saw = %s. This "
++             "is a reportable finding." % (mval, MAXNONORTH_MAX, ks_txt))
++
++    # ---------------- G-FDPERF / G9-5 / G9-6  the endpoint FD table ---------
+     plant_status, plant_seen = reader_plant(root)
+ 
+     tables = {}
+@@ -297,12 +409,12 @@
+         if d.get("status") != "COMPLETE":
+             continue
+         if "check_totals_error" in d:
+-            emit("G9-4", "BLOCKED",
++            emit("G-FDPERF", "BLOCKED",
+                  "the endpoint check at h=%.1e COMPLETED but returned no derivative key: %s"
+                  % (h, d["check_totals_error"]))
+             return worst, lines, {}
+         if "J_an" not in d or "J_fd" not in d:
+-            emit("G9-4", "BLOCKED",
++            emit("G-FDPERF", "BLOCKED",
+                  "the endpoint check at h=%.1e COMPLETED but carries no J_an/J_fd" % h)
+             return worst, lines, {}
+         check_components(d.get("J_an"), "endpoint h=%.1e (J_an)" % h)
+@@ -316,18 +428,22 @@
+         tables[h] = d
+ 
+     if len(tables) < PLATEAU_MIN_STEPS:
+-        emit("G9-4", "NOT A RESULT",
+-             "only %d of %d registered endpoint steps produced a table; a plateau needs at "
+-             "least %d consecutive usable steps and cannot be demonstrated from %d."
++        emit("G-FDPERF", "NOT A RESULT",
++             "only %d of %d registered USABLE endpoint steps produced a table; a plateau "
++             "needs at least %d consecutive usable steps and cannot be demonstrated from %d. "
++             "PREREG section 3.2/3.3: if G-MESH PASSED but the endpoint admits fewer than 3 FD "
++             "tables, the item is NOT A RESULT and that is a GOOD result -- it measures the "
++             "mesh-quality constraint as necessary-but-not-sufficient and motivates the "
++             "primal-tightening successor."
+              % (len(tables), len(FD_STEPS), PLATEAU_MIN_STEPS, len(tables)))
+         return worst, lines, {}
+ 
+     steps = sorted(tables)
+     J_an = [float(v) for v in tables[steps[0]]["J_an"]]
+-    # REPAIR (D9-DEF-1): assert the plant demonstrably FIRED before any endpoint PASS.
++    # REPAIR (D9-DEF-1): assert the FD reader plant demonstrably FIRED before any endpoint PASS.
+     require_plant_fired(plant_status, plant_seen)
+-    emit("G9-4", "PASS",
+-         "endpoint FD table formed over %d of %d registered steps (%s) at the OPTIMISED "
++    emit("G-FDPERF", "PASS",
++         "endpoint FD table formed over %d of %d registered usable steps (%s) at the OPTIMISED "
+          "design point (l2(shapexUpper) = %.10e, %d components); READER PLANT status "
+          "%s, planted %.6e and read back %.6e from disk"
+          % (len(steps), len(FD_STEPS), ", ".join("%.1e" % h for h in steps), l2, len(dv),
+@@ -374,17 +490,17 @@
+     agg = num / den if den > 0 else float("inf")
+     flips = [i for i in gradeable if (J_an[i] > 0) != (rows[i][2] > 0)]
+     if len(flips) > MAX_SIGN_FLIPS:
+-        emit("G9-6", "GATE FAIL",
++        emit("G-GRAD", "GATE FAIL",
+              "aggregate adjoint-vs-FD relative error %.6e over %d gradeable components, but "
+              "%d SIGN FLIP(S) at %s (registered maximum %d)"
+              % (agg, ngr, len(flips), flips, MAX_SIGN_FLIPS))
+     elif agg <= FD_BAND_REL_AGG:
+-        emit("G9-6", "PASS",
++        emit("G-GRAD", "PASS",
+              "aggregate adjoint-vs-FD relative error %.6e <= band %.3e over %d gradeable "
+              "components, %d sign flips, each read at its OWN plateau step"
+              % (agg, FD_BAND_REL_AGG, ngr, len(flips)))
+     else:
+-        emit("G9-6", "GATE FAIL",
++        emit("G-GRAD", "GATE FAIL",
+              "aggregate adjoint-vs-FD relative error %.6e > band %.3e over %d gradeable "
+              "components, %d sign flips" % (agg, FD_BAND_REL_AGG, ngr, len(flips)))
+ 
+@@ -410,7 +526,8 @@
+              "n_gradeable": ngr, "m": m, "ungradeable": ungradeable,
+              "named_ungradeable": named, "unnamed_ungradeable": unnamed,
+              "rows": rows, "steps": steps, "flips": flips, "l2_dv": l2,
+-             "cal_iters": cal_iters, "opt_iters": opt.get("driver_iter_count")}
++             "cal_iters": cal_iters, "opt_iters": opt.get("driver_iter_count"),
++             "maxnonorth": mval, "maxnonorth_status": mstat, "nonOrtho_KS": ks_ep}
+     return worst, lines, facts
+ 
+ 
+@@ -426,17 +543,29 @@
+         json.dump(rec, f)
+ 
+ 
+-def _healthy(root, an=None, fd_scale=1.0, dv=None, obj_final=45.0, tables=None):
++def _mk_meshlog(root, maxnonorth):
++    d = os.path.join(root, "mesh")
++    os.makedirs(d, exist_ok=True)
++    with open(os.path.join(d, "checkMesh.log"), "w") as f:
++        f.write("Checking geometry...\n")
++        f.write("    Mesh non-orthogonality Max: %.4f average: 11.0\n" % maxnonorth)
++        f.write("Mesh OK.\n")
++
++
++def _healthy(root, an=None, fd_scale=1.0, dv=None, obj_final=45.0, tables=None,
++             maxnonorth=65.0):
+     an = an or [(-1.0) ** i * (1.0 + 0.1 * i) for i in range(27)]
+     dv = dv if dv is not None else [0.001 * (i + 1) for i in range(27)]
+     _mk(root, "cal", OBJ_val=49.61, maxit=1, driver_iter_count=1, shapexUpper=[0.0] * 27)
+     _mk(root, "rep1", OBJ_val=49.61, shapexUpper=[0.0] * 27)
+     _mk(root, "rep2", OBJ_val=49.61, shapexUpper=[0.0] * 27)
+     _mk(root, "opt", OBJ_val=obj_final, driver_failed=False, driver_iter_count=20,
+-        shapexUpper=dv)
++        shapexUpper=dv, nonOrtho_KS=maxnonorth + 8.0)
+     for h in FD_STEPS:
+         fd = tables[h] if tables else [v * fd_scale for v in an]
+         _mk(root, "fd_" + fmt_tag(h), J_an=an, J_fd=fd, fd_step=h, shapexUpper=dv)
++    if maxnonorth is not None:
++        _mk_meshlog(root, maxnonorth)
+ 
+ 
+ def selftest():
+@@ -459,7 +588,7 @@
+         finally:
+             shutil.rmtree(d, ignore_errors=True)
+ 
+-    case("A healthy", lambda d: _healthy(d), "PASS")
++    case("A healthy (G-MESH PASS at 65<=70)", lambda d: _healthy(d), "PASS")
+ 
+     def b(d):
+         _healthy(d)
+@@ -487,7 +616,6 @@
+     def g(d):
+         an = [(-1.0) ** i * (1.0 + 0.1 * i) for i in range(27)]
+         dv = [0.001 * (i + 1) for i in range(27)]
+-        # every step disagrees wildly with every other -> NO plateau anywhere
+         t = {h: [v * (1.0 + 3.0 * k) for v in an] for k, h in enumerate(FD_STEPS)}
+         _healthy(d, an=an, dv=dv, tables=t)
+     case("G no plateau anywhere refuses (empty gradeable set)", g, "REFUSE")
+@@ -505,13 +633,12 @@
+ 
+     def j(d):
+         _healthy(d)
+-        shutil_dir = os.path.join(d, "opt", "d9_out.json")
+-        os.remove(shutil_dir)
++        os.remove(os.path.join(d, "opt", "d9_out.json"))
+     case("J missing stage -> NOT A RESULT (never BLOCKED)", j, "NOT A RESULT")
+ 
+     def k(d):
+         _healthy(d)
+-        _mk(d, "fd_" + fmt_tag(1.0e-3), J_an=[1.0] * 27, fd_step=1.0e-3,
++        _mk(d, "fd_" + fmt_tag(1.0e-4), J_an=[1.0] * 27, fd_step=1.0e-4,
+             check_totals_error="no key", shapexUpper=[0.001 * (i + 1) for i in range(27)])
+     case("K completed-but-no-derivative-key -> BLOCKED", k, "BLOCKED")
+ 
+@@ -533,7 +660,7 @@
+     def nn(d):
+         _healthy(d)
+         _mk(d, "opt", OBJ_val=49.61, driver_failed=False, driver_iter_count=20,
+-            shapexUpper=[0.001 * (i + 1) for i in range(27)])
++            shapexUpper=[0.001 * (i + 1) for i in range(27)], nonOrtho_KS=73.0)
+     case("N no improvement -> GATE FAIL", nn, "GATE FAIL")
+ 
+     def o(d):
+@@ -548,8 +675,6 @@
+     case("P misplacement caught WITHOUT touching the derivative verdict", p, "GATE FAIL")
+ 
+     def q(d):
+-        # 20 of 27 components have NO plateau -> 7/27 = 25.9 % gradeable, below the
+-        # registered 70 % floor.  The N-of-M consequence must FIRE, not be discovered.
+         an = [(-1.0) ** i * (1.0 + 0.1 * i) for i in range(27)]
+         dv = [0.001 * (i + 1) for i in range(27)]
+         t = {}
+@@ -561,9 +686,32 @@
+         _healthy(d, an=an, dv=dv, tables=t)
+     case("Q partial gradeable set below the N-of-M floor -> NOT A RESULT", q, "NOT A RESULT")
+ 
+-    # --- REPAIR (D9-DEF-1): the new refusal must be PROVED TO FIRE. A control that is
+-    # --- not shown to fire is ceremony, not a control. These two exercise the exact
+-    # --- paths that previously returned a bare `None` and vanished.
++    # ---- D9SUCC-G3: G-MESH gate must be exercised in every direction ----
++    def v_(d):
++        _healthy(d, maxnonorth=80.93)   # F-MESH-NULL measured baseline: 80.93 > 70
++    case("V G-MESH raw maxNonOrth 80.93 > 70 -> GATE FAIL (F-MESH-NULL)", v_, "GATE FAIL")
++
++    def w_(d):
++        _healthy(d)
++        os.remove(os.path.join(d, "mesh", "checkMesh.log"))
++    case("W G-MESH checkMesh log absent -> NOT A RESULT", w_, "NOT A RESULT")
++
++    def x_(d):
++        _healthy(d)
++        # log present but no parseable non-ortho line
++        with open(os.path.join(d, "mesh", "checkMesh.log"), "w") as f:
++            f.write("Checking geometry...\nMesh OK.\n")
++    case("X G-MESH checkMesh log unparseable -> NOT A RESULT", x_, "NOT A RESULT")
++
++    def y_(d):
++        _healthy(d)
++        _mk(d, "fd_" + fmt_tag(FD_STEPS[0]), J_an=[1.0] * 27, J_fd=[1.0] * 27,
++            fd_step=FD_STEPS[0], shapexUpper=[0.001 * (i + 1) for i in range(27)])
++        os.remove(os.path.join(d, "fd_" + fmt_tag(FD_STEPS[1]), "d9_out.json"))
++        os.remove(os.path.join(d, "fd_" + fmt_tag(FD_STEPS[2]), "d9_out.json"))
++    case("Y G-FDPERF only 1 of 3 usable tables -> NOT A RESULT", y_, "NOT A RESULT")
++
++    # --- D9-DEF-1 units: the FD reader plant must be PROVED TO FIRE ---
+     def unit(label, fn, want):
+         try:
+             fn()
+@@ -577,25 +725,35 @@
+         try:
+             st, val = reader_plant(d)          # empty root: no endpoint record at all
+             assert st == "NO_ENDPOINT" and val is None, (st, val)
+-            require_plant_fired(st, val)        # MUST refuse, not pass silently
++            require_plant_fired(st, val)        # MUST refuse
+         finally:
+             shutil.rmtree(d, ignore_errors=True)
+-    unit("R plant cannot run (no endpoint record) -> REFUSE, not a silent None", r, "REFUSE")
++    unit("R FD plant cannot run (no endpoint record) -> REFUSE, not a silent None", r, "REFUSE")
+ 
+     def s_():
+         d = tempfile.mkdtemp()
+         try:
+-            _mk(d, "fd_" + fmt_tag(1.0e-3), J_fd=[1.0] * 27, fd_step=1.0e-3,
++            _mk(d, "fd_" + fmt_tag(FD_STEPS[0]), J_fd=[1.0] * 27, fd_step=FD_STEPS[0],
+                 shapexUpper=[0.001] * 27)      # record present, J_an key ABSENT
+             st, val = reader_plant(d)
+             assert st == "NO_J_AN" and val is None, (st, val)
+             require_plant_fired(st, val)        # MUST refuse
+         finally:
+             shutil.rmtree(d, ignore_errors=True)
+-    unit("S plant cannot run (J_an key ABSENT) -> REFUSE, not a silent None", s_, "REFUSE")
++    unit("S FD plant cannot run (J_an key ABSENT) -> REFUSE, not a silent None", s_, "REFUSE")
++
++    # --- D9SUCC-G3 unit: the checkMesh reader plant must be PROVED TO SEE a non-zero ---
++    def t_():
++        d = tempfile.mkdtemp()
++        try:
++            seen = checkmesh_reader_plant(d)    # MUST see CHECKMESH_PLANT, else refuse
++            assert abs(seen - CHECKMESH_PLANT) < 1e-9, seen
++        finally:
++            shutil.rmtree(d, ignore_errors=True)
++    unit("T checkMesh reader plant SEES a planted non-zero (no silent zero)", t_, "NO REFUSAL")
+ 
+     npass = sum(1 for _, _, _, ok in results if ok)
+-    print("D9 GRADER SUPPLEMENT SELFTEST: %d/%d %s" % (npass, len(results),
++    print("D9successor GRADER SELFTEST: %d/%d %s" % (npass, len(results),
+                                             "PASS" if npass == len(results) else "FAIL"))
+     for label, want, got, ok in results:
+         if not ok:
+@@ -607,6 +765,7 @@
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--root", default="")
+     ap.add_argument("--cpuset", type=int, default=13)
++    ap.add_argument("--meshlog", default="", help="endpoint checkMesh log for G-MESH")
+     ap.add_argument("--selftest", action="store_true")
+     a = ap.parse_args()
+     if a.selftest:
+@@ -615,13 +774,13 @@
+         print("ABORT: --root is required")
+         sys.exit(2)
+     try:
+-        worst, lines, facts = grade(a.root, a.cpuset)
++        worst, lines, facts = grade(a.root, a.cpuset, meshlog=(a.meshlog or None))
+     except Refuse as e:
+-        print("D9 GRADER REFUSES (exit 2): %s" % e)
++        print("D9successor GRADER REFUSES (exit 2): %s" % e)
+         sys.exit(2)
+     for ln in lines:
+         print(ln)
+-    print("D9 VERDICT: %s" % NAME[worst])
++    print("D9successor VERDICT: %s" % NAME[worst])
+     if facts.get("rows"):
+         print("\nPER-COMPONENT ENDPOINT TABLE (adjoint vs FD at each component's OWN plateau step):")
+         print("  %-5s %-11s %-16s %-16s %-12s %s" %

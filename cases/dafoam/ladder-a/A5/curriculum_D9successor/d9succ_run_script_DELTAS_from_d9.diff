@@ -1,0 +1,188 @@
+--- curriculum_D9/d9_run_script.py	2026-08-25 17:56:37.532609262 +0000
++++ curriculum_D9successor/d9succ_run_script.py	2026-09-07 18:10:41.634651812 +0000
+@@ -1,10 +1,95 @@
+ #!/usr/bin/env python
+ """
+-CURRICULUM D9 -- U-BEND PRESSURE-LOSS MINIMISATION.  Frozen instrument.
++CURRICULUM D9successor -- U-BEND PRESSURE-LOSS MINIMISATION WITH A MESH-QUALITY
++(meshQualityKS) NON-ORTHOGONALITY INEQUALITY CONSTRAINT.  Successor to D9.  DRAFT
++INSTRUMENT -- NOT FROZEN (awaiting the dafoam-supervisor's check-1 read and freeze).
++
++DERIVED FROM cases/dafoam/ladder-a/A5/curriculum_D9/d9_run_script.py
++(md5 af5f07bc1d3b4aca4fb427e089df0761), itself derived from the published A5 stock
++runScript.  EVERYTHING about the optimisation problem -- objective, design variable,
++optimiser, image, np -- is carried BYTE-IDENTICAL from D9.  This successor changes
++EXACTLY ONE thing: it adds a mesh-quality inequality constraint so the optimiser
++cannot drive the endpoint past DAFoam's non-orthogonality limit (D9 terminated at
++maxNonOrth 80.93 against the case's own checkMeshThreshold { maxNonOrth 70; }).
++The scoping ruling that the constraint is registered ALONE (not bundled with a
++tightened primal) is the dafoam-supervisor's, PREREGISTRATION.md section 9.
++
++CHANGES FROM D9, and nowhere else (each has a line in the _DELTAS_from_d9.diff):
++
++  D9SUCC-0  Record basename `d9_out.json` and default `-out` are RETAINED from D9,
++        deliberately, to minimise the instrument diff.  The run root
++        /home/ubuntu/certonomous-runs/CURRICULUM-D9SUCCESSOR-a5-ubend-opt/ namespaces
++        every record, so there is no collision with D9's records.
++
++  D9SUCC-1  A `nonOrtho` function of type `meshQualityKS` is added to the `"function"`
++        block: metric `nonOrthoAngle`, coeffKS 1.0, source `allCells`, scale 1.0,
++        addToAdjoint True.  VALUES PINNED HERE, NOT CHOSEN AFTER A RUN:
++          * metric=nonOrthoAngle -> the KS aggregate is in DEGREES
++            (DAFunctionMeshQualityKS.C:131-135 in image dafoam-idwarp-rot:v1,
++            angleDeg = acos(faceOrthogonality)*180/pi), the same unit as the case's
++            checkMeshThreshold { maxNonOrth 70; } and checkMesh's "Mesh
++            non-orthogonality Max".
++          * coeffKS=1.0 -> the value both newer- and older-API tutorials use for
++            nonOrthoAngle.  The C++ overflow guard aborts only if the SUMMATION TERM
++            exceeds 1e200 (DAFunctionMeshQualityKS.C:146-150); at coeffKS=1.0 even a
++            pathological ~180deg face gives exp(180)~1.5e78, and a ~1e4-face sum
++            ~1e82, both far under 1e200 -- so coeffKS=1.0 CANNOT overflow on this mesh.
++            (This corrects PREREGISTRATION.md section 1.2's "double-precision
++            overflow ~1.8e308" reasoning: the real guard is the 1e200 sum cap; the
++            CONCLUSION -- 1.0 is safe -- is unchanged.)
++          * source=allCells -> the newer `"function"`-block whole-domain source, per
++            the on-disk newer-API example 30N30P_MultiElement_Airfoil/runScript.py:82.
++            (This CORRECTS PREREGISTRATION.md section 8 item 1(a)'s draft wording
++            `source boxToCell spanning the domain`, which is the OLDER `objFunc`-block
++            convention -- UAV_Propeller/runScriptAero.py:106.  In the newer
++            `"function"` block D9 uses, the whole-domain source is `allCells`.)
++          * addToAdjoint True -> matches D9's own `"function"`-block convention (TP1,
++            TP2).  NOTE for the supervisor: the newer-API tutorial 30N30P omits
++            addToAdjoint on its function-block meshQualityKS entries entirely; adding
++            it here is the conservative choice (honoured if read, harmless if the
++            newer API ignores it).
++
++  D9SUCC-2  ONE optimiser constraint is registered:
++            self.add_constraint("scenario.aero_post.nonOrtho", upper=70.0, scaler=1.0)
++        The exposure name `scenario.aero_post.nonOrtho` and the API generation are
++        VERIFIED ON DISK in image dafoam-idwarp-rot:v1 (see API-EXPOSURE below).
++        upper=70.0 is the case's own checkMeshThreshold; scaler=1.0 matches the exact
++        newer-API precedent 30N30P_MultiElement_Airfoil/runScript.py:263
++        (self.add_constraint("scenario1.aero_post.nonOrtho", upper=70.0, scaler=1.0)).
++
++  D9SUCC-3  The KS constraint value the driver saw is recorded into every task record
++        as `nonOrtho_KS`, so G-MESH can report the KS value beside the raw checkMesh
++        maxNonOrth and measure the KS slack (PREREGISTRATION.md section 1.2, 3.1).
++        This is a REPORTED number; nothing here computes a verdict from it.
++
++API-EXPOSURE (the PREREGISTRATION.md section 8 item 1(c) / section 9.1 question --
++does the newer `"function"`-block API expose meshQualityKS through aero_post under
++D9's exact mphys wiring?)  ANSWER: YES.  Three on-disk confirmations in image
++dafoam-idwarp-rot:v1 (sha256:2927768a...):
++  1. dafoam/mphys/mphys_dafoam.py:724-727 -- DAFoamFunctions.setup() loops over EVERY
++     key of DASolver.getOption("function") and calls self.add_output(f_name, ...),
++     UNIFORMLY, with NO filter by function type and NO filter by addToAdjoint.  Any
++     key in the `"function"` block becomes an aero_post output.  compute() (:742-743)
++     reads funcs[f_name] for every output; the constraint gradient flows through
++     compute_jacvec_product (:746, calcJacTVecProduct(..., functionName, "function",
++     seed, ...)).
++  2. mphys_dafoam.py:109-110 -- DAFoamBuilder.get_post_coupling_subsystem() returns
++     DAFoamPostcouplingGroup, which adds DAFoamFunctions promoting ["*"] (:229); the
++     scenario's aero_post IS that group, so scenario.aero_post.<f_name> resolves to
++     the function output <f_name> (this is exactly how D9 reaches scenario.aero_post.TP1).
++  3. Live precedent 30N30P_MultiElement_Airfoil/runScript.py -- the SAME newer
++     `"function"` block (:55) + ScenarioAerodynamic (:137), defines a meshQualityKS
++     `nonOrtho` (:79-85) and registers self.add_constraint("scenario1.aero_post.nonOrtho",
++     upper=70.0, scaler=1.0) (:263).  The constraint-output exposure name is the
++     function key itself: `nonOrtho`.
++Therefore the constraint CAN be gated; this instrument is buildable as written.
+ 
+-DERIVED FROM /home/ubuntu/certonomous-runs/W5-regrade/a5pl_stock/runScript.py
+-(md5 06fb0ed4228d9927992a12a2fb68055c), the EXACT configuration the published A5
+-numbers came from.  Every change from it is listed here and nowhere else:
++np=1 THROUGHOUT, deliberately.  A5's np=1 re-verification localised the idx16
++`check_totals` anomaly to the np=4 FD path: np=1 reports -5.00483123 at idx16,
++inside the cluster of three independent re-measurements, while the published np=4
++value -4.30296296 sits 16.3 % away and the neighbouring idx15 agrees across rank
++counts to 5 parts in 100,000.  The endpoint FD spot-check this item is gated on
++therefore MUST be at np=1 or it would be read through the corrupted path.
+ 
+   D9-1  `-maxit` sets the SLSQP major-iteration limit from the launcher, so the
+         CALIBRATION MAJOR (maxit=1) and the full buy run the SAME instrument.
+@@ -34,13 +119,6 @@
+         FD spot-check verifies the OPTIMISED geometry rather than the baseline.
+   D9-8  `-fdStep` exposes the central-FD step, which is SIZED AGAINST A MEASURED
+         NOISE FLOOR (delta_repeat) rather than copied from A5's 1e-4.
+-
+-np=1 THROUGHOUT, deliberately.  A5's np=1 re-verification localised the idx16
+-`check_totals` anomaly to the np=4 FD path: np=1 reports -5.00483123 at idx16,
+-inside the cluster of three independent re-measurements, while the published np=4
+-value -4.30296296 sits 16.3 % away and the neighbouring idx15 agrees across rank
+-counts to 5 parts in 100,000.  The endpoint FD spot-check this item is gated on
+-therefore MUST be at np=1 or it would be read through the corrupted path.
+ """
+ # =============================================================================
+ # Imports
+@@ -126,6 +204,19 @@
+                 "addToAdjoint": False,
+             },
+ 
++            # D9SUCC-1  mesh-quality non-orthogonality KS constraint function.
++            # Whole-domain (allCells) KS aggregate of the per-face non-ortho angle,
++            # in DEGREES; a smooth OVER-BOUND of the true max (max <= KS <= max +
++            # log(N)/coeffKS), so constraining KS <= 70 forces the raw max <= 70.
++            "nonOrtho": {
++                "type": "meshQualityKS",
++                "source": "allCells",
++                "coeffKS": 1.0,
++                "metric": "nonOrthoAngle",
++                "scale": 1.0,
++                "addToAdjoint": True,
++            },
++
+     },
+ 
+     "adjStateOrdering": "cell",
+@@ -281,6 +372,11 @@
+         self.connect("scenario.aero_post.TP1" , "OBJ.TP1")
+         self.connect("scenario.aero_post.TP2" , "OBJ.TP2")
+         self.add_objective("OBJ.val" , scaler = 1.0)
++        # D9SUCC-2  the mesh-quality inequality constraint, registered ALONE (PREREG section 9).
++        # scenario.aero_post.nonOrtho is the meshQualityKS function output (verified on disk:
++        # mphys_dafoam.py:724-727, :229; 30N30P/runScript.py:263).  upper=70.0 is the case's own
++        # checkMeshThreshold { maxNonOrth 70; }; scaler=1.0 matches the newer-API 30N30P precedent.
++        self.add_constraint("scenario.aero_post.nonOrtho" , upper = 70.0 , scaler = 1.0)
+ 
+ # =============================================================================
+ # Problem Setup
+@@ -341,6 +437,15 @@
+ rec = {"task": args.task, "maxit": args.maxit, "optimizer": args.optimizer,
+        "sched_affinity": sorted(os.sched_getaffinity(0)), "status": "STARTED"}
+ 
++
++# D9SUCC-3  the KS constraint value the driver saw, recorded (REPORTED, never gated here).
++def _read_nonortho(prob, rec):
++    try:
++        rec["nonOrtho_KS"] = float(np.atleast_1d(prob.get_val("scenario.aero_post.nonOrtho"))[0])
++    except Exception as e:
++        rec["nonOrtho_KS_error"] = repr(e)
++
++
+ if args.task == "run_driver":
+     # D9-5  history recorder, BEST EFFORT.  A failure here reaches no gate.
+     try:
+@@ -362,6 +467,7 @@
+     rec["TP1"] = float(np.atleast_1d(prob.get_val("scenario.aero_post.TP1"))[0])
+     rec["TP2"] = float(np.atleast_1d(prob.get_val("scenario.aero_post.TP2"))[0])
+     rec["shapexUpper"] = [float(v) for v in np.atleast_1d(prob.get_val("shapexUpper"))]
++    _read_nonortho(prob, rec)   # D9SUCC-3
+ 
+ elif args.task == "run_model":
+     prob.run_model()
+@@ -369,6 +475,7 @@
+     rec["TP1"] = float(np.atleast_1d(prob.get_val("scenario.aero_post.TP1"))[0])
+     rec["TP2"] = float(np.atleast_1d(prob.get_val("scenario.aero_post.TP2"))[0])
+     rec["shapexUpper"] = [float(v) for v in np.atleast_1d(prob.get_val("shapexUpper"))]
++    _read_nonortho(prob, rec)   # D9SUCC-3
+ 
+ elif args.task == "check_totals":
+     # D9-3  the endpoint FD spot-check.  The design point is whatever `-dvFile` loaded,
+@@ -376,6 +483,7 @@
+     prob.run_model()
+     rec["OBJ_val"] = float(np.atleast_1d(prob.get_val("OBJ.val"))[0])
+     rec["shapexUpper"] = [float(v) for v in np.atleast_1d(prob.get_val("shapexUpper"))]
++    _read_nonortho(prob, rec)   # D9SUCC-3
+     data = prob.check_totals(
+         of            = ["OBJ.val"],
+         wrt           = ["shapexUpper"],
