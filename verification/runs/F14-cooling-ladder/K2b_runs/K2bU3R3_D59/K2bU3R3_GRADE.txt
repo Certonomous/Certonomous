@@ -1,0 +1,34 @@
+==============================================================================
+K2b-U3-R3  DOES THE 2D LIMIT CYCLE SURVIVE IN 3D AT THE 59 mm FEASIBLE MESH?
+graded against K2bU3R3_PREREGISTRATION.md; gate re-used unchanged from
+analyse_k2bU3.py (git blob d1500a5f...), K2b_3D_UNSTEADINESS_PRE... 91a26fc9...
+thresholds: p2p >= 0.3 K and ratio >= 0.8 = SURVIVES;  p2p <= 0.1 K or ratio <= 0.5 = DAMPS
+aliasing floors: 20 steps and 10 samples per 6.000 s period
+==============================================================================
+
+PLANTED-ZERO CONTROL (CLAUDE.md rule 3; §5.1) -- closing the gap the
+frozen predecessor lacks. A DAMPS verdict is a near-zero p2p and must
+not be believed from a reader not shown able to see a non-zero.
+  planted p2p PLANT           = 1.234000e-03 K   (tol 1.0e-09 K)
+  negative arm (no plant)     = 6.058442e-01 K   (true final-window p2p; near-zero permitted)
+  positive arm (PLANT, re-read through series()) = 1.234000e-03 K
+  demonstrated detection floor = 1.234000e-03 K   (81x below the 0.1 K DAMPS floor)
+  ==> control PASSES: the grade's reader can see a p2p down to the floor above, so a DAMPS near-zero is a MEASURED value.
+
+TEST D (R3) -- the full 3D module, N=4 racks, OPEN row ends, h=0.059 m.
+  Test D R3 (3D, h=0.059): 995 steps to t=80.00 s, mean dt 0.0804 s, 4 monitored face(s)
+    ALIASING GUARD  steps/period 74.6 (floor 20)   samples/period 30.0 (floor 10)
+    final 60-80 s: p2p 0.6058 K (mean 293.5306 K)
+    preceding 40-60 s: p2p 1.4414 K   ratio 0.420
+    dominant period after the discard: none extracted   (2D limit cycle was 6.000 s)
+    ==> Test D R3 (3D, h=0.059) SAYS: DAMPS
+
+==============================================================================
+OUTCOME P2 -- IT DAMPS IN 3D. Three-dimensionality damps the mode at the
+nearest builder-feasible 59 mm module. The 2D finding STANDS as true of the 2D slice --
+it is not retracted and it was not wrong. What changes is its
+extrapolation: the section 9 estimate becomes REVIVABLE BUT NOT REVIVED --
+it was built on iteration counts from an unsteady 2D case and must be
+re-derived before it is quoted. (This near-zero is a measured value:
+the planted-zero control above passed.)
+==============================================================================
