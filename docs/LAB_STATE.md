@@ -17477,6 +17477,30 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-07 (update): T4c FROZEN (7db2cb8d) and COMPUTING (3 detached solves); T4 cleared to state (b); K0g + T8-discriminator gated on Sanaa's clause-5 rule-4 sign-off; T21 physics-dict half in progress.
+
+*(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. This block SUPERSEDES the earlier 2026-09-07 §2ay block below, which is kept as predecessor history. **0 solver core-min in this block.**)*
+
+- **Last commit:** T4c freeze `7db2cb8d` — "heat-transfer T4c FROZEN: T4b successor (relaxation 0.7→0.6 + nrj 3N/2 + endTime schedule), grading path pinned by sha".
+- **LIVE JOBS (T4c, launched 2026-09-07 ~04:34Z, detached OS processes surviving session death — this is where a resumed session finds the running solves):**
+  - **coarse:** solver child pid **29511** (timeout parent 29510), cwd `verification/runs/T-family/T4c_runs/T4c_IJ_c`, ~3457/30000 @ ~11 it/s, ETA ~0.7h, cap 3900s.
+  - **medium:** child **29515** (parent 29514), cwd `.../T4c_IJ_m`, ~238/60000 @ ~0.76 it/s, ETA ~22h, cap 30000s.
+  - **fine:** child **29521** (parent 29520), cwd `.../T4c_IJ_f`, ~48/64000 @ ~0.15 it/s, ETA ~115h, cap 172800s.
+  - **WATCHER** pid **29573** (PPID 1), logging `verification/runs/T-family/T4c_runs/WATCH_t4c.log` every 5 min.
+  - Mark all ETAs **VERIFY** — early-run projections.
+- **FINDING (cost, not crash):** T4c early per-cell rate ran **2.7× / 6.5× / 4.7×** over the T4b-rate POINT basis (early-transient GAMG storm, amplified by relaxation-0.6 + finer axis). Coarse is RECOVERING (1.9e-5 → 1.05e-5 core-s/cell-it, ~1.5× basis = at CEILING, now inside cap). Caps are **FROZEN and self-enforcing via timeout**; per rule 12 **no cap extension**. **DECISION CRITERIA:** coarse is the cheap canary (~0.7h); if a level cap-stops with rate still 2–3× over basis that is a measured cost-misprediction → **NOT-A-RESULT-by-cap-stop finding** → fix is a registered **T4d cap recalibration** (supervisor call), NOT a physics gap and NOT a T4c cap extension. A Monitor is armed to wake the supervisor at the first solver resolution.
+- **Rungs without verdicts / actionable set:**
+  - **T4 = state (b) cleared** — crash triaged CONFIG/BUG, superseded-forward by T4b; ruling in `COMPLETION_ENFORCEMENT_TRIAGE_2026-09-06.md §5`, committed `00b5fbe3`.
+  - **T4c = computing** — grade after all 3 reach endTime (`mark_done_t4c` + `analyse_t4c`).
+  - **K0g = scripts authored + `analyse_k0g` §3 code-diff PASSED, FROZEN PENDING** Sanaa's clause-5 rule-4 transient instantiation (n_exec==n_time replacing ExecutionTime-count==endTime for adjustable-dt; supervisor ENDORSES, verification to design, Sanaa to approve).
+  - **T8 = state (c)** — discriminator (transient, same method as K0g) gated on the same clause-5 sign-off; spine referral recommendation entered (`cc904c79`), on Sanaa's desk.
+  - **T21 = physics-dict/enthalpy-fvOptions half in progress** toward §2ap freeze.
+- **On Sanaa's desk:** (1) clause-5 rule-4 instantiation (gates K0g + T8-discriminator); (2) T8 spine referral; (3) Vogel & Eaton 1985 / Blay 1992 NOT OBTAINED; (4) K0c\* model-form → closure ladder.
+- **§2ay lineage reciprocal to verification DONE:** T3e←T3d (`ad27ff50`), T3f←T3e (`720741a9`), T3g←T3f (`e0761564`), T16c←T16 (`ab36126e`), T4b←T4 (`ab72cfd3`), K0eR3←K0eR2 (`260701e5`); T19b/K0g already recognized.
+- **Next actions:** at coarse canary resolution decide medium/fine per the criteria; grade T4c on completion; register K0g + T8-discriminator when clause-5 clears; review T21 physics-dict half; T4d only if a cap-stop finding lands.
+
+---
+
 ##### heat-transfer session 2026-09-07 — §2ay actionable set worked: T4 CLEARED to state (b), T8 scoped to (c) + spine referral recommendation entered; T4b/K0f successor drafts and T4/T8 triage dispatched to lanes.
 
 *(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. **0 solver core-min.**)*
