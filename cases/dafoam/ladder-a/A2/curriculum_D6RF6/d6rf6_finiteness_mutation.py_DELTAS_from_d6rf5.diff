@@ -1,0 +1,130 @@
+--- curriculum_D6RF5/d6rf5_finiteness_mutation.py	2026-09-07 04:10:41.884038981 +0000
++++ curriculum_D6RF6/d6rf6_finiteness_mutation.py	2026-09-07 15:58:30.733954349 +0000
+@@ -1,10 +1,10 @@
+ #!/usr/bin/env python3
+-"""Curriculum D6RF5 -- `PREREGISTRATION.md` section 3f's TWO-DIRECTION MUTATION
++"""Curriculum D6RF6 -- `PREREGISTRATION.md` section 3f's TWO-DIRECTION MUTATION
+ HARNESS.  It is the executable control on the finiteness clause, and it exists
+ because **a restrictive repair is not self-certifying**.
+ 
+ WHY IT IS A SEPARATE FILE AND NOT A BLOCK INSIDE THE GRADER, stated as a reason
+-rather than left as a preference: `d6rf5_grade.py` IS the grading path frozen by
++rather than left as a preference: `d6rf6_grade.py` IS the grading path frozen by
+ `CLAUDE.md` rule 2, and it is the one file in this item a reviewer must be able
+ to read line by line.  Two hundred lines of fixture construction inside it are
+ dead weight on every such read, forever.  The supervisor may overrule this and
+@@ -63,7 +63,7 @@
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ sys.path.insert(0, HERE)
+ 
+-import d6rf5_grade as G                                          # noqa: E402
++import d6rf6_grade as G                                          # noqa: E402
+ 
+ NONFINITE = (("NaN", float("nan")), ("+Inf", float("inf")),
+              ("-Inf", float("-inf")))
+@@ -76,12 +76,12 @@
+ CD_REF = {p: v * 1.05 for p, v in CD_MP.items()}
+ CL_REF = {"cl04": 0.4, "cl05": 0.5, "cl06": 0.6}
+ # THE FIXTURE CENSUS, AND IT IS SYNTHETIC ON PURPOSE.  `REF_off` is NOT a
+-# registered arm of D6RF5 (PREREGISTRATION.md section 8.2) and on a real
++# registered arm of D6RF6 (PREREGISTRATION.md section 8.2) and on a real
+ # grading run its census state is NOT_REGISTERED_AT_THIS_FREEZE, which makes
+ # G-OFF read NOT A RESULT for want of an input.  THE CLAUSE UNDER TEST HERE IS
+ # THE FINITENESS FOLD, WHICH IS PER-GATE AND ARM-AGNOSTIC, so the fixture gives
+ # both arms a RAN state in order to reach the fold at all.  Saying so here
+-# rather than letting a reader infer that D6RF5 buys a REF_off arm.
++# rather than letting a reader infer that D6RF6 buys a REF_off arm.
+ CENSUS = {"P_conv": {"state": "RAN", "source": "fixture"},
+           "REF_off": {"state": "RAN", "source": "fixture"}}
+ 
+@@ -92,7 +92,7 @@
+ 
+ 
+ def _fd_doc():
+-    """The shape `d6rf5_fd_endpoint.py` writes, with `points` (section 2a's
++    """The shape `d6rf6_fd_endpoint.py` writes, with `points` (section 2a's
+     registered CD path) and five PLANNED FD rows inside band D."""
+     rows = []
+     for i, (dv, idx) in enumerate((("shape", 46), ("shape", 18), ("shape", 0),
+@@ -157,7 +157,7 @@
+     the launcher would have written it, not as a Python float."""
+     ov = overrides or {}
+     with open(path, "w") as fh:
+-        fh.write("ITEM=D6RF5 staged=fixture\n")
++        fh.write("ITEM=D6RF6 staged=fixture\n")
+         # ONLY THE REGISTERED ARM GETS A LEDGER ROW.  `arm_census` REFUSES on
+         # a ledger row for an unregistered arm -- it would mean this item
+         # bought compute it never registered -- so the fixture must not write
+@@ -199,14 +199,14 @@
+         os.makedirs(os.path.join(root, a))
+     datum = time.time() - 100.0
+     f = os.path.join(root, "P_conv")
+-    _w(os.path.join(f, "d6rf5_fd_endpoint.json"), _fd_doc())
+-    _w(os.path.join(f, "d6rf5_major_history.json"), _hist_doc())
+-    _w(os.path.join(f, "d6rf5_endpoint_dvs_PHYSICAL.json"), _dv_doc())
+-    _w(os.path.join(f, "d6rf5_endpoint_dvs_DRIVERSCALED.json"), _dv_doc())
+-    _w(os.path.join(f, "d6rf5_endpoint_dvs.json"), _dv_doc())
+-    _w(os.path.join(f, "d6rf5_f5_endpoint.json"), _fd_doc())
++    _w(os.path.join(f, "d6rf6_fd_endpoint.json"), _fd_doc())
++    _w(os.path.join(f, "d6rf6_major_history.json"), _hist_doc())
++    _w(os.path.join(f, "d6rf6_endpoint_dvs_PHYSICAL.json"), _dv_doc())
++    _w(os.path.join(f, "d6rf6_endpoint_dvs_DRIVERSCALED.json"), _dv_doc())
++    _w(os.path.join(f, "d6rf6_endpoint_dvs.json"), _dv_doc())
++    _w(os.path.join(f, "d6rf6_f5_endpoint.json"), _fd_doc())
+     r = os.path.join(root, "REF_off")
+-    _w(os.path.join(r, "d6rf5_ref_off.json"), _ref_doc())
++    _w(os.path.join(r, "d6rf6_ref_off.json"), _ref_doc())
+     _w(os.path.join(r, "d4_endpoint_dvs_PHYSICAL.json"), _dv_doc())
+     _w(os.path.join(r, "d4_endpoint_dvs.json"), _dv_doc())
+     for a in ("P_conv", "REF_off"):
+@@ -245,11 +245,11 @@
+     REGISTERED binding list, verbatim, NOT widened."""
+     f = os.path.join(root, "P_conv")
+     r = os.path.join(root, "REF_off")
+-    fd = os.path.join(f, "d6rf5_fd_endpoint.json")
+-    ref = os.path.join(r, "d6rf5_ref_off.json")
+-    hist = os.path.join(f, "d6rf5_major_history.json")
+-    dv = os.path.join(f, "d6rf5_endpoint_dvs_PHYSICAL.json")
+-    rs = os.path.join(HERE, "d6rf5_opt_runScript.py")
++    fd = os.path.join(f, "d6rf6_fd_endpoint.json")
++    ref = os.path.join(r, "d6rf6_ref_off.json")
++    hist = os.path.join(f, "d6rf6_major_history.json")
++    dv = os.path.join(f, "d6rf6_endpoint_dvs_PHYSICAL.json")
++    rs = os.path.join(HERE, "d6rf6_opt_runScript.py")
+ 
+     def off():
+         return G.gate_off(root, CENSUS)
+@@ -345,8 +345,8 @@
+ # EXECUTABLY."  A clause asserted only in prose about a NEW gate is a clause
+ # whose newest call sites are the untested ones (CLAUDE.md rule 14's shape).
+ LEG_LOG_CLEAN = """\
+-D6RF5_FVSCHEMES_INSTALLED leg=L1_L2 md5={fvmd5} sites=1 file=d6rf5_fvSchemes_LIMITED
+-D6RF5_LEG_BEGIN baseline mode=P_conv
++D6RF6_FVSCHEMES_INSTALLED leg=L1_L2 md5={fvmd5} sites=1 file=d6rf6_fvSchemes_LIMITED
++D6RF6_LEG_BEGIN baseline mode=P_conv
+     primalMinResTol 1e-08;
+     primalMinResTolDiff 1000;
+ 
+@@ -366,7 +366,7 @@
+ ExecutionTime = 118.3 s  ClockTime = 119 s
+ 
+ End
+-D6RF5_LEG_END baseline mode=P_conv J=0.0222 wall_s=118.300 primal_raised=False
++D6RF6_LEG_END baseline mode=P_conv J=0.0222 wall_s=118.300 primal_raised=False
+ Finalising parallel run
+ """
+ 
+@@ -534,11 +534,11 @@
+ 
+ 
+ def drive():
+-    tmp = tempfile.mkdtemp(prefix="d6rf5_finmut_")
++    tmp = tempfile.mkdtemp(prefix="d6rf6_finmut_")
+     root = os.path.join(tmp, "run")
+     d4 = build(root)
+     G.D4_OPT_IPOPT = d4
+-    print("D6RF5 SECTION 3f FINITENESS MUTATION HARNESS -- BOTH DIRECTIONS")
++    print("D6RF6 SECTION 3f FINITENESS MUTATION HARNESS -- BOTH DIRECTIONS")
+     print("  the fixture census gives REF_off a RAN state so the G-OFF fold is "
+           "reachable; on a REAL grading run REF_off is "
+           "NOT_REGISTERED_AT_THIS_FREEZE and G-OFF reads NOT A RESULT")

@@ -1,0 +1,59 @@
+--- curriculum_D6RF5/d6rf5_extract_endpoint.py	2026-09-07 03:58:58.401765282 +0000
++++ curriculum_D6RF6/d6rf6_extract_endpoint.py	2026-09-07 15:58:30.729089450 +0000
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python
+-"""Curriculum D6RF5 -- extract the optimiser's FINAL design point and the
++"""Curriculum D6RF6 -- extract the optimiser's FINAL design point and the
+ per-major COMPOSITE OBJECTIVE from the pyOptSparse history FILE (`OptView.hst`),
+ never from stdout.  IT READS DESIGN VARIABLES AND `J` ONLY.
+ 
+@@ -28,7 +28,7 @@
+   * `J` IS KEPT.  `R-RED` (REPORTED, NOT GATED) reads it, and section 3c
+     requires that row to disclose non-finiteness rather than print a number
+     derived from a `NaN`.
+-  * Product names are this item's own (`d6rf5_*`), not `D6R`'s.  A product
++  * Product names are this item's own (`d6rf6_*`), not `D6R`'s.  A product
+     registered under one name and written under another is `D6RF3-DEF-6`,
+     measured in `D6RF2` and named in `PREREGISTRATION.md` section 1f.
+ 
+@@ -55,13 +55,13 @@
+ import sys
+ 
+ HST = "OptView.hst"
+-OUT = "d6rf5_endpoint_dvs.json"
+-HIST_OUT = "d6rf5_major_history.json"
++OUT = "d6rf6_endpoint_dvs.json"
++HIST_OUT = "d6rf6_major_history.json"
+ KEYS = ("twist", "shape", "patchV_cl04", "patchV_cl05", "patchV_cl06")
+ 
+ 
+ def refuse(msg):
+-    sys.stderr.write("D6RF5_EXTRACT REFUSE %s\n" % msg)
++    sys.stderr.write("D6RF6_EXTRACT REFUSE %s\n" % msg)
+     sys.exit(2)
+ 
+ 
+@@ -106,11 +106,11 @@
+                "registered OptView.hst found NO CD in any structure of any of "
+                "1,007 records. CD_i(mp) for this item comes from "
+                "PREREGISTRATION.md section 2a -- the FD baseline primal, "
+-               "d6rf5_fd_endpoint.json points.<pt>.CD -- and NOT from here.")
++               "d6rf6_fd_endpoint.json points.<pt>.CD -- and NOT from here.")
+     out["_cd_block_dropped"] = dropped
+     hist["_cd_block_dropped"] = dropped
+-    out["_extractor"] = "d6rf5_extract_endpoint.py"
+-    hist["_extractor"] = "d6rf5_extract_endpoint.py"
++    out["_extractor"] = "d6rf6_extract_endpoint.py"
++    hist["_extractor"] = "d6rf6_extract_endpoint.py"
+     with open(HIST_OUT, "w") as fh:
+         json.dump(hist, fh, indent=1, sort_keys=True)
+         fh.flush()
+@@ -119,7 +119,7 @@
+         json.dump(out, fh, indent=1, sort_keys=True)
+         fh.flush()
+         os.fsync(fh.fileno())
+-    sys.stdout.write("D6RF5_ENDPOINT_DVS_WRITTEN %s n_major_rows=%d n_shape=%d "
++    sys.stdout.write("D6RF6_ENDPOINT_DVS_WRITTEN %s n_major_rows=%d n_shape=%d "
+                      "history=%s\n"
+                      % (OUT, n_major, len(out["shape"]), HIST_OUT))
+ 

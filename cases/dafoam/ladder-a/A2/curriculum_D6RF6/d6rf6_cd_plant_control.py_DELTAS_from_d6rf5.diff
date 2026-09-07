@@ -1,0 +1,94 @@
+--- curriculum_D6RF5/d6rf5_cd_plant_control.py	2026-09-07 03:51:31.728403248 +0000
++++ curriculum_D6RF6/d6rf6_cd_plant_control.py	2026-09-07 15:58:30.733808638 +0000
+@@ -1,12 +1,12 @@
+ #!/usr/bin/env python3
+-"""Curriculum D6RF5 -- `PREREGISTRATION.md` section 3e's THIRD PLANTED-ZERO
++"""Curriculum D6RF6 -- `PREREGISTRATION.md` section 3e's THIRD PLANTED-ZERO
+ CONTROL, and the ONE reader of `CD_i(mp)` in this item.
+ 
+ WHY THIS FILE EXISTS AS A SEPARATE INSTRUMENT AND NOT AS A BLOCK INSIDE THE
+ GRADER.  `CLAUDE.md` rule 3 says a zero -- or an agreement -- from a reader not
+ shown able to see a non-zero is not evidence.  The strongest way to satisfy it
+ is to make the control and the graded path THE SAME FUNCTION, so that a control
+-cannot drift away from what it is controlling.  `d6rf5_grade.py` imports
++cannot drift away from what it is controlling.  `d6rf6_grade.py` imports
+ `read_cd` from here and calls NOTHING ELSE to obtain a `CD`.  A control that
+ exercises a different reader controls nothing, and `d6rf2_grade.py:481-484`
+ already says so about the FD reader; this file applies the same discipline to
+@@ -49,7 +49,7 @@
+ 
+ PLANT = 1.234e-03                    # the registered perturbation, section 3e
+ PLANT_REL_TOL = 1.0e-9
+-CD_ARTEFACT = "d6rf5_fd_endpoint.json"
++CD_ARTEFACT = "d6rf6_fd_endpoint.json"
+ PLANT_POINT = "cl05"                 # section 3e: planted BY KEY at points.cl05.CD
+ POINTS = ("cl04", "cl05", "cl06")
+ 
+@@ -83,7 +83,7 @@
+     """THE CD READER of this item, and the ONLY one.
+ 
+     Returns the raw token at `points.<point>.CD` of `path` EXACTLY as the
+-    artefact holds it -- a `repr()`'d string, because `d6rf5_fd_endpoint.py`
++    artefact holds it -- a `repr()`'d string, because `d6rf6_fd_endpoint.py`
+     writes `repr(float(...))`.  IT DOES NOT PARSE AND IT DOES NOT CHECK
+     FINITENESS: parsing and the section 3f finiteness check are the grader's,
+     through `_ff`, so that the reader shown able to see a plant is byte-for-byte
+@@ -157,7 +157,7 @@
+     i.e. if the reader is looking somewhere else.
+ 
+     `reader` is a parameter ONLY so the blind-reader drive can pass a reader
+-    that is known to be wrong.  `d6rf5_grade.py` never passes it, so the graded
++    that is known to be wrong.  `d6rf6_grade.py` never passes it, so the graded
+     path and the controlled path are the same function.
+ 
+     Returns a record whose `state` is one of the three section-18.5 tokens.
+@@ -178,7 +178,7 @@
+         return base
+     m_before = md5_of(cd_path)
+     unperturbed = float(reader(cd_path, point))
+-    planted_copy = os.path.join(ctrl_dir, "d6rf5_fd_endpoint.PLANTED.json")
++    planted_copy = os.path.join(ctrl_dir, "d6rf6_fd_endpoint.PLANTED.json")
+     who = plant_into_cd(cd_path, planted_copy, point)
+     got = float(reader(planted_copy, point))
+     delta = got - unperturbed
+@@ -209,7 +209,7 @@
+ 
+ # ============================ THE DRIVE, BOTH WAYS ==========================
+ def _synthetic_product(path):
+-    """A minimal artefact of the shape `d6rf5_fd_endpoint.py` writes.  Built
++    """A minimal artefact of the shape `d6rf6_fd_endpoint.py` writes.  Built
+     here rather than taken from a run.
+ 
+     THE REASON IS TENSELESS AND STAYS TRUE AFTER THE ITEM RUNS: a control that
+@@ -268,10 +268,10 @@
+ def drive():
+     """Runs the control in BOTH directions and prints an auditable record.
+     Returns 0 only if every direction behaved as registered."""
+-    tmp = tempfile.mkdtemp(prefix="d6rf5_cd_ctrl_")
++    tmp = tempfile.mkdtemp(prefix="d6rf6_cd_ctrl_")
+     prod = os.path.join(tmp, CD_ARTEFACT)
+     cd = _synthetic_product(prod)
+-    print("D6RF5 CD PLANT CONTROL -- BOTH DIRECTIONS, no `assert` statement "
++    print("D6RF6 CD PLANT CONTROL -- BOTH DIRECTIONS, no `assert` statement "
+           "anywhere in this file")
+     print("  product %s" % prod)
+     print("  registered key points.%s.CD = %r" % (PLANT_POINT, cd[PLANT_POINT]))
+@@ -359,14 +359,14 @@
+     if a.artefact:
+         try:
+             r = run_cd_control(a.ctrl_dir or tempfile.mkdtemp(
+-                prefix="d6rf5_cd_"), a.artefact)
++                prefix="d6rf6_cd_"), a.artefact)
+         except CDRefusal as e:
+-            sys.stderr.write("D6RF5_CD_CONTROL REFUSED %s\n" % e)
++            sys.stderr.write("D6RF6_CD_CONTROL REFUSED %s\n" % e)
+             return 2
+         print(json.dumps(r, indent=1, sort_keys=True, default=str))
+         return 0
+-    sys.stderr.write("usage: d6rf5_cd_plant_control.py --drive "
+-                     "| --artefact <d6rf5_fd_endpoint.json>\n")
++    sys.stderr.write("usage: d6rf6_cd_plant_control.py --drive "
++                     "| --artefact <d6rf6_fd_endpoint.json>\n")
+     return 64
+ 
+ 

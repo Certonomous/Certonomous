@@ -1,0 +1,38 @@
+--- curriculum_D6RF5/d6rf5_units_assert.py	2026-09-07 03:58:58.407307546 +0000
++++ curriculum_D6RF6/d6rf6_units_assert.py	2026-09-07 15:58:30.729420783 +0000
+@@ -65,7 +65,7 @@
+     writes the vector and the mpirun that consumes it.
+ Neither call site can be satisfied by the other.
+ 
+-Self-test: `python3 d6rf5_units_assert.py --selftest` drives mutants AND the two
++Self-test: `python3 d6rf6_units_assert.py --selftest` drives mutants AND the two
+ LIVE artefacts on disk -- D4's crashed unmarked vector, which MUST refuse, and
+ D4's arm-F3 repaired vector, which MUST pass.  A gate that refuses everything is
+ not a gate either.
+@@ -79,7 +79,7 @@
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ if HERE not in sys.path:
+     sys.path.insert(0, HERE)
+-import d6rf5_endpoint_locus as locus                                # noqa: E402
++import d6rf6_endpoint_locus as locus                                # noqa: E402
+ 
+ RC_UNITS_REFUSAL = 77
+ UNITS_MARKER = "PHYSICAL"
+@@ -217,7 +217,7 @@
+                "F3/d4_endpoint_dvs_PHYSICAL.json")
+ RS_D4 = os.path.abspath(os.path.join(HERE, os.pardir, "curriculum_D4",
+                                      "d4_opt_runScript.py"))
+-RS_D6R = os.path.abspath(os.path.join(HERE, "d6rf5_opt_runScript.py"))
++RS_D6R = os.path.abspath(os.path.join(HERE, "d6rf6_opt_runScript.py"))
+ 
+ 
+ def _clean_d6r_doc():
+@@ -371,7 +371,7 @@
+     if a.selftest:
+         return selftest()
+     if not a.dvfile or not a.runscript:
+-        sys.stderr.write("usage: d6rf5_units_assert.py <dvfile> --runscript "
++        sys.stderr.write("usage: d6rf6_units_assert.py <dvfile> --runscript "
+                          "<producer.py>  |  --selftest\n")
+         return 64
+     check(a.dvfile, a.runscript)

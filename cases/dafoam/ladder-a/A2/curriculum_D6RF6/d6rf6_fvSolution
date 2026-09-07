@@ -1,0 +1,105 @@
+/*--------------------------------*- C++ -*---------------------------------*\
+| ========                 |                                                 |
+| \      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \    /   O peration     | Version:  v1812                                 |
+|   \  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \/     M anipulation  |                                                 |
+\*--------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// ==========================================================================
+// D6RF5 -- FIX #2: nNonOrthogonalCorrectors 1 -> 3, ON THE TIGHTENED SOLVER.
+//
+// DERIVED FROM d6rf4_fvSolution_TIGHT (md5 0ac5bd00c63b9109d22a8e73b0795aa4,
+// verified on disk before this file was written).  THE ONLY DELTA is the SIMPLE
+// block's nNonOrthogonalCorrectors, 1 -> 3; the deltas are enumerated in
+// d6rf5_fvSolution_DELTAS_from_d6rf4.diff beside this file.  Everything else --
+// the GAMG p solver at relTol 0.001 / tolerance 1e-12 / minIter 5, the
+// smoothSolver at relTol 0.001 / tolerance 1e-09 / nSweeps 3, the relaxation
+// factors and potentialFlow -- is CARRIED BYTE-IDENTICAL from the tightened
+// stopping rule D6RF4 registered.
+//
+// THE BRIGHT LINE, AND IT IS UNTOUCHED HERE.  primalMinResTol (1e-08) and
+// primalMinResTolDiff (1000) DO NOT APPEAR IN THIS FILE and DO NOT MOVE
+// ANYWHERE IN THIS ITEM: the accept floor stays 1.0e-05
+// (d6rf5_accept_floor_control.py reads both values back out of the container
+// log and REFUSES the grading if either differs, in either direction).
+//
+// FIX #2 (PREREGISTRATION.md section 2.2).  Iterating the explicit
+// non-orthogonal correction three times per outer iteration drives the
+// CORRECTED pressure solve and the field it carries forward to convergence,
+// killing the spurious divergence high non-orthogonality induces [W2].  [W2]'s
+// 70-85 deg prescription is explicitly 3 correctors WITH `limited 0.333`
+// (d6rf5_fvSchemes_LIMITED, Fix #1); the pair is the remedy, not alternatives.
+//
+// REGISTERED PREDICTION (section 2.2): the binding field is the FIRST
+// (corrector-0, uncorrected) p-solve initRes; more correctors improve the
+// CORRECTED solve and the carried-forward field but by mechanistic reasoning
+// may NOT shrink the first-solve residual, which is the correction magnitude
+// itself.  Fix #2 alone is predicted possibly-insufficient for the binding
+// field; Fix #1 (the `limited` cap) is predicted load-bearing.  G-CONV
+// (section 3.1) reads the p FIRST solve separately from the corrected one so
+// this prediction is falsifiable.  Every edit here can only cause MORE work per
+// outer iteration, never less.
+// ==========================================================================
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors           3;   // D6RF5 Fix #2: was 1 in d6rf4_fvSolution_TIGHT.  With 3 correctors p is solved FOUR times per outer iteration (corrector 0 uncorrected + 3 corrections): strictly more work.  [W2]'s 70-85 deg band prescribes 3 correctors WITH `limited 0.333` (d6rf5_fvSchemes_LIMITED).  The FIRST (corrector-0) p-solve initRes remains the binding field and G-CONV reads it separately from the last (corrected) one.
+}
+
+solvers
+{
+    "(p|p_rgh|G)"
+    {
+
+        solver                         GAMG;
+        smoother                       GaussSeidel;
+        relTol                         0.001;   // CARRIED from d6rf4_fvSolution_TIGHT.  MEASURED one GAMG V-cycle achieves 0.083454 (p finalRes 1.098440e-06 / initRes 1.316218e-05).  ln(1e-3)/ln(0.083454) = 2.7815 -> 3 cycles.  100x tighter; S1's reaching case = 0.001.
+        tolerance                      1e-12;   // CARRIED.  `0` means NO absolute tolerance can ever terminate an inner solve, so relTol alone set the plateau.  1e-12 is SEVEN decades below the 1.0e-05 accept floor, so it cannot be the binding stop at the level that matters.  S1's reaching case = 1e-12.
+        minIter                        5;   // CARRIED.  Forces at least five V-cycles even where relTol is met on the first, so a lazy early exit cannot re-create the plateau.  Strictly more work.  S1's reaching case carries minIter 5.
+    }
+    Phi
+    {
+        $p;
+        relTol                         0;
+        tolerance                      1e-6;
+    }
+    "(U|T|e|h|nuTilda|k|omega|epsilon)"
+    {
+        solver                         smoothSolver;
+        smoother                       GaussSeidel;
+        relTol                         0.001;   // CARRIED.  MEASURED worst smoothSolver sweep, U0, achieves 0.081987 (1.132916e-08 / 1.381820e-07).  ln(1e-3)/ln(0.081987) = 2.7618 -> 3 sweeps.  THIS IS THE nuTilda REPAIR (D6RF4 section 1.5).
+        tolerance                      1e-09;   // CARRIED.  same reasoning as p: `0` disables the absolute stop entirely.  1e-09 is FOUR decades below the accept floor.  S1 = 1e-09.
+        nSweeps                        3;   // CARRIED.  the residual is tested every nSweeps.  At the measured per-sweep factor 0.081987 three sweeps is what relTol 1e-3 needs, so this changes WHEN convergence is tested, never the bar: the solver can only OVERSHOOT the requested reduction, never undershoot it.  Strictly >= the work of nSweeps 1.
+    }
+}
+
+relaxationFactors
+{
+    fields
+    {
+        "(p|p_rgh)"                    0.30;
+        rho 0.3;
+    }
+    equations
+    {
+        "(U|T|e|h|nuTilda|k|epsilon|omega)" 0.70;
+    }
+}
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors           20;
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
