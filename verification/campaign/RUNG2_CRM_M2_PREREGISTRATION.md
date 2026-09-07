@@ -1,16 +1,26 @@
 # RUNG 2 pre-registration — NASA CRM / DPW5 — `R2-M2`, the SUCCESSOR to `R2-M1`: a FOCUSED RE-TEST OF THE ONE ARM THAT RAN, with the COUPLED-SETTING FIX that M1's `GATE FAIL` diagnosed and a WRITER REHEARSAL THAT PROVES THE SNAPSHOT LANDS BEFORE THE RUN PAYS
 
-**Team: cfd. Case id `RUNG2-CRM-M2`. v1.1, drafted 2026-09-06 by a `lab-lane` for the cfd supervisor; pre-compute amendment 2026-09-07 (§13) records the driver and grading path now exist and pins the grader sha256. Gates remain OPEN — no compute has run.**
+**Team: cfd. Case id `RUNG2-CRM-M2`. v1.2, drafted 2026-09-06 by a `lab-lane` for the cfd supervisor; v1.1 pre-compute amendment 2026-09-07 (§13) landed the driver and grading path and pinned the grader sha256; v1.2 pre-compute amendment 2026-09-07 (banner + §14) records the cfd supervisor's check 1 and check 4, both PASS, AUTHORISED. Gates remain OPEN — no compute has run.**
 
-> # ⚠ DRAFT — NOT AUTHORISED TO LAUNCH. CHECK 4 HAS NOT BEEN PERFORMED.
+> # ✅ AUTHORISED TO LAUNCH — CHECK 1 AND CHECK 4 TAKEN BY THE cfd SUPERVISOR, 2026-09-07, BOTH PASS.
 >
-> **NOTHING LAUNCHES AGAINST THIS FILE. NO SOLVER COMPUTE HAS BEEN RUN UNDER IT.**
+> **v1.2 pre-compute amendment (2026-09-07).** The cfd supervisor took **check 1** (measurement-script
+> diffs read as diffs) and **check 4** (pre-registration committed before compute) **personally and
+> undelegated** (`SUPERVISION_CHARTER.md` §3), both **PASS**. The supervisor read `grade_r2_m2.py` and
+> `run_r2_m2.sh` as diffs and confirmed: selftest-first/refuse (rule 3), all six rule-4 clauses + age
+> guard, the field-at-endTime plant C12/C13 firing in the refusing direction on M1's real B1 arm, gate
+> ordering sound; `set_run_window` rewrites endTime+writeInterval together with on-disk verification,
+> `check_write_window` guards per arm, the warm-start guard is binary-safe, `pkill` scoped to
+> `-case $ROOT`, rc captured inside the wrapper, cap 720 core-s never raised. **VERDICT: AUTHORISED.**
 >
-> The rule-2 freeze — pre-registration **committed** before compute — is the cfd supervisor's
-> **non-delegable personal check** (`SUPERVISION_CHARTER.md` §3). The drafting lane does not take it.
+> **Launch authorised for the two arms B0 + B1 under the registered 12.0 core-min cap.** This
+> amendment alters **no gate, threshold, cap, label or the pinned grader sha256** — only the
+> authorisation status. Gates were open (run root ABSENT, no compute) when it was taken.
 >
-> **No queue row has been placed and this lane placed none.** `verification/queue/` is a live drop
-> path and writing into it arms a launch. Placement is the chief's, under its own captured grant.
+> **No queue row has been placed by this amendment.** `verification/queue/cfd/` is the live daemon
+> drop path and writing into it arms a launch within a minute. Placement is the chief's routing act,
+> under its own captured grant; approval of this item is approval of **its** cap, not a new ceiling
+> (rule 9), and no agent's relay is Sanaa's consent.
 >
 > **Solver core-minutes spent by this lane: ≤ 0.04 (bound), all of it the §5 snapshot rehearsal on a
 > tiny icoFoam cavity.** No DPW5 grid was solved, no MPI job was started against the CRM grid, no
@@ -455,9 +465,9 @@ MPI job against the CRM grid, no RUNG2_CRM run root, no queue row.
 
 | | |
 |---|---|
-| registration | **v1.1 DRAFT — gates OPEN, amendments legal until first compute; §13 pre-compute amendment 2026-09-07 landed the driver + grading path and pinned the grader sha256** |
-| check 4 | **NOT PERFORMED** — the cfd supervisor's, non-delegable |
-| queue row | **NONE PLACED.** Placement is the chief's, under its own captured grant |
+| registration | **v1.2 DRAFT — gates OPEN, amendments legal until first compute; §13 landed the driver + grading path and pinned the grader sha256; §14 records check 1 + check 4 PASS, AUTHORISED (banner)** |
+| check 1 + check 4 | **PERFORMED AND PASSED** by the cfd supervisor 2026-09-07, personally and undelegated (§14) |
+| queue row | **PREPARED, READY-NOT-PLACED** at `cases/committee-grids/QUEUE_ROW_R2M2_READY_NOT_PLACED.json` — NOT in the drop path. Placement is the chief's routing act, under its own captured grant |
 | run root | `verification/runs/RUNG2_CRM_runs/M2_snapshot_admission/` — **ABSENT**, plant-verified 0 → 1 → 0 (§1.3) |
 | grading path | `cases/committee-grids/grade_r2_m2.py` — **EXISTS**, sha256 `7f8089d8…f9c089` (§1.1). Selftested 15/15 with the field-at-endTime plant proven to fire in the refusing direction (§13). **Freeze-ready pending the cfd supervisor's check 4.** |
 | driver | `cases/committee-grids/run_r2_m2.sh` — **EXISTS**, sha256 `b336575b…0be73` (§1.1). Carries the §2.3 coupled `set_run_window`, the §2.4 pre-solve write-window guard, and B1's M1-proven warm-start chain (§4). `--selftest-window` 5/5, `--selftest-cap` 7/7, bare call exits 8 (§13). |
@@ -523,3 +533,40 @@ solver is launched; the run root stays ABSENT.
 **`lines whose number changed above this section: N/A — this is a DRAFT with open gates, not a frozen
 file; rule 6's line-stability assertion applies only after the freeze.`** No other record cites this
 draft by line.
+
+---
+
+## 14. PRE-COMPUTE AMENDMENT — 2026-09-07 — CHECK 1 AND CHECK 4 TAKEN BY THE cfd SUPERVISOR, BOTH PASS, AUTHORISED
+
+**This is a rule-2 pre-first-compute amendment. It states its condition and how it was checked.**
+**Condition:** no compute has run under this registration. **Re-verified at source before this
+amendment landed:** the registered run root `verification/runs/RUNG2_CRM_runs/M2_snapshot_admission/`
+is **ABSENT**; there is no `M2*` run directory and no `RUNG2-CRM-M2` cost row. Gates are therefore
+still OPEN and this amendment is legal. **It alters no gate, threshold, cap, label or the pinned
+grader sha256** — only the authorisation status carried in the top banner.
+
+**Check 1 (measurement-script diffs read as diffs) and check 4 (pre-registration committed before
+compute) — PERFORMED AND PASSED by the cfd supervisor, 2026-09-07, personally and undelegated**
+(`SUPERVISION_CHARTER.md` §3). The supervisor read `grade_r2_m2.py` and `run_r2_m2.sh` as diffs and
+recorded, in the supervisor's own words:
+
+- **Grader:** runs selftest-first / refuse (rule 3); all six rule-4 clauses + the age guard; the
+  field-at-endTime plant **C12/C13 fires in the refusing direction on M1's real B1 arm**; gate
+  ordering sound.
+- **Driver:** `set_run_window` rewrites `endTime` + `writeInterval` together with on-disk
+  verification; `check_write_window` guards per arm (`run_r2_m2.sh:567`); the warm-start guard is
+  binary-safe (`:627`, fixes the M0 text-mode crash); `pkill` scoped to `-case $ROOT` (`:78/:80`, no
+  box-wide defect); rc captured inside the wrapper (`:661`); cap 720 core-s never raised.
+- **VERDICT: AUTHORISED** — launch authorised for the two arms **B0 + B1**, 14 ranks, under the
+  registered **12.0 core-min cap**.
+
+**What this authorisation does and does not permit.** It permits the two-arm run to be placed and
+launched under its registered cap. It does **not** widen any gate, does **not** move any CRM number,
+and does **not** make Rung 2 (a) gradeable — a `PASS` on `R2M2-G3` clears **Blocker 1 only** and lets
+`M6SR`'s `B5a` relaunch. Rung 2 (a) stays `BLOCKED` on binding ground **(iii)**, the absent refinement
+triple. **Placement remains the chief's routing act** under its own captured grant; the READY-NOT-
+PLACED queue row prepared alongside this amendment (`cases/committee-grids/QUEUE_ROW_R2M2_READY_NOT_
+PLACED.json`) is **not** in the drop path and this amendment placed nothing.
+
+**`lines whose number changed above this section: N/A — DRAFT with open gates; rule 6's line-stability
+assertion applies only after the freeze.`**
