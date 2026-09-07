@@ -37913,7 +37913,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 **Section last written:** 2026-09-07, after freezing+checking VMFL072-R3 and VMFL046-R6, then hitting a LAUNCH-PERMISSION BLOCK now on Sanaa's desk.
 
 ### Last commit
-`edf5bdb8` — VMFL046-R5 GRADED NOT A RESULT (register #62); shock washed out (lInf 2.0 un-anchored back-pressure); FIX_SUCCESSOR_REGISTRY → R6(outlet-anchored). (Calibration row C-20260907T030000 filed next commit: 197.283 vs 489 = 0.403×.)
+`c10c6599` — COST_CALIBRATION clean-id correction row for the R5 calibration (via `append_record.py --allocate-id`), fixing my hand-typed-id defect that blocked lab-wide appends (verification `2b03941d`). NOTE: a DUPLICATE clean-id correction exists — my ABORTed earlier append left an orphan row in the shared worktree which dafoam swept into `9bf38155` (id `52659f8a`); I then unknowingly appended a second (`ccd74cac`). Both correctly id-correct the same malformed row; NOT edited out (append-only + verification owns the register); disclosed to verification to annotate/exclude one. LESSON: never hand-type a tool-form id; after any aborted append, sync the worktree to HEAD before a peer merge sweeps the orphan.
 
 ### Live jobs
 - **NONE running.** No solver on the box. VMFL046-R5 graded and closed. **TWO frozen, supervisor-checked runs are BLOCKED on launch permission** (VMFL072-R3, VMFL046-R6 — see the launch-block section below and On Sanaa's desk).
