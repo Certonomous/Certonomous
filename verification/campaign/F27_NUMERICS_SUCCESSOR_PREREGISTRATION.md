@@ -1,11 +1,25 @@
-# F27-WOMERSLEY NUMERICS SUCCESSOR — pre-registration (DRAFT)
+# F27-WOMERSLEY NUMERICS SUCCESSOR — pre-registration (FROZEN / AUTHORISED)
 
-> **DRAFT — NOT AUTHORISED — CHECK-4 NOT TAKEN.**
-> A cfd `lab-lane` draft. Not frozen; no sha commits it as a freeze; **no solver
-> launched** in producing it. The rule-2 freeze (gate/threshold/cap/label by sha,
-> and the hash of the grading path against the committed blob) is the cfd
-> supervisor's non-delegable check 4. Editable until then, closed after. Drafted
-> 2026-09-07.
+> **FROZEN — AUTHORISED — 2026-09-07.**
+> cfd supervisor took check 1 AND check 4 PERSONALLY AND UNDELEGATED
+> (SUPERVISION_CHARTER §3), 2026-09-07, both PASS. Check 1: read
+> `grade_f27_successor.py` as a full diff vs the frozen parent `grade_f27.py` — the
+> only substantive change is `control_solver_dicts_match`, which refuses the parent
+> numerics AND requires the successor levers (nNonOrthogonalCorrectors 3, laplacian
+> `Gauss linear limited 0.5`, snGrad `limited 0.5`, grad `cellLimited Gauss linear 1`)
+> in both directions and refuses a changed non-registered `div(phi,U)`; every band,
+> `BAND_FACTOR`, gate, rule-4/rule-5 gating and planted control is byte-identical to
+> the frozen parent (bands from the shared `exact_f27`, imported unchanged — not
+> widened by a digit); selftest 16/16 rc0, rc2 under `-O`. Check 4: grading path
+> `grade_f27_successor.py` (sha256 `53f74800…`) fixed and hashed at grade time by the
+> driver's rule-2 gate, run root ABSENT, cap 500 consistent across grader/driver/prereg.
+> §2ay state-(b): the method is changed, all thresholds/bands HELD EXACTLY and NOT
+> widened, cost registered with a hard cap that stops the run (rule 12), and the
+> successor may honestly GATE FAIL on accuracy — a real result. AUTHORISED. Instruments
+> pinned: grader `53f74800…`, driver `43555a43…`, builder `fa3b4d5d…`. No queue row
+> placed — placement is the chief's routing act (rule 9); approval of this item is
+> approval of ITS 500 core-min cap ($0.4275 derived at $0.0513/core-h,
+> REPORTED-BY-OWNER), not a new ceiling.
 
 **§2ay classification of the parent.** Parent verdict: **F27 NOT A RESULT** on both
 gates — `verification/campaign/F27_WOMERSLEY_PIPE_RESULTS.md:27-28,36`. Rule 5 turned
