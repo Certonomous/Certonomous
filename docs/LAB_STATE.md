@@ -1430,6 +1430,73 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**TWENTY-SECOND SESSION, 2026-09-07 (closure-supervisor). CONTINUE. ZERO COMPUTE (0 solver
+core-min [MEASURED], 0 GPU-h, $0.00). ONE COMMITTABLE INCREMENT LANDED: the Ling2016 TBNN
+correction-library entry is REGISTERED (`1bb3f307`) — the last zero-compute registrable increment
+on record, now discharged. Library grows 4 -> 5. HEAD at session start afbca30c (peers).**
+
+**═══ NEW ENTRY — `docs/closure/correction_library/entries/a_tbnn_ling2016.md` (REGISTERED) ═══**
+The founding embedded-invariance data-informed anisotropy method (Ling, Kurzawski & Templeton 2016,
+SAND2016-7345J / JFM 807:155). Family [a,e]; drafted by a lab-lane to the TBRF standard (equations
+off 200-dpi renders with printed pages: Eq.1 tensor basis p.7, Eq.2 ten tensors + five invariants
+p.7, the multiplicative Merge Output Layer p.8, LEVM/QEVM baselines p.9, propagation p.12; a-priori
+Table I p.11). Registered for BREADTH, NOT novelty — it duplicates the class TBRF already covers,
+ships NO runnable model (`model_type_name: none`, `near_miss_built_model: none`), stays REGISTERED,
+so by SCHEMA §6 it can NEVER be ladder evidence and `ladder_evidence` stays 0 of 5. `validation_cases:
+[DUCT]` only (wavy-wall/jets/cube/square-cylinder/CD-channel have no §3 id, none coined).
+
+**═══ SUPERVISOR PERSONAL CHECKS (§3, non-delegable, ALL done by me) ═══**
+(1) Title-page verified page 1 personally (rule 15): "Reynolds Averaged Turbulence Modeling using
+Deep Neural Networks with Embedded Invariance," Ling/Templeton/Kurzawski, SAND2016-7345J — cleared
+the sibling `_WRONG_RETRIEVALS/Ling2016_reynolds_neural_nets.pdf` hazard by reading the page, not the
+filename (L-144). (2) Full diff-read of the entry; percentage arithmetic in `claimed_effect` checked
+against Table I (duct 43%/28%, wavy 56%/27% — all consistent). (3) Independently verified the DECISIVE
+p.12 propagation quote on a fresh render. The lane correctly caught two brief errors: paper uses 9
+flows (not "~11"), and the duct-invariant-degeneracy + near-wall-unrealizability are Kaandorp2020
+CROSS-REFERENCES, not Ling's own claims — both attributed precisely, no misattribution boarded.
+
+**═══ BAND_INTERACTION RULING (mine) — `acts_on_k_magnitude` ═══**
+Ling p.12 (verified by me): the TBNN anisotropy is implemented "in the momentum equations and in the
+turbulent kinetic energy production term." A `b` in the k-PRODUCTION term moves the k MAGNITUDE, not
+only the stress SHAPE — the IDENTICAL mechanism on which TBRF was ruled `acts_on_k_magnitude`; the two
+rulings are consistent. CHARTER §22.4 item 2 consequence carries over verbatim: a shelf-D eigenspace
+band is silent on the k-magnitude axis this model moves (Emory eq.4 keeps k outside the bracket), so a
+band quoted as "the uncertainty of this model" is the error §22.4 item 2 forbids. Field + comment +
+prose all set to the ruling; library.json regenerated to carry it.
+
+**═══ CHECKER RE-RUN BY ME (measured path, not relayed) ═══**
+`build_correction_library.py` --selftest **58/58 arms rc0** under BOTH `python3` and `python3 -O`
+(L-332, no planted-negative arm stopped firing); --check **5 entries valid rc0**, `ladder_evidence 0
+of 5`; library.json regenerated (5 entries) rc0, `a_tbnn_ling2016` present with the ruled
+`band_interaction: acts_on_k_magnitude`, `source_sha256 592c740e...`.
+
+**COST THIS SESSION: 0 solver core-min [MEASURED] · 0 GPU-h · $0.00.** One drafting lane + my checks,
+no solve. Nothing to calibrate under rule 12 (no process completed).
+
+**RUNGS WITHOUT VERDICTS — UNCHANGED.** M1 ungraded · M1b/M1-C/R4b-Ib three drafts CHECK1 NOT DONE ·
+R4b-I+R4b arm BLOCKED · M2 UNRULED since 08-28 · RC1/RC2 unfrozen · Ling arm 2 frozen+UNFILED · G1b xr
+null (D550) · LR1 DRAFTED PENDING_SUPERVISOR_FREEZE (precondition (b) discharged last session; (a) G2
+run+CONVERGING and (e) sequencing remain compute/sequencing-gated). G2 PENDING freeze (LR1 rung-2
+prereq). FS2 and FS5 remain STANDING GATES.
+
+**NEXT ACTIONS.** (1) DONE — Ling2016 TBNN REGISTERED, the last pull-free registrable entry discharged.
+(2) LR1 freeze remains gated on G2 run (compute, sequenced behind M6/CRM + F6) — not mine to launch.
+(3) At LR1 freeze: fold in the BASELINES reconciliation, decide design item C, confirm OPTION (ii), hash
+grade_lr1.py + PREREGISTRATION.md. **After Ling2016, EVERY further library growth needs Sanaa's
+institutional pull** (Shih 1995 + Craft/Launder/Suga 1996 highest leverage — would let two installed
+runnable models register); the zero-compute registrable well is now DRY.
+
+**ON SANAA'S DESK — five items UNCHANGED + the LR1 design-item-C freeze decision.** (a) GPU YES Ling
+arm 2, 40 GPU-h=$32.19 DERIVED, UNFILED; (b) R4b increment ruling owed since 08-28; (c) four withdrawn
+attributions; (d) two 2026-08-24 R3 quotations; (e) institutional-pull gap register (18 outstanding;
+Shih 1995 + Craft/Launder/Suga 1996 highest zero-compute leverage — SHARPENED: now the ONLY path to
+library growth). SUBMISSIONS PARKED (rule 7).
+
+**BLOCKED — nothing blocked the zero-compute increment landed this session. Closure SOLVES sequenced
+behind M6/CRM + F6 + G2 freeze; library growth now FULLY blocked on Sanaa's institutional pull (the
+pull-free well is dry after Ling2016).**
+
+
 **TWENTY-FIRST SESSION, 2026-09-07 (closure-supervisor). CONTINUE. ZERO COMPUTE (0 solver
 core-min [MEASURED], 0 GPU-h, $0.00). ONE COMMITTABLE INCREMENT: the LR1 grade comparator
 `grade_lr1.py` is WRITTEN, my §3 diff-read done, a genuine defect CAUGHT AND FIXED before commit.
