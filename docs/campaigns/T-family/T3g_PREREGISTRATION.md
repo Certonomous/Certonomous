@@ -170,3 +170,17 @@ the guard is dead.**
 | `verification/runs/T-family/T3_runs/analyse_t3g.py` | `4523fd047b759a179f1f54107063f2160e65143b` |
 
 **§6.1's condition is met and this document is FROZEN.**
+
+---
+
+## AMENDMENT 2 — 2026-09-07 — §2ay LINEAGE ANNOTATION (recorded predecessor)
+
+**Appended by a heat-transfer lab lane. Lines whose number changed above this section: 0.**
+
+This dated addendum records, in the line-leading form the §2ay completion-enforcement
+reader (`scripts/check_completion_enforcement.py`, recorded-lineage limb) reads from a
+registration, the attempt this rung follows. It is a **pure lineage annotation**: it
+alters no gate, threshold, band, cap, label or verdict — T3f's graded verdict stands
+unchanged, nothing above is reopened, and no frozen sha moves.
+
+**Predecessor: `T3f` (explicit, for §2ay linkage).**
