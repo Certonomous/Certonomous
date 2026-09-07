@@ -94,7 +94,7 @@ BASE="${BASE:-$REGISTERED_BASE}"
 # assignment wins, so the stale one would have won and aborted staging at rc 4.
 # A field a human edits by searching for its name is exactly where that
 # recurs, so the count is PINNED here rather than the appearance trusted.
-PERMISSION=NOT_FROZEN  # D6RF6 DRAFT placeholder (CLAUDE.md rule 2 -- PERMANENTLY the placeholder until the dafoam-supervisor freezes; the freeze and the enqueue belong to the supervisor). Supersedes D6RF5 (BLOCKED).
+PERMISSION=ff009251  # FROZEN 2026-09-07 by dafoam-supervisor: freeze sha ff009251 (D6RF6 dir commit, tree carries PREREGISTRATION.md, rule 2). Successor to D6RF5 (BLOCKED harness defect). Supervisor check-1 CLEAN: the guard on the P_conv baseline primal mirrors the F5 path and STILL writes the product (fixes the D6RF5 absent-product G1 refusal); pin fixpoint ALL_PINS_MATCH spot-verified (fd 6b753ab1==MD5_FD, physical f61a9665==MD5_PHYS6, extract c93adc8b==MD5_EXTRACT==MD5_EXTRACT6); real-base stager dry-run exit 0; completion clauses (rc/oom/terminal/age) do NOT key on the primal banner so the guarded exit-0 gives a CLEAN completion -> gate_conv grades L1 -> expected G-CONV GATE FAIL (binding p_first 1.626e-05 > 1.0e-05 floor; Fix#1+#2 insufficient, prediction confirmed). Gate NOT widened (T25). est 62.0 / cap 186.0 core-min (expected realised ~7.6).
 PERM_ASSIGNMENTS=$(grep -cE '^PERMISSION=' "${BASH_SOURCE[0]}" || true)
 case "$PERM_ASSIGNMENTS" in ''|*[!0-9]*) PERM_ASSIGNMENTS=UNMEASURED ;; esac
 if [ "$PERM_ASSIGNMENTS" != "1" ]; then
