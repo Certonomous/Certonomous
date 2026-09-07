@@ -691,6 +691,18 @@ KNOWN_EXCLUDED = {
         # DIFFERENT bad body to prove this exclusion does not over-reach.
         r"^\|[ \t]*C-20260906T232437\.922647Z-w4reanc[ \t]*\|",
         r"^\|[ \t]*C-20260907T030000\.000000Z-vmfl046r5[ \t]*\|",
+        # A THIRD hand-landed poison row (verification 2026-09-07). Its body IS a
+        # valid 8-hex (`b826b62e`), but its fractional seconds are 9 digits
+        # (NANOseconds) -- hand-rolled with `%N`, an S-119 / hand-typed-id
+        # RECURRENCE that bypassed `--allocate-id` (which mints `%f` = 6 micro).
+        # RULED: exclude by EXACT id and keep TOOL_ID_BODY STRICT at `\.\d{6}` --
+        # WIDENING to 6-or-9 would legitimize hand-rolled nano ids and erode the
+        # always-mint-via-`--allocate-id` discipline; a future non-excluded nano id
+        # must STILL refuse. Excluded id: C-20260907T195722.461339981Z-b826b62e
+        # (COST_CALIBRATION:466, commit bcb10b80). Feeds shape_audit ALONE; parse_ids
+        # never saw it; append-only rule 1 intact; dafoam may append a CORRECTION row
+        # re-issuing a valid `--allocate-id` id. Referral: verification-supervisor 2026-09-07.
+        r"^\|[ \t]*C-20260907T195722\.461339981Z-b826b62e[ \t]*\|",
     ),
 }
 
@@ -3591,7 +3603,15 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                          # (ii) limbs prove each neither parses nor refuses AND
                          # that dropping the exclusion set makes it refuse again.
                          "| C-20260906T232437.922647Z-w4reanc | 2026-09-06 | dafoam | probe |\n",
-                         "| C-20260907T030000.000000Z-vmfl046r5 | 2026-09-07 | ansys | probe |\n"),
+                         "| C-20260907T030000.000000Z-vmfl046r5 | 2026-09-07 | ansys | probe |\n",
+                         # THIRD exact-excluded id (2026-09-07): a VALID 8-hex body
+                         # but 9 (nano) fractional digits, hand-rolled with %N (an
+                         # S-119 recurrence bypassing --allocate-id).  Excluded by
+                         # EXACT id while TOOL_ID_BODY stays strict at 6 -- the (ii)
+                         # limb proves it neither parses nor refuses, and the
+                         # (ii-mutation) proves dropping the exclusion set refuses it
+                         # again: the poison row clears WITHOUT widening the format.
+                         "| C-20260907T195722.461339981Z-b826b62e | 2026-09-07 | dafoam | probe |\n"),
             # The struck exclusion needs the `~~` to OPEN the cell; a row that
             # is merely bold is an ordinary unparseable row.
             "near_miss": ("| **C-9105** annotated in-cell, never struck |\n",
@@ -3601,7 +3621,13 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                           # still refuse.  This is the arm the reported gap lacked:
                           # without it a "malformed body" bug ships unseen
                           # (selftest rc 0 while the live file blocks at rc 7).
-                          "| C-20260102T030405.060708Z-nothexch | 2026-01-02 | x | probe |\n"),
+                          "| C-20260102T030405.060708Z-nothexch | 2026-01-02 | x | probe |\n",
+                          # DISCIPLINE CONTROL (2026-09-07): a DIFFERENT 9-digit
+                          # NANOsecond id -- valid 8-hex body, NOT in KNOWN_EXCLUDED.
+                          # It MUST STILL REFUSE, proving the fix is an EXACT-id
+                          # exclusion and NOT a widened 6-or-9 pattern: a future
+                          # hand-rolled nano id is still caught at clause 1b (exit 7).
+                          "| C-20260907T195722.999888777Z-deadbeef | 2026-09-07 | x | probe |\n"),
             "furniture": ("| id | date | team | process |\n",
                           "|---|---|---|---|\n"),
         },
