@@ -1,0 +1,335 @@
+{
+ "seed": 20260907,
+ "n_fail": 24,
+ "n_succ": 12,
+ "N": 36,
+ "population_failed": 671,
+ "population_succeeded": 89,
+ "log_sha256": "394d9f5d8c59ea79602e678cec7a75915bef53a048b61e153d835fce57fc675d",
+ "sample": [
+  {
+   "ordinal": 39,
+   "record_start_line": 10911,
+   "dv_block_line": 10870,
+   "record_aoa": 2.93038337,
+   "cl04_dv_aoa": 2.93038337,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 48,
+   "record_start_line": 13857,
+   "dv_block_line": 13801,
+   "record_aoa": 2.76545079,
+   "cl04_dv_aoa": 2.76545079,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 72,
+   "record_start_line": 19964,
+   "dv_block_line": 19906,
+   "record_aoa": 2.40676146,
+   "cl04_dv_aoa": 2.40676146,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 80,
+   "record_start_line": 22134,
+   "dv_block_line": 22078,
+   "record_aoa": 1.76225717,
+   "cl04_dv_aoa": 1.76225717,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 83,
+   "record_start_line": 23027,
+   "dv_block_line": 22971,
+   "record_aoa": 1.73843295,
+   "cl04_dv_aoa": 1.73843295,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 117,
+   "record_start_line": 32225,
+   "dv_block_line": 32169,
+   "record_aoa": 1.26074887,
+   "cl04_dv_aoa": 1.26074887,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 122,
+   "record_start_line": 33652,
+   "dv_block_line": 33596,
+   "record_aoa": 1.13583455,
+   "cl04_dv_aoa": 1.13583455,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 172,
+   "record_start_line": 47012,
+   "dv_block_line": 46954,
+   "record_aoa": 0.58721627,
+   "cl04_dv_aoa": 0.58721627,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 173,
+   "record_start_line": 47283,
+   "dv_block_line": 47225,
+   "record_aoa": 0.56807238,
+   "cl04_dv_aoa": 0.56807238,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 203,
+   "record_start_line": 55401,
+   "dv_block_line": 55343,
+   "record_aoa": 0.57832947,
+   "cl04_dv_aoa": 0.57832947,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 211,
+   "record_start_line": 57565,
+   "dv_block_line": 57507,
+   "record_aoa": 0.59201742,
+   "cl04_dv_aoa": 0.59201742,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 285,
+   "record_start_line": 77604,
+   "dv_block_line": 77546,
+   "record_aoa": 0.58489318,
+   "cl04_dv_aoa": 0.58489318,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 289,
+   "record_start_line": 78688,
+   "dv_block_line": 78630,
+   "record_aoa": 0.57847025,
+   "cl04_dv_aoa": 0.57847025,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 337,
+   "record_start_line": 91688,
+   "dv_block_line": 91630,
+   "record_aoa": 0.5781721,
+   "cl04_dv_aoa": 0.5781721,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 364,
+   "record_start_line": 99001,
+   "dv_block_line": 98943,
+   "record_aoa": 0.57810201,
+   "cl04_dv_aoa": 0.57810201,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 393,
+   "record_start_line": 106708,
+   "dv_block_line": 106650,
+   "record_aoa": 0.57800036,
+   "cl04_dv_aoa": 0.57800036,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 407,
+   "record_start_line": 110504,
+   "dv_block_line": 110446,
+   "record_aoa": 0.58055234,
+   "cl04_dv_aoa": 0.58055234,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 413,
+   "record_start_line": 112124,
+   "dv_block_line": 112068,
+   "record_aoa": 0.7336286,
+   "cl04_dv_aoa": 0.7336286,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 428,
+   "record_start_line": 116187,
+   "dv_block_line": 116129,
+   "record_aoa": 0.58562294,
+   "cl04_dv_aoa": 0.58562294,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 430,
+   "record_start_line": 116729,
+   "dv_block_line": 116671,
+   "record_aoa": 0.58540771,
+   "cl04_dv_aoa": 0.58540771,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 436,
+   "record_start_line": 118349,
+   "dv_block_line": 118293,
+   "record_aoa": 0.6248445,
+   "cl04_dv_aoa": 0.6248445,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 448,
+   "record_start_line": 121597,
+   "dv_block_line": 121539,
+   "record_aoa": 0.57579595,
+   "cl04_dv_aoa": 0.57579595,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 464,
+   "record_start_line": 125928,
+   "dv_block_line": 125872,
+   "record_aoa": 0.88036416,
+   "cl04_dv_aoa": 0.88036416,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 503,
+   "record_start_line": 136425,
+   "dv_block_line": 136369,
+   "record_aoa": 0.93168308,
+   "cl04_dv_aoa": 0.93168308,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 581,
+   "record_start_line": 157415,
+   "dv_block_line": 157359,
+   "record_aoa": 0.9316626,
+   "cl04_dv_aoa": 0.9316626,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 609,
+   "record_start_line": 164954,
+   "dv_block_line": 164898,
+   "record_aoa": 0.92455331,
+   "cl04_dv_aoa": 0.92455331,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 610,
+   "record_start_line": 165223,
+   "dv_block_line": 165167,
+   "record_aoa": 0.92769749,
+   "cl04_dv_aoa": 0.92769749,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 657,
+   "record_start_line": 177876,
+   "dv_block_line": 177820,
+   "record_aoa": 0.93000504,
+   "cl04_dv_aoa": 0.93000504,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 692,
+   "record_start_line": 187297,
+   "dv_block_line": 187241,
+   "record_aoa": 0.93001713,
+   "cl04_dv_aoa": 0.93001713,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 771,
+   "record_start_line": 208634,
+   "dv_block_line": 208578,
+   "record_aoa": 0.93046812,
+   "cl04_dv_aoa": 0.93046812,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 794,
+   "record_start_line": 214830,
+   "dv_block_line": 214774,
+   "record_aoa": 0.95172222,
+   "cl04_dv_aoa": 0.95172222,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 805,
+   "record_start_line": 217793,
+   "dv_block_line": 217735,
+   "record_aoa": 0.91930028,
+   "cl04_dv_aoa": 0.91930028,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 808,
+   "record_start_line": 218529,
+   "dv_block_line": 218471,
+   "record_aoa": 0.91742064,
+   "cl04_dv_aoa": 0.91742064,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 819,
+   "record_start_line": 221510,
+   "dv_block_line": 221452,
+   "record_aoa": 0.86854311,
+   "cl04_dv_aoa": 0.86854311,
+   "multipoint_outcome": "SUCCEEDED",
+   "banners": 0
+  },
+  {
+   "ordinal": 869,
+   "record_start_line": 235200,
+   "dv_block_line": 235144,
+   "record_aoa": 0.88226794,
+   "cl04_dv_aoa": 0.88226794,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  },
+  {
+   "ordinal": 922,
+   "record_start_line": 249632,
+   "dv_block_line": 249576,
+   "record_aoa": 0.86290253,
+   "cl04_dv_aoa": 0.86290253,
+   "multipoint_outcome": "FAILED",
+   "banners": 1
+  }
+ ]
+}
