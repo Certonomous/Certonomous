@@ -1,0 +1,123 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+
+// VMFL051.  endTime and writeInterval are substituted by run_vmfl051.sh from
+// the frozen values in PREREGISTRATION.md section 4; they are the SAME at every
+// mesh level (physical time, not iterations), so the Roache triple compares the
+// same physical state.
+//
+// endTime = 7.0e-3 s = 4.049 flow-throughs of the 1.5 m domain at the INLET
+// speed U1 = 867.72872 m/s (the slowest speed anywhere in the domain, so this
+// is the conservative count; the post-expansion stream runs at 957.87 m/s).
+// The flow is everywhere supersonic, so no information travels upstream and the
+// steady state is established in roughly one flow-through; four is generous and
+// the PLATEAU clause of section 8, not this number, is the arbiter.
+//
+// deltaT 1e-8 is only a seed: adjustTimeStep raises it (capped at 1.2x per step)
+// to the CFL limit within ~40 steps at every level.  maxDeltaT 1e-5 is ABOVE the
+// L1 CFL step of 3.99e-6 s, so it never binds and the Courant number governs.
+// maxCo 0.4 matches the lab's proven compressible setting.
+
+application     rhoCentralFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+
+deltaT          1e-8;
+
+writeControl    runTime;
+writeInterval   __WRITEINTERVAL__;
+purgeWrite      0;
+
+writeFormat     ascii;
+writePrecision  10;
+writeCompression off;
+
+timeFormat      general;
+timePrecision   8;
+
+runTimeModifiable false;
+
+adjustTimeStep  yes;
+maxCo           0.4;
+maxDeltaT       1e-5;
+
+functions
+{
+    // Ma = mag(U)/sqrt(gamma*p/rho), stored under the name "Ma"
+    // (v2606 src/functionObjects/field/MachNo/MachNo.C: setResultName("Ma","U")
+    //  and store(resultName_, mag(U)/sqrt(thermo.gamma()*thermo.p()/thermo.rho()))).
+    // It MUST come first in this dictionary: functionObjectList::execute() calls
+    // execute() then write() for each object IN DICTIONARY ORDER
+    // (src/OpenFOAM/db/functionObjects/functionObjectList/functionObjectList.C:615),
+    // so Ma is in the registry before gateMach reads it.
+    MachNo
+    {
+        type            MachNo;
+        libs            (fieldFunctionObjects);
+        field           U;
+        executeControl  timeStep;
+        executeInterval 1;
+        writeControl    writeTime;
+    }
+
+    // THE GATED INSTRUMENT.  Volume-average of Ma (and, as declared diagnostics,
+    // of p and T) over the frozen cellZone `gateZone` of system/topoSetDict,
+    // written EVERY timestep so the plateau clause of PREREGISTRATION.md
+    // section 8 has a dense series to test.
+    //
+    // Output, from the v2606 writer source, not from a belief about it (N-AV4 /
+    // L-286): postProcessing/gateMach/0/volFieldValue.dat
+    //   -- writeFile.C baseFileDir() = globalPath()/"postProcessing",
+    //      baseTimeDir() = prefix_/timeName; fieldValue.C:56 passes the OBJECT
+    //      NAME as prefix_ and the valueType "volFieldValue" as the base name.
+    // Header: volRegion::writeFileHeader writes "# Region : cellZone gateZone",
+    //   "# Cells  : N", "# Volume : V"; then volFieldValue::writeFileHeader
+    //   writes "# Time" followed by <tab>volAverage(<field>) per field
+    //   (volFieldValue.C:106-133).
+    // Data:   writeCurrentTime then `file() << tab << sresult` per field
+    //   (volFieldValueTemplates.C:314), at this object's writePrecision
+    //   (writeFile::read honours "writePrecision", writeFile.C).
+    gateMach
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            gateZone;
+        operation       volAverage;
+        fields          (Ma p T);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    // DECLARED DIAGNOSTIC, NEVER THE GATE (PREREGISTRATION.md section 5): the
+    // same average over a strictly smaller zone inset a further 0.035 m from
+    // both bounding rays.  A material disagreement between the two means the
+    // gate zone is being contaminated from an edge.
+    gateMachInner
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            gateZoneInner;
+        operation       volAverage;
+        fields          (Ma p T);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+}

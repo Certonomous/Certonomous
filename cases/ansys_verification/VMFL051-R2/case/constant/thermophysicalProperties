@@ -1,0 +1,46 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      thermophysicalProperties;
+}
+
+// The manual's OWN material properties, verbatim (p. 165):
+//   Density: Ideal Gas law   -> equationOfState perfectGas
+//   Specific Heat = 1006.43 J/kg-K
+//   Molecular weight = 28.966
+// Inviscid (Physics/Models, p. 165: "Compressible, inviscid flow") -> mu = 0.
+// With mu = 0 the conductivity mu*Cp/Pr is also 0, so the solve is fully
+// inviscid and adiabatic; Pr = 1 is inert and follows the lab's F3 idiom.
+
+thermoType
+{
+    type            hePsiThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleInternalEnergy;
+}
+
+mixture
+{
+    specie
+    {
+        molWeight       28.966;
+    }
+    thermodynamics
+    {
+        Cp              1006.43;
+        Hf              0;
+    }
+    transport
+    {
+        mu              0;
+        Pr              1;
+    }
+}
