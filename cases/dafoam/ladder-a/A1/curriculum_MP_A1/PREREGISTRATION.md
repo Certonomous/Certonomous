@@ -254,3 +254,48 @@ This is a DRAFT. The following choices are made by this lane as defaults and are
 ---
 
 **NOTHING IN THIS ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE. SUBMISSIONS ARE PARKED**, and sending is Sanaa's decision alone (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10). This document is a DRAFT and is **NOT FROZEN**; the freeze is NOT taken.
+
+---
+
+## §7. SUPERVISOR RULINGS ON THE §6 OPEN DECISIONS + CHECK-3 — dafoam-supervisor, 2026-09-07T~0400Z (draft still NOT FROZEN)
+
+**Check-3 (big-claim verification), the load-bearing admissibility claim.** MP-A1's whole legitimacy
+rests on §0.3: no new unverified gradient enters because the CL-equality constraints are driven by
+`dCLᵢ/dx` at fixed α, already FD-verified by SO-3aR2, and no `aoa`/`d/dα` DV is added. I verify this is
+not merely asserted but **gated**: `G5C` (§2, per row) re-runs FD-vs-adjoint on the three `CL`
+constraint quantities at MP-A1's OWN final design point (charter §9's mandatory final-point FD), and
+`G-PROV` travels the SO-3aR2 `GATE FAIL` chain into every claim. The admissibility is therefore
+falsifiable at MP-A1's endpoint, not inherited on faith. **Claim upheld, and correctly gated.** The
+authoring lane must ASSERT in `mpa1_grade.py` that `G5C` covers all three `dCLᵢ/dx` pairs (not only
+`dCDᵢ/dx`), since the constraints — not just the objective — now depend on the CL gradient.
+
+**§6 decisions, ruled (the lane's defaults are confirmed as deliberate supervisor calls):**
+
+1. **CL constraint TYPE = EQUALITY.** Confirmed. Sanaa/chief named "drag-min at **fixed** lift";
+   equality (`CLᵢ = CL_target_i`) is the canonical trimmed statement, makes `shape=0` a feasible seed,
+   and most directly excludes the SO-3 collapse (lift HELD, not merely bounded). The `GATE REACHED`
+   fallback (§5.2) — CL held at all three points, drag improved on the feasible seed, but the
+   constrained optimum not reached in the 5-DOF space — is registered as an admissible, and still
+   demonstrative, outcome.
+2. **DV set = `shape` only, fixed α.** Confirmed as MP-A1's scope. Adding per-point `aoa` DVs would
+   introduce `d/dα` gradients SO-3aR2 never verified (charter §2) — that is a SEPARATE rung (a future
+   aoa-trimmed MP-A2), not this one.
+3. **cpuset = `8` (provisional).** Confirmed provisional; the launcher/authoring lane RE-READS live
+   occupancy at freeze and picks a core disjoint from every live registered sibling, and `G12` gates
+   the launcher value against the grader constant.
+4. **`TOL_CL_ABS = 1.0e-3`.** Confirmed (100× IPOPT's own `constr_viol_tol = 1e-5`, absorbing the gap
+   between the optimizer's internal CL and the post-processed CL the gate reads).
+5. **`G-DRAG` = final `J` < baseline `J`; §2a intermediate = 1.0 % over ≥ 5 majors.** Confirmed. No
+   magnitude gates a PASS (charter §9); the 1.0 % floor labels only the `GATE REACHED` path. The CL
+   triple travels beside every drag number (SO-3 `forbidden_readings` carried).
+6. **`M = 3.0` (`m_iter 2.0 × m_adj 1.5`), DERIVED; cap ceiling 183.5.** Confirmed. Cap safety checked:
+   the O-S cap 72.0 ÷ SO-3's 0.66 core-min/major ≈ 109 majors of headroom, so even a high major count
+   (A2 needed 47) stays well inside the cap; M=3.0 is the calibration quantity the O arm measures.
+
+**COSTED core-min, brought to the chief BEFORE compute:** **estimate 58.63 core-min, ceiling 183.5**
+(§4). $0.0501 est / $0.1569 ceiling DERIVED at $0.0513/core-h — far under the $25 pre-authorisation.
+
+**Freeze still owed:** the instrument files (`mpa1_runScript.py` with the §1.5 CL-equality block,
+`mpa1_grade.py` with all gates incl. the G5C-covers-`dCLᵢ/dx` assertion and the G-CLHOLD planted-zero
+reader, and the carried controls) — **none written yet** — plus my check-1 read of THOSE diffs, then
+the freeze by sha. An authoring lane is dispatched to this ruled design.
