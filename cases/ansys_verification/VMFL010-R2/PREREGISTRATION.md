@@ -289,3 +289,117 @@ admissibility, which is the genuinely open question.
 committed at the same sha; the launcher verifies the frozen prereg and comparator blobs against
 HEAD before any solver starts (rule 2), and no solver starts under this freeze — the launch
 permission is HELD on Sanaa's desk (rule 9).**
+
+---
+
+## Amendment — 2026-09-07T15:28Z — SUPERVISOR §3 RULING: SINGLE-LEVER RE-FREEZE (base triple N=20/40/80 kept; ONLY residualControl 1e-7 → 1e-9). The repositioned N=10/20/40 triple above is STRUCK. Before any compute.
+
+**Appended at the foot. Nothing above is rewritten, edited or struck in place.** The struck values
+are named below and declared void; the frozen text above is left byte-for-byte intact. Drafted by
+`ansys-lane-opus48`; the `ansys-verification-supervisor` issued this §3 ruling before first compute.
+
+### 1. Legality under rule 2 — condition and how it was checked
+
+Amendments before first compute are legal (rule 2). **The condition: `verification/runs/ansys_verification/VMFL010-R2/`
+does not exist** — no graded compute has begun, so gates are still open. Re-verified with `ls -d`
+**inside the same shell invocation that commits this amendment**, and the commit **aborts** if the
+directory has appeared. The freeze `934605f3` is superseded by this amendment, NOT rewritten.
+
+### 2. The §3 ruling (why the repositioned triple is superseded)
+
+The repositioned design above **dropped N=80 — the exact level whose second-difference sign flip
+produced the base OSCILLATORY verdict (NOT A RESULT #14)** — and put the finest onto N=40, which
+lands on the in-band base-L2 value 0.8845. However well-argued, "remove the level that caused the
+fail" has the shape rule 2's anti-circularity forbids and is challengeable by the verification team's
+gate audit; and the iterative-noise diagnosis was **inferred, not proven**. The single-lever design
+below both makes the freeze unimpeachable AND directly tests the diagnosis.
+
+### 3. What is STRUCK (declared void and superseded)
+
+- **§0 lever item 1** — "reposition ... finest is N=40, not N=80: N = 10 / 20 / 40" and its
+  leading-term-dominant rationale for a coarser triple. **VOID.**
+- **§2 table** — the triple L1/L2/L3 = 10/20/40, cells 900/3600/14400, junction 10×10/20×20/40×40,
+  and "the graded triple is 10/20/40". **VOID.**
+- **§6 cost table** — the 900/3600/14400 rows, the ~1.1 core-min estimate and the 7.0 core-min cap.
+  **VOID** (replaced in §7 of this amendment).
+- **§7 mesh line** — "the triple is repositioned so the finest level is N=40". **VOID.**
+- **§8 smoke** — the N=40-only smoke's role as the triple's finest de-risk. **VOID** (a fresh N=80
+  smoke is reported in §8 of this amendment).
+- **§9 prediction** — the monotone-from-repositioning prediction. **VOID** (replaced in §9 here).
+
+**NOT struck, unchanged and carried forward exactly:** the reference (0.887), the reference kind
+(code-to-code, buys NEITHER V nor P), the band (±3 % relative), the ceiling (GATE REACHED, never
+PASS), the gate definition (§1), the Roache gating (§3), the strict-completion basis (§4, incl.
+last==endTime INAPPLICABLE), and ALL guards (§5: planted-zero present + known-bad, strict
+completion, known-bad input, gate-blind (0,1) physical range).
+
+### 4. The superseding SINGLE-LEVER design
+
+- **Grid triple:** the base VMFL010 self-similar structured-hex r=2 triple **UNCHANGED** —
+  **L1/L2/L3 = N = 20 / 40 / 80, cells 3600 / 14400 / 57600** (9N²), junction blocks
+  20×20 / 40×40 / 80×80. **Drop nothing, reposition nothing.** This is the SAME family the base
+  birth certs certified clean (hex, aspect 1.0, non-orth 0, skew ~1e-13, ×4 per level).
+- **The one lever:** iterative convergence only, `residualControl` **1e-7 → 1e-9** on both U and p
+  (linear-solver tolerances 1e-9 → 1e-11), in `case/system/fvSolution`. **No discretisation scheme
+  changes** (still `bounded Gauss linear`, p=2). **No gate change** (L-487): band, reference,
+  reference kind and ceiling are byte-identical to the base.
+- **Why single-lever is the honest test:** it isolates the iterative-noise hypothesis. The base
+  triple that graded OSCILLATORY at 1e-7 is re-run *identically* at 1e-9; nothing but the residual
+  floor differs, so the outcome attributes cleanly.
+
+### 5. Roache, completion, guards — carried forward, applied to N=20/40/80
+
+Unchanged from §3/§4/§5 above; the graded triple is now L1/L2/L3 = 20/40/80. Rule 5: any level not
+iteratively converged (residualControl 1e-9 unmet) → NOT A RESULT; triple not CONVERGING → NOT A
+RESULT (value + triple printed); CONVERGING → gate (§1). GCI only when monotone. The comparator is
+N-agnostic (grades whatever L1/L2/L3 dirs exist), so its grading logic is behaviourally byte-identical;
+only its docstring was corrected to the single-lever design.
+
+### 6. The comparator, driver and fvSolution as re-frozen
+
+- `grade_vmfl010_r2.py` — grading logic behaviourally unchanged (N-agnostic); docstring corrected to
+  N=20/40/80 single-lever. `--selftest` 10/10.
+- `run_vmfl010_r2.sh` — N array set to 20/40/80 (N2 40/80/160, N3 60/120/240); `CAP_CORE_MIN = 18.0`
+  (§7 below); ENDTIME 8000 (residualControl 1e-9 stops earlier).
+- `case/system/fvSolution` — residualControl 1e-9, linear tol 1e-11 (already so; comment corrected).
+
+### 7. Cost (rule 12) — MEASURED from answer-blind scratch smokes at 1e-9
+
+| Level | N | cells | core-min |
+|---|---|---|---|
+| L1 | 20 | 3 600  | ~0.30 ESTIMATED (base 1e-7 = 0.2167 × ~1.3 for the deeper floor) |
+| L2 | 40 | 14 400 | **0.667 MEASURED** (answer-blind smoke: 40 wall-s, 1490 iters to residualControl 1e-9) |
+| L3 | 80 | 57 600 | **3.533 MEASURED** (answer-blind smoke: 212 wall-s, 2033 iters to residualControl 1e-9) |
+
+- **Pre-registered estimate for the graded triple:** **~4.5 core-min.**
+- **Running-total cap in the driver: `CAP_CORE_MIN = 18.0` core-min** (~4× margin; overrun STOPS —
+  rule 12). Under the $25/run pre-authorisation: 4.5 core-min = 0.075 core-h × $0.0513 ≈ **$0.0038
+  DERIVED**; the 18.0 cap ≈ **$0.015 DERIVED**. `cost_basis` = core-minutes MEASURED (wall_s × ranks
+  ÷ 60); dollars DERIVED at $0.0513/core-h owner-stated, NOT measured (COMPUTE_BUDGET §5).
+
+### 8. Fresh answer-blind smoke (NOT the freeze; sets NO gate/band)
+
+Run in the scratchpad, OUTSIDE `verification/runs/` (cannot disarm the age guard on the frozen run
+root), kept **answer-blind** — the split / patch flows were NEVER read (blockMesh + simpleFoam only):
+- **N=80 (base finest) at residualControl 1e-9:** `blockMesh` → 57600 cells rc 0; `simpleFoam` →
+  residualControl 1e-9 in 2033 iters (End line, "SIMPLE solution converged"), 212 wall-s = **3.533
+  core-min**, ~5× under the 18.0 cap. Confirms the SAME finest grid that oscillated at 1e-7 reaches
+  the deeper floor within cap. The split was NOT read.
+- (The earlier N=40 smoke, 0.667 core-min at 1e-9, is carried forward for L2 sizing.)
+
+### 9. THE LAB'S PREDICTION (single-lever; stated a-priori, before any graded run)
+
+**Predicted verdict: GATE REACHED, MODERATE confidence.** If the base oscillation was iterative
+round-off noise (residualControl 1e-7 left a ~1e-4 perturbation comparable to the finest second
+difference +2.958e-4), then at 1e-9 the N=80 point clears that noise floor and the SAME 20/40/80
+triple becomes **monotone CONVERGING**, finest split ≈ 0.8847 (0.26 % from 0.887, inside the 3 %
+band), p ≈ 2. **The genuinely open question is whether it does.** If the triple STILL fails to be
+CONVERGING at 1e-9, that is the RESULT and is reported as **`NOT A RESULT` with a finding: the cause
+was NOT iterative noise but genuine mesh-sensitivity of the split at Re=300 near its converged
+value** — NOT rescued by dropping the failing level, refining, or widening the band. A FUTURE,
+SEPARATE R3 could then justify an N≤40 triple using the N=80-at-1e-9 oscillation as *documented data*
+(data-driven, not fitting) — that is a later registration, not this one. **A-PRIORI DISCIPLINE:** the
+graded triple values (including N=80's split at 1e-9) are NOT read to select or adjust this design;
+the smokes measured cost and convergence only, answer-blind.
+
+**Lines whose number changed above this section: 0.**

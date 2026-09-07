@@ -4,12 +4,13 @@
 # the launch permission is HELD on Sanaa's desk (rule 9). This driver exists as a frozen
 # input; running it is the supervisor's act after the four personal checks.
 #
-# R2 lever (mesh-quality, gate UNCHANGED): the base VMFL010 was ALREADY a self-similar
-# structured-hex r=2 triple (birth certs: 3600/14400/57600 hex, non-orth 0, skew ~1e-13).
-# Its split was textbook 2nd-order in magnitude but sign-flipped at the finest level by a
-# ~1e-4 iterative perturbation. R2 REPOSITIONS the same self-similar family into the
-# leading-term-dominant regime -- finest N=40 (base L2), not N=80: L1/L2/L3 = 10/20/40 --
-# and tightens iteration to residualControl 1e-9 (in fvSolution). No scheme, no gate changes.
+# R2 lever (SINGLE-LEVER, supervisor §3 ruling 2026-09-07; gate UNCHANGED): the base
+# VMFL010 was ALREADY a self-similar structured-hex r=2 triple (birth certs: 3600/14400/57600
+# hex, non-orth 0, skew ~1e-13). Its split was textbook 2nd-order in magnitude but sign-flipped
+# at the finest level (N=80) by a ~1e-4 iterative perturbation at residualControl 1e-7. R2
+# KEEPS the base triple N=20/40/80 UNCHANGED (drop nothing, reposition nothing) and changes
+# ONLY the convergence to residualControl 1e-9 (in fvSolution). This directly tests the noise
+# diagnosis on the SAME triple that 'failed'. No scheme, no gate changes.
 #
 # NO `set -u`: it is CATEGORICALLY INCOMPATIBLE with OpenFOAM v2606 (sourcing etc/bashrc
 # dereferences WM_PROJECT_DIR before assigning it -> rc 127). EVERY check gates EXPLICITLY
@@ -20,7 +21,7 @@
 #     core_minutes = wall_s * RANKS / 60
 # CAP_CORE_MIN is the RUNNING TOTAL across all three levels. AN OVERRUN STOPS THE RUN.
 RANKS=1
-CAP_CORE_MIN=7.0          # running total, frozen in PREREGISTRATION.md sec.6
+CAP_CORE_MIN=18.0         # running total, frozen in PREREGISTRATION.md amendment (~4x the ~4.5 est)
 CASE_DIR="$(cd "$(dirname "$0")" && pwd)/case"
 RUN_ROOT="${1:?usage: run_vmfl010_r2.sh <run_root>}"
 # --- LAUNCH-TIME FREEZE CHECK (rule 2): prereg AND comparator on disk == HEAD blobs --------
@@ -45,8 +46,8 @@ echo "  freeze check OK: prereg $PREREG_HEAD ; comparator $GRADER_HEAD"
 # ------------------------------------------------------------------------------------------
 source /usr/lib/openfoam/openfoam2606/etc/bashrc || { echo ABORT: no OpenFOAM; exit 1; }
 command -v simpleFoam >/dev/null || { echo "ABORT: simpleFoam not on PATH after sourcing"; exit 1; }
-declare -A N=( [L1]=10 [L2]=20 [L3]=40 )  N2=( [L1]=20 [L2]=40 [L3]=80 )  N3=( [L1]=30 [L2]=60 [L3]=120 )
-ENDTIME=4000   # SIMPLE iterations (residualControl 1e-9 stops earlier; finest smoke: 1490 iters)
+declare -A N=( [L1]=20 [L2]=40 [L3]=80 )  N2=( [L1]=40 [L2]=80 [L3]=160 )  N3=( [L1]=60 [L2]=120 [L3]=240 )
+ENDTIME=8000   # SIMPLE iterations (residualControl 1e-9 stops earlier)
 SPENT_CORE_MIN=0
 TOTAL_WALL=0
 for L in L1 L2 L3; do

@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """VMFL010-R2 comparator -- Laminar Flow in a 90-degree Tee-Junction (manual p.39).
 
-Successor to VMFL010 (NOT A RESULT, OSCILLATORY). R2 repositions the self-similar
-structured-hex r=2 triple into the leading-term-dominant regime (finest N=40, not N=80:
-L1/L2/L3 = 10/20/40) and tightens iteration to residualControl 1e-9, so the split's
-grid-to-grid difference stays above any iterative/round-off perturbation and the Roache
-sign is meaningful. The GATE IS UNCHANGED from the base (0.887 +/- 3% relative) -- a
-mesh-triple fix cannot move the band (L-487).
+Successor to VMFL010 (NOT A RESULT, OSCILLATORY). SINGLE-LEVER design (supervisor §3
+ruling 2026-09-07): KEEP the base self-similar structured-hex r=2 triple UNCHANGED
+(L1/L2/L3 = 20/40/80, cells 3600/14400/57600 -- drop nothing, reposition nothing) and
+change ONLY the convergence, residualControl 1e-7 -> 1e-9 (linear solver tol 1e-11). This
+DIRECTLY tests the diagnosis "the base oscillation was iterative round-off noise": at 1e-9
+the N=80 point should clear the ~1e-4 noise floor and the SAME triple that 'failed' become
+monotone CONVERGING. If it STILL oscillates at 1e-9 -> NOT A RESULT, an honest finding that
+the cause was NOT iterative noise (genuine mesh-sensitivity at Re=300), NOT rescued by
+dropping the failing level or widening. No scheme change. The GATE IS UNCHANGED from the
+base (0.887 +/- 3% relative) -- L-487.
 
 NO GRADED COMPUTE is run by, or triggered by, this file. It grades a run the
 ansys-verification SUPERVISOR unlocks after the four personal checks; the launch
