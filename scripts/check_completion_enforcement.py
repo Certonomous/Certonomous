@@ -4,6 +4,25 @@ check_completion_enforcement.py -- the STANDING INSTRUMENT for VERIFICATION_CHAR
 §2ay (v1.70, commit 606e658b).  Sanaa ordered "fix until it runs" made executable,
 "now and going forward."  This is that instrument.
 
+REFINEMENT 2026-09-07 (verification-supervisor, own instrument; two cross-team blind
+spots reported by heat-transfer and dafoam, both STRENGTHENINGS -- they surface more
+fails and clear FALSE flags on genuinely-worked ones; no verdict is moved, no gate
+widened, §2ay.4 intact):
+  * dafoam enumeration -- cases/dafoam/MATRIX_CONTRIBUTION.md added to the sources, and
+    CASE_ID_RE grew G-/O- (that matrix's OWN row ids), D#, and SO# branches.  Without the
+    G-/O- branch _row_case silently fell through the id cell and mis-keyed 18 rows onto a
+    claim-cell ladder rung; the branch keys each row to its own id.
+  * recorded-lineage successor reader (§2ay.2(b): "a landed passing successor WHOSE
+    LINEAGE IS RECORDED"; "a registered next attempt") -- a fail is state (b) when a
+    REGISTRATION (a *PREREGISTRATION*/*SUCCESSOR* file with a line-leading
+    `Predecessor:`/`Supersedes:` field, or a gate_*.json "supersedes" key) names it as the
+    attempt it supersedes.  This is the SIBLING-RUNG successor the id-suffix pattern cannot
+    see (T3d->T3e; and today: T19->T19b, K0eR2->K0eR3 via gate JSONs).  Read ONLY from
+    registrations/gate-JSONs, never boards or prose.  Trust boundary declared at the reader.
+  * plant extended: a lineage limb (2d), a dafoam-id enumeration limb (1c), and a TARGETED
+    RED-2 sub-drive that cripples ONLY the lineage finder and confirms the lineage-only
+    fails re-flag -- proving the new path is load-bearing (§28.8 for the new guard).
+
 WHAT IT DOES  (§2ay.2)
 ----------------------
 It ENUMERATES every landed `GATE FAIL` and `NOT A RESULT` it can read from the
@@ -97,6 +116,7 @@ DEFAULT_SOURCES = [
     "docs/campaigns/T-family/T23G2_RESULTS.md",
     "docs/campaigns/T-family/MATRIX_CONTRIBUTION.md",
     "cases/RANS_LES_closure_models/MATRIX_CONTRIBUTION.md",
+    "cases/dafoam/MATRIX_CONTRIBUTION.md",
     "docs/CAPABILITY_GRID.md",
 ]
 
@@ -162,13 +182,29 @@ CASE_ID_RE = re.compile(
     r"|T\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"        # T-family rungs (T1b, T23G2)
     r"|R\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"        # closure R-ladder
     r"|FS\d+(?:[-_][A-Za-z0-9]+)*"             # feature ladder
-    r"|[ABSW]\d+(?:[-_][A-Za-z0-9]+)*"         # dafoam ladders
+    r"|SO[-_]?\d+(?:[-_][A-Za-z0-9]+)*"        # dafoam super-optimisation ids (SO-3, SO3, SO3DR)
+    r"|D\d+[A-Za-z]*\d*(?:[-_][A-Za-z0-9]+)*"  # dafoam curriculum ids (D6R, D6RF4, D19R, D12R2, D9)
+    r"|[GO]-\d+(?:[-_][A-Za-z0-9]+)*"          # dafoam MATRIX_CONTRIBUTION row ids (G-01, O-13)
+    r"|[ABSW]\d+(?:[-_][A-Za-z0-9]+)*"         # dafoam ladders (A1, B3, S1, W4)
     r"|F\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"        # cfd F-campaigns
     r")\b"
 )
 
 # A successor id extends a base id with a re-run / model suffix.
 SUCCESSOR_SUFFIX_RE = re.compile(r"^(.*?)[-_](R\d+|M\d+|L\d+|S\d+|b|c)(?:[-_].*)?$")
+
+# A line-leading RECORDED-LINEAGE field: a registration declares the attempt it
+# supersedes.  §2ay.2(b) recognises "a landed passing successor whose lineage is
+# RECORDED" and "a registered next attempt"; the id-suffix pattern above sees only
+# <case>-R2 shapes and MISSES a SIBLING-RUNG successor (T3d -> T3e).  This reads the
+# lineage the successor's OWN registration declares.  LINE-LEADING label only (after
+# optional markdown decoration): a passing prose mention of "predecessor" mid-sentence
+# does NOT clear a flag, and the field is read ONLY from registration records
+# (build_repo_index gates on the *PREREGISTRATION*/*SUCCESSOR* filename), never boards.
+LINEAGE_MD_RE = re.compile(
+    r"^\s*[>#*_\s]*\b(?:predecessor|supersedes|succeeds)\b\s*[:=]",
+    re.IGNORECASE,
+)
 
 
 # --------------------------------------------------------------------------
@@ -293,6 +329,7 @@ class RepoIndex:
     succ_dirs: dict[str, str] = field(default_factory=dict)      # base case -> "dir/PREREGISTRATION.md"
     succ_files: list[tuple[str, str]] = field(default_factory=list)  # (name, text-lower) of *SUCCESSOR* files
     gap_files: list[tuple[str, list[str]]] = field(default_factory=list)  # (name, lowercased line list) of desk-marked filings
+    lineage_preds: dict[str, str] = field(default_factory=dict)  # predecessor case id -> evidence string
 
 
 def build_repo_index(repo: Path, search_roots: list[Path]) -> RepoIndex:
@@ -317,9 +354,10 @@ def build_repo_index(repo: Path, search_roots: list[Path]) -> RepoIndex:
                 idx.succ_files.append((f.name, f.read_text(errors="replace").lower()))
             except OSError:
                 continue
-    # candidate desk-marked filings: .md files carrying a desk marker (read once),
-    # EXCLUDING boards/indexes (§2ay.4).  Store per-line so co-occurrence can be
-    # tested within a window rather than anywhere-in-file.
+    # ONE pass over *.md per root: candidate desk-marked gap filings (§2ay.4, stored
+    # per-line so co-occurrence is tested within a window, not anywhere-in-file) AND
+    # recorded-lineage predecessors.  Both EXCLUDE boards/indexes.  Raw text is read
+    # once: gap detection needs lowercase, lineage-id extraction needs true case.
     for root in search_roots:
         if not root.exists():
             continue
@@ -330,11 +368,43 @@ def build_repo_index(repo: Path, search_roots: list[Path]) -> RepoIndex:
             if f.name in BOARD_OR_INDEX_FILES:
                 continue
             try:
-                lines = [l.lower() for l in f.read_text(errors="replace").splitlines()]
+                raw = f.read_text(errors="replace").splitlines()
             except OSError:
                 continue
-            if any(any(re.search(m, l) for m in DESK_MARKERS) for l in lines):
-                idx.gap_files.append((f.name, lines))
+            low = [l.lower() for l in raw]
+            if any(any(re.search(m, l) for m in DESK_MARKERS) for l in low):
+                idx.gap_files.append((f.name, low))
+            # recorded lineage: ONLY from a REGISTRATION record (a *PREREGISTRATION* or
+            # *SUCCESSOR* file), never arbitrary prose -- §2ay.2(b) requires a REGISTERED
+            # next attempt, and a bare prose mention of "predecessor" is not one.
+            up = f.name.upper()
+            if "PREREGISTRATION" in up or "SUCCESSOR" in up:
+                for l in raw:
+                    if LINEAGE_MD_RE.match(l):
+                        pm = CASE_ID_RE.search(l)
+                        if pm:
+                            idx.lineage_preds.setdefault(
+                                pm.group(1),
+                                f"registration {f.name} names it predecessor ({l.strip()[:80]})",
+                            )
+    # gate_*.json "supersedes" keys -- the one STRUCTURED lineage field in the repo
+    # (recon 2026-09-07: gate_t19b.json "supersedes":"T19"; K0eR3's gate JSON likewise).
+    for root in search_roots:
+        if not root.exists() or not root.is_dir():
+            continue
+        for jf in root.rglob("gate_*.json"):
+            if ".git" in jf.parts or not jf.is_file():
+                continue
+            try:
+                txt = jf.read_text(errors="replace")
+            except OSError:
+                continue
+            for mo in re.finditer(r'"supersedes"\s*:\s*"([^"]+)"', txt):
+                pm = CASE_ID_RE.search(mo.group(1))
+                if pm:
+                    idx.lineage_preds.setdefault(
+                        pm.group(1), f'gate JSON {jf.name} "supersedes":"{mo.group(1)}"'
+                    )
     return idx
 
 
@@ -353,6 +423,21 @@ def _find_successor_registration(case: str, idx: RepoIndex) -> str | None:
         if tok.search(low):
             return f"successor draft {name} names {case}"
     return None
+
+
+def _find_lineage_successor(case: str, idx: RepoIndex) -> str | None:
+    """State (b) via RECORDED LINEAGE (§2ay.2(b)): a registration -- a *PREREGISTRATION*/
+    *SUCCESSOR* file's line-leading `Predecessor:`/`Supersedes:` field, or a gate_*.json
+    "supersedes" key -- names `case` as the attempt it supersedes.  This is the
+    SIBLING-RUNG / continuation successor the id-suffix pattern cannot see (T3d -> T3e).
+
+    Trust boundary, DECLARED (§2ay.4): the EDGE is taken from the successor's OWN
+    registration, which had to be created to run; a fabricated lineage edge is a deeper
+    integrity fault the cross-team gate audit backstops, not something this check can
+    detect.  What this reader does NOT do is trust a board or a prose mention -- only a
+    registration or a gate JSON, gated in build_repo_index."""
+    ev = idx.lineage_preds.get(case)
+    return f"recorded-lineage successor -- {ev}" if ev else None
 
 
 def _find_gap_filing(case: str, idx: RepoIndex) -> str | None:
@@ -393,6 +478,11 @@ def find_coverage(row: FailRow, idx: RepoIndex, all_rows: list[FailRow],
     succ = _find_successor_registration(row.case, idx)
     if succ:
         return Coverage(state="b", why="active dated fix-successor registered", evidence=succ)
+    # (b) recorded-lineage successor -- sibling-rung / continuation attempt whose
+    # lineage a registration declares (§2ay.2(b) "whose lineage is recorded")
+    lin = _find_lineage_successor(row.case, idx)
+    if lin:
+        return Coverage(state="b", why="active fix-successor via recorded lineage", evidence=lin)
     # (a) capability-gap filing (five-point + model-form + desk)
     gap = _find_gap_filing(row.case, idx)
     if gap:
@@ -515,7 +605,9 @@ def report(results: list[Result], unparsed: list[tuple[str, int, str]],
         print(f"      ... and {len(unparsed)-40} more")
     print("  KNOWN BLIND SPOTS (declared, not discovered):")
     print("    * verdicts recorded only in prose sentences (not table rows) are not enumerated.")
-    print("    * successors registered in a shape other than <case>-R/_R/-M dirs or *SUCCESSOR* files.")
+    print("    * successors registered in a shape other than <case>-R/_R/-M dirs, *SUCCESSOR*")
+    print("      files, a *PREREGISTRATION*/*SUCCESSOR* line-leading Predecessor:/Supersedes: field,")
+    print("      or a gate_*.json \"supersedes\" key (a sibling-rung link in PROSE only is NOT read).")
     print("    * gap filings without an explicit desk marker + all five §2an classes + model-form.")
     print("    * registers/records not in the source list above (add with --source).")
     print("=" * 78)
@@ -551,6 +643,11 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         "| **4** | **FIX004** | **`GATE FAIL`** | superseded by a pass |\n"
         "| **5** | **FIX004-R2** | **`PASS`** | the discharging re-run |\n"
         "| **6** | **FIX005** | **`NOT A RESULT`** | proven unrecoverable, filed |\n"
+        "| **7** | **FIX006** | **`GATE FAIL`** | superseded by a SIBLING rung; lineage in its prereg |\n"
+        "| **8** | **FIX008** | **`GATE FAIL`** | superseded via a gate JSON supersedes key |\n"
+        "| **9** | **G-90** | **`NOT A RESULT`** | dafoam matrix-shaped id -- must ENUMERATE |\n"
+        "| **10** | **D6RF9** | **`GATE FAIL`** | dafoam curriculum-shaped id -- must ENUMERATE |\n"
+        "| **11** | **SO-9** | **`NOT A RESULT`** | dafoam SO-shaped id -- must ENUMERATE |\n"
     )
 
     # LIMB 2a: a registered successor directory for FIX003
@@ -568,12 +665,27 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         "solver-selection, preconditioner, numerics-scheme (discretisation), config "
         "(configuration), and model-form. This is a genuine OpenFOAM capability gap.\n"
     )
+
+    # LIMB 2d(i): a REGISTRATION whose line-leading Predecessor field names FIX006 -- a
+    # sibling-rung successor the id-suffix pattern cannot see.  Filename carries
+    # PREREGISTRATION so the lineage gate in build_repo_index admits it.  FIX006 has NO
+    # id-suffix successor, NO passing successor, NO gap filing: it is covered ONLY by this.
+    (cases / "FIX006x_PREREGISTRATION.md").write_text(
+        "# FIX006x pre-registration\n"
+        "Predecessor: **FIX006**\n"
+        "A sibling-rung next attempt that changes the numerics scheme and re-runs.\n"
+    )
+    # LIMB 2d(ii): a gate JSON declaring supersedes -> FIX008 (the one STRUCTURED form).
+    (cases / "gate_fix008.json").write_text('{\n  "supersedes": "FIX008"\n}\n')
     return [register], [cases, desk]
 
 
 def selftest() -> int:
-    """Drive the two-limb planted control RED-then-GREEN.  Returns 0 iff both
-    limbs fired GREEN and the RED drive was seen to blind the checker; else 2."""
+    """Drive the planted control RED-then-GREEN.  Returns 0 iff every limb fired GREEN
+    and BOTH red drives were seen to blind the checker; else 2.  Limbs: 1 (bare +
+    mechanism-only fail flagged), 1c (dafoam-shaped ids enumerated), 2 (successor /
+    discharged / gap-filing not flagged), 2d (recorded-lineage successor not flagged)."""
+    global _find_lineage_successor
     print("=" * 78)
     print("PLANTED CONTROL -- §2ay.5 / rule 3.  Two limbs, RED-then-GREEN.")
     print("An enforcer whose zero has not been shown able to become non-zero is worthless.")
@@ -602,6 +714,17 @@ def selftest() -> int:
         # LIMB 2: FIX003 (successor), FIX004 (discharged), FIX005 (gap filing) MUST NOT be flagged.
         limb2_cases = {"FIX003", "FIX004", "FIX005"}
         limb2_ok = limb2_cases.isdisjoint(flagged) and limb2_cases <= covered
+        # LIMB 2d: recorded-lineage coverage (the NEW path).  FIX006 (md Predecessor field)
+        # and FIX008 (gate JSON supersedes) have NO id-suffix successor, NO passing
+        # successor, NO gap filing -- they are covered ONLY by recorded lineage.
+        lineage_cases = {"FIX006", "FIX008"}
+        lineage_ok = lineage_cases.isdisjoint(flagged) and lineage_cases <= covered
+        # LIMB 1c: dafoam-shaped ids MUST be ENUMERATED (extracted, not dropped to the
+        # unparsed channel) -- proving the CASE_ID_RE G-/D/SO branches.  They carry no
+        # successor so they are ALSO flagged; the assertion is that they were SEEN.
+        dafoam_ids = {"G-90", "D6RF9", "SO-9"}
+        dafoam_enumerated = dafoam_ids <= set(by_case)
+        dafoam_flagged = dafoam_ids <= flagged
 
         print(f"\n  LIMB 1 (must flag {sorted(limb1_cases)})     : "
               f"{'GREEN' if limb1_ok else 'FAILED'}  "
@@ -616,6 +739,17 @@ def selftest() -> int:
             r = by_case.get(c)
             if r:
                 print(f"      {c}: flagged={r.flagged}  state=({r.coverage.state}) {r.coverage.evidence}")
+        print(f"  LIMB 2d (lineage, must NOT flag {sorted(lineage_cases)})  : "
+              f"{'GREEN' if lineage_ok else 'FAILED'}")
+        for c in sorted(lineage_cases):
+            r = by_case.get(c)
+            if r:
+                print(f"      {c}: flagged={r.flagged}  state=({r.coverage.state}) {r.coverage.evidence}")
+        print(f"  LIMB 1c (dafoam ids {sorted(dafoam_ids)} enumerated): "
+              f"{'GREEN' if dafoam_enumerated else 'FAILED'}  "
+              f"[all flagged (no successor): {'yes' if dafoam_flagged else 'NO'}]")
+        for c in sorted(dafoam_ids):
+            print(f"      {c}: {'ENUMERATED' if c in by_case else 'MISSING (dropped to unparsed)'}")
 
         # ---------- RED: cripple the coverage-finder to always-true ----------
         # This is the blind checker §2ay.5 warns of: if the coverage-finder always
@@ -631,8 +765,28 @@ def selftest() -> int:
         print(f"  LIMB 1 stopped flagging under the blind checker: "
               f"{'YES -- plant CATCHES a blind checker' if red_blinded else 'NO'}")
 
-        both_green = limb1_ok and mech_ok and limb2_ok
-        red_ok = red_blinded
+        # ---------- RED-2: cripple ONLY the recorded-lineage finder ----------
+        # The whole-coverage RED above blinds everything.  This narrower drive proves
+        # the NEW lineage path is itself load-bearing (§28.8 for the new guard): with
+        # only the lineage finder blinded, the lineage-only fails MUST re-flag.  If they
+        # do not, some OTHER path is silently clearing them and the lineage limb above
+        # was vacuous.
+        _saved_lin = _find_lineage_successor
+        _find_lineage_successor = lambda case, idx: None
+        try:
+            red2_results, _ = scan(sources, base, roots)
+        finally:
+            _find_lineage_successor = _saved_lin
+        red2_flagged = {r.row.case for r in red2_results if r.flagged}
+        lineage_red_ok = lineage_cases <= red2_flagged
+        print(f"\nRED-2 run (ONLY the recorded-lineage finder crippled):")
+        print(f"  lineage-only fails flagged now: "
+              f"{sorted(lineage_cases & red2_flagged) if (lineage_cases & red2_flagged) else '(none)'}")
+        print(f"  LIMB 2d fails re-flag with lineage blinded: "
+              f"{'YES -- the lineage path is load-bearing' if lineage_red_ok else 'NO'}")
+
+        both_green = limb1_ok and mech_ok and limb2_ok and lineage_ok and dafoam_enumerated
+        red_ok = red_blinded and lineage_red_ok
         print("\n" + "=" * 78)
         if both_green and red_ok:
             print("PLANT VERDICT: BOTH LIMBS FIRED GREEN, AND THE RED DRIVE BLINDED THE CHECKER.")
@@ -642,7 +796,10 @@ def selftest() -> int:
             print("=" * 78)
             return 0
         print("PLANT VERDICT: REFUSED -- the planted control did NOT fire as required.")
-        print(f"  both limbs GREEN: {both_green}   RED drive blinded checker: {red_ok}")
+        print(f"  all limbs GREEN: {both_green}  (limb1={limb1_ok} mech={mech_ok} "
+              f"limb2={limb2_ok} lineage={lineage_ok} dafoam-enum={dafoam_enumerated})")
+        print(f"  both RED drives blinded checker: {red_ok}  "
+              f"(whole-coverage={red_blinded} lineage-only={lineage_red_ok})")
         print("A checker whose plant does not fire prints NO admissible zero (rule 3).")
         print("=" * 78)
         return 2
