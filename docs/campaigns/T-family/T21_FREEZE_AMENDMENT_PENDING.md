@@ -1,4 +1,31 @@
-# T21 FREEZE AMENDMENT — **PENDING. NOT IN FORCE.**
+> # ✅ **CLEARED / SUPERSEDED — 2026-09-07 (top note added by a heat-transfer lane).**
+> # **THE STALE HEADER BELOW IS NO LONGER TRUE. THE FREEZE LANDED.**
+>
+> **T21 IS FROZEN at commit `89a7bdbb`** (Sanaa's captured GO `fbab523b`,
+> `etc/sessions/2026-09-03T2250Z_sanaa_go_all_asks.md` item 6). The freeze is
+> recorded — and its full route disclosed — in **this file's own ADDENDUM 1**
+> (below, dated 2026-09-03), which post-dates and overrides the "NOT IN FORCE /
+> REMAINS DRAFT" header that follows. `T21_PREREGISTRATION.md` now carries
+> **AMENDMENT 2 (the freeze)** committed at `89a7bdbb`: its STATUS block reads
+> **FROZEN**, §1 line 9's ABSENT REGISTRY is **DISCHARGED**, and §1 line 10's
+> AUTHORISATION is **FLIPPED** to authorise the §8.1 run set within the §7.2 cap.
+>
+> **What the header below got right and keeps its value for:** this file is a
+> **preservation copy** and it is **NOT itself a freeze** — a freeze is an act
+> with its own conditions, not a block of text (see "THREE THINGS A READER OF
+> THIS FILE MUST NOT DO"). Those three cautions still stand. What is now stale is
+> only the header's factual claim that **the freeze had not yet landed**; it had
+> not when the header was written, and it has since (ADDENDUM 1). A fresh reader
+> should treat T21 as **frozen at `89a7bdbb`** and read the registration itself
+> for T21's binding status.
+>
+> **Not touched by this note:** the frozen `T21_PREREGISTRATION.md` (rule 6 — not
+> edited here), and the preserved byte-for-byte span further down (unaltered).
+> This is a working file, so a dated top annotation is the correct instrument.
+
+---
+
+# T21 FREEZE AMENDMENT — **PENDING. NOT IN FORCE.** *(stale header — see the CLEARED note above; the freeze landed at 89a7bdbb, ADDENDUM 1)*
 
 > # ⛔ **THIS IS NOT IN FORCE. IT IS NOT A FREEZE.**
 > # **T21 REMAINS `DRAFT` AND AUTHORISES NO SOLVE.**
