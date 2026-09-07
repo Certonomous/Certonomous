@@ -85,8 +85,11 @@ SMOKE="${VMFL046R6_SMOKE:-0}"
 SAMPLEDT=5.0e-04
 if [ "$SMOKE" = "1" ] && [ -n "$VMFL046R6_SAMPLEDT" ]; then SAMPLEDT="$VMFL046R6_SAMPLEDT"; fi
 
-# The six inputs carried from R5 BYTE-IDENTICAL (mesh, IC/BC, thermo, transport).
-CARRIED=( "0/T" "0/U" "constant/momentumTransport" "constant/thermophysicalProperties" \
+# The FIVE inputs carried from R5 BYTE-IDENTICAL (mesh, IC velocity/temperature, transport
+# simulation type).  NOTE (amendment A2, v1.2): thermophysicalProperties is NO LONGER carried --
+# rhoCentralFoam requires a psiThermo, so its `type` changed heRhoThermo -> hePsiThermo; it is a
+# CHANGED input asserted in DIRECTION 2 below.
+CARRIED=( "0/T" "0/U" "constant/momentumTransport" \
           "constant/turbulenceProperties" "system/blockMeshDict.template" )
 
 # r=2 grid triple, IDENTICAL to R1-R5.  NPOINTS = 2*(NXA+NXB)+1 -- the sampler refines with
@@ -135,11 +138,17 @@ grep -Eq "maxCo[[:space:]]+0\.2([^0-9]|$)" "$CASE_DIR/system/controlDict.templat
 grep -q "fluxScheme[[:space:]]\+Kurganov" "$CASE_DIR/system/fvSchemes" || { echo "ABORT: fvSchemes does not carry fluxScheme Kurganov (AXIS 1)"; exit 7; }
 grep -q "reconstruct(rho)" "$CASE_DIR/system/fvSchemes" || { echo "ABORT: fvSchemes does not carry the rhoCentralFoam reconstruct schemes (AXIS 1)"; exit 7; }
 cmp -s "$CASE_DIR/system/fvSolution" "$R5_CASE_DIR/system/fvSolution" && { echo "ABORT: fvSolution IDENTICAL to R5 -- the rhoCentralFoam solver set was not installed (AXIS 1)"; exit 7; }
+# thermophysicalProperties: amendment A2 (v1.2) -- rhoCentralFoam requires a psiThermo, so the
+# thermo `type` moved heRhoThermo -> hePsiThermo (differs from R5); everything else in the thermo
+# is byte-identical (the manual's constant-viscosity model preserved).
+cmp -s "$CASE_DIR/constant/thermophysicalProperties" "$R5_CASE_DIR/constant/thermophysicalProperties" && { echo "ABORT: thermophysicalProperties IDENTICAL to R5 -- rhoCentralFoam needs a psiThermo, not the rhoThermo-family heRhoThermo (AXIS 1)"; exit 7; }
+grep -q "type[[:space:]]\+hePsiThermo" "$CASE_DIR/constant/thermophysicalProperties" || { echo "ABORT: thermophysicalProperties does not carry a psiThermo type (hePsiThermo) required by rhoCentralFoam (AXIS 1)"; exit 7; }
+grep -q "type[[:space:]]\+heRhoThermo" "$CASE_DIR/constant/thermophysicalProperties" && { echo "ABORT: thermophysicalProperties still carries the rhoThermo-family heRhoThermo -- rhoCentralFoam will abort with 'Unknown psiThermo type'"; exit 7; }
 [ -e "$CASE_DIR/constant/fvOptions" ] && { echo "ABORT: constant/fvOptions is PRESENT -- rhoCentralFoam has no limitTemperature; R6 removes it (AXIS 1)"; exit 7; }
 [ -e "$R5_CASE_DIR/constant/fvOptions" ] || { echo "ABORT: R5 parity reference constant/fvOptions missing -- cannot confirm the removal is a real delta"; exit 7; }
 N_R6=$(find "$CASE_DIR" -type f | wc -l)
 [ "$N_R6" = "10" ] || { echo "ABORT: R6 carries $N_R6 case inputs, expected 10 (R5's 11 minus constant/fvOptions)"; exit 7; }
-echo "R5-parity OK: 6 carried inputs byte-identical to R5; 0/p (lInf 0.3), controlDict (rhoCentralFoam, maxCo 0.2), fvSchemes (Kurganov), fvSolution changed; fvOptions removed; 10 files."
+echo "R5-parity OK: 5 carried inputs byte-identical to R5; 0/p (lInf 0.3), controlDict (rhoCentralFoam, maxCo 0.2), fvSchemes (Kurganov), fvSolution, thermophysicalProperties (hePsiThermo) changed; fvOptions removed; 10 files."
 
 if [ "$SMOKE" = "1" ]; then
   case "$RUN_ROOT" in

@@ -372,3 +372,30 @@ reached by the failed smoke, so the outlet remains to be confirmed by the re-smo
 
 **version:** v1.0 → **v1.1**
 **lines whose number changed above this section: 0**
+
+---
+
+## AMENDMENT A2 — v1.2 — 2026-09-07 — **DRIVER PARITY-ASSERT FOLLOW-ON TO A1 (pre-first-compute)**
+
+**CONDITION.** After A1 moved `constant/thermophysicalProperties` from *carried* to *changed*,
+the re-smoke aborted at the **driver's own** DIRECTION-1 parity assert (`run_vmfl046_r6.sh`,
+exit 7: *"R6 carried input constant/thermophysicalProperties DIFFERS from R5"*) — the driver
+still listed the thermo in its byte-identical-to-R5 `CARRIED` set. The solver was never reached.
+
+**HOW CHECKED.** The same ephemeral answer-blind scratch smoke as A1; the GRADED run root still
+does not exist and no graded compute has occurred, so this remains a rule-2 pre-first-compute
+correction.
+
+**THE CORRECTION** (`run_vmfl046_r6.sh` only): `thermophysicalProperties` removed from the
+`CARRIED` array (now **5** carried inputs); a DIRECTION-2 assert added that it **differs from R5**
+AND **carries `hePsiThermo`** AND **does not carry `heRhoThermo`**; the parity echo updated to name
+the thermo among the changed inputs. **No cost, cap, gate, threshold, mesh, endTime or physics
+value changes; the comparator blob is unchanged (`bad1408f`).**
+
+**CORRECTED DELTA-COUNT, RESTATED.** R6 vs R5 = **5 carried byte-identical** (`0/T`, `0/U`,
+`constant/momentumTransport`, `constant/turbulenceProperties`, `system/blockMeshDict.template`),
+**5 changed** (`0/p`, `system/controlDict.template`, `system/fvSchemes`, `system/fvSolution`,
+`constant/thermophysicalProperties`), **1 removed** (`constant/fvOptions`); 10 case files.
+
+**version:** v1.1 → **v1.2**
+**lines whose number changed above this section: 0**
