@@ -1,0 +1,36 @@
+R2-M2 QUEUE ROW VALIDATION -- staged, NOT PLACED. HEAD 8be98034160767c32ee378bf63e8585b5cb4b415, 2026-09-07T03:56:19Z.
+Validator: scripts/queue_entry_check.py. Row: cases/committee-grids/QUEUE_ROW_R2M2_READY_NOT_PLACED.json (staging, NOT the drop path).
+
+=== SELFTEST (planted controls, each shown able to fail) ===
+  selftest_exit=0
+SELFTEST PASS: 36 controls fired, each shown able to fail.
+
+=== ACCEPTANCE of the staged M2 row (VERBATIM) ===
+ACCEPTED cases/committee-grids/QUEUE_ROW_R2M2_READY_NOT_PLACED.json  team=cfd case=RUNG2-CRM-M2 ranks=14 est=6.32 core-min
+    TEAM-BINDING: NOT CHECKED -- cases/committee-grids/QUEUE_ROW_R2M2_READY_NOT_PLACED.json is outside verification/queue/<team>/.
+    This is an UNCHECKED condition, not a passing one. The entry declares
+    team='cfd'; nothing here has compared that to a queue directory,
+    because this file is not in one. It is checked when the QUEUED copy is
+    validated in place:
+        queue_entry_check.py --require-binding verification/queue/cfd/QUEUE_ROW_R2M2_READY_NOT_PLACED.json
+    -- that run is the validation that counts.
+    NOTE: acceptance is a mechanical guard only. Enqueueing is not authorisation; SUPERVISION_CHARTER section 3 check 4 is the supervisor's own and is not performed by this script.
+  validator_exit=0
+
+=== PLANTED CONTROLS -- proving acceptance above is a READING, not a default ===
+Two of three are REFUSALS; the third is reported HONESTLY as an ACCEPT with what the validator does and does not check.
+--- (1) required field 'ranks' removed -> expect REFUSED ---
+REFUSED /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/bad_noranks.json
+    SCHEMA: required field 'ranks' is missing
+  validator_exit=2
+--- (2) ranks = 0 -> expect REFUSED ---
+REFUSED /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/bad_zeroranks.json
+    RANKS: ranks must be >= 1, got 0
+  validator_exit=2
+--- (3) launch_cmd -> nonexistent script -> ACCEPTED (HONEST FINDING) ---
+ACCEPTED /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/bad_nocmd.json  team=cfd case=RUNG2-CRM-M2 ranks=14 est=6.32 core-min
+    TEAM-BINDING: NOT CHECKED -- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/bad_nocmd.json is outside verification/queue/<team>/.
+  validator_exit=0
+    NOTE: the validator does NOT check that the launch_cmd SCRIPT PATH exists; its EXEC/AGE-GUARD clauses check the CWD, not the script. That the driver run_r2_m2.sh exists is verified independently (git-tracked, blob 4f821a35) and the driver itself exits non-zero on a missing --go mode. This third control is recorded as an ACCEPT, NOT claimed as a refusal.
+
+TEAM-BINDING (clause 7) is NOT CHECKED at this staging path. It is checked on the QUEUED copy in verification/queue/cfd/ with --require-binding -- the validation that counts. Enqueueing is not authorisation (SUPERVISION_CHARTER section 3).
