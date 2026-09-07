@@ -1319,3 +1319,56 @@ a capability gap.** This NOT A RESULT maps to **state (b): a dated successor**, 
 - **No `GATE FAIL`.** Rule 5 is one-way and the gate quantity was never read.
 - **R5 does NOT prove R4's hunt is or is not outlet reflection** — it overshot to the opposite
   outlet extreme; the question is OPEN and passes to R6 with the outlet repaired.
+
+## Row #63 — VMFL046-R6 — Supersonic Flow with a Normal Shock in a Converging–Diverging Nozzle (VM2026R1 p. 155) — **`NOT A RESULT`**
+
+**Graded 2026-09-07 through the pinned frozen comparator (blob `bad1408fd52e8d3bdc91bc64f28036de16f02af4`, verified byte-identical at the freeze `14d40c9b` and on disk before grading, §3 check 1). Verdict: `NOT A RESULT`. The comparator REFUSES at exit 2 on the strict-completion limb (CLAUDE.md rule 4). Nothing was graded, so there is no `GATE FAIL` here and none may be issued — no level plateaued, no `x_shock` was ever read out.**
+
+**The density-based successor, LAUNCHED by the queue daemon, whose L1 CRASHED at startup.** R6 is the two-change successor to R5 (register #62): the SOLVER moved `rhoPimpleFoam → rhoCentralFoam` (density-based KNP central-upwind, Greenshields et al. 2010) and the OUTLET relaxation `waveTransmissive lInf 2.0 → 0.3 m` (the exit-plane half-height, gate-blind). The gate (`x_shock` vs **1.250 m**, band **±5 %**), plateau (`DELTA_X = 6.250e-04 m`), `endTime 0.080 s`, the mesh, the `r = 2` triple, the sampler and every gate limb are carried byte-identical from R5; the only comparator change is N4 (`limitTemperature` → a physical-range `T` refusal, forced because rhoCentralFoam has no `fvOptions limitTemperature`). Pre-registration frozen at `dcc1adcf` (2026-09-07 04:24:00Z, before the run root existed), amended **pre-first-compute** by A1 (v1.1, `heRhoThermo → hePsiThermo`, the correct psiThermo family for rhoCentralFoam) and A2 (v1.2, `14d40c9b`, the driver's own R5-parity assert follow-on). Driver `run_vmfl046_r6.sh` blob `03c944c4` verified byte-identical at `14d40c9b` and on disk — the driver that ran IS the frozen driver.
+
+### What the run did — L1 core-dumped at ~2 steps; L2/L3 never launched
+
+| level | rc | `End` | last `Time` | endTime | fields at endTime | ranks | wall | core-min |
+|---|---|---|---|---|---|---|---|---|
+| L1 | **134** (SIGABRT, core dump) | **absent** | **1.864806e-04** | 0.080 | **none written** | 1 (serial) | 1 s | 0.0167 |
+| L2 | — | — | — | — | — | — | — | **not launched** |
+| L3 | — | — | — | — | — | — | — | **not launched** |
+
+`blockMesh` completed (`End`, 6,400-cell L1 mesh). `rhoCentralFoam` then ran 84 real time steps (`rho/rhoU/rhoE/e/U` all solved) from `deltaT` seed `1e-8` s and aborted at `Time = 1.864806e-04 s` with:
+
+> `--> FOAM FATAL ERROR: Negative initial temperature T0: -16.0202977148` — from `Foam::species::thermo<hConstThermo<perfectGas<specie>>, sensibleInternalEnergy>::T(...)`, `thermoI.H` line 57 (the internal-energy → temperature inversion). `timeout: the monitored command dumped core`. `RUN_RC = 134`.
+
+The driver aborted L1 (`ABORT L1: rhoCentralFoam rc=134`) and never reached L2/L3. Strict completion (rule 4) FAILS at four limbs: `RUN_RC ≠ 0`, no `End`, last `Time ≠ endTime`, no `endTime` field directory.
+
+### Why the verdict is `NOT A RESULT` — the frozen comparator refuses, correctly, at strict completion
+
+Run against the run root as frozen (`python3 grade_vmfl046_r6.py verification/runs/ansys_verification/VMFL046-R6/`), the comparator exits **2** at its first completion check:
+
+> `REFUSE: L1: RUN_RC = 134, not 0 (rule 4).  rc 124 is a CAP KILL: the run was stopped by its own registered cap and is NOT A RESULT (budget/kill class).`
+
+(The frozen refusal string names `rc 124` as its worked example; the limb fires for **any** `rc ≠ 0` — here `134`, a core dump, not a cap kill. The reason recorded by this row is the measured one: **L1 `RUN_RC = 134`, a startup core dump**, not a budget kill.) Selftest **70 ok, 0 FAILED** under `python3` and `python3 -O` (logic integrity, not interface). **Exit 2 = `NOT A RESULT`.** No `x_shock`, plateau, deviation, Roache triple, GCI or production planted control was reached.
+
+### ⚡ TRIAGE (SUPERVISION_CHARTER §3 check 2) — a GENUINE transonic-startup instability, state (b), NOT a capability gap; and the smoke was NOT representative
+
+Answer-blind diagnosis (no `x_shock`, no outlet `Δp` read to steer it), from the config and the crash log alone:
+
+- **It is a transient-startup blow-up, NOT an A1 thermo defect.** The solver constructed `hePsiThermo<pureMixture<const<hConst<perfectGas<specie>>,sensibleInternalEnergy>>>` successfully — A1's `Unknown psiThermo type` error is gone — and ran 84 real steps. `hePsiThermo` IS the correct family for rhoCentralFoam. The negative `T0 = -16.02 K` arises from the **energy → T inversion after the flow solve drove a cell's internal energy `e = rhoE/rho − ½|U|²` negative** during the violent adjustment away from the impulsive uniform IC (`U = (100 0 0)` everywhere, including the diverging section that is eventually supersonic; `T = 400 K`, `p = 200000 Pa` uniform). This is the classic explicit density-based transonic-startup signature, not a dictionary or thermo-model bug.
+- **It is NOT a Courant runaway.** `adjustTimeStep` held max Courant at **0.203 ≈ maxCo 0.2** every step through the crash; `maxDeltaT 1e-4` was never binding (last `deltaT ≈ 3e-6 s`). The blow-up occurs *inside* a Courant-controlled march — so simply obeying `maxCo 0.2` is not sufficient at startup for this impulsive IC.
+- **⚠ THE R6 SMOKE THAT "CONFIRMED STARTUP + OUTLET ACCEPTANCE" WAS UNDER-LENGTH AND THEREFORE NON-REPRESENTATIVE — itself a finding.** The A1/A2 amendment smoke ran with `VMFL046R6_ENDTIME = 2e-5 s`. The instability manifests at `Time ≈ 1.86e-4 s` — **≈ 9.3× later** than the smoke's endTime. At `2e-5 s` the solver is still in the gentle early `deltaT` ramp (Courant well below 0.2); the smoke certified field construction + `waveTransmissive` acceptance + the first ~30 steps, but **stopped ~9× before the transonic startup transient that destabilises the run**. A density-based startup smoke whose endTime is shorter than the instability onset cannot certify startup stability.
+
+**Per Sanaa's fix-until-runs law (§2ay): the only acceptable fail is OpenFOAM being unable to do the case. This is NOT that.** rhoCentralFoam can march this case through startup — with a stabilised startup (a startup Courant ramp, a more-diffusive startup reconstruction confined to `t ≪` the graded window, and/or a non-impulsive initial field). This is a **numerics/config lever, not a capability gap** → **state (b): a dated successor (R7)**. The R7 lever set and its comparator-consistency caveats are with the supervisor for the §3 checks and ruling; the gate (`x_shock` vs `1.250 m`, ±5 %, `DELTA_X`, `endTime`, mesh, `r=2`) is carried BYTE-IDENTICAL (L-487) and the ceiling stays `GATE REACHED`. Logged to `docs/ansys_verification/FIX_SUCCESSOR_REGISTRY.md` as R6→R7(startup-stabilised).
+
+### Provenance
+
+- **Comparator:** `cases/ansys_verification/VMFL046-R6/grade_vmfl046_r6.py`, blob **`bad1408fd52e8d3bdc91bc64f28036de16f02af4`** — re-verified equal at the freeze `14d40c9b` and on disk before grading; refused exit 2; selftest 70/70 under `python3` and `python3 -O`.
+- **Pre-registration & freeze:** `cases/ansys_verification/VMFL046-R6/PREREGISTRATION.md`, frozen `dcc1adcf` (before the run root existed, rule 2, §3 check 4), amended pre-first-compute A1 (v1.1) and A2 (v1.2, `14d40c9b`). Driver `run_vmfl046_r6.sh` blob **`03c944c4`** verified byte-identical at `14d40c9b` and on disk.
+- **Gate/thresholds, UNCHANGED and byte-identical from R1–R5:** `x_shock` vs `1.250 m`, band `±5 %`, plateau `DELTA_X = 6.250e-04 m`. No gate, band, threshold, `endTime`, `maxCo` or window moved.
+- **Run root:** `verification/runs/ansys_verification/VMFL046-R6/L1/` — `RUN_RC` (=134), `log.rhoCentralFoam` (FOAM FATAL negative `T0`, core dump at `Time = 1.864806e-04`), `log.blockMesh` (`End`). L2/L3 directories were never created.
+- **Cost:** **0.0167 core-min MEASURED** (L1 only; `rhoCentralFoam` ClockTime `1 s` × 1 rank ÷ 60; driver-recorded `core_min_used = 0.0166667` in `launcher.queue.out`). `blockMesh` ClockTime not printed — sub-second (< 0.6 s from log mtimes, < 0.01 core-min); L2/L3 = 0. Against the point estimate **538 core-min** → ratio **3.1e-5×** — NOT a completion ratio; a crash-truncated spend at ~2 steps into an 0.080-s clock. **$0.0000143 DERIVED, NOT measured** at `$0.0513`/core-h (c7a.4xlarge, owner-stated; the box cannot read its own billing, `COMPUTE_BUDGET_CHARTER` §5). No cap approached; **waste 0.000 core-min** — the 0.0167 core-min bought the definitive startup-instability finding. Calibration row appended in `docs/COST_CALIBRATION.md`.
+
+### What this row REFUSES to claim
+
+- **No `x_shock`, no plateau, no deviation from 1.250 m, no Roache triple, no GCI** — the comparator refused at strict completion, before any of them; no production planted control was reached.
+- **No `GATE FAIL`.** Rule 5 is one-way and the gate quantity was never read.
+- **No measured `f_solver`.** The prereg §7 owed a measured rhoCentralFoam/rhoPimpleFoam solver-conversion factor (assumed 1.10) against R6's actual — the crash means it CANNOT be measured from this run and passes to R7.
+- **The outlet `lInf 0.3` anchoring is NOT confirmed by this run** — the solve died in startup, before the graded window; whether the anchored partially-reflecting outlet resolves the standing shock remains OPEN for R7.
