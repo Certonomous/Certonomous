@@ -464,3 +464,18 @@ is the supervisor's check 4.**
 **Freeze set, §11 row for the launcher — STRUCK, not deleted:** ~~`launch_t4b.sh` | `1f12792d` | `9d77ea35b82c94f1` | 165~~ → **`launch_t4b.sh` | `8bd93c23` | `9c035b147bd1b4ef` | 185; 0 `assert`; the two guard arms above driven.** Every other row of §11 is unchanged. No gate, band, threshold, floor, control, cap, timeout or cost moves; §9's POINT 515.90 / caps 25 / 150 / 860 stand.
 
 **Status after this amendment: PRE-REGISTERED, BUILT, NOT FIRED; re-enqueued as `T4b_IJ_{c,m,f}_v2.json` citing this amendment's commit.**
+
+---
+
+## AMENDMENT — 2026-09-07 — §2ay LINEAGE ANNOTATION (recorded predecessor)
+
+**Appended by a heat-transfer lab lane. Lines whose number changed above this section: 0.**
+
+This dated addendum records, in the line-leading form the §2ay completion-enforcement
+reader (`scripts/check_completion_enforcement.py`, recorded-lineage limb) reads from a
+registration, the attempt this rung follows. T4b is the registered wall-resolved
+successor to T4 (`7422591b`, `NOT A RESULT` ×3). It is a **pure lineage annotation**: it
+alters no gate, threshold, band, cap, label or verdict — T4's graded verdict stands
+unchanged, nothing above is reopened, and no frozen sha moves.
+
+**Predecessor: `T4` (explicit, for §2ay linkage).**
