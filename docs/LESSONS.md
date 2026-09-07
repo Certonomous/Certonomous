@@ -24755,7 +24755,27 @@ Peers' uncommitted section edits stay in the working tree for them to commit. **
 helper that does exactly this is the durable fix; until it exists, never `--add` a shared
 append file by hand — reconstruct from the HEAD blob.**
 
-**Related:** `L-498` (append_record's tail sweep); `CLAUDE.md` rule 10 (private-index protocol);
+**⚠ CORRECTION (2026-09-07, same day, paid for immediately).** The prescription above —
+"`hash-object`/`--cacheinfo`, never `--add` the shared file" — is **incomplete and, applied
+literally, WORSE than the sweep it avoids.** `--cacheinfo` writes the blob into the commit but
+does NOT update the shared WORKING TREE. So the next peer who commits with `git update-index
+--add -- docs/LAB_STATE.md` stages the working-tree copy (which never got your change) and
+**SILENTLY DISCARDS your commit.** A sweep's content SURVIVES (under someone else's sha); a
+discard's content is GONE. I proved this the hard way the same hour: a `--cacheinfo` V-117 board
+commit was discarded by the next peer's `--add`; and a `git show HEAD:` captured in an EARLIER
+bash call went stale when a peer committed in between, so a later `--cacheinfo` commit (CAS
+passes — it checks only the PARENT, not the blob's base, the L-223 race) reverted a peer's block.
+**THE CORRECTED RULE:** for a rapidly-shared append file, **EDIT THE WORKING-TREE FILE (your
+section only) and commit via the private-index `--add` PROMPTLY, HEAD captured ONCE in the same
+shell, then inspect the post-commit `git diff HEAD~1 HEAD` for any unexpected DELETION** (a
+reverted peer block shows there). This keeps the working tree consistent so your change is not
+discarded; the residual risk is sweeping a peer's few concurrent uncommitted lines — which
+SURVIVE. Minimise the edit→commit window; that window, not the `--add` itself, is where sweeps
+happen. `--cacheinfo` is safe ONLY if you ALSO write the reconstructed content back to the
+working tree — which reintroduces the same sweep-vs-discard choice, so it buys nothing here.
+
+**Related:** `L-498` (append_record's tail sweep); `L-223` (a lane moves HEAD between two bash
+calls — capture HEAD once, in one shell); `CLAUDE.md` rule 10 (private-index protocol);
 rule 13 (LAB_STATE is the only handoff channel — losing its provenance degrades that channel).
 
 ## L-500 — A base OSCILLATORY Roache triple can be iterative round-off NOISE on an over-refined finest level, not mesh non-similarity — diagnose before you pick a lever, and never "fix" it by dropping the level that flipped
