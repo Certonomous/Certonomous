@@ -344,3 +344,17 @@ changes land only as dated addenda that cannot alter a gate, threshold, cap or l
 It does **not** launch — that is the supervisor's §3 check-4 decision, taken separately. It does
 **not** assert any verdict; no term of rule 1's vocabulary is claimed for T3e. It does **not**
 re-grade T3d, whose `NOT A RESULT` stands. It does **not** move `tol`, the cap, or any label.
+
+---
+
+## AMENDMENT 2 — 2026-09-07 — §2ay LINEAGE ANNOTATION (recorded predecessor)
+
+**Appended by a heat-transfer lab lane. Lines whose number changed above this section: 0.**
+
+This dated addendum records, in the line-leading form the §2ay completion-enforcement
+reader (`scripts/check_completion_enforcement.py`, recorded-lineage limb) reads from a
+registration, the attempt this rung follows. It is a **pure lineage annotation**: it
+alters no gate, threshold, band, cap, label or verdict — T3d's `NOT A RESULT` stands
+unchanged, nothing above is reopened, and no frozen sha moves.
+
+**Predecessor: `T3d` (explicit, for §2ay linkage).**
