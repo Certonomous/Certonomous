@@ -36,6 +36,18 @@ Supersedes: G-21 — A4 decomposition survey, NOT A RESULT (no pre-registered ga
 
 Supersedes: O-01 — A2 MACH-wing IPOPT drag-min, NOT A RESULT (time-boxed at 47/100 majors, no IPOPT convergence statement). The optimiser could not converge because the A2-wing PRIMAL fails DAFoam's post-End acceptance (maxNonOrth 71.48 > 70). Successor: D6RF5 — the A2 non-orthogonal-correction primal repair (REGISTERED, sizing frozen `9ed7aa78`), then the A2 multipoint optimisation D6R2 (D6RF5 → SO3DR Stage-2 → D6R2). Evidence: `cases/dafoam/ladder-a/A2/curriculum_D6RF5/PREREGISTRATION.md`.
 
+**Registered 2026-09-07 (this annotation) — the five that until now were held out of §3 because their successor was not yet registered. Both successors are now REGISTERED (DRAFT, awaiting supervisor freeze). Neither is a proven capability gap; both are state (b) with an active, dated, named attempt that changes what failed and re-runs.**
+
+Supersedes: G-11 — A3 rung-3 shipped-mode adjoint, GATE FAIL (4,000 iterations, `reason −3`, 1.31× residual reduction; peak 11.65 of 22 GiB, a MEASURED conditioning wall, not a memory one; `dafoam-subpclu:v1` banner absent = stock preconditioner path). Successor: **A3R3PC** — the rung-3 adjoint re-run with a WORKING preconditioner (the sub-LU `dafoam-subpclu:v2`, never tried on rung-3, or the ksp-options patch). A3R3PC changes the preconditioner of the linear solve — the one §2an process class not yet ruled out. REGISTERED (DRAFT): `cases/dafoam/ladder-a/A3/curriculum_A3R3PC/PREREGISTRATION.md`. Original fail evidence: `cases/dafoam/ladder-a/A3/grading_confirmation/RESULTS.md` §2d, `35171866`.
+
+Supersedes: G-12 — A3 rung-3 patched adjoint attempt 1, NOT A RESULT — stopped by memory (host-floor guard MemAvailable 7.3944 < 8.0 GiB while RSS 9.202 of 15.0; killed at 85 s of 2,600 s; 0 of 11 checkpoints). A registration-design memory defect, not numerics (L-239 in a new size). Successor: **A3R3PC** — the adequate-memory plan (gate limb `MemAvailable ≥ 19.65 GiB` from the shipped arm's complete measured peak + the 8 GiB floor, with the 25.2 GiB stage-0 risk disclosed beside the threshold). REGISTERED (DRAFT): `cases/dafoam/ladder-a/A3/curriculum_A3R3PC/PREREGISTRATION.md`. Original fail: `cases/dafoam/ladder-a/A3/rung3_patched_idwarp_np4/RESULTS.md`, `67edcc19`.
+
+Supersedes: G-13 — A3 rung-3 patched adjoint attempt 2, GATE FAIL (adjoint, INHERITED) — all 11 KSP residual checkpoints bit-identical to the frozen shipped-equivalent path, NO `PetscConvergedReason` printed, terminal −3 inherited; rc=137 the registered deliberate stop. The IDWarp rotation patch is orthogonal to the adjoint conditioning, so it could not touch what failed. Successor: **A3R3PC** — changes the conditioning inside the linear solve (executable `KSP_PATH_DIFFERS` guard asserts the checkpoints are no longer bit-identical to the shipped fingerprint). REGISTERED (DRAFT): `cases/dafoam/ladder-a/A3/curriculum_A3R3PC/PREREGISTRATION.md`. Original fail: `cases/dafoam/ladder-a/A3/rung3_patched_idwarp_np4_attempt2/RESULTS.md`, graded `8871acf3`, row `bec36c9d`.
+
+Supersedes: G-14 — A3 rung-3 gradient, rotation-patched, NOT A RESULT — no gradient was produced on rung 3 by any patched arm (silent both ways on rung 2's degradation finding), because no patched adjoint converged. Successor: **A3R3PC** — a gradient exists the moment the adjoint converges under a working preconditioner; the FD-vs-adjoint check and the Roache triple on the existing 21,840 / 42,120 / 79,560-cell family become reachable (named downstream, not folded into A3R3PC's cost). REGISTERED (DRAFT): `cases/dafoam/ladder-a/A3/curriculum_A3R3PC/PREREGISTRATION.md`. Original fail: same file, grading `8871acf3`, row `bec36c9d`.
+
+Supersedes: O-10 — D2 AB2 design-point non-uniqueness, GATE FAIL (the item's REGISTERED FINDING, not a defect of the item): `‖Δshape‖₂/‖shape_A‖₂ = 33.259 %` vs the frozen 10.0 % band; `‖Δshape‖_∞ = 1.9379e-02` vs 8.0e-03; `|ΔAoA| = 0.2428` deg inside 0.25. AB1 passes, AB2 fails, and that combination is the result — the objective is near-flat along the direction separating the two designs (a flat-valley non-uniqueness, NOT an aerodynamic finding). Successor: **D2ABR** — a REGULARIZED Adams-Bashforth re-run (a registered shape-regularizer convexifies the flat valley; the acceptance band is carried byte-identical and never widened). REGISTERED (DRAFT): `cases/dafoam/ladder-a/A1/curriculum_D2ABR/PREREGISTRATION.md`. **Alternative disposition (PARKED, Sanaa's alone): a valid-terminal-result ruling that the registered non-uniqueness is itself terminal.** Original fail evidence: `cases/dafoam/ladder-a/A1/curriculum_D2` grading, row `b840fcd5`.
+
 ---
 
 ## 2. CLEARED — newer curriculum `D#`/`SO#` fails bridged to their registered successors (state b)
@@ -63,29 +75,40 @@ Supersedes: D2 — A1 shipped BLOCKED. Successor: the patched A1 optimisation, P
 
 ---
 
-## 3. STILL FLAGGED — five fails that OWE a not-yet-registered successor
+## 3. FORMERLY STILL-FLAGGED — the five now carry active dated fix-successors (state b)
 
-**Their matrix ids are DELIBERATELY NOT written in this `*SUCCESSOR*`-named file**, because the
-enforcer clears any case-id token that appears in such a file's text, and these must stay FLAGGED
-until their successor is actually registered (a diagnosis clears none, `§2ay.3`). They are tracked in
-full — with their ids, verdicts and named-but-unregistered successors — in the dafoam board
-(`docs/LAB_STATE.md`, block S-116) and in the supervisor's report to the chief. In summary, and
-without their tokens: the A3 rung-3 adjoint group (four flagged rows — shipped-mode non-convergence,
-two patched attempts, and the gradient row) owes an adjoint with a WORKING preconditioner (the sub-LU
-`dafoam-subpclu:v2` never tried there, or the ksp-options patch) plus an adequate-memory plan; and the
-AB design-point row owes either a regularized re-run to confirm its flat-valley non-uniqueness or a
-Sanaa ruling that a registered non-uniqueness finding is a valid terminal result. **None is a proven
-capability gap; both are state (b) pending a named attempt.**
+**Update 2026-09-07.** The five fails that this section previously held out of the file — because their
+successor was not yet registered and a `*SUCCESSOR*`-named file's tokens would have cleared them
+prematurely (a diagnosis clears none, `§2ay.3`) — **now have registered successors** and so their
+tokens are written into §1 above, deliberately and correctly:
+
+- **`G-11`, `G-12`, `G-13`, `G-14`** (A3 rung-3 adjoint group: shipped-mode conditioning-wall
+  non-convergence, the memory-stop attempt, the bit-identical INHERITED attempt, and the no-gradient
+  row) → **A3R3PC** — the rung-3 adjoint with a WORKING preconditioner (`dafoam-subpclu:v2`, never
+  tried there, or the ksp-options patch) + an adequate-memory plan. REGISTERED (DRAFT),
+  `cases/dafoam/ladder-a/A3/curriculum_A3R3PC/PREREGISTRATION.md`.
+- **`O-10`** (D2 AB2 flat-valley design-point non-uniqueness) → **D2ABR** — a regularized
+  Adams-Bashforth re-run. REGISTERED (DRAFT),
+  `cases/dafoam/ladder-a/A1/curriculum_D2ABR/PREREGISTRATION.md`. Alternative disposition (a Sanaa
+  valid-terminal-result ruling) is **PARKED — hers alone**.
+
+**None is a proven capability gap (state a).** Each is state (b): an active, dated, named attempt that
+changes what failed and re-runs. The A3 conditioning wall remains the one *hypothesis* of a genuine
+capability gap in the whole set — and it stays state (b) until the sub-LU / ksp-options preconditioner
+has actually been run on rung-3 (`4ae4b33`: keep fixing until it runs, or MEASURE the gap and file it).
 
 ---
 
 ## 4. SUMMARY FOR THE ENFORCER AND THE CHIEF
 
-- **11 flagged matrix fails:** **6 cleared to state (b)** with landed/registered successors (§1); **5
-  still flagged** owing a not-yet-registered successor (§3, tokens held out deliberately); **0 proven
-  capability gaps (a).**
-- **Newer curriculum fails (§2):** all bridged to registered successors.
+- **11 flagged matrix fails:** **all 11 now cleared to state (b)** with landed or registered
+  successors (§1); **0 still flagged**; **0 proven capability gaps (a).** (Was, until 2026-09-07:
+  6 cleared, 5 flagged.)
+- **Newer curriculum fails (§2):** all bridged to registered successors. **Enumeration note:** these
+  newer ids are not in `cases/dafoam/MATRIX_CONTRIBUTION.md` and so are not enumerated by the enforcer
+  unless a source carrying their verdict rows is added; that companion is
+  `cases/dafoam/DAFOAM_NEWER_ID_VERDICT_RECORD.md` (see it for the SOURCES-addition request). Their
+  coverage lives here in §2.
 - **The one hypothesis of a genuine capability gap** in the whole set is the A3 rung-3 conditioning
-  wall — and it is state (b) pending the sub-LU / ksp-options attempt that has never been run there,
-  exactly as `4ae4b33` requires (keep fixing until it runs, or MEASURE the gap and file it).
+  wall — state (b) pending the sub-LU / ksp-options attempt that has never been run there.
 - **Upstream defect filings referenced (D-A, D-B) are prepared and NOT FILED — Sanaa's alone.**
