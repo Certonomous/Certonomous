@@ -32,6 +32,35 @@ cd /home/ubuntu/Certonomous
 
 MAX_TRIES=5
 
+# ---------------------------------------------------------------------------
+# 2026-09-07 -- THE BOARD-CLOBBER GUARD (L-499 / L-499-CORRECTION). The enforcing
+# instrument the lesson was owed and never got. docs/LAB_STATE.md is the shared
+# handoff board; a commit must NEVER reduce its top-level section count or its
+# block (## .. #####) count versus the parent -- that is a clobber / sweep-delete
+# (the L-499 cascade silently dropped 17,944 lines and 8 blocks). Counts may stay
+# EQUAL (a content edit) or GROW (an append, or a swept-in peer block whose content
+# SURVIVES -- the survivable direction). A DECREASE aborts and RESTORES the ref to
+# the parent (CAS rollback; the working tree is untouched). Intentional block
+# removal (a coordinated de-dup/de-bloat) is done OUTSIDE this guarded path.
+# ---------------------------------------------------------------------------
+BOARD_PATH="docs/LAB_STATE.md"
+_board_counts() {  # $1 = <rev>  ; prints "<sections> <blocks>" for that rev's board (0 0 if absent)
+  local content secs blocks
+  content=$(git show "$1:$BOARD_PATH" 2>/dev/null || true)
+  secs=$(printf '%s\n' "$content" | grep -cE '^## ' || true)
+  blocks=$(printf '%s\n' "$content" | grep -cE '^#{2,5} ' || true)
+  echo "${secs:-0} ${blocks:-0}"
+}
+# returns 0 if NEW did not drop sections/blocks vs OLD; 1 (clobber) if either dropped.
+assert_board_not_clobbered() {  # $1 OLD rev  $2 NEW rev
+  local os ob ns nb
+  read -r os ob < <(_board_counts "$1")
+  read -r ns nb < <(_board_counts "$2")
+  echo "--- BOARD GUARD: parent(sections=$os blocks=$ob) -> new(sections=$ns blocks=$nb)" >&2
+  if [ "$ns" -lt "$os" ] || [ "$nb" -lt "$ob" ]; then return 1; fi
+  return 0
+}
+
 # --- the planted refused-CAS control (L-314). Driven with --selftest.
 if [ "${1:-}" = "--selftest" ]; then
   T=$(mktemp -d); cd "$T"
@@ -55,6 +84,24 @@ if [ "${1:-}" = "--selftest" ]; then
   if [ "$(git rev-parse HEAD)" = "$ORPHAN" ]; then
     echo "CONTROL FAIL: HEAD moved to the orphan"; fail=1
   else echo "  control -: HEAD is still $B -- the ref did NOT move, which is the only true test"; fi
+  # --- board-clobber guard arm (L-499 enforcing instrument): a dropped block MUST be
+  #     caught (RED); an append MUST pass (GREEN).  §28: the guard is shown able to fire.
+  mkdir -p docs
+  printf '## verification\n##### UPDATE V-1 — a\n##### UPDATE V-2 — b\n' > docs/LAB_STATE.md
+  git add docs/LAB_STATE.md && git commit -qm board_v1
+  P=$(git rev-parse HEAD)
+  printf '## verification\n##### UPDATE V-1 — a\n##### UPDATE V-2 — b\n##### UPDATE V-3 — c\n' > docs/LAB_STATE.md
+  git add docs/LAB_STATE.md && git commit -qm board_v2_append
+  G=$(git rev-parse HEAD)
+  printf '## verification\n##### UPDATE V-1 — a\n' > docs/LAB_STATE.md
+  git add docs/LAB_STATE.md && git commit -qm board_v3_clobber
+  R=$(git rev-parse HEAD)
+  if assert_board_not_clobbered "$P" "$G" 2>/dev/null; then
+    echo "  board +: GREEN append PASSES the guard (blocks grew)"
+  else echo "CONTROL FAIL: the guard rejected a legitimate append"; fail=1; fi
+  if assert_board_not_clobbered "$G" "$R" 2>/dev/null; then
+    echo "CONTROL FAIL: the guard MISSED a dropped block (clobber went undetected)"; fail=1
+  else echo "  board -: RED clobber CAUGHT (a dropped block would abort+restore)"; fi
   cd /; rm -rf "$T"
   [ "$fail" -eq 0 ] && { echo "SELFTEST PASS"; exit 0; } || { echo "SELFTEST FAIL"; exit 2; }
 fi
@@ -87,6 +134,22 @@ while : ; do
   if ! printf '%s' "$NEW" | grep -qE '^[0-9a-f]{40}$'; then
     echo "ABORT: commit-tree returned a non-sha: '$NEW'"; exit 2
   fi
+  # BOARD-CLOBBER GUARD (L-499 enforcing instrument): if this commit touched the shared
+  # board, refuse to LAND it when it would DROP a section or block vs the parent (a
+  # clobber / sweep-delete -- the L-499 cascade). Checked on the commit object $NEW
+  # BEFORE update-ref, so a clobber never reaches the branch; $NEW is left an
+  # unreferenced orphan. Counts equal (edit) or grown (append / swept-in peer block,
+  # content survives) pass; only a DECREASE aborts.
+  for _bf in "${FILES[@]}"; do
+    if [ "$_bf" = "$BOARD_PATH" ]; then
+      if ! assert_board_not_clobbered "$OLD" "$NEW"; then
+        echo "ABORT: BOARD CLOBBER -- $BOARD_PATH would DROP a section/block vs parent $OLD (L-499 guard)."
+        echo "--- commit $NEW is an unreferenced ORPHAN; NOTHING landed. Inspect what dropped a block; never force."
+        exit 2
+      fi
+      break
+    fi
+  done
   rc=0; git update-ref refs/heads/main "$NEW" "$OLD" || rc=$?
   if [ "$rc" -eq 0 ]; then break; fi
   # REFUSED CAS: a peer moved HEAD. The commit object exists and is an ORPHAN.
