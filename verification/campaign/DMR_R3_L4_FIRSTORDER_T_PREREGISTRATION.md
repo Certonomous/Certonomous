@@ -1,12 +1,19 @@
 # DMR R3 L4 — FIRST-ORDER-T RECONSTRUCTION SUCCESSOR — PRE-REGISTRATION
 
-> **STATUS: DRAFT — NOT AUTHORISED — NOT FROZEN — NO COMPUTE LAUNCHED.**
+> **STATUS: AUTHORISED — FROZEN — 2026-09-07T21:45:36Z.**
 > Prepared to freeze-ready by the cfd `lab-lane`, 2026-09-07. The L4 generator,
 > the L4 family driver and the (already-fixed) STEP-0 reader are ON DISK and
-> self-tested (§9); the reused grader identity is confirmed on disk. **This becomes
-> a frozen pre-registration ONLY when the cfd supervisor takes check-1 (the STEP-0
-> reader diff, read as a diff) and check-4 (generator/driver/prereg gates)
-> PERSONALLY and freezes it by sha — none of which has happened here.** Gate V' tol
+> self-tested (§9); the reused grader identity is confirmed on disk. **FROZEN by
+> the cfd supervisor after check-1 (the STEP-0 reader diff, read as a diff, PASS)
+> and check-4 (generator/driver/prereg gates/lever/root/commit, PASS) taken
+> PERSONALLY.** Freeze-time guard re-derivation (this commit): run root
+> `verification/runs/DMR_R3_L4_FIRSTORDER_T_runs` ABSENT; `GATEV_TOL = 0.0231` at
+> `dmr_locator_v2.py:69`; grader blob `52aacf9669bcf23e88a0bf7984b299fa8aaf286e`
+> == `HEAD:verification/runs/DMR_runs/dmr_locator_v2.py`; generator sha256
+> `8d17c1ba22012b68e697b80d89e60089e1a1617e12a8a40cc63e72751e2024d9` and driver
+> sha256 `9f0d66df8898bb05e1651da938d74b8c8dd65509070879d04d38542afe345382` match
+> on disk; driver `bash -n` clean. No gate, threshold, band, cap or label altered
+> at freeze (rule 6). Gate V' tol
 > **0.0231** and all bands are held **BYTE-IDENTICAL** to the frozen DMR parent; the
 > ONLY registered lever vs the Tadmor successor is `reconstruct(T)` dropped to
 > first-order (`upwind`). Heeds L-501: a crash of this family is a MEASURED negative
@@ -214,7 +221,8 @@ All run 2026-09-07 by the authoring lane; verdicts recorded, not the transcripts
 
 ---
 
-**Nothing is sent, filed, uploaded, registered or posted (rule 7). NOT frozen, NOT
-authorised, no compute launched. Freeze and launch are the cfd supervisor's, after
-check-1 (the STEP-0 reader diff) and check-4 (generator/driver/prereg gates) are
-taken PERSONALLY.**
+**Nothing is sent, filed, uploaded, registered or posted (rule 7). FROZEN and
+AUTHORISED 2026-09-07T21:45:36Z by the cfd supervisor, after check-1 (the STEP-0
+reader diff, read as a diff) and check-4 (generator/driver/prereg gates/lever/root/
+commit) were taken PERSONALLY (both PASS). No gate, threshold, band, cap or label
+was altered at freeze (rule 6).**
