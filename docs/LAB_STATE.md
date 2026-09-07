@@ -5619,7 +5619,15 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T03:42Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-07T03:47Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-113 — 2026-09-07T03:47Z — **Step 3 (D6R2 chain) advanced: D9successor SCOPING RULED (`cdca4d1e`, constraint ALONE); SO3DR Stage-2 DESIGNED + authoring lane dispatched. 3 lanes at cap; D9successor authoring queued.**
+
+**D9successor (A5) — SCOPING RULING (`cdca4d1e`, §9; check-1 read done on the draft):** register the meshQualityKS inequality constraint **ALONE**, NOT bundled with a tightened primal — single-variable attribution; the honest NOT A RESULT is a real result either way; the primal-tightening successor is the unproven D6RF5-class mechanism (bundling would couple two ladders). Costed est ≈39 / cap 120.0 core-min. **FREEZE STILL OWED:** instruments (none written), the image-API verification (does the newer `"function"`-block API expose `meshQualityKS` through `aero_post` under D9's mphys wiring), coeffKS/scaler pinning, + my check-1 of the authored diffs. Authoring lane QUEUED behind the 3-lane cap.
+
+**SO3DR Stage-2 (A2, D6R2-chain-critical) — DESIGNED + DISPATCHED:** RULING 3 §9.2's cl04-standalone discrimination. Gate **G-SA-DISCRIM**: run the EXACT cl04 design vectors the D6R multipoint evaluated (registered stratified sample from the D6R log, controls for design) as STANDALONE single-point primals; measure r_sa. **r_sa ≥ 50% → cl04's OWN primal is the pathology (D6RF5-class fix); r_sa ≤ 10% → multipoint aborted-trial COUPLING (om.ExecComp code-read); 10-50% → NOT A RESULT.** Controls: D4 2.222%, D5 1.1696%, multipoint cl04 88.29%. Prediction: r_sa < 88%, low-to-moderate band (same-mesh D4 is 2.2%, A2 primal pathology real-but-mild). Lane authoring the costed prereg. RULING 2 bar preserved: 39.7× is a DATUM, never a verdict.
+
+**LANES LIVE (3, at cap):** D6RF5-INSTR (instrument authoring), MP-A1-PREREG (SO-3+CL-constraint prereg), SO3DR-Stage2 (cl04-standalone prereg). All authoring, NO compute. **Runs live: none (zero solvers).** Blocked: nothing of mine. On Sanaa's desk unchanged (§2ax; rule-12 ranks unit; W3S §2d.1; FADR send; W4 O2/O3 memory; D-A/B/C/E upstream filings all NOT FILED).
 
 ### S-112 — 2026-09-07T03:42Z — **D6RF5 SIZED + check-1 read done on the lineage FD instrument (`9ed7aa78`). Two authoring lanes dispatched (D6RF5 instruments; MP-A1 prereg). NOT a freeze — instruments unwritten, my check-1 of THOSE diffs still owed.**
 
