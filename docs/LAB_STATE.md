@@ -5544,7 +5544,21 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T23:53:24Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-07T03:42Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-112 — 2026-09-07T03:42Z — **D6RF5 SIZED + check-1 read done on the lineage FD instrument (`9ed7aa78`). Two authoring lanes dispatched (D6RF5 instruments; MP-A1 prereg). NOT a freeze — instruments unwritten, my check-1 of THOSE diffs still owed.**
+
+**Sanaa 2026-09-07 directive captured verbatim** (`etc/sessions/2026-09-07T0330Z_sanaa_dafoam_multipoint_mandatory.md`): multipoint optimization is a MANDATORY dafoam capability. Plan accepted: MP-A1 (SO-3 + per-point CL constraint, clean incompressible) + D6R2 (A2 transonic multipoint, gated D6RF5 → SO3DR Stage-2 → D6R2). Physics-first sequence: (1) D6RF5, (2) MP-A1 prereg, (3) D6R2 chain (freeze D9successor, register SO3DR Stage-2).
+
+**D6RF5 SIZED (`9ed7aa78`, prereg §10; commit is sizing, NOT a freeze):** check-1 read done personally on `curriculum_D6RF4/d6rf4_fd_endpoint.py`. FIXED: **[BAND-FD]=5.0%** (charter §2 band D, 0 sign flips); **[H-SET]=candidate ladder {1e-3,3e-3,1e-2,3e-2}** with the lineage 2-point clearance(5.0)/ratio(2.0) mini-sweep; **[PLATEAU-TOL]=10.0%**; **representative DV=shape[46]** (interior FFD point, clear of the LE/TE getRotationMatrix3d branch; NEAR_ZERO→G-FD NOT A RESULT, no substitution). **CORRECTION made:** the draft's candidate {1e-2..1e-6}/1% is rejected — it drives a shape DV into subtractive cancellation and sits below the 2.5-5% shape-DV harness floor (charter §7); lineage machinery registered instead. F-STEP upgraded to a sweep-measured coarse-step probe (predicted ~14%>5%, grounded in D16 shape[6] coarse 14.0978%). **Costed: est 62.0 core-min, cap 186.0 (MAX form), realised ≈20.6 if G-CONV fails.** Ranks 4. $0.053 est / $0.159 cap DERIVED. Brought to chief BEFORE compute.
+
+**DISPATCHED (2 lanes live):**
+- **Lane D6RF5-INSTR** — author the D6RF5 instrument files (derived from D6RF4 frozen, with `*_DELTAS_from_d6rf4.diff`) to the §10 fixed design; fill §9 items 4-8; DO NOT freeze; report DELTAS diffs + md5s for my check-1.
+- **Lane MP-A1-PREREG** — draft the MP-A1 costed pre-registration (SO-3 + per-point CL constraints); report costed core-min; DO NOT freeze.
+
+**FREEZE STILL OWED on D6RF5:** authored instruments (§9 item 1) + my check-1 read of THOSE diffs (§9 item 9) → then freeze by sha. **Step 3 (D9successor freeze / SO3DR Stage-2 register) is MY next reading — check-1 not delegable.**
+
+**Runs live: none (zero solvers on the box). Lanes live: D6RF5-INSTR, MP-A1-PREREG (authoring, no compute). Blocked: nothing of mine. On Sanaa's desk (unchanged): §2ax review-not-pending; rule-12 ranks-vs-cpus unit (W4 F7 cost basis); W3S run-root + §2d.1; FADR upstream send; W4 O2/O3 memory ceiling; D-A/D-B/D-C/D-E upstream filings (all NOT FILED).**
 
 ### S-111 — 2026-09-06T23:53:24Z — **MULTIPOINT OPTIMIZATION (Sanaa-mandated): CORRECTED STATE at source. One incompressible multipoint OPT landed PASS (SO-3, with a CL caveat); NO compressible multipoint OPT has landed. W4 RESULTS filed; D6RF5 differentiability DISCHARGED both regimes.**
 
