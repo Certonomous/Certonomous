@@ -61,6 +61,40 @@ assert_board_not_clobbered() {  # $1 OLD rev  $2 NEW rev
   return 0
 }
 
+# ---------------------------------------------------------------------------
+# 2026-09-07 -- THE CALIBRATION-ID GUARD (L-500 enforced as a commit-time invariant).
+# A hand-rolled / non-canonical tool id (e.g. %N nanoseconds, or a malformed body)
+# that bypasses --allocate-id is the S-119 recurrence that TWICE blocked the whole
+# fleet's COST_CALIBRATION appends at append_record.py's D549 clause-1b. This refuses
+# such a row AT THE OFFENDING COMMIT -- turning the write-time lesson into a
+# choke-point guard, parallel to the board-clobber guard. It inspects ONLY the
+# commit's ADDED rows (git diff OLD NEW), so pre-existing rows never retrigger;
+# numeric C-NNN rows are not timestamp-shaped so are not flagged; canonical
+# --allocate-id rows (incl. a CORRECTION row re-issued for a poison row) pass; only a
+# NEWLY-ADDED non-canonical timestamp id aborts. Intentional exact-exclusion of an
+# already-landed poison row lives in append_record.py's KNOWN_EXCLUDED, not here.
+# ---------------------------------------------------------------------------
+CAL_PATH="docs/COST_CALIBRATION.md"
+# returns 0 if NEW adds no non-canonical timestamp C-id row vs OLD; 1 if it does.
+assert_no_new_noncanonical_cal_id() {  # $1 OLD rev  $2 NEW rev
+  local added bad
+  # ADDED timestamp-shaped C-id rows only (git diff '+' lines; a numeric C-NNN row
+  # has no 8-digit date+T so never matches, and the +++ header cannot match \+\|).
+  added=$(git diff "$1" "$2" -- "$CAL_PATH" | grep -E '^\+\|[ \t]*C-[0-9]{8}T' || true)
+  [ -z "$added" ] && return 0
+  # ...of those, the ones whose FIRST CELL is NOT the canonical --allocate-id form
+  # (%f = 6 micro-digit fractional seconds + an 8-hex body). The canonical match is
+  # ANCHORED to the id column (^\+\| .. canonical .. \|), mirroring the `added`
+  # anchor -- an UNANCHORED match would let a canonical id string ANYWHERE ELSE in
+  # the row (e.g. a citation in the description column) mask a non-canonical id in
+  # the first cell (the bypass §3 caught). A 9-digit nano id or a non-hex body in the
+  # id column fails this and is flagged.
+  bad=$(printf '%s\n' "$added" | grep -vE '^\+\|[ \t]*C-[0-9]{8}T[0-9]{6}\.[0-9]{6}Z-[0-9a-f]{8}[ \t]*\|' || true)
+  echo "--- CAL-ID GUARD: checked added timestamp C-id rows vs canonical C-\d{8}T\d{6}.\d{6}Z-[0-9a-f]{8}" >&2
+  [ -n "$bad" ] && { printf 'NON-CANONICAL added calibration id row(s):\n%s\n' "$bad" >&2; return 1; }
+  return 0
+}
+
 # --- the planted refused-CAS control (L-314). Driven with --selftest.
 if [ "${1:-}" = "--selftest" ]; then
   T=$(mktemp -d); cd "$T"
@@ -102,6 +136,52 @@ if [ "${1:-}" = "--selftest" ]; then
   if assert_board_not_clobbered "$G" "$R" 2>/dev/null; then
     echo "CONTROL FAIL: the guard MISSED a dropped block (clobber went undetected)"; fail=1
   else echo "  board -: RED clobber CAUGHT (a dropped block would abort+restore)"; fi
+  # --- calibration-id guard arm (L-500 enforcing instrument): a NEWLY-ADDED
+  #     non-canonical tool-id row MUST be caught (RED, both a nano id and a bad body);
+  #     a canonical --allocate-id row, a numeric C-NNN row and a prose-only edit MUST
+  #     pass (GREEN). §28: the guard is shown able to fire AND to stay silent.
+  printf '| id | date | team | process |\n|---|---|---|---|\n| C-20260901T120000.000000Z-00000000 | 2026-09-01 | seed | base |\n' > docs/COST_CALIBRATION.md
+  git add docs/COST_CALIBRATION.md && git commit -qm cal_base
+  CB=$(git rev-parse HEAD)
+  printf '| C-20260907T195722.461339Z-abcd1234 | 2026-09-07 | verification | canonical 6-digit |\n' >> docs/COST_CALIBRATION.md
+  git add docs/COST_CALIBRATION.md && git commit -qm cal_green_canonical
+  CG=$(git rev-parse HEAD)
+  printf '| C-20260907T195722.461339981Z-b826b62e | 2026-09-07 | dafoam | NANO hand-roll |\n' >> docs/COST_CALIBRATION.md
+  git add docs/COST_CALIBRATION.md && git commit -qm cal_red_nano
+  CR=$(git rev-parse HEAD)
+  printf '| C-20260906T232437.922647Z-w4reanc | 2026-09-06 | dafoam | bad body |\n' >> docs/COST_CALIBRATION.md
+  git add docs/COST_CALIBRATION.md && git commit -qm cal_red_badbody
+  CR2=$(git rev-parse HEAD)
+  # EVASION arm (§3-found bypass, §28 load-bearing): first cell is a NON-canonical
+  # nano id, but the description column CITES a canonical id string. WITHOUT the
+  # id-column anchor on the `bad` grep this row wrongly PASSES; WITH it, CAUGHT.
+  printf '| C-20260907T195722.461339981Z-b826b62e | 2026-09-07 | dafoam | evasion: cites C-20260101T000000.000000Z-deadbeef |\n' >> docs/COST_CALIBRATION.md
+  git add docs/COST_CALIBRATION.md && git commit -qm cal_red_evasion
+  CE=$(git rev-parse HEAD)
+  printf '| C-104 | 2026-09-07 | closure | numeric legacy id |\n' >> docs/COST_CALIBRATION.md
+  git add docs/COST_CALIBRATION.md && git commit -qm cal_green_numeric
+  CN=$(git rev-parse HEAD)
+  printf 'A prose line naming no new id row.\n' >> docs/COST_CALIBRATION.md
+  git add docs/COST_CALIBRATION.md && git commit -qm cal_green_prose
+  CP=$(git rev-parse HEAD)
+  if assert_no_new_noncanonical_cal_id "$CB" "$CG" 2>/dev/null; then
+    echo "  cal +: GREEN canonical --allocate-id row PASSES the guard"
+  else echo "CONTROL FAIL: the guard rejected a canonical calibration id row"; fail=1; fi
+  if assert_no_new_noncanonical_cal_id "$CG" "$CR" 2>/dev/null; then
+    echo "CONTROL FAIL: the guard MISSED a NEW nanosecond (hand-rolled) id row"; fail=1
+  else echo "  cal -: RED nanosecond id CAUGHT (would abort+orphan; the S-119 recurrence)"; fi
+  if assert_no_new_noncanonical_cal_id "$CR" "$CR2" 2>/dev/null; then
+    echo "CONTROL FAIL: the guard MISSED a NEW malformed-body id row"; fail=1
+  else echo "  cal -: RED malformed-body id CAUGHT"; fi
+  if assert_no_new_noncanonical_cal_id "$CR2" "$CE" 2>/dev/null; then
+    echo "CONTROL FAIL: the guard MISSED an evasion row (canonical id cited in the description masking a non-canonical id column) -- the id-column anchor is NOT load-bearing"; fail=1
+  else echo "  cal -: RED evasion CAUGHT (id-column anchor is load-bearing; unanchored, this row would wrongly PASS)"; fi
+  if assert_no_new_noncanonical_cal_id "$CE" "$CN" 2>/dev/null; then
+    echo "  cal +: GREEN numeric C-NNN row PASSES (not timestamp-shaped)"
+  else echo "CONTROL FAIL: the guard flagged a numeric C-NNN row"; fail=1; fi
+  if assert_no_new_noncanonical_cal_id "$CN" "$CP" 2>/dev/null; then
+    echo "  cal +: GREEN prose-only edit PASSES (no new id row)"
+  else echo "CONTROL FAIL: the guard flagged a prose-only edit"; fail=1; fi
   cd /; rm -rf "$T"
   [ "$fail" -eq 0 ] && { echo "SELFTEST PASS"; exit 0; } || { echo "SELFTEST FAIL"; exit 2; }
 fi
@@ -145,6 +225,21 @@ while : ; do
       if ! assert_board_not_clobbered "$OLD" "$NEW"; then
         echo "ABORT: BOARD CLOBBER -- $BOARD_PATH would DROP a section/block vs parent $OLD (L-499 guard)."
         echo "--- commit $NEW is an unreferenced ORPHAN; NOTHING landed. Inspect what dropped a block; never force."
+        exit 2
+      fi
+      break
+    fi
+  done
+  # CALIBRATION-ID GUARD (L-500 enforcing instrument): if this commit touched the
+  # calibration ledger, refuse to LAND a NEWLY-ADDED non-canonical tool-id row (one
+  # not minted by --allocate-id). Checked on $NEW BEFORE update-ref, so it never
+  # reaches the branch; $NEW is left an orphan. Pre-existing rows and numeric C-NNN
+  # rows are not flagged; only a new non-canonical timestamp id aborts.
+  for _cf in "${FILES[@]}"; do
+    if [ "$_cf" = "$CAL_PATH" ]; then
+      if ! assert_no_new_noncanonical_cal_id "$OLD" "$NEW"; then
+        echo "ABORT: CALIBRATION ID GUARD -- a NEW non-canonical tool-id row (not --allocate-id-minted) would land in $CAL_PATH; mint via --allocate-id (canonical %f=6)."
+        echo "--- $NEW is an unreferenced ORPHAN; nothing landed (L-500 enforced)."
         exit 2
       fi
       break
