@@ -1462,8 +1462,8 @@ destroying the §5.2-row-1 baseline PASS that "recovers where SST could not" res
   linear-null; `roache` runs only for a recovering model (rule 5 governs the RECOVERING metric only).
 The selftest passed pre-fix because it tested `model_verdict` in ISOLATION, never the integrated null
 path. Lane added a full-path arm (`_grade_linear_null_full_path`, LEVELS global-swap restored in
-`finally`) that fails-before/passes-after — I re-diffed the fix and re-ran green. LESSON CANDIDATE
-(a next action, not yet filed): a comparator selftest that exercises verdict-mapping as a unit can
+`finally`) that fails-before/passes-after — I re-diffed the fix and re-ran green. LESSON FILED as
+L-503: a comparator selftest that exercises verdict-mapping as a unit can
 pass while the integrated grade path spuriously refuses the baseline model on round-off — test the
 null/baseline path END-TO-END through the real grader.
 
@@ -1492,8 +1492,8 @@ freeze preconditions, (b) [comparator written+diff-read] is now DONE; (a) G2 run
 sequencing remain compute/sequencing-gated, (c) 27 dirs absent is freeze-time, (d) OPTION (ii)
 confirmable at freeze. G2 also PENDING freeze (LR1's rung-2 prereq). FS2 and FS5 remain STANDING GATES.
 
-**NEXT ACTIONS.** (1) File the round-off/baseline-path lesson candidate (above) — separate commit,
-re-derive max L-number in-shell (rule 11). (2) LR1 freeze remains gated on G2 run (compute, sequenced
+**NEXT ACTIONS.** (1) DONE — round-off/baseline-path lesson FILED as L-503 (max L-number re-derived
+in-shell = 502, rule 11). (2) LR1 freeze remains gated on G2 run (compute, sequenced
 behind M6/CRM+F6) — not this session. (3) At LR1 freeze: fold in the BASELINES reconciliation, decide
 design item C, confirm OPTION (ii), hash grade_lr1.py + PREREGISTRATION.md into the freeze commit.
 
@@ -17683,6 +17683,19 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+
+##### heat-transfer 2026-09-07 (update 11): T10aVF2 §3-checked, PINNED (`b93d2f8c`) and PLACED — daemon LAUNCHED it (pid 133508, mesh-side, ~4–17 min). K2bU3R2 BLOCKED (build-infeasibility triage). §2ay: T10a-VF now COVERED, T10a-R FALSE FLAG referred to verification. VF driven-sweep drafted; O-1 escalated. Supersedes update 10.
+
+*(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Board prose, numbers and verdicts only. **0 solver core-min in this block** — T10aVF2 is a mesh-side viewFactorsGen sweep, costed at completion. Guarded `commit_private.sh` path.)*
+
+- **Last commit:** `b93d2f8c` — T10aVF2 PIN (build_t10avf2.py + run_t10avf2.sh diff-read & pinned before compute; entry validated ACCEPTED).
+- **RUN A — T10aVF2 (VF-4'+VF-7') PLACED and LAUNCHED.** Daemon LAUNCHED `verification/queue/heat-transfer/launched/T10aVF2.json` at 18:22:40Z: **pid 133508, ranks 1, est 17.6 core-min, cap 53, prereg c4d1e30a.** Mesh-side viewFactorsGen sweep (no solver), ETA ~4–17 min. **§3 check-1 DONE (mine):** build_t10avf2.py imports FROZEN build_t10avf.py verbatim, 34 shared cases ZERO geometry drift, one added VF-7' support case S3_gauss_0p01, sum n²=1.51e8 == registered ~1.5e8; role mapping matches FROZEN comparator analyse_t10avf2.py (ebe19800) selection filters (:688/:761/:781) → graded=SPH L1–L4+afix, gaussquad=3, inttol=1, S2=report(excluded, fails safe) → yields a VERDICT not a refusal; run_t10avf2.sh cap-required/not-argv-widenable, ranks=1, hard timeout -k, no solver, age-guard clean. **Grade-time note:** the entry carried no `grading_freeze` (daemon recorded the absence, NOT a pass); the comparator IS frozen (ebe19800@c4d1e30a) and I HASH it against ebe19800 at grade time (rule 2), invoking with explicit --json.
+- **RUN B — K2bU3R2 (K2b Test-D) BLOCKED at build; §3 check-2 crash triage (mine):** the frozen registration's **60 mm uniform mesh is INFEASIBLE** under the reused frozen builder `build_k2bU3.divs()` 2% even-division guard — the 0.70 m rack-top→ceiling gap gives 11.67 cells → 2.86% deviation. **CONFIG/BUILD-class, pre-compute, NO answer produced** (validator correctly REFUSED exit 2; not a physics/method finding). Nearest feasible uniform coarse size = 50 mm (divides 0.70/1.10/2.00/2.70 exactly) but ~1.73× cost breaches registered cap 63 → the 60 mm spec was defective and its feasible neighbour breaches cap. **Remedy: a recalibrated successor (K2bU3R3: 50 mm + recalibrated cap, or a graded ceiling-gap mesh) — deliberate re-registration, NOT a bare edit of the frozen builder (rule 6), NOT routing around the guard.** Draft `held/K2bU3R2.json` + REASON stand uncommitted; comparators `analyse_k2bU3R2.py` (120464450c) + predecessor `analyse_k2bU3.py` (d1500a5f) confirmed UNTOUCHED.
+- **§2ay (instrument re-run, supervisor-verified determination): 136 enum / 18 FLAGGED / 118 covered.** All 18 flagged are heat-transfer. **T10a-VF now COVERED** (T10aVF2 successor credited). **T10a-R = FALSE FLAG → REFERRED to verification (via chief):** a §2ay.2(b) dated fix-successor already exists at `T10aR2_PREREGISTRATION.md:443` ("Predecessor: T10a-R", verified by me) yet the instrument flags it "no successor" — an instrument crediting defect in `check_completion_enforcement.py`, NOT missing heat-transfer work (lane's hyphen-strip mechanism NOT confirmed by my regex read; cause left to verification). **T9aD + T10aR2 genuinely owe successors** (correctly keyed, no false lineage). Residual owed: T9aH (real successor, not the diagnosis), T1c×4, T23G2×8 (per-row unit naming), T8 (Sanaa clause-5), B0 (honestly UNPARSED data-row label).
+- **VF-3'/VF-6'/0.20 DRIVEN-SWEEP prereg DRAFTED (not frozen):** `docs/campaigns/T-family/T10aVF2_DRIVEN_SWEEP_PREREGISTRATION.md`. §3 design review DONE: sound, does NOT touch/widen the frozen VF-4'+VF-7' gate; VF-ADM invariance gate over [0.05,0.25], exact-gap check makes grid density non-load-bearing; two rule-3 plants. **Settled by me per V-121:** O-3 (full-range), O-4 (VF-ADM GATE FAIL → NOT A RESULT, deferred/not-widened), O-2 (independent build ~10.2 core-min, ceiling ~31). **ESCALATED (on Sanaa/verification's desk via chief):** O-1 — the signal `S(case)` definition (min/max/mean); V-121 did not pin it, it decides whether 0.20 ratifies, and "min=conservative" is NOT monotone → needs verification's concurrence that the design satisfies V-121 BEFORE I freeze. Comparator NOT written (premature). No timing pressure.
+- **LIVE JOBS:** T4d FINE solver pid 18993 (watcher 19113), cwd `verification/runs/T-family/T4d_runs/T4d_IJ_f`, endTime 64000, it 5105/64000, **ETA ~26.7 h** (refreshed from watcher; supersedes ~32 h). Rung T4d PENDING (whole-rung grade at fine endTime, explicit --json). UNTOUCHED. T10aVF2 pid 133508 (mesh-side, minutes). 0 lab-lanes live (all 3 returned).
+- **On Sanaa's desk (rule 9):** clause-5 rule-4 (K0g + T8); permission-gated rm of answerless T21_CYL_c (blocks T21 freeze); Vogel&Eaton 1985 / Blay 1992 NOT OBTAINED. (The two placements were NOT Sanaa calls — daemon-managed per chief.)
+- **Next actions:** confirm T10aVF2 completes cleanly → grade it (hash comparator vs ebe19800, explicit --json) → rule-12 calibration (est 17.6 vs actual); design + draft K2bU3R3 recalibrated successor (lane, STOP-before-freeze, my §3 check); on verification's O-1 concurrence write+diff-read the sweep comparator then freeze; grade T4d at fine endTime; then T9aD/T10aR2/T9aH real successors.
 
 ##### heat-transfer 2026-09-07 (update 10): T10aVF2 PARTIAL FREEZE `c4d1e30a` (VF-4'+VF-7' per verification V-121; VF-3'/VF-6'/0.20 DEFERRED to a driven sweep). BOTH (b)-OWED successors now frozen, launches HELD for capacity. Supersedes update 9.
 
