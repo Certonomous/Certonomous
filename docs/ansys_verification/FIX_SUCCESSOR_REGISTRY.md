@@ -40,13 +40,20 @@ extracts them, so each clears its every duplicate row.
 
 ## SUMMARY
 
-- **Landed fails carried here:** 18. **Capability gaps (state a):** **0**. **State (b):** **18**.
-- **LIVE:** 3 — VMFL046-R2, VMFL046-R3, VMFL046-INVISCID (all three carried by the running
-  `VMFL046-R5`, with `VMFL046-R6` pre-committed).
+- **Landed fails carried here:** 19. **Capability gaps (state a):** **0**. **State (b):** **19**.
+- **LIVE:** 0 — VMFL046-R5 GRADED 2026-09-07 `NOT A RESULT` (register row #62): the shock
+  **washed out** because `waveTransmissive lInf 2.0` un-anchored the back-pressure (outlet p
+  collapsed to ~10% of the 176 325 Pa target). NOT a hunt. The R4 outlet-reflection question is
+  therefore left OPEN, and the successor for the whole VMFL046 lineage is now **VMFL046-R6 with a
+  back-pressure-anchoring outlet** (the pre-committed `rhoCentralFoam` R6 recipe carries the same
+  defective `lInf 2.0` outlet and MUST fix it before freeze). State (b), a config/BC lever, not a
+  capability gap.
 - **REGISTERED (successor dir exists):** 2 — VMFL007-R2 → `VMFL007-R3`; VMFL011-R2 → `VMFL011-R3`.
-- **OWED-DATED-PLAN (next attempt registered here, dated 2026-09-06):** 13 — VMFL003-M2,
-  VMFL010, VMFL011-R3, VMFL017-R2, VMFL022, VMFL034-R2, VMFL051, VMFL054-R2, VMFL063,
-  VMFL072-R2, VMFLGPU002, VMFLGPU003, VMFLGPU005.
+- **OWED-DATED-PLAN (next attempt registered here):** 17 — the four VMFL046 lineage rows
+  (VMFL046-INVISCID, VMFL046-R2, VMFL046-R3, **VMFL046-R5**, all → the outlet-anchored
+  **VMFL046-R6**, dated 2026-09-07) plus the thirteen dated 2026-09-06: VMFL003-M2, VMFL010,
+  VMFL011-R3, VMFL017-R2, VMFL022, VMFL034-R2, VMFL051, VMFL054-R2, VMFL063, VMFL072-R2,
+  VMFLGPU002, VMFLGPU003, VMFLGPU005.
 
 **GPU note (Task 1 finding).** VMFLGPU002, VMFLGPU003 and VMFLGPU005 are **LANDED, GRADED
 verdicts, not drafts** — the GPU solver ran, the frozen comparator graded it (rc/exit 0 in
@@ -70,9 +77,10 @@ legitimate lever.
 | **VMFL017-R2** | `NOT A RESULT` | #1 completion (per-level cap rc=124 + comparator refused; no gradeable value) | **VMFL017-R3** — a **converging transonic rhoSimpleFoam setup** (the base VMFL017 divergence is process class #3, a finding until triaged): relaxation/under-relaxation and a stable transonic initialisation so the solve completes to `endTime`, then re-runs. | OWED-DATED-PLAN |
 | **VMFL022** | `NOT A RESULT` | #2 grid (triple OSCILLATORY; cavitating solve ran) | **VMFL022-R2** — a **monotone grid triple with refined near-orifice resolution**, mirroring the `VMFL021-R2` recovery recipe (`interPhaseChangeFoam` is present; no cavitation capability gap), then re-runs against the frozen 5% band. | OWED-DATED-PLAN |
 | **VMFL034-R2** | `NOT A RESULT` | config / numerics (per supervisor ruling 2026-09-06 — NOT a capability gap) | **VMFL034-R3** — supervisor-ruled today: a `limitVelocity` fvOption, a CFL-limited transient, **or** a frozen-flow re-scope (dilute alpha2), with a manual regime-check that **must not widen the gate** (L-487 anti-circularity preserved); re-runs. | OWED-DATED-PLAN |
-| **VMFL046-INVISCID** | `NOT A RESULT` | config / numerics (outlet reflection at the boundary) | **VMFL046-R5** (LIVE) — single-variable change: reflecting `fixedValue` → **partially non-reflecting `waveTransmissive`** outlet (`lInf 2.0 m`), gate `x_shock` vs 1.250 m unchanged; frozen and queued today. **VMFL046-R6 pre-committed** in `cases/ansys_verification/VMFL046-R5/PREREGISTRATION.md §6` (density-based `rhoCentralFoam`, `fluxScheme Kurganov`, waveTransmissive carried forward, maxCo 0.2) as the next lever if R5 still hunts. Re-runs. | LIVE |
-| **VMFL046-R2** | `NOT A RESULT` | config / numerics (outlet reflection at the boundary) | **VMFL046-R5** (LIVE) — same running non-reflecting-outlet successor as the R-lineage above, with **VMFL046-R6** pre-committed (`rhoCentralFoam` / Kurganov) in `VMFL046-R5/PREREGISTRATION.md §6`. Re-runs. | LIVE |
-| **VMFL046-R3** | `NOT A RESULT` | config / numerics (outlet reflection at the boundary) | **VMFL046-R5** (LIVE) — same running non-reflecting-outlet successor, **VMFL046-R6** pre-committed (`rhoCentralFoam` / Kurganov) in `VMFL046-R5/PREREGISTRATION.md §6`. Re-runs. | LIVE |
+| **VMFL046-INVISCID** | `NOT A RESULT` | config / numerics (outlet reflection at the boundary) | **VMFL046-R6 (outlet-anchored)** — R5 (register #62) tried the single-variable `fixedValue`→`waveTransmissive lInf 2.0` outlet and graded `NOT A RESULT`: it did NOT hunt, the shock **washed out** because `lInf 2.0` un-anchored the back-pressure. R6 = the pre-committed `rhoCentralFoam`/Kurganov recipe (`VMFL046-R5/PREREGISTRATION.md §6`) **with its outlet BC fixed to anchor `p≈176 325 Pa` while damping reflections** (gate-blind choice; the `lInf 2.0` carry-forward is now known-defective). Re-runs. | OWED-DATED-PLAN |
+| **VMFL046-R2** | `NOT A RESULT` | config / numerics (outlet reflection at the boundary) | **VMFL046-R6 (outlet-anchored)** — same lineage successor; R5's non-reflecting outlet washed the shock out (#62), so R6 carries `rhoCentralFoam`/Kurganov with a back-pressure-anchoring outlet, not `lInf 2.0`. Re-runs. | OWED-DATED-PLAN |
+| **VMFL046-R3** | `NOT A RESULT` | config / numerics (outlet reflection at the boundary) | **VMFL046-R6 (outlet-anchored)** — same lineage successor; R6 = `rhoCentralFoam`/Kurganov with a back-pressure-anchoring outlet (R5's `lInf 2.0` washed out, #62). Re-runs. | OWED-DATED-PLAN |
+| **VMFL046-R5** | `NOT A RESULT` | config / numerics (outlet un-anchored the back-pressure — the shock washed out; register #62, diagnosed 2026-09-07) | **VMFL046-R6 (outlet-anchored)** — the `waveTransmissive lInf 2.0` outlet relaxed the exit pressure to ~10% of target and the shock washed out of the domain (not a hunt, uniform at L1/L2/L3). R6 keeps the density-based `rhoCentralFoam`/Kurganov shock-capturing path but **must replace the outlet with a partially-reflecting subsonic outlet that anchors `p≈176 325 Pa`** (candidates to research/pin gate-blind: a smaller geometric `lInf`, an alternative anchoring BC, or the Fluent pressure-outlet equivalent) — a density-based solver does not restore a lost back-pressure. Re-runs. | OWED-DATED-PLAN |
 | **VMFL051** | `NOT A RESULT` | #2 grid (triple OSCILLATORY) | **VMFL051-R2** — a **monotone grid triple** plus a **Mach functional sampled on a downstream line** (less shock/expansion-position sensitive than a volume zone), sibling to the VMFL045 oblique-shock recovery; re-runs against the frozen ±0.5% band. | OWED-DATED-PLAN |
 | **VMFL054-R2** | `GATE FAIL` | #2 grid (order not asymptotic — observed p=3.438 ∉ [1,3]) | **VMFL054-R3** — adds a **4th finer level** for a 4-point order estimate in the asymptotic range (the band [1,3] is frozen and is NOT widened); re-runs the extended ladder. | OWED-DATED-PLAN |
 | **VMFL063** | `GATE FAIL` | #2 grid (GCI_fine 120.6% ≫ the 40% deviation) | **VMFL063-R2** — **refines the triple** (finer, separation-region graded mesh) to bring GCI below the deviation, plus higher-order convection (linearUpwind→linear), so the reattachment length is read on a converged grid; re-runs. | OWED-DATED-PLAN |

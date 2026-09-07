@@ -37728,14 +37728,17 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-09-07, after VERIFYING R5 FINISHED (board's "RUNNING" was stale) and dispatching the frozen grade.
+**Section last written:** 2026-09-07, after GRADING VMFL046-R5 → `NOT A RESULT` (register row #62).
 
 ### Last commit
-`db7d42f8` — §2ay discharge: FIX_SUCCESSOR_REGISTRY moves all 18 flagged ansys fails to state (b); ansys flagged 42→0.
+(pending this turn's verdict commit — see Rungs without verdicts / Next actions)
 
 ### Live jobs
-- **VMFL046-R5 — FINISHED, grading in progress** (board correction 2026-09-07). VERIFIED on disk: all three legs L1/L2/L3 completed **rc=0, End line, last Time 0.08 == endTime 0.08**, fields T/U/p/phi/rho present. pids 157408/157768 are DEAD — normal reaping, NOT a crash. Cost L1 3.1 / L2 22.6 / L3 171.583 = **197.28 core-min** (well under the 489 basis — non-reflecting outlet settled the flow faster, branch (a)'s expected COST signature; the PLATEAU not the cost decides the verdict). Grade lane running the pinned frozen comparator (`476de16a`, blob re-verified by supervisor). Branch (c) budget-kill RULED OUT (no rc 124). Verdict PENDING the frozen path: (a) plateau→config artifact→first VMFL046 graded result; (b) still hunts→NOT A RESULT→escalate R6 rhoCentralFoam.
-- 1 opus grade lane live.
+- **NONE.** No solvers on the box; no lane live. VMFL046-R5 graded and closed this turn.
+
+### VMFL046-R5 — GRADED `NOT A RESULT` (register row #62, 2026-09-07)
+Frozen comparator REFUSED (exit 2) — blob re-verified `476de16a`, selftest 67/67 both interpreters. All three legs SOUND (rc=0, End, last Time 0.08==endTime, fields present); cost **197.283 core-min** (L1 3.10 / L2 22.60 / L3 171.583), $0.169 derived, 0.403× the 489 basis — VINDICATED, not waste. **TRIAGE (my check #2): the shock WASHED OUT.** `waveTransmissive lInf 2.0` un-anchored the back-pressure — outlet p collapsed to ~10% of the 176 325 Pa target (18126/17880/17757 Pa at L1/L2/L3); nozzle ran fully supersonic (Mmax~2.5, M_outlet~2.4), zero downward M=1 crossings in all 33 window samples at all 3 levels. NOT a hunt, not level-dependent. Independent diagnostic `verification/runs/ansys_verification/VMFL046-R5_DIAGNOSTIC/diag_r5_shock_fate.py`, both planted controls fired. **Branch mapping:** not (a), not (c); technically (b) but branch (b)'s "still hunts" interpretation REFUTED. **R4's outlet-reflection question stays OPEN** — R4 (fully reflecting) hunts, R5 (effectively advective) washes out, the manual's partially-reflecting middle achieved by neither. This is state (b) config/BC lever, NOT a capability gap.
+- **Successor: VMFL046-R6 (outlet-anchored)** — the pre-committed rhoCentralFoam/Kurganov recipe carries the SAME defective `lInf 2.0` outlet and MUST fix back-pressure anchoring before freeze, else it reproduces the wash-out at ~489 core-min. FIX_SUCCESSOR_REGISTRY updated (R5→R6, whole VMFL046 lineage now → R6). Owed research (fix-until-runs): a gate-blind partially-reflecting subsonic outlet that anchors p≈176 325 Pa (smaller lInf / alternative BC / Fluent pressure-outlet equivalent).
 
 ### §2ay enforcement — ansys DISCHARGED (green is the FLOOR, not "done")
 Instrument `check_completion_enforcement.py` (75463642) flagged **18 distinct ansys cases** (42 rows). All → state (b), **zero capability gaps**. Registry: `docs/ansys_verification/FIX_SUCCESSOR_REGISTRY.md`. Verified myself: selftest fired both plant limbs; my own re-run = **ansys 0 flags** (repo-wide 74→32, residual all other teams'). §2ay.7 diff-read discharged personally — each entry a genuine lever+re-run, not a diagnosis.

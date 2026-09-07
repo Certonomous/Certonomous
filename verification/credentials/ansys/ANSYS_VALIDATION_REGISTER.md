@@ -1186,3 +1186,136 @@ plants-then-audit **ordering** control drives the production sequence against a 
 and reproduces the real case exactly — 19 excluded, 33 audited — and its fourth arm drives the
 hazard (d) was rejected for: **a plant reading a REAL out-of-window sample is inside the run root
 and STILL REFUSES.** (c) narrows W1's *subject*, not its *reach*.
+
+---
+
+## Row #62 — VMFL046-R5 — Supersonic Flow with a Normal Shock in a Converging–Diverging Nozzle (VM2026R1 p. 155) — **`NOT A RESULT`**
+
+**Graded 2026-09-07 through the pinned frozen comparator (blob `476de16ab3e4f3572435e7e8a729ff617a08fc62`, byte-identical to R4's §2aw-repaired grader). Verdict: `NOT A RESULT`. The comparator REFUSES at exit 2. Nothing was graded, so there is no `GATE FAIL` here and none may be issued — the gate quantity `x_shock` was never read out.**
+
+**The single-variable non-reflecting-outlet experiment.** Exactly one byte of the eleven `case/`
+inputs moved from R4 — `0/p` outlet BC, `fixedValue` (fully reflecting) → `waveTransmissive`
+(`lInf 2.0`, `fieldInf 176325`, partially non-reflecting). Gate (`x_shock` vs **1.250 m**, band
+**5 %**), plateau (`DELTA_X = 6.250e-04 m`), `endTime 0.080 s`, `maxCo 0.5`, `ddtSchemes Euler`,
+`vanLeer` schemes, mesh, `r = 2` triple and comparator all carried forward byte-identical (prereg
+§4, §8; parity proved `diff -rq` = one file, `10c10`). Freeze `a85b07eb`
+(*"pre-registration committed BEFORE compute (rule 2, check-4)"*); the run root did not exist at
+freeze. Supervisor re-verified the grader blob `476de16a` at HEAD and on disk before grading
+(§3 check 1).
+
+### What the run did — all three levels COMPLETED cleanly
+
+| level | rc | `End` | last `Time` | endTime | window samples | ranks | wall | core-min |
+|---|---|---|---|---|---|---|---|---|
+| L1 | 0 | present | 0.08 | 0.08 | 33/33 | 1 (serial) | 186 s | 3.10 |
+| L2 | 0 | present | 0.08 | 0.08 | 33/33 | 1 (serial) | 1,356 s | 22.60 |
+| L3 | 0 | present | 0.08 | 0.08 | 33/33 | 1 (serial) | 10,295 s | 171.583 |
+
+Fields `T U p phi rho` present at `0.08` at every level; strict completion (rule 4) HOLDS. **The
+run is SOUND — the configuration, not the solve, is what produced no gradeable answer.**
+
+### Why the verdict is `NOT A RESULT` — the frozen comparator refuses, correctly, on an IN-WINDOW sample
+
+> `REFUSE: no downward Mach=1 crossing in sample …/L1/postProcessing/centreline/0.064/line_T_U.xy
+> -- the shock is not resolvable in this profile, and this sample is INSIDE the registered plateau
+> window, so the gate depends on it; refusing rather than reporting a location`
+
+**Verified from the frozen source (read-only): the refusal is NOT an R3-style out-of-window read.**
+`W = endTime/10 = 0.008 s`, `N_WINDOWS = 2`; union registered window `t ∈ (0.064, 0.080]`
+(`registered_window` L512–540, which admits `t > endTime − 2W − eps`, so `t = 0.064` IS the
+earliest admitted in-window sample — the left edge of window B). The gate genuinely depends on the
+`0.064` sample; the reader refuses rather than fabricate a location. **Exit 2 = `NOT A RESULT`**;
+selftest **67 ok, 0 FAILED** under `python3` and `python3 -O`.
+
+### ⚡ TRIAGE (SUPERVISION_CHARTER §3 check 2) — the refusal is a FINDING: the shock WASHED OUT because the outlet un-anchored the back-pressure
+
+An independent supervisor-ordered diagnostic reader (not the frozen comparator, which it only read),
+`verification/runs/ansys_verification/VMFL046-R5_DIAGNOSTIC/diag_r5_shock_fate.py`, with **both
+planted controls fired** (rule 3: a sub→super→sub profile → downward crossing found at x=0.0469;
+an all-supersonic profile → correctly "no crossing", classified WASHED-OUT — the zero is
+trustworthy):
+
+- **ALL 33 window samples at ALL THREE levels are WASHED-OUT.** Each sample has exactly ONE upward
+  M=1 crossing (the throat sonic point at x≈0.52) and **ZERO downward crossings** — the flow is
+  supersonic all the way to the outlet. `Mmax ≈ 2.50–2.53` at x≈1.7–1.84; **`M_outlet(x=2.0) ≈
+  2.24–2.43`**. Not a hunt (Mmax and M_outlet are near-constant in time, not oscillating
+  present/absent) and **not level-dependent** — identical fate at L1/L2/L3.
+- **THE BACK-PRESSURE COLLAPSED.** Outlet static `p` at `endTime`: **L1 18 126 Pa (0.1028× target),
+  L2 17 880 Pa (0.1014×), L3 17 757 Pa (0.1007×)** against the `fieldInf`/R2-R4 target 176 325 Pa —
+  i.e. ~10 %, roughly the fully-expanded supersonic exit pressure. With `lInf = 2.0 m` (the full
+  domain length) the `waveTransmissive` relaxation was too weak to hold the mean pressure; once the
+  shock drifted past the outlet the exit went supersonic and no characteristic could anchor any
+  pressure. **This is precisely the `lInf → ∞` "purely advective, no mean-pressure anchoring"
+  failure mode the pre-registration §3 named as the hazard.**
+- **Honest limitation:** the centreline sampler records only `(U, T)`; `p` is sampled only as the
+  `endTime` field snapshot, so the outlet-p *drift across the window* is not measured — only the
+  supersonic Mach fate (which IS measured across all 33 window samples) and the `endTime` p
+  collapse. The wash-out conclusion rests on the former (robust across the window); the
+  back-pressure collapse is measured at `endTime` and strongly inferred (a supersonic outlet cannot
+  hold pressure). R6's sampler should add `p` to close this.
+
+### What R5 answers, and the R4 question it leaves OPEN — pre-committed branches (prereg §5)
+
+- **Branch (a) (hunt collapses to a clean plateau → outlet reflection was a config artifact →
+  first VMFL046 graded result): NOT triggered.** No level plateaued; no `x_shock` was readable.
+- **Branch (c) (a level hits its cost cap `rc 124`): NOT triggered.** All three legs `rc = 0` at
+  `endTime`; cost 197.28 core-min against the 1 610 running cap (L3 finished cleanly, not killed).
+- **Branch (b) (a level fails to plateau → `NOT A RESULT` → escalate R6): this is the branch, BUT
+  its pre-registered INTERPRETATION IS REFUTED BY THE DATA.** Branch (b) read the outcome as *"it
+  still hunts — outlet reflection is NOT the cause, the unsteadiness survives a non-reflecting
+  boundary."* **R5 did NOT hunt.** It washed the shock out because `waveTransmissive lInf = 2.0`
+  destroyed the back-pressure. The controlled experiment therefore did **not** cleanly answer R4's
+  outlet-reflection question: R4's **fully-reflecting** outlet hunts; R5's **effectively-advective**
+  outlet washes out; the manual's reference solver (Ansys Fluent) uses the **partially-reflecting
+  middle** — achieved by NEITHER R4 nor R5. **The hypothesis that R4's hunt is driven by outlet
+  reflection remains OPEN** — R5 neither confirms nor refutes it, because it overshot the outlet
+  axis to the opposite extreme.
+
+### State (b), not a capability gap — the successor, and why this is fix-until-runs compliant
+
+**Per Sanaa's fix-until-runs law (§2ay): the only acceptable fail is OpenFOAM being unable to do the
+case. This is NOT that.** OpenFOAM can impose a partially-reflecting subsonic outlet that holds a
+target back-pressure while damping reflections; R5's failure is a **boundary-condition
+misconfiguration** (`lInf` too large → back-pressure lost), which is a **config/numerics lever, not
+a capability gap.** This NOT A RESULT maps to **state (b): a dated successor**, not state (a).
+
+- **The pre-committed R6 (`rhoCentralFoam`, density-based KNP shock-capturing, Greenshields 2010)
+  INHERITS this defect unrepaired** — prereg §6 carries `waveTransmissive lInf 2.0` forward, and a
+  density-based solver does not restore a lost back-pressure. **R6 must therefore FIX the outlet
+  back-pressure anchoring BEFORE it is frozen**, or it will reproduce the wash-out at ~489 core-min.
+  The successor owes: an answer-independent outlet treatment that both anchors `p ≈ 176 325 Pa` and
+  damps reflections (candidates for the R6 registration to research and pin: a smaller geometric
+  `lInf`, an alternative partially-reflecting subsonic-outlet BC, or the Fluent pressure-outlet
+  equivalent) — chosen by a gate-blind argument, never by which value best places the shock. This is
+  logged to `docs/ansys_verification/FIX_SUCCESSOR_REGISTRY.md` as R5→R6(outlet-anchored).
+
+### Provenance
+
+- **Comparator:** `cases/ansys_verification/VMFL046-R5/grade_vmfl046_r5.py`, blob
+  **`476de16ab3e4f3572435e7e8a729ff617a08fc62`** (byte-identical to R4's §2aw-repaired grader);
+  re-verified equal at HEAD and on disk before grading.
+- **Pre-registration & freeze:** `cases/ansys_verification/VMFL046-R5/PREREGISTRATION.md`, frozen at
+  **`a85b07eb`** before the run root existed (rule 2, §3 check 4).
+- **Gate/thresholds, UNCHANGED and byte-identical from R1–R4:** `x_shock` vs `1.250 m`, band `±5 %`,
+  plateau `DELTA_X = 6.250e-04 m`. No gate, band, threshold, `endTime`, `maxCo` or window moved.
+- **Run root:** `verification/runs/ansys_verification/VMFL046-R5/{L1,L2,L3}` with `RUN_RC`,
+  `log.rhoPimpleFoam`, `postProcessing/centreline/`.
+- **Diagnostic:** `verification/runs/ansys_verification/VMFL046-R5_DIAGNOSTIC/diag_r5_shock_fate.py`
+  (exit 0; both planted controls fired; grades nothing).
+- **Cost:** **197.283 core-min MEASURED** (`wall_s × 1 rank ÷ 60`; L1 3.10 / L2 22.60 / L3
+  171.583) against the R4-derived point estimate **489.0** → **ratio 0.403×**; **$0.169 DERIVED,
+  NOT measured** at `$0.0513`/core-h (c7a.4xlarge, owner-stated; the box cannot read its own
+  billing, `COMPUTE_BUDGET_CHARTER` §5). Cap 1 610 never approached (12.3 % consumed). Waste 0.000.
+  **The 197.28 core-min is VINDICATED, not waste:** it bought a definitive, controlled
+  boundary-condition finding (the non-reflecting outlet at `lInf 2.0` washes the shock out) that
+  redirects the ladder. The below-estimate ratio is itself branch (a)'s expected cost signature —
+  the flow settled to a steady supersonic state in fewer steps — but the plateau, not the cost,
+  decides the verdict, and no plateau was reached. Calibration row owed in `docs/COST_CALIBRATION.md`.
+
+### What this row REFUSES to claim
+
+- **No `x_shock`, no plateau, no deviation from 1.250 m, no Roache triple, no GCI** — the reader
+  refused before any of them; no planted control beyond the reader step was reached in production.
+- **No `GATE FAIL`.** Rule 5 is one-way and the gate quantity was never read.
+- **R5 does NOT prove R4's hunt is or is not outlet reflection** — it overshot to the opposite
+  outlet extreme; the question is OPEN and passes to R6 with the outlet repaired.
