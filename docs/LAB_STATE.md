@@ -1430,6 +1430,81 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**NINETEENTH SESSION, 2026-09-07T~1Z (closure-supervisor). RESUMED UNDER THE CLOSURE-LADDER FRAME.
+STAND-DOWN QUESTION SETTLED, NOT ESCALATED: I READ MYSELF AS ACTIVE ON THE LIBRARY (zero-compute),
+SOLVES SEQUENCED (not blocked) BEHIND M6/CRM + F6. STILL ZERO COMPUTE — no solver, no case, no queue
+row filed. One read-only lane out and back; its finding is below.**
+
+**═══ ACTIVE-STATUS RECONCILIATION (the chief's resume question, answered plainly) ═══**
+The chief's brief still carried "closure stood down until demos done." That is superseded by Sanaa's
+own 2026-09-04 directive (`0910b664`, `etc/sessions/2026-09-04T1510Z_sanaa_model_form_closure_ladder.md`),
+whose provenance I re-confirmed last session byte-identical to HEAD blob `e2089d0a`. **There is no open
+stand-down/activation question for her desk — she already ruled it.** Library/architecture work is
+ACTIVE now as authorised zero-compute preparation; closure SOLVES remain SEQUENCED behind M6/CRM's
+first rungs and the F6 separated-flow cases (hump, hills, duct) coming online. Live reading: ZERO
+closure processes on the box; HEAD `d003edbb`.
+
+**═══ THE ARCHITECTURE IS NOT "TO BEGIN" — IT IS MATURE AND COMMITTED (last `890574cf`) ═══**
+On disk and committed: `ARCHITECTURE.md` (v0.2), `SCHEMA.md` (v1.0 FROZEN), `INGEST_PLAN.md` (with the
+gap register), `library.json`, the checker `_common/build_correction_library.py` (planted-negative
+selftests), 4 REGISTERED entries + 1 BLOCKED record. The genuine open work is NOT "start the
+architecture" — it is GROW THE ENTRY SET and CLOSE THE RETRIEVAL GAP, and the binding constraint on
+both directions that matter is institutional pull, which is Sanaa's.
+
+**═══ LIBRARY HEALTH — VERIFIED THIS SESSION BY A READ-ONLY LANE, CONDENSED ═══**
+Checker run `--check` + `--selftest` (no tracked write): **SELFTEST 58/58 arms passed, rc=0** (the
+board's "58/58" is the SELFTEST ARM count, NOT the entry count); **`--check`: 4 of 4 entries valid,
+rc=0**. Planted-negative arms CONFIRMED to fire (each ~30 NEG arms REFUSED as designed; the two IO
+planted controls fired — library.json not written on any REFUSE, positive control proves the writer
+CAN write a valid set). **`ladder_evidence` (REPRODUCED) = 0 of 4** — nothing has reproduced its own
+paper's claim on the ladder yet; all four are REGISTERED (paper-verified, not run).
+Entries: `a_sparta_schmelzer2020` (fam a+e, model none, sep_2d/PH/CBFS) · `a_tbrf_kaandorp2020`
+(a+e, none, duct/sep_2d) · `b_qcr2000_spalart2000` (b, **kOmegaSSTQCR — RUNNABLE**, duct) ·
+`f_sst_qcrc_wu2026` (f+b, none, duct/sep_2d). `ENTRY_BLOCKED_f_gpsr_reissmann2025` is a blocker
+record outside entries/, not a validated entry.
+
+**═══ F6 RUNNABLE COVERAGE = 1 OF 3, AND THIS IS THE STRATEGIC FACT ═══**
+Only the **square duct** has a library entry carrying a runnable model the lab could hand a lane the
+moment sequencing arrives (`kOmegaSSTQCR`). Periodic hills and NASA hump have NO runnable entry (their
+targeting entries are all `model_type_name: none`). This corroborates the 18th-session recommendation:
+**the first certified "correction X recovers this flow where SST could not" should target the DUCT** —
+qualitative binary failure (linear EVM cannot produce secondary flow of the second kind at all), no
+build, `kOmegaSSTQCR` REGISTERED, DUCT reference data on disk.
+
+**═══ NEXT ZERO-COMPUTE ENTRY, AND WHAT IS BLOCKED ON PULL ═══**
+- The ONE new entry registrable WITHOUT institutional pull: **Ling2016 (TBNN)** — held with sidecar —
+  but it registers `model_type_name: none` (no runnable model ships) and duplicates the data-driven
+  anisotropy class TBRF already covers: MARGINAL value. Gated on MY personal title-page verify +
+  form-completeness check (non-delegable) before REGISTERED. NOT YET DONE.
+- Runnable growth of F6 coverage IS blocked on pull: `ShihQuadraticKE` and `LienCubicKE` SHIP on this
+  box but cannot register on capability alone (schema requires the paper) — needs **Shih 1995 (CMAME
+  125:287)** + **Craft/Launder/Suga 1996 (IJHFF 17:108)** (INGEST_PLAN §2 Priority 3).
+- The rank-1 leaderboard GPSR entry is BLOCKED because its closure form lives in **Weatheritt &
+  Sandberg 2016 (JCP 325:22, ref [18])** — NOT held; the on-disk near-miss is a different paper.
+
+**═══ SHARPENED GAP REGISTER FOR SANAA'S DESK (institutional pull is hers) ═══**
+Family (c) curvature/rotation remains ABSOLUTE ZERO (largest hole), priority Smirnov & Menter 2009
+(SST-CC). NEW, precise ask: **Shih 1995 + Craft/Launder/Suga 1996 would let TWO already-installed
+runnable models register**, directly growing F6 runnable coverage — highest zero-compute leverage per
+pull. **Weatheritt & Sandberg 2016 [18]** lifts the GPSR rank-1 block. 18 outstanding total.
+
+**COST THIS SESSION: 0 core-min solver [MEASURED] · 0 GPU-h [MEASURED] · $0.00.** One read-only lane,
+no case, no solve. Nothing to calibrate under rule 12 — no process completed.
+
+**RUNGS WITHOUT VERDICTS — UNCHANGED.** M1 ungraded · M1b/M1-C/R4b-Ib three drafts CHECK 1 NOT DONE ·
+R4b-I + R4b arm BLOCKED · M2 UNRULED since 08-28 · RC1/RC2 unfrozen · Ling arm 2 frozen + UNFILED ·
+G1b xr null (D550). FS2 and FS5 remain STANDING GATES. Inside her mandatory-completion order's reach
+the moment sequencing lifts.
+
+**ON SANAA'S DESK — five items, none withdrawn.** (a) GPU YES Ling arm 2, 40 GPU-h=$32.19 [DERIVED],
+deliberately UNFILED (no host field → filing fires a GPU arm on the CPU box); (b) R4b increment ruling,
+owed since 08-28; (c) four withdrawn attributions; (d) two 2026-08-24 R3 quotations; (e) the sharpened
+institutional-pull gap register above. SUBMISSIONS PARKED (rule 7).
+
+**BLOCKED — nothing blocks the zero-compute library work; it is authorised and running. Closure SOLVES
+sequenced behind M6/CRM + F6; library RUNNABLE growth blocked on Sanaa's institutional pull.**
+
+
 **2026-09-06T~03:5xZ — B4 IS CLOSED AS FAR AS ZERO COMPUTE CAN CLOSE IT: THE MONITOR EXISTS,
 18/18 ARMS, RUN BY ME.** `arm2/watch_arm2_completion.py`. Polls from THIS box (a monitor on the node
 dies with the node at self-shutdown — the event it most needs to see), detaches via `setsid` with rc
