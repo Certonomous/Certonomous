@@ -5700,7 +5700,17 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T14:49Z by dafoam-supervisor personally (stamp from `date -u` in the invocation).
+**Section last written:** 2026-09-07T16:48Z by a dafoam lab-lane on the dafoam-supervisor's brief (stamp from `date -u` in the invocation).
+
+### S-121 — 2026-09-07T16:48Z — **MP-A1 VERDICT: NOT A RESULT (both rows); the multipoint OPTIMIZATION is DEMONSTRATED (CL held, ~5% drag at fixed lift) but the gradient FD-verification is unmeasurable on this case. D6RF chain at its 3rd BLOCKED -> comprehensive D6RF7 grader-fix in flight (escalate on a 4th assumption). Two solves hit the box this session.**
+
+**MP-A1 (A1 incompressible multipoint drag-min-at-fixed-lift) — VERDICT NOT A RESULT, both rows (SHIPPED+PATCHED); chain COMPLETE 7/7 arms rc=0.** The OPTIMIZATION SUCCEEDED (Sanaa's mandated multipoint capability DEMONSTRATED): G-CLHOLD held at all 3 points (CL==target to ~5e-8..1.8e-7, tol 1e-3, lift positive) fixing SO-3's lift-collapse; G-DRAG (reported) J 0.021806->0.020712 ~5.0% at FIXED lift. NOT A RESULT because the gradient FD-verification (G5J/G5C, G6) is NOT_MEASURED: FD_STEP_FAILED_OR_ABSENT, 2/34 FD evaluations failed per F arm on both images (PREDICTED P8 HIT), forward-mode seeding fails the primal on this case (AV-2) -> no completeable FD table -> charter bright line -> NOT A RESULT. Shipped-vs-patched divergence measured 0.68-7.1%/DV. Cost 54.734 core-min actual vs 58.63 est (0.9335), cap 183.5 ok. **§2ay disposition OWED: state (b) — successor with a working FD-verification method (direct DV central-difference) OR a measured verification-limitation finding after that is tried; NOT a capability gap on the optimization.**
+
+**D6RF chain (A2 convergence probe) — 3 BLOCKED, each a distinct harness "primal-succeeded" assumption caught by a real run:** D6RF5 BLOCKED (unguarded primal, 15.467 core-min) -> D6RF6 BLOCKED (planted-CD control refuses on present-but-empty points, 12.133 core-min; guard WORKED, product written) -> **D6RF7 comprehensive grader-survives-empty-points fix IN FLIGHT** (validate against the D6RF6 fixture with NO re-solve; if a 4th assumption surfaces, STOP + escalate the harness-REBUILD decision per chief guardrail). Physics confirmed twice from raw log: p_first_uncorrected 1.6256e-05/1.6583e-05 both > 1.0e-05 floor -> Fix#1(limited)+Fix#2(3 corr) insufficient for the A2-wing binding field; accept floor held. Chain: D6RF5 c3b2217f/b7d288db, D6RF6 acbb6e3b, D6RF7 pending my check-1+freeze+re-run. THEN D6RF8 = re-mesh <70deg maxNonOrth (the physics rung toward a PASS).
+
+**§2ay V-115 CLEARED** (0 flagged, 0 gaps): G-11/12/13/14->A3R3PC, O-10->D2ABR (drafts). **Systematic freeze LESSON owed to LESSONS.md** (rename-derived freeze must fixpoint every hex-md5-vs-file constant AND validate by a real end-to-end launch, not sandbox dry-runs; and guard every expected-refusal path). **D9successor still owed** (chief task #4).
+
+**Runs live: none (D6RF5, D6RF6, MP-A1 all completed/graded; MP-A1 driver exited).** **Lanes: D6RF7 draft a6ac175c.** **Blocked: SO3DR Stage-2 (missing per-leg producer, queued).**
 
 ### S-120 — 2026-09-07T14:49Z (UPDATED ~15:05Z) — **D6RF5 RE-FROZEN `c3b2217f` (re-freeze commit `9eb29db5`) after TWO rename-omission crash-triage fixes (5 stale launcher md5 pins `991adf07`; REGISTERED_BASE parent-D6RF4-root→D6RF5-root `c3b2217f`); all 4 supervisor checks discharged; NOW LAUNCHING (lane `a6649d36`). §2ay V-115 CLEARED (0 flagged, 0 gaps). MP-A1 repaired+check-1 CLEAN, LAUNCHING (`a4761cd7`). SO3DR Stage-2 BLOCKED (missing per-leg launcher — evidentiary-core, queued).**
 
