@@ -1,0 +1,5 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// VM2026R1 p.173: density 1 kg/m3, viscosity 1 kg/m-s => nu = mu/rho = 1 m2/s.
+// Re = U*h/nu = 400*1/1 = 400 (h = cavity height 1 m, U = 400 m/s base-wall speed).
+transportModel  Newtonian;
+nu              1;

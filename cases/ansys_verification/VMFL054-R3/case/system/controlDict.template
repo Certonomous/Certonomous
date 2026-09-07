@@ -1,0 +1,35 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+writeControl    runTime;
+writeInterval   __ENDTIME__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+functions
+{
+    // The frozen gate quantity: u_x at the cavity geometric centre (x=1.0 is the
+    // trapezoid's axis of symmetry, y=0.5 is mid-height). Written at write time,
+    // i.e. at the residualControl-terminated stop. The comparator reads THIS file.
+    centreProbe
+    {
+        type            probes;
+        libs            ("libsampling.so");
+        writeControl    writeTime;
+        // cellPoint INTERPOLATION is load-bearing: the default (containing-cell
+        // value) samples a slightly different physical location on each mesh of the
+        // r=2 family, which pollutes the Roache observed order. Interpolating to the
+        // exact point (1.0,0.5) at every level is required for a clean triple.
+        interpolationScheme cellPoint;
+        fields          (U);
+        probeLocations  ( (1.0 0.5 0.0) );
+    }
+}
