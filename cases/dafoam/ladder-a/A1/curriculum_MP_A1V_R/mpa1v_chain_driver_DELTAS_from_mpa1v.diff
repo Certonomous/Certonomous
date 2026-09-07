@@ -1,0 +1,73 @@
+--- cases/dafoam/ladder-a/A1/curriculum_MP_A1V/mpa1v_chain_driver.sh	2026-09-07 19:38:04.729408058 +0000
++++ cases/dafoam/ladder-a/A1/curriculum_MP_A1V_R/mpa1v_chain_driver.sh	2026-09-07 20:03:01.018642847 +0000
+@@ -1,11 +1,16 @@
+ #!/usr/bin/env bash
+-# MP-A1V chain driver -- DERIVED from curriculum_MP_A1/mpa1_chain_driver.sh
+-# (md5 asserted in mpa1v_chain_driver_DELTAS_from_mpa1.diff) with the REGISTERED
+-# DELTAS below.  PREREGISTRATION.md (curriculum_MP_A1V) governs.  DRAFT -- NOT FROZEN.
++# MP-A1V-R chain driver (MP-A1V launcher-repair successor) -- DERIVED from
++# curriculum_MP_A1V/mpa1v_chain_driver.sh; the ONE class of delta is the L-504
++# runtime PATH-EXISTENCE FIXPOINT (below) + the launcher's reconciled path refs
++# (md5 asserted in mpa1v_chain_driver_DELTAS_from_mpa1v.diff) with the REGISTERED
++# DELTAS below.  PREREGISTRATION.md (curriculum_MP_A1V_R) governs.  DRAFT -- NOT FROZEN.
++# Instruments (grade/xf/runScript/stall/age_guard/stop_marker/aggregate/decomp) are
++# CARRIED BYTE-IDENTICAL from the frozen MP-A1V (a5d7691d) -- NO prefix rename (the
++# rename sweep is precisely the L-504 defect this successor repairs).
+ #
+ # THE REGISTERED DELTAS FROM MP-A1, each traceable:
+-#   (a) NAMES: mpa1_ -> mpa1v_, MPA1_ -> MPA1V_; run root
+-#       CURRICULUM-MP-A1V-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral.
++#   (a) NAMES: instruments keep the mpa1v_ names UNCHANGED (no rename); run root
++#       CURRICULUM-MP-A1V-R-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral.
+ #       EXCEPTION: the PRODUCER runScript is STAGED as mpa1_runScript.py (the name
+ #       mpa1v_xf.py's UNCHANGED PRODUCER pin execs); its SOURCE is mpa1v_runScript.py
+ #       (byte-identical, md5 bb3ba3a6).  The FD instrument is mpa1v_xf.py mode F ONLY.
+@@ -54,7 +59,7 @@
+ STOP_MARKER="$HERE/mpa1v_stop_marker.sh"
+ IMG_SHIPPED=dafoam/opt-packages:latest
+ IMG_PATCHED=dafoam-idwarp-rot:v1
+-BASE=/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1V-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral
++BASE=/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1V-R-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral
+ TUT_SRC=/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
+ PERMISSION=bc0e687e
+ # ---- registered resource constants (PREREGISTRATION.md section 5) -----------
+@@ -87,7 +92,7 @@
+ # MD5_LAUNCHER is CROSS-REPINNED LAST, after mpa1v_run_arm.sh is final; until the
+ # fixpoint completes it holds a NON-md5 sentinel so this chain aborts rc=4 fail-closed
+ # (a stale/absent launcher pin can NEVER read as agreement).
+-MD5_LAUNCHER=eaf76e1b994f6209df784a82ed51c2cd   # mpa1v_run_arm.sh -- FIXPOINTED (see §fixpoint below)
++MD5_LAUNCHER=342d55c99b184cccf2c82fc9768fb4a6   # mpa1v_run_arm.sh -- FIXPOINTED (see §fixpoint below)
+ MD5_GRADER=0a41208ee834df2b413b944938587a67     # mpa1v_grade.py -- THE GRADING PATH
+ MD5_RUNSCRIPT=bb3ba3a61b19dc8564e247cdb11e9147  # mpa1v_runScript.py (staged AS mpa1_runScript.py)
+ MD5_XF=ea53c04314f20c438de233101d5ce84d         # mpa1v_xf.py
+@@ -153,6 +158,30 @@
+   echo "$MD5_STALL  $BASE/mpa1v_stall.py"; echo "$MD5_AGEGUARD  $BASE/mpa1v_age_guard.py";
+   echo "$MD5_TUT_GEN  $BASE/base/genAirFoilMesh.py"; echo "$MD5_TUT_PREPROC  $BASE/base/preProcessing.sh";
+   echo "$MD5_TUT_PS  $BASE/base/profiles/NACA0012PS.profile"; echo "$MD5_TUT_SS  $BASE/base/profiles/NACA0012SS.profile"; echo "$MD5_TUT_FFD  $BASE/base/FFD/wingFFD.xyz"; } | md5sum -c - || { echo "ABORT staged instrument/input md5"; exit 4; }
++# ---- L-504 PATH-EXISTENCE FIXPOINT (the MP-A1V-R delta) -----------------------
++# ALL_PINS_MATCH (md5) and the pin-integrity dry-run are BLIND to a launcher that
++# REFERENCES a staged instrument under a name different from the one actually
++# staged -- the exact defect that halted MP-A1V at FV-S (launcher referenced
++# $BASE/mpa1_age_guard.py while the driver staged mpa1v_age_guard.py).  This guard
++# PARSES the launcher for every `$BASE/mpa1*.{py,sh}` runtime reference, resolves
++# $BASE, and asserts each exists post-stage -- so a rename mismatch aborts rc=4
++# HERE, before any arm, instead of at the first solver arm hours later.  It is a
++# NAME check, not an md5 check, and is the guard the D9successor/MP-A1V L-504
++# incidents show md5 pins cannot provide.
++_missing=0
++for _ref in $(grep -oE '\$BASE/mpa1v?_[a-zA-Z_]+\.(py|sh)' "$LAUNCHER" | sort -u); do
++  _path="${_ref/\$BASE/$BASE}"
++  if [ ! -f "$_path" ]; then
++    echo "ABORT PATH-FIXPOINT launcher references $_ref but $_path is ABSENT post-stage (L-504 rename mismatch)"
++    _missing=1
++  fi
++done
++[ "$_missing" -eq 0 ] || { echo "chain=ABORT reason=path_fixpoint stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 4; }
++# Name-consistency: the launcher's G-ROOT.5 double-run guard READS the driver's
++# pidfile; both MUST name it identically or the guard is silently defeated.
++grep -q "PIDFILE=\"\$BASE/$(basename "$PIDFILE")\"" "$LAUNCHER" \
++  || { echo "ABORT PATH-FIXPOINT launcher/driver pidfile name mismatch ($(basename "$PIDFILE"))"; exit 4; }
++echo "MPA1V_PATH_FIXPOINT_OK every launcher \$BASE/mpa1*.{py,sh} ref exists post-stage; pidfile name agrees"
+ test -f "$BASE/base/0.orig/U" || { echo "ABORT staged base/ has no 0.orig/U"; exit 4; }
+ if [ -f "$PIDFILE" ]; then
+   OLD=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)

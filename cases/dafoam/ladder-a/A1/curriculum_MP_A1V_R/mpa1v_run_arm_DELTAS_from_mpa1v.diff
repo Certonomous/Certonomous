@@ -1,0 +1,108 @@
+--- cases/dafoam/ladder-a/A1/curriculum_MP_A1V/mpa1v_run_arm.sh	2026-09-07 19:37:50.464757090 +0000
++++ cases/dafoam/ladder-a/A1/curriculum_MP_A1V_R/mpa1v_run_arm.sh	2026-09-07 20:00:32.126652384 +0000
+@@ -1,5 +1,6 @@
+ #!/usr/bin/env bash
+-# Curriculum MP-A1V arm launcher -- NACA0012 INCOMPRESSIBLE (DASimpleFoam),
++# Curriculum MP-A1V-R arm launcher (MP-A1V launcher-repair successor: L-504 runtime
++# path refs age_guard/stall/output-artefact reconciled mpa1_->mpa1v_) -- NACA0012 INCOMPRESSIBLE (DASimpleFoam),
+ # ALPHA-MULTIPOINT FD-VERIFICATION (ride).  DERIVED from curriculum_MP_A1/
+ # mpa1_run_arm.sh with the DELTAS in mpa1v_run_arm_DELTAS_from_mpa1.diff: arms
+ # MESH/FV-S/FV-P (FD-verification only, no O/X arm); the FD arm's xopt is RIDDEN
+@@ -290,7 +291,7 @@
+ # 384 MB of irreplaceable graded evidence.
+ # ===========================================================================
+ ITEM=MPA1V
+-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1V-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1V-R-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral
+ BASE="${BASE:-$REGISTERED_BASE}"
+ # RIDE (PREREGISTRATION 1.1, O-1): MP-A1V's FD arms are verified at MP-A1's
+ # DEMONSTRATED final design.  MPA1_BASE is MP-A1's frozen run root, READ-ONLY, and
+@@ -547,7 +548,7 @@
+   echo "  Re-staging would remove the live arm directory under it.  REFUSED."
+   exit 3
+ fi
+-PIDFILE="$BASE/mpa1_driver.pid"
++PIDFILE="$BASE/mpa1v_driver.pid"   # MUST match mpa1v_chain_driver.sh:PIDFILE (the driver WRITES this; G-ROOT.5 READS it)
+ if [ -f "$PIDFILE" ]; then
+   DPID=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+   if [ -n "$DPID" ] && kill -0 "$DPID" 2>/dev/null; then
+@@ -681,8 +682,8 @@
+   sudo -n rm -rf "$WORK" 2>/dev/null
+   cp -a "$BASE/MESH" "$WORK" || { echo "ABORT stage copy from MESH"; exit 4; }
+   rm -f "$WORK/mpa1_cmd.sh" "$WORK/checkMesh.log" "$WORK/logMeshGeneration.txt" "$WORK/volumeMesh.xyz" "$WORK/surfaceMesh.xyz" "$WORK/.mpa1_age_datum" "$WORK/.mpa1_age_datum_ref" 2>/dev/null
+-  # `mpa1_stall.py` is staged INTO THE ARM because the producer imports it inside
+-  # the container to write its own stall reading; `mpa1_age_guard.py` is NOT
++  # `mpa1v_stall.py` is staged INTO THE ARM because the producer imports it inside
++  # the container to write its own stall reading; `mpa1v_age_guard.py` is NOT
+   # staged into the arm -- it runs on the HOST, against the arm directory, and a
+   # guard living inside the thing it guards is one `rm -rf` from being absent.
+   cp -a "$BASE/mpa1_runScript.py" "$BASE/mpa1v_xf.py" "$BASE/mpa1v_stall.py" "$WORK/" \
+@@ -713,7 +714,7 @@
+   # COLD START, verified BEFORE the launch (D2 G8), and the AGE GUARD's datum:
+   # 0/ is touched LAST at stage time, so every artifact the run produces must
+   # be strictly newer than 0/U or it did not come from this run.
+-  for bad in "$WORK/reports" "$WORK/mpa1_X.json" "$WORK/mpa1_F.json" "$WORK/mpa1_F.jsonl" "$WORK/mpa1_X.jsonl" \
++  for bad in "$WORK/reports" "$WORK/mpa1v_X.json" "$WORK/mpa1v_F.json" "$WORK/mpa1v_F.jsonl" "$WORK/mpa1v_X.jsonl" \
+              "$WORK/mpa1_O.json" "$WORK/mpa1_xopt.json" "$WORK/opt_IPOPT.txt" "$WORK/MPA1_STALL_ABORT" \
+              "$WORK/dRdWColoring_2.bin"; do
+     test -e "$bad" && { echo "ABORT G-COLD $bad exists"; exit 5; }
+@@ -819,10 +820,10 @@
+   # `T.gz`) under `writeCompression on`.  The write-target exclusion is ENFORCING
+   # rather than descriptive: it is derived from the SAME enumeration the pinning
+   # loop consumes, in one pass, so a record can never assert an exclusion the
+-  # code does not honour.  `mpa1_age_guard.py` leg (a3) proves a disagreement
++  # code does not honour.  `mpa1v_age_guard.py` leg (a3) proves a disagreement
+   # between the two REFUSES.
+-  test -f "$BASE/mpa1_age_guard.py" || { echo "ABORT age guard instrument absent: $BASE/mpa1_age_guard.py"; exit 4; }
+-  python3 "$BASE/mpa1_age_guard.py" pin "$WORK" "$WORK/.mpa1_manifest.json" \
++  test -f "$BASE/mpa1v_age_guard.py" || { echo "ABORT age guard instrument absent: $BASE/mpa1v_age_guard.py"; exit 4; }
++  python3 "$BASE/mpa1v_age_guard.py" pin "$WORK" "$WORK/.mpa1_manifest.json" \
+     || { echo "ABORT age-guard manifest pin failed for arm $ARM"; exit 5; }
+ fi
+ 
+@@ -936,12 +937,12 @@
+ STALLDOG=""
+ case "$ARM" in
+   O-S|O-P)
+-    if [ -f "$BASE/mpa1_stall.py" ]; then
++    if [ -f "$BASE/mpa1v_stall.py" ]; then
+       (
+         while sudo -n docker ps -q --filter "name=^${NAME}$" 2>/dev/null | grep -q .; do
+           sleep 30
+           [ -f "$WORK/opt_IPOPT.txt" ] || continue
+-          VERD=$(python3 "$BASE/mpa1_stall.py" scan "$WORK/opt_IPOPT.txt" 2>/dev/null \
++          VERD=$(python3 "$BASE/mpa1v_stall.py" scan "$WORK/opt_IPOPT.txt" 2>/dev/null \
+                  | python3 -c "
+ import sys, json
+ try: d = json.load(sys.stdin)
+@@ -960,11 +961,11 @@
+         done
+       ) &
+       STALLDOG=$!
+-      echo "MPA1_STALLDOG arm=$ARM armed=yes pid=$STALLDOG poll_s=30 detector=$BASE/mpa1_stall.py"
++      echo "MPA1_STALLDOG arm=$ARM armed=yes pid=$STALLDOG poll_s=30 detector=$BASE/mpa1v_stall.py"
+     else
+       # AN ABSENT WATCHDOG IS DECLARED, NEVER SILENTLY SKIPPED.  A guard whose
+       # absence is invisible is worse than one that never fired.
+-      echo "MPA1_STALLDOG arm=$ARM armed=NO reason=detector_absent_at_$BASE/mpa1_stall.py -- THE STALL STOP IS NOT ARMED FOR THIS ARM"
++      echo "MPA1_STALLDOG arm=$ARM armed=NO reason=detector_absent_at_$BASE/mpa1v_stall.py -- THE STALL STOP IS NOT ARMED FOR THIS ARM"
+     fi ;;
+   *) echo "MPA1_STALLDOG arm=$ARM armed=no reason=not_an_optimisation_arm" ;;
+ esac
+@@ -1081,13 +1082,13 @@
+ # ---- physics clauses from the infrastructure ones and this is the grader's
+ # ---- input, not its conclusion.
+ AGE_OUT="$BASE/${ARM}_ageguard.txt"
+-if [ -f "$WORK/.mpa1_manifest.json" ] && [ -f "$BASE/mpa1_age_guard.py" ]; then
++if [ -f "$WORK/.mpa1_manifest.json" ] && [ -f "$BASE/mpa1v_age_guard.py" ]; then
+   DATUM_REF_FILE="$WORK/$(cat "$WORK/.mpa1_age_datum_ref" 2>/dev/null)"
+   ARTS=""
+-  for a in "$WORK/mpa1_X.json" "$WORK/mpa1_F.json" "$WORK/mpa1_O.json" "$WORK/mpa1_xopt.json" "$WORK/checkMesh.log"; do
++  for a in "$WORK/mpa1v_X.json" "$WORK/mpa1v_F.json" "$WORK/mpa1_O.json" "$WORK/mpa1_xopt.json" "$WORK/checkMesh.log"; do
+     [ -f "$a" ] && ARTS="$ARTS $a"
+   done
+-  python3 "$BASE/mpa1_age_guard.py" verify "$WORK" "$WORK/.mpa1_manifest.json" \
++  python3 "$BASE/mpa1v_age_guard.py" verify "$WORK" "$WORK/.mpa1_manifest.json" \
+           "$DATUM_REF_FILE" $ARTS > "$AGE_OUT" 2>&1
+   echo "MPA1_AGE_GUARD arm=$ARM rc=$? file=$(basename "$AGE_OUT") first_line=[$(head -1 "$AGE_OUT" 2>/dev/null)]"
+ else
