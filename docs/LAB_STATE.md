@@ -28092,6 +28092,45 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 74-F27-FROZEN-AND-LIVE -->
+
+**Section last written:** 2026-09-07T16:30:04Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited.** Built from `git show HEAD:docs/LAB_STATE.md` with HEAD captured ONCE inside the same shell invocation; the worktree was sha256-compared to the HEAD blob and found BYTE-IDENTICAL before the splice; the seven `^## ` headings (CHIEF, closure, dafoam, heat-transfer, cfd, verification, ansys-verification) asserted unchanged AS AN ORDERED LIST, not as a count; deletions anywhere asserted `== 0`; the marker-set delta asserted to be exactly `{74-F27-FROZEN-AND-LIVE}` and nothing else; this block asserted to carry exactly one board-block marker — its own; pure insertion PROVEN by carving this span back out of the post-splice text and reproducing the base blob byte-for-byte, before the commit and again after it from the committed blob. Board writes were FROZEN 15:5x–16:5xZ during the L-499 cascade convergence; board 74 is re-added post-all-clear (the clobber-guard in `commit_private.sh` is now live). `git status --porcelain` was NOT used as the applied/not-applied check — sha256 of the worktree against `git show HEAD:<path>` was. Board 73, board 72, board 71, board 70 and every prior board stand unedited below.
+
+### 🔴 HEADLINE — F27-Womersley §2ay numerics successor **FROZEN / AUTHORISED**, and **LIVE** on the box
+
+**F27 successor FROZEN / AUTHORISED** — supervisor **check-1 + check-4 PASS (personal, undelegated)**; **freeze commit `b86fe0cc`**. The §2ay method-lock (board 72/71: the frozen parent `grade_f27.py` hard-asserts the parent numerics, so a numerics-change successor cannot be graded by the re-used instrument) is resolved by a **full PARALLEL instrument set**, the frozen-parent grader method-locked to the parent numerics: grader `grade_f27_successor.py` (`53f74800…`), driver `run_f27_successor.sh` (`43555a43…`), builder `build_f27_successor.py` (`fa3b4d5d…`). **Bands byte-identical to the parent — no widening.** Costed **4 ranks, est ~372 / cap 500 core-min** ($0.4275 derived at the recorded c7a rate, NOT measured — the box cannot read its own billing).
+
+**F27 PLACED + LAUNCHED** — daemon pid **1887**; F27 pid **79912**; **2026-09-07T16:16:52Z**; **4 ranks**; `--prereg-commit=b86fe0cc`; preflight projection **444.1 < 500**; the classifier did **NOT** block; running clean, coarse-meshed **max non-orth 28.59 / skew 0.964**.
+
+### DMR-R3 positivity successor — FROZEN / AUTHORISED and PLACED
+
+**FROZEN / AUTHORISED** at **`08efee1a`** and **PLACED (4 ranks)** to fill the §2ay gap. Grader `dmr_locator_v2.py` (`52aacf9669…`) hashed at grade time by the driver, refuses on mismatch.
+
+### R2-M2 compressible-admission fix — FROZEN / AUTHORISED, PLACED + ARMED, HELD@14
+
+**FROZEN / AUTHORISED** (`f76948410`), **PLACED + ARMED at 14 ranks**, **HELD by the daemon ceiling** (14 + baseline > 0.9×16 = 14.4) behind heat-transfer's **T4d (~32h ETA)**. Re-ranking judged **NOT clean** (read-only pre-decomposed 14-way seed + warm chain). An **expedite** (a brief T4d `SIGSTOP` pause) has been **put to Sanaa by the chief**. The classifier did **NOT** block the cfd drop (the block is ansys-specific, not fleet-wide).
+
+### GRID-GATE — RULED (see boards 70)
+
+Both DPW5 committee levels **FAIL** both hard mesh gates; the triple exists (ground iii closed); a credential validated-force GCI stays **BLOCKED** on measured ground (i). Rule-12 calibration filed (`b0f155fe`, 0.31×).
+
+### m0 §2d.1 kill-scope repair — LANDED this session
+
+**LANDED** (Task 1 commit `5ba1578b`): box-wide `pkill` → `-case $ROOT`; **value-invariant, no re-grade** (R2-M0 stays GATE FAIL).
+
+### §2ay state-(b) — all four fronts addressed
+
+F27 + DMR-R3 frozen / runnable / launched; **F12** (grading-path defect) and **F6c** (new grader, supervisor check-1 owed) remain as repairs.
+
+### GRADING OWED on completion
+
+- **F27**: `grade_f27_successor.py --prereg-commit=b86fe0cc` (~2h), with a rule-12 calibration row.
+- **DMR-R3**: the frozen grader (~30–40 min), with a rule-12 calibration row.
+
+**COST this session:** solver core-min charged to the runs (F27 / DMR live); **2.4833 core-min RUNG2-GRID-ACQ**. **SUBMISSIONS PARKED.**
+
+⚠ **CHAIN OF CUSTODY.** **FIRST-HAND, by me this invocation:** the splice-hygiene facts in the paragraph above (ordered heading inventory, marker-set delta, exactly-one-marker property, byte-for-byte carve-back proof, worktree↔HEAD sha256 identity, the `date -u` stamp and this board's commit sha); **and the m0 §2d.1 kill-scope repair I did myself this session** — the two content-changed pkill lines (83/85: box-wide → `-case $ROOT`), the dated rule-6 addendum, `bash -n` clean, the scope-token confirmation against the sibling idiom (run_r2_m2.sh :78/:80) and ROOT:57 / launch:353, and that the commit `5ba1578b` touched ONLY `run_r2_m0.sh`. **RELAYED / NOT INDEPENDENTLY RE-DERIVED (carries `VERIFY`):** the F27 / DMR-R3 / R2-M2 freeze commits, the supervisor's check-1/check-4 verdicts, all launch pids/timestamps/projections, the classifier non-block, and the grid-gate ruling. Nothing was sent, filed, uploaded or authorised (rule 7).
+
 <!-- BOARD-BLOCK-ID: 73-DMR-R3-FROZEN -->
 
 **Section last written:** 2026-09-07T15:25:13Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited.** Built from `git show HEAD:docs/LAB_STATE.md` with HEAD captured ONCE inside the same shell invocation; the worktree was sha256-compared to the HEAD blob and found BYTE-IDENTICAL before the splice; the seven `^## ` headings (CHIEF, closure, dafoam, heat-transfer, cfd, verification, ansys-verification) asserted unchanged AS AN ORDERED LIST, not as a count; deletions anywhere asserted `== 0`; the marker-set delta asserted to be exactly `{73-DMR-R3-FROZEN}` and nothing else; this block asserted to carry exactly one board-block marker — its own; pure insertion PROVEN by carving this span back out of the post-splice text and reproducing the base blob byte-for-byte, before the commit and again after it from the committed blob. `git status --porcelain` was NOT used as the applied/not-applied check — sha256 of the worktree against `git show HEAD:<path>` was. Board 72, board 71, board 70 and every prior board stand unedited below.
