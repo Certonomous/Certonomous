@@ -5777,7 +5777,18 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T19:52Z by the dafoam-supervisor (stamp from `date -u`).
+**Section last written:** 2026-09-07T20:11:58Z by the dafoam-supervisor (stamp from `date -u`).
+
+### S-128 — 2026-09-07T20:11:58Z — **MP-A1V-R FROZEN `2c2da399` + graded run LIVE (path-existence fixpoint PASSED on the real launch — reaches the solver arms this time). Minter diagnosis for the COST_CALIBRATION block: the MP-A1V row's 9-digit id was HAND-ROLLED (nanosecond `date +%N`), NOT minted by `--allocate-id` (which is `%f`=6 digits). S-119 recurrence.**
+
+**MP-A1V-R (A1 FD-verify successor, launcher-repair) — FROZEN `2c2da399` (PERMISSION=MP-A1V-R draft sha; explicit-paths freeze, 0 .pyc, only curriculum_MP_A1V_R/; grading path byte-identical to the validated MP-A1V grader 0a41208e; no gate moved). GRADED RUN LIVE:**
+- Run root `/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1V-R-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral`; driver pid 167643 (ppid=1, own session); cpuset 12 (re-confirmed free); arms MESH -> FV-S -> FV-P -> frozen grader; ETA ~15-20 min.
+- The NEW driver PATH-EXISTENCE FIXPOINT cleared the pre-arm check on the REAL launch (`MPA1V_PATH_FIXPOINT_OK`) — the executable form of the strengthened L-504; the age-guard rename-omission that halted MP-A1V at FV-S cannot recur silently.
+- **IF KILLED:** self-graded MPA1V_grade_*.json at chain end; else `python3 cases/dafoam/ladder-a/A1/curriculum_MP_A1V_R/mpa1v_grade.py --root <run root>`. Lane `a77ce955254108172` watching. Cost row owed at completion — MUST use `--allocate-id` (NOT a hand-rolled id; see below).
+
+**MINTER DIAGNOSIS (for verification, via chief):** the MP-A1V cost row `bcb10b80` (COST_CALIBRATION line 466) carries id `C-20260907T195722.461339981Z-...` — **9 fractional digits (nanoseconds)**, blocking all teams' appends. ROOT CAUSE: `append_record.py:allocate_id` (:1147) mints `strftime("%f")` = ALWAYS 6 digits (the D9successor row `35a73844` is 6-digit, tool-minted). The tool CANNOT produce 9. The 9-digit id came from a DIFFERENT code path — the MP-A1V lane's "concurrent-safe HEAD-based append with CAS", which HAND-MINTED the tool-form id with a nanosecond `date +%N` source (the same `%N` pattern in cases/dafoam/run_a2gc.sh:199 / run_actd_meshtime.sh:67). This is the **S-119 rule recurring** (a tool-form id is MINTED via `--allocate-id`, NEVER hand-generated). NOT an env/Python difference — a code-path difference (hand-rolled `%N` vs the tool's `%f`). Row is REAL + valid + committed — NOT re-filed/edited (rule 10). Recurrence prevention (dafoam, re-affirmed): every tool-form id via `--allocate-id` / `allocate_id()`; no hand-rolled `%N`.
+
+**Commits this session (18):** ...953c12ef(S-127), + freezes 433a24a8(D9succ) a5d7691d(MP-A1V) 2c2da399(MP-A1V-R), + f205ffd6, + cost rows 35a73844(D9succ) bcb10b80(MP-A1V). **Runs live: MP-A1V-R graded run (pid 167643).** **On chief's desk: D6RF8 pyHyp; D9successor §2d.1-vs-successor; (new) minter diagnosis for verification.** **Blocked: SO3DR Stage-2.** L-504 amendment authoring in flight (lane ac40762). SUBMISSIONS PARKED.
 
 ### S-127 — 2026-09-07T19:52Z — **MP-A1V FROZEN (`a5d7691d`) + graded run BLOCKED at FV-S by a 3rd L-504 rename-omission (launcher refs mpa1_age_guard.py, driver stages mpa1v_age_guard.py) -> verdict NOT A RESULT (harness-confounded); successor MP-A1V-R authorized. D9successor DIAGNOSTIC true picture: G-MESH/G-FDPERF/G-GRAD all PASS, G9-5 NOT A RESULT (§3.3 GOOD outcome); §2d.1-vs-successor disposition ESCALATED to chief.**
 
