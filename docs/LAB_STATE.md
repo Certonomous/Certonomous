@@ -1430,6 +1430,74 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**TWENTIETH SESSION, 2026-09-07 (closure-supervisor). CONTINUE. ZERO COMPUTE, HEAD fda590b5.
+ONE COMMITTABLE INCREMENT: the duct-first ladder pre-registration DRAFT now exists. TWO lanes
+out-and-back (both returned); one blind-reader claim CAUGHT AND REFUTED by me before it reached
+Sanaa's desk. No solver, no case staged, no queue row, nothing frozen.**
+
+**═══ NEW ARTIFACT — `cases/RANS_LES_closure_models/LR1_duct_qcr_ladder/PREREGISTRATION.md` (DRAFT) ═══**
+The rung-3 CLOSURE result Sanaa named ("correction X recovers this flow where SST could not") on the
+square duct — the "first ladder record" of INGEST_PLAN §4 Phase 3. It did NOT exist; now drafted,
+`prereg_commit: PENDING_SUPERVISOR_FREEZE` (like G2). Verified by me in full (my §3 check-4). Design,
+all mine, transcribed by a drafting lane:
+- **Reproduction-target OPTION (ii)** chosen: SST+QCR (`kOmegaSSTQCR`, built) vs SST-linear, a-posteriori
+  vs the lab DNS — recorded PLAINLY as NOT Spalart's config (his base was S-A; no SA-QCR on box), so it
+  is evidence ABOUT QCR in this lab's hands, not a reproduction of the paper.
+- **Full ladder recorded** (Sanaa's rule): rung1 = 8 stock models {kOmegaSST(linear "could-not"
+  baseline), realizableKE, kEpsilon, ShihQuadraticKE, LienCubicKE, LienLeschziner (nonlinear EVM), LRR,
+  SSG (RSM)}; rung2 = G2 (numerical cause, cited); rung3 = kOmegaSSTQCR; rung4 = GP BLOCKED (absent).
+  **9 models × 3 G2 levels = 27 solves.** Registered IN ADVANCE: if a STOCK nonlinear-EVM/RSM recovers
+  the duct at rung 1, the case resolves at rung 1 and QCR is a parallel confirmation, NOT rung-3 novelty.
+- **DNS anchor extracted AND independently re-verified by me**: `|U_sec|_max/U_bulk = 0.020510` (peak,
+  3025-cell U_LES, AR_1_Ret_360). Draft band DNS±40% = [0.0123,0.0287] PENDING-FREEZE. BASELINES "1.5%"
+  is a DIFFERENT statistic (rms table column), not a contradiction — reconcile at freeze.
+- **§22.4 shelf-D band**: reported never applied; QCR traceless so QCR AND the band are BOTH blind to
+  k-magnitude (shared blind spot stated); duct `delta_B` 0.95–0.98 not Emory O(0.5) (L-219); band width
+  vs the ~2%-of-bulk signal registered as EXPECTED NOT-A-RESULT (P-A4 pathology), does not touch binary.
+- Rule 5 Roache triple gating; rule 3 planted-zero comparator SPECIFIED (with the blind-control that
+  fires on a reader returning 0 — the linear null must be planted-controlled) — comparator to be WRITTEN
+  and diff-read by me as freeze precondition (b); rule 4 completion+age-guard per solve; DNS-mesh (55²) is
+  NOT a G2 level (32²/64²/128²) so the scalar is Roache-extrapolated then compared (no interpolation).
+- **Cost (rule 12, DRAFT PENDING-FREEZE): ≈852 core-min est / 1500 cap; $0.73 / $1.28 DERIVED** at
+  $0.0513/core-h; under $25. Per-model-class multipliers to become measurements at completion.
+- **Freeze preconditions (a)–(e)**: G2 frozen+run+CONVERGING; comparator written+diff-read by me;
+  27 run dirs ABSENT; option (ii) confirmed; sequencing lifted. NOT launched.
+
+**═══ BLIND-READER CAUGHT (personal check #3) — ShihQuadraticKE/LienCubicKE ARE BUILT ═══**
+A fact-lane reported both models "NOT present" (it searched only the empty user build dir). FALSE.
+Verified by me with WORKING positive controls (kEpsilon=12, kOmegaSST=19 syms): stock
+`/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libincompressibleTurbulenceModels.so`
+carries **LienCubicKE (18 syms incl. runtime `New` ctor), ShihQuadraticKE (15), LienLeschziner (17),
+LRR (6), SSG (6)** — all runtime-selectable. INGEST_PLAN §3 and the gap register on Sanaa's desk are
+CORRECT; the Shih 1995 + Craft/Launder/Suga 1996 retrieval-leverage argument STANDS. No false
+correction boarded upward. This is why the lane's negatives are re-driven with a positive control.
+
+**═══ LIBRARY HEALTH RECONFIRMED AT HEAD fda590b5 (read-only lane, no tracked write) ═══**
+Checker `--selftest` 58/58 arms rc0; `--check` 4/4 entries valid rc0; `ladder_evidence_count` still
+**0 of 4**. Planted-negative arms refuse as designed. Checker path is
+`cases/RANS_LES_closure_models/_common/build_correction_library.py` (NOT the correction_library/_common/
+subdir the board once implied). Duct DNS reference grounded: Vinuesalab/challenge DUCT set, 8 AR×Re,
+in-plane V/W present in `0/U_LES`, full `tauij_LES` present — the quantitative claim does not collapse.
+
+**COST THIS SESSION: 0 solver core-min [MEASURED] · 0 GPU-h · $0.00.** Two lanes + my own reads, no
+solve. Nothing to calibrate under rule 12 (no process completed).
+
+**RUNGS WITHOUT VERDICTS — UNCHANGED, plus LR1.** M1 ungraded · M1b/M1-C/R4b-Ib three drafts CHECK1
+NOT DONE · R4b-I+R4b arm BLOCKED · M2 UNRULED since 08-28 · RC1/RC2 unfrozen · Ling arm 2 frozen+UNFILED ·
+G1b xr null (D550) · **LR1 DRAFTED, PENDING_SUPERVISOR_FREEZE (sequenced; not a rung failure)**. G2 also
+PENDING freeze — it is LR1's rung-2 prerequisite. FS2 and FS5 remain STANDING GATES.
+
+**ON SANAA'S DESK — five items UNCHANGED (none withdrawn), plus one design confirmation now pending.**
+(a) GPU YES Ling arm 2, 40 GPU-h=$32.19 DERIVED, UNFILED; (b) R4b increment ruling owed since 08-28;
+(c) four withdrawn attributions; (d) two 2026-08-24 R3 quotations; (e) the institutional-pull gap
+register (18 outstanding; Shih 1995 + Craft/Launder/Suga 1996 highest leverage, RE-CONFIRMED valid this
+session). NEW: LR1 freeze precondition (d) — the reproduction-target OPTION (ii) is my recommendation
+and is confirmable by her/me at freeze (not a new send). SUBMISSIONS PARKED (rule 7).
+
+**BLOCKED — nothing blocks the zero-compute library/prep work. LR1 SOLVES sequenced behind M6/CRM + F6
+duct online + G2 freeze; library RUNNABLE growth blocked on Sanaa's institutional pull.**
+
+
 **NINETEENTH SESSION, 2026-09-07T~1Z (closure-supervisor). RESUMED UNDER THE CLOSURE-LADDER FRAME.
 STAND-DOWN QUESTION SETTLED, NOT ESCALATED: I READ MYSELF AS ACTIVE ON THE LIBRARY (zero-compute),
 SOLVES SEQUENCED (not blocked) BEHIND M6/CRM + F6. STILL ZERO COMPUTE — no solver, no case, no queue
@@ -5619,7 +5687,17 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T06:08Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-07T14:49Z by dafoam-supervisor personally (stamp from `date -u` in the invocation).
+
+### S-120 — 2026-09-07T14:49Z — **D6RF5 FROZEN `36b678b6` (PERMISSION=991adf07) — crash-triage found + repaired 5 stale launcher md5 pins, my check-1 on both measurement scripts CLEAN, freeze taken. Clears the D6RF4 §2ay flag, unblocks D6R2. MP-A1 + SO3DR Stage-2 launch dispatched; §2ay V-115 (5 fails) dispatched.**
+
+**D6RF5 (A2 convergence probe P_conv) — FROZEN, freeze commit `36b678b6`, freeze sha PERMISSION=`991adf07`.** est 62.0 / cap 186.0 core-min, ranks 4 ($0.053/$0.159 DERIVED). Compute NOT launched by the freeze. My personal checks, all discharged:
+- **crash-triage (check-2):** the S9 dual-install + SIMPLE-scoped corrector awk are SOUND (awk `sub` scoped `/^SIMPLE/`..`/^}/` sets SIMPLE nNonOrthogonalCorrectors to 3/1, potentialFlow 20 untouched; four sites identical launcher :356-357 vs runtime :1209; verify grep passes both n). **BUT the launcher carried FIVE STALE md5 pins — parent D6RF4 values left after the d6rf4→d6rf5 rename** (MD5_FD, MD5_EXTRACT6, MD5_PHYS6, MD5_UNITS, MD5_ANCHOR_GATE) — any one aborts the stager (exit 41) / launcher (exit 4) BEFORE compute. RECOVERABLE rename-omission, NOT a capability gap. Repaired at `991adf07` (D6RF5-FIX lane), stager container-test exit 0, zero ABORT. My check-1 re-read of the pin DELTAS CLEAN (MD5_FD 1c045eb5 == actual fd md5 after the docstring fix).
+- **check-1 on d6rf5_fd_endpoint.py + d6rf5_grade.py DELTAS:** CLEAN. CONV split p_first_uncorrected/p_corrected matching the S-108 binding-field correction (1.658293702e-05 binding); G-SCHEME strictly-restrictive discretisation-provenance gate replacing the inapplicable G-SOLN; single rep DV shape[46]; byte-identical producer=bright line intact; per-field extraction correctly in grader (single-reader). Grader `--freeze-selfcheck` exit 0, `--cap-arithmetic` exit 0 (reachability residual +0.0). Minor: guard-drive file d6rf5_launcher_guard_drive.py referenced in launcher comments does not exist (G-FREEZE limb itself verified directly).
+
+**LANES LIVE / done:** D6RF5-FIX `aa76f9d6` **DONE** (`991adf07`). Still live (2): **§2ay-LINEAGE** `aab488bd` (V-115's 5 fails G-11/12/13/14→A3R3PC, O-10→D2ABR, all state (b), 0 capability gaps; structured lineage + newer-id verdict-record); **LAUNCH** `a9c81116` (placing MP-A1 frozen c4e84348 est 58.63/ceil 183.5 + SO3DR Stage-2 frozen b4b8d44c est ~195/cap 585 under the launch law with watchers; verified no Sanaa permission needed).
+
+**Runs live: pending LAUNCH lane report.** **Blocked: nothing of mine** (D6RF5 now FROZEN & runnable). **⚠ LAB_STATE races:** my first S-120 disk write was clobbered by a concurrent foreign write to this shared file; also two foreign uncommitted hunks earlier seen (~L17481, ~L35296) — flagged to chief; I never touch a foreign hunk (rule 10).
 
 ### S-119 — 2026-09-07T06:08Z — **Data-hygiene fix (chief-routed, `9bf38155`): W4-reanchor calibration id CORRECTED via `--allocate-id`; standing rule adopted for dafoam.**
 
