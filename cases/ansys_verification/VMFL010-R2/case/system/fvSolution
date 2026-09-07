@@ -1,0 +1,19 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+// VMFL010-R2 -- iterative convergence TIGHTENED from the base VMFL010.
+// Base used residualControl { p 1e-7; U 1e-7; }. The base run's split sequence was
+// textbook 2nd-order in MAGNITUDE (|d32/d21| = 0.198, cf. 0.25 for p=2) yet its tiny
+// finest-level second difference (+2.958e-4) was SIGN-FLIPPED -- the signature of a
+// ~1e-4 iterative/round-off perturbation comparable to that difference. R2 drives the
+// linear-solver and residualControl floors two orders deeper so the split's iterative
+// uncertainty is far below the grid-to-grid difference and the Roache sign is meaningful.
+// This strengthens rule-4/rule-5 iterative convergence; it changes NO scheme and NO gate.
+solvers
+{
+    p { solver GAMG; smoother GaussSeidel; tolerance 1e-11; relTol 0.001; }
+    U { solver smoothSolver; smoother GaussSeidel; tolerance 1e-11; relTol 0.01; }
+}
+SIMPLE { nNonOrthogonalCorrectors 2; consistent yes;
+         residualControl { p 1e-9; U 1e-9; } }
+relaxationFactors { equations { U 0.9; p 0.9; } }
+// ************************************************************************* //

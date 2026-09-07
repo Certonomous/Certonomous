@@ -1,0 +1,6 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// Air, manual p.39: rho = 1 kg/m3, mu = 0.003333 kg/m-s => nu = mu/rho.
+transportModel  Newtonian;
+nu              nu [ 0 2 -1 0 0 0 0 ] 0.003333;
+// ************************************************************************* //
