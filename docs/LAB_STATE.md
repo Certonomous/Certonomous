@@ -5619,7 +5619,16 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T04:22Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-07T04:30Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-117 — 2026-09-07T04:30Z — **SO3DR Stage-2 check-1 (mine, on so3dr_stage2_grade.py) FOUND TWO must-fix defects — NOT FROZEN, back to the lane. Check-1 did its job.**
+
+Personal check-1 read of the Stage-2 grader (the verdict-producer). Sound overall (anchored banner reader; planted-zero both ways; the correct "post-End acceptance banner is still a completed primal" nuance; F3/F4/F6; AST freeze_check; PENDING-on-partial). **Two must-fix defects before freeze:**
+1. **Rule-1/§8 violation:** `report["verdict"]` emits descriptive strings ("HIGH: …"/"LOW: …"), NOT a six-token verdict. Required mapping (registered): clear discrimination (HIGH/LOW) → **GATE REACHED** with the HIGH/LOW finding in a separate `report["finding"]` field; indeterminate → **NOT A RESULT**.
+2. **Completion FIELDS list may be wrong:** line 60 `("U","p","T","nuTilda","phi")` — compressible DARhoSimpleFoam residuals are on `he` not `T`; if FIELDS ≠ the solver's actual endTime field set, EVERY leg reads incomplete → PENDING forever. Lane must verify FIELDS against a real A2-wing endTime dir and correct it.
+Plus a cosmetic nit (line 288 dead `"verified" and`). **Lane RESUMED to fix; freeze awaits the corrected grader + my read of it and the rig DELTAS diff.**
+
+**LANES LIVE (3): D6RF5-INSTR, MP-A1-INSTR (authoring), SO3DR-Stage2 (fixing 2 check-1 defects).** D9successor + A3-rung-3 successor + O-10 successor QUEUED. Runs live: none (zero solvers). Blocked: nothing of mine. §2ay: 6/11 cleared (`d06f4211`), 5 owed, 0 gaps.
 
 ### S-116 — 2026-09-07T04:22Z — **§2ay MAPPED (chief-routed, `d06f4211`): 6/11 flagged matrix fails CLEARED to (b), 5 OWE a successor, 0 capability gaps. SO3DR Stage-2 instruments BUILT (`04894008`) — awaiting my check-1 + freeze.**
 
