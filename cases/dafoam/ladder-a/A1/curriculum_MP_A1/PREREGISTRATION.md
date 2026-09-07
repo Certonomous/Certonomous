@@ -341,3 +341,32 @@ re-reads live occupancy at launch and `G12` gates it against the registered cons
 
 **NOT ENQUEUED. NOT LAUNCHED. ZERO SOLVER CORE-MINUTES. SUBMISSIONS PARKED.** The upstream provenance
 (SO-3aR2/SO-1a) is GATE FAIL and travels with every claim; nothing in this item is filed (§5, §2d).
+
+---
+
+## §9. DATED ADDENDUM — 2026-09-07, RULE-2 **PRE-COMPUTE** REPAIR OF THE CHAIN-DRIVER INTEGRITY PINS (STRIKES NOTHING; NO GATE MOVED)
+
+This is a rule-2 amendment taken **before first compute** (before-compute amendments are legal; `CLAUDE.md` rule 2). It strikes nothing above, and it alters **no** gate, threshold, band, cap, deadline, label or instrument. It reconciles the chain driver's *own* integrity pins to the instrument bytes the §8 freeze **already** hash-locked — it does **not** re-open the c4e84348 freeze's gates.
+
+**CONDITION.** `mpa1_chain_driver.sh` carried stale `MD5_*` integrity pins that did **not** match the frozen instrument bytes on disk. The driver's startup integrity block (~line 123) runs `md5sum -c` on six pins before any staging and aborts **rc=4 "md5 drifted or UNSET"** on the first mismatch — i.e. **before** the run root is created and before any container is staged. Two of the stale pins are the very instruments §8 hash-locks: `MD5_GRADER` pinned `0ac111ef…` while frozen `mpa1_grade.py` is `9b9cb934…` (the §8 value), and `MD5_RUNSCRIPT` pinned `0c026d72…` while frozen `mpa1_runScript.py` is `bb3ba3a6…` (the §8 value). Root cause: the instruments were re-edited to their final frozen bytes (04:19–04:25) but the driver's pins (dated 03:59 + AMENDMENT-2) were never re-derived before the freeze commit. This is the same class the D6RF5 repair addressed: a stale integrity pin aborts the chain rc=4 pre-staging — the "W3 death mode" the driver's own header (lines 80–83) names.
+
+**HOW CHECKED.** Actual md5 of each frozen file on disk vs the pin (the derived value of the file the freeze hash-locked):
+
+| pin | file (frozen) | old (stale) pin | actual = frozen md5 | status |
+|---|---|---|---|---|
+| `MD5_LAUNCHER` | `mpa1_run_arm.sh` | `e8839a2f…` | `f884672c32738b549ee79f4f400660ff` | STALE → repaired |
+| `MD5_GRADER` | `mpa1_grade.py` | `0ac111ef…` | `9b9cb93419797f99cf968d74f320f8b2` (=§8) | STALE → repaired |
+| `MD5_RUNSCRIPT` | `mpa1_runScript.py` | `0c026d72…` | `bb3ba3a61b19dc8564e247cdb11e9147` (=§8) | STALE → repaired |
+| `MD5_XF` | `mpa1_xf.py` | `58fd0e26…` | `8036ca85d502276dc172c626becd11d5` | STALE → repaired |
+| `MD5_STOP_MARKER` | `mpa1_stop_marker.sh` | `4809ff56…` | `5063f90b227eb3a7341d18c6ca7b7824` | STALE → repaired |
+| `MD5_STALL` | `mpa1_stall.py` | `c0719b7f…` | `5d112800fc34dc729c80c584d873eec7` | STALE → repaired |
+| `MD5_AGEGUARD` | `mpa1_age_guard.py` | `1bcbe57c…` | `7fe4352d36b7b48a5bb2885e225e455a` | STALE → repaired |
+| `MD5_AGG` | `mpa1_aggregate_memory.py` | `709ab0b9…` | `709ab0b98ef0302a3a3a318588f9493f` | already OK (unchanged) |
+| `MD5_DECOMP` | `mpa1_decomposeParDict` | `e6f1b006…` | `e6f1b0060944bc86d6dff56480ad2bd4` | already OK (unchanged) |
+| `MD5_TUT_*` (6) | tutorial inputs under `TUT_SRC` | — | all six MATCH | already OK (unchanged) |
+
+Seven stale instrument pins were re-derived from the frozen files and updated hex-for-hex (32 chars, comment alignment preserved). `MD5_AGG`, `MD5_DECOMP` and all six tutorial pins were left exactly as they were. `PERMISSION=bc0e687e` (the Sanaa-boarded detached-launch permission echoed to the ledger — **not** a freeze-sha gate) was **not** touched.
+
+**POST-REPAIR VERIFICATION.** Re-audit of all 15 `MD5_*` pins against disk: **every pin now equals its file's actual md5** (`ALL_PINS_MATCH=1`). A sandbox dry-run of the ~line-123 integrity block (its six `md5sum -c` assertions, driven with the driver's own variables and pins, **without** staging the run root or launching any container) returns **rc=0 — no rc=4 abort**. Planted control: a one-byte corruption of the launcher copy is seen by the assertion (`PLANT_SEEN=yes`), so the reader is not blind. **No compute has occurred:** the registered run root `/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1-a1-naca0012-alpha-multipoint-fixedlift-optimisation` is **ABSENT**, no MP-A1 container is running, zero solver core-minutes.
+
+**SCOPE.** This addendum changes only the driver's integrity pins (a byte-integrity guard over the instruments), reconciling them **to** the instruments §8 already hash-locked. It does **not** re-open the c4e84348 freeze's gates, thresholds, caps, labels or instruments; the grading path stays exactly the §8 files. The `NOT_FROZEN` launch-block sentinel is **retained** — the re-freeze (by sha) and the launch remain the supervisor's acts after the check-1 read of these pin deltas. **STILL NOT ENQUEUED, NOT LAUNCHED, ZERO SOLVER CORE-MINUTES, SUBMISSIONS PARKED.**

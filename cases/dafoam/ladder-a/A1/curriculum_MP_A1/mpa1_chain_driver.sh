@@ -81,21 +81,21 @@ DECLARED_ARMS=7                          # (e) section 5 Requirement 4
 # rc=4 BEFORE any container -- the W3 death mode -- so every pin below was computed
 # from the FINAL bytes of the file it pins, after the last code edit, and each is
 # DRIVEN against that file by mpa1_groot5_selftest.sh's (x12)/(x13)/(x14).
-MD5_LAUNCHER=e8839a2fb445239609718feed9b0aeed   # mpa1_run_arm.sh
+MD5_LAUNCHER=f884672c32738b549ee79f4f400660ff   # mpa1_run_arm.sh
 # AMENDMENT 2, 2026-09-01, BEFORE FIRST COMPUTE.  RE-PINNED because the amendment
 # rewrote the very bytes this line pins: mpa1_grade.py:PRED["P_COST_band"] moved from
 # the inherited (14.0, 60.0) -- which had NO REACHABLE HIT on this item -- to the
 # re-derived (60.0, 300.0).  STRUCK: d786e10d81d99233610fe8c636c3a47e.
 # A pin inherited through a change that rewrites the bytes it pins is what cost
 # SO-2MR its first arm; this line is re-derived, not carried.
-MD5_GRADER=0ac111ef144a62111e36f676e8114af1     # mpa1_grade.py -- THE GRADING PATH (section 10)
-MD5_RUNSCRIPT=0c026d72047b605099125258e3152f93  # mpa1_runScript.py
-MD5_XF=58fd0e2600ce6836ddd039beb8677477         # mpa1_xf.py
+MD5_GRADER=9b9cb93419797f99cf968d74f320f8b2     # mpa1_grade.py -- THE GRADING PATH (section 10)
+MD5_RUNSCRIPT=bb3ba3a61b19dc8564e247cdb11e9147  # mpa1_runScript.py
+MD5_XF=8036ca85d502276dc172c626becd11d5         # mpa1_xf.py
 MD5_AGG=709ab0b98ef0302a3a3a318588f9493f
 MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4
-MD5_STOP_MARKER=4809ff569def1927e516685bb218e7bc  # mpa1_stop_marker.sh
-MD5_STALL=c0719b7fad530a34391280139fe7aa6c       # mpa1_stall.py
-MD5_AGEGUARD=1bcbe57cb708d8e6a7a89ceb2235a35c    # mpa1_age_guard.py
+MD5_STOP_MARKER=5063f90b227eb3a7341d18c6ca7b7824  # mpa1_stop_marker.sh
+MD5_STALL=5d112800fc34dc729c80c584d873eec7       # mpa1_stall.py
+MD5_AGEGUARD=7fe4352d36b7b48a5bb2885e225e455a    # mpa1_age_guard.py
 # the shipped tutorial's INPUT bytes, frozen here because the checkout is not
 MD5_TUT_RUNSCRIPT=0557da51f6f179f6de865144343c499f
 MD5_TUT_GEN=681f10659eb90457fca13fc933008b93
