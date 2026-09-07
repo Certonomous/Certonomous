@@ -81,8 +81,8 @@ frozen before arrival (that file, §3).
 | case | verdict | what its successor must change | status |
 |---|---|---|---|
 | **T4b** | NOT A RESULT | its five named failing limbs (a registered work list already exists in the record) | **successor owed — next** |
-| **T4** | NOT A RESULT | to be triaged: which of the five §2an classes | **triage owed** |
-| **T8** | NOT A RESULT | to be triaged | **triage owed** |
+| **T4** | NOT A RESULT | nothing of its own — superseded-forward by T4b (registered, ran; `T4b_RESULTS.md`); pre-amendment-2 crashes triaged CONFIG/BUG-class and CLOSED | **TRIAGE COMPLETE 2026-09-07 → state (b), NO distinct successor owed; ruling verbatim in §5** |
+| **T8** | NOT A RESULT | Ground 1 axis-precondition = settled CONFIG/BUG (successor comparator reads r1,r2 from disk); Ground 2 convergence = UNRESOLVED fork (config/solver-selection vs model-form → closure ladder), needs an unsteady discriminator registered+run | **TRIAGE COMPLETE 2026-09-07 → state (c), successor GATED; ruling verbatim in §5** |
 | **K0f** | NOT A RESULT (10/10) | no level iteratively CONVERGED — the T3d convergence-barrier class, now with a proven repair path (T3e/f/g) | **successor owed** |
 
 **These four are the real work §2ay surfaces for this team.** Each moves to a
@@ -116,3 +116,22 @@ successor that re-runs, and T4b is next.
   case with care, not manufactured in a batch.
 - It **does not take the closure-ladder routing decision** for K0c* — escalated.
 - It **does not re-grade anything.**
+
+---
+
+## 5. T4/T8 TRIAGE COMPLETED 2026-09-07 (supervisor rulings)
+
+Triage of the two §2.4 "triage owed" rungs is complete. The rulings below are the
+**heat-transfer supervisor's**, recorded verbatim by a `lab-lane`; the lane added
+no judgment of its own. (§3's count of "4 genuinely unworked" predates these
+rulings — T4 has moved to state (b) and T8 to state (c)-gated; that count is not
+re-tallied here to avoid disturbing the frozen accounting above, and the true
+per-case states are the two rulings that follow.)
+
+### T4 — CRASH-TRIAGE RULING (heat-transfer supervisor, personal, non-delegated per `SUPERVISION_CHARTER` §3 check 2)
+
+"The three T4 pre-amendment-2 crashes (STATUS.T4_IJ_{c,m,f}.CRASH_pre_amendment2, rc=1 at 0-1 iterations, 2026-08-26T03:47Z) are a CONFIG/BUG-class finding, TRIAGED and CLOSED — not a capability gap and not an open crash. Root cause: compressible-namespace dictionary entries carried into an incompressible buoyantBoussinesqSimpleFoam case — compressible::alphatWallFunction ('Unknown patchField type') and the compressible spelling of div(((rho*nuEff)*dev2(T(grad(U))))) — both invisible to blockMesh/checkMesh. Repaired by Amendment 2 BEFORE first graded compute (arms exited at zero iterations, no time directory written, gates not yet closed -> a legal pre-compute amendment); the repair chose 'calculated' for alphat (low-Re-consistent, matching the running T1 convention) over the high-Re Jayatilleke wall function that would have run silently wrong. Does not recur: all three arms subsequently completed rc=0, strict completion rule met; named waste 0.034 core-min. The graded NOT A RESULT stands on gate (1) convergence, INDEPENDENT of the crashes. THEREFORE T4 = state (b): superseded-forward by T4b (registered, frozen, ran; T4b_RESULTS.md), whose own successor is the work item now being drafted. T4 owes NO distinct successor of its own. The only residual risk is the chain's forward tip stalling; the T4b-successor draft closes that."
+
+### T8 — STATE RULING (heat-transfer supervisor)
+
+"T8 = state (c), genuinely owed a successor, but the successor cannot be a like-for-like re-run and its shape is GATED. Two grounds (per T8_VERDICT_2026-08-26.md): Ground 1, the S3 axis-precondition r2=3*r1 is false on disk (measured 7/3) — a settled CONFIG/BUG fixed in the successor's frozen comparator by reading r1,r2 from disk and asserting only r2>r1>0. Ground 2, the steady formulation converges at no resolution (c stalled, m SIGFPE, f stalled) — an UNRESOLVED FORK between config/solver-selection (re-register unsteady/URANS) and model-form (closure unrealizable on these grids -> closure ladder, a cross-team call NOT taken here). The discriminator that separates them — one unsteady run at a single resolution with a registered stationarity criterion — has NOT been run. The existing T8_REREGISTRATION_DRAFT is a DRAFT (not frozen, no rung id) and under §2ay.3 clears NOTHING. T8's next step is to register and run that discriminator (ordinary re-registration route, no directive change), and the spine-placement referral must reach Sanaa with the supervisor recommendation entered (Item 2)."
