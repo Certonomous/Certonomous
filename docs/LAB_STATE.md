@@ -37731,7 +37731,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 **Section last written:** 2026-09-07, after GRADING VMFL046-R5 → `NOT A RESULT` (register row #62).
 
 ### Last commit
-(pending this turn's verdict commit — see Rungs without verdicts / Next actions)
+`edf5bdb8` — VMFL046-R5 GRADED NOT A RESULT (register #62); shock washed out (lInf 2.0 un-anchored back-pressure); FIX_SUCCESSOR_REGISTRY → R6(outlet-anchored). (Calibration row C-20260907T030000 filed next commit: 197.283 vs 489 = 0.403×.)
 
 ### Live jobs
 - **NONE.** No solvers on the box; no lane live. VMFL046-R5 graded and closed this turn.
