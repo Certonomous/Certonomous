@@ -5619,7 +5619,19 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T04:12Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-07T04:22Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-116 — 2026-09-07T04:22Z — **§2ay MAPPED (chief-routed, `d06f4211`): 6/11 flagged matrix fails CLEARED to (b), 5 OWE a successor, 0 capability gaps. SO3DR Stage-2 instruments BUILT (`04894008`) — awaiting my check-1 + freeze.**
+
+**§2ay RESPONSE (verification enforcer strengthened, c47c2e13; it now enumerates 11 dafoam fails keyed G-01/11/12/13/14/21/22/28/29, O-01/10).** Classification done personally (my §2ay duty); bridge record `cases/dafoam/DAFOAM_SUCCESSOR_LINEAGE_MAP.md` (`d06f4211`, a `*SUCCESSOR*`-named file the enforcer reads via line-leading `Supersedes:`).
+- **6 CLEARED to (b)** with landed/registered successors: **G-01** (A1 shipped rotation-defect GATE FAIL → A1 patched reverify PASS); **G-22** (A5 shipped 46.84% → A5 patched reverify **PASS 2.768%, 0 flips**, verified at source today); **G-28/G-29** (A6 vs original FD ref → **G-30 PASS 8/9, aggregate 1.0432%**); **G-21** (A4 decomp survey → **G-19 A4 np=1 1.10% PASS**); **O-01** (A2 opt time-boxed → **D6RF5 → D6R2**).
+- **5 STILL FLAGGED, owe a not-yet-registered successor (tokens kept OUT of the bridge file so they stay flagged):** **G-11/G-12/G-13/G-14** (A3 rung-3 adjoint, 79,560 cells np=4 — reason −3 conditioning wall / memory stop / bit-identical patched KSP / no gradient) → owed successor = A3-rung-3 adjoint with a WORKING preconditioner (sub-LU `dafoam-subpclu:v2`, never tried there, or the ksp-options patch) + adequate-memory plan; **O-10** (D2 AB2 design-point 33.259% GATE FAIL, the registered non-uniqueness finding) → owed successor = regularized AB re-run OR a Sanaa valid-terminal-result ruling. **DRAFTING QUEUED behind the 3-lane cap.**
+- **0 proven capability gaps (a).** The A3 rung-3 conditioning wall is the ONLY gap-hypothesis and is (b) pending the sub-LU attempt never run there (per 4ae4b33).
+- **Correction acknowledged:** the matrix keys G-##/O-##, not D#/SO#; newer curriculum fails (D6RF4→D6RF5, D6R→D6R2 chain, SO3DR→Stage2, D9→D9successor) bridged in §2 of the map so the enforcer sees their coverage. **For the chief/verification:** surfacing the newer verdicts as ENUMERABLE fail-rows needs a SOURCES addition (verification's call).
+
+**SO3DR Stage-2 — INSTRUMENTS BUILT (`04894008`):** rig `so3dr_stage2_standalone_runScript.py` (md5 dc67cced) + grader `so3dr_stage2_grade.py` (md5 3a47f7d7) + 505-line DELTAS diff (md5 2e692b47) awaiting MY check-1. Lane caught a real pre-freeze defect (shape DV count **96, not 90** — corrected in rig + prereg), confirmed scotch/np=4, cold-start, accept-floor guard both ways, banner reader both ways, F3/F4 arithmetic. **FREEZE OWED = my check-1 read of the DELTAS diff, then place FREEZE.marker.** Costed est ≈195 / cap 585 core-min.
+
+**LANES LIVE (2): D6RF5-INSTR, MP-A1-INSTR (authoring). SO3DR-Stage2 DONE (awaiting my check-1). D9successor authoring + A3-rung-3 successor + O-10 successor QUEUED.** Runs live: none (zero solvers). Blocked: nothing of mine.
 
 ### S-115 — 2026-09-07T04:12Z — **SO3DR Stage-2 prereg + reproducible sample DRAFTED (`c83bfd41`), check-3 upheld. Rig+grader build resumed. Costed est ≈195 / cap 585 core-min. ⚠ b63ea674 also landed heat-transfer's board block (disclosed to chief).**
 
