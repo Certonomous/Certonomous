@@ -327,3 +327,48 @@ the assumed 1.10, so the lab's density-vs-pressure-solver estimates improve.
 **No compute has been performed** — the run root
 `verification/runs/ansys_verification/VMFL046-R6/` does not exist (a launch-ordering step, not a
 freeze defect).
+
+---
+
+## AMENDMENT A1 — v1.1 — 2026-09-07 — **PRE-FIRST-COMPUTE THERMO-TYPE CORRECTION (CLAUDE.md rule 2)**
+
+**CONDITION.** The freeze `dcc1adcf` carried `constant/thermophysicalProperties` byte-identical
+from R5, with `thermoType.type = heRhoThermo` — the **rhoThermo family**, correct for the
+pressure-based `rhoPimpleFoam` but **wrong for the density-based `rhoCentralFoam`**. On startup
+`rhoCentralFoam` constructs a **`psiThermo`** (`applications/solvers/compressible/rhoCentralFoam/
+createFields.H:5–9`: `autoPtr<psiThermo> pThermo … psiThermo::New(mesh)`), so the run aborted with
+
+> `FOAM FATAL IO ERROR: Unknown psiThermo type`
+
+before any boundary condition or physics was evaluated. This is a fix-until-runs **config
+finding**, not a capability gap: `rhoCentralFoam` runs this case with the correct thermo family.
+
+**HOW CHECKED.** An **ephemeral, answer-blind scratch smoke** (`VMFL046R6_SMOKE=1`,
+`VMFL046R6_ENDTIME=2e-5`, L1 only, run under `…/scratchpad/VMFL046-R6-smoke`, NOT the graded run
+root). It died in `createFields` — before the mesh time-march, before any `M=1` crossing could
+form — so it read **no answer**. **The GRADED run root
+`verification/runs/ansys_verification/VMFL046-R6/` did NOT exist and does not exist**; **no graded
+compute has occurred**, so this pre-first-compute amendment is legal under rule 2.
+
+**THE CORRECTION.** `constant/thermophysicalProperties`, one keyword:
+`type heRhoThermo;` → `type hePsiThermo;`. **Nothing else moves** — `pureMixture`, `transport
+const` (mu = 1.7894e-5, Pr = 0.72, the manual's constant-viscosity model, VM2026R1 p.155),
+`hConst`, `perfectGas`, `sensibleInternalEnergy`, `molWeight 28.96`, `Cp 1004.5` are byte-identical.
+The combination `hePsiThermo<pureMixture<const<hConst<perfectGas<specie>>,sensibleInternalEnergy>>>`
+is confirmed present in the solver's own valid-types list (printed by the smoke's FATAL error).
+
+**CORRECTED SOLVER-REACH COUNT.** §2 stated the solver change forces changes to `fvSchemes`,
+`fvSolution`, `controlDict.template` and the removal of `constant/fvOptions`. That undercounted by
+one: it also forces the **`thermophysicalProperties` thermo type**. **R6 is a FOUR-file solver
+change** (`fvSchemes`, `fvSolution`, `controlDict.template`, `thermophysicalProperties`) **plus the
+`fvOptions` removal, plus the one outlet change (`0/p`)**. The case now carries 10 files still (the
+count is unchanged; `thermophysicalProperties` moves from "carried" to "changed").
+
+**WHAT DOES NOT MOVE.** No gate quantity, threshold, band, `endTime`, `maxCo`, plateau window,
+reader, or planted control. **The comparator `grade_vmfl046_r6.py` blob is UNCHANGED
+(`bad1408fd52e8d3bdc91bc64f28036de16f02af4`)** — the thermo fix touches a case input, not the
+grading path. The outlet `lInf 0.3` and its §3 gate-blind argument are untouched (and were never
+reached by the failed smoke, so the outlet remains to be confirmed by the re-smoke).
+
+**version:** v1.0 → **v1.1**
+**lines whose number changed above this section: 0**
