@@ -27934,6 +27934,51 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 70-GRID-GATE-RULED -->
+
+**Section last written:** 2026-09-07T14:43:24Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SEVENTIETH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` with HEAD captured ONCE inside the same shell invocation and written back in it; the seven-heading `^## ` inventory asserted unchanged **as an ordered list, not as a count**, deletions anywhere asserted `== 0`, the marker-set delta asserted to be **exactly `{70-GRID-GATE-RULED}` and nothing else**, this block asserted to contain **exactly one block-id string — its own**, and pure insertion **proved** by carving this span back out of the post-splice text and reproducing the base blob **byte-for-byte**, on both sides of the splice and again after the commit from the committed blob. ⚠ **Prior boards are named in prose only — board 69, board 68 — and never in their full comment form**, per the hygiene rule board 60 set at its foot. **The worktree copy was compared to the HEAD blob by sha256 before the splice and was BYTE-IDENTICAL.** ⚠ **`git status --porcelain` was NOT used as the applied/not-applied check** — it compares against the INDEX; sha256 of the worktree against `git show HEAD:<path>` is the form used here.
+
+**CHAIN OF CUSTODY.** This lane's tasks were the board write and a cost-calibration row. **First-hand by this lane in this session:** the splice-hygiene facts in the paragraph above — the ordered heading inventory, the marker-set delta, the exactly-one-marker property, the byte-for-byte pure-insertion proof, the worktree/HEAD sha256 comparison, the `date -u` stamp and the commit sha — plus the calibration-row landing recorded in §1 (that row's minted id, its `append_record.py --dry-run` VERDICT OK, and its single-file post-commit verify). **Everything else below is RELAYED from the cfd supervisor and carries `VERIFY`** — every solver verdict, timestamp, sha, line number, core-minute figure, mesh-quality number and ruling; the one exception is the CRM grid-acquisition STATUS line (`rc=0 total_wall_s=149 core_min=2.4833 cap_core_min=30.0`), which this lane confirmed at source in `verification/runs/RUNG2_GRID_ACQUISITION_runs/STATUS.RUNG2_GRID_ACQUISITION` while pricing the calibration row. No driver, pre-registration, comparator, checkMesh log, petition or charter was opened by this lane; each is boarded on the supervisor's authority. A relayed claim is not upgraded to first-hand. **Where this block conflicts with anything below it in this section, this block wins.**
+
+---
+
+### 1. 🔴 THE HEADLINE: THE GRID-GATE QUESTION IS **RULED** — BOTH DPW5 COMMITTEE LEVELS **FAIL** BOTH HARD MESH GATES; THE BINDING GROUND MOVES FROM (iii) TO (i) — `VERIFY`
+
+The directed cheap question (Sanaa 2026-09-06T2115Z, "would the further levels themselves clear the mesh gates?") is **answered with measured numbers**: **both DPW5 committee levels FAIL both hard mesh gates.** **L2.C:** max non-orthogonality **89.7374** (gate 70.0), max skewness **15.1516** (gate 4.0). **L3.M:** non-orth **89.7454**, skewness **17.4801**. `screen_clears_hard_gates=false` on both; confirmed against the raw `checkMesh` logs. The `RUNG2-GRID-ACQ` fetch completed clean — **rc=0**, **2.4833 core-min of the 30.0 cap** (`STATUS.RUNG2_GRID_ACQUISITION`, confirmed at source by this lane).
+
+**THE BINDING GROUND MOVES.** Board 67's §15 ruling made ground **(iii) [absent refinement triple]** the binding constraint; that ground is now **CLOSED** — the hex refinement triple physically exists on box: **L1.T 638,976 → L2.C 2,156,544 → L3.M 5,111,808 cells.** But ground **(i) [mesh quality]** now **BINDS with measured numbers across ALL THREE levels.** **A credential validated-force GCI stays `BLOCKED`** — a validated force carries the grid's discretisation error directly (no second model to cancel it), so R12's model-form-banding exemption never reaches it. **This CORRECTS the earlier framing that treated the missing triple as the binding constraint:** acquiring the triple was necessary but not sufficient; the mesh gates were always going to bind once the triple existed. **A model-form band under R12 remains lawful as a DIFFERENT deliverable** (not a relabelling of Rung 2 (a)), registered as such with the failing gate number beside it.
+
+**Rule-12 calibration row filed** (this lane's second task): `docs/COST_CALIBRATION.md`, **est 8.0 vs actual 2.4833 core-min, ratio 0.31×**, favourable MISPREDICTION — the convert step was priced fearing super-linear serial-python at ~5M cells; actual convert was 105 s total (1.75 core-min for both levels), near-linear. Landed via `append_record.py --allocate-id` (dry-run VERDICT OK), private-index protocol, single-file post-commit verify.
+
+### 2. R2-M2 RE-AFFIRMED READY-TO-PLACE — SUPERVISOR CHECKS 1 AND 4 TAKEN PERSONALLY THIS SESSION — `VERIFY`
+
+`R2-M2` (the compressible-admission fix) was **re-affirmed this session by the supervisor personally, checks 1 AND 4, undelegated:** driver+grader read as diffs; **both selftests re-run and fire fully** (grader **15/15 rc0**, driver window **5/5 rc0**); on-disk **driver sha256 `b336575b...`** and **grader sha256 `7f8089d8...`** both match the pinned values and the committed blobs; **pre-reg v1.2 AUTHORISED (`f76948410`)**; run root **ABSENT**; queue row **STAGED not placed** (`cases/committee-grids/QUEUE_ROW_R2M2_READY_NOT_PLACED.json`). **Board 68's "not freeze-ready" is STALE; board 69 is correct.**
+
+**Remaining step: CHIEF PLACEMENT** (14 ranks, cap 12.0 core-min). **The board-69 oversubscription caveat has CLEARED** — load now **0.70/16**. Recommended placer outer backstop: `timeout --signal=TERM --kill-after=120 155`. A `PASS` clears **M6SR Blocker 1 only** (B5a relaunch) and **moves NO CRM number.** ⚠ **GRADE-TIME NOTE:** the grader carries **no self-hash**; whoever grades must hash `grade_r2_m2.py` against `7f8089d8...` before believing output (rule 2).
+
+### 3. §2ay SUCCESSORS F27 AND DMR R3 — CHECK 4 TAKEN, BOTH PASS, AUTHORISED — `VERIFY`
+
+Supervisor **check 4 taken this session; both PASS; both AUTHORISED.** Freeze commits **dispatched to a sibling lane** — cite their shas as VERIFY / **freeze-in-flight**.
+- **F27:** state-(b), **numerics change** (nNonOrthogonalCorrectors 1→3, corrected→limited 0.5, Gauss linear→cellLimited); **bands HELD EXACTLY from the frozen parent**; frozen `grade_f27.py`; **est 372 / cap 500** core-min.
+- **DMR R3:** state-(b), **fresh self-contained R1′/R2′/R3′ family** (the parent names any scheme/maxCo difference a disqualifier); **Gate V′ tolerance identical ≤ 0.0231**; honest caveat — **Minmod may still `GATE FAIL` on accuracy**; **est 37 / cap 60** core-min.
+
+### 4. §2ay CENSUS FLAGS — `VERIFY`
+
+**ZERO cfd state-(a) capability gaps.** **4 state-(b) standing violations** (F12, F27, F6c, DMR R3), all now carrying successors: **F27 and DMR R3 authorised this session**; **F12** needs a grading-path defect repair; **F6c** needs a NEW grader the supervisor must check-1. **F25 was a census FALSE POSITIVE, corrected to `PASS`.**
+
+### 5. m0 BOX-WIDE-KILL SCOPE PETITION — COMPLETE, ROUTE-READY — `VERIFY`
+
+`cases/committee-grids/M0_KILL_SCOPE_PETITION.md` (`d9746aed`): **COMPLETE.** Frozen `run_r2_m0.sh` **UNTOUCHED** (still carries the box-wide `pkill` at `:83,85`), **NOT FILED** marked, **Sanaa option-1 approved (`476f2f27`).** **Route-ready to verification for its §2d.1 ruling — on the chief's desk to route.**
+
+### 6. LIVE / DESK / BLOCKED — `VERIFY`
+
+**LIVE:** no cfd solvers, box idle (load 0.70/16).
+**ON SANAA'S DESK / BLOCKED:** `R2-M2` awaiting **chief placement**; the m0 petition awaiting **verification ruling**; **F1** and **F5a-G2** reference-access blocks; **F5a gap 2** (Cl_rms comparator); **F28G H5B** check-4-passed-but-unfrozen; **F24** `grade_f24.py` worktree/frozen divergence.
+
+**COST: 0.000 solver core-minutes** for this board write — the calibration row's 2.4833 core-min is charged to `RUNG2-GRID-ACQ`, not here. **SUBMISSIONS PARKED.**
+
+---
+
 <!-- BOARD-BLOCK-ID: 69-R2M2-AUTH-CRM-FETCH -->
 
 **Section last written:** 2026-09-07T04:08:05Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-NINTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` with HEAD captured ONCE inside the same shell invocation and written back in it; the seven-heading `^## ` inventory asserted unchanged **as an ordered list, not as a count**, deletions anywhere asserted `== 0`, the marker-set delta asserted to be **exactly `{69-R2M2-AUTH-CRM-FETCH}` and nothing else**, this block asserted to contain **exactly one block-id string — its own**, and pure insertion **proved** by carving this span back out of the post-splice text and reproducing the base blob **byte-for-byte**, on both sides of the splice and again after the commit from the committed blob. ⚠ **Prior boards are named in prose only — board 68, board 67 — and never in their full comment form**, per the hygiene rule board 60 set at its foot. **The worktree copy was compared to the HEAD blob by sha256 before the splice and was BYTE-IDENTICAL.** ⚠ **`git status --porcelain` was NOT used as the applied/not-applied check** — it compares against the INDEX; sha256 of the worktree against `git show HEAD:<path>` is the form used here.
