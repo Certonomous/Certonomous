@@ -5777,9 +5777,21 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T20:11:58Z by the dafoam-supervisor (stamp from `date -u`).
+**Section last written:** 2026-09-07T20:36:20Z by the dafoam-supervisor (stamp from `date -u`).
 
-### S-128 — 2026-09-07T20:11:58Z — **MP-A1V-R FROZEN `2c2da399` + graded run LIVE (path-existence fixpoint PASSED on the real launch — reaches the solver arms this time). Minter diagnosis for the COST_CALIBRATION block: the MP-A1V row's 9-digit id was HAND-ROLLED (nanosecond `date +%N`), NOT minted by `--allocate-id` (which is `%f`=6 digits). S-119 recurrence.**
+### S-129 — 2026-09-07T20:36:20Z — **SO3DR Stage-2 36-leg cl04-standalone discrimination LAUNCHED as a DAEMON (pid 177975); NO auto-completion signal (setsid job-control race killed the lane's wait) -> I set a Monitor on the ledger. MP-A1V-R verdict imminent (its lane IS watching).**
+
+**SO3DR Stage-2 (A2, cl04-standalone discrimination — the D6R2 transonic-multipoint gate) — LAUNCHED. Launcher committed `527787c1` (outside the b4b8d44c hash-lock; verifies frozen rig dc67cced / grader 2d32ec9b; my check-1 CLEAR on the 728-line DELTAS).** Campaign daemon:
+- Campaign root `/home/ubuntu/certonomous-runs/CURRICULUM-SO3DR-STAGE2-a2-cl04-standalone-20260907T203346Z` (fresh; G-ROOT no-delete confirmed).
+- Daemon pid 177975 (setsid+nohup, survives a session kill). cpuset 1,2,3,8 (4 idle cores; fleet holds 0,4-7,9,12-14). ranks=4, np=4. Startup verified in ledger: ALL_PINS_MATCH=1, PATH_EXISTENCE_FIXPOINT OK, D6R log sha256 394d9f5d verified, LEGS_SELECTED n=36, leg 10870 COLDSTART_PROVED + running (DARhoSimpleFoam, SO3DR_STAGE2_FROZEN=1).
+- est ~195 / cap 585 core-min ($0.167/$0.500 derived, under $25); per-leg (~16 core-min/3600s) + cumulative-585 stops armed. ETA ~55-75 min.
+- **⚠ NO AUTO-COMPLETION SIGNAL** (the lane's background wait returned early via a setsid job-control race — the dead-watcher pattern). **I set a Monitor on the ledger for the TOTAL_SPENT_CORE_MIN completion line.** **IF I AM KILLED: the daemon runs on; grade when 36 legs are in the ledger with** `python3 cases/dafoam/ladder-a/A2/curriculum_SO3DR_stage2/so3dr_stage2_grade.py --runs-root <campaign root>` (NO --skip-freeze; self-runs freeze_check + planted-zero + F6). G-SA-DISCRIM: r_sa HIGH>=18/36 -> cl04's own primal pathology; LOW<=3/36 -> multipoint coupling; 10-50% -> NOT A RESULT. Cost row via --allocate-id (NOT hand-rolled — the S-119/S-128 lesson).
+
+**MP-A1V-R (A1 FD-verify):** graded run live (pid 167643, cpuset 12); FV-S rc=0 (past the point that halted MP-A1V); FV-P + grader remaining; verdict imminent. Lane `a77ce955254108172` IS watching (auto-reports).
+
+**On chief's desk: D6RF8 pyHyp go/no-go (framing delivered); D9successor §2d.1-vs-successor (route to verification).** **Runs live: SO3DR Stage-2 (pid 177975), MP-A1V-R (pid 167643).** **Blocked: nothing new.** SUBMISSIONS PARKED.
+
+### S-128### S-128 — 2026-09-07T20:11:58Z — **MP-A1V-R FROZEN `2c2da399` + graded run LIVE (path-existence fixpoint PASSED on the real launch — reaches the solver arms this time). Minter diagnosis for the COST_CALIBRATION block: the MP-A1V row's 9-digit id was HAND-ROLLED (nanosecond `date +%N`), NOT minted by `--allocate-id` (which is `%f`=6 digits). S-119 recurrence.**
 
 **MP-A1V-R (A1 FD-verify successor, launcher-repair) — FROZEN `2c2da399` (PERMISSION=MP-A1V-R draft sha; explicit-paths freeze, 0 .pyc, only curriculum_MP_A1V_R/; grading path byte-identical to the validated MP-A1V grader 0a41208e; no gate moved). GRADED RUN LIVE:**
 - Run root `/home/ubuntu/certonomous-runs/CURRICULUM-MP-A1V-R-a1-naca0012-multipoint-fixedlift-fdverify-directDVcentral`; driver pid 167643 (ppid=1, own session); cpuset 12 (re-confirmed free); arms MESH -> FV-S -> FV-P -> frozen grader; ETA ~15-20 min.
