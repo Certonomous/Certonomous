@@ -757,3 +757,53 @@ freeze cannot leave a second stale one; (c) `freeze_check` re-hashes every FROZE
 the committed blob, so any post-authoring edit is caught at grading.
 
 **SUBMISSIONS PARKED. Freeze NOT taken.**
+
+## 12. AMENDMENT — 2026-09-07, RULE-2 PRE-COMPUTE REBASE OF `REGISTERED_BASE` (lab-lane)
+
+**Nature: CLAUDE.md rule-2 PRE-COMPUTE amendment.** D6RF5 carries **zero solver compute** — no
+solve has run for this item. This amendment corrects a **config run-root path only**; it changes
+**no gate, threshold, band, cap, deadline, label or instrument logic**, and it does **not re-open
+the freeze's gates** (§3 gates and the §11 instrument set are untouched). Pure append: nothing above
+this section is struck, edited or renumbered. `lines whose number changed above this section: 0`.
+
+**CONDITION (the defect).** `REGISTERED_BASE` — the RUN ROOT into which D6RF5 stages and writes —
+still pointed at the **parent D6RF4 occupied run root**
+`/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe`, at both
+`d6rf5_stage_root.sh:88` and `d6rf5_run_arm.sh:81` (rename omission carried from the D6RF4-derived
+instruments). That parent root's `ledger.txt` carries `ITEM=D6RF4`, so the stager's G-ROOT
+foreign-item guard aborted **rc=43** ("carries another item: ITEM=D6RF4. Nothing is written into
+another item's run root.") **before writing anything** — the launcher was never reached. The
+D6RF5-owned run root `CURRICULUM-D6RF5-a2-wing-convergence-probe` **did not exist** at the time this
+condition was identified (the rc=43 abort proves nothing could be written to it), consistent with the
+rule-2 requirement that a pre-compute amendment name a run directory that does not exist.
+
+**HOW CHECKED.** (1) Ran `d6rf5_stage_root.sh` against the real registered base and observed the
+**rc=43** foreign-item abort with the exact `ITEM=D6RF4` line — recorded in `D6RF5_ROOT_STAGING.txt`
+(abort at utc `20260907T145453Z`). (2) Audited **every** run-root path reference across the stager,
+launcher and grader: the **only** stale run-root reference was `REGISTERED_BASE` at the two lines
+above. All other paths are correct **source** roots that must NOT change — `D6R_ROOT`
+(`CURRICULUM-D6R-a2-wing-multipoint`, launcher :185/:618 and the G-ROOT.2a guard :195-196),
+`D4_ROOT`/`D4_BASE_SRC` (`CURRICULUM-D4-a2-wing-cdmin`, launcher :186, stager :94), grader
+`D4_OPT_IPOPT` :219 and `CDLOG_SOURCE` :290 — and the residual `*_from_d6rf4.diff` / `_D6RF4_ORIGINAL`
+fvSchemes-lineage artifacts and the PREREGISTRATION prose citing the parent's log are **provenance,
+not run roots**, and are left as-is.
+
+**THE FIX.** `REGISTERED_BASE` rebased at both sites to the D6RF5-owned run root
+`/home/ubuntu/certonomous-runs/CURRICULUM-D6RF5-a2-wing-convergence-probe`. Two lines changed, one per
+file; `git diff HEAD` on each file shows only that line. The stager's G-ROOT guard confirms this is
+the intended design: it forbids `ITEM != D6RF5` and writes `ITEM=D6RF5` only into a fresh root it
+stages from `D4_BASE_SRC`.
+
+**POST-FIX CONTAINER-TEST (the test §11.3 recorded as still owed — against the REAL base, no BASE
+override).** `d6rf5_stage_root.sh` now stages a **fresh** root from `D4_BASE_SRC`, passes all guards
+(the foreign-item guard no longer fires — the fresh root's ledger gets `ITEM=D6RF5`), and prints
+`D6RF5_STAGE_ROOT COMPLETE base=…/CURRICULUM-D6RF5-a2-wing-convergence-probe staged_now=yes
+instruments=10 mode=777 utc=20260907T150224Z` at **exit 0**. This supersedes the §11.3 honest caveat
+("NOT container-tested"). Staging copies files into a fresh root; **it is not compute and runs no
+solve**, so it produces no gate-relevant datum and D6RF5's zero-compute status stands.
+
+**NOT re-opened, NOT launched.** `PERMISSION` is untouched by this amendment (the re-freeze to the fix
+commit is the dafoam-supervisor's act after the non-delegable check-1 read of these deltas), and
+`d6rf5_run_arm.sh` was **not** launched.
+
+**SUBMISSIONS PARKED. Freeze gates NOT re-opened.**

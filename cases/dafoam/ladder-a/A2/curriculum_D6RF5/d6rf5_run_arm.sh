@@ -78,7 +78,7 @@
 set -uo pipefail
 
 ITEM=D6RF5
-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe
+REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF5-a2-wing-convergence-probe
 BASE="${BASE:-$REGISTERED_BASE}"
 # ============================ G-FREEZE ====================================
 # `CLAUDE.md` rule 2 puts the freeze BEFORE any compute, and the freeze is the

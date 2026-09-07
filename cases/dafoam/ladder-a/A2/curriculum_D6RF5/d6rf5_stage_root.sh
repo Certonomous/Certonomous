@@ -85,7 +85,7 @@ set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ITEM=D6RF5
 ARM=P_conv
-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe
+REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF5-a2-wing-convergence-probe
 # `BASE` is overridable ONLY so d6rf5_stage_root_control.py can drive this file
 # against a sandbox root.  `d6rf5_run_arm.sh:82` takes the override the same
 # way, so the control drives the launcher's assertions against the same root
