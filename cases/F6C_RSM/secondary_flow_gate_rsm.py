@@ -61,9 +61,24 @@ PLANT = 1.234e-03
 # Fixed verdict vocabulary -- the ONLY strings this grader emits as a verdict.
 VERDICTS = {"PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"}
 
-# Fields a completed incompressible RSM run must carry at endTime. U is the
-# graded field; p and the transported stresses witness that the RSM actually ran.
-REQUIRED_FIELDS_MIN = ("U", "p")
+def required_fields(model: str) -> tuple[str, ...]:
+    """Fields a COMPLETED incompressible RSM run must carry at endTime.
+
+    U is the graded field; p, R and epsilon WITNESS that the RSM model was
+    actually active. R is the six-component symmetric Reynolds-stress tensor an
+    RSM transports directly -- a linear eddy-viscosity run (kOmegaSST, the parent
+    model) writes k/omega and NO R, so requiring R makes completion refuse a run
+    where the kOmegaSST -> SSG/EBRSM model change did not take. EBRSM additionally
+    transports the elliptic-blending scalar f.
+
+    Provenance: F6C_RSM_SUCCESSOR_PREREGISTRATION.md section 3, items 1 and 3
+    ("R, epsilon, and for EBRSM the elliptic-blending f"; "the fields the RSM
+    actually transports: U, p, epsilon, the six R components, f"). Confirmed
+    against the D5 solver field set: verification/runs/D5_rsm_runs/SSG/<endTime>/
+    holds {U,p,R,epsilon} and .../EBRSM/<endTime>/ additionally holds f.
+    """
+    base = ("U", "p", "R", "epsilon")
+    return base + ("f",) if model == "EBRSM" else base
 
 
 class ControlRefused(Exception):
@@ -203,7 +218,8 @@ def read_end_time(case_dir: str) -> float:
     return float(m.group(1))
 
 
-def check_completion(case_dir: str, time: str, log_path: str | None) -> list[str]:
+def check_completion(case_dir: str, time: str, log_path: str | None,
+                     model: str) -> list[str]:
     """Return a list of completion failures (empty == run is done). Absent log or
     absent controlDict REFUSE (exit 2); other failures are returned so the caller
     can mark the run NOT A RESULT."""
@@ -224,9 +240,10 @@ def check_completion(case_dir: str, time: str, log_path: str | None) -> list[str
     # required fields present at the graded time
     proc0 = sorted(glob.glob(os.path.join(case_dir, "processor0")))
     field_root = os.path.join(proc0[0], time) if proc0 else os.path.join(case_dir, time)
-    for f in REQUIRED_FIELDS_MIN:
+    for f in required_fields(model):
         if not os.path.isfile(os.path.join(field_root, f)):
-            fails.append(f"required field {f} absent at {field_root}")
+            fails.append(f"required field {f} absent at {field_root} "
+                         f"(RSM model witness; kOmegaSST would not write it)")
     # age guard: the graded U must be NEWER than the case's own 0/U (touched last
     # at launch, so it dates the run that produced the answer).
     zero_U = os.path.join(case_dir, "0", "U")
@@ -261,7 +278,7 @@ def grade_case(case_dir: str, time: str, case_key: str, model: str,
     dns_pct = DNS_PCT_UBULK[case_key]
 
     # (1) completion first -- an incomplete run is not graded
-    fails = check_completion(case_dir, time, log_path)
+    fails = check_completion(case_dir, time, log_path, model)
     if fails:
         return {"case": case_key, "model": model, "verdict": "NOT A RESULT",
                 "reason": "; ".join(fails)}
@@ -345,11 +362,55 @@ def selftest() -> int:
         print(f"[selftest] band: {pct:.4f} %% -> {got} (expected {want}) [{tag}]")
         if got != want:
             return 1
-    # every emitted verdict is from the fixed vocabulary
-    assert {"PASS", "GATE FAIL", "NOT A RESULT"} <= VERDICTS  # structural, kept
+    # every emitted verdict is from the fixed vocabulary (explicit check, not a
+    # bare assert -- asserts vanish under -O, which this file refuses to rely on)
+    if not {"PASS", "GATE FAIL", "NOT A RESULT"} <= VERDICTS:
+        print("[selftest] FAIL: emitted verdicts are not a subset of the fixed "
+              "verdict vocabulary")
+        return 1
+
+    # (d) RSM MODEL WITNESS: completion must refuse a run that carries no
+    #     Reynolds-stress field R -- the kOmegaSST -> SSG/EBRSM model change did
+    #     not take. Build a temp case whose endTime holds U/p/epsilon but NO R.
+    for model, extra in (("SSG", []), ("EBRSM", ["f"])):
+        want = required_fields(model)
+        if "R" not in want or "epsilon" not in want:
+            print(f"[selftest] FAIL: {model} required fields {want} miss R/epsilon")
+            return 1
+    with tempfile.TemporaryDirectory() as td:
+        os.makedirs(os.path.join(td, "system"))
+        os.makedirs(os.path.join(td, "0"))
+        os.makedirs(os.path.join(td, "1000"))
+        with open(os.path.join(td, "system", "controlDict"), "w") as fh:
+            fh.write("endTime 1000;\n")
+        open(os.path.join(td, "0", "U"), "w").close()
+        log = os.path.join(td, "log.run")
+        with open(log, "w") as fh:
+            fh.write("... solving ...\nEnd\n")
+        # endTime carries U, p, epsilon but NOT R; make them newer than 0/U
+        for f in ("U", "p", "epsilon"):
+            open(os.path.join(td, "1000", f), "w").close()
+        os.utime(os.path.join(td, "0", "U"), (1, 1))
+        fails_noR = check_completion(td, "1000", log, "SSG")
+        if not any("required field R absent" in f for f in fails_noR):
+            print(f"[selftest] FAIL: an R-less SSG run was NOT refused -- the "
+                  f"model witness has no teeth. fails={fails_noR}")
+            return 1
+        print("[selftest] RSM WITNESS FIRED: an SSG run missing R -> NOT A RESULT "
+              f"({[f for f in fails_noR if 'field R' in f][0]})")
+        # now add R (and f is only required for EBRSM): the R-absence must clear
+        open(os.path.join(td, "1000", "R"), "w").close()
+        fails_R = check_completion(td, "1000", log, "SSG")
+        if any("required field R absent" in f for f in fails_R):
+            print(f"[selftest] FAIL: R present but still flagged absent: {fails_R}")
+            return 1
+        print("[selftest] RSM WITNESS CLEARS: with R written, the SSG completion "
+              "no longer flags a missing stress field")
+
     print("[selftest] SELFTEST PASS: two-sided planted control has teeth "
-          "(SEEN passes, blind reader REFUSED); band grader maps to the fixed "
-          "verdict vocabulary.")
+          "(SEEN passes, blind reader REFUSED); RSM model witness R refuses a "
+          "run that did not transport the Reynolds stresses; band grader maps to "
+          "the fixed verdict vocabulary.")
     return 0
 
 
