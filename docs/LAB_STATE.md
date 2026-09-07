@@ -27833,6 +27833,58 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 69-R2M2-AUTH-CRM-FETCH -->
+
+**Section last written:** 2026-09-07T04:08:05Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-NINTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` with HEAD captured ONCE inside the same shell invocation and written back in it; the seven-heading `^## ` inventory asserted unchanged **as an ordered list, not as a count**, deletions anywhere asserted `== 0`, the marker-set delta asserted to be **exactly `{69-R2M2-AUTH-CRM-FETCH}` and nothing else**, this block asserted to contain **exactly one block-id string — its own**, and pure insertion **proved** by carving this span back out of the post-splice text and reproducing the base blob **byte-for-byte**, on both sides of the splice and again after the commit from the committed blob. ⚠ **Prior boards are named in prose only — board 68, board 67 — and never in their full comment form**, per the hygiene rule board 60 set at its foot. **The worktree copy was compared to the HEAD blob by sha256 before the splice and was BYTE-IDENTICAL.** ⚠ **`git status --porcelain` was NOT used as the applied/not-applied check** — it compares against the INDEX; sha256 of the worktree against `git show HEAD:<path>` is the form used here.
+
+**CHAIN OF CUSTODY.** This lane's single task was the board write. **First-hand by this lane in this session:** the splice-hygiene facts in the paragraph above — the ordered heading inventory, the marker-set delta, the exactly-one-marker property, the byte-for-byte pure-insertion proof, the worktree/HEAD sha256 comparison, the `date -u` stamp and the commit sha. **Everything else below is RELAYED from the cfd supervisor and carries `VERIFY`** — every solver verdict, timestamp, sha, line number, core-minute figure and ruling. No queue directory, driver, pre-registration, solver log, comparator, calibration row, petition or charter was opened by this lane; each is boarded on the supervisor's authority, not on a reading taken here. A relayed claim is not upgraded to first-hand. **Where this block conflicts with anything below it in this section, this block wins.**
+
+---
+
+### 1. 🟢 THE HEADLINE: THE R2-M2 COMPRESSIBLE-ADMISSION FIX IS AUTHORISED AND ITS LAUNCH ROW IS STAGED READY-NOT-PLACED — `VERIFY`
+
+`R2-M2` passed **supervisor check 1 AND supervisor check 4** and its 14-rank launch row is **STAGED READY-NOT-PLACED** (`cases/committee-grids/QUEUE_ROW_R2M2_READY_NOT_PLACED.json`, commit `8968b4c4`). The critical path to Sanaa's first-physics **M6 surface-Cp deliverable is one chief placement away.** The directed **CRM grid acquisition** (Sanaa 2026-09-06T2115Z) is **LAUNCHING** as a 1-rank detached fetch of DPW5 **L2.C / L3.M** to build the refinement triple for the Rung-2 GCI. The **§2ay enforcement census** is done: cfd has **ZERO genuine OpenFOAM capability gaps**; **4 genuine standing violations** now carry drafted fix-successors; **F25 was a census FALSE POSITIVE, corrected to `PASS`.**
+
+### 2. COMMITS THIS SESSION — `VERIFY`
+
+- `ed30afdb` — CRM grid acquisition pre-registration drafted (`RUNG2-GRID-ACQ`, the directed refinement-triple fetch).
+- `721ecc7e` — grid-acq v1.1 **AUTHORISED** (supervisor check 4 GO) + `grade_grid_acq.py` committed (grader blob `40effb60`, sha256 `8a4ed26b...e409fdb`; supervisor check 1 `PASS`).
+- `1db0ec5d` — `fetch_and_screen_grids.sh` cap-enforced runner (supervisor check 1 `PASS`).
+- `fbd34d15` — `R2-M2` registration reconciled: driver+grader (from `a2996ed0`) committed WITH the registration so the grading path is fixed at the pre-reg commit; grader sha256 `7f8089d8...f9c089` pinned.
+- `f7694841` — `R2-M2` v1.2 **AUTHORISED** (supervisor check 1 + check 4 both `PASS`); no gate/threshold/cap/label/grader-sha altered.
+- `8968b4c4` — `R2-M2` launch row **STAGED READY-NOT-PLACED**.
+- `3e38c3d0` — F6c fix-successor **DRAFT** (change the model: kOmegaSST → SSG/EBRSM; band ±20% DNS; est 366.5 / cap 550 core-min).
+- `d0449461` — F27 fix-successor **DRAFT** (change the numerics: nNonOrthogonalCorrectors 1→3, limited schemes; bands held EXACTLY; est 372 / cap 500).
+- `0bc79c56` — F12 fix-successor **DRAFT** (change the mesh: max non-orth ≤65° all levels; gates held; est 234 / cap 360).
+- `8be98034` — DMR R3 fix-successor **DRAFT** (change the numerics: vanLeer→Minmod, maxCo 0.2→0.1, new self-contained 3-level family; Gate V′ identical; est 37 / cap 60).
+
+### 3. SUPERVISOR CHECK VERDICTS — `VERIFY`
+
+**grid-acq** check 4 **GO**. **`grade_grid_acq.py`** check 1 `PASS` (fixed LEVELS population, L-144 title-page refusals, numeric screen with verdict line discarded per L-459, absent-log refuses, AST assert-freedom; the Refusal-type bug the lane found is fixed at lines 104-107, C4 catches it). **`fetch_and_screen_grids.sh`** check 1 `PASS` (structural cap via `remaining()`+timeout per step, rule 12; rc inside per L-382; title-page-first discards bad grids before convert; imports the frozen grader unmodified; `pgrep -x` exact-name fix). **`R2-M2`**: driver+grader read as diffs — `set_run_window` rewrites endTime+writeInterval **together** with on-disk verification, `check_write_window` per-arm guard, binary-safe warm-start guard (fixes the M0 crash), `pkill` scoped to `-case $ROOT` (NOT the m0 box-wide defect), rc inside wrapper; grader selftest **15/15** with the field-at-endTime plant firing in the **refusing** direction on M1's real B1 arm.
+
+### 4. R2-M0 / R2-M1 STATUS — BOTH GRADED, NO SOLVER LIVE — `VERIFY`
+
+**`R2-M0` `GATE FAIL`** (3 of 4 remedies refuted; A3 warm-start UNTESTED — a post-map guard read a binary field in TEXT mode and crashed, L-496; `R2-G0` `PASS`, `R2-G2` `NOT A RESULT`). **`R2-M1` `GATE FAIL`** but the **FINDING:** B1 warm start **STOPPED the SIGFPE** — rc=0, End, ran clean to Time=50, zero SIGFPE, first arm to survive — but **NO endTime snapshot landed** (coupled-setting defect: endTime rewritten without writeInterval; seed writeInterval 120 > 50 steps under purgeWrite 1), so `G4` `GATE FAIL`. **The block is now a MISSING WRITE, not a crash.** `R2-M1` calibration: est 5.27 → actual 13.45 core-min, ratio **2.55×** (MISPREDICTION-informative: the full 50 steps IS the warm start working). **`R2-M2` is the fix.**
+
+### 5. §2ay CENSUS — FIX-UNTIL-RUNS ENFORCEMENT — `VERIFY`
+
+**ZERO cfd fails meet the state-(a) capability-gap bar** — every landed fail has an our-side recoverable cause. **4 GENUINE STANDING VIOLATIONS**, each now carrying a drafted successor (§2 above): **F12, F27, F6c, DMR R3**. **CORRECTION:** F25 was a census **FALSE POSITIVE** — it is a `PASS` on both gates (G-F25-1/G-F25-2 CONVERGING inside band, orders 1.953/1.970, f·Re Richardson-extrapolates to 56.9095 vs exact 56.9083); the census misread planted-control line `:173` as the verdict. Caught by **supervisor check 3** (a second lane re-read at source). **3 successors drafted-but-not-frozen:** F23c, `R2-M2` (now authorised), F28G_H5B. **2 reference-access blocks for Sanaa's desk:** F1 (ONERA M6 Cp — TMR η-map reference not on box; the solve itself stands) and F5a-G2 (paywalled Dong & Karniadakis).
+
+### 6. LIVE / DESK / BLOCKED / RUNGS-WITHOUT-VERDICTS — `VERIFY`
+
+**LIVE:** CRM 1-rank grid-acquisition fetch **LAUNCHING** detached (`verification/runs/RUNG2_GRID_ACQUISITION_runs`; raw ugrids → `/home/ubuntu/certonomous-runs/RUNG2_grid_acquisition/grid`; cap 30.0 core-min; pid/ETA `VERIFY`). No cfd solvers.
+**ON SANAA'S DESK:** the m0 box-wide-kill scope petition (`cases/committee-grids/M0_KILL_SCOPE_PETITION.md`, `d9746aed` — verification's to rule, option 1 approved `476f2f27`); F1 and F5a-G2 reference-access blocks; queue-infra tooling finding (`queue_entry_check.py` does not check `launch_cmd` script-path existence); plus the standing board-68 lab-wide findings.
+**BLOCKED / STAGED:** `R2-M2` 14-rank launch awaiting **chief placement** (placer caveat: loadavg 13.30/16 vCPUs at 03:53Z would oversubscribe 14 ranks — re-measure before placing). The 4 §2ay successor freezes staged behind the critical path: F27 and DMR R3 need only supervisor check-4 read; F12 needs a grading-path defect repair (stale line citation + aspect-ratio parse) plus the secondary-reference P ruling; F6c needs a NEW grader (`secondary_flow_gate.py` gone from disk) which the supervisor must check-1. M6SR B5a relaunch gated on `R2-M2` producing a strictly-complete admitted arm. Rung 2 (a) credential force on ground (i)/(iii); the CRM fetch converts ground (iii) into a measurement.
+**RUNGS WITHOUT VERDICTS:** `R2-M2` (authorised, unrun); `RUNG2-GRID-ACQ` (launching); F6c / F27 / F12 / DMR-R3 successors (drafted, unfrozen).
+
+### 7. NEXT ACTIONS — `VERIFY`
+
+Place `R2-M2` row when load permits (chief); read CRM fetch birth certificates + file the calibration row; supervisor check-4 the 4 successor drafts (F27 / DMR R3 first); build + check-1 the F6c grader; repair the F12 grading-path defect.
+
+**COST: 0.000 solver core-minutes** for this board write — no compute, no calibration row owed. **SUBMISSIONS PARKED.**
+
+---
+
 <!-- BOARD-BLOCK-ID: 68-R2-ARC -->
 
 **Section last written:** 2026-09-06T23:02:59Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-EIGHTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` with HEAD captured ONCE inside the same shell invocation and written back in it; the seven-heading `^## ` inventory asserted unchanged **as an ordered list, not as a count**, deletions anywhere asserted `== 0`, the marker-set delta asserted to be **exactly `{68-R2-ARC}` and nothing else**, this block asserted to contain **exactly one block-id string — its own**, and pure insertion **proved** by carving this span back out of the post-splice text and reproducing the base blob **byte-for-byte**, on both sides of the splice and again after the commit from the committed blob. ⚠ **Prior boards are named in prose only — board 67, board 66, board 60 — and never in their full comment form**, per the hygiene rule board 60 set at its foot. **The worktree copy was compared to the HEAD blob by sha256 before the splice and was BYTE-IDENTICAL.** ⚠ **`git status --porcelain` was NOT used as the applied/not-applied check** — it compares against the INDEX; sha256 of the worktree against `git show HEAD:<path>` is the form used here.
