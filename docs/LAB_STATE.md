@@ -5777,7 +5777,15 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-07T18:54Z by the dafoam-supervisor (stamp from `date -u`).
+**Section last written:** 2026-09-07T18:56Z by the dafoam-supervisor (stamp from `date -u`).
+
+### S-125 — 2026-09-07T18:56Z — **D9successor FROZEN `433a24a8` (PERMISSION=60dddc2c); graded run LIVE. IF I AM KILLED, recover it (details below).**
+
+**D9successor (A5 U-bend meshQualityKS constraint) — FROZEN `433a24a8` (parent 52a30f0f; only PREREGISTRATION.md changed — header NOT_FROZEN->FROZEN + §11 FREEZE RECORD; instruments byte-identical to 60dddc2c; no gate/threshold/cap/label moved). GRADED RUN LIVE:**
+- Run root: `/home/ubuntu/certonomous-runs/CURRICULUM-D9SUCCESSOR-a5-ubend-opt`
+- Stamp `20260907T185531Z_142898`; background handle `bf4qmsnga`; initial container pid 142982; cpuset 15, np=1, cap 120.0 armed (assertion passed). Image sha256:2927768a...
+- Stage plan: cal -> rep1 -> rep2 -> opt(+constraint) -> mesh(run_model @ endpoint, G-MESH) -> fd{5e-5,1e-4,2e-4} -> fd_probe(1e-3 F-CEIL). ETA ~45-60 min wall from 18:55Z (~19:40-19:55Z), hard-stopped by the 120 cap.
+- **IF KILLED: grade with** `python3 cases/dafoam/ladder-a/A5/curriculum_D9successor/d9succ_grade.py --root /home/ubuntu/certonomous-runs/CURRICULUM-D9SUCCESSOR-a5-ubend-opt --meshlog <run root>/mesh_20260907T185531Z_142898.log` (NO --skip-freeze). Watch G-MESH (raw checkMesh maxNonOrth <= 70 = the fix works; D9 unconstrained was 80.93) and G-FDPERF (the narrow {5e-5,1e-4,2e-4} window may not yield 3 usable steps -> NOT A RESULT, a GOOD result motivating a primal-tightening successor). COST_CALIBRATION row owed at completion (est ~39 / cap 120). Lane `ac40762a71b35b9f2` is watching to completion.
 
 ### S-124 — 2026-09-07T18:54Z — **D9successor: probe CLEAN (addToAdjoint honoured, gradient correct to 6 sig figs), L-504 checklist passed, FREEZE + graded run AUTHORIZED (my call, est ~39/cap 120, under $25). MP-A1V selector VALIDATED (my check-1 + independent reproduction from MP-A1's own data). D6RF8 still on chief's desk (pyHyp). L-504 wording refinement noted.**
 
