@@ -1077,3 +1077,11 @@ rung's funding basis.** T3c runs under the standing blanket and the cap above.
   verification's confirmation.
 - It does **not** claim the freeze flag on `analyse_t3c.py` is a false positive.
 - It does **not** authorise any send. **SUBMISSIONS REMAIN PARKED** (rule 7).
+
+---
+
+## AMENDMENT — 2026-09-07 — §2ay LINEAGE LINKAGE (appended at foot; a structured pointer only)
+
+**Predecessor: `T3` (explicit, for §2ay linkage).** This registration is the active, dated fix-successor to **T3**'s `NOT A RESULT` 4/4 (`docs/campaigns/T-family/T3_RESULTS.md` §14 — the ladder stopped at gate (1), iterative non-convergence): T3c **moves the rule-3 planted-zero control off the absolute last-ULP tolerance onto the relative convergence predicate three frozen T-family siblings already use, and re-runs the T3 R-ladder grading path.** Under `VERIFICATION_CHARTER.md` §2ay.2(b) this makes T3 a fail **carrying an active fix-successor**; the predecessor keeps its verdict (`§2an.2`) — this linkage discharges nothing and moves no verdict.
+
+**Lines whose number changed above this section: 0.** Appended per `CLAUDE.md` rule 6 (this file is FROZEN; a dated foot-amendment, never a body edit). No gate, threshold, band, cap, label or verdict on T3 or T3c moves; records that cite this file by line are unaffected.

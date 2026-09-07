@@ -110,3 +110,11 @@ is read by the comparator.
 the supervisor's row in `docs/COST_CALIBRATION.md`: actual core-minutes from
 `STATUS_ext1.<case>` wall seconds against the POINT above, with the gap
 attributed.
+
+---
+
+## AMENDMENT — 2026-09-07 — §2ay LINEAGE LINKAGE (appended at foot; a structured pointer only)
+
+**Predecessor: `T1b-L4` (explicit, for §2ay linkage).** This registration is the active, dated fix-successor to the **T1b-L4** `NOT A RESULT` ×4 (the fourth-level x cases that failed iterative convergence at their registered `endTime`; grade ruling `docs/campaigns/T-family/T1b_L4_GRADE_RULING_2026-08-25.md`): T1b-L4-EXT2 **raises `endTime` for the three non-converged x cases (`R_10k_x`, `R_100k_x`, `R_300k_x`) under the already-frozen extension protocol and re-runs** (`R_30k_x` converged and is not extended). Under `VERIFICATION_CHARTER.md` §2ay.2(b) this makes T1b-L4 a fail **carrying an active fix-successor**; the predecessor keeps its verdict (`§2an.2`) — this linkage moves no verdict, and this continuation creates no gate, threshold, band or label (all frozen in `T1b_L4_AMENDMENT.md`).
+
+**Lines whose number changed above this section: 0.** Appended per `CLAUDE.md` rule 6 (a dated foot-amendment, never a body edit; every gate, threshold, band and label is already frozen elsewhere and untouched here). Records that cite this file by line are unaffected.

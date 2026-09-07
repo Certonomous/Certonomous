@@ -134,3 +134,11 @@ Case inputs for `W1b_c/m/f` (`0.orig/`, `constant/` less `polyMesh`, `system/`,
 It does not reopen, amend or re-grade T9a; it does not authorise a launch
 (enqueueing is not authorisation); it does not claim a capability; it
 authorises no send — **SUBMISSIONS REMAIN PARKED** (rule 7).
+
+---
+
+## AMENDMENT — 2026-09-07 — §2ay LINEAGE LINKAGE (appended at foot; a structured pointer only)
+
+**Predecessor: `T9a` (explicit, for §2ay linkage).** This registration is the active, dated fix-successor to **T9a**'s R1 `GATE FAIL` (interface temperature, 2.41 mK against a 0.92 mK GCI band — `docs/campaigns/T-family/T9a_RESULTS.md`): T9a-R1b **changes the one line the parent named as the cause — `laplacianSchemes default Gauss linear corrected` → `Gauss harmonic corrected` — everything else the parent's freeze byte-for-byte, and re-runs on the same three wall levels.** Under `VERIFICATION_CHARTER.md` §2ay.2(b) this makes T9a's R1 fail a row **carrying an active fix-successor**; T9a keeps its verdict (`§2an.2`) and is not reopened (§8) — this linkage moves no verdict.
+
+**Lines whose number changed above this section: 0.** Appended per `CLAUDE.md` rule 6 (this file is FROZEN; a dated foot-amendment, never a body edit). No gate, threshold, band, cap, label or verdict on T9a or T9a-R1b moves; records that cite this file by line are unaffected.

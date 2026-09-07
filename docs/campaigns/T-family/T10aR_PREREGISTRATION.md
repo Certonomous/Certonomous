@@ -604,3 +604,11 @@ at every run and prints them.
    commit lane. They grade nothing. `run_chain_t10aR.sh` was written 18:51 Z,
    after the freeze and after launch — it is a queueing wrapper that chooses
    *when* cases run, never *what* is computed or how it is graded.
+
+---
+
+## AMENDMENT — 2026-09-07 — §2ay LINEAGE LINKAGE (appended at foot; a structured pointer only)
+
+**Predecessor: `T10a` (explicit, for §2ay linkage).** This registration is the active, dated fix-successor to **T10a**'s box-ceiling `GATE FAIL` (B1, 0.12463 % against a 0.07676 % GCI band — `docs/campaigns/T-family/T10a_RESULTS.md`): T10a-R **refines the box ceiling to a fourth mesh level and re-runs the enclosure-flux comparison** (directive Sanaa H-3(a)). Under `VERIFICATION_CHARTER.md` §2ay.2(b) this makes T10a's ceiling fail a row **carrying an active fix-successor**; T10a keeps its verdict (`§2an.2`) and stands closed — this linkage moves no verdict, and this arm still grades NOTHING against T10a's band (§0).
+
+**Lines whose number changed above this section: 0.** Appended per `CLAUDE.md` rule 6 (this file is FROZEN; a dated foot-amendment, never a body edit). No gate, threshold, band, cap, label or verdict on T10a or T10a-R moves; records that cite this file by line are unaffected.

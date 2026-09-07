@@ -435,3 +435,11 @@ supervisor's check 4.**
 **Freeze set, §9 row for the launcher — STRUCK, not deleted:** ~~`launch_t10aR2.sh` | `dd58c649` | `72a1cc25879787a3` | 161~~ → **`launch_t10aR2.sh` | `59fe37c1` | `602eef12be713d13` | 181; 0 `assert`; the two guard arms above driven.** Every other row of §9 is unchanged. No gate, band, interval, floor, cap, timeout or cost moves; §4's POINT 11.32 / caps 10 / 30 / 120 stand.
 
 **Status after this amendment: PRE-REGISTERED, BUILT, NOT FIRED (three zero-compute refusals on record); re-enqueued as `T10aR2_R2_{c,m,f}_v2.json` citing this amendment's commit.**
+
+---
+
+## AMENDMENT — 2026-09-07 — §2ay LINEAGE LINKAGE (appended at foot; a structured pointer only)
+
+**Predecessor: `T10a-R` (explicit, for §2ay linkage).** This registration is the active, dated fix-successor to **T10a-R**'s `GATE FAIL` (5 PASS / 4 GATE FAIL, the band-smaller-than-error pattern dying at level four — `docs/campaigns/T-family/T10aR_RESULTS.md` §6): T10aR2 **extends the box-ceiling refinement to the 2LI ladder and re-runs against T10a's registered σ_OF exact enclosure flux.** Under `VERIFICATION_CHARTER.md` §2ay.2(b) this makes T10a-R a fail **carrying an active fix-successor**; T10a-R keeps its verdict (`§2an.2`) and stands closed (§0) — this linkage moves no verdict, and this arm still grades NOTHING against T10a's band.
+
+**Lines whose number changed above this section: 0.** Appended per `CLAUDE.md` rule 6 (this file is FROZEN; a dated foot-amendment, never a body edit). No gate, threshold, band, cap, label or verdict on T10a-R or T10aR2 moves; records that cite this file by line are unaffected.
