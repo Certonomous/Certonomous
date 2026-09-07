@@ -23,6 +23,20 @@ widened, §2ay.4 intact):
     RED-2 sub-drive that cripples ONLY the lineage finder and confirms the lineage-only
     fails re-flag -- proving the new path is load-bearing (§28.8 for the new guard).
 
+RECOGNISER PASS 2026-09-07 (verification-supervisor, BOUNDED ADDITIVE, own instrument):
+CASE_ID_RE could not parse three REAL heat-transfer rung ids -- an unparsable id is a
+SILENT UNDER-FLAG (same defect class as the K0cS fix).  Two pure-recognition supersets:
+  * the T-branch grew a single-trailing-letter tail into a multi-letter tail plus an optional
+    uppercase-letter-then-digits so multi-letter rungs (T9aD, T9aH, T9a-D, T23G2) key to their
+    own id instead of falling to the unparsed channel; verified a SUPERSET (T3,T8,T1b,T1c,T10a,
+    T1b-L4,T10a-R2,T10a-VF all match identically) -- see the T-branch line in _CASE_ID_BODY;
+  * an E-family branch was ADDED (same shape, E-prefixed) for E4a and the DISTINCT sibling
+    E4a2 -- the required digit immediately after E keeps it out of "1.58e9"/"1E5"/ERCOFTAC/EnKF.
+These flow into CASE_ID_RE, CASE_ID_ANCHORED_RE (shared _CASE_ID_BODY) and the filename-first
+rule.  This ADMITS MORE ids and AUTO-CLEARS NOTHING; surfacing a hidden under-flag can RAISE
+the flagged count (the correct direction, §2ay.6).  A RED-4 sub-drive reverts the regex to the
+old narrow body and confirms T9aD/T9aH/E4a re-vanish -- proving the branches are load-bearing.
+
 WHAT IT DOES  (§2ay.2)
 ----------------------
 It ENUMERATES every landed `GATE FAIL` and `NOT A RESULT` it can read from the
@@ -183,7 +197,8 @@ _CASE_ID_BODY = (
     r"|VMFLGPU\d{3}(?:[-_][A-Za-z0-9]+)*"     # ansys GPU cases
     r"|VMFL\d{3}(?:[-_][A-Za-z0-9]+)*"        # ansys cases
     r"|K(?:\d+[a-z]*[A-Z]?|V\d+)(?:R\d+)?"     # F14/K-family rungs: K0,K0c,K0cS,K0cG,K0cT,K0cX,K2b,K2c,K2e,K0eR3,KV1 (SUPERSET of old K0[a-z]?(?:R\d+)?, pure recognition)
-    r"|T\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"        # T-family rungs (T1b, T23G2)
+    r"|T\d+[a-z]*[A-Z]?\d*(?:[-_][A-Za-z0-9]+)*"  # T-family rungs (SUPERSET of old T\d+[a-z]?: T1b,T1c,T10a,T10a-R2,T23G2 unchanged; ADDS multi-letter T9aD,T9aH,T9a-D)
+    r"|E\d+[a-z]*[A-Z]?\d*(?:[-_][A-Za-z0-9]+)*"  # heat-transfer E-family rungs (E4a, E4a2)
     r"|R\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"        # closure R-ladder
     r"|FS\d+(?:[-_][A-Za-z0-9]+)*"             # feature ladder
     r"|SO[-_]?\d+(?:[-_][A-Za-z0-9]+)*"        # dafoam super-optimisation ids (SO-3, SO3, SO3DR)
@@ -727,6 +742,17 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         # ARM (c): a dafoam matrix row (G-11) whose cited path is NOT a <CASEID>_<SUFFIX>.md
         # shape.  filename-first MUST NOT fire; MUST still key to G-11 (no-regression guard).
         "| **14** | **G-11** | **`NOT A RESULT`** | dafoam row -> cases/dafoam/ladder-a/A3/grading/RESULTS.md |\n"
+        # --- RECOGNISER-PASS rows (2026-09-07): REAL heat-transfer rung ids the OLD
+        # CASE_ID_RE could not parse.  Multi-letter T (T9aD/T9aH) and the E-family (E4a,
+        # and the DISTINCT sibling E4a2).  Each cites its OWN <CASEID>_RESULTS.md so
+        # filename-first keys it to its real id; T9aD/T9aH/E4a are each CLEARED by a
+        # Predecessor: registration (GREEN), while E4a2 gets NONE and MUST stay flagged --
+        # proving E4a's clearing does not leak onto the sibling id.  Under the OLD narrow
+        # body (RED-4) none of T9aD/T9aH/E4a can be extracted, so they VANISH.
+        f"| **15** | multi-letter T rung | **`GATE FAIL`**    | see {base.name}/T9aD_RESULTS.md |\n"
+        f"| **16** | multi-letter T rung | **`NOT A RESULT`** | see {base.name}/T9aH_RESULTS.md |\n"
+        f"| **17** | E-family rung       | **`GATE FAIL`**    | see {base.name}/E4a_RESULTS.md |\n"
+        f"| **18** | E-family sibling    | **`GATE FAIL`**    | DISTINCT from E4a; see {base.name}/E4a2_RESULTS.md |\n"
     )
 
     # LIMB 2a: a registered successor directory for FIX003
@@ -771,6 +797,24 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         "Predecessor: **K2b**\n"
         "A next attempt on the K2b rung that re-runs against the same frozen gate.\n"
     )
+    # RECOGNISER-PASS lineage (2026-09-07): Predecessor registrations that CLEAR the
+    # multi-letter-T and E-family fails once the new branches key them.  E4a2 gets NONE
+    # -- it MUST stay flagged, proving E4a's clearing does not leak onto the sibling id.
+    (cases / "T9aDx_PREREGISTRATION.md").write_text(
+        "# T9aDx pre-registration\n"
+        "Predecessor: **T9aD**\n"
+        "A next attempt on the T9aD rung that re-runs against the same frozen gate.\n"
+    )
+    (cases / "T9aHx_PREREGISTRATION.md").write_text(
+        "# T9aHx pre-registration\n"
+        "Predecessor: **T9aH**\n"
+        "A next attempt on the T9aH rung that re-runs against the same frozen gate.\n"
+    )
+    (cases / "E4ax_PREREGISTRATION.md").write_text(
+        "# E4ax pre-registration\n"
+        "Predecessor: **E4a**\n"
+        "A next attempt on the E4a rung that re-runs against the same frozen gate.\n"
+    )
     return [register], [cases, desk]
 
 
@@ -780,6 +824,7 @@ def selftest() -> int:
     mechanism-only fail flagged), 1c (dafoam-shaped ids enumerated), 2 (successor /
     discharged / gap-filing not flagged), 2d (recorded-lineage successor not flagged)."""
     global _find_lineage_successor, _authoritative_case_from_results_file
+    global CASE_ID_RE, CASE_ID_ANCHORED_RE
     print("=" * 78)
     print("PLANTED CONTROL -- §2ay.5 / rule 3.  Two limbs, RED-then-GREEN.")
     print("An enforcer whose zero has not been shown able to become non-zero is worthless.")
@@ -834,6 +879,23 @@ def selftest() -> int:
         # still key to G-11 (filename-first does not fire; existing logic governs).
         dafoam_nofire_ok = "G-11" in by_case
 
+        # RECOGNISER PASS (2026-09-07): multi-letter-T (T9aD/T9aH) and E-family (E4a) ids
+        # MUST enumerate under their REAL ids (filename-first via <CASEID>_RESULTS.md) and
+        # be CLEARED by their Predecessor: registrations.  E4a and E4a2 MUST be DISTINCT
+        # keys, and E4a's clearing MUST NOT leak onto E4a2 (E4a2 has no successor -> stays
+        # flagged).  Under the OLD narrow body (RED-4) T9aD/T9aH/E4a re-vanish.
+        newT_cases = {"T9aD", "T9aH"}
+        newT_enumerated = newT_cases <= set(by_case)
+        newT_covered = newT_cases <= covered
+        efam_enumerated = {"E4a", "E4a2"} <= set(by_case)
+        efam_distinct = (efam_enumerated
+                         and by_case["E4a"].row.case == "E4a"
+                         and by_case["E4a2"].row.case == "E4a2")
+        e4a_covered = "E4a" in covered
+        e4a2_distinct_flagged = "E4a2" in flagged   # NOT cleared by / conflated with E4a
+        recog_ok = (newT_enumerated and newT_covered and efam_enumerated
+                    and efam_distinct and e4a_covered and e4a2_distinct_flagged)
+
         print(f"\n  LIMB 1 (must flag {sorted(limb1_cases)})     : "
               f"{'GREEN' if limb1_ok else 'FAILED'}  "
               f"[mechanism WHY on FIX002: {'yes' if mech_ok else 'NO'}]")
@@ -869,6 +931,16 @@ def selftest() -> int:
                 print(f"      {c}: MISSING (row mis-keyed -- filename-first did not fire)")
         print(f"  ARM c (dafoam G-11 path is NOT results-file shape; still keys G-11): "
               f"{'GREEN' if dafoam_nofire_ok else 'FAILED'}")
+        print(f"  RECOGNISER (multi-letter T {sorted(newT_cases)} + E-family E4a/E4a2 distinct): "
+              f"{'GREEN' if recog_ok else 'FAILED'}  "
+              f"[E4a covered={e4a_covered}, E4a2 distinct+flagged={e4a2_distinct_flagged}]")
+        for c in ["T9aD", "T9aH", "E4a", "E4a2"]:
+            r = by_case.get(c)
+            if r:
+                print(f"      {c}: ENUMERATED flagged={r.flagged} state=({r.coverage.state}) "
+                      f"{r.coverage.evidence or r.coverage.why}")
+            else:
+                print(f"      {c}: MISSING (not enumerated -- new branch did not fire)")
 
         # ---------- RED: cripple the coverage-finder to always-true ----------
         # This is the blind checker §2ay.5 warns of: if the coverage-finder always
@@ -934,9 +1006,43 @@ def selftest() -> int:
         print(f"  ARMS a/b re-break with filename-first blinded: "
               f"{'YES -- the filename-first path is load-bearing' if fnfirst_red_ok else 'NO'}")
 
+        # ---------- RED-4: revert CASE_ID_RE / CASE_ID_ANCHORED_RE to the OLD NARROW body ----------
+        # Proves the NEW recogniser branches are load-bearing (§28.8): with the T-branch
+        # back to a SINGLE trailing letter and NO E-branch, the multi-letter-T and E-family
+        # ids can no longer be extracted (anchored filename-first fails to validate them,
+        # and the \b scan cannot terminate a multi-letter/E token before the '_' of the
+        # results-file basename) -- so T9aD/T9aH/E4a VANISH from enumeration.  If they did
+        # NOT vanish, some OTHER path was extracting them and the RECOGNISER arm above would
+        # be vacuous.  The narrow body is derived from the LIVE _CASE_ID_BODY by reversing
+        # exactly the two edits, with asserts so a future branch-text drift breaks loudly.
+        _old_T = r"T\d+[a-z]?(?:[-_][A-Za-z0-9]+)*"
+        _new_T = r"T\d+[a-z]*[A-Z]?\d*(?:[-_][A-Za-z0-9]+)*"
+        _new_E = r"|E\d+[a-z]*[A-Z]?\d*(?:[-_][A-Za-z0-9]+)*"
+        narrow_body = _CASE_ID_BODY.replace(_new_T, _old_T).replace(_new_E, "")
+        assert _new_T in _CASE_ID_BODY, "RED-4: new T-branch not found in _CASE_ID_BODY (drift)"
+        assert _new_E in _CASE_ID_BODY, "RED-4: new E-branch not found in _CASE_ID_BODY (drift)"
+        assert narrow_body != _CASE_ID_BODY, "RED-4: narrow body identical to new body (revert failed)"
+        assert _new_E[1:] not in narrow_body, "RED-4: E-branch not removed from narrow body"
+        _saved_re, _saved_anchored = CASE_ID_RE, CASE_ID_ANCHORED_RE
+        CASE_ID_RE = re.compile(r"\b(" + narrow_body + r")\b")
+        CASE_ID_ANCHORED_RE = re.compile(r"^(?:" + narrow_body + r")$")
+        try:
+            red4_results, _ = scan(sources, base, roots)
+        finally:
+            CASE_ID_RE, CASE_ID_ANCHORED_RE = _saved_re, _saved_anchored
+        red4_cases = {r.row.case for r in red4_results}
+        recog_targets = {"T9aD", "T9aH", "E4a"}
+        recog_red_ok = recog_targets.isdisjoint(red4_cases)
+        print(f"\nRED-4 run (CASE_ID_RE/ANCHORED reverted to the OLD narrow body -- "
+              f"T\\d+[a-z]? and no E-branch):")
+        print(f"  recogniser ids {sorted(recog_targets)} still enumerated: "
+              f"{sorted(recog_targets & red4_cases) if (recog_targets & red4_cases) else '(none -- unparsable under the narrow body, as expected)'}")
+        print(f"  RECOGNISER ids re-break with the old body: "
+              f"{'YES -- the new branches are load-bearing' if recog_red_ok else 'NO'}")
+
         both_green = (limb1_ok and mech_ok and limb2_ok and lineage_ok
-                      and dafoam_enumerated and fnfirst_ok and dafoam_nofire_ok)
-        red_ok = red_blinded and lineage_red_ok and fnfirst_red_ok
+                      and dafoam_enumerated and fnfirst_ok and dafoam_nofire_ok and recog_ok)
+        red_ok = red_blinded and lineage_red_ok and fnfirst_red_ok and recog_red_ok
         print("\n" + "=" * 78)
         if both_green and red_ok:
             print("PLANT VERDICT: BOTH LIMBS FIRED GREEN, AND THE RED DRIVE BLINDED THE CHECKER.")
@@ -948,10 +1054,10 @@ def selftest() -> int:
         print("PLANT VERDICT: REFUSED -- the planted control did NOT fire as required.")
         print(f"  all limbs GREEN: {both_green}  (limb1={limb1_ok} mech={mech_ok} "
               f"limb2={limb2_ok} lineage={lineage_ok} dafoam-enum={dafoam_enumerated} "
-              f"fnfirst={fnfirst_ok} dafoam-nofire={dafoam_nofire_ok})")
+              f"fnfirst={fnfirst_ok} dafoam-nofire={dafoam_nofire_ok} recog={recog_ok})")
         print(f"  all RED drives blinded checker: {red_ok}  "
               f"(whole-coverage={red_blinded} lineage-only={lineage_red_ok} "
-              f"filename-first-only={fnfirst_red_ok})")
+              f"filename-first-only={fnfirst_red_ok} recogniser-body={recog_red_ok})")
         print("A checker whose plant does not fire prints NO admissible zero (rule 3).")
         print("=" * 78)
         return 2
