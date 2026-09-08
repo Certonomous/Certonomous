@@ -1,13 +1,19 @@
 # =====================================================================
-# UNFROZEN, UNREVIEWED, INCOMPLETE DRAFT -- DO NOT RUN, DO NOT GRADE.
-# Halted mid-authoring 2026-08-31 on Sanaa's order to stop work.
-# This file is NOT a frozen grading path under CLAUDE.md rule 2: no
-# pre-registration document accompanies it and no commit fixes it.
-# closure-supervisor has NOT performed SUPERVISION_CHARTER sec.3 check 1
-# (the measurement-script diff read) on this file. A relayed check is a
-# summary, not a check, and no check has been performed at all here.
-# It is committed ONLY so the work survives; the R4b instruments sat
-# untracked through a 32-hour shutdown and were one checkout from gone.
+# UNFROZEN DRAFT -- DO NOT RUN, DO NOT GRADE. Authoring COMPLETED
+# 2026-09-08 (the mid-authoring halt of 2026-08-31 was under the demo
+# stop-work, superseded by Sanaa's 2026-09-04 closure re-activation for
+# zero-compute prep): the non-finite / anti-windowing residual channel
+# and the L-503 integrated grade()-path selftest arm are implemented.
+# closure-supervisor HAS NOW PERFORMED SUPERVISION_CHARTER sec.3 check 1
+# (the measurement-script diff read), 2026-09-08 -- sound, no functional
+# defect; the diff-read cleared the L-503 spurious-baseline-refusal
+# hazard (n_solve_any and n_solve_numeric both derive from one permissive
+# match, so a HEALTHY run never diverges).
+# This file is STILL NOT a frozen grading path under CLAUDE.md rule 2: no
+# pre-registration document accompanies it and NO commit fixes it by
+# sha256. FREEZING it produces an actual verdict on the M1 multimodel
+# sweep (data already on disk) and is DELIBERATELY DEFERRED as a big
+# claim (SUPERVISION sec.3 check 3). Until that freeze:
 # NOTHING THIS FILE PRODUCES IS A RESULT.
 # =====================================================================
 """
@@ -403,7 +409,7 @@ def parse_log(path):
     banner_hits = 0   # NEW IN M1b -- infrastructure only, gates nothing
     broad_hits = 0    # NEW IN M1b -- infrastructure only, gates nothing
     n_solve_any = 0       # NEW IN M1b: residual lines the PERMISSIVE regex sees
-    n_solve_numeric = 0   # NEW IN M1b: of those, the ones SOLVE_RE parsed
+    n_solve_numeric = 0   # NEW IN M1b: of those, the ones that parsed as a FINITE float
     nonfinite = []        # NEW IN M1b: (field, iteration, raw token)
     n_lines = 0           # NEW IN M1b: anti-windowing evidence
     with open(path, "r", errors="replace") as fh:
@@ -419,6 +425,28 @@ def parse_log(path):
                 banner_hits += 1
             if RE_BROAD_DEFECTIVE.search(line):
                 broad_hits += 1
+            # NEW IN M1b: THE NON-FINITE / ANTI-WINDOWING RESIDUAL CHANNEL.
+            # Runs on EVERY line before any `continue` below, exactly as the
+            # fatal scan does, so a residual line can never be skipped by an
+            # early loop exit.  The PERMISSIVE regex sees any token in the value
+            # slot; the strict SOLVE_RE (below) drops nan/inf/garbage SILENTLY,
+            # producing a smaller n rather than an error, so a converge-then-
+            # diverge run would grade CONVERGED at the last iteration before the
+            # blow-up.  Counting both and comparing is the only way that
+            # invisible drop becomes visible (docstring lines 43-53, 360-377).
+            n_lines += 1
+            msa = SOLVE_ANY_RE.search(line)
+            if msa:
+                n_solve_any += 1
+                tok = msa.group(2)
+                if RE_NONFINITE.match(tok):
+                    nonfinite.append((msa.group(1), cur, tok))   # EVIDENCE
+                else:
+                    try:
+                        float(tok)
+                        n_solve_numeric += 1
+                    except ValueError:
+                        pass   # non-numeric, non-recognised: counts diverge, caught
             mt = TIME_RE.match(line)
             if mt:
                 try:
@@ -451,7 +479,16 @@ def parse_log(path):
                 # NEW IN M1b
                 fatal=bool(fatal_hits), fatal_hits=sorted(set(fatal_hits)),
                 n_fatal_hits=len(fatal_hits),
-                banner_hits=banner_hits, broad_hits=broad_hits)
+                banner_hits=banner_hits, broad_hits=broad_hits,
+                # NEW IN M1b: the non-finite / anti-windowing residual channel.
+                # residuals_fully_parsed is TRUE iff every residual line the
+                # PERMISSIVE regex saw also parsed numerically AND no token was
+                # non-finite.  completion() consumes it as a PHYSICS-CRITICAL
+                # clause, so it can only pull a row DOWN (one-way).
+                n_solve_any=n_solve_any, n_solve_numeric=n_solve_numeric,
+                nonfinite=nonfinite, n_lines=n_lines,
+                residuals_fully_parsed=(n_solve_any == n_solve_numeric
+                                        and not nonfinite))
 
 
 def read_status(path):
@@ -496,6 +533,14 @@ def completion(case_dir, log):
     # turn a row INCOMPLETE, which can only pull a gate DOWN (one-way, rule 5's
     # direction).  It can never promote anything.
     clauses["no_fatal"] = not log.get("fatal", False)
+    # NEW IN M1b.  PHYSICS-CRITICAL: a run whose residual history the numeric
+    # parser silently truncated -- a nan/inf iteration dropped, so it grades
+    # CONVERGED at the last iteration before a blow-up -- is not the answer to
+    # the question asked.  One-way, exactly like no_fatal: it can only turn a row
+    # INCOMPLETE, never promote one.  Absent evidence defaults to True (a missing
+    # key must not spuriously fail a row).
+    clauses["residuals_fully_parsed"] = bool(
+        log.get("residuals_fully_parsed", True))
     clauses["end_line"] = bool(log["end_line"])
     clauses["last_time_eq_endTime"] = (
         log["last_time"] is not None and
@@ -522,7 +567,8 @@ def completion(case_dir, log):
             rc = 999
         rc_class = "measured"
         clauses["rc_zero"] = (rc == 0)
-    physics_ok = all(clauses[k] for k in ("no_fatal",          # NEW IN M1b
+    physics_ok = all(clauses[k] for k in ("no_fatal",              # NEW IN M1b
+                                          "residuals_fully_parsed",  # NEW IN M1b
                                           "end_line", "last_time_eq_endTime",
                                           "fields_present", "exec_count_eq_endTime",
                                           "age_guard"))
@@ -537,7 +583,13 @@ def completion(case_dir, log):
                 # how many hits the DEFECTIVE broad clause would have produced.
                 fatal_hits=log.get("fatal_hits", []),
                 banner_hits=log.get("banner_hits", 0),
-                broad_hits_defective_clause=log.get("broad_hits", 0))
+                broad_hits_defective_clause=log.get("broad_hits", 0),
+                # NEW IN M1b: non-finite / anti-windowing evidence, carried per
+                # row so a zero non-finite count stands beside the line counts
+                # and is a READING, not an empty scan (rule 3's principle).
+                nonfinite=log.get("nonfinite", []),
+                n_solve_any=log.get("n_solve_any", 0),
+                n_solve_numeric=log.get("n_solve_numeric", 0))
 
 
 def convergence_class(log):
@@ -864,6 +916,28 @@ def grade(run_root, bench_root, out_path=None):
           f"narrow zero standing beside a non-zero banner count is a reading, "
           f"not an empty population (L-396, D548).")
 
+    # NEW IN M1b.  The non-finite / anti-windowing census, printed beside the
+    # fatal one for the same reason: a zero must be a READING.  n_windowed is the
+    # rows where the permissive and numeric residual-line counts DIFFER (a line
+    # the numeric parser dropped); n_nonfinite is the rows carrying a nan/inf
+    # residual token.  Both are physics-critical and already forced their rows
+    # INCOMPLETE via residuals_fully_parsed above; they are reported here so the
+    # reader sees the population that was scanned.
+    n_nonfinite = sum(1 for r in rows.values()
+                      if r.get("completion", {}).get("nonfinite"))
+    n_windowed = sum(1 for r in rows.values()
+                     if (r.get("completion", {}).get("n_solve_any", 0)
+                         != r.get("completion", {}).get("n_solve_numeric", 0)))
+    n_solve_any_total = sum(r.get("completion", {}).get("n_solve_any", 0)
+                            for r in rows.values())
+    print(f"\nNON-FINITE / ANTI-WINDOWING CENSUS over {len(rows)} rows: "
+          f"rows with a non-finite residual token = {n_nonfinite}; "
+          f"rows where the permissive and numeric residual-line counts DIFFER "
+          f"(a silently dropped line) = {n_windowed}; "
+          f"total residual lines the permissive regex saw = {n_solve_any_total}. "
+          f"A zero here standing beside a non-zero permissive line count is a "
+          f"reading, not an empty scan (rule 3's principle).")
+
     out = dict(
         tool="grade_m1b.py", instrument_sha256=self_sha256(),
         predecessor="cases/RANS_LES_closure_models/M1_multimodel_sweep/grade_m1.py",
@@ -871,6 +945,9 @@ def grade(run_root, bench_root, out_path=None):
         fatal_census=dict(n_rows=len(rows), n_fatal_narrow=n_fatal,
                           n_trapfpe_banner=n_banner,
                           n_broad_defective_clause_would_match=n_broad),
+        nonfinite_census=dict(n_rows=len(rows), n_rows_with_nonfinite=n_nonfinite,
+                              n_rows_count_mismatch=n_windowed,
+                              n_solve_any_total=n_solve_any_total),
         started_utc=started,
         finished_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
         run_root=run_root, bench_root=bench_root,
@@ -1174,6 +1251,50 @@ def selftest():
                      "pull a gate DOWN; there is no path by which it promotes",
                      cf["physics_ok"] is False and cg["physics_ok"] is True)
 
+        # ---- NEW IN M1b: THE NON-FINITE / ANTI-WINDOWING CHANNEL (addition #2) --
+        # Its planted-failure proof (L-314): a SINGLE `nan` residual line is
+        # DROPPED by the numeric parser (a smaller n, not an error), so the run
+        # would look short-but-healthy.  residuals_fully_parsed is a COMPLETION
+        # clause and must make the SAME otherwise-COMPLETE row INCOMPLETE, one-way.
+        dnf = _fake_case(tmpf, "kOmega", "TNF", 4, 1.0, CAP_ITER, 5000)
+        nf_clean_src = open(os.path.join(dnf, "log.run"), errors="replace").read()
+        cnf_clean = completion(dnf, parse_log(os.path.join(dnf, "log.run")))
+        ok &= _check("non-finite channel: a CLEAN log parses fully "
+                     "(residuals_fully_parsed True, permissive count == numeric "
+                     "count, no non-finite token) and the row is COMPLETE",
+                     cnf_clean["clauses"]["residuals_fully_parsed"] is True
+                     and cnf_clean["complete"] is True,
+                     f"n_any={cnf_clean.get('n_solve_any')} "
+                     f"n_num={cnf_clean.get('n_solve_numeric')}")
+        # replace one converged-region k residual with `nan` (str(1e-9)=='1e-09',
+        # unique to the k lines; the Ux line carries the literal '1e-9')
+        nf_bad_src = nf_clean_src.replace(
+            "Solving for k, Initial residual = 1e-09,",
+            "Solving for k, Initial residual = nan,", 1)
+        ok &= _check("non-finite channel: the mutation actually changed the log "
+                     "(guards against a no-op replace)", nf_bad_src != nf_clean_src)
+        _w(os.path.join(dnf, "log.run"), nf_bad_src)
+        cnf_bad = completion(dnf, parse_log(os.path.join(dnf, "log.run")))
+        ok &= _check("non-finite PLANTED FAILURE (L-314): a single `nan` residual "
+                     "makes the SAME otherwise-COMPLETE row INCOMPLETE on "
+                     "residuals_fully_parsed, ONE-WAY (physics_ok False), with the "
+                     "dropped line recorded as evidence",
+                     cnf_bad["clauses"]["residuals_fully_parsed"] is False
+                     and cnf_bad["complete"] is False
+                     and cnf_bad["physics_ok"] is False
+                     and len(cnf_bad.get("nonfinite", [])) >= 1,
+                     f"nonfinite={cnf_bad.get('nonfinite')} "
+                     f"n_any={cnf_bad.get('n_solve_any')} "
+                     f"n_num={cnf_bad.get('n_solve_numeric')}")
+        # and prove the dropped iteration is exactly what would have windowed the
+        # convergence class: the numeric history no longer contains that k line.
+        _bad_log = parse_log(os.path.join(dnf, "log.run"))
+        ok &= _check("non-finite channel: the dropped `nan` line is ABSENT from "
+                     "the numeric residual history (the invisible-drop that "
+                     "residuals_fully_parsed exists to catch)",
+                     _bad_log["n_solve_any"] > _bad_log["n_solve_numeric"])
+        _w(os.path.join(dnf, "log.run"), nf_clean_src)
+
     # ---- NEW IN M1b: the section 2j birth requirement REFUSES when unmet ----
     _real_birth = BIRTH_RECORD
     try:
@@ -1362,6 +1483,99 @@ def selftest():
     ok &= _check("the output states that standing rule 5 DOES NOT APPLY",
                  "RULE 5 DOES NOT APPLY" in RULE5_STATEMENT.upper()
                  and "GCI" in RULE5_STATEMENT)
+
+    # ---- NEW IN M1b: THE INTEGRATED GRADE()-PATH SELFTEST (L-503) -----------
+    # L-503: an isolated selftest can pass on verdict-mapping while the INTEGRATED
+    # null/baseline path spuriously REFUSES a valid baseline.  EVERY _check above
+    # this line exercises a component in isolation; NONE calls grade().  This arm
+    # drives the REAL grade() function end-to-end over a synthetic corpus of the
+    # REGISTERED shape (N_CASES cases x 2 arms), so no frozen gate constant needs
+    # to be patched -- it reads staged fields and the shipped reference OFF DISK
+    # exactly as a real grade would.  It proves BOTH directions:
+    #   (a) a VALID null baseline is NOT spuriously refused and lands G2 PASS;
+    #   (b) the SAME path BITES -- corrupt the null baseline and G2 flips to GATE
+    #       FAIL -- so the pass in (a) is a reading, not an un-failable path.
+    # TWO monkeypatches, BOTH restored in `finally`, NEITHER a gate threshold:
+    #   * verify_birth_record -- section 2j requires REAL producer bytes a selftest
+    #     cannot synthesize, and its refusals are proven separately above;
+    #   * CAP_ITER -- the ITERATION CAP is a fixture detail, not a gate value; the
+    #     gate LOGIC under test (G2 null identity + partition, G3 separation, G4
+    #     census) is independent of the cap's numeric value, so it is reduced to
+    #     keep this arm's synthetic logs small.  The frozen 20000 is what the REAL
+    #     grade uses; NO G2/G3/G4 band, ceiling, refusal or count is patched.
+    import io as _io
+    import contextlib as _cl
+    # Rebind the module globals via globals() -- the file's established idiom (the
+    # BIRTH_RECORD tests above do the same) -- because a `global` statement is
+    # illegal here: verify_birth_record was already READ earlier in this function
+    # by the section-2j refusal checks.
+    _real_vbr = verify_birth_record
+    _real_cap = CAP_ITER
+    _INT_CAP = 12   # fixture iteration cap; converge_at below sits under it
+
+    def _build_corpus(root, null_scale_for):
+        bench = os.path.join(root, "bench")
+        runs = os.path.join(root, "runs")
+        cids = [f"case_{i:02d}" for i in range(N_CASES)]
+        for cid in cids:
+            # a bench case bench_inventory() will walk: polyMesh + 0 + system +
+            # a numeric shipped-reference time directory carrying U.
+            _w(os.path.join(bench, cid, "constant", "polyMesh", "owner"),
+               "FoamFile{}\n// note: nCells: 4\n")
+            os.makedirs(os.path.join(bench, cid, "0"), exist_ok=True)
+            os.makedirs(os.path.join(bench, cid, "system"), exist_ok=True)
+            ref_vals = [(1.0 * (1 + 0.001 * j), 0.0, 0.0) for j in range(4)]
+            _w(os.path.join(bench, cid, "100", "U"), _vec_field(ref_vals))
+        for cid in cids:
+            # converge_at=3 sits under the reduced CAP_ITER so every fake row is
+            # CONVERGED (not CAP-BOUND) -> G4 GATE REACHED; the two arms differ in
+            # scale (1.05 vs the null's scale) so G3 separates.
+            _fake_case(runs, NULL_ARM, cid, 4, null_scale_for(cid), CAP_ITER, 3)
+            _fake_case(runs, TEST_ARM, cid, 4, 1.05, CAP_ITER, 3)  # arms differ
+        return bench, runs
+
+    try:
+        globals()["CAP_ITER"] = _INT_CAP
+        globals()["verify_birth_record"] = lambda: dict(
+            positive_limb=dict(n_fixtures=0), negative_limb=dict(n_fixtures=0))
+        # (a) every null case reproduces its shipped reference exactly.
+        with tempfile.TemporaryDirectory(prefix="m1b_int_ok_") as tok_dir:
+            bench, runs = _build_corpus(tok_dir, lambda c: 1.0)
+            with _cl.redirect_stdout(_io.StringIO()):
+                grade(runs, bench, out_path=os.path.join(tok_dir, "g.json"))
+            gj = json.load(open(os.path.join(tok_dir, "g.json")))
+            gv = {g["gate"]: g["verdict"] for g in gj["gates"]}
+            ok &= _check("INTEGRATED (L-503): grade() runs end-to-end over a "
+                         "registered-shape corpus and does NOT spuriously refuse "
+                         "a valid null baseline -- G0=PASS G1=PASS G2=PASS",
+                         gv.get("G0") == "PASS" and gv.get("G1") == "PASS"
+                         and gv.get("G2") == "PASS", str(gv))
+            ok &= _check("INTEGRATED: the same end-to-end path separates the two "
+                         "arms (G3 GATE REACHED) and finds no CAP-BOUND rows "
+                         "(G4 GATE REACHED)",
+                         gv.get("G3") == "GATE REACHED"
+                         and gv.get("G4") == "GATE REACHED", str(gv))
+        # (b) THE SAME PATH BITES: push 3 null cases out of the 1e-3 band -> the
+        # integrated G2 reads the on-disk fields and flips to GATE FAIL.
+        with tempfile.TemporaryDirectory(prefix="m1b_int_bad_") as tbad_dir:
+            spoil = {f"case_{i:02d}" for i in range(3)}
+            bench, runs = _build_corpus(
+                tbad_dir, lambda c: 1.02 if c in spoil else 1.0)
+            with _cl.redirect_stdout(_io.StringIO()):
+                grade(runs, bench, out_path=os.path.join(tbad_dir, "g.json"))
+            gj = json.load(open(os.path.join(tbad_dir, "g.json")))
+            gv = {g["gate"]: g["verdict"] for g in gj["gates"]}
+            ok &= _check("INTEGRATED PLANTED FAILURE (L-503): moving 3 null cases "
+                         "out of the 1e-3 band flips G2 to GATE FAIL end-to-end -- "
+                         "so the PASS in (a) is a reading of the on-disk fields, "
+                         "not a path that cannot fail", gv.get("G2") == "GATE FAIL",
+                         str(gv))
+    finally:
+        globals()["verify_birth_record"] = _real_vbr
+        globals()["CAP_ITER"] = _real_cap
+
+    ok &= _check("INTEGRATED: CAP_ITER restored to its frozen registered value "
+                 "(20000) after the fixture", CAP_ITER == 20000, f"CAP_ITER={CAP_ITER}")
 
     print("SELFTEST", "PASS" if ok else "FAIL")
     return 0 if ok else 2
