@@ -1,0 +1,256 @@
+# DELTAS: so3dr_stage2R_run_leg.sh (SO3DR-F4-R successor launcher, DRAFT/NOT FROZEN)
+#   vs parent curriculum_SO3DR_stage2/so3dr_stage2_run_leg.sh (committed 527787c1)
+# Generated 2026-09-08T18:08:13Z. Non-compute authoring diff for supervisor check-1.
+# The daemon wrapper so3dr_stage2R_daemon.sh has NO parent counterpart (the parent embedded
+# its 36-leg loop and was launched directly under setsid nohup); it is listed in full after the diff.
+# ============================================================================
+
+--- curriculum_SO3DR_stage2/so3dr_stage2_run_leg.sh	2026-09-07 20:27:12.172423333 +0000
++++ curriculum_SO3DR_stage2_R/so3dr_stage2R_run_leg.sh	2026-09-08 18:07:04.867709179 +0000
+@@ -1,52 +1,43 @@
+ #!/usr/bin/env bash
+-# SO-3D-R STAGE 2 -- per-leg standalone-primal LAUNCHER.  DRAFT -- NOT FROZEN.
++# SO-3D-R STAGE 2 SUCCESSOR "R" -- per-leg standalone-primal LAUNCHER.  DRAFT -- NOT FROZEN.
+ #
+-# Feeds the FROZEN rig so3dr_stage2_standalone_runScript.py (md5
+-# dc67cced46235f897f6257353402ea57, freeze b4b8d44c).  This launcher is OUTSIDE
+-# the hash-locked grading-path set: PREREGISTRATION.md §7/§8 lock ONLY the rig
+-# (dc67cced) and the grader (2d32ec9b); §7 says "the launcher will hash the rig
+-# and grader against their committed blobs before invoking" -- i.e. the launcher
+-# VERIFIES the frozen instruments, it is not itself pinned (same posture as the
+-# D6RF/D6RF4/D6RF7 stagers, which are not §-pinned frozen instruments).  Whether
+-# the apparatus needs a freeze amendment to pin THIS file is a supervisor call
+-# reported for ruling; nothing here touches the frozen rig or grader.
++# The V-127 fresh successor to SO3DR-F4 (curriculum_SO3DR_stage2/).  Feeds the
++# FROZEN _R rig so3dr_stage2R_standalone_runScript.py (md5
++# 9c1905c0220604946dbd6a8016d5b9de) -- byte-identical to the frozen parent rig
++# EXCEPT the rank-0 injected_dv.json echo-sidecar write is moved to BEFORE
++# prob.run_model() (rig write line 352 <= run line 359), so the F4 echo survives
++# DAFoam's EXPECTED post-End primal-raise on the 32 primal-raised legs where the
++# parent rig (write 328 after run 312) never reached it and the frozen grader's
++# F4 arm hard-REFUSED (exit 2).  The grader and sample are re-frozen BYTE-IDENTICAL
++# into the _R dir (grader md5 2d32ec9b933764b5eb3e3bb61e6657cd, sample md5
++# 55bf8e2dcc07fbe3197f2c53421ad019 -- both unchanged from the parent).
+ #
+-# DERIVED from the D6R/D6RF4 A2-wing arm-launcher apparatus
+-# (curriculum_D6R/d6r_run_arm.sh md5 243f0f631719edf7ae354410276b3cfd is the
+-# closest single-family template; the cold-start optimiser-time-dir DROP is the
+-# D6RF4 S5 pattern).  Enumerated departures (companion diff
+-# so3dr_stage2_run_leg_DELTAS_from_d6r.diff):
+-#   SO3DR-L1  ONE standalone cl04 PRIMAL per leg (task=run_model via the rig),
+-#             np=4 -- NO optimiser, NO findFeasibleDesign, NO multipoint assembly,
+-#             NO fvSolution swap, NO units gate, NO adjoint.  A single mp04 case,
+-#             not mp04/mp05/mp06.
+-#   SO3DR-L2  The leg is selected by a REGISTERED dv_block_line read from the
+-#             frozen sample so3dr_stage2_registered_sample.json (md5
+-#             55bf8e2dcc07fbe3197f2c53421ad019); the launcher passes ONLY
+-#             -dv_block_line to the rig, which parses the design vector from the
+-#             sha256-pinned D6R log itself.  No design vector is injected by the
+-#             launcher (the rig owns that; F4 echo-check lives in the rig/grader).
+-#   SO3DR-L3  L-504 md5 FIXPOINT: the rig is re-hashed to dc67cced and the sample
+-#             to 55bf8e2d before any stage; ALL_PINS_MATCH asserted.  The D6R log
+-#             sha256 (394d9f5d...) is asserted host-side before the container, in
+-#             addition to the rig's own in-container check.
+-#   SO3DR-L4  L-504 (amendment) RUNTIME PATH-EXISTENCE FIXPOINT: every runtime
+-#             file-path this launcher references (rig, sample, D6R log, SRC mp04,
+-#             SRC FFD) is asserted to EXIST post-stage, before any container runs,
+-#             aborting before the solver arm -- md5 pins alone are blind to a
+-#             path that is referenced but not staged.
+-#   SO3DR-L5  COLD START (D6RF4 S5): mp04 is staged and its non-0 time dirs AND
+-#             every processorN/<non-0 time dir> (the D6R optimiser output
+-#             0.0001..1000) are DROPPED, leaving processorN/{0,constant}; the
+-#             rig's own check_cold_start then guards the top level.
+-#   SO3DR-L6  FREEZE GATE: the rig refuses unless SO3DR_STAGE2_FROZEN=1 (or a
+-#             marker in -case_dir); this launcher sets that env in the container.
+-#             Placing it IS the launch step (prereg §8); running this launcher is
+-#             the launch and is taken only on the supervisor's enqueue.
+-#   SO3DR-L7  COST (prereg §5): per-leg stop at PER_LEG_STOP_CORE_MIN (~3x the
+-#             5.4 core-min measured envelope) and 3600 wall-s stall; a shared
+-#             ledger tracks cumulative spend against the 585 core-min item cap
+-#             and STOPS the campaign at the cap (an overrun gets no new budget).
++# This launcher is OUTSIDE the hash-locked grading-path set (same posture as the
++# parent launcher committed 527787c1 and the D6RF/D6RF4/D6RF7 stagers): the
++# PREREGISTRATION.md §7/§8 freeze pins ONLY the rig, grader and sample; this
++# launcher VERIFIES those frozen instruments against their registered md5 before
++# invoking, it is not itself a §-pinned frozen instrument.  Nothing here modifies
++# the frozen rig, grader or sample.
++#
++# DERIVED verbatim from the parent per-leg launcher
++# (curriculum_SO3DR_stage2/so3dr_stage2_run_leg.sh, committed 527787c1).
++# Enumerated departures vs the parent (companion diff
++# so3dr_stage2R_run_leg_DELTAS_from_parent.diff):
++#   R-D1  PINS REPOINTED to the _R frozen bytes: RIG -> so3dr_stage2R_standalone_runScript.py
++#         md5 9c1905c0 (was so3dr_stage2_standalone_runScript.py dc67cced); GRADER ->
++#         so3dr_stage2R_grade.py md5 2d32ec9b (path only; md5 unchanged); SAMPLE ->
++#         so3dr_stage2R_registered_sample.json md5 55bf8e2d (path only; md5 unchanged).
++#         CASE_DIR repointed to curriculum_SO3DR_stage2_R.  ITEM=SO3DR_STAGE2R.
++#   R-D2  FRESH campaign run root: CURRICULUM-SO3DR-STAGE2R-a2-cl04-standalone-<STAMP>
++#         under /home/ubuntu/certonomous-runs/ (parent's stamp pattern; the STAMP is
++#         supplied by the caller/daemon via -base).  G-ROOT no-delete: refuse if -base exists.
++#   R-D3  CAP REPOINTED to the _R prereg §5 literal: cap 198 core-min (was 585); the prereg
++#         grep now requires the "198 core-min" literal in the _R PREREGISTRATION.md.
++#   Everything else -- SO3DR-L1..L7 apparatus (one standalone cl04 primal per leg at np=4,
++#   registered dv_block_line selection, L-504 md5 FIXPOINT ALL_PINS_MATCH, runtime
++#   PATH-EXISTENCE fixpoint, D6R log sha256 host-side check, cold-start optimiser
++#   time-dir drop, freeze-gate env SO3DR_STAGE2_FROZEN=1, per-leg stop/stall, the
++#   reach-the-grader-path reconciliation) -- is inherited UNCHANGED from the parent.
+ #
+ # set -e does NOT gate at the top of a harness Bash call; every step gates with
+ # `|| { echo ABORT...; exit N; }`.  NO --rm, so docker inspect survives the leg.
+@@ -55,17 +46,17 @@
+ # path-existence (a referenced runtime path absent); 9 cap reached; 64 usage.
+ set -uo pipefail
+ 
+-ITEM=SO3DR_STAGE2
++ITEM=SO3DR_STAGE2R
+ REPO=/home/ubuntu/Certonomous
+-CASE_DIR="$REPO/cases/dafoam/ladder-a/A2/curriculum_SO3DR_stage2"
++CASE_DIR="$REPO/cases/dafoam/ladder-a/A2/curriculum_SO3DR_stage2_R"
+ 
+-# ---- FROZEN pins reconciled to PREREGISTRATION.md §7/§8 (the registered source) ----
+-RIG="$CASE_DIR/so3dr_stage2_standalone_runScript.py"
+-RIG_MD5="dc67cced46235f897f6257353402ea57"
+-SAMPLE="$CASE_DIR/so3dr_stage2_registered_sample.json"
+-SAMPLE_MD5="55bf8e2dcc07fbe3197f2c53421ad019"
+-GRADER="$CASE_DIR/so3dr_stage2_grade.py"
+-GRADER_MD5="2d32ec9b933764b5eb3e3bb61e6657cd"      # prereg §7/§8 + disk (NOT 3a47f7d7)
++# ---- FROZEN _R pins reconciled to PREREGISTRATION.md §7/§8 (the registered source) ----
++RIG="$CASE_DIR/so3dr_stage2R_standalone_runScript.py"
++RIG_MD5="9c1905c0220604946dbd6a8016d5b9de"                 # _R rig (ordering-fixed); was dc67cced
++SAMPLE="$CASE_DIR/so3dr_stage2R_registered_sample.json"
++SAMPLE_MD5="55bf8e2dcc07fbe3197f2c53421ad019"              # byte-identical re-freeze (unchanged)
++GRADER="$CASE_DIR/so3dr_stage2R_grade.py"
++GRADER_MD5="2d32ec9b933764b5eb3e3bb61e6657cd"              # byte-identical re-freeze (unchanged)
+ 
+ D6R_LOG="/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/O_mp_20260828T162849Z_1898072.log"
+ D6R_LOG_SHA256="394d9f5d8c59ea79602e678cec7a75915bef53a048b61e153d835fce57fc675d"
+@@ -77,9 +68,9 @@
+ IMG_DIGEST="sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35"
+ RANKS=4
+ 
+-# ---- cost (prereg §5): item cap 585, per-leg stop ~3x the 5.4 measured envelope ----
+-CAP_CORE_MIN="585.0"
+-REGISTERED_CAP_CORE_MIN="585.0"
++# ---- cost (prereg §5): item cap 198 core-min (_R MAX form), per-leg stop ~3x the 5.4 envelope ----
++CAP_CORE_MIN="198.0"
++REGISTERED_CAP_CORE_MIN="198.0"
+ PER_LEG_STOP_CORE_MIN="16.0"    # ~3x 5.4; a leg beyond this is stopped and recorded
+ PER_LEG_STALL_WALL_S=3600       # rule-12 stall
+ TMO_LEG=1200                    # per-leg container wall timeout (5.4 core-min ~ 81 wall-s at np=4; generous)
+@@ -137,21 +128,20 @@
+ [ -z "$GOT_DIGEST" ] && GOT_DIGEST=$(sudo -n docker inspect --format '{{.Id}}' "$IMG" 2>/dev/null)
+ echo "IMAGE $IMG digest/id=$GOT_DIGEST (registered $IMG_DIGEST)"
+ 
+-# ---- cap assertion vs the frozen prereg literal (prereg §5/§8) ----
++# ---- cap assertion vs the frozen _R prereg literal (prereg §5/§8) ----
+ python3 -c "assert abs(float('$CAP_CORE_MIN')-float('$REGISTERED_CAP_CORE_MIN'))<1e-9" \
+   || { echo "ABORT: enforced cap != registered cap"; exit 65; }
+-grep -qF "cap **585 core-min**" "$CASE_DIR/PREREGISTRATION.md" 2>/dev/null \
+-  || grep -qF "585 core-min" "$CASE_DIR/PREREGISTRATION.md" \
+-  || { echo "ABORT: prereg does not carry the 585 core-min cap literal"; exit 65; }
++grep -qF "198 core-min" "$CASE_DIR/PREREGISTRATION.md" 2>/dev/null \
++  || { echo "ABORT: _R prereg does not carry the 198 core-min cap literal"; exit 65; }
+ 
+-# ---- campaign root + shared ledger (cumulative spend vs 585 cap) ----
++# ---- campaign root + shared ledger (cumulative spend vs 198 cap) ----
+ [ -e "$BASE" ] && { echo "ABORT G-ROOT: $BASE exists; guards refuse a pre-existing run root -- use a fresh timestamped dir, never delete an interrupted tree"; exit 3; }
+ mkdir -p "$BASE" || { echo "ABORT: cannot mkdir $BASE"; exit 3; }
+ chmod 777 "$BASE"
+ LEDGER="$BASE/ledger.txt"
+ SPENTFILE="$BASE/.spent_core_min"; echo "0" > "$SPENTFILE"
+ STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
+-echo "=== SO3DR_STAGE2 CAMPAIGN $STAMP cpuset=$CPUSET ranks=$RANKS cap=$CAP_CORE_MIN img=$IMG ===" | tee -a "$LEDGER"
++echo "=== SO3DR_STAGE2R CAMPAIGN $STAMP cpuset=$CPUSET ranks=$RANKS cap=$CAP_CORE_MIN img=$IMG ===" | tee -a "$LEDGER"
+ 
+ # ---- the leg list: the registered dv_block_lines from the frozen sample ----
+ LEGS=$(python3 -c "
+@@ -208,11 +198,13 @@
+   echo "COLDSTART_PROVED leg=$dvline dropped optimiser time dirs, mp04/0 + processorN/0 present" | tee -a "$LEDGER"
+ 
+   # ---- run the leg: rig from cwd=$work, np=4, freeze gate via env ----
+-  local cname="so3dr_${leg}_${STAMP}"
+-  # SO3DR-L4 (L-504 path reconciliation): the FROZEN grader reads the leg log via
++  local cname="so3dr_r_${leg}_${STAMP}"
++  # SO3DR-L4 (L-504 path reconciliation): the FROZEN _R grader reads the leg log via
+   # glob(runs_root/leg_<bl>/*.log) -- INSIDE the leg dir -- so the log MUST live there,
+-  # not at the campaign-root top level. Verified against so3dr_stage2_grade.py grade():
+-  # leg_dir=runs_root/leg_%d/mp04 ; log_glob=runs_root/leg_%d/*.log.
++  # not at the campaign-root top level. Verified against so3dr_stage2R_grade.py grade():
++  # leg_dir=runs_root/leg_%d/mp04 ; log_glob=runs_root/leg_%d/*.log. The rig writes
++  # injected_dv.json to run_dir_abs=cwd/mp04=$work/mp04, which is exactly leg_dir the
++  # grader's F4 reads.
+   local log="$work/run_${STAMP}.log"
+   local t0 t1 wall rc
+   t0=$(date +%s)
+@@ -239,4 +231,4 @@
+ done
+ 
+ echo "TOTAL_SPENT_CORE_MIN=$(cat "$SPENTFILE") CAP=$CAP_CORE_MIN STAMP=$STAMP" | tee -a "$LEDGER"
+-echo "TO GRADE: python3 $GRADER --runs-root $BASE   # grader arg is --runs-root (not --root); it has NO --skip-freeze/--meshlog flag; grade() self-runs freeze_check + control_planted_zero + F6 sample-recompute (verified by --selftest)" | tee -a "$LEDGER"
++echo "TO GRADE: python3 $GRADER --runs-root $BASE   # grader arg is --runs-root (not --root); NO --skip-freeze; grade() self-runs freeze_check + control_planted_zero + F6 sample-recompute (verified by --selftest)" | tee -a "$LEDGER"
+
+# ============================================================================
+# NEW FILE (no parent counterpart): so3dr_stage2R_daemon.sh -- detached wrapper,
+# rc captured INSIDE the wrapper (setsid-parent-returns-zero). Full listing:
+# ============================================================================
+--- /dev/null	2026-09-07 14:25:24.340999890 +0000
++++ curriculum_SO3DR_stage2_R/so3dr_stage2R_daemon.sh	2026-09-08 18:07:26.013885531 +0000
+@@ -0,0 +1,58 @@
++#!/usr/bin/env bash
++# SO-3D-R STAGE 2 SUCCESSOR "R" -- detached 36-leg campaign DAEMON.  DRAFT -- NOT FROZEN.
++#
++# The parent (curriculum_SO3DR_stage2/) embedded its 36-leg loop directly in
++# so3dr_stage2_run_leg.sh and was launched under `setsid nohup bash run_leg.sh ...`.
++# That posture LOSES the launcher's rc: `setsid <cmd>` makes the parent process
++# exit 0 for EVERY outcome of <cmd> (memory note: setsid-parent-returns-zero;
++# L capture rc INSIDE the detached wrapper, never around the setsid line).
++#
++# This _R daemon is the fix: it is the process placed under setsid+nohup, it
++# invokes the frozen-instrument-verifying per-leg launcher ONCE (which itself
++# iterates all 36 registered legs and enforces the 198 core-min CUMULATIVE hard
++# stop and the per-leg 1200 s / 3600 s-stall stop), and it captures that
++# launcher's rc INSIDE this wrapper into <BASE>.rc.txt with an End marker.  The
++# outer setsid line's own exit status is therefore meaningless by design and is
++# ignored; the real verdict lives in <BASE>.rc.txt.
++#
++# G-ROOT no-delete: the launcher refuses a pre-existing -base; this daemon also
++# refuses if the freshly stamped BASE already exists, and NEVER deletes a tree.
++#
++# The daemon touches NO frozen file.  It does not run any solver itself; the
++# solver runs inside the per-leg launcher's containers.
++set -uo pipefail
++
++CASE_DIR="/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3DR_stage2_R"
++RUN_LEG="$CASE_DIR/so3dr_stage2R_run_leg.sh"
++RUNS_PARENT="/home/ubuntu/certonomous-runs"
++
++CPUSET="${CPUSET:-}"
++BASE="${BASE:-}"       # optional override; default is a fresh timestamped root
++while [ $# -gt 0 ]; do
++  case "$1" in
++    -cpuset) CPUSET="$2"; shift 2;;
++    -base)   BASE="$2";   shift 2;;
++    *) echo "ABORT usage: -cpuset <cores> [-base <root>]"; exit 64;;
++  esac
++done
++[ -n "$CPUSET" ] || { echo "ABORT: -cpuset must be given explicitly; placement is never defaulted"; exit 64; }
++[ -x "$RUN_LEG" ] || [ -f "$RUN_LEG" ] || { echo "ABORT: per-leg launcher not found at $RUN_LEG"; exit 64; }
++
++# ---- fresh, timestamped campaign root (parent stamp pattern), G-ROOT no-delete ----
++STAMP=$(date -u +%Y%m%dT%H%M%SZ)
++[ -n "$BASE" ] || BASE="$RUNS_PARENT/CURRICULUM-SO3DR-STAGE2R-a2-cl04-standalone-$STAMP"
++[ -e "$BASE" ] && { echo "ABORT G-ROOT: $BASE exists; never reuse or delete an interrupted run root -- pick a fresh stamp"; exit 3; }
++
++LAUNCH_OUT="$BASE.launch.out"
++RC_FILE="$BASE.rc.txt"
++
++echo "=== SO3DR_STAGE2R DAEMON START $(date -u +%Y%m%dT%H%M%SZ) base=$BASE cpuset=$CPUSET ===" | tee -a "$LAUNCH_OUT"
++
++# Invoke the per-leg launcher ONCE with NO -only_dv_block_line so it iterates all
++# 36 registered legs.  rc is captured INSIDE this wrapper (setsid-parent-returns-zero).
++bash "$RUN_LEG" -base "$BASE" -cpuset "$CPUSET" >> "$LAUNCH_OUT" 2>&1
++RC=$?
++
++echo "$RC" > "$RC_FILE"
++echo "=== SO3DR_STAGE2R DAEMON END rc=$RC $(date -u +%Y%m%dT%H%M%SZ) base=$BASE rcfile=$RC_FILE ===" | tee -a "$LAUNCH_OUT"
++exit $RC
