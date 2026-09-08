@@ -1,16 +1,29 @@
 # F27-WOMERSLEY EINF-TOPOLOGY SUCCESSOR — RE-REGISTRATION R3 (MESH-TOPOLOGY ROOT-CAUSE FIX)
 
-> **DRAFT — NOT FROZEN.** Awaiting the cfd supervisor's non-delegable checks:
-> **check-1** (both R3 measurement-script diffs — grader and exact model — read as
-> diffs at source) and **check-4** (gate/lever/root/commit; pre-registration
-> committed before compute; gates/thresholds/bands byte-identical to the frozen
-> parent). **No solver was run in preparing this draft.** The three-level butterfly
-> mesh WAS built (blockMesh/checkMesh/postProcess only — mesh generation, not the
-> physics solve — "BUILD BEFORE YOU FREEZE", MESH_STANDARD 8.1) to register the
-> checkMesh readings and the same-stencil reference W_REF_MESH and to prove A_MESH
-> (hence the band) is unchanged. **Nothing is sent, filed, uploaded, registered or
-> posted (rule 7).** This document is a DRAFT and its banner stays NOT FROZEN until
-> the supervisor freezes it at its own commit and pins the grading path (rule 2).
+> **FROZEN — AUTHORISED (2026-09-08).** The cfd supervisor has PERSONALLY completed
+> both non-delegable §3 checks and **both PASS**: **check-1** (both R3
+> measurement-script diffs — grader `grade_f27_r3.py` and exact model
+> `exact_f27_r3.py` — read at source as diffs; measurement logic invariant; the E2
+> and Einf gate bands unchanged) and **check-4** (gate/lever/root/commit;
+> pre-registration committed before compute; gates, thresholds and bands
+> byte-identical to the frozen parent; lever = the mesh-topology rounded-square
+> core/ring interface with rm = 0.3989422804014327, **RULED ACCEPTED** — principled
+> area-equivalent circle, band-invariant, well-conditioned mesh clearing all gates
+> with wide margin; run root ABSENT; grading path pinned below). **No solver was run
+> in preparing this registration.** The three-level butterfly mesh WAS built
+> (blockMesh/checkMesh/postProcess only — mesh generation, not the physics solve —
+> "BUILD BEFORE YOU FREEZE", MESH_STANDARD 8.1) to register the checkMesh readings
+> and the same-stencil reference W_REF_MESH and to prove A_MESH (hence the band) is
+> unchanged. **Nothing is sent, filed, uploaded, registered or posted (rule 7).**
+>
+> **GRADING-PATH FREEZE (rule 2 — pinned at this freeze commit; no gate, threshold,
+> band, BAND_FACTOR, reference, cap (625) or label is altered by this freeze):**
+> - grader `cases/F27_WOMERSLEY_PIPE/einf_topology_successor/grade_f27_r3.py` — git blob `01acbec95f5d161c7fbb7694ebeedab1f0c4bd13`
+> - exact model `cases/F27_WOMERSLEY_PIPE/exact_f27_r3.py` — git blob `d5a834cc7edc8ccff4be3315ec5624aa65350707`
+> - driver `cases/F27_WOMERSLEY_PIPE/einf_topology_successor/run_f27_r3.sh` — git blob `24cfee11b880324df6aac8519123cc7f8d7cc48d`, sha256 `91c3d8239aca14edc243b9084454d81d681c0ca4d020b60ff5c24c37a3955d96`
+> - builder `cases/F27_WOMERSLEY_PIPE/einf_topology_successor/build_f27_r3.py` — git blob `72298744f42aa98976ee4026de90b078b36b865e`, sha256 `7351d70496e08790abbf281f5eea168a6c18a27ae1a43a6169641b2aeb03a348`
+> - `system/blockMeshDict.template` — git blob `d45e11fe46398bf6d17bf3490ef4d95d2661bcf6`, sha256 `5dd1cf77c01942b76c508137a7552a3ec69f469e218f16e3d111a0b999ff9c1c`
+> - `system/fvSchemes` sha256 `59b77114798bad38ccfd5c9ebedcf8d69b0765b236e96472f13872c91a4fe81f`; `system/fvSolution` sha256 `fea071de85b6dfc8257c88d5910cd30c8ec53078a7dd558beba6343ca72fa32f` (both byte-identical to R2 numerics — numerics unchanged)
 
 ---
 
