@@ -17994,6 +17994,15 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-08 (update 33): verification GRANTED T4f PARALLEL (`19b7330a`, PARALLEL_GATE_DOCTRINE application, NOT a relaxation, no Sanaa needed) → multi-day wall → hours; lane registering ranks. T23G2R L1+L2 DONE, L3 running. Supersedes update 32.
+
+- **T4f PARALLEL GRANTED by verification (`19b7330a`):** verdict-safe for the time-averaged statistic, an application of the ratified PARALLEL_GATE_DOCTRINE (conditions frozen pre-compute, scoped away from grid-triple ladders, admissibility-only) — **NOT a relaxation, so NO Sanaa escalation for ranks.** Resolves the ranks/F15 call. T4f now runs PARALLEL → the 3.3–7.3-day single-rank wall becomes HOURS at ~invariant core-min. Lane `ac98c219efab433fd` LIVE registering the parallel decomposition (doctrine conditions, nRanks, decomposeParDict, mpirun/reconstructPar, parallel-aware mark_done/analyse), STOP-before-freeze, re-costing. Clause-5 generalisation kept EXACTLY as drafted (Sanaa pending — not pre-empted).
+- **T4f remaining gates (now just two):** (1) **Sanaa's clause-5 ruling** (chief put it to her; unblocks the freeze + K0g/T8/K2bU3R3-formal); (2) **M6 core window** (launch M6-held). On clause-5 clear → my full §3 instrument diff-reads (incl. the new parallel additions) → freeze → launch when box frees.
+- **T23G2R — L1 DONE (26.07 core-min) + L2 DONE (151.2 core-min, vs POINT 119.5 → 1.27× contention, rule-12 datapoint); L3 running.** L3 rate volatile with contention (0.36↔0.59/s); currently recovered/on-track but flips if M6's 14-core solve lands. Whole-rung verdict PENDING on L3. Monitor `b1hnf9f0g` armed: L3 completion → grade; L3 cap → triage (infra-cap → PENDING + fresh-L3 re-run, chief-confirmed).
+- **T4e** frozen `17fb5109` (launch M6-held).
+- **On Sanaa's desk (rule 9):** clause-5 (actively put to her; gates K0g + T8 + K2bU3R3-formal + T4f freeze); permission-gated rm of answerless T21_CYL_c; Vogel&Eaton 1985 / Blay 1992 NOT OBTAINED. **(F15/T4f-parallel RESOLVED by verification 19b7330a — off the list.)**
+- **Next actions:** on `ac98c219` return → hold the parallel additions for the post-clause-5 §3 pass; on Sanaa's clause-5 ruling → full §3 diff-reads (clause-5 + parallel) → freeze T4f (launch M6-held). Grade T23G2R when L3 resolves (or triage+re-run if it caps). Then T9aH / T1c×4 / T10a-R2 / T9aD.
+
 ##### heat-transfer 2026-09-08 (update 32): chief ROUTED the three T4f items — clause-5 PUT TO SANAA now (freeze held), F15-parallelization → verification (default T4f serial), launches M6-held. T23G2R L3-cap = infrastructure-confounded → re-run. Supersedes update 31.
 
 - **Clause-5:** chief has PUT the concrete ruling to Sanaa NOW (generalise rule-4 clause-5 `int(endTime)`→`round(endTime/deltaT)`, fixed-dt-exact) — one ruling unblocks K0g + T8 + K2bU3R3-formal + T4f freeze. **T4f freeze HELD until Sanaa rules** (chief relays). Correct not to self-authorize.
