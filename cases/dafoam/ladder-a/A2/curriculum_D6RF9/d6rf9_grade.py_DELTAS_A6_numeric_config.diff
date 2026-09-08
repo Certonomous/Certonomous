@@ -1,0 +1,60 @@
+diff --git a/cases/dafoam/ladder-a/A2/curriculum_D6RF9/d6rf9_grade.py b/cases/dafoam/ladder-a/A2/curriculum_D6RF9/d6rf9_grade.py
+index 9d7aae4d..cecd8648 100644
+--- a/cases/dafoam/ladder-a/A2/curriculum_D6RF9/d6rf9_grade.py
++++ b/cases/dafoam/ladder-a/A2/curriculum_D6RF9/d6rf9_grade.py
+@@ -171,6 +171,12 @@ CONFIG_INSTALL_MARKER = "D6RF9_CONFIG_INSTALLED"
+ 
+ PLANT_INITRES = 1.234e-03            # the planted-zero perturbation, registered
+ PLANT_REL_TOL = 1.0e-9
++# G-CONFIG numeric-identity tolerance (A6 fix): the config-install marker's
++# numeric fields are compared to the registered values within this ABS tol, so a
++# formatting variant (`0.30` vs `0.3`) is identity and a genuine difference
++# (`0.15` vs `0.30`, ~0.15 apart) is not. Tight enough that no two registered
++# rung values (min gap 0.15 in relax, 500 in endTime) collide.
++CONFIG_NUM_ABSTOL = 1.0e-9
+ 
+ # freeze pins (PLACEHOLDER until the supervisor freezes -- rule 2). The grader
+ # verifies its own bytes == the committed blob at HEAD at execution AFTER freeze.
+@@ -352,13 +358,38 @@ def gate_config(seg, rung):
+         ok = False
+         reasons.append("CONFIG_INSTALL_MARKER not produced for this leg")
+     else:
++        # A6 FIX (2026-09-08). solverName stays an EXACT string compare; the
++        # numeric config fields (relax_p, relax_eqn, endTime) are compared
++        # NUMERICALLY within CONFIG_NUM_ABSTOL, so a producer echoing `relax_p=
++        # 0.30` no longer fails against `str(0.30)="0.3"` and turns a GENUINE
++        # leg NOT A RESULT (the defect). A genuinely-DIFFERENT config (e.g. 0.15
++        # vs 0.30) STILL fails; an unparseable numeric token STILL fails. This
++        # gate only turns PASS/GATE FAIL -> NOT A RESULT, never the reverse, so
++        # a formatting-robust identity check can never yield a false PASS. The
++        # accept floor, CONV_BAR, BINDING_FIELD and G-CONV scoring are untouched.
+         for key in ("solverName", "relax_p", "relax_eqn", "endTime"):
+             got = inst.get(key)
+-            exp = str(want[key])
+-            if got is not None and got != exp:
++            if got is None:                      # partial marker: not a mismatch
++                continue
++            if key == "solverName":
++                exp = str(want[key])
++                if got != exp:
++                    ok = False
++                    reasons.append("solverName installed %r != registered %s"
++                                   % (got, exp))
++                continue
++            try:
++                gotf = float(got)
++                wantf = float(want[key])
++            except (TypeError, ValueError):
++                ok = False
++                reasons.append("%s installed %r is not numeric-parseable "
++                               "against registered %r" % (key, got, want[key]))
++                continue
++            if abs(gotf - wantf) > CONFIG_NUM_ABSTOL:
+                 ok = False
+-                reasons.append("%s installed %r != registered %s"
+-                               % (key, got, exp))
++                reasons.append("%s installed %r (%.12g) != registered %r (%.12g)"
++                               % (key, got, gotf, want[key], wantf))
+     return {"config_as_registered": ok, "read": read,
+             "registered": want, "reasons": reasons}
+ 
