@@ -169,8 +169,14 @@ def check_solver(paths, low_bound=DEFAULT_LOW_BOUND):
     createFields.H and boundE.H, or a src dir's files) for a correct read."""
     try:
         reps = [analyse(_read(p), low_bound) for p in paths]
-    except OSError as e:
-        sys.stderr.write("check_zero_clip_at_t0: cannot read: %s\n" % e)
+    except (OSError, UnicodeDecodeError) as e:
+        # FAIL-CLOSED: a target that cannot be read (missing / a directory /
+        # permission-denied -> OSError; a non-UTF-8/binary target -> UnicodeDecodeError,
+        # which is NOT an OSError and previously escaped as an uncaught traceback) is
+        # NEVER silently passed. A check that cannot see its target refuses (exit 4),
+        # it does not PASS. (rule 3 family: a zero from a reader that cannot read is
+        # not evidence.)
+        sys.stderr.write("check_zero_clip_at_t0: cannot read target -- REFUSE (exit 4): %s\n" % e)
         return 4
     agg = {
         "low_bound": low_bound,
