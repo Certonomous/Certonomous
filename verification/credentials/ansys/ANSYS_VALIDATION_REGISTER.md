@@ -1453,3 +1453,50 @@ Fields `U p phi` are the correct set for this incompressible isothermal laminar 
 - **No `PASS`.** The reference is code-to-code digitised; the ceiling is `GATE REACHED` and the comparator cannot print `PASS`. VMFL011-R4 is not a credential.
 - **The rms is not pinned below 0.030 by refinement** — it plateaus at ~0.0341 across L2/L3/L4; the +13.6 % gap is a real disagreement with the digitised referent, not a mesh-resolution artefact (the `u_min_norm` triple is CONVERGING with GCI 0.62 %).
 - **`GATE FAIL` is a finding, not a deletion** — it stands honestly in the register with its numbers, and it is NOT counted among the lab's `PASS` credentials.
+
+## Row #66 — VMFL034-R3 — Particle Aggregation in a Turbulent Stirred Tank (QMOM moments on a frozen flow) (VM2026R1 p. 121/122) — **`NOT A RESULT`**
+
+**Graded 2026-09-08 through the pinned frozen comparator `analyse_vmfl034_r3.py` (blob `5fc867d964250b27639362e20f43b0af69c4840c`, verified byte-identical on disk == at HEAD == at the freeze `e0e3eddf` before grading, §3 check 1; selftest 16/16). Verdict `NOT A RESULT` — the comparator REFUSES (exit 2) at the CMSMPR well-mixedness PREMISE, upstream of the moment band. No moment (m0–m5) was graded, so there is no `GATE FAIL` here and none may be issued; no Roache triple, physical-range guard or moment deviation was reached.** Cites and does NOT overwrite the earlier VMFL034 attempts; all their trees, preregs and comparators are preserved. The successor VMFL034-R4 is OWED (fix the flow-mixing setup answer-blind; the gate/band/target stand).
+
+**The frozen-flow re-scope, launched by the queue daemon; all three stages COMPLETED cleanly, and the modeling PREMISE failed.** R3 re-scopes VMFL034 to the manual's own note (*"Moments are solved on a frozen flow field"*): Stage 1 a single-phase steady k-ε carrier flow (`U φ k ε`) on the 2-D box mesh; Stage 2 the QMOM moments transported on that frozen field by `reactingTwoPhaseEulerFoamFrozen` (frozen at `e0e3eddf`). Rescaled operating point τ = 5 s, `endTime = 25 s = 5τ`, Da = 100 preserved exactly, α₂ = 1e-2, κ = π/6. A three-level size-group refinement triple S1/S2/S3 (the same Stage-1 flow mapped to all three; only the sizeGroups refine). Gate conjunction m1,m2,m3,m4,m5; m0 DEMOTED to a calibration limb (setting β₀ for Da=100 *sets* m0). Prereg + comparator + frozen-flow solver source all frozen at `e0e3eddf`.
+
+### What the run did — all three stages COMPLETED cleanly (strict completion PASSES)
+
+| stage | rc | `End` | last `Time` | endTime | fields @ endTime | age guard | ranks | ≈ wall s | core-min |
+|---|---|---|---|---|---|---|---|---|---|
+| S1 (coarse) | 0 | 1 | 25 | 25 (5τ) | present | met | 1 | ~3 813 | 63.55 |
+| S2 (medium) | 0 | 1 | 25 | 25 (5τ) | present | met | 1 | ~10 593 | 176.55 |
+| S3 (fine) | 0 | 1 | 25 | 25 (5τ) | present | met | 1 | ~36 232 | 603.87 |
+
+The comparator's own `strict_completion` (with the age guard) passed on all three stages — it reached the well-mixedness premise, which sits downstream of completion. The run is complete and valid; the `NOT A RESULT` is the measured premise refusal, not an incomplete run.
+
+### Why the verdict is `NOT A RESULT` — the CMSMPR well-mixedness premise fails, and worsens with refinement
+
+The comparator MEASURES well-mixedness on the internal field and refuses if the CMSMPR premise is not met (`CoV(m0) ≤ 0.10`, `|outlet − vol-mean|/vol-mean ≤ 0.05`). All three stages fail both limbs, and the non-uniformity **RISES** with refinement:
+
+| stage | cell-to-cell CoV(m0) | limit | \|outlet − vol-mean\|/vol-mean | limit |
+|---|---|---|---|---|
+| S1 | **8.734** | 0.10 | **0.610** | 0.05 |
+| S2 | **8.786** | 0.10 | **0.620** | 0.05 |
+| S3 | **8.816** | 0.10 | **0.627** | 0.05 |
+
+Both quantities increase S1→S2→S3, so refinement does not fix it: a **modeling-premise failure**, not a discretisation artifact and not a solver crash. The comparator refuses (exit 2) at the premise, BEFORE the moment band, the Roache triple, the physical-range guard, or any moment being computed. Verbatim: `WELL-MIXEDNESS REFUSAL (CMSMPR premise fails; exit 2): well-mixedness FAIL: CoV(m0)=8.734 > 0.100 / |outlet-mean - vol-mean|/vol-mean = 0.610 > 0.050 -> NOT A RESULT; the successor changes the RESCALE, not the gate/target`.
+
+### Controls (rule 3) — FIRED
+
+Per the comparator's per-case flow (source lines 397–411), the guards and the planted control run BEFORE the premise refusal: the **rule-3 planted-zero control** (PLANT 3.21e-04 added to a PROPER SUBSET of bins [8,9] of the moment reduction) ran on the real bytes and **PASSED** (line 404) — the reader is shown able to see the plant — as did the **D3 feed-moment guard** (feed `value_i` sum = 1, frozen Wheeler nodes) and the **L-487 non-degenerate-plant guard**. Selftest 16/16 (including the planted control, the well-mixedness reader `[PASS] uniform within limit / gradient over limit`, and the physical-range guard). The physical-range guard and the moment band/Roache triple were NOT reached — downstream of the premise refusal.
+
+### Provenance
+
+- **Comparator:** `cases/ansys_verification/VMFL034-R3/analyse_vmfl034_r3.py`, blob **`5fc867d964250b27639362e20f43b0af69c4840c`** — `git hash-object` on disk == at the freeze `e0e3eddf` == at HEAD; selftest 16/16; refused exit 2 at the well-mixedness premise. Reproduced independently here via `--triple S1 S2 S3` and per-stage `--case` (same exit-2 refusal, same numbers).
+- **Pre-registration & freeze:** `cases/ansys_verification/VMFL034-R3/PREREGISTRATION.md`, freeze commit **`e0e3eddff79440997f293935c30922bf69bec051`** (introduced the prereg, comparator and the frozen-flow solver `reactingTwoPhaseEulerFoamFrozen`; before the run root existed, rule 2, §3 check 4). Launcher recorded `grading-path pins OK` against `FREEZE_COMMIT=e0e3eddf`.
+- **Gate/thresholds (never evaluated):** gate conjunction m1,m2,m3,m4,m5 within ±0.76 % of the analytical Wan targets (m1 0.225, m2 0.547, m3 1.910, m4 9.073, m5 53.797; m0 0.132 CALIBRATION), AND a CONVERGING triple; a discretisation-vs-analytical comparison. Reference: B. Wan, T.A. Ring, K. Dhanasekharan, J. Sanyal, *China Particuology* **3**:213–218 (2005), the analytical Target column of Table .34.1; the Ansys Fluent QMOM column is context-only.
+- **Run root:** `verification/runs/ansys_verification/VMFL034-R3/` (S1/S2/S3; per stage `RUN_RC`=0, `log.reactingTwoPhaseEulerFoamFrozen` with 1 `End` and last `Time` 25, time dirs 0…25, `postProcessing`, `stage1`); `launcher.queue.out` (`core_min_used = 843.966`).
+- **Cost:** **843.966 core-min MEASURED** (serial ranks = 1; S1 63.55 + S2 176.55 + S3 603.87, from `launcher.queue.out` cumulative `core_min_used` differenced per stage) = **$0.72 DERIVED, NOT measured** at $0.0513/core-h (c7a.4xlarge, owner-stated; `COMPUTE_BUDGET_CHARTER.md` §5). Against the ≈ 1980 core-min (≈ 33 core-h) point estimate → ratio **0.43×**, an **over-estimate** confirmed: QMOM moment transport scales linearly in the size-group bins (N), not N², so each level came ~2.3× cheaper. No cap fired (Stage-1 60, per-level 200/750/3000, running total 3960); **waste 0.000 core-min**. The three Stage-2 walls (~3.8k / 10.6k / 36.2k s) EXCEED the §2 3600-s stall heuristic but are COMPLETE serial solves (rc=0, End, last Time == endTime), NOT stalls — gross == cleaned. Calibration row `C-20260908T205401.737889Z-9e0402c9` in `docs/COST_CALIBRATION.md`. Results prose `cases/ansys_verification/VMFL034-R3/RESULTS.md`.
+
+### What this row REFUSES to claim
+
+- **No graded moment.** m0–m5 were never computed — the comparator refused at the well-mixedness premise, upstream of the band, the Roache triple and the physical-range guard. No moment appears as a measured value anywhere in this row.
+- **No `GATE FAIL`.** Rule 5 is one-way and the gate quantities were never read.
+- **No `PASS`, no credential.** m0 is a calibration limb (demoted), never a PASS channel.
+- **No claim the run is defective** — strict completion PASSES on all three stages; the `NOT A RESULT` is a measured modeling-premise failure (a non-well-mixed CMSMPR field that worsens with refinement), and **VMFL034-R4 is owed** to fix the flow mixing answer-blind while the gate/band/target stand byte-identical.
