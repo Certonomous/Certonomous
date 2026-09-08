@@ -1,0 +1,90 @@
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// F27 EINF-TOPOLOGY SUCCESSOR (R3) -- WOMERSLEY PULSATILE PIPE, BUTTERFLY O-GRID.
+// SAME OUTER WALL, SAME (NC, NR, NZ), SAME CORE_FRAC = 0.5, SAME (1 1 1) grading
+// as the frozen parent blockMeshDict.template.  THE ONE CHANGE: the core/ring
+// block interface is a CIRCULAR ARC (a ROUNDED SQUARE), not a straight square.
+// The frozen parent left the interface as a square whose four corners sit at
+// r = CORE_FRAC*R = 0.5, theta = 45/135/225/315 deg; those four sharp
+// block-interface corners are the geometric feature that aliases the D4 corner
+// mode measured by G-F27R-2 (Einf) at R2 (GATE FAIL, order 1.272, support 0.23%
+// of cells at the core/ring corner).  The interface is re-shaped to the
+// AREA-EQUIVALENT CIRCLE of the frozen square core: the square core has corners
+// at r=0.5, side 2*(0.5/sqrt2)=0.70710678, area exactly 0.5; the circle of the
+// same area has radius sqrt(0.5/pi) = 0.5*sqrt(2/pi) = 0.3989422804014327.  This
+// is an AREA-PRESERVING reshape (the minimal one): it keeps the core's
+// cross-sectional area identical while distributing it as a disk, softening the
+// four corners and making the ring a near-orthogonal annulus.  The bulge radius
+// is a GEOMETRIC principle independent of any solved value AND of the non-ortho
+// metric (checkMesh confirms it also nearly minimises max non-orthogonality:
+// 19.1/24.1/27.0 deg vs the frozen square's 28.6/36.2/40.4).  A FULL circle
+// (r=0.5) was BUILT and REJECTED: it fails MESH_STANDARD 3.1 (medium 71.6 deg,
+// fine 80.6 deg > 70) and the volume-ratio bound (fine 17.1 > 8) by over-
+// distorting the core corner -- the classic reason butterfly cores are rounded
+// squares, not full circles.
+//
+// WHY THE BAND IS BYTE-IDENTICAL.  The band rests on A_MESH (the built mesh's own
+// cross-sectional area, via exact_f27.r_eff_of) and on MODEL_NR / STEPS.  A_MESH
+// is the area bounded by the OUTER WALL only; the core/ring interface is an
+// INTERNAL boundary and reshaping it does not change the union core+ring = the
+// region inside the wall.  NC, NR, NZ, CORE_FRAC and the wall arcs are unchanged,
+// so MODEL_NR, STEPS and A_MESH are unchanged -> predictions() and both bands are
+// byte-identical.  Only W_REF_MESH (a REPORTED-NOT-GATED reference, the
+// volume-weighted mean of the exact axial velocity over the mesh's own cells)
+// moves, because the interior cell distribution changes; it is re-registered in
+// exact_f27_r3.py and pinned by build_f27_r3.py.  W_REF_MESH enters NO band.
+//
+// EVERY BLOCK IS `simpleGrading (1 1 1)` -- NO grading parameter anywhere
+// (MESH_STANDARD 9.2 read-back holds unchanged).  The interface arc is an `edges`
+// entry, not a grading multiplier.  Cross-section cells = nc^2 + 4 nc nr; total
+// = that x nz, unchanged from the frozen parent at every level.
+// MESH_STANDARD 8.1: BUILD BEFORE YOU FREEZE -- checkMesh readings are registered
+// in the R3 pre-registration from the built mesh at all three levels.
+scale 1;
+vertices (
+    (-0.35355339059327373 -0.35355339059327373 0)
+    (0.35355339059327373 -0.35355339059327373 0)
+    (0.35355339059327373 0.35355339059327373 0)
+    (-0.35355339059327373 0.35355339059327373 0)
+    (-0.70710678118654746 -0.70710678118654746 0)
+    (0.70710678118654746 -0.70710678118654746 0)
+    (0.70710678118654746 0.70710678118654746 0)
+    (-0.70710678118654746 0.70710678118654746 0)
+    (-0.35355339059327373 -0.35355339059327373 1)
+    (0.35355339059327373 -0.35355339059327373 1)
+    (0.35355339059327373 0.35355339059327373 1)
+    (-0.35355339059327373 0.35355339059327373 1)
+    (-0.70710678118654746 -0.70710678118654746 1)
+    (0.70710678118654746 -0.70710678118654746 1)
+    (0.70710678118654746 0.70710678118654746 1)
+    (-0.70710678118654746 0.70710678118654746 1)
+);
+blocks (
+    hex (0 1 2 3 8 9 10 11) (__NC__ __NC__ __NZ__) simpleGrading (1 1 1)
+    hex (1 5 6 2 9 13 14 10) (__NR__ __NC__ __NZ__) simpleGrading (1 1 1)
+    hex (2 6 7 3 10 14 15 11) (__NR__ __NC__ __NZ__) simpleGrading (1 1 1)
+    hex (3 7 4 0 11 15 12 8) (__NR__ __NC__ __NZ__) simpleGrading (1 1 1)
+    hex (0 4 5 1 8 12 13 9) (__NR__ __NC__ __NZ__) simpleGrading (1 1 1)
+);
+edges (
+    arc 0 1 (0 -0.3989422804014327 0)
+    arc 1 2 (0.3989422804014327 0 0)
+    arc 2 3 (0 0.3989422804014327 0)
+    arc 3 0 (-0.3989422804014327 0 0)
+    arc 8 9 (0 -0.3989422804014327 1)
+    arc 9 10 (0.3989422804014327 0 1)
+    arc 10 11 (0 0.3989422804014327 1)
+    arc 11 8 (-0.3989422804014327 0 1)
+    arc 5 6 (1 0 0)
+    arc 13 14 (1 0 1)
+    arc 6 7 (0 1 0)
+    arc 14 15 (0 1 1)
+    arc 7 4 (-1 0 0)
+    arc 15 12 (-1 0 1)
+    arc 4 5 (0 -1 0)
+    arc 12 13 (0 -1 1)
+);
+boundary (
+    wall   { type wall;   faces ((4 5 13 12) (5 6 14 13) (6 7 15 14) (7 4 12 15)); }
+    inlet  { type cyclic; neighbourPatch outlet; faces ((0 3 2 1) (1 2 6 5) (2 3 7 6) (3 0 4 7) (0 1 5 4)); }
+    outlet { type cyclic; neighbourPatch inlet;  faces ((8 9 10 11) (9 13 14 10) (10 14 15 11) (11 15 12 8) (8 12 13 9)); }
+);
