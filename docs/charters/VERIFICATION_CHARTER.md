@@ -8492,3 +8492,67 @@ is believed, and its planted control must fire both limbs in the run that produc
 **Until the instrument's plant is verified by me at source, its scan is a DRAFT and no team is held to
 its flags.** ***An enforcement instrument believed before its own plant fired would be this clause
 violating itself on its first use.***
+
+## Amendment — v1.71, 2026-09-08 — **§2az THE CONVERGENCE-MONITOR STANDARD: STEADY-STATE CONVERGENCE IS JUDGED ON THE UNCORRECTED INITIAL RESIDUAL OF THE FIRST PRESSURE / MOMENTUM SOLVE AT THE FINAL OUTER ITERATION — NEVER ON A WITHIN-ITERATION CORRECTOR RESIDUAL. THE CORRECTOR RESIDUAL IS LINEAR-SOLVE TIGHTNESS, DRIVEABLE ARBITRARILY SMALL INDEPENDENT OF OUTER-LOOP CONVERGENCE, AND CANNOT ESTABLISH STEADY STATE; BINDING A GATE ON IT IS FIELD-SELECTION GATE-WIDENING (T25).**
+
+**Appended 2026-09-08 by `verification-supervisor` on Sanaa's explicit authorization,
+`etc/sessions/2026-09-08_sanaa_codify_convergence_standard_and_plain_english_status.md`, her verbatim
+*"yes i do"* to the chief's offer to codify this principle as a general lab standard. `[CAPTURE READ
+BY ME AT SOURCE — rule 9; a new standard is reserved to Sanaa, and this is her own word.]` This clause
+GENERALIZES verification's A2 accept-floor ruling (`a2978688`, V-128,
+`verification/campaign/A2_ACCEPT_FLOOR_BINDING_FIELD_RULING_2026-09-08.md`) from an n=1 application of
+existing law into a NAMED general standard, so future registrations and audits cite `§2az` directly
+rather than re-deriving it each time. Landed in the CHARTER, not `CLAUDE.md` — whether the
+constitution absorbs it is hers.**
+
+**LINES WHOSE NUMBER CHANGED ABOVE THIS SECTION: 0.** This clause is appended at the foot and nothing
+above it is edited (rule 6); the base header on line 3 is not bumped, matching the v1.67–v1.70
+foot-only amendment pattern.
+
+### §2az.1 THE STANDARD
+
+> **RULED — `§2az`: for a STEADY (SIMPLE / pseudo-transient segregated pressure-based) solve,
+> iterative convergence under rule 5 order (1) and any `residualControl` gate is judged on the
+> INITIAL residual of the FIRST, UNCORRECTED solve of each governing equation at the FINAL outer
+> iteration** — the quantity the solver prints as that equation's initial residual per outer
+> iteration (the pressure equation's first-corrector initial residual; the `Ux` / `Uy` / `Uz`
+> initial residuals). **This is the residual of the field BEFORE that outer iteration's correction
+> is applied; driving it below the floor is what demonstrates the field has stopped changing between
+> outer iterations — i.e. that a steady state has been reached.**
+>
+> **A LATER, WITHIN-ITERATION CORRECTOR RESIDUAL IS NOT A STEADY-STATE MONITOR AND A GATE MAY NOT BE
+> BOUND ON IT.** The final residual after the last pressure corrector, or the residual of a second /
+> non-orthogonal corrector, measures LINEAR-SOLVE TIGHTNESS — how well the linear system was solved
+> in THIS iteration — not outer-loop convergence. It is driveable arbitrarily small (tighter linear
+> tolerance, more correctors) INDEPENDENT of whether the outer loop has converged, so it CANNOT
+> establish that the solution has stopped changing.
+>
+> **`residualControl` is a FLOOR (necessary), NEVER a sufficiency**, and the monitor field is fixed
+> by physics — the uncorrected initial residual — not chosen per outcome.
+
+### §2az.2 THE ANTI-GAMING RULE — FIELD SELECTION IS GATE-WIDENING
+
+Where a case reports MORE THAN ONE residual per field (a first / uncorrected residual that fails and
+a corrected residual that passes), **selecting the corrected residual BECAUSE it passes is
+gate-widening by FIELD SELECTION** — the rule 2 / `§2` prohibition, named **T25** in the A2 ruling.
+The prohibited act and the permitted act look identical in the printed output; what distinguishes
+them is that the monitor field is **fixed before the answer is known** and is **the uncorrected
+initial residual by physics**, not the field that happens to clear the floor. A registration that
+binds convergence on a corrector residual is REFUSED on the same ground as any other post-hoc gate
+change, and a `§2d.1` repair may not be used to re-designate the criterion.
+
+### §2az.3 SCOPE, AND WHAT IT DOES NOT MOVE
+
+- **General, not n=1.** `§2az` applies to EVERY steady-solve convergence gate lab-wide — A2 / D6RF
+  was its first application, not its boundary.
+- **Consistent with existing law, so it moves NO verdict.** It names how rule 5 order (1)
+  (*"iteratively converged"*) and N-family `§1` (convergence judged on the equation's own initial
+  residual read from the solver log) were always to be read; it does NOT re-grade any landed row. It
+  binds future registrations, cross-team gate audits, and the fix-until-runs successors owed under
+  `§2an` and the 2026-09-04 mandatory-completion orders.
+- **The consequence already on record.** dafoam's A2 D6RF `GATE FAIL` STANDS, and its owed numerics
+  successor must drive the UNCORRECTED pressure initial residual below the frozen floor with the
+  gate, threshold, floor and label UNMOVED — it does not pass by re-designating the criterion (V-128,
+  `a2978688`).
+- **Transient solves are out of scope.** This is a steady-state / outer-loop convergence standard; a
+  time-accurate run's convergence is judged on its own per-timestep criteria, not addressed here.
