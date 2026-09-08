@@ -567,7 +567,20 @@ def launch(entry: dict, path: Path, root: Path, log: Log, archive: bool = True) 
     # record (L-342). It never claims the solver's rc: a launcher that refused at zero
     # compute and exited 0 would otherwise read as a completed solve (heat-transfer
     # T5_X_2d, 2026-08-26). Rule 4 is applied from the case's own RC/log files.
-    inner = (f"cd '{cwd}' && {quoted} > '{out}' 2>&1; R=$?; "
+    # LESSON (daemon launches a FOAM_USER_APPBIN solver with USER unset -> path misresolves):
+    # this daemon is started by cron -> queue_runner.sh -> `setsid nohup python3`,
+    # and cron's environment has USER UNSET (LOGNAME=ubuntu and HOME are set, USER is not).
+    # A launched solve inherits that env and sources OpenFOAM's etc/bashrc, whose line 190
+    # `WM_PROJECT_USER_DIR=.../${USER:-user}-$WM_PROJECT_VERSION` then resolves
+    # FOAM_USER_APPBIN to `.../user-v2606/...` (binary ABSENT) instead of
+    # `.../ubuntu-v2606/...` (binary PRESENT) -- so ANY daemon-launched USER-SPACE FOAM
+    # solver (DMR, DAFoam, F4's bounded solver) aborts on a missing binary. Setting USER
+    # HERE, in the child shell that runs the launch_cmd BEFORE it sources bashrc, resolves
+    # the correct FOAM_USER_APPBIN for every launched solve -- ENFORCED for all entries,
+    # not a per-row `env USER=ubuntu` remember. `${USER:-ubuntu}` respects an explicitly set
+    # USER and defaults to the box's only user; harmless for stock system-path solvers.
+    # (Dormant until the next daemon (re)start -- the running pid holds the old code.)
+    inner = (f"cd '{cwd}' && export USER=\"${{USER:-ubuntu}}\" && {quoted} > '{out}' 2>&1; R=$?; "
              f"echo \"launcher_rc=$R end=$(date -u +%Y-%m-%dT%H:%M:%SZ) "
              f"note=exit-status-of-the-launch-argv-NOT-the-solver-rc\" > '{status}'")
     with open(os.devnull, "rb") as devnull:
