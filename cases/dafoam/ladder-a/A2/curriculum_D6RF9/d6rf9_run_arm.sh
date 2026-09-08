@@ -286,6 +286,7 @@ install_config() {   # $1=leg $2=solver $3=nNonOrth $4=relax_p $5=relax_eqn $6=e
     # relaxation (p|p_rgh) in the fields block, and equations block
     awk -v v="$4" '/\(p\|p_rgh\)/{sub(/[0-9.]+;/, v";")} {print}' "$sd/fvSolution" > "$sd/fvSolution.t2" && mv "$sd/fvSolution.t2" "$sd/fvSolution" || { echo "D6RF9_LEG_ABORT leg=$1 relax_p set failed at $sd"; return 5; }
     awk -v v="$5" '/\(U\|T\|e\|h\|nuTilda\|k\|epsilon\|omega\)/{sub(/[0-9.]+;/, v";")} {print}' "$sd/fvSolution" > "$sd/fvSolution.t3" && mv "$sd/fvSolution.t3" "$sd/fvSolution" || { echo "D6RF9_LEG_ABORT leg=$1 relax_eqn set failed at $sd"; return 5; }
+    grep -qE "\(U\|T\|e\|h\|nuTilda\|k\|epsilon\|omega\)\"?[[:space:]]+$5;" "$sd/fvSolution" || { echo "D6RF9_LEG_ABORT leg=$1 relax_eqn $5 not set at $sd"; return 5; }
     grep -qE "\(p\|p_rgh\)\"?[[:space:]]+$4;" "$sd/fvSolution" || { echo "D6RF9_LEG_ABORT leg=$1 relax_p $4 not set at $sd"; return 5; }
     # controlDict endTime
     awk -v v="$6" '/^endTime/{$0="endTime         "v";"} {print}' "$sd/controlDict" > "$sd/controlDict.t1" && mv "$sd/controlDict.t1" "$sd/controlDict" || { echo "D6RF9_LEG_ABORT leg=$1 endTime set failed at $sd"; return 5; }
