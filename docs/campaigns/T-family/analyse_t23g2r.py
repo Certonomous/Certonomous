@@ -182,7 +182,7 @@ NU = 1.8e-05 / 1.2            # fluid kinematic viscosity, m2/s (mu/rho, const)
 # None because setting it to this file's own blob is the same self-reference
 # impossibility).  The NON-self grading-path members are not self-referential;
 # their dual-sha record stands UNCHANGED in print_grading_path_shas (REPAIR R2).
-GRADING_PATH_FREEZE_COMMIT = "PIN-AT-FREEZE"
+GRADING_PATH_FREEZE_COMMIT = "2a1e03a6352a2d65dba94d43e2e8c895418518b8"  # freeze commit 1/2 (build+comparator+prereg); pin set here in commit 2/2
 EXPECTED_SELF_BLOB = None          # section 2au.2 print-only; asserted only if the
                                    # supervisor ever sets it (see note above).
 SELF_REL = "docs/campaigns/T-family/analyse_t23g2r.py"
