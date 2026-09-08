@@ -223,3 +223,60 @@ cost sign-off (est 66 / cap 198 core-min, $0.056 / $0.169 derived) is received. 
 `9c1905c0220604946dbd6a8016d5b9de` is pinned in §7. The launch marker `so3dr_stage2_FREEZE.marker` is placed
 in this dir at freeze. Grading runs the frozen `so3dr_stage2R_grade.py` WITHOUT `--skip-freeze` so
 `freeze_check` + planted-zero + F6 self-run. SUBMISSIONS PARKED.
+
+---
+
+## ADDENDUM §2d.1 — 2026-09-08 — INVOCATION-ONLY, VALUE-INVARIANT RE-GRADE (Version 1.1)
+
+**Lines whose number changed above this section: 0.** This addendum is appended at the foot only;
+nothing above it is edited (rule 6). The gate `G-SA-DISCRIM`, its thresholds, the cap and the labels
+are byte-identical to Version 1.0 above — this addendum alters none of them, and records a recovered
+verdict, not a new one.
+
+**Authority.** Verification RULING **b44a0376** GRANTED a `CLAUDE.md` rule-2 §2d.1 repair for
+SO3DR-F4-R: an **INVOCATION-ONLY, VALUE-INVARIANT** re-grade. The frozen grader is **not edited** (the
+default-path typo below stays on disk); the repair is effected entirely by the grading invocation.
+
+**The instrument defect, disclosed (captured at freeze).** The frozen grader's argparse default for
+`--sample` (`so3dr_stage2R_grade.py` `main()`, the `p.add_argument("--sample", default=...)` line)
+hard-codes the filename **`so3dr_stage2_registered_sample.json`** — the parent **`stage2_`** stem, with
+**no `R`** — whereas the file actually frozen into this dir is **`so3dr_stage2R_registered_sample.json`**
+(**`stage2R_`**). This is a dead typo carried in at the byte-identical re-freeze: the no-`R` file does
+not exist here, so a default-path run makes falsifier **F6** (`falsifier_f6_sample`) refuse (exit 2) at
+"registered sample absent" — a *correct* refusal against an absent file, never a physics fault. This is
+an **INSTRUMENT** defect in the grader's default argument, not a defect in the gate, the sample, or the
+36-leg run.
+
+**The repair (invocation-only, value-invariant).** Grade with `--sample` pointed at the REGISTERED
+with-`R` file:
+
+```
+python3 so3dr_stage2R_grade.py \
+  --runs-root /home/ubuntu/certonomous-runs/CURRICULUM-SO3DR-STAGE2R-a2-cl04-standalone-20260908T181559Z \
+  --sample .../curriculum_SO3DR_stage2_R/so3dr_stage2R_registered_sample.json
+```
+
+Value-invariance is exact and demonstrable:
+- the grader **bytes are unchanged** — md5 `2d32ec9b933764b5eb3e3bb61e6657cd` (as pinned §5, §7);
+- the registered sample **bytes are unchanged** — md5 `55bf8e2dcc07fbe3197f2c53421ad019` (as pinned §5, §7);
+- the gate `G-SA-DISCRIM` and every threshold/label are **byte-identical** to Version 1.0 §2;
+- run WITHOUT `--skip-freeze`, so `freeze_check` + the planted-zero control + F6 self-run as at freeze.
+
+**Anti-gaming instrument (named).** The `--sample` override cannot be abused to substitute a different
+sample: falsifier **F6** (`falsifier_f6_sample`) recomputes the md5 of *whatever* file is passed and
+**REFUSES (exit 2)** unless it equals the frozen `SAMPLE_MD5 = 55bf8e2dcc07fbe3197f2c53421ad019`, and
+further checks the sample's `N`/`n_fail`/`n_succ` strata (36/24/12) and its D6R log sha256. The freeze's
+own F6 md5 guard is therefore the anti-gaming lock: only the byte-exact registered sample passes, so the
+invocation can point F6 at the correct file but cannot point it at a favourable one.
+
+**Recovered verdict (grade json:
+`/home/ubuntu/certonomous-runs/CURRICULUM-SO3DR-STAGE2R-a2-cl04-standalone-20260908T181559Z/so3dr_stage2R_grade.json`).**
+
+> **NOT A RESULT | discrimination HIGH-CONFOUNDED.** All 36 legs completed to rule 4 (0 incomplete).
+> `r_sa = 32/36 = 0.8889`; `r_fail = 24/24 = 1.0000`; `r_succ = 8/12 = 0.6667`. F3 fired
+> (`r_succ 0.6667 > 0.10` with `r_sa ≥ 0.50`): a HIGH reading cannot be attributed to intrinsic
+> pathology, so the HIGH is downgraded to NOT A RESULT. This is exactly the REPRODUCTION expectation
+> registered in §2 (`r_succ = 66.7 %`, F3-borne). All three controls PASSED: `freeze_check` (6
+> instruments from source, 0 assert nodes), the planted-zero control (PLANT-SA-BANNER +1, blinded
+> reader caught, PLANT-SA-DECOY 0), and F6 (sample verified, md5 == `55bf8e2d`). Per-leg F4 graded on
+> all 36 legs (the clean F4 record the parent Stage-2 could not produce). SUBMISSIONS PARKED.
