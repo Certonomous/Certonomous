@@ -1,8 +1,8 @@
-NOT_FROZEN — DRAFT for the dafoam-supervisor's check-1 and the chief's cost sign-off. NO FREEZE, NO ENQUEUE, NO LAUNCH taken here. Zero solver core-minutes spent. SUBMISSIONS PARKED.
+FROZEN — dafoam-supervisor freeze taken 2026-09-07. Chief cost sign-off received (est 66 / cap 198 core-min). Check-1 (rig diff, grader/sample byte-identity) and the `check_sidecar_before_run.py` ordering guard (PASS both directions) discharged by the supervisor. The freeze commit is this file's committing sha; the launch marker `so3dr_stage2_FREEZE.marker` is placed in this dir. SUBMISSIONS PARKED.
 
-# CURRICULUM SO-3D-R — STAGE 2 · SUCCESSOR "R" (SO3DR-F4 grading-path successor). PRE-REGISTRATION (DRAFT).
+# CURRICULUM SO-3D-R — STAGE 2 · SUCCESSOR "R" (SO3DR-F4 grading-path successor). PRE-REGISTRATION (FROZEN).
 
-**Version 0.1 DRAFT. NOT FROZEN. NOT ENQUEUED. NOT LAUNCHED. ZERO SOLVER CORE-MINUTES SPENT.**
+**Version 1.0 FROZEN 2026-09-07. Gate, thresholds, cap and labels committed before first compute. Rig md5 pinned `9c1905c0220604946dbd6a8016d5b9de`; grader `2d32ec9b933764b5eb3e3bb61e6657cd`; sample `55bf8e2dcc07fbe3197f2c53421ad019`. After this freeze commit no gate/threshold/cap/label changes — only dated addenda.**
 
 This is the **fresh successor** mandated by verification ruling **V-127** (relayed by the chief): the
 frozen Stage-2 grading path is unrepairable in place, so Stage-2 is re-run through a **clean grading
@@ -198,9 +198,9 @@ nothing until the supervisor's freeze places the marker; SUBMISSIONS PARKED.
 
 | file | role | freeze state |
 |---|---|---|
-| `so3dr_stage2R_standalone_runScript.py` | the ordering-fixed standalone single-point rig | **NOT_FROZEN (draft)**; current md5 to be pinned at freeze |
-| `so3dr_stage2R_grade.py` | the banner reader / `r_sa` grader + F1–F6 controls (byte-identical re-freeze) | **NOT_FROZEN (draft)**; md5 `2d32ec9b933764b5eb3e3bb61e6657cd` (unchanged from Stage-2) |
-| `so3dr_stage2R_registered_sample.json` | the registered 24+12 stratified sample (byte-identical) | **NOT_FROZEN (draft)**; md5 `55bf8e2dcc07fbe3197f2c53421ad019` (unchanged) |
+| `so3dr_stage2R_standalone_runScript.py` | the ordering-fixed standalone single-point rig | **FROZEN**; md5 `9c1905c0220604946dbd6a8016d5b9de` (pinned at freeze) |
+| `so3dr_stage2R_grade.py` | the banner reader / `r_sa` grader + F1–F6 controls (byte-identical re-freeze) | **FROZEN**; md5 `2d32ec9b933764b5eb3e3bb61e6657cd` (unchanged from Stage-2) |
+| `so3dr_stage2R_registered_sample.json` | the registered 24+12 stratified sample (byte-identical) | **FROZEN**; md5 `55bf8e2dcc07fbe3197f2c53421ad019` (unchanged) |
 | `scripts/check_sidecar_before_run.py` | pre-freeze ordering guard (L-504 clause-c) | pre-freeze instrument; selftest green |
 
 **Freeze pre-conditions (the supervisor's, per L-504):** (a) fixpoint every md5/threshold constant to a
@@ -210,9 +210,16 @@ source here = this prereg literal 66 / cap 198 + the launcher assertion, no cap 
 
 ---
 
-## 8. FREEZE STATEMENT — NOT TAKEN HERE
+## 8. FREEZE STATEMENT — TAKEN 2026-09-07 (dafoam-supervisor)
 
-**NOT FROZEN.** This draft takes no freeze, no enqueue, no launch, and spends zero solver core-minutes.
-The freeze is the dafoam-supervisor's, after check-1 on the rig diff and the `check_sidecar_before_run.py`
-ordering check, and the chief's sign-off on the §5 costed figure. Placing `so3dr_stage2_FREEZE.marker`
-in this dir is the separate launch step and is not taken here.
+**FROZEN.** The dafoam-supervisor takes this freeze after discharging, personally:
+(a) check-1 on the rig diff vs the frozen parent — exactly two ordering/packaging changes, value-invariant
+(all 11 sidecar fields input-derived, §1.3); (b) grader and sample byte-identity confirmed against disk
+(grader md5 `2d32ec9b`, sample md5 `55bf8e2d`); (c) the `check_sidecar_before_run.py` ordering guard run
+both directions on the REAL rigs — PASS on this successor (write line 352 ≤ run line 359), REFUSE exit 3 on
+the frozen parent (write 328 after run 312), selftest OK; (d) confirmed `freeze_check` pins the grader's own
+instruments + F6 sample + D6R sha256 (NOT the rig md5), so the byte-identical grader is lawful. The chief's
+cost sign-off (est 66 / cap 198 core-min, $0.056 / $0.169 derived) is received. The rig md5
+`9c1905c0220604946dbd6a8016d5b9de` is pinned in §7. The launch marker `so3dr_stage2_FREEZE.marker` is placed
+in this dir at freeze. Grading runs the frozen `so3dr_stage2R_grade.py` WITHOUT `--skip-freeze` so
+`freeze_check` + planted-zero + F6 self-run. SUBMISSIONS PARKED.

@@ -1,0 +1,16 @@
+SO3DR-F4-R (curriculum_SO3DR_stage2_R) FREEZE MARKER — launch authorized.
+
+Freeze taken by the dafoam-supervisor 2026-09-07. Chief cost sign-off: est 66 / cap 198 core-min.
+Gate G-SA-DISCRIM inherited verbatim from the frozen Stage-2 pre-registration.
+Registered prediction (reproduction expectation): NOT A RESULT | HIGH-CONFOUNDED (F3-borne).
+
+Pinned grading path:
+  rig     so3dr_stage2R_standalone_runScript.py   md5 9c1905c0220604946dbd6a8016d5b9de
+  grader  so3dr_stage2R_grade.py                  md5 2d32ec9b933764b5eb3e3bb61e6657cd
+  sample  so3dr_stage2R_registered_sample.json    md5 55bf8e2dcc07fbe3197f2c53421ad019
+
+Pre-freeze guard scripts/check_sidecar_before_run.py: PASS on this rig (write 352 <= run 359),
+REFUSE exit 3 on the frozen parent (write 328 after run 312). Selftest OK.
+
+Grade with: python3 so3dr_stage2R_grade.py --runs-root <campaign root>  (NO --skip-freeze).
+SUBMISSIONS PARKED.
