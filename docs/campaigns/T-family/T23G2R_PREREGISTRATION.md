@@ -414,14 +414,16 @@ against `GRADING_PATH_FREEZE_COMMIT` at grade time.
 | grading-path member | role | pinned git blob | source |
 |---|---|---|---|
 | `docs/campaigns/T-family/build_t23g2r.py` | mesh/case build (§5.1) | `63a7e5aa9f96c917d4f65d027ee84918c8288b6d` | on-disk, enters tree at freeze commit |
-| `verification/runs/T-family/T23_runs/mark_done_t23.py` | rule-4 completion (§5.3) | `37165979fafbe3c87921dab05b51e984878d90dc` | HEAD (unchanged on disk) |
+| `verification/runs/T-family/T23_runs/mark_done_t23.py` | rule-4 completion (§5.3) | `982e1db6622454c2e5cc3e9eb4d6811e87735b78` | EXTENDED for `T23G2R_L*` (v1.3 amendment, §10.5); enters tree at the re-pin commit |
 | `scripts/roache_triple.py` | triple gating + `PLANT` (rule 5/rule 14) | `78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8` | HEAD (unchanged on disk) |
 | `docs/campaigns/T-family/t23g_readonly_diagnosis.py` | y+ / first-cell / mesh readers | `73804c02d2f1ebbb2cd2ad63796f4b5cfb4d7067` | HEAD (unchanged on disk) |
 | `docs/campaigns/T-family/analyse_t23g2.py` | PREDECESSOR comparator (diff base) | `72357dad2bfb39ca74b78ad253cdbca1545d6534` | HEAD (unchanged on disk) |
 
 ### 10.2 THE SELF MEMBER — `analyse_t23g2r.py` is NOT pinned in the table above (§2au.2)
 
-The comparator's own blob (on-disk `7f7786a0dd3ce2ea8ea47756db5550584214bb43`) is
+The comparator's own blob (which CHANGES with each pin-set, since
+`GRADING_PATH_FREEZE_COMMIT` lives inside the hashed body — placeholder-era
+`7f7786a0…`, C2-era `7f0bdd90…`, and the current value after the §10.5 re-pin) is
 **deliberately absent from §10.1**. A self-referential "IDENTICAL vs its own freeze
 commit" pin is a **git pre-image**: the freeze sha would have to live inside the
 hashed file, so writing it changes the blob and hence the commit (established
@@ -433,9 +435,10 @@ one). The SELF member is instead anchored, per `VERIFICATION_CHARTER.md` §2au.2
 1. **`EXPECTED_SELF_BLOB = None`** in `analyse_t23g2r.py` — the self-hash is
    **PRINT-ONLY** (`verify_self` prints the running blob as provenance and does not
    refuse on it; it asserts only if `EXPECTED_SELF_BLOB` is ever set).
-2. **A `FREEZE-PIN: analyse_t23g2r.py@7f7786a0dd3ce2ea8ea47756db5550584214bb43`
-   line in the freeze commit message** — the blob recorded outside the hashed
-   content, where hashing cannot perturb it.
+2. **A `FREEZE-PIN: analyse_t23g2r.py@<blob>` line in the LATEST freeze/re-pin
+   commit message** — the blob recorded outside the hashed content, where hashing
+   cannot perturb it; it is re-recorded whenever `GRADING_PATH_FREEZE_COMMIT` is
+   re-pointed (the §10.5 re-pin supersedes the earlier C2-era `7f0bdd90…` record).
 3. **Grade-time byte-identity** of the on-disk `analyse_t23g2r.py` against that
    recorded blob (the supervisor's non-delegable check before launch).
 
@@ -467,6 +470,36 @@ cost is reported separately, never folded into the campaign ratio. **NO SOLVER
 LAUNCHES until the freeze is committed** (personal check 4, non-delegable): the
 graded run on `verification/runs/T-family/T23G2R_runs` begins only after commit 2
 and the pre-flight pass.
+
+### 10.5 §5.1 PRE-FLIGHT FINDING + INSTRUMENT EXTENSION + RE-PIN — 2026-09-08
+
+The **§5.1 pre-flight** found that the reused frozen completion instrument
+`verification/runs/T-family/T23_runs/mark_done_t23.py` (pinned blob `37165979` at
+the 2026-09-08 freeze) whitelists case names in its `CASES` tuple and **REFUSES
+(exit 2)** any name not present ("...is not a registered T23 case"). Its `CASES`
+carried the PREDECESSOR levels `T23G2_L1/L2/L3` but **NOT** the successor levels
+`T23G2R_L1/L2/L3`; the comparator `analyse_t23g2r.py` subprocess-invokes
+`mark_done_t23.py` with the T23G2R level names, so at grade time it would have
+refused `rc=2` before reading a single field.
+
+The instrument was **EXTENDED** (CLAUDE.md rule 14: additive insertion, never a
+replacement) — `T23G2R_L1/L2/L3` added to `CASES` in place, following the exact
+pattern by which `T23G2_L1/L2/L3` were previously added (its v1.2 amendment). This
+is a **LEGAL PRE-FIRST-COMPUTE AMENDMENT** (rule 2): the T23G2R run directory
+`verification/runs/T-family/T23G2R_runs` is **ABSENT on disk** (re-checked
+2026-09-08), so nothing has run. The six completion clauses, the `NEEDED` field
+list, the `0/housing/T` age reference, the endTime handling and `CASES[0]` (the
+`--selftest` forged case) are all **UNCHANGED**; `--selftest` passes RC=0 under
+both `python3` and `python3 -O`. The blob moves **`37165979` → `982e1db6`**
+(recorded in the §10.1 row above).
+
+**No gate, threshold, band, cap, label or prediction is altered by this finding.**
+The re-pin follows in a **dated freeze-amendment commit made by the supervisor**:
+`GRADING_PATH_FREEZE_COMMIT` in `analyse_t23g2r.py` will be re-pointed to the
+commit carrying the extended instrument, so the comparator's non-self `rev-parse`
+of the `mark_done_t23.py` member resolves to the extended blob `982e1db6` and **no
+recorded mismatch** arises at grade time. The §3 diff-read of the extended
+instrument and the re-pin commit are the supervisor's (non-delegable).
 
 *Freeze section authored 2026-09-08 by a heat-transfer `lab-lane`; the §3 code
 diff-read, the blob pins and the freeze commit are the supervisor's (non-delegable).

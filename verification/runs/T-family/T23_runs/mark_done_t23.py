@@ -92,7 +92,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # whatever rule 4 says".  THE SIX CLAUSES BELOW ARE UNTOUCHED, and both rc=2 and
 # rc=1 block grading, so this instrument is FAIL-CLOSED BEFORE AND AFTER.
 CASES = ("T23_P305_U10", "T23_P305_U20", "T23_P305_U30", "T23_P305_U40",
-         "T23G_C", "T23G_M", "T23G_F", "T23G2_L1", "T23G2_L2", "T23G2_L3")
+         "T23G_C", "T23G_M", "T23G_F", "T23G2_L1", "T23G2_L2", "T23G2_L3", "T23G2R_L1", "T23G2R_L2", "T23G2R_L3")
 
 # T23 3.5 conjunct 4.  PER REGION, because two of the three regions are solids.
 NEEDED = {
@@ -459,6 +459,36 @@ if __name__ == "__main__":
 # WRITTEN, never ASSERTED, so no re-run breaks.  V-52 ruled those fossils
 # untouchable and that ruling is undisturbed: the divergence is a detection
 # doing its job and must not be suppressed.
+#
+# NOT GRADED, NOT LAUNCHED, by the lane that made this edit.
+# ==========================================================================
+
+
+# ==========================================================================
+# AMENDMENT v1.3 -- 2026-09-08 -- PRE-COMPUTE EXTENSION, T23G2R.
+#
+# LINES WHOSE NUMBER CHANGED ABOVE THIS SECTION: 0.  The sole edit above is IN
+# PLACE on line 95, which gained three more names and no newline -- the same
+# in-place widening the v1.2 block above made; no line above this section moved.
+#
+# GRANT.  This is a LEGAL PRE-FIRST-COMPUTE AMENDMENT (CLAUDE.md rule 2): the
+# T23G2R run directory `verification/runs/T-family/T23G2R_runs` DOES NOT EXIST
+# on disk (checked 2026-09-08, the §5.1 pre-flight that revealed the gap), so no
+# compute has begun and the additive edit is legal before the freeze.  The
+# defect is the same shape as REPAIR R1 above: T23G2R's comparator
+# (`analyse_t23g2r.py`) delegates rule-4 completion to THIS file and
+# subprocess-invokes it with the level names `T23G2R_L1/L2/L3`, none of which
+# were in the allow-list, so `run()` would refuse rc=2 before reading a field.
+#
+# THE EDIT: `T23G2R_L1`, `T23G2R_L2`, `T23G2R_L3` added to `CASES`.
+#
+# DIRECTION, the same ground as v1.2 and REPAIR D2: widening an ALLOW-LIST
+# cannot make a failing case pass.  It converts "refused to look" into "looked,
+# and the answer is whatever rule 4 says".  THE SIX CLAUSES ARE UNTOUCHED; rc=2
+# and rc=1 both block grading; FAIL-CLOSED BEFORE AND AFTER.  `CASES[0]` is
+# unchanged, so `--selftest`'s forged case is the same case, and the endTime
+# handling, field list (`NEEDED`), age reference (`0/housing/T`) and check logic
+# are all untouched (rule 14: additive, never a replacement).
 #
 # NOT GRADED, NOT LAUNCHED, by the lane that made this edit.
 # ==========================================================================
