@@ -268,3 +268,42 @@ above is compared to the actual `core_min` from the log, the ratio and its attri
   rung's completion is where these are corrected.
 - **`freeze_check`'s HEAD-blob pin is a placeholder** until the supervisor freezes; the byte-identity of the
   accept-floor control to D6RF7's IS verified now (md5 equal).
+
+---
+
+## FROZEN — v1.0 (2026-09-08, dafoam-supervisor)
+
+**STATUS: FROZEN v1.0.** This dated block is the freeze act (CLAUDE.md rule 2). It **supersedes** the draft
+`PERMISSION = NOT_FROZEN` / DRAFT markers in the narrative above: from this commit forward the gate, threshold,
+cap and label of this item are **closed** and this file is amendable only by further dated addenda at this foot
+that cannot alter a gate, threshold, cap or label (rule 2, rule 6). **lines whose number changed above this
+section: 0** — nothing above was rewritten; the pre-freeze narrative is preserved verbatim as the draft record.
+
+**The frozen grading path (the entire evidentiary content of this freeze) — recorded verbatim:**
+
+- **Grader — `d6rf9_grade.py`, md5 `6e76ed57ac6890b0a7fa260c46dc517b`.** This is the file that grades; the
+  launcher stages a byte-identical copy under `$WORK` and the in-ladder host grade runs that md5-verified staged
+  copy (not the repo copy).
+- **Driver — `d6rf9_run_leg.py`, md5 `ae6ee60ce40239e6579b0ba59ae311a9`.**
+- **Accept-floor control — `d6rf9_accept_floor_control.py`, md5 `c6e63098` (`c6e63098e7afd542ea379a03eccfaf12`),
+  byte-identical to D6RF7 and T25.** Imported, not re-implemented, so this file and the floor cannot disagree; it
+  refuses the grading (exit 2) if either floor term has moved in EITHER direction (T25 made executable).
+- **Gate `G-CONV` / accept-floor `1.0e-05` on `p_first_uncorrected` — INHERITED VERBATIM from D6RF7 (T25).**
+  `CONV_BAR = 1.0e-05 = primalMinResTol 1e-08 × primalMinResTolDiff 1000` (N-D43 PRODUCT rule); binding field is
+  the first/uncorrected p-solve of the final outer iteration; `PASS` iff `v < CONV_BAR` else `GATE FAIL`,
+  per field, strictly restrictive. No gate, threshold, floor or field selection is moved.
+- **Ladder — ordered R1..R4, `STOPPED_AT_FIRST_PASS`** (each rung changes outer-loop numerics only; the mesh,
+  geometry, objective/constraint, `fvSchemes` and the accept floor are held fixed):
+  R1 extended horizon (`endTime 2500`); R2 deep corrector loop (`nNonOrthogonalCorrectors 3→12`, `endTime 2000`);
+  R3 SIMPLEC (`DARhoSimpleCFoam`, `relax (p|p_rgh) 0.70`, `endTime 2000`); R4 heavy under-relaxation
+  (`relax 0.15/0.50`, `endTime 4000`).
+- **Per-rung caps (core-min): R1 = 48, R2 = 63, R3 = 68, R4 = 112.**
+- **Cumulative hard stop = 291 core-min** (rule 12; an overrun STOPS the ladder and does not get a new budget).
+- **The launcher `d6rf9_run_arm.sh` is OUTSIDE the freeze hash-lock (D19T parent posture).** It verifies the
+  FROZEN INSTRUMENTS it stages (by the md5 fixpoints above), never itself; its `PERMISSION` field is pointed at
+  this freeze commit's sha in a separate commit.
+
+**Cost sign-off (rule 12):** the ladder cap `291 core-min` = **`$0.249` DERIVED** at the recorded c7a.4xlarge
+rate (`$0.0513/core-h`, reported-by-owner, not measured), which sits under the **$25/run CPU pre-authorisation
+(Sanaa 2026-08-21)**; frozen by the dafoam-supervisor per §PERMISSION / §5. Estimate-vs-actual calibration lands
+in `docs/COST_CALIBRATION.md` at each rung's completion (rule 12).
