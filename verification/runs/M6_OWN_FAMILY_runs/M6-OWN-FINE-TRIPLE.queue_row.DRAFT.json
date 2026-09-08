@@ -1,0 +1,40 @@
+{
+  "_WHAT_THIS_FILE_IS": "STAGED QUEUE-ROW DRAFT for the M6 own-family FINE TRIPLE {L2,L1,L0} solve. IT IS NOT IN THE QUEUE. It sits under the family run root (verification/runs/M6_OWN_FAMILY_runs/), which the daemon does NOT glob -- the daemon reads only verification/queue/<team>/*.json. This file's suffix is .DRAFT.json and it is deliberately OUT of the live drop path. Writing a *.json into verification/queue/cfd/ ARMS a launch within a minute; this lane placed nothing there and holds no authority to.",
+
+  "_STATE": "NOT READY FOR PLACEMENT. Three blockers below must clear first, and the cfd-supervisor's check-1 is owed on the solve driver AND on the own-family grading harness before either runs. The prereg is FROZEN + AUTHORISED (cost signed off by chief); the SOLVE cost is pre-authorised (<$25), but the deliverable (graded credential band) has no grading instrument yet.",
+
+  "_BLOCKERS_BEFORE_PLACEMENT": {
+    "B1_NO_APPLICABLE_GRADER": "The prereg sec 9 pins the Cp/GCI comparator by symbol as cases/M6SR/analyse_m6sr.py (blob 8007b23da5bb3173dacb6eda1d67ca5d90ce9139) OR the RUNG1_M6_R2 comparator. MEASURED: the RUNG1_M6_R2 comparator does NOT exist (RUNG1_M6_R2 sec 11 marks it 'to be written'), and analyse_m6sr.py's level-discovery/registration layer is M6SR-HARDWIRED -- main()/_discover_levels() hardwire level ids L3/L2/L1 (not this family's L2/L1/L0), M6SR mesh source paths, the M6SR cell triple A4_CELLS, endTimes (3000,4000,5000), and the M6SR createPatchDict sha S7_PATCH_NAME_DICT_SHA256. It therefore CANNOT grade this own-family fine triple as invoked. An own-family {L2,L1,L0} grading harness must be AUTHORED and pass the cfd-supervisor's check-1 (measurement logic -- FLAGGED, not wired live per the freeze brief), then re-pinned by a dated FREEZE ADDENDUM (T23G2R re-pin precedent).",
+    "B2_NO_SOLVE_DRIVER": "No solve driver exists for the family (only mesh builders: build_m6_own_{base,ends,coarse,L0}.py). A driver mirroring the RUNG1_M6_R2 / M6SR (run_m6sr_b5.sh) docker idioms must be authored -- the single 2136 core-min cap accumulator across all three levels (CAP_BREACH stops, rc captured INSIDE the wrapper per the setsid-parent-returns-zero lesson), the rule-4 absent/age guard per level, docker dafoam-idwarp-rot:v1 -u 1002:1002 stock rhoSimpleFoam, decomposePar/mpirun -parallel/reconstructPar per level -- and it must HASH the pinned comparator blob before grading and refuse on mismatch (rule 2). Because a fresh, untested driver would burn ~937 core-min at L0 unattended, the cfd-supervisor's check-1 (crash triage + big-claim verification, personal/undelegated) is owed BEFORE it is placed live.",
+    "B3_RANKS_NOT_REGISTERED": "The prereg sec 7.2 costs the solve by cells x iters x 3.40e-8 core-min (RANK-INDEPENDENT); the decomposition seed is 'hierarchical (n 1 1)' with n unregistered for THIS family's cell counts. RUNG1_M6_R2 used (4/8/16 1 1) for its 100k/400k/1.6M-cell levels. This family is 71,760 / 574,080 / 4,592,640 cells. A per-level rank plan must be REGISTERED (proposed below, PROPOSED-NOT-REGISTERED): L2=4, L1=8, L0=14. L0's 14 keeps the biggest leg under the ~14.4-core daemon ceiling (0.9 x 16); 16 would oversubscribe. The queue row's single 'ranks' field is the daemon's scheduling reservation = the PEAK leg = L0's."
+  },
+
+  "_MEMORY_FLOOR_UNREGISTERED": "memory_floor_gb is NOT registered in the prereg and no measured footprint exists for a 4.6M-cell k-omega-SST rhoSimpleFoam solve on this geometry class. RUNG2-CRM-M2 used 4.0 GB for ~1.6M hex cells; L0 at 4.6M will be materially higher. This must be measured or estimated-with-headroom and registered before placement. Field left null deliberately.",
+
+  "team": "cfd",
+  "case_id": "M6-OWN-FINE-TRIPLE",
+  "prereg_path": "verification/campaign/M6_OWN_FAMILY_FINE_TRIPLE_PREREGISTRATION.md",
+  "prereg_commit": "16913288687539e1cd1e2ea66c49511dfd9faf65",
+  "grading_freeze": [
+    "cases/M6SR/analyse_m6sr.py"
+  ],
+  "_grading_freeze_note": "PINNED BY SYMBOL AT FREEZE (prereg sec 12.3), blob 8007b23da5bb3173dacb6eda1d67ca5d90ce9139. This is the M6SR instrument and CANNOT grade {L2,L1,L0} as-is (blocker B1). GRADER-FREEZE is reporting-only in queue_entry_check.py (Sanaa 2026-09-03: a prereg mismatch never prevents a launch), so this field does NOT arm grading; grading is deferred to the check-1'd own-family harness, re-pinned by dated addendum.",
+
+  "launch_cmd": [
+    "bash",
+    "verification/runs/M6_OWN_FAMILY_runs/run_m6_own_fine_triple.sh",
+    "--go"
+  ],
+  "_launch_cmd_note": "THE DRIVER DOES NOT EXIST YET (blocker B2). NO env USER=ubuntu WRAP IS APPLIED: the solve binary is the STOCK OpenFOAM-v2506 rhoSimpleFoam (FOAM_APPBIN at OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/bin), run INSIDE docker dafoam-idwarp-rot:v1 as -u 1002:1002. The L-505 daemon USER-unset trap (which aborted DMR L5 rc=91) is specific to host FOAM_USER_APPBIN solvers; a docker-isolated stock binary does not consult host $USER, and the M6SR driver uses -u 1002:1002 not $USER. If the eventual driver is rewritten to run rhoSimpleFoam on the HOST from a user-space build, the wrap WOULD be required -- it is not, for the docker/stock path.",
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs",
+
+  "ranks": 14,
+  "_ranks_note": "PROPOSED-NOT-REGISTERED (blocker B3). = L0's rank count (the peak leg), ceiling-bounded to <=14 of the ~14.4-core daemon ceiling. The driver decomposes each level to its own count: L2=4, L1=8, L0=14. This is a big L0 leg (~937 core-min); the daemon must HOLD it if the box is loaded rather than oversubscribe.",
+
+  "cost_core_min_estimate": 1068.0,
+  "cap_core_min_registered": 2136.0,
+  "memory_floor_gb": null,
+  "cost_basis": "DERIVED at the on-box c7a.4xlarge rate $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED (COMPUTE_BUDGET_CHARTER sec 5, CLAUDE.md rule 12). Estimate 1068.0 core-min = 17.80 core-h = $0.913 DERIVED (prereg sec 7.2: L2 14.6 + L1 117.1 + L0 936.9). Cap 2136.0 core-min = 35.60 core-h = $1.83 DERIVED (prereg sec 7.3, = 2x the measured-rate estimate; an overrun STOPS the campaign and does not get a new budget, rule 12). Far inside the $1,000 IBL envelope. Cost signed off by the chief 2026-09-08 -- chief's ruling recorded by the supervisor, NOT Sanaa's words (rule 9).",
+
+  "enqueued_by": "PREPARED, NOT ENQUEUED -- cfd lab-lane, 2026-09-08, at HEAD 16913288687539e1cd1e2ea66c49511dfd9faf65 (the FROZEN prereg commit). This lane placed nothing in the live queue and holds no authority to. Whoever places it (after blockers B1-B3 clear and the supervisor's check-1 on the driver + own-family grader) replaces this string with their own identity and the authority they placed it under, moves the file into verification/queue/cfd/ as a *.json, and re-runs scripts/queue_entry_check.py --require-binding against the placed copy (TEAM-BINDING clause 7 is not checked outside the team dir)."
+}
