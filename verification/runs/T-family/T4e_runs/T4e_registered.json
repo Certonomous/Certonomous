@@ -1,0 +1,337 @@
+{
+  "rung": "T4e",
+  "parent": "T4d (NOT A RESULT, whole rung, 2026-09-08, committed 73e008dc; docs/campaigns/T-family/T4d_RESULTS.md). Coarse (C6.3 1.4e-6) and medium (3.4e-6) cleared the 2e-4 tol, but the FINE level reached endTime 64000 CLEAN yet NOT field-converged: C6.3 0.01518, ~76x the 2e-4 tol, and all three Roache radial triples non-CONVERGING (G1 OSCILLATORY, G2/G3 DIVERGENT, all fine values below band, no GCI). The frozen T4d record leaves the discriminator OPEN (still-decaying transient -> larger endTime, vs physical unsteadiness at Re=23000 -> transient/URANS). T4e re-runs all three levels FRESH (age guard bars restart reuse) to MEASURE that discriminator on the fine C6.3 trajectory. Chain T4 -> T4b -> T4c -> T4d -> T4e.",
+  "registered_change_vs_T4d": "FOUR changes, all named. (1) FINE endTime 64000 -> 160000 (coarse 30000, medium 60000 UNCHANGED). (2) purgeWrite 2 -> 0 (all levels) so every checkpoint is retained for the fine C6.3 trajectory. (3) runTimeModifiable false -> true (all levels) so trajectory_t4e.py can rewrite controlDict stopAt endTime -> writeNow for a CLEAN early stop on robust D1 confirmation (not a kill). (4) the cost table is re-computed for the 160000 fine window with the D1 early-termination best/expected/worst structure (cost block below). Every band, threshold, reference, floor, control (C1-C6, incl. the C6.3 2e-4 tol) and prediction (P1-P9) is carried from T4d UNCHANGED and byte-invariant; the C6.3 tol is NOT changed -- the D1 windowed classifier (early_termination_D1 below) is a SEPARATE decision rule, never an edit to a gate. New registered structure: the prediction-first loss modes D1/D2/D3, the W=15 robust-confirmation threshold, and the completion-semantics that keep the D1 early stop from masquerading as a rule-4 completion.",
+  "reference": "ERCOFTAC Classic Collection case025, ij2lr family (H/D = 2, Re = 23000), docs/campaigns/T-family/reference-data/ercoftac_case025/ (HELD)",
+  "verdict_vocabulary": [
+    "PASS",
+    "GATE REACHED",
+    "GATE FAIL",
+    "NOT A RESULT",
+    "BLOCKED",
+    "PENDING"
+  ],
+  "solver": "buoyantBoussinesqSimpleFoam (ESI v2606), kOmegaSST, beta 0, axisymmetric wedge 2.5 deg, recycling (mapped) inlet, wall-resolved on every level",
+  "registered_changes_vs_T4b": {
+    "A_mesh": "jet-core/pipe radial division nrj = 3N/2 (T4b: 3N/4), family-wide; wall-jet radial, axial and pipe-axial unchanged; r = 2 preserved; cells 3.75 N^2 (T4b: 2.625 N^2). Fixes coarse C2 (resolution-limited) and lowers every residual plateau.",
+    "B_relaxation": "under-relaxation U/T/k/omega 0.7 -> 0.6, family-wide (p_rgh 0.3 unchanged); damps the medium velocity-residual limit cycle. Iteration-path only; the converged fixed point, and thus every graded value, is unchanged.",
+    "C_endTime": "20000/30000/40000 -> 30000/60000/64000; writeInterval 2000/3000/4000 and purgeWrite 2 UNCHANGED so C6.3 measures the identical iteration window."
+  },
+  "cases": {
+    "T4e_IJ_c": {
+      "level": "c",
+      "N": 48,
+      "cells": 8640,
+      "first_cell_m": 1.2e-05,
+      "endTime": 30000,
+      "writeInterval": 2000,
+      "cap_core_min": 45,
+      "timeout_s": 2700,
+      "point_core_min": 21.667,
+      "ceiling_core_min": 32.5,
+      "point_basis": "T4d MEASURED clean (capped=no) at endTime 30000: 21.667 core-min (T4d_RESULTS.md). The T4c per-cell basis is SIGTERM-inflated ~4.5x and is NOT used."
+    },
+    "T4e_IJ_m": {
+      "level": "m",
+      "N": 96,
+      "cells": 34560,
+      "first_cell_m": 6e-06,
+      "endTime": 60000,
+      "writeInterval": 3000,
+      "cap_core_min": 412,
+      "timeout_s": 24720,
+      "point_core_min": 206.1,
+      "ceiling_core_min": 309.2,
+      "point_basis": "T4d MEASURED clean (capped=no) at endTime 60000: 206.100 core-min (T4d_RESULTS.md). cap = 2x POINT = 412; timeout_s = 412 x 60 = 24720. The T4c per-cell basis (medium 898.6 core-min) is SIGTERM-inflated ~4.4x and is NOT used."
+    },
+    "T4e_IJ_f": {
+      "level": "f",
+      "N": 192,
+      "cells": 138240,
+      "first_cell_m": 3e-06,
+      "endTime": 160000,
+      "writeInterval": 4000,
+      "purgeWrite": 0,
+      "cap_core_min": 6001,
+      "timeout_s": 360060,
+      "point_core_min": 3000.6,
+      "ceiling_core_min": 4500.9,
+      "point_basis": "T4d's OWN clean MEASURED fine leg on the IDENTICAL 138240-cell mesh: 1200.233 core-min / 64000 iters = 0.0187536 core-min/iter (clean, capped=no; T4d_RESULTS.md). point_core_min 3000.6 = 160000 iters x 0.0187536 (the 160000 HARD-cap cost). The T4c per-cell basis (3.67e-05 core-s/cell-it -> 5411.6 core-min at 64000) is SIGTERM-TRUNCATED and ~4.5x inflated (board update 19; T4d_RESULTS.md section 11) and is NOT used.",
+      "cost_structure_note": "endTime 64000 -> 160000 (T4e Change 1). Cap rule: cap = 2x POINT = 6001 core-min; timeout_s = 6001 x 60 = 360060; ceiling 1.5x POINT = 4500.9 (ranks 1). The cap/timeout is only a stall BACKSTOP: the operative stop is either D1 robust early-terminate (d1_early_terminate) or the hard iteration cap endTime 160000 (~50 h wall at POINT / ~100 h at cap, ranks 1 -- NOT the 9.4 d the inflated T4c basis implied). Fine run at cap = 6001 core-min = 100.0 core-h x $0.0513 = $5.13, under the $25/run pre-authorised unit.",
+      "d1_early_terminate": {
+        "mechanism": "trajectory_t4e.py rewrites system/controlDict stopAt endTime -> writeNow on robust D1 confirmation (runTimeModifiable true); the solver writes fields and stops CLEAN (End line). NOT a kill. The D1 marker D1_CONFIRMED_TERMINATE.T4e_IJ_f is written by the instrument recording the confirmation iteration and the trajectory evidence.",
+        "best_case_iter": 64000,
+        "best_case_core_min": 1200.2,
+        "expected_iter": 120000,
+        "expected_core_min": 2250.4,
+        "expected_ground": "the confirmation fires only once the most-recent W=15 checkpoints (60000 iters) sit clear of the decaying transient. T4b's fine transient cleared by ~40000-64000 (rho ~ 0.44 per 4000); on the finer T4e mesh with lower relaxation the limit cycle, if D1, is expected to fully occupy the window by an evaluation iteration ~120000 (window start ~64000). Best case is the earliest legal evaluation, iteration 64000 (window 8000-64000); worst case is the 160000 hard cap (D2/D3, or D1 never robustly confirmed). Costs at the T4d-measured 0.0187536 core-min/iter: best 1200.2, expected 2250.4, worst 3000.6 core-min."
+      }
+    }
+  },
+  "ranks": 1,
+  "refinement_ratio": 2.0,
+  "factor_of_safety": 1.25,
+  "roache_floors": {
+    "source": "scripts/roache_triple.py, imported by name (MESH_STANDARD.md section 10.5, chief ruling 01967a7b); the comparator REFUSES if these two numbers differ from the import",
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05,
+    "ground": "STAGNANT_FLOOR 0.5 = p_expected/3 with p_expected = 1.5 at r = 2 (T11 AMENDMENT 1 rule, the family floor): below it adjacent-level errors differ by < 2^0.5 = 1.41x, the levels-too-close-to-resolve-an-order state; P_MIN 0.05 is the degenerate floor (|p| < 0.05: e21 ~ e32, the fitted order is rounding residual). Both states are NOT A RESULT at gate (2); the floor can only move a row INTO NOT A RESULT."
+  },
+  "graded_rows": {
+    "G1": {
+      "r_over_D": 1.0,
+      "reference_file": "ij2lr-10-sw-mu.dat",
+      "reference": 1.089,
+      "band": [
+        1.069,
+        1.109
+      ]
+    },
+    "G2": {
+      "r_over_D": 2.0,
+      "reference_file": "ij2lr-20-sw-mu.dat",
+      "reference": 0.7888,
+      "band": [
+        0.7688,
+        0.8088
+      ]
+    },
+    "G3": {
+      "r_over_D": 3.0,
+      "reference_file": "ij2lr-30-sw-mu.dat",
+      "reference": 0.4632,
+      "band": [
+        0.4432,
+        0.4832
+      ]
+    },
+    "band_rule": "+-0.02 in U/U_bulk at every station (ERCOFTAC: mean velocity within +-2 percent of bulk), identical to T4/T4b; the reference value is RE-READ from the held file at every run, never from this block"
+  },
+  "controls": {
+    "C1": {
+      "what": "plate y+_max < 1.0 on every level, READ by the comparator through buoyantBoussinesqSimpleFoam -postProcess -func yPlus on a scratch copy",
+      "threshold": 1.0,
+      "fires": "NOT A RESULT on gate (1)"
+    },
+    "C1b": {
+      "what": "pipeWall y+_max < 1.0 on every level, same reader (the T4b grading is inverted so this condition CAN pass; T4b measured 0.398 / 0.202 / 0.102; Change A does not move the wall cell)",
+      "threshold": 1.0,
+      "fires": "NOT A RESULT on gate (1)"
+    },
+    "C2": {
+      "what": "nozzle-exit centreline velocity U_c/U_bulk = max |U|/U_bulk along a sampled line across the exit plane y = H (axis to pipe wall, 200 points, cellPoint), within +-3 percent of the 1/7-power-law value 1.2245; the planted control aims at the cell nearest the line's current maximum and judges visibility on the whole sampled profile (max-norm), the C2 scalar's own change reported beside it",
+      "reference": 1.2245,
+      "tolerance_rel": 0.03,
+      "fires": "NOT A RESULT on gate (1)"
+    },
+    "C3": {
+      "what": "global mass conservation |sum over all patches of phi| / |phi_inlet| < 1e-3, READ from surfaceFieldValue sums of the written phi",
+      "threshold": 0.001,
+      "fires": "NOT A RESULT on gate (1)"
+    },
+    "C4": {
+      "what": "planted-zero control, both arms, on EVERY reader on the grading path: G-row profile reader (frozen analyse_t4.planted_zero_control, aimed plant 1.234e-03 m/s with a measured detection floor); y+ reader (U x4 in a scratch copy must return y+ x2.000000000 exactly, AND the generic postProcess -func yPlus must return 0 beside it -- the blind reader shown blind); exit-line reader (aimed plant, measured floor); flux reader (inlet phi x1.01 must return the analytically predicted imbalance to 1e-9)",
+      "fires": "REFUSAL, exit 2"
+    },
+    "C5": {
+      "what": "strict completion rule with the age guard (mark_done_t4e.py); fields T U p_rgh alphat nut k omega phi",
+      "fires": "NOT DONE -> comparator refuses"
+    },
+    "C6": {
+      "what": "iterative convergence, three parts, all levels",
+      "c6_1_floor": {
+        "quantity": "every p_rgh initial residual (every non-orthogonal corrector) over the LAST 2000 iterations",
+        "threshold": 1e-06
+      },
+      "c6_2_not_growing": {
+        "quantity": "mean p_rgh initial residual over the last 1000 iterations divided by the mean over the preceding 1000",
+        "threshold": 1.05
+      },
+      "c6_3_field_change": {
+        "quantity": "max over G1/G2/G3 of |peak U/U_bulk change| between the last two written checkpoints",
+        "threshold": 0.0002
+      },
+      "fires": "NOT A RESULT on gate (1)"
+    }
+  },
+  "convergence_evidence_from_T4b": {
+    "note": "measured from the T4b run logs (T4b_IJ_{c,m,f}/log.solve), read-only; the basis for the T4e schedule (T4e_PREREGISTRATION.md section 3)",
+    "coarse": "p_rgh AND velocity residuals dead-flat from ~4000 iterations at a mesh-limited floor ~2.11e-06 (solver tolerance 1e-09, so not solver-limited); C6.3 = 1.19e-09 (settled). Fixed by Change A, not by time.",
+    "medium": "velocity residual reaches ~7.3e-7 by ~15000 iterations then oscillates (tail mean 7.3e-7, std 2.0e-7, COV 0.28); C6.2 = 1.1366 (growing), C6.3 = 2.848e-04. A LIMIT CYCLE -- iterations alone cannot clear it. Fixed by Change A (lower plateau) + Change B (damp the cycle).",
+    "fine": "velocity residual still decaying at the tail, 6.4e-6 at 16000 to 9.4e-8 at 40000; 2nd-half log-regression ro ~ 0.44 per 4000-it. C6.3 = 8.170e-04 -- a clean decaying transient, fixed by Change C (longer endTime).",
+    "field_change_last_two_checkpoints_c_m_f": [
+      1.185952e-09,
+      2.848219e-04,
+      8.170032e-04
+    ],
+    "Uc_over_Ubulk_c_m_f": [
+      1.1745592,
+      1.1909008,
+      1.2021461
+    ],
+    "p_rgh_floor_last_2000_c_m_f": [
+      2.12051478e-06,
+      1.32946795e-07,
+      3.20110963e-08
+    ]
+  },
+  "planted_control_value": 0.001234,
+  "yplus_plant_scale": 4.0,
+  "flux_plant_scale": 1.01,
+  "predictions": {
+    "P1_yplus_plate_max": {
+      "c": [
+        0.55,
+        0.8
+      ],
+      "m": [
+        0.28,
+        0.42
+      ],
+      "f": [
+        0.14,
+        0.22
+      ],
+      "point": [
+        0.69,
+        0.35,
+        0.18
+      ],
+      "arithmetic": "first cell unchanged from T4b; T4b measured 0.6893 / 0.3490 / 0.1758, so the T4b intervals carry over. Change A does not move the wall cell."
+    },
+    "P1b_yplus_pipe_max": {
+      "c": [
+        0.12,
+        0.45
+      ],
+      "m": [
+        0.06,
+        0.25
+      ],
+      "f": [
+        0.03,
+        0.14
+      ],
+      "point": [
+        0.4,
+        0.2,
+        0.1
+      ],
+      "arithmetic": "T4b measured 0.3979 / 0.2017 / 0.1020; wall cell unchanged, radial refinement only helps."
+    },
+    "P2_Uc_over_Ubulk": {
+      "interval_coarse": [
+        1.1878,
+        1.26
+      ],
+      "point_c_m_f": [
+        1.191,
+        1.2,
+        1.21
+      ],
+      "note": "THIN margin on coarse, disclosed. Ground: the T4b medium level (72 jet-core-radial) passed at 1.1909; T4d coarse now carries 72 jet-core-radial cells. C2 lower edge = 1.2245*(1-0.03) = 1.187765. Contingency if it fails: nrj = 2N (cells 4.5 N^2)."
+    },
+    "P3_mass_imbalance": {
+      "interval": [
+        0.0,
+        0.0001
+      ],
+      "point": 1e-05
+    },
+    "P4_p_rgh_floor_c": {
+      "interval": [
+        1e-07,
+        1e-06
+      ],
+      "point": 5e-07,
+      "note": "A PREDICTION, disclosed. T4b coarse floor 2.12e-06 was mesh-limited (c/m ratio 16x is anomalous beside m/f 1.5x); Change A is predicted to drop it below 1e-06. If it does not, that is a measured finding for the next step."
+    },
+    "P5_medium_C6_3": {
+      "interval": [
+        0.0,
+        0.0001
+      ],
+      "point": 8e-05,
+      "mechanism": "Change B (under-relaxation 0.7 -> 0.6) breaks the T4b medium limit cycle so the residual decays; Change A lowers the plateau; Change C gives the damped decay room.",
+      "pre_change_extrapolation_without_relaxation": 0.000214,
+      "note": "THINNEST margin, disclosed. The pre-change extrapolation (mesh + endTime ALONE, no relaxation) is ~2.14e-04 -- still FAILING the 2e-04 floor -- which is why Change B is included. Recorded so the post-run comparison measures what the relaxation change bought. Contingency if it still fails: under-relaxation 0.6 -> 0.5."
+    },
+    "P6_fine_C6_3": {
+      "interval": [
+        0.0,
+        8e-05
+      ],
+      "point": 3e-05,
+      "note": "clean decaying transient (ro ~ 0.44 per 4000-it); 6 write-interval blocks beyond 40000 clear the 2e-04 floor even at a pessimistic ro = 0.75 (8.17e-04 x 0.75^6 = 1.45e-04)."
+    },
+    "P7_graded_values_fine": {
+      "G1": 1.085,
+      "G2": 0.812,
+      "G3": 0.537,
+      "note": "a DIFFERENT mesh family from T4b (3.75 N^2 vs 2.625 N^2): no cross-rung triple; the T4b fine values are context, not a level. Band positions unchanged."
+    },
+    "P8_triples": "all three triples CONVERGING (T4b P8 hit; the mesh family behaves).",
+    "P9_fine_limit_cycle_contingency": {
+      "prediction": "the fine level had NOT plateaued at 40000 in T4b (residual still decaying), so at its extended 64000 endTime it is predicted to settle. IF the fine velocity residual instead reaches a limit cycle at its 64000 floor (as the medium did), C6.3 will not clear and that is a MEASURED finding -- a disclosed contingency, NOT a terminal fail -- whose remedy is the same as the medium's (deeper under-relaxation), not a re-diagnosis.",
+      "disposition": "measured finding, sequence to a relaxation deepening"
+    }
+  },
+  "convergence_evidence_from_T4d": {
+    "note": "MEASURED in the T4d run (graded NOT A RESULT, 2026-09-08, T4d_RESULTS.md); the reason T4e extends the fine window and instruments the trajectory. Read-only; not a band or a prediction.",
+    "coarse_C6_3": 1.4e-06,
+    "medium_C6_3": 3.38966e-06,
+    "fine_C6_3_at_64000": 0.01518,
+    "fine_C6_3_multiple_of_tol": 76,
+    "fine_triples": "G1 r/D=1.0 (1.0778,1.0825,1.0591) OSCILLATORY; G2 r/D=2.0 (0.8265,0.8173,0.6615) DIVERGENT; G3 r/D=3.0 (0.5490,0.5409,0.4403) DIVERGENT; no CONVERGING triple -> no GCI (rule 5).",
+    "reading": "coarse and medium cleared 2e-4; the fine reached endTime 64000 CLEAN but ~76x the tol and NOT plateaued -- either a still-decaying transient (D2/D3) or a physical limit cycle (D1). T4e measures which."
+  },
+  "early_termination_D1": {
+    "purpose": "rule-12 efficiency: terminate the fine leg CLEANLY once D1 (physical unsteadiness) is ROBUSTLY confirmed on the measured C6.3 trajectory, so the leg does not burn the full ~9.4 d to the 160000 hard cap after the answer is already measured.",
+    "measured_series": "C6.3(k) = max over G1/G2/G3 of |peak(U/U_bulk) at checkpoint k - peak at checkpoint k-1|, one value per written fine checkpoint (writeInterval 4000), read through the FROZEN analyse_t4.sample_profile / analyse_t4.peak_of. This is the same C6.3 quantity control C6.3 grades; the classifier below is a SEPARATE decision rule and does NOT change the C6.3 2e-4 tol.",
+    "robust_confirmation_threshold_VERBATIM": "D1 is ROBUSTLY CONFIRMED (=> clean early terminate of the fine leg) when ALL THREE hold over a sliding window of the most recent W = 15 consecutive fine-level checkpoints (= 60,000 iters), evaluated only once iteration >= 64,000 (past the initial transient): (1) NON-DECAY / OSCILLATION-DOMINATES-TREND: the OLS slope of ln(C6.3) vs iteration corresponds to a per-checkpoint decay ratio rho_fit >= 0.95 (fast-decay backstop; a genuine transient shows rho <= ~0.81), AND the net trend the OLS linear fit of C6.3 vs iteration explains across the window (net_trend_drop = |slope| x (iter_last - iter_first)) is <= 0.5 x the detrended peak-to-peak swing (ptp_detrended = max(resid) - min(resid)) -- i.e. the oscillation swing is at least 2x the net drift. A limit cycle has ~zero net trend << oscillation and passes; a monotone OR noisy decay has the trend dominating and fails. (The former endpoint clause window-last >= 0.85 x window-first is DEPRECATED: it false-rejects a limit cycle caught in an unlucky phase and admits a noisy slow decay at rho 0.95-0.99.) (2) BOUNDED WELL ABOVE TOL: window-mean C6.3 >= 1e-3 (5x the 2e-4 tol), AND window-max/window-min <= 5. (3) OSCILLATORY (limit cycle, not a stall): the detrended C6.3 series has >= 4 sign changes (>= 2 full oscillation periods) within the window. endTime 160,000 remains the HARD cap: if D1 is never robustly confirmed by 160,000, the outcome is D2 (if C6.3 cleared 2e-4 -> grade the full triple) or D3 (decaying-not-cleared -> continuation rung).",
+    "params": {
+      "W_checkpoints": 15,
+      "window_iters": 60000,
+      "writeInterval": 4000,
+      "eval_only_once_iter_ge": 64000,
+      "cond1_non_decay": {"rho_fit_min": 0.95, "trend_over_osc_max": 0.5, "rho_fit_def": "exp(OLS_slope_of_ln_C63_vs_iteration * writeInterval)", "trend_test_def": "net_trend_drop = |OLS_slope_of_C63_vs_iteration| x (iter_last - iter_first); ptp_detrended = max(resid) - min(resid); cond1 requires net_trend_drop <= trend_over_osc_max x ptp_detrended (oscillation swing >= 2x net drift)", "_deprecated_last_ge_frac_of_first": "0.85 endpoint clause REMOVED at the T4e §3 review (supervisor aaa7330ecb6ea9c60): it false-rejects a limit cycle caught in an unlucky window phase and admits a noisy slow decay at rho 0.95-0.99. Replaced by the trend-vs-oscillation test."},
+      "cond2_bounded_above_tol": {"window_mean_min": 0.001, "window_max_over_min_max": 5},
+      "cond3_oscillatory": {"detrended_sign_changes_min": 4, "detrend_def": "residual of an OLS linear fit of C6.3 vs iteration over the window"},
+      "fire_rule": "cond1 AND cond2 AND cond3"
+    },
+    "hard_cap": {"endTime": 160000, "meaning": "if D1 is never robustly confirmed by 160000, outcome is D2 (C6.3 cleared 2e-4 -> grade the full Roache triple) or D3 (decaying-not-cleared -> continuation rung)."},
+    "instrument": "trajectory_t4e.py (two-arm + slow-decay planted control on the windowed classifier, rule 3); the D1 marker is WRITTEN by the instrument, not inferred; the clean stop is controlDict stopAt writeNow, never a kill."
+  },
+  "completion_semantics": {
+    "D1_branch": "the fine level is DELIBERATELY terminated at the robust-confirmation iteration. 'last time == endTime' is NOT claimed and NOT needed: D1 is a NON-CONVERGENCE finding whose deliverable is the measured limit-cycle trajectory, not a converged field. The early stop writes a DISTINCT marker D1_CONFIRMED_TERMINATE.T4e_IJ_f (confirmation iteration + trajectory evidence), clearly distinguished from an accidental timeout cap. Verdict = NOT A RESULT (unsteadiness), DISCHARGED by routing to the transient/URANS successor (d1_transient_route). mark_done_t4e.py will (correctly) report the fine NOT DONE in this branch, and analyse_t4e.py will (correctly) refuse to grade the full triple -- there is no converged fine field to grade; the D1 finding is reported from the marker + trajectory.",
+    "D2_D3_branches": "these DO need a completed/converged fine field: they require reaching the registered endTime 160000 (D2) or the D3 continuation rung, graded by the strict-completion instrument mark_done_t4e.py + the Roache triple in analyse_t4e.py. The strict completion rule (CLAUDE.md rule 4) and the age guard are UNCHANGED in mark_done_t4e.py (pure rename of mark_done_t4e.py).",
+    "invariant": "early-stop NEVER masquerades as a rule-4 completion. rule 4 (last==endTime, End line, fields present + newer than 0/T, ExecutionTime count==endTime, rc=0) governs ONLY D2/D3. D1 is a separately-marked non-convergence finding."
+  },
+  "d1_transient_route": {
+    "flag": "the D1 -> transient/URANS route is a SEPARATE downstream rung, FLAGGED here, never a silent solver swap inside T4e. Chief ENDORSED (2026-09-08). T4e's registered solver stays buoyantBoussinesqSimpleFoam (steady) on every level; if D1 is confirmed, the successor rung is registered separately with the transient/URANS solver.",
+    "disposition": "NOT A RESULT (unsteadiness) is DISCHARGED (measured capability finding), not a terminal capability-gap filing; the deliverable that discharges it is the transient successor rung."
+  },
+  "cost": {
+    "usd_per_core_hour": 0.0513,
+    "basis": "T4d's OWN clean MEASURED per-level core-min on the IDENTICAL meshes (T4d_RESULTS.md; all clean, capped=no): coarse 21.667 core-min @ 30000, medium 206.100 @ 60000, fine 1200.233 @ 64000. The fine leg is scaled to its T4e iteration count at the measured fine rate 1200.233/64000 = 0.0187536 core-min/iter; coarse and medium run to the SAME endTimes as T4d so their measured core-min apply directly.",
+    "cost_basis_correction": "the T4c per-cell-iteration rates (c 5.12e-06, m 2.60e-05, f 3.67e-05 core-s/cell-it) used in T4d's prereg are SIGTERM-TRUNCATED and ~4.5x INFLATED (board update 19; T4d_RESULTS.md section 11) and are NOT used here. This drops the fine POINT from 13529.1 (inflated) to 3000.6 core-min and the rung POINT from 14449.8 to 3228.4 core-min (T4e section 3 review, supervisor aaa7330ecb6ea9c60).",
+    "per_level_point_core_min": {"coarse_30000": 21.667, "medium_60000": 206.1, "fine_160000_hardcap": 3000.6},
+    "point_core_min": 3228.4,
+    "point_rule": "sum of per-level POINT at the T4d-measured basis; the fine POINT is the 160000 HARD-cap cost (D2/D3, or D1 never confirmed). The fine leg is EXPECTED to stop earlier (see fine_leg_D1).",
+    "fine_leg_D1": {"best_case_iter": 64000, "best_case_core_min": 1200.2, "expected_iter": 120000, "expected_core_min": 2250.4, "note": "on robust D1 confirmation the fine leg terminates cleanly at the confirmation iteration; POINT above is the worst-case (hard cap) fine cost. Costs at the T4d-measured 0.0187536 core-min/iter."},
+    "rung_total_core_min": {"best_case": 1428.0, "expected": 2478.2, "point_hardcap": 3228.4},
+    "ceiling_core_min": 4842.6,
+    "ceiling_rule": "1.5 x POINT; box contention and any residual rate drift are absorbed here.",
+    "cap_core_min_total": 6458,
+    "cap_rule": "per-level about 2.0 x POINT (coarse 45, medium 412, fine 6001); timeout_s = cap_core_min x 60 / ranks (ranks 1). The core-min cap is a stall BACKSTOP; the operative fine-leg stop is D1 early-terminate or the endTime 160000 hard iteration cap.",
+    "usd_best_case_derived": 1.22,
+    "usd_expected_derived": 2.12,
+    "usd_point_derived": 2.76,
+    "usd_ceiling_derived": 4.14,
+    "usd_cap_derived": 5.52,
+    "usd_per_run_note": "the $25 pre-authorised unit is PER RUN: the dearest single run is the fine at its 2x cap = 6001 core-min = 100.0 core-h x $0.0513 = $5.13, well under $25. The whole-rung cap-sum $5.52 is a sum, not a single run. Well inside Sanaa's 2026-08-21 blanket; still costed here per rule 12.",
+    "memory_floor_gb": 2.0,
+    "operational_flag": "the fine level at the 160000 HARD cap is ~50 h wall at POINT and ~100 h at the 2x cap, at ranks 1 -- still the longest single run this ladder has scheduled, but NOT the 9.4 d the inflated T4c basis implied. The D1 early-terminate design shortens it further: EXPECTED clean stop ~120000 iters (~37.5 h), BEST ~64000 (~20 h). Ranks stay 1 (F15 decomposition-confound ruling). A ~1-4 d single-tenant fine leg on the shared 16-core box is a capacity/scheduling call flagged to chief.",
+    "cost_basis": "derived from T4d's clean MEASURED core-min (the box's own logs); dollars at the owner-stated rate $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5)"
+  }
+}
