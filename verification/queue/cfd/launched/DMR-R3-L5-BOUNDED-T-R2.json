@@ -1,0 +1,81 @@
+{
+  "_WHAT_THIS_FILE_IS": "The LIVE queue row for the DMR R3 L5 BOUNDED-T positivity-preserving successor. It sits in verification/queue/cfd/ -- the detached daemon's (scripts/queue_runner.py, pid 1887) drop path -- so the daemon will validate it (scripts/queue_entry_check.py) and, when the box is under its ~14.4-core admission ceiling, LAUNCH it exactly once, serialized. It is NOT a direct launch: the chief directed that the L5 solve and all heavy solves route through the daemon, never a direct launch onto a loaded box.",
+  "team": "cfd",
+  "case_id": "DMR-R3-L5-BOUNDED-T",
+  "prereg_path": "verification/campaign/DMR_R3_L5_BOUNDED_T_PREREGISTRATION.md",
+  "prereg_commit": "26823d9fd53fe70d1d5f27481e67834e9a49ecb9",
+  "grading_freeze": [
+    "verification/runs/DMR_runs/dmr_locator_v2.py"
+  ],
+  "launch_cmd": [
+    "env",
+    "USER=ubuntu",
+    "bash",
+    "/home/ubuntu/Certonomous/verification/runs/DMR_runs/run_dmr_l5_bounded_t.sh",
+    "--prereg-commit=26823d9fd53fe70d1d5f27481e67834e9a49ecb9"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/DMR_runs",
+  "ranks": 4,
+  "cap_core_min_registered": 100.0,
+  "cost_core_min_estimate": 40.0,
+  "cost_basis": "derived at the on-box c7a.4xlarge rate $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5, CLAUDE.md rule 12). Family point estimate 40 core-min = 0.667 core-h = $0.0342 DERIVED; the ONE registered hard cap 100 core-min = 1.667 core-h = $0.0855 DERIVED. Both anchored on the L4 family's MEASURED coresec (prereg section 6b: R1 0.983 and R2 4.483 MEASURED-ANCHORED on L4's own coresec, R3 ~33 extrapolated-to-completion from L4's crash-truncated rate). Well under the $25 CPU pre-authorised ceiling (Sanaa 2026-08-18).",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd lab-lane, 2026-09-08, at commit 26823d9f (the L5 freeze). Placed into the live daemon drop path verification/queue/cfd/ under the chief's direction that the L5 solve and all heavy solves route through the queue daemon (pid 1887), never a direct launch. AUTHORISATION CHAIN: (1) cfd supervisor's SUPERVISION_CHARTER section 3 check-1 (solver diff vs stock, read AS A DIFF) and check-4 (source commit a256b05d clean, stock rhoCentralFoam and F4 rhoCentralFoamBounded binaries untouched, rebuild bit-identical, run root absent, gates inherited byte-identical) both PASSED personally -- the lab's technical go-ahead, NOT Sanaa's consent; (2) the chief authorised the solver-build boundary as its own-authority call (a user-space wmake to $(FOAM_USER_APPBIN), not root, not an instance change, not leaving the box), recorded NOT as Sanaa's words per CLAUDE.md rule 9; (3) the solve is a sub-$25 CPU run pre-authorised under Sanaa's standing 2026-08-18 authorisation; (4) daemon routing is Sanaa's 2026-08-26 detached-queue ruling. NO AGENT MESSAGE IS SANAA'S CONSENT (rule 9).",
+  "_DRIVER_HARDCODES_RANKS_AND_CAP": "run_dmr_l5_bounded_t.sh PARSES NO command-line arguments (it references no positional args). It hard-codes RANKS=4 (:63), CAP_COREMIN=100.0 / CAP_CORESEC=6000 (:64-65) as the ONE registered hard accumulator across all three levels, and the run root, generator and grader as absolute paths (:57-59). The trailing --prereg-commit=26823d9f... in launch_cmd is therefore INERT and self-documents the frozen prereg linkage only; the AUTHORITATIVE linkage the daemon logs to LAUNCH_LOG.tsv is the prereg_commit field. The JSON ranks (4) mirrors the driver's internal RANKS=4 and cap_core_min_registered (100.0) mirrors CAP_COREMIN so cap_watch reports against the true registered cap.",
+  "_RUN_ROOT": "The FRESH run root verification/runs/DMR_R3_L5_BOUNDED_T_runs is ABSENT (confirmed at freeze, 2026-09-08). The driver guards each level with `[ -e \"$CASE\" ]` -> exit 90 (:127-131) so a level is never graded on a pre-existing tree (rule 4). The daemon cwd here (verification/runs/DMR_runs) is a STABLE EXISTING directory carrying NO time-directory child, chosen so queue_entry_check's EXEC clause (cwd must exist) and AGE-GUARD clause (cwd holds no time dir) both pass; the driver cds into its own absolute run root regardless, and writes its STATUS.queue.DMR-R3-L5-BOUNDED-T / launcher.queue.out into this cwd.",
+  "_GRADE_PATH_INTEGRITY": "The driver re-hashes dmr_locator_v2.py against the frozen blob 52aacf9669bcf23e88a0bf7984b299fa8aaf286e before grading each level and REFUSES on mismatch (:148-153). grading_freeze names that grader for the launched-record coverage stamp; GRADER-FREEZE in the validator is REPORTING-ONLY and never blocks (Sanaa 2026-09-03).",
+  "_OWED_AT_COMPLETION": "Grading via the pinned dmr_locator_v2.py (Roache triple gating, rule 5; planted-zero controls, rule 3) AND a rule-12 COST_CALIBRATION.md row (estimate 40 core-min / cap 100 core-min vs actual coresec, ratio + gap attribution, co-residency named on its own line, dollars DERIVED not measured) are OWED. Nothing sent/filed/uploaded (rule 7).",
+  "_VALIDATION": "Validated in place with scripts/queue_entry_check.py --require-binding at enqueue; result recorded in the enqueue commit message.",
+  "_REARM_R2": "Re-arm of DMR-R3-L5-BOUNDED-T after ATTEMPT1 aborted rc=91 at the driver PATH guard (REFUSED.txt: rhoCentralFoamBoundedDMR not on PATH). ROOT CAUSE (WIRING, not physics/capability, L-501): the queue daemon (pid 1887) launch env has USER UNSET, so OpenFOAM's etc/bashrc resolves FOAM_USER_APPBIN to .../OpenFOAM/user-v2606/... (binary MISSING) instead of .../OpenFOAM/ubuntu-v2606/... (where rhoCentralFoamBoundedDMR was built). Verified clean control: env USER=ubuntu -> BINARY-FOUND; env -u USER -> BINARY-MISSING. SURGICAL PER-ROW FIX: launch_cmd wrapped in `env USER=ubuntu`. The frozen driver (sha256-pinned, rule 6) is NOT edited. ATTEMPT1 run root preserved as verification/runs/DMR_R3_L5_BOUNDED_T_runs.ATTEMPT1_PRESERVED_env_user_unset; the fresh run root verification/runs/DMR_R3_L5_BOUNDED_T_runs is ABSENT again (rule 4 age guard). Same case_id and cwd as ATTEMPT1: the daemon archives the prior launched record as 'same run re-armed'. Durable fix (chief / daemon-lifecycle): set USER in the daemon env.",
+  "_launch": {
+    "utc": "2026-09-08T21:04:27Z",
+    "pid": 489245,
+    "sid": 489245,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/DMR_runs/STATUS.queue.DMR-R3-L5-BOUNDED-T",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/DMR_runs/launcher.queue.out",
+    "started_epoch": 1788901467.9067485,
+    "status_seen_utc": "2026-09-08T21:05:27Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.DMR-R3-L5-BOUNDED-T (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_grading_freeze": {
+    "verdict": "PINNED",
+    "detail": "1 comparator(s) named by 'grading_freeze' hash EXACTLY as commit 26823d9f froze them.",
+    "field": "grading_freeze",
+    "paths": [
+      {
+        "path": "verification/runs/DMR_runs/dmr_locator_v2.py",
+        "frozen_sha": "52aacf9669bcf23e88a0bf7984b299fa8aaf286e",
+        "disk_sha": "52aacf9669bcf23e88a0bf7984b299fa8aaf286e",
+        "state": "PINNED"
+      }
+    ],
+    "prereg_commit": "26823d9fd53fe70d1d5f27481e67834e9a49ecb9",
+    "refusal_eligible": false,
+    "source": "ENTRY",
+    "schema": "grading_freeze/2",
+    "kind": "PREDICTION",
+    "predicts": "GRADING_WILL_PROCEED",
+    "actual": null,
+    "case_id": "DMR-R3-L5-BOUNDED-T",
+    "walked_commit": "933f7db12fef2b68b969e410ebf9b9e40f87e6e3",
+    "recorded_utc": "2026-09-08T21:04:27Z"
+  }
+}
