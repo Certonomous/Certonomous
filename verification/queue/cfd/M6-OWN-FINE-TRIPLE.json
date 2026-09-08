@@ -1,0 +1,27 @@
+{
+  "_WHAT_THIS_FILE_IS": "LIVE QUEUE ROW for the M6 own-family FINE TRIPLE {L2,L1,L0} rhoSimpleFoam solve, daemon-routed (prereg 8). The daemon (scripts/queue_runner.py --daemon, pid 1887) globs verification/queue/cfd/*.json; the placed copy of this file arms the launch. This lane places it on the cfd-supervisor's TASK-3 instruction after the FREEZE ADDENDUM re-pin (commit dddca8ba) made the own-family grader the committed grading blob (rule 2). NO agent message is Sanaa's consent (rule 9); the SOLVE compute is pre-authorised (<$25, cap 2,136 core-min = $1.83 DERIVED, rule 12).",
+  "_HOW_ONE_ROW_RUNS_THREE_LEVELS": "The driver run_m6_own_family_triple.sh runs ONE level per invocation (usage: <L2|L1|L0> [stage|solve|all]). launch_cmd chains L2 -> L1 -> L0 with '&&' so a non-zero level STOPS the chain. The single 2,136 core-min cap is a SINGLE ACCUMULATOR persisted on disk at <run_root>/SOLVE_SPENT_COREMIN.txt across all three invocations (prereg 7.3); an overrun STOPS the campaign and does not get a new budget (rule 12). Per-level ranks inside the driver: L2=4, L1=8, L0=14.",
+  "_RANKS_RESERVATION": "ranks=14 is the daemon's scheduling reservation = the PEAK leg (L0, the binding constraint). queue_runner.tick() holds unless busy_cores + ranks <= core_fraction(0.9) x ncpu(16) = 14.4, so a 14-rank row launches ONLY when the box is near-idle (the M6-priority core window the supervisor signals the chief to assemble). The daemon over-reserves for the L2/L1 legs (4/8 ranks) inside one launch_cmd, which is conservative (never oversubscribes).",
+  "_L505_NO_USER_WRAP": "NO `env USER=` wrap. The solver is the STOCK OpenFOAM-v2506 rhoSimpleFoam at the FOAM PLATFORM bin, run inside docker dafoam-idwarp-rot:v1 as -u 1002:1002 -- USER-independent. L-505 is a host user-space (FOAM_USER_APPBIN) trap and does not apply to a docker-isolated stock binary; adding the wrap would be cargo-cult (driver header; L-505 distinction).",
+  "_GRADING_DEFERRED": "grading_freeze names the check-1'd own-family grader verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py (committed blob da0df95c81ded5833821cfd8a1f711d7f849f93c, re-pinned by the FREEZE ADDENDUM 13 at commit dddca8ba). GRADER-FREEZE (queue_entry_check clause 8) is REPORTING-ONLY (Sanaa 2026-09-03: a prereg mismatch never prevents a launch). The driver ALSO hashes this grader against HEAD before spending and refuses on drift (rule 2). Grading is a SEPARATE step after the solve; this row launches the SOLVE only.",
+  "team": "cfd",
+  "case_id": "M6-OWN-FINE-TRIPLE",
+  "prereg_path": "verification/campaign/M6_OWN_FAMILY_FINE_TRIPLE_PREREGISTRATION.md",
+  "prereg_commit": "dddca8ba9f6a39eaa6d3cb22d3f74847798be9c8",
+  "grading_freeze": [
+    "verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py"
+  ],
+  "launch_cmd": [
+    "bash",
+    "-c",
+    "R=/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs; bash \"$R/run_m6_own_family_triple.sh\" L2 all && bash \"$R/run_m6_own_family_triple.sh\" L1 all && bash \"$R/run_m6_own_family_triple.sh\" L0 all"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs",
+  "ranks": 14,
+  "cost_core_min_estimate": 1068.0,
+  "cap_core_min_registered": 2136.0,
+  "memory_floor_gb": 12.0,
+  "_memory_floor_basis": "12.0 GB is an ESTIMATE, NOT measured and NOT registered in the frozen prereg (an infrastructure scheduling field, not a gate/physics parameter). It is the driver's per-level L0 MEM_FLOOR_GB (run_m6_own_family_triple.sh 0-table): ~2.5 GB per 1M cells x 4.59M cells ~= 11.5 GB -> floor 12 GB, fitting the 32 GB box. The daemon HOLDS the row while MemAvailable < 12 GB (queue_runner :955). It binds the peak (L0) leg.",
+  "cost_basis": "core-minutes = wall s x ranks / 60. Dollars DERIVED, NOT MEASURED, at the owner-stated c7a.4xlarge $0.0513/core-h; the box cannot read its own billing (COMPUTE_BUDGET_CHARTER 5, rule 12). Estimate 1,068 core-min = 17.80 core-h = $0.913 DERIVED (prereg 7.2: L2 14.6 + L1 117.1 + L0 936.9). Cap 2,136 core-min = 35.60 core-h = $1.83 DERIVED (prereg 7.3, = 2x the measured-rate estimate; an overrun STOPS the campaign, rule 12). Far inside the $1,000 IBL envelope. Cost signed off by the chief 2026-09-08 -- chief's ruling recorded by the supervisor, NOT Sanaa's words (rule 9).",
+  "enqueued_by": "cfd lab-lane, 2026-09-08, at HEAD dddca8ba9f6a39eaa6d3cb22d3f74847798be9c8 (the FREEZE ADDENDUM re-pin commit), on the cfd-supervisor's TASK-3 instruction after check-1 (grader read as a diff, blob da0df95c) and check-4 (freeze-addendum re-pin) both PASSED. Placed into the live cfd drop path daemon-routed; expected to be HELD until the 14-rank L0 core window is assembled. This lane direct-launched nothing and did not clear the box (rule 9; task brief)."
+}
