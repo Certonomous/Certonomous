@@ -1,0 +1,15 @@
+# diff  stock Make/files  ->  L5 Make/files
+1c1
+< rhoCentralFoam.C
+---
+> rhoCentralFoamBoundedDMR.C
+3c3
+< EXE = $(FOAM_APPBIN)/rhoCentralFoam
+---
+> EXE = $(FOAM_USER_APPBIN)/rhoCentralFoamBoundedDMR
+
+# diff  stock Make/options  ->  L5 Make/options
+2c2
+<     -IBCs/lnInclude \
+---
+>     -I/usr/lib/openfoam/openfoam2606/applications/solvers/compressible/rhoCentralFoam/BCs/lnInclude \

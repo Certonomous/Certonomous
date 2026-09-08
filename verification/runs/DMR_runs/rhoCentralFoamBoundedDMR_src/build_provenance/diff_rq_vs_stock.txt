@@ -1,0 +1,15 @@
+# diff -rq  STOCK vs L5 src  (STOCK first, L5 second)
+# STOCK = /usr/lib/openfoam/openfoam2606/applications/solvers/compressible/rhoCentralFoam
+# L5    = /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMR_src
+
+Only in /usr/lib/openfoam/openfoam2606/applications/solvers/compressible/rhoCentralFoam: Allwclean
+Only in /usr/lib/openfoam/openfoam2606/applications/solvers/compressible/rhoCentralFoam: Allwmake
+Only in /usr/lib/openfoam/openfoam2606/applications/solvers/compressible/rhoCentralFoam: BCs
+Files /usr/lib/openfoam/openfoam2606/applications/solvers/compressible/rhoCentralFoam/Make/files and /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMR_src/Make/files differ
+Only in /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMR_src/Make: linux64GccDPInt32Opt
+Files /usr/lib/openfoam/openfoam2606/applications/solvers/compressible/rhoCentralFoam/Make/options and /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMR_src/Make/options differ
+Only in /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMR_src: boundE.H
+Only in /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMR_src: build_provenance
+Files /usr/lib/openfoam/openfoam2606/applications/solvers/compressible/rhoCentralFoam/createFields.H and /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMR_src/createFields.H differ
+Only in /usr/lib/openfoam/openfoam2606/applications/solvers/compressible/rhoCentralFoam: rhoCentralFoam.C
+Only in /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMR_src: rhoCentralFoamBoundedDMR.C
