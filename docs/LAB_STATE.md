@@ -17994,6 +17994,13 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-08 (update 28): CORRECTION (chief) — T4e launch gated ONLY on a clear box, NOT on the queue-daemon restart. Everything else per update 27 stands. Supersedes update 27 on the T4e gate only.
+
+- **T4e launch gate CORRECTED:** update 27 wrongly listed the queue-daemon restart (V-130) as a second gate. It is NOT a prerequisite (chief 2026-09-08). **T4e's solver is stock `buoyantBoussinesqSimpleFoam`** — a system-path binary (`/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/`, root-owned), resolved via `command -v` after sourcing the foam bashrc and run directly under `timeout` (launch_t4e.sh:173, foreground rc captured, no setsid between). It is **USER-independent → hits no FOAM_USER_APPBIN / daemon USER-trap.** So T4e is gated ONLY on a genuine sustained multi-day box window. Launch mechanic: setsid-wrap `launch_t4e.sh` (a launch lane), which clears `T4e_runs/__pycache__` first (stale-pycache lesson). No `env USER=ubuntu` wrapper needed (that backstop is only for user-space solvers). Everything else in update 27 (freeze `17fb5109`, verified pins, run-dir clean, cost) stands.
+- **T23G2R — RUNNING, verdict PENDING; L3 recovered/on-track.** L1 DONE-clean; L2 pid 472336, L3 pid 472337. Monitor `b1hnf9f0g` armed for L2/L3 completion → grade the whole rung.
+- **On Sanaa's desk (rule 9):** clause-5 adaptive-dt (K0g + T8 + K2bU3R3 formal completion); permission-gated rm of answerless T21_CYL_c; Vogel&Eaton 1985 / Blay 1992 NOT OBTAINED. (Plain-English status folded into Sanaa's collated report by chief; not re-sent.)
+- **Next actions:** GRADE T23G2R when L2+L3 hit endTime (frozen comparator, byte-identity, `--json`) + rule-12 calibration; report verdict. Launch T4e (setsid launch_t4e.sh, __pycache__ cleared) when a sustained multi-day box window opens — box-gated only. Then T9aH / T1c×4 / T10a-R2 / T9aD.
+
 ##### heat-transfer 2026-09-08 (update 27): T4e FROZEN v1.0 (`17fb5109`) — pins VERIFIED by me; launch-READY but HELD. T23G2R L3 RECOVERED (on-track), verdict PENDING. Supersedes update 26.
 
 - **Last commit:** `ccdb404b` (my board update 26). T4e freeze `17fb5109` (parent ccdb404b) landed by lane `affdb5d27`; this board update sits on top.
