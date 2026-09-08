@@ -8,6 +8,21 @@
 > **non-delegable** — this lane stops before both. Every number below the "reused
 > gates" line is a **DESIGN ESTIMATE**, not a measurement, and is labelled as such.
 
+> ## ✅ FREEZE ADDENDUM — 2026-09-08 (SUPERSEDES THE ⚠ DRAFT STATUS ABOVE)
+> **FROZEN by the commit that carries this amendment.** The build and comparator
+> scripts are written and their bytes are final (§10 table); the supervisor's §3
+> code diff-read of both — read as a diff against frozen `build_t23g2.py` /
+> `analyse_t23g2.py` — is complete. **This freeze is BEFORE ANY SOLVER HAS
+> ITERATED on any T23G2R case:** the run directory
+> `verification/runs/T-family/T23G2R_runs` **does not exist** (checked on disk at
+> freeze, 2026-09-08 — absent), so this is a legal pre-first-compute amendment
+> (CLAUDE.md rule 2). **No gate, threshold, band, cap, label or prediction is
+> altered by this amendment** — it pins grading-path blobs and records the freeze
+> mechanism only. The §9 design-check sign-off below remains the accurate dated
+> record of the 2026-09-07 design read (not frozen as of that date); §10 records
+> the 2026-09-08 freeze that follows it. The §5.1 pre-flight and the graded launch
+> remain OWED after this commit — see §10.
+
 ---
 
 ## 0. §2ay LINEAGE LINKAGE — the line the enforcement instrument reads
@@ -377,3 +392,82 @@ yet written.*
 *Drafted 2026-09-07 by a heat-transfer `lab-lane`; DESIGN ratified by the
 heat-transfer supervisor 2026-09-07 (§9). NOT FROZEN — the build/comparator code is
 not yet written; the §3 code diff-read and the freeze are the supervisor's.*
+
+---
+
+## 10. FREEZE — 2026-09-08 (pre-first-compute amendment, CLAUDE.md rule 2)
+
+*The build and comparator scripts named in §5 are now written and diff-read; this
+section freezes the grading path. **Condition, checked at freeze:** nothing has run
+— `verification/runs/T-family/T23G2R_runs` is ABSENT on disk (checked 2026-09-08),
+so no gate, threshold, band, cap, label or prediction may be — or is — altered here.
+This amendment pins blobs and records the freeze mechanism ONLY.*
+
+### 10.1 FREEZE TABLE — NON-SELF grading-path files, pinned by git blob
+
+These are pinned to the blobs below. `build_t23g2r.py` enters the tree **in this
+freeze commit** (its on-disk `git hash-object`); the four reused frozen instruments
+are pinned at their committed HEAD blobs (each verified byte-identical on disk at
+freeze). `print_grading_path_shas` in the comparator rev-parses these members
+against `GRADING_PATH_FREEZE_COMMIT` at grade time.
+
+| grading-path member | role | pinned git blob | source |
+|---|---|---|---|
+| `docs/campaigns/T-family/build_t23g2r.py` | mesh/case build (§5.1) | `63a7e5aa9f96c917d4f65d027ee84918c8288b6d` | on-disk, enters tree at freeze commit |
+| `verification/runs/T-family/T23_runs/mark_done_t23.py` | rule-4 completion (§5.3) | `37165979fafbe3c87921dab05b51e984878d90dc` | HEAD (unchanged on disk) |
+| `scripts/roache_triple.py` | triple gating + `PLANT` (rule 5/rule 14) | `78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8` | HEAD (unchanged on disk) |
+| `docs/campaigns/T-family/t23g_readonly_diagnosis.py` | y+ / first-cell / mesh readers | `73804c02d2f1ebbb2cd2ad63796f4b5cfb4d7067` | HEAD (unchanged on disk) |
+| `docs/campaigns/T-family/analyse_t23g2.py` | PREDECESSOR comparator (diff base) | `72357dad2bfb39ca74b78ad253cdbca1545d6534` | HEAD (unchanged on disk) |
+
+### 10.2 THE SELF MEMBER — `analyse_t23g2r.py` is NOT pinned in the table above (§2au.2)
+
+The comparator's own blob (on-disk `7f7786a0dd3ce2ea8ea47756db5550584214bb43`) is
+**deliberately absent from §10.1**. A self-referential "IDENTICAL vs its own freeze
+commit" pin is a **git pre-image**: the freeze sha would have to live inside the
+hashed file, so writing it changes the blob and hence the commit (established
+empirically by a heat-transfer lane, 2026-09-08; pinning to a predecessor commit
+fails the same way, because writing any pin moves the blob off every prior committed
+one). The SELF member is instead anchored, per `VERIFICATION_CHARTER.md` §2au.2, by
+**three things**:
+
+1. **`EXPECTED_SELF_BLOB = None`** in `analyse_t23g2r.py` — the self-hash is
+   **PRINT-ONLY** (`verify_self` prints the running blob as provenance and does not
+   refuse on it; it asserts only if `EXPECTED_SELF_BLOB` is ever set).
+2. **A `FREEZE-PIN: analyse_t23g2r.py@7f7786a0dd3ce2ea8ea47756db5550584214bb43`
+   line in the freeze commit message** — the blob recorded outside the hashed
+   content, where hashing cannot perturb it.
+3. **Grade-time byte-identity** of the on-disk `analyse_t23g2r.py` against that
+   recorded blob (the supervisor's non-delegable check before launch).
+
+Precedent: `analyse_t10avf2_sweep.py`, frozen at `5fb1d8a9` with
+`EXPECTED_SELF_BLOB = None` (its SELF member is print-only; its one asserted blob is
+a *different*, non-self-referential file). The DRAFT guard is retained: while
+`GRADING_PATH_FREEZE_COMMIT == "PIN-AT-FREEZE"`, `verify_self` REFUSES to grade.
+
+### 10.3 THE TWO-COMMIT FREEZE — one freeze operation, not an edit of a frozen file
+
+1. **Freeze commit (commit 1):** this pre-registration amendment + `build_t23g2r.py`
+   + `analyse_t23g2r.py` (still carrying the `PIN-AT-FREEZE` placeholder), with the
+   §10.2 `FREEZE-PIN` line in its message. This commit CONTAINS `build_t23g2r.py`,
+   so its tree can be rev-parsed for every §10.1 member.
+2. **Pin commit (commit 2):** set `GRADING_PATH_FREEZE_COMMIT` in
+   `analyse_t23g2r.py` to commit 1's sha, so `print_grading_path_shas` resolves the
+   non-self members. This is **the same freeze operation completed**, NOT an edit of
+   a frozen file: the comparator was `PIN-AT-FREEZE` (an explicitly unfrozen DRAFT)
+   until commit 2 sets its pin. Writing the pin re-blobs the comparator — expected,
+   and exactly why the SELF member is anchored by commit message + byte-check
+   (§10.2), never by a table entry.
+
+### 10.4 STILL OWED AFTER THIS COMMIT — the §5.1 pre-flight and personal check 4
+
+The **§5.1 pre-flight** (every function object shown to construct in a scratch copy
+of a built case, **no graded artifact written**,
+`T23G2_PREREGISTRATION.md:1183-1188`) is **OWED before the graded launch** and its
+cost is reported separately, never folded into the campaign ratio. **NO SOLVER
+LAUNCHES until the freeze is committed** (personal check 4, non-delegable): the
+graded run on `verification/runs/T-family/T23G2R_runs` begins only after commit 2
+and the pre-flight pass.
+
+*Freeze section authored 2026-09-08 by a heat-transfer `lab-lane`; the §3 code
+diff-read, the blob pins and the freeze commit are the supervisor's (non-delegable).
+Nothing is committed by this lane.*
