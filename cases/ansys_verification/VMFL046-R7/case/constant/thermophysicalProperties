@@ -1,0 +1,20 @@
+FoamFile { version 2.0; format ascii; class dictionary; object thermophysicalProperties; }
+// Ideal air. CONST transport to match the manual's CONSTANT viscosity mu=1.7894e-5
+// kg/m-s (VM2026R1 p.155); Pr=0.72 (standard air). perfectGas EOS. Cp=1004.5,
+// molWeight=28.96 -> R=287.0, gamma=Cp/(Cp-R)=1.4.
+thermoType
+{
+    type            hePsiThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleInternalEnergy;
+}
+mixture
+{
+    specie        { molWeight 28.96; }
+    thermodynamics{ Cp 1004.5; Hf 0; }
+    transport     { mu 1.7894e-05; Pr 0.72; }
+}

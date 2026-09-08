@@ -1,0 +1,44 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }
+// VMFL046-R6 -- rhoCentralFoam (density-based) fvSchemes.  This is the KNP central-upwind
+// discretisation of Greenshields et al. (2010), and it REPLACES R5's pressure-based
+// rhoPimpleFoam schemes wholesale -- the change is FORCED by the solver, not a preference.
+//
+//   fluxScheme Kurganov            -- the KNP (Kurganov-Noelle-Petrova) central-upwind flux.
+//   ddtSchemes Euler               -- carried from R5; first-order transient, as every
+//                                     rhoCentralFoam tutorial uses.
+//   reconstruct(rho/U/T) vanLeer   -- the TVD interface reconstruction of the conserved
+//                                     variables (PREREGISTRATION §6).  vanLeer for the two
+//                                     scalars rho, T; vanLeerV (the vector variant of the
+//                                     same limiter) for the vector U.  It is the TVD
+//                                     reconstruction -- not an fvOptions limitTemperature,
+//                                     which rhoCentralFoam structurally lacks -- that bounds
+//                                     the fields (verified at source; see the comparator's
+//                                     N4-replacement limb).
+ddtSchemes
+{
+    default         Euler;
+}
+gradSchemes
+{
+    default         Gauss linear;
+}
+divSchemes
+{
+    default         none;
+    div(tauMC)      Gauss linear;
+}
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+interpolationSchemes
+{
+    default         linear;
+    reconstruct(rho) vanLeer;
+    reconstruct(U)  vanLeerV;
+    reconstruct(T)  vanLeer;
+}
+snGradSchemes
+{
+    default         corrected;
+}

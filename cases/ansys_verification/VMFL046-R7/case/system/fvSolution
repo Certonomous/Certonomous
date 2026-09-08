@@ -1,0 +1,35 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+// VMFL046-R6 -- rhoCentralFoam (density-based) fvSolution.  REPLACES R5's PIMPLE block:
+// rhoCentralFoam has NO pressure-velocity coupling loop (no PIMPLE, no nOuter/nCorr, no
+// pressure equation), so there is no residualControl and no relaxation -- the conserved
+// variables (rho, rhoU, rhoE) are advanced EXPLICITLY (a diagonal "solve"), and only the
+// diffusive parts of U and e are solved implicitly.  This is the standard rhoCentralFoam
+// solver set (matching the OpenFOAM v2606 laminar viscous tutorial LadenburgJet60psi).
+//
+// NOTE, for the record: the absence of any PIMPLE outer/inner iteration is exactly why R6
+// is the successor to R4's hunt -- R4's limit cycle (R3 §5.3: 85.4 % of the log-residual
+// variance in one ~4168-iteration mode) was a mode OF the pressure-based iteration, which
+// this solver does not perform.
+solvers
+{
+    "(rho|rhoU|rhoE)"
+    {
+        solver          diagonal;
+    }
+
+    U
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        nSweeps         2;
+        tolerance       1e-10;
+        relTol          0;
+    }
+
+    e
+    {
+        $U;
+        tolerance       1e-10;
+        relTol          0;
+    }
+}
