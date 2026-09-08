@@ -52,7 +52,7 @@ RANKS=4
 
 # --- PERMISSION (freeze field). Assigned EXACTLY once; the last assignment
 # --- would win in shell, so the count is pinned, not the appearance.
-PERMISSION=NOT_FROZEN   # dafoam-supervisor replaces with the freeze sha at freeze
+PERMISSION=ed1818473cdfbba551701e1d4824d1314e7c319b   # freeze sha (PREREGISTRATION.md FROZEN v1.0, 2026-09-08)
 PERM_ASSIGNMENTS=$(grep -cE '^PERMISSION=' "${BASH_SOURCE[0]}")
 if [ "$PERM_ASSIGNMENTS" != "1" ]; then
   echo "ABORT G-FREEZE-UNIQUE PERMISSION is assigned $PERM_ASSIGNMENTS time(s); the last wins silently. Pin the count."
@@ -166,8 +166,8 @@ MD5_ACCEPT_FLOOR=c6e63098e7afd542ea379a03eccfaf12       # d6rf9_accept_floor_con
 MD5_UNITS=34f477f92b23e27896b458475eef0f78              # d6rf7_units_assert.py
 MD5_ENDPOINT_PHYS=625bacf5b1489989f9a2638dd99e2e52      # d6rf7_endpoint_physical.py (endpoint reconstruction)
 MD5_EXTRACT=baedb673e9c88291f6724794681bc9a7            # d6rf7_extract_endpoint.py
-MD5_GRADE=PLACEHOLDER_AT_FREEZE                         # d6rf9_grade.py -- supervisor pins at freeze
-MD5_RUN_LEG=PLACEHOLDER_AT_FREEZE                       # d6rf9_run_leg.py -- supervisor pins at freeze
+MD5_GRADE=6e76ed57ac6890b0a7fa260c46dc517b              # d6rf9_grade.py (pinned at freeze 2026-09-08)
+MD5_RUN_LEG=ae6ee60ce40239e6579b0ba59ae311a9            # d6rf9_run_leg.py (pinned at freeze 2026-09-08)
 
 # instrument path -> pin (staged into $BASE beside the case)
 declare -A INSTR_MD5=(
@@ -402,7 +402,7 @@ for RUNG in R1 R2 R3 R4; do
   test -s "$LOG" && touch "$LOG.ok.${RSTAMP}"
 
   # ---- grade this rung on the HOST (single reader). STOP at first PASS. ----
-  GRADE=$(python3 "$HERE/d6rf9_grade.py" --log "$LOG" --rung "$RUNG" 2>/dev/null || true)
+  GRADE=$(python3 "$WORK/d6rf9_grade.py" --log "$LOG" --rung "$RUNG" 2>/dev/null || true)
   BINDING=$(printf '%s' "$GRADE" | python3 -c "import sys,json
 try: d=json.load(sys.stdin); print(d.get('binding_verdict') or d.get('verdict'))
 except Exception: print('UNREADABLE')" 2>/dev/null)
