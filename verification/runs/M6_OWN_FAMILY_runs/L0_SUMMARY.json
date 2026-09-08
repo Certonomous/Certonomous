@@ -1,0 +1,25 @@
+{
+  "level_added": "L0",
+  "L0_clears": true,
+  "L0_cells": "4592640",
+  "fine_triple_family_proof": {
+    "cells": {
+      "L0": 4592640,
+      "L1": 574080,
+      "L2": 71760
+    },
+    "points_sha256": {
+      "L0": "aef313c32c73d93b795682ed411a41a797a05071e5bf8320c757634e6ae2dd58",
+      "L1": "57852b6f534f07e0007f9e7f5bb7f7fd907aa3a400ab8e17b11d92fc8239859b",
+      "L2": "2b0ce2609edfacc7b5fbb1879733f6794df133f683f8bf6954f98b73daabee70"
+    },
+    "points_all_distinct": true,
+    "ratio_L0_L1": 8.0,
+    "ratio_L1_L2": 8.0,
+    "ratios_exactly_8": true,
+    "r_per_direction": 2.0,
+    "IS_A_FAMILY": true
+  },
+  "total_core_min_L0_generation": 27.9833,
+  "generated_at_utc": "2026-09-08T21:30:34Z"
+}

@@ -1,0 +1,121 @@
+{
+  "level": "L0",
+  "family_parent_surface": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L1/surface/surfaceMesh.cgns",
+  "family_parent_sha256": "915d25375381754038658461d116925a3db2abf6ec80c8dcde3a9fc8fe307a27",
+  "surface_op": "refine",
+  "surface_cgns": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/surface/surfaceMesh.cgns",
+  "surface_sha256": "3512ee7f30b1ebde4ab4c3f2793bf282f45eaf0c060e68575d7bbbe965823bca",
+  "pyhyp_N": 185,
+  "cell_layers": 184,
+  "s0_REQUESTED_NOT_MEASURED": 5e-05,
+  "marchDist": 50.0,
+  "gates": {
+    "non_orth": 70.0,
+    "skew": 4.0
+  },
+  "planted_control": {
+    "control_log": "/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_R2_runs/L3/log.checkMesh",
+    "seen_max_non_orthogonality": 109.219,
+    "seen_negative_volume_cells": 2,
+    "control_PASSES": true
+  },
+  "march_attempts": [
+    {
+      "recipe": {
+        "tag": "nominal",
+        "cMax": 0.1,
+        "epsE": 1.0,
+        "epsI": 2.0,
+        "volSmoothIter": 100,
+        "volBlend": 0.0005
+      },
+      "pyhyp_rc": 0,
+      "pyhyp_wall_s": 1626.2,
+      "volumeMesh_present": true,
+      "pyhyp_log": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/log.pyhyp_nominal",
+      "state": "SCREENED",
+      "cells": "4592640",
+      "max_non_orthogonality": 65.8723,
+      "max_skewness": 1.44184,
+      "negative_volume_cells": 0,
+      "clears_hard_gates": true
+    }
+  ],
+  "cost": [
+    {
+      "stage": "pyhyp_nominal",
+      "wall_s": 1626.2,
+      "ranks": 1,
+      "core_min": 27.1033,
+      "rc": 0
+    },
+    {
+      "stage": "plot3dToFoam_nominal",
+      "wall_s": 27.8,
+      "core_min": 0.4633,
+      "ranks": 1
+    },
+    {
+      "stage": "checkMesh_nominal",
+      "wall_s": 25.0,
+      "core_min": 0.4167,
+      "ranks": 1
+    }
+  ],
+  "chosen_recipe_tag": "nominal",
+  "level_result": {
+    "cells": "4592640",
+    "points": "4642945",
+    "max_non_orthogonality": "65.8723",
+    "avg_non_orthogonality": "13.8314",
+    "severe_non_ortho_faces": null,
+    "max_skewness": "1.44184",
+    "max_aspect_ratio": "243.288",
+    "min_cell_volume": "2.82331e-12",
+    "negative_volume_cells": null,
+    "face_orientation_errors": null,
+    "regions": "1",
+    "bounding_box": "(-46.6859 -52.3181 0) (50.7967 52.3183 47.5616)",
+    "mesh_ok_line": true,
+    "failed_checks_line": null,
+    "classification_evidence": {
+      "n_boundary_faces": 99968,
+      "symmetry_faces": 50048,
+      "wall_faces": 24960,
+      "farfield_faces": 24960,
+      "gap_width": 45.02593610816255
+    },
+    "points_sha256": "aef313c32c73d93b795682ed411a41a797a05071e5bf8320c757634e6ae2dd58",
+    "cells_expected": 4592640,
+    "cells_match_expected": true,
+    "surface_faces_expected": 24960,
+    "surface_faces_measured": 24960,
+    "surface_faces_match": true,
+    "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/case/log.checkMesh",
+    "screen_clears_hard_gates": true,
+    "screen_detail": {
+      "max_non_orthogonality": 65.8723,
+      "gate_non_orth": 70.0,
+      "non_orth_clears": true,
+      "max_skewness": 1.44184,
+      "gate_skew": 4.0,
+      "skew_clears": true,
+      "negative_volume_cells": 0
+    },
+    "screen_cost": [
+      {
+        "stage": "plot3dToFoam",
+        "wall_s": 27.8,
+        "core_min": 0.4633
+      },
+      {
+        "stage": "checkMesh",
+        "wall_s": 25.0,
+        "core_min": 0.4167
+      }
+    ]
+  },
+  "adopted_case": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/case",
+  "total_core_min_generation": 27.9833,
+  "generated_at_utc": "2026-09-08T21:30:34Z"
+}
