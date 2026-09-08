@@ -1,0 +1,143 @@
+{
+  "rung": "T4f",
+  "status": "DRAFT v0.1 -- NOT FROZEN, NOT BUILT, NOT ENQUEUED, NOT LAUNCHED, zero solver core-minutes. For the heat-transfer supervisor's section-3 check and the chief's rule-12 costing. HELD for a later box window (M6 top-priority pressure). Nothing here authorises a launch or a send (CLAUDE.md rule 7).",
+  "parent": "T4e (frozen v1.0, 17fb5109; d1_transient_route). T4e is the frozen steady discriminator of T4d (NOT A RESULT, 73e008dc): the fine 138240-cell mesh reached endTime 64000 CLEAN yet NOT field-converged (C6.3 0.01518 ~76x tol; G1 OSCILLATORY, G2/G3 DIVERGENT). T4e sec 3c + d1_transient_route sketch the D1->transient/URANS route as a separate downstream rung; chief ENDORSED 2026-09-08. T4f is that route, authorised by Sanaa ('yes run the unsteady'). Chain T4 -> T4b -> T4c -> T4d -> T4e -> T4f.",
+  "id_freeness": "T4f verified FREE 2026-09-08 (T4e id-freeness method): no *t4f* filename and no T4f content match under docs/campaigns/T-family/ or verification/runs/T-family/.",
+  "the_one_substantive_change": "solver steady buoyantBoussinesqSimpleFoam -> transient buoyantBoussinesqPimpleFoam (same incompressible-Boussinesq physics, beta 0 passive T, same kOmegaSST run as URANS). Everything else -- mesh, fields, BCs, transportProperties, turbulenceProperties, g, the three graded bands, the frozen readers, the Roache floors -- is carried BYTE-INVARIANT from T4d/T4e. The transient time-controls, fieldAverage + sampling functionObjects, and the S1-S4 statistics gates exist only to SUPPORT the transient measurement. No band, threshold, floor, reference or reader is widened, moved or loosened (T25 discipline). The fix is the physics tool, never a gate.",
+  "reference": "ERCOFTAC Classic Collection case025, ij2lr family (H/D = 2, Re = 23000), docs/campaigns/T-family/reference-data/ercoftac_case025/ (HELD), re-read at every run.",
+  "verdict_vocabulary": ["PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"],
+  "solver": {
+    "name": "buoyantBoussinesqPimpleFoam",
+    "stock_system_path": "/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqPimpleFoam",
+    "confirmed": "present as a stock ESI v2606 system binary 2026-09-08, in the same platforms bin as buoyantBoussinesqSimpleFoam; not a user build, USER-independent.",
+    "turbulence": "kOmegaSST RAS run transiently (URANS = unsteady RAS); constant/turbulenceProperties is the frozen build_t4.constant_files() output, unchanged.",
+    "pimple_settings_DRAFT": {"nOuterCorrectors": 2, "nCorrectors": 2, "nNonOrthogonalCorrectors": 1, "momentumPredictor": "yes", "ddtScheme": "backward", "note": "URANS-standard; a registration choice to confirm at the section-3 review (open question 6)."}
+  },
+  "mesh": {
+    "level": "f (fine only)",
+    "N": 192, "nrj_3N_over_2": 288, "nrw": 288, "nyj": 192, "nyp": 96,
+    "first_cell_m": 3e-06, "cells": 138240,
+    "source": "byte-identical to the frozen T4e fine level (T4e_IJ_f); build_t4f imports the FROZEN build_t4e.block_mesh_dict (build-time import, not on the grading path). The section-3 check must confirm blockMeshDict byte-identity against T4e_IJ_f/system/blockMeshDict.",
+    "why_one_mesh": "PHYSICS, not economy. In T4d the coarse and medium meshes CLEARED C6.3 (1.4e-6, 3.39e-6) -- they went effectively STEADY; only the fine mesh sustained the unsteadiness. A c/m/f transient triple would compare a time-averaged unsteady fine field against near-steady coarse/medium fields, violating the smooth-refinement assumption a Roache triple/GCI rests on. So NO triple, NO GCI (CLAUDE.md rule 5): gate (2) is UNREACHABLE by registration, gate (1) binds in full. This is a validation-against-reference of the time-averaged field, gated but explicitly NOT GCI'd."
+  },
+  "measurement": {
+    "graded_quantity": "peak(UMean profile)/U_bulk at r/D = 1, 2, 3 -- peak-of-the-mean, NOT mean-of-the-peak (the ERCOFTAC reference is the mean velocity profile).",
+    "reader_path": "the FROZEN analyse_t4.sample_profile hard-codes fields (U). analyse_t4f makes a SCRATCH COPY at endTime, PROMOTES UMean into a field object named U (byte-copy with object renamed), then calls the frozen sample_profile / peak_of UNCHANGED. No frozen file is edited. This NEW reader path carries its own planted control (planted_controls[1]).",
+    "time_average": "OpenFOAM fieldAverage FO over (U p_rgh T k omega), timeStart = T_init = 0.03 s, writing UMean etc.; the window is [T_init, T_end]."
+  },
+  "physical_time_budget": {
+    "T_init_discard_s": 0.03, "T_avg_window_s": 0.05, "T_end_s": 0.08,
+    "basis": "D/U_bulk = 0.02/17.25 = 1.159e-3 s convective time; St ~ 0.5 -> shedding period ~ 2.32e-3 s. T_init 0.03 s ~ 26 D/U ~ 13 periods; window 0.05 s ~ 21 periods >= N_min 20. St ~ 0.5 basis to confirm at the section-3 review (open question 5); the calibration probe also sharpens T_init.",
+    "dt_regime": "FIXED dt (adjustTimeStep OFF), chosen so endTime/deltaT is an exact integer -- keeps the rule-4 clause-5 generalisation exact/integer (see completion_rule_flag). Adaptive dt is REJECTED for the worse clause-5 form (open question 2)."
+  },
+  "gates_reused_unchanged": {
+    "note": "applied to the TIME-AVERAGED field via the UMean->U scratch promotion (except C4 which plants into the promoted U).",
+    "C1_plate_yplus": {"threshold": 1.0, "fires": "NOT A RESULT gate (1)"},
+    "C1b_pipeWall_yplus": {"threshold": 1.0, "fires": "NOT A RESULT gate (1)"},
+    "C2_Uc_over_Ubulk": {"reference": 1.2245, "tolerance_rel": 0.03, "fires": "NOT A RESULT gate (1)"},
+    "C3_mass_conservation": {"threshold": 0.001, "fires": "NOT A RESULT gate (1)"},
+    "C4_planted_zero_frozen": {"reader": "frozen analyse_t4.planted_zero_control on the UMean->U scratch copy", "plant": 0.001234, "fires": "REFUSAL exit 2"},
+    "C5_strict_completion": {"instrument": "mark_done_t4f.py", "fields": "T U p_rgh alphat nut k omega phi", "fires": "NOT DONE -> comparator refuses", "flag": "clause 5 generalised for transient -- see completion_rule_flag"},
+    "roache_floors": {"STAGNANT_FLOOR": 0.5, "P_MIN": 0.05, "source": "scripts/roache_triple.py imported by name", "applies": "NO triple applies (one mesh); gate (2) UNREACHABLE by registration, NOT waived; gate (1) binds."}
+  },
+  "gates_new_transient_statistics": {
+    "S1_stationarity": {"criterion": "measured stationarity onset t_stat <= T_init = 0.03 s (running-mean + running-variance on the instantaneous G-row peak series)", "eps_stat_U_over_Ubulk": 0.001, "fires": "NOT A RESULT (inadequate discard)"},
+    "S2_window_adequacy": {"criterion": "window [0.03, 0.08] holds >= N_min periods AND the running average of the windowed UMean-peak has converged (change over last 25% of window <= eps_avg)", "N_min_periods": 20, "eps_avg_U_over_Ubulk": 0.001, "period_measure": "dominant frequency / detrended zero-crossing count of the instantaneous G-row peak series", "steady_branch": "if the signal is steady (no resolved unsteadiness -- a measured finding falsifying the premise, L1), the N_min clause is trivially satisfied and adequacy rests on running-mean convergence alone", "fires": "NOT A RESULT"},
+    "S3_courant": {"maxCo": 0.9, "read": "solver Co output / courantNo FO", "fires": "NOT A RESULT (dt inadequate)"},
+    "S4_timestep_adequacy": {"part_i": "committed fixed dt <= probe-measured CFL-limited dt at Co 0.9", "part_ii": "dt-halving SPOT CHECK on a short stationary sub-window (~2000 steps at dt/2) moves the time-averaged G-row peak by <= eps_dt", "eps_dt_U_over_Ubulk": 0.001, "flag": "a full dt-halving over the whole run would double cost; the spot-check form is registered instead", "fires": "NOT A RESULT"}
+  },
+  "planted_controls_rule3": {
+    "1_reused_frozen": "analyse_t4.planted_zero_control on the UMean->U scratch copy (C4); byte-for-byte.",
+    "2_new_UMean_promotion": "plant a known offset into UMean on a scratch copy, run the promotion, confirm the frozen reader recovers it from the promoted U; blind arm (no plant -> 0). Refuses exit 2 on failure.",
+    "3_new_stationarity_classifier": "stationarity_t4f.py BOTH measures stationarity/period AND decides S1/S2, so it carries its own control: ARM STAT (stationary-converged -> S1/S2 MUST pass); ARM DRIFT (non-stationary -> S1 MUST fail); ARM SHORT (too-short window -> S2 MUST fail); ARM DET (determinism). Green under python3 and python3 -O."
+  },
+  "predictions_loss_modes": {
+    "P1_L1_premise": "PREDICTED: transient URANS on the fine mesh reaches a statistically-stationary UNSTEADY state. LOSS: if kOmegaSST URANS DAMPS to steady, time-average = steady value -- a MEASURED discriminator pointing D1/D2/D3 back toward D2/D3, reported via S2's steady branch. Not a fail.",
+    "P2_L2_band": "PREDICTED: time-averaged peak U/U_bulk lands IN band, closer to reference than the T4d fine steady values (all BELOW band: G1 1.0591 dev -0.0299; G2 0.6615 dev -0.1273; G3 0.4403 dev -0.0229). LOSS: still outside -> GATE FAIL (a real joint closure+unsteadiness finding).",
+    "P3_L3_stationarity_budget": "PREDICTED: stationarity by 0.03 s and >= 20 periods in window. LOSS: t_stat > 0.03 or < 20 periods -> NOT A RESULT -> continuation. Disclosed contingency.",
+    "P4_L4_runs_where_steady_could_not": "PREDICTED: PIMPLE integrates the unsteadiness the steady SIMPLE solver rendered as a non-converging limit cycle. LOSS: transient numerically unstable (Co blow-up, divergence) -> infrastructure finding -> triage, never a physics verdict."
+  },
+  "graded_rows": {
+    "G1": {"r_over_D": 1.0, "reference_file": "ij2lr-10-sw-mu.dat", "reference": 1.089, "band": [1.069, 1.109]},
+    "G2": {"r_over_D": 2.0, "reference_file": "ij2lr-20-sw-mu.dat", "reference": 0.7888, "band": [0.7688, 0.8088]},
+    "G3": {"r_over_D": 3.0, "reference_file": "ij2lr-30-sw-mu.dat", "reference": 0.4632, "band": [0.4432, 0.4832]},
+    "band_rule": "+-0.02 in U/U_bulk, byte-identical to T4/T4b/T4d/T4e; reference RE-READ from the held file at every run.",
+    "no_triple_no_gci": "one mesh -> no Roache triple -> no observed order, no GCI, no discretisation bound quoted (CLAUDE.md rule 5). Validation, not verification."
+  },
+  "completion_rule_flag": {
+    "rule_4_clauses_unchanged": "rc=0; an End line; last written time == endTime (0.08 s); fields T U p_rgh alphat nut k omega phi present at endTime; age guard (every field NEWER than the case's own 0/T).",
+    "clause_5_generalised": "the frozen mark_done clause 5 is n_exec == int(endTime) -- the deltaT=1 STEADY form (endTime IS the iteration count). For a transient (deltaT 8e-7, endTime 0.08) int(endTime)=0 and the frozen clause spuriously fails. mark_done_t4f generalises it to n_exec == round(endTime/deltaT) = the number of time steps (reading deltaT from controlDict). With FIXED dt this is exact and integer.",
+    "TOUCHES_SANAA_CLAUSE_5": "YES. This changes rule 4's clause-5 WORDING. It must NOT be made on a lane's or supervisor's say-so. Precedent: the phi-field addition to rule 4 was made only on Sanaa's approval 2026-09-06. The supervisor must carry this generalisation to Sanaa BEFORE freeze. Until then it is a flagged open item, not a settled clause.",
+    "fixed_dt_rationale": "a fixed dt keeps the generalisation exact/integer; an adaptive dt would make the step count unknowable a priori and last==endTime a floating-point compare -- a WORSE clause-5 touch. Hence the design commits to fixed dt (open question 2)."
+  },
+  "scripts": {
+    "build_t4f.py": "imports frozen build_t4e.block_mesh_dict (byte-identical fine mesh) + frozen build_t4.fields()/constant_files(); NEW transient system_files() (buoyantBoussinesqPimpleFoam, fixed deltaT, endTime 0.08, PIMPLE, backward ddt, fieldAverage + sampledSets + Co FOs) behind refuse-guards.",
+    "analyse_t4f.py": "time-averaged comparator: imports frozen analyse_t4; UMean->U scratch promotion + its planted control; C1/C1b/C2/C3/C4/C5 + reused band; NO triple/GCI.",
+    "stationarity_t4f.py": "NEW instrument: S1/S2 stationarity + window adequacy + period; three-arm planted control; reads instantaneous G-row peaks through frozen analyse_t4.sample_profile/peak_of.",
+    "mark_done_t4f.py": "rule 4 + age guard; clause-5 generalisation (PENDING Sanaa's ruling).",
+    "launch_t4f.sh": "blockMesh/checkMesh birth cert; 0.orig->0 LAST (age guard); solver under timeout; in-wrapper rc=$?; write STATUS. Structure adapted from frozen launch_t4e.sh; DRAFT skeleton to complete + diff at the section-3 review."
+  },
+  "ranks": 8,
+  "ranks_note": "PARALLEL, ranks=8. Verification GRANTED parallel decomposition for T4f (ruling 19b7330a, 2026-09-08), an application of the ratified PARALLEL_GATE_DOCTRINE (Sanaa 2026-08-25), NOT a relaxation and NO Sanaa escalation. The lineage 'ranks=1 (F15)' shorthand protects a grid-convergence ORDER FIT (F15_OSR29_PREREGISTRATION.md Amendment 1 reason (a)); T4f has NO Roache triple, so F15's protected quantity is ABSENT and the serial rule does not apply. Still STOP-before-freeze: freeze remains gated on Sanaa's clause-5 ruling.",
+  "parallel_decomposition": {
+    "granted_by": "verification-supervisor ruling committed 19b7330a (verification/campaign/T4f_PARALLEL_DECOMPOSITION_RULING_2026-09-08.md); application of docs/standards/PARALLEL_GATE_DOCTRINE.md (Ratified by Sanaa 2026-08-25). NOT a relaxation; admissibility-only; compute is heat-transfer + chief.",
+    "method": "simple",
+    "method_basis": "PARALLEL_GATE_DOCTRINE C1 + ruling condition 1: deterministic decomposition pinned pre-compute. `simple` is deterministic geometric, reproducible from the committed decomposeParDict ALONE (no cellProcAddressing artifact to pin) -- the only method fully specifiable pre-compute. `scotch` is admissible ONLY with its partition explicitly recorded/pinned (a launch-phase artifact); NOT registered here because it cannot be frozen pre-compute without running decomposePar.",
+    "nRanks": 8,
+    "simpleCoeffs": [4, 2, 1],
+    "simpleCoeffs_note": "(n_r n_y n_z); n_z=1 (2.5deg wedge is one cell thick in z); product == 8. DRAFT coeffs; may be balance-tuned at the staged build to target per-rank max/min cell ratio <= ~1.5, changing ONLY decomposeParDict (ruling condition 4). 138240/8 = 17280 cells/rank avg. The doctrine codifies NO numeric cells/rank floor; the rank choice rests on general efficiency practice (stated as a lane judgment, not a doctrine number), leaving box headroom on 16 vCPU.",
+    "conditions_registered_verbatim_from_ruling": {
+      "1_deterministic_pinned": "method simple with the rank count frozen in a committed decomposeParDict (reproducible from the rank count). C1 check: decompose twice from a byte-identical case, per-rank cell counts identical.",
+      "2_S1_S4_binding": "S1-S4 unchanged and binding -- they ARE the invariance guarantee. S2 (>=20 shedding periods + running-average convergence <=1e-3) is the load-bearing backstop; a failed S2 is NOT A RESULT regardless of ranks.",
+      "3_parallel_IO": "the graded fieldAverage (UMean profile) is read from a correctly RECONSTRUCTED field (reconstructPar), stated in launch_t4f.sh + analyse_t4f.py.",
+      "4_numerics_identical": "same schemes, same FIXED dt (adjustTimeStep off -> timestep decomposition-independent), same PIMPLE correctors, same solver. ONLY decomposeParDict changes.",
+      "5_gate_band_unmoved": "the ERCOFTAC bands and the S-gates are untouched.",
+      "6_optional_spot_check": "OPTIONAL, NOT a condition: a 2-rank-vs-serial spot check on the ~24 core-min calibration-probe window (running average of the peak agreeing within S2's eps) would convert the ergodic argument into a lab measurement. S1/S2 suffice without it."
+    },
+    "decomposition_invariance_basis_CITED_not_rederived": "ruling 19b7330a: the verdict is the peak of a statistically-converged TIME-AVERAGE; parallel and serial instantaneous trajectories diverge (FP reduction reordering, decomposition-dependent GAMG -- N-D12, N-D30) but the time-average over a statistically-stationary window is a property of the stationary statistics both layouts sample identically (ergodicity); the instantaneous divergence washes out. T4f's S1/S2 are the MEASURED backstop: S2 passing IS the measurement that the time-average is converged, and a converged time-average is decomposition-invariant to within the sampling tolerance (<=1e-3), far inside the 0.02 band. Recorded decomposition spread on graded quantities ~2e-5 to ~1e-4, all inside 1e-3.",
+    "honest_limit_from_ruling": "the lab has NO direct recorded measurement of decomposition-invariance for a time-averaged URANS statistic (all invariance evidence is steady; all dependence evidence is iteration-level). The grant rests on the ergodic argument + S1/S2 as the measured backstop, NOT on a serial-vs-parallel comparison.",
+    "scope": "admissibility only; scoped to T4f's single-grid time-averaged validation and like cases; does NOT touch the serial rule for grid-convergence (Roache-triple) ladders (F15's actual domain)."
+  },
+  "cost": {
+    "usd_per_core_hour": 0.0513,
+    "basis": "ESTIMATE, not measured. No measured buoyantBoussinesqPimpleFoam (or any URANS PIMPLE) rate exists in the T-family (all T4-lineage runs are steady SIMPLE; transient-conduction rungs solve only T, no pressure loop -- not a valid per-step basis). Built from T4d's OWN clean measured fine SIMPLE rate 1200.233 core-min / 64000 iters = 0.0187536 core-min/iter = 1.1252 core-s/iter on the identical 138240-cell mesh, scaled by a PIMPLE-step factor f_pimple. f_pimple AND dt are the two dominant uncertainties, flagged for calibration at completion (rule 12).",
+    "calibration_probe": {"steps": 500, "adjustTimeStep": "on, maxCo 0.9", "purpose": "MEASURE the CFL-limited dt on this mesh; the measured dt (rounded down to divide endTime evenly) becomes the committed fixed dt", "core_min": 24, "wall_min": 23, "usd_derived": 0.02, "held": "WITHHELD, no compute now"},
+    "dt_estimate_s": {"central_point": 8e-7, "range": [5e-7, 1.5e-6], "basis": "wall-resolved cells 3-6e-6 m near r0/plate; tangential wall-jet velocity up to ~1.1 U_bulk ~ 19 m/s; Co set by flow-direction cell size at the worst cell. This is the calibration-probe target."},
+    "scenarios": {
+      "BEST":  {"dt_s": 1.5e-6, "steps": 53333,  "f_pimple": 2.0, "core_s_per_step": 2.25, "core_min": 2000,  "core_h": 33.3,  "wall_days": 1.4, "usd_derived": 1.71},
+      "POINT": {"dt_s": 8e-7,   "steps": 100000, "f_pimple": 2.5, "core_s_per_step": 2.81, "core_min": 4688,  "core_h": 78.1,  "wall_days": 3.3, "usd_derived": 4.01},
+      "CAP":   {"dt_s": 5e-7,   "steps": 160000, "f_pimple": 3.5, "core_s_per_step": 3.94, "core_min": 10507, "core_h": 175.1, "wall_days": 7.3, "usd_derived": 8.98}
+    },
+    "cap_rule": "the CAP row is the stall/overrun backstop; per rule 12 an overrun STOPS the run (capped=yes -> NOT A RESULT), no new budget. SERIAL timeout_s would be CAP core_min * 60 / 1; the PARALLEL run uses cost.parallel.timeout_s below.",
+    "serial_scenarios_are_the_basis": "the scenarios block above is the SERIAL compute basis (ranks 1). The OPERATIVE run is PARALLEL (ranks 8) -- see cost.parallel, which re-costs from these serial core-min via the parallel efficiency.",
+    "parallel": {
+      "nRanks": 8,
+      "efficiency_eta": {"central": 0.80, "range": [0.65, 0.90], "basis": "ESTIMATE: 8-rank MPI PIMPLE on 138240 cells (~17280 cells/rank), 2.5deg-wedge (2D-like), simple geometric decomposition on a GRADED multi-block mesh -> some load imbalance. The supervisor's ~0.90 is the optimistic end. To be CALIBRATED (rule 12); the calibration probe can measure eta on a short parallel window."},
+      "core_min_rule": "core_min_parallel = core_min_serial / eta (parallel adds comms + imbalance idle; core-min = wall_s * ranks / 60 rises ~1/eta). wall_h_parallel = core_h_serial / (nRanks * eta).",
+      "scenarios_at_eta_central_0p80": {
+        "BEST":  {"core_min": 2500,  "core_h": 41.7,  "wall_h": 5.2,  "usd_derived": 2.14},
+        "POINT": {"core_min": 5860,  "core_h": 97.7,  "wall_h": 12.2, "usd_derived": 5.01},
+        "CAP":   {"core_min": 16165, "core_h": 269.4, "wall_h": 33.7, "usd_derived": 13.82, "eta_used": 0.65, "note": "CAP uses the PESSIMISTIC eta 0.65 on the pessimistic-compute serial CAP 10507 core-min for headroom (10507/0.65)."}
+      },
+      "timeout_s": 121238,
+      "timeout_s_basis": "CAP core_min 16165 * 60 / nRanks 8 = 121238 s (~33.7 h wall). Stall backstop only; the operative stop is the endTime hard iteration cap or D1-style early logic (none here) -- an overrun STOPS the run (rule 12).",
+      "wall_time_win": "POINT ~12.2 h (vs ~3.3 d serial); CAP ~33.7 h ~1.4 d (vs ~7.3 d serial). This wall-time reduction is the point of the grant.",
+      "exceeds_25_per_run": false,
+      "dearest_single_run_parallel": "CAP at pessimistic eta 0.65 = 16165 core-min = 269.4 core-h * $0.0513 = $13.82 << $25. Even the worst bracket stays under the per-run unit."
+    },
+    "exceeds_25_per_run": false,
+    "dearest_single_run": "PARALLEL CAP (pessimistic eta) = 16165 core-min = 269.4 core-h * $0.0513 = $13.82 << $25. (Serial CAP was $8.98; parallel raises core-min ~1/eta but the box-time bill stays under $25/run.)",
+    "binding_constraint": "with parallel granted, WALL TIME drops to ~12 h POINT / ~34 h CAP at 8 ranks -- still a capacity/scheduling call for the chief on the M6-contended 16 vCPU box (the run is HELD), but no longer multi-day. Dollars remain well under $25/run.",
+    "rejected_3mesh_triple": "coarse+medium+fine transient triple for a GCI ~ 1.33x fine POINT ~ 6200 core-min ~ $5.3 (still under $25/run) -- REJECTED on PHYSICS grounds, not cost: coarse/medium do not sustain the unsteadiness (mesh.why_one_mesh).",
+    "usd_derived_not_measured": "COMPUTE_BUDGET_CHARTER sec 5: the box cannot read its own billing; dollars are derived at the owner-stated rate, reported-by-owner.",
+    "memory_floor_gb": 2.0
+  },
+  "open_questions_for_supervisor_chief": [
+    "1. Clause-5 ruling: the transient completion generalises rule 4 clause 5 int(endTime) -> round(endTime/deltaT). Touches Sanaa's wording; needs her approval before freeze (phi-addition precedent). This lane cannot self-authorise.",
+    "2. Fixed vs adaptive dt: draft commits to fixed dt (exact/integer clause 5, probe-pinned Co). Confirm preferred over adaptive.",
+    "3. RESOLVED (admissibility): verification GRANTED parallel decomposition (ruling 19b7330a) -- ranks=8, method simple. Whether to SPEND the parallel compute in the M6 window remains a heat-transfer + chief scheduling call. Confirm the DRAFT simpleCoeffs (4 2 1) / eta 0.80 at the section-3 review.",
+    "4. Scheduling: a multi-day single-tenant fine leg under M6 pressure -- cross-family/daemon capacity call for the chief. Run is HELD.",
+    "5. N_min=20, T_init=0.03, T_end=0.08, eps=1e-3, St~0.5 basis: confirm before freeze; the probe sharpens T_init.",
+    "6. Solver detail: confirm PIMPLE settings (nOuterCorrectors 2, nCorrectors 2, backward ddt) at the section-3 review."
+  ]
+}
