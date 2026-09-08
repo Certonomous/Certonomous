@@ -1,18 +1,27 @@
 # M6 OWN-MESH FAMILY — FINE TRIPLE {L2, L1, L0} build + solve registration (PATH B: credential-grade observed order for ONERA M6 surface Cp vs AGARD AR-138)
 
-> ## 🟡 THIS FILE IS A **DRAFT** AND **UNFROZEN**.
-> No gate, threshold, cap or label in it is in force. It registers the FINEST mesh level
-> **L0** and its admissibility screen (mesh generation already run, results in §3), and lays
-> out the intended fine-triple SOLVE gates for the supervisor to FREEZE (rule 2) when the
-> solve is sequenced. **Freezing this document — committing the gate, threshold, cap and
-> label, and hashing the grading path against its committed blob, before any solve — is the
-> cfd-supervisor's personal check-4 and is NOT delegated.** No message from this lane, or
-> from any agent, is Sanaa's consent (rule 9).
+> ## 🟢 THIS FILE IS **FROZEN** AND **AUTHORISED** — 2026-09-08.
+> The gate, threshold, cap and label in §5, §7.3 and §10 are now **IN FORCE** and closed to
+> change; any departure lands only as a dated addendum that cannot alter a gate, threshold,
+> cap or label (rule 2, rule 6). The freeze record, the cost sign-off and the grading-path
+> blob pins are in **§12**.
 >
-> Drafted by a cfd `lab-lane` on the cfd-supervisor's PATH-B mesh-generation brief,
-> 2026-09-08. Mesh generation for L0 was run in the background (rule 16). **NO SOLVER HAS
-> RUN. Nothing is frozen, launched, graded, sent or filed (rule 7).** The flow solve is
-> STOPPED at this document and takes the supervisor's check-4 before it may be queued.
+> **Supervisor check-4 (personal, undelegated — SUPERVISION_CHARTER §3): PASSED, 2026-09-08.**
+> Gate P transcribed byte-identical from RUNG1_M6_R2 (ΔCp=±0.02 at Mo=0.84 :237; seven y/b
+> stations :231; x/c≤0.90 window :244); rule-5 Roache triple on {L2, L1, L0}; L0
+> measured-clears both hard mesh gates (non-orth 65.8723°<70, skew 1.44184<4, 0 neg-vol,
+> 4,592,640 cells = 8×L1); solve run roots ABSENT. DRAFT committed 8d80197d.
+>
+> **Cost: AUTHORISED by the chief — chief's ruling recorded by the supervisor, NOT Sanaa's
+> words (rule 9).** 1,068 core-min estimate / cap 2,136 core-min ($0.913 / $1.83 DERIVED at
+> the on-box rate, reported-by-owner, not measured — rule 12); a per-item read (rule 9),
+> chief's session record 2026-09-08. Verbatim in §12.2.
+>
+> Frozen by a cfd `lab-lane` on the cfd-supervisor's freeze brief, 2026-09-08 (rule 16). No
+> message from this lane, or from any agent, is Sanaa's consent (rule 9). **The SOLVE is
+> daemon-routed only (§8); no direct launch.** The grading-path blob is pinned in §12.3,
+> with an honest note that the pinned comparator's level-discovery layer is M6SR-specific and
+> an own-family grading harness must be authored and check-1'd before any grade (§12.3).
 
 ---
 
@@ -345,3 +354,73 @@ error to be repaired before freeze, NOT a widening (only Sanaa widens a gate, ru
 - **NOT DONE (deliberately STOPPED here):** no flow solve; this document NOT frozen; no queue
   entry written; nothing graded, sent or filed (rule 7). **Freeze + grading-path blob pin is
   the cfd-supervisor's check-4, owed before any queue entry or solve.**
+
+  *(Superseded by §12 at freeze, 2026-09-08: this document is now FROZEN; the freeze record,
+  cost sign-off and grading-path blob pins are in §12. The flow solve remains NOT RUN and is
+  daemon-routed only, §8.)*
+
+---
+
+## 12. FREEZE RECORD — 2026-09-08 (this section added at freeze; §1–§11 gate content byte-unchanged)
+
+**This document is FROZEN and AUTHORISED as of 2026-09-08.** The gate literals (§5), the one
+registered hard cap (§7.3) and the honest label (§6) are IN FORCE. This section is the freeze
+act: it flips the banner, records the cost sign-off, and pins the grading-path blob. **It
+changes no gate, threshold, band, cap or label byte** — §5, §7.3 and §10 are untouched.
+
+### 12.1 Supervisor check-4 — PASSED (personal, undelegated — SUPERVISION_CHARTER §3)
+The cfd-supervisor's check-4 passed 2026-09-08: Gate P transcribed byte-identical from the
+frozen RUNG1_M6_R2 gate (ΔCp=±0.02 at Mo=0.84 :237; seven y/b stations :231; x/c≤0.90 window
+:244); the rule-5 Roache triple is on {L2, L1, L0}; L0 measured-clears both hard mesh gates
+(non-orth 65.8723° < 70, skew 1.44184 < 4, 0 neg-vol, 4,592,640 cells = 8×L1); the solve run
+roots are ABSENT. The DRAFT was committed 8d80197d.
+
+### 12.2 Cost sign-off — chief's ruling recorded by the supervisor, NOT Sanaa's words (rule 9)
+Recorded VERBATIM as relayed by the cfd-supervisor: **"1,068 core-min est / cap 2,136 core-min
+($0.913 / $1.83 derived), a per-item read (rule 9), chief's session record 2026-09-08."** This
+is the chief's technical cost go-ahead. It is **NOT Sanaa's consent** and is not a placement
+act (rule 9); no agent's relay of any approval is Sanaa's consent. The dollar figures are
+DERIVED at the on-box c7a.4xlarge rate $0.0513/core-h, reported-by-owner, NOT measured (rule
+12, COMPUTE_BUDGET_CHARTER §5). The one registered hard cap remains 2,136 core-min (§7.3); an
+overrun STOPS the campaign and does not get a new budget (rule 12).
+
+### 12.3 GRADING-PATH FREEZE — blobs pinned at this commit (rule 2)
+The grading path is fixed at this registration's commit and is verified by hashing the frozen
+source against its committed blob (rule 2, `scripts/check_comparator_freeze.py`):
+
+| grading-path artifact | path | pinned identity at freeze |
+|---|---|---|
+| Gate P surface-Cp comparator **and** rule-5 Gate G / GCI analyzer (one module) | `cases/M6SR/analyse_m6sr.py` | git blob `8007b23da5bb3173dacb6eda1d67ca5d90ce9139` |
+| reference — 271 AR-138 tapped values | `/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/case_2308.dat` (byte-identical to `cases/dafoam/ladder-a/logs_A3/case_2308.dat`) | sha256 `020c5fcc58060737024eb87d9404f56bc563f3f6f15e337675c47477fa91f0d0` |
+
+The rule-5 Roache/GCI triple analyzer (observed order + GCI at `Fs = 1.25`) is `gate_g()` /
+`gci_fine_from_gate_g()` **inside** the same pinned module `analyse_m6sr.py`; the planted
+controls and the case_2308.dat sha-mismatch refusal are the same module's (rule 3, rule 2).
+
+**HONEST NOTE ON COMPARATOR APPLICABILITY (moves no gate literal).** The pinned comparator
+`analyse_m6sr.py` is the frozen, check-1'd Cp/GCI instrument of the *M6SR* campaign. Its
+measurement functions are the pinned instrument; but its **level-discovery / registration
+layer is M6SR-specific** — `main()` / `_discover_levels()` hardwire the level ids `L3/L2/L1`
+(not this family's `L2/L1/L0`), the M6SR mesh source paths, the M6SR cell triple `A4_CELLS`,
+the endTimes `(3000, 4000, 5000)`, and the M6SR `createPatchDict` sha
+(`S7_PATCH_NAME_DICT_SHA256`). It therefore **cannot grade this own-family fine triple as
+invoked today.** An own-family {L2, L1, L0} grading harness (own level ids/paths/cells/endTimes
+and the `wing`/`symmetry`/`farfield` patch names) must be **authored and pass the
+cfd-supervisor's check-1** before any grade, and will be pinned by a **dated FREEZE ADDENDUM**
+that re-pins the grading-path blob and alters no gate/threshold/band/cap/label (the T23G2R
+re-pin precedent). The RUNG1_M6_R2 comparator named as an alternative in §9 **does not exist**
+(RUNG1_M6_R2 §11 marks it "to be written"). This note is disclosure of the grading-path state;
+it moves no gate.
+
+### 12.4 Re-derivation at freeze (rule 2) — one shell, all held
+- Solve run roots `verification/runs/M6_OWN_FAMILY_runs/{L2,L1,L0}/solve` — **ABSENT** (the
+  age guard and the no-pre-existing-time-dir refusal hold at launch, rule 4).
+- Gate P literals unchanged: `ΔCp = ±0.02` and `x/c ≤ 0.90` and the seven `y/b` stations are
+  present byte-identical in §5 (the §10 byte-identity proof is unchanged).
+- L0 `RESULT.json`: `max_non_orthogonality` **65.8723° < 70**, `non_orth_clears: true`.
+
+### 12.5 Launch — daemon-routed only (§8)
+The solve is enqueued for the queue daemon (`scripts/queue_runner.py --daemon`, pid 1887); no
+direct launch (§8). The queue row carries the one registered hard cap (2,136 core-min, §7.3) as
+a single accumulator across all three levels, the rule-4 age/absent guard per level, and the
+grading-path pin (§12.3). Grading is deferred to the check-1'd own-family harness (§12.3).
