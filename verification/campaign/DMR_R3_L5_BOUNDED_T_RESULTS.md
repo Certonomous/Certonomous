@@ -14,6 +14,15 @@
 > `verification/runs/DMR_R3_L5_BOUNDED_T_runs/`. Every figure cites the run
 > artifact it was read from; this lane re-verified each cited value at source
 > before recording.
+>
+> **PRESERVATION NOTE (path resolution).** After this record was written the run
+> directory was renamed to preserve the failed attempt and leave the L5b root
+> absent (M6/RUNG1 precedent): every citation below of the form
+> `verification/runs/DMR_R3_L5_BOUNDED_T_runs/…` now resolves at
+> **`verification/runs/DMR_R3_L5_BOUNDED_T_runs.MISCALIBRATED_CLIP_eref_PRESERVED/…`**.
+> The artifacts (R3 log 32,620,116 bytes, `PROGRESS.txt`, `CAP_BREACH.txt`,
+> `R{1,2,3}/…`, `R3/0/T`) are byte-intact at the preserved path; only the parent
+> directory name changed.
 
 ---
 
