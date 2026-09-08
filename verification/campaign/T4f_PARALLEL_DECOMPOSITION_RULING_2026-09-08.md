@@ -1,0 +1,39 @@
+# T4f PARALLEL DECOMPOSITION — RULING: GRANTED (verdict-safe). Deterministic parallel decomposition is ADMISSIBLE for T4f. This is APPLICATION of the ratified `PARALLEL_GATE_DOCTRINE` (Sanaa 2026-08-25), NOT a relaxation of a standard — so it does NOT escalate to Sanaa.
+
+**Date:** 2026-09-08. **Author:** verification-supervisor (personal standards/methodology ruling; big-claim, not delegated). **Provenance:** chief routing 2026-09-08 (internal relay, not Sanaa's words). **Cost:** 0 solver core-min, $0.00.
+
+## The premise corrected first (it changes the governance answer)
+
+The routing named a standard **"F15 (no-decomposition-on-a-ladder)."** On the record there is **no such codified standard.** "F15" is the oblique-shock-reflection **case**; the serial rule is a clause of **its own pre-registration Amendment 1** (`verification/campaign/F15_OSR29_PREREGISTRATION.md`, a pre-first-compute amendment), reused across the T-family as the shorthand "`ranks = 1 (F15)`." It is NOT a charter clause, NOT a `docs/standards/` standard, NOT an N-fact.
+
+- **F15's decisive rationale is order-fit protection, not a blanket ban.** Amendment 1 reason (a), verbatim: *"A grid-convergence ladder must differ only in mesh. Different rank counts mean different floating-point summation orders, injecting a non-mesh difference into exactly the level-to-level differences the observed-order fit consumes … F16 runs serial at every level. These two rungs exist to be compared."* Reasons (b) cost, (c) reproducibility, (d) not-fitting are subordinate.
+- **The ratified lab-wide standard on decomposition says the opposite of a ban.** `docs/standards/PARALLEL_GATE_DOCTRINE.md` (**"Ratified by Sanaa, 2026-08-25"**) — verdict runs MAY use decomposition **provided it is deterministic** (pinned method + seed, reproducible between invocations; C1). Sanaa's words: *"the graded quantities moved 2.2e-5 across partitions — the answers are stable; the gates aren't … reproducible to 2e-5 across different parallel layouts."*
+
+**Consequence:** permitting deterministic parallel decomposition on a verdict run is exactly what the ratified standard allows. Granting it here is **application of existing law, not a relaxation** — so it is my call and does NOT go to Sanaa.
+
+## Why T4f is verdict-safe under parallel decomposition
+
+1. **F15's protected quantity is ABSENT from T4f.** T4f has **no Roache triple, no GCI, no observed order** (`T4f_PREREGISTRATION.md` §3: one 138,240-cell mesh, "a validation-against-reference of the time-averaged field, gated but explicitly NOT GCI'd"). There is no level-to-level order fit for decomposition to confound. F15's decisive rationale (a) is inapplicable by construction; there is likewise no serial sibling with which T4f forms an order-controlled comparison (T4d/T4e are a different solver and regime).
+2. **The graded quantity is a statistically-converged TIME-AVERAGE, whose value is decomposition-invariant.** The verdict is the peak of the **time-averaged** mean-U profile vs ERCOFTAC bands (half-width **0.02**). Parallel and serial trajectories diverge instantaneously (FP reduction reordering; a decomposition-dependent GAMG pressure solve — N-D12, N-D30), but a time-average over a statistically-stationary window is a property of the **stationary statistics**, which both layouts sample identically (ergodicity). The instantaneous divergence washes out of the average.
+3. **T4f's OWN gates are the measured guarantee of that invariance.** S1 (stationarity, running-mean change ≤ 1e-3), S2 (window adequacy: ≥ 20 shedding periods AND running average of the windowed peak converged ≤ 1e-3), S3 (Co ≤ 0.9), S4 (timestep adequacy) are ALREADY required for a valid time-averaged verdict. **S2 passing IS the measurement that the time-average is statistically converged — and a converged time-average of a stationary flow is decomposition-invariant to within the sampling tolerance (≤ 1e-3).** If S2 fails, the run is NOT A RESULT serial OR parallel, so decomposition changes no outcome. Both loss modes are covered: if URANS damps to steady (T4f §7 P1/L1), the time-average equals a steady value, decomposition-invariant to solver tolerance (N-D7 ~1e-4); if it sheds, the ergodic argument applies under S2's ≥20-period floor.
+4. **The margin is wide.** The lab's recorded decomposition spread on graded quantities is ~2e-5 (`PARALLEL_GATE_DOCTRINE`) to ~1e-4 (N-D7 gradient); T4f's own sampling tolerance is 1e-3. All are far inside the 0.02 band. (The decomposition-DEPENDENCE evidence — N-D12's +2.72%, GAMG 8th-figure — is on ITERATION-LEVEL pressure-solve signatures, not a converged time-average, and does not transfer.)
+
+**Honest limit:** the lab has NO direct recorded measurement of decomposition-invariance for a time-averaged *URANS* statistic specifically (all invariance evidence is steady; all dependence evidence is iteration-level). The grant therefore rests on (a) the ergodic argument and (b) T4f's own S1/S2 convergence gates as the measured backstop — not on a serial-vs-parallel comparison (which would reintroduce the multi-day serial run the exception exists to avoid).
+
+## RULING
+
+**GRANTED.** T4f MAY run with parallel domain decomposition. This is not a relaxation of any standard; it applies `PARALLEL_GATE_DOCTRINE` and leaves F15's serial rule intact where it belongs (grid-convergence order fits). **NO Sanaa escalation.**
+
+### Conditions (frozen in T4f's pre-registration BEFORE first compute; nothing has run, so this is a legal rule-2 §2b amendment)
+
+1. **Deterministic decomposition, pinned pre-compute** (`PARALLEL_GATE_DOCTRINE` C1): `method simple` (deterministic geometric, reproducible from the rank count — F15's own choice) with the **rank count frozen** in a committed `decomposeParDict`; OR `scotch` only with its partition explicitly recorded/pinned. NOT a partitioner whose result is not reproducible from a recorded field.
+2. **S1–S4 unchanged and binding.** They are the invariance guarantee; keep them exactly as drafted. S2 (≥20 shedding periods + running-average convergence ≤ 1e-3) is the load-bearing backstop — a failed S2 is NOT A RESULT regardless of ranks.
+3. **Proper parallel I/O.** The graded `fieldAverage` (UMean profile) must be read from a correctly reconstructed field (`reconstructPar` / collated), stated explicitly in the prereg — there is no lab-wide I/O standard to inherit.
+4. **Numerics identical to the serial run.** Same schemes, same FIXED dt (`adjustTimeStep off` — so the timestep is decomposition-independent), same PIMPLE correctors, same residualControl, same solver. ONLY the rank column / `decomposeParDict` changes — mirroring F15's own amendment, which "alters no gate, no band, no threshold, no cap and no label; only the rank column moves."
+5. **Gate, band, threshold, cap, label UNMOVED.** The ERCOFTAC bands and S-gates are untouched.
+6. **Optional (not required).** If heat-transfer wants extra assurance given the URANS-invariance evidence gap, a cheap 2-rank-vs-serial spot check on the ~24 core-min calibration-probe window (running average of the peak agreeing within S2's ε) would convert the ergodic argument into a lab measurement — but it is NOT a condition of this grant; S1/S2 suffice.
+
+### Scope discipline (what this ruling does NOT do)
+
+- It does NOT touch the serial rule for **grid-convergence (Roache-triple) ladders** — that is F15's actual protected domain (the order fit), and it stands. This grant is scoped to T4f's **single-grid, time-averaged validation**, and to like cases (single-grid validations whose verdict is a converged time-average), NOT to any rung that fits an observed order across levels.
+- It rules **admissibility** only. Whether to spend the parallel compute is heat-transfer's + the chief's call (T4f §8 q3 flags it as a chief call); the run is HELD for the M6 window regardless.
