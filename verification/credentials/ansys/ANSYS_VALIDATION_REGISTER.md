@@ -1415,3 +1415,41 @@ The frozen driver's `case/system/controlDict.template` declares `nuMinAll`/`nuMa
 - **No PASS.** VMFL007-R3 is not a credential.
 - **No `GATE FAIL`.** Rule 5 is one-way and the gate quantity was never read.
 - **No claim the run is defective** — strict completion PASSES on all three levels; the block is in OUR frozen grading instrument, and R4 is owed to unblock it.
+
+## Row #65 — VMFL011-R4 — Laminar Flow in a Triangular Cavity (VM2026R1 p. 41/42) — **`GATE FAIL`**
+
+**Graded 2026-09-08 through the pinned frozen comparator (blob `cbf376c03d285c4b149a17e955878971fc25badf`, verified byte-identical on disk == at HEAD == at the freeze `f98d34c4` before grading, §3 check 1). Verdict `GATE FAIL` — the pre-registration PREDICTED `GATE FAIL` before compute. The gate `rms_vs_benchmark ≤ 0.030` at the finest CONVERGING level (L4) is missed at `0.03408922226979811` (+13.6 %), on a `CONVERGING` Roache triple, so rule 5 does NOT convert the row. This is a finding, NOT a credential; the tier is `NOT HELD`, and the ceiling is `GATE REACHED` (code-to-code digitised reference — the comparator cannot print `PASS`).** Cites and does NOT overwrite register row #36 (VMFL011-R3, `GATE FAIL` at the identical finest-level rms 0.034088), nor the earlier attempts #26 (VMFL011) and #31 (VMFL011-R2), both `NOT A RESULT` on planted-control refusals; all their trees, preregs and comparators are preserved.
+
+**The fourth attempt, first with a four-level family and an a-priori finest triple.** OpenFOAM v2606 `simpleFoam`, steady laminar SIMPLEC, ρ = 1, μ = 0.01, base 2 m / height 4 m, moving base-wall U = 2 m/s (Re = 400), on a collapsed-hex triangular block. Four levels L1/L2/L3/L4 on an r = 2 family at `endTime` 20000 SIMPLE iterations; **the graded triple is the finest three L2/L3/L4, fixed a-priori with no fallback.** Every gate-path constant is frozen at `f98d34c4` before compute. Driver `run_vmfl011_r4.sh` blob `4e96cd0f`; prereg blob `04c51c13a149223665e7818636b41aa83f3da6e5`.
+
+### What the run did — all four levels COMPLETED cleanly (strict completion PASSES)
+
+| level | rc | `End` | last `Time` | endTime | ExecutionTime count | fields @ endTime | age guard | ranks | wall | core-min | rms_vs_benchmark | u_min_norm |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| L1 | 0 | 1 | 20000 | 20000 | 20000 (==endTime) | U p phi | NEWER than 0/U | 1 | 15 s | 0.25 | 0.040264214986 | −0.264494 |
+| L2 | 0 | 1 | 20000 | 20000 | 20000 (==endTime) | U p phi | NEWER than 0/U | 1 | 58 s | 0.9667 | 0.034775135234 | −0.319438 |
+| L3 | 0 | 1 | 20000 | 20000 | 20000 (==endTime) | U p phi | NEWER than 0/U | 1 | 410 s | 6.8333 | 0.034087720284 | −0.337560 |
+| L4 | 0 | 1 | 20000 | 20000 | 20000 (==endTime) | U p phi | NEWER than 0/U | 1 | 7690 s | 128.1667 | 0.034089222270 | −0.342312 |
+
+Fields `U p phi` are the correct set for this incompressible isothermal laminar `simpleFoam` case. L1 iterative residuals fell to ~1e-13/1e-14. Verified from the solver logs, `RUN_RC.L1..L4` and field mtimes; the comparator's own `strict_completion.ok` is true (no reasons) at every level.
+
+### Why the verdict is `GATE FAIL` — the rms plateaus above the band on a CONVERGING triple
+
+- **Gate quantity, finest level:** `rms_vs_benchmark = 0.03408922226979811` at **L4** against band **≤ 0.030** — exceeds by **+13.6 %**.
+- **The rms plateaus, it does not resolve under 0.030:** L2/L3/L4 = 0.0347751352338498 / 0.034087720284… / 0.03408922226979811 (L3 → L4 essentially flat, +2e-6) — precisely the pre-registered behaviour.
+- **Roache triple on `u_min_norm`** (the self-converging functional, values −0.319438 / −0.337560 / −0.342312, monotone): state **`CONVERGING`**, r = 2.0, **observed order p = 1.9313**, **GCI_fine = 0.006166 (0.6166 %)** at Fs = 1.25, Richardson `f_ex` = −0.344001. Because the triple is `CONVERGING`, CLAUDE.md rule 5 does **not** downgrade the row to `NOT A RESULT`; the `GATE FAIL` stands. (Diagnostic-only L1/L2/L3 triple also `CONVERGING`, p = 1.600 — moves no gate quantity.)
+- **Controls (rule 3), all FIRED:** on-path planted-zero controls PASS at every level on both channels (rms averaging reader sized `K·U_wall·base` per L-340; `u_min_norm` point reader moved 0.0617 > threshold 0.01234); off-path controls correctly REFUSE (parent-pair Δ 3.68e-07, all-row unsized Δ 1.06e-04, adversarial fixed 1.39e-17, L-347 apex-placement 0.0 — each below its threshold). Frozen constants (18) and reference blob `9f11191b…` matched the registration; observed-order floor catches p = 0.01, passes p = 0.5.
+
+### Provenance
+
+- **Comparator:** `cases/ansys_verification/VMFL011-R4/grade_vmfl011_r4.py`, blob **`cbf376c03d285c4b149a17e955878971fc25badf`** — `git hash-object` on disk == at the freeze `f98d34c4` == at HEAD; `--verify-frozen f98d34c4` rc 0 ("FROZEN: the comparator on disk IS the committed blob"). An independent answer-blind re-run reproduced the canonical `GRADING_VMFL011_R4.json` bit-for-bit.
+- **Pre-registration & freeze:** `cases/ansys_verification/VMFL011-R4/PREREGISTRATION.md` blob **`04c51c13a149223665e7818636b41aa83f3da6e5`**, freeze commit **`f98d34c4e69ac47ca556496f45fc1579474ab8c1`** (before compute, rule 2, §3 check 4). Driver `run_vmfl011_r4.sh` blob **`4e96cd0f`**. `RUN_RC.L1..L4` record the comparator and prereg blobs, written before any core-minute.
+- **Gate/thresholds:** `rms_vs_benchmark ≤ 0.030` at the finest level (L4), `P_MIN = 0.05`, a monotone-`CONVERGING` triple on `u_min_norm` required for a GCI; gate path byte-identical to attempts 1–3. Reference kind NUM (code-to-code, doubly indirect: Jyotsna & Vanka, *J. Comp. Phys.* 122:107–117 (1995), via manual p. 41; Ansys digitisation `VMFL011_xvel.xy`, 46 rows). Manual p. 42 prints only a FIGURE, no discrete target table; Fluent/CFX curves are context-only. Ceiling `GATE REACHED`, hard-coded.
+- **Run root:** `verification/runs/ansys_verification/VMFL011-R4/` — `GRADING_VMFL011_R4.json`, `L1/L2/L3/L4`, `RUN_RC.L1..L4` (rc 0 each), `COST.txt`, `LAUNCH_RECORD.txt`, `CONTENTION.txt`, `ESTIMATE_OVERRUN.txt`, `STATUS.queue.VMFL011-R4`.
+- **Cost:** **136.2167 core-min MEASURED** (L1 0.25 + L2 0.9667 + L3 6.8333 + L4 128.1667, serial ranks = 1; `COST.txt` `total_core_min = 136.2167`) = **$0.1165 DERIVED, NOT measured** at $0.0513/core-h (c7a.4xlarge, owner-stated; the box cannot read its own billing, `COMPUTE_BUDGET_CHARTER.md` §5). Against the ~73 core-min estimate → ratio **1.87×**, attributed to **contention** (load avg 32.60 on 16 cores at launch, ~2.0× oversubscription; the serial L4 leg inflated ~2×). `ESTIMATE_OVERRUN.txt` reported (elapsed 4876 s > 1.10 × 4380 s) but NOT enforced and NOT killed — no registered cap on the runner as-built (D539 advisory, OFF); no per-level (L4 98.6 % of its 130 cap) or backstop (80 % of 170) cap fired. L4 wall 7690 s > the §2 3600-s stall figure is DISCLOSED but reached `endTime` cleanly → productive compute, gross == cleaned, not cleaned out; **waste 0.000 core-min**, named separately (§6). Calibration row `C-20260908T203521.154517Z-d49de713` in `docs/COST_CALIBRATION.md`. Results prose `cases/ansys_verification/VMFL011-R4/RESULTS.md`.
+
+### What this row REFUSES to claim
+
+- **No `PASS`.** The reference is code-to-code digitised; the ceiling is `GATE REACHED` and the comparator cannot print `PASS`. VMFL011-R4 is not a credential.
+- **The rms is not pinned below 0.030 by refinement** — it plateaus at ~0.0341 across L2/L3/L4; the +13.6 % gap is a real disagreement with the digitised referent, not a mesh-resolution artefact (the `u_min_norm` triple is CONVERGING with GCI 0.62 %).
+- **`GATE FAIL` is a finding, not a deletion** — it stands honestly in the register with its numbers, and it is NOT counted among the lab's `PASS` credentials.
