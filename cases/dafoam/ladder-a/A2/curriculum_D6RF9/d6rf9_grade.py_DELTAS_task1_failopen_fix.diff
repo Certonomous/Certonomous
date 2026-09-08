@@ -1,0 +1,80 @@
+diff --git a/cases/dafoam/ladder-a/A2/curriculum_D6RF9/d6rf9_grade.py b/cases/dafoam/ladder-a/A2/curriculum_D6RF9/d6rf9_grade.py
+index 1a108007..9d7aae4d 100644
+--- a/cases/dafoam/ladder-a/A2/curriculum_D6RF9/d6rf9_grade.py
++++ b/cases/dafoam/ladder-a/A2/curriculum_D6RF9/d6rf9_grade.py
+@@ -588,24 +588,67 @@ def drive():
+     return rc
+ 
+ 
++def grade_log(log_path, rung, skip_freeze=False):
++    """The REAL-GRADE path. SELF-RUNS every control and REFUSES (raises Refusal
++    -> exit 2) BEFORE emitting any gate verdict. A grade path that runs without
++    its own controls is FAIL-OPEN; this mirrors the frozen `d6rf7_grade.py:grade`
++    (freeze_check at :2922, run_planted_controls at :2948, afc.run_floor_control
++    at :2962-2966). The controls ALWAYS run on a real grade; `--skip-freeze`
++    skips ONLY the frozen-path `freeze_check` (exactly d6rf7_grade.py:2922-2930,
++    "NEVER on a real grading run"), NEVER the planted-residual or accept-floor
++    control -- those run on every real grade. No control is weakened."""
++    # (1) freeze_check: accept-floor byte-inheritance + T25 floor-unmoved.
++    #     Skippable ONLY the way d6rf7_grade.py:2922 skips its freeze_check.
++    if not skip_freeze:
++        freeze_check()                                   # Refusal -> exit 2
++    ctrl = tempfile.mkdtemp(prefix="d6rf9_grade_ctrl_")
++    # (2) THE PLANTED-ZERO RESIDUAL CONTROL (CLAUDE.md rule 3) -- ALWAYS runs.
++    plant = run_residual_plant_control(os.path.join(ctrl, "plant"))  # -> exit 2
++    # (3) ACCEPT_FLOOR_UNMOVED, read back out of the ARM'S OWN LOG, in BOTH
++    #     directions (PREREGISTRATION.md section 4; d6rf7_grade.py:2962-2966).
++    #     ALWAYS runs; refuses (exit 2) if a floor term moved in the run's bytes.
++    #     A log with no floor dump refuses fail-CLOSED (a blind reader is not
++    #     evidence); a log absent is NOT EXERCISED and the leg is NOT A RESULT.
++    try:
++        floor = afc.run_floor_control(os.path.join(ctrl, "accept_floor"),
++                                      log_path)
++    except afc.AcceptFloorRefusal as e:
++        refuse("ACCEPT_FLOOR_UNMOVED", {"instrument_refused": str(e)[:2500]})
++    # controls PASSED -> now, and only now, read and grade the arm log.
++    legs = read_legs(log_path)
++    controls = {"planted_residual": plant, "accept_floor_unmoved": floor}
++    if rung not in legs["segments"]:
++        return {"item": ITEM, "verdict": "NOT A RESULT",
++                "reason": "LEG_NOT_IN_LOG", "rung": rung,
++                "legs_seen": legs["order"], "controls": controls}
++    seg = _bind(legs, rung)
++    row = gate_conv(seg, rung)
++    row["item"] = ITEM
++    row["controls"] = controls
++    return row
++
++
+ def main():
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--drive", action="store_true",
+                     help="drive the controls + selftest (no compute)")
+     ap.add_argument("--log", help="grade a real arm container log")
+     ap.add_argument("--rung", default="R1", help="which rung the log is")
++    ap.add_argument("--skip-freeze", action="store_true",
++                    help="skip ONLY the frozen-path freeze_check (dev/selftest; "
++                         "NEVER on a real grading run). Does NOT skip the "
++                         "planted-residual or the accept-floor control -- those "
++                         "ALWAYS run on a real grade (d6rf7_grade.py pattern).")
+     a = ap.parse_args()
+     if a.drive:
+         return drive()
+     if a.log:
+-        legs = read_legs(a.log)
+-        if a.rung not in legs["segments"]:
+-            print(json.dumps({"verdict": "NOT A RESULT",
+-                              "reason": "LEG_NOT_IN_LOG", "rung": a.rung,
+-                              "legs_seen": legs["order"]}, indent=1))
+-            return 0
+-        seg = _bind(legs, a.rung)
+-        print(json.dumps(gate_conv(seg, a.rung), indent=1, default=str))
++        try:
++            row = grade_log(a.log, a.rung, a.skip_freeze)
++        except Refusal as e:
++            sys.stderr.write("D6RF9_GRADE REFUSED %s\n" % e)
++            return 2
++        print(json.dumps(row, indent=1, default=str))
+         return 0
+     ap.print_help()
+     return 64
