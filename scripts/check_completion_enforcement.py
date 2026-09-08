@@ -49,6 +49,21 @@ results file still validates in any source.  Result: B0/B2/B4/B6 in a non-dafoam
 honestly UNPARSED (not falsely covered, not falsely flagged).  A RED-5 sub-drive removes the
 gate and confirms the B6 under-flag returns -- proving the gate is load-bearing (§28.8).
 
+RUNG-FALLBACK PASS 2026-09-08 (verification-supervisor ruling, own instrument; heat-transfer
+referral): a base-rung successor `Predecessor: T23G2` did NOT cover the Roache grid-level leaf
+rows T23G2_L1/L2/L3 -- _canon_lineage_id only DEHYPHENATES, so the leaf key `T23G2_L1` never
+matched the rung edge `T23G2`.  This FALSELY FLAGGED five leaf rows that a genuine registered
+fix-successor (T23G2R, commit d2248779) already carries.  Fix: _find_lineage_successor gains a
+RUNG-FALLBACK -- a grid-level leaf `<rung>_L<n>` (LEAF_LEVEL_RE / _leaf_rung) is covered by a
+rung-level predecessor edge `<rung>`, because a successor re-running the whole rung re-runs its
+full convergence triple (rule 5).  ADDITIVE and ONE-DIRECTIONAL (rung->leaf ONLY): a
+LEAF-SPECIFIC edge (`Predecessor: <rung>_L2`) is still matched by EXACT canon and never
+rung-generalises, so a single grid-level fix does not over-cover its sibling levels.  RED-7
+cripples _leaf_rung and confirms the rung-covered leaf re-flags while the leaf-specific row
+stays covered (load-bearing, §28.8).  Verified against the real repo: T23G2_L1/L2/L3 cleared
+via the T23G2R rung edge, flag count 17 -> 12; no false clear (they clear ONLY on the genuine
+registration edge).  Trust boundary UNCHANGED (§2ay.4).
+
 WHAT IT DOES  (§2ay.2)
 ----------------------
 It ENUMERATES every landed `GATE FAIL` and `NOT A RESULT` it can read from the
@@ -269,6 +284,14 @@ RESULTS_FILE_SUFFIXES = frozenset({
 
 # A successor id extends a base id with a re-run / model suffix.
 SUCCESSOR_SUFFIX_RE = re.compile(r"^(.*?)[-_](R\d+|M\d+|L\d+|S\d+|b|c)(?:[-_].*)?$")
+
+# A Roache GRID-LEVEL LEAF id: `<rung>_L<n>` (the coarse/medium/fine levels of ONE
+# rung's convergence triple, rule 5).  Used by the lineage rung-fallback so a
+# rung-level successor edge (`Predecessor: <rung>`) covers every grid level of that
+# rung.  Referral + ruling (verification-supervisor, 2026-09-08): a base-rung
+# `Predecessor: T23G2` did NOT cover leaf rows T23G2_L1/L2/L3 because _canon_lineage_id
+# only dehyphenates -- it has no grid-level mapping.  See _leaf_rung / _find_lineage_successor.
+LEAF_LEVEL_RE = re.compile(r"^(.+?)_L\d+$")
 
 # A line-leading RECORDED-LINEAGE field: a registration declares the attempt it
 # supersedes.  §2ay.2(b) recognises "a landed passing successor whose lineage is
@@ -574,6 +597,14 @@ def _find_successor_registration(case: str, idx: RepoIndex) -> str | None:
     return None
 
 
+def _leaf_rung(case: str) -> str | None:
+    """The Roache GRID-LEVEL LEAF `<rung>_L<n>` -> its `<rung>`; None if `case` is not a
+    grid-level leaf.  Factored out so the RED drive (RED-7) can cripple ONLY the
+    rung-fallback and confirm it is load-bearing (§28.8)."""
+    m = LEAF_LEVEL_RE.match(case)
+    return m.group(1) if m else None
+
+
 def _find_lineage_successor(case: str, idx: RepoIndex) -> str | None:
     """State (b) via RECORDED LINEAGE (§2ay.2(b)): a registration -- a *PREREGISTRATION*/
     *SUCCESSOR* file's line-leading `Predecessor:`/`Supersedes:` field, or a gate_*.json
@@ -586,7 +617,26 @@ def _find_lineage_successor(case: str, idx: RepoIndex) -> str | None:
     detect.  What this reader does NOT do is trust a board or a prose mention -- only a
     registration or a gate JSON, gated in build_repo_index."""
     ev = idx.lineage_preds.get(_canon_lineage_id(case))  # canon LOOKUP key -- symmetric with the store side
-    return f"recorded-lineage successor -- {ev}" if ev else None
+    if ev:
+        return f"recorded-lineage successor -- {ev}"
+    # RUNG-FALLBACK (verification-supervisor ruling 2026-09-08): a Roache grid-level leaf
+    # `<rung>_L<n>` is covered by a RUNG-LEVEL predecessor edge `<rung>` -- a successor
+    # whose registration declares `Predecessor: <rung>` re-runs the WHOLE rung (its full
+    # convergence triple, rule 5), so it carries every grid level of that rung.  ADDITIVE
+    # and ONE-DIRECTIONAL (rung -> leaf ONLY): a LEAF-SPECIFIC edge (`Predecessor:
+    # <rung>_L2`) is matched by the EXACT canon lookup above and NEVER rung-generalises, so
+    # a single grid-level fix does not over-cover its sibling levels.  Trust boundary
+    # UNCHANGED (§2ay.4): whether the successor genuinely re-runs the full triple is
+    # backstopped by the cross-team gate audit, not this reader -- the edge itself is the
+    # successor's own registration.  Fixes the T23G2 -> T23G2_L{1,2,3} under-coverage the
+    # dehyphenate-only _canon_lineage_id could not see.
+    rung = _leaf_rung(case)
+    if rung is not None:
+        ev = idx.lineage_preds.get(_canon_lineage_id(rung))
+        if ev:
+            return (f"recorded-lineage successor (rung-level `{rung}` covers Roache grid "
+                    f"leaf {case}) -- {ev}")
+    return None
 
 
 def _find_gap_filing(case: str, idx: RepoIndex) -> str | None:
@@ -838,6 +888,19 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         # T10a-VF`).  MUST stay covered under the fix AND under the RED drive (identity canon
         # still matches hyphen-to-hyphen) -- this is the exact class the one-sided strip broke.
         "| **20** | **T10a-VF** | **`GATE FAIL`** | row hyphenated; cleared by `Predecessor: T10a-VF` (same spelling both sides) |\n"
+        # --- RUNG-FALLBACK for Roache grid-level leaves (2026-09-08) ---
+        # (row 21) a grid-level LEAF T23G2_L1 whose ONLY coverage is a RUNG-LEVEL
+        # `Predecessor: T23G2` registration (a successor that re-runs the whole rung).
+        # The dehyphenate-only canon could not map the leaf to its rung -> falsely flagged.
+        # With the rung-fallback CRIPPLED (RED-7) it re-flags (load-bearing).
+        "| **21** | **T23G2_L1** | **`NOT A RESULT`** | Roache grid leaf; covered ONLY by rung-level `Predecessor: T23G2` |\n"
+        # (row 22) a LEAF-SPECIFIC edge: T31a_L1 cleared by `Predecessor: T31a_L1` (EXACT
+        # canon).  Under RED-7 it STAYS covered -- exact match is independent of the fallback.
+        "| **22** | **T31a_L1** | **`GATE FAIL`** | leaf-specific `Predecessor: T31a_L1`; covered by EXACT canon |\n"
+        # (row 23) NO-OVER-COVER: sibling leaf T31a_L2 has NO edge and its rung T31a has NO
+        # rung-level edge -> MUST stay flagged.  Proves a single grid-level fix does not leak
+        # onto its sibling levels (the one-directional guard heat-transfer asked for).
+        "| **23** | **T31a_L2** | **`GATE FAIL`** | sibling leaf, no edge; MUST stay flagged (no over-cover) |\n"
     )
 
     # LIMB 2a: a registered successor directory for FIX003
@@ -915,6 +978,21 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         "Predecessor: `T10a-VF` (explicit, for §2ay linkage).\n"
         "A next attempt on the T10a-VF rung that re-runs against the same frozen gate.\n"
     )
+    # RUNG-FALLBACK (2026-09-08): a RUNG-LEVEL successor whose Predecessor is the rung
+    # T23G2 (NOT a specific grid level).  It re-runs the WHOLE rung, so it covers the grid
+    # leaves T23G2_L1/L2/L3.  This is the real T23G2R shape (near-wall-refinement successor).
+    (cases / "T23G2R_PREREGISTRATION.md").write_text(
+        "# T23G2R pre-registration\n"
+        "Predecessor: **T23G2**\n"
+        "A near-wall-refinement successor that RE-RUNS THE FULL RUNG (all Roache grid levels).\n"
+    )
+    # NO-OVER-COVER (2026-09-08): a LEAF-SPECIFIC successor whose Predecessor names ONE grid
+    # level (T31a_L1).  Cleared by EXACT canon; MUST NOT rung-generalise onto sibling T31a_L2.
+    (cases / "T31aL1x_PREREGISTRATION.md").write_text(
+        "# T31aL1x pre-registration\n"
+        "Predecessor: **T31a_L1**\n"
+        "A single grid-level fix -- covers ONLY T31a_L1, NOT its sibling levels.\n"
+    )
 
     # ---- SOURCE-SCOPING arm (2026-09-07): dafoam-specific token classes must fire ONLY in
     # dafoam sources.  Live defect fixed: heat-transfer §4.3 data-row labels B0/B2/B4/B6 in
@@ -961,7 +1039,7 @@ def selftest() -> int:
     mechanism-only fail flagged), 1c (dafoam-shaped ids enumerated), 2 (successor /
     discharged / gap-filing not flagged), 2d (recorded-lineage successor not flagged)."""
     global _find_lineage_successor, _authoritative_case_from_results_file, _canon_lineage_id
-    global CASE_ID_RE, CASE_ID_ANCHORED_RE, CASE_ID_RE_NONDAFOAM
+    global CASE_ID_RE, CASE_ID_ANCHORED_RE, CASE_ID_RE_NONDAFOAM, _leaf_rung
     print("=" * 78)
     print("PLANTED CONTROL -- §2ay.5 / rule 3.  Two limbs, RED-then-GREEN.")
     print("An enforcer whose zero has not been shown able to become non-zero is worthless.")
@@ -1054,6 +1132,18 @@ def selftest() -> int:
             for c in dafoam_scoped_ids if c in by_case)
         srcscope_ok = b6_unparsed and dafoam_scoped_enum and dafoam_scoped_src_ok
 
+        # RUNG-FALLBACK (2026-09-08): a Roache grid-level leaf is covered by a RUNG-LEVEL
+        # `Predecessor: <rung>` successor.  T23G2_L1 (leaf) MUST be CLEARED by the rung
+        # edge T23G2; the LEAF-SPECIFIC edge T31a_L1 MUST clear ONLY T31a_L1 and NOT its
+        # sibling T31a_L2 (no over-cover).  Under RED-7 (rung-fallback crippled) T23G2_L1
+        # re-flags while T31a_L1 stays covered (exact canon is independent of the fallback).
+        leaf_case = "T23G2_L1"
+        leafspec_case = "T31a_L1"
+        leafspec_sibling = "T31a_L2"
+        leaf_ok = (leaf_case in covered) and (leaf_case not in flagged)
+        leafspec_ok = ((leafspec_case in covered) and (leafspec_case not in flagged)
+                       and (leafspec_sibling in flagged))
+
         print(f"\n  LIMB 1 (must flag {sorted(limb1_cases)})     : "
               f"{'GREEN' if limb1_ok else 'FAILED'}  "
               f"[mechanism WHY on FIX002: {'yes' if mech_ok else 'NO'}]")
@@ -1116,6 +1206,16 @@ def selftest() -> int:
         for c in sorted(dafoam_scoped_ids):
             r = by_case.get(c)
             print(f"      {c}: {'ENUMERATED from ' + r.row.source if r else 'MISSING'}")
+        print(f"  RUNG-FALLBACK (grid leaf {leaf_case} cleared by rung `Predecessor: T23G2`; "
+              f"leaf-specific T31a_L1 does NOT over-cover sibling T31a_L2): "
+              f"{'GREEN' if (leaf_ok and leafspec_ok) else 'FAILED'}  "
+              f"[leaf cleared={leaf_ok}, no-over-cover={leafspec_ok}]")
+        for c in [leaf_case, leafspec_case, leafspec_sibling]:
+            r = by_case.get(c)
+            if r:
+                print(f"      {c}: flagged={r.flagged}  state=({r.coverage.state}) {r.coverage.evidence or r.coverage.why}")
+            else:
+                print(f"      {c}: MISSING (not enumerated)")
 
         # ---------- RED: cripple the coverage-finder to always-true ----------
         # This is the blind checker §2ay.5 warns of: if the coverage-finder always
@@ -1262,11 +1362,33 @@ def selftest() -> int:
         print(f"  same-spelling {noregress_case} STAYS covered: {'YES' if noregress_red_ok else 'NO'}  "
               f"(symmetric canon introduces no regression)")
 
+        # ---------- RED-7: cripple ONLY the rung-fallback (leaf -> rung -> None) ----------
+        # Proves the rung-fallback is load-bearing (§28.8): with _leaf_rung forced to None,
+        # the grid leaf T23G2_L1 (covered ONLY by the rung-level `Predecessor: T23G2` edge)
+        # RE-FLAGS, while the LEAF-SPECIFIC T31a_L1 (covered by EXACT canon, not the fallback)
+        # STAYS covered.  If T23G2_L1 did NOT re-flag, some other path was clearing it and the
+        # rung-fallback arm above would be vacuous; if T31a_L1 re-flagged, the fallback would
+        # be doing work the exact match should do (an over-broad patch).
+        _saved_leafrung = _leaf_rung
+        _leaf_rung = lambda case: None
+        try:
+            red7_results, _ = scan(sources, base, roots)
+        finally:
+            _leaf_rung = _saved_leafrung
+        red7_flagged = {r.row.case for r in red7_results if r.flagged}
+        leaf_red_ok = (leaf_case in red7_flagged) and (leafspec_case not in red7_flagged)
+        print(f"\nRED-7 run (ONLY the rung-fallback crippled -- _leaf_rung -> None):")
+        print(f"  rung-covered leaf {leaf_case} re-flags: {'YES' if leaf_case in red7_flagged else 'NO'}  "
+              f"(rung-fallback is load-bearing)")
+        print(f"  leaf-specific {leafspec_case} STAYS covered: "
+              f"{'YES' if leafspec_case not in red7_flagged else 'NO'}  "
+              f"(exact canon is independent of the fallback)")
+
         both_green = (limb1_ok and mech_ok and limb2_ok and lineage_ok and hyphen_ok and noregress_ok
                       and dafoam_enumerated and fnfirst_ok and dafoam_nofire_ok and recog_ok
-                      and srcscope_ok)
+                      and srcscope_ok and leaf_ok and leafspec_ok)
         red_ok = (red_blinded and lineage_red_ok and fnfirst_red_ok and recog_red_ok
-                  and srcscope_red_ok and hyphen_red_ok and noregress_red_ok)
+                  and srcscope_red_ok and hyphen_red_ok and noregress_red_ok and leaf_red_ok)
         print("\n" + "=" * 78)
         if both_green and red_ok:
             print("PLANT VERDICT: BOTH LIMBS FIRED GREEN, AND THE RED DRIVE BLINDED THE CHECKER.")
