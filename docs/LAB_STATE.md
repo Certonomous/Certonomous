@@ -1430,6 +1430,79 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**TWENTY-THIRD SESSION, 2026-09-08 (closure-supervisor). CONTINUE. ZERO COMPUTE (0 solver
+core-min [MEASURED], 0 GPU-h, $0.00; selftest ~9 s wall CPU only). ONE COMMITTABLE INCREMENT
+LANDED (`c2293be4`): the M1b multimodel-sweep REGRADE comparator `grade_m1b.py` is
+AUTHORING-COMPLETED and my SUPERVISION sec.3 CHECK1 diff-read is DONE. STILL UNFROZEN.
+HEAD at session start f52323dd (peers). The zero-compute well was NOT fully dry after all.**
+
+**═══ THE FINDING THAT REOPENED A ZERO-COMPUTE INCREMENT ═══**
+Recon corrected the board: the three "CHECK1 NOT DONE" drafts are **M1b, M1-C, R4b-Ib** (NOT
+`grade_r4b.py`, which is the FROZEN, gates-CLOSED R4b-I parent). Of the three, ONLY **M1b** is
+zero-compute: its regrade DATA already exists on disk (`/home/ubuntu/closure-data/multimodel_sweep`,
+both `kOmega/` and `kOmegaSST_null/` fully populated), so grading is zero-compute and only my
+freeze-work stood between it and a verdict. M1-C needs a 6-arm re-run (compute); R4b-Ib needs a
+~9.48 core-min birth demo after freeze; R4b solve arm BLOCKED on Sanaa. So M1b was the single
+highest-value zero-compute increment available with the library well dry — I took it.
+
+**═══ WHAT THE LANE COMPLETED (two small, well-defined gaps) ═══**
+M1b was halted mid-authoring 2026-08-31 under the DEMO stop-work (superseded by Sanaa's
+2026-09-04 closure re-activation for zero-compute prep). Gaps completed, faithful to the frozen
+M1 prereg (§7 thresholds inherited VERBATIM, `73cd5ac5`; NO new gate value invented): (1) the
+declared-but-abandoned **non-finite / anti-windowing residual channel** — a converge-then-blow-up
+run would have graded CONVERGED at the last iteration before the nan, because the strict `SOLVE_RE`
+`[0-9.eE+-]+` SILENTLY DROPS a nan/inf token (a smaller n, not an error). Permissive vs numeric
+residual-line counts now compared, non-finite tokens recorded as evidence, exposed as a ONE-WAY
+physics-critical completion clause (benign default), census printed (rule-3 principle). (2) an
+**L-503 integrated `grade()`-path selftest arm**. Selftest **57/57 rc0 under python3 AND python3 -O**
+(L-332), 0 controls unfired.
+
+**═══ SUPERVISOR sec.3 CHECK1 (MINE, non-delegable) — SOUND, ONE DOC NIT ═══**
+I read the diff AND the regex definitions MYSELF (not the lane's summary). SOUND, no functional
+defect. Cleared the L-503 spurious-baseline-refusal hazard by reasoning the regexes: `n_solve_any`
+and `n_solve_numeric` BOTH derive from ONE permissive `SOLVE_ANY_RE` match, and every healthy
+residual line ("... Initial residual = <float>," always carries the trailing comma) increments
+BOTH, so a HEALTHY run never diverges and is NEVER spuriously marked INCOMPLETE — the channel bites
+ONLY on a nan/inf/non-float token. `RE_NONFINITE` is checked BEFORE `float()` (else `float("nan")`
+would wrongly count as numeric — correct ordering). Corrected one doc-comment (line 406: the numeric
+count is float-parseable-and-finite, not "SOLVE_RE parsed" — behaviorally identical on real tokens);
+updated the banner to record CHECK1 done, keeping the DO-NOT-GRADE / UNFROZEN warnings. Re-ran
+selftest green (both -O modes) AFTER my edits before committing.
+
+**═══ DELIBERATELY NOT FROZEN — a big claim, deferred (sec.3 check 3) ═══**
+FREEZING `grade_m1b.py` produces an actual VERDICT on the M1 multimodel sweep (data on disk), so it
+is deferred to a deliberate freeze session. M1b dir currently has NO `PREREGISTRATION.md`; the freeze
+requires writing one (documenting the inherited M1 §7 thresholds + regrade rationale + birth-record
+requirement + zero-compute cost since data exists), then the sha256 pin, then the zero-compute grade.
+The regrade is legitimate (inherits M1's PRE-REGISTERED thresholds, not gate-shopped to the data).
+
+**RUNGS WITHOUT VERDICTS — M1b CHECK1 now DISCHARGED (one of the three cleared).** M1 ungraded
+(barred until M1b) · M1-C CHECK1 pending + 6-arm re-run compute-gated · R4b-Ib CHECK1 pending +
+birth-demo compute-gated · R4b-I+R4b arm BLOCKED (Sanaa) · M2 UNRULED since 08-28 · RC1/RC2 unfrozen ·
+Ling arm 2 frozen+UNFILED · G1b xr null (D550) · LR1 PENDING freeze (G2-gated) · G2 PENDING freeze.
+FS2 and FS5 remain STANDING GATES.
+
+**NEXT ACTIONS.** (1) DONE — M1b authoring completed + CHECK1 committed (`c2293be4`). (2) M1b FREEZE
+is the next zero-compute increment (a deliberate session: write PREREGISTRATION.md, sha-pin, then grade
+the on-disk data — flagging the verdict to Sanaa first as a big claim). (3) LR1 freeze still G2-gated
+(compute, sequenced behind M6/CRM + F6). (4) Library growth still needs Sanaa's institutional pull
+(Shih 1995 + Craft/Launder/Suga 1996) — the registrable well is dry.
+
+**ON SANAA'S DESK — five items UNCHANGED + LR1 design-item-C + NEW: an M1b-freeze heads-up.** The M1b
+freeze will assert a VERDICT on the multimodel sweep (a big claim) — flagged before I freeze, not a
+send. (a) GPU YES Ling arm 2, 40 GPU-h=$32.19 DERIVED, UNFILED; (b) R4b increment ruling owed since
+08-28; (c) four withdrawn attributions; (d) two 2026-08-24 R3 quotations; (e) institutional-pull gap
+register (18; Shih 1995 + Craft/Launder/Suga 1996 highest zero-compute leverage). SUBMISSIONS PARKED.
+
+**BLOCKED — nothing blocked the increment landed. Closure SOLVES sequenced behind M6/CRM + F6 (cfd's
+M6 own-mesh now clears its hard gates — F6 gets closer) + G2 freeze; library growth blocked on Sanaa's
+institutional pull.**
+
+**COST THIS SESSION: 0 solver core-min [MEASURED] · 0 GPU-h · $0.00** (selftest ~9 s wall, CPU only).
+Two lanes (recon + authoring) + my CHECK1, no solve. Nothing to calibrate under rule 12 (no process
+completed — authoring prep, no gate graded).
+
+
 **TWENTY-SECOND SESSION, 2026-09-07 (closure-supervisor). CONTINUE. ZERO COMPUTE (0 solver
 core-min [MEASURED], 0 GPU-h, $0.00). ONE COMMITTABLE INCREMENT LANDED: the Ling2016 TBNN
 correction-library entry is REGISTERED (`1bb3f307`) — the last zero-compute registrable increment
