@@ -1,0 +1,4 @@
+Files /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMR_src/Make/files and /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMRb_src/Make/files differ
+Files /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMR_src/createFields.H and /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMRb_src/createFields.H differ
+Only in /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMR_src: rhoCentralFoamBoundedDMR.C
+Only in /home/ubuntu/Certonomous/verification/runs/DMR_runs/rhoCentralFoamBoundedDMRb_src: rhoCentralFoamBoundedDMRb.C

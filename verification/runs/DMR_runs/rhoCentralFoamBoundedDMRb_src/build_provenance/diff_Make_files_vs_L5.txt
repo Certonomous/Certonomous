@@ -1,0 +1,8 @@
+1c1
+< rhoCentralFoamBoundedDMR.C
+---
+> rhoCentralFoamBoundedDMRb.C
+3c3
+< EXE = $(FOAM_USER_APPBIN)/rhoCentralFoamBoundedDMR
+---
+> EXE = $(FOAM_USER_APPBIN)/rhoCentralFoamBoundedDMRb

@@ -1,0 +1,6 @@
+Bounding e (DMR L5b positivity guard, FIELD-ANCHORED) to T floor 0.01 / ceiling 10000 -> e in [-745.35714, 17111.794] J/kg
+STARTUP ASSERT PASS: bounded-e clip fires on 0 cell(s) at t=0 (eMin_bound = -745.35714 J/kg sits below field min e = -743.58928 J/kg); positivity floor is inert on the physical initial field.
+ExecutionTime = 1.26 s  ClockTime = 1 s
+ExecutionTime = 1.41 s  ClockTime = 1 s
+End
+--- probe: serial startup on N=240 (960x240) R3 initial field; endTime forced 3e-6; NOT the graded family; scratch case, run root untouched ---

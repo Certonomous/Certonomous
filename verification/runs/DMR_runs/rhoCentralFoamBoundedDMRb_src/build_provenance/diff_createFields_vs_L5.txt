@@ -1,0 +1,144 @@
+92,99c92,97
+< // --- Positivity-preserving e bound (DMR R3 L5, added for the Mach-10 DMR crash) ---
+< // The DMR case's constant/thermophysicalProperties uses `thermo hConst;`, whose
+< // limit() is a documented no-op (hConstThermoI.H) -- unlike `janaf`, which clamps T
+< // to [Tlow,Thigh] inside its own T-inversion. With hConst there is therefore no
+< // built-in guard against a bad cell's energy inverting to a negative T; that
+< // negative T reaches rPsi = 1/psi (proportional to R*T) at rhoCentralFoam.C:136,
+< // `c = sqrt(Cp/Cv*rPsi)`, and SIGFPEs on the negative sqrt argument -- exactly the
+< // crash (rc=136) this solver variant exists to prevent (measured at R3, t=0.15464).
+---
+> // --- Positivity-preserving e bound (DMR R3 L5b, FIELD-ANCHORED CORRECTION) ---
+> // WHY THIS SOLVER EXISTS: with hConst the T-inversion has no built-in guard, so a
+> // bad cell's energy can invert to a negative T; that negative T reaches
+> // rPsi = 1/psi (proportional to R*T) at rhoCentralFoam.C:136 `c = sqrt(Cp/Cv*rPsi)`
+> // and SIGFPEs on the negative sqrt argument -- the DMR crash (rc=136, measured at
+> // R3, t=0.15464). Flooring e (hence T) positive BEFORE thermo.correct() cures it.
+101,105c99,106
+< // hConst's T-inversion is exact and linear: T = Tref + (e - eref)/Cv, with Cv and
+< // Tref both true constants for this thermo model (Cp has no T dependence, eref
+< // defaults to 0, Tref defaults to Tstd = 298.15 K -- none overridden in this case's
+< // thermophysicalProperties). Bounding e to the range that maps to [TMin,TMax] under
+< // that exact relation therefore bounds T exactly, not approximately.
+---
+> // L5 (rhoCentralFoamBoundedDMR) MIS-SET the floor. It derived eMin_bound from a HAND
+> // e-formula e = Cv*(T - 298.15) (an ASSUMED Tref=298.15, eref=0), predicting ambient
+> // e(T=1.0) = -530.626 and eMin_bound = -532.410. But OpenFOAM's ACTUAL hConst
+> // sensibleInternalEnergy assigns e ~ -743.589 to the ambient field (measured, byte-
+> // identical across all three grids -- DMR_R3_L5_BOUNDED_T_RESULTS.md). The -532.410
+> // floor therefore sat ABOVE the entire physical e field and clipped 100% of cells
+> // from the first timestep, corrupting the run -> NOT A RESULT. ROOT CAUSE: the floor
+> // was validated against an ASSUMED reference, not the solver's OWN initial e field.
+107,124c108,123
+< //   DMR NONDIMENSIONAL thermo (constant/thermophysicalProperties, read verbatim):
+< //     Cp = 2.5, molWeight = 11640.3  ->  R  = 8314.47/11640.3 = 0.714283
+< //                                        Cv = Cp - R = 2.5 - 0.714283 = 1.785717 J/(kg K)
+< //                                        gamma = Cp/Cv = 1.40000
+< //   This is ~400x SMALLER than the SWBLI solver's Cv = 717.30 (Cp=1005, molWeight
+< //   28.9); using the SWBLI Cv here would misplace the e-bounds by that factor, which
+< //   is why DMR needs its OWN named solver.
+< //
+< //   TMin = 1e-3 is a pure POSITIVITY floor: ambient DMR T = p/(rho*R) =
+< //   1.0/(1.4*0.714283) = 1.000 (nondim); the flow is shock compression/reflection,
+< //   all heating, so no physical cell cools below ambient. TMin at 0.1% of ambient
+< //   (three orders below the coldest physical state) means the low clip can activate
+< //   ONLY on a nonphysical near-zero/negative-T excursion -- the plant-the-zero
+< //   discipline in the solver: inert unless the run is already producing an
+< //   impossible state. TMax = 1e4 is a symmetric runaway ceiling only (never expected
+< //   to bind; if it does, that is a reported diverging-solve finding). Both are read
+< //   from controlDict so they are transparent and adjustable without recompiling; the
+< //   registered values are TMin 1e-3, TMax 1e4.
+---
+> // L5b FIX: anchor the floor on the ACTUAL initial field, using NO assumed Tref/eref.
+> // The hConst T-inversion is exact and linear (de/dT = Cv everywhere), so a floor at
+> // temperature TMin is EXACTLY
+> //     eMin_bound = e_min_initial - Cv*(T_min_initial - TMin)
+> // where e_min_initial and T_min_initial are the MEASURED global minima of the
+> // initial physical fields. This floor sits Cv*(T_min_initial - TMin) BELOW the
+> // coldest physical cell BY CONSTRUCTION, so it CANNOT sit above the field and CANNOT
+> // clip a physical cell -- the plant-the-zero discipline, self-verified by the t=0
+> // assertion below. eMax_bound is the symmetric runaway ceiling, anchored the same way
+> // on the measured maxima. Cv is the DMR case's OWN value (2.5 - 8314.47/11640.3 =
+> // 1.785717, R = 8314.47/11640.3 = 0.714283, gamma = 1.40000); NO assumed reference.
+> //   TMin = 1e-2 (1% of the coldest physical DMR state, ambient T = 1.0): a pure
+> //   positivity floor, two orders below any physical cell (the flow is all shock
+> //   compression/reflection heating, so no cell cools below ambient). TMax = 1e4 is a
+> //   runaway ceiling only. Both from controlDict (adjustable without recompiling);
+> //   registered values TMin 1e-2, TMax 1e4.
+128c127
+<     runTime.controlDict().getOrDefault<scalar>("TMin", 1e-3)
+---
+>     runTime.controlDict().getOrDefault<scalar>("TMin", 1e-2)
+136c135,144
+< const scalar Tref_bound = 298.15;                // OpenFOAM's Tstd default (eref = 0)
+---
+> 
+> // MEASURED global extrema of the ACTUAL initial fields (NO assumed reference):
+> // e = thermo.he() holds the initial internal energy as OpenFOAM's hConst actually
+> // represents it; thermo.T() is the initial temperature. gMin/gMax are global
+> // (cross-rank) reductions, so the anchor is correct under the 4-rank layout.
+> const scalar eMinInit = gMin(e.primitiveField());
+> const scalar eMaxInit = gMax(e.primitiveField());
+> const scalar TMinInit = gMin(thermo.T().primitiveField());
+> const scalar TMaxInit = gMax(thermo.T().primitiveField());
+> 
+140c148
+<     Cv_bound*(TMin.value() - Tref_bound)
+---
+>     eMinInit - Cv_bound*(TMinInit - TMin.value())
+145c153
+<     Cv_bound*(TMax.value() - Tref_bound)
+---
+>     eMaxInit + Cv_bound*(TMax.value() - TMaxInit)
+147,150c155,200
+< Info<< "Bounding e (DMR positivity guard) to T in ["
+<     << TMin.value() << ", " << TMax.value() << "] -> e in ["
+<     << eMin_bound.value() << ", " << eMax_bound.value() << "] J/kg"
+<     << " (Cv = " << Cv_bound << ", Tref = " << Tref_bound << ")" << endl;
+---
+> Info<< "Bounding e (DMR L5b positivity guard, FIELD-ANCHORED) to T floor "
+>     << TMin.value() << " / ceiling " << TMax.value() << " -> e in ["
+>     << eMin_bound.value() << ", " << eMax_bound.value() << "] J/kg" << nl
+>     << "  anchored on ACTUAL initial field: min e = " << eMinInit
+>     << " (at min T = " << TMinInit << "), max e = " << eMaxInit
+>     << " (at max T = " << TMaxInit << "), Cv = " << Cv_bound
+>     << " -- NO assumed Tref/eref" << endl;
+> 
+> // --- MANDATORY t=0 ZERO-CLIP STARTUP ASSERTION (L5b durable fix) -------------
+> // A correctly-calibrated positivity floor is INERT on the physical initial field by
+> // construction: it must clip ZERO cells at t=0. If it clips >0 cells, the floor sits
+> // ABOVE the physical field (the exact L5 miscalibration) and the run would measure
+> // the instrument defect, not the model -- so REFUSE here, before spending a
+> // core-minute. This assertion is what would have caught L5 at t=0. It reads the
+> // ACTUAL initial e field (not an assumed reference), reduces the clip count across
+> // all ranks, and aborts non-zero if the floor is miscalibrated above the field.
+> {
+>     const scalarField& e0 = e.primitiveField();
+>     label nClip0Local = 0;
+>     scalar worst0Local = GREAT;
+>     forAll(e0, celli)
+>     {
+>         if (e0[celli] < eMin_bound.value())
+>         {
+>             ++nClip0Local;
+>             worst0Local = min(worst0Local, e0[celli]);
+>         }
+>     }
+>     const label nClip0 = returnReduce(nClip0Local, sumOp<label>());
+>     if (nClip0 > 0)
+>     {
+>         const scalar gWorst0 = returnReduce(worst0Local, minOp<scalar>());
+>         FatalErrorInFunction
+>             << "REFUSE: clip fires on " << nClip0 << " cell(s) at t=0 -- "
+>             << "eMin_bound (" << eMin_bound.value() << ") is miscalibrated ABOVE the "
+>             << "physical initial field (worst initial e = " << gWorst0 << " J/kg). "
+>             << "A correctly-calibrated positivity floor is inert on the physical "
+>             << "initial field by construction. Aborting before any solve "
+>             << "(DMR L5b t=0 zero-clip startup assertion)."
+>             << exit(FatalError);
+>     }
+>     Info<< "STARTUP ASSERT PASS: bounded-e clip fires on 0 cell(s) at t=0 "
+>         << "(eMin_bound = " << eMin_bound.value() << " J/kg sits below field min e = "
+>         << eMinInit << " J/kg); positivity floor is inert on the physical initial "
+>         << "field." << endl;
+> }
