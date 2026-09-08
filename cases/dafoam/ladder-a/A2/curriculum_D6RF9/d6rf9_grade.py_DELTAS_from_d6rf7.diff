@@ -1,0 +1,444 @@
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rf7_gconv_region.py	2026-09-08 18:38:14.280833383 +0000
++++ /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rf9_gconv_region.py	2026-09-08 18:38:14.299455688 +0000
+@@ -1,48 +1,48 @@
+ CONV_FIELDS = ("U0", "U1", "U2", "he", "p_first_uncorrected",
+                "p_corrected", "nuTilda")
+-CONV_MEASURED_D6RF4 = {          # D6RF4's OWN measured final-iteration initRes,
+-    "U0": 2.050400149e-07,       # P_conv log Time = 1000 (PREREGISTRATION.md sec 1)
+-    "U1": 7.782685238e-07,
+-    "U2": 5.580946633e-08,
++# D6RF7's OWN measured final-iteration initRes (D3). The binding field and the
++# genuine second over-floor field, from d6rf7 RESULTS.md section 2 / the frozen
++# verdict json.
++CONV_MEASURED_D6RF7 = {
++    "U0": 2.050400149e-07, "U1": 7.782685238e-07, "U2": 5.580946633e-08,
+     "he": 9.791852881e-09,
+-    # THE p SOLVE IS SPLIT: the FIRST (uncorrected) solve is the binding field,
+-    # the corrected final solve is under floor -- D6RF4/RESULTS.md sec 2.3 had to
+-    # disentangle these by hand; G-CONV reads them separately here.
+-    "p_first_uncorrected": 1.658293702e-05,  # the BINDING field, 1.658x the floor (log :2107)
+-    "p_corrected": 6.337682167e-08,          # corrected final p-solve, under floor (log :2108)
+-    "nuTilda": 1.40915531e-05,   # the genuine SECOND over-floor field, 1.409x the floor
++    "p_first_uncorrected": 1.625570732e-05,   # BINDING, 1.626x the floor
++    "p_corrected": 6.4090e-08,                # corrected final p-solve, << floor
++    "nuTilda": 1.408231801e-05,               # second over-floor field, 1.408x
+ }
++BINDING_FIELD = "p_first_uncorrected"
+ PRIMAL_FAILURE_BANNER = "Primal solution failed!"
+ 
+-# ---- read_legs ----
+-def read_legs(log_path):
+-    """Split ONE container log into the arm's three registered legs and read
+-    each leg's OWN final-iteration per-field `initRes`.
++# leg markers (INHERITED VERBATIM from d6rf7_grade.py:414-416)
++LEG_BEGIN = "D6RF9_LEG_BEGIN"
++LEG_END = "D6RF9_LEG_END"
++# D6RF9's install marker echoes the OUTER-LOOP config, not an fvSchemes md5 (D1).
++CONFIG_INSTALL_MARKER = "D6RF9_CONFIG_INSTALLED"
+ 
+-    WHY SEGMENTS AND NOT A WHOLE-LOG SCAN.  `P_conv` runs three primals in one
+-    container at TWO DIFFERENT `fvSchemes` (L1/L2 the LIMITED scheme, L3
+-    D6RF4's ORIGINAL scheme).  A whole-log reader would
+-    hand `G-CONV` the LAST `Time = 1000` block it found, which is `L3`'s -- the
+-    DELIBERATELY WRONG SETTING -- and the gate would grade the falsifier as if
+-    it were the repair.  The segmentation is what keeps those apart, and it is
+-    read from markers the producer PRINTS rather than from line numbers.
++PLANT_INITRES = 1.234e-03            # the planted-zero perturbation, registered
++PLANT_REL_TOL = 1.0e-9
+ 
+-    FAILS CLOSED.  A leg with no `LEG_BEGIN` is `BAR_NOT_PRODUCED` and named;
+-    a leg with a begin and no residual block is `SEGMENT_WITHOUT_RESIDUALS`
+-    and named.  Neither is silently treated as absent, and neither is treated
+-    as a pass."""
+-    out = {"log": log_path, "segments": {}, "order": [],
+-           "last_leg_completed": None, "markers_seen": 0}
++# ---- read_legs ----
++def read_legs(log_path):
++    """Split ONE container log into the rung's legs and read each leg's OWN
++    final-iteration per-field `initRes`. Carried from d6rf7_grade.py:1761 with
++    ONE delta (D1): the install marker echoes the OUTER-LOOP config, not an
++    fvSchemes md5, and legs are bound by the `leg=` tag the producer prints.
++
++    FAILS CLOSED: a leg with no LEG_BEGIN is BAR_NOT_PRODUCED; a leg with a
++    begin and no residual block is SEGMENT_WITHOUT_RESIDUALS. Neither is a pass.
++    """
++    out = {"log": log_path, "segments": {}, "order": [], "markers_seen": 0}
+     if not log_path or not os.path.isfile(log_path):
+-        out["state"] = BAR_NOT_PRODUCED
+-        out["why"] = ("the arm's container log is not on disk, so no leg was "
+-                      "read. UNMEASURED, never a pass.")
++        out["state"] = "BAR_NOT_PRODUCED"
++        out["why"] = ("the arm's container log is not on disk; UNMEASURED, "
++                      "never a pass.")
+         return out
+     cur, segs, installs = None, [], []
+     with open(log_path, errors="replace") as fh:
+         for ln, line in enumerate(fh, 1):
+             s = line.rstrip("\n")
+-            if s.startswith(FVSCHEMES_INSTALL_MARKER):
++            if s.startswith(CONFIG_INSTALL_MARKER):
+                 kv = dict(x.split("=", 1) for x in s.split()[1:] if "=" in x)
+                 kv["line"] = ln
+                 installs.append(kv)
+@@ -52,25 +52,7 @@
+                 tag = parts[1] if len(parts) > 1 else None
+                 mode = next((x.split("=", 1)[1] for x in parts
+                              if x.startswith("mode=")), None)
+-                # ---- D6RF7: COLLAPSE RANK-DUPLICATE LEG_BEGIN MARKERS --------
+-                # `d6rf7_fd_endpoint.py`'s `leg_say` writes the marker to stdout
+-                # from EVERY MPI rank (it is NOT rank-guarded; only the jsonl
+-                # `emit` is), so an N-rank container prints N identical
+-                # consecutive LEG_BEGIN lines before any residual is printed
+-                # (measured: 4 ranks -> 4 begins per leg -> n_segments = 2 legs
+-                # x 4 = 8). The parent bound L1/L2 to the FIRST TWO of those, i.e.
+-                # to EMPTY rank-duplicates, so gate_conv read SEGMENT_WITHOUT_
+-                # RESIDUALS and the p residual that FAILS the floor -- the whole
+-                # point of the probe -- was in an UNBOUND segment. A consecutive
+-                # LEG_BEGIN of the SAME tag and mode, while the current segment
+-                # is still open and carries NO content yet (no Time block, no
+-                # residual), is a rank duplicate of the leg just opened and is
+-                # FOLDED INTO IT rather than starting a new empty segment. A
+-                # begin with a DIFFERENT tag or mode, or one arriving after the
+-                # current leg produced content, is a real new leg and still
+-                # starts one. This changes NO gate, threshold, band or scheme --
+-                # it makes the log SEGMENTATION survive the real multi-rank
+-                # container so gate_conv reads the leg that actually ran.
++                # collapse rank-duplicate LEG_BEGIN markers (INHERITED)
+                 if (cur is not None and cur.get("tag") == tag
+                         and cur.get("mode") == mode
+                         and not cur["times"] and not cur["fields"]):
+@@ -78,11 +60,10 @@
+                     cur["rank_duplicate_begins"] += 1
+                     out["markers_seen"] += 1
+                     continue
+-                cur = {"tag": tag, "mode": mode,
+-                       "begin_line": ln, "end_line": None, "times": [],
+-                       "fields": {}, "n_p_solves": 0, "CD": None, "CL": None,
+-                       "execution_time_s": None, "primal_failed": None,
+-                       "primal_raised": None}
++                cur = {"tag": tag, "mode": mode, "begin_line": ln,
++                       "end_line": None, "times": [], "fields": {},
++                       "n_p_solves": 0, "CD": None, "CL": None,
++                       "primal_failed": None}
+                 segs.append(cur)
+                 out["markers_seen"] += 1
+                 continue
+@@ -90,8 +71,6 @@
+                 out["markers_seen"] += 1
+                 if cur is not None:
+                     cur["end_line"] = ln
+-                    cur["primal_raised"] = ("primal_raised=True" in s)
+-                    out["last_leg_completed"] = cur["tag"]
+                     cur = None
+                 continue
+             if cur is None:
+@@ -99,8 +78,8 @@
+             m = _TIME_LINE.match(s)
+             if m:
+                 cur["times"].append(int(m.group("t")))
+-                cur["fields"] = {}          # the LAST time block is the graded one
+-                cur["n_p_solves"] = 0       # reset the per-corrector p-solve count
++                cur["fields"] = {}          # the LAST time block is graded
++                cur["n_p_solves"] = 0
+                 continue
+             m = _RES_LINE.match(s)
+             if m:
+@@ -108,13 +87,9 @@
+                 rec = {"initRes": m.group("i"), "finalRes": m.group("r"),
+                        "nIters": int(m.group("n")), "line": ln}
+                 if f == "p":
+-                    # section 3.1: p is solved (1 + nNonOrthogonalCorrectors)
+-                    # times per outer iteration and DAFoam prints each solve as
+-                    # its own `p initRes:` line (D6RF4 log :2107 first/uncorrected
+-                    # = the BINDING primalMinResidual, :2108..last = corrected).
+-                    # The FIRST is p_first_uncorrected; the LAST overwrites
+-                    # p_corrected; and we COUNT the solves so G-SCHEME can read
+-                    # nNonOrthogonalCorrectors back off the RUN (= count - 1).
++                    # p is solved (1 + nNonOrthogonalCorrectors) times per outer
++                    # iteration; the FIRST is p_first_uncorrected, the LAST
++                    # overwrites p_corrected, and the count gives nNonOrth back.
+                     if "p_first_uncorrected" not in cur["fields"]:
+                         cur["fields"]["p_first_uncorrected"] = rec
+                     cur["fields"]["p_corrected"] = rec
+@@ -122,185 +97,105 @@
+                 else:
+                     cur["fields"][f] = rec
+                 continue
+-            m = _CDCL_LINE.match(s)
+-            if m:
+-                cur[m.group("q")] = m.group("v")
+-                continue
+-            m = _EXEC_LINE.match(s)
+-            if m:
+-                cur["execution_time_s"] = m.group("e")
+-                continue
+             if PRIMAL_FAILURE_BANNER in s:
+                 cur["primal_failed"] = True
+-    # ---- BIND THE SEGMENTS TO THE REGISTERED LEGS, IN ORDER ---------------
+-    # L1 and L2 are `P_conv` mode, L3 is `F5_loose`.  Binding is by the MODE
+-    # the producer printed and by ORDER OF APPEARANCE -- never by assuming
+-    # three segments exist, because a truncated arm has fewer.
+-    pconv = [s for s in segs if s.get("mode") == "P_conv"]
+-    # D6RF7: the producer's falsifier mode is `F5_scheme` (d6rf7_fd_endpoint.py
+-    # MODES/LEG_MODE and R3), never the retired `F5_loose`. The parent's binding
+-    # filter still read `F5_loose`, so L3 -- falsifier F5's leg -- would NEVER
+-    # bind on the log the producer actually emits, and F5 would read UNRESOLVED
+-    # on a run that DID produce L3. Bound on LEG_MODE["L3"] so the filter and the
+-    # registered mode cannot drift apart again.
+-    f5 = [s for s in segs if s.get("mode") == LEG_MODE["L3"]]
+-    for leg, seg in list(zip(("L1", "L2"), pconv)) + list(zip(("L3",), f5)):
++    # bind segments to legs by the tag the producer printed, in order
++    for seg in segs:
++        leg = seg.get("tag")
+         seg["leg"] = leg
+-        seg["registered_role"] = LEG_ROLE[leg]
+-        seg["registered_fvSchemes"] = LEG_FVSCHEMES[leg]
+         seg["final_time"] = seg["times"][-1] if seg["times"] else None
+-        if not seg["fields"]:
+-            seg["state"] = "SEGMENT_WITHOUT_RESIDUALS"
+-        else:
+-            seg["state"] = "READ"
+-        out["segments"][leg] = seg
+-        out["order"].append(leg)
+-    out["fvSchemes_installs"] = installs
+-    # BIND EACH LEG TO THE LAST INSTALL THAT PRECEDED ITS `LEG_BEGIN`.  By
+-    # LINE ORDER, because that is the order the container executed in.
+-    for leg, seg in out["segments"].items():
+-        prior = [i for i in installs if i["line"] < seg["begin_line"]]
+-        got = prior[-1] if prior else None
+-        want_name = LEG_FVSCHEMES[leg]
+-        want_md5 = FVSCHEMES_MD5[want_name]
+-        seg["fvSchemes_install"] = got
+-        if got is None:
+-            seg["fvSchemes_state"] = "INSTALL_MARKER_NOT_PRODUCED"
+-        elif got.get("md5") != want_md5:
+-            seg["fvSchemes_state"] = "WRONG_FVSCHEMES"
+-        elif got.get("leg") not in (None, LEG_INSTALL_TAG[leg]):
+-            seg["fvSchemes_state"] = "WRONG_FVSCHEMES"
+-        else:
+-            seg["fvSchemes_state"] = "AS_REGISTERED"
+-        seg["fvSchemes_registered_md5"] = want_md5
+-        seg["fvSchemes_installed_md5"] = (got or {}).get("md5")
+-        seg["fvSchemes_sites"] = (got or {}).get("sites")
+-    out["n_segments"] = len(segs)
+-    out["n_bound"] = len(out["segments"])
+-    out["state"] = BAR_PRODUCED if out["segments"] else BAR_NOT_PRODUCED
+-    out["unbound_segments"] = [s for s in segs if "leg" not in s]
+-    return out
+-
++        # nNonOrthogonalCorrectors read back FROM THE RUN = p-solves - 1
++        seg["nNonOrth_read_from_run"] = (seg["n_p_solves"] - 1
++                                         if seg["n_p_solves"] else None)
++        seg["state"] = "READ" if seg["fields"] else "SEGMENT_WITHOUT_RESIDUALS"
++        if leg is not None:
++            out["segments"][leg] = seg
++            out["order"].append(leg)
++# ---- gate_config (replaces d6rf7 G-SCHEME) ----
++def gate_config(seg, rung):
++    """The graded leg must show the RUNG'S registered outer-loop config, read
++    back out of the run. NOT A RESULT (never GATE FAIL) if it does not: a leg
++    that ran a different config did not measure this rung."""
++    want = RUNG_CONFIG[rung] if rung in RUNG_CONFIG else CONTROL_CONFIG
++    inst = None
++    for kv in seg.get("_config_installs", []):
++        if kv.get("leg") == seg.get("leg"):
++            inst = kv
++    read = {"nNonOrth_from_p_solve_count": seg.get("nNonOrth_read_from_run"),
++            "final_time": seg.get("final_time"),
++            "config_install_marker": inst}
++    ok = True
++    reasons = []
++    if seg.get("nNonOrth_read_from_run") != want["nNonOrth"]:
++        ok = False
++        reasons.append("nNonOrthogonalCorrectors read %r != registered %d"
++                       % (seg.get("nNonOrth_read_from_run"), want["nNonOrth"]))
++    if inst is None:
++        ok = False
++        reasons.append("CONFIG_INSTALL_MARKER not produced for this leg")
++    else:
++        for key in ("solverName", "relax_p", "relax_eqn", "endTime"):
++            got = inst.get(key)
++            exp = str(want[key])
++            if got is not None and got != exp:
++                ok = False
+ # ---- gate_conv ----
+-def gate_conv(root, census, legs):
+-    """`G-CONV`, section 3.1.  NEW AND GATED.
+-
+-    THE BAR IS THE INHERITED ACCEPT FLOOR RESTATED, NOT MOVED.  `1.0e-05` =
+-    `primalMinResTol x primalMinResTolDiff` = `1e-08 x 1000`, carried forward
+-    from `D6RF3` unchanged, and `ACCEPT_FLOOR_UNMOVED` REFUSES the grading if
+-    the values in the arm's own log are not those.  This gate does not
+-    introduce a bar; it makes the bar DAFoam already applies post-`End` (`N-D42`)
+-    GRADEABLE PER FIELD, so a failure NAMES THE FIELD instead of a maximum.
+-
+-    THE SUBJECT IS `L1`, THE TIGHTENED BASELINE, AND ONLY `L1`.  `L3` is the
+-    falsifier at the deliberately wrong setting; it is READ against this gate's
+-    own bar and reported, and its outcome drives F5's withdrawal clause -- it
+-    is never averaged into the gate's verdict."""
+-    base = {"gate": "G-CONV_per_field_final_initRes",
+-            "bar": CONV_BAR, "fields": list(CONV_FIELDS),
+-            "bar_provenance": (
+-                "1.0e-05 = primalMinResTol 1e-08 x primalMinResTolDiff 1000, "
+-                "carried forward from D6RF3 UNCHANGED. N-D43: the accept floor "
+-                "is the PRODUCT, never the tolerance alone. This gate RESTATES "
+-                "the bar DAFoam already applies post-End; it does not move it, "
+-                "and d6rf7_accept_floor_control.py refuses if it has moved."),
+-            "graded_leg": "L1", "reported_legs": ["L2", "L3"],
+-            "d6rf4_measured": CONV_MEASURED_D6RF4,
+-            "per_leg": {}}
+-    producer = ARTEFACT_PRODUCER["d6rf7_fd_endpoint.json"]
+-    if census[producer]["state"] != "RAN":
+-        _r, _d = _no_input_reason(census, producer, None, root)
+-        base.update(dict({"verdict": "NOT A RESULT", "reason": _r}, **_d))
+-        base.update(NULL_READINGS["G-CONV"])
+-        return base
+-    if legs.get("state") != BAR_PRODUCED or "L1" not in legs["segments"]:
+-        base.update({"verdict": "NOT A RESULT",
+-                     "reason": "SEGMENT_NOT_PRODUCED",
+-                     "bar_state": BAR_NOT_PRODUCED,
+-                     "producing_leg": NULL_READINGS["G-CONV"]["producing_leg"],
+-                     "legs_seen": sorted(legs.get("segments", {})),
+-                     "note": "the arm ran but L1's log segment was not "
+-                             "produced, so the per-field residuals this gate "
+-                             "grades do not exist. NOT A RESULT for want of "
+-                             "an input, with the missing producer NAMED."})
+-        return base
+-    verds, nonfinite = [], []
+-    for leg, seg in sorted(legs["segments"].items()):
+-        row = {"leg": leg, "role": seg["registered_role"],
+-               "fvSchemes": seg["registered_fvSchemes"],
+-               "fvSchemes_state": seg.get("fvSchemes_state"),
+-               "fvSchemes_registered_md5": seg.get("fvSchemes_registered_md5"),
+-               "fvSchemes_installed_md5": seg.get("fvSchemes_installed_md5"),
+-               "fvSchemes_sites": seg.get("fvSchemes_sites"),
+-               "final_time": seg["final_time"],
+-               "primal_failure_banner": bool(seg.get("primal_failed")),
+-               "per_field": {}, "fields_absent": []}
+-        # THE LEG MUST HAVE RUN THE BYTES IT WAS REGISTERED TO RUN.
+-        # NOT A RESULT, never GATE FAIL: a leg that ran the wrong fvSolution
+-        # did not measure the thing this gate's name says, so its number is
+-        # not evidence about the repair in EITHER direction.
+-        if seg.get("fvSchemes_state") != "AS_REGISTERED":
+-            row.update({"verdict": "NOT A RESULT",
+-                        "reason": "FVSCHEMES_NOT_AS_REGISTERED",
+-                        "note": "this leg's log does not show the registered "
+-                                "fvSchemes installed before it. A leg that may "
+-                                "have run the other discretisation cannot grade "
+-                                "the non-orthogonal-correction scheme."})
+-            base["per_leg"][leg] = row
+-            if leg == "L1":
+-                verds.append("NOT A RESULT")
++def gate_conv(seg, rung):
++    """G-CONV, per-field final-iteration initRes against CONV_BAR. Scoring
++    INHERITED VERBATIM from d6rf7_grade.py:1997-2042 (PASS iff v < CONV_BAR).
++    The subject is the rung's graded leg. STRICTLY RESTRICTIVE via _ff."""
++    row = {"gate": "G-CONV_per_field_final_initRes", "bar": CONV_BAR,
++           "rung": rung, "leg": seg.get("leg"),
++           "final_time": seg.get("final_time"),
++           "primal_failure_banner": bool(seg.get("primal_failed")),
++           "bar_provenance": (
++               "1.0e-05 = primalMinResTol 1e-08 x primalMinResTolDiff 1000, "
++               "carried from D6RF7 UNCHANGED (N-D43: the floor is the PRODUCT). "
++               "d6rf9_accept_floor_control.py refuses if it has moved."),
++           "per_field": {}, "fields_absent": []}
++    gc = gate_config(seg, rung)
++    row["config_check"] = gc
++    if not gc["config_as_registered"]:
++        row.update({"verdict": "NOT A RESULT",
++                    "reason": "CONFIG_NOT_AS_REGISTERED",
++                    "note": "this leg's log does not show the rung's registered "
++                            "outer-loop config; its residual cannot grade the "
++                            "rung. NOT A RESULT, never GATE FAIL (rule 5)."})
++        return row
++    if seg.get("state") != "READ":
++        row.update({"verdict": "NOT A RESULT", "reason": seg.get("state"),
++                    "note": "the leg produced no final-iteration residual "
++                            "block; nothing to grade. NOT A RESULT."})
++        return row
++    worst, worst_f = None, None
++    for f in CONV_FIELDS:
++        got = seg["fields"].get(f)
++        if got is None:
++            row["fields_absent"].append(f)
++            row["per_field"][f] = {"initRes": None, "verdict": "NOT A RESULT",
++                                   "reason": "FIELD_ABSENT_FROM_SEGMENT"}
+             continue
+-        worst, worst_f = None, None
+-        for f in CONV_FIELDS:
+-            got = seg["fields"].get(f)
+-            if got is None:
+-                row["fields_absent"].append(f)
+-                row["per_field"][f] = {"initRes": None,
+-                                       "verdict": "NOT A RESULT",
+-                                       "reason": "FIELD_ABSENT_FROM_SEGMENT"}
+-                continue
+-            try:
+-                v = _ff(got["initRes"], os.path.basename(legs["log"]),
+-                        "%s.%s.initRes" % (leg, f))
+-            except NonFinite as e:
+-                row["per_field"][f] = _nar_non_finite(
+-                    {"initRes": got["initRes"]}, e)
+-                nonfinite.append({"leg": leg, "field": f, **e.detail})
+-                if "non_finite" not in base:
+-                    # SURFACE IT AT THE GATE'S OWN LEVEL.  A disclosure only a
+-                    # reader who knows the nesting can find is a disclosure
+-                    # `compose` cannot act on and a harness cannot assert.
+-                    base["reason"] = NON_FINITE_REASON
+-                    base["non_finite"] = e.detail
+-                continue
+-            ratio = v / CONV_BAR
+-            row["per_field"][f] = {
+-                "initRes": v, "finalRes": got["finalRes"],
+-                "nIters": got["nIters"], "log_line": got["line"],
+-                "ratio_to_bar": ratio,
+-                "d6rf4_measured": CONV_MEASURED_D6RF4.get(f),
+-                "improvement_vs_d6rf4": (CONV_MEASURED_D6RF4[f] / v
+-                                         if f in CONV_MEASURED_D6RF4 and v > 0
+-                                         else None),
+-                "verdict": "PASS" if v < CONV_BAR else "GATE FAIL"}
+-            if worst is None or v > worst:
+-                worst, worst_f = v, f
+-        row["worst_field"] = worst_f
+-        row["worst_initRes"] = worst
+-        row["worst_ratio_to_bar"] = (worst / CONV_BAR) if worst is not None else None
+-        vs = [c.get("verdict") for c in row["per_field"].values()]
+-        row["verdict"] = ("NOT A RESULT" if "NOT A RESULT" in vs else
+-                          ("PASS" if all(v == "PASS" for v in vs) else "GATE FAIL"))
+-        base["per_leg"][leg] = row
+-        if leg == "L1":
+-            verds.append(row["verdict"])
+-    base["non_finite_rows"] = nonfinite
+-    base["verdict"] = verds[0] if verds else "NOT A RESULT"
+-    base["bar_state"] = BAR_PRODUCED
+-    # ---- the report this gate OWES, pass or fail (section 3.1) ------------
+-    base["registered_report"] = (
+-        "The full per-field initRes table at the final iteration, per leg, "
+-        "with each field's ratio to the bar %g, is in `per_leg`. L1 is the "
+-        "graded leg; L2 and L3 are REPORTED beside it and never averaged into "
+-        "the verdict." % CONV_BAR)
+-    return base
++        try:
++            v = _ff(got["initRes"], os.path.basename(str(seg.get("_log"))),
++                    "%s.%s.initRes" % (seg.get("leg"), f))
++        except NonFinite as e:
++            row["per_field"][f] = {"initRes": got["initRes"],
++                                   "verdict": "NOT A RESULT",
++                                   "reason": "NON_FINITE_INPUT",
++                                   "non_finite": e.detail}
++            continue
++        row["per_field"][f] = {
++            "initRes": v, "finalRes": got["finalRes"], "nIters": got["nIters"],
++            "log_line": got["line"], "ratio_to_bar": v / CONV_BAR,
++            "d6rf7_measured": CONV_MEASURED_D6RF7.get(f),
++            "improvement_vs_d6rf7": (CONV_MEASURED_D6RF7[f] / v
++                                     if f in CONV_MEASURED_D6RF7 and v > 0
++                                     else None),
++            "verdict": "PASS" if v < CONV_BAR else "GATE FAIL"}
++        if worst is None or v > worst:
++            worst, worst_f = v, f
++    row["worst_field"] = worst_f
++    row["worst_initRes"] = worst
++    row["worst_ratio_to_bar"] = (worst / CONV_BAR) if worst is not None else None
++    row["binding_field"] = BINDING_FIELD
++    row["binding_verdict"] = row["per_field"].get(BINDING_FIELD, {}).get("verdict")
