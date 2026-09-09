@@ -333,3 +333,50 @@ Every rung launches under BOTH:
 registration and no gate/threshold/cap/label is committed until the dafoam-supervisor appends a dated FROZEN
 block here (as D6RF9 did at its foot) after check-1 and the chief's §5/§5b cost sign-off. No compute has run.
 SUBMISSIONS PARKED (CLAUDE.md rule 7).
+
+---
+
+## AMENDMENT A1 — 2026-09-09 (S-144) — pre-compute confound-removal: complete the SIMPLEC divSchemes
+
+*lines whose number changed above this section: 0*
+
+**Legality (CLAUDE.md rule 2 — pre-first-compute).** The GRADED D6RF10 run root does **not** exist
+(`/home/ubuntu/certonomous-runs/` carries only the SEPARATE `D6RF10-PREFLIGHT-EXERCISE` measurement root, never
+a graded row). `PERMISSION = NOT_FROZEN`; grader/driver md5 pins are still `PLACEHOLDER_AT_FREEZE`. This is a
+pre-first-compute amendment; it alters **no gate, threshold, cap, label or floor** (the `1.0e-05`
+p_first_uncorrected accept floor and T25 are UNCHANGED). It is a confound removal, not a lever change.
+
+**Condition, and how it was checked.** The §2bb pre-flight MEASUREMENT exercise (ran ~2026-09-09T06:00Z; root
+above) drove R3/R4 (`DARhoSimpleCFoam`, compressible SIMPLEC) to `rc=59` at ~11 s each, before any solve:
+`FOAM FATAL IO ERROR: Entry 'div(phid,p)' not found in dictionary ".../mp04/system/fvSchemes/divSchemes"`
+(R3 smoke log lines ~2132-2196). The D6RF9 decompose collision is separately FIXED (this exercise's
+`decomposePar` ran clean). R2 (`DARhoSimpleFoam`, non-SIMPLEC) reached endTime 300 `rc=0` on the SAME staged
+fvSchemes — so `div(phid,p)` is referenced only on the compressible-SIMPLEC pressure-flux path, which is why
+the registered R3/R4 solver could not start at all.
+
+**Change (verbatim from the solver's own canonical tutorials — NOT a discretisation lever).** Two divScheme
+entries are added to `curriculum_D6RF7/d6rf7_fvSchemes_LIMITED` (the single source `cp -a`'d into
+`{,mp04/,mp05/,mp06/}system` by both the exercise and `d6rf10_run_arm.sh`):
+
+| entry | value | source (all four `DARhoSimpleCFoam` tutorials byte-identical, divSchemes block md5 `744b37fe3d8b`) |
+|---|---|---|
+| `div((nuEff*dev2(T(grad(U)))))` | `Gauss linear` | `/home/ubuntu/dafoam-tutorials/{NACA0012_Airfoil/transonic,Onera_M6_Wing,DPW4_Aircraft,CRM_Wing}/system/fvSchemes` |
+| `div(phid,p)` | `Gauss limitedLinear 1.0` | same four files |
+
+Values are taken verbatim from the tutorials of the exact registered solver (`DARhoSimpleCFoam`); neither was
+chosen to aid convergence (upstream `rhoSimpleFoam`'s `Gauss upwind` for `div(phid,p)` was deliberately NOT
+used — that would be a robustness lever). The **working** entries (the `bounded` D6RF7 forms R1/R2 already ran)
+are untouched. Under `divSchemes { default none; }` an unreferenced entry is inert — `div(phid,p)` is inert for
+R2 (proven: R2 ran clean without it), and the addition covers the compressible-SIMPLEC term set completely
+(both the rho and non-rho viscous forms are now present), closing the missing-entry surface in one pass.
+
+**md5 supersession.** The body of this file (and both launchers) pinned `d6rf7_fvSchemes_LIMITED` at
+`8374443e7a374e9d353cffccdb654aaf`; that reference is **struck** and superseded by
+**`fbca617a0808c56113a34d156c5890b9`**. Pins updated in lockstep: `d6rf10_preflight_exercise.sh:110`,
+`d6rf10_run_arm.sh:205`. No gate/floor/grader pin changed.
+
+**What still gates the FREEZE (unchanged three-gate discipline).** (1) a re-exercise MEASURING each SIMPLEC rung
+(R3/R4) to first solve + its per-step cost + p_first_uncorrected plateau (the current exercise never measured
+them — the crash); (2) verification's verdict-preservation / T25 audit of this amendment returning SOUND;
+(3) `scripts/check_ladder_preflight.py` (§2bb) PASS on the combined manifest. R2@300 stays SOUND (S-143/T25).
+Nothing here freezes, launches or enqueues a graded run. SUBMISSIONS PARKED.

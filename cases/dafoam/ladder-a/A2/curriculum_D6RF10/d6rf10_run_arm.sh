@@ -202,7 +202,7 @@ echo "D6RF10_G_ROOT_PASS item=$ITEM base=$BASE_REAL fresh=yes no_live_pid=yes"
 # aborts first; present so the fixpoint exists once frozen.)
 # =============================================================================
 MD5_RUNSCRIPT=137539e0a99be27f27fdb69e063b2a87          # d6rf7_opt_runScript.py (D6RF7 MD5_RUNSCRIPT6)
-MD5_FVSCHEMES_LIMITED=8374443e7a374e9d353cffccdb654aaf  # d6rf7_fvSchemes_LIMITED (held fixed)
+MD5_FVSCHEMES_LIMITED=fbca617a0808c56113a34d156c5890b9  # d6rf7_fvSchemes_LIMITED; S-144 pre-compute confound-removal amendment (was 8374443e...): +div(phid,p) +div((nuEff*dev2(T(grad(U))))) tutorial-verbatim for DARhoSimpleCFoam
 MD5_FVSOL=67fed3c2ffd2765e51f2563270060648              # d6rf7_fvSolution (base for the config install)
 MD5_ACCEPT_FLOOR=c6e63098e7afd542ea379a03eccfaf12       # d6rf10_accept_floor_control.py (byte-identical to D6RF7)
 MD5_UNITS=34f477f92b23e27896b458475eef0f78              # d6rf7_units_assert.py

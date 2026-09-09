@@ -107,7 +107,7 @@ smoke_writeint() { case "$1" in R2|R3|R4) echo 20 ;; *) echo "" ;; esac; }
 # frozen instrument md5 fixpoints (verified before staging; the SAME frozen
 # d6rf7_* carries the graded run uses -- measurement runs the identical primal).
 MD5_RUNSCRIPT=137539e0a99be27f27fdb69e063b2a87
-MD5_FVSCHEMES_LIMITED=8374443e7a374e9d353cffccdb654aaf
+MD5_FVSCHEMES_LIMITED=fbca617a0808c56113a34d156c5890b9  # was 8374443e...; S-144 pre-compute confound-removal: +div(phid,p) +div((nuEff*dev2(T(grad(U))))) (DARhoSimpleCFoam tutorial-verbatim) so SIMPLEC R3/R4 reach first solve
 MD5_FVSOL=67fed3c2ffd2765e51f2563270060648
 MD5_UNITS=34f477f92b23e27896b458475eef0f78
 MD5_ENDPOINT_PHYS=625bacf5b1489989f9a2638dd99e2e52
