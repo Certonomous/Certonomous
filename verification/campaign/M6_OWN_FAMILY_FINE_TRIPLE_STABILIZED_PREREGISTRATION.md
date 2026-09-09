@@ -104,10 +104,11 @@ m/s), `selectionMode all`, `active true`. Rationale: it protects the
 `nutUSpaldingWallFunction` `u_tau` Newton solve (`calcUTau`, whose `exp()` overflows on a
 runaway near-wall |U|) — the SECOND cold-start FPE observed in smoke run 1 (§11). Same
 justification structure as DELTA A: at the converged field max |U| < 600 m/s everywhere, so the
-limiter is inactive at convergence and biases no Gate-P Cp. **HONEST NOTE:** in the smoke tests
-`limitVelocity` limited **0 cells** — the observed divergence is energy-led, not a velocity
-runaway — so this delta is a defensible guard but is **not evidenced necessary**; the
-supervisor may drop it to keep the change set minimal (§11).
+limiter is inactive at convergence and biases no Gate-P Cp. **DROPPED (supervisor direction,
+§11):** in the smoke tests `limitVelocity` limited **0 cells** — the divergence is energy-led,
+not a velocity runaway — so this delta is not evidenced necessary and is removed from the final
+minimal config. (It remains in the writer only until the config is finalized after the §11
+decision fork; the record here reflects that it is dropped.)
 
 ### DELTA B — conservative STARTUP under-relaxation
 The `relaxationFactors` `equations` block only: **U 0.7 → 0.2, e 0.7 → 0.1, (k|omega) 0.7 →
@@ -338,23 +339,36 @@ nothing planted, no verdict. **The smoke result is PARTIAL and is reported hones
   advanced from crashing at iteration 1 to running to iteration 49 (`limitTemperature` active and
   clamping cells; no Sutherland `sqrt(T)` FPE). This is the exact crash the §3 triage named, and
   it is fixed.
-- **A RESIDUAL, energy-led cold-start divergence remains OPEN.** Across four smoke experiments the
-  run still crashed at iteration ~17–49, the crash MIGRATING between solvers as fields are bounded
-  (Sutherland → `nutUSpaldingWallFunction::calcUTau` → `GAMGSolver` pressure), always preceded by
-  the energy (e) residual spiking (0.10–0.37) while continuity errors stay small (~1e-5). Levers
-  TESTED and their outcome: bounded T (DELTA A) — **clears the named FPE**; bounded |U| (DELTA C) —
-  **limited 0 cells, a non-cause**; first-order `div(phi,U)` — **did not help** (crashed iter 17,
-  so the 2nd-order momentum scheme is NOT the divergence source); `transonic yes` — **worse**
-  (immediate iter-1 failure). The divergence is energy/thermo-driven on this transonic cold start.
-- **DECISION NEEDED (deferred to the supervisor, §12).** The remaining candidate levers are
-  strategy choices that touch initialization or add a startup stage — top candidate:
-  **potentialFoam initialization** (a smooth non-uniform initial U removing the violent
-  first-iteration transient; initialization-only, so unbiased at convergence); alternatives: a
-  freestream-Mach ramp, a two-stage relaxation ramp, or a review of the back-solved Sutherland
-  coefficients and the frozen `0/` turbulence initialisation. Each is a larger deviation whose
-  scope (and any check-1/check-4 implication) the supervisor should shape before freeze. **The
-  stabilized config is therefore NOT yet a completed-solve config; the prereg is not ready to
-  freeze until the smoke shows a clean descent-to-plateau.**
+- **A RESIDUAL, ENERGY-LED cold-start divergence remains OPEN.** The `e` (energy) equation is the
+  sole diverging field: in the best run k/omega residuals are small and converging (~1e-4 / 1e-6)
+  and velocity/continuity are reasonable, but `e` spikes (0.10–0.37) and Tmax **overheats to 644 K**
+  (contained only by DELTA A's 1000 K cap). The FPE migrates between solvers as fields are bounded
+  (Sutherland → `nutUSpaldingWallFunction::calcUTau` → `GAMGSolver` pressure), crashing at iteration
+  ~17–49. **Full lever ledger (all ungraded L2 serial smokes, `.../L2/smoke_*`):**
+
+  | lever | outcome |
+  |---|---|
+  | DELTA A bounded-T (`limitTemperature`) | **CLEARS the documented Time=1 Sutherland FPE** (iter 1 → 49); proven, retained |
+  | DELTA C bounded-\|U\| (`limitVelocity`) | limited **0 cells** — a non-cause; dropped |
+  | first-order `div(phi,U)` | no help (crashed iter 17) — 2nd-order momentum is NOT the cause |
+  | `transonic yes` | **worse** (iter-1 failure) |
+  | potentialFoam init (U only) | marginal (iter 38), continuity grew to ~4e-3 — incompressible init is mass-inconsistent at M=0.84 |
+  | **LTS `localEuler`** | **UNAVAILABLE** — pinned `rhoSimpleFoam` binary has 0 rDeltaT/LTS strings (rhoPimpleFoam has 5); enabling it aborts on `failed lookup of rDeltaT` |
+  | SIMPLEC (`consistent yes`) | **worse** (SIGFPE iter 2) |
+
+  Lower relaxation crashed EARLIER than higher — an inversion showing this is not a classic
+  under-resolved-transient. **Crux context:** no M6 `rhoSimpleFoam` log anywhere carries an `End`
+  line — the frozen RUNG1_M6_R2/M6SR config was validated only at checkMesh and has **never** been
+  shown to complete a flow solve; this is a pre-existing frozen-config issue, not introduced here.
+- **DECISION FORK — escalated to the supervisor / Sanaa (§12).** The authorized solve-path
+  stabilization levers are exhausted and the highest-confidence one (LTS) is blocked by the pinned
+  solver. The remaining options each touch the frozen registration: **(A)** switch the pinned solver
+  to an LTS-capable `rhoPimpleFoam` pseudo-transient-to-steady (a §5 byte-identity break — Gate-
+  relevant, reserved to the supervisor/Sanaa); **(B)** review the frozen energy setup (the unbounded
+  `div(phi,K)` scheme, the adiabatic-wall energy accumulation, or the back-solved Sutherland/thermo —
+  a case-physics change to frozen registered values); **(C)** escalate the whole M6-Cp solver
+  strategy to Sanaa. **The stabilized config is NOT yet a completed-solve config; the prereg is not
+  ready to freeze until a smoke shows a clean descent-to-plateau.**
 
 ---
 
