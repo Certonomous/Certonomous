@@ -834,3 +834,56 @@ supervisor in a following commit; staging (`stage_m1c.sh --execute`) and the liv
 row-drop into `verification/queue/closure/` follow the freeze, PH_Breuer first.
 Compute begins only when the daemon reads the live rows — after this prereg is
 committed (rule 2 / §3 check-4).
+
+---
+
+# DATED AMENDMENT — 2026-09-09 — STAGING-PATH FIX (PRE-FIRST-COMPUTE; alters no gate/threshold/cap/label)
+
+**Legality (rule 2).** M1-C has had **ZERO compute** (the first `stage_m1.py --execute`
+crashed before any solver ran; no core-min spent). This amendment changes only the
+**staging MECHANISM** and the **§6.2 prose** — it touches no gate, threshold, cap,
+label, the grading path, or the A.3 caps. The freeze stamp above stands unchanged.
+
+**What was wrong (found by executing the frozen `stage_m1.py`; §3 check-2 triage by
+the supervisor from source — TOOLCHAIN, not physics; recorded as L-512 and a rule-6
+disclosure note on `stage_m1.py`):**
+* **L-512(A)** — `stage_m1.py`'s `--case` is DEAD (line 761 binds `wanted` and never
+  uses it); it stages ALL enumerated cases per `--arm`. Latent because M1 staged the
+  whole sweep. So `stage_m1c.sh`'s per-`--case` calls could not select the 6 arms.
+* **L-512(B)** — `stage_m1.py:628 os.makedirs(dst, exist_ok=False)` crashes on a
+  pre-existing dst; it conflicts with §6.2's pre-created empty scaffolding dirs.
+
+**The fix — reuse the frozen `stage_m1.py` VERBATIM, scope by prune (NO transform
+reimplementation, NO edit to the frozen `stage_m1.py`).** `stage_m1c.sh` is
+SUPERSEDED by two scripts frozen at this amendment's commit, both §3-check-1'd by the
+supervisor (SOUND):
+* `cleanup_m1c.sh` — empties the disjoint M1-C tree, fail-closed (refuses unless the
+  target is the literal `m1c_completion` path; every child realpath-checked strictly
+  inside it and refused if it resolves into `*multimodel_sweep*`).
+* `restage_m1c.sh` — cleanup → `stage_m1.py --arm kOmega` → `--arm kOmegaSST_null`
+  (frozen transforms: `set_ras_model`, R16 planted zero, mesh copy, `0.orig`) →
+  PRUNE to exactly the 6 target arms (within-ROOT-guarded) → VERIFY each. Transient
+  over-stage ≈516 MB peak, ≈488 MB pruned — **disk churn only, ZERO solver core-min**
+  (noted in the cost calibration).
+
+**§6.2 CORRECTION.** §6.2 read that the six dst dirs "exist and are EMPTY" before
+staging. That is STRUCK: a pre-created empty dir both trips L-512(B) AND is a state
+`run_m1.sh` REFUSES (no `0.orig` to arm from). The corrected requirement: **the six
+cwd dirs are CREATED BY STAGING, each holding `0.orig/` and NO time dir.** This
+still satisfies the queue validator — a staged dir has `0.orig/` (letters → does NOT
+match the validator's `^[0-9]+$` TIME_DIR age-guard, which a bare `0/` WOULD trip)
+and its cwd exists (EXEC/launchable) — so it is strictly better, not a relaxation.
+
+**VERIFY-SPEC CORRECTION.** The freeze checklist's stage-time check "0/U newest in
+0/" was wrong: a freshly staged case has `0.orig/`, no `0/` — `run_m1.sh` arms
+`0.orig`→`0` and touches `0/U` LAST at LAUNCH. The age-datum-newest check is a
+post-run property and lives in the autograder's rule-4 gate
+(`autograde_m1c.sh:arm_complete`, `20000/U -nt 0/U`), which is unchanged.
+`restage_m1c.sh`'s stage-time verify instead checks: `0.orig/`+`0.orig/U` present,
+NO `0/`, `RASModel` == the arm's model (kOmega→kOmega, kOmegaSST_null→kOmegaSST — the
+same identity G1 checks), `polyMesh` present, no numeric time dir.
+
+**Sequence after this amendment:** `restage_m1c.sh --execute` → drop the 6 rows live
+(PH_Breuer first, re-validate `--require-binding`, commit) → launch the detached
+autograder + live monitor → the daemon (pid 1887) solves. Grading path, A.3 caps,
+§2ba plan, merged-symlink topology: all UNCHANGED.

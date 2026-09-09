@@ -1126,3 +1126,35 @@ if __name__ == "__main__":
     except Refusal as exc:
         print(str(exc), file=sys.stderr)
         sys.exit(2)
+
+# ============================================================================
+# DATED RULE-6 AMENDMENT 1 — 2026-09-09 (closure-supervisor)
+# lines whose number changed above this section: 0
+# ----------------------------------------------------------------------------
+# DISCLOSURE (CLAUDE.md rule 6). This staging tool is FROZEN for M1. Its frozen
+# evidentiary content is the bytes above this block; this dated note is appended
+# strictly at the foot and shifts no line above it (so every line-citation into
+# this file elsewhere — e.g. lines 628, 761 below — remains valid). Appending it
+# changes the file's sha256 by design; the FROZEN bytes are the pre-note sha256:
+#   frozen (pre-note) sha256 = 5739d0601867f01d5a721522f31556e87c32a4d49b4353e9f9035311ace5bb2c
+#
+# TWO LATENT DEFECTS, found 2026-09-09 when M1-C needed a TARGETED 6-arm stage
+# (M1 itself staged the whole sweep, so neither ever bit). Lesson L-512.
+#   (A) `--case` IS DEAD. Line 761 binds `wanted = set(args.case) if args.case
+#       else None` and the name `wanted` is NEVER referenced again; the execute
+#       loop iterates ALL enumerated cases for the given `--arm`, and stage_one()
+#       has no `wanted` filter. `stage_m1.py --arm X --case Y` stages every case
+#       for arm X, not case Y.
+#   (B) LINE 628 `os.makedirs(dst, exist_ok=False)` RAISES FileExistsError on any
+#       pre-existing dst dir — it cannot stage into a pre-created (e.g. empty
+#       scaffolding) directory.
+#
+# CONSEQUENCE / SAFE USE. This tool is correct for a FULL-SWEEP stage into a
+# clean, absent dst tree, run once per `--arm` (which is how M1 used it). For a
+# TARGETED subset, do NOT rely on `--case` and do NOT pre-create dst dirs: stage
+# per-arm into a clean tree and PRUNE to the wanted cases afterward. That is the
+# M1-C approach — `cases/RANS_LES_closure_models/M1c_multimodel_sweep_completion/`
+# `restage_m1c.sh` + `cleanup_m1c.sh` — which reuses THIS tool verbatim and
+# reimplements none of its transforms. NOT edited to fix (A)/(B): rule 6 forbids
+# changing a frozen instrument's behaviour; the scoping wrapper is the repair.
+# ============================================================================
