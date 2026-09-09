@@ -13,7 +13,11 @@ section 7.2; superseded section 8.2 quoting T1b_L4_AMENDMENT.md section 7):
   3. last written time == controlDict endTime
   4. the REGISTERED COMPLETION FIELD SET OF THE CASE'S OWN CLOSURE, all present
      at endTime -- PER CLOSURE, never a single tuple (see PER_CLOSURE_FIELDS)
-  5. the ExecutionTime line count == endTime
+  5. the ExecutionTime line count == the "Time =" line count (the ADAPTIVE-
+     deltaT form of standing rule 4 clause 5, "n_exec == steps written", Sanaa
+     2026-09-09 -- an internal-consistency check, NOT the count == endTime steady
+     instantiation, which K0g's adjustable time step does not satisfy; see the
+     clause-5 code comment)
   6. every field at endTime is NEWER than the case's own 0/T -- THE AGE GUARD,
      because 0/T is touched LAST at launch and so dates the run that was
      allowed to produce the answer (D438, L-143)

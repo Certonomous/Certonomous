@@ -88,7 +88,7 @@ while [ $# -gt 0 ]; do
         --solver)   SOLVER="${2:-}"; shift 2 ;;
         --foam-bashrc) FOAM_BASHRC="${2:-}"; shift 2 ;;
         --no-detach) DETACH=0; shift ;;
-        --selftest) exec "$SELF/launch_k0g_selftest.sh" ;;
+        --selftest) exec bash "$SELF/launch_k0g_selftest.sh" ;;  # via bash: no +x dependency (see re-exec note below)
         *) usage ;;
     esac
 done
