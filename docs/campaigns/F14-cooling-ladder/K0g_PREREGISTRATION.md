@@ -1,13 +1,14 @@
 # K0g. Blay–Mergui–Niculae ventilated cavity, TRANSIENT re-formulation to a statistically stationary state: PRE-REGISTRATION
 
-> **DRAFT — NOT FROZEN, NO SHA, AUTHORISES NO SOLVE.** This document was drafted
-> by a heat-transfer lab lane on the supervisor's triage order. It is **not**
-> committed as a frozen pre-registration and **must not be treated as one**. The
-> **prediction-first freeze by sha, the measurement-script code-diff, and the
-> "committed before compute" check are the heat-transfer supervisor's
-> non-delegable §3 checks** and have not been done. Zero core-minutes have ever
-> been spent against K0g, and no K0g run tree exists. Every gate, threshold,
-> band, cap and label below is a **proposal** until the supervisor freezes it.
+> **FROZEN PRE-REGISTRATION — 2026-09-09.** The gate, thresholds, bands, cost cap
+> and verdict label below are FROZEN; the grading path is pinned by git-blob sha1
+> in §7.7 and verified by `scripts/check_comparator_freeze.py`. Per standing rule 2
+> no departure may alter a gate, threshold, cap or label — only dated addenda that
+> cannot, with the original struck never rewritten (rule 6). The heat-transfer
+> supervisor's non-delegable §3 checks — the measurement-script code-diffs and the
+> freeze decision — were performed before this freeze, and the verification
+> supervisor gave the clause-5 sign-off for `mark_done_k0g.py`. As of this freeze
+> no K0g compute has occurred and no K0g run tree exists (freeze precedes compute).
 
 **Predecessor: `K0f` (explicit, for §2ay linkage).** K0f graded **all ten arms
 `NOT A RESULT`** — no level met the §7.1 steady-convergence criterion — and the
@@ -287,28 +288,41 @@ pre-grading equivalence gate, carried from K0f §V.4, run **on `TMean(avg2)`**) 
 analysis; the grading path is fixed at the freeze commit.** No verdict is
 assigned by the lane that runs this (K0f §7.6, carried).
 
-### 7.7 THE GRADING PATH — TO BE CREATED AND FROZEN BY THE SUPERVISOR
+### 7.7 THE GRADING PATH — FROZEN BY THE SUPERVISOR (standing rule 2)
 
-The instruments below **do not yet exist** and are to be authored from their
-named K0f ancestors, then **committed and hashed BEFORE any K0g compute** — the
-**supervisor's non-delegable freeze** (standing rule 2; this draft supplies no
-sha and freezes nothing):
+The eight instruments below are committed and pinned by git-blob sha1; the
+grading path is fixed at GRADING_PATH_FREEZE_COMMIT a257ddf670a037fb2862cde2f072b26d20865770 (the commit
+whose tree holds all eight at these blobs). `scripts/check_comparator_freeze.py`
+enforces IDENTITY (worktree bytes == HEAD blob), CURRENCY (HEAD blob is a pinned
+sha) and COVERAGE (every pinned path judged) on this set.
 
-| instrument | K0f ancestor to adapt from | change required |
-| --- | --- | --- |
-| `scripts/analyse_k0g.py` | `analyse_k0f.py` (`764dedc6`) | `is_converged` → `is_stationary` (§7.1'); read `TMean/UMean(avg2)`; L1+L2 only (no triple) |
-| `scripts/build_k0g.py` | `build_k0f.py` (`0881fa08`) | transient `system/` (Euler, PIMPLE, `fieldAverage` FOs); preflight adds `TMean/UMean` producers |
-| `scripts/check_k0g_mesh.py` | `check_k0f_mesh.py` (`587e6693`) | none but the rename (mesh reused) |
-| `scripts/mark_done_k0g.py` | `mark_done_k0f.py` (`f01e3fce`) | transient completion set incl. `TMean/UMean`; age guard unchanged |
-| `scripts/check_k0g_extraction_equivalence.py` | `check_k0f_extraction_equivalence.py` (`31c902de`) | equivalence measured on `TMean(avg2)` |
-| `scripts/check_k0g_instrument_standard.py` | `check_k0f_instrument_standard.py` (`8fa5bd22`) | none but the rename — §3C `no-assert` standard carried |
-| `scripts/launch_k0g.sh` | `launch_k0f.sh` (`519e8361`, per K0f AMENDMENT 2) | transient `endTime`; rc-capture architecture (K0f §R6) carried verbatim |
-| `scripts/launch_k0g_selftest.sh` | `launch_k0f_selftest.sh` (`c6e60dbd`) | none but the rename |
+| instrument | committed git-blob sha1 |
+| --- | --- |
+| `scripts/analyse_k0g.py` | `409e403d0c648b88d05ca5e06a466c11588ddd8a` |
+| `scripts/build_k0g.py` | `4dace6456803c15c5e2a6286f579c254573f2dbc` |
+| `scripts/check_k0g_mesh.py` | `39e55f2d4da55943c529257403cfd26190cb41e0` |
+| `scripts/mark_done_k0g.py` | `387b8b82b179291d4d7d177d6cc593255fd03914` |
+| `scripts/check_k0g_extraction_equivalence.py` | `2506603bc2600028cb2d037d08ff4eba2de795b6` |
+| `scripts/check_k0g_instrument_standard.py` | `0196356a0cbcafd7ef992642bac62840ffb73dc4` |
+| `scripts/launch_k0g.sh` | `e14de416050c12d6cafe60a6a2bc4ff4d4127a86` |
+| `scripts/launch_k0g_selftest.sh` | `f7594e00d9caff1f22c2ecfa4598f0b80de1807f` |
 
-**The K0f instruments are NOT edited** (standing rule 6). **§3C's `no-assert`
-instrument standard, §3A's consumer-side completeness assertion, and §R6's
-`setsid` rc-capture architecture are carried verbatim** and re-driven under
-`python3 -O` before any K0g launch.
+**Self-hash.** This document's integrity after freeze is its own committed
+git-blob sha1, recorded in the freeze commit message and re-derivable via
+`git rev-parse HEAD:docs/campaigns/F14-cooling-ladder/K0g_PREREGISTRATION.md`;
+any change is a standing-rule-6 dated amendment that cannot alter a gate,
+threshold, cap or label.
+
+**Ancestry (provenance, NOT pins — 8-hex short shas, and not table rows):**
+analyse from analyse_k0f.py 764dedc6; build from build_k0f.py 0881fa08;
+check_mesh from check_k0f_mesh.py 587e6693; mark_done from mark_done_k0f.py
+f01e3fce; extraction_equivalence from check_k0f_extraction_equivalence.py
+31c902de; instrument_standard from check_k0f_instrument_standard.py 8fa5bd22;
+launch from launch_k0f.sh 519e8361; launch_selftest from launch_k0f_selftest.sh
+c6e60dbd. The K0f instruments are NOT edited (standing rule 6). §3C's no-assert
+standard, §3A's consumer-side completeness assertion and §R6's setsid rc-capture
+are carried; the launcher's detached and --selftest re-execs invoke `bash "$0"`
+so the frozen grading path carries no executable-bit dependency.
 
 ### 7.9 REGISTERED PREDICTIONS (prediction-first, before any K0g compute)
 
