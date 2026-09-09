@@ -28893,6 +28893,30 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 85-M6-PHYSICS-HOLD-TE-HIGH-AR-SLIVER-CONFIRM-BY-REPAIR -->
+
+**Section last written:** 2026-09-09T01:26:56Z by the cfd-supervisor (Fable) directly, PURE INSERTION at the top of the `## cfd` section; boards 84/83/82 and prior stand unedited. Committed via the rule-10 private-index protocol on `docs/LAB_STATE.md` alone (worktree sha-clean vs HEAD).
+
+### 🟠 HEADLINE — M6: PHYSICS HOLD → Sanaa. Fork A SOLVED stability (first M6-class solve ever to complete, rule-4 under LTS) but the clamp is active → a localized UNBOUNDED trailing-edge energy runaway. Root cause CORRECTED (supersedes board-84's non-orth suspect): HIGH-ASPECT-RATIO TE SLIVER CELLS (AR mean 28 vs mesh median 2.25, 22/25 top-5%), NOT non-orth/skew. Unbiased solve-path levers EXHAUSTED (non-orth correctors confirmed no effect). CONFIRM-BY-REPAIR running (draft TE-AR mesh smoke, L-15 standard) to close the cause + ready the fix. Every fix = frozen family/geometry/BC = Sanaa's call. Still `NOT A RESULT`; NO graded launch.
+
+**CORRECTED ROOT CAUSE (my §3 check-3; supersedes board-84).** The co-location + AR forensics OVERTURN the non-orthogonality hypothesis. The ~25 overheating TE cells sit at MODERATE non-orth (mean 23°, 2/25 in mesh top-1%) and LOW skew (0/25 top-1%) — but are HIGH-ASPECT-RATIO: aspectRatio mean 28 (mesh median 2.25, 22/25 in top-5%), cellAspectRatio mean 93 (median 3.1, 18/25 top-5%), small near-wall (vol 8.8e-7). = thin stretched sliver cells at the acute sharp trailing edge, adiabatic wall trapping viscous heat in the corner. The runaway is UNBOUNDED (hot cells pin at whatever ceiling: 1000→1000, 5000→5000), solver-independent (rhoSimpleFoam-steadyState 644 K), scheme-independent, and NON-ORTH-CORRECTION-independent (nNonOrthogonalCorrectors 2→3 + full energy-laplacian `corrected` left ~102 cells clamped, residual still rising — EMPIRICALLY confirming non-orth is not the cause). Nonphysical: M=0.84 turbulent adiabatic recovery T ~324 K, not 1000+.
+
+**UNBIASED SOLVE-PATH LEVERS EXHAUSTED.** Pseudo-transient (fork A) fixed the global divergence; non-orth correction does not touch a sliver-cell AR runaway; limitTemperature biases (active at convergence); adding laplacian limiting biases; the adiabatic BC is physically MANDATED for M6. No unbiased solve-path lever leaves the frozen mesh/geometry/BC intact.
+
+**CONFIRM-BY-REPAIR (RUNNING; my decision, within authority).** Before escalating, close the cause by repair (L-15: repair, not correlation) and ready the fix: a DRAFT L2 mesh with TE AR-control (same pyHyp recipe, break the slivers), MESH_STANDARD-gated with the planted control, then the SAME rhoPimpleFoam-LTS config smoked. Clamp-inertness gate: COLLAPSES (physical Tmax, ~0 cells clamped, residual falling) → cause CONFIRMED + demonstrated fix; does NOT collapse → AR attribution wrong, rethink. This is capacity-light mesh-gen in cfd territory; it does NOT regenerate the frozen {L2,L1,L0} triple and is NOT a graded launch. Family redefinition (regenerate the nested triple + re-freeze gates + graded launch) remains Sanaa's.
+
+**LIVE:** lane **a156a777** running the confirm-by-repair (draft TE-AR L2 mesh + LTS smoke, ungraded). M6 NOT running a graded solve. Not mine, untouched: ansys VMFL017-R3, heat-transfer T23G2R_L3, queue daemon pid 1887.
+
+**NEXT ACTIONS:** lane returns confirm-by-repair before/after (TE-cell AR, clamped-cell count, Tmax, residual). If it CONFIRMS → I escalate to the chief for Sanaa a decision-ready package: "AR is the demonstrated cause, a TE-AR-controlled mesh cures it; approve the family redefinition (regenerate the r=2 nested triple with TE-AR-control under a fresh registration) → we launch the graded triple." I do NOT launch graded (family redefinition = Sanaa). If it does NOT confirm → rethink the cause.
+
+**ON SANAA'S DESK:** the M6 family-redefinition decision — the frozen own-family {L2,L1,L0} meshes carry sharp-TE high-AR slivers that make the transonic solve non-gradeable (localized unbounded energy runaway); delivering a gradeable M6 Cp requires regenerating the nested triple with TE-AR-control (a fresh family registration, re-defines Gate-G's grid set). The chief holds this for her (chief ruling routes the physics-HOLD branch to Sanaa). **SUBMISSIONS PARKED (rule 7).**
+
+**BLOCKED:** the GRADED M6 fine-triple is blocked on Sanaa's family-redefinition decision (the only remaining fixes touch frozen mesh/geometry/BC). Confirm-by-repair (in my authority) is proceeding meanwhile to make the escalation decision-ready. The box is not idle (queue daemon + other teams' solves running).
+
+**COST:** all M6 work this session is ungraded dev compute (fork-A + smokes + confirm-by-repair mesh-gen, sub-cap) + the 3.8 core-min original crash (wasted). This board write 0. A future graded triple re-cost ≈1,068 core-min / cap 2,136 (≈$1.83 derived, owner-rate).
+
+**CHAIN OF CUSTODY:** FIRST-HAND (cfd-supervisor, this session) — the check-3 root-cause CORRECTION (non-orth ruled out, AR pinned via co-location + AR forensics), the recovery-temperature physics anchor, the exhaustion-of-solve-path judgment, the confirm-by-repair decision, the lane dispatches, this board + commit. RELAYED (to be check-3'd before any verdict repeats upward): the lane's measured AR/clamp/completion numbers. Nothing sent, filed or posted (rule 7).
+
 <!-- BOARD-BLOCK-ID: 84-M6-FORKA-COMPLETES-BUT-CLAMP-ACTIVE-TE-RUNAWAY -->
 
 **Section last written:** 2026-09-09T01:16:41Z by the cfd-supervisor (Fable) directly, PURE INSERTION at the top of the `## cfd` section; boards 83/82 and prior stand unedited. Committed via the rule-10 private-index protocol on `docs/LAB_STATE.md` alone (worktree sha-clean vs HEAD before the splice).
