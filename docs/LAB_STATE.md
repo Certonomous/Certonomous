@@ -29471,6 +29471,22 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 106-NAVIER-SUPBOOSTER-FROZEN-CHECK4-PASSED-FIRST-HAND-GRADED-TRIPLE-LAUNCHED-DETACHED-2BA-VERDICT-PENDING-M6-STILL-ESCALATED -->
+
+**Section last written:** 2026-09-09T21:35Z by the cfd-supervisor (Fable) directly, PURE INSERTION at top of `## cfd`; boards 105/104/103 stand unedited. Committed via the rule-10 private-index protocol.
+
+### 🟢 NAVIER Case-3 / SUP_BOOSTER (E1) — FROZEN + graded triple LAUNCHING (my check-4 PASSED, first-hand). Freeze commit **c8510ff7** (prereg-only, in HEAD lineage). I re-verified FIRST-HAND (not the lane's word): STATUS=FROZEN; §12 pins the 3 grading-path blobs (grade_sup_booster.py=3c8d418a, taylor_maccoll_reference.py=0a17270c, gen_cone_mesh.py=da65ffe2 — all worktree==HEAD, no drift); gates/threshold/cap/label UNCHANGED (rule 2: C1 |Cp−0.202248|≤0.010, C2 |β−33.9147°|≤1.0°, Fs=1.25, cap 90 core-min, endTime 15000); and I RAN `check_comparator_freeze.py --registration` myself → 3/3 PIN-OK [covered], IDENTITY match, 0 violating, no PIN-DRIFT/STALE/UNCOMMITTED (the repo-wide FAIL is other teams' pre-existing unfrozen comparators, not this registration; NO-MARKERS is expected pre-launch). **LAUNCH AUTHORIZED** under §2ba (setsid-DETACHED so it survives a session kill; rc captured INSIDE the wrapper per the setsid-parent-returns-zero lesson; a COMMITTED detached autograder fires `grade_sup_booster.py` on rule-4 completion, independent of any live agent) + §2bc; serial 1-rank sequential coarse→med→fine (good-citizen, ansys+heat-transfer live, R4 first call); cost cap 90 core-min ($0.077 derived, overrun STOPS the run per rule 12; calibration row owed at completion). **VERDICT PENDING** (the detached autograder emits C1/C2 from the fixed vocabulary via the Roache triple; not-plateaued-at-15000 → NOT A RESULT, no silent endTime extension). This is the campaign's first graded rung about to run.
+
+### 🔴 M6 GRID (b) — STILL ESCALATED to Sanaa (board 105 stands): the real-A3-cap y+<1 mesh-capability decision (elliptic-orthogonal assembled multi-block smoother; LE clean 51°, interior cap 61°, junctions 83°+, pyHyp 87°; HARD not impossible). Lane abc08c4506fe8f19d HOLDING with full context; grader wrapper analyse_m6_gridb.py DRAFT counts UNFROZEN. No unilateral capability-build.
+
+**RUNGS WITHOUT VERDICTS (mine):** Navier SUP_BOOSTER E1 — graded triple RUNNING detached, verdict pending. M6 `NOT A RESULT` — ESCALATED (Sanaa's desk); grid a=M6I ready. DPW8_V2 L4 owed D481; F24 fine reconciliation; F3-succ/F4-S numerics NEEDS-SUCCESSOR.
+
+**LIVE:** Navier lane a7c71f2eb2b3f5e24 (launching the detached graded triple + committed autograder); M6 lane abc08c4506fe8f19d (HOLDING). SUP_BOOSTER graded rhoCentralFoam runs will appear under `verification/runs/navier_class/SUP_BOOSTER/` — the DETACHED OS process + committed autograder survive a session kill (resume by reading the autograder's verdict JSON, not by relaunch). NOT MINE: rhoCentralFoam 316601 (ansys VMFL017), rhoPimpleFoam 775010 (ansys VMFL046).
+
+**COST.** This turn 0 heavy compute (check-4 first-hand verification + board). SUP_BOOSTER graded triple cap 90 core-min ($0.077 derived); calibration row owed at completion (rule 12).
+
+**CHAIN OF CUSTODY:** FIRST-HAND — the check-4 freeze re-verification (commit lineage, STATUS=FROZEN, pin blobs worktree==HEAD, gates unchanged, my own check_comparator_freeze run); the launch authorization under §2ba. RELAYED, verdict owed on completion: the graded triple's C1/C2 verdicts from the detached autograder. Nothing sent outside the box (rule 7).
+
 <!-- BOARD-BLOCK-ID: 105-M6-GRIDB-ESCALATED-TO-SANAA-REAL-A3-CAP-YPLUS1-NEEDS-ELLIPTIC-ORTHOGONAL-SMOOTHER-HARD-NOT-IMPOSSIBLE-NAVIER-SUPBOOSTER-RECHECK1-PASSED-FREEZE-SPEC-ISSUED-STOP-BEFORE-LAUNCH -->
 
 **Section last written:** 2026-09-09T21:20Z by the cfd-supervisor (Fable) directly, PURE INSERTION at top of `## cfd`; boards 104/103/102 stand unedited. Committed via the rule-10 private-index protocol.
