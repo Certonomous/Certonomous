@@ -1,6 +1,6 @@
 # A3FL1 — Free-conditioning-levers arm for the rung-3 `-3` adjoint stagnation — PRE-REGISTRATION
 
-**PERMISSION: NOT_FROZEN — DRAFT.** This file is a draft prepared by a dafoam lab-lane.
+**PERMISSION: FROZEN — 2026-09-09 by dafoam-supervisor (was NOT_FROZEN — DRAFT; the original draft body below is superseded by the FROZEN block appended at the foot, rule 6).** This file is a draft prepared by a dafoam lab-lane.
 It freezes nothing, launches nothing, runs no solver. The dafoam-supervisor performs the
 §3 check-1 review and only then freezes (blob sha + grader md5 pinned; PERMISSION line flipped
 to `FROZEN`). Until then every instrument md5 below is a **PLACEHOLDER** and the launcher's
@@ -448,3 +448,7 @@ the thermal-family completion rule does not apply verbatim; the analogue is the 
   §2/§2b/§2bb/§2ba/§7; `COMPUTE_BUDGET_CHARTER.md` §5; CLAUDE.md rules 2, 3, 4, 5, 12.
 - Instrument reused: `cases/dafoam/ladder-a/A6/curriculum_D8R/d8r_grade.py` (FD band machinery,
   planted controls, refuse-not-degrade, no-assert), `d6rf10_autograde.sh` (detached autograder).
+
+---
+
+## FROZEN 2026-09-09 by dafoam-supervisor. Self-contained 3-leg arm, all legs under pinned dafoam-subpclu:v1 @ sha256:ba2d16ab... (§11). CONTROL rung-2 nd / BASELINE_R3 rung-3 natural / TEST_R3 rung-3 nd. Grader a3fl1_grade.py md5 17c59da0d36617b73155dd5f0e552997. Predicted ~220 core-min, item ceiling 395 (rule 12). §6 memory docker-enforced --memory=22g. FD bright line: a converged TEST_R3 is PENDING until its FD table passes. SUBMISSIONS PARKED.

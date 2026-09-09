@@ -83,8 +83,8 @@ BASE_TEST=/home/ubuntu/certonomous-runs/A3-rung3-n52/runScript_rung3.py       # 
 BASE_TEST_MD5=1ec70293a56a2cf5a30a889a96832c06
 BASE_CTRL=/home/ubuntu/certonomous-runs/A3-rung2-n28-tpc1/runScript_tpc1.py   # CONTROL
 BASE_CTRL_MD5=edc9e14be7297a442e16f43fdda94fcc
-GRADER_MD5="<SET_AT_FREEZE>"          # PLACEHOLDER -- G-FREEZE refuses while unset
-PREREG_BLOB="<SET_AT_FREEZE>"         # committed blob sha of the frozen prereg
+GRADER_MD5="17c59da0d36617b73155dd5f0e552997"   # frozen 2026-09-09; G-FREEZE verifies grader md5 against this
+PREREG_BLOB="42f05bd57059539e66eef2d3c2efd1f829b48721"   # git hash-object of the frozen A3FL1_PREREGISTRATION.md
 
 # ---- source meshes (staged, never mutated in place) ----
 SRC_CTRL=/home/ubuntu/certonomous-runs/A3-rung2-n28-tpc1     # 42,120 cells (rung 2)
@@ -103,8 +103,8 @@ MEM_CAP="22g"; RANKS=4; KILL_GRACE_S=60
 #   A3-rung2-n28-tpc1's own lever_echo.txt / run_arm_a.sh (the CONTROL baseline's image).
 # Both fields stay PLACEHOLDERS in this DRAFT; the digest-verify gate below REFUSES until the
 # supervisor pins them at freeze, and then reads the image's REAL digest and refuses on drift.
-IMG="<SET_AT_FREEZE>"          # PLACEHOLDER -- supervisor pins the ONE image tag (dafoam-subpclu:v1) at freeze (§11)
-IMG_DIGEST="<PLACEHOLDER_AT_FREEZE>"   # PLACEHOLDER -- supervisor pins sha256:ba2d16ab... at freeze; digest-verify refuses on placeholder or drift
+IMG="dafoam-subpclu:v1"          # frozen 2026-09-09; ONE image, all three legs (§11)
+IMG_DIGEST="sha256:ba2d16ab9d575ed3167abe31344aa58fb42fef1a8b27db60baeb505ab9413517"   # MEASURED rung-1/rung-2 ladder image; digest-verify refuses on drift
 
 # =============================================================================
 # G-FREEZE GATE -- refuse unless the prereg reads FROZEN and every instrument pin is set.

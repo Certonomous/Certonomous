@@ -16,9 +16,9 @@ set -u
 RUN_ROOT=/home/ubuntu/certonomous-runs/CURRICULUM-A3FL1-onera-m6-free-conditioning-levers
 LEDGER="$RUN_ROOT/ledger.txt"
 GRADER=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A3/curriculum_A3FL1/a3fl1_grade.py
-GRADER_MD5="<SET_AT_FREEZE>"   # PLACEHOLDER: the dafoam-supervisor pins the frozen grader md5
-                               # here at freeze; the md5-drift limb REFUSES (exit 2) while this is
-                               # the placeholder, so the autograder never grades with an unpinned instrument.
+GRADER_MD5="17c59da0d36617b73155dd5f0e552997"   # frozen 2026-09-09; the md5-drift limb REFUSES (exit 2)
+                               # if the on-disk grader ever drifts from this pin, so the autograder
+                               # never grades with an unpinned/mutated instrument.
 DONE="$RUN_ROOT/A3FL1_AUTOGRADE_DONE.txt"
 LOG="$RUN_ROOT/a3fl1_autograde.out"
 # CEIL = all three legs' deadlines (600 + 1800 + 1800) + a conditional FD leg (~90 min cap) + margin.
