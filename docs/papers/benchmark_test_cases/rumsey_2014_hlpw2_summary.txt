@@ -1,0 +1,1528 @@
+Overview and Summary of the Second AIAA High Lift
+Prediction Workshop (Invited)
+Christopher L. Rumsey∗
+NASA Langley Research Center, Hampton, VA 23681
+
+and
+Jeffrey P. Slotnick†
+The Boeing Company, Huntington Beach, CA 92647
+The second AIAA CFD High-Lift Prediction Workshop was held in San Diego, California, in June 2013.
+The goals of the workshop continued in the tradition of the ﬁrst high-lift workshop: to assess the numerical prediction capability of current-generation computational ﬂuid dynamics (CFD) technology for swept,
+medium/high-aspect-ratio wings in landing/takeoff (high-lift) conﬁgurations. This workshop analyzed the ﬂow
+over the DLR-F11 model in landing conﬁguration at two different Reynolds numbers. Twenty-six participants
+submitted a total of 48 data sets of CFD results. A variety of grid systems (both structured and unstructured)
+were used. Trends due to grid density and Reynolds number were analyzed, and effects of support brackets
+were also included. This paper analyzes the combined results from all workshop participants. Comparisons
+with experimental data are made. A statistical summary of the CFD results is also included.
+
+Nomenclature
+AR
+alpha, α
+B
+CD
+CDp
+CL
+CL,max
+CM
+Cf
+Cf,x
+Cp
+Cv
+c
+h
+K
+LB
+M
+N
+Re
+Rec
+u
+x, y, z
+Δ
+μ̂
+σ̂
+
+aspect ratio
+angle of attack, deg
+wing span
+drag coefﬁcient
+idealized drag coefﬁcient = CD − CL2 /(πAR)
+lift coefﬁcient
+maximum lift coefﬁcient
+pitching moment coefﬁcient
+surface skin friction coefﬁcient
+x-component of Cf
+surface pressure coefﬁcient
+coefﬁcient of variation = σ̂/μ̂
+mean aerodynamic chord
+average grid spacing measure
+conﬁdence interval coverage factor
+lattice-Boltzmann
+Mach number
+number of grid points or grid cells
+Reynolds number
+Re based on c length scale
+velocity component in the x-direction
+Cartesian coordinate directions
+difference between high and low Re results
+median of sorted data
+standard deviation
+
+∗ Senior Research Scientist, Computational AeroSciences Branch, Mail Stop 128, Fellow AIAA.
+† Boeing Technical Fellow, Computational Sciences, Senior Member AIAA.
+
+1 of 37
+
+I.
+
+Introduction
+
+The prediction of high-lift aerodynamic ﬂows is a challenging but important aspect in the analysis of aircraft
+conﬁgurations. Today’s computational ﬂuid dynamics (CFD) codes have proven to be reliable and consistent for
+simpliﬁed, cruise-type conﬁgurations, but the complexities inherent in high-lift conﬁgurations add a signiﬁcant degree
+of uncertainty. The complexities in high-lift ﬂows include wakes in pressure gradients, wake/boundary-layer merging,
+streamline curvature, separated ﬂow, possible unsteady ﬂow, wing-tip vortical ﬂow, and laminar/turbulent transition
+regions on each wing element (slat, main wing, ﬂap).1
+To advance the state of the art in predicting high-lift ﬂows, an open international workshop series was established with the following long-term objectives: (1) assess the numerical prediction capability (mesh, numerics, turbulence modeling, high-performance computing requirements, etc.) of current-generation CFD technology for swept,
+medium/high-aspect ratio wings in landing/take-off (high lift) conﬁgurations, (2) develop practical modeling guidelines for CFD prediction of high lift ﬂow ﬁelds, (3) advance the understanding of high lift ﬂow physics to enable
+development of more accurate prediction methods and tools, (4) enhance CFD prediction capability for practical high
+lift aerodynamic design and optimization, (5) provide an impartial forum for evaluating the effectiveness of existing
+computer codes and modeling techniques, and (6) identify areas needing additional research and development.
+Previously, the ﬁrst high lift prediction workshop (HiLiftPW-1) was held in June 2010 in Chicago, Illinois. The
+workshop focused on the three-element NASA Trapezoidal Wing conﬁguration2, 3 at Rec = 4.3 × 106 ; the workshop
+overview can be found in Slotnick et al.,4 and the summary is given in Rumsey et al.5 The overall conclusions were
+as follows. CFD tended to under-predict lift, drag, and the magnitude of the pitching moment (pitching moment
+was negative) compared with experiment, and there was signiﬁcantly more spread among the CFD solutions near
+stall. Despite the general under-prediction in lift, many participants were able to predict CL,max and the angle of
+attack at which it occurred reasonably well. The trends with grid reﬁnement were generally in the correct direction
+(approaching experiment), but it was difﬁcult to draw ﬁrm conclusions because CFD grid convergence studies were
+only done without support brackets. Including support brackets resulted in lower predicted lift. Transition modeling,
+included by only a few participants, appeared to be very important for this conﬁguration, tending to increase predicted
+lift. An unstructured tetrahedral grid solution was found to exhibit greater grid sensitivity than the solution on the
+same grid with its boundary-layer tetrahedra merged into prisms. The ﬂow ﬁeld near the wing tip was very difﬁcult
+to predict. Nearly all entries seriously under-predicted the suction near the wing-tip upper surface, and neglecting
+viscous cross-derivative terms yielded even worse predictions near the wing tip than full Navier-Stokes. Statistically,
+the deltas predicted by CFD between two different conﬁgurations were somewhat low at α = 13◦ , and signiﬁcantly
+high at α = 28◦ . Subsequently, many of the HiLiftPW-1 participants wrote papers highlighting their workshop
+results,6–19 and additional papers were produced for a later special session focused on the NASA Trapezoidal Wing at
+an AIAA meeting in June 2012 in New Orleans, Louisiana.20–32
+The second high lift prediction workshop (HiLiftPW-2) was held in June 2013 in San Diego, California.a The
+conﬁguration selected for analysis was the DLR-F11 three-element wing-body model.33 This conﬁguration was previously used in the EUROLIFT research program.34 The DLR-F11 was of interest because it was more representative
+of a realistic aircraft conﬁguration than the NASA Trapezoidal Wing. Also, because the DLR-F11 was tested at both
+low and high Reynolds numbers, a major focus of HiLiftPW-2 was the ability of CFD to capture the Reynolds number
+effects.
+This paper summarizes the HiLiftPW-2 workshop data, including several corrections and additional submissions
+by some participants soon after the workshop. A total of 26 groups submitted 48 entries. (This was slightly more than
+HiLiftPW-1, which had 21 groups and 39 entries.) In addition to describing the overall collective results in comparison
+to experimental data, an attempt is made in this paper to identify trends as well as outliers. In the interest of brevity,
+only representative results are shown in some cases.
+The paper is organized as follows. First, the geometry and experimental data are brieﬂy described, followed by a
+summary of the test cases and grid systems. A summary of the entries is then given. The results section includes a
+turbulence model veriﬁcation test that was an optional exercise for the workshop participants, intended to help identify
+possible turbulence model implementation issues. Then, for the DLR-F11, the main results include force, pitching
+moment, grid convergence, iterative convergence, velocity, and surface pressure and skin friction coefﬁcients. A
+statistical analysis is conducted in which scatter limits are calculated. As part of this statistical analysis, the ability to
+predict the differences between low and high Reynolds numbers is looked at in greater detail. Finally, conclusions are
+drawn.
+a http://hiliftpw.larc.nasa.gov, accessed 11/13/2013.
+
+2 of 37
+
+II.
+
+Geometry and Experimental Data
+
+The DLR-F11 model—a generic semi-span, three element high lift wing conﬁguration with a body pod—is shown
+in Fig. 1. It is intended to be representative of a commercial wide-body twin-jet high lift conﬁguration, but the
+workshop focused on a simpliﬁed full-span ﬂap geometry. The untwisted swept wing had a semi-span (B/2) of 1.4 m
+and an aspect ratio (AR) of 9.353. The mean aerodynamic chord (c) was 0.34709 m. The high lift system consisted of
+a leading edge slat and a trailing edge Fowler ﬂap, both full-span for the cases considered in this workshop. Transition
+was ﬁxed on the body pod, but not on any of the wing elements. The slat was attached to the main wing using seven
+slat tracks. The ﬂaps were mounted with ﬁve ﬂap tracks and a ﬁxing of the inner ﬂap edge at the fuselage. The ﬂap
+tracks were covered by ﬂap track fairings. The high lift devices directly intersected with the fuselage. Due to the
+small size of the slat tracks, it was necessary to attach pressure tube bundles along the outside of the tracks for their
+routing into the slat element. Additional geometry and instrumentation details can be found in Rudnik et al.33 Note
+that throughout this paper, the slat tracks and ﬂap track fairings are often collectively referred to as “support brackets”
+or “brackets.”
+The model was tested both at low Reynolds numbers in the low-speed wind tunnel Airbus-Deutschland (B-LSWT),
+as well as at high Reynolds numbers in the European Transonic Windtunnel (ETW). The wing was equipped with
+487 pressure taps in ten chordwise pressure sections. In addition to forces, moments, and surface pressures, the
+low Reynolds number test included ﬂow ﬁeld velocity measurements using particle image velocimetry (PIV) and oil
+ﬂow visualization. Other measurements not directly considered here included hot ﬁlm, infared, and tuft videos. At
+Rec = 1.35 × 106 , CL,max occurred near α = 19◦ . Oil ﬂow visualization at low Reynolds number suggested that
+at stall there were large isolated areas of separated ﬂow over the main wing behind two of the slat tracks, spreading
+out laterally towards the trailing edge. In stall, the largest area of separated ﬂow over the main wing was near midspan. Close to the ﬂap trailing edge, separation trends were visible even at low angles of attack. The high Reynolds
+number test included forces, moments, and surface pressures. Tuft videos were made, but are not considered here. At
+Rec = 15.1 × 106 , CL,max occurred near α = 20 − 21◦ . Additional details about the experimental data, including
+short- and medium-term repeatability as well as facility effects, can be found in Rudnik et al.33
+
+III.
+
+Test Cases
+
+Like in HiLiftPW-1, the workshop test cases for HiLiftPW-2 were designed to generate enough quality CFD data
+so that meaningful solver-to-solver comparisons, as well as CFD comparisons with test data, could be conducted. The
+amount of data generated was extensive, including forces and moments, surface pressures and skin friction, velocity
+proﬁles, and both grid convergence and iterative convergence data. All DLR-F11 cases were in one particular landing
+conﬁguration (slat 26.5◦ , ﬂap 32◦ ). The geometry was approximated in a series of conﬁgurations that built up the
+model for improved geometric ﬁdelity:
+• Conﬁg 2 - wing/body/high lift system plus side-of-body ﬂap seal;
+• Conﬁg 4 - same as Conﬁg 2 plus slat and ﬂap support brackets;
+• Conﬁg 5 - same as Conﬁg 4 plus slat pressure tube bundles
+There were four test cases deﬁned for the workshop. Three of these involved DLR-F11 Conﬁg 2, 4, or 5. The
+fourth test case was a simple veriﬁcation exercise intended to isolate potential inconsistencies in turbulence model
+implementations. For the DLR-F11, the participants were asked to run on at least one of the grid series (detailed
+in the next section) supplied by the HiLiftPW committee. They were also allowed to create their own grids. In all
+cases, no wind tunnel walls or model support systems were to be included. The high Reynolds number conditions
+(corresponding to ETW) were Rec = 15.1 × 106 , M = 0.175, Tref = 114.0 K, pref = 295 kPa. The low Reynolds
+number conditions (corresponding to B-LSWT) were Rec = 1.35 × 106 , M = 0.175, Tref = 298.6 K, pref = 100.7
+kPa. The four test cases for the workshop are summarized here:
+CASE 1 (required): Grid Convergence Study on Conﬁg 2 at high Reynolds number conditions
+• α = 7◦ , 16◦ , (optional 18.5◦ );
+• Coarse, Medium, and Fine grid solutions are required (Extra-Fine optional);
+• run fully turbulent
+CASE 2: Reynolds Number Study on Conﬁg 4, using Medium grid density
+• Case 2a (required) - low Reynolds number conditions;
+• α = 0◦ , 7◦ , 12◦ , 16◦ , 18.5◦ , 19◦ , 20◦ , 21◦ ;
+• run fully turbulent
+3 of 37
+
+• Case 2b (required) - high Reynolds number conditions;
+• α = 0◦ , 7◦ , 12◦ , 16◦ , 18.5◦ , 20◦ , 21◦ , 22.4◦ ;
+• run fully turbulent
+• Case 2c (optional) - low Reynolds number conditions;
+• α = 0◦ , 7◦ , 12◦ , 16◦ , 18.5◦ , 19◦ , 20◦ , 21◦ ;
+• run with speciﬁed transition and/or transition prediction methods
+CASE 3: Full Conﬁguration Study on Conﬁg 5, using Medium grid density
+• Case 3a (optional) - low Reynolds number conditions;
+• α = 0◦ , 7◦ , 12◦ , 16◦ , 18.5◦ , 19◦ , 20◦ , 21◦ ;
+• run fully turbulent and/or run with transition
+• Case 3b (optional) - high Reynolds number conditions;
+• α = 0◦ , 7◦ , 12◦ , 16◦ , 18.5◦ , 20◦ , 21◦ , 22.4◦ ;
+• run fully turbulent and/or run with transition
+CASE 4 (optional): Turbulence Model Veriﬁcation Study
+• 2-D bump case from http://turbmodels.larc.nasa.gov;
+• M = 0.2, Re = 3 million per unit length;
+• grid convergence study (at least 3 ﬁnest grid levels)
+
+IV.
+
+Grid Systems
+
+For Case 1, ﬁve different DLR-F11 grid systems were supplied by the HiLiftPW committee, as summarized in
+Table 1 and Fig. 2. Grids for Case 2 were provided at the medium level for B, C, D, and E, and grids for Case 3
+were provided at the medium level for B and D, with E added several months after the workshop. The committee
+requested that all grids be developed according to a best-practice guideline published to the workshop website (noted
+in an earlier footnote). For brevity, only a few of the guidelines are summarized here; details can be found on the
+workshop website.
+Each Case 1 grid system family was expected to supply at least three grids differing by levels of global reﬁnement.
+At a minimum, coarse, medium, and ﬁne grids were required with a nominal growth rate of 3 in total number of grid
+points or cells between one level and the next ﬁnest level. The far ﬁeld was to be located at a distance of approximately
+100 reference chords (i.e., 100c) for all grid levels.
+The C and D grids were both constructed with tetrahedral elements; these were also subsequently merged to create
+mixed element grids with prism elements in the boundary layers. As described later, all participants who made use
+of these grids employed the mixed versions. Note that the block structured grid system A was also translated into
+unstructured hexahedral grids.
+
+V.
+
+Summary of Entries
+
+A summary of the entries to the HiLiftPW-2 is given in Tables 2 and 3. It includes an identiﬁer for each submission,
+the code used, the code type (structured or unstructured), the grid system, the turbulence model, and other relevant
+information. All submissions were assigned an entry number, which consists of a primary number in front of the
+decimal point that identiﬁes the group or person submitting the data, and a secondary sequence after the decimal point
+that identiﬁes variations (for example, different grids, codes, or turbulence models). There were 26 individuals/groups
+who submitted 48 entries. The primary numbers are not sequential because there were three groups who dropped out
+prior to the workshop. Note that the structured codes that used grid system A employed point-match blocking, whereas
+those that used grid system E employed overset.
+For turbulence models, most participants used the Spalart-Allmaras (SA) model35 or variant. Five of the variants
+are rotation/curvature (RC),36 rotation (R),37 Edwards,38 SALSA,39 and quadratic constitutive relation (QCR).40 The
+so-called “noft2” variant simply ignores the ft2 term in the turbulence model equation, which is believed to make very
+
+4 of 37
+
+Table 1. Summary of supplied grids for Case 1 (number of grid points/cells given in millions)
+
+Label
+A
+
+Grid
+Tool
+ICEM CFD
+
+Responsible
+Org
+Boeing
+
+B
+C
+
+SOLAR
+Pointwise
+
+DLR
+Pointwise
+
+D
+
+VGRID
+
+E
+
+misc.
+
+UWyo &
+Cessna
+Boeing
+
+Type
+str
+unstr
+unstr
+unstr
+unstr
+str
+
+Coarse
+pts / cells
+11 / 10
+
+Medium
+pts / cells
+34 / 32
+
+Fine
+pts / cells
+105 / 101
+
+Extra-Fine
+pts / cells
+n/a
+
+10 / 10
+9 / 21
+20 / 44
+20 / 117
+10 / 29
+10 / 60
+29 / 28
+
+32 / 32
+26 / 59
+59 / 133
+59 / 349
+31 / 99
+31 / 181
+69 / 67
+
+101 / 101
+73 / 165
+177 / 417
+177 / 1053
+76 / 274
+76 / 447
+231 / 226
+
+n/a
+n/a
+n/a
+n/a
+n/a
+n/a
+545 / 537
+
+Notes
+point-matched,
+no brackets
+hexahedra
+mixed
+mixed
+tetrahedra
+mixed
+tetrahedra
+overset
+
+little difference.b Other models utilized by participants were SST,41 SST-V,42 K-e-Rt,43 EARSM,44 and Wilcox1988.45
+There were also several non-traditional (not Reynolds-averaged Navier-Stokes) methods. The UNICORN code, a general Galerkin adaptive ﬁnite element method, used an implicit subgrid scale (SGS) model by numerical stabilization.
+The PowerFLOW code, a lattice-Boltzmann (LB) method, used a proprietary very large eddy simulation (VLES) wall
+model. The XFlow lattice-Boltzmann code used a proprietary wall-modeled local-eddy simulation (WMLES) model.
+For transition, an ampliﬁcation factor transport (AFT) model,46 the SST-GRET model,47 and a proprietary transition
+method (in PowerFLOW) were used.
+
+VI.
+A.
+
+Results
+
+Turbulence Modeling Veriﬁcation
+
+An optional veriﬁcation exercise (Case 4) was included in HiLiftPW-2 in part because a similar exercise had previously
+proved to be very useful for identifying discrepancies in turbulence modeling implementations at the ﬁfth drag prediction workshop (DPW-5).48 Here, a simple 2-D bump case was used. At the website http://turbmodels.larc.nasa.gov,
+several different independent CFD codes (some of which have been previously veriﬁed) using the SA, SST, SST-V,
+and Wilcox2006 models have been shown to produce nearly identical results for this case as the grid is reﬁned. Thus,
+the website has established high conﬁdence in a grid-converged result for each of these models for this case. Any
+other code should expect to approach the same answer as the grid is reﬁned, when using the same turbulence model
+and boundary conditions. A different solution indicates either an incorrect implementation of the model, an incorrect procedure or boundary condition, or a bug in the code. For example, in DPW-5, it was learned that inaccurate
+computation of the minimum distance function could lead to signiﬁcant errors in SA results.
+There were ten Case 4 submissions in HiLiftPW-2. Eight of these were for the SA model (or variant). Figure 3
+shows the SA and SA variant results. In Fig. 3(a), the Cf over a portion of the bump is shown. Three of the results
+were indistinguishable: 002.1, 002.2, and 013.1. (Note that 002.1 and 002.2 corresponded to results already posted on
+the website http://turbmodels.larc.nasa.gov.) Of the other results, 007.1, 007.2, and 011.1 were slightly different, and
+the model variants 011.2 (SA-Edwards) and 011.3 (SA-salsa) were signiﬁcantly different.
+Comparing like-models only (SA) in the grid convergence study of Fig. 3(b), one can see that indeed 002.1, 002.2,
+and 013.1 were all approaching the same Cf at location x = 0.6322 as the grid was reﬁned (h2 → 0). Submission
+007.1 was only slightly low, but 007.2 was 2% low and 011.1 was about 3% high in this particular metric. Comparing
+Cf at other locations yielded similar results. This study indicates that there are potential problems or inconsistencies
+in the implementation of the SA model in 007.2 and 011.1 that should be investigated.
+The other two Case 4 submissions were 010.1 (K-e-Rt) and 018 (SST). The former currently has no other code to
+compare against for Case 4, and the latter used a different turbulence model for its Cases 1 and 4. Therefore, these
+results are not shown here.
+b See http://turbmodels.larc.nasa.gov, accessed 11/13/2013.
+
+5 of 37
+
+Table 2. Summary of entries
+
+Entry
+Number
+002.1
+002.2
+003.1+
+003.2
+003.3+
+004.1
+004.2*
+005.1
+005.2+
+006
+007.1+
+007.2+
+007.3*
+008
+009.1+
+009.2*
+009.3*
+010.1+
+010.2+
+010.3+
+011.1+
+011.2+
+011.3*
+012.1
+012.2*
+013.1+
+013.2*
+013.3*
+013.4*
+013.5*
+013.6*
+014
+015.1+
+015.2+
+016.1+
+016.2*
+017+
+018
+
+Code
+Name
+FUN3D
+CFL3D
+OVERFLOW
+OVERFLOW
+OVERFLOW
+CFD++
+CFD++
+HiFUN
+HiFUN
+FUN3D
+CFLOW
+UG3
+CFLOW
+CRUNCH CFD
+OVERFLOW
+OVERFLOW
+OVERFLOW
+CFD++
+CFD++
+CFD++
+NSMB
+NSMB
+NSMB
+PowerFLOW
+PowerFLOW
+UPACS
+UPACS
+UPACS
+UPACS
+TAS
+TAS
+UNICORN
+CFX
+Fluent
+elsA
+elsA
+COBRA
+VULCAN
+
+Type
+unstr
+str
+str
+str
+str
+unstr
+unstr
+unstr
+unstr
+unstr
+unstr
+unstr
+unstr
+unstr
+str
+str
+str
+unstr
+unstr
+unstr
+str
+str
+str
+LB
+LB
+str
+str
+str
+str
+unstr
+unstr
+unstr
+unstr
+unstr
+str
+str
+str
+str
+
+Grid
+System
+D(mixed)
+A
+E
+E
+E
+B + nc
+C + nc
+A
+B
+D(mixed)
+C(mixed)
+C(mixed)
+nc
+D(mixed)
+E
+E
+E
+A + C(mixed)
+A
+A
+A
+A
+A
+nc
+nc
+A
+A
+A
+A
+D(mixed)
+D(mixed)
+nc
+B
+B
+E
+A
+nc
+A
+
+Turb
+Model
+SA
+SA
+SA, SA+AFT
+SA-RC
+SA-QCR+AFT
+SA-RC
+SA-RC
+SA
+SA
+SA-RC
+SA
+SA
+SA
+SST
+SA
+SST
+SST-GRET
+SA
+SST
+K-e-Rt
+SA
+SA-Edwards
+SA-salsa
+LBM-VLES
+LBM-VLES+trans
+SA-noft2-R
+SA-noft2-R-QCR
+SST-V
+SST-V-QCR
+SA-noft2-R
+SA-noft2-R-QCR
+SGS
+SST
+SST
+SA
+SA
+SA
+Wilcox1988
+
+* = new submission added after workshop
++ = modiﬁed after workshop
+nc = non-committee grid
+ITER = iterative convergence history for C1
+
+6 of 37
+
+Cases run
+C1, C2a, C2b, C4
+C1, C4
+C1, C2a, C2b, C2c(trans)
+C1, C2a, C2b
+C2c(trans) only
+C1 only
+C2b only
+C1 only
+C1, C2a, C2b
+C1 only
+C1, C2a, C2b, C4
+C1, C2a, C2b, C4
+C1 only
+C1, C2a, C2b
+C1, C2a, C2b
+C2a only
+C2c(trans) only
+C1, C2a, C2b
+C1 only
+C1, C4
+C1, C4
+C1, C4
+C1, C4
+C3a, C3b
+C3a(trans) only
+C1, C4
+C1 only
+C1 only
+C1 only
+C1 only
+C1 only
+Adapt, C2b only
+C1, C2a(no brk), C2b(no brk)
+C1, C2a(no brk), C2b(no brk)
+C1 only
+C1 only
+C1, C2a, C2b
+C1, C4 with SST
+
+ITER
+provided?
+Y
+Y
+N
+N
+n/a
+Y
+n/a
+Y
+Y
+Y
+Y
+Y
+Y
+N
+Y
+n/a
+n/a
+Y
+Y
+Y
+Y
+Y
+Y
+n/a
+n/a
+Y
+Y
+Y
+Y
+Y
+N
+n/a
+N
+N
+N
+Y
+N
+N
+
+Table 3. Summary of entries (continued)
+
+Entry
+Number
+020
+021+
+022+
+023
+024.1
+024.2+
+025
+026
+028
+029+
+
+Code
+Name
+OVERFLOW
+TAU
+PHASTA
+NSU3D
+EDGE
+EDGE
+NSU3D
+MFLOW
+Fluent
+XFlow
+
+Type
+str
+unstr
+unstr
+unstr
+unstr
+unstr
+unstr
+str
+unstr
+LB
+
+Grid
+System
+E
+B
+nc
+D(mixed)
+B
+B
+nc
+A
+A+B
+nc
+
+Turb
+Model
+SA-noft2-RC
+SA
+SA
+SA
+EARSM
+SA
+Wilcox1988
+SA
+SA-RC
+WMLES
+
+Cases run
+C1, C2a, C2b
+C1, C2a, C2b, C3a, C3b
+C1, C2a, C2b
+C1, C2a, C2b
+C1, C2a, C2b
+C1, C2a, C2b
+C1, C2a, C2b
+C1, C2a, C2b, C3a, C3b
+C1 only
+C1, C2a, C2b, C3b
+
+ITER
+provided?
+Y
+N
+Y
+Y
+Y
+Y
+N
+N
+N
+N
+
++ = modiﬁed after workshop
+nc = non-committee grid
+ITER = iterative convergence history for C1
+B.
+
+Force and Moment Predictions
+
+1.
+
+Case 1: Simpliﬁed Conﬁguration (No Brackets)
+
+Figure 4 shows forces and pitching moments for Case 1 (CFD with no brackets) on the medium and ﬁne grids. The
+lines are color-coded according to the type of method (black for unstructured, red for block-structured, green for
+overset, pink for lattice-Boltzmann). Experimental data are included for reference. Note that many participants did
+not complete all required cases, so there are some gaps and/or missing angles of attack in the plots. Some participants
+also included variation/uncertainty information when their result did not settle down to a constant value. This is shown
+as error bars in the plots.
+Some of the outliers (results that stand out from the collective) are highlighted (011.1, 011.3, and 015.1). Ignoring
+these outliers, whose predicted lift tended to be lower than the collective, most participants predicted lift levels in good
+agreement with experiment up through about α = 16◦ and over-predicted lift at higher angles of attack. In fact, many
+participants did not predict stall even as high as α = 22.4◦ . However, this is very likely a consequence of the fact that
+the brackets were not included in the computations for Case 1. Note that participants predicting lower lift tended to
+report higher uncertainty levels. In general, drag tended to be over-predicted for a given CL and pitching moment was
+typically predicted to be too negative (pitch down).
+Grid convergence plots for the simpliﬁed conﬁguration are shown in Figs. 5 and 6, for angles of attack of α = 7◦ ,
+◦
+16 , 18.5◦ , and 20◦ . Fewer participants performed grid studies at the higher angles of attack. In these plots, the level
+of CL , CD , or CM is plotted as a function of N −2/3 , which in 3-D is proportional to h2 . Finer grid results are on the
+left of the plots and coarser grid results are on the right. An inﬁnitely ﬁne grid would be plotted as N −2/3 = 0. The
+corresponding experimental value is shown as a circle symbol on the y-axis of each plot for reference. If all codes
+and implementations were completely consistent and if all turbulence models were the same, then the band of results
+should tighten, approaching a single result as N −2/3 → 0. This did not occur here. Overall, the scatter range remained
+more or less the same across the different grid levels. One trend was evident at the higher angles of attack (Fig. 6):
+the block-structured and overset results tended to be fairly tightly clustered, whereas the unstructured results showed
+a larger variation (scatter). Although not shown, results at α = 21◦ were similar to those in Fig. 6, whereas results at
+α = 22.4◦ showed large scatter for all CFD results.
+2.
+
+Cases 2 and 3: Conﬁguration with Additional Components
+
+Including the slat and ﬂap support brackets in the CFD computations had some inﬂuence on the forces and pitching
+moment, as shown in Fig. 7 for medium grids (compare Figs. 7(b), (d), and (f) with Figs. 4(a), (c), and (e)). For
+example, including the brackets had the general tendency at Rec = 15.1 million to slightly decrease CL over the
+
+7 of 37
+
+entire lift curve. Figure 7 also highlights the effects of Reynolds number. Ignoring a few outlier computations, at both
+Reynolds numbers much of the linear portion of the polar CL was under-predicted, CD was over-predicted, and the
+magnitude of CM was over-predicted. Collectively, the CFD showed a greater spread near maximum lift, with some
+under-predicting and some over-predicting CL,max and the angle at which it occurred. In Fig. 8, the idealized proﬁle
+drag coefﬁcient CDp is shown. Displaying CDp instead of CD helps to expand the scale of the plot and see the drag
+variation better.
+Only a few participants investigated the effects of including transition. Lift, idealized proﬁle drag, and pitching
+moment coefﬁcients are shown in Fig. 9. (Note that 003 and 009 used Conﬁg 4 whereas 012 used Conﬁg 5.) The
+results were mixed. Recall that the 009.2 results were outliers for non-transitional results, so it is not clear whether
+the trends displayed here are representative. For 003, including transition had little inﬂuence on the lift and idealized
+drag below CL,max , and tended to only slightly lower the pitching moment magnitude in general. However, for 012
+transition had more signiﬁcant effects. In particular, lift was increased over the entire lift curve. This trend of transition
+causing higher lift is consistent with conclusions from NASA Trapezoidal Wing investigations.7, 18, 20, 22, 28
+There were only three participants who included computations for Case 3 (the conﬁguration with pressure tube
+bundles alongside the slat brackets): 012, 021, and 026. Results for CL are shown in Fig. 10. Participant 012 only
+computed Case 3, so the inﬂuence of the pressure tube bundles cannot be isolated. However, both 021 and 026
+computed on both Conﬁg 4 (Case 2) and Conﬁg 5 (Case 3). In Figs. 10(b) and (c) one can see that the pressure
+tube bundles had little inﬂuence except near stall, where they caused loss of lift. This trend was consistent with an
+experimental investigation.33 Although it is not clear which conﬁguration yielded better agreement with experiment,
+certainly the potential inﬂuence of the pressure tube bundles on stall behavior for this model cannot be ignored.
+C.
+
+Iterative Convergence
+
+One of the conclusions from HiLiftPW-1 was that iterative convergence information should be collected from future
+workshop participants. This collection was done for HiLiftPW-2 for Case 1, although not all participants provided
+the requested information (see Tables 2 and 3). All who did comply provided force and moment histories; many
+also included various residual convergence histories. Some representative results are plotted in Figs. 11 and 12 for
+α = 7◦ . In Fig. 11, results are shown from those entries for which the ﬁnal CL still appeared to be changing by the
+last reported iteration. Iterations are normalized so that 0 represents the ﬁrst iteration reported and 1 represents the
+last. Entry 004.1, 005.1, and 005.2 each showed a changing CL with negative slope at the last iteration, while 011.1,
+011.3, and 022 each showed signiﬁcant oscillatory behavior (note that 022 was run time-accurately). As shown in
+Fig. 11(b), the 004.1, 005.1, and 005.2 entries indicated converging density equation residuals (all residuals have been
+normalized so that they start at 1). Both 011.1 and 011.3 displayed “stalled” residual behavior, and 022 did not supply
+residual information.
+Figure 12 shows representative results from several entries for which the ﬁnal CL appeared to be better converged
+(relatively ﬂat or unchanging). Interestingly, most of the residuals for these apparently better-converged results either
+“stalled” or leveled off. Three of the representative results drove the residuals down about 5 or 6 orders of magnitude
+prior to leveling off, while two exhibited weaker convergence over the iteration range reported. Although not shown,
+representative iterative results for other angles of attack were similar to those shown here. These results indicate that
+the HiLiftPW-2 high lift cases were generally not easy to converge for many CFD solvers. They also offer a caution
+when analyzing the workshop data: insufﬁcient iterative convergence may account for some of the differences between
+different CFD codes.
+D.
+
+Velocity Proﬁles
+
+Velocity data were collected for Cases 1, 2, and 3, although not all participants provided the requested information.
+In this section, we divide a sampling of the results into two parts. First, results are shown for Case 1 (CFD only no brackets), for which CFD results at α = 7◦ are compared to each other for consistency. (Because Case 1 did not
+involve brackets, experimental data are not included.) Second, results are shown for Cases 2a and 3a, for which CFD
+results at α = 7◦ and 18.5◦ are compared to low Reynolds number experiment.
+Figures 13 and 14 show CFD Case 1 results at α = 7◦ at all eleven stations. As depicted in Fig. 13(a), the stations
+were labeled in the experiment according to their spanwise row location (1 for y = 246.386 mm, 2 for y = 979.596
+mm, and 3 for y = 1223.999 mm), then by area (B for near the slat trailing edge, C for forward part of the main wing,
+D for aft part of the main wing, and E for the ﬂap). The ﬁnal number designation stands for the line number extracted
+within the area. In the ﬁgures, several outliers have been highlighted in blue. In some cases these results may have
+been different due to errors made by the participants when extracting the velocity proﬁles. Ignoring the outliers, the
+
+8 of 37
+
+results in red show reasonably consistent velocity proﬁles at many of the locations, but this consistency deteriorated at
+the outboard two stations on the rear part of the main wing and on the ﬂap. The results at location 3E2 showed a very
+large variation.
+Inspecting the plots in Figs. 13 and 14, one can see that some of the results showed distinct, relatively deep wake
+proﬁles and some did not. This difference was primarily a function of the grid employed. As an example, Fig. 15 shows
+results at location 3E1, divided among different grids. Structured results on medium grids A and E are highlighted in
+bold blue in Fig. 15(a), unstructured results on medium grids A and C are highlighted in bold red in Fig. 15(b), and
+unstructured results on medium grids B and D are highlighted in bold red in Fig. 15(c). The B and D grids yielded
+signiﬁcantly smeared (under-resolved) wake proﬁles from the upstream elements compared to the other grids. Even
+use of the ﬁne B and D grids (shown in Fig. 15(d)) did not improve this aspect of the results at all. Although not
+shown, results at other locations showed similar trends.
+Figure 16 shows low Reynolds number results at three selected stations and two angles of attack. The CFD results
+include both Case 2a (brackets included) and Case 3a (brackets and pressure tube bundles included). Aside from a few
+outliers, the CFD results were reasonably consistent with each other at α = 7◦ , but less so at α = 18.5◦ . CFD results
+tended to be shifted from experiment, predicting velocities too low. Only two participants computed Case 3a; there
+were no notable consistent trends exhibited at these locations by adding the pressure tube bundles.
+E.
+
+Surface Pressure and Skin Friction Coefﬁcients
+
+A signiﬁcant amount of surface pressure and skin friction data was collected from the participants, along ten different
+spanwise stations for all cases, as well as at many different angles of attack. Due to the large volume of data collected,
+much of it has not yet been analyzed. Here, a few results are highlighted.
+Figure 17 shows a few typical Cp results at α = 7◦ at three selected locations. (The particular entries shown
+here—024.1, 020, and 002.1—were randomly selected to be representative. There were variations among the different
+CFD entries as would be expected, with larger variations occurring on the ﬂap as well as at outboard stations.) On the
+ﬂap at the inboard-most station 2y/B = 0.15 in Fig. 17(a), high Reynolds number results with no brackets tended to
+predict too much suction on the upper surface compared to experiment as the grid was reﬁned. When including the
+brackets (Fig. 17(b)), the opposite occurred and CFD predicted too little upper surface suction at this location. The
+trend with Reynolds number was not captured. On the slat at the station 2y/B = 0.89 in Fig. 17(c), little inﬂuence of
+grid was exhibited for high Reynolds number results with no brackets included, and the pressures on the suction side
+were somewhat low. Including brackets (Fig. 17(d)) helped the CFD to capture the upper surface Cp levels; there was
+also excellent agreement with Reynolds number trends. In Fig. 17(e), results are shown for the ﬂap at the outboardmost span station 2y/B = 0.96 at high Reynolds number with no brackets. CFD missed the pressures on the lower
+surface. Including brackets (Fig. 17(f)) helped the CFD to capture the lower surface levels accurately. The Reynolds
+number trend was qualitatively captured, but the upper surface pressure levels did not match experiment.
+Figure 18 shows Case 2a and 2b Cp results at two span stations at α = 20◦ near CL,max . Here, results from
+all participants who submitted these cases are included with the exceptions of 007.1 (because results were very poor
+and probably extracted incorrectly) and 015.1/015.2 (because they did not include brackets). Low Reynolds number
+CFD results are represented by solid red lines or (for data that were not ordered) by tiny red symbols. High Reynolds
+number CFD results are represented by blue lines or tiny blue symbols. The experimental data are represented by large
+symbols. Near mid-span at 2y/B = 0.54, CFD results on the slat and main elements were very consistent, and agreed
+well with experiment (both levels and Reynolds number trends). On the ﬂap, however, a larger degree of variation
+was exhibited among the CFD solutions. Qualitatively, a trend with Reynolds number was seen, but the experimental
+levels were not captured. At the span station 2y/B = 0.89, CFD results exhibited signiﬁcant variation on all three
+elements. Some trends with Reynolds number were seen, but pressure levels were particularly missed on the ﬂap at
+low Reynolds number.
+Surface skin friction coefﬁcients were optional for the participants of the workshop, so less data were provided.
+Also, no experimental skin friction data were available for comparison. Figure 19 shows Case 2a and 2b Cf,x CFD
+results at two different angles of attack on the ﬂap at span stations 2y/B = 0.15, 0.54, and 0.89. (Note that 009.1
+results were left out due to obvious errors in Cf extraction.) Results at α = 7◦ are in the left column, and results at
+α = 16◦ are on the right. Again, red lines and symbols represent low Reynolds number, and blue lines and symbols
+represent high Reynolds number. The CFD results were generally very close to each other on the lower surface, but
+exhibited more variation on the upper surface. At both angles of attack, some of the CFD results showed a small
+amount of trailing edge separation at 2y/B = 0.54. At 2y/B = 0.89, more separation was evident, particularly at the
+low Reynolds number condition.
+
+9 of 37
+
+F.
+
+Statistical Analysis
+
+In the statistical analysis of this section, the basic method used by Morrison49 was employed. For any quantity of
+interest (CL for example), the scatter limits were established as μ̂ ± K σ̂, where μ̂ is the median
+√ of the sorted data,
+σ̂ is the standard deviation, and K is a conﬁdence interval coverage factor, taken to be K = 3. The coefﬁcient of
+variation, deﬁned as Cv = σ̂/μ̂, provides a measure to compare the variation of populations with different medians.
+This same statistical methodology was also used in the analysis of HiLiftPW-1.5 A statistical outlier (a point residing
+outside of the scatter limits) is by deﬁnition different from the results that lie within the scatter limits. In terms of CFD
+solutions, being an outlier means that some aspect of the CFD solution was signiﬁcantly different from the collective,
+and its cause(s) should be investigated. In the plots to follow, any sample lying well outside of the limits is noted in
+the ﬁgure. However, because the scatter limits depend on the choice of K, the fact that a particular point lies outside
+may or may not be signiﬁcant.
+Figure 20 shows results from the statistical analysis of Case 1 (no brackets, high Re) at α = 7◦ . The top row is
+CL , middle row is CD , and bottom row is CM . The left column shows coarse grid results, middle column is medium
+grid results, and right column is ﬁne grid results. In all cases, (as is desirable) the scatter range and Cv both decreased
+as grid was reﬁned. However, the biggest difference occurred between coarse and medium grids, and very little change
+occurred between the medium and ﬁne grids. The few outliers produced lift values that were too low compared to the
+collective. Median lift increased with grid reﬁnement while pitching moment decreased. Drag changed very little.
+Figure 21 shows results from the statistical analysis of Case 1 at α = 16◦ . In this case, scatter range and Cv again
+decreased for CL with grid reﬁnement, but for drag they remained ﬁxed on the medium and ﬁne grids and for pitching
+moment the scatter range increased slightly on the ﬁne grid. The outliers again produced lift values that were too low
+compared to the collective. Median lift increased with grid reﬁnement while pitching moment decreased and drag
+increased only slightly.
+Figure 22 summarizes the coefﬁcients of variation for Case 1 at α = 7◦ and 16◦ and compares them with the Cv
+values from HiLiftPW-1. Cv levels for lift and drag were somewhat similar between the two workshops, although
+the current HiLiftPW-2 results decreased less (ﬂattened more) between the medium and ﬁne grids (i.e., the ﬁne grid
+Cv levels for HiLiftPW-2 tended to be higher than the ﬁne grid Cv levels for HiLiftPW-1). |Cv | levels for pitching
+moment were higher than for HiLiftPW-1, and also ﬂattened more than for HiLiftPW-1 between the medium and ﬁne
+grids. In other words, for HiLiftPW-2, going from medium to ﬁne grids overall did not tend to bring the various CFD
+results much closer together, as would generally be expected. The reason for this is not known.
+In Fig. 23, an attempt was made to seek trends for Case 1 by turbulence model, by grid type, and by grid. Speciﬁc
+trends should manifest themselves by showing a particular bias compared to the median. However, few signiﬁcant
+trends stood out among the results with a sufﬁciently large population; most symbols appeared to be fairly randomly
+distributed. One possible trend was that structured-overset results (corresponding to grid E) for α = 16◦ tended to
+give higher than average lift. Another noteworthy point is that at both angles of attack the two SA results giving the
+lowest lift were 007.2 and 011.1. Recalling the veriﬁcation exercise from Fig. 3(b), these particular implementations
+of SA were suspect.
+Figures 24 through 28 display statistical analyses of forces and pitching moments for Cases 2a and b (which
+included brackets) at α = 0◦ , 7◦ , 16◦ , 20◦ , and 21◦ , respectively. Experimental values (yellow circles) are also
+displayed in the ﬁgures for comparison. For both Reynolds numbers at α = 0◦ and 7◦ , the median values of lift,
+drag, and pitching moment were somewhat different compared to experiment, but the CFD scatter bands contained
+the experiment. At α = 16◦ , the median CFD value of CL agreed almost perfectly with experiment at both Reynolds
+numbers, but drag was signiﬁcantly over-predicted and pitching moment was signiﬁcantly under-predicted. At α =
+20◦ , the median CFD value of CL was again excellent compared with experiment at both Reynolds numbers. Drag
+was predicted well at the low Reynolds number condition, but again over-predicted at high Reynolds number. Moment
+was signiﬁcantly under-predicted at both Reynolds numbers. At α = 21◦ , the median CFD value of CL was only
+slightly high compared to experiment (the CFD scatter band contained the experiment). Drag was under-predicted
+at the low Reynolds number condition and over-predicted at high Reynolds number. Moment was again signiﬁcantly
+under-predicted.
+Referring back to Fig. 7, recall that the entries exhibited more spread near stall (with some entries over-predicting
+CL,max and some under-predicting it). Interestingly, the median value from the CFD codes happened to come out
+relatively accurately in predicting the lift at the highest angles of attack. However, this may have been luck. At
+high Reynolds number the median CL of the CFD was still increasing at α = 21◦ , whereas in the experiment it
+was starting to decrease. Furthermore, the large spread of CFD behavior near CL,max makes it doubtful that the
+CFD codes collectively and consistently captured the physical mechanism(s) responsible for stall. The reasons for the
+mis-predictions in drag and pitching moment over much of the polars above α = 7◦ is not known.
+10 of 37
+
+To further explore how well the median values from the CFD codes captured Reynolds number trends, delta values
+of CL , CD , and CM are plotted in Fig. 29. For example, ΔCL = CL,hiRe − CL,loRe . Overall, the shapes of the
+delta curves as a function of angle of attack were qualitatively captured, but ΔCL at low α was over-predicted, and
+the magnitude of the negative ΔCD at high α was under-predicted.
+
+VII.
+
+Conclusions
+
+The entries from the second AIAA High-Lift Prediction Workshop (HiLiftPW-2) have been summarized, both by
+looking at collective results compared with experiment and through statistical analyses. A large number of surface
+pressures, skin frictions, and velocity proﬁles were collected, but only a small portion of these have been analyzed to
+date, and only a few representative plots have been shown here.
+An optional turbulence model veriﬁcation case was included in this workshop, and computed by a few of the
+participants. For those who used the SA model, there was near-perfect consistency among three entries, one other
+entry was very close, and two exhibited notable differences. These two differences suggest potential problems or
+inconsistencies in implementation, which should be investigated by the owners of the codes in question.
+For the DLR-F11 case in general, the importance of including slat and ﬂap brackets when comparing with experiment was established. From previous experimental oil ﬂow, it appeared that two slat tracks were inﬂuential in causing
+large wedge-shaped regions of separated ﬂow on the main element near stall. Without brackets, the CFD could not
+possibly capture this type of stall mechanism, and indeed most entries without brackets tended to predict increasing
+CL well past the nominal stall angle. There was also some evidence from the few participants who ran Case 3 that
+pressure tube bundles included alongside the slat tracks on the wind tunnel model had an inﬂuence on the ﬂow ﬁeld
+near CL,max .
+In terms of consistency, the CFD exhibited spreads in results that tended to remain about the same when going
+from the medium to the ﬁne grid levels. In other words, the CFD scatter did not decrease much past a certain grid
+reﬁnement level; the reasons for this are not known. Scatter was larger at the angles of attack near stall, as expected. A
+small part of the CFD inconsistencies may have been due to poor or insufﬁcient iterative convergence, as participants
+had some difﬁculty fully converging many of the cases. Looking at details such as pressure coefﬁcients and velocity
+proﬁles, the inconsistencies between CFD results tended to be larger on the ﬂap as well as at the outboard stations of
+the wing. Some of the unstructured grids were shown to be poor for capturing the wakes of upstream elements.
+Most of the participants used the Spalart-Allmaras turbulence model or variant. Nonetheless, the variation among
+entries using this model appeared to be as great as differences due to the use of other turbulence models. In other
+words, no clear trends with turbulence modeling were exhibited in the results. A few participants investigated the use
+of transition, but unlike results for the NASA Trapezoidal Wing of the ﬁrst high lift workshop, results were mixed and
+no clear trends stood out.
+When including the slat and ﬂap brackets, the median CFD results tended to be slightly low predicting lift at
+α = 7◦ , accurate at α = 16◦ and 20◦ , then somewhat high at α = 21◦ . However, the scatter range for CFD’s CL
+results (approximately 0.2 at low angles of attack and typically higher in the range of 0.3−0.6 at high angles of attack)
+always included the experimental values. This was generally not the case for drag and pitching moment, both of which
+were consistently mis-predicted at angles of attack above α = 7◦ . Reynolds number trends were only qualitatively
+captured by the CFD.
+HiLiftPW-2 continued in the tradition of the ﬁrst workshop in the series, by again bringing together many researchers from around the world with a variety of CFD codes to analyze a speciﬁc high lift conﬁguration. This new
+conﬁguration offered different challenges from the conﬁguration of the ﬁrst workshop. The CFD results again lacked
+consistency to the levels desired, but much was learned by quantifying the differences and by taking steps to attempt to
+isolate possible causes. For example, including veriﬁcation testing as well as iterative convergence information were
+both very useful aspects that could serve as prerequisites for future workshops. Workshops like this are very valuable
+for the aeronautical engineering community, and should continue to be pursued.
+
+Acknowledgments
+The authors wish to express their gratitude to HiLiftPW-2 committee members Dave Levy and Mark Chafﬁn of
+Cessna for their help preparing plots and grid analysis for the workshop talks. Thanks also go to Stefan Melber
+of DLR, Leonel Serrano, Raul Mendoza, Karuna Rajagopa, Neal Harrison, Yoram Yadlin, and John Vassberg of
+Boeing, and committee members Carolyn Woeber of Pointwise, Mike Long of University of Wyoming, Mark Chafﬁn
+of Cessna, and Tony Sclafani of Boeing for creating the grids. The authors further acknowledge committee members
+11 of 37
+
+Ralf Rudnik and Kerstin Huber of DLR for pulling together and organizing the DLR-F11 data. Finally, the authors
+thank all committee members mentioned above plus Thomas Wayman of Gulfstream, Tom Pulliam of NASA Ames,
+Dimitri Mavriplis of University of Wyoming, and Judi Hannon of NASA Langley for their continued support with the
+planning and execution of the high lift workshops and special sessions.
+
+References
+1 Rumsey, C. L. and Ying, S. X., “Prediction of High Lift: Review of Present CFD Capability,” Progress in Aerospace Sciences, Vol. 38, 2002,
+pp. 145–180.
+2 Johnson, P. L., Jones, K. M., and Madson, M. D., “Experimental Investigation of a Simpliﬁed 3D High Lift Conﬁguration in Support of CFD
+Validation,” AIAA Paper 2000-4217, August 2000.
+3 Hannon, J. A., Washburn, A. E., Jenkins, L. N., and Watson, R. D., “Trapezoidal Wing Experimental Repeatability and Velocity Proﬁles in
+the 14- by 22-Foot Subsonic Tunnel (Invited),” AIAA Paper 2012-0706, January 2012.
+4 Slotnick, J. P., Hannon, J. A., and Chafﬁn, M., “Overview of the First AIAA CFD High Lift Prediction Workshop (Invited),” AIAA Paper
+2011-862, January 2011.
+5 Rumsey, C. L., Slotnick, J. P., Long, M., Stuever, R. A., and Wayman, T. R., “Summary of the First AIAA CFD High-Lift Prediction
+Workshop,” Journal of Aircraft, Vol. 48, No. 6, 2011, pp. 2068–2079.
+6 Long, M. and Mavriplis, D., “NSU3D Results for the First AIAA High Lift Prediction Workshop,” AIAA Paper 2011-863, January 2011.
+7 Steed, R. G. F., “High Lift CFD Simulations with an SST-Based Predictive Laminar to Turbulent Transition Model,” AIAA Paper 2011-864,
+January 2011.
+8 Wiart, L. and Meunier, M., “Computational Assessment of the HiLiftPW-1 Trap-Wing Model Using the elsA CFD Software,” AIAA Paper
+2011-865, January 2011.
+9 Sclafani, A. J., Slotnick, J. P., Vassberg, J. C., Pulliam, T. H., and Lee, H. C., “OVERFLOW Analysis of the NASA Trap Wing Model from
+the First High Lift Prediction Workshop,” AIAA Paper 2011-866, January 2011.
+10 Eliasson, P., Peng, S.-H., and Haniﬁ, A., “Improving the Prediction for the NASA High-Lift Trap Wing Model,” AIAA Paper 2011-867,
+January 2011.
+11 Reyes, D. A., Girimaji, S. S., Pandya, M., and Abdol-Hamid, K. S., “Computations of High-Lift Wing-Body Conﬁguration on Unstructured
+Grids using k-ω Models,” AIAA Paper 2011-868, January 2011.
+12 Fares, E. and Nolting, S., “Unsteady Flow Simulation of a High-Lift conﬁguration using a Lattice Boltzmann Approach,” AIAA Paper
+2011-869, January 2011.
+13 Park, M. A., Lee-Rausch, E. M., and Rumsey, C. L., “FUN3D and CFL3D Computations for the First High Lift Prediction Workshop,”
+AIAA Paper 2011-936, January 2011.
+14 Murayama, M., Yamamoto, K., and Tanaka, K., “CFD Comparison Study for Trapezoidal High-Lift Wing Conﬁgurations by Structured and
+Unstructured Mesh Method,” AIAA Paper 2011-937, January 2011.
+15 Crippa, S., Melber-Wilkending, S., and Rudnick, R., “DLR Contribution to the First High Lift Prediction Workshop,” AIAA Paper 2011-938,
+January 2011.
+16 Antunes, A. P., Azevedo, J. L. F., and da Silva, R. G., “Numerical Simulations of Turbulent Flow over a High-Lift Conﬁguration,” AIAA
+Paper 2011-3006, June 2011.
+17 Pandya, M. J., Abdol-Hamid, K. S., and Parlette, E. B., “CFD Computations for a Generic High-Lift Conﬁguration Using TetrUSS,” AIAA
+Paper 2011-3008, June 2011.
+18 Eliasson, P., Haniﬁ, A., and Peng, S.-H., “Inﬂuence of Transition on High-Lift Prediction for the NASA Trap Wing Model,” AIAA Paper
+2011-3009, June 2011.
+19 Lee, H. C. and Pulliam, T. H., “Effect of Using Near and Off-body Grids with Grid Adaption to Simulate Airplane Geometries,” AIAA Paper
+2011-3985, June 2011.
+20 Rumsey, C. L. and Lee-Rausch, E. M., “NASA Trapezoidal Wing Computations Including Transition and Advanced Turbulence Modeling,”
+AIAA Paper 2012-2843, June 2012.
+21 Murayama, M., Ito, Y., Tanaka, K., and Yamamoto, K., “Computational Studies of the NASA High-Lift Trap Wing Using Structured and
+Unstructured Grid Solvers,” AIAA Paper 2012-2844, June 2012.
+22 Crippa, S. and Krimmelbein, N., “Transitional Flow Computations of the NASA Trapezoidal Wing with the DLR TAU Code,” AIAA Paper
+2012-2845, June 2012.
+23 Antunes, A. P., da Silva, R. G., and Azevedo, J. L., “Inﬂuence of High-Lift Supporting Systems on the Trapezoidal Wing Aerodynamic
+Coefﬁcients,” AIAA Paper 2012-2846, June 2012.
+24 Cavallo, P. A. and Feldman, G. M., “Quantiﬁcation of Grid Reﬁnement Effects for NASA High Lift Trap Wing Using Error Transport
+Model,” AIAA Paper 2012-2847, June 2012.
+25 Moitra, A., Gujar, P., and Gupta, P., “Investigation of Solution Methodology for Resolution of Side of Body Flow Separation,” AIAA Paper
+2012-2848, June 2012.
+26 Ravindra, K., Shende, N. V., Patel, S. K., and Balakrishnan, N., “Unstructured adaptive mesh calculations for NASA TRAP WING using the
+code HiFUN,” AIAA Paper 2012-2849, June 2012.
+27 Wiart, L. and Moens, F., “Numerical Simulation of the NASA High-Lift Trap Wing with the elsA CFD Software,” AIAA Paper 2012-2918,
+June 2012.
+28 Sclafani, A. J., Slotnick, J. P., Vassberg, J. C., and Pulliam, T. H., “Extended OVERFLOW Analysis of the NASA Trap Wing Wind Tunnel
+Model,” AIAA Paper 2012-2919, June 2012.
+29 Shankara, P. and Snyder, D., “Numerical Simulation of High Lift Trap Wing using STAR-CCM+,” AIAA Paper 2012-2920, June 2012.
+
+12 of 37
+
+30 Lopez, O. D., Ochoa, N., Mahecha, J. C., Leguizamon, S., Escobar, J. A., Ramirez, S., Jimenez, R. A., Giraldo, A. M., and Silva, C.,
+“Numerical Simulation of NASA Trap-Wing Model as a Colombian Contribution to the High-Lift Prediction Workshop,” AIAA Paper 2012-2921,
+June 2012.
+31 Fabiano, E., Fares, E., and Nolting, S., “Unsteady Flow Simulation of High-Lift stall Hysteresis using a Lattice Boltzmann Approach,”
+AIAA Paper 2012-2922, June 2012.
+32 Holman, D. M., Brionnaud, R. M., Martinez, F. J., and Mier-Torrecilla, M., “Advanced Aerodynamic Analysis of the NASA High-Lift Trap
+Wing with a Moving Flap Conﬁguration,” AIAA Paper 2012-2923, June 2012.
+33 Rudnik, R., Huber, K., and Melber-Wilkending, S., “EUROLIFT Test Case Description for the 2nd High Lift Prediction Workshop,” AIAA
+Paper 2012-2924, June 2012.
+34 Hansen, H., Thiede, P., Rudnik, R., Moens, F., and Quest, J., “Overview about the European High Lift Research Programme EUROLIFT,”
+AIAA Paper 2004-0767, January 2004.
+35 Spalart, P. R. and Allmaras, S. R., “A One-Equation Turbulence Model for Aerodynamic Flows,” Recherche Aerospatiale, No. 1, 1994, pp.
+5–21.
+36 Shur, M. L., Strelets, M. K., Travin, A. K., and Spalart, P. R., “Turbulence Modeling in Rotating and Curved Channels: Assessing the
+Spalart-Shur Correction,” AIAA Journal, Vol. 38, No. 5, 2000, pp. 784–792.
+37 Dacles-Mariani, J., Zilliac, G. G., Chow, J. S., and Bradshaw, P., “Numerical/Experimental Study of a Wingtip Vortex in the Near Field,”
+AIAA Journal, Vol. 33, No. 9, 1995, pp. 1561–1568.
+38 Edwards, J. R. and Chandra, S., “Comparison of Eddy Viscosity-Transport Turbulence Models for Three-Dimensional, Shock-Separated
+Flowﬁelds,” AIAA Journal, Vol. 34, No. 4, 1996, pp. 756–763.
+39 Rung, T., Bunge, U., Schatz, M., and Thiele, F., “Restatement of the Spalart-Allmaras Eddy-Viscosity Model in Strain-Adaptive Formulation,” AIAA Journal, Vol. 41, No. 7, 2003, pp. 1396–1399.
+40 Spalart, P. R., “Strategies for Turbulence Modelling and Simulations,” Int. Journal of Heat and Fluid Flow, Vol. 21, 2000, pp. 252–263.
+41 Menter, F. R., “Two-Equation Eddy-Viscosity Turbulence Models for Engineering Applications,” AIAA Journal, Vol. 32, No. 8, 1994, pp.
+1598–1605.
+42 Menter, F. R., “Improved Two-Equation k-omega Turbulence Models for Aerodynamic Flows,” NASA TM 103975, October 1992.
+43 Goldberg, U., Peroomian, O., Batten, P., and Chakravarthy, S., “The k-e-Rt Turbulence Closure,” Engineering Applications of Fluid Mechanics, Vol. 3, No. 2, 2009, pp. 175–183.
+44 Hellsten, A., “New Advanced k-omega Turbulence Model for High-Lift Aerodynamics,” AIAA Journal, Vol. 43, No. 9, 2005, pp. 1857–1869.
+45 Wilcox, D. C., Turbulence Modeling for CFD, 1st edition, DCW Industries, Inc., La Canada CA, 1988.
+46 Coder, J. G. and Maughmer, M. D., “A CFD-Compatible Transition Model Using an Ampliﬁcation Factor Transport Equation,” AIAA Paper
+2013-0253, January 2013.
+47 Langtry, R. B. and Menter, F. R., “Correlation-Based Transition Modeling for Unstructured Parallelized Computational Fluid Dynamics
+Codes,” AIAA Journal, Vol. 47, No. 12, 2009, pp. 2894–2906.
+48 Levy, D., Laﬂin, K., Tinoco, E., Vassberg, J., Mani, M., Rider, B., Rumsey, C., Wahls, R., Morrison, J., Broderson, O., Crippa, S., Mavriplis,
+D., and Murayama, M., “Summary of Data from the Fifth AIAA CFD Drag Prediction Workshop,” AIAA Paper 2013-0046, January 2013.
+49 Morrison, J. H., “Statistical Analysis of CFD Solutions from the Fourth AIAA Drag Prediction Workshop,” AIAA Paper 2010-4673, JuneJuly 2010.
+
+13 of 37
+
+Figure 1. Photograph of DLR-F11 high lift model in the B-LWST wind tunnel.
+
+Figure 2. Case 1 supplied grid sizes.
+
+(a) Cf on ﬁnest grid (detail)
+
+(b) Grid convergence study of Cf at x = 0.6322 (SA only)
+
+Figure 3. 2-D bump veriﬁcation case using SA model and variants.
+
+14 of 37
+
+(a) CL , medium grids
+
+(b) CL , ﬁne grids
+
+(c) CD , medium grids
+
+(d) CD , ﬁne grids
+
+(e) CM , medium grids
+
+(f) CM , ﬁne grids
+
+Figure 4. Case 1 (no brackets, high Re) forces and pitching moments (experiment shown for reference).
+15 of 37
+
+(a) CL , α = 7◦
+
+(b) CL , α = 16◦
+
+(c) CD , α = 7◦
+
+(d) CD , α = 16◦
+
+(e) CM , α = 7◦
+
+(f) CM , α = 16◦
+
+Figure 5. Case 1 (no brackets, high Re) grid convergence behavior at α = 7◦ and 16◦ (experiment shown for reference).
+16 of 37
+
+(a) CL , α = 18.5◦
+
+(b) CL , α = 20◦
+
+(c) CD , α = 18.5◦
+
+(d) CD , α = 20◦
+
+(e) CM , α = 18.5◦
+
+(f) CM , α = 20◦
+
+Figure 6. Case 1 (no brackets, high Re) grid convergence behavior at α = 18.5◦ and 20◦ (experiment shown for reference).
+17 of 37
+
+(a) CL , Rec = 1.35 × 106
+
+(b) CL , Rec = 15.1 × 106
+
+(c) CD , Rec = 1.35 × 106
+
+(d) CD , Rec = 15.1 × 106
+
+(e) CM , Rec = 1.35 × 106
+
+(f) CM , Rec = 15.1 × 106
+
+Figure 7. Case 2 (medium grids with with brackets) forces and pitching moments.
+18 of 37
+
+(a) Rec = 1.35 × 106
+
+(b) Rec = 15.1 × 106
+
+Figure 8. CDp curves for Case 2 (medium grids with brackets).
+
+(a) CL
+
+(b) CDp
+
+(c) CM
+Figure 9. Effects of including transition on forces and pitching moments, Rec = 1.35 × 106 (medium grids with brackets).
+
+19 of 37
+
+(a) Participant 012
+
+(b) Participant 021
+
+(c) Participant 026
+Figure 10. Effect of including pressure tube bundles on CL (medium grids with brackets).
+
+20 of 37
+
+(a) Lift coefﬁcient
+
+(b) Normalized density equation residual
+
+Figure 11. Case 1 (no brackets, high Re) α = 7◦ iterative convergence information for entries with CL still changing at ﬁnal iteration.
+
+(a) Lift coefﬁcient
+
+(b) Normalized density equation residual
+
+Figure 12. Case 1 (no brackets, high Re) α = 7◦ representative iterative convergence information for entries with CL relatively ﬂat at
+ﬁnal iteration (all entries not shown).
+
+21 of 37
+
+(a) Sketch showing locations of velocity proﬁles
+
+(b) Location 1B1
+
+(c) Location 1B2
+
+(d) Location 1C1
+
+(e) Location 1D1
+
+(f) Location 2B1
+
+Figure 13. Case 1 (no brackets, high Re) α = 7◦ velocity proﬁles from CFD results on medium grids (part 1); obvious outliers denoted by
+blue lines.
+22 of 37
+
+(a) Location 2B2
+
+(b) Location 2D1
+
+(c) Location 2E1
+
+(d) Location 2E2
+
+(e) Location 3E1
+
+(f) Location 3E2
+
+Figure 14. Case 1 (no brackets, high Re) α = 7◦ velocity proﬁles from CFD results on medium grids (part 2); obvious outliers denoted by
+blue lines.
+23 of 37
+
+(a) All medium grid results, with structured results on medium A and
+E grids highlighted in bold blue
+
+(b) All medium grid results, with unstructured results on medium A
+and C grids highlighted in bold red
+
+(c) All medium grid results, with unstructured results on medium B
+and D grids highlighted in bold red
+
+(d) Medium and ﬁne unstructured B and D grid results only
+
+Figure 15. Case 1 (no brackets, high Re) α = 7◦ velocity proﬁles at location 3E1, highlighted by grid type (outliers removed).
+
+24 of 37
+
+(a) Location 1C1 at α = 7◦
+
+(b) Location 1C1 at α = 18.5◦
+
+(c) Location 2D1 at α = 7◦
+
+(d) Location 2D1 at α = 18.5◦
+
+(e) Location 2E1 at α = 7◦
+
+(f) Location 2E1 at α = 18.5◦
+
+Figure 16. Case 2a (with brackets, low Re) and 3a (with brackets and bundles, low Re) velocity proﬁles at selected locations using medium
+grids.
+25 of 37
+
+(a) Flap at 2y/B = 0.15, no brackets
+
+(b) Flap at 2y/B = 0.15, including brackets
+
+(c) Slat at 2y/B = 0.89, no brackets
+
+(d) Slat at 2y/B = 0.89, including brackets
+
+(e) Flap at 2y/B = 0.96, no brackets
+
+(f) Flap at 2y/B = 0.96, including brackets
+
+Figure 17. Sampling of typical surface pressure coefﬁcients at α = 7◦ .
+26 of 37
+
+(a) Slat at 2y/B = 0.54
+
+(b) Slat at 2y/B = 0.89
+
+(c) Main at 2y/B = 0.54
+
+(d) Main at 2y/B = 0.89
+
+(e) Flap at 2y/B = 0.54
+
+(f) Flap at 2y/B = 0.89
+
+Figure 18. Pressure coefﬁcients at two span stations for α = 20◦ (with brackets included).
+27 of 37
+
+(a) Flap at 2y/B = 0.15, α = 7◦
+
+(b) Flap at 2y/B = 0.15, α = 16◦
+
+(c) Flap at 2y/B = 0.54, α = 7◦
+
+(d) Flap at 2y/B = 0.54, α = 16◦
+
+(e) Flap at 2y/B = 0.89, α = 7◦
+
+(f) Flap at 2y/B = 0.89, α = 16◦
+
+Figure 19. The x-component of skin friction coefﬁcients on the ﬂap at α = 7◦ and 16◦ (with brackets included).
+28 of 37
+
+(a) CL , coarse grid
+
+(b) CL , medium grid
+
+(c) CL , ﬁne grid
+
+(d) CD , coarse grid
+
+(e) CD , medium grid
+
+(f) CD , ﬁne grid
+
+(g) CM , coarse grid
+
+(h) CM , medium grid
+
+(i) CM , ﬁne grid
+
+Figure 20. Statistical analysis of Case 1 (no brackets, high Re), α = 7◦ ; solid blue line is median of data, dashed blue lines are scatter
+limits.
+
+29 of 37
+
+(a) CL , coarse grid
+
+(b) CL , medium grid
+
+(c) CL , ﬁne grid
+
+(d) CD , coarse grid
+
+(e) CD , medium grid
+
+(f) CD , ﬁne grid
+
+(g) CM , coarse grid
+
+(h) CM , medium grid
+
+(i) CM , ﬁne grid
+
+Figure 21. Statistical analysis of Case 1 (no brackets, high Re), α = 16◦ ; solid blue line is median of data, dashed blue lines are scatter
+limits.
+
+30 of 37
+
+(a) Lift coefﬁcient
+
+(b) Drag coefﬁcient
+
+(c) Moment coefﬁcient
+
+Figure 22. Summary of coefﬁcients of variation, in comparison with HiLiftPW-1 results.
+
+(a) α = 7◦ , separated by turbulence
+model
+
+(b) α = 7◦ , separated by grid type
+
+(c) α = 7◦ , separated by grid
+
+(d) α = 16◦ , separated by turbulence
+model
+
+(e) α = 16◦ , separated by grid type
+
+(f) α = 16◦ , separated by grid
+
+Figure 23. Statistical analysis of Case 1 (no brackets, high Re) CL on medium grids, separated by types.
+
+31 of 37
+
+(a) CL at Rec = 1.35 × 106
+
+(b) CL at Rec = 15.1 × 106
+
+(c) CD at Rec = 1.35 × 106
+
+(d) CD at Rec = 15.1 × 106
+
+(e) CM at Rec = 1.35 × 106
+
+(f) CM at Rec = 15.1 × 106
+
+Figure 24. Statistical analysis of Cases 2a and b (includes brackets), α = 0◦ on medium grids (yellow circle at right represents experiment).
+32 of 37
+
+(a) CL at Rec = 1.35 × 106
+
+(b) CL at Rec = 15.1 × 106
+
+(c) CD at Rec = 1.35 × 106
+
+(d) CD at Rec = 15.1 × 106
+
+(e) CM at Rec = 1.35 × 106
+
+(f) CM at Rec = 15.1 × 106
+
+Figure 25. Statistical analysis of Cases 2a and b (includes brackets), α = 7◦ on medium grids (yellow circle at right represents experiment).
+33 of 37
+
+(a) CL at Rec = 1.35 × 106
+
+(b) CL at Rec = 15.1 × 106
+
+(c) CD at Rec = 1.35 × 106
+
+(d) CD at Rec = 15.1 × 106
+
+(e) CM at Rec = 1.35 × 106
+
+(f) CM at Rec = 15.1 × 106
+
+Figure 26. Statistical analysis of Cases 2a and b (includes brackets), α = 16◦ on medium grids (yellow circle at right represents experiment).
+34 of 37
+
+(a) CL at Rec = 1.35 × 106
+
+(b) CL at Rec = 15.1 × 106
+
+(c) CD at Rec = 1.35 × 106
+
+(d) CD at Rec = 15.1 × 106
+
+(e) CM at Rec = 1.35 × 106
+
+(f) CM at Rec = 15.1 × 106
+
+Figure 27. Statistical analysis of Cases 2a and b (includes brackets), α = 20◦ on medium grids (yellow circle at right represents experiment).
+35 of 37
+
+(a) CL at Rec = 1.35 × 106
+
+(b) CL at Rec = 15.1 × 106
+
+(c) CD at Rec = 1.35 × 106
+
+(d) CD at Rec = 15.1 × 106
+
+(e) CM at Rec = 1.35 × 106
+
+(f) CM at Rec = 15.1 × 106
+
+Figure 28. Statistical analysis of Cases 2a and b (includes brackets), α = 21◦ on medium grids (yellow circle at right represents experiment).
+36 of 37
+
+(a) Lift coefﬁcient
+
+(b) Drag coefﬁcient
+
+(c) Moment coefﬁcient
+Figure 29. Deltas due to Reynolds number for Cases 2a and b (includes brackets), comparing median CFD results with experiment.
+
+37 of 37
+
+

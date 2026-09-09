@@ -1,0 +1,754 @@
+DPW-8/AePW-4 Buffet Working Group:
+An Overview of Mini Workshops 1 and 2
+Sansica Andrea∗
+Japan Aerospace Exploration Agency, JAXA Chofu Aerospace Center, Chofu, Japan
+Brent W Pomeroy† and Bret Stanford‡
+National Aeronautics and Space Administration (NASA), NASA Langley Research Center, Hampton, VA, United States
+Daniella Raveh§ and Hadar Ben-Gida¶
+Technion - Israel Institute of Technology, Haifa, Israel
+This manuscript presents the findings from the joint DPW-8/AePW-4 Buffet Working Group
+regarding Test Case 1, focused on buffet conditions for the ONERA OAT15A supercritical
+airfoil. A total of ten angles of attack at both pre- and post-buffet onset conditions have
+been selected for freestream Mach and Reynolds numbers of 𝑀 = 0.85 and 𝑅𝑒 = 3 × 106 ,
+respectively. The study is divided into steady and unsteady analyses. For steady simulations,
+significant scatter was observed in the results, highlighting the lack of grid convergence across
+different turbulence models and grid types. Different turbulence models showed significant
+deviations in aerodynamic coefficients, with a shock-wave predicted farther downstream than
+the experimental observations. Although unsteady simulations, including URANS and Hybrid
+RANS/LES models, provided improvements in predicting shock location and behavior, they
+still exhibited discrepancies in fluctuation amplitudes and locations. Test Case 1 has provided
+valuable lessons in numerical methods, computational resources, and collaborative efforts.
+As the Working Group prepares for Test Case 2 involving full-aircraft simulations, careful
+consideration of unsteady calculation costs, grid sensitivity studies, and time-integration setups
+will be crucial for achieving meaningful results.
+
+I. Nomenclature
+𝐴𝑅
+𝑐
+𝐶𝐷 , 𝐶 𝐿 , 𝐶 𝑀
+𝐶𝑝
+𝑀
+𝑁
+𝑅𝑒
+𝑃𝑠𝑡 , 𝑃𝑡𝑜𝑡
+𝑠
+𝑇𝑠𝑡
+(𝑥, 𝑦, 𝑧)
+𝛼
+
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+
+aspect ratio, 𝐴𝑅 = 𝑠/𝑐
+chord
+drag, lift and pitching moment coefficients
+pressure coefficient
+Mach number
+number of degrees of freedom
+Reynolds number
+static and total pressure
+span
+static temperature
+streamwise, wall-normal and spanwise coordinates
+angle of attack or incidence
+
+∗ Researcher, Fundamental Technology Research Unit, Aviation Technology Directorate, 7-44-1 Jindaiji Higashi-machi, Chofu-shi, Tokyo
+
+182-8522, Japan
+† Computational Aerodynamics Research Engineer, Configuration Aerodynamics Branch, NASA Langley Research Center, Hampton, VA, United
+States, and AIAA Senior Member.
+‡ Aeroelastics Research Engineer, Aeroelasticity Branch, NASA Langley Research Center, Hampton, VA, United States, and AIAA Senior
+Member.
+§ Professor/Dean, Faculty of Aerospace Engineering, Haifa 3200003, Israel, AIAA Senior Member.
+¶ Research Fellow, Faculty of Aerospace Engineering, Haifa 3200003, Israel, AIAA Senior Member.
+
+1
+
+II. Introduction
+ver more than two decades, the American Institute of Aeronautics and Astronautics (AIAA) Drag Prediction
+Workshop (DPW) and Aeroelastic Prediction Workshop (AePW) have aimed at advancing computational methods
+in aerospace engineering. DPW focuses on improving drag prediction techniques, where participants benchmark their
+computational methods for estimating forces and moments on aircraft at defined conditions. The goal is to enhance drag
+prediction accuracy to allow engineers to optimize aircraft design for fuel efficiency, performance, and range, reducing
+the cost of operation and environmental impact. AePW, on the other hand, focuses on predicting aeroelastic phenomena,
+such as flutter, vibration, and structural deformations, which occur due to the interaction between aerodynamic forces
+and structural dynamics. Participants in AePW also work on validating their tools for predicting these behaviors
+in various geometries relevant to aviation to improve safety, performance, and reliability. Both workshops foster
+collaboration among researchers, industry professionals, and government agencies, facilite knowledge exchange, identify
+best practices, and push the boundaries of computational prediction techniques in aerospace engineering. Summaries of
+the last editions of both DPW and AePW can be found in [1] and [2–5], respectively.
+Given the similarities in focus and objectives, the two workshops recently decided to join forces in a collaborative
+multidisciplinary framework that seeks to leverage the expertise of the two communities. Some of the working
+groups of the 8𝑡 ℎ DPW (DPW-8, https://aiaa-dpw.larc.nasa.gov/) and 4𝑡 ℎ AePW (AePW-4, https://
+nescacademy.nasa.gov/workshops/AePW4/public) are in fact run jointly to boost cross-pollination between
+the two workshops. The workshop is divided into seven working groups, each one focusing upon a technical
+topic while using a variety of tools. Two of these working groups are DPW-centric, three are AePW-centric,
+and two are hybrid. One of these hybrid groups, the Buffet Working Group, is of interest in this manuscript
+(https://aiaa-dpw.larc.nasa.gov/WorkingGroups/Group3/group3.html). Buffet is a phenomenon that
+occurs on aerodynamic surfaces of a variety of aerospace vehicles - such as main wings - that fly in the transonic speed
+regime. Usually referred to as “turbulent transonic buffet", it involves the onset of large, unsteady aerodynamic forces
+and structural vibrations, caused by the complex interaction between shock waves and turbulent boundary layers [6, 7].
+Because of the unsteady characteristics of both flow and structural dynamics, buffet represents a very challenging
+problem for both DPW and AePW communities. The objective of this joint working group is to identify the nature of
+pre- and post-buffet flight regimes with unsteady computational fluid dynamics (CFD). Simulations are performed on
+both experimentally-measured deformations and with coupled fluid/structure interactions (FSIs).
+The test cases selected for the buffet working group are the following:
+• Test Case 1: ONERA OAT15A Transonic Airfoil with Steady and Unsteady CFD
+• Test Case 2: Common Research Model Unsteady CFD with Committee-Supplied Deformed Wing Geometry
+• Test Case 3: Common Research Model Unsteady CFD with Unsteady Fluid/Structure Interaction
+The objective of this paper is to provide an overview for Test Case 1. The overview summarizes the data submissions
+gathered for the two mini-workshops held at AIAA Scitech in January 2025 and online in May 2025.
+The manuscript is structured as follows: reference geometry and experimental data are given in Section III; the
+requirements for Test Case 1 are described in Section IV; the committee-provided grids are detailed in Section V;
+participants who submitted data are reported in Section VI; the results are summarized in Section VII and some
+conclusions and perspective future work are delineated in Section VIII.
+
+O
+
+III. Geometry and Experimental Data Description
+The reference data used for Test Case 1 correspond to the experiments carried out in the continuous closed-circuit
+transonic S3Ch Wind Tunnel of the ONERA-Meudon Center by Jacquin et al. [8]. The geometry corresponds
+to the ONERA OAT15A supercritical airfoil, represented in Figure 1 and openly available, with conditions, at
+https://aiaa-dpw.larc.nasa.gov/geometry.html#oat.
+
+Fig. 1
+
+Normalized ONERA OAT15A airfoil.
+
+2
+
+The airfoil has a chord length of 𝑐 = 230 𝑚𝑚, with a relative thickness of 13% and blunt trailing-edge with a thickness
+of 0.5% the chord length. The profile is extruded in the spanwise direction and flash-mounted on the wind-tunnel
+side-walls. With a span width of 𝑠 = 780 𝑚𝑚, the model aspect ratio is 𝐴𝑅 = 𝑠/𝑐 ≈ 3.4. A tripping strip was located at
+7% of the chord downstream of the leading-edge on both pressure and suction sides to trigger transition. For the selected
+pressure and temperature at stagnation conditions of 𝑃𝑠𝑡 = 105 𝑃𝑎 and 𝑇𝑠𝑡 = 300 𝐾, the corresponding Reynolds number
+based on the airfoil chord is 𝑅𝑒 = 3 × 106 . For a Mach number of 𝑀 = 0.73, the angle of attack (𝛼) was varied between
+1.36 and 3.9 degrees. The model is equipped with 68 static pressure taps and 36 unsteady Kulite pressure transducers that
+have been used to extract the mean and root-mean-square (rms) reference data, as well as power spectral densities (PSDs).
+For some selected cases, oil-flow and Schlieren visualizations were also provided. No forces and moments were provided.
+A subset of reference experimental data is available on https://aiaa-dpw.larc.nasa.gov/experiment.html.
+While there has been experimental evidence of three-dimensional (3D) effects in the corner regions, the experimental
+data are assumed to be span-independent. Based on the analysis of the unsteady experimental measurements, buffet
+onset was determined at the angle of attack 𝛼 = 3.10◦ .
+
+IV. Test Case Description
+Test Case 1 is based on the ONERA OAT15A experiments described above and aims at functioning as a workshop-wide
+validation test for CFD analysis. Within the context of the Buffet Working Group, Test Case 1 is however further divided
+into two sub-cases (for steady and unsteady CFD, respectively) and supplementary requirements are added relative to the
+rest of the workshop. The main information and requirements for Test Case 1 are reported in Table 2. A detailed description
+is given in https://aiaa-dpw.larc.nasa.gov/WorkingGroups/Group3/TestCases/buffet-case1-v3.pdf.
+The participants were encouraged to employ their own best practices, but some guidelines were provided in terms of
+grids and simulation settings. Simulations settings were generally left up to the user and multiple datasets could be
+submitted, but turbulence model versions based on Spalart-Allmaras (SA) formulation [9] were recommended.
+The main goal of Test Case 1 was to establish the accuracy of each solver before moving on to the CRM full-aircraft
+simulations.
+Table 2
+
+Overview of Test Case 1: Buffet Working Group supplemental requirements in bold.
+
+Case
+
+Method
+
+𝑀
+
+𝑅𝑒
+
+𝑇𝑠𝑡 (𝐾)
+
+𝑃𝑡𝑜𝑡 (𝑘 𝑃𝑎)
+
+1a
+
+Steady
+
+0.73
+
+3 × 106
+
+271
+
+102.4
+
+1b
+
+Unsteady
+
+0.73
+
+3 × 106
+
+271
+
+102.4
+
+𝛼 (◦)
+1.36, 1.50, 2.50, 3.00, 3.10,
+3.25, 3.40, 3.50, 3.60, 3.90
+1.36, 1.50, 2.50, 3.00, 3.10,
+3.25, 3.40, 3.50, 3.60, 3.90
+
+V. Computational Grids
+Results were submitted using a combination of committee-supplied grids and user-generated grids. Both Cadence
+and Helden Aerospace provided committee-supplied grids, which users were strongly encouraged to utilize. Previous
+DPW, in particular DPW-IV and DPW-V, highlighted the need for high-quality comparisons on consistent grids. These
+common grids were released on the DPW website for participant use. Gridding guidelines were developed to ensure
+workshop-wide consistency when comparing grid resolutions. While participants were encouraged to utilize the
+committee-supplied grids, custom grids were permissible. For Reynolds-Averaged Navier-Stokes (RANS) approaches,
+one-cell wide six-member grid topologies were provided to perform purely two-dimensional (2D) simulations. Higher
+fidelity methods, like hybrid RANS/Large Eddy Simulations (LES) or wall-modeled LES (WMLES), were recommended
+to use 3D span-periodic airfoils with 10% chord span-width, although grids were not supplied. Best practices for RANS
+analysis has been well documented in the literature, but some disagreement exists regarding grid requirements for
+scale-resolving schemes. Consequently, the committee encouraged users to develop grids for these unsteady solvers to
+help develop recommended best practices. Unfortunately, many participants did not use the committee-supplied grids
+and instead submitted data with user-generated grids, and only one participant (ONERA) submitted custom grids for
+public use. As key grid metric quantities were not shared, it is extremely difficult to compare submissions that used the
+committee-supplied grids and those that generated custom grids. As many submissions used these committee-supplied
+grids, a description of the common grids is warranted in this paper.
+
+3
+
+VI. Participants List
+Participation in DPW-8 is open to any individual, group, or organization willing to carry out the calculations in
+accordance with the specifications provided by the organizing committee. For case 1, a total of 74 datasets were
+submitted by 18 participants. Broken down by method and grid, these submissions are:
+Method
+RANS: 56 datasets
+URANS: 11 datasets
+Hybrid RANS/LES: 5 datasets
+WMLES: 1 dataset
+Adaptive Euler: 1 dataset
+
+Grid
+Cadence structured: 15 datasets
+Cadence unstructured: 35 datasets
+Custom: 21 datasets
+Helden Aerospace: 3 datasets
+
+The full list of participants in given in Table 3. The turbulence model nomenclature proposed in NASA Turbulence
+Modeling Resource website (https://turbmodels.larc.nasa.gov/) is used. All participants were asked to submit
+forces & moments and pressure coefficient distributions. Convergence histories for Test Case 1a and time-averaged and
+rms components, unsteady pressure probe histories and corresponding PSD at 𝑥/𝑐 = 45 (Kulite 7) for Test Case 1b were
+also requested.
+Table 3
+ID
+
+List of participants to case 1 from Scatter and Buffet working groups.
+
+Team
+
+Organization
+
+Solver
+
+Method
+
+Turbulence Model
+
+Grid
+Cadence structured,
+Cadence unstructured,
+HeldenAero
+
+002
+
+Mestriner
+
+Embraer
+
+CFD++
+
+RANS
+
+SA, SA-RC-QCR
+SST
+
+004
+
+Pomeroy,
+Jamal,
+Pandya
+
+NASA
+(Langley CAB)
+
+USM3D-ME
+
+RANS
+
+SA, SA-R,
+SA-QCR2000
+
+Cadence unstructured
+
+005
+
+Housman
+
+NASA
+(Ames)
+
+LAVA
+
+SA-neg,
+SA-neg-RC-comp
+
+Cadence structured
+Deck extruded
+
+006
+
+Jirasek
+
+US Air
+Force Academy
+
+Loci/CHEM
+
+k-w-Wilkox 1998k,
+SST
+
+Cadence unstructured
+
+JAXA
+
+FaSTAR
+
+RANS,
+URANS
+
+SA-noft2, SA-noft2-R,
+SA-noft2-R-QCR,
+SST
+
+Cadence structured,
+Custom
+
+Metacomp
+
+CFD++
+
+RANS,
+URANS,
+HRLES
+
+SA-neg-RC-QCR
+
+Cadence structured,
+Deck extruded
+
+SA, SST
+
+Cadence structured,
+Cadence unstructured,
+Custom,
+HeldenAero
+
+007
+
+008
+
+Sansica,
+Lusher,
+Matsuzaki
+Batten,
+Bachchan,
+Kovvali
+
+RANS
+URANS
+HRLES
+RANS,
+URANS,
+HRLES
+
+009
+
+Petropoulos,
+Sartor
+
+ONERA
+(DAAA)
+
+elsA
+
+RANS
+
+010
+
+Goc,
+Clark
+
+Boeing
+(BCA Technology)
+
+charLES
+
+WMLES
+
+Dynamic Smagorinski
+
+Custom
+Cadence unstructured,
+Custom adapted
+
+012
+
+014
+018
+
+021
+
+023
+024
+026
+027
+032
+
+Chwalowski
+Massey
+Jacobson
+Udupa,
+Venkatraman
+Darbyshire,
+Wainwright,
+Allan
+Lamberson,
+Lynch,
+Jamal,
+Pomeroy
+Arnould,
+Radigue,
+Laurendau
+Nash,
+Timme
+Eldrige-Allegra,
+McGowan
+Candon,
+Gerner
+Jansson
+
+NASA
+(Langley AEL)
+
+FUN3D
+
+RANS,
+URANS
+
+SA-neg, SA-neg-comp
+SA-neg-comp-QCR,
+SA-neg-RC-comp-QCR,
+SST-comp-QCR
+
+IIS
+
+SU2
+
+RANS,
+URANS
+
+SA-Edwards
+
+Cadence unstructured
+
+Zenotech
+
+zCFD
+
+RANS
+
+SA-neg,
+SST-V-2003
+
+Cadence unstructured
+
+CREATE-AV
+NASA Langley
+
+Kestrel
+
+RANS,
+URANS
+
+SA-RC-QCR
+
+Cadence unstructured
+
+Polytechnique
+Montreal
+
+CHAMPS
+
+RANS
+
+SA
+
+Cadence unstructured
+
+Univ. of Liverpool
+
+TAU
+
+RANS
+
+SA-neg
+
+Cadence unstructured
+
+Corvid Tech.
+
+Raven
+
+RANS
+
+SA, SA-comp
+
+Cadence unstructured
+
+RANS,
+URANS
+Adaptive
+Euler
+
+SA, SA-C,
+SST, SST-C
+
+Cadence structured
+
+N/A
+
+Custom
+
+RMIT
+
+N/A
+
+KTH
+
+N/A
+
+4
+
+VII. Results
+Data submissions were collected on the shared Github repository available at https://github.com/DragPrediction-Workshop/DPW8-Buffet. While some updates were requested, the results shown here correspond to
+those submitted before 2025 May 16th. Steady (Test Case 1a) and unsteady (Test Case 1b) submissions are reported
+separately in the following subsections. Some comparisons between steady and unsteady results are also given for those
+participants who submitted both steady and unsteady data. In the attempt to find possible trends among the submissions,
+the same plots are repeated by grouping and color-coding the solutions based on method, turbulence model or grid type.
+Experimental reference data are also added, whenever available. Those datasets that presented formatting issues have
+been excluded from the analysis.
+A. Test Case 1a: Steady (RANS) Results
+1. Grid Study
+Based on the experimentally determined buffet onset, the angles of attack 𝛼 = 1.50, 3.10 and 3.90◦ have been
+selected as representative cases for pre-onset, onset and post-onset conditions for the analysis of the grid sensitivity.
+Aerodynamic coefficients for different grid resolutions (with 𝑁 number of degrees of freedom) are given for the
+aforementioned angles of attack in Figures 2, 3 and 4, respectively. The same parameters are presented in two plots,
+based on either turbulence model (left column) or grid type (right column). The first thing to notice is that a unique grid
+converged solution cannot be found by neither turbulence model nor grid type grouping for any of the angles of attack
+reported. For all angles of attack, there is a slight tendency of SA-based results to give higher values of 𝐶𝐷 and 𝐶 𝐿 , and
+decreased magnitude of 𝐶 𝑀 compared to those given by models including QCR corrections. Few contributions with
+𝑘 − 𝜔 or SST models prevent from drawing any qualitative conclusion. No general trends can be discerned by looking
+at the results grouped by grid type. By considering solutions for the finest grid level available, very large differences
+can be seen among the submissions. This scatter increases for higher angles of attack and is estimated to be about 10,
+50 and 90 𝐶𝐷 counts and 35, 95 and 120 𝐶 𝐿 counts for 𝛼 = 1.50, 3.10 and 3.90◦ , respectively. While the scope of
+this working group was not to reduce scatter, it should be highlighted that most of the contributions do not show grid
+converged results.
+2. Polars
+Forces and moments polars for Test Case 1a are shown in Figure 5. Similarly to what was done in the previous
+section, the same parameters are reported in two plots, based on either turbulence model (left column) or grid type (right
+column). Once again, it is difficult to identify a clear trend based on turbulence model or grid type and large scatter
+exists. However, similarly to what was seen in the grid study plots, SA-based results tend to provide higher values of 𝐶𝐷
+and 𝐶 𝐿 , and decreased 𝐶 𝑀 compared to those given by models including QCR corrections. For the lowest angle of
+attack, about 30 𝐶𝐷 -counts and 40 𝐶 𝐿 counts of difference exist among participants. This discrepancy increases to
+75 𝐶𝐷 -counts and 140 𝐶 𝐿 counts for the highest angle of attack. It should be noted that these scatter estimates are
+slightly higher than those shown in the previous section because the polars correspond to grid level 4 resolutions. As
+mentioned previously, the objective of this working group was not to reduce scatter, as this was the goal of the separate
+Source of Scatter Working Group. While it is expected for RANS models to under-perform in the presence of largely
+separated flows, a certain level of alert should be however raised, as these values of scatter are similar to those found for
+the full-aircraft RANS calculations in DPW-7 [1].
+3. Pressure Coefficient Distributions
+Sectional pressure coefficient distributions colored by turbulence model are plotted against the experimental
+measurements for 𝛼 = 2.50, 3.00, 3.10, 3.25, 3.50 and 3.90◦ in Figure 6. For pre-buffet conditions (𝛼 < 3.10◦ ),
+SA-based models including rotation, curvature and QCR correction have a general tendency to predict the shock
+much further downstream as compared to the experiments. Things improve for SA-based models that include the
+compressibility correction, but differences still exist. At post-buffet conditions, the RANS solutions still predict a very
+sharp pressure gradient due to the (steady) shock-wave. The experiments, however, show a pressure gradient that is
+“smeared" over a large streamwise range, due to the oscillating behavior of the shock. The discrepancies of some of the
+RANS solutions with the experiments at pre-buffet conditions do not necessarily have to be seen as a failure, since
+these simulations are purely 2D (i.e. one-cell wide) and do not account for any 3D effects that may be present in the
+
+5
+
+Fig. 2 Case 1a, RANS grid study at 𝛼 = 1.50◦ . The solutions are colored based on (left) turbulence model and
+(right) grid type.
+
+6
+
+Fig. 3 Case 1a, RANS grid study at 𝛼 = 3.10◦ . The solutions are colored based on (left) turbulence model and
+(right) grid type.
+
+7
+
+Fig. 4 Case 1a, RANS grid study at 𝛼 = 3.90◦ . The solutions are colored based on (left) turbulence model and
+(right) grid type.
+
+8
+
+Fig. 5 Case 1a, RANS forces and moments polars. The solutions are colored based on (left) turbulence model
+and (right) grid type.
+
+9
+
+experiments.
+
+Fig. 6 Case 1a, RANS 𝐶 𝑃 distributions for 𝛼 = 2.50◦ (top left), 3.00◦ (top right), 3.10◦ (middle left), 3.25◦
+(middle right), 3.50◦ (bottom left) and 3.90◦ (bottom right) . The solutions are colored based on turbulence
+model.
+
+10
+
+B. Test Case 1b: Unsteady Results
+1. Polars
+Despite being the main objective of the working group, only about 20% of the submissions correspond to unsteady
+calculations. Large majority of the unsteady data sets consist of URANS calculations, but results from higher-fidelity
+methods like Hybrid RANS/LES and WMLES were also submitted. Left plots in Figure 7 show the polars for all Test
+Case 1b submissions colored by numerical method. The reader should be reminded that these forces and moments are
+time-averaged. Similar conclusions on general trends and large scatter observed for the RANS results can be repeated for
+the unsteady results. The higher fidelity methods (Hybrid RANS/LES and WMLES) do however indicate a 𝐶 𝐿,𝑚𝑎𝑥 peak
+at around 𝛼 = 3.1◦ , the angle of attack for which the experiments indicated buffet onset. For some selected participants
+who provided both steady and unsteady calculations, the polars for both RANS (square symbols) and unsteady (triangle
+symbols) results are colored by participant ID and reported on the right plots in Figure 7. Considering buffet onset
+at 𝛼 = 3.1◦ , one would expect - at least for the RANS vs URANS contributions - that steady and unsteady results
+would be the same for the low angles of attack. Differences however exist and may be due to either insufficient iterative
+convergence of the RANS solutions or excessively short statistics collection times for the unsteady calculations. While
+this needs further investigations, the lack of specific guidelines on how to determine initial transients, appropriate
+statistics collection times and initial solution to start the unsteady calculations from does not guarantee consistency
+among participants. In the light of this, criteria may be added for future test cases. Another aspect to emphasize is
+the values of the aerodynamic forces of the unsteady calculations with respect to their steady counterparts. Generally
+speaking, due to the oscillations of the shock-wave and related change in separation size, for the same angle of attack the
+time-averaged unsteady forces should be lower with respect to the (steady) RANS ones. This is however not true for all
+reported solutions, calling for more in-depth analysis.
+2. Pressure Coefficient Distributions
+Time-averaged 𝐶 𝑃 distributions colored by numerical method are shown in Figure 8 for 𝛼 = 2.50, 3.00, 3.10, 3.25, 3.50
+and 3.90◦ along with the experimental results. Given the scarce number of contributions, it is difficult to make definite
+conclusions. The time-averaged CFD solutions move closer to the experimental shock location but are still found to be
+too far downstream. Notable exception is the SST-comp-QCR2020 contribution that falls right on top of the reference
+data. At post-buffet onset conditions, the smeared shock distributions are qualitatively well reproduced. No striking
+differences can be seen in the higher fidelity methods, except for an over-prediction of the suction downstream of the
+shock for the Hybrid RANS/LES methods. For the same angles of attack, the experimental 𝐶 𝑃 -rms distributions are
+plotted against the numerical ones in Figure 9. Hybrid RANS/LES and SA-based (suspicion here is that some "-comp"
+corrections were not reported by the participants) URANS contributions show large pressure fluctuations at low angles
+of attack, indicating that buffet onset is predicted too early. URANS calculations with SA-QCR and SST report instead
+weak fluctuations and delayed onset. URANS results present difficulties in predicting the correct streamwise shock
+excursion and the fluctuation peak location, but behave well downstream of the interaction. The Hybrid RANS/LES
+methods instead better capture the fluctuations near the interactions but overestimate them in the aft part of the airfoil.
+The WMLES results at the highest angle of attack present some differences in the upstream part of the interaction, but
+then generally agree well from the fluctuations peak location.
+
+11
+
+Fig. 7 Case 1b, time-averaged forces and moments polars. Left plots: solutions colored based on method; Right
+plots: steady (square symbols) and unsteady (triangle symbols) solutions colored based on participant ID (for
+those who submitted data for both cases 1a and 1b).
+
+12
+
+Fig. 8 Case 1b, time-averaged 𝐶 𝑃 distributions for 𝛼 = 2.50◦ (top left), 3.00◦ (top right), 3.10◦ (middle left),
+3.25◦ (middle right), 3.50◦ (bottom left) and 3.90◦ (bottom right). The solutions are colored based on method.
+
+13
+
+Fig. 9 Case 1b, 𝐶 𝑃 -rms distributions for 𝛼 = 2.50◦ (top left), 3.00◦ (top right), 3.10◦ (middle left), 3.25◦ (middle
+right), 3.50◦ (bottom left) and 3.90◦ (bottom right). The solutions are colored based on participant ID.
+
+14
+
+VIII. Conclusions and Future Work
+The present manuscript summarizes the efforts of the joint DPW-8/AePW-4 Buffet Working Group for Test Case 1.
+The geometry and experimental data refer to the experiments carried out at ONERA-Meudon Center in the transonic
+S3Ch wind tunnel on the ONERA OAT15A supercritical profile at buffet conditions [8]. For the Buffet Working Group,
+Test Case 1 is sub-divided into steady and unsteady analyses. A total of 74 datasets were provided by 18 teams. Despite
+the main objective of the working group, only 18 datasets concerning unsteady calculations were submitted. While
+a few higher fidelity submissions were provided, the large majority consisted of URANS solutions. This indicates a
+certain reluctance of the community to perform unsteady calculations, probably due the increased computational cost
+and/or difficulties in the correct setting of simulation parameters, such as those related to time-integration. Also, a large
+number of participants switched to custom grids, but further discussions should be promoted to understand the reasons.
+For the steady part of this study, an evident conclusion is the large scatter that exists among the different submissions.
+While participants were encouraged to use their own best-practices and scatter reduction was out of scope, some concern
+stands. A general lack of grid convergence at both pre- and post-buffet conditions was found among the submissions,
+regardless of turbulence model or grid type. Generally speaking, SA-based results tend to provide higher (lower) values
+of 𝐶𝐷 and 𝐶 𝐿 (𝐶 𝑀 ) compared to those given by models including QCR corrections. This is also reflected in the 𝐶 𝑃
+distributions, where SA-based models predict the shock-wave farther downstream. As expected, the RANS steady
+solutions cannot reproduce oscillating behavior of the flow at post-buffet onset conditions and show a sharp pressure
+gradient at the shock. The RANS results are however inaccurate even at pre-buffet onset conditions, with a shock-wave
+predicted downstream of the experimental measurements.
+Few unsteady contributions prevent forming definite conclusions, but large scatter is also found between URANS,
+Hybrid RANS/LES and WMLES contributions at both pre- and post-buffet conditions. The time-averaged 𝐶 𝑃
+distributions present improvements with respect to the RANS solutions and the shock location and behavior predicted by
+the unsteady calculations is much closer to the experimental measurements, but visible differences still exist. Consistently
+with past numerical studies, the 𝐶 𝑃 -rms distributions indicate that the CFD calculations struggle to predict the correct
+fluctuation amplitudes and location, with some models and approaches behaving better around the shock or downstream
+in the separated region.
+Many lessons were learned in Test Case 1, both from a numerical and organizational point of view. With the
+full-aircraft simulations planned for Test Case 2, it is important to recognize that the cost of the unsteady calculations
+might become prohibitive for many participants with limited resources. An active involvement must be secured in
+order to have a sufficient number of contributions for drawing quantitative conclusions. Given the complexity of the
+geometries, it might be difficult to have a large number of contributors using custom grids. Coordination between
+participants will be required to provide meaningful sensitivity studies on grid and turbulence model. An important
+aspect to consider carefully is the time-integration setup. It will be important to promote discussions on time-integration
+parameters, transients and statistic collection times. The way unsteady data will be reported also requires close scrutiny
+to avoid inconsistencies that will result in poor comparisons.
+The kind of activities related to prediction workshops always present significant challenges. Each test case has its
+own unique problems and the learning curve is steep. However, much is learned on the way and the efforts of the
+community are incommensurable. The Buffet Working Group Organizing Team would like to express sincere gratitude
+to all the participants who contributed valuable data and insights during the activities related to Test Case 1. The
+dedication and efforts were instrumental in enriching the quality of this work.
+
+Acknowledgments
+We would like to express our sincere gratitude to the teams who generated and provided the grid data used in this
+study. Their dedication and expertise in developing and sharing these resources were invaluable to the success of our
+research. Special thanks to Claudio Pita and Carolyn Woeber from Cadence; Rick Hooker and Andrew Wick from
+Helden Aerospace; and Sebastian Deck, Ilias Petropoulos, and Fulvio Sartor from ONERA for their continuous support
+and for making their high-quality grid datasets accessible. Without their contributions, this work would not have been
+possible. We also acknowledge the technical staff involved in ensuring the integrity and precision of the grid data.
+
+References
+[1] Tinoco, E., Summary Data from the Seventh AIAA CFD Drag Prediction Workshop, 2023. https://doi.org/10.2514/6.2023-3492.
+
+15
+
+[2] Ouellette, J. A., Massey, S., Grauer, J. A., Chin, A. W., Timmermans, H., Aalbers, J., Mkhoyan, I., and Blom, P., Summary of
+Results from the Third Aeroelastic Prediction Workshop Flight Test Working Group, 2024. https://doi.org/10.2514/6.2024-0415.
+[3] Chwalowski, P., McHugh, G., Massey, S., Poplingher, L., Raveh, D. E., Jirasek, A., Giannelis, N. F., Venkatraman, K., Singh, M.,
+Ahrabi, B., and Hong, M., Shock-Buffet Prediction Report in Support of the High Angle Working Group at the Third Aeroelastic
+Prediction Workshop, 2024. https://doi.org/10.2514/6.2024-0417.
+[4] Chwalowski, P., Stanford, B., Jacobson, K., Poplingher, L., Raveh, D. E., Jirasek, A., Pagliuca, G., and Marcello, R.,
+Flutter Prediction Report in Support of the High Angle Working Group at the Third Aeroelastic Prediction Workshop, 2024.
+https://doi.org/10.2514/6.2024-0418.
+[5] Ritter, M., Hilger, J., Ribeiro, A., Öngüt, A. E., Righi, M., Raveh, D. E., dos Santos, L. G. P., Drachinsky, A., Riso, C., Cesnik,
+C. E., Stanford, B., Chwalowski, P., Kovvali, R. K., Duessler, S., Cheng, K. C., Palacios, R., dos Santos, J. P., Marques, F. D.,
+Begnini, G. R. R., Verri, A. A., Lima, J. J., de Melo, F. B., and Bussamra, F. L., Collaborative Pazy Wing Analyses for the Third
+Aeroelastic Prediction Workshop, 2024. https://doi.org/10.2514/6.2024-0419.
+[6] Lee, B. H. K., “Self-sustained shock oscillations on airfoils at transonic speeds,” Progress in Aerospace Sciences, Vol. 37, 2001,
+pp. 147–196. https://doi.org/10.1016/S0376-0421(01)00003-3.
+[7] Giannelis, N. F., Vio, G. A., and Levinski, O., “A review of recent developments in the understanding of transonic shock buffet,”
+Progress in Aerospace Sciences, Vol. 92, 2017, pp. 39–84. https://doi.org/10.1016/j.paerosci.2017.05.004.
+[8] Jacquin, L., Molton, P., Deck, S., Maury, B., and Soulevant, D., “Experimental Study of Shock Oscillation over a Transonic
+Supercritical Profile,” AIAA Journal, Vol. 47, No. 9, 2009, pp. 1985–1994. https://doi.org/10.2514/1.30190.
+[9] Spalart, P., and Allmaras, S., “A one-equation turbulence model for aerodynamic flows,” 30th aerospace sciences meeting and
+exhibit, 1992, p. 439. https://doi.org/10.2514/6.1992-439.
+
+16
+
+

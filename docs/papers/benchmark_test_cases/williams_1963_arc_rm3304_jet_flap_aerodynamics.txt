@@ -1,0 +1,2925 @@
+8EDFO~,
+
+MINISTRY
+
+R, & M. No. 3304
+
+OF A V I A T I O N
+
+AERONAUTICAL RESEARCH COUNCIL
+REPORTS AND MEMORANDA
+
+The Aerodynamics of Jet Flaps
+B y J. WILLIAMS, S. F.-J. BUTLER and M . N . WOOD
+
+o.~
+t-xl
+
+f'q
+
+:!il
+
+~..
+
+o~
+
+.~v-"-
+
+O
+e"
+O
+
+t~
+• --
+
+~
+
+o)
+
+.
+
+m
+
+m~
+N,'-E
+a . O "~
+
+LONDON: HER MAJESTY'S STATIONERY OFFICE
+I963
+THIRTEEN
+
+SHILLINGS
+
+NET
+
+The Aerodynamics of Jet Flaps
+By J. WILLIAMS,
+
+S . F. J . B U T L E R a n d
+
+M.
+
+N. WOOD
+
+COMMUNICATED BY THE DEPUTY CONTROLLER AIRCRAFT (RESEARCH AND DEVELOPMENT),
+MINISTRY OF AVIATION
+
+Reports and Memoranda No. 3304*
+January, ±96z
+Summary. With jet-flap wings a considerable proportion of the jet efflux leaves the wing trailing edge as
+a plane jet sheet inclined to the relative mainstream. The lift generated is several times the correspondirig
+vertical component of the jet momentum, while the sectional thrust lies between the corresponding horizontal
+component and full jet momentum.
+After introducing briefly the origin and primary concepts of jet flaps, this paper discusses progress towards
+the clarification and formulation of jet-flap aerodynamics, mainly by an examination and analysis of recent
+Royal Aircraft Establishment and National Physical Laboratory research work. The aspects considered
+comprise lift, pitching moment and downwash, sideslip derivatives, and the effects of ground proximity.
+Some associated implications with regard to jet-flap aircraft performance, stability and control are also
+mentioned.
+1. Introduction.
+
+During the past half-century of aircraft development, it has been increasingly
+necessary to devise more powerful methods for improving the lifting efficiency and stability
+characteristics of aircraft wings at low speeds, with the minimum penalty on the aircraft cruising
+performance. Such developments have become essential to ensure moderate take-off and landing
+performance of heavily-loaded and high-speed aircraft, to meet the renewed demand for extremely
+short and slow take-off and landing, and to improve the transition behaviour of new types of verticaltake-off aircraft. The method of boundary-layer control (B.L.C.) by now well established, employs
+a small proportion of the installed engine power or airflow (say 10%) to induce blowing or suction
+at the wing and flap surface, for the prevention of flow separation; thereby, the ideal lifting
+efficiency of the system corresponding to potential flow can be sensibly realised. In contrast, the
+conventional round jets from gas-turbine engines can be tilted towards the vertical to produce a
+direct jet lift roughly equal to the corresponding vertical component of the rate of ejection of
+momentum.
+From one aspect, the Jet-flap scheme is a natural extension of slot blowing over trailing-edge
+flaps for B.L.C., using much higher quantities with a view to increasing the effective chord of the
+flap to produce so-called 'super-circulation' about the wing. Examples of this were available more
+than 20 years ago, from the experiments of Lyon in Britain, Bamber in the U.S.A., Hagedorn in
+Germany and Valensi in France. However, the concept proper originated much more recently,
+from a search for methods of using the efflux of turbo-jet engines not merely to provide propulsion
+Previously issued as R.A.E. Report No. Aero. 2646--A.R.C. 22,823. Amplified version of paper presented
+at 2nd International Congress of Aeronautical Sciences, Zurich. September, 1960.
+
+and direct jet lift by tilting, but also to generate significant favourable lift on the wing with the
+minimum reduction of propulsive thrust. Ideally, the lifting and propulsive systems of turbo-jet
+aircraft might then be completely integrated with advantage (Fig. 1).
+The term jet flaP implies that the gas efflux is directed to leave the wing trailing edge as a plane
+jet at an angle to the mainstream, so that an asymmetrical flow pattern and circulation is generated
+about the aerofoil in a manner somewhat analogous to a large trailing-edge flap. By this means, the
+lift from the vertical component of the jet momentum is magnified several times by 'pressure lift'
+generated on the wing surface, while the sectional thrust (see Section 4) lies between the corresponding
+horizontal component and the full jet momentum. To facilitate variation of jet angle to the mainstream direction, the air is usually ejected from a slot forward of the trailing edge, over a small flap
+whose imgle can be simply varied (Fig. 2). Such basic jet-flap schemes essentially require the gas to be
+ducted through the wing and so are often referred to as 'internal flow' systems. They seem particularly
+suited for practical application with several small engines distributed along the span, their intakes
+possibly forming part of the wing leading edge. Alternatively, with engines of large by-pass ratio,
+the cool air can be ducted through the wing mainly for lift and control, and the hot air ejected from
+conventional round nozzles mainly for propulsive thrust. Some 'external flow' systems have also
+been suggested (Fig. 2), where the gas ducts and nozzles are essentially outside the wing. In a
+National Aeronautics and Space Administration arrangement, for application to jet aircraft with
+underslung podded engines, each roun d jet is directed by a deflector plate towards the gap of a
+slotted flap which guides the air over the flap in the form of a flattened jet sheet. Alternatively, if the
+engines are mounted high on the wing, the exit nozzles themselves can be elongated spanwise to
+provide a plane jet sheet passing over the upper surface of a T.E. flap.
+In Britain, jet-flap studies originated at the National Gas Turbine Establishment towards the
+end of 1952. The pioneer investigations throughout 1953 included first studies of the basic concepts
+and their practical application by Davidson 1 and Stratford 6,7, two-dimensional pressure-plotting
+experiments on simple small-scale models by Dimmock at N.G.T.E.lO,11, a2, together with
+complementary three-dimensional experiments by Williams and Alexander at N.P.L. la, 14 to explore
+quickly the nature and importance of finite aspect-ratio effects. About the same time, the first
+rigorous theory for the two-dimensional jet-flap aerofoil in inviscid flow was also formulated 24.
+Since then 2,8, the basic aerodynamic principles for both two-dimensional and three-dimensional
+jet-flap wings have been well established by a joint R.A.E. and N.P.L. programme of both
+experimental and theoretical research. This has included fundamental studies on stability and
+control, as well as on lift and thrust asp4cts. The stimulus and priority for much of this research
+has arisen from the need for basic information and understanding to support the design of a jet-flap
+research aircraft by Hunting Aircraft Ltd. 9.
+Similar research investigations have been carried out elsewhere, particularly in France and the
+United States. In this short paper, further reference to such work and to some interesting
+developments has had to be omitted. Even so, special attention must be drawn to the electrolytic-tank
+techniques devised by Malavard at Office National d'l~tudes et de Recherches A6ronautiques a for
+the numerical treatment of jet-flap wing theory, N.A.S.A. studies of external-flow jet-flap
+arrangements 5 (Fig. 2), the application of jet flaps to helicopter rotors by Dorand 4 and others, and
+jet-flap 'spoilers' as a method of roll control.
+After introducing briefly some primary concepts (Section 2), this paper attempts to clarify further
+various fundamental aspects of jet-flap aerodynamics and to formulate some practical methods of
+
+prediction, mainly by an examination and analysis of R.A.E. and N.P.L. research work completed
+over the past five years. Many of the experimental results have not previously been published or
+analysed in detail. The aspects discussed comprise lift (Section 3.1), stalling behaviour (Section 3.2),
+pitching moments (Section 3.3), downwash (Section 3.4), thrust and drag (Section 4), sideslip
+derivatives (Section 5), and the effects of ground proximity (Section 6). Some associated implications
+with regard to j et-flap performance, stability and control are also mentioned. Attention is drawn to the
+major gaps still remaining in our aerodynamic background and the further research required. The
+special problems and new techniques for wind-tunnel testing of jet-flap models have already been
+considered in Refs. 22 and 23.
+
+2. Primary Concepts and Basis of Analysis. The mainstream flow past an aerofoil with the jet
+emerging from the trailing edge at an angle to the mainstream direction tends to turn the jet
+streamwise causing a pressure difference across it. Likewise, the jet interferes with the mainstream
+flow over the aerofoil surface, so generating pressure force on it (Fig. 3). The jet-momentum
+coefficient C/, [ - MjVjIqoS], rather than the jet-quantity coefficient Co[--1VIj/poVoS ] or the
+ratio V j / V o of jet speed to mainstream speed, has become well established as the major non-dimensional parameter for the correlation of results, together with the jet angle 0 and the wing incidence a.
+The total lift CL on the jet-flap aerofoil represents a considerable magnification of the direct
+jet-reaction lift C~,sin(O+a) from the corresponding vertical component of the jet momentum,
+because of the additional pressure lift on the aerofoil (Fig. 6a). The associated lift/incidence curve
+slope (OCL/3a) also rises markedly as C/, is increased, due to growth in both the jet-reaction lift and
+pressure-lift contributions. The centre of lift, located at about half-chord for zero incidence and
+low C~-values, moves further rearwards with increasing C~ at fixed a and O, while the aerodynamic
+centre likewise tends to move aft of the quarter-chord position. The sectional-thrust coefficient
+C~, (see Section 4) on the aerofoil exceeds the jet-reaction contribution Cz cos (0 + c¢) but, as (0 + ~) is
+increased, falls well below the ideal theoretical value Cz for two-dimensional inviscid flow 25.
+As regards finite aspect-ratio effects, the spanwise distribution of pressure-lift loading induced by
+full-span blowing is not far different from that for a conventional wing at incidence and, at small
+Ct,-values , conventional aspect-ratio corrections for pressure lift and pressure drag could be used as
+a rough working rule la, 14
+To turn the jet through the required angles in practical applications, the air would probably be
+ejected over a small T.E. flap whose angle could be simply varied, rather than by inclining the
+direction of the blowing slit to the wing chord line. The minimum flap size acceptable in practice is
+mainly determined by the need for a large enough ratio of flap knee radius to slot width (say at
+least 5 to 1), in order to ensure that the jet clings to the flap upper surface. Blowing over such a
+T.E. flap, rather than from the wing trailing edge, also raises the lift considerably, but introduces a
+drag penalty due to skin friction over the flap.
+The basic theoretical properties of a thin two-dimensional jet in inviscid flow were formulated
+by Maskell and Gates 25, together with the overall momentum relations satisfied by the twodimensional jet-flap aerofoil. Subsequently jet-flap theories were developed for the case of the
+thin wing and jet in inviscid incompressible flow, excluding mixing between the mainstream and
+the jet. The two-dimensional problem was solved by Spence using a treatment akin to classical
+'mean line' theory, both for ejection from the trailing edge 26 and over a plain (hinged) flap2L
+This treatment was extended to the case of a finite aspect-ratio wing with a fidl-span jet flap by
+($6067)
+
+A2
+
+Maskell and Spence 2s, following the classical Prandtl lifting=line theory, the equations being made
+tractable by prescribing an elliptic spanwise distribution of both wing chord and jet momentum
+with constant jet angle over the span. Such treatments have also been further developed for the
+estimation of the associated wing pressure distributions, downwash and jet path 3°, as well as of
+damping in roll 81 and longitudinal stability derivatives 82 on a quasi-steady basis.
+The experimental results on which the subsequent analysis is based were mostly derived from
+force measurements, flow studies and some surface pressure plotting, by Williams and Alexander 16
+on an N.P.L. rectangular wing half-model in the N.P.L. 13 ft × 9 ft Tunnel, by Wood 17 on the
+same model in the R.A.E. No. 2 11½ ft x 8½ ft Tunnel, and by Butler 19 on an R.A.E. complete
+model in the R.A.E. tunnel. The half-model (Fig. 4) was of aspect ratio 6 with a 12% thick wing
+section, being intended for basic research on lift, pitching moments, thrust and downwash to follow
+up the exploratory tests on small-scale pressure-plotting models. The extent of the trailing-edge
+flap and the wing nose shape were varied, primarily to investigate the effect on thrust and on flow
+separation respectively. The complete model (Fig. 5) was intended to provide basic information
+on both longitudinal and lateral stability derivatives, and used a highly-cambered thick wing section
+(NACA 4424) to minimise flow separation at high lift coefficients. The influence of wing geometry
+was studied by increasing separately the aspect ratio from 6 to 9, the dihedral by 5 ° and the
+sweepback by 10°. The effect of ground proximity was investigated on the unswept aspect-ratio 9
+version with + 4 ° dihedral, at three ground clearances (H/~ = 1.5, 2.25 and 3.25). This model
+has now been modified for oscillatory-derivative measurements.
+For the evaluation of the jet-momentum coefficient Cs, the jet speed Vj is usually determined
+theoretically, by assuming isentropic expansion from the total pressure (and temperature) in the
+slot throat to the mainstream static pressure. The mass-flow rate M j can likewise be estimated
+theoretically for an assigned slot throat area, but in experimental work it is best measured, so that
+errors due to throat area determination and neglecting viscous effects are avoided. For theoretical
+lift predictions, etc., as discussed later, it is then necessary to make corresponding small corrections
+to the theoretical V.r and to allow for jet-momentum losses due to skin friction over the T.E. flap
+upper surface. Alternatively, the value of MjVj can be specified directly as the measured installed
+static reaction J for the appropriate T.E. flap deflection. However, corrections must then be applied
+for the measured pressure drag arising from local mainstream flows induced by the jet stream, and
+for differences in the mass-flow rate between static and mainstream-on conditions, at each
+prescribed duct pressure and flap angle. As regards the choice of wing reference area S, there is of
+course some freedom for the case of part-span blowing or wherei' there is a fuselage cut-out. It is
+then necessary to make a distinction between an overal! momentum coefficient C~ based on the
+gross wing area S used for defining overall force coefficients, and a mean sectional-momentum
+coefficient C1~'based on the wing area S' corresponding to the spanwise extent of the blowing
+slot. The significance and importance of the foregoing remarks concerning the definition and
+evaluation of C/, etc. are brought out further in the subsequent analysis on lift and thrust aspects.
+Unless indicated otherwise, the C~-values quoted are based (for consistency) on the measured
+mass-flow rate through the slot, the theoretical velocity defined by the slot pressure ratio, and the
+gross wing area.
+Again, in most model experiments, the blowing air is fed into the model from an outside source,
+not extracted from the oncoming mainstream as in most flight applications. This must be borne
+in mind when applying the results of the subsequent analysis for project work. For example, by
+
+simple momentum considerations, the model thrust coefficient with such an external supply is
+higher by 2CQ than if the air were taken in through an ideal intake and pressurised without losses.
+The effects on other forces and moments can also be significant if the intake momentum is large.
+
+3. Lift Aspects. The lift behaviour of jet-flap wings has already been referred to qualitatively
+in Section 2, being illustrated by the experimental results shown in Fig. 6. In the present section the
+various aspects will be discussed more fully, particularly with regard to practical estimation, including
+lift increments and corresponding increases in lift/incidence curve slopes, stalling behaviour,
+pitching moments and associated trimming problems, and downwash effects at the tail.
+
+3.1. Lift Increments. The formulae of linearised inviscid-flow theory offer a convenient starting
+point for a discussion of results. The lift (CL)co for a two-dimensional thin flat plate at incidence ~,
+with blowing over a hinged flap to provide a jet deflection O, is given by
+(cL) o = 0
+
+co +
+
+\
+
+(1)
+
+! co
+
+The sectional derivative (SCc/80)co is purely a function of the sectional-momentum coefficient C /
+and flap/chord ratio c/c, while (9CL/O~)co is synonymous with (OCz/80)co at cj/c = 1. The following
+simple interpolation formulae fit the computed values for c/c = 0 (T.E. blowing) at C/- values of
+1 and 4 and asymptotically as C/ -+ O.
+
+co
+
+,
+
+,,,.,
+
+,,.,}
+
+= [4~C,,(1+0.151C~, -+0.139C/,)]/-
+
+(2)
+
+( ~CL]
+lco
+
+27r(1+0"151C~ r i o/-+0-219Cff)!
+
+Fig. 7 shows the variation of (OCz/O0)co with both C / a n d c/c.
+The lift on a wing of aspect ratio A with a full-span jet flap tan again be expressed by a relation
+of the type (1). The derivatives (OCL/80) and (SCL/O~) for the finite aspect-ratio wing are obtained
+by multiplying the corresponding two-dimensional values (8CL/aO)~ and (8CL/ScOc
+o by the factor
+
+F(A, c p =
+
+(2) {ac.]
+A +
+
+-2(1+~)
+
+\-Sg-~J co
+
+~
+
+(3)
+
+A + 2 + 0.604C~ a/°-+ 0.876C~
+at small C~ or large A*.
+* More specifically,
+(C~)
+O" =
+
+(1-- ~) ~
+
+2(CD~o
+where
+
+~
+
+(0+c~)
+
+On the basis of semi-empirical arguments, the lift on a jet-flap wing may be written more generally
+as
+
+CL = F
+
+1+
+
+;t0
+
+~ + u ~ \ 3~]o~
+
+-c
+
+"
+
+(4)
+
+The effect of thickness/chord ratio is taken into account by increasing the sectional pressure lift in
+the proportion (1 +t/c), roughly corresponding to the ratio of the sectional lift/incidence curve
+slope without blowing to the value 27r for a thin flat plate. Allowance for part-span flaps and fuselage
+cut-out is included by introducing spanwise extent factors ;t and u to correct the lift increments due
+to jet deflection 0 and wing incidence a respectively. Simple considerations give
+
+s,
+
+(o%
+
+( cq
+where the sectional derivatives are evaluated using the mean sectional-momentum coefficient
+C f = C#S/S'. In fact, when the flaps are virtually full-span except for the fuselage cut-out,
+experimental results for the complete model indicate that u can be more simply taken as unity with
+the derivative (OCL/OC~)~ evaluated for the overall C#-value, instead of the sectional coefficient C f .
+The value adopted for C f or C# should if possible relate to the momentum leaving the flap
+trailing edge. In practice, this trailing-edge momentum may reach only 0.95 of the momentum
+emerging from the slot ahead of the flap, the proportion being even less (see Section 4) if the slot
+velocity (or momentum) is derived theoretically or when the flap angle is very large. Again, the jet
+angle to be prescribed naturally lies between the inclinations of the flap upper surface and the flap
+mean line to the wing chord line, usually closer to the former. The linearised relations can be
+expected to over-estimate the lift progressively as the jet angle and wing incidence are raised, as can
+be illustrated by comparing exact and linearised theory for a thin flat plate with a simple trailing-edge
+flap. For example, with a 2 5 ~ chord flap at deflections of 30 ° and 80 °, the ratio of the lift increment
+given by exact theory to that from linearised theory falls from 0.95 to 0.80 respectively at zero
+wing incidence, while the corresponding ratio of lift/incidence curve slopes falls from 0.99 to 0.93.
+To assess the validity and usefulness of the above arguments, the experimental lift results for the
+aspect-.ratio 6 and 9 versions of the complete model have been reduced to quasi two-dimensional
+increments (A CL) ~ =_ ACL/;tF , and lift/incidence slopes (A CL/Ao0 ~ = (A CL/AeO/vF.
+Figs. 8a and 8b compare these reduced experimental values against the results of two-dimensional
+linearised theory, both with and without the correction for thickness/chord ratio to the pressure lift.
+On the basis of static measurements, the trailing-edge momentum for the two-dimensional empirical
+estimates was taken as 0.85 of the slot value derived from the measured mass-flow rate and isentropic
+theoretical velocity. The jet angle 0 for the theoretical estimates has been taken as 22 ° greater than
+the flap setting ~7, but the true practical value might be as much as 2 ° different, so elsewhere only
+nominal values of 0 (---~~/+ 20 °) have been quoted.
+The experimental (A Cz)~ at zero incidence ag}ee reasonably well with the theoretical estimates
+(Fig. 8a) up to jet deflections of about 50 °, when wing thickness is allowed for, except at small
+C/,'-values where flow separation is present on the flap. However, it should be noted that an error
+
+of two or three degrees in the choice of jet angle for the theoretical estimates could lead to
+appreciably poorer agreement at low values of 0. At large jet angles, the experimental results are, as
+expected, much lower than the theoretical values, though not as much as might have been argued
+from a comparison of exact and linearised theories for simple flaps. The experimental results for
+(ACz/Ac~)o~ shown in Fig. 8b have been derived by differencing values at ~ = 0° and 15°. Although
+the agreement with the corresponding theoretical estimates allowing for thickness is reasonable
+at 0 ---~20 °, the experimental results fall much below the theoretical at higher angles. In an extreme
+case, at 0 -'- 80°, (ACz/A~)~o increases very slowly with C~' to only about 10% above its value at
+zero Ct[.
+An analysis of the experimental results for the aspect-ratio 6 half-model leads to very similar
+comparisons. Furthermore, predictions for part-span flaps and blowing (as well as for body cut-out)
+can be compared wkh experimental results on this model. The theoretical estimates shown in Fig. 9
+have been evaluated using the relation (4), again with"F(A, C~) determined by (3), ~t determined b y
+(5), the trailing-edge momentum taken as 0.85 of the slot value, and the jet angle 0 assumed 7°
+greater than the nominal flap angle to allow for the flap upper-surface inclination. The estimated lift
+increment A Cz for inboard half-span flaps and blowing agrees well with the corresponding experimental values at the lower flap angle (30°), while the discrepancy at the higher flap angle (60 °) is
+no worse than would arise for full-span flap estimates on a similar linearised treatment.
+3.2. Stalling Behaviour. Due to the large circulation generated with jet flaps, severe adverse
+pressure gradients can appear over the wing upper surface near the nose, even at low incidences,
+though the associated pressure recovery is considerably less than if the same circulation were
+generated by wing incidence alone. General rules for the prediction of stalling incidence with jet-flap
+wings are difficult to formulate, since the Cl,-value and jet deflection are important factors as well
+as wing shape. With wing sections of small or moderate camber and thickness, flow separation
+tends to occur first at the nose as the incidence is increased, but re-attachment is induced further aft
+by the boundary-layer control action of the jet flap. Eventually, stalling occurs when the jet induction
+effect is not strong enough and the flow breaks away completely from the upper surface. For example,
+on the half-model with a 12% thick section, the stalling incidences (3CL/3o~ = 0) rose markedly 'at
+high C~-values and moderate jet angles, but fell to only a few degrees at low C~-values and large
+jet angles. The nose separation can be delayed about 5° by the incorporation of a drooped leading
+edge (Fig. 6b). However, in practice, wing n9se B.L.C. by blowing (or suction) can be more powerful
+and profitable, applied either within the first 2% chord from the wing leading edge or at the knee
+of a leading-edge flap.
+Alternatively, if lower cruising speeds are acceptable, a thick highly-cambered wing section
+(say NACA 4424) can adequately reduce flow separation over the nose at high lift coefficients, a
+larger thickness and camber than usual being tolerable because the incipient trailing-edge separation
+is controlled by the nearby jet efflux. For example, on the aspect-ratio 6 complete model, the stalling
+incidence rose to more than 30 ° with C~ > 1, an untrimmed C5-value of 12 then being reached with
+C s ~ 4.0 and 0 ~ 50 ° (Fig. 17a). The stall tended to become more abrupt at the high C~-values,
+but this is not unreasonable when the flow is maintained unseparated by the thick wing and jet
+induction effects up to such high stalling angles and lift coefficients.
+3.3. Pitching Moments. The ratio (-AC~/AC.z) of the measured increments in nose-down
+pitching moment and lift, due to blowing and flap deflection on the complete model at zero incidence,
+7
+
+are compared in Fig. 10 with the corresponding values from two-dimensional linearised theory. Both
+experimental and theoretical values increase steadily with Ct,, confirming the expected rearward
+movement of the centre of lift. The experimental values, which decrease as the aspect ratio is raised
+from 6 to 9, are higher than the two-dimensional theoretical values for blowing over a 10% chord
+flap. This also applies for the aspect-ratio 6 half-model results and would be expected from
+conventional arguments following lifting-line theory, which imply that the pitching-moment
+increment due to flap deflection is independent of aspect ratio. As regards the variation of pitching
+moment with incidence, the experimental results on both the complete model and the half-model
+suggest an increasing value of (-dCm/dCL) with increasing Ct,, i.e., a rearward movement of the
+aerodynamic centre, in contrast to the theoretical trend (c//c = 1 curve of Fig. 10).
+The amount of trim required with practical C.G. positions (say about 0.35c) is exceptionally
+large at high lift coefficients, so that a tailplane of conventional type is quite inadequate for this
+purpose. Fig. 11 shows that auxiliary jets, applied to provide a download at the tailplane location,
+could require a jet momentum as much as one third of the jet-flap momentum, the trimming loss
+being of the order of one-tenth of the wing lift. Much smaller auxiliary blowing requirements could
+suffice if used for B.L.C. or a jet flap on the tailplane itself. A foreplane layout is of course more
+attractive from the trimming aspect, but could be objectionable because of forward location of the
+aerodynamic centre and interference over the wing from the foreplane downwash.
+3.4. Downwash. Behind a jet-flap wing, the downwash is large even at a high tailplane location
+(Fig. 12). Both e and 8e/3~ tend to increase steadily with Ct,. For example, on the aspect-ratio 9
+complete model with 0 ~ 50 ° and ~ = 10°, the downwash measured at lt = 4.1~ aft of the wing
+mean quarter-chord point and h t = 1.5~ above the extended wing chord line rises from 7 ° to 20 °
+as C/~ is increased from 0 to 2, while ( 1 - 3e/3o0 falls from 0-75 to 0.4 (see Fig. 18a).
+In the application of linearised theory for the estimation of downwash, considerable care is needed
+and some difficulties are encountered with regard to the choice of the effective jet path and tail
+height, as well as of the appropriate C~ or C L. Although the theoretical variation of e with hdc at
+fixed C~, 0 and ~ is plausible, the absolute values are considerably in error at high C~ (Fig. 12a).
+In fact, the estimated increase in e with ~ and with C/, is much too small (Fig. 12b), especially at
+high CL-values. This would be consistent with the theory overestimating the variation of the effective
+distance of the deflected jet sheet below the tailplane with % 0 or C~. Furthermore, the present
+theory ignores rolling-up of the trailing vortex sheet and departures from elliptic spanwise loading
+(e.g., body cut-out) across the wing and jet.
+
+4. Thrust and Drag. The thrust coefficient given by linearised inviscid-flow theory for
+full-span jet-flap wings becomes
+C:e = C1~ - CL2/(rrd +2C~),
+
+(6)
+
+where the last term on the right represents the 'trailing-vortex' drag associated with an elliptic
+spanwise distribution of loading. To examine the practical deficiency in thrust, a more general form
+of (6) can usefully be considered, say
+
+c +C o=r G - k
+
++ 2G"
+
+(7)
+
+Here, the 'sectional thrust' is for convenience expressed as a proportion r of the theoretical value Ce,
+while the drag associated with finite aspect-ratio effects is expressed as a proportion k of the
+theoretical value CL~/(rrA+2C~,). The term CD0 represents the drag at zero lift, without flap
+deflection and blowing, as usual.
+Even at small incidences and jet angles when variation of k from the datum theoretical value of
+unity is not significant, or at zero forward speed, the sectional-thrust factor r falls below unity for a
+variety of reasons. Firstly, due to boundary-layer growth in the slot, the jet momentum M j V j is
+usually overestimated. For example, on the half-model, the true (measured) mass-flow rate is only
+0- 96 of the theoretical based on the geometrical slot area, this deficiency being explicable in terms
+of the boundary-layer displacement thickness. Thus the effective jet momentum and sectional-thrust
+factor r on this model is unlikely to exceed 0- 93 of the theoretical, if no allowance is made for the
+momentum deficiency due to boundary-layer growth, or 0.97 if only V a is determined theoretically
+and M j is given its measured experimental value. Further deficiencies can occur if blockage is
+introduced into the slot, over and above that due to the lower mass-flow rate associated with the
+smaller slot exit area at a prescribed pressure ratio. For instance, on the half-model, spacers 0.25 in.
+wide located at spanwise intervals of 2 in. along a slot of 0- 08 in. depth led to a decrease of 0. 015 in
+r, though doubling the spacer size made the decrease only 0.02. Again, the flow entrained locally
+into the jet efflux can produce suction drag on the rearward-facing surfaces of the slot lips, but
+model results indicate that the corresponding reduction in r is unlikely to exceed 0.01 provided the
+lip thickness is no larger than twice the slot width.
+When the air is ejected over a trailing-edge flap, further deficiencies in thrust can arise from the
+high skin friction on the flap upper surface. Typically, on model scale, the reduction in r is about
+0.05 for a flap/wing chord ratio of 5 0 , rising only to 0-06 for a 10% chord flap. Unfortunately, the
+relative importance of slot width is not known. Direct impingement of the jet on the flap nose can
+also be detrimental. Model resuks indicate that r can be reduced as much as 0- 03, if the upper surface
+of the flap nose is aligned with the upper boundary rather than the lower boundary of the jet.
+On the other hand, exploratory studies suggest that a small gap between the flap nose and the lower
+lip of the slot, roughly equal to the slot width, can be beneficial since some mixing with the
+mainstream air passing through this gap occurs at the lower boundary of the high-velocity jet,
+before the latter reaches the flap upper surface.
+Inclination of the jet sheet to the mainstream direction by flap deflection or wing incidence,
+tends to reduce the sectional-thrust factor r because of mixing and turning losses and, to a lesser
+extent, because of 'lift-dependent' drag associated with boundary-layer growth over the main
+aerofoil. With finite-span wings, significant variations may also arise in the finite aspect-ratio drag
+factor k over the full practical range of jet-deflection angle and momentum coefficient. In the
+absence of comprehensive and accurate force measurements on two-dimensional blowing configurations or over a wide range of aspect ratios, analysis of available results must be regarded as an
+expedient for providing rough working rules for limited projected work, rather than by way of
+justification of fundamental concepts. Certainly, the relation (7) grossly overestimates the thrust
+resuks for the half-model and the complete models at appreciable jet-deflection angles, if r and k
+are assigned unit theoretical values or even experimental values corresponding to small angles of
+incidence and flap.
+One simple approach is to assume that the deficiencies in thrust are primarily sectional in nature
+(r < 1) and that the trailing-vortex drag is adequately predicted by theory (k-'-1) for practical
+
+purposes. Fig. 13 shows the consequent variation of r with (0+@ at Cl~-values about 1.3 and 2.5
+for the complete model. The reasonable correlation of the aspect-ratio 6 and 9 results lends support
+to this method of analysis, at least for Ct~ > 1. The value of r reaches only about 0.83 on this model,
+even at small angles, but could be as high as 0.92 with improved slot design and flap alignment,
+along the lines discussed earlier. If the flap were of the retractable type, providing a good T.E.
+slot configuration without jet deflection, the value could rise to 0.97 under such conditions (say at
+cruise), thus comparable with that for a conventional round nozzle. For (0+~) values above 30 °,
+the complete model results give r-values decreasing steadily from 0.83 to about 0.65 and 0.25 at
+0 + ~ ~ 60 ° and 90 ° respectively.
+An alternative approach is to assume that r takes values given by static measurements of resultant
+thrust (including turning losses), so that any additional thrust deficiencies must be primarily
+accounted for by treating k as a function of 4) - CL~/(rrA + 2Ce). Again, such an analysis seems
+reasonable since plots of C T against C~ at constant values of ~ give a series of straight lines, nearly
+parallel and of slope roughly equal to the corresponding static values of r, namely 0.83 and 0.80 at
+0--~ 20 ° and 50 ° respectively. Fig. 14 shows that k(4~) increases noticeably and almost linearly
+with ~, but the analysis tends to break down for high jet-deflection angles and C~-values. Of course,
+it can be argued that the variation of k(~) would be much smaller if the lift-dependent drag, arising
+from boundary-layer growth over the forward part of the aerofoil, were taken into account by the
+introduction of a further semi-empirical term into (7).
+With a part-span jet flap, additional lift-dependent drag ACDz~ can arise because of the departure
+from the normal spanwise distribution of lift, so that we may re-write (7) as
+
+CT + CDo = rCt~- k ~vA Cz~
++ 2C~
+
+ACD i~
+
+(8)
+
+Fig. 9 shows experimental values of A CD p for inboard half-span flaps and blowing on the aspect-ratio
+6 half-model, derived assuming that r varies with 0 + ~ as for full-span flaps and with k ~ 1.
+Some crude theoretical estimates ACDI~ = KACL2/WA are also included for completeness, derived
+simply on the basis of lifting-line theory for conventional wings; this gives ~c as a function of the
+ratio ao/A of sectional lift/incidence curve slope to wing aspect ratio and of flap spanwise extent and
+location, AC z being the lift increment due "coflap deflection and blowing. When a 0 varies considerably
+across the span, as with part-span jet flaps, it is difficult to decide how best to apply the existing
+theory. For example, Fig. 9 shows the marked decrease in the estimate when a 0 is raised from the
+value for a conventional aerofoil (C~ = 0) to the considerably higher value for a jet-flap aerofoil.
+Furthermore, in the light of arguments already put forward for the trailing-vortex drag with
+full-span jet flaps, an expression of the type A C Dio = KACz2/(rcA + 2nCe) might be taken as more
+plausible.
+Unfortunately, although the drag increment associated with part-span effects can be significant
+even at moderate Cl~-values and jet deflections, there is as yet no sound theoretical basis for its
+prediction. More elaborative theories need to take into account the spanwise variation of the height
+and inclination of the jet sheet relative to the datum wing-chord plane as well as of the lift loading
+and jet momentum.
+
+5. Sideslip Derivatives. As regards lift, thrust, downwash and longitudinal stability derivatives,
+the influence of moderate amounts of sideslip can probably be ignored, though there is some evidence
+that tailplane power may be reduced noticeably. On the other hand, estimation of lateral stability
+10
+
+derivatives for jet-flap wings by simple-conventional arguments is unlikely to be adequate. To
+provide some basic data and understanding, measurements of lateral derivatives and flow-visualisation experiments were carried out on the R.A.E. complete model, with individual variation of
+aspect ratio (6 to 9), sweepback (0 to 10°) and dihedral ( - 1 ° to 4°). These brought to light some
+novel aspects, of vital importance from lateral stability considerations.
+First of all, the positive /v-values (anhedral effect) found on the aspect-ratio 6 version at high
+jet deflections and lift coefficients (Fig. 15a) are not predicted by conventional arguments.
+Furthermore, the positive increment in lv to be expected with increasing aspect ratio becomes
+especially large at the high Cz's. Such planform effects can be explained qualitatively by modifications to conventional theory, taking into account positive contributions from the bound-vorticity
+distribution associated with the large effective camber (at zero lift) and from the powerful trailingvortex sheet* together with the large increase in lift/incidence curve slope (as well as Cz) at high Cf,.
+Unfortunately, since for spiral stability, (Ivn~,- n,lr) > O, it is usually desirable not only for lv to be
+negative, but also to become increasingly negative with increasing Cz, unless some of the other
+derivatives are artificially controlled.
+As expected, dihedral can give a reduction in lv, but not as much as desired at high Cz's. The
+reduction can be reasonably predicted by conventional theory, provided the large variation in lift/
+incidence curve slope with C~ is taken into account. Sweepback also causes a substantial reduction
+(Fig. 15a), but this does not grow steadily in magnitude with Cz as would be expected from
+conventional arguments. Again, qualitative predictions can be provided by modifications to
+conventional theory considering the lifting effectiveness of jet-flap aerofoil sections normal to the
+quarter-chord line (or T.E. flap hinge line). However, adequate theoretical methods for the satisfactory
+estimation of 1, are not yet available, particularly as regards the variation with C/~, incidence, or jet
+angle, so that semi-empirical treatments have still to be used. Moreover, sweepback can also cause
+substantial increases in the yawing-moment derivative nv and the side-force derivative - Yv (Figs. 15b
+and 15@ These increases are generated primarily by sidewash variations over the fuselage; at the
+same time, the fin contribution tends to increase.
+Dynamic derivatives for jet-flap wings have" so far been evaluated by quasi-steady treatments,
+and it has been argued that these should suffice for most stability calculations. Only by experimental
+measurements of such derivatives under oscillatory conditions can it be ascertained whether periodic
+variations in the trailing vorticity can introduce phase lags of practical importance.
+6. Effect of Ground. The lift on a jet-flap aerofoil near the ground rises much as usual with
+increasing C~ or jet angle 0, until the jet actually impinges on the ground and effectively blocks the
+mainstream flow between the aerofoil lower surface and the ground 21. With further increase in
+C/, (or 0), a vortex forms below the aerofoil and generates downward suctions on the rear lower
+surface. This not only limits further rises in C L (Fig. 16), by reducing the pressure lift CL~ , but
+also leads to rapid forward movement of the centre of lift (pitch-up) and can cause substantial
+changes in thrust. Typically, at a ground clearance of unit chord, this unfavourable ground effect
+becomes noticeable when Cf~reaches about 1½ (C L ~ 5) for jet angles 0 of the order of 60 °. However,
+when the clearance is raised to two chords, the effects appear to be negligible for C~ values up to at
+least 4 (C z --~ 10) for the same value of 0.
+
+This approach was first put forward by staff of Hunting Aircraft Ltd2.
+11
+
+With finite aspect-ratio wings, the effects of ground proximity are naturally more complicated
+than under two-dimensional conditions, but again the amount of interference with the jet path is the
+deciding factor. The nature and magnitude of ground-interference effects can be conveniently
+discussed in the light of the experimental studies o n the unswept aspect-ratio 9 version of the complete
+model (with 4 ° dihedral).
+Before impingement occurs, the lift at incidences well below the stall is slightly increased by
+ground proximity, as normally expected (see Fig. 17a), while the effects on pitching moment and
+thrust are also not serious (Figs. 17b and 17c). Moreover, the stalling incidence decreases only a
+few degrees as the ground clearance is reduced and the nature of the stall does not alter, starting
+with separation of the turbulent boundary layer just ahead of the blowing slot at the wing root.
+The sideslip derivatives are also not significantly affected. In contrast, the downwash at a conventional tailplane position (1Jg = 4.1) is much reduced by ground effect, even well before impingement
+takes place and at a substantial tailplane height (ht/g = 1.5) above the extended wing chord line
+(see Fig. 18@
+When the CFvalue or jet inclination is sufficiently large to cause jet impingement, the lift falls
+below the value achieved without ground, the lift/incidence curve slope also falls markedly with
+further increase in incidence, and the stall occurs much earlier as the ground clearance is further
+reduced (Fig. 17a). Flow studies show that, on impingement, some of the jet flows forward along the
+ground until the mainstream flow forces it to separate; the separated air then flows spanwise out
+towards the wing tip and part is entrained back into the jet efflux to form a vortex (Fig. 19). Some
+mainstream air is still able to pass between the wing and the vortex and mix with the jet efitux
+leaving the wing trailing edge. With increasing incidence, the point of impingement moves forward,
+partly because of the jet inclination (0 + ~) increases and partly because the trailing edge moves closer
+to the ground. Simultaneously, the vortex grows in strength and size, diverting more and more
+mainstream air over and around the wing, until the mainstream flow is unable to penetrate between
+the wing lower surface and the ground, except possibly at its outer edges. Pressure distributions
+indicate that impingement causes a general reduction in sectional lift (circulation), except near the
+wing tips. The normal rearward movement of the front stagnation point (lower surface) with
+increasing incidence is inhibited (Fig. 20), so that the peak suctions on the upper surface rise more
+slowly because of ground effect (Fig. 21). The loss in lift due to ground is thus not primarily
+associated with lower-surface suctions, as has been suggested for the two-dimensional aerofoil
+at zero incidence, possibly because of the 'spanwise venting' which can occur with a finite-span
+jet sheet.
+The nature of the wing stall can also be changed by impingement, a trend towards leading-edge
+separation being promoted on the complete model. The rounding of the lift/incidence curves when
+impingement occurs is also accompanied by a tendency to pitch-up (tail-off) and some decrease in
+thrust (Fig. 17). The usual increase of downwash with incidence disappears completely (Fig. 18a),
+and the variation of downwash with groundclearance is considerable (Fig. 18b). Fortunately, the
+sideslip derivatives are less seriously affected by impingement. Some reductions occur in the yaw
+derivative n,,, and the sideforce derivative - y~, and are accompanied by smaller sidewash at the fin
+position, presumably because the jet path passes much nearer to the fuselage and fin. However,
+the roll derivative l,, tends to become more negative, corresponding to greater dihedral.
+It should be remarked that, since the present wind-tunnel experiments were carried out with a
+boundary layer on the fixed ground-board, the effects due to ground may be exaggerated. But the
+12
+
+qualitative features at least seem justified and must be borne in mind as limiting factors on take-off
+and landing performance. Although some simple mathematical representations of ground effect
+have been formulated for the two-dimensional aerofoil a3,a4, there is as yet no adequate theoretical
+treatment for jet-flap wings with the jet in close proximity to or impinging on the ground.
+L
+
+7. Concluding Remarhs. The aerodynamic principles of jet-flap wings are now well established,
+at least in steady motion, as a result of recent detailed wind-tunnel and theoretical investigations.
+Useful estimates can now be made of lift, pitching moment, downwash, thrust and lateral stability
+derivatives for wings of moderate aspect ratio, sweep and full-span jet deflection. Unfortunately,
+although the available aerodynamic theories have provided valuable background, they are essentially
+simple thin-aerofoil and lifting-line treatments assuming inviscid flow. The influence of viscosity,
+together with the marked divergence of the jet sheet from the wing plane, cannot generally be
+ignored. Thus, semi-empirical approaches have still to be used, particularly as regards the estimation
+of thrust and downwash with large jet deflections and the effects of part-span blowing or spanwise
+variation of jet angle. In addition, available simple theories on the effects of sideslip and proximity
+to the ground at most only give qualitative results over a limited range of parameters. Clearly,
+there is scope for further experimental and theoretical research on many other aspects, for example
+the reduction of deficiencies in thrust associated with skin friction, ~mrning and mixing of the jet,
+and on the determination of oscillatory derivatives.
+Performance and stability studies have naturally provided much useful guidance as to the
+aerodynamic features of major importance for jet-flap aircraft designs. With the recent development
+of turbo-jet engines of high bypass ratio and of light-weight units as gas generators, mixed jet-flap/
+round-jet configurations have become attractive for short take-off and landing, the jet flaps being
+used primarily for lift and the conventional round nozzles for thrust. Again, jet flaps might be usefully
+incorporated to lower the transition speed of new types of VTOL aircraft, or to simplify the lifting
+rotor and improve helicopter performance at all speeds. Such considerations introduce many new
+and interesting aerodynamic problems, worth further study from both fundamental and practical
+aspects.
+
+13
+
+L I S T OF SYMBOLS
+A
+
+Wing aspect ratio
+
+b
+
+Wing span = 2s
+
+£,
+
+Wing chord, local and aerodynamic mean
+Cf
+
+Flap chord aft of hinge line
+Drag and thrust coefficients = D/qoS , T/qoS
+Drag coefficient at zero lift without flap deflection or blowing
+Additional lift-dependent drag associated with part-span jet flaps
+Lift coefficient = L/qoS
+
+Act
+
+Increment in lift coefficient due to flap deflection and blowing
+
+(acr.],
+
+Lift/incidence curve slopes, theoretical and experimental
+Theoretical rate of variation of lift coefficient with jet deflection
+Cm
+
+Pitching-moment coefficient = m/qoS~
+
+A C,,
+
+Increment in pitching-moment coefficient due to flap deflection and blowing
+
+At,,4
+
+Ratio of moment to lift increments associated with flap deflection and
+blowing
+
+0/o O/
+CQ
+
+Jet-momentum coefficients = M j V s/qo S, M j V.r/qoS'
+
+F(A, C,,)
+
+Flow-rate coefficient = M r/poVoS
+Aspect-ratio conversion factor on lift: see equations (3) and (4)
+
+ht
+
+Height of tailplane above wing-chord plane
+
+H
+
+Mean height of wing-chord plane above ground
+
+J
+
+Static jet reaction
+
+k, K
+
+Empirical drag factors: see equations (7) and (8)
+Coefficient of rolling moment l due to sideslip/3 = (Sl/8/3)/qoSb
+Coefficient of rolling moment l due to rate of yaw g) = 4(Sl/8~)/poVoSb ~
+
+l,
+Mj
+nv
+
+Tail-arm aft of wing mean quarter-chord position
+Mass-flow rate
+Coefficient of yawing moment n due to sideslip/3 = (Sn/8/3)/qoSb
+Coefficient of yawing moment n due to rate of yaw ~ = 4(Sn/O(J)/pogoSb ~
+
+qo
+
+Mainstream dynamic head
+14
+
+L I S T OF S Y M B O L S - - c o n t i n u e d
+Empirical thrust factor: see equation (7)
+S
+
+Gross wing area
+
+• S /
+
+Reference wing area corresponding to spanwise extent of jet slot
+
+t/c
+
+Wing thickness/chord ratio
+
+vo
+vj
+
+Mainstream speed
+Jet speed
+
+Yv
+
+Coefficient of side force Y due to sideslip fi = (3Y/3fl)2qoS
+
+o~
+
+Wing incidence
+Tailplane angle
+Sideslip angle
+Downwash angle
+
+C
+
+Flap or control angle
+Effective jet-deflection angle
+
+0
+
+Part-span conversion factors on lift: see equations (4) and (5)
+
+~, v
+
+¢
+
+Trailing-vortex drag parameter = Cz2/(rrA + 2C/,)
+
+Suffix oo signifies that value is appropriate to two-dimensional conditions.
+
+REFERENCES
+No.
+
+Author
+
+Title, etc.
+
+General
+
+1 I . M . Davidson
+
+..
+
+The jet flap.
+J. R. Aero. Soc. Vol. 60. pp. 25 to 50. January, 1956.
+
+2 J. Williams
+
+. . . . . .
+
+Brkish research on the jet-flap scheme.
+Z.F.W. (Germany). Vol. 6. pp. 170 to 176. 1958.
+
+3 L. Malavard, Ph. Poisson-Quinton
+and P. Jousserandot
+
+Recherches theoriques et experimentales sur le controle de
+circulation par soufflage appliques aux ailes d'avions.
+O.N.E.R.A. Tech. Note 37. 1956.
+
+4
+
+The application of the jet-flap to helicopter rotor control.
+J. Hell. Assoc. of G.B. Vol. 13. pp. 323 to 362. December, 1959.
+
+R. Dorand . . . . . . . .
+
+5 J. G. Lowry, J. M. Riebe and
+J. P. Campbell
+
+The jet-augmented flap.
+L A . S . Preprint 715. 1957.
+15
+
+REFERENCES--continued
+No.
+
+Title, etc.
+
+Author
+
+6
+
+B . S . Stratford
+
+..
+
+Early thoughts on the jet flap.
+Aero. Quart. Vol. 7. pp. 45 to 59. 1956.
+
+7
+
+B . S . Stratford
+
+..
+
+Mixing and the jet flap.
+Aero. Quart. Vol. 7. pp. 85 to 105. 1956.
+
+8
+
+J. Williams
+
+Some British research on the basic aerodynamics of powered lift
+systems.
+J. R. Aero. Soc. Vol. 64. pp. 413 to 437. i960.
+
+9
+
+Hunting Aircraft Ltd.
+
+Aerodynamic design studies of a jet-flap research aircraft.
+Unpublished firm's reports.
+
+Experimental
+10
+
+N . A . Dimmock
+
+..
+
+An experimental introduction to the jet flap.
+A.R.C.C.P. 344. July, 1955.
+
+11
+
+N . A . Dimmock
+
+. . . . . .
+
+Some further jet-flap experiments.
+A.R.C.C.P. 345. May, 1956.
+
+12
+
+N . A . Dimmock
+
+. . . . . .
+
+Some early jet-flap experiments.
+
+Aero. Quart. Vol. 8. pp. 331 to 345. 1957.
+13
+
+J. Williams and A. J. Alexander ..
+
+14
+
+J. Williams and A. J. Alexander ..
+
+Three-dimensional wind-tunnel tests of a 30 ° jet-flap model.
+A.R.C.C.P. 304. November, 1955.
+Some exploratory three-dimensional jet-flap experiments.
+
+_dero. Quart. Vol. 8. pp. 21 to 30. 1957.
+15
+
+J. Williams and E. M. Love
+
+..
+
+Some jet-flap experiments comparing blowing from the trailingedge, from the knee of a trailing-edge flap, and from the
+aerofoil nose.
+N.P.L. Paper to be issued.
+
+16
+
+J. Williams and A. J. Alexander ..
+
+Wind-tunnel experiments on a rectangular wing jet-flap model of
+aspect-ratio 6.
+A . R . C . R . & M. 3329. June, 1961.
+
+17
+
+M . N . Wood
+
+Further wind-tunnel experiments on a rectangular wing jet-flap
+model of aspect-ratio 6.
+Unpublished M.o.A. Report.
+
+18
+
+J. Williams and J. Alexander
+
+19
+
+S . F . J . Butler, M. B. Guyett and
+B. A. Moy
+
+Six-component low-speed tunnel tests of jet-flap complete models
+with variation of aspect-ratio, dihedral and sweepback,
+including the effects of ground proximity.
+Unpublished M.o.A. Report.
+
+20
+
+P. Bradshaw and M. T. Gee
+
+Turbulent wall jets with and without an external stream.
+A . R . C . R . & M. 3252. June, 1960.
+
+. . . . . .
+
+..
+
+..
+
+Some exploratory jet-flap tests on a 60-deg delta wing.
+A . R . C . R . & M. 3138. March, 1957.
+
+16
+
+REFERENCES--continued
+No.
+
+Author
+
+Title, etc.
+
+21
+
+D . J . Huggett
+
+22
+
+A. Anscombe and J. Williams
+
+23 S . F . J .
+
+..
+
+T h e ground effect on the jet-flap in two-dimensions.
+Aero. Quart. Vol. X. pp. 28 to 46. 1959.
+..
+
+Some comments on high-lift testing in wind-tunnels, with
+particular reference to jet-blowing models.
+J. R. Aero. Soc. Vol. 61. pp. 529 to 540. 1957.
+
+Butler and J. Williams ..
+
+Further comments on high-lift testing in wind-tunnels with
+particular reference to jet-blowing models.
+Aero. Quart. Vol. XL pp. 285 to 308. 1960.
+
+Theoretical
+24
+
+L . C . Woods
+
+25
+
+E . C . Maskell and S. B. Gates
+
+26
+
+D . A . Spence
+
+. . . . . .
+
+The lift-coefficient of a thin, jet-flapped wing.
+Proc. Roy. Soc. A. Vol. 238. pp. 46 to 68. 1956.
+
+27
+
+D . A . Spence
+
+. . . . . .
+
+The lift on a thin aerofoil with a jet-augmented flap.
+Aero. Quart. Vol. 9. pp. 287 to 299. 1958.
+
+28
+
+E . C . Maskell and D. A. Spence ..
+
+A theory of the jet-flap in three-dimensions.
+Proc. Roy. Soc. A. Vol. 251. pp. 407 to 425. 1959.
+
+29
+
+D. Ktichemann
+
+. . . . . .
+
+A method of calculating the pressure distribution over jet-flapped
+wings.
+A . R . C . R . & M. 3036. May, 1956.
+
+30
+
+A . J . Ross . . . . . . . .
+
+T h e theoretical evaluation of the downwash behind jet-flapped
+wings.
+A . R . C . R . & M. 3119. January, 1958.
+
+31
+
+H . H . B . M . Thomas and A. J. Ross
+
+T h e calculation of the rotary lateral-stability derivatives of a
+jet-flapped wing.
+A . R . C . R . & M. 3277. January, 1958.
+
+32
+
+A . S . Taylor
+
+. . . . . .
+
+A theoretical investigation of the longitudinal stability, control
+and response characteristics of jet-flap aircraft. Part I.
+A . R . C . R . & M. 3272. February, 1960.
+
+33
+
+D . J . Huggett
+
+. . . . . .
+
+A theoretical study of the ground effect on a jet-flap.
+Southampton University Report U S A A 112. 1959.
+
+34
+
+G . J . Hancock
+
+. . . . . .
+
+The ground effect on a two-dimensional jet-flapped aerofoil.
+A.R.C. 20,251. June, 1958.
+
+35
+
+E . C . NIaskell
+
+..,
+
+The interference on a three-dimensional jet-flap wing in a closed
+wind tunnel.
+A . R . C . R . & M. 3219. August, 1959.
+
+Some contributions to jet-flap theory and to the theory of source
+flow from aerofoils.
+A.R.C.C.P. 388. January, 1958.
+
+....
+
+..
+
+Preliminary analysis for a jet-flap system in two-dimensional
+inviscid flow.
+A.R.C.C.P. 359. June, 1955.
+
+17
+(86067)
+
+]3
+
+Fie.. 1. Jet-flap aircraft.
+
+Fio. 2. Somejet-flap schemes.
+
+18
+
+$' " PRESSUREDISTRIBUTION
+4(=~" O°)
+IO'
+I
+
+0
+I
+I-
+
+AEROFQIL
+
+\x
+
+-
+
+~
+O'ET ~ - = -- --_- ~ - ~
+
+0.....................
+f
+
+_lo
+
+I
+O.P-5
+
+, o.~o
+
+O!TE
+
+~=AN ( A . R . ~ > , 4 . 7
+
+f.oo
+
+I
+bEE
+
+JS
+'I O
+
+Root
+
+|'~-oiN"
+IN.
+
+CHOR~ = , , . o IN.
+
+1.75
+
+FIG. 3. Basic principle of jet-flap aerofoil.
+
+I
+
+1
+
+f
+
+l
+
+I
+
+!
+
+I
+
+i
+
+I
+
+20"
+
+I
+I
+I
+I
+
+ALTERNATIVE
+SHORT CHORD F L A p
+
+~"
+
+I
+I
+I
+
+A,R.6
+
+I
+
+t-
+
+A,R.9
+I
+NOSE DROOP
+~ U B , C CENTRE L I N E )
+
+STREAMWI$E
+I=~/o T H I C K
+
+SECTION
+R A E IO4.
+
+SLOT
+
+WIDTH
+
+0,080
+
+~
+
+ASPECT
+
+I
+
+4" tO ° SWEEP.
+
+RATIO
+
+IN.
+
+I
+I--
+
+......
+
+I
+]
+
+T R A I L I N G - EDGE B L O W I N G
+CONFIGURATION
+
+~
+
+,,
+I
+
+l
+
+BLOWING
+
+DUCT
+
+1
+
+FIG. 4. Half-model of jet-flap rectangular wing.
+
+TYPICAL
+~
+, - W,NG S E C T , ~ N ~ / ~ /
+(NACA 4 4 Z 4 )
+~
+
+~
+
+~
+
+I . ~ - T A N G E~ NOFT I.JET
+/~L
+
+.
+.
+
+"
+
+TO , O S ~ O~ F ~ P
+
+/
+HINGE L I N E A T 8 9 ~ o C H O R D
+ON L O W E R SURFACE
+
+Fro. 5. Jet-flap complete model.
+
+G
+CL
+
+/
+
+/°j!
+
+/
+
+/j
+
+5
+
+=87
+
+/
+pRESEURE
+LIFT 2
+
+/'/
+,
+
+°.°
+
+~7 ~
+
+,
+
+/
+
+~7 o
+
+@
+
+/
+
+=
+
+/
+
+J ' ' " / t _ j / .f'g,.s,. 6";~
+
+/
+
+/
+
+'
+
+MOMENTUM
+
+e : 7°
+
+/
+/
+
+0-5
+
+I-0
+
+1"5
+
+2"0
+
+Z.'5
+
+I
+
+1'50
+
+3"0
+
+0,55
+
+C,u.
+
+FIG. 6a.
+
+0'60
+
+0"65
+
+0.7
+
+x.tc
+
+Variation of lift and centre of lift at zero incidence. (Aspect-ratio 6
+half-model.)
+
+_$7___
+
+CL
+f
+0
+
+-f - - - ~
+
+"'~
+
+C~, = ,~.43
+
+~'~
+I
+
+= 6"/°
+
+G
+
+/
+
+.
+
+x\
+
+"
+BASIC L.g.
+-
+
+-
+
+DROOPED L.E.
+
+5
+
+C~:. = CI-9 /
+
+-
+
+~
+
+"..
+
+Cu.= 0 . 4 ' 7
+
+"...
+
+\
+
+/-~c,,
+
+- I0
+
+FIG. 6b.
+
+-5
+
+0
+
+=o
+
+.5
+
+I0
+
+15
+
+'~0
+
+Effect of C/, and nose droop on lift/incidence
+curves. (Aspect-ratio 6 half-model.)
+20
+
+4
+
+J
+
+F!o, 7,
+
+J
+
+J
+
+1
+
+(OCL/O0)~for thin aerofoil with trailing-edge flap blowing.
+
+21
+
+O
+(NOM)
+e l , =O °
+
+SYMBOL
+A.R.G AN.9
+
+20 °
+
+O
+
+~0 °
+
+X
+
+50 =
+
+~,
+
+80 °
+
++
+
+/
+
+~
+
+, E~ = 8~'-J
+
+/
+
+/
+/
+
+16
+
+/
+
+~
+
+f
+
+/
+
+/
+
+14-
+
+14-
+
+//
+
+la!
+
+/
+
+|Z
+
+f/
+
+#/
+/
+.#"
+
+IO
+
+IO
+f
+
+¢¢
+
+//
+
+/
+
+8
+bO
+bO
+/
+
+B
+
+/
+
+/
+
+/
+;r
+
+' J '
+
+4
+
+B
+
+SYMBOL
+
+(No.)
+2
+
+--!
+-
+
+f
+O
+
+-
+
+TWO-DIMENSl0NAL
+L I N E A R THEOR~I
+DITTO~ WITH T H I C K N E 5 5
+CORRECTION
+
+I
+
+I
+
+FIe. 8a. Comparison of reduced experimental and theoretical values for lift increment.
+(Complete-model results--no tailplane.)
+
+A.R.6 A.R.5
+
+20 °
+
+®
+
+50 °
+
+Y,
+
+e"
+
+....
+
+TWO-DtMEHSIONAL LIN~
+THEORy
+DITTO, W~TH THIr,.KNESS ¢0P~ECTiON
+
+50 o
+80 °
+
+Oo
+
+4"
+
+I
+
+3
+
+4
+
+Fro. 8b. Comparison of reduced experimental and theoretical values for lift/incidence
+curve slope. (Complete-model results--no
+tailplane.)
+
+5
+
+5,0
+4-.O
+
+z~c,.
+
+0.8
+
+5.C
+?-'0
+
+O.7
+
+1.0
+
+0.6
+
+L
+
+/
+
+;,9/
+0.5
+
+¢..,Q
+
+0.8
+
+O-S
+
+I'O
+
+1"5
+
+2.0
+
+t
+
+i
+
+i
+
+I
+
+TtlEORETICAL (
+ACop
+CUB.VE.S
+O-G
+
+t
+
+%
+
+2.5
+
+/
+
+n o D E T E R M I N E D FOR
+/"
+SECTIONAL
+Ci,.,"
+O-=, FoP, C , ~ . = O
+/ ~'
+
+....
+
+O
+/
+O°
+
+/i
+
+f
+
+.._._..._._.~ - - -
+
+0.4-
+
+.,-'~
+
+=
+
+G7 =
+
+f
+
+/
+
+3'0
+
+/
+
+0..~
+
+I
+
+57
+
+o.a
+
+O.Oe
+
+/,,,/
+
+-'
+
+-
+
+-
+
+/
+
+)
+
+/
+
+/
+
+O'Z.
+
+0-I
+
+0
+
+0"5
+
+|-0
+
+I-5
+
+.----
+
+,~-0
+
+,8:5
+
+3-0
+
+c p.
+
+FIO. 9. Lift and drag with part-span flap. (Aspectratio 6 half-model.)
+
+I
+
+C.~. A T WING L.E.
+19
+3yM80L
+,~0 °
+
+O
+
+:~D °
+
+X
+
+50 °
+
+~
+
+BO °
+
++
+
+I
+
+O
+
+I-O
+
+~"
+
+=
+
+- - T W O - DIIVlENSIONAL
+L1N,EAR THEORY
+
+Z{
+
+I
+Z-O
+
+¢-O
+
+3"0
+
+ct~
+Fro. 10. Comparison of experimental
+--ACm/AC z at zero incidence with twodimensional theoretical values. (Completemodel results--no tailplane.)
+
+5-0
+
+2"00
+
+1-75
+
+c.r~. AT 0-35%
+
+CL=6/~'~
+
+CL: 3~>~. /
+
+C.~O=S O~
+
+C~
+TO TRIM
+1'25
+CL= 4~..~.~ {/
+
+/EFFECT OF DO~/NWARD
+
+I '00
+
+O'~S
+
+,n. - 0'035
+0,50
+CL=2.
+0'25
+
+0
+
+I ¢ ................... ~=o;
+0"5
+
+I'0
+
+1"5
+
+C.,.
+
+2'0
+
+2,5
+
+FIG. 1 l. Pitching moment to trim with zero
+tailplane lift. (Aspect-ratio 6 half-model.)
+
+24
+
+35
+
+?-5
+
+~5
+
+1
+e= 67 °
+
+~:0°~
+
+EO
+
+15
+
+:o-a
+_.~-~_--..~..~_
+z
+
+h3
+t~
+
+----2
+
+£°
+
+•
+
+I0
+
+_
+
+-
+
+%
+
+i--::"
+
+../
+1"3
+0"~
+
+ESTIhl
+
+IO
+
+.
+
+-
+
+c,]
+
+d
+
+/
+~
+
+/
+
+0-09
+
+.
+
+/f
+/
+
+J
+
+0
+
+0
+
+O'Z5
+
+0"5
+
+0-75
+
+I'0
+
+I'E5
+
+I'5
+
+FIo. 12a. Variation of downwash with tailplane
+height. (Aspect-ratio 6 half-model.)
+
+-I0
+
+o
+
+IO
+
+~O
+
+5O
+
+~-o
+
+FIC. 12b. Variation of downwash with
+incidence. (Aspect-ratio 9 complete model,
+with - 1 ° dihedral.)
+
+I'O
+
+0-6
+f
+
+c = * a.s
+O'4 - SYMBOL119° (NON)
+
+o,~.
+
+a~
+
+o
+
+ZO 1 A.R.ro
+
+~
+
+~oj
+
+t.B
+
+D
+4-
+
+A-R.9
+
++
+
+/
+
+1,6
+
+x
+
+O'8
+bO
+
+el.E.'r
+
+• SECTIONAL
+THRUST
+FACTOR
+
+r
+
+d c:
+
+7
+
+I-4-
+
+,~
+
+\T~ A+2.C~, J
+
+"P = STATIC VALt--~F-
+
+O.ro
+1.2.
+
+0.4
+
+~YMB0& 19° I~NOM.)
+
+o°i t
+~,
+
+0'~
+
+D
+
+BoJ
+
++
+
+ilO
+50
+
+4-
+
++
+v
+
+C.,u.- - 1.3
+
+c~.~ 1.5
+SY~BOL O° (NOM.)
+
+o~
+I-0
+
+h.=i
+
+~.o}
+
+o
+
++ns
+A.R.8
+
+m
+
+(D
+® A
+~"
+
+A.R.9
+
+SO
+5D
+
+A.R.6.
+
+50
+
+A . R . ¢~.
+
+0.8
+
+-0
+
+0
+
+~0
+
+40
+
+60
+
+80
+
+I0o
+
+I?.0
+
+0-5
+
+I'O
+
+I-5
+
+E'O
+
+(e+~)*
+
+FIG, 13. Variation of sectional-thrust
+factor with jet inclination to mainstream.
+(Complete-model results--no tailplane.)
+
+FIo. 14. Variation of finite aspect-ratio
+drag factor. (Complete-model results--no
+tailplane.)
+
+o.4
+~ 0 °, O 3 50 °
+
+O.3,
+,ev,I
+
+O-~'
+
+O.~,
+
+I
+
+FA, R. 9 - ]
+O.I.
+
+S
+
+- - "
+
+O.I
+
+,
+
+-0-1
+.0
+0.4
+
+I
+
+3
+
+I
+
+~ _ ; . 0 '=, 0_~ 50 =
+0'~
+
+/
+
+~r
+
+/
+
+./
+
+c,,.,
+
+/
+
+5
+
+4
+
+/
+
+Y
+
+~ _ _ L
+
+~A.R.9
+-~L+ 10°SWEEPI
+
+A,R.9 --
+
+I
+
+Z
+
+3 C~
+
+4
+
+O.~
+
+S
+
+O.I
+
+=~l L~slcj
+r A.R.9 ~
+
+//
+
+"~..F
+
+I
+
+3
+
+C/u
+
+4
+
+FIG. 15a. Effect on l v of changes
+in aspect ratio, dihedral and sweep.
+(Complete m o d e l - - n o fin, no
+tailplane.)
+
+5
+
+-O"
+
+o
+
+I
+
+3 C)t.t.
+
+2
+
+I
+
+I
+
+3
+
+c~
+
+4
+
+-0-2
+
+-0.4
+
+A'R'9
+5~DIHE[
+
+I
+'2
+
+I
+
+~_20 ~, ~ ---- 50 ~
+
+-0"~
+
+/
+-O,I
+
+L.+..IO°.~WEE
+
+5
+
+LrA,R.9
+i L+ Ioosw
+
+~
+t t -y
+
+~,.R9
+...._.-.-.---- *_rio° -=,WE
+
+~_+_~ o DIHE
+
+'--~.ASIC OR 1
+5° DIHEI )
+
+0.3
+
+-A.R,9
+m'5° DIHEI
+
+~ .
+
+~04
+
+~ f
+
+~ o I ~, ~ _~ ~o °
+
+f
+
+-0.4
+
+-0-8
+
+-O.!
+
+¢,
+
+0.I
+
+0
+
+~.~ 50 °
+
+O'?.
+
+[.+..10° SW
+
+0.~
+
+f
+
+K~O,
+
+'A.R.9
+FL..+..,K
+~ DII"
+
+.[-A.R.9
+
+h3
+"-3
+
+/o
+
+2
+
+I
+
+"~---.. ~ F ~ R .
+
+s
+
+~ E I O °
+
+-O.S
+
+~WE
+
+I
+
+4
+
+FIG. 15b. Effect on n v of changes
+in aspect ratio, dihedral and sweep.
+(Complete model--no fin, no
+tailplane.)
+
+FIG. 15c. Effect on Yv of changes
+in aspect ratio, dihedral and sweep.
+(Complete model no fin, no
+tailplane.)
+
+CL
+
+CO
+
+:~
+
+4
+
+6
+
+S
+
+OUND
+CLEARANCE
+
+FIG. 16. Effectofgroundon CLvs.
+C~ curve. (Two-dimensional model
+with trailing-edge blowing.)
+
+CLEARANCE
+:L£ARANCE
+
+~°
+
+FIG. 17a. Effect of ground on lift/incidence
+curves. (Aspect-ratio 9 complete model--no
+tailplane.)
+
+)
+
+CL
+o
+
+2
+
+,4
+
+6
+
+8
+
+I0
+
+I~
+
+I
+
+~'0
+
+C,u. = 3 ' 9 6 I
+0 ~50
+
+°
+
+0 _.-'P.~5 0 °
+-0,5
+NO
+
+GROUND
+
+)'5 ~ CLEARANCE
+-i'O
+
+~
+
+CT
+
+-
+
+Co.407
+
+'i
+
+o-5
+
+-I-5
+
+, EO.4O?
+
+~\\/
+~i
+
+/
+
+-
+
+HO G ~ O U N D
+
+;\
+
+II/
+I/
+
+"
+
+///
+
+-~.O
+\\k
+t~
+
+,
+
+\
+
+Cm
+-'~-5
+
+/
+JET IMPINGES A f O V E / /
+THESE. C,,.- VALUES ~
+
+,
+
+/ ~ ~'~.
+
+-3.0
+
+i
+
+-3.5
+
+-4
+
+,0
+
+\
+
+0
+
+FIC. 17b. Effect of ground on pitching moment/lift
+curves. (Aspect-ratio 9 complete model--no tailplane.)
+
+\
+
+25
+
+50
+
+"/5
+
+\
+I00
+
+t~5
+
+\
+ISO
+
+FIG. 17c. Effect of ground on thrust/lift cmwes.
+(Aspect-ratio 9 complete model--no tailplane.)
+
+30
+
+l
+
+I
+
+8 -~ 5 0 °
+~0
+
+6°
+
+~5
+
+[e. ,S]
+
+: 3"BG]
+B ~ 50 °
+
+J
+
+30
+
+Vo-40~
+D]
+
+-7O.
+
+~5
+
+'°
+
+/
+//
+
+//
+
+i
+
+I0
+
+4
+
+H/~
+
+6
+
+8
+
+E0 . 4-0~
+
+J
+
+30.
+
+D'sBJ
+
+o~ so."
+eo
+
+/-/
+
+1o
+
+---l-s~
+
+NO GROUND
+
+-o ] _ -- - - _ "
+
+6°
+
+CLEARANCE
+
+I0-
+
+//~/.
+
+5
+
+20]
+
+".,,.g~
+0
+
+-I0
+
+0
+
+I0
+
+30
+
+ek°
+
+30
+
+'I"0
+
+FIG. 18a. Effect of ground on downwash/
+incidence curves. (Aspect-ratio 9 complete
+model, with + 4 ° dihedral.)
+
+2
+
+[o3
+4
+
+H/E
+
+6
+
+8
+
+FIG. 18b. Variation of downwash at
+tail with ground clearance. (Aspectratio 9 complete model.)
+
+SECTION
+
+OF
+
+•••••••••//•/•/••••••/••••••/••••••••••••••/•/•/•/••/•/•/•//•/•/•••••••••••••//•/••/••
+
+'
+
+_-~
+
+t
+
+F l a . 19. Flow field with jet impingement on ground.
+(Aspect-ratio 9 complete model, a = 15 °, C a = 2.1,
+H/c = 1.5, 0 ~ 50°.)
+
+31
+
+-IG
+l
+
+e-~50~,o<-~17.5
+°,C~=a-J
+
+-14-. ,'~1
+
+b,
+
+l
+
+1"5 ~.. CLEARANCE
+NO GP.OU
+
+-IO
+
+-30
+
+,%
+
+-3
+
+-?.~
+
+-6
+
+_
+
+MIO-!b'~AN/
+--
+
+_
+
+%
+CP~am
+-~.o
+
+GO
+tO
+
+-4
+
+-
+
+NO GROUND
+-----I'5 ~ CLEARANCE
+
+c~=a.t
+
+//.
+
+//
+
+.
+
+-
+
+Z
+
+-iS
+
+EROUND
+NO --/~//~TIP
+/<//~0] !
+
+-IO __GROUND
+At
+
+-2
+
+t,5 ~
+
+.~-../.~..~-.~/.
+
+/?'/
+1//
+
+=
+
+÷~
+
+0-~5o~
+
+O-a
+
+0.4. -~-/c O.G
+
+o.8
+
+FIG. 20. Effect of ground on midspan pressure distribution. (Aspectratio 9 complete model.)
+
+O
+
+tO
+
+oCa ZO
+
+30
+
+O
+
+/
+IO eC o
+
+~O
+
+30
+
+FTG. 21. Effect of ground on growth of peak suction
+with incidence. (Aspect-ratio 9 complete model.
+
+k-
+
+-
+
+Publications of the
+Aeronautical Research Council
+A N N U A L TECHNICAL REPORTS OF THE A E R O N A U T I C A L
+RESEARCH COUNCIL (BOUND VOLUMES)
+194a Vol.
+Vol.
+
+I. Aero and Hydrodynamics, Aerofoils, Airscrews, Engines. 75s. (post 2s. 9d.)
+II. Noise, Parachutes, Stability and Control, Structures, Vibration, Wind Tunnels.
+
+x943 Vol.
+Vol.
+
+I. Aerodynamics, Aerofoils, Airscrews. 8os. (post 2s. 6d.)
+II. Engines, Flutter, Materials, Parachutes, Performance, Stability and Control, Structures.
+9os. (post as. 9d.)
+I. Aero and Hydrodynamics, Aerofoils, Aircraft, Airscrews, Controls. 84s. (post 3s.)
+II. Flfltrer and Vibration, Materials, Miscellaneous, Navigation, Parachutes, Performance, Plates and
+Panels, Stability, Structures, Test Equipment, Wind Tunnels. 84s. (post 3s.)
+
+x944 Vol.
+Vol.
+
+47s. 6d. (post 2s. 3d.)
+
+I. Aero and Hydrodynamics, Aerofoils. I3os. (post 3s. 6d.)
+II. Aircraft, Airscrews, Controls. 13os. (post 3s. 6d.)
+Vol. III. Flutter and Vibration, Instruments, Miscellaneous, Parachutes, Plates and Panels, Propulsion.
+I3OS. (post 3s. 3d.)
+Vol. IV. Stability, Structures, Wind Tunnels, Wind Tunnel Technique,M, I3OS. (post 3s. 3d.)
+
+I945 Vol.
+Vol.
+
+I. Accidents, Aerodynamics, Aerofoils and Hydrofoils. i68s. (post 3s. 9d.)
+II. Airscrews, Cabin Cooling, Chemical Hazards, Controls, Flames, Flutter, Helicopters, Instruments and
+Instrumentation, Interference, Jets, Miscellaneous, Parachutes. x68s. (post 3s. 3d.)
+Vol. III. Performance, Propulsion, Seaplanes, Stability, Structures, Wind Tunnels. i68s. (post 3s. 6d.)
+
+x946 Vol.
+Vol.
+
+t947 Vol.
+Vol.
+
+I. Aerodynamics, Aerofoils, Aircraft. i68s. (post 3s. 9d.)
+II. Airscrews and Rotors, Controls, Flutter, Materials, Miscellaneous, Parachutes, Propulsion, Seaplanes,
+Stability, Structures, Take-off and Landing. i68s. (post 3s. 9d.)
+
+I948 Vol.
+
+I. Aerodynamics, Aerofoils, Aircraft, Airscrews, Controls, Flutter and Vibration, Helicopters, Instruments,
+Propulsion, Seaplane, Stability, Structures, Wind Tunnels. i3os. (post 3s. 3d.)
+II. Aerodynamics, Aerofoils, Aircraft, Airscrews, Controls, Flutter and Vibration, Helicopters, Instruments,
+Propulsion, Seaplane, Stability, Structures, Wind Tunnels. ilOS. (post 3s. 3d.)
+
+Vol.
+
+Special Volumes
+Vol.
+
+I. Aero and Hydrodynamics, Aerofoils, Controls, Flutter, Kites, Parachutes, Performance, Propulsion,
+Stability. 126s. (post 3s.)
+Vol. II. Aero and Hydrodynamics, Aerofoils, Airserews, Controls, Flutter, Materials, Miscellaneous, Parachutes,
+Propulsion, Stability, Structures. I47S. (post 3s.)
+Vol. III. Aero and Hydrodynamics, Aerofoils, Airscrews, Controls, Flutter, Kites, Miscellaneous, Parachutes,
+Propulsion, Seaplanes, Stability, Structures, Test Equipment. 189s. (post 3s. 9d.)
+
+Reviews of the Aeronautical Research Council
+I939-48
+
+3s. (post 6d.)
+
+I949-54
+
+5s. (post 5d.)
+
+Index to all Reports and Memoranda published in the Annual Technical Reports
+i9o9-I947
+
+R. & M. 2600 (out of print)
+
+Indexes to the Reports and Memoranda of the Aeronautical Research Council
+Between Nos. 2351-2449
+Between Nos. 2451-2549
+Between Nos. 2551-2649
+Between Nos. 2651-2749
+Between Nos. z751-2849
+Between Nos. 285I-Z949
+Between Nos. 2951-3o49
+Between Nos. 3o51-3149
+
+R. & M. No. z45o
+R. & M. No. z55 o
+R. & M. No. 2650
+R. & M. No. 275 °
+R. & M. No. a85o
+R. & M. No. 295 °
+R. & M. No. 305 °
+R. & M. No. 315 °
+
+2s. (post 3d.)
+2s. 6d. (post 3d.)
+2s. 6d. (post 3d.)
+zs. 6d. (post 3d.)
+2s. 6d. (post 3d.)
+3s. (post 3d.)
+3s. 6d. (post 3d.)
+3s. 6d. (post 3d.)
+
+HER MAJESTY'S STATIONERY OFFICE
+from the addresses overleaf
+
+Ro & M, No. :3304
+
+© Crown copyright I963
+HER
+.4,2 "
+
+Printed and published by
+MAJESTY'S STATIONERY
+OFFICE
+
+To be purchased from
+York House, Kingsway, London w.c.z
+423 Oxford Street, London w.x
+I3A Castle Street, Edinburgh 2
+Io9 St. Mary Street, Cardiff
+39 King Street, Manchester 2
+5 ° Fairfax Street, Bristol I
+35 Smallbrook, Ringway, Birmingham 5
+8o Chichester Street, Belfast I
+or through any bookseller
+
+Printed in England
+
+Ro & Mo Noo 3304
+S.Oo Code No. ~3-33o4
+
+

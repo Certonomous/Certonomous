@@ -1,0 +1,1452 @@
+HLPW-5: Overview and Workshop Summary
+Adam M. Clark∗
+The Boeing Company
+Chris Rumsey†
+NASA Langley Research Center
+Jeffrey P. Slotnick‡
+The Boeing Company
+Li Wang§
+NASA Langley Research Center
+
+The Fifth AIAA CFD High-Lift Prediction Workshop was held with the goal of assessing
+the numerical prediction capability of current-generation computational fluid dynamics (CFD)
+technology for swept, medium/high-aspect-ratio wings in high-lift configurations. A key aspect
+of this endeavor was the use of Technology Focus Groups (TFG), which included both meshgeneration and flow-solver experts working together to accelerate advancements for their
+particular CFD methodology, by addressing key questions of importance prior to the workshop.
+The high-lift version of the NASA Common Research Model (CRM-HL) configuration was
+the focus of this workshop, and was used for three unique test cases. Wind-tunnel data were
+available for comparison for one of the test cases. Altogether, 365 datasets of CFD results
+were submitted by 47 teams, with 41 teams contributing to the multiple configurations of
+Case 1, 40 to Case 2, and 18 to Case 3. This paper provides a high-level summary of the
+results and conclusions from the workshop. As concluded from past workshops, fixed-grid
+Reynolds-averaged Navier-Stokes methods continued to be inaccurate and inconsistent for
+high-lift flows near maximum lift. However, application of mesh-adaptation technology helped to
+achieve improved consistency. Scale-resolving methods appeared most promising for predicting
+high-lift flow physics, particularly at maximum lift. Best practices for these methods were
+refined over the course of the workshop and new challenges were identified.
+
+I. Nomenclature
+𝐶𝐿
+𝐶 𝐿,𝑚𝑎𝑥
+𝐶𝐷
+𝐶𝑀
+𝐶𝑝
+𝜏𝑤
+𝛼
+𝜌
+𝑇
+𝑅𝑒
+𝑀
+MAC
+
+= lift coefficient
+= maximum lift coefficient
+= drag coefficient
+= moment coefficient
+= pressure coefficient
+= wall stress
+= angle of attack
+= density
+= temperature
+= Reynolds number
+= Mach number
+= Mean Aerodynamic Chord
+
+∗ Aerodynamics Engineer, Flight Sciences. Senior Member AIAA, adam.m.clark@boeing.com
+
+† Research Scientist, Computational AeroSciences Branch, AIAA Fellow, c.l.rumsey@nasa.gov
+
+‡ Technical Fellow, Boeing Commercial Airplanes. AIAA Fellow, jeffrey.p.slotnick@boeing.com
+§ Research Scientist, Computational AeroSciences Branch, AIAA Associate Fellow, li.wang@nasa.gov
+
+1
+
+𝜂
+
+=
+
+semispan fraction
+
+II. Introduction
+he High-Lift Prediction Workshop (HLPW) series has been ongoing since 2010. Its goals include: (1) assess
+the numerical prediction capability (meshing, numerics, turbulence modeling, high-performance computing
+requirements, etc.) of current-generation CFD technology/codes for swept, medium-to-high-aspect ratio wings for
+landing/take-off (high-lift) configurations; (2) develop practical modeling guidelines for CFD prediction of high-lift
+flow fields; (3) determine the elements of high-lift flow physics that are critical for modeling to enable the development
+of more accurate prediction methods and tools; and (4) enhance CFD prediction capability for practical high-lift
+aerodynamic design and optimization. The fifth workshop, HLPW-5, was held in Las Vegas in summer 2024, associated
+with the AIAA Aviation Forum.
+Previous workshop summaries can be found in their respective summary papers [1–9]. Many of these papers include
+references to other individual participant CFD studies as well. A high-level overview of the workshop series is also
+available [10]. Generally speaking, over the nearly 15 years since the first workshop in 2010, there has been a significant
+increase in available computational power, allowing most participants to run on significantly larger CFD grids than were
+previously possible. Because of this,improved grid-generation codes, and more robust CFD algorithms/capabilities, it
+has become easier to include all the geometry components (such as slat and flap brackets) of very complex high-lift
+configurations. Despite these improvements, CFD solutions based on the Reynolds-averaged Navier-Stokes (RANS)
+equations have failed as a whole to accurately and consistently predict high-lift characteristics near 𝐶 𝐿,𝑚𝑎𝑥 , as compared
+to experimental observations. Mostly, this is attributed to the inability of RANS turbulence models to accurately model
+the flow physics associated with highly separated flows.
+Starting around the time of HLPW-3 in 2017, it was recognized that scale-resolving simulation (SRS) methods
+had the potential to predict high-lift flowfields more accurately than RANS technology. In HLPW-4 two of the five
+Technology Focus Groups (TFGs) were organized to investigate both Hybrid RANS/Large-Eddy Simulation (HRLES)
+methods and Wall-Modeled LES (WMLES) methods, respectively. In that workshop, the results obtained in the HRLES
+and WMLES TFGs were reasonably successful at reproducing flowfields near 𝐶 𝐿,𝑚𝑎𝑥 , generally agreeing better with
+experimental data than RANS results. Efforts in these two TFGs have continued into the current workshop to further
+explore, develop, and document SRS capabilities and best practices to predict high-lift flowfields.
+The other three TFGs from HLPW-4, fixed-grid RANS, mesh adaptation (ADAPT), and high-order discretization
+(HO), also actively participated and contributed to HLPW-5. However, the HO TFG did not directly participate in flow
+solver studies, but instead focused primarily on the development of high-order meshes.
+HLPW-5 was made up of three separate test cases of varying complexity. Each test case was evaluated sequentially
+by all TFGs together, with approximately six months dedicated to each individual case, and a mini-workshop conducted
+at the conclusion of test cases 1 and 2 to collectively review results. The test cases were designed such that lessons
+learned were nominally directly applicable to the future cases, and the mini-workshops enabled collaborative learning as
+the workshop progressed. This approach allowed participants to focus, together, on specific issues pertinent to one test
+case at a time, and greatly enhanced collaboration compared to previous workshops, where participants either worked in
+isolation or worked across a larger volume of test cases simultaneously.
+The current paper documents the major high-level lessons learned from HLPW-5 across all of the TFGs. Companion
+papers from each TFG provide more technical details and results [11–15]. This paper is organized as follows. Section III
+provides a description of the test cases, Section IV summarizes the CFD meshes, and Section V summarizes the entries.
+Then, Section VI describes results, Section VII highlights the key takeaways, and the paper concludes with Section VIII.
+
+T
+
+III. Description of Test Cases
+There were three unique test cases that were considered for HLPW-5, which each utilized different configurations
+of the High-Lift Common Research Model (CRM-HL) [16–18]. The CRM-HL is an open-source, publicly available
+commercial transport aircraft geometry representative of an industrial high-lift configuration, utilized for CFD validation
+within a broad international CRM-HL Ecosystem [19]. Specific test case geometry for this workshop either reflects the
+CRM-HL reference configuration, or explicitly matches the “as-designed” geometric CAD definition of one particular
+wind-tunnel model that was designed, built, and tested by an Ecosystem partner. The CRM-HL geometry was provided
+to HLPW-5 participants in full-scale inches, for which the MAC is 275.8 inches. In this paper, any mention of X, Y, or
+Z coordinates is in this same reference frame.
+2
+
+Table 1
+
+Test Case 1 Parameters
+
+Domain
+Domain Size
+Mach
+Chord Reynolds Number
+𝛼
+Reference Static Temperature
+
+Rectangular Cuboid
+X: -65,000 to 65,000 in.
+Y: 0 to 65,000 in.
+Z: -65,000 to 65,000 in.
+0.20
+5.6 × 106
+11°
+521 °R
+
+The three test cases chosen for HLPW-5 were developed and organized to increase complexity sequentially, and
+were intended to help answer specific key questions aimed at advancing the goals of the workshop. Each test case and
+its specific objectives are described in the sections below.
+A. Test Case 1: CRM-HL Wing-Body Verification
+Previous High-Lift Prediction Workshops have highlighted the importance of solver verification to obtain consistent
+solutions for complex flow problems. For this workshop, the verification problem was chosen based on the simplest
+CRM-HL wing-body configuration (CRM-HL-WB), and was done in coordination with the AIAA High-Fidelity CFD
+Verification Workshop [20]. While the full CRM-HL configuration features surfaces typical of a commercial aircraft in
+landing configuration, including slats, flaps, nacelle, horizontal tail, vertical tail, and landing gear, the CRM-HL-WB
+configuration chosen for Test Case 1 removes most of this complexity, leaving just the wing and body. This configuration
+is shown in Fig. 1, and the test case parameters are given in Table 1.
+
+Fig. 1
+
+CRM-HL-WB Configuration for Test Case 1
+
+The high level objective for test case 1 is to demonstrate grid convergence on the simplest configuration, before
+introducing the geometric complexities associated with high-lift devices. Beyond grid convergence, exploration of
+sensitivities to solver settings specific to particular methodologies (for example, turbulence model choice) is encouraged.
+It is the hope that lessons learned on this test case are directly applicable to the more complicated test cases that follow.
+Key questions for test case 1 are:
+1) Are RANS solvers able to demonstrate verification on this problem and series of grids?
+2) For Non-RANS solvers, what is the most consistent approach to grid families that can demonstrate a trend
+towards grid independence on this problem?
+3) Is there enough consistency among non-RANS approaches that there is reasonable agreement on a gridindependent solution?
+4) Does the ensemble of results among modeling approaches compared to the experimental free-air corrected data
+tell us anything useful about uncertainty?
+In order to meet the objectives of the High-Fidelity CFD Verification Workshop, the RANS participants were highly
+encouraged to run the SA-neg-R(crot1)-QCR2000 turbulence model[21], and utilize a consistent set of grids provided,
+3
+
+which are further described in Section IV.
+For Non-RANS participants, particularly those utilizing scale-resolving techniques in the WMLES and HRLES
+TFGs, the standard approaches to verification become challenging due to the use of different grid topologies, temporal
+discretization techniques, duration of simulations and averaging windows, and even equation sets. As a result, there is
+typically not enough overlap in related results to meaningfully declare any one specific solution approach the standard.
+Non-RANS participants were encouraged to demonstrate grid convergence using multiple levels of grid, along with best
+practice solver settings, while monitoring integrated force and moment convergence. Gridding requirements for these
+TFGs were purposefully left vague, such that participants could uniquely define how to best design grid families to help
+answer the key questions.
+Results from Test Case 1 were intended to be compared to full-model test data obtained using the Boeing 6%
+CRM-HL at the QinetiQ wind-tunnel facility. Due to unforeseen manufacturing delays, the test data was unavailable in
+time for the workshop. There was also no CRM-HL-WB test data available from other Ecosystem partners, including
+the ONERA F1 test heavily referenced for Test Case 2. Consequently, Test Case 1 was done entirely computationally,
+without a comparison to experimental data at this time. Future workshops may elect to revisit this problem after
+experimental data is collected.
+B. Test Case 2: CRM-HL Configuration Buildup
+Test Case 2 attempts to assess the ability of CFD to predict the effect of varying geometric fidelity through
+component build-up to help isolate specific types of flow physics associated with high-lift aerodynamics. The CRM-HL
+is designed such that components can be added to the wing-body configuration one at a time, to expose individual flow
+features systematically, in contrast to attempting to parse out all of the complex flow interactions from the full landing
+configuration. This test case additionally expands beyond test case 1 by requiring full lift polars consisting of 5 to 7
+angles of attack, instead of just a single point.
+Test case 2.1 begins with similar geometry to test case 1, the CRM-HL-WB configuration, but now includes the
+horizontal tail, vertical tail, and flap support fairings. Test case 2.2 adds a full span leading-edge slat to test case 2.1.
+This greatly increases the angle of attack at which the wing stalls, and exposes the wing to additional complex flow
+features such as a slat wake and pressure losses due to slat brackets. Test case 2.3 adds both an inboard and outboard
+trailing-edge flap with the same positioning as the landing reference geometry, serving to greatly increase the total
+circulation of the configuration. Finally, test case 2.4 adds the pylon and nacelle (with a chine), and is equivalent to the
+CRM-HL-LDG reference configuration. This series of configurations are shown in Fig. 2.
+While Test Case 1 was intended to help develop modeling practices including grid refinement techniques and
+numerical modeling choices, Test Case 2 was chosen to help refine those practices. By directly comparing numerical
+solutions to experimental data in this systematic manner, one can begin to link simulation accuracy to the presence of a
+single geometric feature, and update modeling techniques developed to improve simulation accuracy. Key questions for
+Test Case 2 revolve around this approach:
+1) Does the consistency in integrated forces and moments from CFD simulations improve when modeling
+geometrically simpler high-lift configurations?
+2) If accuracy falls off due to the presence of a single component, can better modeling approaches be established to
+improve the predictions?
+This test case is designed to utilize CRM-HL configuration geometry that matches experimental data collected
+for the equivalent as-designed geometry tested in the ONERA F1 wind-tunnel [22]. As mentioned previously, this
+experiment did not collect data on the wing-body configuration. Rather, it was intended that CFD results for Test Case
+2.1 would be compared to data obtained from a test on the Boeing 6% model in the QinetiQ 5-metre tunnel. CFD
+simulations were requested to match the free-air data available from ONERA’s wind-tunnel tests, with test parameters
+documented in Table 2. Further, Test Case 2 was conducted semi-blind, where experimental data for selected anchor
+points for configurations 2.2 through 2.4 were provided in advance. Once most initial results were computed and
+submitted, full datasets from the experiment were released to participants.
+C. Test Case 3: Reynolds Number Study
+Test Case 3 is intended to provide blind CFD predictions of wind-tunnel data collected across the CRM-HL
+ecosystem, particularly over the wide range of Reynolds number tested. Ecosystem data spans from the smaller scale
+atmospheric models operating at a chord Reynolds number of approximately 1 million, up to cryogenic models operating
+at a near-flight chord Reynolds number of 30 million. It was requested that participants explore mesh sensitivities, both
+
+4
+
+(a) TC2.1, CRM-HL-WBHV Configuration
+
+(b) TC2.2, CRM-HL-WBSHV Configuration
+
+(c) TC2.3, CRM-HL-WBSFHV Configuration
+
+(d) TC2.4, CRM-LDG-HV Configuration
+
+Fig. 2
+
+Test Case 2 Geometric Configurations
+
+near 𝐶 𝐿,𝑚𝑎𝑥 and in the linear 𝐶 𝐿 versus 𝛼 range. Geometry for this test case was chosen to match the as-designed
+geometry of the NASA 5.2% model semi-span model, which was tested in the National Transonic Facility (NTF). It
+is the nominal CRM-HL-LDG configuration, very similar to what is shown in Figure 2(d), but updated to match the
+specific geometric details of the NASA 5.2% model, and with the horizontal and vertical tails removed. Though no
+single model can be used to collect data at the full Reynolds range required, a single nominal landing geometry was
+used for all Reynolds numbers simulated within the Ecosystem, with the expectation that model-to-model differences
+are small. The flow parameters for Test Case 3 are documented in Table 3.
+This test case was chosen to further the understanding of modeling and gridding requirements as a function of
+Reynolds number. Rather than focusing on the accuracy of the CFD methods in predicting absolute integrated forces
+and moments, the objective is instead to predict increments with Reynolds number. Key questions for test case 3 are as
+follows:
+1) How do gridding requirements change with Reynolds number?
+Table 2
+
+Test Case 2 Parameters
+
+Domain
+Domain Size
+Mach
+Chord Reynolds Number
+
+𝛼
+Reference Static Temperature
+
+Hemisphere preferred
+100x MAC
+0.20
+5.4 × 106 (TC2.1)
+5.9 × 106 (TC2.2 - TC2.4)
+2.1: 6°, 10°, 12°, 13°, 14°
+2.2: 6°, 10°, 17.7°, 20°, 21.5°, 23°, 23.8°
+2.3: 6°, 10°, 14°, 16°, 17.7°, 20.7°, 23.5°
+2.4: 7.6°, 10°, 14°, 16°, 17.7°, 19.7°, 23.6°
+518.67 °R
+
+5
+
+2) How does grid convergence behavior change with Reynolds number?
+3) How consistent are CFD predictions with each other across a range of Reynolds numbers?
+Table 3
+
+Test Case 3 Parameters
+
+Domain
+Domain Size
+Mach
+Chord Reynolds Number
+
+𝛼
+Reference Static Temperature
+
+Hemisphere preferred
+100x MAC
+0.20
+TC 3.1: 1.05 × 106
+TC 3.2: 5.49 × 106
+TC 3.3: 16 × 106
+TC 3.4: 30 × 106
+6°, 10°, 14°, 16°, 18°, 19°, 20°, 22°
+518.67 °R
+
+Test Case 3 was intended to cover a range of experiments, but lean heavily on data from the NASA 5.2% model
+as tested in NTF, which was originally scheduled to occur prior to starting CFD studies associated with Test Case 3.
+Unfortunately, the wind-tunnel test was not conducted until late in the workshop, and the resulting experimental data did
+not correlate well with other Ecosystem data. As a result, it was decided to not directly compare the CFD results against
+experimental data, and instead conduct Test Case 3 blind.
+
+IV. Overview of CFD Meshes
+Over 245 individual meshes, comprising about 37 mesh families, were created and shared for this workshop. Most
+of these were made by mesh generation experts who were connected with one or more of the TFGs. Some meshes were
+also shared by participants. Mesh-generation guidelines from previous workshops were available forcreating RANS
+meshes, but the mesh-generation experts were not constrained to follow these. In many cases, lessons learned during the
+TFG activities and virtual meetings led to new meshing approaches. All meshes shared by participants are available on
+the HLPW website [23], though several were used by participants that weren’t shared, particularly those that didn’t
+follow the traditional unstructured paradigms.
+Figure 3 shows the mesh size ranges for the various families of grids made available for the three test cases in
+HLPW-5. For example, among the RANS grids created for Case 1 (red squares in the left-most section of the figures),
+the coarsest grids (open symbols and dashed lines) had around 1 million cells and 1 million nodes, while the finest grids
+(filled symbols and solid lines) had around 2 billion cells and over 300 million nodes. The meshes for Cases 2 and 3
+tended to be somewhat larger than those for Case 1, due to the increased complexity of the configurations. The HO
+meshes were generally more coarse than the standard meshes created for the other TFGs; this is because HO meshes
+contain additional degrees of freedom within each of its cells. It is noteworthy that there were many meshes created
+with over a billion nodes or cells. The largest contributed mesh was a WMLES grid created for one of the Case 2
+configurations, containing 6.2 billion cells and 2.3 billion nodes.
+Most CFD practitioners are very familiar with RANS grids and gridding practices. RANS meshes are generally
+body-fitted, and tend to have very fine normal spacing at walls, typically with the goal of having a 𝑦 + near unity at the
+first grid point or cell center (this spacing relaxes as you move away from the wall). The streamwise and spanwise
+spacings near walls are generally much larger, albeit with clustering in important regions like leading and trailing-edges.
+The end result is a mesh with cells near walls that are like pancakes, very flat in shape, with very large aspect ratios.
+Meshes for HRLES still require RANS-like fine spacing near walls, but in the regions where LES is expected to be
+active, the cells optimally should be fine enough to resolve the turbulent eddies and are more isotropic in shape. In
+contrast, WMLES modeling best practices suggest cells which tend to be fairly isotropic in shape (with aspect ratios
+typically less than 5) everywhere within the boundary layer or within active turbulent shear layers/wakes. A typical
+WMLES grid may have on the order of 20 cells across the boundary layer, although this can be very challenging to
+achieve (nearly impossible with today’s resources) near the front of wings where the boundary layers are extremely thin.
+
+6
+
+(a) Mesh cells
+
+(b) Mesh nodes
+
+Fig. 3
+
+Summary of HLPW-5 mesh size ranges
+
+V. Summary of Entries
+Over the course of the high-lift prediction workshops, the number of active participants and submitted test cases
+has steadily increased. In HLPW-1, 21 groups submitted 39 entries; in HLPW-2, 26 groups submitted 48 entries; in
+HLPW3, 35 groups submitted 79 entries; and in HLPW-4, 44 groups submitted 184 entries.
+In HLPW-5, its three test cases were computed sequentially by the TFGs over more than a year leading up to the
+workshop. Some teams computed all three cases, while others did not. Two “mini-workshops” were held virtually to
+discuss interim results for Cases 1 and 2. Altogether, 47 groups submitted 365 entries, with 41 groups contributing to
+Case 1, 40 to Case 2, and 18 to Case 3. The entries are summarized in Table 4, where the particular TFG is denoted in
+the entry number by a letter: R for RANS, A for ADAPT, H for HO, L for HRLES, and W for WMLES. It should be
+noted that the WMLES TFG included two groups that did not use WMLES: W-001 used the unsteady Euler equations on
+adapted meshes and W-009 used a Lattice-Boltzmann scheme with a very large-eddy simulation (VLES) methodology.
+
+7
+
+Table 4
+Entry
+number
+R-001
+R-002
+R-003
+R-004
+R-005
+R-006
+R-007
+R-008
+R-009
+R-010
+R-011
+R-013
+R-014
+R-015
+R-016
+R-017
+R-019
+R-020
+R-021
+R-022
+R-023
+R-024
+R-025
+A-002
+A-003
+A-004
+A-006
+H-005
+L-001
+L-003
+L-004
+L-005
+L-009
+L-013
+L-015
+W-0011
+W-003
+W-004
+W-005
+W-0062
+W-007
+W-0093
+W-010
+W-011
+W-012
+W-013
+W-014
+
+Primary
+organization
+NASA LaRC
+Boeing
+NASA LaRC
+DeMontfort U
+Politecnico di Milano
+Siemens
+Indian Inst. of Science
+Bombardier
+Kawasaki Heavy Indust.
+Aerodynamic Solutions
+DLR
+Textron Aviation
+Zenotech
+JAXA
+Embraer
+Ansys
+Synapsis-AG
+JAXA
+Polytechnic U Montreal
+Flexcompute
+Luminary Cloud
+ONERA
+Cadence
+Istanbul Tech U
+Boeing
+Inria
+Ansys
+U Tennessee
+Flexcompute
+Boeing
+AWS
+Ansys
+Gulfstream
+USAF
+Numeric Systems
+KTH
+Boeing
+Boeing
+NASA LaRC
+U Kansas
+NASA Ames
+Dassault Systemes
+Volcano Platforms
+Tohoku U
+Scientific Simulations
+Embraer
+Ansys
+
+Summary of HLPW-5 Entries.
+
+Code
+name
+FUN3D
+FELight
+USM3D-ME
+OpenFOAM and Fluent
+SU2
+STAR-CCM+
+HiFUN
+DRAGON
+Cflow
+Leo
+CODA
+FUN3D
+zCFD
+TAS
+CFD++
+Fluent
+Synapsis
+FaSTAR
+CHAMPS
+Flow360
+Luminary
+elsA
+Fidelity
+HEMLAB-pyAMG
+EPIC-T1 and -BCFD
+WOLF
+Fluent
+COFFE
+Flow360
+FELight
+CFD++
+Ansys
+FUN3D
+KCFD
+Pacefish
+AdaptiveEuler
+BCFD
+CHARLES
+FUN3D
+hpMusic
+LAVA
+PowerFLOW
+ScaLES
+FFVHC-ACE
+NSU3D
+SU2
+Ansys
+
+Total number
+of entries
+10
+13
+12
+7
+10
+13
+3
+18
+9
+6
+8
+6
+2
+17
+26
+10
+1
+11
+7
+9
+10
+4
+4
+2
+6
+7
+5
+1
+10
+1
+18
+2
+1
+4
+2
+9
+4
+11
+12
+7
+11
+8
+20
+3
+3
+1
+1
+
+1
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+-
+
+1 Euler with adaptive meshing; 2 high-order scheme; 3 Lattice-Boltzmann.
+
+8
+
+2.1
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+-
+
+2.2
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+-
+
+Test cases:
+2.3 2.4 3.1
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+-
+
+3.2
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+-
+
+3.3
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+-
+
+3.4
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+-
+
+VI. Workshop Results
+The workshop results are covered here in three sections, one for each test case. They are specifically addressed
+in terms of Key Questions (KQs) that were posed prior to the workshop’s activities. The KQs were written in order
+to focus on particular aspects of the computations, which, if answered satisfactorily, could significantly advance the
+high-lift community’s knowledge.
+A. Test Case 1 Results
+1. Are RANS solvers able to demonstrate verification on this problem and series of grids?
+Case 1 does not yet have experimental data associated with it, but from the point of view of verification, this is not
+necessary, since we are only concerned with determining the “truth” solution for a given RANS turbulence model. The
+RANS TFG for this case ended up focusing primarily on results using the standard Spalart-Allmaras (SA), SA-neg and
+the SA-neg-R(crot1)-QCR2000 turbulence models (Note that the "neg" variant does not change the solution, so that the
+standard SA and SA-neg solutions are considered together). Other turbulence models were used by a few participants,
+but there were not enough data samples to be able to draw any conclusions about verification. However, for the two SA
+variants, a number of different codes demonstrated deep iterative convergence on all levels for a particular grid family,
+and subsequently showed grid convergence toward a common solution for each model.
+Plots of all submitted RANS solutions (including different models and variants, solutions with poor iterative
+convergence, and solutions on non-optimal grid families) are shown in Fig. 4. The spread in the asymptoting solutions,
+as 𝑁 −1/3 → 0, was approximately Δ𝐶 𝐿 = 0.02, Δ𝐶𝐷 = 0.0040, and Δ𝐶 𝑀 = 0.02. (A few outliers were even outside of
+this range.)
+
+(a) Lift coefficient
+
+(b) Drag coefficient
+
+Fig. 4
+
+(c) Moment coefficient
+
+All submitted RANS solutions for Test Case 1.
+
+In contrast, codes that exhibited better mesh convergence trends tended to converge to a common solution. Results
+for the SA-neg and SA-neg-R(crot1)-QCR2000 models are shown in Fig. 5. For SA-neg, 12 different results were seen to
+asymptote toward a very narrow solution range for lift, drag, and moment as 𝑁 −1/3 → 0. The range was approximately
+Δ𝐶 𝐿 = 0.005, Δ𝐶𝐷 = 0.0005, and Δ𝐶 𝑀 = 0.003. In the figures, different colored lines represent different mesh
+families, while RANS results on adaptive meshes are shown with a gradient symbol. These results indicate that different
+codes can display different grid convergence trajectories on the same mesh family. On the other hand, the trajectory can
+also be influenced by the particular mesh when using a given code. However, the particular trajectory is not important for
+verification; what matters is that the grid-converged answer is consistent for all codes as any given mesh is consistently
+refined.
+For the SA-neg-R(crot1)-QCR2000 turbulence model, seven different participant results agreed well with each other
+as 𝑁 −1/3 → 0. The range was approximately Δ𝐶 𝐿 = 0.004, Δ𝐶𝐷 = 0.0006, and Δ𝐶 𝑀 = 0.002. Notably, this model’s
+verified solutions were somewhat different from those of SA-neg, indicating that this verification process can distinguish
+between different turbulence model variants.
+The answer to this KQ is yes, correctly coded RANS solvers are able to demonstrate verification on this problem,
+provided that the CFD results are sufficiently iteratively converged and run on appropriate, consistent grid families.
+However, it should be noted that we have only done verification checking on forces and moment. A limited check of
+9
+
+(a) 𝐶𝐿 , SA-neg
+
+(b) 𝐶𝐷 , SA-neg
+
+(c) 𝐶 𝑀 , SA-neg
+
+(d) 𝐶𝐿 , SA-neg-R(crot1)-QCR2000
+
+(e) 𝐶𝐷 , SA-neg-R(crot1)-QCR2000
+
+(f) 𝐶 𝑀 , SA-neg-R(crot1)-QCR2000
+
+Fig. 5
+
+Test Case 1 verified RANS results for SA-based turbulence models.
+
+velocity and eddy viscosity profiles has revealed some areas, particularly near the wing trailing-edge and tip, with poor
+agreement between participant solutions. Unfortunately, many participants did not submit profile data, so it has not been
+possible to fully correlate good/poor agreement of forces and moment with good/poor agreement of profiles.
+It is also worth noting that this test case is mostly attached flow, with only a very small region of separation near the
+upper surface trailing-edge. For a different test case with large region(s) of separation, it is likely that RANS results
+would have had more difficulty passing a verification test (because RANS consistency tends to deteriorate for separated
+flows). It is currently unclear at what angle of attack significant separation and stall would occur. Although not shown
+here, some RANS results indicate stall just beyond the current 𝛼 = 11◦ , whereas others indicate much higher stall angle
+near 14 or 15◦ . Nonetheless, this is an important achievement to attain verified high-lift RANS solutions on a pre-stall
+3-D wing-body configuration. With verified solutions in hand for two turbulence models, these established “truth”
+solutions can now be used by others to help verify their implementations of these models.
+2. For Non-RANS solvers, what is the most consistent approach to grid families that can demonstrate a trend towards
+grid independence on this problem?
+This KQ ended up to be a difficult question to answer. Both HRLES and WMLES struggled to attain grid independent
+solutions for Test Case 1. Fig. 6(a) shows grid convergence results from the HRLES TFG. For this exercise, most of
+the participants used the same grid family (labeled as 1.L.01(2) on the HLPW website [23]), which was created using
+consistent mesh-refinement practices. As 𝑁 −1/3 → 0, the force and moment coefficients in the HRLES simulations did
+not asymptote to a fixed value. In fact, the lift dropped rather precipitously for most of the results on the finer grids in
+each family. This drop has been attributed to a failure of the standard DDES shielding function [24], which should
+treat attached boundary layers in RANS mode. This problem is sometimes referred to as “grid-induced separation.”
+Improvements to the shielding function, such as with the Deck-Renard method [25] used in the L-004.4 entry (solid red
+line), have demonstrated better grid convergence properties. However, there has not yet been a concerted effort among a
+
+10
+
+larger group of participants to determine if multiple codes can use a common improved shielding function to achieve
+consistent grid-independent DDES results for this case.
+
+(a) HRLES
+
+Fig. 6
+
+(b) WMLES
+
+Non-RANS grid convergence for Test Case 1.
+
+The WMLES TFG also did not achieve grid-independent results for Test Case 1, as shown in Fig. 6(b). Although
+several individual entries showed some trend toward grid independence as 𝑁 −1/3 → 0, others did not. Also, there
+appeared to be trends toward two different solutions, indicated on the left side of the figure in red: high-lift near
+1.09 < 𝐶 𝐿 < 1.12 and low lift near 1.01 < 𝐶 𝐿 < 1.05. Unlike the HRLES TFG, the participants of the WMLES
+TFG did not use any common grids or grid types. Each participant developed their own grid families, which included
+unstructured, Cartesian, and Voronoi types. No one type appeared to be more consistent than any other, and the reason
+for the solution bifurcation into a higher and lower lift branch is not known at this time.
+Overall, then, the answer to this KQ is not known. Additional work is needed; the best practices for HRLES and
+WMLES are still evolving.
+3. Is there enough consistency among non-RANS approaches that there is reasonable agreement on a grid-independent
+solution?
+The answer to this question at this time is clearly no. Fig. 7 shows grid convergence trends for all TFG results, with
+the non-RANS results in green (HRLES) and pink (WMLES). Ignoring outliers, the red (RANS) results converge to a
+fairly tight band near 1.06 < 𝐶 𝐿 < 1.08. The spreads in the HRLES and WMLES results are much larger, and their
+grid-converged results more uncertain, as discussed in the answer to the last KQ.
+Additionally, we see larger variations in predicted surface pressure coefficients in the HRLES and WMLES results
+compared to RANS, as shown in Fig. 8 for row I, far outboard on the wing. In the two left plots, 53 independent RANS
+solutions show very little 𝐶 𝑝 variation for either the leading or trailing-edge regions. In Fig. 8(b), aside from two outliers,
+all HRLES solutions (which presumably are in RANS mode near the leading-edge) show similar agreement. But near
+the trailing-edge (Fig. 8(e)), the HRLES solutions show more variation. In the two right plots, the WMLES solutions
+show very large variations near both the leading and trailing-edges. It was noted during WMLES TFG discussions that
+the computed location of turbulence initiation on the wing could vary significantly, and this location likely played a role
+in the extent of trailing-edge separation predicted.
+4. Does the ensemble of answers among modeling approaches compared to the experimental free air corrected data tell
+us anything useful about uncertainty?
+The wind-tunnel experiment corresponding to Test Case 1 has not yet taken place. As a result, the answer to this
+KQ is inconclusive. However, we do know that the various CFD methods show notable variation in the solution, as
+11
+
+Fig. 7
+
+Test Case 1 grid convergence trends for all TFG results.
+
+(a) RANS near leading-edge
+
+(b) HRLES near leading-edge
+
+(c) WMLES near leading-edge
+
+(d) RANS near trailing-edge
+
+(e) HRLES near trailing-edge
+
+(f) WMLES near trailing-edge
+
+Fig. 8
+
+Test Case 1 surface pressure coefficients, row I.
+
+12
+
+discussed above. The size and extent of trailing-edge separation also varies, as shown in Fig. 9. The view shown
+is looking outboard along the wing trailing-edge, from a position very close to the wing surface. RANS results
+(top row) show a very thin region of separation that varies slightly in shape, depending on whether the SA-neg or
+SA-neg-R(crot1)-QCR2000 is used. The typical HRLES result (Fig. 9(d)) is fairly similar to the RANS results with R
+and QCR included(Fig. 9(b)). As discussed earlier, WMLES results yielded two distinct “branches,” one with lower lift
+and one with higher lift. In Fig. 9(e), an example of a lower-lift solution is shown, with larger trailing-edge separation.
+Fig. 9(f) shows a higher-lift solution, with very little trailing-edge separation.
+Based solely on this computational exercise, we now know that measurements beyond surface pressures and
+integrated forces and moments would be helpful for evaluating the CFD capabilities. When the wind-tunnel experiment
+for this test case is conducted, the following measurements should also be taken: untripped transition location, sensitivity
+to trip dots, surface flow visualization, and sensitivity to angle of attack and Reynolds number.
+
+(a) RANS, SA-neg model
+
+(b) RANS, SA-neg-R(crot1)-QCR2000 model
+
+(c) ADAPT, SA-neg model
+
+(d) Typical HRLES
+
+(e) Typical WMLES with large separation
+
+(f) Typical WMLES with small separation
+
+Fig. 9
+
+Test Case 1 surface streamlines near the wing trailing-edge.
+
+B. Test Case 2 Results
+Test case 2 was conceived to study the ability of CFD to predict the incremental aerodynamic effects of a high-lift
+component buildup. As stated above, there were four configurations provided to participants: a simple wing-body (case
+2.1), the wing-body with the addition of the leading-edge slat (case 2.2), the wing-body-slat with the addition of the
+trailing-edge flap (case 2.3), and the nominal landing configuration with the high-lift devices and the nacelle/pylon
+installed (case 2.4). Because there is experimental data available for test cases 2.2, 2.3, and 2.4, fewer participants
+performed CFD studies for test case 2.1. Also, due to a fewer number of submissions, it was generally more difficult to
+judge the results from the mesh-adaptation CFD simulations relative to the other methods.
+1. Does the consistency in integrated forces/moments from CFD simulations improve when modeling geometrically
+simpler high-lift configurations?
+One of the main objectives of this test case was to determine if the consistency of CFD results was better for the
+simpler configurations, based on the general expectation that CFD would be able to better model less complex flow
+physics. From the results presented at the workshop, the answer to this question largely depended on the specific
+
+13
+
+configuration considered. For test case 2.1, most RANS simulations predicted similar results at angles-of-attack below
+13 degrees (see Fig. 10). However, at higher angles-of-attack, the CFD results diverged, with several simulations
+indicating varying amounts of flow separation at the wing trailing-edge near the wing planform break (see Fig. 11).
+At maximum lift and beyond, there was no consistency at all, which is not surprising due to the large amount of
+smooth body separation at this flow condition. For WMLES methods, the effects of boundary layer transition and mesh
+resolution were determined to be important, and likely drove significant differences seen in the various submissions
+(see Fig. 12). For the workshop, this test case unfortunately did not have any accompanying test data, but test data is
+expected to be acquired in future CRM-HL testing campaigns.
+
+Fig. 10
+
+Fig. 11
+
+RANS results for Test Case 2.1.
+
+Surface streamlines from RANS submission R-003 utilizing mesh 2.R.01.R.
+
+For test case 2.2, the addition of the leading-edge slat component generally improved the consistency of simulation
+results, particularly when compared with available experimental data. Plots of scatter in 𝐶 𝐿 in the CFD results for all
+methods compared with test data at angles-of-attack of 10° and 23° are shown in Figure 13. For the RANS simulations,
+good consistency is obtained at 𝛼 = 10◦ , but not near stall, at 𝛼 = 23◦ . Based on a limited set of simulations, the use
+14
+
+Fig. 12
+
+WMLES results for Test Case 2.1.
+
+of mesh adaptation, improved consistency for the RANS simulations at both the lower and higher angles-of-attack.
+HRLES and WMLES methods showed relatively good consistency at both angles-of-attack. These methods better
+predicted the lift magnitude near stall, as expected, but predicted too much lift compared to the RANS simulations
+at 𝛼 = 10◦ . At 𝛼 = 23◦ , both HRLES and WMLES methods showed an average of approximately 0.15 scatter in 𝐶 𝐿
+between submissions compared to the approximately 0.5 scatter in 𝐶 𝐿 observed in the RANS datasets.
+
+(a) 𝛼 = 10◦
+
+Fig. 13
+
+(b) 𝛼 = 23◦
+
+Scatter in 𝐶 𝐿 for Test Case 2.2, all methods.
+
+For test case 2.3, the differences in CFD predictions and test data were generally the highest among the four
+configurations studied for test case 2. Across all methods, inclusion of the flap negatively affected predictive accuracy,
+as well as reduced consistency between the CFD simulations at all angles-of-attack. For RANS simulations, there was a
+greater amount of scatter in the predicted lift values for test case 2.3 relative to test case 2.2 as shown in the lift curve
+comparison in Fig. 14. (Note that for test case 2.3, two of the RANS results performed reasonably well in terms of lift
+near 𝐶 𝐿,𝑚𝑎𝑥 , but these methods, which used the SA model, both used their own grids and did not correlate well with the
+15
+
+verified SA results for test case 1. So the reason for their improved result on this test case is not known. These may be
+examples of “right answer for wrong reasons,” which have been noted from RANS in past workshops.) For WMLES
+simulations, a similar trend of more scatter for test case 2.3 compared to test case 2.2 generally holds true, as shown in
+Fig. 15.
+
+(a) Test Case 2.2
+
+Fig. 14
+
+(b) Test Case 2.3
+
+Selected RANS results for Test Case 2
+
+(a) Test Case 2.2
+
+Fig. 15
+
+(b) Test Case 2.3
+
+Selected WMLES results for Test Case 2
+
+For the nominal landing configuration in test case 2.4, which includes the addition of the nacelle, chine, and pylon,
+consistency in the CFD results did not appreciably improve for any of the methods utilized, particularly near maximum
+lift. As with the previous build-up configurations, the scale-resolving methods (HRLES and WMLES) better predict the
+lift magnitude at 𝐶 𝐿,𝑚𝑎𝑥 relative to experimental data (see Fig. 16).
+The answer to this KQ currently depends on the CFD method used. For RANS, the consistency is somewhat better
+for the simpler configurations in Test Case 2.1 and 2.2. For WMLES, the consistency was best for Test Case 2.2. It
+16
+
+degraded on more complex configurations, but was also poor for the simplest wing-body configuration. There were not
+enough HRLES submissions to evaluate its consistency across configurations.
+
+(a) RANS
+
+(b) HRLES
+
+Fig. 16
+
+(c) WMLES
+
+Selected CFD results for Test Case 2.4.
+
+2. If accuracy falls off due to the presence of a single component, can better modeling approaches be established to
+improve the predictions?
+The answer to this KQ also depends on the CFD method used. For RANS methods, there was no convincing
+evidence that RANS turbulence models can reliably predict separated flows. However in studying the “pizza slice”
+wedge separation patterns, evidence suggests modeling approaches for this type of separation may be heavily influenced
+by the level of residual convergence in the simulation. For HRLES, simpler test cases exposed known weaknesses
+in mesh convergence using current DDES shielding function methods, particularly for flows where there are strong
+adverse pressure gradients. The Deck-Renard function was utilized by several participants and was shown to improve
+the robustness of the DDES method for Test Case 1 as the mesh was refined (see solid red line in Fig. 6(a)).
+For WMLES, the systematic underprediction in CLmax from many participants led to increased attention to boundary
+layer transition initiation and modeling, and particularly the importance in modeling the correct boundary layer on
+the slat near 𝐶 𝐿,𝑚𝑎𝑥 . Focus on this area led to the implementation and testing of transition sensor models in several
+codes. In general, the inclusion of a transition sensor in WMLES modeling dramatically impacts results near 𝐶 𝐿,𝑚𝑎𝑥 , as
+shown in Fig. 17 from Test Case 2.4. However, there is still much work to be done to determine whether these sensor
+approaches provide a general predictive capability.
+3. Are there any conclusions that can be made regarding accuracy of one particular method over another?
+The answer here is yes. One good example where there is a clear superior method over others is in the prediction of
+post-stall aerodynamics. When accurately predicting the flow post stall, it is critical that the simulation properly models
+not only the integrated forces and moments, but also the correct mechanism by which the flow breaks down due to
+flow separation. In this case, the scale resolving methods (either HRLES or WMLES) are clearly superior. All RANS
+simulations, including those employing mesh adaptation, failed to capture the correct flow features, while the HRLES
+and WMLES results properly model the inboard flow separation and slat bracket wake behavior associated with the flow
+breakdown mechanism observed in the experimental data (see Fig. 18).
+C. Test Case 3 Results
+1. How do gridding requirements change with Reynolds number?
+This question is somewhat related to the next one. The only participants who submitted data for Test Case 3 were
+in the RANS TFG and the WMLES TFG, and there were far fewer participants than for Test Cases 1 and 2. As a
+consequence, there was little or no coordinated exploration of the effects of gridding strategies for different Reynolds
+numbers. In addition, without experimental data to compare against, this KQ and the next one are difficult to effectively
+evaluate. At this point, the answer remains unknown.
+17
+
+Fig. 17
+
+Lift curve for WMLES for Test Case 2.4 showing impact of transition sensor function.
+
+(b) Representative RANS simulation
+
+(d) Representative HRLES
+
+(c) Representative grid adapted RANS simulation
+
+(e) Representative WMLES
+
+(a) Experimental oil flow data for Test
+Case 2.4 at 𝛼=23.6°.
+
+Fig. 18
+
+Comparison of Experimental Oil Flow and selected CFD simulations for Test Case 2.4 at 𝛼=23.6°.
+
+2. How does grid convergence behavior change with Reynolds number?
+Fig. 19 shows grid convergence behavior of 𝐶 𝐿 for all submitted CFD results for all sub-cases at two different angles
+of attack: 6◦ and 18◦ . RANS results are in the top row and WMLES results in the bottom row. For RANS, simulations
+at neither angle of attack exhibited grid convergence (results are still changing notably even for the finest grids as
+𝑁 −1/3 → 0). However, overall the results at 𝛼 = 6◦ appear to have a shallower slope than those at 18◦ . It has been noted
+
+18
+
+in the RANS TFG discussions that it was difficult to fully iteratively converge this test case. As a result, these grid
+convergence plots may actually mean very little.
+For WMLES at 𝛼 = 6◦ , there are only two sets of data. The lift for one set is begins to asymptote as the mesh is
+refined, but to very low levels. The other set of results appears relatively flat on the two coarser meshes, then decrease
+on the fine mesh, indicating non-monotonic behavior. On the other hand, some of the WMLES results at 𝛼 = 18◦ appear
+to be asymptoting, to some degree, as the mesh is refined. As a whole, RANS does not exhibit grid convergence at
+either angle of attack, while WMLES suggests that grid convergence is achievable at the higher angle of attack with
+currently available compute resources. Although without valid wind-tunnel results to compare against, it is hard to draw
+conclusions beyond grid convergence.
+Interestingly, there are no distinctly different trends with Reynolds number in any of these results. Does this indicate
+that no additional (finer) mesh requirements are needed for higher Reynolds numbers? For WMLES, one might expect
+that finer mesh resolution would be needed to adequately resolve the finer turbulent scales and thinner boundary layers
+that occur at higher Reynolds numbers. The current data appear to be insufficient to make an informed assessment here.
+Therefore, the answer to this KQ is unclear.
+
+(a) RANS, SA-neg model, 𝛼 = 6◦
+
+(b) RANS, SA-neg model, 𝛼 = 18◦
+
+(c) WMLES, 𝛼 = 6◦
+
+(d) WMLES, 𝛼 = 18◦
+
+Fig. 19
+
+Grid convergence of 𝐶 𝐿 for Test Case 3.
+
+19
+
+3. How consistent are CFD predictions with each other across a range of Reynolds numbers?
+Comparisons of CFD force and moment polars for Test Case 3 are plotted for successively increasing Reynolds numbers in Figs. 20, 21, 22, and 23. Overall, the WMLES results appear to be somewhat more consistent (with each other) than
+RANS results near 𝐶 𝐿,𝑚𝑎𝑥 , whereas the opposite is true at low angles of attack. Ignoring the lowest Reynolds number results in Fig. 20 (because there were only a few entries), the consistency of the solutions appear to be fairly similar across all
+Reynolds numbers. In other words, the Reynolds number has no discernible effect on the CFD inconsistencies exhibited.
+
+(a) Lift coefficient
+
+(b) Drag coefficient
+
+Fig. 20
+
+(a) Lift coefficient
+
+Computed Test Case 3.1 polars, 𝑅𝑒 = 1.05 × 106 .
+
+(b) Drag coefficient
+
+Fig. 21
+
+(c) Moment coefficient
+
+(c) Moment coefficient
+
+Computed Test Case 3.2 polars, 𝑅𝑒 = 5.49 × 106 .
+
+Fig. 24 shows the 𝐶 𝐿 values predicted at 𝛼 = 10◦ and 19◦ at the higher angle of attack near 𝐶 𝐿,𝑚𝑎𝑥 , with outliers
+removed. Despite the inconsistencies in the absolute values predicted, the CFD results show a fairly consistent trend of
+increasing, asymptoting lift in the range 5.49 × 106 < 𝑅𝑒 < 30 × 106 . Although there is no experimental data available
+yet for this test case, this trend with Reynolds number is similar to what is expected based on other published results
+[26–29]. There is not enough consistency in the results at 𝑅𝑒 = 1.05 × 106 at 𝛼 = 19◦ to discern a CFD trend at this
+Reynolds numbers.
+
+20
+
+(a) Lift coefficient
+
+(b) Drag coefficient
+
+Fig. 22
+
+(a) Lift coefficient
+
+Computed Test Case 3.3 polars, 𝑅𝑒 = 16 × 106 .
+
+(b) Drag coefficient
+
+Fig. 23
+
+(c) Moment coefficient
+
+Computed Test Case 3.4 polars, 𝑅𝑒 = 30 × 106 .
+
+21
+
+(c) Moment coefficient
+
+(a) 𝛼 = 10◦
+
+Fig. 24
+
+(b) 𝛼 = 19◦
+
+Test Case 3 lift coefficient as a function of Reynolds number.
+
+VII. Key Findings
+The fifth High-Lift Prediction Workshop set out to answer a number of key questions discussed in Section VI. In
+taking a step back from the details, there are a number of key findings that are beyond the scope of the original key
+questions. This section highlights these additional findings by test case.
+A. Test Case 1 Key Findings
+In looking at trends over the series of five workshops since 2010, progress towards consistency using RANS
+methodologies is considerable. In the early High-Lift Prediction Workshops, participants had not yet converged on
+gridding settings, solver settings, or convergence criterion, nor had the importance of verification of turbulence model
+implementation been realized. As a result, spread in 𝐶 𝐿 , even in the linear region, could be upwards of 0.2, as shown in
+Fig. 25. In the present workshop, test case 1 was purposely chosen to be challenging, at the edge or beyond the linear
+range of the lift curve where the flow is on the verge of separation. Despite the added challenge, participants in the
+RANS TFG were able to demonstrate consistency in lift across solvers to within 0.005 in 𝐶 𝐿 . This is a remarkable
+improvement since the early workshops, and allows for robust conclusions to be made about modeling techniques and
+best practices without being clouded by uncertainties due to gridding, model implementation, and convergence.
+Beyond RANS, this test case proved more challenging than initially intended. While it was originally selected to
+focus on grid convergence on a relatively simple problem, this test case exposed a number of modeling challenges for
+scale-resolving solvers. The scale-resolving solutions consistently identified trailing-edge flow separation but revealed
+significant sensitivity to modeling choices, which affected the extent of separation. As shown in Fig. 9, WMLES showed
+grid convergence towards two distinct solution families, each with varying degrees of trailing-edge separation. These
+variations, largely driven by differences in modeling choices that influence boundary layer development, are further
+explored in [14]. Unlike RANS, which has been extensively used in previous workshops, scale-resolving techniques have
+only been rigorously applied and evaluated since HLPW-4. As a result, there has not yet been sufficient time to develop
+and demonstrate consistent modeling approaches for this class of problems using these methods. Interestingly, a test case
+that consistently achieves a single solution across solvers in RANS can be much more challenging for scale-resolving
+methods, due to sensitivities to factors not typically modeled in RANS, such as boundary layer transition.
+B. Test Case 2 Findings
+From the outset [16, 17], the CRM-HL was designed to be modular, by facilitating the addition and removal of
+geometric components to systematically assess the impact of isolated flow features on vehicle aerodynamics. To date,
+test campaigns at ONERA [22], and NASA [30] have collected experimental data on these configurations. Test Case 2
+22
+
+Fig. 25
+
+Lift curve from HLPW-1, on the NASA Trapwing configuration.
+
+marks one of the first systematic approaches to study component build-up effects. Some of these results are highlighted
+in Section VI, but it is worth highlighting the general struggles of all methods when it came to predicting the effects
+of separated flow on the trailing-edge flap, as was shown in Fig. 14 and 15. This flow feature was previously studied
+through the flap deflection test case in HLPW-4 [4], and is also specifically targeted in the current Test Case 2. These
+cases conclusively demonstrate that there is much more work to be done to understand how best to capture the flow
+environment present on deployed trailing-edge flaps at moderate angles of attack.
+Documented in section VI and emphasized here, is the importance of boundary layer transition for scale resolving
+methods. Participants in this workshop demonstrated that when using wall modeled approaches, the flow breakdown
+over the wing at 𝐶 𝐿,𝑚𝑎𝑥 is very sensitive to the development of the boundary layer over the leading-edge elements.
+Treating a portion of the slat boundary layer as laminar resulted in higher maximum lift, in better agreement with the
+experiment, as previously shown in Figure 17. This sensitivity highlights the strong need for experimental data focused
+on characterizing the laminar flow extent on the leading-edge slats. The evidence from WMLES participants, along with
+results from the early workshops [1, 2], suggests that a deeper focus on transitional behavior is required in the future, as
+it is likely that the sensitivity demonstrated in in the WMLES TFG is not strongly associated with wall modeling, rather
+it is inherent in high-lift flow physics.
+Lastly, it is worth mentioning the high computational cost of entry for this workshop. Across all test cases, workshop
+organizers requested solutions for 51 different test points across 6 unique geometries, along with sensitivity studies
+to both modeling parameters and gridding. This workshop demonstrated the value in computing the full lift polar as
+opposed to a subset of individual points, but it is also acknowledged that the number of test points was very large.
+Because of the availability of such a wealth of computational results, much more effort is required to adequately mine
+the data and fully digest what can be learned from these CFD studies. To this end, future workshops will need to
+reevaluate the quantity of test cases and/or data requested, and strongly consider revisiting test cases from previous
+workshops to allow for deeper focus.
+Scale resolving simulations, in particular, have continued to show great promise in predicting aerodynamic
+performance across the range of test cases in this workshop, but simulations using these methods come at a high
+computational cost, often orders of magnitude above RANS methods. Grid convergence studies completed on some of
+the test cases in this workshop clearly demonstrate that there is little value in running under-resolved scale resolving
+simulations, as the results can trend away from the experimental data in a non-linear manner. It must be acknowledged
+that these approaches, while increasingly superior to RANS, are not yet affordable for all workshop participants.
+C. Test Case 3 Key Findings
+One of the objectives of Test Case 3 was to better understand CFD gridding requirements as a function of Reynolds
+number. For most computational methods that solve to the wall, and for which the first grid cell spacing is typically set
+to 𝑦 + of 1, the question about grid resolution is fairly well understood. However, for approaches using wall modeling it
+is less so. There are many estimates in the literature for wall modeled gridding requirements [31], typically suggesting
+that the number of cells required will increase significantly as the Reynolds number increases. Although there was no
+
+23
+
+experimental data to compare against, a few participants in the WMLES TFG were able to demonstrate comparable
+trends in grid convergence between Reynolds numbers of 5.49 and 30 million. Simply put, grid convergence for
+simulations run at the two Reynolds numbers on the same grids appeared to be roughly equivalent (see Figure 19(c) and
+(d)). This finding is inconsistent with previous estimates, as well as physical intuition, and therefore warrants further
+attention in future workshops. Analysis of test case 3 computed boundary layer profiles may also provide some insight.
+One of the less positive takeaways from this particular test case was the lack of consistency demonstrated when there
+was no experimental data with which to copare. This is evident in the spread in computational results between Test Case
+3.2 in Figure 21 and Test Case 2.4 in Figure 16. Using two very comparable geometries, CFD results computed for
+Test Case 3.2, where no experimental data was available, demonstrated larger differences between participants than in
+Test Case 2.4, where experimental data was provided. From this observation, it may appear that there is no general
+consensus on modeling or gridding practices that are suitable for blind prediction. Because of a smaller number of
+samples available for this test case, there is clearly more work required in this area.
+Lastly, despite the large spread in results, when comparing the predicted trends in Reynolds number from participant
+to participant, there was reasonably good agreement with expectations in terms of lift at angle of attack. This was shown
+in Figure 24, and discussed further in Section VI.
+
+VIII. Summary
+The 5th High-Lift Prediction Workshop continued the use of TFGs and collaborative meetings over the course of
+more than a year prior to the workshop, to accelerate the maturation of computational methods to predict high-lift
+aerodynamics. One key addition to the logistics of this workshop was performing the Test Cases one at a time, such
+that all TFGs were focused on a single test case for a longer duration of time, then holding focused mini-workshops to
+collaboratively discuss results for that test case across TFGs before moving onto the next test case. Collaboration in this
+manner was found to be very successful, and enabled many issues and findings to be explored jointly.
+Test Case 1 consisted of a single test point using the CRM-HL wing-body configuration, executed in conjunction
+with the AIAA High-Fidelity CFD Verification Workshop, to explore grid convergence and verification for RANS
+solvers using a single turbulence model. It also served as a challenging case to demonstrate grid convergence and
+explore solver settings for methodologies beyond RANS. Importantly, many RANS participants were able to demonstrate
+verification on this problem using a common turbulence model. Other TFGs were less consistent, hampered by issues
+such as boundary layer transition, which prevented the HRLES and WMLES TFGs from achieving consensus on a
+consistent solution.
+The second test case for HLPW-5 focused on model build up, as envisioned for the original model architecture of
+the CRM-HL. This test case consisted of four geometric configurations of increasing complexity, with the computation
+of full lift polars required for each. Although the computational resource requirements were large, most participants
+were able to complete the full request. Across TFGs, participants struggled in particular with predicting the flow
+features associated with the addition of the trailing-edge flap, highlighting an area where future workshops should focus.
+Results were sensitive to boundary layer transition on the leading-edge elements, suggesting the need for additional
+experimental data to better characterize the boundary layer flow and enable further refinement of predictive capability.
+As with previous workshops, RANS methodologies failed to consistently predict maximum lift, but are fairly consistent
+in the linear range of the lift versus angle of attack relationship. Adaptive RANS was able to demonstrate consistent
+grid convergence in the linear range using fewer points than required for hand-built grids. Scale resolving methods
+including WMLES and HRLES were more consistent at predicting maximum lift, but that improved accuracy comes at
+a drastically increased computational cost.
+Test Case 3 explored Reynolds number trends from 1 million up to 30 million chord Reynolds number. This test case
+was intended to be compared to data collected in the NASA NTF, but inconsistencies found between the experimental
+dataset and other CRM-HL experimental results led to not having the NTF experimental data available for HLPW-5.
+Despite this, several WMLES participants produced results suggesting that grid convergence may be achievable, even at
+the highest Reynolds numbers. Both RANS and WMLES participants were able to produce lift versus Reynolds number
+trends in line with expectations.
+There was limited participation from the High-Order TFG. These methodologies continue to hold promise,
+particularly in reducing computational cost for scale resolving methods. However, maturation of these technologies
+continue to lag other approaches.
+Finally, one takeaway from earlier workshops was the necessity to run in-tunnel simulations for proper validation.
+However, this workshop largely deviated from that guidance, both because Test Case 2 was a full model and tunnel
+
+24
+
+effects from the ONERA test were much smaller than in previous wind-tunnel tests, but also because the large number
+of CFD simulations requested for this workshop were overwhelming for most participants. It is expected that future
+workshops will revisit a subset of these test cases, and dive deeper into topics such as running in tunnel, and boundary
+layer transition.
+
+Acknowledgments
+A. Placeholder
+References
+[1] Rumsey, C. L., Slotnick, J., Long, M., Stuever, R., and Wayman, T., “Summary of the first AIAA CFD high-lift prediction
+workshop,” Journal of Aircraft, Vol. 48, No. 6, 2011, pp. 2068–2079. https://doi.org/10.2514/1.C031447.
+[2] Rumsey, C. L., and Slotnick, J. P., “Overview and summary of the second AIAA high-lift prediction workshop,” Journal of
+Aircraft, Vol. 52, No. 4, 2015, pp. 1006–1025. https://doi.org/10.2514/1.C032864.
+[3] Rumsey, C. L., Slotnick, J. P., and Sclafani, A. J., “Overview and summary of the third AIAA high lift prediction workshop,”
+Journal of Aircraft, Vol. 56, No. 2, 2019, pp. 621–644. https://doi.org/10.2514/1.C034940.
+[4] Rumsey, C. L., Slotnick, J. P., and Woeber, C. D., “Fourth High-Lift Prediction/Third Geometry and Mesh Generation Workshops:
+Overview and Summary,” Journal of Aircraft, Vol. 60, No. 4, 2023, pp. 1160–1177. https://doi.org/10.2514/1.C037168.
+[5] Ollivier-Gooch, C. F., and Coder, J. G., “Fourth AIAA High-Lift Prediction Workshop: Fixed-Grid Reynolds-Averaged
+Navier–Stokes Summary,” Journal of Aircraft, Vol. 60, No. 6, 2023, pp. 1785–1797. https://doi.org/10.2514/1.C037184.
+[6] Park, M. A., Alauzet, F., and Michal, T., “HLPW-4/GMGW-3: Mesh Adaptation for RANS Technology Focus Group Workshop
+Summary,” Journal of Aircraft, Vol. 60, No. 4, 2023, pp. 1219–1237. https://doi.org/10.2514/1.C037192.
+[7] Galbraith, M. C., and Karman, S. L., “HLPW-4/GMGW-3: High-Order Discretization Technology Focus Group Workshop
+Summary,” Journal of Aircraft, Vol. 60, No. 5, 2023, pp. 1613–1625. https://doi.org/10.2514/1.C037181.
+[8] Ashton, N., Batten, P., Cary, A., and Holst, K., “Summary of the 4th High-Lift Prediction Workshop Hybrid RANS/LES
+Technology Focus Group,” Journal of Aircraft, Vol. 61, No. 1, 2024, pp. 86–115. https://doi.org/10.2514/1.C037329.
+[9] Kiris, C. C., Ghate, A. S., Browne, O. M. F., Slotnick, J., and Larsson, J., “HLPW-4: Wall-Modeled Large-Eddy Simulation and
+Lattice–Boltzmann Technology Focus Group Workshop Summary,” Journal of Aircraft, Vol. 60, No. 4, 2023, pp. 1118–1140.
+https://doi.org/10.2514/1.C037193.
+[10] Rumsey, C. L., “High-Lift Prediction Workshops: Retrospective, Lessons Learned, and Future Prospects,” 34th Congress of the
+International Council of the Aeronautical Sciences, ICAS2024-1217, Florence, Italy, 2024.
+[11] Diskin, B., “HLPW-5: RANS TFG Summary,” AIAA Paper to appear, 2025.
+[12] Park, M., “HLPW-5: Adaptive RANS TFG Summary,” AIAA Paper to appear, 2025.
+[13] Ashton, N., “HLPW-5: Hybrid-RANS-LES TFG Summary,” AIAA Paper to appear, 2025.
+[14] Kiris, C., “HLPW-5: Wall Modeled LES TFG Summary,” AIAA Paper to appear, 2025.
+[15] Galbraith, M., “HLPW-5: High Order CFD TFG Summary,” AIAA Paper to appear, 2025.
+[16] Lacy, D. S., and Sclafani, A. J., “Development of the high lift common research model (HL-CRM): A representative high lift
+configuration for transonic transports,” AIAA Paper 2016-0308., 2016. https://doi.org/10.2514/6.2016-0308.
+[17] Lacy, D. S., and Clark, A. M., “Definition of Initial Landing and Takeoff Reference Configurations for the High Lift Common
+Research Model (CRM-HL),” AIAA Paper 2020-2771., 2023. https://doi.org/10.2514/6.2020-2771.
+[18] Clark, A. M., and Lacy, D. S., “Challenges in Geometry Development for the CRM-HL Ecosystem,” 34th Congress of the
+International Council of the Aeronautical Sciences, ICAS2024-1212, Florence, Italy, 2024.
+[19] Clark, A. M., Slotnick, J. P., Taylor, N. J., and Rumsey, C. L., “Requirements and Challenges for CFD Validation within the
+High-Lift Common Research Model Ecosystem,” AIAA Paper 2020-2772., 2020.
+
+25
+
+[20] Diskin, B., Liu, Y., and Galbraith, M., “High-Fidelity CFD Verification Workshop 2024: Spalart-Allmaras QCR2000-R
+Turbulence Model,” AIAA Paper 2023-1244, 2023. https://doi.org/10.2514/6.2023-1244.
+[21] Rumsey, C. L., “NASA Turbulence Modeling Resource,” , 2024. URL https://turbmodels.larc.nasa.gov/, last accessed 18
+October 2024.
+[22] Sylvain Mouton, G. C., and Lorenski, A., “Test Summary of the Full-Span High-Lift Common Research Model at the ONERA
+F1 Pressurized Low-Speed Wind Tunnel,” AIAA Paper 2023-0823, 2023. https://doi.org/10.2514/6.2023-0823.
+[23] Rumsey, C. L., “5th AIAA CFD High Lift Prediction Workshop (HLPW-5),” , 2024. URL https://hiliftpw.larc.nasa.gov, last
+accessed 18 October 2024.
+[24] Spalart, P., Deck, S., Shur, M. L., Squires, K. D., Strelets, M. K., and Travin, A., “A new version of detached-eddy
+simulation, resistant to ambiguous grid densities,” Theoretical Computational Fluid Dynamics, Vol. 20, 2006, pp. 181–195.
+https://doi.org/10.1007/s00162-006-0015-0.
+[25] Deck, S., and Renard, N., “Towards an enhanced protection of attached boundary layers in hybrid RANS/LES methods,”
+Journal of Computational Physics, Vol. 400, No. 108970, 2020. https://doi.org/10.1016/j.jcp.2019.108970.
+[26] Rudnik, R., and Germain, E., “Reynolds Number Scaling Effects on the European High-Lift Project Configurations,” Journal of
+Aircraft, Vol. 46, No. 4, 2009, pp. 1140–1151. https://doi.org/10.2514/1.36487.
+[27] Curtin, M. M., Bogue, D. R., Om, D., Rivers, S. M. B., Pendergraft, O. C. J., and Wahls, R. A., “Investigation of Transonic
+Reynolds Number Scaling on a Twin-Engine Transport (Invited),” AIAA Paper 2002-0420, 2002. https://doi.org/10.2514/6.2002420.
+[28] Pettersson, K., and Rizzi, A., “Aerodynamic scaling to free flight conditions: Past and present,” Progress in Aerospace Sciences,
+Vol. 44, 2008, pp. 295–313. https://doi.org/10.1016/j.paerosci.2008.03.002.
+[29] Wang, Y., Liu, D., Xu, X., and Li, G., “Investigation of Reynolds Number Effects on Aerodynamic Characteristics of a Transport
+Aircraft,” Aerospace, Vol. 8, 2021. https://doi.org/10.3390/aerospace8070177.
+[30] Evans, A. N., Lacy, D. S., Smith, I., and Rivers, M. B., “Test Summary of the NASA High-Lift Common Research Model HalfSpan at QinetiQ 5-Metre Pressurized Low-Speed Wind Tunnel,” AIAA Paper 2020-2770., 2020. https://doi.org/10.2514/6.20202770.
+[31] Choi, H., and Moin, P., “Grid-point requiremenbts for large eddy simulation: Chapman’s estimates revisited,” Physics of Fluids,
+Vol. 24, No. 1, 2012. https://doi.org/10.1063/1.3676783.
+
+26
+
+

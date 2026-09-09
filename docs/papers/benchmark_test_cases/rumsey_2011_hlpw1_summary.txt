@@ -1,0 +1,5425 @@
+Summary of the First AIAA CFD High Lift Prediction
+Workshop (invited)
+C. L. Rumsey∗
+NASA Langley Research Center, Hampton VA
+
+M. Long†
+University of Wyoming, Laramie, WY
+
+R. A. Stuever‡
+Hawker Beechcraft Corp, Wichita, KS
+
+T. R. Wayman§
+Gulfstream Aerospace Corp, Savannah, GA
+
+The 1st AIAA CFD High Lift Prediction Workshop was held in Chicago in June 2010. The goals of the
+workshop included an assessment of the numerical prediction capability of current-generation CFD technology/codes for swept, medium/high-aspect ratio wings in landing/take-off (high lift) configurations. 21 participants from 8 countries and 18 organizations, submitted a total of 39 datasets of CFD results. A variety of grid
+systems (both structured and unstructured) were used. Trends due to flap angle were analyzed, and effects of
+grid family, grid density, solver, and turbulence model were addressed. Some participants also assessed the
+effects of support brackets used to attach the flap and slat to the main wing. This invited paper describes the
+combined results from all workshop participants. Comparisons with experimental data are made. A statistical
+summary of the CFD results is also included.
+
+I.
+
+Introduction
+
+The prediction of high lift flows is a challenge of practical interest to many engineers in the aircraft industry.
+For configurations that include multiple elements (leading edge slats and trailing edge flaps), the flow physics can be
+particularly challenging for today’s CFD codes and turbulence models. These challenges include wakes in pressure
+gradients, wake/boundary layer merging, streamline curvature, separated flow, possible unsteady flow, wing-tip vortical flow, and laminar/turbulent transition regions on each element. A survey of the state-of-the-art in prediction of
+high lift at the beginning of the 2000’s can be found in Rumsey and Ying.1
+Because of the difficulties inherent in accurately predicting high lift flows, it was decided that open international
+workshops with a common focus would bring experts together and help to advance the state-of-the-art. The longterm objectives of these workshops are: (1) assess the numerical prediction capability (mesh, numerics, turbulence
+modeling, high-performance computing requirements, etc.) of current-generation CFD technology/codes for swept,
+medium/high-aspect ratio wings in landing/take-off (high lift) configurations, (2) develop practical modeling guidelines for CFD prediction of high lift flowfields, (3) advance the understanding of high lift flow physics to enable
+development of more accurate prediction methods and tools, (4) enhance CFD prediction capability for practical high
+lift aerodynamic design and optimization, (5) provide an impartial forum for evaluating the effectiveness of existing
+computer codes and modeling techniques, and (6) identify areas needing additional research and development.
+The first AIAA CFD High Lift Prediction Workshop (HiLiftPW-1) was held over two days in June 2010 in Chicago,
+Illinois. The focus of the workshop was on the three-element swept wing tested at NASA, referred to as the NASA
+Trapezoidal (Trap) Wing model (see Fig. 1). Although parts of the experimental data from two different wind tunnels
+∗ Senior Research Scientist, Computational AeroSciences Branch. Associate Fellow AIAA.
+† Applications Engineer. Member AIAA.
+‡ Senior Principal Multi-Disciplined Engineer, Government Business. Associate Fellow AIAA.
+§ Technical Specialist - Aerodynamics. Associate Fellow AIAA.
+
+1 of 32
+
+have been used in previous studies,2–6 collectively the data have never been officially published. This series of workshops was used as an opportunity to further evaluate and analyze some of the existing Trap Wing experimental data.
+The HiLiftPW-1 committee decided to focus on the data taken in the NASA Langley 14 by 22 foot wind tunnel.
+The HiLiftPW-1 was patterned after the successful Drag Prediction Workshop (DPW) series (see, for example,
+Vassberg et al.7 ). Because grids were often considered to be problematic for the DPW workshops, considerable effort
+was expended to develop many high-quality grids of different types for HiLiftPW-1. There were seven different
+grid series supplied up-front for optional use by participants. In addition, the two structured one-to-one grids were
+translated to unstructured hexahedral format, and one of the tetrahedral unstructured grids was merged into prisms in
+the boundary layer, forming a mixed-element unstructured grid. Out of these ten different named grid series, nine of
+them were used by participants. Participants were also allowed to create their own grids.
+Details concerning the required computations can be found in Slotnick et al.8 or on the HiLiftPW-1 website.a
+However, for completeness the required cases are briefly summarized here. A grid study was to be conducted on
+coarse (C), medium (M), and fine (F) grids for configuration 1 (slat deflected 30◦ , flap deflected 25◦ ) at angles of
+attack of α = 13◦ and 28◦ . Furthermore, an α sweep from 6◦ through 37◦ was to be run using medium-level grids
+for both configuration 1 and configuration 8 (slat deflected 30◦ , flap deflected 20◦ ). The Mach number was M = 0.2
+and Reynolds number based on mean aerodynamic chord was Re = 4.3 million. All runs were requested to be “fully
+turbulent” (no transition modeling), and no tunnel walls were to be included. An optional set of runs included support
+brackets (supports that connect the slat and flap to the main element).
+This paper summarizes the workshop data, including several corrections, modifications, and additions submitted
+by some of the participants immediately after the workshop. In addition to describing the overall collective results in
+comparison to experimental data, an attempt is made to identify trends as well as outliers. The paper is organized as
+follows. First, a summary of the entries is given. Then, an overall view is given of lift curves and polars compared to
+experiment. Grid convergence behavior is analyzed, followed by a general look at the ability of CFD to predict ∆CL
+between configurations. Next, specific surface pressures and skin friction stations are examined, and the effects of
+support brackets are explored. A statistical analysis is conducted in which scatter limits are calculated. As part of this
+statistical analysis, the ability to predict the differences between configurations is looked at in greater detail. Finally,
+conclusions are drawn.
+
+II.
+
+Summary of Entries
+
+A summary of the entries to the HiLiftPW-1 are listed in Table 1. It includes an identifier for each submission,
+the code used, the type of discretization, the grid system, the turbulence model, and other relevant information. All
+submissions were assigned an entry number, which consists of a primary number in front of the decimal point that
+identifies the group or person submitting the data, and a secondary sequence after the decimal point that identifies
+variations (for example, different grids, codes, or turbulence models). There were 21 individuals/groups who submitted
+39 entries. However, as noted in the table, some of the entries were incomplete (for example, did not run configuration
+8, did not run on three grid levels, etc.). Here, the data set is considered to be “complete” if at least three grid sizes were
+used for configuration 1 at both α = 13◦ and 28◦ , and if at least five angles of attack were run for both configuration
+1 and 8 polars. The reasons why participants submitted incomplete data sets were varied: for some it was because
+they were unable to complete all runs requested, for others it was because they were exploring specific sensitivities
+or issues and it was not deemed necessary to perform all the computations requested. Both complete and incomplete
+data sets are included in this summary. For the statistical analysis, all data are included to at least some degree except
+003.02, 003.03, 014.03, and 014.05 (each of which were particularly limited CFD studies, denoted by a pound symbol
+in the table).
+In Table 1, the flow solver name and type are listed under “Type.” N indicates node-centered Navier-Stokes, C
+indicates cell-centered Navier-Stokes, and B indicates Lattice-Boltzmann. The grids are identified by two upper-case
+letters and a number. Some details about the grids will be given below. There were seven participants who included
+grids with support brackets as part of their computations. In Table 1, the turbulence models referred to under “Turb”
+are as follows: SA indicates Spalart-Allmaras one-equation, SST indicates Menter Shear Stress Transport k-ω, KE
+indicates k-ε, KO indicates Wilcox k-ω, RSM indicates Reynolds Stress transport Model, and VLES indicates Very
+Large Eddy Simulation. A star by the turbulence model means that a variant or special version of the model was
+employed. These known modifications were as follows: entry 001 included a γ-θ transition model to SST; entry 002
+included preconditioning and realizability to k-ε; entries 003.01, 003.02, 003.03, 014.01, 014.02, and 014.03 used an
+fv3 modification with SA; entries 012.01 and 012.02 used no ft2 term and included a modification to the production
+a http://hiliftpw.larc.nasa.gov, accessed 11/22/2010
+
+2 of 32
+
+Table 1. Summary of entries
+
+Entry
+Number
+001
+002
+003.01
+003.02
+003.03
+004
+005.01
+005.02
+006
+007
+008.01
+008.02
+008.03
+009
+010
+011
+012.01
+012.02
+013.01
+013.02
+013.03
+014.01
+014.02
+014.03
+014.04
+014.05
+015
+016
+017.01
+017.02
+017.03
+017.04
+017.05
+018
+019
+020.01
+020.02
+021.01
+021.02
+
+Code
+Name
+CFX
+CFD++
+OVERFLOW
+OVERFLOW
+OVERFLOW
+HIFUN
+FUN3D
+NSU3D
+FUN3D
+TAU
+TAU
+TAU
+TAU
+PowerFLOW
+EDGE
+NSU3D
+TAS
+UPACS
+CFD++
+CFD++
+CFD++
+OVERFLOW
+OVERFLOW
+OVERFLOW
+OVERFLOW
+OVERFLOW
+USM3D
+FUN3D
+FUN3D
+CFL3D
+CFL3D
+CFL3D
+CFL3D
+ELSA
+NSMB
+USM3D
+USM3D
+NSU3D
+NSU3D
+
+Type
+N
+C
+N
+N
+N
+C
+N
+N
+N
+N
+N
+N
+N
+B
+N
+N
+N
+C
+C
+C
+C
+N
+N
+N
+N
+N
+C
+N
+N
+C
+C
+C
+C
+C
+C
+C
+C
+N
+N
+
+Grid
+System
+UX9
+UH13
+SX3
+SX3
+SX3
+UH14
+UH6
+UH6
+UT5
+UH8
+UH7
+UH7
+UH7
+CB16
+UH8
+UT12+
+UH15
+SX11
+UT5
+UT5
+UX9
+SX3
+SX3
+SX3
+SX3
+SX3
+UT4
+UT5
+UH6
+SX1
+SX1
+SX2
+SX1
+SX1
+SX10
+UT4
+UT4
+UH6
+UH6
+
+Turb
+Model
+SST*
+KE*
+SA*
+SA*
+SA*
+SA
+SA
+SA
+SA
+SA
+SA
+SST
+RSM
+VLES
+SA
+SA
+SA*
+SA*
+SA
+KE*
+KE*
+SA*
+SA*
+SA*
+SST
+SA
+SA
+SA
+SA
+SST
+SA
+SST
+SA
+SA
+SST
+KO
+KO*
+SA
+SST
+
+Complete?
+
+Brackets?
+
+No
+Yes
+Yes
+No#
+No#
+Yes
+Yes
+No
+No
+Yes
+No
+No
+No
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+No
+No#
+No
+No#
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+No
+Yes
+Yes
+No
+
+No
+No
+Yes
+No
+No
+No
+No
+No
+No
+Yes
+No
+No
+No
+Yes
+Yes
+No
+Yes
+No
+No
+No
+No
+Yes
+No
+No
+Yes
+No
+No
+No
+No
+No
+No
+No
+No
+No
+No
+No
+No
+No
+No
+
+Notes
+transition model used, limited config 8
+
+brackets removed from bracket-like grid
+grid study on config 8 at α = 13◦
+
+TLNS, no fine grid
+no polars
+no config 8, no fine grid
+no config 8, no fine grid
+no config 8, no fine grid
+transition model used, polars on fine grid
+TLNS
+TLNS
+
+used node-centered grids
+used node-centered grids
+Roe
+HLLC, limited config 8
+Central, no grid study, no config 8
+Roe, no config 8
+Roe, only one condition run
+
+* = variant or special version
++ = merged and run by participant as a hybrid grid (B.L. tetrahedra merged into prisms)
+# = very limited study; not included in statistical analysis
+TLNS = full Navier-Stokes (N-S) with viscous cross-derivative terms neglected
+3 of 32
+
+TLNS
+TLNS
+TLNS
+
+no fine grid
+TLNS
+TLNS, no grid study
+
+term in SA to decrease dissipation within vortices; entries 013.02 and 013.03 used the k-ε-Rt version of the k-ε model;
+and entry 020.02 used a so-called “M1” modification to the Wilcox k-ω model. The interested reader is referred to the
+participant presentations posted on the HiLiftPW-1 website for more information.
+Some key notes are also provided in Table 1. In spite of the fact that “fully turbulent” runs were requested
+(i.e., turbulence modeling active everywhere with no transition modeling), entries 001 and 009 utilized transition
+modeling/specification in their results. Entry 003.02 was a special set of three runs at α = 13◦ , 21◦ , and 28◦ on a set
+of grids specifically constructed for the purpose of comparing to entry 003.01 computations with support brackets, in
+order to obtain bracket increments. Entry 003.03 was a special grid convergence study for configuration 8 at α = 13◦ .
+Entries 013.01 and 013.02 were run using a cell-centered code, but utilized tetrahedral grids intended for node-centered
+codes. Thus, these runs achieved greater resolutions than node-centered codes running on the same set of grids. Entries
+014.01 - 014.03 explored the effect of various flux constructions (Roe’s flux difference splitting, HLLC flux splitting,
+and central differencing). Finally, some of the entries neglected the cross-derivative viscous terms. This is sometimes
+referred to as a “thin-layer Navier-Stokes” approximation (TLNS). For CFL3D, a subsequent entry also explored the
+effect of this approximation by running full Navier-Stokes (entry 017.05). For the unstructured code NSU3D, by
+default the Navier-Stokes viscous terms are taken as µ∇2 v, where µ is the viscosity and v denotes the velocity vector.
+In this form the Laplacian of the velocity can be computed in a single edge-base loop over all elements. Note that
+this form of the viscous terms corresponds to the incompressible Navier-Stokes formulation. The unstructured code
+EDGE contains a similar thin-layer type of formulation for which only normal derivatives are included.9 Both of these
+unstructured codes also have an option for discretizing the full Navier-Stokes terms, but this option was not employed
+for the results submitted to the workshop.
+Table 2 summarizes the grid systems used by participants of the workshop. The top half of the table lists nine of the
+ten grids supplied by the HiLiftPW-1 committee prior to the workshop (one grid, an unstructured hexahedral version
+of Str-OnetoOne-B, was not used by any participant and so is not listed here). As noted in Table 1, 32 of the 39 entries
+used committee-supplied grids. The bottom half of the table lists the grids created by participants. All of these grids
+except the Cartesian-based CB16 were made available on the HiLiftPW-1 website after the workshop. In the table,
+“Struct” stands for structured grid and “Unstr” stands for unstructured. “Tet” refers to tetrahedral elements, “Hex” to
+hexahedral elements, and “Mixed” to mixed elements. The number of nodes/cells are listed for the configuration 1
+grids only, in order to give a general idea about the grid sizes. Nodes correspond to grid points and cells correspond
+to grid elements or volumes. Voxels in the Cartesian-based grids (for use with Lattice-Boltzmann) are similar to cells.
+Note that in addition to the required fine (F), medium (M), and coarse (C) grid levels (as defined on the HiLiftPW-1
+website), in some cases extra fine (XF) and extra coarse (XC) grids were made available. Additional details about
+the grids can be found in Slotnick et al.8 or on the website. Note that grid system UH6 is the same as UT5 with
+boundary-layer tetrahedra merged into prisms. Also, grid system UX9 is identical to SX1 translated into unstructured
+hexahedral elements.
+Participants were allowed to add, modify, or remove their submissions in the 2 months following the workshop. A
+summary of the changes is provided in Table 3.
+
+III.
+
+Lift Curve and Polar Comparisons
+
+Fig. 2 gives an overall picture of the collective results (excluding entries 003.03 and 014.05) for configuration 1,
+over the range of angles of attack from α = 6◦ to 37◦ . Results from CFD entries are indicated by red lines, while
+experimental data are shown with blue dots. There were several CFD outliers (defined loosely here as results that
+did not fall in the range of most of the other CFD results), especially at the higher angles of attack. The outliers
+will be quantified in greater detail in the Statistical Analysis section below. Lower and upper experimental bounds
+were estimated based on data from three different test campaigns,8 and are indicated in the figure by solid blue lines.
+Overall, as a group, it appeared that CFD tended to under-predict lift, drag, and magnitude of the moment (moment
+was negative) compared to experiment.
+Note that all results except entry 009 were on medium-level grids. Entry 009 only supplied polar results on a fine
+grid. In the section on Grid Convergence Behavior, the effect of grid density on forces and moment will be shown. It
+is also important to note that none of the CFD results in Fig. 2 included support brackets. The effects of the brackets
+on the CFD solutions will be shown in a later section.
+The predictions at CL,max are analyzed in more detail in Fig. 3. Here, results are differentiated by turbulence
+model. There were several entries that stood out as being very different from the collective results. However, most
+entries did a reasonably good job predicting both CL,max (near 3.0) and the angle of attack at which it occurred (near
+33◦ ). As a group, the entries that employed the SA turbulence model tended to predict higher CL,max (in better
+
+4 of 32
+
+Table 2. Summary of grids
+
+Grid
+SX1
+SX2
+SX3
+UT4
+UT5
+UH6
+UH7
+UH8
+UX9
+SX10
+SX11
+UT12
+UH13
+UH14
+UH15
+CB16
+
+Type
+Struct
+Struct
+Struct
+Unstr Tet
+Unstr Tet
+Unstr Hybrid
+Unstr Hybrid
+Unstr Hybrid
+Unstr Hex
+Struct
+Struct
+Unstr Tet
+Unstr Hybrid
+Unstr Hybrid
+Unstr Hybrid
+Cartesian-based
+
+ID on website
+Str-OnetoOne-A
+Str-OnetoOne-B
+Str-Overset-A
+Unst-Tet-Cellcentered-A
+Unst-Tet-Nodecentered-A
+Unst-Mixed-FromTet-Nodecentered-A
+Unst-Mixed-Nodecentered-A
+Unst-Mixed-Nodecentered-B
+Unst-Hex-FromOnetoOne-A
+Str-OnetoOne-D
+Str-OnetoOne-E
+Unst-Tet-Nodecentered-B
+Unst-Mixed-Cellcentered-A
+Unst-Mixed-Cellcentered-B
+Unst-Mixed-Nodecentered-C
+N/A (Lattice-Boltzmann only)
+
+Brackets?
+No
+No
+Yes
+No
+No
+No
+No
+Yes
+No
+No
+No
+No
+No
+No
+Yes
+Yes
+
+Nodes/cells (millions)
+F:171/161, M:52/48, C:23/20, XC:7/6
+F:85/81, M:29/27, C:11/10, XC:4/3
+XF:282, F:83, M:25, C:11 (nodes)
+F:11/63, M:4/22, C:1/7
+F:32/190, M:11/64, C:4/21
+F:32/127, M:11/38, C:4/10
+M:31/79, C:16/44, XC:13/37
+F:111/141, M:37/49, C:12/17
+F:162/161, M:48/48, C:20/20, XC:6/6
+F:48, M:20, C:6 (cells)
+F:130/124, M:39/37, C:13/11
+F:31/185, M:10/59, C:4/21
+F:92, M:31, C:11 (cells)
+F:22/63, M:8/22, C:3/8
+F:72/203, M:28/81, C:12/35
+F:193, M:101, C:62 (voxels)
+
+Table 3. Summary of changes in entries (post-workshop)
+
+Entry
+001
+002
+007
+009
+010
+012.01
+014.01
+014.04
+014.05
+017.05
+019
+
+Change
+updates of XC and some M results
+new (replaced) submission on new grids
+updates of configuration 8 results for α ≥ 28
+redefined C as M, M as F, and added new C results
+corrections to wing-only forces
+new (replaced) submission on new grids
+expanded results, added bracket computations
+new submission
+new submission
+new submission
+updated some results and made corrections to skin friction data
+
+5 of 32
+
+agreement with experiment) than other turbulence models. However, there was not a clear trend exhibited for the
+angle of attack at CL,max by turbulence model type.
+
+IV.
+
+Grid Convergence Behavior
+
+In Fig. 4, moment polars are shown by grid type for both coarse and fine grids. On coarse grids (Fig. 4(a) and (b)),
+the unstructured grid type exhibited greater variability than the structured type. However, on the fine grids (Fig. 4(c)
+and (d)), the variability between structured and unstructured grids was similar. These figures show SA results as
+red squares and all other models as black triangles. Generally, on the fine grid the SA results tended to be closer to
+experiment than the non-SA results.
+Fig. 5 shows grid convergence results for configuration 1 at α = 13◦ . N is the number of grid points or cells.
+−2/3
+N
+represents an effective grid spacing squared. If a code is converging as second order, the curve will be a straight
+line. Separate plots are presented for structured and unstructured grids, and within each plot the SA results are plotted
+with red lines and other turbulence models are plotted with black lines. (Note that the Lattice-Boltzmann result from
+entry 009 was included here as an unstructured code.) Experimental results, linearly interpolated from the data to
+the specific angle of attack, are displayed as a blue dot on the y-axis. Several apparent outliers are identified in the
+plots. Many of these were consistently different from the collective. One, entry 003.01, strayed from the collective
+only on the XF grid level. This aberrant behavior also occurred for entries 003.01 and 003.03 on the XF grid at other
+conditions, to be shown below.
+It appears that with structured grids (plots on the left half of the page) many of the non-SA models were tending
+toward different solutions (lower lift, lower drag, lower magnitude moment) than SA. However, with unstructured grids
+(plots on the right half of the page) there was no clear trend with turbulence model. Overall with both structured and
+unstructured grids, the lift tended to increase with increasing grid refinement (in better agreement with experiment),
+and the magnitude of the moment tended to increase (in better agreement with experiment). There was not an overall
+clear trend in drag with increasing grid refinement. Also, from these plots it is apparent that many of the coarse
+unstructured grids tended to be coarser than their coarse structured counterparts (note that the single structured point
+with N −2/3 > 4 × 10−5 was an additional XC grid, beyond the F-M-C grids requested).
+Fig. 6 shows grid convergence results for configuration 1 at α = 28◦ . Generally, the same conclusions can be
+drawn at this angle of attack, although there was perhaps more of a noticeable increase of drag with grid refinement.
+In addition, several entries yielded results with unusually low lift compared to experiment and the collective CFD
+results. These aberrant entries were 003.01 (XF grid only), 008.01, 008.02, and 008.03. At the workshop, this issue
+was discussed extensively. These particular CFD results exhibited significant separation. Some other participants
+claimed that they had also experienced premature stall in their CFD solutions at high angles of attack when they did
+not restart from previously converged solutions at lower angles of attack. In other words, some participants noted
+initial condition dependency of their CFD solutions at high angles of attack.
+
+V.
+
+Predicting ∆CL Between Configurations
+
+Fig. 7 shows lift curves for configurations 1 and 8, with separate plots for each of the 6 CFD codes with multiple
+submissions. Here, all turbulence model results were plotted together. Recall that some submissions were not complete; if a particular submission did not include complete configuration 8 results, then it was not plotted at all here.
+Overall, results from these 6 codes were consistent with each other at lower angles of attack, but at high angles of
+attack there was more variability between them. The correct trend of lower lift for configuration 8 prior to stall was
+predicted by all entries. In the experiment, the difference in CL decreased with increasing angle of attack. In some
+cases a similar trend was seen in the CFD, while in others the difference did not appear to diminish as much.
+Fig. 8 shows the configuration 1 and 8 results from the remaining CFD codes. In this case, all the results except
+for two were consistent with the previous figure. Entry 009 predicted somewhat higher CL levels than the other codes,
+and generally lay at or above the experimental data. Part of this difference may have been due to the fact that entry
+009 reported their polar data only on the fine grid. Also recall that entry 009 specified transition, which may have had
+some impact. The second set of results that was inconsistent with the others was entry 019, which yielded generally
+lower lift levels and much earlier stall.
+The differences between the SA model and other models is explored in Fig. 9. As was also noted earlier from
+Fig. 3, the SA results generally yielded higher lift levels near stall, in better agreement with experiment than other
+models. Two of the “other models” that yielded higher lift levels were entries 001 (SST) and 009 (VLES) but both of
+these entries employed transition modeling/specification. It is possible that accounting for transition had an impact on
+6 of 32
+
+the predictions. The figure also points out some of the entries that predicted stall earlier than the collective: 005.02 for
+configuration 8, and 017.04 and 019 for both configurations.
+The drag and moment deltas are not examined here. However, at the end of the Statistical Analysis section, plots
+will be given showing the trends for those quantities, in addition to lift.
+
+VI.
+
+Surface Pressures and Skin Frictions
+
+A tremendous amount of CFD data was collected from participants at the workshop. Among this data were surface
+pressure coefficients (mandatory) and surface skin friction coefficients (optional) along nine slat stations, nine wing
+stations, and eleven flap stations for all cases and grids computed. It is difficult to do more than present a very small
+sampling of these results. At present, results at only a few conditions and locations have been examined in any detail
+for configuration 1 at α = 13◦ and 28◦ . These conditions were chosen because they were run using multiple grid sizes,
+making it possible to note trends with grid refinement. Here, we focus on only a few selected results that demonstrated
+some trends among the broader collective results. Note that lines are used when plotting the CFD pressure and skin
+friction data in the figures unless the participants submitted non-ordered data, in which case small symbols are used
+instead.
+Fig. 10(a) shows the locations of the pressure stations to be shown in this and future figures, and Figs. 10(b) – (f)
+give the surface pressure coefficients on the flap for configuration 1 at α = 13◦ along the 85% span station. Fig. 10(b)
+shows results from entry 009, which included transition. In this result, the pressures showed little difference between
+the medium and fine grids. The Cp levels on the upper surface indicated more suction than in the experiment. Although
+not shown, the other entry that accounted for transition (001) yielded similar over-prediction of upper surface suction.
+Figs. 10(c) and (d) exhibit another trend seen among the collective results, that the SST model had more of a
+tendency to separate near the upper surface trailing edge of the flap. In these two figures, the same code and grid were
+used with SST and SA, respectively. The SST model produced less upper surface suction near the front of the flap,
+and separated near the trailing edge. The SA model yielded much closer agreement with experiment. In both of these
+structured-grid cases, there was very little sensitivity to grid density.
+Figs. 10(e) and (f) demonstrate the increased grid sensitivity when using an unstructured tetrahedral grid (UT5)
+compared to the same grid with boundary layer tetrahedra merged into prisms (UH6). In both cases, the same CFD
+code was employed. The results on the fine grid were similar to each other, and agreed reasonably well with experiment. However, coarser tetrahedral grid results were worse than those on the coarser hybrid grid. These figures also
+demonstrate how some entries, even with the SA model, yielded poor agreement with experimental pressure data near
+the trailing edge of the flap upper surface.
+A sampling of x-component of surface skin friction coefficients at the same conditions and same flap location as
+Fig. 10 is shown in Fig. 11. Only a few results were chosen to illustrate specific observations. Recall that reporting
+skin friction was optional; 14 of the 39 entries did not report it. Fig. 11(a) shows entry 007, a result typical of many
+entries. In this case there was very little grid sensitivity (although not shown, entries 015, 016, 020.01, 020.02, and
+021.02 exhibited the largest grid sensitivity of those who reported it). Entry 007 also shows upper surface separation
+on the flap very near the trailing edge. Most entries yielded either incipient or various degrees of flap trailing edge
+separation. Entry 001, which utilized a transition model, produced very different skin friction data on the flap. In
+Fig. 11(b), it is seen that the flow exhibited apparent transition to turbulent flow near x = 73 on the flap upper surface.
+Figs. 11(c) and (d) exhibit the effect of a particular variant of the SA turbulence model. In entry 014.01, the SAfv3 variant of the SA model was used, which is known to delay the onset of full turbulence in some circumstances.10
+Fig. 11(c) exhibits an apparent transition to turbulence between x = 70 and 71. This delayed onset of turbulence was
+eliminated in entry 014.05, which used the standard SA model.
+Figs. 11(e) and (f) show two entries that produced unusual skin friction behavior compared to the others. Entry
+012.01 yielded oscillatory behavior near the upper surface leading edge, but otherwise appeared normal. Entries
+021.01 (in Fig. 11(f)) and 021.02 (not shown) were the only entries that did not indicate incipient or actual trailing
+edge separation in their skin friction.
+In order to get an idea of the consistency of CFD results when using a specific turbulence model, Cp plots are
+given for the SA model only in Figs. 12 - 15. Fine grid results on all three elements are shown at two span stations of
+28% and 85% and at two angles of attack of α = 13◦ and 28◦ . Furthermore, the plots are divided into structured grid
+results (blue lines) and unstructured grid results (red lines). There are seven structured entries plotted (003.01, 012.02,
+014.01, 014.02, 017.03, 017.05, and 018) representing four different codes and twelve unstructured entries plotted
+(004, 005.01, 006, 007, 010, 011, 012.01, 013.01, 015, 016, 017.01, and 021.01) representing eight different codes.
+On the slat and main elements at these span stations, other than a few individual outliers, most CFD results were very
+
+7 of 32
+
+consistent with each other and agreed well with experimental data. On the flap element, however, there tended to be
+greater variation at the 85% span location, particularly near its trailing edge.
+The flow field very near the wing tip turned out to be very difficult to predict. Here, we turn our attention to
+configuration 1 at α = 28◦ . At the wing tip location (98% span), submitted results varied widely, with some agreeing
+with experimental data fairly well and some very poorly. Fig. 16 shows results from two different entries. Entry 018
+(on the left) was one of the entries that agreed best with the data (although it still missed levels on the flap upper
+surface and near the trailing edge of the main element), while entry 010 (on the right) was typical of many entries that
+did not agree well on the main and flap elements. The reasons for the wide variance in the wing tip region among
+participants is not completely known, but there were at least some characteristics identified that had a large impact, as
+will be shown in the next figure. In particular, a wing tip vortex forms and rolls up over the elements; the success in
+accurately capturing this vortex no doubt plays an important factor in the ability to predict the surface pressures there.
+Another good way to visualize the ability of CFD to predict the tip region is via the spanwise flap stations. For
+example, in Fig. 17 sample surface pressure coefficients along the forward spanwise flap station are shown (for configuration 1 at α = 28◦ , identified by flapfwdspan in Fig. 10(a)). Fig. 17(a) shows a typical full Navier-Stokes result. In
+this entry, there was very high sensitivity to grid density in the outboard region. As the grid was refined, the pressures
+near the wing tip got better compared to experimental data, but even on the fine grid the results near the wing tip were
+not very good (too low suction). All entries except one (009) predicted too-low suction at the wing tip. The entry 009
+result (shown later in the Effects of Brackets section) actually predicted too much suction on the fine grid. The CFD
+data in Figs. 17(a) and (b) came from the same code, but employed a different grid. Both entries 013.02 and 002 used
+a form of the k-ε model, but it is not clear exactly how they differed (entry 013.02 used a k-ε-Rt model, and 002 used
+a preconditioned realizable k-ε model). The entry 002 result was poor in the outboard region even on the fine grid.
+Figs. 17(c) and (d) illustrate the effect of neglecting the viscous cross-derivative terms on the flow near the wing
+tip. The only difference between entries 017.03 and 017.05 was the fact that the cross-derivative terms were neglected
+in entry 017.03. Full Navier-Stokes was employed for entry 017.05. The tip region results for entry 017.05 were
+dramatically improved. The entry 017.03 result was typical of others who neglected the viscous cross-derivative terms
+(entries 005.02, 010, 011, 017.02, 017.04, 021.01, and 021.02). This was a very important outcome of the workshop:
+the discovery of the large negative impact of neglecting viscous cross-derivatives on the flow near the wing tip.
+Finally, Figs. 17(e) and (f) illustrate an effect of turbulence model on the wing tip region. Here, the only difference
+between entries 015 and 020.02 was the turbulence model (SA vs. a modified k-ω). The SA result agreed better with
+the experimental data near the wing tip.
+In Fig. 17, one can see a few dips in the experimental pressure data that are not predicted by any of the CFD
+methods. It turns out that these dips were caused by the presence of the support brackets. In the next section, the CFD
+entries that included brackets are assessed.
+
+VII.
+
+Effects of Support Brackets
+
+The general effects of including support brackets on the forces and moment are shown in Fig. 18. Here, all CFD
+results were on medium grids except for one (entry 009, which used fine). The experimental bounds8 are indicated
+by dashed lines in the figure. The CFD trend with brackets was to yield a small drop in lift at α = 13◦ of about
+0.01 − 0.02 and a larger drop at α = 28◦ of about 0.06 − 0.09. Note that one entry (014.04) stalled too early, so its
+α = 28◦ result with brackets was not realistic. The trend for drag at α = 13◦ was not as clear: for five entries the
+drag increased and for two entries it decreased. However, at α = 28◦ the brackets yielded lower drag for all entries.
+Moment generally decreased in magnitude (became less negative) with the addition of brackets.
+Two locations where the support brackets influence on the surface pressure coefficients could be seen were at the
+50% flap span station and on the flap forward span station. Fig. 19 shows a sampling of results for three of the entries
+that included brackets. At the 50% flap span station (left three plots in the figure), when brackets were not included,
+most entries produced upper surface Cp with greater suction over the forward part of the flap than the experiment, and
+less flatness over the rear part. In these cases, the CFD result with brackets agreed much better with experimental data.
+On the other hand, the entry 009 results without and with brackets yielded very little difference. The reason for the
+different behavior of entry 009 at the 50% flap span station is not known.
+At the flap forward span station (right three plots in the figure), including support brackets in the CFD computation
+yielded results that followed the dips in the experimental data, although the levels did not always agree well with
+experiment. Fig. 19(f) also illustrates how entry 009 over-predicted the suction near the wing tip on the fine grid. As
+mentioned earlier, this result was very different from all other CFD entries.
+
+8 of 32
+
+VIII.
+
+Statistical Analysis
+
+In the statistical analysis, the basic method used by Morrison11 for the DPW analysis was adopted. For any quantity
+of interest (CL for example), the scatter limits are established as µ̂ ± K σ̂, where µ̂ is the median
+of the sorted data, σ̂
+√
+is the standard deviation, and K is a confidence interval coverage factor, taken to be K = 3. However, note that this
+value of K is not standard. Hemsch and Morrison12 used a more conservative value of K = 3. A statistical outlier (a
+point residing outside of the scatter limits) is by definition different from the results that lie within the scatter limits.
+In terms of CFD solutions, being an outlier means that some aspect of the CFD solution was significantly different
+from the others, and its cause(s) should be investigated. In the plots to follow, any sample lying outside of the limits
+is noted in the figure. However, because the scatter limits depend on the choice of K, the fact that √
+a particular point
+lies outside may or may not be significant. For example, if K = 3 had been chosen instead of K = 3, then many of
+the tagged points would have resided within the scatter limits. Therefore, the plots to follow should be used only as a
+crude indication of potentially significant CFD differences.
+The coefficient of variation, defined as Cν = σ̂/µ̂, provides a measure to compare the variation of populations
+with different medians. Recall that the entries 003.02, 003.03, 014.03, and 014.05 were special CFD cases with only
+very limited numbers of runs completed. Therefore, these four entries were not included in the statistical analysis.
+Fig. 20 shows the CL , CD , and CM for all entries at α = 13◦ , as well as the median, scatter limits, and coefficients
+of variation. The scatter limits are shown as dashed lines in the plots. For all three quantities, the scatter and coefficient
+of variation decreased in magnitude as the grid was refined. On the fine grid level, the scatter in CL was 0.10, the
+scatter in CD was 232 counts (0.0232), and the scatter in CM was 0.052. It can be argued that comparing CFD results
+with different turbulence models is not appropriate, because different equations are being solved. Therefore, Fig. 21
+shows a statistical analysis of only those entries that used some version of the SA model. Note that by limiting the
+statistical analysis to SA only, the scatter and coefficients of variation decreased substantially from Fig. 20. On the fine
+grid level, the scatter in CL was 0.06, the scatter in CD was 136 counts (0.0136), and the scatter in CM was 0.020.
+Statistical analysis results for α = 28◦ are shown in Fig. 22. Because of the recognized aberrant behavior of entries
+008.01, 008.02, and 008.03 at α = 28◦ (see discussion in the Grid Convergence Behavior section), these particular
+entries were omitted from the statistical analysis at this angle of attack. In this case, again the scatter and coefficient
+of variation decreased in magnitude as the grid was refined. Fig. 23 shows α = 28◦ results using SA only. As with the
+α = 13◦ case, limiting the statistical analysis to SA significantly reduced both the scatter and coefficients of variation.
+On the fine grid level, the scatter in CL was 0.07, the scatter in CD was 291 counts (0.0291), and the scatter in CM
+was 0.042. It is interesting to note that the Cν values for lift and drag when looking only at SA results were about the
+same (Cν,lift ≈ 0.007, Cν,drag = 0.012) for both angles of attack on the fine grids. However, the Cν for moment more
+than doubled from Cν,moment = −0.012 to −0.027.
+Statistical analyses were performed for the configuration 8 results (submitted by participants on the medium grid
+level only), but are not shown here. Results were generally similar to results for configuration 1. Again, limiting the
+procedure to SA typically reduced both the scatter and coefficients of variation.
+Finally, grid convergence plots including scatter limits are shown in Figs. 24 and 25. Entries are shown for
+configuration 1 (in red) only if both configurations 1 and 8 were submitted. The blue solid line represents the median
+for configuration 1 at the C-M-F grid levels, and the blue dashed lines represent the scatter limits for configuration
+1. Because configuration 8 was only computed on medium grids, the entries themselves are not plotted, with the one
+exception of special entry 003.03, which performed a grid study for configuration 8 at α = 13◦ . Note the aberrant
+behavior discussed earlier for entry 003.01 on the XF grid also occurred for entry 003.03. The median and scatter limits
+for the configuration 8 medium grids are shown in green. The filled-in symbols on the y-axis represent experimentally
+measured values interpolated to the specific angle of attack. Open symbols for configuration 1 represent estimated
+experimental bounds.8 Similar experimental bounds were not available for configuration 8. The delta values on the
+medium grid between configurations 1 and 8 are also indicated, in text, in the upper left hand corner of each plot.
+For α = 13◦ , the configuration 1 CFD scatter limits for all forces and moments were similar in extent to the
+experimental error bounds, but CFD somewhat under-predicted CL , CD , and the magnitude of CM . When using only
+SA results, the scatter limits and convergence were much tighter than when considering all turbulence model results.
+For α = 28◦ , similar trends were seen, except that all forces and moments appeared to be converging (in the mean)
+closer to the experimentally measured values as the grids were refined. It is difficult to draw conclusions regarding
+the trends for configuration 8 without a full set of entries on three sets of C-M-F grid levels. The current analysis only
+shows the differences on the medium grid. The ∆CL , ∆CD , and |∆CM | were all under-predicted in the mean by
+CFD at α = 13◦ by between 4 and 15%, and were all over-predicted at α = 28◦ by between 62 and 154%.
+
+9 of 32
+
+IX.
+
+Conclusions
+
+The entries from the first AIAA High Lift Prediction Workshop (HiLiftPW-1) have been collectively summarized,
+both by looking at specific results compared to experiment as well as through statistical analyses. A large number of
+surface pressures and (optional) skin friction data were collected, but only a small portion of these have been analyzed
+to date. Additional analyses on these data can be conducted in the future.
+In general, CFD tended to under-predict lift, drag, and the magnitude of the moment (moment was negative)
+compared to experiment. Predicting the flow was more difficult at higher angles of attack nearing stall; there was more
+spread among the solutions there, and some participants predicted early stall. At the workshop, some participants
+reported initial condition dependency of their CFD solutions at high angles of attack. Unless a high angle of attack
+solution was initiated with a converged flowfield obtained at a lower angle of attack, sometimes massive separation
+could result. This dependency may have been one of the reasons for some of the very poor results at high angle of
+attack. Also, some turbulence models appeared to do worse than others near CL,max . In spite of tending to predict
+lift somewhat too low in general, many participants were able to predict CL,max and the angle of attack at which it
+occurred reasonably well.
+The trends with grid refinement were generally in the correct direction (approaching experiment). For example,
+the lift coefficient for most entries increased as the grid was refined. However, it is difficult to draw firm conclusions
+regarding this comparison with experiment, because CFD grid convergence studies were only done without support
+brackets. Furthermore, by design this first workshop asked for CFD results with no transition modeling or tunnel
+walls, and these aspects may be important when comparing directly with the experiment. Regarding grid convergence,
+it appeared that unstructured type methods exhibited greater variability than structured methods on coarse grids, but
+on fine grids the variability was similar. Part of the difference in variability may have been the fact that the coarse
+unstructured grids tended to be smaller than the coarse structured grids. Collectively, the SA model yielded higher lift
+levels than other models near stall, in better agreement with experiment. Two exceptions to this trend were entries that
+also employed transition modeling or specification.
+From the limited pressure and skin friction results analyzed, the following trends were observed. First, there tended
+to be greater variation among the CFD results at the outboard trailing edge region of the flap, and the SST model had a
+greater tendency to separate there than SA. Second, an unstructured tetrahedral grid was found to exhibit greater grid
+sensitivity than the same grid with its boundary layer tetrahedra merged into prisms. Third, the flowfield near the wing
+tip was very difficult to predict accurately: all entries except one seriously under-predicted the suction near the wing
+tip upper surface. Fourth, neglecting viscous cross-derivative terms yielded even worse predictions near the wing tip
+than full Navier-Stokes. Skin friction was also able to point out key differences between particular variants of the SA
+model, and could be used to easily see the influence of transition modeling.
+The general effect of including support brackets was to decrease lift by a small amount at α = 13◦ and a larger
+amount at α = 28◦ . The effects of brackets could be seen in the surface pressure data at certain stations. Grid studies
+were not performed for the bracketed configuration, so the trend with grid refinement is not known.
+In the statistical analysis, scatter limits and coefficients of variation were computed. At both α = 13◦ and 28◦ ,
+the scatter and coefficients of variation both decreased in magnitude as the grid was refined. By limiting the analysis
+to only SA results, these levels decreased in magnitude substantially. Statistically, the predicted deltas between configuration 1 and 8 were somewhat low at α = 13◦ , and significantly high at α = 28◦ . A grid study is needed for
+configuration 8 to draw firmer conclusions.
+Two of the recommendations to emerge from the workshop were: (1) collect iterative convergence histories to help
+assess convergence (or lack thereof), and (2) conduct additional grid studies with support brackets, on configuration 8,
+and near CL,max . Furthermore, in future workshops an effort should be made to try to reduce variability from the use
+of different versions of the same turbulence model, and from the use of numerical approximations such as neglecting
+viscous cross-derivative terms.
+Regarding the six long-term goals for the HiLiftPW workshops stated in the introduction, this summary paper of
+the first workshop’s results has primarily addressed the first (assessing the current prediction capability for these types
+of flows) and the fifth (providing an impartial forum for evaluation). It has also identified areas needing additional focus
+(the wing tip and the flap trailing edge regions), and has noted the potential importance of including support brackets
+as well as modeling transition. Many of the other goals are longer term, which future workshops and continued
+collaborative efforts will strive to address.
+
+10 of 32
+
+Acknowledgments
+The work of the first author was supported under the Subsonic Fixed Wing Project of NASA’s Fundamental Aerodynamics Program.
+
+References
+1 Rumsey, C. L. and Ying, S. X., “Prediction of High Lift: Review of Present CFD Capability,” Prog. Aerospace Sciences, Vol. 38, 2002, pp.
+145–180.
+2 Nash, S. M. and Rogers, S. E., “Numerical Study of a Trapezoidal Wing High-Lift Configuration,” SAE-1999-01-5559, October 1999.
+3 Johnson, P. L., Jones, K. M., and Madson, M. D., “Experimental Investigation of a Simplified 3D High Lift Configuration in Support of CFD
+Validation,” AIAA Paper 2000-4217, August 2000.
+4 Rogers, S. E., Roth, K., and Nash, S. M., “Validation of Computed High-Lift Flows with Significant Wind-Tunnel Effects,” AIAA Journal,
+Vol. 39, No. 10, 2001, pp. 1884–1892.
+5 Chaffin, M. S. and Pirzadeh, S., “Unstructured Navier-Stokes High-Lift Computations on a Trapezoidal Wing,” AIAA Paper 2005-5084, June
+2005.
+6 McGinley, C. B., Jenkins, L. N., Watson, R. D., and Bertelrud, A., “3-D High-Lift Flow Physics Experiment - Transition Measurements,”
+AIAA Paper 2005-5148, June 2005.
+7 Vassberg, J. C., Tinoco, E. N., Mani, M., Brodersen, O. P., Eisfeld, B., Wahls, R. A., Morrison, J. H., Zickuhr, T., Laflin, K. R., Mavriplis,
+D. J., “Abridged Summary of the Third AIAA Computational Fluid Dynamics Drag Prediction Workshop,” Journal of Aircraft, Vol. 45, No. 3,
+May-June 2008, pp. 781–798.
+8 Slotnick, J. P., Hannon, J. A., and Chaffin, M., “Overview of the 1st AIAA CFD High Lift Prediction Workshop,” 49th AIAA Aerospace
+Sciences Meeting, American Institute of Aeronautics and Astronautics, Reston, VA (submitted for publication).
+9 Eliasson, P., “EDGE: A Navier-Stokes Solver for Unstructured Grids,” FOI Report FOI-R-0298-SE, Swedish Defence Research Agency,
+ISSN 1650-1942, December 2001.
+10 Spalart, P. R., “Trends in Turbulence Treatments,” AIAA Paper 2000-2306, June 2000.
+11 Morrison, J. H., “Statistical Analysis of CFD Solutions from the Fourth AIAA Drag Prediction Workshop,” AIAA Paper 2010-4673, JuneJuly 2010.
+12 Hemsch, M. J. and Morrison, J. H., “Statistical Analysis of CFD Solutions from 2nd Drag Prediction Workshop,” AIAA Paper 2004-556,
+January, 2004.
+
+Figure 1. Photograph of the Trapezoidal Wing in the NASA Langley 14x22 Foot Tunnel.
+
+11 of 32
+
+3
+
+1
+
+2.5
+
+0.8
+
+CD
+
+1.2
+
+2
+1.5
+
+0.6
+0.4
+
+CFD (37 submissions)
+experiment
+experimental bounds
+
+1
+0.5
+
+CFD (37 submissions)
+experiment
+experimental bounds
+
+0
+
+5
+
+10
+
+15
+
+20
+
+α, deg
+
+25
+
+30
+
+0.2
+
+35
+
+0
+
+40
+
+0
+
+5
+
+10
+
+(a) Lift coefficient
+
+15
+
+25
+
+(b) Drag coefficient
+
+-0.1
+CFD (37 submissions)
+experiment
+experimental bounds
+
+-0.2
+
+-0.3
+
+-0.4
+
+-0.5
+
+-0.6
+
+20
+
+α, deg
+
+CM
+
+CL
+
+3.5
+
+0
+
+5
+
+10
+
+15
+
+20
+
+α, deg
+
+25
+
+30
+
+35
+
+40
+
+(c) Moment coefficient
+Figure 2. Summary of all results for configuration 1, medium grids.
+
+12 of 32
+
+30
+
+35
+
+40
+
+3.2
+3
+2.8
+
+CL, max
+
+002
+
+2.6
+
+019
+008.01
+
+2.4
+
+008.03
+
+SA model
+SST model
+k-e based model
+k-o based model
+RSM model
+VLES model
+experiment
+experimental bounds
+
+2.2
+2
+008.02
+
+1.8
+
+entry number
+(a) CL,max
+
+40
+005.02
+003.01
+
+α (deg) at CL, max
+
+35
+30
+017.04
+
+019
+
+25
+20
+
+SA model
+SST model
+k-e based model
+k-o based model
+RSM model
+VLES model
+experiment
+
+008.01 008.03
+
+15
+008.02
+
+10
+
+entry number
+(b) Angle of attack at CL,max
+Figure 3. Predictions of maximum lift for configuration 1, medium grids.
+
+13 of 32
+
+3.5
+
+3
+
+3
+
+2.5
+
+2.5
+
+CL
+
+CL
+
+3.5
+
+2
+CFD, str, coarse, not SA
+CFD, str, coarse, SA
+experiment
+experimental bounds
+
+1.5
+
+1.5
+
+1
+
+-0.5
+
+-0.4
+
+-0.3
+
+-0.2
+
+-0.1
+
+0.5
+-0.6
+
+0
+
+-0.5
+
+-0.4
+
+-0.3
+
+-0.2
+
+-0.1
+
+CM
+
+CM
+
+(a) Coarse grids, structured grids
+
+(b) Coarse grids, unstructured grids
+
+3.5
+
+3.5
+
+3
+
+3
+
+2.5
+
+2.5
+
+2
+1.5
+
+-0.5
+
+-0.4
+
+-0.3
+
+-0.2
+
+-0.1
+
+CFD, unst, fine, not SA
+CFD, unst, fine, SA
+experiment
+experimental bounds
+
+1
+0.5
+-0.6
+
+0
+
+-0.5
+
+-0.4
+
+-0.3
+
+-0.2
+
+-0.1
+
+CM
+
+CM
+
+(c) Fine grids, structured grids
+
+(d) Fine grids, unstructured grids
+
+Figure 4. Moment polars for configuration 1.
+
+14 of 32
+
+0
+
+2
+1.5
+
+CFD, str, fine, not SA
+CFD, str, fine, SA
+experiment
+experimental bounds
+
+1
+0.5
+-0.6
+
+CFD, unst, coarse, not SA
+CFD, unst, coarse, SA
+experiment
+experimental bounds
+
+1
+
+CL
+
+CL
+
+0.5
+-0.6
+
+2
+
+0
+
+2.2
+
+2.2
+CFD, structured, not SA
+CFD, structured, SA
+experiment
+
+2.1
+
+CFD, unstructured, not SA
+CFD, unstructured, SA
+experiment
+
+2.1
+
+CL
+
+CL
+
+003.01
+
+2
+
+2
+
+017.02
+
+1.9
+014.04
+
+1.8
+
+008.02
+
+1.9
+
+0
+
+019
+
+2E-05
+
+N
+
+1.8
+
+4E-05
+
+-2/3
+
+0
+
+N
+
+(a) Lift coefficient, structured grids
+
+0.34
+
+0.33
+
+0.33
+
+0.32
+
+0.32
+015
+
+017.02
+
+CD
+
+CD
+
+0.31
+
+0.3
+
+008.03
+
+020.02
+
+0.3
+014.04
+
+008.02
+
+019
+
+0.29
+
+020.01
+
+0.29
+CFD, structured, not SA
+CFD, structured, SA
+experiment
+
+0.28
+0.27
+
+4E-05
+
+-2/3
+
+(b) Lift coefficient, unstructured grids
+
+0.34
+
+0.31
+
+2E-05
+
+0
+
+2E-05
+
+N
+
+0.28
+0.27
+
+4E-05
+
+-2/3
+
+CFD, unstructured, not SA
+CFD, unstructured, SA
+experiment
+
+0
+
+2E-05
+
+N
+
+(c) Drag coefficient, structured grids
+
+-2/3
+
+4E-05
+
+(d) Drag coefficient, unstructured grids
+
+-0.4
+
+-0.4
+019
+
+-0.42
+
+CFD, unstructured, not SA
+CFD, unstructured, SA
+experiment
+
+-0.42
+
+014.04
+
+-0.44
+
+-0.44
+
+017.02
+
+008.02
+
+-0.46
+
+CM
+
+CM
+
+008.03
+
+-0.46
+-0.48
+
+-0.48
+
+-0.5
+
+-0.5
+CFD, structured, not SA
+CFD, structured, SA
+experiment
+
+-0.52
+-0.54
+
+0
+
+2E-05
+
+N
+
+-2/3
+
+-0.52
+009
+
+-0.54
+
+4E-05
+
+0
+
+2E-05
+
+N
+
+(e) Moment coefficient, structured grids
+
+-2/3
+
+4E-05
+
+(f) Moment coefficient, unstructured grids
+
+Figure 5. Grid convergence characteristics, configuration 1, α = 13◦ .
+15 of 32
+
+3.2
+
+3.2
+
+3
+
+3
+
+2.8
+
+2.8
+
+2.6
+
+2.6
+
+2.4
+
+2.4
+
+CFD, unstructured, not SA
+CFD, unstructured, SA
+experiment
+
+CL
+
+CL
+
+008.03
+003.01
+
+2.2
+
+2.2
+
+2
+
+2
+
+1.8
+
+1.4
+
+1.8
+
+CFD, structured, not SA
+CFD, structured, SA
+experiment
+
+1.6
+0
+
+2E-05
+
+N
+
+-2/3
+
+008.01
+
+008.02
+
+1.6
+1.4
+
+4E-05
+
+0
+
+N
+
+(a) Lift coefficient, structured grids
+
+-2/3
+
+4E-05
+
+(b) Lift coefficient, unstructured grids
+
+0.7
+
+0.65
+
+0.65
+
+0.6
+
+0.6
+
+008.03
+
+CD
+
+0.7
+
+CD
+
+2E-05
+
+019
+
+008.01
+
+003.01
+
+0.55
+
+0.55
+008.02
+
+0.5
+
+0.45
+
+0
+
+2E-05
+
+N
+
+-2/3
+
+CFD, unstructured, not SA
+CFD, unstructured, SA
+experiment
+
+0.5
+
+CFD, structured, not SA
+CFD, structured, SA
+experiment
+
+0.45
+
+4E-05
+
+0
+
+N
+
+(c) Drag coefficient, structured grids
+
+-0.25
+CFD, structured, not SA
+CFD, structured, SA
+experiment
+
+003.01
+
+-0.35
+
+4E-05
+
+008.03
+
+-0.3
+008.02
+008.01
+
+-0.35
+
+CM
+
+-0.4
+
+CM
+
+-0.4
+-0.45
+
+-0.45
+
+-0.5
+
+-0.5
+
+-0.55
+
+-0.55
+
+-0.6
+
+-2/3
+
+(d) Drag coefficient, unstructured grids
+
+-0.25
+-0.3
+
+2E-05
+
+0
+
+2E-05
+
+N
+
+-2/3
+
+-0.6
+
+4E-05
+
+CFD, unstructured, not SA
+CFD, unstructured, SA
+experiment
+
+0
+
+2E-05
+
+N
+
+(e) Moment coefficient, structured grids
+
+-2/3
+
+4E-05
+
+(f) Moment coefficient, unstructured grids
+
+Figure 6. Grid convergence characteristics, configuration 1, α = 28◦ .
+16 of 32
+
+3.5
+
+3
+
+3
+
+2.5
+
+2.5
+
+CL
+
+CL
+
+3.5
+
+2
+1.5
+
+1.5
+CFD, config 1
+CFD, config 8
+experiment, config 1
+experiment, config 8
+
+1
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+30
+
+35
+
+0.5
+
+40
+
+10
+
+15
+
+20
+
+25
+
+(a) USM3D
+
+(b) CFD++
+
+3
+
+3
+
+2.5
+
+2.5
+
+2
+1.5
+
+30
+
+35
+
+40
+
+2
+1.5
+
+CFD, config 1
+CFD, config 8
+experiment, config 1
+experiment, config 8
+
+1
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+30
+
+35
+
+CFD, config 1
+CFD, config 8
+experiment, config 1
+experiment, config 8
+
+1
+0.5
+
+40
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+alpha, deg
+
+alpha, deg
+
+(c) CFL3D
+
+(d) FUN3D
+
+3.5
+
+3.5
+
+3
+
+3
+
+2.5
+
+2.5
+
+CL
+
+CL
+
+5
+
+alpha, deg
+
+3.5
+
+2
+1.5
+
+30
+
+35
+
+40
+
+2
+1.5
+
+CFD, config 1
+CFD, config 8
+experiment, config 1
+experiment, config 8
+
+1
+0.5
+
+0
+
+alpha, deg
+
+3.5
+
+0.5
+
+CFD, config 1
+CFD, config 8
+experiment, config 1
+experiment, config 8
+
+1
+
+CL
+
+CL
+
+0.5
+
+2
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+30
+
+35
+
+CFD, config 1
+CFD, config 8
+experiment, config 1
+experiment, config 8
+
+1
+0.5
+
+40
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+alpha, deg
+
+alpha, deg
+
+(e) NSU3D
+
+(f) OVERFLOW
+
+30
+
+35
+
+40
+
+Figure 7. Prediction of lift curve differences between configurations 1 and 8, by CFD codes with multiple submissions that computed both
+configurations, medium grids.
+17 of 32
+
+3.5
+009
+
+3
+2.5
+
+CL
+
+019
+
+2
+1.5
+CFD, config 1
+CFD, config 8
+experiment, config 1
+experiment, config 8
+
+1
+0.5
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+30
+
+35
+
+40
+
+alpha, deg
+Figure 8. Predictions of lift curve differences between configurations 1 and 8, by CFD codes not included in Fig. 7 that computed both
+configurations, medium grids.
+
+3.5
+
+3.5
+009
+
+3
+
+001
+
+3
+
+2.5
+
+2.5
+017.04
+
+CL
+
+CL
+
+005.02
+
+2
+
+2
+019
+
+1.5
+
+1.5
+CFD, config 1
+CFD, config 8
+experiment, config 1
+experiment, config 8
+
+1
+0.5
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+30
+
+35
+
+CFD, config 1
+CFD, config 8
+experiment, config 1
+experiment, config 8
+
+1
+0.5
+
+40
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+alpha, deg
+
+alpha, deg
+
+(a) SA model
+
+(b) Other models
+
+30
+
+35
+
+40
+
+Figure 9. Prediction of lift curve differences between configurations 1 and 8, with SA model results separated out, medium grids.
+
+18 of 32
+
+-3
+coarse
+medium
+fine
+experiment
+
+Cp
+
+-2
+
+-1
+
+0
+
+1
+68
+
+70
+
+72
+
+74
+
+76
+
+78
+
+X
+(a) Pressure tap locations
+
+(b) Entry 009 (CB16 grid, VLES with transition)
+
+-3
+
+-3
+coarse
+medium
+fine
+experiment
+
+-2
+
+-1
+
+Cp
+
+Cp
+
+-2
+
+0
+
+1
+
+1
+70
+
+72
+
+74
+
+76
+
+78
+
+68
+
+72
+
+74
+
+76
+
+X
+
+(c) Entry 017.02 (SX1 grid, SST)
+
+(d) Entry 017.03 (SX1 grid, SA)
+
+78
+
+-3
+coarse
+medium
+fine
+experiment
+
+-2
+
+Cp
+
+-1
+
+0
+
+0
+
+1
+
+1
+70
+
+72
+
+74
+
+76
+
+coarse
+medium
+fine
+experiment
+
+-2
+
+-1
+
+68
+
+70
+
+X
+
+-3
+
+Cp
+
+-1
+
+0
+
+68
+
+coarse
+medium
+fine
+experiment
+
+78
+
+68
+
+70
+
+72
+
+74
+
+76
+
+X
+
+X
+
+(e) Entry 016 (UT5 grid, SA)
+
+(f) Entry 017.01 (UH6 grid, SA)
+
+78
+
+Figure 10. Sampling of surface pressure coefficients at 85% flap station, configuration 1, α = 13◦ (experiment at α = 12.991◦ ).
+19 of 32
+
+0.02
+
+0.02
+coarse
+
+coarse
+medium
+fine
+
+Cf,x
+
+0.01
+
+Cf,x
+
+0.01
+
+0
+
+0
+
+-0.01
+68
+
+70
+
+72
+
+X
+
+74
+
+76
+
+-0.01
+68
+
+78
+
+(a) Entry 007 (UH8 grid, SA)
+
+70
+
+72
+
+X
+
+74
+
+76
+
+78
+
+(b) Entry 001 (UX9 grid, SST with transition)
+
+0.02
+
+0.02
+coarse
+medium
+fine
+extra-fine
+
+medium
+
+Cf,x
+
+0.01
+
+Cf,x
+
+0.01
+
+0
+
+0
+
+-0.01
+68
+
+70
+
+72
+
+X
+
+74
+
+76
+
+-0.01
+68
+
+78
+
+(c) Entry 014.01 (SX3 grid, SA*)
+
+70
+
+72
+
+X
+
+74
+
+76
+
+78
+
+(d) Entry 014.05 (SX3 grid, SA)
+
+0.02
+
+0.02
+coarse
+medium
+fine
+
+coarse
+medium
+fine
+
+Cf,x
+
+0.01
+
+Cf,x
+
+0.01
+
+0
+
+0
+
+-0.01
+68
+
+70
+
+72
+
+X
+
+74
+
+76
+
+-0.01
+68
+
+78
+
+(e) Entry 012.01 (UH15 grid, SA*)
+
+70
+
+72
+
+X
+
+74
+
+76
+
+(f) Entry 021.01 (UH6 grid, SA)
+
+Figure 11. Sampling of x-component of surface skin friction coefficients at 85% flap station, configuration 1, α = 13◦ .
+20 of 32
+
+78
+
+-2
+
+-5
+CFD
+experiment
+
+-3
+CFD
+experiment
+
+CFD
+experiment
+
+-4
+
+-2
+-1
+
+-3
+-2
+
+Cp
+
+Cp
+
+Cp
+
+017.03
+
+0
+
+-1
+
+-1
+0
+0
+
+1
+
+1
+
+1
+14
+
+15
+
+16
+
+17
+
+20
+
+30
+
+X
+
+40
+
+50
+
+50
+
+55
+
+60
+
+X
+
+(a) Slat, structured grid results
+
+(b) Main, structured grid results
+
+-2
+
+(c) Flap, structured grid results
+
+-5
+CFD
+experiment
+
+65
+
+X
+
+-3
+CFD
+experiment
+
+CFD
+experiment
+
+-4
+
+-2
+-1
+
+010
+
+0
+
+-2
+
+Cp
+
+Cp
+
+Cp
+
+-3
+-1
+
+-1
+0
+0
+
+1
+
+1
+
+1
+14
+
+15
+
+16
+
+17
+
+20
+
+30
+
+X
+
+40
+
+50
+
+50
+
+55
+
+60
+
+X
+
+(d) Slat, unstructured grid results
+
+65
+
+X
+
+(e) Main, unstructured grid results
+
+(f) Flap, unstructured grid results
+
+Figure 12. Surface pressure coefficients at 28% span station, configuration 1, α = 13◦ (experiment at α = 12.991◦ ), SA on fine grid only.
+
+-3
+
+-5
+CFD
+experiment
+
+-3
+CFD
+experiment
+
+CFD
+experiment
+
+-4
+
+-2
+
+-2
+
+-2
+
+Cp
+
+Cp
+
+Cp
+
+-3
+-1
+
+012.02
+
+-1
+
+-1
+0
+
+0
+0
+
+1
+
+1
+
+1
+46
+
+48
+
+50
+
+52
+
+50
+
+55
+
+X
+
+60
+
+65
+
+70
+
+68
+
+70
+
+72
+
+X
+
+(a) Slat, structured grid results
+
+(b) Main, structured grid results
+
+-3
+
+76
+
+78
+
+(c) Flap, structured grid results
+
+-5
+CFD
+experiment
+
+74
+
+X
+
+-3
+CFD
+experiment
+
+CFD
+experiment
+
+-4
+
+-2
+
+-2
+
+-2
+
+Cp
+
+-1
+
+Cp
+
+Cp
+
+-3
+017.01
+
+-1
+
+-1
+0
+
+0
+0
+
+1
+
+1
+
+1
+46
+
+48
+
+50
+
+52
+
+X
+
+(d) Slat, unstructured grid results
+
+50
+
+55
+
+60
+
+65
+
+70
+
+X
+
+(e) Main, unstructured grid results
+
+68
+
+70
+
+72
+
+74
+
+76
+
+78
+
+X
+
+(f) Flap, unstructured grid results
+
+Figure 13. Surface pressure coefficients at 85% span station, configuration 1, α = 13◦ (experiment at α = 12.991◦ ), SA on fine grid only.
+
+21 of 32
+
+-7
+
+-8
+
+-3
+CFD
+experiment
+
+CFD
+experiment
+
+-6
+-5
+
+CFD
+experiment
+
+-6
+
+-2
+
+-4
+
+-1
+
+-2
+
+Cp
+
+-3
+
+Cp
+
+Cp
+
+-4
+
+-2
+
+0
+
+-1
+0
+
+0
+
+1
+
+1
+14
+
+15
+
+16
+
+17
+
+20
+
+30
+
+X
+
+40
+
+50
+
+50
+
+55
+
+60
+
+X
+
+(a) Slat, structured grid results
+
+(b) Main, structured grid results
+
+-7
+
+(c) Flap, structured grid results
+
+-8
+
+-3
+CFD
+experiment
+
+CFD
+experiment
+
+-6
+-5
+
+65
+
+X
+
+CFD
+experiment
+
+-6
+
+-2
+
+-4
+
+-1
+
+-2
+
+Cp
+
+-3
+
+Cp
+
+Cp
+
+-4
+
+-2
+
+0
+
+-1
+0
+
+0
+
+1
+
+1
+14
+
+15
+
+16
+
+17
+
+20
+
+30
+
+X
+
+40
+
+50
+
+50
+
+55
+
+60
+
+X
+
+(d) Slat, unstructured grid results
+
+65
+
+X
+
+(e) Main, unstructured grid results
+
+(f) Flap, unstructured grid results
+
+Figure 14. Surface pressure coefficients at 28% span station, configuration 1, α = 28◦ (experiment at α = 28.407◦ ), SA on fine grid only.
+
+-14
+
+-8
+
+-12
+
+CFD
+experiment
+
+-3
+
+-6
+
+-10
+
+-2
+
+-8
+-6
+
+Cp
+
+-4
+
+Cp
+
+Cp
+
+-4
+CFD
+experiment
+
+CFD
+experiment
+
+017.03
+
+-1
+
+-2
+
+-4
+
+0
+
+-2
+0
+0
+
+1
+
+46
+
+48
+
+50
+
+52
+
+50
+
+55
+
+X
+
+65
+
+70
+
+68
+
+70
+
+72
+
+X
+
+(a) Slat, structured grid results
+
+CFD
+experiment
+
+-3
+
+-6
+
+011
+
+-2
+
+-8
+
+010
+
+Cp
+
+Cp
+
+-4
+
+-6
+
+78
+
+-4
+CFD
+experiment
+
+-10
+
+76
+
+(c) Flap, structured grid results
+
+-8
+CFD
+experiment
+
+-12
+
+74
+
+X
+
+(b) Main, structured grid results
+
+-14
+
+Cp
+
+60
+
+021.01
+
+-1
+
+-2
+
+-4
+
+0
+
+-2
+0
+0
+
+1
+
+46
+
+48
+
+50
+
+52
+
+X
+
+(d) Slat, unstructured grid results
+
+50
+
+55
+
+60
+
+65
+
+70
+
+X
+
+(e) Main, unstructured grid results
+
+68
+
+70
+
+72
+
+74
+
+76
+
+78
+
+X
+
+(f) Flap, unstructured grid results
+
+Figure 15. Surface pressure coefficients at 85% span station, configuration 1, α = 28◦ (experiment at α = 28.407◦ ), SA on fine grid only.
+
+22 of 32
+
+-8
+
+-8
+
+-7
+
+-6
+
+-5
+
+-5
+
+-4
+
+-4
+
+Cp
+
+Cp
+
+-6
+
+-3
+
+-3
+
+-2
+
+-2
+
+-1
+
+-1
+
+0
+
+0
+
+1
+53
+
+54
+
+55
+
+56
+
+57
+
+1
+53
+
+58
+
+54
+
+55
+
+56
+
+57
+
+X
+
+X
+
+(a) Slat element, entry 018
+
+(b) Slat element, entry 010
+
+-7
+
+58
+
+-7
+coarse
+medium
+fine
+experiment
+
+-6
+-5
+
+coarse
+medium
+fine
+experiment
+
+-6
+-5
+-4
+
+Cp
+
+-4
+
+Cp
+
+coarse
+medium
+fine
+experiment
+
+-7
+
+coarse
+medium
+fine
+experiment
+
+-3
+
+-3
+
+-2
+
+-2
+
+-1
+
+-1
+
+0
+
+0
+
+1
+
+60
+
+65
+
+70
+
+1
+
+75
+
+60
+
+65
+
+70
+
+X
+
+X
+
+(c) Main element, entry 018
+
+(d) Main element, entry 010
+
+-6
+
+75
+
+-6
+coarse
+medium
+fine
+experiment
+
+-5
+-4
+
+coarse
+medium
+fine
+experiment
+
+-5
+-4
+
+Cp
+
+-3
+
+Cp
+
+-3
+-2
+
+-2
+
+-1
+
+-1
+
+0
+
+0
+
+1
+
+74
+
+76
+
+78
+
+1
+
+80
+
+74
+
+76
+
+78
+
+X
+
+X
+
+(e) Flap element, entry 018
+
+(f) Flap element, entry 010
+
+80
+
+Figure 16. Sampling of surface pressure coefficients at 98% span, configuration 1, α = 28◦ (experiment at α = 28.407◦ ).
+23 of 32
+
+-5
+
+-5
+coarse
+medium
+fine
+experiment
+
+-4
+
+coarse
+medium
+fine
+experiment
+
+-4
+
+Cp
+
+-3
+
+Cp
+
+-3
+
+-2
+
+-2
+
+-1
+
+-1
+
+0
+
+-80
+
+-60
+
+-40
+
+-20
+
+0
+
+0
+
+-80
+
+-60
+
+-40
+
+-20
+
+Y
+
+Y
+
+(a) Entry 013.02 (CFD++, UT5 grid, k-ε*, full)
+
+(b) Entry 002 (CFD++, UH13 grid, k-ε*, full)
+
+-5
+
+0
+
+-5
+coarse
+medium
+fine
+experiment
+
+-4
+
+coarse
+medium
+fine
+experiment
+
+-4
+
+Cp
+
+-3
+
+Cp
+
+-3
+
+-2
+
+-2
+
+-1
+
+-1
+
+0
+
+-80
+
+-60
+
+-40
+
+-20
+
+0
+
+0
+
+-80
+
+-60
+
+-40
+
+-20
+
+Y
+
+Y
+
+(c) Entry 017.03 (CFL3D, SX1 grid, SA, thin)
+
+(d) Entry 017.05 (CFL3D, SX1 grid, SA, full)
+
+-5
+
+0
+
+-5
+coarse
+medium
+fine
+experiment
+
+-4
+
+coarse
+medium
+fine
+experiment
+
+-4
+
+Cp
+
+-3
+
+Cp
+
+-3
+
+-2
+
+-2
+
+-1
+
+-1
+
+0
+
+-80
+
+-60
+
+-40
+
+-20
+
+0
+
+0
+
+-80
+
+-60
+
+-40
+
+-20
+
+Y
+
+Y
+
+(e) Entry 015 (USM3D, UT4 grid, SA, full)
+
+(f) Entry 020.02 (USM3D, UT4 grid, k-ω*, full)
+
+0
+
+Figure 17. Sampling of surface pressure coefficients at flap forward span station, configuration 1, α = 28◦ (experiment at α = 28.407◦ ).
+24 of 32
+
+2.1
+
+3
+
+2.08
+2.8
+2.06
+2.6
+
+CL
+
+CL
+
+2.04
+2.02
+
+2.4
+
+2
+1.98
+
+no brackets
+brackets
+experimental bounds
+
+1.96
+1.94
+
+003
+
+007
+
+009
+
+2
+
+010 012.01 014.01 014.04
+
+007
+
+009
+
+010 012.01 014.01 014.04
+
+entry number
+
+(a) CL , α = 13◦
+
+(b) CL , α = 28◦
+
+0.72
+
+0.345
+
+0.7
+0.68
+
+0.34
+
+0.66
+
+CD
+
+0.335
+
+CD
+
+003
+
+entry number
+
+0.35
+
+0.33
+
+0.325
+
+0.64
+0.62
+0.6
+
+0.32
+
+0.58
+
+no brackets
+brackets
+experimental bounds
+
+0.315
+0.31
+
+no brackets
+brackets
+experimental bounds
+
+2.2
+
+003
+
+007
+
+009
+
+no brackets
+brackets
+experimental bounds
+
+0.56
+0.54
+
+010 012.01 014.01 014.04
+
+003
+
+007
+
+009
+
+010 012.01 014.01 014.04
+
+entry number
+
+entry number
+
+(c) CD , α = 13◦
+
+(d) CD , α = 28◦
+
+-0.44
+
+-0.2
+
+-0.46
+
+-0.25
+no brackets
+brackets
+experimental bounds
+
+-0.3
+
+-0.48
+
+CM
+
+CM
+
+-0.35
+-0.5
+
+-0.4
+-0.52
+
+-0.45
+no brackets
+brackets
+experimental bounds
+
+-0.54
+-0.56
+
+003
+
+007
+
+009
+
+-0.5
+-0.55
+
+010 012.01 014.01 014.04
+
+003
+
+007
+
+009
+
+010 012.01 014.01 014.04
+
+entry number
+
+entry number
+
+(e) CM , α = 13◦
+
+(f) CM , α = 28◦
+
+Figure 18. Effect of support brackets on forces and moments, configuration 1.
+25 of 32
+
+-3
+
+-5
+coarse
+medium
+fine
+med w brackets
+experiment
+
+-4
+
+-3
+
+-1
+
+Cp
+
+Cp
+
+-2
+
+coarse
+medium
+fine
+med w brackets
+experiment
+
+-2
+0
+-1
+1
+58
+
+60
+
+62
+
+64
+
+66
+
+68
+
+0
+
+70
+
+-60
+
+-40
+
+-20
+
+Y
+
+(a) Entry 003.01 at 50% flap span
+
+(b) Entry 003.01 at flap forward span station
+
+-3
+
+0
+
+-5
+coarse
+medium
+fine
+med w brackets
+experiment
+
+-2
+
+coarse
+medium
+fine
+med w brackets
+experiment
+
+-4
+
+-3
+
+-1
+
+Cp
+
+Cp
+
+-80
+
+X
+
+-2
+0
+-1
+1
+58
+
+60
+
+62
+
+64
+
+66
+
+68
+
+0
+
+70
+
+-60
+
+-40
+
+-20
+
+Y
+
+(c) Entry 007 at 50% flap span
+
+(d) Entry 007 at flap forward span station
+
+-3
+
+0
+
+-5
+coarse
+medium
+fine
+fine w brackets
+experiment
+
+-2
+
+coarse
+medium
+fine
+fine w brackets
+experiment
+
+-4
+
+-3
+
+-1
+
+Cp
+
+Cp
+
+-80
+
+X
+
+-2
+0
+-1
+1
+58
+
+60
+
+62
+
+64
+
+66
+
+68
+
+0
+
+70
+
+-80
+
+-60
+
+-40
+
+-20
+
+X
+
+Y
+
+(e) Entry 009 at 50% flap span
+
+(f) Entry 009 at flap forward span station
+
+0
+
+Figure 19. Sample of effects of support brackets on pressure coefficients, configuration 1, α = 28◦ (experiment at α = 28.407◦ ).
+26 of 32
+
+2.2
+
+2.1
+
+2.1
+
+2.1
+
+2
+
+2
+
+2
+
+1.9
+
+006
+
+CL
+
+2.2
+
+CL
+
+CL
+
+2.2
+
+1.9
+
+1.8
+
+1.8
+
+1.7
+
+1.8
+
+1.7
+
+1.6
+
+1.7
+
+scatter range=0.12
+coeff of variation=0.017
+
+scatter range=0.14
+coeff of variation=0.021
+1.6
+
+scatter range=0.10
+coeff of variation=0.014
+
+1.6
+
+entry number
+
+entry number
+
+entry number
+
+(a) CL , coarse grid
+
+(b) CL , medium grid
+
+(c) CL , fine grid
+
+0.34
+
+0.34
+
+0.34
+
+0.32
+
+0.32
+
+0.32
+
+008.03
+
+019
+020.01
+
+CD
+
+0.36
+
+CD
+
+0.36
+
+CD
+
+0.36
+
+0.3
+
+0.3
+
+0.28
+
+008.02
+
+020.01
+
+017.02
+0.3
+
+019
+
+0.28
+
+0.26
+
+scatter range=232 cts
+coeff of variation=0.021
+
+0.26
+
+0.26
+
+entry number
+
+entry number
+
+entry number
+
+(d) CD , coarse grid
+
+(e) CD , medium grid
+
+(f) CD , fine grid
+
+-0.35
+
+-0.4
+
+-0.35
+
+-0.4
+
+016
+
+006
+
+-0.4
+
+019
+
+019
+
+-0.5
+
+-0.5
+
+009
+-0.55
+
+-0.55
+
+scatter range=0.060
+coeff of variation=-0.036
+
+scatter range=0.066
+coeff of variation=-0.040
+-0.6
+
+-0.6
+
+entry number
+
+(g) CM , coarse grid
+
+019
+
+CM
+-0.5
+
+009
+-0.55
+
+017.02
+
+-0.45
+
+CM
+
+-0.45
+
+CM
+
+-0.45
+
+020.02
+019
+
+0.28
+
+scatter range=282 cts
+coeff of variation=0.025
+
+scatter range=300 cts
+coeff of variation=0.027
+
+-0.35
+
+019
+
+019
+
+019
+
+016
+
+014.04 017.02
+1.9
+
+009
+scatter range=0.052
+coeff of variation=-0.031
+
+-0.6
+
+entry number
+
+(h) CM , medium grid
+
+entry number
+
+(i) CM , fine grid
+
+Figure 20. Statistical analysis of all entries, configuration 1, α = 13◦ ; solid blue line is median of data, dashed blue lines are scatter limits.
+
+27 of 32
+
+2.2
+
+2.2
+
+2.1
+
+2.1
+
+2.1
+
+2
+
+2
+
+1.9
+
+006
+
+016
+
+016
+
+1.9
+
+1.9
+
+016
+
+1.8
+
+1.8
+
+1.7
+
+1.8
+
+1.7
+
+1.6
+
+1.7
+
+scatter range=0.08
+coeff of variation=0.011
+
+scatter range=0.16
+coeff of variation=0.024
+
+scatter range=0.06
+coeff of variation=0.008
+
+1.6
+
+1.6
+
+entry number
+
+entry number
+
+entry number
+
+(a) CL , coarse grid
+
+(b) CL , medium grid
+
+(c) CL , fine grid
+
+0.36
+
+0.36
+
+0.34
+
+0.34
+
+0.34
+
+0.32
+
+0.32
+
+0.3
+
+015
+
+CD
+
+015
+
+0.32
+
+CD
+
+CD
+
+0.36
+
+0.3
+
+0.28
+
+015
+0.3
+
+0.28
+
+0.28
+
+scatter range=154 cts
+coeff of variation=0.014
+
+scatter range=186 cts
+coeff of variation=0.017
+0.26
+
+scatter range=136 cts
+coeff of variation=0.012
+
+0.26
+
+0.26
+
+entry number
+
+entry number
+
+entry number
+
+(d) CD , coarse grid
+
+(e) CD , medium grid
+
+(f) CD , fine grid
+
+-0.35
+
+-0.35
+
+-0.35
+
+-0.4
+
+-0.4
+
+-0.4
+
+016
+006
+
+016
+
+CM
+
+-0.45
+
+CM
+
+-0.45
+
+-0.5
+
+-0.5
+
+-0.55
+
+-0.5
+
+-0.55
+
+scatter range=0.058
+coeff of variation=-0.035
+-0.6
+
+-0.55
+
+(g) CM , coarse grid
+
+scatter range=0.020
+coeff of variation=-0.012
+
+scatter range=0.034
+coeff of variation=-0.020
+-0.6
+
+entry number
+
+-0.45
+
+CM
+
+006
+
+021.01
+
+2
+
+006
+
+CL
+
+CL
+
+CL
+
+2.2
+
+-0.6
+
+entry number
+
+(h) CM , medium grid
+
+entry number
+
+(i) CM , fine grid
+
+Figure 21. Statistical analysis of SA entries, configuration 1, α = 13◦ ; solid blue line is median of data, dashed blue lines are scatter limits.
+
+28 of 32
+
+3.4
+
+3.2
+
+3.2
+
+3.2
+
+3
+
+3
+
+3
+
+2.8
+
+2.8
+
+2.6
+
+2.6
+
+2.8
+
+CL
+
+CL
+
+3.4
+
+CL
+
+3.4
+
+002
+
+002
+2.6
+
+017.04
+
+019
+
+019
+2.4
+
+2.4
+
+2.2
+
+006
+2
+
+2.2
+
+scatter range=0.49
+coeff of variation=0.050
+
+2.4
+2.2
+
+scatter range=0.24
+coeff of variation=0.024
+
+2
+
+entry number
+
+entry number
+
+entry number
+
+(a) CL , coarse grid
+
+(b) CL , medium grid
+
+(c) CL , fine grid
+0.75
+
+0.7
+
+0.7
+
+0.7
+
+0.65
+
+0.65
+
+0.65
+
+0.6
+
+017.02
+
+CD
+
+CD
+
+0.75
+
+CD
+
+0.75
+
+0.6
+
+019
+
+0.55
+
+0.55
+
+0.55
+
+scatter range=469 cts
+coeff of variation=0.020
+
+scatter range=621 cts
+coeff of variation=0.027
+
+scatter range=703 cts
+coeff of variation=0.031
+0.5
+
+0.5
+
+0.5
+
+entry number
+
+entry number
+
+entry number
+
+(d) CD , coarse grid
+
+(e) CD , medium grid
+
+(f) CD , fine grid
+
+-0.2
+
+-0.2
+
+-0.25
+
+-0.25
+
+-0.3
+
+-0.3
+
+-0.3
+
+-0.35
+
+-0.35 002
+
+019
+
+CM
+
+CM
+
+006
+
+-0.35
+
+CM
+
+-0.2
+
+-0.4
+
+-0.4
+
+-0.4
+
+-0.45
+
+-0.45
+
+-0.45
+
+-0.5
+
+019
+
+0.6
+
+006
+
+-0.25
+
+scatter range=0.17
+coeff of variation=0.017
+
+2
+
+scatter range=0.130
+coeff of variation=-0.092
+
+-0.55
+
+-0.5
+
+scatter range=0.078
+coeff of variation=-0.053
+
+-0.55
+
+entry number
+
+(g) CM , coarse grid
+
+-0.5
+
+002
+
+017.02 017.04
+
+scatter range=0.075
+coeff of variation=-0.049
+
+-0.55
+
+entry number
+
+(h) CM , medium grid
+
+entry number
+
+(i) CM , fine grid
+
+Figure 22. Statistical analysis of all non-aberrant entries, configuration 1, α = 28◦ ; solid blue line is median of data, dashed blue lines are
+scatter limits.
+
+29 of 32
+
+3.4
+
+3.4
+
+3.2
+
+3.2
+
+3.2
+
+3
+
+3
+
+3
+
+2.8
+
+2.8
+
+2.8
+
+2.6
+
+2.6
+
+2.6
+
+2.4
+
+2.4
+
+2.4
+
+2.2
+
+006
+
+2.2
+
+scatter range=0.59
+coeff of variation=0.061
+
+2
+
+2
+
+017.03
+
+CL
+
+017.03
+
+CL
+
+CL
+
+3.4
+
+2.2
+
+scatter range=0.09
+coeff of variation=0.009
+
+2
+
+scatter range=0.07
+coeff of variation=0.007
+
+entry number
+
+entry number
+
+entry number
+
+(a) CL , coarse grid
+
+(b) CL , medium grid
+
+(c) CL , fine grid
+
+0.75
+
+0.75
+
+0.7
+
+0.7
+
+0.7
+
+0.65
+
+0.65
+
+0.6
+
+0.65
+
+017.03
+
+015
+
+CD
+
+015
+
+CD
+
+CD
+
+0.75
+
+0.6
+
+0.6
+
+006
+0.55
+
+0.55
+
+scatter range=729 cts
+coeff of variation=0.032
+
+0.55
+
+scatter range=291 cts
+coeff of variation=0.012
+
+scatter range=298 cts
+coeff of variation=0.013
+
+0.5
+
+0.5
+
+0.5
+
+entry number
+
+entry number
+
+entry number
+
+(d) CD , coarse grid
+
+(e) CD , medium grid
+
+(f) CD , fine grid
+
+-0.2
+
+-0.2
+
+-0.25
+
+-0.25
+
+-0.3
+
+-0.3
+
+-0.3
+
+-0.35
+
+-0.35
+
+-0.35
+
+CM
+
+006
+
+CM
+
+-0.25
+
+-0.4
+
+-0.4
+
+-0.45
+
+-0.45
+
+-0.5
+-0.55
+
+scatter range=0.147
+coeff of variation=-0.102
+
+entry number
+
+(g) CM , coarse grid
+
+-0.5
+
+017.03
+
+CM
+
+-0.2
+
+-0.4
+
+011
+
+017.03
+
+-0.45
+
+scatter range=0.043
+coeff of variation=-0.029
+
+-0.55
+
+-0.5
+
+scatter range=0.042
+coeff of variation=-0.027
+
+-0.55
+
+entry number
+
+(h) CM , medium grid
+
+entry number
+
+(i) CM , fine grid
+
+Figure 23. Statistical analysis of non-aberrant SA entries, configuration 1, α = 28◦ ; solid blue line is median of data, dashed blue lines are
+scatter limits.
+
+30 of 32
+
+2.2
+
+CFD, C1
+CFD, C8
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+∆CL (exp) = 0.172
+∆CL (CFD) = 0.148
+
+2.1
+
+2.2
+
+2.1
+
+2
+
+2
+
+CL
+
+C1
+
+CL
+
+C1
+
+1.9
+
+1.9
+
+C8
+
+C8
+
+1.8
+
+1.8
+
+1.7
+
+0
+
+2E-05
+
+N
+
+-2/3
+
+1.7
+
+4E-05
+
+0
+
+0.36
+
+2E-05
+
+N
+
+(a) CL , all entries
+
+-2/3
+
+4E-05
+
+(b) CL , SA entries
+
+0.36
+
+∆CD (exp) = 0.0452
+∆CD (CFD) = 0.0433
+
+C1
+
+0.32
+
+0.32
+
+∆CD (exp) = 0.0452
+∆CD (CFD) = 0.0433
+
+CD
+
+0.34
+
+C1
+
+CD
+
+0.34
+
+CFD, C1
+CFD, C8
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+0.3
+C8
+
+0.28
+
+0.26
+
+0
+
+2E-05
+
+N
+
+-2/3
+
+CFD, C1
+CFD, C8
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+0.3
+C8
+
+0.28
+
+0.26
+
+4E-05
+
+0
+
+-0.3
+
+CFD, C1
+CFD, C8
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+-0.35
+
+-0.4
+
+C8
+
+C8
+
+-0.45
+
+-0.45
+
+-0.5
+
+-0.5
+
+C1
+
+C1
+
+-0.55
+
+0
+
+2E-05
+
+N
+
+-2/3
+
+4E-05
+
+CFD, C1
+CFD, C8
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+∆CM (exp) = -0.0552
+∆CM (CFD) = -0.0480
+
+-0.35
+
+CM
+
+-0.4
+
+-2/3
+
+(d) CD , SA entries
+
+-0.3
+
+∆CM (exp) = -0.0552
+∆CM (CFD) = -0.0476
+
+2E-05
+
+N
+
+(c) CD , all entries
+
+CM
+
+CFD, C1
+CFD, C8
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+∆CL (exp) = 0.172
+∆CL (CFD) = 0.147
+
+-0.55
+
+4E-05
+
+0
+
+2E-05
+
+N
+
+(e) CM , all entries
+
+-2/3
+
+4E-05
+
+(f) CM , SA entries
+
+Figure 24. Grid convergence characteristics with scatter limits showing difference between configurations 1 and 8, α = 13◦ .
+31 of 32
+
+3.2
+
+CFD, C1
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+∆CL (exp) = 0.063
+∆CL (CFD) = 0.103
+
+3
+
+3.2
+3
+C1
+
+2.8
+
+2.8
+
+C8
+
+C8
+
+CL
+
+CL
+
+C1
+
+2.6
+
+2.6
+
+2.4
+
+2.4
+
+2.2
+
+2.2
+
+2
+
+0
+
+2E-05
+
+N
+
+-2/3
+
+2
+
+4E-05
+
+0
+
+0.8
+
+0.7
+
+0.7
+
+C1
+
+C1
+
+0.65
+
+0.65
+
+C8
+
+C8
+
+0.6
+
+0.6
+
+0.55
+
+0
+
+2E-05
+
+N
+
+-2/3
+
+0.55
+
+4E-05
+
+0
+
+-0.3
+
+-0.4
+
+-0.4
+
+CM
+
+-0.35
+
+CM
+
+-0.35
+
+C8
+CFD, C1
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+C1
+
+-0.5
+
+-0.55
+
+0
+
+2E-05
+
+N
+
+-2/3
+
+-2/3
+
+4E-05
+
+(d) CD , SA entries
+
+∆CM (exp) = -0.0139
+∆CM (CFD) = -0.0353
+
+-0.45
+
+2E-05
+
+N
+
+(c) CD , all entries
+
+-0.3
+
+4E-05
+
+CFD, C1
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+∆CD (exp) = 0.0306
+∆CD (CFD) = 0.0521
+
+0.75
+
+CD
+
+CD
+
+0.75
+
+-2/3
+
+(b) CL , SA entries
+
+CFD, C1
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+∆CD (exp) = 0.0306
+∆CD (CFD) = 0.0535
+
+2E-05
+
+N
+
+(a) CL , all entries
+
+0.8
+
+CFD, C1
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+∆CL (exp) = 0.063
+∆CL (CFD) = 0.102
+
+∆CM (exp) = -0.0139
+∆CM (CFD) = -0.0330
+
+C8
+
+-0.45
+
+CFD, C1
+median, C1
+scatter, C1
+experiment, C1
+exp bounds, C1
+median, C8
+scatter, C8
+experiment, C8
+
+C1
+
+-0.5
+
+-0.55
+
+4E-05
+
+0
+
+2E-05
+
+N
+
+(e) CM , all entries
+
+-2/3
+
+4E-05
+
+(f) CM , SA entries
+
+Figure 25. Grid convergence characteristics with scatter limits showing difference between configurations 1 and 8, α = 28◦ .
+32 of 32
+
+

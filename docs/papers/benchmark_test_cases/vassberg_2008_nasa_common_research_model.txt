@@ -1,0 +1,538 @@
+AIAA.2008-6919
+Development of a Common Research Model
+for Applied CFD Validation Studies
+John C. Vassberg*, Mark A. DeHaan†
+The Boeing Company, Huntington Beach, CA 92647
+S. Melissa Rivers‡, Richard A. Wahls§
+NASA Langley Research Center, Hampton, VA 23681
+
+Abstract
+The development of a wing/body/nacelle/pylon/horizontal-tail configuration for a
+common research model is presented, with focus on the aerodynamic design of the wing.
+Here, a contemporary transonic supercritical wing design is developed with aerodynamic
+characteristics that are well behaved and of high performance for configurations with and
+without the nacelle/pylon group. The horizontal tail is robustly designed for dive Mach
+number conditions and is suitably sized for typical stability and control requirements.
+The fuselage is representative of a wide/body commercial transport aircraft; it includes a
+wing-body fairing, as well as a scrubbing seal for the horizontal tail. The nacelle is a
+single-cowl, high by-pass-ratio, flow-through design with an exit area sized to achieve a
+natural unforced mass-flow-ratio typical of commercial aircraft engines at cruise. The
+simplicity of this un-bifurcated nacelle geometry will facilitate grid generation efforts of
+subsequent CFD validation exercises. Detailed aerodynamic performance data has been
+generated for this model; however, this information is presented in such a manner as to
+not bias CFD predictions planned for the fourth AIAA CFD Drag Prediction Workshop,
+which incorporates this common research model into its blind test cases. The CFD
+results presented include wing pressure distributions with and without the nacelle/pylon,
+ML/D trend lines, and drag-divergence curves; the design point for the wing/body
+configuration is within 1% of its max-ML/D. Plans to test the common research model in
+the National Transonic Facility and the Ames 11-ft wind tunnels are also discussed.
+
+1.0 Introduction
+The genesis of a common research model was motivated by a number of interested
+parties asking NASA to help develop contemporary experimental databases for the
+purpose of validating specific applications of computational fluid dynamics (CFD). For
+example, the organizing committee of the international AIAA CFD Drag Prediction
+Workshop (DPW) series1 is in need of new types of high-quality detailed experimental
+data in order to better understand and help improve issues of numerical flow field
+*
+
+Boeing Technical Fellow, Associate Fellow AIAA.
+Principal Engineer/Scientist
+‡
+Aerospace Engineer, Configuration Aerodynamics Branch, Senior Member AIAA
+§
+Project Scientist, Subsonic Fixed Wing / Fundamental Aeronautics Program, Associate Fellow AIAA
+†
+
+1
+
+AIAA.2008-6919
+simulations as related to the accuracy of drag and moment predictions. Due to the
+success of the DPW series, other groups, such as the computational stability and control
+(COMSAC) community, are interested in organizing similar workshops, and they too
+have a need for very specific high-quality experimental data needed to validate CFD
+predictions on a wide variety of items such as control-surface effectiveness, trim drag,
+wind-tunnel (low) to flight (high) Reynolds number effects, and stability derivatives.
+There is also a benefit for a common model to be tested at numerous wind tunnels to help
+anchor the experimental measurements and correction methods between facilities.
+NASA’s Subsonic Fixed Wing (SFW) Project within the Fundamental Aeronautics (FA)
+Program has established a suite of discipline-oriented technical working groups (TWG)
+as a way to facilitate the dissemination of technology, and coordinate research and
+development within and outside of NASA. A TWG is not steering or advisory
+committee, but rather a vehicle to transfer information and promote collaboration. The
+primary focus of a TWG is on basic/foundational research and discipline tools and
+technologies (e.g., aerodynamics) that tend to be at a cross-cutting, pre-competitive state,
+but with an eye towards multidisciplinary subsystem and system-level activities.
+The SFW Aerodynamics TWG in particular was formed and held its first meeting in
+January 2007. The SFW Aerodynamics TWG membership currently consists of technical
+leaders from US industry and government; in particular meeting participants have
+included personnel from Boeing, Lockheed-Martin, Northrop-Grumman, Gulfstream,
+Cessna, Hawker-Beechcraft, Pratt and Whitney, Air Force, Navy, and NASA. Among
+the many topics discussed at the initial meeting was the idea of new benchmark
+experiments on publicly available geometries suitable for cooperative assessment and
+validation of aerodynamic prediction tools, framed much like the successful DPW series.
+Specific input and general comments on this topic were received by the SFW Project
+Aerodynamics leadership through June 2007, and shared and discussed within the TWG.
+In addition to direct input from the TWG members, the input and experience of
+international DPW Organizing Committee and discussion of next steps from the DPW
+workshops and AIAA conference summary sessions were considered. Additionally,
+thoughts on new initiatives along these lines from AIAA Applied Aero Technical
+Committee and the NATO RTO Air Vehicle Technology groups were also considered.
+Most conversation within the TWG focused on an open geometry high-speed wing
+configuration building off lessons learned during the DPW series but defining a new
+relevant geometry, acquiring new data rather than relying on existing limited data, and
+ensuring a focus beyond cruise drag to include pitching-moment through a full and
+relevant angle-of-attack range; additionally, wing-tail interaction was considered
+important to address. Consideration was given to defining and focusing on a low-speed
+high-lift or stability and control centric activity; in the end, it was felt such activities
+could flow from an initial high-speed performance centric activity and resulting geometry
+if such future activities were considered up front in configuration design. One of the
+challenges of the DPW organizing committee, and honestly any such endeavor, was
+identifying a modern, relevant geometry and having that geometry be publicly available –
+this challenge tends to drive one towards the compromise of accepting older geometries
+
+2
+
+AIAA.2008-6919
+in order to share widely and openly. In the case of the DPW, the newest geometry was
+the DLR-F6 designed in the 1980s with a cruise Mach number of 0.75. As a result, the
+TWG set out to characterize a new and relevant open geometry configuration to be
+designed with state-of-the-art tools, and designed with physics and CFD validation as a
+higher priority than minimizing drag – this philosophy drives some of the design
+trades/features of the new configuration. This new configuration has come to be known
+as the NASA Common Research Model (CRM).
+The TWG addressed and debated features that characterize the CRM configuration and
+model. First was discussion of a conventional, tube/wing configuration versus a hybrid
+or blended wing/body configuration. It was felt that a conventional configuration would
+be sufficiently challenging and relevant for aerodynamic prediction validation, based in
+no small part on the challenges observed in the DPW series. Additionally, a conventional
+configuration would likely ensure broader participation across industry at this juncture,
+and that aerodynamic prediction lessons learned, for the most part, would be applicable to
+hybrid wing/body configurations as well. Second, there was discussion of a high-wing
+versus low-wing configuration; for similar reasons, the CRM is a low-wing
+configuration. Third, it was decided to include a nacelle/pylon installation; however, it
+was also decided to ensure a pertinent clean-wing design to enable study of a simpler
+geometry that maintains relevant physics. It was recognized that today’s state-of-the-art
+design tools are more than sufficient to enable a fully integrated/coupled design that
+would enable minimized drag, but this step back in design philosophy was taken to
+enable a simpler but still relevant wing-only case. Along similar lines, it was decided to
+forgo flap-support fairings and winglets, though future integration of each should be
+considered. Additionally, trailing-edge concepts to reduce drag, generally including
+varying degrees of bluntness, are also not included in the name of simplicity; it was
+acknowledged that an entire line of study could center on trailing-edge design and
+modeling. Finally, a design Mach number of 0.85 was established; there was much
+discussion on this topic with most interest falling between 0.80 and 0.90.
+With this background, The Boeing Company took the lead on detailed aerodynamic
+design of the CRM, while the NASA FA/SFW Project took the lead on model design,
+fabrication, and testing of the CRM. The TWG continues to provide overarching
+recommendations on overall direction and input at the technical detail level. The DPW
+Organizing Committee is providing detailed technical input and providing the framework
+and forum for an international assessment of CFD-based aerodynamic prediction tools
+utilizing this new configuration.
+This paper is organized as follows. Section 2 provides the general layout of the full-scale
+aircraft being represented by the CRM. Section 3 discusses the design and optimization
+results of the CRM without divulging absolute performance metrics per aforementioned
+reasons. Section 4 gives some details and status on the wind-tunnel model design and
+fabrication, as well as provides a discussion of the envisioned, initial test plans to acquire
+unique low and high Reynolds number data with modern test and measurement
+capabilities that will be released into the public domain. Tables are embedded within the
+body of text, while all figures are appended to the end of this report.
+
+3
+
+AIAA.2008-6919
+2.0 General Layout and Detailed Geometry Description
+After much discussion, the SFW TWG agreed that the CRM should be based on a
+transonic transport configuration designed to fly at a cruise Mach number of M=0.85 with
+a nominal lift condition of CL=0.50, and at a Reynolds number of Rn=40 million per
+reference chord. They also specified that the wing should have an aspect-ratio of
+AR=9.0, and a taper-ratio of λ=0.275. Additionally, the span should be sized accordingly
+to integrate into an existing fuselage model. Accommodating these basic guidelines, the
+derived reference quantities of the full-scale vehicle are given in Table 1. Note that Sref
+is based on Wimpress area but the trap-wing area is also given. The resulting wing
+planform is shown in Figure 1. This figure illustrates the side-of-body nominally at 10%
+semispan and the yehudi break occurs at the 37% station. Table 2 provides detailed
+airfoil information of the CRM wing at its 21 defining stations. These data correspond to
+a nominal 1-G wing at cruise. The trailing-edge (TE) thickness is non-zero to
+accommodate a minimum-gauge model fabrication constraint of 0.014 inches; at the
+wingtip this results in a 0.48% thick TE base. The data of Table 2 are plotted in
+Figures 2-6. Figure 2 depicts a side-view of the airfoil stack as rigged in the fuselage
+reference plane. Figures 3-4 illustrate the non-dimensional and dimensional maxthickness distributions across the wing, respectively; the average non-dimensional
+thickness of the exposed wing is about 10.8%. Figure 5 gives the max-camber
+distribution. Note that the outboard wing carries supercritical airfoil sections with about
+1.5% camber. Figure 6 shows the wing’s twist distribution and indicates that the wing is
+washed out about 8 degrees from side-of-body to wingtip. Figures 7-8 provide chordwise
+thickness and camber distributions for airfoil geometries at the yehudi break (37%
+semispan) and on the outboard wing (75% semispan), respectively. Although similar
+geometric details for the fuselage, horizontal-tail, and nacelle/pylon components are not
+included in this report, Figures 9-10 illustrate their integration into the
+wing/body/nacelle/pylon/horizontal-tail (WBNPH) configuration of the CRM.
+
+Table 1: Reference Quantities for the CRM.
+Sref
+Trap-Wing Area
+Cref
+Span
+Xref
+Yref
+Zref
+λ
+ΛC/4
+AR
+
+594,720.0 in2
+576,000.0 in2
+275.80 in
+2,313.50 in
+1,325.90 in
+468.75 in
+177.95 in
+0.275
+35°
+9.0
+
+4
+
+4,130.0 ft2
+4,000.0 ft2
+192.8 ft
+
+AIAA.2008-6919
+Table 2: Detailed Geometric Data for the CRM Wing.
+
+3.0 Aerodynamic Design
+Based on input from the SFW TWG, a contemporary supercritical transonic wing has
+been designed for the CRM. The fuselage is representative of a wide-body commercial
+transport aircraft; it includes a wing-body fairing, as well as a scrubbing seal for the
+horizontal tail. In addition to the geometric criteria discussed in the previous section, the
+TWG requested a wing design suitable for a flight condition of 0.85M, CL=0.5, and a
+chord Reynolds number of 40 million. Furthermore, this wing design should exhibit
+fairly high performance over a reasonable neighborhood of the design point (i.e., not be a
+single-point design). For example, between step climbs, a typical commercial transport
+will experience lift coefficients that range on the order of +/-0.02 about its nominal cruise
+point, as the aircraft burns fuel at a given altitude. When a certain amount of fuel is
+burned at that altitude, the aircraft will climb to the next allowable discrete altitude, and
+the process repeats. Additionally, the wing design must accommodate a 1.3-Gs to buffet
+criteria; and the list of requirements continues. Another attribute worth noting is that a
+typical airline will fly aircraft at a higher Mach number than that of the optimum range
+condition; burning up to 1% more fuel. While range factor is also influenced by the
+specific fuel consumption of the engines and the aircraft structural weight, in this context
+where only aerodynamic performance is known, we use maximum ML/D as a surrogate
+for maximum range. Hence, we seek a wing whose design-point ML/D is within 1% of
+its maximum value. An additional requirement of the TWG was that the aerodynamic
+characteristics of the configuration with and without nacelle/pylon (NP) group be well
+behaved. The two primary drivers for the requirement of a good wing/body (WB) design
+are that, 1) it provides a simpler case for validation studies, and 2) it is more
+representative of low-wing configurations with aft-fuselage mounted engines, such as
+business jet aircraft.
+Hence, the approach taken here is to first develop a high5
+
+AIAA.2008-6919
+performance wing in the presence of only the fuselage, then after the fact, integrate the
+nacelle/pylon group without introducing undesirable installation effects. This represents
+a step backward relative to our current design practices for under-wing mounted engines,
+but nonetheless this approach was required to best satisfy the requirements of the TWG.
+SYN107 was utilized to facilitate the rapid design and optimization of the CRM wing in
+the presence of the fuselage. (SYN107 is a CFD-based synthesis code developed by
+Jameson2.) Numerous multipoint optimizations were conducted that included a range of
+Mach and lifting conditions. For example, a typical 5-point optimization included
+(M, CL) values of: (0.85, 0.50), (0.85, 0.48), (0.85, 0.52), (0.84, 0.50), and (0.86, 0.50).
+These optimizations were conducted with constraints on wing thickness and spanload
+distributions. The objective function of these optimizations included a blend of weighted
+drag minimization and target pressures. Once these optimizations were completed, the
+resulting wing geometry was extracted from the SYN107 grid and projected onto the 21
+defining stations of Table 2. Later, this wing definition was surfaced to create an IGES
+representation of the geometry, and delivered to NASA for the purpose of model design.
+Figures 11-13 provide pressure distributions for the CRM wing at its design point, based
+on an OVERFLOW solution of the WB configuration. (OVERFLOW is a ReynoldsAveraged Navier-Stokes CFD method based on overset grids developed by NASA3.)
+Figure 12 provides a top/bottom view of the wing upper/lower surface isobars. Note that
+the upper-surface shock system in the mid-span region is swept essentially along a
+constant X/C element line, while on the outboard wing reduces in strength. This
+character can also be seen in the detailed pressure distributions provided by Figure 13 at
+the slightly-off-design condition of CL=0.49 and 0.85M.
+A fairly comprehensive set of flight conditions surrounding the design point were also
+analyzed. These OVERFLOW CFD results are given in Figures 14-16. Figure 14 shows
+the ML/D trend lines for five different Mach numbers as a function of lift coefficient.
+The large blue dot at CL=0.50 on the M=0.85 trend line highlights the design point. Note
+that by observation, it appears that the maximum ML/D point occurs somewhere near
+CL=0.47 and M=0.85. This max-ML/D point is shown as the maroon dot in
+Figures 15-16. Also provided in these figures is the 99% max-ML/D contour line for
+reference. Note that the CRM design point falls within this contour. Figure 15 depicts
+three drag-rise curves for CL=[0.40, 0.45, 0.50]. Figure 16 shows a representative point
+(green dot) where an airline might trade 1% fuel burn for an additional 0.006 in cruise
+Mach number. In fact, one should not read too much into this data as it is subject to
+change with the inclusion of the remaining nacelle/pylon and horizontal-tail components.
+These characteristics are included here for the primary purpose to illustrate that the wing
+design is fairly robust for a wide range of flow conditions.
+As a final note regarding the CRM wing design, Figures 17-18 provide the installation
+effects of the nacelle/pylon group on the wing pressures, as computed by TRANAIR4.
+The nacelle developed for the CRM is a single-cowl, flow-through design with an exit
+area sized to achieve a natural unforced mass-flow-ratio typical of commercial aircraft
+engines at cruise. The simplicity of the un-bifurcated internal geometry is partially
+
+6
+
+AIAA.2008-6919
+motivated to minimize grid-generation efforts for future CFD validation exercises.
+Figure 17 illustrates the wing upper-surface isobars with and without the nacelle/pylon
+installed. Figure 18 provides the chordwise pressure distributions at eight span stations
+for the configuration with and without the nacelle/pylon. The solid curves correspond to
+the wing/body/nacelle/pylon solution, while the dashed curves represent the wing/body
+results. Note that the stations at 27.0% and 38.6% semispan straddle the nacelle/pylon
+location. With focus on these two subplots, one can see that the nacelle/pylon induces
+additional up-wash on the inboard wing leading edge, while reducing it outboard. The
+inboard influence extends all the way to the fuselage, while the outboard perturbations
+quickly decay with increasing semispan location; for all practical purposes, this influence
+is insignificant beyond mid-span. The TRANAIR and OVERFLOW solutions both
+confirm that the SYN107 optimizations have produced a robust and high-performance
+wing design.
+The horizontal tail has been designed with consideration given to be robust at dive Mach
+number conditions; it is suitably sized for typical stability and control requirements. The
+general layout of the horizontal tail has a trapezoidal planform with a quarter-chord
+sweep of 37°, a taper-ratio of 0.35, a mean-aerodynamic chord of 184.7 inches, a span of
+840 inches, and an area of 1,000 ft2. The horizontal is defined with two symmetric airfoil
+sections, a 10%-thick section at the plane-of-symmetry and an 8%-thick airfoil at its tip.
+The incidence of the tip section is twisted 3° leading-edge up relative to the root airfoil,
+to provide adequate wash-out for this downward-lifting surface. In addition to the airfoil
+stack, a hinge line is specified for the horizontal such that its contact with the side of
+fuselage remains sealed. Figure 19 provides pressure distributions for the horizontal tail
+at the three incidence settings of iH={-2.0°, 0.0°, +2.0°}. For reference, the WBNPH
+configuration with a center-of-gravity position at about 28% mean-aerodynamic chord is
+in static trim for an iH=0.0° per the TRANAIR solutions of Figure 19.
+
+4.0 Plans for Wind-Tunnel Testing
+In July 2008, NASA awarded a contract for the detailed design and fabrication of new
+wind tunnel model hardware for the CRM configuration. New wing, nacelle/pylon
+group, and horizontal-tail components as described above will be combined with an
+existing fuselage to enable tests of WB and WBNP configurations with and without a
+horizontal tail; three tail incidence angles will be available to determine the trimmed
+condition. The model will include 303 wing pressures located at 8 spanwise stations, and
+6 pressures in the left-hand nacelle; note that the wing pressures will be distributed
+between left and right wings in such a manner as to minimize any differences due to
+asymmetric static aeroelastic twist or bending. The model will be mounted using an
+existing upper-swept-blade support that enters the fuselage in the location of a vertical
+tail, but is enlarged relative to a scaled vertical tail in order to safely handle model loads.
+Currently, the new model parts are scheduled for delivery in the 1st quarter of calendar
+year 2009.
+
+7
+
+AIAA.2008-6919
+As mentioned before, the CRM and associated test plans evolved from a combination of
+several goals/objectives: 1) a new relevant geometry, 2) acquire new data with modern
+test and measurement capabilities rather than relying on existing limited data, and 3)
+ensuring a focus beyond cruise drag to include pitching-moment through a full and
+relevant angle-of-attack range. The new geometry is directly addressed by the model
+itself as described above. A focus including but not limited to cruise drag is ensured by
+inclusion of tails to generate moment increments, and test plans to include a full range of
+angle-of-attack. New data acquired with modern test and measurement capabilities can
+imply many things, but here specifically addresses: 1) acquisition of data across a large
+range of Reynolds number from conventional wind tunnel levels to flight, and 2)
+acquisition of data on an aircraft configuration beyond standard force/moment and
+surface pressure data. The high Reynolds number data will be sufficiently high to ensure
+fully turbulent flow from the leading-edge; the intent is to eliminate the computational
+question of how to simulate fixed or natural transition and any question about the
+influence or intrusiveness of a selected transition fixing method on wind tunnel results.
+Data acquisition beyond the conventional indicates a desire to acquire skin friction data,
+and off-body mean and unsteady data for comparison to computational simulations with
+the goal to enable improvements in predictions.
+To address these goals, it is currently planned for the CRM to be tested in the NASA
+Ames 11-ft transonic wind tunnel and the NASA National Transonic Facility (NTF) at
+Langley. The NTF will include cryogenic runs to acquire high Reynolds number data,
+while the 11-ft facility will provide skin friction and off-body data at a lower Reynolds
+number. The chord Reynolds number will be 5 million in the Ames 11-ft. and will range
+from 3 to 30 million in NTF. The test matrix in each facility will include a range of
+Mach numbers from 0.70 to 0.92 with focus on the design point of 0.85M. The
+configurations to be tested include WB, the WBNP, and the WBH with the horizontal-tail
+at three different incidence settings. The plan is to acquire force, moment, and surface
+pressure, plus wing deformation under load in each facility. In the Ames 11-ft, off-body
+flowfield velocities will be collected via Particle Image Velocimetry (PIV), and skin
+friction data collected via a fringe imaging skin-friction interferometry (FISFI) method;
+each of these methods has been used previously in the facility. The current test plan
+includes approximately 4,500 points in the NTF and nearly 2,100 points in the Ames
+11-ft test; note that the specialized data to be acquired in the 11-foot requires more time
+on point than conventional data. In order to connect the datasets between tunnels, a
+common Reynolds number and equivalent aeroelastic shape must be ensured. Figure 20
+provides an operating chart for the Ames 11-ft wind tunnel. Included in this figure is the
+selected operating condition for the CRM, depicted by the yellow dot at 0.85M and
+Reynolds number of approximately 8 million per foot, or 5 million based on the mean
+aerodynamic chord. Conditions in the NTF air mode of operation will also provide a
+chord Reynolds number of 5 million, at essentially the same dynamic pressure of 1,325
+psf, thus providing consistent static aeroelastic deformation of the model as well.
+The NTF is able to independently control Mach number, Reynolds number, and dynamic
+pressure through independent control of pressure, temperature, and velocity; this
+capability enables study of pure Reynolds number, compressibility, or static aeroelastic
+
+8
+
+AIAA.2008-6919
+effects. Holding Mach number and Q/E constant, where E is the model material modulus
+of elasticity and is a function of temperature, while varying only Reynolds number
+enables isolation of pure Reynolds number effects. Similarly, an a pure aeroelastic effect
+can be obtained in the NTF by keeping the Mach and Reynolds number constant while
+varying only Q/E. Table 3 in conjunction with Figures 21-22 illustrate the operating
+conditions planned for the CRM in order to obtain pure Reynolds-number effects as well
+as pure aeroelastic effects. Figure 22 is a close-up of Figure 21 in the pertinent operating
+range. Note that between the first (yellow dot) and second (green dot) operating
+conditions, Q/E is held at a constant value of 0.349 x10-6, while the Reynolds number
+increases from 5 to 19.8 million. Between the second and third (light-blue dot)
+conditions, the Reynolds number is held at a constant value of 19.8 million, while Q/E
+varies from 0.349 to 0.507 x10-6. The higher value of Q/E will cause a higher deflection
+(bending and twist) of the wing at a given CL. Finally, another pure Reynolds-number
+sweep is performed between the third and fourth (dark-blue dot) operating conditions.
+Currently, the NTF test is planned for the 2nd quarter of calendar year 2009 with the
+Ames 11-foot test to occur in the first half of government fiscal year 2010. In addition to
+the currently planned tests for the Ames 11-ft and the NTF, it is envisioned that the CRM
+can be made available for cooperative tests sponsored by other organizations (beyond
+NASA) in other facilities around the world that world that can add additional, and ideally
+unique, data to the public dataset for the CRM configuration.
+Table 3: CRM Operating Conditions at 0.85M in the
+NTF with Key Codes for Figures 21-22.
+
+5.0 Summary
+A contemporary transonic supercritical wing has been developed for the NASA CRM
+wing/body/nacelle/pylon/horizontal-tail configuration. Aerodynamic characteristics of
+the CRM wing design are well behaved and of high performance for configurations with
+and without the nacelle/pylon group. The horizontal tail is robustly designed for dive
+Mach number conditions and is suitably sized for typical stability and control
+requirements. The fuselage is representative of a wide/body commercial transport
+aircraft; it includes a wing-body fairing, as well as a scrubbing seal for the horizontal tail.
+The nacelle is a large-diameter single-cowl flow-through design with an exit area sized to
+achieve a natural unforced mass-flow-ratio typical of commercial aircraft engines at
+9
+
+AIAA.2008-6919
+cruise. The simplicity of this un-bifurcated nacelle geometry will facilitate grid
+generation efforts of subsequent CFD validation exercises. Detailed aerodynamic
+performance data has been generated for this model; however, this information is
+presented in such a manner as to not bias CFD predictions planned for the fourth AIAA
+CFD Drag Prediction Workshop, which incorporates this common research model into its
+blind test cases. The CFD results presented include wing pressure distributions with and
+without the nacelle/pylon, ML/D trend lines, and drag-divergence curves; the design
+point for the wing/body configuration is within 1% of its max-ML/D. Plans to test the
+common research model in the NTF and the Ames 11-ft wind tunnels are also discussed.
+The time tables of these wind-tunnel tests facilitate the blind test cases of DPW-IV based
+on the CRM, and yet, will allow comparisons of the CFD results with some experimental
+data shortly after this workshop is conducted.
+
+6.0 Acknowledgements
+The aerodynamic design of the CRM wing, horizontal tail, and nacelle/pylon group is
+provided by The Boeing Company. The design, fabrication, and testing of the CRM
+wind-tunnel model is being funded by the NASA Fundamental Aeronautics Program.
+The first author thanks Professor Antony Jameson of Stanford University for his
+collaboration and contributions to this project. The CRM nacelle/pylon design and
+integration were conducted by Peg Curtin and Ben Rider of Boeing Commercial Aircraft;
+Ben Rider also provided the TRANAIR results shown herein.
+
+References
+1. AIAA CFD Drag Prediction Workshop
+website: http://aaac.larc.nasa.gov/tsab/cfdlarc/aiaa-dpw/
+email:
+dpw@cessna.textron.com/
+2. A Jameson & JC Vassberg. Computational Fluid Dynamics for Aerodynamic
+Design: Its Current and Future Impact. AIAA Paper 2001-0538, Reno, NV, 2001.
+3. PG Buning, DC Jespersen, TH Pulliam, WM Chan, JP Slotnick, SE Krist, & KJ
+Renze. OVERFLOW User’s Manual, Version 1.81. NASA Report, NASA Langley
+Research Center, Hampton, VA, 1999.
+4. SS Samant, JE Bussoletti, FT Johnson, RH Burkhart, BL Everson, RG Melvin & DP
+Young. TRANAIR: A Computer Code for Transonic Analysis of Arbitrary
+Configurations. AIAA Paper 87-0034, Reno, NV, January, 1987.
+
+10
+
+AIAA.2008-6919
+
+Figure 1: Full-Scale Planform of the CRM Wing.
+
+Figure 2: Airfoil Stack for the CRM Wing.
+11
+
+AIAA.2008-6919
+
+Figure 3: Non-Dimensional Thickness Distribution of the CRM Wing.
+
+Figure 4: Dimensional Thickness Distribution of the CRM Wing.
+12
+
+AIAA.2008-6919
+
+Figure 5: Max-Camber Distribution of the CRM Wing.
+
+Figure 6: Twist Distribution of the CRM Wing.
+13
+
+AIAA.2008-6919
+
+Figure 7: Airfoil Characteristics at the Yehudi Break Station of the CRM Wing.
+
+14
+
+AIAA.2008-6919
+
+Figure 8: Airfoil Characteristics at an Outboard Station of the CRM Wing.
+
+15
+
+AIAA.2008-6919
+
+Figure 9: CRM Wing/Body/Nacelle/Pylon/Horizontal-Tail Configuration.
+
+Figure 10: Front View of the CRM showing the Large-Diameter Flow-Through Nacelle.
+
+16
+
+AIAA.2008-6919
+
+Figure 11: OVERFLOW Isobars of the CRM Wing/Body at the Design Point.
+
+Lower Surface
+
+Upper Surface
+
+Figure 12: OVERFLOW Isobars of the CRM Wing/Body at the Design Point.
+
+17
+
+AIAA.2008-6919
+
+Figure 13: OVERFLOW Wing Pressure Distributions of the CRM Wing/Body.
+
+Figure 14: OVERFLOW ML/D Trends for the CRM Wing/Body.
+
+18
+
+AIAA.2008-6919
+
+Figure 15: OVERFLOW Drag Rises for the CRM Wing/Body.
+
+Figure 16: Contour of 99% Max-ML/D for the CRM Wing/Body.
+19
+
+AIAA.2008-6919
+
+WB
+
+WBNP
+
+Figure 17: TRANAIR Results of Nacelle-Pylon Effect on Wing Upper-Surface Isobars.
+
+Figure 18: TRANAIR Results of Nacelle-Pylon Effect on CRM Wing Pressures.
+
+20
+
+AIAA.2008-6919
+
+Figure 19: TRANAIR Results of CRM Horizontal-Tail Pressures.
+
+Figure 20: Ames 11-ft WT Operating Chart with CRM Rnc=5 million Test Condition.
+
+21
+
+AIAA.2008-6919
+
+Figure 21: NTF Operating Chart with CRM Test Condition Range.
+
+Figure 22: Close-Up View of Figure 21 better showing CRM Test Condition Range.
+22
+
+
