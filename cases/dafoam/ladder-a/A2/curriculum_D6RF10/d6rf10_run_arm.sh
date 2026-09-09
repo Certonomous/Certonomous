@@ -94,7 +94,7 @@ RANKS=4
 
 # --- PERMISSION (freeze field). Assigned EXACTLY once; the last assignment
 # --- would win in shell, so the count is pinned, not the appearance.
-PERMISSION=NOT_FROZEN   # D6RF10 DRAFT. The dafoam-supervisor sets this to the freeze sha AFTER check-1 + the chief's cost sign-off on the Option A/B decision (PREREGISTRATION.md §5/§5b). The G-FREEZE limb below aborts (rc 3) while this is the placeholder: NOTHING launches.
+PERMISSION=787d9fa154f29ca1bc69e447d4b24cf8c34208d5   # D6RF10 FREEZE 2026-09-09: points to commit X (the frozen-prereg commit). Set AFTER check-1 + the chief's cost sign-off on the Option A/B decision (PREREGISTRATION.md §5/§5b). G-FREEZE now passes: this sha carries the prereg blob.
 PERM_ASSIGNMENTS=$(grep -cE '^PERMISSION=' "${BASH_SOURCE[0]}")
 if [ "$PERM_ASSIGNMENTS" != "1" ]; then
   echo "ABORT G-FREEZE-UNIQUE PERMISSION is assigned $PERM_ASSIGNMENTS time(s); the last wins silently. Pin the count."
