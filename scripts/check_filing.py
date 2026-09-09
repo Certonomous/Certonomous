@@ -241,7 +241,20 @@ def check(root: Path, include_untracked: bool = True) -> list[Violation]:
                 ))
 
         # R7 -- campaign records are UPPER_SNAKE; campaign helper code is lower_snake.
-        if len(parts) == 4 and parts[0] == "docs" and parts[1] == "campaigns":
+        #
+        # The chief-ruled navier_class V&V campaign nests one level deeper:
+        # records live at docs/campaigns/navier_class/<CASE>/<RECORD> (depth 5),
+        # so the original depth-4 guard left every navier_class record ungoverned.
+        # The extension is SCOPED to parts[2]=="navier_class" ON PURPOSE: ~30
+        # tracked files sit at depth 5/6 under other families' demo/, figures/ and
+        # reference-data/ subdirs (e.g. docs/campaigns/DMR/demo/...), and a blanket
+        # depth->=4 rule would newly flag them. The scoping is load-bearing.
+        is_campaign_record = (
+            (len(parts) == 4 and parts[0] == "docs" and parts[1] == "campaigns")
+            or (len(parts) == 5 and parts[0] == "docs" and parts[1] == "campaigns"
+                and parts[2] == "navier_class")
+        )
+        if is_campaign_record:
             if base.endswith(".md") and base != "README.md" and not CAMPAIGN_RECORD_MD.match(base):
                 violations.append(Violation(
                     "R7-CAMPAIGN-RECORD", p,
@@ -328,6 +341,14 @@ PLANTED = [
     ("R6-RUNARTIFACT",     "verification/runs/CAMP/L1/STATUS.X_CASE",           False),
     ("R6-RUNARTIFACT",     "verification/runs/CAMP/L1/launcher.queue.out",      False),
     ("R7-CAMPAIGN-RECORD", "docs/campaigns/X/lowercase_results.md",             True),
+    # navier_class V&V campaign nests at depth 5 (docs/campaigns/navier_class/<CASE>/).
+    ("R7-CAMPAIGN-RECORD", "docs/campaigns/navier_class/PRD/lowercase_bad.md",   True),
+    ("R7-CAMPAIGN-RECORD", "docs/campaigns/navier_class/PRD/BadlyNamed.py",      True),
+    (None,                 "docs/campaigns/navier_class/PRD/PRD_E1_PREREGISTRATION.md", False),
+    (None,                 "docs/campaigns/navier_class/PRD/build_prd_mesh.py",  False),
+    # DISCRIMINATING negative: depth-5 under a NON-navier_class family stays
+    # ungoverned -- proves the navier_class scoping is not a blanket depth rule.
+    (None,                 "docs/campaigns/DMR/demo/PROPOSED_dmr_intent_NOTE.md", False),
     ("R8-PAPER-NAME",      "docs/papers/buoyancy/Paper1.pdf",                   True),
     ("R0-PORTABLE-NAME",   "docs/papers/buoyancy/van gilder_2005_ipack.pdf",     True),
     ("R0-PORTABLE-NAME",   "docs/papers/buoyancy/eca_hoekstra_2014_uncert\u00e7.pdf", True),
