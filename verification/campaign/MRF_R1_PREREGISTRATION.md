@@ -136,13 +136,25 @@ the GCI at **Fs = 1.25** are computed and printed. A triple that is
 `DIVERGENT`/`STAGNANT`/`OSCILLATORY`/`EXACT`/`DEGENERATE`, or any level not
 converged/plateaued, is **NOT A RESULT** whatever the value.
 
-**Pre-registered PASS band (bounded-agreement, on the fine-level `Np`):**
+**Reynolds regime the band is tied to (a Rushton `Np` is regime-dependent).**
+The band below is valid ONLY on the **fully-turbulent Np plateau**, where `Np`
+is independent of `Re`. This case fixes `Re = N D²/ν = 5.0 × 10⁴` (§4), which
+sits well above the `Re ≳ 10⁴` plateau onset for a fully-baffled tank. The band
+is meaningless off this plateau: a transitional or laminar `Re` would demand a
+different reference and a different band, and this pre-registration does not
+cover those regimes. The grader records the case's `N, D, ν` so the graded `Re`
+is reconstructible and the regime assumption is checkable.
+
+**Pre-registered PASS band (bounded-agreement, on the fine-level `Np`, on the
+fully-turbulent plateau `Re = 5.0 × 10⁴`):**
 
     PASS band:  Np ∈ [4.0, 6.0]
 
 i.e. the reference plateau `Np_ref = 5.0` widened to cover the 5.0–6.0
 literature spread plus a ~20% low-side margin for the documented steady-MRF
-bias. Verdicts, in the fixed vocabulary only:
+bias. The torque→power definition the grader uses is stated explicitly:
+`P = ω·Q = 2π N·Q`, hence `Np = 2π Q / (ρ N² D⁵)` (grader
+`power_number()` and its module docstring). Verdicts, in the fixed vocabulary only:
 
 - finest triple CONVERGING **and** `Np ∈ [4.0, 6.0]`  → **PASS**
 - finest triple CONVERGING **and** `Np ∉ [4.0, 6.0]`  → **GATE FAIL** (a result)
