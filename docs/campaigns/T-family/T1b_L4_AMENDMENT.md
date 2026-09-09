@@ -614,3 +614,84 @@ $0.0513/core-h, c7a.4xlarge, **reported-by-owner, not measured**
 pre-registered estimate for a re-grade, so **the ratio actual/predicted is not
 defined and is stated absent rather than approximated**; no waste, no
 contention attribution.
+
+## 12. AMENDMENT 2 — 2026-09-09 — CLAUSE-5: the completion-rule step-count conjunct generalizes from `int(endTime)` to `round(endTime/deltaT)` `[Sanaa 2026-09-09]`
+
+**Version: 1.1 -> 1.2.** Dated amendment appended at the foot under `CLAUDE.md`
+rule 6; it changes NO frozen gate, threshold, band, cap, label or grading path,
+and no line number above this section changes. It generalizes ONE conjunct of the
+strict completion rule (rule 4), and it is VALUE-INVARIANT on every case the lab
+has already graded (proven below).
+
+**Provenance.** Sanaa, online 2026-09-09, in her own words *"approve clause-5"*,
+relayed by the chief. A generalization of rule 4 is reserved to her; this records
+her approval. The completion rule's provenance lives in this document's lineage
+(rule 4: *"not a charter clause -- `T1b_L4_AMENDMENT.md` §7, `mark_done_t1b_L4.py`,
+`mark_done_t3.py` ... D438, L-143"*), so the amendment is recorded here.
+
+### 12.1 What it changes
+
+The completion rule's fifth conjunct (§7 of this document; `CLAUDE.md` rule 4)
+read **`ExecutionTime` count == `int(endTime)`** — one `ExecutionTime` line per
+time step, with the number of steps taken to equal `endTime`. That is correct
+ONLY when `deltaT` = 1 (the historical unit-step case, on which every level of the
+T1b ladder and the thermal spine ran). Clause-5 generalizes it to:
+
+> **`ExecutionTime` count == `round(endTime / deltaT)`** — the number of time
+> steps a fixed-`deltaT` run takes to reach `endTime`, `deltaT` read from the
+> case's OWN `system/controlDict` (a completion rule that guesses its own target
+> is not a rule).
+
+### 12.2 Why it is a pure generalization, not a widening (value-invariance)
+
+- **Identical on every historical case (0 verdict flips).** For `deltaT` = 1 and
+  integer `endTime`, `round(endTime/1)` = `int(endTime)` exactly — verified this
+  session across every real T-family `endTime` (40, 240, 300, 2000, 2500, 24000,
+  63840, 64000; integer and float-integer): 0 divergences. The cases still graded
+  under the old `int(endTime)` form (`mark_done_t13.py`, `mark_done_t10aR.py`,
+  `mark_done_e4a.py`, `mark_done_t16.py`) each carry `deltaT 1;` in their own
+  `system/controlDict` (confirmed at source), so their verdicts are untouched.
+- **It cannot pass a previously-incomplete run.** The conjunct is an EQUALITY
+  (`n_exec == want`). For non-unit `deltaT` the new target `round(endTime/deltaT)`
+  is the CORRECT, generally LARGER step count, so it is a STRENGTHENING: an
+  incomplete run (`n_exec` short of the full count) still fails, and the old
+  `int(endTime)` target was in fact the LOOSER of the two for `deltaT` < 1 (it
+  would have accepted a run that stopped at `Time = int(endTime)`, i.e. incomplete)
+  — a loophole the independent `last time == endTime` conjunct already backstopped
+  and that clause-5 now closes outright.
+- **It only newly ADMITS what the old form wrongly rejected.** A genuinely
+  complete non-unit-`deltaT` / non-integer-`endTime` run (e.g. `endTime` 240,
+  `deltaT` 0.01 -> 24000 steps) failed the old `n_exec == int(240) = 240` conjunct
+  despite being complete; clause-5's `round(240/0.01) = 24000` accepts it. This is
+  the correctness fix the generalization exists for.
+
+### 12.3 Scope and boundary
+
+- **Fixed `deltaT` only.** Clause-5's `round(endTime/deltaT)` is the step count of
+  a constant-`deltaT` run. ADAPTIVE-`deltaT` (variable-step) runs are OUT of
+  clause-5's scope and continue to use their own step-count check
+  (`n_exec == n_time_written`, e.g. K2bU3R3's adaptive-dt `995 == 995`); clause-5
+  must not be applied to them.
+- **Boundary flag (defensive, no case affected).** When `endTime` is NOT an exact
+  integer multiple of `deltaT`, the true step count is fractional and `round()`
+  uses round-half-to-even (banker's rounding: `round(2.5) = 2`). No real case hits
+  this — every registered run has an integer step count — and `last time ==
+  endTime` also catches such an ill-posed config. Instruments MAY assert `endTime`
+  is an exact multiple of `deltaT` for defensiveness (recommended, not required).
+
+### 12.4 Enforcing instruments and audit
+
+The generalized form is ALREADY implemented in the instruments built in
+anticipation of this approval — `want = int(round(et / dt))` with `dt` read from
+each case's own `controlDict` — in `mark_done_t15.py`, `mark_done_t23.py`,
+`mark_done_t4f.py`, `mark_done_t11.py`, `mark_done_t14.py`, `mark_done_t17.py`,
+`mark_done_t18.py`, `mark_done_t19.py`, `mark_done_t24.py`, `mark_done_dts_u.py`,
+`mark_done_t9aR1b.py`, `mark_done_t9aR1c.py`. **Value-invariance AUDITED by the
+verification supervisor this session (SUPERVISION §3 check-1): SOUND** — the
+arithmetic identity at `deltaT` = 1 holds for every historical `endTime`, the
+old-form cases are all `deltaT` = 1 at source, and the conjunct is a strengthening
+that cannot pass an incomplete run. No past verdict changes. The corresponding
+`CLAUDE.md` rule-4 one-line wording change is drafted for the chief (the
+constitution edit is chief/Sanaa-applied).
+
+**lines whose number changed above this section: 0**
