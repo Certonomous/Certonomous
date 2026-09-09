@@ -612,4 +612,225 @@ mesh, different nights, different concurrency:
 
 ---
 
-**END OF DRAFT. NOT FROZEN. NOT COMMITTED. NOT FILED. NO COMPUTE AUTHORISED.**
+**END OF ORIGINAL DRAFT (2026-08-31). NOT FROZEN. NOT COMMITTED. NOT FILED. NO COMPUTE AUTHORISED.**
+
+---
+
+# ADDENDUM 2026-09-09 — GRADING PATH FIXED, CONVERGENCE-READING CLAUSE, CAP RE-SIZE, sec2ba DUAL-MECHANISM PLAN
+
+**FROZEN 2026-09-09 by the closure-supervisor — see the SUPERVISOR FREEZE STAMP at
+the foot of this file for the §3 checks, the topology ruling and the §5.5 rulings
+that this freeze rests on.**
+Added by a closure `lab-lane` on the supervisor's instruction after the chief
+GO'd the M1-C completion re-run of the six cap-bound arms. This addendum resolves
+the two `PENDING` items the original left to the supervisor (grading path, §8) and
+adds the run-standard and completion clauses the build now requires. **Nothing
+here has been checked by the supervisor; nothing launches until §3-check-4 is
+performed personally and this file is committed.** Where this addendum and the
+original disagree on a number (the caps of §5.1), **A.3 governs the queue rows.**
+
+## A.1 GRADING PATH — no longer PENDING; fixed to the FROZEN grade_m1d.py
+
+Supersedes §8. The M1-C grading path is the frozen G1-MODEL_RE-fix successor:
+
+| | |
+|---|---|
+| grading script | `cases/RANS_LES_closure_models/M1d_multimodel_sweep_g1fix/grade_m1d.py` |
+| pinned sha256 | `a1ee190550e94be13fb2fc678379e1c23275b9fd4f002905073776d263628790` |
+| freeze commit | `13f1f4d6` |
+| gates / thresholds / labels | **inherited VERBATIM from M1 §7** (grade_m1d.py inherits M1b's gate block byte-identical; G0–G4, bands, the 0.01 duct ceiling, the 1e-3 hill band — no widening, no new threshold) |
+| on-disk sha256 at this write | `a1ee1905…8790` — **CONFIRMED == pin** (unchanged) |
+
+grade_m1d.py is **re-used verbatim**: not edited, not forked, not re-frozen. The
+run-time re-hash-against-pin lives in `autograde_m1c.sh` (A.4) and REFUSES on any
+mismatch. Standing rule 2: the grading path is fixed at THIS pre-registration's
+freeze commit and verified by hashing the frozen file against the committed blob —
+the supervisor confirms `a1ee1905` at freeze.
+
+## A.2 HOW ITERATIVE CONVERGENCE IS READ — continuity/flow-field, never the raw `p` Initial residual (N-X4)
+
+The six arms are streamwise-periodic incompressible ducts / periodic hills with a
+**floating pressure reference** (`pRefCell 0; pRefValue 0`). On this family the `p`
+**Initial** residual plateaus at O(0.1–0.4) even when the flow field is fully
+converged — this is a normalization/floating-reference artifact (**N-X4**), NOT
+non-convergence. Verified on the completed rc=0 siblings AR_5/AR_10 (continuity
+global ~1e-14, `U/k/omega` Final residuals at solver tolerance, `p` linear solve
+healthy at relTol each outer iteration). Therefore, for M1-C:
+
+* Iterative convergence, where any reader needs it, is read from the **continuity
+  errors and the flow-field Final residuals**, **never** from the raw `p` Initial
+  residual and **never** from a `"SIMPLE solution converged"` line.
+* **`residualControl` STAYS EMPTY** (`SIMPLE { residualControl { } }`), exactly as
+  in all 78 M1 runs (M1 §4.2, forced by standing rule 4). **Do NOT add a
+  `residualControl` block.** With it empty, `"SIMPLE solution converged"` is
+  structurally unreachable — its absence in the logs is not evidence of anything,
+  and grade_m1d.py does not depend on it (it reads fields at `endTime`, not that line).
+* grade_m1d.py's own convergence classifier keys on the **`k` residual sustained to
+  `CAP_ITER`** and the CAP-BOUND/CONVERGING state, not on the `p` Initial residual.
+
+## A.3 REVISED PER-ARM WALL CAPS — the MAX rule, so no arm can re-cap
+
+The chief's binding constraint is that the arms **must not re-cap**. The original
+§5.1 caps use M1's ×1.458 margin on a measured per-arm basis (with a saturated
+slope for `PH_Breuer`). The build task additionally specified a `ceil(2.0 ×
+projection)` margin. These two disagree per arm, and **each protects a different
+failure mode**:
+
+* **AR (stationary-cost) arms** — a whole-run-average projection is faithful, and
+  `2.0×` is the larger, more protective margin (2.0 > 1.458).
+* **`PH_Breuer` arms** — cost is **NON-stationary** (the GAMG `p` solver pins at
+  `maxIter 200` for the last ~13 % of iterations), so a whole-run-average
+  **under-projects**; the naive `2.0×` (4517/4556 s) is actually **below** the
+  original draft's saturated-slope cap (5531/5883 s). Here the draft cap protects.
+
+**Registered cap per arm = MAX(ceil(2.0 × naive-projection wall), original §5.1
+cap).** This dominates both methods, so neither failure mode can re-cap:
+
+| # | arm / case | reached | proj-to-20000 (core-min) | 2×-naive cap (s) | §5.1 draft cap (s) | **REGISTERED cap = MAX (s)** | **cap (core-min)** |
+|---|---|---|---|---|---|---|---|
+| 1 | `kOmega/PH_Breuer` | 13301 | 63.216 (saturated) | 4517 | 5531 | **5531** | **92.183** |
+| 2 | `kOmegaSST_null/PH_Breuer` | 13188 | 67.243 (saturated) | 4556 | 5883 | **5883** | **98.050** |
+| 3 | `kOmega/AR_14_Ret_180` | 16879 | 60.489 | 7259 | 5254 | **7259** | **120.983** |
+| 4 | `kOmega/AR_7_Ret_180` | 19628 | 25.287 | 3035 | 2215 | **3035** | **50.583** |
+| 5 | `kOmega/AR_1_Ret_180` | 18058 | 3.932 | 472 | 417 | **472** | **7.867** |
+| 6 | `kOmegaSST_null/AR_1_Ret_180` | 14364 | 4.943 | 594 | 524 | **594** | **9.900** |
+| | **TOTAL cap** | | | | | **22774 s** | **379.567** |
+
+Cost (rule 12): registered **cap = 379.567 core-min = 6.326 core-h = $0.3245**;
+realistic **1× projection ≈ 226.57 core-min** (measured-basis) — **$0.1937**.
+`ranks = 1`, so core-min = wall s ÷ 60 exactly. **Every $ is DERIVED at the
+owner-stated $0.0513/core-h, reported-by-owner, not measured** (this box cannot
+read its own billing, COMPUTE_BUDGET_CHARTER §5). At the cap, $0.32 — inside the
+pre-authorised $25/run; costed anyway (a blanket is not a per-item read, rule 9).
+Three caps exceed the 3600-wall-s stall heuristic (arms 1/2/3): legitimately long,
+not stalls — flagged for the spend review as in the original §5.5. **An overrun
+stops the run; it does not get a third budget** (rule 12).
+
+## A.4 sec2ba DUAL-MECHANISM RUN PLAN — a detached scheduler AND a live monitor, neither substituting
+
+Per CHARTER §2ba (V-133, `fa038083`): every run needs BOTH a live monitor AND a
+detached grader/scheduler that completes + grades against the FROZEN comparator
+with no live agent. M1-C's two mechanisms:
+
+1. **Detached scheduler (the SOLVE).** The standing queue daemon
+   `scripts/queue_runner.py --daemon` (**pid 1887**, an OS daemon independent of
+   any agent) reads the six `verification/queue/closure/M1c_*.json` rows and
+   launches each `run_m1.sh` under its wall `timeout`. It is `setsid nohup`-detached
+   and survives agent death. It runs the solve; **it does NOT auto-grade** (verified:
+   `queue_runner.py` launches the row's argv and records STATUS; it has a
+   grader-freeze *gate* that reads pins but launches no grader).
+2. **Detached grader (no live agent).** `autograde_m1c.sh` (A.5, this dir),
+   launched once `setsid nohup`, re-hashes grade_m1d.py against the pin, waits for
+   all six arms to satisfy rule-4, then runs grade_m1d.py **once**, rc captured
+   inside the wrapper. **This is the sec2ba grader half and needs no live agent.**
+3. **Live monitor.** `monitor_m1c.sh` — read-only progress table of the six arms
+   (last `Time`, % of 20000, wall vs cap, rc). It never grades and never writes to a
+   run tree. **This is the sec2ba live-monitor half.** Neither (2) nor (3)
+   substitutes for the other.
+
+**GRADING TOPOLOGY — FLAGGED FOR THE SUPERVISOR.** grade_m1d.py grades the full
+78-arm sweep from a single `--root` and gate G0 requires 78/78 complete. The six
+M1-C runs live in the disjoint tree `/home/ubuntu/closure-data/m1c_completion`
+(rule-4 birth guard: the M1 roots may not be reused), while the 72 complete M1 arms
+stay byte-untouched in `/home/ubuntu/closure-data/multimodel_sweep`. `autograde_m1c.sh`
+therefore builds a **read-only MERGED symlink root** (`…/m1c_graded`) — 72 symlinks
+into `multimodel_sweep`, 6 into `m1c_completion` — and grades that. Symlinks preserve
+real mtimes, so the rule-4 age guard is unaffected, and **no field file in either
+evidence tree is written, moved or touched.** This is the one topology choice this
+addendum makes that the supervisor should confirm at freeze; the alternative
+(grading the 6 alone) yields 72 PENDING and a G0 that cannot see its rows.
+
+## A.5 STRICT rule-4 COMPLETION + PLANTED-ZERO C1 (inherited)
+
+An M1-C arm is **done only if all of it holds** (standing rule 4), checked by
+`autograde_m1c.sh:arm_complete()` and, authoritatively, by grade_m1d.py:
+
+* `rc = 0` in the arm's `STATUS` (rc captured **inside** `run_m1.sh`, an
+  independent witness — never from `setsid`/`timeout`, which return 0 for every
+  outcome);
+* an `End` line in `log.run`;
+* **last `Time = ` == `endTime` == 20000**;
+* fields present at `20000/` (`U` at minimum; grade_m1d.py reads `U k nut`);
+* **every field at `20000/` NEWER than the case's own `0/U`** — the age guard
+  (`run_m1.sh` touches `0/U` last at launch); a guard refuses a case where `0/` or a
+  time dir pre-exists — all six M1-C roots are confirmed empty at this write.
+* **Planted-zero C1 control** is inherited via grade_m1d.py's `c1_control()`
+  (`PLANT = 1.234e-03`, planted into a field and read back; the comparator REFUSES,
+  exit 2, if the reader cannot see the plant). Not re-implemented here.
+
+An overrun, a crash or a missing physics-critical field yields an **INCOMPLETE**
+row that grade_m1d.py refuses to degrade into a number; a missing INFRASTRUCTURE
+field (a `_launch` bookkeeping field, a cost figure) is a bookkeeping defect
+reported beside the verdict and voids only the cost claim, never the physics
+(L-342, Bookkeeping-never-voids-physics).
+
+## A.6 WHAT THE SUPERVISOR STILL OWNS (updated freeze checklist)
+
+Additions to §10, none done by any lane:
+
+1. **Diff-read `autograde_m1c.sh`, `monitor_m1c.sh`, `stage_m1c.sh` as diffs**
+   (SUPERVISION §3 check 1 — measurement code) before freeze.
+2. **Confirm the A.4 merged-symlink grading topology** (or rule an alternative).
+3. **Rule on §5.5 item 2** — are the two `AR_1_Ret_180` arms in M1-C? If out, drop
+   rows 5 and 6; totals fall to 361.80 s-sum caps less those two.
+4. Confirm grade_m1d.py on-disk sha256 `== a1ee1905` at freeze and pin it in §A.1.
+5. Replace the placeholder `prereg_commit` in all six `QUEUE_ENTRIES_DRAFT/*.json`
+   with the 40-hex M1-C freeze sha; re-run `scripts/queue_entry_check.py` to rc 0;
+   rewrite `enqueued_by` in the supervisor's own words recording check 4 performed.
+6. Stage via `stage_m1c.sh --execute` (post-freeze, from the frozen `stage_m1.py`
+   blob), then copy the six rows into `verification/queue/closure/` — **PH_Breuer
+   rows first** — and re-validate in place.
+
+**END OF ADDENDUM.**
+
+---
+
+# SUPERVISOR FREEZE STAMP — 2026-09-09 (closure-supervisor)
+
+This pre-registration is **FROZEN** at the commit that lands this stamp. After this
+commit the gates, thresholds, caps and labels are closed; only dated addenda that
+cannot alter them may follow (rule 2). I performed the following personally before
+freezing (SUPERVISION §3; none delegated):
+
+1. **§3 CHECK-1 DIFF-READ of the three measurement scripts (MINE).** Read
+   `autograde_m1c.sh`, `stage_m1c.sh`, `monitor_m1c.sh` as source, not summaries.
+   - `autograde_m1c.sh`: SOUND — freeze-gate re-hashes grade_m1d.py against the pin
+     and REFUSES (exit 2) on mismatch; grade rc captured INSIDE the wrapper (L:
+     setsid/timeout return 0 for every outcome); grades ONCE; TIMEOUT (exit 3) never
+     grades a partial sweep; writes no field file in either evidence tree. Two
+     cosmetic doc nits (an unused `PHYS_FIELDS` string; the poll's U-only age check)
+     are backstopped by grade_m1d.py's own strict G0 — no functional defect.
+   - `stage_m1c.sh`: SOUND — wraps the FROZEN `stage_m1.py` verbatim, writes only the
+     disjoint `m1c_completion` tree, age-guard fail-closed before staging, DRYRUN default.
+   - `monitor_m1c.sh`: SOUND — read-only; no grading, no run-tree writes.
+2. **MERGED-SYMLINK GRADING TOPOLOGY (A.4): APPROVED.** Verified from frozen
+   grade_m1d.py source: arms come from a constant `ARMS` list and cases from
+   `bench_inventory` on the REAL bench tree (line 861); each run is read by
+   CONSTRUCTED path `run_root/arm/cid` via `os.path.join`+`isfile`/`isdir`/`getmtime`
+   (all symlink-following) — the grader never `os.walk`s `--root`, so a symlinked
+   case dir is transparent; `getmtime` reads the real target mtime so the age guard
+   is intact; and C1 plants into a tmp COPY (line 887-888), never through the symlink
+   into an evidence file. The merged read-only symlink root is sound.
+3. **grade_m1d.py ON-DISK sha256 == `a1ee1905…8790` == the A.1 pin — CONFIRMED by my
+   own hash.** Re-used verbatim; not edited, not re-frozen (rule 6). Gates inherited
+   from M1 §7 byte-identical; no widening, no new threshold.
+4. **§5.5 RULINGS.** (1) The three caps exceeding the 3600-wall-s stall heuristic
+   (arms 1/2/3: 5531/5883/7259 s) are legitimately long runs, NOT stalls — flagged in
+   advance for the spend review. (2) The two `AR_1_Ret_180` arms are **IN M1-C**: the
+   frozen grade_m1d.py counts them among the 78 (M1d's G0 named both AR_1 arms among
+   the 6 incomplete), so excluding them leaves the grader permanently at 76/78 and a
+   full-sweep G0 PASS unreachable; the `excluded_by_supervisor: true` flag is a
+   COST-CONTENTION-calibration exclusion only (they ran solo, §4.4), not a
+   sweep-membership exclusion, and M1's frozen prereg registers no AR_1 exclusion.
+   All six arms stay; A.3's MAX caps govern (total 379.567 core-min, $0.3245 DERIVED).
+
+**§2ba (CHARTER v1.72):** the run carries BOTH the detached queue daemon (pid 1887,
+the solve) + the committed detached `autograde_m1c.sh` (the grader, no live agent)
+AND the live `monitor_m1c.sh` — neither substitutes for the other.
+
+**STILL NOT LAUNCHED at this commit; SUBMISSIONS PARKED.** The six queue rows'
+`prereg_commit` is set to THIS freeze commit and `enqueued_by` attested by the
+supervisor in a following commit; staging (`stage_m1c.sh --execute`) and the live
+row-drop into `verification/queue/closure/` follow the freeze, PH_Breuer first.
+Compute begins only when the daemon reads the live rows — after this prereg is
+committed (rule 2 / §3 check-4).
