@@ -1,0 +1,15 @@
+REFUSE: L1: RUN_RC = 134, not 0 (rule 4).  rc 124 is a CAP KILL: the run was stopped by its own registered cap and is NOT A RESULT (budget/kill class).
+VMFL046-R6  Supersonic flow with a normal shock in a CD nozzle (VM2026R1 p.155)
+solver: rhoCentralFoam (DENSITY-BASED, TRANSIENT), fluxScheme Kurganov (KNP),
+        reconstruct(rho/U/T) vanLeer, ddtSchemes Euler, maxCo 0.2 -- Greenshields
+        et al. (2010).  R6 changes vs R5: SOLVER (rhoPimpleFoam->rhoCentralFoam)
+        and the OUTLET relaxation length (waveTransmissive lInf 2.0->0.3).  The
+        gate, DELTA_X, endTime, mesh, r=2 triple and every gate limb are UNCHANGED;
+        N4 (limitTemperature) is REPLACED by a physical-range T refusal (no fvOption).
+gate  : x_shock vs 1.250 m, band +-5.0 % (= +-0.0625 m)  -- UNCHANGED from R1/R2/R3
+plateau: ptp(x_shock) over two adjacent W=endTime/10 windows AND their mean drift <= DELTA_X = 6.250e-04 m -- UNCHANGED
+        reader = INTERPOLATING last downward M=1 crossing, and it CONSUMES ONLY
+        the registered window t in (0.064, 0.08] -- 33 of the 160 samples (W1)
+frozen arithmetic (W3): 160 samples total, 17 per plateau window (>= 8), the two windows sharing one boundary sample for 33 distinct, 5.0 steps per sample
+probe-length floor (W2): 0.25 of the graded clock; this registration's cost basis covers L1 1.0000, L2 0.9148, L3 0.9921
+

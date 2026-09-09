@@ -1585,3 +1585,23 @@ Every level: `RUN_RC = 0` MEASURED, `End`, fields present and newer than `0/` (a
 ### What this row REFUSES to claim
 - **No `PASS`, no credential.** The Roache gate is met, but the experimental-validation limb is deferred and the BC-direction cap stands; PASS is a Sanaa-reserved ceiling change, not taken here.
 - **No band was widened to reach the gate** — R2's p = 3.438 was a coarse-grid artefact; the pre-registered named alternative (asymptotic range at L4) is confirmed as registered.
+
+## Row #70 — VMFL046-R7 — Supersonic Flow with a Normal Shock in a Converging-Diverging Nozzle (VM2026R1 p. 155) — **`NOT A RESULT`**
+
+**Graded 2026-09-09 through the pinned frozen comparator (blob `02113dbeaeb1cec940214178451c92c17b274b93`, verified byte-identical on disk == at HEAD before grading, §3 check 1; selftest 70/0). Verdict `NOT A RESULT` — the comparator REFUSES (exit 2) at the strict-completion check, BEFORE any gate quantity is read.** The only level attempted crashed. Cites and does NOT overwrite the R6 attempt (row #63, `NOT A RESULT`, negative-T at ~1.86e-4 s). The successor **VMFL046-R8 is OWED** with a stronger answer-blind startup-stabilisation lever.
+
+### What the run did — L1 CRASHED (strict completion REFUSED)
+- **L1 crashed: `RUN_RC = 134`** (SIGABRT / core dump; `log.rhoCentralFoam` shows "Aborted"), last `Time = 0.02813` << `endTime = 0.08`, **no `End` line**, run incomplete. Board diagnosis (my §3 check-2 triage): negative reconstructed temperature T ≈ −18.33 at Time ≈ 0.0281 — a KNP numerical blow-up (rhoCentralFoam has no `limitTemperature` clamp). The start-from-rest IC pushed the negative-T onset from R6's ~2 steps to ~280 steps (Time 0.0281) — improved but NOT cured; state (b) transonic-startup numerics, NOT a capability gap.
+- **L2 and L3 never ran.**
+- **Comparator refusal (first check to fire):** `L1: RUN_RC = 134, not 0 (rule 4)` → exit 2 rather than degrade → **`NOT A RESULT`**. (The refusal's generic text names the rc-124 cap-kill class; the actual value read is 134, an abort/core-dump — both are `!= 0`, both rule-4 refusals, NOT A RESULT either way. No gate number exists to report.)
+
+### Provenance
+- **Comparator:** `cases/ansys_verification/VMFL046-R7/grade_vmfl046_r7.py`, blob **`02113dbeaeb1cec940214178451c92c17b274b93`** — disk == HEAD; selftest 70 ok / 0 FAILED (every planted-zero / plateau / read-window / N4 physical-range control fires; rule-4 refusals of truncated / early-stopped / cap-killed / restart-splice logs all fire).
+- **Pre-registration & freeze:** `cases/ansys_verification/VMFL046-R7/PREREGISTRATION.md` blob **`fda7d7ede8d542e81ea18ae6244c37e650fa596a`**, freeze commit `a59ff201` (before the run root existed, rule 2, §3 check 4).
+- **Run root:** `verification/runs/ansys_verification/VMFL046-R7/` — `GRADING_VMFL046_R7.txt` (materialised 2026-09-09, the refusal), `L1/log.rhoCentralFoam` + `L1/RUN_RC` (=134), `launch.out`. Results prose `verification/runs/ansys_verification/VMFL046-R7/RESULTS.md`.
+- **Cost:** **0.683333 core-min MEASURED** (crashed L1, wall 41 s ÷ 60, serial ranks=1; `launch.out`) = **$0.000584 DERIVED, NOT measured** at $0.0513/core-h. L2/L3 = 0 (never ran). **Waste 0.683333 core-min** — a crashed-startup spend producing NO result, named separately per §6 and folded into no ratio (a crash has no meaningful est-vs-actual). Calibration row `C-20260909T021050.027720Z-81cae542` in `docs/COST_CALIBRATION.md`.
+
+### What this row REFUSES to claim
+- **No `x_shock`, no gate, no Roache triple** — the comparator refused at strict completion before reading anything.
+- **No `PASS`, no `GATE FAIL`, no credential** — rule 4 refused an incomplete run.
+- **No claim of a capability gap** — the physics is reachable; the failure is a transonic-startup numerical instability (state (b)). **VMFL046-R8 is OWED** with an answer-blind startup lever (temperature-floor / bounded-energy startup / Courant ramp through the ~0.028 onset; Δp & x_shock never read to tune).
