@@ -12,12 +12,48 @@
 # It stages each leg by copying the PINNED baseline runScript and applying the
 # §4 delta (jacMatReOrdering natural->nd, KSPCalcSingularVal 0->1; adjStateOrdering
 # stays cell), decomposePar -force from a pristine serial 0/, writes lever_echo.txt,
-# launches under setsid with the §6 memory cap and the §8 deadline, and CAPTURES rc
-# INSIDE the detached wrapper (never around the setsid line -- the
-# setsid-parent-returns-zero trap).  It appends the ledger .t0/.rc/.t1 rows and,
-# after both legs, an A3FL1_LADDER_DONE marker the detached autograder keys on.
+# and runs the leg to completion under the §8 deadline IN THE FOREGROUND of a
+# SINGLE detached orchestrator (self-detach ONCE at entry, the PROVEN D6RF10
+# pattern), so rc is captured DIRECTLY -- there is no per-leg setsid and nothing
+# wraps `$?` around a setsid line (the setsid-parent-returns-zero trap is avoided).
+# It appends the ledger .t0/.rc/.t1 rows.  CONTROL fully completes, THEN TEST runs;
+# only AFTER BOTH legs finish is the A3FL1_LADDER_DONE marker written -- so the
+# detached autograder keys on "both legs done", never on "both legs spawned" (the
+# D6RF9-class premature-fire bug this FIX closes).
 # =============================================================================
 set -u
+
+# =============================================================================
+# SELF-DETACH (adopts the PROVEN D6RF10 self-detach pattern, d6rf10_run_arm.sh
+# lines ~78-89).  FIRST ENTRY (sentinel A3FL1_DETACHED unset): re-exec THIS
+# script ONCE under setsid, fully detached (own session, stdin </dev/null,
+# stdout+stderr -> a launch OUT that lives OUTSIDE the run root so the rule-4 age
+# guard is NOT tripped by it), echo the child pid + OUT path, and exit 0.  That
+# parent `exit 0` is ONLY the detach spawn -- it is NOT a run verdict (L "setsid
+# parent returns zero"): the ladder's real rc/verdict is captured INSIDE the
+# detached child by each leg's .rc and the A3FL1_LADDER_DONE ledger line.  There
+# is deliberately NO `$?` wrapped around the setsid line.
+#   RE-EXEC'd CHILD (sentinel set): runs the real body -- the G-FREEZE gate, the
+#   age guard, staging, and the two legs run SEQUENTIALLY IN THE FOREGROUND of
+#   this detached orchestrator (no per-leg setsid), so CONTROL fully completes
+#   before TEST starts and A3FL1_LADDER_DONE is written ONLY after BOTH legs have
+#   actually finished.  An EXIT trap writes a final LADDER_RC=<rc> to the launch
+#   OUT (it fires on every exit, incl. the G-FREEZE rc 3 while NOT_FROZEN -- the
+#   correct signal that nothing launched).
+# =============================================================================
+if [ -z "${A3FL1_DETACHED:-}" ]; then
+  export A3FL1_DETACHED=1
+  A3FL1_LAUNCH_OUT="/home/ubuntu/certonomous-runs/a3fl1_launch_$(date -u +%Y%m%dT%H%M%SZ)_$$.out"
+  export A3FL1_LAUNCH_OUT
+  setsid bash "$0" "$@" > "$A3FL1_LAUNCH_OUT" 2>&1 < /dev/null &
+  echo "A3FL1_DETACHED child_pid=$! launch_out=$A3FL1_LAUNCH_OUT"
+  echo "  orchestrator now under setsid (survives shell/fleet death); CONTROL then TEST"
+  echo "  run SEQUENTIALLY in the child's foreground; ladder rc is captured inside the"
+  echo "  child (leg .rc + A3FL1_LADDER_DONE), not by this exit 0."
+  exit 0
+fi
+# re-exec'd child: record the script's OWN final rc to the launch OUT at the end.
+trap '_a3fl1_rc=$?; echo "LADDER_RC=$_a3fl1_rc" >> "${A3FL1_LAUNCH_OUT:-/dev/null}"' EXIT
 
 PREREG=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A3/curriculum_A3FL1/A3FL1_PREREGISTRATION.md
 GRADER=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A3/curriculum_A3FL1/a3fl1_grade.py
@@ -74,8 +110,12 @@ apply_delta() {
 }
 
 # =============================================================================
-# run_leg <LEG> <src mesh> <baseline runScript> <gmresMaxIters cap>
-#   Detached; rc captured INSIDE the wrapper.  Writes .t0/.rc/.t1 + the leg log.
+# run_leg <LEG> <src mesh> <baseline runScript>
+#   FOREGROUND of the already-detached orchestrator (step-1 self-detach): the leg
+#   runs to completion here and rc is captured DIRECTLY (`rc=$?` of the timeout
+#   line), so there is NO per-leg setsid and the setsid-parent-returns-zero trap
+#   cannot apply.  run_leg RETURNS ONLY AFTER the leg has finished.  Writes
+#   .t0/.rc/.t1 + the leg log and appends the ledger row.
 # =============================================================================
 run_leg() {
   local LEG="$1" SRC="$2" BASE="$3"
@@ -89,19 +129,22 @@ run_leg() {
   ( cd "$d" && rm -rf processor* && decomposePar -force > log.decomposePar 2>&1 ) || gate_refuse "$LEG decomposePar failed"
   touch "$d/0"/* 2>/dev/null; date +%s > "$d/.t0"          # 0/ touched last -> age datum
   local dl=${DEADLINE_S[$LEG]}
-  setsid bash -c '
-    d="$1"; ranks="$2"; mem="$3"; dl="$4"
-    cd "$d"
-    timeout "$dl" mpirun -np "$ranks" python runScript_a3fl1.py -task compute_totals > a3fl1_'"$LEG"'.log 2>&1
-    rc=$?               # rc captured INSIDE the detached wrapper
-    echo "$rc" > .rc; date +%s > .t1
-    echo "LEG='"$LEG"' rc=$rc t0=$(cat .t0) t1=$(cat .t1)" >> '"$LEDGER"'
-  ' _ "$d" "$RANKS" "$MEM_CAP" "$dl"
+  # FOREGROUND run: the whole orchestrator is already detached (step-1 self-detach),
+  # so the leg needs no further setsid.  rc is captured DIRECTLY from the timeout
+  # line; run_leg blocks here until the leg finishes.
+  ( cd "$d" && timeout "$dl" mpirun -np "$RANKS" python runScript_a3fl1.py -task compute_totals > "a3fl1_$LEG.log" 2>&1 )
+  local rc=$?
+  echo "$rc" > "$d/.rc"; date +%s > "$d/.t1"
+  echo "LEG=$LEG rc=$rc t0=$(cat "$d/.t0") t1=$(cat "$d/.t1")" >> "$LEDGER"
 }
 
 # CONTROL first (cheap, validates the levers do not break a working solve, fixes the
-# KSPCalcSingularVal print-token format), THEN TEST.
+# KSPCalcSingularVal print-token format), THEN TEST.  Both run SEQUENTIALLY IN THE
+# FOREGROUND of the detached orchestrator: run_leg returns ONLY after its leg has
+# finished, so CONTROL fully completes before TEST starts, and A3FL1_LADDER_DONE is
+# written ONLY after BOTH legs are done (the autograder keys on "both legs done",
+# never on "both legs spawned").
 run_leg CONTROL "$SRC_CTRL" "$BASE_CTRL"
 run_leg TEST    "$SRC_TEST" "$BASE_TEST"
 echo "A3FL1_LADDER_DONE $(date -u +%FT%TZ)" >> "$LEDGER"
-echo "A3FL1 launcher finished staging+launch; autograder keys on A3FL1_LADDER_DONE."
+echo "A3FL1 launcher finished BOTH legs (CONTROL then TEST, sequential foreground); autograder keys on A3FL1_LADDER_DONE."
