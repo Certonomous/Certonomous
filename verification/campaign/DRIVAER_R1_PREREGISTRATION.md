@@ -27,13 +27,21 @@ large stores `/home/ubuntu/{closure-data,certonomous-runs,closure-challenge-benc
 LEAD to resolve, NOT a terminal verdict — `BLOCKED-geometry`, not BLOCKED.**
 
 Leads to resolve (a retrieval/meshing lane, not this drafting lane):
-- The **DrivAerML** dataset (Ashton et al. 2024, arXiv:2408.11969v2) ships the notchback
-  geometry and per-run meshes; the baseline STL is the natural source and matches the
-  reference (below). Provenance/title verification (rule 15, L-144) is required on the
-  retrieved STL before it is meshed — a geometry file is trusted no more cheaply than a
-  paper.
-- Alternatives: the DrivAer public geometry (Heft/Indinger/Adams 2012, SAE
-  2012-01-0168) and the AutoCFD workshop case geometries (autocfd.org).
+- **Primary, and actionable now — the DrivAerML dataset on HuggingFace.** The dataset is
+  CC-BY-SA 4.0, free, hosted at **`https://huggingface.co/datasets/neashton/drivaerml`**
+  (paper §SI, arXiv:2408.11969v2 lines ~513, 2557–2586; project `caemldatasets.org`).
+  The full dataset is ~30 TB, but the paper documents **selective download**: pull only
+  the **baseline run's `drivaer_i.stl`** plus its **force/moment file** (a few hundred MB,
+  not 30 TB) — the STL is the geometry to mesh and the force file gives the exact baseline
+  mean `Cd`/`Cl` that pins the §2 anchor. Retrieval command pattern is in the paper's SI
+  (an S3/HuggingFace selective `download` of `*.stl` + force/moments). **Provenance/title
+  verification (rule 15, L-144) is required on the retrieved STL before it is meshed** —
+  a geometry file is trusted no more cheaply than a paper.
+- Alternatives: the DrivAer public geometry (Heft/Indinger/Adams 2012, SAE 2012-01-0168,
+  from TU München) and the AutoCFD-3 workshop case geometry
+  (`autocfd.org` / `auto-cfd-workshop-3.cfdsolutions.net`).
+- **Handoff:** a meshing lane picks this up — `surfaceFeatureExtract` + `snappyHexMesh`
+  on the retrieved STL, motorBike v2606 template (§4).
 
 Until a provenance-verified STL lands, the run cannot start and the exercise smoke
 (§6) cannot run. The grader and this pre-registration stand ready so that meshing can
@@ -142,24 +150,36 @@ non-monotone triple.
 
 Diff-read is the supervisor's check-1. Same discipline as `grade_suboff.py`:
 
-- **Live planted-zero control (rule 3):** PLANT `5.0` into ONE body owner-cell of a
-  COPY of the finest `p` field, re-read the body mean-surface-pressure through the same
-  reader, **REFUSE (exit 2)** unless the mean moves by the expected `PLANT/n_body`. The
-  body patch group is matched by name (`body`, and any `*body*` sub-patch — mirrors,
-  wheels, underbody).
+- **Live planted-zero controls (rule 3) — the gate reader has its own.**
+  (i) **Gate-reader control (primary):** PLANT `0.05` into the last row of a COPY of the
+  finest `coefficient.dat`, once for **Cd** and once for **Cl**, and re-read through
+  `read_coeff` — **the same parser the verdict comes from** — refusing (exit 2) unless
+  the returned value moves by the plant. (ii) **Field control (secondary):** PLANT `5.0`
+  into ONE body owner-cell of a COPY of the finest `p` field, re-read the body
+  mean-surface-pressure, refuse unless it moves by `PLANT/n_body`. The body patch group
+  is matched by name (`body`, and any `*body*` sub-patch — mirrors, wheels, underbody).
 - **Refuse-not-degrade:** exit 2 bad input/control; exit 70 internal defect only; exit
   0 only when a verdict was produced.
-- **Rule-4 strict completion:** `rc==0`/`End`; last==`endTime`; incompressible-RANS set
-  `p U k omega nut phi` present at endTime and newer than `0/` (age guard).
+- **Rule-4 strict completion:** `rc==0` **from an rc sidecar / DONE marker written INSIDE
+  the detached wrapper** (never inferred from an `End` line — setsid-parent-returns-zero);
+  an `End` line required; last==`endTime`; **ExecutionTime count == `round(endTime/deltaT)`**
+  (clause 5); incompressible-RANS set `p U k omega nut phi` present at endTime and newer
+  than `0/` (age guard). Requires the run to write an rc sidecar (a freeze precondition).
 - **forceCoeffs constants asserted on disk** (`magUInf/lRef/Aref/rhoInf` = registered)
   or refuse — wrong normalisation is not the gated quantity.
 - **Rule-5 Roache triple via the shared instrument** (`grade_ladder`, `dim=3`) for both
   Cd (V1) and Cl (V2); no `P_MIN`/`STAGNANT_FLOOR` redefined (§10.5). Fixed verdict
   vocabulary only.
-- **Same disclosed NB as SUBOFF:** per-level iterative-convergence state is to be handed
-  in from `log.simpleFoam` by the launcher; the grader defaults CONVERGED on an `End`
-  line and measures the plateau itself. A revision to read iterative state from the log
-  is owed before freeze.
+- **Iterative convergence READ, never defaulted (rule-5 clause 1):** `read_iterative_state`
+  reads `log.simpleFoam` — CONVERGED iff "SIMPLE solution converged" OR every monitored
+  field's final Initial residual (`p Ux Uy Uz k omega`) is below `RES_TOL = 1×10⁻⁴`
+  (Initial, not Final). A not-iteratively-converged level ⇒ NOT A RESULT before the
+  triple is read. Plateau of Cd/Cl measured separately.
+- **Solver-config requirement:** R1 runs to a **fixed iteration count `endTime`,
+  `deltaT = 1`, HARD stop, NO `residualControl` early-exit**, so `last == endTime` is
+  reachable and the ExecutionTime count equals `round(endTime/deltaT)`; iterative
+  convergence is the final-Initial-residual test above. Freeze precondition on
+  `system/controlDict` / `fvSolution`.
 
 Selftest confirmed green by this lane: CONVERGING-in-band → PASS, CONVERGING-out-of-band
 → GATE FAIL, missing control → refuse.

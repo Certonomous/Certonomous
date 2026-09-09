@@ -28,9 +28,16 @@ WHAT IT GRADES  (both decided ONLY through the Roache triple; CLAUDE.md rule 5)
   CONVERGING -> PASS inside band else GATE FAIL, GCI at Fs=1.25 printed.
 
 NON-NEGOTIABLES  (identical discipline to grade_suboff.py)
-  * RULE 3 planted-zero control on ONE body owner-cell of a p-field copy, re-read.
-  * RULE 4 strict completion: rc==0 / 'End'; last==endTime; incompressible-RANS fields
-    p U k omega nut phi present at endTime and NEWER than 0/ (age guard).
+  * RULE 3 planted-zero controls -- the GATE READER has its own: (i) primary, PLANT
+    PLANT_COEFF into the last row of a COPY of the finest coefficient.dat for Cd and Cl
+    and re-read through read_coeff (the parser the verdict comes from); (ii) secondary,
+    PLANT PLANT_KPRESS into ONE body owner-cell of a p-field copy, re-read.  Refuse
+    (exit 2) unless each reader sees its plant.
+  * RULE 4 strict completion: rc==0 read from an rc sidecar / DONE marker (NOT an 'End'
+    line -- setsid parent returns 0); 'End' also required; last==endTime; ExecutionTime
+    count == round(endTime/deltaT); incompressible-RANS fields p U k omega nut phi at
+    endTime and NEWER than 0/ (age guard).
+  * RULE 5 iterative convergence READ from log.simpleFoam, never defaulted.
   * REFUSE-NOT-DEGRADE: exit 2 on bad input / bad control; exit 70 internal defect only;
     exit 0 only when a verdict was produced.  Reads inputs only; sends/commits nothing.
 
@@ -39,7 +46,7 @@ USAGE
         --reference drivaer_reference_notchback.json [--report out.json]
   python3 grade_drivaer.py --selftest [--smoke <dir>]
 """
-import argparse, glob, gzip, json, math, os, re, sys
+import argparse, glob, gzip, json, math, os, re, shutil, sys, tempfile
 
 _REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 sys.path.insert(0, os.path.join(_REPO, "scripts"))
@@ -47,6 +54,7 @@ import roache_triple as RT
 
 # ---- pre-registered gate parameters (FROZEN with the pre-registration) -----------------
 PLANT_KPRESS    = 5.0        # planted-zero perturbation on the (kinematic) p field
+PLANT_COEFF     = 0.05       # planted-zero perturbation on the coefficient.dat Cd/Cl reader
 CD_BAND_REL     = 0.10       # Gate V1: |Cd_cfd - Cd_ref| <= 10% of Cd_ref
 CL_BAND_ABS     = 0.05       # Gate V2: |Cl_cfd - Cl_ref| <= 0.05 (absolute; Cl is small)
 FS_CELIK        = 1.25
@@ -131,35 +139,82 @@ def body_owner_cells(case):
     return cells, matched
 
 # ---------------------------------------------------------------------------------------
-FIELDS = ("p", "U", "k", "omega", "nut", "phi")
+FIELDS      = ("p", "U", "k", "omega", "nut", "phi")
+RES_TOL     = 1.0e-4                       # registered residualControl target
+ITER_FIELDS = ("p", "Ux", "Uy", "Uz", "k", "omega")
 
-def read_endtime(case):
+def _ctrl_scalar(case, key):
     txt = _read(os.path.join(case, "system/controlDict"))
     if txt is None:
         refuse(f"no controlDict in {case}")
-    m = re.search(r"\bendTime\s+([-\deE.+]+)\s*;", txt)
+    m = re.search(rf"\b{key}\s+([-\deE.+]+)\s*;", txt)
     if not m:
-        refuse(f"no endTime in {case}/system/controlDict")
+        refuse(f"no {key} in {case}/system/controlDict")
     return float(m.group(1))
+
+def read_endtime(case):  return _ctrl_scalar(case, "endTime")
+def read_deltat(case):   return _ctrl_scalar(case, "deltaT")
+
+def primary_log(case):
+    logs = glob.glob(os.path.join(case, "log.simpleFoam*")) + glob.glob(os.path.join(case, "log*simple*"))
+    if not logs:
+        refuse(f"{case}: no simpleFoam log")
+    return sorted(logs)[-1]
+
+def read_rc(case):
+    """rc captured INSIDE the detached wrapper (setsid-parent-returns-zero lesson)."""
+    for cand in (glob.glob(os.path.join(case, "rc")) + glob.glob(os.path.join(case, "*.rc"))
+                 + glob.glob(os.path.join(case, "DONE*"))):
+        t = _read(cand) or ""
+        m = re.search(r"rc[=:\s]+(-?\d+)", t) or re.fullmatch(r"\s*(-?\d+)\s*", t)
+        if m:
+            return int(m.group(1)), cand
+    return None, None
 
 def time_dirs(case):
     ts = [d for d in os.listdir(case)
           if re.fullmatch(r"\d+(\.\d+)?", d) and os.path.isdir(os.path.join(case, d)) and d != "0"]
     return sorted(ts, key=float)
 
+def read_iterative_state(case):
+    """rule-5 clause-1: per-level iterative convergence READ from log.simpleFoam, never
+    defaulted.  CONVERGED iff 'SIMPLE solution converged' OR every monitored field's FINAL
+    Initial residual is below RES_TOL (Initial, not Final -- the W3 gate-(b) test)."""
+    logtxt = _read(primary_log(case)) or ""
+    if re.search(r"SIMPLE solution converged", logtxt):
+        return "CONVERGED", dict(via="SIMPLE solution converged line")
+    finals = {}
+    for f in ITER_FIELDS:
+        hits = re.findall(rf"Solving for {f},\s*Initial residual\s*=\s*([-\d.eE+]+)", logtxt)
+        if hits:
+            finals[f] = float(hits[-1])
+    if not finals:
+        return "NOT_CONVERGED", dict(why="no Initial-residual lines parsed from the log")
+    worst = max(finals.values())
+    return ("CONVERGED" if worst < RES_TOL else "NOT_CONVERGED"), \
+           dict(final_initial_residuals=finals, res_tol=RES_TOL, worst=worst)
+
 def check_completion(case):
-    endT = read_endtime(case)
-    logs = glob.glob(os.path.join(case, "log.simpleFoam*")) + glob.glob(os.path.join(case, "log*simple*"))
-    done = glob.glob(os.path.join(case, "DONE*"))
-    ended = any((_read(l) or "").rstrip().endswith("End") or "\nEnd\n" in (_read(l) or "") for l in logs)
-    if not (ended or done):
-        refuse(f"{case}: no 'End' line in a simpleFoam log and no DONE marker -- not complete")
+    endT = read_endtime(case); dt = read_deltat(case)
+    logtxt = _read(primary_log(case)) or ""
+    rc, rc_src = read_rc(case)
+    if rc is None:
+        refuse(f"{case}: no rc sidecar/DONE marker carrying rc -- rc must be captured "
+               "inside the detached wrapper, not inferred from an 'End' line")
+    if rc != 0:
+        refuse(f"{case}: rc={rc} (from {rc_src}) -- not a clean exit")
+    if not (logtxt.rstrip().endswith("End") or "\nEnd\n" in logtxt):
+        refuse(f"{case}: no 'End' line in the simpleFoam log")
     ts = time_dirs(case)
     if not ts:
         refuse(f"{case}: no time directories after 0")
     last = ts[-1]
     if abs(float(last) - endT) > 1e-9 * max(1.0, abs(endT)):
         refuse(f"{case}: last time {last} != endTime {endT}")
+    n_exec = len(re.findall(r"ExecutionTime\s*=", logtxt))
+    want = round(endT / dt)
+    if n_exec != want:
+        refuse(f"{case}: ExecutionTime count {n_exec} != round(endTime/deltaT)={want}")
     zeroU = os.path.join(case, "0", "U")
     if not (os.path.exists(zeroU) or os.path.exists(zeroU + ".gz")):
         refuse(f"{case}: no 0/ fields to date the run (age guard cannot be applied)")
@@ -191,13 +246,7 @@ def assert_forcecoeffs_constants(case):
             refuse(f"{case}: forceCoeffs {k}={got[k]} != registered {v} -- wrong normalisation")
     return got
 
-def read_coeff(case, name):
-    """coefficient <name> (Cd or Cl) from forceCoeffs coefficient.dat; returns the series."""
-    dats = glob.glob(os.path.join(case, "postProcessing", "forceCoeffs*", "*", "coefficient.dat")) \
-         + glob.glob(os.path.join(case, "postProcessing", "forceCoeffs*", "*", "forceCoeffs.dat"))
-    if not dats:
-        refuse(f"{case}: no forceCoeffs coefficient.dat under postProcessing/")
-    dat = sorted(dats)[-1]
+def _dat_and_ci(dat, name):
     lines = open(dat).read().splitlines()
     cols = None
     for h in reversed([l for l in lines if l.startswith("#")]):
@@ -206,7 +255,20 @@ def read_coeff(case, name):
             cols = toks; break
     if cols is None:
         refuse(f"{dat}: no '{name}' column in header")
-    ci = cols.index(name)
+    return lines, cols.index(name)
+
+def read_coeff(case, name, dat_path=None):
+    """coefficient <name> (Cd or Cl) from forceCoeffs coefficient.dat; returns (dat, series).
+    dat_path overrides the glob (used by the coefficient-parser planted control)."""
+    if dat_path:
+        dat = dat_path
+    else:
+        dats = glob.glob(os.path.join(case, "postProcessing", "forceCoeffs*", "*", "coefficient.dat")) \
+             + glob.glob(os.path.join(case, "postProcessing", "forceCoeffs*", "*", "forceCoeffs.dat"))
+        if not dats:
+            refuse(f"{case}: no forceCoeffs coefficient.dat under postProcessing/")
+        dat = sorted(dats)[-1]
+    lines, ci = _dat_and_ci(dat, name)
     vals = []
     for l in lines:
         if l and not l.startswith("#"):
@@ -217,6 +279,28 @@ def read_coeff(case, name):
     if len(vals) < 2:
         refuse(f"{dat}: fewer than two {name} rows")
     return dat, vals
+
+def coefficient_plant_control(case, name):
+    """RULE 3 on the ACTUAL GATE READER.  Perturb the last-row <name> of a COPY of the
+    finest coefficient.dat by PLANT_COEFF, re-read through read_coeff (the parser the
+    verdict comes from), require the returned last value to move by PLANT_COEFF."""
+    dat, series = read_coeff(case, name)
+    before = series[-1]
+    lines, ci = _dat_and_ci(dat, name)
+    di = max(i for i, l in enumerate(lines) if l and not l.startswith("#") and len(l.split()) > ci)
+    toks = lines[di].split(); toks[ci] = repr(float(toks[ci]) + PLANT_COEFF)
+    lines2 = list(lines); lines2[di] = " ".join(toks)
+    tmp = tempfile.mkdtemp(prefix="drivaer_plant_")
+    try:
+        p = os.path.join(tmp, "coefficient.dat")
+        open(p, "w").write("\n".join(lines2) + "\n")
+        after = read_coeff(case, name, dat_path=p)[1][-1]
+        delta = after - before
+        return dict(passed=bool(abs(delta - PLANT_COEFF) <= 1e-9 + 1e-6 * abs(PLANT_COEFF)),
+                    planted=PLANT_COEFF, reader=f"read_coeff({name},coefficient.dat)",
+                    artifact=dat, coefficient=name, before=before, after=after, reader_delta=delta)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 # ---------------------------------------------------------------------------------------
 def body_mean_pressure(case, time, pv=None):
@@ -254,9 +338,11 @@ def grade_case(case):
     cd_plat = abs(cd[-1] - cd[-2]) <= PLATEAU_TOL_REL * abs(cd[-1]) if cd[-1] else False
     cl_plat = abs(cl[-1] - cl[-2]) <= max(PLATEAU_TOL_REL * abs(cl[-1]), 1e-4)
     ncells = len(parse_owner(case))
+    it_state, it_detail = read_iterative_state(case)   # rule-5 clause-1, READ not defaulted
     return dict(case=case, nCells=ncells, endTime=endT, last=last, Cd=cd[-1], Cl=cl[-1],
                 Cd_prev=cd[-2], Cl_prev=cl[-2], coefficient_dat=d_dat,
                 cd_plateaued=bool(cd_plat), cl_plateaued=bool(cl_plat),
+                iterative_state=it_state, iterative_detail=it_detail,
                 forceCoeffs_constants=fc)
 
 def run_grade(args):
@@ -265,14 +351,25 @@ def run_grade(args):
     levels_in = {"coarse": args.coarse, "medium": args.medium, "fine": args.fine}
     if not all(levels_in.values()):
         refuse("all three of --coarse --medium --fine are required for the Roache triple")
-    ctrl = planted_zero_control(args.fine, check_completion(args.fine)[1])
-    if not ctrl["passed"]:
-        refuse(f"planted-zero control did not behave: {ctrl}")
+    # RULE 3 controls on the finest, BEFORE trusting any read: the p-field reader AND
+    # read_coeff (the parser the VERDICT comes from), on Cd and, if graded, Cl.
+    last_fine = check_completion(args.fine)[1]
+    ctrl_field = planted_zero_control(args.fine, last_fine)
+    if not ctrl_field["passed"]:
+        refuse(f"p-field planted-zero control did not behave: {ctrl_field}")
+    ctrl_cd = coefficient_plant_control(args.fine, "Cd")
+    if not ctrl_cd["passed"]:
+        refuse(f"coefficient.dat Cd (gate-reader) planted-zero control did not behave: {ctrl_cd}")
+    ctrl_cl = coefficient_plant_control(args.fine, "Cl") if cl_ref is not None else None
+    if ctrl_cl is not None and not ctrl_cl["passed"]:
+        refuse(f"coefficient.dat Cl (gate-reader) planted-zero control did not behave: {ctrl_cl}")
+    ctrl = ctrl_cd   # gate-reader control is the primary passed to grade_ladder
     per = {n: grade_case(d) for n, d in levels_in.items()}
     order = ("coarse", "medium", "fine")
     lv_cd = [dict(name=n, cells=per[n]["nCells"], value=per[n]["Cd"]) for n in order]
     band_cd = (cd_ref * (1 - CD_BAND_REL), cd_ref * (1 + CD_BAND_REL))
-    it = {n: "CONVERGED" for n in per}     # launcher supplies real iterative states; see NB in grade_suboff
+    # rule-5 clause-1: iterative-convergence state READ from each level's log, never defaulted
+    it = {n: per[n]["iterative_state"] for n in per}
     pl_cd = {n: ("PLATEAUED" if per[n]["cd_plateaued"] else "NOT_PLATEAUED") for n in per}
     gate_cd = RT.grade_ladder("V1 vehicle drag coefficient Cd", lv_cd, dim=3, band=band_cd,
                               plant_control=ctrl, iterative_states=it, plateau_states=pl_cd,
@@ -283,10 +380,11 @@ def run_grade(args):
         band_cl = (cl_ref - CL_BAND_ABS, cl_ref + CL_BAND_ABS)
         pl_cl = {n: ("PLATEAUED" if per[n]["cl_plateaued"] else "NOT_PLATEAUED") for n in per}
         gates.append(RT.grade_ladder("V2 vehicle lift coefficient Cl", lv_cl, dim=3, band=band_cl,
-                                     plant_control=ctrl, iterative_states=it, plateau_states=pl_cl,
+                                     plant_control=ctrl_cl, iterative_states=it, plateau_states=pl_cl,
                                      fs=FS_CELIK, reference=cl_ref))
     report = dict(rung="DRIVAER_R1", gates=gates, per_level=per,
-                  planted_zero_control=ctrl, reference=ref)
+                  planted_zero_control_Cd=ctrl_cd, planted_zero_control_Cl=ctrl_cl,
+                  planted_zero_control_field=ctrl_field, reference=ref)
     print(json.dumps(report, indent=2, default=str))
     if args.report:
         json.dump(report, open(args.report, "w"), indent=2, default=str)
@@ -321,6 +419,19 @@ def run_selftest(args):
         assert False
     except (SystemExit, RT.Refusal):
         print("  refused as required (no plant control)")
+    print("== coefficient.dat (gate-reader) planted control on a synthetic file (Cd & Cl) ==")
+    tmp = tempfile.mkdtemp(prefix="drivaer_selftest_")
+    try:
+        pp = os.path.join(tmp, "postProcessing", "forceCoeffs1", "0"); os.makedirs(pp)
+        open(os.path.join(pp, "coefficient.dat"), "w").write(
+            "# Force coefficients\n# Time Cd Cs Cl\n"
+            "1000 0.285 0.0 -0.050\n2000 0.286 0.0 -0.051\n")
+        for nm in ("Cd", "Cl"):
+            c = coefficient_plant_control(tmp, nm)
+            assert c["passed"], c
+            print(f"  {nm}: reader saw planted {c['planted']} ({c['before']} -> {c['after']})")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
     if args.smoke:
         ts = time_dirs(args.smoke)
         if not ts:
