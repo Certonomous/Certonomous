@@ -1459,6 +1459,24 @@ PENDING** — autograder grades the full 78-arm sweep via grade_m1d.py on the me
 all 6 reach strict rule-4 completion; any fail it yields gets §2bc exhaustion-evidence classification.
 Rule-12 estimate-vs-actual calibration is a close-out item at grading. SUBMISSIONS PARKED.
 
+**═══ M1-C VERDICT LANDED — GATE FAIL governed by G2; G0 PASS + G1 PASS are the wins ═══** Autograder
+GRADED (phase=GRADED, rc=1), full 78-arm merged root, `gate_m1c.json` (instrument sha==pin,
+planted-zero passed=True, birth_verified, 0 nonfinite of 9.32M solves). **G0 PASS 78/78 complete**
+(the 6 re-run arms all state=COMPLETE, last_time=20000, all rule-4 clauses True — completion
+ACHIEVED); **G1 PASS** n_bad=0; **G4/G3 GATE REACHED**; **G2 GATE FAIL** rel-L2(U) null-vs-shipped-ref
+max 0.02419>0.01 on the duct cases — G2's own label = "a harness check, NOT a precision claim."
+rule5 N/A (single shipped mesh, no grid triple). **§3 check-3 BIG-CLAIM verified PERSONALLY from the
+gate artifact.** M1 ARC UPGRADED: M1d was completion-DOMINATED GATE FAIL → M1-C is the completed
+successor, GATE FAIL now governed by G2 (a harness identity check, not the closure model product;
+M2 is the accuracy product). **§2bc classification of the M1-C verdict: E2-EDGE, FLAGGED NOT LOCKED**
+— G2 is a harness check not a precision claim; 0.024 rests on a rule-15-gapped shipped reference;
+E1/E2 boundary pending Sanaa; numerics exhausted-not-implicated (N-X4). 0 rows locked terminal → no
+exhaustion_evidence block owed. **COST (rule 12):** M1-C incremental 217.85 core-min MEASURED =
+$0.186 DERIVED (owner rate), UNDER the 379.567 MAX cap (0.574×), no overrun, 0 waste; calibration
+row filed in COST_CALIBRATION.md (id …-m1ccomp). Filed: `M1c_GRADE_RESULT_2026-09-09.md` +
+§2bc re-audit dated addendum + LAB_STATE + cost row. autograder/monitor/watch all exited clean.
+SUBMISSIONS PARKED.
+
 **TWENTY-SEVENTH SESSION, 2026-09-09 (closure-supervisor). RE-FORM after ~12h dormancy. HEAD at
 session start 51a40abf. Sanaa OFFLINE — autonomous (rule 9). §2bc re-audit + recon summary below.**
 
