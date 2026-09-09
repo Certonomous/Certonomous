@@ -1430,6 +1430,49 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**TWENTY-SEVENTH SESSION, 2026-09-09 (closure-supervisor). RE-FORM after ~12h dormancy. HEAD at
+session start 51a40abf. Sanaa OFFLINE — autonomous (rule 9). COST THIS SESSION: 0 solver core-min,
+0 GPU-h, $0.00 send; two read-only recon lanes (sub-core-min CPU).**
+
+**═══ §2bc EXHAUSTION-EVIDENCE RE-AUDIT LANDED (`3c6eb5da`) — chief item 1 DONE ═══** Applied
+VERIFICATION §2bc + `EXHAUSTION_REAUDIT_CHECKLIST.md` to EVERY standing closure GATE FAIL / NOT A
+RESULT. Record: `docs/closure/CLOSURE_2BC_EXHAUSTION_REAUDIT.md`. Flags-only (moves no number).
+SUPERVISOR CATCH: the §2ay instrument (`check_completion_enforcement.py`) enumerated ZERO closure
+fails — a DECLARED blind spot (reads 4 committed registers only; closure verdicts live in
+`*_GRADE_RESULT_*.md` / per-case `RESULTS.md`, not enumerated). Disk sweep found the real
+population. CLASSIFICATION (9 vocab rows; M1 BLOCKED excepted): **4 NON-TERMINAL** — M1d (GATE FAIL,
+completion-dominated → successor M1-C held), M1b (NOT A RESULT, L-509 → grade_m1d.py run),
+Wu-aposteriori (→ frozenk sibling), FS5-D476-A3 (FS5 STANDING GATE); **4 NEEDS-SUCCESSOR** —
+Kaandorp-aposteriori (broken H0 propagation = fixable setup), Wu-frozenk (ceiling gate fails on
+TRUTH = gate not validated), R4-sparta (R5 memo candidates UNREGISTERED; AR_1 not converged),
+R5C-omega (3/12 not CONVERGED, Roache rule-5 = numerics not exhausted); **2 E2-EDGE flagged NOT
+locked** — Kaandorp-a-priori + M1d full-sweep disposition (E1/E2 boundary pending Sanaa; re-solves
+are NEEDS-SUCCESSOR; rule-15 provenance gap on upstream refs). **0 rows locked
+EXHAUSTION-PROVEN-TERMINAL** → no `exhaustion_evidence` block owed this cycle. OWED successors
+(routed, NONE launched — M6 hold + zero-compute): R4 and R5C converge on ONE frozen R5 successor
+prereg (currently unregistered candidates in `R5_DECISION_MEMO.md`); Kaandorp-aposteriori
+propagation-repair; Wu-frozenk ceiling-gate validation.
+
+**═══ M1-C STILL HELD (confirmed) ═══** Freeze `84c163bf` (prereg+grade path) + rows `1cabf269` +
+staging-path amendment `e738ed43` (L-512) all intact in history. Staged arm tree was cleared during
+dormancy (only `artefacts/` remains, 0 time dirs = 0 compute) — expected; turnkey resume re-stages
+idempotently (cleanup_m1c.sh+restage_m1c.sh) before launch. Held on the live Sanaa-via-chief M6
+"no new heavy launches" hold; fires ONLY on the chief's M6-clear signal. Two doc-integrity VERIFY
+items logged (do not affect classification): (i) M1-C prereg header STATUS reportedly still reads
+DRAFT despite the `84c163bf` freeze — reconcile; (ii) M1-C→M1d linkage is via parent/grading-path
+cells, not a line-leading `Predecessor:` field, so the §2ay reader won't auto-detect — a
+line-leading successor field is owed (pre-first-compute, no gate/threshold/cap/label change).
+
+**NEXT ACTIONS (zero-compute, next lane picks up).** (1) Freeze ONE R5 successor prereg from
+`R5_DECISION_MEMO.md` candidates — discharges BOTH R4-sparta and R5C-omega NEEDS-SUCCESSOR owed
+rows (drive the 3 non-converged / 15 incomplete rows). (2) Draft the Kaandorp-aposteriori
+propagation-repair successor + the Wu-frozenk ceiling-gate-validation successor (both zero-compute
+prereg drafts). (3) Add the line-leading `Predecessor:` field to M1-C prereg + reconcile its STATUS
+header. (4) Report to verification the §2ay instrument blind spot (closure grade-result/RESULTS.md
+records not enumerated). All heavy re-runs stay HELD behind the M6 hold.
+
+---
+
 **TWENTY-SIXTH SESSION, 2026-09-09 (closure-supervisor). RE-FORM after fleet death at a session
 boundary. HEAD at session start e3d9cd8f. Sanaa OFFLINE — autonomous (rule 9: no agent message is
 her consent). ONE COMMIT LANDED (`db4093a7`): the rule-6 disclosure note. ONE BIG-CLAIM FINDING IN
