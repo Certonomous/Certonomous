@@ -49,7 +49,9 @@ repeats them.
    an `End` line; **last time == `endTime`**; fields present (`T U p_rgh alphat nut
    k omega phi` for the thermal family; `phi` added on Sanaa's approval
    2026-09-06, aligning the rule with its enforcing instrument
-   `mark_done_t3.py:34`); `ExecutionTime` count == `endTime`; and
+   `mark_done_t3.py:34`); `ExecutionTime` count == `round(endTime/deltaT)` (=
+   `endTime` when `deltaT`=1, the historical unit-step case — clause-5, Sanaa
+   2026-09-09; adaptive-`deltaT` runs use `n_exec == steps written`); and
    **every field at `endTime` NEWER than the case's own `0/T`** — the **age
    guard**, because `0/T` is touched last at launch and so dates the run allowed to
    produce the answer. A guard refuses a case where `0` or a time dir already exists.
