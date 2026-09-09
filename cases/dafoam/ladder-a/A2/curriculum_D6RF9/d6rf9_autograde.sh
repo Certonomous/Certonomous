@@ -26,10 +26,14 @@ POLL=30
 echo "AUTOGRADE_START $(date -u +%FT%TZ) pid=$$ ppid=$PPID cpuset-agnostic (grading only)" >> "$LOG"
 t0=$(date +%s)
 
-# 1. Poll for ladder completion (or a terminating cap/abort line), bounded.
+# 1. Poll for ladder completion, bounded.  KEY ONLY on the ledger's own
+#    D6RF9_LADDER_DONE line -- the authoritative completion marker the launcher
+#    writes.  (A prior version also grepped d6rf9_launch*.out for LADDER_RC=,
+#    which false-matched STALE launch .out files from earlier aborted attempts
+#    and fired the autograder mid-R1; fixed 2026-09-09.)
 while :; do
-  if grep -qE 'D6RF9_LADDER_DONE|CUMULATIVE_HARD_STOP|LADDER_RC=' "$LEDGER" "$RUN_ROOT"/../d6rf9_launch*.out 2>/dev/null; then
-    echo "TERMINATION seen $(date -u +%FT%TZ)" >> "$LOG"; break
+  if grep -qE 'D6RF9_LADDER_DONE' "$LEDGER" 2>/dev/null; then
+    echo "TERMINATION seen (D6RF9_LADDER_DONE) $(date -u +%FT%TZ)" >> "$LOG"; break
   fi
   now=$(date +%s)
   if [ $((now - t0)) -ge "$CEIL" ]; then
