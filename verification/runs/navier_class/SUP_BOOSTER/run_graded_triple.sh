@@ -16,13 +16,16 @@
 # timeouts summing to the cap. A level that hits its timeout is STOPPED (rc 124); it does NOT
 # get a new budget (rule 12) -- the grader then refuses it on rule-4 completion. Sends
 # nothing, launches no graded compute beyond this frozen triple (rules 7, 16).
+# source the OpenFOAM env BEFORE `set -u` -- its bashrc references unset vars and would
+# abort the script under nounset (this bit the first launch: source aborted before any dir
+# was created).
+source /usr/lib/openfoam/openfoam2606/etc/bashrc 2>/dev/null
 set -u
 REPO=/home/ubuntu/Certonomous
 CASE=$REPO/cases/navier_class/SUP_BOOSTER
 GEN=$CASE/gen_cone_mesh.py
 RUN=$REPO/verification/runs/navier_class/SUP_BOOSTER/graded
 AUTOGRADE=$REPO/verification/runs/navier_class/SUP_BOOSTER/autograde_sup_booster.sh
-source /usr/lib/openfoam/openfoam2606/etc/bashrc 2>/dev/null
 
 mkdir -p "$RUN"
 # per-level wall timeouts (s); sum = 5400 = 90 core-min cap (serial, 1 rank)
