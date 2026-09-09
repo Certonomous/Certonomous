@@ -84,7 +84,14 @@ GEN_BLOB="$(git -C "$REPO" hash-object "$GEN")"
 { echo "VMFL063-R3 launch $(date -u +%Y-%m-%dT%H:%M:%SZ)"; echo "cap_core_min=$CAP_CORE_MIN (running total)";
   echo "prereg_blob=$PREREG_BLOB comparator_blob=$GRADER_BLOB generator_blob=$GEN_BLOB"; } > "$LR"
 
+# PRE-FIRST-COMPUTE AMENDMENT (supervisor 2026-09-09): the OpenFOAM v2606 bashrc
+# references WM_PROJECT_DIR before setting it, which aborts under `set -u` (the first
+# re-launch died here, launcher_rc=1, BEFORE any compute). Disable nounset ONLY for the
+# source (the proven R8 driver runs with no set -u at all for the same reason), then
+# restore it. No gate/threshold/band/cap/label/comparator touched.
+set +u
 source /usr/lib/openfoam/openfoam2606/etc/bashrc || { echo "ABORT: cannot source OpenFOAM v2606"; exit 2; }
+set -u
 command -v simpleFoam >/dev/null || { echo "ABORT: simpleFoam not on PATH"; exit 2; }
 command -v blockMesh  >/dev/null || { echo "ABORT: blockMesh not on PATH"; exit 2; }
 SOLVER_BIN="$(command -v simpleFoam)"
