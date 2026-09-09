@@ -8764,3 +8764,96 @@ REFUSES (exit 2), each RED arm shown load-bearing.
   deadline-sizing validation and the verdict-preservation test meet; see the D6RF10 B-300 ruling).
 
 **lines whose number changed above this section: 0**
+
+
+## Amendment — v1.74, 2026-09-09 — **§2bc THE EXHAUSTION-EVIDENCE ACCEPTANCE GATE FOR A TERMINAL `GATE FAIL` / `NOT A RESULT` (STRENGTHENS §2ay). A `GATE FAIL` OR `NOT A RESULT` IS NOT AN ACCEPTABLE TERMINAL ENTRY UNLESS IT CARRIES EXHAUSTION EVIDENCE PROVING THE FAILURE IS NOT A FIXABLE NUMERICS OR MODEL/SETUP ARTIFACT. WITHOUT IT THE VERDICT IS PREMATURE, REJECTED, AND ROUTED TO A DATED SUCCESSOR.**
+
+*Provenance: Sanaa, online 2026-09-09, in her own words, relayed verbatim by the chief; a new lab-wide standard is reserved to Sanaa (CLAUDE.md rule 9 / FIRST-ACTION RULE). Her directive is captured at `etc/sessions/2026-09-09_sanaa_exhaustion_evidence_acceptance_gate.md`. This is the substantive ACCEPTANCE CRITERION behind `§2ay`'s state-(a): `§2ay` flags a fail in neither an acceptable-terminal state nor an active-successor state; `§2bc` defines what makes the terminal state ACCEPTABLE. Enforced by `scripts/check_exhaustion_evidence.py`; the `§2ay` fleet sweep (`scripts/check_completion_enforcement.py`) locates the fails, `§2bc`'s check validates each terminal one's evidence.*
+
+### §2bc.1 THE STANDARD
+
+> **RULED — `§2bc` (Sanaa's words):** *"per our rule, gate fail/ not a result are only valid entries
+> if we have exhausted that its a numerics or model issue and that genuinly openfoam cant run it.
+> Else not acceptable."* A `GATE FAIL` or `NOT A RESULT` recorded as a TERMINAL entry (a final verdict,
+> NOT one already routed to an active dated successor under `§2ay` state-(b) / fix-until-runs) is an
+> ACCEPTABLE entry ONLY if it carries EXHAUSTION EVIDENCE proving the failure is not a fixable numerics
+> or model/setup artifact. An un-evidenced terminal fail is PREMATURE → **REJECTED** → routed to a
+> dated successor (fix-until-runs). The gate is *"prove it isn't a fixable numerics/setup artifact,"*
+> NOT *"never report a fail."*
+
+### §2bc.2 THE THREE EXHAUSTION COMPONENTS
+
+A terminal fail's exhaustion evidence must establish all that apply to it:
+
+1. **NUMERICS EXHAUSTED** — the fix-until-runs numerics ladder driven to its END (scheme, limiter,
+   relaxation, timestep, grid), not a single attempt. A reference to the numerics-ladder record whose
+   levers are recorded exhausted.
+2. **MODEL / SETUP RULED OUT** — boundary conditions, solver choice, staging/config, decomposition and
+   the like eliminated as the cause. A reference to the rule-out record.
+3. **CAPABILITY LIMIT PROVEN BY MEASUREMENT** — for a NON-COMPLETING run, the five-process-class
+   "OpenFOAM genuinely can't run it" rule-out, MEASURED (not inferred). A reference to that rule-out.
+
+Component 3 applies to a run that will not complete; components 1–2 apply to a run that completes but
+fails its gate. A single attempt, a mechanism DIAGNOSIS without a driven ladder, or a bare assertion
+("it's a geometry problem") is NOT exhaustion evidence — the M6 line is the worked example: a
+premature "geometry/BC" conclusion was correctly overturned when the numerics ladder was actually run
+(board-87 → board-89; V-134).
+
+### §2bc.3 THE TERMINAL EXEMPTIONS (so a team does not loop forever)
+
+A terminal fail is ACCEPTABLE — needs no further successor — in exactly these cases:
+
+- **(E1) A MEASURED CAPABILITY LIMIT** — the five-process-class rule-out is COMPLETE and measured; the
+  case genuinely cannot run in OpenFOAM. This is `§2ay` state-(a) proper, and it goes to Sanaa's desk
+  as a capability-gap filing.
+- **(E2) A GENUINE MODEL-ACCURACY MISS ON THE CLOSURE-CHALLENGE LINE** — for the line whose PRODUCT
+  IS measuring model error, a real model-accuracy miss WITH THE NUMERICS ALREADY EXHAUSTED is a
+  legitimate terminal result (the miss is the measurement; §2an: the closure ladder moves the MODEL
+  against a fixed gate). Numerics-exhausted evidence is still required; the model miss is the finding.
+
+**⚠ BOUNDARY PENDING SANAA'S CONFIRM.** The chief has asked Sanaa to confirm that these two exemptions
+are the complete terminal set (the gate is "prove it isn't a fixable numerics/setup artifact," not
+"never report a fail"). `§2bc` operates on this boundary now; if Sanaa narrows or widens it, her words
+supersede this clause by dated addendum.
+
+### §2bc.4 THE EXHAUSTION-EVIDENCE FIELD (what a terminal record must carry) AND ITS ENFORCEMENT
+
+A terminal `GATE FAIL` / `NOT A RESULT` record must carry a machine-readable `exhaustion_evidence`
+block; `scripts/check_exhaustion_evidence.py` REFUSES (exit 2) a terminal fail that lacks a valid one.
+Schema:
+
+    "exhaustion_evidence": {
+      "verdict": "GATE FAIL" | "NOT A RESULT",
+      "terminal": true,
+      "completes": true | false,          # false => component 3 (capability rule-out) required
+      "numerics_ladder_exhausted": "<path/commit ref to the driven numerics ladder>",
+      "model_setup_ruled_out": "<path/commit ref to the BC/solver/staging/decomposition rule-out>",
+      "capability_rule_out": "<path/commit ref to the measured five-process-class rule-out>",  # if !completes
+      "terminal_exemption": null | "measured_capability_limit" | "closure_challenge_model_accuracy_miss",
+      "exemption_ref": "<ref>"            # required iff terminal_exemption is set
+    }
+
+The check REFUSES a terminal fail unless EITHER (a) a `terminal_exemption` is declared with a resolving
+`exemption_ref` (E1 requires the capability rule-out; E2 requires numerics-exhausted), OR (b) the
+applicable components are present with REFS THAT RESOLVE ON DISK (a paper ref citing nothing is
+refused, mirroring `§2bb`'s smoke-log-must-exist). A fail in `§2ay` state-(b) (an active dated
+successor) is NOT terminal and is out of scope until it is claimed final. The check carries its own
+two-limb plant (`--selftest`): an un-evidenced terminal fail REFUSES; a fully-evidenced or
+exemption-declared one PASSES; each RED arm shown load-bearing.
+
+### §2bc.5 SCOPE, AND WHAT IT DOES NOT MOVE
+
+- **General, binding all six teams, from now forward.** `§2bc` is a verdict-ACCEPTANCE standard folded
+  into `§2ay`; it does NOT re-grade a landed number and moves NO verdict — it decides whether a
+  `GATE FAIL` / `NOT A RESULT` may STAND as terminal or must be routed to a successor. Flags-only /
+  refuse-at-record, consistent with the `§2ay`/`§2ba`/`§2bb` boundary.
+- **It sharpens `§2ay` state-(a), it does not replace `§2ay`.** `§2ay` enumerates fails and asks
+  "covered (a/b) or flagged?"; `§2bc` asks "for a fail claimed terminal, is its exhaustion evidence
+  actually present and resolving?" A terminal fail that clears `§2ay` state-(a) but carries no valid
+  exhaustion evidence is now `§2bc`-REJECTED.
+- **It composes with the non-convergence standard and `§2an`.** Sanaa's mandatory-completion order and
+  its OpenFOAM-can't-run-it exemption (the non-convergence standard §4) are the E1 case; `§2an`'s
+  closure-ladder routing is the E2 case; `§2bb`'s pre-flight prevents the R2/R3/R4-class process
+  failures from ever masquerading as terminal fails in the first place.
+
+**lines whose number changed above this section: 0**
