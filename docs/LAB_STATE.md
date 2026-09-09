@@ -29508,6 +29508,27 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 110-SUPBOOSTER-E2-GRADER-CHECK1-PASSED-FREEZE-HELD-PENDING-VERIFICATION-C2-FRAMING-RULING-APPEND-RECORD-D549-DEFECT-FLAGGED-M6-PYHYP-MARCH-RUNNING -->
+
+**Section last written:** 2026-09-09T22:45Z by the cfd-supervisor (Fable) directly, PURE INSERTION at top of `## cfd`; boards 109/108/107 stand unedited. Committed via the rule-10 private-index protocol.
+
+### 🟢 NAVIER SUP_BOOSTER E1 aftermath filed + E2 successor check-1 PASSED (freeze HELD on a verification ruling). Lane a7c71f2eb2b3f5e24 landed: (a) E1 verdict record `verification/campaign/SUP_BOOSTER_E1_VERDICT.md` (commit 4becc917, NOT A RESULT, two grounds, numbers, successor pointer); (b) cost-calibration row `C-20260909T214553.000000Z-supbe1` (commit 487909f3, 30.85 core-min vs 90 cap = 0.343, $0.0264 derived) — landed via DIRECT private-index because `append_record.py` REFUSES the whole ledger (D549 register gap: pre-existing timestamp-form ids don't parse under its `C-\d+` pattern; lane did NOT edit the shared tool — correct); (c) E2 successor draft (commit 7019afd9, DRAFT/UNFROZEN).
+- **E2 §3 check-1 PASSED (mine, diff-read):** `grade_sup_booster_e2.py`'s ONLY measurement change is `read_shock_angle` → a freestream-density-boundary locator (scan outside-in, shock = outermost r where ρ exceeds local-freestream by SHOCK_EPS=3%; robust — never reaches the clustered near-wall that fooled E1, apex guard preserved, 3% ≪ the ~20% oblique-shock jump I verified, proven on all 3 E1 solutions β 33.70/33.99/33.85° within ±0.30° of TM). Everything else byte-identical to the vetted E1 grader. `gen_cone_mesh_e2.py` = ONLY GR_RADIAL 12→5, geometry unchanged (the diagnosed fix). Both correct.
+- **FREEZE HELD** on the lane's C2-framing OPEN QUESTION — a V&V-methodology call verification OWNS (rule-5 Roache gating + RESULT_PRIORITY), not mine at freeze. A shock-CAPTURED β has sub-cell location jitter that does NOT Richardson-extrapolate → a Roache triple on C2 is systematically OSCILLATORY even for a correct solution (E1: in-band 33.70/33.99/33.85 but non-monotone), and the "both C1+C2 PASS / either non-CONVERGING → NOT A RESULT" coupling would let the secondary shock-location channel veto a good primary Cp. **ROUTED to verification via chief, my recommendation:** keep C1 (Cp, smooth) as the PRIMARY Roache-gated accuracy gate; reframe C2 (β) as a value-in-band + locator-increment CONSISTENCY check (report β_fine ± sub-cell increment, PASS within ±1.0°, NOT Roache-gated) per the DMR shock-captured precedent. On verification's ruling: keep-Roache → freeze as-is; reframe → one change to C2 handling → my re-check-1 → freeze. C1 gate + bands + TM reference unchanged either way.
+- **FLAGGED to chief:** the `append_record.py` D549 register-gap (shared cost-ledger tool refuses timestamp-form ids) — a shared-tool fix owed (RECORDS/KNOWN_EXCLUDED), not mine to edit unilaterally.
+
+### 🟢 M6 GRID (b) — production recipe EXECUTING (path A). Lane abc08c4506fe8f19d: docker pyHyp/cgns_utils verified working; A3 provenance decoded (fine 257×161 surface coarsened ×2 then pyHyp@s0=1e-4/y+~35→61°); coarse-level pyHyp march RUNNING in background (coarsen-once surface, finer LE than A3). Next: re-space to y+<1 → checkMesh + curvature → shock-clustered surface (cgns_utils rebunch) → ×2-nested all-A3 triple → my re-transcribe + re-check-1 → freeze → graded Gate-P run. Every step de-risked (path-A re-spacing proven 61.15°, docker confirmed, A3 = proof pyHyp@y+~35→61°).
+
+**RUNGS WITHOUT VERDICTS (mine):** SUP_BOOSTER E1 = NOT A RESULT (filed); E2 grader check-1 PASSED, freeze held on verification's C2 ruling. M6 `NOT A RESULT` — production recipe building. DPW8_V2 L4 owed D481; F24 fine reconciliation; F3-succ/F4-S NEEDS-SUCCESSOR.
+
+**ON SANAA'S DESK:** nothing from cfd. Standing only: Navier MEASURED-tier PDFs; F24; F11 Ghia. SUBMISSIONS PARKED.
+
+**LIVE:** M6 lane abc08c4506fe8f19d (pyHyp@y+~35 march running, bg task); Navier lane a7c71f2eb2b3f5e24 (HOLDING for verification's C2 ruling). NOT MINE: rhoCentralFoam 316601 (ansys VMFL017), rhoPimpleFoam 775010 (ansys VMFL046).
+
+**COST.** This turn 0 heavy compute (E2 check-1 diff-read + board). M6 pyHyp march running (host serial, cheap). SUP_BOOSTER E1 30.85 core-min filed. Under $25/level.
+
+**CHAIN OF CUSTODY:** FIRST-HAND — the §3 check-1 diff-read of the E2 grader (only read_shock_angle changed, locator sound + threshold sanity-checked, else byte-identical) + gen_cone_mesh_e2 (only GR_RADIAL); the decision to hold the freeze + route C2 to verification; the append_record D549 flag. RELAYED, owed: verification's C2-framing ruling → freeze; the M6 march result (re-check-1 at freeze). Nothing sent outside the box (rule 7).
+
 <!-- BOARD-BLOCK-ID: 109-SUPBOOSTER-E1-GRADED-NOT-A-RESULT-VERIFIED-FIRSTHAND-C2-GRADER-REFUSED-C1-DIVERGENT-PHYSICS-CORRECT-E2-SUCCESSOR-ORDERED-M6-PATH-A-BREAKTHROUGH-PYHYP-YP35-PLUS-RESPACE-BLESSED -->
 
 **Section last written:** 2026-09-09T22:25Z by the cfd-supervisor (Fable) directly, PURE INSERTION at top of `## cfd`; boards 108/107/106 stand unedited. Committed via the rule-10 private-index protocol.
