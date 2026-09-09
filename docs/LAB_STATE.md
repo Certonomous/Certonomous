@@ -1545,6 +1545,21 @@ dispatched: restage --execute → drop 6 rows live PH_Breuer FIRST (--require-bi
 autograder+monitor → confirm daemon pickup. Over-stage is ~516 MB DISK CHURN, 0 solver core-min. Launch
 now IN FLIGHT (lane executing); will confirm arms underway (daemon admitted, Time advancing) on return.
 
+**═══ UPDATE 6 (same session): M1-C STAGED + READY, but LAUNCH HELD AT THE BOUNDARY on a LIVE Sanaa-via-chief M6 HOLD — ESCALATED TO CHIEF ═══**
+STEP 1 (staging via frozen restage_m1c.sh --execute) DONE + CLEAN: all 6 arms verify OK (0.orig/+U,
+RASModel correct per arm, polyMesh, no time dir); exactly the 6 case dirs remain; ~516 MB disk, **0
+solver core-min**. The lane then HALTED at the launch boundary (steps 2-4: NO rows dropped, NO commit,
+NO launch) on its mandatory pre-launch hold-check: **`docs/LAB_STATE.md:40021` (verification section,
+Sanaa-via-chief): "M6 IS NOW BOX TOP PRIORITY — NO new heavy launches"** — and M6's V-133
+confirm-by-repair smoke is **LIVE NOW** (rhoPimpleFoam pid 657892 + docker in
+M6_OWN_FAMILY_runs/L2_arfix_diag). Dropping the 6 rows = a new heavy launch (≤380 core-min) that would
+VIOLATE the hold. **RULE 9: I do NOT override a live Sanaa-via-chief hold on the strength of my (relayed
+chief-)GO, which may PREDATE this M6-smoke relaunch — reconciliation is above lane AND supervisor
+authority. ESCALATED to chief.** M1-C is staged + frozen (e738ed43) + rows validated (1cabf269) + all §3
+checks done → fires the instant it is cleared. Options put to chief: (a) confirm the M6 "no new heavy
+launches" hold is lifted / M1-C cleared to run alongside the M6 smoke → proceed steps 2-4 immediately;
+or (b) defer M1-C until M6's confirm-by-repair completes → hold. NOTHING launched; nothing lost.
+
 **NEXT ACTIONS.** (0) rule-15 provenance check of the 2 duct reference cases — DISCHARGED (a8634d90; field = baseline SST RANS, not DNS; upstream papers absent → gap on Sanaa's desk). (1) Interpret the duct-convergence diagnostic → either (benign) the M1d verdict and
 the 72 complete rows stand and M1c can proceed to freeze, or (real) escalate a Roache rule-5 question
 to verification that re-grades the duct rows. (2) If benign: write + §3-check-1 + freeze the M1-C
@@ -1554,7 +1569,7 @@ Library growth still needs Sanaa's institutional pull (Shih 1995 + Craft/Launder
 
 **RUNGS WITHOUT VERDICTS.** M1 arc **GATE FAIL governed by G0 / G1 PASS** (M1d, first believable;
 72/78 complete) [standing, re-verified §3 check-3 this session] · M1-C 6-arm re-run: FROZEN `84c163bf`
-+ rows `1cabf269`, staging-path fix landed `e738ed43` (L-512; frozen stage_m1.py rule-6 note), launch IN FLIGHT via daemon (see UPDATE 5); full-sweep verdict pending `NEW` · R4b-Ib CHECK1
++ rows `1cabf269`, staging-path fix `e738ed43` (L-512); STAGED + READY but launch HELD on a live Sanaa-via-chief M6 "no new heavy launches" hold — escalated to chief (see UPDATE 6); full-sweep verdict pending `NEW` · R4b-Ib CHECK1
 pending + birth-demo compute-gated `VERIFY` · R4b-I+R4b arm BLOCKED (Sanaa) `VERIFY` · M2 UNRULED
 since 08-28 `VERIFY` · RC1/RC2 unfrozen `VERIFY` · Ling arm 2 frozen+UNFILED `VERIFY` · G1b xr null
 (D550) `VERIFY` · LR1 PENDING freeze (G2-gated) `VERIFY` · G2 PENDING freeze `VERIFY`. FS2 and FS5
