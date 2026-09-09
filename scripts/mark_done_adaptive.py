@@ -44,9 +44,13 @@ SOLVER LOG:
 A transient PIMPLE/SIMPLE solver emits exactly one of each per time step, so on a
 sound run the two counts are EQUAL and non-zero; a truncated or restart-replayed
 log breaks the equality.  This is precisely the transient check the K0g draft
-(scripts/mark_done_k0g.py, clause 5) already applies, and this file factors that
-logic into a single shared core (`adaptive_step_check`) so both instruments call
-ONE checked implementation (rule 14: additive, one call site of truth).
+(scripts/mark_done_k0g.py, clause 5) already applies.  This file provides an
+`adaptive_step_check` core carrying that logic; mark_done_k0g.py, however, carries
+its OWN BYTE-EQUIVALENT INLINE copy rather than importing this core, so the two
+are byte-equivalent but are NOT a single shared call site.  ⚠ RULE-14 FLAG: the
+"one call site of truth" ideal is NOT yet met -- two copies exist -- so until
+every consumer imports this core, a change to the logic here MUST be mirrored in
+mark_done_k0g.py's inline copy and asserted at both sites.
 
     ----------------------------------------------------------------------
     WHAT `n_time_written` MEANS, AND WHY IT IS A LOG COUNT, NOT A DIRECTORY COUNT
