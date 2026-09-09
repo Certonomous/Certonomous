@@ -298,22 +298,45 @@ level's own `log.checkMesh` under a planted control.
 A level is **done** only if ALL hold (CLAUDE.md rule 4; `mark_done_t3.py`
 precedent):
 
-1. `rc == 0`;
+1. `rc == 0` (from an rc sidecar the launcher captures INSIDE the detached
+   wrapper — `setsid timeout cmd` returns 0 for every outcome, so rc is captured
+   around the solver, never around the setsid line; memory
+   *setsid-parent-returns-zero*);
 2. an `End` line in the solver log;
-3. **last written time == `endTime`**;
-4. **fields present at `endTime`** — the incompressible-RAS set for this case:
+3. **ExecutionTime count == `round(endTime/deltaT)`** — for this **unit-step
+   steady** run `deltaT = 1`, so the count of `ExecutionTime = ` lines in
+   `log.simpleFoam` must equal `endTime` (CLAUDE.md rule 4 clause-5, Sanaa
+   2026-09-09). Enforced in the grader (`strict_completion`, counts the
+   `ExecutionTime = ` lines, refuses on mismatch);
+4. **last written time == `endTime`**;
+5. **fields present at `endTime`** — the incompressible-RAS set for this case:
    **`U p phi k omega nut`** (the rule-4 canonical list `T U p_rgh alphat nut k
    omega phi` is the *thermal*-family list; this case is isothermal
    incompressible, so its analogous complete set is `U p phi k omega nut`, and
-   the age guard + End line + last-time + rc=0 clauses apply unchanged — the
-   substitution is disclosed here so it is not a silent departure);
-5. **every field at `endTime` NEWER than the case's own `0/` directory** — the
+   the age guard + End line + last-time + rc=0 + ExecutionTime-count clauses
+   apply unchanged — the substitution is disclosed here so it is not a silent
+   departure);
+6. **every field at `endTime` NEWER than the case's own `0/` directory** — the
    age guard, because `0/` is touched last at launch;
-6. the grader **refuses (exit 2)** a case where a `0` or a time directory
+7. the grader **refuses (exit 2)** a case where a `0` or a time directory
    already exists at launch (the age-guard precondition).
 
 A run failing any clause is **not done** and is not graded; the grader refuses
 rather than degrade.
+
+**`endTime` is a HARD stop with NO `residualControl` early-exit (the choice, per
+CLAUDE.md rule 4 and the cfd-supervisor's check-1 FINDING 1).** A steady
+`simpleFoam` run with a `SIMPLE.residualControl` block would stop at
+`last < endTime` when the residuals fall, which can NEVER satisfy clause 4
+(`last == endTime`) nor clause 3 (`ExecutionTime count == endTime`). Therefore
+`system/fvSolution` for every level **omits `residualControl`** (or sets it so it
+cannot trigger a stop), and the run goes to the full pinned `endTime` (4000
+iterations). **Iterative convergence is judged NOT by an early residual exit but
+by the rule-5 plateau/settledness state** measured over the final iteration
+window (F8's S12 discipline) and handed to `grade_ladder`'s `iterative_states`
+and `plateau_states`. This makes clauses 3 and 4 reachable and keeps the
+convergence judgement on the graded quantity, not on a residual block (L-24, S10:
+a converged residual can hide a diverging quantity).
 
 ---
 
@@ -324,13 +347,19 @@ The grader is built ON the shared, already-selftested instrument
 fixed vocabulary, refuse-not-degrade all inherited) and adds the MRF-specific
 read path plus rule-4 completion. It MUST, before emitting any clean number:
 
-1. **Rule-4 strict completion** per level (§5); refuse (exit 2) on any failure.
+1. **Rule-4 strict completion** per level (§5, all seven clauses incl. the
+   ExecutionTime count == `round(endTime/deltaT)`); refuse (exit 2) on any
+   failure.
 2. **LIVE planted-zero control (rule 3)** on the ACTUAL torque read path: copy
    the level's `postProcessing/impellerForces/*/moment.dat` to a temp file,
-   plant `PLANT = 1.234e-03` into the graded torque column, re-read it through
-   the SAME parser the grade uses, and **REFUSE if the reader does not see it**
+   plant `PLANT = 1.234e-03` into the **header-resolved** total-moment axial
+   column (the exact field the grade reads — FINDING 2), re-read it through the
+   SAME parser the grade uses, and **REFUSE if the reader does not see it**
    (wrapped via `roache_triple.external_plant_control` + `assert_plant_control`).
-   A zero from a reader not shown able to see a non-zero is not evidence.
+   The reader is **header-driven and fail-closed**: it resolves `total_<axis>`
+   from the `moment.dat` header and **refuses** rather than read an assumed
+   column position. A zero from a reader not shown able to see a non-zero is not
+   evidence.
 3. Compute `Np` per level from the read-back torque and the fixed `ρ, N, D`.
 4. Build the coarse→fine `Np` series and call `roache_triple.grade_ladder(...)`
    with **dim = 3**, the pre-registered band `[4.0, 6.0]`, and the per-level
@@ -367,7 +396,20 @@ the graded triple, the **coarse** level is exercised as a real short run
    Rushton impeller draws power, so the axial moment opposes `ω` and gives a
    positive `Np`), and that no `bounding` cascade builds (F8 §12 divergence
    tell).
-5. Only if the smoke run is clean does the graded triple get frozen and
+5. **FINDING 2 — verify the `moment.dat` column layout and shaft axis
+   first-hand, against this REAL file, for this solver version, before the
+   freeze.** The grader's `read_axial_torque` is now **header-driven and
+   fail-closed**: it resolves the total-moment axial column from the
+   `moment.dat` `#` header (`total_<axis>`) and REFUSES if the header does not
+   name it — a wrong column is a refusal, not a silent wrong `Np`. But a
+   header that mislabels is still conceivable; so at the smoke, confirm by eye
+   that the header names `total_x/total_y/total_z`, that the resolved column
+   matches the physically-expected torque, and that the shaft axis is `z`
+   (or set `--axis` accordingly). Pin the confirmed layout in a comment/
+   assertion in `grade_mrf_np.py`. This is the single highest-risk
+   silent-wrong-number path and the freeze does not proceed until it is
+   confirmed against a real file.
+6. Only if the smoke run is clean does the graded triple get frozen and
    launched. A failed smoke run is a **finding** (crash triage is the
    supervisor's check-2, non-delegable), not a reason to launch anyway.
 

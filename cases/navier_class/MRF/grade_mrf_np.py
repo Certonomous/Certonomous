@@ -92,53 +92,90 @@ def power_number(torque_Nm, rho, N_rev_s, D_m):
 
 # ---------------------------------------------------------------------------
 # THE READ PATH -- moment.dat  (this is what the planted control plants into)
+#
+# FINDING 2 (cfd-supervisor check-1 diff-read, 2026-09-09): the total-moment
+# column position and the shaft axis are OpenFOAM-version-dependent and are the
+# single highest-risk SILENT-wrong-number path -- a wrong column gives a wrong Np
+# with no refusal, and the planted control cannot catch it because it plants into
+# whatever column the reader reads.  This reader therefore FAILS CLOSED: it
+# resolves the total-moment axial column FROM THE moment.dat HEADER (never from an
+# assumed position) and REFUSES if the header does not name it.  The layout MUST
+# STILL be confirmed first-hand against a REAL moment.dat at the A3FL1 exercise
+# smoke, for the exact solver version, and pinned here -- see the prereg section 7.
 # ---------------------------------------------------------------------------
-def read_axial_torque(moment_dat_path, axis="z"):
-    """Read the impeller torque about the shaft axis from an OpenFOAM forces/
-    functionObject moment.dat, returning the AXIAL component of the TOTAL moment
-    at the last time row.
+def _norm_tokens(s):
+    """Strip a leading '#', turn '(a b c)' bracketing into plain tokens, split."""
+    s = s.lstrip("#").replace("(", " ").replace(")", " ")
+    return s.split()
 
-    moment.dat layout (v2606 forces functionObject, rho set so output is
-    dimensional N*m): the row is
-        time   (total_x total_y total_z)   (pressure_x..) (viscous_x..) ...
-    We read the FIRST vector after the time column (the total moment) and take
-    its axial component.  Refuses on anything it cannot read -- never returns a
-    silent zero (rule 3 / refuse-not-degrade).
-    """
+
+def _resolve_total_axial_col(comment_lines, axis):
+    """Locate, FROM THE HEADER, the data-token index of the TOTAL moment's axial
+    component.  OpenFOAM forces/functionObject moment.dat labels its columns in a
+    '#' header, e.g. '# Time (total_x total_y total_z) (pressure_x ...) ...'.
+    Because both the header and each data row lead with the time column, the
+    header token index equals the data token index.  Refuses if no header names
+    'total_<axis>' -- fail-closed, so a wrong column becomes a REFUSAL not a
+    silent number (FINDING 2)."""
+    want = f"total_{axis}"
+    for cl in comment_lines:
+        toks = _norm_tokens(cl)
+        if want in toks:
+            return toks.index(want)
+    refuse(f"moment.dat header does not name {want!r}; the total-moment column "
+           "cannot be resolved from the header, so the axial torque is NOT read "
+           "from an assumed position (FINDING 2, fail-closed). Pin the verified "
+           "column layout against a real moment.dat at the exercise smoke.")
+
+
+def _read_moment_file(moment_dat_path):
+    """Return (comment_lines, last_data_line). Refuses if there is no data row."""
     if not os.path.isfile(moment_dat_path):
         refuse(f"no moment.dat at {moment_dat_path}")
-    idx = {"x": 0, "y": 1, "z": 2}.get(axis)
-    if idx is None:
-        refuse(f"axis must be x/y/z, got {axis!r}")
-    last = None
+    comments, last = [], None
     with open(moment_dat_path) as fh:
         for line in fh:
-            s = line.strip()
-            if not s or s.startswith("#"):
+            s = line.rstrip("\n")
+            st = s.strip()
+            if not st:
                 continue
-            last = s
+            if st.startswith("#"):
+                comments.append(st)
+            else:
+                last = st
     if last is None:
         refuse(f"{moment_dat_path}: no data rows (only comments/blank)")
-    # pull every floating-point token, tolerating the '(a b c)' bracketing
-    toks = re.findall(r"[-+]?\d+\.?\d*(?:[eE][-+]?\d+)?", last.replace("(", " ").replace(")", " "))
-    nums = [float(t) for t in toks]
-    if len(nums) < 4:
-        refuse(f"{moment_dat_path}: last row has < 4 numeric fields: {last!r}")
-    # nums[0] = time; nums[1:4] = total moment vector
-    total = nums[1:4]
-    return total[idx]
+    return comments, last
+
+
+def read_axial_torque(moment_dat_path, axis="z"):
+    """Read the impeller torque about the shaft axis from an OpenFOAM forces/
+    functionObject moment.dat, returning the axial component of the TOTAL moment
+    at the last time row.  Column resolved FROM THE HEADER (FINDING 2, fail-
+    closed); refuses on anything it cannot read -- never a silent zero (rule 3)."""
+    if axis not in ("x", "y", "z"):
+        refuse(f"axis must be x/y/z, got {axis!r}")
+    comments, last = _read_moment_file(moment_dat_path)
+    col = _resolve_total_axial_col(comments, axis)
+    nums = [float(t) for t in _norm_tokens(last)]
+    if col >= len(nums):
+        refuse(f"{moment_dat_path}: total_{axis} header column {col} beyond the "
+               f"{len(nums)} numeric fields of the data row: {last!r}")
+    return nums[col]
 
 
 # ---------------------------------------------------------------------------
 # LIVE planted-zero control on the moment.dat read path (rule 3)
 # ---------------------------------------------------------------------------
 def _plant_into_moment_dat(src_path, dst_path, axis="z", plant=PLANT):
-    """Copy moment.dat to dst and add `plant` to the axial total-moment column of
-    the LAST data row, in place.  Returns the pre-plant axial torque."""
-    idx = {"x": 0, "y": 1, "z": 2}[axis]
+    """Copy moment.dat to dst and add `plant` to the SAME header-resolved
+    total-moment axial column of the LAST data row.  Plants into the exact field
+    the reader reads (FINDING 2).  Returns the pre-plant axial torque."""
     with open(src_path) as fh:
         lines = fh.readlines()
-    before = read_axial_torque(src_path, axis=axis)
+    before = read_axial_torque(src_path, axis=axis)          # header-resolved
+    comments = [ln.strip() for ln in lines if ln.strip().startswith("#")]
+    col = _resolve_total_axial_col(comments, axis)
     # find the last data line index
     last_i = None
     for i, line in enumerate(lines):
@@ -147,14 +184,13 @@ def _plant_into_moment_dat(src_path, dst_path, axis="z", plant=PLANT):
             last_i = i
     if last_i is None:
         refuse(f"{src_path}: no data row to plant into")
-    # rewrite the last data row's total vector with axial component += plant
-    s = lines[last_i]
-    toks = re.findall(r"[-+]?\d+\.?\d*(?:[eE][-+]?\d+)?", s.replace("(", " ").replace(")", " "))
-    nums = [float(t) for t in toks]
-    nums[1 + idx] += plant
-    # write a clean, parser-compatible row: time (mx my mz)
-    newrow = f"{nums[0]:.10g}\t({nums[1]:.12g} {nums[2]:.12g} {nums[3]:.12g})\n"
-    lines[last_i] = newrow
+    # rewrite the last data row: bump the header-resolved column by `plant`,
+    # preserving column order so the header still resolves the same index.
+    nums = [float(t) for t in _norm_tokens(lines[last_i])]
+    if col >= len(nums):
+        refuse(f"{src_path}: resolved column {col} beyond data row width")
+    nums[col] += plant
+    lines[last_i] = "\t".join(f"{v:.12g}" for v in nums) + "\n"
     with open(dst_path, "w") as fh:
         fh.writelines(lines)
     return before
@@ -192,10 +228,18 @@ def _time_dirs(case_dir):
     return sorted(out)
 
 
-def strict_completion(case_dir, end_time, log_path, fields=REQUIRED_FIELDS):
+def strict_completion(case_dir, end_time, log_path, fields=REQUIRED_FIELDS,
+                      delta_t=1.0):
     """Rule 4, all clauses.  Returns a dict of the evidence; refuses (exit 2) on
-    any failure -- a run failing any clause is NOT done and is not graded."""
-    ev = {"case_dir": os.path.abspath(case_dir), "endTime": end_time}
+    any failure -- a run failing any clause is NOT done and is not graded.
+
+    ``delta_t`` is the SIMPLE time step (iteration step); for a steady simpleFoam
+    run it is 1.0 and the ExecutionTime-count clause reduces to n_exec ==
+    endTime (CLAUDE.md rule 4 clause-5, Sanaa 2026-09-09).  The prereg (section 5)
+    pins endTime as a HARD stop with NO residualControl early-exit, so
+    last==endTime AND n_exec==round(endTime/deltaT) are both reachable."""
+    ev = {"case_dir": os.path.abspath(case_dir), "endTime": end_time,
+          "deltaT": delta_t}
     if not os.path.isdir(case_dir):
         refuse(f"no case dir {case_dir}")
     if not os.path.isfile(log_path):
@@ -219,6 +263,21 @@ def strict_completion(case_dir, end_time, log_path, fields=REQUIRED_FIELDS):
     if not re.search(r"^End\b", log, re.M):
         refuse(f"{log_path}: no 'End' line (rule 4 clause 2)")
     ev["end_line"] = True
+
+    # clause: ExecutionTime count == round(endTime / deltaT)  (rule 4 clause-5,
+    # Sanaa 2026-09-09; == endTime for the unit-step steady case, deltaT=1).
+    # simpleFoam prints one 'ExecutionTime = <x> s' line per SIMPLE iteration.
+    if float(delta_t) <= 0.0:
+        refuse(f"deltaT must be positive, got {delta_t}")
+    n_exec = len(re.findall(r"^ExecutionTime = ", log, re.M))
+    expected = round(float(end_time) / float(delta_t))
+    if n_exec != expected:
+        refuse(f"{log_path}: ExecutionTime count {n_exec} != round(endTime/deltaT)"
+               f" = round({end_time}/{delta_t}) = {expected} (rule 4 clause-5). "
+               "A steady run must reach the pinned hard endTime; an early "
+               "residualControl exit fails this AND the last==endTime clause -- "
+               "the prereg section 5 pins endTime as a hard stop for this reason.")
+    ev["exec_count"] = n_exec
 
     # clause: last written time == endTime
     tds = _time_dirs(case_dir)
@@ -264,10 +323,11 @@ def strict_completion(case_dir, end_time, log_path, fields=REQUIRED_FIELDS):
 # assemble the level series and grade through the shared instrument
 # ---------------------------------------------------------------------------
 def build_level(name, case_dir, cells, end_time, rho, N, D, axis,
-                iterative_state, plateau_state, moment_subdir="impellerForces"):
+                iterative_state, plateau_state, moment_subdir="impellerForces",
+                delta_t=1.0):
     """Complete-check ONE level and return its Np, cells, and states."""
     log_path = os.path.join(case_dir, "log.simpleFoam")
-    ev = strict_completion(case_dir, end_time, log_path)
+    ev = strict_completion(case_dir, end_time, log_path, delta_t=delta_t)
     # locate the newest moment.dat under postProcessing/<moment_subdir>/<t>/
     pp = os.path.join(case_dir, "postProcessing", moment_subdir)
     if not os.path.isdir(pp):
@@ -301,7 +361,8 @@ def grade(levels_cfg, band, rho, N, D, axis="z"):
     if len(levels_cfg) < 3:
         refuse("a Roache triple needs at least three levels (rule 5)")
     built = [build_level(c["name"], c["case_dir"], c["cells"], c["end_time"],
-                         rho, N, D, axis, c["iterative_state"], c["plateau_state"])
+                         rho, N, D, axis, c["iterative_state"], c["plateau_state"],
+                         delta_t=c.get("delta_t", 1.0))
              for c in levels_cfg]
     levels = [dict(name=b["name"], cells=b["cells"], value=b["value"]) for b in built]
     iterative = {b["name"]: b["iterative_state"] for b in built}
@@ -399,6 +460,57 @@ def selftest():
         ok &= c6
         print(f"  [{'ok ' if c6 else 'FAIL'}] band load-bearing via shared instrument: "
               f"[4,6]->{row_pass['verdict']}, [5.9,6]->{row_fail['verdict']}")
+
+        # (7) FINDING 2 fail-closed: a header that does not NAME total_<axis> is
+        #     refused, never read from an assumed position.
+        noheader = os.path.join(tmp, "noheader.dat")
+        with open(noheader, "w") as fh:
+            fh.write("# Time Mx My Mz\n")            # no 'total_' label
+            fh.write("3000\t(0 0 -0.2)\n")
+        try:
+            read_axial_torque(noheader, axis="z")
+            c7 = False
+            print("  [FAIL] read from a header without total_z (silent-wrong-column path OPEN)")
+        except rt.Refusal:
+            c7 = True
+            print("  [ok ] FINDING 2 fail-closed: refuses when header does not name total_z")
+        ok &= c7
+
+        # (8) FINDING 1: the ExecutionTime-count clause (rule 4 clause-5).
+        import time
+        casedir = os.path.join(tmp, "case")
+        os.makedirs(os.path.join(casedir, "0"))
+        os.makedirs(os.path.join(casedir, "50"))
+        past = time.time() - 100
+        for f in REQUIRED_FIELDS:
+            open(os.path.join(casedir, "0", f), "w").close()
+            os.utime(os.path.join(casedir, "0", f), (past, past))
+            open(os.path.join(casedir, "50", f), "w").close()  # newer -> age guard OK
+        with open(os.path.join(casedir, "rc"), "w") as fh:
+            fh.write("0")
+        logp = os.path.join(casedir, "log.simpleFoam")
+        with open(logp, "w") as fh:
+            for i in range(1, 51):                    # 50 iterations, deltaT=1
+                fh.write(f"Time = {i}\n")
+                fh.write(f"ExecutionTime = {i} s  ClockTime = {i} s\n")
+            fh.write("End\n")
+        try:
+            ev = strict_completion(casedir, 50, logp, delta_t=1.0)
+            c8a = ev.get("exec_count") == 50 and ev.get("last_time") == 50.0
+        except rt.Refusal as exc:
+            c8a = False
+            print(f"       (unexpected refusal on the good case: {exc})")
+        print(f"  [{'ok ' if c8a else 'FAIL'}] good run: n_exec 50 == endTime 50, "
+              "last==endTime, age guard PASS")
+        ok &= c8a
+        try:                                          # count mismatch -> refuse
+            strict_completion(casedir, 4000, logp, delta_t=1.0)
+            c8b = False
+            print("  [FAIL] a 50-iter log passed as endTime 4000 (count clause not enforced)")
+        except rt.Refusal as exc:
+            c8b = "ExecutionTime count" in str(exc)
+            print(f"  [{'ok ' if c8b else 'FAIL'}] count mismatch (50 != 4000) refuses via clause-5")
+        ok &= c8b
 
         print(f"\nSELFTEST: {'PASS' if ok else 'FAIL'} -- every arm hit its expectation."
               if ok else "\nSELFTEST: FAIL")
