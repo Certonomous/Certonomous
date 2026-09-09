@@ -1,0 +1,55 @@
+# D6RF10 PLATEAU EVIDENCE — measured p_first_uncorrected series (the BINDING field, T25)
+# Purpose: demonstrate p_first_uncorrected is flat/plateaued by ~300 outer iterations,
+#   so B-300 (endTime 300 on R2/R3/R4) measures the SAME converged value as endTime 2000/2500
+#   and is verdict-preserving (does not make a PASS easier or a FAIL harder to avoid).
+# Source (measured, extracted 2026-09-09 by dafoam-supervisor, §3 check-3, at the artifact):
+#   /home/ubuntu/certonomous-runs/CURRICULUM-D6RF9-a2-wing-convergence-probe/R1_20260909T020445Z_581327.log  (R1 candidate, endTime 2500, rc=0)
+#   /home/ubuntu/certonomous-runs/CURRICULUM-D6RF9-a2-wing-convergence-probe/R2_20260909T021037Z_581327.log  (R2 candidate, endTime 2000, rc=124 timeout ~Time 250 — PARTIAL)
+# Extraction matches the frozen grader d6rf9_grade.py:305-312: per outer-iteration (Time = N) block,
+#   p_first_uncorrected = the FIRST 'p initRes:' line in that block. Print cadence 100 outer iters.
+# Accept floor CONV_BAR = 1.0e-05 (T25, byte-identical control md5 c6e63098). PASS iff value < floor.
+#
+# rung	Time	p_first_uncorrected	ratio_to_floor	verdict
+R1	1	0.9999999998	99999.99998	GATE FAIL
+R1	100	0.0002168711777	21.687	GATE FAIL
+R1	200	1.840708024e-05	1.8407	GATE FAIL
+R1	300	1.63050627e-05	1.6305	GATE FAIL
+R1	400	1.626792263e-05	1.6268	GATE FAIL
+R1	500	1.626126357e-05	1.6261	GATE FAIL
+R1	600	1.62586615e-05	1.6259	GATE FAIL
+R1	700	1.625728646e-05	1.6257	GATE FAIL
+R1	800	1.62564232e-05	1.6256	GATE FAIL
+R1	900	1.625594435e-05	1.6256	GATE FAIL
+R1	1000	1.625566813e-05	1.6256	GATE FAIL
+R1	1100	1.625552189e-05	1.6256	GATE FAIL
+R1	1200	1.625538006e-05	1.6255	GATE FAIL
+R1	1300	1.625532122e-05	1.6255	GATE FAIL
+R1	1400	1.625527741e-05	1.6255	GATE FAIL
+R1	1500	1.625525715e-05	1.6255	GATE FAIL
+R1	1600	1.625523536e-05	1.6255	GATE FAIL
+R1	1700	1.625526666e-05	1.6255	GATE FAIL
+R1	1800	1.625521598e-05	1.6255	GATE FAIL
+R1	1900	1.625523763e-05	1.6255	GATE FAIL
+R1	2000	1.62552376e-05	1.6255	GATE FAIL
+R1	2100	1.625520781e-05	1.6255	GATE FAIL
+R1	2200	1.625523916e-05	1.6255	GATE FAIL
+R1	2300	1.625524463e-05	1.6255	GATE FAIL
+R1	2400	1.625524178e-05	1.6255	GATE FAIL
+R1	2500	1.62552088e-05	1.6255	GATE FAIL
+# R2 partial (killed rc=124 at the 855s deadline near Time 250) — corroboration only, tracks R1:
+R2	1	0.9999999998	99999.99998	GATE FAIL
+R2	100	0.0002167202399	21.672	GATE FAIL
+R2	200	1.842551009e-05	1.8426	GATE FAIL
+#
+# PLATEAU METRICS (R1, the complete series):
+#   value@300  = 1.63050627e-05 (ratio 1.6305, GATE FAIL)
+#   value@2000 = 1.62552376e-05 (ratio 1.6255, GATE FAIL)
+#   value@2500 = 1.62552088e-05 (ratio 1.6255, GATE FAIL)  <- graded final, D6RF9 R1
+#   drift 300->2500 = 4.985e-08 = 0.307% of value, 0.797% of the margin above the floor (6.255e-06)
+#   direction = monotone DECREASING (early stop at 300 reports a HIGHER value than 2500 -> conservative:
+#     it CANNOT manufacture a PASS; a GATE FAIL rung stays GATE FAIL, a would-be PASS is not made easier).
+#   R2 corroboration: R2 @100 (2.167e-4) and @200 (1.8426e-5) match R1 @100 (2.169e-4) / @200 (1.8407e-5)
+#     to 3-4 sig figs -> R2's outer-loop settling tracks R1's; R2 was killed at ~250, just before its own
+#     ~300 plateau, NOT diverging. (Honest caveat: R2/R3/R4 never completed, so their plateau at 300 is
+#     EVIDENCED by R2's early tracking of R1 + the shared first-uncorrected mechanism, not directly measured
+#     to endTime. B-300 measures whatever plateau each lever reaches, since the plateau is reached by ~300.)
