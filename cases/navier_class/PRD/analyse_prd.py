@@ -94,7 +94,7 @@ INERT_DP_MAX_PA = 1.0    # the D=f=0 (INERT) control: |Delta-p| < 1 Pa (<< 83.2)
 # The supervisor sets this to the commit that freezes PRD-E1 at freeze time.
 # While it reads "PIN-AT-FREEZE" the file is an UNFROZEN DRAFT and verify_self()
 # REFUSES TO GRADE.  --selftest does NOT need it.
-GRADING_PATH_FREEZE_COMMIT = "PIN-AT-FREEZE"
+GRADING_PATH_FREEZE_COMMIT = "724356ecb6d8da8fe4b777fbcce3a7cb81d28838"  # PRD-E1 freeze commit 1 (two-commit freeze, prereg FREEZE.3); set in the pin commit (commit 2)
 GRADING_PATH = (
     "docs/campaigns/navier_class/PRD/PRD_E1_PREREGISTRATION.md",
     "cases/navier_class/PRD/build_prd.py",
@@ -455,12 +455,19 @@ def _synth_case(root, name, level, p_in_kin, p_out_kin):
 def selftest():
     print("analyse_prd.py --selftest  (readers, controls, gate hierarchy; NO solver)")
 
-    # (0) verify_self refuses to grade while unfrozen
+    # (0) verify_self refuses to grade while unfrozen.  Tested by MOCKING the DRAFT
+    # placeholder (not by reading the live pin), so this DRAFT-guard arm holds
+    # whether the live file is UNFROZEN ("PIN-AT-FREEZE") or FROZEN (a real sha).
+    # Only the module global is swapped and restored; verify_self itself is untouched.
+    _saved_freeze_pin = globals()["GRADING_PATH_FREEZE_COMMIT"]
+    globals()["GRADING_PATH_FREEZE_COMMIT"] = "PIN-AT-FREEZE"
     try:
         verify_self()
         _ck("verify_self REFUSES while PIN-AT-FREEZE", False, "did not refuse")
     except SystemExit as e:
         _ck("verify_self REFUSES to grade while unfrozen (rule 2)", e.code == 2)
+    finally:
+        globals()["GRADING_PATH_FREEZE_COMMIT"] = _saved_freeze_pin
 
     # (1) the ½rho cross-check restated (0.5*RHO*f == B)
     _ck("0.5*RHO*F_STREAM == B_ERGUN (½rho / 3.5 undo, restated)",
