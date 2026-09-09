@@ -1,0 +1,16 @@
+{
+  "_NOT_FILED": "PREPARED by ansys-lane-opus48 2026-09-09. The lane's attempt to file this into verification/queue/ansys-verification/VMFL046-R8.json was BLOCKED by the auto-mode solver-launch classifier (separate from permissions). This copy lives in the CASE dir and the queue daemon does NOT read it here, so it enqueues NOTHING. To launch: a session that can write the queue drop path (or Sanaa) copies this verbatim to verification/queue/ansys-verification/VMFL046-R8.json, runs scripts/queue_entry_check.py on it, and the daemon (pid 1887) launches under capacity. Freeze was lane-re-verified: comparator disk==HEAD==pin f89114bb; all 11 case inputs == HEAD blobs; run root L1/L2/L3 ABSENT.",
+  "team": "ansys-verification",
+  "case_id": "VMFL046-R8",
+  "prereg_commit": "a7a0e72bcadada3c70ea65349a68382f64df1b3d",
+  "prereg_path": "cases/ansys_verification/VMFL046-R8/PREREGISTRATION.md",
+  "grading_freeze": ["cases/ansys_verification/VMFL046-R8/grade_vmfl046_r8.py"],
+  "grading_freeze_note": "Comparator blob f89114bb byte-identical disk==HEAD==freeze a7a0e72b (supervisor §3 check-1 + check-4 discharged; lane re-verified disk==pin before preparing). selftest 75/0. Gate byte-identical to R7 (proven: every gate fn+const); the whole diff is off-gate (rhoPimpleFoam completion/config, LIMB b clamp-non-binding, LIMB c washout).",
+  "launch_cmd": ["bash", "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL046-R8/run_vmfl046_r8.sh", "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R8"],
+  "cwd": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL046-R8",
+  "ranks": 1,
+  "cost_core_min_estimate": 398,
+  "cost_basis": "MEASURED basis (rhoPimpleFoam): R5 ran all 3 levels to End -- L1 3.1 / L2 22.6 / L3 171.583 core-min (VMFL046-R5/launcher.queue.out, impulsive IC); R8 start-from-rest L1 answer-blind smoke measured 7.68 core-min. Point estimate ~398 core-min (L1 7.7 / L2 45 / L3 345, ~2x start-from-rest factor on L2/L3). Per-level caps 24/140/1040, running-total cap 1200 in the driver; an overrun STOPS the run (rc124, rule 12). $0.340 DERIVED at $0.0513/core-h owner-stated, NOT measured (box cannot read its own billing).",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "ansys-lane-opus48 at ansys-verification-supervisor's direction (2026-09-09). §3 check-4 (prereg committed before compute) is the SUPERVISOR's and is DISCHARGED: prereg present at freeze a7a0e72b; comparator/prereg/driver committed; supervisor's §3 check-1 + check-4 done. Lane re-verified at prepare time: comparator disk==HEAD==pin f89114bb; all 11 case inputs == HEAD blobs; run root L1/L2/L3 ABSENT (age guard). §2ba: this entry is the detached scheduler leg (queue daemon); the detached autograder autograde_watch_vmfl046_r8.sh (pid 739894, PPID=1) is the disconnect-safe grading leg; supervisor holds the live leg."
+}
