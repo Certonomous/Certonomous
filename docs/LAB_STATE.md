@@ -1431,8 +1431,36 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 ## closure
 
 **TWENTY-SEVENTH SESSION, 2026-09-09 (closure-supervisor). RE-FORM after ~12h dormancy. HEAD at
-session start 51a40abf. Sanaa OFFLINE — autonomous (rule 9). COST THIS SESSION: 0 solver core-min,
-0 GPU-h, $0.00 send; two read-only recon lanes (sub-core-min CPU).**
+session start 51a40abf. Sanaa OFFLINE — autonomous (rule 9). COST THIS SESSION: 0 send; §2bc
+re-audit + recon (read-only, sub-core-min); M1-C FIRED (chief M6-clear) — live solver compute now
+running (see below).**
+
+**═══ M1-C FIRED — CHIEF LIFTED THE M6 HOLD; 6-ARM COMPLETION RE-RUN IS LIVE ═══** All §3
+pre-compute checks discharged PERSONALLY: prereg FROZEN 84c163bf (SUPERVISOR FREEZE STAMP read at
+lines 788-836; the line-3 "DRAFT" header is the rule-6 struck original — freeze is the appended
+stamp, VERIFY item RESOLVED); grade_m1d.py on-disk sha256 == pin a1ee1905…628790 re-confirmed at
+launch (no drift); all 4 frozen scripts byte-match HEAD; daemon pid 1887 alive. Execution lane ran
+turnkey: idempotent re-stage (frozen restage_m1c.sh --execute rc=0, 6 arms verified), 6 rows dropped
+live PH_Breuer-first (prereg_commit=84c163bf, memory_floor_gb=1.0, queue_entry_check --require-binding
+ACCEPTED) committed `861ba1c3`. §2ba dual mechanism LIVE: detached autograder pid 746064 (freeze gate
+PASSED, grader pinned a1ee1905, writes gate_m1c.json on 6-arm completion) + monitor pid 746065. Daemon
+admitted all 6 under the 14.4-core ceiling (ranks=1 each, concurrent w/ dafoam D6RF10 + ansys
+VMFL046-R8). **2/6 already COMPLETE rc=0 within cap:** kOmega/AR_1 (Time=20000, 199 s ≈3.32 core-min
+vs 3.932 est) + kOmegaSST_null/AR_1 (Time=20000, 217 s ≈3.62 core-min vs 4.943 est); 4 advancing.
+**§3 CHECK-2 TRIAGE (MINE) — deviation CLOSED benign:** a FIFO-mtime race (cp -p preserved draft
+mtimes) let the daemon admit kOmegaSST_null/AR_1 before the PH-first touch ran, and a touch on the
+already-moved path left a 0-byte git-blob stub captured in 861ba1c3; lane corrected the git record
+(true blob 41064fa9) + removed the disk stub in `cbf29fe1` (1 file, verified). I VERIFIED PERSONALLY:
+cbf29fe1 touches only that 1 file; EXACTLY 1 LAUNCH_LOG line per arm (NO double-launch — the earlier
+"2 per arm" was a grep-match artifact, arm name in 2 columns of 1 line); live queue dir holds NO
+launchable M1c rows (all 6 in launched/, real content, none 0-byte); running row provenance correct
+(prereg 84c163bf, memory_floor_gb 1.0). Bookkeeping-only, no physics impact (L-342). **VERDICT
+PENDING** — autograder grades the full 78-arm sweep via grade_m1d.py on the merged symlink root once
+all 6 reach strict rule-4 completion; any fail it yields gets §2bc exhaustion-evidence classification.
+Rule-12 estimate-vs-actual calibration is a close-out item at grading. SUBMISSIONS PARKED.
+
+**TWENTY-SEVENTH SESSION, 2026-09-09 (closure-supervisor). RE-FORM after ~12h dormancy. HEAD at
+session start 51a40abf. Sanaa OFFLINE — autonomous (rule 9). §2bc re-audit + recon summary below.**
 
 **═══ §2bc EXHAUSTION-EVIDENCE RE-AUDIT LANDED (`3c6eb5da`) — chief item 1 DONE ═══** Applied
 VERIFICATION §2bc + `EXHAUSTION_REAUDIT_CHECKLIST.md` to EVERY standing closure GATE FAIL / NOT A
