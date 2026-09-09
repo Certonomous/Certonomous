@@ -8644,3 +8644,123 @@ mandatory-together, it does not relax any:
 - **Enforcement is by flag, not by moving a verdict** — consistent with `§2ay`'s flags-only boundary.
   A non-compliant launch is a defect of process; the run's verdict, once produced, is judged on its
   own merits under rules 2–5.
+
+
+## Amendment — v1.73, 2026-09-09 — **§2bb THE PER-RUNG / PER-CONFIGURATION PRE-FLIGHT VALIDATION STANDARD: BEFORE A MULTI-RUNG OR MULTI-CONFIGURATION LADDER MAY BE FROZEN, EACH RUNG/CONFIG MUST PASS A PRE-FLIGHT SMOKE THAT VALIDATES, ON THE ACTUAL ARTIFACT, (1) ITS OWN DEADLINE SIZING AND (2) ITS OWN DISTINCT SOLVER/DECOMPOSITION PATH END-TO-END. A LADDER THAT HAS NOT PASSED THE PRE-FLIGHT FOR EVERY RUNG CANNOT BE FROZEN OR LAUNCHED — THE ENFORCEMENT CHECK REFUSES (check-4-adjacent).**
+
+*Provenance: Sanaa, online 2026-09-09, in her own words, relayed verbatim by the chief; a new lab-wide enforced standard is reserved to Sanaa (CLAUDE.md rule 9 / FIRST-ACTION RULE). Her directive is captured at `etc/sessions/2026-09-09_sanaa_per_rung_preflight_standard.md`. Earned by the D6RF9 confound: a four-rung ladder was frozen and run, then 3 of 4 rungs came back CONFOUNDED — R2 timed out incomplete because its heavier config's per-step cost was never measured against its frozen deadline (rule 4 last-time ≠ endTime), and R3/R4 crashed rc=59 on a latent decompose collision that R1's path never exercised. The pre-flight verified the grading path and that R1 reached the solver, but NOT each rung's own config. `L-511`. Enforced by `scripts/check_ladder_preflight.py`.*
+
+### §2bb.1 THE STANDARD
+
+> **RULED — `§2bb`: A multi-rung or multi-configuration ladder — and any run whose configuration
+> differs MATERIALLY from a prior VALIDATED one (a different solver, decomposition, corrector count,
+> scheme, endTime/deadline, or mesh family) — may NOT be FROZEN or LAUNCHED until EACH rung /
+> configuration in it has passed a PRE-FLIGHT SMOKE that validates, ON THE ACTUAL ARTIFACT THAT RUNG
+> WILL RUN, both of the two things below. A rung that inherits a config BYTE-IDENTICAL to another
+> rung already pre-flighted this ladder inherits its pre-flight; a rung whose config differs
+> materially does not. The enforcement check `scripts/check_ladder_preflight.py` GATES the freeze:
+> it REFUSES (exit 2) any ladder whose pre-flight manifest does not show every rung passing both
+> validations and every DISTINCT solver/decomposition path covered by a passing smoke.**
+
+"Materially different" is decided by the DISTINCT-PATH KEY defined in §2bb.3, plus the deadline/endTime
+and the corrector/scheme fields: two rungs are the same config only if their path key AND their
+per-step-cost-determining fields match. When in doubt, a rung is materially different and owes its own
+pre-flight — the standard fails safe toward MORE pre-flighting, never less.
+
+### §2bb.2 THE TWO VALIDATIONS, ON THE ACTUAL ARTIFACT
+
+Each rung's pre-flight smoke must establish, from the config it will actually run (not a sibling's, not
+a paper assertion):
+
+1. **DEADLINE SIZING — the wall-clock deadline is sized to THIS rung's own per-step cost.** A short
+   measured sample of the rung's own per-step wall time (a minimum of `MIN_STEPS_SAMPLED` real solver
+   steps), projected to the rung's endTime, must fit inside the rung's frozen wall-clock deadline with
+   margin. A heavier configuration — more correctors, a finer scheme, SIMPLEC's coupling — must not be
+   allowed to silently time out incomplete under a deadline copied from a lighter rung. The projected
+   wall is RECOMPUTED by the check from `measured_per_step_wall_s × steps_to_endTime`; a hand-typed
+   projection that does not match the sample is a fabrication and REFUSES. `projected_wall_s` must be
+   `≤ deadline_s`, and the check requires a safety margin (`deadline_s ≥ projected_wall_s × SAFETY`,
+   `SAFETY = 1.25`) so a rung near its deadline is caught before, not during, the frozen run. This is
+   the R2-timeout class.
+
+2. **SOLVER-PATH EXECUTION — each DISTINCT solver/decomposition path is exercised END-TO-END, not only
+   the first rung.** The rung's own solver and decomposition are run far enough to clear the failure
+   modes that a first-rung-only pre-flight never touches: decomposition (`decomposePar` must not hit an
+   "already decomposed" collision from carried processor* directories), staging, and the first solver
+   iterations of that scheme (the smoke must REACH the first solve, `rc = 0`, no scheme crash / SIGFPE).
+   EVERY distinct (solver, decomposition-method, nprocs) path in the ladder must be covered by at least
+   one passing smoke — not only R1's. This is the R3/R4 decompose-collision / SIMPLEC-crash class.
+
+Neither validation substitutes for the other: a rung can decompose-and-run cleanly yet be under-budgeted
+(R2), and a rung can be well-budgeted yet crash on an unexercised path (R3/R4). Both, on the actual
+artifact, for every rung, before the freeze.
+
+### §2bb.3 THE PRE-FLIGHT MANIFEST AND THE ENFORCEMENT CHECK
+
+The pre-flight evidence is recorded in a machine-readable manifest committed WITH the freeze (beside the
+pre-registration; conventionally `LADDER_PREFLIGHT.json` in the ladder's case directory). Its schema —
+which `scripts/check_ladder_preflight.py` validates — is:
+
+    {
+      "ladder_id": "<id>",
+      "rungs": [
+        {
+          "rung": "R2",
+          "solver": "DARhoSimpleFoam",
+          "decomposition": {"method": "scotch", "nprocs": 4},
+          "endTime": 2000,
+          "deadline_s": 855,
+          "preflight_smoke_log": "<path on disk that MUST exist>",
+          "deadline_sizing": {
+            "measured_per_step_wall_s": <float>,
+            "n_steps_sampled": <int ≥ MIN_STEPS_SAMPLED>,
+            "steps_to_endTime": <int>,
+            "projected_wall_s": <float = measured_per_step_wall_s × steps_to_endTime>
+          },
+          "solver_path": {
+            "rc": 0,
+            "reached_first_solve": true,
+            "decompose_ok": true
+          }
+        }
+      ]
+    }
+
+The check enforces, and REFUSES (exit 2) otherwise: every rung carries both sub-objects; `n_steps_sampled
+≥ MIN_STEPS_SAMPLED` (= 5); `projected_wall_s` equals `measured_per_step_wall_s × steps_to_endTime` within
+tolerance (no fabricated projection); `deadline_s ≥ projected_wall_s × SAFETY`; `preflight_smoke_log`
+EXISTS on disk (a paper manifest citing no artifact is refused); `solver_path.rc == 0`,
+`reached_first_solve` and `decompose_ok` both true; and EVERY distinct path key
+`"<solver>|<method>|<nprocs>"` present among the rungs is covered by at least one rung whose `solver_path`
+passed. The distinct-path-key device lets a rung INHERIT a byte-identical sibling's smoke (§2bb.1) while
+still forcing every path to be smoked at least once.
+
+The manifest's NUMBERS must be derived from the cited smoke log by the team's own tooling under the
+standing planted-zero control (rule 3): the smoke's per-step sample is READ from the log, not asserted,
+and the smoke is a real run of that rung's config. The check enforces STRUCTURE, ARITHMETIC and ARTIFACT
+EXISTENCE; the standard mandates PROVENANCE. `check_ladder_preflight.py` carries its own two-limb plant
+(`--selftest`): a compliant manifest PASSES (exit 0) and each defect class — undersized deadline, a
+crashed/uncovered solver path, a missing pre-flight, a fabricated projection, a non-existent smoke log —
+REFUSES (exit 2), each RED arm shown load-bearing.
+
+### §2bb.4 SCOPE, AND WHAT IT DOES NOT MOVE
+
+- **General, binding all six teams, from now forward.** `§2bb` is a FREEZE-DISCIPLINE / launch-discipline
+  standard (check-4-adjacent: a supervisor's non-delegable freeze check). It gates whether a ladder may be
+  FROZEN and LAUNCHED; it does NOT re-grade any landed row and moves NO verdict — consistent with `§2ay`'s
+  and `§2ba`'s flags-only boundary. A non-compliant ladder is a defect of process, refused at the freeze.
+- **A single-configuration run against an already-validated config is out of scope.** The standard triggers
+  on a ladder of ≥ 2 configs, or a run whose config differs materially from a prior VALIDATED one. A rerun
+  of a byte-identical, already-pre-flighted config does not owe a fresh pre-flight.
+- **Development/smoke compute that produces no verdict is out of scope** (as under `§2ba.4`) — but note the
+  pre-flight smoke IS the sanctioned mechanism by which a rung earns its freeze, so a ladder's pre-flight
+  smokes are expected, not incidental.
+- **It composes with `§2ba` and rule 2.** The pre-flight is done BEFORE the freeze; the freeze pins the
+  grading path (rule 2); the frozen run is then launched with BOTH a monitor and a detached grader (`§2ba`).
+  A rung's deadline validated here is the same deadline the detached grader will hold it to.
+- **The pre-flight demonstration for the endTime/deadline lever specifically is a measured PLATEAU of the
+  rung's own binding field to the shortened window** — a shortened endTime is verdict-preserving only if
+  the binding field is measured flat by the new endTime on the rung's OWN config (this is where the
+  deadline-sizing validation and the verdict-preservation test meet; see the D6RF10 B-300 ruling).
+
+**lines whose number changed above this section: 0**
