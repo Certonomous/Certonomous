@@ -35,13 +35,20 @@
   "Case 3" (the 16-point *motor-in-duct* CHT map, T23/T24,
   `docs/campaigns/T-family/CASE3_MAP_RESULTS.md`). Two different case-3 framings;
   this document concerns only the porous radiator.
-- **Territory:** heat-transfer. Filing location **RULED by the chief (2026-09-09)**:
-  this draft's prose home is `docs/campaigns/navier_class/porous_radiator_duct/` and
-  its runs home is `verification/runs/navier_class/porous_radiator_duct/` (that runs
-  dir is NOT created yet — no compute has run). Case id **PRD**, rung **E1** (so the
-  rung id is **PRD-E1**; the alternative `N3E1` is REJECTED). See §11 item 2, now
-  resolved, for the ruling of record; verification is separately registering the
-  exact `check_filing` form for this home.
+- **Territory:** heat-transfer. Filing location **RULED by verification (§5 of
+  `verification/campaign/PRD_E1_GATE_RULING_2026-09-09.md`), superseding the earlier
+  `porous_radiator_duct/` sub-home**: the **canonical home is
+  `docs/campaigns/navier_class/PRD/`** — the CASE dir is the case-id **`PRD`**, NOT
+  `porous_radiator_duct`. This DRAFT now lives there
+  (`docs/campaigns/navier_class/PRD/PRD_E1_PREREGISTRATION_DRAFT.md`). On **FREEZE**
+  the record **renames to `PRD_E1_PREREGISTRATION.md`** and lands alongside
+  `cases/navier_class/PRD/` (case inputs) and `verification/runs/navier_class/PRD/`
+  (run outputs; NOT created yet — no compute has run), with the frozen prereg copy in
+  `verification/campaign/`. **Rung id stays `PRD-E1`** (Case = `PRD`, rung `E1` =
+  EXACT-tier rung 1; the alternative `N3E1` is REJECTED). `scripts/check_filing.py`
+  **R7 now governs `docs/campaigns/navier_class/<CASE>/` at depth 5**, scoped to
+  `navier_class` (registered by verification, HEAD 7d52dc13). See §11 item 2, now
+  resolved, for the ruling of record.
 
 ---
 
@@ -398,16 +405,21 @@ needs **none of them** — it is fully regenerable on-box.
 1. **Final Δp band:** ±3 % proposed (with band > GCI, and ±1.5 % on the
    Richardson-extrapolated value). Verification + chief coordinate the final value
    + the GCI/Roache banding + Fs.
-2. **Filing location + rung id — RESOLVED (chief ruling, 2026-09-09):** the chief
-   RULED the Navier-class home. Prose lives in
-   `docs/campaigns/navier_class/porous_radiator_duct/` and runs will live in
-   `verification/runs/navier_class/porous_radiator_duct/` (runs dir not created —
-   no compute yet). Case id **PRD**; rung **E1**; the rung id **PRD-E1 is
-   confirmed** and the alternative `N3E1` is **REJECTED**. This draft was relocated
-   out of `docs/campaigns/T-family/` accordingly. The verification team is
-   separately registering the exact `check_filing` form for this home; until that
-   registration lands, `scripts/check_filing.py` may not yet recognise the
-   `navier_class` path — the filing charter / `check_filing` remains the authority.
+2. **Filing location + rung id — RESOLVED (verification §5, 2026-09-09):**
+   `verification/campaign/PRD_E1_GATE_RULING_2026-09-09.md` §5 rules the canonical
+   home is **`docs/campaigns/navier_class/PRD/`** — the CASE dir is the case-id
+   **`PRD`**, superseding the earlier `porous_radiator_duct/` sub-home the chief's
+   prior note used. Prose now lives there; on FREEZE this record **renames to
+   `PRD_E1_PREREGISTRATION.md`** and lands with **`cases/navier_class/PRD/`** (case
+   inputs), **`verification/runs/navier_class/PRD/`** (run outputs; not created — no
+   compute yet), and the frozen prereg copy in **`verification/campaign/`**. Case id
+   **PRD**; rung **E1**; the rung id **PRD-E1 is confirmed** and the alternative
+   `N3E1` is **REJECTED**. This draft was relocated out of `docs/campaigns/T-family/`
+   and then into `docs/campaigns/navier_class/PRD/` accordingly. Verification has
+   **registered the `check_filing` form**: **R7 now governs
+   `docs/campaigns/navier_class/<CASE>/` at depth 5**, scoped to `navier_class`
+   (HEAD 7d52dc13); `PRD_E1_PREREGISTRATION.md` matches `CAMPAIGN_RECORD_MD`. The
+   filing charter / `scripts/check_filing.py` remains the authority.
 3. **Solve matrix (cost lever):** the rigorous 15-solve (5 U_s × 3 levels) design
    vs the leaner 7-solve (anchor triple + L3 curve). §9 costs both; both under $25.
 4. **y+ gate threshold + wall treatment confirm:** continuous/Menter treatment
@@ -422,3 +434,105 @@ needs **none of them** — it is fully regenerable on-box.
 ---
 
 *END OF DRAFT — NOT FROZEN, NOTHING RUN.*
+
+---
+
+## AMENDMENT (pre-compute, 2026-09-09): verification PRD_E1_GATE_RULING adopted
+
+**Condition (VERIFICATION_CHARTER §2b, stated and checked):** no PRD-E1 compute has
+run — **`verification/runs/navier_class/PRD/` does not exist (verified 2026-09-09)** —
+so the pre-registration is still open and this pre-compute amendment is LEGAL. It
+alters no frozen physical figure; it ADOPTS the gate design ruled by verification.
+This DRAFT remains **NOT FROZEN**.
+
+**Source adopted (cited by path):**
+`verification/campaign/PRD_E1_GATE_RULING_2026-09-09.md` (verification-supervisor,
+2026-09-09). That ruling independently re-derived and **CONFIRMED** every frozen
+physical figure in this draft (Ergun A = 1687.5, B = 6562.5; OpenFOAM-fed
+d = 9.375e7, f = 10937.5 with ½ρf = 6562.5 = B; the five Δp
+83.20 / 248.44 / 825.00 / 2962.50 / 11175.00 Pa; the 3.5 = 2×1.75 ½ρ-undo factor).
+Those numbers are UNCHANGED — this amendment binds the GATE, not the physics.
+
+### The BINDING gate elements now adopted (verbatim in force from the ruling)
+
+1. **Ladder = FULL 15-solve** — 5 U_s {0.25, 0.5, 1, 2, 4 m/s} × 3 levels
+   L1/L2/L3 at refinement ratio **r = 2**, i.e. a `CONVERGING` Roache triple per
+   U_s. The **lean-7 design is REJECTED** (a single-grid value at four of five U_s
+   is NOT A RESULT for a grid-gated quantity, and it leaves the inertial-dominated
+   end where the ½ρ factor dominates ungraded). Ruling §3.
+
+2. **`G-ERGUN`** — per-level CFD Δp reproduces analytic Ergun **within ±3 %
+   relative**, per U_s, at the gate level, with the hard constraint **band >
+   reported GCI**. **Pre-asymptotic guard (ruling §1.2):** if the reported **L3 GCI
+   (Fs = 1.25) ≥ 2.0 % for any U_s**, that U_s is **PRE-ASYMPTOTIC** → run the
+   already-budgeted **L4** and **re-form the triple at (L2, L3, L4)** before issuing
+   any PASS / GATE FAIL for it. A band dominated by discretization is not graded.
+
+3. **`G-ASYMP` (BINDING; ruling §1.3, elevated from sub-check to a gate)** — the
+   **Richardson-extrapolated Δp within ±1.5 % of Ergun**, quoted **only on a
+   monotone `CONVERGING` triple** (rule 5), never off a non-monotone one. A clean
+   `CONVERGING` triple that lands inside ±3 % per-level but **outside ±1.5 %
+   asymptotic is a `GATE FAIL` naming the mechanism** — core-face velocity
+   non-uniformity, or the ρ / superficial-velocity handling in
+   `explicitPorositySource` — and under **§2bc that is NEEDS-SUCCESSOR
+   (non-terminal)** unless the model/setup ladder is exhausted; it is NOT an
+   admissible terminal fail on first sight.
+
+4. **Gate hierarchy (frozen order; ruling §1.4, rule 5):**
+   (1) any level not iteratively converged / not plateaued → **NOT A RESULT**;
+   (2) triple **not `CONVERGING`** (DIVERGENT / STAGNANT / OSCILLATORY / EXACT) →
+   **NOT A RESULT**, both triples + orders printed beside it;
+   (3) `CONVERGING` → **G-ERGUN AND G-ASYMP** → **PASS only if BOTH hold**, else
+   **GATE FAIL** with the failing gate + mechanism named. **GCI (Fs = 1.25) is
+   always printed.** **PASS at all five U_s is the credential.**
+
+5. **GCI factor `Fs = 1.25` — CONFIRMED** (ruling §2; standing standard, not a
+   choice) for a ≥3-grid study at constant r = 2 with an **observed order p
+   reported**. **p outside [1, ~2.5] or a non-monotone triple → NOT A RESULT and
+   run L4**; a **GCI is NEVER quoted off a non-monotone triple**.
+
+### The 8 §4 freeze conditions carried forward (full text in the ruling §4)
+
+The freeze may not proceed until all hold; each is stated fully at
+`verification/campaign/PRD_E1_GATE_RULING_2026-09-09.md` §4:
+
+1. **§2bb pre-flight PASS** — deadline sizing + each distinct solver path past
+   decompose+first-solve; DarcyForchheimer coefficients read back == the §2.3 frozen
+   values; sink exercised ACTIVE (D,f set → Δp>0) and INERT (D=f=0 → ~0); and the
+   **MEASURED incompressible-`explicitPorositySource` ρ handling + kinematic→Pa
+   conversion (§2.1/§2.4) resolved against the written fields BEFORE freeze**.
+2. **3 planted-zero controls (rule 3)** — the D=f=0 / D,f-set visibility pair AND
+   the **`PLANT_DP = 3.210 Pa`** read-back-or-refuse; a perfect zero from any reader
+   is REFUSED.
+3. **Verification's non-delegable §3 check-1 diff-read** of every measurement script
+   (coefficient generator, Δp reader, y+ reader, triple/GCI grader) before any
+   graded number is believed — where the v2606 ½ρ source claim is re-verified
+   against the authored code.
+4. **§2ba dual-mechanism run** — a live monitor AND a detached (PPID = 1) grader
+   pinned to the FROZEN comparator (rule 2 disk == pin re-hash), surviving fleet
+   death; neither substitutes for the other.
+5. **Completion field set `{U, p, k, omega, nut, phi}`** (incompressible isothermal —
+   NOT the thermal {T, p_rgh, alphat}); every field newer than the case's own `0/`
+   (age guard); last time == endTime; **clause-5 `ExecutionTime == round(endTime/
+   deltaT)` — FIXED-deltaT (steady simpleFoam, deltaT = 1 → == endTime)**, not the
+   adaptive-dt path. The `mark_done`-class instrument is given this field list
+   explicitly.
+6. **y+ gate** — continuous / Menter treatment, **y+ ≤ 200 upper bound, consistent
+   recipe across levels** (not y+ ≤ 1, because the gated Δp is dominated by the
+   volumetric D/f sink, not wall shear); max y+ per patch per level reported; the
+   cross-check reader plants → reads back → refuses (rule 3).
+7. **Deliberate exclusions confirmed** — **NO Spalart–Rumsey** farfield and **NO
+   Barlow–Rae–Pope** blockage: this is INTERNAL duct flow with an explicit
+   inlet/outlet and a full-section core.
+8. **§2bc OpenFOAM-capable** — DarcyForchheimer is a shipped model; the §2bb
+   active/inert exercise IS the capability proof. No `BLOCKED` verdict is admissible
+   without measured exhaustion evidence.
+
+**Scope of this amendment:** it does not freeze anything, author any script, launch
+any compute, or move any verdict. Script authoring (comparator / build / mark_done)
+remains the next, separate step, gated on verification's §3 check-1 diff-read. The
+draft's earlier §1–§11 proposals for band/Fs/ladder are now RESOLVED by the elements
+above; where the earlier prose called them "proposed" or "coordinated via the chief,"
+this amendment records that verification has RULED them.
+
+*— heat-transfer `lab-lane`, pre-compute amendment 2026-09-09. STILL NOT FROZEN.*
