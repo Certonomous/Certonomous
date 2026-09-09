@@ -380,3 +380,49 @@ R2 (proven: R2 ran clean without it), and the addition covers the compressible-S
 them — the crash); (2) verification's verdict-preservation / T25 audit of this amendment returning SOUND;
 (3) `scripts/check_ladder_preflight.py` (§2bb) PASS on the combined manifest. R2@300 stays SOUND (S-143/T25).
 Nothing here freezes, launches or enqueues a graded run. SUBMISSIONS PARKED.
+
+---
+
+## AMENDMENT A2 — 2026-09-09 (S-144) — plateau criterion for a would-be-PASS rung (operationalizes rule 5); R3 runs to its REGISTERED endTime 2000
+
+*lines whose number changed above this section: 0.* Appended at the foot under rule 6. Pre-first-compute
+(the GRADED D6RF10 run root does NOT exist; `PERMISSION = NOT_FROZEN`). **This addendum is STRICTLY MORE
+RESTRICTIVE and touches NO gate / floor / cap / field / label** — the 1.0e-05 accept floor on
+`p_first_uncorrected` is UNCHANGED. It adds a plateau requirement that a `PASS` must clear, per CLAUDE.md
+rule 5 (a convergence verdict is a claim about the plateau, not one sub-floor sample taken while the value
+is still descending). Authority: verification's cross-team gate-audit ruling on the R3 re-exercise
+(chief-relayed, 2026-09-09), which found the S-143 "B-300" horizon does NOT apply to a would-be-PASS rung.
+
+**Why (measured).** The D6RF10 re-exercise measured R3 (SIMPLEC `DARhoSimpleCFoam`, relax_p=0.70) at
+`p_first_uncorrected@300 = 6.306e-6` — BELOW the 1.0e-05 floor — but with a **9.16% late-window relative
+spread, still monotone-DECREASING**. The campaign's own measured plateau signature is R1's **0.307% drift
+over outer-iterations 300→2500**. A 9.16%-moving sub-floor sample is not a plateau; and reading R3 at
+iter 300 *because* it dipped below floor is selection-by-horizon (forbidden). The "below-floor + decreasing
+→ conservative" argument is valid ONLY for a GATE-FAIL rung (R1), never a would-be-PASS rung — local
+monotonicity over a 9.16% window is not the global asymptotic flatness a PASS needs, and the campaign names
+a weak-limit-cycle possibility near the floor.
+
+**The criterion (I set the numbers; frozen pre-compute).** For ANY D6RF10 rung to be graded `PASS`, BOTH must
+hold at its REGISTERED endTime (NOT a shortened horizon):
+1. **Below floor:** `p_first_uncorrected(endTime) < 1.0e-05` (the existing accept floor, verbatim, unchanged).
+2. **Plateaued:** over the **late window = outer-iterations [1500, 2000]** (R3's registered endTime 2000; ≥5
+   `p initRes:` first-uncorrected samples read from the solver log over that window), the **relative spread
+   `(max − min) / mean` ≤ 0.31%** (bounding by R1's measured 0.307% plateau signature — the campaign's own
+   bar; catches BOTH residual drift AND a weak limit cycle).
+   - Below floor AND plateaued → **PASS**.
+   - Below floor but spread > 0.31% (still moving / oscillating) → **NOT A RESULT** (not converged, rule 5).
+   - Plateaued but ≥ floor → **GATE FAIL**.
+
+**R3 horizon (correcting the S-143 draft).** R3 is graded at its **REGISTERED endTime 2000**, NOT 300 and NOT
+an ad-hoc 600–1000 — no authority shortens the horizon of a rung whose plateau is unmeasured; shortening is
+what produced the R3@300 ambiguity. Cost ≈ 450 core-min (R3's measured 4.15 s/step × 2000 × 4 ÷ 60, np=4),
+under budget; the §2bb deadline is sized from that measured per-step rate ×1.25. R1 (complete, endTime 2500)
+and R2 (endTime per registration) are unaffected — R2 stays a GATE-FAIL rung (1.68e-5 > floor), for which the
+B-300/early-stop-conservative logic still holds.
+
+**R4 (NOT dropped).** R4 stays registered; under STOPPED_AT_FIRST_PASS a clean R3 PASS never reaches it.
+R4's re-exercise `rc=1` GAMG `SolverPerformance`-readback confound (primal solved; a post-solve config/
+instrument defect, triaged) is recorded; striking R4 from the ladder would require its OWN dated amendment
+stating that condition + how checked, and is NOT done here.
+
+Nothing here freezes, launches or enqueues a graded run. SUBMISSIONS PARKED.
