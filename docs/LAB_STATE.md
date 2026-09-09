@@ -29016,6 +29016,28 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 89-M6-RUNAWAY-IS-NUMERICAL-DIVERGENCE-BOARD87-CORRECTED-NUMERICS-LADDER-FIRST -->
+
+**Section last written:** 2026-09-09T02:25Z+ by the cfd-supervisor (Fable) directly, PURE INSERTION at the top of the `## cfd` section; boards 88/87/86 and prior stand unedited. Committed via the rule-10 private-index protocol on `docs/LAB_STATE.md` alone (worktree sha-clean vs HEAD before the splice).
+
+### 🟠 HEADLINE — CORRECTION to board 87 (my §3 check-3, humbling but necessary). The M6 TE "energy runaway" is a **LOCALIZED NUMERICAL DIVERGENCE**, not a physical geometry/BC overheating: the hot cells carry a spurious **|U| up to 9.5e19 m/s** (~1e11× lightspeed) at the sharp TE, co-located with the T-limiter pin. **Board-87's "geometry/BC" conclusion was PREMATURE** — reached by elimination without examining the velocity field and without testing gradient/flux limiting at the acute corner. Sanaa (online) DELEGATED the M6 call to me with a HARD GATE: rule out numerics first, with evidence. The |U| evidence is gathered; the numerics ladder (fix-until-runs, on the COMMITTED geometry) is now running FIRST. Still `NOT A RESULT`; nothing graded.
+
+**SANAA'S RULING (her own words — rule 9 satisfied; relayed by chief).** *"ill let the cfd supervisor make the call. We can exhaust all of these options assuming its not a numerics issue."* → (1) the direction choice (finite/blunt TE, adiabatic-BC re-examination, deliverable pivot) is DELEGATED to me — I decide and record, no longer waiting on her. (2) HARD CONDITION: rule out NUMERICS with evidence BEFORE treating it as geometry/BC. A numerics-fixable runaway routes to the numerics ladder (fix-until-runs), NOT a geometry change.
+
+**THE EVIDENCE THAT REFRAMES IT (my §3 check-3, first-hand, zero new compute — joined the existing arfix smoke's `500/U` against `500/T`).** Whole-field |U| is PHYSICAL: median **285.7 m/s** (≈ freestream M0.84), p99 425 m/s. The 42 cells that pin the 1000 K T-limiter carry |U| **mean 4.05e18, median 3.3e8, max 9.53e19 m/s** — physically impossible; and 18/42 of them are in the field's top-50 |U|. A physical M=0.84 adiabatic recovery overheating (T~324 K) would have PHYSICAL velocities; instead U and T both blow up UNBOUNDED at the sharp corner. **The equations have a bounded physical solution; the discretization is failing to find it locally → a numerical instability**, feeding the kinetic-energy source `div(phi,Ekp)` → the T pin. The AR de-slivering did not help because it does not touch the velocity gradient/flux reconstruction at the acute corner — the one untested numerics lever.
+
+**WHY BOARD 87 WAS WRONG (recorded honestly).** Board 87 concluded "geometry/BC" from lever-elimination (solver, scheme, non-orth, AR) plus the T-vs-recovery physics argument. But the physics argument shows the RESULT is nonphysical, not WHY; and I examined T and aspect ratio but NOT the velocity field, and never tested gradient/flux limiting. The |U|~1e19 signature — which board 86/87 saw only as "yPlus 6e18" in passing — is the tell I under-weighted. Sanaa's numerics-first gate correctly catches this. Board 87's geometry conclusion is SUPERSEDED pending the numerics ladder.
+
+**NUMERICS LADDER (running; my call under Sanaa's gate).** Lane **ae080ef0** running a MAXIMAL-NUMERICS-ROBUSTNESS diagnostic on the committed mesh/geometry/BC: cellLimited grad(U)/grad(p)/grad(e) + first-order upwind ALL convection + conservative relaxation, under a FRESH DRAFT prereg (gates byte-identical, grader da0df95c pinned, unfrozen — my check-4), smoked under §2ba (live monitor + DETACHED setsid autograder writing `NUMERICS_RULEOUT.json` with rc captured INSIDE the wrapper). DECISION RULE: |U| stays physical + Tmax ~324 K + clamp inert → **NUMERICS confirmed & fixable → M6 runs on the COMMITTED geometry** (find the minimal accurate stable scheme + grid-converge + graded launch); still unbounded → numerics genuinely ruled out → THEN I exhaust the geometry/BC options Sanaa authorized (my call).
+
+**ON SANAA'S DESK:** nothing pending her — the call is mine now. She will see the numerics-vs-physics verdict + my chosen path in the next report. SUBMISSIONS PARKED (rule 7).
+
+**LIVE / NOT MINE, UNTOUCHED:** ansys VMFL017-R3 (pid 316601), heat-transfer T23G2R_L3 (pid 472337), queue daemon pid 1887. Mine: numerics-ladder lane ae080ef0 (M6 top priority). Non-M6 F16b/F15 verdicts filed (board 88).
+
+**COST.** The |U| signature check: 0 new compute (existing smoke). Numerics smoke (lane ae080ef0): ungraded dev, sub-cap. This board 0.
+
+**CHAIN OF CUSTODY:** FIRST-HAND (cfd-supervisor, this session) — the |U|-vs-T cell join showing the spurious 9.5e19 m/s velocity blow-up co-located with the T pin, the reframing to numerical divergence, the explicit correction of board-87's premature geometry conclusion, the numerics-ladder decision under Sanaa's gate + delegated call, the lane dispatch, this board + commit. RELAYED (rule 9): Sanaa's delegation + numerics-first condition (her words, via chief). To be check-3'd before any verdict repeats upward: lane ae080ef0's smoke result. Nothing sent, filed, uploaded, registered or posted (rule 7).
+
 <!-- BOARD-BLOCK-ID: 88-NONM6-F16b-F15-FILED-L510-NC12-SESSION-WRAP -->
 
 **Section last written:** 2026-09-09T02:10Z+ by the cfd-supervisor (Fable) directly, PURE INSERTION at the top of the `## cfd` section; boards 87/86/85 and prior stand unedited. Committed via the rule-10 private-index protocol on `docs/LAB_STATE.md` alone (worktree sha-clean vs HEAD before the splice).
