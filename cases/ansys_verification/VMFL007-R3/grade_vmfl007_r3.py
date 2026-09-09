@@ -896,6 +896,127 @@ def main(argv):
     return 0
 
 
+# =============================================================================
+# DATED AMENDMENT -- 2026-09-08 -- grade_vmfl007_r3.py  v1.0 -> v1.1
+# VERIFICATION_CHARTER SS2d.1 VALUE-INVARIANT REPAIR of an OFF-GATE reader bug
+# (nuMinAll / nuMaxAll).  Audited and signed off by the verification team as
+# V-129 (byte-for-byte value-invariance confirmed).  Chief's two landing
+# conditions satisfied: in-place SS2d.1 addendum + a volFieldValue selftest arm.
+# lines whose number changed above this section: 0
+#
+# DEMONSTRABLE ERROR (SS2d.1 cond 1):
+#   The frozen _monitor_path (lines 152-155) globs
+#       postProcessing/<name>/*/surfaceFieldValue.dat
+#   for EVERY monitor.  But the driver's controlDict declares nuMinAll/nuMaxAll
+#   as `type volFieldValue`, so OpenFOAM wrote
+#       postProcessing/<name>/0/volFieldValue.dat
+#   (a whole-domain min/max of nu, NOT a surface integral).  The
+#   surfaceFieldValue glob matches ZERO paths, so one_or_refuse (line 147)
+#   raises SystemExit2 "matched 0 paths [] -- ambiguous" from viscosity_class
+#   (line 290), aborting the OFF-GATE viscosity-clip precondition BEFORE the
+#   gate (line 883) and before the pInlet planted-zero (line 861).  Proven by
+#   file existence: the surfaceFieldValue path does NOT exist; volFieldValue.dat
+#   DOES (all six nu monitors across L1/L2/L3).
+#
+# THE ONLY CHANGE (SS2d.1 cond 3, value-invariance -- gate byte-identical):
+#   This block is a PURE INSERTION.  Frozen lines 1-898 are unchanged: REF_PA
+#   60520, BAND_LO/HI [60217.40, 60822.60], TOL 0.005, verdict_for, roache,
+#   dp_series, BOTH planted controls, and the gate's own _monitor_path (which
+#   still globs surfaceFieldValue for the pInlet/pOutlet gate series) are all
+#   byte-identical.  This block (a) re-binds viscosity_class to read the nu
+#   monitors via _visc_monitor_path, which resolves whichever single file
+#   OpenFOAM wrote (volFieldValue in a real run, surfaceFieldValue in the frozen
+#   selftest fixtures) under the SAME one_or_refuse "exactly one, else REFUSE"
+#   discipline; the parse and the clip-binding thresholds (0.999*NUMAX,
+#   1.001*NUMIN) are the frozen ones, byte for byte.  And (b) wraps selftest to
+#   add a regression arm that builds a volFieldValue.dat fixture (the driver's
+#   real function-object filename) and proves the repaired reader resolves it
+#   while the frozen surfaceFieldValue-only glob REFUSES it -- closing the
+#   fixture blindness that let this class through the freeze (row #64 triage).
+#   NO gate quantity, threshold, band, label or verdict-cascade node is
+#   referenced or altered here; this block only lets the comparator REACH the
+#   frozen gate.  Any PASS is produced by the byte-identical gate on the
+#   already-computed answer-blind triple, not by this repair.
+# =============================================================================
+
+def _visc_monitor_path(level_dir, name):
+    """OFF-GATE nu-clip monitors are volFieldValue (volume min/max), not
+    surfaceFieldValue.  Resolve whichever single file OpenFOAM wrote, keeping
+    the frozen one_or_refuse ambiguity discipline (exactly one, else REFUSE)."""
+    hits = (glob.glob(os.path.join(level_dir, "postProcessing", name, "*", "volFieldValue.dat"))
+            + glob.glob(os.path.join(level_dir, "postProcessing", name, "*", "surfaceFieldValue.dat")))
+    return one_or_refuse(hits, "%s/postProcessing/%s (vol/surfaceFieldValue)" % (level_dir, name))
+
+
+def _visc_read_scalar_series(level_dir, name):
+    """Identical parse to the frozen read_scalar_series (last column), on the
+    file _visc_monitor_path resolves."""
+    out = []
+    for ln in open(_visc_monitor_path(level_dir, name)):
+        if ln.startswith("#"):
+            continue
+        q = ln.split()
+        if len(q) >= 2:
+            out.append((int(float(q[0])), float(q[-1])))
+    return out
+
+
+def viscosity_class(level_dir):   # OVERRIDES the frozen def (line 286): OFF-GATE reader only
+    numin = _visc_read_scalar_series(level_dir, "nuMinAll")[-1][1]
+    numax = _visc_read_scalar_series(level_dir, "nuMaxAll")[-1][1]
+    if numax >= 0.999 * NUMAX:
+        raise SystemExit2("%s: nuMax clip BINDS at endTime (max nu = %.6g >= %.6g)"
+                          % (level_dir, numax, 0.999 * NUMAX))
+    if numin <= 1.001 * NUMIN:
+        raise SystemExit2("%s: nuMin clip BINDS at endTime (min nu = %.6g <= %.6g)"
+                          % (level_dir, numin, 1.001 * NUMIN))
+    return {"nu_min_endtime": numin, "nu_max_endtime": numax,
+            "nuMax_headroom_x": NUMAX / numax}
+
+
+_frozen_selftest_v10 = selftest   # capture the v1.0 selftest object before rebinding
+
+
+def selftest():
+    """v1.1: run every frozen v1.0 arm, then a volFieldValue regression arm that
+    catches the off-gate filename-path class going forward.  No bare asserts
+    (survives python3 -O), matching the frozen selftest's discipline."""
+    rc0 = _frozen_selftest_v10()
+    ok = True
+    def chk(c, name, got=""):
+        nonlocal ok
+        print("  [%s] %s  %s" % ("PASS" if c else "FAIL", name, got))
+        ok = ok and c
+    print("--- selftest (v1.1 SS2d.1 arm): OFF-GATE nu monitor written as volFieldValue.dat ---")
+    d = tempfile.mkdtemp(prefix="st007r3_volfield_")
+    try:
+        for nm, val in (("nuMinAll", 4.3e-05), ("nuMaxAll", 0.4)):
+            md = os.path.join(d, "postProcessing", nm, "0")
+            os.makedirs(md, exist_ok=True)
+            open(os.path.join(md, "volFieldValue.dat"), "w").write(
+                "# Cells             : 100\n# Volume            : 1e-09\n"
+                "# Time              \tmin(nu)\n60000              \t%.12e\n" % val)
+        gmin = _visc_read_scalar_series(d, "nuMinAll")[-1][1]
+        gmax = _visc_read_scalar_series(d, "nuMaxAll")[-1][1]
+        chk(abs(gmin - 4.3e-05) < 1e-12 and abs(gmax - 0.4) < 1e-12,
+            "repaired reader resolves volFieldValue.dat", "min=%.4g max=%.4g" % (gmin, gmax))
+        refused = False
+        try:
+            _monitor_path(d, "nuMinAll")   # frozen reader globs surfaceFieldValue.dat only
+        except SystemExit as ex:
+            refused = (getattr(ex, "code", None) == 2)
+        chk(refused, "frozen surfaceFieldValue-only glob REFUSES the volFieldValue tree (the bug this repairs)")
+        vc = viscosity_class(d)
+        chk(vc["nu_min_endtime"] > NUMIN and vc["nu_max_endtime"] < NUMAX,
+            "viscosity_class reads volFieldValue; clips do not bind",
+            "min=%.4g max=%.4g" % (vc["nu_min_endtime"], vc["nu_max_endtime"]))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+    print("v1.1 SS2d.1 regression arm: %s" % ("all checks passed" if ok else "FAILURES PRESENT"))
+    print("SELFTEST (v1.1): %s" % ("all checks passed" if (rc0 == 0 and ok) else "FAILURES PRESENT"))
+    return 0 if (rc0 == 0 and ok) else 1
+
+
 if __name__ == "__main__":
     if "--selftest" in sys.argv:
         sys.exit(selftest())
