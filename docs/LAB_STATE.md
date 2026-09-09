@@ -1473,6 +1473,21 @@ cap-bound subset that could be re-run FIRST once a prereg is frozen. Total 6-arm
 core-min at 1 rank each (projection, not measured). Closure solves still sequenced behind cfd's
 M6/CRM + F6; M6 is a verification-confirmed physics-hold diagnostic (V-133), so headroom exists.
 
+**═══ UPDATE (same session): DUCT DIAGNOSTIC RESOLVED = BENIGN ARTIFACT → N-X4 (`7cb20423`) ═══**
+§3 check-3 (MINE): I accepted the benign-artifact diagnosis after FIVE corroborating disk reads
+(pRefCell/pRefValue set + empty residualControl + p Final≈relTol×Initial + continuity global 1e-14 /
+cumulative 1e-9 + U/k/omega Final at tol, Ux No-Iterations 0). The O(0.3-0.4) p Initial-residual
+plateau on the duct family is a floating-reference NORMALIZATION artifact, NOT non-convergence. The
+lane correctly reversed its own earlier "non-converging" flag on evidence. **CONSEQUENCES:** (1) the
+M1d verdict (GATE FAIL/G1 PASS) is Roache rule-5 VALID on the 72 complete rows — no re-grade, no
+escalation to verification needed; (2) ALL 6 timeout arms are legitimately CAP-BOUND; (3) the 6-arm
+completion re-run (M1c/M1-C) is a VALID completion, not waste — PROVIDED its grade reads convergence
+from continuity/flow-field per N-X4, never from raw p Initial residual or a "SIMPLE converged" line.
+Recorded as N-X4 (cross-cutting V&V numerics; no threshold changed). So the ONLY remaining gates on
+M1c are (a) write + §3-check-1 + freeze the M1-C prereg (frozen grade_m1d.py, higher endTime cap,
+§2ba monitor + committed detached autograder) and (b) the cross-family queue-sequencing call (flagged
+to chief). Duct rule-5 concern is CLEARED.
+
 **NEXT ACTIONS.** (1) Interpret the duct-convergence diagnostic → either (benign) the M1d verdict and
 the 72 complete rows stand and M1c can proceed to freeze, or (real) escalate a Roache rule-5 question
 to verification that re-grades the duct rows. (2) If benign: write + §3-check-1 + freeze the M1-C
@@ -1482,7 +1497,7 @@ Library growth still needs Sanaa's institutional pull (Shih 1995 + Craft/Launder
 
 **RUNGS WITHOUT VERDICTS.** M1 arc **GATE FAIL governed by G0 / G1 PASS** (M1d, first believable;
 72/78 complete) [standing, re-verified §3 check-3 this session] · M1-C 6-arm re-run: prereg CHECK1
-pending + compute-gated; duct arms additionally gated on the rule-5 diagnostic `NEW` · R4b-Ib CHECK1
+pending + compute-gated (duct rule-5 diagnostic RESOLVED benign, N-X4; all 6 arms cap-bound) `NEW` · R4b-Ib CHECK1
 pending + birth-demo compute-gated `VERIFY` · R4b-I+R4b arm BLOCKED (Sanaa) `VERIFY` · M2 UNRULED
 since 08-28 `VERIFY` · RC1/RC2 unfrozen `VERIFY` · Ling arm 2 frozen+UNFILED `VERIFY` · G1b xr null
 (D550) `VERIFY` · LR1 PENDING freeze (G2-gated) `VERIFY` · G2 PENDING freeze `VERIFY`. FS2 and FS5
@@ -29102,6 +29117,26 @@ INTERPRETATIONs; K2a; **D389's S13 normalisation**; D495; the T10a upstream draf
 clause 5 is a lab-wide invariant or a description of the T1b steady-state instance.
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
+
+<!-- BOARD-BLOCK-ID: 91-M6-N1-LEVER-ISOLATED-GRADIENT-LIMITER-2ND-ORDER-CONVECTION-STABLE-N2-ACCURACY-RUNG-RUNNING -->
+
+**Section last written:** 2026-09-09T04:40Z by the cfd-supervisor (Fable) directly, PURE INSERTION at the top of the `## cfd` section; boards 90/89/88 and prior stand unedited. Committed via the rule-10 private-index protocol on `docs/LAB_STATE.md` alone (worktree sha-clean vs HEAD before the splice).
+
+### 🟢 HEADLINE — M6 numerics ladder N1 DONE: the load-bearing lever is ISOLATED (my §3 check-3, first-hand). The trailing-edge |U| blow-up is a **GRADIENT-limiter** pathology, NOT a convection-order one. Proof by isolation: `smoke_arfix` (diverges 9.5e19) and `smoke_n1a` (bounded) use the **identical** 2nd-order `div(phi,U) bounded Gauss linearUpwind grad(U)`; the ONLY difference is gradSchemes — arfix `Gauss linear` (UNLIMITED) vs n1a `cellLimited Gauss linear 1` (LIMITED). So **2nd-order convection is stable once gradients are limited**. Both N1a and N1c completed clean (rc=0, End, Time=500, LimitedCells=0, positive control lit, points-sha `0d2c74d6…` match): N1a |U|max 345.9 m/s / Tmax 394.4 K; N1c (+2nd-order energy) |U|max 357.7 m/s / Tmax 403.3 K. Still `NOT A RESULT` (ungraded); direction unchanged (numerics fixable on committed geometry).
+
+**HONEST CAVEATS (lane-flagged, I concur — these gate the freeze).** (1) **Tmax RISES with scheme refinement** (ruleout 359.6 → N1a 394.4 → N1c 403.3 K), above the ~324 K M=0.84 recovery anchor — scheme-sensitivity = NOT yet grid/scheme-converged; the N1c premise (that ruleout's Tmax was over-diffused) is FALSIFIED. (2) `cellLimited … 1` is the FULL (most aggressive) limiter → clips gradients → will smear the suction peak/shock → biases the 271-tap Gate-P Cp. (3) Turbulence convection `div(phi,k)/div(phi,omega)` still 1st-order upwind in all runs → affects aft/TE BL → Cp. So N1 gives a STABLE scheme, not yet a graded-Cp-accurate one.
+
+**MY DECISION (decide-and-record, within authority).** Before any check-4 freeze, run rung **N2 = accuracy-recovery** (lane a295d9d6 resumed): least-limiting-first sweep — N2a relax cellLimited 1→0.5 all grads; N2b limit **grad(U) only** (the |U| blow-up is a momentum-gradient pathology, so grad(p)/grad(e) likely need no limiting) = the least-diffusive candidate; N2c lift turbulence convection to 2nd-order `limitedLinear 1` on the least-limiting bounded base. Pick the LEAST-diffusive config that stays robustly bounded (|U| physical, clamp inert, e-resid falling) so the coarse L2 is not so smeared the Gate-G Roache triple falls outside the asymptotic range. UNGRADED, detached §2ba, stops at the smokes. Then MY non-delegable check-4: freeze a fresh prereg on the chosen scheme (Gate P + Gate G byte-identical, grader da0df95c pinned) → grid-converge L2→L1→L0 → graded Cp → Gate P.
+
+**RUNGS WITHOUT VERDICTS (mine):** M6 own-family fine-triple — `NOT A RESULT`; numerics confirmed fixable (board 90), lever isolated (this board), N2 accuracy rung in flight; then freeze + grid-converge + graded. F24 fine PENDING, BLOCKED on the in-tree `cases/F24_PRANDTL_MEYER/grade_f24.py` edit — coordinate before any F24 launch (untouched; M6 is top priority).
+
+**ON SANAA'S DESK:** nothing pending her on M6 (her delegated call is mine; numerics-first gate met). SUBMISSIONS PARKED (rule 7).
+
+**LIVE / NOT MINE, UNTOUCHED:** ansys rhoCentralFoam pid 316601, heat-transfer T23G2R_L3 pid 472337, queue daemon pid 1887. Mine: numerics-ladder lane a295d9d6 (N2, resumed — the incumbent, not a rival; delegation doctrine).
+
+**COST.** N1 sweep (N1a 5.5 + N1c 5.85) = **11.35 core-min gross measured** (serial 1 rank), ≈$0.0097 derived at owner-rate $0.0513/core-h (box cannot read billing). N2 sweep: ungraded dev, ~5.5 core-min/smoke, sub-cap. This board write 0. rule-12 calibration row owed when a graded M6 level completes.
+
+**CHAIN OF CUSTODY:** FIRST-HAND (cfd-supervisor, this session) — the check-3 confirmation of N1a/N1c completion facts from the solver logs + markers, the lever-isolation verification (arfix vs n1a differ ONLY in gradSchemes, div(phi,U) identical), the concurrence with the lane's Tmax/limiter/turbulence caveats, the N2 decision + lane resume, this board + commit. RELAYED, to be check-3'd before any verdict repeats upward: lane a295d9d6's N2 smoke numbers. Nothing sent, filed, uploaded, registered or posted (rule 7).
 
 <!-- BOARD-BLOCK-ID: 90-M6-NUMERICS-RULEOUT-COMPLETED-DIVERGENCE-CLEARS-ON-COMMITTED-GEOMETRY-N1-SCHEME-SWEEP-RUNNING -->
 
