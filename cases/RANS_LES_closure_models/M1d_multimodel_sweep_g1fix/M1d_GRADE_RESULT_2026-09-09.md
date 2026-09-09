@@ -124,3 +124,39 @@ and follow-on note on the verdict above.
   unknown-provenance duct reference cases behind the G2 0.024 signal, by **rule-15
   title-page verification** of their source, before that signal is read as a
   precision statement about any arm.
+
+---
+
+## DATED ADDENDUM 2 — 2026-09-09 (closure-supervisor) — follow-on (2) DISCHARGED
+
+Alters no gate/threshold/cap/label. Establishes the provenance follow-on above.
+
+**The 2 out-of-band duct cases** (from `/home/ubuntu/closure-data/multimodel_sweep/gate_m1d.json`,
+`rel_l2_null_vs_reference`): **AR_14_Ret_180 = 0.02419** (the max that drives all_rows_max 0.024) and
+**AR_10_Ret_180 = 0.01544**; the next-highest, AR_7_Ret_180 = 0.00864, is under the 0.01 ceiling.
+Exactly two exceed.
+
+**What G2 actually reads (loader traced in frozen `grade_m1d.py:928-930`, root `:132`):** the reference
+is `/home/ubuntu/closure-challenge-benchmark/data/DUCT/AR_{14,10}_Ret_180/<last-time>/U`. Verified on
+disk, this reference is **the closure-challenge's shipped BASELINE k-ω SST RANS field, NOT DNS or
+experiment** (`constant/turbulenceProperties` RASModel kOmegaSST; `system/fvSolution` residualControl
+`{ k 5e-6; omega 1e-10; }`; stopped early at 7009 / 5125 iters). So the "unknown provenance" of the
+verdict above is now **RESOLVED**: the reference field's provenance IS established as baseline SST RANS.
+
+**Why 0.024 is not a model-precision statement (refined):** G2 compares the sweep's `kOmegaSST_null`
+arm (SAME model) against this baseline SST field, but under a **different convergence criterion** — the
+sweep runs empty `residualControl {}` to a fixed 20000-iter cap (forced by standing rule 4; frozen M1
+`PREREGISTRATION.md` §4.2), whereas the reference stopped on a k/ω residualControl (which does not even
+gate U or continuity) at 7009/5125 iters. Two converged-differently SST setups of the same model differ
+by O(2%) in U — a setup/criterion difference, not model error. This is exactly why the frozen grader
+labels G2 a **gross-harness-error detector, not a precision gate**, and why the 29 iteration-MATCHED
+hills all sit in the 1e-3 band. **Citation discipline: the 0.024/0.015 duct exceedances must not be
+read as any arm's accuracy.**
+
+**RULE-15 GAP recorded (for Sanaa's institutional pull):** rule-15 title-page verification of the
+UPSTREAM citations **cannot be performed** — neither the challenge paper (README cites McConkey et al.,
+arXiv:2603.28884) nor the Vinuesa-lab duct DNS (README:37-38/47-48) is present on disk (absent from
+`docs/papers/closure/` and the benchmark tree; only `README.md` exists). The G2 REFERENCE FIELD's
+provenance is established from disk; the upstream DNS/challenge PAPERS are URL/README-only and
+unverifiable. These two papers are added to the paper-corpus / institutional-pull gap register. (The
+DNS is separately relevant to M2, error-vs-truth — it is NOT what G2 reads.)
