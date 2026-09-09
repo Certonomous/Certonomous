@@ -28,6 +28,8 @@ scoring or rung lever is moved (T25). The D6RF9 run root (ledger + logs) is at
 never cleanly measured, not that the primal cannot reach the floor. D6RF10 re-runs the identical ladder with
 both confounds removed so the P2–P5 predictions (§2) can be MEASURED.
 
+> **SUPERSEDED BY THE FROZEN BLOCK AT THE FOOT (2026-09-09).** The `PERMISSION = NOT_FROZEN` / DRAFT / STATUS lines throughout this file are superseded by the dated FROZEN block appended at the foot; they are retained unaltered per CLAUDE.md rule 6.
+
 **PERMISSION = NOT_FROZEN.** This is a lane's prediction-first proposal. Nothing here is a registration until
 the dafoam-supervisor freezes this file by sha (CLAUDE.md rule 2), after the supervisor's non-delegable
 **check-1** (the grader is a name-only adaptation of the D6RF9 FROZEN grader — §4) **and** the chief's cost
@@ -479,3 +481,11 @@ check-1 (the R2 endTime `2000 -> 300` grader diff read as a diff, grader/driver 
 accept-floor md5 `c6e63098` unmoved); (3) `scripts/check_ladder_preflight.py` (§2bb) PASS on the rebuilt manifest
 (R2 at endTime 300, deadline 1350 s from the proven ~1052.48 s complete run; R3 at endTime 2000, Basis-B deadline
 16900 s). Nothing here freezes, launches or enqueues a graded run. SUBMISSIONS PARKED.
+
+---
+
+## FROZEN 2026-09-09 by dafoam-supervisor
+
+**This block supersedes every DRAFT / `NOT_FROZEN` / STATUS line above (CLAUDE.md rule 6: originals are struck-by-supersession, never rewritten).**
+
+**Design.** R1 endTime 2500, R2 endTime 300 (AMENDMENT A3, verification-SOUND `52c3f947`), R3 endTime 2000 (AMENDMENT A2). §2bb deadlines R1 600 s / R2 1350 s / R3 16900 s (R3 Basis-B, disclosed effective-average per-step). Accept floor `1.0e-05` on `p_first_uncorrected` UNCHANGED; the A2 plateau gate (spread <= 0.31% over [1500,2000]) binds a would-be-PASS. Frozen grader md5 `0cb9d89a11347bc943acf3b38e1766d2`, run_leg md5 `4136c1e45ba641b74ce09117e7009ff8`. PERMISSION is set in `d6rf10_run_arm.sh` to THIS freeze commit's sha in the immediately-following commit. Ladder STOPPED_AT_FIRST_PASS. Cost cap ~1257 core-min (~$1.07 DERIVED). SUBMISSIONS PARKED.

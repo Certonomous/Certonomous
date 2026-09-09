@@ -17,10 +17,10 @@ set -u
 RUN_ROOT=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF10-a2-wing-convergence-probe
 LEDGER="$RUN_ROOT/ledger.txt"
 GRADER=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF10/d6rf10_grade.py
-GRADER_MD5=PLACEHOLDER_AT_FREEZE   # DRAFT: the D6RF10 grader is a name-only adaptation of D6RF9's; its md5 differs from 6e76ed57. The dafoam-supervisor pins the D6RF10 grader md5 here at freeze; the md5-drift limb below REFUSES (exit 2) while this is the placeholder, so the autograder never grades with an unpinned instrument.
+GRADER_MD5=0cb9d89a11347bc943acf3b38e1766d2   # DRAFT: the D6RF10 grader is a name-only adaptation of D6RF9's; its md5 differs from 6e76ed57. The dafoam-supervisor pins the D6RF10 grader md5 here at freeze; the md5-drift limb below REFUSES (exit 2) while this is the placeholder, so the autograder never grades with an unpinned instrument.
 DONE="$RUN_ROOT/D6RF10_AUTOGRADE_DONE.txt"
 LOG="$RUN_ROOT/d6rf10_autograde.out"
-CEIL=5400            # 90-min hard ceiling
+CEIL=21600            # 6-h hard ceiling (was 5400/90-min; the ~5.2h ladder R1 600+R2 1350+R3 16900=18850s would hit a 90-min ceiling and grade an incomplete R3)
 POLL=30
 
 echo "AUTOGRADE_START $(date -u +%FT%TZ) pid=$$ ppid=$PPID cpuset-agnostic (grading only)" >> "$LOG"
@@ -56,7 +56,7 @@ fi
 # 3. Authoritatively grade each real-solver rung log (skip pure config-install aborts).
 {
   echo "D6RF10_AUTOGRADE_DONE $(date -u +%FT%TZ)"
-  echo "grader=$GRADER md5=$GOT (frozen ed181847 pin, VERIFIED)  invocation: --log <log> --rung <Rn>  (NO --skip-freeze)"
+  echo "grader=$GRADER md5=$GOT (frozen at the D6RF10 freeze sha, VERIFIED)  invocation: --log <log> --rung <Rn>  (NO --skip-freeze)"
   echo "ledger tail:"
   tail -40 "$LEDGER" 2>/dev/null | sed 's/^/  /'
   echo "----- per-rung authoritative grades (frozen grader; controls self-run) -----"

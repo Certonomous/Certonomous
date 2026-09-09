@@ -209,8 +209,8 @@ MD5_UNITS=34f477f92b23e27896b458475eef0f78              # d6rf7_units_assert.py
 MD5_ENDPOINT_PHYS=625bacf5b1489989f9a2638dd99e2e52      # d6rf7_endpoint_physical.py (endpoint reconstruction)
 MD5_LOCUS=341189ca866f302a7e1bba8eefad3a57              # d6rf7_endpoint_locus.py (D6RF7 MD5_LOCUS6; imported by endpoint_physical:90 + units_assert:82 -- was dropped from the D6RF10 adaptation, restored 2026-09-09)
 MD5_EXTRACT=baedb673e9c88291f6724794681bc9a7            # d6rf7_extract_endpoint.py
-MD5_GRADE=PLACEHOLDER_AT_FREEZE              # d6rf10_grade.py -- name-only adaptation of the D6RF9 frozen grader (logic byte-identical: reverse-substitute D6RF10->D6RF9 diffs EMPTY). Its md5 DIFFERS from D6RF9's 6e76ed57 because the item name/tokens/import changed; the dafoam-supervisor pins the D6RF10 grader md5 at freeze (verify_and_stage_instruments aborts rc 4 while placeholder).
-MD5_RUN_LEG=PLACEHOLDER_AT_FREEZE            # d6rf10_run_leg.py -- name-only adaptation of the D6RF9 frozen driver (logic byte-identical). md5 set at freeze.
+MD5_GRADE=0cb9d89a11347bc943acf3b38e1766d2              # d6rf10_grade.py -- name-only adaptation of the D6RF9 frozen grader (logic byte-identical: reverse-substitute D6RF10->D6RF9 diffs EMPTY). Its md5 DIFFERS from D6RF9's 6e76ed57 because the item name/tokens/import changed; the dafoam-supervisor pins the D6RF10 grader md5 at freeze (verify_and_stage_instruments aborts rc 4 while placeholder).
+MD5_RUN_LEG=4136c1e45ba641b74ce09117e7009ff8            # d6rf10_run_leg.py -- name-only adaptation of the D6RF9 frozen driver (logic byte-identical). md5 set at freeze.
 # OptView.hst is DATA (the pyOptSparse optimisation history that DEFINES the endpoint design point), not a staged instrument, so it lives OUTSIDE INSTR_MD5. Its md5 is the canonical endpoint pinned by d6rf7_extract_endpoint.py's own registration (:14). Staged below; was dropped from the D6RF10 adaptation, restored 2026-09-09.
 MD5_OPTVIEW=70fafa07bdee618fef13039433c01114
 
