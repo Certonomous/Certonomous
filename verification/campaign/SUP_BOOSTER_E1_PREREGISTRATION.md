@@ -1,13 +1,16 @@
 # SUP_BOOSTER — Case-3 EXACT-tier (E1) pre-registration — Taylor-Maccoll supersonic cone
 
-**STATUS: DRAFT / UNFROZEN.** This document is a draft prepared by a cfd lab-lane. It is
-**not frozen**: the freeze (commit + sha hash of the grading path) and the launch of the
-graded solve are the **cfd-supervisor's check-4** and are not taken here. Nothing in this
-file is a verdict; no graded compute has run.
+**STATUS: FROZEN 2026-09-09 by the cfd-supervisor (check-4).** The gates, thresholds,
+compute cap and labels are now **CLOSED**. After this commit, changes land only as **dated
+addenda that cannot alter any gate, threshold, cap, label or endTime** (rule 2); originals
+are struck, never rewritten. The grading path is fixed at this freeze commit and each pinned
+file is hashed against its committed git blob (see §12; enforced by
+scripts/check_comparator_freeze.py). No graded compute has run yet; launch of the graded
+triple is the cfd-supervisor's check-4 after the freeze commit is verified.
 
 Navier-class parity campaign, Case-3 (Supersonic booster / cone). Case id **SUP_BOOSTER**,
 EXACT-tier rung **E1**. Filing convention confirmed by the cfd-supervisor and registered in
-`scripts/check_filing.py` (commit 7d52dc13).
+scripts/check_filing.py (commit 7d52dc13).
 
 Written 2026-09-09, before any graded solve exists for this rung. The EXACT-tier reference
 is **regenerated numerically** (Taylor-Maccoll ODE) and needs **no external reference PDF**.
@@ -129,7 +132,7 @@ completion.
 
 ## 6. Planted-zero control (rule 3) — grader design
 
-`grade_sup_booster.py` refuses to trust any clean read until the planted control fires:
+`verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster.py` refuses to trust any clean read until the planted control fires:
 before grading, it copies the finest-grid endTime `p` field, adds **PLANT = 1000.0 Pa** to
 one cone owner-cell **inside the trimmed plateau**, reads the surface pressure back through
 the *same* cone-Cp reader, and **requires** the reported plateau mean to rise by
@@ -159,7 +162,7 @@ the thermal list is disclosed, not silent.
   radial spacing ≈ 2.6 mm, giving a hypothetical *viscous* y+ ≈ 2000 at these conditions.
   The Menter y+/wall-treatment cross-cut therefore **binds the MEASURED-tier (viscous)
   successor**, which would require ~µm near-wall spacing and rides PENDING-data (§9).
-- **Curvature LE-resolution check (`scripts/check_le_surface_resolution.py`):** this is a
+- **Curvature LE-resolution check (scripts/check_le_surface_resolution.py):** this is a
   **rounded-LE-wing** admission mechanic (least-squares LE-circle fit, chordwise
   suction-peak spacing). SUP_BOOSTER is a **sharp cone (zero LE radius — a conical
   singularity at the apex, not a finite-radius leading edge)**, so its criteria (A) nose
@@ -186,7 +189,7 @@ was checked (naming a run directory that does not yet exist). After first graded
 gate, threshold, cap and label are closed; changes land only as dated addenda that cannot
 alter them (rule 2). The grading path is fixed at the freeze commit; the frozen file is
 hashed against the committed blob to prove it is the file that ran
-(`scripts/check_comparator_freeze.py`).
+(scripts/check_comparator_freeze.py).
 
 ## 11. §2bb pre-flight (pre-compute admissibility screen) — verdict at draft
 
@@ -201,11 +204,29 @@ hashed against the committed blob to prove it is the file that ran
 | Reference regenerable, grid-independent | TM ODE converged to 1e-13 — PASS |
 | Planted-zero control fires | reader sees planted 1000 Pa exactly — PASS |
 
-**§2bb pre-flight verdict: ADMISSIBLE** — the graded solve may be launched once this
-pre-registration is **frozen by the supervisor**.
+**§2bb pre-flight verdict: ADMISSIBLE** — the graded solve is launched by the
+cfd-supervisor (check-4) after this freeze commit is verified.
+
+## 12. Frozen grading path (pinned by git blob sha)
+
+The grading path is fixed at this freeze commit. Each file below is pinned to its committed
+git blob sha; the graded solve is verified against these exact blobs
+(scripts/check_comparator_freeze.py --registration). These three are the ONLY machine-pinned
+(.py) grading-path files:
+
+| file (pinned grading path) | git blob sha |
+| --- | --- |
+| `verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster.py` | 3c8d418adf7f96d7702c83ecd26be1058bad800b |
+| `verification/runs/navier_class/SUP_BOOSTER/taylor_maccoll_reference.py` | 0a17270ccd203e1b449b28d23c5393dd0c9d2fb9 |
+| `cases/navier_class/SUP_BOOSTER/gen_cone_mesh.py` | da65ffe2c5e506b6732a65a6ce03d93ef16cb578 |
+
+Provenance (non-.py, not machine-pinned): the frozen regenerated reference
+tm_reference_M2p0_tc15.json git blob c442a94bfd3166e443124e92248c5d96a929d8a5 (regenerable
+by taylor_maccoll_reference.py above, and independently reproducible from M∞, θ_c, γ).
 
 ---
 
 *Artifacts:* case inputs `cases/navier_class/SUP_BOOSTER/`; TM generator + frozen reference,
 grader, smoke and mesh-check runs `verification/runs/navier_class/SUP_BOOSTER/`.
-*DRAFT / UNFROZEN — freeze + launch are the cfd-supervisor's check-4.*
+*FROZEN 2026-09-09 by the cfd-supervisor (check-4) — launch is the cfd-supervisor's check-4
+after the freeze commit is verified.*
