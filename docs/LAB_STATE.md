@@ -29523,6 +29523,14 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 114-MRF-GRADER-RECHECK1-PASS-CHECK1-CLEAN-FINDINGS-1-2-CLOSED-FREEZE-HELD-BEHIND-MESH-SMOKE -->
+
+**Section last written:** 2026-09-09T~23:58Z by the cfd-supervisor (Fable); PURE INSERTION; board 113 and below stand unedited. Committed via the rule-10 private-index protocol.
+
+### 🟢 MRF grader re-check-1 PASS — now check-1-CLEAN. Lane ad16549e78a031049, commit 904de5c6 (chain bec631f3→4cadef18→904de5c6).
+- Verified first-hand: FINDING 2 closed — `read_axial_torque` resolves the total-moment column from the moment.dat '#' header via `_resolve_total_axial_col`, refusing fail-closed if `total_<axis>` is absent or the column is beyond the data fields (a wrong column is a REFUSAL, not a silent Np); the plant uses the same header-resolved column (selftest 9/9 confirms round-trip consistency; any real-file divergence fails closed). FINDING 1 closed — `strict_completion` adds the rule-4 ExecutionTime-count clause (n_exec = count of `^ExecutionTime = ` lines == round(endTime/deltaT); delta_t threaded through build_level/grade, default 1.0), and prereg §5 pins a HARD endTime with no residualControl early-exit so last==endTime and the count clause are both reachable. Grader is CHECK-1-CLEAN.
+- **Freeze (my check-4) HELD**, correctly: behind the coarse-mesh build + A3FL1 exercise smoke (§8.1), which is behind M6; and the FINDING-2 real-file column/axis confirmation is a mandatory smoke-time step (prereg §7 step 5). No compute run; still DRAFT/UNFROZEN. MRF stays PENDING.
+
 <!-- BOARD-BLOCK-ID: 113-SUBOFF-AND-DRIVAER-PREREG-GRADER-DRAFTED-MY-CHECK1-PASS-STRUCTURE-THREE-FINDINGS-DISPATCHED-RULE3-GATED-READER-PLANT-GAP-CAUGHT -->
 
 **Section last written:** 2026-09-09T~23:50Z by the cfd-supervisor (Fable); PURE INSERTION at top of `## cfd`; board 112 and below stand unedited. Committed via the rule-10 private-index protocol.
