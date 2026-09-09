@@ -8556,3 +8556,91 @@ change, and a `§2d.1` repair may not be used to re-designate the criterion.
   `a2978688`).
 - **Transient solves are out of scope.** This is a steady-state / outer-loop convergence standard; a
   time-accurate run's convergence is judged on its own per-timestep criteria, not addressed here.
+
+## Amendment — v1.72, 2026-09-09 — **§2ba THE DUAL-MECHANISM RUN STANDARD: MONITOR + DETACHED GRADER. EVERY RUN MUST BE LAUNCHED WITH BOTH TOGETHER — A LIVE MONITOR LANE THAT WATCHES AND REPORTS WHILE THE FLEET IS ALIVE AND SANAA IS ONLINE, AND A DETACHED GRADER/SCHEDULER (setsid ORPHANED TO init IN ITS OWN SESSION, OR THE QUEUE DAEMON / at / cron) THAT CARRIES THE RUN TO COMPLETION AND GRADES IT AGAINST THE FROZEN COMPARATOR WITH NO LIVE AGENT. NEITHER SUBSTITUTES FOR THE OTHER; A RUN LAUNCHED WITH ONLY ONE IS NON-COMPLIANT.**
+
+**Appended 2026-09-09 by `verification-supervisor` on Sanaa's own directive, relayed verbatim by the
+chief this session. Sanaa, verbatim: *"in general every run must have both: monitor AND detached
+autograder/ scheduler etc that way when i am online the monitoring agent monitors and when offline
+everything stil runs on the box."* `[A new lab standard is reserved to Sanaa (rule 9 / FIRST-ACTION
+RULE), and this is her own word. Provenance is her directive of 2026-09-09, captured
+verbatim at `etc/sessions/2026-09-09_sanaa_dual_mechanism_run_standard.md` (landed this session to
+match the `§2az` precedent).]` Landed in the CHARTER, not `CLAUDE.md` — whether the constitution absorbs it is hers.**
+
+**LINES WHOSE NUMBER CHANGED ABOVE THIS SECTION: 0.** This clause is appended at the foot and nothing
+above it is edited (rule 6); the base header on line 3 is not bumped, matching the v1.67–v1.71
+foot-only amendment pattern.
+
+### §2ba.1 THE STANDARD
+
+> **RULED — `§2ba`: EVERY run — a graded solve, a curriculum item, any compute whose product is a
+> verdict or a measured number — MUST be launched with BOTH of the following, together, at launch:**
+>
+> 1. **A LIVE MONITOR.** A monitor lane (or equivalent live agent) that watches the run — progress,
+>    residuals, iteration/ETA, stalls, crashes — and reports upward WHILE a fleet is alive and Sanaa
+>    is online. This is the online-observability half: it exists so that while someone is watching,
+>    the run is watched, triaged and reported in real time.
+>
+> 2. **A DETACHED GRADER / SCHEDULER.** A process orphaned to `init` — a `setsid` session of its own,
+>    the queue daemon (`scripts/queue_runner.py --daemon`), or an `at` / `cron` job — that carries the
+>    run to completion AND grades it against the FROZEN comparator, WRITING THE VERDICT TO DISK WITH
+>    NO LIVE AGENT REQUIRED. This is the offline-survival half: it exists so that when the fleet dies,
+>    a session-limit kill lands, or Sanaa is offline, the run still completes and still produces its
+>    verdict on the box, unattended.
+
+### §2ba.2 NEITHER SUBSTITUTES FOR THE OTHER — A RUN WITH ONLY ONE IS NON-COMPLIANT
+
+The two mechanisms cover DIFFERENT failure modes and one cannot stand in for the other:
+
+- **A monitor without a detached grader dies with its agent.** A watcher spawned inside a lane or
+  session is killed the instant the fleet dies or the session limit expires — *"agent watchers die
+  with the agent"* (memory note; and `L-239`: a record-only watcher that names no process able to
+  execute the run is a preference, not a control). It leaves a live run orphaned with no one to grade
+  it, or worse, a run that never reaches completion.
+- **A detached grader without a monitor runs blind.** A daemon-only run completes and grades, but a
+  stall, a divergence, a wrong-turn or a crash goes untriaged for as long as no agent looks — burning
+  core-minutes on a run no one is reading (idle-attention is a cousin of the idle-compute failure).
+  The live monitor is what makes a problem visible while it can still be acted on.
+
+A run launched with only ONE of the two is **NON-COMPLIANT** with `§2ba` and is to be flagged the same
+way any other pre-registration/launch-discipline defect is flagged — a cross-team gate audit records
+it, and the owning team re-launches compliantly. This binds all six teams henceforth.
+
+### §2ba.3 WHAT THE DETACHED HALF MUST SATISFY (carried forward from existing law, not new)
+
+The detached grader/scheduler is subject to the practices already on record; `§2ba` names them as
+mandatory-together, it does not relax any:
+
+- **Detached means orphaned to `init`, launched through `setsid` (or a container / the queue daemon),
+  never as a foreground call** — a foreground solve has been SIGTERM-killed by an external signal with
+  no error and no OOM while a detached one has not (`ESCALATION_CHARTER` §disconnect-safety practice,
+  the "solver runs detached and ledgers itself as it goes" clause).
+- **The queue daemon is an OS daemon independent of any agent** — the detached-queue-runner ruling
+  (Sanaa 2026-08-26; memory note *detached-queue-runner-ruling*, `LESSONS` L-context at
+  `docs/LESSONS.md:14983`): dropping the queue JSON IS the launch and it survives fleet death.
+- **`rc` is captured INSIDE the detached wrapper, never around the `setsid` line** — `setsid timeout
+  cmd` exits 0 for every outcome (memory note *setsid parent returns zero*; `L-382` private-index CAS
+  trap is a cousin). The verdict written to disk must be a real grade, not a manufactured `rc=0`.
+- **`STATUS.<case>` is the ONLY completion evidence when no agent is watching, so it IS rule 4's
+  `rc = 0` limb** — a launcher that manufactures complete-on-disk-but-ungradeable cases at machine
+  speed under a detached queue is the standing hazard (`LAB_STATE` K0d finding); the frozen comparator
+  the detached grader runs must refuse (exit 2) rather than degrade (rule 4; rule 5).
+- **The verdict is graded against the FROZEN comparator, sha-pinned at the pre-registration commit**
+  (rule 2) — the detached grader does not choose or alter the grading path.
+
+### §2ba.4 SCOPE, AND WHAT IT DOES NOT MOVE
+
+- **General, binding all six teams, from now forward.** `§2ba` is a launch-discipline standard; it
+  applies to every run whose product is a verdict or a measured number. It does NOT re-grade any
+  landed row and moves NO verdict — it is an operational requirement on how runs are LAUNCHED, not on
+  how their results are judged.
+- **It generalizes what already worked this session.** The M6 fork-A / physics-hold work and the
+  cooling-rung work survived precisely because a detached mechanism carried them past agent death; the
+  standard makes the pairing that saved them mandatory rather than incidental.
+- **Development/smoke compute that produces no verdict** (ungraded method-validation smokes, §11-style
+  diagnostics) is not a "run" in this sense — it reads no gate and writes no verdict, so the
+  monitor+grader pairing is not required of it; but the moment compute is intended to produce a graded
+  result, `§2ba` binds.
+- **Enforcement is by flag, not by moving a verdict** — consistent with `§2ay`'s flags-only boundary.
+  A non-compliant launch is a defect of process; the run's verdict, once produced, is judged on its
+  own merits under rules 2–5.
