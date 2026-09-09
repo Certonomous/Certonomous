@@ -94,7 +94,7 @@ RANKS=4
 
 # --- PERMISSION (freeze field). Assigned EXACTLY once; the last assignment
 # --- would win in shell, so the count is pinned, not the appearance.
-PERMISSION=508bf5f0b093377129b211718a5aa6c6291d133f   # D6RF10 RE-FREEZE 2026-09-09 (Y'): points to commit X' (508bf5f0), which carries the PREREGISTRATION.md ADDENDUM recording the launcher-runtime-param CORRECTION to match the already-frozen registration. Supersedes the prior freeze sha 787d9fa1 (that commit's launcher ran STALE runtime params -> the STOPPED CONFOUNDED run, archived). G-FREEZE passes: this sha resolves to a commit carrying the prereg blob. Re-launch is Katie-gated after the supervisor's non-delegable check-1.
+PERMISSION=2fd18eff2479ff90abc373101c45eebb7fba4ead   # D6RF10 RE-FREEZE 2026-09-09 (Y''): points to commit X'' (2fd18eff), which carries the R4-STRIKE AMENDMENT (R4 removed from the runnable ladder loop: for RUNG in R1 R2 R3) + the CUMULATIVE_HARD_STOP comment update. Supersedes the prior freeze sha 508bf5f0 (Y', X' -- that launcher still iterated R4, absent from the frozen 3-rung manifest, S-144 GAMG confound unresolved, cap 1420 > hard-stop 1275). G-FREEZE passes: this sha resolves to a commit carrying the prereg blob. Re-launch is Katie-gated after the supervisor's non-delegable check-1.
 PERM_ASSIGNMENTS=$(grep -cE '^PERMISSION=' "${BASH_SOURCE[0]}")
 if [ "$PERM_ASSIGNMENTS" != "1" ]; then
   echo "ABORT G-FREEZE-UNIQUE PERMISSION is assigned $PERM_ASSIGNMENTS time(s); the last wins silently. Pin the count."
