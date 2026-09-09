@@ -62,6 +62,8 @@ it was (this session, 21,840 cells), it broke down identically to the
 case's mesh as an escape route is closed, not merely unpromising**: a mesh
 4.6x smaller than the previously-assumed threshold still diverges.
 
+> [SUPERSEDED — see CORRECTION 2026-09-09 at the foot: with transonicPCOption 1, rungs 1/2 converge + are FD-verified; the wall is -3 stagnation at rung 3, not -5.]
+
 **The sail/NACA (incompressible, `DASimpleFoam`, 4-5 fields) family behaves
 differently and has a real, demonstrated window**: converges cleanly at
 4,032 (A1), 63,920 (naca0015_sail_coarse) cells (independently re-verified,
@@ -633,3 +635,67 @@ Per §9, Options 1–2's lever-activity and reason-code claims therefore ship
 activity unsupported by any surviving runtime log). Options 4–5 and the
 headline envelope are unaffected — their raw logs survive and were re-verified
 line-by-line in the audit.
+
+---
+
+## CORRECTION 2026-09-09 — the "-5 at every M6 size" reading above is STALE (pre-`transonicPCOption`)
+
+**Nothing above is rewritten.** Per `CLAUDE.md` rule 6, the original table row
+("too fine (conditioning) … every ONERA-M6-family point tested this session:
+21,840 / 42,120 / 79,560 / 99,840 cells … `PetscConvergedReason: -5`") and the
+paragraph beginning "The ONERA-M6 … family has never, at any tested size from
+21,840 to 399,360 cells … produced a converged adjoint" are struck, not edited.
+Every measured number in them stands as it was recorded. This note discloses
+what later runs established; it overwrites none of it.
+
+**Why they are stale.** The L48-63 table and paragraph — and the "-5 everywhere"
+reads restated in Options 4/5 and the end-of-Option-5 hardware summary — were
+all measured with the transonic preconditioner **OFF**. The 2026-08-08 annotation
+already flagged this (`transonicPCOption 2;` echoed in every archived M6 dump is
+dead code for `DARhoSimpleCFoam`, which accepts only `== 1`; no archived M6
+adjoint ran with an active transonic PC). The live test the annotation named has
+since been run, and it moves the wall.
+
+**The current, verified picture** (two artifacts, cited by path; every number
+below is read from them, not from this file):
+
+1. **M6 rungs 1 and 2 CONVERGE and are FD-verified with `transonicPCOption 1`.**
+   `/home/ubuntu/Certonomous/cases/dafoam/A3_RUNG3_N52_RESULT.md` (lines 62-63,
+   88-89): *"rungs 1 (21,840) and 2 (42,120) converge and are FD-verified; the
+   transonic-PC token remains the difference between double `-5` and convergence
+   at both."* So the "never, at any size, produced a converged adjoint" claim is
+   false as stated once the transonic PC is active. The fix **weakens** the PC —
+   it drops `div(phid,p)` from the PC matrix — which is what lets the two coarse
+   rungs converge.
+
+2. **The real wall is `-3` STAGNATION at rung 3 (79,560 cells), NOT `-5`
+   breakdown.** Same file, line 1 and lines 18-41: rung 3 CD runs to the 4000-iter
+   cap and returns `-3` with a total residual reduction of only 1.31x (flat;
+   3.79e-07 relative change over the last 2,700 iterations = stagnation), distinct
+   from the earlier `-5` denormal collapse. The ceiling therefore sits **between
+   42,120 and 79,560 cells**, and it is a **conditioning** wall, not a memory one:
+   peak was **11.65 GiB against the 22 GiB cap** (line 50-51), MemAvailable never
+   below 17 GB, no OOM.
+
+3. **Strengthening the PC re-breaks it to `-5`.** L3 Richardson at rung 2 (the
+   only change from the arm that converged there) sent both solves back to `-5`,
+   collapsing to exactly 0.0 at iteration 200 (same file, lines 10-11). Consistent
+   with a non-normal, near-indefinite transonic operator: the weakened (transonic)
+   PC converges the coarse rungs; strengthening it (pcFillLevel 1 / Richardson /
+   larger gmresRestart) or switching Krylov re-breaks it.
+
+4. **A6 wing-alone adjoint is an ITEM VERDICT `PASS`, not an unattempted
+   inference.** `/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A6/curriculum_D8R/RESULTS.md`
+   (lines 13-24, 38-40): A6 CRM wing-alone (41,760 cells, N=16, twist-only) adjoint
+   graded `PASS`, two rows (SHIPPED + PATCHED), **20/20 FD components PASS, 0 sign
+   flips**. This directly overturns the L76-82 / end-of-Option-5 inference that A6
+   "should be expected to hit the same conditioning wall as A3." **A6 wing-body
+   (579,072 cells) has still had NO adjoint attempted** — that remains
+   memory-predicted only, and the ~92 GB extrapolation is untested.
+
+**Net.** The "conditioning wall at every M6 size" framing was an artifact of the
+transonic PC being off. With it on, the M6 adjoint converges and FD-verifies at
+21,840 and 42,120 cells; the wall is a `-3` stagnation bracketed between 42,120
+and 79,560 cells with memory comfortable; and the sibling A6 wing-alone case is a
+verified PASS. The memory-scaling measurements (Options 3/5) are unaffected — they
+were never in dispute; only the convergence reads above are superseded.
