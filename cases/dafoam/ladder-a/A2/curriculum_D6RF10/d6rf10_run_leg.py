@@ -1,0 +1,215 @@
+#!/usr/bin/env python
+"""Curriculum D6RF10 -- THE PER-LEG PRIMAL DRIVER for the A2-wing convergence
+probe `P_conv`, the OUTER-LOOP-CONVERGENCE successor to D6RF7.
+
+PERMISSION = NOT_FROZEN.  This is a lane's prediction-first DRAFT producer.
+It launches NOTHING by itself: it runs INSIDE the container the launcher
+(`d6rf10_run_arm.sh`) starts, once per leg, under `mpirun`.  The freeze, the
+pins and the enqueue are the dafoam-supervisor's, taken after check-1.
+
+DERIVED FROM `curriculum_D6RF7/d6rf7_fd_endpoint.py` P_conv mode (the FD / plan
+/ ladder machinery of D6RF7 is DROPPED -- D6RF10 delta D5: this is a single-arm
+convergence probe, not an FD arm).  It CARRIES the two things that make the
+container log gradeable by `d6rf10_grade.py:read_legs`:
+
+  * THE LEG MARKERS.  `D6RF10_LEG_BEGIN <tag> mode=P_conv` ... `D6RF10_LEG_END
+    <tag> ...` bracket one leg's solver output so the grader can split one
+    container log into per-leg segments and read each leg's OWN final-iteration
+    per-field `initRes`.  They are emitted with a DIRECT `print(...)` of the
+    literal token (not through a helper) so the static reader<->producer
+    contract guard (`scripts/check_reader_producer_contract.py`) can SEE that
+    this producer emits exactly the tokens the reader parses, and flushed +
+    fsync'd so a marker is never lost in a buffer when the container is killed.
+  * THE DAOption DUMP.  DAFoam prints its resolved `daOptions` -- carrying
+    `primalMinResTol` / `primalMinResTolDiff` -- when the primal runs, and this
+    driver does NOT suppress it.  `d6rf10_accept_floor_control.run_floor_control`
+    reads the accept floor (1e-08 x 1000 = 1.0e-05) back out of that dump and
+    REFUSES the grade if either term has moved (T25).
+
+WHAT THIS DRIVER CHANGES PER RUNG, AND ONLY THIS: `solverName`.  It overrides
+`daOptions["solverName"]` to the rung's registered coupling (DARhoSimpleFoam for
+R1/R2, DARhoSimpleCFoam for R3/R4) BEFORE the problem is set up.  Every other
+outer-loop knob -- `nNonOrthogonalCorrectors`, the (p|p_rgh) and equations
+relaxation, and `endTime` -- lives in the OpenFOAM dictionaries (fvSolution /
+controlDict) and is installed by the launcher's `install_config` BEFORE this
+driver runs, which is also where `D6RF10_CONFIG_INSTALLED` is emitted.  This
+driver TOUCHES NEITHER `primalMinResTol` NOR `primalMinResTolDiff` (the bright
+line, N-D43) and NEITHER the mesh nor the fvSchemes (held at D6RF7's LIMITED
+scheme).
+
+THE PRIMAL IS RUN AT THE RECONSTRUCTED OPTIMISATION ENDPOINT, exactly as D6RF7's
+P_conv baseline did: the endpoint design vector is read from a JSON the
+launcher's `endpoint_physical` step wrote, and set onto the DVs before
+`run_model`.  The convergence measured is therefore the SAME primal D6RF7
+measured over-floor, at the SAME design point -- which is what makes the rung a
+successor and not a new case.
+
+THE EXPECTED PRIMAL-RAISE IS SURVIVED, NOT SUPPRESSED (carried from D6RF7).  If
+`p_first_uncorrected` stays over the 1.0e-05 floor at `endTime`, DAFoam raises
+`Primal solution failed!` after `End`.  That refusal is the PREDICTION landing,
+not the arm failing: the per-corrector `p initRes` lines the gate reads are
+already in this leg's log segment.  The driver records `primal_raised=True`,
+still closes `D6RF10_LEG_END`, and exits 0 so the container runs the next leg --
+WITHOUT moving the accept floor to let it through.
+
+NO `assert` STATEMENT (python -O deletes them).  Refuses (exit 2) rather than
+degrading, as this family's instruments do.
+"""
+import argparse
+import hashlib
+import json
+import os
+import sys
+import time
+
+# The runScript is D6RF7's, held BYTE-IDENTICAL (the primal setup is fixed; only
+# the outer-loop numerics move). The launcher stages it beside this driver and
+# passes --runscript; the default names the frozen file so the driver is
+# self-documenting about what it execs.
+DEFAULT_RUNSCRIPT = "d6rf7_opt_runScript.py"
+DEFAULT_ENDPOINT_DVS = "d6rf7_endpoint_dvs.json"
+# `d6rf7_opt_runScript.py` frozen md5 (D6RF7 STAGE_ROOT MD5_RUNSCRIPT6 /
+# d6rf7_run_arm.sh:329). The driver runs the file it was registered against.
+RUNSCRIPT_MD5 = "137539e0a99be27f27fdb69e063b2a87"
+# The header exec stops here (the D6RF-BLOCKING-1 lesson: the anchor must occur
+# exactly once, and is NAMED, never quoted, in the runScript's own docstring).
+ANCHOR = "# OpenMDAO setup"
+DV_KEYS = ("twist", "shape", "patchV_cl04", "patchV_cl05", "patchV_cl06")
+
+REGISTERED_SOLVERS = ("DARhoSimpleFoam", "DARhoSimpleCFoam")
+
+
+def md5_of(path):
+    with open(path, "rb") as fh:
+        return hashlib.md5(fh.read()).hexdigest()
+
+
+def _flush():
+    """A marker still in a buffer when the container is killed segments
+    nothing, and an unsegmented log is a log no per-leg number can be cited
+    from."""
+    sys.stdout.flush()
+    try:
+        os.fsync(sys.stdout.fileno())
+    except (OSError, ValueError):        # not a real fd under a pipe
+        pass
+
+
+def _refuse(msg):
+    sys.stderr.write("D6RF10_LEG REFUSE %s\n" % msg)
+    sys.exit(2)
+
+
+def main(tag, solver, runscript, endpoint_dvs):
+    if solver not in REGISTERED_SOLVERS:
+        _refuse("solver %r is not a registered coupling; registered: %r"
+                % (solver, REGISTERED_SOLVERS))
+    if not os.path.isfile(runscript):
+        _refuse("runscript %s is not on disk" % runscript)
+    got = md5_of(runscript)
+    if got != RUNSCRIPT_MD5:
+        _refuse("runscript md5 %s != frozen %s (the primal setup must be the "
+                "byte-identical D6RF7 runScript)" % (got, RUNSCRIPT_MD5))
+    with open(runscript) as fh:
+        src = fh.read()
+    if src.count(ANCHOR) != 1:
+        _refuse("anchor %r appears %d times in %s (D6RF-BLOCKING-1)"
+                % (ANCHOR, src.count(ANCHOR), runscript))
+    header = src.split(ANCHOR)[0]
+
+    # exec the frozen runScript HEADER: it defines daOptions and Top exactly as
+    # the producer would, without the driver stanza (which builds the multipoint
+    # optimiser we do not run here).
+    saved_argv = list(sys.argv)
+    sys.argv = [runscript, "-task", "run_model", "-optimizer", "IPOPT"]
+    ns = {"__name__": "d6rf10_frozen_header", "__file__": runscript}
+    exec(compile(header, runscript, "exec"), ns)               # noqa: S102
+    sys.argv = saved_argv
+
+    if "daOptions" not in ns or "Top" not in ns:
+        _refuse("the runScript header did not define daOptions and Top")
+    # ---- THE ONE PER-RUNG OVERRIDE: solverName. The bright-line terms are
+    # ---- verified UNTOUCHED before and after, so the coupling swap can never
+    # ---- smuggle a floor change (N-D43).
+    before = (ns["daOptions"].get("primalMinResTol"),
+              ns["daOptions"].get("primalMinResTolDiff"))
+    ns["daOptions"]["solverName"] = solver
+    after = (ns["daOptions"].get("primalMinResTol"),
+             ns["daOptions"].get("primalMinResTolDiff"))
+    if before != after or after != (1.0e-8, 1e3):
+        _refuse("the solverName override moved the accept-floor terms "
+                "primalMinResTol/primalMinResTolDiff before=%r after=%r "
+                "(the bright line, N-D43)" % (before, after))
+
+    from mpi4py import MPI
+    import numpy as np
+    import openmdao.api as om
+
+    rank = MPI.COMM_WORLD.rank
+    Top = ns["Top"]
+
+    prob = om.Problem()
+    prob.model = Top()
+    prob.setup(mode="rev")
+
+    # the reconstructed optimisation endpoint (the launcher's endpoint_physical
+    # step wrote it); the primal is measured at the SAME design point as D6RF7.
+    if not os.path.isfile(endpoint_dvs):
+        _refuse("endpoint dv file %s is not on disk" % endpoint_dvs)
+    with open(endpoint_dvs) as fh:
+        dvs = json.load(fh)
+    for key in DV_KEYS:
+        if key not in dvs:
+            _refuse("endpoint dv file missing %s" % key)
+        prob.set_val(key, np.array(dvs[key], dtype=float))
+
+    # ---- THE LEG. Emit BEGIN, run the primal (DAFoam prints the DAOption dump
+    # ---- and the per-corrector `p initRes` lines here), emit END. The literal
+    # ---- tokens are DIRECT print args so the contract guard sees this producer
+    # ---- emit exactly what d6rf10_grade.py parses.
+    print("D6RF10_LEG_BEGIN", tag, "mode=P_conv"); _flush()
+    t0 = time.time()
+    raised = False
+    err = None
+    try:
+        prob.run_model()
+    except Exception as exc:                                   # noqa: BLE001
+        # The expected over-floor plateau: DAFoam raises `Primal solution
+        # failed!` after End. The prediction landing, not the arm failing --
+        # the binding `p initRes` lines are already in this leg's segment.
+        raised = True
+        err = repr(exc)[:400]
+    print("D6RF10_LEG_END", tag, "mode=P_conv",
+          "wall_s=%.3f" % (time.time() - t0),
+          "primal_raised=%s" % raised,
+          ("primal_error=%s" % err) if raised else "primal_error=None")
+    _flush()
+    if rank == 0:
+        # a small side product for the record; the GRADED numbers are the per-
+        # corrector p lines in the log segment, not this file.
+        with open("d6rf10_leg_%s.json" % tag, "w") as fh:
+            json.dump({"leg": tag, "solverName": solver,
+                       "primal_raised": raised, "primal_error": err,
+                       "wall_s": round(time.time() - t0, 3)},
+                      fh, indent=1, sort_keys=True)
+            fh.flush()
+            os.fsync(fh.fileno())
+    print("D6RF10_LEG_COMPLETE", tag, "primal_raised=%s" % raised); _flush()
+    MPI.COMM_WORLD.Barrier()
+    return 0
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser(
+        description="Run ONE D6RF10 P_conv leg and emit its grader markers.")
+    ap.add_argument("--leg-tag", required=True,
+                    help="the leg identity the grader binds (a rung R1..R4, or "
+                         "a control tag); matches D6RF10_CONFIG_INSTALLED leg=")
+    ap.add_argument("--solver", required=True, choices=list(REGISTERED_SOLVERS),
+                    help="the rung's outer-loop coupling (solverName override)")
+    ap.add_argument("--runscript", default=DEFAULT_RUNSCRIPT,
+                    help="the frozen D6RF7 runScript, staged beside this driver")
+    ap.add_argument("--endpoint-dvs", default=DEFAULT_ENDPOINT_DVS,
+                    help="the reconstructed endpoint design vector JSON")
+    a = ap.parse_args()
+    sys.exit(main(a.leg_tag, a.solver, a.runscript, a.endpoint_dvs))
