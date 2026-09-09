@@ -1,0 +1,4 @@
+u_x(centre) levels: L1=-163.116224 L2=-164.615056 L3=-164.753374 L4=-164.813793
+4-POINT DIAGNOSTIC (not a gate): p(L1,L2,L3)=3.438 [CONVERGING]  p(L2,L3,L4)=1.195 [CONVERGING]  settling_toward_2=True
+GRADED triple (L2/L3/L4) u_x(centre): -164.615056 -164.753374 -164.813793 state=CONVERGING R=0.4368 p=1.195 GCI_fine=0.03554%
+VERDICT: GATE REACHED -- grid-convergence gate MET (p in [1.0,3.0]? True; GCI_fine<=5.0%? True). PASS withheld: external Darr&Vanka validation deferred (figure digitization) and the BC-direction cap stands (R1 Ruling 1).

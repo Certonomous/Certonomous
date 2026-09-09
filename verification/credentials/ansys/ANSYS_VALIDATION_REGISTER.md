@@ -1555,3 +1555,33 @@ Every level `state = COMPLETE`, `rc = 0` MEASURED, `End`, `SIMPLE solution conve
 ### What this row REFUSES to claim
 - **No `PASS`.** The gate reference is experimental; the continuum limb misses by +37.5 %; ceiling GATE REACHED. Not a credential.
 - **`GATE FAIL` is a finding, not a deletion** — it stands in the register with its numbers, not counted among the PASS credentials. R3 successor is a research question (why the laminar SIMPLE model gives ~5.5, not 4.0), NOT a band widening.
+
+## Row #69 — VMFL054-R3 — Laminar Flow in a Trapezoidal Driven Cavity (VM2026R1 p. 173) — **`GATE REACHED`**
+
+**Graded 2026-09-09 through the pinned frozen comparator (blob `fd959928280e178706b929899962918cd444a1ca`, verified byte-identical on disk == at HEAD before grading, §3 check 1; selftest 16/16). Verdict `GATE REACHED`.** The grid-convergence (Roache) gate is MET, but **PASS is WITHHELD**: the external experimental validation limb (Darr & Vanka 1991) is DEFERRED — the manual states that reference only as a plotted profile, figure digitisation pending — and the BC-direction cap (R1 Ruling 1) stands. Promotion to PASS is a Sanaa-reserved ceiling change and is **not** taken here. A GATE-REACHED row is not a credential. Cites and does NOT overwrite the R2 attempt (row #53).
+
+**Refutes the R2 coarse-grid artefact.** R2 (#53) read p = 3.438 (a coarse-grid artefact); the pre-registered NAMED ALTERNATIVE — that a finer family (L4 = 320²) would resolve it into the asymptotic range — is confirmed verbatim. No band was widened (anti-fitting).
+
+### What the run did — all four levels COMPLETED CLEAN (strict completion PASSES)
+Every level: `RUN_RC = 0` MEASURED, `End`, fields present and newer than `0/` (age guard), no FOAM FATAL. endTime 50000; every level converged via `residualControl` BELOW that ceiling (last Time L1 741 / L2 985 / L3 1990 / L4 7118) — the PRE-DECLARED frozen completion path for a residualControl-terminated steady solve (comparator header; same basis as R1/R2, VMFL038/VMFL063), NOT a defect.
+
+### The grade
+| level | u_x(centre) (m/s) |
+|---|---|
+| L1 | −163.116224 |
+| L2 | −164.615056 |
+| L3 | −164.753374 |
+| L4 (finest) | −164.813793 |
+
+- **Graded triple = L2/L3/L4** (a-priori fixed selection rule, anti-fitting — comparator header). Roache **CONVERGING**, **R = 0.4368**, observed order **p = 1.195**, **GCI_fine = 0.03554 %** (Fs 1.25). 4-point diagnostic (NOT a gate): p(L1,L2,L3) = 3.438, p(L2,L3,L4) = 1.195, settling_toward_2 = True.
+- **Gate limbs:** p ∈ [1.0, 3.0]? **True.** GCI_fine ≤ 5.0 %? **True.** → **`GATE REACHED`**. Rule 5: CONVERGING triple → the gate verdict stands.
+
+### Provenance
+- **Comparator:** `cases/ansys_verification/VMFL054-R3/grade_vmfl054_r3.py`, blob **`fd959928280e178706b929899962918cd444a1ca`** — disk == HEAD; selftest 16/16 (planted-zero read-back errs 3.6e-15 / 7.1e-15; physical-range garbage and rule-4 refusals all fire).
+- **Pre-registration & freeze:** `cases/ansys_verification/VMFL054-R3/PREREGISTRATION.md` blob **`0fd58845b6425f32a0adcb9dc31bbbf530858df8`** (before compute, rule 2, §3 check 4).
+- **Run root:** `verification/runs/ansys_verification/VMFL054-R3/` — `GRADING_VMFL054_R3.txt` (materialised 2026-09-09 by re-running the frozen comparator; the verdict is re-derivable), `L1/L2/L3/L4`, `RUN_RC.*`. Results prose `verification/runs/ansys_verification/VMFL054-R3/RESULTS.md`.
+- **Cost:** **19.9167 core-min MEASURED** (four-level sum, serial ranks=1; L1 0.0167 + L2 0.1167 + L3 1.0 + L4 18.7833) = **$0.01703 DERIVED, NOT measured** at $0.0513/core-h. **REPORTING-QUIRK CORRECTION: the launcher's `core_min_used` reads 18.7833 = the L4 level ALONE, not the four-level cumulative; the earlier board figure 18.78 inherited that single-level total. The honest cumulative is 19.9167 core-min** (+1.1334 = L1+L2+L3), a launcher reporting quirk, NOT compute waste. Ratio 1.245 vs the ~16 core-min estimate (an ESTIMATE_OVERRUN was reported-not-enforced; no registered cap on this entry). Waste 0.000 core-min. Calibration row `C-20260909T021050.027704Z-c524627f` in `docs/COST_CALIBRATION.md`.
+
+### What this row REFUSES to claim
+- **No `PASS`, no credential.** The Roache gate is met, but the experimental-validation limb is deferred and the BC-direction cap stands; PASS is a Sanaa-reserved ceiling change, not taken here.
+- **No band was widened to reach the gate** — R2's p = 3.438 was a coarse-grid artefact; the pre-registered named alternative (asymptotic range at L4) is confirmed as registered.
