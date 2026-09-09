@@ -1490,6 +1490,8 @@ cost 0.43 core-min against no separately pre-registered grading estimate (gradin
 is a sub-core-min read) — the material cost is the 133.03 core-min WASTE on the 6 timeout arms,
 recorded above and to be reconciled at the M1b regrade when G0 grades them.
 
+UPDATE (same session, after the BLOCKED commit e90915c5): the M1b successor C1 fix is COMMITTED, STILL UNFROZEN -- predicate `seen>=PLANT-1e-15` -> `abs(seen-PLANT)<=PLANT*1e-9` (PLANT-relative, magnitude-independent), and the selftest now exercises a real O(47) donor (the fixture gap that hid the bug, L-508). Supervisor SUPERVISION sec.3 check-1 diff-read: SOUND, no functional defect; only C1's control tolerance changed, no gate/band/threshold/label/PLANT touched; selftest green under python3 and python3 -O. NEXT zero-compute increment = write M1b PREREGISTRATION.md (inherit M1 sec.7 thresholds VERBATIM + document the C1 control-robustness correction + regrade rationale + birth-record requirement + zero-compute cost since the 78-run data exists), then freeze (sha-pin) + grade; the expected verdict there is G0 GATE FAIL (6 of 78 arms incomplete: kOmega/{AR_1_Ret_180,AR_7_Ret_180,AR_14_Ret_180,PH_Breuer}, kOmegaSST_null/{AR_1_Ret_180,PH_Breuer}) with G2/G3/G4 computed on the 72 complete. Waste on the 6 timeout arms MEASURED = 133.03 core-min = $0.114 DERIVED.
+
 
 **TWENTY-THIRD SESSION, 2026-09-08 (closure-supervisor). CONTINUE. ZERO COMPUTE (0 solver
 core-min [MEASURED], 0 GPU-h, $0.00; selftest ~9 s wall CPU only). ONE COMMITTABLE INCREMENT

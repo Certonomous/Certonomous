@@ -353,8 +353,15 @@ def planted_zero_control(field_path, workdir):
     if len(fa["values"]) != len(fb["values"]):
         refuse("C1-PLANT", "planted and clean copies parsed to different lengths")
     seen = max(abs(x - y) for x, y in zip(fb["values"], fa["values"]))
+    # PLANT-RELATIVE tolerance, magnitude-independent: reading a small plant
+    # (1.234e-3) back off an O(1)+ donor carries a round-off that EXCEEDS an
+    # absolute 1e-15 (measured 3.37e-15, ~half a ULP at magnitude 47), so the
+    # old `seen >= PLANT - 1e-15` false-refused a fully sighted reader on real
+    # velocity data.  PLANT*1e-9 (1.234e-12) sits ~360x above that round-off and
+    # ~9 orders below PLANT, so a blind reader (seen=0) or a wrong-magnitude
+    # reader is still caught while a sighted O(1)-O(1e3) donor passes (L-508).
     return dict(source=field_path, planted=PLANT, read_back_delta=after - before,
-                reader_max_change=seen, passed=seen >= PLANT - 1e-15)
+                reader_max_change=seen, passed=abs(seen - PLANT) <= PLANT * 1e-9)
 
 
 # --------------------------------------------------------------------------
@@ -1408,6 +1415,38 @@ def selftest():
                          blind["passed"] is False, str(blind))
         finally:
             read_internal_field = real
+
+        # L-508 POSITIVE LIMB AT THE REAL FIELD MAGNITUDE.  The old fixture is
+        # O(1); the live corpus plants onto a donor whose first cell is
+        # O(47) m/s, where reading the plant back carries ~3.37e-15 round-off --
+        # short of an absolute 1e-15 and thus false-refused by the old
+        # predicate.  This is the population the control must match, so the
+        # fixture now includes an O(47) donor and asserts passed=True on it.
+        with tempfile.TemporaryDirectory(prefix="m1pz47_") as t47:
+            f47 = os.path.join(t47, "U47")
+            _w(f47, _vec_field([(47.0666702943016, 0.0, 0.0),
+                                (12.5, 0.0, 0.0), (0.3, 0.0, 0.0)]))
+            hi = planted_zero_control(f47, t47)
+        ok &= _check("C1 L-508: a SIGHTED reader on an O(47) donor reports "
+                     "passed=True (round-off > absolute 1e-15 no longer refuses)",
+                     hi["passed"] is True
+                     and abs(hi["reader_max_change"] - PLANT) < 1e-9, str(hi))
+
+        # L-508: point the LIVE control at the real O(47) donor if present.  It
+        # plants on a tmp copy, never the real field; assert the real file's
+        # first token is unchanged after the control runs (read-only guarantee).
+        _real_donor = ("/home/ubuntu/closure-data/multimodel_sweep/"
+                       "kOmega/AR_10_Ret_180/20000/U")
+        if os.path.isfile(_real_donor):
+            import hashlib as _hl
+            _before_sha = _hl.sha256(open(_real_donor, "rb").read()).hexdigest()
+            with tempfile.TemporaryDirectory(prefix="m1pzR_") as tR:
+                rd = planted_zero_control(_real_donor, tR)
+            _after_sha = _hl.sha256(open(_real_donor, "rb").read()).hexdigest()
+            ok &= _check("C1 L-508: live control on the REAL O(47) donor passes",
+                         rd["passed"] is True, str(rd))
+            ok &= _check("C1 L-508: the real donor is UNTOUCHED (control plants "
+                         "on a tmp copy only)", _before_sha == _after_sha)
 
     # convergence classification: CAP-BOUND, and the "sustained" requirement
     log_cap = parse_log_from_text(_fake_log(100, lambda i: 1e-3, lambda i: 1e-3))
