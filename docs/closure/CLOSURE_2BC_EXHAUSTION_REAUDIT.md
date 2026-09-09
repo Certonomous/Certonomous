@@ -259,3 +259,31 @@ duct DNS — all on Sanaa's desk for institutional pull).
 (`scripts/check_completion_enforcement.py`) is the authoritative enumerator; if it surfaces a
 closure fail not rowed above, this record is amended by a dated addendum (originals struck, never
 rewritten — CLAUDE.md rule 6 / §2b).*
+
+---
+
+# DATED ADDENDUM — 2026-09-09 — ROW 1 (M1d) SUCCESSOR M1-C COMPLETED; ARC DISPOSITION UPDATED
+
+The chief lifted the M6 hold and M1-C fired the same day. Row 1's active successor **M1-C has now
+RUN to completion** — all 78 arms strict-rule-4 complete — and was graded by the frozen pinned
+`grade_m1d.py` on the merged root (`cases/RANS_LES_closure_models/M1c_multimodel_sweep_completion/M1c_GRADE_RESULT_2026-09-09.md`;
+primary artifact `/home/ubuntu/closure-data/m1c_completion/gate_m1c.json`).
+
+**Updated disposition of the M1 arc (this does NOT edit Row 1 above — rule 6; the original Row 1
+NON-TERMINAL/has-successor classification was correct AT ITS TIME, when M1-C was held):**
+
+- **G0 now PASS** (78/78 complete) — the completion that Row 1's GATE FAIL was dominated by is
+  achieved. **G1 PASS** (n_bad=0). **G4/G3 GATE REACHED.**
+- The M1 arc's terminal verdict is now a **GATE FAIL governed by G2** — a HARNESS identity check
+  (null re-solve vs shipped baseline SST RANS reference, rel-L2(U) max 0.02419 > 0.01 ceiling on
+  the duct cases), explicitly *"a harness check, NOT a precision claim"* per the gate's own label.
+- **§2bc classification of the completed M1-C verdict: E2-EDGE — FLAGGED, NOT LOCKED.** G2 is not
+  the closure line's model-accuracy product (that is M2, error-vs-DNS-truth); the 0.024 rests on a
+  shipped reference under the standing rule-15 provenance gap; the E1/E2 boundary awaits Sanaa.
+  Numerics are exhausted-not-implicated (N-X4; nonfinite census 0/9.32M; G0/G1 pass). **0 rows
+  locked EXHAUSTION-PROVEN-TERMINAL** — no `exhaustion_evidence` block owed.
+- Cost: M1-C incremental 217.85 core-min MEASURED = $0.186 DERIVED, under the 379.567 cap. §3
+  check-2 deviation (a daemon-race 0-byte row blob, corrected `cbf29fe1`) closed benign, no
+  double-launch, no physics impact (L-342). §3 check-3 big-claim verified personally from the gate.
+
+*lines whose number changed above this section: 0.*
