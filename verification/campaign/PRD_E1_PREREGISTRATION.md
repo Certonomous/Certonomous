@@ -1,10 +1,18 @@
-# PRD-E1 — PRE-REGISTRATION (DRAFT)
+# PRD-E1 — PRE-REGISTRATION · FROZEN 2026-09-09
 
-# DRAFT — NOT FROZEN, NOTHING RUN
+~~# DRAFT — NOT FROZEN, NOTHING RUN~~ **— SUPERSEDED: FROZEN 2026-09-09. The
+grading path is pinned by git blob in the `## FREEZE` section at the foot; the
+verdict comes only from the pinned comparator. Prediction-first: every gate,
+band, threshold, cap and physical figure below was committed BEFORE any graded
+compute — the graded run home `verification/runs/navier_class/PRD/` did not exist
+at freeze.**
 
-> **This document is a DRAFT prepared by a heat-transfer `lab-lane` at the
-> heat-transfer-supervisor's dispatch, 2026-09-09. It is NOT sha-frozen, NO
-> compute has been launched, and NO comparator/build scripts have been authored.**
+> **This document was a DRAFT prepared by a heat-transfer `lab-lane` at the
+> heat-transfer-supervisor's dispatch, 2026-09-09.** ~~It is NOT sha-frozen, NO
+> compute has been launched, and NO comparator/build scripts have been authored.~~
+> **(SUPERSEDED at freeze: it IS now sha-frozen per the `## FREEZE` section; the
+> comparator/build/completion/autograder scripts ARE authored, verification
+> §3-diff-read, and pinned; NO GRADED compute has run — only scratch pre-flight.)**
 > It authorises nothing. The §3 supervisor review, the sha-freeze, the script
 > authoring, the §2bb pre-flight, the final mesh decision and the launch are the
 > supervisor's, and the GCI/Roache banding + Fs are coordinated with the
@@ -612,3 +620,69 @@ owner, not measured — the box cannot read its own billing,
 
 *— heat-transfer `lab-lane`, L-514 p-solver pin addendum 2026-09-09. STILL NOT
 FROZEN. No compute ran in the PRD run home; scratch only.*
+
+---
+
+## FREEZE — 2026-09-09 (rule 2: prediction-first, grading path pinned by git blob)
+
+**Freeze legality (rule 2 / VERIFICATION_CHARTER §2b, stated and checked):** the
+graded run home **`verification/runs/navier_class/PRD/` did not exist at freeze**
+(verified 2026-09-09) — no graded compute had run, so every gate, band, threshold,
+cap, label and physical figure above was committed BEFORE any run. All §2bb
+pre-flight and the §7.6 L-514 measurement ran in scratch only. Verification cleared
+the freeze: ½ρ check-1 PASS (V-143, `2ae36a1d`), the §3 check-1 diff-read of the
+six-file grading path (incl. `autograde_prd.py`) PASS, and acknowledgment that the
+frozen `build_prd.py` blob post-dates V-143 only by the behaviour-identical explicit
+`maxIter 1000` add (Phase A `00c0fbca`), orthogonal to the ½ρ / gate / plant chain.
+
+### FREEZE.1 — the pinned grading path (NON-SELF members, pinned by git blob)
+
+Each member below is pinned to its committed HEAD blob and was verified
+byte-identical on disk at freeze (`git hash-object` == `git rev-parse HEAD:<path>`).
+`check_comparator_freeze.py --registration <this file> --restrict-to-registration`
+judges exactly this set (COVERAGE / IDENTITY / CURRENCY).
+
+| grading-path member | role | pinned git blob |
+|---|---|---|
+| `cases/navier_class/PRD/build_prd.py` | case + mesh + fvOptions/DarcyForchheimer builder (§2, §5) | `4ec9e9c440bf50b7e88ab0c9f041cdd21df7ab0c` |
+| `cases/navier_class/PRD/mark_done_prd.py` | rule-4 completion + age guard, field set {U,p,k,omega,nut,phi} (§4/§8) | `be40d0f3342a2da7f7a13476c4eef51455d27b06` |
+| `cases/navier_class/PRD/autograde_prd.py` | §2ba detached autograder — plateau criterion (PLATEAU_REL_TOL 1e-4 / WINDOW 3, §7.4) + y+/checkMesh gate application | `b9b841f556d9cbed60f32a846a84860772677387` |
+| `scripts/roache_triple.py` | rule-5 triple gating + GCI (Fs = 1.25) + `PLANT` (rule 3/rule 14) | `78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8` |
+
+### FREEZE.2 — the SELF member `analyse_prd.py` (NOT table-pinned; §2au.2)
+
+The comparator `cases/navier_class/PRD/analyse_prd.py` is the grader whose
+`GRADING_PATH` declares this set. It is **deliberately absent from the FREEZE.1
+table**: a self-referential blob pin is a git pre-image — `GRADING_PATH_FREEZE_COMMIT`
+lives inside the hashed body, so writing the pin changes the blob and hence the
+commit (established lab-wide, VERIFICATION_CHARTER §2au.2; precedent
+`analyse_t23g2r.py`). The SELF member is instead anchored by:
+1. **`verify_self()` is print-only on the self-hash** — it prints the running blob as
+   provenance and REFUSES to grade only while `GRADING_PATH_FREEZE_COMMIT ==
+   "PIN-AT-FREEZE"`; it asserts no self-blob (no git pre-image).
+2. **A `FREEZE-PIN: cases/navier_class/PRD/analyse_prd.py@<blob>` line in the pin
+   commit's message** — the blob recorded outside the hashed content, where hashing
+   cannot perturb it.
+3. **Grade-time byte-identity** of the on-disk `analyse_prd.py` against that recorded
+   blob — the supervisor's non-delegable pre-launch check (personal check 4).
+
+### FREEZE.3 — the two-commit freeze (one operation, not an edit of a frozen file)
+
+1. **Freeze commit (commit 1):** this record (renamed `PRD_E1_PREREGISTRATION.md`,
+   DRAFT banner struck, this FREEZE section with the FREEZE.1 table) + the frozen copy
+   under `verification/campaign/`; `analyse_prd.py` still carries `PIN-AT-FREEZE`. This
+   commit contains every FREEZE.1 member, so its tree can be rev-parsed for each.
+2. **Pin commit (commit 2):** set `GRADING_PATH_FREEZE_COMMIT` in `analyse_prd.py` to
+   commit 1's sha, and carry the FREEZE.2 `FREEZE-PIN` line in the message. Writing the
+   pin re-blobs the comparator — expected, and exactly why the SELF member is anchored
+   by commit message + byte-check (FREEZE.2), never by a table row. `verify_self` then
+   grades. This is the same freeze operation completed, NOT an edit of a frozen file
+   (the comparator was an explicitly unfrozen `PIN-AT-FREEZE` DRAFT until commit 2).
+
+**Still owed before any graded launch (personal check 4, non-delegable):** the
+supervisor confirms this freeze is committed + the §2bb pre-flight is green, then
+authorises the full-15 §2ba launch and specifies the launch topology. NO solver
+launches until then. Costs are as recorded (§9): full ladder ≈ 1245 core-min
+(serial) ≈ $1.07 DERIVED, under the §9 CAP.
+
+*— heat-transfer `lab-lane`, FREEZE 2026-09-09. FROZEN per rule 2; no graded compute.*
