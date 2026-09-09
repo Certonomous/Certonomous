@@ -703,6 +703,30 @@ KNOWN_EXCLUDED = {
         # never saw it; append-only rule 1 intact; dafoam may append a CORRECTION row
         # re-issuing a valid `--allocate-id` id. Referral: verification-supervisor 2026-09-07.
         r"^\|[ \t]*C-20260907T195722\.461339981Z-b826b62e[ \t]*\|",
+        # FOUR MORE hand-landed rows carrying MNEMONIC bodies, not the minted
+        # 8-hex form (verification 2026-09-09). Measured on HEAD's blob at
+        # :489-:492: `t23g2rl3` is 8 chars but NON-hex, `t23g2rn` is 7, `m1ccomp`
+        # is 7, `supbe1` is 6 -- every one fails TOOL_ID_BODY (`\.\d{6}Z-[0-9a-f]{8}`),
+        # so `tool_id_pattern` correctly does NOT recognise them and the id
+        # pattern parses no id, yet each matches the id-bearing candidate shape.
+        # Clause 1b (which audits HEAD's WHOLE blob) therefore refused EVERY
+        # team's COST_CALIBRATION append at exit 7 -- a lab-wide rule-12 block,
+        # reproduced 2026-09-09 (dry-run --allocate-id, exit 7, these 4 named).
+        # SAME RULING as w4reanc/vmfl046r5/b826b62e above: exclude by EXACT id,
+        # NOT by widening TOOL_ID_BODY -- a body pattern loosened to admit
+        # mnemonic/non-hex suffixes would legitimize hand-typed ids and hollow
+        # the smuggle guard (`--allocate-id` is the sole minter; a well-formed
+        # 8-hex id is already cleared by tool_id_pattern with no exclusion, which
+        # the new positive control drives). These stay real data rows: parse_ids
+        # never saw them, KNOWN_EXCLUDED feeds shape_audit ALONE, append-only
+        # rule 1 intact (zero rows edited); the owning teams (heat-transfer,
+        # closure, cfd) may append a CORRECTION row re-issuing a valid
+        # `--allocate-id` id. A DIFFERENT non-excluded mnemonic body still
+        # refuses (near-miss control), so the guard is not blinded.
+        r"^\|[ \t]*C-20260909T171040\.973304Z-t23g2rl3[ \t]*\|",
+        r"^\|[ \t]*C-20260909T183500\.000000Z-t23g2rn[ \t]*\|",
+        r"^\|[ \t]*C-20260909T193000\.000000Z-m1ccomp[ \t]*\|",
+        r"^\|[ \t]*C-20260909T214553\.000000Z-supbe1[ \t]*\|",
     ),
 }
 
@@ -3611,7 +3635,17 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                          # limb proves it neither parses nor refuses, and the
                          # (ii-mutation) proves dropping the exclusion set refuses it
                          # again: the poison row clears WITHOUT widening the format.
-                         "| C-20260907T195722.461339981Z-b826b62e | 2026-09-07 | dafoam | probe |\n"),
+                         "| C-20260907T195722.461339981Z-b826b62e | 2026-09-07 | dafoam | probe |\n",
+                         # FOUR MORE exact-excluded ids (2026-09-09): MNEMONIC
+                         # bodies (non-hex / wrong length), the real HEAD lines
+                         # trimmed. The (ii) limb proves each neither parses nor
+                         # refuses (the fix clears them) and the (ii-mutation)
+                         # proves dropping the exclusion set refuses each again --
+                         # the register clears WITHOUT widening TOOL_ID_BODY.
+                         "| C-20260909T171040.973304Z-t23g2rl3 | 2026-09-09 | heat-transfer | probe |\n",
+                         "| C-20260909T183500.000000Z-t23g2rn | 2026-09-09 | heat-transfer | probe |\n",
+                         "| C-20260909T193000.000000Z-m1ccomp | 2026-09-09 | closure | probe |\n",
+                         "| C-20260909T214553.000000Z-supbe1 | 2026-09-09 | cfd | probe |\n"),
             # The struck exclusion needs the `~~` to OPEN the cell; a row that
             # is merely bold is an ordinary unparseable row.
             "near_miss": ("| **C-9105** annotated in-cell, never struck |\n",
@@ -3627,7 +3661,14 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                           # It MUST STILL REFUSE, proving the fix is an EXACT-id
                           # exclusion and NOT a widened 6-or-9 pattern: a future
                           # hand-rolled nano id is still caught at clause 1b (exit 7).
-                          "| C-20260907T195722.999888777Z-deadbeef | 2026-09-07 | x | probe |\n"),
+                          "| C-20260907T195722.999888777Z-deadbeef | 2026-09-07 | x | probe |\n",
+                          # DISCIPLINE CONTROL (2026-09-09): a mnemonic-body id in
+                          # the EXACT family of the four just excluded (:489-:492)
+                          # but NOT one of them -- `t23g2rxx` is 8-char non-hex.
+                          # It MUST STILL REFUSE, proving the four exact-id
+                          # exclusions did not blind the guard against future
+                          # hand-typed mnemonic ids (still caught at clause 1b).
+                          "| C-20260909T171040.973304Z-t23g2rxx | 2026-09-09 | x | probe |\n"),
             "furniture": ("| id | date | team | process |\n",
                           "|---|---|---|---|\n"),
         },
@@ -3706,6 +3747,40 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
             shape_negative[f"{tag}: table furniture row {k} matches the "
                            f"candidate shape"] = bool(
                 re.compile(CANDIDATE_SHAPES[path], re.M).search(form))
+
+    # ---- COST_CALIBRATION tool-id repair, 2026-09-09: the two named controls
+    # this fix stands on, driven EXPLICITLY (not only through the fixture loop).
+    # (i) POSITIVE, THE PROPERTY THAT WAS ASSUMED BUT UNPROVEN FOR THIS RECORD:
+    # a WELL-FORMED tool-allocated id (8-hex body, 6-digit microseconds) in
+    # COST_CALIBRATION parses NO legacy id yet is NOT an offender -- it is
+    # cleared by tool_id_pattern with NO KNOWN_EXCLUDED entry. This is exactly
+    # WHY the four hand-typed rows could not be "recognised" instead of excluded:
+    # the machinery already clears every well-formed id, so a row it does not
+    # clear is malformed by construction and belongs in KNOWN_EXCLUDED, never in
+    # a widened TOOL_ID_BODY.
+    _cc = "docs/COST_CALIBRATION.md"
+    _wf = "| C-20260909T171040.973304Z-0123abcd | 2026-09-09 | probe | probe |\n"
+    shape_planted["COST_CALIBRATION.md: a well-formed tool-allocated id parses "
+                  "no legacy id yet does NOT refuse (cleared by tool_id_pattern, "
+                  "no exclusion)"] = (
+        parse_ids(_wf, RECORDS[_cc]) == []
+        and shape_audit(_wf, _cc, "fixture") == [])
+    # (i-mutation) with tool-id RECOGNITION removed (apply_tool_ids=False, the
+    # state before the timestamp machinery existed) the SAME well-formed id
+    # REFUSES -- so the limb above is load-bearing, not vacuously true.
+    shape_planted["COST_CALIBRATION.md: without tool-id recognition the "
+                  "well-formed id refuses (proves the clear is real)"] = (
+        len(shape_audit(_wf, _cc, "fixture", apply_tool_ids=False)) == 1)
+    # (ii) NEGATIVE, THE GUARD-NOT-BLINDED PROOF: a genuinely malformed C-id --
+    # hand-typed mnemonic body in the family of the four just excluded, but NOT
+    # one of them -- STILL REFUSES (parses no id, one offender). If the exact-id
+    # exclusions had been widened into a "malformed body" pattern this would
+    # PASS, and this limb would flip. It does not.
+    _bad = "| C-20260909T171040.973304Z-t23g2rXX | 2026-09-09 | probe | probe |\n"
+    shape_planted["COST_CALIBRATION.md: a non-excluded malformed mnemonic C-id "
+                  "still refuses (exact-id exclusions did not blind clause 1b)"] \
+        = (parse_ids(_bad, RECORDS[_cc]) == []
+           and len(shape_audit(_bad, _cc, "fixture")) == 1)
 
     # ---- limb group 3: clause 1a, and it stands on NO regex ---------------
     # The reported hole, exactly: `--expect-first-id` passed, zero ids parsed,
