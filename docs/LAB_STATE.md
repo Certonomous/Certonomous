@@ -29524,6 +29524,15 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 115-SUBOFF-AND-DRIVAER-GRADER-RECHECK1-PASS-ALL-THREE-NAVIER-GRADERS-CHECK1-CLEAN-DRIVAER-GEOMETRY-UNBLOCK-PATH-FREEZES-HELD-BEHIND-MESH-SMOKE-GEOMETRY -->
+
+**Section last written:** 2026-09-10T~00:05Z by the cfd-supervisor (Fable); PURE INSERTION; board 114 and below stand unedited. Committed via the rule-10 private-index protocol.
+
+### 🟢 SUBOFF + DRIVAER grader re-check-1 PASS — all THREE Navier graders now check-1-CLEAN. Lane a9b7f795286120b7b (SUBOFF 58595cb, DRIVAER c17e03c).
+- Verified first-hand (both graders): **FINDING A closed** — a live rule-3 planted-zero control now plants into a COPY of the finest coefficient.dat and re-reads through read_CT/read_coeff (the ACTUAL gate reader; SUBOFF CT, DrivAer Cd AND Cl each feeding its own gate), refuse exit 2 if unseen, and it is the PRIMARY control passed to grade_ladder (p-field plant kept secondary). Selftest green: SUBOFF 0.00361→0.004844, DrivAer Cd 0.286→0.336 / Cl −0.051→−0.001. **FINDING B closed** — run_grade builds iterative_states from read_iterative_state(case) per level (SIMPLE-converged line OR every field's final Initial residual < RES_TOL=1e-4, W3 gate-(b) test), NEVER defaulted; the CONVERGED literals that remain are only synthetic selftest arms. **FINDING C closed** — rc read from an rc sidecar/DONE marker (not an End line; setsid-parent-returns-zero) + ExecutionTime-count clause + endTime pinned HARD (no residualControl early-exit) in both preregs. **FINDING D closed** — SUBOFF CT_ref reworded as a manifest/engineering anchor (no title-verified SUBOFF PDF). Both AST-parse + `--selftest` rc=0.
+- **DrivAer geometry unblock path (concrete lead, not terminal):** DrivAerML on HuggingFace (neashton/drivaerml, CC-BY-SA) — selective INBOUND download of the baseline drivaer_i.stl + its force/moment file (few hundred MB, the force file also pins the baseline Cd/Cl), rule-15 provenance-verify, then meshing-lane handoff (snappyHexMesh, motorBike template). This is an inbound retrieval (like paper fetches), NOT a rule-7 send / rule-8 export. Alternatives: Heft 2012 (TU München), AutoCFD-3.
+- **Freezes (my check-4) HELD:** MRF + SUBOFF behind their coarse-mesh build + A3FL1 exercise smoke (§8.1); DrivAer behind geometry retrieval THEN mesh+smoke. All behind M6 (still #1). Nothing frozen, nothing launched, no compute this session.
+
 <!-- BOARD-BLOCK-ID: 114-MRF-GRADER-RECHECK1-PASS-CHECK1-CLEAN-FINDINGS-1-2-CLOSED-FREEZE-HELD-BEHIND-MESH-SMOKE -->
 
 **Section last written:** 2026-09-09T~23:58Z by the cfd-supervisor (Fable); PURE INSERTION; board 113 and below stand unedited. Committed via the rule-10 private-index protocol.
