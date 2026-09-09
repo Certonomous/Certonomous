@@ -225,7 +225,7 @@ CUMULATIVE_HARD_STOP_CORE_MIN=291
 FRAME_ALLOWANCE_S=90
 KILL_GRACE_S=60
 MEM=20g
-CPUSET=9,10,11,12
+CPUSET=5,10,11,12   # repinned 2026-09-09: core 9 was a roaming-floater core; cores 5,10,11,12 sampled idle (0.0%) twice, clear of the hot foreign solvers on 6 (chtMultiRegionS) and 13 (rhoCentralFoam)
 IMG=dafoam-idwarp-rot:v1
 IMG_PATCHED_DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
 
@@ -238,11 +238,25 @@ test -d "$SRC_REAL" || { echo "ABORT staging: source $SRC_REAL absent"; exit 5; 
 mkdir -p "$BASE_REAL" || { echo "ABORT staging: could not create fresh root"; exit 4; }
 WORK="$BASE_REAL/$ARM"
 mkdir -p "$WORK"
-# base mesh + the three multipoint run dirs (the primal setup, held fixed)
-for d in base mp04 mp05 mp06; do
-  if [ -d "$SRC_REAL/$ARM/$d" ]; then cp -a "$SRC_REAL/$ARM/$d" "$WORK/$d"
-  elif [ -d "$SRC_REAL/$d" ]; then cp -a "$SRC_REAL/$d" "$WORK/$d"
-  else echo "ABORT staging: neither $SRC_REAL/$ARM/$d nor $SRC_REAL/$d present"; exit 5; fi
+# FOURTH-DEFECT REPAIR (2026-09-09, staging option A -- FLATTEN).
+# The P_conv PRIMARY case is staged FLAT at the WORK root, exactly as the PROVEN
+# D6RF7 topology has it: a TOP-LEVEL system/ (the primal case dicts) PLUS the
+# three multipoint run dirs mp04/mp05/mp06.  This is the site set install_config
+# was written against and the site set D6RF7's own installer used
+# (d6rf7_run_arm.sh:360-361  FVSOL_SITES/FVSCHEMES_SITES ==
+# "system mp04/system mp05/system mp06/system").  The runScript resolves each
+# multipoint case as os.getcwd()/mp0X (d6rf7_opt_runScript.py:62,123,141), so the
+# WORK root IS the case root and the primary belongs there, FLAT.
+#   PRIOR BUG (the fourth defect): the loop copied `base mp04 mp05 mp06`, placing
+#   the primary in a base/ SUBDIR -- and since $SRC/P_conv/base does not exist it
+#   fell through to the WRONG sibling case $SRC/base.  The result had NO top-level
+#   system/, so install_config's FIRST site `system` aborted rc=5 at every rung
+#   (D6RF9_LEG_ABORT ... no fvSolution at system) and the solver never ran.
+# The primary's OpenFOAM case dirs are copied flat from $SRC/$ARM (never from the
+# arm-root sibling), and the mp0X dirs are its subdirs -- one source, one loop.
+for d in system constant 0 0.orig FFD mp04 mp05 mp06; do
+  [ -d "$SRC_REAL/$ARM/$d" ] || { echo "ABORT staging: primary case dir $SRC_REAL/$ARM/$d absent"; exit 5; }
+  cp -a "$SRC_REAL/$ARM/$d" "$WORK/$d" || { echo "ABORT staging: copy of primary case dir $d failed"; exit 5; }
 done
 # OptView.hst -- the loose optimisation-history file at the arm root that DEFINES
 # the endpoint (d6rf7_extract_endpoint.py reads it; the dir loop above copies only
@@ -269,11 +283,16 @@ for need in \
   "$WORK/OptView.hst"; do
   [ -f "$need" ] || { echo "ABORT path-existence fixpoint: $need is not on disk"; PATH_FIXPOINT_OK=no; }
 done
-for d in base mp04 mp05 mp06; do
+# FOURTH-DEFECT REPAIR: the sites install_config actually touches are the
+# TOP-LEVEL system/ plus mp0X/system (== d6rf7_run_arm.sh FVSOL_SITES).  Was
+# `base mp04 mp05 mp06`, which checked base/system -- a subdir that must NOT
+# exist under the flat topology and whose presence masked the missing top-level.
+[ -d "$WORK/system" ] || { echo "ABORT path-existence fixpoint: top-level $WORK/system absent"; PATH_FIXPOINT_OK=no; }
+for d in mp04 mp05 mp06; do
   [ -d "$WORK/$d/system" ] || { echo "ABORT path-existence fixpoint: $WORK/$d/system absent"; PATH_FIXPOINT_OK=no; }
 done
 [ "$PATH_FIXPOINT_OK" = "yes" ] || { echo "ABORT path-existence fixpoint FAILED before the solver arm."; exit 5; }
-echo "D6RF9_PATH_FIXPOINT_OK all staged instruments, the runScript, the driver and base/mp04/mp05/mp06/system present"
+echo "D6RF9_PATH_FIXPOINT_OK all staged instruments, the runScript, the driver and system/mp04/mp05/mp06/system present"
 
 # --- image identity by DIGEST ------------------------------------------------
 GOT_DIGEST=$(sudo -n docker image inspect --format '{{index .RepoDigests 0}}' "$IMG" 2>/dev/null | sed 's/.*@//')
