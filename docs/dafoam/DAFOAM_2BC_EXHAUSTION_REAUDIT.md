@@ -303,3 +303,51 @@ enumeration. Cross-check: the §2ay population sweep
 surfaces a dafoam fail not rowed above, this record is amended by a dated addendum (originals
 struck, never rewritten — CLAUDE.md rule 6 / §2b). DO NOT COMMIT pending the dafoam-supervisor's
 §3 review.*
+
+---
+
+## ADDENDUM A1 — 2026-09-09 (S-144) — the doc-linkage remedy is EMPIRICALLY DISPROVEN; the real fix is a verification-owed enumerator change
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.** Nothing above is edited or
+re-ordered; this is appended at the foot under CLAUDE.md rule 6, and the claims it corrects are
+STRUCK by this addendum, never rewritten. No classification COUNT changes — the 35 NEEDS-SUCCESSOR
+(37 incl. the 2 edges), 11 NON-TERMINAL, 11 NOT-IN-POPULATION all stand as reviewed. This corrects
+only the proposed REMEDY for the flagging, not any verdict.
+
+**STRUCK (the "doc-linkage fix would reclassify" claim), at every site it appears —** the Population
+caveat 2, the Group A linkage note, and the SUPERVISOR §3 REVIEW "owed follow-up" paragraph, all of
+which said adding line-leading `Predecessor:`/`Supersedes:` fields to the prose-recorded successors
+(SO1aR, SO1cR, D6RG, D12R2, D18R_P7, …) would make the on-disk successors machine-visible and
+reclassify most of the 35 NEEDS-SUCCESSOR → NON-TERMINAL on the next sweep.
+
+**Why struck — PROVEN inert (dafoam-supervisor §3, corroborated by an independent enumerator read
++ a prove-on-one experiment).** A `Predecessor:` field CANNOT clear any of the 58 flagged dafoam
+rows, because every flagged key is a `strict_cov` DIRECTORY name (`curriculum_SO1a`, …) that the
+frozen `CASE_ID_ANCHORED_RE` rejects, and the recorded-lineage reader keys `idx.lineage_preds` by
+a `CASE_ID_RE`-extracted CASE-ID token, canon-compared. Empirical prove-on-one (`curriculum_SO1a`,
+successor dir `curriculum_SO1aR`, via an additive untracked `*SUCCESSOR*` file, experiment removed,
+tree clean): three field values — `Predecessor: SO-1a`, `Predecessor: curriculum_SO1a`,
+`Predecessor: SO1a` — left the dafoam flagged total at **58 → 58**, the row uncleared in all three.
+Root cause: `_canon_lineage_id("curriculum_SO1a") = 'curriculum_SO1a'`, and `CASE_ID_RE.search`
+returns `None` for every `Predecessor:` value (the SO branch rejects a trailing bare letter, `\b`
+does not terminate `SO1a`, lowercase `curriculum` never matches) — so the reader's lineage key
+`'curriculum_SO1a'` is unreachable from any doc field. `SUCCESSOR_SUFFIX_RE.match("curriculum_SO1aR")`
+is likewise `None`. **A doc edit is a no-op here; shipping the 57 edits would have cleared nothing
+and produced a false "count dropped" report.**
+
+**The REAL fix (owed to VERIFICATION — its §2ay/§2bc instrument `scripts/check_completion_enforcement.py`,
+NOT a dafoam doc edit and NOT a change the dafoam team makes to another team's grading instrument):**
+a 3-part enumerator refinement, categorised over the 46 distinct flagged dir keys —
+(1) strip a leading `curriculum_` in `_record_case` so the dir keys to its real id → validates **22**
+keys (D-family + SO3); (2) WIDEN the SO branch on BOTH `CASE_ID_ANCHORED_RE` and `CASE_ID_RE` to
+admit trailing-letter ids (SO1a, SO2M, …), mirroring the T/E branch shape → **9** SO-family keys
+(pred side included, else `Predecessor: SO-1a` won't even extract); (3) read an IN-RECORD id for the
+**15** dir names carrying no case id at all (AV2RG, AVWC, decomposition_np4/peak_rss,
+first/shipped_optimisation_np1, grading_confirmation, reverify_patched_idwarp_np1,
+rung2/3_patched_idwarp_np4(+attempt2), rung_n16_{np1,fixed_reference,remaining_components},
+wall_resolved_aoa_polar) — a larger change. ONLY AFTER (1)+(2) land would a `Predecessor:` field on
+the dafoam successors actually clear its predecessor's flag. Routed to verification via the chief;
+this is a fleet-instrument change with the safe direction preserved (surfacing more real coverage
+lowers the flag count only via a genuine registration edge, never a loose token — §2ay.4/§28.8).
+
+**Cost of this addendum: 0.00 core-min** (a records correction + a zero-compute prove-on-one).
