@@ -29523,6 +29523,25 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 113-SUBOFF-AND-DRIVAER-PREREG-GRADER-DRAFTED-MY-CHECK1-PASS-STRUCTURE-THREE-FINDINGS-DISPATCHED-RULE3-GATED-READER-PLANT-GAP-CAUGHT -->
+
+**Section last written:** 2026-09-09T~23:50Z by the cfd-supervisor (Fable); PURE INSERTION at top of `## cfd`; board 112 and below stand unedited. Committed via the rule-10 private-index protocol.
+
+### 🟢 SUBOFF (Case 1) + DRIVAER (Case 7) prereg + grader DRAFTED; my §3 check-1 PASSED on structure; 4 findings dispatched. Lane a9b7f795286120b7b (commits d1603cf SUBOFF, d4350e1 DRIVAER).
+- **SUBOFF_R1:** Gate D1 bare-hull total-drag CT at Re_L=1.2e7, PASS iff |CT−CT_ref|≤±10% via CONVERGING triple (dim=2 axisymmetric wedge ~40k/90k/202.5k); CT_ref=3.6e-3 MANIFEST/engineering anchor (no title-verified SUBOFF PDF); cap 150 core-min (~$0.13 derived); tier bounded-agreement/manifest-only, NOT experiment-validated. `cases/navier_class/SUBOFF/grade_suboff.py`.
+- **DRIVAER_R1:** Gate V1 Cd ±10% (primary) + V2 Cl ±0.05 abs (secondary) vs DrivAerML (Ashton 2024, arXiv 2408.11969v2 — lane title-verified, rule 15); CONVERGING triple dim=3 (~3M/6M/12M snappyHex on STL); Cd_ref≈0.28 pinned-at-freeze from the DrivAerML baseline; cap 22,000 core-min (~$18.8 derived, SOFT — re-size from coarse); tier CODE-VERIFIED (CFD dataset, NOT experiment-validated). **BLOCKED-geometry** (no DrivAer STL on disk — a LEAD; DrivAerML/Heft 2012 is the source). `cases/navier_class/DRIVAER/grade_drivaer.py`.
+- **§3 check-1 (mine, first-hand diff-read of both graders):** PASS on structure (shared roache_triple, refuse-not-degrade exit 2, dim correct, forceCoeffs normalisation asserted on disk incl Aref cross-check, good selftest coverage). FOUR findings dispatched, all pre-freeze: **(A, rule 3, the catch)** the planted-zero control plants into the p field but the GATED quantity (CT/Cd/Cl) is read from coefficient.dat — a DIFFERENT reader; the control must plant into + read back through read_CT/read_coeff (coefficient.dat), matching the MRF moment.dat pattern, else a false-zero in the gated reader is uncaught. **(B, rule 5)** iterative_states defaulted to CONVERGED (lane-disclosed) — must read real per-level convergence from log.simpleFoam. **(C, rule 4)** add ExecutionTime-count clause + verify rc==0 via sidecar (not End/DONE-as-rc) + pin endTime hard vs residualControl. **(D)** SUBOFF prereg must word CT_ref honestly as a manifest anchor (no title-verified pin coming). NOT frozen (§8.1 + these findings + DrivAer geometry).
+
+**RUNGS WITHOUT VERDICTS (mine):** M6 grid-b `NOT A RESULT` (tooling build → coarsest checkMesh → re-cost → re-check-1 → freeze); MRF prereg-DRAFT check-1-PASS, FINDING 1 open; SUBOFF/DRIVAER prereg-DRAFT check-1-PASS, findings A–D open (DrivAer also BLOCKED-geometry); SUP_BOOSTER E1 NOT A RESULT + E2/ORBITER/SCRUBBER BLOCKED-tooling ([bio]); DPW8_V2 L4 owed D481; F24 fine reconciliation owed; F3-succ/F4-S NEEDS-SUCCESSOR.
+
+**NEXT ACTIONS:** await the three lanes' fixes → my re-check-1 on each revised grader; M6 coarsest-Lc checkMesh + real re-cost → capacity decision to chief on the full triple. Freezes (check-4) held: MRF/SUBOFF behind mesh+smoke (§8.1), DrivAer behind geometry. Calibration row (rule 12) at first GRADED completion (none yet).
+
+**LIVE (VERIFY):** cfd lanes a19937746a5842d80 (M6 tooling+coarsest march), a9b7f795286120b7b (SUBOFF/DRIVAER grader fixes A–D), ad16549e78a031049 (MRF FINDING-1 fix). NO cfd solver process live.
+
+**ON SANAA'S DESK (from cfd):** nothing new. **TO CHIEF (conditional):** M6 full-triple ($23.36 derived) capacity contention with R4, pending Lc re-cost. **BLOCKED:** [bio] trio; the four graders' freezes on their findings + meshes/geometry.
+
+**CHAIN OF CUSTODY:** FIRST-HAND this turn — the §3 check-1 diff-read of grade_suboff.py + grade_drivaer.py (caught the rule-3 gated-reader plant gap; confirmed the disclosed rule-5 default + rule-4 gaps); findings A–D dispatched. RELAYED, checks OWED: all four graders' revisions (re-check-1) + M6 reconcile wrapper. Nothing sent outside the box (rule 7).
+
 <!-- BOARD-BLOCK-ID: 112-MRF-CHECK1-PASS-FINDING1-OPEN-M6-RECONCILE-TOOLING-GAP-NOT-EXHAUSTION-CAP-SURFACE-AND-RESPACE-TOOLS-AUTHORIZED-COARSEST-FIRST-FULL-TRIPLE-CAPACITY-FLAG-TO-CHIEF -->
 
 **Section last written:** 2026-09-09T~23:35Z by the cfd-supervisor (Fable); PURE INSERTION at top of `## cfd`; board 111 and below stand unedited. Committed via the rule-10 private-index protocol.
