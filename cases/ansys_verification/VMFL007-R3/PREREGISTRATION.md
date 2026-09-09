@@ -269,3 +269,62 @@ never measured. A COST_CALIBRATION row is owed at graded completion, not now.
 > auto-mode permission classifier, Sanaa's desk).
 
 **END OF FROZEN PRE-REGISTRATION.**
+
+---
+
+## ADDENDUM 1 — §2d.1 value-invariant grading-path re-pin (dated 2026-09-09; v1.0 → v1.1)
+
+*lines whose number changed above this section: 0* — this addendum is appended
+at the foot; not one character of the frozen pre-registration above is edited
+(CLAUDE.md rule 6 / VERIFICATION_CHARTER §6b).
+
+This is a `VERIFICATION_CHARTER` §2d.1 four-condition repair of the **frozen
+grading instrument only**. It re-pins the grading path; it does **not** alter any
+gate quantity, band, threshold, cap, label, verdict-cascade node or planted
+control. The reference (Δp REF 60520 Pa, band [60217.40, 60822.60] Pa, tol 0.5%,
+CONVERGING-triple requirement, §12.2 SAME/PASS ceiling) is unchanged.
+
+**What was wrong (Condition 1 — demonstrable error, not a preference).** The
+frozen v1.0 comparator (blob `03518d00`) refused (exit 2) inside the OFF-GATE
+`nuMinAll`/`nuMaxAll` viscosity-clip precondition: its `_monitor_path` globbed
+`surfaceFieldValue.dat` for every monitor, but the driver's `controlDict`
+declares the two nu monitors as `type volFieldValue`, so OpenFOAM wrote
+`volFieldValue.dat`. The glob matched 0 paths → `one_or_refuse` exit 2, in
+`viscosity_class` (line 838), BEFORE `convergence()` (line 839) read the gate.
+Proven by file existence: `surfaceFieldValue.dat` does not exist for the nu
+monitors; `volFieldValue.dat` does (all six across L1/L2/L3). The gate readers
+(`pInlet`/`pOutlet` `surfaceFieldValue.dat`) were present and untouched. Row #64
+landed `BLOCKED` on this — a valid, complete run whose grade was blocked by our
+instrument.
+
+**The repair (Condition 2 — established by an instrument that grades nothing;
+value-invariant).** The amendment (v1.0 → v1.1, comparator blob
+`da0811058965cb34de24ff70af4427991554f431`, committed at **`b955b605`**) is a
+**pure insertion** at the file foot: frozen lines 1-898 byte-identical (0
+deletions, confirmed by blob diff and by the 121-insertions / 0-deletions
+post-commit numstat). It appends `_visc_monitor_path` (resolves whichever single
+file OpenFOAM wrote, under the SAME `one_or_refuse` discipline), a
+`viscosity_class` override using the frozen clip thresholds byte-for-byte
+(0.999·NUMAX, 1.001·NUMIN; NUMIN 1e-8, NUMAX 1.0), and a `volFieldValue` selftest
+regression arm that GRADES NOTHING — it plants a fixture and requires the repaired
+reader to resolve it while the frozen glob refuses it. **Verification confirmed
+byte-for-byte value-invariance as V-129 (signed off, commit `ac004773`).**
+
+**Disclosure (Condition 3).** This addendum discloses the change, names the
+instrument (V-129) and the selftest arm, and states what moved: the comparator now
+REACHES the frozen gate; **no gate quantity moved** (value-invariant).
+
+**Pre-repair values recorded (Condition 4).** The pre-repair state was **no Δp
+graded — the comparator refused at the off-gate precondition** (row #64,
+`BLOCKED`, preserved unedited). Recorded here beside the now-published triple
+(§2d.3 pattern for a repair whose predecessor published no value).
+
+**Grading path re-pinned:** the grade uses comparator blob `da081105` at commit
+`b955b605`. The original freeze `529f1665` (blob `03518d00`) is superseded **for
+grading**, not rewritten. **Result (SAME run, ZERO re-solve):** CONVERGING triple
+L1 60432.6281 / L2 60498.9821 / L3 60517.0713 Pa (p = 1.8751, GCI_fine 0.0140 %),
+finest rel dev 0.00484 % — IN band → **`PASS`** via §12.2 SAME. Landed as register
+**Row #67** (the 11th ansys credential; recovers, supersedes and does not overwrite
+row #64 `BLOCKED`).
+
+**END OF ADDENDUM 1.**

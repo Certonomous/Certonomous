@@ -1500,3 +1500,35 @@ Per the comparator's per-case flow (source lines 397–411), the guards and the 
 - **No `GATE FAIL`.** Rule 5 is one-way and the gate quantities were never read.
 - **No `PASS`, no credential.** m0 is a calibration limb (demoted), never a PASS channel.
 - **No claim the run is defective** — strict completion PASSES on all three stages; the `NOT A RESULT` is a measured modeling-premise failure (a non-well-mixed CMSMPR field that worsens with refinement), and **VMFL034-R4 is owed** to fix the flow mixing answer-blind while the gate/band/target stand byte-identical.
+
+## Row #67 — VMFL007-R3 — Non-Newtonian (power-law) Flow in a Pipe (VM2026R1 p. 29) — **`PASS`**
+
+**Graded 2026-09-09 through the AMENDED frozen comparator (blob `da0811058965cb34de24ff70af4427991554f431`, committed at `b955b605`, verified byte-identical on disk == at HEAD before grading, §3 check 1). Verdict `PASS` — the lab's 11th ansys credential.** RECOVERED from `BLOCKED` (row #64) by a `VERIFICATION_CHARTER` §2d.1 value-invariant repair of the frozen grading instrument, verification-audited as **V-129 (signed off, commit `ac004773`)`. The SAME complete, valid run is graded — **ZERO re-solve.** Cites and does NOT overwrite row #64 (`BLOCKED`, preserved unedited), nor rows #8 (VMFL007 run 1, DIVERGED) and #37 (VMFL007-R2, `NOT A RESULT`). **This is NOT the lab's first ansys credential** (see the 10 prior PASS rows: #2/#3/#7/#13/#15/#28/#46/#48/#50/#51); it is the 11th and recovers the VMFL007 case.
+
+### The §2d.1 repair, and why the recovery is legitimate
+
+Row #64 landed `BLOCKED` because the frozen v1.0 comparator (blob `03518d00`) REFUSED (exit 2) inside the OFF-GATE `nuMinAll`/`nuMaxAll` viscosity-clip precondition: its `_monitor_path` globbed `surfaceFieldValue.dat` for every monitor, but the driver declares those two nu monitors as `type volFieldValue`, so OpenFOAM wrote `volFieldValue.dat` → 0 matches → `one_or_refuse` exit 2 in `viscosity_class` (line 838), BEFORE the gate at `convergence()` (line 839). The run itself is complete and valid (strict completion passed on all three levels; the gate readers `pInlet`/`pOutlet` `surfaceFieldValue.dat` are present and untouched). The amendment (v1.0 → v1.1) is a **pure insertion** (frozen lines 1-898 byte-identical, 0 deletions; 121-insertions / 0-deletions post-commit numstat) that resolves the correct filename under the same `one_or_refuse` discipline, using the frozen clip thresholds byte-for-byte, plus a `volFieldValue` selftest regression arm that grades nothing. **No gate quantity, band, threshold, label, verdict-cascade node or planted control was altered** — V-129 confirmed byte-for-byte value-invariance. The four §2d.1 conditions (demonstrable off-gate error; established by an instrument that grades nothing + value-invariance; disclosed + quantified; pre-repair values recorded beside the published ones) all hold. Full disclosure in the dated ADDENDUM 1 at the foot of the pre-registration (rule 6, no frozen line rewritten).
+
+### The graded result — re-grade of the SAME run, ZERO re-solve (strict completion PASSES)
+
+| level | Δp (Pa) | plateau | residuals | rc | End | last Time | age guard |
+|---|---|---|---|---|---|---|---|
+| L1 | 60432.6281 | ptp 7.65e-06 Pa (PLATEAUED) | SETTLED | 0 | 1 | 60000 (==endTime) | fields NEWER than 0/U |
+| L2 | 60498.9821 | ptp 1.65e-05 Pa (PLATEAUED) | SETTLED | 0 | 1 | 60000 (==endTime) | fields NEWER than 0/U |
+| L3 | 60517.0713 | ptp 0.001535 Pa (PLATEAUED) | SETTLED | 0 | 1 | 60000 (==endTime) | fields NEWER than 0/U |
+
+- **Gate:** `|Δp − 60520| / 60520 ≤ 0.005` (band [60217.40, 60822.60] Pa) AND a CONVERGING triple. Finest **Δp = 60517.0713 Pa**, rel dev **0.00484 %** — INSIDE the band.
+- **Roache triple** (r = 2.0): 60432.6281 / 60498.9821 / 60517.0713 → **CONVERGING** (from below), observed order **p = 1.8751**, **GCI_fine 0.0140 %** (Fs 1.25).
+- **VERDICT: `PASS`** — ceiling `PASS` (§12.2 ruled SAME/PASS-capable; the reference is the closed-form Rabinowitsch–Mooney solution of the same continuum model; VERIFICATION §2h.8.1 exact-PDE rule; precedent VMFL004-R2 row #28). Rule 5: CONVERGING triple, so the gate verdict stands.
+- **Controls (rule 3) FIRED:** L3 planted-zero on the gate reader `pInlet/surfaceFieldValue.dat` (planted 0.001234 kinematic → Δp shift 1.234000000004 Pa vs expected 1.234); p-floor planted control OK (P_MIN 0.05). Selftest **35/35** under `python3` AND `python3 -O` (frozen v1.0 arms + the v1.1 volFieldValue arm); `ast.Assert` count 0.
+
+### Provenance
+- **Comparator (v1.1):** `cases/ansys_verification/VMFL007-R3/grade_vmfl007_r3.py`, blob **`da0811058965cb34de24ff70af4427991554f431`**, committed at **`b955b605`**; frozen v1.0 (blob `03518d00`) byte-identical on lines 1-898. Grading path re-pinned to `b955b605` (freeze `529f1665` / blob `03518d00` superseded FOR GRADING, not rewritten). V-129 value-invariance signed off (`ac004773`).
+- **Pre-registration:** `cases/ansys_verification/VMFL007-R3/PREREGISTRATION.md` blob `3242a99f` + dated ADDENDUM 1 §2d.1 re-pin at its foot (rule 6). Reference: Hughes & Brighton, *Schaum's Outline of Fluid Dynamics* (closed-form 60521.969 Pa); manual printed target 60.52 kPa (Table .07.1); Ansys Fluent 60.41 / CFX 61.52 kPa context-only. Manual title-page verified against the PDF (rule 15): Release 2026 R1, March 2026.
+- **Run root:** `verification/runs/ansys_verification/VMFL007-R3/{L1,L2,L3}` + `GRADING_VMFL007_R3.json` (re-grade PASS). Gate series `pInlet`/`pOutlet` `surfaceFieldValue.dat`; nu monitors `nuMinAll`/`nuMaxAll` `volFieldValue.dat`.
+- **Cost:** **35.45 core-min MEASURED** (the row-#64 compute UNCHANGED; L1 1.4333 + L2 4.8667 + L3 29.15, serial ranks=1; `COST.txt total_core_min=35.45`) = **$0.0303 DERIVED, NOT measured** at $0.0513/core-h (`COMPUTE_BUDGET_CHARTER.md` §5). The §2d.1 repair added **ZERO solver time**. Waste 0.000 core-min. Calibration row `C-20260909T021050.027609Z-049e6ae7` in `docs/COST_CALIBRATION.md`. Results prose `cases/ansys_verification/VMFL007-R3/RESULTS.md`.
+
+### What this row claims and refuses to claim
+- **`PASS`, a genuine credential** — a CONVERGING triple, finest in band, exact-PDE ceiling. The 11th ansys PASS; recovers the VMFL007 case.
+- **NOT the first ansys credential** (10 prior PASS rows stand).
+- **No gate was moved to recover it** — the repair is value-invariant (V-129); the same run's numbers stand, only the off-gate instrument defect was fixed.
