@@ -1488,7 +1488,16 @@ M1c are (a) write + §3-check-1 + freeze the M1-C prereg (frozen grade_m1d.py, h
 §2ba monitor + committed detached autograder) and (b) the cross-family queue-sequencing call (flagged
 to chief). Duct rule-5 concern is CLEARED.
 
-**NEXT ACTIONS.** (1) Interpret the duct-convergence diagnostic → either (benign) the M1d verdict and
+**═══ UPDATE 2 (same session): CHIEF/VERIFICATION AUDIT CAVEAT FOLDED IN → M1d addendum (`9a080e03`) ═══**
+Verification (via chief) confirmed M1d gate discipline CLEAN and G1 PASS real, with a citation caveat:
+do NOT cite M1d as a clean physics gate-fail — the overall GATE FAIL is COMPLETION-dominated (G0 on
+the 6 timeout arms; G2/G3 dominated by missing rows; G2's 0.024>0.01 rests on 2 unknown-provenance
+duct refs). CITE G1 PASS as the win; overall FAIL = completion-limited. Dated addendum appended to
+`M1d_GRADE_RESULT_2026-09-09.md` (alters no gate/label). Two follow-ons now OWED: (1) M1c 6-arm
+completion re-run (all cap-bound per N-X4); (2) **NEW owed: rule-15 title-page verification of the 2
+duct reference cases' provenance** before the G2 0.024 signal is read as precision.
+
+**NEXT ACTIONS.** (0) NEW: rule-15 provenance check of the 2 duct reference cases (zero-compute). (1) Interpret the duct-convergence diagnostic → either (benign) the M1d verdict and
 the 72 complete rows stand and M1c can proceed to freeze, or (real) escalate a Roache rule-5 question
 to verification that re-grades the duct rows. (2) If benign: write + §3-check-1 + freeze the M1-C
 prereg (frozen grade_m1d.py, higher endTime cap, §2ba monitor + detached autograder), re-run the 2 PH
