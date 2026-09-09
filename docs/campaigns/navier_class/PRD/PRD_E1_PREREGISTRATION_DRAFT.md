@@ -309,6 +309,14 @@ the ladder.** Clauses:
    `PLANT_DP` read back and asserted.
 4. **Δp plateau** (L-15/L-89): monitored Δp change < tol over the last N
    iterations — the convergence criterion, not rc = 0.
+   **PLATEAU CRITERION REGISTERED (pre-compute, prediction-first, 2026-09-09):**
+   a level's monitored core Δp is `PLATEAUED` when the last `PLATEAU_WINDOW + 1`
+   (= 4) monitored-Δp writes all lie within `PLATEAU_REL_TOL = 1.0e-4` (relative)
+   of the latest write — i.e. `PLATEAU_WINDOW = 3`, `PLATEAU_REL_TOL = 1.0e-4`,
+   frozen in the pinned `autograde_prd.py` (§2ba autograder). A level that is not
+   `PLATEAUED` is `NOT A RESULT` (rule 5, step a). This registers the
+   convergence-criterion VALUE that read "N/tol" here; it moves no gate, band,
+   threshold-of-outcome or physical figure.
 5. **Completion clauses** (rule 4 + age guard, adapted to the incompressible
    isothermal field set — see §8): rc = 0; `End` line; last time == `endTime`;
    fields **{U, p, k, omega, nut, phi}** present and **every one NEWER than the

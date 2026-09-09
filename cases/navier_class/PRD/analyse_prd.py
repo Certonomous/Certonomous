@@ -100,6 +100,9 @@ GRADING_PATH = (
     "cases/navier_class/PRD/build_prd.py",
     "cases/navier_class/PRD/analyse_prd.py",
     "cases/navier_class/PRD/mark_done_prd.py",
+    "cases/navier_class/PRD/autograde_prd.py",   # §2ba autograder: pins the plateau
+                                                 # criterion (verdict-shaping, rule-5
+                                                 # step a) + the y+/checkMesh gates
     "scripts/roache_triple.py",
 )
 
