@@ -1,0 +1,45 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// VMFL046 - Supersonic flow with a normal shock in a CD nozzle, VM2026R1 p.155.
+// DOCUMENTED CONTOUR (the manual prints only L=2 m and exit/throat area ratio 3; the
+// wall shape is a figure). Straight-walled planar CD nozzle so blockMesh builds it
+// exactly with straight edges and the quasi-1D reference is the exact area-Mach solution
+// for THIS A(x): throat at x=0.5 m, throat half-height 0.1 m, inlet/throat area ratio 2
+// (h_in=0.2), exit/throat area ratio 3 (h_exit=0.3). HALF the nozzle is modelled, by
+// symmetry about the centreline y=0. Planar area ratio == height ratio.
+// __NXA__ (converging) / __NXB__ (diverging) / __NY__ substituted per level; the r=2
+// family doubles all three. Uniform grading (a proof-of-start mesh; wall grading may be
+// added before freeze if the boundary layer needs it -- disclosed in PREREGISTRATION.md).
+scale 1;
+
+vertices
+(
+    (0.0 0.0 -0.05)   //  0 inlet  bottom (centreline)
+    (0.5 0.0 -0.05)   //  1 throat bottom
+    (2.0 0.0 -0.05)   //  2 exit   bottom
+    (0.0 0.2 -0.05)   //  3 inlet  top (wall)
+    (0.5 0.1 -0.05)   //  4 throat top (wall)
+    (2.0 0.3 -0.05)   //  5 exit   top (wall)
+    (0.0 0.0  0.05)   //  6
+    (0.5 0.0  0.05)   //  7
+    (2.0 0.0  0.05)   //  8
+    (0.0 0.2  0.05)   //  9
+    (0.5 0.1  0.05)   // 10
+    (2.0 0.3  0.05)   // 11
+);
+
+blocks
+(
+    hex (0 1 4 3 6 7 10 9)  (__NXA__ __NY__ 1) simpleGrading (1 1 1)   // converging
+    hex (1 2 5 4 7 8 11 10) (__NXB__ __NY__ 1) simpleGrading (1 1 1)   // diverging
+);
+
+boundary
+(
+    inlet      { type patch;         faces ( (0 3 9 6) ); }
+    outlet     { type patch;         faces ( (2 5 11 8) ); }
+    centreline { type symmetryPlane; faces ( (0 1 7 6) (1 2 8 7) ); }   // y=0
+    wall       { type wall;          faces ( (3 4 10 9) (4 5 11 10) ); } // contour
+    frontAndBack { type empty; faces
+        ( (0 1 4 3) (1 2 5 4) (6 7 10 9) (7 8 11 10) ); }
+);

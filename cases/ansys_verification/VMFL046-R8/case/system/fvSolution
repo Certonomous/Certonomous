@@ -1,0 +1,49 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+// VMFL046-R3 -- PIMPLE.  EVERY CONSTANT IN THIS FILE WAS FIXED BY THE COARSEST-MESH
+// STABILITY PROBE DECLARED IN PREREGISTRATION §5.3 AND §14, BEFORE THIS FILE WAS FROZEN,
+// AND NONE OF THEM IS A THRESHOLD, BAND OR CAP.
+//
+//   nOuterCorrectors 3   -- 2 diverged (measured, cfg C: SIGFPE at t = 6.44e-03 s).
+//   relaxation 0.7       -- 1.0 diverged (measured, cfg D: SIGFPE at t = 4.82e-03 s).
+//   transonic no         -- `yes` and `no` behave identically on the failure that mattered;
+//                           `no` is the simpler formulation and is kept for that reason.
+//   consistent no        -- SIMPLEC's consistent formulation is a SIMPLE-family accelerator;
+//                           in PIMPLE the outer correctors do that work.
+//   maxCo 0.5            -- the value the FINE-LEVEL (L3) probe validated.  maxCo 1.0 also
+//                           ran to endTime AT L1 and would roughly halve the bill, and it
+//                           was NOT tested at L3.  The cheaper untested value is refused:
+//                           both of this lab's failures today were fine-level instabilities
+//                           that the coarse meshes suppressed.
+//   pMinFactor / pMaxFactor -- UNCHANGED from R2 (0.1 / 3.0).  Widening them was tested and
+//                           does NOT help: with [0.02, 20.0] and limitTemperature [100,4000]
+//                           the run still died at the same physical time with every limiter
+//                           saturated.  The limiters were a symptom, never the cause, so
+//                           they are left exactly where R2 had them.
+solvers
+{
+    "rho.*"      { solver diagonal; }
+    p            { solver GAMG; smoother GaussSeidel; tolerance 1e-9; relTol 0.01; }
+    pFinal       { solver GAMG; smoother GaussSeidel; tolerance 1e-9; relTol 0; }
+    "(U|e)"      { solver PBiCGStab; preconditioner DILU; tolerance 1e-9; relTol 0.1; }
+    "(U|e)Final" { solver PBiCGStab; preconditioner DILU; tolerance 1e-9; relTol 0; }
+}
+PIMPLE
+{
+    nOuterCorrectors 3;
+    nCorrectors      2;
+    nNonOrthogonalCorrectors 0;
+    transonic        no;
+    consistent       no;
+    pMinFactor       0.1;
+    pMaxFactor       3.0;
+    // NO residualControl and NO outer-corrector residual tolerance: convergence is judged
+    // by the GATE-QUANTITY PLATEAU on x_shock (charter §20.2/§22.5), never by a residual
+    // floor -- R2 MEASURED that this case's residual is not a decaying curve with a floor
+    // but a PERIODIC WAVEFORM locked to the hunt (85.4 % of the log-residual variance in a
+    // single ~4168-iteration mode, matching the x_shock period of 4208 to within 1 %).
+}
+relaxationFactors
+{
+    fields    { p 0.7; }
+    equations { U 0.7; e 0.7; "(U|e|p)Final" 1; }
+}

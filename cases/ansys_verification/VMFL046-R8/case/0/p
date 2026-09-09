@@ -1,0 +1,22 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object p; }
+// Absolute pressures: inlet total 301325 Pa (=200 kPa gauge + 101325 operating),
+// outlet static 176325 Pa (=75 kPa gauge + 101325). Operating pressure 101325 is a
+// DOCUMENTED assumption (Fluent default); it sets the shock location (PREREGISTRATION.md).
+// R6 OUTLET CHANGE vs R5: waveTransmissive lInf 2.0 -> 0.3 m (the exit-plane transverse
+// half-height h_exit, a fixed mesh vertex coordinate). GATE-BLIND: with the wave speed
+// w = U_n + c >= c, tau_relax = lInf/w <= lInf/c and the domain acoustic transit time is
+// t_acoustic = L/c, so tau_relax/t_acoustic <= lInf/L = 0.3/2.0 = 0.15 -- INDEPENDENT of c.
+// The outlet therefore relaxes to fieldInf ~6.7x faster than an acoustic wave crosses the
+// domain: firm enough to HOLD the back-pressure R5 lost at lInf = L = 2.0 (ratio 1.0, no
+// margin -> wash-out, register #62), while lInf stays ~96x the finest boundary cell, far
+// above the fixedValue fully-reflecting limit (R4's hunt). See PREREGISTRATION.md sec 3.
+dimensions      [1 -1 -2 0 0 0 0];
+internalField   uniform 200000;
+boundaryField
+{
+    inlet      { type totalPressure; p0 uniform 301325; gamma 1.4; value uniform 301325; }
+    outlet     { type waveTransmissive; field p; psi thermo:psi; gamma 1.4; fieldInf 176325; lInf 0.3; value uniform 176325; }
+    wall       { type zeroGradient; }
+    centreline { type symmetryPlane; }
+    frontAndBack { type empty; }
+}

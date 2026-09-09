@@ -1,0 +1,89 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+// VMFL046-R8 -- PRESSURE-BASED, TRANSIENT.  rhoPimpleFoam (OpenFOAM v2606), PIMPLE
+// segregated pressure-velocity-energy coupling.  R8 is the SOLVER-CHOICE successor to
+// R7 (register row #70, NOT A RESULT): R6/R7's density-based rhoCentralFoam core-dumped
+// in the transonic startup ("Negative initial temperature") -- a solver-specific numerics
+// artifact of the explicit, UNBOUNDED face-reconstruction e->T inversion, NOT a capability
+// limit.  An answer-blind smoke (SMOKE_rhoPimple_L1) showed rhoPimpleFoam CLEARS the
+// ~0.028-0.032 s onset (min-T 224 K, positive) AND holds through the graded window to 0.08 s
+// (rc 0, End); the lab's own R5 already ran rhoPimpleFoam to End at all three levels.
+//
+// R8 vs R7 -- the deliberate change is the SOLVER + its pressure-based numerics, and NOTHING
+// about the physical case or the gate:
+//   (1) application rhoCentralFoam -> rhoPimpleFoam.  Same governing physics (compressible
+//       laminar Navier-Stokes, ideal gas, one normal shock at M 2.2 -- VM2026R1 p.155);
+//       admissible pressure-based discretization (the manual's own solver, Fluent, is
+//       pressure-based by default).
+//   (2) numerics = R5's documented, measurement-forced set: fvSchemes (vanLeer TVD / Euler),
+//       fvSolution (PIMPLE nOuter 3, relax 0.7), constant/fvOptions limitTemperature
+//       [150,2000] (a transient stabilizer rhoPimpleFoam HONORS; a no-op in rhoCentralFoam).
+//   (3) maxCo 0.2 -> 0.5.  R8 returns to R5's PIMPLE Courant limit (the value R5's L3
+//       stability probe validated); rhoCentralFoam's tighter explicit acoustic 0.2 does not
+//       apply to the implicit pressure-based path.
+//   (4) PHYSICAL CASE carried from R7 BYTE-IDENTICAL: mesh, start-from-rest 0/U, 0/p
+//       (waveTransmissive lInf 0.3 -- R6's washout repair), 0/T, thermo.
+// endTime, the mesh, the sampler, DELTA_X, the r=2 triple and the GATE (x_shock vs 1.250 m,
+// +-5 %) are carried from R1-R7 UNCHANGED (L-487).
+application     rhoPimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1e-8;          // seed only; adjustTimeStep takes over at step 1
+writeControl    adjustableRunTime;
+writeInterval   __ENDTIME__;   // fields (U,T,p) at endTime only -> plant + gate + age guard
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+// THE STABILITY CONSTANTS.  maxCo 0.5 is the pre-committed R8 value (PREREGISTRATION §6),
+// carried from R5's L3-validated PIMPLE probe.  maxDeltaT 1.0e-4 is carried byte-for-value
+// from R5-R7; it is NON-BINDING and is retained so the frozen comparator's maxDeltaT check
+// is unchanged.
+adjustTimeStep  yes;
+maxCo           0.5;
+maxDeltaT       1.0e-4;
+
+functions
+{
+    // The refining-sampler rule is CARRIED FORWARD UNCHANGED: nPoints = 2*(NXA+NXB)+1,
+    // i.e. exactly 2 samples per axial cell at every level (sampler/mesh = 0.499000 at
+    // L1, L2 and L3 alike).
+    //     L1 nPoints 321   L2 nPoints 641   L3 nPoints 1281
+    //
+    // GRADED writeInterval __SAMPLEDT__ = 5.0e-04 s against endTime 0.080 s -> 160 samples,
+    // plateau window W = endTime/10 = 8.0e-03 s holds 16 samples.  The comparator refuses any
+    // level whose controlDict does not carry exactly the two writeIntervals {endTime, SAMPLE_DT}.
+    // A CLAUSE-B smoke may override __SAMPLEDT__ to prove, in a handful of steps, that the
+    // sampler WRITES nPoints rows.
+    //
+    // NO fieldMinMax(T) functionObject is added here: it would introduce a THIRD writeInterval
+    // and break the comparator's writeInterval identity.  The limitTemperature-non-binding proof
+    // (comparator limb b) reads min/max(T) from the windowed centreline samples and the endTime
+    // T field -- data this sampler already writes -- never a separate object, and never x_shock.
+    centreline
+    {
+        type            sets;
+        libs            ("libsampling.so");
+        writeControl    adjustableRunTime;
+        writeInterval   __SAMPLEDT__;
+        interpolationScheme cellPoint;
+        setFormat       raw;
+        fields          (U T);
+        sets
+        (
+            line
+            {
+                type    uniform;
+                axis    x;
+                start   (0.002 0.0 0.0);
+                end     (1.998 0.0 0.0);
+                nPoints __NPOINTS__;
+            }
+        );
+    }
+}

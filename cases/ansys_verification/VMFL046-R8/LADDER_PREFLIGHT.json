@@ -1,0 +1,75 @@
+{
+  "ladder_id": "VMFL046-R8",
+  "note": "\u00a72bb pre-flight. Solver path rhoPimpleFoam|none|1 (serial) validated end-to-end by the L1 answer-blind smoke SMOKE_rhoPimple_L1 (rc 0, End at 0.08 s, no negative-T). One distinct (solver,decomp) path -> the L1 smoke covers all three rungs. Deadlines are the driver's per-level caps CAP_LEVEL*60 s (L1 24 / L2 140 / L3 1040 core-min at RANKS=1). Deadline sizing: L1 per-step measured from the start-from-rest L1 smoke (the R8 IC); L2/L3 per-step measured from R5's completed rhoPimpleFoam runs (impulsive IC -- same solver/mesh/physics, only the IC differs; the ~2x start-from-rest step-count factor and the 3x cap are absorbed by the >=1.25x margin, which holds with wide room).",
+  "rungs": [
+    {
+      "rung": "L1",
+      "solver": "rhoPimpleFoam",
+      "decomposition": {
+        "method": "none",
+        "nprocs": 1
+      },
+      "endTime": 0.08,
+      "deadline_s": 1440,
+      "preflight_smoke_log": "verification/runs/ansys_verification/VMFL046-R8/SMOKE_rhoPimple_L1/log.rhoPimpleFoam",
+      "deadline_sizing": {
+        "measured_per_step_wall_s": 0.01491299134774296,
+        "n_steps_sampled": 30859,
+        "steps_to_endTime": 30859,
+        "projected_wall_s": 460.2,
+        "note": "measured from the R8 start-from-rest L1 answer-blind smoke (ExecTime 460.2 s / 30859 steps)"
+      },
+      "solver_path": {
+        "rc": 0,
+        "reached_first_solve": true,
+        "decompose_ok": true
+      }
+    },
+    {
+      "rung": "L2",
+      "solver": "rhoPimpleFoam",
+      "decomposition": {
+        "method": "none",
+        "nprocs": 1
+      },
+      "endTime": 0.08,
+      "deadline_s": 8400,
+      "preflight_smoke_log": "verification/runs/ansys_verification/VMFL046-R8/SMOKE_rhoPimple_L1/log.rhoPimpleFoam",
+      "deadline_sizing": {
+        "measured_per_step_wall_s": 0.0474036376355369,
+        "n_steps_sampled": 28590,
+        "steps_to_endTime": 28590,
+        "projected_wall_s": 1355.27,
+        "note": "per-step measured from R5 L2 completed rhoPimpleFoam (ExecTime 1355.27 s / 28590 steps); IC-caveat in ladder note"
+      },
+      "solver_path": {
+        "rc": 0,
+        "reached_first_solve": true,
+        "decompose_ok": true
+      }
+    },
+    {
+      "rung": "L3",
+      "solver": "rhoPimpleFoam",
+      "decomposition": {
+        "method": "none",
+        "nprocs": 1
+      },
+      "endTime": 0.08,
+      "deadline_s": 62400,
+      "preflight_smoke_log": "verification/runs/ansys_verification/VMFL046-R8/SMOKE_rhoPimple_L1/log.rhoPimpleFoam",
+      "deadline_sizing": {
+        "measured_per_step_wall_s": 0.18701627847825297,
+        "n_steps_sampled": 55042,
+        "steps_to_endTime": 55042,
+        "projected_wall_s": 10293.75,
+        "note": "per-step measured from R5 L3 completed rhoPimpleFoam (ExecTime 10293.75 s / 55042 steps); IC-caveat in ladder note"
+      },
+      "solver_path": {
+        "rc": 0,
+        "reached_first_solve": true,
+        "decompose_ok": true
+      }
+    }
+  ]
+}

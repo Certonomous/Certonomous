@@ -1,0 +1,478 @@
+--- cases/ansys_verification/VMFL046-R7/grade_vmfl046_r7.py	2026-09-08 18:17:09.554472165 +0000
++++ cases/ansys_verification/VMFL046-R8/grade_vmfl046_r8.py	2026-09-09 17:38:16.034532355 +0000
+@@ -1,35 +1,40 @@
+ #!/usr/bin/env python3
+ # =============================================================================
+-# VMFL046-R7 grading path.  COMMENT-ONLY successor of grade_vmfl046_r6.py
+-# (blob bad1408fd52e8d3bdc91bc64f28036de16f02af4): every executable token,
+-# every string literal AND the module docstring below are carried BYTE-IDENTICAL
+-# from R6, so the grading LOGIC is provably R6's -- ast.dump equal, and
+-# tokenize-equal excluding COMMENT tokens.  R7's ONLY change vs R6 is a CASE
+-# INPUT, not the grader: 0/U internalField uniform (100 0 0) -> (0 0 0), the
+-# answer-blind START-FROM-REST that clears R6's ~1.86e-4 s negative-T startup
+-# core-dump (register row #63).  The comparator never inspects the IC velocity,
+-# so NO gate / config / completion limb changes.  The docstring and the printed
+-# banner still read 'R6' ON PURPOSE: rewriting them would alter the module AST
+-# and break the strict ast.dump equality that proves the logic is unchanged.
+-# R7 identity, gate carry-forward (L-487) and predicted verdict live in
+-# cases/ansys_verification/VMFL046-R7/PREREGISTRATION.md.
++# VMFL046-R8 grading path.  SOLVER-CHOICE successor of grade_vmfl046_r7.py.
++# R8 is NOT a comment-only carry: R7 (register row #70, NOT A RESULT) core-dumped
++# in the transonic startup under the density-based rhoCentralFoam ("Negative
++# initial temperature") -- a solver-specific numerics artifact, NOT a capability
++# limit.  R8 changes the SOLVER to the pressure-based rhoPimpleFoam with R5's
++# documented numerics; an answer-blind smoke showed it clears the ~0.028-0.032 s
++# onset AND holds through the graded window (SMOKE_rhoPimple_L1).  The GATE is
++# carried from R1-R7 BYTE-IDENTICAL (L-487): x_shock vs 1.250 m, +-5 %, DELTA_X,
++# endTime, window, r=2 triple, PLANTS A/B/C1/C2/D, W1/W2/W3, Roache -- UNCHANGED.
++# The OFF-GATE changes are scoped and are the whole diff the supervisor reads:
++#   (a) completion + config for rhoPimpleFoam (log name, maxCo 0.5, PIMPLE, fvOptions);
++#   (b) LIMB (b): fvOptions limitTemperature [150,2000] NON-BINDING proof (rhoPimpleFoam
++#       HONORS the clamp; a no-op in rhoCentralFoam) -- replaces R6/R7's physical-range T;
++#   (c) LIMB (c): WASHOUT / shock-stand guard (register-#62 washout mode).
++# R8 identity, gate carry-forward (L-487) and predicted verdict live in
++# cases/ansys_verification/VMFL046-R8/PREREGISTRATION.md.
+ # =============================================================================
+-"""VMFL046-R6 -- Supersonic flow with a normal shock in a converging-diverging nozzle.
++"""VMFL046-R8 -- Supersonic flow with a normal shock in a converging-diverging nozzle.
+ THE FROZEN GRADING PATH.  Ansys Fluid Dynamics Verification Manual VM2026R1 p.155.
+ 
+-R6 == THE R5 COMPARATOR (blob 476de16a, itself byte-identical to R4's §2aw-repaired grader)
+-WITH EXACTLY THREE MECHANICAL CHANGES, ALL FORCED BY R6's TWO DELIBERATE AXES (the solver
+-rhoPimpleFoam -> rhoCentralFoam, and the outlet relaxation length lInf 2.0 -> 0.3):
+-  (1) N4 REPLACED.  rhoCentralFoam has NO fvOptions limitTemperature (verified at source),
+-      so R4/R5's "the limiter must be non-binding" limb is structurally inapplicable; it is
+-      replaced by check_T_physical_range -- a physical-range refusal on the reconstructed T
+-      field, bounds [50, 1000] K derived gate-blind from the frozen total temperature T0.
+-  (2) MAXCO_GRADED 0.5 -> 0.2.  A config-verification constant that pins the run to R6's
+-      frozen explicit acoustic-Courant limit; NOT a gate/threshold/band.
+-  (3) log filename log.rhoPimpleFoam -> log.rhoCentralFoam.  The solver's name.
+-EVERYTHING ELSE IS BYTE-FOR-BEHAVIOUR IDENTICAL TO R5: the gate (x_shock vs 1.250 m, band
+-5 %), DELTA_X, the plateau window and reader, W1/W2/W3, the Roache triple, the demote-only
+-secondaries, and PLANTS A/B/C1/C2/D.  NO gate quantity moves.
++R8 == THE R7 COMPARATOR WITH THE OFF-GATE CHANGES FORCED BY THE SOLVER-CHOICE AXIS (the
++solver rhoCentralFoam -> rhoPimpleFoam with R5's pressure-based numerics; the PHYSICAL case,
++mesh and outlet lInf 0.3 are carried from R7 byte-identical):
++  (1) LIMB (b) -- check_T_clamp_nonbinding REPLACES R6/R7's check_T_physical_range.
++      rhoPimpleFoam HONORS constant/fvOptions, so R5's original "the limitTemperature clamp
++      must be NON-BINDING" limb is BACK IN FORCE: min/max(T) over the graded window must clear
++      the frozen clamp [150, 2000] K, else the field is truncated and could bias x_shock.
++  (2) MAXCO_GRADED 0.2 -> 0.5.  R8 returns to R5's L3-validated PIMPLE Courant limit; the
++      explicit acoustic 0.2 of rhoCentralFoam does not apply.  NOT a gate/threshold/band.
++  (3) log filename log.rhoCentralFoam -> log.rhoPimpleFoam; check_pressure_based_config
++      pins the PIMPLE fvSolution and the frozen fvOptions clamp bounds.
++  (4) LIMB (c) -- check_shock_stands: an answer-blind WASHOUT / shock-stand guard.
++EVERYTHING ELSE IS BYTE-FOR-BEHAVIOUR IDENTICAL: the gate (x_shock vs 1.250 m, band 5 %),
++DELTA_X, the plateau window and reader, W1/W2/W3, the Roache triple, the demote-only
++secondaries, and PLANTS A/B/C1/C2/D.  NO gate quantity moves (L-487).
+ --------------------------------------------------------------------------------------------
+ The narrative below is the LINEAGE PROVENANCE of the carried-forward limbs (written for R4
+ and unchanged in behaviour through R5 to R6); it documents WHY each limb exists.
+@@ -117,8 +122,9 @@
+   D4  the Roache triple, the demote-only secondaries
+   N2  the rule-4 DEPARTURE (the ExecutionTime-count limb, replaced by four stronger limbs)
+   PLANTS A, B, C1, C2, D -- all five unchanged in design and in tolerance
+-  (N4 is NOT carried forward -- it is REPLACED for R6; see the R6 header block above and
+-   check_T_physical_range below.  rhoCentralFoam has no limitTemperature fvOption.)
++  (N4 for R8 is check_T_clamp_nonbinding below -- rhoPimpleFoam HONORS the fvOptions
++   limitTemperature clamp, so the clamp-non-binding limb is back in force.  LIMB (c) adds an
++   answer-blind washout / shock-stand guard.  See the R8 header block above.)
+ 
+ WHAT IS NEW IN R4 BEYOND W1-W3
+   W4  THE PLATEAU CONJUNCTION IS NOW EXERCISED BY THE SELFTEST.  R3's selftest had NO arm
+@@ -132,9 +138,9 @@
+ takes its check with it; every check here is an explicit `refuse()` or `_require()`.
+ 
+ USAGE
+-    grade_vmfl046_r6.py <run_root>          grade
+-    grade_vmfl046_r6.py --paths <run_root>  §39.5 path enumeration against a real run root
+-    grade_vmfl046_r6.py --selftest          planted-failure self-tests
++    grade_vmfl046_r8.py <run_root>          grade
++    grade_vmfl046_r8.py --paths <run_root>  §39.5 path enumeration against a real run root
++    grade_vmfl046_r8.py --selftest          planted-failure self-tests
+ """
+ 
+ import math
+@@ -163,8 +169,10 @@
+ # TRANSIENT CONSTANTS -- PHYSICAL SECONDS.  Every one carried forward from R3 UNCHANGED.
+ ENDTIME_GRADED   = 0.080          # s.  ~20 upstream acoustic traverses (R3 §5.4)
+ SAMPLE_DT        = 5.0e-04        # s between centreline samples
+-MAXCO_GRADED     = 0.2            # R6 rhoCentralFoam EXPLICIT acoustic-Courant limit (PREREG §6);
+-                                  # tracks R6's deliberate maxCo change (rhoPimpleFoam 0.5 -> 0.2).
++MAXCO_GRADED     = 0.5            # R8 rhoPimpleFoam PIMPLE Courant limit (PREREG §6); the value
++                                  # R5's L3 stability probe validated.  R8 returns to the
++                                  # pressure-based solver, so maxCo returns to R5's 0.5 (the
++                                  # explicit acoustic 0.2 of rhoCentralFoam does not apply).
+                                   # NOT a gate/threshold -- a config-verification constant that
+                                   # pins the run to the registered stability limit.
+ MAXDELTAT_GRADED = 1.0e-04        # s
+@@ -175,29 +183,36 @@
+ GCI_FINE_MAX       = 0.15
+ R_REFINE, FS       = 2.0, 1.25
+ 
+-# N4 REPLACEMENT (R6) -- rhoCentralFoam has NO fvOptions limitTemperature.  VERIFIED AT
+-# SOURCE: applications/solvers/compressible/rhoCentralFoam/rhoCentralFoam.C computes
+-#   e = rhoE/rho - 0.5*magSqr(U);  e.correctBoundaryConditions();  thermo.correct();
+-# with NO fvOptions, NO fvConstraints and NO bound() on T.  R4/R5's N4 limb -- "the
+-# constant/fvOptions limitTemperature bounds must be NON-BINDING at endTime" -- is therefore
+-# STRUCTURALLY INAPPLICABLE to R6 and is NOT carried across.  It is REPLACED by a
+-# PHYSICAL-RANGE refusal on the reconstructed T field:
++# LIMB (b) -- fvOptions limitTemperature NON-BINDING PROOF (R8).  rhoPimpleFoam HONORS
++# constant/fvOptions (it applies fvOptions to the energy equation), so R5's original limb --
++# "the limitTemperature clamp must be NON-BINDING" -- is BACK IN FORCE.  In R6/R7 the clamp
++# was a no-op in rhoCentralFoam and a physical-range T refusal stood in for it; R8 restores
++# the real clamp-non-binding proof.  A BINDING thermal clamp truncates an overshoot in place
++# and could BIAS x_shock, so the graded verdict is admissible only if the clamp never bit
++# anywhere the gate reads:
+ #
+-#   This is an adiabatic-core, cooled-wall nozzle with inlet TOTAL temperature T0 = 500 K
+-#   (frozen 0/T inlet BC) and gamma = 1.4.  Energy conservation caps the static temperature
+-#   at the total temperature, and the wall (328 K) only REMOVES energy, so NO physical
+-#   process in this case raises static T above T0.  A reconstructed T field that leaves the
+-#   generous envelope [T_MIN_PHYS, T_MAX_PHYS] is a KNP numerical failure (a blow-up shows
+-#   T -> huge or T collapses toward 0), not the registered physics, and the grade REFUSES.
++#   The frozen clamp bounds are limitTemperature min 150 K / max 2000 K (constant/fvOptions,
++#   pinned by check_pressure_based_config).  The comparator reads min/max(T) over the graded
++#   window -- the windowed centreline samples AND the endTime T field -- and REFUSES (exit 2)
++#   if T comes within CLAMP_REL_MARGIN of either bound (the clamp is binding -> the field is
++#   truncated, not the registered physics).
+ #
+-# The bounds are derived from the FROZEN THERMO ALONE (T0 and the case's max Mach), are
+-# ANSWER-BLIND, and are NON-BINDING on the true field (whose static T spans ~[254, 500] K:
+-# 254 K at the pre-shock M~=2.2 supersonic point, up to ~500 K near stagnation behind the
+-# shock).  Like R4's N4, this fires ONLY when something has gone wrong.
++# The bounds are the FROZEN fvOptions values, are ANSWER-BLIND (T bounds, never x_shock), and
++# are NON-BINDING on the true field, whose static T spans ~[224, 500] K (224 K min in the
++# startup, measured in the R8 answer-blind smoke; ~500 K near stagnation) -- comfortably clear
++# of both 150 and 2000.  Like R4's N4, this fires ONLY when the clamp has bitten.
+ T0_TOTAL         = 500.0            # K, inlet total temperature (frozen 0/T inlet BC)
+-T_MAX_PHYS       = 2.0 * T0_TOTAL   # 1000 K; static T > 2*T0 is definitionally unphysical here
+-T_MIN_PHYS       = 50.0             # K; << T0/(1+0.2*2.2^2)=254 K (this case's pre-shock min),
+-                                    #    and << T0 at any Mach this nozzle reaches (M<=2.2)
++T_CLAMP_MIN      = 150.0            # K, frozen limitTemperature min (constant/fvOptions)
++T_CLAMP_MAX      = 2000.0           # K, frozen limitTemperature max (constant/fvOptions)
++CLAMP_REL_MARGIN = 1.0e-3           # T within this relative margin of a bound == clamp binding
++
++# LIMB (c) -- WASHOUT / shock-stand guard (R8).  PURE GEOMETRY, ANSWER-BLIND.
++X_EXIT           = 1.998            # m, the sampler's exit-plane end coordinate (frozen geometry)
++WASHOUT_STANDOFF = 0.10             # m, ~5 % of the 2 m nozzle; a shock within this of the exit
++                                    #    has washed out (register #62 mode).  The band upper edge
++                                    #    1.3125 m is 0.585 m clear of X_EXIT-STANDOFF = 1.898 m,
++                                    #    so this NEVER trips a shock near the reference.
++X_STAND_MIN      = 0.5              # m, interior floor (well below the band lower edge 1.1875 m)
+ 
+ # PLANTS (CLAUDE.md rule 3) -- all unchanged from R3.
+ PLANT_DX         = 1.000e-02      # m, the shock displacement planted into a SCRATCH copy
+@@ -918,29 +933,68 @@
+         shutil.rmtree(tmp, ignore_errors=True)
+ 
+ 
+-# ---- N4 REPLACEMENT (R6): the reconstructed T field must lie in the PHYSICAL RANGE ------
+-def check_T_physical_range(t_path, level):
+-    """N4 REPLACEMENT -- A REFUSAL LIMB, NOT A PRINTED DIAGNOSTIC.
+-
+-    rhoCentralFoam has NO fvOptions limitTemperature (verified at source; see T_MAX_PHYS/
+-    T_MIN_PHYS above), so R4/R5's "the limiter must be non-binding" limb has no subject in
+-    R6.  It is replaced by an equivalent physical-range refusal derived from the frozen
+-    thermo: the reconstructed T field at endTime must lie within [T_MIN_PHYS, T_MAX_PHYS]
+-    = [50, 1000] K.  This is the density-based analogue of N4 -- where rhoPimpleFoam's
+-    fvOptions limiter would have CLAMPED a blow-up (and N4 caught the clamp), rhoCentralFoam
+-    has no clamp, so a blow-up shows up DIRECTLY as an out-of-range reconstructed T, and
+-    THIS limb catches it.  Non-binding on the true field (static T ~ [254, 500] K)."""
+-    vals, _ = read_T_internal(t_path)
+-    lo, hi = min(vals), max(vals)
+-    if lo < T_MIN_PHYS or hi > T_MAX_PHYS:
+-        refuse("%s: N4(R6) VIOLATED -- reconstructed T at endTime spans [%.4g, %.4g] K, "
+-               "outside the physical envelope [%.4g, %.4g] K derived from the frozen total "
+-               "temperature T0 = %.1f K.  rhoCentralFoam has no limitTemperature to clamp "
+-               "this, so an out-of-range T is a KNP numerical failure, not the registered "
+-               "physics." % (level, lo, hi, T_MIN_PHYS, T_MAX_PHYS, T0_TOTAL))
++# ---- LIMB (b) (R8): the fvOptions limitTemperature clamp must be NON-BINDING -----------
++def _clamp_check(lo, hi, level):
++    """The clamp non-binding decision in ISOLATION (rule-3 / selftest-drivable).  REFUSES if
++    the T bounds touch the frozen limitTemperature clamp within CLAMP_REL_MARGIN."""
++    lo_bound = T_CLAMP_MIN * (1.0 + CLAMP_REL_MARGIN)
++    hi_bound = T_CLAMP_MAX * (1.0 - CLAMP_REL_MARGIN)
++    if lo <= lo_bound or hi >= hi_bound:
++        refuse("%s: LIMB (b) VIOLATED -- T over the graded window spans [%.4g, %.4g] K, which "
++               "touches the frozen limitTemperature clamp [%.4g, %.4g] K within the %.1e "
++               "relative margin.  A BINDING clamp truncates the field in place and can BIAS "
++               "x_shock, so this is not the registered physics; refusing."
++               % (level, lo, hi, T_CLAMP_MIN, T_CLAMP_MAX, CLAMP_REL_MARGIN))
+     return dict(lo=lo, hi=hi)
+ 
+ 
++def check_T_clamp_nonbinding(win, t_path, level):
++    """LIMB (b) -- A REFUSAL LIMB, NOT A PRINTED DIAGNOSTIC.
++
++    rhoPimpleFoam HONORS the constant/fvOptions limitTemperature clamp [150, 2000] K, so a
++    BINDING clamp could truncate an overshoot and BIAS x_shock.  This limb reads min/max(T)
++    over the graded window -- the windowed centreline samples (temporal coverage) AND the
++    endTime T field (whole-field spatial coverage) -- and REFUSES if the clamp bit anywhere.
++    ANSWER-BLIND: it reads T BOUNDS ONLY, never a shock location.  The centreline reads are
++    all IN-WINDOW and are recorded by the W1 audit; re-reading in-window samples is set-
++    deduped in audit_window_only(), so n_read is unchanged."""
++    lo = float("inf")
++    hi = float("-inf")
++    for _t, p in win:
++        for _x, T, _ux, _uy, _uz in read_centreline_raw(p):
++            if T < lo:
++                lo = T
++            if T > hi:
++                hi = T
++    fld, _ = read_T_internal(t_path)
++    lo = min(lo, min(fld))
++    hi = max(hi, max(fld))
++    return _clamp_check(lo, hi, level)
++
++
++# ---- LIMB (c) (R8): WASHOUT / shock-stand guard ----------------------------------------
++def check_shock_stands(ser, level):
++    """LIMB (c) -- the normal shock must STAND at an INTERIOR location across the whole
++    registered window.  If the outlet washes it downstream to the exit plane (register #62
++    mode) the profile has no standing shock and no gate quantity is meaningful.  ANSWER-BLIND
++    STRUCTURAL check on GEOMETRY (exit plane, interior floor) -- it never references the
++    reference value 1.250 m or the +-5 %% band, so it can only turn a would-be verdict into
++    NOT A RESULT, never license one (rule 5).  The shock-ABSENT case (no downward M=1
++    crossing) is already refused upstream by shock_series()."""
++    wash = X_EXIT - WASHOUT_STANDOFF
++    for t, x in ser:
++        if x >= wash:
++            refuse("%s: LIMB (c) WASHOUT -- x_shock = %.6f m at t = %.6g s is within "
++                   "WASHOUT_STANDOFF %.3f m of the exit plane %.3f m: the shock has washed out "
++                   "to the outlet, not a standing interior shock (register #62 washout mode)."
++                   % (level, x, t, WASHOUT_STANDOFF, X_EXIT))
++        if x <= X_STAND_MIN:
++            refuse("%s: LIMB (c) -- x_shock = %.6f m at t = %.6g s is upstream of the interior "
++                   "floor %.3f m: not a resolvable divergent-section normal shock."
++                   % (level, x, t, X_STAND_MIN))
++    return dict(x_min=min(x for _, x in ser), x_max=max(x for _, x in ser))
++
++
+ # ---- strict completion (CLAUDE.md rule 4) -----------------------------------
+ def check_completion(level_dir, level):
+     """CLAUDE.md rule 4, with ONE DECLARED DEPARTURE (N2), carried forward from R3
+@@ -972,9 +1026,9 @@
+         refuse("%s: RUN_RC = %s, not 0 (rule 4).  rc 124 is a CAP KILL: the run was stopped "
+                "by its own registered cap and is NOT A RESULT (budget/kill class)."
+                % (level, rc))
+-    log = os.path.join(level_dir, "log.rhoCentralFoam")
++    log = os.path.join(level_dir, "log.rhoPimpleFoam")
+     if not os.path.isfile(log):
+-        refuse("%s: log.rhoCentralFoam absent (rule 4)" % level)
++        refuse("%s: log.rhoPimpleFoam absent (rule 4)" % level)
+     txt = open(log).read()
+     if "FOAM FATAL" in txt:
+         refuse("%s: FOAM FATAL in the solver log (rule 4)" % level)
+@@ -1020,6 +1074,46 @@
+     return endt, tname, tpath, len(times)
+ 
+ 
++# ---- config: the registered pressure-based solver + frozen clamp bounds (R8) ----------
++def check_pressure_based_config(level_dir, level):
++    """LIMB (a) config -- pin the run to the REGISTERED pressure-based configuration.  Reads
++    system/fvSolution (a PIMPLE block with nOuterCorrectors), constant/fvOptions (the frozen
++    limitTemperature clamp [150, 2000] the LIMB (b) proof references), and confirms the solver
++    log carries PIMPLE iterations.  A run under any other solver set is not the registered
++    run.  ANSWER-BLIND: reads config text, never a shock location."""
++    fvs = os.path.join(level_dir, "system", "fvSolution")
++    if not os.path.isfile(fvs):
++        refuse("%s: system/fvSolution absent (rule 4 / R8 config)" % level)
++    stxt = open(fvs).read()
++    if not re.search(r"\bPIMPLE\b", stxt) or not re.search(
++            r"^\s*nOuterCorrectors\s+\d+\s*;", stxt, re.M):
++        refuse("%s: fvSolution carries no PIMPLE{ nOuterCorrectors } block -- this is not the "
++               "registered pressure-based (rhoPimpleFoam) configuration (R8)" % level)
++    fvo = os.path.join(level_dir, "constant", "fvOptions")
++    if not os.path.isfile(fvo):
++        refuse("%s: constant/fvOptions absent -- the LIMB (b) clamp-non-binding proof has no "
++               "clamp to reference (R8)" % level)
++    otxt = open(fvo).read()
++    if not re.search(r"type\s+limitTemperature", otxt):
++        refuse("%s: constant/fvOptions carries no limitTemperature (R8)" % level)
++    mn = re.search(r"^\s*min\s+([0-9.eE+\-]+)\s*;", otxt, re.M)
++    mx = re.search(r"^\s*max\s+([0-9.eE+\-]+)\s*;", otxt, re.M)
++    act = re.search(r"^\s*active\s+(\w+)\s*;", otxt, re.M)
++    if not (mn and mx):
++        refuse("%s: fvOptions limitTemperature min/max not found (R8)" % level)
++    if abs(float(mn.group(1)) - T_CLAMP_MIN) > 1e-9 or abs(float(mx.group(1)) - T_CLAMP_MAX) > 1e-9:
++        refuse("%s: fvOptions limitTemperature bounds [%s, %s] are not the frozen clamp "
++               "[%.1f, %.1f] the LIMB (b) proof references (R8)"
++               % (level, mn.group(1), mx.group(1), T_CLAMP_MIN, T_CLAMP_MAX))
++    if act and act.group(1) not in ("yes", "true", "on", "1"):
++        refuse("%s: fvOptions limitTemperature is not active (R8)" % level)
++    log = os.path.join(level_dir, "log.rhoPimpleFoam")
++    if os.path.isfile(log) and "PIMPLE" not in open(log).read():
++        refuse("%s: log.rhoPimpleFoam shows no PIMPLE iteration -- not the registered "
++               "segregated pressure-based solver (R8)" % level)
++    return dict(clamp=(T_CLAMP_MIN, T_CLAMP_MAX))
++
++
+ # ---- Roache -----------------------------------------------------------------
+ def roache(f1, f2, f3):
+     d12, d23 = (f2 - f1), (f3 - f2)
+@@ -1036,7 +1130,8 @@
+ # ---- §39.5 path check -------------------------------------------------------
+ READ_PATHS = [
+     "<L>/RUN_RC",
+-    "<L>/log.rhoCentralFoam",
++    "<L>/log.rhoPimpleFoam",
++    "<L>/system/fvSolution", "<L>/constant/fvOptions",
+     "<L>/system/controlDict",
+     "<L>/system/blockMeshDict",
+     "<L>/0/T",
+@@ -1065,8 +1160,10 @@
+         cand = sorted(set(float(v) for v in m))
+         if cand:
+             sdt = min(cand)
+-        want = [os.path.join(ld, "RUN_RC"), os.path.join(ld, "log.rhoCentralFoam"),
++        want = [os.path.join(ld, "RUN_RC"), os.path.join(ld, "log.rhoPimpleFoam"),
+                 os.path.join(ld, "system", "controlDict"),
++                os.path.join(ld, "system", "fvSolution"),
++                os.path.join(ld, "constant", "fvOptions"),
+                 os.path.join(ld, "system", "blockMeshDict"),
+                 os.path.join(ld, "0", "T")]
+         tn = ("%g" % endt)
+@@ -1084,13 +1181,13 @@
+ 
+ # ---- grade ------------------------------------------------------------------
+ def grade(run_root):
+-    print("VMFL046-R6  Supersonic flow with a normal shock in a CD nozzle (VM2026R1 p.155)")
+-    print("solver: rhoCentralFoam (DENSITY-BASED, TRANSIENT), fluxScheme Kurganov (KNP),")
+-    print("        reconstruct(rho/U/T) vanLeer, ddtSchemes Euler, maxCo 0.2 -- Greenshields")
+-    print("        et al. (2010).  R6 changes vs R5: SOLVER (rhoPimpleFoam->rhoCentralFoam)")
+-    print("        and the OUTLET relaxation length (waveTransmissive lInf 2.0->0.3).  The")
+-    print("        gate, DELTA_X, endTime, mesh, r=2 triple and every gate limb are UNCHANGED;")
+-    print("        N4 (limitTemperature) is REPLACED by a physical-range T refusal (no fvOption).")
++    print("VMFL046-R8  Supersonic flow with a normal shock in a CD nozzle (VM2026R1 p.155)")
++    print("solver: rhoPimpleFoam (PRESSURE-BASED, TRANSIENT, PIMPLE), vanLeer TVD / Euler,")
++    print("        maxCo 0.5, fvOptions limitTemperature [150,2000] (R5's numerics).  R8 changes")
++    print("        vs R7: SOLVER (rhoCentralFoam->rhoPimpleFoam) forced by R7's startup core-dump")
++    print("        (row #70).  PHYSICAL case (mesh, start-from-rest, lInf 0.3), the gate, DELTA_X,")
++    print("        endTime, mesh, r=2 triple and every GATE limb are UNCHANGED (L-487).  Off-gate:")
++    print("        LIMB (b) fvOptions clamp NON-BINDING proof; LIMB (c) washout / shock-stand guard.")
+     print("gate  : x_shock vs %.3f m, band +-%.1f %% (= +-%.4f m)  -- UNCHANGED from R1/R2/R3"
+           % (ANALYTICAL_SHOCK, 100 * SHOCK_TOL, BAND))
+     print("plateau: ptp(x_shock) over two adjacent W=endTime/%d windows AND their mean drift"
+@@ -1115,8 +1212,8 @@
+         if not os.path.isdir(ld):
+             refuse("level directory absent: %s" % ld)
+         endt, tname, tpath, nsteps = check_completion(ld, L)
++        cfg = check_pressure_based_config(ld, L)               # LIMB (a) config
+         samp = assert_refining_sampler(ld, L)
+-        lim = check_T_physical_range(os.path.join(tpath, "T"), L)
+         hist = centreline_history(ld, endt)
+ 
+         # ---- W1: the window is selected BEFORE any sample is opened, and the audit is
+@@ -1124,6 +1221,8 @@
+         _audit_reset()
+         win, bounds = registered_window(hist, endt)
+         ser = shock_series(win)
++        stand = check_shock_stands(ser, L)                     # LIMB (c) washout / shock-stand
++        lim = check_T_clamp_nonbinding(win, os.path.join(tpath, "T"), L)  # LIMB (b) clamp non-binding
+         pl = plateau(ser, endt)
+ 
+         # ---- §2av REPAIR (VERIFICATION_CHARTER v1.67, grant 8bdd5351) ---------------
+@@ -1177,9 +1276,10 @@
+         print("     plateau P1=%.4e  P2=%.4e  P3=%.4e   vs DELTA_X=%.3e  ->  %s"
+               % (pl["p1"], pl["p2"], pl["p3"], DELTA_X,
+                  "PLATEAU" if pl["ok"] else "NOT PLATEAUED"))
+-        print("     T at endTime spans [%.5g, %.5g] K -- physical envelope [%.4g, %.4g] K "
+-              "(from T0=%.0f) NON-BINDING (N4 REPLACEMENT: rhoCentralFoam has no "
+-              "limitTemperature)" % (lim["lo"], lim["hi"], T_MIN_PHYS, T_MAX_PHYS, T0_TOTAL))
++        print("     T over the graded window spans [%.5g, %.5g] K -- frozen limitTemperature "
++              "clamp [%.4g, %.4g] K NON-BINDING (LIMB b); x_shock stands in [%.4f, %.4f] m, "
++              "interior of exit %.3f m (LIMB c)" % (lim["lo"], lim["hi"], T_CLAMP_MIN,
++              T_CLAMP_MAX, stand["x_min"], stand["x_max"], X_EXIT))
+         print("     plants: A err %.3e (tol %.3e) | B ptp %.4e->%.4e | C1 inert change "
+               "%.3e, live +%.6e | C2 worst %.3e (tol %.3e), spread %.3e | D err %.3e"
+               % (pa["err"], pa["tol"], pb["base"], pb["got"],
+@@ -1645,22 +1745,43 @@
+                               ("exact", (1.25, 1.25, 1.25), "EXACT")):
+         arm("roache %s -> %s" % (label, want), roache(*tri3)["state"] == want)
+ 
+-    print("== N4 REPLACEMENT: reconstructed T must lie in the physical envelope [50,1000] K ==")
+-    must_refuse("N4(R6) refuses a T field BELOW the physical floor (min 30 K < %g)"
+-                % T_MIN_PHYS, lambda: _n4_on([30.0, 300.0, 450.0]))
+-    must_refuse("N4(R6) refuses a T field ABOVE the physical ceiling (max 1200 K > %g)"
+-                % T_MAX_PHYS, lambda: _n4_on([300.0, 400.0, 1200.0]))
+-    must_refuse("N4(R6) refuses a KNP blow-up (T -> 1e5 K -- the planted-zero analogue: a "
+-                "reader shown able to SEE a non-physical field)",
+-                lambda: _n4_on([300.0, 400.0, 1.0e5]))
+-    must_refuse("N4(R6) refuses a T-collapse (T -> 1 K)",
+-                lambda: _n4_on([1.0, 300.0, 450.0]))
+-    r = _n4_on([254.0, 400.0, 500.0])
+-    arm("N4(R6) passes the TRUE physical range [254, 500] K (non-binding on the real field)",
+-        r["lo"] == 254.0 and r["hi"] == 500.0)
+-    r2 = _n4_on([T_MIN_PHYS, 400.0, T_MAX_PHYS])
+-    arm("N4(R6) admits a field EXACTLY at the envelope edges [%g, %g] K (inclusive bounds)"
+-        % (T_MIN_PHYS, T_MAX_PHYS), r2["lo"] == T_MIN_PHYS and r2["hi"] == T_MAX_PHYS)
++    print("== LIMB (b): the fvOptions limitTemperature clamp [150,2000] K must be NON-BINDING ==")
++    must_refuse("(b) refuses T touching the LOW clamp bound (min 150 K)",
++                lambda: _clamp_check(T_CLAMP_MIN, 400.0, "SELFTEST"))
++    must_refuse("(b) refuses T touching the HIGH clamp bound (max 2000 K)",
++                lambda: _clamp_check(300.0, T_CLAMP_MAX, "SELFTEST"))
++    must_refuse("(b) refuses T WITHIN the relative margin of the high bound (1999 K, clamp bit)",
++                lambda: _clamp_check(300.0, 1999.0, "SELFTEST"))
++    must_refuse("(b) refuses a clamp-truncated collapse (T pinned at the 150 K floor)",
++                lambda: _clamp_check(150.0, 500.0, "SELFTEST"))
++    r = _clamp_check(224.0, 500.0, "SELFTEST")
++    arm("(b) PASSES the TRUE field [224, 500] K (measured in the R8 smoke; non-binding)",
++        r["lo"] == 224.0 and r["hi"] == 500.0)
++    must_refuse("(b) integration: check_T_clamp_nonbinding refuses a clamped endTime T field",
++                lambda: check_T_clamp_nonbinding(
++                    _fake_window(8), _write_T_file(
++                        "FoamFile { object T; }\ninternalField   nonuniform List<scalar>\n3\n"
++                        "(\n328\n2000\n400\n)\n;\n"), "SELFTEST"))
++    ri = check_T_clamp_nonbinding(_fake_window(8), _write_T_file(
++        "FoamFile { object T; }\ninternalField   nonuniform List<scalar>\n3\n(\n328\n400\n"
++        "500\n)\n;\n"), "SELFTEST")
++    arm("(b) integration: passes a benign window + endTime field (T in [%.4g, %.4g] K)"
++        % (ri["lo"], ri["hi"]), ri["lo"] > T_CLAMP_MIN and ri["hi"] < T_CLAMP_MAX)
++
++    print("== LIMB (c): the washout / shock-stand guard ==")
++    _good = [(1.0, 1.25)] * 8
++    _wash = [(1.0, 1.25)] * 7 + [(1.0, 1.95)]
++    _spur = [(1.0, 0.30)] + [(1.0, 1.25)] * 7
++    arm("(c) PASSES an interior standing shock (x=1.25 m across the window)",
++        check_shock_stands(_good, "SELFTEST")["x_max"] == 1.25)
++    must_refuse("(c) refuses a shock WASHED to the exit (x=1.95 m > X_EXIT-STANDOFF 1.898 m)",
++                lambda: check_shock_stands(_wash, "SELFTEST"))
++    must_refuse("(c) refuses a spurious upstream crossing (x=0.30 m < interior floor 0.5 m)",
++                lambda: check_shock_stands(_spur, "SELFTEST"))
++    arm("(c) is ANSWER-BLIND: X_EXIT-STANDOFF %.3f m clears the band upper edge %.4f m by %.3f m"
++        % (X_EXIT - WASHOUT_STANDOFF, ANALYTICAL_SHOCK * (1 + SHOCK_TOL),
++           (X_EXIT - WASHOUT_STANDOFF) - ANALYTICAL_SHOCK * (1 + SHOCK_TOL)),
++        (X_EXIT - WASHOUT_STANDOFF) > ANALYTICAL_SHOCK * (1 + SHOCK_TOL))
+ 
+     print("\nSELFTEST: %d ok, %d FAILED" % (ok[0], bad[0]))
+     print("Per charter §39.5 this proves LOGIC and NOT INTERFACE.  The interface evidence is")
+@@ -1783,19 +1904,6 @@
+     return False
+ 
+ 
+-def _n4_on(vals):
+-    tmp = tempfile.mkdtemp(prefix="vmfl046r4_n4_")
+-    try:
+-        p = os.path.join(tmp, "T")
+-        open(p, "w").write(
+-            "FoamFile { version 2.0; format ascii; class volScalarField; object T; }\n"
+-            "internalField   nonuniform List<scalar>\n%d\n(\n%s\n)\n;\n"
+-            % (len(vals), "\n".join("%.10g" % v for v in vals)))
+-        return check_T_physical_range(p, "SELFTEST")
+-    finally:
+-        shutil.rmtree(tmp, ignore_errors=True)
+-
+-
+ # ---- main -------------------------------------------------------------------
+ def main():
+     args = sys.argv[1:]
+@@ -1806,7 +1914,7 @@
+             if len(args) != 2:
+                 sys.stderr.write("usage: %s --paths <run_root>\n" % sys.argv[0])
+                 return 2
+-            print("§39.5 path enumeration for VMFL046-R6 against %s" % args[1])
++            print("§39.5 path enumeration for VMFL046-R8 against %s" % args[1])
+             for p in READ_PATHS:
+                 print("   reads: %s" % p)
+             print()
