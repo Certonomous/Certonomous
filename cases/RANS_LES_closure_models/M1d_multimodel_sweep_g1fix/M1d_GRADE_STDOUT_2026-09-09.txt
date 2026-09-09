@@ -1,0 +1,126 @@
+M1d MULTI-MODEL SWEEP REGRADE -- SUCCESSOR TO M1b, G1 MODEL_RE FIX (L-509)
+instrument sha256: a1ee190550e94be13fb2fc678379e1c23275b9fd4f002905073776d263628790
+section 2j birth demonstration: VERIFIED from /home/ubuntu/closure-data/m1d_birth/m1d_birth_demonstration.json (positive limb 3 real fixtures, negative limb 4 real fixtures)
+STANDING RULE 5 DOES NOT APPLY TO THIS RUNG: one mesh per case is shipped, no grid triple exists, and therefore no GCI, no observed order and no Roache triple state is computed or quoted anywhere in this output.
+
+C1 planted-zero control on /home/ubuntu/closure-data/multimodel_sweep/kOmega/AR_10_Ret_180/20000/U: {'source': '/home/ubuntu/closure-data/multimodel_sweep/kOmega/AR_10_Ret_180/20000/U', 'planted': 0.001234, 'read_back_delta': 0.0012339999999966267, 'reader_max_change': 0.0012339999999966267, 'passed': True}
+
+PER-ROW TABLE.  Every row carries its convergence class beside its number.
+arm             case                    state      convergence         rel-L2 U vs ref  rel-L2 U arms   core-min
+kOmegaSST_null  AR_10_Ret_180           COMPLETE   CONVERGED@4707            1.544e-02                     33.87
+kOmega          AR_10_Ret_180           COMPLETE   CONVERGED@3022                           1.465e-02      28.02
+kOmegaSST_null  AR_14_Ret_180           COMPLETE   CONVERGED@6939            2.419e-02                     48.05
+kOmega          AR_14_Ret_180           INCOMPLETE -                                                       51.05
+kOmegaSST_null  AR_1_Ret_180            INCOMPLETE -                                                        3.55
+kOmega          AR_1_Ret_180            INCOMPLETE -                                                        3.55
+kOmegaSST_null  AR_1_Ret_360            COMPLETE   CONVERGED@387             2.834e-04                      3.92
+kOmega          AR_1_Ret_360            COMPLETE   CONVERGED@248                            1.326e-02       3.68
+kOmegaSST_null  AR_3_Ret_180            COMPLETE   CONVERGED@983             1.864e-03                      9.47
+kOmega          AR_3_Ret_180            COMPLETE   CONVERGED@789                            1.345e-02       9.68
+kOmegaSST_null  AR_3_Ret_360            COMPLETE   CONVERGED@1420            2.456e-03                     12.60
+kOmega          AR_3_Ret_360            COMPLETE   CONVERGED@1155                           1.084e-02      10.95
+kOmegaSST_null  AR_5_Ret_180            COMPLETE   CONVERGED@2063            4.936e-03                     16.93
+kOmega          AR_5_Ret_180            COMPLETE   CONVERGED@1537                           1.412e-02      16.55
+kOmegaSST_null  AR_7_Ret_180            COMPLETE   CONVERGED@3133            8.642e-03                     23.65
+kOmega          AR_7_Ret_180            INCOMPLETE -                                                       24.82
+kOmegaSST_null  CBFS                    COMPLETE   CONVERGED@1337            1.186e-03                     19.47
+kOmega          CBFS                    COMPLETE   CONVERGED@1436                           3.108e-02      20.18
+kOmegaSST_null  PH_Breuer               INCOMPLETE -                                                       25.03
+kOmega          PH_Breuer               INCOMPLETE -                                                       25.03
+kOmegaSST_null  alpha_05_10071_2024     COMPLETE   CONVERGED@3298            4.184e-05                      6.98
+kOmega          alpha_05_10071_2024     COMPLETE   CONVERGED@3707                           1.014e-01       7.73
+kOmegaSST_null  alpha_05_10071_3036     COMPLETE   CONVERGED@2310            1.232e-05                      6.38
+kOmega          alpha_05_10071_3036     COMPLETE   CONVERGED@2823                           8.310e-02       6.27
+kOmegaSST_null  alpha_05_10071_4048     COMPLETE   CONVERGED@2483            9.170e-05                      6.22
+kOmega          alpha_05_10071_4048     COMPLETE   CONVERGED@2723                           8.008e-02       7.20
+kOmegaSST_null  alpha_05_4071_2024      COMPLETE   CONVERGED@2228            5.458e-06                      6.32
+kOmega          alpha_05_4071_2024      COMPLETE   CONVERGED@2967                           5.418e-02       7.05
+kOmegaSST_null  alpha_05_4071_3036      COMPLETE   CONVERGED@2440            6.770e-06                      6.47
+kOmega          alpha_05_4071_3036      COMPLETE   CONVERGED@3526                           4.992e-02       7.75
+kOmegaSST_null  alpha_05_4071_4048      COMPLETE   CONVERGED@4410            7.051e-05                      8.55
+kOmega          alpha_05_4071_4048      COMPLETE   CONVERGED@4643                           4.906e-02       9.02
+kOmegaSST_null  alpha_05_7071_2024      COMPLETE   CONVERGED@2383            5.899e-06                      6.52
+kOmega          alpha_05_7071_2024      COMPLETE   CONVERGED@3284                           8.263e-02       7.42
+kOmegaSST_null  alpha_05_7071_3036      COMPLETE   CONVERGED@1803            1.190e-05                      6.23
+kOmega          alpha_05_7071_3036      COMPLETE   CONVERGED@2650                           7.023e-02       7.27
+kOmegaSST_null  alpha_05_7071_4048      COMPLETE   CONVERGED@2314            8.491e-05                      7.20
+kOmega          alpha_05_7071_4048      COMPLETE   CONVERGED@3366                           6.838e-02       7.63
+kOmegaSST_null  alpha_075               COMPLETE   CONVERGED@2473            8.922e-06                      6.32
+kOmega          alpha_075               COMPLETE   CONVERGED@2856                           6.957e-02       7.65
+kOmegaSST_null  alpha_10_12000_2024     COMPLETE   CONVERGED@2572            2.066e-05                      6.32
+kOmega          alpha_10_12000_2024     COMPLETE   CONVERGED@3496                           8.013e-02       6.70
+kOmegaSST_null  alpha_10_12000_3036     COMPLETE   CONVERGED@2362            9.190e-06                      6.18
+kOmega          alpha_10_12000_3036     COMPLETE   CONVERGED@2582                           7.984e-02       5.85
+kOmegaSST_null  alpha_10_12000_4048     COMPLETE   CONVERGED@3148            6.514e-05                      6.65
+kOmega          alpha_10_12000_4048     COMPLETE   CONVERGED@3068                           7.820e-02       6.47
+kOmegaSST_null  alpha_10_6000_2024      COMPLETE   CONVERGED@2407            2.638e-06                      6.65
+kOmega          alpha_10_6000_2024      COMPLETE   CONVERGED@2811                           4.898e-02       7.67
+kOmegaSST_null  alpha_10_6000_3036      COMPLETE   CONVERGED@2895            5.007e-06                      6.68
+kOmega          alpha_10_6000_3036      COMPLETE   CONVERGED@3113                           4.489e-02       7.88
+kOmegaSST_null  alpha_10_6000_4048      COMPLETE   CONVERGED@3028            6.012e-05                      7.57
+kOmega          alpha_10_6000_4048      COMPLETE   CONVERGED@3804                           4.491e-02       7.73
+kOmegaSST_null  alpha_10_9000_2024      COMPLETE   CONVERGED@2448            3.991e-06                      6.48
+kOmega          alpha_10_9000_2024      COMPLETE   CONVERGED@3241                           7.277e-02       6.58
+kOmegaSST_null  alpha_10_9000_3036      COMPLETE   CONVERGED@2621            7.731e-06                      6.22
+kOmega          alpha_10_9000_3036      COMPLETE   CONVERGED@2882                           7.050e-02       6.72
+kOmegaSST_null  alpha_10_9000_4048      COMPLETE   CONVERGED@3117            6.630e-05                      7.18
+kOmega          alpha_10_9000_4048      COMPLETE   CONVERGED@3349                           6.929e-02       6.97
+kOmegaSST_null  alpha_125               COMPLETE   CONVERGED@2460            7.085e-06                      6.08
+kOmega          alpha_125               COMPLETE   CONVERGED@2896                           7.154e-02       7.32
+kOmegaSST_null  alpha_15_10929_2024     COMPLETE   CONVERGED@2649            3.220e-06                      6.15
+kOmega          alpha_15_10929_2024     COMPLETE   CONVERGED@3140                           6.815e-02       6.53
+kOmegaSST_null  alpha_15_10929_3036     COMPLETE   CONVERGED@2227            6.582e-06                      5.68
+kOmega          alpha_15_10929_3036     COMPLETE   CONVERGED@2917                           7.232e-02       6.50
+kOmegaSST_null  alpha_15_10929_4048     COMPLETE   CONVERGED@2671            5.343e-05                      6.47
+kOmega          alpha_15_10929_4048     COMPLETE   CONVERGED@3382                           7.274e-02       6.47
+kOmegaSST_null  alpha_15_13929_2024     COMPLETE   CONVERGED@2963            2.084e-05                      5.90
+kOmega          alpha_15_13929_2024     COMPLETE   CONVERGED@3510                           7.065e-02       7.18
+kOmegaSST_null  alpha_15_13929_3036     COMPLETE   CONVERGED@2235            7.365e-06                      5.72
+kOmega          alpha_15_13929_3036     COMPLETE   CONVERGED@2820                           7.657e-02       5.95
+kOmegaSST_null  alpha_15_13929_4048     COMPLETE   CONVERGED@3118            5.276e-05                      6.30
+kOmega          alpha_15_13929_4048     COMPLETE   CONVERGED@3198                           7.583e-02       6.43
+kOmegaSST_null  alpha_15_7929_2024      COMPLETE   CONVERGED@2098            3.405e-06                      5.93
+kOmega          alpha_15_7929_2024      COMPLETE   CONVERGED@2844                           5.453e-02       6.85
+kOmegaSST_null  alpha_15_7929_3036      COMPLETE   CONVERGED@2323            6.164e-06                      5.95
+kOmega          alpha_15_7929_3036      COMPLETE   CONVERGED@2994                           5.218e-02       6.03
+kOmegaSST_null  alpha_15_7929_4048      COMPLETE   CONVERGED@2536            5.178e-05                      6.68
+kOmega          alpha_15_7929_4048      COMPLETE   CONVERGED@3529                           5.188e-02       6.52
+
+G0  completion / harness: GATE FAIL
+      n_complete: 72
+      n_total: 78
+      incomplete: ['kOmega/AR_14_Ret_180', 'kOmega/AR_1_Ret_180', 'kOmega/AR_7_Ret_180', 'kOmega/PH_Breuer', 'kOmegaSST_null/AR_1_Ret_180', 'kOmegaSST_null/PH_Breuer']
+G1  arm application: PASS
+      n_bad: 0
+      bad: []
+G2  null-arm identity (the sweep's planted control): GATE FAIL
+      band: 0.001
+      min_in_band: 37
+      ceiling: 0.01
+      refuse_above: 0.1
+      partition_rule: iteration-matched cases (prefix 'alpha_') must ALL meet the band; at most 2 unmatched outliers
+      matched_out_of_band: []
+      aggregates: {'all_rows_n': 37, 'all_rows_meeting': 30, 'all_rows_max': 0.024190313030175783, 'converged_rows_n': 37, 'converged_rows_meeting': 30, 'converged_rows_max': 0.024190313030175783, 'capbound_excluded': [], 'aggregate_label': 'rel-L2(U) null vs shipped reference'}
+      over_refusal_threshold: {}
+      missing: ['AR_1_Ret_180', 'PH_Breuer']
+      label: a harness check, NOT a precision claim: the null re-solves under a changed controlDict and against references of unknown provenance
+G3  arm separation: GATE FAIL
+      threshold: 0.01
+      min_cases: 30
+      aggregates: {'all_rows_n': 35, 'all_rows_meeting': 35, 'all_rows_max': 0.10143100881394364, 'converged_rows_n': 35, 'converged_rows_meeting': 35, 'converged_rows_max': 0.10143100881394364, 'capbound_excluded': [], 'aggregate_label': 'rel-L2(U) kOmega vs kOmegaSST'}
+      missing: ['AR_14_Ret_180', 'AR_1_Ret_180', 'AR_7_Ret_180', 'PH_Breuer']
+      label: THIS IS A SPREAD AND ONLY A SPREAD. It measures how sensitive the solution is to the choice of closure. It is NOT a model-form uncertainty and NO interval is calibrated from it: both arms are linear eddy-viscosity models sharing the Boussinesq assumption, so their errors are CORRELATED, NOT INDEPENDENT, and this spread SYSTEMATICALLY UNDERSTATES true model-form uncertainty.
+G4  cap-bound census (a ROW CLASS, not a verdict): GATE REACHED
+      n_capbound: 0
+      threshold: 8
+      capbound: []
+
+STANDING RULE 5 DOES NOT APPLY TO THIS RUNG: one mesh per case is shipped, no grid triple exists, and therefore no GCI, no observed order and no Roache triple state is computed or quoted anywhere in this output.
+
+COST: 781.4 core-min measured from STATUS across 78 rows; 0 rows NOT MEASURED (infrastructure, L-342).  Registered estimate 1298.1 core-min, registered cap 1900.0 core-min.  Any dollar figure is DERIVED at the owner-stated $0.0513/core-h, NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5).
+
+FATAL CHANNEL CENSUS over 78 rows: rows with a REAL fatal signature (narrow clause) = 0; rows carrying the trapFpe enablement banner = 78; rows the DEFECTIVE broad clause would have matched = 78. The banner and broad counts are INFRASTRUCTURE and gate nothing. A narrow zero standing beside a non-zero banner count is a reading, not an empty population (L-396, D548).
+
+NON-FINITE / ANTI-WINDOWING CENSUS over 78 rows: rows with a non-finite residual token = 0; rows where the permissive and numeric residual-line counts DIFFER (a silently dropped line) = 0; total residual lines the permissive regex saw = 9186004. A zero here standing beside a non-zero permissive line count is a reading, not an empty scan (rule 3's principle).
+
+wrote /home/ubuntu/closure-data/multimodel_sweep/gate_m1d.json
