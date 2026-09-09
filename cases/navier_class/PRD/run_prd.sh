@@ -87,9 +87,14 @@ fi
 
 [ -d "$CASE_DIR" ] || { echo "REFUSE: no case directory $CASE_DIR" >&2; exit 2; }
 CASE_DIR="$(cd "$CASE_DIR" && pwd)"
-ROOT="$(dirname "$CASE_DIR")"
 CASE="$(basename "$CASE_DIR")"
-STATUS="$ROOT/STATUS.$CASE"
+# STATUS lives INSIDE the case dir -- mark_done_prd.py reads it at
+# root/<case>/STATUS.<case> (mark_done_prd.py read_status: os.path.join(root,
+# case, "STATUS.<case>")).  Writing it beside the case dir (the T13 run-root
+# convention) leaves the completion instrument unable to find it (measured in
+# the §2bb smoke: mark_done_prd REFUSED "no STATUS" until STATUS was moved
+# inside the case dir; then DONE).
+STATUS="$CASE_DIR/STATUS.$CASE"
 
 # --- a completed run's record is never overwritten ---------------------------
 [ -e "$STATUS" ] && { echo "REFUSE: $STATUS exists -- a completed run's record is never overwritten; nothing ran, nothing written" >&2; exit 2; }
