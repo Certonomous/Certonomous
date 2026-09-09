@@ -161,6 +161,33 @@ DEFAULT_SOURCES = [
     "docs/CAPABILITY_GRID.md",
 ]
 
+# --------------------------------------------------------------------------
+# DISCOVERY PASS 2026-09-09 (verification-supervisor, own instrument; chief-confirmed
+# blind spot: closure's §2bc re-audit found 9 standing fails by a MANUAL DISK SWEEP that
+# this enumerator returned ZERO of).  ROOT CAUSE: the curated 7-source list above cannot
+# see verdicts that live in per-rung `*_GRADE_RESULT_*.md` / per-case `*RESULTS.md` /
+# `*_RUNG_VERDICT.txt` records, and many of those state their verdict as a HEADLINE
+# (`## RUNG VERDICT: NOT A RESULT`) rather than a table row.  So the re-audit passed
+# VACUOUSLY for every team whose verdicts live outside the 7 registers.
+#
+# The FIX is a NARROW, BOUNDED superset -- it does NOT "walk every fail-token .md file"
+# (the hazard the curated list exists to avoid, ~1030 files, mostly prose).  It globs
+# ONLY the three per-case RECORD shapes under the declared roots, honours the SAME
+# BOARD_OR_INDEX_FILES deny set and the §2ay.4 "never read boards" rule, de-duplicates
+# against DEFAULT_SOURCES (so a results file that is ALREADY a curated source -- e.g.
+# T23G2_RESULTS.md -- is read exactly as before, its own counts UNCHANGED), and keys each
+# record by its FILENAME/DIRECTORY case id (never by cell-scanning a sub-claim label, so no
+# dafoam-B2-style mis-key).  Headline recognition is applied ONLY in this discovery pass:
+# the original 7 sources keep their exact table-row behaviour, so their enumerated/flagged/
+# covered counts are byte-for-byte unchanged and the change ONLY ADDS coverage (§2ay.6).
+# RED-8 disables ONLY this discovery/headline path and confirms the headline fixture fail
+# VANISHES -- proving the new path is load-bearing, not vacuous (§28.8).
+DISCOVERY_ROOTS = [
+    "verification/runs", "docs/campaigns", "cases", "docs/closure",
+    "verification/credentials",
+]
+DISCOVERY_GLOBS = ("*_GRADE_RESULT_*.md", "*RESULTS.md", "*_RUNG_VERDICT.txt")
+
 # The five §2an process classes plus model-form.  State (a) requires ALL of these
 # ruled out at source in the filing.  Each maps to a set of source-text markers.
 FIVE_PLUS_MODELFORM = {
@@ -211,6 +238,23 @@ MECHANISM_MARKERS = [
 # before matching.  Only these two are landed FAILS under §2ay.
 FAIL_VERDICTS = ("GATE FAIL", "NOT A RESULT")
 PASS_VERDICTS = ("PASS", "GATE REACHED")
+
+# HEADLINE VERDICT recogniser (DISCOVERY PASS, §2ay.4).  A per-case record often states
+# its verdict as a LINE-LEADING headline -- `## RUNG VERDICT: **NOT A RESULT** -- <reason>`
+# -- not a table row.  This regex captures the text AFTER the anchored label; the caller
+# then applies the EXACT SAME token-boundary test _row_verdict uses (whole token, or token
+# then space / em-dash) so a fail phrase buried in a longer sentence does NOT match:
+#   MATCHES  : "## RUNG VERDICT: NOT A RESULT", "> VERDICT: **GATE FAIL** -- ceiling failed"
+#   REJECTS  : "the verdict was a GATE FAIL because the wall never settled" (no line-leading
+#              VERDICT: label), "VERDICT: the run was a GATE FAIL because..." (token is not
+#              the first content after the label).
+# Leading markdown decoration ([>#*_` ] -- headings, blockquotes, bold/italic/backtick) is
+# permitted before the label, mirroring LINEAGE_MD_RE.  The optional WHOLE-RUNG/RUNG prefix
+# matches the real headline shapes in the campaign records (T23G2R_RUNG_VERDICT.txt etc).
+HEADLINE_VERDICT_RE = re.compile(
+    r"^\s*[>#*_`\s]*(?:WHOLE-RUNG\s+|RUNG\s+)?VERDICT:\s*(.*)$",
+    re.IGNORECASE,
+)
 
 # Case-id patterns, ordered most-specific first.  A row's case id is the first
 # match in its content.  Suffixes -R2 / _R2 / -M2 / -L1 etc are part of the id.
@@ -317,6 +361,12 @@ class FailRow:
     source: str          # repo-relative path
     line: int
     text: str            # the row text (trimmed)
+    strict_cov: bool = False  # discovered row keyed by a NON-validated directory name --
+    # coverage may use ONLY exact-id structured signals (successor DIR, recorded lineage,
+    # discharge-by-pass), never the loose *SUCCESSOR*-text / gap-filing token scans, because
+    # a generic dir key ("gpu", "verification", "aposteriori") would otherwise be FALSELY
+    # cleared by a coincidental token match -- the under-flag hazard §2ay guards against.
+    # Curated-source rows and validated-id discovered rows keep the full coverage machinery.
 
 
 @dataclass
@@ -361,6 +411,28 @@ def _row_verdict(row_text: str) -> str | None:
             # exact cell, or cell that STARTS with the token then whitespace/em-dash
             if up == v or up.startswith(v + " ") or up.startswith(v + "—") or up.startswith(v + " —"):
                 return v
+    return None
+
+
+def _headline_verdict(line: str) -> str | None:
+    """Return the fail verdict token in a LINE-LEADING headline, or None.
+
+    The line must begin (after optional markdown decoration) with an anchored
+    `(WHOLE-RUNG |RUNG )?VERDICT:` label; the fail token must be the FIRST content
+    after it (allowing bold/backtick wrappers) and be terminated as a whole token --
+    end-of-cell, whitespace, or an em-dash rationale -- EXACTLY the boundary
+    _row_verdict applies to a table cell.  A fail phrase inside a longer sentence
+    (`the verdict was a GATE FAIL because...`) does NOT match: it neither leads with
+    the label nor places the token first after it.  Used ONLY by the discovery pass;
+    the curated 7 sources keep their table-row-only behaviour."""
+    m = HEADLINE_VERDICT_RE.match(line)
+    if m is None:
+        return None
+    rest = _strip_wrappers(m.group(1))
+    up = rest.upper()
+    for v in FAIL_VERDICTS:
+        if up == v or up.startswith(v + " ") or up.startswith(v + "—") or up.startswith(v + " —"):
+            return v
     return None
 
 
@@ -458,6 +530,96 @@ def enumerate_fails(sources: list[Path], repo: Path) -> tuple[list[FailRow], lis
                 continue
             fails.append(FailRow(case=case, verdict=v, source=rel, line=i, text=line.strip()[:240]))
     return fails, unparsed
+
+
+# --------------------------------------------------------------------------
+# DISCOVERY -- per-case RECORD files beyond the curated 7 sources (§2ay.4, 2026-09-09)
+# --------------------------------------------------------------------------
+def _record_case(path: Path) -> tuple[str, bool]:
+    """The case id a discovered per-case record belongs to, keyed by FILENAME/DIRECTORY --
+    never by cell-scanning (a per-case record's identity is its path, so no sub-claim
+    label like `G1`/`S4` can mis-key it).  Returns (case_id, validated) where `validated` is
+    True iff the id is a WHOLE case id under the frozen anchored validator (CASE_ID_ANCHORED_RE).
+
+    Rule: if the basename is `<HEAD>_<...>` and HEAD validates (K0cS_RESULTS.md,
+    T23G2R_RUNG_VERDICT.txt) HEAD governs and is validated; else if the PARENT DIRECTORY name
+    validates that governs and is validated; else the parent dir name is the id but is NOT
+    validated -- a generic word like `aposteriori`/`gpu`, safe to enumerate (surfacing the
+    fail) but NOT safe to clear by a loose token match (see FailRow.strict_cov).  Uses the
+    frozen validator unchanged -- it admits NO new ids into the curated-source path."""
+    base = path.name
+    if "_" in base:
+        head = base.split("_", 1)[0]
+        if CASE_ID_ANCHORED_RE.match(head):
+            return head, True
+    parent = path.parent.name
+    if CASE_ID_ANCHORED_RE.match(parent):
+        return parent, True
+    return parent, False
+
+
+def discover_records(repo: Path, discovery_roots: list[Path], exclude_sources: list[Path]) -> list[Path]:
+    """Glob ONLY the three per-case record shapes under the declared roots.  Honours the
+    SAME board/index deny set (§2ay.4 "never read boards"), de-duplicates against the
+    curated sources (so a results file that is already a source is NOT double-read and its
+    counts stay unchanged), and returns a stable sorted list.  This is NARROW on purpose:
+    it does NOT glob every fail-token .md file -- only records that ARE verdict statements."""
+    excl = {Path(s).resolve() for s in exclude_sources}
+    seen: set[Path] = set()
+    out: list[Path] = []
+    for root in discovery_roots:
+        p = root if isinstance(root, Path) else (repo / root)
+        if not p.exists() or not p.is_dir():
+            continue
+        for glob in DISCOVERY_GLOBS:
+            for f in p.rglob(glob):
+                if ".git" in f.parts or not f.is_file():
+                    continue
+                if f.name in BOARD_OR_INDEX_FILES:
+                    continue
+                rf = f.resolve()
+                if rf in excl or rf in seen:
+                    continue
+                seen.add(rf)
+                out.append(f)
+    return sorted(out)
+
+
+def enumerate_discovered(records: list[Path], repo: Path) -> list[FailRow]:
+    """Read fail verdicts from discovered per-case records -- BOTH a line-leading headline
+    (_headline_verdict) AND a table-row cell (_row_verdict) -- keyed to the record's own
+    case id (_record_case).  De-duplicated per (case, verdict) within a file: a record with
+    twenty identical sub-rows is ONE standing fail, not twenty (keeps the enumeration from
+    drowning in a per-case record's internal claim table)."""
+    fails: list[FailRow] = []
+    for f in records:
+        rel = str(f.relative_to(repo)) if str(f).startswith(str(repo)) else str(f)
+        case, validated = _record_case(f)
+        try:
+            lines = f.read_text(errors="replace").splitlines()
+        except OSError:
+            continue
+        seen: set[tuple[str, str]] = set()
+        for i, line in enumerate(lines, 1):
+            v = _headline_verdict(line)
+            if v is None and "|" in line:
+                v = _row_verdict(line)
+            if v is None:
+                continue
+            key = (case, v)
+            if key in seen:
+                continue
+            seen.add(key)
+            fails.append(FailRow(case=case, verdict=v, source=rel, line=i,
+                                 text=line.strip()[:240], strict_cov=not validated))
+    return fails
+
+
+def discover_and_enumerate(repo: Path, discovery_roots: list[Path], exclude_sources: list[Path]) -> list[FailRow]:
+    """The single crippl-able discovery unit (RED-8 replaces it with a no-op to prove it is
+    load-bearing): discover the record files, then enumerate their fail verdicts."""
+    records = discover_records(repo, discovery_roots, exclude_sources)
+    return enumerate_discovered(records, repo)
 
 
 # --------------------------------------------------------------------------
@@ -587,9 +749,15 @@ def _case_token_re(case: str) -> re.Pattern:
     return re.compile(r"(?<![A-Za-z0-9])" + re.escape(case.lower()) + r"(?![A-Za-z0-9])")
 
 
-def _find_successor_registration(case: str, idx: RepoIndex) -> str | None:
+def _find_successor_registration(case: str, idx: RepoIndex, strict_exact_only: bool = False) -> str | None:
+    # EXACT successor directory (`<case>-R2/PREREGISTRATION.md`) -- keyed on the full base id,
+    # safe for any key.
     if case in idx.succ_dirs:
         return f"successor registration {idx.succ_dirs[case]}"
+    # LOOSE *SUCCESSOR*-file text token scan -- safe for a distinctive id, but a coincidental
+    # clear for a generic dir key, so it is SKIPPED for strict (dir-keyed) rows.
+    if strict_exact_only:
+        return None
     tok = _case_token_re(case)
     for name, low in idx.succ_files:
         if tok.search(low):
@@ -662,28 +830,44 @@ def _find_gap_filing(case: str, idx: RepoIndex) -> str | None:
     return None
 
 
+# Module-global gate on the strict-coverage discipline for dir-keyed discovered rows.
+# RED-9 flips it False and confirms the false clear returns -- proving the discipline is
+# load-bearing (§28.8).  A plain module flag, never an `assert`, so control is identical
+# under `python3 -O` (L-332).
+STRICT_DISCOVERED_COVERAGE = True
+
+
 def find_coverage(row: FailRow, idx: RepoIndex, all_rows: list[FailRow],
                   pass_index: dict[str, list[tuple[str, int]]]) -> Coverage:
     """Return the acceptable state for a fail row, or an empty state == flag it.
 
     Order: state (b) discharge-by-pass, then (b) registered successor, then (a)
     gap filing.  A mechanism diagnosis with none of these is NOT state (a)
-    (§2ay.3) -- it falls through to the empty state and is flagged."""
-    # (b) discharged by a landed passing successor
+    (§2ay.3) -- it falls through to the empty state and is flagged.
+
+    STRICT COVERAGE (dir-keyed discovered rows): when row.strict_cov is set (a discovered
+    fail keyed by a NON-validated directory name), only the EXACT-id structured signals may
+    clear it -- discharge-by-pass, an exact successor DIRECTORY, and recorded lineage.  The
+    loose *SUCCESSOR*-text and gap-filing TOKEN scans are skipped, because a generic dir key
+    would otherwise be falsely cleared by a coincidental token match (the under-flag hazard)."""
+    strict = row.strict_cov and STRICT_DISCOVERED_COVERAGE
+    # (b) discharged by a landed passing successor (exact case id)
     disc = _find_passing_successor(row.case, all_rows, pass_index)
     if disc:
         return Coverage(state="b", why="discharged by landed passing successor", evidence=disc)
-    # (b) active registered successor
-    succ = _find_successor_registration(row.case, idx)
+    # (b) active registered successor (exact dir always; loose text scan only when not strict)
+    succ = _find_successor_registration(row.case, idx, strict_exact_only=strict)
     if succ:
         return Coverage(state="b", why="active dated fix-successor registered", evidence=succ)
     # (b) recorded-lineage successor -- sibling-rung / continuation attempt whose
-    # lineage a registration declares (§2ay.2(b) "whose lineage is recorded")
+    # lineage a registration declares (§2ay.2(b) "whose lineage is recorded").  Exact-id
+    # lookup, so safe for a dir key.
     lin = _find_lineage_successor(row.case, idx)
     if lin:
         return Coverage(state="b", why="active fix-successor via recorded lineage", evidence=lin)
-    # (a) capability-gap filing (five-point + model-form + desk)
-    gap = _find_gap_filing(row.case, idx)
+    # (a) capability-gap filing (five-point + model-form + desk) -- token-based, so SKIPPED
+    # for strict dir-keyed rows (a generic word co-occurring with a desk filing is a false clear).
+    gap = None if strict else _find_gap_filing(row.case, idx)
     if gap:
         return Coverage(state="a", why="proven OpenFOAM capability gap, filed", evidence=gap)
     # neither -- flagged.  Label WHY: mechanism-diagnosis-only vs bare.
@@ -719,8 +903,14 @@ def build_pass_index(sources: list[Path], repo: Path) -> dict[str, list[tuple[st
 # SCAN
 # --------------------------------------------------------------------------
 def scan(sources: list[Path], repo: Path, search_roots: list[Path],
-         coverage_fn=find_coverage) -> tuple[list[Result], list[tuple[str, int, str]]]:
+         coverage_fn=find_coverage, discovery_roots: list[Path] | None = None) -> tuple[list[Result], list[tuple[str, int, str]]]:
     fails, unparsed = enumerate_fails(sources, repo)
+    # DISCOVERY (§2ay.4, 2026-09-09): APPEND fails from per-case records beyond the curated
+    # sources.  The curated-source enumeration above is untouched, and pass_index / idx below
+    # are built from the SAME inputs as before -- so the 7-source enumerated/flagged/covered
+    # counts are byte-for-byte unchanged; discovery ONLY ADDS rows.
+    if discovery_roots is not None:
+        fails = fails + discover_and_enumerate(repo, discovery_roots, sources)
     pass_index = build_pass_index(sources, repo)
     idx = build_repo_index(repo, search_roots)
     results: list[Result] = []
@@ -789,9 +979,20 @@ def report(results: list[Result], unparsed: list[tuple[str, int, str]],
     print("NON-VACUITY -- what this scan COULD NOT SEE (rule 3, §2ay.7):")
     print("-" * 78)
     print(f"  sources read (records/registers, not boards): {len(sources)}")
+    src_rels = set()
     for s in sources:
         rel = str(s.relative_to(repo)) if s.is_absolute() and str(s).startswith(str(repo)) else str(s)
+        src_rels.add(rel)
         print(f"      - {rel}{'' if s.exists() else '   [MISSING]'}")
+    # DISCOVERY (§2ay.4, 2026-09-09): per-case record files enumerated beyond the curated
+    # sources.  Reported as a COUNT (they can number in the hundreds) with the owning teams.
+    disc_srcs = sorted({r.row.source for r in results} - src_rels)
+    if disc_srcs:
+        disc_fails = [r for r in results if r.row.source in set(disc_srcs)]
+        print(f"  discovered per-case records enumerated beyond the curated sources "
+              f"(*_GRADE_RESULT_*.md / *RESULTS.md / *_RUNG_VERDICT.txt under {len(DISCOVERY_ROOTS)} "
+              f"declared roots, headline + table-row, deny-set honoured): {len(disc_srcs)} files, "
+              f"{len(disc_fails)} added fails.")
     broad = broad_sweep_count(repo)
     if broad >= 0:
         print(f"  .md files repo-wide carrying a fail token (git grep, UPPER BOUND, incl. prose): {broad}")
@@ -1030,6 +1231,58 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         "# A1WRT2 successor draft (dafoam)\n"
         "This dafoam A1WRT2 attempt also touches the B6 sub-case.\n"
     )
+
+    # ---- DISCOVERY / HEADLINE arm (PART 2 / §2ay.4, 2026-09-09) ----
+    # The chief-confirmed blind spot: a per-case record whose verdict is a HEADLINE (not a
+    # table row) and whose file is NOT in the curated 7 sources.  These fixtures reproduce
+    # the real closure Wu-shape (`## VERDICT: **NOT A RESULT** -- <reason>`) and the real
+    # T23G2R_RUNG_VERDICT shape, plus a table-row-in-a-discovered-file case.  They are under
+    # cases/ (a discovery root) but are NOT among the fixture `sources`, so ONLY the discovery
+    # pass can see them -- RED-8 disables that pass and they MUST vanish.
+    #
+    # FIX777 -- a GRADE_RESULT record: a HEADLINE `RUNG VERDICT: NOT A RESULT` that MUST
+    # enumerate as a fail keyed to FIX777, PLUS a prose-negative sentence carrying the OTHER
+    # token (GATE FAIL) mid-sentence that MUST NOT enumerate.  FIX777 has NO successor / gap,
+    # so it MUST also be flagged.  The two tokens differ so a spurious prose match would show
+    # up as an extra (FIX777, GATE FAIL) row.
+    fix777_dir = cases / "FIX777"
+    fix777_dir.mkdir(parents=True, exist_ok=True)
+    (fix777_dir / "FIX777_GRADE_RESULT_2026-09-09.md").write_text(
+        "# FIX777 grade result\n"
+        "## RUNG VERDICT: **NOT A RESULT** -- the ceiling gate failed on all three cases\n"
+        "\n"
+        "In the discussion below, the verdict was a GATE FAIL because the flux at the wall "
+        "never settled -- but that sentence is PROSE, not this record's verdict line.\n"
+    )
+    # FIX778 -- a per-case RESULTS.md whose fail is a TABLE ROW (no headline).  MUST enumerate
+    # keyed to FIX778 (filename-first HEAD), proving discovery reads table rows too.  No
+    # successor / gap -> flagged.
+    fix778_dir = cases / "FIX778"
+    fix778_dir.mkdir(parents=True, exist_ok=True)
+    (fix778_dir / "FIX778_RESULTS.md").write_text(
+        "# FIX778 results\n"
+        "| claim | verdict | note |\n"
+        "|---|---|---|\n"
+        "| ceiling | **`GATE FAIL`** | table-row fail in a discovered record |\n"
+    )
+    # STRICT-COVERAGE arm (2026-09-09): a bare RESULTS.md in a NON-validated directory
+    # ("coincidentaldir" -- not a whole case id), so it is keyed by the dir name and marked
+    # strict_cov.  A *SUCCESSOR* draft below mentions the SAME generic word "coincidentaldir"
+    # as a loose token.  Under the strict discipline (GREEN) the loose text scan is skipped,
+    # so the fail MUST STILL FLAG; with the discipline disabled (RED-9) the coincidental token
+    # match FALSELY CLEARS it -- proving the discipline is load-bearing (§28.8).  This is the
+    # real Ling-GPU / "verification" / "aposteriori" false-clear class made into a plant.
+    coincid_dir = cases / "coincidentaldir"
+    coincid_dir.mkdir(parents=True, exist_ok=True)
+    (coincid_dir / "RESULTS.md").write_text(
+        "# results (bare RESULTS.md, dir-keyed)\n"
+        "## RUNG VERDICT: **GATE FAIL** -- a standing fail keyed by its directory name\n"
+    )
+    (cases / "UNRELATED_SUCCESSOR_DRAFT.md").write_text(
+        "# an unrelated successor draft (dafoam)\n"
+        "This attempt happens to mention coincidentaldir in passing -- a COINCIDENTAL token,\n"
+        "not a registered successor for that record.\n"
+    )
     return [register, nondaf_src, dafoam_src], [cases, desk]
 
 
@@ -1040,6 +1293,7 @@ def selftest() -> int:
     discharged / gap-filing not flagged), 2d (recorded-lineage successor not flagged)."""
     global _find_lineage_successor, _authoritative_case_from_results_file, _canon_lineage_id
     global CASE_ID_RE, CASE_ID_ANCHORED_RE, CASE_ID_RE_NONDAFOAM, _leaf_rung
+    global discover_and_enumerate, STRICT_DISCOVERED_COVERAGE
     print("=" * 78)
     print("PLANTED CONTROL -- §2ay.5 / rule 3.  Two limbs, RED-then-GREEN.")
     print("An enforcer whose zero has not been shown able to become non-zero is worthless.")
@@ -1050,7 +1304,8 @@ def selftest() -> int:
         sources, roots = _write_fixture(base)
 
         # ---------- GREEN: the real detector ----------
-        results, unparsed = scan(sources, base, roots)
+        # discovery_roots=roots so the DISCOVERY/HEADLINE fixtures (FIX777/FIX778) are seen.
+        results, unparsed = scan(sources, base, roots, discovery_roots=roots)
         by_case = {r.row.case: r for r in results}
         flagged = {c for c, r in by_case.items() if r.flagged}
         covered = {c for c, r in by_case.items() if not r.flagged}
@@ -1144,6 +1399,30 @@ def selftest() -> int:
         leafspec_ok = ((leafspec_case in covered) and (leafspec_case not in flagged)
                        and (leafspec_sibling in flagged))
 
+        # DISCOVERY / HEADLINE (2026-09-09): a per-case record OUTSIDE the curated sources.
+        #  (1) FIX777's HEADLINE `RUNG VERDICT: NOT A RESULT` MUST enumerate (keyed FIX777) and
+        #      be FLAGGED (no successor); its verdict MUST be NOT A RESULT and it MUST NOT also
+        #      carry a GATE FAIL row -- proving the prose-negative sentence ("the verdict was a
+        #      GATE FAIL because...") did NOT match.
+        #  (2) FIX778's TABLE ROW `GATE FAIL` MUST enumerate (keyed FIX778) and be flagged --
+        #      proving discovery reads table rows in discovered records too.
+        disc_head = by_case.get("FIX777")
+        disc_head_ok = (disc_head is not None and disc_head.flagged
+                        and disc_head.row.verdict == "NOT A RESULT")
+        # the prose-negative would surface as a SECOND FIX777 row with verdict GATE FAIL
+        prose_neg_absent = not any(
+            r.row.case == "FIX777" and r.row.verdict == "GATE FAIL" for r in results)
+        disc_tablerow = by_case.get("FIX778")
+        disc_tablerow_ok = (disc_tablerow is not None and disc_tablerow.flagged
+                            and disc_tablerow.row.verdict == "GATE FAIL")
+        # STRICT COVERAGE (2026-09-09): a dir-keyed discovered fail ("coincidentaldir") whose
+        # ONLY would-be coverage is a loose *SUCCESSOR*-text token match MUST STILL FLAG --
+        # the strict discipline refuses to clear a generic dir key on a coincidental token.
+        strict_row = by_case.get("coincidentaldir")
+        strict_ok = (strict_row is not None and strict_row.flagged
+                     and strict_row.row.strict_cov)
+        discovery_ok = disc_head_ok and prose_neg_absent and disc_tablerow_ok and strict_ok
+
         print(f"\n  LIMB 1 (must flag {sorted(limb1_cases)})     : "
               f"{'GREEN' if limb1_ok else 'FAILED'}  "
               f"[mechanism WHY on FIX002: {'yes' if mech_ok else 'NO'}]")
@@ -1217,13 +1496,27 @@ def selftest() -> int:
             else:
                 print(f"      {c}: MISSING (not enumerated)")
 
+        print(f"  DISCOVERY/HEADLINE (per-case record outside the curated sources): "
+              f"{'GREEN' if discovery_ok else 'FAILED'}  "
+              f"[FIX777 headline NOT A RESULT enumerated+flagged={disc_head_ok}, "
+              f"prose-negative GATE FAIL absent={prose_neg_absent}, "
+              f"FIX778 table-row enumerated+flagged={disc_tablerow_ok}, "
+              f"dir-keyed strict-flag (no loose-token false clear)={strict_ok}]")
+        for c in ["FIX777", "FIX778", "coincidentaldir"]:
+            r = by_case.get(c)
+            if r:
+                print(f"      {c}: ENUMERATED [{r.row.verdict}] flagged={r.flagged}  "
+                      f"from {r.row.source}")
+            else:
+                print(f"      {c}: MISSING (discovery pass did not enumerate it)")
+
         # ---------- RED: cripple the coverage-finder to always-true ----------
         # This is the blind checker §2ay.5 warns of: if the coverage-finder always
         # returns "covered", NOTHING is flagged.  The plant MUST catch this.
         def blind_coverage(row, idx, all_rows, pass_index):
             return Coverage(state="b", why="BLINDED always-true", evidence="(crippled)")
 
-        red_results, _ = scan(sources, base, roots, coverage_fn=blind_coverage)
+        red_results, _ = scan(sources, base, roots, coverage_fn=blind_coverage, discovery_roots=roots)
         red_flagged = {r.row.case for r in red_results if r.flagged}
         red_blinded = red_flagged.isdisjoint(limb1_cases)  # limb 1 no longer flagged
         print(f"\nRED run (coverage-finder crippled to always-true):")
@@ -1384,11 +1677,52 @@ def selftest() -> int:
               f"{'YES' if leafspec_case not in red7_flagged else 'NO'}  "
               f"(exact canon is independent of the fallback)")
 
+        # ---------- RED-8: disable ONLY the discovery/headline path ----------
+        # Proves the NEW discovery pass is load-bearing, not vacuous (§28.8): with
+        # discover_and_enumerate forced to return NO rows, the discovered records vanish, so
+        # the HEADLINE fixture fail FIX777 and the table-row fixture fail FIX778 MUST both
+        # disappear from the enumeration.  If they did NOT vanish, some other path was reading
+        # them and the DISCOVERY arm above would be vacuous.  The prose-negative must STAY
+        # absent throughout (it never enumerated in GREEN).
+        _saved_disc = discover_and_enumerate
+        discover_and_enumerate = lambda repo, dr, ex: []
+        try:
+            red8_results, _ = scan(sources, base, roots, discovery_roots=roots)
+        finally:
+            discover_and_enumerate = _saved_disc
+        red8_cases = {r.row.case for r in red8_results}
+        discovery_red_ok = ("FIX777" not in red8_cases) and ("FIX778" not in red8_cases)
+        print(f"\nRED-8 run (ONLY the discovery/headline path disabled):")
+        print(f"  discovered fixture fails still enumerated: "
+              f"{sorted({'FIX777','FIX778'} & red8_cases) if ({'FIX777','FIX778'} & red8_cases) else '(none -- vanished, as expected)'}")
+        print(f"  DISCOVERY path is load-bearing (the headline+table fixture fails vanish when disabled): "
+              f"{'YES' if discovery_red_ok else 'NO'}")
+
+        # ---------- RED-9: disable ONLY the strict-coverage discipline ----------
+        # Proves the strict discipline is load-bearing (§28.8): with STRICT_DISCOVERED_COVERAGE
+        # off, the dir-keyed fail "coincidentaldir" is CLEARED by the coincidental *SUCCESSOR*-
+        # text token match (the loose scan now fires on a generic dir key) -- the false clear
+        # (under-flag) the discipline exists to prevent.  If it did NOT falsely clear, the strict
+        # arm above would be vacuous.
+        STRICT_DISCOVERED_COVERAGE = False
+        try:
+            red9_results, _ = scan(sources, base, roots, discovery_roots=roots)
+        finally:
+            STRICT_DISCOVERED_COVERAGE = True
+        red9_by = {r.row.case: r for r in red9_results}
+        red9_row = red9_by.get("coincidentaldir")
+        strict_red_ok = (red9_row is not None) and (not red9_row.flagged)
+        print(f"\nRED-9 run (ONLY the strict-coverage discipline disabled):")
+        print(f"  dir-keyed 'coincidentaldir' falsely cleared by the coincidental token: "
+              f"{'YES -- under-flag returns, so the discipline is load-bearing' if strict_red_ok else 'NO'}"
+              + (f"  [{red9_row.coverage.evidence}]" if (red9_row and not red9_row.flagged) else ""))
+
         both_green = (limb1_ok and mech_ok and limb2_ok and lineage_ok and hyphen_ok and noregress_ok
                       and dafoam_enumerated and fnfirst_ok and dafoam_nofire_ok and recog_ok
-                      and srcscope_ok and leaf_ok and leafspec_ok)
+                      and srcscope_ok and leaf_ok and leafspec_ok and discovery_ok)
         red_ok = (red_blinded and lineage_red_ok and fnfirst_red_ok and recog_red_ok
-                  and srcscope_red_ok and hyphen_red_ok and noregress_red_ok and leaf_red_ok)
+                  and srcscope_red_ok and hyphen_red_ok and noregress_red_ok and leaf_red_ok
+                  and discovery_red_ok and strict_red_ok)
         print("\n" + "=" * 78)
         if both_green and red_ok:
             print("PLANT VERDICT: BOTH LIMBS FIRED GREEN, AND THE RED DRIVE BLINDED THE CHECKER.")
@@ -1402,12 +1736,14 @@ def selftest() -> int:
               f"limb2={limb2_ok} lineage={lineage_ok} hyphen={hyphen_ok} noregress={noregress_ok} "
               f"dafoam-enum={dafoam_enumerated} "
               f"fnfirst={fnfirst_ok} dafoam-nofire={dafoam_nofire_ok} recog={recog_ok} "
-              f"srcscope={srcscope_ok})")
+              f"srcscope={srcscope_ok} leaf={leaf_ok} leafspec={leafspec_ok} "
+              f"discovery={discovery_ok})")
         print(f"  all RED drives blinded checker: {red_ok}  "
               f"(whole-coverage={red_blinded} lineage-only={lineage_red_ok} "
               f"filename-first-only={fnfirst_red_ok} recogniser-body={recog_red_ok} "
               f"source-gate={srcscope_red_ok} hyphen-canon={hyphen_red_ok} "
-              f"noregress={noregress_red_ok})")
+              f"noregress={noregress_red_ok} leaf={leaf_red_ok} discovery={discovery_red_ok} "
+              f"strict={strict_red_ok})")
         print("A checker whose plant does not fire prints NO admissible zero (rule 3).")
         print("=" * 78)
         return 2
@@ -1443,8 +1779,12 @@ def main(argv: list[str]) -> int:
     # search roots for successors / filings: the whole repo for successors is via
     # rglob inside the finders; gap filings are searched under these roots.
     search_roots = [repo / "cases", repo / "docs", repo / "verification", repo / "etc"]
+    # DISCOVERY roots (§2ay.4, 2026-09-09): per-case record files (*_GRADE_RESULT_*.md,
+    # *RESULTS.md, *_RUNG_VERDICT.txt) beyond the curated sources are enumerated too --
+    # UNLESS the user gave an explicit --source override (then only those are read).
+    discovery_roots = None if args.source else [(repo / r) for r in DISCOVERY_ROOTS]
 
-    results, unparsed = scan(sources, repo, search_roots)
+    results, unparsed = scan(sources, repo, search_roots, discovery_roots=discovery_roots)
 
     # Empty population is a REFUSAL, never a clean bill (rule 3; 2p.2 posture).
     if not results and not unparsed:
