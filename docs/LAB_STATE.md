@@ -29419,6 +29419,22 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 101-M6-GRIDB-YPLUS1-VS-70DEG-STRUCTURAL-TENSION-PYHYP-RETIRED-SWITCH-TO-ORTHOGONAL-CO-GRID-GRADER-WRAPPER-READY-CHECK1-PENDING -->
+
+**Section last written:** 2026-09-09T19:45Z by the cfd-supervisor (Fable) directly, PURE INSERTION at top of `## cfd`; boards 100/99/98 stand unedited. Committed via the rule-10 private-index protocol.
+
+### 🟠 M6 GRID (b) — a y+<1-vs-70°-non-orthogonality STRUCTURAL tension found (well-triaged, not tuning); pyHyp retired for grid (b), switching to an orthogonal C/O-grid. The lane solved the march stall (N=150 reaches farfield) and produced a complete 929,760-cell y+<1 mesh: skew 1.44 OK, 0 neg-vol, BUT **max non-orth 87.19° FAILS the 70° hard gate** (localized ~1,062-cell near-wall cluster, AR~10⁴); a second smoothing regime (N=200/cMax=0.1/epsE=2/epsI=4) gave 87.66° — **structural**, the tiny y+<1 first cell drives near-wall non-orth >70° where the surface curves (own-family avoided it via y+~35). **MY RULING (decide-and-record; both standards NON-WAIVABLE per Sanaa):** NO y+ relaxation (her explicit requirement), NO 70° gate exemption (T25/Sanaa-reserved) — the pyHyp HYPERBOLIC route is the wrong tool for y+<1 on a curved surface and is RETIRED for grid (b). Lane redirected to a structured/elliptic-orthogonal C/O-grid (start from `cases/F13_onera_m6/make_blockmesh_m6.py`, near-wall-orthogonal by construction) at s0=1.546e-6, nose+shock clustering, 3 similar levels, must clear all hard gates AND the curvature check; coarsest-level dry-run first. If NO orthogonal structured method delivers y+<1 AND non-orth ≤70° AND the curvature check together → a real finding I escalate to Sanaa (no gate-widening / no y+-relaxation on my say-so). The LE/shock SURFACE resolution is already solved (curvature check passes); the blocker is VOLUME near-wall orthogonality.
+
+**GRADER WRAPPER READY (check-1 pending):** `verification/runs/M6_LE_RESOLVED_runs/analyse_m6_gridb.py` — thin read-only over the frozen core (imports analyse_m6sr UNCHANGED, re-hash-pins da0df95c+8007b23d + refuses on drift, Gate P ±0.02 vs 271 taps UNCHANGED, live rule-3 plant, A's controls fire, refuses on rule-4 completion). My §3 check-1 diff-read owed before any freeze.
+
+**COST CORRECTION (rule 12, honest):** the earlier ~$5.6 used too-few layers; a y+<1 mesh needs ~150 layers. pyHyp-based corrected: ×8 observed-order triple ~$23.4 (Lf 117.4M/$20.5), ×4 surface-band triple ~$6.7 (Lf 29.4M/$5.1). BOTH provisional — will change with the orthogonal mesher; the ×8-vs-×4 observed-order choice → verification (rule 5) once the mesher settles.
+
+**RUNGS WITHOUT VERDICTS (mine):** M6 `NOT A RESULT` (grid a=M6I ready; grid b freeze blocked on the orthogonal-mesh + wrapper check-1); Navier Case-3 in prereg+smoke, cases 2/4/5 runnable-next, 1/6 PDF-blocked; DPW8_V2 L4 owed D481 successor; F24 fine frozen-grader reconciliation; F3-succ/F4-S NEEDS-SUCCESSOR.
+
+**LIVE:** grid-b lane a33c1ffefb0820cda (orthogonal C/O-grid), Case-3 lane a7ae40dfb2dd619fd. Not mine: rhoCentralFoam 316601, queue daemon 1887.
+
+**CHAIN OF CUSTODY:** FIRST-HAND — the ruling that both standards hold + the mesher switch (Sanaa's "pick the appropriate mesh", all-approval-delegated, standards-non-waivable); the acceptance of the lane's structural triage (two smoothing regimes both ~87°). RELAYED, check-1 owed before belief/freeze: the grader wrapper + the orthogonal recipe's numbers. Nothing sent outside the box (rule 7).
+
 <!-- BOARD-BLOCK-ID: 100-NAVIER-CAMPAIGN-LAUNCHED-TIERED-CASE3-DISPATCHED-M6-GRIDA-M6I-CONFIRMED-GRIDB-CURVCHECK-PASSED-CHECK1-MARCH-PENDING-CURVATURE-CHECK-LANDED -->
 
 **Section last written:** 2026-09-09T19:25Z by the cfd-supervisor (Fable) directly, PURE INSERTION at top of `## cfd`; boards 99/98/97 stand unedited. Committed via the rule-10 private-index protocol.
