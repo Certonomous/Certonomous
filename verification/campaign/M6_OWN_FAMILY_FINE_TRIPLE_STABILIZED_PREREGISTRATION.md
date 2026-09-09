@@ -407,6 +407,32 @@ method choice, not a gate change; DMR-ladder precedent). Executed as an ungraded
   tighter bounded snGrad/laplacian limiting for energy diffusion at high-non-orth cells. Each touches
   frozen registered mesh/physics. **The prereg remains NOT ready to freeze.**
 
+### 11.B ROOT-CAUSE FORENSICS + UNBIASED-LEVER EXHAUSTION (2026-09-09): PHYSICS HOLD — Sanaa's desk
+
+The cfd-supervisor's check-3 forensics on the ~25 overheating TE cells (per-cell mesh-quality fields
+from `checkMesh -writeAllFields`, correlated against the ceiling-diagnostic hot-cell set):
+
+- **NOT non-orthogonality:** hot cells sit at moderate non-orth (mean **23°**, mesh mean 14°/max 61°);
+  only 2/25 in the mesh top-1% non-orth set, 3/25 in top-10%. **NOT skew:** hot-cell skew mean 0.07,
+  **0/25** in the top-1% skew set.
+- **YES high aspect ratio (the cause):** hot-cell `aspectRatio` mean **28** (mesh median 2.25),
+  **22/25 in the mesh top-5%**; `cellAspectRatio` mean **93** (mesh median 3.1), 18/25 in top-5%. They
+  are small near-wall cells. → thin, stretched **high-AR sliver cells at the sharp trailing edge**,
+  with the adiabatic wall trapping viscous heat in the acute-angle corner.
+- **Unbiased solve-path levers EXHAUSTED (empirically):** `nNonOrthogonalCorrectors` 2→3 + a full
+  (unbiased) energy-laplacian `corrected` scheme leaves the clamp STILL ACTIVE at the plateau
+  (~102 cells pinned at 1000 K, energy residual still rising 1.6e-6→0.004) — indistinguishable from
+  the base LTS run. Non-orth correction does not touch the cause, as the co-location forensics predicted.
+
+**PHYSICS HOLD (escalated to Sanaa via the chief):** (i) stability is SOLVED by fork A (first M6-class
+solve to complete; rule-4 verified under LTS); (ii) the localized TE energy runaway is UNBOUNDED
+(pins at whatever ceiling is set), solver/scheme/non-orth-independent, and nonphysical (adiabatic
+recovery T at M=0.84 is ~324 K, not 1000 K); (iii) the cause is sharp-TE **high-AR sliver-cell**
+geometry/mesh, not non-orthogonality or skew; (iv) every candidate fix touches a FROZEN registered
+choice — TE mesh AR-control/refinement (re-defines the r=2 family and the Gate-G triple), the sharp-TE
+geometry, or the adiabatic wall BC (physically mandated for M6, so not the fix) — and therefore
+**exceeds solve-path authority and is Sanaa's call.** No graded launch; the prereg is NOT frozen.
+
 ---
 
 ## 12. FREEZE BLOCK — LEFT FOR THE cfd-supervisor (check-4, undelegated)
