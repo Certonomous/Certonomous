@@ -1,6 +1,6 @@
 {
   "ladder_id": "D6RF10-P_conv",
-  "note": "\u00a72bb pre-flight for the D6RF10 A2-wing convergence probe (PERMISSION=NOT_FROZEN). R1 sized/smoked from the D6RF9 complete run (rc=0, reached its endTime 1000 -- NOT 2500; the D6RF9 endTime was 1000; the smoke proves the DARhoSimpleFoam|scotch|4 path, not the D6RF10 R1 horizon). R2/R3 sized from D6RF10-PREFLIGHT-EXERCISE MEASUREMENTS.json late-window per-step (early iters 200->300, extrapolated to endTime -- honest caveat). R1 deadline carries extra headroom over projected*1.25 to absorb ~145s fixed startup measured on the D6RF9 R1 run (241s wall vs 95.66s exec at Time 1000).",
+  "note": "§2bb pre-flight for the D6RF10 A2-wing convergence probe (PERMISSION=NOT_FROZEN). Rebuilt under AMENDMENT A3 (R2 registered endTime 2000->300, measured rising-cost timeout confound + verification's b88c8926 R2-SOUND-at-300 ruling). R1 (endTime 2500) is unchanged and covered by the D6RF9 complete run (rc=0, first solve reached, decompose ok); its citation/sizing is kept verbatim. R2 (endTime 300, DARhoSimpleFoam|scotch|4) is sized from the D6RF10-PREFLIGHT-EXERCISE R2 smoke, proven COMPLETE to 300 (rc=0, cumulative exec 1052.48 s): per-step 1052.48/300=3.508267 s/step, deadline 1350 s (>= projected*1.25=1315.6). R3 (endTime 2000, DARhoSimpleCFoam|scotch|4, the distinct SIMPLEC path and the binding must-complete rung) is sized at BASIS B (linear-rise fit through the two measured late windows 3.789->4.148 s/step): projected cumulative 13490 s, deadline 16900 s (>= projected*1.25=16862.5). R3's raw per-step RISES, so measured_per_step_wall_s carries the Basis-B effective cumulative average (13490/2000=6.745), not a single window; Basis A (flat 4.148*2000=8296) under-sizes and Basis C (startup-contaminated) over-sizes. Every distinct path (DARhoSimpleFoam|scotch|4, DARhoSimpleCFoam|scotch|4) is covered by a passing smoke. NOTHING here is frozen, launched or enqueued.",
   "rungs": [
     {
       "rung": "R1",
@@ -22,7 +22,8 @@
         "rc": 0,
         "reached_first_solve": true,
         "decompose_ok": true
-      }
+      },
+      "note": "UNCHANGED from prior manifest. Covered by the D6RF9 complete run (rc=0, first solve reached, >=25 exec samples). Deadline carries extra headroom over projected*1.25 to absorb the ~145 s fixed startup measured on the D6RF9 R1 run (241 s wall vs 95.66 s exec at Time 1000)."
     },
     {
       "rung": "R2",
@@ -31,20 +32,21 @@
         "method": "scotch",
         "nprocs": 4
       },
-      "endTime": 2000,
-      "deadline_s": 12750.0,
+      "endTime": 300,
+      "deadline_s": 1350.0,
       "preflight_smoke_log": "/home/ubuntu/certonomous-runs/D6RF10-PREFLIGHT-EXERCISE/R2_smoke_20260909T181238Z_736055.log",
       "deadline_sizing": {
-        "measured_per_step_wall_s": 5.0585,
+        "measured_per_step_wall_s": 3.5082666666666666,
         "n_steps_sampled": 7,
-        "steps_to_endTime": 2000,
-        "projected_wall_s": 10117.0
+        "steps_to_endTime": 300,
+        "projected_wall_s": 1052.48
       },
       "solver_path": {
         "rc": 0,
         "reached_first_solve": true,
         "decompose_ok": true
-      }
+      },
+      "note": "AMENDMENT A3: registered endTime 2000->300. Sized from the D6RF10-PREFLIGHT-EXERCISE R2 smoke, proven COMPLETE to endTime 300 (rc=0, stopped=no, cumulative exec 1052.48 s at Time 300). measured_per_step_wall_s is the full-run cumulative average 1052.48/300=3.508267 s/step; deadline 1350 s sits generously above the proven ~1052 s and >= projected*1.25 (1315.6). R2 is a GATE-FAIL rung (p_first_uncorrected@300 = 1.68e-5 > 1.0e-05 floor); its binding field is monotone-decreasing, so a shorter horizon reports a HIGHER value -- conservative, cannot manufacture a PASS. n_steps_sampled=7 from the exercise."
     },
     {
       "rung": "R3",
@@ -54,19 +56,20 @@
         "nprocs": 4
       },
       "endTime": 2000,
-      "deadline_s": 10500.0,
+      "deadline_s": 16900.0,
       "preflight_smoke_log": "/home/ubuntu/certonomous-runs/D6RF10-PREFLIGHT-EXERCISE/R3_smoke_20260909T183127Z_736055.log",
       "deadline_sizing": {
-        "measured_per_step_wall_s": 4.1481,
+        "measured_per_step_wall_s": 6.745,
         "n_steps_sampled": 7,
         "steps_to_endTime": 2000,
-        "projected_wall_s": 8296.2
+        "projected_wall_s": 13490.0
       },
       "solver_path": {
         "rc": 0,
         "reached_first_solve": true,
         "decompose_ok": true
-      }
+      },
+      "note": "The distinct SIMPLEC path (DARhoSimpleCFoam|scotch|4) and the BINDING must-complete rung; graded to its REGISTERED endTime 2000 per AMENDMENT A2 (a would-be-PASS rung is NOT shortened). BASIS B deadline: R3's per-step RISES (measured 3.789 -> 4.148 s/step over the two late windows); a linear-rise fit projects cumulative wall ~13490 s to endTime 2000. measured_per_step_wall_s carries the Basis-B EFFECTIVE cumulative average (13490/2000=6.745 s/step), so projected==per_step*steps is arithmetically consistent for the checker; the raw measured windows are 3.789/4.148 s/step. Basis A (flat 4.148*2000=8296 s) under-sizes and would re-introduce the D6RF9-R2 timeout confound; Basis C (startup-contaminated) over-sizes; Basis B is the defensible basis. deadline 16900 s >= projected*1.25 (16862.5). SIMPLEC exercise ran COMPLETE to 300 (rc=0, cumulative exec 935.85 s). n_steps_sampled=7 from the exercise."
     }
   ]
 }

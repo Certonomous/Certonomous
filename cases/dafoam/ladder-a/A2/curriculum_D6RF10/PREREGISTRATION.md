@@ -426,3 +426,56 @@ instrument defect, triaged) is recorded; striking R4 from the ladder would requi
 stating that condition + how checked, and is NOT done here.
 
 Nothing here freezes, launches or enqueues a graded run. SUBMISSIONS PARKED.
+
+---
+
+## AMENDMENT A3 -- 2026-09-09 -- R2 registered endTime 2000 -> 300 (removes a MEASURED rising-cost timeout confound; conforms to verification's b88c8926 R2-SOUND-at-300 ruling)
+
+*lines whose number changed above this section: 0.* Appended at the foot under rule 6.
+
+**Legality (CLAUDE.md rule 2 -- PRE-FIRST-COMPUTE, condition AND how checked).** This is a pre-first-compute
+amendment. **How checked:** the GRADED D6RF10 run root does **not** exist --
+`/home/ubuntu/certonomous-runs/CURRICULUM-D6RF10-a2-wing-convergence-probe/` is confirmed ABSENT on disk (only
+the SEPARATE `D6RF10-PREFLIGHT-EXERCISE` measurement root is present, never a graded row). `PERMISSION =
+NOT_FROZEN`; the grader/driver md5 pins are still `PLACEHOLDER_AT_FREEZE`. Because zero graded compute has run,
+the gate, threshold, cap and label are still OPEN and this amendment is legal.
+
+**Condition (all MEASURED, not inferred).** R2 (`nNonOrthogonalCorrectors 12`, `DARhoSimpleFoam`) is a
+**GATE-FAIL rung**: the D6RF10 pre-flight exercise measured its `p_first_uncorrected@300 = 1.68e-5`, which is
+`> 1.0e-05` (the accept floor, unchanged). The exercise ALSO measured R2's **per-step wall cost RISING**:
+`4.330 s/step over [100,200] -> 5.059 s/step over [200,300]` (the late window `5.0585 s/step` is recorded in
+`D6RF10-PREFLIGHT-EXERCISE/d6rf10_preflight_MEASUREMENTS.json`). Extrapolated, `endTime 2000` is a **predictable
+TIMEOUT**: a flat-rate deadline is exhausted at `~iteration 1447`, well short of `2000` -- which would
+RE-INTRODUCE the very "incomplete-run" confound (i) that D6RF10 exists to remove (rule 4: last time != endTime
+-> the run is incomplete and its `GATE FAIL` is not a measured floor-miss). Two facts remove the confound at a
+short horizon: (a) verification's standing **T25 ruling `b88c8926` found R2 SOUND at endTime 300** (the binding
+residual is monotone-DECREASING, so an early stop reports a HIGHER value -- conservative, it cannot manufacture
+a PASS); and (b) the exercise ran R2 **COMPLETE to endTime 300, `rc=0`** (`stopped=no`, cumulative wall
+`~1052.48 s`). A complete run to 300 measures the floor cleanly; a timed-out run to 2000 does not.
+
+**What A3 changes -- STRICTLY cost-reducing, verdict-PRESERVING, and ONLY R2's endTime.** R2's registered
+`endTime` moves `2000 -> 300`. It moves **NO gate, NO floor, NO cap, NO field, NO label** -- the `1.0e-05`
+accept floor on `p_first_uncorrected` and T25 are UNCHANGED; only R2's outer-iteration horizon changes, and it
+changes DOWNWARD to conform to verification's standing ruling. For a **GATE-FAIL** rung this is direction-safe
+by rule 5: the binding field is monotone-DECREASING over the outer loop, so a SHORTER horizon reports a **HIGHER**
+`p_first_uncorrected` than a longer one -- the shortened R2 can therefore only stay `GATE FAIL`, and can **never**
+manufacture a `PASS` against the unchanged floor. (This B-300/early-stop-conservative argument is valid ONLY for
+a gate-fail rung; it is NOT applied to any would-be-PASS rung -- R3 stays at its registered endTime 2000 under
+AMENDMENT A2, unchanged here.)
+
+**Ambiguity resolved, honestly, subject to verification's binding call.** AMENDMENT A2 said "R2 (endTime per
+registration)" -- and the grader's REGISTERED CONFIG dict carried R2 at `endTime 2000` -- while verification's
+`b88c8926` ruled R2 **SOUND at endTime 300**. A2's wording and the grader config were therefore in tension with
+the standing ruling. **A3 resolves that tension to `300`**, on the NEW measured rising-cost evidence above (which
+was not before A2 when it was written), and does so **subject to verification's binding confirmation** that
+`endTime 300` is the correct registered R2 horizon. If verification rules otherwise, this amendment is struck
+and re-drafted; nothing here is frozen. The dafoam-supervisor's decision to move R2 `2000 -> 300` is pending
+verification's binding confirmation and is the reason this file, the grader R2 config, and the §2bb manifest are
+brought into agreement at `300` in one pass.
+
+**What still gates the FREEZE (unchanged discipline).** (1) verification's binding confirmation of R2@300 and
+its verdict-preservation / T25 audit of this amendment returning SOUND; (2) the supervisor's non-delegable
+check-1 (the R2 endTime `2000 -> 300` grader diff read as a diff, grader/driver reverse-substitution diffs empty,
+accept-floor md5 `c6e63098` unmoved); (3) `scripts/check_ladder_preflight.py` (§2bb) PASS on the rebuilt manifest
+(R2 at endTime 300, deadline 1350 s from the proven ~1052.48 s complete run; R3 at endTime 2000, Basis-B deadline
+16900 s). Nothing here freezes, launches or enqueues a graded run. SUBMISSIONS PARKED.

@@ -125,7 +125,7 @@ RUNG_CONFIG = {
            "role": "extended outer horizon at the D6RF7 config -- the cheapest "
                    "rung, and the MEASURED control on the run-longer lever"},
     "R2": {"solverName": "DARhoSimpleFoam", "nNonOrth": 12,
-           "relax_p": 0.30, "relax_eqn": 0.70, "endTime": 2000,
+           "relax_p": 0.30, "relax_eqn": 0.70, "endTime": 300,
            "role": "deep non-orthogonal corrector loop -- iterate the LAGGED "
                    "deferred-correction term (the named binding mechanism) to "
                    "within-iteration convergence; un-tried above 3 correctors"},
