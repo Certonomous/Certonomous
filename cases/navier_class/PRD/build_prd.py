@@ -56,6 +56,13 @@ X0, X1, X2, X3 = 0.0, 0.200, 0.300, 0.500          # 0.0, 0.200, 0.300, 0.500
 # porous cellZone bounding box, coincident with the core block (draft §1:72):
 POROUS_BOX_MIN = (X1, 0.0, 0.0)     # (0.200, 0, 0)
 POROUS_BOX_MAX = (X2, H, H)         # (0.300, 0.100, 0.100)
+# faceZone slab half-thickness for the two Delta-p planes at X1/X2 [m].  A BUILD
+# parameter (NOT frozen physics; it touches no gate input): 1e-4 m is far below
+# the finest streamwise cell (L4 core dx = 0.1/192 = 5.2e-4 m, half 2.6e-4 m), so
+# the boxToFace slab about each plane selects ONLY the internal faces whose centre
+# sits exactly on the plane, at every mesh level.  Byte-fixed across levels
+# (topo_set_dict() takes no level argument).
+PLANE_SLAB_HALF = 1.0e-4
 
 EPS     = 0.40           # bed porosity                             (draft §1:68)
 D_P     = 0.003          # particle diameter [m], 3 mm spheres      (draft §1:69)
@@ -111,7 +118,6 @@ GRADED_LEVELS = ("L1", "L2", "L3")   # L4 is budgeted, run only if pre-asymptoti
 # dated addendum after the smoke measures the solver-induced Delta-p sensitivity.
 P_SOLVER_RELTOL_PROVISIONAL = 1e-3     # (draft §7 clause 6:323) PROVISIONAL
 P_SOLVER_ABSTOL_PROVISIONAL = 1e-8     # (draft §7 clause 6:323) PROVISIONAL
-SIMPLE_RESID_P_PROVISIONAL  = 1e-6     # (draft §7 clause 6:323) PROVISIONAL
 ENDTIME_PROVISIONAL = 3000             # steady iterations; sized in §2bb (deltaT=1)
 DELTAT = 1                              # steady simpleFoam unit step (clause-5)
 # Inlet turbulence estimates are a MODELING input, not a frozen physical value:
@@ -200,8 +206,29 @@ def block_mesh_dict(level):
 
 def topo_set_dict():
     """boxToCell over the byte-fixed porous bounding box -> cellZone 'porosity'
-    (draft §1:72).  The same physical volume is captured at every mesh level."""
+    (draft §1:72), PLUS the two oriented internal faceZones the Delta-p read path
+    needs: 'inletPlane' at x=X1=0.200 and 'outletPlane' at x=X2=0.300 -- the
+    porous-CORE entry/exit planes where the Ergun Delta-p is defined (NOT the duct
+    ends).  These are the faceZones the controlDict surfaceFieldValue objects
+    (dp_inlet_plane / dp_outlet_plane) areaAverage p on.
+
+    Each plane is captured by a boxToFace slab of half-thickness PLANE_SLAB_HALF
+    (1e-4 m) about the plane; the slab is far below the finest streamwise cell so
+    ONLY the internal faces whose centre sits exactly on the plane are selected,
+    at every mesh level; setsToFaceZone then orients them consistently against the
+    porousCells cellSet (orientation is irrelevant to areaAverage but makes the
+    zone a well-formed oriented internal faceZone).  The same physical volume and
+    the same two planes are captured at every level (byte-fixed: no level arg).
+
+    LAUNCHER CONTRACT (run_prd.sh, authored later): topoSet MUST run AFTER
+    blockMesh (the mesh must exist before cellZone/faceZone selection) and BEFORE
+    simpleFoam -- i.e. blockMesh -> topoSet -> (copy 0.orig->0, touch 0/U last for
+    the age guard) -> simpleFoam."""
     mn, mx = POROUS_BOX_MIN, POROUS_BOX_MAX
+    x1lo = "%.4f" % (X1 - PLANE_SLAB_HALF)   # 0.1999
+    x1hi = "%.4f" % (X1 + PLANE_SLAB_HALF)   # 0.2001
+    x2lo = "%.4f" % (X2 - PLANE_SLAB_HALF)   # 0.2999
+    x2hi = "%.4f" % (X2 + PLANE_SLAB_HALF)   # 0.3001
     return (_foamfile("dictionary", "topoSetDict", "system")
             + "actions\n(\n"
             + "    { name porousCells; type cellSet; action new;\n"
@@ -209,6 +236,16 @@ def topo_set_dict():
             % (mn[0], mn[1], mn[2], mx[0], mx[1], mx[2])
             + "    { name porosity; type cellZoneSet; action new;\n"
             + "      source setToCellZone; set porousCells; }\n"
+            + "    { name inletFaces; type faceSet; action new;\n"
+            + "      source boxToFace; box (%s -1.0 -1.0) (%s 1.0 1.0); }\n"
+            % (x1lo, x1hi)
+            + "    { name inletPlane; type faceZoneSet; action new;\n"
+            + "      source setsToFaceZone; faceSet inletFaces; cellSet porousCells; flip false; }\n"
+            + "    { name outletFaces; type faceSet; action new;\n"
+            + "      source boxToFace; box (%s -1.0 -1.0) (%s 1.0 1.0); }\n"
+            % (x2lo, x2hi)
+            + "    { name outletPlane; type faceZoneSet; action new;\n"
+            + "      source setsToFaceZone; faceSet outletFaces; cellSet porousCells; flip false; }\n"
             + ");\n")
 
 
@@ -289,6 +326,14 @@ def fv_schemes():
 
 def fv_solution():
     # L-514: p-solver tolerances are PROVISIONAL, PINNED FROM THE §2bb SMOKE.
+    # NO SIMPLE residual-exit block (verification ruling §4.5): the steady run must
+    # execute EXACTLY endTime iterations (clause-5 fixed-dt premise, deltaT=1).
+    # A residual-based early stop would let simpleFoam stopAt endTime terminate
+    # early -> last written time < endTime, n_exec < round(endTime/deltaT) ->
+    # mark_done_prd grades NOT DONE.  Convergence/plateau is judged by
+    # analyse_prd.py's G-CONV / plateau_states, NOT by an early residual exit;
+    # endTime is sized in §2bb so the solve plateaus well before endTime.  The
+    # SIMPLE block is therefore deliberately free of any residual-exit clause.
     return (_foamfile("dictionary", "fvSolution", "system")
             + "solvers\n{\n"
             + "    p\n    {\n        solver GAMG; smoother GaussSeidel;\n"
@@ -298,9 +343,10 @@ def fv_solution():
             + "    \"(U|k|omega)\"\n    {\n        solver smoothSolver; smoother symGaussSeidel;\n"
             + "        tolerance 1e-8; relTol 0.1;\n    }\n}\n"
             + "SIMPLE\n{\n    nNonOrthogonalCorrectors 2;\n    consistent yes;\n"
-            + "    residualControl\n    {\n        p %r;   // PROVISIONAL, §2bb\n"
-            % SIMPLE_RESID_P_PROVISIONAL
-            + "        U 1e-6; \"(k|omega)\" 1e-6;\n    }\n}\n"
+            + "    // steady run executes to endTime (clause-5 fixed-dt, deltaT=1); NO early\n"
+            + "    // residual-exit block -- convergence judged by analyse_prd G-CONV / plateau,\n"
+            + "    // endTime sized in §2bb so the solve plateaus well before endTime.\n"
+            + "}\n"
             + "relaxationFactors { equations { \".*\" 0.9; } }\n")
 
 
@@ -467,9 +513,19 @@ def selftest():
         _ck("blockMeshDict has 16 vertices, 3 blocks",
             bm.count("hex (") == 3 and bm.count("(0.0 ") + bm.count("(0.2 ")
             + bm.count("(0.3 ") + bm.count("(0.5 ") >= 4)
+        ts = open(os.path.join(tmp, "system", "topoSetDict")).read()
         _ck("porous box coincident with core block x-range [0.2,0.3]",
-            "(0.2 0.0 0.0) (0.3 0.1 0.1)" in open(
-                os.path.join(tmp, "system", "topoSetDict")).read())
+            "(0.2 0.0 0.0) (0.3 0.1 0.1)" in ts)
+        # FIX-1 (§3 check-1): the two Delta-p faceZones referenced by the
+        # controlDict functionObjects are now actually CREATED by topoSet.
+        _ck("topoSetDict creates inletPlane faceZone slab about x=0.200",
+            "name inletPlane; type faceZoneSet" in ts
+            and "box (0.1999 -1.0 -1.0) (0.2001 1.0 1.0)" in ts
+            and "faceSet inletFaces; cellSet porousCells" in ts)
+        _ck("topoSetDict creates outletPlane faceZone slab about x=0.300",
+            "name outletPlane; type faceZoneSet" in ts
+            and "box (0.2999 -1.0 -1.0) (0.3001 1.0 1.0)" in ts
+            and "faceSet outletFaces; cellSet porousCells" in ts)
         u = open(os.path.join(tmp, "0.orig", "U")).read()
         _ck("inlet U carries the swept U_s", "(1.0 0 0)" in u)
         cd = open(os.path.join(tmp, "system", "controlDict")).read()
@@ -477,9 +533,17 @@ def selftest():
             "deltaT          1" in cd and "application     simpleFoam" in cd)
         _ck("two plane pressure functionObjects present (Delta-p read path)",
             "dp_inlet_plane" in cd and "dp_outlet_plane" in cd)
+        _ck("controlDict faceZone names resolve to created topoSet faceZones",
+            "name inletPlane" in cd and "name outletPlane" in cd
+            and "name inletPlane; type faceZoneSet" in ts
+            and "name outletPlane; type faceZoneSet" in ts)
         fs = open(os.path.join(tmp, "system", "fvSolution")).read()
         _ck("p-solver tol carries the L-514 PROVISIONAL marker",
             "PINNED FROM §2bb SMOKE" in fs)
+        # FIX-2 (§3 check-1): no residual-exit clause -> run executes to endTime
+        # (clause-5 fixed-dt premise); convergence judged by analyse_prd.
+        _ck("fvSolution carries NO triggering residualControl (run-to-endTime)",
+            "residualControl" not in fs)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
