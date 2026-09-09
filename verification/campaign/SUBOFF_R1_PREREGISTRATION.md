@@ -51,12 +51,16 @@ RANS (Toxopeus 2008 is the closest analogue for expected accuracy) agrees with
 measurement to a few percent; ±10% is a **conservative** first-rung band that a
 correct solve should clear with margin, and it will not be tightened after the run.
 
-**Reference value `CT_ref`.** Provisional anchor **3.6×10⁻³ on wetted-surface area**,
-an ITTC-1957 friction-line + body-of-revolution form-factor engineering estimate
-(`suboff_reference_ReL1p2e7.json`), **explicitly NOT title-verified**. It is to be
-**replaced by the title-verified Crook 1990 / Liu & Huang 1998 Model-5470 value before
-freeze** — a legal pre-compute amendment stating the condition (rule 2). The band
-shape (±10%) does not move when the anchor is confirmed.
+**Reference value `CT_ref`.** Anchor **3.6×10⁻³ on wetted-surface area**, an ITTC-1957
+friction-line + body-of-revolution form-factor engineering estimate
+(`suboff_reference_ReL1p2e7.json`). This is a **MANIFEST / engineering anchor and it
+STAYS one**: there is **no title-verified SUBOFF report PDF on disk** (the Crook 1990 /
+Liu & Huang 1998 references are NTIS/TRID landing pages only, 2026-09-09), so the gate
+is **BOUNDED-AGREEMENT against this manifest anchor and remains so until a real,
+title-verified SUBOFF report PDF lands.** This is explicitly **NOT** a promise to
+"replace the anchor with a title-verified value before freeze" — no such value is
+retrievable today. If a title-verified SUBOFF report is obtained later, the anchor is
+confirmed or corrected by a dated addendum then; the band shape (±10%) does not move.
 
 **Reference constants (frozen into the forceCoeffs block; the grader asserts them on
 disk and refuses on mismatch):** `magUInf = 2.893 m/s` (so `Re_L = U·L/ν = 1.2×10⁷`
@@ -133,19 +137,28 @@ to that reference — it does NOT apply to this towing-tank drag gate.
 
 Diff-read is the supervisor's check-1. Built-in non-negotiables:
 
-- **Live planted-zero control (rule 3).** Before any read is trusted, PLANT
+- **Live planted-zero controls (rule 3) — TWO, and the gate reader has its own.**
+  (i) **Gate-reader control (primary):** PLANT `CT = 1.234×10⁻³` into the last row of a
+  COPY of the finest `coefficient.dat` and re-read it through `read_CT` — **the same
+  parser the verdict comes from** — refusing (exit 2) unless the returned value moves by
+  the plant. This is the control the graded number needs, because `CT` is read from
+  `coefficient.dat`, not from the field. (ii) **Field control (secondary):** PLANT
   `500 Pa` into ONE hull owner-cell of a COPY of the finest `p` field, re-read the hull
-  mean-surface-pressure through the **same** reader, and **REFUSE (exit 2)** unless the
-  mean moves by the expected `PLANT/n_hull`. A zero from a reader not shown able to see
-  a non-zero is not evidence.
+  mean-surface-pressure through the same reader, refuse unless it moves by `PLANT/n_hull`.
+  A zero from a reader not shown able to see a non-zero is not evidence.
 - **Refuse-not-degrade.** `exit 2` on any missing/malformed/unreadable input or a
   control that misbehaves; `exit 70` only for an internal grader defect; `exit 0` only
   when a verdict was produced.
-- **Rule-4 strict completion, per level.** `rc==0` (`End`/DONE); last time ==
-  `endTime`; **incompressible-RANS field set `p U k omega nut phi`** present at endTime
-  and every field **newer than `0/`** (age guard). The thermal-family set (T, p_rgh,
-  alphat) does not apply — simpleFoam incompressible has no energy equation; the
-  enforced set is stated in the grader header.
+- **Rule-4 strict completion, per level.** `rc==0` **read from an rc sidecar / DONE
+  marker written INSIDE the detached wrapper** — never inferred from an `End` line (the
+  setsid-parent-returns-zero lesson: a `setsid`/`timeout` parent exits 0 for every
+  outcome); an `End` line in the log is also required; last time == `endTime`;
+  **ExecutionTime count == `round(endTime/deltaT)`** (rule-4 clause 5; the run took the
+  registered number of steps); **incompressible-RANS field set `p U k omega nut phi`**
+  present at endTime and every field **newer than `0/`** (age guard). The thermal-family
+  set (T, p_rgh, alphat) does not apply — simpleFoam incompressible has no energy
+  equation; the enforced set is stated in the grader header. **This requires the R1 run
+  to write an rc sidecar** (a freeze precondition on the launcher).
 - **forceCoeffs normalisation asserted on disk.** `magUInf/lRef/rhoInf` must equal the
   registered values and `Aref` must match the reference wetted area (±3%) or the grader
   refuses — a coefficient on the wrong normalisation is not the gated quantity.
@@ -154,11 +167,20 @@ Diff-read is the supervisor's check-1. Built-in non-negotiables:
   convergence + plateau first (a level not plateaued ⇒ NOT A RESULT), then the triple
   (DIVERGENT/STAGNANT/OSCILLATORY/EXACT ⇒ NOT A RESULT), then CONVERGING ⇒ band verdict
   with GCI printed. **Fixed verdict vocabulary only.**
-- **NB carried openly:** per-level *iterative* convergence (solver `residualControl`
-  met / "SIMPLE solution converged") is to be handed in from `log.simpleFoam` by the
-  launcher; the grader currently defaults iterative state to CONVERGED when an `End`
-  line is found and MEASURES the plateau itself. A revision to read iterative state
-  from the log directly is owed before freeze; this is disclosed, not hidden.
+- **Iterative convergence READ, never defaulted (rule-5 clause 1).** Per-level iterative
+  state comes from `read_iterative_state`, which reads `log.simpleFoam`: CONVERGED iff
+  the solver printed "SIMPLE solution converged" OR every monitored field's **final
+  Initial residual** (`p Ux Uy k omega`) is below the registered `RES_TOL = 1×10⁻⁴`
+  (Initial, not Final — the W3 gate-(b) test). A level that is not iteratively converged
+  makes the whole triple **NOT A RESULT** before the triple is even read. Plateau of `CT`
+  is measured separately here.
+- **Solver-config requirement (so `last == endTime` is reachable AND iterative
+  convergence is judged).** R1 runs to a **fixed iteration count `endTime` with
+  `deltaT = 1` as a HARD stop and NO `residualControl` early-exit**, so every level ends
+  at exactly `endTime` and the ExecutionTime count equals `round(endTime/deltaT)`.
+  Iterative convergence is then the final-Initial-residual test above (residuals below
+  `RES_TOL` at `endTime`), not an early "converged" stop. This is a freeze precondition
+  on the case's `system/controlDict` and `fvSolution`.
 
 Selftest (`--selftest`) confirmed green by this lane: CONVERGING-in-band → PASS,
 OSCILLATORY → NOT A RESULT, not-plateaued → NOT A RESULT, missing control → refuse.
