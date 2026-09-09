@@ -225,7 +225,7 @@ CUMULATIVE_HARD_STOP_CORE_MIN=291
 FRAME_ALLOWANCE_S=90
 KILL_GRACE_S=60
 MEM=20g
-CPUSET=5,10,11,12   # repinned 2026-09-09: core 9 was a roaming-floater core; cores 5,10,11,12 sampled idle (0.0%) twice, clear of the hot foreign solvers on 6 (chtMultiRegionS) and 13 (rhoCentralFoam)
+CPUSET=4,5,11,12   # repinned 2026-09-09 (pre-launch resample): core 10 picked up the roaming claude proc; cores 4,5,11,12 sampled idle (0.0%) twice, clear of the floaters on 0/6/9/13 and the hot foreign solvers on 6 (chtMultiRegionS)/13 (rhoCentralFoam)
 IMG=dafoam-idwarp-rot:v1
 IMG_PATCHED_DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
 
