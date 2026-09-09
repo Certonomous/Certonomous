@@ -29474,6 +29474,24 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 107-M6-TIPCAP-ESCALATION-RETRACTED-MY-CALL-VALIDITY-NOT-ACCURACY-GATE-TAPS-ARE-INBOARD-LANE-RESUMED-STITCHED-NORMALS-FIRST-SUPBOOSTER-STILL-RUNNING -->
+
+**Section last written:** 2026-09-09T21:45Z by the cfd-supervisor (Fable) directly, PURE INSERTION at top of `## cfd`; boards 106/105/104 stand unedited. Committed via the rule-10 private-index protocol.
+
+### 🟢 M6 GRID (b) tip cap — ESCALATION RETRACTED; it is MY engineering call (chief re-delegated: Sanaa away won't answer a mesh-topology question, and it's within my authority under her standing delegation). **THE UNLOCK:** the tip cap must be geometrically VALID (checkMesh non-orth ≤70° HARD + skew + 0 neg-vol + curvature-admissible), NOT suction-peak-resolved — Gate P's 271 AGARD taps are at the INBOARD wing stations, not the tip, so the tip-cap resolution does not drive the suction-peak accuracy. So NO full whole-mesh elliptic pyHyp-replacement is needed (my board-105 framing was over-scoped); a valid tip-cap topology suffices, and the measured 61° interior says it's achievable. Lane abc08c4506fe8f19d RESUMED with standard O-grid tip practice, tractable levers in order: (1) consistent STITCHED two-sided normals across the point-matched zone junctions — targets the MEASURED cause of the 83–85° (one-sided normals at seams; interior already 61°); (2) butterfly/O-H tip block or localized tip-zone orthogonalization; (3) properly-graded polar tip if it measures ≤70°. s0=1.546e-6 on true walls only; coarse Lc dry-run first + checkMesh + curvature check; then 3 exactly-nested ×8 levels → re-transcribe wrapper counts → my re-check-1 → freeze → graded run vs ±0.02 Gate P. **BAR to come back:** only a documented five-process-class EXHAUSTION with no valid ≤70° tip → report to ME → I route to the CHIEF first (NOT Sanaa). No gate widening / no y+ relaxation regardless.
+
+### 🟢 NAVIER Case-3 / SUP_BOOSTER (E1) — graded triple STILL RUNNING detached (verified first-hand alive: pid 818016/818017 rhoCentralFoam in `verification/runs/navier_class/SUP_BOOSTER/graded/coarse`, launcher+autograder committed e351af0a + fix ae0bdc67, timeouts 1200/1800/2400s = 90 core-min cap, nohup+setsid survives a kill). First-launch nothing-produced was a real bug the lane triaged (set -u aborted during bashrc sourcing → source before set -u) — fixed, not discarded. Verdict PENDING (~30 min); the committed autograder emits C1/C2 from the fixed vocabulary via the Roache triple → VERDICT.json. Recovery after a kill = read VERDICT.json, NOT relaunch.
+
+**RUNGS WITHOUT VERDICTS (mine):** Navier SUP_BOOSTER E1 — graded triple RUNNING, verdict pending. M6 `NOT A RESULT` — tip cap is MY call, lane resumed toward freeze (NO LONGER on Sanaa's desk). DPW8_V2 L4 owed D481; F24 fine reconciliation; F3-succ/F4-S numerics NEEDS-SUCCESSOR.
+
+**ON SANAA'S DESK:** M6 tip-cap decision REMOVED (retracted — my call now). Standing only: Navier MEASURED-tier PDFs; F24 reconciliation; F11 Ghia 1982 primary. SUBMISSIONS PARKED (rule 7).
+
+**LIVE:** M6 lane abc08c4506fe8f19d (RESUMED — stitched-normals tip cap, coarse first); Navier lane a7c71f2eb2b3f5e24 (detached graded triple + autograder). NOT MINE: rhoCentralFoam 316601 (ansys VMFL017), rhoPimpleFoam 775010 (ansys VMFL046).
+
+**COST.** This turn 0 heavy compute (re-brief + board). SUP_BOOSTER triple cap 90 core-min ($0.077); M6 coarse dry-run cheap. Under $25/level.
+
+**CHAIN OF CUSTODY:** FIRST-HAND — the acceptance of the chief's re-delegation + the validity-not-accuracy reframing (Gate-P taps inboard, tip needs validity only) + the retraction of the Sanaa escalation; the first-hand health check of the detached SUP_BOOSTER run (pid/cwd/lineage). RELAYED, owed: the M6 valid-tip build numbers (re-check-1 at freeze) + the SUP_BOOSTER verdict (autograder). Nothing sent outside the box (rule 7).
+
 <!-- BOARD-BLOCK-ID: 106-NAVIER-SUPBOOSTER-FROZEN-CHECK4-PASSED-FIRST-HAND-GRADED-TRIPLE-LAUNCHED-DETACHED-2BA-VERDICT-PENDING-M6-STILL-ESCALATED -->
 
 **Section last written:** 2026-09-09T21:35Z by the cfd-supervisor (Fable) directly, PURE INSERTION at top of `## cfd`; boards 105/104/103 stand unedited. Committed via the rule-10 private-index protocol.
