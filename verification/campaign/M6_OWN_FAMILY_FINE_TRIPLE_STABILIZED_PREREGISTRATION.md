@@ -370,6 +370,43 @@ nothing planted, no verdict. **The smoke result is PARTIAL and is reported hones
   strategy to Sanaa. **The stabilized config is NOT yet a completed-solve config; the prereg is not
   ready to freeze until a smoke shows a clean descent-to-plateau.**
 
+### 11.A FORK A EXECUTED (supervisor-authorized, 2026-09-09): rhoPimpleFoam + LTS — STABILITY SOLVED, but STOP on a localized trailing-edge energy pathology
+
+The cfd-supervisor authorized fork A under the corrected framing that a FRESH pre-registration
+legitimately sets its own solver as a disclosed method choice (only the GATE elements — Gate P's
+±0.02 band, the seven stations, x/c≤0.90, and the rule-5 Roache gating — are reserved to Sanaa; a
+solver that marches the SAME compressible RANS equations to the SAME converged steady state is a
+method choice, not a gate change; DMR-ladder precedent). Executed as an ungraded L2 smoke
+(`verification/runs/M6_OWN_FAMILY_runs/L2/smoke_rhopimple_lts/`, serial, endTime 500):
+
+- **`rhoPimpleFoam` + `ddtSchemes localEuler` (LTS) + DELTA A `limitTemperature`** — pseudo-transient
+  march to steady state (maxCo 0.2, rDeltaTSmoothingCoeff 0.1, rDeltaTDampingCoeff 1, maxDeltaT 1;
+  `nOuterCorrectors 1`). Two rhoPimpleFoam-required div terms ADDED — `div(phiv,p)` Gauss upwind and
+  `div(U)` Gauss linear — both solver plumbing, **NOT Gate-P schemes** (the Gate-P schemes are
+  byte-unchanged).
+- **STABILITY / COMPLETION SOLVED — the first M6 rhoSimpleFoam-class solve ever to complete:**
+  rc=0, `End` line, last-time==endTime==500. **Rule-4 completion arithmetic HOLDS under LTS**
+  (ExecutionTime-count==500, all 8 fields present at 500, **age-guard all-newer-than-`0/U` = True**).
+  Momentum/continuity/turbulence converge cleanly (Ux 9e-7, continuity ~1e-10, k/omega ~1e-5). The
+  energy-led divergence that blocked every steadyState attempt is broken by the pseudo-transient march.
+- **STOP per the supervisor's DMR-L5b acceptance rule (clamp must be inert at convergence):** the
+  `limitTemperature` clamp is **ACTIVE at the plateau** — at the 1000 K ceiling ~113 cells clamp every
+  iteration (not → 0) and converged Tmax is pinned at 1000 K (unphysical; adiabatic recovery T at
+  M=0.84 is ~325 K); the energy residual RISES (1.6e-6 → 0.013). A raised-ceiling diagnostic (5000 K,
+  supervisor-authorized) shows the hot cells pin at **whatever ceiling is set** (Tmax=5000 with the
+  5000 cap) — a **localized UNBOUNDED overheating**, not a finite hot value. So DELTA A is **active at
+  convergence → biases Gate P**; the converged state is nonphysical → **NOT gradeable; do NOT
+  freeze/launch.**
+- **Localization:** ~25 near-wall cells (0.03% of 71,760) in the **trailing-edge region** (x/chord
+  0.66–1.05, y near-surface ≈0–0.03, z/span 0.26–1.19). Bulk field physical (Tmean 284 K).
+  **Solver- and scheme-independent** (rhoSimpleFoam-steadyState overheated to 644 K with
+  `div(phi,Ekp)`; rhoPimpleFoam-LTS does the same with `div(phiv,p)`) → not the added term. An
+  inherent energy pathology of the frozen M6 case at the trailing edge — plausibly the mesh there
+  (max non-orth 65.87° in the `MESH_STANDARD` warning band) and/or the adiabatic-wall viscous heating.
+- **Open (fork B, supervisor/Sanaa):** TE mesh quality; the adiabatic wall thermal BC at the TE; or
+  tighter bounded snGrad/laplacian limiting for energy diffusion at high-non-orth cells. Each touches
+  frozen registered mesh/physics. **The prereg remains NOT ready to freeze.**
+
 ---
 
 ## 12. FREEZE BLOCK — LEFT FOR THE cfd-supervisor (check-4, undelegated)
