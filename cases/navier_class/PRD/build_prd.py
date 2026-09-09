@@ -265,7 +265,7 @@ def fv_options(active=True):
             + "            f   (%r %r %r);\n" % f
             + "            coordinateSystem\n            {\n"
             + "                type cartesian; origin (0 0 0);\n"
-            + "                coordinateRotation { type axesRotation; e1 (1 0 0); e2 (0 1 0); }\n"
+            + "                rotation { type axes; e1 (1 0 0); e2 (0 1 0); }\n"
             + "            }\n        }\n    }\n}\n")
 
 
@@ -293,12 +293,12 @@ def control_dict():
           "        type surfaceFieldValue; libs (fieldFunctionObjects);\n"
           "        writeControl timeStep; writeInterval 50;\n"
           "        regionType faceZone; name inletPlane;\n"
-          "        operation areaAverage; fields (p);\n    }\n"
+          "        operation areaAverage; fields (p); writeFields false;\n    }\n"
           "    dp_outlet_plane\n    {\n"
           "        type surfaceFieldValue; libs (fieldFunctionObjects);\n"
           "        writeControl timeStep; writeInterval 50;\n"
           "        regionType faceZone; name outletPlane;\n"
-          "        operation areaAverage; fields (p);\n    }\n"
+          "        operation areaAverage; fields (p); writeFields false;\n    }\n"
           "}\n")
     return (_foamfile("dictionary", "controlDict", "system")
             + "application     simpleFoam;\nstartFrom       startTime;\n"
@@ -321,7 +321,8 @@ def fv_schemes():
             + "    div((nuEff*dev2(T(grad(U))))) Gauss linear;\n}\n"
             + "laplacianSchemes { default Gauss linear corrected; }\n"
             + "interpolationSchemes { default linear; }\n"
-            + "snGradSchemes { default corrected; }\n")
+            + "snGradSchemes { default corrected; }\n"
+            + "wallDist { method meshWave; }\n")
 
 
 def fv_solution():
