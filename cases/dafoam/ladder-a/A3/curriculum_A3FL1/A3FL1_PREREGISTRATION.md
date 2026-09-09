@@ -67,35 +67,63 @@ necessary-but-not-sufficient.
 
 ---
 
-## 2. Two legs, one changed variable set
+## 2. Three legs, one self-contained arm — ALL under the ONE pinned image `dafoam-subpclu:v1`
 
-Both legs use `-task compute_totals` (one primal + one adjoint solve, then print totals) — the
-same task the triage and stage-0 arms used. The **only** configuration change from each leg's
-own pinned baseline is the lever set in §4.
+**Why three legs, and why self-contained.** The rung-3 baseline's historical adjoint image was
+**NOT preserved** (inferred `subpclu:v1`, not a surviving launch artifact). Rather than *argue* the
+historical image, this arm is made **self-contained by measurement** (Sanaa's exhaustion rule:
+measured, not argued): it carries its **own** rung-3 NATURAL baseline leg (`BASELINE_R3`) under the
+**same** pinned image the `nd` test leg uses. The historical unpinned image is therefore
+**IRRELEVANT** — the `nd` attribution is §11-clean *by measurement*, because the fresh natural
+reference and the `nd` test both run under one identical, digest-pinned toolchain
+(`dafoam-subpclu:v1` @ `sha256:ba2d16ab…`, MEASURED as the rung-1/rung-2 ladder image; present on
+the host; named explicitly by the CONTROL baseline's own `lever_echo.txt`). All three legs run
+under **THIS ONE image**, so DAFOAM_CHARTER §11 toolchain identity holds trivially.
 
-### CONTROL — rung 2 (42,120 cells), KNOWN to converge, + the lever set
-- Source mesh / baseline runScript: `A3-rung2-n28-tpc1/` (baseline CD **987** / CL **1171**,
-  both `PetscConvergedReason: 2`, rc=0, wall 452 s = **30.13 core-min**; `.t0`/`.t1`/`.rc` on disk).
+All three legs use `-task compute_totals` (one primal + one adjoint solve, then print totals) — the
+same task the triage and stage-0 arms used. They run **SEQUENTIALLY** (CONTROL → BASELINE_R3 →
+TEST_R3), each fully completing before the next starts.
+
+### Leg 1 — CONTROL — rung 2 (42,120 cells), KNOWN to converge, + the `nd` lever set
+- Source mesh / baseline runScript: `A3-rung2-n28-tpc1/` (`runScript_tpc1.py`; baseline CD **987** /
+  CL **1171**, both `PetscConvergedReason: 2`, rc=0, wall 452 s = **30.13 core-min**; on disk).
+- **Delta applied (`apply_delta`):** `jacMatReOrdering natural→nd` + `KSPCalcSingularVal 0→1`.
 - **Prediction (frozen):** the control **MUST still converge** — `PetscConvergedReason: 2` on BOTH
   CD and CL before the `gmresMaxIters 2000` cap. Iteration count vs the baseline (987/1171) is
-  REPORTED (a lever that converges but in more iterations still "does not break it"); iteration
-  count is a reported secondary, **not** a gate.
-- **Purpose:** proves the lever set does not BREAK a working solve (the stage-0 lesson: L3 Richardson
-  looked good at rung 1 and collapsed the rung-2 control to double `-5`). The control also confirms
-  the `KSPCalcSingularVal` print-token format on a converging solve, which the grader's diagnostic
-  regex must match before the test leg is graded (§4, §8).
-- **If the control fails to converge** (any negative reason / collapse) → the lever set is **harmful**;
-  the arm is **inconclusive** — a test stagnation could no longer be attributed to conditioning
-  rather than to a broken lever. Item verdict **NOT A RESULT**, reported as "levers harmful,"
-  mirroring the stage-0 L3 withdrawal.
+  REPORTED, **not** gated.
+- **Purpose:** proves `nd` does not BREAK a working solve (the stage-0 lesson: L3 Richardson looked
+  good at rung 1 and collapsed the rung-2 control to double `-5`). Runs **first** (cheap), and
+  confirms the `KSPCalcSingularVal` print-token format on a converging solve for the grader's
+  diagnostic regex (§4, §8).
+- **If the control fails to converge** (any negative reason / collapse) → `nd` is **harmful**; the
+  arm is inconclusive → item verdict **NOT A RESULT** ("nd harmful"), mirroring the stage-0 L3
+  withdrawal.
 
-### TEST — rung 3 (79,560 cells), baseline bit-identical to the prior rung-3 baseline, + the lever set
-- Source mesh / baseline runScript: `A3-rung3-n52/runScript_rung3.py` (baseline stagnation
-  `-3` at 4000 iters, wall 1426 s = **95.07 core-min**, peak 11.65/22 GiB, `sMax/sMin = 9.57e+10`).
-- Baseline config bit-identical to the prior rung-3 baseline: `transonicPCOption 1`, `pcFillLevel 0`,
-  `jacMatReOrdering` **← changed** (see §4), `gmresRestart 200`, `gmresMaxIters 4000`, `gmresRelTol 1e-4`,
-  `normalizeStates` unchanged, `adjStateOrdering cell` unchanged. **Everything except the §4 lever set
-  is identical**, so the only variables are `jacMatReOrdering: nd` + `KSPCalcSingularVal: 1`.
+### Leg 2 — BASELINE_R3 — rung 3 (79,560 cells), NATURAL ordering UNCHANGED (NO `nd`)
+- Source mesh / baseline runScript: `A3-rung3-n52/runScript_rung3.py` (the SAME rung-3 source as
+  TEST_R3; baseline stagnation `-3` at 4000 iters, wall 1426 s = **95.07 core-min**, peak
+  11.65/22 GiB, historical `sMax/sMin = 9.57e+10`).
+- **Delta applied (`apply_delta_baseline`):** `KSPCalcSingularVal 0→1` **ONLY** — `jacMatReOrdering`
+  **STAYS `natural`** (the baseline lever config is UNCHANGED). This is the single load-bearing
+  difference from the two `nd` legs.
+- **Prediction (frozen):** the natural baseline **REPRODUCES the `-3` stagnation** (flat tail
+  `< THETA_STAG`) under the arm's OWN pinned image. This fresh natural reference is what makes the
+  `nd` attribution §11-clean by measurement.
+- **Purpose:** establishes, *under the same pinned image the `nd` test uses*, that the rung-3 wall is
+  real. The in-arm natural `sMax/sMin` (G-DIAG) is the **primary** comparator for TEST_R3's `nd`
+  reading; the historical `9.57e+10` is the secondary check.
+- **If BASELINE_R3 does NOT reproduce the stagnation** (it converges, is budget-limited, or
+  crashes/not-evaluable) → the premise/toolchain is **not validated**; `nd`'s effect cannot be
+  attributed without a confirmed natural baseline under this image → item verdict **NOT A RESULT**.
+
+### Leg 3 — TEST_R3 — rung 3 (79,560 cells), + the `nd` lever set
+- Source mesh / baseline runScript: `A3-rung3-n52/runScript_rung3.py` (SAME source as BASELINE_R3).
+- **Delta applied (`apply_delta`):** `jacMatReOrdering natural→nd` + `KSPCalcSingularVal 0→1`.
+- Baseline config otherwise bit-identical: `transonicPCOption 1`, `pcFillLevel 0`, `gmresRestart 200`,
+  `gmresMaxIters 4000`, `gmresRelTol 1e-4`, `normalizeStates` unchanged, `adjStateOrdering cell`
+  unchanged. **Everything except the §4 lever set is identical to BASELINE_R3**, so the only
+  variables between the two rung-3 legs are `jacMatReOrdering: natural→nd` (`KSPCalcSingularVal 1` is
+  common to both). **The question:** does `nd` clear the `-3` stagnation BASELINE_R3 reproduced?
 
 ---
 
@@ -104,13 +132,13 @@ own pinned baseline is the lever set in §4.
 > A DAFoam gradient is not a result until a finite-difference table stands beside it at a graded
 > band (DAFOAM_CHARTER §2, the bright line; VERIFICATION_CHARTER §7 fixes the band).
 
-**A PASS requires BOTH** the test adjoint to converge AND an endpoint FD table to verify the
+**A PASS requires BOTH** the TEST_R3 adjoint to converge AND an endpoint FD table to verify the
 gradient. Therefore, and frozen here:
 
-- **IF and only if the TEST adjoint converges**, a **mandatory FD-verification leg** runs before any
-  PASS is declared. A converged-but-not-yet-FD-verified test is **PENDING (FD owed)**, never PASS.
-- If the TEST adjoint does **not** converge, there is no gradient to verify → the FD leg does not run,
-  and the verdict is a **measured conditioning finding** reported with the `sMax/sMin` reading (§4).
+- **IF and only if the TEST_R3 adjoint converges**, a **mandatory FD-verification leg** runs before
+  any PASS is declared. A converged-but-not-yet-FD-verified test is **PENDING (FD owed)**, never PASS.
+- If the TEST_R3 adjoint does **not** converge, there is no gradient to verify → the FD leg does not
+  run, and the verdict is a **measured conditioning finding** reported with the `sMax/sMin` reading (§4).
   This is **not a PASS and not a hidden failure** — it is a GATE FAIL on the convergence gate stated
   openly, carrying the condition-number measurement as its physics content (§7 verdict map).
 
@@ -123,36 +151,48 @@ below — a single documented patch, so the baseline stays the single source of 
 hand-retyped second copy).
 
 **Pinned baseline inputs (md5, real — these are inputs, not the freeze pin):**
-- TEST baseline runScript: `A3-rung3-n52/runScript_rung3.py` md5 `1ec70293a56a2cf5a30a889a96832c06`
+- Rung-3 baseline runScript (BASELINE_R3 **and** TEST_R3): `A3-rung3-n52/runScript_rung3.py`
+  md5 `1ec70293a56a2cf5a30a889a96832c06`
 - CONTROL baseline runScript: `A3-rung2-n28-tpc1/runScript_tpc1.py` md5 `edc9e14be7297a442e16f43fdda94fcc`
 
-**The delta applied to `daOptions` in BOTH legs (and NOTHING else):**
+**Two deltas, applied leg-specifically (and NOTHING else):**
 
-| key | baseline value (on disk) | A3FL1 value | is it a change? |
+- **`apply_delta` (the `nd` delta — CONTROL and TEST_R3):** `jacMatReOrdering natural→nd` **plus**
+  `KSPCalcSingularVal 0→1`.
+- **`apply_delta_baseline` (the NATURAL delta — BASELINE_R3):** `KSPCalcSingularVal 0→1` **ONLY** —
+  `jacMatReOrdering` **STAYS `natural`**. The launcher asserts natural SURVIVES and `nd` is ABSENT.
+
+| key | baseline value (on disk) | CONTROL / TEST_R3 (`nd` delta) | BASELINE_R3 (natural delta) |
 |---|---|---|---|
-| `adjEqnOption.jacMatReOrdering` | `"natural"` | **`"nd"`** | **YES — the one genuinely-new configuration lever** |
-| `KSPCalcSingularVal` (top-level daOption) | `0` (implicit; dump reads `KSPCalcSingularVal 0`) | **`1`** | **YES — diagnostic turned on; reads the spectrum under `nd`** |
-| `adjStateOrdering` | `"cell"` | `"cell"` | **NO — held at baseline** (brief's premise corrected, §0) |
-| `adjEqnOption.pcFillLevel` | `0` | `0` | no |
-| `adjEqnOption.gmresRestart` | `200` | `200` | no |
-| `adjEqnOption.gmresMaxIters` | TEST `4000` / CONTROL `2000` | same | no |
-| `adjEqnOption.gmresRelTol` | `1e-4` | `1e-4` | no |
-| `transonicPCOption` | `1` | `1` | no |
-| `normalizeStates` | (baseline dict) | same | no |
+| `adjEqnOption.jacMatReOrdering` | `"natural"` | **`"nd"`** — the genuinely-new lever | **`"natural"`** — UNCHANGED (load-bearing) |
+| `KSPCalcSingularVal` (top-level daOption) | `0` (dump reads `KSPCalcSingularVal 0`) | **`1`** | **`1`** |
+| `adjStateOrdering` | `"cell"` | `"cell"` (held) | `"cell"` (held) |
+| `adjEqnOption.pcFillLevel` | `0` | `0` | `0` |
+| `adjEqnOption.gmresRestart` | `200` | `200` | `200` |
+| `adjEqnOption.gmresMaxIters` | rung-3 `4000` / CONTROL `2000` | same | same (`4000`) |
+| `adjEqnOption.gmresRelTol` | `1e-4` | `1e-4` | `1e-4` |
+| `transonicPCOption` | `1` | `1` | `1` |
+| `normalizeStates` | (baseline dict) | same | same |
+
+The **only** variable between the two rung-3 legs is `jacMatReOrdering: natural (BASELINE_R3) →
+nd (TEST_R3)`; `KSPCalcSingularVal 1` is common to all three legs. That single-variable contrast,
+both under the ONE pinned image, is the arm's §11-clean measurement.
 
 **Required proofs in every leg's log before any number counts (L-40; reuse the triage §4 pattern):**
 1. `transonicPCOption 1;` in the DAOption dump (record logs of the negative control read `2;`).
-2. **`jacMatReOrdering nd;`** in the DAOption dump AND **`Mat ReOrdering: nd`** in the KSP echo
-   (baseline printed `natural` at both — this is the lever's own echo; a leg whose dump still reads
-   `natural` did not apply the lever and its number does not count).
-3. **`KSPCalcSingularVal 1;`** in the DAOption dump (baseline reads `0`).
+2. **The leg's EXACT ordering** in BOTH the DAOption dump (`jacMatReOrdering <ord>;`) AND the KSP
+   echo (`Mat ReOrdering: <ord>`): **`nd`** for CONTROL and TEST_R3 (a leg whose dump still reads
+   `natural` did NOT apply the lever → REFUSE); **`natural`** for BASELINE_R3 (a BASELINE_R3 log
+   reading `nd` is NOT the natural baseline → REFUSE). The grader keys the expected ordering on the
+   leg name (`ND_LEGS = (CONTROL, TEST_R3)`).
+3. **`KSPCalcSingularVal 1;`** in the DAOption dump of **all three** legs (baseline reads `0`).
 4. `adjStateOrdering cell;` in the DAOption dump (unchanged — asserted present to prove no drift).
 5. `ILU PC Fill Level: 0`, `GMRES Restart: 200`, `GMRES Max Iterations: <cap>` in the KSP echo.
 6. **No** sub-LU banner (`DAFOAM_SUBPC_TYPE` unset).
 7. The cold-from-uniform continuity signature of the leg's own mesh, captured at that leg's launch
    and asserted for the leg (per the family's L-40 practice).
 
-The launcher writes a per-leg `lever_echo.txt` **declaring** the intended lever; the solver's own
+The launcher writes a per-leg `lever_echo.txt` **declaring** the intended config; the solver's own
 DAOption dump is what **confirms** it (declaration is never proof — the triage §4 rule).
 
 ---
@@ -164,7 +204,7 @@ From the raw log's residual trace `Main iteration N KSP Residual norm r_N ... s.
 `**Completed**! Total iterations: T. PetscConvergedReason: R. <wall> s`:
 - **CONVERGED** = `PetscConvergedReason == 2` (KSP_CONVERGED_RTOL, i.e. `gmresRelTol 1e-4` reached)
   AND `Total iterations T < cap`, on the graded objective(s). CONTROL requires this on **both** CD
-  and CL; TEST on CD (and CL if the primal reaches it).
+  and CL; BASELINE_R3 and TEST_R3 key on the first (CD) solve.
 - **STAGNATION** = a negative reason (`-3`) at exactly the cap **with a flat tail**: the relative
   residual change over the last `N_TAIL = 1000` iterations `|r_{T-1000} - r_T| / |r_T| < THETA_STAG`,
   with **`THETA_STAG = 1.0e-3`** (frozen). The rung-3 baseline gave `3.79e-07` over its last 2,700
@@ -176,15 +216,28 @@ From the raw log's residual trace `Main iteration N KSP Residual norm r_N ... s.
 - **NOT EVALUABLE** = crash / OOM / memory guard trip before a reason is printed (§6).
 
 ### G-CTRL — the control-validity gate (frozen)
-The CONTROL leg CONVERGED (both CD and CL, `reason 2`, before the `2000` cap). If not, the arm is
-inconclusive → item **NOT A RESULT** ("levers harmful"). Iteration count vs baseline (987/1171) is
+The CONTROL leg CONVERGED (both CD and CL, `reason 2`, before the `2000` cap). If not, `nd` broke a
+converging solve → item **NOT A RESULT** ("nd harmful"). Iteration count vs baseline (987/1171) is
 reported, not gated.
+
+### G-BASE — the baseline-reproduction gate (frozen; the §11-clean-by-measurement gate)
+The BASELINE_R3 leg (rung-3, NATURAL, no `nd`) must **REPRODUCE the `-3` stagnation** — leg state
+`STAGNATION` (a negative reason at the `4000` cap with a flat tail `< THETA_STAG`) — under the arm's
+OWN pinned image. This is what validates the premise and the toolchain: it proves, *under the same
+image the `nd` test uses*, that the rung-3 wall is real and is not an artifact of the (unpreserved)
+historical image. **If BASELINE_R3 does NOT stagnate** (it converges, is budget-limited, or crashes
+/ is not evaluable), the premise is **not validated** → `nd`'s effect on TEST_R3 cannot be
+attributed to conditioning without a confirmed natural baseline under this image → item verdict
+**NOT A RESULT**. This gate is read **before** TEST_R3 is composed (§7).
 
 ### G-DIAG — the condition-number diagnostic (reported measurement, never a gate)
 `sMax/sMin` from `KSPCalcSingularVal 1` at the last non-degenerate Krylov cycle (restart-boundary
-`1./1.=1.` entries excluded, per `A3_NONNORMALITY_DIAGNOSTIC` §... ). Reported for **both** legs and
-compared to the natural-ordering baselines (rung 3: `9.57e+10`; rung 2: `~4.3e+10`–`9.6e+10` band per
-that diagnostic's §... ). **If the solver does not emit a singular-value token to the graded log**
+`1./1.=1.` entries excluded, per `A3_NONNORMALITY_DIAGNOSTIC` §... ). Reported for **all three** legs.
+The **primary** comparator for TEST_R3's `nd` reading is **BASELINE_R3's own in-arm natural reading**
+(same image, same instrument) — that is the §11-clean-by-measurement contrast; the historical
+natural baseline (rung 3: `9.57e+10`; rung 2: `~4.3e+10`–`9.6e+10` band) is the **secondary** check,
+and BASELINE_R3 reproducing ~`9.57e+10` corroborates the toolchain. **If the solver does not emit a
+singular-value token to the graded log**
 (the exact DAFoam print format for `KSPCalcSingularVal 1` has never been observed on disk — every
 prior reading came from the offline `KSPComputeExtremeSingularValues` diagnostic), the value is
 reported **`NOT_MEASURED` and named**, never composed into a verdict. The CONTROL leg's log
@@ -207,39 +260,44 @@ Runs **only if** the TEST adjoint converged. Reuses the A3 family's validated FD
 - Arm FD PASS = every evaluable component PASS with ≥ 2 evaluable.
 
 ### Caps (frozen; rule 12) — see §6 cost table for the derivation
-- CONTROL per-leg cap **45 core-min**; TEST per-leg cap **130 core-min**; FD-leg cap (conditional)
-  **90 core-min**; item ceiling **265 core-min**. A crossing STOPS the leg (overrun stops the run,
-  rule 12) and is a G-CAP GATE FAIL, reported.
+- CONTROL per-leg cap **45 core-min**; BASELINE_R3 per-leg cap **130 core-min**; TEST_R3 per-leg cap
+  **130 core-min**; FD-leg cap (conditional) **90 core-min**; item ceiling **395 core-min** (sum of
+  the per-leg caps — the hard stop; predicted spend ~220, +FD ~60–70 conditional). A crossing STOPS
+  the leg (overrun stops the run, rule 12) and is a G-CAP GATE FAIL, reported.
 
 ---
 
 ## 6. Memory guard and cost (rule 12)
 
-**Memory guard (the constraint most likely to end the TEST leg):** record TEST peak 11.65 GiB (the
-baseline was memory-comfortable). Container cap **`--memory=22g`**, host floor **6 GB** enforced by
-inspection. `nd` reordering changes the fill pattern of ILU(0) only marginally (ILU(0) has fixed
-sparsity ≈ the matrix graph), so a large memory jump is not expected; but the leg **STOPS** if the
-container approaches the cap, host MemAvailable falls below 6 GB, or swap grows. **A memory death is
-NOT a conditioning verdict** (standing precedent) → reported as NOT EVALUABLE / **BLOCKED** with the
-memory numbers, conditioning question left open.
+**Memory guard (the constraint most likely to end the two rung-3 legs):** record rung-3 peak
+11.65 GiB (the baseline was memory-comfortable). Container cap **`--memory=22g` — now DOCKER-ENFORCED**
+(`docker run --memory=22g --memory-swap=22g --oom-score-adj=500`, the D6RF10 pattern), plus a host
+floor **6 GB** by inspection. `nd` reordering changes the fill pattern of ILU(0) only marginally
+(ILU(0) has fixed sparsity ≈ the matrix graph), so a large memory jump is not expected; but the leg
+**STOPS** if the container hits the cap (OOM-kill), host MemAvailable falls below 6 GB, or swap
+grows. **A memory death is NOT a conditioning verdict** (standing precedent) → reported as NOT
+EVALUABLE / **BLOCKED** with the memory numbers, conditioning question left open.
 
 **Cost table (all figures per-leg; core-min = wall_s × ranks ÷ 60; np = 4):**
 
 | leg | basis (measured, on disk) | predicted core-min | cap core-min | incurred when |
 |---|---|---|---|---|
-| CONTROL (rung 2 + levers) | rung-2 converged baseline 452 s = 30.13 core-min (`A3-rung2-n28-tpc1/.t0/.t1`) | **30–40** | 45 | always |
-| TEST (rung 3 + levers) | rung-3 baseline 1426 s = 95.07 core-min (`A3-rung3-n52` ledger) | **95–110** | 130 | always |
-| FD leg (conditional) | A3 family FD arm ~60–70 core-min (`A3_RUNG3_N52_PREREGISTRATION.md` §8 stage-2 basis) | **60–70** | 90 | **only if TEST converges** |
+| CONTROL (rung 2 + `nd`) | rung-2 converged baseline 452 s = 30.13 core-min (`A3-rung2-n28-tpc1/.t0/.t1`) | **~30** (30–40) | 45 | always |
+| BASELINE_R3 (rung 3, natural) | rung-3 baseline 1426 s = 95.07 core-min (`A3-rung3-n52` ledger) | **~95** (95–110) | 130 | always |
+| TEST_R3 (rung 3 + `nd`) | rung-3 baseline 1426 s = 95.07 core-min (`A3-rung3-n52` ledger) | **~95** (95–110) | 130 | always |
+| FD leg (conditional) | A3 family FD arm ~60–70 core-min (`A3_RUNG3_N52_PREREGISTRATION.md` §8 stage-2 basis) | **60–70** | 90 | **only if TEST_R3 converges** |
 
-- **Total if TEST does not converge** (the pessimistic, most-likely path): 30–40 + 95–110 =
-  **125–150 core-min**.
-- **Total if TEST converges and FD runs**: + 60–70 = **185–220 core-min** (item ceiling 265).
+- **Total, three legs always incurred** (the pessimistic, most-likely path where TEST_R3 does not
+  converge): ~30 + ~95 + ~95 = **~220 core-min** (chief-approved ~220; range 155–260).
+- **Total if TEST_R3 converges and FD runs**: + 60–70 = **~280–290 core-min** (item ceiling 395 —
+  the sum of per-leg caps, the hard stop).
 - **Derived $** at the reported-by-owner rate $0.0513/core-h (DERIVED, not measured — the box
-  cannot read its own billing, COMPUTE_BUDGET §5): 150 core-min → 2.5 core-h → **$0.128**; 220
-  core-min → 3.67 core-h → **$0.188**. Both far under the $25/run pre-authorization.
-- **Note on the brief's 15–25 core-min control estimate:** it undershoots. That figure came from the
-  **collapsed** stage-0 arm (200 iters, 238 s, 15.9 core-min). A control that genuinely CONVERGES
-  must run its full ~987–1171 iterations ≈ 452 s ≈ **30.13 core-min** (measured). Registered at 30–40.
+  cannot read its own billing, COMPUTE_BUDGET §5): 220 core-min → 3.67 core-h → **$0.188**; 290
+  core-min → 4.83 core-h → **$0.248**. Both far under the $25/run pre-authorization.
+- **The added leg vs the prior 2-leg draft:** the self-contained arm costs one extra rung-3 leg
+  (BASELINE_R3, ~95 core-min) over the prior 2-leg design — the price of §11-cleanliness by
+  measurement (a fresh natural baseline under the pinned image) rather than by argument. Chief
+  approved ~220 core-min for this 3-leg arm.
 - **Estimate-vs-actual calibration (rule 12):** on completion the team appends a row to
   `docs/COST_CALIBRATION.md` — ratio actual/predicted per leg, gap attributed (contention / waste /
   misprediction, waste named separately), dollars derived and labelled derived.
@@ -253,18 +311,20 @@ Read in order; the first matching row is the item verdict.
 | condition | item verdict | content reported beside it |
 |---|---|---|
 | CONTROL memory death / crash before a reason | **BLOCKED** | memory numbers; conditioning question open |
-| CONTROL does not converge (any negative reason / collapse) | **NOT A RESULT** | "levers harmful"; the arm cannot attribute a test stagnation to conditioning (stage-0 precedent) |
-| CONTROL converged; TEST memory death / crash before a reason | **BLOCKED** | memory numbers; TEST `sMax/sMin` if emitted |
-| CONTROL converged; TEST `-3` at cap, **budget-limited** (tail still descending) | **NOT A RESULT** | cap too small to decide; residual trend; recommend a re-cap arm |
-| CONTROL converged; TEST **STAGNATION** (`-3` at cap, flat tail `< THETA_STAG`), memory comfortable | **GATE FAIL** (on G-CONV) | **the measured conditioning finding**: `sMax/sMin` under `nd` vs baseline `9.57e+10`; iteration count; flat-tail numbers. Levers exhausted on-box. NOT a hidden failure. |
-| CONTROL converged; TEST converged; FD leg **not yet run** | **PENDING** (FD owed) | `PENDING: <FD run path>`; never reported as PASS |
-| CONTROL converged; TEST converged; FD leg run, FD **fails band or sign flip** | **GATE FAIL** (on G-FD, the bright line) | the FD table; the failing component(s) |
-| CONTROL converged; TEST converged; FD leg run, FD **passes** (≥2 evaluable, all PASS, band E ≤ 5%) | **PASS** | the FD table; a new verified rung on the A3 ladder |
+| CONTROL does not converge (any negative reason / collapse) | **NOT A RESULT** | "nd harmful" — it breaks a converging solve; the arm cannot attribute a rung-3 stagnation to conditioning (stage-0 precedent) |
+| CONTROL converged; **BASELINE_R3 does NOT reproduce the `-3` stagnation** (converges, budget-limited, crash / not-evaluable) | **NOT A RESULT** | the premise/toolchain is **not validated** — `nd`'s effect cannot be attributed without a confirmed natural baseline under this image; BASELINE_R3 leg state + `sMax/sMin` if emitted |
+| CONTROL converged; BASELINE_R3 STAGNATION (`-3`, flat tail); TEST_R3 memory death / crash before a reason | **BLOCKED** | memory numbers; TEST_R3 `sMax/sMin` if emitted |
+| CONTROL converged; BASELINE_R3 STAGNATION; TEST_R3 `-3` at cap, **budget-limited** (tail still descending) | **NOT A RESULT** | cap too small to decide; residual trend; recommend a re-cap arm |
+| CONTROL converged; BASELINE_R3 STAGNATION; TEST_R3 **STAGNATION** (`-3` at cap, flat tail `< THETA_STAG`), memory comfortable | **GATE FAIL** (on G-CONV) | **the measured conditioning finding**: TEST_R3 `sMax/sMin` under `nd` vs **BASELINE_R3's in-arm natural** reading (primary) and historical `9.57e+10` (secondary); iteration count; flat-tail numbers. **"Free conditioning exhausted: `nd` does not clear the rung-3 wall, MEASURED under a §11-clean self-contained baseline."** NOT a hidden failure. |
+| CONTROL converged; BASELINE_R3 STAGNATION; TEST_R3 converged; FD leg **not yet run** | **PENDING** (FD owed) | `PENDING: <FD run path>`; never reported as PASS |
+| CONTROL converged; BASELINE_R3 STAGNATION; TEST_R3 converged; FD leg run, FD **fails band or sign flip** | **GATE FAIL** (on G-FD, the bright line) | the FD table; the failing component(s) |
+| CONTROL converged; BASELINE_R3 STAGNATION; TEST_R3 converged; FD leg run, FD **passes** (≥2 evaluable, all PASS, band E ≤ 5%) | **PASS** | the FD table; a new verified rung on the A3 ladder |
 | any G-CAP crossing | folds to **GATE FAIL** unless a higher NOT A RESULT / BLOCKED row already fired | the core-min overrun |
 
-`KSPCalcSingularVal` reading (G-DIAG) is REPORTED in every non-BLOCKED outcome; it characterizes the
-mechanism regardless of the verdict, and its comparison to `9.57e+10` is the arm's durable deliverable
-even on a GATE FAIL.
+Rows are read **in order**; the first match is the item verdict (the grader's `compose_item`
+implements exactly this order). `KSPCalcSingularVal` reading (G-DIAG) is REPORTED in every
+non-BLOCKED outcome for all three legs; the TEST_R3-vs-BASELINE_R3 in-arm natural contrast is the
+arm's durable deliverable even on a GATE FAIL.
 
 ---
 
@@ -284,11 +344,12 @@ distinct solver path shown to run cleanly once on disk — is met in the arm's o
 the pre-flight evidence of record:
 
 1. **Deadline sizing (measured + 1.25× margin):**
-   - TEST deadline `CEIL_TEST = 1426 s × 1.25 = 1782.5 s → 1800 s`, sized from the measured rung-3
-     baseline wall 1426 s at 4000 iters (`A3-rung3-n52` ledger `.t0`/`.t1`, on disk). n sampled = 4000
-     iterations — a measurement, not a two-step guess.
-   - CONTROL deadline `CEIL_CTRL = 452 s × 1.25 = 565 s → 600 s`, sized from the measured rung-2
-     converged baseline wall 452 s (`A3-rung2-n28-tpc1/.t0/.t1`, on disk).
+   - BASELINE_R3 and TEST_R3 deadline `1426 s × 1.25 = 1782.5 s → 1800 s`, sized from the measured
+     rung-3 baseline wall 1426 s at 4000 iters (`A3-rung3-n52` ledger `.t0`/`.t1`, on disk). n
+     sampled = 4000 iterations — a measurement, not a two-step guess. (Both rung-3 legs share the
+     source, the path and the deadline.)
+   - CONTROL deadline `452 s × 1.25 = 565 s → 600 s`, sized from the measured rung-2 converged
+     baseline wall 452 s (`A3-rung2-n28-tpc1/.t0/.t1`, on disk).
 2. **Distinct solver-path coverage (cleanly exercised once, on disk):** the path
    `DARhoSimpleCFoam | compute_totals | np=4 | decomposePar` is the SAME path that ran rungs 1, 2 and
    3 to completion (rung 2 rc=0, `A3-rung2-n28-tpc1/.rc`; rung 1 PASS). It has demonstrably reached its
@@ -297,27 +358,36 @@ the pre-flight evidence of record:
    set (`nd` and `KSPCalcSingularVal` are adjoint-linear-solver options, downstream of decomposition).
 3. **Instrument-format pre-flight (specific to this arm):** the CONTROL leg's converging log
    establishes the `KSPCalcSingularVal 1` print-token format. The grader's `sMax/sMin` regex
-   (`G-DIAG`) is confirmed to match the CONTROL log **before** the TEST leg is graded; if the token is
-   absent, `G-DIAG` is `NOT_MEASURED` and named (§5), never fabricated.
+   (`G-DIAG`) is confirmed to match the CONTROL log **before** the rung-3 legs (BASELINE_R3, TEST_R3)
+   are graded; if the token is absent, `G-DIAG` is `NOT_MEASURED` and named (§5), never fabricated.
 
-A `LADDER_PREFLIGHT.json` manifest keyed on the real path (smoke pointed at the clean rung-2 log) is
-provided in this dir (`LADDER_PREFLIGHT.json`) **for the supervisor to run through the checker at
-their discretion**, with the KSP-iterations-as-steps mapping disclosed in its own `_note` field. The
-supervisor decides at freeze whether to require the checker to pass or to accept the in-arm evidence
-above (which is the recommendation).
+A `LADDER_PREFLIGHT.json` manifest with **all three rungs** (CONTROL smoke → clean rung-2
+compute_totals log; BASELINE_R3 + TEST_R3 smoke → the rung-3 baseline stage-1 log; all one distinct
+path `DARhoSimpleCFoam|scotch|4`) is provided in this dir, the KSP-iterations-as-steps mapping
+disclosed in its own `_note` field. **Run through the checker by this lane, result verbatim:**
+`PASS: ladder A3FL1 pre-flight complete (3 rungs, 1 distinct paths)` — `EXIT=0`
+(`python3 scripts/check_ladder_preflight.py <this dir>/LADDER_PREFLIGHT.json`). Every rung's deadline
+is arithmetically consistent with its measured sample and carries the 1.25× margin; the single
+distinct path is covered by a passing smoke. The supervisor confirms at freeze; the in-arm evidence
+above stands as the primary record.
 
 ---
 
 ## 9. §2ba — the launcher, the G-FREEZE gate, and the detached autograder
 
-- **Launcher** `a3fl1_launcher.sh`: stages each leg (copy the pinned baseline runScript, apply the §4
-  delta, `decomposePar -force` from a pristine serial `0/`, write `lever_echo.txt`), then launches
-  under `setsid` with the §6 memory cap and the §8 deadline, capturing rc **inside** the detached
-  wrapper (never around the `setsid` line — the `setsid`-parent-returns-zero trap). It carries a
-  **G-FREEZE gate**: it reads this file's `PERMISSION:` line and **REFUSES to launch** unless it reads
-  `FROZEN`; while this draft reads `NOT_FROZEN` the launcher exits non-zero without staging anything.
-  It also verifies the grader md5 and baseline-runScript md5s against the pins below and refuses on
-  drift.
+- **Launcher** `a3fl1_launcher.sh`: stages each of the **three** legs (copy the pinned baseline
+  runScript; apply the leg's §4 delta — `apply_delta` (`nd`) for CONTROL and TEST_R3,
+  `apply_delta_baseline` (natural + `KSPCalcSingularVal` only) for BASELINE_R3; write a per-leg
+  `lever_echo.txt` naming the exact config), then runs each leg **inside a DAFoam Docker container**
+  under the ONE pinned image (`docker run -d`, `--memory=22g` DOCKER-enforced, `timeout -k` deadline
+  inside the container, rc from `docker inspect .State.ExitCode` — never `$?` of a setsid/timeout
+  line). The three legs run **sequentially in the detached orchestrator's foreground** (CONTROL →
+  BASELINE_R3 → TEST_R3); `A3FL1_LADDER_DONE` is written **only after all three finish**. It carries
+  a **G-FREEZE gate**: it reads this file's `PERMISSION:` line and **REFUSES to launch** unless it
+  reads `FROZEN`; while this draft reads `NOT_FROZEN` the launcher exits non-zero without staging
+  anything. It also verifies the grader md5, both baseline-runScript md5s, and the **§11 image
+  digest** (`IMG`/`IMG_DIGEST`, one image for all three legs) against the pins below and refuses on
+  any drift.
 - **Detached autograder** `a3fl1_autograde.sh` (mirrors `d6rf10_autograde.sh`): runs under `setsid`
   (PPID=1), polls the run-root ledger for the `A3FL1_LADDER_DONE` marker (CEIL sized to the arm's wall
   + margin), md5-verifies the frozen grader and REFUSES (exit 2) on drift, grades each leg log with the
@@ -328,8 +398,15 @@ above (which is the recommendation).
 - This file's committed blob sha: `<SET AT FREEZE>` (the grading path is fixed at the commit, rule 2).
 - Grader `a3fl1_grade.py` md5: `<SET AT FREEZE>` — the launcher and autograder both pin this; the
   md5-drift limb REFUSES while it is the placeholder, so nothing grades with an unpinned instrument.
-- Baseline runScript md5s (real, pinned now): TEST `1ec70293a56a2cf5a30a889a96832c06`,
-  CONTROL `edc9e14be7297a442e16f43fdda94fcc`.
+- **§11 toolchain image (ONE image, all three legs)** — `IMG` = `dafoam-subpclu:v1`, `IMG_DIGEST` =
+  `sha256:ba2d16ab9d575ed3167abe31344aa58fb42fef1a8b27db60baeb505ab9413517` (MEASURED as the
+  rung-1/rung-2 ladder image; present on host). Both fields are `<SET_AT_FREEZE>` /
+  `<PLACEHOLDER_AT_FREEZE>` placeholders in the launcher; the digest-verify gate REFUSES until the
+  supervisor pins them and reads the host image's real digest, refusing on drift. (Because the arm is
+  self-contained — its own natural baseline under this image — the unpreserved historical rung-3
+  image is irrelevant; §11 holds under this ONE pinned image.)
+- Baseline runScript md5s (real, pinned now): rung-3 (BASELINE_R3 + TEST_R3)
+  `1ec70293a56a2cf5a30a889a96832c06`, CONTROL `edc9e14be7297a442e16f43fdda94fcc`.
 
 ---
 

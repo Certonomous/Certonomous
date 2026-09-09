@@ -1,16 +1,31 @@
 #!/usr/bin/env python3
-"""A3FL1 COMPARATOR -- the free-conditioning-levers arm (jacMatReOrdering:nd +
-KSPCalcSingularVal:1) for the ONERA-M6 rung-3 `-3` adjoint stagnation.  DRAFT -- FROZEN by
-md5 in A3FL1_PREREGISTRATION.md section 9 by the dafoam-supervisor at check-1.  Computes
-nothing about physics; renders verdicts from the FIXED vocabulary ONLY
-(PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING).
+"""A3FL1 COMPARATOR -- the SELF-CONTAINED free-conditioning-levers arm
+(jacMatReOrdering:nd + KSPCalcSingularVal:1) for the ONERA-M6 rung-3 `-3` adjoint
+stagnation.  DRAFT -- FROZEN by md5 in A3FL1_PREREGISTRATION.md section 9 by the
+dafoam-supervisor at check-1.  Computes nothing about physics; renders verdicts from
+the FIXED vocabulary ONLY (PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED /
+PENDING).
+
+THREE LEGS, ALL under the ONE pinned image dafoam-subpclu:v1 (sha256:ba2d16ab...):
+  CONTROL      = rung-2 (converging baseline) + nd + KSPCalcSingularVal 1.  Does `nd`
+                BREAK a converging solve?  Must still CONVERGE.
+  BASELINE_R3  = rung-3, NATURAL ordering UNCHANGED (NO nd) + KSPCalcSingularVal 1.
+                REPRODUCES the `-3` stagnation under the arm's OWN pinned image -- the
+                fresh natural reference that makes the arm section-11-clean BY
+                MEASUREMENT (the historical rung-3 image was not preserved; a measured
+                in-arm natural baseline replaces the un-pinnable historical one).
+                Expected: STAGNATION.
+  TEST_R3      = rung-3 + nd + KSPCalcSingularVal 1.  Does `nd` clear the stagnation?
 
 WHAT IT GRADES (A3FL1_PREREGISTRATION.md sections 4/5/7):
-  PROOFS  per leg log, before any number counts (L-40): the DAOption dump must read
-          `jacMatReOrdering nd;` AND the KSP echo `Mat ReOrdering: nd` (the lever's own echo;
-          a leg still reading `natural` did NOT apply the lever -> REFUSE), `KSPCalcSingularVal 1;`
-          (baseline 0 -> REFUSE if 0), `transonicPCOption 1;`, `adjStateOrdering cell;`,
-          `ILU PC Fill Level: 0`, `GMRES Restart: 200`, no sub-LU banner.  Any missing -> REFUSE.
+  PROOFS  per leg log, before any number counts (L-40): the DAOption dump + KSP echo
+          must read the leg's EXACT ordering -- `nd` for CONTROL and TEST_R3 (dump
+          `jacMatReOrdering nd;` AND echo `Mat ReOrdering: nd`; a leg still reading
+          `natural` did NOT apply the lever -> REFUSE), and `natural` for BASELINE_R3
+          (the baseline config UNCHANGED; a BASELINE_R3 log reading `nd` is not the
+          natural baseline -> REFUSE).  ALL legs: `KSPCalcSingularVal 1;` (baseline 0
+          -> REFUSE if 0), `transonicPCOption 1;`, `adjStateOrdering cell;`, `ILU PC
+          Fill Level: 0`, `GMRES Restart: 200`, no sub-LU banner.  Any missing -> REFUSE.
   G-CONV  the convergence gate.  From the terminal `**Completed**! Total iterations: T.
           PetscConvergedReason: R. <wall> s` and the residual trace `Main iteration N KSP
           Residual norm r_N`:
@@ -20,21 +35,30 @@ WHAT IT GRADES (A3FL1_PREREGISTRATION.md sections 4/5/7):
             BUDGET_LIMITED= R < 0 at the cap but the tail is still descending (>= THETA_STAG,
                             monotone) -- NOT a stagnation verdict.
             NOT_EVALUABLE = no terminal reason (crash/OOM before a reason).
-  G-CTRL  the control leg CONVERGED on BOTH CD and CL (reason 2, below cap) -> VALID, else the
-          arm is inconclusive ("levers harmful").
+  G-CTRL  the control leg CONVERGED on BOTH CD and CL (reason 2, below cap) -> VALID, else
+          `nd` is harmful and the arm is inconclusive.
+  G-BASE  BASELINE_R3 REPRODUCES the `-3` stagnation (leg STAGNATION) under the pinned
+          image -> the premise/toolchain is validated; anything else (converges, budget-
+          limited, crash) -> the premise is NOT validated and nd's effect cannot be
+          attributed -> NOT A RESULT.
   G-DIAG  sMax/sMin from KSPCalcSingularVal (reported measurement, never a gate); NOT_MEASURED
           and named if the solver emits no singular-value token (the print format has never
-          been observed on disk).
-  G-FD    the bright line (DAFOAM_CHARTER section 2), CONDITIONAL on TEST convergence: an
+          been observed on disk).  The IN-ARM natural reading (BASELINE_R3) is the primary
+          comparator for TEST_R3's nd reading; the historical 9.57e+10 is the secondary check.
+  G-FD    the bright line (DAFOAM_CHARTER section 2), CONDITIONAL on TEST_R3 convergence: an
           endpoint FD table, per-component band D (<= 5 %, same sign; a sign flip is GATE FAIL),
           aggregate band E (<= 5 %), plateau (middle step vs a neighbour <= 10 %), >= MIN_GRADED
           evaluable.  Reuses d8r_grade.py's band machinery and planted controls.
 
 ITEM verdict (section 7 map, read in order): CONTROL not-evaluable -> BLOCKED; CONTROL not
-  converged -> NOT A RESULT; TEST not-evaluable -> BLOCKED; TEST budget-limited -> NOT A RESULT;
-  TEST stagnation -> GATE FAIL (with the sMax/sMin conditioning finding beside it); TEST
-  converged + no FD yet -> PENDING; TEST converged + FD fail/flip -> GATE FAIL; TEST converged +
-  FD pass -> PASS.  A G-CAP crossing folds to GATE FAIL unless a higher row already fired.
+  converged -> NOT A RESULT (nd harmful); BASELINE_R3 does NOT reproduce the stagnation
+  (converges / budget-limited / crash / not-evaluable) -> NOT A RESULT (toolchain/premise not
+  validated); [CONTROL converged AND BASELINE_R3 stagnates:] TEST_R3 not-evaluable -> BLOCKED;
+  TEST_R3 budget-limited -> NOT A RESULT; TEST_R3 stagnation -> GATE FAIL (with the sMax/sMin
+  conditioning finding + "free conditioning exhausted: nd does not clear the rung-3 wall,
+  MEASURED under a section-11-clean self-contained baseline"); TEST_R3 converged + no FD yet ->
+  PENDING; TEST_R3 converged + FD fail/flip -> GATE FAIL; TEST_R3 converged + FD pass -> PASS.
+  A G-CAP crossing folds to GATE FAIL unless a higher row already fired.
 
 PLANTED CONTROLS (rule 3): (i) a fixture converging trace and a fixture stagnant trace are read
 back and the grade REFUSES if G-CONV cannot tell them apart; (ii) each FD table is re-read with
@@ -54,11 +78,15 @@ import time
 
 # ---- REGISTERED CONSTANTS (A3FL1_PREREGISTRATION.md; the document governs) ----------
 ITEM = "A3FL1"
-LEGS = ("CONTROL", "TEST")
-CAP_ITERS = {"CONTROL": 2000, "TEST": 4000}          # gmresMaxIters per leg (section 4)
-CAP_CORE_MIN = {"CONTROL": 45.0, "TEST": 130.0, "FD": 90.0}   # section 5/6
-ITEM_CEILING_CORE_MIN = 265.0
-BASELINE_SMAX_OVER_SMIN = {"TEST": 9.57e10, "CONTROL": None}  # natural-ordering baseline (PRIOR_WORK 119-120)
+LEGS = ("CONTROL", "BASELINE_R3", "TEST_R3")
+# legs that apply the nd lever (their dump/echo MUST read nd); BASELINE_R3 stays natural.
+ND_LEGS = ("CONTROL", "TEST_R3")
+CAP_ITERS = {"CONTROL": 2000, "BASELINE_R3": 4000, "TEST_R3": 4000}   # gmresMaxIters per leg (section 4)
+CAP_CORE_MIN = {"CONTROL": 45.0, "BASELINE_R3": 130.0, "TEST_R3": 130.0, "FD": 90.0}   # section 5/6
+ITEM_CEILING_CORE_MIN = 395.0        # sum of per-leg caps (hard stop); predicted spend ~220 (+FD ~60-70)
+# natural-ordering baseline ratio (PRIOR_WORK 119-120).  In THIS self-contained arm the IN-ARM
+# natural reading is BASELINE_R3's own G-DIAG; the historical 9.57e+10 is the secondary check.
+BASELINE_SMAX_OVER_SMIN = {"TEST_R3": 9.57e10, "BASELINE_R3": 9.57e10, "CONTROL": None}
 N_TAIL = 1000                    # section 5: relative residual change over the last N_TAIL iters
 THETA_STAG = 1.0e-3              # section 5: below this over N_TAIL = flat = STAGNATION
 CONVERGED_REASON = 2            # KSP_CONVERGED_RTOL (gmresRelTol reached)
@@ -158,9 +186,13 @@ def check_proofs(leg, parsed):
     d = parsed["dump"]
     if d["transonicPCOption"] != "1":
         refuse("PROOF", {"leg": leg, "transonicPCOption": d["transonicPCOption"], "want": "1"})
-    if d["jacMatReOrdering"] != "nd" or d["Mat ReOrdering"] != "nd":
+    # ORDERING is leg-specific: nd for CONTROL/TEST_R3, natural for BASELINE_R3 (baseline unchanged).
+    want_ord = "nd" if leg in ND_LEGS else "natural"
+    if d["jacMatReOrdering"] != want_ord or d["Mat ReOrdering"] != want_ord:
+        note = ("the nd lever's own echo is absent; the leg did not apply the lever" if leg in ND_LEGS
+                else "BASELINE_R3 must stay NATURAL (baseline config unchanged); this log reads a different ordering")
         refuse("PROOF", {"leg": leg, "jacMatReOrdering": d["jacMatReOrdering"], "Mat ReOrdering": d["Mat ReOrdering"],
-                         "note": "the nd lever's own echo is absent; the leg did not apply the lever"})
+                         "want": want_ord, "note": note})
     if d["KSPCalcSingularVal"] != "1":
         refuse("PROOF", {"leg": leg, "KSPCalcSingularVal": d["KSPCalcSingularVal"], "want": "1"})
     if d["adjStateOrdering"] != "cell":
@@ -171,7 +203,7 @@ def check_proofs(leg, parsed):
         refuse("PROOF", {"leg": leg, "GMRES Restart": d["GMRES Restart"], "want": "200"})
     if RE_SUBLU.search("".join("%s %s" % kv for kv in d.items()) or ""):
         refuse("PROOF", {"leg": leg, "note": "sub-LU banner present; env must be unset"})
-    return {"proofs_seen": True, "dump": d}
+    return {"proofs_seen": True, "ordering_expected": want_ord, "dump": d}
 
 
 # ================= G-CONV: the convergence gate =======================================
@@ -208,7 +240,8 @@ def g_conv_one(leg, T, reason, segment):
 
 
 def g_conv_leg(leg, parsed):
-    """CONTROL requires all solves CONVERGED; TEST keys on the first (CD) solve."""
+    """CONTROL requires BOTH solves CONVERGED; BASELINE_R3 and TEST_R3 key on the first
+    (CD) solve."""
     terms, segs = parsed["terminals"], parsed["segments"]
     if not terms:
         return {"leg": leg, "leg_state": "NOT_EVALUABLE", "solves": [], "note": "no terminal reason (crash/OOM before a reason)"}
@@ -226,7 +259,7 @@ def g_conv_leg(leg, parsed):
             leg_state = "NOT_EVALUABLE"
         else:
             leg_state = "NOT_CONVERGED"
-    else:  # TEST keys on CD (first solve)
+    else:  # BASELINE_R3 and TEST_R3 key on CD (first solve)
         leg_state = solves[0]["state"]
     return {"leg": leg, "leg_state": leg_state, "solves": solves}
 
@@ -356,29 +389,41 @@ def grade_fd(F):
 
 
 # ================= item composition (section 7 map) ===================================
-def compose_item(control, test, fd):
-    """control/test are g_conv_leg outputs; fd is grade_fd output or None."""
-    cs, ts = control["leg_state"], test["leg_state"]
+def compose_item(control, baseline, test, fd):
+    """control/baseline/test are g_conv_leg outputs; fd is grade_fd output or None.
+    Read in order; the first matching row is the item verdict (prereg section 7)."""
+    cs = control["leg_state"]
+    bs = baseline["leg_state"]
+    ts = test["leg_state"]
+    # ---- CONTROL: does nd break a converging solve? --------------------------------
     if cs == "NOT_EVALUABLE":
         return "BLOCKED", "CONTROL not evaluable (crash/OOM/memory before a reason)"
     if cs != "CONVERGED":
-        return "NOT A RESULT", "CONTROL did not converge -> levers harmful; arm inconclusive"
+        return "NOT A RESULT", "CONTROL did not converge -> nd is harmful (breaks a converging solve); arm inconclusive"
+    # ---- BASELINE_R3: is the -3 stagnation reproduced under THIS pinned image? ------
+    if bs != "STAGNATION":
+        return "NOT A RESULT", ("BASELINE_R3 did NOT reproduce the rung-3 -3 stagnation under the pinned "
+                                "image (leg_state=%s) -> premise/toolchain NOT validated; nd's effect cannot "
+                                "be attributed without a confirmed natural baseline under this image" % bs)
+    # ---- CONTROL converged AND BASELINE_R3 stagnates: attribute nd's effect --------
     if ts == "NOT_EVALUABLE":
-        return "BLOCKED", "TEST not evaluable (crash/OOM/memory before a reason)"
+        return "BLOCKED", "TEST_R3 not evaluable (crash/OOM/memory before a reason)"
     if ts == "BUDGET_LIMITED":
-        return "NOT A RESULT", "TEST -3 at cap but still descending: budget-limited, cap too small to decide"
+        return "NOT A RESULT", "TEST_R3 -3 at cap but still descending: budget-limited, cap too small to decide"
     if ts == "DIVERGED_NOT_CAP":
-        return "NOT A RESULT", "TEST negative reason but not at the cap: not a clean conditioning read"
+        return "NOT A RESULT", "TEST_R3 negative reason but not at the cap: not a clean conditioning read"
     if ts == "STAGNATION":
-        return "GATE FAIL", "TEST stagnation (flat -3 at cap, memory comfortable): levers did NOT clear it; conditioning finding reported"
+        return "GATE FAIL", ("TEST_R3 stagnation (flat -3 at cap, memory comfortable): free conditioning "
+                             "exhausted -- nd does NOT clear the rung-3 wall, MEASURED under a section-11-clean "
+                             "self-contained baseline; conditioning finding (sMax/sMin) reported beside it")
     if ts == "CONVERGED":
         if fd is None:
-            return "PENDING", "TEST converged; FD-verification leg owed (bright line, DAFOAM_CHARTER section 2)"
+            return "PENDING", "TEST_R3 converged; FD-verification leg owed (bright line, DAFOAM_CHARTER section 2)"
         if fd["verdict"] == "PASS":
-            return "PASS", "TEST converged AND FD table passes the band: a new verified A3 rung"
+            return "PASS", "TEST_R3 converged AND FD table passes the band: a new verified A3 rung"
         if fd["verdict"] == "GATE FAIL":
-            return "GATE FAIL", "TEST converged but FD table fails band/sign (bright line)"
-        return "NOT A RESULT", "TEST converged but FD leg not evaluable (fewer than MIN_GRADED)"
+            return "GATE FAIL", "TEST_R3 converged but FD table fails band/sign (bright line)"
+        return "NOT A RESULT", "TEST_R3 converged but FD leg not evaluable (fewer than MIN_GRADED)"
     return "NOT A RESULT", "unmapped test state %s" % ts
 
 
@@ -387,13 +432,13 @@ def grade_leg(logpath, leg, fd_json=None, run_base=None):
     if leg not in LEGS:
         refuse("ARG", {"leg": leg, "want": list(LEGS)})
     text = open(logpath, errors="replace").read()
-    proofs = check_proofs(leg, parse_log(text))
     parsed = parse_log(text)
+    proofs = check_proofs(leg, parsed)
     conv = g_conv_leg(leg, parsed)
     diag = g_diag(leg, parsed)
     out = {"item": "CURRICULUM-%s" % ITEM, "leg": leg, "log": logpath, "proofs": proofs,
            "G_CONV": conv, "G_DIAG": diag}
-    if leg == "TEST" and fd_json and os.path.isfile(fd_json):
+    if leg == "TEST_R3" and fd_json and os.path.isfile(fd_json):
         F = read_F(fd_json)
         controls = {"instrument_ctrl": ctrl_control(F),
                     "grader_plant": grader_plant_control(run_base or os.path.dirname(fd_json), fd_json)}
@@ -403,7 +448,7 @@ def grade_leg(logpath, leg, fd_json=None, run_base=None):
 
 
 # ================= selftest: planted fixtures =========================================
-EXPECTED_UNITS = 26
+EXPECTED_UNITS = 36
 
 
 def _dump_block(jac="nd", sv="1", state_ord="cell", tpc="1", mat="nd", fill="0", restart="200", maxit="4000"):
@@ -427,6 +472,18 @@ def _trace(start_r, n, per100_factor, cap, reason, singular=None):
     if singular:
         sv_line = "Extreme singular values: max = %.6e ; min = %.6e\n" % singular
     return "\n".join(lines) + "\n" + sv_line + term
+
+
+def _flat_stag_trace(cap, reason, singular):
+    """A genuinely flat -3-at-cap tail (STAGNATION): residual decays early, flat by ~1500."""
+    lines, it = [], 0
+    while it <= cap:
+        rr = 1.615246e-2 + (2.121343e-2 - 1.615246e-2) * math.exp(-it / 150.0)
+        lines.append("Main iteration %d KSP Residual norm %.12e %.2f s. " % (it, rr, it * 0.35))
+        it += 100
+    sv_line = "Extreme singular values: max = %.6e ; min = %.6e\n" % singular
+    return "\n".join(lines) + "\n" + sv_line \
+        + "**Completed**! Total iterations: %d. PetscConvergedReason: %d. 1416 s\n" % (cap, reason)
 
 
 def _fd_json(path, errs=None, flip=None, noplateau=None, ctrl_ok=True):
@@ -465,109 +522,135 @@ def selftest(tmp):
             fails.append(name)
         print("  [%s] %s" % ("OK " if cond else "BAD", name))
 
-    os.makedirs(tmp, exist_ok=True)
-    # ---- CONTROL converged (two solves reason 2, below cap) ----
-    ctrl_log = _dump_block(maxit="2000") + _trace(1.0, 900, 0.5, 2000, 2) + "\n" + _trace(1.0, 1100, 0.5, 2000, 2)
-    p = os.path.join(tmp, "control.log"); open(p, "w").write(ctrl_log)
-    r = grade_leg(p, "CONTROL")
-    unit("U1 CONTROL two solves reason 2 below cap -> leg CONVERGED", r["G_CONV"]["leg_state"] == "CONVERGED")
-    unit("U2 CONTROL solves classified CONVERGED each", all(s["state"] == "CONVERGED" for s in r["G_CONV"]["solves"][:2]))
-    # ---- CONTROL collapse (reason -5) ----
-    coll = _dump_block(maxit="2000") + _trace(1.0, 200, 1.0, 2000, -5)
-    p = os.path.join(tmp, "control_collapse.log"); open(p, "w").write(coll)
-    r = grade_leg(p, "CONTROL")
-    unit("U3 CONTROL single -5 (not 2 solves) -> NOT_CONVERGED or NOT_EVALUABLE",
-         r["G_CONV"]["leg_state"] in ("NOT_CONVERGED", "NOT_EVALUABLE"))
-    # ---- TEST stagnation: -3 at cap 4000, flat tail ----
-    flat = _dump_block() + _trace(2.121e-2, 4000, 1.0000001, 4000, -3, singular=(9.6e10, 1.0))
-    # force a genuinely flat tail: overwrite with near-constant residuals
-    lines = []
-    it = 0
-    while it <= 4000:
-        rr = 1.615246e-2 + (2.121343e-2 - 1.615246e-2) * math.exp(-it / 150.0)  # decays early, flat by 1500
-        lines.append("Main iteration %d KSP Residual norm %.12e %.2f s. " % (it, rr, it * 0.35))
-        it += 100
-    flat = _dump_block() + "\n".join(lines) + "\nExtreme singular values: max = 9.600000e+10 ; min = 1.000000e+00\n" \
-        + "**Completed**! Total iterations: 4000. PetscConvergedReason: -3. 1416 s\n"
-    p = os.path.join(tmp, "test_stag.log"); open(p, "w").write(flat)
-    r = grade_leg(p, "TEST")
-    unit("U4 TEST -3 at cap with flat tail -> STAGNATION", r["G_CONV"]["leg_state"] == "STAGNATION")
-    unit("U5 TEST stagnation tail_rel_change < THETA_STAG", r["G_CONV"]["solves"][0]["tail_rel_change"] < THETA_STAG)
-    unit("U6 TEST singular value parsed (sMax/sMin)", r["G_DIAG"].get("ratio") is not None and abs(r["G_DIAG"]["ratio"] - 9.6e10) < 1e6)
-    # ---- TEST budget-limited: -3 at cap, still descending ----
-    lines, it = [], 0
-    while it <= 4000:
-        rr = 1.0 * (0.999 ** (it / 100.0))  # steadily descending ~0.1%/100 iters -> > THETA_STAG over 1000
-        lines.append("Main iteration %d KSP Residual norm %.12e %.2f s. " % (it, rr, it * 0.35))
-        it += 100
-    budg = _dump_block() + "\n".join(lines) + "\n**Completed**! Total iterations: 4000. PetscConvergedReason: -3. 1416 s\n"
-    p = os.path.join(tmp, "test_budget.log"); open(p, "w").write(budg)
-    r = grade_leg(p, "TEST")
-    unit("U7 TEST -3 at cap still descending -> BUDGET_LIMITED", r["G_CONV"]["leg_state"] == "BUDGET_LIMITED")
-    # ---- TEST converged ----
-    convlog = _dump_block() + _trace(1.0, 1500, 0.5, 4000, 2)
-    p = os.path.join(tmp, "test_conv.log"); open(p, "w").write(convlog)
-    r = grade_leg(p, "TEST")
-    unit("U8 TEST reason 2 below cap -> CONVERGED", r["G_CONV"]["leg_state"] == "CONVERGED")
-    # ---- PROOF refusals ----
-
     def refused(fn):
         try:
             fn(); return False
         except Refusal:
             return True
+
+    os.makedirs(tmp, exist_ok=True)
+
+    # ============ CONTROL (rung-2, nd) ============================================
+    ctrl_log = _dump_block(maxit="2000") + _trace(1.0, 900, 0.5, 2000, 2) + "\n" + _trace(1.0, 1100, 0.5, 2000, 2)
+    p = os.path.join(tmp, "control.log"); open(p, "w").write(ctrl_log)
+    r = grade_leg(p, "CONTROL")
+    unit("U1 CONTROL (nd) two solves reason 2 below cap -> leg CONVERGED", r["G_CONV"]["leg_state"] == "CONVERGED")
+    unit("U2 CONTROL solves classified CONVERGED each", all(s["state"] == "CONVERGED" for s in r["G_CONV"]["solves"][:2]))
+    coll = _dump_block(maxit="2000") + _trace(1.0, 200, 1.0, 2000, -5)
+    p = os.path.join(tmp, "control_collapse.log"); open(p, "w").write(coll)
+    r = grade_leg(p, "CONTROL")
+    unit("U3 CONTROL single -5 (not 2 solves) -> NOT_CONVERGED or NOT_EVALUABLE",
+         r["G_CONV"]["leg_state"] in ("NOT_CONVERGED", "NOT_EVALUABLE"))
+
+    # ============ BASELINE_R3 (rung-3, NATURAL, no nd) ============================
+    base_stag = _dump_block(jac="natural", mat="natural") + _flat_stag_trace(4000, -3, (9.6e10, 1.0))
+    p = os.path.join(tmp, "baseline_stag.log"); open(p, "w").write(base_stag)
+    r = grade_leg(p, "BASELINE_R3")
+    unit("U4 BASELINE_R3 natural -3 at cap flat tail -> STAGNATION (premise reproduced)",
+         r["G_CONV"]["leg_state"] == "STAGNATION")
+    unit("U5 BASELINE_R3 proofs accept NATURAL ordering", r["proofs"]["ordering_expected"] == "natural")
+    unit("U6 BASELINE_R3 singular parsed (in-arm natural sMax/sMin)",
+         r["G_DIAG"].get("ratio") is not None and abs(r["G_DIAG"]["ratio"] - 9.6e10) < 1e6)
+    base_conv = _dump_block(jac="natural", mat="natural") + _trace(1.0, 1500, 0.5, 4000, 2, singular=(9.6e10, 1.0))
+    p = os.path.join(tmp, "baseline_conv.log"); open(p, "w").write(base_conv)
+    r = grade_leg(p, "BASELINE_R3")
+    unit("U7 BASELINE_R3 natural converged (premise NOT reproduced) -> CONVERGED",
+         r["G_CONV"]["leg_state"] == "CONVERGED")
+    # BASELINE_R3 reading nd MUST be refused (baseline must stay natural)
+    base_nd = _dump_block(jac="nd", mat="nd") + _flat_stag_trace(4000, -3, (9.6e10, 1.0))
+    p = os.path.join(tmp, "baseline_nd.log"); open(p, "w").write(base_nd)
+    unit("U8 BASELINE_R3 log reading nd -> REFUSE (baseline must stay NATURAL)",
+         refused(lambda: grade_leg(p, "BASELINE_R3")))
+
+    # ============ TEST_R3 (rung-3, nd) ===========================================
+    flat = _dump_block() + _flat_stag_trace(4000, -3, (9.6e10, 1.0))
+    p = os.path.join(tmp, "test_stag.log"); open(p, "w").write(flat)
+    r = grade_leg(p, "TEST_R3")
+    unit("U9 TEST_R3 (nd) -3 at cap with flat tail -> STAGNATION", r["G_CONV"]["leg_state"] == "STAGNATION")
+    unit("U10 TEST_R3 stagnation tail_rel_change < THETA_STAG", r["G_CONV"]["solves"][0]["tail_rel_change"] < THETA_STAG)
+    unit("U11 TEST_R3 singular value parsed (sMax/sMin)",
+         r["G_DIAG"].get("ratio") is not None and abs(r["G_DIAG"]["ratio"] - 9.6e10) < 1e6)
+    lines, it = [], 0
+    while it <= 4000:
+        rr = 1.0 * (0.999 ** (it / 100.0))  # steadily descending -> > THETA_STAG over 1000
+        lines.append("Main iteration %d KSP Residual norm %.12e %.2f s. " % (it, rr, it * 0.35))
+        it += 100
+    budg = _dump_block() + "\n".join(lines) + "\n**Completed**! Total iterations: 4000. PetscConvergedReason: -3. 1416 s\n"
+    p = os.path.join(tmp, "test_budget.log"); open(p, "w").write(budg)
+    r = grade_leg(p, "TEST_R3")
+    unit("U12 TEST_R3 -3 at cap still descending -> BUDGET_LIMITED", r["G_CONV"]["leg_state"] == "BUDGET_LIMITED")
+    convlog = _dump_block() + _trace(1.0, 1500, 0.5, 4000, 2)
+    p = os.path.join(tmp, "test_conv.log"); open(p, "w").write(convlog)
+    r = grade_leg(p, "TEST_R3")
+    unit("U13 TEST_R3 reason 2 below cap -> CONVERGED", r["G_CONV"]["leg_state"] == "CONVERGED")
+
+    # ============ PROOF refusals (shared across the nd legs) =====================
     bad = _dump_block(jac="natural", mat="natural") + _trace(1.0, 1500, 0.5, 4000, 2)
     p = os.path.join(tmp, "bad_natural.log"); open(p, "w").write(bad)
-    unit("U9 dump/echo still reading natural -> REFUSE (lever not applied)", refused(lambda: grade_leg(p, "TEST")))
+    unit("U14 TEST_R3 dump/echo still reading natural -> REFUSE (lever not applied)",
+         refused(lambda: grade_leg(p, "TEST_R3")))
     bad = _dump_block(sv="0") + _trace(1.0, 1500, 0.5, 4000, 2)
     p = os.path.join(tmp, "bad_sv0.log"); open(p, "w").write(bad)
-    unit("U10 KSPCalcSingularVal 0 in dump -> REFUSE (diagnostic not on)", refused(lambda: grade_leg(p, "TEST")))
+    unit("U15 KSPCalcSingularVal 0 in dump -> REFUSE (diagnostic not on)", refused(lambda: grade_leg(p, "TEST_R3")))
     bad = _dump_block(tpc="2") + _trace(1.0, 1500, 0.5, 4000, 2)
     p = os.path.join(tmp, "bad_tpc.log"); open(p, "w").write(bad)
-    unit("U11 transonicPCOption 2 -> REFUSE", refused(lambda: grade_leg(p, "TEST")))
+    unit("U16 transonicPCOption 2 -> REFUSE", refused(lambda: grade_leg(p, "TEST_R3")))
     bad = _dump_block(state_ord="state") + _trace(1.0, 1500, 0.5, 4000, 2)
     p = os.path.join(tmp, "bad_state.log"); open(p, "w").write(bad)
-    unit("U12 adjStateOrdering drifted to state -> REFUSE", refused(lambda: grade_leg(p, "TEST")))
-    # ---- NOT_EVALUABLE: no terminal ----
+    unit("U17 adjStateOrdering drifted to state -> REFUSE", refused(lambda: grade_leg(p, "TEST_R3")))
     noterm = _dump_block() + "Main iteration 0 KSP Residual norm 1.0 0.0 s. \n(crash)\n"
     p = os.path.join(tmp, "noterm.log"); open(p, "w").write(noterm)
-    r = grade_leg(p, "TEST")
-    unit("U13 no terminal reason -> leg NOT_EVALUABLE", r["G_CONV"]["leg_state"] == "NOT_EVALUABLE")
-    # ---- G-DIAG NOT_MEASURED when no singular token ----
-    unit("U14 no singular token -> G_DIAG NOT_MEASURED and named", r["G_DIAG"]["singular"] == "NOT_MEASURED")
-    # ---- FD: clean -> PASS ----
+    r = grade_leg(p, "TEST_R3")
+    unit("U18 no terminal reason -> leg NOT_EVALUABLE", r["G_CONV"]["leg_state"] == "NOT_EVALUABLE")
+    unit("U19 no singular token -> G_DIAG NOT_MEASURED and named", r["G_DIAG"]["singular"] == "NOT_MEASURED")
+
+    # ============ FD grading (bright line, reused d8r bands) =====================
     F = _fd_json(os.path.join(tmp, "fd_clean.json"))
     fd = grade_fd(read_F(F))
-    unit("U15 FD clean (all ~0.5%) -> band D/E PASS, verdict PASS", fd["verdict"] == "PASS" and fd["n_graded"] == 3)
-    # ---- FD: planted 7% on one component -> GATE FAIL ----
+    unit("U20 FD clean (all ~0.5%) -> band D/E PASS, verdict PASS", fd["verdict"] == "PASS" and fd["n_graded"] == 3)
     F = _fd_json(os.path.join(tmp, "fd_err.json"), errs={("twist", 1): 7.0})
     fd = grade_fd(read_F(F))
-    unit("U16 FD planted 7% error -> component + verdict GATE FAIL", fd["verdict"] == "GATE FAIL" and fd["n_gate_fail"] == 1)
-    # ---- FD: sign flip -> GATE FAIL ----
+    unit("U21 FD planted 7% error -> component + verdict GATE FAIL", fd["verdict"] == "GATE FAIL" and fd["n_gate_fail"] == 1)
     F = _fd_json(os.path.join(tmp, "fd_flip.json"), flip={("patchV", 1)})
     fd = grade_fd(read_F(F))
-    unit("U17 FD sign flip -> GATE FAIL, flip counted", fd["verdict"] == "GATE FAIL" and fd["sign_flips"] == 1)
-    # ---- FD: no plateau on one -> that component NOT A RESULT, still 2 graded -> PASS ----
+    unit("U22 FD sign flip -> GATE FAIL, flip counted", fd["verdict"] == "GATE FAIL" and fd["sign_flips"] == 1)
     F = _fd_json(os.path.join(tmp, "fd_noplat.json"), noplateau={("shape", 115)})
     fd = grade_fd(read_F(F))
-    unit("U18 FD one no-plateau -> that comp NOT A RESULT, 2 graded -> PASS", fd["verdict"] == "PASS" and fd["n_graded"] == 2)
-    # ---- FD: two no-plateau -> 1 graded < MIN_GRADED -> NOT A RESULT ----
+    unit("U23 FD one no-plateau -> that comp NOT A RESULT, 2 graded -> PASS", fd["verdict"] == "PASS" and fd["n_graded"] == 2)
     F = _fd_json(os.path.join(tmp, "fd_noplat2.json"), noplateau={("shape", 115), ("twist", 1)})
     fd = grade_fd(read_F(F))
-    unit("U19 FD two no-plateau -> 1 graded < MIN_GRADED -> NOT A RESULT", fd["verdict"] == "NOT A RESULT")
-    # ---- planted controls ----
+    unit("U24 FD two no-plateau -> 1 graded < MIN_GRADED -> NOT A RESULT", fd["verdict"] == "NOT A RESULT")
+
+    # ============ planted controls (rule 3) ======================================
     F = _fd_json(os.path.join(tmp, "fd_ctrl.json"))
-    unit("U20 instrument CTRL planted row SEEN", ctrl_control(read_F(F))["instrument_ctrl_zero"] == 0.0)
-    unit("U21 grader-level plant SEEN on FD table", grader_plant_control(tmp, F)["grader_plant_seen"])
+    unit("U25 instrument CTRL planted row SEEN", ctrl_control(read_F(F))["instrument_ctrl_zero"] == 0.0)
+    unit("U26 grader-level plant SEEN on FD table", grader_plant_control(tmp, F)["grader_plant_seen"])
     F = _fd_json(os.path.join(tmp, "fd_ctrl_broken.json"), ctrl_ok=False)
-    unit("U22 CTRL planted row broken -> REFUSE", refused(lambda: ctrl_control(read_F(F))))
-    # ---- item composition (section 7 map) ----
-    conv_ctrl = {"leg_state": "CONVERGED"}
-    unit("U23 control valid + test stagnation -> GATE FAIL", compose_item(conv_ctrl, {"leg_state": "STAGNATION"}, None)[0] == "GATE FAIL")
-    unit("U24 control valid + test converged + no FD -> PENDING", compose_item(conv_ctrl, {"leg_state": "CONVERGED"}, None)[0] == "PENDING")
-    unit("U25 control not converged -> NOT A RESULT", compose_item({"leg_state": "NOT_CONVERGED"}, {"leg_state": "CONVERGED"}, None)[0] == "NOT A RESULT")
-    unit("U26 control valid + test converged + FD PASS -> PASS", compose_item(conv_ctrl, {"leg_state": "CONVERGED"}, {"verdict": "PASS"})[0] == "PASS")
-    # extra guards fold into vocabulary + assert-free (not counted toward EXPECTED_UNITS beyond)
+    unit("U27 CTRL planted row broken -> REFUSE", refused(lambda: ctrl_control(read_F(F))))
+
+    # ============ item composition (section 7 map, 3 legs) =======================
+    CONV = {"leg_state": "CONVERGED"}
+    STAG = {"leg_state": "STAGNATION"}
+    unit("U28 CONTROL conv + BASELINE stag + TEST stagnation -> GATE FAIL",
+         compose_item(CONV, STAG, STAG, None)[0] == "GATE FAIL")
+    unit("U29 CONTROL conv + BASELINE stag + TEST converged + no FD -> PENDING",
+         compose_item(CONV, STAG, CONV, None)[0] == "PENDING")
+    unit("U30 CONTROL not converged -> NOT A RESULT (nd harmful)",
+         compose_item({"leg_state": "NOT_CONVERGED"}, STAG, CONV, None)[0] == "NOT A RESULT")
+    unit("U31 CONTROL not-evaluable -> BLOCKED",
+         compose_item({"leg_state": "NOT_EVALUABLE"}, STAG, CONV, None)[0] == "BLOCKED")
+    unit("U32 BASELINE converged (premise NOT reproduced) -> NOT A RESULT",
+         compose_item(CONV, CONV, STAG, None)[0] == "NOT A RESULT")
+    unit("U33 BASELINE budget-limited (premise NOT reproduced) -> NOT A RESULT",
+         compose_item(CONV, {"leg_state": "BUDGET_LIMITED"}, STAG, None)[0] == "NOT A RESULT")
+    unit("U34 BASELINE not-evaluable (premise NOT reproduced) -> NOT A RESULT",
+         compose_item(CONV, {"leg_state": "NOT_EVALUABLE"}, STAG, None)[0] == "NOT A RESULT")
+    unit("U35 CONTROL conv + BASELINE stag + TEST not-evaluable -> BLOCKED",
+         compose_item(CONV, STAG, {"leg_state": "NOT_EVALUABLE"}, None)[0] == "BLOCKED")
+    unit("U36 CONTROL conv + BASELINE stag + TEST converged + FD PASS -> PASS",
+         compose_item(CONV, STAG, CONV, {"verdict": "PASS"})[0] == "PASS")
+
+    # vocabulary guard (not a counted unit)
     for v in ("BLOCKED", "GATE FAIL", "PENDING", "PASS", "NOT A RESULT"):
         if v not in VOCAB:
             fails.append("vocab %s" % v)
@@ -583,20 +666,22 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--log", default=None, help="a leg log to grade")
     ap.add_argument("--leg", default=None, choices=list(LEGS))
-    ap.add_argument("--fd-json", default=None, help="TEST FD table JSON (only if TEST converged)")
+    ap.add_argument("--fd-json", default=None, help="TEST_R3 FD table JSON (only if TEST_R3 converged)")
     ap.add_argument("--run-base", default=None)
     ap.add_argument("--out", default=None)
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--drive", action="store_true", help="alias for --selftest")
     ap.add_argument("--tmpdir", default="/tmp")
     a = ap.parse_args()
     if count_asserts(os.path.abspath(__file__)) != 0:
         print("REFUSAL: this comparator carries an assert statement (L-332)")
         return 2
-    if a.selftest:
+    if a.selftest or a.drive:
         d = os.path.join(a.tmpdir, "a3fl1_selftest_%d" % os.getpid())
         return selftest(d)
     if not a.log or not a.leg:
-        print("usage: a3fl1_grade.py --log <leg log> --leg CONTROL|TEST [--fd-json F] [--out FILE] | --selftest")
+        print("usage: a3fl1_grade.py --log <leg log> --leg CONTROL|BASELINE_R3|TEST_R3 "
+              "[--fd-json F] [--out FILE] | --selftest")
         return 64
     try:
         r = grade_leg(a.log, a.leg, fd_json=a.fd_json, run_base=a.run_base)

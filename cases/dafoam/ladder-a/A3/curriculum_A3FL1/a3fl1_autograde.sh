@@ -21,8 +21,8 @@ GRADER_MD5="<SET_AT_FREEZE>"   # PLACEHOLDER: the dafoam-supervisor pins the fro
                                # the placeholder, so the autograder never grades with an unpinned instrument.
 DONE="$RUN_ROOT/A3FL1_AUTOGRADE_DONE.txt"
 LOG="$RUN_ROOT/a3fl1_autograde.out"
-# CEIL = both legs' deadlines (600 + 1800) + a conditional FD leg (~90 min cap) + margin.
-CEIL=9000            # 2.5 h -- covers CONTROL 600s + TEST 1800s + FD ~5400s + margin
+# CEIL = all three legs' deadlines (600 + 1800 + 1800) + a conditional FD leg (~90 min cap) + margin.
+CEIL=12000           # 3.3 h -- covers CONTROL 600s + BASELINE_R3 1800s + TEST_R3 1800s + FD ~5400s + margin
 POLL=30
 
 echo "A3FL1_AUTOGRADE_START $(date -u +%FT%TZ) pid=$$ ppid=$PPID" >> "$LOG"
@@ -60,13 +60,13 @@ fi
 } > "$DONE"
 
 graded=0
-for LEG in CONTROL TEST; do
+for LEG in CONTROL BASELINE_R3 TEST_R3; do
   L="$RUN_ROOT/$LEG/a3fl1_${LEG}.log"
   [ -f "$L" ] || { echo ">>> $LEG  NO LOG at $L (leg did not run)" >> "$DONE"; continue; }
   GJSON="$RUN_ROOT/${LEG}_autograde.json"
   FD=""
-  # TEST FD table is graded only if the launcher produced it (TEST converged -> FD leg ran).
-  [ "$LEG" = "TEST" ] && [ -f "$RUN_ROOT/TEST/a3fl1_fd.json" ] && FD="--fd-json $RUN_ROOT/TEST/a3fl1_fd.json --run-base $RUN_ROOT/TEST"
+  # TEST_R3 FD table is graded only if the launcher produced it (TEST_R3 converged -> FD leg ran).
+  [ "$LEG" = "TEST_R3" ] && [ -f "$RUN_ROOT/TEST_R3/a3fl1_fd.json" ] && FD="--fd-json $RUN_ROOT/TEST_R3/a3fl1_fd.json --run-base $RUN_ROOT/TEST_R3"
   python3 "$GRADER" --log "$L" --leg "$LEG" $FD --out "$GJSON" >> "$LOG" 2>&1; rc=$?
   graded=$((graded+1))
   echo ">>> $LEG  grade_rc=$rc  log=$L  json=$GJSON" >> "$DONE"
@@ -74,9 +74,10 @@ for LEG in CONTROL TEST; do
 done
 
 {
-  echo "----- ITEM OUTCOME (dafoam-supervisor reads the two leg JSONs, composes per prereg §7, declares) -----"
-  echo "The item verdict is NOT declared here.  The supervisor composes it from the two leg grade JSONs"
-  echo "using the §7 map, verifies, then declares + files the README row + the docs/COST_CALIBRATION.md row."
+  echo "----- ITEM OUTCOME (dafoam-supervisor reads the THREE leg JSONs, composes per prereg §7, declares) -----"
+  echo "The item verdict is NOT declared here.  The supervisor composes it from the CONTROL, BASELINE_R3 and"
+  echo "TEST_R3 leg grade JSONs using the §7 map (CONTROL breaks? -> BASELINE_R3 reproduces the -3 wall? ->"
+  echo "TEST_R3 nd effect), verifies, then declares + files the README row + the docs/COST_CALIBRATION.md row."
   echo "A3FL1_AUTOGRADE_COMPLETE $(date -u +%FT%TZ) graded=$graded"
 } >> "$DONE"
 echo "A3FL1_AUTOGRADE_COMPLETE $(date -u +%FT%TZ) graded=$graded" >> "$LOG"
