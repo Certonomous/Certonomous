@@ -145,6 +145,66 @@ confirming a faithful build.
 
 ---
 
+## 3.2 ADMISSIBILITY SCREEN — THE TWO ENDS (L1 FINE, L3 COARSE), MEASURED 2026-09-08
+
+Both ends were generated from the **one proven L2 parent surface**
+(`A3-onera-m6-adjoint-coarse/surfaceMesh.cgns`, sha `1e11aae4…`, 1,560 faces) by
+`cgns_utils`, so all three levels are exactly nested and geometrically similar by
+construction — the r=2 repair sec 6 called for, done from a single parent rather than three
+independent surfaces. Driver:
+`verification/runs/M6_OWN_FAMILY_runs/build_m6_own_ends.py` (recipe/readers lifted
+verbatim-in-shape from `build_m6_own_base.py`); results at
+`.../L1/RESULT.json`, `.../L3/RESULT.json`, `.../L1_L3_SUMMARY.json`.
+
+**Planted control (rule 3) fired on every screen**, the SAME preserved broken log the base
+used (`RUNG1_M6_R2_runs/L3/log.checkMesh`): the reader saw max non-orthogonality
+**109.219°** (>70) and **2** negative-volume cells before any clean read was trusted.
+
+| level | surface op | faces | pyHyp N | cells | max non-orth | max skew | neg-vol | AR | verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| **L1** fine | `cgns_utils refine` L2 | **6,240** (×4 L2) | 93 (92 layers), s0 1.0e-04 | **574,080** (=8×L2) | **60.8639°** | **1.44118** | **0** | 254.372 | **CLEARS both hard gates** |
+| **L3** coarse (strict r=2) | `cgns_utils coarsen` L2 | **390** (÷4 L2) | 24 (23 layers), s0 4.0e-04 | 8,970 (=L2÷8) | **109.219° / 101.798° / 168.464°** (3 recipes) | 4.2336 / 7.561 / 8.547 | 2 / 0 / 8 | — | **FAILS every recipe** |
+| **L3b** coarse (layer sweep) | same 390-face surface | **390** | 47 / 41 / 35 / 31 / 27 | 17,940 → 10,140 | **101.4° / 101.8° / 102.4° / 102.9° / 103.5°** | 14.5 / 25.5 / 4.56 / 2.68 / 1.90 | 4 / 4 / 3 / 3 / 3 | ~1e95 | **FAILS at every layer count** |
+
+- **L1 CLEARS.** 60.8639° / 1.44118 / 0 neg-vol — cleaner than L2 (61.4646° / 2.05915), as
+  expected: refinement lowers non-orthogonality. Cell count 574,080 = **exactly 8×** L2 and
+  wall faces 6,240 = **exactly 4×** L2; `points` sha256 `57852b6f…` distinct from L2. Cost
+  **3.525 core-min** (nominal recipe, first try).
+- **No admissible coarse level exists off a 390-face M6 surface — DEFINITIVELY, across 8
+  attempts.** First (driver `build_m6_own_ends.py`): the strict r=2 coarse level (390 faces,
+  N=24, 23 layers) failed under three smoothing recipes at FIXED `marchDist = 50.0` — nonOrth
+  109.219° / 101.798° / 168.464°, the nominal case *bit-for-bit the same degeneracy RUNG1's
+  independent vcoarse L3 showed*. My first hypothesis was too few layers (a steep far-field
+  growth ratio); that hypothesis is **DISPROVED**. Second (driver `build_m6_own_coarse.py`,
+  cfd-supervisor's 2026-09-08 course correction): the layer count was swept UP on the same
+  390-face surface at fixed `marchDist = 50.0` — N = 47, 41, 35, 31, 27 (46 → 26 layers, cell
+  ratios to L2 of 4.00 → 7.08). **Max non-orthogonality barely moved — 101.4° to 103.5° —
+  and 3–4 negative-volume cells with aspect ratios ~1e95 appeared at EVERY layer count.**
+  Adding layers does not help because the fold is not a growth-ratio problem: **the 390-face
+  surface under-resolves the wing itself** (wingtip / leading-edge curvature), so the
+  hyperbolic normals cross and cells invert near the tip regardless of how the wall-normal
+  layers are distributed. RUNG1 blamed its L3 degeneracy on the vcoarse *surface*; this shows
+  the true cause is **any ÷4 (390-face) coarsening of the M6 surface** — a real geometric
+  limit, not a tuning miss. Gates 70 / 4 / 0 were **not touched** (rule: only Sanaa widens a
+  gate). Cost 3.0416 (ends) + 3.38 (coarse sweep) = **6.42 core-min** across all 8 coarse
+  attempts. (Lesson candidate on the supervisor's release: *r=2 coarsening of the M6 surface
+  below ~1,560 faces is inadmissible for hyperbolic extrusion at any layer count.*)
+
+**Consequence for the triple.** The own-family has an admissible **fine pair {L2, L1}** —
+r=2, cell ratio exactly 8.00, `points` sha distinct — but **no admissible coarse end below
+L2**, so a `{L3, L2, L1}` Roache triple is **not achievable by coarsening**. A rule-5
+`CONVERGING` triple therefore does **not yet exist**, and by the sec 4.1 honest-labelling law
+a {L2, L1} band is a **two-level Richardson pair (assumed order p, not observed) — a
+lower-confidence band, NOT a Roache triple and NOT to be presented as one.** The route to a
+genuine three-level observed order is to **shift the triple to the FINE side** — {L2, L1,
+L0}, with L0 = `cgns_utils refine` of L1 (24,960 faces, N=185, ~4.59M cells) — because finer
+levels clear MORE easily (L2 61.46° → L1 60.86°, non-orthogonality falls monotonically with
+refinement, so L0 is predicted admissible). That is a mesh-gen + solve-sequencing decision
+for the supervisor's check-4, laid out but **not built here** (sec 6); L0 mesh-gen is not
+capacity-light and its solve is costed in sec 7.3.
+
+---
+
 ## 4. THE DELIVERABLE — M6 `Cp` AT THE AGARD SPAN STATIONS, WITH THE FAMILY BAND
 
 **Span stations (AGARD AR-138 B1), transcribed, not invented:**
@@ -198,34 +258,59 @@ supervisor sets and signs it at check-4. This DRAFT sets no number of its own.
 
 ---
 
-## 6. REFINEMENT RECIPE FOR THE EVENTUAL ROACHE TRIPLE (r = 2, all three directions)
+## 6. THE ROACHE-TRIPLE STATUS — WHAT WAS BUILT (2026-09-08) AND WHAT REMAINS
 
-The base level (L2, §3) is the deliverable of this brief. The triple below is laid out
-for a later GCI; **generating L1/L3 is optional and NOT done here.** The design is
-RUNG1_M6_R2's INTENDED r=2 triple, **repaired** for the two execution faults that sank it.
+The two ends were built (§3.2). Result: the **fine** end succeeds, the **coarse** end is
+inadmissible off a 390-face surface at any layer count. The current state of the family:
 
-| level | surface faces | pyHyp `N` (layers) | expected cells | state |
+| level | surface faces | pyHyp `N` (layers) | cells | state |
 |---|---|---|---|---|
-| **L3** coarse | ~390 (÷4 of L2) | 24 (23) | ~8,970 | **NOT built here.** RUNG1 L3 DEGENERATED: negative-volume cells, non-orth 109°. Repair needed (see below). |
-| **L2** medium — **BASE, BUILT** | **1,560** | **47 (46)** | **71,760** | **BUILT & CLEARS gates (§3).** |
-| **L1** fine | 6,240 (×4 of L2) | 93 (92) | ~574,080 | **NOT built here.** RUNG1 L1 used the WRONG surface (`m6_surfaceMesh_fine.cgns`, 99,840 faces = ×16, not ×4); its march stopped at 54/93. Repair: use a correctly ×4-refined 6,240-face surface. |
+| **L3 / L3b** coarse | 390 (÷4 of L2) | 24, then 47/41/35/31/27 swept | 8,970 → 17,940 | **BUILT & FAILS.** 8 attempts, nonOrth 101–168°, 3–8 neg-vol at every layer count. NO admissible coarse level off a 390-face surface (§3.2). |
+| **L2** medium — **BASE** | **1,560** | **47 (46)** | **71,760** | **BUILT & CLEARS** (§3). `points` sha `2b0ce260…`. |
+| **L1** fine | **6,240 (×4 of L2)** | **93 (92)** | **574,080** | **BUILT & CLEARS** (§3.2). nonOrth 60.86°, skew 1.44, 0 neg-vol. `points` sha `57852b6f…`. |
 
-**r = 2 in all three directions** (surface ×4 faces per level = r=2 in the two surface
-directions; layers ×2 per level = r=2 wall-normal) → a genuine observed order and family
-band (the §4.1 deliverable), not a lower bound.
+**Admissible family so far: the r=2 fine PAIR {L2, L1}** — cells 71,760 → 574,080, ratio
+**exactly 8.00** (r=2 in all three directions: surface ×4, layers ×2), `points` sha256
+distinct. This is a **two-level Richardson pair, not a Roache triple** (§4.1 honest label:
+assumed order p, a lower-confidence band).
 
-**Repairs required before the triple is a family:**
-1. **L1 surface:** produce a 6,240-face surface by ×4 refinement of the coarse surface
-   (or ×4 coarsen of a correct fine surface) — NOT the 99,840-face `..._fine.cgns` that
-   over-resolved RUNG1 L1 by 16×.
-2. **L3 coarse marching:** the ~390-face / N=24 coarse level collapsed at the farfield
-   (negative volumes at `marchDist = 50`). Tune the coarse-level march (smaller effective
-   `marchDist`, or more `volSmoothIter`, or a gentler `cMax`) until L3 checkMesh CLEARS
-   and shows 0 negative-volume cells — this is a mesh-gen iteration to be recorded as a
-   lesson when done, not a gate change.
-3. **A5-class family identity:** the three `constant/polyMesh/points` sha256 must be
-   distinct and the cell-count ratios must be 8.00 (r³). "A family that is not a family
-   is worse than no band" (`RUNG1_M6_R2:390`).
+**To reach a genuine three-level observed order — supervisor's choice, NOT decided here:**
+1. **Preferred — shift the triple to the FINE side: {L2, L1, L0}.** Add L0 = `cgns_utils
+   refine` of L1 → 24,960 faces, N=185, ~4.59M cells; cell ratios then 8.00 and 8.00 again.
+   Non-orthogonality falls monotonically with refinement (L2 61.46° → L1 60.86°), so L0 is
+   **predicted admissible** — the triple lands entirely on the clean fine side. Costs: L0
+   mesh-gen is NOT capacity-light (a ~4.6M-cell N=185 march), and the L0 solve is ~936
+   core-min (§7.3); both are inside the $1,000 IBL envelope but need the supervisor's
+   sequencing behind the box drain. **Not built here.**
+2. **Accept the {L2, L1} pair** as a lower-confidence assumed-order band, labelled as such
+   on every figure (§4.1), and grade Gate P against it with the honest caveat that Gate G's
+   observed order is not measured. Cheapest (§7.3: ~132 core-min for the two solves).
+3. Any coarser-than-L2 own-mesh route abandoned as **inadmissible** (§3.2): a ÷4 M6 surface
+   cannot be hyperbolically marched within the hard gates.
+
+**Family identity (A5-class) already proved for the built levels:** the three
+`constant/polyMesh/points` sha256 (`2b0ce260…` L2, `57852b6f…` L1, and each failed coarse
+attempt) are distinct, and the L2↔L1 cell ratio is exactly 8.00. "A family that is not a
+family is worse than no band" (`RUNG1_M6_R2:390`) — the {L2, L1} pair IS a genuine r=2
+refinement; it is simply a pair, not a triple, and is labelled so.
+
+### 6.1 THE {L2, L1} TWO-LEVEL RICHARDSON BAND — ASSUMED ORDER, HONESTLY LABELLED
+
+For each AGARD station the pair yields a **two-level Richardson estimate with an ASSUMED
+order**, NOT an observed order:
+- Grid refinement factor **r = 2** (cells ratio 8.00 = r³; 2× linear in each direction).
+- **Assumed order `p = 2`** — the FORMAL order of the second-order spatial discretisation
+  (`bounded Gauss linearUpwind grad(U)`, `Gauss linear limited corrected`), NOT measured
+  from the data (two meshes cannot measure `p`; that needs the third level).
+- Richardson estimate `f_h→0 ≈ f_L1 + (f_L1 − f_L2)/(r^p − 1) = f_L1 + (f_L1 − f_L2)/3`.
+- Band per station `GCI_pair = Fs·|f_L1 − f_L2|/(r^p − 1) = 1.25·|f_L1 − f_L2|/3`, Fs = 1.25.
+
+**HONEST LABEL, carried verbatim on every figure (mandatory, §4.1):** *"Numerical band from
+a TWO-LEVEL Richardson estimate with ASSUMED order p = 2 (formal scheme order), NOT an
+observed order. This is a Richardson PAIR, not a Roache CONVERGING triple; the observed
+order is not measured. Three levels are required for an observed order (rule 5)."* A `PASS`
+against Gate P computed on this pair may NOT be reported as GCI-with-observed-order, and the
+rule-5 vocabulary term `CONVERGING` may NOT be applied to a pair.
 
 ---
 
@@ -246,18 +331,38 @@ estimate/actual ratio to report for the base build itself; the 0.8204 core-min i
 first calibration point for the pyHyp-hyperbolic M6 mesh-gen class and is offered to
 `docs/COST_CALIBRATION.md` on the supervisor's release.
 
-### 7.2 Full-triple mesh-gen — ESTIMATE
-Base 0.82 (measured) + L1 fine (574k-cell N=93 march, heavier) + L3 coarse (light).
-**ESTIMATE ~5–15 core-min** for the three levels (L1 dominates). Labelled ESTIMATE.
+### 7.2 Mesh-gen — MEASURED (all built levels) + estimate/actual calibration (rule 12)
+From the `RESULT.json` files, 1 rank, wall→core-min:
+- L2 base: **0.8204** core-min (§7.1).
+- L1 fine (574k-cell N=93 march): **3.525** core-min (`.../L1/RESULT.json`).
+- Coarse attempts (8 total: 3 strict-similar + 5-N sweep, all failed): 3.0416 + 3.38 =
+  **6.42** core-min (`.../L3/RESULT.json`, `.../L3b/RESULT.json`).
+- **TOTAL M6 own-mesh mesh-gen SPENT: 0.8204 + 3.525 + 6.42 = 10.77 core-min (MEASURED).**
+  Derived dollars: 10.77 / 60 × $0.0513 ≈ **$0.0092** (derived, not measured).
 
-### 7.3 Eventual SOLVE — ESTIMATE (from a measured rate)
+**Estimate/actual (rule-12 calibration).** §7.2 pre-estimated the full-triple mesh-gen at
+**5–15 core-min**; actual for the built levels (L2+L1) plus the 8 coarse attempts is **10.77
+core-min** — **inside the estimate band** (ratio actual/predicted ≈ 10.77/10 ≈ 1.08 vs the
+midpoint). The gap is attributable to the coarse-level *misprediction* (the pre-estimate
+assumed L3 "light" and built once; it took 8 attempts to establish inadmissibility) — a
+misprediction, not contention or waste; the 8 attempts are recorded work, not waste (each
+produced a needed data point). Offered as a calibration row to `docs/COST_CALIBRATION.md`
+on the supervisor's release: first M6 pyHyp-hyperbolic mesh-gen class, incl. the finding
+that coarse-end admissibility screening costs ~6 core-min, not ~2.
+
+### 7.3 Eventual SOLVE — ESTIMATE (from a measured rate), per family option
 Rate **3.40e-8 core-min / cell / iteration**, MEASURED on this exact geometry and solver
 class (`A3-onera-m6-transonic/run_model_run3.log`; `M6SR_PREREGISTRATION.md:462`), at
 ~6,000 iterations:
-- Base L2 (71,760 cells): 71,760 × 6,000 × 3.40e-8 ≈ **14.6 core-min/solve**.
-- L1 fine (~574,080): ≈ **117.1 core-min**. L3 coarse (~8,970): ≈ **1.8 core-min**.
-- **Full triple solve ESTIMATE ≈ 133.6 core-min** (single α). Derived dollars: 133.6 /
-  60 × $0.0513 ≈ **$0.114** (derived, not measured).
+- L2 (71,760 cells): 71,760 × 6,000 × 3.40e-8 ≈ **14.6 core-min/solve**.
+- L1 fine (574,080): ≈ **117.1 core-min**.
+- **{L2, L1} PAIR (option 2): ≈ 131.7 core-min** (single α). Derived dollars ≈ **$0.113**.
+- L0 fine (~4.59M cells, option 1): ≈ **936 core-min**.
+- **{L2, L1, L0} FINE TRIPLE (option 1): ≈ 1,068 core-min** (single α). Derived dollars
+  ≈ **$0.913** (derived, not measured). Each solve is under the $25 pre-auth ceiling; the
+  triple total is well inside the $1,000 IBL envelope.
+- The failed coarse end (~8,970–17,940 cells) has **no solve** — a mesh that fails the hard
+  gates is never solved.
 
 **Envelope:** the full own-family build+solve estimate (mesh-gen ~5–15 + solve ~134
 core-min ≈ 2.5 core-h ≈ **$0.13 derived**, even with a generous ×5 restart allowance
@@ -269,11 +374,35 @@ frozen registration at the supervisor's freeze (rule 12).
 
 ## 8. WHAT IS AND IS NOT DONE
 
-- **DONE:** own-family run root created; base-level own mesh GENERATED and SCREENED —
-  CLEARS both hard gates (non-orth 61.46°, skew 2.06, 0 negative cells, 71,760 cells);
-  planted control fired; solve-ready patches; AR-138 title page verified by sight; span
-  stations and eventual-solve gate transcribed byte-identical from the existing M6 gate;
-  this DRAFT registration.
-- **NOT DONE (deliberately STOPPED here):** no flow solve; L1/L3 of the triple not built;
-  this document not frozen. The solve is sequenced behind the box drain and takes the
-  supervisor's check-4 and the rule-2 freeze then.
+- **DONE:** own-family run root created; **three mesh levels built and screened** — L2 base
+  (71,760, CLEARS), L1 fine (574,080, CLEARS), coarse end (8 attempts, all FAIL); planted
+  control fired on every screen (saw 109.219° / 2 neg-vol first); the admissibility
+  instrument (`read_checkmesh` + `clears` expr) proven **byte-identical to the L2 base
+  screen**; solve-ready patches on L2/L1; AR-138 title page verified by sight; span stations
+  and eventual-solve gate transcribed byte-identical from the existing M6 gate; the {L2, L1}
+  two-level Richardson band defined and honestly labelled (§6.1); this DRAFT updated.
+- **NOT DONE (deliberately STOPPED here):** no flow solve; no admissible coarse level exists
+  (§3.2), so no rule-5 CONVERGING triple by coarsening; L0 (the fine-side third level) NOT
+  built; this document NOT frozen. Freeze is the cfd-supervisor's check-4; the solve is
+  sequenced behind the box drain.
+
+---
+
+## 9. OPEN QUESTION — FLAGGED FOR CHIEF / VERIFICATION (NOT DECIDED HERE)
+
+The M6 own-mesh family gives an admissible **two-level pair {L2, L1}** but **no rule-5
+CONVERGING triple** (§3.2, §6). Whether the first-physics M6 surface-`Cp`-vs-AGARD milestone
+may stand on this pair, or requires a true three-level triple, **touches rule-5 gating, which
+is verification-owned** (VERIFICATION_CHARTER). This DRAFT does not decide it. The two paths:
+
+| path | family | numerical band | solve cost (single α) | honesty status |
+|---|---|---|---|---|
+| **A — pair** | {L2, L1} | two-level Richardson, **assumed** p=2 (§6.1) | **≈ 131.7 core-min** (~$0.11) | lower-confidence band; NOT `CONVERGING`; observed order unmeasured |
+| **B — fine triple** | {L2, L1, L0} | Roache GCI, **observed** order, Fs=1.25 | **≈ 1,068 core-min** (~$0.91) | full rule-5 triple; L0 (~4.6M cells) mesh-gen not capacity-light |
+
+**Question for the chief / verification-supervisor:** does the FIRST PHYSICS milestone
+(Sanaa 2026-09-04T1500Z: M6 surface `Cp` at AGARD stations vs tunnel, family band) accept
+path A (honestly-labelled Richardson pair) as the milestone, with path B as a later upgrade
+to an observed-order triple — or does it require path B up front? Both are inside the $1,000
+IBL envelope; the cost delta is ~8× (path B's L0 solve dominates). **cfd-supervisor's
+check-4 + verification's rule-5 read settle this before any freeze or solve.**
