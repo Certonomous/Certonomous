@@ -76,7 +76,15 @@ for L in "$RUN_ROOT"/R[1-4]_*.log; do
   graded=$((graded+1))
   echo ">>> $rung  grade_rc=$rc  log=$L  json=$GJSON" >> "$DONE"
   sed 's/^/    /' "$GJSON" >> "$DONE" 2>/dev/null
-  grep -qE '"verdict"[[:space:]]*:[[:space:]]*"PASS"|binding_verdict=PASS|"PASS"' "$GJSON" 2>/dev/null && any_pass=1
+  # any_pass keys ONLY on the single authoritative "binding_verdict" field.
+  # (Fixed 2026-09-09: the prior regex also alternated on '"verdict":"PASS"'
+  #  and a bare '"PASS"', which matched per-FIELD verdicts (U0/p_corrected) and
+  #  the control states "EXERCISED-PASS" -- so it reported any_pass=1 on the
+  #  all-GATE-FAIL/NOT-A-RESULT D6RF9 ladder. Cosmetic aggregation false
+  #  positive, not a grading error; the per-rung binding verdicts read direct
+  #  were always correct. There is exactly one binding_verdict line per grade
+  #  json; a rung that truly reaches the floor grades binding_verdict PASS.)
+  grep -qE '"binding_verdict"[[:space:]]*:[[:space:]]*"PASS"' "$GJSON" 2>/dev/null && any_pass=1
 done
 
 {
