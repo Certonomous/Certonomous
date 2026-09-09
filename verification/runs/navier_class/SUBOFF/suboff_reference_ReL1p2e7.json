@@ -1,0 +1,17 @@
+{
+  "_status": "DRAFT / UNFROZEN -- provisional manifest anchor; NOT title-verified",
+  "_provenance": "SUBOFF references (Crook 1990 DTRC/SHD-1298-07 drag-vs-speed; Liu & Huang 1998 NSWCCD/HD-1298-11 consolidated data) are NTIS/TRID landing pages only; no free title-verified PDF is on disk as of 2026-09-09 (peer retrieval lane a8dea886569cec3a3). Until a real SUBOFF report PDF is title-page verified (rule 15), this case is graded CODE-VERIFIED / BOUNDED-AGREEMENT against these MANIFEST values, NOT experiment-validated.",
+  "_CT_ref_basis": "PROVISIONAL engineering anchor, ITTC-1957 friction line Cf(Re_L=1.2e7)=0.075/(log10(Re)-2)^2=2.907e-3 times a body-of-revolution form factor (1+k)~1.24 -> CT~3.6e-3 on WETTED-SURFACE area. This value is to be REPLACED by the title-verified Crook 1990 / Liu&Huang 1998 model-5470 CT at freeze (a pre-compute amendment stating the condition, rule 2). The GATE BAND (+/-10%) is the frozen threshold shape and does not move.",
+  "reference": {
+    "case": "DARPA SUBOFF bare hull (Model 5470), zero incidence",
+    "Re_L": 1.2e7,
+    "magUInf_m_s": 2.893,
+    "L_ref_m": 4.356,
+    "nu_m2_s": 1.05e-6,
+    "rho_kg_m3": 1000.0,
+    "CT": 3.6e-3,
+    "CT_convention": "R_T / (0.5 * rho * U^2 * S_wetted); axial force coefficient on the hull patch",
+    "Aref": null,
+    "Aref_note": "REGISTER Aref = hull-patch wetted area read back from the built mesh; cross-check against the analytic Groves/Huang/Chang 1989 hull surface area (to be filled at build). Set Aref here to that value before grading."
+  }
+}
