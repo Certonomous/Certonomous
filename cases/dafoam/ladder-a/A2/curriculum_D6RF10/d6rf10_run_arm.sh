@@ -283,7 +283,7 @@ rung_relaxeqn() { case "$1" in R1|R2|R3) echo 0.70 ;; R4) echo 0.50 ;; *) echo "
 rung_endtime()  { case "$1" in R1) echo 2500 ;; R2) echo 300 ;; R3) echo 2000 ;; R4) echo 4000 ;; *) echo "" ;; esac; }
 # the D6RF7 FROZEN control config, run beside every rung (D4).
 CTRL_SOLVER=DARhoSimpleFoam; CTRL_NNONORTH=3; CTRL_RELAXP=0.30; CTRL_RELAXEQN=0.70; CTRL_ENDTIME=1000
-CUMULATIVE_HARD_STOP_CORE_MIN=1275   # LAUNCHER-CORRECTION 2026-09-09: sum of the FROZEN-REGISTRATION per-rung caps R1 46 + R2 96 + R3 1133 (= 1275 core-min, cap-basis). This equals the frozen registration's stated ~1257 core-min DEADLINE-basis budget ((600+1350+16900)*4/60=1256.67) PLUS the 3x90 s per-rung FRAME_ALLOWANCE (18 core-min) that the cap basis carries -- the SAME 3-rung budget in the two bases, so this matches the frozen PREREGISTRATION.md foot block (R1/R2/R3 only). rule 12: an overrun STOPS the ladder; it does not get a new budget. CAVEAT (flagged to the supervisor, NOT resolved by a lane): the ladder loop below still iterates R4 (cap 1420, endTime 4000), which is NOT in the frozen 3-rung manifest and NOT covered by this budget; with this hard stop R4 would be reached only if the cumulative is still under 1275 after R3, and would then run ONE full R4 leg (deadline ~21210 s) before the post-leg cumulative check trips. Whether R4 is registered (manifest+budget) or removed from the loop is a supervisor decision (S-144 GAMG-readback confound); this lane changed neither R4's cap nor its endTime.
+CUMULATIVE_HARD_STOP_CORE_MIN=1275   # LAUNCHER-CORRECTION 2026-09-09: sum of the FROZEN-REGISTRATION per-rung caps R1 46 + R2 96 + R3 1133 (= 1275 core-min, cap-basis). This equals the frozen registration's stated ~1257 core-min DEADLINE-basis budget ((600+1350+16900)*4/60=1256.67) PLUS the 3x90 s per-rung FRAME_ALLOWANCE (18 core-min) that the cap basis carries -- the SAME 3-rung budget in the two bases, so this matches the frozen PREREGISTRATION.md foot block (R1/R2/R3 only). rule 12: an overrun STOPS the ladder; it does not get a new budget. R4 STRUCK from the runnable loop 2026-09-09 (see PREREGISTRATION.md R4-strike amendment); the 3 runnable rungs R1/R2/R3 sum to the 1275 hard-stop.
 FRAME_ALLOWANCE_S=90
 KILL_GRACE_S=60
 MEM=20g
@@ -482,7 +482,7 @@ leg_cmd_file() {   # build a one-leg cmd file: install_config + mpirun run_leg
   } > "$1"
 }
 
-for RUNG in R1 R2 R3 R4; do
+for RUNG in R1 R2 R3; do
   CAP=$(rung_cap "$RUNG")
   DEADLINE=$(python3 -c "print(int(round($CAP*60.0/$RANKS)) - $FRAME_ALLOWANCE_S)")
   test "$DEADLINE" -gt 0 || { echo "ABORT cap-identity: rung $RUNG deadline<=0 at cap=$CAP"; exit 65; }

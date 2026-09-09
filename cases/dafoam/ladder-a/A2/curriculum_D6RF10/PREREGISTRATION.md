@@ -503,3 +503,29 @@ accept-floor md5 `c6e63098` unmoved); (3) `scripts/check_ladder_preflight.py` (�
 **R4 — flagged, NOT resolved by this lane.** The launcher ladder loop still iterates `R1 R2 R3 R4` (STOPPED_AT_FIRST_PASS). R4 (endTime 4000, cap 1420) MATCHES the grader RUNG_CONFIG but is **NOT** in the frozen 3-rung §2bb manifest and is NOT covered by the ~1257 / 1275 core-min budget, and R4 carried the S-144 GAMG-readback confound. This lane changed **neither** R4's endTime nor its cap. Whether R4 is registered (manifest + budget) or removed from the loop is a dafoam-supervisor decision, owed BEFORE any re-launch.
 
 **Lesson owed.** The lesson from this correction — a launcher's runtime params must be re-verified against the frozen registration (endTime, per-rung deadline, cumulative budget) after any amendment, because a file outside the freeze hash-lock can drift and silently confound the run — is owed to `docs/LESSONS.md`; its number is assigned from the tail at that commit (rule 11) and is not fabricated here.
+
+---
+
+## R4-STRIKE AMENDMENT — 2026-09-09 — R4 struck from the RUNNABLE ladder loop (chief ruling; AMENDMENT A2's strike-condition met)
+
+*lines whose number changed above this section: 0.* Appended at the foot under rule 6.
+
+**Authority.** AMENDMENT A2 required that striking R4 from the ladder "would require its OWN dated amendment stating that condition + how checked." The chief ruled STRIKE R4 from the D6RF10 runnable ladder (LAB_STATE, 2026-09-09). This amendment is that dated amendment. It moves **NO gate, threshold, floor, cap, label or field** of R1/R2/R3, and does **NOT** change R4's grader `RUNG_CONFIG` — R4 stays **registered-but-not-run**. It only removes R4 from the launcher's ladder LOOP (`d6rf10_run_arm.sh`, a file OUTSIDE the freeze hash-lock, D19T parent posture): the loop `for RUNG in R1 R2 R3 R4` becomes `for RUNG in R1 R2 R3`.
+
+**CONDITION — R4 is struck from the RUNNABLE ladder for three independent reasons, each traced to a measured/recorded artefact:**
+
+- **(a) R4 is ABSENT from the frozen 3-rung §2bb manifest `LADDER_PREFLIGHT.json`.** Launching R4 would run an UNREGISTERED rung — the freeze-integrity failure class of **L-517** (a launcher runtime param that has no counterpart in the frozen registration silently confounds the run).
+- **(b) R4 was never cleanly pre-flight-exercised, and its S-144 GAMG-readback confound is unresolved.** The D6RF10 re-exercise measured R4 (`DARhoSimpleCFoam`, relax_p=0.15) at `rc=1` at ~44 steps — a DAFoam `SolverPerformance` readback parse error on `system/data/solver/p` (`Expected '(' … found 'GAMG'`); the primal solved (CD 0.0237 / CL 0.298) but the post-solve config/instrument defect stands untriaged-to-resolution. Running R4 now risks another confounded **NOT A RESULT** — a repeat of a known mistake (**L-516**).
+- **(c) R4's cap 1420 core-min EXCEEDS the frozen 3-rung hard-stop 1275 core-min.** A rung pre-registered to blow the budget must not launch (**rule 12** — an overrun stops the run; it does not get a new budget).
+
+**HOW CHECKED (all verifiable):**
+
+- **(a)** `LADDER_PREFLIGHT.json` lists exactly R1/R2/R3 — its `rungs` array has three entries and no `"rung": "R4"` (grep it). R4 is absent by inspection.
+- **(b)** The S-144 GAMG-readback confound is recorded in this file (AMENDMENT A2, R4 paragraph; the ADDENDUM R4 paragraph) and in the dafoam board (LAB_STATE S-144: R4 `rc=1` at ~44 steps, `SolverPerformance` `Expected '(' … found 'GAMG'`, primal solved, post-solve defect — a separate follow-up).
+- **(c)** Arithmetic: launcher `rung_cap R4` = 1420 core-min > `CUMULATIVE_HARD_STOP_CORE_MIN` = 1275 core-min (= R1 46 + R2 96 + R3 1133).
+
+**Scope.** `rung_endtime()`/`rung_cap()`/`rung_solver()` etc. still carry harmless R4 entries in their `case` statements; the loop no longer calls them, so R4 is unreachable in the runnable ladder. R4's grader `RUNG_CONFIG` is untouched: R4 remains a registered rung whose verdict path exists, but it is not run.
+
+**If R4 is ever wanted later** it must FIRST get its own pre-flight EXERCISE resolving the S-144 GAMG-readback confound (**L-516** — no repeat of a known mistake) AND a runtime-param registration in the §2bb manifest `LADDER_PREFLIGHT.json` (**L-517** — no unregistered rung in the loop), before being returned to the loop. This amendment does not authorise that return.
+
+Nothing here freezes, launches or enqueues a graded run. SUBMISSIONS PARKED.
