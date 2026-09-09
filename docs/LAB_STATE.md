@@ -1430,6 +1430,67 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**TWENTY-FOURTH SESSION, 2026-09-09 (closure-supervisor). CONTINUE. HEAD at session start
+92e4d1e1 (peers advancing under this landing). Sanaa OFFLINE — operating autonomously (rule 9:
+no agent message is her consent; silence is not a send). ONE COMMITTABLE INCREMENT: the M1
+grade attempt is LANDED with VERDICT = BLOCKED, plus L-508, a docket row and this board update.
+COST THIS SESSION: 0.43 core-min grading [MEASURED] (grade_m1.py wall 25.90 s x 1 rank / 60),
+0 solver core-min (the 78 solves predate this), 0 GPU-h, $0.00 send.**
+
+**═══ BOARD CORRECTION (the prior board was STALE) ═══** The 23rd-session line "M1 ungraded
+(barred until M1b)" is CORRECTED: verification §16.1 (re-verified §21.3) UNBLOCKED M1 grading —
+M1 was NEVER barred until M1b; grade_m1b.py is FORWARD PROTECTION (a successor), not a bar on
+grading M1 with its own frozen comparator. M1 was graded this session with the frozen grade_m1.py.
+
+**═══ VERDICT: M1 MULTI-MODEL SWEEP = BLOCKED ═══** The frozen grade_m1.py (sha256
+b3decc88aca147c9a975bfa21f9ce71ffeac2c34dd34a6943935e20114b78e6e, byte-identical to freeze commit
+7b00b3ec and to HEAD) REFUSED (exit 2) at its C1 planted-zero control BEFORE any gate. C1 plants
+PLANT=1.234e-3 on the first cell of the sort-first COMPLETE donor kOmega/AR_10_Ret_180/20000/U
+(first cell 47.0666702943016 m/s), re-reads 0.0012339999999966267 — short of PLANT by 3.37e-15
+(~half a ULP at magnitude 47), exceeding the ABSOLUTE 1e-15 pass tolerance (grade_m1.py:215). The
+reader is SIGHTED (it sees 1.234e-3): a FALSE-POSITIVE refusal that destroys a legitimate instrument,
+firing on any O(1)+ velocity donor. Independently reproduced by the supervisor from the frozen
+source. G0-G4 NOT COMPUTED. Record: `cases/RANS_LES_closure_models/M1_multimodel_sweep/M1_GRADE_RESULT_2026-09-09.md`
+(+ raw `.txt`). Lesson L-508. **The successor INHERITS it:** grade_m1b.py:357 copied the predicate
+verbatim; its selftest passed only on a 1e-12 positive limb (grade_m1b.py:1397) + a small-magnitude
+fixture. Fix lands in the UNFROZEN M1b (PLANT-relative tolerance + real-magnitude selftest fixture);
+frozen grade_m1.py NOT edited (rule 6).
+
+**═══ COMPLETION CENSUS (supervisor, corroborating for the regrade) ═══** 6 of 78 arms INCOMPLETE
+(rc=124 wall-timeout, final time dir absent — only 0/ and 0.orig/): kOmega/{AR_1_Ret_180,
+AR_7_Ret_180, AR_14_Ret_180, PH_Breuer}, kOmegaSST_null/{AR_1_Ret_180, PH_Breuer}. Once C1 is
+fixed, G0 will GATE FAIL on these 6; G2/G3/G4 compute on the 72 complete. WASTE (rule 12 §6):
+7982 wall-s across the 6 = 133.03 core-min [MEASURED from the six STATUS wall_s], $0.114 DERIVED
+at $0.0513/core-h (box cannot read billing; derived, not measured).
+
+**NEXT ACTIONS.** (1) M1b C1 fix (PLANT-relative read-back tolerance + a real-magnitude selftest
+fixture donor) — in progress this session in the UNFROZEN successor. (2) Then M1b freeze + grade
+is the path to an M1 verdict (data on disk, zero-compute); G0 will GATE FAIL on the 6 incomplete
+arms. (3) FLAGGED TO VERIFICATION (awareness only, not a send): whether the frozen grade_m1.py
+record warrants a dated note that it cannot grade O(1)+ velocity data.
+
+**RUNGS WITHOUT VERDICTS (carried from 23rd; M1 status CORRECTED).** M1 **BLOCKED** (C1 round-off
+false-positive; NOT barred — §16.1/§21.3 unblocked grading) [this session] · M1-C CHECK1 pending +
+6-arm re-run compute-gated `VERIFY` · R4b-Ib CHECK1 pending + birth-demo compute-gated `VERIFY` ·
+R4b-I+R4b arm BLOCKED (Sanaa) `VERIFY` · M2 UNRULED since 08-28 `VERIFY` · RC1/RC2 unfrozen `VERIFY` ·
+Ling arm 2 frozen+UNFILED `VERIFY` · G1b xr null (D550) `VERIFY` · LR1 PENDING freeze (G2-gated)
+`VERIFY` · G2 PENDING freeze `VERIFY`. FS2 and FS5 remain STANDING GATES `VERIFY`.
+
+**ON SANAA'S DESK — carried from 23rd (not re-verified this session, `VERIFY`) + NEW referral.**
+(a) GPU YES Ling arm 2, 40 GPU-h=$32.19 DERIVED, UNFILED `VERIFY`; (b) R4b increment ruling owed
+since 08-28 `VERIFY`; (c) four withdrawn attributions `VERIFY`; (d) two 2026-08-24 R3 quotations
+`VERIFY`; (e) institutional-pull gap register (18; Shih 1995 + Craft/Launder/Suga 1996 highest
+zero-compute leverage) `VERIFY`; (f) M1b-freeze heads-up (a VERDICT-asserting freeze) `VERIFY`;
+(g) NEW: verification frozen-record-note referral — whether frozen grade_m1.py warrants a dated
+note that it cannot grade O(1)+ velocity data (awareness only). SUBMISSIONS PARKED.
+
+**COST THIS SESSION: 0.43 core-min grading [MEASURED] · 0 solver core-min · 0 GPU-h · $0.00 send.**
+Rule-12 calibration: M1 grade attempt completed as BLOCKED at the C1 control; the grading itself
+cost 0.43 core-min against no separately pre-registered grading estimate (grading a populated sweep
+is a sub-core-min read) — the material cost is the 133.03 core-min WASTE on the 6 timeout arms,
+recorded above and to be reconciled at the M1b regrade when G0 grades them.
+
+
 **TWENTY-THIRD SESSION, 2026-09-08 (closure-supervisor). CONTINUE. ZERO COMPUTE (0 solver
 core-min [MEASURED], 0 GPU-h, $0.00; selftest ~9 s wall CPU only). ONE COMMITTABLE INCREMENT
 LANDED (`c2293be4`): the M1b multimodel-sweep REGRADE comparator `grade_m1b.py` is
