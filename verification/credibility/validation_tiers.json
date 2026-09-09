@@ -202,7 +202,7 @@
       "validation_tier": "COMPLETE SYSTEM",
       "rank": 4,
       "of": 4,
-      "basis": "A full transport configuration, graded against a published workshop campaign.",
+      "basis": "The CRM wing (CRM_Wing), wing-alone. Code-verified: reproduces DAFoam's own published tutorial baseline (CD 0.02090) essentially exactly. No comparison against the AIAA DPW workshop or any experimental data was made.",
       "data_available": "The whole configuration. Experimental information is essentially always very limited and often carries no uncertainty analysis at all.",
       "ceiling": "Structurally below the top chip however tight the envelope. The limit is the data that exists in the world, not the quality of the solve.",
       "unlocked_by": "Only a characterized measurement of the complete configuration in its operating environment, which is the scarcest data in the hierarchy."

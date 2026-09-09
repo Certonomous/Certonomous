@@ -1,0 +1,207 @@
+{
+  "artifact": "Reference-tier registry -- the frozen evidentiary content of the reference-tier gate (check_reference_tier.py).",
+  "purpose": "Every COMPLETED 3D case classified by its REFERENCE STRENGTH (a different axis from the geometric building-block tier in validation_tiers.json). No demo page or credential entry may show a case ABOVE its tier here; a bounded-agreement case always shows its band; a caveated case always shows its caveat; an excluded 2D/axisymmetric case never appears in a 3D listing.",
+  "provenance": "Sanaa 2026-09-09 (direct): reference-tier credibility standard; every completed 3D case classified by reference strength BEFORE any page shows it; nothing shown above its true tier; a GATE binding demo/credential pages.",
+  "frozen": "This file is the gate's evidentiary content and is sha-frozen before grading (rule 2). The tier of each case is fixed BEFORE any page is scanned, so a page cannot pick the tier that flatters it. Edits after freeze land only as dated addenda that cannot alter a tier, band or caveat.",
+  "authored_by": "verification lab-lane (working-tree draft; supervisor diff-reads, plant-drives and commits)",
+  "authored_at": "2026-09-09",
+  "companion_standard": "verification/credibility/REFERENCE_TIER_STANDARD.md",
+
+  "tier_ranks": {
+    "experiment-validated": 4,
+    "bounded-agreement": 3,
+    "code-verified": 2,
+    "method-verified": 1,
+    "not-applicable-dimension": 0
+  },
+  "tier_definitions": {
+    "experiment-validated": "Validated against EXPERIMENTAL data; every deviation DISCLOSED.",
+    "bounded-agreement": "Agrees within an EXPLICITLY-STATED quantitative band vs a named reference; the band is always shown.",
+    "code-verified": "Reproduces a CODE reference only (another solver / a tutorial baseline). NEVER shown as experiment-validated; carries an explicit disavowal.",
+    "method-verified": "Internal verification only, no external reference (adjoint FD-verified / primal-converged / bug-find). States its time-box or bug-find; carries an explicit disavowal.",
+    "not-applicable-dimension": "2D / axisymmetric. EXCLUDED from any 3D listing."
+  },
+
+  "scan": {
+    "surface_roots": [
+      "demo-output/website",
+      "docs/dafoam/demo",
+      "docs/campaigns",
+      "verification/credentials",
+      "verification/credibility"
+    ],
+    "include_ext": [".html", ".json", ".md", ".tex"],
+    "exclude_glob_substrings": ["/solve_registry/", "/latex/", ".aux", ".toc", ".synctex", ".fls", ".fdb_latexmk"],
+    "self_exclude_basenames": [
+      "reference_tier_registry.json",
+      "REFERENCE_TIER_STANDARD.md",
+      "reference_tier_scan.json"
+    ]
+  },
+  "detector": {
+    "comment": "A page's CLAIM about a case is read heuristically from a bounded window (paragraph/block, or one JSON object's strings). A tier above method-verified is only CLAIMED when an ASSERTION CUE co-occurs with a reference token and is NOT negated -- a generic description of what a reference body is does not, by itself, assert that OUR result was validated. This keeps honest 'no wind-tunnel data / self-consistency, not validation' disavowals from reading as claims.",
+    "assertion_cues": [
+      "graded against", "validated against", "reproduces", "reproduction of",
+      "agrees with", "compared against", "in agreement with", "verified against"
+    ],
+    "_assertion_cues_note": "Deliberately excludes the generic 'matches'/'matches the' -- it fires on geometric-hierarchy boilerplate ('the published measurement matches the solved conditions') that asserts nothing about our result. A tier above method-verified is only CLAIMED when one of these result-comparison cues co-occurs with a non-negated reference token.",
+    "experiment_tokens": [
+      "experiment", "experimental", "wind tunnel", "wind-tunnel", "windtunnel",
+      "flight data", "test data", "measured data", "measurement campaign",
+      "workshop campaign", "workshop data", "pressure campaign", "dpw"
+    ],
+    "code_tokens": [
+      "tutorial baseline", "reference code", "another solver", "code-to-code",
+      "code to code", "tutorial's own", "tutorial baseline value"
+    ],
+    "negation_cues": [
+      "no ", "not ", "never", "nothing", "without", "n't", "no comparison",
+      "not validated", "self-consistency", "not a validation", "no wind",
+      "no experimental", "not against"
+    ],
+    "band_regexes": [
+      "[\u00b1+\\-]\\s*/?\\s*\\d+(?:\\.\\d+)?\\s*%",
+      "\\+/-\\s*\\d+(?:\\.\\d+)?\\s*%",
+      "\\[\\s*0?\\.\\d+\\s*,\\s*0?\\.\\d+\\s*\\]"
+    ],
+    "three_d_listing_cues": ["3d", "3-d", "three-dimensional", "three dimensional"],
+    "excluded_token_regexes": ["vmfl\\s*\\d+", "vmfl\\d+"]
+  },
+
+  "completed_3d_case_ids": [
+    "A3_onera_m6",
+    "A4_ahmed_body",
+    "A6_crm_wingbody",
+    "A2_mach_tutorial_wing",
+    "A5_ubend_internal",
+    "naca0015_sail_coarse"
+  ],
+
+  "cases": [
+    {
+      "case_id": "A3_onera_m6",
+      "tier": "experiment-validated",
+      "tier_rank": 4,
+      "display_aliases": ["onera m6", "onera_m6", "onera-m6", "onera m6 wing", "onera", "m6"],
+      "is_3d": true,
+      "completed": true,
+      "reference": "Schmitt, V. & Charpin, F., AGARD-AR-138 (1979), transonic wind-tunnel Cp campaign; ref data archived as case_2308.dat (AGARD/TMR).",
+      "band": null,
+      "required_caveat_tokens": ["shock"],
+      "required_disavowal": false,
+      "forbid_unnegated_experiment": false,
+      "required_caveat_or_band": "SHOCK-OFFSET DISCLOSED: CFD shock aft of experiment at 6 of 7 span stations by 0.02-0.10 x/c (eta=0.80 ~exact); suction-surface Cp RMS 0.049-0.114; attributed to numerical shock smearing at 399,360 cells. Primal GATE REACHED (adjoint BLOCKED, not part of the validation claim).",
+      "evidence": "cases/dafoam/ladder-a/A3_onera_m6.md:74-75 (Schmitt&Charpin AGARD-AR-138), :114-135 (shock location + aft-offset 6/7 stations); cases/dafoam/ladder-a/LADDER_A_STATUS.md:32 (row 8, primal GATE REACHED, CD 0.0229955633492643)"
+    },
+    {
+      "case_id": "A4_ahmed_body",
+      "tier": "bounded-agreement",
+      "tier_rank": 3,
+      "display_aliases": ["ahmed body", "ahmed_body", "ahmed reference body", "ahmed_25", "ahmed"],
+      "is_3d": true,
+      "completed": true,
+      "reference": "Ahmed, Ramm & Faltin 1984, SAE 840300; Cd 0.285.",
+      "band": "+/-15% => [0.2423, 0.3278] on frontal-area Cd",
+      "required_caveat_tokens": [],
+      "required_disavowal": false,
+      "forbid_unnegated_experiment": false,
+      "required_caveat_or_band": "EXPLICIT BAND +/-15% => [0.2423, 0.3278] on frontal-area Cd. Any experiment comparison shown for this case MUST carry the band. Filmed-act Cd 0.3041 (6.7% off, inside band), 'solver-backed, not validated'. This rung's DAFoam primal 0.2510 is WITHDRAWN. OpenFOAM baseline 0.3219 (12.95% off, in band). Bistable 25-deg slant wake is a documented limitation.",
+      "evidence": "cases/dafoam/ladder-a/A4_ahmed_body.md:15, :156-165 (band [0.2423,0.3278]; 0.2510 WITHDRAWN), :186 (act 0.3041); verification/campaign/AHMED_BODY_RECONCILIATION.md:26-27 (band), :82 (6.7% inside +/-15%), :85 ('solver-backed, not validated'); cases/dafoam/ladder-a/LADDER_A_STATUS.md:39 (opt PASS, EXIT Optimal)"
+    },
+    {
+      "case_id": "A6_crm_wingbody",
+      "tier": "code-verified",
+      "tier_rank": 2,
+      "display_aliases": ["crm", "crm_wingbody", "crm wingbody", "crm wing", "crm wing-alone", "wingbody", "wing-body"],
+      "is_3d": true,
+      "completed": true,
+      "reference": "DAFoam's OWN official tutorial baseline CD 0.02090 (dafoam.github.io mydoc_tutorials_aero_crm; tutorials commit d3b7e38b058aba2a98a74092e15c41ec455c570d). Wing-ALONE (CRM_Wing).",
+      "band": null,
+      "required_caveat_tokens": [],
+      "required_disavowal": true,
+      "forbid_unnegated_experiment": true,
+      "required_caveat_or_band": "NOT experiment-validated and NOT workshop-validated. Explicitly NO comparison against the AIAA DPW-VI wing-body scatter band. Wing-ALONE, not a full wing-body reproduction. Essentially exact reproduction of the tutorial's stated baseline (0.0067% off); makes NO claim about DPW-VI drag-prediction accuracy. Any page showing it must carry the code-verified disavowal. Primal GATE REACHED.",
+      "evidence": "cases/dafoam/ladder-a/A6_crm_wingbody.md:131 (no DPW comparison), :138-159 (tutorial baseline 0.02090, exact reproduction, no accuracy claim); cases/dafoam/ladder-a/LADDER_A_STATUS.md:47 (row 23, GATE REACHED, CRM wing-alone, CD 0.02090143421526141)"
+    },
+    {
+      "case_id": "A2_mach_tutorial_wing",
+      "tier": "method-verified",
+      "tier_rank": 1,
+      "display_aliases": ["mach tutorial wing", "mach_tutorial_wing", "mach wing", "reference wing"],
+      "is_3d": true,
+      "completed": true,
+      "reference": "NONE external. Internal FD verification (check_totals) of the adjoint gradient; docs state NO before/after CD value or drag-reduction target for this case.",
+      "band": null,
+      "required_caveat_tokens": [],
+      "required_disavowal": true,
+      "forbid_unnegated_experiment": true,
+      "required_caveat_or_band": "FD GATE PASSES (CD/shape 1.71%, CL/shape 1.17%, zero flagged). Optimisation TIME-BOXED to 60 min: 47 of ~100 IPOPT majors, NOT converged (no EXIT line) -> the 28.3% drag reduction is a partial, unconverged result graded 'OPTIMISATION RUN, NOT A RESULT'. Demo shows it as 'reference wing', caveated 'self-consistency, not validation'.",
+      "evidence": "cases/dafoam/ladder-a/A2_mach_tutorial_wing.md:63 (gate passes), :67 (60-min time-box), :104 (opt not converged); cases/dafoam/ladder-a/LADDER_A_STATUS.md:27 (row 3, gradient PASS) & :29 (row 5, opt NOT A RESULT)"
+    },
+    {
+      "case_id": "A5_ubend_internal",
+      "tier": "method-verified",
+      "tier_rank": 1,
+      "display_aliases": ["u-bend", "ubend", "u bend", "ubend_channel"],
+      "is_3d": true,
+      "completed": true,
+      "reference": "Primary: internal FD verification (bug-find). Weak code reference for the PRIMAL only: UBend_Channel tutorial CPL0 49.61 vs our TP1-TP2 52.345 (5.5% off, NO stated band -> not a bounded-agreement claim).",
+      "band": null,
+      "required_caveat_tokens": [],
+      "required_disavowal": true,
+      "forbid_unnegated_experiment": true,
+      "required_caveat_or_band": "BUG-FIND: shipped adjoint gradient disagrees with central FD by 46.6% (OpenMDAO flags it); shipped GATE FAIL 46.84% with 2 sign flips; root-caused to the IDWarp getRotationMatrix3d degenerate branch (patched clone reads 2.77% PASS). Primal converged. Half-model with symmetry plane. NOT experiment-validated.",
+      "evidence": "cases/dafoam/ladder-a/A5_ubend_internal.md:123 (primal converged), :158-159 (46.6% adjoint-vs-FD, OpenMDAO flag), :233-236 (tutorial CPL0 5.5%); cases/dafoam/ladder-a/LADDER_A_STATUS.md:43 (row 19, GATE FAIL 46.840%) & :44 (row 20, patched PASS 2.768%)"
+    },
+    {
+      "case_id": "naca0015_sail_coarse",
+      "tier": "method-verified",
+      "tier_rank": 1,
+      "display_aliases": ["naca0015 sail", "naca0015_sail", "naca 0015 sail", "naca0015_sail_coarse", "sail"],
+      "is_3d": true,
+      "completed": true,
+      "identity_status": "IDENTIFIED AT SOURCE as the 6th completed 3D case (pre-ladder work_sail); A1 NACA0012 is 2D and is an exclusion, NOT the 6th. PENDING Sanaa's confirmation of the 6th case's identity.",
+      "reference": "NONE external compared in the record. Internal FD gradient verification only. (validation_tiers.json lists naca0015_sail as BENCHMARK CASE = reference AVAILABLE, but no experimental comparison was MADE.)",
+      "band": null,
+      "required_caveat_tokens": [],
+      "required_disavowal": true,
+      "forbid_unnegated_experiment": true,
+      "required_caveat_or_band": "Pre-ladder (work_sail). Primal converged (CD=0.033031, CL=0.180995, residual 9.81e-9); adjoint completed (GMRES 60-62, reason 2); FD PASS: CD/shape 4.52% shipped (no sign flips), 99.5% rotation defect -> 0.0246% patched. NOT experiment-validated. THE 6th COMPLETED 3D CASE (identity PENDING Sanaa's confirm).",
+      "evidence": "cases/dafoam/DAFOAM_CASE_STATUS.md:144-150 (naca0015_sail_coarse: 'Steady. 3D', primal+adjoint+FD PASS); verification/credibility/validation_tiers.json (case naca0015_sail, BENCHMARK CASE geometric tier -- a DIFFERENT axis)"
+    }
+  ],
+
+  "exclusions_not_applicable_dimension": [
+    {
+      "case_id": "A1_naca0012_incompressible",
+      "display_aliases": ["naca0012", "naca 0012", "naca0012_wing", "naca0012_incompressible"],
+      "reason": "2D single-cell-spanwise NACA0012 section, 4032 cells. NEVER in a 3D listing. (One might naively count A1 as the 6th A-ladder case; it is 2D, so it is an exclusion, not the 6th.)",
+      "evidence": "cases/dafoam/ladder-a/A1_naca0012_incompressible.md:155 ('2D airfoil'); cases/dafoam/DAFOAM_CASE_STATUS.md:45 ('Steady. 2D (extruded 1-cell-thick)'); docs/dafoam/demo/ACT_D_reference_wing_sheet.tex:24 ('2D NACA0012 section, 4,032 cells')"
+    },
+    {
+      "case_id": "T23",
+      "display_aliases": ["t23"],
+      "reason": "2D/axisymmetric 5-deg wedge motor. NEVER in a 3D listing.",
+      "evidence": "docs/campaigns/T-family/T23G2R_PREREGISTRATION.md:104 ('5-deg wedge, dim = 2')"
+    },
+    {
+      "case_id": "T24",
+      "display_aliases": ["t24"],
+      "reason": "2-D axisymmetric 5-deg wedge (electronics). NEVER in a 3D listing.",
+      "evidence": "docs/campaigns/T-family/T24_RESULTS.md:46 ('2-D axisymmetric wedge theta = 5.0deg'); docs/campaigns/T-family/T24_PREREGISTRATION.md:168, :997-998 (one-cell-thick wedge, Ux identically zero)"
+    },
+    {
+      "case_id": "ANSYS_VMFL_passes",
+      "display_aliases": [],
+      "alias_regexes": ["vmfl\\s*\\d+", "vmfl\\d+"],
+      "reason": "All 11 Ansys VM passes are 2D / planar / axisymmetric verification cases; the register makes NO 3D claim. NEVER in a 3D listing.",
+      "evidence": "verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md (VMFL* rows uniformly wedge/planar/axisymmetric; zero occurrences of '3D'/'three-dimensional')"
+    }
+  ],
+
+  "adjacent_3d_cases_not_fully_completed": [
+    {"case_id": "naca4412_wing_coarse", "status": "3D full-span wing; primal CONVERGED (CD 0.024906, CL 0.244554) but adjoint BLOCKED/incomplete, no FD verification", "tier_if_primal_shown": "method-verified", "evidence": "cases/dafoam/DAFOAM_CASE_STATUS.md:162-168", "note": "Not counted as completed; if a page ever shows its primal CD it needs a method-verified tier and disavowal."},
+    {"case_id": "naca0015_sail_medium", "status": "3D; BLOCKED/incomplete (adjoint truncated mid-coloring)", "evidence": "cases/dafoam/DAFOAM_CASE_STATUS.md:152-158"},
+    {"case_id": "naca0015_sail_full", "status": "3D; scaffolding only, NEVER RUN", "evidence": "cases/dafoam/DAFOAM_CASE_STATUS.md:160"}
+  ]
+}
