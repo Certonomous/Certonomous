@@ -1,0 +1,184 @@
+==========================================================================
+T23G2R COMPARATOR -- gates REUSED VERBATIM from frozen T23G2 (T23G2R_PREREGISTRATION.md section 3)
+GRADING THE FINE VALUE.  The Richardson extrapolate is REPORTED and NEVER GATED ON.
+==========================================================================
+
+SELF-HASH: running blob 0a1b1f98d0165503c4482e06ad10ecc9d0604c38 (freeze pin 043ddce7eec16737de05f459902483f2f24ad791) -- PRINT-ONLY provenance (section 2au.2).  The SELF member is anchored by the commit-message FREEZE-PIN and the grade-time byte-identity check, not by a self-referential IDENTICAL assertion.
+
+GRADING-PATH SHAS -- REPAIR R2, registered at T23G2_PREREGISTRATION.md:671
+  THIS RECORDER GRADES NOTHING.  It reads no field and moves no comparison.
+  Frozen column = the blob in 043ddce7eec16737de05f459902483f2f24ad791, the commit that froze this comparator.
+  docs/campaigns/T-family/T23G2R_PREREGISTRATION.md
+      post-repair (working tree) : b4d2a22fa863891d7faa80440be26741a499d7b0
+      pre-registration (frozen)  : b4d2a22fa863891d7faa80440be26741a499d7b0   IDENTICAL
+  docs/campaigns/T-family/analyse_t23g2r.py
+      post-repair (working tree) : 0a1b1f98d0165503c4482e06ad10ecc9d0604c38
+      pre-registration (frozen)  : 7f0bdd907b9066b7f9536175d5305e5293eecbee   DIFFERS
+  docs/campaigns/T-family/t23g_readonly_diagnosis.py
+      post-repair (working tree) : 73804c02d2f1ebbb2cd2ad63796f4b5cfb4d7067
+      pre-registration (frozen)  : 73804c02d2f1ebbb2cd2ad63796f4b5cfb4d7067   IDENTICAL
+  verification/runs/T-family/T23_runs/mark_done_t23.py
+      post-repair (working tree) : 982e1db6622454c2e5cc3e9eb4d6811e87735b78
+      pre-registration (frozen)  : 982e1db6622454c2e5cc3e9eb4d6811e87735b78   IDENTICAL
+  scripts/roache_triple.py
+      post-repair (working tree) : 78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8
+      pre-registration (frozen)  : 78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8   IDENTICAL
+
+  THE TWO COLUMNS ARE TWO DIFFERENT OBJECTS AND ARE NOT INTERCHANGEABLE.
+  THIS RECORDER DOES NOT RESTORE THE REGISTERED PROVENANCE AND DOES NOT CLAIM TO:
+  :671 contemplated shas present FROM THE FIRST GRADED SOLVE.  Adding the recorder
+  CHANGES this file's sha, so only the forward half is available (section 2d.4.3).
+  NO GRADED SOLVE WAS EVER PRODUCED UNDER A COMPARATOR CARRYING THIS RECORDER.
+
+COMPLETION -- rule 4, DELEGATED to verification/runs/T-family/T23_runs/mark_done_t23.py and CALLED
+
+  | NOTE      T23G2R_L1      - rc_source=READ-FROM-STATUS
+  | DONE      T23G2R_L1
+  | NOTE      T23G2R_L2      - rc_source=READ-FROM-STATUS
+  | DONE      T23G2R_L2
+  | NOTE      T23G2R_L3      - rc_source=READ-FROM-STATUS
+  | DONE      T23G2R_L3
+
+G-MESHSIM -- section 5.5 / A2.4, measured from the BUILT polyMesh
+  cells fluid    T23G2R_L2/T23G2R_L1 = 2.250000000  PASS
+  cells housing  T23G2R_L2/T23G2R_L1 = 2.250000000  PASS
+  cells core     T23G2R_L2/T23G2R_L1 = 2.250000000  PASS
+  cells fluid    T23G2R_L3/T23G2R_L2 = 2.250000000  PASS
+  cells housing  T23G2R_L3/T23G2R_L2 = 2.250000000  PASS
+  cells core     T23G2R_L3/T23G2R_L2 = 2.250000000  PASS
+  first cell centrebody_down    T23G2R_L1/T23G2R_L2 = 1.500024  PASS
+  first cell centrebody_up      T23G2R_L1/T23G2R_L2 = 1.500024  PASS
+  first cell duct_wall          T23G2R_L1/T23G2R_L2 = 1.499995  PASS
+  first cell fluid_to_housing   T23G2R_L1/T23G2R_L2 = 1.500024  PASS
+  first cell centrebody_down    T23G2R_L2/T23G2R_L3 = 1.500016  PASS
+  first cell centrebody_up      T23G2R_L2/T23G2R_L3 = 1.500016  PASS
+  first cell duct_wall          T23G2R_L2/T23G2R_L3 = 1.499997  PASS
+  first cell fluid_to_housing   T23G2R_L2/T23G2R_L3 = 1.500016  PASS
+  cells across the housing wall at the COARSEST level: 8 (floor 8; T23G carried 4)  PASS
+  G-MESHSIM: PASS
+
+G-CONV -- section 5.3; h <= 1e-9 (Sanaa's tightened criterion), others <= 1e-8
+  T23G2R_L1   CONVERGED      worst asserted: all within tolerance   (Ux excluded, max|Ux|/max|Uz| = 1.966e-16)
+  T23G2R_L2   NOT CONVERGED  worst asserted: p_rgh 1.208e-08   (Ux excluded, max|Ux|/max|Uz| = 3.236e-16)
+  T23G2R_L3   NOT CONVERGED  worst asserted: p_rgh 1.036e-08   (Ux excluded, max|Ux|/max|Uz| = 5.073e-16)
+  G-CONV: GATE FAIL
+
+G-YPLUS -- A2.2: GATED on EVERY wall patch, EVERY level (max <= 1.0)
+  T23G2R_L1: primary instrument PRESENT and agrees with the independent reader to within 2%
+    centrebody_down    n= 100  min  0.3360  avg  0.3407  max  0.3475   PASS
+    centrebody_up      n=  80  min  0.3563  avg  0.3857  max  0.8606   PASS
+    duct_wall          n= 320  min  0.2348  avg  0.2527  max  0.6177   PASS
+    fluid_to_housing   n= 140  min  0.3476  avg  0.3515  max  0.3562   PASS
+  T23G2R_L2: primary instrument PRESENT and agrees with the independent reader to within 2%
+    centrebody_down    n= 150  min  0.2257  avg  0.2288  max  0.2333   PASS
+    centrebody_up      n= 120  min  0.2393  avg  0.2592  max  0.6372   PASS
+    duct_wall          n= 480  min  0.1576  avg  0.1697  max  0.4574   PASS
+    fluid_to_housing   n= 210  min  0.2334  avg  0.2360  max  0.2392   PASS
+  T23G2R_L3: primary instrument PRESENT and agrees with the independent reader to within 2%
+  PLANTED-ZERO CONTROLS ON THE TWO Y+ READERS (registered at :601 and :624-625)
+    [19/20] independent field reader @T23G2R_L3: planted x(1 + 0.001234) into 181694 vectors of U;
+            every wall patch moved by sqrt(1 + PLANT) = 1.000616809773, worst relative miss 2.219e-16
+            on centrebody_down -- PASSED
+    [20/20] primary log reader @T23G2R_L3: planted 0.001234, read back 0.001234 -- PASSED
+
+    centrebody_down    n= 225  min  0.1511  avg  0.1532  max  0.1563   PASS
+    centrebody_up      n= 180  min  0.1603  avg  0.1738  max  0.4720   PASS
+    duct_wall          n= 720  min  0.1055  avg  0.1137  max  0.3388   PASS
+    fluid_to_housing   n= 315  min  0.1563  avg  0.1581  max  0.1602   PASS
+  G-YPLUS: PASS
+
+PLANTED-ZERO CONTROLS ON EVERY QUANTITY AND EVERY LEVEL -- REPAIR R5, registered at :624-625
+  Q1  planted 0.001234  |  T23G2R_L1 PASSED  |  T23G2R_L2 PASSED  |  T23G2R_L3 PASSED
+  Q2  planted 0.001234  |  T23G2R_L1 PASSED  |  T23G2R_L2 PASSED  |  T23G2R_L3 PASSED
+  Q3  planted 0.001234  |  T23G2R_L1 PASSED  |  T23G2R_L2 PASSED  |  T23G2R_L3 PASSED
+  Q4  planted 0.001234  |  T23G2R_L1 PASSED  |  T23G2R_L2 PASSED  |  T23G2R_L3 PASSED
+  Q5  planted 0.001234  |  T23G2R_L1 PASSED  |  T23G2R_L2 PASSED  |  T23G2R_L3 PASSED
+  Q6  planted 0.001234  |  T23G2R_L1 PASSED  |  T23G2R_L2 PASSED  |  T23G2R_L3 PASSED
+  18 of the 18 registered quantity controls CONSTRUCTED AND PASSED
+
+G-PLATEAU and G-RATIO -- section 5.3, on EVERY graded quantity
+  Q1  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 4.325444e-01, ratio inf (needs >= 10)  NOT A RESULT
+  Q2  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 4.292022e-01, ratio inf (needs >= 10)  NOT A RESULT
+  Q3  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 4.286223e-01, ratio inf (needs >= 10)  NOT A RESULT
+  Q4  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 4.278465e-01, ratio inf (needs >= 10)  NOT A RESULT
+  Q5  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 2.821280e-05, ratio inf (needs >= 10)  NOT A RESULT
+  Q6  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 4.290166e-01, ratio inf (needs >= 10)  NOT A RESULT
+  R8 LIMB 1 (VERIFICATION_CHARTER.md section 2d.10, the licensing-gate clause): levels T23G2R_L2,T23G2R_L3 are not iteratively converged or not plateaued, so rule 5
+  step (a) has ALREADY VOIDED the observed order that G-RATIO exists to license.  There is NO ORDER for this gate to license, and a licence
+  issued for a voided claim is a CATEGORY ERROR, not a verdict.
+  applies to: Q1, Q2, Q3, Q4, Q5, Q6
+  R8 LIMB 2 (VERIFICATION_CHARTER.md section 2d.10's second ground, section 2p): the iterative change is EXACTLY 0.0, so this gate's zero-branch
+  returns infinity REGARDLESS OF THE NUMERATOR ENTIRELY.  The numerator was never consulted, so a PASS here would be attributable to the
+  denominator being zero and to NO PROPERTY OF THE LADDER -- a pass from a degenerate path.  The ratio is UNINTERPRETABLE, not meaningless.
+  applies to: Q1, Q2, Q3, Q4, Q5, Q6
+  THE TWO GROUNDS ARE INDEPENDENT AND EITHER ALONE IS SUFFICIENT.  Every number above is PRINTED because it is exactly what an
+  unlicensed gate would have graded, and NEITHER licenses anything: RATIO_MIN = 10 is UNTOUCHED and G-RATIO remains registered
+  on every graded quantity.
+  G-PLATEAU: PASS    G-RATIO: NOT A RESULT
+
+G-ORDER -- on Q4 (core volume-averaged T), band (0.5, 1.5)
+  The band is [0.5, 1.5] and NOT [1.5, 2.5] because the formal order of the
+  energy convection term is ONE: T23G_F/system/fluid/fvSchemes line 33,
+  `div(phi,h) bounded Gauss upwind`.  Sanaa's section 0 point 3 is scheme-relative.
+
+[Q4]  value 52.5146  band [46, 56]  dim = 2
+    triple ('T23G2R_L1', 'T23G2R_L2', 'T23G2R_L3') cells (40320, 90720, 204120) r21 1.5000 r32 1.5000 (equal)  values (53.58204022, 52.94243232, 52.51458586)  state CONVERGING  order 0.9917 (dim = 2)  GCI 2.0576 % = 1.08054 abs at Fs = 1.25, dim = 2  Richardson 51.650158 (parent-convention form 53.379014, sign-flipped, see module docstring)
+    planted-zero control: PASSED  planted 0.001234  reader Q4 @T23G2R_L3  saw 0.0012340000000108375
+    band verdict (computed first, unconditionally): PASS
+    VERDICT: NOT A RESULT -- levels T23G2R_L2,T23G2R_L3 are not iteratively converged or not plateaued; no grid claim can be made from this triple
+    BAND NOT REGISTERED FOR Q4 (T23G2_PREREGISTRATION.md section 3 role table transfers
+    Q4's band to Q1 :452, Q3 :453 and Q2 :454, and to NOBODY ELSE).  The band verdict
+    printed above is DISCLOSED, NOT GRADED: it is what an UNREGISTERED band would
+    have said, and it licenses nothing.
+    (the row was already NOT A RESULT on rule 5's earlier steps; the unregistered
+    band changed nothing about that.)
+[Q1]  value 51.9184  band [46, 56]  dim = 2
+    triple ('T23G2R_L1', 'T23G2R_L2', 'T23G2R_L3') cells (40320, 90720, 204120) r21 1.5000 r32 1.5000 (equal)  values (52.99911658, 52.35092665, 51.9183822)  state CONVERGING  order 0.9976 (dim = 2)  GCI 2.0889 % = 1.0845 abs at Fs = 1.25, dim = 2  Richardson 51.050779 (parent-convention form 52.785985, sign-flipped, see module docstring)
+    planted-zero control: PASSED  planted 0.001234  reader Q1 @T23G2R_L3  saw 0.0012340000000108375
+    band verdict (computed first, unconditionally): PASS
+    VERDICT: NOT A RESULT -- levels T23G2R_L2,T23G2R_L3 are not iteratively converged or not plateaued; no grid claim can be made from this triple
+[Q2]  value 50.1037  band [46, 56]  dim = 2
+    triple ('T23G2R_L1', 'T23G2R_L2', 'T23G2R_L3') cells (40320, 90720, 204120) r21 1.5000 r32 1.5000 (equal)  values (51.17421189, 50.5328551, 50.10365293)  state CONVERGING  order 0.9906 (dim = 2)  GCI 2.1663 % = 1.08538 abs at Fs = 1.25, dim = 2  Richardson 49.23535 (parent-convention form 50.971956, sign-flipped, see module docstring)
+    planted-zero control: PASSED  planted 0.001234  reader Q2 @T23G2R_L3  saw 0.0012340000000108375
+    band verdict (computed first, unconditionally): PASS
+    VERDICT: NOT A RESULT -- levels T23G2R_L2,T23G2R_L3 are not iteratively converged or not plateaued; no grid claim can be made from this triple
+[Q3]  value 56.0211  band [46, 56]  dim = 2
+    triple ('T23G2R_L1', 'T23G2R_L2', 'T23G2R_L3') cells (40320, 90720, 204120) r21 1.5000 r32 1.5000 (equal)  values (57.09119808, 56.44974275, 56.02112042)  state CONVERGING  order 0.9943 (dim = 2)  GCI 1.9261 % = 1.079 abs at Fs = 1.25, dim = 2  Richardson 55.157922 (parent-convention form 56.884319, sign-flipped, see module docstring)
+    planted-zero control: PASSED  planted 0.001234  reader Q3 @T23G2R_L3  saw 0.0012340000000108375
+    band verdict (computed first, unconditionally): GATE FAIL
+    VERDICT: NOT A RESULT -- levels T23G2R_L2,T23G2R_L3 are not iteratively converged or not plateaued; no grid claim can be made from this triple
+[Q6]  value 50.1664  band [46, 56]  dim = 2
+    triple ('T23G2R_L1', 'T23G2R_L2', 'T23G2R_L3') cells (40320, 90720, 204120) r21 1.5000 r32 1.5000 (equal)  values (51.23644296, 50.5953722, 50.16635556)  state CONVERGING  order 0.9906 (dim = 2)  GCI 2.1627 % = 1.08495 abs at Fs = 1.25, dim = 2  Richardson 49.298392 (parent-convention form 51.034319, sign-flipped, see module docstring)
+    planted-zero control: PASSED  planted 0.001234  reader Q6 @T23G2R_L3  saw 0.0012340000000108375
+    band verdict (computed first, unconditionally): PASS
+    VERDICT: NOT A RESULT -- levels T23G2R_L2,T23G2R_L3 are not iteratively converged or not plateaued; no grid claim can be made from this triple
+    BAND NOT REGISTERED FOR Q6 (T23G2_PREREGISTRATION.md section 3 role table transfers
+    Q4's band to Q1 :452, Q3 :453 and Q2 :454, and to NOBODY ELSE).  The band verdict
+    printed above is DISCLOSED, NOT GRADED: it is what an UNREGISTERED band would
+    have said, and it licenses nothing.
+    (the row was already NOT A RESULT on rule 5's earlier steps; the unregistered
+    band changed nothing about that.)
+Q5 housing surface heat flux -- REPORTED, NEVER GATED
+  values [-1.898150760673, -1.89812254787, -1.898062619855]  state DIVERGENT  order -1.858034624615698
+  A DIVERGENT or STAGNANT reading here is PRE-REGISTERED as the expected outcome (P4)
+  and is NOT a failure of this rung: the quantity is pinned by the imposed 305 W
+  source to ~4e-5 relative. A CONVERGING reading in [1.5, 2.5] would mean P4 LOST.
+
+A2.1 -- THE DISCRIMINATING OBSERVATION, registered before the run
+  p(Q4) = 0.9917, p(Q1) = 0.9976, spread = 0.0059
+  H-MESH predicts spread < 0.05 with p in [0.7, 1.3]; H-IFACE predicts spread > 0.15
+  with p in [0.25, 0.65] and the housing quantity LOWER.  On T23G the spread was
+  0.0027, which is a point AGAINST H-IFACE recorded before this run.
+
+G-ORDER -- A1.2 at T23G2_PREREGISTRATION.md:834, on Q4, band (0.5, 1.5)
+  REPAIR R7 (VERIFICATION_CHARTER.md section 2d.9.1): levels T23G2R_L2,T23G2R_L3 are not iteratively
+  converged or not plateaued, so rule 5 step (a) has ALREADY VOIDED the grid claim
+  this gate would otherwise grade.  There is NO ORDER CLAIM to gate.
+  The observed order is 0.9917 and the finest triple reads CONVERGING.  BOTH ARE PRINTED because
+  they are exactly what an unlicensed gate would have graded, and NEITHER licenses
+  anything: the band [0.5, 1.5] on Q4 is untouched and remains registered.
+  G-ORDER: NOT A RESULT
+
+==========================================================================
+RUNG VERDICT: NOT A RESULT
+==========================================================================
