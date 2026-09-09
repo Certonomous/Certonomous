@@ -28893,6 +28893,32 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 84-M6-FORKA-COMPLETES-BUT-CLAMP-ACTIVE-TE-RUNAWAY -->
+
+**Section last written:** 2026-09-09T01:16:41Z by the cfd-supervisor (Fable) directly, PURE INSERTION at the top of the `## cfd` section; boards 83/82 and prior stand unedited. Committed via the rule-10 private-index protocol on `docs/LAB_STATE.md` alone (worktree sha-clean vs HEAD before the splice).
+
+### 🟡 HEADLINE — M6 fork A (rhoPimpleFoam+LTS): STABILITY SOLVED — the FIRST M6 rhoSimpleFoam-class solve EVER to complete (rc=0, rule-4 verified UNDER LTS). BUT the bounded-T clamp is ACTIVE at convergence → my do-not-launch branch fired. Root cause: a LOCALIZED trailing-edge energy RUNAWAY (~25 near-wall cells, unbounded), solver/scheme-independent → a FROZEN case/mesh defect, not solve-path. NO graded launch. Running ONE more within-authority unbiased lever (nNonOrthogonalCorrectors) before escalating the physics HOLD to Sanaa. Still `NOT A RESULT`.
+
+**FORK-A OUTCOME (supersedes board-83's PENDING clamp gate).** rhoPimpleFoam + localEuler LTS + DELTA A completed to endTime 500: rc=0, End line, last-time==endTime==500; **rule-4 holds UNDER LTS (verified):** ExecutionTime-count==500, 8 fields present, age-guard all-newer-than-`0/U` TRUE. Momentum/continuity(~1e-10)/turbulence converge cleanly — the energy-led divergence that killed every steadyState attempt is BROKEN by the pseudo-transient march. This is real, large progress (first M6-class solve to complete). Artifact `verification/runs/M6_OWN_FAMILY_runs/L2/smoke_rhopimple_lts/` (ungraded).
+
+**CLAMP-INERTNESS GATE (DMR L5b) — FAILS → STOP (my do-not-launch branch).** Converged Tmax PINNED at the 1000 K ceiling; ~113 cells clamped EVERY iteration at the plateau (not →0); energy residual RISING (1.6e-6@it150 → 0.013@it500). A raised-ceiling (5000 K) diagnostic: hot cells pin at whatever ceiling is set → the true unclamped Tmax is UNBOUNDED at a localized set → the clamp is NEVER inert. DELTA A ACTIVE at convergence → biases Gate P → converged field nonphysical → NOT gradeable. No freeze, no graded launch.
+
+**ROOT CAUSE (my §3 check-3, verified).** Localized to ~25 near-wall cells (0.03% of 71,760) in the TRAILING-EDGE region (x/c 0.66–1.05, near-surface, across span); bulk field physical (Tmean 284 K). SOLVER- and SCHEME-INDEPENDENT (rhoSimpleFoam-steadyState overheated to 644 K via div(phi,Ekp); rhoPimpleFoam-LTS the same via div(phiv,p)) → an inherent energy pathology of the FROZEN M6 case at the TE, not the added terms. Physics confirms numerical: the M=0.84 turbulent adiabatic RECOVERY temperature is only ~324 K, so 1000+ K is nonphysical. Prime suspect: TE mesh non-orthogonality (65.87°, MESH_STANDARD warning band) driving an under-corrected non-orthogonal energy-diffusion runaway at the adiabatic wall (which is physically MANDATED for M6, so the BC is not the fix).
+
+**MY DECISION (decide-and-record).** Before escalating to Sanaa, run ONE more lever WITHIN MY AUTHORITY (unbiased, solve-path-only, gate untouched): increase **nNonOrthogonalCorrectors** (iterative non-orthogonal Laplacian correction — converges to the MORE ACCURATE discretization on the SAME mesh; adds no artificial diffusion, biases nothing), + a TE-cell mesh-quality diagnostic to confirm the overheating cells ARE the worst-non-orth cells. Same clamp-inertness gate: CLEAN (physical Tmax, clamp ~0 cells, residual falling) → I freeze the fresh prereg + launch the graded solve (chief ruled I may, on my physics gate, without waiting for Sanaa); STILL ACTIVE → runaway confirmed mesh-driven, terminal for solve-path → physics HOLD escalates to Sanaa via the chief (candidate fix = TE mesh, which re-defines the family).
+
+**LIVE:** lane **a156a777** running the nNonOrthogonalCorrectors lever + TE diagnostic (ungraded). M6 NOT running a graded solve. Not mine, untouched: ansys VMFL017-R3, heat-transfer T23G2R_L3, queue daemon pid 1887.
+
+**NEXT ACTIONS:** lane returns clamp-inertness on the corrector run → freeze+launch (if clean) OR physics HOLD to chief/Sanaa (if still active). Then, on a graded run: check-3 before the verdict repeats upward + rule-12 calibration row.
+
+**ON SANAA'S DESK:** solver-pivot finding (recorded, chief ruled proceed); NEWLY QUEUED if the corrector lever fails: the localized-TE-energy-runaway physics HOLD (frozen mesh/BC decision). **SUBMISSIONS PARKED (rule 7).**
+
+**BLOCKED:** nothing hard-blocked; graded relaunch gated on my check-4 freeze, itself gated on the corrector run passing clamp-inertness.
+
+**COST:** fork-A + prior + corrector smokes are ungraded dev compute (sub-cap). Original L2 crash 3.8 core-min wasted. This board write 0. Full graded solve re-cost ≈1,068 core-min / cap 2,136 (≈$1.83 derived, owner-rate).
+
+**CHAIN OF CUSTODY:** FIRST-HAND (cfd-supervisor, this session) — the check-3 root-cause verification (recovery-temperature physics, scheme/solver-independence), the clamp-inertness ruling, the nNonOrthogonalCorrectors decision, the lane dispatch, this board block + commit. RELAYED: the lane's measured fork-A completion numbers (recorded, to be check-3'd before any verdict repeats upward). Nothing sent, filed or posted (rule 7).
+
 <!-- BOARD-BLOCK-ID: 83-M6-SOLVER-PIVOT-RHOPIMPLE-LTS-CLAMP-GATE -->
 
 **Section last written:** 2026-09-09T01:10:59Z by the cfd-supervisor (Fable) directly, PURE INSERTION at the top of the `## cfd` section; board 82 and prior stand unedited. Committed via the rule-10 private-index protocol on `docs/LAB_STATE.md` alone (worktree sha-clean vs HEAD before the splice).
