@@ -29502,6 +29502,27 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 108-M6-NEARWALL-SOLVED-LEVER1-TIP-62DEG-CLOSED-O-FARFIELD-MEASURED-DEAD-END-ROUTE1-APPROVED-CH-PLUS-A3-PLUS-BUTTERFLY-TIP-SUPBOOSTER-ON-FINE-LEVEL -->
+
+**Section last written:** 2026-09-09T22:00Z by the cfd-supervisor (Fable) directly, PURE INSERTION at top of `## cfd`; boards 107/106/105 stand unedited. Committed via the rule-10 private-index protocol.
+
+### 🟢 M6 GRID (b) — near-wall SOLVED; closed-O farfield is a MEASURED dead-end; route (1) APPROVED (my architecture call). Lane abc08c4506fe8f19d measured (all y+<1, s0=1.546335e-6 exact, checkMesh):
+- **NEAR-WALL SOLVED:** LE/wing 51° (C-H designed farfield, proven algebraic); **tip cap 62.61°, 0 severe, 0 neg-vol via LEVER 1** (stitched two-sided normals across the point-matched seams dropped junctions 83–85°→62.6°). The tip-cap non-orthogonality unknown is RETIRED — no butterfly/elliptic solver needed for the near-wall tip. (Lane also corrected its own earlier wrong-zone-pair caution: the 9 A3 zones ARE cleanly point-matched, 0.00000 m seams.)
+- **CLOSED-O ALGEBRAIC FARFIELD = MEASURED DEAD-END:** full 9-zone radial-sphere march 97°/29 neg-vol; ISOLATED on a single clean zone (no seams) → still 91.5°/12 neg-vol, so it's the FARFIELD MAP not a seam/writer bug (proper §3 triage), and WORSE than pyHyp's 87°. A valid closed-O farfield would need the deferred elliptic smoother.
+- **MY DECISION — ROUTE (1):** C-H designed-topology farfield (make_blockmesh machinery, PROVEN 51° algebraic — sidesteps the elliptic need entirely) + A3-derived sections (gen_m6_gridb, curvature-passing at Lf) + a butterfly/O-H TIP cap (standard textbook wing-tip practice; the marched cap surface it yields inherits lever-1's 62.6° validity). NOT route (2) — the elliptic capability was only needed for the abandoned closed-O farfield. Milestones: M1 = C-H+A3 wing+farfield whole-mesh checkMesh (tip lens ~87° EXPECTED at M1, not a stop); M2 = butterfly tip → whole-mesh ≤70° + curvature + 0 neg-vol + 0 unused = GO for the 3 nested levels. **EXHAUSTION BAR:** only if the butterfly/O-H tip in C-H cannot clear ≤70° at y+<1 (documented process-class) → report to ME → I route to the CHIEF first (not Sanaa). No gate widening / no y+ relaxation. M6 arc ~30 core-min (~$0.026 derived).
+
+### 🟢 NAVIER SUP_BOOSTER (E1) — detached graded triple PROGRESSING: coarse + medium COMPLETE, now on the FINE level (verified first-hand: pid 824159/824160 rhoCentralFoam in `.../SUP_BOOSTER/graded/fine`). VERDICT.json fires after fine completes (committed autograder runs pinned grade_sup_booster.py vs the frozen reference). Verdict + Roache/GCI + rule-12 cost-calibration row PENDING (soon). Recovery after a kill = read VERDICT.json.
+
+**RUNGS WITHOUT VERDICTS (mine):** SUP_BOOSTER E1 graded triple on fine level, verdict imminent. M6 `NOT A RESULT` — near-wall solved, route-1 building toward freeze (my call, off Sanaa's desk). DPW8_V2 L4 owed D481; F24 fine reconciliation; F3-succ/F4-S numerics NEEDS-SUCCESSOR.
+
+**ON SANAA'S DESK:** M6 removed. Standing only: Navier MEASURED-tier PDFs; F24; F11 Ghia. SUBMISSIONS PARKED (rule 7).
+
+**LIVE:** M6 lane abc08c4506fe8f19d (route-1 build: C-H+A3+butterfly, M1 next); Navier lane a7c71f2eb2b3f5e24 (detached triple, fine level + autograder). NOT MINE: rhoCentralFoam 316601 (ansys VMFL017), rhoPimpleFoam 775010 (ansys VMFL046).
+
+**COST.** This turn 0 heavy compute (architecture decision + board). M6 arc ~30 core-min; SUP_BOOSTER triple cap 90 core-min ($0.077). Under $25/level.
+
+**CHAIN OF CUSTODY:** FIRST-HAND — the architecture decision (route-1 over route-2, on the lane's measured closed-O-dead-end + proven C-H-51° + lever-1-62.6° evidence, triage confirmed by the single-clean-zone isolation); the first-hand progress check of the SUP_BOOSTER triple (coarse+medium done, fine live). RELAYED, verify owed: the M6 M1/M2 checkMesh numbers (my §3 check at each milestone + re-check-1 at freeze) + the SUP_BOOSTER autograder verdict. Nothing sent outside the box (rule 7).
+
 <!-- BOARD-BLOCK-ID: 107-M6-TIPCAP-ESCALATION-RETRACTED-MY-CALL-VALIDITY-NOT-ACCURACY-GATE-TAPS-ARE-INBOARD-LANE-RESUMED-STITCHED-NORMALS-FIRST-SUPBOOSTER-STILL-RUNNING -->
 
 **Section last written:** 2026-09-09T21:45Z by the cfd-supervisor (Fable) directly, PURE INSERTION at top of `## cfd`; boards 106/105/104 stand unedited. Committed via the rule-10 private-index protocol.
