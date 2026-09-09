@@ -1532,3 +1532,26 @@ Row #64 landed `BLOCKED` because the frozen v1.0 comparator (blob `03518d00`) RE
 - **`PASS`, a genuine credential** — a CONVERGING triple, finest in band, exact-PDE ceiling. The 11th ansys PASS; recovers the VMFL007 case.
 - **NOT the first ansys credential** (10 prior PASS rows stand).
 - **No gate was moved to recover it** — the repair is value-invariant (V-129); the same run's numbers stand, only the off-gate instrument defect was fixed.
+
+## Row #68 — VMFL063-R2 — Separated Laminar Flow Over a Blunt Plate (VM2026R1 p. 193) — **`GATE FAIL`**
+
+**Graded 2026-09-09 through the pinned frozen comparator (blob `5d94fecbfa35013943b60e758ff433ad50ef00f7`, verified byte-identical on disk == at HEAD before grading, §3 check 1; selftest 68/68 both interpreters). Verdict `GATE FAIL` — the pre-registration PREDICTED `GATE FAIL`.** The continuum gate `LR/(2t)` at the finest CONVERGING level misses the frozen ±10 % band; rule 5 does NOT convert the row (the triple is CONVERGING). A finding, NOT a credential; ceiling `GATE REACHED`. Resolution-only successor to row #44 (VMFL063, `GATE FAIL`) — R2 changes only the mesh; band/gate/cap inherited byte-identical (L-487: a successor never widens the band). **Row #44 stands, unedited.**
+
+### What the run did — all levels COMPLETED CLEAN (strict completion PASSES)
+Every level `state = COMPLETE`, `rc = 0` MEASURED, `End`, `SIMPLE solution converged`, `ExecutionTime` count == last Time, all 5 physics-critical fields present and NEWER than `0/U` (age guard). Every level converged via `residualControl` BELOW the endTime 30000 ceiling (last_time 1944/1944/4177/10637) — the PRE-DECLARED frozen completion path (the rule refuses only `last_time == endTime`, i.e. ran out of clock without converging).
+
+### Why `GATE FAIL` — the continuum limb misses the band on a CONVERGING triple
+- **Limb A (gate), `LR/(2t)`:** L1 6.164703 / L2 5.600237 / L3 5.500829 (cells 23 040 / 92 160 / 368 640). **Roache CONVERGING**, observed order **p = 2.505456**, R = 0.176109, **GCI_fine 0.48 %**, Richardson f = 5.479580. Reference (gate): manual **Target 4.0** (Lane & Loehrke 1980, EXPERIMENTAL; Fluent 4.16 / CFX 4.05 context-only). Band frozen **±10 %**. Finest **5.500829 vs 4.0 → deviation 37.52 %, OUTSIDE the band → `GATE FAIL`**. The value is 2nd-order converged and lands ~37 % high; refinement moved it monotonically toward 4.0 (6.16→5.60→5.50) but the continuum answer of this laminar SIMPLE model is genuinely ~5.5, not 4.0.
+- **Limb B (determinism), ceiling PASS:** L1 vs L1D bit-for-bit twin — same converged iteration count (1944), `LR` bitwise equal (0.5548232319529735), sha256 identical on `wallShearStress`/`U`/`p`. **PASS.**
+- **Row verdict = worst limb = `GATE FAIL`** (not a credential; ceiling GATE REACHED). Rule 5: CONVERGING triple → valid GATE FAIL, not `NOT A RESULT`.
+- **Controls (rule 3) FIRED:** selftest planted-zero refusals (reader-sensitivity + BLIND-writer) both fire; live planted-zero on the graded data both PASS (wall_shear plant 5.937e-06 moved the crossing 0.0814 m, read-back err 1e-16; near-wall u_x plant pushed the crossing out of window, err 5e-14).
+
+### Provenance
+- **Comparator:** `cases/ansys_verification/VMFL063-R2/grade_vmfl063_r2.py`, blob **`5d94fecbfa35013943b60e758ff433ad50ef00f7`** — disk == HEAD; selftest 68/68 under `python3` and `python3 -O`.
+- **Pre-registration & freeze:** `cases/ansys_verification/VMFL063-R2/PREREGISTRATION.md` blob **`ec8575147edf18350fb94ba42eb4c5b5c16003dd`** (before compute, rule 2, §3 check 4).
+- **Run root:** `verification/runs/ansys_verification/VMFL063-R2/` — `GRADING_VMFL063_R2.json`, `L1/L1D/L2/L3`, `RUN_RC.*` (rc 0), `LAUNCH_RECORD.txt`, `COST.txt`. Results prose `verification/runs/ansys_verification/VMFL063-R2/RESULTS.md`.
+- **Cost:** **146.5166 core-min MEASURED** (serial ranks=1; L1 1.05 + L1D 1.05 + L2 10.3833 + L3 134.0333, `LAUNCH_RECORD.txt`) = **$0.1253 DERIVED, NOT measured** at $0.0513/core-h. Ratio **1.172** vs the 125 core-min estimate; attributed to an L3 iteration-count misprediction (~21 % under-predict), not waste and not contention. Waste 0.000 core-min. No cap fired (cap 320 running total). Calibration row `C-20260909T021050.027684Z-99f2d7b1` in `docs/COST_CALIBRATION.md`.
+
+### What this row REFUSES to claim
+- **No `PASS`.** The gate reference is experimental; the continuum limb misses by +37.5 %; ceiling GATE REACHED. Not a credential.
+- **`GATE FAIL` is a finding, not a deletion** — it stands in the register with its numbers, not counted among the PASS credentials. R3 successor is a research question (why the laminar SIMPLE model gives ~5.5, not 4.0), NOT a band widening.
