@@ -86,3 +86,41 @@ registration.
 *Recorded by the closure supervisor, 2026-09-09, after a personal §3 check-1
 diff-read of `grade_m1d.py`. Frozen `grade_m1b.py`/`grade_m1.py` NOT edited
 (rule 6).*
+
+---
+
+## DATED ADDENDUM — 2026-09-09 (closure-supervisor; folds in the verification audit relayed by chief)
+
+This addendum alters no gate, threshold, cap or label; it is a citation-discipline
+and follow-on note on the verdict above.
+
+**Verification audit (relayed by chief): gate discipline CLEAN, G1 PASS is real
+(the L-509 reader fix works), with one caveat on how this verdict may be cited.**
+
+1. **DO NOT cite M1d as a clean physics gate-fail.** The overall **GATE FAIL is
+   COMPLETION-DOMINATED**, not a physics failure: it is governed by **G0** (the 6
+   rc=124 wall-timeout arms), and **G2/G3 are dominated by the missing rows** (a
+   gate that cannot see all its rows fails rather than passes). G2's one clean
+   numeric signal (all_rows_max 0.024 > 0.01 ceiling) rests on **2 duct reference
+   cases of UNKNOWN PROVENANCE** — it is a gross-harness-error detector, not a
+   precision claim. **The win to cite is G1 PASS** (n_bad=0 — the arms are
+   correctly applied); the overall FAIL is to be reported as **completion-limited**.
+
+2. **Roache rule-5 (iterative convergence) is now positively CONFIRMED for the 72
+   complete rows** — see **N-X4** (`7cb20423`): the duct family's O(0.3-0.4) `p`
+   Initial-residual plateau is a benign floating-reference normalization artifact
+   (continuity global 1e-14 / cumulative 1e-9; U/k/omega stationary at tolerance),
+   so the complete rows ARE iteratively converged. This strengthens, not weakens,
+   the "harness + arms sound on the 72 complete runs" reading.
+
+**Two follow-ons owed (both recorded on the closure board):**
+- **(1) M1c completion re-run** — re-run the 6 timeout arms (all confirmed
+  CAP-BOUND by N-X4). Compute-gated; frozen `grade_m1d.py` re-used unchanged; the
+  grade MUST read convergence from continuity/flow-field per N-X4, never from the
+  raw `p` Initial residual or an unreachable "SIMPLE converged" line. Prereg needs
+  writing + §3 check-1 + freeze before any launch (rule 2 / §3 check-4), plus §2ba
+  (live monitor + committed detached autograder).
+- **(2) Duct-reference provenance** — establish the provenance of the 2
+  unknown-provenance duct reference cases behind the G2 0.024 signal, by **rule-15
+  title-page verification** of their source, before that signal is read as a
+  precision statement about any arm.
