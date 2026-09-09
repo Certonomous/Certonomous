@@ -165,9 +165,12 @@ MD5_FVSOL=67fed3c2ffd2765e51f2563270060648              # d6rf7_fvSolution (base
 MD5_ACCEPT_FLOOR=c6e63098e7afd542ea379a03eccfaf12       # d6rf9_accept_floor_control.py (byte-identical to D6RF7)
 MD5_UNITS=34f477f92b23e27896b458475eef0f78              # d6rf7_units_assert.py
 MD5_ENDPOINT_PHYS=625bacf5b1489989f9a2638dd99e2e52      # d6rf7_endpoint_physical.py (endpoint reconstruction)
+MD5_LOCUS=341189ca866f302a7e1bba8eefad3a57              # d6rf7_endpoint_locus.py (D6RF7 MD5_LOCUS6; imported by endpoint_physical:90 + units_assert:82 -- was dropped from the D6RF9 adaptation, restored 2026-09-09)
 MD5_EXTRACT=baedb673e9c88291f6724794681bc9a7            # d6rf7_extract_endpoint.py
 MD5_GRADE=6e76ed57ac6890b0a7fa260c46dc517b              # d6rf9_grade.py (pinned at freeze 2026-09-08)
 MD5_RUN_LEG=ae6ee60ce40239e6579b0ba59ae311a9            # d6rf9_run_leg.py (pinned at freeze 2026-09-08)
+# OptView.hst is DATA (the pyOptSparse optimisation history that DEFINES the endpoint design point), not a staged instrument, so it lives OUTSIDE INSTR_MD5. Its md5 is the canonical endpoint pinned by d6rf7_extract_endpoint.py's own registration (:14). Staged below; was dropped from the D6RF9 adaptation, restored 2026-09-09.
+MD5_OPTVIEW=70fafa07bdee618fef13039433c01114
 
 # instrument path -> pin (staged into $BASE beside the case)
 declare -A INSTR_MD5=(
@@ -177,6 +180,7 @@ declare -A INSTR_MD5=(
   [d6rf9_accept_floor_control.py]=$MD5_ACCEPT_FLOOR
   [d6rf7_units_assert.py]=$MD5_UNITS
   [d6rf7_endpoint_physical.py]=$MD5_ENDPOINT_PHYS
+  [d6rf7_endpoint_locus.py]=$MD5_LOCUS
   [d6rf7_extract_endpoint.py]=$MD5_EXTRACT
   [d6rf9_grade.py]=$MD5_GRADE
   [d6rf9_run_leg.py]=$MD5_RUN_LEG
@@ -221,7 +225,7 @@ CUMULATIVE_HARD_STOP_CORE_MIN=291
 FRAME_ALLOWANCE_S=90
 KILL_GRACE_S=60
 MEM=20g
-CPUSET=2,3,4,14
+CPUSET=9,10,11,12
 IMG=dafoam-idwarp-rot:v1
 IMG_PATCHED_DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
 
@@ -240,6 +244,18 @@ for d in base mp04 mp05 mp06; do
   elif [ -d "$SRC_REAL/$d" ]; then cp -a "$SRC_REAL/$d" "$WORK/$d"
   else echo "ABORT staging: neither $SRC_REAL/$ARM/$d nor $SRC_REAL/$d present"; exit 5; fi
 done
+# OptView.hst -- the loose optimisation-history file at the arm root that DEFINES
+# the endpoint (d6rf7_extract_endpoint.py reads it; the dir loop above copies only
+# DIRECTORIES, so it was dropped -- lines 17/70 say it is carried).  md5-pinned to
+# the canonical endpoint (70fafa07) so the reconstructed design point is reproducible.
+if [ -f "$SRC_REAL/$ARM/OptView.hst" ]; then OPTVIEW_SRC="$SRC_REAL/$ARM/OptView.hst"
+elif [ -f "$SRC_REAL/OptView.hst" ]; then OPTVIEW_SRC="$SRC_REAL/OptView.hst"
+else echo "ABORT staging: OptView.hst absent under $SRC_REAL/$ARM or $SRC_REAL -- no endpoint to reconstruct"; exit 5; fi
+OPTVIEW_SRC_MD5=$(md5sum "$OPTVIEW_SRC" | cut -d' ' -f1)
+[ "$OPTVIEW_SRC_MD5" = "$MD5_OPTVIEW" ] || { echo "ABORT staging: OptView.hst md5 $OPTVIEW_SRC_MD5 != pinned $MD5_OPTVIEW (wrong endpoint)"; exit 5; }
+cp -a "$OPTVIEW_SRC" "$WORK/OptView.hst" || { echo "ABORT staging: OptView.hst copy failed"; exit 5; }
+[ -f "$WORK/OptView.hst" ] && [ "$(md5sum "$WORK/OptView.hst" | cut -d' ' -f1)" = "$MD5_OPTVIEW" ] || { echo "ABORT staging: OptView.hst post-copy md5 mismatch"; exit 5; }
+echo "D6RF9_OPTVIEW_STAGED md5=$MD5_OPTVIEW src=$OPTVIEW_SRC (endpoint design point)"
 verify_and_stage_instruments "$WORK"
 
 # PATH-EXISTENCE FIXPOINT before the solver arm: the files the container will
@@ -249,7 +265,8 @@ PATH_FIXPOINT_OK=yes
 for need in \
   "$WORK/d6rf7_opt_runScript.py" "$WORK/d6rf9_run_leg.py" \
   "$WORK/d6rf7_fvSchemes_LIMITED" "$WORK/d6rf7_fvSolution" \
-  "$WORK/d6rf7_endpoint_physical.py" "$WORK/d6rf7_units_assert.py"; do
+  "$WORK/d6rf7_endpoint_physical.py" "$WORK/d6rf7_units_assert.py" \
+  "$WORK/OptView.hst"; do
   [ -f "$need" ] || { echo "ABORT path-existence fixpoint: $need is not on disk"; PATH_FIXPOINT_OK=no; }
 done
 for d in base mp04 mp05 mp06; do
@@ -303,7 +320,7 @@ FNEOF
 # SETUP CONTAINER -- reconstruct the endpoint DVs ONCE (endpoint_physical) so
 # every rung's primal runs at the SAME design point D6RF7 measured.
 # =============================================================================
-AGE_DATUM=$(date -u +%s)
+AGE_DATUM=$(date -u +%s.%N)   # SUB-SECOND: %s alone floors to the whole second, moving the datum EARLIER and opening rule-4's age guard fail-open by up to 1.000 s (both consumers accept on mt>datum). The frozen d6rf7_endpoint_physical.py C3 check REFUSES a truncated datum -- restored fractional part 2026-09-09 (mirrors D6RF7 launcher L.1153-1166 repair).
 echo "$AGE_DATUM" > "$WORK/.d6rf9_age_datum"
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
 run_container() {   # $1 = cmd file (relative to $WORK), $2 = name, $3 = deadline_s -> echoes rc
