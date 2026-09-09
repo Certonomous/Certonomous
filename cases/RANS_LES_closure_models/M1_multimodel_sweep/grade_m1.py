@@ -986,3 +986,40 @@ if __name__ == "__main__":
     except Refusal as exc:
         print(str(exc), file=sys.stderr)
         sys.exit(2)
+
+# ============================================================================
+# DATED RULE-6 AMENDMENT 1 — 2026-09-09 (closure-supervisor)
+# lines whose number changed above this section: 0
+# ----------------------------------------------------------------------------
+# DISCLOSURE (CLAUDE.md rule 6; VERIFICATION_CHARTER §6b). This comparator is
+# FROZEN. Its frozen evidentiary content is bytes 1..(the line above this block);
+# this dated note is appended strictly at the foot and shifts no line above it,
+# so every line-citation into this file elsewhere remains valid. Appending this
+# note changes the file's sha256 by design; the FROZEN bytes are the pre-note
+# sha256 recorded next, which is the value pinned in the prereg and against which
+# the run was hashed:
+#   frozen (pre-note) sha256 = b3decc88aca147c9a975bfa21f9ce71ffeac2c34dd34a6943935e20114b78e6e
+#   freeze commit            = 73cd5ac5 (pin cited in M1b_.../PREREGISTRATION.md)
+#
+# WHAT THIS FILE CANNOT DO. As executed on the real M1 multi-model sweep data it
+# REFUSED (exit 2) at its C1 planted-zero control BEFORE any gate — a round-off
+# FALSE-POSITIVE on any O(1)+ velocity donor: C1 plants PLANT=1.234e-3 on a first
+# cell of magnitude ~47 m/s and reads it back short of PLANT by ~half a ULP
+# (3.37e-15), exceeding the ABSOLUTE 1e-15 pass tolerance (this file, line ~215).
+# The reader is SIGHTED; the refusal destroys a legitimate instrument. This is
+# LESSON L-508. The M1 verdict produced by THIS file is therefore BLOCKED, not a
+# gate result (record: M1_GRADE_RESULT_2026-09-09.md).
+#
+# LATENT SECOND DEFECT (never reached here, real). MODEL_RE (this file, line 224)
+# captures the literal "type" from the generic "Selecting turbulence model type
+# RAS" line that precedes the model-specific line in every real OpenFOAM log
+# (.search takes the first match). This file never reaches G1 because it refuses
+# at C1 first, but the pattern is defective. This is LESSON L-509.
+#
+# SUPERSEDED BY. Both defects are repaired in the successor
+# cases/RANS_LES_closure_models/M1d_multimodel_sweep_g1fix/grade_m1d.py
+# (C1 predicate made PLANT-relative per §2d.1; MODEL_RE anchored on the mandatory
+# "Selecting RAS turbulence model <name>" line), which is the SOUND instrument and
+# produced the first believable M1 verdict (GATE FAIL governed by G0; G1 PASS).
+# Do NOT grade real OpenFOAM data with THIS file. Kept for provenance only.
+# ============================================================================

@@ -1843,3 +1843,37 @@ if __name__ == "__main__":
     except Refusal as exc:
         print(str(exc), file=sys.stderr)
         sys.exit(2)
+
+# ============================================================================
+# DATED RULE-6 AMENDMENT 1 — 2026-09-09 (closure-supervisor)
+# lines whose number changed above this section: 0
+# ----------------------------------------------------------------------------
+# DISCLOSURE (CLAUDE.md rule 6; VERIFICATION_CHARTER §6b). This comparator is
+# FROZEN. Its frozen evidentiary content is bytes 1..(the line above this block);
+# this dated note is appended strictly at the foot and shifts no line above it,
+# so every line-citation into this file elsewhere remains valid. Appending this
+# note changes the file's sha256 by design; the FROZEN bytes are the pre-note
+# sha256 recorded next, which is the value pinned in the prereg and against which
+# the run was hashed:
+#   frozen (pre-note) sha256 = 70ada1b742659ab94799de6e99cba43f8e16d4b736d3283927da67f5dd07ca33
+#   freeze commit            = 7dca38f6 (pin cited in this dir's PREREGISTRATION.md)
+#
+# WHAT THIS FILE CANNOT DO. This successor REPAIRED the C1 round-off false-positive
+# (L-508) and confirmed the repair on real O(47) data (C1 PASS), but on the real
+# M1 sweep it graded G1 = NOT A RESULT on all 78 rows through an INHERITED reader
+# defect: MODEL_RE (this file, line 394, byte-identical to frozen grade_m1.py:224)
+# captures the literal "type" from the generic "Selecting turbulence model type
+# RAS" line that precedes the model-specific line in every real OpenFOAM log
+# (.search takes the first match). The arms WERE applied correctly (the dict reader
+# returns the right model; the log's own second line names it); the DEFECT IS IN
+# THE READER, not the physics. This is LESSON L-509. The M1 verdict produced by
+# THIS file is therefore NOT A RESULT (instrument), not a believable gate result
+# (record: M1b_GRADE_RESULT_2026-09-09.md).
+#
+# SUPERSEDED BY. The MODEL_RE defect is repaired in the successor
+# cases/RANS_LES_closure_models/M1d_multimodel_sweep_g1fix/grade_m1d.py
+# (MODEL_RE anchored on the mandatory "Selecting RAS turbulence model <name>"
+# line; C1 repair carried byte-identical), which is the SOUND instrument and
+# produced the first believable M1 verdict (GATE FAIL governed by G0; G1 PASS,
+# n_bad=0). Do NOT grade real OpenFOAM data with THIS file. Kept for provenance.
+# ============================================================================
