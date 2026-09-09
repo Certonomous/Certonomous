@@ -1,0 +1,23 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class dictionary;
+    object thermophysicalProperties;
+}
+thermoType
+{
+    type            hePsiThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleInternalEnergy;
+}
+mixture
+{
+    specie          { molWeight 28.9647; }      // air, R = 8314.46/28.9647 = 287.06 J/kg/K
+    thermodynamics  { Cp 1004.5; Hf 0; }        // gamma = Cp/(Cp-R) = 1004.5/717.44 = 1.4001
+    transport       { mu 0; Pr 1; }             // INVISCID: mu = 0 (Euler); Taylor-Maccoll reference is inviscid
+}
