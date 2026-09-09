@@ -1,0 +1,72 @@
+{
+  "ladder_id": "D6RF10-P_conv",
+  "note": "\u00a72bb pre-flight for the D6RF10 A2-wing convergence probe (PERMISSION=NOT_FROZEN). R1 sized/smoked from the D6RF9 complete run (rc=0, reached its endTime 1000 -- NOT 2500; the D6RF9 endTime was 1000; the smoke proves the DARhoSimpleFoam|scotch|4 path, not the D6RF10 R1 horizon). R2/R3 sized from D6RF10-PREFLIGHT-EXERCISE MEASUREMENTS.json late-window per-step (early iters 200->300, extrapolated to endTime -- honest caveat). R1 deadline carries extra headroom over projected*1.25 to absorb ~145s fixed startup measured on the D6RF9 R1 run (241s wall vs 95.66s exec at Time 1000).",
+  "rungs": [
+    {
+      "rung": "R1",
+      "solver": "DARhoSimpleFoam",
+      "decomposition": {
+        "method": "scotch",
+        "nprocs": 4
+      },
+      "endTime": 2500,
+      "deadline_s": 600.0,
+      "preflight_smoke_log": "/home/ubuntu/certonomous-runs/CURRICULUM-D6RF9-a2-wing-convergence-probe/R1_20260909T020445Z_581327.log",
+      "deadline_sizing": {
+        "measured_per_step_wall_s": 0.08918571428571428,
+        "n_steps_sampled": 8,
+        "steps_to_endTime": 2500,
+        "projected_wall_s": 222.96428571428572
+      },
+      "solver_path": {
+        "rc": 0,
+        "reached_first_solve": true,
+        "decompose_ok": true
+      }
+    },
+    {
+      "rung": "R2",
+      "solver": "DARhoSimpleFoam",
+      "decomposition": {
+        "method": "scotch",
+        "nprocs": 4
+      },
+      "endTime": 2000,
+      "deadline_s": 12750.0,
+      "preflight_smoke_log": "/home/ubuntu/certonomous-runs/D6RF10-PREFLIGHT-EXERCISE/R2_smoke_20260909T181238Z_736055.log",
+      "deadline_sizing": {
+        "measured_per_step_wall_s": 5.0585,
+        "n_steps_sampled": 7,
+        "steps_to_endTime": 2000,
+        "projected_wall_s": 10117.0
+      },
+      "solver_path": {
+        "rc": 0,
+        "reached_first_solve": true,
+        "decompose_ok": true
+      }
+    },
+    {
+      "rung": "R3",
+      "solver": "DARhoSimpleCFoam",
+      "decomposition": {
+        "method": "scotch",
+        "nprocs": 4
+      },
+      "endTime": 2000,
+      "deadline_s": 10500.0,
+      "preflight_smoke_log": "/home/ubuntu/certonomous-runs/D6RF10-PREFLIGHT-EXERCISE/R3_smoke_20260909T183127Z_736055.log",
+      "deadline_sizing": {
+        "measured_per_step_wall_s": 4.1481,
+        "n_steps_sampled": 7,
+        "steps_to_endTime": 2000,
+        "projected_wall_s": 8296.2
+      },
+      "solver_path": {
+        "rc": 0,
+        "reached_first_solve": true,
+        "decompose_ok": true
+      }
+    }
+  ]
+}
