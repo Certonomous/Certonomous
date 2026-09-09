@@ -1497,6 +1497,24 @@ duct refs). CITE G1 PASS as the win; overall FAIL = completion-limited. Dated ad
 completion re-run (all cap-bound per N-X4); (2) **NEW owed: rule-15 title-page verification of the 2
 duct reference cases' provenance** before the G2 0.024 signal is read as precision.
 
+**═══ UPDATE 3 (same session): M1-C COMPLETION RE-RUN FROZEN (`84c163bf`) + ROWS FINALIZED (`1cabf269`); LAUNCH IN FLIGHT ═══**
+Chief GO'd M1c (via queue daemon; M6 graded triple preempts on chief's signal). All §3 checks MINE,
+done: §3 check-1 diff-read of autograde_m1c.sh/stage_m1c.sh/monitor_m1c.sh (SOUND); grade_m1d.py
+on-disk sha == pin a1ee1905 re-confirmed at freeze (re-used VERBATIM, gates inherited M1 §7, no
+widening); merged-symlink grading topology APPROVED (grader reads by constructed path, symlink-
+transparent, age guard intact, C1 plants to tmp copy); §5.5 ruled (2 AR_1 arms IN — frozen grader
+counts them among the 78, cost-census exclusion is contention-only; 3 long caps legit). FROZEN
+`84c163bf` (prereg + 3 scripts). Rows finalized `1cabf269`: prereg_commit=84c163bf, enqueued_by =
+my §3-check-4 attestation. SUPERVISOR CATCH: queue_entry_check.py REFUSED all 6 for a missing required
+field `memory_floor_gb` (lane's "schema matches" was unverified) — added =1.0 (matches M1 arm rows),
+all 6 now ACCEPTED. §2ba: daemon (pid 1887) solve + committed detached autograde_m1c.sh (grader,
+re-hashes grade_m1d.py, refuses on mismatch, rc inside wrapper) + live monitor_m1c.sh. Caps (A.3 MAX):
+379.567 core-min = $0.3245 DERIVED at $0.0513/core-h (owner-stated), under $25. Execution lane running:
+stage_m1c.sh --execute → drop 6 rows live to verification/queue/closure/ PH_Breuer FIRST (re-validate
+--require-binding, commit) → launch autograder+monitor → confirm daemon pickup. Verdict on the FULL
+78-arm sweep (possible G0 PASS) grades via grade_m1d.py on a merged 78-arm symlink root once all 6
+complete. SUBMISSIONS PARKED.
+
 **NEXT ACTIONS.** (0) rule-15 provenance check of the 2 duct reference cases — DISCHARGED (a8634d90; field = baseline SST RANS, not DNS; upstream papers absent → gap on Sanaa's desk). (1) Interpret the duct-convergence diagnostic → either (benign) the M1d verdict and
 the 72 complete rows stand and M1c can proceed to freeze, or (real) escalate a Roache rule-5 question
 to verification that re-grades the duct rows. (2) If benign: write + §3-check-1 + freeze the M1-C
@@ -1505,8 +1523,8 @@ arms first, defer the 4 AR arms pending the rule-5 disposition. (3) LR1 freeze s
 Library growth still needs Sanaa's institutional pull (Shih 1995 + Craft/Launder/Suga 1996).
 
 **RUNGS WITHOUT VERDICTS.** M1 arc **GATE FAIL governed by G0 / G1 PASS** (M1d, first believable;
-72/78 complete) [standing, re-verified §3 check-3 this session] · M1-C 6-arm re-run: prereg CHECK1
-pending + compute-gated (duct rule-5 diagnostic RESOLVED benign, N-X4; all 6 arms cap-bound) `NEW` · R4b-Ib CHECK1
+72/78 complete) [standing, re-verified §3 check-3 this session] · M1-C 6-arm re-run: FROZEN `84c163bf`
++ rows `1cabf269`, LAUNCH IN FLIGHT via daemon (all 6 cap-bound, N-X4); full-sweep verdict pending completion `NEW` · R4b-Ib CHECK1
 pending + birth-demo compute-gated `VERIFY` · R4b-I+R4b arm BLOCKED (Sanaa) `VERIFY` · M2 UNRULED
 since 08-28 `VERIFY` · RC1/RC2 unfrozen `VERIFY` · Ling arm 2 frozen+UNFILED `VERIFY` · G1b xr null
 (D550) `VERIFY` · LR1 PENDING freeze (G2-gated) `VERIFY` · G2 PENDING freeze `VERIFY`. FS2 and FS5
