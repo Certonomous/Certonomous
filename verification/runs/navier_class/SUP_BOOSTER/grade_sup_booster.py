@@ -117,7 +117,8 @@ def parse_owner(case):
     return own
 
 def cone_owner_cells(case):
-    """Owner cell index of each cone-patch face (ordered apex->base by face order)."""
+    """Owner cell index of each cone-patch face (in blockMesh face order -- NOT assumed to be
+    apex->base; cone_cells_sorted() imposes the spatial order used for trimming)."""
     bnd = parse_boundary(case)
     if "cone" not in bnd:
         refuse(f"no 'cone' patch in {case}")
@@ -126,6 +127,17 @@ def cone_owner_cells(case):
     if sF + nF > len(own):
         refuse(f"cone faces [{sF},{sF+nF}) exceed owner list ({len(own)}) in {case}")
     return own[sF:sF+nF]
+
+def cone_cells_sorted(case, time, Cx=None):
+    """Cone owner cells SORTED by axial cell-centre Cx (ascending = apex->base), so the
+    tip/outlet trim is spatially correct regardless of blockMesh face order (supervisor
+    §3 hardening fix 1).  Cx may be passed in to avoid recomputing cell centres."""
+    cells = cone_owner_cells(case)
+    if Cx is None:
+        Cx, _ = cell_centres(case, time)
+    if any(c >= len(Cx) for c in cells):
+        refuse(f"{case}: a cone owner-cell index exceeds the cell-centre field length")
+    return sorted(cells, key=lambda c: Cx[c])
 
 # ---------------------------------------------------------------------------------------
 # cell centres (via OpenFOAM writeCellCentres, the analyse_t3 pattern)
@@ -191,10 +203,12 @@ def check_completion(case):
 # ---------------------------------------------------------------------------------------
 # readers: cone-surface Cp  and  shock angle beta
 # ---------------------------------------------------------------------------------------
-def read_cone_pressure(case, time, p_path=None):
-    """Trimmed mean of cone owner-cell pressure -> surface p.  p_path overrides the file read
-    (used by the planted-zero control to point at a perturbed copy)."""
-    cells = cone_owner_cells(case)
+def read_cone_pressure(case, time, p_path=None, Cx=None):
+    """Trimmed mean of cone owner-cell pressure -> surface p.  Cone cells are sorted by axial
+    position first (fix 1), then the apex-most TIP_TRIM and outlet-most OUTLET_TRIM fractions
+    are dropped, leaving the self-similar plateau.  p_path overrides the field read (used by
+    the planted-zero control to point at a perturbed copy)."""
+    cells = cone_cells_sorted(case, time, Cx=Cx)
     pfile = p_path if p_path else os.path.join(case, str(time), "p")
     pv = parse_internal_scalar(pfile)
     if pv is None:
@@ -210,10 +224,12 @@ def read_cone_pressure(case, time, p_path=None):
 def cp_from_p(p_surface):
     return (p_surface / P_INF - 1.0) / (0.5 * GAMMA * M_INF * M_INF)
 
-def read_shock_angle(case, time):
+def read_shock_angle(case, time, Cx=None, Cy=None):
     """Density-gradient shock locator: at each x-station find the radius of max |d rho/dr|,
-    then least-squares fit r_s = m*x + b and REQUIRE the fit to pass near the apex."""
-    Cx, Cy = cell_centres(case, time)
+    then least-squares fit r_s = m*x + b and REQUIRE the fit to pass near the apex.
+    Cx/Cy may be passed in to avoid recomputing cell centres."""
+    if Cx is None or Cy is None:
+        Cx, Cy = cell_centres(case, time)
     rho = parse_internal_scalar(os.path.join(case, str(time), "rho"))
     if rho is None:
         refuse(f"{case}/{time}/rho uniform -- no shock to locate")
@@ -255,7 +271,7 @@ def planted_zero_control(case, time):
     """Copy the endTime p field, add PLANT_PA to the FIRST cone owner-cell value, read the
     surface pressure back through read_cone_pressure, and require the reported plateau mean
     to rise (the reader must SEE a planted non-zero)."""
-    cells = cone_owner_cells(case)
+    cells = cone_cells_sorted(case, time)         # spatially sorted (fix 1), same order the reader trims
     n = len(cells)
     lo = int(math.floor(TIP_TRIM * n)); hi = int(math.ceil((1.0 - OUTLET_TRIM) * n))
     target_cell = cells[lo]                       # a cell that is INSIDE the trimmed plateau
@@ -336,36 +352,50 @@ def grade_gate(name, f_fine, f_med, f_coarse, h1, h2, h3, ref, band, unit):
     return out
 
 # ---------------------------------------------------------------------------------------
-def grade_case(case, h):
+def grade_case(case):
     endT, last = check_completion(case)
-    p_surf, nfaces = read_cone_pressure(case, last)
+    Cx, Cy = cell_centres(case, last)          # computed ONCE; nCells and both readers reuse it
+    ncells = len(Cx)
+    p_surf, nfaces = read_cone_pressure(case, last, Cx=Cx)
     cp = cp_from_p(p_surf)
-    beta, locinfo = read_shock_angle(case, last)
+    beta, locinfo = read_shock_angle(case, last, Cx=Cx, Cy=Cy)
     # rule-5 clause-1: iterative-plateau check on the graded quantity (cone Cp)
     ts = time_dirs(case)
     plateaued, cp_prev = True, None
     if len(ts) >= 2:
-        pp, _ = read_cone_pressure(case, ts[-2])
+        pp, _ = read_cone_pressure(case, ts[-2], Cx=Cx)   # same mesh -> same cell centres
         cp_prev = cp_from_p(pp)
         plateaued = abs(cp - cp_prev) <= PLATEAU_TOL * abs(cp) if cp else False
     else:
         plateaued = False
-    return dict(case=case, h=h, endTime=endT, last=last, cone_faces=nfaces,
+    return dict(case=case, nCells=ncells, endTime=endT, last=last, cone_faces=nfaces,
                 surface_p=p_surf, Cp_cone=cp, Cp_prev_write=cp_prev, beta_deg=beta,
                 iteratively_plateaued=plateaued, shock_fit=locinfo)
 
 def run_grade(args):
     ref = json.load(open(args.reference))["reference"]
     cp_ref = ref["Cp_cone"]; beta_ref = ref["beta_deg"]
-    # representative grid sizes: h ~ 1/sqrt(cells) in 2-D; here fixed by level (fine<med<coarse)
-    levels = {"fine": (args.fine, 1.0), "medium": (args.medium, 1.5), "coarse": (args.coarse, 2.25)}
-    if not all(v[0] for v in levels.values()):
+    levels = {"fine": args.fine, "medium": args.medium, "coarse": args.coarse}
+    if not all(levels.values()):
         refuse("all three of --coarse --medium --fine are required for the Roache triple")
     # RULE 3 control on the finest, before trusting any read
     ctrl = planted_zero_control(args.fine, check_completion(args.fine)[1])
     if not ctrl["passed"]:
         refuse(f"planted-zero control did not behave: {ctrl}")
-    per = {name: grade_case(d, h) for name, (d, h) in levels.items()}
+    per = {name: grade_case(d) for name, d in levels.items()}
+    # fix 2: tie the Roache r to the meshes ACTUALLY graded.  Representative grid size in 2-D
+    # is h ~ 1/sqrt(nCells); the registered family is 2.25x cells per level (r = 1.5 in h).
+    # ASSERT both step ratios are 1.5 to tolerance, else REFUSE -- the GCI is only valid on
+    # the registered refinement family.
+    nc = {k: per[k]["nCells"] for k in per}
+    h = {k: 1.0 / math.sqrt(nc[k]) for k in nc}
+    r_fm = h["medium"] / h["fine"]      # = sqrt(nCells_fine / nCells_medium)
+    r_cm = h["coarse"] / h["medium"]    # = sqrt(nCells_medium / nCells_coarse)
+    R_TOL = 0.08
+    if not (abs(r_fm - 1.5) < R_TOL and abs(r_cm - 1.5) < R_TOL):
+        refuse(f"graded meshes are not the registered 2.25x family: nCells={nc}, "
+               f"h-ratios medium/fine={r_fm:.4f}, coarse/medium={r_cm:.4f} (want ~1.5) -- "
+               f"the registered GCI r does not hold, cannot grade this triple")
     # rule-5 clause-1: a level not iteratively converged makes the whole triple NOT A RESULT
     not_plateaued = [n for n in per if not per[n]["iteratively_plateaued"]]
     if not_plateaued:
@@ -378,11 +408,11 @@ def run_grade(args):
             json.dump(report, open(args.report, "w"), indent=2)
         return 0
     gate_cp = grade_gate("C1 cone-surface Cp", per["fine"]["Cp_cone"], per["medium"]["Cp_cone"],
-                         per["coarse"]["Cp_cone"], 1.0, 1.5, 2.25, cp_ref, CP_BAND, "-")
+                         per["coarse"]["Cp_cone"], h["fine"], h["medium"], h["coarse"], cp_ref, CP_BAND, "-")
     gate_b = grade_gate("C2 shock angle beta", per["fine"]["beta_deg"], per["medium"]["beta_deg"],
-                        per["coarse"]["beta_deg"], 1.0, 1.5, 2.25, beta_ref, BETA_BAND_DEG, "deg")
-    report = dict(planted_zero_control=ctrl, per_level=per, gates=[gate_cp, gate_b],
-                  reference=ref)
+                        per["coarse"]["beta_deg"], h["fine"], h["medium"], h["coarse"], beta_ref, BETA_BAND_DEG, "deg")
+    report = dict(planted_zero_control=ctrl, per_level=per, grid=dict(nCells=nc, h=h,
+                  r_medium_fine=r_fm, r_coarse_medium=r_cm), gates=[gate_cp, gate_b], reference=ref)
     print(json.dumps(report, indent=2))
     if args.report:
         json.dump(report, open(args.report, "w"), indent=2)
@@ -399,6 +429,11 @@ def run_selftest(args):
     g2 = grade_gate("selftest2", 0.20, 0.22, 0.19, 1.0, 1.5, 2.25, 0.20225, CP_BAND, "-")
     assert g2["verdict"] == "NOT A RESULT", g2
     print(f"  {g2['triple']} -> {g2['verdict']}")
+    print("== Roache logic on a synthetic CONVERGING-but-OUTSIDE-band triple (must be GATE FAIL) ==")
+    g3 = grade_gate("selftest3", 0.250, 0.253, 0.259, 1.0, 1.5, 2.25, 0.20225, CP_BAND, "-")
+    assert g3["triple"] == "CONVERGING", g3
+    assert g3["verdict"] == "GATE FAIL", g3
+    print(f"  CONVERGING, dev={g3['deviation']:.4f} > band {CP_BAND} -> {g3['verdict']}")
     if args.smoke:
         print(f"== planted-zero control on smoke case {args.smoke} (real disk read) ==")
         ts = time_dirs(args.smoke)
