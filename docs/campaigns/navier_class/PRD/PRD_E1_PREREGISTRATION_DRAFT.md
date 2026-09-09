@@ -536,3 +536,71 @@ above; where the earlier prose called them "proposed" or "coordinated via the ch
 this amendment records that verification has RULED them.
 
 *— heat-transfer `lab-lane`, pre-compute amendment 2026-09-09. STILL NOT FROZEN.*
+
+---
+
+## ADDENDUM (pre-compute, 2026-09-09): L-514 p-solver tolerance PINNED from the §7.6 two-relTol sensitivity measurement
+
+**Condition (VERIFICATION_CHARTER §2b / CLAUDE.md rule 2, stated and checked):** no
+PRD-E1 compute has run in its real run home — **`verification/runs/navier_class/PRD/`
+does not exist (verified 2026-09-09 21:28 UTC)** — so the pre-registration is still
+open and this pre-compute addendum is LEGAL. The §7.6 sensitivity solves below ran
+**in a scratch working directory only** (session scratchpad `.../prd_l514/`); the
+real run home was **NOT created**, so PRD-E1 remains freeze-legal (no compute in its
+runs dir). This DRAFT remains **NOT FROZEN**.
+
+**Scope (what this addendum may and may not do):** it pins the **linear p-solver
+tolerance** required by §7 clause 6 and the §4 freeze conditions (the L-514 pin),
+FROM a measurement, per the draft's own instruction that "the final p-solver
+tolerances are pinned FROM THIS MEASUREMENT" (§7 clause 6). It **moves NO gate, band,
+threshold, cap, label or physical figure**: `G-ERGUN` (±3 %), `G-ASYMP` (±1.5 %), the
+gate hierarchy, Fs = 1.25, the five Ergun Δp targets, A/B, d/f, the mesh ladder and
+the §9 cost cap are ALL UNCHANGED. It pins a solver tolerance only.
+
+**Measurement (coarse L1, ACTIVE, U_s = 1.0 m/s, endTime 2000, serial / RANKS = 1,
+scratch).** Two p-solver recipes, everything else byte-identical (GAMG / GaussSeidel,
+maxIter at the GAMG default, SIMPLEC `consistent`, relaxation 0.9, no
+`residualControl` — run-to-endTime per ruling §4.5):
+
+| recipe | p relTol | p abs tol | plateau Δp [Pa] | rel. to Ergun 825 | plateau p init. residual |
+|---|---|---|---|---|---|
+| (a) provisional | 1e-3 | 1e-8 | **825.203** | +0.0247 % | 6.57e-9 |
+| (b) tighter | 1e-5 | 1e-8 | **825.158** | +0.0192 % | 8.33e-10 |
+
+- **Solver-induced Δp variation** |Δp(a) − Δp(b)| = **0.0453 Pa**.
+- **±3 % band** at Ergun 825 Pa = **±24.75 Pa**. The variation is **546× smaller =
+  2.74 decades below the band**, i.e. **≥ 1 decade below** — the L-514 requirement
+  (§4 freeze conditions; §4 loss mode (d)) is **SATISFIED**: the Δp gate is
+  solver-resolvable.
+- **Binding limit = the ABSOLUTE tolerance, not relTol.** At plateau the p **initial**
+  residual is already below abs tol 1e-8 in both recipes (6.57e-9 and 8.33e-10);
+  relTol × initial residual (~1e-12 to 1e-15) is orders below abs 1e-8, so **relTol
+  never binds** — abs tol 1e-8 floors the p-solve resolution. Tightening relTol from
+  1e-3 to 1e-5 moves Δp by only 0.045 Pa, confirming relTol is not the controlling
+  parameter.
+
+**Δp reader:** `analyse_prd.read_dp_pa` (the ×ρ kinematic→Pa converter, RHO = 1.2),
+last `surfaceFieldValue.dat` row at endTime; p_out_kin ≈ 0.079 (outlet fixed 0),
+p_in_kin ≈ 687.7 → ×1.2 = the Δp above.
+
+**PINNED FINAL p-solver values (= the provisional, CONFIRMED by measurement):**
+- `p` linear-solver relTol = **1e-3**
+- `p` linear-solver abs tolerance = **1e-8**
+- `p` maxIter = **1000 (explicit; §7 clause 6)** — measurement confirmed maxIter never
+  binds (0–1 sweeps at plateau).
+
+The relTol and abs-tolerance pinned values **equal what `build_prd.py` writes**
+(fvSolution p-block: `tolerance 1e-08; relTol 0.001;`). Per §7 clause 6, `maxIter
+1000;` is now written **explicitly** in the p-block — a **behaviour-identical**
+alignment, since the GAMG default is already 1000 and maxIter never binds (the
+measurement above) — and the emitted `// L-514` marker now cites this addendum
+(`§7.6 two-relTol sensitivity`) in place of the provisional wording.
+
+**Cost (rule 12; core-min = wall_s × ranks ÷ 60; ranks = 1):** recipe (a) 72 s =
+**1.200 core-min**; recipe (b) 73 s = **1.217 core-min**; total **2.417 core-min ≈
+0.0403 core-h**. Dollars **DERIVED** at $0.0513/core-h = **≈ $0.0021** (reported-by-
+owner, not measured — the box cannot read its own billing,
+`COMPUTE_BUDGET_CHARTER.md` §5). Well under the $25 pre-authorisation and the §9 cap.
+
+*— heat-transfer `lab-lane`, L-514 p-solver pin addendum 2026-09-09. STILL NOT
+FROZEN. No compute ran in the PRD run home; scratch only.*

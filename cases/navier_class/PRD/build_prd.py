@@ -116,8 +116,8 @@ GRADED_LEVELS = ("L1", "L2", "L3")   # L4 is budgeted, run only if pre-asymptoti
 # L-514: PINNED FROM §2bb SMOKE, provisional here.  The abs tol is set one decade
 # below the finest monitored Delta-p resolution; the FINAL values are pinned by a
 # dated addendum after the smoke measures the solver-induced Delta-p sensitivity.
-P_SOLVER_RELTOL_PROVISIONAL = 1e-3     # (draft §7 clause 6:323) PROVISIONAL
-P_SOLVER_ABSTOL_PROVISIONAL = 1e-8     # (draft §7 clause 6:323) PROVISIONAL
+P_SOLVER_RELTOL_PROVISIONAL = 1e-3     # (draft §7 clause 6) PINNED (§7.6 addendum 2026-09-09)
+P_SOLVER_ABSTOL_PROVISIONAL = 1e-8     # (draft §7 clause 6) PINNED; the binding floor (§7.6)
 ENDTIME_PROVISIONAL = 3000             # steady iterations; sized in §2bb (deltaT=1)
 DELTAT = 1                              # steady simpleFoam unit step (clause-5)
 # Inlet turbulence estimates are a MODELING input, not a frozen physical value:
@@ -326,7 +326,8 @@ def fv_schemes():
 
 
 def fv_solution():
-    # L-514: p-solver tolerances are PROVISIONAL, PINNED FROM THE §2bb SMOKE.
+    # L-514: p-solver tolerances PINNED FROM the §7.6 two-relTol sensitivity addendum
+    # (2026-09-09): relTol 1e-3, abs 1e-8, explicit maxIter 1000 (§7 clause 6).
     # NO SIMPLE residual-exit block (verification ruling §4.5): the steady run must
     # execute EXACTLY endTime iterations (clause-5 fixed-dt premise, deltaT=1).
     # A residual-based early stop would let simpleFoam stopAt endTime terminate
@@ -338,7 +339,7 @@ def fv_solution():
     return (_foamfile("dictionary", "fvSolution", "system")
             + "solvers\n{\n"
             + "    p\n    {\n        solver GAMG; smoother GaussSeidel;\n"
-            + "        tolerance %r; relTol %r;   // L-514 PROVISIONAL, PINNED FROM §2bb SMOKE\n"
+            + "        tolerance %r; relTol %r; maxIter 1000;   // L-514 PINNED (§7.6 two-relTol sensitivity addendum 2026-09-09)\n"
             % (P_SOLVER_ABSTOL_PROVISIONAL, P_SOLVER_RELTOL_PROVISIONAL)
             + "    }\n"
             + "    \"(U|k|omega)\"\n    {\n        solver smoothSolver; smoother symGaussSeidel;\n"
@@ -539,8 +540,8 @@ def selftest():
             and "name inletPlane; type faceZoneSet" in ts
             and "name outletPlane; type faceZoneSet" in ts)
         fs = open(os.path.join(tmp, "system", "fvSolution")).read()
-        _ck("p-solver tol carries the L-514 PROVISIONAL marker",
-            "PINNED FROM §2bb SMOKE" in fs)
+        _ck("p-solver tol carries the L-514 PINNED marker + explicit maxIter 1000",
+            "L-514 PINNED (§7.6 two-relTol sensitivity" in fs and "maxIter 1000;" in fs)
         # FIX-2 (§3 check-1): no residual-exit clause -> run executes to endTime
         # (clause-5 fixed-dt premise); convergence judged by analyse_prd.
         _ck("fvSolution carries NO triggering residualControl (run-to-endTime)",
