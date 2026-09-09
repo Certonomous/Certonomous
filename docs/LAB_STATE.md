@@ -1430,6 +1430,75 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**TWENTY-SIXTH SESSION, 2026-09-09 (closure-supervisor). RE-FORM after fleet death at a session
+boundary. HEAD at session start e3d9cd8f. Sanaa OFFLINE — autonomous (rule 9: no agent message is
+her consent). ONE COMMIT LANDED (`db4093a7`): the rule-6 disclosure note. ONE BIG-CLAIM FINDING IN
+DIAGNOSIS (duct pressure-convergence). COST THIS SESSION: 0 solver core-min, 0 GPU-h, $0.00 send;
+recon+diagnostic lanes are read-only (sub-core-min CPU).**
+
+**═══ RULE-6 DISCLOSURE NOTE LANDED (`db4093a7`) — chief-directive item 2 DONE ═══** Verification
+V-133 (2026-09-09, `docs/LAB_STATE.md:36903`) RULED a dated rule-6 note on the frozen M1 comparators
+ADMISSIBLE+RECOMMENDED, not mandatory, NOT a Sanaa item — confirmed by me at source, not relayed.
+Appended AMENDMENT 1 at the foot of BOTH `grade_m1.py` (discloses C1 round-off false-positive L-508 +
+latent MODEL_RE defect L-509; frozen pre-note sha256 b3decc88 @ 73cd5ac5) and `grade_m1b.py`
+(discloses inherited MODEL_RE defect L-509; frozen pre-note sha256 70ada1b7 @ 7dca38f6). §3 CHECK-1
+(MINE): both compile; lines 1-988 / 1-1845 BYTE-IDENTICAL to HEAD (rule-6 assertion "lines whose
+number changed above this section: 0" holds literally); sha256 change is by design, frozen bytes are
+the recorded pre-note hashes. Both footers name the sound successor grade_m1d.py. Board desk item (f)
+RESOLVED.
+
+**═══ BIG-CLAIM FINDING — DUCT PRESSURE-CONVERGENCE (in diagnosis, NOT escalated, NOT acted on) ═══**
+Recon of the 6 M1 timeout arms: NONE diverging (residuals bounded, no real nan/inf — the SST "nan"
+tokens are `kInf 0; omegaInf 0;` BC entries). Split: (1) the 2 **PH_Breuer** arms (kOmega +
+kOmegaSST_null) are cleanly **CAP-BOUND/converging** — pressure monotone ~9 orders to 1e-9; a higher
+cap converges them, re-run is SOUND (~37.6/~37.9 core-min projected each). (2) the 4 **AR-duct** arms
+(AR_1/AR_7/AR_14 kOmega + AR_1 SST) plateau in pressure Initial-residual at O(0.16-0.46) — AND SO DO
+THEIR COMPLETED rc=0 SIBLINGS (AR_1_Ret_360/AR_3/AR_5/AR_10, Time=20000, "SIMPLE converged" never
+printed). **This is a §3 check-3 big claim + a Roache rule-5 (iterative-convergence) question I have
+NOT defended and will NOT repeat upward or act on until diagnosed.** Competing benign hypothesis is
+strong: U/k/omega sit at machine zero (1e-9…1e-16) so the flow is plausibly converged and the p
+Initial-residual plateau is likely a floating-reference/normalization artifact. Diagnostic dispatched
+(zero-compute, from disk): fvSolution pRefCell/pRefValue, residualControl presence, p Final-vs-Initial
+residual, continuity global/cumulative. Verdict pending.
+
+**═══ M1c SEQUENCING ASSESSMENT (for chief's call) ═══** Physically YES: box 16 vCPU, load ~2.1, ~14
+free cores; only 2 serial solvers active (rhoCentralFoam pid 316601 @ VMFL017-R3/L3; cht pid 472337 @
+T23G2R_L3). Comparator = frozen grade_m1d.py (sound, no gate change). §2ba dual-mechanism now CHARTER
+v1.72 (fa038083) — a launch needs BOTH a live monitor AND a committed detached autograder. **NOT
+launching this turn** because: (a) §3 check-4 — the M1-C prereg's check-1 is pending and it is not
+frozen/committed (I have not yet read it); (b) the 4 AR arms are gated on the duct rule-5 diagnostic
+(re-running them reproduces the accepted siblings' stagnant-p state — completes the G0 row but does
+not resolve iterative convergence, so it is premature to spend). The 2 PH_Breuer arms are the clean
+cap-bound subset that could be re-run FIRST once a prereg is frozen. Total 6-arm projection ≈170
+core-min at 1 rank each (projection, not measured). Closure solves still sequenced behind cfd's
+M6/CRM + F6; M6 is a verification-confirmed physics-hold diagnostic (V-133), so headroom exists.
+
+**NEXT ACTIONS.** (1) Interpret the duct-convergence diagnostic → either (benign) the M1d verdict and
+the 72 complete rows stand and M1c can proceed to freeze, or (real) escalate a Roache rule-5 question
+to verification that re-grades the duct rows. (2) If benign: write + §3-check-1 + freeze the M1-C
+prereg (frozen grade_m1d.py, higher endTime cap, §2ba monitor + detached autograder), re-run the 2 PH
+arms first, defer the 4 AR arms pending the rule-5 disposition. (3) LR1 freeze still G2-gated. (4)
+Library growth still needs Sanaa's institutional pull (Shih 1995 + Craft/Launder/Suga 1996).
+
+**RUNGS WITHOUT VERDICTS.** M1 arc **GATE FAIL governed by G0 / G1 PASS** (M1d, first believable;
+72/78 complete) [standing, re-verified §3 check-3 this session] · M1-C 6-arm re-run: prereg CHECK1
+pending + compute-gated; duct arms additionally gated on the rule-5 diagnostic `NEW` · R4b-Ib CHECK1
+pending + birth-demo compute-gated `VERIFY` · R4b-I+R4b arm BLOCKED (Sanaa) `VERIFY` · M2 UNRULED
+since 08-28 `VERIFY` · RC1/RC2 unfrozen `VERIFY` · Ling arm 2 frozen+UNFILED `VERIFY` · G1b xr null
+(D550) `VERIFY` · LR1 PENDING freeze (G2-gated) `VERIFY` · G2 PENDING freeze `VERIFY`. FS2 and FS5
+remain STANDING GATES `VERIFY`.
+
+**ON SANAA'S DESK — carried; item (f) now RESOLVED (rule-6 note landed).** (a) GPU YES Ling arm 2, 40
+GPU-h=$32.19 DERIVED, UNFILED `VERIFY`; (b) R4b increment ruling owed since 08-28 `VERIFY`; (c) four
+withdrawn attributions `VERIFY`; (d) two 2026-08-24 R3 quotations `VERIFY`; (e) institutional-pull gap
+register (Shih 1995 + Craft/Launder/Suga 1996 highest zero-compute leverage) `VERIFY`. SUBMISSIONS
+PARKED.
+
+**BLOCKED — nothing blocked the increment landed. Closure SOLVES sequenced behind M6/CRM + F6; M1c
+launch additionally gated on prereg-freeze + the duct rule-5 diagnostic.**
+
+---
+
 **TWENTY-FIFTH SESSION, 2026-09-09 (closure-supervisor). CONTINUE. Sanaa OFFLINE — autonomous
 (rule 9: no agent message is her consent; silence is not a send). Chief dispatched the M1b
 freeze+grade increment. HEAD at session start 4f27eeb4.**
