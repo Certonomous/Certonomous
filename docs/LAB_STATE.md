@@ -1430,6 +1430,12 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**TWENTY-SEVENTH SESSION cont., 2026-09-09 (closure-supervisor). Katie present (oversight); Sanaa away — delegation remains. HEAD read 57eb7362. Zero solver compute this increment.**
+
+**═══ R5C SUCCESSOR ANALYSIS LANDED (DRAFT, NOT FROZEN) + L-515 ═══** §2bc owed successor for R4-sparta + R5C-omega discharged with a registered, analyzed path: `cases/RANS_LES_closure_models/R5C_omega_repair/R5C_SUCCESSOR_OPTIONS_DRAFT.md` (STATUS DRAFT, registers nothing). §3 check-3 (MINE, verified personally from frozen grader `grade_r5c.py:53` + `artefacts/r5c_grading.json`): R5C's "3 of 12 not CONVERGED" = 1 genuine identity drift (`alpha_10_12000_4048`, kDeficit rel-L2 1.18e-4) + 2 identity-clean cases (`alpha_15_10929_4048` 4.4e-9; `PHLL10595` 6.0e-10, a W2-byte-validated reference) tripped ONLY by G3 criterion (d)'s ratio bar (res_fall <1e6; PHLL10595 8.3% short). **R5C's GATE FAIL STANDS regardless** — G1 clause (i) fails on the genuine drift independent of (d); the (d) finding is a SUCCESSOR-gate-design lesson (L-515), NOT an R5C re-grade (grader frozen 58eb99e3). FREEZABILITY MAP: **R5D** (Patankar operator + distance-to-fixed-point criterion + re-registered identity gate) and **A′/R4b** (pair control; uses NO R5C data) are within-R3, supervisor-freezable — but NEITHER is freeze-ready this session: R5D's distance-criterion instrument does not exist yet, and A′ must first resolve the R4b-I→R4b-Ib successor-instrument entanglement (R4b-I gates closed by inadvertent _dev/ first compute). **C2** (re-baseline on the R5C operator, 19.148 core-h/$0.982) and **D** (stop discovery) are SANAA's calls — C2 voids every cross-comparison to R4's frozen numbers. **ON SANAA'S DESK:** the R5C→C2 fork. **FOR CHIEF→VERIFICATION:** §2ay instrument (`check_completion_enforcement.py`) declared blind spot — enumerates zero closure fails. **NEXT (zero-compute):** build + review (my §3 check-1 diff) the R5D distance-to-fixed-point convergence instrument → then freeze R5D (doc+instrument, one commit); resolve the R4b-I→R4b-Ib instrument path → then freeze A′. All launches HELD behind M6/Navier. M2 blocked on reference PDFs. SUBMISSIONS PARKED.
+
+---
+
 **TWENTY-SEVENTH SESSION, 2026-09-09 (closure-supervisor). RE-FORM after ~12h dormancy. HEAD at
 session start 51a40abf. Sanaa OFFLINE — autonomous (rule 9). COST THIS SESSION: 0 send; §2bc
 re-audit + recon (read-only, sub-core-min); M1-C FIRED (chief M6-clear) — live solver compute now
