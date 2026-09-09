@@ -28893,6 +28893,34 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 83-M6-SOLVER-PIVOT-RHOPIMPLE-LTS-CLAMP-GATE -->
+
+**Section last written:** 2026-09-09T01:10:59Z by the cfd-supervisor (Fable) directly, PURE INSERTION at the top of the `## cfd` section; board 82 and prior stand unedited. Committed via the rule-10 private-index protocol on `docs/LAB_STATE.md` alone (worktree sha-clean vs HEAD before the splice).
+
+### 🟡 HEADLINE — M6 own-family: the frozen rhoSimpleFoam config NEVER completed a solve (steady transonic cold-start divergence); SOLVER PIVOT to **rhoPimpleFoam + localEuler LTS + bounded-T** under a FRESH pre-registration BREAKS the divergence (marching Time 156+, energy residual ~1e-6, no FPE). Freeze (check-4) + graded launch gated on ONE physics test — **clamp-inertness** — still PENDING the completed run. Chief RULING: proceed to graded launch on my physics gate WITHOUT waiting for Sanaa. Still `NOT A RESULT`; still fix-until-runs, NOT a capability rule-out.
+
+**DIRECTION-LEVEL FINDING (my §3 check-3, verified personally).** No M6 rhoSimpleFoam log anywhere carries an `End` line — the frozen RUNG1_M6_R2/M6SR config (dddca8ba §5, "byte-identical to the proven M6 gate") was validated only at the **mesh** (checkMesh) gate, **never shown to complete a flow solve**. Failure = a hard steady-solve transonic cold-start instability (energy residual controlled ~16 iters, spikes 16× at iter 17 = shock formation; Tmax overheats to a nonphysical 644 K vs ~329 K stagnation ceiling). I CORRECTED the lane's leading mechanism: unbounded `div(phi,K)` is MOOT — with energy=`sensibleInternalEnergy`, `EEqn.H` uses `div(phi,Ekp)` (already `bounded Gauss upwind`); `div(phi,K)` is never requested (writer Amendment 11 Ruling 1). Active energy schemes are already robust; overheating is the explicit `Ekp` source spiking at the shock. Textbook LTS is UNAVAILABLE in the pinned rhoSimpleFoam binary (0 rDeltaT symbols; present in rhoPimpleFoam). Lighter levers exhausted (potentialFoam marginal, SIMPLEC worse, relaxation shows a non-classic inversion, first-order momentum no help).
+
+**FIX (fork A) — WORKING so far.** rhoPimpleFoam + `ddtSchemes localEuler` (LTS pseudo-transient to steady) + DELTA A `limitTemperature[100,1000]`, under a FRESH prereg (`verification/campaign/M6_OWN_FAMILY_FINE_TRIPLE_STABILIZED_PREREGISTRATION.md`, DRAFT). This is a pre-registered METHOD choice — same compressible RANS equations, same converged steady Cp, same Gate-G triple on the converged solution, Gate P (Cp±0.02, 271 AGARD taps, x/c≤0.90) + rule-5 Roache gating BYTE-IDENTICAL and untouched, grader `da0df95c` UNCHANGED. NOT an edit of dddca8ba, NOT a gate change (DMR-ladder precedent). Two added div terms (`div(phiv,p)`, `div(U)`) are rhoPimpleFoam solver plumbing, not Gate-P schemes. Smoke (ungraded, `verification/runs/M6_OWN_FAMILY_runs/L2/smoke_rhopimple_lts/`) marching past Time=156, energy residual ~1e-6, no FPE — the energy-led divergence is broken.
+
+**THE ONE OPEN GATE — clamp-inertness (DMR L5b standard).** `UnlimitedTmax` touched 1000 K (the limiter ceiling) — unphysical for M=0.84. DECISION RULE (mine, set in advance): (a) if converged Tmax is physical AND the limiter clamps ~0 cells at the plateau → DELTA A is unbiased at convergence, solve is gradeable → I freeze the fresh prereg + launch the genuine graded solve; (b) if Tmax stays PINNED at 1000 K with cells actively clamped at the plateau → the converged field is nonphysical and biases Gate P → NO launch; that is a physics HOLD that escalates to Sanaa (via the chief). Awaiting the completed run.
+
+**CHIEF RULING (dispatch, within chief authority — NOT Sanaa's consent, rule 9).** Proceed to the graded launch WITHOUT waiting for Sanaa, gated ONLY on my clamp-inertness physics gate; a solver/numerics pivot to make a mandatory case converge is engineering authority (not a scoring call, not a gate change). Physics-HOLD branch escalates to Sanaa and the chief holds it for her.
+
+**LIVE:** lane **a156a777** marching fork-A rhoPimpleFoam-LTS to completion with a DETACHED monitor (`bvparyr9z`) that re-invokes on `RC.txt`; it will report plateau residuals, final Tmax, clamp-cell trend, and rule-4/age-guard checks against my criterion, then STOP before any graded launch. **M6 is NOT running a graded solve** (ungraded dev smoke only). Not mine, untouched: ansys VMFL017-R3, heat-transfer T23G2R_L3, queue daemon pid 1887.
+
+**RUNGS WITHOUT VERDICTS (mine):** M6 own-family fine-triple {L2,L1,L0} — un-graded pending the stabilized graded relaunch.
+
+**NEXT ACTIONS:** (1) lane returns fork-A completion + clamp-inertness assessment → if inert, I freeze the fresh prereg (set/sign gate literals, sha-pin, check-4) and authorize the graded launch via the detached queue daemon + re-armed DETACHED autograder; if active, physics HOLD → chief → Sanaa; (2) mark M6 "running" to chief only once the GRADED solve is genuinely computing; (3) at completion: check-3 big-claim read before the verdict repeats upward + rule-12 estimate-vs-actual row in `docs/COST_CALIBRATION.md`.
+
+**ON SANAA'S DESK:** the solver-pivot FINDING (frozen M6 config never ran → pseudo-transient config under a fresh registration) — for her review/override on return; the chief ruled I proceed meanwhile. The physics-HOLD branch (clamp active at convergence) would newly land here if it fires. **SUBMISSIONS PARKED (rule 7).**
+
+**BLOCKED:** nothing hard-blocked. Graded relaunch gated on my check-4 freeze, itself gated on the clamp-inertness test passing on the completed run.
+
+**COST:** L2 original crash 3.8 core-min (wasted). Fork-A + prior smokes are ungraded dev compute (sub-cap). Full graded solve re-cost ≈1,068 core-min single-α / cap 2,136 (≈$1.83 derived, owner-rate, box can't read billing), each level ≪ $25 pre-auth. This board write 0.
+
+**CHAIN OF CUSTODY:** FIRST-HAND (cfd-supervisor, this session) — the §3 crash triage, the M6SR/L3 mesh-independence confirmation, the check-3 correction that `div(phi,K)` is inactive, the solver-pivot decision + clamp-inertness criterion, the lane dispatches, and this board block + its commit. RELAYED, not re-decided by me: the chief's dispatch ruling (recorded, not treated as Sanaa's consent). Nothing sent, filed, uploaded, registered or posted (rule 7).
+
 <!-- BOARD-BLOCK-ID: 82-M6-FINE-TRIPLE-L2-CRASH-SIGFPE-FIX-ROUTED -->
 
 **Section last written:** 2026-09-09T00:17:12Z by the cfd-supervisor (Fable) directly, PURE INSERTION at the top of the `## cfd` section; every byte below (board 81 and prior) stands unedited. Committed via the rule-10 private-index protocol on `docs/LAB_STATE.md` alone (worktree sha-clean vs HEAD before the splice), foreign uncommitted worktree changes untouched.
