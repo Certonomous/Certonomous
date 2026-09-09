@@ -1,0 +1,47 @@
+{
+ "team": "closure",
+ "case_id": "M1c_kOmegaSST_null__AR_1_Ret_180",
+ "prereg_commit": "84c163bf62af4096122935365651194a6a0aa293",
+ "prereg_path": "cases/RANS_LES_closure_models/M1c_multimodel_sweep_completion/PREREGISTRATION.md",
+ "launch_cmd": [
+  "/bin/bash",
+  "/home/ubuntu/Certonomous/cases/RANS_LES_closure_models/M1_multimodel_sweep/run_m1.sh",
+  "--case-dir",
+  "/home/ubuntu/closure-data/m1c_completion/kOmegaSST_null/AR_1_Ret_180",
+  "--arm",
+  "kOmegaSST_null",
+  "--timeout-s",
+  "594",
+  "--cap-core-min",
+  "9.900"
+ ],
+ "cwd": "/home/ubuntu/closure-data/m1c_completion/kOmegaSST_null/AR_1_Ret_180",
+ "ranks": 1,
+ "memory_floor_gb": 1.0,
+ "cost_core_min_estimate": 4.943,
+ "cost_basis": "[EXTRAPOLATED] from this arm's own M1 log.run at ranks 1 on c7a.4xlarge. stationary, ran ALONE in M1; cap = ceil(2.0 x naive proj wall 297 s) = 594 s > draft (524 s). Full basis + provenance tags in cases/RANS_LES_closure_models/M1c_multimodel_sweep_completion/PREREGISTRATION.md sec5.1 and the 2026-09-09 ADDENDUM. $ at $0.0513/core-h is DERIVED, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER sec5).",
+ "cap_core_min_registered": 9.9,
+ "enqueued_by": "SUPERVISION §3 check-4 PERFORMED by the closure-supervisor 2026-09-09: the M1-C pre-registration is COMMITTED at freeze commit 84c163bf62af4096122935365651194a6a0aa293 BEFORE any compute (rule 2 / §3 check-4). grade_m1d.py on-disk sha256 re-confirmed == pin a1ee1905 at freeze; §3 check-1 diff-read of autograde_m1c.sh/stage_m1c.sh/monitor_m1c.sh done (SOUND); merged-symlink grading topology approved; §5.5 ruled (all 6 arms in M1-C). Compute authorised under the 2026-08-21 blanket + decide-and-record; SUBMISSIONS PARKED.",
+ "_grading": {
+  "path": "cases/RANS_LES_closure_models/M1d_multimodel_sweep_g1fix/grade_m1d.py",
+  "pinned_sha256": "a1ee190550e94be13fb2fc678379e1c23275b9fd4f002905073776d263628790",
+  "freeze_commit": "13f1f4d6",
+  "note": "grading is NOT auto-run by the queue daemon; it is triggered by the committed detached autograder autograde_m1c.sh (sec 2ba). The daemon runs the SOLVE only."
+ },
+ "_order_note": "DROP PH_Breuer rows FIRST (this file and the kOmegaSST_null/PH_Breuer file) then AR_14, AR_7, AR_1. Filename == case_id per queue README; ordering is honoured by the supervisor's drop order, not by a schema field.",
+ "_field_classes": {
+  "physics_critical": [
+   "STATUS.<case_id> (rc captured INSIDE run_m1.sh, an independent witness)",
+   "the case's own log.run End line, endTime==20000 fields, and 0/U age guard"
+  ],
+  "infrastructure": [
+   "_launch.pid",
+   "_launch.sid",
+   "_launch.utc",
+   "cost_core_min_estimate",
+   "cap_core_min_registered",
+   "LAUNCH_LOG.tsv row"
+  ],
+  "rule": "a missing/inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342, Bookkeeping-never-voids-physics)"
+ }
+}
