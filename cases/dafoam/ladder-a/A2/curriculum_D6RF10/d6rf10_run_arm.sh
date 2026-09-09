@@ -24,14 +24,14 @@
 #
 # THE LADDER (PREREGISTRATION.md section 3), run IN ORDER, STOPPED_AT_FIRST_PASS:
 #   R1 DARhoSimpleFoam  nNonOrth 3  relax 0.30/0.70  endTime 2500
-#   R2 DARhoSimpleFoam  nNonOrth 12 relax 0.30/0.70  endTime 2000
-#   R3 DARhoSimpleCFoam nNonOrth 12 relax 0.70/0.70  endTime 2000
-#   R4 DARhoSimpleCFoam nNonOrth 12 relax 0.15/0.50  endTime 4000
+#   R2 DARhoSimpleFoam  nNonOrth 12 relax 0.30/0.70  endTime 300  (AMENDMENT A3)
+#   R3 DARhoSimpleCFoam nNonOrth 12 relax 0.70/0.70  endTime 2000 (AMENDMENT A2)
+#   R4 DARhoSimpleCFoam nNonOrth 12 relax 0.15/0.50  endTime 4000 (NOT in the frozen 3-rung manifest; see rung_cap CAVEAT)
 # Beside EACH rung, the D6RF7 FROZEN control config (DARhoSimpleFoam, nNonOrth 3,
 # relax 0.30/0.70, endTime 1000) runs as the known-GATE-FAIL control (D4): a
 # PASS on the control withdraws the rung's verdict.  After each rung's container
 # the host grades that rung's log with `d6rf10_grade.py`; a binding PASS stops
-# the ladder, else it advances -- and a CUMULATIVE 291 core-min HARD STOP bounds
+# the ladder, else it advances -- and a CUMULATIVE 1275 core-min HARD STOP bounds
 # the whole ladder (rule 12; overrun stops the run, it does not get a budget).
 #
 # rc CAPTURE IS THE KERNEL'S, NOT `$?` OF A setsid/timeout LINE (L "setsid
@@ -253,34 +253,37 @@ verify_and_stage_instruments() {   # $1 = destination work root
 }
 
 # =============================================================================
-# CAPS -- per-rung (PREREGISTRATION.md section 5) + cumulative 291 hard stop.
+# CAPS -- per-rung + cumulative hard stop, ALIGNED TO THE FROZEN REGISTRATION.
 # =============================================================================
-# ---- CONFOUND-REMOVAL FIX (i): caps sized to the MEASURED escalating per-step
-# ---- rate so the deadline (= cap*60/RANKS - FRAME) can REACH endTime, not the
-# ---- arbitrary D6RF9 855s that killed R2 at ~step 250/2000 (rule-4 incomplete).
-# These are the OPTION A caps (PREREGISTRATION.md §5): keep endTimes 2500/2000/
-# 2000/4000, size deadlines to the PLATEAU-model completion estimate x ~1.3
-# margin. R1 is MEASURED complete (16.1 core-min) -> cap 48 unchanged. R2/R3/R4
-# are sized from R2's measured escalation E(N)=3.79+0.0276N+0.0137N^2 s under the
-# OPTIMISTIC plateau assumption (per-step cost stops rising at the step-200 rate
-# 4.14 s/step); R3/R4 reuse R2's rate as a PROXY (SIMPLEC never ran a step in
-# D6RF9). HONEST CAVEAT: the per-step cost was STILL RISING at the D6RF9 kill, so
-# if it continues quadratically these caps DO NOT reach endTime either and the
-# run stops at the cap (rule 12) -- Option A cannot be guaranteed to remove
-# confound (i). The chief's Option A/B decision (§5b) sets the final numbers at
-# freeze; this launcher is OUTSIDE the freeze hash-lock (D19T parent posture).
-# OPTION B (shorter endTime to the ~300-outer-iter plateau horizon, §5b) would
-# instead read: R2|R3|R4 endTime 1000 -> caps ~265/265/265; endTime 500 -> ~127
-# each; endTime 300 -> ~72 each (fits the old 291 hard stop). NOT baked in here.
-rung_cap()      { case "$1" in R1) echo 48 ;; R2) echo 700 ;; R3) echo 700 ;; R4) echo 1420 ;; *) echo "" ;; esac; }
+# LAUNCHER-CORRECTION 2026-09-09 (this launcher is OUTSIDE the freeze hash-lock;
+# D19T parent posture -- it verifies the frozen instruments it stages, never
+# itself, so its runtime params are brought into COMPLIANCE with the ALREADY-
+# FROZEN registration without touching the freeze). The prior Option-A caps
+# (R1 48 / R2 700 / R3 700 / R4 1420, cumulative 2870) DISAGREED with the frozen
+# registration and produced the STOPPED, CONFOUNDED run (rung_endtime R2@2000 vs
+# registered 300; rung_cap R3 700 -> deadline 10410 s vs registered 16900 s).
+# The per-rung caps below are now sized so each rung's DEADLINE (= cap*60/RANKS
+# - FRAME_ALLOWANCE_S, RANKS=4, FRAME=90) MATCHES the frozen §2bb manifest
+# (LADDER_PREFLIGHT.json) and the frozen PREREGISTRATION.md foot block:
+#   R1 cap 46   -> deadline round(46*60/4)-90   = 600   (manifest 600)
+#   R2 cap 96   -> deadline round(96*60/4)-90   = 1350  (manifest 1350; A3 endTime 300)
+#   R3 cap 1133 -> deadline round(1133*60/4)-90 = 16905 (manifest 16900; smallest
+#                  INTEGER cap meeting the >=16900 floor -- 1132.67 hits 16900 exactly;
+#                  16905 >= projected*1.25 = 16862.5, Basis-B). R3 is the binding
+#                  must-complete rung (endTime 2000, AMENDMENT A2).
+# R4 (cap 1420, endTime 4000) is LEFT UNCHANGED: it is NOT in the frozen 3-rung
+# manifest and its handling is a supervisor decision (S-144 GAMG-readback
+# confound) -- this lane does not size, register or remove R4. See the
+# CUMULATIVE_HARD_STOP_CORE_MIN CAVEAT below.
+rung_cap()      { case "$1" in R1) echo 46 ;; R2) echo 96 ;; R3) echo 1133 ;; R4) echo 1420 ;; *) echo "" ;; esac; }
 rung_solver()   { case "$1" in R1|R2) echo DARhoSimpleFoam ;; R3|R4) echo DARhoSimpleCFoam ;; *) echo "" ;; esac; }
 rung_nnonorth() { case "$1" in R1) echo 3 ;; R2|R3|R4) echo 12 ;; *) echo "" ;; esac; }
 rung_relaxp()   { case "$1" in R1|R2) echo 0.30 ;; R3) echo 0.70 ;; R4) echo 0.15 ;; *) echo "" ;; esac; }
 rung_relaxeqn() { case "$1" in R1|R2|R3) echo 0.70 ;; R4) echo 0.50 ;; *) echo "" ;; esac; }
-rung_endtime()  { case "$1" in R1) echo 2500 ;; R2|R3) echo 2000 ;; R4) echo 4000 ;; *) echo "" ;; esac; }
+rung_endtime()  { case "$1" in R1) echo 2500 ;; R2) echo 300 ;; R3) echo 2000 ;; R4) echo 4000 ;; *) echo "" ;; esac; }
 # the D6RF7 FROZEN control config, run beside every rung (D4).
 CTRL_SOLVER=DARhoSimpleFoam; CTRL_NNONORTH=3; CTRL_RELAXP=0.30; CTRL_RELAXEQN=0.70; CTRL_ENDTIME=1000
-CUMULATIVE_HARD_STOP_CORE_MIN=2870   # OPTION A sum (48+700+700+1420). rule 12: an overrun STOPS the ladder; it does not get a new budget. OPTION B (§5b) would set this far lower (endTime 1000 -> ~819; endTime 500 -> ~405; endTime 300 -> ~240, under the old 291). Final value set at freeze per the chief's §5b decision.
+CUMULATIVE_HARD_STOP_CORE_MIN=1275   # LAUNCHER-CORRECTION 2026-09-09: sum of the FROZEN-REGISTRATION per-rung caps R1 46 + R2 96 + R3 1133 (= 1275 core-min, cap-basis). This equals the frozen registration's stated ~1257 core-min DEADLINE-basis budget ((600+1350+16900)*4/60=1256.67) PLUS the 3x90 s per-rung FRAME_ALLOWANCE (18 core-min) that the cap basis carries -- the SAME 3-rung budget in the two bases, so this matches the frozen PREREGISTRATION.md foot block (R1/R2/R3 only). rule 12: an overrun STOPS the ladder; it does not get a new budget. CAVEAT (flagged to the supervisor, NOT resolved by a lane): the ladder loop below still iterates R4 (cap 1420, endTime 4000), which is NOT in the frozen 3-rung manifest and NOT covered by this budget; with this hard stop R4 would be reached only if the cumulative is still under 1275 after R3, and would then run ONE full R4 leg (deadline ~21210 s) before the post-leg cumulative check trips. Whether R4 is registered (manifest+budget) or removed from the loop is a supervisor decision (S-144 GAMG-readback confound); this lane changed neither R4's cap nor its endTime.
 FRAME_ALLOWANCE_S=90
 KILL_GRACE_S=60
 MEM=20g
