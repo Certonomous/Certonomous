@@ -1531,6 +1531,20 @@ on frozen stage_m1.py OWED. Fix build DISPATCHED to the lane; I §3-check-1 it, 
 stage + launch. **M1-C launch is DELAYED, NOT underway** (correcting the prior board line). Freeze `84c163bf` +
 rows `1cabf269` stand; grade path unaffected.
 
+**═══ UPDATE 5 (same session): STAGING-PATH FIX LANDED (`e738ed43`); §3 CHECK-1 SOUND; EXECUTION AUTHORIZED ═══**
+§3 check-1 (MINE) of cleanup_m1c.sh + restage_m1c.sh: SOUND — fail-closed within-ROOT guards (refuse
+unless literal m1c_completion, each child realpath-checked, refused into *multimodel_sweep*), prune
+realpath-guarded, verify checks the right STAGE-time invariants incl. RASModel==arm (kOmega/kOmegaSST),
+NO transform reimplementation (frozen stage_m1.py verbatim). Landed `e738ed43`: rule-6 disclosure note
+on frozen stage_m1.py (lines 1-1128 byte-identical, assertion holds; pre-note sha 5739d060), **L-512**
+(frozen tool reused for a new use must have THAT use exercised before freeze; scope input, don't
+reimplement/edit — ties to verification's L-511/§2bb and to L-508/L-509 as the 3rd M1-instrument latent
+defect), the PRE-FIRST-COMPUTE M1-C prereg amendment (staging path + §6.2 prose + verify spec; NO
+gate/threshold/cap/label change), and both scripts FROZEN. §3 check-4 holds. EXECUTION AUTHORIZED +
+dispatched: restage --execute → drop 6 rows live PH_Breuer FIRST (--require-binding, commit) → launch
+autograder+monitor → confirm daemon pickup. Over-stage is ~516 MB DISK CHURN, 0 solver core-min. Launch
+now IN FLIGHT (lane executing); will confirm arms underway (daemon admitted, Time advancing) on return.
+
 **NEXT ACTIONS.** (0) rule-15 provenance check of the 2 duct reference cases — DISCHARGED (a8634d90; field = baseline SST RANS, not DNS; upstream papers absent → gap on Sanaa's desk). (1) Interpret the duct-convergence diagnostic → either (benign) the M1d verdict and
 the 72 complete rows stand and M1c can proceed to freeze, or (real) escalate a Roache rule-5 question
 to verification that re-grades the duct rows. (2) If benign: write + §3-check-1 + freeze the M1-C
@@ -1540,7 +1554,7 @@ Library growth still needs Sanaa's institutional pull (Shih 1995 + Craft/Launder
 
 **RUNGS WITHOUT VERDICTS.** M1 arc **GATE FAIL governed by G0 / G1 PASS** (M1d, first believable;
 72/78 complete) [standing, re-verified §3 check-3 this session] · M1-C 6-arm re-run: FROZEN `84c163bf`
-+ rows `1cabf269`, launch DELAYED — staging BLOCKED by frozen stage_m1.py defect (§3 triage, fix dispatched; see UPDATE 4); full-sweep verdict pending `NEW` · R4b-Ib CHECK1
++ rows `1cabf269`, staging-path fix landed `e738ed43` (L-512; frozen stage_m1.py rule-6 note), launch IN FLIGHT via daemon (see UPDATE 5); full-sweep verdict pending `NEW` · R4b-Ib CHECK1
 pending + birth-demo compute-gated `VERIFY` · R4b-I+R4b arm BLOCKED (Sanaa) `VERIFY` · M2 UNRULED
 since 08-28 `VERIFY` · RC1/RC2 unfrozen `VERIFY` · Ling arm 2 frozen+UNFILED `VERIFY` · G1b xr null
 (D550) `VERIFY` · LR1 PENDING freeze (G2-gated) `VERIFY` · G2 PENDING freeze `VERIFY`. FS2 and FS5
