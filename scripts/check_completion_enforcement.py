@@ -283,7 +283,7 @@ _CASE_ID_BODY_HEAD = (
 # dangerous direction).  Omitted from CASE_ID_RE_NONDAFOAM used for the fallback scan of
 # non-dafoam sources.  ORDER within is unchanged from the original body.
 _DAFOAM_BRANCHES = (
-    r"|SO[-_]?\d+(?:[-_][A-Za-z0-9]+)*"        # dafoam super-optimisation ids (SO-3, SO3, SO3DR)
+    r"|SO[-_]?\d+[A-Za-z]*\d*(?:[-_][A-Za-z0-9]+)*"  # dafoam super-optimisation ids (SO-3, SO3, SO3DR, and SUFFIXED SO1a/SO2M/SO1cR -- mirrors the D branch's trailing [A-Za-z]*\d*, KEYING-ACCURACY PASS 2026-09-09)
     r"|D\d+[A-Za-z]*\d*(?:[-_][A-Za-z0-9]+)*"  # dafoam curriculum ids (D6R, D6RF4, D19R, D12R2, D9)
     r"|[GO]-\d+(?:[-_][A-Za-z0-9]+)*"          # dafoam MATRIX_CONTRIBUTION row ids (G-01, O-13)
     r"|[ABSW]\d+(?:[-_][A-Za-z0-9]+)*"         # dafoam ladders (A1, B3, S1, W4)
@@ -315,6 +315,24 @@ def _is_dafoam_source(rel: str) -> bool:
     Only in a dafoam source do the dafoam-specific token classes ([GO]-, [ABSW], D#, SO#)
     fire in the fallback scan; everywhere else they are omitted (CASE_ID_RE_NONDAFOAM)."""
     return "cases/dafoam/" in rel.replace("\\", "/")
+
+
+# Anchored full-match on any dafoam-SPECIFIC id class (SO..., D#..., [GO]-#, [ABSW]#).  Built by
+# REUSING the exact _DAFOAM_BRANCHES fragments (leading '|' stripped) so it can NEVER drift from
+# the keying patterns -- one edit to _DAFOAM_BRANCHES updates keying AND this scope test together.
+_DAFOAM_ID_RE = re.compile(r"^(?:" + _DAFOAM_BRANCHES.lstrip("|") + r")$")
+
+
+def _id_is_dafoam(case: str) -> bool:
+    """True iff `case` is a WHOLE dafoam-specific id (SO..., D#..., [GO]-#, [ABSW]#).  Used to
+    SCOPE the structured-only discovered-coverage discipline to DAFOAM-ID discovered records
+    (2026-09-09 verification-supervisor §3 scope call): the keying fix (curriculum_ strip + SO
+    widen) newly VALIDATED dafoam-id records and thereby newly EXPOSED them to the tier-2 loose
+    *SUCCESSOR*-text scan -- THAT is the surface this commit closes.  Non-dafoam discovered
+    loose-clears (VMFL/M6I/closure) are PRE-EXISTING and register-duplicated; their cleanup is a
+    coordinated follow-on (cross-source dedup + the general discipline), routed through the chief,
+    so this commit leaves non-dafoam discovered coverage UNCHANGED."""
+    return bool(_DAFOAM_ID_RE.match(case))
 
 # Authoritative results-file suffixes for the filename-first keying rule.  A row
 # that cites `<CASEID>_<SUFFIX>.md` is stating its OWN validating record; that
@@ -362,11 +380,21 @@ class FailRow:
     line: int
     text: str            # the row text (trimmed)
     strict_cov: bool = False  # discovered row keyed by a NON-validated directory name --
-    # coverage may use ONLY exact-id structured signals (successor DIR, recorded lineage,
-    # discharge-by-pass), never the loose *SUCCESSOR*-text / gap-filing token scans, because
-    # a generic dir key ("gpu", "verification", "aposteriori") would otherwise be FALSELY
-    # cleared by a coincidental token match -- the under-flag hazard §2ay guards against.
-    # Curated-source rows and validated-id discovered rows keep the full coverage machinery.
+    # a generic dir key ("gpu", "verification", "aposteriori") that would otherwise be FALSELY
+    # cleared by a coincidental token match.  Retained for KEYING/reporting semantics; see
+    # `discovered` for the coverage gate.
+    discovered: bool = False  # this row came from the DISCOVERY pass (a per-case record beyond
+    # the 7 curated sources), NOT from a curated register.  DISCIPLINE (2026-09-09 refinement,
+    # DAFOAM-scoped per the verification-supervisor's §3 call -- see find_coverage): a discovered
+    # row whose id is a DAFOAM-specific id (_id_is_dafoam) clears ONLY via STRUCTURED signals
+    # (a landed passing successor, an EXACT successor DIRECTORY, or a structured line-leading
+    # Predecessor:/Supersedes: / gate-JSON supersedes lineage edge), NEVER the tier-2 loose
+    # *SUCCESSOR*-text token scan nor the loose gap-filing token scan -- because the keying fix
+    # newly validated dafoam-id records and thereby newly exposed THEM to the loose scan (the
+    # V-109 gaming shape; short ids D2/D4/D9 make it a coincidental-clear hazard).  Validation
+    # governs only KEYING (a structured field can match a validated id like SO1a/D2).  NON-dafoam
+    # discovered rows keep their prior behaviour this commit; curated-source rows (discovered=
+    # False) keep the FULL machinery unchanged.
 
 
 @dataclass
@@ -546,16 +574,36 @@ def _record_case(path: Path) -> tuple[str, bool]:
     validates that governs and is validated; else the parent dir name is the id but is NOT
     validated -- a generic word like `aposteriori`/`gpu`, safe to enumerate (surfacing the
     fail) but NOT safe to clear by a loose token match (see FailRow.strict_cov).  Uses the
-    frozen validator unchanged -- it admits NO new ids into the curated-source path."""
+    frozen validator unchanged -- it admits NO new ids into the curated-source path.
+
+    KEYING-ACCURACY PASS 2026-09-09 (verification-supervisor, own instrument; dafoam
+    referral).  Dafoam per-case records live in dirs named `curriculum_<ID>`
+    (curriculum_D12R, curriculum_SO1a, curriculum_D6RF7).  The literal `curriculum_`
+    is a NAMING WRAPPER, not part of the id, and it makes the whole dir name fail
+    CASE_ID_ANCHORED_RE -- so the record was keyed strict_cov to the FULL dir name
+    (`curriculum_D12R`), a key NO structured `Predecessor:`/`Supersedes:` field can ever
+    produce (the lineage reader extracts a bare CASE_ID_RE token like `D12R`), so a real
+    on-disk successor could never clear it -- a pure MIS-KEY, not a coverage judgement.
+    Fix: strip ONLY the literal `curriculum_` prefix (never a general prefix-strip) from the
+    basename HEAD and the parent dir name BEFORE the anchored validation, so `curriculum_D12R`
+    keys to `D12R` (validated) and `curriculum_SO1a` to `SO1a` (validated, via the widened
+    SO branch).  If the stripped id STILL does not validate (e.g. `curriculum_AV2RG` ->
+    `AV2RG`), keep it strict_cov (validated=False) keyed to the STRIPPED name -- the safe
+    direction: it still enumerates (surfaces the fail) but a loose token cannot clear it.
+    Verified 2026-09-09: NO non-dafoam discovered record has a `curriculum_` parent, so the
+    strip touches dafoam records only."""
+    _CURRIC = "curriculum_"
     base = path.name
-    if "_" in base:
-        head = base.split("_", 1)[0]
+    base_h = base[len(_CURRIC):] if base.startswith(_CURRIC) else base
+    if "_" in base_h:
+        head = base_h.split("_", 1)[0]
         if CASE_ID_ANCHORED_RE.match(head):
             return head, True
     parent = path.parent.name
-    if CASE_ID_ANCHORED_RE.match(parent):
-        return parent, True
-    return parent, False
+    parent_h = parent[len(_CURRIC):] if parent.startswith(_CURRIC) else parent
+    if CASE_ID_ANCHORED_RE.match(parent_h):
+        return parent_h, True
+    return parent_h, False
 
 
 def discover_records(repo: Path, discovery_roots: list[Path], exclude_sources: list[Path]) -> list[Path]:
@@ -611,7 +659,8 @@ def enumerate_discovered(records: list[Path], repo: Path) -> list[FailRow]:
                 continue
             seen.add(key)
             fails.append(FailRow(case=case, verdict=v, source=rel, line=i,
-                                 text=line.strip()[:240], strict_cov=not validated))
+                                 text=line.strip()[:240], strict_cov=not validated,
+                                 discovered=True))
     return fails
 
 
@@ -830,10 +879,13 @@ def _find_gap_filing(case: str, idx: RepoIndex) -> str | None:
     return None
 
 
-# Module-global gate on the strict-coverage discipline for dir-keyed discovered rows.
-# RED-9 flips it False and confirms the false clear returns -- proving the discipline is
-# load-bearing (§28.8).  A plain module flag, never an `assert`, so control is identical
-# under `python3 -O` (L-332).
+# Module-global gate on the STRUCTURED-ONLY coverage discipline for strict discovered rows
+# (2026-09-09 refinement, DAFOAM-scoped: non-validated dir keys OR dafoam-id discovered records
+# clear only via structured signals; see find_coverage / FailRow.discovered).  RED-9 flips it
+# False for the non-validated dir-key case (coincidentaldir) and RED-11 for the dafoam-id case
+# (D6RF8); both confirm the loose-token false clear returns -- proving the discipline is
+# load-bearing (§28.8).  A plain module flag, never an `assert`, so control is identical under
+# `python3 -O` (L-332).
 STRICT_DISCOVERED_COVERAGE = True
 
 
@@ -845,12 +897,21 @@ def find_coverage(row: FailRow, idx: RepoIndex, all_rows: list[FailRow],
     gap filing.  A mechanism diagnosis with none of these is NOT state (a)
     (§2ay.3) -- it falls through to the empty state and is flagged.
 
-    STRICT COVERAGE (dir-keyed discovered rows): when row.strict_cov is set (a discovered
-    fail keyed by a NON-validated directory name), only the EXACT-id structured signals may
-    clear it -- discharge-by-pass, an exact successor DIRECTORY, and recorded lineage.  The
-    loose *SUCCESSOR*-text and gap-filing TOKEN scans are skipped, because a generic dir key
-    would otherwise be falsely cleared by a coincidental token match (the under-flag hazard)."""
-    strict = row.strict_cov and STRICT_DISCOVERED_COVERAGE
+    STRICT COVERAGE (2026-09-09 refinement, DAFOAM-scoped by the verification-supervisor's §3
+    call).  A row is strict -- clearable ONLY by the EXACT-id STRUCTURED signals (discharge-by-
+    pass, an exact successor DIRECTORY, recorded lineage Predecessor:/Supersedes:/gate-JSON
+    supersedes), with the loose *SUCCESSOR*-text and gap-filing TOKEN scans skipped -- when it is
+    EITHER (i) a discovered row keyed by a NON-validated directory name (row.strict_cov: a generic
+    dir key like gpu/aposteriori that a coincidental token would falsely clear), OR (ii) a
+    discovered row whose id is a DAFOAM-specific id (row.discovered and _id_is_dafoam): the keying
+    fix newly validated these and thereby newly exposed them to the loose scan -- a self-written
+    *SUCCESSOR*-named map clearing a fail on a bare token is the V-109 gaming shape, and short ids
+    (D2/D4/D9) make it a coincidental-clear hazard.  NON-dafoam discovered rows (VMFL/M6I/closure)
+    keep their PRIOR behaviour this commit (their loose-clears are pre-existing + register-
+    duplicated -- a coordinated follow-on, not this fix).  Validation governs only KEYING.
+    Curated-source rows (discovered=False) keep the full machinery unchanged."""
+    strict = STRICT_DISCOVERED_COVERAGE and (
+        row.strict_cov or (row.discovered and _id_is_dafoam(row.case)))
     # (b) discharged by a landed passing successor (exact case id)
     disc = _find_passing_successor(row.case, all_rows, pass_index)
     if disc:
@@ -1283,6 +1344,61 @@ def _write_fixture(base: Path) -> tuple[list[Path], list[Path]]:
         "This attempt happens to mention coincidentaldir in passing -- a COINCIDENTAL token,\n"
         "not a registered successor for that record.\n"
     )
+
+    # ---- KEYING-ACCURACY arm (2026-09-09): dafoam per-case records live in dirs named
+    # `curriculum_<ID>`.  Before the fix, _record_case keyed them to the FULL dir name
+    # (`curriculum_SO1a`), which no `Predecessor:`/`Supersedes:` field (that names the bare id
+    # `SO1a`) can ever produce -- so a real on-disk successor could NEVER clear them.  These
+    # fixtures reproduce that exactly and prove the strip+widened-SO fix is load-bearing.
+    #
+    # (i) COVERED: a `curriculum_SO1a` record whose ONLY coverage is a STRUCTURED
+    # `Predecessor: SO1a` field in a successor registration.  With the fix it enumerates keyed
+    # to the STRIPPED+WIDENED id SO1a (validated, NOT strict_cov) and is CLEARED by the
+    # registration.  Under RED-10 (strip+widening reverted) it re-keys to `curriculum_SO1a`
+    # (strict) and NO structured field can produce that key -> RE-FLAGS.
+    curric_so1a = cases / "curriculum_SO1a"
+    curric_so1a.mkdir(parents=True, exist_ok=True)
+    (curric_so1a / "RESULTS.md").write_text(
+        "# SO1a results (dafoam curriculum record, dir named curriculum_SO1a)\n"
+        "## RUNG VERDICT: **NOT A RESULT** -- SO1a first attempt did not converge\n"
+    )
+    (cases / "SO1ax_PREREGISTRATION.md").write_text(
+        "# SO1ax pre-registration\n"
+        "Predecessor: **SO1a**\n"
+        "A registered next attempt on the SO1a rung that re-runs against the same frozen gate.\n"
+    )
+    # (ii) CONTROL (no false clear): a `curriculum_D6RF7` record with a DISTINCTIVE dafoam id
+    # and NO successor of ANY kind.  With the fix it enumerates keyed to D6RF7 (validated, so
+    # the FULL coverage machinery -- incl. the loose *SUCCESSOR*-text scan -- now applies), and
+    # it MUST STILL FLAG: the strict->full-coverage move must NOT open a coincidental clear on
+    # a distinctive id.  (No *SUCCESSOR* file mentions "d6rf7", no `Predecessor: D6RF7` exists.)
+    curric_d6rf7 = cases / "curriculum_D6RF7"
+    curric_d6rf7.mkdir(parents=True, exist_ok=True)
+    (curric_d6rf7 / "RESULTS.md").write_text(
+        "# D6RF7 results (dafoam curriculum record, dir named curriculum_D6RF7)\n"
+        "## RUNG VERDICT: **GATE FAIL** -- D6RF7 failed and nobody has registered a successor\n"
+    )
+    # (iii) STRUCTURED-ONLY DISCIPLINE (2026-09-09 refinement): a VALIDATED discovered record
+    # `curriculum_D6RF8` whose ONLY would-be coverage is a LOOSE *SUCCESSOR*-text token match
+    # (a self-written successor map that merely MENTIONS "D6RF8", NO structured Predecessor
+    # field, NO exact succ dir).  This is the V-109 gaming surface the keying fix newly opened:
+    # once D6RF8 validates it would flow into the tier-2 loose scan.  Under the discipline (a
+    # discovered row is strict for the loose scans REGARDLESS of validation) it MUST STILL FLAG;
+    # with the discipline disabled (RED-11) the loose token match FALSELY CLEARS it.  Proves the
+    # discipline is load-bearing for a VALIDATED discovered id (RED-9 covers the non-validated
+    # dir-key case).  The map carries NO line-leading Predecessor:, so the STRUCTURED lineage
+    # reader does not pick it up -- only the loose text scan would.
+    curric_d6rf8 = cases / "curriculum_D6RF8"
+    curric_d6rf8.mkdir(parents=True, exist_ok=True)
+    (curric_d6rf8 / "RESULTS.md").write_text(
+        "# D6RF8 results (dafoam curriculum record, dir named curriculum_D6RF8)\n"
+        "## RUNG VERDICT: **GATE FAIL** -- D6RF8 failed; only a LOOSE successor-map mention exists\n"
+    )
+    (cases / "D6RF8_SUCCESSOR_DRAFT.md").write_text(
+        "# a successor map that MENTIONS D6RF8 (dafoam)\n"
+        "This lineage note touches the D6RF8 attempt in passing -- a bare token, NOT a\n"
+        "structured Predecessor:/Supersedes: field and NOT a registered successor directory.\n"
+    )
     return [register, nondaf_src, dafoam_src], [cases, desk]
 
 
@@ -1293,7 +1409,7 @@ def selftest() -> int:
     discharged / gap-filing not flagged), 2d (recorded-lineage successor not flagged)."""
     global _find_lineage_successor, _authoritative_case_from_results_file, _canon_lineage_id
     global CASE_ID_RE, CASE_ID_ANCHORED_RE, CASE_ID_RE_NONDAFOAM, _leaf_rung
-    global discover_and_enumerate, STRICT_DISCOVERED_COVERAGE
+    global discover_and_enumerate, STRICT_DISCOVERED_COVERAGE, _record_case
     print("=" * 78)
     print("PLANTED CONTROL -- §2ay.5 / rule 3.  Two limbs, RED-then-GREEN.")
     print("An enforcer whose zero has not been shown able to become non-zero is worthless.")
@@ -1423,6 +1539,33 @@ def selftest() -> int:
                      and strict_row.row.strict_cov)
         discovery_ok = disc_head_ok and prose_neg_absent and disc_tablerow_ok and strict_ok
 
+        # KEYING-ACCURACY (2026-09-09): dafoam per-case records under `curriculum_<ID>` dirs.
+        #  (1) curriculum_SO1a MUST enumerate keyed to the STRIPPED+WIDENED id SO1a (validated,
+        #      NOT strict_cov) and be CLEARED by its `Predecessor: SO1a` registration; the
+        #      full-dir mis-key `curriculum_SO1a` MUST be GONE.
+        #  (2) CONTROL curriculum_D6RF7 MUST enumerate keyed to D6RF7 (validated) and STILL
+        #      FLAG (no successor) -- the strict->full-coverage move opens NO coincidental clear
+        #      on a distinctive id; the full-dir mis-key `curriculum_D6RF7` MUST be GONE.
+        so1a_row = by_case.get("SO1a")
+        curric_cov_ok = (so1a_row is not None and not so1a_row.flagged
+                         and not so1a_row.row.strict_cov
+                         and "curriculum_SO1a" not in by_case)
+        d6rf7_row = by_case.get("D6RF7")
+        curric_ctrl_ok = (d6rf7_row is not None and d6rf7_row.flagged
+                          and not d6rf7_row.row.strict_cov
+                          and "curriculum_D6RF7" not in by_case)
+        keying_ok = curric_cov_ok and curric_ctrl_ok
+
+        # STRUCTURED-ONLY DISCIPLINE (2026-09-09 refinement): a VALIDATED discovered record
+        # (D6RF8) whose ONLY would-be coverage is a LOOSE *SUCCESSOR*-text token match MUST
+        # STILL FLAG -- a discovered row is strict for the loose scans regardless of validation.
+        # (SO1a above proves the STRUCTURED lineage path still clears a validated discovered id.)
+        d6rf8_row = by_case.get("D6RF8")
+        disc_structonly_ok = (d6rf8_row is not None and d6rf8_row.flagged
+                              and not d6rf8_row.row.strict_cov  # validated key (D branch)
+                              and d6rf8_row.row.discovered)
+        keying_ok = keying_ok and disc_structonly_ok
+
         print(f"\n  LIMB 1 (must flag {sorted(limb1_cases)})     : "
               f"{'GREEN' if limb1_ok else 'FAILED'}  "
               f"[mechanism WHY on FIX002: {'yes' if mech_ok else 'NO'}]")
@@ -1509,6 +1652,22 @@ def selftest() -> int:
                       f"from {r.row.source}")
             else:
                 print(f"      {c}: MISSING (discovery pass did not enumerate it)")
+
+        print(f"  KEYING-ACCURACY (curriculum_<ID> dirs strip+widened-SO) + STRUCTURED-ONLY discovered coverage: "
+              f"{'GREEN' if keying_ok else 'FAILED'}  "
+              f"[SO1a keyed+cleared by STRUCTURED `Predecessor: SO1a`={curric_cov_ok}; "
+              f"D6RF7 keyed, STILL flags (no successor)={curric_ctrl_ok}; "
+              f"D6RF8 keyed+validated but loose-only mention -> STILL flags (structured-only discipline)={disc_structonly_ok}]")
+        for c in ["SO1a", "D6RF7", "D6RF8"]:
+            r = by_case.get(c)
+            if r:
+                print(f"      {c}: ENUMERATED [{r.row.verdict}] flagged={r.flagged} "
+                      f"strict_cov={r.row.strict_cov} state=({r.coverage.state}) "
+                      f"{r.coverage.evidence or r.coverage.why}")
+            else:
+                print(f"      {c}: MISSING (still mis-keyed to curriculum_{c}?)")
+        for c in ["curriculum_SO1a", "curriculum_D6RF7", "curriculum_D6RF8"]:
+            print(f"      full-dir mis-key {c} present (must be False): {c in by_case}")
 
         # ---------- RED: cripple the coverage-finder to always-true ----------
         # This is the blind checker §2ay.5 warns of: if the coverage-finder always
@@ -1717,12 +1876,86 @@ def selftest() -> int:
               f"{'YES -- under-flag returns, so the discipline is load-bearing' if strict_red_ok else 'NO'}"
               + (f"  [{red9_row.coverage.evidence}]" if (red9_row and not red9_row.flagged) else ""))
 
+        # ---------- RED-10: revert the KEYING-ACCURACY fix (curriculum_ strip + widened SO) ----------
+        # Proves the keying fix is load-bearing (§28.8): with _record_case reverted to the
+        # pre-fix version (NO `curriculum_` strip) AND CASE_ID_RE/ANCHORED reverted to the
+        # NARROW SO branch, the curriculum_SO1a record re-keys to the FULL dir name
+        # `curriculum_SO1a` (strict), which NO structured `Predecessor: SO1a` field can produce
+        # -- so the covered SO1a fixture RE-FLAGS as `curriculum_SO1a`.  If it did NOT re-flag,
+        # some other path was clearing it and the KEYING-ACCURACY arm above would be vacuous.
+        # The narrow-SO body is derived from the LIVE _CASE_ID_BODY by reversing exactly the SO
+        # edit, with asserts so a future branch-text drift breaks loudly (drift guards only --
+        # they never drive control flow, so the output is byte-identical under `python3 -O`).
+        _new_SO = r"|SO[-_]?\d+[A-Za-z]*\d*(?:[-_][A-Za-z0-9]+)*"
+        _old_SO = r"|SO[-_]?\d+(?:[-_][A-Za-z0-9]+)*"
+        assert _new_SO in _CASE_ID_BODY, "RED-10: widened SO branch not found in _CASE_ID_BODY (drift)"
+        narrow_so_body = _CASE_ID_BODY.replace(_new_SO, _old_SO)
+        assert narrow_so_body != _CASE_ID_BODY, "RED-10: narrow-SO body identical to live body (revert failed)"
+
+        def _prefix_record_case(path):
+            """The PRE-FIX _record_case: keys by basename HEAD / parent dir with NO
+            `curriculum_` strip (the confirmed mis-key)."""
+            base = path.name
+            if "_" in base:
+                head = base.split("_", 1)[0]
+                if CASE_ID_ANCHORED_RE.match(head):
+                    return head, True
+            parent = path.parent.name
+            if CASE_ID_ANCHORED_RE.match(parent):
+                return parent, True
+            return parent, False
+
+        _saved_record, _saved_re10, _saved_anchored10 = _record_case, CASE_ID_RE, CASE_ID_ANCHORED_RE
+        _record_case = _prefix_record_case
+        CASE_ID_RE = re.compile(r"\b(" + narrow_so_body + r")\b")
+        CASE_ID_ANCHORED_RE = re.compile(r"^(?:" + narrow_so_body + r")$")
+        try:
+            red10_results, _ = scan(sources, base, roots, discovery_roots=roots)
+        finally:
+            _record_case, CASE_ID_RE, CASE_ID_ANCHORED_RE = _saved_record, _saved_re10, _saved_anchored10
+        red10_flagged = {r.row.case for r in red10_results if r.flagged}
+        red10_covered = {r.row.case for r in red10_results if not r.flagged}
+        # SO1a fixture re-flags under the full-dir mis-key; the covered SO1a key must be gone.
+        keying_red_ok = ("curriculum_SO1a" in red10_flagged) and ("SO1a" not in red10_covered)
+        print(f"\nRED-10 run (KEYING-ACCURACY fix reverted -- no curriculum_ strip + narrow SO):")
+        print(f"  curriculum_SO1a re-keys to the full dir name and re-flags: "
+              f"{'YES' if 'curriculum_SO1a' in red10_flagged else 'NO'}")
+        print(f"  the covered SO1a key is gone (no structured field can produce curriculum_SO1a): "
+              f"{'YES' if 'SO1a' not in red10_covered else 'NO'}")
+        print(f"  KEYING-ACCURACY fix is load-bearing: "
+              f"{'YES' if keying_red_ok else 'NO'}")
+
+        # ---------- RED-11: disable the STRUCTURED-ONLY discovered discipline for a VALIDATED id ----------
+        # Proves the discipline is load-bearing for a VALIDATED discovered row (RED-9 covers the
+        # non-validated dir-key case): with STRICT_DISCOVERED_COVERAGE off, the validated
+        # discovered id D6RF8 -- whose ONLY would-be coverage is the LOOSE *SUCCESSOR*-text token
+        # match "D6RF8" -- is FALSELY CLEARED by that coincidental token (the V-109 gaming surface
+        # the keying fix opened).  If it did NOT falsely clear, the structured-only arm above would
+        # be vacuous.  SO1a (STRUCTURED lineage) MUST still clear either way -- the discipline
+        # removes only the LOOSE scans, never the structured ones.
+        STRICT_DISCOVERED_COVERAGE = False
+        try:
+            red11_results, _ = scan(sources, base, roots, discovery_roots=roots)
+        finally:
+            STRICT_DISCOVERED_COVERAGE = True
+        red11_by = {r.row.case: r for r in red11_results}
+        red11_d6rf8 = red11_by.get("D6RF8")
+        disc_structonly_red_ok = (red11_d6rf8 is not None) and (not red11_d6rf8.flagged)
+        so1a_still_clear = ("SO1a" in red11_by) and (not red11_by["SO1a"].flagged)
+        print(f"\nRED-11 run (structured-only discovered discipline disabled -- loose scans re-enabled):")
+        print(f"  validated discovered D6RF8 FALSELY cleared by the coincidental loose token: "
+              f"{'YES -- gaming surface returns, so the discipline is load-bearing' if disc_structonly_red_ok else 'NO'}"
+              + (f"  [{red11_d6rf8.coverage.evidence}]" if disc_structonly_red_ok else ""))
+        print(f"  STRUCTURED clear (SO1a) unaffected (loose-off never removed structured lineage): "
+              f"{'YES' if so1a_still_clear else 'NO'}")
+
         both_green = (limb1_ok and mech_ok and limb2_ok and lineage_ok and hyphen_ok and noregress_ok
                       and dafoam_enumerated and fnfirst_ok and dafoam_nofire_ok and recog_ok
-                      and srcscope_ok and leaf_ok and leafspec_ok and discovery_ok)
+                      and srcscope_ok and leaf_ok and leafspec_ok and discovery_ok and keying_ok)
         red_ok = (red_blinded and lineage_red_ok and fnfirst_red_ok and recog_red_ok
                   and srcscope_red_ok and hyphen_red_ok and noregress_red_ok and leaf_red_ok
-                  and discovery_red_ok and strict_red_ok)
+                  and discovery_red_ok and strict_red_ok and keying_red_ok
+                  and disc_structonly_red_ok and so1a_still_clear)
         print("\n" + "=" * 78)
         if both_green and red_ok:
             print("PLANT VERDICT: BOTH LIMBS FIRED GREEN, AND THE RED DRIVE BLINDED THE CHECKER.")
@@ -1737,13 +1970,14 @@ def selftest() -> int:
               f"dafoam-enum={dafoam_enumerated} "
               f"fnfirst={fnfirst_ok} dafoam-nofire={dafoam_nofire_ok} recog={recog_ok} "
               f"srcscope={srcscope_ok} leaf={leaf_ok} leafspec={leafspec_ok} "
-              f"discovery={discovery_ok})")
+              f"discovery={discovery_ok} keying={keying_ok})")
         print(f"  all RED drives blinded checker: {red_ok}  "
               f"(whole-coverage={red_blinded} lineage-only={lineage_red_ok} "
               f"filename-first-only={fnfirst_red_ok} recogniser-body={recog_red_ok} "
               f"source-gate={srcscope_red_ok} hyphen-canon={hyphen_red_ok} "
               f"noregress={noregress_red_ok} leaf={leaf_red_ok} discovery={discovery_red_ok} "
-              f"strict={strict_red_ok})")
+              f"strict={strict_red_ok} keying={keying_red_ok} "
+              f"disc-structonly={disc_structonly_red_ok} so1a-structured={so1a_still_clear})")
         print("A checker whose plant does not fire prints NO admissible zero (rule 3).")
         print("=" * 78)
         return 2
