@@ -106,8 +106,15 @@ STATUS="$ROOT/STATUS.$CASE"
 # --- detach, ONCE, by re-executing this same file in a new session --------
 # The wrapper below then runs the solver in its own FOREGROUND, which is the
 # only way `$?` is the solver's status and not setsid's fabricated 0.
+# RE-EXEC VIA `bash "$0"`, NOT `"$0"` DIRECTLY: setsid execs its argument, so a
+# bare `"$0"` demands the executable bit on this file.  git here has
+# core.fileMode=false and stores mode 100644, so a fresh checkout would lack +x
+# and the DETACHED (default) path would die with "setsid: Permission denied"
+# while check_comparator_freeze IDENTITY still passed -- a masked break.
+# Invoking the interpreter explicitly makes the detached path independent of the
+# +x bit.  Do NOT change this back to a bare `"$0"`.
 if [ "$DETACH" = "1" ] && [ "${K0G_DETACHED:-}" != "1" ]; then
-    K0G_DETACHED=1 exec setsid "$0" --case-dir "$CASE_DIR" --timeout "$TIMEOUT_S" \
+    K0G_DETACHED=1 exec setsid bash "$0" --case-dir "$CASE_DIR" --timeout "$TIMEOUT_S" \
         --ranks "$RANKS" --solver "$SOLVER" --foam-bashrc "$FOAM_BASHRC" \
         --no-detach </dev/null \
         >>"$CASE_DIR/log.launch" 2>&1 &
