@@ -1,0 +1,18 @@
+{
+  "_status": "DRAFT / UNFROZEN -- title-verified CODE reference (DrivAerML); Cd/Cl to be pinned to the baseline-geometry run value at freeze",
+  "_provenance": "Ashton, N., Mockett, C., Fuchs, M., Fliessbach, L., Hetmann, H., Knacke, T., et al. (2024). DrivAerML: High-Fidelity Computational Fluid Dynamics Dataset for Road-Car External Aerodynamics. arXiv:2408.11969v2 (17 Apr 2025). PDF outside git at /home/ubuntu/certonomous-runs/reference_pdfs/benchmark_test_cases/ashton_2024_drivaerml.pdf; pointer docs/papers/benchmark_test_cases/ashton_2024_drivaerml.POINTER.md. TITLE-PAGE VERIFIED (rule 15) by this lane 2026-09-09: page 1 reads 'DrivAerML: High-Fidelity Computational Fluid Dynamics Dataset for Road-Car External Aerodynamics', Neil Ashton (AWS) et al.",
+  "_tier": "CODE-VERIFIED (rank 2): DrivAerML is a scale-resolving CFD dataset (hybrid RANS-LES), a CODE reference, NOT experiment. Disavowal required: reproduces the DrivAerML CFD reference, NOT experiment-validated. Upgrade to bounded-agreement only if an AutoCFD experimental Cd is title-verified.",
+  "_setup_from_paper": "arXiv:2408.11969v2 p.5-6: incompressible; U_inf=38.889 m/s; Re_L=7.19e6 on wheelbase L=2.786 m; reference frontal area A=2.17 m^2; geometry = Ford OCDA DrivAer NOTCHBACK, static wheels, sealed cooling inlets, detailed underbody (Fig.1a); 500-variant mean-Cd scatter ~0.237-0.340 (Fig.6c); DrivAerML per-run statistical accuracy dCd = +/-0.001.",
+  "reference": {
+    "case": "DrivAer notchback (Ford OCDA), static wheels, sealed cooling, detailed underbody",
+    "Re_L": 7.19e6,
+    "magUInf_m_s": 38.889,
+    "L_ref_m": 2.786,
+    "Aref_m2": 2.17,
+    "rho_kg_m3": 1.225,
+    "Cd": 0.28,
+    "Cd_note": "PROVISIONAL: mid-scatter placeholder pending the DrivAerML BASELINE-geometry mean-Cd value (pin exact number from the dataset baseline run at freeze). Band +/-10% is the frozen threshold shape.",
+    "Cl": null,
+    "Cl_note": "Pin the DrivAerML baseline-geometry mean total Cl if reported; absolute band +/-0.05. Leave null to skip gate V2 until pinned."
+  }
+}
