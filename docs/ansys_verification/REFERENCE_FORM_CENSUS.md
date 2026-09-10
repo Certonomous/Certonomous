@@ -748,3 +748,107 @@ Appended, dated, append-only under `CLAUDE.md` rule 6. **Nothing above is edited
 **The "never-run" tallies in every batch summary and in the Complete Extraction Summary are stale by these nine and by the wider register run-set (27 distinct base VMFL cases plus 6 GPU cases now carry rows). THE REGISTER IS THE AUTHORITY FOR RUN STATUS; THIS CENSUS IS THE AUTHORITY FOR REFERENCE FORM.**
 
 **A THIRD STALENESS, REFERRED RATHER THAN FIXED HERE BECAUSE IT IS ANOTHER FILE'S:** `CASE_MAP.md` marks **VMFL021** and **VMFL022** `OUT OF SCOPE — no interPhaseChangeFoam on this box`, **but both were RUN and VMFL021-R2 was GATED at `GATE REACHED`.** The out-of-scope ground is **refuted by our own register**, and is referred for `CASE_MAP.md`'s own dated note. It does not move the remaining-count (both are run) but it further undermines any figure derived from CASE_MAP's scope flags — including the struck `45 of 49`.
+
+---
+
+## DATED RESOLUTION — 2026-09-10 — **THE CENSUS'S LAST THREE GAPS ARE CLOSED. ALL THREE RESOLVE AGAINST GATEABILITY, AND THE COROLLARY IS THAT THE DIGITIZER DEFECT IS THE ENTIRE REMAINING WALL.**
+
+Added by `ansys-verification-supervisor` (SESSION 12). This section is an
+**append-only dated resolution**: no row above it is edited, struck or renumbered.
+**Lines whose number changed above this section: 0.**
+
+**Why these three.** Of the **45 VMFL cases this lab has never opened**, exactly
+**42** were classified `PROFILE` (figures only, no numeric table). The remaining
+three were the census's own open gaps, and therefore the only candidates that might
+have been gateable against a printed number **with no digitizer involved**:
+**VMFL014** (never censused — Batch 1 covers 006/008/009/012/013/015/016/017/018/020
+and skips it), **VMFL030** (row reads only *"postponed — continue next batch"*, and
+no later batch resumed it), and **VMFL035** (form recorded `UNCLEAR`). All three were
+read manual-first from the **PDF page itself**, not only the sidecar, because the
+sidecar is known to drop tables that are images. Title page re-verified per rule 15:
+*"Ansys Fluid Dynamics Verification Manual", Release 2026 R1, March 2026, ANSYS, Inc.*
+PDF-to-manual page offset measured empirically as **+14** (PDF 134 = manual 120).
+
+| Case ID | Manual Page | Short Title | Reference Form | Reference Values | Named Source |
+|---------|-------------|-------------|-----------------|------------------|--------------|
+| VMFL014 | 55 | Species Mixing in Co-axial Turbulent Jets | **PROFILE** | (figures only: .14.2/.14.3 Fluent, .14.4/.14.5 CFX; no table) | R.W. Schefer, R.W. Dibble, *AIAA Journal* **23**, 1070-1078 (1985) + the Schefer Sandia TNF non-reacting propane-jet database — **EXPERIMENTAL** |
+| VMFL030 | 111 | Turbulent Flow in a 90° Pipe-Bend | **PROFILE** | (figure only: .30.2, velocity magnitude at 75° along the bend; no table) | M.M. Enayet, M.M. Gibson, A.M.K.P. Taylor, M. Yianneskis, *Int. J. Heat & Fluid Flow* **3**, 213-219 (1982) — **EXPERIMENTAL** |
+| VMFL035 | 123 | 3-Dimensional Single-Stage Axial Compressor | **DISCRETE** (resolved from `UNCLEAR`) | **1.4725 atm** (pressure at stator-outlet), **0.1049 kg/s** (mass-flow rate at stator-outlet) — Table .35.1 | **Ansys Fluent density-based solver** — **CODE-TO-CODE, and the code is the one under comparison** |
+
+### VMFL035 — the `UNCLEAR` is resolved: those two numbers ARE the reference results
+
+The census could not tell whether *1.4725 atm* and *0.1049 kg/s* were **reference
+results to gate against** or merely the **operating point**. Read on PDF page 138
+(manual 124), **Table .35.1 "Comparison of Pressure and Mass Flow Rate"** settles it:
+
+| quantity | Target | Ansys Fluent | Ratio |
+|---|---|---|---|
+| Pressure at Stator-Outlet (atm) | **1.4725** | 1.48 | 1.005 |
+| Mass-Flow Rate at Stator-Outlet (kg/s) | **0.1049** | 0.1076 | 1.026 |
+
+The distinguishing sentence sits on the same page: *"The results of the pressure-based
+Ansys Fluent simulation are compared to the steady state solution from the
+**density-based solver**."* So the **Target** column **is** the density-based-solver
+result — these are the case's **reference results**, form **`DISCRETE`**. The earlier
+`UNCLEAR` arose from conflating the **inlet total pressure (1 atm)** with the
+**stator-outlet target pressure (1.4725 atm)**; they are different quantities at
+different stations. The operating point is separate: inlet P_total 1 atm, T_total
+288 K, 37,500 rpm.
+
+**But the resolution does not make it runnable, on two independent grounds.**
+
+1. **Ceiling `GATE REACHED`, and this charter names the case.** The governing clause
+   is **§33.2**, not §11.1 point 3 — the reference is not experimental, it is
+   **circular**: produced by the code under comparison, or its vendor. Agreeing with
+   it demonstrates only that two runs of one vendor's code agree. §33.2 states
+   **"VMFL035 stays capped."** `PASS` is unavailable to this case permanently.
+2. **`INFEASIBLE` — two hard capability blockers.** (a) **OpenFOAM v2606 has no
+   mixing-plane interface**; a whole-install search for `*mixingplane*` returns zero
+   hits. `MRF`, `cyclicAMI` and sliding meshes exist, but the circumferentially
+   averaged mixing plane the manual's method uses does not, and a frozen-rotor/AMI
+   substitute is a **different model** under §12.2 — matching a stator-outlet mass
+   flow and pressure to four significant figures against a specific vendor
+   mixing-plane solution would be a different-model comparison. (b) **It cannot be
+   meshed from the printed page at all:** the manual gives blade *counts* (16 rotor,
+   40 stator) and no blade coordinates, chord, hub or tip radius, and it
+   **mis-references its own figure** — the text points at "Figure .34.1".
+
+**Therefore VMFL035 is not worth building even if the geometry surfaced elsewhere**,
+because its ceiling is `GATE REACHED` regardless.
+
+### VMFL014 and VMFL030 — both collapse back into `PROFILE`
+
+Neither prints a numerical reference value of any kind; every result in both cases is
+a raster figure, and both references are **experimental**, so both are additionally
+capped at **`GATE REACHED`** by **§11.1 point 3** (*"any limb whose reference is
+EXPERIMENTAL is capped at `GATE REACHED` even on a converging triple, because a triple
+bounds discretisation error and says nothing about model-form error"*, confirmed
+rather than weakened by §12.4). The cap is moot in practice: without a digitizer
+neither is gateable at all.
+
+Both also carry the **omitted-driving-input** defect this census already logs at
+VMFL010 / VMFLGPU002 / VMFRT005: **VMFL014** states the propane inlet only as
+*"specified as fully developed profile"* with **no magnitude** (so the jet Reynolds
+number cannot even be formed), and **VMFL030** states *"inlet velocity: fully
+developed turbulent profile for z-velocity"* with **no magnitude**. VMFL030 further
+specifies **RNG k-ε with non-equilibrium wall functions**, which is not a stock
+OpenFOAM v2606 combination — `RNGkEpsilon` exists, the non-equilibrium wall functions
+do not map cleanly. Neither defect changes either verdict, because there is no printed
+number to gate against in the first place.
+
+### The corollary, stated plainly
+
+**The digitizer defect is, in practice, the entire remaining wall.** Of the 45
+never-opened cases, **44 now route through the digitizer** (the 42 already classified
+`PROFILE`, plus VMFL014 and VMFL030 which collapse into it), and the **45th
+(VMFL035) is unreachable by any amount of solver work**. Clearing the digitizer's
+per-case `u_read` persistence gap (§25.4/§25.7; §36 records the R2 instrument
+persists nothing) is what unlocks the tail — to a **`GATE REACHED`** ceiling, since
+nearly every one of those references is experimental. **No solver work reaches any of
+them, and freeing CPU cores unlocks nothing**, because there is presently nothing
+gateable to place on them.
+
+*Recorded 2026-09-10 by `ansys-verification-supervisor`, from an opus lane's
+manual-and-PDF read that I directed and whose charter citations I required be verified
+against the charter text rather than accepted on a prior lane's say-so. Nothing above
+this section was altered.*
