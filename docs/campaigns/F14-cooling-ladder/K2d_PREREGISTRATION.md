@@ -257,6 +257,79 @@ grading path to fit the answer. **So the failure mode is graded here instead.**
 > level not iteratively converged or not plateaued → `NOT A RESULT`"* — evaluated
 > **before** any triple is classified, and it is evaluated **first**.
 
+#### 3.3a `U_ha` — THE DETECTOR MUST LOOK WHERE THE PREDICTION POINTS
+
+**A defect found in this document's own first draft, at the supervisor's §3 diff
+read, and corrected here before compute.** `P-K2d-2` predicts cycling **at the
+hot-aisle side of the rack faces**. The limb above samples **`T_in,max`, a
+COLD-AISLE quantity at the rack inlets**. *If the cycle lives where the rung
+predicts, a detector watching only the inlet may never see it* — the rung would
+read `CONVERGED`, grade a triple, and report `P-K2d-2` as a `LOSS` when the gate
+was simply not pointed at the phenomenon. **A prediction whose detector does not
+look at the predicted location is not falsifiable**, and this is the same shape
+standing rule 3 forbids: a reader not shown able to see the thing it must see.
+
+**REGISTERED: a second monitored quantity, at the predicted location.**
+
+> **`U_ha`** — the **volume-averaged velocity magnitude over the hot-aisle
+> control volume**: the full hot-aisle width `W_ha`, spanning the rack row in
+> `x` from the first to the last rack face, and from the floor to the rack top
+> `H_r` = 2.00 m in `z`. This is the volume where the opposing rack-exit jets
+> meet and where `Ri_rack` = 9.3 puts the flow in the buoyancy-dominant regime.
+> It is written by an in-pass function object at the **same 50-iteration
+> cadence** as `T_in,max`, so `G-CYCLE` reads it from the log alone.
+>
+> **Threshold: peak-to-peak spread of `U_ha` ≤ 0.5 % of its sample mean** over
+> the same 400-iteration window, **≥ 9 samples, REFUSED below that**. The
+> `CYCLING` and `DRIFTING` discriminators are **identical** to §3.3's — ≥ 3 sign
+> changes in the first difference, and linear trend explaining < 25 % of sample
+> variance.
+>
+> **Any level `CYCLING` or `DRIFTING` on EITHER `T_in,max` OR `U_ha` → every
+> graded row `NOT A RESULT`.** Both states are printed for every level whichever
+> fires.
+
+**Why 0.5 % and not S13's 0.02 %, stated because a threshold chosen to be
+passable is worthless.** S13's 0.02 % governs a *mass-flow-weighted inlet
+temperature* — an intrinsically smooth, strongly constrained quantity. `U_ha` is
+a volume-averaged velocity in a buoyancy-dominant recirculating region and is
+intrinsically more variable; 0.02 % there would fire on every run and produce a
+gate that cannot be passed, which is not a gate. **0.5 % is 25× looser and is
+chosen so the SPREAD limb only decides whether to look**, while the sign-change
+and trend criteria do the actual discrimination between an oscillation and a
+descent. **The risk of this choice runs one way and is named:** too tight gives
+`NOT A RESULT`, the conservative direction; too loose could miss a
+small-amplitude cycle — **which is exactly what §3.3b exists to bound, and why
+it reports a measured detection floor rather than asserting one.**
+
+#### 3.3b PLANTED-CYCLE CONTROL — the detector must be SHOWN able to detect a cycle
+
+**A cycle detector never shown able to detect a cycle is worth exactly as much
+as a zero from a blind reader.** Standing rule 3's principle is applied to the
+detector itself.
+
+Before any level is classified, for **every level and both monitored
+quantities**, the comparator:
+
+1. **POSITIVE ARM.** Plants a synthetic sinusoid into a copy of the sampled
+   series — **amplitude 2× the quantity's registered spread threshold**, **period
+   200 iterations** (4 samples, giving ≥ 4 sign changes across the 400-iteration
+   window) — runs it through the **identical** `G-CYCLE` classifier, and
+   **REFUSES (exit 2) if the planted cycle is not classified `CYCLING`.**
+2. **NEGATIVE ARM.** Plants a clean monotone decaying series with spread below
+   threshold, runs the same classifier, and **REFUSES (exit 2) if it is
+   classified `CYCLING`.** A detector that calls everything a cycle is as
+   useless as one that calls nothing a cycle.
+3. **DETECTION FLOOR, measured and reported, never asserted.** Plants a ladder
+   of sinusoids at decreasing amplitude — **1.0×, 0.5×, 0.25×, 0.125×, 0.0625×
+   the spread threshold** — and **reports the smallest planted amplitude still
+   classified `CYCLING`.** That figure is printed in the gate JSON and quoted in
+   the results record beside any `CONVERGED` reading, so a reader knows what
+   amplitude of cycle the rung was capable of seeing.
+
+**The comparator REFUSES rather than degrading.** It does not grade a rung whose
+cycle detector has not demonstrated, on that run's own data, that it works.
+
 **REGISTERED PREDICTION `P-K2d-2`, and we predict against ourselves.**
 
 > **`P-K2d-2` predicts that at least one of the three levels will read
@@ -344,6 +417,39 @@ its GCI is computed at **`Fs` = 1.25** (its eq. 7), the same factor of safety
 this lab uses. And our **`r` = 1.5 is a coarser step than its 1.31**, which
 helps an order estimate rather than hurting it.
 
+#### 4.3a `A-SUBFIRST` — A REPORTING REQUIREMENT ON THE BAND'S LOWER LIMB
+
+**This is NOT a gate change.** The band stays (0.5, 3.5), the one-way property of
+§4.2 is untouched, and nothing here narrows anything or moves a verdict.
+
+**The lower limb at 0.5 is the band's weak point, and a `PASS` there must not
+pass silently.** On a nominally second-order scheme, an observed order below
+about 1.0 is **not "converging slowly"** — it is evidence that something
+*structural* dominates the discretisation error: an unresolved feature, a
+discontinuity, or **mesh defects that do not scale down under refinement.**
+Grading those `PASS` without comment conflates two very different situations.
+
+> **REGISTERED: any row graded `PASS` with observed order `p` < 1.0 carries a
+> printed annotation**, in the comparator's stdout, in the gate JSON as an
+> `annotations` field on that row, and reproduced in the results record:
+>
+> *"`p` = ⟨value⟩ < 1.0 on a nominally second-order scheme. Sub-first-order
+> convergence indicates an unresolved or structurally-dominant error source —
+> an unresolved feature, a discontinuity, or mesh defects that do not scale
+> down under refinement — and NOT merely slow convergence. This `PASS` is
+> inside the registered band and stands; it may not be cited as evidence of
+> asymptotic convergence."*
+
+**The measurement that motivates it, and it is live in this family tonight.**
+The T26 lane measured its mesh-defect population growing **faster than its cell
+count** — small-determinant cells ×3.37 and concave cells ×5.06 against a 2.66×
+cell increase. **A defect fraction that RISES under refinement drives `p`
+down**, so a low `p` is the signature of exactly that failure. `G-CHECKMESH` at
+zero tolerance (§5.1) should prevent it here — K2d's rack row is axis-aligned
+rectilinear `blockMesh` with no refinement transitions — **but the annotation
+costs nothing and is the diagnostic that catches it if that expectation is
+wrong.**
+
 ### 4.4 THE REPORT-ONLY COMPARISON — computed, printed, and GRADING NOTHING
 
 The comparator reads the digitised referent files and prints a comparison:
@@ -412,10 +518,30 @@ as one.
 - **Every `checkMesh` invocation carries `-allGeometry -allTopology`**, and the
   **exact command line is written into `log.checkMesh`** so a reader can tell
   which check set produced the log.
-- **`G-CHECKMESH`** — the comparator **REFUSES** a `log.checkMesh` that does not
-  evidence both flags. That level's rows are **`NOT A RESULT`**, reason stated.
-  *A log missing half the checks is not evidence of a sound mesh*, and the D-3D
-  gate of §5.2 reads that same log.
+- **`G-CHECKMESH`, provenance limb** — the comparator **REFUSES** a
+  `log.checkMesh` that does not evidence both flags. That level's rows are
+  **`NOT A RESULT`**, reason stated. *A log missing half the checks is not
+  evidence of a sound mesh*, and the D-3D gate of §5.2 reads that same log.
+- **`G-CHECKMESH`, VERDICT limb — the comparator reads `checkMesh`'s OWN
+  verdict, and this limb exists because its absence was measured.** The T26
+  lane found that its comparator *"would have graded — with a clean
+  '3D CONFIRMED' — a mesh whose own quality tool had failed it"*, because
+  nothing in it read the `Failed N mesh checks` line: the directions line was
+  perfect while 2,320 small-determinant and 13,099 concave cells sat under it.
+  **Checking directions, patch types and minimum cell size does not check
+  whether `checkMesh` passed the mesh.** Registered:
+  - the comparator parses the **`Failed N mesh checks`** line and the
+    **`Mesh OK.`** line explicitly;
+  - **`N > 0` → that level's rows `NOT A RESULT`**, with every failed check line
+    printed;
+  - **`Mesh OK.` is NOT accepted as a pass on its own** — it is precisely what
+    bare `checkMesh` prints on a mesh the full set fails;
+  - **neither line present → `NOT A RESULT`.** Mesh quality is then *unmeasured*,
+    and **unmeasured is not passing.**
+  - **Tolerance registry: EMPTY, i.e. zero tolerance** (§5.1's tolerance
+    paragraph). Any future entry must carry its own written justification and be
+    registered **before** the freeze — the gate is never relaxed to let a mesh
+    through after the mesh has been seen.
 - **`G-MINCELL`** — minimum cell dimension is reported **per named feature** and
   gated against a registered floor. The features, named now: **rack front face**,
   **rack rear face**, **rack side faces**, **supply tile face**, **return face**,
@@ -662,6 +788,65 @@ two rows of five racks, four CRAC units, hard floor, partial hot-aisle
 containment — against **32 armable experimental rows**. **It is a proposal. It is
 not registered, not frozen, and nothing in this document authorises any compute
 against it.**
+
+---
+
+---
+
+## 13. PRE-FREEZE AMENDMENT 1 — 2026-09-10, at the supervisor's §3 diff read
+
+**This document is NOT FROZEN, so this is a legal pre-compute amendment under
+standing rule 2, which requires the condition and how it was checked to be
+stated.**
+
+**CONDITION:** *"`verification/runs/F14-cooling-ladder/K2d_runs/` does not
+exist."*
+**HOW CHECKED:** by its absence on disk with `test -d`, re-run immediately
+before this amendment was written, 2026-09-10. It did not exist. **No compute
+has been spent against this document; no gate is being changed after an
+answer was seen.**
+
+**Base version amended:** commit `c1ef8385`, blob
+`0bae89b0a571835157ddded8064ed87689064019`.
+
+### What changed, and why
+
+**1. §3.3a — `G-CYCLE` did not look where `P-K2d-2` points.** The supervisor's
+diff read found that the limb sampled `T_in,max`, a **cold-aisle** quantity,
+while the prediction names the **hot-aisle** rack faces. A prediction whose
+detector cannot see the predicted location is not falsifiable, and the rung
+would have reported a `LOSS` that was really a blind spot. **Added `U_ha`**, a
+hot-aisle volume-averaged velocity magnitude at the predicted location, with its
+own registered 0.5 % threshold and its justification for differing from S13's
+0.02 %. Either quantity cycling or drifting now voids every graded row.
+
+**2. §3.3b — the cycle detector is now itself planted-zero controlled.** A
+positive arm (a planted sinusoid must be caught), a negative arm (a planted
+clean monotone series must not be called a cycle), and a **measured detection
+floor** reported beside any `CONVERGED` reading. The comparator refuses at
+exit 2 rather than grading a rung whose detector has not demonstrated it works.
+
+**3. §4.3a — `A-SUBFIRST`, a REPORTING requirement, not a gate change.** The
+band stays (0.5, 3.5) and the one-way property is untouched. A `PASS` with
+`p` < 1.0 now carries a printed annotation naming sub-first-order convergence as
+evidence of a structurally-dominant error source rather than slow convergence.
+Motivated by T26's measurement that its mesh-defect population grows faster than
+its cell count, which drives `p` down.
+
+**4. §5.1 — `G-CHECKMESH` gained a VERDICT limb.** It now reads `checkMesh`'s
+own `Failed N mesh checks` line, refuses on `N > 0`, refuses when neither
+verdict line is present (*unmeasured is not passing*), and **does not accept
+`Mesh OK.` on its own**. Added because the T26 lane measured that its comparator
+would have graded a mesh its own quality tool had failed, printing
+"3D CONFIRMED" over 2,320 small-determinant and 13,099 concave cells.
+
+### What did NOT change
+
+**No band, threshold, floor, cap, label or verdict was widened, moved or
+loosened.** §4.2's evaluation order, its one-way property and its GCI refusal on
+non-monotone values are untouched. The order band's numeric limits are
+unchanged. Every threshold added here is **new**, not a relaxation of an
+existing one, and each is set **before** any compute exists to fit it to.
 
 ---
 
