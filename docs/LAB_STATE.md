@@ -1469,6 +1469,12 @@ Sanaa's own session turn ~16:50Z: "THE CASE PROTOCOL: ONE PATH, EVERY CASE, NO P
 
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-10T18:57:17Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
+### CHIEF ADDENDUM — 2026-09-10T19:05:05Z — RECORD DEFECT DISCLOSED: THE 18:55Z ADDENDUM'S COMMIT CARRIES ANOTHER LANE'S SUBJECT
+
+The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843b751`, whose tree and parent are correct and verified (8 insertions, 0 deletions, `docs/LAB_STATE.md` only, block byte-identical to the built block) but whose **message is dafoam's**, not the chief's: the records lane's first attempt aborted before writing its commit-message file, a sibling lane had written its own message to the same generic shared scratch path, and `git commit-tree -F` succeeded silently with that foreign content — a `-F` never fails when the path exists (L-386 reaching inside the commit protocol; the protocol's asserts cover the tree, not the message). No rewrite was performed: a child commit already existed when the defect was found, and rebasing a peer's work is not a records lane's call. On the chief's ruling a `git notes` entry on `04b81d0c8ea0` carries the intended subject and the Fable attribution lines; read it with `git notes show 04b81d0c8ea0`. A commit-message file is henceforth written to a per-agent unique path and asserted non-empty with an expected first line before `commit-tree`, and the subject is read back with `git log -1 --format=%s` after `update-ref`.
+
+*Recorded by a records lane on the chief's instruction — stamp 2026-09-10T19:05:05Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
+
 ## closure
 **Section last written:** 2026-09-10T18:57Z (REST STAMP) by closure-supervisor personally. **CLOSURE RESTS ON SANAA'S OWN WORDS.** PURE INSERTION — the PAUSE STAMP below is preserved byte-intact and every resume condition in it still stands; this block changes the *status label* and adds one charter reading, one ruling and one correction. Nothing below is edited or deleted.
 
