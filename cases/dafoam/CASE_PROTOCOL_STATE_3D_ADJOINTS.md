@@ -56,3 +56,73 @@ gates stay frozen, comparators stay pinned, SUBMISSIONS STAY PARKED.
 
 **The ACTD render pass's "111 PNGs" (boarded S-147b) does NOT exist on disk.** Zero `.png` files under
 `ACTD-a2-decomposition`, `ACTD-meshtime`, or any path matching `decomp`. **Not offered as a demo asset.**
+
+---
+
+## CORRECTION 1 — 2026-09-10 — **VERIFY CLEARED: charter read from HEAD. Two of my stage readings were WRONG, and §1 contains a rule that lands on the D6 family's gate design.**
+
+*lines whose number changed above this section: 0.* Appended; nothing above rewritten or struck.
+
+**VERIFY IS DISCHARGED.** `docs/charters/CASE_PROTOCOL_CHARTER.md` is at HEAD, landed by `e24953a6`,
+85 lines, read by me in full. **My scope reading was right** — §7: *"dafoam on the 3D adjoints"*, and
+*"No new families."* **My budget reading was right** and matches the charter's own provenance block, which
+adds one clause I had already recorded: *"supervisors record which runs ran under it."* **Two other things
+I had wrong:**
+
+### (a) D8R IS NOT AT "STAGE 5 COMPLETE". Its gate leg is done; its FAMILY leg does not exist, and the item says so itself.
+
+§5 is *"Grade: the gates, **then the family**"* — medium and fine levels launched by the same daemon,
+**observed order and GCI computed**, iterative error verified at least ten times smaller than the
+level-to-level difference, **and only then** *"Certificate assembled from the record."*
+
+**D8R has no grid family.** Its own grade json says so verbatim: `no_gci = "no grid family; standing rule 5
+has no row; NO GCI IS QUOTED"`. So **D8R cannot produce a §5 certificate as the charter writes it**, and
+the chief's suggestion that it is a candidate for a first certificate is **not something I can execute
+without either building it a grid family or obtaining an explicit §5 carve-out for
+optimisation-convergence items.** I am not inventing the carve-out: **changing what a certificate requires
+is not in a supervisor's §9 authority.** D8R's correct state line is **"§5 gate leg complete, family leg
+absent by the item's own registration; certificate BLOCKED on a §5 requirement it was never designed to
+meet."** Its two-row `PASS` is untouched and remains the strongest result on this front.
+
+*(A6 is an optimisation-convergence item, not a grid-convergence item. That is not a defect in D8R — the
+item registered `no_gci` deliberately and honestly. It is a mismatch between what this case class produces
+and what §5's certificate demands, and it is the chief's or Sanaa's to resolve, not mine.)*
+
+### (b) §1's T23G2Rn2 RULE LANDS DIRECTLY ON THE D6 FAMILY, and it is the sharpest consequence of `N-D44`.
+
+§1, verbatim: *"Solver tolerance strictly tighter than any gate that reads its output (the T23G2Rn2 rule:
+**a tolerance equal to a gate voids the rung**)."*
+
+**D6RF10's gate IS the solver's own acceptance threshold — not tighter than it, identical to it.** Its
+frozen pre-registration says so at line 89:
+
+> `Threshold / accept floor = CONV_BAR = 1.0e-05` = `primalMinResTol 1e-08 × primalMinResTolDiff 1000`
+
+And `N-D44` established that DAFoam's own `checkPrimalFailure()` tests
+`primalMaxRes / primalMinResTol_ > primalMinResTolDiff` — i.e. against **exactly that product**, on
+**exactly the same quantity family** the gate reads. **The gate and the solver's own acceptance test are
+the same number applied to the same thing.** That is precisely the configuration §1 forbids.
+
+**What this does NOT do:** it does **not** retroactively void D6RF10. That item was registered, frozen and
+run **before** this charter existed, and a charter is not applied backwards to void a completed rung —
+**and voiding a rung is not in my §9 authority anyway.** R1 `GATE FAIL`, R2 `NOT A RESULT`, R3
+binding-field `PASS` / rung `GATE FAIL` all stand exactly as graded.
+
+**What it DOES do, and it is binding forward:** **no D6-family successor may register `CONV_BAR` equal to
+`primalMinResTol × primalMinResTolDiff` again.** Under §1 a successor must set the solver tolerance
+**strictly tighter** than whatever gate reads its output. Concretely, a successor either tightens
+`primalMinResTol` (or `primalMinResTolDiff`) so the solver's acceptance sits strictly below the gate, **or
+it registers a gate strictly above the solver's product** — and it may not do the second by simply
+loosening the gate to fit, because §9 forbids me changing a frozen gate and `N-D43`'s escalated
+acceptance-rule question is still unruled and on Sanaa's desk. **This is registered here as a constraint on
+the successor, not as a change to anything already frozen.**
+
+**And it explains something the campaign kept running into.** A gate identical to the solver's own
+acceptance means the run can only ever land at the bar, never strictly inside it — which is what
+D6RF7 → D6RF9 → D6RF10 measured three times over. **`N-D44` gave the mechanism; §1 gives it a name.**
+
+### (c) One reading of mine that §6 confirms rather than corrects
+
+§6: *"Anything an agent relays that it did not read from a file carries VERIFY."* Every VERIFY I have
+placed this session was on exactly that basis, and each is now either discharged (this charter) or still
+open and marked (no renderer has opened the D8R fields; the arm→row mapping rests on the grade file alone).
