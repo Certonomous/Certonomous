@@ -19385,6 +19385,29 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-10 (update 92): **K2a IS APPROVED IN SANAA'S OWN WORDS — AND AS SPECCED IT CANNOT DELIVER WHAT SHE ASKED FOR 35 MINUTES EARLIER. It registers TWO mesh levels; two levels give a difference, not a convergence order.** Resolved by extending the ladder DOWNWARD, which completes the triple, **changes no approved level, and adds ~5% to the approved cost.**
+
+**SANAA, ~20:20Z:** *"K2a approved"*. **SANAA, ~19:45Z:** *"run and complete, and wit their mes convergence ASAAAP."* **These two collide, and I am not going to run the approval while quietly failing the directive.**
+
+**WHAT K2a ACTUALLY SAYS.** `docs/campaigns/F14-cooling-ladder/K2a_RACK_ROW_MODULE_SPEC.md` is a **module spec, not a pre-registration**; **no run tree exists**. `:308` registers **TWO levels only** — coarse ≈ **0.20 M**, fine ≈ **0.70 M** — under *"K0c's mandatory two-mesh convention, inherited unchanged: coarse solved first, both reported, grading on the fine."* **A grep for `triple`, `roache`, `gci`, `three level` returns NOTHING.** Cost `:465-475`: 3D coarse **167** core-min, 3D fine **933**, graded pair + controls **≈1,600**, everything specified **≈2,700**.
+- **Under rule 5 a row without a CONVERGING triple is `NOT A RESULT` whatever its value, and no GCI may be quoted.** So K2a as written spends **~1,600-2,700 core-min to produce something that cannot carry a mesh-convergence claim** — the exact thing she asked for. *An approval is not a reason to spend it badly.*
+
+**RULING — EXTEND DOWNWARD, DO NOT TOUCH THE APPROVED LEVELS.** `[lab-attributed]` The arithmetic is unusually kind: **K2a's two levels are ALREADY exactly one r=1.5 three-directional step apart** — 0.20 M × 3.375 = 0.675 M ≈ 0.70 M. *They are two rungs of a 3D ladder nobody finished.* The triple becomes:
+
+**L1 = 59,259 · L2 = 200,000 · L3 = 675,000**, ratios **3.375 = 1.5³**.
+
+- **No approved level changes.** Her coarse becomes L2; **her fine stays the finest and remains the grading level.** I am not spending her approval on a different experiment.
+- **Added cost ≈50 core-min on an approved ~1,100 for the pair — about 5%.** Extending **upward** instead would have added a 2.36 M level at **3,000-4,700 core-min, tripling an approved budget.** Downward is both cheaper and the more faithful reading of what she approved.
+- **Memory** from the T26 lane's measured 2,877 B/cell + 67 MiB/rank: L3 at 675k ≈ **3.1 GiB** at 16 ranks. Comfortable beside T4e.
+
+**RULING — K2a AND K2d ARE THE SAME PHYSICAL CASE AND ONLY ONE RUNS.** `[lab-attributed]` Both are the rack row. **My proposed K2d ladder (132,840 / 448,335 / 1,513,130) is DROPPED** — it was right before K2a was approved; now **the approved geometry and BCs are the ones that must run.** What survives from K2d and matters most: the **Wibron, Ljung & Lundström (2018)** reference, digitised at `reference-data/wibron_2018_digitized/`, **verified by TITLE PAGE and not by filename** (L-144). That is what makes this rung **VALIDATION rather than verification — the only such rung in my territory.** It is attached to K2a's geometry. **One registration, stating on its face that it is the three-level realisation of the owner-approved K2a module**, citing her 20:20Z approval as the compute authorisation and saying explicitly why a third level exists — *so no future reader thinks K2a was quietly replaced or its approval stretched to cover something else.*
+
+**ANSWERING SANAA'S PHYSICS QUESTION** — *"i dont understand how could the physics be correct but not the mesh"* (asked of cfd's M6; the answer is general and it is the core of what this lab sells): **the physics being right and the answer being defensible are different claims.** Correct equations, BCs and solver give a field that looks plausible and may be close. **The mesh decides whether the ERROR IN IT CAN BE BOUNDED.** M6's trailing-edge cusp is **scale-invariant** — refining does not resolve it better, so the error from that region is a **fixed floor that never falls.** Refine three times and the error stops decreasing: no observed order, no GCI, and under rule 5 **`NOT A RESULT`** however good the picture. **An unbounded error is not a result, even when it is a small one.** *This exact shape appeared three times in the lab tonight* — dafoam's A3 four-level sweep refining in one direction only, my own `T4e` and the whole `T23G2` line being 2D wedges, and K2a's two-level pair. **In every case each individual solve is fine and the mesh FAMILY cannot support the convergence claim.**
+
+**SEQUENCING, three fronts:** `T4e_IJ_f` running (~09-12); **T26** blocked on instruments, the `checkMesh` flags and `cost_channel.py`; **the rack row (K2a/K2d merged)** in registration. **K2a leaves Sanaa's desk — nothing of mine is on it.**
+
+**Section last written:** 2026-09-10T20:03:15Z by heat-transfer-supervisor personally. Newest block is **update 92**.
+
 ##### heat-transfer 2026-09-10 (update 91): **ANSWERING SANAA DIRECTLY — NO, THE RACK ROW WAS NEVER FILMED. Heat-transfer's two filmed acts were the MOTOR-IN-DUCT (Act A) and the BATTERY MODULE (Act C).** Verified from my own demo records, not from a relay. **And the filmed motor-in-duct was `T23G2` — which I established tonight is a 2D AXISYMMETRIC WEDGE. The good news is that Act A never claimed otherwise.**
 
 **SANAA ASKED** (~20:15Z): *"isnt the rack one the one we did in the demo? or was that smth else"* — **it was something else.** Read from `docs/campaigns/T-family/demo/`:
