@@ -143,30 +143,39 @@ def refuse(msg):
 
 
 # --------------------------------------------------------- channel agreement
-def check_channel_names():
+def check_channel_names(log_name=None, rc_name=None):
     """PRODUCER AND READER, CHECKED AGAINST EACH OTHER IN CODE.
 
     Finding B existed because the log name and the return-code channel this
     runner writes were never compared with the ones the grader opens.  Prose
-    cannot hold that invariant; this can.  `RC_NAME` is checked against the
+    cannot hold that invariant; this can.  `rc_name` is checked against the
     literal `r4_lib.solve_complete` actually opens, read out of its source.
+
+    The two names are ARGUMENTS defaulting to this module's fixed constants, so
+    `--selftest` can drive drifted names WITHOUT reassigning a module constant.
+    `LOG_NAME` and `RC_NAME` are therefore assigned exactly once each, at module
+    scope, to a literal, and are never rebound anywhere in this file -- which is
+    what "a fixed module constant present before any run" has to mean if it is to
+    mean anything.
     """
-    if LOG_NAME != S.LOG_NAME:
-        refuse("channel drift: this runner writes " + repr(LOG_NAME)
+    ln = LOG_NAME if log_name is None else log_name
+    rn = RC_NAME if rc_name is None else rc_name
+    if ln != S.LOG_NAME:
+        refuse("channel drift: this runner writes " + repr(ln)
                + " but rc4_score.completion reads " + repr(S.LOG_NAME)
                + ".  This is finding B's exact shape and it is refused here")
     src = open(os.path.abspath(r4_lib.__file__)).read()
     fn = src[src.index("def solve_complete("):]
     fn = fn[:fn.index("\ndef ") if "\ndef " in fn else len(fn)]
-    if 'os.path.join(case, "' + LOG_NAME + '")' not in fn:
+    if 'os.path.join(case, "' + ln + '")' not in fn:
         refuse("channel drift: r4_lib.solve_complete does not open a log named "
-               + repr(LOG_NAME) + "; section 8 clauses 1-3 would be unsatisfiable "
+               + repr(ln) + "; section 8 clauses 1-3 would be unsatisfiable "
                "by this runner's output")
-    if 'os.path.join(case, "' + RC_NAME + '")' not in fn:
+    if 'os.path.join(case, "' + rn + '")' not in fn:
         refuse("channel drift: r4_lib.solve_complete does not open a return-code "
-               "file named " + repr(RC_NAME) + "; section 8 clause 1 would be "
+               "file named " + repr(rn) + "; section 8 clause 1 would be "
                "unsatisfiable by this runner's output")
-    return {"log_name": LOG_NAME, "rc_name": RC_NAME,
+    return {"log_name": ln, "rc_name": rn,
             "grader": "r4_lib.solve_complete + rc4_score.completion",
             "agree": True}
 
@@ -410,9 +419,12 @@ def selftest():
     note("this runner's channel names agree with the grader's, checked in code",
          check_channel_names()["agree"])
     note("the channel guard FIRES on a log-name drift",
-         _fires(_drift_probe, "log.run", RC_NAME))
+         _fires(check_channel_names, "log.run", RC_NAME))
     note("the channel guard FIRES on a return-code-name drift",
-         _fires(_drift_probe, LOG_NAME, "returncode"))
+         _fires(check_channel_names, LOG_NAME, "returncode"))
+    note("LOG_NAME and RC_NAME are assigned ONCE each, at module scope, to a "
+         "literal, and are never rebound anywhere in this file",
+         _no_rebinding("LOG_NAME") and _no_rebinding("RC_NAME"))
     note("every entry point REFUSES while RC4 is DRAFT/UNFROZEN",
          _fires(B.refuse_if_unfrozen))
 
@@ -610,15 +622,34 @@ def selftest():
     return 0
 
 
-def _drift_probe(log_name, rc_name):
-    """Drive check_channel_names with drifted names, to show it FIRES."""
-    global LOG_NAME, RC_NAME
-    keep = (LOG_NAME, RC_NAME)
-    LOG_NAME, RC_NAME = log_name, rc_name
-    try:
-        return check_channel_names()
-    finally:
-        LOG_NAME, RC_NAME = keep
+def _no_rebinding(name):
+    """Is `name` assigned exactly once in this file, at module scope, to a
+    literal?  Independent `ast` parse, TUPLE AND LIST TARGETS INCLUDED -- a
+    sweep that inspects only bare-Name targets silently misses
+    `A, B = x, y`, which is exactly how a "fixed" constant stops being one.
+    """
+    src = open(os.path.abspath(__file__)).read()
+    tree = ast.parse(src)
+
+    def targets(t):
+        if isinstance(t, ast.Name):
+            return [t.id]
+        if isinstance(t, (ast.Tuple, ast.List)):
+            return [n for e in t.elts for n in targets(e)]
+        return []
+
+    hits = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Assign, ast.AugAssign)):
+            tg = node.targets if isinstance(node, ast.Assign) else [node.target]
+            for t in tg:
+                if name in targets(t):
+                    hits.append((node.lineno, isinstance(node, ast.Assign)
+                                 and isinstance(node.value, ast.Constant)))
+    if any(name in n.names for n in ast.walk(tree)
+           if isinstance(n, ast.Global)):
+        return False
+    return len(hits) == 1 and hits[0][1]
 
 
 def main(argv):
