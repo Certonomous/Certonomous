@@ -1,0 +1,11765 @@
+*NASA
+CR
+
+300 3
+
+NASA
+
+Contractor
+
+3003
+
+of Scramjet Exhaust
+Technique at Mach 6
+
+Validation
+Simulation
+
+H. B. Hopkins,
+and J. Leng
+
+Report
+
+W.
+
+Konopka,
+
+CONTRACT
+NASl-14152
+MARCH
+1979
+
+.i
+:
+__
+
+‘\
+\;
+
+..
+_I’
+
+Ii.
+
+TECH LIBRARY KAFB, NM
+
+181111111lllll
+Ollb2b53
+NASA
+
+Contractor
+
+Validation
+Simulation
+
+Report
+
+of Scramjet Exhaust
+Technique at Mach 6
+
+H. B. Hopkins, W. Konopka,
+and J. Leng
+Grumman Aerospace Corporation
+Bethpage, New York
+
+Prepared for
+Langley Research Center
+under Contract NASI-14152
+
+National Aeronautics
+and Space Administration
+Scientific and Technical
+Information Office
+1979
+
+3003
+
+TABLE
+
+OF CONTENTS
+
+Section
+
+Page
+
+1
+
+INTRODUCTION
+
+AND SUMMARY
+
+2
+
+DETONATION
+
+TUBE SIMULATOR
+
+Detonation
+
+Tube/Combustor
+
+Cowl and Afterbody
+
+. . . . . . . . . . . . . . .
+
+Model Design.
+
+Instrumentation
+
+18
+
+Shock Tube Mixture
+Combustion
+Substitute
+4
+
+AFTERBODY
+
+5
+
+EXPERIMENTAL
+Pressure
+Impact
+
+19
+21
+
+CONDITIONS.
+
+Development
+
+Gas ( @ = 1.0)
+Gas
+
+Gauge in the Z
+
+....................
+
+TUBE RUNNING
+
+.........
+
+24
+
+................
+
+30
+
+PREDICTIONS
+
+RESULTS
+
+. . . . . . . . . .
+
+37
+
+. . . . . . . . . . . . . . . . .
+
+57
+
+Data ......................
+Pressure
+
+Heat Transfer
+
+57
+
+Measurements
+
+..............
+
+63
+63
+
+Data ....................
+
+Nozzle Separator
+
+Wakes
+
+Cowl Shock Impingement
+
+21
+21
+
+.............
+
+......................
+
+FLOW FIELD
+
+6
+16
+
+.....................
+
+Flow Visualization
+DETONATION
+
+.........
+
+.............
+
+Spatial Resolution of Heat Transfer
+Direction
+........................
+
+3
+
+3
+
+..............
+
+Nozzle Design
+
+1
+
+72
+
+.................
+Location
+
+84
+
+.............
+
+6
+
+CONCLUSIONS
+
+AND RECOMMENDATIONS.
+
+. . . . . . . . . .
+
+86
+
+7
+
+REFERENCES
+
+. . . . . . . . . . . . . . . . . . . . . . .
+
+89
+
+...
+
+111
+
+LIST OF ILLUSTRATIONS
+Page
+
+Figure
+1
+
+Detonation
+
+Tube Simulator
+
+Schematic
+
+2
+
+Photograph
+
+of Detonation
+
+Tube Simulator
+
+3
+
+Two-Dimensional
+SCRJ Exhaust
+
+4
+
+Drawing
+
+Contoured
+Flow
+
+. . . . . . . . . . . . .
+
+Nozzle for Simulating
+
+M,
+
+for Simulating
+
+M,
+
+8
+.........
+
+Photograph
+
+6
+
+Drawing
+
+of 20’ Afterbody
+
+Pressure
+
+Plate
+
+7
+
+Drawing
+
+of 0’ Afterbody
+
+Pressure
+
+Plate ............
+
+8
+
+Drawing
+
+of Reflection
+
+Plane Pressure
+
+9
+
+Drawing
+
+of 20’ Afterbody
+
+Heat Transfer
+
+Plate
+
+.........
+
+13
+
+10
+
+Drawing
+
+of 0’ Afterbody
+
+Heat Transfer
+
+Plate
+
+.........
+
+14
+
+11
+
+Drawing
+
+of Reflection
+
+Plane Heat Transfer
+
+12
+
+Sketch Showing Nozzle Separators
+
+and Their
+
+13
+
+Photograph
+
+Installed
+
+14
+
+16
+
+Model Assembly
+
+9
+
+5
+
+15
+
+of 20’ Afterbody
+
+7
+
+=6
+
+.....................
+
+Flow
+
+5
+
+= 6
+
+. . . . . . . . . . . . . . . . . . . . .
+
+of Nozzle and Model Assembly
+
+SCRJ Exhaust
+
+. . . . . . . . . . .
+
+4
+
+11
+
+..........
+
+Plate
+
+Plate
+
+12
+
+........
+
+Installation.
+
+15
+....
+
+17
+17
+
+Glow Photograph,
+
+Top View,
+
+Shock Generators
+
+. . . . . . . . . . . . . . . . . . . . . .
+
+22
+
+Glow Photograph,
+
+Side View,
+
+Shock Generators
+
+. . . . . . . . . . . . . . . . . . . . . .
+
+Glow Photograph,
+
+Side View,
+
+0’ Afterbody
+
+O” Afterbody
+
+20’ Afterbody
+
+Glow Photograph,
+
+Top View,
+
+Distance-Time
+Reflected
+
+Wave Diagram
+
+Detonation
+
+in M,
+
+= 6 Nozzle.
+
+Model with No
+
+Model with No
+
+20’ Afterbody
+
+23
+
+Model with Top
+
+. . . . . . . . . . . . . . .
+Illustrating
+
+22
+
+Model with Top
+
+. . . . . . . . . . . . . . . .
+
+and Side Shock Wave Generators
+18
+
+10
+
+. .
+
+of Nozzle Separators
+
+(Cowl) Shock Wave Generator.
+17
+
+...........
+
+23
+
+Delayed Start of
+
+Wave . . . . . . . . . . . . . . . . . .
+
+26
+
+LIST OF ILLUSTRATIONS
+
+(Cont)
+
+Figure
+19
+
+Page
+Oscilloscope
+
+Record of Detonation
+
+with Delayed Reflected
+
+Record of Combustor
+
+Pressure.
+
+. . . . . . . . . . . . . . . . . . . . . . . . .
+
+28
+
+Oscilloscope
+
+Record of Substitute
+
+Diagram
+
+Stagnation
+
+25
+
+26
+
+Sketch of Detonation
+
+Pressure,
+
+Tube Stagnation
+
+Nozzle Exit Plane Static
+
+Gas Reflected
+
+Shock
+
+P5 . . . . . . . . . . . . . . . . . . .
+
+Two-Dimensional
+
+Flow Field for 20’ Afterbody
+
+Shock Generator.
+
+Combustion
+
+Two-Dimensional
+
+Flow Field for 0’ Afterbody
+
+Shock Generator.
+
+Combustion
+
+Oscilloscope
+
+Conditions
+
+Gas,
+
+Record of.Detonation
+
+Burning
+
+Behind Reflected
+
+Pressure
+
+Distribution:
+
+0 + 6 = 4’,
+
+Gas,
+
+M,
+
+M,
+
+Tube Stagnation
+
+20’ Afterbody,
+
+= 6.
+
+. . .
+
+Pressure
+
+Distribution:
+
+= 6.
+
+. . .
+
+Pressure
+
+with
+
+Delayed Detonation.
+
+.
+
+Pressure
+
+Distribution:
+
+Pressure
+
+20’ Afterbody,
+
+No Shock Generators,
+41
+
+20’ Afterbody,
+
+No Shock Generators,
+41
+
+Distribution:
+
+20’ Afterbody,
+
+No Shock Generators,
+
+RowD...........................
+30
+
+Pressure
+
+Distribution:
+
+41
+20’ Afterbody,
+
+No Shock Generators,
+
+ROWE...........................
+31
+
+Pressure
+
+Distribution:
+
+Shock Generator,
+
+40
+
+41
+
+Rowe...........................
+29
+
+39
+
+No Shock Generators,
+
+RowB...........................
+28
+
+38
+
+with and without
+
+a + /3 = 4’,
+
+Shock and Overly
+
+28
+
+with and without
+
+RowA...........................
+27
+
+27
+
+Oscilloscope
+
+21
+
+24
+
+. . . . . . . . . . . . . . . .
+
+27
+
+Mollier
+
+23
+
+Pressure
+
+.
+
+20
+
+22
+
+Ignition
+
+Tube Stagnation
+
+Row A
+
+42
+20’ Afterbody,
+
+with Top (Cowl)
+
+. . . . . . . . . . . . . . . . . .
+
+vi
+
+42
+
+LIST OF ILLUSTRATIONS
+
+(Cont)
+Page
+
+Figure
+32
+
+Pressure
+
+Distribution:
+
+Shock Generator,
+33
+
+Pressure
+
+34
+
+Pressure
+
+35
+
+Pressure
+
+Distribution:
+
+Pressure
+
+Shock Generators,
+37
+
+Pressure
+
+Pressure
+
+Distribution:
+
+Shock Generators,
+39
+
+Pressure
+
+Distribution:
+
+Shock Generators,
+40
+
+Pressure
+
+Distribution:
+
+Shock Generators,
+41
+
+Reflection
+
+42
+
+Reflection
+
+. . . . . . . . . . . . . . . . . .
+
+. . . . . . . . . . . . . . . . . .
+
+. . . . . . . . . . . . . . . . . .
+
+43
+
+Reflection
+
+Plane Normalized
+
+Pressure
+
+Pressures
+
+44
+
+Pressure
+
+Distribution:
+
+(P/P3)
+
+(P/P,)
+
+Pressures
+
+0’ Afterbody,
+
+(P/P,)
+
+44
+
+20’ Afterbody,
+45
+
+20’ Afterbody,
+
+. . . . . . . . . . . . . . .
+
+with Top and Side Shock Generators
+
+44
+
+with Top and Side
+
+. . . . . . . . . . . . . . . . . .
+
+with Top (Cowl) Shock Generator
+
+44
+
+with Top and Side
+
+. . . . . . . . . . . . . . . . . . . .
+
+Plane Normalized
+
+43
+
+with Top and Side
+
+20’ Afterbody,
+
+Plane Normalized
+
+43
+
+with Top and Side
+
+20’ Afterbody,
+
+Row E
+
+No Shock Generators
+
+. . . . . . . . . . . . . . . . . .
+
+20’ Afterbody,
+
+Row D
+
+43
+
+with Top and Side
+
+20’ Afterbody,
+
+Row C
+
+43
+
+with Top (Cowl)
+
+20’ Afterbody,
+
+Row B
+
+42
+
+with Top (Cowl)
+
+20’ Afterbody,
+
+Row A
+
+Distribution:
+
+Shock Generators,
+38
+
+20’ Afterbody,
+
+Row E . . . . . . . . . . . . . . . . . . .
+
+Distribution:
+
+42
+
+with Top (Cowl)
+
+Row D . . . . . . . . . . . . . . . . . . .
+
+Shock Generator,
+36
+
+20’ Afterbody,
+
+Row C . . . . . . . . . . . . . . . . . . .
+
+Distribution:
+
+Shock Generator,
+
+with Top (Cowl)
+
+Row B . . . . . . . . . . . . . . . . . . .
+
+Distribution:
+
+Shock Generator,
+
+20’ Afterbody,
+
+45
+
+20’ Afterbody,
+
+. . . . . . . . . . . . . .
+
+46
+
+No Shock Generators,
+47
+
+RowA...........................
+
+vii
+
+LIST OF ILLUSTRATIONS
+
+(Cont)
+Page
+
+Figure
+45
+
+Pressure
+
+Distribution:
+
+0’ Afterbody,
+
+No Shock Generators,
+47
+
+RowB...........................
+46
+
+Pressure
+
+Distribution:
+
+0’ Afterbody,
+
+No Shock Generators,
+47
+
+Rowe...........................
+47
+
+Pressure
+
+Distribution:
+
+0’ Afterbody,
+
+No Shock Generators,
+47
+
+RowD...........................
+48
+
+Pressure
+
+Distribution:
+
+0’ Afterbody,
+
+No Shock Generators,
+48
+
+ROWE...........................
+49
+
+50
+
+51
+
+Pressure
+
+Distribution:
+
+Generator,
+
+Row A
+
+Pressure
+
+Distribution:
+
+Generator,
+
+Row B
+
+Pressure
+
+Distribution:
+
+Generators,
+52
+
+Pressure
+Generators,
+
+53
+
+Pressure
+Generators,
+
+54
+
+Pressure
+Generators,
+
+55
+
+Pressure
+Generators,
+
+56
+
+Pressure
+Generators,
+
+57
+
+Pressure
+Generators,
+
+0’ Afterbody,
+
+with Top (Cowl) Shock
+
+. . . . . . . . . . . . . . . . . . . . .
+0’ Afterbody,
+
+with Top (Cowl) Shock
+
+. . . . . . . . . . . . . . . . . . . . .
+0’ Afterbody,
+
+0’ Afterbody,
+
+0’ Afterbody,
+
+0’ Afterbody,
+
+0’ Afterbody,
+
+0’ Afterbody,
+
+0’ Afterbody,
+
+...
+
+50
+
+with Top and Side Shock
+
+Row D . . . . . . . . . . . . . . . . . . . . .
+
+Vlll
+
+49
+
+with Top and Side Shock
+
+Row C . . . . . . . . . . . . . . . . . . . . .
+Distribution:
+
+49
+
+with Top and Side Shock
+
+Row B . . . . . . . . . . . . . . . . . . . . .
+Distribution:
+
+49
+
+with Top and Side Shock
+
+Row A . . . . . . . . . . . . . . . . . . . . .
+Distribution:
+
+49
+
+with Top (Cowl) Shock
+
+Row E . . . . . . . . . . . . . . . . . . . . .
+Distribution:
+
+48
+
+with Top (Cowl) Shock
+
+Row D . . . . . . . . . . . . . . . . . . . . .
+Distribution:
+
+48
+
+with Top (Cowl) Shock
+
+Row C . . . . . . . . . . . . . . . . . . . . .
+Distribution:
+
+48
+
+50
+
+LIST OF ILLUSTRATIONS
+
+(Co&)
+
+Figure
+58
+
+Page
+Pressure
+
+Distribution:
+
+Generators,
+59
+
+Reflection
+
+Reflection
+
+Plane Normalized
+
+Pressures
+
+Plane ‘Normalized
+
+Pressures
+
+61
+
+Cowl Pressure
+
+Distribution
+
+62
+
+Heat Transfer
+
+Rate Distribution,
+
+Generators,
+
+Row A .....................
+
+Heat Transfer
+
+Rate Distribution,
+
+Generators,
+
+Row B .....................
+
+Heat Transfer
+
+Rate Distribution,
+
+Generators,
+
+Row C .....................
+
+Heat Transfer
+
+Rate Distribution,
+
+Generators,
+
+Row D .....................
+
+Heat Transfer
+
+Rate Distribution,
+
+Generators,
+
+Row E .....................
+
+Heat Transfer
+
+Rate Distribution,
+
+64
+
+65
+
+66
+
+67
+
+(Cowl) Shock Generator,
+68
+
+Heat Transfer
+
+Heat Transfer
+
+70
+
+Heat Transfer
+
+20’ Afterbody,
+
+.
+
+0’ Afterbody,
+51
+.........
+
+52
+
+No Shock
+
+No Shock
+52
+
+20° Afterbody,
+
+No Shock
+52
+
+20’ Afterbody,
+
+No Shock
+53
+
+20’ Afterbody,
+
+No Shock
+53
+
+20’ Afterbody,
+
+Row A
+
+with Top
+53
+
+...............
+20’ Afterbody,
+
+Row B
+
+with Top
+53
+
+...............
+20’ Afterbody,
+
+Row C
+
+with Top
+54
+
+...............
+20’ Afterbody,
+
+Row D
+
+...............
+
+ix
+
+I
+
+51
+
+52
+
+Rate Distribution,
+
+(Cowl) Shock Generator,
+
+50
+
+0’ Afterbody,
+
+..............
+
+20’ Afterbody,
+
+Rate Distribution,
+
+(Cowl) Shock Generator,
+
+(P/P,)
+
+with 20’ Afterbody
+
+Rate Distribution,
+
+(Cowl) Shock Generator,
+69
+
+(P/P3)
+
+. . . . . . . . . . . . . . . . . . . . .
+
+with Top (Cowl) Shock Generators.
+
+63
+
+with Top and Side Shock
+
+Row E . . . . . . . . . . . . . . . . . . . . .
+
+No Shock Generator
+60
+
+0’ Afterbody,
+
+with Top
+54
+
+LIST OF ILLUSTRATIONS
+
+(Cont)
+Page
+
+Figure
+71
+
+Heat Transfer
+
+Rate Distribution,
+
+(Cowl) Shock Generator,
+72
+
+Heat Transfer
+
+Row E
+
+Rate Distribution,
+
+and Side Shock Generators,
+73
+
+Heat Transfer
+
+Heat Transfer
+
+and Side Shock Generators,
+75
+
+76
+
+77
+
+78
+
+Heat Transfer
+
+Row A
+
+Row B
+
+Row C
+
+Rate Distribution,
+
+65
+
+with Top
+
+and Side Shock Generators,
+
+Row D
+
+. . . . . . . . . . . . . .
+
+Reflection
+
+Plane Normalized
+
+Heating Rates (Q/QA),
+
+Afterbody,
+
+No Shock Generators
+
+Reflection
+
+Plane Normalized
+
+Afterbody,
+
+with Top (Cowl) Shock Generator
+
+Reflection
+
+Plane Normalized
+
+Afterbody,
+
+with Top and Side Generators
+
+Heating Rates (Q/QA),
+
+66
+
+20’
+
+. . . . . . . . . .
+
+Heating Rates (Q/QA),
+
+65
+
+20’
+
+. . . . . . . . . . . . . . .
+
+66
+
+20’
+
+. . . . . . . . . . .
+
+67
+
+vs X/Y3
+
+.
+
+73
+
+20’ Afterbody
+
+Q/QA vs X/‘Y3.
+
+.
+
+75
+
+Rate Distribution,
+
+20’ Afterbody
+
+Q/Q,,
+
+.
+
+77
+
+Rate Distribution,
+
+20’ Afterbody
+
+Blunt Segment
+
+. . . . . . . . . . . . . . . . . . . . . .
+
+79
+
+Heat Transfer Rate Distribution,
+20’ Afterbody,
+with Top
+(Cowl) Shock Generators,
+All Rows . . . . . . . . . . . . . .
+
+85
+
+79
+
+Heat Transfer
+
+Rate Distribution,
+
+20’ AfterbodyQ/QCL
+
+80
+
+Heat Transfer
+
+Rate Distribution,
+
+81
+
+Heat Transfer
+
+82
+
+Heat Transfer
+Q/Q,,
+
+83
+
+55
+
+with Top
+
+. . . . . . . . . . . . . .
+
+20’ Afterbody,
+
+54
+
+with Top
+
+. . . . . . . . . . . . . .
+
+20’ Afterbody,
+
+54
+
+with Top
+
+. . . . . . . . . . . . . .
+
+20’ Afterbody,
+
+Rate Distribution,
+
+with Top
+
+. . . . . . . . . . . . . . .
+20’ Afterbody,
+
+Rate Distribution,
+
+and Side Shock Generators,
+74
+
+20’ Afterbody,
+
+vs Z/y3.
+
+X
+
+vs Z/y3
+
+LIST OF TABLES
+Table
+
+Page
+Measurement
+
+Accuracy
+
+Instrumentation
+
+. . . . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . .
+
+20
+
+Equilibrium
+Detonation
+(@=l.O)
+
+Thermodynamic
+State Properties in Backward-Running
+Tube for Simulating l/20 Scale SCRJ Exhaust at M, = 6
+. . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+29
+
+4
+
+Combustion
+
+Gas Running Conditions
+
+. . . . . . . . . . . . . . . .
+
+29
+
+5
+
+Thermodynamic
+Properties
+GasMixtureatTo=533.3K.
+
+of 50% Argon - 50% Freon 13Bl Substitute
+. . , . . . . . . . . . . . . . . .
+
+31
+
+Thermodynamic
+Properties
+GasMixtureatTo=477.8K.
+
+of 50% Argon - 50% Freon 13Bl Substitute
+. . . . . . . . . . . . . . . . . .
+
+32
+
+Thermodynamic
+Gas Mixtureat
+
+Properties
+To=533.3
+
+of 60% Argon - 40% Freon 13Bl Substitute
+K . . . . . . . . . . . . . . . . . . .
+
+33
+
+Thermodynamic
+Properties
+GasMixtureatTo=477.8K
+
+of 60% Argon - 40% Freon 13Bl Substitute
+. . . . . . . . . . . . . . . . . . .
+
+34
+
+Thermodynamic
+Properties
+of 60% Argon - 40% Freon - Freon 12
+Substitute Gas Mixture at To = 533.3 K . . . . . . . . . . . . . .
+
+35
+
+Thermodynamic
+Properties
+GasMixtureatTo=477.8K.
+
+of 60% Argon - 40% Freon 12 Substitute
+. . . . . . . . . . . . . . . . . .
+
+36
+
+Comparison of Various Flow Field Parameters for Different
+Substitute Gases and Combustion Gas . . . . . . . . . . . . . . .
+
+56
+
+12
+
+P/P3 20 Deg Aft Body Combustion
+
+. . . . . . . . . . . . . .
+
+59
+
+13
+
+P/P3 20 Deg Aft Body Substitute
+
+Gas
+
+. . . . . . . . . . . . . . .
+
+60
+
+14
+
+P/P3 0 Deg Aft Body Substitute
+
+Gas . . . . . . . . . . . . . . . .
+
+61
+
+15
+
+P/P3 0 Deg Aft Body Combustion
+
+Gas . . . . . . . . . . . . . . .
+
+62
+
+16
+
+P/P3 20 Deg Aft Body Substitute
+
+Gas 2
+
+62
+
+6
+7
+8
+9
+10
+
+11
+
+and Data Recording
+
+Equipment
+
+19
+
+Gas
+
+xi
+
+. . . . . . . . . . . . . .
+
+LIST OF TABLES
+
+(Co&)
+Page
+
+Table
+17
+
+Q/QA 20 Deg Aft Body Combustion
+Cal/cm2 set) ..........................
+
+Gas (QA = 388.0
+
+18
+
+Q/a
+20 Deg Aft Body Substitute
+Cal/cm2 set) ..........................
+
+19
+
+Q 0 Deg Aft Body Combustion
+
+20
+
+Q 0 Deg Aft Body Substitute
+
+21
+
+Q/QA Substitute
+
+22
+
+Q/QA Combustion
+
+Heating
+
+23
+
+Q/&A Combustion
+
+Gas ......................
+
+24
+
+Heat Transfer
+
+Gas (QA = 2.71
+
+Gas.
+Gas
+
+................
+.................
+
+xii
+
+70
+71
+
+81
+
+....................
+
+Gas 2.
+
+69
+
+80
+
+Gas 2 ......................
+
+Rate Substitute
+
+68
+
+82
+...............
+
+83
+
+SYMBOLS
+Ar
+
+argon atom
+
+a
+
+sound speed
+
+Br
+
+bromine
+
+C
+
+carbon atom
+
+atom
+
+specific
+
+heat at constant pressure
+
+specific
+
+heat at constant volume
+
+F
+
+fluorine
+
+atom
+
+Freon 12
+
+dichlorodifluoromethane
+
+(CC12F2)
+
+Freon 13Bl
+
+bromotriftuoromethane
+
+(CBrF3)
+
+H
+
+enthalpy;
+
+atom
+
+h
+
+static
+
+enthalpy
+
+K
+
+Kelvin
+
+temperature
+
+k
+
+prefix
+
+‘kilo”
+
+M
+
+Mach number
+
+M-O-C
+
+method of characteristics
+
+m
+
+unit of length (meter);
+
+N
+
+nitrogen
+
+0
+
+oxygen atom
+
+P
+
+pressure
+
+Q
+
+heat transfer
+
+R
+
+specific
+
+C
+
+P
+
+cv
+
+Re
+
+also hydrogen
+
+scale,
+
+also relaminarization
+
+(103)
+( = U/a)
+
+also prefix
+
+atom; also unit of force
+
+rate
+
+gas constant
+
+Reynolds number
+
+T
+
+temperature
+
+U
+
+velocity
+
+( = ‘F)
+
+xiii
+
+I .
+
+“milli”
+(Newton)
+
+(10e3)
+
+parameter
+
+SYMBOLS
+X
+
+distance
+roll
+
+measured
+
+along detonation
+
+axis); also mole fraction
+
+x
+
+nondimensional
+
+Y
+
+vehicle
+
+Y
+
+nondimensional
+
+Z
+
+vehicle
+
+a
+
+angle of attack
+
+B
+
+inlet ramp angle
+
+7
+
+ratio of specific
+
+e
+
+flow angle relative
+
+Ic
+
+prefix
+
+I/
+
+kinematic
+
+P
+
+density
+
+#
+
+equivalence
+
+(Cont)
+tube and combustor
+
+of a chemical
+
+distance
+
+( = X/Y,)
+
+distance
+
+( E Y/Y,)
+
+axis (vehicle
+
+specie
+
+yaw axis
+
+pitch axis
+
+heats,
+
+c /c
+P v
+to X axis
+
+lTmicrofV (lo+),
+
+also viscosity
+
+viscosity
+
+ratio
+
+Subscripts
+0
+
+refers
+
+to total (stagnation)
+
+1
+
+refers
+
+to an arbitrary
+
+gas conditions
+
+to an arbitrary
+
+refers
+
+to combustor
+
+refers
+
+to unexpanded,
+
+refers
+
+to stagnation
+
+detonation
+
+thermodynamic
+
+in driven
+
+refers
+
+condition
+
+thermodynamic
+
+state point
+
+exit plane
+high pressure
+condition
+
+driver
+
+gas
+
+or region behind reflected
+
+shock wave in
+
+tube
+
+refers
+
+to undisturbed
+
+free stream
+
+i
+
+refers
+
+to ith chemical
+
+specie;
+
+T2
+
+unburned
+
+tube
+
+m
+
+T1
+
+state point; also initiat,
+
+also internal
+
+total or stagnation
+
+conditions
+
+upstream
+
+total or stagnation
+
+conditions
+
+downstream
+
+Xiv
+
+flow
+
+of a shock wave
+of a shock wave
+
+1.
+Current
+aircraft
+
+results
+
+and vehicle
+vehicle
+
+design philosophy
+
+aerodynamics.
+
+will be utilized
+and mements
+
+scramjet-powered
+
+with strong couplings
+
+between the engine plume
+
+As seen in the sketch below,
+
+as the expansion
+
+the aft portion
+
+nozzle for the scramjet,
+
+will play a major
+
+role in determining
+
+the correct
+
+thermodynamics
+
+hypersonic
+of the
+
+and the resulting
+the aerodynamic
+
+In order to assess the impingement
+
+on the vehicle.
+
+during wind tunnel experiments,
+dynamics
+
+AND SUMMARY
+
+for hydrogen-fueled,
+
+in configurations
+
+exhaust gas impingement
+forces
+
+INTRODUCTION
+
+effects
+
+as well as aero-
+
+of the exhaust gases must be reproduced.
+
+(OVEREXPAN~D
+
+SCRAMJET
+
+INLET
+
+/
+
+CASE 7
+
+VEHICLE
+
+SHOCK
+COMBUSTOR
+
+COMBUSTOR
+EXIT
+EXTERNAL
+SHOCKS
+
+‘PLUME
+
+BOUNDARY
+
+The method of using the detonation
+of the exhaust plume to validate
+them to behave in a manner
+research
+
+This report
+
+that would allow
+
+engine exhaust is discussed
+
+an afterbody
+
+for comparison
+
+the Mach 6 experiments
+
+measurements
+
+inclined
+
+2.
+
+case, and has
+methods
+
+and associated
+
+cur-
+
+analysis.
+
+Pres-
+
+cowl,
+
+and over
+
+were obtained over a simulated
+
+were duplicated
+
+with those obtained for a substitute
+
+by placing
+
+of theoretical
+
+at both 0 and. 20° to the exit nozzle centerline.
+
+exit plane conditions
+
+Freon 13Bl.
+
+case in Ref.
+
+(Ref. 3).
+
+describes
+
+sure and heat transfer
+
+compared
+
+to the real reacting
+
+a “bench mark”
+
+under development
+
+bustor
+
+similar
+
+gases with properties
+
+has extended the proof of concept to the Mach 6 flight
+
+obtained data to provide
+rently
+
+cool substitute
+
+to achieve a near exact simulation
+
+This concept was shown to be valid for the Mach 8 flight
+
+in Ref. 1.
+Present
+
+tube simulator
+
+Shock waves were purposely
+
+Scramjet
+
+com-
+
+for the Mach 6 case, and results
+
+were
+
+gas mixture
+
+introduced
+
+wedges at the cowl exit and nozzle
+
+of 50% Argon and 50%
+
+into the exit flow for some runs
+
+sidewall.
+
+Time exposure
+
+glow photo-
+
+graphs were obtained of the shock wave locations.
+Results
+tributions
+
+were excellent.
+
+obtained in the combustion
+
+obtained in the substitute
+calculations
+
+gas, and calculations
+tion gas impingement
+layer
+
+exists
+
+exit plane.
+
+were valid.
+
+pressure
+
+exact agreement
+
+gas flow and with two-dimensional
+
+dis-
+
+with those
+
+method of characteristics
+
+In the cases for which strong
+
+into the flows the agreement
+
+among combustion
+
+shock
+
+gas, substitute
+
+was very good, although the shock wave from the cowl in the sub-
+
+flow appears to impinge
+
+gas
+
+flows the normalized
+
+flow are in almost
+
+where such comparisons
+
+waves were introduced
+stitute
+
+For the shock-free
+
+Heat transfer
+
+point.
+
+over the afterbody
+In our previous
+
+on the afterbody
+
+slightly
+
+measurements
+
+upstream
+indicate
+
+of the combus-
+
+a turbulent
+
+boundary
+
+with very high heating rates in the region of the nozzle
+
+tests at M,
+
+= 8 (Ref.
+
+2) heat transfer
+
+measurements
+
+indi-
+
+with the Mach 6 flight
+
+condi-
+
+cated the boundary layer was laminar.
+To study further
+tion,
+
+an extension
+
+haust Simulation
+objective
+stitute
+
+some of the phenomena associated
+
+was granted to the original
+Technique
+
+at Mach 6”.
+
+was to examine theoretically
+
+gas mixtures
+
+on the impingement
+
+contract
+
+for “Validation
+
+of Scramjet
+
+The extension
+
+had two objectives.
+
+and experimentally
+
+the effects
+
+location
+
+2
+
+The first
+
+of different
+
+of a shock wave propagating
+
+Exsub-
+
+across
+
+The calculated
+
+the exhaust flow field.
+mixtures
+
+showed very little
+
+was verified
+
+impingement
+
+with one substitute
+was to examine,
+
+heating rate distributions
+
+of simulated
+
+The results
+
+positions.
+
+combustion
+
+the heating rate by approximately
+This result
+
+is consistent
+
+of shock location
+
+the influence
+
+on afterbody
+The experi-
+
+nozzle separators.
+
+and combustion
+
+of these experiments
+
+substitute
+
+gas composed of Freon 12 and Argon.
+
+by experiment,
+
+ments were made using both the substitute
+
+for various
+
+The constancy
+
+effect of gas composition.
+
+by experiment
+
+The other objective
+
+location
+
+gases for various
+
+show a wake structure
+
+which increases
+
+40% over the local heating rate without the separator.
+
+for both gases but is only evident forTgreater
+
+since for more upstream
+
+separator
+
+locations
+
+the wake is too narrow
+
+relative
+
+than .78,
+
+to the spatial
+
+reso-
+
+lution of the instrumentation.
+Use of commercial
+constitute
+
+official
+
+or implied,
+
+products
+
+endorsement
+
+by the National
+2.
+
+The Grumman
+
+of such products
+
+combustion
+
+Reynolds
+
+numbers
+
+DETONATION
+
+TUBE SIMULATOR
+
+tube simulator
+correct
+
+throughout
+
+and substitute
+
+facility
+
+is shown in Fig.
+
+It consists
+
+driver
+
+section initially
+
+separated
+
+expressed
+
+of exhaust
+
+flight
+
+regime
+
+(Ref. 1).
+
+values by running at elevated pres-
+
+A schematic
+
+of a 6.1 meter long,
+
+by a metallic
+
+diaphragm
+
+of the detonation
+
+tube
+
+7.62 cm inside diameter
+
+from a 10 meter long, 12.7
+
+cm inside diameter
+
+driven
+
+designed to produce
+
+a flow that will match the expected exit plane conditions
+
+of the
+
+proposed
+
+engine.
+
+3.66
+
+meter
+
+scramjet
+
+bustible
+
+mixtures
+
+A photograph
+
+Mounted within
+afterbody.
+* 1 torr.
+
+safely.
+
+into the automatic
+
+found in Ref. 4.
+
+tube is terminated
+
+by a supersonic
+
+The nozzle exhausts into a 1.83 meter diameter,
+
+down to 5 x 10W5 torr*.
+
+hydrogen
+
+incorporated
+
+The driven
+
+The test section
+
+long test section.
+
+sired pressure
+
+tube.
+
+cruise
+
+at flight
+gases.
+
+does not
+
+and total enthalpy for the hydro-
+
+the hypersonic
+
+sures with both combustion
+
+either
+
+used for the measurement
+
+chemistry
+
+can easily be maintained
+1.
+
+or manufacturers,
+
+and Space Administration.
+
+detonation
+system
+
+in this report
+
+Aeronautics
+
+flows is capable of giving nearly
+gen/air
+
+or names of manufacturers
+
+can be evacuated prior
+The facility
+
+Various
+
+to a run to any de-
+
+has been designed to handle com-
+
+interlocks
+
+and leak detection
+
+gas handling
+
+system.
+
+Details
+
+of the facility
+
+is shown in Fig.
+
+experiments
+
+were carried
+
+= 133.3 Pa
+3
+
+devices
+
+are
+
+of this system may be
+2.
+
+the test section and mated to the supersonic
+
+The present
+
+nozzle
+
+nozzle is the model
+
+out on two different
+
+configurations,
+
+WlJ,DOWS
+VACUUM
+
+DIAPHRAGM
+STATION
+“i’“‘”
+
+YE
+
+b
+
+VACUUM
+.,I;,,
+
+:t;:
+
+VALVE
+
++6.lm--1‘plo.l”’
+4
+
+Fig. 1 Detonation
+
+Tube Simulator
+
+Schematic
+
+SYSTEM
+
+Fig. 2 Photograph of Detonation
+
+Tube Simulator
+
+a 20° afterbody surface and a O” afterbody surface.
+scale pressure
+
+and heat transfer
+
+given in Figs. 3 through 12.
+clusively
+
+for the current
+
+the simulation
+
+For each configuration l/20
+models were constructed.
+Details of the models are
+
+The backward-running
+
+experiments.
+
+of hydrogen/oxygen
+
+detonation technique was used ex-
+
+This technique was developed specifically
+
+rocket engine plumes and is described
+
+for
+
+in detail in
+
+Refs. 1 and 4. The running conditions for the present tests are given in Table 4.
+For running the inert substitute
+as a conventional
+
+reflected
+
+gases in the detonation tube we run the facility
+
+shock tunnel, as described
+
+in Ref. 2. The stagnation con-
+
+ditions of the substitute
+
+gas are determined
+
+and the initial
+
+in the driven tube, both of which may be easily controlled.
+
+pressure
+
+The stagnation conditions
+DETONATION
+
+by the strength of the incident shock wave
+
+are given in Table 5 herein.
+
+TUBE/COMBUSTOR
+
+NOZZLE
+
+DESIGN
+
+To duplicate the exit flow of the scramjet
+ity, a two-dimensional
+supersonic
+
+combustor
+
+supersonic nozzle was employed.
+
+combustion ramjet
+
+in the detonation tube facilThe Mach number of the
+
+(SCRJ) exhaust gas at the combustor
+
+Mm = 6 flight condition is quite low (al. 7, see Table 2, Ref. 1).
+throat-to-exit
+
+exit plane for the
+This means the
+
+plane area ratios of the detonation tube combustor nozzle must be small
+
+(a1.4).
+
+Because the throat area of the detonation tube nozzle cannot exceed approx-
+
+imately
+
+10% of cross-sectional
+
+area of the detonation tube, the nozzle and consequently
+
+the scale of the afterbody model involved also must be about l/20
+the l/8 scale experiments
+
+at Mm = 8 of Ref. 2. Our nozzle was designed to duplicate
+
+the nozzle and model being constructed
+
+for substitute
+
+Research Center so that the two test programs
+coordinates
+
+would be directly
+
+at NASA Langley
+
+comparable.
+
+Nozzle
+
+Since this nozzle was designed for a substitute
+
+of 50% Freon 13Bl and 50% Argon,
+
+combustion gas.
+puter program
+
+we checked its suitability
+
+for use with
+
+We calculated the flow field through the nozzle using the M-O-C com-
+
+of Ref. 5 with detonation tube combustion
+
+the computer program
+distribution
+
+gas experiments
+
+were supplied to us by Langley personnel and are listed in Fig, 3 together
+
+with a drawing of the nozzle contour.
+gas mixture
+
+scale, in contrast to
+
+of Ref. 6. The difference
+
+gas properties
+
+in the nozzle exit plane Mach number
+
+between the substitute gas and combustion was insignificant.
+
+6
+
+generated by
+
+‘i
+
+NOTE:
+
+DIMENSIONS
+
+IN CENTIMETERS
+
+I
+
+SEE TABLE
+FOR “Y” Dlli
+
+1
+
+-.
+
+SEE TABLE
+FOR “X” DIM
+
+X(cm)
+
+WcW
+
+X(cW
+
+YW-0
+
+X&m)
+
+Y(cmT
+
+-1 .2751
+.3287
+
+.8344
+.5809
+
+. 2558
+
+. 5621
+
+. 6515
+
+. 3205
+
+.5702
+
+.8552
+1.0345
+
+.6749
+
+. 2205
+
+.5570
+
+. 3820
+
+.5786
+
+.1107
+
+.5425
+
+.4813
+
+. 5933
+
+1.2494
+1.4628
+
+.6985
+. 7178
+
+0
+
+.5377
+
+. 5100
+
+. 5977
+
+1.6612
+
+. 7323
+
+.1267
+
+.5484
+
+.6012
+
+.6121
+
+1.8487
+
+-7432
+
+.1511
+
+.5507
+
+.6210
+
+.6154
+
+2.0361
+
+. 7516
+
+.1824
+
+.5537
+
+.6408
+
+.6187
+
+2.2200
+
+. 7572
+
+.2007
+
+.5558
+
+.6713
+
+.6236
+
+2.3973
+
+. 7605
+
+.2177
+
+.5575
+
+. 7094
+
+.6297
+
+2.5646
+
+. 7620
+
+2.6142
+
+. 7620
+
+I
+
+Fig. 3 Two-Dimensional
+
+Contoured
+
+Nozzle for Simulating
+
+M,
+
+= 6 SCRJ Exhaust Flow
+
+7
+
+.-..
+
+---e----I
+cn
+
+0” POSITION/AFTERBOD
+
+Fig. 4
+
+Drawing of Nozzle and Model Assembly for Simulating
+
+M, = 6 SCRJ Exhaust Flow
+
+”
+
+W
+
+Fig. 5 Photograph of 20” Afterbody
+
+Model Assembly
+
+rp8’z55pq
+
+1.43
+
+-(TYP.,
+
+14PLCS.)
+
++-3.81Oy
+
+“y+yt Y+
+1
++A
++
+-+$-$j$-$j
+Y’-++
+Qs+
+
+i
+-+
+
++
+1
++
+
+I
+
+I
+
+I_
+
+8.095
+
+l
+
+=I
+
+t
+
+t
+
+I
+
+EN”LLLEt
+[ sb
+1
+
++
+I
+
+-+
+POLISHEDSURFACE
+
+RDT 25124
+
+NOTE:
+
+DIMENSIONS
+
+Fig. 6 Drawing of 20’ Afterbody
+
+10
+
+- 13 (20’
+
+PLATE)
+
+IN CENTIMETERS
+
+Pressure Plate
+
+A
+
+-ROW
+(TYP. 27 PLCS.)
+
+‘I
+
+D
+
+10.795
+
+ROWE
+
+Y
+POLISHED
+
+SURFACE
+RDT 25124 (0” PLATE)
+
+’
+NOTE: DIMENSIONS
+
+IN CENTIMETERS
+
+Fig. 7 Drawing of 0” Afterbody
+
+Pressure Plate
+
+POLISHED
+
+T-
+
+SURFACE
+
+(TYP. 4 PLCS.)
+
+6.825
+
+NOZZLE
+G
+
+NOZZLE
+EXIT LINE
+
+/II
+
+1
+
+cs”“p”,“,:
+
+(
+
+I
+-
+
+4.445~
+
+\
+
+RDT 25124-11
+
+NOTE:
+
+DIMENSIONS
+
+V
+
+(REFLECTION
+
+2.679
+
+PLATE)
+
+IN CENTIMETERS
+
+Fig. 8 Drawing of Reflection
+
+12
+
+Plane Pressure Plate
+
+(TYP. 5 PLCS.)
+
+-
+
+(TYP. 25 PLCS.)
+t-4.445
+
+.635R
+
+.318+
+(TYP 4 PLCS.)
+
++-
+
+DETAIL
+
+-ROWD
+ROW E
+
+(TYP 47 PLCS.)
+
+SEE DETAIL
+
+/
+
+/
+
+“A”
+
+NOTE:
+
+I
+
+I
+
+I
+
+I
+
+I
+
+DIMENSIONS
+
+IN CENTIMETERS
+
+I
+
+,
+
+RDT 25124-13 (AFTERBODY
+M/F-304 ST.ST. (2 REQ’DI
+
+Fig. 9 Drawing of 20” Afterbody
+
+MODEL,
+
+20’)
+
+Heat Transfer Plate
+
+2.388
+
+-
+
+cl;YP.
+
+22 PLCS)
+NOTE:
+
+1
+
+i-
+
+DIMENSIONS
+
+IN CENTIMETERS
+
+;TYP 4 PLCS)
+
+SEE DETAIL
+
+B
+
+(TYP 36 PLCS)
+- 2.540
+
+4
+1.588-J
+
+L
+
+(TYP 7 PLCS)
+
++
+R~~25124.15
+
+(AFTERBODY
+
+M~DEL,~~)
+
+M/F 304 St. ST. (2 REQD)
+
+Fig. 10 Drawing of 0” Afterbody
+
+Heat Transfer Plate
+
+-.
+T
+
+NOTE:
++
+
+DIMENSIONS
+
+IN CENTIMETERS
+
+2.540
+7
+1.6i.6
+
+6.825
+
+t
+
+rf
+
+- - -$NOZZLE
+8%
+
+.588
+
+(TYP
+16 PLCS
+
+8
++4.445-l
+
+‘-t
+
+““‘-4
+
+1
+SEE DETAIL 13
+(TYP 33 PLCS)
+
+1.588
+
+RD
+
+Fig. 11 Drawing of Reflection
+
+Plane Heat Transfer Plate
+
+-4
+
+2.540
+
+t-
+
+COWL AND AFTERBODY
+
+MODEL DESIGN
+
+Two afterbody configurations
+to the nozzle centerline
+
+were employed for the present tests:
+
+(called the O” afterbody)
+
+and the other inclined at an angle of
+
+Each configuration
+
+20’ to the nozzle centerline.
+mounting pressure transducers
+
+consisted of two flat plates:
+
+and one for heat transfer
+
+cowl lip.
+used.
+
+Provision
+
+gauges.
+
+one for
+
+One cowl configura-
+
+, and was machined as an integral
+
+tion was used with both the afterbody configurations
+part of the nozzle.
+
+one parallel
+
+was made for mounting shock wave generators
+
+on the
+
+With the 0’ afterbody a shock generator inclined 3’ to the nozzle axis was
+
+With the 20’ afterbody the shock generator was inclined
+
+19’ to the nozzle axis.
+
+One side of the model assembly consisted of an instrumented
+
+reflection
+
+extending the entire length of the afterbody from the nozzle exit plane.
+tion included both heat transfer
+
+and pressure
+
+transducers.
+
+plane,
+
+Instrumenta-
+
+The other side of the model
+
+consisted of a short side plate extending from the nozzle exit plane to the cowl lip.
+The side plate had provision
+
+for shock wave generators
+
+to be mounted on its trailing
+
+The side shock generator was a 15’ wedge for use with the 0’ afterbody,
+
+edge.
+
+Figure 4 is a drawing showing the signifi-
+
+20’ wedge for use with the 20’ afterbody.
+cant dimensions
+
+of the nozzle and afterbody model.
+
+the model assembled with the 20’ afterbody.
+ings of the afterbody and reflection
+sure transducer
+
+Figure 5 is a photograph showing
+
+Figures 6 through 11 are detailed draw-
+
+plane plates showing all the heat transfer
+
+and pres-
+
+locations.
+
+For the first part of the contract extension,
+rators were installed
+
+in our nozzle.
+
+nozzle to the combustor
+section.
+
+and a
+
+simulated
+
+combustor
+
+nozzle sepa-
+
+They extended from the subsonic portion of the
+
+exit plane, and had a zero-camber,
+
+transonic
+
+airfoil
+
+cross-
+
+They were made in two halves and could be located at any position across
+
+the width of the nozzle.
+
+The nominal positions
+
+thus dividing the 3:l (width to height) combustor
+Figure 12 is a sketch of these separators
+
+were at l/3 and 2/3 of the nozzle width,
+exit plane into three 1:l segments.
+
+and shows their installation
+
+in the nozzle.
+
+Figure 13 is a photograph of the installation.
+To study the near-field
+
+effects of the wakes of these separators,
+
+strumentation
+
+had to be added to the 20’ afterbody heat transfer
+
+strumentation
+
+consisted of 13 additional heat transfer
+
+transducers.
+
+Their locations
+
+in-
+
+The new in-
+
+gauges and 7 new pressure
+
+are shown shaded in Fig. 9.
+
+16
+
+model.
+
+additional
+
+-
+
+DISTANCE
+
+ALONG
+
+PLATE
+
+SURFACE
+
+--------PRESSURE
+TRANSDUCER
+
+I
+
+(INCHES)
+
+SIDE WALL
+EXTENSION
+
+I
+
+(2 PLACES)
+
+I
+SHOCK
+
+Fig. 12
+
+Fig. 13 Photograph
+
+Sketch Showing
+
+GENERATOR
+
+Nozzle Separators and Their Installation
+
+of Nozzle Separators
+
+Installed
+
+17
+
+in M,
+
+= Nozzle (Afterbody
+
+Removed).
+
+One side effect of the separators
+
+was that their finite thickness
+
+(0.533 cm;
+
+0.210 inch) decreased the throat area of our combustor nozzle and consequently increased the nozzle exit Mach number.
+place had to be corrected
+procedure
+
+is described
+
+All heat transfer
+
+data taken with sectors in
+
+for these changes in nozzle exit conditions.
+in the Experimental
+
+The correction
+
+Results Section (5).
+
+The second part of the contract extension consisted of measuring the cowl shock
+wave impingement
+
+location on the 20’ afterbody in different
+
+order to ensure that the shock wave and its impingement
+within a two-dimensional
+
+flow region,
+
+substitute gas flows.
+
+location were completely
+
+the nozzle side plate, which originally
+
+extended
+
+to the cowl lip (X/Y3 = 3.12), was extended beyond the expected impingement
+to X/Y,
+
+In
+
+location
+
+= 6.62.
+
+INSTRUMENTATION
+Model heating rates were measured with thin film transducers,
+
+Ref. (7).
+
+gauges, when used without taking into account changes in substrate properties
+temperature,
+
+These
+with
+
+have a range of 0 to 50 Cal/cm2 set and an accuracy of +7% in this range.
+
+When corrections
+
+are made for changes in substrate properties
+
+(Ref. 8), the useful
+
+range is increased to 500 Cal/cm2 set with an accuracy of *15%.
+
+For this work all
+
+but a few of the combustion heating rates measured on the 20’ afterbody and about
+half of the points on the 0’ afterbody were in the 500 Cal/cm2 set range.
+ing rates above 500 Cal/cm”
+and are therefore
+
+set were corrected
+
+subject to greater error.
+
+in the most accurate range,
+
+by extrapolating
+
+the correction
+
+All data taken using the substitute
+
+Scatter of the data for the substitute
+
+the combustion runs should be assigned to turbulence
+Model pressures
+transducers
+
+while tunnel operating pressures
+
+piezoelectric
+
+pressure
+
+performance
+
+characteristics
+
+tecting shock location is superior
+
+Both gauges are described
+for the heat transfer
+
+pressure
+
+instrumentation.
+
+18
+
+are
+
+gas runs and most of
+
+were obtained with
+in Ref. 2 and their
+
+The spatial resolution
+gauge.
+
+for de-
+
+This advantage plus the
+
+lower cost per unit were the reasons for using heat gauges for determining
+cations before committing
+
+gas
+
+strain gauge pressure
+
+and impact pressure
+
+are outlined in Table 1.
+
+curve
+
+and not gauge accuracy.
+
+were measured with semiconductor
+transducers.
+
+Those heat-
+
+shock lo-
+
+TABLE
+
+1 MEASUREMENT
+
+Tunnel Parameter
+
+ACCURACY
+
+Accuracy
+
+Range
+
+Tunnel Driven Initial
+
+Pressure
+
+*689 N/m2
+
+O-6.89
+
+x lo5 N/m2
+
+Tunnel Driver
+
+Pressure
+
+*1.38 x lo5 N/m2
+
+Oe1.38
+
+x lo7 N/m2
+
+Stagnation Pressure
+p5
+U inc Incident Wave Speed
+
+*3.10 x lo5 N/m2
+
+0 +l.
+
+38 x lo7 N/m2
+
+*30 m/set
+
+0 -900
+
+PT2
+
+Impact
+
+-+6.89 x lo4 N/m2
+
+0 -6.89
+
+Q
+
+Heat Transfer
+
+*70/o
+
+0 + 50 gm cal/cm,2sec
+
+pl
+p4
+
+Initial
+
+Pressure
+
+Rate
+
+All model data were recorded on a 35-channel FM multiplex
+after suitable signal conditioning.
+A/D converter
+
+Data were digitized
+
+m/set
+
+x lo6 N/m2
+
+recorder
+
+system
+
+one channel at a time by an
+
+and a time average of the signal during the tunnel test time was ob-
+
+tained from this digital information.
+sition and reduction
+
+A more detailed description of the data acquisystem appears in Ref. 2. Major components of the system are
+
+outlined in Table 2.
+SPATIAL
+
+RESOLUTION OF HEAT TRANSFER GAUGE IN THE Z DIRECTION
+
+Our heat transfer
+(perpendicular
+
+gauges have an active area defined by a span of 0.762 cm
+
+to the flow) and a chord of 0.159 cm (parallel
+
+to the flow).
+
+Each mea-
+
+sured heating rate was the average over this area.
+spanwise z direction
+the experiments
+
+performed
+
+ent the instrumentation
+dkection
+
+Therefore, strong gradients in the
+produce measured heating rates smaller than the peak value. For
+under the contract extension it was not possible to reori-
+
+(rotate the gauges 90’); with the existing gradients
+
+such reorientation
+
+probable impact of limited
+Given a rectangular
+
+would have been of doubtful value.
+gauge resolution,
+perturbation
+
+the following
+
+In order to assess the
+discussion may be helpful.
+
+in heating rate such as:
+
+19
+
+in the y
+
+TABLE 2 INSTRUMENTATION
+
+AND DATA RECORDING EQUIPMENT
+
+Pressure
+Manufacturer
+
+Transducers
+
+Model No.
+
+Max Range
+
+Kuhlite
+
+VQS-250-200
+
+1.38 x lo6 N/m2
+
+Kuhlite
+
+VQL- 250-20
+
+1.38 x lo5 N/m2
+
+Kuhlite
+
+VQH-250-5
+
+3.45 x lo4 N/m2
+
+Kistler
+
+603 L
+
+1.03 x lo7 N/m2
+
+Kistler
+
+607
+
+4.13 x lo8 N/m2
+
+Data Recording and Reduction
+Honeywell
+
+7600 tape recorder
+
+1.5 MHz bandwidth
+
+D. C. S.
+
+Gov-3 VCO’s
+
+*2v, *32’ kHz
+
+D. C. S.
+
+GMA-5,
+
+line drivers
+
+D. C. S.
+
+GFD-14,
+
+discriminators
+
+Hewlett- Packard
+
+A/D converter
+
+Hewlett- Packard
+
+21 MX computer
+
+Texas Instruments
+
+700 ASR terminal and
+cassette tape drive
+
+20
+
+-
+
+*lOv,
+
+116 kHz
+
+12 bit, 50ksec/wor
+
+a linear averaging of heating rate over the gauge gives a result 50% lower than the
+peak.
+
+Obviously,
+
+this average is in greater error
+
+for narrower
+
+perturbations.
+
+high heating rates as in the combustion gas case the problem is further
+by the temperature
+
+dependence of the gauge substrate properties,
+
+-equations relating
+
+the heating rate to time and temperature
+
+For
+
+complicated
+
+which makes the
+
+nonlinear.
+
+Averaging of
+
+such high rates gives an even lower result for the peak heating rate.
+additional
+
+error
+
+is small compared to the error
+
+However, this
+caused by spatial resolution alone.
+
+FLOW VISUALIZATION
+Glow photographs,
+
+i. e., those taken by the light of the flow, gave low contrast
+
+prints (Figs. 14 and 15) when no shock generators were used. When the top shock
+generator or top and side generators were used a bright region in the position of the
+shock could be seen (Figs. 16 and 17). These photos, taken with Polaroid PN type 55
+film with a 135 mm lens or with a 254 mm lens, show shock locations for the combustion runs, but the contrast
+
+is still quite low and the visible plume appears to fill the
+
+entire test section. Schlieren photos could not be made in this configuration
+reflection plane is in the schlieren optical path.
+
+3. DETONATION
+SHOCK TUBE MIXTURE
+
+simulation
+
+of the scramjet
+
+priate initial
+
+pressure
+
+and chemistry
+
+Our first
+
+TUBE RUNNING CONDITIONS
+
+DEVELOPMENT
+
+Any one of a number of initial
+
+enthalpy,
+
+exhaust.
+
+fuel mixtures
+
+pressure,
+
+in the stagnation region.
+fuel mixture
+
+of hydrogen and air,
+
+had a large time delay between the arrival
+
+Runs made
+
+of the incident shock at
+
+of a detonation wave.
+
+There was burning of the mixture
+seen by the large increase in pressure and noise, but that the detona-
+
+tion wave was not established
+delay by increasing
+
+there is an appro-
+
+and incident shock speed that will yield the correct
+
+the end wall and the formation
+at shock arrival,
+
+may be used to achieve a proper
+
+For each of these mixtures
+
+attempts used an initial
+
+using this mixture
+
+since the
+
+until much later (see Fig. 25).
+
+incident shock velocity
+
+had no consistent
+
+21
+
+Efforts to shorten this
+effect until the incident
+
+Fig. 14
+
+Fig. 15
+
+Glow Photograph,
+
+Glow Photograph,
+
+Top View, 0 ’ Afterbody
+
+Side View, 0’ Afterbody
+
+22
+
+Model with No Shock Generators
+
+Model with No Shock Generators
+
+Fig. 16
+
+Glow Photograph,
+
+Fig. 17
+
+Side View, 20° Afterbody
+
+Model with Top (Cowl) Shock Wave Generator
+
+Glow Photograph, Top View, 20” Afterbody
+Top and Side Shock Wave Generators
+
+23
+
+Model with
+
+wave became strong enough to cause ignition
+front-running
+
+detonation.
+
+We also tried starting
+
+rather than one, with the hope that
+delay time.
+
+of the incident shock, what we call a
+
+a
+
+the detonation with two spark plugs
+
+more uniform
+
+This also had no consistent
+
+effect.
+
+ignition source would shorten the
+
+At this point we decided to investigate
+
+other mixtures.
+In previous
+
+scramjet
+
+of the M, = 8 condition (Ref. 2), we used a fuel
+
+simulation
+
+which had all of the oxidizer
+
+in the form of nitrous
+
+this fuel required high initial
+
+pressures
+
+oxide substituted
+
+for various
+
+None of these runs pro-
+
+Since having the oxidizer
+
+in a different
+
+we tried supplying some of the required hydrogen contained in ammonia.
+
+We started with a mixture
+
+that had all of the hydrogen in the form of ammonia
+
+and found it produced a front-running
+velocity
+
+which make
+
+a series of runs was made with nitrous
+
+of oxygen in the fuel.
+
+amounts
+
+duced less delay time than hydrogen and air.
+form failed,
+
+For the M o. = 6 condition
+
+and low incident shock velocities
+
+Nevertheless,
+
+shock tube operation difficult.
+
+oxide.
+
+for correct
+
+simulation.
+
+detonation when subjected to a shock of the proper
+
+Since the ammonia sensitized
+
+of tests were made to determine
+
+what proportion
+
+described previously
+
+a series
+
+of ammonia and hydrogen was needed
+
+to reduce the ignition delay without igniting the incident wave.
+tablished the fuel mixtures
+
+the reaction,
+
+This line of testing es-
+
+and was used for all runs to obtain
+
+data for the combustion case.
+COMBUSTION GAS (& = 1.0)
+A complete description
+
+of the operation,
+
+cedures involved in determining
+
+performance,
+
+and computational
+
+pro-
+
+the detonation tube simulator
+
+running conditions
+
+is
+
+given in Ref. 1. All the combustion gas data presented herein were obtained using the
+backward-running
+
+detonation technique.
+
+As shown in Fig. 7 of Ref. 1 there are any number of gas mixtures
+apparently
+
+eligible to be used for simulation.
+
+difficulty
+
+in getting many of these mixtures
+
+early,
+
+However,
+
+that are
+
+we encountered considerable
+
+to ignite properly.
+
+Some would ignite very
+
+during the passage of the incident wave, and others would ignite very late, after
+
+the passage of the reflected
+
+wave.
+
+Repeatability
+
+24
+
+was also a problem,
+
+with things like
+
+the condition of the shock tube wall appearing to be a factor affecting the rate of ignition (e.g. Ref. 9).
+ignition problems.
+
+Section 5 of this report gives the details of these experimental
+
+We eventually found one mixture
+delay was tolerable
+
+(Ll. 0 msec. ).
+
+which behaved repeatably
+
+This mixture
+
+and for which ignition
+
+was composed of
+
+0.220 H2 + 0.157 O2 + 0.533 N2 + 0.063 NH3 + 0.007 Ar
+To determine
+
+the state of the test gas after the delayed ignition we carefully
+
+measured
+
+the incident and reflected shock wave speeds and formulated a one-dimensional wave
+diagram consistent with the wave speed measurements, the pressure time-history
+measurements,
+
+and previous models of delayed reflected
+
+ignitions
+
+(e.g. Ref. 10).
+
+Figure 18 shows this wave diagram.
+Figure 19 is an oscilloscope
+sure time history
+
+picture
+
+showing the detonation tube stagnation pres-
+
+for this running condition.
+
+(Note the difference
+
+in the pressure
+
+time-
+
+history between this running condition with a short ignition delay and that with zero delay as shown in Fig. 13a of Ref. 2.) We were then able to calculate the state of the gas
+in regions 6 and 7 using the computer program of Ref. 6, by assuming that a ChapmanJouget detonation started in region 5 and then propagated into region 2. Table 3 summarizes
+
+the results of these calculations and gives the state of the gas in the various
+regions involved. Note that the region 6 gas is about 60 K cooler than ideal, while the
+region 7 gas is about 160 K hotter than ideal. This is illustrated in the Mollier dia-
+
+gram sketch shown in Fig. 20. In practice these two regions would tend to mix, due
+to diffusion, turbulence, etc., rather than remain as two discrete regions, and the resulting flow out of the nozzle should be extremely
+
+close to the desired,
+
+ideal testing
+
+condition.
+The measured static pressure
+
+at the exit of the nozzle,
+
+P3, and on the flat por-
+
+tion of the cowl (before the 6 degree bend) was 1.730 x lo6 N/m2 (251. psia).
+
+An os-
+
+cilloscope picture showing this measurement is presented in Fig. 21. Based on the
+measured P,/P, ratio, the ideal total enthalpy, and assuming an isentropic, equilibrium expansion,
+
+we computed (Ref. 6) the exit plane Mach number to be 1.706.
+
+4 presents the significant
+
+Table
+
+running conditions obtained by the procedure outlined above.
+
+25
+
+TIME
+
+t
+TEST
+TIME
+“DELAYED”
+DETONATION
+WAVE
+
+UNBURNED,
+
+,/y
+DRIVER
+
+GAS (HELIUM)
+
+UNSHOCKED
+
+GAS
+
+0
+
+*
+DISTANCE
+
+Fig. 18 Distance-Time
+
+Wave Diagram Illustrating
+
+26
+
+Delayed Start of Reflected
+
+Detonation
+
+Wave
+
+Fig. 19
+
+Oscilloscope
+
+Record of Detonation
+
+Tube Stagnation
+
+Pressure with Delayed Reflected
+
+IDEAL
+
+278.
+
+M_= 6.
+
+237.7
+
+2.3818
+
+2.3671
+‘1 am’=
+
+2.4159
+
+101.3 Pa
+
+Fig. 20
+
+Mollier
+
+Diagram Sketch of Detonation
+
+1 atm = 101.3 kPa
+
+27
+
+Tube Stagnation
+
+Conditions
+
+Ignition
+
+Fig. 22
+
+OScilloscope
+
+Recor b of Substitute
+
+Gas Reflected
+
+Shock Stagnation
+
+Pressure, P5
+
+TABLE 3 EQUILIBRIUM THERMODYNAMIC STATE PROPERTIES IN
+BACKWARD-RUNNING
+DETONATION TUBE FOR SIMULATING l/20’
+SCALE SCRJ EXHAUST AT Mm = 6 (4 = 1.0)
+_
+
+Region 1
+
+0.21967 H2 + 0.15691 fi2 + 0.55348 N2 + 0.06276 NH3 + 0.00719 AR
+aim, T1 = 298, K, Us = 996.34 m/see
+
+P1 = 1.364
+
+Region 2
+
+same gas
+P2 = 10.043 atm, T2 = 633. K, U2 = 708.84 m/set
+
+Region 5
+
+same gas
+P5 = 43.657 atm, T5 = 1001. K, UR = 404.88 m/set
+
+Region 6
+
+stagnant,
+
+reacted test gas
+
+0.63410 N2 + 0.31727 H2fl + 0.01867 H2 + 0.00978 flH + 0.00783 Ar +
+0.00568 Nd + 0.00420 f12 + . . . .
+P6 = 80.3 atm, T = 2918. K, H6 = 237.7 cal/gm,
+6
+Region 7
+
+S6 = 2.3671 cal/gm K
+
+stagnant, reacted test gas
+0.62586 N2 + 0.29744 H2fl + 0.02995 H2 + 0.01709 fiH + 0.00775 Ar +
+0.00916 Nd + 0.00646 f12 + . . . .
+P7 = 80.3 atm, T7 = 3140. K, H7 = 390. cal/gm,
+
+S7 = 2.4169 cal/gm K
+
+TABLE 4 COMBUSTION GAS RUNNING CONDITIONS
+9= 1.0,
+
+a+ B = 4’, l/20 Scale
+Ideal
+(Ref. 1)
+
+Based on
+Measured P5/P3
+
+P5 (N/m2)
+
+8.086 x lo6
+
+8.136 x lo6
+
+H5 (Cal/m)
+
+278.0
+
+278.0
+
+T5 W
+
+2982.0
+
+2982.0
+
+r
+
+1.861 x lo6
+
+P3 (N/m2)
+
+2375.0
+
+T3 W
+
+1.730 x lo6
+2343.0
+
+M3
+
+1.657
+
+1.706
+
+r3
+
+1.2122
+
+1.2144
+
+5.02 x lo7
+
+4.895 x lo7
+
+Rey. No. 3 (m
+
+-1
+
+)
+
+29
+
+SUBSTITUTE
+
+GAS
+
+Thermodynamic properties of the substitute gas mixture used in the present tests were
+computed by the method detailed in Appendix A of Ref. 2 and are listed in Table 5. The
+particular
+
+mixture
+
+nation temperature
+current
+
+chosen for these tests was 50% Argon and 50% Freon 13Bl with a stagof 533.3 K.
+
+Langley Test Program
+
+was the gas planned to be used in the con-
+
+(see page 4) and for which the two-dimensional
+
+contoured
+
+To achieve full scale Reynolds number at the combustor
+
+nozzle was designed.
+stagnation pressure
+
+This mixture
+
+exit plane a
+
+of 5.516 x lo5 N/m2 (80. psia) was required.
+
+The detonation tube facility
+
+was operated in the reflected
+
+shock tube or shock tunnel
+
+mode (Ref. 1) in order to generate the required stagnation conditions for the substitute
+
+gas
+
+runs.
+The incident shock wave strength required to produce the stagnation temperature
+
+was
+
+computed from ideal gas shock equations using an average value of Y across the incident and
+reflected
+
+shock waves.
+
+stagnation pressure
+
+Figure 22 is an oscilloscope
+
+in the shock tube.
+
+picture
+
+showing the reflected
+
+shock
+
+Note’that as reported in our previous work at the
+
+M 00 = 8 flight condition (Ref. 2), the same reflected
+
+shock bifurcation
+
+this results in a somewhat gradual rise to the final stagnation pressure
+
+phenomena occurs;
+level.
+
+A detailed
+
+explanation of this phenomena is given in Ref. 2.
+For these substitute gas runs the static pressure
+
+at the exit of the nozzle and on the
+
+flat portion of the cowl, P3, measured 1.434 x lo5 N/m2 (20.8 psia).
+P,/P,
+
+ratio and the calculation
+
+procedure described
+
+earlier,
+
+From the measured
+
+we determined
+
+the Mach num-
+
+ber at the exit plane of the nozzle to be 1.63.
+
+This agrees very closely with the value calcu-
+
+lated for our nozzle using the two-dimensional
+
+method-of-characteristics
+
+One of the objectives
+
+program
+
+of the contract extension was to study the sensitivity
+
+(Ref. 5).
+
+of the cowl
+
+shock wave impingement
+
+location with variations
+
+in substitute gas properties.
+
+To do this we
+
+selected five additional
+
+substitute gas mixtures
+
+and/or stagnation temperatures
+
+and calculated
+
+the nozzle and afterbody flow fields with each of these gasses.
+temperature
+
+combinations
+
+selected were
+
+50% Argon + 50% Freon 13Bl @ T5 = 477.8 K
+60% Argon + 40% Freon 13Bl @ T5 = 533.3 K
+60% Argon + 40% Freon 13Bl@ T5 = 477.8 K
+
+‘30
+
+The additional gas mixture/
+
+60% Argon+40%
+
+Freon12
+
+@ T5 = 533.3 K
+
+60%Argon+40%
+
+Freon12
+
+@ T5 =477.8 K
+
+The results of these calculations are discussed in the next section. Tables 6 through10
+give the thermodynamic properties of these mixtures, determined by the procedure detailed in
+Appendix A of Ref 2.
+TABLE5
+THERMODYNAMICPROPERTIESOF500/0ARGON50% FREON13BlSUBSTITUTE
+GAS MIXTURE AT To= 533.3oK
+
+111.1
+
+cal
+CP( -)
+gmK
+0.07799
+
+3.60273-64
+
+1.3451
+
+127.8
+
+0.08022
+
+6.12813-04
+
+4.5523
+
+1.3127
+
+155.6
+
+0.08834
+
+1.35803-03
+
+4.1114
+3.8795
+
+1.2877
+1.2753
+
+183.3
+200.0
+
+0.09419
+0.09749
+
+2.76863-03
+4.11483-03
+
+3.4039
+
+1.2519
+
+238.9
+
+0.10459
+
+9.65453-03
+
+3.0470
+2.8268
+
+1.2364
+1.2278
+
+272.2
+294.4
+
+0.11006
+0.11342
+
+1.87943-02
+2.85103-02
+
+2.6166
+
+1.2203
+
+316.7
+
+0.11656
+
+4.24303-02
+
+2.4138
+2.2155
+
+1.2137
+1.2080
+
+338.9
+361.1
+
+0.11949
+0.12223
+
+6.20703-02
+8.93963-02
+
+2.0194
+
+1.2028
+
+383.3
+
+0.12478
+
+0.12693
+
+1.8720
+
+1.1994
+
+400.0
+
+0.12658
+
+0.16366
+
+1.6724
+
+1.1952
+
+422.2
+
+0.12883
+
+0.22723
+
+1.4117
+1.2443
+
+1.1906
+1.1882
+
+450.0
+466.7
+
+0.13143
+0.13287
+
+0.33697
+0.42343
+
+1.0623
+
+1.1859
+
+483.3
+
+0.13424
+
+0.52907
+
+0.9969
+
+1.1852
+
+488.9
+
+0.13468
+
+0.56915
+
+0.8555
+
+1.1838
+
+500.0
+
+0.13553
+
+0.65749
+
+0.4852
+0.0000
+
+1.1813
+1.1801
+
+522.2
+533.3
+
+0.13713
+0.13789
+
+0.87146
+1.0000
+
+Mach Number
+
+Y
+
+T W)
+
+5.4882
+
+1.3695
+
+5.0921
+
+31
+
+P/PO
+
+TABLE6
+THERMODYNAMICPROPERTIESOF50'$,ARGON500/0FREON13BlSUBSTITUTE
+GAS MIXTURE ATTo=477.8
+Mach Number
+
+K
+P/PO
+
+Y
+
+T(K)
+
+5.0403
+
+1.3695
+
+111.1
+
+0.07799
+
+7.32993-04
+
+4.5515
+
+1.3378
+
+133.3
+
+0.08333
+
+1.47373-03
+
+4.0574
+
+1.3072
+
+161.1
+
+0.08955
+
+3.20473-03
+
+3.6462
+
+1.2833
+
+188.9
+
+0.09531
+
+6.44323-03
+
+3.2893
+
+1.2644
+
+216.7
+
+0.1006
+
+1.22023-02
+
+2.9692
+
+1.2490
+
+244.4
+
+0.1055
+
+2.20323-02
+
+2.6743
+
+1.2364
+
+272.2
+
+0.1101
+
+3.8238E-02
+
+2.3959
+
+1.2258
+
+300.0
+
+0.1142
+
+6.41763-02
+
+2.1802
+
+1.2186
+
+322.2
+
+0.1173
+
+9.5084E-02
+
+2.0203
+
+1.2137
+
+338.9
+
+0.1195
+
+0.12628
+
+1.8602
+
+1.2093
+
+355.6
+
+0.1216
+
+0.16626
+
+1.7525
+
+1.2066
+
+0.1229
+
+0.19879
+
+1.6981
+
+1.2053
+
+366.7
+372.2
+
+0.1235
+
+0.21709
+
+1.6433
+
+1.2041
+
+377.8
+
+0.1242
+
+0.23687
+
+1.5319
+
+1.2017
+
+388.9
+
+0.1254
+
+0.28129
+
+1.4172
+
+1.1994
+
+400.0
+
+0.1268
+
+0.33298
+
+1.2980
+
+1.1972
+
+411.1
+
+0.1277
+
+0.39293
+
+1.1066
+0.9661
+
+1.1942
+1.1924
+
+427.8
+438.9
+
+0.1294
+0.1304
+
+0.50090
+0.58681
+
+0.8084
+0.6201.
+
+1.1906
+
+450.0
+
+0.1314
+
+0.68558
+
+1.1890
+
+461.1
+
+0.1324
+
+0.79885
+
+0.3547
+
+1.1874
+
+472.2
+
+0.1333
+
+0.92845
+
+0.0000
+
+1.1866
+
+477.8
+
+0.1338
+
+1.00000
+
+32
+
+TABLE 7 THERMODYNAMIC
+40% FREON13BlSUBSTITUTE
+
+PROPERTIESOF60'%ARGONGAS MIXTURE ATT0 =533.3
+
+MachNumber
+
+Y
+
+T(K)
+
+5.1299
+4.6384
+4.3317
+
+1.4003
+1.3716
+1.3534
+
+111.1
+
+4.0626
+
+cal
+CP( -)
+gmK
+
+K
+P/PO
+
+133.3
+150.0
+
+0.083216
+0.087802
+0.091092
+
+1.52383-03
+2.37263-03
+
+1.3376
+
+167.7
+
+0.094257
+
+3.57653-03
+
+3.7473
+
+1.3193
+
+188.9
+
+0.098282
+
+5.93463-03
+
+3.5357
+
+1.3074
+
+205.6
+
+0.10116
+
+8.45903-03
+
+3.2786
+
+1.2936
+
+227.8
+
+0.10481
+
+1.31923-02
+
+3.0436
+
+1.2816
+
+250.0
+
+0.10825
+
+2.00143-02
+
+2.7732
+
+1.2689
+
+277.8
+
+0.11226
+
+3.26143-02
+
+2.5215
+
+1.2581
+
+305.6
+
+0.11596
+
+5.15203-02
+
+2.2361
+
+1.2472
+
+338.9
+
+0.12003
+
+8.61063-02
+
+2.0062
+
+1.2395
+
+366.7
+
+0.12311
+
+0.12879
+
+1.9152
+1.8242
+
+1.2367
+1.2341
+
+377.8
+388.9
+
+0.12427
+0.12538
+
+0.15042
+0.17513
+
+1.7329
+
+1.2317
+
+400.0
+
+0.12646
+
+0.20330
+
+1.6870
+
+1.2305
+
+405.6
+
+0.12698
+
+0.21880
+
+1.5945
+
+1.2282
+
+416.7
+
+0.12800
+
+0.25291
+
+1.5006
+
+1.2261
+
+427.8
+
+0.12899
+
+0.29154
+
+1.4048
+
+1.2241
+
+0.12994
+
+0.33521
+
+1.3062
+
+1.2222
+
+438.9
+450.0
+
+0.13085
+
+0.38444
+
+1.1511
+
+1.2195
+
+466.7
+
+0.13216
+
+0.47005
+
+1.0407
+
+1.2178
+1.2170
+
+477.8
+
+0.53592
+
+483.3
+
+0.13299
+0.13340
+
+1.2140
+1.2119
+
+505.6
+522.2
+
+0.13495
+0.13604
+
+0.57176
+0.73677
+0.88628
+
+1.2106
+
+533.3
+
+0.13674
+
+1.00000
+
+0.9827
+b.7190
+0.4487
+!
+0.0000
+
+33
+
+7.91513-04
+
+TABLE8
+THERMODYNAMICPROPERTIES
+OF 6O%ARGON40% FREON13BlSUBSTITUTE
+GAS MIXTURE AT To=477.8 K
+P/PO
+
+Mach Number
+
+Y
+
+T(K)
+
+4.6249
+
+1.4389
+
+111.1
+
+0.07799
+
+1.68603-03
+
+4.0885
+
+1.3911
+
+138.9
+
+0.08461
+
+3.6120E-03
+
+3.5824
+
+1.3492
+
+172.2
+
+0.09191
+
+8.01823-03
+
+3.1020
+2.8035
+
+1.3138
+
+211.1
+
+1.2944
+
+238.9
+
+0.09960
+0.10459
+
+1.81883-02
+3.09143-02
+
+2.5290
+
+1.2785
+
+266.7
+
+0.10919
+
+5.06763-02
+
+2.3212
+
+1.2678
+
+288.9
+
+0.11260
+
+7.35953-02
+
+2.1201
+
+1.2585
+
+311.1
+
+0.11580
+
+0.10504
+
+1.9227
+
+1.2504
+
+333.3
+
+0.14760
+
+1.7750
+
+1.2450
+
+350.0
+
+0.11878
+0.12089
+
+1.7255
+
+1.2433
+
+355.6
+
+0.12156
+
+0.20450
+
+1.6759
+
+1.2416
+
+361.1
+
+0.12223
+
+0.22141
+
+1.5756
+
+1.2385
+
+372.2
+
+0.12353
+
+0.25894
+
+1.4217
+
+1.2341
+
+388.9
+
+0.12539
+
+0.32563
+
+1.2050
+
+1.2289
+
+411.1
+
+0.12773
+
+0.43766
+
+1.0886
+
+1.2264
+
+422.2
+
+0.12883
+
+0.50535
+
+1.0275
+
+1.2253
+
+427.8
+
+0.12937
+
+0.54250
+
+0.9639
+
+1.2242
+
+433.3
+
+0.12990
+
+0.58203
+
+0.7508
+
+1.2210
+
+450.0
+
+0.13143
+
+0.71610
+
+0.5760
+
+1.2190
+
+461.1
+
+0.13240
+
+0.81982
+
+0.3295
+
+1.2171
+
+472.2
+
+0.13336
+
+0.93644
+
+0.0000
+
+1.2162
+
+477.7
+
+0.13379
+
+1.00000
+
+34
+
+0.18873
+
+TABLE9
+THERMODYNAMICPROPERTIESOF60%ARGON40% FREON12SUBSTITUTEGkS
+MIXTUREATTo
+=533.3
+
+K
+
+Mach Number
+
+Y
+
+T(K)
+
+CP(g$J
+
+P/P 0
+
+-5.2088
+
+1.3973
+
+111.1
+
+0.09661
+
+6.53713-04
+
+4.6104
+
+1.3581
+
+138.9
+
+1.47653-03
+
+4.1386
+
+1.3281
+
+166.7
+
+0.10419
+0.11119
+
+3.01623-03
+
+3.6745
+
+1.3006
+
+200.0
+
+0.11886
+
+6.46943-03
+
+3.1040
+
+1.2707
+
+0.12897
+
+2.7751
+2.5210
+
+1.2558
+
+250.0
+283.3
+
+0.13484
+
+1.76943-02
+3.22713-02
+
+1.2458
+
+311.1
+
+0.13925
+
+5.14583-02
+
+2.2788
+
+338.9
+
+0.14325
+
+7.98793-02
+
+2.0438
+
+1.2373
+1.2301
+
+366.7
+
+0.14685
+
+0.12109
+
+1.8577
+1.7644
+1.7175
+
+1.2251
+1.2229
+1.2218
+
+388.9
+400.0
+
+0.16632
+
+405.6
+
+0.14948
+0.15072
+0.15131
+
+1.6704
+
+1.2208
+
+411.1
+
+0.15190
+
+0.22559
+
+1.5753
+
+1.2188
+
+422.2
+
+0.26158
+
+1.4786
+
+1.2169
+
+433.3
+
+0.15303
+0.15412
+
+1.3795
+
+1.2151
+
+444.4
+
+0.15516
+
+0.3488
+
+1.1707
+
+1.2119
+
+466.7
+
+0.15711
+
+0.46026
+
+1.0582
+
+1.2104
+
+477.8
+
+0.15802
+
+0.52677
+
+0.9991
+
+1.2097
+
+483.3
+
+0.15847
+
+0.56305
+
+0.8042
+
+1.2077
+
+500.0
+
+0.15974
+
+0.68520
+
+0.5609
+0.3209
+
+1.2058
+
+516.7
+
+0.16094
+
+0.82973
+
+1.2047
+1.2041
+
+527.8
+533.3
+
+0.16170
+0.16207
+
+0.94016
+1.00000
+
+0.0000
+
+35
+
+0.19399
+0.20927
+
+0.30246
+
+---.-.-.-.___,..,.,... .._..--..--
+
+~~.
+
+-
+
+TABLE10
+THERMODYNAMIC PROPERTIESOF600/0ARGON400/0FREON12SUBSTITUTEGASMMTUREAT
+To=477.8K
+P/PO
+
+Mach Number
+
+Y
+
+T(K)
+
+4.7917
+4.2217
+
+1.3973
+1.3581
+
+111.1
+
+0.09661
+
+1.24103-03
+
+138.9
+
+0.10419
+
+2.80303-03
+
+3.6877
+
+1.3230
+
+172.2
+
+0.11252
+
+6.54383-03
+
+3.2505
+
+1.2967
+
+205.6
+
+0.12006
+
+1.38353-02
+
+2.8728
+
+1.2764
+
+238.9
+
+0.12686
+
+2.71813-02
+
+2.6429
+
+1.2653
+
+261.1
+
+0.13100
+
+4.1262E-02
+
+2.4251
+
+1.2558
+
+283.3
+
+0.13484
+
+6.1262E-02
+
+2.2158
+
+1.2476
+
+305.6
+
+0.13840
+
+8.91833-02
+
+2.0114
+
+1.2405
+
+327.8
+
+0.14170
+
+0.12756
+
+1.9101
+
+1.2373
+
+338.9
+
+0.14325
+
+0.15164
+
+1.8087
+
+1.2343
+
+350,o
+
+0.14473
+
+0.17958
+
+1.7069
+
+1.2314
+
+361.1
+
+0.14616
+
+0.21189
+
+1.6040
+
+1.2288
+
+372.2
+
+0.14753
+
+0.24916
+
+1.4463
+
+1.2251
+
+388.9
+
+0.14948
+
+0.31573
+
+1.3376
+
+1.2229
+
+400.0
+
+0.15072
+
+0.36827
+
+1.2247
+
+1.2208
+
+411.1
+
+0.15190
+
+0.42826
+
+1.1060
+
+1.2188
+
+422.2
+
+0.15303
+
+0.49658
+
+0.9788
+
+1.2169
+
+433.3
+
+0.15412
+
+0.57419
+
+0.8389
+
+1.2151
+
+444.4
+
+0.15516
+
+0.62614
+
+0.5843
+
+1.2127
+
+461.1
+
+0.15664
+
+0.86599
+
+0.3341
+
+1.2112
+
+472.2
+
+0.15757
+
+0.93502
+
+0.0000
+
+1.2104
+
+477.8
+
+0.15802
+
+1.0000
+
+36
+
+4. AFTERBODY
+For the calculations
+
+FLOW FIELD PREDICTIONS
+
+presented all 1combustion gas thermodynamic
+
+data were de-
+
+rived from the computer program of Ref. 6. Substitute gas thermodynamic
+
+data were
+
+generated by the procedure described in Appendix A of Ref. 2. The flow fields,
+
+in-
+
+cluding the presence of shock waves, were calculated using the two-dimensional,
+
+MOC
+
+program of Ref. 5. The geometry of the afterbody and cowl surfaces is fiven below.
+The coordinate system is shown in Figs. 23 and 24.
+Cowl
+= 1.0
+
+0 5 z% Il.11
+
+= 0.4204 9
+
+- 0.933 x + 1.518
+
+1.11 I x Il.235
+
+= 0.1051 i? + 0.8768
+
+1.235 I E I 3.12 (no wedge)
+
+= 0.1051 x + 0.8768
+
+1.235 < % <_ 2.6 (wedge for 20’ afterbody)
+
+zr -0.3443 x + 2.0453
+
+2.6 < ?ii 2 4.0
+
+= 0.1051 i% + 0.8768
+
+1.235 < X < 2.6 (wedge for 0’ afterbody)
+
+=-0.05241
+
+2.6 I % I 3.5
+
+Ti + 1.2863
+
+20’ Afterbody
+
+Y
+
+= (0.1736 - 7i2) ’ - 0.4167
+
+0 I t? 5 0.1425
+
+y
+
+= -0.3640 % + 0.02674
+
+0.1425 I x 5 21.. 67
+
+0’ Afterbody
+
+T
+
+= 0.0
+
+where %!= Y/Y,,
+
+0 2%
+X = X/Y,,
+
+1.524 cm (0.6 inch).
+
+and Y3 is the height of the combustor exit.
+
+distribution
+
+tion gas thermodynamic
+
+For our model Y3 =
+
+For the full scale vehicle we assumed Y3 = 30.48 cm (1.0 foot).
+
+As a result of these calculations
+and its pressure
+
+521.67
+
+we found that the basic afterbody flow field
+
+were relatively
+
+properties
+
+insensitive
+
+to small changes in combus-
+
+and combustor exit Mach number.
+
+37
+
+This point was
+
+m&j
+
+EXPANSION
+
+mm--
+
+SHOCK
+
+I
+
+X/Y,
+
+WAVES
+
+WAVE
+
+‘6
+
+I
+
+7
+
+2r
+
+Fig. 23
+
+Two-Dimensional
+4O,M,=6
+
+Flow Field for 20
+
+’ Afterbody
+
+with and without
+
+38
+
+Shock Generator.
+
+Combustion
+
+Gas, ff + fl =
+
+----
+
+Fig. 24
+
+Two-‘Dimensional
+4O,M,=6
+
+Flow Field for 0’ Afterbody
+
+with and without
+
+clearly illustrated in Fig. 15 of our previous contractor
+was true of small changes in substitute gas properties.
+sure distribution
+
+for the substitute
+
+Shock Generator.
+
+SHOCK
+
+Cmbustion
+
+WAVE
+
+Gas. e + fi =
+
+report (Ref. 2). The same
+We also found that the pres-
+
+gas chosen for the present tests (50% Freon 13Bl +
+
+50% Argon) and for the combustion gas were in extremely close agreement.
+Therefore, in Figs. 23 and 24 we show only one flow field calculation for each geometry
+involved and in Figs. 26 through 58, where the experimental data are also plotted,
+only one theoretical,
+
+two-dimensional
+
+shows an oscilloscope
+
+record of detonation tube stagnation pressure with burning be-
+
+hind reflected
+
+pressure
+
+distribution
+
+is shown.
+
+Figure 25
+
+shock and overly delayed detonation.
+
+Because this model had a reflection
+
+plane extending the entire length of one
+
+side and a side plate extending to the end of the cowl on the other side, almost all of
+the data were obtained in two-dimensional
+
+flow regions and no theoretical
+
+corrections
+
+for side expansion effects are shown.
+
+39
+
+---
+
+Theoretical
+
+heat transfer
+
+distributions
+
+generated shocks were calculated
+
+for the afterbody without externally
+
+for us by the NASA Langley Research Center using
+
+the computer code of Price and Harris
+
+(Ref. 11) for turbulent
+
+assuming combustion gas products with the pressure
+The calculations
+
+through 58.
+
+boundary layers,
+
+distributions
+
+are shown in Figs. 59 through 73.
+
+and
+
+shown in Figs. 26
+Calculations
+
+assuming a laminar boundary layer predicted heating rates an order of magnitude
+lower than the turbulent
+
+cases.
+
+As part of the contract extension,
+
+afterbody flow fields with the cowl shock
+
+impinging on the 20’ afterbody were computed for the five additional
+
+substitute
+
+listed on pages 13 and 14. The objective here was to predict the sensitivity
+impingement
+
+location with variations
+
+in substitute
+
+gas properties
+
+gases
+
+of the shock
+
+and then verify
+
+the
+
+results experimentally.
+Since we would be testing with a fixed contour combustor
+nozzle, variations in substitute gas properties would produce variations in the combustor nozzle exit plane Mach number and Y.
+
+These latter variations
+
+into account when doing the afterbody calculations.
+
+were taken
+
+The calculated flow fields were
+
+to those shown in Fig. 23, and the predicted changes in shock imTable 11 presents a summary of these
+pingement location were insignificant.
+all very similar
+calculations
+
+which shows how little the major parameters
+
+altered with the different substitute gases.
+Since the calculations predicted insignificant
+different
+
+of the flow field are
+
+changes in flow parameters
+
+substitute gases, we selected only one of the five mixtures
+
+mental tests.
+
+That gas was the mixture
+
+and is referred
+
+to as substitute
+
+Fig. 25
+
+in the
+
+for the experi-
+
+of 60% argon + 40% Freon 12 @ T5 = 477.8 K
+
+gas no. 2 in the Experimental
+
+Results Section (5).
+
+Oscilloscope Record of Detonation Tube Stagnation Pressure
+with Burning Behind Reflected Shock and Overly Delayed
+Detonation
+
+40
+
+r,
+Fig. 26
+
+I
+
+I
+4
+
+I
+
+I
+0
+
+I
+
+I
+12
+
+I
+
+X/Y3
+Pressure Distribution:
+20” Afterbody,
+Generators, Row A
+
+16
+No Shock
+
+:
+
+Fig. 28
+
+Pressure Distribution:
+Generators, Row C
+
+X/Y3
+20’ Afterbody,
+
+No Shock
+
+da,:1ji !: i
+
+i.--.--..;
+:..-.........
+F4....__...
+L..-....-.
+i 4..-.-.-...;
+c.-......
+-i.-..........
+;.... .-..-;
+b.. .......... r. ....... .._. i.. ... ._ .... i.. ............ i.. .._ ....... i.. ... ..- .... .+. ...... ..- ... i .. . ..-....-. +. .... ..- ..... L ... .._ .._
+
+:
+
+........-...i ..- ......i .............
+.L........- ..i ._._____.___
+i.- ..-.....i. .._.........
+i. .............
+i ........_..... .._..._.
+;
+:
+;
+;
+i
+;
+i
+-......_i..............
+. -_..........
+i..............
+i..............
++_.........._;
+._..........
+t”” -....-..+-.- .........
+. ..-...._.
+i
+:
+j
+i
+i
+;
+:
+:
+
++...a
+_._.
+~ .__.:
+.._.._.._..
+/._..........
+J: i.............
+c - r uq.._.
+i 4
+j
+-hi+-
+
+X/Y3
+Fig. 27
+
+Pressure Distribution:
+Generators, Row B
+
+20’ Afterbody,
+
+No Shock
+
+Fig. 29
+
+Pressure Distribution:
+Generators, Row D
+
+20’ Afterbody,
+
+No Shock
+
+Fig. 30
+ru
+i
+
+Pressure Distribution:
+Generators, Row E
+
+20” Afterbody,
+
+No Shock
+
+Fig. 32
+-4
+.a
+
+d
+Pressure Distribution:
+20’ Afterbody,
+(Cowl) Shock Generator, Row A
+
+with Top
+
+with Top
+:
+
+C
+
+I
+
+x/i3
+
+Fig. 31
+
+Pressure Distribution:
+20’ Afterbody,
+(Cowl) Shock Generator, Row B
+
+Fig. 33
+
+I
+I
+16
+12
+Y,’ i3
+Pressure Distribution:
+20” Afterbody,
+with Top
+(Cowl) Shock Generator, Row C
+4
+
+a
+
+1
+
+z
+Fig. 34
+_ -
+
+4
+
+8
+16
+12
+_
+.X/Y3
+-~.Pressure Distribution:
+20’ Afterbody, with Top
+(Cowl) Shock Generator, Row D
+
+Fig. 36
+
+._
+
+-t
+,,,
+
+Pressure Distribution:
+20’ Afterbody,
+(Cowl) Shock Generator, Row E
+
+with Top
+
+:
+
+)
+
+_
+
+_.
+
+1.
+
+.....
+
+fig. 35
+
+X/Y3
+Pressure Distribution:
+20’ Afterbody,
+and Side Shock Generators, Row A
+
+Fig. 37
+
+:_.
+..;.
+
+..i
+
+i
+:
+
+with Top
+
+. . T. .._......
+i .._.._.....
+i .__.__._
+:
+:
+.;
+
+i................ ............... ............... .._.._
+
+i . . . . . . . . . . .._..............
+:
+:
+:
+i
+
+i
+:
+
+i .. .
+:
+:
+
+.. i
+:
+:
+
+,.._,
+
+.+y ........._..........
+- ...__.__.....
+i
+X/Y3
+Pressure Distribution:
+20” Afterbody,
+and Side Shock Generators, Row B
+
+with Top
+
+,
+4
+
+I
+6
+
+12
+
+16
+
+X/Y3
+Fig. 38
+
+Pressure Distribution:
+20’ Afterbody,
+and Side Shock Generators, Row C
+
+with Top
+
+i : ,I
+..i....i I
+
+.
+
+I-
+
+Fig. 39
+
+Pressure Distribution:
+20” Afterbody,
+and Side Shock Generators, Row D
+
+with Top
+
+s
+
+Fig. 40
+
+f
+
+12
+
+J
+
+16
+
+x/v3
+Pressure Distribution:
+20’ Afterbody,
+and Side Shock Generators, Row E
+
+with Top
+
+Fig. 41
+
+Reflection
+(Combustion
+
+Fig. 42
+
+Reflection
+(Combustion
+
+Plane Normalized
+
+Pressures (P/P,)
+
+Data Above Substitute
+
+Plane Normalized
+
+20’ Afterbody,
+
+Data)
+
+Pressures (P/P,) 20° Afterbody,
+
+Data Above Substitute
+
+No Shock Generators
+
+Data)
+
+45
+
+with Top (Cowl) Shock Generator
+
+Fig. 43
+
+Reflection
+(Combustion
+
+Plane Normalized
+
+Pressures (P/P31 20 ’ Af’terbody,
+
+Data Above Substitute
+
+Data)
+
+46
+
+with Top and Side Shock Generators
+
+/
+2
+
+0
+
+I
+
+4
+
+I
+6
+
+I
+
+6
+
+I
+
+I
+
+10
+
+X/Y3
+Fig. 44
+
+Pressure Distribution:
+Generators, Row A
+_~
+
+I
+
+0’ Afterbody,
+-.-.-
+
+-.--
+
+No Shock
+--.-
+
+Fig. 46
+
+I
+
+X/Y3
+Pressure Distribution:
+Generators, Row C
+
+/:
+
+2
+
+I
+4
+
+6
+
+I
+E
+
+10
+
+. .,
+
+J
+
+2
+
+X/Y1
+Fig. 45
+
+Pressure Distribution:
+Generators, Row B
+
+0” Afterbody,
+
+I
+E
+
+0’ Afterbody,
+
+I
+
+I
+10
+
+NO Shock
+
+-._,
+
+N_..
+./
+
+1
+
+I
+6
+
+4
+
+2
+
+No Shock
+
+Fig. 47
+
+i
+
+,.
+
+4
+
+X/Y3
+Pressure Distribution:
+Generators, Row D
+
+..:.
+
+1..
+
+6
+
+0’ Afterbody,
+
+..i ,..........
+.i ,...._,.
+I
+
+3.u
+
+B
+
+NO Shock
+
+x/u3
+
+X/Y3
+
+Fig. 48
+
+Pressure Distribution:
+Generators, Row E
+
+--
+
+.I
+
+=_I
+
+;
+
+4
+
+0’ Afterbody,
+
+No Shock
+
+Fig. 50
+
+Pressure Distribution:
+0” Afterbody,
+(Cowl) Shock Generator, Row B
+
+with Top
+
+----.I
+
+r:
+
+1
+a
+
+I
+
+I
+10
+
+6
+
+Xl”3
+Fig. 49
+
+Pressure Distribution:
+0’ Afterbody,
+(Cowl) Shock Generator, Row A
+
+with Top
+
+Fig. 51
+
+Pressure Distribution:
+0’ Afterbody,
+(Cowl) Shock Generator, Row C
+
+with Top
+
+\
+j
+
+\
+
+A
+
+\
+_
+
+i
+
+_
+
+0
+:
+\
+
+L,
+
+Fig. 52
+
+i
+
+/i
+
+Pressure Distribution:
+0” Afterbody,
+(Cowl) Shock Generator, Row D
+
+Fig. 54
+
+with Top
+
+Pressure Distribution:
+0’ Afterbody,
+and Side Shock Generators, Row A
+
+with Top
+
+/
+-I
+..
+i
+
+/ b \:
+‘X.’ T :.
+I ,\:
+
+Fig. 53
+
+Pressure Distribution:
+0’ Afterbody,
+(Cowl) Shock Generator, Row E
+
+with Top
+
+Fig. 55
+
+Pressure Distribution:
+0’ Afterbody,
+and Side Shock Generators, Row B
+
+.;
+:.
+
+.:.
+
+with Top
+
+Fig. 56
+
+Pressure Distribution:
+0” Afterbody,
+and Side Shock Generators, Row C
+
+woth Top
+
+I
+=
+
+3
+
+2
+Fig. 57
+
+4
+
+5
+
+x/ !3
+Pressure Distribution:
+0’ Afterbody,
+and Side Shock Generators, Row D
+
+I
+a
+
+I
+with Top
+
+10
+
+=7I
+
+4
+g I,.‘I Fig. 58
+
+6
+
+Pressure Distribution:
+0’ Afterbody,
+and Side Shock Generators, Row E
+
+1
+a
+with Top
+
+m
+
+Fig. 59
+
+1
+
+2
+
+Reflection
+
+Plane Normalized
+
+(Combustion
+
+2
+
+3
+
+4
+XIV,
+
+5
+
+6
+
+Pressures (P/P,) O” Afterbody,
+
+Data Above Substitute
+
+7
+
+8
+
+No Shock Generator
+
+Data)
+
+r
+1
+
+2
+
+4
+
+3
+
+5
+
+6
+
+7
+
+8
+
+Y/Y3
+Fig. 50
+
+Reflection
+(Combustion
+
+Plane Normalized
+
+Pressures (P/P31 O” Afterbody,
+
+Data Above Substitute
+
+Data)
+
+51
+
+with Top (Cowl) Shock Generator
+
+3
+
+J-u 1 2/ / 4, , 6 , / , ; :, i , I: 1
+
+I
+
+1
+
+-
+
+5
+
+L
+
+> L_
+_.
+
+3
+
+3. 5
+
+10
+
+Fig. 61
+
+Jo
+
+I
+
+;
+
+Cowl Pressure Distribution
+
+1
+
+,
+4
+
+,
+
+I
+6
+
+with 20’ Afterbody
+
+I
+i0
+
+I
+12
+
+j
+
+Fig. 63
+
+Heat Transfer Rate Distribution,
+No Shock Generators, Row B
+
+14
+
+Heat Transfer Rate Distribution,
+No Shock Generators, Row A
+
+Fig. 64
+
+Heat Transfer Rate Distribution,
+No Shock Generators, Row C
+
+20’ Afterbody,
+
+I
+14
+
+X/G
+
+Fig. 62
+
+12
+
+K/Y3
+
+x/y7
+
+X/Y?
+20’ Afterbody,
+
+20’ Afterbody,
+
+rio
+
+I
+
+;
+
+Fig. 65
+
+i
+
+I
+4
+
+I
+
+I
+
+/
+
+I
+10
+
+x/y3
+Heat Transfer Rate Distribution,
+No Shock Generators, Row D
+
+I
+
+2
+1
+
+I
+
+i
+1+
+
+I
+
+A
+
+20’ Afterbody,
+
+Fig. 67
+PA
+
+ID
+;
+
+Heat Transfer Rate Distribution, 20’ Afterbody,
+with Top (Cowl) Shock Generator, Row A
+A- mYl”nlON
+G&5
+0 - I”BITlT”ll
+G&s.
+I
+- TYRWLENT
+PREDIOIOH
+WARRSl
+IOOEINOJT
+ACCOUNI
+KSI~HOCI
+_
+i
+GE”rR.roFsl
+---aawLI”c-x
+DMDCPREDlCTlD
+LDuTlW
+., -.. _.. ...i,...
+:
+:
+;
+_
+
+Fig. 66
+
+Heat Transfer Rate Distribution,
+No Shock Generators, Row E
+
+20” Afterbody,
+
+Fig. 68
+
+Heat Transfer Rate Distribution, 20’ Afterbody,
+with Top (Cowl) Shuck Generator, Row B
+
+j(/Vj
+
+Fig. 69
+
+Y/Y7
+
+Heat Transfer Rate Distribution,
+20” Afterbody,
+with Top (Cowl) Shock Generator, Row C
+
+Fig. 71
+
+Heat Transfer Rate Distribution,
+20’ Afterbody,
+with Top (Cowl) Shock Generator, Row E
+
++. +-.t:. ji.,......_
++.
+: : j : +.........;
+/ fi: i::/ ii:j ._._
+i
+j
+:
+:
+L..
+........ i i) ai .._
+j...R...i...
+* i...... i i ji ..__._.
+1___.__,..
+:
+;
+
+s
+A
+
+]
+:
+:
+....... f .._ .._
+
+i
+i
+
+.n.
+_
+T
+
+:::(\~
+0
+
+il
+
+/
+
+I,
+
+4
+
+/
+
+6
+
+,
+
+i
+a
+
+j
+
+,
+
+10
+
+,
+
+I,
+12
+
+14
+
+I
+
+Heat Transfer Rate Distribution,
+20” Afterbody,
+with Top (Cowl) Shock Generator, Row D
+
+..4
+
+:;
+i
+
+j
+i
+..I
+
+,.
+6
+
+I
+
+I
+a
+
+I
+
+10
+
+i
+;
+I
+1.
+j
+
+,
+
+i
+i
+;
+.i
+!
+
+j
++
+j
+i
+:
+
+i
+i
+
+-...
+
+Fig. 72
+
+,,
+
+:
+
+... :....--..
+
+I
+12
+
+I
+
+I
+
+14
+
+X/Y?
+
+X/Y3
+
+Fig. 70
+
+j
+::
+::
+//
+:
+-......._i j
+i .. I
+15:
+i
+;
+$
+i
+.- I.._.. .. ...1.-.....i... ..:
+:
+P ,
+.
+i.
+
+:
+....
+
+Heat Transfer Rate Distribution,
+20’ Afterbody,
+with Top and Side Shock Generators, Row A
+
+t.0 . . . ..-.....~.......r-..-...
+
+_,__._.__.__,_.._..___.r..
+
+-.. . . ... .
+
+.., .-..-.._....-..
+
+&
+
+ru __._.__
+rJi
+
+.i _._.____._ i,-..-----j
+j
+
+I
+
+I
+
+~!. .._......’
+)
+
+,..._..__.__._..___.._
+:
+I
+
+I
+
+I
+
+4
+
+2
+
+Fig. 73
+
+;
+
+I
+
+j
+
+. ..~......._
+;
+
+SUBSTITUTE
+
+. . . . . . . . . . . . . . . . I ..-.. . . . .._._...___
+:
+j
+;
+
+I
+
+I
+6
+
+Heat Transfer Rate Distribution,
+
+I
+8
+
+20’ Afterbody,
+
+GAS # 1
+
+-TURBULENT
+PREDICTION
+iHARRIS)
+IDOES NOT ACCOUNT FOR SHOCK
+_;_
+GENERATORS)
+j
+DMOC PREDICTED
+---2
+;. . . . . . . ..; ._ ._...._
+
+I
+
+I
+xl
+
+I
+
+I
+12
+
+I
+
+I
+
+14
+
+with Top and Side Shock Generators, Row B
+
+t
+
+NOZZLE
+EXIT
+PLANE
+
+REGION
+
+TABLE
+
+11 COMPARISON OF VARIOUS FLOW FIELD PARAMETERS
+
+FOR DIFFERENT
+
+SUBSTITUTE
+
+GASES AND COMBUSTION GAS
+
+M3
+5%
+P3
+M4
+PR.S.
+p3
+
+E
+MR.S.
+
+xR.s.
+
+1.996
+
+2.011
+
+2.014
+
+2.013
+
+2.016
+
+2.016
+
+2.016
+
+2.016
+
+5.6435
+
+5.6417
+
+5.6424
+
+5.6410
+
+5.6502
+
+5.6475
+
+5.6488
+
+5.6494
+
+R.S. refers to the reflected
+
+shock region
+
+y3
+
+NOTE:
+
+Subscript
+
+56
+
+5. EXPERIMENTAL
+
+RESULTS
+
+PRESSURE DATA
+All afterbody pressure data are presented by rows and normalized to P3, the
+nozzle exit static pressure, which is different for combustion and substitute gas.
+Figures 26-30 show the pressure
+no shock generators.
+
+distribution
+
+for the l/20
+
+These data show excellent
+
+scale 20’ afterbody with
+
+agreement between the substitute
+
+and combustion gases.
+
+There is also good agreement with the 2-D prediction for
+gauge rows close to the reflection plane. The gauge rows farthest from the reflection
+plane deviate most from the 2-D prediction,
+(length along afterbody normalized
+
+particularly
+
+at large values of X/Y,
+
+by combustor nozzle exit height).
+
+This is the ex-
+
+pected behavior since it is in this region that deviation from 2-D behavior will be
+greatest.
+Reflection plane data for this configuration,
+Fig. 41, are presented in
+schematic form.
+
+The combustion data are the upper numbers while the substitute
+
+gas data are the tower. These data show the same good agreement between substitute
+and combustion gases as the afterbody data.
+Pressure
+
+distributions
+
+for the 20’ afterbody with the cowl generator and both
+
+test media are shown in Fig. 31-35.
+
+The agreement between substitute
+
+tion gas data is good but the shock arrival
+combustion gas.
+prediction
+
+is slightly
+
+The substitute gas shock arrival
+
+and both pressure
+
+distributions
+
+farther
+
+and combus-
+
+downstream for the
+
+is in close agreement with the 2-D
+
+show the same kind of deviation from 2-D
+
+behavior as in the no-generator case. The reflection plane data, Fig. 42, show the
+same agreement between test media and indicate the shift in cowl shock location for
+the combustion gas.
+Figures 36-40 show the 20’ afterbody pressure distributions with both shock
+generators and both gases. The 2-D distribution on these figures is included only
+for reference,
+
+since it does not allow for the side shock.
+
+The data for this condition
+
+appear to show poorer agreement between gases than for the previous configurations,
+
+57
+
+but these differences
+
+are due to differences
+
+The intersection
+
+stations.
+
+in cowl shock location for different
+
+gauge
+
+of the two shocks gives rise to the highest pressures
+
+measured on the 20’ afterbody; however the absolute level of these pressures is the
+average pressure on the gauge diaphragm and not a true “point” maximum.
+Since all
+pressure
+
+measurements
+
+are averaged over the 3.175 mm diameter
+
+fields with strong pressure gradients,
+different
+
+from the actual pressure
+
+diaphragm,
+
+flow
+
+shocks, will yield measured pressures
+
+i.e.
+
+at a point.
+
+Both these data and the reflection
+
+plane data, Fig. 43, indicate a merging of the side and cowl shocks at their point of
+intersection
+
+since there is no localized pressure
+
+A or on the reflection
+
+increase after the cowl shock in row
+
+plane.
+
+The data in Figs. 44-60 are for the 0’ afterbody.
+
+These data show reasonably
+
+good agreement between the two test media and also between both gases and the 2-D
+There is more scatter for these data than for the 20’ afterbody because
+
+prediction.
+
+of the very high heating rates for the combustion gas.
+
+Even though the pressure
+
+ducer diaphragms were protected by an ablative silicone
+destroyed in these tests, particularly
+
+coating,
+
+trans-
+
+many gauges were
+
+those close to the nozzle exit plane.
+
+Data from
+
+gauges that were destroyed by these heating rates could still be reduced provided the
+gauges were intact for the greater
+
+part of the steady flow time (3 msec).
+
+of a gauge is easily recognized on the signal.
+tion gas on the 0’ afterbody
+severe gauge attrition;
+tion gas is farther
+
+are
+
+Pressure
+
+not as complete
+
+as
+
+distributions
+
+Destruction
+
+for the combus-
+
+for the 20’ afterbody because of
+
+however Figs. 49-53 indicate the cowl shock for the combus-
+
+downstream
+
+than the substitute
+
+gas
+
+cowl shock, as was the case
+
+with the 20’ afterbody.
+Cowl pressure data (Fig. 61) show very good agreement between experiments
+and prediction
+
+as well as good agreement between the two gases.
+
+tabular form as a function of X/Y,
+combustion
+
+Pressure
+
+data in
+
+for both the 20’ and 0’ afterbody models in both
+
+and substitute gas are presented in Tables 12 through 15.
+
+During the contract extension pressure
+were made on the afterbody to determine
+stalled for these runs.
+
+measurements
+
+shock location.
+
+The afterbody pressures
+
+agreement with the No. 1 substitute gas pressures
+
+with substitute gas no. 2
+No separators
+
+appear in Table 16 and show good
+since both the shock location and
+
+normalized
+
+pressure
+
+levels agree with the previous tests.
+
+substitute
+
+gas no. 2 were measured on the nozzle separator
+
+58
+
+were in-
+
+Cowl pressures
+
+with
+
+center lines just aft
+
+TABLE
+
+12 e/P3 20 DEG AFT BODY COMBUSTION GAS
+
+----FO1.J
+B---TOP GEt?ERATOR
+I,,.y
+_I..’_.II’I .-,
+F’.....p:>
+.J
+‘Q
+‘2
+5
+[I . :::;z
+I- . _.._
+[I. 24
+4.51
+5._ . :::yI:1. 1 ‘3
+i
+to.
+
+zi+m
+
+I:l . 4 III
+
+F:ClTH GEPiERATllRS
+I:.::,...‘7’:I,
+1.1:s
+5 . g,:-:I
+.t- . CT
+.-I a’
+
+E:OTH GENEF:HTOR:S
+;:.;,..’‘.( 3
+4. :32
+6.
+
+11:s
+
+r ‘36
+b.
+
+59
+
+F/F:2
+[I.
+
+36
+
+[I . 6, 1
+
+0. 47
+
+F / p:3
+11.47
+
+0. 1s
+II.
+
+[I’S
+
+.TABLE 13 P/P3 20 DEG AFT BODY SUBSTITUTE
+
+GAS
+
+BOTH
+l3ENERATOR:~
+L..,..,..‘.,.’:TI
+,..,
+5.11:l
+.y . ‘3 :f:
+.- ,-, i
+b- . -1.t,
+7! .74
+‘3 . 5 III
+
+----fq-Ji,l.l
+II---TOF GEriEEHTCIR
+8..I..,..‘j.’13
+,‘.,
+F’ ,./ F’ ~3
+4 . ::: III
+III . 2 1
+5 . Es:::
+[I . :34
+.- . c7
+to
+.-I i
+I:1. ;j: 7
+
+ri0 GENERATIJF’:~
+I,:y
+.,..’_.n.(1.-,
+.:,
+‘1’
+I-. ‘15
+-.!y . [I lj
+5 . :I:::-:
+--
+
+b.- . -(.b1
+
+NO GENERHTIJR:?:
+-__o
+_..j.’ :II
+,.‘.,..
+4.132
+t,.- . III:3
+.- ‘3lgr
+k,.
+
+BOTH GEr~ERATORS
+::.:;,...I_1.a.-,
+.5
+
+F/F:>
+1-1
+_. :I-:;:;
+III . 5 2
+III . :3q
+III , :3!y
+III. 2 [I
+
+F ,..iF 3
+
+4 . :3 I:l
+
+0. 51
+
+5 . lg#
+i::
+
+[I. 5:3
+111
+. 27
+
+ly.- . 57
+
+BOTH
+
+l~ENEFrHTfJR:S
+8._I _..8..a.-,
+,/., .. , .z,
+.:r
+L . ‘9_. 7.-
+
+F’ ,,/ F’ 13
+l-l
+_ . :?
+-85.
+[I. 17
+
+5 . III III
+5 . :::
+- :r,
+-I
+.- - i
+5 . !” k,
+
+0. 15
+0. 11
+
+F ,,.iF’ 13
+ii_ . 2L il_
+
+III . I:1:3
+[I . [llg,
+
+----F:01.,.1
+E---TOF GENEt?ATOR
+3.
+_I.,..‘.i’13
+F’ ,..iF’ 1::
+,.‘.,
+4 . :r;z
+[I. 24
+t,.- . I:1:3
+lyl. ‘ZE,
+i * ‘7h
+km
+[I. 17
+_-
+
+60
+
+BOTH
+
+F ,,...F 1:;
+l-1
+, .-,.<,,”
+l-l . 59
+- III , z’r=;
+III . 2 III
+
+l~Et4EFATnF’:::
+I_ _I ..‘. I,, ,I _-,
+,.‘.,
+1,
+
+F’
+
+4, y32
+t,.- . III:3
+h.- . ‘3&
+
+(1. 52
+I:1. 1 2
+III . 0’3
+
+,/
+
+F
+
+13
+
+TABLE
+
+14 P/P3 0 DEG AFT BODY SUBSTITUTE GAS
+
+----RiJl.8.l
+
+TOP
+0.
+.I .... ‘(’ :3
+,...,
+2.7 1
+
+F/F:3
+
+III . 54
+1.15
+
+i[_. 7zq
+I _.
+1.11
+
+4. !fj:3
+
+1. 2’9
+
+5.42
+t-. . 55
+
+l-1 . :j k#
+_- .-,-_l-l . .I# ,i
+
+T.42
+I=. 2’5
+
+[I. 94
+.-,7
+l-1. .Z’ ,‘.
+
+[I . 2 III
+
+7 . .y III
+
+I:l . z’:>
+
+7 . .y III
+
+III . 2 1
+
+F’,..;F:~
+
+III . 53
+
+.--, . 7i c_I
+._I
+
+4 . 5:::
+
+I1
+_. Fl:=:
+-il_. 5 il_
+I:1 . 2 1
+
+4. 5:3
+
+[I.
+
+----ROl.1.l
+
+PKI GENERATOR:2
+0.)
+.. ‘,.’:?I
+,..,..’
+_ --
+
+BOTH GEPiERHTORS
+~...~
+‘.(’:zI
+,..,..__.
+‘1,
+L. 7I 1
+
+‘1,
+.-I. -c
+,.’.-4
+
+.s . -c
+._a
+i’ ._I
+
+7(’ . r=, I:1
+
+IT----
+
+GENERHTCIF:
+F’ ,_i’F 13
+
+l-l . :z::j
+
+1. 04
+
+TOF
+5)
+,..,:.c‘.,.’:II
+1-1
+-1::1
+_ . $0
+
+‘=’. 12
+._I
+
+[I.
+
+13.12
+
+5.21
+
+t-1
+_ . 5 ‘3
+
+6:‘:
+
+38
+
+II----
+
+GEtdERHTOR
+F ;c F ‘-3
+1.
+
+[I;
+
+I:1 . & 1
+
+4 . :::7
+
+l.El:l
+
+5.21
+
+1. 01
+----ROl.,.l
+
+TOP
+;:.!,/.’ ‘.,.’11;
+
+E----
+
+GENERHTOF?
+,3/‘,2:~
+
+2 , III 8
+.y, 7E:
+.-* , i .-I
+
+III . 54
+
+4.79
+
+III . ‘33
+
+[I . 7:::
+
+61
+
+BIIITH GEPiERRTORI:
+;>;_....
+‘.i’13
+_ -l-l . :I::::
+
+:>.lE
+4.37
+5.21
+
+F’....‘F:~:
+
+1. 01
+l-l_. 5-- ‘3
+
+I.:35
+I:l . ‘3:3
+
+,TABLE 15 P/P3 0 DEG AFT BODY COMBUSTION GAS
+
+----ROl,l,i
+
+TOF
+8.
+1 ... c,.o.-I
+:‘.,..
+:,
+4.55
+
+A----
+
+GENERATUF
+F/F’:3
+
+1. w
+
+& . 687
+
+[I . :: [I
+
+7 . 5 [I
+
+[I . 2 I:l
+
+----ROl.l.l
+
+T!JF
+I:.::/.’ 8.
+I1.-I
+.I?
+.C’. 82
+.-,
+-. E.
+
+g----
+
+GEPiERATL’R
+F’,..‘F’:>
+l-1 . 5:::
+
+4.79
+
+1 . 1 ::;
+
+5 . :3:::
+.- .- 9
+r, . t, ,”
+
+1-1
+- . 55
+- .[I. .34
+
+-7
+i . 5 0
+
+III . 1 :::
+
+----Rfl1.J
+
+TOP
+::.::,_..’
+‘.,.’1:
+4 . Ty:f:
+74s
+
+I::----
+
+IGENERATOR
+F ,,..’F 13
+1 . III2
+
+_ --
+
+l, I ~ :r: ‘5
+
+km. 2:5
+
+111. 42
+
+.7 , c, III
+
+III . 1 :3
+
+----FfJljl
+
+ri0 GENERHTORI.
+I_
+.I2’.I,,.I.-,
+,.‘.,
+.I,
+
+5.21
+
+F/.F;~
+III . 5 7
+
+TOF
+I,,I..”I,,,I.I.
+7,
+,...,
+7i . .c; I-l
+_
+
+II----
+
+~GEIJEF:ATUl?
+F ,,.iF 1::
+[I . 1:3
+
+----~~I.,1
+
+TOP
+::.:I,i I,I_I.-,
+.:I
+7i.-- 5 l-l
+
+E----
+
+GENERATOR
+,3/F’:~
+I:l . 1 :::
+
+TABLE 16 P/P3 20 DEG AFT BODY SUBSTITUTE
+7L.. _..‘.,.’1:I
+_ . 1::11:8
+-. 459
+1 . :I:;?:2
+
+NO GENERFtTOR
+F ,,...F’ 11;
+.-,.-,
+. c2 1
+. 153
+. [I’37
+
+BOTY
+GEt’iEF:ATOR:5:
+::.:I,...’“I’ 1:;
+‘-8
+(’ ._I
+._I. -c
+4. 7’3
+
+GAS 2
+TUF GEMEl?ATOR
+F ,,..’F 13
+. 14:::
+. ‘5
+.1 1 83
+
+. 13 1’: :I;
+
+. 13 A q
+
+-1
+
+. ;>&
+
+.11:14
+
+-.
+
+49!=l
+
+. III ‘3 4
+
+62
+
+F’./‘F:~
+1 . :3 [I
+
+- t-0
+l-l . :-;
+
+of the nozzle exit and, when scaled by P5 and compared to the scaled pressure without the separators, did not show any significant changes. Note that the active gauge
+area is large compared to the wake for this X/Y,
+Cowl pressure measurements
+nozzle separators.
+
+However,
+
+location.
+
+were attempted using the combustion gas with
+
+the first
+
+run in this configuration
+
+had a very large
+
+ignition delay and all of the gauges were destroyed without yielding useful data.
+were the only gauges provided in this pressure
+
+These
+
+range and we could not continue with
+
+this measurement.
+IMPACT
+
+PRESSURE MEASUREMENTS
+
+We were unable to obtain meaningful
+
+impact pressure
+
+measurements
+
+because of
+
+the large size of our probe relative to this nozzle. We suggest future free-stream
+measurements of this type be made with a Laser Doppler Velocimeter system, since
+it does not require
+
+a probe which disturbs
+
+the flow.
+
+HEAT TRANSFER DATA
+Distributions
+
+of heating rates for both substitute
+
+gas and combustion products on
+
+the 20’ afterbody show fairly good agreement with the turbulent predictions calculated
+for us by NASA using the program of Price and Harris (Ref. 11). All runs made with
+combustion products burned out many heat transfer
+rates gave rise to gauge temperatures
+to the gauge.
+
+Gauge destruction
+
+gauges because the high heating
+
+high enough to melt the solder holding the leads
+
+was particularly
+
+bad close to the nozzle exit for the
+
+0’ afterbody case, and in areas where the cowl and or side shock crossed the model.
+Even in cases where a gauge was destroyed by the run, useful measurements were
+obtained as long as the gauge was intact for the greater part of the test time.
+high attrition
+
+rate curtailed
+
+The
+
+our testing of the 0’ afterbody with combustion gas; how-
+
+ever, enough points were taken on the 0’ afterbody to show the cowl shock location
+and to supply an increased basis for correlation
+
+of heating rates between combustion
+
+and substitute gases.
+All of our testing was performed at a single Reynolds number, matched to the
+flight of a vehicle with a nozzle height of 30.5 cm (1 ft), for Mach 6 flight at a nominal altitude of 24,207 m (79,400 ft).
+
+Our tests were 1/20th scale.
+
+Because the
+
+Reynolds numbers are matched and the gas properties and Mach number distributions
+are matched for the combustion case, one can expect measured Stanton number (i.e. 9
+
+#q/pu A T) to be the same as flight if the ratio of wall temperature
+temperature
+
+is matched (Ref. 1).
+
+Wall temperature
+
+effects will be discussed below.
+
+For matched Stanton number (in the high Mach number,
+of interest)
+
+one calculates
+
+to flow total
+
+high gas temperature
+
+cases
+
+flight absolute heating rates by dividing measured model
+
+heating rates by the ratio of flight to model dimensions to correct for the density
+This is because Reynolds number invariance requires the product P D to be
+ratio.
+invariant
+
+between model and flight.
+
+In order to show a comparison
+levels shown in Figs.
+normalized
+diction.
+
+between substitute
+
+and combustion gas data, the
+
+74 and 62-78 are levels measured on the model which have been
+
+by 388 Cal/cm2 set for the combustion data and the Price and Harris
+
+The substitute gas data have been normalized
+
+by 2.71 Cal/cm2 sec.
+
+pre-
+
+The
+
+388 Cal/cm2 set value was chosen as a convenient scale factor while the 2.71 cal/cm2
+2
+set value was computed from the 388 Cal/cm set divided by an average of combustion
+data points, multiplied
+
+by an average of substitute data for the same locations.
+
+Figures 62-66 show the distribution
+
+for the 20’ afterbody with no generator.
+
+The agreement between the combustion data and prediction
+the expected accuracy of heat transfer
+heating predictions
+scaling used).
+
+data in this range and the nature of turbulent
+
+The substitute gas data agree with both the combus-
+
+in general.
+
+tion data and the prediction
+
+in shape (the average levels are forced to agree by the
+
+Heat transfer
+
+distributions
+
+tor are given in Figs. 67-71.
+
+for the 20’ afterbody with the cowl genera-
+
+In this case the solid curve is intended for reference
+
+only since it does not consider any shocks.
+prediction
+
+is quite good considering
+
+The arrival
+
+of the cowl shock for the 2-D
+
+(K = 5.63) is very close to the substitute gas arrival
+
+(y = 5.68) and some-
+
+what ahead of the combustion gas arrival
+
+(?%= 5.87).
+
+for the 20’ afterbody indicate a “merging”
+
+of the cowl and side shock at their inter-
+
+section.
+
+The intersection
+
+In Figs. 72-75 the distributions
+
+of these shocks (Fig. 73) gives rise to the highest com-
+
+bustion gas heating rate measured on the 20’ afterbody model (1358 Cal/cm2 set).
+The heat transfer
+tion X/Y,
+
+data for the 20’ afterbody are presented in tabular form as a func-
+
+in Tables 17 and 18.
+
+The heating rates for the 0’ afterbody obtained in both substitute
+gases appear in Tables 19 and 20.
+
+Data for the 0’ afterbody with the combustion gas
+
+are somewhat sparse due to the aforementioned
+the cowl shock impingement
+
+and combustion
+
+gauge destruction
+
+problems.
+
+However,
+
+location for the combustion case is again seen to be aft
+
+64
+
+Y
+[3
+
+t
+
+;:
+
+...,__..
+i b,.,..i i .._.i i-..-...
++_..-,.
+f .._j f
+i: ; in;
+; i ii :: !: :
+
+:
+/
+;
+j ,, _...;_........
+t... t
++. ;...
+;
+i
+i
+j
+t;,;;
+;
+j
+. ..i
+i. ...t
+j .““,. ;...
+:
+/
+: ,i
+:
+,... ,.
+_. ...i. .h.
+1i
+’
+.A... ,._
+
+_
+
+/
+/
+~......i ,....,.,.!’ .,...../
+1;;;
+.!...o....j. i.. _-j
+j
+:
+:
+/
+/
+:
+:
+.i.
+i
+.:
+
+1;-?+-i
+A
+
+i
+
+I,
+
+,
+4
+
+I,
+
+I
+
+..:... .... ..
+:
+(
+
+I
+
+:
+,
+10
+
+i .._...
+.+....+.-~
+i; :i !i
+
+:
+i
+f
+i... +........
+ii;
+f
+I... ..,.;j ...i
+;
+/
+;
+/
+,.,. ;.
+(
+i
+i
+i
+:
+,,,
+_j
+;
+: ...T
+j
+:
+;,
+
+i
+
+1
+12
+
+:
+I
+
+i
+I
+
+I
+
+X/Y3
+
+Fig. 74
+
+Heat Transfer Rate Distribution,
+Top and Side Shock Generators,
+
+20° Afterbody,
+Row C
+
+with
+
+Fig. 75
+
+Heat Transfer Rate Distribution,
+Top and Side Shock Generators,
+
+20° Afterbody,
+Row D
+
+with
+
+65
+
+r
+
+Fig. 76
+
+Reflection
+(Combustion
+
+Fig. 77
+
+Plane Normalized
+
+Heating Rates (Q/QA),
+
+Data Above Substitute
+
+20’ Afterbody,
+
+No Shock Generators
+
+Data)
+
+Reflection Plane Normalized Heating Rates (QlQA),
+(Combustion Data Above Substitute Data)
+
+66
+
+20” Afterbody,
+
+with Top (Cowl) Shock Generator
+
+‘r
+
+Fig. 78
+
+Reflection
+(Combustion
+
+Plane Normalized
+
+Heating Rates (Q/QA),
+
+Data Above Substitute
+
+Data)
+
+67
+
+20° Afterbody,
+
+with Top and Side Generators
+
+\TABLE 17 Q/QA 20 DEG AFT BODY COMBUSTION GAS
+‘(QA = 388. Cal/cm2 set)
+----RlJ1.I.l
+
+TUF’
+‘.,C
+,..,1,.’LI.I.-I
+.z
+
+A----
+
+GENEl?YTOR
+I;! ./ I:! fi
+
+BGTH
+GENERHTORS
+I _C’
+.,..a.-,
+;:.:,
+, .z,
+
+I:! ...‘.I;! jq
+
+‘1,
+c.-, :’
+.1 . ._I.
+
+I:1. I5 1
+
+.5 . 1 I:1
+
+[I . 5 ij
+
+5 . 1 I:1
+
+[I.
+
+‘; . :3:2
+
+[I.
+
+5 . 1 III
+
+0.51
+
+7.45
+
+1. 19
+
+.y . 88
+
+[I.
+
+‘3 . r:l 1
+
+r:r . 7r:I
+
+7.45
+
+I:1, 5 ‘3
+
+‘3 . <I 1
+
+[I.
+
+45
+‘3.5
+:3y
+
+E:lIlTH GENEFHTOF’S
+L,.’
+,..,..’.. 8.,z.-,
+.z,
+
+4.51
+
+----RG1.l.l
+
+TIJF’
+‘..1
+.. ‘.,.’:II
+,..,..’
+
+II----
+
+GENEFRTOP
+IQ_.‘.il.!fi
+
+4.71
+
+1-1
+_ . !=I
+- I-I
+- .7,-s
+l-l . .:I 1”
+1 . 2’3
+[I. 72
+
+5.4’3
+.- .-,-,
+b . c i’
+7.45
+
+----/7~l.,J
+
+TOP
+I:,:;,./ ‘.,.’:3
+
+E----
+
+GENEFATUI?
+I;! ./” Q H
+
+5.11:l
+
+I-) . 5 &
+
+5 . :=::z:
+,- .- .t, . t,t,
+
+III . 4:::
+I:1 . 5 :3
+
+68
+
+71
+
+Q ./ Q fq
+
+‘> ‘A
+E;
+._. . L _.
+.t, . 13:::
+
+l-l
+- . ryl:>
+0. 54
+‘-,
+._I . !fl [I
+
+7.45
+
+[I . f:‘?
+
+TABLE 18 Q&A
+
+20 DEG AFT BODY SUBSTITUTE
+
+GAS
+
+(QA = 2.71 Cal/cm2 set)
+
+---BOTH
+I~E~‘~E~?HTOR:~:
+‘-,
+,.t.r.,2...c,.’._I
+Q ..,” I;! H
+
+TOP
+I..’,._.‘.,.’1”
+,...,
+.zm
+L . ‘2
+_.c.J
+.I, -i .-,
+_
+._.I. I ._I
+
+‘> . ‘35
+,_
+
+[I . :3 1
+
+.--, . -i’ .J
+._I
+.-,
+
+l..l . :3 5
+
+4.51
+CI. 2’3
+..?a . I):3
+
+4.51
+
+I:1. !ffl
+
+5._ . 2’3.k# . l:l:T’
+
+1.4s
+
+7.45
+
+7.45
+
+i.1. ,315
+
+----plJIJ.l
+
+TOP
+I:.::..... ‘.I.’2,
+
+E----
+
+GENERHTCIR
+I;! ..r Q H
+
+.co. E,T
+
+[I.
+
+7.45
+
+l-l . 5 ‘3
+
+69
+
+4:3
+
+[I.
+
+$4
+
+TABLE
+
+19 Q 0 DEG AFT BODY COMBUSTION GAS
+
+----F;nlj,!
+
+iI:----
+
+TEIF’ r,ENERHTi-lF?
+::.x:
+,.... 8.I.I--I
+1::R L
+.:r
+5 . [I I:1
+
+::: 6 7 . [I [I
+
+5 . :3:::
+
+E, 1 ‘3 . III I:1
+
+1
+
+1 ::: r:r . [I [I
+
+7i.7
+
+----RlJljl
+
+II----
+
+TOF’ GEr-iERATClR
+,.:...a
+.,./... 2.,.’.3
+.-I
+CAL
+
+7.0
+
+4.137
+
+42
+
+;. 2’1
+.iy,. 2:5
+
+36r:l.
+
+1 . I:1[I
+[I[1
+
+2’:37.
+
+[ICI
+
+TABLE
+
+Pi0 I~ENEF’ATORS
+‘...’
+; _,...”“(’13
+2 . 5 I:1
+.-,’ .-, .--,
+.-a , .:a ._.I
+
+4.17
+5 . I:l I:l
+.T . :i::>
+#7
+
+.7
+
+1
+
+20 Q 0 DEG AFT BODY SUBSTITUTE
+
+l”HL
+.-I
+97
+3 . _. I
+.-I
+-7,~,-
+
+$1;;
+2 . -,.’ ~.-,
+1 ~ lg,8
+
+L
+
+-
+
+1-l . ‘3:::
+
+71
+
+GAS
+
+of the location given by both 2-D prediction
+
+and the substitute gas, as was the case
+
+with 20’ afterbody.
+The same merging of shocks, as with the 20’ afterbody,
+indicated by the data.
+
+is
+
+As can be seen from all of these data, the heating rates in the combustion proFor the 20’ afterbody shock free case (the configuration
+
+ducts are very high.
+closely resembling
+
+the actual flight article),
+
+most
+
+calculated heating rates in the vicinity
+
+of the nozzle exit are on the order of 300 Cal/cm2 set (53 BTLJ/ft2 set) on a full
+scale vehicle.
+
+Corresponding
+
+zero degree model rates (6000 Cal/cm2 set) are too
+
+high to measure. Near the intersection of the shocks from the cowl and side genera- 3
+brs tie rates go as high as 1358 Cal/cm2 set on the model, or 68 Cal/cm2 set on the.cle.
+full scale vehicle.
+NOZZLE
+
+SEPARATOR WAKES
+
+In order to study the effect of nozzle separators
+a series of experiments
+
+was made using the no. 2 substitute
+
+The first of these experiments
+extablish
+
+a basis for comparison.
+
+Heat transfer
+
+Fig. 79a, show a depression
+
+These data, when plotted against Z/Y,,
+
+of heating rates for both gases toward the nozzle corners.
+
+flows and are probably responsible
+
+formed by nozzle corner
+
+for the early departure from 2-D behavior noted
+
+(Ref. 2).
+
+The flow on the internal
+
+nozzle side wall is generally
+
+the flow on the floor at the same streamwise
+sonic flow, there must be a crossflow
+layer,
+
+station.
+
+on the afterbody are therefore
+exit.
+
+at a higher pressure
+
+leakage in the streamwise
+
+corner boundary
+
+The surface streamlines
+
+likely to be inclined toward the centerline
+
+at the span-
+
+Since the Mach waves emanating from the ends of
+
+the nozzle side walls travel relative
+
+to the local streamlines,
+
+this process could produce the observed reduction
+
+it seems likely that
+
+in pressure below the two-dimen-
+
+sional case ahead of the Mach wave emanating from an undeflected streamline.
+postulate is reinforced
+the two-dimensional
+lateral
+
+than
+
+When this occurs in a super-
+
+from the sidewall out across the floor of the nozzle.
+
+wise corners of thenozzle
+
+in order to
+
+data were obtained at locations closer
+
+We believe that these depressed rates indicate vorticies
+= 8 experiments
+
+distribution
+
+and combustion gases.
+
+was made without the nozzle separators
+
+to the nozzle exit than in the previous work.
+
+in our M,
+
+on the heat transfer
+
+This
+
+by the behavior of tests with extended side plates,
+
+in which
+
+region was extended by the plates, but the infiltration
+
+of the
+
+expansion was much more rapid at the end of the extended plates than it had
+
+been for the case of the nozzle alone.
+
+In this case the corner crossflow
+
+72
+
+would get
+
+-.....;
+
+.._..-.;
+
+. . . . ..-.
+:
+
+:
+
+.-.-._.;
+
+-....._;
+
+. .._.._.
+
+:
+
+i
+
+I
+I
+
+J
+4
+
+D,
+
+I
+
+r,
+
+I
+
+3
+
+I
+
+1
+
+1
+
+1. L
+
+!
+
+I
+
+I
+
+,
+
+:
+
+:
+
+1
+
+I
+
+I
+
+I
+
+I
+
+:
+I
+
+-. 4
+
+.4
+
+:
+I
+
+1.2
+
+Z/Y3
+
+Z/Y3
+Fig. 79 Heat Transfer Rate Distribution,
+
+20’ Afterbody,
+
+Q/Qc,
+
+vs. Z/Y,
+
+. . .._-_.
+
+.._....;
+
+. . . .._..
+
+__.....
+
+much stronger
+
+along the plates because the floor (afterbody ramp) pressure
+
+is
+
+greatly reduced by the 20’ turn at the nozzle exit.
+The data without separators
+
+also show a difference
+The difference
+
+and combustion gas heating rates.
+of gauges at X/Y,
+
+= 0.781,
+
+of heat transfer
+
+instrumentation
+
+is apparent in Fig. 80 for the row
+
+a location just aft of thenozzle
+
+exit.
+
+Price and Harris
+
+thought on this phenomenon was that we had vibrational
+
+combustion gas so we made calculations
+in vibration
+relaxation
+
+row
+
+of that effect.
+
+freezing
+
+prediction.
+
+Our
+
+of N2 with the
+
+Although the amount of energy
+
+is probably enough to account for the effect (30% of the gas enthalpy),
+time for N2 in the presence such large quantities
+
+The relaxation
+
+the
+
+of H20 is not long enough.
+
+time would have to be on the order of 10~ set rather than the calculated
+
+levels of 2 B set).
+difference
+
+For this first
+
+the combustion gas heating rates are lower than
+
+either the No. 1 substitute gas rates or the turbulent
+first
+
+between the No. 2 substitute
+
+A second explanation of the observed data is that there is a
+
+in the tendency toward relaminarization
+
+under the influence of the strong favorable pressure
+
+of the turbulent boundary layer
+gradient at the intersection
+
+of
+
+the nozzle exit and the 20’ afterbody.
+Several authors (Kearney,
+of incompressible
+gradient.
+
+et al, Ref. 12) have found that the Stanton number
+
+flows is reduced markedly
+
+Kearney,
+
+by local zones of favorable
+
+et al, show that the reduction
+
+is truly
+
+local,
+
+pressure
+
+in that for the case
+
+they studied the Stanton number returned rapidly to the flat plate level (as if there had
+been no upstream favorable
+gradient was again zero.
+tion gas relative
+tion parameter
+
+gradient section) downstream
+This behavior is remarkably
+
+of point at which the pressure
+
+similar
+
+to that of the combus-
+
+to the substitute gas, the accepted critical value of the relaminariza-v dp
+(K =u3p --d-x-)is 3.7 x 10-6. This was established by S. Kline in
+
+1967, since endorsed by many (e.g.,
+
+Ref. 12). At this critical
+
+value the “violent
+
+eruptions away from the wall near the edge of this viscous sublayer ceased when
+K =3.7~10-~.~~
+
+Even at values less than critical,
+
+skin friction
+
+levels have been shown to drop well below their corresponding
+
+and heat transfer
+flat plate levels (Refs.
+
+12, 14).
+Three new questions are posed by our measurements:
+compressibility
+
+on relaminarization
+
+change in pressure
+
+level,
+
+1) what is the effect of
+
+criteria?
+
+2) what is the effect of an impulsive
+rather than a finite section of finite pressure gradient?
+
+3) what is the effect of cooling or relaminariza.tion?
+
+74
+
+Without pretending to answer
+
+RflW II ND GENERATClR
+A
+
+COMBUSTION
+SUBSTITUTE
+
+GAS # 2
+
+TURBULENT
+
+PREDICTION
+
+.a.-..&
+, ..........~.................c.....-...-...................~......-..............
+0 :$
+:
+::
+I
+I
+z
+
+I
+
+I
+6
+
+4
+
+X/Y3
+Fig. 80 Heat Transfer Rate Distribution,
+
+20” Afterbody,
+
+Q/OA vs X/Y3
+
+(HARRIS)
+
+these questions,
+
+we do know that there is ample precedent for cooling of high Mach
+
+number boundary layers delaying transition,
+
+which is also a phenomenon related to
+
+the bursts of turbulence
+
+We also know that the similitude
+
+referred
+
+to above.
+
+quirements
+
+of our testing ensure that K is invariant
+
+combustion
+
+and substitute gases, because K can be written
+
+among all three cases: flight,
+as
+
+d (p/q)
+
+K=L
+
+d (X/D)
+
+Re
+
+In view of the above discussion,
+reduction
+
+re-
+
+it is reasonable to postulate that the substantial
+
+in heating rate at the start of the afterbody expansion seen for the combus-
+
+tion gas is primarily
+
+due to the effect of wall cooling in enhancing the proven ability
+
+of favorable pressure
+
+gradients
+
+in reducing turbulent
+
+probably due only in small part to slow relaxation
+the water vapor concentration
+
+transport
+
+phenomena.
+
+of N2 vibrational
+
+It is
+
+states, because
+
+is high enough to make that process more rapid than
+
+the observed decay.
+
+These postulates should be verified
+
+correct
+
+understanding
+
+of cause and effect will have a large effect on the required
+
+thermal
+
+protection
+
+on a scramjet
+
+nozzle sections.
+
+the exit density.
+
+has the effect of reducing the area ratio of
+
+This in turn increases
+
+All plotted separator
+
+to exit plane density with separators
+
+can be made to the experiments
+
+without separators.
+
+data have not been adjusted to account for this effect.
+change in area ratio is different
+
+the exit Mach number and lowers
+
+heating rates have been scaled upward by the
+
+ratio of exit plane density without separators
+that comparisons
+
+for the individual,
+
+value without separators
+
+are increased
+
+for this configuration.
+about 20% over their
+
+while the center line values are decreased by nearly 20%.
+
+The depression of centerline
+returning
+
+For instance,
+
+The data in Fig. 79b show
+
+versus spanwise distance (Z/Y,)
+of the separators
+
+The tabulated
+
+placed to divide it into three
+
+sections has a density 18% lower than the outer sections.
+Heating rates just downstream
+
+so
+
+It should be noted that the
+
+nozzle channels.
+
+the center section of the nozzle with the separators
+the heating rate distribution
+
+as the
+
+afterbody.
+
+The addition of nozzle separators
+the individual
+
+by future testing,
+
+rates disappears
+
+after X/Y,
+
+= 2.35, with heating rates
+
+to values at or above the rates with no segments.
+
+Fig. 81 a, b, c shows the heating rate distribution
+nozzle separator
+
+for one nozzle separator.
+
+heating rate at the respective
+
+versus Z/Y,
+
+relative
+
+to
+
+These data are scaled by the centerline
+
+values of X/Y,
+
+76
+
+with no nozzle separators.
+
+They were
+
+HEATING RATE VS SPANWISE
+FROM SEPARATOR
+
+X/Y3=1.
+26
+:
+: i
+: :
+r.-.+......+....&..-+
+.
+.
+.
+.
+..r......L.....-~..-....~......~-......
+: :: : i: :: 1I...-.........+......+.m.....
+In. ...-.f......*.-....+......v......+......J.
+I I
+VI : :: i,
+r......;.......*......+...&.-4 ......t .....-j....-..i ......i .......
+:
+i
+: 0......+-.............+..m...<
+: I
+N.m--;.......+......+......+...~..+....~.&
+&A!
+c: -+".....f&...g$.
+...-..+..."I ......i .-.-& -......;...--..
+tan
+_.....,
+2' L.....t;.....-$;......4;.......i.......+:i ..."~A.~ ...._.;.a..i
+; i
+1-m...
+-;.I.....+-...-.w.........-....+_....-;.-.--.-;
+.--.-..;
+...---.\......-.
+; i
+
+COMBUSJ-ION
+
+GAS
+
+SUBSTITUTE
+
+GAS # 2
+
+i
+
+i
+i
+4 . . . . . . r -.-.
+:
+i
+
+DISTANCE
+
+w
+
+t.
+
+.
+Ii
+
+:
+. . . . . . . . . . . ...+.-..-.+..
+
+o
+
+:
+--.-:.......4......~.......~.
+
+: :
+i i:
+
+.
+
+L
+
+:
+
+:
+
+:
+
+:
+
+i
+
+-
+
+. . . .._.
+
+r
+
+i
+
+i
+
+-*
+
+:
+
+:
+
+t
+
+:
+1
+
+.*
+
+j
+
+I
+I
+
+1.
+
+. .-_
+.
+
+I
+
+:
+
+:
+
+4
+
+'
+.....;......r.......
+
+. .._..
+
+.--.--;.-.--..,..-.---;----...~--.---.--.--;.-.--..,..-.---;---...~--.----.
+
+:
+
+.
+
+:
+
+: : : I
+i: i 11
+:
+
+. . . . . l . . . . . . . & . . . . . . . . . ..___.
+
+i
+
+:
+
+:
+.-..-..c....--:.--..--;
+:
+
+I
+.-.....
+
+:
+
+_.- ! . . ..-..-.--.-.
+:
+,
+_~:..-_._.
+
+I
+:_......
+_)
+
+v . . . ..-. -......
+
+___-..-
+
+$
+
+20’ Afterbody,
+
+;
+
+~.._._._;
+
+J/Y3
+
+Fig. 81 Heat Transfer Rate Distribution,
+
+I
+I
+I
+:
+:
+;
+. . ..v......Y..-...r...e..~.......
+:
+I
+
+:
+I
+
+j
+1
+
+L
+
+:
+
+I
+:
+y...--.,m.-.--.r.I
+.
+:
+
+I
+
+Q/QcL vs z/y3
+
+;
+
+:
+:
+:
+-.;-..---(..--.-c.....-~.......
+
+*.- ..-..
+
+;-- . . . . . . ..m.....,
+:
+
+taken by moving the separator
+
+to several slightly
+
+the fixed gauge locations could be at different
+
+different
+
+spanwise locations,
+
+displacements
+
+so that
+
+from the separator.
+
+For
+
+these tests the density at the exit of each nozzle section is different, causing the wake
+to turn in the -Z/y3 direction so it is not surprising that the heat transfer rates in
+the separator wake regions are not symmetric.
+
+The data at X/Y,
+
+= 2.35 show a definite structure
+
+heating rate between 20 and 40%
+
+with a maximum
+
+= 1.76 and X/Y,
+
+higher than the centerline value. The data at X/Y, = 0.781 do not show a clear-cut
+structure, but are depressed below their levels without separators.
+These observations imply that the wake region is very narrow relative
+locations and broadens downstream
+tion (see previous discussion
+
+to a resolvable
+
+width at the gauge spatial resolu-
+
+under Instrumentation
+
+in section 2).
+
+The observed peaks of the heating distributions
+location but further
+
+to the nozzle side.
+
+or may be an artifact
+surements
+
+a strong streamwise
+separators,
+
+are not always at the separator
+
+This shift may be caused by the wake turning
+
+of the spatial resolution.
+
+show a rapidly varying
+
+to the gauge width at upstream
+
+The important
+
+point is that the mea-
+
+level of heating; a structure
+
+that is consistent with
+
+vortex (or vortex-like
+
+crossflow)
+
+along the root corners of the
+
+spreading slowly as it passes out over the afterbody surface.
+
+In order to investigate
+
+the effect of trailing
+
+edge bluntness one separator’s
+
+trailing
+
+edge was ground off so that it was 0.508 mm wide, i.e.,
+
+4 times the initial
+
+width.
+
+Figure 82 shows these data plotted against Z/Y,
+
+to the separator
+
+position and normalized
+
+as before.
+
+At X/Y,
+
+relative
+
+of 1.56 the wake structure
+
+more pronounced than for the same location with the thin trailing
+X/Y,
+
+= 2.35 the rates are lower than in the previous case.
+
+is due to a wake that is wider relative
+2.35 may be an indication
+
+to the gauge size.
+
+that the maximum
+
+relative
+
+is slightly
+
+edge, while at
+
+The first
+
+observation
+
+The lower rates at X/Y,
+
+=
+
+heating rate now occurs further
+
+upstream which would also be a function of increased wake size.
+
+The data at X/Y,
+
+=
+
+0.781 are also lower in this case and it not as logical to assume that this is caused
+If the boundary
+by a blunt trailing edge. This effect is probably a relaminarization.
+layer is on the verge of relaminarization
+any small stabilizing effect could cause it
+to relaminarize.
+The heat transfer
+functions of X/Y,
+
+data for these nozzle separator wake tests are tabulated as
+
+in Tables 21 through 24.
+
+X/Y3=.781
+
+0. SUBSTITUTE
+0 BLUNTED
+
+GAS # 2
+NOZZLE
+
+SEPARATORY
+
+‘HEATING RATE VS SPANWISE
+FROM SEPARATOR
+
+DISTANCE
+
+X/Y3=1.26
+
+1
+I
+I
+:
+
+:
+
+.; ___._..:
+
+.-.....~......;......,~......~....-..~.....
+
+a
+
+i
+2
+
+i
+-1. d
+
+i
+
+j
+
+4
+
+!
+1
+
+-* T/Y3
+
+:
+
+.4
+
+i
+
+i
+
+i
+
+l.i!
+
+Fig. 82 Heat Transfer Rate Distribution,
+
+q
+
+i
+L
+z
+
+I
+L
+
+i
+4
+
+i
+L
+
+4
+
+-1. c
+--
+
+20’ Afterbody,
+
+I
+L
+
+i
+4
+
+7fY3'
+
+Blunted Separator, Q/C+,
+
+vs. t/Y8
+
+. . . .._..
+
+*......;
+
+. ..-.-..
+
+:
+
+i,
+
+;
+
+i
+Id
+
+2
+
+l
+
+---+y.d
+
+E----
+
+----Rm.i
+
+I::----
+
+----F.ln1.l.l
+
+II----
+
+----f?nl.,.l
+
+E----
+
+80
+
+I:l . lg. 1
+Ii_ . .5
+- F_I
+0.44
+
+1 . [I:3
+III . 74
+0 . 74
+
+I:l . F: 1
+III . 7 7
+I:l . 8 1
+[I.
+
+81
+
+43
+
+TABLE
+
+23 Q/QA COMBUSTION GAS
+
+82
+
+TABLE
+
+24
+
+HEAT
+
+TRANSFER
+
+RATE
+
+SUBSTITUTE
+
+GAS 2
+
+COWL SHOCK IMPINGEMENT
+The calculation
+
+LOCATION
+
+of the cowl shock impingement
+
+location showed very little change
+
+The data in Fig. 83 show the heat transfer
+
+with gas composition.
+
+distributions
+
+for
+
+both substitute gases with the cowl shock generator.
+
+These data agree with the calcu-
+
+lations and show essentially
+
+It should be remembered
+
+the same shock location.
+
+the No. 2 substitute gas experiments
+
+that
+
+were made with an extended nozzle side to in-
+
+crease the 2-D region and that this accounts for some of the apparent scatter.
+As a result of those experiments
+
+and the calculations
+
+it is apparent that the aft
+
+cowl shock location for the combustion gas is caused either by a relaxation
+(about 1~ set of relaxation
+
+time required)
+
+Which of these two candidates is correct
+tion gas temperature
+
+effect
+
+or a shock boundary layer interaction.
+could be determined
+
+to see if the cowl shock impingement
+
+by changing the combus-
+
+location moves.
+
+Explaining the difference in shock location between combustion and substitute
+gases is important, even though it is small in magnitude. We must understand the
+limitations
+
+of the substitute
+
+ment testing.
+
+Since it is clear from the above that the differences
+
+small differences
+equilibrium
+
+gas method if it is to be used with confidence in develop-
+
+in substitute
+
+gas properties,
+
+effects for their origin.
+relaxation
+
+has a well characterized
+
+pressure
+
+but it is also possible that there is an
+
+time in the combustion gas that is not present
+
+The impingement
+
+in the substitute gas.
+
+we look to boundary layer and non-
+
+We believe the answer lies in the effect of wall
+
+cooling on shock boundary layer interaction,
+effect of finite vibrational
+
+are not due to
+
+of an incoming shock on a boundary layer
+
+distribution,
+
+the streamwise
+
+pends on the boundary layer and shock characteristics.
+
+extent of which de-
+
+The difference
+
+in wall cooling
+
+between substitute and combustion gas would act to make a separated zone around the
+impingement more compact in the combustion case by increasing the density in the
+separated zone.
+
+The pressure
+
+and heat transfer
+
+as far upstream as in the substitute gas case.
+the shifts in position of the heat transfer
+are small compared to the streamwise
+
+rises would thereforenot
+This explanation
+
+rise between combustion
+
+is plausible because
+and substitute gases
+
+distance over which the rise takes place.
+
+though the cooling effect on separated flows has been observed in previous
+tions of cooled separating flows at high Mach number (e.g.,
+it is quite speculative
+
+in this case.
+
+the wall delayed separation
+
+extend
+
+Kaufman,
+
+Kaufman,
+
+investiga-
+
+et al, Ref. 13),
+
+et al, found that “In general,
+
+cooling
+
+and reduced its extent, except when the cooling was
+
+84
+
+Al-
+
+:
+v-’
+
+. . . ..-.........-.............~..-................-.........
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+..-....-........~
+
+.
+
+.._......_.I.
+
+0
+
+SUBSTITUTE
+
+GA’S #l
+
+0
+
+SUBSTITUTE
+
+GAS #2
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+. .
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+-TURBULENT
+PREDICTION
+HARRIS (DOES NOT
+ACCOUNT FOR SHOCK1
+---SHOCK
+LOCATION
+MOC PREDICTION
+
+2D
+
+;
+I
+I
+:
+:
+:
+I
+:
+.____.......__._.....-.....-.-............................
+
+:
+
+I
+1L
+
+Fig. 83 Heat Transfer Rate Distribution,
+
+20” Afterbody,
+
+with Top (Cowl) Generators, All Rows
+
+i
+
+sufficient
+figuration
+
+to change the character of the boundary layer. ” Their tests were for a convery similar to the present shock generator,’ so the probability also exists
+
+that some of the shift in shock location is attributable
+
+to the shock generator boundary
+
+layer interaction.
+
+6.
+
+CONCLUSIONS AND RECOMMENDATIONS
+
+The detonation tube has provided a good simulation
+hydrogen/oxygen
+distributions
+
+scramjet
+
+of the exhaust flow from a
+
+engine at a free stream Mach number of 6.
+
+Pressure
+
+obtained on a cowl and afterbody model with the flow of simulated
+
+com-
+
+bustion products and the flow from a substitute gas mixture of 50 percent Argon and
+50 percent Freon 13Bl were in good agreement in the two-dimensional
+regions of the
+flow.
+Extensive heat transfer measurements were in very good agreement with theoretical calculations for a turbulent boundary layer.
+This is in contrast to our measurements at the M oo = 8 flight condition
+with laminar
+
+(Ref. 2), where the measurements
+
+boundary layer calculations.
+
+The extremely
+
+sured in the present tests should be well noted.
+full scale Reynolds number and total enthalpy,
+
+compared well
+
+high heating rates mea-
+
+Because these data were obtained at
+they can be directly
+
+scale vehicle values by dividing by 20, the model scale factor.
+
+converted to full
+
+They show full scale
+
+heating rates the order of 18 Cal/cm2 set at a distance of 3 combustor
+
+exit heights
+
+downstream of the combustor exit on the 20’ afterbody (as close to the exit as we
+measured) and close to 70 Cal/cm2 set further downstream where two artificially
+generated shocks crossed.
+
+Because the actual scramjet
+
+engine modules and the module separators
+we recommended
+to determine
+
+additional testing,
+
+will generate wakes and crossing
+
+more closely duplicating
+
+the effects of such disturbances.
+
+separator wakes do have significant
+
+vehicle will have several
+shocks,
+
+actual vehicle geometry,
+
+Our additional testing showed that
+
+effects on the afterbody heating distributions.
+
+There were local increases in heating rate as much as 60% above the centerline
+value with no separators.
+
+The peaks were strong gradients
+
+which must be accounted for in vehicle design.
+resolution,
+
+Furthermore,
+
+in the heating rate
+due to limited
+
+spatial
+
+the actual peak heating rates on gradients may be much higher than the
+
+indicated values.
+
+The experiments
+
+suggest that there are vertical
+
+86
+
+crossflows
+
+induced
+
+at the corners and that these are responsible for the large changes in the heating
+The combination of these vortices and the separator wakes make the
+distribution.
+actual vehicle afterbody heating distributions difficult to. predict.
+We recommend
+additional testing with a model equipped with heat transfer
+made to give high spatial resolution
+
+in both streamwise
+
+instrumentation
+
+specially
+
+and spanwise directions.
+
+The
+
+model should be close to the actual vehicle geometry as possible.
+The experiments
+
+performed
+
+tendency toward relaminarization
+
+under the extended contract suggest that a greater
+of the turbulent boundary layer occurs with rapid
+
+expansion of the combustion gas than with the substitute gas.
+probably caused by the stabilizing
+
+effect of the relatively
+
+The difference
+
+is
+
+colder wall in the combustion
+
+case. Additional experimentation and calculation along these lines could show the way
+to reduce the afterbody heating rates on the actual vehicle by confirming that this is
+the real cause of observed heating rate differences.
+One anomaly left unexplained by the first tests at M,=
+
+6 was the slight difference
+
+in the cowl shock impingement
+
+location on the afterbody for the substitute gas com-
+
+pared to the combustion gas.
+
+This particular
+
+substitute gas mixture
+
+cause it was the same as that to be used in a concurrent
+Langley Research Center,
+
+and our two-dimensional
+
+test program at the NASA
+
+M-O-C calculations
+
+it very closely matched the calculated flow field using equilibrium
+products.
+
+We recommended
+
+that additional calculations
+
+modified substitute gas mixtures
+
+was chosen beshowed that
+
+combustion gas
+
+and tests be made with slightly
+
+in order to bring the shock positions
+
+into more per-
+
+fect agreement.
+The results
+shock impingement
+
+of additional experiments
+
+showed that the cowl
+
+location is only very weakly related to the substitute
+
+tion.
+
+Therefore,
+
+angle.
+
+The aft arrival
+
+relaxation
+
+and calculations
+
+the anomaly is not caused by differences
+
+in pressure
+
+gas composiratio or shock
+
+of the combustion gas cowl shock must be caused by either a
+
+effect in the combustion gas or shock boundary layer interaction,
+
+which
+
+can differ in the two cases because of the wall cooling effect.
+We encountered a problem in this test program when we tried to measure impact
+(Pitot) pressures
+
+in the exhaust flows.
+
+brate the flow to further
+
+The purpose of the measurements was to caliverify the simulation technique. Basically, our probes were
+
+too large for the gradients
+
+and size of the flow fields and meaningful measurements
+
+87
+
+couldnlt be obtained.
+
+For diagnosing small flow fields such as these we would recom-
+
+mend that non-flow-disturbing
+velocimetry,
+
+instrumentation
+
+be used.
+
+88
+
+techniques,
+
+such as laser-Doppler-
+
+‘7. REFERENCES
+1.
+
+Foreman,
+
+Oman, R.,
+
+sonic Scramjet
+
+K. , Leng, J., and Hopkins,
+
+H., “Simulation
+
+Exhaust, ” NASA CR-2494, March 1975.
+
+2.
+
+Hopkins, H., Konopka, W., and Leng, J., “Validation
+Simulation Technique”, NASA CR-2688, June 1976.
+
+3.
+
+Dash, S. and DelGuidice,
+Dimensional
+
+Hopkins,
+
+P.,
+
+“Numerical
+
+of Scramjet Exhaust
+
+Methods for the Calculation
+
+Nozzle Exhaust Flow Fields, ” in Aerodynamic
+
+Advanced Computers,
+4.
+
+of Hyper-
+
+Analyses Requiring
+
+Part I, NASA SP-347, March 1975.
+
+H., Konopka, W.,
+
+Using Hydrogen/Oxygen
+NASA CR-128955,
+
+of Three-
+
+Leng, J., and Oman, R.,
+
+Gas Mixtures
+
+in a High-Pressure
+
+“Simulation
+
+Experiments
+
+Detonation Tube, ”
+
+1973.
+
+5.
+
+Ratliff, A., Smith, S., and Penny, M., “Rocket Exhaust Plume Computer
+Program Improvement, Vol. I - Final Report, Summary Volume, Method-ofCharacteristics
+Nozzle and Plume Programs, ” NASA CR-125601, 1972.
+
+6.
+
+Svehla, R. and McBride, B., “FORTRAN IV Computer Program for Calculation of Thermodynamic and Transport Properties of Complex Chemical Systems, ” NASA TN-D-7056,
+
+7.
+
+January 1973.
+
+Konopka, W. , “Heat Transfer
+
+Instrumentation
+
+for the Grumman Hypersonic
+
+Shock Tunnel, ” Grumman Research Department
+
+8.
+
+RM-287,
+
+July 1965.
+
+Hartunian,
+
+R.,
+
+and Varwig,
+
+Memorandum
+
+R.,
+
+“On Thin-Film Heat-Transfer
+Measurements
+in Shock Tubes and Shock Tunnels”, The Physics of Fluids, Vol. 5, No. 2,
+February 1962; also Aerospace Corporation Report TDR-594 (1217-Ol)TN-2,
+May 1961.
+
+9.
+
+Neer, M.,
+
+“Autoignition
+
+of Flowing Hydrogen-Air
+
+Vol. 13, No. 7, July 1975, pp 924-928.
+
+89
+
+Mixtures”,
+
+AIAA Journal,
+
+10.
+
+Gilbert,
+
+R. and Strehlow,
+
+Shock Waves”,
+11.
+
+Price,
+
+AIAA Journal,
+
+J. and Harris,
+
+similar-Boundary-Layer
+
+12.
+
+13.
+
+R.,
+
+J.,
+
+“Theory
+
+Behind Reflected
+
+Vol. 4, No. 10, October 1966, pp 1777-1783.
+
+Computer Program
+
+for Solving Compressible
+
+Equations for Laminar,
+
+Transitional,
+
+April
+
+Kearney,
+
+R. J. ; “Heat Transfer
+
+D. W., Kays, W. M.,
+
+Accelerated
+
+Turbulent
+
+Transpiration,
+
+‘I Int’l.
+
+Kaufman,
+
+and Moffat,
+
+Boundary Layer:
+
+L. G. II, Meckler,
+
+Vol. 3, Nov.-Dec.
+Blaskwelder,
+
+R. F.,
+
+1972.
+
+Some Experimental
+
+J. Heat and Mass Transfer,
+L. , and Hartofilis,
+
+Non-
+
+or Turbulent
+
+Flows of a Perfect Gas, NASA TM X-2458,
+
+Flow Separation and Aerodynamic
+
+14.
+
+of Detonation Initiation
+
+to a Strongly
+
+Results,
+
+Including
+
+Vol. 16, pp 1289-1305.
+S.A. ; ‘An Investigation
+
+Controls at Hypersonic
+
+of
+
+Speeds”, 5. Aircraft,
+
+1966, pp 555-561.
+and Kovasznay,
+
+L. S. G. ; “Large-Scale
+
+lent Boundary Layer During Relaminarization”,
+1, 1972, pp 61-83.
+
+90
+
+Motion of a Turbu-
+
+J. Fluid Mech, Vol. 53, Part
+
+I
+
+-
+
+.
+
+1. Report
+
+2.
+
+No.
+
+NASA CR-3003
+4.
+
+Title
+
+and
+
+Government
+
+Accession
+
+5.
+
+of Scramjet
+
+Exhaust
+
+Simulation
+
+7. Author(s)
+
+H. B. Hopkins,
+Performing
+
+W. Konopka,
+
+Organization
+
+Name
+
+and
+
+and J.
+
+Agency
+
+Catalog
+
+No.
+
+Name
+
+and
+
+Technique
+
+Report
+
+Date
+
+1979
+
+6.
+
+Performing
+
+Organization
+
+Code
+
+8.
+
+Performing
+
+Orgamzation
+
+Report
+
+10.
+
+Work
+
+11.
+
+Contract
+
+13.
+
+Type
+
+No.
+
+RE-547
+
+Address
+
+Unit
+
+No.
+
+505-11-31-02-00
+or
+
+Grant
+
+No.
+
+NASl-14152
+of
+
+Report
+
+Contractor
+
+Address
+
+National
+Aeronautics
+and Space Administration
+Washington,
+D. C. 20546
+15. Supplementary
+
+Recipient’s
+
+April
+
+Leng
+
+Grumman Aerospace Corporation
+Bethpage, New York
+11714
+12. Sponsoring
+
+3.
+
+1
+
+Subtitle
+
+Validation
+at Mach 6
+
+9.
+
+No.
+
+14.
+
+Sponsoring
+
+Agency
+
+and
+
+Period
+
+Covered
+
+Report
+Code
+
+Notes
+
+Langley Technical
+Final Report
+
+Monitor:
+
+James L. Hunt
+
+16. Abstract
+
+Current design philosophy
+for hydrogen-fueled,
+scramjet-powered
+hypersonic
+aircraft
+results
+in configurations
+with strong couplings
+between the engine plume
+and vehicle
+aerodynamics.
+This report
+describes
+the experimental
+verification
+of the scramjet
+exhaust simulation
+devised by Grumman Research.
+The scramjet
+exhaust was reproduced
+for the Mach 6 flight
+condition
+by the detonation
+tube
+simulator.
+The exhaust flow pressure
+profiles
+, and to a large extent the heat
+transfer
+rate profiles,
+were then duplicated
+by cool gas mixtures
+of Argon and
+Freon 13Bl or Freon 12. Cool substitute
+gas mixtures
+such as these could be
+used in conventional
+wind tunnels.
+The results
+of these experiments
+indicate
+that a cool gas simulation
+of the hot scramjet
+exhaust is a viable
+simulation
+technique
+except for phenomena which are dependent on the wall temperature
+relative
+to flow temperature.
+
+17. Key
+
+Words
+
+(Suggested
+
+Engine/Airframe
+Hypersonics
+Simulation
+Scramjet
+19. Security
+
+Classif.
+
+by
+
+Author(s))
+
+Integration
+
+[of this report)
+
+Security
+j 20.“nclassified
+
+Classif.
+
+(of
+
+Unclassified
+*For sale by the National Technical information Service, Springfield. Vrrgrnia 22161
+NASA-Langley,
+
+19
+
+
