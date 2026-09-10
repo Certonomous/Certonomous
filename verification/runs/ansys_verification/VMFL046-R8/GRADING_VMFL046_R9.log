@@ -1,0 +1,108 @@
+VMFL046-R8  Supersonic flow with a normal shock in a CD nozzle (VM2026R1 p.155)
+solver: rhoPimpleFoam (PRESSURE-BASED, TRANSIENT, PIMPLE), vanLeer TVD / Euler,
+        maxCo 0.5, fvOptions limitTemperature [150,2000] (R5's numerics).  R8 changes
+        vs R7: SOLVER (rhoCentralFoam->rhoPimpleFoam) forced by R7's startup core-dump
+        (row #70).  PHYSICAL case (mesh, start-from-rest, lInf 0.3), the gate, DELTA_X,
+        endTime, mesh, r=2 triple and every GATE limb are UNCHANGED (L-487).  Off-gate:
+        LIMB (b) fvOptions clamp NON-BINDING proof; LIMB (c) washout / shock-stand guard.
+gate  : x_shock vs 1.250 m, band +-5.0 % (= +-0.0625 m)  -- UNCHANGED from R1/R2/R3
+plateau: ptp(x_shock) over two adjacent W=endTime/10 windows AND their mean drift <= DELTA_X = 6.250e-04 m -- UNCHANGED
+        reader = INTERPOLATING last downward M=1 crossing, and it CONSUMES ONLY
+        the registered window t in (0.064, 0.08] -- 33 of the 160 samples (W1)
+frozen arithmetic (W3): 160 samples total, 17 per plateau window (>= 8), the two windows sharing one boundary sample for 33 distinct, 5.0 steps per sample
+probe-length floor (W2): 0.25 of the graded clock; this registration's cost basis covers L1 1.0000, L2 0.9148, L3 0.9921
+
+L1  endTime 0.08 s in 30885 time steps  (sampler nPoints 321, spacing 6.237500e-03 m, sampler/mesh 0.499000)
+     W1 read audit: 33 distinct centreline sample(s) OPENED inside the run root, all inside the registered window (0.064, 0.08] which holds 33 of the 160 written samples
+     W1 §2aw(c) EXCLUDED from the audit as NOT RUN DATA (outside /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R8/L1): 19
+        /tmp/vmfl046r4_plantA_ss5lr_tr/line_T_U.xy
+        /tmp/vmfl046r4_plantB_s9933wps/s14.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s0.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s1.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s10.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s11.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s12.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s13.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s14.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s15.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s16.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s2.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s3.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s4.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s5.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s6.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s7.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s8.xy
+        /tmp/vmfl046r4_plantC2_gk1hw5vu/s9.xy
+     x_shock (window-A mean, THE LEVEL VALUE) = 1.260863658 m   (+0.8691 % vs 1.250)
+     x_shock (final sample)                   = 1.303061746 m
+     plateau P1=1.0094e-01  P2=1.2522e-01  P3=2.0919e-02   vs DELTA_X=6.250e-04  ->  NOT PLATEAUED
+     T over the graded window spans [229.5, 634.39] K -- frozen limitTemperature clamp [150, 2000] K NON-BINDING (LIMB b); x_shock stands in [1.1812, 1.3176] m, interior of exit 1.998 m (LIMB c)
+     plants: A err 6.924e-05 (tol 2.500e-03) | B ptp 1.0094e-01->1.1094e-01 | C1 inert change 0.000e+00, live +1.000000e-02 | C2 worst 7.390e-04 (tol 2.500e-03), spread 8.083e-04 | D err 4.989e-08
+     R1's node-snapping reader on the same bytes: 1.305637500 m (quantum 6.2375e-03 m, 9.98x DELTA_X -- unusable, which is why R2/R3/R4 interpolate)
+
+L2  endTime 0.08 s in 64105 time steps  (sampler nPoints 641, spacing 3.118750e-03 m, sampler/mesh 0.499000)
+     W1 read audit: 33 distinct centreline sample(s) OPENED inside the run root, all inside the registered window (0.064, 0.08] which holds 33 of the 160 written samples
+     W1 §2aw(c) EXCLUDED from the audit as NOT RUN DATA (outside /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R8/L2): 19
+        /tmp/vmfl046r4_plantA_wulc2fpa/line_T_U.xy
+        /tmp/vmfl046r4_plantB_y0ntsanj/s0.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s0.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s1.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s10.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s11.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s12.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s13.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s14.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s15.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s16.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s2.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s3.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s4.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s5.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s6.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s7.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s8.xy
+        /tmp/vmfl046r4_plantC2_sbpd_hh1/s9.xy
+     x_shock (window-A mean, THE LEVEL VALUE) = 1.181161685 m   (-5.5071 % vs 1.250)
+     x_shock (final sample)                   = 1.156016742 m
+     plateau P1=4.1806e-02  P2=4.2993e-02  P3=1.6613e-02   vs DELTA_X=6.250e-04  ->  NOT PLATEAUED
+     T over the graded window spans [227.74, 641.64] K -- frozen limitTemperature clamp [150, 2000] K NON-BINDING (LIMB b); x_shock stands in [1.1544, 1.1974] m, interior of exit 1.998 m (LIMB c)
+     plants: A err 2.415e-04 (tol 2.500e-03) | B ptp 4.1806e-02->5.1791e-02 | C1 inert change 0.000e+00, live +1.000000e-02 | C2 worst 2.415e-04 (tol 2.500e-03), spread 3.906e-04 | D err 4.989e-08
+     R1's node-snapping reader on the same bytes: 1.152818750 m (quantum 3.1187e-03 m, 4.99x DELTA_X -- unusable, which is why R2/R3/R4 interpolate)
+
+L3  endTime 0.08 s in 125473 time steps  (sampler nPoints 1281, spacing 1.559375e-03 m, sampler/mesh 0.499000)
+     W1 read audit: 33 distinct centreline sample(s) OPENED inside the run root, all inside the registered window (0.064, 0.08] which holds 33 of the 160 written samples
+     W1 §2aw(c) EXCLUDED from the audit as NOT RUN DATA (outside /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R8/L3): 19
+        /tmp/vmfl046r4_plantA_7plpzxfe/line_T_U.xy
+        /tmp/vmfl046r4_plantB_6quma9hh/s7.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s0.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s1.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s10.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s11.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s12.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s13.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s14.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s15.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s16.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s2.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s3.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s4.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s5.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s6.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s7.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s8.xy
+        /tmp/vmfl046r4_plantC2_8kjd3lq6/s9.xy
+     x_shock (window-A mean, THE LEVEL VALUE) = 1.369600526 m   (+9.5680 % vs 1.250)
+     x_shock (final sample)                   = 1.414690237 m
+     plateau P1=6.0972e-01  P2=3.0216e-01  P3=9.2269e-02   vs DELTA_X=6.250e-04  ->  NOT PLATEAUED
+     T over the graded window spans [223.57, 666.53] K -- frozen limitTemperature clamp [150, 2000] K NON-BINDING (LIMB b); x_shock stands in [1.0855, 1.6953] m, interior of exit 1.998 m (LIMB c)
+     plants: A err 6.601e-05 (tol 2.500e-03) | B ptp 6.0972e-01->6.1967e-01 | C1 inert change 0.000e+00, live +1.000000e-02 | C2 worst 2.133e-04 (tol 2.500e-03), spread 4.099e-04 | D err 4.999e-08
+     R1's node-snapping reader on the same bytes: 1.417912500 m (quantum 1.5594e-03 m, 2.50x DELTA_X -- unusable, which is why R2/R3/R4 interpolate)
+
+triple on x_shock: L1=1.260864 L2=1.181162 L3=1.369601  state=OSCILLATORY R=-2.364 p=n/a GCI=n/a
+
+VERDICT: NOT A RESULT
+  reason: level(s) L1, L2, L3 did not reach the pre-registered plateau at endTime 0.08 s (CLAUDE.md rule 5 step 1).
+    L1  P1=1.0094e-01 P2=1.2522e-01 P3=2.0919e-02  (DELTA_X=6.250e-04; worst is 200.3x over)
+    L2  P1=4.1806e-02 P2=4.2993e-02 P3=1.6613e-02  (DELTA_X=6.250e-04; worst is 68.8x over)
+    L3  P1=6.0972e-01 P2=3.0216e-01 P3=9.2269e-02  (DELTA_X=6.250e-04; worst is 975.5x over)
