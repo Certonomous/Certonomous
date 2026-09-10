@@ -491,3 +491,152 @@ verification under `VERIFICATION_CHARTER` §2d.1. **It is disclosed rather than 
 supervisor quietly repairing a pinned instrument after compute is the exact move the freeze exists to
 prevent** — and because `cause` is the field the two-fails-same-cause rule climbs rungs on, so a
 contaminated cause can buy a rung the case did not earn.
+
+---
+
+## AMENDMENT 2 — 2026-09-10, cfd-supervisor (Opus 5). Document version v1.1 → v1.2. **THE CASE IS PARKED `NOT A RESULT`.**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, band or label is altered.
+Gate P, Gate G, the §5.1 plateau limb, the §1 budget position and the §10/§10.1 grading path all stand
+as frozen. **This amendment records an outcome; it does not move a gate.**
+
+### A2.1 THE VERDICT
+
+**`NOT A RESULT`.** Cause class **`ENERGY_RUNAWAY_TRAILING_EDGE`**, three stage-3 smokes on one cause
+(M0 baseline L2, M1 mesh-tier L1, N1 numerics-tier L2_N1), parked under CASE PROTOCOL CHARTER §3's
+three-strikes rule. **No stage-4 run was ever launched and Gate P and Gate G were never evaluated** —
+so this is a case parked before grading, not a gate that returned a value.
+
+### A2.2 THE MECHANISM — A COLLAPSED TRAILING EDGE, AND IT IS SCALE-INVARIANT
+
+**The trailing edge of this mesh closes to a single point per spanwise station. There are ZERO cells
+across it.** Measured off the wing patch's own point list, planted control at each level (a threshold
+below the field minimum selected 1595/1595, 6309/6309 and 25097/25097 points):
+
+| level | last chordwise cell Δx | Δy | **cusp half-angle** |
+|---|---:|---:|---:|
+| L2 | 3.17e-04 | 5.683e-04 | **60.85°** |
+| L1 | 1.58e-04 | 2.842e-04 | **60.92°** |
+| L0 | 7.90e-05 | 1.421e-04 | **60.92°** |
+
+**The cusp half-angle is 60.9° at every level: refinement halves the cell and never opens the cusp.**
+Supporting geometry: wall-face area jumps **47.07×** aft of 0.995c, max/min wall-face area ratio
+**7,212:1**, and the globally smallest cell in the L2 mesh is a trailing-edge first cell.
+
+**This settles the challenge registered in A1.4 IN FAVOUR OF THE CHALLENGE.** M1 ruled out a mesh
+artifact because the hot cells sit at the same x/c on two levels and refinement worsens the failure.
+**A scale-invariant cusp produces both signatures by construction** — it follows the geometry because
+it *is* geometry, and its cells thin at every refinement while the pathology keeps its shape. The M1
+evidence never discriminated between the hypotheses, and the mesh tier was spent on a conclusion the
+measurement could not support.
+
+### A2.3 LTS IS THE AMPLIFIER, NOT THE SEED — AND §4.4's DEMONSTRATION IS OWED AND UNPAID
+
+From the N1 log at t = 400:
+
+    Flow time scale min/max          = 1.003212828e-16, 0.005513522401
+    Smoothed flow time scale min/max = 1.003212828e-16, 8.584167179e-13
+
+**The RAW maximum is 5.514e-03 s and is healthy. After `fvc::smooth` at `rDeltaTSmoothingCoeff 0.1`
+the maximum is 8.584e-13 s — a factor of 6.4e9.** The smoothing operator propagated a trailing-edge
+collapse to **100 % of cells**. Four hundred steps advanced roughly **4e-11 s** of pseudo-time: the
+freestream moved **11 nanometres** against a 0.806 m chord.
+
+**So the frozen momentum and the pinned energy residual recorded in A1.3 are NOT reader defects.**
+`rho·rDeltaT·V` dominates the diagonal by ~15 orders, nothing can move or relax away an error already
+present, and `limitTemperature` resets e every step while that diagonal solves the reset exactly. It
+was healthy at t = 1 (flow time scale min 1.486e-07 s, `LimitedCells = 0` at both ends): **nine
+decades of collapse developed over 400 steps.** §4.4 registered that LTS owes a time-step-independence
+demonstration. **It was never paid, and this is what it would have caught.**
+
+### A2.4 THE PHYSICS UNDERNEATH IS NOT THE PROBLEM
+
+**N1's PRESSURE lift coefficient is +0.1915 — inside this registration's own [0.15, 0.45] band.** The
+entire runaway is viscous, on cells reaching 5.1e10 m/s. The recorded y+ max of 149,276 and Cd of 1.52
+are wall-shear artifacts, not measurements: **y+ MINIMUM holds at 8.65 across every write** (8.659 →
+8.651 → 7.607 → 8.651) while the maximum grows to 1.886e10. Patch types are clean — `wing` wall,
+`symmetry` symmetry, `farfield` patch, zero `empty`, zero `wedge`, the tip closed by 64 wall faces so
+the wing is not silently mirrored into infinite span — and the wall treatment
+(`nutUSpaldingWallFunction`, all-y+) is admissible against y1 = 2.4271e-04 m.
+
+### A2.5 M6SR IS NOT THE ESCAPE HATCH — RECORDED SO THE NEXT READER DOES NOT TRY IT
+
+`M6SR_runs/L1` (1,597,440 cells, a different build route) wraps **the same ONERA M6 surface with the
+same cusped trailing edge in the same hex topology.** It fails the same two checks and is **worse** on
+max non-orthogonality (69.97° vs 60.86°) and min cell volume (8.35e-12 vs 2.43e-11). **Switching family
+does not remove the cusp, so it does not remove the mechanism**, and its farfield at ~13 m against
+M6CP1's 45 m would make blockage a new registration question rather than an inherited one.
+
+### A2.6 WHAT THE SUCCESSOR NEEDS — A MESH RUNG, UNDER A NEW REGISTRATION
+
+Either a **C-grid with a wake cut** — the standard ONERA M6 validation topology, which puts the sharp
+trailing edge on the wake line instead of wrapping cells around it — or a **blunted trailing edge with
+2–4 cells across it at ~0.5 % chord. Either is a new mesh family: new birth certificates, new triple,
+new freeze.** It is §1/§2 work under a **new registration, not a stage-3 rung on this one**, because it
+changes the mesh the gate is defined on.
+
+### A2.7 🔴 THE FINDING THAT OUTLIVES THIS CASE — **THE STAGE-2 GATE WAS BLIND**
+
+**Plain `checkMesh` prints `Mesh OK.` on M6CP1 L2. The same mesh under `-allGeometry -allTopology`
+prints `Failed 2 mesh checks`** — 68 low-quality tet faces and 9,854 under-determined cells (13.73 %).
+At L0 the full set finds **332 low-quality tet faces and 656,877 under-determined cells**, while
+`STAGE2_RECORD.json` records `mesh_ok: true, failures: []`.
+
+**The face-tet and cell-determinant checks only run under `-allGeometry`.** CASE PROTOCOL CHARTER §2's
+exit condition — *"checkMesh on every level: quality within the registered gates or the case stops"* —
+**was evaluated by an instrument structurally incapable of seeing either failing check. M6CP1 spent
+three stage-3 rungs on a case its own stage-2 gate could never have refused.** Every stage-2 gate in
+this lab that shells out to bare `checkMesh` has the same hole.
+
+**And the gate is not merely mis-invoked — it is insufficient. `checkMesh` passes this trailing edge
+under BOTH check sets.** A 60.9° collapsed wedge and a 7,212:1 wall-face-area ratio need a limb of
+their own: **minimum cells across every named geometric feature, and a wall-face-area-ratio ceiling.**
+
+**THE AUDIT WENT FURTHER AND THE DEFECT IS DEEPER THAN "THE WRONG FLAGS".** Three measured facts:
+
+1. **`grep -rn "allGeometry\|allTopology" scripts/` returns ZERO HITS.** Not one script in this lab's
+   script tree has ever asked for either flag.
+2. **`checkMesh` RETURNS `rc = 0` EVEN WHEN CHECKS FAIL.** All four `-allGeometry -allTopology` runs
+   returned rc = 0 while printing `Failed 2 mesh checks` (`DIAG_D1/checkMesh_L2.rc` and siblings). So
+   stage 2's verdict at `scripts/case_protocol_stage2_bugcheck.py:147` —
+   `ok = ("Mesh OK." in out) and rc == 0` — **rests entirely on the substring; the `rc == 0` clause
+   contributes nothing at all.**
+3. **STAGE 1 DOES NOT RUN `checkMesh` AT ALL.** `scripts/case_protocol_stage1_setup.py:185-193`
+   substring-matches a **pre-existing log it did not produce**. For M6CP1 that log is
+   `verification/runs/M6_OWN_FAMILY_runs/L2/case/log.checkMesh` — **the MESHER's log, in a DIFFERENT
+   campaign tree, from a bare invocation.** Stage 1 also collects `checkmesh_stars` (lines beginning
+   `***`), which is the right idea and returns an **empty list**, because a bare `checkMesh` emits no
+   `***` lines on this mesh: **a well-designed instrument fed a blind input.**
+
+**So the defect is NOT "stage 2 used the wrong flags". It is that THE PROTOCOL'S MESH-ADMISSION
+VERDICT IS A SUBSTRING MATCH WHOSE TRUTH VALUE IS SET BY AN INVOCATION THE PROTOCOL DOES NOT
+CONTROL.** The admission criterion for this family reduces to *"did some earlier run, elsewhere, print
+the string that the blind invocation always prints on this mesh"*. **Fixing it requires both flags AND
+stage 1 running its own `checkMesh` rather than trusting a foreign log** — and a geometry limb a cusp
+cannot pass, since `checkMesh` clears this trailing edge either way.
+
+Referred to the chief and to verification as a lab-wide instrument defect; it is not cfd's to rule.
+
+### A2.8 A WITHDRAWAL BY THE DIAGNOSING LANE, RECORDED BECAUSE IT IS THE BEHAVIOUR WE WANT
+
+The lane's first pass found the hot cells **6.66× enriched** in checkMesh's under-determined set and
+**withdrew it on its own conditioning**: a high-aspect-ratio boundary-layer cell has a low determinant
+by construction, so conditioned on wall distance the fair enrichment is **0.943 — below 1.0**. The
+counter-example is in the same data: mid-chord first cells are **100 % under-determined and perfectly
+healthy** (T median 287.4 K), while trailing-edge first cells are only **65.9 % under-determined and
+destroyed** (T median 137.9 K, |U| max 2.98e10 m/s). **The quality flag is anti-correlated with the
+damage**, and the cusp geometry — measured directly — carries the finding instead.
+
+**Honest limit, stated by the lane and not softened here:** this does **not** prove the causal chain
+from cusp to runaway. It shows the runaway is spatially confined to the cusp and that no BC,
+patch-type or quality-flag explanation survives. Distinguishing "mesh topology defect" from "genuinely
+unstable scheme" at the last 1 % of chord needs the controlled experiment — the same numerics on a
+wake-cut or blunt-TE grid — **which is the successor registration, not a diagnosis.**
+
+### A2.9 COST
+
+Adjudication **5.38 core-min** (1 rank; 211.76 core-s measured, ~111 core-s of earlier untimed Python
+passes **estimated, not measured**, and labelled so in `DIAG_D1/DIAG_D_SUMMARY.json`). Stage-3 rungs
+M0 + M1 + N1 = 22.79 core-min. **Total under this registration: 28.17 core-min, $0.0241 DERIVED, NOT
+MEASURED** at $0.0513/core-h — the box cannot read its own billing. Estimate-versus-actual calibration
+is owed to `docs/COST_CALIBRATION.md` under rule 12 and is not discharged by this amendment.
