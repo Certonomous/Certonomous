@@ -640,3 +640,238 @@ passes **estimated, not measured**, and labelled so in `DIAG_D1/DIAG_D_SUMMARY.j
 M0 + M1 + N1 = 22.79 core-min. **Total under this registration: 28.17 core-min, $0.0241 DERIVED, NOT
 MEASURED** at $0.0513/core-h — the box cannot read its own billing. Estimate-versus-actual calibration
 is owed to `docs/COST_CALIBRATION.md` under rule 12 and is not discharged by this amendment.
+
+---
+
+## ADDENDUM 3 — 2026-09-10 — **`[SANAA-DIRECT]`**. Document version v1.2 → v1.3. **A DIRECTED RUN OVER A PARKED CASE, WITH ITS FAILURE PREDICTED IN ADVANCE.**
+
+**lines whose number changed above this section: 0.** Proven, not asserted: every line above this
+section is byte-identical to `git show HEAD:verification/campaign/M6CP1_PREREGISTRATION.md`
+(HEAD `206f7910a`, registration blob `e5f474db33e523049378c6443c1732b507d856b2`), verified by
+`diff` of the first 642 lines against the committed blob — zero differing lines. This addendum is a
+pure append.
+
+**This addendum alters NO gate, NO threshold, NO cap, NO band and NO label.** Gate P (±0.02 in Cp at
+seven span stations) and Gate G (the rule-5 Roache triple on {L2, L1, L0}) stand exactly as frozen.
+The §5.1 plateau limb (trailing 20 % window, max absolute deviation from the window mean, tolerance
+5.0e-04) stands. The §10/§10.1 grading path and pin table stand. `budget_gate: NONE — Sanaa
+2026-09-10` stands. **Amendment 2's `NOT A RESULT` park stands and is NOT lifted by this addendum** —
+it stands until a graded run replaces it, and this addendum authorises a run, not a verdict.
+
+### A3.1 THE INSTRUCTION, AND WHOSE IT IS
+
+**Sanaa, 2026-09-10, byte-exact:**
+
+    M6CP1 launch asap.
+
+**The decision to run is Sanaa's and is recorded as hers.** It is not a lab determination, not the
+cfd-supervisor's, and not this lane's. No agent's message is her consent (standing rule 9); this is
+her own instruction, relayed through the cfd-supervisor and executed by a cfd `lab-lane`. **The lab's
+own standing position, recorded in Amendment 2 four hours earlier, was that this case is parked.**
+That position is unchanged; it has been overridden by the owner, which she is entitled to do, and the
+override is recorded here rather than quietly absorbed.
+
+**🔴 TIMESTAMP — RESOLVED BY THE cfd-SUPERVISOR, AND THE HONEST ANSWER IS THAT IT CANNOT BE
+CORROBORATED.** The lane was right to refuse to write it. The relayed stamp was **~20:40Z**; the
+lane's own `date -u` read **20:23:12Z** when it began drafting this addendum — i.e. **before** the
+instruction was supposedly given — and the supervisor's own `date -u` read **20:43:01Z** at commit.
+A relay carrying a later stamp than the box clock showed when the relayed instruction was already
+being acted on **cannot all be true**, and a second relayed quote that arrived *after* this one
+carries an *earlier* stamp (~20:35Z), which confirms the relayed times are approximate rather than
+measured.
+
+**So the time is recorded as UNCORROBORATED and is not written as fact.** What is established:
+**the date is 2026-09-10**, not in question; **the instruction reached the cfd-supervisor before
+20:23:12Z**, because the lane was already drafting against it then; and **this addendum was committed
+at 2026-09-10T20:43:01Z or later**, by the supervisor's own clock. **The wording of the instruction
+is byte-exact and is the part that matters; its wall-clock stamp is relayed, not measured, and is
+labelled so.** No verdict, gate or cost depends on the minute.
+
+### A3.2 WHAT IS AUTHORISED, AND IT IS ONE LEVEL
+
+**L2 only — 71,760 cells — first and alone.** L1 and L0 are **NOT** launched by this addendum and are
+not authorised by it. L2 carries the whole decisive diagnostic (§A3.4) and reaches it in about two
+minutes of one core. **Spending L0's 4,592,640 cells to reproduce a hypothesis L2 can test is waste,
+not rigour**, and whether L1 and L0 follow is the cfd-supervisor's call after L2 answers.
+
+**Ranks: 1 (serial).** Justified from measurement, not preference:
+
+- `verification/runs/M6CP1_runs/L2/case/system/decomposeParDict` reads `numberOfSubdomains 1`. Any
+  rank count above 1 requires **editing a case file under a frozen registration before compute**, and
+  this lane will not do that for a convenience.
+- **Both stage-3 smokes ran serial** — `nProcs : 1` in each log's own banner
+  (`L2/smoke_M0_baseline/log.rhoPimpleFoam`, `L2_N1/smoke/log.rhoPimpleFoam`). Serial is therefore the
+  **like-for-like** configuration: the graded run's trace is directly comparable to the failing one,
+  with no decomposition confound between them.
+- **Measured box state, 20:26Z: 6 of 16 vCPU CPU-bound** — one `buoyantBoussinesqSimpleFoam`
+  (T-family T4e), one `rhoCentralFoam`, and four `simpleFoam -parallel` (the navier_class MRF coarse
+  level, 40 s old at the reading). Load average read 40.72 but `vmstat` showed `r = 2, b = 40` with
+  11–74 % iowait: **the box is I/O-bound on concurrent repository sweeps, not CPU-saturated**, and
+  reporting load average alone would have misread it. **By 20:33Z the cfd-supervisor's own reading was
+  `0.0 id, 36.3 wa` with ten processes above 50 % CPU**: MRF coarse at 4 ranks, MRF medium at 3, and
+  MRF fine released. **MRF has priority over M6CP1 stage 4** — it can plausibly deliver a `CONVERGING`
+  triple, and M6CP1 is expected to reproduce a known failure. **A serial M6CP1 leaves MRF its full
+  claim on a box that has none to spare.**
+- **🔴 AND THE RANK COUNT IS NOT FREE TO CHOOSE.** `numberOfSubdomains 1` means 1 rank is the only
+  count that runs this case **as frozen**. Two ranks is not a smaller ask than four; it is the same
+  ask — **an edit to a case file under a frozen registration, before compute** — and it would also
+  break the like-for-like comparison with the two serial smokes. Serial is both the least invasive
+  and the least contentious option, and it is the one taken.
+
+**The box is re-derived in the same shell invocation the launch is issued from**, and that reading —
+not this paragraph — is the one recorded in `STAGE4_MANIFEST_L2.json` and in the launch report.
+
+**§7's 3.2× four-rank speedup is an ASSUMPTION and a serial run DOES NOT MEASURE IT. It remains owed.**
+
+### A3.3 🔴 THE EXPECTED OUTCOME, STATED BEFORE THE RUN, AND WHY IT IS EXPECTED
+
+**The prediction is that this run reproduces `ENERGY_RUNAWAY_TRAILING_EDGE` and returns
+`NOT A RESULT`.** It is registered here so that it is falsifiable. A run whose likely failure is
+predicted in advance is worth more than one that is not, because the prediction can be wrong.
+
+**The ground for it is not an inference. It is a one-line diff.** The graded case
+`verification/runs/M6CP1_runs/L2/case` and the failed M0 baseline smoke
+`verification/runs/M6CP1_runs/L2/smoke_M0_baseline` were compared directory by directory:
+`0/` identical, `constant/` identical (both `polyMesh` symlinks resolve to the same target,
+`M6_OWN_FAMILY_runs/L2/case/constant/polyMesh`), `system/` identical **except `controlDict`**, whose
+entire difference is:
+
+    14c14
+    < endTime         400;
+    ---
+    > endTime         5000;
+
+**The stage-4 graded run IS the M0 baseline smoke that already failed, with `endTime` raised from 400
+to 5000. No lever was pulled between them.** Same `localEuler`, same `maxCo 0.2`, same
+`rDeltaTSmoothingCoeff 0.1`, same `limitTemperature` 100/1000 K, same `transonic` unset,
+same `writeInterval 100`.
+
+**The mechanism is A2.2's cusp and it is scale-invariant**: the trailing edge closes to a single point
+with **zero cells across it**, half-angle 60.85 / 60.92 / 60.92° at L2 / L1 / L0. Refinement halves
+the cell and never opens the cusp, so no level escapes it and `endTime` cannot outrun it.
+
+**Measured trace of the failure, read from `L2/smoke_M0_baseline/log.rhoPimpleFoam` (rc = 0 in
+`RC.txt`, `End` present, 400 `ExecutionTime` lines, ClockTime 130 s, nProcs 1):**
+
+| quantity | step 1 | step 400 |
+|---|---:|---:|
+| Flow time scale max (raw) | 5.513522401e-03 s | 5.513522401e-03 s (pinned, healthy) |
+| Flow time scale min (raw) | 1.486160412e-07 s | 4.290190414e-09 s |
+| **Smoothed flow time scale max** | **8.966499742e-05 s** | **7.121542696e-06 s** |
+| `limitTemperature` Lower `LimitedCells` | 0 (`UnlimitedTmin` 288.15) | **704, 0.98 %, `UnlimitedTmin` = 100** |
+| `limitTemperature` Upper `LimitedCells` | 0 (`UnlimitedTmax` 288.15) | **142, 0.20 %, `UnlimitedTmax` = 1000** |
+
+**The clamp is pinned AT its own limits at both ends** — `UnlimitedTmin` equal to the floor and
+`UnlimitedTmax` equal to the ceiling is A2.2/§9's signature of unbounded, not of a finite hot value.
+
+**THE THREE REGISTERED PREDICTIONS, IN DESCENDING ORDER OF STRENGTH:**
+
+- **P1 — BIT-IDENTITY THROUGH STEP 400.** Because the only difference from the M0 smoke is `endTime`,
+  the graded run's step-400 smoothed flow time scale max must read **7.121542696e-06 s** and its
+  clamp counts must read **704 / 142**. This is a near-deterministic prediction, not a trend. **A
+  departure here is itself a finding** — either solver non-determinism, or a difference between the
+  two cases this lane failed to find.
+- **P2 — COLLAPSE CONTINUES TO `endTime`.** The smoothed maximum falls **below 1e-10 s by step 5000**.
+  **🔴 THIS IS AN EXTRAPOLATION, NOT A MEASUREMENT**, and it is labelled so: the observed rate is
+  ~1.1 decades per 400 steps and 5000 steps is **12.5× the observed span**. It is registered because
+  a log-linear extrapolation stated before the run is falsifiable and a hunch is not.
+- **P3 — THE CLAMP STAYS LIT.** `limitTemperature` reports `LimitedCells > 0` at **both** ends at
+  `endTime`. Against this registration's own prediction of **`max_clamped_cells = 0`** that is a
+  `GATE FAIL` on the clamp limb, and against §9's bounds stop it is the named condition.
+
+**Expected verdict: `NOT A RESULT`** via Gate G's limb (1) — *any level not iteratively converged or
+not plateaued.* **Gate P is not expected to be reached at all**, because Gate P sits behind Gate G.
+
+### A3.4 THE DECISIVE DIAGNOSTIC IS THE LTS FIELD, NOT THE RESIDUALS — AND THAT IS A MEASURED LESSON
+
+**At N1 the momentum initial residuals read 5.211e-08 / 5.318e-08 / 5.122e-08 while nothing was
+moving, and the energy initial residual sat pinned at 0.9999999824 with a final residual of
+3.089e-20.** Neither number meant what it appeared to mean. `rho·rDeltaT·V` dominated the diagonal by
+~15 orders, `limitTemperature` reset `e` every step, and the linear solver solved that reset exactly.
+**A residual trace cannot distinguish a converged flow from a frozen one.** Four hundred N1 steps
+advanced the freestream **11 nanometres** against a 0.806 m chord.
+
+**So the watch on this run is the LTS field.** `Flow time scale min/max` and
+`Smoothed flow time scale min/max` in `log.rhoPimpleFoam`, plus `limitTemperature`'s `LimitedCells`
+at both ends. **If the smoothed maximum collapses, the run is frozen no matter what the residuals
+say.**
+
+**The honest distinction between the two smokes, which this addendum will not blur:** the
+**8.584167179e-13 s** smoothed maximum quoted in A2.3 is **N1's** (`transonic yes`), not the
+baseline's. At the same step count the baseline stood at **7.121542696e-06 s** — eight decades
+higher. **The baseline collapses more slowly**, and P2 says it gets there by step 5000 by
+extrapolation, which is exactly the claim this run tests. Likewise **A2.4's in-band pressure Cl of
++0.1915 is N1's.** The M0 baseline's pressure Cl at step 400 is **+0.05368879024**, which is **below**
+this registration's [0.15, 0.45] band; its total Cl is **−0.3089435035** and its total Cd
+**2.61455128**. **The "physics underneath is fine" reading rests on N1's numbers, and it is not
+carried over to the baseline here.**
+
+### A3.5 WHAT WOULD MAKE THIS PREDICTION WRONG — REGISTERED BEFORE THE RUN
+
+**If the LTS field does not collapse and the run marches, that is a genuine finding and Amendment 2's
+park must be revisited.** Any one of the following falsifies the prediction; all four together would
+overturn the mechanism:
+
+- **F1.** The smoothed flow time scale maximum **stabilises or recovers** — it stays above **1e-06 s**
+  through step 2000 instead of continuing to fall. This directly falsifies **P2**.
+- **F2.** The momentum initial residuals **move off the ~1e-08 floor** and the field actually
+  advances: cumulative pseudo-time advancing the freestream by more than one chord (0.806 m) rather
+  than by nanometres.
+- **F3.** `limitTemperature` reports `LimitedCells = 0` at **both** ends across the §5.1 trailing
+  window (the last 10 of 50 writes). This falsifies **P3** and clears §9's bounds stop.
+- **F4.** The §5.1 plateau statistic is **satisfied** — max absolute deviation from the trailing-window
+  mean, relative to that mean, **≤ 5.0e-04**.
+
+**And a fifth outcome that is neither the prediction nor its falsification, named so it is not
+mistaken for either:** the run may march (F1–F4 hold) and **still** fail Gate P or Gate G. That would
+mean the park's *verdict* survives while the park's *mechanism* — A2.3's LTS collapse — is wrong. The
+mechanism and the verdict are separately falsifiable and are recorded separately.
+
+**A departure from P1 (bit-identity through step 400) is reported as a finding in its own right,
+whichever direction it runs.**
+
+### A3.6 ROUTING, rc AND THE TRAP THIS RUN IS BUILT AROUND
+
+Launched by **`scripts/case_protocol_stage4_run.py`**, git blob
+**`425aeed988ae63843a851b9aa720a721a142c98c`** — verified by `git hash-object` against §10.1's pin at
+launch time, **matching**. The script **does not launch without `--go`**, and its preflight output is
+read before `--go` is passed.
+
+Detached, re-parented to **PPID 1**. **`rc` is captured INSIDE the wrapper, from the solver process,
+and written to `RC.txt`** — `setsid timeout cmd` exits 0 for every outcome including SIGFPE, so no
+launching process's exit status is consulted anywhere. §8 of this document already registers this and
+it is restated because it is the trap that would silently turn a crash into a pass.
+
+**Nothing about this run is graded by this addendum.** Grading is §10's pinned path, invoked by the
+detached wrapper, and the verdict is the cfd-supervisor's to take.
+
+### A3.7 COST (rule 12) — ESTIMATED HERE, BEFORE COMPUTE
+
+Cost basis: **core-minutes = wall s × ranks / 60**. Dollars **DERIVED, NOT MEASURED**, at the
+owner-stated c7a.4xlarge **$0.0513/core-h** — this box cannot read its own billing.
+
+**The rate is MEASURED on this exact case**, not extrapolated from stage 2: the M0 baseline smoke ran
+**400 steps in 130 s ClockTime at nProcs 1** → **0.325 s/step serial**.
+
+| item | basis | core-min (est.) | $ derived |
+|---|---|---:|---:|
+| L2 graded, 5000 steps, **1 rank** | 0.325 s/step MEASURED × 5000 ÷ 60 | **27.1** | **0.0232** |
+
+Against §7's registered L2 row of **121.9 core-min at 4 ranks**. **The difference is rank count, not a
+speed surprise**, and §7's row is not amended — it stands as frozen and the calibration ledger states
+the ratio with the gap attributed. **`budget_gate: NONE — Sanaa 2026-09-10`; no cap stops this run**,
+and the estimate is calibration data rather than a gate. The rule-12 estimate-versus-actual row is
+owed to `docs/COST_CALIBRATION.md` at completion and is **not** discharged by this addendum.
+
+**Contention is named separately and not absorbed into the ratio:** the box carried 6 CPU-bound ranks
+plus a heavy concurrent I/O load (`b = 40`, 11–74 % iowait) at launch, so the actual wall rate is
+expected to exceed 0.325 s/step and the excess is **contention, not misprediction**.
+
+### A3.8 WHAT THIS ADDENDUM DOES NOT DO
+
+It does not lift the park. It does not move a gate, a threshold, a cap, a band or a label. It does not
+authorise L1 or L0. It does not repair the stage-2 mesh-admission defect of A2.7, which stands
+referred to the chief and to verification and is **not cfd's to rule**. It does not repair the pinned
+stage-3 reader defect of A1.5, whose proposed repair stays staged unapplied at
+`verification/runs/M6CP1_runs/PROPOSED_REPAIR_stage3_smoke.py`. **A supervisor or lane quietly
+repairing a pinned instrument after compute is the exact move the freeze exists to prevent.**
