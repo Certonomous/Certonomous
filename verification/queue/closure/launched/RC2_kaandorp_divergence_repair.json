@@ -1,0 +1,64 @@
+{
+  "team": "closure",
+  "case_id": "RC2_kaandorp_divergence_repair",
+  "prereg_commit": "0aa1a0492b159dd724035da2f11115e5fe96e92f",
+  "prereg_path": "cases/RANS_LES_closure_models/RC2_kaandorp_divergence_repair/PREREGISTRATION.md",
+  "launch_cmd": [
+    "/usr/bin/python3",
+    "/home/ubuntu/Certonomous/cases/RANS_LES_closure_models/RC2_kaandorp_divergence_repair/regrade_rc2.py",
+    "--run-root",
+    "/home/ubuntu/closure-data/rc2"
+  ],
+  "cwd": "/home/ubuntu/closure-data/rc2",
+  "ranks": 1,
+  "cost_core_min_estimate": 4.0,
+  "cost_basis": "derived from TWO rates MEASURED on this box on 2026-08-28 through real subject code, not assumed: whole-text regex readers 46.5 MiB/s (seed-7 sample of 400 corpus files, 17.95 s over 0.815 GiB) and Python line-loop readers 10.9 MiB/s (seed-11 sample of 60 files read through grade_m1.parse_log ITSELF, 12.53 s over 0.133 GiB). run_lane.parse_log is a line loop; the successor is whole-text regex. The re-grade corpus is the 16 preserved log.run files under /home/ubuntu/closure-data/aposteriori/kaandorp, MEASURED at 268.0 MiB (0.2617 GiB) with all 16 present and the largest 32,691,552 bytes. Reads: 25 s frozen reader (before column) + 6 s successor (after column) + 25 s blind control + 1 s over the six named real fatal logs (0.0051 GiB) + 1 s sha256 provenance + 15 s citation enumeration over every .md/.json outside .git + 60 s of selftest x2, startup and report assembly = 133 s wall at ranks 1 = 2.2 core-min; registered 4.0 core-min. RC2 LAUNCHES NO SOLVER AND RE-RUNS NOTHING: 0 core-min of solver compute. $0.0034 at the owner-stated $0.0513/core-h is DERIVED, reported-by-owner, NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5: this box cannot read its own billing).",
+  "memory_floor_gb": 0.5,
+  "memory_floor_basis": "ALLOWANCE, not a measurement. RC2 holds one log's text at a time; the largest of the 16 preserved logs is MEASURED at 32,691,552 bytes (31.2 MiB). The citation manifest and re-grade table are both well under 10 MiB of JSON. 0.5 GB is roughly 16x the largest single-file read. This lane did not run the instrument and took no MaxRSS reading; the instrument wraps itself in /usr/bin/time -v and records MaxRSS, converting this allowance into a reading for the next pre-registration. Its absence is an INFRASTRUCTURE defect, not a refusal.",
+  "cap_core_min_registered": 12.0,
+  "enqueued_by": "closure-supervisor. SUPERVISION_CHARTER section 3 check 4 (pre-registration committed before compute) HAS BEEN PERFORMED PERSONALLY BY THE CLOSURE SUPERVISOR at the freeze commit 0aa1a0492b159dd724035da2f11115e5fe96e92f -- taken by the supervisor as his own non-delegable act, not relayed and not delegated to a lane. At that commit BOTH instruments EXIST and are sha-pinned in PREREGISTRATION.md section 14: rc2_divergence.py ce2acaf0cb4574eb45a533437291406d3359147ef0115eed92521f36c15a8e32 and regrade_rc2.py 1c43b3e531650083f3582682272a292beb3f295212af625beabaebe5e152c7d9. The freeze commit carries PREREGISTRATION.md and both instruments TOGETHER, so the pre-registration is committed BEFORE any compute and the grading path is fixed at that commit (CLAUDE.md rule 2; PREREGISTRATION.md sections 11 and 14). prereg_commit above cites that freeze commit. The previous text of this field stated the check had NOT been performed; that was true when the entry was drafted on 2026-08-28 and is superseded by the 2026-09-10 freeze. Every other field of this entry -- cost_core_min_estimate, cost_basis, cap_core_min_registered, ranks, memory_floor_gb, memory_floor_basis, launch_cmd, cwd, prereg_path -- is a FROZEN registered number or string, copied unchanged and not re-derived.",
+  "_launch": {
+    "utc": "2026-09-10T03:49:35Z",
+    "pid": 1010755,
+    "sid": 1010755,
+    "status_file": "/home/ubuntu/closure-data/rc2/STATUS.queue.RC2_kaandorp_divergence_repair",
+    "wrapper_out": "/home/ubuntu/closure-data/rc2/launcher.queue.out",
+    "started_epoch": 1789012175.4240842,
+    "status_seen_utc": "2026-09-10T03:51:35Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.RC2_kaandorp_divergence_repair (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_grading_freeze": {
+    "verdict": "UNPINNED",
+    "detail": "entry declares no 'grading_freeze': no comparator is named, so the sha of the script that will grade case RC2_kaandorp_divergence_repair is NOT pinned to freeze 0aa1a049. Nothing is predicted about this run's grading, and that absence is recorded rather than read as a pass.",
+    "field": null,
+    "paths": [],
+    "prereg_commit": "0aa1a0492b159dd724035da2f11115e5fe96e92f",
+    "refusal_eligible": true,
+    "source": "NONE",
+    "schema": "grading_freeze/2",
+    "kind": "PREDICTION",
+    "predicts": "NO_PREDICTION_NOT_PINNED",
+    "actual": null,
+    "case_id": "RC2_kaandorp_divergence_repair",
+    "walked_commit": "6280e3773af6c5a5c4adb46279303909b678a120",
+    "recorded_utc": "2026-09-10T03:49:35Z"
+  }
+}
