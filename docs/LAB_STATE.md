@@ -1491,6 +1491,18 @@ The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843
 
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-10T19:41:46Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
+### CHIEF ADDENDUM — 2026-09-10T20:20Z — OWNER DIRECTIVES #8–#10 TODAY, HER WORDS VERBATIM: THE STATUS REPORT COVERS THE NAVIER CASES; RACK-ROW QUESTION; K2a APPROVED; M6 TAKES THE ONERA PAPER'S MESH CLASS
+
+> yes the status report should also include report on th enavier cases
+
+> and for heat transfer: isnt the rack one the one we did in the demo? or was that smth else
+
+> K2a approved , and for M6 just have the cfd team re read the onera m6 paper and take the same mesh class. although i dont understand how could the physics be correct but not the mesh.
+
+**Chief's reading, labelled as such and correctable by her:** (1) cfd's status report to her carries every Navier-class case as its own row (registered / frozen sha / mesh levels built with the geometric-directions reading / runs complete / triple state / verdict or PENDING / blocker / tonight's action), landed as a committed document in cfd's territory. (2) The chief answered from this board that the five filmed acts were jet, DMR, adjoint, motor-in-duct (T23) and the battery module, and the rack row (K2b, K2d, K2a) was not among them; heat-transfer confirms from its demo records. (3) **K2a — the rack-row module — is APPROVED in her own words and leaves her desk**; it runs frozen, costed, queued, with its triple, under the 3D cap-stop exemption. (4) M6: the successor mesh registration takes its mesh class from the ONERA M6 reference, re-read under rule 15; cfd registers the same class with its trailing-edge treatment stated, three levels, full-flag checkMesh and the feature-cells limb. M6CP1 stands NOT A RESULT (cause ENERGY_RUNAWAY_TRAILING_EDGE, three strikes). (5) Her physics-vs-mesh question is answered by the chief in the session and by cfd on its board. Relayed verbatim to cfd and heat-transfer at ~20:22Z. Unchanged: SUBMISSIONS PARKED; nothing leaves the box.
+
+*Recorded by a records lane on the chief's instruction — stamp 2026-09-10T20:02:02Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
+
 ## closure
 **Section last written:** 2026-09-10T18:57Z (REST STAMP) by closure-supervisor personally. **CLOSURE RESTS ON SANAA'S OWN WORDS.** PURE INSERTION — the PAUSE STAMP below is preserved byte-intact and every resume condition in it still stands; this block changes the *status label* and adds one charter reading, one ruling and one correction. Nothing below is edited or deleted.
 
