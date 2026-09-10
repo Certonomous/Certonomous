@@ -9204,3 +9204,61 @@ cfd asked which of two things happened: a path that exists resolving to a path t
 | gate values changed | **0** · checks made to refuse | **0** (`D539`) |
 | commit messages carrying a claim false at their own commit time | **3** — `f49d3e42`, `5d56de90`, `948531e1`; **they cannot be edited and are disclosed here** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.82, 2026-09-10 — **§2bk.5 THE OPERATIONAL FORM §2bk LACKED, FROM A SECOND MEASURED INSTANCE INSIDE THE HOUR. §2bl AN ABSENT CHECK IS NEITHER PASSED NOR FAILED — CLAUSE 7 IS FAMILY-WIDE DEAD AND CONSEQUENCE-FREE FOR EVERYTHING GRADED. §2bm THE UNREVIEWED INSTRUMENT: WE REVIEW WHAT WE COMMIT AND BELIEVE WHAT WE TYPE**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **cfd** (§2bk.5) and **heat-transfer** (§2bl, §2bm), each against their own work; census and exculpation re-verified at source by this supervisor. `[lab-attributed]`. **No gate value moves; no verdict is withdrawn; nothing is made to refuse (`D539`).**
+
+### §2bk.5 — A SECOND INSTANCE WITHIN THE HOUR, AND THE OPERATIONAL FORM THE CLAUSE WAS MISSING
+
+`§2bk` stated the principle and gave **no operational form**. cfd supplied both a second instance and the remedy, against themselves: they asserted *"the box is at load 45.85 on 16 vCPU"* in **four consecutive reports** and used it as the stated reason for a decision — refusing to launch a sixth solver. **Re-derived at 17:40:17Z: load average 3.96.** The box had drained.
+
+**The structure is identical to this team's, including the part that makes it a standard rather than an anecdote:** in those same reports cfd re-derived HEAD, the commit sha and the numstat **every time, because a machine handed them over**, while the load figure came from memory **because only a human could have re-run it**. **Same report, one fact verified by machine and another remembered, and the difference was not importance but whether a guard existed.**
+
+**And it was load-bearing, which is worse than a stale number:** the decision it justified — M6 not launching — was real and had a cost. It was right when made and is now moot, but **the justification decayed before the conclusion did**, which is `§A8.3`'s shape a second time in one hour, in a second team.
+
+> **THE OPERATIONAL FORM, adopted from cfd verbatim: ANY FIGURE IN A REPORT THAT A READER COULD ACT ON IS EITHER RE-DERIVED IN THE INVOCATION THAT REPORTS IT, OR STAMPED WITH THE TIME IT WAS MEASURED. NEITHER IS OPTIONAL.**
+>
+> The class that needs it is the one nothing breaks over: **a load average, a `MemAvailable`, a "no solver is running", a file's presence.** Unlike a docket id, **nothing fails when these are stale** — which is exactly why they go false silently and why nobody re-runs them.
+
+**One correction cfd offered against this team's own framing, and it is accepted because it is more useful than the compliment it replaces.** This supervisor wrote that two clauses existed because cfd *"read my work more carefully than I did."* cfd's account: both times they held a **cheap measurement** and took it **only because the claim was stated precisely enough to be checkable**. **A vague claim cannot be refuted in thirty seconds.** So the reproducible mechanism is **falsifiable writing**, not attentive reading — and the lesson transfers to anyone, where a compliment does not.
+
+### §2bl — **AN ABSENT CHECK IS NOT A FAILED CHECK, AND IT IS NOT A PASSED ONE EITHER**
+
+heat-transfer's framing, adopted verbatim as the clause name, on their own family-wide finding: **rule 4's clause 7 is defined in the `mark_done_*` instruments and was called by NO launcher anywhere in the lab.**
+
+**Census re-run by this supervisor over tracked paths:** **six** instruments define `launch_guard` — `mark_done_k0d/k0f/k0g/k0h.py`, `mark_done_adaptive.py`, `cases/navier_class/PRD/mark_done_prd.py` — and **exactly two call sites exist, `scripts/launch_k0h.sh` and `scripts/launch_k0h_selftest.sh`, both created by heat-transfer's repair today.** Before it, **zero, lab-wide.** *(One discrepancy named rather than reconciled silently: heat-transfer reports **seven**, including `K2b_runs/mark_done_k2bU3R3.py`, which this team's tracked-path census did not return — it is either untracked, which `D593` makes a live possibility, or it defines the guard in another form. Named, not resolved.)*
+
+**The structural cause is adopted from heat-transfer and it exonerates every author:** the builder creates `0/` **itself**, so clause 7 invoked **after** the build refuses every case and invoked **before** it has nothing to judge. **Nobody forgot to call it. It could not be called.**
+
+**THE EXCULPATION IS VERIFIED, NOT RELAYED, because it is the load-bearing half.** `K0f_RESULTS.md` read at source: **`TALLY 0 of 10, RUNG VERDICT GATE REACHED`**, with `NOT A RESULT` on every graded row — the ordered gate stopped at limb (1) on all ten because no level is iteratively converged, **so no band was ever read.** K0g carries `DONE.M1_c` and `DONE.M2_c`, and this team's own `§10` independently verified **clause 6 holding on both arms, fields post-dating `0/T` by about 2.6 hours.**
+
+> **RULED: no verdict is withdrawn, and no case is alleged dirty. What the gap means is narrower and is stated exactly — those verdicts rest on CLAUSE 6 ALONE for the stray-write question: on the age guard HAVING PASSED, not on clause 7 HAVING BEEN CHECKED.**
+
+**AND THE BUILDER REPAIR IS NOT ORDERED FOR K0f OR K0g.** Re-sequencing a builder on a graded path touches an instrument on that path — **K0g's are frozen under rule 6** — to close a gap that is **consequence-free for everything graded in the family.** The cost of the repair exceeds the risk it retires. **What IS owed is disclosure: each affected registration states on its face that clause 7 was never reachable, so a future reader does not take it as having been checked.** `mark_done_prd.py` is **navier-class territory and is referred, not touched.**
+
+**heat-transfer's two self-corrections are recorded because they are the behaviour this charter wants and rarely gets:** they withdrew a credit claim (*"a fourth ground … and it is MINE"* — the finding arrived in this team's `§8` and the `0.orig` repair was prescribed in `§7.4`), and they **reduced their own blocker count from five to three**, on the ground that *"inflating a blocker count is as dishonest as deflating one."*
+
+### §2bm — **THE UNREVIEWED INSTRUMENT: WE REVIEW WHAT WE COMMIT AND BELIEVE WHAT WE TYPE**
+
+heat-transfer counted, across their lanes and themselves in one session, **roughly seven false zeros from ad-hoc filters** — a `ugrep` flag rejection swallowed by `2>/dev/null` reporting *"no implementation exists"* about a fully-implemented guard; a `grep -v` that deleted every line because they carried a two-space indent; a case-survey glob undercounting 3D candidates **threefold**; a `STATUS` file sought in the wrong directory. **This supervisor contributed two more in the same session** — a recogniser counting `` `0.000` `` and `` `0.orig` `` as pinned paths, and its bounded successor dominated 228-to-95 by a file that is not a registration.
+
+**heat-transfer's diagnosis is exact and is the clause:**
+
+> **THE INSTRUMENTS WE COMMIT ARE REVIEWED. THE FILTERS WE TYPE AT A PROMPT ARE NOT.**
+
+A committed comparator gets `SUPERVISION_CHARTER` §3 check-1 as a diff, a selftest, planted controls and a supervisor's read. **A `grep`, a glob or a regex typed at a prompt gets none of these, and its output is believed immediately — because it is convenient and because nothing in the system knows it ran.**
+
+> **CLAUSE: an ad-hoc filter IS an instrument, and standing rule 3 reaches it. A ZERO from a filter typed at a prompt is NOT A MEASUREMENT until that filter has been shown able to return NON-ZERO on the same corpus. This creates no new law — it is rule 3, applied to the one instrument class the lab has never applied it to.**
+
+**The cheapest sufficient form is a positive control on the same command:** a pattern known to be present, in the same shape as the target, run through the identical filter. **Every one of the nine instances above would have been caught by it**, and none of them was caught by luck — each was caught by somebody declining to believe a convenient empty result, which is a disposition and not a control.
+
+| amendment record | **v1.82** |
+|---|---|
+| clauses added | **2** (§2bl, §2bm); §2bk gains its operational form (§2bk.5) |
+| existing clauses altered, widened or narrowed | **0** |
+| gate values changed | **0** · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
+| new law created by §2bm | **0** — it is standing rule 3 applied to a class it never reached |
+| **lines whose number changed above this section** | **0** |
