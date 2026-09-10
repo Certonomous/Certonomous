@@ -26372,3 +26372,22 @@ not borne by the lane that leaked it: it is borne by whichever team's solver is 
 measured elapsed time and the SIGTERM exit. Family: the `setsid` parent-returns-zero trap,
 the agent-watcher lessons, `L-342` (this cost bookkeeping and other teams' throughput, no
 physics).
+
+## L-542 — A POSITIVE CONTROL IS ONLY AS GOOD AS THE BLINDNESS IT WAS CHOSEN TO EXPOSE. `grep -r` (ugrep, SKIPS GITIGNORED) AND `git ls-files` (TRACKED ONLY) ARE BLIND IN OPPOSITE DIRECTIONS, SO SWITCHING FROM ONE TO THE OTHER TRADES A BLIND SPOT FOR ITS MIRROR AND FEELS SAFER
+
+**Measured 2026-09-10 23:07:38Z** by a verification lane auditing its own method rather than its subject, while establishing whether a canonical instrument had any call sites.
+
+**The trap.** An agent who learns that `grep -r` here is ugrep and silently skips gitignored files does the sensible thing and switches to `git ls-files | xargs grep`. **That filter sees only TRACKED files.** An untracked or gitignored caller is invisible to it. The two filters are blind in **opposite** directions and neither alone can establish a zero.
+
+**The deeper half, and it is the transferable one.** The lane's positive control initially exercised only the ugrep arm, so it **declined to report the tracked-arm zero** until it had a control chosen to exercise *that* blindness. Token `materialise_case`, living in `scripts/demo3d_render_common.py` — **a file on disk that git does not track**:
+
+- `git ls-files | xargs grep -ln` → **0** (blind, as suspected)
+- `find … -name '*.py' | xargs grep -ln` → **2**
+
+**A CONTROL DRAWN FROM THE POPULATION THE FILTER CAN ALREADY SEE IS A TAUTOLOGY.** It proves the filter is not broken; it does **not** prove the corpus is whole.
+
+**The rule.** Pick the control token to live in the class the filter is **suspected of missing** — untracked when the filter is `git ls-files`; gitignored when it is `grep -r`; mixed-case when the match is case-sensitive (this lab has `motorBike`, `K0cX`, `T4e_IJ_m`); outside the repo when the roots are inside it (`docs/LOCATIONS.md` enumerates the out-of-git trees). **A call-site zero needs BOTH arms plus an aimed control.**
+
+**What it bought.** With both arms and an aimed control, `scripts/check_instrument_detects_plant.py` has **zero executable call sites anywhere on the box** — repo tracked and untracked, out-of-repo run trees, `harness-state`, `notes`, `/etc/systemd/system`, and cron (0 of 4, `crontab -l` proven readable by its own control). Previously "zero tracked call sites" and **inferred**; now **measured**.
+
+**Provenance:** `VERIFICATION_CHARTER.md` §2cw (v1.95); extends standing rule 3 and §2bm (a filter is an instrument) and gives §2cc (a census is its corpus) its operational form. Related: the ugrep ignore-file behaviour, and §2cc's case-sensitivity limb — this supervisor produced three false zeros in one session, one of them **twenty minutes after ruling on the class**.

@@ -10084,3 +10084,53 @@ cfd, on DrivAer: **`snappyHexMesh` layer addition produced 52,165 negative-volum
 | sweeps owed | **1** (landed verdicts whose graders carry `.get()`-guarded references — cfd's graders theirs, T-family and certificates mine, deferred under `§2cf.1`) |
 | upstream reports filed | **0** — `NOT FILED`, parked (rule 7) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.95, 2026-09-10 — **§2cw THE TWO CENSUS FILTERS ARE BLIND IN OPPOSITE DIRECTIONS, AND A POSITIVE CONTROL IS ONLY AS GOOD AS THE BLINDNESS IT WAS CHOSEN TO EXPOSE. §2cx THE ARMING DEFECT UNIFIED ON THREE MEASURED INSTANCES — EVERY GATE REPORTS `armed_by`, AND EVERY GATE SHIPS A CONTROL FOR ITS *ARMING*, NOT ONLY ITS *READING***
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** `§2cw` from a verification lane closing its own last open arm; `§2cx` is **cfd's proposal**, adopted with its refusing limbs split off to Sanaa. `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`).**
+
+### §2cw — **`§2cc` GAINS ITS OPERATIONAL FORM, AND IT IS SHARPER THAN THE CLAUSE I WROTE**
+
+`§2cc` ruled that a census is its corpus as much as its filter, and that roots must be stated. **It did not say the thing that actually bites, and a lane found it by auditing its own method rather than its subject:**
+
+> **`grep -r` (ugrep — SKIPS GITIGNORED) and `git ls-files` (TRACKED ONLY) are blind in OPPOSITE directions. An agent who learns about the first trap and switches to the second has traded one blind spot for its mirror, and feels safer.**
+
+**And the deeper half, which corrects `§2bm` as much as `§2cc`: A POSITIVE CONTROL DRAWN FROM THE POPULATION THE FILTER CAN ALREADY SEE IS A TAUTOLOGY.** The lane's own control initially exercised only the ugrep arm; it declined to report the tracked-arm zero until it had a control **chosen to exercise that specific blindness** — token `materialise_case`, living in `scripts/demo3d_render_common.py`, **a file on disk that git does not track**:
+
+| filter | result on the control token |
+|---|---|
+| `git ls-files \| xargs grep -ln` | **0 — blind, as suspected** |
+| `find … -name '*.py' \| xargs grep -ln` | **2** (`demo3d_render_common.py`, `selftest_demo3d_render.py`) |
+
+> **CLAUSE §2cw: A POSITIVE CONTROL IS ONLY AS GOOD AS THE FAILURE MODE IT WAS CHOSEN TO EXPOSE. The control token is selected to live in the class the filter is SUSPECTED OF MISSING — untracked when the filter is `git ls-files`, gitignored when it is `grep -r`, mixed-case when the match is case-sensitive, outside the repo when the roots are inside it. A control that merely proves "the filter returns something" proves the filter is not broken; it does not prove the CORPUS IS WHOLE.**
+>
+> **AND A CALL-SITE ZERO NEEDS BOTH ARMS.** Neither filter alone can establish one. This is `§2bm` at its second remove: rule 3 said a reader must be shown able to see a non-zero; `§2bm` extended it to prompt-typed filters; **`§2cw` says the demonstration must be aimed at the specific way THIS filter can be wrong.**
+
+**THE MEASUREMENT THIS UNLOCKS, and it is the claim my own canonical designation rests on.** With both arms and a properly aimed control: **`scripts/check_instrument_detects_plant.py` has ZERO EXECUTABLE CALL SITES ANYWHERE ON THIS BOX** — repo tracked and untracked, the out-of-repo run trees, `/home/ubuntu/harness-state`, `/home/ubuntu/notes`, `/etc/systemd/system`, and **cron (0 of 4 entries, with `crontab -l` proven readable by a control that returns real content)**. Its only three references are prose, **one of which is the charter clause that made it canonical 91 minutes earlier.** **Previously "zero tracked call sites" and inferred; now measured.**
+
+### §2cx — **cfd's UNIFICATION IS ADOPTED: THREE INSTANCES TONIGHT ARE ONE DEFECT**
+
+cfd's framing, adopted as the clause name: **SUBOFF's `armed: by_data`, DrivAer's null `Cl` reference disarming a gate AND its control, and M6CP1's stage-2 gate evaluated by an instrument that could not see the failing check are ONE DEFECT — A GATE WHOSE ARMING IS CONTINGENT ON SOMETHING OTHER THAN THE GATE'S OWN DEFINITION.**
+
+**That is a better generalisation than `§2cu`'s, which reached only the data-presence route.** The three instances differ in what the arming became contingent on — **the reference's presence, the reference's nullity, the instrument's capability** — and are identical in consequence: **the gate did not run, and nothing said so.**
+
+> **RULED — §2cx, DISCLOSURE LIMBS, BINDING NOW, because none of them makes anything refuse:**
+> 1. **EVERY GATE REPORTS `armed_by`** — the condition that caused it to evaluate, named, in the emitted verdict artifact. A gate that cannot state why it armed has not established that it did.
+> 2. **AN UNARMED GATE IS REPORTED AS `NOT-ARMED` AND IS NEVER SILENT, AND IT MAY NEVER BE COUNTED IN A PASS TALLY.** A rung verdict states how many of its gates armed beside how many passed. **"4 gates PASS" where one never armed is a false headline (`§2bg`), and this is the field that prevents it.**
+> 3. **EVERY GATE SHIPS A CONTROL FOR ITS *ARMING*, NOT ONLY ITS *READING* — and this is the limb the lab does not have at all.** Every planted control in this repository tests the **read path**: can the reader see a perturbation. **NONE tests the arming path: does this gate actually evaluate when it should, and does it announce itself when it cannot.** The arming control is two cheap arms — **fire the gate on a planted WRONG value and require it to notice; present it an ABSENT or NULL reference and require it to say `NOT-ARMED`** — and `§2cu` measured why it is needed: **DrivAer's reading control was disarmed by the same predicate as its gate, so a reading control cannot detect this class by construction.**
+>
+> **THE REFUSING LIMBS ARE NOT MINE AND GO TO HER DESK.** cfd propose that an unarmed gate and an absent reference **REFUSE**. **I agree with both on the merits and may not arm either: making an instrument refuse where it previously passed is adding a gate on lab process, and `D539` reserves that to Sanaa — "not cfd, not this team, not the chief."** They are recorded for her with **three measured instances and their cost**, alongside the two items already on her desk tonight. **That is now five declined refusals today, one of them proposed by the team it would constrain.**
+>
+> **`§2cu` is not superseded — it is the data-presence special case of `§2cx`, and its second limb (a control's arming condition must be INDEPENDENT of its gate's) is what makes limb 3 above implementable rather than circular.**
+
+**NO VERDICT MOVES TONIGHT, and the sweep this implies is named rather than performed:** every landed verdict whose grader can skip a gate must state which gates armed. **cfd's graders are theirs; the T-family and `verification/certificates/` are mine, and both are deferred under `§2cf.1` until the box is not IO-bound** — a full-corpus sweep is exactly the IO-expensive census that clause exists to schedule.
+
+| amendment record | **v1.95** |
+|---|---|
+| clauses added | **2** (§2cw, §2cx) · existing clauses gaining an operational form | **1** (`§2cc`) · subsumed as a special case | **1** (`§2cu`) |
+| gate values changed | **0** · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
+| **refusing limbs DECLINED and sent to Sanaa** | **2** (unarmed gate; absent reference) — **five declined today** |
+| claims upgraded from INFERRED to MEASURED | **1** (zero call sites, box-wide) |
+| **lines whose number changed above this section** | **0** |
