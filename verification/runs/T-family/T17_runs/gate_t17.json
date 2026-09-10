@@ -1,0 +1,209 @@
+{
+  "rung": "T17",
+  "scope": "SOLID-ONLY axisymmetric transient conduction in a finite cylinder (T11d); NOT conjugate, NOT a flow case",
+  "ceiling": "GATE REACHED at best -- the reference is EXACT, so this rung scores V and never P; it can never reach HOLDS",
+  "Bi": 1.0,
+  "Fo_end": 0.2,
+  "N": {
+    "c": 50,
+    "m": 100,
+    "f": 200
+  },
+  "wedge_deg": 1.0,
+  "refinement_ratio": 2.0,
+  "dim": 2,
+  "factor_of_safety": 1.25,
+  "floors": {
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05,
+    "source": "scripts/roache_triple.py (imported)"
+  },
+  "geometry": {
+    "c": {
+      "total_volume": 8.726203218641758e-09,
+      "min_volume": 6.980962574913406e-14,
+      "max_volume": 6.911152949164286e-12,
+      "centroid_identity": 0.6666666666666666
+    },
+    "m": {
+      "total_volume": 8.726203218641758e-09,
+      "min_volume": 8.726203218641758e-15,
+      "max_volume": 1.7365144405097122e-12,
+      "centroid_identity": 0.6666666666666666
+    },
+    "f": {
+      "total_volume": 8.726203218641758e-09,
+      "min_volume": 1.0907754023302198e-15,
+      "max_volume": 4.3521938552975573e-13,
+      "centroid_identity": 0.6666666666666666
+    }
+  },
+  "gate1": {
+    "ok": true,
+    "why": "",
+    "time_integration": {
+      "c": {
+        "ok": true,
+        "worst_final_residual": 9.9648796897714e-13,
+        "why": ""
+      },
+      "m": {
+        "ok": true,
+        "worst_final_residual": 9.9432039523928e-13,
+        "why": ""
+      },
+      "f": {
+        "ok": true,
+        "worst_final_residual": 9.9944250508045e-13,
+        "why": ""
+      }
+    },
+    "W0": {
+      "c": 0.0,
+      "m": 0.0,
+      "f": 0.0
+    }
+  },
+  "separability_defect_REPORTED_ONLY": {
+    "c": 1.1838847971361996e-07,
+    "m": 1.1824762467725401e-07,
+    "f": 1.1827842034738976e-07
+  },
+  "planted_zero_controls": {
+    "G1": {
+      "status": "PASS",
+      "plant": 0.001234,
+      "cells_planted": 40000,
+      "recovered": 0.0012339999999996243,
+      "negative_arm": 0.0,
+      "demonstrated_detection_floor": 1e-07,
+      "ladder": {
+        "1": 0.9999999999999989,
+        "0.1": 0.09999999999999931,
+        "0.01": 0.009999999999999787,
+        "0.001234": 0.0012339999999996243,
+        "0.0001": 9.999999999965592e-05,
+        "1e-05": 9.999999999621423e-06,
+        "1e-06": 9.999999995846665e-07,
+        "1e-07": 9.999999983634211e-08
+      }
+    },
+    "G2": {
+      "status": "PASS",
+      "plant": 0.001234,
+      "cells_planted": 1,
+      "recovered": 0.003239249999999805,
+      "negative_arm": 0.0,
+      "demonstrated_detection_floor": 1e-07,
+      "ladder": {
+        "1": 2.625000000000001,
+        "0.1": 0.26249999999999973,
+        "0.01": 0.026249999999999996,
+        "0.001234": 0.003239249999999805,
+        "0.0001": 0.00026249999999994333,
+        "1e-05": 2.624999999978339e-05,
+        "1e-06": 2.624999999922828e-06,
+        "1e-07": 2.624999997369315e-07
+      }
+    },
+    "G3": {
+      "status": "PASS",
+      "plant": 0.001234,
+      "cells_planted": 1,
+      "recovered": 0.0027757287629804894,
+      "negative_arm": 0.0,
+      "demonstrated_detection_floor": 1e-07,
+      "ladder": {
+        "1": 2.2493750105191257,
+        "0.1": 0.22493750105191246,
+        "0.01": 0.02249375010519128,
+        "0.001234": 0.0027757287629804894,
+        "0.0001": 0.0002249375010519028,
+        "1e-05": 2.249375010499044e-05,
+        "1e-06": 2.2493750104768395e-06,
+        "1e-07": 2.249375008478438e-07
+      }
+    }
+  },
+  "rows": [
+    {
+      "row": "G1",
+      "quantity": "theta_mean, VOLUME-weighted mean over the wedge (weight (r2^2-r1^2) per radial cell; a plain arithmetic mean would over-weight the axis and is not what the reader does)",
+      "reference": 0.6118851821581507,
+      "band": [
+        0.6118545878990428,
+        0.6119157764172587
+      ],
+      "value_fine": 0.6118817042123066,
+      "triple": {
+        "c": 0.6119034210708445,
+        "m": 0.6118860479095635,
+        "f": 0.6118817042123066
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 1.999864835665163,
+      "gci_pct": 0.0002958251486713521,
+      "richardson_REPORTED_ONLY": 0.6118802561323377,
+      "band_verdict": "PASS",
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": -5.683984423078072e-06,
+      "predicted_rel_deviation": -2.2e-05
+    },
+    {
+      "row": "G2",
+      "quantity": "theta at (r*,z*) = (0,0), the centre of the full cylinder, separable linear extrapolation over the NON-UNIFORM radial sector-centroid stations and the uniform axial stations",
+      "reference": 0.8272239908624911,
+      "band": [
+        0.8271991741427652,
+        0.827248807582217
+      ],
+      "value_fine": 0.8272124680430901,
+      "triple": {
+        "c": 0.8272850203994526,
+        "m": 0.8272249731075975,
+        "f": 0.8272124680430901
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 2.263586681887596,
+      "gci_pct": 0.0004970330748244367,
+      "richardson_REPORTED_ONLY": 0.8272091788274379,
+      "band_verdict": "PASS",
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": -1.3929503409304502e-05,
+      "predicted_rel_deviation": -5.9e-06
+    },
+    {
+      "row": "G3",
+      "quantity": "theta at (r*,z*) = (1,0), the mid-plane of the curved Robin surface, separable linear extrapolation",
+      "reference": 0.5420823168990102,
+      "band": [
+        0.5420606336063343,
+        0.5421040001916861
+      ],
+      "value_fine": 0.5420882371818713,
+      "triple": {
+        "c": 0.5421955850883715,
+        "m": 0.5421095984953681,
+        "f": 0.5420882371818713
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 2.0091113725188565,
+      "gci_pct": 0.0016281465842780702,
+      "richardson_REPORTED_ONLY": 0.5420811763889773,
+      "band_verdict": "PASS",
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": 1.0921372412454928e-05,
+      "predicted_rel_deviation": -1.28e-05
+    }
+  ],
+  "C_T": {
+    "case": "T17_CY_f_CT",
+    "G1_fine": 0.6118817042123066,
+    "G1_ct": 0.6118799261935003,
+    "move_rel": -2.905821164544516e-06,
+    "fraction_of_band": 0.05811642329089031
+  }
+}

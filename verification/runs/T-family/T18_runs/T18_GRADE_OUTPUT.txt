@@ -1,0 +1,3 @@
+REFUSE: no DONE.T18_CU_m -- the whole rung is graded or none of it is; mark_done_t18.py rules
+
+[lane note] exit status of the frozen analyse_t18.py, captured from $? and never through a pipe: 2

@@ -1,0 +1,18 @@
+T5b comparator -- registration docs/campaigns/T-family/T5b_PREREGISTRATION.md
+reference: T5_runs/T5_reference_primary.json (digitised 2026-08-26T22:39:01Z)
+L-342 classes: T=PHYSICS-CRITICAL; rc_value=PHYSICS-CRITICAL; rc_record=INFRASTRUCTURE; yPlus.dat=GATE INPUT (never infrastructure); core_min=INFRASTRUCTURE; ExecutionTime_line_count=INFRASTRUCTURE
+  level c  T5_CUBE_c   cells   52684  completion: COMPLETE  y+: MET
+  level m  T5_CUBE_m   cells  212942  completion: COMPLETE  y+: MET
+  level f  T5_CUBE_f   cells  882024  completion: COMPLETE  y+: NOT A RESULT
+MEASURED refinement ratios r21 = 1.6060, r32 = 1.5929 (NEVER the r = 2.0 default: that is wrong by 46 % in log r on this ladder)
+planted-zero control: both plants seen: constant offset 0.001234 through the MEAN reader and single-cell spike 987.6 through the RANGE reader
+
+ROWS
+  G1a  NOT A RESULT           y+ gate not MET on level(s) f: y+ exceeds 2.0x the level target 1.00 on: cube_front=2.310 -- the ladder is not the registered ladder
+  G2a  NOT A RESULT           y+ gate not MET on level(s) f: y+ exceeds 2.0x the level target 1.00 on: cube_front=2.310 -- the ladder is not the registered ladder
+  G3a  NOT A RESULT           y+ gate not MET on level(s) f: y+ exceeds 2.0x the level target 1.00 on: cube_front=2.310 -- the ladder is not the registered ladder
+  G5a  NOT A RESULT           y+ gate not MET on level(s) f: y+ exceeds 2.0x the level target 1.00 on: cube_front=2.310 -- the ladder is not the registered ladder
+  G5b  NOT A RESULT           y+ gate not MET on level(s) f: y+ exceeds 2.0x the level target 1.00 on: cube_front=2.310 -- the ladder is not the registered ladder
+  G5c  NOT A RESULT           y+ gate not MET on level(s) f: y+ exceeds 2.0x the level target 1.00 on: cube_front=2.310 -- the ladder is not the registered ladder
+
+TALLY: 0 of 6 graded rows PASS. The 7 REPORTED rows (G1, G2, G3, G4, R1, R2, R3) are a ROW CLASS, not a verdict, and are EXCLUDED from this census (ruling D534, Sanaa APPROVED 2026-08-27).

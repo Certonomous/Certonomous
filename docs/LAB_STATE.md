@@ -18823,6 +18823,27 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-10 (update 64): **SIX GRADED-OUTPUT ARTIFACTS WERE UNTRACKED — including the one a FROZEN registration cites by line, and the one I cited myself.** Committed. A filing repair, not a verdict repair.
+
+**THE DEFECT.** `verification/runs/T-family/T5b_runs/T5B_GRADE_OUTPUT.txt` existed **only in this working tree** — `git ls-files --error-unmatch` fails on it, `git cat-file` reports *"exists on disk, but not in 'HEAD'"*, and it has **no history at all**. Yet **nine documents cite it**, including the **FROZEN** `T5d_PREREGISTRATION.md`, whose §1.1 cites it **by line number** (`:4`, `:5`, `:6`, `:11`–`:16`, `:18`, and `:8` for the planted-zero control) as its **re-verified authority** for the level completions, the failing statistic and the `0 of 6` tally. **I cited it myself** in updates 61 and 62 as the authority for *"TALLY: 0 of 6 graded rows PASS"* — the very line on which I based withdrawing `G2a` and on which I told the chief T5b's verdicts were safe.
+
+**A frozen registration whose evidentiary base exists in one working tree is one `git clean` from a number with no artifact**, and this lab's whole product is *"a number that cites an artifact still on disk."* The scan found the defect is **not isolated** — six untracked evidence artifacts in my territory, five of them cited:
+
+| artifact | citing docs |
+|---|---:|
+| `T5b_runs/T5B_GRADE_OUTPUT.txt` | **9** (incl. frozen `T5d_PREREGISTRATION.md`) |
+| `T17_runs/gate_t17.json` | 4 |
+| `T23G2Rn_runs/T23G2Rn_RUNG_VERDICT.txt` | 3 |
+| `T18_runs/T18_GRADE_OUTPUT.txt` | 2 |
+| `T17_runs/T17_GRADE_OUTPUT.txt` | 2 |
+| `T23G2Rn_runs/T23G2Rn_COMPARATOR_STDOUT.txt` | 0 |
+
+**All six committed in this commit.** Nothing is re-graded and no verdict changes — the bytes are exactly what the comparators wrote. This is the §1 "HEAD is truth" rule applied to the artifact class it most matters for: these are **graded outputs**, not logs, so the logs exemption does not reach them.
+
+**HOW I NEARLY DISMISSED IT — worth recording, because it is the second instance tonight of the same class.** A lane reported the file untracked; my verification said "tracked" and I was about to dismiss the lane as wrong. My check was `h=$(git rev-parse HEAD:$p 2>/dev/null || echo ABSENT)` — `git rev-parse` printed the **path string** to stdout *and* its error to stderr, so `$h` became a two-line value that never equalled `ABSENT` and my test took the "tracked" branch on a file that does not exist in HEAD. Earlier tonight the same class of defect gave me a false `GONE` on three live processes (`ps -o pid= -p 767614>/dev/null` — bash parsed `767614>` as a file-descriptor redirect, leaving `-p` with no argument). **Both were shell-parsing artifacts that produced a confident, wrong, one-word answer.** The cure both times was the purpose-built check — `git ls-files --error-unmatch`, and `ps` with its own arguments — not a cleverer one-liner. **A lane's finding that contradicts my own check deserves the purpose-built test before I call the lane wrong.**
+
+**Owed:** whether this class extends beyond my territory is not mine to sweep, but the shape — graded outputs untracked while frozen documents cite them by line — is worth a lab-wide look, and is routed rather than assumed.
+
 ##### heat-transfer 2026-09-10 (update 63): citation sweep done — **5 documents carry the withdrawn `G2a`, one of them FROZEN.** T5d dated addendum written: **it is registered to REPRODUCE the defect.** Certificates, credibility and the capability grid are **CLEAN**.
 
 ### THE GOOD NEWS FIRST, because it bounds the damage

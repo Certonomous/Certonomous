@@ -1,0 +1,16 @@
+verifying the analytic reference and the geometry before any comparison:
+  C_GEOM: volume model agrees with the case's registered volumes; centroid identity 0.66666666666666663
+  exact_t17.verify: Bessel ODE ok; PDE residual 9.03e-06 (ratio 4.00); axis/symmetry 0.0e+00; Robin 1.2e-07/8.6e-08; IC 3.9e-04; Simpson agrees to 6.2e-13; LUMPED LIMIT ok; cross-check vs T11 registered plane-wall values PASS (Bi=1 Fo=0.2)
+  level c: reached endTime, every step converged: True
+  level m: reached endTime, every step converged: True
+  level f: reached endTime, every step converged: True
+  W0 monotonicity witness (worst INCREASE): c 0.00e+00, m 0.00e+00, f 0.00e+00
+  separability defect (REPORTED, never gated): c 1.18e-07, m 1.18e-07, f 1.18e-07
+planted-zero control G1  PASS: plant 0.001234 in 40000 cell(s), recovered 0.001234, floor 1e-07
+planted-zero control G2  PASS: plant 0.001234 in 1 cell(s), recovered 0.00323925, floor 1e-07
+planted-zero control G3  PASS: plant 0.001234 in 1 cell(s), recovered 0.00277573, floor 1e-07
+G1  fine=0.6118817042 ref=0.6118851822 dev=-5.684e-06 (predicted -2.200e-05) band=[0.61185459, 0.61191578] triple=(6.11903421e-01, 6.11886048e-01, 6.11881704e-01) CONVERGING p=1.9999 GCI=2.9583e-04% -> PASS
+G2  fine=0.8272124680 ref=0.8272239909 dev=-1.393e-05 (predicted -5.900e-06) band=[0.82719917, 0.82724881] triple=(8.27285020e-01, 8.27224973e-01, 8.27212468e-01) CONVERGING p=2.2636 GCI=4.9703e-04% -> PASS
+G3  fine=0.5420882372 ref=0.5420823169 dev=+1.092e-05 (predicted -1.280e-05) band=[0.54206063, 0.54210400] triple=(5.42195585e-01, 5.42109598e-01, 5.42088237e-01) CONVERGING p=2.0091 GCI=1.6281e-03% -> PASS
+C-T temporal-bias control (REPORTED, never gated): G1 moves -2.906e-06 relative = 0.058 of the band
+wrote /home/ubuntu/Certonomous/verification/runs/T-family/T17_runs/gate_t17.json

@@ -1,0 +1,24 @@
+T23G2Rn WHOLE-RUNG VERDICT
+graded_at_utc : 2026-09-09T18:32:01Z
+graded_by     : detached autograder autograde_t23g2rn.sh (pid 741819, PPID at arm = 1)
+comparator    : docs/campaigns/T-family/analyse_t23g2rn.py
+comparator_pin: 2017d4cd639424b45479ba141864849d716efa43
+freeze_commit : 2cba90ee619a1e8f4fbb51588ecf8d8751c10c4a
+mark_done_pin : ba76b747 (wrapper) ; base 982e1db6 (mark_done_t23.py)
+comparator_rc : 2
+comparator_stdout: verification/runs/T-family/T23G2Rn_runs/T23G2Rn_COMPARATOR_STDOUT.txt
+
+WHOLE-RUNG VERDICT: PENDING (infra-confounded -- a level incomplete; fresh re-run needed)
+
+--- comparator final line (verbatim) ---
+REFUSED (exit 2): rule 4 completion FAILED for T23G2Rn_L1 (rc=1) , T23G2Rn_L2 (rc=1) , T23G2Rn_L3 (rc=1) ; a run that fails any clause is not done, and this comparator will not grade it
+
+--- per-level triple / per-quantity gate lines (verbatim from stdout) ---
+(no gate summary lines found -- the comparator likely refused before grading; see verification/runs/T-family/T23G2Rn_runs/T23G2Rn_COMPARATOR_STDOUT.txt)
+
+--- INTERPRETATION ---
+exit 2 => REFUSE, and the stdout says rule-4 completion FAILED / NOT DONE.
+INTERPRETATION: rung = PENDING (infra-confounded: a level capped/incomplete, not a scientific NOT A RESULT); the incomplete level(s) need a fresh re-run per the pre-registered plan (new dir, registered endTime, §6 cap).
+
+NOTE: this verdict is the FROZEN COMPARATOR's stdout+exit code on disk.
+A returning agent still owes the supervisor's diff-read + big-claim check before it is repeated upward.

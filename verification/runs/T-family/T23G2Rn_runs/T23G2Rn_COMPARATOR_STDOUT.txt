@@ -1,0 +1,42 @@
+==========================================================================
+T23G2Rn COMPARATOR -- gates REUSED VERBATIM from frozen T23G2 (T23G2R_PREREGISTRATION.md section 3)
+GRADING THE FINE VALUE.  The Richardson extrapolate is REPORTED and NEVER GATED ON.
+==========================================================================
+
+SELF-HASH: running blob 2017d4cd639424b45479ba141864849d716efa43 (freeze pin 2cba90ee619a1e8f4fbb51588ecf8d8751c10c4a) -- PRINT-ONLY provenance (section 2au.2).  The SELF member is anchored by the commit-message FREEZE-PIN and the grade-time byte-identity check, not by a self-referential IDENTICAL assertion.
+
+GRADING-PATH SHAS -- REPAIR R2, registered at T23G2_PREREGISTRATION.md:671
+  THIS RECORDER GRADES NOTHING.  It reads no field and moves no comparison.
+  Frozen column = the blob in 2cba90ee619a1e8f4fbb51588ecf8d8751c10c4a, the commit that froze this comparator.
+  docs/campaigns/T-family/T23G2Rn_PREREGISTRATION.md
+      post-repair (working tree) : 9ed763c774ac2f95a4c427aa2c31b0792a554981
+      pre-registration (frozen)  : 9ed763c774ac2f95a4c427aa2c31b0792a554981   IDENTICAL
+  docs/campaigns/T-family/analyse_t23g2rn.py
+      post-repair (working tree) : 2017d4cd639424b45479ba141864849d716efa43
+      pre-registration (frozen)  : 2233793b3e92482bf20ee23f2d19998364230bfb   DIFFERS
+  docs/campaigns/T-family/t23g_readonly_diagnosis.py
+      post-repair (working tree) : 73804c02d2f1ebbb2cd2ad63796f4b5cfb4d7067
+      pre-registration (frozen)  : 73804c02d2f1ebbb2cd2ad63796f4b5cfb4d7067   IDENTICAL
+  verification/runs/T-family/T23_runs/mark_done_t23g2rn.py
+      post-repair (working tree) : ba76b747dc7c656e34b63eaade062224f4d60b96
+      pre-registration (frozen)  : ba76b747dc7c656e34b63eaade062224f4d60b96   IDENTICAL
+  verification/runs/T-family/T23_runs/mark_done_t23.py
+      post-repair (working tree) : 982e1db6622454c2e5cc3e9eb4d6811e87735b78
+      pre-registration (frozen)  : 982e1db6622454c2e5cc3e9eb4d6811e87735b78   IDENTICAL
+  scripts/roache_triple.py
+      post-repair (working tree) : 78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8
+      pre-registration (frozen)  : 78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8   IDENTICAL
+
+  THE TWO COLUMNS ARE TWO DIFFERENT OBJECTS AND ARE NOT INTERCHANGEABLE.
+  THIS RECORDER DOES NOT RESTORE THE REGISTERED PROVENANCE AND DOES NOT CLAIM TO:
+  :671 contemplated shas present FROM THE FIRST GRADED SOLVE.  Adding the recorder
+  CHANGES this file's sha, so only the forward half is available (section 2d.4.3).
+  NO GRADED SOLVE WAS EVER PRODUCED UNDER A COMPARATOR CARRYING THIS RECORDER.
+
+COMPLETION -- rule 4, DELEGATED to verification/runs/T-family/T23_runs/mark_done_t23g2rn.py and CALLED
+
+  | NOT DONE  T23G2Rn_L1     - CRASH: rc=143 (capped=0) -- a crash is a FINDING until triage says otherwise; log.solve carries 0 End lines, expected exactly 1; last written time 200 != endTime 8000; time 200 is missing core/T,core/p,fluid/T,fluid/U,fluid/p,fluid/p_rgh,fluid/alphat,fluid/nut,fluid/k,fluid/omega,housing/T,housing/p
+  | NOT DONE  T23G2Rn_L2     - CRASH: rc=143 (capped=0) -- a crash is a FINDING until triage says otherwise; log.solve carries 0 End lines, expected exactly 1; no time directory beyond 0 -- the solver wrote no fields
+  | NOT DONE  T23G2Rn_L3     - CRASH: rc=143 (capped=0) -- a crash is a FINDING until triage says otherwise; log.solve carries 0 End lines, expected exactly 1; no time directory beyond 0 -- the solver wrote no fields
+
+REFUSED (exit 2): rule 4 completion FAILED for T23G2Rn_L1 (rc=1) , T23G2Rn_L2 (rc=1) , T23G2Rn_L3 (rc=1) ; a run that fails any clause is not done, and this comparator will not grade it
