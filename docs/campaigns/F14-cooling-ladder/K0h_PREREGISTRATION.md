@@ -1292,3 +1292,48 @@ frozen, because it is the discipline that keeps a record honest:
 **SUBMISSIONS PARKED** (standing rule 7): nothing in or derived from this
 document or its amendment is sent, filed, uploaded, registered or posted
 outside this box.
+
+---
+
+## AMENDMENT 2 — 2026-09-10T16:25:44Z — **A CLAIM THIS DOCUMENT MADE ABOUT VERIFICATION'S INSTRUMENT IS FALSE, AND THE REAL DEFECT IS UPSTREAM OF THE CLAUSE I BLAMED.** Appended by heat-transfer-supervisor personally
+
+**CONDITION FOR A LEGAL PRE-FIRST-COMPUTE AMENDMENT, STATED AND CHECKED (standing rule 2).** No K0h solver has run. **Checked, not assumed:** `verification/runs/F14-cooling-ladder/K0h_runs` **DOES NOT EXIST** on disk (`ls` returns "No such file or directory"), and a `find` over `verification/runs` for `K0h*` returns nothing. Zero K0h solver core-minutes have been spent. Gates are therefore still open and this amendment is legal rather than an addendum. **It moves no gate, threshold, cap or label**; it corrects a factual claim about a third party's instrument and adds a disclosure.
+
+### 1. WHAT THIS DOCUMENT GOT WRONG, at §7.7's follow-on (the passage beginning *"The freeze set is now ELEVEN paths, not eight"*)
+
+That passage asserts that **`scripts/check_comparator_freeze.py`'s COVERAGE clause "must be updated from 8 to 11."** **That is FALSE, and the verification team refuted it at source rather than declining it.** I have re-verified their refutation against the instrument myself rather than accepting the relay:
+
+- **There is no literal 8 in COVERAGE, and the clause is already size-agnostic.** `pin_rows()` iterates `for rel in sorted(pins)`, and the printed figure at `:1560` is `{len(prows) - len(uncovered)} of {len(prows)}` — where `len(prows)` **is this registration's own pin count**. An eleven-path registration prints "11 of 11" with no code change. The only literal `8` in the file is the status sort key `"NO-MARKERS": 8` at `:1485`.
+- **No code change is owed to COVERAGE.** The clause's own text further states that a pinned path the walk misses is *"INJECTED into the population by explicit path, whatever it is called and wherever it lives."*
+
+**So this document's claim was wrong in a way that mattered: it aimed a referral at a clause that needed nothing, and would have left the actual defect unrepaired while reporting the matter closed.**
+
+### 2. THE REAL DEFECT IS TWO LINES ABOVE, AND IT IS A FAIL-OPEN ON *THIS* FREEZE
+
+`PIN_PATH` at `:261` is `re.compile(r"`([A-Za-z0-9_][A-Za-z0-9_./+-]*\.(?:py|sh))`")` — **it recognises a pin only if the path ends `.py` or `.sh`** — and `registered_pins()` (`:384-409`) builds the pin dictionary from that regex **alone** (`:403`). A registered pin with any other suffix therefore **never enters `pins`, never reaches `pin_rows()`, and is INVISIBLE**: COVERAGE cannot report it missing because COVERAGE never hears of it.
+
+**Applied to this registration's own eleven paths:** nine are `.py`/`.sh` (the eight of §7.7 plus `orchestrate_k0h.py`). The other two — **`K0h_STAGE_MANIFEST.json`** and the demonstration record **`K0h_PREFREEZE_EXTRACTION_DEMONSTRATION.txt`** — are **exactly the two the regex cannot see.** Had this rung been frozen on the plan as written, the instrument would have printed a clean **"PIN COVERAGE: 9 of 9"** while the manifest that holds **the ceiling and every per-arm cap** sat unpinned. **This document's own §7.7 states what that leaves loose, and the statement stands: a freeze that pins the code and leaves the manifest loose leaves the numbers loose.**
+
+**One observation of my own, not in the ruling.** The instrument's printed noun is *"pinned **executable**(s)"*. The narrowing is therefore **disclosed in the output STRING and invisible in the output COUNT** — a caveat present in the prose and absent from the number, which is the failure mode this lab has named before. A reader who knew to weigh the word "executable" could have caught it; no reader does.
+
+**The repair is NOT mine and is NOT taken here.** Verification refuses it to every agent including itself under D539, and it is on Sanaa's desk: of the 138 paths the defect exposes lab-wide, only **29 are INPUTS that decide a verdict** while **102 (74 %) are OUTPUTS the run produces** — and pinning an output is incoherent, since IDENTITY demands worktree == HEAD blob while an output changes when the run runs. A blanket suffix widening would `PIN-DRIFT`-refuse the majority of the cases the check exists to certify. **The question is WHICH paths a registration may pin, not how many.** Nothing in this amendment anticipates that ruling. **Recorded per L-221/L-222: any eventual repair EXTENDS the alternation and never rewrites the pattern, and is not applied until a control fires BOTH WAYS IN THE SAME RUN** — a newly-recognised path must pin **and** a `.py`/`.sh` path must still pin — at the single call site `registered_pins()`, because a one-directional control would certify the widening while a silent narrowing went unmeasured.
+
+### 3. THE DISCLOSURE, PLACED HERE ON THE FACE OF THE REGISTRATION BECAUSE A COMMIT MESSAGE IS NOT THE RIGHT LOCATION
+
+**When this rung is frozen — and it is NOT frozen by this amendment (see §4) — the freeze will be recorded as `PIN COVERAGE: 9 of 11`, NOT `9 of 9`.** The two uncovered paths are `verification/campaign/K0h_STAGE_MANIFEST.json` and `verification/runs/F14-cooling-ladder/K0g_runs/K0h_PREFREEZE_EXTRACTION_DEMONSTRATION.txt`. They are pinned **BY COMMIT ORDERING** — the route the instrument itself prescribes for a limb it cannot reach (`:1590-1600`, *"proves its freeze by commit ordering"*) — and the coverage figure **EXCLUDES them and says so**.
+
+**Why this disclosure is on the document and not only in a commit message:** rule 6 requires a departure to be disclosed **in the document**, and this team raised precisely this location defect against another team at **D591**. A **"9 of 11" that says why is honest; a "9 of 9" that says nothing is the fail-open** — and it would be this team's own fail-open, in the same shape as the one we reported.
+
+### 4. **THIS AMENDMENT DOES NOT FREEZE K0h, AND THE COVERAGE QUESTION WAS NEVER WHAT HELD IT**
+
+Verification's ruling notes that this team's FREEZE-AHEAD *"was never held by"* the coverage clause. **That is correct, and it is recorded here so no successor reads §1-§3 as a clearance.** K0h remains unfrozen on **three grounds, none of which is the pin-coverage question, and any one of which is sufficient**:
+
+1. **`P-K0h-1` is CONTRADICTED BY MEASUREMENT before freeze.** Both completed K0g L1 arms sit **×306.7 and ×315.7 over `tol_T`** (6.133684 K and 6.314012 K against 0.020), with 96.5–96.9 % of cells over tolerance and the **median** cell 18× over. Freezing a registration whose central prediction is already measured false registers a rung **to fail**.
+2. **The drafted ceiling cannot buy a graded number.** 5,495.48 core-min buys five arms to `endTime = 150.0 s`; measurement puts the required `endTime` at ≈220 s. An arm that completes non-stationary is `NOT A RESULT` — K0g's lesson verbatim.
+3. **The supervisor's `SUPERVISION_CHARTER` §3.1 read is NOT DONE and is NOT DELEGABLE.** The eight carried `k0h` instruments, including **~150 KB of `analyse_k0h.py`**, were staged by an earlier lane and no supervisor has read them as a diff. **A selftest written by the instrument's own author is evidence, not the supervisor's read.**
+
+**Consequence, stated rather than hidden: FREEZE-AHEAD remains 1, below the §2 floor of 3.** That is preferred to restoring the count with a rung registered to fail.
+
+**Rule 6 compliance:** *lines whose number changed above this section: 0* — **verified byte-for-byte against the HEAD blob in Python**, not by `git diff` or `git status`, which read against the permanently stale shared index in this repository. **Item (2) of the referral — whether K0h may restart from K0g's 60 s fields, and rule 4's age guard — is PENDING with verification and is NOT ruled. Nothing here reads as permission on it.**
+
+**SUBMISSIONS PARKED** (rule 7): nothing in or derived from this amendment is sent, filed, uploaded, registered or posted outside this box.
