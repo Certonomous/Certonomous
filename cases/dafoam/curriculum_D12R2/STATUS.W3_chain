@@ -1,1 +1,12 @@
 launcher_rc=2 end=2026-08-31T00:15:22Z note=exit-status-of-the-launch-argv-NOT-the-solver-rc
+stamp=2026-09-03T17:22:42Z driver=d12y_w3_chain_driver.sh event=START pid=179658 sid=179657 ppid=179657 root=/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady permission=bc0e687e
+stamp=2026-09-03T17:22:42Z driver=d12y_w3_chain_driver.sh event=BEGIN step=phase1
+stamp=2026-09-03T21:57:49Z driver=d12y_w3_chain_driver.sh rc=0 event=END step=phase1 out=W3_phase1.out
+stamp=2026-09-03T21:57:49Z driver=d12y_w3_chain_driver.sh event=BEGIN step=plan
+stamp=2026-09-03T21:57:49Z driver=d12y_w3_chain_driver.sh rc=0 event=END step=plan out=W3_plan.out
+stamp=2026-09-03T21:57:49Z driver=d12y_w3_chain_driver.sh event=BEGIN step=phase2
+stamp=2026-09-03T21:57:49Z driver=d12y_w3_chain_driver.sh rc=0 event=END step=phase2 out=W3_phase2.out
+stamp=2026-09-03T21:57:49Z driver=d12y_w3_chain_driver.sh event=BEGIN step=plan2
+stamp=2026-09-03T21:57:49Z driver=d12y_w3_chain_driver.sh rc=2 event=END step=plan2 out=W3_plan2.out
+stamp=2026-09-03T21:57:49Z driver=d12y_w3_chain_driver.sh chain=STOPPED_AT_FIRST_NONZERO rc=2 note=a-stop-at-a-registered-no-launch-branch-is-the-registered-terminus
+stamp=2026-09-03T21:57:49Z driver=d12y_w3_chain_driver.sh step_plan=admissible=False h_min=0.0911930188193242 W=2000 delta_window_exact=0.00043857102184485797 envelope=0.00044535

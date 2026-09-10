@@ -92,3 +92,42 @@ not discharge S-147n's flag, and D12R still needs its own read before anyone spe
 
 **Gates · thresholds · caps · labels changed: 0 · 0 · 0 · 0. Solver compute: 0 core-min. GPU: 0 GPU-h.
 No frozen file edited. Nothing reverted. SUBMISSIONS PARKED.**
+
+---
+
+## CORRECTION 1 — 2026-09-10, same day, ~20 minutes later — **FINDING 3's "pure appends" clause was WRONG, and the assert that caught it prevented the loss of a committed measurement**
+
+*lines whose number changed above this section: 0.* Appended; FINDING 3 is **not rewritten**.
+
+**What I got wrong.** FINDING 3 said both D12R2 files' changes were *"pure appends to the files' own
+tails"*, on the strength of a line-count read (136 → 156). **`W3_phase1.out` is not an append. It is a
+REWRITE:** `git diff-tree --numstat` reads **128 insertions / 108 deletions**. My insertions-only
+assert, run in the same invocation as the intended commit, **failed and aborted the commit before
+`commit-tree`**. That is the only reason nothing was lost.
+
+**What the file actually is, and why this matters more than a bookkeeping slip.** `W3_phase1.out` is a
+**single-run output file that a second run OVERWROTE IN PLACE.** They are two different runs:
+
+| | HEAD's committed copy | the worktree copy |
+|---|---|---|
+| `STAMP` | `20260830T231011Z_1280361` | `20260903T172242Z_179692` |
+| `STARTED_UTC` | 2026-08-30T23:10:12Z | 2026-09-03T17:22:42Z |
+| S7_clean | **`STAGE S7_clean NONZERO rc`** | `STAGE=S7_clean TASK=run_model rc=0 wall_s=353` |
+| `PHASE1_COMPLETE spent` | **63.2332 core-min** | **271.2501 core-min** |
+
+**Committing the worktree copy would have DESTROYED the committed record of the 2026-08-30 run** — and
+that run's `S7_clean NONZERO rc` is itself a finding. A successful re-run silently erasing a failed
+predecessor from the record is exactly the kind of loss the insertions-only discipline exists to stop.
+
+**What I did instead.** Preserved the 2026-09-03 record under a **distinct, run-stamped path** —
+`cases/dafoam/curriculum_D12R2/W3_phase1.20260903T172242Z_179692.out` — so **both** runs survive at
+HEAD and neither overwrites the other. **The worktree's `W3_phase1.out` is left EXACTLY as it sits**
+(rule 10: inspected, never reverted); whoever owns it can finish or reverse it, and the data it holds
+is now safe either way. `STATUS.W3_chain` **was** genuinely append-only (11 insertions / 0 deletions,
+asserted) and is landed as-is.
+
+**The transferable lesson, and it is not "count lines more carefully".** A line count cannot
+distinguish an append from a rewrite of similar length, and **a run-output file named without its run
+stamp is a file every re-run silently destroys.** The instrument writes `STAMP=` *inside* the file
+while the *filename* carries no stamp — so the provenance is there to read and nothing enforces that
+two runs get two files. Any successor writing per-phase output should put the stamp in the **path**.
