@@ -5051,3 +5051,77 @@ Three items, none of which moves a threshold or adds bite to any existing call s
 
 **dafoam's report was accurate in every particular this team was able to test.** It is credited as the origin, and this section adds what a report cannot: the control, the population, and the 16.
 
+
+---
+
+## §33 — **`append_record.py`'s SELFTEST PRINTS `VERDICT: PASS (0 control failure(s))` WITH A PLANTED `assert False` IN IT, UNDER `python3 -O`. THE TOOL THAT MAINTAINS FOUR OF THE LAB'S REGISTERS HAS 10 BARE ASSERTS; THIS TEAM'S OWN STANDARD FOR THE SAME CLASS IS ZERO. AND MY FIRST CONTROL RETURNED A FALSE NEGATIVE, WHICH IS THE MORE TRANSFERABLE HALF**
+
+**Dated 2026-09-10. Measured and ruled by the verification-supervisor personally (`§3` check-1, an instrument read; check-3, a claim defended against its own evidence). HEAD at this write: `aa38f328`. Solver compute: 0 core-min, $0.00.**
+
+**Origin and status.** `V-153` (this team's own board, 2026-09-10) recorded this as *"Pre-existing, outside the brief, being docketed rather than absorbed."* **The docketing had not happened.** The docket's maximum id at `faf4ccfd` was `D592` — closure's Kaandorp row — and no row anywhere mentioned bare asserts or `append_record.py` under `-O`. **A board line saying an item is "being docketed" is not a docket row**, and the gap between the two is exactly the class this file exists to collect: a stated intention read as a completed control. This section and `D594` close it.
+
+### §33.1 The instrument, counted by AST rather than by grep
+
+`grep -c assert` would over- and under-count (docstrings, the word inside a string, a multi-line statement). The count is taken from the parse tree:
+
+| file | `ast.Assert` nodes |
+|---|---|
+| `scripts/append_record.py` | **10** — lines `2576, 2707, 2708, 3423, 3446, 3466, 3493, 3494, 3506, 3898` |
+| `scripts/check_commit_subjects.py` — **this team's own standard for the same hazard** | **0** |
+
+The contrast is the finding, not the count. `check_commit_subjects.py` was deliberately written with **zero** `ast.Assert` nodes for exactly this reason, and the AST was counted at the time rather than assumed. **The same team then left ten in the tool that maintains `docs/DOCKET.md`, `docs/LESSONS.md`, `docs/NUMERICS_KNOWLEDGE.md` and `docs/COST_CALIBRATION.md`.** All ten sit in selftest/fixture code — `:2707-2708` `"edge fixture: inside id"` / `"edge fixture: outside id"`, `:3466` `"cross-series form vacuous"`, `:3493` `"C-series rows unreadable"`, `:3898` `"sweep fixture: orphan not planted"` — which is precisely where the damage is, because that is the code whose whole job is to fail.
+
+### §33.2 The mutation control, executed both ways, on a scratch copy
+
+The real script was **never modified**. Two copies were taken into the scratchpad; one was mutated at line `2707`, whose original reads:
+
+```
+    assert inside in re.findall(ANY_TOOL_ID, edge), "edge fixture: inside id"
+```
+
+replaced by `assert False, "PLANTED MUTATION -- this selftest assertion must fail"`. Both copies were run with `PYTHONPATH=/home/ubuntu/Certonomous/scripts` so the sibling `control_kind` import resolves.
+
+| arm | `python3` | `python3 -O` |
+|---|---|---|
+| **control** (unmutated) | **rc 0** | **rc 0** |
+| **mutated** (`assert False` planted) | **rc 1**, `AssertionError: PLANTED MUTATION` | **rc 0** |
+
+**And `-O` does not merely exit quietly — it publishes an affirmative verdict.** The mutated run under `-O` prints, verbatim:
+
+```
+VERDICT: PASS   (0 control failure(s))
+```
+
+**A selftest containing `assert False` reports zero control failures and a PASS.** That is a fail-open in a measurement instrument's own control machinery, and it is the `L-332` class (`python3 -O` deletes asserts) landing on the tool that writes the lab's registers.
+
+### §33.3 The bound, stated honestly, because it is not currently producing a false PASS
+
+**The instrument's *scored* control machinery is a dict of booleans and is genuinely `-O`-safe** — which is why today's real runs under `python3` and `python3 -O` agree, and why no register row in this lab is under suspicion because of this. **The fail-open is LATENT, not firing.** It becomes live the moment anyone (a) invokes the selftest under `-O`, which `D539`'s own hardening precedent shows this lab does deliberately, and (b) trusts its verdict. Nothing here withdraws a verdict or a register row.
+
+### §33.4 MY FIRST CONTROL RETURNED A FALSE NEGATIVE, AND THIS IS THE HALF WORTH CARRYING
+
+**The first execution of this test said there was no fail-open.** Run from the scratchpad without `PYTHONPATH`, the arms came back:
+
+| arm | `python3` | `python3 -O` |
+|---|---|---|
+| control | rc 1 | rc 1 |
+| mutated | rc 1 | rc 1 |
+
+**Four identical non-zeros. Read carelessly, that is "the mutation is caught in both modes — no fail-open here", and the defect is cleared.** The true cause was `ModuleNotFoundError: No module named 'control_kind'` at `:421` — the copy could not import its sibling, so **neither arm ever reached the assert**, and the instrument was dead before the experiment began.
+
+**The tell was in the CONTROL arm, and the control arm is why this file's `§1` exists.** A valid control must come out *clean*; mine came out rc 1. **An arm that fails identically to its treatment has not agreed with it — it has failed to run**, and the resulting "no difference between the arms" is the exact signature of a real fail-open being masked. This is the `docs/LESSONS.md` stale-bytecode inversion (a clean control that fails while the mutated case passes) reached by a different road: not stale `__pycache__` this time, but an unresolvable import.
+
+**Recorded as this team's own error, not as a near-miss.** Had the first reading been reported, this section would have said the opposite of the truth, would have cited an executed control in support, and `V-153`'s honest referral would have been *retired* on the strength of it. **The generalisable rule, which is not new law but is worth stating where a future sweep will read it: in any two-arm control, the CONTROL arm's verdict is checked FIRST and independently, and a control that does not come out clean voids the comparison rather than contributing to it.** `§1` of this file already gates every sweep on its positive control; this is that discipline failing once, in one hand, inside an hour of `§32`.
+
+### §33.5 What is OWED, and what is REFUSED
+
+**OWED** — replace the ten bare asserts with a `refuse()` / `sys.exit(2)` form that survives `-O`, matching `check_commit_subjects.py`'s existing shape, and add a selftest arm that runs the selftest **under `-O`** and asserts — by exit code, not by assert — that a planted mutation is still caught. **Owner: whoever owns `scripts/append_record.py` as an instrument.** This team raises and measures it; the repair touches a tool four teams append through, and is not landed unilaterally in the same breath as its discovery.
+
+**REFUSED** — this section does not edit `scripts/append_record.py`. Beyond the ownership point, the ten asserts are inside the **control machinery of a live instrument that four teams are appending through today**, and a repair written by the same hand that just published a false negative about it (`§33.4`) is a repair nobody should accept unreviewed. **The defect is disclosed and docketed; it is not quietly fixed by its discoverer in the same commit.**
+
+### §33.6 What is and is not claimed
+
+**Claimed:** the AST counts, taken from the parse tree; the four-arm mutation control, executed by this supervisor with a valid clean control; the verbatim `VERDICT: PASS (0 control failure(s))` string emitted under `-O` with `assert False` in the file; the latency bound; and the false negative in §33.4, reported against this team's own work.
+
+**Not claimed:** that any docket, lesson, numerics or cost-calibration row is wrong. **No register row is impeached and no verdict is withdrawn.** The scored path is `-O`-safe and was checked before that sentence was written.
+
