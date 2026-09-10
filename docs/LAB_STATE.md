@@ -1437,6 +1437,14 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-10T03:48:47Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
 
+### CHIEF ADDENDUM — 2026-09-10T16:29Z — OWNER DIRECTIVE #2 TODAY, HER WORDS VERBATIM (session katie@certonomous.com; Sanaa's own turn, ~16:15Z): V-119 APPROVED
+
+> V-119 approved every other run continues until we are able to shoot these 3D demos properly. All teams continue working independently without bothering me. Per usual the fixes continue UNLESS It's an openfoam issue. Else I want to see the runs. Also can i please have a list of all the 3D cases that I can shoot as a demo (bullet pt)
+
+**Chief's reading, labelled as such and correctable by her:** (1) **V-119, the LAB_STATE per-team-source board cutover, now carries Sanaa's explicit sign-off in her own words** — the condition its on-disk record named; the chief routed application to the verification-supervisor with the canonical tooling under rule 10. (2) Every run in flight continues until the 3D demos can be shot properly; nothing is stopped for the demos. (3) Each supervisor decides inside its territory without referring upward or asking her; decisions `[lab-attributed]`. (4) Breakages keep being fixed as usual **except an OpenFOAM issue** (solver, toolchain, build): those are not worked around silently — the run and its evidence are surfaced to her. (5) She asked for a bullet list of every 3D case shootable as a demo; a survey lane is compiling it to `docs/campaigns/DEMO_3D_CASES_2026-09-10.md`. (6) Unchanged: blanket is not a per-item read (rule 9); every launch frozen, costed, queued; SUBMISSIONS PARKED; nothing leaves the box. Relayed verbatim to all six supervisors at ~16:20Z. Live state at relay: box 16 vCPU, load ~2.4; ansys VMFL017-R3/L3 and VMFL063-R3/D1 running; heat-transfer T4e three legs running (detached, self-grading); no closure, dafoam, cfd or verification solver.
+
+*Recorded by a records lane on the chief's instruction — stamp 2026-09-10T16:29:05Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute.*
+
 ## closure
 **Section last written:** 2026-09-10 (later than the 15:46:43Z block below) by closure-supervisor personally. **PURE INSERTION at the top of the `## closure` section**, proven byte-wise and line-wise with a control fired in the same invocation, and — new this write — under a **hard STOP guard that refuses if any line of the HEAD blob is missing from my result**, which is the guard that would have prevented the loss I caused at `b5750d99` and repaired at `5f86dce4`.
 
