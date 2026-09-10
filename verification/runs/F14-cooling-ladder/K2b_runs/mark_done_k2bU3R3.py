@@ -2,6 +2,25 @@
 """K2b-U3-R3 completion certification -- the strict completion rule (rule 4),
 in the ADAPTIVE-timestep form Sanaa ratified on 2026-09-09.
 
+THIS INSTRUMENT DID NOT CERTIFY K2bU3R3, AND IT IS NOT IN ITS FREEZE SET.
+------------------------------------------------------------------------
+Read this before citing this file for anything.  K2bU3R3's freeze commit is
+41e18d717 (2026-09-07T18:57:27Z) and it pinned exactly three paths --
+K2bU3R3_PREREGISTRATION.md, analyse_k2bU3R3.py (aa2c44b7) and
+build_k2bU3R3.py (7c7a7668).  This file is not among them.  The completion
+marker DONE.K2bU3R3_D59 was written by `scripts/mark_done_adaptive.py`, whose
+text it carries ("strict completion rule met (adaptive clause 5)"), and that
+is the instrument on which K2bU3R3's rule-4 discharge rests.
+
+The reason this disclosure sits here rather than only in a commit message: from
+2026-09-09 until 2026-09-10 this file COULD NOT EXECUTE AT ALL.  The reader
+below dereferenced an undefined name, and clause 1 calls it unconditionally, so
+the live path and the selftest both died with NameError -- while a board entry
+described the file as the instrument standing behind a presentable 3-D verdict.
+It stood behind nothing.  Rule 6 did not protect the repair, because a file in
+no freeze set is fixed as a bug, not amended as a frozen record.  Repaired
+2026-09-10 by a heat-transfer lab-lane on the heat-transfer supervisor's ruling.
+
 Written 2026-09-09 as a NEW instrument (no frozen file edited, rule 6).  It is
 the adjustTimeStep sibling of the fixed-dt guard the K2bU3R3 pre-registration
 §5.2 named (`mark_done_t3.py`, whose fifth conjunct is `n_exec == int(endTime)`
@@ -68,6 +87,7 @@ Usage:
     python3 mark_done_k2bU3R3.py --selftest
 """
 import argparse
+import glob
 import os
 import re
 import shutil
@@ -85,6 +105,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 # The single registered case (K2bU3R3_PREREGISTRATION.md §3: "One case only").
 CASE = "K2bU3R3_D59"
+
+# The registered CASE_ID the queue names its status file by.  It is NOT the
+# case-DIR name: the directory carries the mesh suffix (_D59) and the id does
+# not.  Used ONLY by the selftest, to forge a status file where the real queue
+# puts it; the live reader globs and never reconstructs this name.
+CASE_ID = "K2bU3R3"
 
 # The solver, and its log (build_k2bU3R3.py:44-46 LOGNAME/SOLVER).
 LOGNAME = "log.buoyantBoussinesqPimpleFoam"
@@ -147,12 +173,35 @@ def control_end_time(d):
 
 
 def queue_launcher_rc(root, case):
-    """(rc, note) from STATUS.queue.<case>, or (None, reason) if it is absent or
-    states no launcher_rc.  This is the WRAPPER-RUN exit; clause 1 pairs it with
-    the success marker below."""
-    p = os.path.join(root, QUEUE_STATUS.format(case=case))
-    if not os.path.isfile(p):
-        return None, f"no {os.path.basename(p)} (case never finished under the queue)"
+    """(rc, note) from the case's STATUS.queue file, or (None, reason) if it is
+    absent, ambiguous, or states no launcher_rc.  This is the WRAPPER-RUN exit;
+    clause 1 pairs it with the success marker below.
+
+    REPAIRED 2026-09-10.  The body previously joined the RUN ROOT to a filename
+    rebuilt from an undefined constant.  That was wrong twice over: the constant
+    was never defined (only QUEUE_STATUS_GLOB exists, above), so every call
+    raised NameError; and it looked in the run root while the queue writes the
+    file INSIDE THE CASE DIRECTORY.  The body now does what the constant block
+    at the top of this file already said it did -- it globs QUEUE_STATUS_GLOB
+    inside the case dir and requires EXACTLY ONE match, rather than
+    reconstructing a filename from the case-DIR name.  That distinction is the
+    whole point: the file is named by the registered CASE_ID (K2bU3R3) while the
+    directory carries a mesh suffix (K2bU3R3_D59), so any name the directory
+    could supply is the wrong one.
+
+    TWO matches is a REFUSAL, not a pick.  Choosing between two launcher records
+    is exactly the guess this lookup exists to avoid.
+    """
+    d = os.path.join(root, case)
+    hits = sorted(glob.glob(os.path.join(d, QUEUE_STATUS_GLOB)))
+    if not hits:
+        return None, (f"no {QUEUE_STATUS_GLOB} in {case}/ (case never finished "
+                      f"under the queue)")
+    if len(hits) > 1:
+        return None, (f"{len(hits)} files match {QUEUE_STATUS_GLOB} in {case}/ "
+                      f"({', '.join(os.path.basename(h) for h in hits)}); this "
+                      f"instrument will not choose between two launcher records")
+    p = hits[0]
     s = open(p, errors="replace").read()
     m = re.search(r"\blauncher_rc=(\d+)", s)
     if not m:
@@ -382,7 +431,11 @@ def _synthetic(root, case, endtime=80, fields=None, break_clause=None,
     open(os.path.join(d, LOGNAME), "w").write(body)
     # the queue artifacts: STATUS.queue (launcher_rc) + launcher.queue.out
     if break_clause != "clause1_nostatus":
-        open(os.path.join(root, QUEUE_STATUS.format(case=case)), "w").write(
+        # REPAIRED 2026-09-10 alongside queue_launcher_rc: written INSIDE the
+        # case dir and named by the registered CASE_ID, which is where and what
+        # the queue actually writes -- the forged case must exercise the real
+        # reader's real lookup, or the selftest proves nothing about it.
+        open(os.path.join(d, f"STATUS.queue.{CASE_ID}"), "w").write(
             f"launcher_rc={launcher_rc} end=2026-09-09T00:00:00Z "
             f"note=exit-status-of-the-launch-argv-NOT-the-solver-rc\n")
     ob = ""
