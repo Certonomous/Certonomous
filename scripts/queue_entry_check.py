@@ -64,6 +64,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import os
 import re
 import subprocess
 import sys
@@ -397,6 +398,346 @@ def check_cwd_launchable(entry: dict, root: Path, entry_path=None) -> list[str]:
     ]
 
 
+# --------------------------------------------------------------------------
+# LAUNCH-TARGET -- the thing the entry will actually RUN must exist.
+#
+# THE DEFECT THIS CLOSES, MEASURED 2026-09-10 AT HEAD 9d309471.
+# check_cwd_launchable proves the entry can be chdir'd INTO. Nothing proved the
+# thing it would then EXECUTE exists. Two real cfd rows,
+# verification/campaign/queue_entry_R4_QUEUE_LAUNCH_TARGET_REPAIR.json and
+# verification/campaign/queue_entry_R5_RUNNER_STATUS_COLLISION.json, name
+# scripts/run_r4_launch_target_repair.sh and
+# scripts/run_r5_status_collision_repair.sh -- NEITHER of which exists on disk --
+# and BOTH validated rc=0 under the code at that commit. Measured, not recalled:
+# queue_runner.launch() builds `cd '<cwd>' && <shlex-quoted argv>` and Popen()s it
+# (queue_runner.py:583-590), then moves the entry into launched/ (:595-598). The
+# LAUNCHED record is therefore written BEFORE the child can fail, so such a row
+# becomes a stale LAUNCHED record standing in front of a run that never happened
+# -- the exact class check_cwd_launchable exists to kill, entered by another door.
+#
+# WHY THIS REFUSES WHILE GRADING-FREEZE-PIN ONLY WARNS, AND THE RULING THAT SPLITS
+# THEM. Sanaa's launch rule of 2026-09-03 ~21:00Z
+# (etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md) converts nine categories of
+# pre-launch blocker into predictions -- "record and launch". EVERY ONE OF THOSE
+# CATEGORIES PRESUPPOSES A RUN THAT CAN START: a cost that will be exceeded, a y+
+# that will be missed, a pin that can be filed "while the solve runs". An argv
+# whose script does not exist is not a mismatched prediction about a viable run;
+# there is no run for a prediction to be about, nothing is monitored, and the
+# certificate has no actual to compare. It falls under her stated exception -- a
+# setup that "will diverge and teach nothing ... a blocking physics fix, not a
+# pre-registration mismatch" -- and it is refused on exactly the ground, and under
+# exactly the precedent, that EXEC already refuses an absent cwd.
+#
+# ARGV SHAPES ARE MEASURED, NOT ASSUMED. Census of all 454 entries under
+# verification/queue/ on 2026-09-10: 98 name the script at argv[0] (no
+# interpreter at all); 337 place it after a shell; 35 are `bash -c '<code>'` or
+# `bash -lc '<code>'`, where argv[1] is a FLAG and argv[2] is PROGRAM TEXT; 6 are
+# `env NAME=VAL bash <script>`; 3 are `setsid nohup bash <script>`; 2 are
+# `timeout <opts> <duration> bash ...`. A clause that read `launch_cmd[1]`
+# literally -- the shape this defect was first reported in -- would have REFUSED
+# 98 correct entries and tried to stat 35 shell program texts. The walk below
+# exists because of that census.
+# --------------------------------------------------------------------------
+
+# Prefix commands that consume their own options and then exec the REAL command.
+_PASSTHRU_WRAPPERS = frozenset({"setsid", "nohup", "stdbuf", "nice", "ionice"})
+_ENV_WRAPPERS = frozenset({"env"})
+_TIMEOUT_WRAPPERS = frozenset({"timeout"})
+# Interpreters that READ their script operand. A read needs r, never x.
+_SHELL_CMDS = frozenset({"bash", "sh", "dash", "zsh", "ksh"})
+_SCRIPT_INTERPRETERS = frozenset({"python", "perl", "ruby", "Rscript"})
+_PY_VERSIONED = re.compile(r"^python[23](\.[0-9]+)?$")
+_ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
+_DURATION = re.compile(r"^[0-9]+(\.[0-9]+)?[smhd]?$")
+
+
+def _operand_after_interpreter(argv: list[str], i: int, shell: bool) -> tuple:
+    """The operand an interpreter will READ, skipping its own options."""
+    name = argv[0]
+    while i < len(argv):
+        tok = argv[i]
+        if tok == "--":
+            i += 1
+            break
+        if tok.startswith("-") and len(tok) > 1:
+            if (not shell) and tok in ("-m", "--module"):
+                return ("path-lookup", None, False,
+                        f"{name!r} runs a MODULE via {tok!r}; this argv carries no "
+                        f"script path at all")
+            body = tok[1:]
+            # A `c` inside a SHORT flag cluster (-c, -lc, -ic) means the next word
+            # is PROGRAM TEXT. Long options are excluded from the test on purpose:
+            # `--rcfile` contains a c and names no code.
+            if not body.startswith("-") and "c" in body:
+                return ("shell-code", None, False,
+                        f"{name!r} runs INLINE CODE via {tok!r}; the following element "
+                        f"is program text, not a path, and statting it would be a "
+                        f"category error")
+            i += 1
+            continue
+        break
+    if i >= len(argv):
+        return ("unknown", None, False,
+                f"{name!r} was given no script operand; it would read stdin")
+    tok = argv[i]
+    if "/" not in tok:
+        return ("path-lookup", tok, False,
+                f"the script operand {tok!r} carries no path separator, and bash and "
+                f"python both fall back to searching PATH for such an operand, so its "
+                f"absence from cwd would NOT prove it cannot be found")
+    return ("file", tok, False,
+            f"{name!r} READS the script operand {tok!r}; reading needs r, never x")
+
+
+def launch_target(argv: list[str]) -> tuple:
+    """Which element of an argv names the file that will be RUN.
+
+    Returns (kind, token, needs_exec_bit, why). ONLY "file" can produce a
+    refusal:
+      "file"         a path that must exist on disk.
+      "shell-code"   the argv runs inline program text; there is no file.
+      "path-lookup"  a bare name the runner's shell resolves through PATH at
+                     launch time -- and THIS process's PATH is not that PATH,
+                     because queue_runner is started from cron.
+      "unknown"      the shape was not recognised by this reader.
+    Every kind but "file" is reported as NOT CHECKED and refuses NOTHING. An
+    unrecognised shape is a limit of this reader's knowledge, not a finding
+    against the entry, and reporting it as a finding would be the inverse of
+    standing rule 3.
+    """
+    i = 0
+    guard = 0
+    while i < len(argv) and guard <= len(argv) + 4:
+        guard += 1
+        tok = argv[i]
+        base = tok.rsplit("/", 1)[-1]
+        if base in _PASSTHRU_WRAPPERS and i + 1 < len(argv):
+            i += 1
+            continue
+        if base in _ENV_WRAPPERS:
+            i += 1
+            while i < len(argv) and (argv[i].startswith("-") or _ASSIGNMENT.match(argv[i])):
+                if argv[i] in ("-u", "--unset") and i + 1 < len(argv):
+                    i += 1
+                i += 1
+            continue
+        if base in _TIMEOUT_WRAPPERS:
+            i += 1
+            while i < len(argv) and argv[i].startswith("-"):
+                if argv[i] in ("-s", "--signal", "-k", "--kill-after") and i + 1 < len(argv):
+                    i += 1
+                i += 1
+            if i < len(argv) and _DURATION.match(argv[i]):
+                i += 1
+            continue
+        if base in _SHELL_CMDS:
+            return _operand_after_interpreter(argv, i + 1, shell=True)
+        if base in _SCRIPT_INTERPRETERS or _PY_VERSIONED.match(base):
+            return _operand_after_interpreter(argv, i + 1, shell=False)
+        # Not a wrapper and not an interpreter: THIS token is the executable.
+        if "/" in tok:
+            return ("file", tok, True,
+                    f"argv[{i}] is the command itself and carries a path separator, so "
+                    f"the shell execs it directly -- it needs x as well as existence")
+        return ("path-lookup", tok, False,
+                f"argv[{i}] is a bare command name; the runner's shell resolves it "
+                f"through PATH at launch time")
+    return ("unknown", None, False, "argv shape not recognised by this reader")
+
+
+def _resolved_target(entry: dict):
+    """(Path, token, needs_exec, why, base_note) or None when there is nothing to
+    check. Relative tokens resolve against the ENTRY'S cwd, never this process's:
+    queue_runner.launch() runs `cd '<cwd>' && <argv>` and passes Popen(cwd=cwd)
+    (queue_runner.py:583, :590), so the entry's cwd IS the resolution base at
+    exec time. Resolving against os.getcwd() here would answer a question about
+    the validator's shell that nobody asked."""
+    cmd = entry.get("launch_cmd")
+    if not isinstance(cmd, list) or not cmd or not all(isinstance(a, str) for a in cmd):
+        return None                       # SCHEMA's refusal; never double-reported
+    kind, tok, needs_exec, why = launch_target(cmd)
+    if kind != "file" or tok is None:
+        return None
+    cwd = entry.get("cwd")
+    p = Path(tok)
+    base_note = "absolute"
+    if not p.is_absolute():
+        if not isinstance(cwd, str) or not cwd.startswith("/"):
+            return None                   # SCHEMA's refusal
+        if not Path(cwd).is_dir():
+            return None                   # EXEC's refusal: no base to resolve against
+        p = Path(cwd) / tok
+        base_note = f"relative, resolved against the entry's cwd {cwd}"
+    return (p, tok, needs_exec, why, base_note)
+
+
+def check_launch_target(entry: dict, root: Path, entry_path=None) -> list[str]:
+    """9. LAUNCH-TARGET: the script named by launch_cmd must exist, be a regular
+    file, and be readable -- and, where the shape execs it directly, executable.
+
+    THE EXECUTE BIT IS SHAPE-DEPENDENT AND IS NOT GUESSED. `bash script.sh` READS
+    the file: a mode-644 script runs perfectly, and refusing it would block
+    legitimate entries. `/path/script.sh` as argv[0] is EXEC'd by the shell: mode
+    644 gives EACCES, bash exits 126, and the run dies behind the LAUNCHED record
+    exactly as an absent file does. So the exec bit is REQUIRED in the direct-exec
+    shape and NOT EVEN REPORTED in the interpreter shape, which is what
+    launch_target()'s needs_exec_bit carries.
+    """
+    got = _resolved_target(entry)
+    if got is None:
+        return []
+    p, tok, needs_exec, why, base_note = got
+    stale = (f"queue_runner.py writes the LAUNCHED record before the child can fail "
+             f"(:583-:600), so this entry would be recorded LAUNCHED and die "
+             f"immediately, leaving a stale LAUNCHED record in front of a run that "
+             f"never happened.")
+    if not p.exists():
+        return [
+            f"LAUNCH-TARGET: launch_cmd names {tok!r} ({why}; {base_note}) and "
+            f"{p} DOES NOT EXIST. {stale} Fix: create the script, or correct the path."
+        ]
+    if not p.is_file():
+        return [
+            f"LAUNCH-TARGET: launch_cmd names {tok!r} ({base_note}) and {p} exists "
+            f"but is not a regular file. {stale}"
+        ]
+    if not os.access(p, os.R_OK):
+        return [
+            f"LAUNCH-TARGET: launch_cmd names {tok!r} ({base_note}) and {p} is not "
+            f"READABLE by this user. {stale}"
+        ]
+    if needs_exec and not os.access(p, os.X_OK):
+        return [
+            f"LAUNCH-TARGET: launch_cmd execs {tok!r} DIRECTLY ({why}; {base_note}) "
+            f"and {p} is not executable (mode "
+            f"{oct(p.stat().st_mode & 0o777)}). The shell returns EACCES / rc 126. "
+            f"{stale} Fix: chmod +x it, or run it as `bash {tok}`, which READS the "
+            f"file and needs no execute bit."
+        ]
+    return []
+
+
+def launch_target_note(entry: dict) -> str:
+    """One line for a checked target; a NOT CHECKED block for an unchecked one.
+
+    The two shapes differ deliberately, for the reason binding_note() gives: a
+    condition nobody looked at must never print like a satisfied one.
+    """
+    cmd = entry.get("launch_cmd")
+    if not isinstance(cmd, list) or not cmd or not all(isinstance(a, str) for a in cmd):
+        return "LAUNCH-TARGET: NOT CHECKED -- launch_cmd is not an argv list (SCHEMA)."
+    kind, tok, needs_exec, why = launch_target(cmd)
+    got = _resolved_target(entry)
+    if got is not None:
+        p, tok, needs_exec, why, base_note = got
+        bit = "executable" if needs_exec else "readable (no execute bit needed)"
+        return f"LAUNCH-TARGET: {p} exists and is {bit} [{base_note}]"
+    return (
+        f"LAUNCH-TARGET: NOT CHECKED -- kind={kind}.\n"
+        f"    {why}.\n"
+        f"    This is an UNCHECKED condition, not a passing one: nothing here has\n"
+        f"    shown that what this entry runs exists. If it does not, the runner\n"
+        f"    records LAUNCHED and the run dies immediately."
+    )
+
+
+# --------------------------------------------------------------------------
+# GRADING-FREEZE-PIN -- a WARNING CHANNEL, AND IT REFUSES NOTHING, BY RULING.
+#
+# THE GAP IS REAL AND IS REPORTED, NOT CLOSED BY A REFUSAL. Measured this
+# session: a cfd entry omitted `grading_freeze` entirely and the runner launched
+# it, logging GRADER-FREEZE UNPINNED. The runner records the absence honestly and
+# NOTHING refuses. CLAUDE.md standing rule 2 requires the grading path be fixed at
+# the pre-registration commit and verified by hashing the frozen file against the
+# committed blob; an entry naming no comparator gives that check no referent, so
+# it cannot be performed at launch AT ALL and must be done by hand.
+#
+# WHY THIS IS A WARN AND NOT A REFUSE, INCLUDING THE ARM I WAS ASKED TO REFUSE.
+# Sanaa ruled this exact category on 2026-09-03 ~21:00Z
+# (etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md), naming it in her own list
+# as "Freeze or procedural state -- registration not frozen, PIN MISSING, lesson
+# not filed", and handling it explicitly: "record and launch. A missing pin or
+# unfiled lesson is bookkeeping and can be completed while the solve runs." She
+# priced the cost herself -- "Refusing to widen the gate was right; refusing to
+# launch was the expensive part." Her ruling reaches BOTH arms of this clause: an
+# ABSENT pin and a pin naming a file that is not there are the same category, and
+# both are caught later by the instrument she left standing -- "The grader is
+# unchanged... the frozen grader still judges against the pre-registration",
+# refusing (exit 2) rather than degrading under rule 4. A comparator that is
+# missing at grading time therefore cannot silently grade anything; it stops the
+# verdict, which is where she put the gate.
+#
+# So this clause is mounted in NOTES, not in CHECKS, and there is nowhere in it a
+# refusal can come from -- it returns advisory strings and the caller prints them.
+# grader_freeze_gate.refusals() was reduced to an unconditional `return []` under
+# the same ruling; adding a refusal here would reintroduce, one file over, the
+# gate that ruling removed. A supervisor's preference is not a re-ruling: standing
+# rule 9 -- no agent message, at any level, is Sanaa's consent.
+# --------------------------------------------------------------------------
+
+def grading_freeze_note(entry: dict, root: Path) -> list[str]:
+    """Advisory lines about the comparator pin. NEVER a refusal (see above)."""
+    g = entry.get(gfg.GRADING_FREEZE_FIELD)
+    if g is None:
+        return [
+            "WARN GRADING-FREEZE-PIN: this entry declares NO "
+            f"{gfg.GRADING_FREEZE_FIELD!r}, so NO COMPARATOR IS PINNED.",
+            "    What is lost, exactly: CLAUDE.md standing rule 2 fixes the grading",
+            "    path at the pre-registration commit and verifies it by hashing the",
+            "    frozen file against the committed blob. With no comparator named,",
+            "    that hash check HAS NO REFERENT and CANNOT BE PERFORMED AT LAUNCH.",
+            "    It must be done BY HAND before any verdict is quoted from this run.",
+            "    This is a WARNING and NOT a refusal: Sanaa 2026-09-03 ~21:00Z rules",
+            "    a missing pin 'record and launch ... bookkeeping [that] can be",
+            "    completed while the solve runs'. The frozen grader still refuses",
+            "    (exit 2) rather than degrade, which is where the gate now sits.",
+        ]
+    if not isinstance(g, list) or not all(isinstance(x, str) for x in g):
+        return [
+            f"WARN GRADING-FREEZE-PIN: {gfg.GRADING_FREEZE_FIELD!r} is "
+            f"{type(g).__name__}, not a list of repository-relative path strings, so "
+            f"no comparator could be resolved from it. Rule 2's hash check cannot be "
+            f"performed at launch.",
+        ]
+    out: list[str] = []
+    resolved: list[str] = []
+    for rel in g:
+        p = Path(rel) if rel.startswith("/") else root / rel
+        if p.is_file():
+            resolved.append(str(p))
+        else:
+            out.append(
+                f"WARN GRADING-FREEZE-PIN: pinned comparator {rel!r} DOES NOT EXIST "
+                f"at {p}. Rule 2's hash-against-the-committed-blob check cannot be "
+                f"performed on it, and this run cannot be graded by the comparator it "
+                f"names. NOT a refusal: Sanaa 2026-09-03 ~21:00Z puts freeze state in "
+                f"the 'record and launch' category, and the frozen grader refuses "
+                f"(exit 2) rather than degrade at grading time."
+            )
+    if resolved and not out:
+        out.append(
+            f"GRADING-FREEZE-PIN: {len(resolved)} comparator(s) pinned and present on "
+            f"disk: {resolved}. Presence is NOT the rule-2 hash check -- that compares "
+            f"the frozen file against the blob committed at prereg_commit and is "
+            f"grader_freeze_gate's reading, stamped onto the launched record."
+        )
+    return out
+
+
+NOTES: dict[str, object] = {
+    "GRADING-FREEZE-PIN": grading_freeze_note,
+}
+
+
+def notes(entry: dict, root: Path, registry: dict | None = None) -> list[str]:
+    """Every advisory line for one entry. ADVISORY ONLY: nothing here reaches an
+    exit code, and no caller may derive one from it."""
+    active = NOTES if registry is None else registry
+    out: list[str] = []
+    for fn in active.values():
+        out.extend(fn(entry, root))
+    return out
+
 def check_ranks(entry: dict, root: Path, entry_path=None) -> list[str]:
     """6. ranks >= 1."""
     r = entry.get("ranks")
@@ -516,6 +857,7 @@ CHECKS: dict[str, object] = {
     "PREREG-AT-COMMIT": check_prereg_at_commit,
     "AGE-GUARD": check_age_guard,
     "EXEC": check_cwd_launchable,
+    "LAUNCH-TARGET": check_launch_target,
     "RANKS": check_ranks,
     "TEAM-BINDING": check_team_binding,
     "GRADER-FREEZE": check_grader_freeze,
@@ -1279,6 +1621,256 @@ def selftest() -> int:
             lines.append("C12 FLIPPED C11: with require_binding_clause no-opped the flag "
                          "stopped refusing -- C11's refusal comes from that clause alone.")
 
+        # ==================================================================
+        # LAUNCH-TARGET controls L1-L9 and GRADING-FREEZE-PIN controls G1-G4.
+        # Every clause is shown FAILING on a planted defect AND PASSING on a
+        # clean entry. A check only ever shown succeeding is not shown to work,
+        # and one only ever shown refusing is not shown to be safe for the 454
+        # live entries it now gates.
+        # ==================================================================
+        lt = Path(td) / "launch_targets"
+        (lt / "sub").mkdir(parents=True)
+        real_sh = lt / "real_launcher.sh"
+        real_sh.write_text("#!/bin/bash\necho hi\n")
+        real_sh.chmod(0o755)
+        noexec_sh = lt / "not_executable.sh"
+        noexec_sh.write_text("#!/bin/bash\necho hi\n")
+        noexec_sh.chmod(0o644)
+        rel_sh = lt / "sub" / "rel_launcher.sh"
+        rel_sh.write_text("#!/bin/bash\necho hi\n")
+        rel_sh.chmod(0o755)
+        missing_sh = lt / "NO_SUCH_LAUNCHER.sh"          # never created
+        if missing_sh.exists():
+            problems.append("L SETUP FAILED: the missing launcher exists")
+
+        def _ent(cmd, cwd=None):
+            e = _base_entry(head, live_prereg, cwd or str(clean))
+            e["launch_cmd"] = cmd
+            return e
+
+        def _lt_fails(e):
+            return [f for f in validate(e, root, None) if f.startswith("LAUNCH-TARGET:")]
+
+        # --- L1: THE MEASURED DEFECT. `bash <absent script>` MUST refuse ----
+        l1_entry = _ent(["bash", str(missing_sh)])
+        l1 = _lt_fails(l1_entry)
+        if not l1:
+            problems.append(
+                f"L1 FAILED (absent launcher): `bash {missing_sh}` was NOT refused. "
+                f"Got {validate(l1_entry, root, None) or 'NO REFUSAL AT ALL'}. This is "
+                f"the exact shape of the R4/R5 rows that validated rc=0.")
+        elif "DOES NOT EXIST" not in l1[0]:
+            problems.append(f"L1 FAILED: refused but did not name the absence. Got {l1[0]!r}")
+        else:
+            lines.append(
+                "L1 FIRED (absent launcher): `bash <absent .sh>` REFUSED under "
+                "LAUNCH-TARGET, the message naming the resolved path and the stale "
+                "LAUNCHED record it prevents.")
+
+        # --- L2: MUTATION OF L1 -- no-op the clause, L1 must FLIP ----------
+        m_lt = dict(CHECKS); m_lt["LAUNCH-TARGET"] = _mutant_noop
+        l2 = [f for f in validate(l1_entry, root, None, m_lt) if f.startswith("LAUNCH-TARGET:")]
+        if l2:
+            problems.append(
+                f"L2 DID NOT FLIP: check_launch_target was no-opped and L1's refusal "
+                f"PERSISTED ({l2}), so L1 is not coming from the clause it is credited to.")
+        else:
+            lines.append(
+                "L2 FLIPPED L1: with check_launch_target no-opped the absent-launcher "
+                "entry was ACCEPTED -- i.e. the PRE-FIX behaviour, reproduced, so a "
+                "regression to it is detectable rather than silent.")
+
+        # --- L3: a REAL launcher must still pass (the safety direction) ----
+        l3_entry = _ent(["bash", str(real_sh)])
+        l3 = validate(l3_entry, root, None)
+        if l3:
+            problems.append(
+                f"L3 FAILED (real launcher): a `bash <existing .sh>` entry was REFUSED "
+                f"by {l3}. A clause that refuses valid entries is worse than the gap.")
+        else:
+            lines.append("L3 FIRED (real launcher): `bash <existing .sh>` ACCEPTED, zero refusals.")
+
+        # --- L4: the EXEC-BIT SPLIT, both directions on the SAME file ------
+        # `bash f` READS f: mode 644 is fine. `f` as argv[0] is EXEC'd: 644 is
+        # EACCES/rc126. Same file, opposite verdicts, decided by argv shape.
+        l4a = validate(_ent(["bash", str(noexec_sh)]), root, None)
+        l4b = _lt_fails(_ent([str(noexec_sh)]))
+        if l4a:
+            problems.append(
+                f"L4a FAILED: `bash <mode-644 .sh>` was REFUSED ({l4a}). bash READS the "
+                f"file; a non-executable script is legitimate in this shape and "
+                f"refusing it would block real entries.")
+        elif not l4b:
+            problems.append(
+                "L4b FAILED: a mode-644 script as argv[0] -- which the shell EXECs -- "
+                "was NOT refused. It would return EACCES/rc 126 behind a LAUNCHED record.")
+        elif "not executable" not in l4b[0]:
+            problems.append(f"L4b FAILED: refused for the wrong reason: {l4b[0]!r}")
+        else:
+            lines.append(
+                "L4 FIRED (exec-bit split, one file, two shapes): mode 644 ACCEPTED as "
+                "`bash f` and REFUSED as bare `f`, so the execute bit is decided by the "
+                "argv shape and not guessed.")
+
+        # --- L5: the 98-entry DIRECT-SCRIPT shape, absent ------------------
+        l5 = _lt_fails(_ent([str(missing_sh)]))
+        if not l5:
+            problems.append(
+                "L5 FAILED (direct-script shape): an absent script at argv[0] -- the "
+                "shape 98 of 454 live entries use -- was NOT refused.")
+        else:
+            lines.append(
+                "L5 FIRED (direct-script shape): an absent script at argv[0] REFUSED, so "
+                "the clause is not keyed to launch_cmd[1].")
+
+        # --- L6: `bash -c '<code>'` MUST NOT be stat'd ---------------------
+        # 35 live entries are this shape. argv[1] is a FLAG; argv[2] is program
+        # text. A clause reading launch_cmd[1] would have tried to stat both.
+        l6_entry = _ent(["bash", "-c", f"exec bash {missing_sh} --arm X"])
+        l6 = validate(l6_entry, root, None)
+        l6_note = launch_target_note(l6_entry)
+        if l6:
+            problems.append(
+                f"L6 FAILED (`bash -c`): inline program text was REFUSED ({l6}). 35 live "
+                f"entries use this shape; refusing them would take the queue down.")
+        elif "NOT CHECKED" not in l6_note or "shell-code" not in l6_note:
+            problems.append(
+                f"L6 FAILED (`bash -c`): accepted, but the note does not report the "
+                f"target as NOT CHECKED/shell-code. Got {l6_note!r}")
+        else:
+            lines.append(
+                "L6 FIRED (`bash -c '<code>'`): ACCEPTED and reported NOT CHECKED "
+                "(shell-code) -- an unreadable shape is a limit of this reader, printed "
+                "as such, never a finding against the entry.")
+
+        # --- L7: relative token resolves against the ENTRY'S cwd -----------
+        # The SAME argv, two cwds: present under one, absent under the other.
+        # If resolution used the process cwd both arms would agree, so the
+        # DISAGREEMENT is the proof.
+        l7_ok = validate(_ent(["bash", "sub/rel_launcher.sh"], cwd=str(lt)), root, None)
+        l7_bad = _lt_fails(_ent(["bash", "sub/rel_launcher.sh"], cwd=str(clean)))
+        if l7_ok:
+            problems.append(
+                f"L7 FAILED: a relative launcher present under the entry's cwd was "
+                f"REFUSED ({l7_ok}).")
+        elif not l7_bad:
+            problems.append(
+                "L7 FAILED: the SAME relative argv was accepted under a cwd that does "
+                "NOT contain it, so resolution is not using the entry's cwd.")
+        else:
+            lines.append(
+                "L7 FIRED (cwd-relative resolution): one relative argv, ACCEPTED under "
+                "the cwd that holds the script and REFUSED under one that does not -- "
+                "the base is the entry's cwd, as queue_runner.py:583/:590 execs it.")
+
+        # --- L8: wrapper prefixes are walked through -----------------------
+        for wname, wcmd in (
+            ("env NAME=VAL bash", ["/usr/bin/env", "FOO=1", "bash", str(missing_sh)]),
+            ("setsid nohup bash", ["setsid", "nohup", "bash", str(missing_sh)]),
+            ("timeout <opts> <dur> bash",
+             ["timeout", "--signal=TERM", "--kill-after=120", "600", "bash", str(missing_sh)]),
+        ):
+            wf = _lt_fails(_ent(wcmd))
+            if not wf:
+                problems.append(
+                    f"L8 FAILED ({wname}): the wrapper hid an absent launcher from the "
+                    f"clause; argv {wcmd} was NOT refused.")
+            else:
+                lines.append(f"L8 FIRED ({wname}): the wrapper was walked through and the "
+                             f"absent launcher behind it REFUSED.")
+
+        # --- L9: a bare command name must NOT be refused -------------------
+        # The runner is started from cron and its PATH is not this process's, so
+        # a bare name is UNKNOWABLE here. Refusing it would break every entry
+        # naming a solver directly (the _base_entry shape, `simpleFoam`).
+        l9_entry = _ent(["simpleFoam", "-parallel"])
+        l9 = validate(l9_entry, root, None)
+        l9_note = launch_target_note(l9_entry)
+        if l9:
+            problems.append(
+                f"L9 FAILED (bare command name): `simpleFoam` was REFUSED ({l9}). This "
+                f"process's PATH is not the cron-started runner's; refusing here would "
+                f"block every entry that names a solver directly.")
+        elif "NOT CHECKED" not in l9_note:
+            problems.append(
+                f"L9 FAILED: a bare name was accepted but not reported NOT CHECKED. "
+                f"Got {l9_note!r}")
+        else:
+            lines.append(
+                "L9 FIRED (bare command name): `simpleFoam` ACCEPTED and reported NOT "
+                "CHECKED (path-lookup) -- an honest unchecked, not a silent pass.")
+
+        # --- G1: an ABSENT pin WARNS, LOUDLY, and REFUSES NOTHING ----------
+        g1_entry = _base_entry(head, live_prereg, str(clean))   # carries no grading_freeze
+        g1_ref = validate(g1_entry, root, None)
+        g1_notes = notes(g1_entry, root)
+        g1_warn = [n for n in g1_notes if n.startswith("WARN GRADING-FREEZE-PIN:")]
+        g1_says = any("CANNOT BE PERFORMED AT LAUNCH" in n for n in g1_notes)
+        if g1_ref:
+            problems.append(
+                f"G1 FAILED: an entry with no grading_freeze was REFUSED ({g1_ref}). "
+                f"Sanaa 2026-09-03 ~21:00Z: a missing pin is 'record and launch'. 372 of "
+                f"454 live entries carry no pin; refusing would stop the whole queue.")
+        elif not g1_warn:
+            problems.append(
+                "G1 FAILED: an absent grading_freeze produced NO warning at all. The gap "
+                "would be as invisible as before the change.")
+        elif not g1_says:
+            problems.append(
+                "G1 FAILED: the warning fired but does not name what is lost (rule 2's "
+                "hash check having no referent at launch).")
+        else:
+            lines.append(
+                "G1 FIRED (absent pin): ACCEPTED with zero refusals AND a loud WARN "
+                "naming exactly what is lost -- rule 2's hash-against-the-blob check has "
+                "no referent and must be done by hand.")
+
+        # --- G2: MUTATION OF G1 -- no-op the note; the warning must VANISH -
+        g2 = [n for n in notes(g1_entry, root, {"GRADING-FREEZE-PIN": lambda e, r: []})
+              if n.startswith("WARN")]
+        if g2:
+            problems.append(
+                f"G2 DID NOT FLIP: the note registry was no-opped and the warning "
+                f"PERSISTED ({g2}), so G1 is not reading the clause it credits.")
+        else:
+            lines.append(
+                "G2 FLIPPED G1: with grading_freeze_note no-opped the warning "
+                "disappeared -- G1's warning comes from that clause and no other.")
+
+        # --- G3: a pin naming an ABSENT file WARNS and still does not refuse
+        g3_entry = {**g1_entry, "grading_freeze": ["docs/NO_SUCH_COMPARATOR_PLANTED.py"]}
+        g3_ref = validate(g3_entry, root, None)
+        g3_warn = [n for n in notes(g3_entry, root) if n.startswith("WARN GRADING-FREEZE-PIN:")]
+        if g3_ref:
+            problems.append(
+                f"G3 FAILED: a pin naming an absent comparator was REFUSED ({g3_ref}). "
+                f"Sanaa's 2026-09-03 ~21:00Z ruling puts freeze state in 'record and "
+                f"launch'; the frozen grader refuses at GRADING time instead.")
+        elif not g3_warn or "DOES NOT EXIST" not in g3_warn[0]:
+            problems.append(
+                f"G3 FAILED: a pin naming an absent comparator produced no warning "
+                f"naming the absence. Got {g3_warn}")
+        else:
+            lines.append(
+                "G3 FIRED (pin names an absent comparator): WARNED, naming the "
+                "unresolvable path, and REFUSED NOTHING -- the arm the ruling covers.")
+
+        # --- G4: a pin naming a REAL file is clean, and says what it is not -
+        g4_entry = {**g1_entry, "grading_freeze": ["CLAUDE.md"]}
+        g4_notes = notes(g4_entry, root)
+        g4_warn = [n for n in g4_notes if n.startswith("WARN")]
+        if g4_warn:
+            problems.append(f"G4 FAILED: a resolvable pin still WARNED: {g4_warn}")
+        elif not any("is NOT the rule-2 hash check" in n for n in g4_notes):
+            problems.append(
+                f"G4 FAILED: a resolvable pin reported clean without saying that "
+                f"PRESENCE is not the hash check. Got {g4_notes}")
+        else:
+            lines.append(
+                "G4 FIRED (pin resolves): no warning, and the line states that presence "
+                "on disk is NOT rule 2's hash-against-the-blob check.")
+
+
         # A last standing check: nothing above may have reached outside td.
         if list(Path("/home/ubuntu/Certonomous/verification/queue/cfd").glob("C*_*.json")):
             problems.append(
@@ -1360,6 +1952,12 @@ def main(argv: list[str]) -> int:
             print(f"REFUSED {path}")
             for f in fails:
                 print(f"    {f}")
+            # Advisory lines print on a REFUSED entry too. A warning suppressed
+            # by an unrelated refusal is a warning the fixer never sees, and the
+            # entry they resend would carry the same unpinned comparator.
+            if entry is not None:
+                for n in notes(entry, root):
+                    print(f"    {n}")
         else:
             # Printed INSIDE the accepting branch, so no check can be removed
             # without removing this claim.
@@ -1369,6 +1967,12 @@ def main(argv: list[str]) -> int:
             # NOT CHECKED in a different SHAPE from a bound one, because an
             # unchecked condition must never report like a satisfied one.
             print("    " + binding_note(entry, path))
+            # Printed on EVERY acceptance. A target that was NOT CHECKED says so
+            # in a different SHAPE from one that was verified present, for the
+            # same reason binding_note does.
+            print("    " + launch_target_note(entry))
+            for n in notes(entry, root):
+                print(f"    {n}")
             print("    NOTE: acceptance is a mechanical guard only. Enqueueing is "
                   "not authorisation; SUPERVISION_CHARTER section 3 check 4 is "
                   "the supervisor's own and is not performed by this script.")
