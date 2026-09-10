@@ -253,6 +253,11 @@ Runs **only if** the TEST adjoint converged. Reuses the A3 family's validated FD
   **130 core-min**; FD-leg cap (conditional) **90 core-min**; item ceiling **395 core-min** (sum of
   the per-leg caps — the hard stop; predicted spend ~220, +FD ~60–70 conditional). A crossing STOPS
   the leg (overrun stops the run, rule 12) and is a G-CAP GATE FAIL, reported.
+- **PRE-FLIGHT EXERCISE ceiling (§13, MEASUREMENT, separate from the graded item ceiling): 48
+  core-min cumulative** (AMENDMENT A1, 2026-09-10, pre-compute; ~~36~~). It is **not** a graded row
+  and is **not** inside the 395 item ceiling. A crossing is a **budget cap-stop** enforced by
+  `a3fl2_exercise.sh` — it aborts the remaining legs and is recorded with its own distinct markers;
+  it is **not** a G-CAP GATE FAIL, because the exercise declares no gate verdict (§13).
 
 ---
 
@@ -272,18 +277,25 @@ conditioning verdict** → reported as NOT EVALUABLE / **BLOCKED** with the memo
 | BASELINE_R3 (rung 3, natural pure copy) | rung-3 baseline 1426 s = 95.07 core-min | **~95** (95–110) | 130 | always |
 | TEST_R3 (rung 3 + `nd`) | rung-3 baseline 1426 s = 95.07 core-min | **~95** (95–110) | 130 | always |
 | FD leg (conditional) | A3 family FD arm ~60–70 core-min | **60–70** | 90 | **only if TEST_R3 converges** |
-| **PRE-FLIGHT EXERCISE (§13, MEASUREMENT, always, PRE-FREEZE)** | 3 smokes × ~180 s wall × 4 ranks, capped | **~10–15** | 36 (3 × 12) | always, before freeze |
+| **PRE-FLIGHT EXERCISE (§13, MEASUREMENT, always, PRE-FREEZE)** — **AMENDED 2026-09-10, AMENDMENT A1 (pre-compute)** | rung-3 source case, 4 ranks: primal ends `ExecutionTime = 30.97 s`, dRdWTPC assembly `49.24 s` → `149.84 s` (`/home/ubuntu/certonomous-runs/A3-rung3-n52/rung3_stage1.log`, lines 809 / 847 / 861) **+** measured 21 s/leg container-start + decomposePar + pyDAFoam staging (all three A3FL1 legs, `/home/ubuntu/certonomous-runs/CURRICULUM-A3FL1-onera-m6-free-conditioning-levers/ledger.txt`) | **~34** (~5 CONTROL + ~13.4 × 2 R3 legs at the deadline) — ~~**~10–15**~~ | **48** = ⌈3 × (180 + 30 + 21) × 4 ÷ 60 = 46.2⌉ — ~~36 (3 × 12)~~ | always, before freeze |
 
 - **Graded total, three legs always incurred** (pessimistic, most-likely path where TEST_R3 does not
   converge): ~30 + ~95 + ~95 = **~220 core-min** (chief-approved ~220; range 155–260).
 - **Graded total if TEST_R3 converges and FD runs**: + 60–70 = **~280–290 core-min** (item ceiling
   395 — the sum of per-leg caps, the hard stop).
-- **Pre-flight exercise adds ~10–15 core-min**, spent BEFORE the freeze; it is measurement, not a
-  graded row (§13). Total campaign-to-verdict cost ≈ 230–235 core-min (exercise + graded, no FD) or
-  ≈ 295–305 core-min (with FD).
+- **Pre-flight exercise adds ~34 core-min most-likely under a hard ceiling of 48 core-min**
+  (~~"adds ~10–15 core-min"~~ — struck and replaced by **AMENDMENT A1, 2026-09-10, pre-compute**;
+  derivation and the condition-check in that amendment), spent BEFORE the freeze; it is measurement,
+  not a graded row (§13). The ceiling is **ENFORCED inside `a3fl2_exercise.sh`** — it was not before.
+  Total campaign-to-verdict cost ≈ **254 core-min** (exercise most-likely + graded, no FD;
+  ~~230–235~~) or ≈ **314–324 core-min** (with FD; ~~295–305~~). At the exercise **ceiling** rather
+  than its most-likely: **268** (no FD) / **328–338** (with FD).
 - **Derived $** at the reported-by-owner rate $0.0513/core-h (DERIVED, not measured — the box cannot
-  read its own billing, COMPUTE_BUDGET §5): 220 core-min → 3.67 core-h → **$0.188**; 305 core-min →
-  5.08 core-h → **$0.261**. Both far under the $25/run pre-authorization.
+  read its own billing, COMPUTE_BUDGET §5): 220 core-min → 3.67 core-h → **$0.188**;
+  **324 core-min → 5.40 core-h → $0.277** (~~305 core-min → 5.08 core-h → $0.261~~, AMENDMENT A1).
+  The **exercise alone**: ~34 core-min → 0.567 core-h → **$0.029**; at its 48 core-min ceiling →
+  0.800 core-h → **$0.041**. Every figure here is **DERIVED, NOT MEASURED**. All far under the
+  $25/run pre-authorization.
 - **A3FL1's ~4.2 core-min waste is recorded SEPARATELY** (rule 12, §6 of COMPUTE_BUDGET: waste is
   named, never absorbed): the three A3FL1 legs each died `rc=1` at config-install on the invalid
   option, spending ~4.2 core-min total that produced no result. That is a **waste row against
@@ -436,12 +448,139 @@ pre-flight exercise `a3fl2_exercise.sh` reports **GREEN**.
   the graded arm.** If any leg trips (rc ≠ 0, or the invalid-option string present), the exercise is
   **NOT GREEN**, the config is **fixed PRE-FREEZE**, and the graded arm is **not frozen** until a
   re-run goes GREEN.
-- **Cost:** ~10–15 core-min (3 smokes × ~180 s wall × 4 ranks, capped at 12 core-min each), spent
-  before the freeze; a measurement, not a graded row. Mirrors `d6rf10_preflight_exercise.sh`.
+- **Cost (AMENDED 2026-09-10, AMENDMENT A1, pre-compute):** ~~~10–15 core-min (3 smokes × ~180 s
+  wall × 4 ranks, capped at 12 core-min each)~~ → **most-likely ~34 core-min, HARD CEILING 48
+  core-min** = ⌈3 × (deadline 180 s + kill grace 30 s + measured 21 s staging) × 4 ÷ 60 = 46.2⌉.
+  Derived **$0.029** most-likely / **$0.041** at the ceiling at $0.0513/core-h — DERIVED, NOT
+  MEASURED. Spent before the freeze; a measurement, not a graded row. Mirrors
+  `d6rf10_preflight_exercise.sh`.
+- **The ceiling is ENFORCED, not annotated** (rule 12; it was previously enforced by nothing).
+  `a3fl2_exercise.sh` writes a per-leg `wall_s` → `core_min` row into the exercise ledger, keeps a
+  running `cumulative_core_min`, stops a leg **in flight** when the remaining budget is exhausted
+  (`A3FL2_EXERCISE_BUDGET_STOP`), and on a cumulative crossing sets a **cap-stop that ABORTS the
+  legs that have not started** (`A3FL2_EXERCISE_CUMULATIVE_CAP_STOP`, mirroring
+  `d6rf10_run_arm.sh`'s `D6RF10_CUMULATIVE_HARD_STOP`). An overrun **stops the exercise**; it does
+  not get a new budget.
+- **A budget abort is NEVER a config failure, and the record says which.** The GREEN criterion above
+  is **unchanged**. A cap-stop writes its OWN distinct markers — `stop_cause=BUDGET_STOP` or
+  `rc=CAP_STOP_NOT_RUN` per leg, `A3FL2_EXERCISE_CAP_STOP=yes`, and an explicit
+  `A3FL2_EXERCISE_CAP_STOPPED -- BUDGET ABORT, NOT A CONFIG FAILURE` block in
+  `A3FL2_EXERCISE_DONE.txt`. Config evidence remains `invalid_option=yes` **alone**. A cap-stopped
+  exercise is NOT GREEN (a leg that never ran proved nothing), and the graded arm stays **unfrozen**
+  — but it is **not** evidence against the daOptions, and must never be reported as such.
 
 The freeze order is therefore, explicitly: (1) supervisor §3 check-1 review of this DRAFT; (2) run
 `a3fl2_exercise.sh`, confirm **A3FL2_EXERCISE_VERDICT=GREEN**; (3) only then pin the freeze values
 (§9) and flip PERMISSION to FROZEN; (4) launch the graded arm.
+
+---
+
+## AMENDMENT A1 — 2026-09-10 — the §13 exercise cost is re-registered (most-likely ~34, ceiling 48 core-min) AND the ceiling is given an enforcing instrument
+
+**Condition, and how it was checked (CLAUDE.md rule 2, the pre-compute clause).** This amendment is
+legal because **no compute has run** for A3FL2 and this file is **NOT_FROZEN**:
+
+1. **The exercise run root does not exist.** `/home/ubuntu/certonomous-runs/A3FL2-PREFLIGHT-EXERCISE`
+   was checked by direct `ls` of that path at **2026-09-10T03:52Z** and returned
+   *No such file or directory*. `a3fl2_exercise.sh` refuses to start if that root already exists
+   (its exercise-root guard), so its absence is proof the exercise has never run.
+2. **The graded run root does not exist either.**
+   `/home/ubuntu/certonomous-runs/CURRICULUM-A3FL2-onera-m6-free-conditioning-levers` is created at
+   launch and never before (rule 4, the age guard); it is absent.
+3. **PERMISSION reads `NOT_FROZEN`** (this file's opening line and its closing line), and the
+   launcher's G-FREEZE gate refuses to launch while it does.
+
+No gate, threshold or label is touched below. What changes is a **cost estimate and a cap** — both
+of which rule 2 permits to move **before** first compute, and neither of which may move after it.
+
+**Finding (a) — the registered ceiling of 36 core-min was mpirun-only, and therefore too low.**
+`36 = 3 legs × 180 s deadline × 4 ranks ÷ 60` counts only the time inside the container's
+`timeout … mpirun`. It excludes:
+- the **30 s kill grace** (`a3fl2_exercise.sh`, `KILL_GRACE_S=30`), which a deadline trip actually
+  spends; and
+- the **~21 s per-leg container-start + `decomposePar` + pyDAFoam-staging span**, measured on all
+  three A3FL1 legs — same image, same case, same 4 ranks — in
+  `/home/ubuntu/certonomous-runs/CURRICULUM-A3FL1-onera-m6-free-conditioning-levers/ledger.txt`
+  (each leg's `t1 − t0` = 21 s exactly).
+
+True worst case per leg = `180 + 30 + 21 = 231 s`; three legs at 4 ranks =
+`3 × 231 × 4 ÷ 60 = 46.2 core-min`. **REGISTERED HARD CEILING: 48 core-min** (46.2 rounded up).
+
+**Finding (b) — the "~10–15 core-min" most-likely was understated.** Measured on the exercise's own
+rung-3 source case at 4 ranks, `/home/ubuntu/certonomous-runs/A3-rung3-n52/rung3_stage1.log`:
+- the primal stage ends at `ExecutionTime = 30.97 s` (line 809);
+- the `dRdWTPC` preconditioner assembly runs from `dRdWTPC: 0 of 1355, ExecutionTime: 49.24 s`
+  (line 847) to `dRdWTPC: 1354 of 1355, ExecutionTime: 149.84 s` (line 861).
+
+That is **~119 s of adjoint setup + assembly which is MANDATORY before the first GMRES iteration**,
+so the smoke's `gmresMaxIters → 30` cap cannot shorten it, and the smoke's
+`primal endTime → 25` shortens only the (cheap) primal part. Against a 180 s deadline both R3 legs
+are therefore expected to run **at or near the deadline**. **REGISTERED MOST-LIKELY: ~34 core-min**
+= CONTROL ~5 + BASELINE_R3 ~13.4 + TEST_R3 ~13.4, where each R3 leg is
+`(180 s deadline + 21 s staging) × 4 ÷ 60 = 13.4 core-min`.
+
+**Finding (c) — nothing enforced any of it.** Before this amendment `a3fl2_exercise.sh` contained
+**no core-minute accounting and no cap logic at all**; `DEADLINE_S=180` was the only limiter and it
+is a per-leg wall deadline, not a cumulative budget. A cap that no instrument enforces is a number
+annotated as non-binding, which this lab treats as worse than one never computed.
+
+**What this amendment changes.**
+1. §6 cost table exercise row, §6 cost prose, the §5 caps list and the §13 cost bullet:
+   most-likely **~34 core-min**, hard ceiling **48 core-min**, derived **$0.029 / $0.041** at
+   $0.0513/core-h — **DERIVED, NOT MEASURED** (the box cannot read its own billing,
+   `COMPUTE_BUDGET_CHARTER` §5). Campaign totals folded: ≈ **254 core-min** (no FD) /
+   ≈ **314–324 core-min** (with FD), and 268 / 328–338 at the exercise ceiling.
+2. `a3fl2_exercise.sh` gains the **enforcing instrument**: per-leg `wall_s` → `core_min` ledger row,
+   a running `cumulative_core_min`, an **in-leg budget stop** sized from the remaining budget
+   (`A3FL2_EXERCISE_BUDGET_STOP` → `docker stop`), and a **cumulative cap-stop**
+   (`A3FL2_EXERCISE_CUMULATIVE_CAP_STOP`) that **aborts the legs that have not started**. The shape
+   is `d6rf10_run_arm.sh`'s `D6RF10_CUMULATIVE_HARD_STOP`, with one deliberate difference: the
+   crossing test is `>=`, not `>`, so a leg stopped exactly at the ceiling does not hand the next
+   leg a zero-second allowance. `python3` is now a hard dependency and the script **refuses before
+   creating the exercise root** if it is absent — a run with no cost instrument is a run with an
+   unenforced cap.
+
+**What this amendment does NOT change — stated so the boundary is unmistakable.**
+- **The §13 GREEN criterion is untouched**: `rc = 0` on all three legs **AND**
+  `not a valid PYDAFOAM option` absent from every leg log. Not altered, not widened, not softened,
+  nothing added. The enforcing line in `a3fl2_exercise.sh` is byte-for-byte the line that was there.
+- **No gate, threshold, band, verdict-map row, `MIN_GRADED`, endTime, deadline, memory cap, image
+  digest or graded per-leg cap moves.** `DEADLINE_S` stays 180 s; `KILL_GRACE_S` stays 30 s;
+  `RANKS` stays 4. The graded item ceiling stays **395 core-min** and the exercise's 48 is **outside**
+  it (the exercise is measurement, not a graded row).
+- **PERMISSION stays `NOT_FROZEN`.** This amendment freezes nothing and launches nothing.
+- **A budget cap-stop is not a config failure and can never be reported as one.** It writes its own
+  distinct markers (`stop_cause=BUDGET_STOP`, `rc=CAP_STOP_NOT_RUN`, `A3FL2_EXERCISE_CAP_STOP=yes`,
+  and an explicit `BUDGET ABORT, NOT A CONFIG FAILURE` block in `A3FL2_EXERCISE_DONE.txt`). Config
+  evidence stays `invalid_option=yes` **alone**. A cap-stopped exercise is **NOT GREEN** — a leg that
+  never ran proved nothing, so the graded arm stays unfrozen — but the record says the reason was
+  budget, not an invalid daOption.
+
+**What I could not verify (honest gaps in this amendment's own numbers).**
+- The **CONTROL leg's ~5 core-min** is an **inference**, not a measurement: it scales the R3 legs by
+  the rung-2 / rung-3 cell counts (42,120 vs 79,560) with no rung-2 smoke log on disk. If CONTROL
+  runs to its own deadline instead, the most-likely rises to ~40 core-min — still inside the 48
+  ceiling, which is why the ceiling is derived from the deadline, not from the most-likely.
+- The **21 s anchor** measures the A3FL1 span from just before `docker run -d` to after
+  `docker logs` + `chown`, and those legs **died at pyDAFoam construction**; it is a staging-overhead
+  measure, not a full-leg measure. The new instrument takes its `T0` **earlier** (before the `cp -a`
+  staging of the case), so it accounts slightly more than the anchor — conservative in the enforcing
+  direction, and charged at 4 ranks even though staging is single-threaded.
+- `rung3_stage1.log` was produced with `jacMatReOrdering natural` (line 449). The `nd` legs' assembly
+  cost may differ from the 119 s measured there; the direction is not known in advance — that is
+  precisely the question A3FL2 exists to answer.
+- The box is **contended** (foreign solvers running at the time of writing). Contended wall times can
+  exceed these figures; the in-leg budget stop is what keeps a contended leg from silently spending
+  the whole budget.
+
+**Verification of the instrument (no compute, no solver, no container).** The edited script passes
+`bash -n`, and its control flow was exercised end-to-end against **stubbed** `docker`/`sudo` in the
+lane scratchpad — never against the real image, the real cases or the real exercise root — over
+three paths: (i) all legs rc=0 → `A3FL2_EXERCISE_VERDICT=GREEN` with the cost rows present and no
+cap markers; (ii) a tiny cap → leg 1 budget-stopped in flight, legs 2 and 3 `rc=CAP_STOP_NOT_RUN`,
+`NOT_GREEN` plus the `BUDGET ABORT, NOT A CONFIG FAILURE` block; (iii) the A3FL1 crash string in
+every log → `invalid_option=yes`, `stop_cause=none`, `A3FL2_EXERCISE_CAP_STOP=no`, `NOT_GREEN`. The
+three states are mutually distinguishable from the DONE file alone.
 
 ---
 
