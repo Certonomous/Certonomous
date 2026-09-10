@@ -1,0 +1,184 @@
+{
+  "case_id": "SUBOFF-R1b",
+  "repo": "/home/ubuntu/Certonomous",
+  "dim": 2,
+  "registration_path": "/home/ubuntu/Certonomous/verification/campaign/SUBOFF_R1b_PREREGISTRATION.md",
+  "level_order": [
+    "coarse",
+    "medium",
+    "fine"
+  ],
+  "levels": {
+    "coarse": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_coarse",
+    "medium": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_medium",
+    "fine": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_fine"
+  },
+  "solver": {
+    "binary": "/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam",
+    "check_mesh": "/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/checkMesh",
+    "bashrc": "/usr/lib/openfoam/openfoam2606/etc/bashrc",
+    "tolerance": 0.0001,
+    "tolerance_note": "the registered residualControl target; R1b ran with NO residualControl, so this is the grader's RES_TOL, a judging threshold rather than a solver stop",
+    "iterative_error_in_graded_units": {
+      "quantity": "CT (Cd from forceCoeffs coefficient.dat)",
+      "window_writes": 100,
+      "required_factor": 10.0,
+      "iterative_drift_rel": 0.0571,
+      "measured_from": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_fine/postProcessing/forceCoeffs/0/coefficient.dat",
+      "how": "|Cd(2500)-Cd(2400)|/|Cd(2400)| on the fine level, the level the gate reads",
+      "per_level": {
+        "coarse": 1e-10,
+        "medium": 0.1002,
+        "fine": 0.0571
+      }
+    }
+  },
+  "geometry": {
+    "source_file": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/build_suboff.py",
+    "geometry_gate": {
+      "name": "hull wetted area vs analytic (Groves 1989, title-page verified)",
+      "value": 0.0831703362813915,
+      "tol": 0.03,
+      "verdict": "PASS",
+      "note": "Aref per 5-degree sector = analytic 5.988264212260189 m^2 / 72"
+    }
+  },
+  "generator": {
+    "script": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/build_suboff.py",
+    "argv": null,
+    "rc": null,
+    "argv_null_because": "no recorded invocation of the mesh builder was found on disk for these three roots; emitted null rather than reconstructed, because a reconstructed argv is not a pin"
+  },
+  "pins": [
+    {
+      "path": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/grade_suboff.py",
+      "role": "comparator"
+    },
+    {
+      "path": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/suboff_reference_ReL1p2e7.json",
+      "role": "reference"
+    },
+    {
+      "path": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/run_suboff_r1b_triple.sh",
+      "role": "launcher"
+    },
+    {
+      "path": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/build_suboff.py",
+      "role": "other"
+    }
+  ],
+  "invocations": [
+    {
+      "name": "grade_suboff_AS_THE_FROZEN_LAUNCHER_ACTUALLY_INVOKED_IT",
+      "argv": [
+        "python3",
+        "{GRADER}",
+        "--coarse",
+        "{CASEOF[coarse]}",
+        "--medium",
+        "{CASEOF[medium]}",
+        "--fine",
+        "{CASEOF[fine]}"
+      ],
+      "cwd": "/home/ubuntu/Certonomous",
+      "env_keys": [],
+      "note": "VERBATIM from run_suboff_r1b_triple.sh:369. --reference IS ABSENT. The grader requires it and correctly refused (exit 2), so R1b produced NO graded number. Emitted as a LIST so the omission is a diff and not a parse (2be section 1). The launcher is a pinned post-compute blob and is NOT repaired here."
+    },
+    {
+      "name": "grade_suboff_CORRECT",
+      "argv": [
+        "python3",
+        "{GRADER}",
+        "--coarse",
+        "{CASEOF[coarse]}",
+        "--medium",
+        "{CASEOF[medium]}",
+        "--fine",
+        "{CASEOF[fine]}",
+        "--reference",
+        "{REFERENCE}"
+      ],
+      "cwd": "/home/ubuntu/Certonomous",
+      "env_keys": [],
+      "note": "the argv a successor registration must pin; belongs to the successor, not to R1b"
+    },
+    {
+      "name": "freeze_check",
+      "argv": [
+        "python3",
+        "scripts/check_comparator_freeze.py",
+        "--repo",
+        "{REPO}",
+        "--registration",
+        "{REGISTRATION}",
+        "--restrict-to-registration"
+      ],
+      "cwd": "/home/ubuntu/Certonomous",
+      "env_keys": [],
+      "note": "--restrict-to-registration is MANDATORY and pinned here verbatim, not remembered: unrestricted the checker exits 3 on rows belonging to other campaigns however clean this registered set is, and a gate no case can pass is not a gate"
+    }
+  ],
+  "guards": [
+    {
+      "name": "Aref_normalisation_matches_reference",
+      "armed": "by_data",
+      "condition": "if \"Aref\" in ref and ref[\"Aref\"]:",
+      "condition_at": "cases/navier_class/SUBOFF/grade_suboff.py:362 (test), :363-365 (refusal)",
+      "armed_by_pin_abs": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/suboff_reference_ReL1p2e7.json",
+      "arming_key": "reference.Aref",
+      "note": "with a null Aref this comparison is SKIPPED SILENTLY and the grader still returns a verdict (2be section 3)"
+    },
+    {
+      "name": "planted_zero_control_coefficient_reader",
+      "armed": "unconditional",
+      "condition": "ctrl_gate = coefficient_plant_control(args.fine); if not ctrl_gate['passed']: refuse(...)",
+      "condition_at": "cases/navier_class/SUBOFF/grade_suboff.py:395-397",
+      "armed_by_pin_abs": null
+    },
+    {
+      "name": "planted_zero_control_p_field_reader",
+      "armed": "unconditional",
+      "condition": "ctrl_field = planted_zero_control(args.fine, last_fine); if not ctrl_field['passed']: refuse(...)",
+      "condition_at": "cases/navier_class/SUBOFF/grade_suboff.py:392-394",
+      "armed_by_pin_abs": null
+    },
+    {
+      "name": "rule4_strict_completion",
+      "armed": "unconditional",
+      "condition": "endT, last = check_completion(case)",
+      "condition_at": "cases/navier_class/SUBOFF/grade_suboff.py:360",
+      "armed_by_pin_abs": null
+    }
+  ],
+  "gates": [
+    {
+      "name": "D1_total_drag_parity",
+      "metric": "CT = R_T/(0.5*rho*U^2*S_wetted) at Re_L=1.2e7",
+      "threshold": 0.0036,
+      "band": 0.1,
+      "direction": "two-sided relative",
+      "label_if_pass": "PASS",
+      "label_if_fail": "GATE FAIL",
+      "note": "non-CONVERGING Roache triple is NOT A RESULT whatever the value (rule 5)"
+    }
+  ],
+  "cost": {
+    "point_core_min": 216.2,
+    "cap_core_min": 400,
+    "cost_basis": "c7a.4xlarge at $0.0513/core-h, OWNER-STATED not measured (the box cannot read its own billing, COMPUTE_BUDGET_CHARTER section 5); actual 173.23 core-min, ratio actual/predicted = 0.801",
+    "routing": "CPU, ranks 1, three levels SEQUENTIAL",
+    "cap_status": "CASE_PROTOCOL section 9 closing clause suspends budget gates for the 3D cases that still need to run; whether an axisymmetric 5-degree wedge is inside that scope is REFERRED, not decided here"
+  },
+  "blockage": {
+    "value": null,
+    "stated": false,
+    "why": "BLOCKAGE NOT STATED in SUBOFF_R1b_PREREGISTRATION.md and not reconstructed here. Charter section 1 requires it stated. Emitted as a visible null: this is a stage-1 deficiency of the R1b registration, and it is the successor's to supply."
+  },
+  "freeze_hook_argv": [
+    "--repo",
+    "{repo}",
+    "--registration",
+    "{registration}"
+  ],
+  "freeze_hook_argv_note": "scripts/case_protocol_freeze_hook.py takes no --restrict-to-registration of its own: it PASSES that flag to scripts/check_comparator_freeze.py internally, which is where it is mandatory. Recorded so the omission here is not read as the R1b omission repeating."
+}

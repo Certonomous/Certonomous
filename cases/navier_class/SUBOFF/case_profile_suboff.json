@@ -1,0 +1,163 @@
+{
+  "case_id": "SUBOFF-R1b (stage-2 audit of the run of record; NOT a regrade, NOT a verdict)",
+  "repo": "/home/ubuntu/Certonomous",
+  "note": "Stage 2 is run here AGAINST AN ALREADY-COMPLETE RUN to prove the check battery. In the protocol stage 2 runs BEFORE stage 4. Nothing here grades R1b: the verdict of record stays NOT A RESULT (SUBOFF_R1b_RESULTS.md, c908a4db + amendment 10117328).",
+  "levels": {
+    "coarse": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_coarse",
+    "medium": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_medium",
+    "fine": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_fine"
+  },
+  "smoke_level": "coarse",
+  "registered_cells": {
+    "coarse": 39904,
+    "medium": 89784,
+    "fine": 202014
+  },
+  "mesh_gates": {
+    "max_non_orthogonality": 70.0,
+    "max_skewness": 4.0
+  },
+  "required_dicts": [
+    "system/controlDict",
+    "system/fvSolution",
+    "system/fvSchemes",
+    "constant/transportProperties",
+    "constant/turbulenceProperties"
+  ],
+  "fields_zero_dir": [
+    "p",
+    "U",
+    "k",
+    "omega",
+    "nut"
+  ],
+  "allowed_catchall_patches": [],
+  "registered_settings": {
+    "system/controlDict": {
+      "endTime": "2500",
+      "deltaT": "1",
+      "writeInterval": "2500",
+      "purgeWrite": "0"
+    }
+  },
+  "solver": {
+    "binary": "/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam",
+    "check_mesh": "/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/checkMesh",
+    "dry_timeout": 300,
+    "bashrc": "/usr/lib/openfoam/openfoam2606/etc/bashrc"
+  },
+  "comparator": {
+    "path": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/grade_suboff.py",
+    "sha256": "5bb14d9b7d37a92288026b676607eb4292e24eb83ed8749c49a64e258a043766",
+    "reference": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/suboff_reference_ReL1p2e7.json",
+    "also_scan": [
+      "/home/ubuntu/Certonomous/scripts/roache_triple.py"
+    ],
+    "invocation": {
+      "name": "grade_suboff_triple",
+      "cwd": "/home/ubuntu/Certonomous",
+      "argv": [
+        "{comparator}",
+        "--coarse",
+        "{coarse}",
+        "--medium",
+        "{medium}",
+        "--fine",
+        "{fine}",
+        "--reference",
+        "{reference}"
+      ],
+      "argv_note": "--reference IS PRESENT HERE AND WAS ABSENT AT run_suboff_r1b_triple.sh:369. That is not a repair of the frozen launcher (which is untouched); it is the argv this stage-2 pins, and pinning the argv is 2be section 1's requirement."
+    }
+  },
+  "detector_controls": {
+    "D1": {
+      "known_positive": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/stage2_fixtures/known_positive_d1.py",
+      "known_negative": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/stage2_fixtures/known_negative_d1.py"
+    },
+    "D2": {
+      "known_positive": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/stage2_fixtures/known_positive_d2.py",
+      "known_negative": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/stage2_fixtures/known_negative_d2.py"
+    },
+    "D3": {
+      "known_positive": "/home/ubuntu/Certonomous/cases/navier_class/watch_grade_calibrate.py",
+      "known_negative": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/stage2_fixtures/known_negative_d3.py"
+    }
+  },
+  "immutable_sha256": {
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_coarse/log.simpleFoam": "21802ae42931f06de31bd919f628dc136eec3ed0bba76ee6e23ad5ce17b2502b",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_coarse/postProcessing/forceCoeffs/0/coefficient.dat": "fbd6fd783cf1ef93574e8651ac18b17937f4827274183be75d7c17051e6c63cc",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_coarse/constant/polyMesh/owner": "424790aafab345aa73a34444373137706a5b590d612b91014353769a7ba84957",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_medium/log.simpleFoam": "cf52d8b8a2cb4598c9a293d46d875ce16862f10d132e585793a8f6d2bb079be3",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_medium/postProcessing/forceCoeffs/0/coefficient.dat": "dfaf2816ec400ea3ae4d3f9ab26b3dfa0667f94ed45d44f4ec0327f90f569327",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_medium/constant/polyMesh/owner": "2f3a7df3eb61359181ea5da9d2533b91f252cd69a3107352d1880c6e13f0faee",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_fine/log.simpleFoam": "fb6718c36eb969db042c5a474fa88b080d4f7c015db01a5fb6d64a39abae2301",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_fine/postProcessing/forceCoeffs/0/coefficient.dat": "7a5f2a9c04a2236d4ae72032aeb72816df8090d249bd723a3be7a400146914d0",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_fine/constant/polyMesh/owner": "f261ace8021ab386b087d44368b098d932e53f56cf349473565393b89c26acdc"
+  },
+  "plants": [
+    {
+      "name": "P1_offset_last_row",
+      "role": "positive control",
+      "kind": "offset",
+      "level": "fine",
+      "artifact": "postProcessing/forceCoeffs*/*/coefficient.dat",
+      "column": 1,
+      "magnitude": 0.001234,
+      "expect_field": "per_level.{level}.CT",
+      "expect": "changes",
+      "why": "the shape grade_suboff.py's own rule-3 control plants; a two-point test CAN see it, so this proves the battery and the series reader are alive"
+    },
+    {
+      "name": "P2_drift_over_trailing_window",
+      "role": "defect probe",
+      "kind": "drift",
+      "level": "fine",
+      "artifact": "postProcessing/forceCoeffs*/*/coefficient.dat",
+      "column": 1,
+      "window": 100,
+      "total_rel": 0.2,
+      "endpoint_rel": 0.0005,
+      "expect_field": "per_level.{level}.iteratively_plateaued",
+      "expect": "changes",
+      "why": "+20% drift over the final 100 writes = 40x PLATEAU_TOL_REL, with the final step held at 0.05% = one tenth of it. A trailing-window statistic sees this; an endpoint difference cannot. This is the 2bd class."
+    },
+    {
+      "name": "P3_residual_FIRST_occurrence",
+      "role": "defect probe",
+      "kind": "residual",
+      "level": "fine",
+      "artifact": "log.simpleFoam",
+      "field": "p",
+      "which": "first",
+      "value": 0.99,
+      "expect_field": "per_level.{level}.iterative_detail.final_initial_residuals.p",
+      "expect": "changes",
+      "why": "the FIRST p solve of the final SIMPLE iteration is the one OpenFOAM's own convergence test reads; read_iterative_state takes hits[-1], the non-orthogonal corrector, whose residual is smaller by construction"
+    },
+    {
+      "name": "P4_residual_LAST_occurrence",
+      "role": "positive control",
+      "kind": "residual",
+      "level": "fine",
+      "artifact": "log.simpleFoam",
+      "field": "p",
+      "which": "last",
+      "value": 0.99,
+      "expect_field": "per_level.{level}.iterative_detail.final_initial_residuals.p",
+      "expect": "changes",
+      "why": "control limb for P3: proves the residual reader is alive and localises any blindness to the FIRST position rather than to the reader as a whole"
+    }
+  ],
+  "immutable_mtime_ns": {
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_coarse/log.simpleFoam": 1789019733756658676,
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_coarse/postProcessing/forceCoeffs/0/coefficient.dat": 1789019733756658676,
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_coarse/constant/polyMesh/owner": 1789018556136980620,
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_medium/log.simpleFoam": 1789022246251157965,
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_medium/postProcessing/forceCoeffs/0/coefficient.dat": 1789022246251157965,
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_medium/constant/polyMesh/owner": 1789018556969987364,
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_fine/log.simpleFoam": 1789028953805424888,
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_fine/postProcessing/forceCoeffs/0/coefficient.dat": 1789028953805424888,
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/r1b_fine/constant/polyMesh/owner": 1789018558770001937
+  }
+}

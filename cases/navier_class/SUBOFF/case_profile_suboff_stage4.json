@@ -1,0 +1,28 @@
+{
+  "case_id": "SUBOFF-R1b (post-hoc monitor replay; NOT a regrade)",
+  "repo": "/home/ubuntu/Certonomous",
+  "ranks": 1,
+  "solver": {
+    "binary": "/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam",
+    "bashrc": "/usr/lib/openfoam/openfoam2606/etc/bashrc"
+  },
+  "monitor": {
+    "log": "log.simpleFoam",
+    "residual_field": "p",
+    "series_glob": "postProcessing/forceCoeffs*/*/coefficient.dat",
+    "series_column": "Cd",
+    "window_iterations": 500,
+    "poll_s": 60,
+    "residual_target": 0.0001,
+    "residual_growth_rel": 0.1,
+    "residual_plateau_rel": 0.1,
+    "linear_saturation_iters": 50,
+    "oscillation_sign_change_rate": 0.2,
+    "graded_stationarity_rel": 0.005,
+    "max_bounding_events": 0,
+    "estimated_s_per_iteration": 2.68,
+    "cap_core_min": 400,
+    "cap_stops_run": null,
+    "note": "thresholds transcribed from SUBOFF_R1b_PREREGISTRATION.md where it registers them (residual_target 1.0e-4, cap 400 core-min) and set to class defaults elsewhere, marked 'class default, first use'. cap_stops_run is DELIBERATELY null: CASE_PROTOCOL section 9's closing clause suspends budget gates for the 3D cases that still need to run and whether an axisymmetric wedge is in scope is REFERRED."
+  }
+}
