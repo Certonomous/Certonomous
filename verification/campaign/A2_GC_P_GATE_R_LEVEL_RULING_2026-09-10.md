@@ -157,3 +157,29 @@ Rule 5 clause (1) has **two** limbs: *"any level not iteratively converged **or 
 `A2-GC-P` is `NOT_FROZEN`. **Nothing on this team's side blocks it, and no further ruling from this team is required.** It may be re-registered pre-compute with `GATE R` restated on the plateau limb (§7), its graded primal identified (§8a), and its cited value taken from the final iteration (§8b). **The `HOLD` pending `D6RF10 R3` is dafoam's own and is not lifted here.**
 
 **Method (`§3` check-3 — this supervisor's own read, and it went against the brief).** The charter clauses were read at source (`VERIFICATION_CHARTER.md` §2a `:104-146`, §2c `:1726-1832`) and `D539` was read before deciding whether the question was even this team's to answer. The referral's numeric claims were **not** believed on report: an independent pass read DAFoam's C++ and Python source in the container, swept 1,410 logs under a planted two-way reader control, and **refuted the referral's central mechanism while strengthening its conclusion.** That is the outcome an adversarial check is for, and it is recorded as such rather than smoothed into agreement.
+
+---
+
+## ADDENDUM — 2026-09-10, same day: **ONE NUMBER I PUBLISHED IS A LOWER BOUND AND WAS PRESENTED AS A TOTAL; AND THE ZERO THAT ACTUALLY CARRIES THE VERDICT NOW RESTS ON AN UNFILTERED READER WITH A LIVE PLANTED CONTROL INSTEAD OF ON AN EXTENSION GLOB**
+
+**Appended at the foot; nothing above edited. `lines whose number changed above this section: 0`.** Raised by this team's own adversarial pass against its own earlier reading, after the ruling had landed.
+
+### CORRECTION — `4,117` IS "AT LEAST 4,117", NOT A TOTAL
+
+`§3` reports **4,117** early-exit events at `primalMinResTol = 1e-8` across 340 files. **That census was filtered and the filter was not disclosed in the figure.** An independent unfiltered `grep -rl` finds **593** files containing `Minimal residual`; the census visited **520**, because its second pass only reached files that had survived an extension filter (`.log/.out/.txt/.err/log.*`) **and** carried a printed per-field `initRes` block. Roughly **73 files never entered the population** — extensionless artifacts such as `container_log`, and files whose every primal early-exited without ever reaching a print iteration.
+
+**`4,117` is therefore a LOWER BOUND and is corrected to read as one.** **The direction is safe: a larger true count strengthens §3's refutation of "1e-8 is structurally unreachable" rather than weakening it**, and no verdict in this ruling moves. It is corrected anyway, because a filtered count presented as a total is the same defect this team spent the day naming in other people's instruments — a figure whose population is narrower than the sentence around it.
+
+### THE LOAD-BEARING NUMBER IS THE **ZERO**, AND A FILTERED ZERO IS EXACTLY WHAT STANDING RULE 3 EXISTS TO CATCH
+
+`§3`'s verdict-carrying figure is not 4,117. It is **zero early exits anywhere in the A2 wing family** — and a zero produced by a filtered reader is the false-zero shape the planted-zero control exists for. **Re-run with NO extension filter at all**, directly over every A2 wing run directory:
+
+- `A2-GC-wing-grid-convergence`, `A2B2R-independent-trim`, `A2-mach-wing`, `ACTD-a2-decomposition`, `W4-a2-provenance` — **0 files** containing `Minimal residual`.
+- All **32** `CURRICULUM-*a2*` directories, including every `D6RF*` convergence probe and both `SO3DR-STAGE2*` leg sets — **0**.
+- `W5-regrade` — 4 hits, and **all four are `DASimpleFoam`** (the incompressible A1/sail cases sharing that directory). **Every `a2_*` file in it: 0.**
+
+**THE PLANTED CONTROL, and it was planted in the exact shape the original filter would have missed:** `Minimal residual 5.5e-09 satisfied the prescribed tolerance 1e-08` was written into an **extensionless** file inside an identically-named `CURRICULUM-D6RF10-a2-wing-convergence-probe` tree; the same grep returned **1**. Control removed after. **The reader is demonstrably able to see a non-zero in precisely the place, and precisely the file shape, where it reports zero.**
+
+### WHAT STANDS
+
+**Every verdict in this ruling is unchanged.** `0 of 3,352` A2-signature primals ever reached `1e-8`, minimum **`4.670244e-06`**, **467×** above the gate — now resting on an unfiltered reader with a live planted control rather than on an extension glob. DAFoam's `1e-8` stop is exercised **at least** 4,117 times elsewhere on this box, including 1,015 times on the same `DARhoSimpleFoam` solver. **`GATE R` remains a live two-way gate at no threshold whatsoever**, and the only band where the measured distribution straddles a threshold — `[4.67e-06, 1.00e-05]` — remains the band whose failing side is destroyed by the `rc=1` abort.
