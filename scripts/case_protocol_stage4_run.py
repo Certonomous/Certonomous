@@ -185,8 +185,44 @@ SOLVER="__SOLVER__"
 RANKS=__RANKS__
 LOG="$CASE/log.$SOLVER"
 STATUS="$CASE/STATUS.stage4"
+SRCLOG="$CASE/log.foam_bashrc_source"
 
-source __BASHRC__ '' >/dev/null 2>&1
+# ===== CANONICAL GUARD: `set -u` + OpenFOAM's etc/bashrc.  COPY THIS BLOCK. =====
+# ANY launcher in this lab that runs `set -u` and then sources the OpenFOAM bashrc
+# dies at the source line.  OpenFOAM's etc/bashrc DEREFERENCES `WM_PROJECT_DIR`
+# WHILE IT IS UNSET (its line 184), and under `set -u` an unbound variable is fatal
+# to a non-interactive shell.
+#
+# MEASURED TWICE ON 2026-09-10, IN TWO INDEPENDENT LAUNCHERS IN TWO TEAMS: this one
+# on M6CP1 L2 at 20:52Z, and the MRF lane's own wrapper at 20:17Z.  It is a
+# LAB-WIDE HAZARD, not this case's, which is why this block is written to be copied
+# verbatim into any other wrapper rather than rediscovered a third time.
+#
+# The wrapper dies right here, BEFORE its first write -- no STATUS, no log, no
+# RC.txt, 0/T untouched -- while the launching python happily prints LAUNCHED.
+#
+# THE GUARD IS SCOPED TO THIS ONE LINE ON PURPOSE.  Do not "tidy" it away and do
+# not instead move `set -u` below the source: the point is that a reader can see
+# exactly which line needs it and why.
+#
+# AND ITS STDERR IS KEPT.  This line used to end `>/dev/null 2>&1`, which is half
+# the reason the failure was silent.  AN ERROR THAT IS ERASED AND AN ERROR THAT
+# NEVER HAPPENED MUST NOT LEAVE THE SAME TRACE.
+set +u
+source __BASHRC__ '' > "$SRCLOG" 2>&1
+SRC_RC=$?
+set -u
+if [ "$SRC_RC" -ne 0 ]; then
+    # Refuse loudly rather than continue into a solver with no OpenFOAM environment.
+    echo "RC=91" > "$CASE/RC.txt"
+    {
+        echo "launched_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        echo "REFUSED=foam_bashrc_source_failed"
+        echo "source_rc=$SRC_RC"
+        echo "stderr=$SRCLOG"
+    } > "$STATUS"
+    exit 91
+fi
 cd "$CASE" || exit 90
 
 echo "launched_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"  > "$STATUS"
@@ -363,14 +399,119 @@ def main(argv: Optional[List[str]] = None) -> int:
                            reason=f"{len(blockers)} preflight refusals; no compute launched"))
         return 7
 
-    proc = subprocess.Popen(["setsid", "nohup", str(launcher)],
-                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                            start_new_session=True)
-    time.sleep(2)
-    manifest["launched"] = True
-    manifest["launch_pid"] = proc.pid
+    # THE TRAP THIS BLOCK EXISTS FOR, AND IT IS THE ONE NAMED IN THIS FILE'S OWN
+    # HEADER, ONE LEVEL UP.  The header says the exit status of anything wrapping
+    # the solver says nothing about the run -- and this function used to take
+    # `Popen` succeeding as proof of a launch.  It is not.  `Popen` succeeding
+    # means `setsid` was EXECUTED; the wrapper can be dead 30 ms later and the
+    # printed line is identical.  Measured 2026-09-10: a wrapper that died in its
+    # own source line was reported LAUNCHED with a pid, and `"launched": true` was
+    # written into the manifest, with zero solver core-seconds spent.
+    #
+    # A LAUNCHER THAT CANNOT CONFIRM ITS OWN LAUNCH MUST REFUSE, NOT REPORT.
+    wrapper_log = case / "log.launch_stage4_wrapper"
+    zero_T = case / "0" / "T"
+
+    # THE AGE-GUARD DATUM'S MTIME IS CAPTURED BEFORE THE LAUNCH AND MUST STRICTLY
+    # INCREASE.  An absolute comparison against the launch instant with any slack
+    # is NOT enough: a case whose 0/T happened to be written moments earlier reads
+    # as "touched" when nothing touched it, and the verifier then confirms a launch
+    # that never happened -- which is the exact defect this whole block exists to
+    # prevent, reintroduced one level down.  Caught by this file's own branch test
+    # on 2026-09-10, where a wrapper that refused at the bashrc guard was reported
+    # as a started solver because 0/T was one second old.
+    try:
+        zero_T_mtime_before = zero_T.stat().st_mtime
+    except OSError:
+        zero_T_mtime_before = None
+
+    t_launch = time.time()
+    with open(wrapper_log, "wb") as wl:
+        proc = subprocess.Popen(["setsid", "nohup", str(launcher)],
+                                stdout=wl, stderr=subprocess.STDOUT,
+                                start_new_session=True)
+
+    # Positive evidence, waited for rather than assumed.  STATUS.stage4 is the
+    # wrapper's FIRST write, so its existence proves the wrapper got past the
+    # OpenFOAM source; 0/T is touched immediately before the solver, so an mtime
+    # at or after t_launch proves it got as far as starting one.
+    status_path = case / "STATUS.stage4"
+    rc_path = case / "RC.txt"
+    evidence: Dict[str, Any] = {"status_file": False, "age_guard_touched": False,
+                                "early_rc": None,
+                                "zero_T_mtime_before": zero_T_mtime_before}
+    deadline = t_launch + 30.0
+    while time.time() < deadline:
+        if status_path.is_file():
+            evidence["status_file"] = True
+            try:
+                if zero_T.is_file() and (zero_T_mtime_before is None
+                                         or zero_T.stat().st_mtime > zero_T_mtime_before):
+                    evidence["age_guard_touched"] = True
+            except OSError:
+                pass
+            if rc_path.is_file():
+                evidence["early_rc"] = rc_path.read_text().strip()
+            if evidence["age_guard_touched"] or evidence["early_rc"]:
+                break
+        time.sleep(0.5)
+
+    early_rc = evidence["early_rc"]
+
+    # `launched` MEANS "A SOLVER WAS STARTED", AND NOTHING ELSE.
+    #
+    # "NEVER STARTED" AND "STARTED AND DIED" ARE DIFFERENT FINDINGS AND MUST NOT
+    # LEAVE THE SAME TRACE.  That is rule 4's discipline, and this lab has confused
+    # the two three times already: a stage-3 reader whose `measured=None` was
+    # labelled FAIL, a `checkMesh` that could not see the check it was gating on,
+    # and this launcher.  Collapsing an early crash into `launched: false` would
+    # make it four.  A crash is a finding about the CASE until triage says
+    # otherwise, and a boolean that hides it steals the trigger for that triage --
+    # so an early crash is carried ALONGSIDE as `early_exit_rc`, still BLOCKED and
+    # still non-zero.  The two exits are given DIFFERENT return codes on purpose:
+    # 8 says the INSTRUMENT could not run, 9 says the CASE died.
+    started = bool(evidence["status_file"] and evidence["age_guard_touched"])
+    not_started = None
+    if not evidence["status_file"]:
+        not_started = ("the wrapper never wrote STATUS.stage4, so it died before its first "
+                       f"write; its output is at {wrapper_log}")
+    elif not evidence["age_guard_touched"]:
+        not_started = ("the wrapper wrote STATUS.stage4 but never touched 0/T, so no solver "
+                       "was started and the age-guard datum was not set"
+                       + (f"; it exited early with {early_rc}" if early_rc else ""))
+    crashed_early = bool(started and early_rc and early_rc != "RC=0")
+
+    manifest["launch_verification"] = {
+        "method": ("STATUS.stage4 present AND 0/T touched at or after the launch instant. "
+                   "Popen returning is NOT treated as evidence of a launch."),
+        "evidence": evidence,
+        "wrapper_output": str(wrapper_log),
+        "waited_s": round(time.time() - t_launch, 2),
+    }
+    manifest["launched"] = started
+    manifest["launch_pid"] = proc.pid if started else None
+    if not_started:
+        manifest["launch_refusal"] = not_started
+    if early_rc:
+        manifest["early_exit_rc"] = early_rc
     (out / f"STAGE4_MANIFEST_{a.level}.json").write_text(json.dumps(manifest, indent=2) + "\n")
+
+    if not_started:
+        print(L.state_line(STAGE, "EXIT", "BLOCKED", reason=not_started[:180],
+                           note="launched=false: NO SOLVER WAS STARTED. This is an instrument "
+                                "finding, not a case finding."))
+        return 8
+
+    if crashed_early:
+        print(L.state_line(STAGE, "EXIT", "BLOCKED",
+                           reason=f"a solver WAS started and exited early with {early_rc}"[:180],
+                           pid=proc.pid, early_exit_rc=early_rc,
+                           note="launched=true WITH early_exit_rc. A crash is a finding about "
+                                "the case until triage says otherwise."))
+        return 9
+
     print(L.state_line(STAGE, "EXIT", "LAUNCHED", pid=proc.pid,
+                       verified="STATUS.stage4 present and 0/T touched",
                        note="rc will be in RC.txt, written by the wrapper from the solver process"))
     return 0
 
