@@ -875,3 +875,133 @@ referred to the chief and to verification and is **not cfd's to rule**. It does 
 stage-3 reader defect of A1.5, whose proposed repair stays staged unapplied at
 `verification/runs/M6CP1_runs/PROPOSED_REPAIR_stage3_smoke.py`. **A supervisor or lane quietly
 repairing a pinned instrument after compute is the exact move the freeze exists to prevent.**
+
+---
+
+## ADDENDUM 4 — 2026-09-10 — **THE DIRECTED RUN RAN, AND IT REPRODUCED THE PREDICTED FAILURE BIT-FOR-BIT.**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, band or label is altered.
+**Amendment 2's `NOT A RESULT` park is UNTOUCHED — this run CONFIRMS it, it does not replace it.**
+Gate P and Gate G **were never evaluated**: the run did not reach a graded state.
+
+### A4.1 WHAT RAN, AND HOW IT ENDED — **STOPPED BY SUPERVISOR DECISION, NOT COMPLETED**
+
+Solver pid **1597168** (`rhoPimpleFoam`, serial, `nProcs : 1`), cwd
+`verification/runs/M6CP1_runs/L2/case`, wrapper pid 1596907 at **PPID 1**. Launched
+**21:30:28Z**, stopped **21:37:56Z**, **759 steps of a registered `endTime` 5000**, 448 wall s.
+
+**`RC.txt` reads `RC=143` = 128 + 15, i.e. SIGTERM. THAT IS A DECISION, NOT A CRASH**, and it is
+written here so no later reader triages it as a failure. **There is NO `End` line, the last time is
+759 against `endTime` 5000, and the autograder did not run.** **Nothing in this record claims rule-4
+completion, because none of rule 4's clauses were met and none were meant to be.**
+
+The stop was ordered once the run had answered: SIGTERM to **one explicit pid**, never `pkill`
+(which matches its own invoking command line — a trap this supervisor then fell into anyway, see A4.5).
+
+### A4.2 **P1 — CONFIRMED AS AN IDENTITY, NOT AS A SPOT CHECK**
+
+**400 common steps, both logs parsed by the SAME code, compared step by step: the smoothed flow time
+scale max AND both `limitTemperature` clamp counts are identical at EVERY comparable step.**
+
+| step | live smoothed max | M0 smoothed max | clamps live | clamps M0 |
+|---|---|---|---|---|
+| 1 | 9.119010831e-05 | 9.119010831e-05 | 0/0 | 0/0 |
+| 50 | 1.251459718e-05 | 1.251459718e-05 | 93/57 | 93/57 |
+| 200 | 2.72679683e-05 | 2.72679683e-05 | 535/44 | 535/44 |
+| 300 | 1.344690795e-05 | 1.344690795e-05 | 601/106 | 601/106 |
+| **399/400** | **7.121542696e-06** | **7.121542696e-06** | **704/142** | **704/142** |
+
+**Addendum 3's registered bit-identity target — `7.121542696e-06 s`, 704 lower, 142 upper — is
+reproduced to every digit.** The stage-4 case and the failed M0 smoke differ by one line
+(`endTime 400 → 5000`), and the trajectory confirms it: **the case is deterministic, and the graded
+run IS the smoke that already failed.**
+
+**Two disclosures rather than smoothings.** (i) At step 400 M0 has **no LTS block at all** — its
+`endTime` is 400, so it writes and stops before printing one. That is **a missing datum in the
+REFERENCE, not a divergence in the trajectory**, and the clamp pair at that same step matches. (ii)
+The parser attributes each LTS block to the **preceding** `Time =` header, offsetting the step label
+by one against a raw line-order reading. **It cannot affect the comparison, because both logs pass
+through the same parser**, but the absolute label is ambiguous by one.
+
+### A4.3 **P2 — NOT CONFIRMED. THE THRESHOLD WAS MEASURED; THE CLAIM WAS NOT VERIFIED; THE MODEL IS FALSIFIED.**
+
+**This section was rewritten before commit. The supervisor's first draft of it read "OUTCOME
+CONFIRMED" and "crossed at about step 674", and all of that was wrong** — it was written from a
+lane's early spot reading, before the whole trace was parsed, and it contradicted the supervisor's
+own later ruling that P2 must not be reported as confirmed. **The lane refused the label the
+supervisor then instructed ("unverified") as well, on the ground that a flat "unverified" would hide
+a crossing that WAS measured. It was right on both counts and the wording below is its.**
+
+**The precise statement is neither "confirmed" nor "unverified":**
+- **The threshold WAS reached and measured.** First sample below 1e-10 s is at **step 515** — not
+  step 674, which was a spot reading — measured across all 758 samples.
+- **The CLAIM was not verified.** P2 asserts a state **at step 5000**. The run stopped at 759 by
+  supervisor decision, so **that state was never observed and cannot be inferred.**
+- **The MODEL is falsified.** Addendum 3 registered ~1.1 decades per 400 steps, log-linear. Measured
+  envelope: 7.994347e-06 (400) → 5.683405e-09 (500) → 7.966286e-14 (550) → 1.847168e-17 (600) →
+  1.491850e-21 (650) → 2.666741e-26 (700) → **1.553171e-30 (758)** — about **24 decades over 358
+  steps.** The collapse **accelerates** and is not log-linear.
+
+**AND THE FACT THAT MAKES THE ENDPOINT UNINFERABLE, WHICH THE FIRST DRAFT OMITTED: the trace
+RE-CROSSED ABOVE 1e-10 s TWICE after step 515, reaching 1.713395e-10 s.** Step-to-step rises number
+**320 of 757 (42 %)**, of which 43 fall after step 515, the largest a **2.3× jump at step 617**.
+**One crossing of a threshold is not a stable state below it**, so "below at 515" does not license
+"below at 5000". A registered prediction about step 5000 is not discharged by a run that stopped at
+759, however far it had fallen.
+
+### A4.4 **THE MECHANISM IS NOW OBSERVED ACROSS 759 STEPS, NOT INFERRED FROM TWO LINES**
+
+**The RAW flow time scale maximum NEVER MOVES: `0.005513522401 s` at step 1 and `0.005513522401 s` at
+step 759** — supervisor-verified directly from the log's first and last `Flow time scale` lines. Raw
+min falls to 2.196e-35. **Everything that collapsed was put there by `fvc::smooth`.** §A2.3 asserted
+this from N1's two lines; **this run demonstrates it over 759 steps on the baseline configuration.**
+The freestream time scale is healthy the entire way; the smoothing operator carries the
+trailing-edge collapse into the whole domain.
+
+### A4.5 🔴 **P3 CONFIRMED — AND THE CLAMP COUNTS FALL, WHICH INVERTS THE NAIVE READING**
+
+Clamps fire at both ends throughout and pin **at** their own limits (`UnlimitedTmin=100`,
+`UnlimitedTmax=1000`) against a registered `max_clamped_cells = 0`. **But the counts FALL as the run
+proceeds — 704/142 at step 400, 128/58 by step 674** (supervisor-verified).
+
+**Fewer cells are clamped because fewer cells are MOVING. A monitor watching clamp counts alone would
+have read this collapse as a recovery.** That is the same trap as N1's residuals — where momentum
+read 5.2e-08 while nothing moved — **in a different instrument**, and it is the third instance
+tonight of a signal whose improvement means the opposite of health.
+
+**And a supervisor's own instance of the same class, recorded because it nearly produced a false
+contradiction of the lane:** checking whether the solver had stopped, this supervisor ran
+`pgrep -f rhoPimpleFoam` and read **"STILL RUNNING"** — **`pgrep -f` matched its own command line.**
+`pgrep -x` returned zero and pid 1597168 was gone. **The lane was right and the check was wrong.**
+
+### A4.6 THE REPAIRED LAUNCHER WAS EXERCISED ON A REAL SOLVE
+
+`log.foam_bashrc_source` present at **0 bytes** — the guarded source ran clean and its stderr is no
+longer discarded. The verifier recorded `status_file: True`, `age_guard_touched: True`,
+`early_rc: None`, `zero_T_mtime_before: 1788915818.5089564`, with `0/T` advancing to
+1789075828.807: **the strict-increase witness fired on real data rather than on a fake solver, and
+`RC=143` proves the wrapper propagates a real non-zero from a real solver process.**
+
+**Residual labelling defect, flagged and NOT fixed mid-run:** the manifest's `launch_pid` records
+**1596906, the `setsid` parent** — which had already exited — not the solver (1597168) nor the
+wrapper (1596907). Verification's ruling is still satisfied because liveness is not asserted from
+that parent, but **a reader running `ps` or `kill` on that number concludes the run is dead.**
+Follow-up: record the solver's own pid into `STATUS.stage4` and carry it into the manifest.
+
+### A4.7 COST — MEASURED, WITH CONTENTION NAMED AND NOT ABSORBED
+
+**448 wall s × 1 rank = 7.467 core-min, $0.00638 DERIVED, NOT MEASURED** at $0.0513/core-h.
+Actual **0.590 s/step against the M0-measured 0.325 s/step — ratio 1.82×, attributed ENTIRELY to
+contention**: 12 CPU-bound ranks were already on 16 vCPU at launch and this was the 13th core. **No
+waste is claimed and no per-step misprediction is claimed.** Against Addendum 3's 27.1 core-min
+estimate for 5000 steps: **15.2 % of the steps for 27.6 % of the budget, and ~19.6 core-min never
+spent because the run was stopped once it had answered.** The rule-12 calibration row for
+`docs/COST_CALIBRATION.md` is **owed and not discharged by this addendum.**
+
+### A4.8 WHAT THIS RUN DOES **NOT** ESTABLISH
+
+**It does not establish the cusp as the CAUSE.** §A2.8's limit stands unchanged: this shows the
+failure is deterministic, spatially confined and driven through `fvc::smooth`, and that no BC,
+patch-type or mesh-quality-flag explanation survives. **Distinguishing "mesh topology defect" from
+"genuinely unstable scheme" still requires the controlled experiment — the same numerics on a
+wake-cut or blunt-TE grid — which is a SUCCESSOR REGISTRATION, not a rung on this one.**
