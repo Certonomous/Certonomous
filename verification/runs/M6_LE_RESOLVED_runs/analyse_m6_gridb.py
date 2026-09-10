@@ -30,8 +30,8 @@ planted controls are A's PINNED functions, NOT reimplemented:
 THE DIFF vs analyse_m6sr.py / analyse_m6_own_family.py IS THE GRID-(b) ADAPTATION LAYER ONLY --
 LOCAL constants, no mutation of A:
   * level ids Lc/Lm/Lf (coarse->fine), grid-b run roots M6_LE_RESOLVED_runs/L{c,m,f}/solve
-  * grid-b EXACT-NESTING counts (Lc MEASURED first-hand 2026-09-10 from Lc/solve/log.checkMesh;
-    Lm/Lf coarsen-nesting values PENDING their own build): surface faces (6240/24960/99840,
+  * grid-b EXACT-NESTING counts (Lc+Lm MEASURED first-hand 2026-09-10 from L{c,m}/solve/
+    log.checkMesh; Lf coarsen-nesting value PENDING its own build): surface faces (6240/24960/99840,
     ratio 4.00), marched layers (150/300/600, ratio 2.00), cells (936000/7488000/59904000,
     ratio 8.00) -- r = sqrt(4) = 2.000
   * patch-name set {wing, symmetry, farfield}
@@ -84,10 +84,11 @@ GRIDB_LEVEL_IDS = ("Lc", "Lm", "Lf")                    # coarse -> fine
 # bug, see build_capped_surface.py). The BUILDABLE path is coarsen-x{2,1,0} of the capped 9-zone
 # master surface -> wing 65x41 / 129x81 / 257x161. Lc wall-face count MEASURED first-hand from
 # verification/runs/M6_LE_RESOLVED_runs/Lc/solve/log.checkMesh (boundary 'wing' nFaces 6240).
-# Lm=24960 is the coarsen-x1 count, INDEPENDENTLY corroborated by cases/M6SR M6SR_PREREGISTRATION
-# §2.2 ("the 24,960-face surface"); Lf=99840 is the native (coarsen-x0) count = 6240*16 = 24960*4.
-# Lm/Lf are exact-nesting values PENDING their own build (only Lc is built so far).
-GRIDB_SURFACE_FACES = (6240, 24960, 99840)              # ratio 4.00; Lc MEASURED, Lm/Lf PENDING build
+# Lm=24960 MEASURED first-hand 2026-09-10 from Lm/solve/log.checkMesh (march "Total Faces: 24960";
+# cells 7488000/300), and independently corroborated by cases/M6SR M6SR_PREREGISTRATION §2.2
+# ("the 24,960-face surface"). Lf=99840 is the native (coarsen-x0) count = 6240*16 = 24960*4,
+# PENDING its own build (the ~60M-cell fine is a chief capacity decision, held for check-4).
+GRIDB_SURFACE_FACES = (6240, 24960, 99840)              # ratio 4.00; Lc+Lm MEASURED, Lf PENDING build
 # y+<1 needs ~150 wall-normal layers to reach the farfield (dry-run confirmed); the ×8
 # 3D-refinement (observed-order) family doubles them 150/300/600.  (A cheaper SURFACE-ONLY
 # lower-bound family holds ~150 layers at every level -> cells ×4; that variant's counts and
@@ -95,8 +96,9 @@ GRIDB_SURFACE_FACES = (6240, 24960, 99840)              # ratio 4.00; Lc MEASURE
 # written for the ×8 family the supervisor's framing approved.)
 GRIDB_MARCHED_LAYERS = (150, 300, 600)                  # ratio 2.00; Lc BUILT with 150 (N=151 nodes)
 # Lc MEASURED: 6240 * 150 = 936000 cells, first-hand from Lc/solve/log.checkMesh ("cells: 936000").
-# Lm/Lf = faces * layers, exact x8 nesting, PENDING their own build.
-GRIDB_CELLS = (936000, 7488000, 59904000)               # ratio 8.00 = faces * layers; Lc MEASURED
+# Lm MEASURED: 24960 * 300 = 7488000 cells, first-hand from Lm/solve/log.checkMesh ("cells: 7488000").
+# Lf = 99840 * 600, exact x8 nesting, PENDING its own build.
+GRIDB_CELLS = (936000, 7488000, 59904000)               # ratio 8.00 = faces * layers; Lc+Lm MEASURED
 GRIDB_CELL_RATIO_EXACT = 8
 GRIDB_PATCH_NAMES = frozenset(("wing", "symmetry", "farfield"))
 GRIDB_END_TIMES = (6000, 6000, 6000)                    # prereg §6 cost basis (DRAFT)
