@@ -850,5 +850,56 @@ existing one, and each is set **before** any compute exists to fit it to.
 
 ---
 
+## 14. PRE-FREEZE AMENDMENT 2 — 2026-09-10: **I BROKE MY OWN AMENDMENT CONDITION, AND THIS SECTION SAYS SO RATHER THAN QUIETLY RESTATING IT**
+
+**The condition this document has cited twice — *"`K2d_runs/` does not
+exist"* — IS NOW FALSE, and it was made false BY ME**, when I created
+`verification/runs/F14-cooling-ladder/K2d_runs/` to hold this rung's
+instruments. A reader checking §0's condition today will find it fails.
+
+**It is disclosed rather than rewritten, because a condition that is silently
+restated the moment it becomes inconvenient is not a condition.**
+
+### 14.1 What is and is not affected
+
+- **§0's and §13's amendments are NOT retroactively invalidated.** Each was
+  checked with `test -d` and was **true at the moment it was made**. The record
+  of that check stands.
+- **The wording was the wrong proxy for the thing it was protecting.** Standing
+  rule 2's concern is *first compute* — that no gate is changed after an answer
+  exists to fit it to. A directory holding a comparator and a completion
+  instrument is not an answer.
+
+### 14.2 THE CONDITION, RESTATED PRECISELY, and it is stricter not looser
+
+For every further pre-freeze amendment to this document, the condition is:
+
+> **No case directory exists under `verification/runs/F14-cooling-ladder/K2d_runs/`
+> — no `K2d_L1`, `K2d_L2` or `K2d_L3` — no `STATUS.*` file, no `log.solve`, no
+> time directory and no field.** The run tree contains instruments and their
+> selftest output only.
+
+**How it is checked:** by listing the run tree on disk and asserting that every
+entry is an instrument or an instrument artifact, never by asking git and never
+by reading a document. **This is a stricter test than the one it replaces** — the
+old wording would have been satisfied by an absent directory while saying
+nothing about a case tree created beside it under another name.
+
+**Checked at this amendment, 2026-09-10: the run tree holds
+`mark_done_k2d.py` and no case directory, no `STATUS.*`, no `log.solve`, no
+time directory and no field. ZERO solver core-minutes have been spent against
+this document.**
+
+### 14.3 What this amendment does NOT do
+
+**It changes no gate, band, threshold, floor, cap or label**, and it does not
+touch §4.2's one-way property. It restates an amendment-eligibility condition
+and discloses that the earlier wording was broken. **A future reader who finds
+`K2d_runs/` populated with cases must treat every gate in this document as
+closed**, whatever this section says — first compute closes them, and no
+disclosure reopens them.
+
+---
+
 *Nothing was sent, filed, uploaded, registered, posted or commented outside this
 box (rule 7). Zero solver core-minutes spent in writing this document.*
