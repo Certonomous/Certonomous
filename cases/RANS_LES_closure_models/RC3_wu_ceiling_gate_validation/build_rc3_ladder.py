@@ -340,7 +340,7 @@ def write_of_field(path, obj, cls, dims, data, case, ncomp):
         "dimensions      " + dims + ";\n" + internal + patch_bcs(case, ncomp))
 
 
-def write_bdelta_and_verify(case, tdir, b6):
+def write_bdelta_and_verify(case, tdir, b6, _writer=None):
     """Write bijDelta and READ IT BACK through the scorer's own reader.
 
     Standing rule 3 applied to the WRITER: a builder not shown able to put a
@@ -349,6 +349,9 @@ def write_bdelta_and_verify(case, tdir, b6):
     on O(1)+ data and cost this team a legitimate instrument): it is machine
     epsilon at the largest magnitude in the field, floored at 1e-12.
 
+    `_writer` is injectable so the selftest can drive a writer that lands
+    corrupted values on disk and show that this guard FIRES.
+
     DISCLOSURE: section 11's registered refusal list for this module names three
     refusals and this is a fourth.  It is added under STANDING RULE 3, which
     binds whether or not a document repeats it, and it can only stop a
@@ -356,8 +359,11 @@ def write_bdelta_and_verify(case, tdir, b6):
     for the supervisor's section 3 check-1 to accept or strike.
     """
     path = os.path.join(tdir, "bijDelta")
-    write_of_field(path, "bijDelta", "volSymmTensorField", "[0 0 0 0 0 0 0]",
-                   b6, case, 6)
+    if _writer is None:
+        write_of_field(path, "bijDelta", "volSymmTensorField",
+                       "[0 0 0 0 0 0 0]", b6, case, 6)
+    else:
+        _writer(path, b6, case)
     back = np.asarray(read_field(path), float).reshape(-1, 6)
     want = np.asarray(b6, float).reshape(-1, 6)
     if back.shape != want.shape:
@@ -695,9 +701,22 @@ def selftest():
         note("bijDelta round-trip PASSES on a real write",
              rb["max_roundtrip_error"] <= rb["tolerance"],
              "err %.3g tol %.3g" % (rb["max_roundtrip_error"], rb["tolerance"]))
+        def corrupting(path, b6, case):
+            bad = np.asarray(b6, float).copy()
+            bad[0, 0] = bad[0, 0] + 1.0
+            write_of_field(path, "bijDelta", "volSymmTensorField",
+                           "[0 0 0 0 0 0 0]", bad, case, 6)
+
+        note("bijDelta round-trip FIRES when the writer lands corrupted "
+             "values on disk",
+             _fires(write_bdelta_and_verify, cdir, os.path.join(cdir, "0"),
+                    good, corrupting))
         note("bijDelta round-trip FIRES on a shape mismatch",
              _fires(write_bdelta_and_verify, cdir, os.path.join(cdir, "0"),
-                    np.zeros((0, 6))) or _roundtrip_shape_fire(cdir, good))
+                    good,
+                    lambda path, b6, case: write_of_field(
+                        path, "bijDelta", "volSymmTensorField",
+                        "[0 0 0 0 0 0 0]", np.asarray(b6)[:3], case, 6)))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -712,22 +731,6 @@ def selftest():
         raise SystemExit(1)
     print("build_rc3_ladder selftest: %d/%d PASS" % (len(ok), len(ok)))
     return 0
-
-
-def _roundtrip_shape_fire(cdir, good):
-    """Drive the round-trip guard with a deliberately corrupted file on disk."""
-    path = os.path.join(cdir, "0", "bijDelta")
-    write_of_field(path, "bijDelta", "volSymmTensorField", "[0 0 0 0 0 0 0]",
-                   good, cdir, 6)
-    txt = open(path).read().replace("0.5", "9.5")
-    open(path, "w").write(txt)
-    try:
-        back = np.asarray(read_field(path), float).reshape(-1, 6)
-    except Exception:
-        return True
-    amax = float(np.abs(good).max())
-    tol = max(1e-12, 8.0 * float(np.finfo(float).eps) * amax)
-    return float(np.abs(back - good).max()) > tol
 
 
 def main(argv):
