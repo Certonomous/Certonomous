@@ -1085,3 +1085,86 @@ MESHER."** **That is overturned for `M6_OWN_FAMILY_runs`**, which holds `log.rho
 `rhoPimpleFoam`.** The broader claim — **"every solved time directory in the M6 estate is a
 `smoke_*`" — HOLDS across all eight trees**, and the conclusion it supported (no graded M6 flow
 solution exists) is unaffected. The overstatement is corrected because it was stated absolutely.
+
+---
+
+## ADDENDUM 6 — 2026-09-10 — **§4.1 SHARPENED ON TWO LIMBS: ITS THERMO STACK IS REAL, AND ITS "EVERY VARIANT, ONE CAUSE" IS WRONG. THE TREE HOLDS THREE DISTINCT FAILURES.**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, band or label is altered.
+Amendment 2's `NOT A RESULT` park stands.
+
+### A6.1 THE CENSUS, PLANT-CONTROLLED, AND RE-RUN INDEPENDENTLY BY THE SUPERVISOR
+
+All nine `rhoSimpleFoam` logs in `verification/runs/M6_OWN_FAMILY_runs`, read with a **template-aware**
+matcher over a **wide window** from the `sigFpe::sigHandler` frame:
+
+| mode | logs | frame | libm in stack |
+|---|---|---|---|
+| **thermo / libm** | **1** — `L2/solve` | `Foam::hePsiThermo<…>::calculate` ← `libm.so.6`, then `::correct()` | **yes** |
+| wall function | 2 — `smoke_diag_fo`, `smoke_potentialfoam2` | `nutUSpaldingWallFunctionFvPatchScalarField::calcUTau` | yes |
+| linear solver | 2 — `smoke_simplec`, `smoke_stabilized` | `GAMGSolver::scale` | no |
+| no SIGFPE stack | 4 | — | — |
+
+**Controls, both directions:** the known-positive `hePsiThermo` in `L2/solve` is SEEN, and the
+discrimination check — `GAMGSolver` must NOT be reported for `L2/solve` — returns false. **A reader
+that has not been shown able to say NO is not a reader.**
+
+### A6.2 LIMB ONE — §4.1's THERMO STACK IS SUPPORTED, AND ON A SECOND BUILD
+
+§4.1 describes a SIGFPE in the thermo update inside `hePsiThermo<…>::calculate` called from
+`::correct()`. **That is real and it is in this tree**, at
+`verification/runs/M6_OWN_FAMILY_runs/L2/solve/log.rhoSimpleFoam` — handler at line 136, the
+`hePsiThermo::calculate` frame at 144 rooted in `/lib/x86_64-linux-gnu/libm.so.6`, `::correct()` at 148.
+
+**And it is the SAME SIGNATURE as the DPW5 CRM abort recorded at
+`cases/committee-grids/COMMITTEE_GRID_NUMERICS.md` §4 on 2026-08-01** — same thermo package
+(`hePsiThermo` / `pureMixture` / `sutherland` / `hConst` / `perfectGas` / `sensibleInternalEnergy`),
+same `libm` root. **The two ran on DIFFERENT OpenFOAM BUILDS — M6 on v2506 (the dafoam build), DPW5
+on openfoam2606.** **Two builds showing one signature excludes a build-specific miscompilation by
+construction, and is therefore a STRONGER two-case claim than one build failing twice.**
+
+**The OpenFOAM-versus-setup question is NOT decided by this.** Two records agreeing is a coincidence
+of authorship, not evidence. **A minimal reproducer that fires on both builds and then clears on a
+single change is the evidence that decides it**, and it is registered under `CRM_M085` rung 0.
+
+### A6.3 LIMB TWO — §4.1's "EVERY VARIANT REPEATS rc=136" IS WRONG, AND WRONG IN THE UNHELPFUL DIRECTION
+
+§4.1 reads as though one cause explains the whole `rhoSimpleFoam` family here. **It does not. The tree
+holds THREE distinct failure modes**, per A6.1: a thermo/libm abort, a wall-function divergence in
+`calcUTau`, and a linear-solver divergence in `GAMGSolver::scale`. **Only the graded attempt carries
+the thermo abort; the smokes do not.**
+
+**The `calcUTau` failures are downstream of the cusp, not independent of it.** `nutUSpaldingWallFunction`
+iterates for u_tau, and A2.4 recorded a wing-patch **y+ maximum of 1.886e10** on exactly the collapsed
+trailing-edge cells — an iteration on that will not converge. **So Amendment 5's geometry
+reclassification also explains two of the three modes**, which is a tighter account than §4.1's.
+
+### A6.4 ❌ THE SUPERVISOR'S OWN ERROR, AND IT IS THE ONE I HAVE SPENT THE EVENING WARNING LANES ABOUT
+
+A lane first reported that **NO** log carries a thermo frame. The supervisor checked, found the frame
+in `L2/solve`, and **diagnosed the cause as "the census looked at the `smoke_*` directories and did
+not include `L2/solve`". THAT DIAGNOSIS WAS WRONG.** The census **did** include it and listed it
+explicitly. **The supervisor guessed at a cause instead of measuring one** — the exact move being
+corrected in the same message.
+
+**The real cause was two reader defects, and the distinction is load-bearing:**
+1. **A 4-line window** (`grep -A4` from the handler) when a **4-rank parallel backtrace interleaves
+   `[0] [1] [2]` prefixes and shreds single frames across many lines** — handler at 136, frame at 144.
+2. **A regex that could never match the symbol:** `Foam::[A-Za-z_]\w*(?:::[A-Za-z_~]\w*)+` requires
+   `::` immediately after the class name, but `Foam::hePsiThermo<…>::calculate` has `<` there. **It
+   could not match, and it silently matched `Foam::species::thermo` from inside the TEMPLATE
+   ARGUMENTS instead — returning a plausible answer rather than nothing.**
+
+**Why the distinction matters more than the correction: if the recorded cause were "census scope",
+the next reader widens the directory glob and KEEPS THE BROKEN MATCHER.** It is a template-blind
+regex and a too-narrow window on interleaved parallel output, and that is what the record must say.
+
+**The rebuilt reader carried planted controls and REFUSED ON ITS FIRST RUN** — the known-positive came
+back NOT SEEN, which is how defect 2 was found. **The supervisor's independent re-run with a
+template-aware matcher reproduces the corrected census exactly, including the discrimination check.**
+The instrument is at `verification/runs/M6_OWN_FAMILY_runs/STACK_CENSUS/stack_census.py`.
+
+**This is the fifth instance in one evening of a reader that could not see a thing reporting the thing
+absent** — `trapFpe`'s arming banner read as an exception, `pgrep -f` matching its own command line,
+bare `checkMesh` blind to the checks it gated, a `0/T` slack confirming a launch that never happened,
+and now a template-blind stack matcher. **Two of the five were the supervisor's.**
