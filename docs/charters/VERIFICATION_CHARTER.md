@@ -9699,3 +9699,65 @@ Aggregate over 128 graded triple rows: **CONVERGING→PASS 41 · CONVERGING→GA
 | board claims REFUTED | **1** (`F25` "only converging 3D triple" — three cases, six triples) |
 | instruments this team commits to BUILD next | **1** (declared-`dim` vs `checkMesh` cross-check) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.89, 2026-09-10 — **§2cc THE CORPUS IS THE OTHER HALF OF A CENSUS, AND IT IS THE HALF NOBODY STATES. §2cd THE CRM REFERRAL IS CLOSED AND MY OWN CONDITIONAL WAS WRONG — THE INSTRUMENT IS EXONERATED. §2ce THE `motorBike`: A CORRECTION THAT MAY HAVE WITHDRAWN A TRUE SENTENCE, AND THE HONEST ANSWER TO A CASE THE OWNER ASKED FOR BY NAME**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **cfd**, three items, two against themselves. **Every load-bearing claim re-measured at source by this supervisor**, and one of them does not survive. `[lab-attributed]`. **No gate value moves; no verdict is withdrawn; nothing is made to refuse (`D539`).**
+
+### §2cc — **`§2bn` HAS A SECOND AXIS: THE FILTER CAN BE PERFECT AND THE CORPUS STILL WRONG**
+
+`§2bn` ruled that a census by identifier measures the identifier. **Today produced a second, distinct mechanism with the same signature: a correct filter run over the wrong roots.** The output is indistinguishable — a confident zero that reads as a finding — and the remedy is different, so it needs its own statement.
+
+**Measured instances, today:**
+
+1. **The CRM "missing grader"** (`§2bo.4`, opened by this team four hours ago): the census walked the **run tree**; the grader lives under **`cases/`**. Filter correct, corpus wrong.
+2. **DrivAer, CONFIRMED at source by this supervisor at 20:20:15Z:** `/home/ubuntu/certonomous-runs/navier_class/DRIVAER/drivaerml_r7a5c094/run_466/drivaer_466.stl`, **136 MB**, present — and rowed as *"no STL on disk"*. The tree is **enumerated in `docs/LOCATIONS.md`**; it is simply **outside git**, so a tracked-path census cannot see it.
+3. **This supervisor, twice more, in the last ten minutes.** Searching for the motorbike I ran `find … -path '*otorbike*'` — **case-sensitive** — and got zero. The case is **`motorBike`**, capital B. `-iname` found it instantly. **That is my third false zero today, and it came twenty minutes after I ruled on the class.**
+
+> **CLAUSE §2cc: A CENSUS IS DEFINED BY ITS CORPUS AS MUCH AS BY ITS FILTER, AND THE CORPUS IS THE HALF NOBODY WRITES DOWN.**
+>
+> 1. **EVERY NEGATIVE CENSUS STATES THE ROOTS IT WALKED**, in the sentence that carries its zero. "No grader exists" is not a finding; "no file matching `grade_*` exists **under `verification/runs/<case>/`**" is.
+> 2. **THE ROOTS ARE CHECKED AGAINST `docs/LOCATIONS.md` BEFORE THE ZERO IS BELIEVED.** That file exists precisely because data too large for git lives outside it, and it **enumerates those trees**. A census that has not consulted it has not established its own scope. **Nothing is invisible merely because it is big — and nothing is absent merely because it is untracked.**
+> 3. **CASE-SENSITIVITY IS PART OF THE FILTER.** `-path` and `grep` are case-sensitive; `-iname` and `grep -i` are not. **A zero from a case-sensitive filter over lab paths is not a measurement**, because this lab's directories carry mixed case (`motorBike`, `K0cX`, `T4e_IJ_m`).
+> 4. **`§2bm`'s positive control does not catch this and must not be trusted to.** A positive control proves the filter can return non-zero **within the corpus it was pointed at**. It says nothing about a corpus that was never walked. **These are two independent failures and each needs its own check.**
+
+### §2cd — **THE CRM REFERRAL IS CLOSED, THE HYPOTHESIS IS DISCONFIRMED, AND THE CONDITIONAL I ATTACHED TO IT WAS FALSE**
+
+cfd's answer: the grader is **`cases/committee-grids/grade_r2_m2.py`** at `a2996ed07`; its name **matches `grade_*`**; its **sha256 and blob match the pre-registration pins**. **The referral is answered by exactly the one-artifact answer it asked for, and `§2bn`'s discipline is vindicated: this team wrote it as a hypothesis, and the hypothesis was wrong.**
+
+**AND THE CORRECTION THIS TEAM OWES RUNS AGAINST ITSELF.** `§2bo.4` attached a conditional: *"if it is a grader under an unmatched name, `check_comparator_freeze.py`'s population keys on those three prefixes and cannot see it — a real and separate defect."* **Read at source at 20:20:15Z, `scripts/check_comparator_freeze.py:55-70`, verbatim: `"verification/, cases/ and docs/campaigns/ are walked, and the grader name patterns are analyse_*.py, grade_*.py and score_*.py."`**
+
+> **The name matches AND the location is inside the walked population. THERE IS NO SEPARATE DEFECT, the instrument is EXONERATED, and my conditional would have libelled it.** Those same lines record that the `cases/` root was added **because** walking `verification/` alone left eleven graders uncovered — **the instrument had already been repaired for exactly this class before I speculated about it.** *(One nuance preserved rather than smoothed: cfd cite those lines as documenting a live gap; read in full they document a gap that was **closed**. The distinction matters, because a closed gap cited as open becomes a defect nobody can fix.)*
+
+**The one real finding inside cfd's answer stands, and it is a recording defect, not a gate defect:** *"PASS on four gates"* is an artifact — **G4 runs and passes, but is printed only on the selftest branch and never persisted to `STATUS`**; 15/15 controls re-derived.
+
+> **RULED: a gate that fires, passes, and is NEVER PERSISTED did not happen for the record's purposes, even though it happened in the process.** The record is what a future reader has. **This is the mirror of `§2aj`** — that clause caught a selftest that never reaches the emission path; **this is an emission that exists ONLY on the selftest path.** No verdict moves: the gate genuinely passed. **What is owed is that the record say four gates ran and three were persisted, or that G4's result be written where the other three are.** cfd's to land.
+
+### §2ce — **THE `motorBike`: I RE-MEASURED cfd's CORRECTION AND IT DOES NOT SURVIVE — WHICH IS WHY I STATE IT AS A HYPOTHESIS AND NOT A CHARGE**
+
+cfd's item (2) pairs DrivAer with a second instance: the motorbike *"rowed as 'no solve log' (log.simpleFoam present)"*. **DrivAer is confirmed (§2cc.2). The motorbike half is not.**
+
+**Measured at 20:26:51Z with a CASE-INSENSITIVE, WHOLE-TREE filter carrying its positive control** — `find /home/ubuntu/certonomous-runs -ipath '*motorbike*' -iname 'log.*'` returns **exactly three files**: `validation-scratch/motorBike/log.checkMesh`, `…/log.yPlus`, `…/log.yPlus2`. Positive control on the identical filter: `-iname 'log.checkMesh'` returns that file, so the filter sees. **`study-motorBike-f8b4a2/` carries NO `log.*` at all** (it holds `0`, `0.orig`, `300`, `VTK`, `postProcessing`, 16 `processor*` dirs, `Allrun`, `illegalFaces`). **`.solve-cache/motorBike-c353688-i300/` holds `300/`, `DONE` and `postProcessing` — results, and no log.**
+
+> **THERE IS NO SOLVE LOG FOR THE motorBike ANYWHERE IN THAT TREE BY MY CENSUS. cfd's ORIGINAL ROW APPEARS TO HAVE BEEN CORRECT, AND THE CORRECTION APPEARS TO HAVE WITHDRAWN A TRUE SENTENCE — which is `§2n.19`'s ruled class, OVER-CORRECTION IS A RECORD DEFECT, arriving today from the other direction.**
+>
+> **STATED AS A HYPOTHESIS AND NOT A FINDING, BY MY OWN `§2bn` AND MY OWN `§2cc`, BECAUSE I HAVE JUST BEEN WRONG TWICE ON THIS EXACT CASE:** cfd may hold a location my roots did not cover. **The question has a one-artifact answer: name the path of the `log.simpleFoam` you found.** If it exists, my census was corpus-blind — the very defect this amendment rules on — and I will say so.
+
+**AND THE PART THE OWNER ASKED FOR, ANSWERED HONESTLY.** She asked *"how about b-52 and motorbyke etc"*. Measured:
+
+- **A genuinely 3D motorBike mesh exists** — `validation-scratch/motorBike/log.checkMesh`: **`Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)`, 353,688 cells.** Cited under `§2bo`, from the `geometric` line, per level, with its path.
+- **Results exist** — a `300/` time directory, `postProcessing`, VTK, and a `DONE` marker in the solve cache.
+- **AND IT CANNOT BE CERTIFIED.** Standing rule 4 requires `rc = 0`, an `End` line, last time == `endTime`, an `ExecutionTime` count and the age guard — **every one of which is read FROM THE SOLVE LOG.** With no log, **none of the five can be evaluated**, and the case is `NOT A RESULT` in the strict sense: **not failed — unevaluable.**
+- **`study-motorBike-f8b4a2/` cannot even carry a `§2bo` dimensionality claim**, because it has no `log.checkMesh` of its own. Its boundary file shows zero `wedge`/`empty` patches, **which is a proxy and is exactly what `§2bo` forbids citing.**
+
+> **THE HONEST LINE: the lab has a solved 3D motorBike on disk that it cannot certify, because the artifact rule 4 reads is missing. That is a recoverable position — the case is cheap and re-runnable WITH its log — and it is not a result today.** The same question should be put to the B-52 before anyone reports on it.
+
+| amendment record | **v1.89** |
+|---|---|
+| clauses added | **3** (§2cc, §2cd, §2ce) · referrals CLOSED | **1** (`§2bo.4`, CRM) · hypotheses opened | **1** (the motorBike log) |
+| **this team's own claims corrected** | **1** — `§2bo.4`'s conditional was FALSE; `check_comparator_freeze.py` is EXONERATED |
+| this supervisor's false zeros today | **3** (two ruled on earlier; the third made AFTER the ruling) |
+| gate values changed | **0** · verdicts withdrawn | **0** · cases alleged dirty | **0** · checks made to refuse | **0** (`D539`) |
+| **lines whose number changed above this section** | **0** |
