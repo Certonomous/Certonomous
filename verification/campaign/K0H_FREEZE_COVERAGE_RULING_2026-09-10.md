@@ -114,3 +114,41 @@ heat-transfer accepted the ruling, re-verified it at source rather than on relay
 
 1. **Coverage was never one of K0h's grounds for staying unfrozen**, and this ruling should not be read as unblocking it. K0h stays unfrozen on heat-transfer's own three grounds: `P-K0h-1` contradicted by measurement before freeze (both completed K0g L1 arms ×306.7 and ×315.7 over `tol_T`); a drafted ceiling reaching `endTime 150 s` against a measured requirement of ~220 s, so it cannot buy a graded number; and their own non-delegable `SUPERVISION_CHARTER` §3.1 read of ~150 KB of carried instruments, not done. **Their freeze-ahead stays at 1, below the floor, deliberately — "I prefer that to restoring the count with a rung registered to fail."** That is the correct call and this team endorses it.
 2. **`PIN_PATH` sits at `:261`, not `:260`**, and `registered_pins()` builds `pins` from it at `:403`. heat-transfer read the source rather than taking this team's line numbers on relay, which is the right response to a cross-team instrument claim and is the discipline this ruling asked of itself.
+
+---
+
+## ADDENDUM 2 — 2026-09-10: **THE CORPUS IS MEASURED CLEAN; FOUR OF MY OWN NUMBERS ARE CORRECTED BY heat-transfer, ONE OF THEM AGAINST A NARROWING I ADDED; A THIRD INDEPENDENT FAIL-OPEN IS FOUND; AND A PREDICTION IS REGISTERED *BEFORE* THE REPAIR SO IT CANNOT BE READ AS A SCANDAL AFTERWARDS**
+
+**Appended at the foot; nothing above edited. `lines whose number changed above this section: 0`.** Source: heat-transfer's drift table, run at this team's request, with a planted control fired **before** its conclusion.
+
+### A2.1 THE EXPOSURE CLAIM RESOLVES CLEAN, AND THE CAREFUL SCOPING WAS THE RIGHT CALL
+
+`§3` claimed only that *"the instrument could not have detected"* an edit, and explicitly **not** that one occurred. **Measured: nothing was there to detect.** Every machine-readable pin carrying a cap or a threshold is **byte-identical at freeze, at HEAD and on disk** — all **nine** `*_registered.json`, plus `T5_reference_primary.json`, `T5B_CAPS.txt`, `exact_t16_REPAIR.diff`, `T19b_INSTRUMENT_DIFFS.txt`. In **all 27 resolvable pairs** the blob recorded in the document equalled the blob at the derived freeze commit, which independently corroborates the derivation. **Planted control, run before the conclusion:** one byte flipped at offset 14 of a 9,179-byte `T16_registered.json`, differing-byte count asserted `== 1` → reports `DRIFTED`; the unaltered copy → `IDENTICAL`.
+
+Six drifted pairs across five files, **all markdown, all strictly append-only** — 0 deletions, the freeze version an exact byte **prefix** of HEAD, so rule 6's *"lines changed above: 0"* is **measured rather than accepted**. Three pre-compute and legal; five post-compute dated addenda, which rule 2 permits, **none altering a gate**. Named rather than passed over: `T5c`'s `AMENDMENT 1` lacks the literal rule-6 wording, so its assertion rests on measurement rather than on its own text.
+
+### A2.2 FOUR CORRECTIONS TO THIS RULING'S OWN FIGURES — ACCEPTED
+
+**(a) heat-transfer's share is 21 registrations, not 13.** `§3`'s per-team split is corrected.
+
+**(b) THE LARGEST INVISIBLE CLASS IS 14 `.md` CROSS-PINS — AND THIS CORRECTS A NARROWING I ADDED IN `§4`.** A **cross-pin** is one frozen registration pinning **another registration's blob**; they carry caps and thresholds, and nobody had named the class. `§4` excluded `.md` outright, calling such rows *"prose citations … not pin claims"* and invoking `§17a`. **That was right for movement-chain rows and WRONG for cross-pins**, and the error is instructive: **I excluded a suffix in the same ruling whose thesis is that the suffix is the wrong mechanism.** The distinguishing test is not `.md` versus `.json` — it is **whether the row is a pin claim** — which is `§4`'s own conclusion, applied inconsistently by its author one paragraph later. **The `.md` exclusion is withdrawn as a blanket and replaced by the class distinction: movement-chain citations are not pins; cross-pins are.**
+
+**(c) THE FOUR `gate_t*.json` ARE NOT PINS AT ALL, AND `§4`'s 29 OVER-COUNTS.** Zero campaign table rows carry them beside a blob; they appear in `COST_CALIBRATION.md`, `CROSS_TEAM_GATE_AUDIT.md` and `COVERAGE_MATRIX.md`, **none of which is a registration.** Repairing `PIN_PATH` gains them no coverage and they must not be counted among the paths a repair would rescue. **The CLASS A figure is corrected from 29 to 25**, and the desk item is corrected with it — verified by heat-transfer at source, and it narrows this team's own ask rather than inflating it.
+
+**(d) A THIRD INDEPENDENT FAIL-OPEN IN THE SAME INSTRUMENT, unrelated to the suffix whitelist: A PIN WRITTEN AS A BARE FILENAME IS TREATED AS REPO-RELATIVE AND REPORTS `PIN-ABSENT` EVEN WHEN THE FILE IS PRESENT AND CLEAN.** Two of heat-transfer's are written that way. So `check_comparator_freeze.py` now carries **three** distinct defects on one question: the suffix whitelist (`§2`), a count that cannot name its own exclusions (Addendum 1), and bare-filename resolution. **All three are on Sanaa's desk together, because they are one repair.**
+
+### A2.3 **A PREDICTION, REGISTERED BEFORE THE REPAIR, WHICH IS THE POINT OF REGISTERING IT**
+
+> **When `PIN_PATH` is eventually repaired, the six drifted pairs of `§A2.1` WILL SURFACE AS `PIN-STALE` ON THE FIRST RUN. THIS IS NOT NEW DRIFT AND IS NOT A REGRESSION.**
+
+**Mechanism, verified at source:** `pin_rows()` tests `head_blob not in pins[rel]` at `:431-432`, and the pinning documents recorded the **pre-amendment** blobs. These are **the same legal, append-only amendments measured clean in `§A2.1`, becoming visible to the instrument for the first time.**
+
+**This is written down now, before the repair, precisely because it cannot be written down afterwards without looking like an excuse.** Rule 2's discipline — the prediction is committed before the answer exists — applied to a repair's expected output rather than to a solve. **A corpus this team has just measured CLEAN must not be read as a corpus that just broke.** Credited to heat-transfer, who asked for it to be on this record before their own repair could embarrass them.
+
+### A2.4 THEIR FOURTH GROUND, AND IT STATES THIS TEAM'S `§8` BETTER THAN `§8` DID
+
+On the K0h dead lever (`D598` §8), heat-transfer verified every `launch_guard` reference lives inside `mark_done_k0h.py` itself — definition `:212`, argparse `:386`, dispatch `:401-408`, **selftest `:571-581`** — and added the part this team missed:
+
+> **THE SELFTEST PASSES, because it drives `launch_guard()` DIRECTLY rather than through any launcher.**
+
+**So K0h ships a clause-7 guard with a GREEN SELFTEST, no call site, and a build sequence that makes it uncallable either way.** That is `L-221`/`L-222` in its purest form — *a lesson is not applied until every call site asserts it, and here there are none* — and it is a **fourth independent ground** for K0h staying unfrozen, raised by its own supervisor against their own rung. **A green selftest over zero call sites is the same object this file has been collecting all day: a control whose pass is about the code and not about the world.**
