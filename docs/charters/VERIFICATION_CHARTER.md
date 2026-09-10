@@ -9157,3 +9157,50 @@ Two of cfd's lanes independently hit the same gap: a grading stage that **refuse
 | standing rule 1 vocabulary changes | **0** |
 | gate values changed | **0** · executable checks made to refuse | **0** (`D539`) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.81, 2026-09-10 — **§2bk: A FACT WITHOUT A GUARD IS A FACT REMEMBERED. I RE-DERIVED THE GUARDED FACT IN EVERY COMMIT AND CARRIED THE UNGUARDED ONE FROM MEMORY INTO THE SAME COMMITS, THREE TIMES AFTER IT HAD GONE FALSE**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **cfd**, against a premise this supervisor repeated in five commit messages. `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`).**
+
+### §2bk.1 THE MEASUREMENT, AND IT IS THE WORSE OF THE TWO EXPLANATIONS ON OFFER
+
+cfd asked which of two things happened: a path that exists resolving to a path that does not — **the third `check_comparator_freeze.py` defect, live in this team's own hands** — or ordinary staleness. **Measured, and it is neither flattering nor a tooling bug:**
+
+| event | sha | time |
+|---|---|---|
+| `CASE_PROTOCOL_CHARTER.md` **added** | `e24953a6b` | **16:52:41Z** |
+| this team's check returned ABSENT, HEAD then | `477ce19b` | **16:48:29Z** |
+
+**The check was CORRECT when it ran — 4 min 12 s before the file existed. No path resolved wrongly.** But the claim was then repeated in **three commits after it had gone false**: `f49d3e42` (**+87 seconds**), `5d56de90` (**+7.5 min**), `948531e1` (**+37.7 min**).
+
+### §2bk.2 THE PART THAT IS A STANDARD AND NOT AN APOLOGY
+
+**In every one of those commits this supervisor RE-DERIVED the docket id at commit time, in the same invocation, behind a guard — and that guard FIRED**, catching peers' rows and moving the id from `D604` to `D608`. **So the same commit carried one fact re-derived by machine and another carried from memory, and the difference between them was not importance. It was whether a guard existed.**
+
+> **A FACT WITHOUT A GUARD IS A FACT REMEMBERED. Rule 11's "re-derive at commit time" is not a rule about docket numbers; it is a rule about EVERY CHECKABLE CLAIM IN THE MESSAGE. A claim that was verified once and is asserted again has been REMEMBERED, not verified, and the interval is exactly as long as nobody re-ran it.**
+
+**The operative statement was true throughout and remains true:** these commits *"cite no authority I have not read"* — the charter was never cited. **But its stated JUSTIFICATION went false 87 seconds into the first commit that gave it.** A true conclusion resting on a false premise is `§A8.3`'s *"a true answer resting on a false attribution"* and `§2bg`'s headline problem, arriving this time **in the reasoning of the commit messages that were naming those very shapes in other people's work.**
+
+### §2bk.3 THE CHARTER'S ACTUAL TEXT, NOW READ — AND IT VINDICATES THE RELAYED SPEC
+
+85 lines, read at HEAD (blob `b9863286`). **Nothing this team built to the relayed spec conflicts with it**, and three lines bear directly:
+
+- **`:26`** — *"Nothing below is run until the freeze check passes."* The freeze hook's authority, verbatim as relayed, so **`D608`'s reading that Sanaa added that gate herself is confirmed against her own text** rather than against a summary of it.
+- **`:35`** — *"every reader that will grade this case detects a planted perturbation **through the real path**; a reader that cannot see its plant **fails the case closed**."*
+- **`:58`** — *"verdict written as one of `PASS`, `GATE FAIL`, `NOT A RESULT`, **with the cause class for any non-pass**."* **This independently confirms `§2bj`: `INSTRUMENT REFUSAL` as a CAUSE CLASS is the shape her charter asks for, and a seventh verdict word would have CONTRADICTED HER TEXT** — a thing this team would have discovered by reading the file it was asserting to be absent.
+
+### §2bk.4 cfd's REFERRAL IS RE-CHARACTERISED, AT THEIR REQUEST AND CORRECTLY
+
+`v1.80` recorded the stage-3/stage-4 ladder item as *"CASE PROTOCOL territory, that charter is Sanaa's and is still ABSENT at HEAD"*. **It is not a proposal about an absent charter. It is a READING OF A PRESENT AND CLEAR ONE:** §4's ladder sits at **line 53**, *"continuation from a converged neighbor, relaxation reduction, pseudo-transient, then transient re-registration"*, against §3's mesh → numerics → model — **unambiguous on the face of the document.**
+
+**The conflict cfd reported was their own brief's error, not an ambiguity in her text**, and cfd asked that it reach her weekly in that form. **It is recorded that way, because it makes her charter look clear — which it is — rather than contested.** `v1.80`'s conclusion (*"this team does not legislate another document's ladder"*) is unaffected and stands on its own; **only its premise was wrong.**
+
+| amendment record | **v1.81** |
+|---|---|
+| clauses added | **1** (§2bk) |
+| existing clauses altered, widened or narrowed | **0**; one **premise** corrected in `v1.80` (§2bk.4), its conclusion unaffected |
+| gate values changed | **0** · checks made to refuse | **0** (`D539`) |
+| commit messages carrying a claim false at their own commit time | **3** — `f49d3e42`, `5d56de90`, `948531e1`; **they cannot be edited and are disclosed here** |
+| **lines whose number changed above this section** | **0** |
