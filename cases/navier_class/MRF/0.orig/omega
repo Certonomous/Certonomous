@@ -1,0 +1,34 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| MRF_R1 omega. omegaWallFunction on no-slip walls; zeroGradient on slip lid.  |
+| Initial ~ sqrt(k)/(Cmu^0.25 * L), L~0.1D=0.01 m -> ~20 /s.                    |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      omega;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 -1 0 0 0 0];
+
+internalField   uniform 20;
+
+boundaryField
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+
+    "(tankWall|tankBottom|baffles|shaft|impeller)"
+    {
+        type            omegaWallFunction;
+        value           $internalField;
+    }
+
+    tankLid
+    {
+        type            zeroGradient;
+    }
+}
+
+// ************************************************************************* //

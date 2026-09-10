@@ -1,0 +1,30 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| MRF_R1 frozen-rotor MRF. The rotating cellZone is the impeller cylinder      |
+| (topoSet). omega = 2*pi*N = 2*pi*5 = 31.4159 rad/s about +z (prereg sec.4).  |
+| nonRotatingPatches lists everything stationary in the lab frame (tank walls, |
+| bottom, lid, 4 baffles) so MRF.correctBoundaryVelocity does NOT sweep them   |
+| (F8 sec.14(2) discipline). The impeller and shaft patches are NOT listed --  |
+| they rotate and receive the frame velocity omega x r.                        |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      MRFProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+impeller
+{
+    cellZone    impeller;
+    active      yes;
+
+    nonRotatingPatches ( tankWall tankBottom tankLid baffles );
+
+    origin      (0 0 0);
+    axis        (0 0 1);
+    omega       31.4159;
+}
+
+// ************************************************************************* //

@@ -1,0 +1,117 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| MRF_R1 snappyHexMesh -- coarse level. Fluid = inside tank AND outside the    |
+| impeller/shaft/baffles solids. locationInMesh sits in the fluid. Layers OFF  |
+| for the coarse exercise-smoke build (wall functions use the near-wall cell); |
+| prism layers deferred to the graded build. Quality gates via meshQualityDict.|
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+castellatedMesh true;
+snap            true;
+addLayers       false;
+
+geometry
+{
+    tankWall.stl   { type triSurfaceMesh; name tankWall; }
+    tankBottom.stl { type triSurfaceMesh; name tankBottom; }
+    tankLid.stl    { type triSurfaceMesh; name tankLid; }
+    baffles.stl    { type triSurfaceMesh; name baffles; }
+    shaft.stl      { type triSurfaceMesh; name shaft; }
+    impeller.stl   { type triSurfaceMesh; name impeller; }
+
+    impellerZone
+    {
+        type   searchableCylinder;
+        point1 (0 0 0.060);
+        point2 (0 0 0.140);
+        radius 0.070;
+    }
+}
+
+castellatedMeshControls
+{
+    maxLocalCells       2000000;
+    maxGlobalCells      6000000;
+    minRefinementCells  10;
+    nCellsBetweenLevels 3;
+    resolveFeatureAngle 30;
+    allowFreeStandingZoneFaces true;
+
+    features
+    (
+        { file "tankWall.eMesh";   level 0; }
+        { file "tankBottom.eMesh"; level 0; }
+        { file "tankLid.eMesh";    level 0; }
+        { file "baffles.eMesh";    level 1; }
+        { file "shaft.eMesh";      level 1; }
+        { file "impeller.eMesh";   level 3; }
+    );
+
+    refinementSurfaces
+    {
+        tankWall   { level (0 0); patchInfo { type wall; } }
+        tankBottom { level (0 0); patchInfo { type wall; } }
+        tankLid    { level (0 0); patchInfo { type wall; } }
+        baffles    { level (1 1); patchInfo { type wall; } }
+        shaft      { level (1 2); patchInfo { type wall; } }
+        impeller   { level (2 3); patchInfo { type wall; } }
+    }
+
+    refinementRegions
+    {
+        impellerZone { mode inside; levels ((1E15 2)); }
+    }
+
+    locationInMesh (0.10 0.0 0.20);
+    allowFreeStandingZoneFaces true;
+}
+
+snapControls
+{
+    nSmoothPatch        3;
+    tolerance           2.0;
+    nSolveIter          50;
+    nRelaxIter          5;
+    nFeatureSnapIter    10;
+    implicitFeatureSnap false;
+    explicitFeatureSnap true;
+    multiRegionFeatureSnap false;
+}
+
+addLayersControls
+{
+    relativeSizes       true;
+    layers              {}
+    expansionRatio      1.2;
+    finalLayerThickness 0.3;
+    minThickness        0.1;
+    nGrow               0;
+    featureAngle        60;
+    nRelaxIter          3;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals      3;
+    nSmoothThickness    10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedialAxisAngle  90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter          50;
+}
+
+meshQualityControls
+{
+    #include "meshQualityDict"
+}
+
+writeFlags ( scalarLevels layerSets layerFields );
+
+mergeTolerance 1e-6;
+
+// ************************************************************************* //

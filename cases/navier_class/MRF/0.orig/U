@@ -1,0 +1,34 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| MRF_R1 U. Rotating impeller assembly (impeller, shaft) = noSlip; MRF gives   |
+| them the frame velocity. Stationary walls (tank, baffles) = noSlip. The flat |
+| rigid free-surface lid (tankLid) = slip (prereg sec.4).                      |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+
+    "(tankWall|tankBottom|baffles|shaft|impeller)"
+    {
+        type            noSlip;
+    }
+
+    tankLid
+    {
+        type            slip;
+    }
+}
+
+// ************************************************************************* //

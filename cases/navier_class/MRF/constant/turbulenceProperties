@@ -1,0 +1,22 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| MRF_R1 turbulenceProperties -- kOmegaSST with wall functions (prereg sec.4). |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType  RAS;
+
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+}
+
+// ************************************************************************* //

@@ -1,0 +1,34 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| MRF_R1 k. Wall functions on no-slip walls; zeroGradient on the slip lid.     |
+| Initial estimate from tip speed U_tip=omega*D/2~1.57 m/s, I~5%.              |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      k;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0.01;
+
+boundaryField
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+
+    "(tankWall|tankBottom|baffles|shaft|impeller)"
+    {
+        type            kqRWallFunction;
+        value           $internalField;
+    }
+
+    tankLid
+    {
+        type            zeroGradient;
+    }
+}
+
+// ************************************************************************* //

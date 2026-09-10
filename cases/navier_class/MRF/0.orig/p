@@ -1,0 +1,28 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| MRF_R1 p (kinematic). Closed domain: zeroGradient on all walls; pRefCell in  |
+| fvSolution fixes the level.                                                  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+
+    "(tankWall|tankBottom|tankLid|baffles|shaft|impeller)"
+    {
+        type            zeroGradient;
+    }
+}
+
+// ************************************************************************* //
