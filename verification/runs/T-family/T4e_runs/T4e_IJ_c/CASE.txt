@@ -1,0 +1,12 @@
+case              T4e_IJ_c
+rung              T4e (successor of T4b; ERCOFTAC case025 ij2lr, H/D 2, Re 23000)
+level             c   N = 48
+solver            buoyantBoussinesqSimpleFoam (ESI v2606), kOmegaSST, beta 0, wedge 2.5 deg
+first_cell        1.200e-05 m (plate AND pipe wall / nozzle lip)
+divisions         jet-core/pipe radial 72 (3N/2), wall-jet radial 72, axial 48, pipe axial 24
+cells             8640  (3.75 N^2)
+grading           plate 399.808  jet-core radial 0.0225896 (INVERTED: fine at r0, cell growth 1.0548)  wall-jet 366.656  pipe axial 8
+endTime           30000   writeInterval 2000   purgeWrite 0 (T4e Change E: retain all checkpoints)
+runTimeModifiable true (T4e Change F: enables the D1 clean-stop trigger; stopAt endTime)
+residualControl   none (L-141; removed from the frozen build_t4 fvSolution by registration)
+fields / BCs      build_t4.fields() and constant_files() FROZEN, called unchanged (T4 AMENDMENT 2 table)

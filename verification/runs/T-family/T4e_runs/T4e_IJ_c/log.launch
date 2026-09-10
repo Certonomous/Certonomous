@@ -1,0 +1,2 @@
+T4e_IJ_c: application `buoyantBoussinesqSimpleFoam` (incompressible) -- no compressible-family tokens found in 0/0.orig/constant/system
+T4e_IJ_c finished: rc=0 wall=1469s capped=no note=clean  ->  /home/ubuntu/Certonomous/verification/runs/T-family/T4e_runs/STATUS.T4e_IJ_c
