@@ -660,3 +660,133 @@ and **re-implemented** here, not modified in place.
 it.** The freeze is the closure-supervisor's act, after a personal §3 check-1.
 Zero solver compute produced this document. Nothing sent, filed, uploaded,
 registered, posted or commented. No RC2 file was edited or depended upon.*
+
+---
+
+## AMENDMENT A1 — 2026-09-10. PRE-FIRST-COMPUTE. The builder's fourth refusal, registered into §11.
+
+**Document version: DRAFT v1.1** (was DRAFT v1.0 as landed at commit `de28101d`).
+**lines whose number changed above this section: 0** — this amendment is appended
+at the foot and edits no line above it. The assertion is not a claim: it was
+proved by hashing the file's first 37,443 bytes (662 lines) before and after the
+append inside a single shell invocation, with the whole-file digest shown to move
+in the same invocation so the hasher is demonstrably not returning a constant.
+The two prefix digests and the two whole-file digests are recorded in the commit
+that carries this amendment.
+
+**THIS AMENDMENT IS NOT THE FREEZE.** It changes no gate, no threshold, no cap and
+no label. `prereg_commit:` still reads the DRAFT/UNFROZEN token at the Status line
+of this document; that token still occurs **exactly once** in this file, and this
+amendment deliberately does not write the token string again, so that the
+supervisor's single substitution at the freeze clears
+`build_rc4_cases.refuse_if_unfrozen()` in one edit.
+
+### A1.0 Why this lands BEFORE the freeze and not at it
+
+An **unregistered refusal is as much a defect as a missing one**: a reader of §11
+would not know it exists, and a guard that lives only in a module docstring is not
+registered — the instrument can be rewritten, and the gate is supposed to live in
+the document. Standing rule 2's pre-compute clause makes this amendment legal now
+and illegal after the first solve, so it lands now, where it is a registration
+rather than commentary.
+
+### A1.1 The rule-2 condition, and how it was checked — freshly, at this amendment
+
+**Condition: RC4 has had ZERO compute. The run root registered by its own
+instrument does not exist.**
+
+Checked at this amendment, by this lane, at zero compute:
+
+| check | result | control that FIRED (same command shape, positive case) |
+|---|---|---|
+| `/home/ubuntu/closure-data/rc4` — the run root named at `build_rc4_cases.py:82` (`ROOT = "/home/ubuntu/closure-data/rc4/kaandorp"`) | **ABSENT** | `/home/ubuntu/closure-data` **EXISTS**; `/home/ubuntu/closure-data/aposteriori` **EXISTS** |
+| `/home/ubuntu/closure-data/rc4/kaandorp` | **ABSENT** | as above |
+| `find /home/ubuntu/closure-data -maxdepth 1 -name 'rc[34]*'` | **no hits** | the same `find` with `-name 'apost*'` returns `aposteriori` and `aposteriori_frozenk` |
+| `find .../verification/runs -maxdepth 2 -iname '*rc4*'` | **no hits** | the same `find` with `-iname '*T-family*'` returns `verification/runs/T-family` |
+| any `RESULTS.md`, `scores.json` or run artifact beside this registration | **none** — the directory holds `PREREGISTRATION.md`, `build_rc4_cases.py`, `rc4_extract_R.py`, `rc4_onechange.py`, `rc4_score.py` and nothing else | the sibling `Kaandorp2020_TBRF/aposteriori/` does carry `RESULTS.md`, so the listing is not blind to result files |
+
+Independently, the instrument refuses to run today:
+`build_rc4_cases.refuse_if_unfrozen()` (`build_rc4_cases.py:122`) reads this file
+and exits 2 while the Status line still carries the DRAFT/UNFROZEN token. No path
+through the committed instruments can start a solver or an extraction against this
+registration in its present state.
+
+### A1.2 THE FOURTH REFUSAL OF `build_rc4_cases.py`, REGISTERED
+
+§11's row for `build_rc4_cases.py` names three refusals. The committed instrument
+carries a **fourth**, which the building lane disclosed openly in the function's
+own docstring rather than adding it silently. It is registered here so that §11 is
+a complete list.
+
+> **`write_bdelta_and_verify()` (`build_rc4_cases.py:270`) — WRITER READ-BACK.**
+> After writing `bijDelta` into a case, the builder reads the file back **through
+> the scorer's own reader** (`_common/of_read.read_field`) and compares it to what
+> it wrote. It **refuses, `sys.exit(2)`**, if the shape does not match, or if
+> `max|read − written|` exceeds a **PLANT-RELATIVE** tolerance:
+> `tol = max(1e-12, 8 × eps × max|written|)` — machine epsilon at the field's own
+> largest magnitude, floored at 1e-12, **never an absolute 1e-15** (L-508: an
+> absolute bar false-refuses on O(1)+ data and destroyed a legitimate instrument
+> in this team). The `_writer` argument is injectable so the module's `--selftest`
+> can drive a deliberately corrupting writer and show the guard FIRES
+> (`build_rc4_cases.py:585–600`: one case proves it PASSES on O(1e6) data, one
+> proves it FIRES when the writer lands a corrupted value).
+
+**Its provenance and its scope, registered so the scope is not later widened:**
+
+- It was added under **standing rule 3**, which binds whether or not this document
+  repeats it: a builder not shown able to put a non-zero on disk has not been shown
+  to have built anything. Rule 3 is normally applied to the *reader*; this applies
+  it to the *writer*, which is the same argument in the same direction.
+- **It can only ever REFUSE.** It has no branch that emits a verdict, a value, a
+  band or a label. **It cannot manufacture a `PASS`, and it cannot move a
+  threshold, a cap, a band or a label.** Its only effect is to stop a mis-built
+  case from ever running — which is why it is accepted rather than struck.
+- It is a `refuse()` → `raise SystemExit(2)` (`build_rc4_cases.py:116`), **not an
+  `assert`**, so it survives `python3 -O` as §6.1 requires.
+  `ast.Assert` count in `build_rc4_cases.py`: **0**.
+- It is **not** one of §6's three planted controls and does not substitute for any
+  of them; §6 is unchanged and still runs in `rc4_score.py` before any scoring.
+
+### A1.3 What did NOT move — the clause-by-clause statement rule 2 requires
+
+Every line above this amendment is byte-identical to the version committed at
+`de28101d`; the prefix hash recorded in the commit message proves it. Named
+explicitly:
+
+| clause | line | value, unchanged |
+|---|---|---|
+| **P-1** R-extraction validity | 279 | recovered-`k` relative L2 drift from `k_data` **≤ 0.05**; a failing case is `BLOCKED`; fewer than 2 of 3 surviving ⇒ RC4 `BLOCKED`, denominator never rescaled |
+| **P0** headline gate | 294 | T-bR must cut `U_rms` by **≥ 80%** vs N NULL on **≥ 2 of the 3** in-scope cases |
+| **P1** one-change attribution | 305–313 | exactly one differing field file, `<time>/kDeficit`; any other difference ⇒ `sys.exit(2)`, row `NOT A RESULT` |
+| **P2** mechanism band | 318, 576 | `k/k_LES` on the T-bR row in **`[0.9, 1.1]`** |
+| **P3** two ceilings | 327–333 | published side by side, never substituted |
+| continuity | 259, 473 | RMS `div(U)` / gradient scale **< 1e-3** or the row is NOT CONVERGED whatever its `U_rms` |
+| verdict ladder | 337–358 | PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING, unchanged |
+| falsifier | 416–443 | unchanged; the 80% bar is never lowered |
+| REGISTERED ESTIMATE | 513 | **140 core-minutes** |
+| REGISTERED CAP | 519 | **350 core-minutes** |
+| campaign accumulator | 539 | **21,000 wall s at ranks 1** (= 350 core-min), checked before each solve launches — the binding control |
+| per-solve timeout | 537 | `timeout 3600` |
+| §11 module list | 614–617 | unchanged; A1.2 **adds** a refusal to the `build_rc4_cases.py` row's list and removes none |
+| Label | header | `RC4`, unchanged |
+
+**No gate, threshold, cap or label is altered by this amendment.** A1.2 registers a
+guard that can only refuse; it adds no gate and it relaxes none.
+
+### A1.4 What this lane could not verify, at this amendment
+
+1. **This lane did not run any instrument.** The `--selftest` claims in §11 and
+   §6.1 are the building lane's; this amendment records what the committed source
+   *contains* — verified by reading `git show HEAD:` for `build_rc4_cases.py` and
+   confirming it is byte-identical to the working tree — not that the selftests
+   pass. Executing them is part of the supervisor's §3 check-1.
+2. **This lane did not re-examine `rc4_extract_R.py`, `rc4_onechange.py` or
+   `rc4_score.py` for further undisclosed refusals.** Only the `build_rc4_cases.py`
+   read-back was ruled on. If the other three modules carry refusals beyond their
+   §11 rows, they are not registered by this amendment.
+
+*Amendment A1 appended 2026-09-10 by a closure lane on the closure-supervisor's
+ruling. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
+nothing may run against it. Zero solver compute produced this amendment. Nothing
+sent, filed, uploaded, registered, posted or commented. No RC2 file was edited or
+depended upon.*
