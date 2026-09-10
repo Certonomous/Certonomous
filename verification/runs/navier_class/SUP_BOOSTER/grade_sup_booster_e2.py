@@ -636,20 +636,83 @@ def run_grade(args):
     verdicts = [gate_cp["verdict"], gate_b["verdict"]]
     return 0 if all(v in ("PASS", "GATE FAIL", "NOT A RESULT") for v in verdicts) else 70
 
+def selftest_fail(check, detail):
+    """Explicit selftest failure.  NOT an `assert`: under `python3 -O` / PYTHONOPTIMIZE every
+    assert is compiled out, which made the whole self-check VOID under -O (measured 2026-09-10
+    on this grader: a mutated expectation still printed SELFTEST OK and exited 0, certifying a
+    mutated grader as sound).  Territory rule L-332 -- no assert in an instrument may carry a
+    refusal, guard, control or gate; a selftest's assertions ARE the gate on the instrument."""
+    sys.stderr.write(f"SELFTEST FAIL: {check}: {detail}\n")
+    sys.exit(1)
+
+def _selftest_build_cone_case(root):
+    """Build a THROWAWAY OpenFOAM case (40x10 hex block, one 'cone' patch of 40 faces) inside a
+    temp dir, so the rule-3 planted-zero control can be exercised through the REAL on-disk
+    reader.  Touches no graded run root: nothing under verification/runs is read or written,
+    and neither graded_e2/ nor E1's graded/ is opened.  Returns the case path."""
+    case = os.path.join(root, "selftest_cone")
+    for sub in ("system", "constant"):
+        os.makedirs(os.path.join(case, sub))
+    with open(os.path.join(case, "system/controlDict"), "w") as fh:
+        fh.write("FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }\n"
+                 "application rhoCentralFoam;\nstartFrom startTime;\nstartTime 0;\n"
+                 "stopAt endTime;\nendTime 1;\ndeltaT 1;\nwriteControl timeStep;\nwriteInterval 1;\n")
+    with open(os.path.join(case, "system/fvSchemes"), "w") as fh:
+        fh.write("FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }\n"
+                 "ddtSchemes { default Euler; }\ngradSchemes { default Gauss linear; }\n"
+                 "divSchemes { default none; }\nlaplacianSchemes { default Gauss linear corrected; }\n"
+                 "interpolationSchemes { default linear; }\nsnGradSchemes { default corrected; }\n")
+    with open(os.path.join(case, "system/fvSolution"), "w") as fh:
+        fh.write("FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }\n"
+                 "solvers {}\n")
+    with open(os.path.join(case, "system/blockMeshDict"), "w") as fh:
+        fh.write("FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }\n"
+                 "scale 1;\n"
+                 "vertices ( (0 0 0) (1 0 0) (1 0.2 0) (0 0.2 0)\n"
+                 "           (0 0 0.1) (1 0 0.1) (1 0.2 0.1) (0 0.2 0.1) );\n"
+                 "blocks ( hex (0 1 2 3 4 5 6 7) (40 10 1) simpleGrading (1 1 1) );\n"
+                 "edges ();\n"
+                 "boundary\n(\n"
+                 "    cone     { type wall;  faces ( (0 1 5 4) ); }\n"
+                 "    farfield { type patch; faces ( (3 7 6 2) ); }\n"
+                 "    inlet    { type patch; faces ( (0 4 7 3) ); }\n"
+                 "    outlet   { type patch; faces ( (1 2 6 5) ); }\n"
+                 "    frontAndBack { type empty; faces ( (0 3 2 1) (4 5 6 7) ); }\n"
+                 ");\nmergePatchPairs ();\n")
+    r = subprocess.run(["blockMesh", "-case", case], capture_output=True, text=True)
+    if r.returncode != 0:
+        selftest_fail("planted-zero control arm",
+                      f"blockMesh failed on the throwaway selftest case (rc {r.returncode})")
+    ncells = 40 * 10
+    os.makedirs(os.path.join(case, "1"))
+    with open(os.path.join(case, "1", "p"), "w") as fh:
+        fh.write('FoamFile { version 2.0; format ascii; class volScalarField; location "1"; object p; }\n')
+        fh.write("dimensions [1 -1 -2 0 0 0 0];\n")
+        fh.write(f"internalField   nonuniform List<scalar>\n{ncells}\n(\n")
+        fh.write("\n".join(repr(P_INF) for _ in range(ncells)))
+        fh.write("\n)\n;\n\n")
+        fh.write('boundaryField\n{\n    ".*" { type zeroGradient; }\n}\n')
+    return case
+
 def run_selftest(args):
     print("== Roache logic on a synthetic CONVERGING triple ==")
     g = grade_gate("selftest", 0.2025, 0.2050, 0.2100, 1.0, 1.5, 2.25, 0.20225, CP_BAND, "-")
-    assert g["triple"] == "CONVERGING", g
-    assert g["verdict"] == "PASS", g
+    if g["triple"] != "CONVERGING":
+        selftest_fail("synthetic CONVERGING triple: triple", g)
+    if g["verdict"] != "PASS":
+        selftest_fail("synthetic CONVERGING triple: verdict", g)
     print(f"  CONVERGING, p={g['apparent_order_p']:.3f}, GCI={g['gci_fine']:.3e}, verdict={g['verdict']}")
     print("== Roache logic on a synthetic OSCILLATORY triple (must be NOT A RESULT) ==")
     g2 = grade_gate("selftest2", 0.20, 0.22, 0.19, 1.0, 1.5, 2.25, 0.20225, CP_BAND, "-")
-    assert g2["verdict"] == "NOT A RESULT", g2
+    if g2["verdict"] != "NOT A RESULT":
+        selftest_fail("synthetic OSCILLATORY triple: verdict", g2)
     print(f"  {g2['triple']} -> {g2['verdict']}")
     print("== Roache logic on a synthetic CONVERGING-but-OUTSIDE-band triple (must be GATE FAIL) ==")
     g3 = grade_gate("selftest3", 0.250, 0.253, 0.259, 1.0, 1.5, 2.25, 0.20225, CP_BAND, "-")
-    assert g3["triple"] == "CONVERGING", g3
-    assert g3["verdict"] == "GATE FAIL", g3
+    if g3["triple"] != "CONVERGING":
+        selftest_fail("synthetic out-of-band triple: triple", g3)
+    if g3["verdict"] != "GATE FAIL":
+        selftest_fail("synthetic out-of-band triple: verdict", g3)
     print(f"  CONVERGING, dev={g3['deviation']:.4f} > band {CP_BAND} -> {g3['verdict']}")
     print("== C2 (shock angle) gating -- value-in-band + consistency, NO Roache (ruling 0e9c1bcb) ==")
     def _loc(inc):
@@ -657,33 +720,85 @@ def run_selftest(args):
                     locator_increment_correlated_worst_deg=inc*2.1)
     c2a = grade_gate_shock_angle("selftest C2 in-band+consistent", 33.85, 33.99, 33.70,
                                  _loc(0.57), 33.9147, BETA_BAND_DEG, BETA_CONS_DEG, "deg")
-    assert c2a["verdict"] == "PASS", c2a
+    if c2a["verdict"] != "PASS":
+        selftest_fail("C2 in-band+consistent: verdict", c2a)
     print(f"  in band, spread {c2a['spread']:.4f} <= {BETA_CONS_DEG} -> {c2a['verdict']} "
           f"(beta reported as {c2a['beta_fine_reported_as']})")
     c2b = grade_gate_shock_angle("selftest C2 out-of-band", 35.50, 35.40, 35.60,
                                  _loc(0.57), 33.9147, BETA_BAND_DEG, BETA_CONS_DEG, "deg")
-    assert c2b["verdict"] == "GATE FAIL" and "ACCURACY" in c2b["reason"], c2b
+    if not (c2b["verdict"] == "GATE FAIL" and "ACCURACY" in c2b["reason"]):
+        selftest_fail("C2 out-of-band: verdict/reason", c2b)
     print(f"  outside the band, spread OK -> {c2b['verdict']} ({c2b['reason']})")
     c2c = grade_gate_shock_angle("selftest C2 inconsistent", 33.85, 34.60, 33.20,
                                  _loc(0.57), 33.9147, BETA_BAND_DEG, BETA_CONS_DEG, "deg")
-    assert c2c["verdict"] == "GATE FAIL" and "CONSISTENCY" in c2c["reason"], c2c
+    if not (c2c["verdict"] == "GATE FAIL" and "CONSISTENCY" in c2c["reason"]):
+        selftest_fail("C2 inconsistent: verdict/reason", c2c)
     print(f"  in band but spread {c2c['spread']:.4f} > {BETA_CONS_DEG} -> {c2c['verdict']}")
     c2d = grade_gate_shock_angle("selftest C2 locator too coarse", 33.85, 33.99, 33.70,
                                  _loc(1.30), 33.9147, BETA_BAND_DEG, BETA_CONS_DEG, "deg")
-    assert c2d["verdict"] == "NOT A RESULT", c2d
+    if c2d["verdict"] != "NOT A RESULT":
+        selftest_fail("C2 locator too coarse: verdict", c2d)
     print(f"  locator increment 1.30 deg >= band {BETA_BAND_DEG} deg -> {c2d['verdict']} "
           f"(condition-4 precondition fails)")
     print("== condition 8: NO Roache instrument may appear anywhere in a C2 report ==")
     for g in (c2a, c2b, c2c, c2d):
         for forbidden in ("triple", "apparent_order_p", "gci_fine", "richardson_extrap"):
-            assert forbidden not in g, (forbidden, g)
+            if forbidden in g:
+                selftest_fail("condition 8: forbidden Roache instrument in a C2 report",
+                              (forbidden, g))
     print("  no triple / apparent_order_p / gci_fine / richardson_extrap in any C2 report -- OK")
     print("== an OSCILLATORY beta triple no longer vetoes C2 (the spurious veto the ruling removes) ==")
     osc = grade_gate("beta-as-if-Roache", 33.85, 33.99, 33.70, 1.0, 1.5, 2.25, 33.9147, BETA_BAND_DEG, "deg")
-    assert osc["verdict"] == "NOT A RESULT" and osc["triple"] == "OSCILLATORY", osc
-    assert c2a["verdict"] == "PASS"
+    if not (osc["verdict"] == "NOT A RESULT" and osc["triple"] == "OSCILLATORY"):
+        selftest_fail("beta-as-if-Roache: verdict/triple", osc)
+    if c2a["verdict"] != "PASS":
+        selftest_fail("beta-as-if-Roache: C2 comparison arm", c2a)
     print(f"  same three values: as a Roache triple -> {osc['triple']}/{osc['verdict']}; "
           f"under the registered C2 method -> {c2a['verdict']}")
+    print("== rule-3 planted-zero control, exercised through the REAL reader (MANDATORY arm) ==")
+    for tool in ("blockMesh", "postProcess"):
+        if shutil.which(tool) is None:
+            selftest_fail("planted-zero control arm",
+                          f"'{tool}' is not on PATH, so the selftest cannot exercise the rule-3 "
+                          f"control -- it therefore REFUSES to certify this grader (source the "
+                          f"OpenFOAM bashrc first)")
+    work = tempfile.mkdtemp(prefix="sup_booster_selftest_")
+    try:
+        case = _selftest_build_cone_case(work)
+        ctrl = planted_zero_control(case, "1")
+        print("  positive arm: " + json.dumps(ctrl))
+        if not ctrl["passed"]:
+            selftest_fail("planted-zero control POSITIVE arm",
+                          f"the real reader did NOT see the planted {PLANT_PA} Pa: {ctrl}")
+        if abs(ctrl["reader_delta"] - ctrl["expected_delta"]) >= 0.05 * ctrl["expected_delta"]:
+            selftest_fail("planted-zero control POSITIVE arm",
+                          f"reader_delta {ctrl['reader_delta']} does not match expected_delta "
+                          f"{ctrl['expected_delta']}: {ctrl}")
+        print(f"  reader saw the plant: delta={ctrl['reader_delta']:.6f} Pa vs expected "
+              f"{ctrl['expected_delta']:.6f} Pa -- control ALIVE")
+        # NEGATIVE arm: a control that cannot see its own plant must FAIL, never pass.  Blind the
+        # reader by discarding the perturbed-copy path (the plant becomes a no-op as far as the
+        # reader is concerned), then require passed=False.  Restored in the finally.
+        real_reader = globals()["read_cone_pressure"]
+        def _blind_reader(case_, time_, p_path=None, Cx=None):
+            return real_reader(case_, time_, p_path=None, Cx=Cx)   # ignores the planted copy
+        globals()["read_cone_pressure"] = _blind_reader
+        try:
+            neutered = planted_zero_control(case, "1")
+        finally:
+            globals()["read_cone_pressure"] = real_reader
+        print("  negative arm (reader blinded to the plant): " + json.dumps(neutered))
+        if neutered["passed"]:
+            selftest_fail("planted-zero control NEGATIVE arm",
+                          f"a reader that CANNOT see its own plant was still reported as passing "
+                          f"-- the control is neutered and certifies nothing: {neutered}")
+        if globals()["read_cone_pressure"] is not real_reader:
+            selftest_fail("planted-zero control NEGATIVE arm",
+                          "the real reader was not restored after the negative arm")
+        print(f"  blinded reader delta={neutered['reader_delta']:.6f} Pa -> control correctly "
+              f"reports passed=False (a neutered control is CAUGHT)")
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
     if args.smoke:
         print(f"== planted-zero control on smoke case {args.smoke} (real disk read) ==")
         ts = time_dirs(args.smoke)
