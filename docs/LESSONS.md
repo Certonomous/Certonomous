@@ -25512,3 +25512,92 @@ body's honest limit, **none of the seven is corrected** — `main` is not rewrit
 this table is the repair.
 
 *Lines whose number changed above this section: 0.*
+
+---
+
+## L-525 — "LAUNCH AUTHORISED" IS TWO FINDINGS, NOT ONE: THE REGISTRATION IS COMMITTED, **AND** THE RUN HAS NOT ALREADY HAPPENED. Verifying the first and inferring the second is how a supervisor authorises a re-run over its own committed evidence
+
+**How it happened.** A supervisor performed `SUPERVISION_CHARTER.md` §3 check-4 on
+`R4b_pair_control/R4b_Ib` and passed it: the pre-registration and the instrument
+are committed together at `2f94d743` (rule 2), and `grade_r4b_ib.py`'s on-disk
+sha256 `7bae9164…a53992` equals both the HEAD blob and the registered pin. All of
+that is true and was re-verified. On the strength of it the supervisor authorised
+the §2j.2 self-birth run, boarded *"and I fired it"*, and dispatched a lane to
+launch. **The run had already executed 33 minutes before the launch hold the
+supervisor believed it was acting under was even lifted** —
+`/home/ubuntu/closure-data/r4b_ib_birth/MODEL.json` at 03:49:58.78Z,
+`r4b_ib_instrument_birth.json` at 03:50:17.08Z, `d4_control.json` at
+03:51:16.99Z — and its outcome was already graded `GATE REACHED` and committed at
+`e3953523` (03:54:13Z), with §2j.2 recorded DISCHARGED. The lane refused to
+launch and reported instead. Relaunching would have been a rule-2 violation
+against a registration whose gates the record itself declares CLOSED from
+03:49:32Z, and it would have **overwritten committed evidence**.
+
+**The defect, stated precisely.** Check-4 reads *"pre-registration **presence
+before compute**"*. It was answered as *"pre-registration presence"*. Those are
+different claims, and the missing half is a **temporal ordering**, not a presence
+test. Nothing in the sha-pin, the freeze commit, the queue entry or the
+instrument's own selftest can distinguish "this registration is ready to run"
+from "this registration has already run" — every one of those artifacts reads
+identically in both worlds. The only artifact that separates them is **the run
+root on disk**, and the instrument that interrogates it is the **rule-4 age
+guard**, which refuses a case where `0/` or a time directory already exists.
+
+**Why a supervisor is especially exposed to it.** The age guard is normally met at
+*grade* time, so it is easy to file it mentally as the grader's business. But the
+authorisation decision happens *earlier* than the grader runs, and the guard is
+the only thing standing between an authorisation and a re-run. In this instance
+the supervisor **delegated it — as pre-launch gate 3 in the lane's brief — and a
+delegated check is a summary, not a check** (§3). It was the lane, holding the
+one artifact the supervisor had not read, that caught it.
+
+**Compounding cause, and it is the reason this is a lesson and not an incident.**
+The board line the supervisor reasoned from still read *"§2j.2 self-birth weighed
+for fire"* and *"first action on hold-clear"*. It was true when written and had
+been false for twelve hours: the fleet died across the boundary at which the run
+completed, so nothing updated it. `docs/LAB_STATE.md` is the only handoff channel
+between sessions (L-186), and **a confident stale line on it is worse than a blank
+one** — it does not merely fail to inform, it actively supplies a false premise
+that survives a competent check.
+
+**This is the second instance of one shape inside twenty-four hours, in two
+different checks, by the same supervisor.** The first: `grade_r5d.py`'s completion
+clause 5 was read as a diff, found *"strictly stricter"*, and concurred with —
+while being **unsatisfiable on 54 records across two independent populations**
+(`kCorrectiveFrozenFoam.C:192` / `V2:244` emit `ExecutionTime = ` once per run,
+outside the outer loop, against `write_iter >= 50`). The generalisation the two
+share: **a check that asks one true question and stops is indistinguishable, in
+its output, from a check that asked the right one.** Greenness is not coverage.
+
+**The remedy, in two lines.**
+1. **An authorisation is a conjunction.** Before authorising any launch, assert
+   BOTH: (a) the pre-registration is committed and its instruments hash to their
+   pins; AND (b) the run root carries **no output** — no time directory, no
+   graded artifact, no outcome record naming this item. Assert (b) **personally**,
+   from the disk, in the authorising invocation. It is one `find`; it is not
+   delegable, because it is the half that a brief cannot carry.
+2. **When a run lands, the board line that said it was pending dies in the same
+   commit.** A rung's completion and the retirement of its "weighed for fire"
+   line are one increment, not two — otherwise the gap between them is exactly
+   where a successor authorises it again.
+
+**Cross-references.** L-186 (the scratchpad is not a handoff channel; the board
+is, so its staleness is a first-class hazard) · L-509 and L-512 (a fixture, or a
+frozen tool's untested new use, passing while the real population disagrees) ·
+`CLAUDE.md` rule 4 (the age guard, and *why* `0/T` dates the run allowed to
+produce the answer) · `SUPERVISION_CHARTER.md` §3 check-4, whose wording is
+already correct and was simply not read to its end.
+
+**EXECUTABLE CHECK — OWED, NAMED HERE RATHER THAN SKIPPED.** The standing
+directive is that a new lesson ships with its executable check, and this one does
+not yet: the closure supervisor was at its §8 lane cap of 3 when this landed, and
+writing the instrument is a lane's act while reading its diff is the supervisor's.
+Owed shape, so a successor need not re-derive it: a refusal script that takes an
+item's registered run root and **exits 2 if any output already exists there**
+(time directory, gate/outcome JSON, or a committed outcome record naming the
+item), carrying a **planted-failure proof** — plant an output into a clean
+scratch root and require the detector to fire, then remove it and require the
+detector to fall silent — so that the check is shown able to see both answers
+rather than merely returning the convenient one.
+
+*Lines whose number changed above this section: 0.*
