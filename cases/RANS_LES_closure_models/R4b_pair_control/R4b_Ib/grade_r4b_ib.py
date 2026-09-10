@@ -1,14 +1,24 @@
 # =====================================================================
-# UNFROZEN, UNREVIEWED, INCOMPLETE DRAFT -- DO NOT RUN, DO NOT GRADE.
-# Halted mid-authoring 2026-08-31 on Sanaa's order to stop work.
-# This file is NOT a frozen grading path under CLAUDE.md rule 2: no
-# pre-registration document accompanies it and no commit fixes it.
-# closure-supervisor has NOT performed SUPERVISION_CHARTER sec.3 check 1
-# (the measurement-script diff read) on this file. A relayed check is a
-# summary, not a check, and no check has been performed at all here.
-# It is committed ONLY so the work survives; the R4b instruments sat
-# untracked through a 32-hour shutdown and were one checkout from gone.
-# NOTHING THIS FILE PRODUCES IS A RESULT.
+# FROZEN 2026-09-10 by closure-supervisor -- SUPERVISION_CHARTER sec.3
+# check-1 (measurement-script diff read) AND check-4 done PERSONALLY,
+# not relayed. This file is the frozen grading path for item R4b-Ib
+# under CLAUDE.md rule 2: it lands in ONE commit with
+# INSTRUMENT_BUILD_PREREGISTRATION_R4b_Ib.md, which fixes the grading
+# path at that commit (the commit blob fixes these bytes).
+# CHECK-1: the four repairs D1-D4 are each STRICTLY STRICTER and edit no
+# frozen file -- the parent grade_r4b.py is imported UNMODIFIED and
+# sha-pinned (0e2554ae...); no band, threshold, cap or label moved.
+# Selftest 48/48 under python3 AND python3 -O, re-run by the supervisor;
+# 0 ast.Assert nodes.
+# CHECK-4 SCOPE RULING: the two refusals beyond the four repairs --
+# PINNED-INSTRUMENT and R4b-I-ROOT-GUARD -- are IN SCOPE. The first is
+# rule 2's own "verify the frozen file IS the file that ran" applied to
+# the imported dependency; the second protects the _dev/ evidence the
+# successor ruling rests on. Both can only REFUSE, never manufacture a
+# PASS, and move no band/threshold/cap/label.
+# Rule 6 now binds: no edit below this stamp; a departure is a dated
+# addendum. The post-freeze --birth-only then --d4-control run (the
+# sec.2j.2 self-birth) is compute-gated and HELD behind M6/Navier.
 # =====================================================================
 #!/usr/bin/env python3
 """R4b-Ib - THE SUCCESSOR BIRTH-GRADER.  Four repairs, and nothing else.

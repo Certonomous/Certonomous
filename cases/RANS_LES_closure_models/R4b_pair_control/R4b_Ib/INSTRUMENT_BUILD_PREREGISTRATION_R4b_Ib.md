@@ -1,9 +1,11 @@
 # R4b-Ib — THE SUCCESSOR INSTRUMENT BUILD, REGISTERED AS A CAPPED WORK ITEM
 
-**Status: DRAFT. NOT FROZEN, NOT COMMITTED, NO COMPUTE RUN.**
-This document and `grade_r4b_ib.py` must land in **ONE commit**, because standing
-rule 2 fixes the grading path at the pre-registration commit. **That commit is the
-closure supervisor's**, not this lane's.
+**Status: FROZEN 2026-09-10 by closure-supervisor (SUPERVISION_CHARTER §3 check-1
++ check-4, done personally). NO COMPUTE RUN.** This document and `grade_r4b_ib.py`
+land in **ONE commit**, which fixes the grading path at this pre-registration commit
+(standing rule 2). Frozen instrument `grade_r4b_ib.py` sha256
+`7bae9164000af4dff18794eeaa40a28c2d6c5ef79eaa59bf7aab75db50a53992`. The freeze stamp
+and its scope ruling are appended at the foot (§12). Rule 6 now binds this file.
 
 | | |
 |---|---|
@@ -537,3 +539,48 @@ These are flagged, not decided. A lane does not resolve them.
 **Both repository files land in ONE commit** (standing rule 2 fixes the grading path
 at the pre-registration commit). **That commit is the closure supervisor's.** This
 lane has committed nothing and staged nothing.
+
+---
+
+## 12. SUPERVISOR FREEZE STAMP — 2026-09-10 (closure-supervisor)
+
+**FROZEN.** SUPERVISION_CHARTER §3 check-1 (measurement-script diff read) and §3
+check-4 performed PERSONALLY by the closure-supervisor, not relayed. Basis:
+
+- **Diff-read of `grade_r4b_ib.py` against the frozen parent `grade_r4b.py`** (read in
+  full, this session): the four repairs D1–D4 are each STRICTLY STRICTER — D1
+  (`require_readable_file/json`, named exit-2 refusals before the first consumer,
+  closing the unguarded `json.load(open())` at frozen `:478`); D2 (`b3_selector`,
+  `b4_builder`, computed `headline()` — the declared-but-uncomputable B3/B4 now
+  actually graded against §5's frozen criteria); D3 (`B5-DRIVE-ABSENT` refusal +
+  B5 handed B4's built tree, closing the silently-skipped drive limb at `:663`); D4
+  (`aggregate_required` over an EXPLICIT REGISTERED LIST, refusing on any missing
+  name — the structural fix, written once). No frozen file is edited: the parent is
+  imported UNMODIFIED and sha-pinned (`grade_r4b.py` `0e2554ae…`, independently
+  re-hashed at freeze; `select_control.py`, `build_r4b_cases.py`, the §5 criteria
+  source all pinned). No band, threshold, cap or label moved.
+- **Selftest re-run by the supervisor:** 48/48 under `python3` AND `python3 -O`;
+  0 `ast.Assert` nodes (independent AST parse). Gates open (no `r4b_ib_birth` tree on
+  disk); R4b's solve root and R4b-I's `_dev/` evidence root both untouched.
+
+**SCOPE RULING (§3 check-4) on §10 items 1 and 2.** The two refusals beyond the four
+authorised repairs — **`PINNED-INSTRUMENT`** and **`R4b-I-ROOT-GUARD`** — are **IN
+SCOPE**. `PINNED-INSTRUMENT` is standing rule 2's own "verify the frozen file IS the
+file that ran, by hashing it against the committed blob" applied to the imported
+dependency, not a new physics gate. `R4b-I-ROOT-GUARD` protects the `_dev/` evidence
+the successor ruling rests on and preserves R4b's amendment window. Both can only
+REFUSE, never manufacture a PASS, and move no band/threshold/cap/label.
+
+**Frozen instrument** `grade_r4b_ib.py` sha256
+`7bae9164000af4dff18794eeaa40a28c2d6c5ef79eaa59bf7aab75db50a53992`.
+
+**What is NOT decided by this freeze.** No gate VERDICT is asserted — the freeze fixes
+the grading path only. §2j.2 (the successor's own two-sided birth) stays **PENDING**
+until the post-freeze `--birth-only` then `--d4-control` run on a real birth record.
+That run is compute-gated (estimate 12.0 core-min, hard cap 40.0) and **HELD behind the
+M6/Navier launch hold**; it is the first action once the hold clears. A′/R4b uses no
+R5C data and is independent of the R5C→R5D→C2 fork.
+
+*This §12 is the initial freeze stamp (the STATUS-header flip above is part of this
+same freeze commit). Rule 6 now binds: any later departure is a dated addendum below,
+asserting `lines whose number changed above this section: 0`.*
