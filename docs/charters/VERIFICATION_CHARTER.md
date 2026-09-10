@@ -9761,3 +9761,65 @@ cfd's item (2) pairs DrivAer with a second instance: the motorbike *"rowed as 'n
 | this supervisor's false zeros today | **3** (two ruled on earlier; the third made AFTER the ruling) |
 | gate values changed | **0** · verdicts withdrawn | **0** · cases alleged dirty | **0** · checks made to refuse | **0** (`D539`) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.90, 2026-09-10 — **§2cf A LOAD AVERAGE IS NOT A CPU MEASUREMENT, AND TONIGHT IT IS WRONG BY TWO ORDERS OF MAGNITUDE — MY OWN CENSUS DISCIPLINE IS PART OF THE CAUSE. §2cg MRF IS EXONERATED: MY RULE-2 FLAG OF THIRTY MINUTES AGO IS WITHDRAWN ON MEASUREMENT. §2ch A `DRAFT / UNFROZEN` BANNER ABOVE A FREEZE BLOCK IS A RECORD DEFECT, AND STRIKING IT IS PART OF FREEZING**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by the **chief** (§2cf) and **cfd** (§2cg, §2ch). **Measured at source by this supervisor at 20:34:42Z.** `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`). ONE ACCUSATION BY THIS TEAM IS WITHDRAWN.**
+
+### §2cf — **LOAD 63 ON A BOX WHOSE CPU PRESSURE IS 0.93 %**
+
+**Measured in one invocation at 20:34:42Z:**
+
+```
+/proc/pressure/cpu   some avg10=1.17  avg60=1.09  avg300=0.93   full avg300=0.00
+/proc/pressure/io    some avg10=74.98 avg60=75.02 avg300=77.99  full avg300=43.24
+/proc/loadavg        63.17 55.63 46.93
+```
+
+> **The box is reporting a load of 63 on 16 vCPU while CPU pressure is UNDER ONE PERCENT. `io full avg300 = 43.24` means that for 43 % of the last five minutes EVERY runnable task was stalled on IO. The load average is essentially all D-state waiters, and as a signal of CPU availability it is wrong by nearly two orders of magnitude.**
+
+**RULED — §2cf: A LOAD AVERAGE IS NOT A MEASUREMENT OF CPU AVAILABILITY AND MAY NOT BE USED ALONE TO JUSTIFY A SCHEDULING DECISION. IT IS READ BESIDE `/proc/pressure/{cpu,io,memory}`, AND THE FIGURE THAT DECIDES WHETHER A SOLVER CAN LAUNCH IS `pressure/cpu`, NOT `loadavg`.** Linux load counts uninterruptible-sleep tasks, so **an IO-starved box misreads as CPU-contended, and the wrong action follows: launches get sequenced or refused on a box with idle CPUs.** `MONITOR_STANDARD.md`'s text is not this charter's to write; **the measurement rule is, and this is it.**
+
+**AND THE RETROSPECTIVE MATTERS, BECAUSE IT REOPENS `§2bk.5`.** That clause recorded cfd refusing to launch a sixth solver on a stated *"load 45.85"*, later re-derived at 3.96, and ruled it a **staleness** failure. **Tonight's measurement supplies a second, independent reason the same decision was unsound: even when a high load reading is CURRENT, it may not mean what the decision assumed.** `§2bk.5` stands and gains a limb: **a figure can be fresh, correctly measured, and still not be the quantity the decision needs.** Freshness and validity are different properties and this lab has now paid for both.
+
+**THE PART THAT IS MINE, AND I STATE IT FIRST BECAUSE IT IS UNCOMFORTABLE.** Four repo-wide `ugrep`/`find` sweeps were live at the reading. **My own lane briefs ordered disk-wide censuses in as many words** — *"census the DISK (find) as well as git"* — and `§2cc`, which I ruled forty minutes ago, makes that discipline **binding lab-wide**. **The discipline is right and its cost is real: a corpus-complete census is IO-heavy, and tonight it was taxing the solvers on the night the owner asked for runs.**
+
+> **§2cf.1 — THE OPERATIONAL RULE THAT PAYS FOR `§2cc`: A CORPUS-COMPLETE CENSUS IS AN IO-EXPENSIVE MEASUREMENT AND IS SCHEDULED LIKE ONE.**
+> - **While solvers are running: no repo-wide `grep -r` and no unbounded `find`.** Use `git grep` **with a pathspec**, or `find` with an explicit root and `-maxdepth`.
+> - **Never walk `processor*/`, `VTK/`, `postProcessing/` or a time-directory tree with a text search.** They hold the overwhelming majority of the bytes and essentially none of the answers.
+> - **A census that must be corpus-complete runs when the box is not solving**, and says in its report when it ran.
+> - **`§2cc` is NOT relaxed** — a zero from a narrowed corpus is still a bound and still states its roots. **What changes is WHEN the wide census runs, never whether its scope is disclosed.**
+
+### §2cg — **MRF IS EXONERATED. MY RULE-2 FLAG IS WITHDRAWN, THIRTY MINUTES AFTER I MADE IT.**
+
+`§2cb` referred *"MRF is solving RIGHT NOW against an explicitly unfrozen pre-registration"* as a standing-rule-2 exposure. **cfd's timing, and it disposes of it: freeze `20:02:01Z`, first solver write `20:26:12Z`. The freeze preceded the compute by twenty-four minutes. THERE IS NO BREACH.**
+
+> **WITHDRAWN. Rule 2 was satisfied — the freeze came first, which is the whole of what rule 2 requires. What I saw was a DOCUMENT that contradicted itself, and I read a contradictory document as a violated rule.** The ordering was clean; the record was not. **That is a real defect and it is `§2ch`'s, not rule 2's.**
+>
+> **This is the third correction this team has made against itself today and the third that runs in another team's favour** (`§2bn` restored K2bU3R3, `§2cd` exonerated `check_comparator_freeze.py`, and now MRF). **The pattern is worth naming: a supervisor auditing at speed generates false positives, and the accusatory direction is the one this charter has ruled hardest against (`§2bn`). Withdrawing them promptly and by name is the only thing that makes the audit affordable to the teams being audited.**
+
+### §2ch — **A `DRAFT / UNFROZEN` BANNER STANDING ABOVE A FREEZE BLOCK IS A RECORD DEFECT, AND IT HAPPENED TWICE TONIGHT**
+
+`M6CP1` at `726e3d0c` and `MRF` at `e006de9b`: a freeze block was appended while **line 3 still read `STATUS: DRAFT / UNFROZEN. NO COMPUTE HAS RUN. NOT A GATE YET.`**
+
+**This is `§2bg`'s class — a headline travels alone.** Line 3 is the first thing any reader, any instrument and any future auditor sees, and it asserts **the exact opposite** of the freeze block below it. **I was that reader thirty minutes ago, and I filed a rule-2 accusation against a team whose ordering was clean.** The defect cost a real false positive within the hour of its creation.
+
+> **RULED — §2ch: APPENDING A FREEZE BLOCK AND STRIKING THE `DRAFT / UNFROZEN` BANNER ARE ONE OPERATION, NOT TWO. A registration is frozen when BOTH have happened. A document carrying both states simultaneously is NOT a frozen registration with a stale header — it is a registration whose freeze status cannot be determined from the document, and no reader is obliged to guess which half is current.**
+>
+> **THE INSTRUMENT, and its authority is bounded exactly as everything else tonight has been:**
+> - **The check is specified: a registration carrying a `DRAFT`/`UNFROZEN`/`NOT A GATE YET` token ABOVE its freeze block is flagged.** Cheap, textual, no compute.
+> - **IT LANDS AS A WARNING, NOT A REFUSAL.** cfd asked for a refusal, and **the request is well-founded on the merits and is still not mine to grant**: making an instrument refuse where it previously passed is **adding a gate on lab process, and `D539` reserves that to Sanaa — "not cfd, not this team, not the chief."** I have declined to arm three checks tonight on that ground and I will not make an exception for a request I agree with.
+> - **RECORDED FOR SANAA'S DESK**, with the two measured instances and the measured cost (one false rule-2 accusation, withdrawn in `§2cg`), as evidence for **her** decision. **A well-motivated gate is still her gate.**
+> - **Until it is armed, the obligation is on the author and it is absolute: strike the banner in the same commit that appends the freeze block.** The private-index protocol makes that one operation trivially — both edits, one `write-tree`, one commit.
+
+**Recorded with thanks and without softening the ledger: cfd accepted `§2ca`'s PRD ruling under `§2d.1` on the strength of the noise-floor finding — i.e. they accepted a repair that this team's own measurement says WILL NOT PRODUCE A PASS.** Accepting a correction that cannot help your own verdict is the behaviour `§2d.1` exists to make safe, and it is noted here because the ledger should carry it as prominently as it carries the defects.
+
+| amendment record | **v1.90** |
+|---|---|
+| clauses added | **3** (§2cf, §2cg, §2ch) · existing clauses gaining a limb | **1** (`§2bk.5`) |
+| **accusations by this team WITHDRAWN** | **1** (MRF rule-2 flag — no breach; freeze preceded compute by 24 min) |
+| self-corrections today running in another team's favour | **3** (K2bU3R3, `check_comparator_freeze.py`, MRF) |
+| gate values changed | **0** · gates armed | **0** · checks made to refuse | **0** (`D539`) · items recorded for Sanaa | **2** (`STAGNANT_FLOOR`, the banner refusal) |
+| **lines whose number changed above this section** | **0** |
