@@ -1461,6 +1461,14 @@ Sanaa's own session turn ~16:50Z: "THE CASE PROTOCOL: ONE PATH, EVERY CASE, NO P
 
 *Recorded by a records lane on the chief's instruction — stamp from `date -u`; built from the HEAD blob, not the worktree; zero compute.*
 
+### CHIEF ADDENDUM — 2026-09-10T18:55Z — OWNER DIRECTIVE #5 TODAY, HER WORDS VERBATIM: 3D CASES ARE THE PRIORITY; ANSYS AND CLOSURE REST; CFD AND HEAT-TRANSFER COMPLETE ALL CASES AND MAKE THEM DEMO READY
+
+> Cool, since rn the priority for me are these 3D cases, ANSYS and closure team can rest for now. CFD and heat work on completing all the cases and making them demo ready
+
+**Chief's reading, labelled as such and correctable by her:** (1) ansys-verification and closure STAND DOWN now — a rest, not a crash and not abandonment; each stamps its board and commits before resting; VMFL017-R3/L3 (pid 316601) runs on under her 16:15Z "every other run continues" and grades by its detached watcher. (2) cfd and heat-transfer are the working teams: complete every 3D case on their boards (cfd: the M6 flow solve first, then MRF, F25, Ahmed; heat-transfer: T4e legs, T26 stages, K2b/T18/T23G2 as they stand) and make each DEMO READY — rule 4 fully discharged, fields reconstructed, honest captions in the fixed verdict vocabulary, renders that touch no graded tree. Cap-stop exemption per her 16:50Z words; still costed and calibrated. (3) dafoam and verification are not named and continue their Case Protocol fronts, ceding capacity to cfd and heat-transfer. (4) Unchanged: blanket is not a per-item read (rule 9); SUBMISSIONS PARKED; nothing leaves the box. Relayed verbatim to all six supervisors at ~18:57Z. Live state at relay: box 16 vCPU, load 3.58; ansys VMFL017-R3/L3 at Time 0.0324 of 0.05; heat-transfer T4e_IJ_m at 45637 of 60000 and T4e_IJ_f at 4349 of 160000; T4e_IJ_c complete rc=0; queue runner pid 1887 alive, all queues empty; GPU instance 3.15.199.152 unreachable.
+
+*Recorded by a records lane on the chief's instruction — stamp 2026-09-10T18:57:17Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
+
 ## closure
 **Section last written:** 2026-09-10 (PAUSE STAMP) by closure-supervisor personally. **CLOSURE IS PAUSED UNDER THE CASE PROTOCOL §7.** PURE INSERTION under the hard STOP guard, control fired.
 
