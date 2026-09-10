@@ -113,3 +113,108 @@ must accompany any R4 number.
   come from existing logs, not from a `checkMesh` re-run by this survey.
 - **`scrubber`** and a distinct **"blunt body"** beyond the Ahmed have no case on disk in cfd
   territory. They are rowed as absent rather than omitted, because an absent case is a finding.
+
+---
+
+# ADDENDUM 1 — 2026-09-10T~20:50Z, cfd-supervisor. **TWO ROWS ABOVE ARE WRONG. THEY ARE MINE.**
+
+**lines whose number changed above this section: 0.** The rows above are **struck by this addendum,
+not rewritten** — a reader who was given the original must be able to see what changed.
+
+**Both errors have the same shape, and it is the shape that has now caught this lab three times in
+one day: a census that reads tracked paths is structurally blind to data that lives outside git.**
+`/home/ubuntu/certonomous-runs/` is enumerated in `docs/LOCATIONS.md` precisely because nothing is
+invisible merely because it is big — and I still missed it twice.
+
+## C1 — 🔴 **ROW 12 (DrivAer) IS FALSE. THE GEOMETRY EXISTS. `BLOCKED` IS WITHDRAWN.**
+
+Row 12 reads *"0 — no STL on disk"*, verdict *"`BLOCKED` — geometry"*, blocker *"the geometry does not
+exist on this box"*. **All three are wrong.** Verified by the supervisor personally, by opening the
+file rather than by listing a directory:
+
+    /home/ubuntu/certonomous-runs/navier_class/DRIVAER/drivaerml_r7a5c094/run_466/drivaer_466.stl
+    142,346,740 bytes · ASCII STL · first line `solid BodyA-Pillar` · last line `endsolid WheelSupportrear`
+    753,238 facets
+
+Beside it: `force_mom_466.csv`, `force_mom_constref_466.csv`, `geo_parameters_466.csv`,
+`geo_ref_466.csv`. Dataset `neashton/drivaerml`, revision `7a5c0948ce27be709b1116a3a190f806e7a8f79f`,
+CC-BY-SA-4.0; provenance at `cases/navier_class/DRIVAER/DATA_PROVENANCE_drivaerml.md`; grader
+`cases/navier_class/DRIVAER/grade_drivaer.py` committed `c17e03c37`.
+
+**Why the row was wrong:** it looked in `verification/runs/navier_class/DRIVAER/`, which holds one
+`.json`. The geometry lives outside git. **`BLOCKED` was the wrong verdict and I withdraw it.**
+
+| | struck | **corrected** |
+|---|---|---|
+| mesh levels | ~~0 — no STL on disk~~ | 0 built, **but the geometry is present: 753,238-facet STL** |
+| verdict | ~~`BLOCKED` — geometry~~ | **`PENDING`** |
+| blocker | ~~geometry does not exist~~ | **mesh the family, then freeze** |
+
+**This promotes DrivAer materially.** A DrivAer is a full production automotive body with reference
+force and moment data shipped alongside it — **on Sanaa's "more 3D industry cases" axis it outranks
+most of this table**, and its blocker is now ordinary work rather than an absent asset.
+
+## C2 — **ROW 11 (motorbike) — "NO solve log" IS WRONG. THE RULING IS UNCHANGED.**
+
+Verified personally at `mission-output/geometry-study/study-motorBike/log.simpleFoam`:
+**`Exec   : simpleFoam -parallel`**, last **`Time = 300`**, exactly **one `End`**, 353,688 cells,
+`Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)`. **That is a genuine solve log.** The row
+contradicted a finding I had already made myself and then failed to carry into the table.
+
+**The ruling does not move: the motorbike is still not a case under rule 2** — it has **no
+pre-registration**, so nothing about it is gradeable and the existing solve is **not** graded. **Only
+the REASON changes**, and the distinction matters because the two reasons imply different work:
+
+> struck: ~~"no solve log; the trees hold `-postProcess` output only"~~
+> **corrected: "unregistered, and living outside `verification/runs/` — a solve exists but no gate,
+> no band and no freeze were ever committed before it ran."**
+
+The trees the original row cited (`validation-scratch/motorBike`, `.solve-cache/…`) **do** hold only
+`log.yPlus` from `simpleFoam -postProcess` and a bare `DONE`. The real solve is in a third tree the
+row never reached.
+
+## C3 — THE VERIFICATION REFERRAL ON THE CRM'S GRADER — **ANSWERED: FOUND, PINNED, FREEZE-JUDGED**
+
+- Owning record: `verification/campaign/RUNG2_CRM_M2_PREREGISTRATION.md`
+- **Grading artifact: `cases/committee-grids/grade_r2_m2.py` — FOUND**, committed `a2996ed07`
+- **Its name DOES match `grade_*`**, so the name pattern is *not* why the census missed it. The census
+  walked **the run tree**; this grader lives under `cases/`. **That is the population gap
+  `scripts/check_comparator_freeze.py` documents in its own source at lines 58–64** — *"Walking
+  `verification/` alone left eleven graders under `cases/`"*.
+- **It IS pinned and freeze-judged:** on-disk sha256 `7f8089d81f…f9c089` == the pre-registration's
+  pinned sha256, and git blob `b40e7dfd…` == the frozen blob.
+
+**So the answer is reassuring about this case and worrying about the census**: a grader-name walk of
+run trees will keep reporting absent graders that are present, pinned and clean.
+
+## C4 — "PASS ON FOUR GATES" IS A RECORDING ARTIFACT, NOT A MISSING GATE
+
+The CRM pre-registration defines **five** gates; `STATUS.R2_M2` persists **four**.
+`grep -c 'R2M2_G4'` on the status file = **0** (planted control: the same reader on a copy with the
+line appended returns 1). `grade_r2_m2.py` emits `R2M2-G4` only via `print()` on its `--selftest`
+branch and **never writes it to the status file**; the only persisted trace is `selftest_rc=0`,
+written by the driver rather than the grader. Re-derived independently:
+**`R2M2-G4: PASS — 15/15 controls fired`.** **The gate ran and passed; it was never recorded.**
+
+## C5 — A DISTINCT BLUNT BODY DOES EXIST AS A RECORD
+
+`verification/campaign/F4_hypersonic_blunt_body.{md,json}` exists **with no case on disk** — distinct
+from the Ahmed body that row 8 maps "blunt body" onto. Rowed here so the mapping is explicit.
+**`scrubber` remains not found — and "I could not find it" is not "it does not exist"**, which is why
+row 14 says absent rather than nonexistent.
+
+## C6 — THE LEGAL ROUTE TO A PASS ON PRD, NAMED SO NOBODY REACHES FOR THE ILLEGAL ONE
+
+PRD-E1's fine level reproduces the Ergun law to **≤ 0.035 %** against a **±3 %** band at all five
+velocities (supervisor's check-1 read; the ×ρ conversion is load-bearing — the raw kinematic series
+reads 16.8 % low and would look like a GATE FAIL). **The only thing between that and a PASS is the
+plateau limb**, and **loosening `PLATEAU_REL_TOL` or switching to a window-averaged Δp is gaming and
+will not be done** — rule 5 is one-way, and a beautiful value on a level that never settled is
+`NOT A RESULT`.
+
+**The legal route is a SUCCESSOR REGISTRATION**, never a retrofit onto E1: run the §2bc exhaustion
+ladder with the `us1.00_L1` diagnostic as its **L0 diagnose** step; if that shows a genuine
+grid-dependent limit cycle (N-AV15's class, not N-AV17's domain-artifact class), register a successor
+**frozen before its own compute**, disclosing E1's limit cycle on its face and registering a plateau
+criterion **fit for a steady solve that limit-cycles on coarse grids**. **The diagnostic's answer
+decides whether that successor is worth registering at all.**
