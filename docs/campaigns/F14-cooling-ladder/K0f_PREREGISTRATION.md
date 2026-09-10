@@ -1740,3 +1740,174 @@ compared byte-for-byte with the stored quote: **10 entries, 0 mismatches.**
 lab lane. Rule 2 permits this because it alters no cap — it RESTATES one. Rule 6
 governs the mechanics and they were followed: dated, appended at the foot, and the
 lines-changed-0 assertion verified by byte-prefix rather than claimed.**
+
+---
+# DEAD-LEVER DISCLOSURE APPENDIX — 2026-09-10. **DISCLOSURE ONLY. POST-COMPUTE. NO VERDICT CHANGES.**
+
+**THIS APPENDIX EXISTS BECAUSE THIS DOCUMENT SAYS, ON ITS FACE, THAT CLAUSE 7
+OPERATED — AND IT DID NOT.** `AMENDMENT 2` §A2.4 (`:1439-1441`) reads verbatim:
+
+> *"`mark_done_k0f.py` clause 7 refuses a relaunch because `0/` now exists on all
+> ten. THE GUARD IS RIGHT."*
+
+and §A2.6 (`:1492`) records *"clause 7 untouched and deliberately not weakened."*
+
+**Both sentences are true about the code and false about the world.** The
+function they describe is present, correct, and was never reachable from any
+launch path. **Neither sentence is struck and neither is rewritten** (rule 6) —
+they described the guard accurately, and the reasoning in §A2.4 about not
+relaxing a refusal condition to suit the cases is sound and is not disturbed.
+What is added is the fact a future reader needs beside them: **the refusal
+described there was never executed.**
+
+## D.0 RULE 6 COMPLIANCE, VERIFIED RATHER THAN CLAIMED
+
+**lines whose number changed above this section: 0.**
+
+**Verified BYTE-FOR-BYTE IN PYTHON against the `HEAD` blob `6cb2aa4872fcfff1e2b63966d57e25694db252f8`**, by
+asserting `new_bytes[:len(head_bytes)] == head_bytes` over all **102,532** bytes of
+the pre-append file, with the differing-byte count asserted `== 0`. **It was NOT
+verified with `git diff`**, which in this repository reads the permanently stale
+shared index and is not a valid instrument (`ESCALATION_CHARTER.md` §9.6).
+The pre-append disk file was first confirmed byte-identical to its `HEAD` blob,
+so the prefix property is a statement about the committed record and not merely
+about a local file. **This append is pure insertion at the foot: 0 deletions, 0
+modifications, 0 renumbered lines.**
+
+**THIS APPENDIX ALTERS NO GATE, NO THRESHOLD, NO BAND, NO CAP AND NO LABEL, AND
+COULD NOT ALTER ONE**: it registers no test, computes no number, reads no
+artifact and touches no instrument. Standing rule 2 permits it for exactly that
+reason.
+
+## D.1 THE FACT BEING DISCLOSED
+
+**Standing rule 4's CLAUSE 7 — the PRE-launch refusal of a case in which `0` or
+any numeric time directory already exists — was defined in this rung's
+completion instrument and CALLED BY NO LAUNCHER.**
+
+Measured 2026-09-10 by a repository-wide census. Every occurrence of
+`launch_guard` / `--launch-guard` in `scripts/mark_done_k0f.py` is **internal to that file**
+— definition `:160`, argparse `--launch-guard` `:309`, dispatch `:324-331`, selftest `:488-494` — and there is no occurrence anywhere on a launch path.
+
+**`scripts/launch_k0f.sh` carries 0 occurrences of `launch_guard` or
+`--launch-guard`, and 3 occurrences of `mark_done`** (measured 2026-09-10);
+`scripts/launch_k0f_ext1.sh` carries 0 and 1; `scripts/launch_k0f_selftest.sh`,
+`scripts/build_k0f.py`, `scripts/analyse_k0f.py`, `scripts/check_k0f_mesh.py`
+and `scripts/check_k0f_extraction_equivalence.py` carry 0. **The launcher knew
+the instrument and never pulled this lever.**
+
+**The census that measured this carried a positive control before it was
+believed** (`VERIFICATION_CHARTER.md` §2bm): the identical filter, over the
+identical corpus, was first run against a pattern known to be present and was
+required to return non-zero. A zero from a filter not shown able to return
+non-zero on the same corpus is not a measurement. `/usr/bin/grep` was used
+explicitly, because the shell's `grep` on this box is **ugrep**, which rejects
+flags GNU `grep` accepts and whose swallowed usage error prints as an empty
+result (`LESSONS.md` L-386 class).
+
+## D.2 IT WAS **UNCALLABLE**, NOT MERELY UNCALLED — the structural cause, and it EXONERATES the authors
+
+**THIS IS STATED FIRST AND PLAINLY, BECAUSE A DEAD-LEVER FINDING READS LIKE AN
+ACCUSATION OTHERWISE.** `scripts/build_k0f.py` **creates `0/` itself** — `:946` creates the `0` directory and `:984` calls `os.utime` on `0/T` — and
+stages **no `0.orig`** (`0.orig` occurrences in that file: **0**; the
+repaired `scripts/build_k0h.py` carries **34**). So there is no point in the
+sequence at which clause 7 could have been pulled: **invoked AFTER the build it
+would have refused EVERY case of this rung; invoked BEFORE it, there was nothing
+to judge.**
+
+**NOBODY FORGOT TO CALL IT. IT COULD NOT BE CALLED.** No author of this rung's
+instruments is at fault, and no reader should infer carelessness from this
+appendix. The defect is one of *sequencing*, inherited by derivation across the
+whole K0 family, and it was invisible for a specific and instructive reason:
+**the selftest passed throughout, because it drives `launch_guard()` DIRECTLY, as
+a function.** A green control over zero call sites is a pass about the code and
+not about the world — `L-221`/`L-222` in its purest form, *a lesson is not
+applied until every call site asserts it, and here there were none.*
+
+This was ruled by the verification team as **D616** and stands at
+`VERIFICATION_CHARTER.md` v1.82 §2bl; the family-wide census is at
+`docs/DEAD_LEVER_AUDIT.md`, and the repaired exemplar at
+`docs/campaigns/F14-cooling-ladder/K0h_PREREGISTRATION.md` §A1 (`:1355-1420`).
+
+## D.3 WHAT THIS APPENDIX IS **NOT** — no withdrawal, and no allegation against any case
+
+- **NO VERDICT IS WITHDRAWN, MOVED, SOFTENED OR RE-OPENED.** K0f's rung verdict remains **`GATE REACHED`** with **TALLY 0 of
+  10**, every graded row **`NOT A RESULT`**, exactly as the frozen comparator
+  printed it and as `K0f_RESULTS.md` records it. **No band was ever read on this
+  rung**: the ordered gate stopped at limb (1) on all ten rows because no level is
+  iteratively CONVERGED. A verdict that never reached a band cannot be moved by a
+  completion clause, in either direction.
+- **NO CASE IS ALLEGED DIRTY, AND NONE WAS LOOKED FOR.** This appendix reports
+  the state of an instrument, not the state of a run tree. No case directory was
+  inspected for a stray `0/` or a pre-existing time directory, no such stray was
+  found, and none is claimed to exist. A reader who takes this as evidence that
+  anything on disk is contaminated has read it backwards.
+- **NOTHING ABOVE THIS SECTION IS EDITED, STRUCK OR REWRITTEN.** Every line above
+  stands byte-identical (§D.0).
+- **AND THE FORMULATION THAT CARRIES THE WHOLE OF IT, RECORDED VERBATIM:**
+  **An absent check is not a failed check, and it is not a passed one either.**
+  Clause 7 did not fire and did not fail to fire. It was never reached. The
+  honest record of that is a disclosure, which is what this is.
+
+## D.4 WHAT THIS RUNG'S STRAY-WRITE ASSURANCE ACTUALLY RESTS ON
+
+**IT RESTS ON CLAUSE 6 ALONE — THE AGE GUARD, EVALUATED AT GRADING — AND NOT ON
+CLAUSE 7 HAVING BEEN CHECKED.** Clause 6 is a live, executed, separately
+implemented check: it compares each field's mtime at `endTime` against the case's
+own `0/T` and fails the case if the fields are not newer. Across roughly ten
+implementations in this lab clauses 6 and 7 **never share code**; clause 6's
+passing is therefore untouched by clause 7's absence, and nothing in this
+appendix weakens a clause-6 result anywhere.
+
+**And the consequence for this rung is nil, for a reason that is a fact about
+K0f and not a property of this disclosure.** All ten rows were `NOT A RESULT` at
+limb (1) of the ordered gate — the steady-convergence criterion — with the
+largest change of `T` between the `endTime − 4000` and `endTime` checkpoints
+sitting 1 193× to 727 875× the criterion. **Not one number in K0f's verdict was
+read from a band, so not one of them could have been changed by a stray field.**
+
+**ONE BOUNDED OBSERVATION, ASSERTING NO DEFECT AND CHANGING NO VERDICT.** In this
+rung's builder, `0/T` is created and stamped by **the build** rather than by the
+launcher (`:946` creates the `0` directory and `:984` calls `os.utime` on `0/T`). A reader entitled to know what clause 6 dates its
+comparison against should not have to derive that from source, so it is recorded
+here. **It is already on the lab's record** at
+`K0h_PREREGISTRATION.md:1372`, it is **not a new finding**, it **alleges nothing
+about any case on disk**, and it **does not withdraw or qualify any clause-6
+result that has been reported.** It is stated as a fact about the referent, and
+nothing follows from it in this document.
+
+## D.5 WHAT IS **NOT** ORDERED HERE, AND WHY — so the omission is not read as an oversight
+
+**THE BUILDER REPAIR IS EXPLICITLY NOT ORDERED.** Re-sequencing this rung's
+builder to stage `0.orig` and let the launcher arm `0/` would touch an
+instrument that sits on a graded path; on this rung `scripts/launch_k0f.sh` and `scripts/build_k0f.py`
+are pinned by blob in the frozen §7.7 grading-path table (as re-frozen by
+`AMENDMENT 2` §A2.3b), so a re-sequencing would move a pinned grading-path blob
+after compute. And the cost of that
+repair exceeds the risk it retires, because §D.4's assurance does not depend on
+it. **What is owed here is DISCLOSURE, and this appendix is the whole of the
+discharge.** The repair pattern exists and is on the record — `K0h` carries it
+(`build_k0h.py`, 34 `0.orig` occurrences; `launch_k0h.sh`, two clause-7 call
+sites with negative controls) — so a future team that decides the repair IS
+worth taking has a worked exemplar and does not have to invent one.
+
+## D.6 WHAT THIS APPENDIX DID NOT DO — each stated explicitly
+
+- **It altered no gate, no threshold, no band, no cap, no cost basis and no
+  label**, and it could not: it adds no test and computes no number.
+- **It withdrew, re-graded and re-ran nothing.** No comparator was executed, no
+  marker was written or removed, no `DONE.*` or `STATUS.*` file was touched.
+- **It launched nothing. ZERO core-minutes**, solver or otherwise.
+- **It repaired no builder, no launcher and no instrument.** Not one byte of
+  executable code was changed anywhere by this write.
+- **It edited nothing above its own heading**, in this file or any other.
+- **It touched nothing in the navier-class territory.** `cases/navier_class/PRD/mark_done_prd.py`
+  carries the same uncalled definition and is **REFERRED, NOT TOUCHED** — it is
+  not this team's file.
+- **Nothing was sent, filed, uploaded, registered, posted or commented**
+  (standing rule 7). Submissions remain **PARKED**.
+- **No permission setting, `CLAUDE.md` or `.claude/` configuration was touched**
+  (standing rule 9), and no agent message was treated as Sanaa's consent.
+
+*Written by a heat-transfer lane on the heat-transfer supervisor's disclosure
+brief, 2026-09-10. Zero core-minutes. Disclosure only.*
