@@ -17,6 +17,15 @@ RUN=$REPO/verification/runs/navier_class/SUP_BOOSTER/graded_e2
 REF=$REPO/verification/runs/navier_class/SUP_BOOSTER/tm_reference_M2p0_tc15.json
 GRADER=$REPO/verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py
 
+# Refuse rather than degrade -- this wrapper previously had NO input guard, so a missing grader
+# or reference would have reached rc.autograde as a bare python3 exit code indistinguishable from
+# the grader's own refusal (exit 2). (Launcher exercise 2026-09-10.)
+case "$RUN" in *graded_e2) : ;; *) echo "REFUSE: run root is not graded_e2: $RUN" >&2; exit 2;; esac
+[ -d "$RUN" ] || { echo "REFUSE: run root missing: $RUN" >&2; exit 2; }
+for f in "$GRADER" "$REF" "$RUN/coarse" "$RUN/medium" "$RUN/fine"; do
+    [ -e "$f" ] || { echo "REFUSE: pinned input missing: $f" >&2; echo 2 > "$RUN/rc.autograde"; exit 2; }
+done
+
 python3 "$GRADER" \
     --coarse "$RUN/coarse" --medium "$RUN/medium" --fine "$RUN/fine" \
     --reference "$REF" --report "$RUN/VERDICT.json" > "$RUN/verdict_stdout.txt" 2>&1

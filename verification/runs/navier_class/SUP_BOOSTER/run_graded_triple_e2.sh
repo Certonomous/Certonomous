@@ -8,6 +8,8 @@
 #     autograder, grade_sup_booster_e2.py;
 #   * writes ONLY under the registered E2 run root `graded_e2/`; E1's root appears in this
 #     file only in these comment lines and is assigned to no variable and passed to no command;
+#   * REMOVES NOTHING -- unlike E1's launcher it has no `rm`; a non-pristine level dir is a
+#     REFUSAL (exit 2), not something to clear;
 #   * carries SUP_BOOSTER_E2_PREREGISTRATION.md section 5's cap of **60 core-min**, not E1's 90.
 #
 # Runs the coarse/medium/fine Taylor-Maccoll cone triple SEQUENTIALLY (1 rank each: good
@@ -51,7 +53,28 @@ declare -A TMO=( [coarse]=800 [medium]=1200 [fine]=1600 )
 T0=$(date +%s)
 for lvl in coarse medium fine; do
     d="$RUN/$lvl"
-    rm -rf "$d"; mkdir -p "$d"
+    # RULE-4 AGE GUARD, refusal form. A level dir that already exists and is NOT EMPTY is
+    # somebody's evidence -- a pre-staged `0`, a numeric time dir or an rc sidecar would make the
+    # age guard date the run to the wrong launch. REFUSE (exit 2); never clear. NOTHING in this
+    # script removes anything: there is no rm anywhere below this line.
+    # (Measured 2026-09-10, launcher exercise on a throwaway copy: the previous `rm -rf "$d"`
+    #  silently destroyed a pre-staged 0/, 30/ and rc.solve and exited 0.)
+    if [ -e "$d" ]; then
+        dirty=""
+        for t in "$d"/[0-9]*; do   # covers `0` and every numeric time dir
+            [ -d "$t" ] || continue
+            dirty="$dirty $(basename "$t")/"
+        done
+        for s in rc.gen rc.blockMesh rc.solve rc.wrapper STATUS wall_s CAP_STOP.txt; do
+            [ -e "$d/$s" ] && dirty="$dirty $s"
+        done
+        if [ -n "$(ls -A "$d" 2>/dev/null)" ]; then
+            echo "REFUSE: level dir not pristine (rule-4 age guard), refusing rather than clearing: $d" >&2
+            [ -n "$dirty" ] && echo "REFUSE: evidence present:$dirty" >&2
+            exit 2
+        fi
+    fi
+    mkdir -p "$d"
     cp -r "$CASE/system" "$CASE/constant" "$d/"
     python3 "$GEN" --level "$lvl" --out "$d/system/blockMeshDict" 2>"$d/log.gen"
     echo $? > "$d/rc.gen"
