@@ -565,3 +565,78 @@ answer-blind, scratch-only act that reads no `LR`.
 - It does not assert which outcome lands; §10 names them all, including the fork.
 - Nothing here is sent anywhere. Submissions are parked; the manual is proprietary Ansys
   documentation held for this lab's private use (rules 7 and 8).
+
+---
+
+## AMENDMENT — v1.1, 2026-09-10 — **§2b DISCLOSURE OF THE PRE-FIRST-COMPUTE LAUNCHER AMENDMENT `cd84979f`, RECORDED IN THIS DOCUMENT RATHER THAN ONLY IN A COMMIT MESSAGE**
+
+**Lines whose number changed above this section: 0.**
+
+Appended by `ansys-verification-supervisor` at the **FOOT** of the frozen document, as
+a dated amendment. **Nothing above this line is edited, struck, renumbered or
+rewritten** (CLAUDE.md rule 6). This amendment **alters no gate, no threshold, no band,
+no cap, no ceiling, no label, no domain ladder and no self-convergence tolerance**, and
+under §2 of this document it could not: after first compute those are closed, and this
+records a change made **before** it.
+
+### Why this amendment exists — a defect found by the verification team's audit, and it is mine
+
+The verification supervisor's **§31 / D591 audit of this freeze returned `PASS`** on
+order and on pins: freeze `175893cd` at 2026-09-09T20:46:56Z against a run start of
+21:26:59Z — **clean by 40 min 03 s**, read from `LAUNCH_RECORD.txt:1` and `D0/0/` mtime
+rather than from `ps` — and **all four frozen-path blobs byte-identical to HEAD**.
+
+**The defect it named, and which I accept in full:** the launcher
+`run_vmfl063_r3.sh`, which sits **inside the §11 frozen grading path**, was modified
+**69 s before the run** by commit **`cd84979f`** (2026-09-09T21:25:50Z), and **this
+pre-registration carried zero `AMENDMENT` or `ADDENDUM` headings — the disclosure
+existed only in a commit message.**
+
+> **§2b's SUBSTANCE was met; rule 6's LOCATION was not.** The change was legal,
+> pre-first-compute, off-gate and disclosed — but it was disclosed *somewhere a reader
+> of this document would never look*. A frozen document that does not carry its own
+> amendments is not self-describing, and the next reader would have had to reconstruct
+> the grading path from `git log` to discover that the launcher had moved. That is the
+> gap this amendment closes.
+
+### What `cd84979f` actually changed, stated so no reader must go to git for it
+
+Two **LAUNCHER PLUMBING** repairs, both **pre-first-compute**, neither touching the
+comparator, the gate or any case input:
+
+1. **`set +u` wrap around the OpenFOAM `source`.** The driver ran `set -u` (line 23)
+   across `source /usr/lib/openfoam/openfoam2606/etc/bashrc` (line 87), and the
+   OpenFOAM bashrc dereferences `WM_PROJECT_DIR` while unset → the launcher aborted
+   with `launcher_rc=1` **before any solve**. The proven R8 driver runs with no `set -u`
+   at all for exactly this reason. Fixed by disabling nounset **only** across the
+   `source`, then restoring it.
+2. **`chmod +x` on the comparator.** Line 78 direct-execs `"$GRADER" --verify-frozen`
+   but the `.py` was mode 644 → `rc126`. The file's **content blob is UNCHANGED**
+   (`2769e2aa`); the mode change is invisible to git under this repo's
+   `core.fileMode=false`, which is precisely why it warrants stating here in words.
+
+**Both aborts occurred at setup with ZERO compute**, and their result-free run root was
+removed before the third and successful launch.
+
+### The pins, restated as of this amendment
+
+Comparator `grade_vmfl063_r3.py` **`2769e2aa`**; carried R2 gate comparator
+`grade_vmfl063_r2.py` **`5d94fecb`**; launcher after `cd84979f` **`e390f41e`**. The
+supervisor re-verified all 15 frozen files disk-vs-committed at 2026-09-10T03:4xZ:
+**15/15 identical.**
+
+### What is NAMED and NOT waved through
+
+The audit recorded, and this amendment repeats rather than buries, that **whether the
+two aborted attempts (21:00:46Z, 21:09:52Z) reached a solver iteration is UNKNOWABLE**:
+the aborted run root was removed, so **the pre-`simpleFoam` abort is a CLAIM, not an
+artifact.** No verdict rests on it — the graded run is the third launch, whose own root
+is intact — but the claim is not evidence and is not presented as any.
+
+| amendment | v1.1 |
+|---|---|
+| disclosed | `cd84979f` — launcher `set +u` wrap + comparator `chmod +x`, pre-first-compute |
+| gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · ceilings | **0 moved** |
+| comparator / gate bytes | **UNCHANGED** (`2769e2aa`, `5d94fecb`) |
+| re-grades | **0** · register rows touched | **0** |
+| lines whose number changed above this section | **0** |
