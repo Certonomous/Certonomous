@@ -160,6 +160,17 @@ REGISTERED_LEVELS = (
 LEVELS = LEGACY_LEVELS + REGISTERED_LEVELS
 LEVELS_D = dict(LEVELS)
 
+# ---------------------------------------------------------------------------
+# THE REGISTERED GRADED SOLVER LENGTH.
+# SUBOFF_R1_PREREGISTRATION.md section 5a, registered 2026-09-10 BEFORE any compute:
+# endTime 2500 SIMPLE iterations, deltaT 1, HARD stop, no residualControl, one field
+# write at endTime.  50 was the SMOKE default and is NOT a graded length -- a graded
+# run at 50 returns NOT_CONVERGED from grade_suboff.read_iterative_state and makes the
+# whole triple NOT A RESULT by truncation.  This is the default for --endtime so that a
+# REBUILT level carries the registered length rather than silently reinheriting 50; the
+# section 6 exercise smoke passes --endtime explicitly.
+ENDTIME_REGISTERED = 2500.0
+
 NONORTHO_MAX = 70.0
 SKEWNESS_MAX = 4.0
 OPENFOAM_BASHRC = "/usr/lib/openfoam/openfoam2606/etc/bashrc"
@@ -733,15 +744,101 @@ def repin_aref(case_dir):
                 aref_pinned=AREF_SECTOR_PINNED_M2)
 
 
+def set_registered_endtime(case_dir):
+    """Rewrite ONLY the `endTime` and `writeInterval` entries of an ALREADY-BUILT case's
+    system/controlDict to the registered graded length (section 5a), so a level built
+    with the smoke default 50 is brought onto the registered length WITHOUT rebuilding
+    (which would destroy that level's checkMesh log and birth certificate).  Refuses on a
+    case that has been launched -- a run's registered length is not retro-edited.
+    Touches nothing else: no field, no mesh, no forceCoeffs entry, no deltaT.
+
+    Every refusal here is an explicit `if ...: refuse(...)`, never an `assert`: under
+    `python3 -O` an assert is deleted and the guard becomes an offer (L-332)."""
+    cd = os.path.join(case_dir, "system", "controlDict")
+    if not os.path.isfile(cd):
+        refuse("no system/controlDict in %s" % case_dir)
+    if not os.path.isdir(case_dir):
+        refuse("%s is not a directory" % case_dir)
+    for d in os.listdir(case_dir):
+        if re.fullmatch(r"[0-9]+(\.[0-9]*)?([eE][+-]?[0-9]+)?", d) and os.path.isdir(
+                os.path.join(case_dir, d)):
+            refuse("%s holds numeric time dir %r -- refusing to re-register the length "
+                   "of a LAUNCHED case" % (case_dir, d))
+    if os.path.exists(os.path.join(case_dir, "rc")):
+        refuse("%s holds an rc sidecar -- refusing to re-register the length of a "
+               "LAUNCHED case" % case_dir)
+    if os.path.exists(os.path.join(case_dir, "log.simpleFoam")):
+        refuse("%s holds log.simpleFoam -- refusing to re-register the length of a "
+               "LAUNCHED case" % case_dir)
+    txt = _read(cd)
+    want = int(ENDTIME_REGISTERED)
+    m_dt = re.search(r"^\s*deltaT\s+([0-9.eE+\-]+)\s*;\s*$", txt, re.M)
+    if not m_dt:
+        refuse("no `deltaT <value>;` line in %s" % cd)
+    if abs(float(m_dt.group(1)) - 1.0) > 1e-12:
+        refuse("%s has deltaT=%s, not the registered unit step 1 -- rule-4 clause 5 "
+               "(ExecutionTime count == round(endTime/deltaT)) is written for deltaT=1"
+               % (cd, m_dt.group(1)))
+    if re.search(r"residualControl", _read(os.path.join(case_dir, "system", "fvSolution"))
+                 if os.path.isfile(os.path.join(case_dir, "system", "fvSolution")) else ""):
+        refuse("%s/system/fvSolution contains residualControl -- section 5 requires a "
+               "HARD stop with NO early exit, else `last == endTime` is unreachable"
+               % case_dir)
+    before = {}
+    for key in ("endTime", "writeInterval"):
+        # writeInterval also appears INSIDE the functions{} block (the forceCoeffs
+        # object writes every timestep).  Anchor on the TOP-LEVEL entry only: the
+        # function-object one is indented 8 spaces, the controlDict one is at column 0.
+        m = re.search(r"^(%s\s+)([0-9.eE+\-]+)(;\s*)$" % key, txt, re.M)
+        if not m:
+            refuse("no top-level `%s <value>;` line at column 0 in %s" % (key, cd))
+        before[key] = float(m.group(2))
+        txt = txt[:m.start()] + ("%s%d%s" % (m.group(1), want, m.group(3))) + txt[m.end():]
+    open(cd, "w").write(txt)
+    back = _read(cd)
+    after = {}
+    for key in ("endTime", "writeInterval"):
+        m = re.search(r"^%s\s+([0-9.eE+\-]+);" % key, back, re.M)
+        if not m:
+            refuse("read-back of %s lost the top-level `%s` entry" % (cd, key))
+        after[key] = float(m.group(1))
+        if abs(after[key] - ENDTIME_REGISTERED) > 1e-9 * ENDTIME_REGISTERED:
+            refuse("read-back of %s gave %s=%r, not the registered %r"
+                   % (cd, key, after[key], ENDTIME_REGISTERED))
+    # the function-object writeInterval (indented) must be UNTOUCHED at 1
+    m_fo = re.search(r"^\s+writeInterval\s+([0-9.eE+\-]+);", back, re.M)
+    if not m_fo:
+        refuse("read-back of %s lost the forceCoeffs function-object writeInterval" % cd)
+    if abs(float(m_fo.group(1)) - 1.0) > 1e-12:
+        refuse("forceCoeffs function-object writeInterval in %s is %s, not 1 -- the "
+               "grader's CT plateau test reads consecutive coefficient.dat rows"
+               % (cd, m_fo.group(1)))
+    return dict(case=os.path.abspath(case_dir), before=before, after=after,
+                registered=ENDTIME_REGISTERED, fo_writeinterval=float(m_fo.group(1)))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--level", choices=[n for n, _ in LEVELS])
     ap.add_argument("--dir", required=True)
-    ap.add_argument("--endtime", type=float, default=50.0, help="controlDict endTime (iters, deltaT=1)")
+    ap.add_argument("--endtime", type=float, default=ENDTIME_REGISTERED,
+                    help="controlDict endTime (iters, deltaT=1); default is the "
+                         "section-5a REGISTERED graded length, not the smoke default")
     ap.add_argument("--mesh", action="store_true", help="run blockMesh + checkMesh and enforce gates")
     ap.add_argument("--repin-aref", action="store_true", dest="repin_aref",
                     help="rewrite ONLY forceCoeffs Aref of an already-built --dir to the pin")
+    ap.add_argument("--set-endtime", action="store_true", dest="set_endtime",
+                    help="rewrite ONLY top-level endTime and writeInterval of an "
+                         "already-built --dir to the section-5a registered length")
     a = ap.parse_args(argv)
+    if a.set_endtime:
+        r = set_registered_endtime(a.dir)
+        print("SET endTime/writeInterval in %s: endTime %g -> %g, writeInterval %g -> %g "
+              "(registered %g; forceCoeffs writeInterval untouched at %g)"
+              % (r["case"], r["before"]["endTime"], r["after"]["endTime"],
+                 r["before"]["writeInterval"], r["after"]["writeInterval"],
+                 r["registered"], r["fo_writeinterval"]))
+        return 0
     if a.repin_aref:
         r = repin_aref(a.dir)
         print("REPINNED Aref in %s: %.10g -> %.10g (pin %.10g)"

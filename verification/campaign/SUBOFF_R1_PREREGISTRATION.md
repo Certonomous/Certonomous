@@ -131,6 +131,40 @@ to that reference — it does NOT apply to this towing-tank drag gate.
 **GCI.** Celik 2008 `Fs = 1.25`, computed by the shared instrument
 `scripts/roache_triple.py`; never quoted for a non-monotone triple.
 
+### 4a. THE THREE REGISTERED GRADED RUN ROOTS (pre-compute registration, 2026-09-10)
+
+§4 named only the parent `verification/runs/navier_class/SUBOFF/`. **The graded triple
+runs in exactly these three directories, coarse → fine, and in no others.** A number
+taken from any other directory under that parent is not a graded R1 number.
+
+| level | registered run root | cells (`checkMesh`, MEASURED) | maxNonOrtho (≤70) | maxSkew (≤4) | `checkMesh` |
+|---|---|---|---|---|---|
+| coarse | `verification/runs/navier_class/SUBOFF/reg_coarse` | 39,904 | 57.4051 | 1.6538 | Mesh OK |
+| medium | `verification/runs/navier_class/SUBOFF/reg_medium` | 89,784 | 63.6022 | 1.9002 | Mesh OK |
+| fine   | `verification/runs/navier_class/SUBOFF/reg_fine`   | 202,014 | 68.7055 | 2.1226 | Mesh OK |
+
+Cell-count nesting is exactly 2.25× per level (89,784/39,904 = 2.25; 202,014/89,784 =
+2.25), i.e. a per-direction refinement of 1.5 for the `dim = 2` wedge; radial resolution
+is 344 → 516 → 774 and axial 116 → 174 → 261. The §4 admission gates are cleared at all
+three levels by the lines above, each read back from that level's own `MESH_LINE.txt`
+beside its `birth_certificate.json`.
+
+**NOT graded, and named here so nobody grades a sibling by accident:**
+`smoke_coarse` (the §6 exercise smoke, a 7,600-cell wedge, already run, `Cd`
+sanity-only), `mesh_medium` and `mesh_fine` (superseded mesh-only builds), and
+`diag_medium_wp16` (a wall-treatment diagnostic). None of these is an R1 level.
+
+**PRE-COMPUTE CONDITION, and how it was checked (rule 2).** Checked 2026-09-10T04:33Z by
+a cfd lab-lane, directly on disk, per directory: `reg_coarse`, `reg_medium` and
+`reg_fine` each hold **no `0/`**, **no numeric time directory** (`find -maxdepth 1 -type
+d -regex '.*/[0-9]+(\.[0-9]*)?'` returns zero rows in each), **no `rc` sidecar**, **no
+`log.simpleFoam`** and **no `postProcessing/`**. The directories that do not exist are
+therefore `reg_coarse/0`, `reg_medium/0`, `reg_fine/0` and any `reg_*/<time>`; **no
+compute has run for this rung**, so §4a and §5a below are legal pre-compute
+registrations and not post-hoc addenda. Each holds only `0.orig/`, `constant/`,
+`system/`, `birth_certificate.json`, `MESH_LINE.txt`, `AREF_PIN.txt`, `log.blockMesh`,
+`log.checkMesh` and the build stdout/stderr.
+
 ---
 
 ## 5. THE GRADER — `cases/navier_class/SUBOFF/grade_suboff.py`
@@ -184,6 +218,150 @@ Diff-read is the supervisor's check-1. Built-in non-negotiables:
 
 Selftest (`--selftest`) confirmed green by this lane: CONVERGING-in-band → PASS,
 OSCILLATORY → NOT A RESULT, not-plateaued → NOT A RESULT, missing control → refuse.
+
+### 5a. THE REGISTERED SOLVER LENGTH — `endTime`, and why this number (pre-compute registration, 2026-09-10)
+
+§5's last bullet **requires** a fixed iteration count with `deltaT = 1` as a hard stop
+and no `residualControl` early-exit, but **never stated the number**. That is a rule-2
+trap: the three built levels carried the builder's smoke default `endTime 50`, which is
+not a graded length, and a graded run at 50 SIMPLE iterations would return
+`NOT_CONVERGED` from `read_iterative_state` and make the whole triple **NOT A RESULT**
+before the triple was read — a truncation artifact wearing a verdict's clothes. The
+number is registered here, **before any compute**, on a basis that is stated in advance
+and contains no residual reading.
+
+**REGISTERED, for all three levels of §4a, and one-way:**
+
+```
+endTime         2500;   // SIMPLE iterations; HARD stop
+deltaT          1;      // unit step, so rule-4 clause 5 reads ExecutionTime count == 2500
+writeInterval   2500;   // one field write, at endTime
+purgeWrite      0;
+```
+
+`system/fvSolution` at every level **omits `residualControl`** (confirmed on disk at all
+three levels, 2026-09-10), so no early exit can make `last < endTime`.
+
+**HOW 2500 WAS CHOSEN — the basis, stated in advance, and what is NOT in it.** It was
+**not** chosen by running the case and reading where the residuals flattened; no graded
+solve has run and none was run to pick this number (rule 2). The basis is four things
+that all existed before it:
+
+1. **The registered cap binds it from above.** §7's frozen 150 core-minute cap covers
+   the triple + the §6 smoke + one rerun allowance. At the rate registered below and
+   with one **fine-level** rerun (the most expensive single level) held in reserve, the
+   cap admits at most `N = 2892`. With no rerun reserved the cap would admit 4653, and
+   with a whole-triple rerun reserved only 2327; the fine-level reading is the one
+   registered, and 2500 sits under its bound with 13.5% of the cap unspent.
+2. **Lab precedent for this exact solver pattern.** `MRF_R1_PREREGISTRATION.md`
+   registered **4000** fixed iterations, hard stop, no `residualControl`, for a steady
+   segregated-SIMPLE incompressible RANS case that is strictly *harder* to converge than
+   this one (rotating frame, blade–baffle interaction, trailing vortices).
+   `W1_HUMP_CHALLENGE_PREREGISTRATION.md` registered a **5000** cap for a *separating*
+   hump. SUBOFF R1 is a fully attached, zero-incidence, axisymmetric turbulent boundary
+   layer — the easiest steady-RANS convergence class in this ladder — so a number of the
+   same order but **below** MRF's is the precedent-consistent choice, not a novel one.
+3. **The lab's nearest measured convergence count, on a harder case.** F6a's kOmegaSST
+   `simpleFoam` leg printed *"SIMPLE solution converged in 1772 iterations"*
+   (`verification/campaign/F6a_epistemic_band.md:254`, checked 2026-07-29) on a
+   51,626-cell separating-hump mesh against `endTime 2000`. 2500 is **1.41×** that count
+   on a case with no separation. This is a *precedent from another case's record*, not a
+   residual reading from this one.
+4. **The grader's own test decides convergence, not this number.** `endTime` is a HARD
+   STOP; `read_iterative_state` judges convergence at that stop against `RES_TOL = 1e-4`
+   on the final **Initial** residuals of `p Ux Uy k omega`, and `CT` plateau is measured
+   separately (`PLATEAU_TOL_REL = 5e-3`). 2500 is therefore sized to be *generous enough
+   that a `NOT_CONVERGED` is a finding rather than a truncation*, not sized to be the
+   convergence point.
+
+**NAMED RISK, recorded in advance so it is reported as a result if it happens.** The
+per-direction refinement between levels is 1.5, and the outer-iteration count a
+segregated SIMPLE solve needs to reach a fixed residual scales roughly with linear cell
+count [INFERRED, standard segregated-solver behaviour — not measured on this case]. The
+**fine** level (774 radial × 261 axial) is therefore the level most at risk of not
+reaching `RES_TOL` by 2500. If the fine level returns `NOT_CONVERGED` at 2500 with
+residuals still falling monotonically, that outcome is **NOT A RESULT** and is reported
+as a **truncation finding** — the honest response is a re-registered successor rung with
+a larger cap and its own pre-registration, **never a quiet extension of this `endTime`
+after seeing the residuals**. The opposite outcome — residuals stalled above `RES_TOL`
+on a flat plateau — is a numerics/model finding and is likewise reported, not fixed by
+adding iterations.
+
+**CONSIDERED AND REJECTED: a per-level `endTime` scaled by the 1.5 refinement ratio**
+(e.g. 1600 / 2400 / 3600). The grader reads `endTime` per case so it would work
+mechanically, and it equalises convergence state rather than iteration count. It is
+rejected because it does not fit the §7 cap with a rerun reserved (97.6 core-min for the
+triple + 70.5 for a fine rerun = 168 > 150), and because it introduces a degree of
+freedom the uniform MRF_R1 precedent does not have. Recorded so the choice is visible,
+not silent.
+
+**RANKS: 1 (serial), per level.** These are ~40k–202k-cell axisymmetric wedges; a 16-way
+decomposition would leave ~2.5k cells per rank and be communication-bound, and
+core-minutes = wall-s × ranks, so serial is the *cheapest* option in the lab's own unit.
+No level has a `decomposeParDict` and none is registered. The three levels may run
+concurrently (3 cores total) to compress wall time; that does not change core-minutes.
+
+**COST — MEASURED-ANCHORED RATE, and exactly what is being borrowed.**
+
+The rate is **NOT borrowed from M6.** `M6SR_PREREGISTRATION.md:462` registers
+**3.40e-8 core-min/cell/iteration**, measured on an ONERA M6 **`rhoSimpleFoam`**
+(compressible) run — a different solver, and this registration does not rest on it. A
+**SUBOFF-specific rate** is available on disk instead and is used:
+
+> `verification/runs/navier_class/SUBOFF/smoke_coarse` — the §6 exercise smoke, already
+> run, `rc=0`, 7,600 cells, `Time = 1 → 50`, 50 `ExecutionTime` lines, last line
+> `ExecutionTime = 2.21 s`, serial (no `processor*` directories). Its `system/fvSolution`
+> and `system/fvSchemes` are **byte-identical** (`diff` clean, 2026-09-10) to those of
+> all three §4a levels, so the rate transfers within one solver configuration.
+>
+> **Rate = 2.21 s × 1 rank ÷ 60 ÷ (7,600 cells × 50 iterations) = 9.693e-8
+> core-min/cell/iteration.** MEASURED on this case family and this exact solver config;
+> the derived-not-measured label applies to the *dollars*, not to this rate.
+
+**This rate is a deliberate upper bound and the confidence cost is stated.** It is
+2.85× the M6 figure, because a 7,600-cell serial run pays per-iteration fixed costs
+(GAMG setup, the `forceCoeffs` function object writing `coefficient.dat` every
+iteration, I/O and bookkeeping) over very few cells; per-cell cost normally **falls** as
+the mesh grows through this range [INFERRED]. Using it therefore over-estimates the
+graded triple, which is the safe direction against a cap whose overrun stops the run.
+At the M6 rate the triple would cost 28.2 core-min instead of 80.4 — the spread between
+the two rates is the honest width of this estimate.
+
+| item | cells | iterations | ranks | est. core-min | per-level sub-cap |
+|---|---|---|---|---|---|
+| coarse `reg_coarse` | 39,904 | 2500 | 1 | **9.67** | 15 |
+| medium `reg_medium` | 89,784 | 2500 | 1 | **21.76** | 33 |
+| fine `reg_fine` | 202,014 | 2500 | 1 | **48.95** | 74 |
+| **graded triple** | | | | **80.38** | |
+| §6 exercise smoke (coarse mesh, ≤100 it) | 39,904 | 100 | 1 | **0.39** | 2 |
+| one rerun allowance (= one FINE level) | 202,014 | 2500 | 1 | **48.95** | 74 |
+| **TOTAL against the §7 cap** | | | | **129.72** | **cap 150 (unchanged)** |
+
+Headroom **20.28 core-min (13.5%)**. Derived dollars at the recorded c7a.4xlarge rate
+$0.0513/core-h: 129.72/60 × 0.0513 = **$0.111 — DERIVED, NOT MEASURED** (the box cannot
+read its own billing, `COMPUTE_BUDGET_CHARTER.md` §5). **§7's 150 core-minute cap is
+unchanged and is the binding total**; the per-level sub-caps above are 1.5× the estimate,
+rounded up, and are stop-that-level figures in the MRF_R1 pattern — they may individually
+sum above the total, and **the total is what stops the rung. An overrun stops the run; it
+does not get a new budget.** "One rerun allowance" is registered here as **one rerun of
+the fine level**, not a second triple.
+
+**Launcher wall timeouts derive from these sub-caps, shown as arithmetic:**
+`wall_s = sub_cap_core_min × 60 ÷ ranks`, ranks = 1 ⇒ coarse `15 × 60 = 900 s`,
+medium `33 × 60 = 1980 s`, fine `74 × 60 = 4440 s`.
+
+**PRE-COMPUTE CONDITION for §5a, and how it was checked (rule 2).** Same check as §4a,
+same timestamp: none of `reg_coarse`, `reg_medium`, `reg_fine` holds a `0/`, a numeric
+time directory, an `rc` sidecar or a `log.simpleFoam`. The run directories that do not
+exist are `reg_coarse/0`, `reg_medium/0`, `reg_fine/0`. **No gate, band, threshold,
+reference value, `Aref` or cap is altered by §4a or §5a**; they register a length, three
+directory names and a cost that §5 and §7 required and did not state.
+
+**Applied to disk 2026-09-10 by `build_suboff.py --set-endtime --dir <level>`**, which
+rewrites ONLY the `endTime` and `writeInterval` entries of an already-built
+`system/controlDict` and **refuses** on a case holding a numeric time directory or an
+`rc` sidecar — the same surgical, no-rebuild path as `--repin-aref`, chosen because a
+rebuild would destroy each level's `checkMesh` log and birth certificate.
 
 ---
 
