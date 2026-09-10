@@ -901,3 +901,242 @@ narrate. Anything relayed that was not read from a file carries **VERIFY**.
 compute spent is the geometry gate's 0.05 core-min, measured. Nothing here has
 been sent, filed, uploaded or registered anywhere outside this box
 (`CLAUDE.md` rule 7).*
+
+---
+
+## 13. AMENDMENT 1 — 2026-09-10, PRE-FIRST-COMPUTE: THE GRID TRIPLE IS RE-REGISTERED DOWNWARD
+
+**STATUS: this document is STILL NOT FROZEN.** This amendment is taken under
+`CLAUDE.md` rule 2's pre-first-compute clause — *"Before first compute,
+amendments are legal and must state the condition and how it was checked (name
+the run directory that does not exist)"* — and it is legal NOW precisely
+because it is legal only now.
+
+### 13.1 THE CONDITION, AND HOW IT WAS CHECKED — under a LIVE PLANTED CONTROL
+
+**THE CONDITION:** *no compute has run under any T26 registration.*
+
+| directory | required | MEASURED 2026-09-10, this invocation |
+|---|---|---|
+| `verification/runs/T-family/T26_runs/` | ABSENT | **ABSENT** |
+| `verification/runs/T-family/T26_MESH_runs/` | ABSENT | **ABSENT** |
+| `verification/runs/F14-cooling-ladder/T26*` | ABSENT | **ABSENT** |
+
+**THE PLANTED CONTROL (rule 3), because three absences from a reader never
+shown able to see a presence are not evidence:** the IDENTICAL predicate was
+run against `verification/runs/T-family/T23_runs/`, which **DOES** exist, and
+returned **PRESENT**; and against `verification/runs/T-family/T99_nonexistent`,
+which does not, returning **ABSENT**. Both arms fired correctly, so the three
+absences above are statements about the disk.
+
+**TO BE RE-TAKEN IN THE COMMITTING INVOCATION** (§12 item 3), in the same shell
+invocation as the freeze write. Zero solver compute has been spent on T26; the
+only compute on this rung remains the geometry gate's 0.05 core-min.
+
+### 13.2 WHY — A MEASUREMENT, NOT A PREFERENCE
+
+**THE REGISTERED L3 OF §3.4 CANNOT RUN ON THIS BOX.** Measured 2026-09-10 from
+`/proc/<pid>/status` `VmHWM` (peak RSS, not current RSS) on two live solvers on
+this machine, with cell counts read from each case's own `log.checkMesh`:
+
+| anchor | cells | VmHWM | B/cell incl. fixed |
+|---|---:|---:|---:|
+| `T4e_IJ_m`, `buoyantBoussinesqSimpleFoam`, 1 rank | 34,560 | 161.8 MiB | 4,910 |
+| `T4e_IJ_f`, `buoyantBoussinesqSimpleFoam`, 1 rank | 138,240 | 446.3 MiB | 3,385 |
+
+Two-point fit, same solver, same box, same build, same day:
+**marginal 2,877 B/cell; per-rank fixed 67.04 MiB.**
+
+**THE FIT IS OPTIMISTIC AND THE MARGIN IS DISCLOSED, NOT ABSORBED.** Checked
+against a third, independent case — `VMFL017-R3/L3`, `rhoCentralFoam`, 368,640
+cells, VmHWM 1,184.3 MiB — the fit predicts 1,078.3 MiB and so
+**UNDER-PREDICTS BY 9 %.** Every figure below is therefore a **FLOOR**.
+
+**A SECOND, UNQUANTIFIED MULTIPLIER IS NAMED RATHER THAN GUESSED.** The anchors
+are SINGLE-REGION incompressible solvers. T26 runs `chtMultiRegionSimpleFoam`
+over **four** regions, each carrying its own mesh, fields and interface maps.
+That multiplier **μ > 1 is UNMEASURED in this territory** — no
+`chtMultiRegionSimpleFoam` peak-RSS anchor exists on this box — and this
+amendment does not invent one. **μ MUST be measured at the smoke and reported
+in the calibration row** (§7.4), alongside η and the snappy rate.
+
+| level | cells | ranks | FLOOR | μ that exhausts 22 GiB |
+|---|---:|---:|---:|---:|
+| §3.4 L3 | 10,086,491 | 16 | **28.07 GiB** | **0.78 — it does not fit even at μ = 1** |
+| §3.4 L2 | 2,988,590 | 16 | 9.06 GiB | 2.43 |
+| §3.4 L1 | 885,508 | 8 | 2.90 GiB | 7.6 |
+
+`MemAvailable` measured **27.21 GiB at 19:12Z** and **22 GiB at 19:42Z** on a
+box of 30.64 GiB total. **It moves**, so a ladder sized to the instantaneous
+figure is not a ladder; the amended top level is chosen to tolerate μ ≥ 2.4.
+
+> **A triple whose top level cannot run is not a triple.** Sanaa, 2026-09-10
+> ~19:45Z: *"we want to have all these complicated cases run and complete, and
+> wit their mes convergence ASAAAP."* Mesh convergence means a three-level
+> CONVERGING Roache triple with a GCI. §3.4's ladder cannot deliver one on this
+> hardware, and no amount of waiting changes that.
+
+### 13.3 THE AMENDMENT — §3.4's CELL COUNTS ARE STRUCK AND REPLACED
+
+**STRUCK** (recorded verbatim so the original stands and the strike is visible;
+`CLAUDE.md` rule 2: *"Originals are struck, never rewritten"*):
+
+> ~~L1 **885,508** — L2 **2,988,590** — L3 **10,086,491**~~
+> ~~endTime **8,000 / 12,000 / 16,000**; ranks 8 / 16 / 16~~
+
+**REGISTERED IN THEIR PLACE:**
+
+| | L1 | L2 | L3 |
+|---|---:|---:|---:|
+| **cells** | **262,373** | **885,508** | **2,988,590** |
+| **N ratio** | — | **3.375** | **3.375** |
+| **h ratio = N^(1/3)** | — | **1.500** | **1.500** |
+| **endTime** | **4,000** | **8,000** | **12,000** |
+| **ranks** | **4** | **8** | **16** |
+| memory FLOOR | 0.96 GiB | 2.90 GiB | **9.06 GiB** |
+
+**THE LADDER IS SHIFTED DOWN EXACTLY ONE RUNG. NOTHING ELSE CHANGES.**
+`r = 1.500` at both steps, `N = 3.375 = 1.5³`, so the 3D refinement signature
+of §13.5 is preserved exactly. **Two of the three counts — 885,508 and
+2,988,590 — are the §3.4 counts unchanged**, already derived by the open
+arithmetic of §3.5 and already gate-checked, so this amendment introduces
+exactly ONE new count.
+
+**262,373 is DERIVED, not chosen:** 885,508 / 3.375 = 262,372.7 → **262,373**.
+
+**endTime is attached to CELL COUNT, not to ladder position** — so the
+registered relationship is PRESERVED rather than re-registered. §4.3 registers
+endTime *"rising with refinement because the outer loop's convergence rate
+degrades with cell count"*, i.e. it is a function of cells. The registered
+pairs 885,508→8,000 and 2,988,590→12,000 therefore travel with their cell
+counts. The new bottom level extrapolates the registered +4,000-per-3.375×-step
+pattern downward: **262,373 → 4,000.**
+
+**NO GATE, THRESHOLD, BAND OR LABEL IS TOUCHED.** G-CONV-h/p/U/t, G-CONT,
+G-BAL, G-ITER, the observed-order band [0.5, 2.5], Fs = 1.25, the verdict
+vocabulary, the reference tier NONE of §5.4 and the Roache ordering of §5.2 all
+stand exactly as registered. This amendment changes THREE CELL COUNTS, THREE
+endTimes, THREE RANK COUNTS and the COST that follows arithmetically from them.
+
+### 13.4 COST, RE-DERIVED — the formula of §7.2 unchanged
+
+`core-min = N_cells × N_iter × 4.9328e-06 ÷ 60 ÷ 0.75`, mesh at
+`6.0e-03 core-s/cell`. Both rates are the §7.1 registrations, untouched.
+
+| level | cells | iters | solve core-min | mesh core-min | total | ranks | wall h |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| L1 | 262,373 | 4,000 | 115.04 | 26.24 | **141.28** | 4 | 0.59 |
+| L2 | 885,508 | 8,000 | 776.54 | 88.55 | **865.09** | 8 | 1.80 |
+| L3 | 2,988,590 | 12,000 | 3,931.23 | 298.86 | **4,230.09** | 16 | 4.41 |
+| geometry gate | — | — | — | — | 0.05 (MEASURED) | 1 | — |
+| **RUNG POINT** | | | **4,822.81** | **413.65** | **5,236.51** | | **≈ 6.80 h** |
+
+**RUNG POINT = 5,236.51 core-min = 87.28 core-h.**
+**USD = 87.28 × $0.0513/core-h = $4.477 — DERIVED, NOT MEASURED**
+(`cost_basis` = reported-by-owner; the box cannot read its own billing,
+`COMPUTE_BUDGET_CHARTER.md` §5).
+
+~~**STRUCK: RUNG POINT 23,794.42 core-min = 396.57 core-h = $20.344 derived.**~~
+
+**RATIO amended/registered = 0.2201, a 4.54× REDUCTION** — 18,557.91 core-min
+and $15.867 derived not spent. The reduction is larger than cell count alone
+would give because `endTime` travels down with the ladder.
+
+**HANG GUARDS, re-derived at 3.0 × POINT** (§7.3.3) — and they are **hang
+guards, NOT budget gates**. Sanaa's CASE_PROTOCOL closing clause suspends the
+cap-STOP for 3D runs; these numbers exist to catch a wedged or spinning
+process, not a spend. **The ambiguity found in T4e is deliberately not
+repeated here:** T4e's fine leg carries `timeout 360060`, numerically exactly
+**2.0000 ×** POINT, which is its registered CAP wearing a hang guard's name.
+Every T26 timeout below is **3.0 ×** POINT and therefore cannot be mistaken for
+the 2× cap of any other rung.
+
+| level | POINT core-min | timeout s | = core-min | wall at ranks |
+|---|---:|---:|---:|---:|
+| L1 | 141.28 | **6,358** | 423.8 | 1.8 h at 4 |
+| L2 | 865.09 | **19,465** | 2,595.3 | 5.4 h at 8 |
+| L3 | 4,230.09 | **47,589** | 12,690.3 | 13.2 h at 16 |
+
+### 13.5 WHAT WAS CONSIDERED AND REJECTED — the biggest top level that FITS
+
+The instruction was *"the biggest top level that FITS, not the smallest that is
+safe"*, so the alternatives were costed rather than waved off. At `r = 1.5` the
+ladder is geometric, so admissible top levels are a continuum, not a menu:
+
+| top level | mid | bottom | FLOOR | μ tolerated in 22 GiB | verdict |
+|---:|---:|---:|---:|---:|---|
+| 2,988,590 | 885,508 | 262,373 | 9.06 GiB | **2.43** | **REGISTERED** |
+| 4,000,000 | 1,185,185 | 351,166 | 11.77 GiB | 1.87 | rejected |
+| 5,000,000 | 1,481,481 | 438,957 | 14.44 GiB | 1.52 | rejected |
+| 6,000,000 | 1,777,778 | 526,749 | 17.12 GiB | 1.28 | rejected |
+| 10,086,491 | 2,988,590 | 885,508 | 28.07 GiB | 0.78 | **cannot run** |
+
+**2,988,590 is registered over the larger tops for three stated reasons:**
+1. **μ is UNMEASURED.** A top that tolerates only 1.28–1.87× is a bet on a
+   number nobody has measured, on a solver with four regions. 2.43× is not.
+2. **`MemAvailable` moved 27.21 → 22 GiB inside thirty minutes** while peer
+   lanes launched. A ladder sized to the instantaneous figure is not a ladder.
+3. **Every larger top requires all three counts to be re-derived** from
+   scratch, discarding §3.5's open arithmetic and its gate check. The
+   registered ladder reuses two counts already derived and already checked.
+
+**IF μ MEASURES AT OR BELOW 1.5 AT THE SMOKE**, a 5,000,000-cell top becomes
+defensible and is the natural successor registration. That is recorded as the
+condition, before the fact, so it is a prediction and not a later rescue.
+
+### 13.6 DIMENSIONALITY IS NOW GATED, NOT INFERRED
+
+T4e and the whole T23G2 line (R, Rn, Rn2) were found on 2026-09-10 to be **2-D
+axisymmetric wedges**, and the closure team offered three "genuinely 3D"
+families that were all **one cell thick with `empty` spanwise patches**. T26's
+3D status was, until this amendment, an inference from a GEOMETRY GATE — a
+description of an intended shape.
+
+**REGISTERED: gate D-3D.** A level is `NOT A RESULT` unless, on the **BUILT**
+mesh: `checkMesh` reports **3** geometric (non-empty/wedge) directions, and
+`constant/polyMesh/boundary` carries **zero** `empty` and **zero** `wedge`
+patches. Both witnesses are recorded **verbatim, per level**, into
+`gate_t26.json` by `analyse_t26.py`, so the 3D claim is carried by the graded
+record and can never again be an inference. Dimensionality is **never**
+certified from the geometry gate, `blockMeshDict` or `snappyHexMeshDict` —
+those are the artifacts that misled closure, and the comparator strips comments
+before matching so a commented-out line cannot be read as live.
+
+**Necessary-but-not-sufficient corroboration, available before any mesh
+exists:** the registered counts step by **3.375001** and **3.375000**, i.e.
+**1.5³** — the 3D signature. A 2-D refinement at r = 1.5 gives **2.250**. This
+holds for the amended ladder by construction.
+
+### 13.7 `checkMesh` MUST RUN ITS FULL CHECK SET
+
+**REGISTERED:** every `log.checkMesh` this rung grades from is produced by
+`checkMesh -allRegions -allGeometry -allTopology`, and the exact command line
+is recorded **into the log itself**. Bare `checkMesh` prints `Mesh OK.` on a
+mesh that fails checks which only run under those flags — confirmed against
+the binary's own help on this box: `-allGeometry` *"Include bounding box
+checks"*, `-allTopology` *"Include extra topology checks"*. cfd spent three
+M6CP1 smoke rungs on a mesh its stage-2 gate could never have refused.
+`analyse_t26.py` **REFUSES** a log whose recorded command line lacks either
+flag: the artifact must prove which instrument produced it.
+
+**REGISTERED: gate G-MINCELL.** Minimum cell dimension, per level, must be
+**≥ 0.10 × that level's smallest registered surface cell**. Justification: a
+cell an order of magnitude below the intended surface resolution is a snap
+artifact, not a resolved feature. The floor is registered as a FRACTION so it
+scales with the level rather than being re-chosen per level. **A cusped
+trailing edge passes both check sets and still destroyed the M6**, and T26's
+three struts have sharp, unfilleted trailing edges (§11 item 4) — this is
+exactly that geometry.
+
+### 13.8 What this amendment does NOT do
+
+It does not freeze this document; it does not alter any gate, threshold, band
+or label; it does not authorise a launch; and it does not touch §§0–12, whose
+line numbers are unchanged — **lines whose number changed above this section:
+0** — because `analyse_t26.py`, `mark_done_t26.py`, `launch_t26.sh`,
+`build_t26.py` and `orchestrate_t26.py` all cite this document BY LINE, and an
+inline strike would have silently broken every one of those citations. That is
+why the strikes above are recorded here rather than applied in place.
+
+*Amendment drafted by a heat-transfer lane, 2026-09-10, on the supervisor's
+ruling. Zero solver compute. Nothing sent, filed or uploaded (`CLAUDE.md` rule 7).*
