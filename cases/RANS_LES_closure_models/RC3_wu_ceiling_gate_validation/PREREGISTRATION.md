@@ -596,3 +596,249 @@ control or gate (§6.1).**
 it.** The freeze is the closure-supervisor's act, after a personal §3 check-1.
 Zero solver compute produced this document. Nothing sent, filed, uploaded,
 registered, posted or commented.*
+
+---
+
+## AMENDMENT A1 — 2026-09-10. PRE-FIRST-COMPUTE. Four supervisor rulings registered into the document.
+
+**Document version: DRAFT v1.1** (was DRAFT v1.0 as landed at commit `4e3c5bc6`).
+**lines whose number changed above this section: 0** — this amendment is appended
+at the foot and edits no line above it. The assertion is not a claim: it was
+proved by hashing the file's first 33,535 bytes (598 lines) before and after the
+append inside a single shell invocation, with the whole-file digest shown to move
+in the same invocation so the hasher is demonstrably not returning a constant.
+The two prefix digests and the two whole-file digests are recorded in the commit
+that carries this amendment.
+
+**THIS AMENDMENT IS NOT THE FREEZE.** It changes no gate, no threshold, no cap and
+no label. `prereg_commit:` still reads the DRAFT/UNFROZEN token at the Status line
+of this document; that token still occurs **exactly once** in this file, and this
+amendment deliberately does not write the token string again, so that the
+supervisor's single substitution at the freeze clears
+`build_rc3_ladder.refuse_if_unfrozen()` in one edit.
+
+### A1.0 Why these resolutions land BEFORE the freeze and not at it
+
+An **ambiguous criterion, once frozen, is a criterion that can be re-read later to
+fit the answer** — which is precisely the failure standing rule 2's freeze exists
+to prevent. Rule 2's own pre-compute clause makes an amendment legal here and
+makes it illegal after the first solve. A resolution that lives only in a module
+docstring is *not registered*: the instrument can be rewritten, and the gate is
+supposed to live in the document. So the ambiguity is closed here, where it is a
+gate, rather than at grading time, where it would be commentary.
+
+### A1.1 The rule-2 condition, and how it was checked — freshly, at this amendment
+
+**Condition: RC3 has had ZERO compute. The run root registered by its own
+instrument does not exist.**
+
+Checked at this amendment, by this lane, at zero compute:
+
+| check | result | control that FIRED (same command shape, positive case) |
+|---|---|---|
+| `/home/ubuntu/closure-data/rc3` — the run root named at `build_rc3_ladder.py:102` (`ROOT = "/home/ubuntu/closure-data/rc3/wu2018"`) | **ABSENT** | `/home/ubuntu/closure-data` **EXISTS**; `/home/ubuntu/closure-data/aposteriori_frozenk` **EXISTS** |
+| `/home/ubuntu/closure-data/rc3/wu2018` | **ABSENT** | as above |
+| `find /home/ubuntu/closure-data -maxdepth 1 -name 'rc[34]*'` | **no hits** | the same `find` with `-name 'apost*'` returns `aposteriori` and `aposteriori_frozenk` |
+| `find .../verification/runs -maxdepth 2 -iname '*rc3*'` | **no hits** | the same `find` with `-iname '*T-family*'` returns `verification/runs/T-family` |
+| any `RESULTS.md`, `scores.json` or run artifact beside this registration | **none** — the directory holds `PREREGISTRATION.md`, `build_rc3_ladder.py`, `rc3_ceiling.py`, `rc3_fixedpoint.py` and nothing else | the sibling `Wu2018_PIML_RF/aposteriori_frozenk/` does carry `RESULTS.md`, so the listing is not blind to result files |
+
+Independently, the instruments themselves refuse to run today:
+`build_rc3_ladder.refuse_if_unfrozen()` (`build_rc3_ladder.py:152`) reads this
+file and exits 2 while the Status line still carries the DRAFT/UNFROZEN token, and
+`rc3_fixedpoint.drive()` calls it before any pass. No path through the committed
+instruments can start a solver against this registration in its present state.
+
+### A1.2 RULING 1 — §3.1's contraction criterion, read out in full. AMBIGUITY REMOVED; NO BAR MOVED.
+
+§3.1 registers `N_outer = 5`, requires monotonic fall **"across passes 2..5"**, and
+requires **all five ratios** to be printed. A ratio needs a predecessor, so five
+outer passes taken alone would yield only four ratios. **The reading registered
+here — the only one consistent with both §3.1's own "all five ratios" and §10's
+"C4 ×3, up to 5 outer passes … budgeted at 5 × C3" — is:**
+
+> **`b^Delta_0` is configuration C3's injected field.** C3 is exactly
+> `b_LES − b_RANS` with `k` frozen at `k_LES` (§3 table), which is pass 0 of this
+> same iteration and is therefore literally "the previous pass's converged field"
+> for pass 1.
+>
+> **There are therefore FIVE ratios, `r_1 … r_5`, over FIVE outer passes**, with
+> `r_m = ||b^Delta_(m) − b^Delta_(m−1)||_2 / ||b^Delta_(m−1)||_2`.
+>
+> **Monotonicity is required over `r_2 … r_5`**, exactly as §3.1 registers
+> ("monotonically across passes 2..5"). **`r_1` is excluded** — it is the first and
+> largest step, from the C3 field to the first fixed-point iterate.
+>
+> **The final ratio `r_5` must be ≤ 1e-2.**
+>
+> **All five ratios are printed whatever happens**, per §3.1 and §11.
+
+**What this ruling does NOT do, verified clause by clause against the unmodified
+text above:**
+
+- **`N_outer = 5` does not move.** §3.1 line 193 is unchanged; `N_OUTER = 5` at
+  `rc3_fixedpoint.py:71`.
+- **The 1e-2 contraction threshold does not move.** §3.1 line 195 and §5.1 line 279
+  are unchanged; `CONTRACTION_MAX = 1e-2` at `rc3_fixedpoint.py:72`.
+- **The `NOT A RESULT` branch does not move.** §3.1 lines 196–199, §5.2 line 298 and
+  §7's third falsifier (lines 377–379) are unchanged: a non-contracting fixed point
+  is `NOT A RESULT`, the ceiling is read from the best of C1–C3 with C4 recorded as
+  unavailable, `N_outer` is not raised, and no relaxation is introduced.
+
+The reading was previously stated only in `rc3_fixedpoint.py`'s module docstring
+(lines 26–38). **It is registered here so that no future reader has to reconstruct
+it from an instrument**, and so that it cannot be re-read after compute.
+
+### A1.3 RULING 2 — §9's model row names the frozen-k model explicitly. NO NEW SOLVER IS WRITTEN.
+
+§9's anti-gaming table (line 429) names `kOmegaSSTCorrected` as the fixed
+turbulence model, while §3's C2, C3, C4 and CX all register `k` **frozen**, which
+that model cannot do. Freezing `k` is realised by the model
+**`kOmegaSSTCorrectedFrozenK`**, in the library **`libwu2018FrozenK.so`**.
+
+**Both libraries pre-date RC3 and neither is built by it. Verified at source by
+this lane, at zero compute:**
+
+| library | on-disk mtime | model symbols it defines |
+|---|---|---|
+| `.../platforms/linux64GccDPInt32Opt/lib/libspartaTurbulenceModels.so` | **2026-08-01 01:09:28 UTC** | `kOmegaSSTCorrected` |
+| `.../platforms/linux64GccDPInt32Opt/lib/libwu2018FrozenK.so` | **2026-08-21 18:12:47 UTC** | `kOmegaSSTCorrected`, **`kOmegaSSTCorrectedFrozenK`** |
+
+Both precede this registration's own directory (created **2026-09-10 04:43 UTC**)
+by weeks. `libwu2018FrozenK.so` was built by the predecessor frozenk lane
+(`Wu2018_PIML_RF/aposteriori_frozenk/src/Make/files:3`,
+`build_cases.sh:43`), and RC3's builder consumes it as an existing artifact
+(`build_rc3_ladder.py:111–114`: `SPARTA_LIB`, `FROZENK_LIB`, `MODEL_FROZEN_K`).
+
+**Registered clarification of §9's model row — its binding content is unchanged:**
+
+> The fixed model set is **`kOmegaSSTCorrected`** (library
+> `libspartaTurbulenceModels.so`) for the `k`-transported configurations C0 and
+> C1, and **`kOmegaSSTCorrectedFrozenK`** (library `libwu2018FrozenK.so`) for the
+> `k`-frozen configurations C2, C3, C4 and CX, exactly as §3's table registers the
+> `k` treatment per configuration.
+>
+> **§9's binding assertion is and remains: NO NEW SOLVER IS WRITTEN OR COMPILED BY
+> RC3.** Both libraries already existed on this box before RC3 existed. The L6
+> answer-changing row is FIXED, and it is fixed on a model set that was chosen
+> before any RC3 number was seen.
+
+No threshold, cap, band or label is touched by this clarification.
+
+### A1.4 RULING 3 — §10's ILLUSTRATIVE solve count is corrected. THE BINDING CONTROL DOES NOT MOVE.
+
+§10 line 521 reads, verbatim:
+
+> `18 solves × 3,600 s of per-solve timeout would otherwise permit 64,800 s.`
+
+**That sentence is SUPERSEDED and is wrong.** It counted C4 as one solve per case.
+Under §3.1 as read out in A1.2, C4 is **five** solves per case. The worst-case
+solve count is therefore:
+
+| block | solves |
+|---|---|
+| C0 NULL ×3 | 3 |
+| C1 ×3 | 3 |
+| C2 ×3 | 3 |
+| C3 ×3 | 3 |
+| **C4 ×3 cases × 5 outer passes** | **15** |
+| CX ×3 | 3 |
+| **total** | **30** |
+
+**Corrected illustrative figure: 30 solves × 3,600 s of per-solve timeout would
+otherwise permit 108,000 s.**
+
+**Nothing binding moves, and the correction strengthens rather than weakens the
+control:**
+
+- **The campaign-level accumulator remains 24,000 wall s at ranks 1 (= 400
+  core-min)**, checked before each solve launches. §10 line 519 already names it
+  **the binding control**, and it is unchanged. The gap it must close is simply
+  larger than the document said (108,000 s of nominal timeout headroom, not
+  64,800 s) — which is the argument *for* the accumulator, not against it.
+- **The REGISTERED CAP remains 400 core-minutes** (§10.2, line 502). Unchanged.
+- **The REGISTERED ESTIMATE remains 160 core-minutes** (§10.2, line 496).
+  Unchanged, and it was never affected: §10.1's C4 row already budgets
+  **5 × C3 = 5 × 426 = 2,130 wall s**, i.e. it already assumed five solves per
+  case. The estimate's 9,431 s total and its 157.2 core-minutes are arithmetically
+  untouched by this correction.
+- Per-solve `timeout 3600` is unchanged.
+
+**An illustrative figure that understates is still a wrong record.** It is
+corrected here rather than left standing because it is non-binding.
+
+### A1.5 RULING 4 — the builder's FOURTH refusal, registered into §11.
+
+§11's row for `build_rc3_ladder.py` names three refusals. The committed instrument
+carries a **fourth**, which the building lane disclosed openly in the function's
+own docstring rather than adding silently. **An unregistered refusal is as much a
+defect as a missing one** — a reader of §11 would not know it exists — so it is
+registered here.
+
+**Registered, as a fourth refusal of `build_rc3_ladder.py`:**
+
+> **`write_bdelta_and_verify()` (`build_rc3_ladder.py:343`) — WRITER READ-BACK.**
+> After writing `bijDelta` into a case, the builder reads the file back **through
+> the scorer's own reader** (`_common/of_read.read_field`) and compares it to what
+> it wrote. It **refuses, `sys.exit(2)`**, if the shape does not match, or if
+> `max|read − written|` exceeds a **PLANT-RELATIVE** tolerance:
+> `tol = max(1e-12, 8 × eps × max|written|)` — machine epsilon at the field's own
+> largest magnitude, floored at 1e-12, **never an absolute 1e-15** (L-508: an
+> absolute bar false-refuses on O(1)+ data and cost this team a legitimate
+> instrument). The `_writer` argument is injectable so the module's `--selftest`
+> can drive a deliberately corrupting writer and show the guard FIRES
+> (`build_rc3_ladder.py:700–716`).
+
+**Its provenance and its scope, registered so the scope is not later widened:**
+
+- It was added under **standing rule 3**, which binds whether or not this document
+  repeats it: a builder not shown able to put a non-zero on disk has not been shown
+  to have built anything. Rule 3 is normally applied to the *reader*; this applies
+  it to the *writer*, which is the same argument in the same direction.
+- **It can only ever REFUSE.** It has no branch that emits a verdict, a value, a
+  band or a label. **It cannot manufacture a `PASS`, and it cannot move a
+  threshold, a cap, a band or a label.** Its only effect is to stop a mis-built
+  case from ever running.
+- It is a `refuse()` → `raise SystemExit(2)` (`build_rc3_ladder.py:145`), **not an
+  `assert`**, so it survives `python3 -O` as §6.1 requires.
+  `ast.Assert` count in `build_rc3_ladder.py`: **0**.
+
+### A1.6 What did NOT move — the clause-by-clause statement rule 2 requires
+
+Every line above this amendment is byte-identical to the version committed at
+`4e3c5bc6`; the prefix hash recorded in the commit message proves it. Named
+explicitly, because "nothing moved" is worth more when it is enumerated:
+
+| clause | line | value, unchanged |
+|---|---|---|
+| V0 threshold | 237, 276 | C4 cut **≥ 80%** vs C0 NULL on **≥ 2 of 3** cases |
+| V1a | 257, 277 | criterion PASSes C4 on the same ≥ 2 of 3 |
+| V1b | 258, 278 | criterion FAILs CX on the same ≥ 2 of 3 |
+| C4 fixed point | 193, 195, 279 | `N_outer = 5`; ratio **≤ 1e-2** by pass 5; monotone over passes 2–5 |
+| continuity | 223, 280, 410 | RMS `div(U)` / gradient scale **≤ 1e-4** or NOT CONVERGED |
+| V3 plant | 281, 316 | `PLANT = 1.234e-03`; move **> 1e-12** when planted, **bitwise identical** when not |
+| verdict ladder | 285–302 | PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING, unchanged |
+| falsifiers | 356–379 | all three unchanged; 80% never lowered, no oracle channel added, no case dropped, `N_outer` never raised |
+| REGISTERED ESTIMATE | 496 | **160 core-minutes** |
+| REGISTERED CAP | 502 | **400 core-minutes** |
+| campaign accumulator | 519 | **24,000 wall s at ranks 1** — the binding control |
+| per-solve timeout | 517 | `timeout 3600` |
+| case set / seed / `bScale` | 432–436 | unchanged |
+| Label | header | `RC3`, unchanged |
+
+**No gate, threshold, cap or label is altered by this amendment.**
+
+### A1.7 What this lane could not verify, at this amendment
+
+1. **This lane did not run any instrument.** The `--selftest` claims in §11 and
+   §6.1 are the building lane's; this amendment records what the committed source
+   *contains* (verified by reading `git show HEAD:` for each file, not the working
+   tree alone), not that the selftests pass. Executing them is part of the
+   supervisor's §3 check-1, not this amendment.
+2. **This lane did not re-derive the physics of the C4 fixed point** — only that
+   §3.1's five-ratio reading is the sole reading consistent with §3.1 and §10
+   together, and that `rc3_fixedpoint.py:126–142` implements exactly that.
+
+*Amendment A1 appended 2026-09-10 by a closure lane on the closure-supervisor's
+ruling. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
+nothing may run against it. Zero solver compute produced this amendment. Nothing
+sent, filed, uploaded, registered, posted or commented.*
