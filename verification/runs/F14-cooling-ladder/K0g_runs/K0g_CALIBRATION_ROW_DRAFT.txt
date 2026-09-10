@@ -1,0 +1,161 @@
+K0g RULE-12 CALIBRATION ROW — PROPOSED, NOT COMMITTED
+=====================================================
+Drafted 2026-09-10 by a heat-transfer lab-lane, ZERO COMPUTE (drafting only).
+NOT COMMITTED BY THE DRAFTER. The heat-transfer supervisor lands this row.
+
+HOW TO LAND IT (docs/COST_CALIBRATION.md append rules 1, 2, 5 and the
+2026-08-23 row-id format amendment; CLAUDE.md rules 10, 11):
+  - The `id` below is a PLACEHOLDER. Re-derive it at commit time, in the
+    commit's own shell invocation, from the file's own tail at HEAD
+    (`git show HEAD:docs/COST_CALIBRATION.md`), never from the worktree copy
+    and never from a count.
+  - Land through `scripts/append_record.py --path docs/COST_CALIBRATION.md`,
+    which refuses (exit 6) rather than renumbering on an id collision, then
+    under the rule-10 private-index protocol with the post-commit
+    insertions-only assertion.
+  - The worktree copy of docs/COST_CALIBRATION.md diverges from HEAD BY DESIGN
+    (that file's own divergence-by-design note). Do not "fix", sync or use it
+    as a base.
+
+COLUMN SET (matched to the live header at docs/COST_CALIBRATION.md:77):
+  id | date | team | process/rung | predicted (core-min or GPU-h) | actual gross |
+  actual cleaned | ratio (cleaned/predicted) | gap attribution |
+  record ref (commit/results file)
+
+ONE ROW is proposed. K0g is one process (one campaign, one frozen ceiling, one
+stop), so it lands as one row; the per-arm figures live inside the cells, as
+the C-20260909T193000 (M1-C six-arm) precedent does.
+
+
+--------------------------------------------------------------------------
+PROPOSED ROW  (single line in the file; wrapped here for reading only)
+--------------------------------------------------------------------------
+
+| C-<RE-DERIVE-AT-COMMIT> | 2026-09-10 | heat-transfer | **K0g** (Blay–Mergui–Niculae ventilated cavity, TRANSIENT re-formulation to a statistically stationary state; frozen prereg `docs/campaigns/F14-cooling-ladder/K0g_PREREGISTRATION.md` freeze `4d0046c1`, grading-path freeze `a257ddf6`, `check_comparator_freeze` PASS 8/8) — **CAMPAIGN STOPPED AT ITS OWN FROZEN §8 CEILING** with three of five arms unfinished. Whole-rung verdict **PENDING**: the frozen comparator `analyse_k0g.py` REFUSED (exit 2, "2 of 5 DONE markers present; MISSING: M1_m, M2_m, C_lam") and `mark_done_k0g.py` returned rc=1 (2/5 arms meet the strict completion rule), so **NO GRADED G-ROW VALUE HAS EVER BEEN PRODUCED**. This row records a §6 COST-MODEL MISS and the measured basis it bought, NOT a graded rung. | **§8 POINT 370.73 core-min** (solver subtotal S 363.23 + bounded instruments I ≤ 7.50); **§8 CEILING 915.58 core-min** (2S + 0.5S + I) = 15.260 core-h → **$0.7828 DERIVED, NOT MEASURED** at $0.0513/core-h, reported-by-owner (`COMPUTE_BUDGET_CHARTER.md` §5 — the box cannot read its own billing). Per-arm POINT lines: M1_c 49.15, M2_c 49.15, M1_m 96.34, M2_m 96.34, C_lam 72.25. Built on a **registered per-cell-iteration POINT rate 4.8e-6 s** (K0f SIMPLE measured 3.07–3.76e-6 × an **ASSUMED ×1.5 transient overhead**) and an **ASSUMED `Δt_mean` 5e-3 s** — §8 names both, plus the ×0.75 laminar factor and the I bound, as **calibration items, "none is called measured"**. Under the $25 pre-auth. | **888.12 core-min MEASURED** (five arms, ranks=1 each, actual = wall_s ÷ 60 from `STATUS.<case>`: M1_c 9312 s = 155.20 rc=0; M2_c 9392 s = 156.53 rc=0; M1_m 17763 s = 296.05 rc=143; M2_m 8454 s = 140.90 rc=143; C_lam 8366 s = 139.43 rc=143) = 14.802 core-h = **$0.7593 DERIVED, NOT MEASURED** at $0.0513/core-h. **WITHIN the 915.58 CEILING** (headroom 27.46 core-min, which is what left room for the I ≤ 7.50 instrument budget). This is a **STOPPED-AT-CEILING actual, not a completed-campaign actual**: only M1_c and M2_c reached `endTime` 60 s. | **= gross (888.12).** **NO STALL** — the four walls above the charter §2 3600-s figure (8366–17763 s) are legitimately long transient solves, not stalls: `Time` advanced monotonically to the last written step on every arm and `ExecutionTime/ClockTime` = 0.99657–0.99905 (a stalled or descheduled process does not hold CPU time at wall time). **SUPERSEDED SPEND NAMED SEPARATELY (charter §6): 576.38 core-min** (M1_m 296.05 + M2_m 140.90 + C_lam 139.43) produced **no completed arm** — but it is **not defect-waste**: it is what measured the `Δt_mean` and per-step rate the successor K0h is costed from, and it is named here rather than absorbed into any ratio. A further **311.73 core-min** (M1_c + M2_c) reached strict completion but has **still produced no graded number**, blocked by a SECOND, INDEPENDENT defect (see gap attribution). | **3.158 (M1_c) and 3.185 (M2_c)** — the only two arms that ran to `endTime`, so the only two entitled to a completed-arm ratio; both **FALSIFY the registered prediction `P-K0g-3` (cost ratio actual/POINT within [0.8, 1.6] per arm)**. Campaign-level 888.12/370.73 = **2.396** against POINT and 0.970 against CEILING, but **neither is a completion ratio** — three arms were stopped partway. Completion-equivalent ratios for the three stopped arms, **PROJECTED not measured**, by scaling each arm's measured cost to its `endTime` at its own measured (quartile-flat) `Δt`: M1_m 641.5 core-min → 6.659×; M2_m 652.9 → 6.777×; C_lam 588.9 → 8.150×. **Whole-campaign completion cost would have been S = 2194.99 core-min = 5.92× the 370.73 POINT and 2.40× the 915.58 CEILING** — i.e. the frozen ceiling could never have bought five completed arms, and the stop was the budget rule catching a cost model that was wrong before the first step. | **MISPREDICTION ON TWO INDEPENDENT AXES, and the SMALLER of the two is the one the run-time diagnosis first named.** **AXIS 2 (DOMINANT) — the per-cell-step rate: the §8 ×1.5 transient-overhead factor is measured at ×3.6 (L1) to ×4.8 (L2).** Registered 4.8e-6 s per cell-*effective-iteration* with eff-iters = steps × `nOuterCorrectors`(2) prices a step at 9.6e-6 s/cell; **measured 2.2717e-05 (M1_c), 2.2993e-05 (M2_c), 3.3113e-05 (M1_m), 3.3846e-05 (M2_m), 3.0337e-05 (C_lam) s/cell/step = 2.37–3.53× registered**. **MECHANISM, MEASURED not assumed:** the registered model counted outer correctors; the solver runs **exactly 8.00 `p_rgh` solves per time step** (`nOuterCorrectors` 2 × `nCorrectors` 2 × (1 + `nNonOrthogonalCorrectors` 1)), at **~1159 (L1) to ~1905 (L2) DICPCG iterations per time step** — the `*Final` solves carry `relTol 0` to `tolerance 1e-10` and cost 222–310 PCG sweeps each. A PIMPLE step is ~7–10 SIMPLE-equivalent pressure solves here, not the 3 the ×1.5 factor assumed. **AXIS 1 — `Δt_mean`: registered 5e-3 s; MEASURED 3.7472e-03 / 3.7603e-03 s at L1 and 2.5899e-03 / 2.6012e-03 / 2.5850e-03 s at L2** (from each `<case>/log.solve`, as last `Time` ÷ `Time =` line count; `adjustTimeStep` yes, `maxCo` 2.0, `maxDeltaT` 0.05 s), i.e. **1.33× more steps at L1 and 1.93× at L2** — and **the two levels differ, which the single registered figure could not express**. Δt is **quartile-flat** (<2% drift across quartiles; L1 settles at 3.76e-3 over the full 60 s), so it is a *mesh* property under `maxCo`, not a transient-development one, and the projections above are on a stable basis. The axes multiply: L1 1.33 × 2.37 = **3.16** = the measured ratio. **Also mispredicted: the ×0.75 laminar factor — measured 0.896** (C_lam 3.0337e-05 vs M2_m 3.3846e-05 s/cell/step). **CONTENTION IS *NOT* NAMED AS A SEPARATE FIGURE, AND SAYING SO IS THE HONEST ANSWER**: ~11 concurrent 1-rank solvers on 16 vCPU cannot deschedule a 1-rank job on this box, and the artifacts show it — `ExecutionTime/ClockTime` = 0.99657–0.99905 on all five arms, so **the descheduling channel is measurably ~0** (the same test the C-20260909T183500 row used to rule contention out). A shared-memory-bandwidth/L3 channel remains possible and is **NOT separable from the per-cell-step rate with these artifacts**; it is therefore carried *inside* the measured rate above rather than quoted as a number the box cannot measure. **SECOND, INDEPENDENT BLOCKER — NOT A COST MATTER, RECORDED HERE BECAUSE IT BOUNDS WHAT THE 888.12 BOUGHT:** `check_k0g_extraction_equivalence.py` REFUSED (exit 2) on **M1_c and M2_c, the two arms that completed cleanly** — "patch 'outlet' carries a NONUNIFORM value ... `T` and `U` ... cannot carry one". Diagnosed and replicated: `fieldAverage` writes every patch of `TMean`/`UMean` as `type calculated` with an explicit `value`, so the one patch whose base-field BC is evaluated per face (`outlet`, `zeroGradient`) becomes a 12-entry `nonuniform List`, while every uniform-Dirichlet/`noSlip` patch stays uniform. **The registered A1.3a extraction path would have refused on those arms under an unlimited budget**, so K0g had two independent blockers, not one. The reader is **RIGHT to refuse** and is not relaxed. **CALIBRATION LESSONS: (1) price a PIMPLE step by its PRESSURE-SOLVE count (`nOuterCorrectors` × `nCorrectors` × (1 + `nNonOrthogonalCorrectors`)) and its linear-solver iteration count, NEVER by a flat "transient overhead" multiplier on a SIMPLE iteration — the multiplier was ×1.5 and is ×3.6–4.8; (2) register `Δt_mean` PER LEVEL, and measure it on a short pilot before freezing a `maxCo`-adjusted transient budget; (3) a CAMPAIGN-WIDE ceiling on concurrently-launched arms converts a budget stop into "nothing completes" — K0g spent 888.12 core-min and finished 2 of 5 arms; the successor registers per-STAGE budgets whose stop blocks the NEXT stage instead of killing arms in flight; (4) an instrument inherited from a predecessor carries the predecessor's field-type invariants — pointing it at a NEW class of field (here `fieldAverage` output) needs a pre-compute smoke on that class, which a grading-path blob freeze does not provide.** | verdict artifact `verification/runs/F14-cooling-ladder/K0g_runs/K0g_VERDICT.txt` (`analyse_k0g` rc=2, `mark_done_k0g` rc=1, total 888.12 core-min vs CEILING 915.58 WITHIN); per-arm `verification/runs/F14-cooling-ladder/K0g_runs/STATUS.{M1_c,M2_c,M1_m,M2_m,C_lam}` and `DONE.{M1_c,M2_c}`; campaign state `.../K0g_runs/CAMPAIGN_STATE.json`; step/`Δt`/rate basis from `.../K0g_runs/<case>/log.solve`; PIMPLE settings `.../K0g_runs/M1_c/system/fvSolution`; frozen prereg `docs/campaigns/F14-cooling-ladder/K0g_PREREGISTRATION.md` §8 (freeze `4d0046c1`), grading path `a257ddf6`; successor draft `docs/campaigns/F14-cooling-ladder/K0h_PREREGISTRATION.md` (DRAFT, NOT FROZEN) |
+
+
+--------------------------------------------------------------------------
+DERIVATION APPENDIX — every figure in the row, and where it was read
+--------------------------------------------------------------------------
+
+A. MEASURED ACTUALS (core-minutes; ranks = 1, so core-min = wall_s / 60)
+   source: verification/runs/F14-cooling-ladder/K0g_runs/STATUS.<case>
+
+     arm    rc    wall_s    core-min   POINT    ratio    note
+     M1_c    0     9312     155.20     49.15    3.158    completed, DONE
+     M2_c    0     9392     156.53     49.15    3.185    completed, DONE
+     M1_m  143    17763     296.05     96.34    3.073    STOPPED (SIGTERM)
+     M2_m  143     8454     140.90     96.34    1.463    STOPPED (SIGTERM)
+     C_lam 143     8366     139.43     72.25    1.930    STOPPED (SIGTERM)
+     TOTAL                  888.12                       vs CEILING 915.58
+
+   NOTE — the ratios of the three STOPPED arms (3.073 / 1.463 / 1.930) are
+   NOT cost-model evidence: they divide a partial run by a whole-run estimate
+   and are small only because the arm was cut short. Only 3.158 and 3.185 are
+   completion ratios. The row says so; a reader must not quote 1.463 as
+   "M2_m came in near budget".
+
+B. DISAGREEMENT WITH THE SUPERVISOR'S RELAYED FIGURES — stated, not smoothed
+   The brief carried a campaign spend of 883.99 core-min and stopped-arm costs
+   of 294.73 / 139.53 / 138.00. The artifacts on disk read 888.12 and
+   296.05 / 140.90 / 139.43. Difference +4.13 core-min, entirely in the three
+   stopped arms (+1.32, +1.37, +1.43 ≈ 79–86 s each). Reading: the brief's
+   figures were taken at the 03:47Z stop DECISION; STATUS records wall to
+   SIGNAL DELIVERY. `CAMPAIGN_STATE.json` and `K0g_VERDICT.txt` both carry
+   888.12, so THE ARTIFACT FIGURE 888.12 IS THE ONE THIS ROW USES (append
+   rule 2: numbers come from committed records, never from memory).
+   Same for the stop times: the brief says sim t 27.60 / 12.83 / 14.09;
+   the last `Time =` line of each log.solve reads 27.6883 / 12.9489 / 14.2073.
+
+C. Δt_mean, MEASURED  (last `Time` ÷ count of `^Time = ` lines in log.solve)
+     M1_c  60.0000 / 16012 = 3.7472e-03 s     L1
+     M2_c  60.0000 / 15956 = 3.7603e-03 s     L1
+     M1_m  27.6883 / 10691 = 2.5899e-03 s     L2
+     M2_m  12.9489 /  4978 = 2.6012e-03 s     L2
+     C_lam 14.2073 /  5496 = 2.5850e-03 s     L2
+   registered §8 value: 5e-3 s (one figure, both levels)
+   step-count inflation: L1 5e-3/3.7472e-3 = 1.334×   L2 = 1.931×
+   quartile means (drift check, so the projections rest on a stable Δt):
+     M1_c  3.7104 / 3.7534 / 3.7620 / 3.7629 e-3   (last 100 steps 3.7629e-3)
+     M1_m  2.5917 / 2.5715 / 2.5980 / 2.5983 e-3
+     C_lam 2.5803 / 2.5937 / 2.5937 / 2.5723 e-3
+   → Δt is FLAT to <2%. It is a mesh property under maxCo 2.0, not a
+     transient-development property. This is why the §8 "+0.5S contingency for
+     Δt proving smaller than estimated" was aimed at the wrong risk.
+
+D. PER-CELL-STEP RATE, MEASURED   (wall_s / steps / cells)
+     M1_c 2.2717e-05   M2_c 2.2993e-05   M1_m 3.3113e-05
+     M2_m 3.3846e-05   C_lam 3.0337e-05    [s per cell per time step]
+   registered equivalent: 4.8e-6 s per cell-eff-iter × 2 outer correctors
+                        = 9.6e-6 s per cell-step
+   ratios: 2.37 / 2.40 / 3.45 / 3.53 / 3.16 ×
+   implied ACTUAL transient-overhead factor against K0f's SIMPLE rate
+   (L1 ~3.16e-6, L2 ~3.47e-6 s per cell-iteration, K0f_RESULTS §6):
+     L1  (2.2717e-05 / 2) / 3.16e-6 = 3.59×      registered ×1.5
+     L2  (3.3113e-05 / 2) / 3.47e-6 = 4.77×      registered ×1.5
+   laminar factor: 3.0337e-05 / 3.3846e-05 = 0.896   registered 0.75
+
+E. THE MECHANISM BEHIND D — measured, not assumed
+   verification/runs/F14-cooling-ladder/K0g_runs/M1_c/system/fvSolution:
+     nOuterCorrectors 2; nCorrectors 2; nNonOrthogonalCorrectors 1;
+     p_rgh solver DICPCG, tolerance 1e-10, relTol 0.01; p_rghFinal relTol 0
+   counted over ~1400 consecutive steps in the tail of each log.solve:
+     p_rgh solves per step  = 8.00 EXACTLY on every arm  (2 × 2 × (1+1))
+     DICPCG iterations/step = 1159.2 (M1_c) 1904.8 (M1_m)
+                              1598.1 (M2_m) 1513.4 (C_lam)
+   A single step's p_rgh trace at L1 reads 40, 222, 67, 310 PCG iterations
+   for the four solves of one outer corrector — the two `Final` solves
+   (relTol 0 → tolerance 1e-10) dominate. THIS is the ×3.6–4.8.
+
+F. AXIS DECOMPOSITION (the two misses multiply, and they reconstruct the ratio)
+     arm    Δt axis   ×  rate axis  =  product     measured/projected ratio
+     M1_c    1.334        2.366        3.158       3.158  (measured)
+     M2_c    1.330        2.395        3.185       3.185  (measured)
+     M1_m    1.931        3.449        6.659       6.659  (projected to 60 s)
+     M2_m    1.922        3.526        6.777       6.777  (projected to 60 s)
+     C_lam   1.934        3.160        6.112       8.150  (projected; the extra
+                                                    ÷0.75 is the laminar factor,
+                                                    6.112 / 0.75 = 8.150)
+   The rate axis is LARGER than the Δt axis at BOTH levels. The dominant
+   cost-model error is the ×1.5 transient-overhead assumption, not Δt_mean.
+
+G. CONTENTION — why no figure is quoted
+     ExecutionTime/ClockTime (last line of each log.solve vs STATUS wall):
+       M1_c 0.99886   M2_c 0.99905   M1_m 0.99773
+       M2_m 0.99671   C_lam 0.99657
+   A 1-rank job on a 16-vCPU box with ~11 concurrent 1-rank solvers is not
+   descheduled, and these ratios measure that directly. Any bandwidth/L3
+   effect is real but is NOT separable from the per-cell-step rate with these
+   artifacts, so it is carried inside the measured rate and no contention
+   number is invented. COMPUTE_BUDGET_CHARTER §6 requires waste to be named
+   separately, not that an unmeasurable quantity be estimated and called one.
+
+H. PROJECTIONS — labelled, and their assumption stated
+   Completion-equivalent cost of a stopped arm =
+       measured core-min × (endTime 60 s ÷ sim time reached)
+   equivalently (60 / Δt_mean) steps × measured s/step:
+     M1_m  296.05 × 60/27.6883 = 641.5 core-min   (23167 steps × 1.66149 s)
+     M2_m  140.90 × 60/12.9489 = 652.9 core-min   (23066 steps × 1.69827 s)
+     C_lam 139.43 × 60/14.2073 = 588.9 core-min   (23211 steps × 1.52220 s)
+   ASSUMPTION: Δt and s/step hold to 60 s. Δt is measured flat (C above) and
+   the L1 arms, which DID run the full 60 s, show s/step stable. These are
+   PROJECTIONS and are labelled so everywhere; they are NOT measured actuals.
+     five-arm completion total S = 2194.99 core-min = 36.583 core-h
+                                 = $1.8767 DERIVED, NOT MEASURED
+
+I. DOLLARS — every one DERIVED, NOT MEASURED, at $0.0513/core-h
+   (owner-reported, c7a.4xlarge; the box cannot read its own billing,
+    COMPUTE_BUDGET_CHARTER §5)
+     actual   888.12 core-min = 14.802 core-h × 0.0513 = $0.7593
+     POINT    370.73 core-min =  6.179 core-h × 0.0513 = $0.3170
+     CEILING  915.58 core-min = 15.260 core-h × 0.0513 = $0.7828
+   All under the $25 per-run pre-authorisation. A blanket is not a per-item
+   read (CLAUDE.md rule 9); this row is that per-item read.
+
+J. VERDICT VOCABULARY USED, AND WHY
+   The row calls the whole-rung state **PENDING**, not GATE FAIL and not
+   NOT A RESULT: the frozen comparator refused to grade a partial rung, so no
+   gate was ever evaluated. `P-K0g-3` is separately and plainly **FALSIFIED**
+   — that is a statement about a registered prediction, which is entitled to
+   be falsified without a rung verdict existing. No softer word is used for
+   either.
