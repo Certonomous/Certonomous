@@ -19268,6 +19268,45 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-10 (update 86): **THE FINE-LEG TIMEOUT ALARM IS A FALSE ALARM, AND I CAN PROVE IT FROM THE PREDECESSOR'S OWN RATE PROFILE — the same naive projection would have condemned the predecessor, which finished ON BUDGET.** Two rulings. **And a disclosure that runs against my own update-85 ruling: the fine leg's "hang guard" is numerically the CAP, so it is a BUDGET STOP wearing a hang-guard label.**
+
+**RULING — `T4e_IJ_f` REACHES `endTime` INSIDE ITS GUARD. NO ACTION.** `[lab-attributed]`
+The alarm relayed to me projected ~105 h against a 100 h guard. It applied the **cumulative average** rate (4,460 `Time` lines / 3.0 h = 0.41 it/s) to all 155k remaining iterations. That is precisely the startup contamination my own `t4e_rate_watch.py` banner refuses to grade on — and it is not a criticism of the reading, it is why the instrument exists.
+- Predecessor `T4d_IJ_f` (`STATUS.T4d_IJ_f`): 64,000 it, `ExecutionTime = 71956.69 s`, wall 72,014 s, 1 rank, **1200.233 core-min, rc=0, clean**, ended 2026-09-08T10:41:09Z.
+- **Predecessor's own measured rate profile**, re-derived by me from its `ExecutionTime` series at 18:53Z: **2.2938 s/it over its first 4,640 iterations; 1.0329 s/it over 4,640 → 64,000; 0.7497 s/it over its last 10%.** The run **ACCELERATES 3.06x** start to finish as the field settles.
+- `T4e_IJ_f` at the **identical iteration 4,640**: `ExecutionTime` 11,246.4 s vs the predecessor's 10,645.6 s → **like-for-like 1.0564**. That is the primary instrument, valid at any iteration; the watcher printed 1.056 independently of my arithmetic. Now at iteration 4,750, `ExecutionTime = 11444.28 s`, 18:53Z.
+
+Three projections against the guard `timeout 360060` (100.02 h, expiring 2026-09-14T19:45Z):
+- **(a) CENTRAL** — predecessor's profile scaled by 1.0564: to 64,000 = 76,015 s; 64,000 → 160,000 at 0.7497 x 1.0564 = 0.792 s/it = 76,032 s. **Total 152,047 s = 42.2 h = 2,534 core-min = 0.845x POINT, 0.422x CAP.** Finish ~2026-09-12T10:00Z.
+- **(b) CONSERVATIVE** — no acceleration at all past iteration 4,640, whole remainder at 1.0329 x 1.0564 = 1.0911 s/it: **180,837 s = 50.2 h = 3,014 core-min = 1.004x POINT, 0.502x CAP.** Finish ~2026-09-12T18:00Z.
+- **(c) WORST CASE, not credible** — the rate never improves from the current recent 0.535 it/s: **301,631 s = 83.8 h = 0.838x guard.** *Still inside.*
+- **THE TEST THAT SETTLES IT:** the naive method applied to the PREDECESSOR at its own iteration 4,640 gives 0.436 it/s → 40.8 h to 64,000. **It actually took 20.0 h.** A method that is 2.04x pessimistic on the case that finished on budget cannot condemn its successor.
+
+**DISCLOSURE, AND IT RUNS AGAINST MY OWN UPDATE-85 RULING.** The medium leg's `timeout` is 3x POINT and I ruled that a hang guard. **The fine leg's is not.** POINT = 3000.6 core-min; `timeout 360060` at 1 rank = **6,001.0 core-min = 2.0000x POINT = EXACTLY the registered CAP.** So this one is a **budget stop wearing a hang-guard label**. Under my update-85 ruling a hang guard survives Sanaa's 2026-09-10 removal of budget gates on 3D demo runs; **a budget stop does not.** It does not bind (0.42-0.50x cap projected), so this is a **disclosure, not an intervention** — but recorded now, because if it ever DID bind, killing the run on it would be exactly the budget stop she exempted, and the correct action would be to let it run.
+
+**RULING — T26 STAGE 4 IS BLOCKED BY RULE 2, NOT BY CAPACITY.** `[lab-attributed]`
+Relayed to me: launch stage 4 into the capacity ansys and closure are leaving idle. **The capacity is real and I re-derived it. It is not what blocks stage 4.** `analyse_t26.py`, `build_t26.py`, `launch_t26.sh`, `mark_done_t26.py` and `orchestrate_t26.py` **do not exist.** Rule 2 fixes the grading path **at the pre-registration commit**; there is no grading path to fix. A 23,794 core-min solve launched now would write fields no committed comparator could grade — **`NOT A RESULT` by construction**, and 396 core-hours spent to produce it. Stage 4 launches when the instruments exist, pass a mutation matrix, and the document is frozen by sha. **No idle core changes that, and an instruction to use the capacity is not an amendment to rule 2.**
+
+**CAPACITY, RE-DERIVED BY ME AT 18:52Z** (not repeated from the brief): 16 vCPU, load 3.08 (1 min), **27 GiB available**; three solvers at ~100% — `T4e_IJ_m`, `T4e_IJ_f`, and ansys `rhoCentralFoam` pid 316601, **a LIVE run I am not touching** ("rest" governs new work, not a solve in flight). **The binding constraint on T26's 10.09M-cell level is MEMORY, not cores**, and rather than guess it I have tasked a lane to **MEASURE peak RSS per cell at 885k** and extrapolate.
+
+**STATE LINES**
+- `T4e_IJ_m` pid 1233867 — 49,253/60,000 at 18:53Z, recent 6.045 it/s, projection 218.2 core-min = **1.06x POINT, 0.71x CEILING, 0.529x CAP, WITHIN CEILING**. **endTime in ~30 min.**
+- `T4e_IJ_c` — **DONE**, rc=0, wall 1,469 s, 1 rank, **24.483 core-min**.
+- **`T4e`'s RUNG VERDICT CANNOT EXIST BEFORE ~2026-09-12, AND I SAY SO NOW RATHER THAN BE ASKED ON CAMERA.** The detached autograder pid 1239177 waits for **ALL THREE** levels, correctly — **a Roache triple needs three levels**, and rule 5 makes a row without a `CONVERGING` triple `NOT A RESULT` whatever its value. The medium leg landing in 30 minutes does not produce a verdict. **T4e is demo-ready on 09-12, not today.**
+- `T26` — **NOT freeze-ready**, unchanged from update 85. Stages 2-3 dispatched to a lane; stage 4 withheld per the ruling above.
+- **DEMO-READY WORK DISPATCHED** on the two cases that DO carry verdicts today: **`K2bU3R3` (GATE REACHED)** and **`T18` (PASS on G1/G2/G3, analytic series)**, plus `T23G2` and `T10a` if graded. The three binding caption corrections from update 83 travel with the brief as **rulings**: **T18 is `laplacianFoam` SOLID CONDUCTION, not natural convection; T10a has g = 0; K2b is a data-centre rack row** — and **T18's PASS is VERIFICATION, never to be captioned as validation.**
+- **HAZARD CARRIED FROM cfd, AND IT IS LIVE FOR ME:** their F25 demo export **wrote into a graded tree**, and the finding was that **rule 4's age guard cannot distinguish a solver-written field from a post-processor-written one.** Every render I have dispatched is required to write **outside** the graded tree, and the lane must report any mtime postdating the verdict.
+
+**NEXT ACTIONS**
+1. Grade `T4e_IJ_m` when it lands (~19:25Z) — but **no rung verdict until the fine leg is home**; do not let the medium leg's arrival be mistaken for a result.
+2. Read the T26 instrument diffs **personally, as diffs**, before believing any number they produce (SUPERVISION §3 check 1). Demand the clause-7 reachability demonstration **by execution** — this family has produced seven dead `launch_guard` definers and must not produce an eighth.
+3. Freeze T26 by sha once the instruments pass mutation; then and only then queue stage 4.
+4. Estimate-vs-actual calibration row in `docs/COST_CALIBRATION.md` for `T4e_IJ_c` (24.483 core-min measured vs 21.667 POINT = **1.130x**) and for each leg as it lands.
+
+**ON SANAA'S DESK:** nothing. **BLOCKED:** T26 stage 4, on its own instruments (mine to clear, in progress) — not on capacity and not on her.
+
+**Section last written:** 2026-09-10T19:02:15Z by heat-transfer-supervisor personally. Newest block is **update 86**.
+
 ##### heat-transfer 2026-09-10 (update 85): **T26 STAGE 1 LANDED — the genuinely 3D motor-in-duct rung, 885k/2.99M/10.09M cells, $20.344 derived.** **NOT freeze-ready and the lane says so on the document's face: the comparator does not exist.** Two rulings, and **two corrections — one to a rule that carries my own finding's name, and one to a re-derivation trap I nearly fell into just now.**
 
 **STATE LINES**
