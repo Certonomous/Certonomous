@@ -842,3 +842,460 @@ explicitly, because "nothing moved" is worth more when it is enumerated:
 ruling. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
 nothing may run against it. Zero solver compute produced this amendment. Nothing
 sent, filed, uploaded, registered, posted or commented.*
+
+---
+
+## AMENDMENT A2 — 2026-09-10. PRE-FIRST-COMPUTE. The two blocking findings of `docs/closure/CLAUSE_SATISFIABILITY_AUDIT.md` closed.
+
+**Document version: DRAFT v1.2** (was DRAFT v1.1 at amendment A1; DRAFT v1.0 as
+landed at commit `4e3c5bc6`).
+**lines whose number changed above this section: 0** — this amendment is appended
+at the foot and edits no line above it. The assertion is not a claim: the file's
+first **47,651 bytes (844 lines)** were hashed before and after the append inside
+a **single shell invocation**, with the whole-file digest shown to move in the
+same invocation so the hasher is demonstrably not returning a constant. Both
+prefix digests and both whole-file digests are recorded in the commit that
+carries this amendment.
+
+**THIS AMENDMENT IS NOT THE FREEZE.** It changes no cap and no label. It closes
+two clauses that the clause-satisfiability audit measured as blocking, one of
+which changes how a registered screen is APPLIED — declared as such at §A2.2,
+with the direction of the change stated numerically rather than left to be
+discovered. `prereg_commit:` still reads the DRAFT/UNFROZEN token at the Status
+line of this document; that token still occurs **exactly once** in this file
+(measured: 1; controls — `REGISTERED CAP` 3, an absent string 0), and this
+amendment deliberately does not write the token string again, so the
+supervisor's single substitution at the freeze clears
+`build_rc3_ladder.refuse_if_unfrozen()` in one edit.
+
+### A2.0 The rule-2 condition, and how it was checked — freshly, at this amendment
+
+**Condition: RC3 has had ZERO compute. The run root registered by its own
+instrument does not exist.** Checked 2026-09-10T16:15:40Z, by this lane, at zero
+compute — every row carries the control that FIRED on the positive case:
+
+| check | result | control that FIRED (same command shape, positive case) |
+|---|---|---|
+| `/home/ubuntu/closure-data/rc3` (`build_rc3_ladder.py:102`) | **ABSENT** | `/home/ubuntu/closure-data` **PRESENT** |
+| `/home/ubuntu/closure-data/rc3/wu2018` | **ABSENT** | `/home/ubuntu/closure-data/aposteriori_frozenk/wu2018` **PRESENT** |
+| `find /home/ubuntu/closure-data -maxdepth 1 -name 'rc[34]*'` | **no hits** | the same `find` with `-name 'rc2*'` returns `/home/ubuntu/closure-data/rc2` |
+| `find verification/runs -maxdepth 2 -iname '*rc3*'` | **no hits** | the same `find` with `-iname '*T-family*'` returns `verification/runs/T-family` |
+| any `RESULTS.md`, `scores.json` or run artifact beside this registration | **none** — the directory holds `PREREGISTRATION.md`, `build_rc3_ladder.py`, `rc3_ceiling.py`, `rc3_fixedpoint.py`, `rc3_run.py` and nothing else | the sibling `Wu2018_PIML_RF/aposteriori_frozenk/RESULTS.md` **does** exist, so the listing is not blind to result files |
+
+Independently, **every** entry point of **every** instrument was DRIVEN and each
+returned `rc = 2` while this document carries the DRAFT/UNFROZEN token:
+`build_rc3_ladder.refuse_if_unfrozen()`, `build_rc3_ladder.build()`,
+`rc3_ceiling.score_all()`, `rc3_run.solve_one()`, `rc3_run.campaign()`,
+`rc3_fixedpoint.drive()` — six of six, `rc = 2`. Two-direction control on the
+guard itself, in the same invocation: on a **copy** of this file with the single
+token occurrence replaced by a sha the guard returned `rc = 0`, and on a
+byte-identical copy `rc = 2`. **One substitution at the freeze clears it.**
+
+### A2.1 FINDING B — the completion clause no producer could satisfy. CLOSED BY SHIPPING A RUNNER, NOT BY WEAKENING THE CLAUSE.
+
+`docs/closure/CLAUSE_SATISFIABILITY_AUDIT.md` §4 measured that §8's clauses 1–3,
+delegated to `r4_lib.solve_complete` (`r4_lib.py:494`), require a file named
+`rc` in the case directory (`r4_lib.py:508-511`) and a log named `log.solve`
+(`r4_lib.py:505`), and that the Wu runner
+`Wu2018_PIML_RF/aposteriori/run_solves.sh:14` records the return code as the
+**text** `rc=<n> seconds=<e>` inside `log.solve.done` and writes no such file.
+Re-measured by this lane on the full 54-row Wu population: a file named `rc` is
+present on **0 of 54** rows. RC3 had **no committed runner at all**.
+
+**THE ROUTE TAKEN IS THE STRICTER ONE. No clause is weakened, no threshold is
+touched, and the reader is not repointed at a channel the producer already
+happened to write. The producer is made to emit what the clause reads.**
+
+**Registered as a fourth instrument of §11: `rc3_run.py`.** Its contract:
+
+- it invokes `timeout 3600 simpleFoam`, the identical enforcement shape as
+  `aposteriori_frozenk/run_solves.sh:11` — **no new solver is written or
+  compiled** (§9's L6 row is untouched);
+- it writes the return code into **both** channels: the file `rc` that
+  `r4_lib.solve_complete` reads, **and** the predecessor's own
+  `rc=<n> seconds=<e>` line in `log.solve.done`, so nothing that read the
+  predecessor's convention is lost;
+- it **READS BOTH BACK from disk and REFUSES** if either did not land or
+  disagrees — standing rule 3 applied to the writer, exactly as amendment A1.5
+  registered it for `build_rc3_ladder.write_bdelta_and_verify`;
+- it is **SERIAL**. Both predecessor runners drive `xargs -P 6`
+  (`aposteriori/run_solves.sh:20`, `aposteriori_frozenk/run_solves.sh:19`). §9
+  fixes the formulation as serial at ranks = 1 (line 430) and §10 defines the
+  accumulator as 24,000 **wall** s **at ranks 1** (line 519). Under a `-P 6`
+  runner the campaign's wall clock is not the sum of its solves' wall times and a
+  wall-clock accumulator would admit up to **six times** the registered budget.
+  The accumulator therefore sums **per-solve** wall seconds, which at ranks = 1
+  is exactly core-minutes × 60.
+
+**Registered refusals of `rc3_run.py`** (all four `sys.exit(2)`, none an
+`assert`; `ast.Assert` count in the file: **0**):
+
+> 1. the `rc` file or the `log.solve.done` line not landing, or reading back as
+>    something other than what was written (`rc3_run.py:118,125,129,132,135`);
+> 2. the §10 campaign accumulator already at or over the registered 24,000 wall s
+>    when a solve is about to launch (`rc3_run.py:170`) — **and** the per-solve
+>    timeout handed to `timeout` is `min(3600, 24000 − spent)`, which can only
+>    ever SHORTEN a solve, never lengthen one, so the campaign cannot walk past
+>    the cap inside a single solve. An overrun **stops** the campaign;
+> 3. the case directory being absent (`rc3_run.py:173`);
+> 4. **THE SMOKE ROW** (`rc3_run.py:203`) — the FIRST completed solve of the
+>    campaign is put through `r4_lib.solve_complete(case, required=())`, the
+>    exact frozen helper `rc3_ceiling.completion()` calls, and the **whole
+>    campaign refuses** if the real producer's real output does not satisfy
+>    clauses 1–3. `grade_r5d.py:296` froze a clause no producer could satisfy and
+>    it was found 54 records later; with this refusal a producer-contract gap
+>    costs **one** solve, never thirty.
+
+**SATISFIABILITY, MEASURED against the REAL producer's REAL output**, at zero
+solver compute. Every artifact is `simpleFoam` output already on disk, reached by
+symlink so that nothing under `closure-data` is written; the **only** thing added
+per case is the one file `rc3_run.record()` writes:
+
+| what | measured |
+|---|---|
+| population | the full Wu chain, **54** rows (18 `aposteriori/wu2018` + 36 `aposteriori_frozenk/wu2018`) |
+| `rc` file present in the predecessor as it stands | **0 of 54** — the audit's zero, reproduced |
+| **clauses 1–3 SATISFIED with `rc3_run`'s contract** | **49 of 54** |
+| **clauses 1–6 composite SATISFIED** | **49 of 54** — `AR_1_Ret_360` 18/18, `AR_3_Ret_360` 15/18, `CBFS13700` 16/18 |
+| clause 5 (`n_exec == n_time`) taken alone | **49 of 54**, and **zero** mismatches on every row whose log was reached |
+| clause 4 (`U p k omega nut phi` at the last written time) | **57 of 57** rows that have a non-zero time directory; `phi` never absent |
+| the 5 rows that fail | all five are `rc = 124`, i.e. killed by `timeout 3600`: `aposteriori` `AR_3_Ret_360/null`, `CBFS13700/mean`; `aposteriori_frozenk` `AR_3_Ret_360/L_null`, `AR_3_Ret_360/S_null`, `CBFS13700/S_mean`. Each also fails clause 2 (no `End` line) and clause 5 (`n_exec = n_time − 1` exactly, the SIGTERM landing between `simpleFoam.C:100` and `simpleFoam.C:121`). **Three independent clauses catch them. A real crash correctly caught is a finding, not a broken guard.** |
+
+**Two-direction reader control on the `rc` channel, on a NAMED artifact**
+(`/home/ubuntu/closure-data/aposteriori/wu2018/AR_1_Ret_360/truth`): with the
+file present clauses 1–3 return **SATISFIED**; with the identical real tree and
+the file removed they return **`no recorded rc`**. Both directions FIRED, so the
+`0 of 54` above is a real absence and the `49 of 54` is a real presence.
+
+**Clause 5 is the direct inverse of the R5D defect, and the reason is the
+solver source, read at source and not assumed.** `grade_r5d.py`'s clause was
+unsatisfiable because `kCorrectiveFrozenFoam.C` emits `ExecutionTime = ` at
+**:192, outside** its outer loop. RC3 runs `simpleFoam`, and:
+
+| channel a §8 clause reads | solver source line that emits it | inside the iteration loop? |
+|---|---|---|
+| `Time = ` (clause 5's denominator, clause 3's iteration) | `applications/solvers/incompressible/simpleFoam/simpleFoam.C:100` | **YES** |
+| `ExecutionTime = ` (clause 5's numerator) | `simpleFoam.C:121` (`runTime.printExecutionTime`), emitted by `src/OpenFOAM/db/Time/TimeIO.C:621,631` | **YES** |
+| `End` (clause 2) | `simpleFoam.C:124`, after the loop, on a clean exit only | after, by design |
+| `SIMPLE solution converged in <n> iterations` (clause 3, branch 1) | `src/finiteVolume/cfdTools/general/solutionControl/simpleControl/simpleControl.C:148-153`, which then calls `runTime.writeAndEnd()` so the converged iteration IS written | n/a |
+| `endTime` (clause 3, branch 2) | read from `system/controlDict` by `r4_lib.py:522-524`; the builder writes `endTime 30000` (`build_rc3_ladder.py:130` `ITER_CAP`, applied in `build()`) | n/a |
+| the six fields of clause 4 | `runTime.write()` at `simpleFoam.C:119` | **YES** |
+| `0/U`, clause 6's age reference | `build_rc3_ladder.py:513-516` touches `0/U` **last**, and refuses if it is absent | n/a |
+| `time step continuity errors : sum local` (A2.2's second reading) | `src/finiteVolume/cfdTools/incompressible/continuityErrs.H:37-38,44-47`, `fvc::div(phi)` | **YES** |
+
+**Every channel §8 reads is emitted once per iteration by the solver RC3 will
+actually run, except the three that are by construction once-per-run.** No §8
+clause of RC3 is unsatisfiable on this producer.
+
+**And the fixture is repaired, not merely disclosed.** `rc3_ceiling._fake_case`
+writes the `rc` file, which was a false green while no producer wrote one; it is
+now what the committed runner writes. That alone would still be a fixture
+certifying a fixture, so `rc3_ceiling.selftest()` now carries a
+**FIXTURE-VERSUS-PRODUCER PARITY** block: §8 clauses 1–6 are run against **named
+real `simpleFoam` output** (`aposteriori/wu2018/AR_1_Ret_360/truth` and
+`aposteriori_frozenk/wu2018/CBFS13700/L_truth`) with only the runner's own file
+added, and required to PASS; the same real trees with that file removed are
+required to FAIL; and a real `timeout 3600` row is required to be REJECTED. The
+selftest now certifies the producer, which is the check the R5D freeze did not
+have.
+
+### A2.2 FINDING C — the continuity screen. THE REGISTERED NUMBER DOES NOT MOVE; IT IS APPLIED PER CASE AT THE INSTRUMENT'S MEASURED FLOOR.
+
+**This is the one substantive change in this amendment and it is declared as
+such.** §4's quantity ("RMS `div(U)` normalised by the field's own gradient
+scale") is unchanged and the registered number **1e-4** is unchanged
+(`CONTINUITY_MAX = 1e-4`, `rc3_ceiling.py:121`; §4 line 223, §5.1 line 280, §8
+clause 8 line 410 all stand). What changes is that the number was applied
+**globally** to an instrument whose own truncation error on one of the three
+in-scope meshes is **50× larger than the number**, so on that mesh the bar could
+not measure the quantity it names.
+
+**THE MEASUREMENT, on RC3's own chain, own cases, own solver and own formula, at
+zero solver compute.** `rc3_ceiling.score_row`'s continuity expression
+(`rc3_ceiling.py:556-561`) was evaluated on the converged `U` of all **54** real
+Wu rows. Reader control FIRED in both directions: a bar of 1e9 admits 54 of 54, a
+bar of 0.0 admits 0, a `PLANT = 1.234e-03` written into `U` moves the metric by
+4.02e-12 and an unmodified re-read is bitwise identical.
+
+| case | measured range over its 18 rows | admitted by the registered **global** 1e-4 |
+|---|---|---|
+| `AR_1_Ret_360` | 8.6010e-18 … 2.5116e-03 | **4 of 18** |
+| `AR_3_Ret_360` | 7.6729e-18 … 1.6756e-03 | **4 of 18** |
+| `CBFS13700` | 5.2451e-03 … 3.0663e-01 | **0 of 18** |
+| total | | **8 of 54** |
+
+**The audit's expectation is confirmed and sharpened: it is not only
+`CBFS13700`.** Every corrected duct row also lands above 1e-4 — the six TRUTH
+rows measure 8.6106e-05, 1.1425e-04, 1.5155e-04, 1.5640e-04, 1.9820e-04,
+2.0550e-04. Under a global screen the pre-registered expectation was
+`NOT A RESULT` on essentially every configuration.
+
+**TWO INDEPENDENT CHANNELS, both measured before compute, separate the
+instrument's error from the field's physics — and they disagree with each other
+by nine orders of magnitude on one mesh:**
+
+1. **The producer's own continuity channel**, `time step continuity errors : sum
+   local` (`continuityErrs.H:37-38`, `fvc::div(phi)`), last value in each row's
+   own `log.solve`. Reader control FIRED: 524 lines on the named artifact
+   `aposteriori_frozenk/wu2018/AR_1_Ret_360/L_mean/log.solve`, 0 when the token
+   is scrubbed from a copy. Measured: **all 18 `CBFS13700` rows are ≤ 3.02e-09,
+   and 15 of them ≤ 3.9e-13**, while this clause's own reader reads 5.26e-03 to
+   3.07e-01 on those same rows. On the ducts the two channels agree in order of
+   magnitude (e.g. `aposteriori/AR_1_Ret_360/truth`: producer 1.607e-04, reader
+   1.1425e-04).
+2. **The grid behaviour of this clause's own reading on the same field**, the
+   structured grid decimated 2× and 4×. A second-order truncation error grows
+   with `h`; a real divergence in the field does not. Measured: the duct baseline
+   rows are **grid-independent at 1e-17** (ratios 0.99, 0.83), whereas
+   `CBFS13700`'s baseline reading **GROWS** 5.2647e-03 → 1.1384e-02 → 2.2929e-02
+   (ratios **2.16**, **2.01**).
+
+**Diagnosis, on those two channels:** on the CBFS hill mesh this clause's reader
+is reading its own truncation error, not a divergence in the field. It is
+corroborated a third time by the reader's own documented accuracy —
+`_common/sst_baseline_metrics.py:114-116` records the structured chain-rule
+gradient as "validated to 0.5-1.0% interior rel-L2 against the OpenFOAM `gradU`
+shipped on the hills", and the CBFS baseline reading of 5.26e-03 is **0.53%**.
+**A bar 50× below the instrument's own accuracy on that mesh retires the case for
+an instrument reason, which is exactly the R5D failure transposed into the
+admissibility channel.**
+
+**REGISTERED, THE PER-CASE FORM OF CLAUSE 8.** The bar is per case, and each
+case's bar is derived by a stated RULE from a MEASURED floor, so the number
+cannot be chosen and cannot drift:
+
+> **`bar(case) = max(1e-4, the smallest decade ≥ 10 × that case's measured
+> instrument floor)`.**
+>
+> The **instrument floor** is the reading this clause's own formula returns on
+> that case's **UNCORRECTED baseline** solve already on disk — `b^Delta = 0`, so
+> no correction can be blamed for it — with the two channels above beside it.
+>
+> The rule **can never set a bar tighter than the registered 1e-4**, and it
+> loosens **only** by the amount that mesh's measured floor forces.
+
+| case | measured instrument floor | named artifact | producer channel on that row | grid ratio 2h/h | **registered bar** |
+|---|---|---|---|---|---|
+| `AR_1_Ret_360` | 8.6010e-18 | `aposteriori/wu2018/AR_1_Ret_360/null/200000/U` | 7.158e-13 | 0.99 | **1e-4 — UNCHANGED** |
+| `AR_3_Ret_360` | 1.1100e-17 | `aposteriori/wu2018/AR_3_Ret_360/null/99000/U` | 8.147e-13 | 0.83 | **1e-4 — UNCHANGED** |
+| `CBFS13700` | 9.6193e-03 | `aposteriori_frozenk/wu2018/CBFS13700/L_null/1969/U` | 3.925e-14 | 1.23 | **1e-1** |
+
+Implemented as `CONTINUITY_FLOOR` / `CONTINUITY_BAR` / `continuity_bar()`
+(`rc3_ceiling.py:145-169`, `:204-237`), which **recomputes the bar from the rule
+on every call and REFUSES (`sys.exit(2)`) if the tabulated number disagrees with
+its own derivation**, if any bar is tighter than 1e-4, if any bar is below 10× its
+floor, or if a case has no measured floor at all.
+
+**The global screen is UNCHANGED and stays global.** A row outside its own bar
+still takes the whole item to `NOT A RESULT`
+(`rc3_ceiling.verdict`), and `gate_arithmetic` still **refuses outright** if such
+a row reaches it. There is no quiet-acceptance path and none is added.
+
+**BOTH READINGS, NEITHER HIDDEN — RC4's form, adopted deliberately.**
+`rc4_score.py:96-97,301-304` carries two continuity readings with the looser one
+binding and the stricter one reported, and its selftest hardcodes the real
+measured `CBFS13700__TRUTHR` value 0.3219275282624856 (`rc4_score.py:683`) so its
+fixture cannot be greener than its population. **That FORM is the right model for
+RC3 and is adopted.** Its CHANNEL is not: RC4 reads only the same
+structured-gradient reconstruction, so the diagnosis above applies to RC4's
+CBFS exposure too — reported to the supervisor as a cross-item finding, **not
+acted on here; RC3 edits no RC4 file.** Every RC3 row therefore now carries, all
+recorded and only the first with gate power:
+
+- `continuity_ok` and `continuity_bar` — the binding per-case reading;
+- `continuity_registered_bar` = 1e-4 and `continuity_inside_registered_bar` — what
+  the retired global bar would have said on that row, so what was retired stays
+  visible on every row for ever;
+- `producer_continuity_sum_local` — the producer's own channel, **NON-GATING**;
+- `divU_grid_ratio_2h_over_h` — the truncation-versus-physics attribution,
+  **NON-GATING**.
+
+**Neither non-gating reading can rescue a row that failed clause 8 or condemn one
+that passed.** They exist so the attribution is on the record at grading time
+instead of being argued afterwards.
+
+**THE ANTI-GAMING TEST, REGISTERED WITH THE BAR** — `check_continuity_bars()`
+(`rc3_ceiling.py:240-304`), run before any row is scored on **every** scoring
+pass, not only under `--selftest`:
+
+| id | what it enforces | how it fails |
+|---|---|---|
+| **AG-C1** | every bar is **FAILABLE AND NON-VACUOUS on its own case's measured population**: it must ADMIT a named real reading and REJECT a named real reading. Registered pairs: `AR_1_Ret_360` admits 3.6402e-05 / rejects 1.1425e-04; `AR_3_Ret_360` admits 8.6106e-05 / rejects 1.0146e-04; `CBFS13700` admits 2.9031e-02 / rejects 3.0663e-01 | `sys.exit(2)` |
+| **AG-C2** | every bar is ≥ 10× its case's measured floor and never tighter than the registered 1e-4; the tabulated bar equals what the rule derives | `sys.exit(2)` |
+| **AG-C3** | the bars are FIXED MODULE CONSTANTS with their measured floor and named artifact beside them, closed by rule 2 at first compute | frozen shut |
+| **AG-C4** | **DIRECTION DISCLOSURE, printed on every pass**: the per-case bars admit **21 of 54** measured predecessor rows where the retired global 1e-4 admitted **8 of 54**. **This is a LOOSENING, on `CBFS13700` only** (0 → 13 of 18), of the size that mesh's measured instrument floor forces; both duct bars are unchanged and admit 4 of 18 each | printed, unconditionally |
+| **AG-C5** | `CBFS13700` is **NOT dropped from the denominator**: `N_INSCOPE = 3` and `MIN_CASES = 2` unchanged, and its own bar still rejects **5 of its 18** measured rows. §9's explicit prohibition on dropping `CBFS13700` is untouched | `sys.exit(2)` |
+| **AG-C6** | **FIXTURE PARITY**: `_row`'s (`rc3_ceiling.py:824`) hardcoded `divU_rms_over_gradscale = 1e-6` — 5,000× tighter than the real CBFS baseline, the R5D pattern — is **retired**. The fixture now carries MEASURED per-case values (`FIXTURE_DIV`), the selftest carries the real 3.0663e-01 and the real 1.1425e-04 and requires the verdict each produces, and the selftest refuses if any fixture row still carries 1e-6 | `SELFTEST FAILED` |
+
+**AG-C4 is stated as a loosening and is not dressed up as anything else.** Its
+justification is the two-channel measurement above, taken before compute, with
+the size of the loosening set by the instrument's measured floor and not by how
+many rows pass. No threshold value moved.
+
+### A2.3 REGISTERED, PRE-COMPUTE: the paths by which RC3 can still return `NOT A RESULT`
+
+Registered here so that none of them is discovered afterwards and none is then
+argued away. **Each is a consequence RC3 accepts, not a bar it will move.**
+
+1. **Clause 8 on a corrected DUCT row — the likeliest single cause, and it is not
+   `CBFS13700`.** `build_rc3_ladder` writes `residualControl` at `1e-6` on
+   `U`/`p` (and `k`/`omega` where `k` is transported), which is **byte-identical
+   to the predecessor's** `system/fvSolution` on both branches — disclosed here as
+   the convergence aid it is (§9's L1–L5 clause), and it is not tightened to
+   flatter the gate. On that stopping rule the predecessor's corrected duct rows
+   measured **1.14e-04 to 2.51e-03** on this clause's own channel, i.e. above the
+   **unmoved** 1e-4 duct bar on **14 of 18** rows per duct case. **The duct bar is
+   not moved to avoid this.** If it fires, RC3 is `NOT A RESULT` and the finding
+   is that the b-only apparatus does not deliver a continuity-clean cell-centred
+   velocity field at the registered stopping rule.
+2. **A `timeout 3600` kill.** **5 of 54** predecessor rows hit it (rc = 124).
+   RC3's `ITER_CAP = 30000` is far below the 99,000–200,000 iterations the rows
+   that timed out reached, so the C0 NULL exposure is reduced — but §10.2's own
+   risks 1 and 3 (CBFS at 1,700–3,400 s; CX's structureless stress of unknown
+   convergence behaviour) stand. Any such row fails clauses 1, 2 and 5
+   independently and takes the item to `NOT A RESULT`.
+3. **The C4 fixed point not contracting on ≥ 2 of 3 cases** — §7's third
+   falsifier, unchanged; `N_outer` is not raised above 5.
+4. **The §6 reader control failing in either direction** — unchanged.
+
+### A2.4 §11's instrument table, as amended
+
+§11 registers three modules. **`rc3_run.py` is registered as the fourth**, with
+the four refusals enumerated at §A2.1. §11's closing requirement — `--selftest`
+green under `python3` **and** `python3 -O` with `__pycache__` cleared before each,
+and no `ast.Assert` carrying any refusal, guard, control or gate — binds it
+identically. Measured by this lane, `__pycache__` cleared before **every** one of
+the eight invocations, `ast.Assert` counted by an independent AST parse of each
+file and not by grep:
+
+| module | lines | `--selftest` `python3` | `--selftest` `python3 -O` | `ast.Assert` |
+|---|---|---|---|---|
+| `build_rc3_ladder.py` | 748 | rc 0, 29/29 PASS | rc 0, 29/29 PASS | **0** |
+| `rc3_ceiling.py` | 1155 | rc 0, 46/46 PASS | rc 0, 46/46 PASS | **0** |
+| `rc3_fixedpoint.py` | 357 | rc 0, 17/17 PASS | rc 0, 17/17 PASS | **0** |
+| `rc3_run.py` | 485 | rc 0, 25/25 PASS | rc 0, 25/25 PASS | **0** |
+
+The three shared modules RC3 imports were parsed the same way:
+`_common/of_read.py` (259 lines, `ast.Assert` **0**),
+`_common/sst_baseline_metrics.py` (400 lines, **0**), and
+`R4_sparta_build/r4_lib.py` (544 lines, `ast.Assert` **6**). **The six live in
+`assert_no_test_case` (:72), `retag` (:90), `set_libs` (:112), `les_list_body`
+(:367) and `splice_internal` (:383,:387). RC3 calls `r4_lib.latest_time` and
+`r4_lib.solve_complete` and nothing else, and neither contains an `assert`**, so
+§6.1's assertion survives the delegation. This is stated as a measurement, not an
+assurance.
+
+### A2.5 §A1.3's library table, verified by SYMBOL and corrected in one wording
+
+A1.3's table was checked by reading exported symbols with
+`nm -D --defined-only … | c++filt`, **not** with `strings`:
+
+| library | on-disk mtime | model classes it DEFINES | model classes it REGISTERS in the runtime selection table |
+|---|---|---|---|
+| `libspartaTurbulenceModels.so` | **2026-08-01 01:09:28.635804308 +0000** | `kOmegaSST`, `kOmegaSSTCorrected`, `kOmegaSSTFrozen`, `kOmegaSSTSparta` | `kOmegaSSTCorrected`, `kOmegaSSTFrozen`, `kOmegaSSTSparta` |
+| `libwu2018FrozenK.so` | **2026-08-21 18:12:47.254760790 +0000** | `kOmegaSST`, `kOmegaSSTCorrected`, **`kOmegaSSTCorrectedFrozenK`** | **`kOmegaSSTCorrectedFrozenK` only** |
+
+**A1.3's binding content stands** — `kOmegaSSTCorrectedFrozenK` is defined and
+registered by `libwu2018FrozenK.so` alone, both libraries pre-date this
+registration's directory (2026-09-10 04:43 UTC) by weeks, and **neither is built
+by RC3**. **One wording correction:** A1.3 says `libwu2018FrozenK.so` "defines
+`kOmegaSSTCorrected`, `kOmegaSSTCorrectedFrozenK`", which is true at the SYMBOL
+level but not at the REGISTRATION level — it exports a `kOmegaSSTCorrected`
+symbol and registers no such selectable model. The distinction is recorded so a
+later reader does not conclude either library is interchangeable with the other.
+
+**And the `libs` entry RC3 will write is byte-identical to the predecessor's, on
+both branches** — verified against the real cases on disk:
+`build_rc3_ladder.py:429-430` writes `("libspartaTurbulenceModels.so",)` for the
+`k`-transported configurations C0/C1 and
+`("libspartaTurbulenceModels.so", "libwu2018FrozenK.so")` for the `k`-frozen
+C2/C3/C4/CX, and
+`closure-data/aposteriori/wu2018/AR_1_Ret_360/truth/system/controlDict:49` reads
+`libs ( "libspartaTurbulenceModels.so" );` while
+`closure-data/aposteriori_frozenk/wu2018/AR_1_Ret_360/L_truth/system/controlDict:49`
+reads `libs ( "libspartaTurbulenceModels.so" "libwu2018FrozenK.so" );`. Honest
+note: both libraries export `Foam::RASModels::kOmegaSSTCorrected` symbols, so the
+two-library load involves duplicate class symbols in one process. **That is not a
+risk RC3 introduces** — it is the configuration that produced the 36 frozenk rows
+on disk — and it is recorded rather than left implicit.
+
+### A2.6 §10's solve count, re-derived. THE BINDING CONTROL DOES NOT MOVE.
+
+Re-derived from the document alone: §3's ladder is 6 configurations × 3 cases;
+§3.1 as read out at A1.2 makes C4 **five** solves per case; so 3+3+3+3+15+3 =
+**30 solves**, and 30 × 3,600 s = **108,000 s** of nominal per-solve timeout
+headroom. **Line 521's `18 solves … 64,800 s` is the SUPERSEDED figure, already
+struck by A1.4 (lines 729-748); 30 / 108,000 is the number this document
+supports.** Nothing binding moves, and every registered figure is confirmed
+unchanged at its own line:
+
+| registered figure | line | value |
+|---|---|---|
+| ranks | 430, 465 | **1**, serial, no `mpirun` |
+| REGISTERED ESTIMATE | 496 | **160 core-minutes** |
+| REGISTERED CAP | 502 | **400 core-minutes** |
+| per-solve timeout | 517 | **`timeout 3600`** |
+| campaign accumulator, the binding control | 519 | **24,000 wall s at ranks 1** |
+| worst-case solve count | 747-748 (A1.4) | **30 solves / 108,000 s** |
+
+### A2.7 What did NOT move — the clause-by-clause statement rule 2 requires
+
+Every line above this amendment is byte-identical to the version carrying
+amendment A1; the prefix hash recorded in the commit message proves it.
+
+| clause | line | value, unchanged |
+|---|---|---|
+| V0 threshold | 237, 276 | C4 cut **≥ 80%** vs C0 NULL on **≥ 2 of 3** cases |
+| V1a / V1b | 257-258, 277-278 | criterion PASSes C4 and FAILs CX on the same ≥ 2 of 3 |
+| C4 fixed point | 193, 195, 279 | `N_outer = 5`; ratio **≤ 1e-2** by pass 5; monotone over passes 2–5 |
+| continuity QUANTITY and NUMBER | 223, 280, 410 | RMS `div(U)` / gradient scale, **1e-4** — the number is not moved; §A2.2 changes only that it is applied per case at the instrument's measured floor, and never tighter than 1e-4 |
+| the GLOBAL screen | 410-411, §5.2 296-298 | a row outside its bar still takes the WHOLE item to `NOT A RESULT`; `gate_arithmetic` still refuses outright |
+| V3 plant | 281, 316 | `PLANT = 1.234e-03`; move **> 1e-12** when planted, bitwise identical when not |
+| verdict ladder | 285-302 | PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING |
+| falsifiers | 356-379 | **all three unchanged**: 80% never lowered, no oracle channel added, **no case dropped from the denominator**, no margin renegotiated, `N_outer` never raised |
+| REGISTERED ESTIMATE / CAP | 496, 502 | **160** / **400 core-minutes** |
+| accumulator / per-solve timeout | 519, 517 | **24,000 wall s at ranks 1** / **`timeout 3600`** |
+| case set / seed / `bScale` | 432-436 | unchanged; `CBFS13700` still in scope and in the denominator |
+| Label | header | `RC3`, unchanged |
+
+**No gate, no cap and no label is altered by this amendment. One registered
+screen is applied per case rather than globally, by a stated rule from a measured
+floor, with the direction of the change printed on every scoring pass.**
+
+### A2.8 What this lane could NOT verify, stated plainly
+
+1. **No RC3 row exists, and this lane launched nothing.** Every satisfiability
+   number above is measured on the **predecessor's** real `simpleFoam` output plus
+   the one file `rc3_run.record()` writes. **The composite clauses 1–3 have NOT
+   been demonstrated end-to-end on a solve this runner itself launched** — that
+   is exactly what the smoke row at `rc3_run.py:203` exists to establish, on the
+   campaign's first solve, at the cost of one solve.
+2. **The runner's `_spawn` was exercised with a real spawned subprocess, not with
+   `simpleFoam`.** The wrapper is binary-agnostic and what was measured is that
+   whatever process it spawns, the rc and the log land under the names the clauses
+   read. That the spawned binary will be `simpleFoam` is fixed by
+   `rc3_run.SOLVER` and by §9's L6 row; it is not a measurement.
+3. **Finding C's per-case floors are measured on the PREDECESSOR's rows, not on
+   RC3's.** They are the same meshes, the same cases, the same solver and the same
+   formula, and the baseline rows carry `b^Delta = 0` — but RC3's own rows do not
+   exist and no claim is made about their values.
+4. **Whether the corrected duct rows will clear the unmoved 1e-4 duct bar is
+   UNKNOWN** and is registered at §A2.3 item 1 as the likeliest path to
+   `NOT A RESULT`. This lane takes no position on it in advance and did not tune
+   the stopping rule to improve the odds.
+5. **The `divU_grid_ratio_2h_over_h` reading is a diagnostic, not a proof.** A
+   ratio near 1 is consistent with a real divergence and a ratio near 2–4 with
+   truncation error, but the decimation also removes short-wavelength content from
+   the field itself. It is registered as NON-GATING for that reason.
+6. **RC4's identical exposure on the same channel is reported, not repaired.**
+   `rc4_score.py` reads the same structured-gradient reconstruction and its
+   hardcoded `CBFS13700__TRUTHR` value of 0.3219 sits in the same regime this
+   amendment measures as truncation-dominated on the CBFS mesh. **RC3 edits no
+   RC4 file.** It is the supervisor's to route.
+7. **No `docs/COST_CALIBRATION.md` row is filed.** This amendment ran **zero
+   solver compute**, so there is no estimate-versus-actual pair to calibrate.
+
+*Amendment A2 appended 2026-09-10 by a closure lane on the closure-supervisor's
+dispatch. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
+nothing may run against it. Zero solver compute produced this amendment. Nothing
+sent, filed, uploaded, registered, posted or commented.*

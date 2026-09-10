@@ -21,12 +21,39 @@ ORDER OF OPERATIONS, as registered
 REGISTERED REFUSALS (section 11), every one a sys.exit(2), never an assert:
   * either plant direction failing,
   * any strict-completion clause failing,
-  * a continuity violation being silently accepted.
+  * a continuity violation being silently accepted,
+  * (amendment A2) a per-case continuity bar that has drifted from its rule, is
+    tighter than the registered 1e-4, sits below 10x its measured instrument
+    floor, or is vacuous or total on its own measured population.
 
 The third is made structural rather than promissory: a row that fails section
 4's continuity criterion is carried with `continuity_ok = False`, and
 `gate_arithmetic()` REFUSES if such a row ever reaches it.  There is no code
 path by which a continuity violation can enter a gate quietly.
+
+AMENDMENT A2 -- CLAUSE 8 IS APPLIED PER CASE AT THE INSTRUMENT'S MEASURED FLOOR
+------------------------------------------------------------------------------
+The registered quantity and the registered number 1e-4 are UNCHANGED.  What A2
+fixes, measured on all 54 real Wu rows before any compute, is that the number
+was applied GLOBALLY to an instrument whose own truncation error on the CBFS
+hill mesh is 50x larger than the number: the UNCORRECTED CBFS baseline reads
+5.26e-03 on this formula while the producer's own continuity channel reads
+4.52e-14 on the same row, and this formula's reading GROWS 2.16x when the grid
+is coarsened 2x -- the signature of the reader, not of the field.  So the bar is
+per case, by a stated RULE from a MEASURED floor
+(`continuity_bar()`), never tighter than 1e-4, and `check_continuity_bars()`
+runs AG-C1..AG-C6 on every scoring pass and PRINTS the direction of the change.
+Both non-gating corroboration channels are recorded on every row and neither can
+rescue or condemn one.  The screen stays GLOBAL.
+
+FINDING B AND THE RUNNER
+------------------------
+Clauses 1-3 delegate to `r4_lib.solve_complete`, which reads a file named `rc`
+that no Wu producer wrote (measured: 0 of 54).  The repair is `rc3_run.py`, which
+makes the producer emit what the clause reads; the clause is NOT weakened.
+`selftest()` therefore carries a FIXTURE-VERSUS-PRODUCER PARITY block that runs
+clauses 1-6 against NAMED real `simpleFoam` output with only the runner's own
+file added -- because a fixture that satisfies a clause certifies the fixture.
 
 WHY THE PLANT BAR IS ABSOLUTE HERE AND THAT IS NOT L-508
 ---------------------------------------------------------
@@ -60,6 +87,7 @@ from __future__ import annotations
 
 import ast
 import json
+import math
 import os
 import re
 import shutil
@@ -90,9 +118,72 @@ PLANT = 1.234e-03                    # the lab's established comparator constant
 CEILING_CUT = 0.80                   # V0 / V1: "cuts U_rms by >= 80% vs NULL"
 MIN_CASES = 2                        # "on >= 2 of the 3 in-scope cases"
 N_INSCOPE = 3
-CONTINUITY_MAX = 1e-4                # section 4, carried verbatim
+CONTINUITY_MAX = 1e-4                # section 4, carried verbatim.  NEVER MOVED.
 PLANT_MIN_MOVE = 1e-12               # section 5.1, V3 plant
 FALSIFIED_BARS = (0.30, 0.50)        # section 5's V2: the predecessors' bars
+
+# ---------------------------------------------------------------------------
+# AMENDMENT A2 -- clause 8 applied PER CASE at the instrument's MEASURED FLOOR.
+#
+# The registered quantity (section 4: "RMS div(U) normalised by the field's own
+# gradient scale") and the registered number (1e-4) are UNCHANGED.  What A2
+# fixes is that the number was applied GLOBALLY to an instrument whose own
+# truncation error on one of the three in-scope meshes is 50x larger than the
+# number, so on that mesh the bar could not measure the quantity it names.
+#
+# CONTINUITY_FLOOR[tag] is the instrument's MEASURED floor on that mesh: the
+# reading this module's own formula returns on the UNCORRECTED baseline solve
+# already on disk (b^Delta = 0, so no correction can be blamed for it).  It is
+# corroborated on two independent channels, both measured before compute:
+#   * the producer's own `time step continuity errors : sum local` on the same
+#     row (`continuityErrs.H:37-38`, `fvc::div(phi)`), and
+#   * the grid-coarsening ratio of this module's own reading on the same field.
+# On CBFS13700 the reading GROWS 2.16x when the grid is coarsened 2x -- the
+# signature of the reader's own truncation error, not of a divergence in the
+# field -- while the producer reports 4.52e-14 on that same row.  On both ducts
+# the reading is 1e-17, grid-independent, and the producer reports 1e-13.
+CONTINUITY_FLOOR = {
+    "AR_1_Ret_360": 8.6010e-18,
+    "AR_3_Ret_360": 1.1100e-17,
+    "CBFS13700":    9.6193e-03,
+}
+# The NAMED artifact each floor was measured on, and its two corroborations.
+CONTINUITY_FLOOR_ARTIFACT = {
+    "AR_1_Ret_360": ("/home/ubuntu/closure-data/aposteriori/wu2018/"
+                     "AR_1_Ret_360/null/200000/U", 7.158e-13, 0.99),
+    "AR_3_Ret_360": ("/home/ubuntu/closure-data/aposteriori/wu2018/"
+                     "AR_3_Ret_360/null/99000/U", 8.147e-13, 0.83),
+    "CBFS13700":    ("/home/ubuntu/closure-data/aposteriori_frozenk/wu2018/"
+                     "CBFS13700/L_null/1969/U", 3.925e-14, 1.23),
+}
+# THE RULE, stated so the numbers below cannot drift away from it:
+#   bar(tag) = max(CONTINUITY_MAX, smallest decade >= 10 x floor(tag))
+# It can never set a bar TIGHTER than the registered 1e-4, and it loosens only
+# by the amount the instrument's measured floor on that mesh forces.
+CONTINUITY_BAR = {
+    "AR_1_Ret_360": 1e-4,            # rule gives 1e-16; floored at the
+    "AR_3_Ret_360": 1e-4,            # registered 1e-4.  UNCHANGED.
+    "CBFS13700":    1e-1,            # rule gives 1e-1 from a floor of 9.62e-3
+}
+# The MEASURED predecessor readings the failability test (AG-C1) is run
+# against: this module's own formula on the real Wu population, 54 rows.  Each
+# entry is (min, max, n_rows, n_admitted_by_this_bar, n_rejected_by_this_bar).
+CONTINUITY_MEASURED = {
+    "AR_1_Ret_360": (8.6010e-18, 2.5116e-03, 18, 4, 14),
+    "AR_3_Ret_360": (7.6729e-18, 1.6756e-03, 18, 4, 14),
+    "CBFS13700":    (5.2451e-03, 3.0663e-01, 18, 13, 5),
+}
+# Named rows the bars must admit and reject.  A bar that admits everything or
+# rejects everything on its own case is not a screen, and AG-C1 refuses it.
+CONTINUITY_AG_ADMIT = {"AR_1_Ret_360": 3.6402e-05, "AR_3_Ret_360": 8.6106e-05,
+                       "CBFS13700": 2.9031e-02}
+CONTINUITY_AG_REJECT = {"AR_1_Ret_360": 1.1425e-04, "AR_3_Ret_360": 1.0146e-04,
+                        "CBFS13700": 3.0663e-01}
+# The producer's own continuity channel, read as a REPORTED, NON-GATING second
+# reading on every row (RC4's "both readings, neither hidden" form,
+# rc4_score.py:96-97 / :301-304).  It can never rescue or condemn a row.
+PRODUCER_CONT_RE = re.compile(
+    r"^time step continuity errors : sum local = ([0-9.eE+-]+)", re.M)
 
 # The DNS / LES references section 4 registers.
 SEC_LES_PCT = {"AR_1_Ret_360": 1.508, "AR_3_Ret_360": 1.411}
@@ -107,6 +198,150 @@ def refuse(msg):
     sys.stderr.write("RC3 REFUSED (sys.exit 2): " + str(msg) + "\n")
     sys.stderr.flush()
     raise SystemExit(2)
+
+
+# ------------------ amendment A2: clause 8's per-case bar, and its anti-gaming
+def continuity_bar(tag):
+    """The registered per-case bar, RECOMPUTED FROM THE RULE every time.
+
+    `bar = max(CONTINUITY_MAX, smallest decade >= 10 x measured floor)`.  The
+    tabulated value in `CONTINUITY_BAR` is checked against the rule and this
+    REFUSES if they disagree, so the number in the table can never drift away
+    from the derivation that justifies it.
+    """
+    if tag not in CONTINUITY_FLOOR or tag not in CONTINUITY_BAR:
+        refuse("continuity_bar: " + repr(tag) + " has no registered floor or "
+               "bar; a case with no measured instrument floor cannot be "
+               "screened on this channel")
+    floor = float(CONTINUITY_FLOOR[tag])
+    if floor <= 0.0:
+        refuse("continuity_bar: the measured instrument floor for " + tag
+               + " is " + repr(floor) + "; it cannot be zero or negative")
+    derived = 10.0 ** math.ceil(math.log10(10.0 * floor))
+    bar = max(CONTINUITY_MAX, derived)
+    tabulated = float(CONTINUITY_BAR[tag])
+    if abs(math.log10(tabulated) - math.log10(bar)) > 1e-9:
+        refuse("continuity_bar: the tabulated bar for " + tag + " is "
+               + repr(tabulated) + " but the registered rule derives "
+               + repr(bar) + " from the measured floor " + repr(floor)
+               + "; the table has drifted from its own derivation")
+    if tabulated < CONTINUITY_MAX:
+        refuse("continuity_bar: " + tag + "'s bar " + repr(tabulated)
+               + " is TIGHTER than the registered " + repr(CONTINUITY_MAX)
+               + "; the rule may never tighten below the registered number")
+    if tabulated < 10.0 * floor:
+        refuse("continuity_bar: " + tag + "'s bar " + repr(tabulated)
+               + " is less than 10x its measured instrument floor "
+               + repr(floor) + "; a bar at or below the instrument's own "
+               "truncation error measures the reader, not the field")
+    return tabulated
+
+
+def check_continuity_bars():
+    """AG-C1 / AG-C2 / AG-C4: run before any row is scored, every pass.
+
+    AG-C2  every bar is >= 10x its case's MEASURED instrument floor and never
+           tighter than the registered CONTINUITY_MAX -- enforced by
+           `continuity_bar()` above.
+    AG-C1  every bar is FAILABLE AND NON-VACUOUS on its own case's measured
+           predecessor population: it must ADMIT at least one named real
+           reading and REJECT at least one.  A bar that admits everything or
+           rejects everything on its own case is not a screen.
+    AG-C4  the DIRECTION of the change is printed on every pass, so the fact
+           that the per-case bars admit more predecessor rows than the retired
+           global bar did is on the face of the output and cannot be discovered
+           afterwards.
+    """
+    admitted_new = 0
+    admitted_old = 0
+    total = 0
+    for tag in sorted(CONTINUITY_BAR):
+        bar = continuity_bar(tag)
+        adm = float(CONTINUITY_AG_ADMIT[tag])
+        rej = float(CONTINUITY_AG_REJECT[tag])
+        if not adm <= bar:
+            refuse("AG-C1: " + tag + "'s bar " + repr(bar) + " REJECTS the "
+                   "named real reading " + repr(adm) + " it must admit; a "
+                   "screen that admits nothing on its own case is not a screen")
+        if rej <= bar:
+            refuse("AG-C1: " + tag + "'s bar " + repr(bar) + " ADMITS the "
+                   "named real reading " + repr(rej) + " it must reject; a "
+                   "screen that rejects nothing is not a screen")
+        lo, hi, n, n_adm, n_rej = CONTINUITY_MEASURED[tag]
+        if n_adm + n_rej != n:
+            refuse("AG-C1: " + tag + "'s measured census does not close: "
+                   + str(n_adm) + " + " + str(n_rej) + " != " + str(n))
+        if n_adm == 0 or n_rej == 0:
+            refuse("AG-C1: " + tag + "'s bar is vacuous or total on its own "
+                   "measured population (" + str(n_adm) + " admitted, "
+                   + str(n_rej) + " rejected of " + str(n) + ")")
+        admitted_new += n_adm
+        total += n
+        art, prod, ratio = CONTINUITY_FLOOR_ARTIFACT[tag]
+        print("[clause 8 bar] %-13s floor %.4e (%s)  producer %.3e  "
+              "grid ratio 2h/h %.2f  ->  BAR %.1e  (admits %d of %d measured "
+              "predecessor rows)"
+              % (tag, CONTINUITY_FLOOR[tag], os.path.basename(
+                  os.path.dirname(os.path.dirname(art))), prod, ratio, bar,
+                 n_adm, n))
+    # what the RETIRED global bar admitted on the same 54 rows, measured
+    admitted_old = 8
+    print("[clause 8 AG-C4 DIRECTION DISCLOSURE] the registered per-case bars "
+          "admit %d of %d measured predecessor rows; the RETIRED global %g bar "
+          "admitted %d of %d.  This is a LOOSENING on CBFS13700 only, of the "
+          "size its measured instrument floor forces, and the registered "
+          "number %g is unchanged on both ducts."
+          % (admitted_new, total, CONTINUITY_MAX, admitted_old, total,
+             CONTINUITY_MAX))
+    print("[clause 8 AG-C5] CBFS13700 stays in the denominator: N_INSCOPE = %d,"
+          " MIN_CASES = %d, both unchanged; its bar still rejects %d of its %d "
+          "measured rows." % (N_INSCOPE, MIN_CASES,
+                              CONTINUITY_MEASURED["CBFS13700"][4],
+                              CONTINUITY_MEASURED["CBFS13700"][2]))
+    return {"bars": {t: continuity_bar(t) for t in sorted(CONTINUITY_BAR)},
+            "admitted_per_case_bars": admitted_new,
+            "admitted_retired_global_bar": admitted_old,
+            "measured_rows": total}
+
+
+def producer_continuity(case):
+    """The REPORTED, NON-GATING second reading: the producer's own continuity.
+
+    `continuityErrs.H:44-47` prints `time step continuity errors : sum local =
+    <x>` once per pressure solve; this returns the LAST value in the row's own
+    log.  It is recorded on every row and it has NO gate power: it can neither
+    rescue a row that failed clause 8 nor condemn one that passed.
+    """
+    log = os.path.join(case, LOG_NAME)
+    if not os.path.exists(log):
+        return None
+    ms = PRODUCER_CONT_RE.findall(open(log, errors="replace").read())
+    return float(ms[-1]) if ms else None
+
+
+def grid_ratio(C, U):
+    """The REPORTED, NON-GATING third reading: is the number truncation error?
+
+    Re-reads this module's own metric on the SAME field with the structured grid
+    decimated 2x.  A second-order truncation error grows ~4x; a real divergence
+    in the field is grid-independent.  Recorded so the attribution is on the
+    record at grading time instead of being argued afterwards.  NO gate power.
+    """
+    ns, nf = structured_shape(C)
+    if ns < 8 or nf < 8:
+        return None
+    Cr = np.asarray(C, float).reshape(ns, nf, 3)[::2, ::2, :].reshape(-1, 3)
+    Ur = np.asarray(U, float).reshape(ns, nf, 3)[::2, ::2, :].reshape(-1, 3)
+    A = structured_gradient(C, U)
+    Ar = structured_gradient(Cr, Ur)
+    def m(a, g):
+        d = np.einsum("nii->n", g)
+        s = float(np.sqrt((g ** 2).sum(axis=(1, 2)).mean()))
+        return float(np.sqrt((d ** 2).mean()) / s) if s > 0 else None
+    fine, coarse = m(U, A), m(Ur, Ar)
+    if not fine:
+        return None
+    return float(coarse / fine)
 
 
 # ------------------------------------------- section 6, the reader control
@@ -319,8 +554,20 @@ def score_row(tag, case, bench):
                                       .sum(axis=(1, 2)).mean())),
         "unrealisable_frac": float(viol.mean()),
         "divU_rms_over_gradscale": div_over_grad,
-        "continuity_ok": bool(div_over_grad <= CONTINUITY_MAX),
-        "continuity_bar": CONTINUITY_MAX,
+        # clause 8, amendment A2: the PER-CASE bar, recomputed from the rule.
+        "continuity_ok": bool(div_over_grad <= continuity_bar(tag)),
+        "continuity_bar": continuity_bar(tag),
+        "continuity_bar_rule": ("max(CONTINUITY_MAX, smallest decade >= 10 x "
+                                "measured instrument floor)"),
+        "continuity_instrument_floor": CONTINUITY_FLOOR.get(tag),
+        # the REGISTERED global number, still reported on every row so that what
+        # was retired, and on which rows it would have bitten, stays visible.
+        "continuity_registered_bar": CONTINUITY_MAX,
+        "continuity_inside_registered_bar": bool(div_over_grad
+                                                 <= CONTINUITY_MAX),
+        # the two NON-GATING corroboration channels (amendment A2).
+        "producer_continuity_sum_local": producer_continuity(case),
+        "divU_grid_ratio_2h_over_h": grid_ratio(C, U),
     }
     keep, thin = plane_axes(C)
     if tag in SEC_LES_PCT:
@@ -374,9 +621,16 @@ def gate_arithmetic(rows):
             if not r.get("continuity_ok", False):
                 refuse("gate_arithmetic: row " + tag + "/" + cfg + " reached "
                        "the gates with divU_rms_over_gradscale = "
-                       + repr(r.get("divU_rms_over_gradscale")) + " > "
-                       + repr(CONTINUITY_MAX) + "; it is NOT CONVERGED and a "
-                       "continuity violation is never silently accepted")
+                       + repr(r.get("divU_rms_over_gradscale")) + " > its "
+                       "registered per-case bar "
+                       + repr(r.get("continuity_bar")) + " (instrument floor "
+                       + repr(r.get("continuity_instrument_floor"))
+                       + ", producer channel "
+                       + repr(r.get("producer_continuity_sum_local"))
+                       + ", grid ratio 2h/h "
+                       + repr(r.get("divU_grid_ratio_2h_over_h"))
+                       + "); it is NOT CONVERGED and a continuity violation is "
+                       "never silently accepted")
         null = cfgs.get("C0", {})
         if null.get("status") != "SCORED":
             out["blocked"].append(tag)
@@ -437,8 +691,13 @@ def verdict(rows, plant_ok, fixedpoint):
                if r.get("status") == "SCORED" and not r.get("continuity_ok", False)]
     if notconv:
         res["verdict"] = "NOT A RESULT"
-        res["reasons"].append("section 8 clause 8 (continuity) NOT CONVERGED "
-                              "on: " + ", ".join(notconv))
+        res["reasons"].append(
+            "section 8 clause 8 (continuity) NOT CONVERGED on: "
+            + ", ".join(notconv) + ".  Each row is judged against its own "
+            "registered per-case bar " + repr({t: continuity_bar(t)
+                                               for t in sorted(CONTINUITY_BAR)})
+            + "; CBFS13700 is NOT dropped from the denominator (section 9) and "
+            "no bar is moved")
         return _seal(res, vocab)
 
     contracted = [t for t in sorted(fixedpoint) if fixedpoint[t]]
@@ -553,9 +812,27 @@ def _fake_case(root, name, iters=100, converged=True, fields=None,
     return case
 
 
-def _row(u, complete=True, cont=True, status="SCORED"):
+# The fixture carries MEASURED readings, never a number chosen to be green.
+# `_fake_case` and `_row` used to hardcode 1e-6 on every synthetic row -- 5,000x
+# tighter than the real CBFS13700 baseline -- which is precisely the R5D failure
+# mode in the admissibility channel: a fixture greener than the population.
+FIXTURE_DIV = {"AR_1_Ret_360": 3.6402e-05,      # apost AR_1_Ret_360/mean
+               "AR_3_Ret_360": 8.6106e-05,      # apost AR_3_Ret_360/truth
+               "CBFS13700":    2.9031e-02}      # apost CBFS13700/truth
+
+
+def _row(u, complete=True, cont=True, status="SCORED", tag="AR_1_Ret_360",
+         div=None):
+    d = FIXTURE_DIV[tag] if div is None else float(div)
     return {"status": status, "u_rms": u, "complete": complete,
-            "continuity_ok": cont, "divU_rms_over_gradscale": 1e-6,
+            "continuity_ok": cont and bool(d <= continuity_bar(tag)),
+            "divU_rms_over_gradscale": d,
+            "continuity_bar": continuity_bar(tag),
+            "continuity_instrument_floor": CONTINUITY_FLOOR[tag],
+            "continuity_registered_bar": CONTINUITY_MAX,
+            "continuity_inside_registered_bar": bool(d <= CONTINUITY_MAX),
+            "producer_continuity_sum_local": None,
+            "divU_grid_ratio_2h_over_h": None,
             "reason": "synthetic"}
 
 
@@ -564,12 +841,12 @@ def _table(c4_cut, cx_cut, cases=("AR_1_Ret_360", "AR_3_Ret_360", "CBFS13700")):
     out = {}
     for t in cases:
         u0 = 0.20
-        out[t] = {"C0": _row(u0),
-                  "C1": _row(u0 * (1 - 0.10)),
-                  "C2": _row(u0 * (1 - 0.15)),
-                  "C3": _row(u0 * (1 - 0.29)),
-                  "C4": _row(u0 * (1 - c4_cut)),
-                  "CX": _row(u0 * (1 - cx_cut))}
+        out[t] = {"C0": _row(u0, tag=t),
+                  "C1": _row(u0 * (1 - 0.10), tag=t),
+                  "C2": _row(u0 * (1 - 0.15), tag=t),
+                  "C3": _row(u0 * (1 - 0.29), tag=t),
+                  "C4": _row(u0 * (1 - c4_cut), tag=t),
+                  "CX": _row(u0 * (1 - cx_cut), tag=t)}
     return out
 
 
@@ -582,6 +859,42 @@ def selftest():
     tree = ast.parse(open(os.path.abspath(__file__)).read())
     n_assert = sum(isinstance(n, ast.Assert) for n in ast.walk(tree))
     note("ast.Assert count == 0", n_assert == 0, "counted " + str(n_assert))
+
+    # ---- 0. AMENDMENT A2: clause 8's per-case bars, and their anti-gaming.
+    bars = check_continuity_bars()
+    note("AG-C2 every per-case bar is >= 10x its MEASURED instrument floor and "
+         "never tighter than the registered 1e-4",
+         all(bars["bars"][t] >= 10.0 * CONTINUITY_FLOOR[t]
+             and bars["bars"][t] >= CONTINUITY_MAX for t in bars["bars"]))
+    note("AG-C2 the duct bars are the REGISTERED 1e-4, unmoved",
+         bars["bars"]["AR_1_Ret_360"] == 1e-4
+         and bars["bars"]["AR_3_Ret_360"] == 1e-4)
+    note("continuity_bar REFUSES when the tabulated bar drifts from the rule",
+         _fires(lambda: (CONTINUITY_BAR.__setitem__("_probe", 1.0),
+                         CONTINUITY_FLOOR.__setitem__("_probe", 1e-9),
+                         continuity_bar("_probe"))[-1]))
+    CONTINUITY_BAR.pop("_probe", None)
+    CONTINUITY_FLOOR.pop("_probe", None)
+    note("continuity_bar REFUSES a case with no measured instrument floor",
+         _fires(continuity_bar, "NASA_2DWMH"))
+    note("AG-C1 every bar ADMITS its named real reading and REJECTS its named "
+         "real reading -- measured, per case",
+         all(CONTINUITY_AG_ADMIT[t] <= continuity_bar(t)
+             < CONTINUITY_AG_REJECT[t] for t in sorted(CONTINUITY_BAR)))
+    note("the MEASURED CBFS13700 baseline 5.2451e-03 (frozenk S_null, whose "
+         "producer channel reads 5.665e-15) is ADMITTED by CBFS's own bar and "
+         "was REJECTED by the retired global bar",
+         5.2451e-03 <= continuity_bar("CBFS13700")
+         and 5.2451e-03 > CONTINUITY_MAX)
+    note("the MEASURED CBFS13700 frozenk L_truth 3.0663e-01 is REJECTED by "
+         "CBFS's own bar -- the loosening is not a licence",
+         3.0663e-01 > continuity_bar("CBFS13700"))
+    note("the MEASURED AR_1_Ret_360 apost truth 1.1425e-04 is REJECTED by the "
+         "unmoved duct bar", 1.1425e-04 > continuity_bar("AR_1_Ret_360"))
+    note("AG-C5 CBFS13700 stays in the denominator: N_INSCOPE and MIN_CASES "
+         "unchanged", N_INSCOPE == 3 and MIN_CASES == 2)
+    note("no fixture row carries the retired hardcoded 1e-6",
+         all(v != 1e-6 for v in FIXTURE_DIV.values()))
 
     tmp = tempfile.mkdtemp(prefix="rc3_ceiling_selftest_")
     try:
@@ -646,6 +959,42 @@ def selftest():
         note("completion FIRES on an absent case directory",
              not completion(os.path.join(tmp, "absent"))[0])
 
+        # ---- 2b. FIXTURE-VERSUS-PRODUCER PARITY (FINDING B, and the check the
+        #          R5D freeze did not have).  The synthetic case above proves
+        #          only that the fixture satisfies the clause.  These rows are
+        #          REAL `simpleFoam` output on disk, reached by symlink, with
+        #          nothing added but the file rc3_run.record() writes.
+        import rc3_run as RUN                                   # noqa: E402
+        for src in RUN.REAL_CASES:
+            nm = (os.path.basename(os.path.dirname(src)) + "/"
+                  + os.path.basename(src))
+            if not os.path.isdir(src):
+                note("PARITY: real producer case present: " + nm, False,
+                     "absent")
+                continue
+            dst = RUN.link_real_case(src, os.path.join(
+                tmp, "parity_" + nm.replace("/", "_")))
+            done = os.path.join(src, RUN.DONE_NAME)
+            rrc = 0
+            if os.path.exists(done):
+                rrc = int(open(done).read().strip().split("rc=")[1].split()[0])
+            RUN.record(dst, rrc, 1.0)
+            okp, rp, _ip = completion(dst)
+            note("PARITY: section 8 clauses 1-6 SATISFIED by REAL producer "
+                 "output plus only the file rc3_run writes -- " + nm, okp, rp)
+            os.remove(os.path.join(dst, RUN.RC_NAME))
+            note("PARITY, OTHER DIRECTION: the same real tree WITHOUT that file "
+                 "fails clause 1 -- which is exactly FINDING B, measured 0 of "
+                 "54 on the predecessor population",
+                 not completion(dst)[0])
+        if os.path.isdir(RUN.REAL_TIMED_OUT):
+            dst = RUN.link_real_case(RUN.REAL_TIMED_OUT,
+                                     os.path.join(tmp, "parity_timedout"))
+            RUN.record(dst, 124, 3600.0)
+            note("PARITY: a REAL `timeout 3600` row (rc=124, no End line, "
+                 "n_exec = n_time - 1) is REJECTED",
+                 not completion(dst)[0])
+
         # ---- 3. the gate arithmetic and the verdict ladder.
         note("criterion ADMITS a row at exactly the 80% bar",
              criterion(0.80) == "PASS")
@@ -695,11 +1044,11 @@ def selftest():
              v5["verdict"] == "NOT A RESULT")
 
         t6 = _table(c4_cut=0.90, cx_cut=0.05)
-        t6["CBFS13700"]["C1"]["continuity_ok"] = False
-        t6["CBFS13700"]["C1"]["divU_rms_over_gradscale"] = 3.2e-1
+        t6["CBFS13700"]["C1"] = _row(0.18, tag="CBFS13700", div=3.0663e-01)
         v6 = verdict(t6, True, {t: True for t in ("AR_1_Ret_360",
                                                   "AR_3_Ret_360", "CBFS13700")})
-        note("NOT A RESULT when a row violates the 1e-4 continuity criterion",
+        note("NOT A RESULT on the MEASURED CBFS13700 frozenk L_truth continuity "
+             "of 3.0663e-01, which is outside even that case's own 1e-1 bar",
              v6["verdict"] == "NOT A RESULT")
         note("gate_arithmetic REFUSES (sys.exit 2) if a continuity-violating "
              "row is handed to it directly -- no silent acceptance path exists",
@@ -746,6 +1095,7 @@ def selftest():
 def score_all(root=B.ROOT, out_path=None):
     """The scoring pass.  Refuses while RC3 is DRAFT/UNFROZEN."""
     B.refuse_if_unfrozen()
+    check_continuity_bars()          # amendment A2: AG-C1/C2/C4/C5, every pass
     scratch = os.path.join(root, "_control")
     rows, fixedpoint, plant = {}, {}, None
     for tag in sorted(B.CASES):
