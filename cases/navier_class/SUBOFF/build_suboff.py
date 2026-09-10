@@ -26,12 +26,18 @@ REFUSES (exit 2) unless max non-orthogonality < 70, max skewness < 4.0, zero
 negative-volume cells, and `Mesh OK`.  It REFUSES to build over a launched case
 (rule-4 age-guard sibling) or into the tracked template dir.
 
-Aref.  forceCoeffs Aref is set to the BUILT hull-patch (wedge sector) area read
-back from constant/polyMesh, so the reported drag coefficient is normalised on the
-same area the grader cross-checks.  The full-revolution equivalent (sector x
-360/2ALPHA_DEG) is reported for the supervisor to compare with the analytic
-5.988 m^2 and to pin reference.Aref at freeze.  THIS SCRIPT DOES NOT edit the
-reference JSON.
+Aref -- ONE PINNED VALUE AT EVERY LEVEL (cfd-supervisor ruling, 2026-09-10).
+forceCoeffs Aref is set to AREF_SECTOR_PINNED_M2, the ANALYTIC full-revolution wetted
+area divided by 72 (the 5 deg wedge is 1/72 of a revolution) -- the SAME number at
+coarse, medium and fine.  Rationale, as ruled: (1) A_ref is a DEFINITIONAL reference
+area in Cd = F/(0.5 rho U^2 A_ref), not a mesh property -- the mesh's job is to
+compute F; (2) a per-level Aref would divide out how well each mesh represents the
+body's wetted area, which IS part of the discretisation error, and would inject a
+monotone normalisation drift (measured 0.171% across the registered triple) into the
+Roache triple -- a normalisation artifact masquerading as grid convergence.  The
+BUILT sector area is still MEASURED and RECORDED in every birth certificate, and is
+still checked against the analytic value to +/-3% (a control, not a normalisation).
+THIS SCRIPT DOES NOT edit the reference JSON.
 
 ZERO `assert` (L-332).  Refusals are `raise`/`sys.exit(2)`.  Hard `-O` refusal.
 """
@@ -96,6 +102,21 @@ X_MAX    = 9.0                  # m  downstream of the tail (tail at x=L_M)
 R_FAR    = 3.0                  # m  farfield radius (~ 12 R_max, ~ 0.69 L)
 ALPHA_DEG = 2.5                 # wedge half-angle (total wedge 5 deg)
 TANA     = math.tan(math.radians(ALPHA_DEG))
+WEDGE_FRACTION = (2.0 * ALPHA_DEG) / 360.0      # 5 deg of 360 deg = 1/72 exactly
+
+# ---- ANALYTIC BARE-HULL WETTED AREA (re-derived, NOT inherited) -------------------
+# Surface of revolution S = INT 2*pi*R(x)*sqrt(1+(dR/dx)^2) dx over 0 <= x <= 14.291667 ft,
+# R(x) from Groves/Huang/Chang 1989 TABLE 1 (report p.4 / PDF p.11), R_MAX = 5/6 Ft,
+# re-derived independently by a cfd lab-lane on 2026-09-10 by tanh-sinh (mpmath) and by
+# Gauss-Legendre on an x=u^m substitution that regularises the x^(-1/21) nose-slope
+# singularity; the two routes and m in {11,21,31} agree to ~1e-12 relative, and the value
+# is stable to 3.4e-6 % against the rounding of TABLE 1's own printed constants.
+#   S = 64.4571395 ft^2 = 5.9882642 m^2.
+# The inherited four-figure 5.988 m^2 is CONFIRMED: it is the correct 4-s.f. rounding
+# (+0.0044% low).  The pin below uses the re-derived value, not 5.988.
+S_WETTED_ANALYTIC_M2  = 5.988264212260189      # m^2, FULL revolution, bare hull
+AREF_SECTOR_PINNED_M2 = S_WETTED_ANALYTIC_M2 * WEDGE_FRACTION   # m^2, 5 deg sector
+AREA_SANITY_TOL_REL   = 0.03    # built-vs-analytic CONTROL (matches grade_suboff.A_REF_TOL_REL)
 Y1_TARGET = 1.0e-3             # m  DEFAULT first radial cell height at mid-hull (y+ ~ 100).
 #   Per-level override lives in LEVELS[...]['y1'].  A family that pins this at a FIXED
 #   absolute value across levels is NOT geometrically similar (MESH_STANDARD sec.9.2 and
@@ -524,7 +545,7 @@ def _grab(out, pat, cast=float):
 
 
 def write_birth_certificate(case_dir, level, out, cells, nonortho, skew,
-                            hull_faces, sector, full_area):
+                            hull_faces, sector, full_area, aref_written):
     """birth_certificate.json for this level (PREREGISTRATION sec.4 / MESH_STANDARD
     sec.9.2, sec.11).  Graded values are READ BACK from the built mesh, never from the
     requested parameter.  Written at the case root (not inside polyMesh) so it is
@@ -555,9 +576,27 @@ def write_birth_certificate(case_dir, level, out, cells, nonortho, skew,
         ),
         gates=dict(nonortho_max=NONORTHO_MAX, nonortho_pass=(nonortho < NONORTHO_MAX),
                    skew_max=SKEWNESS_MAX, skew_pass=(skew < SKEWNESS_MAX)),
-        area=dict(hull_sector_area_m2=sector, wedge_total_deg=2 * ALPHA_DEG,
-                  full_revolution_area_m2=full_area, analytic_m2=5.988,
-                  pct_diff_from_analytic=100.0 * (full_area - 5.988) / 5.988),
+        area=dict(
+            # MEASURED, and it stays measured: the built hull-patch sector area read
+            # back from constant/polyMesh.  It is NOT the normalisation any more.
+            hull_sector_area_m2=sector, wedge_total_deg=2 * ALPHA_DEG,
+            full_revolution_area_m2=full_area,
+            analytic_m2=S_WETTED_ANALYTIC_M2,
+            analytic_provenance=("Groves/Huang/Chang 1989 DTRC/SHD-1298-01 TABLE 1 "
+                                 "(report p.4), re-derived by independent quadrature "
+                                 "2026-09-10; inherited 4-s.f. 5.988 m^2 confirmed"),
+            analytic_m2_legacy_4sf=5.988,
+            pct_diff_from_analytic=100.0 * (full_area - S_WETTED_ANALYTIC_M2)
+                                   / S_WETTED_ANALYTIC_M2,
+            # NORMALISATION ACTUALLY WRITTEN into system/controlDict forceCoeffs.
+            # One PINNED value at every level (supervisor ruling 2026-09-10).
+            aref_sector_written_m2=aref_written,
+            aref_sector_pinned_m2=AREF_SECTOR_PINNED_M2,
+            aref_is_pinned=bool(abs(aref_written - AREF_SECTOR_PINNED_M2)
+                                <= 1e-15 * AREF_SECTOR_PINNED_M2),
+            aref_source="PINNED analytic/72 -- NOT this level's built sector area",
+            pct_built_sector_vs_pinned=100.0 * (sector - AREF_SECTOR_PINNED_M2)
+                                       / AREF_SECTOR_PINNED_M2),
     )
     path = os.path.join(case_dir, "birth_certificate.json")
     open(path, "w").write(json.dumps(cert, indent=2, sort_keys=True) + "\n")
@@ -581,9 +620,10 @@ def write_case(case_dir, level, endtime, deltat, wi):
     open(os.path.join(case_dir, "system", "blockMeshDict"), "w").write(blockmesh_dict(level))
     open(os.path.join(case_dir, "system", "fvSchemes"), "w").write(fvschemes())
     open(os.path.join(case_dir, "system", "fvSolution"), "w").write(fvsolution())
-    # placeholder Aref for meshing; rewritten after the built sector area is measured
+    # PINNED Aref from the start (rewritten identically after meshing); never 1.0, so a
+    # case that is meshed by hand still carries the registered normalisation.
     open(os.path.join(case_dir, "system", "controlDict"), "w").write(
-        controldict(endtime, deltat, wi, 1.0))
+        controldict(endtime, deltat, wi, AREF_SECTOR_PINNED_M2))
     open(os.path.join(case_dir, "constant", "transportProperties"), "w").write(transport_properties())
     open(os.path.join(case_dir, "constant", "turbulenceProperties"), "w").write(turbulence_properties())
     open(os.path.join(case_dir, "0.orig", "U"), "w").write(field_U())
@@ -616,40 +656,99 @@ def mesh_and_check(case_dir, level, endtime, deltat, wi):
     nonortho, skew = float(m_no.group(1)), float(m_sk.group(1))
     ncells = int(m_nc.group(1)) if m_nc else None
     sector, nhull = hull_sector_area(case_dir)
-    wedge_frac = (2.0 * ALPHA_DEG) / 360.0
+    wedge_frac = WEDGE_FRACTION
     full_area = sector / wedge_frac
     # Measurements and the birth certificate are written BEFORE the admissibility
     # gates, so that a level which BREACHES a gate still leaves its evidence on disk
     # for the supervisor.  The gates themselves are unchanged and still refuse.
     write_birth_certificate(case_dir, level, out, ncells, nonortho, skew,
-                            nhull, sector, full_area)
+                            nhull, sector, full_area, AREF_SECTOR_PINNED_M2)
     if nonortho >= NONORTHO_MAX:
         refuse("max non-orthogonality %.3f >= gate %.1f" % (nonortho, NONORTHO_MAX))
     if skew >= SKEWNESS_MAX:
         refuse("max skewness %.3f >= gate %.1f" % (skew, SKEWNESS_MAX))
-    # rewrite controlDict with the BUILT sector area as forceCoeffs Aref
+    # BUILT-vs-ANALYTIC CONTROL.  The built area is no longer the normalisation, so it
+    # is no longer self-consistent by construction -- this check is what still catches a
+    # geometry/topology blunder.  It gates, it does not normalise.
+    area_rel = abs(full_area - S_WETTED_ANALYTIC_M2) / S_WETTED_ANALYTIC_M2
+    if area_rel > AREA_SANITY_TOL_REL:
+        refuse("built full-revolution hull area %.6f m^2 differs from the analytic "
+               "%.6f m^2 by %.4f%% > %.0f%% -- geometry/topology is wrong, refusing"
+               % (full_area, S_WETTED_ANALYTIC_M2, 100.0 * area_rel,
+                  100.0 * AREA_SANITY_TOL_REL))
+    # rewrite controlDict with the PINNED sector Aref -- the SAME value at every level
+    # (supervisor ruling 2026-09-10).  NOT this level's own built sector area.
     open(os.path.join(case_dir, "system", "controlDict"), "w").write(
-        controldict(endtime, deltat, wi, sector))
+        controldict(endtime, deltat, wi, AREF_SECTOR_PINNED_M2))
     mesh_line = ("checkMesh: Mesh OK; cells=%s; hullFaces=%d; maxNonOrtho=%.4f (<%.0f); "
                  "maxSkewness=%.4f (<%.1f); negVol=%s"
                  % (ncells, nhull, nonortho, NONORTHO_MAX, skew, SKEWNESS_MAX,
                     "yes" if neg else "no"))
-    area_line = ("hull sector area (built, wedge %g deg) = %.8e m^2; wedge fraction = %.8f; "
-                 "full-revolution equivalent = %.6f m^2; analytic (Groves TABLE 1) = 5.988 m^2; "
-                 "forceCoeffs Aref set to sector = %.8e m^2"
-                 % (2 * ALPHA_DEG, sector, wedge_frac, full_area, sector))
+    area_line = ("hull sector area (BUILT, MEASURED, wedge %g deg) = %.8e m^2; wedge "
+                 "fraction = %.8f; full-revolution equivalent = %.6f m^2; analytic "
+                 "(Groves/Huang/Chang 1989 TABLE 1, re-derived by quadrature) = %.7f m^2 "
+                 "(built-vs-analytic %+.4f%%, control tol +/-%.0f%%); forceCoeffs Aref "
+                 "PINNED at analytic/72 = %.10e m^2 (SAME at every level; built sector "
+                 "%+.4f%% from the pin and NOT used as the normalisation)"
+                 % (2 * ALPHA_DEG, sector, wedge_frac, full_area, S_WETTED_ANALYTIC_M2,
+                    100.0 * (full_area - S_WETTED_ANALYTIC_M2) / S_WETTED_ANALYTIC_M2,
+                    100.0 * AREA_SANITY_TOL_REL, AREF_SECTOR_PINNED_M2,
+                    100.0 * (sector - AREF_SECTOR_PINNED_M2) / AREF_SECTOR_PINNED_M2))
     open(os.path.join(case_dir, "MESH_LINE.txt"), "w").write(mesh_line + "\n" + area_line + "\n")
     return dict(cells=ncells, nonortho=nonortho, skew=skew, hull_faces=nhull,
-                sector_area=sector, full_area=full_area, mesh_line=mesh_line, area_line=area_line)
+                sector_area=sector, full_area=full_area, aref_pinned=AREF_SECTOR_PINNED_M2,
+                mesh_line=mesh_line, area_line=area_line)
+
+
+def repin_aref(case_dir):
+    """Rewrite ONLY the `Aref` entry of an ALREADY-BUILT case's system/controlDict to
+    AREF_SECTOR_PINNED_M2, so a level built before the 2026-09-10 pinning ruling is
+    brought onto the single pinned normalisation WITHOUT rebuilding (which would
+    destroy that level's checkMesh logs and birth certificate).  Refuses on a case that
+    has been launched -- a run's normalisation is not retro-edited.  Touches nothing
+    else: no field, no mesh, no other controlDict entry."""
+    cd = os.path.join(case_dir, "system", "controlDict")
+    if not os.path.isfile(cd):
+        refuse("no system/controlDict in %s" % case_dir)
+    for d in (os.listdir(case_dir) if os.path.isdir(case_dir) else []):
+        if re.fullmatch(r"[0-9]+(\.[0-9]+)?", d) and d != "0":
+            refuse("%s holds numeric time dir %r -- refusing to repin a LAUNCHED case"
+                   % (case_dir, d))
+    if os.path.isfile(os.path.join(case_dir, "rc")):
+        refuse("%s holds an rc sidecar -- refusing to repin a LAUNCHED case" % case_dir)
+    txt = _read(cd)
+    m = re.search(r"^(\s*Aref\s+)([0-9.eE+\-]+)(;\s*)$", txt, re.M)
+    if not m:
+        refuse("no `Aref <value>;` line in %s" % cd)
+    before = float(m.group(2))
+    new_line = "%s%.10g%s" % (m.group(1), AREF_SECTOR_PINNED_M2, m.group(3))
+    txt2 = txt[:m.start()] + new_line + txt[m.end():]
+    if txt2 == txt and abs(before - AREF_SECTOR_PINNED_M2) > 1e-15 * AREF_SECTOR_PINNED_M2:
+        refuse("Aref rewrite in %s produced no change -- refusing" % cd)
+    open(cd, "w").write(txt2)
+    after = float(re.search(r"^\s*Aref\s+([0-9.eE+\-]+);", _read(cd), re.M).group(1))
+    if abs(after - AREF_SECTOR_PINNED_M2) > 1e-9 * AREF_SECTOR_PINNED_M2:
+        refuse("read-back of %s gave Aref=%r, not the pin %r" % (cd, after, AREF_SECTOR_PINNED_M2))
+    return dict(case=os.path.abspath(case_dir), aref_before=before, aref_after=after,
+                aref_pinned=AREF_SECTOR_PINNED_M2)
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--level", required=True, choices=[n for n, _ in LEVELS])
+    ap.add_argument("--level", choices=[n for n, _ in LEVELS])
     ap.add_argument("--dir", required=True)
     ap.add_argument("--endtime", type=float, default=50.0, help="controlDict endTime (iters, deltaT=1)")
     ap.add_argument("--mesh", action="store_true", help="run blockMesh + checkMesh and enforce gates")
+    ap.add_argument("--repin-aref", action="store_true", dest="repin_aref",
+                    help="rewrite ONLY forceCoeffs Aref of an already-built --dir to the pin")
     a = ap.parse_args(argv)
+    if a.repin_aref:
+        r = repin_aref(a.dir)
+        print("REPINNED Aref in %s: %.10g -> %.10g (pin %.10g)"
+              % (r["case"], r["aref_before"], r["aref_after"], r["aref_pinned"]))
+        return 0
+    if not a.level:
+        refuse("--level is required unless --repin-aref is given")
     endtime, deltat, wi = a.endtime, 1.0, int(a.endtime)
     write_case(a.dir, a.level, endtime, deltat, wi)
     print("WROTE %s level %s" % (a.dir, a.level))
