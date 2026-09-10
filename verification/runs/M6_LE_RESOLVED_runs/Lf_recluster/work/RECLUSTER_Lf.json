@@ -1,0 +1,58 @@
+{
+ "WHAT": "re-clustered 9-zone M6 surface, coincidence by construction",
+ "master": "/home/ubuntu/Certonomous/verification/runs/M6_LE_RESOLVED_runs/master_surface/m6_fine.xyz",
+ "n_chord": 557,
+ "n_span": 177,
+ "dims": [
+  [
+   177,
+   557
+  ],
+  [
+   557,
+   17
+  ],
+  [
+   177,
+   17
+  ],
+  [
+   557,
+   177
+  ],
+  [
+   17,
+   557
+  ],
+  [
+   17,
+   17
+  ],
+  [
+   17,
+   177
+  ],
+  [
+   17,
+   17
+  ],
+  [
+   557,
+   17
+  ]
+ ],
+ "surface_faces_all9": 228544,
+ "surface_faces_wing_loop": 195712,
+ "shared_edges": 16,
+ "shared_corner_classes": 12,
+ "shared_corner_pairs_checked": 24,
+ "edges_and_corners_bit_identical": true,
+ "coincidence_enforcement_displacement_m": 0.0,
+ "measured": {
+  "nose_dxc_max": 0.0012563862050492514,
+  "shock_dxc_max": 0.0009788447369793998,
+  "junction_ratio_max": 2.2244969554770835,
+  "n_span_stations": 177,
+  "distinct_span_stations": 177
+ }
+}

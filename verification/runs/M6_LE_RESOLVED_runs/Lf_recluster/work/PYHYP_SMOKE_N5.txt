@@ -1,0 +1,37 @@
+-rw-rw-r-- 1 ubuntu ubuntu 5572544 Sep 10 04:23 Lf_recluster/work/surf_little_r8.xyz
+########## PATH B1: pyHyp fileType=PLOT3D, little-endian real*8 ##########
+Matplotlib is building the font cache; this may take a moment.
+At line 1185 of file setup3d.F90 (unit = 7, file = 'surf_little_r8.xyz')
+Fortran runtime error: Bad integer for item 1 in list input
+########## PATH B2: pyHyp fileType=PLOT3D, big-endian real*8 ##########
+At line 1185 of file setup3d.F90 (unit = 7, file = 'surf_big_r8.xyz')
+Fortran runtime error: Bad integer for item 1 in list input
+########## PATH B3: pyHyp fileType=PLOT3D, ASCII ##########
+# Grid | CPU  | Sub | KSP | nAvg |  Sl  | Sensor | Sensor | Min     | Min     |  deltaS  | March    | cMax  | Ratio |
+# Lvl  | Time | Its | Its |      |      | Max    | Min    | Quality | Volume  |          | Distance |       | kMax  |
+#-------------------------------------------------------------------------------------------------------------------#
+      2   10.2    12     5      0  0.507  1.00420  0.81262  0.13370  0.625E-11  0.367E-04  0.108E-03  0.1000  0.0000 
+      3   40.8    39     5      0  0.640  1.00949  0.94643  0.10070  0.514E-10  0.504E-04  0.510E-03  0.1000  4.3486 
+      4   89.8    75     5      0  0.792  1.01129  0.96826  0.16083  0.439E-09  0.116E-03  0.211E-02  0.1000  4.4916 
+      5  280.9   297     5      0  0.976  1.00896  0.99607  0.15376  0.231E-08  0.687E-04  0.852E-02  0.1000  4.9212 
+SMOKE_OK wrote vol_b3.cgns
+
+[exited with code 0]
+
+# ---------------------------------------------------------------------------------------
+# READ-BACK ASSERTION on vol_b3.cgns (cgnsutilities readGrid, inside dafoam-idwarp-rot:v1):
+#   ZONES 9
+#     [177, 557, 5]  [557, 17, 5]  [177, 17, 5]  [557, 177, 5]  [17, 557, 5]
+#     [17, 17, 5]    [17, 177, 5]  [17, 17, 5]   [557, 17, 5]
+#   ASSERT 9 zones: True
+#   ASSERT surface dims match the built surface and k=5 layers: True
+#   node total 1160905  (= 232,181 surface nodes x 5 layers)
+#   x[-0.00683,1.15231] y[-0.04816,0.04816] z[0.00000,1.22446]
+#
+# VERDICT: autoConnect STITCHES the re-clustered 9-zone surface.  No "Unknown topology".
+# Path that works: pyHyp fileType="PLOT3D" on an ASCII multiblock plot3d (build_reclustered_
+# surface.py --fmt ascii).  Both binary variants fail at setup3d.F90:1185, and the
+# cgns_utils plot3d2cgns route cannot write k=1 surface zones at all.
+#
+# NOT CLAIMED: this is N=5 layers with marchDist=0.01.  It is a TOPOLOGY smoke, not a march,
+# and no mesh-quality number of any kind attaches to it.
