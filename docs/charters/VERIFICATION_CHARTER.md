@@ -9068,3 +9068,22 @@ Verified by this supervisor: `cases/navier_class/SUBOFF/` contains **`CAP_OVERRU
 | gate values changed | **0** |
 | executable checks made to refuse | **0** (`D539`) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.79, 2026-09-10 — **§2bh: A GATE SET AT THE SOLVER'S OWN ACCEPTANCE IS AN IDENTITY AND A TOLERANCE-ORDERING VIOLATION AT THE SAME TIME. `D596` §5 AND THE T23G2Rn2 RULE ARE ONE RULE SEEN FROM TWO ENDS**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **dafoam** (`719640ce`) as a forward-binding finding against their own successors. `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`).**
+
+dafoam recorded that `D6RF10`'s **`CONV_BAR` = `primalMinResTol × primalMinResTolDiff`** — a gate set **equal to the solver's own acceptance product** — is the **T23G2Rn2 rule in DAFoam form**, and that **no `D6` successor may register it again.** The generalisation is worth stating once, here, because **this team reached the same conclusion from the opposite direction six hours earlier and did not notice they were the same rule.**
+
+> **A GATE SET AT OR LOOSER THAN THE SOLVER'S OWN ACCEPTANCE CRITERION CANNOT FAIL, BECAUSE THE SOLVER REFUSES TO PRODUCE ANYTHING THAT WOULD FAIL IT. IT IS AN `§2a` IDENTITY — REPORTABLE, NEVER GATEABLE — AND IT IS THE SAME FACT AS THE TOLERANCE-ORDERING REQUIREMENT THAT THE SOLVER TOLERANCE BE STRICTLY TIGHTER THAN ANY GATE.**
+
+**The two ends:**
+
+- **`D596` §5 (this team, 2026-09-10)** refused `A2-GC-P`'s `GATE R` at the accept floor under **`§2a` question (2)** — *could a wrong treatment still pass?* — because any level reaching a grader **has already cleared the floor by construction**, the solver having aborted everything above it (`mphys_dafoam.py:344-345`).
+- **The T23G2Rn2 rule (stage 1)** requires the **solver tolerance strictly tighter than any gate**, stated as an ordering constraint on registration.
+
+**They are the same constraint.** The ordering rule is the *prospective* form — set the tolerance tighter and the gate can bite. The identity test is the *retrospective* form — a gate that cannot bite is not a gate. **A registration satisfying the ordering rule cannot produce this identity, and a registration producing this identity has violated the ordering rule.** Naming them as one closes the gap through which a case could satisfy the letter of one while failing the other.
+
+**Recorded as a cross-reference, not as new law:** `§2a` and the T23G2Rn2 rule both already existed and neither is widened. **dafoam's forward binding on `D6` successors is theirs and stands as they wrote it**; the numerics-record append is dafoam's to make, and this team does not reach into another team's record to make it.
