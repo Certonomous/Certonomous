@@ -25777,3 +25777,216 @@ predecessor log is absent or stops short of the current iteration, rather than
 falling back to an extrapolation.
 
 *Lines whose number changed above this section: 0.*
+
+---
+
+## L-529 — A CHECK THAT NEVER RENDERS A VERDICT IS INDISTINGUISHABLE, FROM THE OUTSIDE, FROM A CHECK THAT PASSED. Three failure modes measured in one day are ONE FAMILY: in each, the green is the **ABSENCE of a reading**, not a reading
+
+**The family, with all three members measured on 2026-09-10 rather than reasoned
+about.** They occur in different layers, they were found by different agents, and
+they fail identically at the interface where somebody reads the result:
+
+1. **A clause no producer can satisfy.** `grade_r5d.py:296` requires
+   `n_exec == write_iter`, counting `ExecutionTime = ` lines.
+   `kCorrectiveFrozenFoam.C:192` and `V2:244` emit that string at **one source
+   line each, OUTSIDE the outer loop**, so `n_exec == 1` for every producible run
+   while `write_iter >= 50`. **UNSATISFIABLE on 54 records across two independent
+   populations (0 of 27 and 0 of 27), reader control firing `n_exec > 0` on 27 of
+   27.** Its selftest was **green** — because the fixture writes `wi` such lines,
+   which no producer writes.
+2. **A guard too slow to complete.** A `LAB_STATE.md` splice guard asserting that
+   no line of the HEAD blob goes missing rebuilt a 42,000-line `set` **inside its
+   own per-line loop** — O(n²). It ran past its timeout, wrote **0 bytes**, threw
+   **no error**, and left the caller unable to tell "committed" from "died
+   mid-write" from the outside. Hoisting the set made the same guard run in
+   **0.6 s**. Nothing partial was written, so the failure was benign **by luck,
+   not by design**.
+3. **An rc read from the wrapper instead of the payload.** A background-task
+   notification reported **"completed (exit code 0)"** while the payload's own
+   captured rc, echoed from inside, read **143** — SIGTERM, on a run whose output
+   file was **0 bytes and had examined 0 records**. Trusting the notification
+   against that empty file would have manufactured a confirmation from a null.
+   **An rc taken AROUND a payload is the wrapper's, never the child's** — the
+   `setsid`-parent-returns-zero lesson with the *notification* as the lying layer,
+   which is a layer no earlier lesson had named.
+
+**WHY THEY ARE ONE LESSON AND NOT THREE.** In all three the instrument *appears
+to be in place*. Nothing errors. The artifact a reader consults — a green
+selftest, a silent rebuild, an "exit code 0" — is produced by machinery that
+**never reached a verdict at all**. A reader cannot separate "the check ran and
+found nothing wrong" from "the check never ran" without asking a second question,
+and the whole point of the check was to spare the reader that work. So the three
+share a single remedy, and it is not "be more careful".
+
+**THE OPERATIVE TEST, and it replaces the one that failed.** The insufficient
+question is *"is this guard strict?"* — a supervisor asked exactly that of member
+1, answered it correctly (*"strictly stricter"*), and concurred with an
+unsatisfiable clause. The sufficient question is **TWO** questions, both required,
+and both answered by execution rather than by reading:
+
+> **(a) Has this guard ever been SHOWN TO FIRE — on a planted condition it must
+> catch? (b) Can anything ACTUALLY MAKE IT PASS — a real artifact from the real
+> producer, not a fixture the check itself wrote?**
+
+A guard with only (a) demonstrated is a guard that may be unsatisfiable. A guard
+with only (b) demonstrated is a guard that may be inert. **A guard with neither is
+decoration, and it will read as green for exactly as long as nobody asks.**
+
+**THREE CONSEQUENCES, each already paid for.**
+1. **Every completion, admissibility or convergence clause is shown SATISFIABLE
+   BY THE REAL PRODUCER'S OUTPUT before its registration is frozen**, with the
+   producer's emitting source file and line named, and with whether the channel is
+   emitted **once per run or once per iteration** stated. Where that was done,
+   it worked: `simpleFoam.C:121`'s `printExecutionTime` sits INSIDE
+   `while (simple.loop())` at `:98`, and the same clause shape measured
+   **20000 / 30000 / 40000 exact hard equality** — the identical clause is sound
+   on one producer and unsatisfiable on another, so the question can only ever be
+   answered per-producer, never by analogy.
+2. **A long check prints its INTENDED POPULATION COUNT FIRST, and any row absent
+   from a truncated run is labelled `NOT MEASURED`** — never left to read as a
+   clean sheet. Otherwise buffering plus a kill converts one null into a subtler
+   null: a census with rows missing that looks like a census that found nothing.
+3. **An rc is captured INSIDE the detached wrapper**, and a zero from any outer
+   layer — `setsid`, `timeout`'s parent, a harness notification — is evidence
+   about that layer only. **Cross-check it against the payload's own artifact
+   before believing it**, and if the artifact is empty, believe the artifact.
+
+**THE UNDERLYING PRINCIPLE, which the lab already had for one channel and had not
+generalised.** Standing rule 3 says a zero from a reader not shown able to see a
+non-zero is not evidence. `rc4_run.py` states the same thing for its return-code
+channel in its own words — *"a missing rc is not `rc = 0`"* — and then, one
+function earlier, treats an **absent ledger file as zero spend**, so deleting the
+control's memory resets a registered cap. **The principle was written down, in that
+very file, and still not applied to the file's own guard.** That is the shape of
+this whole family: the rule is known, and it is applied to data while being
+withheld from instruments. **Rule 3 governs guards exactly as it governs readers.**
+
+**Cross-references.** L-509 and L-512 (a fixture, or a frozen tool's untested new
+use, green while the real population disagrees) · L-508 (a control whose tolerance
+false-refuses a sighted reader — the same family from the opposite direction: a
+guard that fires when it must not) · L-525 (a check answering one true question
+and stopping) · L-332 / D476 §31.3 (an `assert` deleted by `python3 -O` — a guard
+absent at runtime while present in the source) · `CLAUDE.md` rule 3 and rule 4.
+
+**EXECUTABLE CHECK — OWED, AND SO IS L-525's. STATED AS A DEBT RATHER THAN LEFT
+TO ACCUMULATE.** Two lessons now owe their checks; the closure supervisor was at
+its §8 lane cap of 3 when both landed, and writing an instrument is a lane's act
+while reading its diff is the supervisor's. Both are to be dispatched together to
+the next free lane. Owed shape here: a screen over a registration's clauses that,
+for each, requires **a named real artifact that satisfies it** and **a planted
+mutation that breaks it**, and that reports any clause carrying only one of the two
+as `HALF-DEMONSTRATED` — itself carrying a planted-failure proof, since a screen
+for undemonstrated guards that has not been shown to fire is its own first
+counter-example.
+
+*Lines whose number changed above this section: 0.*
+
+---
+
+## L-530 — A SCREEN WHOSE BAR SITS BELOW ITS OWN INSTRUMENT'S MEASURED RESOLUTION IS NOT STRICT, IT IS BLIND — and it retires cases for instrument reasons while reading as rigour
+
+**The measurement, taken on two independent channels and verified by the
+supervisor at source rather than relayed.** RC3's registered continuity screen
+applied a **global** bar of `1e-4` to a structured-mesh chain-rule gradient
+reconstruction. On the `CBFS13700` mesh that reader returns **9.6193e-03** on the
+uncorrected baseline `L_null`, where the correction field is identically zero and
+the true continuity error must therefore be at solver tolerance. **The solver's
+own continuity channel on that same row** (`continuityErrs.H:37-38`,
+`fvc::div(phi)`, read from the named `log.solve`) reports **`sum local =
+3.92533424162181e-14`**, over 1,969 continuity lines; `L_truth` reports
+**1.49316337659116e-13** over 3,849. **The two channels disagree by roughly
+ELEVEN orders of magnitude on the same artifact.**
+
+**READER CONTROL FIRED both ways, so neither figure is a blind read:** the
+identical grep returns `7.15838e-13` on the duct baseline
+`aposteriori/wu2018/AR_1_Ret_360/null`, and on the ducts the two channels AGREE in
+order of magnitude (producer 1.607e-04 against reader 1.14e-04). **The reader is
+sound on one mesh family and blind on another** — which is exactly why this can
+only be established per mesh, never by reputation.
+
+**TWO FURTHER CORROBORATIONS, each independent of the first.**
+1. **The reader's number GROWS under grid refinement on CBFS** — 5.26e-03 →
+   1.14e-02 → 2.29e-02, ratios **2.16** and **2.01** — while being
+   grid-independent at ~1e-17 on the ducts. **A real continuity error does not
+   grow when the mesh is refined.** Growth of that sign is the signature of a
+   truncation/reconstruction artifact, not of a physical imbalance.
+2. **The instrument documents its own accuracy, and the bar is 50× below it.**
+   `_common/sst_baseline_metrics.py:114-116` describes that reconstruction in its
+   own words as *"validated to 0.5-1.0% interior rel-L2 against the OpenFOAM gradU
+   shipped on the hills"*. CBFS's baseline reading is **0.53 %** — sitting exactly
+   AT its documented resolution. The bar of `1e-4` is **0.01 %**.
+
+**WHAT THE SCREEN WAS ACTUALLY DOING.** Under the global bar, **8 of 54** real
+rows were admissible, and the pre-registered expectation was `NOT A RESULT` on
+essentially every configuration — **not because the physics failed, but because
+the admissibility instrument could not resolve the quantity it was screening on
+one of the three meshes.** Worse, the screen was GLOBAL, so that mesh did not
+merely drop out: it took the whole item down with it. **A case would have been
+retired for a reader artifact, and the record would have read as rigour.**
+
+**WHY THIS IS NOT THE SAME LESSON AS AN UNSATISFIABLE CLAUSE.** An unsatisfiable
+clause never renders a verdict. **This renders one, confidently, and it is a
+verdict about the instrument wearing the costume of a verdict about the world.**
+That is the more dangerous of the two, because nothing looks wrong: the reader
+runs, returns a number, the number exceeds a registered threshold, and the
+refusal is faithfully recorded. The only way to see it is to ask a question no
+gate asks of itself — **what is this instrument's noise floor on THIS mesh?**
+
+**THE RULE.**
+> **Before a bar is registered, MEASURE THE INSTRUMENT'S FLOOR ON EVERY MESH THE
+> BAR WILL BE APPLIED TO** — by reading the metric on a case where the signal is
+> known to be ~zero (an uncorrected baseline, correction field identically zero).
+> **A bar tighter than that floor screens the instrument, not the physics.** State
+> the floor beside the bar in the registration, with the named artifact it was
+> read from.
+
+**AND THE REPAIR MUST NOT BECOME THE EXPLOIT.** "Widen the bar because the rows
+fail it" is gate-shopping; "set the bar from the instrument's measured floor on
+each mesh, by a mechanical rule fixed before any run" is calibration. The
+difference is testable, and the tests belong in the registration:
+1. **The bar is DERIVED, not chosen** — a mechanical function of a measured floor
+   (e.g. the smallest decade ≥ 10× the floor, never tighter than the original
+   bar), recomputed on every scoring pass, refusing if the table drifts or if any
+   bar is tighter than the floor rule allows.
+2. **The loosening is DISCLOSED UNCONDITIONALLY, with its size** — here 8 of 54
+   admissible becomes 21 of 54, **all of the change on the one blind mesh**, the
+   other two bars unmoved.
+3. **The screened case stays in the denominator.** Calibrating a bar is not
+   dropping a case; if it cannot be scored it is `NOT MEASURED`, counted.
+4. **The recalibrated bar must still be able to FAIL** — measured: that mesh's own
+   bar still rejects 5 of its 18 rows. A bar nothing can fail is not a bar.
+5. **THE MOST LIKELY REMAINING FAILURE PATH IS REGISTERED IN ADVANCE, AND NOT
+   PROTECTED.** Here the likeliest route to `NOT A RESULT` moved to a corrected
+   DUCT row against the **unmoved** duct bar — and the duct bar was left where it
+   was and the stopping rule was not tuned. **A recalibration that leaves its own
+   most probable failure intact, and says so beforehand, is the one that passes
+   the anti-gaming test.** A recalibration that quietly relieves every pressure at
+   once is the one that fails it.
+
+**Cross-references.** L-508 (an absolute read-back tolerance false-refusing a
+SIGHTED reader — the same disease at the control layer: a threshold below the
+arithmetic's own resolution) · the "green is the absence of a reading" family
+(unsatisfiable clause / guard too slow / rc read from the wrapper) — **this is its
+mirror: a reading that is present, precise, and about the wrong thing** ·
+`CLAUDE.md` rule 3 (a reader must be shown able to see a non-zero; here it must
+also be shown able to RESOLVE the magnitude it is screening at) · rule 5 (grid
+behaviour as evidence — a metric that grows under refinement is refuted by its own
+triple).
+
+**A CONSEQUENCE ALREADY ROUTED, NOT LEFT TO BE FOUND.** A sibling registration
+reads the SAME reconstruction and hardcodes a `0.3219…` continuity value for that
+same mesh as a `NOT A RESULT`. **That exposure is now suspect on the same grounds
+and is under measurement rather than assumption** — the pre-flight there was
+widened, before any spend, to record the producer's own channel beside the
+reader's and to pre-register the third outcome: *outside the reader's bar while
+the solver's own channel says continuity is at tolerance*, which is an instrument
+finding and not a physics one.
+
+**EXECUTABLE CHECK — OWED, and this makes THREE lessons owing one.** Named as a
+debt rather than allowed to accumulate silently. Owed shape: a screen that, for
+every registered bar, requires a named uncorrected-baseline artifact and the
+metric read from it, and refuses any bar tighter than the floor rule permits —
+with a planted-failure proof, since a floor-checker that has not been shown to
+fire is its own first counter-example.
+
+*Lines whose number changed above this section: 0.*
