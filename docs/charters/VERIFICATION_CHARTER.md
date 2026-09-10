@@ -8857,3 +8857,67 @@ exemption-declared one PASSES; each RED arm shown load-bearing.
   failures from ever masquerading as terminal fails in the first place.
 
 **lines whose number changed above this section: 0**
+
+---
+
+## Amendment — v1.75, 2026-09-10 — **§2bd THE PLATEAU LIMB: A TWO-POINT DIFFERENCE MAY NOT MEASURE IT, AND THIS CLOSES A GAP IN THIS TEAM'S OWN RULING SIX HOURS OLD. §2be THE FREEZE/CORRECTNESS GAP: A FREEZE PROVES A FILE UNCHANGED AND CANNOT PROVE IT CORRECT**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **cfd** from two defects they found and personally verified in a **PINNED, FROZEN comparator that had already passed a freeze and produced a verdict**; both re-verified at source by this supervisor before adoption. `[lab-attributed]`; on Sanaa's desk to overrule. **No gate, threshold, cap, band or label is moved and no verdict is withdrawn.**
+
+---
+
+### §2bd — THE PLATEAU LIMB OF RULE 5 CLAUSE (1)
+
+Standing rule 5 clause (1) gates on *"any level not iteratively converged **or not plateaued**"*. The **level** half has a standard (`§2az`). **The plateau half had none, and it is now load-bearing**, because this team ruled six hours ago (`D596`) that where the residual-level limb is spent, **the plateau limb is the admissible one**.
+
+> **A PLATEAU IS MEASURED OVER A TRAILING WINDOW OF THE RUN'S OWN HISTORY, DECLARED IN THE REGISTRATION BEFORE THE RUN. A TWO-POINT DIFFERENCE BETWEEN THE LAST TWO WRITES IS NOT A PLATEAU TEST AND MAY NOT BE GATED ON.**
+>
+> The registration states **(i)** the window — a fraction of the run or a count of writes, never "the last two"; **(ii)** the statistic over that window — spread, drift, or max deviation from the window mean; **(iii)** the tolerance. **A monotone drift is the failure mode the window exists to catch**, so a statistic that cannot distinguish drift from noise (any statistic reading only the endpoints) does not satisfy this clause.
+
+**THE INSTANCE THAT EARNED IT, measured and not argued.** `cases/navier_class/SUBOFF/grade_suboff.py:368`, verbatim, read at source by this supervisor:
+
+```python
+plateaued = abs(ct_series[-1] - ct_series[-2]) <= PLATEAU_TOL_REL * abs(ct) if ct else False
+```
+
+It compares **the last two writes and nothing else**, so a steady drift with small per-write steps passes. **It flagged two levels `PLATEAUED` whose coefficients were, over their final 100 writes, falling 10.02 % and rising 5.71 %.** A false `PLATEAUED` is a **false green on a rule-5 clause-1 gate**, and rule 5 permits the gate to turn a `PASS` into `NOT A RESULT` but **never the reverse** — so a false plateau does not merely mis-report, it **manufactures admissibility**.
+
+**AND IT IS RECORDED AGAINST THIS TEAM'S OWN RULING, WHICH IS WHY IT IS URGENT.** `D596` §7 ruled the plateau limb admissible for `A2-GC-P`'s `GATE R`. Its worked example was a trailing-window measure — *"flat to six significant figures over its last 200+ of 1,000 iterations, last-20 % relative spread `7.5e-09`"* — **but the ruling never said a two-point test was inadmissible.** A registration could have satisfied `D596` literally with `abs(r[-1] - r[-2]) <= tol` and reproduced `grade_suboff.py`'s defect exactly, **with this team's ruling as its authority.** The gap is closed here, before the registration that would have walked into it.
+
+### §2bd.1 — A MESH COUNT READ FROM `polyMesh/owner` IS `nFaces`, NOT `nCells`, AND IT REACHES `r` AND THEREFORE `GCI`
+
+Same file, `:369`: `ncells = len(parse_owner(case))`. **OpenFOAM's `constant/polyMesh/owner` holds one entry per FACE** — `owner[i]` is the cell owning face `i` — so the length is `nFaces`. Verified at source: `parse_owner` (`:124-135`) parses that list and returns it unmodified. **Measured 4.01× wrong**, and it feeds the refinement ratio: the true cell ratios are exactly **2.250000**, giving **r = 1.5000000**; the face ratios give **1.4994 / 1.4996** and trip a **spurious unequal-ratio branch**.
+
+> **A cell count used in a refinement ratio is read from a source that counts CELLS, and the registration names that source.** `nFaces`, `nPoints` and the length of any face-indexed list are not cell counts. Where `r` is derived rather than registered, the derivation and its source are stated, because **`r` propagates into the observed order and into every GCI this charter's §3 admits.**
+
+### §2be — THE FREEZE/CORRECTNESS GAP, STATED SO NOBODY READS A FREEZE AS MORE THAN IT IS
+
+**Neither defect above was caught by a freeze, by a planted-zero control, or by a selftest**, and the file was correctly pinned throughout. cfd's formulation is adopted verbatim because it cannot be improved on:
+
+> **The freeze proved the file was unchanged; it could not prove the file was correct.**
+
+**§2d's freeze and standing rule 3's planted-zero control are ORTHOGONAL to correctness and were never claimed otherwise — but the lab has been reading a clean freeze as a broader assurance than it is.** A freeze answers *is the file that ran the file that was registered*. It is silent on whether that file computes what its registration says. **Nothing in this charter licenses "it passed the freeze check" as evidence about a comparator's arithmetic.**
+
+**Three consequences, and they are requirements on a freeze hook rather than on a freeze:**
+
+1. **THE GRADING PATH INCLUDES THE INVOCATION, NOT ONLY THE BLOBS.** cfd's `R1b` failure is the case: `run_suboff_r1b_triple.sh:369` invoked the correctly-pinned grader **while omitting `--reference`**; the grader correctly refused and the rung produced **no graded number**. Every blob was pinned and correct; **the invocation was pinned nowhere.** **A pinned comparator invoked wrongly is an unpinned grading path**, and a registration that pins comparator bytes without pinning the argv that drives them has frozen half its instrument.
+2. **A PIN'S LAST COMMIT MUST BE AN ANCESTOR OF THE FREEZE COMMIT.** This is rule 2 made checkable on the git record rather than asserted in prose — the property that makes "frozen before the run" a fact about the commit graph. cfd verified it by hand for SUBOFF (`58595cb2` is an ancestor of `f67bbe14`); a hand-verified ancestry is one a supervisor will eventually get wrong.
+3. **A CONDITIONALLY ARMED CHECK IS NOT AN ARMED CHECK.** `grade_suboff.py`'s `Aref` comparison sits behind a data-dependent condition, so **with a null reference it is skipped silently and the grader still returns a verdict.** It was armed only because a non-null value happened to be pinned. **A freeze that cannot see a guard whose arming condition is DATA certifies a sleeping check**, and the registration must therefore state which guards are unconditional and which are armed by a pinned value — the pinned value then being part of the guard, not part of the input.
+
+### §2be.1 — THE SHAPE PLANTING CANNOT CATCH, AND IT IS WORTH MORE THAN ANOTHER PLANTED ZERO
+
+cfd found, in `cases/navier_class/watch_grade_calibrate.py`, the string `"waste named separately: 0.00 core-min (every level returned rc=0)"` **HARD-CODED** — asserted unconditionally, whatever the reader found.
+
+> **A LITERAL CLAIM-STRING IN A REPORTING PATH CANNOT BE FALSIFIED BY ANY INPUT, SO NO PERTURBATION DETECTS IT. ONLY READING THE SOURCE DOES.**
+
+This is `§2a`'s identity test reaching the **report** rather than the gate: a hard-coded finding is a green light wired to nothing, and it is invisible to the entire planted-control apparatus this lab has built. **It is named here as a distinct detector class** — a reporting path that emits a measurement-shaped sentence which no input can change — and it is the reason `SUPERVISION_CHARTER` §3 check-1 requires a supervisor to read a measurement script **as a diff** rather than to run its selftest.
+
+| amendment record | **v1.75** |
+|---|---|
+| clauses added | **2** (§2bd with §2bd.1; §2be with §2be.1) |
+| existing clauses altered, widened or narrowed | **0** |
+| gate values changed | **0** |
+| verdicts withdrawn | **0** |
+| executable checks made to refuse | **0** (`D539`) |
+| measured instances behind these clauses | **3**, all in files pinned and frozen at the time (`grade_suboff.py:368`, `:369`; `watch_grade_calibrate.py`'s hard-coded claim) |
+| **lines whose number changed above this section** | **0** |

@@ -183,3 +183,25 @@ Rule 5 clause (1) has **two** limbs: *"any level not iteratively converged **or 
 ### WHAT STANDS
 
 **Every verdict in this ruling is unchanged.** `0 of 3,352` A2-signature primals ever reached `1e-8`, minimum **`4.670244e-06`**, **467×** above the gate — now resting on an unfiltered reader with a live planted control rather than on an extension glob. DAFoam's `1e-8` stop is exercised **at least** 4,117 times elsewhere on this box, including 1,015 times on the same `DARhoSimpleFoam` solver. **`GATE R` remains a live two-way gate at no threshold whatsoever**, and the only band where the measured distribution straddles a threshold — `[4.67e-06, 1.00e-05]` — remains the band whose failing side is destroyed by the `rc=1` abort.
+
+---
+
+## ADDENDUM 2 — 2026-09-10: **§7's PLATEAU LIMB IS QUALIFIED. A TWO-POINT DIFFERENCE WOULD HAVE SATISFIED THIS RULING LITERALLY AND REPRODUCED A MEASURED FALSE-GREEN. THE GAP IS CLOSED IN THE CHARTER BEFORE ANY REGISTRATION COULD WALK INTO IT**
+
+**Appended at the foot; nothing above edited. `lines whose number changed above this section: 0`.**
+
+`§7` ruled the **plateau limb** admissible for `GATE R` where the residual-level limb is spent. **It did not say how a plateau may be measured, and that omission was dangerous.**
+
+cfd found, and this supervisor re-verified at source, `cases/navier_class/SUBOFF/grade_suboff.py:368`:
+
+```python
+plateaued = abs(ct_series[-1] - ct_series[-2]) <= PLATEAU_TOL_REL * abs(ct) if ct else False
+```
+
+**A two-point test. It flagged two levels `PLATEAUED` whose coefficients were, over their final 100 writes, falling 10.02 % and rising 5.71 %.**
+
+**`§7`'s worked example was sound** — it cited a trailing-window measure, *"flat to six significant figures over its last 200+ of 1,000 iterations, last-20 % relative spread `7.5e-09`"*. **But a registration could have satisfied this ruling LITERALLY with `abs(r[-1] - r[-2]) <= tol`**, reproducing that defect exactly, **with this ruling as its authority.** A false `PLATEAUED` is a false green on a rule-5 clause-1 gate, and rule 5 lets that gate turn a `PASS` into `NOT A RESULT` but **never the reverse** — so it does not merely mis-report, it **manufactures admissibility**.
+
+**`VERIFICATION_CHARTER` §2bd (v1.75) now governs:** a plateau is measured over a **trailing window declared in the registration before the run**, with the window, the statistic and the tolerance all stated, and **a two-point difference between the last two writes may not be gated on**. `§7` is read subject to it.
+
+**Also relevant to any successor of this item:** `§2bd.1` — a cell count read from `constant/polyMesh/owner` is `nFaces`, not `nCells` (measured 4.01× wrong in the same comparator, propagating into `r` and therefore into GCI). **No verdict in this ruling moves; `A2-GC-P` is still `NOT_FROZEN` and now has one fewer way to freeze badly.**
