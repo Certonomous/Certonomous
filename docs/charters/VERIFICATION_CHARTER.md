@@ -8974,3 +8974,54 @@ cfd proposed a **sixth weekly number** — corpus-wide `pins_unseen` — beside 
 | executable checks made to refuse | **0** (`D539`) |
 | corpus figures published | **0**, deliberately — the census is blocked by the defect it would measure |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.77, 2026-09-10 — **§2bf GAINS ITS MEASURED BODY AND A SHARPER DANGER (an advisory and an enforcement are INDISTINGUISHABLE FROM THE ARTIFACT), AND §2bg: A HEADLINE TRAVELS ALONE**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Both raised by **cfd**; both verified at source by this supervisor before adoption. `[lab-attributed]`. **No gate, threshold, cap, band or label moves; no executable check is made to refuse (`D539`).**
+
+### §2bf.5 — `D539`'s COST IS NO LONGER HYPOTHETICAL. IT HAS A BODY, IN A LIVE CASE, TODAY
+
+`§2bf` argued that `D539` *"systematically manufactures a growing population of warnings"* and that its cost had never been named. **cfd supplied the instance and it is on disk.** `cases/navier_class/SUBOFF/CAP_OVERRUN.txt`, written by the runner at `2026-09-10T07:21:03Z`, quoted verbatim and read at source:
+
+> *"CAP OVERRUN REPORTED, NOT ENFORCED: case `SUBOFF-R1-TRIPLE` … elapsed **9022 s > 1.00 x registered CAP 9000 s** … **The run was NOT killed. THAT IS A PROPERTY OF THIS RUNNER AS BUILT, NOT A PERMISSION ANY CHARTER GRANTS:** `COMPUTE_BUDGET_CHARTER.md:197` says the OPPOSITE — 'A budget overrun stops the run. It does not get a new budget.' — and `CLAUDE.md` rule 12 repeats it. No clause of that charter carves out a report-only cap. Runner-side cap enforcement is pre-registered at `docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md` (`D539`) and is **ADVISORY, INERT and OFF**; switching it on is Sanaa's alone."*
+
+**So the advisory-by-necessity structure has already produced one unenforced cap in a live case, with the charter clause it violated quoted in the runner's own output.** `RUNNER_CAP_ENFORCEMENT_CLAUSE.md:3` confirms the status: *"**Status: ADVISORY. INERT. OFF.** Not switched on, and no agent may switch it on."* **Nothing here criticises `D539`, which is correct and undisturbed** — it names the price, which `§2bf` said had never been named.
+
+### §2bf.6 — THE SHARPER DANGER, AND IT REPLACES THE DECAY FRAMING AS THE PRIMARY ONE
+
+`§2bf` framed the hazard as **attention decay** — a warning becoming wallpaper. cfd's framing is better and is adopted as primary:
+
+> **THE DANGER IS NOT THAT AN ADVISORY IS IGNORED. IT IS THAT AN ADVISORY AND AN ENFORCEMENT ARE INDISTINGUISHABLE FROM THE ARTIFACT.**
+
+A reader of the record cannot tell **a cap that was enforced and not breached** from **a cap that was never enforced and was breached** — both leave a run that finished and a log that does not mention a kill. Decay is a property of readers; **indistinguishability is a property of the evidence**, and it survives a perfectly attentive reader. It is the same sentence as *"an instrument that could not act and an instrument that had no cause to act produce identical silence"*, and as `D593`'s *"a check reporting no violations over a population it could not evaluate."*
+
+**AND THE RECURSION IS THE PART WORTH KEEPING.** `RUNNER_CAP_ENFORCEMENT_CLAUSE.md:257-260` **already identified this danger and already mechanised it**, as mandatory mutant **P2**, verbatim:
+
+> *"**P2 (MANDATORY) — force `enforce=True` → control 8 must FAIL.** Without P2, control 8 passing proves nothing: a wrapper that happens to exit, or a clause that happens not to fire, **looks identical to an off switch**. **The off-state must be shown to be what held the run, not an accident.**"*
+
+**That control lives inside a clause that is ADVISORY, INERT and OFF.** So the mutant that would prove the off-state is deliberate **never runs, because the thing it controls is off.** **A control that can only run when the guard is armed says nothing about the period when the guard is off — and that period is the entire period.** This is not a defect in cfd's clause, whose author saw the hazard clearly enough to mechanise it; it is what `D539`'s reservation costs, stated at the only level where it is visible.
+
+### §2bg — **A HEADLINE TRAVELS ALONE, SO IT MUST BE TRUE ALONE**
+
+Raised by cfd against **this team's own reporting of a finding about standing rule 3**, and the correction is accepted.
+
+The finding: `CLAUDE.md` rule 3 names `analyse_t3.py` and `analyse_t10a.py` as its reference implementations, and **both plant into a copy and call the reader in-process rather than through its CLI.**
+
+**Stated as *"the exemplars demonstrate a NARROWER property than the rule states"* it is true and useful.** They prove the field-reading **function** can see a plant; they do not prove that bytes on disk propagate through the real path to a changed verdict. **Stated as *"rule 3's controls are broken"* it would be FALSE and damaging** — neither manufactures a favourable world-state, and T10a's exact-equality on the float-representable delta is **tighter** than the new check's.
+
+> **A FINDING'S HEADLINE IS WRITTEN TO SURVIVE SEPARATION FROM ITS BODY, BECAUSE IT WILL BE SEPARATED. Where the careful statement and the arresting one differ, the headline carries the careful one, and the caveat that makes it true goes ABOVE the fold, not below it.**
+
+**This is the headline-versus-substance defect this team named against its OWN board today** — three standing audits whose "standing" was asserted in a summary phrase that no section re-measured — and against `check_comparator_freeze.py`, whose *"N of N pinned executable(s)"* is **word-for-word true and misleads anyway** because the count is what gets read. **`§2be.1`'s hard-coded claim-string, that coverage line, and a finding's own headline are one family: a sentence whose narrower truth is disclosed somewhere the reader does not go.**
+
+**Applied immediately to this team's own record:** `D610`'s body states the rule-3 finding carefully, and its **commit subject does not**. That subject cannot be edited and is disclosed here instead, as `V-152` and `§A8.3` were.
+
+| amendment record | **v1.77** |
+|---|---|
+| clauses added | **1** (§2bg); §2bf gains two dated sub-sections (§2bf.5, §2bf.6) |
+| existing clauses altered, widened or narrowed | **0** — §2bf's decay framing is retained and demoted, not struck |
+| gate values changed | **0** |
+| executable checks made to refuse | **0** (`D539`) |
+| measured instances behind these clauses | **1** (`SUBOFF-R1-TRIPLE`, 9,022 s past a 9,000 s cap, not killed) |
+| **lines whose number changed above this section** | **0** |
