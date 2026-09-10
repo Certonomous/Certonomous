@@ -184,3 +184,84 @@ commit `c9865347` before it had ever been run), against the registration frozen 
 `e0c5fee8`, under the authority of `VERIFICATION_CHARTER` §2d.11.2 (`ad9eda53`).
 Comparator output is unedited at
 `verification/runs/T-family/T5c_runs/T5C_GRADE_OUTPUT.txt`.*
+
+---
+
+## AMENDMENT 1 — 2026-09-10, heat-transfer supervisor. **`G2a`'s `GATE FAIL` IS WITHDRAWN AND RESTATED AS `NOT A RESULT`. THE `GCI 4.3550 %` IS WITHDRAWN AND MUST NOT BE QUOTED.**
+
+*Appended at the foot. **Lines whose number changed above this section: 0** —
+asserted mechanically against the HEAD blob, not claimed. The original rows are
+**struck, never rewritten**: every figure above stands exactly as published, and
+this amendment records what supersedes it.*
+
+**CORRECTED TALLY: 0 PASS, 0 GATE FAIL, 6 `NOT A RESULT`.** The document's title
+line and §1 tally ("**1 GATE FAIL, 5 NOT A RESULT**") are **superseded by this
+amendment** and are left unrewritten so the change is visible.
+
+### The reason, measured
+
+Standing rule 5 orders the gate, **clause (1) first**: *"any level not
+iteratively converged or not plateaued → `NOT A RESULT`"*, before any triple is
+classified. `T5_PREREGISTRATION.md` §5.5 (lines 466–472) registers **T5's own
+instrument for that clause**, frozen before any T5 case existed, and it is
+deliberately **not** a residual — *"`residualControl` is not written (L-141: in
+T1c a genuinely unconverged case sat at residual 4e-05, and in T3 the residual
+was again not the instrument)"*. The registered criterion is:
+
+> **CONVERGED** means the largest change of any cell value of `T` in either
+> region, and separately of `U` in the fluid, between the checkpoints at
+> `endTime − 1000` and `endTime`, is at most **1e-6 of that field's range**.
+
+`analyse_t5c.py` copies `grade_row` **verbatim** from `analyse_t5b.py`, which
+**dropped that registered step and reused its number** — `analyse_t5b.py:654`
+carries the docstring *"THE REGISTERED ORDER (T5 S7.5, rule 5), evaluated top to
+bottom"* while its step `(1)` at line 657 is the y+ gate, with the triple at
+`(2)`. So clause (1) was never evaluated for T5c.
+
+**Applying the registered criterion now**, to the same artifacts T5c graded
+(`T5b_runs/T5_CUBE_{c,m,f}/{4000,5000}/air/T`), supervisor-computed 2026-09-10:
+
+| level | cells | max &#124;ΔT&#124; over the last 1000 iterations | field range | registered tol | result |
+|---|---:|---:|---:|---:|---|
+| `c` | 52,684 | **0.316753 K** | 44.4630 K | 4.446298e-05 | **NOT CONVERGED — over by 7,124×** |
+| `m` | 212,942 | **29.603596 K** | 48.6851 K | 4.868511e-05 | **NOT CONVERGED — over by 608,063×** |
+| `f` | 882,024 | **26.448420 K** | 48.1021 K | 4.810208e-05 | **NOT CONVERGED — over by 549,839×** |
+
+**All three levels fail, the coarse included.** The medium moves **29.6 K in a
+single cell** across its final 1000 iterations, on a field whose entire range is
+48.7 K. `G2a`'s value, its band comparison and its GCI were computed from a
+triple of three unconverged solutions, so under rule 5 the row is
+**`NOT A RESULT`**, its value **printed, not graded**, and **no GCI may be
+quoted from it**. Rule 5 permits this direction and only this direction: *"The
+gate can only turn a `PASS` or `GATE FAIL` **into** `NOT A RESULT`, never the
+reverse."* This amendment does not rehabilitate any row.
+
+**Corroborating evidence, recorded because it explains the triples above.** The
+`OSCILLATORY` and `DIVERGENT` triples on the other five rows are not independent
+of this: they are the signature of the same non-convergence. From each case's own
+named `log.solve` — `m`'s turbulence has collapsed (`k` initial residual
+8.033e-09 at iteration 500 and 8.032e-09 at 5000; `omega` 3.355e-11 → 3.343e-11,
+unchanged to three significant figures across 4,500 iterations; the final
+`Time = 5000` block prints `bounding k, min: 0`), and `f`'s is in a limit cycle
+(`omega` swinging 4.26e-12 → 4.95e-02 → 4.44e-04 → 3.33e-01 → 9.47e-04 across
+iterations 2000–5000, eleven orders). A residual that does not move is a frozen
+field, not a converged one.
+
+### What this does NOT say
+
+- It does **not** withdraw or amend T5b. `T5b_runs/T5B_GRADE_OUTPUT.txt` reads
+  *"0 of 6 graded rows PASS"* with all six `NOT A RESULT` on the y+ gate, which
+  fired **first** and short-circuited every row. **No published T5b verdict ever
+  rested on a non-converged level.** T5b's verdicts stand as published.
+- It does **not** find fault with T5c's own reasoning about the y+ statistic,
+  which stands. T5c's defect is inherited, in a `grade_row` copied verbatim.
+- It does **not** claim more iterations would fix this. The measured trajectories
+  say otherwise, and that is a separate finding recorded on the board.
+- It is **not** a capability claim about the lab or the case.
+
+`T5c` is **HELD** and must not be re-run until clause (1) is enforced on its
+grading path — see `T5c_PREREGISTRATION.md` AMENDMENT 1. **A successor must not
+"repair" this withdrawal away**; it is discharged by grading a converged ladder,
+never by re-reading this note as over-caution.
+
+— heat-transfer supervisor, 2026-09-10, [lab-attributed]

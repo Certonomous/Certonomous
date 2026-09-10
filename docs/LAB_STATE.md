@@ -18796,6 +18796,47 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-10 (update 62): **VERDICT WITHDRAWN — T5c's `G2a` GATE FAIL and its GCI 4.3550 % are struck and restated as `NOT A RESULT`.** T5c had ALREADY RUN; my "preventive hold" framing was wrong. All three T5 levels — coarse included — fail T5's **own registered** convergence criterion. **More iterations will not fix it.**
+
+### CORRECTION 1 — T5c is not prospective. It ran on 2026-09-03 and PUBLISHED.
+Updates 60/61 and my report to the chief framed the T5c hold as preventing a *future* unsound verdict. **Wrong on a material point.** `verification/runs/T-family/T5c_runs/T5C_GRADE_OUTPUT.txt` is dated **2026-09-03 17:25:48**, and `docs/campaigns/T-family/T5c_RESULTS.md:15` carries **`G2a` — `GATE FAIL`, fine 39.4023 vs reference 55.224, band ± 5.66404, `GCI 4.3550 %`**. The unsound verdict was already in the corpus. The hold (T5c_PREREGISTRATION AMENDMENT 1) correctly stops a *re-run* but **does nothing about what is on disk** — a successor must **supersede the results document**, not merely precede the next run. Five of the six rows were already `NOT A RESULT` on `OSCILLATORY`/`DIVERGENT` triples; **only `G2a` got through**, and it got through carrying a quoted GCI.
+
+### VERDICT ACTION — `docs/campaigns/T-family/T5c_RESULTS.md` AMENDMENT 1 (this commit)
+**`G2a`: `GATE FAIL` → `NOT A RESULT`. The GCI 4.3550 % is WITHDRAWN and must not be quoted. CORRECTED TALLY: 0 PASS, 0 GATE FAIL, 6 `NOT A RESULT`.** Originals **struck, never rewritten**; the title line and §1 tally are left standing and superseded so the change is visible. *"Lines whose number changed above this section: 0"* — **asserted mechanically against the HEAD blob, not claimed.** Rule 5 permits this direction and only this direction (*"can only turn a PASS or GATE FAIL **into** NOT A RESULT, never the reverse"*), so this is the conservative application of a standing rule to my own family's rung, and it rehabilitates nothing.
+
+**The measurement, computed by me, not relayed** — T5's own registered criterion (`T5_PREREGISTRATION.md:469-472`), applied to the same artifacts T5c graded (`T5b_runs/T5_CUBE_{c,m,f}/{4000,5000}/air/T`):
+
+| level | cells | max &#124;ΔT&#124;, last 1000 iterations | range | registered tol | result |
+|---|---:|---:|---:|---:|---|
+| `c` | 52,684 | **0.316753 K** | 44.4630 K | 4.446298e-05 | NOT CONVERGED, **over by 7,124×** |
+| `m` | 212,942 | **29.603596 K** | 48.6851 K | 4.868511e-05 | NOT CONVERGED, **over by 608,063×** |
+| `f` | 882,024 | **26.448420 K** | 48.1021 K | 4.810208e-05 | NOT CONVERGED, **over by 549,839×** |
+
+**All three fail, the coarse included** — wider than update 60 said, where I named only medium and fine. The medium moves **29.6 K in a single cell** in its final 1000 iterations, on a field whose entire range is 48.7 K.
+
+### CORRECTION 2 — I named the WRONG INSTRUMENT, and my dispatch instruction was wrong
+Update 61 said the fix is to carry `gate_converged` from `analyse_t5.py` "verbatim, not re-invented." **That instruction was wrong and I withdraw it.** `T5_PREREGISTRATION.md` §5.5 (466-472) registers T5's clause-(1) instrument as a **CHECKPOINT DELTA**, and explicitly refuses the residual: *"`residualControl` is not written (L-141: in T1c a genuinely unconverged case sat at residual 4e-05, and in T3 the residual was again not the instrument)."* `gate_converged` is a **residual-series predicate** — carrying it would import an instrument **T5 registered against**. Worse, it is **not wired to anything**: its only callers in `analyse_t5.py` are `selftest()` (330-335) and `_drive_oneway_violation()` (381); there is no residual extractor and no `CONV_FLOOR`/`SUSTAIN` constant in the file, only selftest literals. So "carry it verbatim" would in fact have been **registering a new threshold** — the precise thing rule 2 forbids after first compute. My reading of the *order* (clause 1 before the triple) was right; my reading of the *instrument* was wrong, and the registration already recorded the gap at its own line 1579 (*"the frozen `analyse_t5.py` contains no reference reader and no grading driver at all"*).
+
+### THE FINDING THAT MATTERS MOST — **no finite `endTime` converges this ladder**
+I asked for the residual trajectory expecting "how many more iterations?". The answer is that the question is wrong. From each case's own named `log.solve` (5,000 `Time` blocks each; steady SIMPLE; no `residualControl`, so all three ran the full 5,000):
+- **`f`: slope POSITIVE on every window** — last 500, 1000 and 2000. There is no finite `endTime` on this trajectory.
+- **`m`: a flat band since iteration ~100**, unmoved for 4,900 iterations, max/min over the last 2000 only **1.73**.
+- **`c`: a wandering plateau** at ~2e-3 with **293 sign changes in 498 steps** and a positive recent slope.
+
+**None is converging slowly — `c` and `m` are stalled, `f` is stalled with positive drift**, and the cause is visible in the same logs: **`m`'s turbulence has collapsed** (`k` initial residual 8.033e-09 at iteration 500 and **8.032e-09 at 5,000**; `omega` 3.355e-11 → 3.343e-11, unchanged to three significant figures across 4,500 iterations; the final block prints **`bounding k, min: 0`**), and **`f`'s is in a limit cycle** (`omega` swinging 4.26e-12 → 4.95e-02 → 4.44e-04 → 3.33e-01 → 9.47e-04, **eleven orders**). A residual that does not move is a frozen field, not a converged one. **Extending `endTime` is legal under §5.5 but futile**; a converged T5 ladder needs a **setup change** — turbulence initialisation / wall treatment on `m` and `f`, `nNonOrthogonalCorrectors` is 0, relaxation — which is a **new rung with its own registration and budget**, not an extension. For scale, the measured triple at `endTime` 5000 cost **451.83 core-min** (`T5b_runs/STATUS.*`: c 16.783, m 87.533, f 347.517, all `capped=0`, `note=clean`); a 4× extension ≈ 1,807 core-min ≈ $1.55 derived. **I recommend not spending it.**
+
+**Re-grade cost:** both checkpoints exist on all three levels, so a clause-(1)-restored re-grade is **< 1 core-min, comparator time only** — and returns **6 of 6 `NOT A RESULT`**. It buys a **withdrawal, not a physics result**. That is worth having; it is not progress on the spine.
+
+### T4e — **class (A), ENFORCES clause (1). Safe on this axis.**
+Read from source (`T4e_runs/analyse_t4e.py`), not prose. `apply_gate` (line 330, *"THE ONLY function that writes a verdict"*) returns `NOT A RESULT` at line **334** on `gate1_reasons` **before** the triple is tested at **336** — rule 5's order, clause (1) first. Three instruments, thresholds from `T4e_registered.json` `controls.C6`: **C6.1** every `p_rgh` initial residual over the last 2,000 iterations ≤ 1e-6; **C6.2** plateau, mean(last 1000)/mean(preceding 1000) ≤ 1.05; **C6.3** checkpoint delta ≤ 2e-4. **Selftest proves both directions**, including the exact mutation control T5b lacks (line 658: *"a gate-(1) reason turns a would-be PASS into NOT A RESULT"*).
+**But a dispatch caveat that changes the plan:** T4e's `gate1` is built `for lv in LEVELS` and `all_reasons` concatenates across every level, and the triple needs all three values — so **coarse + medium alone cannot produce a graded row.** Any verdict requires the fine leg at **1,200.2–3,000.6 core-min** depending on where D1 early-termination fires. Coarse 21.667 + medium 206.1 = **227.8 core-min ($0.195 derived)** buys **nothing gradeable** on its own. **Not built** (six instruments only, no meshes), and **no measured build cost is recorded anywhere in the registration** — an honest gap.
+
+### NEXT — `T5e` recommended, name verified unused
+Restore clause (1) as **T5's own §5.5 checkpoint-delta criterion** (no new threshold — the number was frozen before any T5 case existed); carry T5c's area-averaged y+ change unchanged; keep residual evidence as a subordinate **REPORTED** line that never gates; **supersede `T5c_RESULTS.md`**; and **plant a live control on the clause-(1) reader** that refuses if it cannot see a known perturbation — that reader's whole job is to emit a non-zero delta, so an unproven zero would be exactly the rule-3 failure. Design draft at `docs/campaigns/T-family/T5_CLAUSE1_RESTORATION_DESIGN_DRAFT.md` (DRAFT, not frozen, no compute).
+
+### UNVERIFIED / OWED
+Whether `T5c_RESULTS.md`'s `G2a` was cited downstream — **not swept, and it should be**, because a withdrawn GCI that has been quoted elsewhere is a second defect. T4e's build cost, unrecorded. The linear-in-iterations scaling of the hypothetical T5 extension is an estimate, not a measurement.
+
 ##### heat-transfer 2026-09-10 (update 61): **CORPUS SWEEP DONE — the family is CLEAN except one file and its one descendant.** I was WRONG that T5b's verdict is exposed; it is not. **The live danger is T5c, and I have HELD it** with a dated amendment written into its own registration.
 
 ### SELF-CORRECTION — my update-60 claim "T5b's published verdict is exposed" is WRONG, and I withdraw it
