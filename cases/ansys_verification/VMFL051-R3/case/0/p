@@ -1,0 +1,28 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+
+// Static pressure at inlet, manual p. 165: 202636.9 Pa.
+// NOTE (recorded in PREREGISTRATION.md section 2): the GATED quantity, the
+// post-expansion Mach number, is INDEPENDENT of p1 and T1 -- the Prandtl-Meyer
+// function depends only on M1 and gamma.  p1 and T1 set the scale of the
+// solution, not the answer, and are used verbatim as the manual states them.
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 202636.9;
+
+boundaryField
+{
+    inlet   { type fixedValue; value uniform 202636.9; }
+    outlet  { type zeroGradient; }
+    top     { type zeroGradient; }
+    wall    { type zeroGradient; }
+    defaultFaces { type empty; }
+}

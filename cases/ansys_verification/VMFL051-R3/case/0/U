@@ -1,0 +1,39 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+
+// VMFL051 -- Isentropic Expansion of Supersonic Flow Over a Convex Corner.
+// Ansys Fluid Dynamics Verification Manual, Release 2026 R1, p. 165.
+//
+// U1 = M1 * sqrt(gamma * R * T1)
+//    = 2.5 * sqrt(1.399009373474948509 * 287.04239682750293447 * 300)
+//    = 2.5 * 347.09148811792796307
+//    = 867.72872029481990768  m/s
+// gamma and R are DERIVED from the manual's OWN Cp = 1006.43 J/kg-K and
+// molecular weight 28.966, with OpenFOAM v2606's own universal gas constant
+// RR = 1e3 * NA * k = 1e3 * 6.0221417930e+23 * 1.38065e-23 = 8314.47006650545
+// J/(kmol K)  (fundamentalConstants.C:121 and etc/controlDict:1125).
+// gamma is therefore 1.3990094, NOT 1.4 -- see PREREGISTRATION.md section 2.
+//
+// This file is ALSO an age-guard marker (CLAUDE.md rule 4): run_vmfl051.sh
+// touches every file in 0/ immediately before the solver launches, so every
+// field at endTime must be strictly newer than the newest mtime in 0/.
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (867.72872029481991 0 0);
+
+boundaryField
+{
+    inlet   { type fixedValue; value uniform (867.72872029481991 0 0); }
+    outlet  { type zeroGradient; }
+    top     { type zeroGradient; }
+    wall    { type slip; }
+    defaultFaces { type empty; }
+}

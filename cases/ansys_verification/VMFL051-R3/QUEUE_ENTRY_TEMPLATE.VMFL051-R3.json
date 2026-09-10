@@ -1,0 +1,20 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL051-R3",
+  "prereg_commit": "REPLACE_WITH_R3_FREEZE_COMMIT_SHA_40_HEX",
+  "prereg_path": "cases/ansys_verification/VMFL051-R3/PREREGISTRATION.md",
+  "grading_freeze": [
+    "cases/ansys_verification/VMFL051-R3/grade_vmfl051_r3.py"
+  ],
+  "grading_freeze_note": "Comparator grade_vmfl051_r3.py: --selftest 49 ok / 0 FAIL, zero solver compute; refusals return rc 2; reader built against the v2606 surfaceFieldValue writer source. To be verified byte-identical disk==HEAD==freeze by the supervisor at the freeze commit.",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL051-R3/run_vmfl051_r3.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL051-R3",
+  "ranks": 1,
+  "cost_core_min_estimate": 9.8,
+  "cost_basis": "Point estimate 9.8 core-min, MEASURED on R2's byte-identical solve (588 wall s serial; verification/runs/ansys_verification/VMFL051-R2/COST.txt) -- R3 changes only the SAMPLING function objects (one exprField + two single-face-column surfaceFieldValue FOs), whose added cost is a labelled ASSUMPTION of negligible. Per-level ceilings L1/L2/L3 = 2/8/26, enforced running-total cap 28 core-min; overrun STOPS the run (rc 124, rule 12). Dollars DERIVED at $0.0513/core-h owner-stated (c7a.4xlarge, Sanaa 2026-08-21/22), NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Driver hardcodes its own absolute run root; cwd is the CASE directory (exists, holds no time directory).",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "PREPARED (not yet enqueued) by ansys-lane-opus48 for the ansys-verification-supervisor. NOT AUTHORISED: the supervisor performs the SUPERVISION_CHARTER section 3 check-4 personally (prereg committed before compute), replaces prereg_commit with the R3 freeze sha, and files this entry. Enqueueing is not authorisation (queue README); the run-script freeze-pin refuses unless the prereg and comparator on disk are byte-identical to their HEAD blobs at that commit."
+}

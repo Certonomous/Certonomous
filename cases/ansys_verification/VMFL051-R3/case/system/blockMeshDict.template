@@ -1,0 +1,100 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+
+// VMFL051 geometry, frozen in PREREGISTRATION.md section 4.
+//
+//   corner        at (0, 0)         -- the convex corner; "Angle round the
+//                                      corner = 195 deg" (manual p. 165), i.e.
+//                                      the wall turns AWAY from the flow by 15 deg
+//   inlet plane   x = -0.3 m
+//   outlet plane  x = +1.2 m
+//   top           y = +0.65 m
+//   upstream wall y = 0,            x in [-0.3, 0]
+//   downstream wall y = -x*tan(15 deg),  x in [0, 1.2]
+//                   tan(15 deg) = 0.26794919243112270647
+//                   y(x=1.2)    = -0.3215390309173472
+//   2-D slab      z in [-0.01, +0.01], one cell, `empty`
+//
+// WHY THE TOP IS AT 0.65: the LEADING Mach line of the expansion fan leaves the
+// corner at mu1 = asin(1/2.5) = 23.57817847820183 deg, so at the outlet plane
+// x = 1.2 it stands at y = 1.2*tan(mu1) = 0.523722936566 < 0.65.  The ENTIRE fan
+// therefore leaves through the (supersonic, zeroGradient) OUTLET and never
+// reaches the top boundary, which sees undisturbed M = 2.5 freestream along its
+// whole length.  No wave is reflected off the top by construction.
+//
+// Three cell counts are substituted by run_vmfl051.sh from the frozen level
+// table: cells across the 0.3 m upstream block, across the 1.2 m downstream
+// block, and across the 0.65 m inlet height.  Every level DOUBLES all three
+//   L1  24 /  96 /  52   ->   6240 cells,  h = 0.0125   m
+//   L2  48 / 192 / 104   ->  24960 cells,  h = 0.00625  m
+//   L3  96 / 384 / 208   ->  99840 cells,  h = 0.003125 m
+// so h halves EXACTLY and the Roache refinement ratio is r = 2 BY CONSTRUCTION,
+// never inferred from a cell count.
+
+scale   1;
+
+vertices
+(
+    (-0.3   0.0                  -0.01)   //  0
+    ( 0.0   0.0                  -0.01)   //  1
+    ( 1.2  -0.3215390309173472   -0.01)   //  2
+    (-0.3   0.65                 -0.01)   //  3
+    ( 0.0   0.65                 -0.01)   //  4
+    ( 1.2   0.65                 -0.01)   //  5
+    (-0.3   0.0                   0.01)   //  6
+    ( 0.0   0.0                   0.01)   //  7
+    ( 1.2  -0.3215390309173472    0.01)   //  8
+    (-0.3   0.65                  0.01)   //  9
+    ( 0.0   0.65                  0.01)   // 10
+    ( 1.2   0.65                  0.01)   // 11
+);
+
+blocks
+(
+    hex (0 1 4 3 6 7 10 9) (__NXA__ __NY__ 1) simpleGrading (1 1 1)
+    hex (1 2 5 4 7 8 11 10) (__NXB__ __NY__ 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces ((0 6 9 3));
+    }
+    outlet
+    {
+        type patch;
+        faces ((2 5 11 8));
+    }
+    top
+    {
+        type patch;
+        faces ((3 9 10 4)(4 10 11 5));
+    }
+    wall
+    {
+        type wall;
+        faces ((0 1 7 6)(1 2 8 7));
+    }
+    defaultFaces
+    {
+        type empty;
+        faces ();
+    }
+);
+
+mergePatchPairs
+(
+);

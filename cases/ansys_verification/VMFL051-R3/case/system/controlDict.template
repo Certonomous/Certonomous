@@ -1,0 +1,175 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+
+// VMFL051-R3.  endTime and writeInterval are substituted by run_vmfl051_r3.sh
+// from the frozen values in PREREGISTRATION.md section 2; they are the SAME at
+// every mesh level (physical time, not iterations) and UNCHANGED from R2, so the
+// Roache triple compares the same physical state.
+//
+// endTime = 7.0e-3 s = 4.049 flow-throughs at U1 = 867.72872 m/s.  The flow is
+// everywhere supersonic; the SETTLEDNESS clause of the comparator, not this
+// number, is the arbiter of whether a level's time-mean has settled.
+//
+// deltaT 1e-8 is only a seed; adjustTimeStep raises it to the CFL limit within
+// ~40 steps at every level.  maxDeltaT 1e-5 is ABOVE the L1 CFL step, so it never
+// binds and maxCo 0.4 governs.  ALL UNCHANGED from R2 (the SOLVE is byte-identical
+// to R2 / run 1; only the SAMPLING function objects change).
+
+application     rhoCentralFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+
+deltaT          1e-8;
+
+writeControl    runTime;
+writeInterval   __WRITEINTERVAL__;
+purgeWrite      0;
+
+writeFormat     ascii;
+writePrecision  10;
+writeCompression off;
+
+timeFormat      general;
+timePrecision   8;
+
+runTimeModifiable false;
+
+adjustTimeStep  yes;
+maxCo           0.4;
+maxDeltaT       1e-5;
+
+functions
+{
+    // Ma = mag(U)/sqrt(gamma*p/rho), stored under the name "Ma"
+    // (v2606 src/functionObjects/field/MachNo/MachNo.C: setResultName("Ma","U")).
+    // FIRST in this dictionary: functionObjectList::execute() runs execute() then
+    // write() for each object IN DICTIONARY ORDER (functionObjectList.C:615), so
+    // Ma is in the registry before pStag and the plane FOs read it.  UNCHANGED
+    // from R2.
+    MachNo
+    {
+        type            MachNo;
+        libs            (fieldFunctionObjects);
+        field           U;
+        executeControl  timeStep;
+        executeInterval 1;
+        writeControl    writeTime;
+    }
+
+    // NEW (R3): the isentropic stagnation-pressure field, built by the v2606
+    // fvExpressionField function object (type exprField;
+    // src/functionObjects/field/expressions/fvExpressionField.C, runtime type
+    // "exprField").  It MUST come after MachNo so the stored "Ma" field exists in
+    // the registry when the expression is evaluated.
+    //   pStag = p * (1 + 0.5*(gamma-1)*Ma^2)^(gamma/(gamma-1))
+    // with the frozen gas gamma = 1.3990093734749485:
+    //   0.5*(gamma-1)     = 0.19950468673747423
+    //   gamma/(gamma-1)   = 3.5062067873019136
+    // stored (not written to disk); the plane FOs read it live from the registry.
+    // dimensions [1 -1 -2 0 0 0 0] = Pa (kg m^-1 s^-2), the classic dimensionSet
+    // form so it parses without depending on named-unit support.
+    pStag
+    {
+        type            exprField;
+        libs            (fieldFunctionObjects);
+        field           pStag;
+        action          new;
+        store           true;
+        autowrite       false;
+        dimensions      [1 -1 -2 0 0 0 0];
+        expression      "p*pow(1.0 + 0.19950468673747423*Ma*Ma, 3.5062067873019136)";
+        executeControl  timeStep;
+        executeInterval 1;
+        writeControl    none;
+    }
+
+    // R2 volume diagnostics, KEPT UNCHANGED (never the R3 gate; retained so the
+    // volume-average observable stays available for cross-reading).
+    gateMach
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            gateZone;
+        operation       volAverage;
+        fields          (Ma p T);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+    gateMachInner
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            gateZoneInner;
+        operation       volAverage;
+        fields          (Ma p T);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    // THE R3 GATED INSTRUMENT (NEW).  Mass-flux-weighted average over the frozen
+    // faceZone `postExpPlane`, written EVERY timestep.  weightField phi is the
+    // rhoCentralFoam face mass flux (createFields.H:90, phi = fvc::flux(rhoU));
+    // surfaceFieldValue applies the weight as mag(phi) (surfaceFieldValue.C:50)
+    // and returns gSum(mag(phi)*q)/gSum(mag(phi)) for weightedAverage
+    // (surfaceFieldValueTemplates.C:182) -- the conservative flux-weighted mean.
+    // Output, from the v2606 writer source (N-AV4 / L-286), goes to
+    //   postProcessing/postExpPlane/0/surfaceFieldValue.dat
+    // with header "# Region type : faceZone postExpPlane", "# Faces : N",
+    // "# Area : A", "# Weight field : phi", then "# Time" followed by
+    // <tab>weightedAverage(<field>) per field (surfaceFieldValue.C writeFileHeader),
+    // and data rows writeCurrentTime then `file() << tab << sresult` per field
+    // (surfaceFieldValueTemplates.C:519).  Columns are located BY HEADER NAME.
+    postExpPlane
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            postExpPlane;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (p T Ma pStag);
+        writeFields     false;
+        writeArea       false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    // PLANE-SENSITIVITY DIAGNOSTIC (NEW), identical reduction at x_p2 = 0.90 m.
+    // GATES NOTHING (PREREGISTRATION.md section 3.4); reported whatever it shows.
+    postExpPlane2
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            postExpPlane2;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (p T Ma pStag);
+        writeFields     false;
+        writeArea       false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+}

@@ -1,0 +1,98 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+// VMFL051-R3 -- THE FROZEN SAMPLING RULE (PREREGISTRATION.md sections 3.2, 3.4).
+//
+// CHANGED from R2 (PREREGISTRATION.md section 2): R2's two cellZones (gateZone,
+// gateZoneInner) are KEPT UNCHANGED so their volume-average diagnostics remain
+// available, and TWO cross-plane faceZones are ADDED -- `postExpPlane` (the R3
+// GATE) and `postExpPlane2` (a plane-sensitivity DIAGNOSTIC that gates nothing).
+//
+// The R3 gate is the mass-flux-weighted (conservative) reduction on a downstream
+// cross-plane inside the uniform post-expansion wedge, clear of the fan.  Every
+// coordinate below is derived from case INPUTS -- M1 = 2.5, the 15 deg turn,
+// gamma = 1.3990093734749485, the domain bounds, and a conservative Mach bound
+// M_cons = 3.5 chosen larger than any physically plausible answer -- and from NO
+// solved output, which is what makes the planes ANSWER-BLIND.
+//
+// Cross-plane construction (PREREGISTRATION.md section 3.2), for each station:
+//   station x_p is a cell FACE at every level (0.6 and 0.9 land exactly on the
+//   downstream-block face grid: 0.6/dx and 0.9/dx are integers for nxB in
+//   {96,192,384}), so a THIN x-slab [x_p - delta, x_p + delta] with
+//   delta = 5.0e-4 m < half the finest cell width (L3 half-dx = 1.5625e-3 m)
+//   captures EXACTLY ONE COLUMN of x-normal internal faces whose centres sit at
+//   x = x_p.  The y-band is the middle 50 % of the CONSERVATIVE wedge:
+//     wall           y_wall  = -x_p*tan(15 deg)
+//     trailing ray   y_tr    = +x_p*tan(asin(1/M_cons) - 15 deg),  M_cons = 3.5
+//     H_cons = y_tr - y_wall;  band = [y_wall + 0.25*H, y_wall + 0.75*H]
+//   The true trailing ray (at the analytic M2 ~ 3.2355) sits ABOVE the
+//   conservative one for every M2 < 3.5, so the band lies inside the true uniform
+//   wedge for every physically possible answer.  z bounds (-1,+1) enclose the
+//   +/-0.01 m slab with room to spare.
+//
+// postExpPlane  (GATE)        x_p  = 0.60 m  y in [-0.116385, -0.027615]
+// postExpPlane2 (DIAGNOSTIC)  x_p2 = 0.90 m  y in [-0.174577, -0.041422]
+//
+// A faceZone is built as a faceSet (boxToFace, faces by centre) converted to a
+// faceZone (setToFaceZone) -- the v2606 idiom.  surfaceFieldValue reads the
+// faceZone with regionType faceZone; scalar weightedAverage is orientation-
+// independent (the weight is mag(phi)), so the faceZone flip map does not affect
+// the graded value.
+
+actions
+(
+    // ---- R2 cellZones, KEPT UNCHANGED (volume diagnostics only) -------------
+    {
+        name    gateZone;
+        type    cellZoneSet;
+        action  new;
+        source  boxToCell;
+        box     (1.00 -0.1929491924311227 -1) (1.15 -0.02253916841837858 1);
+    }
+    {
+        name    gateZoneInner;
+        type    cellZoneSet;
+        action  new;
+        source  boxToCell;
+        box     (1.00 -0.1579491924311227 -1) (1.15 -0.05753916841837858 1);
+    }
+
+    // ---- R3 GATE cross-plane at x_p = 0.60 m --------------------------------
+    {
+        name    postExpPlaneFaces;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.5995 -0.116385 -1) (0.6005 -0.027615 1);
+    }
+    {
+        name    postExpPlane;
+        type    faceZoneSet;
+        action  new;
+        source  setToFaceZone;
+        faceSet postExpPlaneFaces;
+    }
+
+    // ---- R3 DIAGNOSTIC cross-plane at x_p2 = 0.90 m (gates nothing) ---------
+    {
+        name    postExpPlane2Faces;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.8995 -0.174577 -1) (0.9005 -0.041422 1);
+    }
+    {
+        name    postExpPlane2;
+        type    faceZoneSet;
+        action  new;
+        source  setToFaceZone;
+        faceSet postExpPlane2Faces;
+    }
+);
