@@ -1,18 +1,12 @@
-== 2026-09-10T15:55:34Z
-   T4e_IJ_c   step   11757/  30000 ( 39.2%)  recent  23.369 it/s over  2938 steps  basis  23.077 it/s (basis/recent 0.99x)  Exec/Clock 0.9946
-              proj      24.5 core-min = 1.13x POINT 0.75x CEILING 0.565x CAP  -> WITHIN CEILING
-   T4e_IJ_m   step     825/  60000 (  1.4%)  recent   1.343 it/s over   205 steps  basis   4.852 it/s (basis/recent 3.61x)  Exec/Clock 0.9948
-              NO COST VERDICT -- window not settled (205 steps < 2500). The calibrator leg was itself low by ~4.16x at this step count while finishing ON BUDGET, so a projection here is not evidence of an overrun.
-              (unsettled projection, recorded but NOT a cost verdict: 745.5 core-min = 1.809x CAP)
-   T4e_IJ_f   step     122/ 160000 (  0.1%)  recent   0.190 it/s over    29 steps  basis   0.889 it/s (basis/recent 4.67x)  Exec/Clock 0.9972
-              NO COST VERDICT -- window not settled (29 steps < 2500). The calibrator leg was itself low by ~3.86x at this step count while finishing ON BUDGET, so a projection here is not evidence of an overrun.
-              (unsettled projection, recorded but NOT a cost verdict: 14015.5 core-min = 2.335x CAP)
-== 2026-09-10T15:55:54Z
-   T4e_IJ_c   step   12195/  30000 ( 40.6%)  recent  23.365 it/s over  3047 steps  basis  23.077 it/s (basis/recent 0.99x)  Exec/Clock 0.9935
-              proj      24.5 core-min = 1.13x POINT 0.75x CEILING 0.565x CAP  -> WITHIN CEILING
-   T4e_IJ_m   step     843/  60000 (  1.4%)  recent   1.279 it/s over   209 steps  basis   4.852 it/s (basis/recent 3.79x)  Exec/Clock 0.9940
-              NO COST VERDICT -- window not settled (209 steps < 2500). The calibrator leg was itself low by ~4.16x at this step count while finishing ON BUDGET, so a projection here is not evidence of an overrun.
-              (unsettled projection, recorded but NOT a cost verdict: 782.6 core-min = 1.899x CAP)
-   T4e_IJ_f   step     125/ 160000 (  0.1%)  recent   0.187 it/s over    30 steps  basis   0.889 it/s (basis/recent 4.74x)  Exec/Clock 0.9976
-              NO COST VERDICT -- window not settled (30 steps < 2500). The calibrator leg was itself low by ~3.86x at this step count while finishing ON BUDGET, so a projection here is not evidence of an overrun.
-              (unsettled projection, recorded but NOT a cost verdict: 14224.6 core-min = 2.370x CAP)
+== 2026-09-10T16:06:34Z
+   T4e_IJ_c   LIKE-FOR-LIKE vs predecessor @iter 27284: 1.123  (marginal 1.157)   <-- PRIMARY
+   T4e_IJ_c   step   27284/  30000 ( 90.9%)  recent  23.690 it/s over  6820 steps  basis  23.077 it/s (basis/recent 0.97x)  Exec/Clock 0.9902
+              proj      24.2 core-min = 1.12x POINT 0.75x CEILING 0.559x CAP  -> WITHIN CEILING
+   T4e_IJ_m   LIKE-FOR-LIKE vs predecessor @iter 1416: 1.054  (marginal 1.057)   <-- PRIMARY
+   T4e_IJ_m   step    1416/  60000 (  2.4%)  recent   0.944 it/s over   353 steps  basis   4.852 it/s (basis/recent 5.14x)  Exec/Clock 0.9944
+              NO COST VERDICT -- window not settled (353 steps < 2500). The calibrator leg was itself low by ~4.95x at this step count while finishing ON BUDGET, so a projection here is not evidence of an overrun. USE THE LIKE-FOR-LIKE RATIO ABOVE, which is valid at ANY iteration.
+              (unsettled projection, recorded but NOT a cost verdict: 1056.4 core-min = 2.563x CAP)
+   T4e_IJ_f   LIKE-FOR-LIKE vs predecessor @iter 238: 1.111  (marginal 1.120)   <-- PRIMARY
+   T4e_IJ_f   step     238/ 160000 (  0.1%)  recent   0.170 it/s over    58 steps  basis   0.889 it/s (basis/recent 5.22x)  Exec/Clock 0.9975
+              NO COST VERDICT -- window not settled (58 steps < 2500). The calibrator leg was itself low by ~3.86x at this step count while finishing ON BUDGET, so a projection here is not evidence of an overrun. USE THE LIKE-FOR-LIKE RATIO ABOVE, which is valid at ANY iteration.
+              (unsettled projection, recorded but NOT a cost verdict: 15675.7 core-min = 2.612x CAP)

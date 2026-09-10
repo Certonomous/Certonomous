@@ -25713,3 +25713,67 @@ neighbouring reader and require the detector to fire, wire it correctly and
 require silence.
 
 *Lines whose number changed above this section: 0.*
+
+## L-528 — A STARTUP TRANSIENT'S SHAPE IS PER-MESH, SO CALIBRATING ONE LEVEL'S EARLY RATE FROM ANOTHER LEVEL'S IS INVALID. Calibrate a leg against the SAME leg of the predecessor rung at the SAME ITERATION — that factors the transient out of both sides
+
+**Measured on T4e (heat-transfer, 2026-09-10), and it produced TWO false cost
+alarms before the right instrument was found — both raised by the supervisor, not
+a lane.**
+
+**The false alarm.** Seven minutes into a three-level run, projecting each leg's
+remaining cost from its recent-window rate gave **medium 610 core-min against a 412
+cap and fine 12,661 against 6,001** — the rung apparently heading for `NOT A RESULT`
+with ~6,400 core-min buying nothing gradeable. Wrong. The legs were 1.2 % and 0.1 %
+into their solves.
+
+**The first fix, which was ALSO wrong, and is the actual lesson.** The coarse leg
+settles within 3 % of its registered basis, so its own measured startup curve was
+used as the calibrator: low by 3.86× at step 107, 4.95× at 400, 3.42× at 733, 2.51×
+at 1500, 1.30× at 2500, 1.00× by 9000. Against that envelope the medium leg looked
+fine. **But the coarse leg's recent-window rate RISES monotonically with step
+count, while the medium leg's FALLS over the same range (1.65 it/s at step 733 →
+0.83 at 1089).** A calibrator whose curve runs the opposite direction from the thing
+it calibrates reads a healthy leg as a degrading one. **The transient's SHAPE is a
+property of the mesh, not of the rung**, so a cross-level calibration is not a
+conservative approximation — it is the wrong function.
+
+**THE INSTRUMENT THAT IS VALID AT ANY ITERATION.** Compare the leg's
+`ExecutionTime` at iteration N against **the predecessor rung's same leg at the same
+iteration N**. Both sides contain the same transient, so it cancels; no settling
+window is required and no extrapolation is performed. Measured that way T4e reads
+**coarse 1.123, medium 1.054, fine 1.111** — steady, near unity, twenty minutes
+apart. The medium leg's apparent collapse is the predecessor's own behaviour:
+**T4d's marginal cost at iterations 1036–1293 was 1.0404 core-s/iter (~0.96 it/s)**
+against T4e's 1.1093, and T4d still finished that leg at **206.0 core-min** because
+its marginal cost falls to **0.153 core-s/iter by iterations 40,000–60,000 — a
+factor of 5.7 between startup and steady state.** This works only because the
+registration priced each leg off the predecessor's own clean measured leg on the
+identical mesh; where no predecessor exists, the honest output is **no figure**, not
+an extrapolation.
+
+**A SECOND, SMALLER FAILURE IN THE SAME EPISODE, RECORDED BECAUSE IT ALMOST
+SUCCEEDED.** The patch adding the like-for-like reader **crashed on its first run** —
+the step regex captures three groups and the new code unpacked two. It was nearly
+missed: verification consisted of reading the log's tail, which still held the
+previous watcher's stale entries and looked healthy. **A tail read is not a
+verification; the exit code is.** It failed loudly, which is the only reason no
+number was believed — a silent variant of the same mistake would have produced a
+plausible ratio from a partial parse.
+
+**REMEDY.** (1) A cost watcher projects from a like-for-like predecessor comparison
+where one exists, and **refuses to issue a cost verdict** otherwise rather than
+extrapolating an early rate. (2) Never calibrate one grid level's transient from
+another's. (3) A load average is not a contention measurement — during this episode
+load read 32–41 on 16 cores while `ExecutionTime/ClockTime` stayed at 0.992–0.998,
+because load counts uninterruptible-sleep tasks and the box was iowait-bound on
+another team's git traffic. **A load figure alone would have justified stopping a
+healthy run.** (4) Check the exit status of the instrument you just changed.
+
+**EXECUTABLE CHECK — OWED, NAMED RATHER THAN SKIPPED.** Shape: a selftest arm for
+the watcher that feeds it a synthetic predecessor log and a synthetic current log
+with a KNOWN cost ratio, and requires the reported like-for-like figure to equal it;
+plus a two-direction planted proof that it **returns no figure** when the
+predecessor log is absent or stops short of the current iteration, rather than
+falling back to an extrapolation.
+
+*Lines whose number changed above this section: 0.*

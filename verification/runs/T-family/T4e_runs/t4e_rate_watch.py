@@ -67,6 +67,77 @@ def calibrator_gap(steps):
 STEP = re.compile(r'^Time = ([\d.]+).*?ExecutionTime = ([\d.]+) s\s+ClockTime = (\d+) s',
                   re.M | re.S)
 
+# ---------------------------------------------------------------------------
+# THE PRIMARY INSTRUMENT: LIKE-FOR-LIKE AGAINST THE PREDECESSOR AT THE IDENTICAL
+# ITERATION.  Added 2026-09-10 after the coarse-leg calibrator below produced a
+# SECOND false alarm, on the medium leg, and the supervisor's own reasoning was
+# the thing at fault.
+#
+# WHAT WENT WRONG WITH THE STEP-COUNT CALIBRATOR.  It used the COARSE leg's
+# measured startup curve to say what an early rate on ANY leg was worth.  That is
+# invalid: the startup TRANSIENT SHAPE IS PER-MESH.  The coarse leg's recent-window
+# rate RISES monotonically with step count (4.79 it/s at step 400 -> 8.00 at 1000
+# -> 23.7 settled), while the medium leg's FALLS over the same range (1.65 at 733
+# -> 0.83 at 1089).  Calibrating one from the other therefore reads a perfectly
+# normal medium leg as a degrading one.
+#
+# WHY THE PREDECESSOR IS THE RIGHT BASIS.  T4e's registration prices each leg off
+# T4d's OWN clean measured leg on the IDENTICAL mesh.  So the like-for-like test is
+# T4e's ExecutionTime at iteration N against T4d's ExecutionTime at the SAME
+# iteration N: it factors the transient out completely, because both sides contain
+# the same transient.  Measured this way the legs are steady and near unity --
+# coarse 1.123, medium 1.054, fine 1.111 -- and the medium leg's "collapse" is
+# revealed as T4d's own behaviour: T4d's marginal cost at iterations 1036-1293 was
+# 1.0404 core-s/iter (~0.96 it/s), against T4e's 1.1093 (~0.90 it/s), and T4d still
+# finished that leg at 206.0 core-min because its marginal cost falls to 0.153
+# core-s/iter by iterations 40,000-60,000 -- a factor of 5.7 between startup and
+# steady state.
+#
+# So: the like-for-like ratio is reported as the PRIMARY figure whenever the
+# predecessor log reaches the current iteration, and the step-count table is kept
+# only as the fallback for the case where it does not.
+# ---------------------------------------------------------------------------
+PREDECESSOR = {"T4e_IJ_c": "../T4d_runs/T4d_IJ_c/log.solve",
+               "T4e_IJ_m": "../T4d_runs/T4d_IJ_m/log.solve",
+               "T4e_IJ_f": "../T4d_runs/T4d_IJ_f/log.solve"}
+
+def like_for_like(case, recs):
+    """T4e ExecutionTime at iteration N against the PREDECESSOR's at the same N.
+
+    Returns (ratio, marginal_ratio, iteration) or None when the predecessor log is
+    absent or does not reach N.  Refuses to interpolate: it uses the predecessor's
+    nearest recorded iteration AT OR BELOW N, and returns None rather than guess.
+    """
+    path = os.path.join(RUNS, PREDECESSOR.get(case, ""))
+    if not PREDECESSOR.get(case) or not os.path.exists(path) or not recs:
+        return None
+    with open(path, errors="replace") as fh:
+        # STEP captures THREE groups (Time, ExecutionTime, ClockTime).  Unpacking
+        # two here is the bug that crashed this watcher on its first run after the
+        # like-for-like instrument was added; it failed LOUDLY, which is the only
+        # reason it was caught before a number was believed.
+        pred = [(float(a), float(b)) for a, b, _c in STEP.findall(fh.read())]
+    if not pred:
+        return None
+    pmap = dict(pred)
+    it, ex = recs[-1][0], recs[-1][1]
+    at_or_below = [t for t in pmap if t <= it]
+    if not at_or_below:
+        return None
+    ti = max(at_or_below)
+    ratio = ex / pmap[ti] if pmap[ti] else None
+    # marginal cost over the last fifth of our record, against the predecessor's
+    # cost over the SAME iteration span
+    k = max(2, len(recs) // 5)
+    t0, e0 = recs[-k][0], recs[-k][1]
+    below0 = [t for t in pmap if t <= t0]
+    marg = None
+    if below0:
+        t0d = max(below0)
+        if ti > t0d and it > t0:
+            marg = ((ex - e0) / (it - t0)) / ((pmap[ti] - pmap[t0d]) / (ti - t0d))
+    return (ratio, marg, ti)
+
 def read_leg(case):
     """Return the per-step (Time, ExecutionTime, ClockTime) records for one leg.
 
@@ -126,13 +197,23 @@ def project(case, recs):
         verdict = ("NO COST VERDICT -- window not settled (%d steps < %d). The "
                    "calibrator leg was itself low by ~%.2fx at this step count "
                    "while finishing ON BUDGET, so a projection here is not "
-                   "evidence of an overrun." % (win_steps, SETTLE_STEPS,
+                   "evidence of an overrun. USE THE LIKE-FOR-LIKE RATIO ABOVE, which is valid at ANY iteration." % (win_steps, SETTLE_STEPS,
                                                 calibrator_gap(win_steps)))
     elif total_cm <= r["ceiling"]: verdict = "WITHIN CEILING"
     elif total_cm <= r["cap"]:     verdict = "CEILING BREACHED, UNDER CAP"
     else:                          verdict = "CAP BREACHED -- projected to be SIGTERMed short of endTime"
+    lfl = like_for_like(case, recs)
     return dict(
         case=case, state="MEASURED",
+        like_for_like_ratio=(lfl[0] if lfl else None),
+        like_for_like_marginal_ratio=(lfl[1] if lfl else None),
+        like_for_like_at_iteration=(lfl[2] if lfl else None),
+        like_for_like_note=("PRIMARY instrument: T4e ExecutionTime at this iteration "
+                            "against the predecessor's at the SAME iteration, which "
+                            "factors the per-mesh transient out of both sides"
+                            if lfl else
+                            "predecessor log absent or does not reach this iteration; "
+                            "no like-for-like figure -- NOT estimated"),
         step=t, end=r["end"], frac_done=t / r["end"],
         execution_time_s=ex, exec_over_clock=(ex / cl if cl else None),
         rate_recent_it_s=inst, rate_window_steps=win_steps,
@@ -177,6 +258,16 @@ def main():
                 if r.get("state") != "MEASURED":
                     fh.write("   %-10s %s\n" % (r["case"], r["state"])); continue
                 settled = r["rate_window_steps"] >= SETTLE_STEPS
+                if r.get("like_for_like_ratio") is not None:
+                    fh.write("   %-10s LIKE-FOR-LIKE vs predecessor @iter %d: %.3f"
+                             % (r["case"], r["like_for_like_at_iteration"],
+                                r["like_for_like_ratio"]))
+                    if r.get("like_for_like_marginal_ratio") is not None:
+                        fh.write("  (marginal %.3f)" % r["like_for_like_marginal_ratio"])
+                    fh.write("   <-- PRIMARY\n")
+                else:
+                    fh.write("   %-10s no like-for-like figure (predecessor log absent "
+                             "or short of this iteration) -- NOT estimated\n" % r["case"])
                 fh.write("   %-10s step %7d/%7d (%5.1f%%)  recent %7.3f it/s over %5d steps  "
                          "basis %7.3f it/s (basis/recent %.2fx)  Exec/Clock %.4f\n"
                          % (r["case"], r["step"], r["end"], 100*r["frac_done"],
