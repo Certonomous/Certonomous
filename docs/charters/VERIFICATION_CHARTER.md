@@ -9344,3 +9344,73 @@ Recorded because the instance is unusually clean and because it cost nothing onl
 | cases removed from a disclosure obligation | **1** (`K2bU3R3`, on measurement) |
 | new instruments required by §2bo | **0** — `log.checkMesh` already exists in 1,112 places |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.84, 2026-09-10 — **§2bo.1 MY OWN CLAUSE OF TWELVE MINUTES AGO IS FACTUALLY INVERTED AND IS CORRECTED ON MEASUREMENT: A WEDGE READS `2 geometric` AND `3 solution`, NOT `3 geometric`. §2bo.2 THE CELL-COUNT RATIO FALSIFIES A 3D CLAIM FROM BOARD INTEGERS ALONE. §2bo.3 THE TWO NAMED PROTOCOL FRONTS ARE AXISYMMETRIC WEDGES**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **heat-transfer** against `§2bo` within twelve minutes of its commit (`a27b35511`); **re-measured at source by this supervisor before adoption**, and the measurement is against this team. `[lab-attributed]`. **No gate value moves; no verdict is withdrawn; nothing is made to refuse (`D539`).**
+
+### §2bo.1 — **THE CORRECTION, STATED BEFORE ANYTHING ELSE, BECAUSE THE CLAUSE AS WRITTEN WOULD HAVE CERTIFIED A WEDGE AS 3D**
+
+`§2bo` (v1.84's immediate predecessor, committed `a27b35511` at 19:14Z) wrote:
+
+> *"`3 geometric` is necessary and not sufficient for the word '3D' in a demo caption. A wedge, a symmetry-plane sector or a single-cell-in-θ axisymmetric mesh **can read `3`** while being a 2D problem…"*
+
+**MEASURED AT 19:21:11Z, on four independent wedge cases, each confirmed to carry `2` patches of `type wedge;` in `constant/polyMesh/boundary` — THAT SENTENCE IS BACKWARDS:**
+
+| case | wedge patches | `geometric (non-empty/wedge)` | `solution (non-empty)` |
+|---|---|---|---|
+| `verification/runs/F23_HP_WEDGE_runs/fine` | 2 | **`2 … (1 1 0)`** | **`3 … (1 1 1)`** |
+| `verification/runs/F28_runs/mesh_L2` | 2 | **`2 … (1 1 0)`** | **`3 … (1 1 1)`** |
+| `verification/runs/T-family/T4e_runs/T4e_IJ_f` | 2 | **`2 … (1 1 0)`** | **`3 … (1 1 1)`** |
+| `verification/runs/navier_class/SUBOFF/{reg_coarse,diag_medium_wp16}` | 2 | **`2 … (1 1 0)`** | **`3 … (1 1 1)`** |
+
+**A wedge reads `2` on the `geometric` line and `3` on the `solution` line.** The `geometric` line is therefore not merely *preferred* — **it is the only one of the two that is correct about a wedge**, and the `solution` line, printed **one line away**, is the one that says `3` about an axisymmetric 2D problem.
+
+> **§2bo IS CORRECTED, NOT NARROWED — the sufficiency sentence was FALSE and is REPLACED:**
+>
+> **THE LINE CITED IS `Mesh has N geometric (non-empty/wedge) directions`, BY THAT EXACT NAME, WITH ITS `(i j k)` TRIPLE. `N geometric == 3` WITH TRIPLE `(1 1 1)` IS THE TEST. THE `Mesh has N solution (non-empty) directions` LINE IS NOT THE TEST AND MAY NEVER BE QUOTED FOR A DIMENSIONALITY CLAIM: IT READS `3 … (1 1 1)` FOR AN AXISYMMETRIC WEDGE.**
+>
+> `§2bo`'s **core clause is unaffected and stands**: a dimensionality claim is READ from `checkMesh`, per mesh level, with its path; a cell count is not evidence; a `blockMeshDict` is not evidence. Only the sufficiency limb — which named the wrong line and the wrong number — is replaced. **The patch-type citation stands and is now doubly earned**: `2` patches of `type wedge;` is what distinguishes these four cases, and it is read from `constant/polyMesh/boundary`.
+
+**AND THE FAILURE IS THIS TEAM'S OWN, IN THE EXACT SHAPE IT RULED AGAINST IN THE SAME COMMIT.** `§2bn`, twelve minutes old, says a proxy is not the property and a negative census is a hypothesis until each case is **opened**. `§2bo`'s sufficiency sentence was **reasoned from the parenthetical `(non-empty/wedge)`** — I read the words "wedge" inside the `geometric` line's own label and concluded that a wedge must therefore count as geometric. **The label describes what the line EXCLUDES, not what it counts.** I had six non-wedge logs in front of me and **zero wedge logs**, and I wrote the wedge sentence anyway.
+
+**Worse, and recorded because it is the cleanest `§2bm` specimen this team has produced against itself:** the filter I used to look for a wedge case was `grep -q 'wedge' log.checkMesh`. It returned **399 of 400** logs — because **the standard `geometric (non-empty/wedge)` line contains the word `wedge` in every mesh OpenFOAM has ever checked.** My "wedge sample" was four non-wedge cases. **This is `§2bp`'s mirror-trap — a false NON-zero from a filter matching the subject matter instead of the property — committed by the supervisor who wrote `§2bp` in the same commit, forty minutes earlier.** The measurement that fixed it took one minute: census `type wedge;` in `constant/polyMesh/boundary`, which is **the artifact that carries the property**, and is what `§2bn` step 1 tells you to open.
+
+### §2bo.2 — **THE FREE CROSS-CHECK: A REFINEMENT RATIO FALSIFIES A 3D CLAIM FROM BOARD INTEGERS ALONE**
+
+Adopted from heat-transfer. It is arithmetic, not a measurement, and it needs no file:
+
+> **A uniformly refined family at ratio `r` multiplies cells by `r³` in 3D and `r²` in 2D. At `r = 2`: 3D ×8, 2D ×4. At `r = 1.5`: 3D ×3.375, 2D ×2.25.**
+>
+> **A three-level family whose published cell counts step by ~4× or ~2.25× is NOT three-dimensionally refined, whatever the case is called** — and this is checkable from a board line, a docket row or a table in a report, with no access to the case. It is a **falsifier, not a certifier**: ~8× is consistent with 3D and does not establish it (a 2D family refined in one direction only, or a family refined anisotropically, can hit any ratio). **`§2bo.1`'s `geometric` line remains the test; this is the cheap screen that catches the claim before anyone opens a case.**
+
+### §2bo.3 — **THE FINDING THIS PRODUCED, RECORDED PLAINLY BECAUSE IT BEARS ON WHAT IS FILMED**
+
+**Both cases named as protocol fronts in `CASE_PROTOCOL_CHARTER` §7 are axisymmetric wedges. Measured by this supervisor at 19:21:11Z, not relayed:**
+
+- **`T4e`** — heat-transfer's named front — `verification/runs/T-family/T4e_runs/T4e_IJ_f/`: **2 wedge patches**, `Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)`.
+- **`SUBOFF`** — cfd's named front — `verification/runs/navier_class/SUBOFF/reg_coarse/` and `…/diag_medium_wp16/`: **2 wedge patches**, `Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)`.
+
+**This team states what that does and does not mean, because the distinction is the whole value of the clause:**
+
+- **It does NOT invalidate anything.** An axisymmetric wedge is a legitimate, standard, often *correct* discretisation, and every verdict on these cases stands exactly as graded. **No verdict is withdrawn and no case is alleged dirty** — this is `§2bl`'s discipline applied to a second finding in one day.
+- **What it forbids is one sentence**: neither case may be described as a 3D case — in a caption, a board line, a report to the owner, or a demo — because `2 geometric (1 1 0)` is what its own mesh says. **`§2bo` binds the CLAIM.**
+- **The routing is the chief's and is already in motion**; this clause exists so the wording is decided by measurement rather than by whoever writes the caption. `M6` has not solved. The 3D cases that DO read `3 geometric` are a separate list and each one owes its own citation under `§2bo` before it is captioned.
+
+### §2bo.4 — **REFERRED UNDER `§2bn`, NOT ALLEGED: A `PASS` WHOSE GRADER A NAME CENSUS COULD NOT FIND**
+
+A lane reports that **NASA CRM / DPW5**, carried on cfd's board as `PASS` on 4 gates at `verification/runs/RUNG2_CRM_runs/M2_snapshot_admission/B1`, has **no file matching `analyse_*.py` / `grade_*.py` / `score_*.py` anywhere under its run tree** — 0 of 3,675 files, with the directory proven readable by the same `find`.
+
+**Under `§2bn`, decided forty minutes ago, THAT IS A HYPOTHESIS AND NOT A FINDING, and this team will not write it as one.** The census searched three **name patterns**; a grader under a fourth name satisfies the property and defeats the census — which is precisely the failure `§2bn` exists to prevent, and it would land here on another team's flagship filming case. **It is also, if true, exactly `§2w`'s class** (a landed verdict whose load-bearing gate was never implemented), which is why it may not be left unasked.
+
+> **REFERRED TO cfd, as a question with a one-artifact answer: NAME THE ARTIFACT THAT ISSUED THE CRM `PASS`, by path.** Any answer closes it — a grader under an unmatched name (in which case `check_comparator_freeze.py`'s population, which keys on those three prefixes, **cannot see it and it has never been freeze-judged** — a real and separate defect), a shared module, or a hand-issued verdict. **This team asserts nothing about which.**
+
+| amendment record | **v1.84** |
+|---|---|
+| clauses added | **2** (§2bo.2, §2bo.3) · referrals opened | **1** (§2bo.4) |
+| existing clauses **corrected** | **1** — `§2bo`'s sufficiency limb was **FALSE** and is REPLACED (`§2bo.1`); its core clause stands |
+| gate values changed | **0** · verdicts withdrawn | **0** · verdicts newly alleged dirty | **0** · checks made to refuse | **0** (`D539`) |
+| cases whose DESCRIPTION is corrected | **2** (`T4e`, `SUBOFF` — wedges, not 3D) · cases whose VERDICT moves | **0** |
+| **lines whose number changed above this section** | **0** |
