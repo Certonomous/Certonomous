@@ -1,8 +1,13 @@
 # SUP_BOOSTER — Case-3 EXACT-tier (E2) pre-registration — Taylor-Maccoll cone, §2bc successor to E1
 
-**STATUS: DRAFT / UNFROZEN.** Prepared by a cfd lab-lane. **Not frozen**: the freeze
-(commit + blob-sha pin) and the graded launch are the **cfd-supervisor's check-1 (new grader
-diff) + check-4** and are not taken here.
+**STATUS: FROZEN 2026-09-10 by the cfd-supervisor (check-4).** Gate, threshold, cap and label
+are CLOSED as of this commit; from here they change only as dated addenda that cannot alter a
+gate, threshold, cap or label, originals struck and never rewritten (rules 2 and 6). The grading
+path is pinned by blob sha in §10 — re-hash and refuse on drift before any grade.
+**Gate C2 is gated per the verification-supervisor's ruling `0e9c1bcb` framing (ii)**; the cfd
+supervisor's earlier conflicting framing-(i) ruling is WITHDRAWN — gate design under rule 5 is
+verification's charter territory, their ruling rests on precedent predating this case, and its
+conditions 4 and 5 are stricter than the framing it was objected to.
 
 **§2bc fix-until-runs successor to SUP_BOOSTER E1** (E1 RUN VERDICT `NOT A RESULT`, verdict
 record `SUP_BOOSTER_E1_VERDICT.md`, frozen prereg `c8510ff7`). This is a **diagnosed,
@@ -357,8 +362,8 @@ edit only fills the shas — the checker parses only `|`-table rows.)*
 
 | file (pinned grading path) | git blob sha |
 | --- | --- |
-| `verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py` | TO BE PINNED AT FREEZE |
-| `cases/navier_class/SUP_BOOSTER/gen_cone_mesh_e2.py` | TO BE PINNED AT FREEZE |
+| `verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py` | `d18f0867ea7d1fd6f86347c00ca1a5b8e3ddb663` |
+| `cases/navier_class/SUP_BOOSTER/gen_cone_mesh_e2.py` | `be6cc10481fb93ba541ca025ee44145b32b85ba1` |
 
 Provenance (non-.py): reused frozen reference tm_reference_M2p0_tc15.json git blob
 c442a94bfd3166e443124e92248c5d96a929d8a5 (unchanged from E1).
@@ -371,4 +376,15 @@ governing ruling `verification/campaign/SUP_BOOSTER_E2_C2_SHOCK_ANGLE_GATING_RUL
 gentler generator `cases/navier_class/SUP_BOOSTER/gen_cone_mesh_e2.py`; E2 mesh checks
 `verification/runs/navier_class/SUP_BOOSTER/e2_meshcheck_{coarse,medium,fine}/`; E2 smoke
 `.../e2_smoke_medium/`; E1 verdict `verification/campaign/SUP_BOOSTER_E1_VERDICT.md`.
-*DRAFT / UNFROZEN — new-grader diff (check-1) + freeze + launch are the cfd-supervisor's.*
+**FROZEN.** Supervisor's check-1 was run TWICE, both as diffs: once on the E2 locator change vs
+the frozen E1 grader (`3c8d418a`) and again on the condition-7 + selftest-hardening change, whose
+blob is the one pinned above. Both PASS: no gate value, band, threshold, reference, cap or label
+moved; `grade_gate`, `roache_triple`, `check_completion`, `grade_gate_shock_angle` and the whole
+production `run_grade` path are byte-identical; and an AST parse confirms **0 executable
+`assert` nodes** remain, so the self-check is no longer void under `python3 -O` (measured: the
+pre-fix blob printed `SELFTEST OK` and exited 0 on a mutated expectation under `-O`; the pinned
+blob exits 1 under both `python3` and `python3 -O`). The rule-3 planted-zero control is now
+exercised by `--selftest` itself, with a negative arm proving the check has teeth — a reader
+rebound so it cannot see its own plant is caught (`passed: false`, delta 0.0).
+**Launch authorised via the detached queue, not by hand.** Cap 60 core-min, ~31 estimated.
+Results land in a verdict record citing this file by commit hash.*
