@@ -1,0 +1,39 @@
+{
+  "team": "dafoam",
+  "case_id": "A2B2R-independent-trim",
+  "prereg_commit": "395103fe10e3a9fbbb473aa3f87edfc6da1a5b0c",
+  "prereg_path": "cases/dafoam/A2_B2R_INDEPENDENT_TRIM_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/run_a2b2r.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam",
+  "ranks": 4,
+  "cost_core_min_estimate": 17.8,
+  "cap_core_min_registered": 40.0,
+  "cap_core_min_registered_source": "cases/dafoam/A2_B2R_INDEPENDENT_TRIM_PREREGISTRATION.md:446 -- 'Hard cap: 40.0 core-min = 600 s wall at 4 ranks, enforced by timeout 600s inside the container.' Transcribed onto the entry face, not invented here; the registered figure is the one above.",
+  "cost_basis": "derived, not measured: 17.8 core-min registered point (prereg:440, 266.5 wall s x 4 ranks / 60), band 14.2-27.1 core-min (prereg:442-444). Dollars DERIVED at the recorded $0.0513/core-h, c7a.4xlarge -- $0.0152 at the point, $0.0342 at the 40.0 core-min cap. This box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5), so no figure here is measured.",
+  "memory_floor_gb": 12.0,
+  "enqueued_by": "dafoam lab-lane, on dafoam-supervisor's brief 2026-09-10 ~03:50Z. PREPARED AND HELD, NOT ARMED. SUPERVISION_CHARTER section 3 check 4 is the supervisor's and is NOT discharged by this file: this entry sits in held/ precisely because the supervisor has not released it. The lane's own freeze verification is recorded in freeze_verification below.",
+  "_schema_note": "Fields above this line are queue_entry_check.REQUIRED_FIELDS plus cap_core_min_registered (read by queue_runner.cap_watch). Everything below is a dafoam annotation the validator ignores.",
+  "hold_reason": "HELD ON BOX WEATHER, NOT ON A DEFECT IN THE ITEM. The registered cap is enforced as a 600 s WALL timeout inside the container (prereg:446, 'timeout 600s'), NOT as a core-minute meter. Wall-clock enforcement means contention is charged to the item: the registered point is 266.5 wall s at 4 ranks, so the cap allows a 2.25x slowdown and no more. At the time of preparation the box carried 16 vCPUs at loadavg 25.4 with twelve foreign-family solvers at ~99% CPU plus dafoam's own binding rung D6RF10 R3; a 4-rank launch into that would very likely be stopped by the 600 s timeout as CAP-STOPPED. Under CLAUDE.md rule 12 an overrun stops the run and does not get a new budget, so a cap-stop here spends this item's only clean shot on contention rather than on physics. The item is not defective and is not superseded.",
+  "hold_release_condition": "RELEASE ONLY WHEN THE BOX HAS AT LEAST 4 GENUINELY IDLE CORES. Operationally, against queue_runner.py's own arithmetic (:946-953): busy% must be under the 85% ceiling AND busy_cores + 4 must be <= 0.9 x 16 = 14.4, i.e. busy_cores <= 10.4, i.e. box busy <= 65%. Measured at preparation time: 66.8% busy (~10.7/16 cores) at 2026-09-10T03:49:35Z, which is ALREADY over that bar with D6RF10 R3 live; D6RF10 R3 is projected to drain ~06:03Z. Release is the supervisor's call, not this lane's, and is performed by moving this file to verification/queue/dafoam/ -- THE DROP IS THE LAUNCH (this queue's README amendment 2026-09-01, measured at 47 s from drop to solver).",
+  "hold_reason_recorded": "2026-09-10 by dafoam lab-lane at the supervisor's instruction. The instruction was to PREPARE AND HOLD, never to launch.",
+  "outstanding_check_not_performed_by_this_lane": "The L-517 runtime-parameter-versus-registration check on cases/dafoam/run_a2b2r.sh is RESERVED TO dafoam-supervisor and was explicitly withheld from this lane. It is NOT discharged by anything in this file. This entry must not be released until that check returns.",
+  "freeze_verification": {
+    "performed_by": "dafoam lab-lane, 2026-09-10, from the worktree at /home/ubuntu/Certonomous",
+    "prereg_commit_is_ancestor_of_head": "YES -- git merge-base --is-ancestor 395103fe HEAD returned 0",
+    "prereg_present_at_freeze_commit": "YES -- git cat-file -e 395103fe:cases/dafoam/A2_B2R_INDEPENDENT_TRIM_PREREGISTRATION.md returned 0",
+    "prereg_md5_worktree": "b7da25816aa0e25361fb2b2f367856f1",
+    "prereg_md5_head_blob": "b7da25816aa0e25361fb2b2f367856f1",
+    "prereg_md5_at_395103fe": "b7da25816aa0e25361fb2b2f367856f1",
+    "prereg_identity": "IDENTICAL across worktree, HEAD and the freeze commit -- the frozen file IS the file on disk (CLAUDE.md rule 2, grading path fixed at the pre-registration commit)",
+    "launcher_md5_worktree": "c4beaa1c388c0425440203b98a1460f8",
+    "launcher_sha256_worktree": "ac4f248f5849cedbb00b566cf5f5ef330f207d39e1d1a27295d936f1afd36b98",
+    "launcher_registered_pins": "cases/dafoam/A2_B2R_INDEPENDENT_TRIM_PREREGISTRATION.md:372 registers grading-path cases/dafoam/run_a2b2r.sh at md5 c4beaa1c388c0425440203b98a1460f8 and sha256 ac4f248f5849cedbb00b566cf5f5ef330f207d39e1d1a27295d936f1afd36b98 -- BOTH MATCH the worktree byte for byte, and the worktree copy is identical to both the HEAD blob and the 395103fe blob",
+    "scope_limit": "This is a FREEZE/IDENTITY check on file bytes only. It says nothing about whether the parameters the script uses at runtime match what the document registers -- that is the L-517 check, which is the supervisor's and was not attempted here."
+  },
+  "run_root": "/home/ubuntu/certonomous-runs/A2B2R-independent-trim -- VERIFIED ABSENT by this lane 2026-09-10 against a positive control in the same sweep: the identical test reported EXISTS for /home/ubuntu/Certonomous/verification/runs/actD_paraview, so ABSENT is a reading and not a blindness (CLAUDE.md rule 3). The launcher carries its own rule-4 guard and refuses (exit 2) if the run root exists.",
+  "age_guard_and_exec": "cwd /home/ubuntu/Certonomous/cases/dafoam EXISTS (check_cwd_launchable clean) and contains NO OpenFOAM time directory (check_age_guard clean) -- verified by this lane, not inferred.",
+  "cap_enforcement_note": "The 40.0 core-min cap is enforced by `timeout 600s` INSIDE the container, per the frozen launcher and prereg:446. queue_runner.py does NOT enforce caps: its cap_watch writes CAP_OVERRUN.txt beside the run and never terminates (queue_runner.py:25-34, which itself records that this non-enforcement contradicts COMPUTE_BUDGET_CHARTER.md:197 and is a property of the runner as built, not a permission any charter grants). So the item's own timeout is the ONLY thing that stops this run, and that is exactly why box weather governs the hold."
+}
