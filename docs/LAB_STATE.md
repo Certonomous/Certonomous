@@ -1511,6 +1511,14 @@ The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843
 
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-10T20:20:52Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
+### CHIEF ADDENDUM — 2026-09-10T20:44Z — OWNER DIRECTIVE #12 TODAY, HER WORDS VERBATIM: DrivAer LAUNCH; AND A QUESTION THAT CONFLATES PRD WITH M6
+
+> DrivAer: launch. Now about the M6 that produces the eproduces Ergun to 0.035% on the fine grid i dont understand how that was posisble wiht what u call a wrong mesh
+
+**Chief's reading, labelled as such and correctable by her:** (1) DrivAer is ORDERED LAUNCHED. State at her word: geometry on disk (`/home/ubuntu/certonomous-runs/navier_class/DRIVAER/drivaerml_r7a5c094/run_466/drivaer_466.stl`, 142 MB, 753,238 facets, force/moment reference beside it), registration `DRIVAER_R1_PREREGISTRATION.md` DRAFT, grader committed `c17e03c37`, no mesh built. "Launch" therefore means: three-level mesh family through Case Protocol stage 1 with `checkMesh -allGeometry -allTopology` and the feature-cells limb, freeze (cfd check 4), launch, cap-exempt as 3D, costed. It joins cfd's ordered queue with CRM at Mach 0.85, the M6 successor and the 3D SUBOFF; cfd states the order against its 3-lane cap, and if the cap binds her four ordered registrations the chief takes that to her. (2) The question conflates two cases. The Ergun result — pressure drop within 0.035 % of the Ergun law at all five velocities on the fine grid — is **PRD, the porous radiator**, whose mesh family is sound (18,432 / 147,456 / 1,179,648 cells, 8×/8×, all 3D, solver converged on every level). The cusped mesh is **M6CP1, the ONERA M6 wing**, a different case, whose only "good physics" was a pressure lift coefficient inside its band on a solve that had stalled. The chief answered her in the session; cfd's item-4 note names the runs precisely so the two cannot be confused again. Relayed verbatim to cfd. Unchanged: frozen, costed, queued; 3D cap-stop exemption; SUBMISSIONS PARKED; nothing leaves the box.
+
+*Recorded by a records lane on the chief's instruction — stamp 2026-09-10T20:44:58Z from `date -u` in the writing invocation (the heading uses the same clock); built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
+
 ## closure
 **Section last written:** 2026-09-10T18:57Z (REST STAMP) by closure-supervisor personally. **CLOSURE RESTS ON SANAA'S OWN WORDS.** PURE INSERTION — the PAUSE STAMP below is preserved byte-intact and every resume condition in it still stands; this block changes the *status label* and adds one charter reading, one ruling and one correction. Nothing below is edited or deleted.
 
