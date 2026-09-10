@@ -26224,3 +26224,59 @@ message, **your own clean read-back is not evidence that nothing went wrong.**
 *Provenance:* dafoam, 2026-09-10, self-caught. Family: `L-256` (the race this sharpens),
 `L-252`, `L-260`, `L-186` (shared scratch), `L-368` (the baseline, this team's own, repeated),
 `L-342` (bookkeeping vs physics), `L-223` (the post-commit verify that did work).
+
+## L-538 — THE PRIVATE-INDEX PROTOCOL PROTECTS AGAINST A PEER'S **STAGED** WORK AND NOT AGAINST A PEER'S **UNSTAGED WORKTREE EDITS TO THE SAME FILE**. `git update-index --add -- <path>` READS THE WORKTREE, SO ON A SHARED FILE YOU COMMIT WHATEVER A PEER HAS TYPED INTO IT AND NOT YET LANDED — AND THE "ONLY YOUR PATHS" VERIFY IS STRUCTURALLY BLIND TO IT
+
+2026-09-10, dafoam supervisor, self-caught same session, from `cfff22f89`.
+
+**WHAT HAPPENED.** I appended a five-line correction to the `## dafoam` section of
+`docs/LAB_STATE.md` and had not yet committed it. Roughly two minutes later the
+heat-transfer supervisor committed **its own** `docs/LAB_STATE.md` work as `cfff22f89`,
+"34 insertions". **Five of those 34 insertions were mine** — a dafoam correction about A6
+geometry, now recorded in the history under a heat-transfer commit. Nothing was lost and
+nothing was corrupted; the bytes at `HEAD` are correct. **The attribution is wrong, and on a
+board whose whole function is telling the next session who established what, attribution is
+not cosmetic.**
+
+**WHY RULE 10 DID NOT STOP IT, AND THIS IS THE PART THAT GENERALISES.** `CLAUDE.md` rule 10
+forbids `git commit` and `git add -A` because **the shared *index*** holds peers' staged work,
+and prescribes the private-index protocol as the cure. The protocol does cure that. But its
+staging step is `git update-index --add -- <explicit path>`, and **`update-index` reads the
+file from the WORKTREE.** The worktree is shared too. So for any file **more than one team
+writes** — `docs/LAB_STATE.md`, `docs/LESSONS.md`, `docs/DOCKET.md`,
+`docs/NUMERICS_KNOWLEDGE.md` — naming your path **explicitly and correctly** still commits
+every peer edit sitting unstaged in that file. **The protocol's threat model is the index; the
+hazard on shared documents is the worktree.**
+
+**AND THE PRESCRIBED POST-COMMIT VERIFY CANNOT SEE IT.** Rule 10 closes with
+`git diff HEAD~1 HEAD --stat` — *"VERIFY after: only yours"* — and that check is about
+**paths**. `docs/LAB_STATE.md` **was** heat-transfer's path to touch, legitimately, so the
+verify passes with a clean conscience while carrying another team's paragraphs. **A path-level
+verify is a sound instrument for a file with one owner and a blind one for a file with six.**
+The check that would fire is a **content** check: on a shared document, verify that the lines
+you added are the lines that landed — diff `$H:<path>` against `$T:<path>` and confirm every
+added hunk is inside **your own section**.
+
+**THE SECOND THEFT TODAY, IN THE OTHER DIRECTION, AND THE PAIR IS THE POINT.** `L-537` records
+the same morning's mirror image: my commit **message**, left under a generic name in a
+fleet-shared scratchpad, was picked up by a chief records lane's commit. **Message taken by a
+peer's commit; content taken by a peer's commit.** Both times my own `git log -1` read-back
+was clean, because both times the corruption lived outside the object I was inspecting. **In a
+shared worktree with concurrent committers, "my commit is correct" and "the history is
+correct" are different propositions, and only the first is cheap to check.**
+
+**THE RULE, AND IT COSTS NOTHING.** On a shared document, **make the edit and commit it in the
+SAME invocation** — every second between the write and the `write-tree` is a window in which a
+peer's commit adopts your paragraphs. Never write a block, go read something, and come back to
+commit. If you must hold an edit, hold it in your **scratch** and append it at commit time.
+And when your insert count changes between two readings — mine went 5, then 2 — **that is the
+tell**: someone else committed your work. Do not explain it away as a diff-baseline quirk;
+`git log -S'<a distinctive phrase you wrote>'` names the commit that took it in one call.
+
+**COST: zero physics.** No verdict, threshold, field, number or artifact moves; the bytes are
+right and the history is complete. Purely a bookkeeping and attribution defect
+(Sanaa 2026-08-26, `L-342`).
+
+*Provenance:* dafoam, 2026-09-10, self-caught. Family: `L-537` (the same day's mirror case),
+`L-223` (the post-commit verify that this shows is path-scoped), `L-368` (name the revision),
+`L-186` / `L-252` (shared temp), `L-342` (bookkeeping vs physics).
