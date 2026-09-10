@@ -1,0 +1,43 @@
+T23G2Rn2 WHOLE-RUNG VERDICT
+graded_at_utc : 2026-09-10T13:25:03Z
+graded_by     : detached autograder autograde_t23g2rn2.sh (pid 767940, PPID at arm = 1)
+comparator    : docs/campaigns/T-family/analyse_t23g2rn2.py
+comparator_pin: 2c3f193c1f76aba16c53a2747d8c8baff233056a
+freeze_commit : 9ff293229ce6c0a60c9381be50fdf129b1d2199a
+mark_done_pin : ee1bc912 (wrapper) ; base 982e1db6 (mark_done_t23.py)
+comparator_rc : 3
+comparator_stdout: verification/runs/T-family/T23G2Rn2_runs/T23G2Rn2_COMPARATOR_STDOUT.txt
+
+WHOLE-RUNG VERDICT: RUNG VERDICT: NOT A RESULT
+
+--- comparator final line (verbatim) ---
+RUNG VERDICT: NOT A RESULT
+
+--- per-level triple / per-quantity gate lines (verbatim from stdout) ---
+G-MESHSIM -- section 5.5 / A2.4, measured from the BUILT polyMesh
+  G-MESHSIM: PASS
+G-CONV -- section 5.3; h <= 1e-9 (Sanaa's tightened criterion), others <= 1e-8
+  G-CONV: PASS
+G-YPLUS -- A2.2: GATED on EVERY wall patch, EVERY level (max <= 1.0)
+  G-YPLUS: PASS
+G-PLATEAU and G-RATIO -- section 5.3, on EVERY graded quantity
+  unlicensed gate would have graded, and NEITHER licenses anything: RATIO_MIN = 10 is UNTOUCHED and G-RATIO remains registered
+  G-PLATEAU: PASS    G-RATIO: NOT A RESULT
+G-ORDER -- on Q4 (core volume-averaged T), band (0.5, 1.5)
+    VERDICT: PASS -- finest triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') CONVERGING at dim = 2, observed order 0.9917, GCI 2.0575 % = 1.0805 absolute at Fs = 1.25
+    VERDICT: PASS -- finest triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') CONVERGING at dim = 2, observed order 0.9976, GCI 2.0888 % = 1.08448 absolute at Fs = 1.25
+    VERDICT: PASS -- finest triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') CONVERGING at dim = 2, observed order 0.9906, GCI 2.1662 % = 1.08535 absolute at Fs = 1.25
+    VERDICT: GATE FAIL -- finest triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') CONVERGING at dim = 2, observed order 0.9943, GCI 1.9260 % = 1.07897 absolute at Fs = 1.25
+    VERDICT: PASS -- finest triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') CONVERGING at dim = 2, observed order 0.9906, GCI 2.1627 % = 1.08492 absolute at Fs = 1.25
+A2.1 -- THE DISCRIMINATING OBSERVATION, registered before the run
+  p(Q4) = 0.9917, p(Q1) = 0.9976, spread = 0.0059
+G-ORDER -- A1.2 at T23G2_PREREGISTRATION.md:834, on Q4, band (0.5, 1.5)
+  p(Q4) = 0.9917, band [0.5, 1.5], finest triple CONVERGING
+  G-ORDER: PASS
+RUNG VERDICT: NOT A RESULT
+
+--- INTERPRETATION ---
+exit 3 => graded verdict (0=PASS, 1=GATE FAIL, 3=NOT A RESULT). The whole-rung verdict is the comparator's own RUNG VERDICT line, recorded verbatim.
+
+NOTE: this verdict is the FROZEN COMPARATOR's stdout+exit code on disk.
+A returning agent still owes the supervisor's diff-read + big-claim check before it is repeated upward.

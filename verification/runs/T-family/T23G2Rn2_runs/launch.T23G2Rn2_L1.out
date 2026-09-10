@@ -1,0 +1,7 @@
+PREFLIGHT PASS: T23G2Rn2_L1
+  age guard clean (no 0/, no time directory)
+  0.orig carries all 12 registered fields
+  controlDict endTime = 8000, as registered (§2.2)
+  all 7 registered function objects present
+  housing_whf ordered BEFORE housing_wall_heat, which integrates wallHeatFlux
+  §5.3 numerics gate: WRITTEN p_rgh block is tolerance 1e-09 / maxIter 100 / relTol 0.01 / solver GAMG / smoother GaussSeidel

@@ -1,0 +1,63 @@
+2026-09-09T19:16:04Z ARMED pid=767940 ppid=1 sid=767940 -- detached T23G2Rn2 WHOLE-RUNG autograder
+2026-09-09T19:16:04Z watching levels: T23G2Rn2_L1 T23G2Rn2_L2 T23G2Rn2_L3 ; comparator pin 2c3f193c1f76aba16c53a2747d8c8baff233056a (freeze 9ff293229ce6c0a60c9381be50fdf129b1d2199a) ; mark_done pin ee1bc912 (base 982e1db6)
+2026-09-09T19:16:04Z heartbeat poll=0 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T19:36:04Z heartbeat poll=10 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T19:56:05Z heartbeat poll=20 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T20:16:05Z heartbeat poll=30 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T20:36:05Z heartbeat poll=40 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T20:56:05Z heartbeat poll=50 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T21:16:05Z heartbeat poll=60 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T21:36:05Z heartbeat poll=70 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T21:56:05Z heartbeat poll=80 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T22:16:05Z heartbeat poll=90 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T22:36:06Z heartbeat poll=100 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T22:56:06Z heartbeat poll=110 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T23:16:06Z heartbeat poll=120 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T23:36:06Z heartbeat poll=130 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-09T23:56:06Z heartbeat poll=140 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T00:16:06Z heartbeat poll=150 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T00:36:06Z heartbeat poll=160 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T00:56:06Z heartbeat poll=170 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T01:16:06Z heartbeat poll=180 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T01:36:07Z heartbeat poll=190 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T01:56:07Z heartbeat poll=200 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T02:16:07Z heartbeat poll=210 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T02:36:07Z heartbeat poll=220 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T02:56:07Z heartbeat poll=230 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T03:16:07Z heartbeat poll=240 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T03:36:07Z heartbeat poll=250 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T03:56:08Z heartbeat poll=260 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T04:16:08Z heartbeat poll=270 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T04:36:08Z heartbeat poll=280 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T04:56:08Z heartbeat poll=290 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T05:16:08Z heartbeat poll=300 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T05:36:08Z heartbeat poll=310 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T05:56:08Z heartbeat poll=320 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T06:16:09Z heartbeat poll=330 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T06:36:09Z heartbeat poll=340 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T06:56:09Z heartbeat poll=350 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T07:16:09Z heartbeat poll=360 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T07:36:09Z heartbeat poll=370 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T07:56:09Z heartbeat poll=380 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T08:16:09Z heartbeat poll=390 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T08:36:09Z heartbeat poll=400 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T08:56:09Z heartbeat poll=410 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T09:16:09Z heartbeat poll=420 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T09:36:09Z heartbeat poll=430 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T09:56:09Z heartbeat poll=440 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T10:16:09Z heartbeat poll=450 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T10:36:10Z heartbeat poll=460 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T10:56:10Z heartbeat poll=470 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T11:16:10Z heartbeat poll=480 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T11:36:10Z heartbeat poll=490 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T11:56:10Z heartbeat poll=500 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T12:16:10Z heartbeat poll=510 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T12:36:10Z heartbeat poll=520 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T12:56:10Z heartbeat poll=530 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T13:16:10Z heartbeat poll=540 : rung still alive (a level's pid present, or a PIDS file not yet written); waiting
+2026-09-10T13:24:10Z RUNG ENDED: all three levels' PIDS files present and no watched pid alive after 544 polls
+2026-09-10T13:24:10Z clearing stale __pycache__ on the grading path
+2026-09-10T13:24:10Z running frozen comparator: python3 docs/campaigns/T-family/analyse_t23g2rn2.py (verdict is ENTIRELY its stdout+exit code)
+2026-09-10T13:25:03Z comparator finished rc=3 ; stdout captured to verification/runs/T-family/T23G2Rn2_runs/T23G2Rn2_COMPARATOR_STDOUT.txt
+2026-09-10T13:25:03Z VERDICT WRITTEN to verification/runs/T-family/T23G2Rn2_runs/T23G2Rn2_RUNG_VERDICT.txt : RUNG VERDICT: NOT A RESULT
+2026-09-10T13:25:03Z COMPLETE -- exiting 0

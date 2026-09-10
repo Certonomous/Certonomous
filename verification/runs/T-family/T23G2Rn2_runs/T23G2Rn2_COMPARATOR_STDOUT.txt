@@ -1,0 +1,180 @@
+==========================================================================
+T23G2Rn2 COMPARATOR -- gates REUSED VERBATIM from frozen T23G2 (T23G2R_PREREGISTRATION.md section 3)
+GRADING THE FINE VALUE.  The Richardson extrapolate is REPORTED and NEVER GATED ON.
+==========================================================================
+
+SELF-HASH: running blob 2c3f193c1f76aba16c53a2747d8c8baff233056a (freeze pin 9ff293229ce6c0a60c9381be50fdf129b1d2199a) -- PRINT-ONLY provenance (section 2au.2).  The SELF member is anchored by the commit-message FREEZE-PIN and the grade-time byte-identity check, not by a self-referential IDENTICAL assertion.
+
+GRADING-PATH SHAS -- REPAIR R2, registered at T23G2_PREREGISTRATION.md:671
+  THIS RECORDER GRADES NOTHING.  It reads no field and moves no comparison.
+  Frozen column = the blob in 9ff293229ce6c0a60c9381be50fdf129b1d2199a, the commit that froze this comparator.
+  docs/campaigns/T-family/T23G2Rn2_PREREGISTRATION.md
+      post-repair (working tree) : 27e2eef446cce766027c2fad78d7d01ce63a64e0
+      pre-registration (frozen)  : 27e2eef446cce766027c2fad78d7d01ce63a64e0   IDENTICAL
+  docs/campaigns/T-family/analyse_t23g2rn2.py
+      post-repair (working tree) : 2c3f193c1f76aba16c53a2747d8c8baff233056a
+      pre-registration (frozen)  : 099aaf554bf7943807e0a4a45aae8e011f94f3b5   DIFFERS
+  docs/campaigns/T-family/t23g_readonly_diagnosis.py
+      post-repair (working tree) : 73804c02d2f1ebbb2cd2ad63796f4b5cfb4d7067
+      pre-registration (frozen)  : 73804c02d2f1ebbb2cd2ad63796f4b5cfb4d7067   IDENTICAL
+  verification/runs/T-family/T23_runs/mark_done_t23g2rn2.py
+      post-repair (working tree) : ee1bc912627fa597a4de8dd4f9dca2086f446fa9
+      pre-registration (frozen)  : ee1bc912627fa597a4de8dd4f9dca2086f446fa9   IDENTICAL
+  verification/runs/T-family/T23_runs/mark_done_t23.py
+      post-repair (working tree) : 982e1db6622454c2e5cc3e9eb4d6811e87735b78
+      pre-registration (frozen)  : 982e1db6622454c2e5cc3e9eb4d6811e87735b78   IDENTICAL
+  scripts/roache_triple.py
+      post-repair (working tree) : 78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8
+      pre-registration (frozen)  : 78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8   IDENTICAL
+
+  THE TWO COLUMNS ARE TWO DIFFERENT OBJECTS AND ARE NOT INTERCHANGEABLE.
+  THIS RECORDER DOES NOT RESTORE THE REGISTERED PROVENANCE AND DOES NOT CLAIM TO:
+  :671 contemplated shas present FROM THE FIRST GRADED SOLVE.  Adding the recorder
+  CHANGES this file's sha, so only the forward half is available (section 2d.4.3).
+  NO GRADED SOLVE WAS EVER PRODUCED UNDER A COMPARATOR CARRYING THIS RECORDER.
+
+COMPLETION -- rule 4, DELEGATED to verification/runs/T-family/T23_runs/mark_done_t23g2rn2.py and CALLED
+
+  | NOTE      T23G2Rn2_L1    - rc_source=READ-FROM-STATUS
+  | DONE      T23G2Rn2_L1
+  | NOTE      T23G2Rn2_L2    - rc_source=READ-FROM-STATUS
+  | DONE      T23G2Rn2_L2
+  | NOTE      T23G2Rn2_L3    - rc_source=READ-FROM-STATUS
+  | DONE      T23G2Rn2_L3
+
+G-MESHSIM -- section 5.5 / A2.4, measured from the BUILT polyMesh
+  cells fluid    T23G2Rn2_L2/T23G2Rn2_L1 = 2.250000000  PASS
+  cells housing  T23G2Rn2_L2/T23G2Rn2_L1 = 2.250000000  PASS
+  cells core     T23G2Rn2_L2/T23G2Rn2_L1 = 2.250000000  PASS
+  cells fluid    T23G2Rn2_L3/T23G2Rn2_L2 = 2.250000000  PASS
+  cells housing  T23G2Rn2_L3/T23G2Rn2_L2 = 2.250000000  PASS
+  cells core     T23G2Rn2_L3/T23G2Rn2_L2 = 2.250000000  PASS
+  first cell centrebody_down    T23G2Rn2_L1/T23G2Rn2_L2 = 1.500024  PASS
+  first cell centrebody_up      T23G2Rn2_L1/T23G2Rn2_L2 = 1.500024  PASS
+  first cell duct_wall          T23G2Rn2_L1/T23G2Rn2_L2 = 1.499995  PASS
+  first cell fluid_to_housing   T23G2Rn2_L1/T23G2Rn2_L2 = 1.500024  PASS
+  first cell centrebody_down    T23G2Rn2_L2/T23G2Rn2_L3 = 1.500016  PASS
+  first cell centrebody_up      T23G2Rn2_L2/T23G2Rn2_L3 = 1.500016  PASS
+  first cell duct_wall          T23G2Rn2_L2/T23G2Rn2_L3 = 1.499997  PASS
+  first cell fluid_to_housing   T23G2Rn2_L2/T23G2Rn2_L3 = 1.500016  PASS
+  cells across the housing wall at the COARSEST level: 8 (floor 8; T23G carried 4)  PASS
+  G-MESHSIM: PASS
+
+G-CONV -- section 5.3; h <= 1e-9 (Sanaa's tightened criterion), others <= 1e-8
+  T23G2Rn2_L1 CONVERGED      worst asserted: all within tolerance   (Ux excluded, max|Ux|/max|Uz| = 1.930e-16)
+  T23G2Rn2_L2 CONVERGED      worst asserted: all within tolerance   (Ux excluded, max|Ux|/max|Uz| = 3.242e-16)
+  T23G2Rn2_L3 CONVERGED      worst asserted: all within tolerance   (Ux excluded, max|Ux|/max|Uz| = 5.075e-16)
+  G-CONV: PASS
+
+G-YPLUS -- A2.2: GATED on EVERY wall patch, EVERY level (max <= 1.0)
+  T23G2Rn2_L1: primary instrument PRESENT and agrees with the independent reader to within 2%
+    centrebody_down    n= 100  min  0.3360  avg  0.3407  max  0.3475   PASS
+    centrebody_up      n=  80  min  0.3563  avg  0.3857  max  0.8606   PASS
+    duct_wall          n= 320  min  0.2348  avg  0.2527  max  0.6177   PASS
+    fluid_to_housing   n= 140  min  0.3476  avg  0.3515  max  0.3562   PASS
+  T23G2Rn2_L2: primary instrument PRESENT and agrees with the independent reader to within 2%
+    centrebody_down    n= 150  min  0.2257  avg  0.2288  max  0.2333   PASS
+    centrebody_up      n= 120  min  0.2393  avg  0.2592  max  0.6372   PASS
+    duct_wall          n= 480  min  0.1576  avg  0.1697  max  0.4574   PASS
+    fluid_to_housing   n= 210  min  0.2334  avg  0.2360  max  0.2392   PASS
+  T23G2Rn2_L3: primary instrument PRESENT and agrees with the independent reader to within 2%
+  PLANTED-ZERO CONTROLS ON THE TWO Y+ READERS (registered at :601 and :624-625)
+    [19/20] independent field reader @T23G2Rn2_L3: planted x(1 + 0.001234) into 181694 vectors of U;
+            every wall patch moved by sqrt(1 + PLANT) = 1.000616809773, worst relative miss 2.219e-16
+            on centrebody_down -- PASSED
+    [20/20] primary log reader @T23G2Rn2_L3: planted 0.001234, read back 0.001234 -- PASSED
+
+    centrebody_down    n= 225  min  0.1511  avg  0.1532  max  0.1563   PASS
+    centrebody_up      n= 180  min  0.1603  avg  0.1738  max  0.4720   PASS
+    duct_wall          n= 720  min  0.1055  avg  0.1137  max  0.3388   PASS
+    fluid_to_housing   n= 315  min  0.1563  avg  0.1581  max  0.1602   PASS
+  G-YPLUS: PASS
+
+PLANTED-ZERO CONTROLS ON EVERY QUANTITY AND EVERY LEVEL -- REPAIR R5, registered at :624-625
+  Q1  planted 0.001234  |  T23G2Rn2_L1 PASSED  |  T23G2Rn2_L2 PASSED  |  T23G2Rn2_L3 PASSED
+  Q2  planted 0.001234  |  T23G2Rn2_L1 PASSED  |  T23G2Rn2_L2 PASSED  |  T23G2Rn2_L3 PASSED
+  Q3  planted 0.001234  |  T23G2Rn2_L1 PASSED  |  T23G2Rn2_L2 PASSED  |  T23G2Rn2_L3 PASSED
+  Q4  planted 0.001234  |  T23G2Rn2_L1 PASSED  |  T23G2Rn2_L2 PASSED  |  T23G2Rn2_L3 PASSED
+  Q5  planted 0.001234  |  T23G2Rn2_L1 PASSED  |  T23G2Rn2_L2 PASSED  |  T23G2Rn2_L3 PASSED
+  Q6  planted 0.001234  |  T23G2Rn2_L1 PASSED  |  T23G2Rn2_L2 PASSED  |  T23G2Rn2_L3 PASSED
+  18 of the 18 registered quantity controls CONSTRUCTED AND PASSED
+
+G-PLATEAU and G-RATIO -- section 5.3, on EVERY graded quantity
+  Q1  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 4.325366e-01, ratio inf (needs >= 10)  NOT A RESULT
+  Q2  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 4.291944e-01, ratio inf (needs >= 10)  NOT A RESULT
+  Q3  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 4.286144e-01, ratio inf (needs >= 10)  NOT A RESULT
+  Q4  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 4.278386e-01, ratio inf (needs >= 10)  NOT A RESULT
+  Q5  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 2.787029e-05, ratio inf (needs >= 10)  NOT A RESULT
+  Q6  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 4.290088e-01, ratio inf (needs >= 10)  NOT A RESULT
+  R8 LIMB 2 (VERIFICATION_CHARTER.md section 2d.10's second ground, section 2p): the iterative change is EXACTLY 0.0, so this gate's zero-branch
+  returns infinity REGARDLESS OF THE NUMERATOR ENTIRELY.  The numerator was never consulted, so a PASS here would be attributable to the
+  denominator being zero and to NO PROPERTY OF THE LADDER -- a pass from a degenerate path.  The ratio is UNINTERPRETABLE, not meaningless.
+  applies to: Q1, Q2, Q3, Q4, Q5, Q6
+  THE TWO GROUNDS ARE INDEPENDENT AND EITHER ALONE IS SUFFICIENT.  Every number above is PRINTED because it is exactly what an
+  unlicensed gate would have graded, and NEITHER licenses anything: RATIO_MIN = 10 is UNTOUCHED and G-RATIO remains registered
+  on every graded quantity.
+  G-PLATEAU: PASS    G-RATIO: NOT A RESULT
+
+G-ORDER -- on Q4 (core volume-averaged T), band (0.5, 1.5)
+  The band is [0.5, 1.5] and NOT [1.5, 2.5] because the formal order of the
+  energy convection term is ONE: T23G_F/system/fluid/fvSchemes line 33,
+  `div(phi,h) bounded Gauss upwind`.  Sanaa's section 0 point 3 is scheme-relative.
+
+[Q4]  value 52.5146  band [46, 56]  dim = 2
+    triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') cells (40320, 90720, 204120) r21 1.5000 r32 1.5000 (equal)  values (53.58202682, 52.9424286, 52.51459002)  state CONVERGING  order 0.9917 (dim = 2)  GCI 2.0575 % = 1.0805 abs at Fs = 1.25, dim = 2  Richardson 51.650186 (parent-convention form 53.378994, sign-flipped, see module docstring)
+    planted-zero control: PASSED  planted 0.001234  reader Q4 @T23G2Rn2_L3  saw 0.0012340000000108375
+    band verdict (computed first, unconditionally): PASS
+    VERDICT: PASS -- finest triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') CONVERGING at dim = 2, observed order 0.9917, GCI 2.0575 % = 1.0805 absolute at Fs = 1.25
+    BAND NOT REGISTERED FOR Q4 (T23G2_PREREGISTRATION.md section 3 role table transfers
+    Q4's band to Q1 :452, Q3 :453 and Q2 :454, and to NOBODY ELSE).  The band verdict
+    printed above is DISCLOSED, NOT GRADED: it is what an UNREGISTERED band would
+    have said, and it licenses nothing.
+    VERDICT DOWNGRADED PASS -> NOT A RESULT: with no registered band there is no
+    band claim to make.  The row is NOT removed from the rung rollup -- the
+    rollup-exclusion limb of R4 was REFUSED (section 2d.7).
+[Q1]  value 51.9184  band [46, 56]  dim = 2
+    triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') cells (40320, 90720, 204120) r21 1.5000 r32 1.5000 (equal)  values (52.99910236, 52.35092296, 51.91838637)  state CONVERGING  order 0.9976 (dim = 2)  GCI 2.0888 % = 1.08448 abs at Fs = 1.25, dim = 2  Richardson 51.050804 (parent-convention form 52.785969, sign-flipped, see module docstring)
+    planted-zero control: PASSED  planted 0.001234  reader Q1 @T23G2Rn2_L3  saw 0.0012340000000108375
+    band verdict (computed first, unconditionally): PASS
+    VERDICT: PASS -- finest triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') CONVERGING at dim = 2, observed order 0.9976, GCI 2.0888 % = 1.08448 absolute at Fs = 1.25
+[Q2]  value 50.1037  band [46, 56]  dim = 2
+    triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') cells (40320, 90720, 204120) r21 1.5000 r32 1.5000 (equal)  values (51.17419862, 50.53285142, 50.10365705)  state CONVERGING  order 0.9906 (dim = 2)  GCI 2.1662 % = 1.08535 abs at Fs = 1.25, dim = 2  Richardson 49.235378 (parent-convention form 50.971936, sign-flipped, see module docstring)
+    planted-zero control: PASSED  planted 0.001234  reader Q2 @T23G2Rn2_L3  saw 0.0012340000000108375
+    band verdict (computed first, unconditionally): PASS
+    VERDICT: PASS -- finest triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') CONVERGING at dim = 2, observed order 0.9906, GCI 2.1662 % = 1.08535 absolute at Fs = 1.25
+[Q3]  value 56.0211  band [46, 56]  dim = 2
+    triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') cells (40320, 90720, 204120) r21 1.5000 r32 1.5000 (equal)  values (57.09118375, 56.44973901, 56.02112464)  state CONVERGING  order 0.9943 (dim = 2)  GCI 1.9260 % = 1.07897 abs at Fs = 1.25, dim = 2  Richardson 55.157948 (parent-convention form 56.884302, sign-flipped, see module docstring)
+    planted-zero control: PASSED  planted 0.001234  reader Q3 @T23G2Rn2_L3  saw 0.0012340000000108375
+    band verdict (computed first, unconditionally): GATE FAIL
+    VERDICT: GATE FAIL -- finest triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') CONVERGING at dim = 2, observed order 0.9943, GCI 1.9260 % = 1.07897 absolute at Fs = 1.25
+[Q6]  value 50.1664  band [46, 56]  dim = 2
+    triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') cells (40320, 90720, 204120) r21 1.5000 r32 1.5000 (equal)  values (51.23642968, 50.59536851, 50.16635968)  state CONVERGING  order 0.9906 (dim = 2)  GCI 2.1627 % = 1.08492 abs at Fs = 1.25, dim = 2  Richardson 49.29842 (parent-convention form 51.034299, sign-flipped, see module docstring)
+    planted-zero control: PASSED  planted 0.001234  reader Q6 @T23G2Rn2_L3  saw 0.0012340000000108375
+    band verdict (computed first, unconditionally): PASS
+    VERDICT: PASS -- finest triple ('T23G2Rn2_L1', 'T23G2Rn2_L2', 'T23G2Rn2_L3') CONVERGING at dim = 2, observed order 0.9906, GCI 2.1627 % = 1.08492 absolute at Fs = 1.25
+    BAND NOT REGISTERED FOR Q6 (T23G2_PREREGISTRATION.md section 3 role table transfers
+    Q4's band to Q1 :452, Q3 :453 and Q2 :454, and to NOBODY ELSE).  The band verdict
+    printed above is DISCLOSED, NOT GRADED: it is what an UNREGISTERED band would
+    have said, and it licenses nothing.
+    VERDICT DOWNGRADED PASS -> NOT A RESULT: with no registered band there is no
+    band claim to make.  The row is NOT removed from the rung rollup -- the
+    rollup-exclusion limb of R4 was REFUSED (section 2d.7).
+Q5 housing surface heat flux -- REPORTED, NEVER GATED
+  values [-1.898150286178, -1.898122415891, -1.898062766386]  state DIVERGENT  order -1.876671248976905
+  A DIVERGENT or STAGNANT reading here is PRE-REGISTERED as the expected outcome (P4)
+  and is NOT a failure of this rung: the quantity is pinned by the imposed 305 W
+  source to ~4e-5 relative. A CONVERGING reading in [1.5, 2.5] would mean P4 LOST.
+
+A2.1 -- THE DISCRIMINATING OBSERVATION, registered before the run
+  p(Q4) = 0.9917, p(Q1) = 0.9976, spread = 0.0059
+  H-MESH predicts spread < 0.05 with p in [0.7, 1.3]; H-IFACE predicts spread > 0.15
+  with p in [0.25, 0.65] and the housing quantity LOWER.  On T23G the spread was
+  0.0027, which is a point AGAINST H-IFACE recorded before this run.
+
+G-ORDER -- A1.2 at T23G2_PREREGISTRATION.md:834, on Q4, band (0.5, 1.5)
+  p(Q4) = 0.9917, band [0.5, 1.5], finest triple CONVERGING
+  G-ORDER: PASS
+
+==========================================================================
+RUNG VERDICT: NOT A RESULT
+==========================================================================
