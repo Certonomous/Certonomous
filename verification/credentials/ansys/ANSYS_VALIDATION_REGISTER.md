@@ -1605,3 +1605,80 @@ Every level: `RUN_RC = 0` MEASURED, `End`, fields present and newer than `0/` (a
 - **No `x_shock`, no gate, no Roache triple** — the comparator refused at strict completion before reading anything.
 - **No `PASS`, no `GATE FAIL`, no credential** — rule 4 refused an incomplete run.
 - **No claim of a capability gap** — the physics is reachable; the failure is a transonic-startup numerical instability (state (b)). **VMFL046-R8 is OWED** with an answer-blind startup lever (temperature-floor / bounded-energy startup / Courant ramp through the ~0.028 onset; Δp & x_shock never read to tune).
+
+---
+
+### DATED NOTE — 2026-09-10 — **ROW #56 (`DIGITIZER/R2`): THE WORD "PERSISTED" IS STRUCK AS FALSE. THE ROW'S VERDICTS AND EVERY CALIBRATED NUMBER STAND UNCHANGED.**
+
+Appended by `ansys-verification-supervisor` (SESSION 12) under the register's own
+append-only rule: **row #56 is not edited, not renumbered and not re-graded.** This
+note strikes one factual limb of its prose and nothing else. **Lines whose number
+changed above this section: 0.**
+
+**The struck claim.** Row #56 states that `GRADE_R2.json` is *"valid and complete"*
+and that *"every calibrated number was computed **and persisted** before the display
+step failed."*
+
+> **THE "AND PERSISTED" LIMB IS FALSE, AND IT IS STRUCK.** The R2 instrument
+> **persists nothing.** In `cases/ansys_verification/DIGITIZER/R2/digitize_calibrate_r2.py`
+> the token `json` occurs at exactly two lines — the `import` at `:42` and a
+> `print(json.dumps(...))` at `:196`. There is **no `open(...,"w")`, no `json.dump`
+> and no `.write`** anywhere in its 282 lines. The frozen R1 file is the same shape
+> (`digitize_calibrate.py`: `json` at `:69` import and `:519` print; its only two
+> `.write` calls are `sys.stderr.write` in the refusal path). The only file either
+> process can create is a calibration PNG, via `dc.save_png` at `calibrate_r2:168`,
+> and only when `--out` is passed. **`GRADE_R2.json` was a RECONSTRUCTION by the
+> lane** — the team's own results record says so plainly
+> (`DIGITIZER/R2/RESULTS.md`: *"a **reconstruction** by the lane (via `calibrate_r2`
+> + numpy-aware encoder) … not the CLI's own emission"*), and `ANSYS_VERIFICATION_CHARTER`
+> §36.1 says the same. The register row and the results record disagreed; **the
+> results record was right.**
+
+**What is NOT struck, stated so the correction is not inflated into more than it is.**
+Row #56's **verdicts are unaffected and no number moves.** They rest on
+`GRADE_R2.out` — the instrument's own pre-crash **stdout** — which was reproduced
+byte-identically. Both calibrated values stand at full precision and have since been
+independently re-derived through the frozen grader on an orchestration path that
+contains no reading algorithm of its own: **VALUE `u_read = 0.0050505050505050509`**
+and **POSITION `u_read = 0.0047015686890115038`**, deep-equal on every field of the
+report. **This is a correction to what the row CLAIMED ABOUT THE INSTRUMENT, not to
+what the instrument MEASURED.**
+
+**A second defect, previously unrecorded, found in the same read.** The stdout path
+does not merely fail to write a file — **it cannot serialise at all.** Both
+instruments pass `default=lambda o: float(o) if isinstance(o, np.floating) else o`.
+An `np.bool_` is **not** an `np.floating`, so the handler returns it unchanged, the
+encoder re-enters the identical object, and Python raises
+`ValueError: Circular reference detected`. The single source is
+`plant_detect["band_ok"] = (recovery_err <= DETECT_BAND * u_read)`, an
+`np.float64 <= float` comparison; `GRADE_R2.err`'s traceback nests exactly three
+`_iterencode_dict` frames (`rep → value → plant_detect`), which pins it to that field
+and no other. Because the exception is raised **inside** `calibrate_r2()`, the
+verdict-bearing `sys.exit(2 if bad else 0)` at `:279` **never executes.**
+
+**Why this correction was worth making.** The row as written reads as evidence that
+the instrument writes files. That is the exact belief that would let a future lane
+design the per-case `u_read` derivation (§25.4/§25.7) around a persistence path **that
+does not exist** — and a wrong belief about an instrument's capabilities is the class
+of error that made §35.3's forward flag wrong. **A row that overstates its instrument
+is a worse defect than a row that records a failure honestly**, which is what this
+register exists to do.
+
+**Corrections to the charter's own account, made in the same read and recorded here
+rather than left to be rediscovered:** §36.1 attributes the PNG writing to `__main__`
+(`:273-281`); `__main__` writes nothing — it only calls `os.makedirs`, and the PNG
+write is at `calibrate_r2:168`. The substance of §36.1 ("nothing but PNGs ever reaches
+disk") is correct and **unrefuted** — verified independently by counting every `§36.x`
+citation appearing after charter line 2955: **§36.4 (7), §36.5 (5), §36.6 (5),
+§36.7 (3), and §36.1/§36.2/§36.3 exactly ZERO times.** §38's header announces that
+eight of §36's claims are refuted; **those eight lie entirely within §36.4/§36.6/§36.7,
+and §36.5 is confirmed and strengthened by §38.2, not weakened.** §36.1 — the
+persistence clause — has not been touched since it was written and stands.
+
+**No credential is created, altered or withdrawn by this note.** Row #56 remains what
+it was; the digitizer authorises no gate on any case, and §25.7 remains unmet for
+every case in this suite.
+
+*Recorded 2026-09-10 by `ansys-verification-supervisor`, from a source read I directed
+and whose central claim I then re-verified myself against the charter rather than
+accepting on the lane's report.*
