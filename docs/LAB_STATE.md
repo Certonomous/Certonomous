@@ -19385,6 +19385,33 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-10 (update 93): **MY OWN RULING WAS WRONG AND A LANE REFUSED IT RATHER THAN COMPLYING. Attaching Wibron to K2a's geometry would have put a VALIDATION CLAIM ON MY BOARD THAT THE GEOMETRY CANNOT SUPPORT** — one row against two, 34 m³ against 104 m³, and K2a's own `:82` **explicitly excluding** the layout Wibron is. **The rung is VERIFICATION.** Five further rulings, and **a bare-`checkMesh` finding that reaches a GRADED case.**
+
+**I GOT UPDATE 92 WRONG IN ONE RESPECT AND IT IS THE RESPECT THAT MATTERED.** I ruled that the Wibron reference be attached to K2a's geometry, making the rung *"the only VALIDATION rung in my territory."* **It cannot be.** Verified by the lane at source, both sides:
+| | **K2a module** | **Wibron 2018** |
+|---|---|---|
+| layout | **ONE row**, one cold aisle, one hot aisle (`:81-82`) | **TWO rows of five, back-to-back** |
+| domain | 3.6 × 3.5 × 2.7 m ≈ **34 m³** | 5.084 × 6.484 × 3.150 m ≈ **104 m³** |
+| supply | tile/overhead, **plenum NOT meshed** | **hard floor, four CRACs** into the room |
+| containment | none | **contained hot aisle with a door** |
+| obstructions | none | switchgear and UPS as blockages |
+**K2a `:82` verbatim: two-row layouts are *"not"* modelled — Wibron's configuration is precisely the excluded case.** Matching quantity *types* (rack-inlet temperatures, aisle velocity) is **not** matching a configuration. **Had the lane complied, a validation claim would now stand on my board and a later reader would have cited it and inherited the wrong room.**
+- **THE LANE ALSO REFUSED TO TREAT MY INSTRUCTION AS SANAA'S APPROVAL**, saying so in terms. **That is rule 9 working from below**, and I am recording it as the correct call rather than an obstruction. *A lane that declines a supervisor's ruling on evidence is worth more than one that executes it.*
+
+**RULINGS** `[lab-attributed]`:
+1. **`K2d` IS VERIFICATION.** K2a's approved geometry runs as the three-level ladder; **Wibron is a REPORT-ONLY REFERENT** — the comparison is computed and printed, and the document states on its face that it is **NOT a validation claim**, with the reason. **Reference tier NONE.** ~1,150-1,650 core-min. Satisfies 19:45Z in full: industrial, 3D, complete, a real Roache triple.
+2. **THE WIBRON ROOM GOES TO SANAA AS A PROPOSAL, drafted but NOT registered and NOT frozen** — two rows, four CRACs, contained aisle, **32 armable experimental rows (15 temperature from fig6, 17 velocity from fig7 across L1-L5)**. It is the rung that earns the validation claim and **it will not be smuggled in under an approval given for something else.**
+3. **STEADY SIMPLE STAYS — WITH A PRE-REGISTERED LIMIT-CYCLE GATE.** The lane's sharpest find: **Wibron §3.4 measured that steady *"had difficulties converging due to fluctuations in the flow field"* and went transient**, and **K2b-U already hit a 2D limit cycle in this very geometry.** K2a §9 registers steady, so steady runs — but with a limb turning rows **`NOT A RESULT` when residuals CYCLE rather than converge**, threshold fixed now. **A post-compute switch to PIMPLE would be a gate change and is unavailable**; registering the failure mode in advance is what makes a steady run here honest rather than naive.
+4. **kOmegaSST STAYS AND ITS PREDICTED FAILURE IS PRE-REGISTERED.** Wibron's abstract: k-ε *"fails to predict low velocity regions"*, RSM recommended; kOmegaSST is the same eddy-viscosity class. **Name the low-velocity locations IN ADVANCE and register the predicted failure there.** Adopted in the lane's words: ***a prediction we can lose is worth more than a model chosen to pass.***
+5. **ORDER BAND WIDENED, ON THE REFERENCE'S OWN EXPERIENCE.** Wibron got local **p from 0.0197 to 27.70, global average 6.583**, at r = 1.31 on 298,535/668,242/1,486,077 tets. **Registering (1.5, 2.5) into that flow class is registering a miss.** Widen before compute with that measurement cited — **and say plainly that a wide band is a weaker claim.** Our r = 1.5 is coarser-stepped than their 1.31, which helps; matching Fs = 1.25 is genuine agreement.
+6. **LADDER COUNTS ARE TARGETS WITH A TOLERANCE, GATED ON THE ACTUAL BUILT polyMesh** (T23G2's `G-MESHSIM` precedent). ***A ladder that grades on intended counts is grading on an intention.*** The ratios verify exactly: 59,259 × 3.375 = 200,000 × 3.375 = 675,000. **K2a's §6 2x re-pricing clause is NOT tripped** — both specified levels are untouched. L1 costs **35-50 core-min**, and K2a's own 167/933 figures reconcile to ~24,000/~38,000 iterations against the K2b pilot rate, a consistent basis.
+
+**THE BARE-`checkMesh` DEFECT REACHES A GRADED CASE.** `build_k2bU3R3.py:168` runs `checkMesh > log.checkMesh` with **no flags** and `:169-170` gate on `grep -q '^Mesh OK'`; `run_k2b.sh:59-60` the same; **`K2b3D_probe/log.checkMesh` records `Exec : checkMesh` with zero face-tet and zero cell-determinant lines.** That builder is behind **`K2bU3R3` — one of my two presentable 3D verdicts.** **Booked as a DISCLOSURE, not a re-grade:** K2bU3R3's `GATE REACHED` is a damping discriminator, **not a mesh-convergence claim**, so the full check set does not bear on it the way it bore on cfd's M6. **But its mesh was accepted by a check that cannot fail the way M6's failed, and that goes in the record.** Retrospective `-allGeometry -allTopology` ordered on a **COPY** — never the graded tree, since `-allTopology` writes sets into `constant/polyMesh/sets`.
+
+**ON SANAA'S DESK:** the **Wibron SICS ICE room** as a proposed validation rung, once drafted — *not* a decision I may take, because it is not the module she approved.
+
+**Section last written:** 2026-09-10T20:12:30Z by heat-transfer-supervisor personally. Newest block is **update 93**.
+
 ##### heat-transfer 2026-09-10 (update 92): **K2a IS APPROVED IN SANAA'S OWN WORDS — AND AS SPECCED IT CANNOT DELIVER WHAT SHE ASKED FOR 35 MINUTES EARLIER. It registers TWO mesh levels; two levels give a difference, not a convergence order.** Resolved by extending the ladder DOWNWARD, which completes the triple, **changes no approved level, and adds ~5% to the approved cost.**
 
 **SANAA, ~20:20Z:** *"K2a approved"*. **SANAA, ~19:45Z:** *"run and complete, and wit their mes convergence ASAAAP."* **These two collide, and I am not going to run the approval while quietly failing the directive.**
