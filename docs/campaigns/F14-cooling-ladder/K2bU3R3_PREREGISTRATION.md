@@ -325,3 +325,87 @@ frozen comparator (with the §5.1 plant) returns rc 0.
 
 **STATUS: DRAFT — awaiting the supervisor's §3 checks and freeze. NOT FROZEN,
 NOT COMMITTED, NO COMPUTE RUN.**
+
+---
+
+# AMENDMENT 1 — 2026-09-10 — THE OPENING AND CLOSING "DRAFT / NOT FROZEN / NO COMPUTE RUN" BANNERS ARE STRUCK AS SUPERSEDED
+
+**Document version 1.1** (was 1.0, unversioned). Appended at the foot under
+`CLAUDE.md` rule 6 by a heat-transfer `lab-lane` on the heat-transfer
+supervisor's ruling of 2026-09-10. **Lines whose number changed above this
+section: 0.** No line above this heading was edited, reordered, reflowed or
+deleted; the struck banners remain exactly where and as they were, because a
+frozen record's originals are struck, never rewritten.
+
+## What is struck
+
+Two statements, not one. The supervisor's ruling named the first; the second was
+found while discharging it and is the more dangerous of the two, because it is
+the **last thing a reader sees**.
+
+| Line | Struck text (opening words) |
+|---|---|
+| **16** | `**STATUS: DRAFT — NOT FROZEN, NOT COMMITTED, NO COMPUTE RUN.** This file is a lane draft awaiting the heat-transfer-supervisor's §3 checks and freeze.` |
+| **326** | `**STATUS: DRAFT — awaiting the supervisor's §3 checks and freeze. NOT FROZEN, NOT COMMITTED, NO COMPUTE RUN.**` |
+
+**Both are STRUCK and superseded by this amendment.** Each was true when written
+and each has been false since 2026-09-07T18:57:27Z.
+
+Struck with them, as part of the line-16 paragraph and false for the same
+reason: *"The comparator `analyse_k2bU3R3.py` and the thin build wrapper are
+**TO BE WRITTEN before freeze** (§5.3, §2.4) — this draft writes neither."*
+Both files exist, both were written before the freeze, and both are pinned by
+it.
+
+## The facts that supersede them, each with the artifact it is read from
+
+- **This document is FROZEN**, at commit **`41e18d717`**, **2026-09-07T18:57:27Z**.
+- **The freeze pinned exactly three paths**, and this is the whole freeze set:
+
+  | Path | Blob at freeze |
+  |---|---|
+  | `docs/campaigns/F14-cooling-ladder/K2bU3R3_PREREGISTRATION.md` | this file |
+  | `verification/runs/F14-cooling-ladder/K2b_runs/analyse_k2bU3R3.py` | `aa2c44b7` |
+  | `verification/runs/F14-cooling-ladder/K2b_runs/build_k2bU3R3.py` | `7c7a7668` |
+
+- **Compute HAS run.** `K2bU3R3_D59`, 137,000 cells, 995 adaptive steps to
+  t = 80 s, 1103.273 wall s single-ranked = **18.3879 core-minutes** against the
+  registered cap of 66, recorded in
+  `verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/COST.txt`.
+- **The rung is GRADED.** Verdict **`GATE REACHED`**, outcome DAMPS, in
+  `verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/K2bU3R3_GRADE.txt`.
+- **Rule 4 is discharged**, by `scripts/mark_done_adaptive.py --preset k2bu3r3`
+  (rc 0, its `--selftest` planted-control arm passing first), re-confirmed
+  2026-09-10.
+
+## What this amendment does NOT do
+
+It alters **no gate, no threshold, no band, no cap, no label and no
+outcome-meaning**, and it may not: gates closed at first compute. The
+survives/damps thresholds (`p2p >= 0.30 K` and `ratio >= 0.8` → SURVIVES;
+`p2p <= 0.10 K` or `ratio <= 0.5` → DAMPS), the 66 core-minute cap and the
+registered outcome vocabulary all stand exactly as frozen. This amendment
+changes one thing only: **what the document tells a reader about its own
+status.**
+
+## Why a stale banner is a rule-2 hazard and not a typo
+
+Rule 2's evidentiary content is the freeze itself — the proof that the gate
+could not have been chosen to fit the answer. A frozen pre-registration whose
+own first and last words say it is an unfrozen draft awaiting checks invites
+precisely the reading the freeze exists to foreclose, and it does so twice, at
+both ends, where a hurried reader looks. Nothing about the freeze was defective.
+The document's account of itself was.
+
+## Sibling files checked, and found clean
+
+Both other members of the freeze set were checked for the same defect on
+2026-09-10 and **neither carries a stale draft banner**: `analyse_k2bU3R3.py`
+and `build_k2bU3R3.py` return no match for DRAFT / NOT FROZEN / NOT COMMITTED /
+NO COMPUTE RUN / awaits-freeze. Both are also **byte-identical to their pinned
+blobs** at `41e18d717` (working-tree sha256 prefixes `7f05e67b90f4` and
+`9523b7268f60`, equal to the committed blobs), so the freeze verifies.
+
+A fourth file in the same directory, `mark_done_k2bU3R3.py`, is **NOT in this
+freeze set** and never was. It is recorded here only so no future reader infers
+otherwise from its name.
