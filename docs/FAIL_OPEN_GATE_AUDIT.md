@@ -4951,3 +4951,103 @@ Searching **history** rather than HEAD — for each row, `git log --format=%H --
 The history search arrives as a third optional reader on the same three-valued discipline, keeping the function pure; unsupplied, behaviour is exactly the current one, so the six limbs already written keep passing untouched. The selftest must carry a limb asserting that **with no history reader the "no sha" sentence is ABSENT** — that is the limb which stops an instrument asserting an unmeasured fact, and it is the one I read first. Cost is bounded: the search runs only on rows reaching that branch (five today) and stops at the first hit; my probe scanned 370–1400 commits per row in seconds.
 
 **THE FORM THIS IS THE THIRD INSTANCE OF TONIGHT, FROM ONE HAND.** §16.7 predicted an instrument's behaviour without running it. §29 inherited a population claim without measuring it. And this addendum's own first draft was destroyed in the writing by an **unquoted heredoc** that command-substituted its backtick spans — **L-403/L-405, live, while composing the section about unverified assertions** (caught because the shell printed `command not found`; the committed §29/§30/§31 above escaped every span and are intact, verified at 320 surviving backticks). None of the three was caught by an instrument: one by a lane's falsification attempt, one by a supervisor's diff-read, one by a shell error. **The common form is a statement about a program or its data taken from a neighbouring clause's stated intent instead of from the program, and published.** In every case the check was one command, and `git log --format=%H --all -- <target>` took seconds to move four rows out of a category I had already published them into.
+
+---
+
+## §32 — **THE CHECK THAT CANNOT SEE THE FILE YOU ARE ASKING IT ABOUT: `check_filing.py` GRADES 21,302 PATHS OUT OF 89,353 AND ITS SELFTEST CERTIFIES THE RULE AGAINST THE ONE POPULATION THE REAL RUN EXCLUDES. 16 LIVE `R0` VIOLATIONS ARE HIDDEN BY IT, ALL OF THEM IN THE DEMO RENDER PIPELINE**
+
+**Dated 2026-09-10. Ruled and measured by the verification-supervisor personally (`SUPERVISION_CHARTER.md` §3 check-1, an instrument read, and check-3, a big claim defended against its own evidence). HEAD at this write: `faf4ccfd`. Worktree copy of this file verified byte-identical to its HEAD blob before appending (`§10.0`'s hazard, checked rather than assumed). Solver compute: 0 core-min, $0.00.**
+
+**Origin.** Not this team's own sweep. dafoam raised it in the body of `dd432417`, in a paragraph explicitly addressed *"For the lab, not dafoam"*:
+
+> *"`scripts/check_filing.py` enumerates paths in HEAD, so running it on a NEW file before committing returns a zero that means nothing. A planted control — a filename containing a space — went unflagged."*
+
+**It is not taken on report.** A cross-team claim about an instrument is verified at the instrument or it is not believed (`§3` check-3; `CLAUDE.md` rule 9 — a delegate's test is evidence, not the supervisor's read). What follows is this supervisor's own measurement.
+
+### §32.1 The planted control, first, because §1 gates everything after it
+
+An untracked file named `docs/CONTROL PLANT verification.md` — a space in the basename, which is `R0-PORTABLE-NAME`'s own declared target — was created, `scripts/check_filing.py --root /home/ubuntu/Certonomous` was run, and the plant was removed, **all in one shell invocation** so the window in the shared worktree was milliseconds and no peer could observe or commit it.
+
+**The run reported `FAIL: 59 filing violations across 9 rules`. The planted control was not one of them.**
+
+The control is the right shape and it is worth saying why: the run was **not** a clean `PASS` that a reader might dismiss as an empty repository. The instrument was demonstrably alive, emitting 59 findings across nine rules on the same invocation, **and it still could not see the file planted directly in its path**. A zero from a reader not shown able to see a non-zero is not evidence (standing rule 3); here the reader was shown able to see 59 non-zeros and was still blind to this one, which is the stronger result.
+
+### §32.2 The mechanism, cited by line
+
+`scripts/check_filing.py:86-105`, `_tracked()`:
+
+```
+    out = subprocess.run(
+        ["git", "-c", "core.quotePath=false", "ls-tree", "-r", "HEAD", "--name-only"],
+        cwd=root, capture_output=True, text=True,
+    )
+```
+
+Its docstring is candid — *"Paths in HEAD. HEAD is the referent, never the index"* — and that choice is **correct and must not be reversed**: it is the private-index protocol's own consequence, since files landed by that protocol have no shared-index entry and `git ls-files` / `git diff --cached` misreport them. **The defect is not the choice of HEAD. The defect is that nothing else was ever added beside it.**
+
+Every naming rule iterates that one list. The `--tracked-only` flag (`:438`) is the only untracked-facing control the script has, and it gates `_loose_root_files()` alone — files sitting **directly at the repository root**. A new file one directory deep is outside both readers.
+
+### §32.3 Why this is FAIL-OPEN and not merely OUT-OF-SCOPE, which is the finding
+
+An instrument that never claimed to grade untracked paths would be out of scope and uninteresting. This one claims it twice.
+
+1. **The rule exists and names this exact character class.** `:162-168`, `R0-PORTABLE-NAME`, whose own comment states the rationale: *"A space in a path breaks every unquoted shell loop in this lab."*
+2. **The selftest plants a spaced filename and asserts it is caught.** `:353`, verbatim: `("R0-PORTABLE-NAME", "docs/papers/buoyancy/van gilder_2005_ipack.pdf", True)`.
+3. **And then the selftest commits it.** `:395-396`, `git add -A` then `git commit -qm "planted"` into the scratch tree, followed at `:398` by `check(root, include_untracked=False)`.
+
+**So the selftest certifies `R0` against the TRACKED population, and the real run's blind spot is the UNTRACKED population.** The 67 selftest assertions are all true and none of them touches the case a user actually brings to this script. **A green selftest is being read as a warrant over a population the selftest never entered.** This is `§28.19`'s form one turn further out: the pass is not weak evidence for the property, it is *zero* evidence for it, while being strong evidence about the tracked path nobody was worried about.
+
+**This team's own charter already names the class, and the wording fits without adjustment** — `VERIFICATION_CHARTER.md` §2c, *"Where this rule does not reach"*, point 1, verbatim:
+
+> *"A check reporting no violations over a population it could not evaluate has not passed; it has not run."*
+
+### §32.4 The population, measured
+
+| | paths | share |
+|---|---|---|
+| tracked at HEAD — **graded** | **21,302** | **23.8 %** |
+| untracked, not ignored — **ungraded and invisible** | **68,051** | 76.2 % |
+| candidate total | 89,353 | |
+
+The `PASS` string at `:447` reads *"PASS: every tracked path follows the filing convention."* **The wording is honest and is not the defect.** The defect is that the script's normal use — the use dafoam put it to, and the use its own `NOT_PASSING_REGISTER` workflow invites — is **pre-commit, where the file under examination is by definition untracked**, and in that use the honest word `tracked` is the word that silently excludes the answer.
+
+### §32.5 What the blindness is hiding RIGHT NOW — 16 live violations, and they are in the demo pipeline
+
+`R0`'s own regex (`:75`, `BAD_CHARS = re.compile(r"[^A-Za-z0-9._/-]")`) was applied by this supervisor to the 68,051 untracked paths. **16 violations, every one of them the same character pair `[` and `]`, every one under `verification/runs/actD_paraview/glyphs/`:**
+
+```
+verification/runs/actD_paraview/glyphs/_render_cap_polar_field_alpha18_not_converged[0..3].py
+verification/runs/actD_paraview/glyphs/_render_cap_section_grid[0..1].py
+verification/runs/actD_paraview/glyphs/_render_cap_section_grid_leading_edge[0..1].py
+verification/runs/actD_paraview/glyphs/caption_polar_field_alpha18_not_converged[0..3].png
+```
+*(ranges collapsed for width; 16 distinct paths, in a directory of 61 files.)*
+
+**These are not cosmetic and `R0`'s stated rationale is the reason.** Square brackets are not merely awkward characters — in shell glob syntax `[0]` is a **bracket expression**, so a pattern written to match the literal file `_render_cap_section_grid[0].py` instead matches `_render_cap_section_grid0.py`, and an unquoted loop over `_render_cap_polar_field_alpha18_not_converged*.py` silently sweeps the base file and all four bracketed variants together. The base file `_render_cap_polar_field_alpha18_not_converged.py` **is present in the same directory**, so the collision is live rather than hypothetical.
+
+**And `actD` is demo Act D.** Under the owner's 2026-09-10 directive the lab's priority is cases running and demos shot; a render pipeline whose script filenames break unquoted globs is a hazard against exactly that priority. **This is recorded as a cross-team finding and is NOT repaired here** — the directory is not this team's territory. It is handed over, not touched.
+
+### §32.6 What is REFUSED, and by this team's own precedent
+
+**The obvious repair — make the default run enumerate untracked paths too — is REFUSED and is not this supervisor's to make.**
+
+`D539`, this team's own ruling: *"a checker that refuses a commit is a GATE ON LAB PROCESS, and ADDING a gate is reserved to Sanaa exactly as retiring one is"*, with clause (a), *"NO AGENT MAY FLIP IT … a measured rate that 'looks acceptable' is not an authorisation."* Extending this check's default population from 21,302 paths to 89,353 would make it **FAIL on files it passes today**, which is new bite by any reading, and it would do so at **3.2× the current population**. That is a threshold move dressed as a bug fix, and the fact that this supervisor believes the extension is *correct* is precisely the reasoning `D539` forbids acting on.
+
+**It is also refused on the merits of the number.** 16 of 68,051 is a 0.02 % hit rate; a default-on extension would put the instrument's cost overwhelmingly into run-output trees that no filing rule was written for, and `§17a`'s over-reach — *"which looks like rigour while it is happening"* — is the predictable outcome.
+
+### §32.7 What is OWED, and by whom
+
+Three items, none of which moves a threshold or adds bite to any existing call site. Recorded here as owed; **none is executed in this section.**
+
+1. **An opt-in reader, default OFF.** A flag that adds `git ls-files --others --exclude-standard` to `_tracked()`'s output for that invocation only. Every existing call site behaves byte-identically. Owner: this team, as the script's auditor; the flag adds a capability, not a gate.
+2. **A NEGATIVE control in the selftest, and this is the load-bearing one.** The selftest must plant an **uncommitted** violation and assert the default run does **NOT** see it. That converts the blindness from a surprise into a **tested, documented property of the instrument** — the discipline `§1` of this file already demands of every other checker here, and the one thing that would have caused this to be found by the lab rather than by a dafoam lane tripping over it.
+3. **The 16 `actD` paths.** Referred to whichever team owns `verification/runs/actD_paraview/`. **Not renamed by this team** — a rename in a directory this team does not own, against a demo pipeline mid-campaign, is exactly the unreviewed action `CLAUDE.md` rule 10's "inspect, never revert" spirit refuses.
+
+### §32.8 What is and is not claimed
+
+**Claimed:** the mechanism, verified at source by line; the planted control, executed by this supervisor rather than relayed, against an instrument shown simultaneously alive on 59 other findings; the population figures, counted; the 16 `R0` violations, enumerated with the script's own regex.
+
+**Not claimed:** that any published verdict in this lab is wrong because of this. No graded row depends on `check_filing.py`; it is a filing convention check, not a gate on a measured number, and **no verdict is withdrawn by this section**. Nor is it claimed that the 16 paths have actually broken anything yet — the collision is demonstrated as *available*, not as *fired*. That distinction is `§28.15`'s lesson and it is applied here to this team's own finding.
+
+**dafoam's report was accurate in every particular this team was able to test.** It is credited as the origin, and this section adds what a report cannot: the control, the population, and the 16.
+
