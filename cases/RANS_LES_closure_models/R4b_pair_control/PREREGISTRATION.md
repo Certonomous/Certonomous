@@ -1504,3 +1504,258 @@ The three externally cited anchors into this file therefore still resolve:
 
 *End of AMENDMENT 1. Nothing above is frozen. No compute is authorised. Nothing
 has been sent, filed, uploaded, registered or posted.*
+
+---
+
+## AMENDMENT 2 — 2026-09-10 — §14's COMMIT SCHEDULE IS OVERTAKEN BY THE INSTRUMENT FREEZE AT `3d50ceed`; PRE-FIRST-COMPUTE
+
+**Document version: DRAFT+A1 → DRAFT+A2.**
+
+**Status of this document is UNCHANGED by this amendment: DRAFT, NOT FROZEN, NO
+COMPUTE AUTHORISED.** This amendment does not freeze, does not register a sha256,
+does not stamp, does not fill the six `(re-hashed at freeze)` cells, does not
+assign a docket row and does not authorise any launch. The freeze remains the
+closure supervisor's separate act after a personal read
+(`VERIFICATION_CHARTER.md` §2b, §2d; §14 commit 1 above). **This lane authorises
+nothing.**
+
+### B.1 The finding, confirmed at source before anything was written
+
+§14's commit schedule (`:1199` heading; the table rows `:1203`–`:1206`) is
+**overtaken by events**. It places four scripts in the future:
+
+* row `:1204`, commit **2** — `select_control.py`, `MODEL.md`, `MODEL.json`,
+  `COVERAGE.md`, the FS2/FS5 discharge, *"after `xi*` is computed, before any
+  propagation case is built"*;
+* row `:1205`, commit **3** — `build_r4b_cases.py`, `run_r4b.sh`,
+  `grade_r4b.py`, *"after the build, before grading"*.
+
+**All four scripts are already TRACKED AT HEAD.** Measured, not relayed:
+`git cat-file -e HEAD:<path>` resolves for each of the four, and
+`git log --diff-filter=A` names one and only one adding commit for each —
+**`3d50ceed`**, `2026-08-30 22:42:40 +0000`, whose diffstat is exactly those four
+paths and nothing else (`+2,780` lines). The control for that same reader fired:
+`MODEL.json`, `MODEL.md`, `COVERAGE.md` and `RESULTS.md` in this same directory
+return *"does not exist in 'HEAD'"*, so the check can distinguish tracked from
+untracked and is not returning a uniform yes.
+
+`3d50ceed`'s own commit message declares its evidentiary character in its own
+words: it landed the four *"with their sha256 in the message, AFTER authoring and
+BEFORE the birth demonstrations are graded — so this commit is the freeze the
+grading path is fixed to under standing rule 2, and nothing here grades
+anything."*
+
+**Consequence, stated plainly: §14's rows `:1204` and `:1205` are unexecutable as
+written for those four paths.** Under the rule-10 private-index protocol a commit
+of an unchanged path writes the parent tree, the mandatory non-empty assertion
+fires, and the invocation correctly aborts. A schedule that cannot be executed is
+a defect in the schedule, not a licence to bypass the assertion.
+
+### B.2 The rule-2 condition, and HOW it was checked — freshly, in this lane's own invocation
+
+`CLAUDE.md` rule 2: *"Before first compute, amendments are legal and must state
+the condition and how it was checked (name the run directory that does not
+exist)."* **The condition is that the R4b SOLVE ARM registered by this document
+has had ZERO COMPUTE.** AMENDMENT 1's checks are **not inherited**; every row
+below was re-run by this lane, each negative beside a control that fired, so the
+reader is shown a search able to see a positive (rule 3's discipline applied to a
+filesystem and to git):
+
+| named and ABSENT | the control that FIRED |
+|---|---|
+| `/home/ubuntu/closure-data/r4b/` — the bulk-data root this file registers at `:1222` — **does not exist** | `/home/ubuntu/closure-data/` exists and lists `features/`, `aposteriori/`, `aposteriori_frozenk/`, `g1/`, `D476_A3_triage/`, `b3_trainmean.json`, … |
+| **no `verification/runs/*R4b*` or `*r4b*` run root exists** | `verification/runs/` holds `4G_runs`, `D5_rsm_runs`, `B52_RUNG6_REPLICATE_runs`, `DMR_R3_L2_COURANT_PROBE_runs`, … |
+| `artefacts/` beside this file **does not exist**; the directory holds only `INSTRUMENT_BUILD_PREREGISTRATION.md`, `PREREGISTRATION.md`, `QUEUE_ENTRY_DRAFT.json`, `R4b_Ib/` and the four scripts — **no time directory, no `log.*`, no solver output** | the sibling `../R4_sparta_build/` carries both `COVERAGE.md` and `RESULTS.md` |
+| commit-2/3/4 deliverables `MODEL.md`, `MODEL.json`, `COVERAGE.md`, `RESULTS.md` are **absent from disk AND untracked at HEAD** | the same two-part reader returns `PRESENT`/`TRACKED` for `grade_r4b.py` |
+| **this document's sha256 is pinned NOWHERE in the repository** — a repo-wide content search for it returns zero files, so nothing anywhere treats it as frozen | the same search for the *instrument* registration's sha256 `7a80553c…` returns **two** files, `R4b_Ib/INSTRUMENT_BUILD_PREREGISTRATION_R4b_Ib.md` and `R4b_Ib/grade_r4b_ib.py` |
+| `QUEUE_ENTRY_DRAFT.json:4` still reads `"prereg_commit": "PENDING_SUPERVISOR_FREEZE"` — not a sha; and `:24` still carries the build lane's written statement that **check 4 has NOT been performed by anyone** | — (read directly; the file's own text) |
+
+**One positive is disclosed here rather than left to be found, because it looks
+like a contradiction and is not.** `/home/ubuntu/closure-data/r4b_instruments/`
+**does exist** (19 MB), which `3d50ceed`'s message recorded as absent on
+2026-08-30. It holds one subtree, `_dev/`, with `_dev/cases/` and `_dev/birth/`;
+its newest file anywhere is dated **2026-08-28 17:43:16Z**, nothing in it
+postdates 2026-09-01, and it contains **no `log.*` and no solver time
+directory**. It is the **instrument arm's** dev/birth material, governed by the
+separate `INSTRUMENT_BUILD_PREREGISTRATION.md` (sha256 `7a80553c…`, pinned at
+`R4b_Ib/grade_r4b_ib.py:148`). **It is not compute against this document's
+gates**, and this amendment does not claim it as such.
+
+**No solver, no fit, no selection, no propagation, no time directory, no GPU
+for the solve arm. 0.0 core-minutes are attributable to this registration.**
+
+### B.3 THE RULING — the closure supervisor's, recorded here so no reader reconstructs it
+
+Recorded **[lab-attributed, closure-supervisor, 2026-09-10]**. `CLAUDE.md` rule 9:
+no agent message is Sanaa's consent, and none is claimed here.
+
+1. **§14's commit-3 row is ALREADY DISCHARGED at `3d50ceed`, and commit-2's row
+   is discharged IN ITS SCRIPT PART ONLY. The schedule is overtaken, NOT
+   violated.** Nothing was done out of order in a way that costs evidence.
+2. **The deviation runs in the CONSERVATIVE direction** — see B.4.
+3. **The solve arm's grading path is fixed by a COMPOSITION, not by one commit** —
+   see B.5.
+4. The comparator is **doubly frozen** and has not moved — see B.6.
+5. **NO gate, NO threshold, NO cap and NO label moves.** A commit schedule is
+   none of those four — see B.7.
+6. **§14's "commit 1 = this file, ALONE" is amended ONLY** to the extent that the
+   freeze commit will also carry the **six sha256 cells** at `:775`–`:777` and
+   `:915`–`:917` that currently read *"(re-hashed at freeze)"*. That is **§9's own
+   preamble being executed**, not §14 being loosened: §9 at `:903`–`:905` already
+   requires that every re-used instrument *"is verified `disk == HEAD` and
+   re-hashed at the freeze commit and again at grading, and the comparator
+   **refuses** on a mismatch."* **This amendment does not fill those six cells.**
+
+**ONE REFINEMENT, MEASURED BY THIS LANE IN DISCHARGING THE RULING, RECORDED
+RATHER THAN SMOOTHED OVER.** The ruling as dispatched read *"commits 2 and 3 are
+already discharged"*. Commit **3** is discharged **in full**: all three of its
+named paths are tracked at `3d50ceed`. Commit **2** is discharged **in part
+only** — `select_control.py` is tracked, but `MODEL.md`, `MODEL.json`,
+`COVERAGE.md` and the FS2/FS5 discharge are **absent from disk and untracked**,
+which `3d50ceed`'s own message states in the same words: *"MODEL.md, MODEL.json
+and COVERAGE.md remain ABSENT, so `build_r4b_cases.py` would refuse today by its
+own registered clauses — correctly."* **Commit 2's document deliverables are
+therefore still OWED and are unaffected by this amendment.** Item 1 above is
+recorded in the narrower form that the measurement supports.
+
+### B.4 WHY THIS IS A RECORDABLE DEVIATION AND NOT A RULE-2 BREACH — the direction matters
+
+This document was drafted **2026-08-24**. The four instruments were frozen and
+sha-pinned **2026-08-30**, at `3d50ceed`. This document's own freeze **has not
+happened yet**.
+
+An instrument frozen **earlier** offers strictly **less** opportunity to be
+fitted to an answer than one frozen later. Rule 2's evidentiary content is that
+*"the gate could not have been chosen to fit the answer"*; an instrument pinned
+by sha six days before the registration it serves is pinned **against a future
+answer nobody had**, which is the direction rule 2 exists to protect. The
+deviation therefore **tightens** the evidence and does not weaken it. That, and
+only that, is why it is recorded as a deviation rather than escalated as a
+breach.
+
+The counterfactual is stated so it is not left implicit: had the four scripts
+been written **after** a result existed, or had they been edited since being
+pinned, this would be a different finding entirely. B.6 shows they have not
+moved.
+
+### B.5 THE GRADING PATH IS FIXED BY A COMPOSITION — stated explicitly, because §14 implies otherwise
+
+§14 asserts, at `:1208`, *"The grading path is fixed at commit 1"*. That sentence
+was true when drafted and is **no longer the whole truth**. It is not struck —
+commit 1 remains necessary — but it is completed here:
+
+> **The R4b solve arm's grading path is fixed by the COMPOSITION of (i) this
+> document's freeze commit, which has NOT yet been taken and is the closure
+> supervisor's act, TOGETHER WITH (ii) the already-frozen, sha-pinned instruments
+> landed at `3d50ceed` on 2026-08-30.** Neither half alone fixes it. A reader
+> verifying the grading path must hash **both**: this file against its freeze
+> commit's blob, and each of the four instruments against the sha256 values
+> recorded in `3d50ceed`'s message.
+
+§9's table at `:918`–`:923` still describes those four as *"Written new by this
+lane"*. That description is now historical; the four are landed, pinned and
+unmodified. **No gate, threshold, cap or label depends on that phrasing**, and it
+is left in place rather than edited, per rule 6.
+
+### B.6 THE COMPARATOR IS DOUBLY FROZEN — measured in this lane's invocation
+
+`grade_r4b.py` on disk hashes
+
+`0e2554ae00e486c75a8529f07e77a974c388913d96d1839d0bc8d601cd34ca96`
+
+which is **byte-for-byte the value recorded three independent times**:
+
+| where the same 64 hex digits appear | verified how |
+|---|---|
+| the file on disk | `sha256sum` in this lane's invocation |
+| the blob at HEAD | `git cat-file -p HEAD:<path> \| sha256sum` — so `disk == HEAD` |
+| `3d50ceed`'s commit message, measured in the committing invocation | read from `git log` |
+| `R4b_Ib/grade_r4b_ib.py:139`, as `PARENT_SHA256` (declared `:138`) | read at that line |
+
+The other three carry the same triple agreement — `select_control.py`
+`50d9622d…` (pinned `R4b_Ib/grade_r4b_ib.py:142`), `build_r4b_cases.py`
+`b45ddd8e…` (pinned `:145`), `run_r4b.sh` `f915bfed…` (in `3d50ceed`'s message;
+no `R4b_Ib` pin, because R4b-Ib does not invoke it). **`disk == HEAD` holds for
+all four.** The comparator is frozen **twice over** — once at `3d50ceed`, once as
+R4b-Ib's sha-pinned parent — and a drift in either would make R4b-Ib refuse.
+
+**The registered hash cells in THIS document were re-measured against disk in the
+same invocation: 15 cells carry a literal sha256 (`:654`–`:660`, `:774`,
+`:908`–`:914`) and all 15 MATCH — 15/15, no drift.** That supersedes nothing; it
+extends AMENDMENT 1's 7/7 reading of the §9 instrument table (`:908`–`:914`) to
+every hash cell in the file. The reader used was shown able to report a mismatch
+before its zeroes were believed: fed a planted wrong digest for the same file, it
+reported **DRIFT**, so the fifteen `MATCH` results are not a reader that answers
+`MATCH` unconditionally. The **six** cells reading *"(re-hashed at freeze)"* at
+`:775`–`:777` and `:915`–`:917` are **deliberately still empty** and are the
+supervisor's to fill at the freeze.
+
+### B.7 WHAT THIS AMENDMENT DOES NOT MOVE — checked clause by clause, each read after the append
+
+**It moves NO gate, NO threshold, NO cap and NO label.** A commit schedule is
+none of the four. Verified by naming each and reading it:
+
+* **Gates** — §5 (`:413`, *"THE GATES — registered now, before any run"*) and
+  the verdict ladder §12 (`:1111`, *"THE VERDICT LADDER — the fixed vocabulary
+  only"*): untouched, not one gate word altered.
+* **Thresholds** — §13's model-form band (`:1152`); §4's `residualControl 1e-6`
+  on `U`, `p`, `k`, `omega` with *"A cap-stop is NOT converged"*
+  (`:401`–`:402`): untouched.
+* **Caps** — `CAP: 8.0 core-h = $0.4104 DERIVED` (`:1017`); the graded-arm
+  estimate `3.150 core-h` (`:990`); with-contingency `4.883 core-h` (`:999`);
+  the floor `0.068 core-h` / `0.094 core-h = $0.0048 DERIVED` (`:1004`–`:1005`);
+  the reduction clause at **`4.0 core-h`** (50 % of cap) dropping the diagnostic
+  contingency and concurrency to 1, closing *"The cap does not move."*
+  (`:1027`–`:1030`): every figure **byte-identical** to before this amendment.
+* **Labels** — the rule-1 vocabulary and every standing verdict cited in this
+  document: untouched.
+* **§11's capacity constraint is IDENTICAL** and is not re-opened by this
+  amendment. AMENDMENT 1 governs `:1058`; this amendment does not touch it.
+
+### B.8 LINE NUMBERING — the assertion, and the proof that makes it true
+
+**Lines whose NUMBER changed above this section: 0.**
+
+**Lines whose CONTENT changed above this section: 0.** This amendment is a
+**pure append at the FOOT** and edits nothing in place — unlike AMENDMENT 1,
+which disclosed three in-place content changes. Proved, not asserted: the
+prefix — every line above this amendment's heading — was hashed **before** the
+append and **again after it, in the same shell invocation**, and the two digests
+are equal. Both digests are recorded in this lane's report to the supervisor.
+
+Foot-append is mandatory here and not a stylistic choice: **three tracked
+citations point into this file by line number**, and any insertion above one of
+them stales a tracked citation (D515's standing renumbering lesson). All three
+were re-read **after** the append and still land on their intended text:
+
+* `:33` — cited by `docs/LAB_STATE.md:5999` and `docs/DOCKET.md:880` (**D515**);
+  reads *"Sanaa ratified R3 on 2026-08-24, verbatim as relayed to this lane:"*;
+* `:308` — cited by `../MATRIX_CONTRIBUTION.md:569`; reads the grid line
+  *"the grid `G = {0.01, 0.02, 0.03, 0.05, 0.07, 0.10, 0.15, 0.20, 0.30,"*;
+* `:1058` — cited by `docs/DOCKET.md:882` (**D517**); reads the struck
+  attribution and the withdrawal AMENDMENT 1 installed.
+
+### B.9 WHAT STILL STANDS BETWEEN THIS DOCUMENT AND ITS FREEZE — recorded for the supervisor's read only
+
+Descriptive, not authorising. This lane clears none of these.
+
+1. The **six sha256 cells** at `:775`–`:777` and `:915`–`:917` are unfilled
+   (§9's preamble, `:903`–`:905`; ruling item 6).
+2. The **freeze commit itself** — this file, with its sha256 in the commit
+   message — has not been taken. This document's sha is pinned nowhere.
+3. `SUPERVISION_CHARTER.md` §3 **check 4** — pre-registration committed before
+   compute — has not been performed by anyone;
+   `QUEUE_ENTRY_DRAFT.json:24` says so in the build lane's own words.
+4. `QUEUE_ENTRY_DRAFT.json:4` carries `PENDING_SUPERVISOR_FREEZE` in place of a
+   sha, and the cwd it names does not exist for the solve arm.
+5. The **solve arm remains BLOCKED on Sanaa's increment ruling**, which
+   `grade_r4b.py` states at `:823`–`:827` rather than leaving to prose.
+6. The **withdrawn-attribution occurrences at `:44`, `:45`, `:46`, `:56` and
+   `:60`** were left uncorrected by AMENDMENT 1 (A.5) and are the supervisor's
+   read; §11's constraint is governed by `:33` and `:1058` and is kept, never
+   loosened.
+7. Commit 2's **document deliverables** — `MODEL.md`, `MODEL.json`, `COVERAGE.md`
+   and the FS2/FS5 discharge — remain absent and owed (B.3 refinement).
+
+*End of AMENDMENT 2. Nothing above is frozen. No compute is authorised. Nothing
+has been sent, filed, uploaded, registered or posted.*
