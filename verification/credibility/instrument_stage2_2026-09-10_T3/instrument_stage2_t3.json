@@ -1,0 +1,46 @@
+{
+  "reader": "verification/runs/T-family/T3_runs/analyse_t3.py",
+  "artifact": "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_m/36000/T",
+  "verdict": "DETECTED",
+  "arms": {
+    "STABILITY": {
+      "result": "STABLE",
+      "bytes": 6372,
+      "rc": 0
+    },
+    "PLANT": {
+      "result": "DETECTED",
+      "delta": "rc 0->2; stdout 6372B->333B @@ -1,10 +1,2 @@",
+      "rc_clean": 0,
+      "rc_planted": 2
+    }
+  },
+  "delta": "rc 0->2; stdout 6372B->333B @@ -1,10 +1,2 @@",
+  "restore": "OK",
+  "exit": 0,
+  "why": null,
+  "argv": [
+    "/usr/bin/python3",
+    "verification/runs/T-family/T3_runs/analyse_t3.py",
+    "--root",
+    "/tmp/claude-1000/-home-ubuntu-Certonomous/dd15ed22-dd7f-4b51-b4c9-2bdc482b5fbd/scratchpad/t3root"
+  ],
+  "sha_before": "61e8e294547888b513602df6f5b3fd18b8a38e2ac1ffe607e368b289d4ebec52",
+  "backup": "/tmp/instrcheck_e3r14evc/T.orig",
+  "mtime_before_ns": 1787435986794460103,
+  "saved_outputs": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/INSTRUMENT_STAGE2_2026-09-10/clean1.out.txt",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/INSTRUMENT_STAGE2_2026-09-10/clean2.out.txt",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/INSTRUMENT_STAGE2_2026-09-10/planted.out.txt"
+  ],
+  "plant": {
+    "mode": "numeric",
+    "line": 24,
+    "old": 299.9999999999999,
+    "new": 300.0012339999999,
+    "planted": 0.001234,
+    "expected": 0.0012340000000108375
+  },
+  "mtime_after_ns": 1787435986794460103,
+  "sha_after": "61e8e294547888b513602df6f5b3fd18b8a38e2ac1ffe607e368b289d4ebec52"
+}

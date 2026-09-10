@@ -8921,3 +8921,56 @@ This is `§2a`'s identity test reaching the **report** rather than the gate: a h
 | executable checks made to refuse | **0** (`D539`) |
 | measured instances behind these clauses | **3**, all in files pinned and frozen at the time (`grade_suboff.py:368`, `:369`; `watch_grade_calibrate.py`'s hard-coded claim) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.76, 2026-09-10 — **§2bf ADVISORY DECAY: `D539` SYSTEMATICALLY MANUFACTURES WARNINGS, A WARNING WITH NO CENSUS BECOMES WALLPAPER, AND THE CENSUS THAT WOULD FIX IT TURNS OUT NOT TO BE COMPUTABLE — WHICH IS THE SAME DEFECT IT WOULD MEASURE**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **cfd**, as a risk against this team's own `D608` ruling rather than as an objection to it. `[lab-attributed]`; on Sanaa's desk to overrule. **No gate, threshold, cap, band or label moves; no executable check is made to refuse (`D539`).**
+
+### §2bf.1 THE RISK, AND IT IS AGAINST A RULING THIS TEAM MADE HOURS AGO
+
+`D608` ruled that a pin the frozen checker cannot see **WARNS** rather than refuses, because refusing would stop 45 registrations for a defect on Sanaa's desk that no case author can fix from their own files. **That ruling stands.** cfd's risk against it:
+
+> **A WARN that persists across many runs stops being read.** *"The failure mode of a good warning is that it becomes wallpaper."*
+
+**And the risk is structural rather than incidental, which is the part worth a clause.** `D539` reserves arming a gate to Sanaa, so **every check this lab builds between a defect's discovery and her ruling is necessarily ADVISORY.** `D539` is correct and is not disturbed here — but its **cost has never been named: it systematically manufactures a growing population of warnings, and nothing measures whether any of them is still read.** A lab that cannot arm gates accumulates advisories the way a lab that cannot delete accumulates files.
+
+### §2bf.2 THE CLAUSE
+
+> **AN ADVISORY CHECK CARRIES A POPULATION COUNT, AND THAT COUNT APPEARS IN A PERIODIC REPORT. AN ADVISORY WITH NO CENSUS IS NOT A WARNING; IT IS A LINE OF OUTPUT.**
+>
+> The count is of the **population the advisory is currently firing over**, published on the same cadence as the team's own reporting. **A warning whose population is published cannot go quiet by being ignored; one whose population is never counted goes quiet by default and no one observes the moment it does.**
+
+This is `§2c`'s discipline turned on the reporting layer rather than the grading layer: a check reporting over a population nobody counts has not been read, whatever it printed.
+
+### §2bf.3 **THE REMEDY cfd PROPOSED IS NOT COMPUTABLE TODAY, AND THE REASON IS THE DEFECT IT WOULD MEASURE**
+
+cfd proposed a **sixth weekly number** — corpus-wide `pins_unseen` — beside the CASE PROTOCOL's five. **This supervisor tried to compute it and could not, and the failure is the finding.**
+
+| recogniser | registrations flagged | unseen pins |
+|---|---|---|
+| first attempt, suffix `[A-Za-z0-9_+-]{1,12}` | 93 | **554** |
+| bounded to real file classes | 55 | **323** |
+| …of which **one file**, `docs/COST_CALIBRATION.md`, contributes | — | **228** |
+
+**`docs/COST_CALIBRATION.md` IS NOT A REGISTRATION.** It is the cost ledger, and its rows cite run artifacts — `COST.txt`, `RUN_RC.txt`, `CONTENTION.txt` — beside shas. Those are the **CLASS B outputs** `D597` measured at **102 of 138**, which **may never be pinned at all**, because `IDENTITY` demands worktree == HEAD blob and an output changes when the run runs.
+
+**So a corpus-wide census cannot be computed without first deciding WHICH FILES ARE REGISTRATIONS AND WHICH ROWS ARE PIN CLAIMS — and that is precisely the question `D597` identified as the real defect and put on Sanaa's desk.** The proposed measurement is blocked by the thing it was proposed to measure. **That strengthens the case for the repair rather than weakening it, and it means no corpus figure is published here**, because a number this supervisor cannot defend is worse than none.
+
+**WHAT IS COMPUTABLE, AND IS THEREFORE WHAT THE CLAUSE REQUIRES: `pins_unseen` PER CASE, AGGREGATED OVER CASES THAT ACTUALLY RAN STAGE 1.** It is well defined there because **the case names its own registration**; it is undefined corpus-wide because *"which `.md` is a registration"* is undecided. This gives the warning a floor without requiring the undecided question to be answered first, and the aggregate rises as cases enter the protocol rather than being a one-off scan nobody repeats.
+
+### §2bf.4 AND THIS SUPERVISOR COMMITTED THE ERROR THE CLAUSE IS ABOUT, TWICE, WHILE WRITING IT
+
+**The first recogniser above matched `` `0.000` ``, `` `0.40` ``, `` `0.orig` ``, `` `C1.3` `` — numbers and version strings in backticks, counted as pinned paths.** That is `§17a`'s over-reach, *"which looks like rigour while it is happening"*, and this team warned against exactly it in `D597` one commit earlier. **The second attempt was still dominated 228-to-95 by a file that is not a registration.**
+
+**The cause is not carelessness and is worth naming because another supervisor confessed the identical pattern today:** *I reached for a detector I could write in one line instead of using the instrument that already existed.* The instrument existed — `case_protocol_freeze_hook.py`'s recogniser, which differs from the frozen `PIN_PATH` in exactly one dimension and had already returned a defensible **45**. **Both wrong numbers came from a one-line regex written in preference to a tool built four hours earlier by this team's own lane.** Recorded so the next census starts from the instrument.
+
+| amendment record | **v1.76** |
+|---|---|
+| clauses added | **1** (§2bf) |
+| existing clauses altered, widened or narrowed | **0** |
+| gate values changed | **0** — `D608`'s WARN default is unchanged and the pre-registered flip still ties to the `PIN_PATH` repair |
+| executable checks made to refuse | **0** (`D539`) |
+| corpus figures published | **0**, deliberately — the census is blocked by the defect it would measure |
+| **lines whose number changed above this section** | **0** |
