@@ -1920,3 +1920,173 @@ is exactly the fix, and this row is the evidence it was needed.**
   is under-resolved at 96 cells and refining the same family further is not obviously the
   answer. Per the frozen pre-registration, it is **NOT** to be rescued by dropping a level or
   widening the band.
+
+---
+
+## Row #73 — VMFL051-R2 — Isentropic Expansion Around a Convex Corner (Prandtl–Meyer), time-mean successor (VM2026R1 pp. 165–166) — **`NOT A RESULT`**
+
+**A completed run that sat ungraded for three days, graded 2026-09-10 at ZERO solver cost.**
+No re-solve; the frozen comparator was run over artifacts already on disk. Verdict is
+**`NOT A RESULT`** on **rule 5 step 2** — the triple is **`OSCILLATORY`**, not `CONVERGING`.
+
+### Freeze integrity
+Freeze **`00bb6870`**, 2026-09-07T16:11:41Z — **a single ADD commit and no later commit
+touches the case dir**, so freeze == HEAD and there is no re-freeze to adjudicate. **All 13
+tracked files byte-identical** across worktree / freeze / HEAD. **Supervisor re-verified the
+comparator pin personally:** disk `582dd1c81f254267f6a0123d6ad5f9067d5aa340` == freeze blob,
+and re-checked **after** the grading runs. Earliest run artifact 2026-09-07T21:32:27.905Z —
+**freeze predates first compute by 5 h 20 min 46 s.**
+
+### Strict completion — and an accurate statement of the DECLARED DEPARTURES
+All limbs hold at all three levels: rc 0; exactly one `End`; last time dir == last `Time`;
+fields `T U p rho Ma` present; `ExecutionTime` count == `Time` count (1693/3365/6714); age
+guard with margins +8.3 s / +55.7 s / +525.6 s over each case's own `0/`.
+
+> **A CORRECTION TO THE SUPERVISOR'S OWN FRAMING, RECORDED BECAUSE A REGISTER ROW MUST STATE
+> THIS ACCURATELY.** I briefed the lane that this being a fixed-`endTime` transient solve, the
+> **literal** `last == endTime` form applies. **That was wrong, and the lane said so.**
+> `rhoCentralFoam` runs `adjustTimeStep`, so the adaptive step lands *beside* `endTime` — once
+> above (L1 `0.0070015301`) and twice below (L2 `0.0069997882`, L3 `0.0069999107`). Literal
+> string equality holds at **no** level. This is **not** an unrecorded departure: the frozen
+> comparator **declares it pre-compute** as **`DECLARED DEPARTURE 1`** (`:610`), replacing
+> equality with `|t_last − endTime| ≤ maxDeltaT = 1e-5` **and** the log's final `Time` agreeing
+> with the last time directory to 1e-12 relative. All three pass with margin **≥ 6.5×** (worst
+> L1, 1.530e-6 against 1e-5). **`DECLARED DEPARTURE 2`** (`:629`) replaces
+> `n_exec == round(endTime/deltaT)` with `n_exec == n_time` — which is exactly rule 4's own
+> adaptive-`deltaT` clause. **Both departures are inside the frozen blob and therefore
+> pre-registered; neither was invented at grading time.**
+
+### The measurement, and three live planted controls that were shown able to FAIL
+Reduction: time-mean of `volAverage(Ma)` over the last 50 % of the `gateZone` series;
+settledness = window-length insensitivity, `|mean(last 50%) − mean(last 25%)| ≤ 5.0e-4`.
+Gas from the manual's own `Cp = 1006.43`, `MW = 28.966`: **γ = 1.3990093734749485**,
+R = 287.04239682750290 J/kg·K (**not** 1.4).
+
+| level | cells | zone | **⟨Ma⟩_t (GATE)** | settledness \|d\| | osc ptp |
+|---|---|---|---|---|---|
+| L1_120x52 | 6 240 | 112 | **3.2285395408** | 7.424e-05 | 7.146e-03 |
+| L2_240x104 | 24 960 | 455 | **3.2236362823** | 8.093e-06 | 3.943e-03 |
+| L3_480x208 | 99 840 | 1 816 | **3.2294426470** | 6.376e-06 | 8.872e-04 |
+
+**Rule 3 — three live controls, all fired, and the reader was DEMONSTRATED able to fail.**
+**PZ-1** planted 1.234e-03 Ma into a **proper subset** (1679 of 3357 window rows) of a *copy*
+of the gated `.dat`; expected shift 6.171838e-04, **seen 6.171838e-04**, agreeing to 2.9e-16
+against a 1e-12 tolerance. **PZ-2** planted 7.77e-02 into 49 920 of 99 840 cells of a copy of
+the `Ma` field; expected 3.885e-02, seen 3.8850000000000495e-02. **PZ-3** exercised the
+Prandtl–Meyer root solve (a +5° planted turn moves M2 by 0.300027, so the solver is not
+returning a constant). Every plant is made into a `tempfile` copy — **the run tree is never
+touched.** **The fail arm was demonstrated, not inferred:** a scratch copy of the grader
+mutated so the `.dat` plant becomes a no-op **exited 2** with *"THE READER CANNOT SEE THE
+PLANT IN THE REDUCTION IT GRADES"*; the frozen blob was unchanged throughout.
+
+### Roache triple — `OSCILLATORY`, and this decides the row
+d32 (coarse−medium) **+4.903258e-03**, d21 (medium−fine) **−5.806365e-03**, **R = −1.184185**,
+state **`OSCILLATORY`**, observed order **n/a**, **no GCI quoted** — correctly, the three values
+are not monotone. **Supervisor re-derived R independently: −1.184185. Confirmed.**
+
+**Gate, printed but not decisive:** reference **3.2370** (manual Table .51.1), lab
+**3.2294426470** (finest), deviation **−0.233468 %**, band **±0.5000 %** — **inside the band,
+and irrelevant.** Rule 5 orders the triple first.
+
+### The lever did NOT do what it was meant to, and that is the finding
+R2 changed one measurement lever (time-mean) against run 1 (**row #4**, `NOT A RESULT`,
+`OSCILLATORY`). **It did not convert the triple.** It bought a great deal — settledness
+margins of 6.4e-06 to 7.4e-05 against a 5.0e-4 tolerance, and the oscillation ptp falls
+**monotonically** 7.15e-03 → 3.94e-03 → 8.87e-04 with refinement — but the level-to-level
+*differences* still alternate in sign. **The remaining spread is 5–6e-03 in Mach while the
+settled-mean noise is ~1e-05, so this is a genuine non-monotone GRID response, not an
+averaging artifact.** The lane's own words, and they are the right standard: *"I am reporting
+the instrument, not the intention."*
+
+### Provenance and cost
+Comparator `cases/ansys_verification/VMFL051-R2/grade_vmfl051_r2.py` blob `582dd1c8…`; rc 0
+under `python3` **and** `python3 -O` with stdout+stderr byte-identical (both sha256
+`320bbdef0a9b…`), `__pycache__` cleared first (rule 14). Run root
+`verification/runs/ansys_verification/VMFL051-R2/`; grader artifact `GRADING_VMFL051_R2.json`.
+**Cost: 9.8000 core-min MEASURED** (`COST.txt`; L1 0.1333 + L2 0.9167 + L3 8.7500), spent
+2026-09-07, cap 28. **$0.008379 DERIVED, NOT measured.** **Grading cost zero solver compute.**
+*Diagnostic only, never the gate:* closed-form Prandtl–Meyer 3.2355411372 at the manual's γ
+(dev −0.188 %); *context only:* Fluent 3.2316, CFX 3.2354.
+
+### What this row REFUSES to claim
+- **No observed order, no GCI, no extrapolate** — the triple is not monotone.
+- **No `GATE REACHED`.** The value sits inside the ±0.5 % band and **rule 5 makes that
+  irrelevant**; the gate can only turn a row INTO `NOT A RESULT`, never the reverse.
+- **No claim the time-mean lever failed as a settling device** — it demonstrably worked. What
+  it did not do is make the grid response monotone.
+- **No explanation of WHY it oscillates.** The comparator prints no such diagnosis and none is
+  invented here. A successor is owed that addresses the non-monotone grid response itself.
+
+---
+
+## Row #74 — VMFL010-R2 — Laminar Flow in a 90° Tee-Junction, flow-split (VM2026R1) — **`NOT A RESULT`**
+
+**A second completed run recovered from the same three-day gap, graded at ZERO solver cost.**
+Verdict **`NOT A RESULT`** on **rule 5 step 2** — triple **`OSCILLATORY`**.
+
+### Freeze integrity — the operative commit is a RE-FREEZE, and it matters
+**Operative freeze `02fb0e99`** (2026-09-07T15:30:22Z, *"RE-FREEZE (supervisor §3 ruling)"*) —
+**NOT** the first-add `934605f3` (15:17:26Z), which carries **different blobs for all three
+frozen files**. Verified by the supervisor personally: disk comparator
+`235fd332e8b233cebc694e0844d701673b925332` == `02fb0e99` blob, and **≠** the `934605f3` blob
+`44e4bc73…`. **The re-freeze predates first compute by ~6 h** (earliest artifact
+`LAUNCH_RECORD.txt` 21:31:22.606Z), so the grading-path change was a **legal pre-compute rule-2
+amendment** — the repositioned N=10/20/40 triple was **struck, not rewritten**, and the
+operative single-lever change is `residualControl` 1e-7 → 1e-9 on the kept N=20/40/80 triple.
+`LAUNCH_RECORD.txt`'s attestation was checked **against the actual blobs**, not merely trusted.
+
+### Strict completion — the frozen instrument adjudicates, not the supervisor
+`endTime 8000`, `deltaT 1`, `residualControl {p,U} 1e-9`. All three levels stop on **residual
+convergence**: last `Time` **967 / 1490 / 2033**, each with *"SIMPLE solution converged in N
+iterations"* then `End`. **So rule 4's literal `last == endTime` FAILS at every level — and the
+runs are not truncated.**
+
+> This adjudication was **neither the lane's to make nor the supervisor's to hand-wave.** The
+> case's **own frozen comparator** declares it, quoted verbatim from `check_completion()`
+> (`:93-96`): *"Rule 4, adapted for a residualControl-terminated steady solve. last==endTime
+> and the ExecutionTime count are **DELIBERATELY INAPPLICABLE** (solve stops before endTime) --
+> same declared basis as VMFL038/VMFL054/VMFL063. Every other limb is enforced; refuse on any."*
+> In their place it requires the exact log name, an `^End` line, no `FOAM FATAL`, the string
+> `"SIMPLE solution converged"`, a `0/U` launch marker, a written time > 0, `U` at the latest
+> time, and the age guard. **It passed completion silently at all three levels.**
+
+Other limbs: rc 0 each; fields `U p phi`; `ExecutionTime` count == `Time` count == last time
+(967/1490/2033); age guard holds at every level.
+
+### The measurement and the control
+**Rule 3 — live, both-armed.** `PLANT = 0.05123`, tol 1e-9, applied by identity to the exact
+row the reader reads; it fired per level. `--selftest` exercised **both arms, 10/10 OK**: the
+**PRESENT** arm (plant on the row read → seen) and the **KNOWN-BAD** arm (plant on a row the
+reader does *not* read → not seen → blindness correctly detected). The reader is shown able to
+see a non-zero **and** to fail.
+
+**Flow split L1/L2/L3 (N = 20/40/80): 0.8859508838 / 0.8844553089 / 0.8847505698.**
+
+### Roache triple — `OSCILLATORY`
+L1→L2 step **−1.495575e-03**, L2→L3 step **+2.952609e-04** — **signs differ, non-monotone**;
+**R = −0.197423**; observed order `null`; **GCI `null`, correctly not quoted.**
+**Supervisor re-derived independently: R = −0.197423. Confirmed.**
+
+**Gate, printed but not decisive:** reference **0.887**, `ref_kind` = **"code-to-code (buys
+NEITHER V nor P)"** (Fluent 0.884, CFX 0.8837); finest value **0.8847506**; deviation
+**0.2536 %** against a **±3 %** band — **inside, and irrelevant** under rule 5 step 2. Note
+independently that a **code-to-code reference is circular under §33.2** and caps this case at
+`GATE REACHED` regardless — `PASS` was never available.
+
+### Provenance and cost
+Comparator `cases/ansys_verification/VMFL010-R2/grade_vmfl010_r2.py` blob `235fd332…`; rc 0 and
+byte-identical output under `python3` and `python3 -O` (rule 14). Run root
+`verification/runs/ansys_verification/VMFL010-R2/`; grader artifact `GRADING_VMFL010_R2.json`.
+**Cost 4.833333 core-min MEASURED** (`COST.txt`; L1 0.2167 + L2 0.7167 + L3 3.9), spent
+2026-09-07; estimate **4.5**, cap **18.0** → **ratio 1.074**. **$0.004133 DERIVED, NOT
+measured.** *The ~1.1 core-min / 7.0 cap figures at `PREREGISTRATION.md:124-125` belong to the
+**STRUCK** N=10/20/40 triple and are **not** the operative basis* — the operative figures are
+§9 lines 374–375. **Grading cost zero solver compute.**
+
+### What this row REFUSES to claim
+- **No order, no GCI, no extrapolate** — non-monotone triple.
+- **No `GATE REACHED`**, despite 0.2536 % agreement. Rule 5 orders the triple first, and the
+  reference is code-to-code besides.
+- **No credential.** §33.2 makes a vendor-code reference circular; agreeing with it shows only
+  that two codes agree.
+- **A successor is owed** that addresses the non-monotone split response.
