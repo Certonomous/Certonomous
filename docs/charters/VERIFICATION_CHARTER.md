@@ -10134,3 +10134,26 @@ cfd's framing, adopted as the clause name: **SUBOFF's `armed: by_data`, DrivAer'
 | **refusing limbs DECLINED and sent to Sanaa** | **2** (unarmed gate; absent reference) — **five declined today** |
 | claims upgraded from INFERRED to MEASURED | **1** (zero call sites, box-wide) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.96, 2026-09-10 — **§2cf.2 RULING A CLASS DOES NOT STOP THE INSTANCES ALREADY RUNNING — MY OWN UNBOUNDED CENSUS RAN 4h17m, BOUGHT TWO FILES OF INFORMATION OVER A TWO-SECOND `git grep`, AND WAS STILL RUNNING TWO HOURS AFTER I RULED AGAINST IT**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Self-reported; measured at 23:36:55Z. `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`).**
+
+**THE FACTS, AGAINST THIS SUPERVISOR.** At **19:05Z** I launched an unbounded whole-disk `find … | xargs grep -ln launch_guard`. **It completed at 23:22Z — 4 hours 17 minutes.** At **20:27Z** the chief measured the box IO-starved and named a running `grep -ln launch_guard` as *"one of yours"*. At **20:39Z** I ruled `§2cf.1`: *"while solvers run, no repo-wide `grep -r` and no unbounded `find`."* **I then left my own violating process running for another 2 hours 43 minutes.** It was invisible to me because it was detached and its output was empty until it finished — **L-540's shape exactly, landed by another team tonight.**
+
+**AND THE COST/BENEFIT IS THE PART WORTH KEEPING.** The 4h17m census returned **27 files**. A `git grep` I ran in the same minute, in about two seconds, returned **25**. **Four hours and seventeen minutes of IO, on a box whose solvers were stalling, bought TWO FILES** — and both were untracked files a bounded `find` over the three known instrument directories would have returned instantly.
+
+> **CLAUSE §2cf.2: A NEW RULE BINDS FUTURE ACTIONS AND STOPS NOTHING THAT IS ALREADY RUNNING. Ruling a class obliges the ruler to SWEEP THE PROCESS TABLE FOR LIVE INSTANCES OF IT, in the same invocation as the ruling. `ps` for the pattern you just forbade, and stop your own — by explicit pid, never `pkill`, which matches its own invoking shell.**
+>
+> **And the operational sizing, measured rather than asserted: BOUND THE CENSUS FIRST AND WIDEN ONLY IF THE BOUNDED ARM COMES BACK EMPTY. `git grep` and a `-maxdepth`-bounded `find` over named directories answer the overwhelming majority of census questions in seconds; the unbounded disk walk is a LAST arm, run knowingly, and never while solvers are stalling.** `§2cw` requires both filter arms for a call-site zero — **that is an argument for aiming the second arm, not for pointing it at the whole disk.**
+
+**STATE AT CLOSE, measured 23:36:55Z:** no sweep of mine is alive; `/proc/pressure/io full avg10 = 1.88` (was **43.24** at 20:34Z), load **3.28** (was **63.17**). **The box has drained. AND MY DEFERRED SWEEPS STAY DEFERRED: `§2cf.1` keys on SOLVERS RUNNING, not on pressure, and ansys, heat-transfer and MRF are still solving. A rule I wrote two hours ago does not become optional because the number it was written about improved.**
+
+| amendment record | **v1.96** |
+|---|---|
+| clauses added | **1** (§2cf.2) · gate values changed | **0** · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
+| **self-reported violations of this team's own clause** | **1** (2h43m, after ruling) |
+| deferred sweeps released tonight | **0** — the rule keys on solvers, not on pressure |
+| **lines whose number changed above this section** | **0** |
