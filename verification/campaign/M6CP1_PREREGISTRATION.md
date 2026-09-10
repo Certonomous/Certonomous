@@ -1005,3 +1005,83 @@ failure is deterministic, spatially confined and driven through `fvc::smooth`, a
 patch-type or mesh-quality-flag explanation survives. **Distinguishing "mesh topology defect" from
 "genuinely unstable scheme" still requires the controlled experiment — the same numerics on a
 wake-cut or blunt-TE grid — which is a SUCCESSOR REGISTRATION, not a rung on this one.**
+
+---
+
+## ADDENDUM 5 — 2026-09-10 — **THE REFERENCE TRAILING EDGE IS BLUNT, THE COORDINATE WAS ON DISK ALL ALONG, AND GATE P COULD NEVER HAVE BEEN GRADED. PLUS A CORRECTION TO MY OWN AMENDMENT 2.**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, band or label is altered.
+
+### A5.1 🔴 **THE ONERA M6 TRAILING EDGE IS BLUNT IN THE REFERENCE — AND THE NUMBER WAS IN A COMMITTED LAB FILE THE WHOLE TIME**
+
+AGARD AR-138 was verified by rendering its **own title page** (rule 15, never by filename):
+*AGARD Advisory Report No. 138, "EXPERIMENTAL DATA BASE FOR COMPUTER PROGRAM ASSESSMENT", May 1979*,
+with the Schmitt & Charpin chapter present as Appendix B case **B1**.
+
+**Table B1-1 ends at `x/l = 1.0000000, z/l = 0.0007052`.** The section is symmetric, so the reference
+trailing edge has a **thickness of 0.141 % of local chord** — 1.14 mm at the root, 0.64 mm at the tip
+— an **included angle of 14.8°**, against a stated fabrication tolerance of 0.15 mm. **At 7.6× the
+tolerance it is a design feature, not scan noise**, and the conical loft makes it blunt from root to
+tip.
+
+**And `models/onera_m6/agard_ar138_table_b1_1_section_coordinates.dat` ends at exactly those two
+numbers — supervisor-verified.** The file is committed and was on disk throughout.
+
+**THIS RECLASSIFIES THE ENTIRE FAILURE. M6CP1's 60.9° cusp with ZERO cells across the trailing edge
+is not a meshing infelicity and not an unlucky topology choice — it is an UNREGISTERED DEPARTURE
+FROM THE REFERENCE GEOMETRY.** The reference says blunt; the mesh built a point. Amendments 2 and 4
+established that the failure is deterministic, spatially confined to the trailing edge, and carried
+through `fvc::smooth`. **A5.1 supplies what those could not: the geometry was wrong against a source
+the lab already held, in a file the lab had already committed.**
+
+**That is also the honest answer to the owner's question — *"how could the physics be correct but not
+the mesh"*: the equations were solved correctly on a body that was not the ONERA M6.**
+
+### A5.2 🔴 **GATE P COULD NEVER HAVE BEEN GRADED FROM THE LAB'S HOLDINGS**
+
+The lab's AR-138 is a **1979 scan, Paper-Captured in 2007. The prose OCR'd; the NUMERIC TABLES DID
+NOT.** Table B1-1 and the Cp tables B1-2 onward survive in the `.txt` sidecar **as captions only**.
+**There is no machine-readable AGARD Cp dataset in this repository.**
+
+**So §5's Gate P — surface Cp against AGARD AR-138 at seven span stations, band ±0.02 — had no
+reference data to be graded against, from the moment it was frozen.** No compute would ever have
+produced a Gate P verdict; the gate would have failed at the comparator for want of a reference.
+**The pages are legible, so digitisation is ordinary work rather than a blocker** — but it is work
+that must happen **before** any successor registration puts a Cp gate on its face. Referred as such;
+**this addendum does not alter Gate P, which stands as frozen and ungraded.**
+
+### A5.3 ❌ **A CORRECTION TO MY OWN AMENDMENT 2 AND ADDENDUM 3 — THE `[0.15, 0.45]` BAND IS NOT THIS REGISTRATION'S GATE BAND**
+
+**§A2.4 says "N1's PRESSURE lift coefficient is +0.1915 — inside THIS REGISTRATION'S OWN [0.15, 0.45]
+band", and §A3.4 repeats the framing. That description is wrong and it is mine.**
+
+**§5 GATES contains no such band** — supervisor-verified by reading §5. The band exists **only** in
+the stage-3 predictions files, `STAGE3_PREDICTIONS_L2.json` (registered 17:43:44Z) and
+`STAGE3_PREDICTIONS_L2_N1.json` (registered 18:20:29Z), whose own text says: **"at 8 percent of the
+run this is a SMOKE band, not a gate."**
+
+**What is NOT wrong:** the band **was** registered **before** the compute it judged, so nothing was
+chosen to fit an answer, and the measured `Cl_pressure = +0.1915` does sit inside it. **What IS
+wrong is the status I gave it.** Calling a stage-3 smoke band "this registration's own band" dresses
+a diagnostic threshold as a gate, and a later reader could have cited an in-band pressure Cl as
+evidence of a passed gate on a case whose gates were never evaluated at all.
+
+**Corrected statement, which is what the evidence supports:** *N1's pressure lift coefficient of
++0.1915 falls inside the [0.15, 0.45] **stage-3 smoke band**, registered before that rung ran. It is
+a diagnostic reading, not a gate result. Gate P and Gate G were never evaluated.* The M0 baseline's
++0.05368879024 falls **below** that same smoke band.
+
+**Independently re-derived while checking this:** integrating `400/p` over the 1,560 `wing` faces
+returns **`Cl_pressure = +0.191505`**, confirming the record's `+0.1915` to six figures, with the
+baseline at `+0.053689`. **And `Cd_pressure = 0.086867` against a total Cd of 1.52 — so 94 % of the
+reported drag is the viscous artifact.** `coefficient.dat` carries **totals only**; the
+pressure/viscous split had **no artifact on disk** until it was derived here.
+
+### A5.4 ONE CORRECTION TO THE FAMILY SURVEY, AND IT RUNS AGAINST MY OWN EARLIER CLAIM
+
+Block 130 and §0 of this document state that **"every `End` line under the M6 trees belongs to a
+MESHER."** **That is overturned for `M6_OWN_FAMILY_runs`**, which holds `log.rhoPimpleFoam` with
+`End` lines in three smoke directories. **The named solver in both that tree and M6CP1's is
+`rhoPimpleFoam`.** The broader claim — **"every solved time directory in the M6 estate is a
+`smoke_*`" — HOLDS across all eight trees**, and the conclusion it supported (no graded M6 flow
+solution exists) is unaffected. The overstatement is corrected because it was stated absolutely.
