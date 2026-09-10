@@ -6585,3 +6585,109 @@ line numbers, per this file's own rule that a stale index is worse than none.
 **FAMILIES 7 TOTAL 138.**
 
 **Lines whose number changed above this block: 0.**
+
+## N-T12 AMENDMENT 1 — 2026-09-10, heat-transfer. The parenthetical *"1 `GATE FAIL` and 5 `NOT A RESULT`"* is FALSE and is corrected to **6 `NOT A RESULT`**; the drift fact and *"0 of 6 PASS either way"* SURVIVE INTACT; and the entry's own title assumption is FLAGGED as possibly weaker than it discloses — UNVERIFIED, ROUTED, not a finding
+
+Appended at the FOOT per `L-304`. **`N-T12`'s own text is edited nowhere. Lines
+whose number changed above this section: 0.**
+
+### 1. THE CORRECTION — one parenthetical, one half of it
+
+`N-T12`'s corroboration paragraph reads: *"under that statistic the `y+` gate
+reads **MET on all three levels** and the rows advance to clause 2 (where they
+then produce **1 `GATE FAIL` and 5 `NOT A RESULT`** on grid-triple grounds —
+**0 of 6 PASS either way**)."*
+
+**The first half is now false.** `docs/campaigns/T-family/T5c_RESULTS.md`
+AMENDMENT 1 (2026-09-10) **withdraws `G2a`'s `GATE FAIL` and restates it as
+`NOT A RESULT`, and withdraws its `GCI 4.3550 %`.** All three T5 ladder levels
+fail T5's **own** registered convergence criterion (`T5_PREREGISTRATION.md`
+§5.5, `:466`–`:472`: max change of any cell value of `T` between the
+`endTime − 1000` and `endTime` checkpoints ≤ 1e-6 of the field's range) by
+**7,124× (`c`, 0.316753 K)**, **608,063× (`m`, 29.603596 K)** and **549,839×
+(`f`, 26.448420 K)**. Under standing rule 5 clause (1) those levels are
+`NOT A RESULT` before any triple is classified, and no GCI may be quoted from a
+triple built on them.
+
+**CORRECTED: T5c is 0 `PASS`, 0 `GATE FAIL`, 6 `NOT A RESULT`.** The withdrawn
+`GCI 4.3550 %` is **not quoted by `N-T12`** and no figure in the entry's own
+tables depends on it.
+
+### 2. WHAT SURVIVES, AND IT IS THE ENTRY'S WHOLE POINT
+
+- **The drift fact is untouched.** `h` falls 0.625 per level; `y+_max` falls only
+  ≈0.780 (0.7783 on `c`→`m`, 0.7801 on `m`→`f`); implied peak `u_τ` therefore
+  grows ≈1.248 per level (1.2453, then 1.2483); the ratio-to-target climbs
+  **1.4632 → 1.8506 → 2.3100** and the tightest level crosses first. Nothing in
+  the withdrawal touches any of those numbers, which are read from `y+_max` and
+  `h`, not from a graded verdict.
+- **"0 of 6 PASS either way" survives verbatim and is now stronger.** Under the
+  point maximum: 6 `NOT A RESULT` on the `y+` gate. Under the area-weighted
+  statistic: 6 `NOT A RESULT` after the correction, where it was 1 `GATE FAIL` +
+  5 `NOT A RESULT` before. **The count of `PASS` was zero and remains zero on
+  both statistics.**
+- **The mechanism claim survives**: that the drift disappears when the point
+  maximum is replaced remains a fact about the `y+` statistic, and the entry's
+  refusal to argue a remedy from it is unchanged.
+- **The three "WHAT IS NOT ESTABLISHED" limits survive** and none is relaxed.
+
+### 3. ⚠ OPEN QUESTION, **STATED AS UNVERIFIED AND ROUTED — NOT A FINDING**
+
+**`N-T12`'s TITLE asserts the drift is measured where *"wall shear is not
+mesh-converged"*, and its body attributes the drift to a point maximum sitting on
+the front-face leading edge "where wall shear is not mesh-converged and sharpens
+with refinement". But the entry's ENTIRE measurement — every `y+_max` in its
+table, read at `Time = 5000` — comes from the SAME THREE SOLVES that have now
+been measured as not converged, by 7,124× / 608,063× / 549,839× against T5's own
+registered criterion.**
+
+Why that is a question and not yet an answer, stated in both directions:
+
+- **It may weaken the entry.** A `y+_max` read at `Time = 5000` from a field
+  still moving 29.6 K per thousand iterations is a snapshot of a moving state,
+  not a converged wall quantity. If the wall shear at the leading edge is itself
+  still moving, then "not mesh-converged" and "not iteratively converged" are
+  **confounded in this measurement**, and the entry's causal attribution — that
+  the drift is a property of the **gate design** interacting with **mesh**
+  non-convergence — is not separated from the alternative that some of the drift
+  is **iterative** non-convergence differing across three levels at different
+  stages of the same incomplete approach.
+- **It may not.** The convergence criterion measured is on `T` (and `U`), not on
+  wall shear; a field can be far from converged in a bulk temperature sense while
+  its near-wall velocity gradient is comparatively settled. And the drift is
+  **monotone across three levels with a consistent ratio** (1.2453, 1.2483),
+  which is not the signature one would naively expect from three independently
+  unconverged states. **Neither of those observations has been tested.**
+
+**What would settle it, named so a successor does not have to invent it:** read
+`y+_max` on `cube_front` at BOTH the `4000` and `5000` checkpoints on all three
+levels and compare the per-level change against the 1.2453/1.2483 per-level
+drift. If `y+_max` is itself still moving materially between checkpoints, the
+entry's attribution is confounded and `N-T12` must be re-scoped. **That is
+zero-solver work on artifacts already on disk** (`T5b_runs/T5_CUBE_{c,m,f}/`),
+and it was **NOT done for this amendment.**
+
+**STATUS: UNVERIFIED. `N-T12` IS NOT WITHDRAWN, NOT DOWNGRADED AND NOT
+STRENGTHENED BY THIS SECTION.** It is **ROUTED TO THE HEAT-TRANSFER SUPERVISOR**
+as an open question, and it is recorded here rather than left in a report because
+a numerics reader consulting `N-T12` is entitled to know that its provenance may
+be weaker than the entry discloses. **A reader must not cite this section as
+evidence against `N-T12`; it is evidence that the question was not asked.**
+
+### 4. WHAT THIS AMENDMENT DOES NOT DO
+
+- It **re-runs and re-computes nothing**; every figure is transcribed from
+  `T5c_RESULTS.md` AMENDMENT 1 and from `N-T12` itself. **Zero compute.**
+- It **edits no frozen file** and **rehabilitates no verdict**. Standing rule 5
+  permits one direction only: a gate may turn a `PASS` or `GATE FAIL` **into**
+  `NOT A RESULT`, never the reverse.
+- It **adds no new `N-` id**, so the family index block above is unchanged and
+  correct: `N-T12` is counted at its own primary heading.
+
+**Sources:** `docs/campaigns/T-family/T5c_RESULTS.md` AMENDMENT 1 and its
+ADDENDUM (2026-09-10); `docs/campaigns/T-family/T5_PREREGISTRATION.md` §5.5
+(`:466`–`:472`, frozen); `docs/campaigns/T-family/T5b_RESULTS.md` AMENDMENT 1
+(2026-09-10); `verification/runs/T-family/T5b_runs/T5_CUBE_{c,m,f}/`;
+`verification/runs/T-family/T5c_runs/T5C_GRADE_OUTPUT.txt` (unedited).
+
+— heat-transfer supervisor, 2026-09-10, [lab-attributed]

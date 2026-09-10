@@ -311,3 +311,168 @@ refused on their **grid triples** instead. The failure moved; it did not disappe
 `docs/campaigns/T-family/T5c_RESULTS.md`;
 `verification/runs/T-family/T5c_runs/T5C_GRADE_OUTPUT.txt`;
 `docs/COST_CALIBRATION.md` row `C-209` at `:291`.
+
+---
+
+## AMENDMENT 1 — 2026-09-10, heat-transfer supervisor. **THIS RECORD'S "THREE COMPLETE CONVERGED LEVELS" PREMISE IS FALSE, AND THE OPEN REFERRAL BUILT ON IT (`C-209`) MUST BE RE-FRAMED. §8's `G2a` CELL IS SUPERSEDED. T5b's OWN SIX `NOT A RESULT` VERDICTS ARE NOT DISTURBED.**
+
+*Appended at the FOOT per `L-304`. **No text above this section is edited or
+rewritten. Lines whose number changed above this section: 0** — asserted
+mechanically by diffing this file's prefix against the HEAD blob, not claimed.
+Every figure above stands exactly as published; this amendment records what
+supersedes it and what was always wrong.*
+
+**Read `docs/campaigns/T-family/T5c_RESULTS.md` AMENDMENT 1 and its ADDENDUM
+first.** They carry the measurement and the withdrawal; this amendment carries
+the consequences for **this** record, which are larger than the withdrawal
+itself.
+
+### A. §8 IS SUPERSEDED ON `G2a`, AND ON ITS TALLY
+
+`T5c_RESULTS.md` AMENDMENT 1 (2026-09-10) **withdraws `G2a`'s `GATE FAIL` and
+restates it as `NOT A RESULT`, and withdraws its `GCI 4.3550 %`.** Three cells of
+this record transcribe the withdrawn verdict and are superseded by that
+amendment:
+
+| where | what it says | standing after 2026-09-10 |
+|---|---|---|
+| §8 table, `G2a` row (`:263`) | *"**`GATE FAIL`** — fine **39.4023** vs reference **55.224**, band **± 5.66404**, **GCI 4.3550 %**"* | **`NOT A RESULT`.** The value 39.4023 is **printed, not graded**. **The GCI is WITHDRAWN and must not be quoted from this record or any other.** |
+| §8 tally (`:269`) | *"**T5c: 1 `GATE FAIL`, 5 `NOT A RESULT`, 0 of 6 graded rows PASS.**"* | **CORRECTED TALLY: T5c is 0 `PASS`, 0 `GATE FAIL`, 6 `NOT A RESULT`.** |
+| §8 second bullet (`:281`) | directs a reader wanting *"the lab's current standing on these six rows"* to `T5c_RESULTS.md` | **The direction still holds and is the right one** — but that record now stands **as amended**, and a reader must read its AMENDMENT 1 and ADDENDUM, not its title line or §1 or §3, all three of which are themselves superseded there. |
+
+The original cells are **struck, never rewritten**, so the change stays visible.
+The sentence *"The failure moved; it did not disappear"* (`:270`) survives and is
+strengthened: under the corrected tally the failure did not move to a `GATE FAIL`
+either — every one of the six rows is `NOT A RESULT` on both gates.
+
+### B. THE LARGER PROBLEM, AND IT IS NOT ABOUT `G2a`: **THIS RECORD ASSERTS A CONVERGED LADDER THAT WAS NEVER CONVERGED**
+
+Three passages of this record assert, as established fact, that T5b's three
+levels converged:
+
+- `:4`, in the opening block-quote: *"The frozen comparator ran to completion,
+  **read three complete converged levels end to end**…"*
+- `:200`–`:202`, in §6: *"F23's levels were **not converged**: there was nothing
+  for a gate to read. T5b's three levels **each produced a complete, converged,
+  comparator-read `y+` field**, and the `NOT A RESULT` is the **admission gate
+  refusing a fully converged ladder on a statistic**…"*
+- `:204`: *"**Whether an admission-gate refusal on a fully converged ladder is
+  charter-§6 waste is REFERRED**, and it is not answered by this record."*
+
+**The premise is false.** `T5_PREREGISTRATION.md` §5.5 (`:466`–`:472`), frozen
+before any T5 case existed, registers T5's **own** convergence criterion — and
+deliberately not a residual (L-141): *the largest change of any cell value of `T`
+in either region, and separately of `U` in the fluid, between the checkpoints at
+`endTime − 1000` and `endTime`, is at most **1e-6 of that field's range***.
+Applied to **these very artifacts** (`T5b_runs/T5_CUBE_{c,m,f}/{4000,5000}/air/T`),
+supervisor-computed 2026-09-10 and transcribed here — **this record re-ran and
+re-computed nothing**:
+
+| level | cells | max &#124;ΔT&#124; over the last 1000 iterations | field range | registered tol | result |
+|---|---:|---:|---:|---:|---|
+| `c` | 52,684 | **0.316753 K** | 44.4630 K | 4.446298e-05 | **NOT CONVERGED — over by 7,124×** |
+| `m` | 212,942 | **29.603596 K** | 48.6851 K | 4.868511e-05 | **NOT CONVERGED — over by 608,063×** |
+| `f` | 882,024 | **26.448420 K** | 48.1021 K | 4.810208e-05 | **NOT CONVERGED — over by 549,839×** |
+
+**All three levels fail, the coarse included.** The medium moves **29.6 K in a
+single cell** across its final 1,000 iterations, on a field whose entire range is
+48.7 K. There is no reading of *"complete, converged"* that survives this.
+Under standing rule 5 clause (1) — *"any level not iteratively converged or not
+plateaued → `NOT A RESULT`"*, evaluated **before** any triple is classified —
+these levels are `NOT A RESULT`, and **no GCI may be quoted from a triple built
+on them**.
+
+**Provenance of the error, stated because it is the transferable part.** No
+comparator on this path ever evaluated clause (1). `analyse_t5b.py`'s `grade_row`
+(`:654`) carries the docstring *"THE REGISTERED ORDER (T5 S7.5, rule 5),
+evaluated top to bottom"* at `:655` while its step `(1)` at `:657` is the `y+`
+gate and the triple is `(2)`:
+**the registered convergence step was dropped and its number reused.**
+`analyse_t5c.py` then copied `grade_row` verbatim, inheriting it. This record
+transcribed that comparator's completion and read it as convergence.
+
+### C. **`C-209`'s REFERRAL DOES NOT HOLD ON ITS STATED PREMISE AND NEEDS RE-FRAMING — THIS IS THE LOAD-BEARING CONSEQUENCE**
+
+§6 refers an open question to the supervisor and to verification: whether an
+**admission-gate refusal on a fully converged ladder** is charter-§6 waste, and
+it distinguishes T5b from F23 (`C-202`, 194.73 core-min booked as waste) on
+exactly that ground — *"F23's levels were not converged… T5b's three levels each
+produced a complete, converged… field."*
+
+**That distinction is the referral's entire content, and it is now measured
+false. On the registered criterion T5b's levels are in the SAME class as F23's:
+not converged.** So:
+
+1. **The referral as framed cannot be answered**, because the case it describes —
+   a fully converged ladder refused at an admission gate — **did not occur here**.
+   Answering it either way against T5b would be answering a question about a
+   ladder the lab does not have.
+2. **`C-209` NEEDS RE-FRAMING ON THE CORRECTED FACTS**, and the re-framed
+   question is a different and harder one: *what is the charter-§6 status of
+   451.833 core-min spent on three levels that completed, were graded, and were
+   never converged — where the non-convergence was invisible to the grader
+   because the registered convergence step had been dropped from it?* That is a
+   question about an instrument defect's cost, not about a gate's strictness.
+   **It is REFERRED, re-framed, and NOT answered here.**
+3. **`C-209`'s zero is NOT changed by this amendment, and no lane may change it.**
+   `docs/COST_CALIBRATION.md` is append-only (its rule 1): an existing row is
+   never edited, and a correction is a new row naming the row it corrects.
+   Whether the re-framed answer moves the waste figure is the referral's to
+   decide, and the mechanism would be a **new correction row**, never an edit.
+4. **The comparison to `C-202` (F23) in §6 is withdrawn as a contrast.** The two
+   are not *"not alike"* on the ground §6 gives. Whether they are alike in
+   charter-§6 terms is part of the re-framed referral.
+
+### D. WHAT WENT WRONG IS A NAMED CONFLATION: **COMPLETION IS NOT CONVERGENCE**
+
+The two are separate rules asking separate questions, and this record answered
+the second by citing evidence for the first:
+
+- **`CLAUDE.md` rule 4 asks whether a run FINISHED** — `rc = 0`, an `End` line,
+  last time == `endTime`, fields present, the `ExecutionTime` count, and the age
+  guard. §2 of this record establishes rule-4 completion on all three levels and
+  **that establishment is correct and is not disturbed.**
+- **Standing rule 5 clause (1) asks whether a run CONVERGED** — a *physics*
+  question about whether the fields stopped moving, answered here by T5's own
+  registered criterion.
+
+**A run can satisfy every clause of rule 4 and still be moving 29.6 K per
+thousand iterations.** That is exactly what happened: three rule-4-COMPLETE
+levels, none of them converged. *"Ran to completion"* is a rule-4 statement;
+*"read three complete converged levels"* silently promoted it to a rule-5 one.
+**Nothing in rule 4 licenses that promotion, and no comparator on this path
+tested it.** The lab's own precedent already says so in a neighbouring key —
+`N-T11`, and L-141's *"in T1c a genuinely unconverged case sat at residual
+4e-05"* — a converged-looking instrument reading is not a converged field.
+
+### E. WHAT THIS AMENDMENT DOES **NOT** DO
+
+- **It does NOT disturb T5b's six `NOT A RESULT` verdicts. They stand exactly as
+  published.** Every one of them fires at the **first** clause of the registered
+  §7 order — the `y+` admission gate — which **short-circuits the row before any
+  grid triple or any convergence-dependent quantity is reached**
+  (`T5B_GRADE_OUTPUT.txt`: *"0 of 6 graded rows PASS"*, all six on `y+` clause 1).
+  **No published T5b verdict ever rested on a level being converged**, and no
+  value, band, order or GCI was ever quoted from these levels by this record
+  (§9: *"It quotes no GCI and no observed order for T5b"*). The correction
+  removes a **premise this record asserted in prose**; it removes no verdict.
+- **It rehabilitates nothing.** Standing rule 5 permits one direction only — *"The
+  gate can only turn a `PASS` or `GATE FAIL` **into** `NOT A RESULT`, never the
+  reverse."* Nothing above moves any row toward a `PASS`, and a successor must
+  not read this amendment as licence to re-grade one upward.
+- **It edits no frozen file.** `T5_PREREGISTRATION.md`, `T5b_PREREGISTRATION.md`,
+  `T5c_PREREGISTRATION.md`, `T5d_PREREGISTRATION.md`, `analyse_t5b.py`,
+  `analyse_t5c.py`, `T5B_CAPS.txt`, `T5C_GRADE_OUTPUT.txt` and
+  `VERIFICATION_CHARTER.md` are read-only to it.
+- **It re-runs and re-computes nothing.** Every figure in §B is transcribed from
+  `T5c_RESULTS.md` AMENDMENT 1. **Zero compute was spent writing this.**
+- **It does NOT claim T5b's solves are worthless.** They remain the artifacts two
+  rungs graded, and §8's first bullet — *"T5b is NOT superseded as a
+  MEASUREMENT"* — stands, now with the honest qualifier that what they measured
+  is **three unconverged states**, not three converged ones.
+- **It does NOT claim more iterations would fix this**, and it does not claim
+  they would not. The trajectories are a separate finding recorded on the board.
+- **Nothing here was sent, filed, uploaded, registered, posted or commented
+  outside this box** (`CLAUDE.md` rule 7).
+
+— heat-transfer supervisor, 2026-09-10, [lab-attributed]

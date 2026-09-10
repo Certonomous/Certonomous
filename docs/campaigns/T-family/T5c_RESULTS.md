@@ -277,3 +277,11 @@ withdrawn GCI with no supersession marker in sight. **That sentence is supersede
 by AMENDMENT 1 in full: `G2a` is `NOT A RESULT`, its value is printed and not
 graded, and its GCI is withdrawn.** The text above is struck, not rewritten.
 *Lines whose number changed above this section: 0.*
+
+**CITATION CORRECTION, 2026-09-10, same hand.** AMENDMENT 1 above cites
+*"`analyse_t5b.py:654` carries the docstring"*. Measured: **`:654` is
+`def grade_row(...)` and the docstring `"""THE REGISTERED ORDER (T5 S7.5, rule 5),
+evaluated top to bottom."""` is at `:655`.** `:657` being the y+ gate is correct,
+and nothing substantive changes. Corrected here rather than silently, because a
+citation that is off by one is still a citation a reader cannot verify.
+*Lines whose number changed above this section: 0.*

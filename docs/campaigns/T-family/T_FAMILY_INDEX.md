@@ -393,3 +393,90 @@ in identical standing**).
   row here as proof a rung does not exist.
 
 *Appended at the foot per `L-304`; nothing above edited. Nothing sent (rule 7).*
+
+---
+
+# 6. UPDATE, 2026-09-10 — **THE `T5c` TALLY NARRATED IN §5.2 AND FLAGGED IN §5.4 IS SUPERSEDED. `T5c` IS `0 PASS / 0 GATE FAIL / 6 NOT A RESULT`, AND ITS `GCI 4.3550 %` IS WITHDRAWN. `T5b`'s OWN VERDICT IS UNCHANGED.**
+
+*Appended at the FOOT per `L-304` and per **§5.0's own measured rule** —
+this register is **never corrected in place**, because at least seven records
+cite it **by line number** and an insertion above them would silently redirect
+every one. **Nothing above this line is edited. Lines whose number changed above
+this section: 0** — asserted by diffing this file's prefix against the HEAD blob,
+not claimed. The superseded cells are left standing so the change stays
+checkable, exactly as §3 and §2's state column were.*
+
+**A reader consulting this register for a standing verdict on the T5 cube must
+read this section as well as the rows below.**
+
+### 6.1 The two places this register narrates the withdrawn tally
+
+| where | what it says today | **standing verdict as of 2026-09-10** |
+|---|---|---|
+| **§5.2, the `T5b` row (`:211`)** | T5c *"returned **1 `GATE FAIL` (`G2a`), 5 `NOT A RESULT`, 0 of 6 `PASS`**"* | **SUPERSEDED. T5c is `0 PASS`, `0 GATE FAIL`, `6 NOT A RESULT`.** `G2a`'s `GATE FAIL` is **withdrawn and restated as `NOT A RESULT`**; its fine value **39.4023** is **printed, not graded**; and its **`GCI 4.3550 %` is WITHDRAWN and must not be quoted**. |
+| **§5.4, the ⚠ `T5c` observation (`:337`–`:342`)** | cites `T5c_RESULTS.md:1` for *"1 `GATE FAIL`, 5 `NOT A RESULT`, 0 of 6 `PASS`"* | **SUPERSEDED.** That title line is itself superseded **inside its own record**, by `T5c_RESULTS.md` AMENDMENT 1 (2026-09-10) and its ADDENDUM, which also supersede that record's §1 tally and §3. **A citation to `T5c_RESULTS.md:1` now reaches a struck figure**; cite the AMENDMENT. |
+
+**The rest of §5.4's `T5c` observation stands and is NOT discharged**: `T5c` is
+still named in §5.4's list line, still has no row of its own in §5.2, and the
+question of where it belongs in this register is still open. This update
+corrects the **tally it quoted**; it does not adjudicate its placement.
+
+### 6.2 The basis, in one paragraph
+
+All three T5 ladder levels fail **T5's own registered convergence criterion**
+(`T5_PREREGISTRATION.md` §5.5, `:466`–`:472`, frozen before any T5 case existed:
+max change of any cell value of `T` between the `endTime − 1000` and `endTime`
+checkpoints ≤ 1e-6 of the field's range) by **7,124× (`c`, 0.316753 K)**,
+**608,063× (`m`, 29.603596 K)** and **549,839× (`f`, 26.448420 K)**. Under
+**standing rule 5 clause (1)** — *"any level not iteratively converged or not
+plateaued → `NOT A RESULT`"*, evaluated **before** any triple is classified —
+those levels are `NOT A RESULT` and **no GCI may be quoted from a triple built on
+them**. The clause was never evaluated on this grading path:
+`analyse_t5b.py`'s `grade_row` (`:654`) claims the registered order in its
+docstring at `:655` while its step `(1)` at `:657` is the `y+` gate, and
+`analyse_t5c.py` copied `grade_row` verbatim (`:532`-`:533`).
+
+### 6.3 **`T5b`'s OWN VERDICT IS NOT DISTURBED — read this before changing anything in §5.2's `T5b` row**
+
+§5.2's `T5b` cell records **`NOT A RESULT` — 0 of 6 graded rows `PASS`, all six
+failing the `y+` gate**. **That verdict stands exactly as it reads.** Every one
+of the six fires at the **first** clause of T5b's registered order, which
+short-circuits the row before any triple or convergence-dependent quantity is
+reached, so **no published T5b verdict ever rested on a level being converged**.
+What §5.2's cell narrates about **T5c** is superseded; what it records about
+**T5b** is not.
+
+**What HAS changed for T5b is its record's PROSE, not its verdict.**
+`T5b_RESULTS.md` AMENDMENT 1 (2026-09-10) withdraws that record's assertion that
+the comparator *"read three complete **converged** levels end to end"*, and
+re-frames the open charter-§6 waste referral (`docs/COST_CALIBRATION.md` row
+`C-209`) that was built on it — the referral asked whether refusing a **fully
+converged** ladder at an admission gate is waste, and **no fully converged ladder
+exists here**. That referral is **re-framed and OPEN**, and this register does
+not answer it.
+
+**Also unchanged: T5's own `PENDING` (§5.2 `T5` row) and the `S_m` arm's
+`BLOCKED`.** Neither is reopened, re-graded or moved by anything above.
+
+### 6.4 What this update does NOT do
+
+- **It changes no verdict in the permitted-forbidden direction.** Standing rule 5
+  allows one direction only — a gate may turn a `PASS` or `GATE FAIL` **into**
+  `NOT A RESULT`, never the reverse. **Nothing above rehabilitates any row**, and
+  a successor must not read a corrected tally as licence to re-grade one upward.
+- **It edits nothing above this line, and it re-orders nothing.** §5.7's
+  standing limits all carry forward unchanged.
+- **It grades and re-runs nothing.** Every figure is transcribed from
+  `T5c_RESULTS.md` AMENDMENT 1 and its ADDENDUM. **Zero compute.**
+- **It does not claim completeness.** It corrects the two places this register
+  narrates the T5c tally, found by reading §5.2 and §5.4; a T5c figure filed
+  somewhere else in the family is not reached by it.
+- **Nothing was sent, filed, uploaded, registered, posted or commented outside
+  this box** (`CLAUDE.md` rule 7).
+
+**Records to read for the standing position:**
+`docs/campaigns/T-family/T5c_RESULTS.md` **AMENDMENT 1 + ADDENDUM** (2026-09-10);
+`docs/campaigns/T-family/T5b_RESULTS.md` **AMENDMENT 1** (2026-09-10);
+`docs/campaigns/T-family/T5_PREREGISTRATION.md` §5.5 (frozen, read-only).
+
+— heat-transfer supervisor, 2026-09-10, [lab-attributed]
