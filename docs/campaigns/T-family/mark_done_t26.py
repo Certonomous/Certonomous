@@ -125,6 +125,33 @@ def launch_guard(case_dir, verbose=True):
     if not os.path.isdir(os.path.join(case_dir, "0.orig")):
         why.append("CLAUSE 7: %s has no 0.orig/ to arm from; build_t26.py stages "
                    "into 0.orig and never creates 0/" % case_dir)
+    # --- postProcessing limb -------------------------------------------------
+    # A case whose time directories were cleaned while postProcessing/ was left
+    # behind passes every limb above and is NOT unstarted. On restart OpenFOAM
+    # does not overwrite a function-object file, it writes a SECOND one beside
+    # it (moment.dat and moment_0.dat), and both then match the glob a grader
+    # reads. That is a WRONG NUMBER, not a crash -- the worst kind, because
+    # nothing fails and the value is silently the wrong file's.
+    # Reported by cfd 2026-09-10 against a restart collision.
+    pp = os.path.join(case_dir, "postProcessing")
+    if os.path.isdir(pp):
+        leftovers = []
+        for dp, _dns, fns in os.walk(pp):
+            for fn in fns:
+                leftovers.append(os.path.relpath(os.path.join(dp, fn), case_dir))
+                if len(leftovers) >= 5:
+                    break
+            if len(leftovers) >= 5:
+                break
+        if leftovers:
+            why.append("CLAUSE 7: %s has a NON-EMPTY postProcessing/ (%s%s) -- this "
+                       "case is NOT unstarted. A restart writes a SECOND function-"
+                       "object file beside the first (moment.dat AND moment_0.dat) "
+                       "and both match the grader's glob, which is a wrong number "
+                       "rather than a crash. MOVE it aside with its path recorded, "
+                       "never delete it."
+                       % (case_dir, ", ".join(leftovers[:4]),
+                          " ..." if len(leftovers) >= 5 else ""))
     if verbose:
         for w in why:
             print(w)
@@ -382,6 +409,36 @@ def selftest():
         ok = bool(w) and any("0.orig" in x for x in w)
         print("  [%s] case with no 0.orig/ -> guard REFUSES" % ("ok " if ok else "BAD"))
         fails.append("guard 0.orig") if not ok else None
+
+        # --- postProcessing limb, BOTH directions ---------------------------
+        pp_dirty = os.path.join(tmp, "ppdirty")
+        os.makedirs(os.path.join(pp_dirty, "0.orig"))
+        os.makedirs(os.path.join(pp_dirty, "postProcessing", "wallHeatFlux", "0"))
+        open(os.path.join(pp_dirty, "postProcessing", "wallHeatFlux", "0",
+                          "wallHeatFlux.dat"), "w").write("x\n")
+        w = launch_guard(pp_dirty, verbose=False)
+        ok = bool(w) and any("postProcessing" in x for x in w)
+        print("  [%s] case with a POPULATED postProcessing/ -> guard REFUSES"
+              % ("ok " if ok else "BAD"))
+        fails.append("guard postProcessing") if not ok else None
+
+        pp_empty = os.path.join(tmp, "ppempty")
+        os.makedirs(os.path.join(pp_empty, "0.orig"))
+        os.makedirs(os.path.join(pp_empty, "postProcessing"))
+        w = launch_guard(pp_empty, verbose=False)
+        ok = (w == [])
+        print("  [%s] NEGATIVE CONTROL: an EMPTY postProcessing/ -> guard PASSES "
+              "(the limb fires on CONTENT, not on the directory existing)"
+              % ("ok " if ok else "BAD"))
+        fails.append("guard postProcessing empty") if not ok else None
+
+        # and the CLI form, which is what both launchers actually call
+        r = subprocess.run([sys.executable, os.path.abspath(__file__),
+                            "--launch-guard", pp_dirty], capture_output=True, text=True)
+        ok = r.returncode == EXIT_REFUSE and "postProcessing" in r.stdout + r.stderr
+        print("  [%s] CLI --launch-guard on the postProcessing case -> exit %d"
+              % ("ok " if ok else "BAD", r.returncode))
+        fails.append("cli guard postProcessing") if not ok else None
 
         # THE CLI FORM, which is what the launchers actually call
         for name, d, want in (("clean", clean, 0), ("dirty", dirty, EXIT_REFUSE)):

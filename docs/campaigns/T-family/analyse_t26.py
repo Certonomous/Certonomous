@@ -227,6 +227,37 @@ def read_q2_tiface(case, endtime):
     return v, n
 
 
+def resolve_unique(pattern):
+    """Resolve a glob that MUST match exactly one file.  Returns (path, why).
+    `path` is None and `why` is set when it matches zero or MORE THAN ONE.
+
+    THE COLLISION THIS REFUSES.  OpenFOAM does not overwrite a function-object
+    file on restart -- it writes a SECOND one beside the first, so a restarted
+    case holds `wallHeatFlux.dat` AND `wallHeatFlux_0.dat`, and both match the
+    glob a grader reads.  Whichever the filesystem happens to return first then
+    supplies the number.  That is a WRONG NUMBER, not a crash, and nothing in
+    the run fails to announce it.  Reported by cfd 2026-09-10 against a restart
+    collision on `moment.dat` / `moment_0.dat`.
+
+    `mark_done_t26.py`'s clause 7 already REFUSES a case with a non-empty
+    `postProcessing/`, so this should be unreachable in a clean run.  It is
+    here anyway because A GUARD AND A READER THAT BOTH CHECK is the pattern
+    that saved K2bU3R3: its launch guard was live and enforcing even though the
+    rest of that instrument could not execute at all.  One of the two being
+    dead must not be enough to produce a number."""
+    import glob as _glob
+    hits = sorted(_glob.glob(pattern))
+    if not hits:
+        return None, "no file matches %s" % pattern
+    if len(hits) > 1:
+        return None, ("%d files match %s -- %s. OpenFOAM writes a SECOND "
+                      "function-object file on restart rather than overwriting, "
+                      "so this glob cannot say which run produced which number. "
+                      "REFUSED rather than picking one."
+                      % (len(hits), pattern, ", ".join(os.path.basename(h) for h in hits)))
+    return hits[0], None
+
+
 def read_wall_heat_flux(path, key_substr):
     """Q3 / G-BAL: sum the flux column of a wallHeatFlux function-object file
     over every row whose patch name contains `key_substr`.
@@ -236,7 +267,7 @@ def read_wall_heat_flux(path, key_substr):
     was written for, where a ledger recorded 0.00 core-min for a run that cost
     34.23.  This returns (total, n_rows); n_rows == 0 is ABSENT and is NEVER
     reported as a measured zero."""
-    if not os.path.isfile(path):
+    if not path or not os.path.isfile(path):
         return None, 0
     total, n = 0.0, 0
     with open(path, errors="replace") as fh:
@@ -416,6 +447,81 @@ def mincell_verdict(level, dim_m):
                         % (dim_m, floor, MIN_CELL_FRACTION, SMALLEST_SURFACE_CELL[level]))
     return dict(ok=True, verdict="G-MINCELL PASS", floor_m=floor, dim_m=dim_m,
                 why="minimum cell dimension %.4g m >= floor %.4g m" % (dim_m, floor))
+
+
+def read_checkmesh_failures(logpath):
+    """G-MESHQ: what did `checkMesh` itself FAIL?  Returns (n_failed, [lines])
+    or (None, []) when the log carries no verdict line at all.
+
+    THE GAP THIS CLOSES, found by reading my own comparator after it had already
+    been committed: D-3D checked DIRECTIONS, PATCH TYPES and PROVENANCE, and
+    G-MINCELL checked the SMALLEST CELL -- and NOTHING read checkMesh's own
+    `Failed N mesh checks` verdict.  The comparator would have graded, with a
+    clean 3D CONFIRMED, a mesh whose own quality tool had failed it.  Measured
+    on T26's first probe: 2,320 small-determinant cells and 13,099 concave
+    cells, under a `Mesh has 3 geometric directions` line that read perfectly.
+
+    `Mesh OK.` is NOT accepted as a pass on its own -- it is exactly what bare
+    `checkMesh` prints on a mesh the full check set fails, and G-PROV is what
+    establishes the log came from the full set.  The two gates are independent
+    and both must hold."""
+    if not os.path.isfile(logpath):
+        return None, []
+    n, lines, saw_ok = None, [], False
+    with open(logpath, errors="replace") as fh:
+        for ln in fh:
+            t = strip_foam_comments(ln).rstrip()
+            if t.lstrip().startswith("***"):
+                lines.append(t.strip())
+            m = re.search(r"Failed (\d+) mesh check", t)
+            if m:
+                n = int(m.group(1))
+            if t.strip() == "Mesh OK.":
+                saw_ok = True
+    if n is None and saw_ok:
+        n = 0
+    return n, lines
+
+
+# G-MESHQ TOLERANCE, REGISTERED.  Default ZERO: any check `checkMesh
+# -allGeometry -allTopology` fails is a refusal.  A named, justified tolerance
+# may be added here BEFORE the freeze while the rule-2 window is open -- as a
+# PRE-REGISTERED THRESHOLD, never as a thing noticed afterwards and accepted.
+# Each entry is check-name -> (max cells, written justification).
+MESHQ_TOLERANCE = {}
+
+
+def meshq_verdict(n_failed, lines):
+    if n_failed is None:
+        return dict(ok=False, verdict="NOT A RESULT", n_failed=None, lines=lines,
+                    why="log.checkMesh carries NO verdict line -- neither `Mesh OK.` "
+                        "nor `Failed N mesh checks`. Mesh quality is UNMEASURED, and "
+                        "unmeasured is not passing.")
+    if n_failed == 0:
+        return dict(ok=True, verdict="G-MESHQ PASS", n_failed=0, lines=lines,
+                    why="checkMesh -allGeometry -allTopology failed no checks")
+    untolerated = []
+    for ln in lines:
+        hit = next((k for k in MESHQ_TOLERANCE if k.lower() in ln.lower()), None)
+        if hit is None:
+            untolerated.append(ln)
+            continue
+        cap, _why = MESHQ_TOLERANCE[hit]
+        m = re.search(r"number of cells:\s*(\d+)", ln)
+        if m is None or int(m.group(1)) > cap:
+            untolerated.append(ln)
+    if untolerated:
+        return dict(ok=False, verdict="NOT A RESULT", n_failed=n_failed,
+                    lines=lines, untolerated=untolerated,
+                    why="checkMesh -allGeometry -allTopology FAILED %d check(s) with "
+                        "no registered tolerance covering: %s. The mesh is fixed, or "
+                        "a tolerance is registered with its justification BEFORE the "
+                        "freeze -- the gate is never relaxed to let a mesh through."
+                        % (n_failed, "; ".join(untolerated)))
+    return dict(ok=True, verdict="G-MESHQ PASS (within registered tolerance)",
+                n_failed=n_failed, lines=lines,
+                why="every failed check is covered by a PRE-REGISTERED tolerance in "
+                    "MESHQ_TOLERANCE, each with its written justification")
 
 
 def read_patch_type_census(boundary_path):
@@ -637,6 +743,20 @@ def control_flux_reader():
         if n != 2 or abs(tot - 2 * PLANT_FLUX) > 1e-9:
             return dict(passed=False, planted=2 * PLANT_FLUX, seen=tot, n=n,
                         why="the flux reader could not see its planted rows")
+        # THE RESTART COLLISION: two files where one is expected -> REFUSE,
+        # never pick one. A guard and a reader that both check.
+        one, why1 = resolve_unique(os.path.join(tmp, "wallHeatFlux*.dat"))
+        if one is None:
+            return dict(passed=False, why="a single wallHeatFlux.dat did not resolve: %s" % why1)
+        open(os.path.join(tmp, "wallHeatFlux_0.dat"), "w").write("# restart copy\n")
+        two, why2 = resolve_unique(os.path.join(tmp, "wallHeatFlux*.dat"))
+        if two is not None or "2 files match" not in (why2 or ""):
+            return dict(passed=False, why="a restart COLLISION (wallHeatFlux.dat + "
+                                          "wallHeatFlux_0.dat) was NOT refused: %r" % (why2,))
+        os.remove(os.path.join(tmp, "wallHeatFlux_0.dat"))
+        zero, why0 = resolve_unique(os.path.join(tmp, "no_such_glob*.dat"))
+        if zero is not None or "no file matches" not in (why0 or ""):
+            return dict(passed=False, why="an empty glob did not report as empty")
         # NEGATIVE ARM: a key that matches nothing is ABSENT, not zero
         none_tot, none_n = read_wall_heat_flux(p, "no_such_strut")
         if none_tot is not None or none_n != 0:
@@ -877,6 +997,31 @@ def control_dimensionality_reader():
             return dict(passed=False, why="a `//`-prefixed command line was invisible to "
                                           "the provenance reader -- the comment-stripper "
                                           "interaction is NOT defended")
+        # G-MESHQ, both directions, on the REAL wording checkMesh emits
+        okl = os.path.join(tmp, "log.meshok")
+        open(okl, "w").write("Mesh OK.\n")
+        nq, lq = read_checkmesh_failures(okl)
+        if nq != 0 or not meshq_verdict(nq, lq)["ok"]:
+            return dict(passed=False, why="a clean `Mesh OK.` log was rejected by G-MESHQ")
+        fail = os.path.join(tmp, "log.meshfail")
+        with open(fail, "w") as fh:
+            fh.write(" ***Cells with small determinant (< 0.001) found, number of cells: 2320\n")
+            fh.write(" ***Concave cells (using face planes) found, number of cells: 13099\n")
+            fh.write("Failed 2 mesh checks.\n")
+        nq, lq = read_checkmesh_failures(fail)
+        vq = meshq_verdict(nq, lq)
+        if nq != 2 or vq["ok"] or len(vq.get("untolerated", [])) != 2:
+            return dict(passed=False, why="a `Failed 2 mesh checks` log was NOT refused "
+                                          "by G-MESHQ (n=%r ok=%r)" % (nq, vq["ok"]))
+        nq2, lq2 = read_checkmesh_failures(os.path.join(tmp, "no_such_log"))
+        if nq2 is not None or meshq_verdict(nq2, lq2)["ok"]:
+            return dict(passed=False, why="an ABSENT checkMesh log passed G-MESHQ")
+        noverdict = os.path.join(tmp, "log.noverdict")
+        open(noverdict, "w").write("Checking geometry...\n")
+        nq3, lq3 = read_checkmesh_failures(noverdict)
+        if nq3 is not None or meshq_verdict(nq3, lq3)["ok"]:
+            return dict(passed=False, why="a log with NO verdict line passed G-MESHQ")
+
         # G-MINCELL, both directions
         big = os.path.join(tmp, "log.bigcell")
         open(big, "w").write("Min volume = 1e-9\n")     # 1e-3 m cube, well above floor
@@ -1080,7 +1225,11 @@ def measure_level(root, level):
     phi_sum, n_phi = read_phi_sum(case, et)
     q1 = read_q1_tmax(case, et)
     q2, n_q2 = read_q2_tiface(case, et)
-    q3, n_q3 = read_wall_heat_flux(os.path.join(case, "postProcessing", "wallHeatFlux.dat"), "strut")
+    q3path, q3why = resolve_unique(os.path.join(case, "postProcessing", "**",
+                                                "wallHeatFlux*.dat"))
+    if q3path is None and "files match" in (q3why or ""):
+        refuse("Q3 cannot be read: " + q3why)
+    q3, n_q3 = read_wall_heat_flux(q3path, "strut") if q3path else (None, 0)
     yp, n_yp = read_yplus(os.path.join(case, "log.yPlus"))
     # D-3D: the 3D claim is carried BY THE GRADED RECORD, per level, verbatim,
     # so it can never again be an inference from a board or a geometry gate.
@@ -1092,9 +1241,12 @@ def measure_level(root, level):
     dim = dimensionality_verdict(ndirs, dline, census, provenance=prov)
     mind, minvol = read_min_cell_dimension(cmlog)
     mincell = mincell_verdict(level, mind)
+    nfail, faillines = read_checkmesh_failures(cmlog)
+    meshq = meshq_verdict(nfail, faillines)
     return dict(level=level, endTime=et, Q1=q1, Q2=q2, Q2_n=n_q2, Q3=q3, Q3_n=n_q3,
                 phi_sum=phi_sum, phi_n=n_phi, residuals=resid, conv=conv,
                 yplus=yp, yplus_n=n_yp, dimensionality=dim, mincell=mincell,
+                meshq=meshq,
                 checkMesh_provenance=prov, min_cell_volume=minvol,
                 conv_ok=all(c["ok"] for c in conv.values()))
 
@@ -1296,7 +1448,17 @@ def main(argv):
         if not m["ok"]:
             badcell.append(l)
             print("      %s" % m["why"])
-    not3d = not3d + [l for l in badcell if l not in not3d]
+    print("\nG-MESHQ, checkMesh's OWN verdict (default tolerance ZERO):")
+    badq = []
+    for l in LEVELS:
+        q = lv[l]["meshq"]
+        print("  %s  failed checks: %s -> %s" % (l, q["n_failed"], q["verdict"]))
+        for x in q.get("lines", [])[:4]:
+            print("      %s" % x)
+        if not q["ok"]:
+            badq.append(l)
+            print("      %s" % q["why"])
+    not3d = not3d + [l for l in badcell + badq if l not in not3d]
     if not3d:
         print("\n  THE RUNG'S PREMISE FAILS on level(s) %s. Every graded row below is"
               % ",".join(not3d))
@@ -1370,6 +1532,8 @@ def main(argv):
                levels=lv, cell_count_audit=cell_count_audit(),
                dimensionality={l: lv[l]["dimensionality"] for l in LEVELS},
                mincell={l: lv[l]["mincell"] for l in LEVELS},
+               meshq={l: lv[l]["meshq"] for l in LEVELS},
+               meshq_tolerance_registered=MESHQ_TOLERANCE,
                checkMesh_provenance={l: lv[l]["checkMesh_provenance"] for l in LEVELS},
                dimensionality_failed_levels=not3d,
                note="VERIFICATION, NOT VALIDATION -- reference tier NONE. The 3D "
