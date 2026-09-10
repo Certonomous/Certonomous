@@ -217,6 +217,119 @@ DERIVED not measured** (COMPUTE_BUDGET_CHARTER §5).
 > choice between family (I) ×8 (observed order, $23) and (II) surface-only ($6.7, lower-bound
 > band) is the §7 observed-order decision — **now cost-quantified for Sanaa / verification.**
 
+> 🟢 **PRE-COMPUTE FAMILY SELECTION — 2026-09-10, cfd-supervisor decision, implemented by cfd
+> `lab-lane`. THE GRADED TRIPLE TAKES FAMILY (II), THE SURFACE-ONLY / FIXED-~150-LAYER FAMILY.**
+>
+> **THIS SELECTS A CHOICE THIS DOCUMENT ALREADY OFFERS.** §3.1 above registers **two** families
+> and costs both; the ⚠ FLAG immediately above names "the choice between family (I) ×8 (observed
+> order, $23) and (II) surface-only ($6.7, lower-bound band)" as a decision this document leaves
+> open, and §7 and §9 item 3 route its consequence. Selecting (II) therefore **invents no
+> family** and **moves no gate, no threshold, no band, no cap and no label.**
+>
+> **THE CONDITION FOR A PRE-COMPUTE AMENDMENT, AND HOW IT WAS CHECKED (rule 2).** Rule 2 permits
+> amendment before first compute and requires the condition to be *stated and checked*, not
+> assumed. Checked, not assumed, 2026-09-10:
+> - **The run directory that DOES NOT EXIST is `verification/runs/M6_LE_RESOLVED_runs/Lf`.**
+>   `test -e` on that exact path answers absent. Family (II)'s graded level has never been built.
+> - **NO FLOW SOLVE HAS EVER RUN ON THIS RUNG, at either built level.** A recursive search for a
+>   numeric time directory under `verification/runs/M6_LE_RESOLVED_runs` returns **zero hits**;
+>   `Lc/solve` and `Lm/solve` each hold only `constant/` and `system/`. Every log at both levels
+>   is a mesh tool — `plot3dToFoam`, `autoPatch`, `createPatch`, `renumberMesh`, `checkMesh`.
+>   ⚠ **`log.plot3dToFoam` merely ENDS in "Foam" and has fooled a grep for solver logs on this
+>   rung before; it is a mesh converter, not a solver.**
+> - **🔴 CORRECTION TO THE BRIEF THAT ORDERED THIS SELECTION.** The decision was relayed on the
+>   basis that this document is *untracked and never committed*. **That is REFUTED and must not
+>   be recorded.** `git ls-files` **returns** this path; `git log -- <path>` returns commit
+>   **`feba8c32`**; the blob at HEAD is **`1f12895da65eb7ad0cbfff243a46b37914adf836`** and the
+>   working copy is **byte-identical to it**. This document IS tracked. Nothing about the
+>   decision changes — the operative condition for rule 2 is *no compute has occurred*, and that
+>   holds — but this is a **pre-compute amendment to a committed, not-yet-frozen document**, not
+>   an edit to an untracked draft. Correction 1 above carries the same refuted "never been
+>   committed" claim in its own condition statement; it is left as written (frozen-record
+>   convention, rule 6) and corrected **here** rather than rewritten there.
+> - The document is **not frozen**: the freeze is the cfd-supervisor's non-delegable check-4
+>   (rule 2, SUPERVISION §3), and this amendment does not perform it.
+>
+> **THE FIVE RECORDED REASONS FOR SELECTING (II).**
+> 1. **Already registered.** §3.1 states family (II) explicitly; the §3.1 FLAG and §7/§9 item 3
+>    frame the (I)-vs-(II) choice as this document's own open decision.
+> 2. **The registered physics is preserved.** Family (II) keeps the graded level's registered
+>    surface — chord 557, span 177, **228,544 faces across all 9 zones** — so §3.4's shape
+>    requirements are met on the **BUILT** re-clustered surface, not on a projection:
+>    **nose Δx/c 1.2564e-3 ≤ 0.0016** and **shock-band Δx/c 9.7884e-4 ≤ 0.0012**
+>    (`verification/runs/M6_LE_RESOLVED_runs/Lf_recluster/work/RECLUSTER_Lf.json`).
+> 3. **Family (I)'s `Lf` IS NOT BUILDABLE ON THIS HARDWARE — a capacity finding, not a
+>    preference.** 137,126,400 cells × the **measured** 826.86 B/cell ⇒ **105.6 GiB** peak,
+>    against **MemTotal 30.64 GiB** (32,132,596 kB) + SwapTotal 16.00 GiB. Short by ~75 GiB of
+>    RAM; short even counting swap, which is not headroom for a working set this size.
+>    Measured basis: `Lm/work/MEM_plot3dToFoam_Lm.txt` (VmHWM 6,046,384 kB / 7,488,000 cells)
+>    and `Lc/work/MEM_plot3dToFoam_Lc.txt` (781,832 kB / 936,000 cells).
+> 4. **The earlier "neither family is buildable" conclusion was computed against the wrong
+>    number, and the correction was re-derived here rather than taken on trust.** It used
+>    `MemAvailable` *at that moment* (~21 GiB, with peer solvers holding ~7 GB of anonymous
+>    memory) — a scheduling reading — in place of machine capacity. Re-read 2026-09-10:
+>    **MemTotal 32,132,596 kB = 30.64 GiB**, **SwapTotal 16,777,212 kB = 16.00 GiB**,
+>    **SwapFree 16,691,952 kB = 15.92 GiB**. Family (II)'s `Lf` at 34,281,600 cells projects to
+>    **26.40 GiB** on the measured Lm rate, which fits **30.64 GiB of RAM on a drained box**.
+>    **Swap is explicitly NOT counted**: a 26 GiB working set paging to swap thrashes.
+> 5. **THE HONEST COST OF THE CHOICE, RECORDED.** Family (II) does **not** refine the
+>    wall-normal direction — layer count is held at ~150 at every level — so **Gate G yields the
+>    M6SR-style honest-caveat LOWER-BOUND band, not a clean 3-D observed order.** §7 already
+>    names this trade and §9 item 3 already routes the observed-order question to the
+>    verification team under rule 5. It is disclosed here, it was pre-registered there, and it is
+>    **not this selection's to decide beyond selecting the option the document offers.**
+>
+> **WHAT IS DECIDED AGAINST — FAMILY (I), PRESERVED STRUCK, NOT DELETED.** The corrected family
+> (I) ×8 table in PRE-FREEZE CORRECTION 1 above remains in place as the record of what was
+> weighed; its graded row is struck **by quote** here so a reader sees the row that lost:
+>
+> 🔴 STRUCK BY QUOTE (family (I), NOT SELECTED — `Lf` not buildable, reason 3):
+> ~~"| **Lc** coarse | 140 | 45 | 5 | 150 | 12,232 | 2,052 | **14,284** | **2,142,600** | 437.1 | 0.374 |
+> | **Lm** medium | 279 | 89 | 9 | 300 | 48,928 | 8,208 | **57,136** | **17,140,800** | 3,496.7 | 2.990 |
+> | **Lf** fine (graded) | 557 | 177 | 17 | 600 | 195,712 | 32,832 | **228,544** | **137,126,400** | 27,973.8 | **23.918** |"~~
+> and ~~"**Total ×8 triple ≈ 31,908 core-min ≈ $27.28 derived**"~~ — **not selected.**
+>
+> **⚠ FLAGGED, NOT ACTED ON — FAMILY (II)'s OWN CELL COUNTS INHERIT CORRECTION 1's OMISSION.**
+> The registered family (II) line reads "Lc 1.83M / Lm 7.34M / Lf 29.4M", which counts the
+> **wing loop only** — the same 7-zone omission Correction 1 found. On all 9 zones at fixed 150
+> layers the counts are **Lc 2,142,600 / Lm 8,570,400 / Lf 34,281,600**, and at this document's
+> own cost basis (3.40e-8 core-min/cell/iteration × 6,000 iterations, $0.0513/core-h, **dollars
+> DERIVED not measured**, COMPUTE_BUDGET_CHARTER §5) the solve triple is **9,178.9 core-min ≈
+> $7.85 derived** (graded level 6,993.4 core-min ≈ $5.98), against the registered "≈7,860
+> core-min ≈ $6.7" here and a third figure "~6,512 core-min ≈ $5.57" in §7's cap.
+> **THIS AMENDMENT DOES NOT MOVE THAT CAP AND DOES NOT RECONCILE THOSE THREE FIGURES.** Every
+> level remains far under the $25 per-run pre-authorisation and inside the $1,000 IBL envelope,
+> so nothing is blocked; but a cap is the supervisor's to move, not a lane's, and the
+> discrepancy is recorded here for the supervisor's check-4 rather than quietly corrected.
+>
+> **MESH-BUILD COST OF THE SELECTED FAMILY (separate from the solve cost above).** Scaled from
+> the **MEASURED** `Lm` build chain — 1,578.8 s serial at 1 rank for 7,488,000 cells
+> (surface+pyHyp march+respace 856.5 s, `Lm/work/` mtimes 03:11:18.419→03:25:34.903Z; OpenFOAM
+> tail 722.3 s, `Lm/solve/` mtimes 04:31:35.675→04:43:37.989Z) = 210.84 µs/cell — the `Lf` build
+> is **~7,228 s ≈ 2 h 00 m wall ≈ 120.5 core-min ≈ $0.103 derived** linear in cells, rising to
+> ~7,923 s ≈ 132.0 core-min ≈ $0.113 derived under an n·log n allowance for the connectivity
+> stages. The whole family (II) triple builds in **~9,487 s ≈ 2 h 38 m ≈ 158.1 core-min ≈ $0.135
+> derived**. **INFERRED, not measured** — scaled 4.58× beyond the largest measured point.
+>
+> **THE BUILD IS GATED, NOT SCHEDULED FREE.** `verification/runs/M6_LE_RESOLVED_runs/build_lf_gridb.sh`
+> is the `Lf` driver and its FIRST executable gate is
+> `verification/runs/M6_LE_RESOLVED_runs/mem_preflight_guard.py`, run under `python3 -O`, with no
+> `--force` and no environment bypass. It REFUSES the build unless `MemAvailable` ≥ **28.25 GiB**
+> (derived in that file's `--explain`: max measured rate 855.34 B/cell × 34,281,600 cells ×
+> 1.0344 measured-rate-scatter allowance × 1.000 measured stage uplift). On a drained box the
+> ceiling is a measured **29.07 GiB** (MemTotal 30.64 − never-draining anonymous 1.19 − kernel
+> unreclaimable 0.38), so the margin is **+0.82 GiB, about 2.8 %** — thin, and named as thin.
+> **⚠ HONEST CAVEAT ON THE PROJECTION.** The 26.40 GiB figure is an extrapolation **4.58×
+> beyond the largest measured point**, from **two** points, and it sizes **one** of the chain's
+> five stages. `checkMesh` has since been measured on the same `Lm` mesh at **645.11 B/cell =
+> 0.780 × plot3dToFoam** (`Lm/solve/MEM_STAGES_Lm.txt`), which is why the stage uplift is 1.000
+> on a measured basis rather than on an absent measurement — but **`autoPatch`, `createPatch`
+> and `renumberMesh` remain UNMEASURED**, and `renumberMesh` holds the mesh plus a permutation
+> and has not been shown to sit under `plot3dToFoam`. **Family (II) `Lf` is FEASIBLE-WHEN-DRAINED
+> on the evidence available, on a thin margin, and the guard — not this paragraph — is what
+> stops a build that turns out otherwise.** The driver records per-stage peaks to
+> `Lf/solve/MEM_STAGES_Lf.txt`, which retires this extrapolation the first time it runs.
+
 ### 3.4 DRY-RUN — WHAT THE COARSE SMOKE PROVED (sub-$1, costed)
 
 - 🔴 **SEE PRE-FREEZE CORRECTIONS 2 AND 3 BELOW — this bullet's count is wrong and its
@@ -432,7 +545,31 @@ lane did NOT author that wrapper (it grades nothing until the supervisor rules).
   generous ×1.5 restart allowance ≈ $8.4 derived, inside the $1,000 IBL envelope; **each level
   under the $25 pre-auth.** An overrun STOPS the run (rule 12); it does not get a new budget.
 - **Label:** grid (b) is an r=2 three-level family refining chordwise ×2, spanwise ×2 AND
-  wall-normal layers ×2 per level. **⚠ Observed-order caveat (verification-owned, flagged):**
+  wall-normal layers ×2 per level.
+
+> 🟢 **PRE-COMPUTE FAMILY SELECTION APPLIED HERE — 2026-09-10 (full record at §3.1).** The
+> graded triple takes **family (II), surface-only, ~150 wall-normal layers fixed at every
+> level.** The label sentence immediately above describes **family (I)**; it is **left standing
+> unedited** so a reader sees what was decided against, and is **struck by quote** as the
+> label of the family NOT selected:
+> ~~"grid (b) is an r=2 three-level family refining chordwise ×2, spanwise ×2 AND wall-normal
+> layers ×2 per level."~~
+> **The selected family (II) refines chordwise ×2 and spanwise ×2 only** (surface faces ×4,
+> cells ×4), with layer count HELD at ~150 and s0 held at 1.546e-6 for y+<1.
+> **CONSEQUENCE FOR GATE G, RECORDED AS THE HONEST COST OF THE CHOICE:** with no wall-normal
+> refinement between levels, **Gate G yields the M6SR-style honest-caveat LOWER-BOUND band, not
+> a clean 3-D observed order.** That is exactly the trade the ⚠ caveat above already names and
+> that **§9 item 3 already routes to the verification team under rule 5** — this selection
+> **does not decide it**, and **no gate, threshold, band, cap or label is moved by it.**
+> **The cap above is NOT moved**, although §3.1's amendment records that family (II)'s own cell
+> counts inherit Correction 1's 7-zone omission and that this section's "~6,512 core-min ≈
+> $5.57" is a third figure inconsistent with §3.1's two — reconciling a cap is the
+> cfd-supervisor's call at check-4, not a lane's.
+> **Rule-2 condition, checked not assumed:** `verification/runs/M6_LE_RESOLVED_runs/Lf` does not
+> exist; **zero numeric time directories** exist anywhere under
+> `verification/runs/M6_LE_RESOLVED_runs`, so no flow solve has ever run on this rung; the
+> document is tracked at commit `feba8c32` (blob `1f12895d…`, working copy byte-identical) and
+> is **NOT frozen**. Pre-compute amendment, not an addendum to a frozen artifact. **⚠ Observed-order caveat (verification-owned, flagged):**
   s0 is held FIXED at 1.546e-6 for y+<1 at every level (Sanaa's integrate-to-wall directive),
   so the wall-normal FIRST cell does not scale with the level — the wall-normal refinement comes
   from layer count / outer spacing. Whether the resulting Gate-G order is a full observed order
