@@ -1,6 +1,8 @@
 # SUBOFF R1b — DARPA SUBOFF bare hull, zero incidence, total-drag parity — PRE-REGISTRATION
 
-**STATUS: DRAFT — NOT FROZEN.** Drafted by a cfd lab-lane, 2026-09-10. The freeze (sha),
+**STATUS: FROZEN 2026-09-10 by the cfd-supervisor (check-4).** Gate, threshold, cap and label
+are CLOSED as of this commit; from here they change only as dated addenda that cannot alter any
+of them (rules 2 and 6). The grading path is pinned by blob sha in §11. Drafted by a cfd lab-lane; the freeze (sha),
 the queue drop and the graded launch are the cfd-supervisor's `SUPERVISION_CHARTER` §3
 check-4, taken personally and not delegated. **No compute has run for R1b**; §4a below
 names the three run roots that **do not exist**, which is the rule-2 form of the
@@ -463,17 +465,27 @@ not shown able to *fail* has not been shown to *work*.
 
 ---
 
-## 11. FREEZE BLOCK — *empty; to be completed by the cfd-supervisor at check-4*
+## 11. FREEZE BLOCK — PINNED 2026-09-10 by the cfd-supervisor (check-4)
 
-**NOT YET FROZEN.** At freeze the supervisor pins the grading path by blob sha, verifies
+**FROZEN.** Each blob below was verified `disk == HEAD` at freeze time. Before any grade, re-hash
+and refuse on drift. **Preconditions verified BY ME first-hand, not relayed:** the launcher has
+**no grade flag at all** — no `--grade`, no `--no-grade`, unknown arguments refused — so a
+non-grading run is not expressible and the queue entry has no flag to forget; an EXIT trap
+(TERM/INT/HUP routed into it) guarantees a verdict file on every termination path, proven by a
+**negative control** in which removing the trap produced no verdict; the launcher contains **zero
+`rm -rf`**; `bash -n` is clean; and all three registered run roots `r1b_{coarse,medium,fine}`
+**do not exist**, so a launch adds and the age guard holds. R1's frozen file and its run roots are
+untouched — they hold the cap-stop evidence that IS this budget's measured basis.
+
+At freeze the supervisor pins the grading path by blob sha, verifies
 `disk == HEAD` for each, and records the freeze commit. The paths that must be pinned:
 
 | blob sha | path |
 |---|---|
-| *(to be pinned at freeze)* | `cases/navier_class/SUBOFF/grade_suboff.py` |
-| *(to be pinned at freeze)* | `cases/navier_class/SUBOFF/build_suboff.py` |
-| *(to be pinned at freeze)* | `cases/navier_class/SUBOFF/run_suboff_r1b_triple.sh` |
-| *(to be pinned at freeze)* | `verification/runs/navier_class/SUBOFF/suboff_reference_ReL1p2e7.json` |
+| `9ab71b156d395d1e040851c524f0b81bb0e82ae1` | `cases/navier_class/SUBOFF/grade_suboff.py` |
+| `dcddfe727ea9b85109f2000ea674add80de256c5` | `cases/navier_class/SUBOFF/build_suboff.py` |
+| `86343dfc303cf639e267ac428007ea150401309f` | `cases/navier_class/SUBOFF/run_suboff_r1b_triple.sh` |
+| `d893378817c823605c793e849d2800a1f4a28b5a` | `verification/runs/navier_class/SUBOFF/suboff_reference_ReL1p2e7.json` |
 
 **FREEZE PRECONDITIONS for the supervisor to verify first-hand, not relayed:**
 
