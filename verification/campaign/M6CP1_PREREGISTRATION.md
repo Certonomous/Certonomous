@@ -394,3 +394,100 @@ NO COMPUTE UNDER THIS DOCUMENT AS AT FREEZE, verified with a live planted contro
 
 **AFTER THE FREEZE COMMIT THE GATES ARE CLOSED.** Changes land only as dated addenda that cannot
 alter a gate, threshold, cap or label. Originals are struck, never rewritten.
+
+---
+
+## AMENDMENT 1 — 2026-09-10, cfd-supervisor (Opus 5). Document version v1.0 → v1.1.
+
+**lines whose number changed above this section: 0**
+
+**This amendment alters NO gate, NO threshold, NO cap and NO label.** Gate P (±0.02 in Cp at seven
+span stations), Gate G (the rule-5 Roache triple on {L2, L1, L0}), the plateau limb of §5.1 (trailing
+20 % window, max abs deviation from the window mean, tolerance 5.0e-04), the §1 budget position
+(`budget_gate: NONE — Sanaa 2026-09-10`) and the §10/§10.1 grading path with its pin table all stand
+exactly as frozen. Nothing below may be read as changing any of them.
+
+### A1.1 THE HEADER BANNER IS STRUCK. IT IS NOW FACTUALLY FALSE AND DANGEROUSLY SO.
+
+The banner at the head of this document reads **"THIS FILE IS A DRAFT. IT IS NOT FROZEN, NOT
+AUTHORISED, AND NO GRADED SOLVE HAS RUN UNDER IT"** and says the §12 freeze block is left blank. It
+was true when the drafting lane wrote it and it stopped being true at the freeze commit. **All three
+of its assertions are now false:** the document IS frozen, §12 IS filled, and compute HAS occurred
+under it. **The banner is STRUCK — it is not rewritten, per rule 6, because originals are struck and
+never rewritten, and because striking it here costs zero changed line numbers above.**
+
+**Why this could not be left to stand.** A reader arriving at this file meets "NOT FROZEN, NOT
+AUTHORISED" in its first screen and "FROZEN BY: cfd-supervisor" in its last. A document that
+contradicts itself about its own authorisation status is the precondition for either error: a run
+launched under a document a later reader believes was never frozen, or a freeze abandoned because
+its face said draft. The authoritative status of this registration is **FROZEN**, at commit
+`852e77ff8`, registration blob `543ffe291e4d8c01e544e4d4d4541a961877ffe6` — supervisor-verified by
+hashing the working file against the committed blob, all three of worktree, freeze commit and HEAD
+agreeing.
+
+### A1.2 COMPUTE HAS OCCURRED UNDER THIS DOCUMENT. THE GATES ARE CLOSED.
+
+At the freeze, §12 recorded no compute, verified by a live planted control. **That statement was true
+at the freeze and is now superseded by events, not by error.** Three stage-3 smoke rungs have since
+run:
+
+| rung | level | utc | outcome | cause |
+|---|---|---|---|---|
+| M0 baseline | L2 | 17:53:48Z | FAIL — bounded but nonphysical, clamps firing, Cl = −0.3089 | ENERGY_RUNAWAY_TRAILING_EDGE |
+| M1 mesh tier | L1 | 18:16:37Z | STOPPED (classed stop) — divergence, Cl = 1.481e+30 | ENERGY_RUNAWAY_TRAILING_EDGE |
+| N1 numerics tier (`transonic yes`) | L2_N1 | 18:22Z | FAIL — see A1.3 | under adjudication, A1.4 |
+
+**Per rule 2 the gates of this registration are therefore CLOSED**, and every further change lands as
+a dated addendum of this kind. **No stage-4 full run has launched and none is authorised while
+stage 3 stands unpassed** — §11 of this document already says a rc = 0 run at `endTime` is not a
+graded result, and a stage-4 launch over a failing smoke would spend hours to produce `NOT A RESULT`.
+
+### A1.3 THE N1 RUNG DID NOT FIX IT — SUPERVISOR'S READ, TAKEN FROM THE LOG BY HAND
+
+`transonic yes` was the §4.2 lever, made pullable when `div(phid,p)` was supplied. It did not repair
+the case. Read directly from
+`verification/runs/M6CP1_runs/L2_N1/smoke/log.rhoPimpleFoam` at Time = 400, rc = 0, 117.66 s:
+
+- **energy initial residual pinned at 0.9999999824 on every iteration**, final residual 3.089e-20.
+- **momentum frozen**: Ux/Uy/Uz initial residuals 5.211e-08 / 5.318e-08 / 5.122e-08.
+- **clamps firing steadily at BOTH ends**: 225 cells at the 100 K floor, 124 at the 1000 K ceiling.
+
+Against the registered prediction `max_clamped_cells = 0` this is a **GENUINE FAIL**, and against
+§9's bounds stop it is the named condition: *a clamp active at the plateau is a boundary condition on
+the answer, not a stabiliser.* An energy residual that sits at 1.0 for four hundred iterations while
+the velocity field does not move is not a slow march; it is a clamp-held fake steady state.
+
+### A1.4 A SUPERVISOR'S CHALLENGE TO THE M1 CONCLUSION, REGISTERED BEFORE IT IS TESTED
+
+M1 concluded the trailing-edge hot cells are **NOT** a mesh artifact, on two grounds: they sit at the
+same x/c on L2 and L1, and refinement makes the failure worse. **The ladder then spent its mesh tier
+and pivoted to numerics on that conclusion.** The cfd-supervisor is challenging it, and registering
+the challenge here before the test rather than after:
+
+**A sharp trailing edge with near-degenerate sliver cells ALSO follows the geometry and ALSO worsens
+on refinement**, because slivers grow thinner as the grid refines. So the M1 evidence does not
+discriminate between an unstable scheme and a defective trailing-edge topology — both hypotheses
+predict exactly what M1 measured. Two further recorded numbers sit badly with the "scheme" reading:
+a wing-patch **y+ max of 149,276 against a geometric first-cell y+ of 187**, a factor of ~800, and a
+**Cd of 1.52 on a wing**, which is a bluff-body figure.
+
+The adjudication is dispatched: mesh quality at the trailing edge, colocation of worst-quality cells
+against hot cells, the LTS `rDeltaT` field (M1 recorded a min flow time scale of 4.97e-30, which
+would itself explain both the frozen momentum and the wrecked energy normalisation), and a direct
+read of patch types and wall treatment. **Its outcome decides whether the stage-3 ladder continues on
+this mesh family or M6CP1's family is the defect** — and the latter would be a NEW registration, not
+an amendment to this one, because it changes what is being measured.
+
+### A1.5 A RECORDING DEFECT IN THE LADDER HISTORY, DISCLOSED NOT REPAIRED
+
+Attempt 3 in `verification/runs/M6CP1_runs/STAGE3_LADDER_HISTORY.json` is recorded with
+`rung_id: "baseline"` and `cause: "final_residual_U"`. **Both appear wrong**: the run was the N1
+numerics rung, and `final_residual_U` is the **known reader defect** already documented in attempt
+1's correction — `rhoPimpleFoam` emits `Ux`/`Uy`/`Uz` and no `Solving for U` line, so the reader
+returns `measured=None` and labels COULD-NOT-RUN as FAIL. **The reader is a pinned launcher and
+compute has occurred, so it is NOT repaired here**; the proposed repair stays staged unapplied at
+`verification/runs/M6CP1_runs/PROPOSED_REPAIR_stage3_smoke.py` and the question is referred to
+verification under `VERIFICATION_CHARTER` §2d.1. **It is disclosed rather than fixed because a
+supervisor quietly repairing a pinned instrument after compute is the exact move the freeze exists to
+prevent** — and because `cause` is the field the two-fails-same-cause rule climbs rungs on, so a
+contaminated cause can buy a rung the case did not earn.
