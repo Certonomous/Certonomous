@@ -1,0 +1,126 @@
+{
+  "stage": 4,
+  "case": "M6CP1",
+  "level": "L2",
+  "built_utc": "2026-09-10T17:40:49Z",
+  "launcher": "verification/runs/M6CP1_runs/L2/case/launch_stage4.sh",
+  "launcher_sha256": "93e7fe8866b80d7a7ca3bbb77c7565051884c5b2e3e89d0b686eb2524c82f407",
+  "ranks": 4,
+  "solver": "rhoPimpleFoam",
+  "end_time": 5000,
+  "checkpoint_interval": 100,
+  "monitor_stops": [
+    {
+      "id": "RESIDUAL_GROWTH",
+      "detect": "the mean initial residual of any equation over the last window exceeds its mean over the preceding window by more than growth_factor",
+      "why": "a diverging march does not become a converged one by being given more iterations",
+      "actions": [
+        "halve maxCo",
+        "drop div(phi,U) to first order for the first 20 percent",
+        "PARK"
+      ]
+    },
+    {
+      "id": "BOUNDS_VIOLATION",
+      "detect": "any clamp fvOption reports LimitedCells > clamp_tolerance at the plateau",
+      "why": "a clamp ACTIVE at the plateau is a boundary condition on the answer, not a stabiliser. The converged state is then nonphysical and every gate downstream of it is biased. This is the specific failure that stopped the previous attempt on this case: cells pinned at WHATEVER ceiling was set, i.e. unbounded, not a finite hot value.",
+      "actions": [
+        "raise the ceiling and re-check whether cells pin at the new one (a diagnostic, not a fix: pinning at any ceiling means unbounded)",
+        "PARK -- the clamp is masking a physical or setup defect"
+      ]
+    },
+    {
+      "id": "PLATEAU_WITH_STALLED_LINEAR_SOLVER",
+      "detect": "the graded quantity is flat over the registered trailing window WHILE a linear solver is hitting its iteration ceiling every step",
+      "why": "flatness that comes from the linear solver giving up is not convergence. The two look identical in the residual trace and only one of them is an answer.",
+      "actions": [
+        "raise maxIter and tighten relTol on the stalled equation",
+        "PARK"
+      ]
+    },
+    {
+      "id": "COHERENT_OSCILLATION",
+      "detect": "the graded quantity oscillates with a dominant frequency and a stable amplitude over the trailing window",
+      "why": "THIS IS NOT A FAILURE. It is the physics voting that the flow is UNSTEADY. A steady solver asked for a steady answer to an unsteady flow will either oscillate or be damped into a fiction by the numerics, and the oscillation is the honest one of those two.",
+      "marks": "physics voting unsteady",
+      "actions": [
+        "record the frequency and amplitude, mark the run PHYSICS VOTING UNSTEADY, and refer the steady/unsteady question rather than damping it away"
+      ]
+    },
+    {
+      "id": "COST_PER_ITERATION_EXCURSION",
+      "detect": "wall seconds per iteration over the last window exceeds twice the estimate",
+      "why": "a run that is suddenly twice as slow per iteration is usually swapping, contending, or has lost a rank -- all of which change what the cost figure means, and none of which are visible in the residual trace",
+      "note": "under the 2026-09-10 exemption this STOP DOES NOT KILL A 3D DEMO RUN. It is a REPORT. And a silent runner is not evidence a cap was respected: a cap never enforced and a cap never exceeded look identical from the log.",
+      "actions": [
+        "report the excursion with its measured ratio and continue"
+      ]
+    }
+  ],
+  "stage4_ladder": [
+    {
+      "rung": 1,
+      "id": "CONTINUATION",
+      "change": "restart from a converged neighbour -- the next coarser level's converged field mapped up, or the same level at an easier operating point",
+      "why": "the cheapest fix for a hard start is not to start hard"
+    },
+    {
+      "rung": 2,
+      "id": "RELAXATION_REDUCTION",
+      "change": "reduce under-relaxation on the equation that is misbehaving",
+      "why": "relaxation affects only the PATH to steady state -- its contribution scales with (phi_new - phi_old) and vanishes at convergence -- so the converged answer is unchanged and the gate stays unbiased"
+    },
+    {
+      "rung": 3,
+      "id": "PSEUDO_TRANSIENT",
+      "change": "march in pseudo-time (localEuler / LTS) rather than solving steady",
+      "why": "a pseudo-transient march reaches states a steady solve cannot get to; it owes the time-step-independence demonstration registered with it"
+    },
+    {
+      "rung": 4,
+      "id": "TRANSIENT_RE_REGISTRATION",
+      "change": "re-register the case as genuinely transient",
+      "why": "if the flow will not hold still, the honest instrument is a transient one. This is a NEW registration, not an amendment: it changes what is being measured"
+    }
+  ],
+  "preflight": [
+    {
+      "check": "case exists",
+      "pass": true,
+      "detail": "verification/runs/M6CP1_runs/L2/case"
+    },
+    {
+      "check": "no pre-existing time directory",
+      "pass": true,
+      "detail": "a guard refuses a case where a time directory already exists: the age guard cannot distinguish this run's fields from a previous run's"
+    },
+    {
+      "check": "mesh matches its birth certificate",
+      "pass": true,
+      "detail": "manifest verified against /home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/case/constant/polyMesh"
+    },
+    {
+      "check": "memory headroom",
+      "pass": true,
+      "detail": "needs 0.25 GiB (bytes/cell 2757.6 MEASURED, largest of three levels, x parallel uplift 1.35 ASSUMED), MemAvailable 27.42 GiB, drained ceiling 28.26 GiB"
+    },
+    {
+      "check": "registration COMMITTED at HEAD",
+      "pass": false,
+      "detail": "verification/campaign/M6CP1_PREREGISTRATION.md: NOT IN HEAD -- check 4 forbids compute"
+    }
+  ],
+  "budget_gate": "NONE -- Sanaa 2026-09-10",
+  "detachment": "setsid + nohup, re-parented to PPID 1. rc is captured INSIDE the wrapper from the solver process and written to RC.txt; no exit status of any launching process is consulted.",
+  "grader_argv": [
+    "/usr/bin/python3",
+    "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py",
+    "--case",
+    "/home/ubuntu/Certonomous/verification/runs/M6CP1_runs/L2/case",
+    "--level",
+    "L2",
+    "--out",
+    "/home/ubuntu/Certonomous/verification/runs/M6CP1_runs/GRADE_L2.json"
+  ],
+  "launched": false
+}

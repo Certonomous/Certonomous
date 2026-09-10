@@ -1,0 +1,65 @@
+{
+  "level": "L2",
+  "case": "verification/runs/M6CP1_runs/L2/case",
+  "template": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/smoke_rhopimple_lts",
+  "template_sha256": "97026ec6a4730f2832ef83b61a4faf3f87d4682a648bcc69485c59e73993114f",
+  "copied": [
+    "system",
+    "0",
+    "constant/thermophysicalProperties",
+    "constant/turbulenceProperties"
+  ],
+  "mesh_symlink_target": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/case/constant/polyMesh",
+  "mesh_is_symlink_not_copy": true,
+  "deltas": [
+    {
+      "file": "system/controlDict",
+      "pattern": "^application\\s+\\S+;",
+      "replacement": "application     rhoPimpleFoam;",
+      "matches": 1,
+      "why": "solver named by the registration, not inherited from whatever the template last ran"
+    },
+    {
+      "file": "system/controlDict",
+      "pattern": "^endTime\\s+\\S+;",
+      "replacement": "endTime         5000;",
+      "matches": 1,
+      "why": "full-run length registered before compute"
+    },
+    {
+      "file": "system/controlDict",
+      "pattern": "^writeInterval\\s+\\S+;",
+      "replacement": "writeInterval   100;",
+      "matches": 1,
+      "why": "THE PLATEAU LIMB NEEDS A TRAILING WINDOW OF THE RUN'S OWN HISTORY. The template wrote once, at endTime; one write cannot carry a plateau statistic at all, and a two-write cadence would only permit the two-point test that VERIFICATION_CHARTER 2bd forbids. This cadence gives 50 writes."
+    },
+    {
+      "file": "system/controlDict",
+      "pattern": "^deltaT\\s+\\S+;",
+      "replacement": "deltaT          1;",
+      "matches": 1,
+      "why": "pseudo-time step index; with localEuler the physical value is set per cell from maxCo"
+    },
+    {
+      "file": "system/fvSchemes",
+      "insert_before": "^\\s*div\\(phi,U\\)",
+      "block": "// DEAD-LEVER REPAIR (stage 2 audit rule TRANSONIC).  Without this entry, setting\n    // `transonic yes` in fvSolution aborts at the first pressure solve on\n    //   Entry 'div(phid,p)' not found in dictionary \"system/fvSchemes/divSchemes\"\n    // because `default none;` makes an unruled term a hard abort.  On this case that\n    // is exactly what happened: the diagnostic registered to TEST the transonic\n    // switch died in dictionary lookup at Time = 1 having exercised nothing, and the\n    // record then carried a rung as tried that was never once pulled.\n    div(phid,p)                                   Gauss upwind;",
+      "why": "makes the transonic lever pullable; it does NOT turn it on"
+    },
+    {
+      "file": "system/fvSolution",
+      "pattern": "tolerance\\s+1e-8;\\s*relTol\\s+0\\.01;",
+      "replacement": "tolerance 1e-08; relTol 0.01;",
+      "matches": 1,
+      "why": "p linear tolerance from the registration (T23G2Rn2: strictly tighter than every gate)"
+    },
+    {
+      "file": "system/fvSolution",
+      "pattern": "tolerance\\s+1e-8;\\s*relTol\\s+0;",
+      "replacement": "tolerance 1e-09; relTol 0;",
+      "matches": 2,
+      "why": "final-corrector tolerances from the registration"
+    }
+  ],
+  "written_sha256": "fafb09f0503b930264fbb939b06b888a2c881d83744991dfd09495589027db78"
+}

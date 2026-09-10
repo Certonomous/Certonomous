@@ -1,0 +1,480 @@
+{
+  "stage": 2,
+  "case": "M6CP1",
+  "solver": "rhoPimpleFoam",
+  "run_utc": "2026-09-10T17:34:40Z",
+  "skipped": [],
+  "results": [
+    {
+      "check": "checkMesh",
+      "level": "L0",
+      "rc": 0,
+      "rc_source": "Popen.returncode",
+      "wall_s": 24.19,
+      "mesh_ok": true,
+      "n_cells": 4592640,
+      "n_cells_source": "checkMesh stdout: cells: 4592640",
+      "failures": [],
+      "green": true,
+      "output_tail": []
+    },
+    {
+      "check": "dictionaries",
+      "level": "L0",
+      "required": [
+        "system/controlDict",
+        "system/fvSchemes",
+        "system/fvSolution",
+        "constant/thermophysicalProperties",
+        "constant/turbulenceProperties"
+      ],
+      "missing": [],
+      "unparseable": [],
+      "green": true
+    },
+    {
+      "check": "bc_closure",
+      "level": "L0",
+      "patches": [
+        "farfield",
+        "symmetry",
+        "wing"
+      ],
+      "fields": [
+        "U",
+        "p",
+        "T",
+        "nut",
+        "alphat",
+        "k",
+        "omega"
+      ],
+      "matrix": {
+        "U": {
+          "farfield": "freestreamVelocity",
+          "symmetry": "symmetry",
+          "wing": "noSlip"
+        },
+        "p": {
+          "farfield": "freestreamPressure",
+          "symmetry": "symmetry",
+          "wing": "zeroGradient"
+        },
+        "T": {
+          "farfield": "inletOutlet",
+          "symmetry": "symmetry",
+          "wing": "zeroGradient"
+        },
+        "nut": {
+          "farfield": "calculated",
+          "symmetry": "symmetry",
+          "wing": "nutUSpaldingWallFunction"
+        },
+        "alphat": {
+          "farfield": "calculated",
+          "symmetry": "symmetry",
+          "wing": "compressible::alphatWallFunction"
+        },
+        "k": {
+          "farfield": "inletOutlet",
+          "symmetry": "symmetry",
+          "wing": "kqRWallFunction"
+        },
+        "omega": {
+          "farfield": "inletOutlet",
+          "symmetry": "symmetry",
+          "wing": "omegaWallFunction"
+        }
+      },
+      "holes": [],
+      "green": true
+    },
+    {
+      "check": "dead_levers",
+      "level": "L0",
+      "findings": [
+        {
+          "lever": "pressureControl (pMinFactor/pMaxFactor)",
+          "declared_in": "system/fvSolution",
+          "requires": "a solver that constructs pressureControl",
+          "dependency_present": true,
+          "detail": "symbol scan of the rhoPimpleFoam binary: 2",
+          "why": "the factors are read by the pressureControl helper; a solver that never constructs it ignores them silently and the registration records a bound that was never applied.",
+          "registration_says": null,
+          "status": "LIVE"
+        },
+        {
+          "lever": "limitTemperature fvOption",
+          "declared_in": "system/fvOptions",
+          "requires": "fvOptions to be listed as an active constraint the solver reads",
+          "dependency_present": true,
+          "detail": "system/fvOptions has fvOptions to be listed as an active constraint the solver reads",
+          "why": "a clamp that is ACTIVE at the plateau is not a stabiliser, it is a boundary condition on the answer, and it biases any gate downstream of it. Stage 2 can only see that it is wired; stage 3 and 4 must check whether it is FIRING.",
+          "registration_says": "present as a crash guard; STAGE 3 AND 4 MUST CHECK WHETHER IT IS FIRING. A clamp active at the plateau is a boundary condition on the answer, not a stabiliser, and it biases every gate downstream.",
+          "status": "LIVE"
+        }
+      ],
+      "dead": [],
+      "green": true
+    },
+    {
+      "check": "instrument_perturbation_arm",
+      "level": "L0",
+      "claim": "this reader can see its input",
+      "plant_value": 0.001234,
+      "planted_into": "verification/runs/M6CP1_runs/L0/case/0/p",
+      "comparator_rc": 0,
+      "comparator_saw_plant": true,
+      "restored_byte_and_mtime": true,
+      "green": true,
+      "detail": "the comparator was run against a field carrying a known perturbation; if it did not see it, its zeros are not evidence (standing rule 3). THIS ARM SAYS NOTHING ABOUT WHETHER THE COMPARATOR COMPUTES THE RIGHT THING -- see the source arm."
+    },
+    {
+      "check": "instrument_source_arm",
+      "level": "L0",
+      "claim": "this reader computes the right thing",
+      "comparator": "verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py",
+      "comparator_sha256": "d7ca635fb0fcc5d90788c05063576dcc73be4717c62b3fb6235e01981014d9f7",
+      "rules_applied": [
+        "TWO_POINT_PLATEAU",
+        "CELL_COUNT_FROM_OWNER",
+        "LITERAL_CLAIM_STRING",
+        "SILENT_DEFAULT_AS_MEASUREMENT"
+      ],
+      "hits": [],
+      "green": true,
+      "detail": "source-level detection only. A clean result here means none of the REGISTERED defect shapes are present; it is not a proof of correctness, and it must never be merged with the perturbation arm's result."
+    },
+    {
+      "check": "one_iteration",
+      "level": "L0",
+      "solver": "rhoPimpleFoam",
+      "rc": 0,
+      "rc_source": "Popen.returncode (NOT a wrapper exit status)",
+      "signal": null,
+      "wall_s": 73.17,
+      "time_lines": 1,
+      "executiontime_lines": 1,
+      "fatal": [],
+      "green": true,
+      "case_copy": "/tmp/claude-1000/-home-ubuntu-Certonomous/dd15ed22-dd7f-4b51-b4c9-2bdc482b5fbd/scratchpad/m6/dryrun_L0",
+      "interpretation": ""
+    },
+    {
+      "check": "checkMesh",
+      "level": "L1",
+      "rc": 0,
+      "rc_source": "Popen.returncode",
+      "wall_s": 2.89,
+      "mesh_ok": true,
+      "n_cells": 574080,
+      "n_cells_source": "checkMesh stdout: cells: 574080",
+      "failures": [],
+      "green": true,
+      "output_tail": []
+    },
+    {
+      "check": "dictionaries",
+      "level": "L1",
+      "required": [
+        "system/controlDict",
+        "system/fvSchemes",
+        "system/fvSolution",
+        "constant/thermophysicalProperties",
+        "constant/turbulenceProperties"
+      ],
+      "missing": [],
+      "unparseable": [],
+      "green": true
+    },
+    {
+      "check": "bc_closure",
+      "level": "L1",
+      "patches": [
+        "farfield",
+        "symmetry",
+        "wing"
+      ],
+      "fields": [
+        "U",
+        "p",
+        "T",
+        "nut",
+        "alphat",
+        "k",
+        "omega"
+      ],
+      "matrix": {
+        "U": {
+          "farfield": "freestreamVelocity",
+          "symmetry": "symmetry",
+          "wing": "noSlip"
+        },
+        "p": {
+          "farfield": "freestreamPressure",
+          "symmetry": "symmetry",
+          "wing": "zeroGradient"
+        },
+        "T": {
+          "farfield": "inletOutlet",
+          "symmetry": "symmetry",
+          "wing": "zeroGradient"
+        },
+        "nut": {
+          "farfield": "calculated",
+          "symmetry": "symmetry",
+          "wing": "nutUSpaldingWallFunction"
+        },
+        "alphat": {
+          "farfield": "calculated",
+          "symmetry": "symmetry",
+          "wing": "compressible::alphatWallFunction"
+        },
+        "k": {
+          "farfield": "inletOutlet",
+          "symmetry": "symmetry",
+          "wing": "kqRWallFunction"
+        },
+        "omega": {
+          "farfield": "inletOutlet",
+          "symmetry": "symmetry",
+          "wing": "omegaWallFunction"
+        }
+      },
+      "holes": [],
+      "green": true
+    },
+    {
+      "check": "dead_levers",
+      "level": "L1",
+      "findings": [
+        {
+          "lever": "pressureControl (pMinFactor/pMaxFactor)",
+          "declared_in": "system/fvSolution",
+          "requires": "a solver that constructs pressureControl",
+          "dependency_present": true,
+          "detail": "symbol scan of the rhoPimpleFoam binary: 2",
+          "why": "the factors are read by the pressureControl helper; a solver that never constructs it ignores them silently and the registration records a bound that was never applied.",
+          "registration_says": null,
+          "status": "LIVE"
+        },
+        {
+          "lever": "limitTemperature fvOption",
+          "declared_in": "system/fvOptions",
+          "requires": "fvOptions to be listed as an active constraint the solver reads",
+          "dependency_present": true,
+          "detail": "system/fvOptions has fvOptions to be listed as an active constraint the solver reads",
+          "why": "a clamp that is ACTIVE at the plateau is not a stabiliser, it is a boundary condition on the answer, and it biases any gate downstream of it. Stage 2 can only see that it is wired; stage 3 and 4 must check whether it is FIRING.",
+          "registration_says": "present as a crash guard; STAGE 3 AND 4 MUST CHECK WHETHER IT IS FIRING. A clamp active at the plateau is a boundary condition on the answer, not a stabiliser, and it biases every gate downstream.",
+          "status": "LIVE"
+        }
+      ],
+      "dead": [],
+      "green": true
+    },
+    {
+      "check": "instrument_perturbation_arm",
+      "level": "L1",
+      "claim": "this reader can see its input",
+      "plant_value": 0.001234,
+      "planted_into": "verification/runs/M6CP1_runs/L1/case/0/p",
+      "comparator_rc": 0,
+      "comparator_saw_plant": true,
+      "restored_byte_and_mtime": true,
+      "green": true,
+      "detail": "the comparator was run against a field carrying a known perturbation; if it did not see it, its zeros are not evidence (standing rule 3). THIS ARM SAYS NOTHING ABOUT WHETHER THE COMPARATOR COMPUTES THE RIGHT THING -- see the source arm."
+    },
+    {
+      "check": "instrument_source_arm",
+      "level": "L1",
+      "claim": "this reader computes the right thing",
+      "comparator": "verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py",
+      "comparator_sha256": "d7ca635fb0fcc5d90788c05063576dcc73be4717c62b3fb6235e01981014d9f7",
+      "rules_applied": [
+        "TWO_POINT_PLATEAU",
+        "CELL_COUNT_FROM_OWNER",
+        "LITERAL_CLAIM_STRING",
+        "SILENT_DEFAULT_AS_MEASUREMENT"
+      ],
+      "hits": [],
+      "green": true,
+      "detail": "source-level detection only. A clean result here means none of the REGISTERED defect shapes are present; it is not a proof of correctness, and it must never be merged with the perturbation arm's result."
+    },
+    {
+      "check": "one_iteration",
+      "level": "L1",
+      "solver": "rhoPimpleFoam",
+      "rc": 0,
+      "rc_source": "Popen.returncode (NOT a wrapper exit status)",
+      "signal": null,
+      "wall_s": 7.79,
+      "time_lines": 1,
+      "executiontime_lines": 1,
+      "fatal": [],
+      "green": true,
+      "case_copy": "/tmp/claude-1000/-home-ubuntu-Certonomous/dd15ed22-dd7f-4b51-b4c9-2bdc482b5fbd/scratchpad/m6/dryrun_L1",
+      "interpretation": ""
+    },
+    {
+      "check": "checkMesh",
+      "level": "L2",
+      "rc": 0,
+      "rc_source": "Popen.returncode",
+      "wall_s": 0.57,
+      "mesh_ok": true,
+      "n_cells": 71760,
+      "n_cells_source": "checkMesh stdout: cells: 71760",
+      "failures": [],
+      "green": true,
+      "output_tail": []
+    },
+    {
+      "check": "dictionaries",
+      "level": "L2",
+      "required": [
+        "system/controlDict",
+        "system/fvSchemes",
+        "system/fvSolution",
+        "constant/thermophysicalProperties",
+        "constant/turbulenceProperties"
+      ],
+      "missing": [],
+      "unparseable": [],
+      "green": true
+    },
+    {
+      "check": "bc_closure",
+      "level": "L2",
+      "patches": [
+        "farfield",
+        "symmetry",
+        "wing"
+      ],
+      "fields": [
+        "U",
+        "p",
+        "T",
+        "nut",
+        "alphat",
+        "k",
+        "omega"
+      ],
+      "matrix": {
+        "U": {
+          "farfield": "freestreamVelocity",
+          "symmetry": "symmetry",
+          "wing": "noSlip"
+        },
+        "p": {
+          "farfield": "freestreamPressure",
+          "symmetry": "symmetry",
+          "wing": "zeroGradient"
+        },
+        "T": {
+          "farfield": "inletOutlet",
+          "symmetry": "symmetry",
+          "wing": "zeroGradient"
+        },
+        "nut": {
+          "farfield": "calculated",
+          "symmetry": "symmetry",
+          "wing": "nutUSpaldingWallFunction"
+        },
+        "alphat": {
+          "farfield": "calculated",
+          "symmetry": "symmetry",
+          "wing": "compressible::alphatWallFunction"
+        },
+        "k": {
+          "farfield": "inletOutlet",
+          "symmetry": "symmetry",
+          "wing": "kqRWallFunction"
+        },
+        "omega": {
+          "farfield": "inletOutlet",
+          "symmetry": "symmetry",
+          "wing": "omegaWallFunction"
+        }
+      },
+      "holes": [],
+      "green": true
+    },
+    {
+      "check": "dead_levers",
+      "level": "L2",
+      "findings": [
+        {
+          "lever": "pressureControl (pMinFactor/pMaxFactor)",
+          "declared_in": "system/fvSolution",
+          "requires": "a solver that constructs pressureControl",
+          "dependency_present": true,
+          "detail": "symbol scan of the rhoPimpleFoam binary: 2",
+          "why": "the factors are read by the pressureControl helper; a solver that never constructs it ignores them silently and the registration records a bound that was never applied.",
+          "registration_says": null,
+          "status": "LIVE"
+        },
+        {
+          "lever": "limitTemperature fvOption",
+          "declared_in": "system/fvOptions",
+          "requires": "fvOptions to be listed as an active constraint the solver reads",
+          "dependency_present": true,
+          "detail": "system/fvOptions has fvOptions to be listed as an active constraint the solver reads",
+          "why": "a clamp that is ACTIVE at the plateau is not a stabiliser, it is a boundary condition on the answer, and it biases any gate downstream of it. Stage 2 can only see that it is wired; stage 3 and 4 must check whether it is FIRING.",
+          "registration_says": "present as a crash guard; STAGE 3 AND 4 MUST CHECK WHETHER IT IS FIRING. A clamp active at the plateau is a boundary condition on the answer, not a stabiliser, and it biases every gate downstream.",
+          "status": "LIVE"
+        }
+      ],
+      "dead": [],
+      "green": true
+    },
+    {
+      "check": "instrument_perturbation_arm",
+      "level": "L2",
+      "claim": "this reader can see its input",
+      "plant_value": 0.001234,
+      "planted_into": "verification/runs/M6CP1_runs/L2/case/0/p",
+      "comparator_rc": 0,
+      "comparator_saw_plant": true,
+      "restored_byte_and_mtime": true,
+      "green": true,
+      "detail": "the comparator was run against a field carrying a known perturbation; if it did not see it, its zeros are not evidence (standing rule 3). THIS ARM SAYS NOTHING ABOUT WHETHER THE COMPARATOR COMPUTES THE RIGHT THING -- see the source arm."
+    },
+    {
+      "check": "instrument_source_arm",
+      "level": "L2",
+      "claim": "this reader computes the right thing",
+      "comparator": "verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py",
+      "comparator_sha256": "d7ca635fb0fcc5d90788c05063576dcc73be4717c62b3fb6235e01981014d9f7",
+      "rules_applied": [
+        "TWO_POINT_PLATEAU",
+        "CELL_COUNT_FROM_OWNER",
+        "LITERAL_CLAIM_STRING",
+        "SILENT_DEFAULT_AS_MEASUREMENT"
+      ],
+      "hits": [],
+      "green": true,
+      "detail": "source-level detection only. A clean result here means none of the REGISTERED defect shapes are present; it is not a proof of correctness, and it must never be merged with the perturbation arm's result."
+    },
+    {
+      "check": "one_iteration",
+      "level": "L2",
+      "solver": "rhoPimpleFoam",
+      "rc": 0,
+      "rc_source": "Popen.returncode (NOT a wrapper exit status)",
+      "signal": null,
+      "wall_s": 1.12,
+      "time_lines": 1,
+      "executiontime_lines": 1,
+      "fatal": [],
+      "green": true,
+      "case_copy": "/tmp/claude-1000/-home-ubuntu-Certonomous/dd15ed22-dd7f-4b51-b4c9-2bdc482b5fbd/scratchpad/m6/dryrun_L2",
+      "interpretation": ""
+    }
+  ],
+  "per_level_wall_s": {
+    "L0": 114.96,
+    "L1": 27.96,
+    "L2": 18.97
+  },
+  "wall_clock_s": 161.9
+}

@@ -1,0 +1,268 @@
+{
+  "case": "M6CP1",
+  "title": "ONERA M6 transonic wing -- surface Cp against AGARD AR-138. FIRST INSTANCE of THE CASE PROTOCOL.",
+  "case_class": "external_transonic_wing_steady_RANS_3D",
+  "budget_gate": "NONE -- Sanaa 2026-09-10",
+  "family": {
+    "r_min": 1.5,
+    "r_max": 2.0,
+    "levels_required": 3
+  },
+  "geometry": {
+    "gate_name": "GEOM-1 ONERA M6 planform admission (multi-limb)",
+    "wall_patch": "wing",
+    "semispan_m": 1.19676,
+    "semispan_tol_rel": 0.001,
+    "x_ref_MAC_m": 0.64607,
+    "frontal_area_m2": 0.0773,
+    "frontal_area_derivation": "semispan 1.19676 m x root max thickness 0.07864 m (measured off the wall patch) = 0.09411 m2 upper bound; taper-weighted mean thickness gives 0.0773 m2. DERIVED, not measured.",
+    "chord_axis": 0,
+    "thickness_axis": 1,
+    "span_axis": 2,
+    "axis_note": "REGISTERED, never inferred. x streamwise/chordwise, y thickness, z spanwise with the symmetry plane at z=0 (verified: the symmetry patch is planar at z=0).",
+    "root_chord_m": 0.8059,
+    "chord_tol_rel": 0.01,
+    "thickness_ratio": 0.0977,
+    "thickness_tol_rel": 0.02,
+    "le_sweep_deg": 30.0,
+    "te_sweep_deg": 15.8,
+    "sweep_tol_deg": 0.1,
+    "root_band_m": 1e-06,
+    "sweep_bands": 25,
+    "sweep_band_min_pts": 10,
+    "span_overhang_tol_rel": 0.03
+  },
+  "flow": {
+    "Mach": 0.8395,
+    "alpha_deg": 3.06,
+    "Re_MAC": 11720000.0,
+    "rho": 1.225,
+    "U_mag": 285.679356,
+    "T_inf": 288.15,
+    "p_inf": 101325.0,
+    "mu": 1.92912e-05,
+    "x_ref": 0.64607,
+    "mu_note": "mu is BACK-SOLVED so that Re(MAC) = 11.72e6 at the registered state pair. It is 7.76 percent above OpenFOAM's default air Sutherland pair and is NOT a property of air. Any figure or certificate citing it as an air viscosity cites it wrongly."
+  },
+  "closure": {
+    "model": "kOmegaSST",
+    "wall_treatment": "spalding_allyplus",
+    "wall_functions": {
+      "nut": "nutUSpaldingWallFunction",
+      "k": "kqRWallFunction",
+      "omega": "omegaWallFunction",
+      "alphat": "compressible::alphatWallFunction (Prt 0.85)"
+    },
+    "wall_thermal": "zeroGradient T (adiabatic)"
+  },
+  "numerics": {
+    "solver_tolerances": {
+      "p": 1e-08,
+      "U": 1e-09,
+      "e": 1e-09,
+      "k": 1e-09,
+      "omega": 1e-09
+    },
+    "min_decades_clear_air": 1.0,
+    "solver_bytes_per_cell": 2757.6,
+    "solver_bytes_per_cell_note": "MEASURED 2026-09-10 by /usr/bin/time -v on a one-iteration rhoPimpleFoam run at each level, peak RSS from the process: L2 193,244 kB / 71,760 cells = 2757.6 B/cell; L1 933,364 kB / 574,080 = 1664.9; L0 6,406,408 kB / 4,592,640 = 1428.4. The rate FALLS with size, so the guard uses the LARGEST measured rate (2757.6, from the SMALLEST mesh) and is therefore deliberately conservative. Cross-check: extrapolating the L2->L1 marginal rate 1508.8 B/cell predicted L0 at 6.537 GiB against 6.110 GiB measured, ratio 0.935 -- the extrapolation was conservative by 6.5 percent. THESE ARE SERIAL FIGURES. This is a SOLVER rate; the 855.34/826.86 B/cell on the cfd board are plot3dToFoam MESHING rates and are a different quantity.",
+    "parallel_memory_uplift": 1.35,
+    "parallel_memory_uplift_note": "ASSUMPTION, NOT MEASURED: halo cells plus MPI buffers across 4 ranks. Stage 4's first checkpoint measures the real figure and the calibration row states actual/predicted."
+  },
+  "gates": [
+    {
+      "name": "GATE P",
+      "metric": "dCp at 7 span stations, x/c <= 0.90, M=0.8395",
+      "threshold": 0.02,
+      "band": "+/- 0.02",
+      "direction": "two-sided",
+      "label_if_pass": "PASS",
+      "label_if_fail": "GATE FAIL"
+    },
+    {
+      "name": "GATE G",
+      "metric": "rule-5 Roache triple on {L2,L1,L0}, observed order + GCI at Fs=1.25",
+      "threshold": 0.05,
+      "band": "CONVERGING required; NOT A RESULT otherwise",
+      "direction": "classification",
+      "label_if_pass": "PASS",
+      "label_if_fail": "GATE FAIL"
+    }
+  ],
+  "levels": [
+    {
+      "name": "L0",
+      "mesh_dir": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/case/constant/polyMesh",
+      "checkmesh_log": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/case/log.checkMesh",
+      "geometry_source": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/work/volumeMesh.xyz",
+      "generator": {
+        "script": "verification/runs/M6_OWN_FAMILY_runs/build_m6_own_L0.py",
+        "argv": [
+          "plot3dToFoam",
+          "-noBlank",
+          "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/work/volumeMesh.xyz"
+        ],
+        "rc": 0
+      }
+    },
+    {
+      "name": "L1",
+      "mesh_dir": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L1/case/constant/polyMesh",
+      "checkmesh_log": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L1/case/log.checkMesh",
+      "geometry_source": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L1/work/volumeMesh.xyz",
+      "generator": {
+        "script": "verification/runs/M6_OWN_FAMILY_runs/build_m6_own_base.py",
+        "argv": [
+          "plot3dToFoam",
+          "-noBlank",
+          "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L1/work/volumeMesh.xyz"
+        ],
+        "rc": 0
+      }
+    },
+    {
+      "name": "L2",
+      "mesh_dir": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/case/constant/polyMesh",
+      "checkmesh_log": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/case/log.checkMesh",
+      "geometry_source": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/work/volumeMesh.xyz",
+      "generator": {
+        "script": "verification/runs/M6_OWN_FAMILY_runs/build_m6_own_coarse.py",
+        "argv": [
+          "plot3dToFoam",
+          "-noBlank",
+          "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/work/volumeMesh.xyz"
+        ],
+        "rc": 0
+      }
+    }
+  ],
+  "pins": [
+    {
+      "path": "verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py",
+      "role": "comparator"
+    },
+    {
+      "path": "scripts/case_protocol_lib.py",
+      "role": "other"
+    },
+    {
+      "path": "scripts/case_protocol_stage1_setup.py",
+      "role": "other"
+    },
+    {
+      "path": "scripts/case_protocol_stage2_bugcheck.py",
+      "role": "other"
+    }
+  ],
+  "case_template": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/smoke_rhopimple_lts",
+  "case_template_note": "the rhoPimpleFoam + localEuler (LTS) configuration that is the ONLY M6 configuration measured to survive to rc=0 on this mesh. Copied, then a registered list of deltas applied; every difference from the template is named in CASE_CONSTRUCTION.json.",
+  "run_control": {
+    "solver": "rhoPimpleFoam",
+    "end_time": 5000,
+    "write_interval": 100,
+    "delta_t": 1,
+    "ranks": 4,
+    "write_count": 50,
+    "plateau_window": "trailing 20 percent of writes (the last 10 of 50)",
+    "plateau_statistic": "max absolute deviation from the window mean, relative to the window mean",
+    "plateau_tolerance": 0.0005,
+    "plateau_note": "window, statistic and tolerance DECLARED BEFORE THE RUN per VERIFICATION_CHARTER 2bd. A two-point difference between the last two writes is NOT a plateau test and is not used. A monotone drift is the failure mode the window exists to catch, so the statistic reads the whole window and not its endpoints."
+  },
+  "registration_lever_notes": {
+    "transonic yes": "available but OFF in the baseline; stage 3 ladder rung 2. The div(phid,p) scheme is supplied so the lever is pullable rather than dead.",
+    "residualControl": "inert by design",
+    "LTS (ddtSchemes localEuler)": "live; maxCo 0.2 registered",
+    "limitTemperature fvOption": "present as a crash guard; STAGE 3 AND 4 MUST CHECK WHETHER IT IS FIRING. A clamp active at the plateau is a boundary condition on the answer, not a stabiliser, and it biases every gate downstream."
+  },
+  "lts_time_step_independence": {
+    "why": "localEuler reaches a steady state through a NON-PHYSICAL transient. Convergence of the pseudo-time march does not by itself show the graded state is independent of the pseudo-time field.",
+    "demonstration": "the graded level is run at maxCo 0.2 and again at maxCo 0.1. Gate P's Cp at all seven stations must agree between the two to within 0.004, i.e. FIVE TIMES TIGHTER than Gate P's own +/-0.02 band. Declared here before the run; if it fails, the LTS path is not time-step-independent and the result is NOT A RESULT rather than a PASS with a caveat.",
+    "cost": "one extra full run at the graded level; costed in the registration, not waived"
+  },
+  "registration_path": "verification/campaign/M6CP1_PREREGISTRATION.md",
+  "stage3": {
+    "current_rung": "baseline",
+    "current_tier": "baseline",
+    "predictions": {
+      "min_steps": 400,
+      "max_final_residual": {
+        "p": 0.01,
+        "U": 0.01,
+        "e": 0.01,
+        "k": 0.01,
+        "omega": 0.01
+      },
+      "must_not_grow": [
+        "p",
+        "U",
+        "e"
+      ],
+      "growth_factor_max": 1.0,
+      "max_T_K": 400.0,
+      "max_clamped_cells": 0,
+      "rationale": {
+        "max_T_K": "adiabatic recovery temperature at M_inf=0.84 is approximately 324 K. 400 K leaves generous headroom for a transient overshoot while still catching the runaway that stopped the previous attempt, where cells pinned at whatever ceiling was set.",
+        "max_clamped_cells": "ZERO. The limitTemperature fvOption is a crash guard, not a boundary condition. If it fires even once in the smoke, the converged state would be shaped by it and no gate downstream would be unbiased.",
+        "growth_factor_max": "mean of the last 10 residual samples must not exceed the mean of the first 10. Windows, not endpoints: a monotone drift is what this catches and no two-point test can see it.",
+        "max_final_residual": "1e-2 is a SMOKE threshold. It asks whether the march is heading somewhere, not whether it has arrived. A smoke that meets it is not converged and grades nothing."
+      },
+      "max_cost_per_iteration_s": 2.34,
+      "cost_per_iteration_note": "CASE_PROTOCOL_CHARTER section 3 requires first-iteration cost to be predicted and to land within the estimate's band. Registered at 2x the MEASURED L2 one-iteration wall time of 1.17 s.",
+      "graded_quantity_sign_and_order": {
+        "quantity": "Cl (lift coefficient) on the wing patch",
+        "sign": "POSITIVE",
+        "order_of_magnitude": 0.3,
+        "band": [
+          0.15,
+          0.45
+        ],
+        "why": "ONERA M6 at alpha = 3.06 deg, M_inf = 0.8395 has Cl of order 0.3 and POSITIVE. This prediction is registered because the previous attempt on this mesh reported Cl = -0.308 and Cd = 1.52 at t = 500 -- a NEGATIVE lift and a wing drag coefficient of 1.5 -- alongside a wing-patch y+ max of 149,276 against a geometric first-cell y+ of 187. Those numbers are not a converged M6; they are a nonphysical state that rc = 0 did not catch. A sign-and-order prediction catches it. NOTE: at 8 percent of the run this is a SMOKE band, not a gate."
+      }
+    },
+    "ladder": [
+      {
+        "id": "M1",
+        "tier": "mesh",
+        "change": "re-smoke on L1 rather than L2, to separate a coarse-level topology artifact from a configuration defect",
+        "cost_core_min_est": 66.5
+      },
+      {
+        "id": "N1",
+        "tier": "numerics",
+        "change": "transonic yes (div(phid,p) Gauss upwind is already present, so the lever is live rather than dead)",
+        "cost_core_min_est": 9.8
+      },
+      {
+        "id": "N2",
+        "tier": "numerics",
+        "change": "tighten pressureControl from pMinFactor 0.9 / pMaxFactor 1.5 to 0.95 / 1.2",
+        "cost_core_min_est": 9.8
+      },
+      {
+        "id": "N3",
+        "tier": "numerics",
+        "change": "maxCo 0.2 -> 0.1 (also the time-step-independence probe of section 4.4)",
+        "cost_core_min_est": 19.6
+      },
+      {
+        "id": "N4",
+        "tier": "numerics",
+        "change": "div(phi,U) bounded Gauss upwind for the first 20 percent, then linearUpwind",
+        "cost_core_min_est": 9.8
+      },
+      {
+        "id": "X1",
+        "tier": "model",
+        "change": "isothermal wall at T = 324 K in place of the adiabatic zeroGradient. A DIAGNOSTIC for the trailing-edge energy trap and a CHANGE OF PHYSICS: any result under it is labelled isothermal-wall and is not the registered adiabatic case.",
+        "cost_core_min_est": 9.8
+      }
+    ]
+  },
+  "cost": {
+    "point_core_min": 15884.0,
+    "cap_core_min": 47652.0,
+    "cap_note": "CASE_PROTOCOL_CHARTER section 1 requires a cap at three times the estimate, and it is registered here. Under Sanaa's 2026-09-10 exemption the cap DOES NOT STOP this run: section 4's 'cap reached: stop, NOT A RESULT, never a raised cap' is suspended for M6CP1 as a 3D demo case. The cap is registered so the overrun is MEASURABLE, not so it is enforceable. NOTE ALSO that the runner's cap enforcement (D539) is advisory and OFF, so a silent runner is not evidence a cap was respected -- a cap never enforced and a cap never exceeded look identical in the log.",
+    "cost_basis": "core-minutes = wall s x ranks / 60, counted over EVERY solve under the run root with ranks from each log's OWN banner. Dollars DERIVED at $0.0513/core-h, reported-by-owner, NOT measured.",
+    "routing": "CPU on this box, detached under the runner daemon, PPID 1"
+  }
+}

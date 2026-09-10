@@ -1,0 +1,47 @@
+{
+  "case": "M6CP1",
+  "stage": 3,
+  "level": "L2",
+  "registered_utc": "2026-09-10T17:43:44Z",
+  "smoke_fraction_of_full_run": 0.08,
+  "smoke_steps": 400,
+  "full_run_steps": 5000,
+  "predictions": {
+    "min_steps": 400,
+    "max_final_residual": {
+      "p": 0.01,
+      "U": 0.01,
+      "e": 0.01,
+      "k": 0.01,
+      "omega": 0.01
+    },
+    "must_not_grow": [
+      "p",
+      "U",
+      "e"
+    ],
+    "growth_factor_max": 1.0,
+    "max_T_K": 400.0,
+    "max_clamped_cells": 0,
+    "rationale": {
+      "max_T_K": "adiabatic recovery temperature at M_inf=0.84 is approximately 324 K. 400 K leaves generous headroom for a transient overshoot while still catching the runaway that stopped the previous attempt, where cells pinned at whatever ceiling was set.",
+      "max_clamped_cells": "ZERO. The limitTemperature fvOption is a crash guard, not a boundary condition. If it fires even once in the smoke, the converged state would be shaped by it and no gate downstream would be unbiased.",
+      "growth_factor_max": "mean of the last 10 residual samples must not exceed the mean of the first 10. Windows, not endpoints: a monotone drift is what this catches and no two-point test can see it.",
+      "max_final_residual": "1e-2 is a SMOKE threshold. It asks whether the march is heading somewhere, not whether it has arrived. A smoke that meets it is not converged and grades nothing."
+    },
+    "max_cost_per_iteration_s": 2.34,
+    "cost_per_iteration_note": "CASE_PROTOCOL_CHARTER section 3 requires first-iteration cost to be predicted and to land within the estimate's band. Registered at 2x the MEASURED L2 one-iteration wall time of 1.17 s.",
+    "graded_quantity_sign_and_order": {
+      "quantity": "Cl (lift coefficient) on the wing patch",
+      "sign": "POSITIVE",
+      "order_of_magnitude": 0.3,
+      "band": [
+        0.15,
+        0.45
+      ],
+      "why": "ONERA M6 at alpha = 3.06 deg, M_inf = 0.8395 has Cl of order 0.3 and POSITIVE. This prediction is registered because the previous attempt on this mesh reported Cl = -0.308 and Cd = 1.52 at t = 500 -- a NEGATIVE lift and a wing drag coefficient of 1.5 -- alongside a wing-patch y+ max of 149,276 against a geometric first-cell y+ of 187. Those numbers are not a converged M6; they are a nonphysical state that rc = 0 did not catch. A sign-and-order prediction catches it. NOTE: at 8 percent of the run this is a SMOKE band, not a gate."
+    }
+  },
+  "decision_rule": "EVERY prediction must hold. A smoke that satisfies some predictions and not others is a FAIL, not a partial pass -- the predictions were chosen because each of them independently distinguishes a run that is working from one that is not.",
+  "what_a_pass_means": "the solver survives this configuration for this many steps and its state is within the registered envelope. It does NOT mean the answer is right, and no gate is graded here."
+}

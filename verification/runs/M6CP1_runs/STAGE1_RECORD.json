@@ -1,0 +1,783 @@
+{
+  "stage": 1,
+  "case": "M6CP1",
+  "case_class": "external_transonic_wing_steady_RANS_3D",
+  "run_utc": "2026-09-10T17:20:07Z",
+  "levels": [
+    {
+      "level": "L0",
+      "mesh_dir": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/case/constant/polyMesh",
+      "refusals": [],
+      "n_cells": 4592640,
+      "n_cells_source": "checkMesh stdout: cells: 4592640 (/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/case/log.checkMesh)",
+      "n_faces": 13827904,
+      "n_points": 4642945,
+      "bbox": {
+        "min": [
+          -46.68590908,
+          -52.31805062,
+          0.0
+        ],
+        "max": [
+          50.79673792,
+          52.3183257,
+          47.56160306
+        ]
+      },
+      "patches": {
+        "wing": 24960,
+        "symmetry": 50048,
+        "farfield": 24960
+      },
+      "n_cells_topology_crosscheck": 4592640,
+      "geometry_gate": {
+        "name": "GEOM-1 ONERA M6 planform admission (multi-limb)",
+        "value": 1.216404576,
+        "tol": 0.03,
+        "verdict": "PASS",
+        "limbs": [
+          {
+            "limb": "LE sweep deg",
+            "value": 29.9999842576788,
+            "target": 30.0,
+            "tol": 0.1,
+            "mode": "abs",
+            "error": 1.57423211994967e-05,
+            "pass": true,
+            "points_on_edge": 282
+          },
+          {
+            "limb": "TE sweep deg",
+            "value": 15.763692578044951,
+            "target": 15.8,
+            "tol": 0.1,
+            "mode": "abs",
+            "error": 0.036307421955049435,
+            "pass": true,
+            "points_on_edge": 1182
+          },
+          {
+            "limb": "root chord m",
+            "value": 0.8062162768769978,
+            "target": 0.8059,
+            "tol": 0.01,
+            "mode": "rel",
+            "error": 0.0003924517644842629,
+            "pass": true
+          },
+          {
+            "limb": "root t/c",
+            "value": 0.09754155066754851,
+            "target": 0.0977,
+            "tol": 0.02,
+            "mode": "rel",
+            "error": 0.0016217946003222923,
+            "pass": true
+          },
+          {
+            "limb": "span extent m",
+            "value": 1.216404576,
+            "target": 1.19676,
+            "tol": 0.03,
+            "mode": "rel",
+            "error": 0.016414799959891636,
+            "pass": true
+          }
+        ],
+        "sweep_diagnostics": {
+          "LE sweep deg": {
+            "hull_vertices": 12,
+            "edge_length_m": 1.2697092006022173,
+            "edge_endpoints": [
+              [
+                0.03812280843,
+                0.02201117342
+              ],
+              [
+                1.137723406,
+                0.6568654716
+              ]
+            ],
+            "points_on_edge": 282,
+            "span_window_m": [
+              0.0,
+              1.1847924
+            ],
+            "method": "longest convex-hull edge on the chosen side. An extreme point is extreme at any mesh density, so for a STRAIGHT edge this is exact on a coarse mesh and on a fine one alike -- which is the whole requirement for a gate that has to judge every level of a grid family by the same standard."
+          },
+          "TE sweep deg": {
+            "hull_vertices": 12,
+            "edge_length_m": 0.8179641544601576,
+            "edge_endpoints": [
+              [
+                1.169943872,
+                1.136477431
+              ],
+              [
+                0.3827430713,
+                0.9142607409
+              ]
+            ],
+            "points_on_edge": 1182,
+            "span_window_m": [
+              0.0,
+              1.1847924
+            ],
+            "method": "longest convex-hull edge on the chosen side. An extreme point is extreme at any mesh density, so for a STRAIGHT edge this is exact on a coarse mesh and on a fine one alike -- which is the whole requirement for a gate that has to judge every level of a grid family by the same standard."
+          }
+        },
+        "tip_cap_overhang_m": 0.019644575999999914,
+        "tip_cap_overhang_rel": 0.016414799959891636,
+        "detail": "planform admitted on 5 limbs; wall-patch span extent 1.216405 m against registered semispan 1.196760 m, i.e. a faired TIP CAP overhanging by 0.019645 m (1.64 %).  THE REAL ONERA M6 HAS A BLUNT, FLAT TIP; this mesh closes the tip to a faired point.  That is a registered geometry DEPARTURE, not a mesh error, and it sits outboard of every grading station -- but it is the geometry the outboard stations see and it is recorded here so no figure can claim otherwise.",
+        "source_file": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/work/volumeMesh.xyz",
+        "sha256": "7dd30a4b1e6bbed04fda5a0af493b19e0ee38e8204db4f362ed4ece195c51b39"
+      },
+      "checkmesh_ok": true,
+      "checkmesh_stars": [],
+      "wall_spacing": {
+        "y1_min": 3.563602974700898e-05,
+        "y1_median": 5.0725105783510654e-05,
+        "y1_mean": 5.151057173641974e-05,
+        "y1_max": 0.00014756138548002279,
+        "method": "2*|(Ccell-Cface).nhat|, Ccell = area-weighted mean of the cell's face centroids"
+      },
+      "yplus_estimate": {
+        "min": 10.772530601262611,
+        "median": 15.333856161432108,
+        "mean": 15.571297202817288,
+        "max": 44.60680810778798
+      },
+      "yplus_note": "first-cell-CENTRE y+ from the 1/7-power flat-plate law at x_ref; an ESTIMATE good to order tens of percent, used to answer a question whose admissible range is a factor of 300 wide",
+      "wall_treatment": "spalding_allyplus",
+      "resolution_verdict": {
+        "admissible": true,
+        "region": "buffer/blend region of Spalding's law",
+        "yplus_mean": 15.571297202817288,
+        "reason": "y+ 15.6 lies in the buffer/blend region of Spalding's law; Spalding's law is a single continuous fit and is valid there",
+        "triple_caveat": "Spalding's effective form varies with y+.  If the levels of a grid family sit in different regions of that fit, the level-to-level change contains a MODEL variation as well as a discretisation error, and Richardson extrapolation cannot separate them.  Any observed order from such a family carries that contamination and must be labelled with it."
+      },
+      "admitted": true
+    },
+    {
+      "level": "L1",
+      "mesh_dir": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L1/case/constant/polyMesh",
+      "refusals": [],
+      "n_cells": 574080,
+      "n_cells_source": "checkMesh stdout: cells: 574080 (/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L1/case/log.checkMesh)",
+      "n_faces": 1734736,
+      "n_points": 586737,
+      "bbox": {
+        "min": [
+          -46.21140242,
+          -50.30057836,
+          0.0
+        ],
+        "max": [
+          50.2065391,
+          50.30083495,
+          47.01815548
+        ]
+      },
+      "patches": {
+        "wing": 6240,
+        "symmetry": 12512,
+        "farfield": 6240
+      },
+      "n_cells_topology_crosscheck": 574080,
+      "geometry_gate": {
+        "name": "GEOM-1 ONERA M6 planform admission (multi-limb)",
+        "value": 1.216404576,
+        "tol": 0.03,
+        "verdict": "PASS",
+        "limbs": [
+          {
+            "limb": "LE sweep deg",
+            "value": 29.9999842576788,
+            "target": 30.0,
+            "tol": 0.1,
+            "mode": "abs",
+            "error": 1.57423211994967e-05,
+            "pass": true,
+            "points_on_edge": 56
+          },
+          {
+            "limb": "TE sweep deg",
+            "value": 15.763692578044951,
+            "target": 15.8,
+            "tol": 0.1,
+            "mode": "abs",
+            "error": 0.036307421955049435,
+            "pass": true,
+            "points_on_edge": 294
+          },
+          {
+            "limb": "root chord m",
+            "value": 0.8062162768769978,
+            "target": 0.8059,
+            "tol": 0.01,
+            "mode": "rel",
+            "error": 0.0003924517644842629,
+            "pass": true
+          },
+          {
+            "limb": "root t/c",
+            "value": 0.09754155066754851,
+            "target": 0.0977,
+            "tol": 0.02,
+            "mode": "rel",
+            "error": 0.0016217946003222923,
+            "pass": true
+          },
+          {
+            "limb": "span extent m",
+            "value": 1.216404576,
+            "target": 1.19676,
+            "tol": 0.03,
+            "mode": "rel",
+            "error": 0.016414799959891636,
+            "pass": true
+          }
+        ],
+        "sweep_diagnostics": {
+          "LE sweep deg": {
+            "hull_vertices": 17,
+            "edge_length_m": 1.2697092006022173,
+            "edge_endpoints": [
+              [
+                0.03812280843,
+                0.02201117342
+              ],
+              [
+                1.137723406,
+                0.6568654716
+              ]
+            ],
+            "points_on_edge": 56,
+            "span_window_m": [
+              0.0,
+              1.1847924
+            ],
+            "method": "longest convex-hull edge on the chosen side. An extreme point is extreme at any mesh density, so for a STRAIGHT edge this is exact on a coarse mesh and on a fine one alike -- which is the whole requirement for a gate that has to judge every level of a grid family by the same standard."
+          },
+          "TE sweep deg": {
+            "hull_vertices": 17,
+            "edge_length_m": 0.8179641544601576,
+            "edge_endpoints": [
+              [
+                1.169943872,
+                1.136477431
+              ],
+              [
+                0.3827430713,
+                0.9142607409
+              ]
+            ],
+            "points_on_edge": 294,
+            "span_window_m": [
+              0.0,
+              1.1847924
+            ],
+            "method": "longest convex-hull edge on the chosen side. An extreme point is extreme at any mesh density, so for a STRAIGHT edge this is exact on a coarse mesh and on a fine one alike -- which is the whole requirement for a gate that has to judge every level of a grid family by the same standard."
+          }
+        },
+        "tip_cap_overhang_m": 0.019644575999999914,
+        "tip_cap_overhang_rel": 0.016414799959891636,
+        "detail": "planform admitted on 5 limbs; wall-patch span extent 1.216405 m against registered semispan 1.196760 m, i.e. a faired TIP CAP overhanging by 0.019645 m (1.64 %).  THE REAL ONERA M6 HAS A BLUNT, FLAT TIP; this mesh closes the tip to a faired point.  That is a registered geometry DEPARTURE, not a mesh error, and it sits outboard of every grading station -- but it is the geometry the outboard stations see and it is recorded here so no figure can claim otherwise.",
+        "source_file": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L1/work/volumeMesh.xyz",
+        "sha256": "20691a64113d56e3fa1bab42445e08a8e4e7f95d938e0fa4461959accb5b29da"
+      },
+      "checkmesh_ok": true,
+      "checkmesh_stars": [],
+      "wall_spacing": {
+        "y1_min": 7.834515217920997e-05,
+        "y1_median": 0.00010516838697400803,
+        "y1_mean": 0.00010725878098449979,
+        "y1_max": 0.00029511883014248614,
+        "method": "2*|(Ccell-Cface).nhat|, Ccell = area-weighted mean of the cell's face centroids"
+      },
+      "yplus_estimate": {
+        "min": 23.68320924925573,
+        "median": 31.791691583095595,
+        "mean": 32.42360354429292,
+        "max": 89.21242493309991
+      },
+      "yplus_note": "first-cell-CENTRE y+ from the 1/7-power flat-plate law at x_ref; an ESTIMATE good to order tens of percent, used to answer a question whose admissible range is a factor of 300 wide",
+      "wall_treatment": "spalding_allyplus",
+      "resolution_verdict": {
+        "admissible": true,
+        "region": "logarithmic region of Spalding's law",
+        "yplus_mean": 32.42360354429292,
+        "reason": "y+ 32.4 lies in the logarithmic region of Spalding's law; Spalding's law is a single continuous fit and is valid there",
+        "triple_caveat": "Spalding's effective form varies with y+.  If the levels of a grid family sit in different regions of that fit, the level-to-level change contains a MODEL variation as well as a discretisation error, and Richardson extrapolation cannot separate them.  Any observed order from such a family carries that contamination and must be labelled with it."
+      },
+      "admitted": true
+    },
+    {
+      "level": "L2",
+      "mesh_dir": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/case/constant/polyMesh",
+      "refusals": [],
+      "n_cells": 71760,
+      "n_cells_source": "checkMesh stdout: cells: 71760 (/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/case/log.checkMesh)",
+      "n_faces": 218404,
+      "n_points": 74965,
+      "bbox": {
+        "min": [
+          -43.9067426,
+          -45.57763577,
+          0.0
+        ],
+        "max": [
+          48.45160714,
+          45.57975267,
+          45.14546133
+        ]
+      },
+      "patches": {
+        "wing": 1560,
+        "symmetry": 3128,
+        "farfield": 1560
+      },
+      "n_cells_topology_crosscheck": 71760,
+      "geometry_gate": {
+        "name": "GEOM-1 ONERA M6 planform admission (multi-limb)",
+        "value": 1.216404576,
+        "tol": 0.03,
+        "verdict": "PASS",
+        "limbs": [
+          {
+            "limb": "LE sweep deg",
+            "value": 29.9999842576788,
+            "target": 30.0,
+            "tol": 0.1,
+            "mode": "abs",
+            "error": 1.57423211994967e-05,
+            "pass": true,
+            "points_on_edge": 21
+          },
+          {
+            "limb": "TE sweep deg",
+            "value": 15.763692578044951,
+            "target": 15.8,
+            "tol": 0.1,
+            "mode": "abs",
+            "error": 0.036307421955049435,
+            "pass": true,
+            "points_on_edge": 63
+          },
+          {
+            "limb": "root chord m",
+            "value": 0.8062162768769978,
+            "target": 0.8059,
+            "tol": 0.01,
+            "mode": "rel",
+            "error": 0.0003924517644842629,
+            "pass": true
+          },
+          {
+            "limb": "root t/c",
+            "value": 0.09754155066754851,
+            "target": 0.0977,
+            "tol": 0.02,
+            "mode": "rel",
+            "error": 0.0016217946003222923,
+            "pass": true
+          },
+          {
+            "limb": "span extent m",
+            "value": 1.216404576,
+            "target": 1.19676,
+            "tol": 0.03,
+            "mode": "rel",
+            "error": 0.016414799959891636,
+            "pass": true
+          }
+        ],
+        "sweep_diagnostics": {
+          "LE sweep deg": {
+            "hull_vertices": 36,
+            "edge_length_m": 1.2697092006022173,
+            "edge_endpoints": [
+              [
+                0.03812280843,
+                0.02201117342
+              ],
+              [
+                1.137723406,
+                0.6568654716
+              ]
+            ],
+            "points_on_edge": 21,
+            "span_window_m": [
+              0.0,
+              1.1847924
+            ],
+            "method": "longest convex-hull edge on the chosen side. An extreme point is extreme at any mesh density, so for a STRAIGHT edge this is exact on a coarse mesh and on a fine one alike -- which is the whole requirement for a gate that has to judge every level of a grid family by the same standard."
+          },
+          "TE sweep deg": {
+            "hull_vertices": 36,
+            "edge_length_m": 0.8179641544601576,
+            "edge_endpoints": [
+              [
+                1.169943872,
+                1.136477431
+              ],
+              [
+                0.3827430713,
+                0.9142607409
+              ]
+            ],
+            "points_on_edge": 63,
+            "span_window_m": [
+              0.0,
+              1.1847924
+            ],
+            "method": "longest convex-hull edge on the chosen side. An extreme point is extreme at any mesh density, so for a STRAIGHT edge this is exact on a coarse mesh and on a fine one alike -- which is the whole requirement for a gate that has to judge every level of a grid family by the same standard."
+          }
+        },
+        "tip_cap_overhang_m": 0.019644575999999914,
+        "tip_cap_overhang_rel": 0.016414799959891636,
+        "detail": "planform admitted on 5 limbs; wall-patch span extent 1.216405 m against registered semispan 1.196760 m, i.e. a faired TIP CAP overhanging by 0.019645 m (1.64 %).  THE REAL ONERA M6 HAS A BLUNT, FLAT TIP; this mesh closes the tip to a faired point.  That is a registered geometry DEPARTURE, not a mesh error, and it sits outboard of every grading station -- but it is the geometry the outboard stations see and it is recorded here so no figure can claim otherwise.",
+        "source_file": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/work/volumeMesh.xyz",
+        "sha256": "733fecc08b50c324a03fcbe90b81d7f73a2b61e61e22599919c3cd25b0f29677"
+      },
+      "checkmesh_ok": true,
+      "checkmesh_stars": [],
+      "wall_spacing": {
+        "y1_min": 0.0001503376884208183,
+        "y1_median": 0.00023260958511591427,
+        "y1_mean": 0.00024270946942059451,
+        "y1_max": 0.0006186990212970299,
+        "method": "2*|(Ccell-Cface).nhat|, Ccell = area-weighted mean of the cell's face centroids"
+      },
+      "yplus_estimate": {
+        "min": 45.44606569625727,
+        "median": 70.31630323573022,
+        "mean": 73.36942990314502,
+        "max": 187.02852666837524
+      },
+      "yplus_note": "first-cell-CENTRE y+ from the 1/7-power flat-plate law at x_ref; an ESTIMATE good to order tens of percent, used to answer a question whose admissible range is a factor of 300 wide",
+      "wall_treatment": "spalding_allyplus",
+      "resolution_verdict": {
+        "admissible": true,
+        "region": "logarithmic region of Spalding's law",
+        "yplus_mean": 73.36942990314502,
+        "reason": "y+ 73.4 lies in the logarithmic region of Spalding's law; Spalding's law is a single continuous fit and is valid there",
+        "triple_caveat": "Spalding's effective form varies with y+.  If the levels of a grid family sit in different regions of that fit, the level-to-level change contains a MODEL variation as well as a discretisation error, and Richardson extrapolation cannot separate them.  Any observed order from such a family carries that contamination and must be labelled with it."
+      },
+      "admitted": true
+    }
+  ],
+  "refinement_ratios": [
+    {
+      "fine": "L0",
+      "coarse": "L1",
+      "n_fine": 4592640,
+      "n_coarse": 574080,
+      "r": 2.0,
+      "r_source": "(N_fine/N_coarse)**(1/3), both counts from checkMesh stdout"
+    },
+    {
+      "fine": "L1",
+      "coarse": "L2",
+      "n_fine": 574080,
+      "n_coarse": 71760,
+      "r": 2.0,
+      "r_source": "(N_fine/N_coarse)**(1/3), both counts from checkMesh stdout"
+    }
+  ],
+  "family_complete": true,
+  "tolerance_check": {
+    "gate_name": "GATE P",
+    "gate_tolerance": 0.02,
+    "solver_tolerances": {
+      "p": 1e-08,
+      "U": 1e-09,
+      "e": 1e-09,
+      "k": 1e-09,
+      "omega": 1e-09
+    },
+    "worst_field": "p",
+    "worst_value": 1e-08,
+    "margin_decades": 6.301029995663981,
+    "ok": true,
+    "reason": "loosest solver tolerance p=1e-08 vs gate 0.02: 6.30 decades of clear air, need 1"
+  },
+  "pins": [
+    {
+      "path": "verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py",
+      "role": "comparator",
+      "blob": "d7ca635fb0fcc5d90788c05063576dcc73be4717c62b3fb6235e01981014d9f7"
+    },
+    {
+      "path": "scripts/case_protocol_lib.py",
+      "role": "other",
+      "blob": "52ef8fe4b1709b8e4861b23efb41b3ebb4b8a376ba89da95c461dcfcff4127fb"
+    },
+    {
+      "path": "scripts/case_protocol_stage1_setup.py",
+      "role": "other",
+      "blob": "a7cce03efb6f555eb18ec0c3aecf147b626f9f9cf438453f6df99696d3ff8fd9"
+    },
+    {
+      "path": "scripts/case_protocol_stage2_bugcheck.py",
+      "role": "other",
+      "blob": "dc53dfa9059f5bd13fbc103d07f4dccbcc0fff0c90aedcb955e24cbbff5eafbd"
+    }
+  ],
+  "capacity": {
+    "verdict": "NOT EVALUABLE",
+    "fine_need_gib": null,
+    "level": "L0",
+    "mem_available_gib": 27.447471618652344,
+    "drained_ceiling_gib": 28.27230178833008,
+    "detail": "no measured solver bytes/cell registered; STAGE 2 measures it on the coarsest level and STAGE 3 re-checks before the full run. A meshing bytes/cell is NOT a solver bytes/cell and is not substituted here."
+  },
+  "blockage": {
+    "domain_extent_m": {
+      "x": 97.482647,
+      "y": 104.63637632000001,
+      "z": 47.56160306
+    },
+    "domain_extent_semispans": {
+      "x": 81.45546893278518,
+      "y": 87.43304950031752,
+      "z": 39.7419725425315
+    },
+    "domain_extent_MAC": {
+      "x": 150.88558050985188,
+      "y": 161.95826507963534,
+      "z": 73.61679548655718
+    },
+    "model_frontal_area_m2": 0.0773,
+    "domain_cross_section_m2": 4976.673796168624,
+    "blockage_ratio": 1.5532462678086456e-05,
+    "note": "blockage = model frontal area / domain cross-section.  Stated because a farfield that is merely 'far' is a claim, not a number."
+  },
+  "class_default_journal": [
+    {
+      "case_class": "external_transonic_wing_steady_RANS_3D",
+      "key": "wall_treatment",
+      "value": "spalding_allyplus",
+      "status": "class default, first use",
+      "rationale": "set by the wall-function family actually written into the 0/ directory",
+      "knowledge_base": "/home/ubuntu/Certonomous/docs/CASE_CLASS_DEFAULTS.json",
+      "kb_present": false
+    },
+    {
+      "case_class": "external_transonic_wing_steady_RANS_3D",
+      "key": "wall_treatment",
+      "value": "spalding_allyplus",
+      "status": "class default, first use",
+      "rationale": "set by the wall-function family actually written into the 0/ directory",
+      "knowledge_base": "/home/ubuntu/Certonomous/docs/CASE_CLASS_DEFAULTS.json",
+      "kb_present": false
+    },
+    {
+      "case_class": "external_transonic_wing_steady_RANS_3D",
+      "key": "wall_treatment",
+      "value": "spalding_allyplus",
+      "status": "class default, first use",
+      "rationale": "set by the wall-function family actually written into the 0/ directory",
+      "knowledge_base": "/home/ubuntu/Certonomous/docs/CASE_CLASS_DEFAULTS.json",
+      "kb_present": false
+    }
+  ],
+  "wall_clock_s": 48.96,
+  "case_construction": [
+    {
+      "level": "L0",
+      "case": "verification/runs/M6CP1_runs/L0/case",
+      "template": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/smoke_rhopimple_lts",
+      "template_sha256": "97026ec6a4730f2832ef83b61a4faf3f87d4682a648bcc69485c59e73993114f",
+      "copied": [
+        "system",
+        "0",
+        "constant/thermophysicalProperties",
+        "constant/turbulenceProperties"
+      ],
+      "mesh_symlink_target": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/case/constant/polyMesh",
+      "mesh_is_symlink_not_copy": true,
+      "deltas": [
+        {
+          "file": "system/controlDict",
+          "pattern": "^application\\s+\\S+;",
+          "replacement": "application     rhoPimpleFoam;",
+          "matches": 1,
+          "why": "solver named by the registration, not inherited from whatever the template last ran"
+        },
+        {
+          "file": "system/controlDict",
+          "pattern": "^endTime\\s+\\S+;",
+          "replacement": "endTime         5000;",
+          "matches": 1,
+          "why": "full-run length registered before compute"
+        },
+        {
+          "file": "system/controlDict",
+          "pattern": "^writeInterval\\s+\\S+;",
+          "replacement": "writeInterval   100;",
+          "matches": 1,
+          "why": "THE PLATEAU LIMB NEEDS A TRAILING WINDOW OF THE RUN'S OWN HISTORY. The template wrote once, at endTime; one write cannot carry a plateau statistic at all, and a two-write cadence would only permit the two-point test that VERIFICATION_CHARTER 2bd forbids. This cadence gives 50 writes."
+        },
+        {
+          "file": "system/controlDict",
+          "pattern": "^deltaT\\s+\\S+;",
+          "replacement": "deltaT          1;",
+          "matches": 1,
+          "why": "pseudo-time step index; with localEuler the physical value is set per cell from maxCo"
+        },
+        {
+          "file": "system/fvSchemes",
+          "insert_before": "^\\s*div\\(phi,U\\)",
+          "block": "// DEAD-LEVER REPAIR (stage 2 audit rule TRANSONIC).  Without this entry, setting\n    // `transonic yes` in fvSolution aborts at the first pressure solve on\n    //   Entry 'div(phid,p)' not found in dictionary \"system/fvSchemes/divSchemes\"\n    // because `default none;` makes an unruled term a hard abort.  On this case that\n    // is exactly what happened: the diagnostic registered to TEST the transonic\n    // switch died in dictionary lookup at Time = 1 having exercised nothing, and the\n    // record then carried a rung as tried that was never once pulled.\n    div(phid,p)                                   Gauss upwind;",
+          "why": "makes the transonic lever pullable; it does NOT turn it on"
+        },
+        {
+          "file": "system/fvSolution",
+          "pattern": "tolerance\\s+1e-8;\\s*relTol\\s+0\\.01;",
+          "replacement": "tolerance 1e-08; relTol 0.01;",
+          "matches": 1,
+          "why": "p linear tolerance from the registration (T23G2Rn2: strictly tighter than every gate)"
+        },
+        {
+          "file": "system/fvSolution",
+          "pattern": "tolerance\\s+1e-8;\\s*relTol\\s+0;",
+          "replacement": "tolerance 1e-09; relTol 0;",
+          "matches": 2,
+          "why": "final-corrector tolerances from the registration"
+        }
+      ],
+      "written_sha256": "fafb09f0503b930264fbb939b06b888a2c881d83744991dfd09495589027db78"
+    },
+    {
+      "level": "L1",
+      "case": "verification/runs/M6CP1_runs/L1/case",
+      "template": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/smoke_rhopimple_lts",
+      "template_sha256": "97026ec6a4730f2832ef83b61a4faf3f87d4682a648bcc69485c59e73993114f",
+      "copied": [
+        "system",
+        "0",
+        "constant/thermophysicalProperties",
+        "constant/turbulenceProperties"
+      ],
+      "mesh_symlink_target": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L1/case/constant/polyMesh",
+      "mesh_is_symlink_not_copy": true,
+      "deltas": [
+        {
+          "file": "system/controlDict",
+          "pattern": "^application\\s+\\S+;",
+          "replacement": "application     rhoPimpleFoam;",
+          "matches": 1,
+          "why": "solver named by the registration, not inherited from whatever the template last ran"
+        },
+        {
+          "file": "system/controlDict",
+          "pattern": "^endTime\\s+\\S+;",
+          "replacement": "endTime         5000;",
+          "matches": 1,
+          "why": "full-run length registered before compute"
+        },
+        {
+          "file": "system/controlDict",
+          "pattern": "^writeInterval\\s+\\S+;",
+          "replacement": "writeInterval   100;",
+          "matches": 1,
+          "why": "THE PLATEAU LIMB NEEDS A TRAILING WINDOW OF THE RUN'S OWN HISTORY. The template wrote once, at endTime; one write cannot carry a plateau statistic at all, and a two-write cadence would only permit the two-point test that VERIFICATION_CHARTER 2bd forbids. This cadence gives 50 writes."
+        },
+        {
+          "file": "system/controlDict",
+          "pattern": "^deltaT\\s+\\S+;",
+          "replacement": "deltaT          1;",
+          "matches": 1,
+          "why": "pseudo-time step index; with localEuler the physical value is set per cell from maxCo"
+        },
+        {
+          "file": "system/fvSchemes",
+          "insert_before": "^\\s*div\\(phi,U\\)",
+          "block": "// DEAD-LEVER REPAIR (stage 2 audit rule TRANSONIC).  Without this entry, setting\n    // `transonic yes` in fvSolution aborts at the first pressure solve on\n    //   Entry 'div(phid,p)' not found in dictionary \"system/fvSchemes/divSchemes\"\n    // because `default none;` makes an unruled term a hard abort.  On this case that\n    // is exactly what happened: the diagnostic registered to TEST the transonic\n    // switch died in dictionary lookup at Time = 1 having exercised nothing, and the\n    // record then carried a rung as tried that was never once pulled.\n    div(phid,p)                                   Gauss upwind;",
+          "why": "makes the transonic lever pullable; it does NOT turn it on"
+        },
+        {
+          "file": "system/fvSolution",
+          "pattern": "tolerance\\s+1e-8;\\s*relTol\\s+0\\.01;",
+          "replacement": "tolerance 1e-08; relTol 0.01;",
+          "matches": 1,
+          "why": "p linear tolerance from the registration (T23G2Rn2: strictly tighter than every gate)"
+        },
+        {
+          "file": "system/fvSolution",
+          "pattern": "tolerance\\s+1e-8;\\s*relTol\\s+0;",
+          "replacement": "tolerance 1e-09; relTol 0;",
+          "matches": 2,
+          "why": "final-corrector tolerances from the registration"
+        }
+      ],
+      "written_sha256": "fafb09f0503b930264fbb939b06b888a2c881d83744991dfd09495589027db78"
+    },
+    {
+      "level": "L2",
+      "case": "verification/runs/M6CP1_runs/L2/case",
+      "template": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/smoke_rhopimple_lts",
+      "template_sha256": "97026ec6a4730f2832ef83b61a4faf3f87d4682a648bcc69485c59e73993114f",
+      "copied": [
+        "system",
+        "0",
+        "constant/thermophysicalProperties",
+        "constant/turbulenceProperties"
+      ],
+      "mesh_symlink_target": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L2/case/constant/polyMesh",
+      "mesh_is_symlink_not_copy": true,
+      "deltas": [
+        {
+          "file": "system/controlDict",
+          "pattern": "^application\\s+\\S+;",
+          "replacement": "application     rhoPimpleFoam;",
+          "matches": 1,
+          "why": "solver named by the registration, not inherited from whatever the template last ran"
+        },
+        {
+          "file": "system/controlDict",
+          "pattern": "^endTime\\s+\\S+;",
+          "replacement": "endTime         5000;",
+          "matches": 1,
+          "why": "full-run length registered before compute"
+        },
+        {
+          "file": "system/controlDict",
+          "pattern": "^writeInterval\\s+\\S+;",
+          "replacement": "writeInterval   100;",
+          "matches": 1,
+          "why": "THE PLATEAU LIMB NEEDS A TRAILING WINDOW OF THE RUN'S OWN HISTORY. The template wrote once, at endTime; one write cannot carry a plateau statistic at all, and a two-write cadence would only permit the two-point test that VERIFICATION_CHARTER 2bd forbids. This cadence gives 50 writes."
+        },
+        {
+          "file": "system/controlDict",
+          "pattern": "^deltaT\\s+\\S+;",
+          "replacement": "deltaT          1;",
+          "matches": 1,
+          "why": "pseudo-time step index; with localEuler the physical value is set per cell from maxCo"
+        },
+        {
+          "file": "system/fvSchemes",
+          "insert_before": "^\\s*div\\(phi,U\\)",
+          "block": "// DEAD-LEVER REPAIR (stage 2 audit rule TRANSONIC).  Without this entry, setting\n    // `transonic yes` in fvSolution aborts at the first pressure solve on\n    //   Entry 'div(phid,p)' not found in dictionary \"system/fvSchemes/divSchemes\"\n    // because `default none;` makes an unruled term a hard abort.  On this case that\n    // is exactly what happened: the diagnostic registered to TEST the transonic\n    // switch died in dictionary lookup at Time = 1 having exercised nothing, and the\n    // record then carried a rung as tried that was never once pulled.\n    div(phid,p)                                   Gauss upwind;",
+          "why": "makes the transonic lever pullable; it does NOT turn it on"
+        },
+        {
+          "file": "system/fvSolution",
+          "pattern": "tolerance\\s+1e-8;\\s*relTol\\s+0\\.01;",
+          "replacement": "tolerance 1e-08; relTol 0.01;",
+          "matches": 1,
+          "why": "p linear tolerance from the registration (T23G2Rn2: strictly tighter than every gate)"
+        },
+        {
+          "file": "system/fvSolution",
+          "pattern": "tolerance\\s+1e-8;\\s*relTol\\s+0;",
+          "replacement": "tolerance 1e-09; relTol 0;",
+          "matches": 2,
+          "why": "final-corrector tolerances from the registration"
+        }
+      ],
+      "written_sha256": "fafb09f0503b930264fbb939b06b888a2c881d83744991dfd09495589027db78"
+    }
+  ]
+}

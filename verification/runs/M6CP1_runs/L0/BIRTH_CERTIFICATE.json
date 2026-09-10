@@ -1,0 +1,61 @@
+{
+  "case": "M6CP1",
+  "level": "L0",
+  "created_utc": "2026-09-10T17:20:07Z",
+  "mesh": {
+    "n_cells": 4592640,
+    "n_cells_source": "checkMesh stdout: cells: 4592640 (/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/case/log.checkMesh)",
+    "n_faces": 13827904,
+    "n_points": 4642945,
+    "bbox": {
+      "min": [
+        -46.68590908,
+        -52.31805062,
+        0.0
+      ],
+      "max": [
+        50.79673792,
+        52.3183257,
+        47.56160306
+      ]
+    },
+    "h_ref": 0.4727171531103737,
+    "refinement_ratio_vs_next_coarser": 2.0
+  },
+  "geometry": {
+    "source_file": "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/work/volumeMesh.xyz",
+    "sha256": "7dd30a4b1e6bbed04fda5a0af493b19e0ee38e8204db4f362ed4ece195c51b39",
+    "geometry_gate": {
+      "name": "GEOM-1 ONERA M6 planform admission (multi-limb)",
+      "value": 1.216404576,
+      "tol": 0.03,
+      "verdict": "PASS"
+    }
+  },
+  "generator": {
+    "script": "verification/runs/M6_OWN_FAMILY_runs/build_m6_own_L0.py",
+    "blob_sha": "83b3edeab79e5ceb3c2146a8046d7d89a3607d61e60056f51984642787aaa3d0",
+    "argv": [
+      "plot3dToFoam",
+      "-noBlank",
+      "/home/ubuntu/Certonomous/verification/runs/M6_OWN_FAMILY_runs/L0/work/volumeMesh.xyz"
+    ],
+    "rc": 0
+  },
+  "mesh_manifest_sha256": "131e1dead89c48f1ddb1638bab7badd0af06e1b21ce80cb6c32a29597a570856",
+  "mesh_manifest": {
+    "boundary": "40cf4993bf8e45c54e585fd6c25db2d9985a8229c23d6755d9e44c02b6a21e52",
+    "cellZones": "fa1cd3380c03f73dabbdac0fbc9a20454db6d010eae641b3a58974bea41fa9d8",
+    "faceZones": "1e9d0804e3b1f782b50589458e579ba70d5f079d738657ff5e2dfd0ce661966d",
+    "faces": "8bffda0938f4bc8df4bcbf0a49ce59a3d803e35dd97c7ba31acec7e301c16bd1",
+    "neighbour": "045c5b80f3719e591a30c9f09975e172c9bec050bb59f3c678ba1d1b6dc5c3d1",
+    "owner": "da62c314984bad4ed92b0d6e6337fa7a7d10edd6a4ddde2a8db00831c41411f1",
+    "pointZones": "2f270d457c1a91bbb5ad810bc6df2c23b0b1291bd847edd0aedcae75d55a266e",
+    "points": "aef313c32c73d93b795682ed411a41a797a05071e5bf8320c757634e6ae2dd58"
+  },
+  "notes": [
+    "planform admitted on 5 limbs; wall-patch span extent 1.216405 m against registered semispan 1.196760 m, i.e. a faired TIP CAP overhanging by 0.019645 m (1.64 %).  THE REAL ONERA M6 HAS A BLUNT, FLAT TIP; this mesh closes the tip to a faired point.  That is a registered geometry DEPARTURE, not a mesh error, and it sits outboard of every grading station -- but it is the geometry the outboard stations see and it is recorded here so no figure can claim otherwise.",
+    "y+ 15.6 lies in the buffer/blend region of Spalding's law; Spalding's law is a single continuous fit and is valid there",
+    "Spalding's effective form varies with y+.  If the levels of a grid family sit in different regions of that fit, the level-to-level change contains a MODEL variation as well as a discretisation error, and Richardson extrapolation cannot separate them.  Any observed order from such a family carries that contamination and must be labelled with it."
+  ]
+}

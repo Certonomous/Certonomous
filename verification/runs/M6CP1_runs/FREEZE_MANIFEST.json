@@ -1,0 +1,344 @@
+{
+  "case": "M6CP1",
+  "registration_path": "verification/campaign/M6CP1_PREREGISTRATION.md",
+  "registration_blob": "c9ee5b1265f6d2ee68274e9c642dd12efa1d0ee26bb6bb31c1675fa74934728a",
+  "freeze_commit": null,
+  "pins": [
+    {
+      "path": "verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py",
+      "role": "comparator",
+      "blob": "da0df95c81ded5833821cfd8a1f711d7f849f93c",
+      "sha256": "d7ca635fb0fcc5d90788c05063576dcc73be4717c62b3fb6235e01981014d9f7"
+    },
+    {
+      "path": "scripts/case_protocol_lib.py",
+      "role": "other",
+      "blob": "8b46845699ded3fabb40024d0cc3dfac48462590",
+      "sha256": "cba0d16c61dc990f683cd9daf2a99f120a5a6429b3ba8c7e6828740467a4cb41"
+    },
+    {
+      "path": "scripts/case_protocol_stage1_setup.py",
+      "role": "other",
+      "blob": "8701dc81de64ac14266c06c9b22f2818e7bc4aff",
+      "sha256": "a7cce03efb6f555eb18ec0c3aecf147b626f9f9cf438453f6df99696d3ff8fd9"
+    },
+    {
+      "path": "scripts/case_protocol_stage2_bugcheck.py",
+      "role": "other",
+      "blob": "ba07947ab6dd50fdc583ef0ab7ee7e17cb89146f",
+      "sha256": "c88de63d3dc2818ad8fee0feb9fe8798b792a74d5a96df95935b66f3f2e8eda2"
+    },
+    {
+      "path": "verification/runs/M6CP1_runs/CASE_SPEC.json",
+      "role": "registered_set",
+      "blob": "c22eff156668091c7dbfdcda5bdfd3dde51e5d3e",
+      "sha256": "682047581d3948aa44de6a0c0ce466783f81bc2d60751fc72f27fe53bb623895"
+    },
+    {
+      "path": "scripts/case_protocol_stage3_smoke.py",
+      "role": "launcher",
+      "blob": "e25fc060103b2769d8fa5c8092966bfc6324d423",
+      "sha256": "ed904d3a18199774d5db3b02ec181646d5486daae3be904eef32be547605fa26"
+    },
+    {
+      "path": "scripts/case_protocol_stage4_run.py",
+      "role": "launcher",
+      "blob": "425aeed988ae63843a851b9aa720a721a142c98c",
+      "sha256": "c65be6f06e7e956a7a01f8b568dccfd9b94f87bf4da5f957cf7b63cdd9cd4304"
+    },
+    {
+      "path": "scripts/case_protocol_freeze_manifest.py",
+      "role": "manifest",
+      "blob": "b3df462b32054457bc0b45e965ea4b2f4cff0ee4",
+      "sha256": "7f866b3cf97af0f7338f1c87b03e4354f74b08a78c97a096f189440a7e5ad871"
+    }
+  ],
+  "invocations": [
+    {
+      "name": "stage1_setup",
+      "cwd": "/home/ubuntu/Certonomous",
+      "env_keys": [
+        "PATH",
+        "PYTHONPATH"
+      ],
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/case_protocol_stage1_setup.py",
+        "--spec",
+        "verification/runs/M6CP1_runs/CASE_SPEC.json",
+        "--out",
+        "verification/runs/M6CP1_runs",
+        "--emit"
+      ]
+    },
+    {
+      "name": "stage2_bugcheck",
+      "cwd": "/home/ubuntu/Certonomous",
+      "env_keys": [
+        "PATH",
+        "WM_PROJECT_DIR"
+      ],
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/case_protocol_stage2_bugcheck.py",
+        "--spec",
+        "verification/runs/M6CP1_runs/CASE_SPEC.json",
+        "--out",
+        "verification/runs/M6CP1_runs",
+        "--case-root",
+        "verification/runs/M6CP1_runs",
+        "--solver",
+        "rhoPimpleFoam",
+        "--comparator",
+        "verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py",
+        "--scratch",
+        "<scratch>"
+      ]
+    },
+    {
+      "name": "stage3_smoke",
+      "cwd": "/home/ubuntu/Certonomous",
+      "env_keys": [
+        "PATH",
+        "WM_PROJECT_DIR"
+      ],
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/case_protocol_stage3_smoke.py",
+        "--spec",
+        "verification/runs/M6CP1_runs/CASE_SPEC.json",
+        "--out",
+        "verification/runs/M6CP1_runs",
+        "--case-root",
+        "verification/runs/M6CP1_runs",
+        "--level",
+        "L2",
+        "--fraction",
+        "0.08",
+        "--ranks",
+        "1"
+      ]
+    },
+    {
+      "name": "stage4_run",
+      "cwd": "/home/ubuntu/Certonomous",
+      "env_keys": [
+        "PATH",
+        "WM_PROJECT_DIR"
+      ],
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/case_protocol_stage4_run.py",
+        "--spec",
+        "verification/runs/M6CP1_runs/CASE_SPEC.json",
+        "--out",
+        "verification/runs/M6CP1_runs",
+        "--case-root",
+        "verification/runs/M6CP1_runs",
+        "--level",
+        "L2",
+        "--ranks",
+        "4",
+        "--grader",
+        "verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py",
+        "--go"
+      ]
+    },
+    {
+      "name": "freeze_check",
+      "cwd": "/home/ubuntu/Certonomous",
+      "env_keys": [
+        "PATH"
+      ],
+      "argv": [
+        "/usr/bin/python3",
+        "scripts/check_comparator_freeze.py",
+        "--repo",
+        "/home/ubuntu/Certonomous",
+        "--registration",
+        "verification/campaign/M6CP1_PREREGISTRATION.md",
+        "--restrict-to-registration"
+      ],
+      "note": "--restrict-to-registration is MANDATORY and is pinned here as argv rather than remembered; unrestricted the checker exits 3 on rows belonging to other campaigns"
+    }
+  ],
+  "guards": [
+    {
+      "name": "age_guard",
+      "armed": "unconditional",
+      "condition": "every field at endTime must have st_mtime NEWER than the case's own 0/T",
+      "armed_by_pin": "scripts/case_protocol_lib.py",
+      "arming_datum_present": true,
+      "arming_value": "completion_report(): age_pass is set False on any field not newer; 'age guard' is appended to failed_clauses whenever age_pass is not True",
+      "note": "0/T is touched last at launch by the stage-4 wrapper, so it dates the run allowed to produce the answer."
+    },
+    {
+      "name": "cell_count_source",
+      "armed": "unconditional",
+      "condition": "n_cells_from_checkmesh() returns (None, reason) unless a 'cells: N' line is found in a checkMesh log; len(owner) is nFaces and is used nowhere",
+      "armed_by_pin": "scripts/case_protocol_lib.py",
+      "arming_datum_present": true,
+      "arming_value": "regex ^\\s*cells:\\s*(\\d+)\\s*$ against checkMesh stdout"
+    },
+    {
+      "name": "planted_control_perturbation_arm",
+      "armed": "by_data",
+      "condition": "a written time directory carrying p must exist to plant into; without one the arm reports NOT DISCHARGEABLE rather than passing by default",
+      "armed_by_pin": "scripts/case_protocol_stage2_bugcheck.py",
+      "arming_datum_present": true,
+      "arming_value": "verification/runs/M6CP1_runs/L0/case/0"
+    },
+    {
+      "name": "instrument_source_arm",
+      "armed": "unconditional",
+      "condition": "SOURCE_DEFECT_RULES applied to the comparator's text: two-point plateau, cell count from owner, literal claim string, silent zero default",
+      "armed_by_pin": "scripts/case_protocol_stage2_bugcheck.py",
+      "arming_datum_present": true,
+      "arming_value": "4 rules; reported SEPARATELY from the perturbation arm because 'can see its input' and 'computes the right thing' are different claims"
+    },
+    {
+      "name": "clamp_not_firing",
+      "armed": "by_data",
+      "condition": "max(LimitedCells reported by the limitTemperature fvOption) <= max_clamped_cells",
+      "armed_by_pin": "verification/runs/M6CP1_runs/CASE_SPEC.json",
+      "arming_datum_present": true,
+      "arming_value": 0,
+      "note": "a clamp active at the plateau is a boundary condition on the answer, not a stabiliser, and biases every gate downstream of it"
+    },
+    {
+      "name": "plateau_window",
+      "armed": "by_data",
+      "condition": "trailing-window plateau statistic declared before the run; NOT a difference between the last two writes (VERIFICATION_CHARTER 2bd)",
+      "armed_by_pin": "verification/runs/M6CP1_runs/CASE_SPEC.json",
+      "arming_datum_present": true,
+      "arming_value": {
+        "window": "trailing 20 percent of writes (the last 10 of 50)",
+        "statistic": "max absolute deviation from the window mean, relative to the window mean",
+        "tolerance": 0.0005
+      }
+    },
+    {
+      "name": "registration_committed_before_compute",
+      "armed": "unconditional",
+      "condition": "git cat-file -e HEAD:<registration_path> must succeed in stage 4 preflight; a refusal blocks the launch",
+      "armed_by_pin": "scripts/case_protocol_stage4_run.py",
+      "arming_datum_present": true,
+      "arming_value": "verification/campaign/M6CP1_PREREGISTRATION.md"
+    },
+    {
+      "name": "mesh_matches_birth_certificate",
+      "armed": "unconditional",
+      "condition": "verify_birth() re-hashes every file in the level's mesh manifest; a MUTATED or UNCERTIFIED file refuses the launch",
+      "armed_by_pin": "scripts/case_protocol_lib.py",
+      "arming_datum_present": true,
+      "arming_value": "renumberMesh -overwrite is the documented way a certified mesh is rewritten in place on this box, and it happens silently"
+    }
+  ],
+  "gates": [
+    {
+      "name": "GATE P",
+      "metric": "dCp at 7 span stations, x/c <= 0.90, M=0.8395",
+      "threshold": 0.02,
+      "band": "+/- 0.02",
+      "direction": "two-sided",
+      "label_if_pass": "PASS",
+      "label_if_fail": "GATE FAIL"
+    },
+    {
+      "name": "GATE G",
+      "metric": "rule-5 Roache triple on {L2,L1,L0}, observed order + GCI at Fs=1.25",
+      "threshold": 0.05,
+      "band": "CONVERGING required; NOT A RESULT otherwise",
+      "direction": "classification",
+      "label_if_pass": "PASS",
+      "label_if_fail": "GATE FAIL"
+    }
+  ],
+  "solver_tolerance": {
+    "p": 1e-08,
+    "U": 1e-09,
+    "e": 1e-09,
+    "k": 1e-09,
+    "omega": 1e-09
+  },
+  "tightest_gate": {
+    "name": "GATE P",
+    "threshold": 0.02
+  },
+  "tolerance_strictly_tighter": true,
+  "cost": {
+    "point_core_min": 15884.0,
+    "cap_core_min": 47652.0,
+    "cap_note": "CASE_PROTOCOL_CHARTER section 1 requires a cap at three times the estimate, and it is registered here. Under Sanaa's 2026-09-10 exemption the cap DOES NOT STOP this run: section 4's 'cap reached: stop, NOT A RESULT, never a raised cap' is suspended for M6CP1 as a 3D demo case. The cap is registered so the overrun is MEASURABLE, not so it is enforceable. NOTE ALSO that the runner's cap enforcement (D539) is advisory and OFF, so a silent runner is not evidence a cap was respected -- a cap never enforced and a cap never exceeded look identical in the log.",
+    "cost_basis": "core-minutes = wall s x ranks / 60, counted over EVERY solve under the run root with ranks from each log's OWN banner. Dollars DERIVED at $0.0513/core-h, reported-by-owner, NOT measured.",
+    "routing": "CPU on this box, detached under the runner daemon, PPID 1"
+  },
+  "blockage": {
+    "domain_extent_m": {
+      "x": 97.482647,
+      "y": 104.63637632000001,
+      "z": 47.56160306
+    },
+    "domain_extent_semispans": {
+      "x": 81.45546893278518,
+      "y": 87.43304950031752,
+      "z": 39.7419725425315
+    },
+    "domain_extent_MAC": {
+      "x": 150.88558050985188,
+      "y": 161.95826507963534,
+      "z": 73.61679548655718
+    },
+    "model_frontal_area_m2": 0.0773,
+    "domain_cross_section_m2": 4976.673796168624,
+    "blockage_ratio": 1.5532462678086456e-05,
+    "note": "blockage = model frontal area / domain cross-section.  Stated because a farfield that is merely 'far' is a claim, not a number."
+  },
+  "budget_gate": "NONE \u2014 Sanaa 2026-09-10",
+  "freeze_check": {
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/check_comparator_freeze.py",
+      "--repo",
+      "/home/ubuntu/Certonomous",
+      "--registration",
+      "verification/campaign/M6CP1_PREREGISTRATION.md",
+      "--restrict-to-registration"
+    ],
+    "rc": 3,
+    "pins_unseen": 0,
+    "pins_judged": 7,
+    "pins_ok": 1,
+    "pins_violating": 6,
+    "pins_uncommitted": [
+      "scripts/case_protocol_freeze_manifest.py",
+      "scripts/case_protocol_lib.py",
+      "scripts/case_protocol_stage1_setup.py",
+      "scripts/case_protocol_stage2_bugcheck.py",
+      "scripts/case_protocol_stage3_smoke.py",
+      "scripts/case_protocol_stage4_run.py"
+    ],
+    "tail": [
+      "      HEAD blob -   worktree blob ba07947ab6dd50fdc583ef0ab7ee7e17cb89146f   1 sha(s) recorded unstruck",
+      "  PIN-UNCOMMITTED  scripts/case_protocol_stage3_smoke.py   [covered]",
+      "      HEAD blob -   worktree blob e25fc060103b2769d8fa5c8092966bfc6324d423   1 sha(s) recorded unstruck",
+      "  PIN-UNCOMMITTED  scripts/case_protocol_stage4_run.py   [covered]",
+      "      HEAD blob -   worktree blob 425aeed988ae63843a851b9aa720a721a142c98c   1 sha(s) recorded unstruck",
+      "  PIN-OK           verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py   [covered]",
+      "      HEAD blob da0df95c81ded5833821cfd8a1f711d7f849f93c   worktree blob da0df95c81ded5833821cfd8a1f711d7f849f93c   1 sha(s) recorded unstruck",
+      "  PIN COVERAGE: 7 of 7 pinned executable(s) judged in the population; 1 PIN-OK, 6 violating",
+      "PIN LIMBS CANNOT SEE: which of several recorded shas is the one IN FORCE when a registration carries superseded, unstruck pin rows -- that is a reading of the strike record, not of the file system.",
+      "----------------------------------------------------------------------------------------------------",
+      "CAVEAT ON THIS VERDICT -- 7 of 7 restricted row(s) are NO-MARKERS. The FREEZE-MARGIN limb DID NOT FIRE for them and cannot fire while their tree carries no completion marker. What was tested for those rows is IDENTITY and CURRENCY. A PASS from this mode is NOT a marker-dated freeze margin and must not be read as one; a campaign in this position proves its freeze by commit ordering, not by this limb.",
+      "VERDICT: FAIL"
+    ],
+    "note": "exit 0 with pins_unseen > 0 is NOT a clean result: those pins were judged by nothing. Unseen pins warn by default; the flip to refuse is pre-registered to the commit that repairs the underlying PIN_PATH defect."
+  },
+  "tolerance_margin_decades": 6.301029995663981,
+  "class_default_counterexample": {
+    "class_default": "segregated steady solver (rhoSimpleFoam) for a steady external transonic wing",
+    "status": "class default, first use -- CONTRADICTED BY MEASUREMENT",
+    "evidence": "rhoSimpleFoam rc=136 (SIGFPE) in the first thermo update on every variant; rhoPimpleFoam LTS rc=0 at t=500 on every variant",
+    "registered_solver": "rhoPimpleFoam"
+  }
+}
