@@ -25151,3 +25151,55 @@ Priced this way the two items would have registered ≈1.2 and ≈3.16 core-min 
 **The wider form.** This is the same shape as an assertion that prints evidence it does not test (L-518) and a validator whose reference is itself stale (L-519): **a control's output is only as meaningful as the thing it was pointed at, and a control's refusal is only as meaningful as what depends on it.** In all three, no instrument was wrong and every one of them answered truthfully a question that did not cover the failure.
 
 **Provenance.** verification-supervisor, personally, 2026-09-10, from my own defect and its repair. Grounded: the false message and `0 1` diff at `0de7596a`; the restoring commit `d1aca880` (`27 1`), which deletes the artifact before building, joins the build with `&&`, and asserts four named markers present in the staged file before staging; the recovered line taken from `0de7596a~1`. **Related:** L-518 (read the deletion column — this lesson adds *when*), L-519 (build and commit in one invocation with one captured `H` — the same chain, a different staleness), L-223, and CLAUDE.md rule 10.
+
+## L-522 — A FREEZE MUST PROVE THE COMPARATOR CAN *PARSE* THE FROZEN CASE INPUTS, BY EXECUTING THE PARSE AGAINST THE REAL FILE — A SELFTEST ON INPUT THE SELFTEST ITSELF WROTE PROVES NOTHING ABOUT CONTACT
+
+**Cost: 590.74 core-min and ~10 h of a saturated 16-vCPU box, destroyed by one `^` character.**
+
+VMFL046-R8 (register Row #71) ran perfectly: all three levels of the r=2 triple returned
+rc 0, reached `endTime = 0.08` exactly, and wrote `End`. The frozen comparator then
+**refused before reading a single shock location** — `REFUSE: L1: fvOptions limitTemperature
+min/max not found` — and the run became `NOT A RESULT`.
+
+The clamp was present, active, and exactly the frozen value. The comparator could not parse
+its own case's file. `constant/fvOptions`, frozen **in the same commit as the comparator**,
+uses OpenFOAM's legal single-line brace-inline form:
+
+    limitT { type limitTemperature; active yes; selectionMode all; min 150; max 2000; }
+
+Three regexes in one function disagree with each other about anchoring: `:1097`
+`type\s+limitTemperature` is **unanchored** and matches, so the function proceeds; `:1099`
+and `:1100` are `^`-anchored under `re.M`, and `min 150;` / `max 2000;` sit **mid-line**
+after `selectionMode all; `, so they can never match. Executed against the real frozen file:
+anchored → `None`; **the identical regexes with `^` removed → `150` and `2000`, exactly the
+clamp being checked for.**
+
+**Why the selftest missed it, and this is the transferable part.** The comparator's
+`--selftest` writes its *own* synthetic `fvOptions` in the one-key-per-line form its regexes
+expect. It proved the regexes' logic against input it generated itself and **never touched
+the real frozen case file**. A selftest that authors its own fixtures tests the code against
+the author's mental model of the input, not against the input.
+
+**THE RULE.** A freeze checklist must include, as its own executed line: **every file the
+comparator PARSES is parsed, by the comparator, from the real frozen artifact, at the freeze
+commit** — and the parse must be *run*, not reviewed. Reading the regex is not the check;
+the regex is exactly what is wrong. This generalises `ANSYS_VERIFICATION_CHARTER` §38.1
+(*"a freeze checklist must include, as its own line, THAT EVERY PATH THE LAUNCHER READS OR
+EXECUTES EXISTS AT THE FREEZE COMMIT"*) from **existence** to **readability**: §38.1 froze a
+launcher that could not run; this froze a comparator that could not read. Same class, other
+half. It is also §39.5's lesson (*a selftest on synthetic data says nothing about contact
+with the consumer*) met for the second time in one day — the digitizer work applied it
+correctly by interface-testing against the real consumer; this comparator did not.
+
+**Cheap and general mitigations.** (a) Prefer an unanchored or whitespace-tolerant match for
+any dictionary key that a legal one-line dict may carry mid-line; if anchoring is deliberate,
+every sibling regex reading the same file must anchor the same way — a function whose regexes
+disagree about anchoring is telling you nobody ran them all against one real file. (b) Make
+the selftest consume **the actual frozen case input** as a fixture, not a synthetic
+reconstruction of it. (c) At the freeze, run the comparator against a *zero-length or
+minimal* real run tree and require it to fail on missing DATA, never on unparseable INPUTS.
+
+*Provenance: VMFL046-R8, register Row #71, 2026-09-10; comparator
+`cases/ansys_verification/VMFL046-R8/grade_vmfl046_r8.py` blob `f89114bb` at `:1097-:1103`;
+mechanism executed and confirmed by the ansys-verification supervisor against the real
+`verification/runs/ansys_verification/VMFL046-R8/L1/constant/fvOptions`.*

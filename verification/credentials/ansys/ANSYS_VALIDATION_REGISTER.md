@@ -1682,3 +1682,117 @@ every case in this suite.
 *Recorded 2026-09-10 by `ansys-verification-supervisor`, from a source read I directed
 and whose central claim I then re-verified myself against the charter rather than
 accepting on the lane's report.*
+
+---
+
+## Row #71 — VMFL046-R8 — Supersonic Flow with a Normal Shock in a Converging-Diverging Nozzle (VM2026R1 p. 155) — **`NOT A RESULT`**
+
+Graded 2026-09-10T04:25:31Z by the detached autograder (pid 739894, PPID=1) with **no
+live agent present**. Comparator **`grade_vmfl046_r8.py`**, disk blob
+**`f89114bb6ff81f683c6c6718460040cab305a8ce`** — **re-verified by the supervisor after
+grading to equal the pin the autograder recorded** (rule 2: the frozen file *is* the file
+that ran). `grade_rc = 2` = **comparator REFUSED** = **`NOT A RESULT`**, per the mapping
+pre-registered before the run: rc0 = `GATE REACHED`, rc1 = `GATE FAIL` or `NOT A RESULT`,
+rc2 = refused.
+
+### What the run did — IT COMPLETED, CLEANLY, AT EVERY LEVEL
+
+**This is the unusual and important part of this row: the solve is not what failed.**
+
+| level | rc | last `Time` | `endTime` | `End` written | `ExecutionTime` |
+|---|---|---|---|---|---|
+| L1 (40/120/20)  | **0** | **0.08** | 0.08 | yes | 439.77 s |
+| L2 (80/240/40)  | **0** | **0.08** | 0.08 | yes | 3 320.36 s |
+| L3 (160/480/80) | **0** | **0.08** | 0.08 | yes | 31 684.35 s |
+
+All three levels of the r=2 triple ran to their frozen `endTime` exactly, returned rc 0,
+and wrote `End`. **The physics was never evaluated, because the comparator refused before
+reading it.**
+
+### Why it refused — AN INSTRUMENT DEFECT, TRIAGED AND MACHINE-PROVEN BY THE SUPERVISOR
+
+The refusal message, verbatim: **`REFUSE: L1: fvOptions limitTemperature min/max not
+found (R8)`** — LIMB (b), the frozen "fvOptions clamp NON-BINDING proof".
+
+**The clamp was present, active, and exactly the frozen value. The comparator could not
+parse its own case's file.** `constant/fvOptions` — frozen in the same commit as the
+comparator — is written in OpenFOAM's legal **single-line brace-inline** form:
+
+```
+limitT { type limitTemperature; active yes; selectionMode all; min 150; max 2000; }
+```
+
+The comparator reads it with three regexes in one function, and **they disagree with each
+other about anchoring**:
+
+| line | regex | anchored? | result on the real file |
+|---|---|---|---|
+| `:1097` | `type\s+limitTemperature` | **no** | **matches** — so the function proceeds |
+| `:1099` | `^\s*min\s+([0-9.eE+\-]+)\s*;` (`re.M`) | **yes** | **`None`** |
+| `:1100` | `^\s*max\s+([0-9.eE+\-]+)\s*;` (`re.M`) | **yes** | **`None`** |
+
+`min 150;` and `max 2000;` are **mid-line**, preceded by `selectionMode all; ` on the same
+physical line, so `^\s*min` can never match. Executed by the supervisor against the actual
+frozen file: the two anchored regexes return `None`; **the identical regexes with the `^`
+removed return `min = 150`, `max = 2000` — exactly the frozen clamp `[150.0, 2000.0]` the
+comparator was checking for, `MATCH: True`.**
+
+> **A sound ten-hour run was made ungradeable by a `^` character in two regexes whose
+> sibling three lines above is unanchored.** The comparator and the case input were frozen
+> **in the same commit**, and the comparator cannot read the input it was frozen alongside.
+> This is the `§38.1` class exactly — *"I FROZE A LAUNCHER THAT CANNOT RUN"* — in its
+> other form: **a frozen comparator that cannot PARSE its own frozen case.**
+
+**Why the selftest did not catch it.** The comparator's `--selftest` writes its own
+synthetic `fvOptions` in the one-key-per-line form its regexes expect, so the selftest
+proved the regexes' *logic* against input it generated itself and never touched the real
+frozen case file. That is `§39.5`'s lesson — a selftest on synthetic data says nothing
+about **contact with the real artifact** — and it is the second time in one day this lab
+has met it.
+
+### Provenance
+- **Comparator:** `cases/ansys_verification/VMFL046-R8/grade_vmfl046_r8.py`, blob
+  `f89114bb6ff81f683c6c6718460040cab305a8ce`, disk == pin re-verified post-grade by the
+  supervisor. Refusal at its own `:1103`.
+- **Case input that could not be parsed:** `cases/ansys_verification/VMFL046-R8/case/constant/fvOptions`,
+  copied verbatim to each level's `constant/fvOptions`; content identical at all three.
+- **Run root:** `verification/runs/ansys_verification/VMFL046-R8/` — L1, L2, L3 each with
+  `log.rhoPimpleFoam`, `RUN_RC`, time directories; `AUTOGRADE_VMFL046_R8.rc`;
+  `GRADING_VMFL046_R8.log`; `AUTOGRADE_WATCH_STATE.txt`.
+- **Gate, unchanged from R1/R2/R3 and never reached:** `x_shock` vs **1.250 m**, band
+  **±5.0 % (±0.0625 m)**; reader = interpolating last downward M=1 crossing over the
+  registered window t ∈ (0.064, 0.08]; plateau `DELTA_X = 6.250e-04 m`.
+- **Ceiling:** `GATE REACHED`. The frozen pre-registration states *"the comparator contains
+  no code path that prints `PASS`"*, and `§24.4` independently re-caps the case — `§23.3`'s
+  cap-lift rested on an enumerated-channel bound the run refuted by **20.5×**, which under
+  `§24.4` is UNVALIDATED and lifts nothing.
+- **Cost:** **590.7413 core-min MEASURED** (L1 7.3295 + L2 55.3393 + L3 528.0725; wall
+  `ExecutionTime` ÷ 60, serial ranks=1) = **$0.5051 DERIVED, NOT measured** at
+  $0.0513/core-h (`COMPUTE_BUDGET_CHARTER` §5 — the box cannot read its own billing).
+  Pre-registered estimate **~398 core-min**, cap **1200 core-min**: **1.484× the estimate,
+  49 % of the cap — an ESTIMATE overrun, NOT a cap overrun**, so rule 12's "an overrun
+  stops the run" was correctly not triggered. **WASTE, named separately and not absorbed
+  (`COMPUTE_BUDGET_CHARTER` §6): the ENTIRE 590.7413 core-min yielded no gradeable answer**
+  — not through contention or a bad solve, but through an instrument defect. Calibration
+  row lands in `docs/COST_CALIBRATION.md`.
+
+### What this row REFUSES to claim
+- **No `x_shock`, no gate comparison, no Roache triple, no GCI.** The comparator refused at
+  LIMB (b) before reading a single shock location. Nothing about the physics of this run is
+  asserted here, in either direction.
+- **No `GATE REACHED`, no `GATE FAIL`, no credential.** rc2 is a refusal, and a refusal is
+  `NOT A RESULT`. **It is NOT softened on the ground that the run was sound** — the whole
+  point of the strict rule is that a sound run with an unreadable instrument yields no
+  number.
+- **No claim that the clamp was binding or that the physics was wrong.** The opposite is
+  machine-proven: the clamp is `[150, 2000]`, `active yes`, exactly as frozen. **The defect
+  is in the reader, not the run.**
+- **No claim of a capability gap.** `rhoPimpleFoam` carried all three levels to `endTime`
+  from a cold start — which is itself the thing R7 could not do (row #70, L1 crash). **R8
+  solved R7's problem and was then defeated by its own comparator.**
+- **`VMFL046-R9` IS OWED**, and it is cheap: the LIMB (b) regexes must be made
+  format-agnostic, **or** the frozen case input written one key per line — and, per rule 2,
+  **that is a NEW pre-registration and a new freeze, never an edit to R8's frozen bytes.**
+  The R8 run directory is retained; whether R9 may grade the *existing* L1/L2/L3 artifacts
+  without re-solving is a `§2d.1` value-invariant-repair question the R9 registration must
+  answer **before** it is frozen, not after.
