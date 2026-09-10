@@ -3,7 +3,8 @@
 ## PERMISSION: NOT_FROZEN
 
 **This document is NOT frozen. The freeze is the dafoam supervisor's act, not
-this lane's.** Nothing here is a licence to launch. Version 0.1, drafted
+this lane's.** Nothing here is a licence to launch. **Version 0.2** (§13
+records what changed from 0.1 and why), first drafted
 2026-09-10T04:08:32Z by a dafoam lane, in a window in which the box is
 saturated (load ~24 on 16 vCPUs, twelve foreign-family solvers at ~99 % CPU,
 D6RF10 R3 live under a deadline) and **no A2-GC-P compute is possible or
@@ -79,6 +80,33 @@ The same table (`:569-576`) also records, and this document does **not** drop it
 that the **cold** primal ran at **0.07233 s/iteration (0.868 core-s/iteration)**
 — 7.65× the warm rate. §8 costs the cold primal separately; the earlier
 "~38 core-min per primal" anchor is dead and is not repeated here.
+
+**DISCLOSURE THAT TRAVELS WITH THESE NUMBERS, AND IS REPEATED WHEREVER THEY ARE
+QUOTED.** Both rates above were measured on the parent runs `L1_attempt3_CAPSTOP`
+and `L1`, and those two runs were produced
+
+1. **under an UNREGISTERED per-level cap.** `L1` was launched at
+   `cap_core_min=90` against the parent §10 registered L1 cap of **60**.
+   `/home/ubuntu/certonomous-runs/A2-GC-wing-grid-convergence/L1/cost.txt` reads
+   `wall_s=460.0 core_min=91.99 cap_core_min=90 overrun=YES-RUN-STOPPED`, and
+   that level's generated `stage.sh` carries `timeout 450s` at its `:21` and
+   `:32` — 90 x 60 / 12 — where 60 core-min would have given 300 s, as
+   `L1_attempt3_CAPSTOP/stage.sh` in fact does. Verified on disk by the lane
+   registering this disclosure, not relayed.
+2. **by a launcher that had DEPARTED from the md5 the parent pins for it.**
+   Pinned `f3baba360a50c8b7592d0a50142d5e28`; run
+   `e7008a7a1bdf0e55ec8bad8e2b8742d4`. The departure landed in `d48dd7e6` and is
+   now disclosed in the parent's **AMENDMENT 3**, commit **`a74c09ae`**
+   (2026-09-10T04:37:33Z).
+
+**This does not invalidate them AS RATE ANCHORS.** A core-seconds-per-iteration
+figure is read from `ExecutionTime` inside the solve; it does not depend on where
+the wall cap was set, nor on which of the launcher's md5 asserts fired, and the
+parent's §R1 records the same CD / CL / AoA reproduced bit-identically across two
+independent container launches. **But no use of these numbers anywhere — §8, a
+queue entry, a report, a calibration row — may quote them without this
+disclosure attached.** The defects behind both limbs are registered as binding
+pre-freeze requirements on this item's launcher in **§9.5**.
 
 ### 2.2 The cost driver — parent §R3 (`:582-603`)
 
@@ -580,8 +608,13 @@ is written into that level's own `cost.txt`.
 **A DEFECT IN THE PARENT'S CAP MECHANICS THAT THIS ITEM DOES NOT INHERIT.**
 `cases/dafoam/run_a2gc.sh` applies the SAME `CAP_WALL_S` as a `timeout` to the
 mesh stage **and again** to the solve stage, so a level could spend up to **2×**
-its registered cap while every check reported the cap as honoured. **This item's
-launcher splits one wall budget across the stages and never re-arms it.**
+its registered cap because **nothing bounds the pair**. (The parent's *accounting*
+instrument did report the breach honestly; the phrase "every check reported the
+cap as honoured", carried by version 0.1 of this document, is imprecise and is
+corrected in **§9.5 R-3**.) **This item's launcher splits one wall budget across
+the stages and never re-arms it — §9.5 R-3 makes that a binding pre-freeze
+requirement, and §9.5 R-2 requires the cap it arms to be asserted against THIS
+table.**
 
 **Wall time at np = 12:** estimate **2.27 h**; at the cumulative cap **4.58 h**.
 
@@ -723,6 +756,159 @@ for this item, and only they are actioned here:
 2. Every md5 this document pins is **verified against `HEAD`, not only against
    the working tree**, at freeze time.
 
+### 9.5 THREE BINDING PRE-FREEZE REQUIREMENTS ON `run_a2gcp.sh` — parent defects that MUST NOT be inherited
+
+`run_a2gcp.sh` is **specified, not authored** (§9.3). R-1, R-2 and R-3 below are
+**pre-freeze conditions on it**: this document may not be frozen until each is
+implemented and its acceptance test has been RUN, with the result recorded in
+this section. Each names a defect **present and measured in the parent's
+cap-stopped run**, not a hypothetical, and each was re-verified against the
+parent's own artifacts by the lane registering it rather than accepted on relay.
+
+#### R-1 — EVERY md5/sha ASSERT ON A FROZEN INSTRUMENT IS UNCONDITIONAL, AND THE RUN RECORDS WHICH ASSERTS RAN
+
+**The parent's defect, verified at the line.** `cases/dafoam/run_a2gc.sh` carries
+four `assert_md5` call sites (helper at `:44-51`) over four frozen instruments.
+**Three of the four are OPT-IN:** `:52-54` (`a2gc_grade.py`) fires only if
+`$A2GC_GRADER_MD5` is set, `:55-57` (`a2gc_levels.json`) only if
+`$A2GC_LEVELS_MD5`, `:58-60` (`a2gc_driver_block.py`) only if `$A2GC_BLOCK_MD5`.
+Only `:61`, the pristine `runScript_AeroOnly.py` assert, sits outside any `if`.
+**`git grep` over `HEAD` for an assignment of any of the three names —
+`(export +)?A2GC_[A-Z]+_MD5=` — returns NOTHING.** The three names occur only
+inside the asserts themselves and in prose written afterwards *about this very
+defect* (the parent's `:871-873` and `:885`), and **no parent run artifact under
+`/home/ubuntu/certonomous-runs/A2-GC-wing-grid-convergence/` mentions them at
+all**. The three asserts have therefore never fired, on any run. An instrument
+that reads as pinned in four places was pinned in one — and a **fifth** pinned
+instrument, the launcher itself, carries no assert at all (§9.4), which is how
+its `f3baba36…` → `e7008a7a…` drift went unpoliced.
+
+**The requirement.**
+
+1. **Every md5/sha assert in `run_a2gcp.sh` is unconditional.** No
+   `if [ -n "${VAR:-}" ]` wrapper, no `--skip` flag, no env-var opt-in, for any
+   instrument this document pins — including the launcher's own self-assert of
+   §9.4.
+2. **The launcher WRITES what it checked.** Before the first container starts it
+   writes `$RUNROOT/instrument_asserts.txt`, one line per assert giving the path,
+   the expected md5, the observed md5 and `OK`, plus the launcher's own md5 and
+   the UTC timestamp. **A reader of the run tree can then tell a checked run from
+   an unchecked one from the run's own bytes** — which is exactly what no parent
+   run artifact can do.
+3. **A skip, if one is ever introduced, is RECORDED, never silent.** It is
+   written into that same file as `SKIPPED <path> <reason>`, and
+   `a2gcp_grade.py` treats a run root whose `instrument_asserts.txt` is missing,
+   or carries any `SKIPPED` line, as **`NOT A RESULT`**.
+
+**Acceptance test, to be run and recorded here before freeze.** With **no
+environment variables set at all**, mutate one byte of each pinned instrument in
+turn in a scratch copy and require `run_a2gcp.sh` to **exit 2**, once per
+instrument, naming that instrument; and on a clean invocation require
+`instrument_asserts.txt` to exist and to name **every** pinned instrument. A
+guard not shown able to FIRE is not evidence that it would — `CLAUDE.md` rule 3's
+principle, applied to a guard rather than to a reader.
+
+#### R-2 — THE PER-LEVEL CAP IS ASSERTED AGAINST THE REGISTERED TABLE, AND THE LAUNCHER REFUSES ON MISMATCH
+
+**The parent's defect, verified at the line.** `run_a2gc.sh:28` takes the cap
+from `argv[2]` (`CAP_CORE_MIN="${2:-}"`) and at `:39-41` applies whatever it is
+handed, falling back to `DEF_CAP` only when argv is empty. **Nothing anywhere
+compares that argument to a registered table.** Measured consequence: the
+parent's `L1` ran at `cap_core_min=90` (`L1/cost.txt`) against the parent §10
+registered L1 cap of **60**, its generated `stage.sh` carrying `timeout 450s`
+(= 90 x 60 / 12) where the registered cap gives 300 s — and the raised cap
+appears in no record until the parent's AMENDMENT 3 §A3.7, nine days later.
+**A cap supplied by the caller is not a registered cap.**
+
+**The requirement.** `run_a2gcp.sh` carries the §8 cap table as literals — L1
+**90**, L2 **600**, L3 **3,000** core-min — held inside the file whose own md5
+this document pins (§9.4). It **refuses (exit 2)** if a per-level cap is supplied
+on the command line at all; if a cap argument is retained for any reason, it
+refuses unless the supplied value is **exactly equal** to the registered value
+for that level. The refusal message names the level, the registered cap and the
+supplied cap. **The cap actually armed is written into
+`instrument_asserts.txt`** beside the md5 lines **and** into that level's
+`cost.txt`, so the armed cap is on the record independently of the invocation.
+
+**Acceptance test:** invoke with a cap one core-minute away from the registered
+value, once per level, and require exit 2 three times; then invoke with no cap
+argument and require the registered value to appear in both records.
+
+#### R-3 — THE CAP BOUNDS THE WHOLE LEVEL, NOT EACH STAGE
+
+**The parent's defect, verified at the line and in the artifacts.**
+`run_a2gc.sh:41` derives `CAP_WALL_S` once and arms it as a `timeout` **twice** —
+`:180` on `bash mesh.sh` and `:191` on `bash solve.sh` — sequential, independent,
+each a fresh full budget. The `sudo docker run` at `:200-205` carries no
+`timeout` and no `--stop-timeout`, so **nothing bounds the pair**. Both lines
+materialise in every generated `stage.sh` at its `:21` and `:32`, and this lane
+read them there in all four parent level directories. Worst case per level is
+therefore **2x the registered cap**:
+
+| level | parent registered cap | true worst case |
+|---|---|---|
+| L1 | 60 core-min | **120** |
+| L2 | 500 core-min | **1,000** |
+| L3 | 6,000 core-min | **12,000** |
+| three levels | **6,560** | **13,120** |
+
+against the parent's registered item ceiling of **7,000** core-min —
+**13,120 / 7,000 = 1.87x, i.e. the instrument could not hold its own document's
+item ceiling.**
+
+**It fired on BOTH completing runs.** `L1_attempt3_CAPSTOP/cost.txt` reads
+`core_min=61.83 cap_core_min=60 overrun=YES-RUN-STOPPED`; `L1/cost.txt` reads
+`core_min=91.99 cap_core_min=90 overrun=YES-RUN-STOPPED`; both `RC` files read
+`124`. The realised overruns are small only because L1's mesh stage is about nine
+seconds — a property of 38,304 cells, not of the instrument. **At L3 the mesh
+stage is the expensive one and the exposure grows toward the full 2x.**
+
+**The requirement.** `run_a2gcp.sh` registers **one cumulative wall bound per
+level, across ALL of that level's stages, and never re-arms it.**
+
+1. A single deadline is computed **once per level**, before the first stage, as
+   `T_end = T_start + registered_cap_core_min x 60 / NP`. **Every** stage is
+   bounded by the time REMAINING to that deadline — `timeout $(( T_end - now ))s`
+   — never by the full budget a second time. A stage whose start time is already
+   past `T_end` does not start; the launcher refuses and records it.
+2. The `docker run` itself additionally carries a wall bound at `T_end` plus a
+   fixed 60 s teardown allowance, so a stage that escapes its own `timeout` is
+   still bounded by an outer instrument. **A cap armed at exactly one level of
+   nesting is a cap with no witness.**
+3. The **cumulative-across-levels** bound of §8 is enforced as §8 registers it:
+   **3,300 core-min, set deliberately below the 3,690 sum of the per-level caps**
+   so that it bites. Before launching any level the launcher sums `core_min`
+   across every existing level `cost.txt` and **refuses (exit 4)** if
+   `cumulative + this level's registered cap > 3,300`. **Both bounds are checked;
+   neither substitutes for the other.**
+4. Every level writes its realised `core_min`, its registered cap, its deadline
+   and `overrun=` into its own `cost.txt` — as the parent's accounting instrument
+   already did correctly.
+
+**A precision this document adopts from the parent's AMENDMENT 3 §A3.6, and it
+corrects §8.** The parent's *accounting* instrument told the truth: `run_a2gc.sh`
+`:261-265` computes `core_min` from the true container wall (`t1 - t0`) and wrote
+`overrun=YES-RUN-STOPPED` in both cases, and the parent's §R5 carries both rows
+honestly. **The defect is that nothing BOUNDED the cap, not that the overrun was
+concealed.** §8's version-0.1 phrase *"while every check reported the cap as
+honoured"* is imprecise on exactly that point and is corrected in version 0.2.
+The distinction matters: a cap that reports its own breach *after* the money is
+spent still breaches rule 12's *"an overrun stops the run"*.
+
+**Acceptance test:** drive the launcher with a stub mesh stage that sleeps past
+the deadline and require the level to terminate **at** the deadline, with the
+solve stage never started and the refusal written into the level's own records.
+
+#### R-1 to R-3 are not waivable by a note at freeze time
+
+They are requirements on the **instrument**. `CLAUDE.md` rule 14's form governs:
+*a lesson is not applied until EVERY call site asserts it* — a launcher that
+implements R-1 at three of four call sites has not implemented R-1. The general
+form of R-1 is landed as a lesson in `docs/LESSONS.md` (the "an opt-in assert is
+not an assert" entry, 2026-09-10).
+
+---
+
 ---
 
 ## 10. Planted-zero controls — `CLAUDE.md` rule 3 and `VERIFICATION_CHARTER.md` §2j
@@ -846,3 +1032,31 @@ goes on every number. **A gate can only turn a `PASS` or a `GATE FAIL` INTO a
 
 **This item's own standing at the moment of drafting: `PENDING` — not frozen, not
 launched, zero core-minutes spent.**
+
+---
+
+## 13. Change record — version 0.1 to version 0.2
+
+**Version 0.2, 2026-09-10, a dafoam lane, ZERO COMPUTE.** The document remains
+`PERMISSION: NOT_FROZEN`, so these are **ordinary edits, not rule-2 amendments**
+(see the header). Nothing here launches anything, and the parent is untouched
+(`CLAUDE.md` rule 6): the parent's AMENDMENT 3 already landed at `a74c09ae` and
+this version cites it rather than adding to it.
+
+| # | change | why |
+|---|---|---|
+| 1 | **§9.5 added** — R-1 (unconditional asserts + a written record of which asserts ran), R-2 (per-level cap asserted against the registered table, refuse on mismatch), R-3 (one cumulative bound per level across all stages, plus the §8 cumulative-across-levels bound) | three defects measured in the parent's cap-stopped run, registered as binding pre-freeze requirements so `run_a2gcp.sh` cannot inherit them |
+| 2 | **§2.1 disclosure added** | the parent L1 rate anchors were produced under an unregistered cap (90 vs registered 60) and by a launcher departed from its pinned md5; the numbers stand as rate anchors, but the disclosure travels with them |
+| 3 | **§8 corrected** — *"while every check reported the cap as honoured"* → *"because nothing bounds the pair"* | version 0.1's phrasing was factually wrong: the parent's accounting instrument DID write `overrun=YES-RUN-STOPPED` in both cases. The defect is an unbounded cap, not a concealed overrun. Recorded rather than silently reworded |
+
+**Verified, not relayed.** Every claim in changes 1-3 was checked by this lane
+against `cases/dafoam/run_a2gc.sh` at `HEAD` and against the four level
+directories under `/home/ubuntu/certonomous-runs/A2-GC-wing-grid-convergence/`
+before it was written.
+
+**What this version does NOT do:** it does not freeze this document, does not
+author `run_a2gcp.sh` or `a2gcp_grade.py`, does not run the R-1/R-2/R-3
+acceptance tests (they are pre-freeze work, and no compute was permitted in this
+window), and does not alter any gate, threshold, cap, band or label of §1-§12.
+**The caps in §8 are unchanged at L1 90 / L2 600 / L3 3,000 with a cumulative
+3,300.**
