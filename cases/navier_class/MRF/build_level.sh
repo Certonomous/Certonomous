@@ -23,15 +23,33 @@
 #
 # rc of every stage is captured INSIDE this shell and written to rc.<stage>,
 # never inferred from an End line (setsid-parent-returns-zero lesson, L-342).
-# (no `set -u`: the OpenFOAM bashrc dereferences unset vars and would abort.)
+# (no `set -u`: the OpenFOAM bashrc dereferences unset vars and would abort --
+#  under `set -u` it exits rc=127 at bashrc line 184 `WM_PROJECT_DIR: unbound
+#  variable`, BEFORE any abort handler can run.  Measured 2026-09-10.)
 set -o pipefail
-source /usr/lib/openfoam/openfoam2606/etc/bashrc >/dev/null 2>&1
+
+# The bashrc source's stderr is CAPTURED, NEVER DISCARDED, and its rc is
+# checked.  Verification ruling 2026-09-10: an error that is ERASED and an
+# error that NEVER HAPPENED must not leave the same trace.  `>/dev/null 2>&1`
+# on this exact line is what turned a loud abort into a silent one in the Case
+# Protocol stage-4 launcher and in launch_graded.sh's first version.
+_ENVLOG="$(mktemp -t mrf_build_env.XXXXXX.log)"
+source /usr/lib/openfoam/openfoam2606/etc/bashrc > "$_ENVLOG" 2>&1
+_ENVRC=$?
+if [ "$_ENVRC" -ne 0 ] || ! command -v simpleFoam >/dev/null 2>&1; then
+    echo "ABORT: OpenFOAM env did not load (source rc=$_ENVRC, simpleFoam not on PATH)."
+    echo "----- captured output of etc/bashrc (this is what >/dev/null used to erase) -----"
+    cat "$_ENVLOG"
+    exit 2
+fi
 HERE="$(cd "$(dirname "$0")" && pwd)"
 RUNDIR="${1:?usage: build_level.sh <RUNDIR> <NX> <NY> <NZ>}"
 NX="${2:?NX}"; NY="${3:?NY}"; NZ="${4:?NZ}"
 
 [ -e "$RUNDIR" ] && { echo "ABORT: $RUNDIR already exists; this script never deletes a case directory"; exit 2; }
 mkdir -p "$RUNDIR" || { echo "ABORT: mkdir $RUNDIR"; exit 2; }
+# the captured env output now lives BESIDE the case, not in a temp file
+cp "$_ENVLOG" "$RUNDIR/log.env" 2>/dev/null; rm -f "$_ENVLOG"
 cp -r "$HERE/system" "$HERE/constant" "$HERE/0.orig" "$RUNDIR/" || { echo "ABORT: template copy"; exit 2; }
 mkdir -p "$RUNDIR/constant/triSurface"
 
