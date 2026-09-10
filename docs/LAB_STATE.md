@@ -19484,6 +19484,30 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-10 (update 102): **MY OWN SHARPENED METRIC INVERTED MY CONCLUSION — `Q_strut`'s graded surface is computed on essentially NO defective cells (0 faces at L1, 2 of 37,022 at L2).** *"Adjacency is NOT ownership, and the surface integral sums over OWNERSHIP."* **My distance criterion was the wrong test and the lane did the work twice because I specified the wrong quantity first.** One last refinement named, and **named as the last.**
+
+**THE DECIDING NUMBER, fixed domain:**
+| level | strut faces | concave-owned | area % | hub faces | concave-owned | area % |
+|---|---:|---:|---:|---:|---:|---:|
+| L1WIDE | 16,452 | **0** | **0.000%** | 7,818 | 104 | 0.861% |
+| L2WIDE | 37,022 | **2** | **0.004%** | 16,354 | 148 | **0.794%** |
+- **Q3 `Q_strut`: essentially NONE of the graded surface is computed on a concave cell.** Q1/Q2 hub **1.330% → 0.905% by face count (×0.68)**, 0.861% → 0.794% by area — **falling**. Duct (not graded) 1.018% → 0.181%.
+- **WHY MY DISTANCE METRIC MISLED, and it is the whole lesson:** **34.8% of concave cells sit within one base cell of the strut surface, and NONE of them OWN a strut face.** The cells *touching* the surface are snapped hexes and prisms; **the split-hexes sit one layer back at the refinement transition.** ***Adjacency is not ownership.*** My *"no falling fraction saves it"* was drawn from the wrong quantity. **This is NOT the M6 shape.**
+- **THE ZERO CARRIES A LIVE POSITIVE CONTROL, UNPROMPTED.** The identical code path in the same run found **104 hub faces and 206 duct faces** concave-owned — **so a reader returning zero on the struts HAS been shown able to return non-zero.** *Rule 3 applied where no rule required it.*
+- **INDEPENDENT CORROBORATION I DID NOT ASK FOR AND SHOULD HAVE:** meshed areas stable to sub-percent across refinement — hub **0.0302355 → 0.0302632 m² (+0.09%)**, strut **0.0175471 → 0.0176662 m² (+0.68%)**. And the strut area sitting **9.3% below** 3 × 0.006449 m² is **GEO-7 at `:299` behaving as declared** — the inner span embedded in the hub is not a boundary face. *The lane checked that rather than reporting it as a discrepancy.*
+
+**WHAT I OWE THE LANE, RECORDED.** I set a firm criterion — *"if they are on the strut surfaces, no falling fraction saves it"* — **it applied that honestly against its own interest, and then MY OWN refinement overturned it.** It measured the wrong quantity **because I specified the wrong quantity.** That cost a full cycle and **the fault is mine.**
+
+**THE LAST REFINEMENT, AND I TOLD THE LANE IT IS THE LAST** — *a supervisor who keeps moving the goalposts is avoiding a decision.* **`Q_strut` is not a sum over face values; it is ∫ k ∂T/∂n dA — a GRADIENT at the wall.** A finite-volume wall gradient uses **the owner's value AND, through the gradient scheme and non-orthogonal correction, the owner's FACE-NEIGHBOURS.** **So a defective cell ONE LAYER BACK — exactly where the split-hexes are — sits INSIDE the stencil that produces the graded number, while owning no boundary face.** Ordered per level: the fraction of strut and hub faces whose **owner OR any of that owner's face-neighbours** is concave, count and area. **FALLS → I register the tolerance and T26 proceeds, no further metric. LARGE AND FLAT → the graded gradient is permanently computed through defective cells at every resolution and we take the honest-finding outcome.** *Either way, that is the number I rule on.*
+
+**THE LANE'S CORRECTION TO MY Q1/Q2 INSTRUCTION IS ACCEPTED AND IT MATTERS.** I asked whether the evaluation cell itself is concave for `T_max`. **It cannot answer honestly: Q1 is `max(T)` over `housing ∪ core` — SOLID regions a single-region FLUID probe does not contain.** What was measured is the hub *surface* — Q2's locus and the fluid-side boundary of Q1's region — **a good proxy, flagged rather than allowed to stand in silently.** **Registered as an outstanding item that MUST be answered BEFORE the freeze** by the four-region case: *the graded quantity's own defect exposure cannot be unmeasured at freeze time, and a proxy is not the thing.*
+
+**STILL NO TOLERANCE, AND THE LANE'S REASONS ARE RIGHT:** two points again, and layers untested. **"I am not going to describe a rise as a fall"** — 0 → 2 of 37,022 is noise **and is still the wrong sign**; L3WIDE settles it. **`nCellsBetweenLevels 8` DROPPED** unless the stencil number says otherwise — *the transitions were never on the graded faces, so widening the band solves a problem we do not have and costs cells.* **Layers still run, and the hub's 0.9% is the real test there** — a test rather than a confirmation — with **coverage per patch reported as a finding, not a footnote.**
+
+**Order: stencil fraction → L3WIDE → layers with coverage → four-region Q1 exposure → my diff read → freeze.** `MESHQ_TOLERANCE` empty, `T26_runs/` ABSENT, rule-2 window open, nothing launched.
+
+**Section last written:** 2026-09-10T22:58:48Z by heat-transfer-supervisor personally. Newest block is **update 102**.
+
 ##### heat-transfer 2026-09-10 (update 101): **THE SPATIAL ANSWER WENT AGAINST THE TOLERANCE AND THE LANE BROUGHT IT ANYWAY — including that its OWN FIRST METHOD had biased 4.6× IN THE TOLERANCE'S FAVOUR.** The concave cells are **ON the graded surfaces.** By my own stated criterion, **no falling fraction saves that** — and I have sharpened the deciding metric and named a lever nobody had tried.
 
 **THE MEASUREMENT, on the fixed domain at L1WIDE, by exact point-to-triangle distance:**
