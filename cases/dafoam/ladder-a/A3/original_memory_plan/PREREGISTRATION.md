@@ -283,3 +283,71 @@ functions of cells alone.
 
 PASS, GATE REACHED, GATE FAIL, NOT A RESULT, BLOCKED, PENDING. **This item's verdict is BLOCKED** —
 the arm was never launched, so it is neither a GATE FAIL nor a NOT A RESULT.
+
+---
+
+## ADDENDUM 1 — 2026-09-10 — CITATION TRANSLATION FOR `ADJOINT_MEMORY_ENVELOPE.md` (v1.0 → v1.1)
+
+**lines whose number changed above this section: 0.** Everything above this line is byte-identical to
+the committed blob of this file as it stood before this addendum; the check was a byte comparison of
+the first N bytes of the new file against the whole of the previous blob, N being that blob's own
+byte length, re-run inside the commit's own shell invocation. Nothing in §1–§8 was edited, reflowed
+or renumbered. **This addendum alters no gate, no threshold, no cap and no label** (`CLAUDE.md`
+rule 2): the condition remains *"run ONLY if the predicted serial peak RSS at 399,360 cells is
+≤ 24 GiB with margin"*, the prediction remains 66.0–93.6 GiB across eight constructions, and the
+verdict remains **BLOCKED**. No arm has been launched and none is launched by this addendum.
+
+### A1.1 Why this addendum exists
+
+This file was filed 2026-08-21, **before any arm**, and it cites the frozen record
+`cases/dafoam/ADJOINT_MEMORY_ENVELOPE.md` **by line** in six places. On 2026-09-09 commit
+`fa124d95aee5950253a90a0edd0cf0ce4a71deb8` (2026-09-09T21:14:23Z, 66 insertions, 0 deletions) appended
+a correction to that record's foot — legal — **and also inserted two lines into its body, immediately
+after old line 64**. Every body line from old L65 downwards moved down by **+2**. The six citing lines
+in this file carry **seven** citation targets between them, and **every one of the seven now resolves
+to the wrong lines** if read against the record as it stands today.
+
+**The body of this file is NOT edited** (`CLAUDE.md` rule 6): the original numbers are left standing
+and are struck here, never rewritten in place. A reader who follows a citation in §2, §4 or §7 must
+translate it through the table in A1.2 below.
+
+### A1.2 The translation, per citation, each one CONTENT-VERIFIED not merely arithmetic
+
+**Authority for the translation rule:** `cases/dafoam/ADJOINT_MEMORY_ENVELOPE_CITATION_SHIFT_MAP.md`,
+commit `585efda3ecdd1946aca1b1e0a8cce54e13c3b359`, which measures the shift from git and publishes the
+rule **OLD ≤ 64 → NEW = OLD (unchanged); OLD ≥ 65 → NEW = OLD + 2**, uniform, with no second
+displacement, no deletion and no reflow anywhere in the record.
+
+Each pair below was checked by **reading the new lines out of the record on disk and confirming they
+carry the content the citing sentence intends** — the point of this addendum is that the numbers land
+on the right text, not that addition was performed. All seven land correctly; none is reported as a
+mismatch.
+
+| this file | ~~OLD citation~~ | **NEW citation** | what the new lines actually carry, read on disk 2026-09-10 | verified |
+|---|---|---|---|---|
+| `:33` (§2, source cell for D1/D2/D3) | ~~`ADJOINT_MEMORY_ENVELOPE.md:423-427`~~ | **`:425-429`** | the controlled same-family sweep table: header `\| cells \| agg peak RSS (cgroup, MiB) \|` at L425, separator L426, and the three points `21,840 \| 5,876.6`, `42,120 \| 9,991.9`, `79,560 \| 17,603.8` at L427-429 — the three MiB figures D1, D2 and D3 quote | YES |
+| `:33` (§2, D1 defect cell, written bare as `` `:608-635` ``) | ~~`:608-635`~~ | **`:610-637`** | `## 2026-08-08 retroactive annotations …` at L610, whose item 1 **Transonic-PC dead lever** is the finding that `transonicPCOption 2` is dead code for `DARhoSimpleCFoam`; the block ends `line-by-line in the audit.` at L637 | YES |
+| `:88` (§3, row E1) | ~~`ADJOINT_MEMORY_ENVELOPE.md:432`~~ | **`:434`** | exactly `**memory (MiB) = 1.2125 x cells^0.8485**, R² = 0.9992` — the E1 power law and the R² this row quotes | YES |
+| `:155` (§4, `maxResConLv4JacPCMat`) | ~~`ADJOINT_MEMORY_ENVELOPE.md:200-205`~~ | **`:202-207`** | L202 is the `maxResConLv4JacPCMat=1` + raised `jacLowerBounds` row reading **1,538.0 MiB (−29.6%)**, and L204-207 the paragraph calling it *"a genuine, previously-untried, working memory reduction"* — the −29.6% this row quotes | YES |
+| `:162` (§4, `adjUseColoring`) | ~~`ADJOINT_MEMORY_ENVELOPE.md:141-168`~~ | **`:143-170`** | the `adjUseColoring=False` crash block: fenced log opening L143, the `DAColoring.C at line 1021` `Conflicting Colors Found!` FATAL, the **RULED OUT** verdict, and L170 *"Do not retry this option on a case that has never had a successful coloring run."* — the reproducible crash this row quotes | YES |
+| `:265` (§7 item 3) | ~~`ADJOINT_MEMORY_ENVELOPE.md:608-635`~~ | **`:610-637`** | the same 2026-08-08 dead-lever annotation block as above; it is what supports *"fitted entirely on `transonicPCOption 2` runs"* | YES |
+| `:270` (§7 item 4) | ~~`ADJOINT_MEMORY_ENVELOPE.md:261-273`~~ | **`:263-275`** | L263 opens *"This session's own cgroup-based 2-rank number (1,613–1,615 MiB) does not match the previously-documented 2,185.2 MiB baseline …"* and the block closes L275 — the **~26% cross-session RSS methodology gap** this item names, **disclosed, not resolved** | YES |
+
+### A1.3 The census is complete for THIS file, and that is stated as a measurement
+
+Read from this file on 2026-09-10: the string `ADJOINT_MEMORY_ENVELOPE` occurs on **exactly six
+lines** — 33, 88, 155, 162, 265, 270 — carrying **seven** line-citation targets, all seven translated
+above. The other `` `:NNN` `` continuations in §4 (`:628-635` on L155, `:239` on L157, `:215-216` on
+L160, `:146` on L161, `:2765` on L162, `:520-522` on L165) resolve into **DAFoam source files**, not
+into the envelope, and are untouched by the `fa124d95` shift. §5's and §6's citations into
+`../grading_confirmation/RESULTS.md` are likewise unaffected.
+
+### A1.4 What this addendum does not do
+
+It does not edit `cases/dafoam/ADJOINT_MEMORY_ENVELOPE.md`, which is frozen and is not this file's to
+amend. It does not un-insert the two lines: doing so would shift every number a second time and break
+every citation written since 2026-09-09, which is why the repair is a **published translation** rather
+than a re-edit. It covers **this file only** — other records citing the envelope by line need their
+own translation, and the shift map named in A1.2 is the authority for all of them. **Zero compute:**
+no solver, no container, no `mpirun`; every figure here was read from git or from files already on
+disk.
