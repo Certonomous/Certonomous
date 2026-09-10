@@ -116,3 +116,110 @@ Cost figures are the item's own registered ones (`:592-597`, `:626-627`). **Doll
 **Gates · thresholds · bands · caps · labels changed: 0 · 0 · 0 · 0 · 0. Solver compute: 0 core-min. GPU: 0 GPU-h.**
 
 **NOTHING IS FILED, SENT, UPLOADED, REGISTERED OR POSTED OUTSIDE THIS BOX. This is an internal cross-team referral** (rules 7 and 8).
+
+---
+
+## ADDENDUM 1 — 2026-09-10, later the same day — **THE QUESTION IS NO LONGER HYPOTHETICAL. DAFoam ENFORCES the `1e-8` criterion ITSELF, and it destroyed a rung today that had already passed its gates.**
+
+*lines whose number changed above this section: 0.* Appended at the foot; nothing above is rewritten,
+struck or renumbered. **This addendum changes NO gate, threshold, band, cap or label, and asks for no
+different ruling than §1 already asks for.** It adds measured evidence to §2 and narrows §1's question
+in one respect (see (D)). It **does not answer the referral** — that is still verification's to do.
+Filed by the dafoam-supervisor. Recorded `[lab-attributed]` under the owner's 2026-09-10T03:45Z
+directive. **SUBMISSIONS PARKED** (rule 7): this is internal, nothing is filed or sent outside the box.
+
+### (A) THE NEW FACT: the `1e-8` criterion is not only a gate CHOICE — it is a HARD-CODED ABORT in the toolchain
+
+§2 argued that `initRes 1e-8` may be **structurally unreachable** because the solver stops at the
+accept floor first. Measured today: it is worse than unreachable. **DAFoam checks its own primal
+against `primalMinResTol` and, when the check fails, raises
+`openmdao.core.analysis_error.AnalysisError("Primal solution failed!")` from
+`dafoam/mphys/mphys_dafoam.py:345` (`DAFoamSolver.solve_nonlinear`). The exception propagates out of
+OpenMDAO and `mpirun` terminates every rank.** It does not return a non-converged point that a
+comparator could grade and label. **It deletes the run.**
+
+**Three dafoam items were killed by that one clause today, on two different cases and two different
+container images:**
+
+| item | where | the figure it was judged on | what it cost |
+|---|---|---|---|
+| **A2-B2R** independent lift-trim | `/home/ubuntu/certonomous-runs/A2B2R-independent-trim/decomp.log:891-895` | `Primal min residual 1.042376255e-05` vs `prescribed tolerance 1e-08` | **all four rows.** Rung `NOT A RESULT` |
+| **D6RF10 R3** | `…/CURRICULUM-D6RF10-a2-wing-convergence-probe/R3_20260910T031209Z_953457.log:2711-2714` | `Primal min residual 1.391750109e-05` | nothing — that leg completed to `endTime` first, `rc=0` |
+| **A3FL2 pre-flight exercise** | `/home/ubuntu/certonomous-runs/A3FL2-PREFLIGHT-EXERCISE/*/a3fl2_ex_*.log` | its own `primalMinResTol 1e-06` | all three legs `rc=1`; exercise `NOT GREEN` |
+
+Records: `cases/dafoam/A2_B2R_INDEPENDENT_TRIM_TRIAGE_2026-09-10.md` (`3b1b4cae`),
+`cases/dafoam/ladder-a/A2/curriculum_D6RF10/D6RF10_GRADE_RECORD.md` (`cadc459c`),
+`cases/dafoam/ladder-a/A3/curriculum_A3FL2/A3FL2_EXERCISE_VERDICT_2026-09-10.md` (`a1e57706`).
+
+### (B) AND ON A2-B2R IT DESTROYED A ROW WHOSE PHYSICS HAD ALREADY PASSED ITS OWN REGISTERED GATES
+
+This is the part that turns the referral from a level-setting question into a blocker. A2-B2R's row 1
+`R1_A4_anchor_cold` solved to `Time = 1000`, `ExecutionTime 27.11 s`, and **printed its values into
+the log before DAFoam threw:**
+
+| quantity | measured | its registered gate | margin |
+|---|---|---|---|
+| `CD` | **0.02124797341** | `G1R`: within 0.5% of 0.02124478277 | **0.015%** — 33× inside |
+| `CL` | **0.4999465153** | `G1R`: within 5e-4 of 0.49994884178 | **2.33e-06** — 215× inside |
+| `CL` vs trim target | same | `G3R`: \|CL − 0.5\| ≤ 5e-4 | **5.35e-05** — inside |
+| worst per-equation `finalRes` | **4.652519276e-07** | `G4R`: ≤ 1e-6 | **2.1× inside** |
+| `DECOMP_RESULT` line | **absent** | `G4R`: exactly one | **FAILS** |
+
+**The row failed exactly one clause — the driver's own print line, which DAFoam threw before it could
+emit.** The frozen comparator is right to refuse it and dafoam has NOT rescued it: the rung stands
+`NOT A RESULT`, on the pre-registration's own registered `DIVERGED-TRIM` branch. *Bookkeeping never
+voids physics; physics never launders bookkeeping* (that item's §6.3) binds in both directions.
+
+**And note what quantity did the killing.** A2-B2R's `G4R` exists **because** its §6.2 identified that
+`primalMinResTol` acts on DAFoam's normalised total residual while the log prints per-equation
+`finalRes`, and that **the two are not comparable** — so it deliberately registered its gate on the
+readable one. **That reasoning was correct and could not be reached**, because the toolchain enforces
+the non-comparable quantity unconditionally and aborts. **A pre-registration cannot register its way
+around a hard-coded abort.** That is the structural point §2 was reaching for, now measured.
+
+### (C) A SECOND MEASURED FACT THAT BEARS DIRECTLY ON §1: `p` IS NOT THE BINDING EQUATION — `nuTilda` IS
+
+On **both** A2-B2R and D6RF10 R3, the figure DAFoam calls its *"Primal min residual"* is
+**byte-identical to the `nuTilda initRes` printed a few lines earlier in the same log**
+(`decomp.log:884`; R3 log line 2703). Meanwhile the pressure residual sat **below** this family's
+accept floor in both:
+
+| item | `p initRes` (first uncorrected) | `nuTilda initRes` | the figure DAFoam judged on |
+|---|---|---|---|
+| A2-B2R row 1 | **5.765826264e-06** | **1.042376255e-05** | 1.042376255e-05 |
+| D6RF10 R3 @ `endTime` 2000 | **6.3233727e-06** | **1.391750109e-05** | 1.391750109e-05 |
+
+**Stated as a hypothesis with two strong data points, NOT as a fact** — it rests on a byte-match in
+two logs, not on reading DAFoam's source, and a lane is establishing the definition from source now.
+**If it holds, "Primal min residual" is the WORST across the transported-equation set despite its
+name, and the binding equation on the A2 MACH wing is the Spalart–Allmaras `nuTilda`, not pressure.**
+
+**Why this matters to the referral specifically.** This addendum's parent §1 reconciliation already
+established that `GATE R` takes the **worst across all six transported equations** while D6RF10 gates
+`p_first_uncorrected` **specifically** — two gates, one shared floor. **(C) says the choice of which
+is not cosmetic:** on this case family, `p` clears `1.0e-05` and `nuTilda` does not. **A gate written
+on `p` and a gate written on the worst field return DIFFERENT VERDICTS on the same run.** Whichever
+level verification sets, it should say which **field set** the level applies to, because on these
+artifacts that second choice is doing at least as much work as the first.
+
+### (D) WHAT THIS NARROWS, AND WHAT IT DELIBERATELY DOES NOT
+
+**Narrowed.** §2's reachability argument no longer rests on a prediction. Branch A's gate at
+`initRes 1e-8` is not merely *expected* to return `GATE FAIL` — on this toolchain a primal that fails
+`1e-8` **may not survive to be graded at all**, so on A2-B2R's evidence Branch A's registered
+`NOT A RESULT` can arrive as a **destroyed run rather than a measured fail**, and those are not the
+same evidentiary object. §5's table is otherwise unchanged and its cost figures stand.
+
+**NOT narrowed, and not proposed.** This addendum does **not** propose touching
+`primalMinResTolDiff`; §5's *"What is NOT proposed"* stands verbatim and for its stated reason. It does
+**not** propose making the abort non-fatal — whether any supported switch even exists is
+**unmeasured**, a lane is establishing it from source, and any route that changes a registered
+quantity needs its own dated amendment before compute. It does **not** file anything upstream: the
+four prepared DAFoam defect classes all still read `Status: NOT FILED ANYWHERE`, filing is Sanaa's
+alone, and whether this clause belongs to an existing class or is new is **not settled here**. It does
+**not** widen `1.0e-05` under any reading (T25), and `N-D43` stays escalated and unruled.
+
+**`A2-GC-P` remains `HELD` and `PERMISSION: NOT_FROZEN`.** Still no answer proposed.
+
+**Gates · thresholds · bands · caps · labels changed by this addendum: 0 · 0 · 0 · 0 · 0.
+Solver compute: 0 core-min. GPU: 0 GPU-h.**
