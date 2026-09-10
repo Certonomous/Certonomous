@@ -1,0 +1,8291 @@
+] 
+
+
+CODE  Oil  DIRECTOR  OF  TECHNOLOGY,  PLANS  AND  ASSESSMENT 
+12  SHIP  SYSTEMS  INTEGRATION  DEPARTMENT 
+
+14  SHIP  ELECTROMAGNETIC  SIGNATURES  DEPARTMENT 
+
+15  SHIP  HYDROMECHANICS  DEPARTMENT 
+
+16  AVIATION  DEPARTMENT 
+
+17  SHIP  STRUCTURES  AND  PROTECTION  DEPARTMENT 
+
+18  COMPUTATION,  MATHEMATICS  &  LOGISTICS  DEPARTMENT 
+
+19  SHIP  ACOUSTICS  DEPARTMENT 
+
+27  PROPULSION  AND  AUXILIARY  SYSTEMS  DEPARTMENT 
+
+28  SHIP  MATERIALS  ENGINEERING  DEPARTMENT 
+
+
+DTRC  ISSUES  THREE  TYPES  OF  REPORTS: 
+
+1 .  DTRC  reports,  a  formal  series,  contain  information  of  permanent  technical  value. 
+They  carry  a  consecutive  numerical  identification  regardless  of  their  classification  or  the 
+originating  department. 
+
+2.  Departmental  reports,  a  semiformal  series,  contain  information  of  a  preliminary, 
+temporary,  or  proprietary  nature  or  of  limited  interest  or  significance.  They  carry  a 
+departmental  alphanumerical  identification. 
+
+3.  Technical  memoranda,  an  informal  series,  contain  technical  documentation  of 
+limited  use  and  interest.  They  are  pnmarily  working  papers  intended  for  internal  use.  They 
+carry  an  identifying  number  which  indicates  their  type  and  the  numerical  code  of  the 
+originating  department.  Any  distribution  outside  DTRC  must  be  approved  by  the  riead  of 
+the  originating  department  on  a  case-by-case  basis. 
+
+
+UNCLASSIFIED 
+
+
+eCURITY  CLAS 
+
+
+1*.  REPORT  SECURITY  CLASSIFICATION 
+
+CLASSIFIED 
+
+
+2a.  security  classification  authority 
+
+
+REPORT  DOCUMENTATION  PAGE 
+
+
+lb  RESTRICTIVE  MARKINGS 
+
+
+3  distribution  /  availability  of  report 
+
+
+S  MONITORING  ORGANIZATION  REPORT  NUMBER(S) 
+
+
+2b.  DECLASSIFICATION  /  DOWNGRADING  SCHEDULE 
+
+
+4  PERFORMING  ORGANIZATION  REPORT  NuMBER(S) 
+
+DTRC/SHD-1298-01 
+
+
+6«.  NAME  OF  PERFORMING  ORGANIZATION  6b  OFFICE  SYMBOL  ?a.  NAME  OF  MONITORING  ORGANIZATION 
+
+(If  applicable) 
+
+David  Taylor  Research  Center  _  _ 
+
+_ _ _ Code  1542 
+
+
+6c  ADDRESS  (GFty.  State,  and  ZIP  Code) 
+
+
+Bethesda,  MD  20084-5000 
+
+
+Ba.  NAME  OF  FUNDING  /SPONSORING 
+ORGANIZATION 
+
+
+Be.  ADDRESS  fOfy.  State,  and  ZIP  C ode) 
+
+
+7b  ADDRESS  (Gty.  State,  and  ZIP  Code) 
+
+
+8b  OFFICE  SYMBOL  I  9.  PROCUREMENT  INSTRUMENT  IDENTIFICATION  NUMBER 
+(if  applicable)  I 
+
+
+10  SOURCE  OF  FUNDING  NUMBERS 
+
+
+PROGRAM 
+
+PROJECT 
+
+TASK  V 
+
+ELEMENT  NO 
+
+NO 
+
+NO  * 
+
+63569N 
+
+S1S74030 
+
+Hi! 
+
+
+ii  TUlE  (include  Security  CUsuficivon) 
+
+_  _  _  \ 
+
+GEOMETRIC  CHARACTERISTICS  OF  DARPA  SOBOFF  MODELS  (DTRC  MODEL  NOS.  5470  and  5471) 
+
+
+12  personal  authoR(S) 
+
+_ Nancy  C.  Groves  Thomas  T.  Huang  Ming  S.  Chang 
+
+
+14  DATE  OF  REPORT  (Tear.  Month.  Day)  p5  PAGE  COUNT 
+
+1989  March  I 
+
+
+i3a  type  of  report 
+
+Departmental 
+
+
+13b  time  covered 
+from  to 
+
+
+_ _ COSATt  CODES _ I  18  SUBlECT  TERMS  (Continue  on  reverse  if  necessary  and  identify  by  block  number) 
+
+FIELD  |  GROUP  I  SUB-GROUP  |  DARPA  SUBOFF  axisynmetric  stem  appendages 
+
+hull  fairwater  shroud  shroud  strut 
+
+irt.  t-pn-vc 
+
+
+’9  ABSTRACT  (Continue  on  reverse  rf  necessary  and  identify  by  block  number) 
+
+
+An  axisynmetric  body  ,  fairwater/  symmetric  stem  appendages/  two  ring  wings  and 
+ring  wing  support  struts  were  designed  for  the  Defense  Advanced  Research  Projects 
+Agency  (DARPA)  SUBOFF  Project-  Two  geometrically  identical  models,  designed  to  a  linear 
+scale  ratio  ( X)  of  24,  will  be  constructed  to  allow  simultaneouqtesting  in  different 
+facilities.  Geometrical  details  of  all  components,  including  defining  equations  with 
+computer  code  listings,  are  provided-  The  locations  of  velocity  measurement  stations 
+and  of  surface  pressure  taps  are  also  given.  This  information  is  intended  for  use  by 
+the  model  test  engineer  and  the  CFD  engineer. 
+
+
+20  D‘STRl3uTlON'AVAILA3!LlTY  OF  ABSTRACT  |21  ABSTRACT  SECURITY  CLASSIFICATION 
+
+□  unclassified-unlimited  □  SAME  AS  RPT  □  DTlC  USERS  j  UNCLASSIFIED 
+
+
+22*  NAME  OF  RESPONSIBLE  INDIVIDUAL  1 22b  TELEPHONE  (Include  Are*  CodW  22c  OFFICE  SYMBOL 
+
+Nancy  C.  Groves  I  (301)  227-1605  Code  1542 
+
+
+DD  FORM  1473.84  mar  83  APR  ecuon  m*y  &eutedunt.ie*nausted  SECURITY  CLASSIFICATION  OF  This  PAGE 
+
+Ail  other  editions  are  obsolete  •  _ _ _ _ _ 
+
+UNCLASSIFIED 
+
+
+CONTENTS 
+
+
+Page 
+
+1 
+
+
+t 
+
+
+% 
+
+
+ABSTRACT . 
+
+ADMINISTRATIVE  INFORMATION . 
+
+INTRODUCTION . 
+
+MODEL  GEOMETRY . 
+
+AXISYMMETRIC  HULL . 
+
+FAIRWATER . 
+
+STERN  APPENDAGES . 
+
+RING  WINGS . 
+
+RING  WING  STRUTS . 
+
+VELOCITY  MEASUREMENT  STATIONS . 
+
+PRESSURE  TAP  LOCATIONS . 
+
+MODEL  NO.  5471 . 
+
+MODEL  NO.  5470. . . . 
+
+RING  WINGS . 
+
+ACKNOWLEDGMENTS . 
+
+APPENDIX  A.  LISTING  OF  COMPUTER  CODE  TO 
+
+GENERATE  AXISYMMETRIC  HULL... 
+APPENDIX  B.  LISTING  OF  COMPUTER  CODE  TO 
+
+GENERATE  FAIRWATER . 
+
+APPENDIX  C.  LISTING  OF  COMPUTER  CODE  TO 
+GENERATE  STERN  APPENDAGES 
+APPENDIX  D.  LISTING  OF  COMPUTER  CODE  TO 
+
+GENERATE  RING  WINGS . 
+
+APPENDIX  E.  LISTING  OF  COMPUTER  CODES  TO 
+GENERATE  RING  WING  STRUTS.... 
+
+
+iii 
+
+
+1 
+
+1 
+
+3 
+
+3 
+
+6 
+
+6 
+
+12 
+
+18 
+
+18 
+
+24 
+
+25 
+37 
+
+47 
+
+48 
+
+
+53 
+
+
+73 
+
+7 
+
+
+Availability  Codes 
+
+'  Avf  Ml  or 
+
+Specu! 
+
+
+FIGURES 
+
+
+Page 
+
+
+1.  Sample  grid  representation  of  MODEL  Nos. 
+
+5470  and  5471 .  3 
+
+2.  Hull  profile .  5 
+
+3.  Fairwater  section  profile .  9 
+
+4.  Cross  sectional  shape  of  fairwater  cap . 10 
+
+5.  Stern  appendage  locations .  11 
+
+6.  Stern  appendage  section  profile .  13 
+
+7.  Ring  wing  section  profile  and  placement .  17 
+
+8.  Ring  wing  struts .  21 
+
+9.  Typical  cross  section  showing  ring  wing 
+
+strut  arrangement . 22 
+
+10.  Velocity  measurement  planes .  23 
+
+11.  Axisymmetric  hull  pressure  taps  -  MODEL 
+
+No.  5471 .  27 
+
+12.  Fairwater  pressure  taps  -  MODEL  No.  5471 .  29 
+
+13.  Hull/fairwater  intersection  region 
+
+pressure  taps  -  MODEL  No.  5471 .  32 
+
+14.  Baseline  stern  appendage  pressure  taps  - 
+
+MODEL  No.  5471 .  34 
+
+15.  Baseline  stern  appendage/hull  region 
+
+pressure  taps  -  MODEL  No.  5471 .  36 
+
+16.  Surface  pressure  taps  identification 
+
+scheme  on  MODEL  No.  5470 .  38 
+
+17.  Ring  wing  1  pressure  taps .  50 
+
+18.  Ring  wing  2  pressure  taps .  50 
+
+
+iv 
+
+
+TABLES 
+
+Page 
+
+1.  Equations  to  define  axi symmetric  hull .  4 
+
+2.  Equations  to  define  fairwater .  7 
+
+3.  Equations  to  define  stern  appendages .  14 
+
+4.  Equations  to  define  ring  wings .  15 
+
+5.  Equations  to  define  ring  wing  struts .  19 
+
+6.  Surface  pressure  tap  identification  scheme  - 
+
+MODEL  No.  5471 .  25 
+
+7.  Axisymmetric  hull  pressure  tap  locations  - 
+
+MODEL  No.  5471 .  26 
+
+8.  Fairwater  pressure  tap  locations  - 
+
+MODEL  No.  5471 .  28 
+
+9.  Fairwater/hull  intersection  region  pressure 
+
+tap  locations  -  MODEL  No.  5471 .  30 
+
+10.  Baseline  stern  appendage  pressure  tap 
+
+locations  -  MODEL  No.  5471 .  33 
+
+11.  Baseline  stern  appendage/hull  region  pressure 
+
+tap  locations  -  MODEL  No.  5471 .  35 
+
+12.  Surface  pressure  tap  identification  scheme  - 
+
+MODEL  No.  5470 .  37 
+
+13.  Axisymmetric  hull  pressure  tap  locations  - 
+
+MODEL  No.  5470 .  39 
+
+14.  Fairwater  pressure  tap  locations  -  MODEL 
+
+„  No.  5470 .  43 
+
+15.  Baseline  stern  appendage  pressure  tap 
+
+locations  -  MODEL  No.  5470 .  45 
+
+
+v 
+
+
+TABLES  (Continued) 
+
+
+Page 
+
+
+16.  Surface  pressure  tap  identification  scheme  - 
+
+Ring  wing  1 .  48 
+
+17.  Surface  pressure  tap  identification  scheme  - 
+
+Ring  wing  2 . . . . .  48 
+
+18.  Ring  wing  1  pressure  tap  locations . * .  49 
+
+19.  Ring  wing  2  pressure  tap  locations .  51 
+
+
+vi 
+
+
+/ 
+
+i 
+
+
+ABSTRACT 
+
+
+An  ax i symmetric  body,  fairwater,  symmetric 
+stern  appendages,  two  ring  wings  and  ring  wing 
+support  struts  were  designed  for  the; Defense  "> 
+Advanced  Research  Projects  Agency  (^DARPA jP'SUBOFF 
+project.  Two  geometrically  identical  models, 
+designed  to  a  linear  scale  ratio  <34-J>of  24,  will 
+be  constructed  to  allow  simultaneous  testing  in 
+different  facilities.  Geometrical  details  of 
+all  components,  including  defining  equations 
+with  computer  code  listings,  are  provided. 
+
+The  locations  of  velocity  measurement  stations 
+and  of  surface  pressure  taps  are  also  given. 
+
+This  information  is  intended  for  use  by  both 
+the  model  test  engineer  and  the  CFD  engineer. 
+^nOprcis,1  3m  kmflnpf  Wl  0  cU-$5»  '  ShrOud  5^  w  ' 
+
+Y*JU>  re GfionU  fri'c,  NcA-£— 
+
+ADMINISTRATIVE  INFORMATION  VT 
+
+
+This  work  was  funded  under  DARPA,  Task  Area  S1974-030, 
+Program  Element  63569N,  with  internal  DTRC  Work  Unit  Number 
+1542-123. 
+
+
+\ 
+
+! 
+
+
+INTRODUCTION 
+
+The  Submarine  Technology  Program  4-STPj7,Off  ice  of  DARPA  funded 
+
+S'  /  /  .  - "  "  ^  / 
+
+a  concerted  and  coordinated  Computational^Fluid /Dynamicsv-f'CFDy  Program 
+to  assist  in  the  development  of  advanced  submarines  for  the  future. 
+
+The  DARPA  SUBOFF  project  will  evaluate,  in  a  competitive  environment 
+directly  against  model  test  results,  flow  field  predictions  of  an 
+axisymmetric  hull  model  with  and  without  appendages.  The  model 
+
+/ 
+
+configurations  were  designed  at  DTRC  and  are  given  in  this  report. 
+
+The  SUBOFF  project  will  provide  a  forum  for  the  CFD  community 
+to  compare  the  numerical  predictions  of  the  flow  field  over  an 
+axisymmetric  hull  model  with  and  without  various  typical  appendage 
+components  with  experimental  data.  The  CFD  predictions  of  flow 
+fields  of  typical  submarine  configurations  will  be  made  without 
+the  prior  knowledge  of  the  actual  experimental  data.  Experimental 
+
+
+and  computational  comparisons  can  then  be  made  to  demonstrate  the 
+current  CFD  capability  on  design  problems  relevant  to  STP  problem 
+areas. 
+
+The  three-dimensional  steady  flow  field  for  several  geometrical 
+configurations  will  be  investigated.  These  configurations  are 
+
+(1)  axisymmetric  body  at  zero  angle  cf  attack  and  drift, 
+
+(2)  axisymmetric  body  with  fairwater  at  several  angles  of  attack 
+
+and  zero  drift,  (3)  axisymmetric  body  with  symmetric  stern  appendages 
+at  several  angles  of  attack  and  zero  drift,  (4)  axisymmetric  body 
+with  two  different  ring  wings  at  zero  angle  of  attack  and  drift,  and 
+(5)  cambered  body  of  circular  cross  section  in  a  uniform  stream 
+with  fairwater.  Configuration  1  will  serve  as  a  baseline  geometry 
+for  the  numerical  evaluations.  Configurations  2,  3,  and  5  will 
+evaluate  the  non-axisymmetric  properties  of  the  numerical  codes. 
+
+The  ring  wing  of  Configuration  4  is  added  to  alter  the  pressure 
+distribution  and  to  assess  its  influence  on  flow  separation. 
+Configurations  2  through  5  are  designed  to  test  the  numerical 
+prediction  codes  to  the  maximum  extent. 
+
+Two  geometrically  identical  models,  DTRC  MODEL  Nos.  5470  and 
+5471,  will  be  constructed  to  allow  for  simultaneous  testing  in 
+different  facilities.  The  models  differ  only  in  the  location  of 
+the  surface  pressure  taps.  It  is  planned  that  DTRC  MODEL  No.  5470 
+will  be  used  in  the  Boeing  Wind  Tunnel,  the  DTRC  Towing  Tank,  and 
+the  Hydronautics  Ship  Model  Basin  and  that  DTRC  MODEL  No.  5471  will 
+be  used  in  the  DTRC  Anechoic  Flow  Facility. 
+
+The  equations  and  model  details  to  define  the  axisymmetric 
+body,  fairwater,  symmetric  stern  appendages,  two  ring  wings,  and 
+
+
+ring  wing  support  struts  are  given  in  the  main  body  of  this  report 
+The  computer  code  listings  to  define  the  geometric  components  are 
+given  in  the  Appendices.  The  detailed  experimental  test  agenda 
+will  be  given  in  a  separate  report. 
+
+MODEL  GEOMETRY 
+
+The  overall  model  geometry  for  the  two  SUBOFF  models,  DTRC 
+MODEL  Nos.  5470  and  547,1  are  identical.  The  two  models  differ 
+only  in  the  location  of  the  surface  pressure  taps.  Each  model 
+component  is  described  by  equations  giving  either  the  axial  and 
+radial  values  for  an  axisymmetric  component  or  the  Cartesian 
+coordinates  (x,  y,  z)  of  nonaxi symmetric  components.  All 
+equations  and  computer  code  listings  give  model  scale  coordinates 
+in  units  of  feet.  A  grid  representation  of  the  axisymmetric 
+hull,  fairwater,  and  stern  appendages  is  shown  in  Figure  1. 
+
+
+Figure  1.  Sample  grid  representation  of 
+MODEL  Nos.  5470  and  5471 
+
+
+AXISYMMETRIC  HULL 
+
+
+The  axisymmetric  hull  has  an  overall  length  of  14.291667  Ft 
+(4.356  m)  and  a  maximum  diameter  of  1.666667  Ft  (0.508  m).  The 
+
+
+TABLE  1.  Equations  to  define  axisymmetric  hull 
+
+
+x  3  Model  Scale  Axial  Length  in  Feet 
+R  3  Model  Scale  Radial  Length  in  Feet 
+
+Forebody  Length  *  3.333333  Ft  (1.016  m) 
+
+Parallel  Middle  Body  Length  3  7.3125  Ft  (2.229  m) 
+
+Afterbody  Length  3  3.645833  Ft  (1.111  m) 
+
+Aft  Perpendicular  at  x  3  13.979167  Ft  (4.461  m) 
+
+Total  Body  Length  *  14.291666  (4.356  m) 
+
+Maximum  Body  Diameter  3  1.666667  Ft  (0.508  m) 
+
+\  3  (FULL/MODEL)  SCALE  RATIO  3  24 
+
+BOW  EQUATION 
+
+For  0  Ft  <  x  <  3.333333  Ft 
+
+R  -  R^  { 1 . 126395101x(0.3x-l )**  +  0.442874 707x2 (0.3x-l)3  +  l-(0.3x-l)St(1.2x  +  1)} 
+
+PARALLEL  MIDDLE  BODY  EQUATION 
+For  3.333333  Ft  <  x  10.645833  Ft 
+R  -  %AX 
+
+AFTERBODY  EQUATION 
+
+(valid  up  to  and  including  aft  perpendicular  x  3  13.979167  Ft) 
+
+For  10.645833  Ft  <  x  _<  13.979167  Ft 
+
+R  *  *  SV2  +  (2°  -  20rh2  '  4rhKo  *  ~T  V 
+
++  (-45  +  45r  2  +  6r,K  +  K, )  +  (36-36r  2  -  4r,K  -  K.  )  £5 
+
+h  hoi  h  hoi 
+
+-  (-10  +  10rh2  +  rhKo  +-r  V  f6l1/2 
+
+r.  -  0.1175  K  3  10  K.  3  44.6244 
+
+h  o  1 
+
+13.979167  -  x  .  „  , 
+
+5  "  3.333333 -  ’  *  in  Feet 
+
+AFTERBODY  CAP 
+
+For  13.979167  Ft  _<  x  _<  14.291667  Ft 
+R  3  0.1175  R^  [l  -  (3.2x  -  44. 733333 )2] 1/2 
+
+
+1/2.1 
+
+
+4 
+
+
+(FT)  R  (FT)  _R  (FT) 
+
+
+0  2  4  6  8  10  12  14  I  16 
+
+X  (FT) 
+
+
+0  0.5  1  1.5  2  2.5  3  3.5>  4 
+
+X  (FT) 
+
+
+X  (FT) 
+
+Figure  2.  Hull  profile 
+
+
+5 
+
+
+PLOt 
+
+
+hull  is  composed  of  a  forebody  of  length  ? .333333  Ft  (1.016  m) 
+
+
+a  parallel  middle  body  section  of  length  7.3125  Ft  (2.229  m) , 
+an  afterbody  of  length  3.645833  Ft  (1.111  m)  and  an  afterbody 
+cap  of  length  0.3125  Ft  (0.095  m).  The  equation  for  each  hull 
+component,  in  terms  of  axial  and  radial  length,  is  provided  in 
+Table  1.  Figure  2  shows  the  hull  profile  and  Appendix  1  lists 
+the  computer  program  to  generate  the  hull  offsets. 
+
+
+FAIRWATER 
+
+The  fairwater  is  located  on  the  hull  at  top  dead  center  with 
+its  leading  edge  positioned  at  x=3. 032986  Ft  (0.924  m)  and  trailing 
+edge  at  x*4. 241319  Ft  (1.293  m)  for  a  total  length  of  1.208333  Ft 
+(0.368  m).  A  sail  cap  attaches  to  the  top  of  the  sail  at  a 
+height  y*l. 507813  Ft  (0.460  m).  In  addition  to  the  sail  cap,  the 
+fairwater  is  defined  in  terms  of  a  forebody,  a  parallel  middle 
+body,  and  an  afterbody  region.  Table  2  gives  the  equations  as 
+well  as  pertinent  geometric  details  for  the  fairwater.  Figure  3 
+shows  the  fairwater  section  profile  and  Figure  4  gives  the  cross- 
+sectional  shape  of  the  cap  over  the  length  of  the  fairwater. 
+
+The  computer  code  listing  of  the  fairwater  equations  is  given 
+in  Appendix  2 
+
+
+STERN  APPENDAGES 
+
+The  stern  appendages  consist  of  four  identical  appendages 
+mounted  on  the  model  hull  at  angles  of  0  degrees  (top  dead  center), 
+90  degrees,  180  degrees,  and  270  degrees.  The  basic  stern 
+appendage  assembly  can  be  shifted  to  attach  to  the  hull  at 
+
+
+6 
+
+
+Table  2.  Equations  to  define  fairvater 
+
+
+(x,y,z)  =  Cartesian  coordinates  in  Ft 
+
+The  sail  is  defined  by  4  sections:  the  forebody,  parallel  middle  body, 
+afterbody  and  cap.  The  sail  dimensions  and  equations  follow. 
+
+Sail  Foreboly  Length  »  .325521  Ft  (.099m) 
+
+Sail  Parallel  Middle  Body  Length  =  .200521  Ft  (.061n) 
+
+Sail  Afterbody  Length  *  .682292  Ft  (.208m) 
+
+Total  Sail  Length  *  1.208333  Ft  (.368m) 
+
+Span  of  Sail  with  Uniform  Profile  =*  .674479  Ft  (.206m) 
+
+Znax  =  One-Half  the  Maximum  Sail  Thickness  *  0.109375  (.033m) 
+
+SAIL  F0REB0DY  EQUATION 
+
+For  3.032986  Ft  <_  x  _<  3.358507  Ft 
+y  _<  1.507813  Ft 
+
+Zi  =  Zts3lX  [2.094759(A)  +  .2071781(B)  +  (C)]l/2 
+A  »  2D  (D-l)4 
+B  =  1/3  (D2)  (D-l)3 
+C  =*  1-  (D-l)4  (4IH-1) 
+
+D  =  3.072000  (x-3. 032986) 
+
+
+7 
+
+
+Table  2.  (Continued) 
+
+SAIL  PARALLEL  MIDDLE  BODY  EQUATION 
+
+For  3.358507  Ft  <  x  <  3.559028  Ft 
+y  _<  1.507813  Ft 
+
+Z1  “  Zaax  *  .109375  Ft  -  1.3125  inch 
+
+SAIL  AFTERBODY  ZQUATIOK 
+(Revised  11  January  1989) 
+
+For  3.559028  Ft  <  x  <  4.241319  Ft 
+y  <  1.507813  Ft 
+
+z1  -  .1093750  [2.238361  (E(E-l)4)  + 
+
++  3.106529  (E2(E-1)3)  + 
+
+( 1“(E— 1  )**  (4E+1 )  )  ] 
+
+E  -  (4.241319*-x)/0. 682291 7 
+
+SAIL  CAP  EQOATIOH 
+
+The  sail  is  closed  at  top  with  an  ellipsoid  defined  as 
+For  3.032986  ft  <x<  4.241319  Ft 
+1.507813  ft  <y  <  (Zj/2)  +  1.507813  Ft 
+Z2  -  [Zi2  -  (2 (y-1. 507813 ))2] 1/2 
+Z\  is  defined  previously  as  a  function  of  x. 
+
+HULL /SAIL  INTERSECTION 
+[RgsCx)]2  -  y2  +  Zj2 
+
+where  Rg]j(x)  *  the  hull  bow  equation  (See  Table  1) 
+
+
+8 
+
+
+9 
+
+
+miU— 
+
+
+0.06 
+
+Z  (FT) 
+
+
+0.00  0.02  0.04  0.06  0.08  O.iO  1  0.12 
+
+Z  (FT) 
+
+Figure  4.  Cross  sectional  shape  of  fairwater  cap 
+
+
+10 
+
+
+13.562950 
+
+
+lOTdl 
+
+
+11 
+
+
+Figure  5.  Stern  appendage  locations 
+
+
+three  different  axial  positions  as  shown  in  Figure  5.  The 
+stern  appendage  position  with  the  appendage  trailing  edge  at 
+x*13. 146284  Ft  (4.007  m)  is  denoted  the  baseline  stern  appendage 
+location.  To  provide  for  stern  appendage  movement  to  different 
+sternplane  angles,  the  appendages  are  offset  slightly  from  the 
+axisymmetric  hull  surface.  The  stern  appendage  with  trailing 
+edge  at  x*13. 562950  Ft  (4.134  m)  is  contoured  to  fit  the 
+axisymmetric  hull  centerline  exactly  with  a  uniform  clearance 
+at  the  centerline  of  0.05  in  (1.524  cm).  The  stern  appendages 
+at  the  remaining  two  axial  positions  are  cut  along  a  straight 
+plane  and  the  clearance  between  the  hull  and  the  appendage 
+centerlines  varies  with  axial  distance  x.  The  gap  between 
+the  hull  and  the  forward  stern  appendage,  trailing  edge  at 
+x-12. 729167  Ft  (3.880  m),  is  0.0584  in  (1.780  cm)  at  the 
+leading  edge  centerline  and  0.0632  in  (1.928  cm)  at  the 
+trailing  edge  centerline.  The  gaps  for  the  baseline  stern 
+appendage  location  are  0.0287  in  (0.875  cm)  and  0.0355  in 
+(1.082  cm)  for  the  leading  and  trailing  edge  centerlines, 
+respectively. 
+
+Both  the  nondimensional  and  dimensional  section  profiles 
+are  given  in  Figure  6.  The  stern  appendage  equation  is  given 
+in  Table  3  and  the  computer  code  listing  is  in  Appendix  3. 
+
+RING  WINGS 
+
+Two  ring  wings  have  been  designed  for  the  SUBOFF  models.  The 
+wings,  designated  Ring  Wing  1  and  Ring  Wing  2,  have  the  same  section 
+shape  and  differ  only  in  their  angle  of  attack.  Table  4  gives  the 
+defining  equations  for  the  two  wings.  Figure  7  shows  the  placement 
+
+
+12 
+
+
+NOND i MENS  I ONfiL  SECTION  PROF I L 
+
+
+-i - 1 - 1 - 1 - 1 - 1  i 
+
+0.2  0.3  0.4  0.5  0.6  0.7  0-8 
+
+xi  -  ix-m/cm  +  1.0 
+
+
+T 
+
+
+I 
+
+
+BASELINE  SECTION  PROFILE 
+
+
+Table  3.  Equations  to  define  stern  appendages 
+
+
+These  equations  define  the  upper  rudder  stern  appendage. 
+The  three  renaining  stem  appendages  are  located 
+on  the  hull  at  90°  azimuthal  increments. 
+
+
+7 
+
+
+(x,y,z)  *  Cartesian  coordinates  in  ft. 
+
+
+z(Q 
+
+c(v) 
+
+
+STERN  APPENDAGE  EQUATION 
+0.29690  *  0.126005  -  0.351605*  +  0.285205 3 
+
+for  0  <  5  «  +  1.0  <  1 
+
+—  c(y)  — 
+
+
+0.104505** 
+
+
+where  h  »  x  coordinate  of  the  stem  appendage  trailing  edge 
+c(y)  -  -0.466308y  +  0.88859 
+
+
+=  chord  length 
+
+
+Three  values  of  h  are  considered: 
+h  -  12.729617 
+h  -  13.146284  -  BASELINE 
+h  -  13.562950 
+
+
+HULL/STERK  APPENDAGE  INTERSECTION 
+
+t*HA«>l2  -  yz  *  [*<5>]2 
+
+where  Rj^(5  )  *  the  hull  afterbody  equation  (See  Table  1) 
+
+
+14 
+
+
+Table  4.  Equations  to  define  ring  wings 
+
+
+x  =  Model  Scale  Axial  Length  in  Feet 
+R  =  Model  Scale  Radial  Length  in  Feet 
+
+Two  Ring  Wings  are  Defined: 
+
+
+* 
+
+Ring  Wing  1: 
+
+(xLE  =  13.46990,  - 
+
+Rle  =  0.43004) 
+
+(x^  =  14.21661, 
+
+=  0.35659) 
+
+Ring  Wing  2: 
+
+(xL£  =  13.46990, 
+
+Rle  =  0.47681) 
+
+(x^  =  14.2074, 
+
+rte  =  °-33856) 
+
+BASIC  GEOMETRY  FOR  RING  WING 
+
+
+Camber: 
+
+yc(x)  =  -0.049921  [0.5DZ  In  j  D  |  -  0.5  E2  £n  (E) 
++  0.25  E2  -  0.25D2} 
+
++  0.029953  [x  £nx  +  0.227828  =  0.531076x] 
+where  0  £  x  £  1 
+
+D  =  0.4  -  x 
+
+
+E  =  1 .0  -  x 
+
+
+Thickness : 
+
+• 
+
+o 
+
+n 
+
+K 
+
+U 
+
+>, 
+
+17 
+
+I  b 
+n=l  n 
+
+sin  nw]  for  0. 
+
+.0  £ 
+
+x  £  0.45 
+
+where 
+
+w  =  cos  1  [2x-l] 
+
+n 
+
+^0 
+
+n 
+
+bn 
+
+n 
+
+bn 
+
+1 
+
+0.43756 
+
+7 
+
+0.00156 
+
+13 
+
+-0.00027 
+
+2 
+
+-0.08136 
+
+8 
+
+-0.00113 
+
+14 
+
+-0.00033 
+
+3 
+
+-0.06496 
+
+9 
+
+-0.00058 
+
+15 
+
+0.00005 
+
+4 
+
+-0.01926 
+
+10 
+
+0.00027 
+
+16 
+
+0.00014 
+
+5 
+
+-0.00185 
+
+11 
+
+0.00080 
+
+17 
+
+0.00008 
+
+6 
+
+0.00348 
+
+12 
+
+0.00006 
+
+15 
+
+
+Table  4.  (Continued) 
+
+
+yt(x)  =  0.1  [0.033333  +  1.696969  (1-x)  -  1.441945 
+-  0.366363  (1-x)3  +  0.333049  (1-x)4]  for  0 
+
+
+Upper  and  Lower  Surfaces: 
+
+Xy(x)  =  x  -  yfc(x)  sin6 
+
+Ry(x)  =  v  (x)  +  y^(x)  cos6 
+
+x^(x)  =  x  +  y^(x)  sinG 
+
+R^(x)  =  yc(x)  ~  yt(x)  cosG 
+
+Physical  Ring  Wing  Geometry: 
+
+*DU  =  *LE  +  C  ^*0^  cos$  ~  sin<*>) 
+
+=  \e  +  c  (xu(x)  sin*  +  Vx)  cos*} 
+
+*VL  =  \Z*C  (XL(X>  C°S<>  ~  VX>  Sin<>) 
+
++  C  (x^(x)  sin$  +  R^(x)  cos$) 
+
+
+where 
+
+
+-1 
+
+<j>  =  tan 
+
+
+(  rTE  ~  rLE  ^ 
+*TE  ~  XLE 
+
+
+c  =  !(rte  -  \e>2 
+
+
+*  (*TE  '  *LS>2!,/2 
+
+
+16 
+
+
+(1-x)2 
+
+.45  <  x  <  1.0 
+
+
+Figure  7.  Ring  wing  section  profile  and  placement 
+
+
+of  the  wings  relative  to  the  axisymmetric  hull  and  baseline  stern 
+appendage  location,  and  Appendix  4  gives  the  computer  code  listing 
+used  to  define  the  wing  geometries. 
+
+
+RING  WING  STRUTS 
+
+Strut  supports  are.  necessary  to  mount  the  ring  wings  to  the 
+hull.  Four  separate,  identical  struts  are  mounted  equally-spaced 
+along  the  hull  girth.  The  struts  attach  at  the  same  axial 
+position  on  the  hull,  x~13.589  Ft  {4.142  m)  and  have  the  same  secton 
+profile  for  each  ring  wing.  At  the  inner  surface  of  each  wing,  the 
+struts  are  contoured  to  match  each  wing.  The  strut  equations  and 
+attachment  locations  to  the  hull  and  wings  are  given  in  Table  5. 
+
+Figure  8a  shows  the  nondimensional  section  profile  of  the  strut  and 
+Figures  8b  and  8c  show  the  placement  of  the  strut  on  Ring  Wing  1  and 
+Ring  Wing  2,  respectively.  Figure  9  gives  a  typical  cross  section 
+showing  the  arrangement  of  the  strut  to  the  hull  and  the  ring  wing. 
+
+Also  indicated  in  Figure  9  are  the  placement  and  designation  of 
+surface  pressure  taps  on  the  wings  relative  to  the  struts.  Finally, 
+the  computer  code  listing  for  the  strut  geometry  is  given  in  Appendix  5 
+
+
+VELOCITY  MEASUREMENT  STATIONS 
+A  critical  goal  of  the  DARPA  SUBOFF  project  is  to  evaluate 
+the  CFD  code  predictions  of  velocities  relative  to  experimental 
+velocity  data.  These  measurements  will  include  axial  and  radial 
+mean  velocities,  three  components  of  turbulence  intensities  and 
+one  Reynolds  stress  (axial-radial)  on  the  transverse  plane  at 
+five  axial  locations.  These  locations  are  the  aft  perpendicular 
+
+
+18 
+
+
+Table  5.  Equations  to  define  ring  wing  struts 
+
+
+DEFINITION  DARPA2  STRUT 
+
+
+MODEL  SCALE  EQUATIONS 
+
+
+These  equations  define  a  single  strut  Which  attaches  to  the  DARPA2 
+axisynsnetric  hull  along  the  upper  surface  (i.a.,  the  surface  with  the  fair- 
+water).  Four  identical,  equally-spaced  struts  will  atcach  the  hull  to  the 
+ring  wing  at  a  45°  increment  from  the  wing  surface  pressure  tap  locations. 
+
+
+x  =  xQ  +  0.243995  £ 
+
+y  -  y0  “  0.054465  £ 
+
+z  =  ±  0.15  {0.29690  /~£~  ~  0.12600  £ 
+
+-  G. 35160  £2  +  0.28520£2  -  0.10450  £4) 
+
+where  x^  =  0.223221  y^  +  13.556128 
+
+Rj  <  y0  ^  r2 
+
+
+Ring  Wing  1: 
+
+R1  = 
+
+0.14726  , 
+
+R2  = 
+
+0.36886 
+
+Xing  Wing  2: 
+
+Rl  - 
+
+0.14726  , 
+
+R'2  = 
+
+0.39755 
+
+0  <  £ 
+
+x  “  xo 
+
+-  <  1 
+
+0.243995 
+
+\ 
+
+
+19 
+
+
+Table  5.  (Continued) 
+
+
+Strut  leading  edge  attaches  to: 
+
+
+Hull 
+
+at 
+
+x  =  13.589, 
+
+R  =  0.14726 
+
+Ring  Wing  1 
+
+at 
+
+x  =  13.63845, 
+
+R  =  0.36886 
+
+(x/c  =  0.233) 
+
+Ring  Wing  2 
+
+at 
+
+x  =  13.64487, 
+
+R  =  0.39755 
+
+(x/c  =  0.25) 
+
+Strut  trailing  edge  attaches  to: 
+
+Hull 
+
+at 
+
+x  =  13.83582, 
+
+R  =  0.10547 
+
+Ring  Wing  1 
+
+at 
+
+x  =  13.88818, 
+
+R  =  0.34002 
+
+(x/c  =  0.5651) 
+
+Ring  Wing  2 
+
+at 
+
+x  =  13.89023, 
+
+R  =  0.34932 
+
+(x/c  =  0.58u*w 
+
+HULL /STRUT  INTERSECTION 
+
+
+[  w*>]2  -  *2  ♦  *2 
+
+where  R^(x)  =  t*ie  afterbody  equation 
+
+(See  Table  1) 
+
+
+RING  WING/STRUT  INTERSECTION 
+
+
+K,  ^2  2  2 
+
+^(x)j  =  y  +  z 
+
+where  R^(x)  =  lower  surface  equation 
+
+(See  Table  4) 
+
+
+20 
+
+
+Figure  8a.  Nond imens ional  section  profile 
+
+
+13  13.2  13.4  13.6  13.8  14  14.2  14.4 
+
+
+1  X  (FE:E:T) 
+
+1  Figure  8b.  Placement  of  strut  on  Ring  Wing  1 
+
+1 
+
+
+X  (FEET) 
+
+Figure  8c.  Placement  of  strut  on  Ring  Wing  2 
+Figure  8.  Ring  wing  struts 
+
+
+21 
+
+
+Figure  9.  Typical  croas  section  showing  ring  wing  strut  arrangement 
+
+
+VELOCITY  MEASUREMENT  STATIONS 
+
+
+10*W1 
+
+I  1 - 1 - 
+
+- r - r-cn 
+
+Velocity  measurement  planes 
+
+
+x~13. 979167  Ft  (4.261  m) ,  two  stations  (x*12.0  Ft  (3.658  m)  and 
+x«12. 916667  Ft  (3.937  m)  J  upstream  of  and  two  stations 
+[x-15. 666667  Ft  (4.775  m)  and  x-18. 583333  Ft  (5.664  m) } 
+downstream  from  the  aft  perpendicular.  The  relative  positions 
+of  the  velocity  measurement  stations  on  the  hull  are  shown  in 
+Figure  10.  The  location  of  boundary-layer  transition  from  laminar 
+to  turbulent  flow  will  be  artificially  induced  by  a  0.025  in 
+(0.0635  cm)  trip  wire  located  at  x~6.5  in  (21.59  cm). 
+
+PRESSURE  TAP  LOCATIONS 
+
+For  both  DTRC  MODEL  No.  5471  (the  wind  tunnel  model)  and 
+DTRC  MODEL  No.  5470  (the  towing  basin  model),  a  number  of 
+pressure  taps  are  located  on  the  hull  surface.  On  both  models, 
+the  pressure  taps  are  located  on  the  hull  surface  (H),  the 
+fairwater  surface  (FW)  and  the  baseline  stern  appendage  surface  (SA). 
+On  MODEL  No.  5471,  taps  are  also  located  on  the  fairwater/hull 
+intersection  surface  (FH)  and  the  baseline  stern  appendage/hull 
+intersection  surface  (AH).  In  addition,  surface  pressure  taps  are 
+located  on  both  Ring  Wing  1  and  Ring  Wing  2. 
+
+An  alphanumeric  identification  system  is  adopted  to  identify 
+each  surface  pressure  tap.  Pressure  taps  on  MODEL  No.  5470  (the 
+towing  basin  model)  are  prefixed  with  a  'TB'  to  easily  distin¬ 
+guish  them  from  MODEL  No.  5471  (the  wind  tunnel  model).  Pressure 
+taps  on  Ring  Wing  1  are  prefixed  with  a  rwlr  and  taps  on  Ring  Wing  2 
+are  prefixed  with  a  'W2r.  Model  scale  Cartesian  offsets  in  units 
+of  feet  are  given  for  each  surface  pressure  tap  location. 
+
+
+24 
+
+
+MODEL  NO.  5471 
+
+A  total  of  222  surface  pressure  taps  are  located  on  the 
+wind  tunnel  MODEL  No.  5471.  Table  6  presents  the  surface  pressure 
+tap  identification  scheme  used  for  MODEL  No.  5471.  Table  7  and 
+Figure  11  identify  the  tap  locations  on  the  axisymmetric  hull. 
+Table  8  and  Figure  12  identify  the  tap  locations  on  the  fairwater 
+surface.  Table  9  and  Figure  13  show  the  tap  locations  in  the 
+fairwater/hull  intersection  region.  Table  10  and  Figure  14  give 
+the  tap  locations  on  the  baseline  stern  appendage,  and,  finally. 
+Table  11  and  Figure  15  identify  the  taps  locations  in  the  baseline 
+
+
+Table  6.  Surface  pressure  tap  identification  scheme  - 
+MODEL  NO.  5471 
+
+Pressure  Tap  Pressure  Tap  Number  of 
+
+Identification  Location  Pressure  Taps 
+
+
+HUi 
+
+Upper  hull  surface 
+
+21 
+
+HPi 
+
+Port  side  hull  surface 
+
+7 
+
+HLi 
+
+Lower  hull  surface 
+
+7 
+
+HSi 
+
+Starboard  side  hull  surface 
+
+7 
+
+FWi 
+
+Fairwater  (sail)  surface 
+
+30 
+
+FHi 
+
+Fairwater/hull  intersection  region 
+
+76 
+
+SAi 
+
+Upper  rudder  stern  appendage 
+
+33 
+
+AHi 
+
+Stern  appendage/hull  intersection 
+region 
+
+41 
+
+Total  surface  pressure  taps 
+
+DTRC  MODEL  No.  5471 
+
+222 
+
+(wind  tunnel  model) 
+
+stern  appendage/hull  region. 
+
+
+25 
+
+
+Table  7.  Axisymmetric  hull  pressure  tap  locations  -  MODEL  No.  5471 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+HOI 
+
+0.00000 
+
+0.00000 
+
+0.00000 
+
+HO  2 
+
+0.50000 
+
+0.53273 
+
+0.00000 
+
+BP2 
+
+0.50000 
+
+0.00000 
+
+0.53273 
+
+HL2 
+
+0.50000 
+
+-0.53273 
+
+0.00000 
+
+HS2 
+
+0.50000 
+
+0.00000 
+
+-0.53273 
+
+HU  3 
+
+1.00000 
+
+0.64836 
+
+0.00000 
+
+HU  4 
+
+1.50000 
+
+0.71857 
+
+0.00000 
+
+H05 
+
+2.58333 
+
+0.81862 
+
+0.00000 
+
+HP5 
+
+2.58333 
+
+0.00000 
+
+0.81862 
+
+HL5 
+
+2.58333 
+
+-0.81862 
+
+0.00000 
+
+HS5. 
+
+2.58333 
+
+•  0.00000 
+
+-0.81862 
+
+HU  6 
+
+3.41667 
+
+0.83333 
+
+0.00000 
+
+HU7 
+
+5.75000 
+
+0.83333 
+
+0.00000 
+
+HU  8 
+
+7.16667 
+
+0.83333 
+
+0.00000 
+
+HP8 
+
+7.16667 
+
+0.00000 
+
+0.83333 
+
+HL8 
+
+7.16667 
+
+-0.83333 
+
+0.00000 
+
+HS8 
+
+7.16667 
+
+0.00000 
+
+-0.83333 
+
+HU9 
+
+8.58333 
+
+0.83333 
+
+0.00000 
+
+HU10 
+
+10.00000 
+
+0.83333 
+
+0.00000 
+
+HOll 
+
+10.58333 
+
+0.83333 
+
+0.00000 
+
+HPll 
+
+10.58333 
+
+0.00000 
+
+0.83333 
+
+HLll 
+
+10.58333 
+
+-0.83333 
+
+0.00000 
+
+HS11 
+
+10.58333 
+
+0.00000 
+
+-0.83333 
+
+HU12 
+
+11.16667 
+
+0.81635 
+
+0.00000 
+
+HP12 
+
+11.16667 
+
+0.00000 
+
+0.81635 
+
+HL12 
+
+11.16667 
+
+-0.81635 
+
+0.00000 
+
+HS12 
+
+11.16667 
+
+0.00000 
+
+-0.81635 
+
+HU  13 
+
+11.50000 
+
+0.77254 
+
+0.00000 
+
+HOI  4 
+
+12.00000 
+
+0.65467 
+
+0.00000 
+
+HP14 
+
+12.00000 
+
+0.00000 
+
+0.65467 
+
+HL14 
+
+12.00000 
+
+-0.65467 
+
+0.00000 
+
+HS14 
+
+12.00000 
+
+0.00000 
+
+-0.65467 
+
+HOI  5 
+
+12.25000 
+
+0.57766 
+
+0.00000 
+
+HOI  6 
+
+12.50000 
+
+0.49338 
+
+0.00000 
+
+HOI  7 
+
+12.91667 
+
+0.34795 
+
+0.00000 
+
+HP17 
+
+12.91667 
+
+0.00000 
+
+0.34795 
+
+HL17 
+
+12.91667 
+
+-0.34795 
+
+0.00000 
+
+HS17 
+
+12.91667 
+
+0.00000 
+
+-0.34795 
+
+HO  18 
+
+13.25000 
+
+0.23871 
+
+0.00000 
+
+HOI  9 
+
+13.66667 
+
+0.13103 
+
+0.00000 
+
+HU  20 
+
+13.97917 
+
+0.09792 
+
+0.00000 
+
+H021 
+
+14.29167 
+
+0.00000 
+
+0.00000 
+
+Note: 
+
+All  dimensions 
+
+are  model  scale 
+
+in  feet 
+
+26 
+
+
+DRRPR2  HULL  PRESSURE 
+
+
+Axisymraetric  hull  pressure  taps  -  MODEL  No,  5471 
+
+
+Table  8.  Fairwater  pressure  tap  locations  -  MODEL  No.  5471 
+
+
+Tap  No. 
+
+X 
+
+FWl 
+
+3.03299 
+
+FW2 
+
+3.03299 
+
+FW3 
+
+3.03299 
+
+FW4 
+
+3.03299 
+
+FW5 
+
+3.03299 
+
+FW6 
+
+3.12965 
+
+FW7 
+
+3.12965 
+
+FW8 
+
+3.12965 
+
+FW9 
+
+3.12965 
+
+FW10 
+
+3.12965 
+
+FW11 
+
+3.33507 
+
+FWl  2 
+
+3.33507 
+
+FWl  3 
+
+3.33507 
+
+FWl  4 
+
+3.33507 
+
+FWl  5 
+
+3.33507 
+
+FW16 
+
+3.63715 
+
+FW17 
+
+3.63715 
+
+FW18 
+
+3.63715 
+
+FW19 
+
+3.63715 
+
+FW20 
+
+3.63715 
+
+FW21 
+
+3.93924 
+
+FW22 
+
+3.93924 
+
+FW23 
+
+3.93924 
+
+FW24 
+
+3.93924 
+
+FW25 
+
+3.93924 
+
+FW26 
+
+4.24132 
+
+FW27 
+
+4.24132 
+
+FW28 
+
+4.24132 
+
+FW29 
+
+4.24132 
+
+FW30 
+
+4.24132 
+
+Note:  All 
+
+dimensions  are 
+
+y  2 
+
+
+1.44036 
+
+0.0000G 
+
+1.30549 
+
+0.00000 
+
+1.17057 
+
+0.00000 
+
+1.03567 
+
+0.00000 
+
+0.90078 
+
+0.00000 
+
+1.44036 
+
+0.09581 
+
+1.30549 
+
+0.09581 
+
+1.17057 
+
+0.09581 
+
+1.03567 
+
+0.09581 
+
+0.90078 
+
+0.09581 
+
+1.44036 
+
+0.10937 
+
+1.30549 
+
+0.10937 
+
+1.17057 
+
+0.10937 
+
+1.03567 
+
+0. 10937 
+
+0.90078 
+
+0.10937 
+
+1.44036 
+
+0.10893 
+
+1.30549 
+
+0.10893 
+
+1.17057 
+
+0.10893 
+
+1.03567 
+
+0.10893 
+
+0.90078 
+
+0.10893 
+
+1.44036 
+
+0.07908 
+
+1.30549 
+
+0.07908 
+
+1.17057 
+
+0.07908 
+
+1.03567 
+
+0.07908 
+
+0.90078 
+
+0.07908 
+
+1.44036 
+
+0.00000 
+
+1.30549 
+
+0.00000 
+
+1.17057 
+
+0.00000 
+
+1.03567 
+
+0.00000 
+
+0.90078 
+
+0.00000 
+
+model  scale  in  feet 
+
+
+28 
+
+
+SZ’I  OS’ I  SZ'l  I  SZ'O  OS’O  SZ'O  0 
+
+(1J)  A 
+
+
+29 
+
+
+] 
+
+
+Figure  12.  Fnirwater  pressure  taps 
+
+
+Table  9.  Fairwater/hull  intersection  region  pressure  tap 
+locations  -  MODEL  No.  5471 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+FHl 
+
+3.03299 
+
+0.87379 
+
+0.00000 
+
+FH2 
+
+3.03299 
+
+0.85295 
+
+0.00000 
+
+FH3 
+
+3.03299 
+
+0.84045 
+
+0.00000 
+
+FH4 
+
+3.02466 
+
+0.83202 
+
+0.00000 
+
+FH5 
+
+3.01632 
+
+0.83192 
+
+0.00000 
+
+FH6 
+
+3.00799 
+
+0.83181 
+
+0.00000 
+
+FH7 
+
+2.99132 
+
+0.83158 
+
+0.00000 
+
+FH8 
+
+2.97049 
+
+0.83126 
+
+0.00000 
+
+FH9 
+
+2.94966 
+
+0.83091 
+
+0.00000 
+
+FH10 
+
+2.90799 
+
+0.83011 
+
+0.00000 
+
+FHll 
+
+2.86632 
+
+0.82917 
+
+0.00000 
+
+FHl  2 
+
+3.01325 
+
+0.83102 
+
+0.03782 
+
+FHl  3 
+
+2.98770 
+
+0.83025 
+
+0.04612 
+
+FHl  4 
+
+2.96221 
+
+0.82934 
+
+0.05440 
+
+FHl  5 
+
+2.91136 
+
+0.82715 
+
+0.07093 
+
+FH16 
+
+3.04311 
+
+0.82985 
+
+0.06288 
+
+FHl  7 
+
+3.03168 
+
+0.82905 
+
+0.07118 
+
+FHl  8 
+
+3.02028 
+
+0.82816 
+
+0.07946 
+
+FHl  9 
+
+2.99752 
+
+0.82611 
+
+0.09600 
+
+FH20 
+
+3.07036 
+
+0.82849 
+
+0.08161 
+
+FH21 
+
+3.06434 
+
+0.82758 
+
+0.08989 
+
+FH22 
+
+3.05833 
+
+0.82658 
+
+0.09816 
+
+FH23 
+
+3.04633 
+
+0.82433 
+
+0.11468 
+
+FH24 
+
+3.09835 
+
+0.82732 
+
+0.09479 
+
+FH25 
+
+3.09616 
+
+0.82631 
+
+0.10307 
+
+FH26 
+
+3.09347 
+
+0.82521 
+
+0.11135 
+
+FH27 
+
+3.08812 
+
+0.82278 
+
+0.12782 
+
+FH28 
+
+3.12965 
+
+0.86908 
+
+0.09581 
+
+FH29 
+
+3.12965 
+
+0.84824 
+
+0.09581 
+
+FH30 
+
+3.12965 
+
+0.83574 
+
+0.09581 
+
+FH31 
+
+3.12965 
+
+0.82641 
+
+0.10408 
+
+FH32 
+
+3.12965 
+
+0.82533 
+
+0.11234 
+
+FH33 
+
+3.12965 
+
+0.82416 
+
+0.12060 
+
+FH34 
+
+3.12965 
+
+0.82158 
+
+0.13706 
+
+FH35 
+
+3.33507 
+
+0.86779 
+
+0.10937 
+
+FH36 
+
+3.33507 
+
+0.84695 
+
+0.10937 
+
+FH37 
+
+3.33507 
+
+0.83445 
+
+0.10937 
+
+FH38 
+
+3.33507 
+
+0.82247 
+
+0.13409 
+
+FH39 
+
+3.33507 
+
+0.81962 
+
+0.15052 
+
+FH40 
+
+3.33507 
+
+0.81561 
+
+0.17095 
+
+Note:  All  dimensions  are  model  scale  in  feet 
+
+
+Table  9.  (Continued) 
+
+
+Tap  No. 
+
+X 
+
+FH41 
+
+3.33507 
+
+FH42 
+
+3.63715 
+
+FH43 
+
+3.63715 
+
+FH44 
+
+3.63715 
+
+FH45 
+
+3.63715 
+
+FH46 
+
+3.63715 
+
+FH47 
+
+3.63715 
+
+FH48 
+
+3.63715 
+
+FH49 
+
+3.93924 
+
+FH50 
+
+3.93924 
+
+FH51 
+
+3.93924 
+
+FH52 
+
+3.93924 
+
+FH53 
+
+3.93924 
+
+FH54 
+
+3.93924 
+
+FH55 
+
+3.93924 
+
+FH56 
+
+4.84549 
+
+FH57 
+
+5.44965 
+
+FH58 
+
+4.84549 
+
+FH59 
+
+5.44965 
+
+FH60 
+
+4.84549 
+
+FH61 
+
+5.44965 
+
+FH62 
+
+4.84549 
+
+FH63 
+
+5.44965 
+
+FH64 
+
+4.84549 
+
+FH65 
+
+5.44965 
+
+FH66 
+
+4.84549 
+
+FH67 
+
+5.44965 
+
+FH68 
+
+4.24132 
+
+FH69 
+
+4.24132 
+
+FH70 
+
+4.24132 
+
+FH71 
+
+4.24965 
+
+FH72 
+
+4.26215 
+
+FH73 
+
+4.28299 
+
+FH74 
+
+4.32365 
+
+FH75 
+
+4.84549 
+
+FH76 
+
+5.44965 
+
+Y  2 
+
+
+0.81108 
+
+0.19128 
+
+0.86788 
+
+0.10877 
+
+0.84704 
+
+0.10877 
+
+0.83454 
+
+0.10877 
+
+0.82257 
+
+0.13351 
+
+0.81973 
+
+0.14993 
+
+0.81573 
+
+0.17037 
+
+0.81122 
+
+0.19070 
+
+0.87130 
+
+0.07850 
+
+0.85046 
+
+0.07850 
+
+0.83796 
+
+0.07850 
+
+0.82690 
+
+0.10335 
+
+0.82467 
+
+0.11987 
+
+0.82141 
+
+0.14044 
+
+0.81765 
+
+0.16092 
+
+0.72169 
+
+0.41667 
+
+0.72169 
+
+0.41667 
+
+0.75525 
+
+0.35218 
+
+0.75525 
+
+0.35218 
+
+0.78307 
+
+0.28502 
+
+0.78307 
+
+0.28502 
+
+0.80493 
+
+0.21568 
+
+0.80493 
+
+0.21568 
+
+0.82067 
+
+0.14471 
+
+0.82067 
+
+0.14471 
+
+0.83016 
+
+0.07263 
+
+0.83016 
+
+0.07263 
+
+0.87501 
+
+0.00000 
+
+0.85417 
+
+0.00000 
+
+0.84167 
+
+0.00000 
+
+0.83333 
+
+0.00000 
+
+0.83333 
+
+0.00000 
+
+0.83333 
+
+0.00000 
+
+0.83333 
+
+0.00000 
+
+0.83333 
+
+0.00000 
+
+0.83333 
+
+0.00000 
+
+Note:  All  dimensions  are  model  scale  in  feet 
+
+
+31 
+
+
+Figure  13.  Hull/fairwater  intersection  region  pressure  taps  -  MODEL  Ho.  5471 
+
+
+Table  10.  Baseline  stern  appendage  pressure  tap  locations  - 
+MODEL  No.  5471 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+SA1 
+
+12.62576 
+
+0.78932 
+
+0.00000 
+
+SA2 
+
+12.58471 
+
+0.70129 
+
+0.00000 
+
+SA3 
+
+12.54366 
+
+0.61327 
+
+0.00000 
+
+SA4 
+
+12.52255 
+
+0.56799 
+
+0.00000 
+
+SA5 
+
+12.50435 
+
+0.52896 
+
+0.00000 
+
+SA6 
+
+12.60283 
+
+0.61327 
+
+0.04672 
+
+SA7 
+
+12.58388 
+
+0.55745 
+
+0.04999 
+
+SA8 
+
+12.56691 
+
+0.50746 
+
+0.05285 
+
+SA9 
+
+12.69903 
+
+0.78932 
+
+0.04552 
+
+SA10 
+
+12.67951 
+
+0.70129 
+
+0.05167 
+
+SA11 
+
+12.66000 
+
+0.61327 
+
+0.05721 
+
+SA12 
+
+12.64528 
+
+0.54690 
+
+0.06112 
+
+SA13 
+
+12.63161 
+
+0.48522 
+
+0.06459 
+
+SA14 
+
+12.77128 
+
+0.78932 
+
+0.05199 
+
+SAl  5 
+
+12.77128 
+
+0.70129 
+
+0.05596 
+
+SA16 
+
+12.77128 
+
+0.61327 
+
+0.05903 
+
+SAl  7 
+
+12.77128 
+
+0.52525 
+
+0.06149 
+
+SAl  8 
+
+12.77128 
+
+0.43722 
+
+0.06352 
+
+SAl  9 
+
+12.89628 
+
+0.78932 
+
+0.04476 
+
+SA20 
+
+12.89628 
+
+0.70129 
+
+0.04595 
+
+SA21 
+
+12.89628 
+
+0.61327 
+
+0.04694 
+
+SA22 
+
+12.89628 
+
+0.50376 
+
+0.04797 
+
+SA23 
+
+12.89628 
+
+0.39426 
+
+0.04884 
+
+SA24 
+
+13.02184 
+
+0.78932 
+
+0.02621 
+
+SA25 
+
+13.02184 
+
+0.70129 
+
+0.02648 
+
+SA26 
+
+13.02128 
+
+0.61327 
+
+0.02672 
+
+SA27 
+
+13.02128 
+
+0.48229 
+
+0.02703 
+
+SA28 
+
+13.02128 
+
+0.35130 
+
+0.02729 
+
+SA29 
+
+13.14628 
+
+0.78932 
+
+0.00000 
+
+SA30 
+
+13.14628 
+
+0.70129 
+
+0.00000 
+
+SA31 
+
+13.14628 
+
+0.61327 
+
+0.00000 
+
+SA32 
+
+13.14628 
+
+0.46081 
+
+0.00000 
+
+SA33 
+
+13.14628 
+
+0.30834 
+
+0.00000 
+
+Note:  All 
+
+dimensions 
+
+are  model  scale 
+
+in  feet 
+
+33 
+
+
+Figure  14.  Baseline  stern  appendage  pressure  taps  -  MODEL  No.  5471 
+
+
+Table  11.  Baseline  stern  appendage/hull  region  pressure 
+tap  locations  -  MODEL  No.  5471 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+AHl 
+
+12.50707 
+
+0 . 53479 
+
+0.00000 
+
+AH  2 
+
+12.49827 
+
+0.51591 
+
+0.00000 
+
+AH3 
+
+12.46977 
+
+0.50382 
+
+0.00000 
+
+AH  4 
+
+12.45006 
+
+0.51060 
+
+0.00000 
+
+AH5 
+
+12.41065 
+
+0.52408 
+
+0.00000 
+
+AH  6 
+
+12.37119 
+
+0.53746 
+
+0.00000 
+
+AH7 
+
+12.77128 
+
+0.43490 
+
+0.06357 
+
+AH  8 
+
+12.77128 
+
+0.41406 
+
+0.06400 
+
+AH  9 
+
+12.77128 
+
+0.38218 
+
+0.11278 
+
+AH10 
+
+12.77128 
+
+0.36519 
+
+0.15941 
+
+AHll 
+
+12.77128 
+
+0.34255 
+
+0.20356 
+
+AH  12 
+
+32.77128 
+
+0.31460 
+
+0.24456 
+
+AHl  3 
+
+12.77128 
+
+0.28176 
+
+0.28176 
+
+AHll 
+
+12.89628 
+
+0.39322 
+
+0.04885 
+
+AH  15 
+
+12.89628 
+
+0.37238 
+
+0.04900 
+
+AHl  6 
+
+12.89628 
+
+0.34228 
+
+0.09407 
+
+AH  17 
+
+12.89628 
+
+0.32729 
+
+0.13742 
+
+AH  18 
+
+12.89628 
+
+0.30684 
+
+0.17847 
+
+AH  19 
+
+12.89628 
+
+0.28127 
+
+0.21654 
+
+AH  20 
+
+12.89628 
+
+0.25100 
+
+0.25100 
+
+AH21 
+
+13.02182 
+
+0.35286 
+
+0.02718 
+
+AH22 
+
+13.02182 
+
+0.33202 
+
+0.02722 
+
+AH  2  3 
+
+13.02182 
+
+0.30436 
+
+0.07038 
+
+AH  2  4 
+
+13.02182 
+
+0.29161 
+
+0.11203 
+
+AH  2  5 
+
+13.02182 
+
+0.27320 
+
+0.15150 
+
+AH  2  6 
+
+13.02182 
+
+0.24947 
+
+0.18802 
+
+AH27 
+
+13.02182 
+
+0.22089 
+
+0.22089 
+
+AH  2  8 
+
+13.16711 
+
+0.22916 
+
+0.13230 
+
+AH  2  9 
+
+13.18795 
+
+0.22343 
+
+0.12900 
+
+AH30 
+
+13.22961 
+
+0.21216 
+
+0.12249 
+
+AH  31 
+
+13.16711 
+
+0.24865 
+
+0.09050 
+
+AH  3  2 
+
+13.18795 
+
+0.24244 
+
+0.08824 
+
+AH  3  3 
+
+13.22961 
+
+0.23C21 
+
+0.08379 
+
+AH  3  4 
+
+13.16711 
+
+0.26059 
+
+0.04595 
+
+AH  3  5 
+
+13.13795 
+
+0.25408 
+
+0.04480 
+
+AH  3  6 
+
+13.22961 
+
+0.24126 
+
+0.04254 
+
+AH37 
+
+13.14628 
+
+0.31296 
+
+0.00000 
+
+AH38 
+
+13.14623 
+
+0.29212 
+
+0.00000 
+
+AH  3  9 
+
+13.15711 
+
+0.26461 
+
+0.00000 
+
+AH  40 
+
+13.18795 
+
+C  25800 
+
+0.00000 
+
+AH41 
+
+13.22961 
+
+0.24498 
+
+0.00000 
+
+Note: 
+
+All  dimensions 
+
+are  model  scale 
+
+in  feet 
+
+35 
+
+
+12-2  12.3  12.4  12.5  12.6  12.7  12.8  12.9  13 
+
+X  (FT) 
+
+
+12.9  13  13.1  13.2  13.3 
+
+X  IF1) 
+
+
+Figure  15.  Baseline  stem  appendage/hull  region  pressure 
+taps  -  MODEL  So.  5471 
+
+
+36 
+
+
+MODEL  NO.  5470 
+
+The  pressure  taps  on  DTRC  MODEL  No.  5470  (the  towing 
+basin  model)  are  located  on  the  hull  surface  (TBH-),  the  port 
+side  of  the  fairwater  ( TBFWP ) ,  the  starboard  side  of  the 
+fairwater  (TBFWS),  the  port  side  of  the  baseline  upper  rudder 
+stern  appendage  ( TBSAP ) ,  and  the  starboard  side  of  the  baseline 
+upper  rudder  stern  appendage  (TBSAS).  A  total  of  266  pressure 
+taps  are  located  on  MODEL  No.  5470  as  given  in  Table  12.  The 
+axisymmetric  hull  surface  pressure  taps  are  located  at  8  axial 
+positions  and  up  to  32  azimuthal  positions  as  shown  in  Figure  16. 
+The  port  side  pressure  taps  on  the  fairwater  are  located  at  the 
+
+
+Table  12.  Surface  pressure  tap  identification  scheme  - 
+MODEL  No.  5470 
+
+Pressure  Tap  Pressure  Tap  Number  of 
+
+Identification  Location  Pressure  Taps 
+
+
+TBH-ij  Hull  surface  170 
+
+i  is  an  alphabetic  character 
+denoting  axial  position  and 
+j  is  a  numerical  character 
+denoting  azimuthal  position 
+
+TBFWP i  Port  side  fairwater  (sail)  surface  30 
+
+TBFWSi  Starboard  side  fairwater  (sail)  20 
+
+surface 
+
+TBSAPi  Port  side  of  upper  rudder  stern  28 
+
+appendage 
+
+TBSASi  Starboard  side  of  upper  rudder  18 
+
+stern  appendage 
+
+
+Total  surface  pressure  taps  266 
+
+DTRC  MODEL  No.  5470 
+(towing  basin  model) 
+
+
+37 
+
+
+Surface  prasaura  tap  ldantlf lea ton  achama 
+on  MODEL  No.  5470  axiaywaetric  hull 
+
+
+Table  13.  Axisynunetric  hull  pressure  tap  locations  -  MODEL  NO.  5470 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+TBH-Al 
+
+0.00000 
+
+0.00000 
+
+0.00000 
+
+TBH-Bl 
+
+0.50000 
+
+0.53273 
+
+0.00000 
+
+TBH-B2 
+
+0.50000 
+
+0.53070 
+
+0.04643 
+
+TBH-B3 
+
+0.50000 
+
+0.52464 
+
+0.09251 
+
+TBH-B4 
+
+0.50000 
+
+0.50060 
+
+0.18220 
+
+TBH-B5 
+
+0.50000 
+
+0.37670 
+
+0.37670 
+
+TBH-B6 
+
+0.50000 
+
+0.18220 
+
+0.50060 
+
+TBH-B7 
+
+0.50000 
+
+0.09251 
+
+0.52464 
+
+TBH-B8 
+
+0.50000 
+
+0.04643 
+
+0.53070 
+
+TBH-B9 
+
+0.50000 
+
+0.00000 
+
+0.53273 
+
+TBH-Bl 0 
+
+0.50000 
+
+-0.04643 
+
+0.53070 
+
+TBH-Bl 1 
+
+0.500QO 
+
+-0.09251 
+
+0.52464 
+
+TBH-Bl 2 
+
+0.50000 
+
+-0.18220 
+
+0.50060 
+
+TBH-B13 
+
+0.50000 
+
+-0.37670 
+
+0.37670 
+
+TBH-Bl 4 
+
+0.50000 
+
+-0.50060 
+
+0.18220 
+
+TBH-Bl 5 
+
+0.50000 
+
+-0.52464 
+
+0.09251 
+
+TBH-Bl 6 
+
+0.50000 
+
+-0.53070 
+
+0.04643 
+
+TBH-Bl 7 
+
+0.50000 
+
+-0.53273 
+
+0.00000 
+
+TBH-Bl 8 
+
+0.50000 
+
+-0.53070 
+
+-0.04643 
+
+TBH-Bl 9 
+
+0.50000 
+
+-0.52464 
+
+-0.09251 
+
+TBH-B20 
+
+0.50000 
+
+-0.50060 
+
+-0.18220 
+
+TBH-B21 
+
+0.50000 
+
+-0.37670 
+
+-G. 37670 
+
+TBH-B22 
+
+0.50000 
+
+-0.18220 
+
+-0.50060 
+
+TBH-B23 
+
+0.50000 
+
+-0.09251 
+
+-0.52464 
+
+TBH-B24 
+
+0.50000 
+
+-0.04643 
+
+-0.53070 
+
+TBH-B25 
+
+0.50000 
+
+0.00000 
+
+-0.53273 
+
+TBH-B26 
+
+0.50000 
+
+0.04643 
+
+-0.53070 
+
+TBH-B27 
+
+0.50000 
+
+0.09251 
+
+-0.52464 
+
+TBH-B28 
+
+0.50000 
+
+0.18220 
+
+-0.50060 
+
+TBH-B29 
+
+0.50000 
+
+0.37670 
+
+-0.37670 
+
+TBH-B30 
+
+0.50000 
+
+0.50060 
+
+-0.18220 
+
+TBH-B31 
+
+0.50000 
+
+0.52464 
+
+-0.09251 
+
+TBH-B32 
+
+0.50000 
+
+0.53070 
+
+-0.04643 
+
+TBH-C1 
+
+2.58333 
+
+0.81862 
+
+0.00000 
+
+TBH-C2 
+
+2.58333 
+
+0.81550 
+
+0.07135 
+
+TBH-C3 
+
+2.58333 
+
+0.80618 
+
+0.14215 
+
+TBH-C4 
+
+2.58333 
+
+0.76925 
+
+0.27998 
+
+TBH-C5 
+
+2.58333 
+
+0.57885 
+
+0.57885 
+
+TBH-C6 
+
+2.58333 
+
+0.27998 
+
+0.76925 
+
+TBH-C7 
+
+2.58333 
+
+0.14215 
+
+0.80618 
+
+TBH-C8 
+
+2.58333 
+
+0.07135 
+
+0.81550 
+
+TBH-C9 
+
+2.58333 
+
+0.00000 
+
+0.81862 
+
+TBH-C10 
+
+2.58333 
+
+-0.07135 
+
+0.81550 
+
+TBH-C11 
+
+2.58333 
+
+-0.14215 
+
+0.80618 
+
+Note:  All 
+
+dimensions  are 
+
+model  scale  in 
+
+feet 
+
+39 
+
+
+4 
+
+
+Table  13.  (Continued) 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+TBH-C12 
+
+2.58333 
+
+-0.27998 
+
+0.76925 
+
+TBH-C13 
+
+2.58333 
+
+-0.57885 
+
+0.57885 
+
+TBH-C14 
+
+2.58333 
+
+-0.76925 
+
+0.27998 
+
+TBH-C15 
+
+2.58333 
+
+-0.80618 
+
+0.14215 
+
+TBH-C16 
+
+2.58333 
+
+-0.81550 
+
+0.07135 
+
+TBH-C17 
+
+2.58333 
+
+-0.81862 
+
+0.00000 
+
+TBH-C18 
+
+2.58333 
+
+-0.81550 
+
+-0.07135 
+
+TBH-C19 
+
+2.58333 
+
+-0.80618 
+
+-0.14215 
+
+TBH-C20 
+
+2.58333 
+
+-0.76925 
+
+-0.27998 
+
+TBH-C21 
+
+2.58333 
+
+-0.57885 
+
+-0.57885 
+
+TBH-C22 
+
+2.58333 
+
+-0.27998 
+
+-0.76925 
+
+TBH-C23 
+
+2.58333 
+
+-0.14215 
+
+-0.80618 
+
+TBH-C24 
+
+2.58333 
+
+-0.07135 
+
+-0.81550 
+
+TBH-C25 
+
+2.58333 
+
+0.00000 
+
+-0.81862 
+
+TBH-C26 
+
+2.58333 
+
+0.07135 
+
+-0.81550 
+
+TBH-C27 
+
+2.58333 
+
+0.14215 
+
+-0.80618 
+
+TBH-C28 
+
+2.58333 
+
+0.27998 
+
+-0.76925 
+
+TBH-C29 
+
+2.58333 
+
+0.57885 
+
+-0.57885 
+
+TBH-C30 
+
+2.58333 
+
+0.76925 
+
+-0.27998 
+
+TBH-C31 
+
+2.58333 
+
+0.80618 
+
+-0.14215 
+
+TBH-C32 
+
+2.58333 
+
+0.81550 
+
+-0.07135 
+
+TBH-D1 
+
+5.00000 
+
+0.33333 
+
+0.00000 
+
+TBH-D2 
+
+5.00000 
+
+0.83016 
+
+0.07263 
+
+TBH-D3 
+
+5.00000 
+
+0.82067 
+
+0.14471 
+
+TBH-D4 
+
+5.00000 
+
+0.78307 
+
+0.28502 
+
+TBH-D5 
+
+5.00000 
+
+0.58925 
+
+0.58925 
+
+TBH-D6 
+
+5.00000 
+
+0.28502 
+
+0.78307 
+
+TBH-D7 
+
+5.00000 
+
+0.14471 
+
+0.82067 
+
+TBH-D8 
+
+5.00000 
+
+0.07263 
+
+0.83016 
+
+TBH-D9 
+
+5.00000 
+
+0.00000 
+
+0.83333 
+
+TBB-D10 
+
+5.00000 
+
+-0.07263 
+
+0.83016 
+
+TBH-Dll 
+
+5.00000 
+
+-0.14471 
+
+0.82067 
+
+TBH-D12 
+
+5.00000 
+
+-0.28502 
+
+0.78307 
+
+TBH-D13 
+
+5.00000 
+
+-0.58925 
+
+0.58925 
+
+TBH-D14 
+
+5.00000 
+
+-0.78307 
+
+0.28502 
+
+TBH-D15 
+
+5.00000 
+
+-0.82067 
+
+0.14471 
+
+TBH-D16 
+
+5.00000 
+
+-0.83016 
+
+0.07263 
+
+TBH-D17 
+
+5.00000 
+
+-0.83333 
+
+0.00000 
+
+TBH-D18 
+
+5.00000 
+
+-0.83016 
+
+-0.07263 
+
+TBH-D19 
+
+5.00000 
+
+-0.82067 
+
+-0.14471 
+
+TBH-D20 
+
+5.00000 
+
+-0.78307 
+
+-0.28502 
+
+TBH-D21 
+
+5.00000 
+
+-0.58925 
+
+-0.58925 
+
+TBH-D22 
+
+5.00000 
+
+-0.28502 
+
+-0.78307 
+
+TBH-D23 
+
+5.00000 
+
+-0.14471 
+
+-0.82067 
+
+Note:  All 
+
+dimensions  are 
+
+model  scale  in 
+
+feet 
+
+40 
+
+
+Table  13.  (Continued) 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+TBH-D24 
+
+5.00000 
+
+-0.07263 
+
+-0.83016 
+
+TBH-D25 
+
+5.00000 
+
+0.00000 
+
+-0.83333 
+
+TBH-D26 
+
+5.00000 
+
+0.07263 
+
+-0.83016 
+
+TBB-D27 
+
+5.00000 
+
+0.14471 
+
+-0.82067 
+
+TBH-D28 
+
+5.00000 
+
+0.28502 
+
+-0.78307 
+
+TBH-D29 
+
+5.00000 
+
+0.58925 
+
+-0.58925 
+
+TBH-D30 
+
+5.00000 
+
+0.78307 
+
+-0.28502 
+
+TBH-D31 
+
+5.00000 
+
+0.82067 
+
+-0.14471 
+
+TBH-D32 
+
+5.00000 
+
+0.83016 
+
+-0.07263 
+
+TBH-E1 
+
+9.00000 
+
+0.83333 
+
+0.00000 
+
+TBH-E2 
+
+9.00000 
+
+0.83016 
+
+0.07263 
+
+TBH-E3 
+
+9.00000 
+
+0.82067 
+
+0.14471 
+
+TBH-E4 
+
+9.00000 
+
+0.78307 
+
+0.28502 
+
+TBH-E5 
+
+9.00000 
+
+0.58925 
+
+0.58925 
+
+TBH-26 
+
+9.00000 
+
+0.28502 
+
+0.78307 
+
+TBH-E7 
+
+9.00000 
+
+0.14471 
+
+0.82067 
+
+TBH-E8 
+
+9.00000 
+
+0.07263 
+
+0.83016 
+
+TBH-E9 
+
+9.00000 
+
+0.00000 
+
+0.83333 
+
+TBH-E10 
+
+9.00000 
+
+-0.07263 
+
+0.83016 
+
+TBH-E11 
+
+9.00000 
+
+-0.14471 
+
+0.82067 
+
+TBH-E12 
+
+9.00000 
+
+-0.28502 
+
+0.78307 
+
+TBH-E13 
+
+9.00000 
+
+-0.58925 
+
+0.58925 
+
+TBH-E14 
+
+9.00000 
+
+-0.78307 
+
+0.28502 
+
+TBH-E15 
+
+9.00000 
+
+-0.82067 
+
+0.14471 
+
+TBH-E16 
+
+9.00000 
+
+-0.83016 
+
+0.07263 
+
+TBH-E17 
+
+9.00000 
+
+-0.83333 
+
+0.00000 
+
+TBH-E18 
+
+9.00000 
+
+-0.83016 
+
+-0.07263 
+
+TBH-E19 
+
+9.00000 
+
+-0.82067 
+
+-0.14471 
+
+TBH-E20 
+
+9.00000 
+
+-0.78307 
+
+-0.28502 
+
+TBH-E21 
+
+9.00000 
+
+-0.58925 
+
+-0.58925 
+
+TBH-E22 
+
+9.00000 
+
+-0.28502 
+
+-0.78307 
+
+TBH-E23 
+
+9.00000 
+
+-0.14471 
+
+-0.82067 
+
+TBH-E24 
+
+9.00000 
+
+-0.07263 
+
+-0.83016 
+
+TBH-E25 
+
+9.00000 
+
+0.00000 
+
+-0.83333 
+
+TBH-E26 
+
+9.00000 
+
+0.07263 
+
+-0.83016 
+
+TBH-E27 
+
+9.00000 
+
+0.14471 
+
+-0.82067 
+
+TBH-E28 
+
+9.00000 
+
+0.28502 
+
+-0.78307 
+
+TBH-E29 
+
+9.00000 
+
+0.58925 
+
+-0.58925 
+
+TBH-E30 
+
+9.00000 
+
+0.78307 
+
+-0.28502 
+
+TBH-E31 
+
+9.00000 
+
+0.82067 
+
+-0.14471 
+
+TBH-E32 
+
+9.00000 
+
+0.83016 
+
+-0.07263 
+
+TBH-F1 
+
+12.00000 
+
+0.65467 
+
+0.00000 
+
+TBH-F2 
+
+12.00000 
+
+0.65218 
+
+0.05706 
+
+TBH-F3 
+
+12.00000 
+
+0.64472 
+
+0.11368 
+
+Note:  All 
+
+dimensions  are 
+
+model  scale  in 
+
+feet 
+
+41 
+
+
+/ 
+
+
+Table  13.  (Continued) 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+TBH-F4 
+
+12.00000 
+
+0.61519 
+
+0.22391 
+
+TBH-F5 
+
+12.00000 
+
+0.46292 
+
+0.46292 
+
+TBH-F6 
+
+12.00000 
+
+0.22391 
+
+0.61519 
+
+TBH-F7 
+
+12.00000 
+
+0.11368 
+
+0.64472 
+
+TBH-F8 
+
+12.00000 
+
+0.05706 
+
+0.65218 
+
+TBH-F9 
+
+12.00000 
+
+0.00000 
+
+0.65467 
+
+TBH-F10 
+
+12.00000 
+
+-0.05708 
+
+0.65218 
+
+TBH-F11 
+
+12.00000 
+
+-0.11368 
+
+0.64472 
+
+TBH-F12 
+
+12.00000 
+
+-0.22391 
+
+0.61519 
+
+TBH-F13 
+
+12.00000 
+
+-0.46292 
+
+0.46292 
+
+TBH-F14 
+
+12.00000 
+
+-0.61519 
+
+0.22391 
+
+TBH-F15 
+
+12.00000 
+
+-0.64472 
+
+0.11368 
+
+TBH-F16 
+
+12.00000 
+
+-0.65218 
+
+0.05706 
+
+TBH-F17 
+
+12.00000 
+
+-0.65467 
+
+0.00000 
+
+TBH-F18 
+
+12.00000 
+
+-0.65218 
+
+-0.05706 
+
+TBH-F19 
+
+12.00000 
+
+-0.64472 
+
+-0.11368 
+
+TBH-F20 
+
+12.00000 
+
+-0.61519 
+
+-0.22391 
+
+TBH-F21 
+
+12.00000 
+
+-0.46292 
+
+-0.46292 
+
+TBH-F22 
+
+12.00000 
+
+-0.22391 
+
+-0.61519 
+
+TBH-F23 
+
+12.00000 
+
+-0.11368 
+
+-0.64472 
+
+TBH-F24 
+
+12.00000 
+
+-0.05706 
+
+-0.65218 
+
+TBH-F25 
+
+12.00000 
+
+0.00000 
+
+-0.65467 
+
+TBH-F26 
+
+12.00000 
+
+0.05706 
+
+-0.65218 
+
+TBH-F27 
+
+12.00000 
+
+0.11368 
+
+-0.64472 
+
+TBH-F28 
+
+12.00000 
+
+0.22391 
+
+-0.61519 
+
+TBH-F29 
+
+12.00000 
+
+0.46292 
+
+-0.46292 
+
+TBH-F30 
+
+12.00000 
+
+0.61519 
+
+-0.22391 
+
+TBH-F31 
+
+12.00000 
+
+0.64472 
+
+-0.11368 
+
+TBH-F32 
+
+12.00000 
+
+0.65218 
+
+-0.05706 
+
+TBH-G1 
+
+13.64583 
+
+0.13515 
+
+0.00000 
+
+TBH-G5 
+
+13.64583 
+
+0.09557 
+
+0.09557 
+
+TBH-G9 
+
+13.64583 
+
+0.00000 
+
+0.13515 
+
+TBH-G13 
+
+13.64583 
+
+-0.09557 
+
+0.09557 
+
+TBH-G17 
+
+13.64583 
+
+-0.13515 
+
+0.00000 
+
+TBH-G21 
+
+13.64583 
+
+-0.09557 
+
+-0.09557 
+
+TBH-G25 
+
+13.64583 
+
+0.00000 
+
+-0.13515 
+
+TBH-G29 
+
+13.64583 
+
+0.09557 
+
+-0.09557 
+
+TBH-H1 
+
+14.29167 
+
+0.00000 
+
+0.00000 
+
+Note:  All 
+
+dimensions  are 
+
+model  scale  in 
+
+feet 
+
+42 
+
+
+Table  14.  Fairwater  pressure  tap  locations  -  MODEL  No.  5470 
+
+Table  14a.  Port  side 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+TBFWP1 
+
+3.03299 
+
+1.44036 
+
+0.00000 
+
+TBFWP2 
+
+3.03299 
+
+1.30549 
+
+0.00000 
+
+TBFWP3 
+
+3.03299 
+
+1.17057 
+
+0.00000 
+
+TBFWP4 
+
+3.03299 
+
+1.03567 
+
+0.00000 
+
+TBFWP5 
+
+3.03299 
+
+0.90078 
+
+0.00000 
+
+TBFWP6 
+
+3.12965 
+
+1.44036 
+
+0.09581 
+
+TBFWP7 
+
+3.12965 
+
+1.30549 
+
+0.09581 
+
+TBFWP8 
+
+3.12965 
+
+1.17057 
+
+0.09581 
+
+TBFWP9 
+
+3.12965 
+
+1.03567 
+
+0.09581 
+
+TBFWP10 
+
+3.12965  - 
+
+0.90078 
+
+0.09581 
+
+TBFWPll 
+
+3.33507 
+
+1.44036 
+
+0.10937 
+
+TBFWP12 
+
+3.33507 
+
+1.30549 
+
+0.10937 
+
+TBFWP13 
+
+3.33507 
+
+1.17057 
+
+0.10937 
+
+TBFWP14 
+
+3.33507 
+
+1.03567 
+
+0.10937 
+
+TBFWP15 
+
+3.33507 
+
+0.90078 
+
+0.10937 
+
+TBFWP16 
+
+3.63715 
+
+1.44036 
+
+0.10893 
+
+TBFW1P7 
+
+3.63715 
+
+1.30549 
+
+0.10893 
+
+TBFWP18 
+
+3.63715 
+
+1.17057 
+
+0.10893 
+
+TBFWP19 
+
+3.63715 
+
+1.03567 
+
+0.10893 
+
+TBFWP20 
+
+3.63715 
+
+0.90078 
+
+0.10893 
+
+TBFWP21 
+
+3.93924 
+
+1.44036 
+
+0.07908 
+
+TBFWP22 
+
+3.93924 
+
+1.30549 
+
+0.07908 
+
+TBFWP23 
+
+3.93924 
+
+1.17057 
+
+0.07908 
+
+TBFWP24 
+
+3.93924 
+
+1.03567 
+
+0.07908 
+
+TBFWP25 
+
+3.93924 
+
+0.90078 
+
+0.07908 
+
+TBFWP26 
+
+4.24132 
+
+1.44036 
+
+0.00000 
+
+TBFWP27 
+
+4.24132 
+
+1.30549 
+
+0.00000 
+
+TBFWP28 
+
+4.24132 
+
+1.17057 
+
+0.00000 
+
+TBFWP29 
+
+4.24132 
+
+1.03567 
+
+0.00000 
+
+TBFWP30 
+
+4.24132 
+
+0.90078 
+
+0.00000 
+
+Note :  All 
+
+dimensions  are 
+
+model  scale  in  feet 
+
+43 
+
+
+Table  14.  (Continued) 
+Table  14b.  Starboard  side 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+TBFWS6 
+
+3.12965 
+
+1.44036 
+
+-0.09581 
+
+TBFWS7 
+
+3.12965 
+
+1.30549 
+
+-0.09581 
+
+TBFWS8 
+
+3.12965 
+
+1.17057 
+
+-0.09581 
+
+TBFWS9 
+
+3.12965 
+
+1.03567 
+
+-0.09581 
+
+TBFWS10 
+
+3.12965 
+
+0.90078 
+
+-0.09581 
+
+TBFWS11 
+
+3.33507 
+
+1.44036 
+
+-0.10937 
+
+TBFWS12 
+
+3.33507 
+
+1.30549 
+
+-0.10937 
+
+TBFWS13 
+
+3.33507 
+
+1.17057 
+
+-0.10937 
+
+TBFWS14 
+
+3.33507 
+
+1.03567 
+
+-0.10937 
+
+TBFWS15 
+
+3.33507 
+
+0.90078 
+
+-0.10937 
+
+TBFWS16 
+
+3.63715 
+
+1.44036 
+
+-0.10893 
+
+TBFWS17 
+
+3.63715 
+
+1.30549 
+
+-0.10893 
+
+TBFWS18 
+
+3.63715 
+
+1.17057 
+
+-0.10893 
+
+TBFWS19 
+
+3.63715 
+
+1.03567 
+
+-0.10893 
+
+TBFWS20 
+
+3.63715 
+
+0.90078 
+
+-0.10893 
+
+TBFWS21 
+
+3.93924 
+
+1.44036 
+
+-0.07908 
+
+TBFWS22 
+
+3.93924 
+
+1.30549 
+
+-0.07908 
+
+TBFWS23 
+
+3.93924 
+
+1.17057 
+
+-0.07908 
+
+TBFWS24 
+
+3.93924 
+
+1.03567 
+
+-0.07908 
+
+TBFWS25 
+
+3.93924 
+
+0.90078 
+
+-0.07908 
+
+Note:  All 
+
+dimensions  are 
+
+model  scale  in 
+
+feet 
+
+44 
+
+
+Table  15.  Baseline  stern  appendage  pressure  tap  locations  - 
+MODEL  No.  5470 
+
+Table  15a.  Port  side 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+TBS API 
+
+12.62576 
+
+0.78932 
+
+0.00000 
+
+TBSAP2 
+
+12.58471 
+
+0.70129 
+
+0.00000 
+
+TBSAP3 
+
+12.54366 
+
+0.61327 
+
+0.00000 
+
+TBSAP4 
+
+12.52255 
+
+0.56799 
+
+C. 00000 
+
+TBSAP5 
+
+12.50435 
+
+0.52896 
+
+0.00000 
+
+TBSAP6 
+
+12.60283 
+
+0.61327 
+
+0.04672 
+
+TBSAP7 
+
+12.58388 
+
+0.55745 
+
+0.04999 
+
+TBSAP8 
+
+12.56691 
+
+0.50746 
+
+0.05285 
+
+TBSAP9 
+
+12.69903 
+
+0.78932 
+
+0.04552 
+
+TBSAP10 
+
+12.67951 
+
+0.70129 
+
+0.05167 
+
+TBSAPll 
+
+12.66000 
+
+0.61327 
+
+0.05721 
+
+TBSAP12 
+
+12.64528 
+
+0.5469G 
+
+0.06112 
+
+TBSAP13 
+
+12.63161 
+
+0.48522 
+
+0.06459 
+
+TBSAP19 
+
+12.89628 
+
+0.78932 
+
+0.04476 
+
+TBSAP20 
+
+12.89628 
+
+0.70129 
+
+0.04595 
+
+TBSAP21 
+
+12.89628 
+
+0.61327 
+
+0.04694 
+
+TBSAP22 
+
+12.39628 
+
+0.50376 
+
+0.04797 
+
+TBSAP23 
+
+12.89628 
+
+0.39426 
+
+0.04884 
+
+TBSAP24 
+
+13.02184 
+
+0.78932 
+
+0.02621 
+
+TBSAP25 
+
+13.02184 
+
+0.70129 
+
+0.02648 
+
+TBSAF26 
+
+13.02128 
+
+0.61327 
+
+0.02672 
+
+TBSAP27 
+
+13.02128 
+
+0.48229 
+
+0.02703 
+
+TBSAP28 
+
+13.02128 
+
+0.35130 
+
+0.02729 
+
+TBSAP29 
+
+13.14628 
+
+0.78932 
+
+0.00000 
+
+TBSAP30 
+
+13.14628 
+
+0.70129 
+
+0.00000 
+
+TBSAP31 
+
+13.14628 
+
+0.61327 
+
+0.00000 
+
+TBSAP32 
+
+13.14628 
+
+0.46081 
+
+0.00000 
+
+TBSAP33 
+
+13.14628 
+
+0.30834 
+
+0.00000 
+
+Note:  All 
+
+dissensions  are 
+
+model  scale  in  feet 
+
+45 
+
+
+Table  15.  (Continued) 
+Table  15b.  Starboard  side 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+T3SAS6 
+
+12.60283 
+
+0.61327 
+
+-0.04672 
+
+TBSAS7 
+
+12.58388 
+
+0.55745 
+
+-0.04999 
+
+TBSAS8 
+
+12.56691 
+
+0.50746 
+
+-0.05285 
+
+TBSAS9 
+
+12.69903 
+
+0.78932 
+
+-0.04552 
+
+TBSAS10 
+
+12.67951 
+
+0.70129 
+
+-0.05167 
+
+TBSASll 
+
+12.66000 
+
+0.61327 
+
+-0.05721 
+
+TBSAS12 
+
+12.64528 
+
+0.54590 
+
+-0.06112 
+
+TBSAS13 
+
+12.63161 
+
+0.48522 
+
+-0.06459 
+
+TBSAS19 
+
+12.89628 
+
+0.78932 
+
+-0.04476 
+
+TBSAS20 
+
+12.89628 
+
+0.70129 
+
+-0.04595 
+
+TBSAS21 
+
+12.89628 
+
+•  0.61327 
+
+-0.04694 
+
+TBSAS22 
+
+12.89628 
+
+0.50376 
+
+-0.04797 
+
+TBSAS23 
+
+12.89628 
+
+0.39426 
+
+-0.04884 
+
+TBSAS24 
+
+13.02184 
+
+0.78932 
+
+-0.02621 
+
+TBSAS25 
+
+13.02184 
+
+0.70129 
+
+-0.02648 
+
+TBSAS26 
+
+13.02128 
+
+0.61327 
+
+-0.02672 
+
+TBSAS27 
+
+13.02128 
+
+0.48229 
+
+-0.02703 
+
+TBSAS28 
+
+13.02128 
+
+0.35130 
+
+-0.02729 
+
+Note:  All  dimensions  are  model  scale  in  feet 
+
+
+46 
+
+
+same  positions  as  on  the  wind  tunnel  model.  On  the  MODEL  No.  5470 
+baseline  stern  appendage*  there  are  no  sur  '  e  pressure  taps  at  the 
+location  x*12. 77128  Ft  (3.893  m)  whereas  there  are  pressure  taps  at 
+this  location  on  the  MODEL  No.  5471  baseline  stern  appendage. 
+
+However*  for  convenience*  the  tap  identification  scheme  remains  the 
+same  as  on  MODEL  No. 5471.  The  starboard  side  pressure  taps  on  these 
+two  appendages  occur  at  the  same  positions  as  on  the  port  surface. 
+Therefore*  figures  of  the  surface  pressure  taps  on  the  fsirwater  and 
+baseline  stern  appendage  of  MODEL  No.  5470  are  not  given.  However, 
+to  avoid  any  confusion*  Cartesian  offsets  are  given  for  each  surface 
+pressure  tap  location  on  MODEL  No.  5470  in  Tables  13  through  15  for 
+the  axisymmetric  hull,  the  fairwater,  and  the  baseline  stern  appendage* 
+respectively. 
+
+RING  WINGS 
+
+There  are  37  surface  pressure  taps  located  on  the  surface  of 
+both  Ring  Wing  1  and  Ring  Wing  2  as  indicated  in  Tables  16  and  17* 
+respectively.  Taps  identified  as  'WlUir  and  'W2Ui'  are  located  on 
+the  section  profile,  both  inner  and  outer  wing  surface  at  19 
+locations.  Pressure  taps  prefixed  'WlPi'  and  'W2Pi',  'WlLi'  and 
+fW2Li',  and  'WlSi'  and  rW2Si'  are  located  at  90  degree  girthwise 
+increments  at  six  -locations  along  the  section  profile.  The  pressure 
+taps  are  arranged  on  the  wings  at  a  45  degree  angle  from  the  support 
+struts,  as  shown  in  Figure  9  for  a  typical  cross  section-  Table  18 
+and  Figure  17  identify  the  surface  pressure  taps  on  Ring  Wing  1  and 
+Table  1  and  Figure  18  identify  the  surface  pressure  taps  on  Ring  Wing  2. 
+
+
+Table  16.  Surface  pressure  tap  identification  scheme  -  Ring  Wing  1 
+
+
+Pressure  Tap  Pressure  Tap  Number  of 
+
+Identification  Location  Pressure  Taps 
+
+
+WlUi  Ring  Wing  1,  top  of  submarine,  19 
+
+both  inner  &  outer  wing  surface 
+WlPi  Ring  Wing  1,  port  side  of  submarine,  6 
+
+both  inner  &  outer  wing  surface 
+WiLi  Ring  Wing  1,  bottom  of  submarine,  6 
+
+both  inner  &  outer  wing  surface 
+reiSi  Ring  Wing  1,  starboard  side  of  submarine,  6 
+
+both  inner  &  outer  wing  surface 
+
+
+Total  surface  pressure  taps  37 
+
+Ring  Wing  1 
+
+
+Table  17.  Surface  pressure  tap  identification 
+
+Pressure  Tap  Pressure  Tap 
+
+Identification  Location 
+
+
+scheme  -  Ring  Wing  2 
+
+Number  of 
+Pressure  Taps 
+
+
+W2Ui 
+
+Ring  Wing  2, 
+both  inner  & 
+
+top  of  submarine, 
+outer  wing  surface 
+
+19 
+
+W2Pi 
+
+Ring  Wing  2, 
+both  inner  & 
+
+port  side  of  submarine, 
+outer  wing  surface 
+
+6 
+
+W2Li 
+
+Ring  Wing  2, 
+both  inner  & 
+
+bottom  of  submarine, 
+outer  wing  surface 
+
+6 
+
+W2Si 
+
+Ring  King  2, 
+both  inner  & 
+
+starboard  side  of  submarine, 
+outer  wing  surface 
+
+6 
+
+Total  surface  pressure  taps 
+
+Ring  Wing  2 
+
+37 
+
+ACKNOWLEDGMENTS 
+
+The  authors  would  like  to  thank  Mr.  Gary  Jones  of  DARPA  for 
+for  his  support  in  this  project.  We  also  thank  Larry  Kulvihill 
+and  Ken  Ward  for  their  participation  in  the  generation  of  various 
+components  of  the  geometry. 
+
+
+i 
+
+i 
+
+
+48 
+
+
+Table  18.  Ring  wing  1  pressure  tap  locations 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+x/c 
+
+W1U1 
+
+13.46990 
+
+0.43004 
+
+0.00000 
+
+0.0000 
+
+W1U2 
+
+13.49061 
+
+0.43627 
+
+0.00000 
+
+0.0250 
+
+W1U3 
+
+13.50970 
+
+0.43700 
+
+0,00000 
+
+0.0500 
+
+W1U4 
+
+13.54744 
+
+0.43669 
+
+0.00000 
+
+0.1000 
+
+W1P4 
+
+13.54744 
+
+0.00000 
+
+0.43669 
+
+0.1000 
+
+W1L4 
+
+13.54744 
+
+-0.43669 
+
+0.00000 
+
+0.1000 
+
+W1S4 
+
+13.54744 
+
+0.00000 
+
+-0.43669 
+
+0.1000 
+
+W1U5 
+
+13.62227 
+
+0.43351 
+
+O.OOOCO 
+
+0.2000 
+
+W1U6 
+
+13,77071 
+
+0.42301 
+
+0.00000 
+
+0.4000 
+
+KlP6 
+
+13.77071 
+
+0.00000 
+
+0.42301 
+
+0.4000 
+
+WiL6 
+
+13.77071 
+
+-0.42301 
+
+0.00000 
+
+0.4000 
+
+wise 
+
+13.77071 
+
+0.00000 
+
+-0.42301 
+
+0.4000 
+
+W1U7 
+
+i3. 91906 
+
+0.40936 
+
+0.00000 
+
+0.6000 
+
+W1U8 
+
+14.06802 
+
+0.38395 
+
+0.00000 
+
+0.8000 
+
+WiP8 
+
+14.06802 
+
+0.00000 
+
+0.38895 
+
+0.8000 
+
+W1L8 
+
+14.06802 
+
+-0.38S95 
+
+0.00000 
+
+0.8000 
+
+wise 
+
+14.06802 
+
+0.00000 
+
+-0.38895 
+
+0.8000 
+
+W1U9 
+
+14.14250 
+
+0.37536 
+
+0.00000 
+
+0.9000 
+
+WlUiO 
+
+14.17958 
+
+0.36759 
+
+0.00000 
+
+0.9500 
+
+W1U11 
+
+14.17862 
+
+0.35043 
+
+0.00000 
+
+0.9500 
+
+W1U12 
+
+14.14085 
+
+0.34715 
+
+0.00000 
+
+0.9000 
+
+W1U3  3 
+
+14.06538 
+
+0.34211 
+
+0.00000 
+
+C .8000 
+
+W1P13 
+
+14.06538 
+
+0.00000 
+
+0.34211 
+
+0.8000 
+
+W1L13 
+
+14.06538 
+
+-0.34211 
+
+0.00000 
+
+0.8000 
+
+W1S13 
+
+14.06538 
+
+0.00000 
+
+-0.34211 
+
+0.8000 
+
+W1U14 
+
+13.91452 
+
+0.33951 
+
+0.00000 
+
+0.6000 
+
+W1015 
+
+23.76?58 
+
+0. 34903 
+
+0.00000 
+
+0.4000 
+
+W1P15 
+
+I3.7635U 
+
+0.00000 
+
+0.34903 
+
+0.4000 
+
+W1L15 
+
+13.76358 
+
+-0.34903 
+
+0.00000 
+
+0.4000 
+
+W1S15 
+
+13.76358 
+
+0.00000 
+
+-0.34903 
+
+0.400C 
+
+W1U16 
+
+13.61394 
+
+0.37413 
+
+0.00000 
+
+0.2000 
+
+172  Ul  7 
+
+13,54022 
+
+0.39366 
+
+0.00000 
+
+0.1000 
+
+W1P17 
+
+13.54022 
+
+0.00000 
+
+0.39366 
+
+0.1000 
+
+W1L17 
+
+13.54022 
+
+-0.39366 
+
+0.09000 
+
+0.1000 
+
+W1S17 
+
+13.54022 
+
+0.00000 
+
+-0.39366 
+
+0.1000 
+
+W1U18 
+
+13.50387 
+
+0.40656 
+
+0.00000 
+
+0.0500 
+
+W1C19 
+
+13.48603 
+
+0.41476 
+
+0.00C5G 
+
+0.0250 
+
+Note:  All 
+
+dimensions 
+
+are  acdel  scale 
+
+in  feet 
+
+49 
+
+
+i 
+
+
+(FEET) 
+
+
+omtM  ji  tmiM 
+entM  i  Iztotm 
+
+
+Table  19.  Shroud  2  pressure  tap  locations 
+
+
+Tap  No. 
+
+X 
+
+y 
+
+z 
+
+S2U1 
+
+13.46990 
+
+0.47681 
+
+0.00000 
+
+S2U2 
+
+13  .-49107 
+
+0.48121 
+
+0.00000 
+
+S2U3 
+
+13.51016 
+
+0.48028 
+
+o.coooo 
+
+S2U4 
+
+13.54773 
+
+0.47667 
+
+0.00000 
+
+S2P4 
+
+13.54773 
+
+0.00000 
+
+0.47667 
+
+S2L4 
+
+13.54773 
+
+-0.47667 
+
+0.00000 
+
+S2S4 
+
+13.54773 
+
+0.00000 
+
+-0.47667 
+
+S2U5 
+
+13.62200 
+
+0.46698 
+
+O.OCOOO 
+
+S2U5 
+
+13.76897 
+
+0.443S9 
+
+0.00000 
+
+S2P6 
+
+13.76897 
+
+0.00000 
+
+0.44359 
+
+S2L6 
+
+13.76897 
+
+-0.44359 
+
+0.00000 
+
+S2S6 
+
+13.76897 
+
+0.00000 
+
+-0.44359 
+
+S2U7 
+
+13.91557 
+
+0.41706 
+
+0.00000 
+
+S2U8 
+
+14.06219 
+
+0.38375 
+
+0.00000 
+
+S2P8 
+
+14.06219 
+
+0.00000 
+
+0.38375 
+
+S2L8 
+
+14.96219 
+
+-C. 38375 
+
+0.00000 
+
+S2S8 
+
+14.06219 
+
+0.00000 
+
+-0.38375 
+
+S2U9 
+
+14.13520 
+
+0.36372 
+
+0.00000 
+
+S2O10 
+
+14.17157 
+
+0.35274 
+
+0.00000 
+
+S2U11 
+
+14.16902 
+
+0.33574 
+
+0.00000 
+
+S2U12 
+
+14.13110 
+
+0.33576 
+
+0.00900 
+
+S2D13 
+
+14.05548 
+
+0.33731 
+
+0.00000 
+
+S2P13 
+
+14.05548 
+
+0.00000 
+
+0.33731 
+
+S2L13 
+
+14.05548 
+
+-0.33731 
+
+0.00090 
+
+S2S13 
+
+14.0554S 
+
+0.00000 
+
+-0.33731 
+
+S2D14 
+
+13.90496 
+
+0.34787 
+
+0.00000 
+
+S2U15 
+
+13.75541 
+
+0.37052 
+
+0.00000 
+
+S2P15 
+
+13.75541 
+
+0.00000 
+
+0.37052 
+
+S2L15 
+
+13.75541 
+
+-0.37052 
+
+0.00000 
+
+S2S15 
+
+13.75541 
+
+0.00000 
+
+-0.37052 
+
+S2U16 
+
+13.60853 
+
+0.40855 
+
+0.00000 
+
+S2U17 
+
+13.53679 
+
+0.43444 
+
+0.00000 
+
+S2P17 
+
+13.53679 
+
+0.00000 
+
+0.43444 
+
+S2L17 
+
+13.53679 
+
+-0.43444 
+
+0.00000 
+
+S2S17 
+
+13.53679 
+
+0.00000 
+
+-0.43444 
+
+S2U18 
+
+13.50169 
+
+0.45046 
+
+0.00000 
+
+S2U19 
+
+13.48460 
+
+0.46018 
+
+o.oooco 
+
+Note: 
+
+All  dimensions 
+
+are  model  scale 
+
+in  feet 
+
+x/c 
+
+0.0000 
+0.0250 
+0.0500 
+0.1000 
+0.1000 
+0.1000 
+0.1000 
+0.2000 
+0.4000 
+0.4000 
+0.4000 
+0.4000 
+0 . 6000 
+0.8000 
+0.8000 
+0.8090 
+0.8000 
+0.9000 
+0.9500 
+0.9500 
+0.9000 
+0.8000 
+0.8000 
+0.8000 
+0.8000 
+0.6000 
+0.4000 
+0.4000 
+0.4000 
+0.4000 
+0.2000 
+0.1000 
+0.1000 
+0.1000 
+0.1000 
+0.0509 
+0.0250 
+
+
+51 
+
+
+t 
+
+
+APPENDIX  A 
+
+LISTING  OF  COFPUTER  CODE  TO  GENERATE 
+AXj.SYXIie'CRIC  EULL 
+
+
+53 
+
+
+rtoooooo  n  n n n n n n n  nnnnnnnnnnnnnnnnnnnnn 
+
+
+Appendix  A.  Listing  of  computer  code  to 
+generate  axisymnetric  hull 
+
+
+*********************** V *************************************** 
+
+DARPA2GEN.  FOR 
+
+*************************************************************** 
+
+
+THIS  PROGRAM  CONTAINS  FOLLOWING  EQUATIONS  FOR 
+GENERATING  OFFSETS  IN  FEET  FOR  DARPA2  MODEL 
+KITH  (FULL/MODEL)  SCALE  RATIO  -  24. 
+
+
+INCLUDED  ARE: 
+
+
+BOW  EQ. 
+
+FOR 
+
+0.0 
+
+FT 
+
+<» 
+
+X 
+
+<- 
+
+3.333333 
+
+FT 
+
+PARALLEL  MID-BODY  EQ. 
+
+FOR 
+
+3.333333 
+
+FT 
+
+<- 
+
+X 
+
+<- 
+
+10.645833 
+
+FT 
+
+AFTERBODY 
+
+EQ. 
+
+FOR 
+
+10.645833 
+
+FT 
+
+O 
+
+X 
+
+<» 
+
+13.979167 
+
+FT 
+
+AFTERBODY 
+
+CAP  EQ. 
+
+FOR 
+
+13.979167 
+
+FT 
+
+<- 
+
+X 
+
+<- 
+
+14.291667 
+
+FT 
+
+AS  SET  UP  HERE,  OFFSETS  ARE  COMPUTED  EVERY  0.1  FT. 
+(EXCEPT  IN  FIRST  0.5  FT,  WHERE  THEY  ARE  EVERY  6.01  FT) 
+
+
+DIMENSION  X{ 300) ,  Y(300) 
+
+REAL  K0,  K1 
+
+******************************** 
+
+
+DEFINE  CONSTANTS 
+
+
+RMAX  -  0.0333333 
+XB  -  3.333333 
+
+XM  -  10.645833 
+XA  -  13.979167 
+XC  -  14.291667 
+CB1  -  1.126395101 
+CB2  -  0.442874707 
+CB3  -  1. 0/2.1 
+RH  -  0.1175 
+K0  -  10.0 
+K1  -  44.6244 
+
+XX  -  -G.C1 
+CX  -  0.01 
+DO  1000  1-1,300 
+NP  -  I 
+
+XX  -  XX  +  DX 
+IF (XX. GE. 0.5)  DX  -  0.1 
+IF(XX.GE.XA)  DX  -  0.01 
+IF(XX.GE.XB)  GO  TO  200 
+
+******************************* 
+
+
+BOW  EQUATION 
+
+******************************* 
+
+
+A  -  0.3*XX  -  1.0 
+A3  -  A**3 
+A4  -  A**4 
+
+
+54 
+
+
+o n  oonoonn  n  nnnnnnn  n  nnnnnnn 
+
+
+B  -  1.2*XX  +  1.0 
+
+R  -  CBl*XX*A4  +  C32*XX*XX*A3  +  1.0  - 
+R  -  RMAX* ( R**C33 ) 
+
+X(I)  -  XX 
+Y(I)  -  R 
+GO  TO  1000 
+C 
+
+200  CONTINUE 
+
+IF(XX.GE.XH)  GO  TO  400 
+
+******************************* 
+
+
+PARALLEL  MID-BODY  EQUATION 
+******************************* 
+
+
+X{ 1}  -  XX 
+Y{ I }  -  RMAX 
+GO  TO  1000 
+
+
+400  CONTINUE 
+
+IF(XX.GE.XA)  GO  TO  600 
+
+
+AFTERBODY  EQUATION 
+a****************************** 
+
+XI  -  (12.979167  -  XX}/3. 333333 
+Cl  -  RE*RH 
+
+C2  -  RH*F.O 
+
+C3  -  (  20.0  -  2C.0*RS*RH  -  4.0*EH*KO 
+
+C4  -  (-45.0  +  45 . 0*RH*RE  -*■  6.0*RH*K0 
+
+C5  -  {  36.0  -  35.0*RH*RB  -  4.0*RH*X0 
+
+C6  -  (-10. C  +•  10 . 0*RH*RE  ♦  RH*K0 
+
+R  -  RMAX* ( Cl+C2+C3+C4+C5-*-C5 ) **G . 5 
+X(I)  -  XX 
+Y(I)  -  R 
+GO  TC  1000 
+
+
+600  CONTINUE 
+
+I F ( XX . GE . XC }  GO  TO  1100 
+
+******************•*•******•>*• 
+
+
+AFTERBODY  CAP  EQUATION 
+
+
+R  -  1.0  -  (3.2*XX  -  44.733333)**2 
+R  -  RH*RHAX* { R**0 . 5 ) 
+
+X(I)  -  XX 
+Y(I)  -  R 
+L000  CONTINUE 
+LI 00  CONTINUE 
+X ( NP }  -  XC 
+Y(NP)  -  0.0 
+
+
+A4*B 
+
+
+*XI*XI 
+
+-  C.333333*Kl}*XI**3 
++  K1 } *XI**4 
+
+Kl)*XI**5 
++  0 . 333333*Kl )*XI**6 
+
+
+55 
+
+
+uuuuuu  ouo 
+
+
+WRITE  OFFSETS  TO  TAPE  6 
+IN  I PLOT  FORMAT 
+
+******************************* 
+
+
+WRITE (6,1) 
+
+1  FORMAT ( * DARPA2 * ) 
+
+WRITE(6,2) 
+
+2  FORMAT ( 'MODEL  WITH  (MODEL/FULL)  »  24*) 
+WRITE(6,3)  NP 
+
+3  FORMAT(IS) 
+
+WRITE ( 6,4)  {X(I),Y(I).I-1,NP) 
+
+4  FORMAT(2F10.5,3X,2F10.5,3X,2F10.5) 
+
+ALL  DONE,  PROGRAM  ENOS 
+
+STOP 
+
+END 
+
+
+56 
+
+
+APPENDIX  B 
+
+LISTING  OF  COMPUTER  CODE  TO  GENERATE 
+FAIRWATER 
+
+
+57 
+
+
+Appendix  B.  Listing  of  computer  code  to 
+generate  fairvater 
+
+C 
+
+C  REVISED  11-JAf  iU ART-1989 
+C 
+
+£***************************4*********************************** 
+
+c 
+
+C  DARPA2GEN2  .  FOR 
+
+C 
+
+C*************************************************************** 
+
+c 
+
+C  THIS  PROGRAM  CONTAINS  FOLLOWING  EQUATIONS  FOR 
+C  GENERATING  OFFSETS  IN  FEET  FOR  THE  SAIL  OF 
+C  THE  DARPA2  MODEL  WITH  (FULL/KODEL)  SCALE 
+C  RATIO  -  24. 
+
+C 
+
+C  INCLUDED  ARE: 
+
+
+c 
+
+c 
+
+SAIL  F0RE30DY  EQ. 
+
+FOR 
+
+3-032986  FT  <- 
+0.833333  FT  <- 
+
+X  <- 
+
+2  <- 
+
+3.358507  FT 
+1.507813  FT 
+
+c 
+
+c 
+
+SAIL  HID-BODT  EO- 
+
+FOR 
+
+3.358507  FT  <- 
+0.833333  FT  <- 
+
+X  <- 
+2  <- 
+
+3.559028  FT 
+1.-507813  FT 
+
+c 
+
+c 
+
+SAIL  AFTERBODY  EQ. 
+
+FOR 
+
+3.559028  FT  <- 
+0.833333  FT  <- 
+
+X  <- 
+2  <- 
+
+4.241319  FT 
+1.507813  FT 
+
+c 
+
+c 
+
+SAIL  CAP  EQ- 
+
+FOR 
+
+3.032986  FT  <« 
+1.507813  FT  <- 
+
+X  <m 
+2  <- 
+
+4.241319  FT 
+1.562501  FT 
+
+C 
+
+C  OFFSETS  ARE  COMPUTED  EVERT  -005  FT. 
+
+C 
+
+c 
+
+DIMENSION 
+.  NP(300), 
+
+1(300,50,3) 
+
+C 
+
+c*************************** *  **** 
+
+c 
+
+C  DEFINE  CONSTANTS 
+C 
+
+c******************************** 
+
+C 
+
+
+A1 
+
+m 
+
+2.094759 
+
+B1 
+
+m 
+
+0.207178 
+
+A3 
+
+m 
+
+2.908891 
+
+B3 
+
+m 
+
+1.234491 
+
+C3 
+
+w 
+
+3.444817 
+
+D3 
+
+m 
+
+3.850435 
+
+E3 
+
+m 
+
+2.080019 
+
+HMAX 
+
+m 
+
+0.109375 
+
+DX 
+
+m 
+
+0.005 
+
+DXO 
+
+m 
+
+0.005 
+
+XXCST 
+
+m 
+
+3.032986 
+
+XXAFN 
+
+m 
+
+4.241319 
+
+XXFFN 
+
+m 
+
+3.358507 
+
+XXKFN 
+
+m 
+
+3.559028 
+
+X2ST 
+
+m 
+
+1.507813 
+
+c 
+
+c ******************************** 
+
+c 
+
+C  CALCULATE 
+C 
+
+c******************************** 
+
+c 
+
+XX-XXCST-DX 
+DO  1000  I  -  1,300 
+X2-XZS7 
+X(I,1,3)-XZ 
+
+
+58 
+
+
+J-l 
+
+XX=XX+DX 
+
+X{I,1,1)-XX 
+
+IF  (XX  .C7.  XXAFN)  THEN 
+.*1=1- 1 
+GOTO  1014 
+
+ESDI? 
+
+I?  (XX  .GT.  XXFFN)  GOTO  1002 
+r 
+
+£**************************»***** 
+
+C 
+
+C  SAIL  FORESODY  EQUATION 
+C 
+
+£************************«******* 
+
+c 
+
+D=3 . 072000*<XX-3 . 032986) 
+
+DMl.D-1 
+
+A-2*D*(DH1**4) 
+
+B«D*D*(DHl**3)/3 
+
+C=1-((DH1**4)*(4*D+1)) 
+
+X(I , 1 , 2J-HMAX* ( SQRT(A1*A+B1*B+C) ) 
+GOTO  1004 
+C 
+
+£i******************************* 
+
+c 
+
+C  SAIL  HID-BODY  EQUATION 
+C 
+
+C************** ******* *********** 
+
+c 
+
+1002  CONTINUE 
+
+IF  (XX  .GT.  XXHFN)  GOTO  1003 
+X(I,1,2)-HHAX 
+GOTO  1004 
+C 
+
+£******************************** 
+
+c 
+
+C  SAIL  AFTER  BODY  EQUATION 
+C 
+
+£******************************** 
+
+c 
+
+1003  CONTINUE 
+E=(4.241319-XX)/. 6822917 
+F-E-l 
+
+G-2.238361*E*F**4 
+
+B-3.106529*(E**2)*(F**3) 
+
+P«1-(F**4)*(4*E+1) 
+
+X(I,1,2)-.1093750*(G*H*P) 
+
+C 
+
+£******************************** 
+
+c 
+
+C  SAIL  CAP  EQUATION 
+C 
+
+C ************* ******A*iiii*aa*as* 
+
+C 
+
+1C04  CONTINUE 
+
+X2END*(X(I,l,2)/2)+l. 507813 
+NP(I)»1 
+
+DO  2008  J-2,50 
+I CONI *0 
+
+1005  XZ-XZ*DX 
+
+X(I, J,3)»X2 
+
+IF  (X2  .GT.  XZEND)  THEN 
+IC0N1-IC0N1+1 
+
+
+59 
+
+
+uuuu 
+
+
+IF  {IC0N1  .EQ.  1)  THEN 
+
+XZ.XZ-DX 
+
+DX*.0005 
+GOTO  1005 
+
+ENDIF 
+
+IF  {ICOfll  .EQ.  2)  THEN 
+X(I,J,2>-0.0 
+X(I,J,3)*XZEND 
+N?(I)-J 
+IC0N1-0 
+
+
+DX-DXQ 
+GOTO  1000 
+
+ENDIF 
+
+ENDIF 
+
+AD'JH-(X(I,lt2)**2)-<(2*(XZ-XZST))**2) 
+
+X(I,J,2)-SG?.T<ADU«) 
+
+1008  CONTINUE 
+
+1000  CONTINUE 
+
+C 
+
+
+C**************»************«i*** 
+
+
+VRITE  OFFSETS  TO  TAPE6 
+IN  IPLOT  FORMAT 
+
+
+0 ******************************** 
+
+c 
+
+10W  0PEN(6, STATUS* 'NEV' , FORM* ' FORMATTED'  ,FILE-'TP6*  > 
+
+VRITE(6t1015) 
+
+1015  FORMAT ( ' DARPA5  SAIL') 
+
+URITE(6t1016) 
+
+1016  FORMAT { 'MODEL  VITH  (MODEL/FULL)  -  24') 
+
+VRTT£(6, 1017)NI 
+
+1017  F0RMAT{I5) 
+
+VRITE(6,1018)  (X(I, 1,1),X(I,1,2),I*1,NI) 
+
+1018  FORHAT(2F10.5,3Xt2F10.5,3Z,2F10.5) 
+
+DO  1013  I-1,NI,B 
+
+VRITE(6, 1009)1 
+
+1009  F0RMA7(I3) 
+
+VRITE(6,1010)X(I,1,1) 
+
+1010  F0RMAT('  X-'  ,F7.3,'  FEET') 
+
+VRITE(6, 1011)  (NP(I)+1) 
+
+1011  F0RKAT(I5) 
+
+VRrrE(6,1012)  1(1,1, 2), 1.5  r  I 
+VRITE(6, 1012)  (Xd.J.ZJ.XCI.J.Sl^-I.NPd)) 
+
+1012  F0RKAT(2F10. 5 , 3X, 2F10. 5 ,3X,2F10.5) 
+
+1013  CONTINUE 
+
+666  STOP 
+
+ESC 
+
+
+60 
+
+
+APPENDIX  C 
+
+LISTING  OF  COMPUTER  CODE  TO  GENERATE 
+STERN  APPENDAGES 
+
+
+61 
+
+
+A 
+
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+Is 
+
+w 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+r 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+
+c 
+
+
+c 
+
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+c 
+
+
+Appendix.  C-  Listing  of  computer  code  to 
+generate  stem  appendages 
+
+
+D  A  R  F  A  2  STERNAPP  .  FOR 
+
+
+THIS  PROGRAM  DEFINES  THf.EE— DIMENSIONAL  {X,  Y,  Z) 
+OFFSETS  FCH  DARPA2  CTERN  APPENDAGE'S  WITH  TPJVIS-TNG 
+EDGE  LOCATED  aT  THREE  DIFFERENT  VALUES  OF  AXIAL 
+LENGTH  X.  FOR  EACH  AT.2AL  POSITION,  FOUR  IDENTICAL 
+STERN  APPENDAGES  ARE  MOCNTED  ON  THE  AXI SYMMETRIC 
+HULL  CUE FACE  AT  TOP— DEAD-CENTER ,  90  DEG,  1SQ  DEG, 
+AND  270  DEG  AZIMUTEALLY. 
+
+
+(X,  RR,  2)  -  CARTESIAN  COORDINATES  IS  EEE^ 
+
+H  -  X  COORDINATE  OF  STEEN  APPENDAGE  TRAILING  EDGE. 
+
+K(  1 }  -  12.729617 
+H\2)  *  13.146284  -  BASELINE 
+H{3  j  -  13.552950 
+
+CY  «  CHORD  LENGTH  -  -0.  :553-2S*ER  «•  0.88859 
+
+DIMENSION  XXI {19!,  H{3) 
+
+PARAMETER  RE  -  0,1175.  AKl)  -  10-0,  AKi  -  44.6244 
+PARAMETER  NP  -  19,  RSAX  -  0.^33323 
+
+DATA  XXI/0.0,  0.005,  0.0125,  0.025,  0.0*50,  0.07S,  0.100, 
+
+1  0.150,  0.200,  0.2500,  0.300,  0.400,  0.500,  0.6CC, 
+
+2  0.700,  0.SG0,  0.9000,  0.950,  1.000/ 
+
+DATA  fi/12. 729617,  13.146284,  13.562950/ 
+
+************************************  4*  ****** 
+
+
+LOOP  ON  THE  LOCATION  OF  STERN 
+APPENDAGE  TRAILING  EDGE 
+
+******************************************* 
+
+
+DO  900  X-1,3 
+SH  «  H{ K) 
+
+WRITE* 6,1)  HH 
+
+1  FORMAT (//2X, 'STERN  APPENDAGE  TRAILING  EDGE  LOCATED  AT  X  «' 
+1  F10. 5) 
+
+DX  -  0.05 
+X  -  HH  +  OX 
+
+
+******* ****** •**•**••*• *«***f **•*•*•• 
+
+LOOP  ON  TEE  AXIAL  POSITION  X. 
+BEGIN  AT  STERN  APPENDAGE  TRAILING 
+ED-C  AND  MOVE  FORWARD  IN  X. 
+
+*********wi.X.  „•******•*•»•**•*•**•***' 
+
+
+62 
+
+
+t.*  u  u  u  u  u  u  uuuouuuu  uuuuuu  u  u  u  u  u  o  u  u  woo  mu 
+
+
+DC  800  J  -  1,32 
+
+X  -  X  -  DX 
+
+IF(X.GT.HK)  GO  TO  800 
+
+*********** ********** ** ******** *****3*** 
+
+UTFIIIE  HULL  RADIUS  AT  VALUE  01  X 
+**<***«*****<******•********•**********»*** 
+
+XIB  -  (13.979167  -  X}/3 .333333 
+
+A  -  ?.K*RH  +  RE*^KG  *XIB*XIB 
+
+5  »  (  20.0  -  20 ,C*SH*RH  -  4.0*K5*AK0  -  0 . 333333*AKl } ‘HIB** 
+
+C  -  (-45.0  +  45 . 0*RH*RH  +  6.0*RH*AKG  ♦  AKl)*XIB** 
+
+D  -  {  36.0  -  36 .Q*RH*RH  -  4.0*RH*AK0  -  AXl)*XI=** 
+
+E  *  {-10.0  +  10 . 0*RH*RB  +  RH*AX0  +  0. ?33333*AXI j *XI3** 
+
+RHA  -A+B+C^D  +  E 
+RHA  -  RMAX*SQr.T{  REA) 
+
+RHAS  -  RHA* RHA 
+RR  -  0.075 
+DELR  -  0.025 
+ITS  -  0 
+
+******************************************* 
+
+LCC»  ON  RADIUS. 
+
+BEGIN  KITH  F.  -  0.1 
+
+•»><«t*««*»*t**i**t*r*t»«C*»*414«**t»t»i**, 
+
+DO  7Q0  1-1,31 
+F-R  -  RR  +  DELR 
+620  CONTINUE 
+
+CY  -  -3.4S6308*KR  -r  0.88859 
+
+XI  -  (X— HH )/CY  +  1.0 
+
+IF (XI. LT. 0.0  -OR.  X2.GT.1.C)  GO  TO  700 
+
+*** i»**«**t»*»«ll*t»*«*» H ************* *  *** 
+
+DEFINE  STEEN  APPENDAGE 
+
+********************** x ****£*************** 
+
+Z  -  S.29c9Q*SQE?{XI )  -  0.I2600*XI  -  0.351S0*XI*XI 
+1  *  0-28520*XI **3  -  C.I0450*x;**4 
+
+2  -  Cl  *  Z 
+SP.S  -  RE‘RR  *  Z*s 
+
+*********************  *t,******************** 
+
+IF  STERN  APPENDAGE  LOCATED 
+INSIDE  BODY,  INCREASE  H 
+
+************************  j*  *********  *•'•*■£** 
+
+IF(SRS.LT.RHAS.  AND.  ITR.EQ.C)  GO  TO  700 
+
+*'»**r ***********  ************************** 
+
+IF  STERN  APPENDAGE  LOCATED 
+ON  SOOY  SURFACE, 
+
+
+6: 
+
+
+o*  un  **  co 
+
+
+uuuuu  uouuuuuu  uuuuuuuu  u  u  u  u  u  u  u  uuuuuuuu 
+
+
+GO  TO  710  TO  DEFINE 
+STERN  -APPENDAGE  SECTION. 
+
+*••*******«**•***********************>***** 
+
+IF {AASiSRS-RSAS) .EE. 0 . 00001 )  GO  TO  710 
+
+ft**************?***  ************************ 
+
+STERM  APPENDAGE  IS  "CLOSE" 
+
+TO  HULL  RADIUS,  GET  CLOSES. 
+
+a**********-******************************** 
+
+ITS  -  ITR  +  1 
+IF{ ITR.GT.20)  STOPl 
+DEL?.  -  0 . 5*DELF 
+IFJSRS .GT.EHAS)  RR  -  RR  -  DELR 
+IF (SRS-LS.REAS)  RR  -  RR  +  DELR 
+GO  TO  620 
+700  CONTINUE 
+GO  TO  800 
+715  CONTINUE 
+
+******************************************* 
+
+SOLVE  FOR  STERN  APPENDAGE  SECTION 
+AT  GIVEN  RADIUS 
+
+******«-»  •****»»*****..  ************  *********** 
+
+CV  •  -3.466308*&i»  >  0.S8859 
+1760  -  0 
+
+X2KIT  «  {X-HHVCX  +1.0 
+**************  •**&************>***** ******* 
+
+LOOP  ON  XI 
+
+*<***t<*«t*t»t*v»**C**t*(i*>*tt*»**t**t*t<* 
+
+DO  "»50  1-1. N? 
+
+XI  -  XXX { X } 
+
+IFjX2.L7.XINI?}  GO  TO  750 
+740  CONTINUE 
+
+.*1  -  XXI(I) 
+
+IF{I750.EQ.0)  XI  -  XINIT 
+XXX  *  JXI-1.0)*CY  +  HH 
+IFJXI.LT. 0.0  .OR.  XI.GT.1.0}  GO  TO  750 
+Z  «  0.29£S0*SQRT(XI)  -  0.12600*XI  -  0.35160*XI*XI 
+1  +  0 . 23520*XI**3  -  0.10450*21**4 
+
+Z  •  CX  *  Z 
+
+■******************************************* 
+
+PRIJif-  X,  Y ,  ( +/-)Z  VALUES 
+TO  PRINTER  FILE  6 
+
+A**********************************  ******** 
+
+
+64 
+
+
+* 
+
+
+IF{I710.EQ.G)  WHITE ( 6.2) 
+
+2  FORMAT (  ■'cX,  1HX, 9X, 1HY,  6X, 5H{ +/- }  2 } 
+
+WRITE7 6,3)  XXX,  HR,  Z 
+
+3  FORMAT { 3F10 . 5 ) 
+
+1730  -  1750  +  1 
+R3S r».x  -  ss 
+
+IF(I750.EQ.1)  GC  TO  740 
+750  CONTINUE 
+800  CONTINUE 
+C 
+
+C  ***********«*»***i************************* 
+
+c 
+
+C  COMPUTED  ALL  STEEN  APPENDAGE  SECTIONS 
+
+C  WHICH  INTERSECT  HULL. 
+
+C  NOV*  COMPUTE  STERN  SECTIONS 
+
+C  WETS  RADIUS  ~ARGER  THAN  HULL  RADIUS. 
+
+C 
+
+C  **t*±***+*****»*f***++****t*****±t********* 
+
+r 
+
+DELR  -  0.05 
+DO  850  1*1, NP 
+RO  -  RR 
+
+RR  -  RBSMAX  +  I* DELR 
+IF(RR-GT.EMAX)  RR  -  RKAX 
+IF{RR.EQ.HO)  GO  TO  900 
+CY  *  -0.46630S-RR  +  0.88859 
+WRITE { 6,2) 
+
+DO  840  0-1, NP 
+XI  -  XXI (J) 
+
+XXX  -  { XI— 1 . 0 ) *CY+BH 
+
+2  -  0. 23690 *SQRT; XI)  -  0.12600'XI  -  0.35160*XI*XI 
+1  +  0.28520*XI**3  -  C.10450*XX*M 
+
+2  -  CY  *  2 
+C 
+
+Q  **********•*******••*•******<£*******•***** 
+
+C 
+
+C  PRINT  X,  Y,  ( +/— ) 2  VALUES 
+
+C  TO  PRINTER  FILE  6 
+
+C 
+
+c  **.*..r*****~**«. **.******.***,-***-»..***.* 
+
+C 
+
+WRITE { 6,3)  XX  jC,  RR,  2 
+840  CONTINUE 
+850  CONTINUE 
+909  CONTINUE 
+STOP 
+END 
+
+
+£3 
+
+
+^  >■ 
+
+
+0 
+
+
+APPENDIX  D 
+
+LISTING  OF  COMPUTER  CODE  TO  GENERATE 
+RING  WINGS 
+
+
+nftpnn  ,*»  o  o  ;■>  a  n  o  o  o  noon  non  ono  00000000000000 
+
+
+Appendix  D.  Listing  of  coap’iter  code  to  generate  ring  wings 
+
+
+i<W*xiH:**^iit**********iHt****JHHt*>  V****i************* 
+
+
+paoeRAM  DARPA2WINGS 
+
+**»***★!  ****  if.-***:,**  **„****  ********  *******  **************** 
+
+
+1HIS  PROGRAM  DEFINES  THE  D&RPA2  RING  UINGS 
+
+THE  DARP%2  WINGS  SSE  THE  NACA66  (DCESRDC  UOD) 
+
+THICKNESS  DISTRIBUTION 
+AND 
+
+THE  N\CA  A=0.4  MEANLINE 
+
+DIMENSION  XC(26),  YC(26),  TCP(26j 
+DIMENSION  E(I?) .  YT{26) 
+
+DIMENSION  XU(26),  YU{2G),  XL(26),  YL(26) 
+
+DIMENSION  XDLE(2) ,  YD\E(2),  XETE(2>,  YDTE(2) 
+
+XC  ARRAY  ARE  THE  L/C  VALORS  CURRENTLY  USED  TO  DEFINE  WINS. 
+
+DATA  XC/O.O,  0.G05,  0.G075,  0-0125  ,  0.025  ,  0.05,  0.075  ,  0.-0, 
+
+1  0.15,  0.20,  0.25,  0.30,  0.35,  0.40,  C-45,  0.50,  0.55, 
+
+2  0.60,  0.65,  0.70,  0.75,  0.80,  0.85,  0.90,  0.95,  1.0/ 
+
+B  ARRAY  CONTAINS  COEFFICIENTS  FOR  CALCULATION  OF  THICKNESS  DIofR. 
+
+DATA  B/0. 43756,  -0.08136,  -0.06496,  -0.01926,  -0.00185, 
+
+1  0.00348,  0.00156,  -0.00113,  -0.00058,  0.00027, 
+
+2  0-00080,  0.00006,  -0.00027,  -0.00033,  0.00005, 
+
+3  0.00014,  0.00008/ 
+
+XDLE,  IDLE  ARE  LEADING  EDGE  X,  R  OF  WING 
+XDTE,  TDTE  ARE  TRAILING  EDGE  X,  R  OF  WING 
+
+DATA  XDLE/13. 46990,  13.46990/ 
+
+DATA  YDLE/0. 43004,  0.47681/ 
+
+DATA  XDTE/14. 21661, 14.2074/ 
+
+DATA  YDTE/0. 35659-  0.33856/ 
+
+THE  ENTIRE  PROGRAM  IS  EXERCISED  TWO  TIMES. 
+
+■^HE  FIRST  TIrtE,  WING  1  IS  DEFINED. 
+
+WING  1  HAS  LEADING  EDGE  *T  (X=13. 46990,  Y=0.43004) 
+
+AND  TRAILING  EDGE  AT  (X=14.23,  T=0.3558) 
+
+THE  SECOND  TIME,  WING  2  IS  DEFINED - 
+
+WING  2  PAS  LEADING  EDGE  AT  (X=13. 46990,  1=0-3553) 
+
+AND  TRAILING  EDGE.  AT  (X=14.23,  ¥=0.33628) 
+
+
+?»C  =  26 
+
+DO  1000  KK  =  1.2 
+
+VRITE(6.2) 
+
+
+DEFUSE  MEAN  LINE 
+
+
+C  ************x****** 
+
+c 
+
+DO  100  1=1, NXC 
+X  =  XC{I) 
+
+D  =  0.4  -  X 
+E  =  1.0  -  X 
+
+IF(ABS(X-0.0).LE.1.0E-20)  X  =  1.0E-30 
+IF(ABS(D).LE.1.0E-20)  D  =  1.0E-30 
+IF(ABS(E).LE.1.0E-20)  E  =  1.0E-30 
+
+TC(I)  =  -0.049921*(0.5*D*D*AL0G(ABS(D))  -  0.5*E*E*AL0G(E) 
+
+1  +  0.25*E*E  -  0-25*D*D) 
+
+YC(I)  =  YC(I)  +0.029953*(X*AL0G(X)  +  0.227828  -  0.531076*X) 
+
+c 
+
+YCP(I)  =  -0.049921*(E*AL0G(E)  -  D*ALOG(ABS(D) ) ) 
+
+1  +  0.02995253*(AL0G(X)  +  0.4689244) 
+
+C  WRITE(6.1)  I,  100.*XC(I),  100.*YC(I>,  YCP(I) 
+
+1  FORMAT(I5,2F10.3,F10.5) 
+
+100  CONTINUE 
+
+C  VRITE{6,2) 
+
+2  FORMAT(//) 
+
+
+NSER  =  17 
+DO  200  1=1, NXC 
+X  =  XC(I) 
+
+IF(I.GE.16)  GO  10  150 
+OH  =  AC0S(2.0*X-1.0) 
+
+YY  =  0.0 
+DO  125  J=1,NSER 
+
+YY  =  YY  +  3(J)*SIN(J*0H) 
+
+125  CONTINUE 
+
+YT(I)  =  YY 
+GO  TO  199 
+150  CONTINUE 
+
+XC1  =  l.O-XC(I) 
+
+YT(I)  =  0.033333  -*•  1.696969*XC1  -  1.441?45*XC1*XC1 
+1  -0. 366363*XC1**3  +  0.333049*XC1**4 
+
+199  CONTINUE 
+
+YT(I)  =  0.1*YT{I1 
+C  yRITE(6,3>  I,X,YT{I) 
+
+3  FOEHAT(I5,F10,3,F10.5) 
+
+200  CONTINUE 
+
+C  URITE{6,2) 
+
+C 
+
+C  ********»i*********  »-**±*-4** 
+
+c 
+
+C  DEFINE  DARPA2  WING 
+
+C  *•***»******«*»!»***»»»***♦*» 
+
+r. 
+
+XLINIT  =  0.9425 
+YLINIT  =  0.0258 
+CHOPD  =  0.0525 
+XU(1)  =  O.G 
+YU(1)  =  0.0 
+XL(1)  =  0.0 
+YL(I)  =00 
+1  =  1 
+
+
+69 
+
+
+ooooooo  n  o n a o o o o 
+
+
+C  VRITE(6,6) 
+
+6  FORMAT f  2X , IHI , 3X , 4H  XU  ,5X,4H  YU  ,5X,4H  XL  ,5X,4H  YL  ,6X,3HX/C, 
+
+1  7X, 2HYT , 7X, 2HYC,4X, 7HDYC/DXC/ > 
+
+5  F0RKAT(I3,  4F9.5,  F9.4.4F9.5) 
+
+C  WRITE(6;5)  I,XU(I),YU(I) ,XL(I) ,TL(I),XC(I), YT(I),YC(I), YCP(I) 
+
+DO  300  1=2, NXC 
+TH  =  ATAN(YCP(I)) 
+
+SINTl?  =  SIN(TB) 
+
+COSTS  =  COS(TB) 
+
+XU(I)  =  XC{I)  -  YT(I)*SINTH 
+YU(I)  =  rC(I)  +  YT(I)*C0STH 
+XL(I)  =  XC(I)  +  YT(I)*SINTH 
+YL(I)  =  YC(I)  -  YT(I)*C0STH 
+
+C  WRITE{6,5)  I,XU<I),TU(I),XL(I),YL<I),XC<I),TT<I),YC(I),YCP(I) 
+
+300  CONTINUE 
+
+***-****.***  **-******{**+************* 
+
+
+f'EFINE  PHYSICAL  WING  DIMENSIONS 
+
+
+PHI  =  ATAN2C (YDTE(KX)-YDLE(KK) ) , (XDTE(KX)-XDLE(KK) ) } 
+
+CS  =  COS(?HI) 
+
+SN  =  SIN(PHI) 
+
+CHORD  =  SQRT('YDTE(KK)-YDLE(KK))~*2  +  (XDTE(RK)-XDLE(KK))**2) 
+VRITE(6,444)  XDLE<KK) , YDLE(KK) ,  XDTE(KK) , YDTE(KK) 
+
+444  F0RKAT(2i£,'(XDLE.mE)  =  '  ,F10-5/2X, '  (XDTE,YDTE)  =  \F10-5) 
+WRITE(6,6) 
+
+DO  400  1=1, NXC 
+XUU  =  XU(I) 
+
+XU(I)  s  XDLE(KK)  +  C20RD*(XU(I)*CS  -  YU(I)*SN) 
+
+YU(I)  =  YDLE(KK)  -  CHORD*(XUU*SN  +  YU(I)*CS> 
+
+XLL  =  XL(I) 
+
+XL(I)  =  XDLE(KK)  +  CHORD*(XL(I)*CS  -  YL(I)*SN) 
+
+YL(I)  =  YDLE(KE)  +  CHORD* (XLL*SN  +  YL(I)*CS) 
+
+WRITE(6,5)  I,XU(I) ,YU(I),XL(I),YL(I) ,XC(I),YT(I) ,YC(I),YCP(I) 
+4  F0RMAT(I5,4F10.5) 
+
+400  CONTINUE 
+
+
+WRITE  WING  OFFSETS  TO  FILE  7  FOR  IPLOT 
+
+
+IF(KK.EQ.l)  PRITE(7.10) 
+
+10  FORHAT('Sl') 
+
+IF(KK.EQ.2)  WRITE(7,11) 
+
+11  FCRHAT('S2') 
+
+If(KK.EQ.l)  WRITE(7, 12) 
+
+12  FORMAT ( ' DAPPA2  RING  WING  1  ') 
+IF(XX.EC-2)  WRITto{7,15) 
+
+15  FORMAT { ' DARPA2  RING  WING  2  ') 
+NXC2  =  2*NXC 
+VRITE{7, 13}  NXC2 
+
+13  F0RHAT(I5) 
+
+DO  500  I=1,NXC2 
+IF(I.GT.NXC)  GO  TO  450 
+WRITE(/t14)  XU(I),YU(I) 
+
+GO  TO  500 
+450  CONTINUE 
+
+J  =  NXC2-I+1 
+
+
+7n 
+
+
+ooononno 
+
+
+GO  TO  500 
+450  CONTINUE 
+
+J  -  NXC2-I+1 
+
+WRITE? 7,14}  XL ( J ) , YL ( J ) 
+
+500  CONTINUE 
+14  FORMAT? 2F10 . 5 ) 
+
+********************************* 
+
+
+PRINT  OFFSETS  IN  AMI  FORMAT 
+ONTO  FILE  9. 
+
+********************************* 
+
+
+DO  600  I-1.NXC2 
+IF(I.GT.NXC)  GO  TO  550 
+J  -  NXC-I+1 
+
+WRITE?9,14)  XL { -J )  ,  YL { J } 
+GO  TO  600 
+550  CONTINUE 
+K  -  I-NXC 
+
+WRITE? 9,14}  XU(K) >  YU(X) 
+600  CONTINUE 
+1000  CONTINUE 
+STOP 
+END 
+
+
+71 
+
+
+72 
+
+
+APPENDIX  E 
+
+LISTING  OF  COMPUTER  CODE  TO  GENERATE 
+RING  WING  STRUTS 
+
+
+73 
+
+
+noon  o  n  n n n n n n n n n n n n n n n n n n n n n n n n n n n n n n n n n n n n n 
+
+
+Appendix  E.  Listing  of  computer  code  to 
+generate  ring  wing  struts 
+
+
+******************************************** 
+
+
+PROGRAM  DARPA2  STRUT 
+******************************************** 
+
+
+THIS  PROGRAM  DEFINES  THE  STRUT  WHICH  ATTACHES  THE 
+DARPA2  AXI S YMMETRI C  HULL  TO  THE  DARPA2  RING  WINGS. 
+
+THE  SAME  BASIC  STRUT  IS  USED  TO  ATTACH  BOTH 
+RING  WING  1  AND  RING  WING  2.  THE  UPPER  PORTION  OF 
+THE  STRUT  MUST  BE  MODIFIED  TO  FIT  EACH  WING. 
+
+THIS  PROGRAM  DEFINES  A  SINGLE  STRUT  WHICH  WOULD 
+ATTACH  TO  THE  DARPA2  AXI SYMMETRIC  HULL  ALONG 
+THE  UPPER  SURFACE  (I.E.,  THE  SURFACE  WITH  THE 
+FAIRWATER) .  FOUR  IDENTICAL  AXIMUTEALLY  EQUALLY- 
+SPACED  STRUTS  WILL  ATTACH  THE  RING  WING  AND  THE  HULL 
+AT  A  45  DEGREE  INCREMENT  FROM  THE  SURFACE  PRESSURE 
+TAP  LOCATIONS.  THE  STRUTS  WILL  BE  PLACED 
+AT  90  DEGREE  INCREMENTS. 
+
+THE  BASIC  STRUT  SHAPE  IS  A  NACA  0012  THICKNESS 
+DISTRIBUTION  MODIFIED  TO  END  AT  A  POINT. 
+
+THE  CHORD  LENGTH  IS  0.25  FEET. 
+
+STRUT  LEADING  EDGE  ATTACHES  TO: 
+
+HULL  AT  X-13. 589,  R-0. 14726 
+
+RING  WING  1  AT  X-13. 63845,  R-0. 36886  (X/C-0.233) 
+
+RING  WING  2  AT  X-13. 64487,  R  «  0.39755  (X/C-0.25) 
+
+STRUT  TRAILING  EDGE  ATTACHES  TO: 
+
+HULL  AT  X-13. 83582,  R-0. 10547 
+
+RING  WING  1  AT  X-13. 88818,  R-0. 34002  (X/C-0.5651) 
+
+RING  WING  2  AT  X-13. 89023,  R-0. 34932  (X/C-0.5804) 
+
+DIMENSION  XC( 19),  XUL(19),  YUL(19),  ZU(19),  ZL(19) 
+
+DATA  XC/0.,  0.005,  0.0125,  0.025,  0.05,  0.075,  0.1,  0.15, 
+
+1  0.2,  0.25,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  0.95,  1.0/ 
+
+NP  -  19 
+NR  -  10 
+
+R1  -  LE  RADIUS  OF  STRUT  AT  HULL  ATTACHMENT  -  0.14726 
+
+R2  -  LE  RADIUS  OF  STRUT  AT  RING  WING  2  ATTACHMENT  -  0.39755 
+
+R1  -  0.14726 
+R2  -  0.39755 
+DELR  -  ( R2— Rl ) /{ NR— 1 ) 
+
+R  -  Rl  -  DELR 
+C 
+
+
+74 
+
+
+2  FORMAT 1/8X,' STRUT  OFFSETS  (IN  FEET)  AT  RADIUS  -  ',E10-5/ 
+
+1  3X,'X  PORT  '3X,'Y  PORT  ',3X,'Z  port  ',5X,'X  STBD  ',3X, 
+
+2  'Y  STCD  ',3X,*Z  STBD  '/) 
+
+XO  -  0.223221*R  +  13.556128 
+
+100  LOOP  OVER  STRUT  CHORD 
+
+DO  100  1-1, NP 
+XI  -  XC(I) 
+
+XUL(I)  -  XO  +  0.243995*XI 
+YUL(J)  -  R  -  0.054465*XI 
+
+ZT  -  0.15*{0.29690*SQRT(XI)  -  0.12600*XI  -  0 . 35160*XI*XI 
+1  +  0 . 28520*XI**3  -  0.10450*XI**4) 
+
+ZU(I)  -  ZT 
+ZL( I )  -  -ZT 
+
+WRITE(6,3)  XUL( I )  , YUL( I ) , ZU( I } ,XUL( I ) , YUL( I ) ,ZL( I ) 
+
+3  FORMAT { 3F10 . 5 , 2X, 3F10 . 5 } 
+
+100  CONTINUE 
+
+200  CONTINUE 
+STOP 
+END 
+
+
+75 
+
+
