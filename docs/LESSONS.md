@@ -25203,3 +25203,109 @@ minimal* real run tree and require it to fail on missing DATA, never on unparsea
 `cases/ansys_verification/VMFL046-R8/grade_vmfl046_r8.py` blob `f89114bb` at `:1097-:1103`;
 mechanism executed and confirmed by the ansys-verification supervisor against the real
 `verification/runs/ansys_verification/VMFL046-R8/L1/constant/fvOptions`.*
+
+## L-523 — AN OPT-IN ASSERT IS NOT AN ASSERT. A guard gated on an environment variable that nothing in the repository ever sets has never fired, and the file reads as pinned in five places while being pinned in one
+
+**What was found.** `cases/dafoam/run_a2gc.sh`, the A2-GC grid-convergence
+launcher, opens with an `assert_md5` helper (`:44-51`) and four call sites over
+four frozen instruments. It reads, at a glance, as an instrument that polices its
+whole grading path. **Three of the four asserts fire only if an environment
+variable is set:** `:52-54` (`a2gc_grade.py`) only if `$A2GC_GRADER_MD5`,
+`:55-57` (`a2gc_levels.json`) only if `$A2GC_LEVELS_MD5`, `:58-60`
+(`a2gc_driver_block.py`) only if `$A2GC_BLOCK_MD5`. Only `:61`, the pristine
+`runScript_AeroOnly.py` assert, sits outside any `if`.
+
+**`git grep` over `HEAD` for an assignment of any of those three names —
+`(export +)?A2GC_[A-Z]+_MD5=` — returns nothing.** The names occur only inside
+the asserts themselves and, since the defect was written up, in prose *about the
+defect*. No launcher, no queue entry, no wrapper, no run artifact under
+`/home/ubuntu/certonomous-runs/A2-GC-wing-grid-convergence/` sets any of them.
+**The three asserts have never fired on any run, and no run recorded that they
+did not.** A fifth pinned instrument, the launcher itself, carries no assert at
+all — which is how its own drift from `f3baba360a50c8b7592d0a50142d5e28` to
+`e7008a7a1bdf0e55ec8bad8e2b8742d4` went unnoticed for nine days, across the two
+runs that produced every number A2-GC has.
+
+**A guard that fires only when an environment variable is set is not a guard; it
+is a guard-shaped comment.** It occupies the place in the file where the reader
+expects a control, it uses the vocabulary of a control — `assert_md5`, `REFUSED`,
+`exit 2` — and it costs nothing to leave in, because it never runs.
+
+**The failure is silent AND it is silent in the safe-looking direction, which is
+what makes this class expensive.** A guard that is broken loudly gets fixed on
+the first run. This one produces exactly the artifacts a working guard produces:
+the file reads as pinned, the launcher starts, the solver runs, numbers land on
+disk, `cost.txt` is written, and **nothing anywhere in the run tree records that
+the check did not run**. There is no line to grep for, no absent file, no
+non-zero exit. The run and a properly checked run are byte-indistinguishable from
+the outside. That is not a weak control — it is the absence of a control wearing
+the costume of one.
+
+**THE DETECTION RULE, and it is cheap enough to run on every conditional guard
+in the lab.** *For every conditional assert, grep the repository for whatever
+enables it. If the enabling token appears nowhere but in the assert itself, the
+assert has never fired.* One `git grep` per condition. It applies to an env-var
+opt-in, to a `--strict`/`--check` flag nothing passes, to a config key absent
+from every config, to an `if DEBUG:` whose `DEBUG` is never `True`. Note the
+grep must be over the **whole** repository including untracked and gitignored
+launch scripts and run trees, and it must look for a *setter*, not a mention: the
+three names here now appear in several documents, all of them describing this
+defect and none of them setting anything.
+
+**THE REPAIR RULE.**
+1. **An assert on a frozen instrument is unconditional, or it is not an assert.**
+   If the check is worth writing it is worth running on every invocation; a
+   frozen-instrument check costs one `md5sum`.
+2. **If an assert genuinely must be skippable, the SKIP IS RECORDED IN THE RUN'S
+   OWN ARTIFACTS** — a line in the run root naming the instrument, the reason and
+   the timestamp — **so a reader can tell a checked run from an unchecked one
+   from the run's own bytes**, and so a comparator can refuse a run root that
+   carries one. A skip that leaves no trace is the defect, not the skipping.
+3. **Write the positive record too**, not only the negative: the launcher writes
+   which asserts ran and what they compared. Without it, "the asserts passed" is
+   an inference from the run having started, and that inference is precisely what
+   was false here.
+
+**This is the `libs` disease at a different site, and saying so is the point.**
+**L-221** — *a lesson is not applied until every call site asserts it* — and
+**L-222** — *a defect class that bit three call sites gets an assert at every
+call site, never a paragraph in a report* — are about a repair reaching some call
+sites and not others. **L-224** carried that family to its conclusion: the `libs`
+lesson became a helper and a linter rather than a paragraph. `CLAUDE.md` rule 14
+states the family as law. The relation is honest but not identical, and the
+difference is worth keeping: in the `libs` family the missing asserts were
+**absent**, and an absent assert is at least visibly absent to anyone who counts
+call sites. Here the asserts were **present at all four sites** — a count of call
+sites returns 4/4 and passes — and three of them were inert. **An opt-in assert
+defeats the L-221 audit itself**, because that audit asks *is there an assert at
+every call site* and the answer is yes. So the L-221 sweep needs a second limb:
+having found an assert at every call site, **establish that each one can fire**.
+It is also the cost-side sibling of **L-518** (an assertion that prints evidence
+it does not test) and of **L-521** (a control's refusal is only as meaningful as
+what depends on it): in all of these no instrument is *wrong*, and every one
+answers truthfully a question that does not cover the failure.
+
+**What this lesson does NOT claim.** It does not touch the A2-GC numbers. Those
+runs reproduced CD, CL and AoA bit-identically across two independent container
+launches, and the launcher's actual drift (an `--allow-run-as-root` flag and
+moving `set -u` after `loadDAFoam.sh`) is off the grading path. The finding is
+that **nothing on disk could have told anyone that**, and it took a hand audit
+nine days later rather than an exit code at launch.
+
+**Provenance.** dafoam lab-lane, 2026-09-10, at the direction of
+dafoam-supervisor; **records only, ZERO compute** (D6RF10 R3 live under a
+deadline; no solver, container or `mpirun` touched). Every claim verified by this
+lane against artifacts on disk, not relayed: `cases/dafoam/run_a2gc.sh` at `HEAD`
+lines `:44-51`, `:52-54`, `:55-57`, `:58-60`, `:61`; `git grep` over `HEAD` for
+the three names and for any assignment of them; the four level directories under
+`/home/ubuntu/certonomous-runs/A2-GC-wing-grid-convergence/`. Disclosed upstream
+in `cases/dafoam/A2_GC_GRID_CONVERGENCE_PREREGISTRATION.md` AMENDMENT 3 §A3.5
+(commit `a74c09ae`), and registered as binding pre-freeze requirement **R-1** on
+the successor launcher in
+`cases/dafoam/A2_GC_P_PRIMAL_TRIM_GRID_CONVERGENCE_PREREGISTRATION.md` §9.5.
+**Related:** L-221, L-222, L-224 and `CLAUDE.md` rule 14 (the every-call-site
+family, to which this adds the can-it-fire limb); L-518; L-521; `CLAUDE.md`
+rule 3 (a control not shown able to see a non-zero is not evidence — here applied
+to a guard rather than to a reader); `CLAUDE.md` rule 2 (the freeze is the
+document's entire evidentiary content, and an inert md5 assert is how a freeze
+stops meaning anything).
