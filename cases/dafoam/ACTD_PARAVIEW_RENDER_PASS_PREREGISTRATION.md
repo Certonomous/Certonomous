@@ -326,3 +326,149 @@ were named from estimated times running ahead of the box clock. **The
 authoritative sequence is git commit order.** Recorded here because this item's
 §1 reasoning cited a chronology, and a reader checking that reasoning against
 filenames would reach the wrong conclusion.
+
+
+---
+
+# ADDENDUM 2 — 2026-09-10, POST-COMPUTE: THE RULE-12 CALIBRATION, AND WHAT THE 45 core-min IN §5 DOES NOT MEAN
+
+**Version 1.2 → 1.3.**
+**Lines whose number changed above this section: 0.**
+**ALTERS NO GATE, THRESHOLD, CAP OR LABEL.** This item had first compute on
+2026-09-01 (ADDENDUM 1, commit `1af060a9`), so `CLAUDE.md` rule 2 closed its
+gates. This section records and corrects the record of a cost; it moves nothing
+that could be graded, and §5 is **not struck and not edited**.
+
+## D2.1 — Why this is owed
+
+§5 registers **45 core-min predicted at np = 1** (:107) and a **90 core-min HARD
+CAP** (:108), restated unchanged in A1.4 (:258-259), and it promises at :121-122
+that *"Estimate-versus-actual is reported at completion"*. That calibration was
+landed on **2026-09-10** as row `C-20260910T041257.935995Z-c89badfc` in
+`docs/COST_CALIBRATION.md` (commit `fd55f9c7`) — **nine days after completion**.
+
+Until this addendum, this document's own face left a reader with 45 core-min and
+nothing else, and a reader who never opened the calibration ledger would take 45
+for the outcome. **It was not the outcome, and no defensible outcome figure
+exists.** That is what this addendum is for.
+
+The ruling that an addendum is owed is the dafoam supervisor's, 2026-09-10, and
+is **`[lab-attributed]`** — it is not Sanaa's instruction and may not be cited as
+one.
+
+## D2.2 — The instrumented actual is a LOWER BOUND: **≥ 2.470 core-min**
+
+Read on 2026-09-10 from the three JSON ledgers the run itself wrote under
+`verification/runs/actD_paraview/`, not carried from any brief:
+
+| ledger | renders costed | wall s | core-min |
+|---|---|---|---|
+| `stage0/stage0.json` → `render` | 1 | 1.797 | **0.030** |
+| `coupling/coupling.json` → `core_min_total` | 3 | 5.293 | **0.0882** |
+| `frames/render.json` → `core_min_total` | 77 | 141.136 | **2.352** |
+| **INSTRUMENTED TOTAL** | **81** | **148.226** | **≥ 2.470** |
+
+**np = 1 throughout, so core-min = wall s ÷ 60.** `stage0.json` and
+`coupling.json` record `"ranks": 1` explicitly on every render.
+`frames/render.json` records **no `ranks` key at all**; np = 1 is established
+there instead by arithmetic — all **77 of 77** per-frame entries satisfy
+`core_min == round(wall_s / 60, 4)`, checked entry by entry. The 77 per-frame
+`core_min` values sum to **2.3519** and the file's own `core_min_total` of 2.352
+agrees. All 77 carry `rc: 0`; the longest single render on record is **1.898
+wall s**.
+
+Derived dollar cost on the bound: **~$0.0021** at the recorded $0.0513/core-h —
+*derived, not measured; this box cannot read its own billing*
+(`COMPUTE_BUDGET_CHARTER.md` §5).
+
+## D2.3 — NO RATIO IS QUOTED, and the refusal is the substance
+
+2.470 ÷ 45 = **0.055x is a BOUND, not a ratio.** It is stated here only as a
+bound and is not the item's actual/predicted figure, because the true ratio is
+unknown and larger. **Quoting 0.055x as *the* ratio would credit this item with
+an 18x under-spend that the artifacts do not support**, and would corrupt the
+calibration series that rule 12 exists to build. The calibration row states the
+same refusal in the same words.
+
+## D2.4 — Three named reasons the full actual is NOT RECOVERABLE FROM ARTIFACTS
+
+**(a) Script iteration is uninstrumented — and §5 itself named it as the bulk of
+the estimate.** §5 at :113-114: *"The remainder is script iteration, which is the
+honest majority of the number and is named as such rather than hidden in a
+per-frame rate"*, restated in A1.3 at :245. The three JSONs record only the
+**successful final render of each frame**; every failed or iterated `pvbatch`
+invocation left no ledger. The single largest registered cost component has no
+measurement at all.
+
+**(b) 30 of the 111 PNGs are UNCOSTED — and this CORRECTS the calibration row,
+which says 29 of 111 and 82 instrumented.** Counted on disk 2026-09-10:
+`verification/runs/actD_paraview/` holds 111 PNGs — `stage0/` 2, `coupling/` 3,
+`frames/` 77, `glyphs/` 29.
+
+- `glyphs/` holds 29 PNGs and their `_render_*.py` scripts and **no JSON** —
+  uncosted, as the calibration row says.
+- **`stage0/` holds TWO PNGs from TWO scripts** — `smoke.png` (`smoke_render.py`)
+  and `selftest_frame.png` (`selftest_render.py`) — while `stage0.json` costs
+  **exactly one** render (1.797 wall s). The second `pvbatch` invocation is
+  uncosted. The two frames are md5-identical
+  (`720aea32b9650a7112b220b540bf6d89`), which is consistent with a reproducibility
+  self-test, but an identical output is still a second render that was paid for
+  and never recorded.
+
+So the instrumented render count is **81, not 82**, and the uncosted PNG count is
+**30, not 29**. **The bound is unaffected in value and only loosened in meaning:**
+≥ 2.470 core-min still stands, and there is now one more uncosted render behind
+it than the ledger row states. These 30 are **LEFT OUT AND STATED AS ABSENT**,
+never approximated.
+
+**(c) The 61.6-minute file-mtime span is WALL CLOCK, and it is REFUSED as an
+actual.** Mtimes under the run root span 2026-09-01T19:31:25Z
+(`stage0/smoke_render.py`) to 20:33:01Z (`glyphs/caption_refusal_2.png`) =
+**61.6 min**. At np = 1 that span contains idle script-authoring gaps and **is
+not core-minutes**. Presenting it as the actual would be inventing a number. It
+is recorded here only to say that it was **considered and refused**.
+
+## D2.5 — What the artifacts DO establish
+
+- The instrumented compute is **2.7 % of the 90 core-min hard cap**.
+- **No overrun flag, STATUS file, solver log or ledger** exists anywhere under
+  `verification/runs/actD_paraview/` — searched for `STATUS*`, `*OVERRUN*`,
+  `*.log` and `ledger*` on 2026-09-10, zero hits. Nothing suggests the cap was
+  approached, and nothing records what was actually spent.
+- Every gate verdict recorded by the run is `PASS` (`stage0.json`,
+  `coupling.json`, `frames/render.json` each carry `"VERDICT": "PASS"`), and
+  `frames/render.json` carries a `_not_rendered` entry declining one registered
+  polar field rather than fabricating its provenance. **Those are the item's
+  verdicts and this addendum does not touch them.**
+- **NO WASTE IS NAMED** (`COMPUTE_BUDGET_CHARTER.md` §6) because none is
+  measurable. That is an absence of measurement, not a claim of zero waste.
+
+## D2.6 — The lesson, which is why this is worth a section
+
+**An item that registers its cost as majority script iteration must instrument
+the ITERATION, not only the successful renders** — otherwise its calibration row
+cannot be written at all. This render pass counted its pennies precisely and was
+blind where it spent its pounds: 81 successful renders are costed to four decimal
+places, and the component §5 itself called *"the honest majority of the number"*
+has no record whatsoever.
+
+## D2.7 — Rule-6 compliance of this addendum itself
+
+This section is appended at the foot and **inserts nothing above itself**.
+Verified, not asserted: the **17,483 bytes / 328 lines** preceding this addendum
+are **byte-identical** to the pre-addendum HEAD blob
+`e636035dd4d97b484b3e71e3f6b9e92200c0fcec` (whole-file sha256
+`0b8f6c8de940bc823865b5ac215336e1a18a96b62ea5bc2610237e4b59e0d999`), checked by
+comparing the first 17,483 bytes of this file against that blob before the commit
+that carries this section. **Lines whose number changed above this section: 0.**
+
+This care is deliberate and is the point of the sibling item: the companion
+document `cases/dafoam/ADJOINT_MEMORY_ENVELOPE_CITATION_SHIFT_MAP.md` exists
+because commit `fa124d95` appended a correction to a frozen record **and also
+inserted two lines into its body**, shifting every citation below by two. **An
+addendum that documents that failure must not repeat it.**
+
+*Drafted by a dafoam `lab-lane` under a ZERO-COMPUTE instruction: no solver, no
+container, no `pvbatch` and no `mpirun` was invoked, and no number in this
+section was produced by it. Every figure is read from the artifact cited beside
+it.*
