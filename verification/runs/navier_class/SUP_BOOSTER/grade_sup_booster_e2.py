@@ -124,11 +124,20 @@ SHOCK_EPS       = 0.03       # E2: density must exceed the per-station freestrea
                              #          The fine-grid ZERO was PLANTED-VERIFIED (rule 3): planting
                              #          1.234e-03 into one far-field cell made the same reader
                              #          report 1.234e-03.  SHOCK_EPS is >= 1.6e4x this floor.
-                             #   UPPER  density rise just behind the shock foot 18-20% (theory: the
+                             #   UPPER  density rise just behind the shock foot, over all six
+                             #          stations and all three levels: 18.2-21.5% (theory: the
                              #          normal-Mach relation at beta=33.9147 deg, M_inf=2 gives
-                             #          19.6%); total compression to the cone surface 37.4%
-                             #          (theory 37.8%).  SHOCK_EPS is 6.5x below the shock jump
-                             #          and 12x below the wall compression.
+                             #          19.6%).  Total compression to the cone surface, coarse
+                             #          and medium: 37.3-37.8% (theory 37.8%).  SHOCK_EPS is
+                             #          6.1x below the smallest measured shock jump and 12x
+                             #          below the wall compression.
+                             #          NOT USED AS A BOUND, but recorded: on the E1 FINE grid
+                             #          the near-wall maximum reaches 89%, far above the 37.8%
+                             #          cone-surface value.  That overshoot is E1's GR_RADIAL=12
+                             #          near-wall pathology -- the very thing E2's gentler
+                             #          grading targets -- and it lies inside the cone-surface
+                             #          region, not at the shock, so it does not touch the
+                             #          locator, which stops at the outermost crossing.
                              # Both bounds hold with margin.  Measured 2026-09-10 by a cfd lab-lane
                              # on verification/runs/navier_class/SUP_BOOSTER/graded/{coarse,medium,fine}/15000.
 

@@ -57,10 +57,16 @@ axial mesh; E2 differs from E1 only in radial grading). **No solver was run for 
     exactly 0**. `SHOCK_EPS` sits **≥1.6×10⁴×** above the worst of these. The fine-grid **zero
     is planted-verified** (rule 3): planting 1.234×10⁻³ into one far-field cell made the same
     reader report 1.234×10⁻³, so the zero comes from a reader shown able to see a non-zero.
-  - *Upper bound — the signal.* Density rise just behind the shock foot **18–20%** (theory:
-    the normal-Mach relation at β=33.9147°, M_∞=2 gives **19.6%**); total compression to the
-    cone surface **37.4%** (theory **37.8%**). `SHOCK_EPS` is **6.5× below** the shock jump and
-    **12× below** the wall compression.
+  - *Upper bound — the signal.* Density rise just behind the shock foot, over all six stations
+    and all three levels: **18.2–21.5%** (theory: the normal-Mach relation at β=33.9147°,
+    M_∞=2 gives **19.6%**). Total compression to the cone surface, coarse and medium:
+    **37.3–37.8%** (theory **37.8%**). `SHOCK_EPS` is **6.1× below** the smallest measured
+    shock jump and **12× below** the wall compression.
+  - *Recorded, not used as a bound.* On the E1 **fine** grid the near-wall density maximum
+    reaches **89%**, far above the 37.8% cone-surface value. That overshoot is E1's
+    `GR_RADIAL=12` near-wall pathology — the very failure E2's gentler grading targets, and
+    independent corroboration of Cause B in §1. It lies in the cone-surface region, not at the
+    shock, and the locator stops at the **outermost** crossing, so it cannot reach it.
   - *Honest note, not a defect.* Because the 3% crossing lies 3–5 cells inside a shock smeared
     over 4–7 cells, the located radius carries a systematic inward offset of a few cells that
     shrinks with the mesh. That offset is precisely why β does not Richardson-extrapolate and
