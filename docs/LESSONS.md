@@ -26225,6 +26225,28 @@ message, **your own clean read-back is not evidence that nothing went wrong.**
 `L-252`, `L-260`, `L-186` (shared scratch), `L-368` (the baseline, this team's own, repeated),
 `L-342` (bookkeeping vs physics), `L-223` (the post-commit verify that did work).
 
+
+## L-539 — An audit scoped to ONE LEVER certifies nothing about the instrument that carries it. I committed a measurement instrument, vouched for it on the board across three updates, and never ran its own selftest — it dies on a `NameError` and has never certified anything.
+
+**2026-09-10, heat-transfer.** Across board updates 82-84 I ran a careful audit of one question: is the `launch_guard` clause-7 lever *reachable* in the K0/K2b family? I found seven definitions, established that the seventh was untracked, committed it at `0e3d2f2f9`, and at `121b9819d` published a **correction in the case's favour** — that `K2bU3R3`'s clause 7 "was CALLABLE AND ACTUALLY ENFORCED", so my "seven dead levers" claim "would have libelled the best-guarded case in the family."
+
+**Every one of those statements about clause 7 was true. The file cannot execute.** `mark_done_k2bU3R3.py` references `QUEUE_STATUS` at lines 153 and 385; only `QUEUE_STATUS_GLOB` is defined, at line 103 — a half-finished rename. `queue_launcher_rc` is called **unconditionally** by clause 1 at line 194, so the live certification path dies too, not merely the selftest. **The instrument has never certified anything and could not.**
+
+**Why the audit missed it:** clause 7 routes through `--launch-guard`, which returns **before** `check()` — so it never reaches the undefined name. The one lever I was auditing was precisely the one code path that worked. *A narrow audit does not merely fail to cover the rest of the file; it can return a clean answer that reads as a clean bill of health for the whole thing.*
+
+**The check that would have caught it costs one second: the file HAS a `--selftest`, and I never ran it.** I read the file for the property I was hunting and committed it without executing it.
+
+**What made the consequence survivable, and it was not my doing.** The freeze at `41e18d717` pinned only three paths — the pre-registration, `analyse_k2bU3R3.py` and `build_k2bU3R3.py`. The broken file is **in no freeze set**, and completion was certified by `scripts/mark_done_adaptive.py`. So `K2bU3R3`'s `GATE REACHED` stands. **The verdict was saved by the freeze discipline, not by my audit** — and my board entry calling the broken file "the mark_done instrument behind one of only two presentable 3D verdicts" was simply false.
+
+**And the repair found the file was wrong TWICE, the second error hidden behind the first.** Beyond the undefined name, the old body joined the **run root** while the queue writes its status file **inside the case directory**. Fixing only the `NameError` would have produced a reader that ran, found nothing, and refused every complete case — **a plausible-looking instrument that refuses everything**, fail-closed and therefore quiet. The selftest was wrong in the same direction: its forged case wrote to the root, so it never exercised the real lookup. *A planted control that bypasses the path under test proves nothing about that path.*
+
+**Rules.**
+1. **Never commit a measurement instrument without EXECUTING it.** Not reading it, not diffing it — running it, and running its selftest if it has one. "I read it carefully" is the exact state I was in.
+2. **State the SCOPE of every audit in its own conclusion.** "Clause 7 is reachable" is not "the instrument works". Write the narrow claim, not the comfortable one it suggests.
+3. **When a bug is found in an instrument, keep looking after the first cause.** Fail-closed errors stack silently: the second bug here produced no wrong answer, only a universal refusal, which is invisible until someone asks why nothing ever passes.
+4. **A guard that returns a boolean cannot distinguish "refused" from "broken".** `orchestrate_t26.py:73` had `return r.returncode == 0`; a genuine clause-7 refusal (rc 2) and an instrument that fails to import both read as "refused". Map the exit codes explicitly and report a non-refusal failure distinctly — otherwise the next dead instrument hides exactly here.
+5. **Corollary to L-144's shape:** verify the artifact by executing or reading *it*, never by the property you went looking for.
+
 ## L-538 — THE PRIVATE-INDEX PROTOCOL PROTECTS AGAINST A PEER'S **STAGED** WORK AND NOT AGAINST A PEER'S **UNSTAGED WORKTREE EDITS TO THE SAME FILE**. `git update-index --add -- <path>` READS THE WORKTREE, SO ON A SHARED FILE YOU COMMIT WHATEVER A PEER HAS TYPED INTO IT AND NOT YET LANDED — AND THE "ONLY YOUR PATHS" VERIFY IS STRUCTURALLY BLIND TO IT
 
 2026-09-10, dafoam supervisor, self-caught same session, from `cfff22f89`.
