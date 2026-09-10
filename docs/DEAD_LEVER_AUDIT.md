@@ -3807,3 +3807,23 @@ Adopted the pattern `T1b_L4_AMENDMENT.md` §7 already specifies and the ruling's
 ### §30.7 STATUS
 
 **K0h's clause-7 guard is now ACTIVE and PROVEN at `launch_k0h.sh`, the launch path production uses — both directions, with negative controls. It is ACTIVE-UNPROVEN at `orchestrate_k0h.py`, declared and tripwired. K0h remains DRAFT / NOT FROZEN**, on AMENDMENT 1 §4's three untouched grounds. This dead lever was a fourth ground and it is **closed**. Registered as pre-compute amendment **A3** of `docs/campaigns/F14-cooling-ladder/K0h_PREREGISTRATION.md`; `verification/runs/F14-cooling-ladder/K0h_runs` **does not exist** and was not created.
+
+### §30.8 THE LEVER IS **NOT K0h's** — IT PROPAGATED BY DERIVATION THROUGH THE WHOLE K0 FAMILY, AND TWO OF THOSE RUNGS HAVE ALREADY RUN COMPUTE
+
+A repository-wide census (GNU `grep`, positive control asserted first) found `launch_guard` **defined in seven `mark_done_*` instruments and called by none of their launchers.** K0h is not the origin; it **inherited the defect by derivation**, as its own header block says it inherits everything else from K0g.
+
+| rung | guard defined | launcher | executable clause-7 call sites | builder creates `0/` directly | compute run? |
+| --- | --- | --- | --- | --- | --- |
+| K0d | yes | **none exists** | — | yes | — |
+| K0f | yes | `launch_k0f.sh` | **0** | yes | **YES — `DONE.B_hi`, `DONE.C_lam`, `DONE.I_hi`, `DONE.M1_c`, `DONE.M1_f`** |
+| K0g | yes | `launch_k0g.sh` | **0** | yes | **YES — `DONE.M1_c`, `DONE.M2_c`** |
+| K0h | yes | `launch_k0h.sh` | **2** (this repair) | **no — stages `0.orig`** | no |
+
+**In every one of those rungs clause 7 was UNCALLABLE for the same structural reason**, not merely unwired: the builder created `0/` itself, so there was no point in the sequence at which the guard could be pulled. **Nobody forgot to call it. It could not be called.** Also carrying an uncalled `launch_guard`: `scripts/mark_done_adaptive.py`, `cases/navier_class/PRD/mark_done_prd.py`, `verification/runs/F14-cooling-ladder/K2b_runs/mark_done_k2bU3R3.py`.
+
+**WHAT THIS DOES AND DOES NOT SAY ABOUT THE EXISTING K0f AND K0g VERDICTS.**
+- **It does NOT say any case was dirty.** No stray `0/` or stray time directory is alleged, and none was looked for here.
+- **It DOES say those verdicts rest on clause 6 alone** for the stray-write question — on the age guard **passing**, not on clause 7 **having been checked**. `K0H_AGE_GUARD_RESTART_RULING_2026-09-10.md` §10 records clause 6 verified holding on both K0g arms, their `endTime` fields post-dating `0/T` by about 2.6 hours. That is positive evidence and it is not withdrawn here.
+- **An absent check is not a failed check, and it is not a passed one either.** The distinction is the whole subject of this file.
+
+**NOT REPAIRED, AND DELIBERATELY SO.** K0f and K0g have run compute and carry verdicts. Re-sequencing a builder after compute changes an instrument on the graded path, which rule 2 closes at first compute; and the K0g instruments are **FROZEN and not edited** (rule 6). **Referred to the heat-transfer supervisor and to verification as a family-wide finding. This entry closes the K0h instance only, and says so.**
