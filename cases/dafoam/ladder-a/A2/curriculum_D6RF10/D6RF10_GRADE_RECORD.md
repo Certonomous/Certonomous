@@ -210,3 +210,54 @@ outcome (T25).** `N-D43` stays escalated and unruled.
 - **Whether DAFoam's "Primal min residual" is defined as the worst across transported equations** is
   supported here by one byte-identical match on one log, not by reading DAFoam's source. A lane is
   establishing it from source; until then it is a **hypothesis with one strong datum**, not a fact.
+
+---
+
+## ADDENDUM 1 — 2026-09-10, later the same day — **§9's last open item is CLOSED BY SOURCE, and it closes AGAINST this ladder's whole lever family. No verdict in this record moves.**
+
+*lines whose number changed above this section: 0.* Appended; nothing above is rewritten or struck.
+**No gate, threshold, floor, cap or label is changed. R1 stays `GATE FAIL`, R2 stays `NOT A RESULT`,
+R3 stays binding-field `PASS` / rung `GATE FAIL`, and the item still lands in NEITHER registered
+terminal state (§7).** Filed `[lab-attributed]`. **SUBMISSIONS PARKED.**
+
+**§9 recorded, as the last of its honest gaps:** *"Whether DAFoam's 'Primal min residual' is defined as
+the worst across transported equations is supported here by one byte-identical match on one log, not by
+reading DAFoam's source … a hypothesis with one strong datum, not a fact."*
+
+**It is now a fact, read from source by the supervisor personally.** Filed in full as **`N-D44`**
+(`docs/NUMERICS_KNOWLEDGE.md`, commit `1c370471`): `DAUtility::primalResidualControl` keeps a running
+**MAX** over `solverP.initialResidual()` and prints the `initRes` line **from the same call**, the
+velocity vector entering as its **median** component; `DASolver::loop()` resets `primalMaxRes = -1e10`
+right after `++runTime`, so the surviving value is the max over the **final outer iteration only** —
+which is why *"min"* is a misnomer. Read inside this item's own **BOUGHT** image
+(`sha256:2927768a…30f6d35`), `DASolver.C` sha256 `4d8e961f…`, `DAUtility.C` sha256 `8345b996…`.
+**R3's arithmetic reconstructs exactly:** U median 2.033930036e-07, `he` 9.903640785e-09,
+`p` 6.3233727e-06, `nuTilda` 1.391750109e-05 → max = **1.391750109e-05** = the banner.
+
+**And a third, PUBLIC specimen makes the reading decisive rather than merely consistent** — and
+simultaneously corrects the *scope* of what §0 claimed. In `mdolab/dafoam` Discussion #961 the same
+banner equals the **`he`** residual, the largest of that user's set, while **`nuTilda` is the
+smallest**. **So "the binding equation is `nuTilda`" is a CASE fact about the A2 MACH wing family — it
+is NOT a DAFoam fact,** and §0's framing should be read with that scope. The mechanism is also
+**intended upstream behaviour, not a defect**: release v3.1.1 states verbatim that including the
+turbulence model in `primalResTol` was a **fix**.
+
+**WHY THIS CLOSES AGAINST THE LADDER, and it is the substantive consequence.** On R3 the pressure
+residual `p_first_uncorrected` was **6.3233727e-06 — already INSIDE the 1.0e-05 floor.** So this
+item's registered lever family — deeper non-orthogonal correctors (R2), SIMPLEC (R3), heavy
+under-relaxation (R4, struck) — **acted on an equation that was not the binding one.** The
+D6RF7 → D6RF9 → D6RF10 chain spent **759.667 cumulative core-min on this item alone** moving
+pressure-coupling levers against an obstacle in the turbulence equation. **That is a finding about
+lever selection, not a defect in any rung's grading**, and it is why §7's "successor question is open"
+should now be read as *open on the levers*, not merely open on the terminal state.
+
+**What a successor would have to register, stated as options and NOT chosen here:** levers acting on
+the SA equation itself (its under-relaxation, its linear tolerance/`relTol`, its convection scheme,
+`primalVarBounds` on `nuTilda`, `correctNut()` behaviour), or a longer horizon against `nuTilda`'s
+**39.2 %** miss. **Whether that miss is clearable at all is UNMEASURED** and nothing here claims it is.
+**No acceptance rule is widened (T25); `N-D43` stays escalated and unruled.**
+
+**One further fact from the same source read, recorded because it bears on how this record is used:**
+`primalMaxRes` reads `initialResidual()`, **never** `finalResidual()`. This record gates on `initRes`
+throughout and is unaffected — but any comparator in this family built on per-equation `finalRes` is
+**structurally blind** to the condition DAFoam fails on. See `N-D44` §(5) for the worked case.

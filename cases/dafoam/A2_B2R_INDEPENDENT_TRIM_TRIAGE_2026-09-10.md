@@ -118,3 +118,73 @@ value was produced. What it bought instead is §3 and §4 of this record. 0 GPU-
   belongs to an existing class or a new one is not settled in this record.
 - **The rung verdict is not revisited.** `NOT A RESULT`. A successor may buy the rows; this run did
   not.
+
+---
+
+## ADDENDUM 1 — 2026-09-10, later the same day — **§4's hypothesis is CONFIRMED at source, its SCOPE is narrower than I wrote, and the frozen pre-registration's §6.2 rests on a premise that is FALSE at source. The rung verdict does not move.**
+
+*lines whose number changed above this section: 0.* Appended; nothing above is rewritten or struck.
+**The rung stays `NOT A RESULT` on the registered `DIVERGED-TRIM` branch. No gate, threshold, cap or
+label changes, and no frozen file is edited** (rule 6). Filed `[lab-attributed]`. **SUBMISSIONS PARKED
+— nothing filed, posted or reported upstream by this addendum.**
+
+**(1) CONFIRMED, from source, by the supervisor personally.** §4's hypothesis — that DAFoam's
+*"Primal min residual"* is the worst across the transported-equation set despite its name — is
+**established**, filed in full as **`N-D44`** (commit `1c370471`). `DAUtility::primalResidualControl`
+keeps a running **MAX** over `solverP.initialResidual()`, printing the `initRes` line from the same
+call; `DASolver::loop()` resets it to `-1e10` after `++runTime`, so the surviving figure is the max over
+the **final outer iteration only**. This row's own arithmetic reconstructs exactly: U median
+1.407313483e-07, `he` 6.579543058e-09, `p` 5.765826264e-06, `nuTilda` 1.042376255e-05 → max =
+**1.042376255e-05** = the banner at `decomp.log:893`.
+
+**(2) BUT THE SCOPE I GAVE IT WAS TOO WIDE, AND A PUBLIC SPECIMEN CORRECTS IT.** §4 headlined *"the
+binding obstacle on the A2 MACH wing is the Spalart–Allmaras `nuTilda` residual, not pressure."* That
+is **true of this case family and NOT a DAFoam fact.** In `mdolab/dafoam` Discussion #961 the same
+banner equals the **`he`** residual — the largest of that user's set — with **`nuTilda` the smallest.**
+The quantity is a max over whichever equations that case transports. Read §4 with that scope.
+And the mechanism is **intended upstream behaviour, not a defect**: release v3.1.1 states verbatim that
+including the turbulence model in `primalResTol` was a **fix**.
+
+**(3) THE PART THAT MATTERS FOR THIS ITEM: `G4R`'s STATED JUSTIFICATION IS FALSE AT SOURCE — and the
+consequence is sharper than a wrong sentence.** The frozen pre-registration's §6.2 grounds its
+substitution on *"`primalMinResTol` acts on DAFoam's **normalised total** residual; the log prints
+**per-equation `finalRes`** per SIMPLE iteration, and the two are not comparable."* **It is not a
+normalised total.** It is a max over per-equation **`initRes`**, byte-identical to a value the log
+prints — so it *is* directly comparable, **to `initRes`, not to `finalRes`.**
+
+**And `G4R` is registered on `finalRes`, which is the one quantity that cannot see the failure.**
+`primalMaxRes` reads `initialResidual()`, never `finalResidual()`. On this row's own failing iteration
+every per-equation `finalRes` — U 1.154952008e-08 / 1.110534967e-07 / 3.146877193e-09, `he`
+2.821086048e-10, `p` 4.541005727e-07, `nuTilda` 4.652519276e-07 — is **≤ 1e-6**. **So `G4R`'s residual
+clause reads PASS on the exact iteration DAFoam declared the primal failed.** §3 of this record already
+measured that PASS without knowing why it was structurally guaranteed; this is why.
+
+**What does NOT follow, and I am not doing it.** `G4R`'s **threshold is untouched** and the row is
+**not rescued**: it still fails `G4R`'s *"exactly one `DECOMP_RESULT` line"* clause, and the rung is
+still `NOT A RESULT`. Only the **justification** in §6.2 is wrong, the pre-registration is
+**post-compute**, and the frozen file is therefore **not edited** — this addendum is the record of the
+correction, and a dated addendum on the frozen document itself would alter no gate, threshold, cap or
+label if one is later wanted.
+
+**(4) ONE ROUTE EXISTS TO SUPPRESS THE ABORT, AND IT IS A GATE SUBSTITUTION, NOT A FIX.**
+`checkPrimalFailure()`'s **first statement** is `if (stdTol > 0) { return 0; }` on
+`primalFuncStdTol.stdTol`, under the in-code comment *"if the funcStd mode is used for convergence, we
+always return 0 without checking primalMinResTolDiff"*. Any positive value disables the residual check
+unconditionally — **but it also enters the primal's exit condition, and it removes the only
+primal-failure signal including for genuinely divergent runs.** It is absent from the published
+DAOPTION reference. **Registering it would substitute a different acceptance rule and belongs on the
+`N-D43` escalation, not in a lane's or a supervisor's hands.**
+
+**(5) AND A TRAP ON EVERY CATCH-BASED ROUTE, recorded so no successor walks into it.** The raise at
+`mphys_dafoam.py:345` fires **before** the states are written to the OpenMDAO output vector.
+`DAFoamFunctions.compute` then pushes OpenMDAO's **stale** state vector back into OpenFOAM before
+evaluating functionals. **So after catching the `AnalysisError`, `prob.get_val(...CD)` is NOT the row's
+converged value — reading it would be a silent wrong answer, not a missing one.** The trustworthy
+post-raise source of CD/CL is the solver log's own `calcAllFunctions` print — here `decomp.log:885-886`,
+`CD: 0.02124797341`, `CL: 0.4999465153`. **Any successor that registers a catch MUST register the
+log as the source and forbid `get_val`.** Source-derived and **NOT execution-tested** (zero compute).
+
+**Unmeasured, and not claimed:** whether `nuTilda`'s **4.24 %** miss here is clearable by a longer
+horizon. **Also not established: which image this run used** — neither the pre-registration nor §1 of
+this record names a digest and no container survives; `N-D44`'s citations survive it only because the
+load-bearing source files are byte-identical across both candidate images. **A successor must pin one.**
