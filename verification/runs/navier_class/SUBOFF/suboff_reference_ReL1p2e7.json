@@ -4,14 +4,16 @@
   "_CT_ref_basis": "MANIFEST / engineering anchor (and it STAYS one): ITTC-1957 friction line Cf(Re_L=1.2e7)=0.075/(log10(Re)-2)^2=2.907e-3 times a body-of-revolution form factor (1+k)~1.24 -> CT~3.6e-3 on WETTED-SURFACE area. There is NO title-verified SUBOFF report PDF on disk, so the gate is BOUNDED-AGREEMENT against this manifest anchor and remains so until a real title-verified SUBOFF report lands (NOT a promise to replace it with a title-verified value before freeze -- none is retrievable today). If one is obtained later, the anchor is confirmed/corrected by a dated addendum then. The GATE BAND (+/-10%) is the frozen threshold shape and does not move.",
   "reference": {
     "case": "DARPA SUBOFF bare hull (Model 5470), zero incidence",
-    "Re_L": 1.2e7,
+    "Re_L": 12000000.0,
     "magUInf_m_s": 2.893,
     "L_ref_m": 4.356,
-    "nu_m2_s": 1.05e-6,
+    "nu_m2_s": 1.05e-06,
     "rho_kg_m3": 1000.0,
-    "CT": 3.6e-3,
+    "CT": 0.0036,
     "CT_convention": "R_T / (0.5 * rho * U^2 * S_wetted); axial force coefficient on the hull patch",
-    "Aref": null,
-    "Aref_note": "REGISTER Aref = hull-patch wetted area read back from the built mesh; cross-check against the analytic Groves/Huang/Chang 1989 hull surface area (to be filled at build). Set Aref here to that value before grading."
+    "Aref": 0.0831703362813915,
+    "Aref_note": "PINNED 2026-09-10 by the cfd-supervisor (check-4 freeze act). This is the 5-degree WEDGE SECTOR area in m^2, NOT the full revolution: grade_suboff.py reads forceCoeffs Aref out of system/controlDict, which carries the sector, so a full-revolution value here would refuse every level. Full revolution = 5.988264212260189 m^2 = 72 x this. RULING: ONE pinned Aref is used at every level, replacing the previous per-level built-area normalisation. Reasons: (1) A_ref is a DEFINITIONAL reference area in Cd = F/(0.5 rho U^2 A_ref), not a mesh property; (2) per-level Aref would ARTIFICIALLY REMOVE A REAL DISCRETISATION ERROR -- how well the mesh represents the wetted area is part of the discretisation error, and dividing it out level-by-level hides it while injecting a monotone ~0.171% normalisation drift into the Roache triple; (3) the built sector area is not even an unbiased estimator of the wetted area -- the OpenFOAM wedge convention places points at z = +/-R*tan(2.5deg), giving face width 2R*tan(2.5deg) against a true arc of R*(5deg in rad), a systematic +0.092% bias (INFERRED arithmetic, not measured), so per-level normalisation would divide by a biased, level-dependent number. The builder still MEASURES and RECORDS each level's built sector area in its birth certificate; only the normalisation is pinned.",
+    "S_wetted_full_revolution_m2": 5.988264212260189,
+    "S_wetted_provenance": "RE-DERIVED 2026-09-10 by independent numerical quadrature of the surface of revolution, S = int 2*pi*R(x)*sqrt(1+(dR/dx)^2) dx, over the four TABLE 1 hull segments of Groves/Huang/Chang 1989 (DTRC/SHD-1298-01, 'Geometric Characteristics of DARPA SUBOFF Models', report p.4 = PDF p.11), title-page verified per rule 15 from PAGE IMAGES. Instrument: cases/navier_class/SUBOFF/derive_wetted_area.py. The nose carries an integrable singularity (R ~ x^(1/2.1)) removed exactly by x = u^21 and cross-checked by tanh-sinh at 40 dps; Gauss-Legendre over m in {11,21,31} at n = 80..320 agrees to ~1e-12 relative. Limiting error is TABLE 1's own printed rounding (2.0e-7 m^2 = 3.4e-6%), so ~7 significant figures are supported. The inherited 4-s.f. value 5.988 is CONFIRMED, not corrected: the derived value sits +0.0044% above it, inside the +/-0.008% implied by four figures. WARNING, a clean negative worth carrying: the Groves 1989 report does NOT state a wetted area anywhere -- it gives defining equations, code listings and tap locations. Anyone citing Groves 1989 FOR THE AREA is citing it for something it does not say; the area is DERIVED from its equations. SECOND WARNING: the .txt sidecar beside that PDF is OCR-DEGRADED and would poison this derivation -- it renders R_MAX = 5/6 ft as 0.0333333 and the afterbody xi denominator origin 13.979167 as 12.979167. TABLE 1 was transcribed from the page image, never from the sidecar."
   }
 }
