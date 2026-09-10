@@ -1,0 +1,44 @@
+{
+  "area": {
+    "analytic_m2": 5.988,
+    "full_revolution_area_m2": 5.988639542020131,
+    "hull_sector_area_m2": 0.08317554919472404,
+    "pct_diff_from_analytic": 0.010680394457759056,
+    "wedge_total_deg": 5.0
+  },
+  "case": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF/reg_fine",
+  "checkMesh": {
+    "cells": 202014,
+    "failed_checks": 0,
+    "hull_patch_faces": 135,
+    "max_aspect_ratio": 236.1509070385535,
+    "max_nonOrthogonality_deg": 68.7055200739233,
+    "max_skewness": 2.122619442099658,
+    "max_volume": 0.0001993725818206945,
+    "mesh_ok": true,
+    "min_volume": 4.574956925140676e-10,
+    "severely_nonortho_faces": 0,
+    "total_volume": 4.312720030071661
+  },
+  "gates": {
+    "nonortho_max": 70.0,
+    "nonortho_pass": true,
+    "skew_max": 4.0,
+    "skew_pass": true
+  },
+  "level": "reg_fine",
+  "readback": {
+    "first_cell_m": 0.00044444444935598515,
+    "last_cell_m": 0.012177736579022103,
+    "total_expansion_ratio": 27.399907000004273,
+    "x_station_m": 2.0005793059
+  },
+  "requested": {
+    "nr": 774,
+    "nx_down": 81,
+    "nx_hull": 135,
+    "nx_up": 45,
+    "simpleGrading_r": 27.39990741122381,
+    "y1_requested_m": 0.00044444444444444447
+  }
+}

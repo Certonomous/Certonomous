@@ -1,0 +1,3 @@
+WROTE verification/runs/navier_class/SUBOFF/reg_medium level reg_medium
+checkMesh: Mesh OK; cells=89784; hullFaces=90; maxNonOrtho=63.6022 (<70); maxSkewness=1.9002 (<4.0); negVol=no
+hull sector area (built, wedge 5 deg) = 8.31271111e-02 m^2; wedge fraction = 0.01388889; full-revolution equivalent = 5.985152 m^2; analytic (Groves TABLE 1) = 5.988 m^2; forceCoeffs Aref set to sector = 8.31271111e-02 m^2

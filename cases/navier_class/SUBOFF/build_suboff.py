@@ -44,6 +44,7 @@ if not __debug__:
 import os
 import re
 import math
+import json
 import argparse
 import subprocess
 
@@ -95,7 +96,12 @@ X_MAX    = 9.0                  # m  downstream of the tail (tail at x=L_M)
 R_FAR    = 3.0                  # m  farfield radius (~ 12 R_max, ~ 0.69 L)
 ALPHA_DEG = 2.5                 # wedge half-angle (total wedge 5 deg)
 TANA     = math.tan(math.radians(ALPHA_DEG))
-Y1_TARGET = 1.0e-3             # m  target first radial cell height at mid-hull (y+ ~ 100)
+Y1_TARGET = 1.0e-3             # m  DEFAULT first radial cell height at mid-hull (y+ ~ 100).
+#   Per-level override lives in LEVELS[...]['y1'].  A family that pins this at a FIXED
+#   absolute value across levels is NOT geometrically similar (MESH_STANDARD sec.9.2 and
+#   SUBOFF_R1_PREREGISTRATION sec.4 require first-cell height and expansion ratio to SCALE
+#   WITH THE MESH).  The `reg_*` family below scales y1 as 1/r; the legacy r=2 family does
+#   not, and is kept unchanged only so the already-built r=2 evidence stays reproducible.
 
 # freestream (SI) -- registered normalisation
 U_INF    = 2.893               # m/s
@@ -104,12 +110,33 @@ RHO      = 1000.0             # kg/m^3
 L_REF    = 4.356               # m  (registered lRef; grader asserts ==4.356)
 TI       = 0.02               # freestream turbulence intensity (smoke initial)
 
-# three geometrically-similar levels; each direction refines x2 (dim=2)
-LEVELS = (
-    ("coarse", dict(nx_up=30,  nx_hull=100, nx_down=60,  nr=40)),
-    ("medium", dict(nx_up=60,  nx_hull=200, nx_down=120, nr=80)),
-    ("fine",   dict(nx_up=120, nx_hull=400, nx_down=240, nr=160)),
+# LEGACY r=2 family.  Each direction refines x2 => x4 cells per level
+# (7,600 / 30,400 / 121,600).  This is NOT the family registered in
+# verification/campaign/SUBOFF_R1_PREREGISTRATION.md sec.4, and it is NOT
+# geometrically similar: y1 is pinned at a fixed absolute 1.0e-3 m at every
+# level.  Kept unchanged so the already-built r=2 evidence stays reproducible.
+LEGACY_LEVELS = (
+    ("coarse", dict(nx_up=30,  nx_hull=100, nx_down=60,  nr=40,  y1=1.0e-3)),
+    ("medium", dict(nx_up=60,  nx_hull=200, nx_down=120, nr=80,  y1=1.0e-3)),
+    ("fine",   dict(nx_up=120, nx_hull=400, nx_down=240, nr=160, y1=1.0e-3)),
 )
+
+# REGISTERED family -- SUBOFF_R1_PREREGISTRATION.md sec.4 "MESH PLAN":
+#   "Target ~40k / 90k / 202.5k cells (2.25x per level => r ~ 1.5 in h ~ 1/sqrt(N)
+#    for a 2-D-like refinement)" and "Geometric similarity is mandatory: first-cell
+#    height and expansion ratio SCALE WITH THE MESH, recipe otherwise fixed".
+# Every direction count x1.5 per level (exactly integral); y1 x(1/1.5) per level, so
+# the radial cell-size envelope is one continuous grading function sampled r times
+# finer at each level and the total expansion ratio is level-invariant.
+# Built cells: 116x344 = 39,904 / 174x516 = 89,784 / 261x774 = 202,014
+# (-0.24% from each registered target; ratio EXACTLY 2.25 per level).
+REGISTERED_LEVELS = (
+    ("reg_coarse", dict(nx_up=20, nx_hull=60,  nx_down=36, nr=344, y1=1.0e-3)),
+    ("reg_medium", dict(nx_up=30, nx_hull=90,  nx_down=54, nr=516, y1=1.0e-3 / 1.5)),
+    ("reg_fine",   dict(nx_up=45, nx_hull=135, nx_down=81, nr=774, y1=1.0e-3 / 2.25)),
+)
+
+LEVELS = LEGACY_LEVELS + REGISTERED_LEVELS
 LEVELS_D = dict(LEVELS)
 
 NONORTHO_MAX = 70.0
@@ -127,15 +154,15 @@ def foam_header(cls, obj):
             "    class       %s;\n    object      %s;\n}\n" % (cls, obj))
 
 
-def radial_grading(nr):
-    """simpleGrading r-ratio (last/first cell) giving ~Y1_TARGET first cell over the
+def radial_grading(nr, y1=Y1_TARGET):
+    """simpleGrading r-ratio (last/first cell) giving ~y1 first cell over the
     mid-hull thickness (R_FAR - RMAX).  Solved for the per-cell ratio then powered."""
     thick = R_FAR - RMAX_FT * FT2M
     lo, hi = 1.0 + 1e-6, 1.5
     for _ in range(200):
         g = 0.5 * (lo + hi)
         first = thick * (g - 1.0) / (g ** nr - 1.0)
-        if first > Y1_TARGET:
+        if first > y1:
             lo = g
         else:
             hi = g
@@ -182,6 +209,7 @@ def build_topology(level):
     """Return (vertices, blocks, patch_faces) for blockMeshDict.  All lengths in m."""
     p = LEVELS_D[level]
     nx_up, nx_hull, nx_down, nr = p["nx_up"], p["nx_hull"], p["nx_down"], p["nr"]
+    y1 = p.get("y1", Y1_TARGET)
     xs_ft = hull_stations(nx_hull)
     xs_m = [x * FT2M for x in xs_ft]
     Rs_m = [hull_R_ft(x) * FT2M for x in xs_ft]     # hull radius (m) per station
@@ -208,7 +236,7 @@ def build_topology(level):
     hull_faces, farfield_faces, axis_faces = [], [], []
     front_faces, back_faces = [], []
     inlet_faces, outlet_faces = [], []
-    rgrad = radial_grading(nr)
+    rgrad = radial_grading(nr, y1)
 
     # ---- upstream block A: xmin -> h0 (nose), bottom on axis ----
     a_xmin, a_h0 = axis("xmin", X_MIN), axis("h0", xs_m[0])
@@ -383,7 +411,7 @@ def controldict(endtime, deltat, write_interval, aref):
     return ("%sapplication     simpleFoam;\nstartFrom       startTime;\nstartTime       0;\n"
             "stopAt          endTime;\nendTime         %g;\ndeltaT          %g;\n"
             "writeControl    timeStep;\nwriteInterval   %d;\npurgeWrite      0;\n"
-            "writeFormat     ascii;\nwritePrecision  10;\nwriteCompression off;\n"
+            "writeFormat     ascii;\nwritePrecision  16;\nwriteCompression off;\n"
             "timeFormat      general;\ntimePrecision   10;\nrunTimeModifiable false;\n\n"
             "functions\n{\n"
             "    forceCoeffs\n    {\n"
@@ -466,6 +494,76 @@ def hull_sector_area(case):
     return tot, nF
 
 
+# ---- graded values READ BACK from the built mesh (MESH_STANDARD sec.9.2) ---------
+def radial_column(case, x_target):
+    """Sorted radial coordinates (m) of the built point column on the front wedge
+    plane nearest axial station x_target.  Read from constant/polyMesh/points."""
+    pts = parse_points(case)
+    front = [p for p in pts if p[2] > 1e-12]
+    if not front:
+        refuse("no front-wedge points found in %s" % case)
+    xs = sorted({p[0] for p in front})
+    xsel = min(xs, key=lambda x: abs(x - x_target))
+    ys = sorted(p[1] for p in front if abs(p[0] - xsel) < 1e-12)
+    return xsel, ys
+
+
+def graded_readback(case, x_target=2.0):
+    """(x, first cell height, last cell height, total expansion ratio) at x_target."""
+    xsel, ys = radial_column(case, x_target)
+    if len(ys) < 3:
+        refuse("radial column at x=%g has only %d points in %s" % (xsel, len(ys), case))
+    first = ys[1] - ys[0]
+    last = ys[-1] - ys[-2]
+    return xsel, first, last, (last / first if first > 0 else float("nan"))
+
+
+def _grab(out, pat, cast=float):
+    m = re.search(pat, out)
+    return cast(m.group(1)) if m else None
+
+
+def write_birth_certificate(case_dir, level, out, cells, nonortho, skew,
+                            hull_faces, sector, full_area):
+    """birth_certificate.json for this level (PREREGISTRATION sec.4 / MESH_STANDARD
+    sec.9.2, sec.11).  Graded values are READ BACK from the built mesh, never from the
+    requested parameter.  Written at the case root (not inside polyMesh) so it is
+    trackable while the polyMesh tree stays untracked."""
+    p = LEVELS_D[level]
+    xsel, first, last, expansion = graded_readback(case_dir)
+    cert = dict(
+        case=os.path.abspath(case_dir), level=level,
+        requested=dict(nx_up=p["nx_up"], nx_hull=p["nx_hull"], nx_down=p["nx_down"],
+                       nr=p["nr"], y1_requested_m=p.get("y1", Y1_TARGET),
+                       simpleGrading_r=radial_grading(p["nr"], p.get("y1", Y1_TARGET))),
+        readback=dict(x_station_m=xsel, first_cell_m=first, last_cell_m=last,
+                      total_expansion_ratio=expansion),
+        checkMesh=dict(
+            cells=cells, hull_patch_faces=hull_faces,
+            max_nonOrthogonality_deg=nonortho, max_skewness=skew,
+            max_aspect_ratio=_grab(out, r"Max aspect ratio = ([0-9.eE+\-]+)"),
+            # non-greedy + explicit sentence terminator: checkMesh prints
+            # "Min volume = 5.2e-09. Max volume = ..." and a greedy class would
+            # swallow the terminating '.' into the float.
+            min_volume=_grab(out, r"Min volume = ([0-9.eE+\-]+?)\.\s"),
+            max_volume=_grab(out, r"Max volume = ([0-9.eE+\-]+?)\.\s"),
+            total_volume=_grab(out, r"Total volume = ([0-9.eE+\-]+?)\.\s"),
+            mesh_ok=("Mesh OK" in out),
+            failed_checks=_grab(out, r"Failed (\d+) mesh checks", int) or 0,
+            severely_nonortho_faces=_grab(
+                out, r"Number of severely non-orthogonal \(> 70 degrees\) faces: (\d+)", int) or 0,
+        ),
+        gates=dict(nonortho_max=NONORTHO_MAX, nonortho_pass=(nonortho < NONORTHO_MAX),
+                   skew_max=SKEWNESS_MAX, skew_pass=(skew < SKEWNESS_MAX)),
+        area=dict(hull_sector_area_m2=sector, wedge_total_deg=2 * ALPHA_DEG,
+                  full_revolution_area_m2=full_area, analytic_m2=5.988,
+                  pct_diff_from_analytic=100.0 * (full_area - 5.988) / 5.988),
+    )
+    path = os.path.join(case_dir, "birth_certificate.json")
+    open(path, "w").write(json.dumps(cert, indent=2, sort_keys=True) + "\n")
+    return cert
+
+
 # ---- write / mesh / measure ------------------------------------------------------
 def guard_target(case_dir):
     for d in (os.listdir(case_dir) if os.path.isdir(case_dir) else []):
@@ -516,14 +614,19 @@ def mesh_and_check(case_dir, level, endtime, deltat, wi):
     if not (m_no and m_sk):
         refuse("could not parse checkMesh non-ortho/skew in %s" % case_dir)
     nonortho, skew = float(m_no.group(1)), float(m_sk.group(1))
-    if nonortho >= NONORTHO_MAX:
-        refuse("max non-orthogonality %.3f >= gate %.1f" % (nonortho, NONORTHO_MAX))
-    if skew >= SKEWNESS_MAX:
-        refuse("max skewness %.3f >= gate %.1f" % (skew, SKEWNESS_MAX))
     ncells = int(m_nc.group(1)) if m_nc else None
     sector, nhull = hull_sector_area(case_dir)
     wedge_frac = (2.0 * ALPHA_DEG) / 360.0
     full_area = sector / wedge_frac
+    # Measurements and the birth certificate are written BEFORE the admissibility
+    # gates, so that a level which BREACHES a gate still leaves its evidence on disk
+    # for the supervisor.  The gates themselves are unchanged and still refuse.
+    write_birth_certificate(case_dir, level, out, ncells, nonortho, skew,
+                            nhull, sector, full_area)
+    if nonortho >= NONORTHO_MAX:
+        refuse("max non-orthogonality %.3f >= gate %.1f" % (nonortho, NONORTHO_MAX))
+    if skew >= SKEWNESS_MAX:
+        refuse("max skewness %.3f >= gate %.1f" % (skew, SKEWNESS_MAX))
     # rewrite controlDict with the BUILT sector area as forceCoeffs Aref
     open(os.path.join(case_dir, "system", "controlDict"), "w").write(
         controldict(endtime, deltat, wi, sector))
