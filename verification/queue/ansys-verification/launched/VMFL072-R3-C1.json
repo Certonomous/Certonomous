@@ -1,0 +1,74 @@
+{
+  "cap_core_min_registered": 9.0,
+  "case_id": "VMFL072-R3-C1",
+  "cost_basis": "Level C1 (pre-registered auxiliary). Per-level cap 9 core-min. Overrun STOPS the run (rc124, rule 12). $ derived at $0.0513/core-h owner-stated, NOT measured.",
+  "cost_core_min_estimate": 9,
+  "cwd": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL072-R3",
+  "enqueued_by": "ansys-verification-supervisor (fresh session 4, 2026-09-07). Check-4 PERSONAL: prereg exists at freeze 305e4962; blobs byte-identical disk==HEAD==freeze; run root ABSENT.",
+  "grading_freeze": [
+    "cases/ansys_verification/VMFL072-R3/compare_vmfl072_r3.py"
+  ],
+  "grading_freeze_note": "Comparator blob 2fcc0ced byte-identical disk==HEAD==freeze (supervisor-verified session 4). Per-level driver: requires env VMFL072R3_PREREG_SHA and one level arg. C1 is a pre-registered auxiliary level.",
+  "launch_cmd": [
+    "bash",
+    "-c",
+    "VMFL072R3_PREREG_SHA=305e496286135e809a12c2b3381427f4a3187cd2 exec bash /home/ubuntu/Certonomous/cases/ansys_verification/VMFL072-R3/launch_vmfl072_r3.sh C1"
+  ],
+  "memory_floor_gb": 1.0,
+  "prereg_commit": "305e496286135e809a12c2b3381427f4a3187cd2",
+  "prereg_path": "cases/ansys_verification/VMFL072-R3/PREREGISTRATION.md",
+  "ranks": 1,
+  "requeue_note": "REQUEUED 2026-09-10 by the ansys-verification-supervisor. The 2026-09-07 refusal was the EXEC check: cwd /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL072-R3/C1 did not exist, and it CANNOT exist beforehand because the frozen launcher's G-05 guard REFUSES if its run root already exists (launch_vmfl072_r3.sh:164). Pre-creating the directory would therefore break the launch, not fix it. The only correct repair is the one applied here: cwd is set to the CASE directory, which is the convention already proven by the launched VMFL063-R3 entry. The launcher does not read cwd -- it derives RUNROOT from its own location (HERE/REPO at :46-47, RUNROOT at :156) -- so this changes nothing about what runs. NO FROZEN FILE IS TOUCHED and NO GATE, THRESHOLD, CAP OR LABEL MOVES: prereg_commit 305e4962 and comparator pin 2fcc0ced are unchanged, and cap_core_min_registered is TRANSCRIBED from the registration (asserted equal to the entry's own cost_basis), not chosen. Supervisor check-4 discharged personally: commit 305e4962 resolves, the prereg is present at it, and git hash-object of the comparator equals 2fcc0ced.",
+  "team": "ansys-verification",
+  "_launch": {
+    "utc": "2026-09-10T16:11:04Z",
+    "pid": 1279261,
+    "sid": 1279261,
+    "status_file": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL072-R3/STATUS.queue.VMFL072-R3-C1",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL072-R3/launcher.queue.out",
+    "started_epoch": 1789056664.3617616,
+    "status_seen_utc": "2026-09-10T16:12:04Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.VMFL072-R3-C1 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_grading_freeze": {
+    "verdict": "PINNED",
+    "detail": "1 comparator(s) named by 'grading_freeze' hash EXACTLY as commit 305e4962 froze them.",
+    "field": "grading_freeze",
+    "paths": [
+      {
+        "path": "cases/ansys_verification/VMFL072-R3/compare_vmfl072_r3.py",
+        "frozen_sha": "2fcc0ced1bb99192f25c80b323af161cf25b90ac",
+        "disk_sha": "2fcc0ced1bb99192f25c80b323af161cf25b90ac",
+        "state": "PINNED"
+      }
+    ],
+    "prereg_commit": "305e496286135e809a12c2b3381427f4a3187cd2",
+    "refusal_eligible": false,
+    "source": "ENTRY",
+    "schema": "grading_freeze/2",
+    "kind": "PREDICTION",
+    "predicts": "GRADING_WILL_PROCEED",
+    "actual": null,
+    "case_id": "VMFL072-R3-C1",
+    "walked_commit": "a0d5a4d7d19e1846c6926d6d61f132564c9a9e2b",
+    "recorded_utc": "2026-09-10T16:11:04Z"
+  }
+}
