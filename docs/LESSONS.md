@@ -25990,3 +25990,94 @@ with a planted-failure proof, since a floor-checker that has not been shown to
 fire is its own first counter-example.
 
 *Lines whose number changed above this section: 0.*
+
+## L-531 — A STEADY SOLVE PARKED IN A RESIDUAL LIMIT CYCLE CAN BE A **DOMAIN / CONFINEMENT** ARTIFACT, NOT A SETUP DEFECT — enlarge the far field before you touch schemes, relaxation or the case
+
+**Measured on VMFL063-R3, 2026-09-10 (Ansys VM2026R1 p. 193, separated laminar
+flow over a blunt plate, `simpleFoam`, laminar, Re 260).** Two domain-ladder
+solves at a **byte-identical near-field grid, identical schemes, identical
+`residualControl` criteria (p 1e-08, U 1e-09), identical BCs** — the ONLY
+difference the size of the far field, with a de-confined open top:
+
+| domain | far field (Lu / H) | cells | outcome |
+|---|---|---|---|
+| **D0** | 0.9 m / 1.8 m (10·2t / 20·2t) | 368 640 | ran the FULL clock to `endTime` 100000, `SIMPLE_converged_lines = 0`; final **initial** residuals **Ux 2.63e-06 / Uy 9.93e-06 / p 5.78e-04** — p stuck ~4.6 orders ABOVE its criterion and never moving: a residual limit cycle |
+| **D1** | 1.8 m / 3.6 m (20·2t / 40·2t) | 482 304 | **converged in 11941 iterations** (< `endTime`); final initial residuals **Ux 2.24e-10 / Uy 9.99e-10 / p 9.05e-11**, all orders BELOW criteria |
+
+**The confinement was manufacturing the limit cycle.** With the physically-correct
+open (non-confining) top, the too-small D0 far field places the open boundary
+inside the region the displacement layer and separation bubble still disturb, and
+the steady solve hunts; moving the boundary out by one octave (D1) removed the
+hunt entirely. **The near field — where all the physics that sets the answer lives
+— was byte-identical, so nothing about the scheme, relaxation, linear solver or
+case setup changed.**
+
+**THE RULE.** When a steady solve parks in a residual limit cycle (a residual
+floor orders above criterion that does not decay), **a too-small or wrongly-typed
+FAR FIELD is a first-class suspect, ranking with scheme/relaxation, and it is the
+CHEAPEST to falsify: enlarge the domain one octave at a fixed near-field grid and
+re-run.** Do it *before* loosening a residual floor or widening a band — those
+hide the symptom; enlarging the far field removes the cause or rules it out. The
+diagnosis is only trustworthy because the enlarged case **actually converged**:
+D1's clean convergence is what turns "the domain is too small" from a guess into a
+finding. This is the answer-blind lever a domain-independence ladder exists to
+exercise (`cases/ansys_verification/VMFL063-R3/PREREGISTRATION.md` §4). Evidence:
+`verification/runs/ansys_verification/VMFL063-R3/{D0,D1}/log.simpleFoam`. Also
+filed as a numerics fact, **N-AV14**. Sibling of the limit-cycle-as-poor-planted-
+control-host lesson (a case in a limit cycle is the worst host for a planted
+zero); this one names the far field as a *cause* of the cycle, not just a hazard.
+
+## L-532 — A WATCHER'S TRIGGER IS DERIVED FROM **THE CONSUMER'S OWN READER**, NEVER FROM A FILENAME COPIED FROM A SIBLING CASE — a watcher keyed on the wrong artifact is a grading leg with none of the substance
+
+**VMFL072-R3, 2026-09-10.** A drafted autograder polled for **`RUN_RC`** — the
+filename VMFL063-R3's launcher writes (`run_vmfl063_r3.sh:176`,
+`> "$RCROOT/RUN_RC.$ID"`) — but VMFL072-R3's frozen launcher writes **`RC.txt`**
+(`launch_vmfl072_r3.sh:222-223`, `rc=$?` then `echo "rc=${rc}" > RC.txt`), and the
+**comparator itself keys its first completion clause on `RC.txt`**
+(`compare_vmfl072_r3.py:365-370`, C-01: *"no RC.txt (the wrapper did not record an
+exit code)"*). A watcher polling `RUN_RC` would have waited its full poll cap and
+exited **without ever grading**, while presenting as a grading leg — the "absence
+of a reading reads as green" failure (L-529) with a *filename mismatch* as the
+cause. The corrected watcher records its own post-mortem
+(`autograde_watch_vmfl072_r3.sh:125-139`: *"watcher polled for `RUN_RC`, a
+filename the frozen launcher NEVER WRITES … it exercised the wrong filename, and
+it is redone here against RC.txt"*).
+
+**THE RULE.** A watcher's terminal/trigger signal must be **the same artifact the
+INSTRUMENT it feeds actually reads** — trace it to the consumer's reader
+(`grep` the comparator for the path it opens) and key the watcher on that, never
+on a filename remembered from a sibling case or assumed from convention. A watcher
+whose trigger and whose consumer disagree on the artifact name is not a slow
+watcher; it is a **non-watcher wearing a watcher's log.** Generalises the
+watcher-liveness family (a job is done by its work's own evidence, not the
+watcher's opinion) to the watcher's INPUT: verify the trigger artifact the same
+way, against the reader that consumes it.
+
+## L-533 — A `terminate-after-X` SCRIPT CANNOT REACH A CHILD THE LAUNCHER ALREADY `setsid`'d INTO ITS OWN PROCESS GROUP — and a script must NEVER write a record asserting an outcome it did not verify
+
+**VMFL063-R3, 2026-09-10, two failures in one event.** `terminate_after_d0.sh`
+sent `SIGTERM` to process group **-827496** at 11:37:13Z to stop the ladder after
+D0. **D1's `simpleFoam` had started 11:37:08Z — five seconds earlier — under the
+launcher's `setsid`, so it lived in its OWN process group** and the pgid-targeted
+signal never reached it. D1 ran on to a clean convergence (11941 iters). **The
+kill hit the launcher, not the solve it had just spawned.**
+
+**The worse half:** the same script then wrote, to disk,
+*"ladder TERMINATED after D0. D1/D2/D0_CONFINED did NOT run"* — a statement it did
+**not verify and that was FALSE for D1**, and it stood on the record
+(`verification/runs/ansys_verification/VMFL063-R3/TERMINATION_RECORD.txt`) until a
+supervisor's dated correction, made only because D1's own residuals contradicted
+it.
+
+**TWO RULES.** (1) **You cannot signal, by process group, a child a launcher
+`setsid`'d — it is no longer in your group.** To stop such a child, target it by
+its own pgid/pid discovered from its artifacts *after* it started (and confirm via
+`/proc/<pid>/cmdline`), never by the group you launched from; and account for the
+race — a "stop after X" that fires while X's successor is already spawning will
+miss the successor. (2) **A script MUST NOT write a record asserting an outcome it
+did not check.** "I sent a signal" is not "the process stopped," and "I terminated
+after D0" is not "D1 did not run." A control that asserts a result it never
+measured is L-529's family in the *writer's* voice: the record reads as fact and
+is fiction. Have the script verify (poll for the child's absence, read its RC/log)
+before it writes any outcome line, or write only what it actually observed
+("SIGTERM sent to pgid -N"), never the consequence it assumed.

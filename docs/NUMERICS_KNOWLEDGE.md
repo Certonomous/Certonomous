@@ -6733,3 +6733,66 @@ ADDENDUM (2026-09-10); `docs/campaigns/T-family/T5_PREREGISTRATION.md` §5.5
 **PLANTED CONTROL ON THE READER (rule 3), because two of the counts above are zeros in a first pass.** My first probe anchored the pattern as `^Primal min residual$` and returned **0** — a zero produced entirely by my own pattern, since the literal carries a trailing space. **A zero from a reader not shown able to see a non-zero is not evidence, and that includes a zero I produce myself.** The controlled re-read: a string that **must be present** (`primalMinResTol`) returned **2**, and a string that **must be absent** (`CERTONOMOUS_PLANT_XYZZY`) returned **0**. The reader is demonstrably able to return both, so the readings above stand and the first pass's 0 is recorded as **my pattern's artifact, not a property of the binary.**
 
 **WHAT IS STILL NOT PROVEN, and it is not a formality.** (i) **Byte-level correspondence between the source and the loaded object is NOT established.** The libraries are **stripped** — no DWARF, no recoverable source path — so string-literal identity plus build ordering is **strong circumstantial evidence, not proof**: a binary could in principle retain literals whose surrounding logic was changed. (ii) **The upstream commit remains unnamed** — the image's `repos/dafoam` carries no git metadata, so every citation stays asserted **of this image**, identified by hash, never of GitHub HEAD (`TOOLCHAIN_INVENTORY.md`: the hash is the identity, the version string is not). (iii) None of this was execution-tested; **zero solver compute** was spent on this addendum.
+
+## N-AV17. A steady laminar `simpleFoam` limit cycle can be a FAR-FIELD CONFINEMENT artifact removed by ENLARGING THE DOMAIN — distinct from N-AV15's grid-dependent single-cell cycle. VMFL063-R3: identical near-field grid, schemes and criteria; only the far field differed — MEASURED
+
+**Measured on VMFL063-R3, 2026-09-10** (Ansys VM2026R1 p. 193, separated laminar
+flow over a blunt plate, Re 260, de-confined open far-field top). Two
+domain-ladder solves at a **byte-identical near-field grid** (R2-L3 resolution,
+same block counts/gradings), identical schemes, identical `residualControl`
+(p 1e-08, U 1e-09), identical BCs — the sole difference the far-field extent:
+
+| domain | far field Lu / H | cells | last iter | final initial residuals (Ux / Uy / p) | state |
+|---|---|---|---|---|---|
+| D0 | 0.9 / 1.8 m (10·2t / 20·2t) | 368 640 | 100000 (= `endTime`, ran out of clock) | 2.63e-06 / 9.93e-06 / **5.78e-04** | **limit cycle** — p ~4.6 orders above criterion, never moving |
+| D1 | 1.8 / 3.6 m (20·2t / 40·2t) | 482 304 | **11941** (converged) | 2.24e-10 / 9.99e-10 / **9.05e-11** | converged, all orders below criteria |
+
+**The fact.** With the open (non-confining) top, the too-small D0 far field places
+the open boundary inside the region the displacement layer and separation bubble
+still disturb, and the steady solve hunts in a residual limit cycle that never
+decays. Moving the far field out by ONE OCTAVE (D1), at unchanged near-field grid,
+removed the hunt entirely. The near field — which contains all the physics that
+sets the answer — was byte-identical, so scheme/relaxation/linear-solver/setup are
+ruled out by construction; the far-field extent is the isolated cause.
+
+**Distinct from N-AV15.** N-AV15's limit cycle is a **grid-dependent, localised,
+single-cell** artifact (absent at 25×25/50×50, present at 100×100) removed by NOT
+refining; this one is a **domain-dependent, field-wide** artifact removed by
+ENLARGING the far field at fixed grid. Two different limit-cycle mechanisms in the
+same corpus: when a steady solve parks, test BOTH levers — grid (N-AV15) and
+far-field extent (this entry) — and note they move in opposite directions
+(N-AV15 worsens with refinement; this one improves with enlargement). The
+diagnosis is trustworthy only because the enlarged case actually converged. Also
+`L-531`.
+
+*Artifacts:* `verification/runs/ansys_verification/VMFL063-R3/{D0,D1}/log.simpleFoam`,
+`.../RUN_RC.D0` (D0 849.85 core-min); `.../D1/11941/`;
+`cases/ansys_verification/VMFL063-R3/PREREGISTRATION.md` §4; register row #76.
+
+## N-AV7 COMPANION — the gate VERDICT can FLIP across the band between the finest level and the Richardson extrapolate: VMFL051-R3's finest level lands 0.4909 % INSIDE a ±0.5 % band (PASS) while the extrapolate lands 0.5031 % OUTSIDE it (would GATE FAIL), with GCI 32× smaller than the gap
+
+**A third instance of N-AV7's family, sharpening it at the band boundary.** N-AV7
+paired VMFL001-R2 (extrapolate lands ON exact) against VMFL005 (extrapolate 0.54 %
+AWAY). VMFL051-R3 (Prandtl–Meyer, isentropic expansion) adds the case where the
+extrapolate crosses the **verdict boundary** relative to the finest level:
+
+| quantity | value | vs the ±0.5 % band |
+|---|---|---|
+| finest converging level, deviation | **0.490891 %** | **INSIDE** → the row reads `PASS` |
+| Richardson extrapolate to zero spacing | 3.2207146227, deviation **0.503101 %** | **OUTSIDE** → the continuum limit would `GATE FAIL` |
+| GCI(fine) vs the finest-to-limit gap | GCI ≈ 32× SMALLER than the gap | the drift is a MODEL offset, not discretisation |
+
+**The rule.** A `PASS` scored at the finest level is a statement about THAT LEVEL,
+not about the continuum: when GCI ≪ the deviation from reference, the
+grid-converged limit can sit on the OTHER side of the band and the honest
+credential must disclose it (finest `PASS`, extrapolate outside, residual is a
+model/reference offset — not a numerics problem to be refined away). This is
+N-AV7's fact (small GCI does not license a numerical-deviation claim) landing on
+the band boundary, where it changes the verdict rather than merely the
+interpretation. Related standing law: `VERIFICATION_CHARTER` §3.4 ("a reportable
+band is not a demonstrated asymptotic order").
+
+*Artifacts:* `cases/ansys_verification/VMFL051-R3/DRAFT_REGISTER_ROW_VMFL051_R3.md`
+(finest −0.490891 %, extrapolate 3.2207146227 = 0.503101 %; **still a DRAFT row at
+the time of this entry — the numbers are verified, the row not yet frozen**);
+`cases/ansys_verification/VMFL051-R3/PREREGISTRATION.md` §gate. See `N-AV7`, `N-AV6`.
