@@ -29,9 +29,14 @@ import sys
 
 import numpy as np
 
-RUN_DIR = os.environ.get("M6_RUN_DIR", "/run")
-sys.path.insert(0, RUN_DIR)
-import gen_m6_gridb as G   # noqa: E402
+# gen_m6_gridb is the SUPERSEDED re-loft recipe; it is imported LAZILY (only under --cluster)
+# so the buildable NO-CLUSTER coarsen chain -- the one the coarsest/medium levels actually use --
+# is reproducible WITHOUT it. NOTE (freeze-time, 2026-09-10): the --cluster branch below is not a
+# viable production path on the cap-preserving route: (i) in-place per-zone clustering diverges the
+# shared cap-edge nodes so pyHyp autoConnect fails ("Unknown topology"); (ii) the cgnsutilities
+# Block-ctor transpose bug forbids ADDING chordwise points, so the buildable max is native 257,
+# whose in-place-clustered shock Delta x/c ~0.0033 FAILS the prereg §3.4 gate (<=0.0012). The
+# clustered graded surface the prereg specifies is therefore NOT buildable here -- supervisor ruling.
 
 
 def _cluster_chord_inplace(block, t_chord):
@@ -72,6 +77,8 @@ def build(master_cgns, out_cgns, n_coarsen, cluster, level_id):
     for _ in range(n_coarsen):
         g.coarsen()
     if cluster:
+        sys.path.insert(0, os.environ.get("M6_RUN_DIR", "/run"))
+        import gen_m6_gridb as G   # noqa: E402 -- lazy: only the superseded cluster path needs it
         G.load_sizing()
         t_chord, _ = G.clustering_distribution(
             g.blocks[0].dims[1], G.GEN_NOSE_TARGET, G.SHOCK_DXC, G.SHOCK_XC_LO, G.SHOCK_XC_HI)
