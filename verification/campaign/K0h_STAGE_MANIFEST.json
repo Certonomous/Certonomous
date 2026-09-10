@@ -1,0 +1,101 @@
+{
+  "_README": [
+    "K0h STAGE MANIFEST -- DRAFT, NOT FROZEN, NOT PINNED.",
+    "Read by scripts/orchestrate_k0h.py. Registered at",
+    "docs/campaigns/F14-cooling-ladder/K0h_PREREGISTRATION.md AMENDMENT 1",
+    "section A1.5. THIS FILE CARRIES THE CEILING AND THE CAPS, so its blob",
+    "is pinned at the freeze commit alongside the grading path (section 7.7).",
+    "",
+    "THE ARM SET AND endTime BELOW ARE THE LANE'S PROPOSAL (AMENDMENT 1",
+    "section A1.4 option B) AND ARE THE SUPERVISOR'S TO SET. They are the",
+    "L1 PAIR ONLY at endTime 260 s, because A1.3 measured both completed K0g",
+    "arms two orders of magnitude from tol_T at the registered 60 s and the",
+    "arithmetic of A1.4 shows the five-arm campaign cannot be bought at the",
+    "endTime the stationarity evidence points to. A lane does not set an arm",
+    "set or an endTime; if the supervisor rules differently this file is",
+    "rewritten BEFORE the freeze (which is legal: no K0h_runs exists) and the",
+    "orchestrator's own closure check re-verified.",
+    "",
+    "orchestrate_k0h.py REFUSES (exit 2) any manifest whose caps sum above",
+    "its ceiling, so the ceiling here is arithmetically proven to buy every",
+    "arm it authorises before a solver ever starts."
+  ],
+
+  "rung": "K0h",
+  "status": "DRAFT -- NOT FROZEN, NOT PINNED",
+  "drafted": "2026-09-10",
+  "ranks": 1,
+  "end_time_s": 260.0,
+
+  "cost_basis": {
+    "unit": "core-min = wall_s * ranks / 60",
+    "formula": "cost(arm) = (end_time_s / dt_mean_arm) * s_per_step_arm / 60",
+    "source": "MEASURED from K0g artifacts still on disk: STATUS.<arm> wall, and the '^Time = ' line count and last Time in <arm>/log.solve",
+    "measured_inputs": {
+      "L1_cells": 25600,
+      "L2_cells": 50176,
+      "L1_dt_mean_s": 3.753765e-03,
+      "L1_dt_spread_pct": 0.35,
+      "L2_dt_mean_s": 2.592040e-03,
+      "L2_dt_spread_pct": 0.62,
+      "L1_s_per_cell_step": 2.285513e-05,
+      "L2_s_per_cell_step": 3.243225e-05,
+      "note": "dt_mean and s_per_cell_step are stated PER LEVEL because K0g proved one global figure cannot express two levels: the transient overhead measured x3.55 at L1 and x5.17 at L2 against the SIMPLE rate the x1.5 factor was built on."
+    },
+    "cap_rule": "cap = 1.35 x basis, the UPPER EDGE of the P-K0h-3 band. A cap is not a target.",
+    "dollars_derived_not_measured": {
+      "rate_per_core_hour_usd": 0.0513,
+      "rate_basis": "owner-reported 2026-08-21/22; the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+      "ceiling_usd_derived": 1.566,
+      "under_25_usd_preauthorisation": true
+    }
+  },
+
+  "ceiling_core_min": 1835.00,
+  "ceiling_derivation": "sum of the registered caps (1823.64) + I (8.00) = 1831.64, rounded UP to 1835.00. The rounding is upward so the closure check cannot be satisfied by a rounding artefact.",
+
+  "stages": [
+    {
+      "name": "1",
+      "purpose": "The L1 pair to endTime 260 s. THE RUNG'S PRIMARY OBJECT IS THE STATIONARITY DETERMINATION AT L1, which K0g's budget stop left unanswered and which A1.3 shows was never reached at 60 s.",
+      "concurrency": 2,
+      "arms": [
+        {
+          "name": "M1_c",
+          "level": "L1",
+          "closure": "kOmegaSST",
+          "basis_core_min": 672.53,
+          "basis_arithmetic": "(260 / 3.7472e-03) * 0.581564 / 60 = 672.53",
+          "basis_label": "PROJECTED FROM A MEASURED 60 s COMPLETION (155.20 core-min measured at 60 s); the projection is linear in endTime and rests on the measured quartile-flatness of dt",
+          "cap_core_min": 908.00,
+          "timeout_s": 54480
+        },
+        {
+          "name": "M2_c",
+          "level": "L1",
+          "closure": "kEpsilon",
+          "basis_core_min": 678.31,
+          "basis_arithmetic": "(260 / 3.7603e-03) * 0.588619 / 60 = 678.31",
+          "basis_label": "PROJECTED FROM A MEASURED 60 s COMPLETION (156.53 core-min measured at 60 s)",
+          "cap_core_min": 915.64,
+          "timeout_s": 54938
+        }
+      ]
+    }
+  ],
+
+  "instruments_core_min_bound": 8.00,
+  "instruments_note": "MEASURED at 0.317 core-min for the whole pre-freeze demonstration (verification/runs/F14-cooling-ladder/K0g_runs/K0h_PREFREEZE_EXTRACTION_DEMONSTRATION.txt), i.e. 4.0 % of the bound. The bound is retained because the graded pass over two 260 s arms has not been timed.",
+
+  "deferred_not_authorised": {
+    "arms": ["M1_m", "M2_m", "C_lam"],
+    "reason": "The three L2 arms are DEFINED AND NOT AUTHORISED under this manifest. A1.4 shows five arms at the endTime the stationarity evidence points to costs 8048.31 core-min at 220 s and 9511.64 at 260 s, against a drafted ceiling of 5495.48 that buys five arms only to 150.0 s. Deferring them lets their successor be costed from a MEASURED stationarity time instead of a projected one. THIS IS A PROPOSAL; the supervisor may instead raise the ceiling and keep all five (A1.4 option A), which is affordable in dollars and expensive in calendar."
+  },
+
+  "stop_rules": {
+    "R1": "A running arm is charged its CAP, never its estimate.",
+    "R2": "A stage launches only if charged + sum(caps of its unlaunched arms) <= ceiling; otherwise BLOCKED, arms named UNRUN, run STOPS. No new budget (standing rule 12).",
+    "R3": "Nothing in flight is ever signalled. An arm is stopped only by its own timeout cap (rc 124, CAP-STOP).",
+    "enforced_by": "scripts/orchestrate_k0h.py, selftest 30/30 both directions"
+  }
+}

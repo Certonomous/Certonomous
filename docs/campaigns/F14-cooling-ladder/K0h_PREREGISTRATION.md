@@ -765,3 +765,530 @@ brief named `Δt_mean` as the root cause with contention secondary. Measured,
 descheduling channel is measurably ≈ 0** (`ExecutionTime/ClockTime` ≥ 0.9966 on
 all five arms) so it is not named as a separate figure at all. K0h is costed on
 the measured decomposition, not on the relayed one.
+
+---
+
+# AMENDMENT 1 — 2026-09-10. PRE-COMPUTE. THE EXTRACTION DEFECT IS CLOSED AND A SECOND, INDEPENDENT BLOCKER IS FOUND.
+
+> **Written by a heat-transfer lab-lane at ZERO SOLVER COMPUTE. THIS DOCUMENT
+> IS STILL NOT FROZEN.** The lane does not freeze it, does not set its gates,
+> does not choose its arm set and does not pin its grading path. Those are the
+> supervisor's, and §A1.8 lists them.
+
+## A1.0 THE AMENDMENT'S CONDITION, AND HOW IT WAS CHECKED (standing rule 2)
+
+Standing rule 2 permits amendments **before first compute** and requires each
+to **state its condition and how it was checked, naming the run directory that
+does not exist.** Discharged explicitly, not by assertion:
+
+| | |
+| --- | --- |
+| **THE CONDITION** | No K0h compute has occurred. Operationally: **`verification/runs/F14-cooling-ladder/K0h_runs/` DOES NOT EXIST** — that is the named directory, and it is named because it is the one directory whose existence would close the gates. |
+| **HOW IT WAS CHECKED** | Its absence was read **from disk**, not inferred from a record: `ls -d verification/runs/F14-cooling-ladder/K0h_runs` returns *"No such file or directory"*. The whole of `verification/runs/F14-cooling-ladder/` was enumerated and holds 25 entries, of which none is `K0h_runs`. Independently, `git ls-files | grep -i k0h` returns exactly one path — this document — so no K0h run artifact is tracked either. |
+| **WHAT WAS RUN, AND WHY IT IS NOT COMPUTE UNDER THIS DOCUMENT** | Grading-path **instruments only**, on **K0g's** completed arms and on fixtures: **0.317 core-min measured, no solver invoked, no K0h case directory created, no field written anywhere under `verification/runs/`.** `VERIFICATION_CHARTER` §2d.2's "first compute" is the compute **this registration authorises**; reading a predecessor's fields with an instrument that grades nothing is the §2d.1 shape, and §A1.8 item 1 keeps the §11 item 1 ruling untouched. |
+| **WHAT THIS AMENDMENT MAY THEREFORE DO** | Everything, because nothing is frozen. **What it nevertheless DOES NOT do:** it moves **no** band, **no** `tol`, **no** `y⁺` window, **no** verdict ladder and **no** completion clause. Every such figure of §3, §7.1', §7.2, §7.3 stands **byte-unchanged**. The changes are to the **cost line**, to the **stop machinery**, and to what the rung **honestly claims it can buy**. |
+
+**Nothing above is struck by rewriting.** Where the body is now contradicted,
+§A1.9 names the passage and marks it **SUPERSEDED BY AMENDMENT 1**; the
+original text stays where it is, readable.
+
+---
+
+## A1.1 THE EXTRACTION DEFECT IS CLOSED — DEMONSTRATED BEFORE FREEZE, ON THE TWO ARMS THAT COMPLETED
+
+**This is the single most important line in this amendment.** §0.2 named the
+extraction refusal as the blocker a re-cost alone would have walked straight
+back into: `311.73` core-min reached strict completion and produced **no
+graded number**. That is now demonstrated closed, **before** the freeze,
+**on the actual arms**, and the full record with every number is at
+
+> **`verification/runs/F14-cooling-ladder/K0g_runs/K0h_PREFREEZE_EXTRACTION_DEMONSTRATION.txt`**
+
+filed under the case directory it reads (never in a scratch path — L-186).
+The four results that matter:
+
+| # | what was driven | outcome |
+| --- | --- | --- |
+| **1** | the **FROZEN** `analyse_k0g.py` reader, on `M1_c/60/{TMean,UMean}` and `M2_c/60/{TMean,UMean}` | **exit 2, four times.** The defect reproduced on demand. `analyse_k0g.py` was **not edited** (rule 6; its blob is still `409e403d`, byte-identical to HEAD). |
+| **2** | `analyse_k0h.py`'s reader on the **same four files** | **resolves all four.** `outlet` → `None`, the *same* zeroGradient sentinel; 7 patches each; and the §4.5 path is confirmed **exercised** — the outlet really does carry a `nonuniform` list on disk, so the repair is not bypassed. |
+| **3** | `check_k0h_extraction_equivalence.py --case M1_c --case M2_c` — **the instrument whose K0g ancestor produced the refusal quoted in §0.2, and, per `VERIFICATION_CHARTER` §2d.1(2), AN INSTRUMENT THAT GRADES NOTHING** | **rc = 0.** OpenFOAM's own `postProcess -func sample` versus the in-comparator reader at the 2081 registered points: worst \|diff\| **4.114105e-08 K** against the **2.00e-05 K** criterion, and **1.822046e-09 m/s** against **5.70e-07 m/s** — agreement three orders inside the criterion on **all eight** set×field×arm combinations. |
+| **4** | the production path `load_case_fields` → `extract_rows`, both registered schemes, both arms | **all ten rows produced, no refusal anywhere.** e.g. `G6` = 167.08233530137952 (`M1_c`), 199.56294869083385 (`M2_c`), identical under both schemes; `G1` a full 2081-point profile; `S1` structurally identical under both schemes. |
+
+**`P-K0h-5` is therefore demonstrated on measured evidence rather than
+predicted — and it is left standing as a prediction anyway**, because the
+demonstration is on L1 arms of a predecessor and the prediction is over
+K0h's own arms at K0h's own `endTime`.
+
+> **THE DEMONSTRATION IS AN INSTRUMENT DEMONSTRATION AND NOTHING MORE.
+> NO GATE WAS EVALUATED, NO BAND APPLIED, NO ROW GRADED, NO VERDICT
+> ASSIGNED.** The §11 item 1 question — whether K0h may *grade* these
+> existing fields instead of re-running them — is **untouched**, and §A1.4
+> continues to cost every arm as a **full re-run**.
+
+---
+
+## A1.2 THE PLANTED-ZERO CONTROLS, AND THE SELFTESTS, DRIVEN IN BOTH DIRECTIONS
+
+Standing rule 3 is discharged on **every** reader that can return a zero, and
+the control is shown able to **fire** as well as to stay quiet — a probe never
+shown able to fire is not evidence.
+
+**On the real arm fields** (into copies; the fields on disk are never
+modified), all four plants on **both** arms:
+
+| plant | channel | planted → seen | outcome |
+| --- | --- | --- | --- |
+| `P1` | `read_scalar_field` (`TMean`) | 1.234e-03 → 1.234e-03 | **SEEN** |
+| `P2` | `read_vector_field`, x-component (`UMean`) | 1.234e-03 → 1.234e-03 | **SEEN** (a scalar plant does not exercise the vector parser) |
+| `P3` | negative control, 0.0 onto a 0.0 background | 0.0 → 0.0 | **NOT DISTINGUISHABLE — correct.** A negative control that fired would mean `P1`/`P2` prove nothing. |
+| `P4` | **the §4.5 repaired boundary path**, `read_boundary_values`+`_vertex_value` | 1.234e-03 → **exactly** 1.234e-03 | **SEEN**, on form `fieldAverage calculated+nonuniform` — i.e. on the channel §4.5 *added*, which would otherwise be the one channel in this comparator with no planted control |
+
+**Selftest results, all runs rc = 0:**
+
+| instrument | result |
+| --- | --- |
+| `scripts/analyse_k0h.py --selftest` | **95 OK, 0 FAIL.** Includes §4.5 driven **both ways**: a bit-exact list resolves; **one face off by ONE ULP REFUSES**; the same values in the **wrong face order** REFUSE; a **short** list REFUSES; a `fixedValue` base field REFUSES (condition (a) load-bearing alone); an **absent** base field REFUSES rather than reading as satisfied; a non-`Mean` field REFUSES; a non-`calculated` patch REFUSES. And `P4` driven both ways: a boundary reader that cannot place the patch REFUSES, and a boundary path **deaf to the plant** REFUSES. |
+| `scripts/check_k0h_extraction_equivalence.py --selftest` | **5 OK, 0 FAIL.** Fires at **1.01×** the criterion (2.020e-05), stays quiet at **0.99×** (1.980e-05). The criterion is bracketed, not merely met. |
+| `scripts/mark_done_k0h.py --selftest` | **all clauses both ways.** The **age guard** fires on a stale gzipped case and stays quiet on a clean one; clause 7 fires when `0` exists and when a numeric time dir exists; an **absent STATUS REFUSES (exit 2) rather than inferring rc=0**. |
+| `scripts/check_k0h_mesh.py --selftest` | all conditions both ways; the registered-table check fires on a table that does not scale by 1.40. |
+| `scripts/check_k0h_instrument_standard.py` | **CLEAN.** No registered refusal is carried by an `assert`; every refusal fires **identically under `python3 -O`**. |
+| `scripts/launch_k0h_selftest.sh` | **13 passed, 0 failed.** `ranks != 1` refuses; an unreachable solver refuses and **writes NO STATUS** (never started ≠ ran and failed); a missing environment file refuses rather than launching blind. |
+| `scripts/orchestrate_k0h.py --selftest` | **30 passed, 0 failed** — see §A1.5. |
+
+---
+
+## A1.3 THE SECOND, INDEPENDENT BLOCKER: **BOTH COMPLETED K0g ARMS ARE TWO ORDERS OF MAGNITUDE FROM STATIONARITY AT THE REGISTERED `endTime`**
+
+This was **not** the finding the lane was sent for. It surfaced from the same
+zero-compute pass and it is reported because a registration that ignores it
+spends its whole budget and produces `NOT A RESULT` — **the K0g failure mode
+arriving one layer later.**
+
+### A1.3a MEASURED, not projected
+
+The §7.1' stationarity instrument, on the two arms that met the strict
+completion rule at `endTime = 60 s`:
+
+| arm | `max_cell |TMean(avg2) − TMean(avg1)|` | `tol_T` | ratio | cells over `tol_T` |
+| --- | ---: | ---: | ---: | ---: |
+| `M1_c` | **6.133684 K** | 0.020 K | **×306.7** | 24 696 / 25 600 = **96.47 %** |
+| `M2_c` | **6.314012 K** | 0.020 K | **×315.7** | 24 815 / 25 600 = **96.93 %** |
+
+| arm | `max |UMean.x|` drift | `max |UMean.y|` drift | `tol_U` | cells over (x / y) |
+| --- | ---: | ---: | ---: | ---: |
+| `M1_c` | 0.109011 m/s | 0.153332 m/s | 0.005 m/s | 65.13 % / 68.07 % |
+| `M2_c` | 0.101422 m/s | 0.125108 m/s | 0.005 m/s | 61.79 % / 57.40 % |
+
+**This is not a localised outlier.** `M1_c`'s drift distribution is median
+**0.366064**, p90 **1.169696**, p99 **3.552365**, mean **0.555761 K** — the
+*median* cell is 18× over tolerance. The maximum sits at cell (45, 5),
+`x = 0.1264 m`, `y = 0.0104 m`: **the first cell row above the heated floor**,
+a thermal boundary-layer/bulk-development region, **not** a chaotic jet.
+
+**The cavity is still warming at 60 s.** Volume-mean instantaneous `T`:
+`M1_c` 289.187662 → 290.062133 (+0.874471) → 290.376044 (+0.313911) K at
+t = 20, 40, 60 s; `M2_c` 289.058599 → 290.380985 (+1.322385) → 290.611942
+(+0.230957) K.
+
+**Also measured, so no successor re-derives it:** the `TMean` in the `20`
+directory is **DEGENERATE** — `max |TMean(20) − T(20)| = 0.0` exactly on both
+arms. Under `timeStart 20` with `restartOnOutput true` the t = 20 write is a
+one-step average carrying no window. **Only `40` and `60` are windows.**
+
+### A1.3b PROJECTED — and labelled a projection wherever it appears
+
+Per-cell decay ratio `|T(60)−T(40)| / |T(40)−T(20)|`, over cells whose first
+increment exceeds 1e-6 K:
+
+| arm | median ratio | p90 ratio | n |
+| --- | ---: | ---: | ---: |
+| `M1_c` | 0.4617 | **2.0340** | 25 426 |
+| `M2_c` | 0.2404 | 0.9486 | 25 443 |
+
+Applying the **median** ratio per 20 s window to the measured max-cell drift:
+
+| arm | further 20 s windows needed | implied `endTime` | **after the ONE registered §7.1'' extension (`endTime` 120 s, three windows)** |
+| --- | ---: | ---: | --- |
+| `M1_c` | 7.41 | **≈ 220 s** | projected drift **0.6038 K — OVER `tol_T` by ×30.2** |
+| `M2_c` | 4.04 | **≈ 160 s** | projected drift **0.0877 K — OVER `tol_T` by ×4.4** |
+
+**At the p90 ratio `M1_c`'s drift does not decay at all** (ratio > 1) and **no
+`endTime` reaches the tolerance.**
+
+**HONEST LIMITS, stated rather than buried.** This is a single-exponential
+model fitted to **two** instantaneous-field increments and then applied to a
+**max-cell time-average** metric. The max-cell metric's decay ratio need not
+equal the median per-cell ratio, and the median-to-p90 spread is wide enough
+to change the conclusion's *shape* though not its *sign*. **`≈ 220 s` is a
+projection and is never called a measurement.** What is measured is §A1.3a.
+
+### A1.3c THE CONSEQUENCE FOR THE REGISTRATION, STATED WITHOUT SOFTENING
+
+**`P-K0h-1` — the prediction that the four turbulent RANS arms reach
+stationarity by `endTime` or by the one extension — is contradicted at L1 by
+measured evidence, before any K0h arm runs.** Its own named failure mode
+already governs: *"drift still above `tol_T`/`tol_U` after the extension ⇒
+the RANS mean is non-stationary ⇒ **re-registration, not a `tol`
+relaxation**."*
+
+**`tol_T` STAYS AT 0.020 K AND `tol_U` AT 0.005 m/s.** Widening either to
+admit these arms is the one move this finding must not be allowed to
+motivate, and §11 item 4 already flagged the temptation. **Not done, and not
+proposed.**
+
+**The K0g stop is still a budget outcome and still state (b).** §0.1 stands:
+nothing here says the lab cannot compute this flow to a stationary state. It
+says the **registered `endTime` was ~3.7× too short**, which is the same
+class of error as the cost model — a pre-compute estimate the artifacts now
+correct — and it is correctable by a registration, not by a capability.
+
+---
+
+## A1.4 THE COST LINE, RE-STATED **PER LEVEL** WITH THE `endTime` AXIS EXPOSED — AND WHAT THE CEILING HONESTLY BUYS
+
+### A1.4a THE MEASURED INPUTS, PER LEVEL (standing rule 12)
+
+Independently re-read from the artifacts, **not carried from §8**: `wall` from
+`STATUS.<arm>`, step count from `grep -c '^Time = ' <arm>/log.solve`, last
+`Time` from the same log, cell count from `log.checkMesh`. **Every figure of
+§8.1/§8.2 reproduced to the digit**, so §8's basis is confirmed rather than
+replaced.
+
+| level | cells | **`Δt_mean` measured** | spread across its arms | **`s/cell/step` measured** | spread |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| **L1** | 25 600 | **3.753765e-03 s** | 3.747190e-03 … 3.760341e-03 (**0.35 %**) | **2.285513e-05 s** | 2.271734e-05 … 2.299292e-05 |
+| **L2** | 50 176 | **2.592040e-03 s** | 2.585025e-03 … 2.601225e-03 (**0.62 %**) | **3.243225e-05 s** | 3.033717e-05 … 3.384631e-05 |
+
+**Both are stated PER LEVEL because K0g proved one global figure cannot
+express two levels.** The transient overhead against the SIMPLE
+per-cell-iteration rate the registered `4.8e-6` was built on
+(`4.8e-6 / 1.5 = 3.2e-6`) measures **×3.55 at L1** and **×5.17 at L2** —
+against a registered **×1.5**. Within-level spread is **0.35 %/0.62 %** on
+`Δt`; **between** levels it is **44.8 %**. A single registered figure is
+therefore wrong by two orders more than the scatter it would have to cover,
+which is precisely why §8.1's two-axis decomposition is retained and why this
+amendment refuses to collapse it.
+
+### A1.4b THE ARITHMETIC, OPEN FOR CHECKING
+
+```
+  cost(arm, E) = ( E / Δt_mean(arm) ) × s_per_step(arm) / 60      [core-min, ranks = 1]
+  s_per_step(arm) = wall_s / steps                                [MEASURED, K0g log.solve]
+```
+
+| arm | lvl | `s/step` | `Δt_arm` | **E=60 s** | **E=120 s** | **E=160 s** | **E=220 s** | **E=260 s** |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `M1_c` | L1 | 0.581564 | 3.7472e-03 | **155.20** | 310.40 | 413.87 | 569.07 | 672.53 |
+| `M2_c` | L1 | 0.588619 | 3.7603e-03 | **156.53** | 313.07 | 417.42 | 573.96 | 678.31 |
+| `M1_m` | L2 | 1.661491 | 2.5899e-03 | 641.53 | 1 283.07 | 1 710.76 | 2 352.29 | 2 779.98 |
+| `M2_m` | L2 | 1.698272 | 2.6012e-03 | 652.87 | 1 305.75 | 1 741.00 | 2 393.87 | 2 829.12 |
+| `C_lam` | L2 | 1.522198 | 2.5850e-03 | 588.85 | 1 177.70 | 1 570.27 | 2 159.12 | 2 551.69 |
+| **L1 pair** | | | | **311.73** | 623.47 | 831.29 | 1 143.02 | **1 350.84** |
+| **L2 trio** | | | | 1 883.26 | 3 766.52 | 5 022.03 | 6 905.29 | 8 160.80 |
+| **`S` = five arms** | | | | **2 194.99** | **4 389.99** | 5 853.32 | **8 048.31** | **9 511.64** |
+
+Worked, `M1_c` at E = 260 s: `260 / 3.7472e-03 = 69 385.4` steps
+× `0.581564 s = 40 351.7 s` = **672.53 core-min**; and
+`155.20 × (260/60) = 672.5` — the two routes agree, so the linearity in `E` is
+explicit rather than assumed. The **only two figures in the table that are
+MEASURED COMPLETION COSTS** are `155.20` and `156.53`; every other cell is a
+**projection** linear in `E` resting on the measured quartile-flatness of `Δt`.
+
+### A1.4c **THE DRAFTED §8.2 CEILING OF 5 495.48 core-min CANNOT BUY FIVE STATIONARY ARMS. SAID PLAINLY.**
+
+| `endTime` | five arms need `S + I` | against CEILING 5 495.48 | |
+| ---: | ---: | --- | ---: |
+| 60 s | 2 202.99 | **FITS** | headroom +3 292.49 |
+| 120 s | 4 397.99 | **FITS** | headroom +1 097.49 |
+| 160 s | 5 861.32 | **DOES NOT FIT** | **−365.84** |
+| 220 s | 8 056.31 | **DOES NOT FIT** | **−2 560.83** |
+| 260 s | 9 519.64 | **DOES NOT FIT** | **−4 024.16** |
+
+> **The drafted ceiling buys five arms to exactly `endTime = 150.0 s`.**
+> §A1.3b projects the required `endTime` at **≈ 220 s** (`M1_c`) and **≈ 160 s**
+> (`M2_c`) at the *median* decay, and at the p90 decay **`M1_c` never
+> converges at all**. **The ceiling is therefore refuted by arithmetic for the
+> outcome the rung exists to produce.** It is *not* refuted for strict
+> completion at 60 s — 2 202.99 fits with room — but an arm that completes and
+> is not stationary is **`NOT A RESULT`** under §7.1', and buying five of those
+> for 2 195–4 390 core-min is **K0g repeated**. Item (2) of the lane's brief
+> said not to register a ceiling arithmetic already refutes. It is not
+> registered.
+
+**DOLLARS ARE NOT THE BINDING CONSTRAINT ANYWHERE, AND SAYING SO IS PART OF
+THE HONEST ANSWER.** At the owner-reported **$0.0513/core-h**
+(`COMPUTE_BUDGET_CHARTER` §5 — **DERIVED, NOT MEASURED**, the box cannot read
+its own billing): five arms at 260 s = 9 511.64 core-min = 158.53 core-h =
+**$8.13**; with 1.35× caps, **$10.99**. All inside the $25 per-run
+pre-authorisation — and **a blanket is not a per-item read (rule 9); this is
+that read.** **The binding constraint is CALENDAR:** 9 511.64 core-min at
+`ranks = 1`, concurrency 2, is **≈ 79 h wall ≈ 3.3 days**.
+
+### A1.4d THE THREE OPTIONS, AND THE LANE'S PROPOSAL — **FEWER ARMS**
+
+| | arms | `endTime` | `S` | caps at 1.35× | **ceiling needed** | \$ derived | calendar @ conc 2 | verdict on it |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| **A** | all five | 260 s | 9 511.64 | 12 840.72 | **12 848.72** | $10.99 | ≈ 107 h (4.5 d) | Affordable in dollars, expensive in calendar, and it registers `endTime` **on a projection** (§A1.3b) — the same species of pre-compute guess that produced §8.1. |
+| **B** | **the L1 pair only** | 260 s | **1 350.84** | 1 823.64 | **1 835.00** | **$1.566** | **≈ 15.2 h** | **PROPOSED.** L1 is 14 % of the five-arm cost and answers the barrier question. It turns the required `endTime` from a **projection into a measurement**, which is exactly the number a successor needs to cost L2 honestly. |
+| **C** | all five | 60 s, as drafted | 2 194.99 | — | 5 495.48 as drafted | $4.70 | ≈ 23 h | **REFUTED by §A1.3a.** Every arm would complete and every row would be `NOT A RESULT` on the stationarity clause. This is the K0g outcome bought a second time. |
+
+**Why B and not A, stated as an argument and not a preference.** §8.3 already
+established the principle — *"L1 costs 14 % of the campaign and answers the
+barrier question before the expensive 88 % is committed"* — and §A1.3a is that
+argument's vindication: the barrier question **was** the binding one, and K0g
+never got to ask it. Option A commits 12 848.72 core-min against an `endTime`
+that is a **projection from two increments**; if 260 s is short, A spends
+4.5 days and returns `NOT A RESULT` on five arms. B spends 15 hours to
+**measure** the stationarity time at L1, and its own worst case is still a
+**finding** — genuine RANS-mean unsteadiness at L1 — rather than a
+`NOT A RESULT`, *provided* the supervisor makes the stationarity determination
+the rung's graded object (§A1.8 item 3, **not a lane's call**).
+
+**`C_lam` IS NOT BEING QUIETLY DROPPED.** §8.3 argued it must not be, and that
+argument is not withdrawn: it is the registered discrimination control for
+`P-K0h-2`. Under option B it is **deferred and named**, not dropped — the
+manifest's `deferred_not_authorised` block carries `M1_m`, `M2_m` and `C_lam`
+by name with the reason, so a successor inherits an obligation and not a
+silence. **Whether that deferral is acceptable is §A1.8 item 2.**
+
+### A1.4e `cost_basis` — WHAT MOVED FROM CALIBRATION-ITEM TO MEASURED
+
+**Now MEASURED, where §8.5 had a bound:** the instrument spend `I`. §11 item 5
+asked for it; the whole pre-freeze pass is timed at **0.317 core-min**, i.e.
+**4.0 % of the `I ≤ 8.00` bound**, itemised per instrument in the
+demonstration record. **The bound is RETAINED at 8.00** because the graded
+pass over two 260 s arms has not been timed, and a bound that has been tested
+once at 4 % is still a bound.
+
+**Still calibration items, none called measured:** the per-step rate at K0h's
+own concurrency; the §7.1'' extension's cost **from a restart** (K0g never
+restarted); the cost of the §4.5 assert path. **Estimate-versus-actual lands
+in `docs/COST_CALIBRATION.md`** per stage and per campaign at completion, with
+contention and waste named separately (`COMPUTE_BUDGET_CHARTER` §6) — and
+**`P-K0h-3`'s ratio is computed against the §A1.4b basis at the `endTime`
+actually registered**, not against §8.2's 60 s column.
+
+---
+
+## A1.5 THE PRE-REGISTERED EARLY-TERMINATION / CEILING-STOP RULE, AND THE INSTRUMENT THAT CAN FAIL IT
+
+Standing rule 12: **an overrun stops the run; it does not get a new budget.**
+§8.3/§8.4 registered stages and per-arm caps as *prose*. **K0g had a ceiling
+and a cap in prose too, and still ended in a supervisor-executed SIGTERM on
+three arms in flight.** A rule nobody can fail is a preference
+(`FILING_CHARTER` §1), so the rule is now carried by an instrument:
+
+> **`scripts/orchestrate_k0h.py`**, reading
+> **`verification/campaign/K0h_STAGE_MANIFEST.json`**. **No gate, threshold,
+> band or label lives in the script** — the ceiling, the stages and the caps
+> are in the manifest, whose blob is pinned at the freeze. The script cannot
+> be used to move a number.
+
+**THE K0g MECHANISM, NAMED FROM ITS OWN SOURCE** so the repair is aimed at a
+measured cause. `K0g_runs/orchestrate_k0g.py:113-118` computed
+`proj = completed_coremin() + running_pt + pt` where `running_pt` sums each
+in-flight arm's **POINT ESTIMATE `p`**, not its **CAP `t`**. The point
+estimate was low by **×3.16–3.19** on the two arms that completed, so **the
+guard that protected the ceiling was itself computed from the mis-costed
+figure the ceiling existed to contain.** It could not fire before the breach,
+because its own arithmetic denied the breach was coming.
+
+**THE THREE REGISTERED RULES:**
+
+| | rule | why |
+| --- | --- | --- |
+| **R1** | **A running arm is charged its CAP, never its estimate.** | A cap **bounds** an arm; an estimate is the figure that was wrong. |
+| **R2** | **The stage gate is PRE-LAUNCH ONLY.** A stage launches iff `charged + Σ(caps of its unlaunched arms) ≤ CEILING`. Otherwise **BLOCKED**, its arms **named UNRUN**, and the run **STOPS** — recorded in `CEILING_STOP.txt`. | K0g's ceiling bit while three arms were in flight and killed them. A stage that cannot be afforded is **never started**, so nothing is ever killed partway. |
+| **R3** | **Nothing in flight is ever signalled.** No `SIGTERM`, `SIGKILL`, `pkill`, `os.kill`, `.terminate()`. An arm is stopped **only** by its own `timeout` cap inside `launch_k0h.sh` (**rc 124, a CAP-STOP**). | This is the K0g stop's *shape* forbidden outright. |
+
+**AND A FOURTH, WHICH IS THE DIRECT ANSWER TO §A1.4c:** the manifest loader
+**REFUSES (exit 2) any manifest whose caps sum above its own ceiling**, with
+the message *"The ceiling cannot buy the arms it authorises even at the caps
+IT registers; the arithmetic refutes it before any solver runs."* **A ceiling
+that arithmetic refutes can no longer be registered at all** — it is rejected
+by the instrument, not by a reader's diligence. It also refuses a cap **below
+its own arm's basis**, a duplicated arm, `ranks ≠ 1`, a foreign rung, and a
+`STATUS` with no `wall` (a missing measurement is **not** a zero cost).
+
+**`--selftest`: 30 passed, 0 failed, every rule driven BOTH WAYS.** The two
+that matter most:
+
+- **R3 is asserted on the file's own source**, scoped to the production region
+  by a sentinel, with the region asserted **non-trivial** (275 executable
+  lines) — **and the same scan is shown to FIRE on a planted
+  `os.kill(..., SIGTERM)`.** A scan never shown able to fire is not evidence.
+- **R1 and the K0g arithmetic are shown to DIFFER IN OUTCOME on one concrete
+  tree**: an arm done at 300.00 against a 250.00 cap plus one in flight ⇒ R1
+  charges **550.00**, needs 1 000.00, reaches 1 550.00 > 1 500.00 → **BLOCKED**;
+  the K0g arithmetic charges **400.00**, reaches 1 400.00 ≤ 1 500.00 →
+  **LAUNCHES the stage R1 blocks.** The repair is measured, not asserted.
+
+**AND THE HONEST LIMIT OF ALL OF THIS, STATED BECAUSE IT IS EASY TO OVERSELL.**
+Once the closure check passes, a campaign in which **every arm respects its
+cap cannot breach the ceiling**, and R2 can then **never fire**. That is the
+point: the K0g failure is **designed out at registration**, not caught at
+runtime. R1 is **defence in depth** for the one channel closure cannot bound —
+an arm whose *measured* spend exceeds its cap, reachable because `STATUS`
+`wall` covers `blockMesh` + `checkMesh` + solver while the cap converts only
+the solver `timeout`. **R2 is a backstop, and it is not claimed as the primary
+protection.**
+
+**No `--auto`.** Each stage is named on the command line, so **no budget is
+ever committed by this script deciding a gate passed.** The §8.3 stage gate is
+a stationarity reading and it is the **supervisor's**.
+
+---
+
+## A1.6 RULE 4 AND RULE 5 — CARRIED, AND CONFIRMED FIRING
+
+**Standing rule 4, the strict completion rule with the age guard**, is carried
+**byte-unchanged** from §7.2 and is enforced by `mark_done_k0h.py`. Confirmed
+by selftest, both directions: five authorised arms (not ten); clause 7 fires
+when `0` or a numeric time dir already exists and stays quiet otherwise; the
+**age guard fires on a stale gzipped case** — *"time 60 holds fields OLDER
+than 0/T (T,U,p_rgh,alphat,phi,TMean,UMean) — not written by this run"* — and
+stays quiet on a clean one; an **absent `STATUS` REFUSES (exit 2)** rather
+than inferring `rc = 0`; an unregistered closure REFUSES. **`phi` is in the
+enforced field set** (Sanaa 2026-09-06).
+
+**Standing rule 5, Roache triple gating**, is carried at `Fs = 1.25` with the
+ordering intact — any level not converged/plateaued ⇒ `NOT A RESULT`; a
+`DIVERGENT`/`STAGNANT`/`OSCILLATORY`/`EXACT` triple ⇒ `NOT A RESULT` with
+value and both triples printed beside it; `CONVERGING` ⇒ `PASS` inside the
+pre-registered band else `GATE FAIL`. The comparator's selftest confirms the
+monotone ladder and, in both directions, that **the gate may turn `GATE FAIL`
+into `NOT A RESULT` and may NEVER turn `NOT A RESULT` into `GATE FAIL`.**
+
+**AND THE THING THAT MUST BE SAID ON THIS DOCUMENT'S FACE:** the triple is
+**UNREACHABLE**, as §7.3 and §0.3 already state, and under option B it is
+unreachable **more** strongly — a single level cannot form a triple at all.
+**No K0h number carries a discretisation bound**, and no GCI is quoted.
+`§0.3`'s ceiling stands unchanged: **the best verdict K0h can reach is
+`GATE REACHED`**, naming both `P` (Blay `NOT OBTAINED`) and `G` (no triple)
+unreached.
+
+---
+
+## A1.7 THE GRADING PATH — BLOB SHA1s RECORDED, **PIN STILL OWED TO THE SUPERVISOR**
+
+**Standing rule 6 held: every one of the eight K0g ancestors is
+byte-identical to HEAD**, verified by `git rev-parse HEAD:<path>` against
+`git hash-object <path>` — `409e403d`, `4dace645`, `39e55f2d`, `387b8b82`,
+`2506603b`, `0196356a`, `e14de416`, `f7594e00`. **No K0g instrument was
+edited.**
+
+**Worktree blob sha1s as demonstrated. THESE ARE RECORDED, NOT PINNED.**
+
+| K0h artifact | blob sha1 | derived from (K0g, frozen, unedited) |
+| --- | --- | --- |
+| `scripts/analyse_k0h.py` | `3f77477570c80f8be99206825351aff40bbcbd17` | `analyse_k0g.py` `409e403d` — **§4.5 + `P4`, the ONLY functional change** |
+| `scripts/build_k0h.py` | `726216ed7e3425ab1cbe01451db9672163d4b800` | `build_k0g.py` `4dace645` |
+| `scripts/check_k0h_mesh.py` | `d5d7066ccaaa5c65cb35a045a19e440c5a6c686a` | `check_k0g_mesh.py` `39e55f2d` |
+| `scripts/mark_done_k0h.py` | `5f33e94ea15f0ce5e0b095ad7c8dfbc6ef040e14` | `mark_done_k0g.py` `387b8b82` |
+| `scripts/check_k0h_extraction_equivalence.py` | `e8f992e7b1eb6ab7fb025029dcfeccd2982b7919` | `check_k0g_extraction_equivalence.py` `2506603b` |
+| `scripts/check_k0h_instrument_standard.py` | `77dfb0613c632b4ad050662cbbfaf552c0008ba1` | `check_k0g_instrument_standard.py` `0196356a` |
+| `scripts/launch_k0h.sh` | `7c4280bea1bc87bd7b463eb44ffa0fdddae9fc1e` | `launch_k0g.sh` `e14de416` |
+| `scripts/launch_k0h_selftest.sh` | `931faf8b382de9d891f63f86b3236534e236f574` | `launch_k0g_selftest.sh` `f7594e00` |
+| **`scripts/orchestrate_k0h.py`** | `8c71f840c97e00464f9df88c1a32c755f3a97a1c` | **NEW** (§A1.5); K0g's `orchestrate_k0g.py` is cited as the defect, not derived from |
+| **`verification/campaign/K0h_STAGE_MANIFEST.json`** | `8cd45bc9267ee6bba3f5c59750797bbc51f56501` | **NEW** — **carries the ceiling and the caps, so it MUST be pinned with the path** |
+| `…/K0g_runs/K0h_PREFREEZE_EXTRACTION_DEMONSTRATION.txt` | `463ba6a8a5f0a6999e55f32fa37ed45a02a9cef6` | the §A1.1 evidence record |
+
+> **`GRADING_PATH_FREEZE_COMMIT: PIN-AT-FREEZE`** — still owed, and still the
+> supervisor's. **The freeze set is now ELEVEN paths, not eight:** the eight
+> of §7.7, plus `orchestrate_k0h.py`, plus **`K0h_STAGE_MANIFEST.json`**, plus
+> the demonstration record. **The manifest is not optional to pin** — it holds
+> the ceiling and every cap, so a freeze that pins the code and leaves the
+> manifest loose leaves the numbers loose. `scripts/check_comparator_freeze.py`
+> enforces IDENTITY, CURRENCY and COVERAGE over the set; **COVERAGE is the
+> clause that must be updated from 8 to 11.**
+>
+> **Every sha above will change if any file is touched after this amendment
+> is written.** They are recorded so the supervisor can verify that the file
+> read as a diff **is** the file demonstrated; they are **not** a pin, and the
+> lane sets no pin.
+
+---
+
+## A1.8 WHAT THIS AMENDMENT DOES **NOT** DECIDE — FOR THE HEAT-TRANSFER SUPERVISOR
+
+§11's six items **all stand open**; a lane has not ruled on any of them.
+§A1.1's demonstration **strengthens the evidence** under §11 item 1 without
+touching the ruling, and §A1.3 adds these:
+
+1. **§11 item 1 is UNCHANGED and is now worth much more than 311.73 core-min.**
+   §A1.1 establishes on measured evidence that the §2d.1(2) instrument — the
+   one that grades nothing — **now returns 0** on both completed arms, and
+   §A1.1(1) establishes that the pre-repair state was **REFUSED, exit 2, no
+   graded number ever produced** (§2d.1(4)). **But §A1.3a also shows those
+   arms are not stationary at 60 s**, so grading them would grade a
+   non-stationary state — which the §7.1' clause refuses anyway. **The
+   material question has therefore shifted:** it is no longer "may K0h grade
+   K0g's fields" but **"may K0h RESTART from K0g's 60 s fields"**, which
+   would save the entire 60 s prefix of every arm — **311.73 core-min at L1
+   alone, and 1 883.26 at L2**. That is a **larger** §2d.1 question than §11
+   item 1 posed, it runs straight into §5's age guard (which exists precisely
+   to refuse inherited fields), and it is **jointly the supervisor's and
+   verification's. A lane must not decide it, and a decision relayed through
+   an agent is not verification's ruling.** §A1.4 assumes **NO** restart and
+   costs every arm from `t = 0`.
+2. **The arm set and the ceiling — option A, B or C of §A1.4d.** The lane
+   **proposes B** and has written the manifest for B. **An arm set is not a
+   lane's to choose**, and if the supervisor rules A or another shape, the
+   manifest is rewritten **before** the freeze (legal: no `K0h_runs` exists)
+   and the orchestrator's closure check re-verified.
+3. **Whether the STATIONARITY DETERMINATION becomes the rung's graded object.**
+   Under option B the honest product is a **measured stationarity time at
+   L1** — which would make a non-stationary result a **finding** rather than
+   a `NOT A RESULT`. **That is a change to what the rung grades, i.e. a GATE
+   change, and it is reserved.** This amendment does **not** make it: as
+   written, a non-stationary arm is still `NOT A RESULT` under §7.1'.
+4. **`endTime`.** §A1.3b projects ≈ 220 s (`M1_c`) / ≈ 160 s (`M2_c`) at the
+   median decay and **never** at `M1_c`'s p90. The manifest proposes **260 s**.
+   **`endTime` is a registered physics parameter and it is the supervisor's**;
+   the lane records that any value chosen now rests on a **projection from two
+   increments**, which is the same species of pre-compute guess that produced
+   §8.1's ×3.5 miss.
+5. **Whether §7.1''s single-extension discipline survives contact with
+   §A1.3b.** §7.1'' authorises **ONE** extension and says *"a second is not
+   authorised"*. §A1.3b projects that even the one extension leaves `M1_c`
+   **×30.2 over `tol_T`**. Either `endTime` is registered long enough at the
+   outset (the manifest's approach) **or** §7.1''s discipline is
+   re-registered. **Both are the supervisor's; the lane relaxes neither.**
+6. **Whether the §4.5 repair is registered at all** — §11 item 2, unchanged
+   and still open. §A1.1 shows it **works**; it does not show it is
+   **authorised**. A registered extraction spec is not a lane's to rewrite.
+7. **`check_comparator_freeze.py`'s COVERAGE clause, 8 → 11** (§A1.7). A
+   freeze-instrument change is the supervisor's, and it is **jointly
+   verification's** since that instrument is theirs.
+8. **The filing of `orchestrate_k0h.py`.** K0g's orchestrator lives at
+   `verification/runs/F14-cooling-ladder/K0g_runs/orchestrate_k0g.py` — inside
+   the run tree. K0h's is at `scripts/orchestrate_k0h.py`, because
+   `K0h_runs/` **must not exist before the freeze** and because `FILING_CHARTER`
+   R3 puts executables in `scripts/` as `lower_snake.py`, which is where the
+   other eight instruments already are. `scripts/check_filing.py` passes on
+   both. **The departure from the K0g precedent is disclosed rather than
+   quietly taken.**
+
+---
+
+## A1.9 PASSAGES OF THE BODY THIS AMENDMENT SUPERSEDES — ORIGINALS STRUCK, NOT REWRITTEN
+
+Standing rule 6's discipline is applied even though this document is not yet
+frozen, because it is the discipline that keeps a record honest:
+
+| passage | status | superseded by |
+| --- | --- | --- |
+| **§8.2's `REGISTERED CEILING = 5 495.48 core-min`** and the `POINT = 2 202.99` beside it | **SUPERSEDED BY AMENDMENT 1.** Not deleted. It is arithmetically sound for `endTime = 60 s` and is **refuted for the outcome the rung exists to produce** (§A1.4c). | §A1.4c, §A1.4d |
+| **§8.3's three-stage table** (311.73 / 1 294.4 / 588.9 core-min over five arms) | **SUPERSEDED BY AMENDMENT 1** as a *schedule*. Its **argument** — L1 first, at 14 % of the cost, to answer the barrier question — is **not** superseded and is **vindicated** by §A1.3a. | §A1.4d, and the manifest |
+| **§8.4's per-arm caps** (2.5× the 60 s basis) | **SUPERSEDED** as figures; the **2.5× reasoning** is replaced by **1.35×**, the upper edge of `P-K0h-3`'s own registered band, which is tighter and is tied to a registered prediction rather than chosen. | manifest `cap_rule` |
+| **§7.9's `P-K0h-1`** | **NOT superseded. CONTRADICTED AT L1 BY MEASURED EVIDENCE before any K0h compute** (§A1.3c). Its own named failure mode governs. Left standing, unsoftened, so the record shows a prediction that was made and then met contrary evidence. | §A1.3c |
+| **§8.2's `I ≤ 8.00 core-min`** | **RETAINED as a bound**, now **tested once at 0.317 core-min (4.0 %)**. §11 item 5 is discharged for the pre-freeze pass and open for the graded pass. | §A1.4e |
+| **§7.7's eight-instrument freeze set** | **EXTENDED to eleven** (§A1.7). Nothing removed. | §A1.7 |
+| **NOTHING ELSE.** §1, §2, §3, §5, §7.1', §7.1'', §7.2, §7.3, §7.4, §7.5, §7.6, §0.3, §9, §10 | **UNCHANGED, byte for byte.** No band, no `tol`, no `y⁺` window, no completion clause, no verdict-ladder ordering and no reference is touched. | — |
+
+**Version: DRAFT + AMENDMENT 1.**
+**Lines whose number changed above this section: 0.**
+
+**SUBMISSIONS PARKED** (standing rule 7): nothing in or derived from this
+document or its amendment is sent, filed, uploaded, registered or posted
+outside this box.

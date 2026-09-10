@@ -1,0 +1,257 @@
+K0h PRE-FREEZE EXTRACTION DEMONSTRATION, ON K0g's TWO COMPLETED ARMS
+=====================================================================
+Written 2026-09-10 by a heat-transfer lab-lane. ZERO SOLVER COMPUTE.
+
+WHAT THIS FILE IS, AND WHAT IT IS EMPHATICALLY NOT
+--------------------------------------------------
+K0g's second, independent blocker was an EXTRACTION defect: 311.73 core-min
+of solver time reached the strict completion rule on two arms and STILL
+produced no graded number, because the registered A1.3a extraction path
+REFUSED (exit 2) on `fieldAverage` output
+(K0h_PREREGISTRATION.md sections 0.2, 4.2).
+
+K0h must not repeat that. This file is the PRE-FREEZE DEMONSTRATION that
+the K0h grading path can extract a value from an arm that met the strict
+completion rule. It is filed here, under K0g_runs, because it READS K0g's
+arms: `verification/runs/F14-cooling-ladder/K0h_runs/` DOES NOT EXIST and
+must not until the supervisor freezes the registration (standing rule 2).
+
+*** THIS IS AN INSTRUMENT DEMONSTRATION. IT IS NOT A K0g RESULT AND IT IS  ***
+*** NOT A K0h RESULT.  NO GATE WAS EVALUATED. NO BAND WAS APPLIED. NO      ***
+*** VERDICT WAS ASSIGNED. NO ROW WAS GRADED.                              ***
+
+Whether K0h may GRADE these existing K0g fields rather than re-run them is
+K0h_PREREGISTRATION.md section 11 item 1 -- a JOINT supervisor and
+verification call under VERIFICATION_CHARTER section 2d.1. A lane does not
+decide it and nothing below presumes it. The numbers in PART D are printed
+so the supervisor can see that the reader PRODUCES a value; they are not
+offered as that value's grade.
+
+ARMS READ (both met the strict completion rule; markers on disk)
+  verification/runs/F14-cooling-ladder/K0g_runs/M1_c   DONE.M1_c, STATUS rc=0 wall=9312 note=clean
+  verification/runs/F14-cooling-ladder/K0g_runs/M2_c   DONE.M2_c, STATUS rc=0 wall=9392 note=clean
+
+INSTRUMENT BLOBS AS DEMONSTRATED (worktree hash-object; UNPINNED, the
+supervisor pins at freeze)
+  scripts/analyse_k0h.py                        3f77477570c80f8be99206825351aff40bbcbd17
+  scripts/check_k0h_extraction_equivalence.py   e8f992e7b1eb6ab7fb025029dcfeccd2982b7919
+
+
+PART A -- THE FROZEN K0g READER, ON THESE SAME FILES, STILL REFUSES
+-------------------------------------------------------------------
+Driven directly: `analyse_k0g.py`'s `read_boundary_values` on each file.
+
+  M1_c/60/TMean   exit 2   REFUSE (nonuniform `outlet` patch value)
+  M1_c/60/UMean   exit 2   REFUSE
+  M2_c/60/TMean   exit 2   REFUSE
+  M2_c/60/UMean   exit 2   REFUSE
+
+This is the K0g defect reproduced on demand, four times. It is recorded
+FIRST so that PART B's success cannot be read as the defect having never
+existed. `scripts/analyse_k0g.py` was NOT edited (standing rule 6).
+
+
+PART B -- THE K0h READER RESOLVES THEM, AND SECTION 4.5 ACTUALLY FIRED
+----------------------------------------------------------------------
+  file             patches   outlet         floor                  sec-4.5 path exercised
+  M1_c/60/TMean    7         None           308.1499999999997      YES
+  M1_c/60/UMean    7         None           (0.0, 0.0, 0.0)        YES
+  M2_c/60/TMean    7         None           308.149999999998       YES
+  M2_c/60/UMean    7         None           (0.0, 0.0, 0.0)        YES
+
+`outlet = None` is the zeroGradient sentinel the frozen reader already
+returns for `T` and `U`; section 4.5 resolves the `calculated`+`nonuniform`
+form TO THAT SAME SENTINEL, under the run-time element-wise equality assert
+of 4.5(b). "sec-4.5 path exercised = YES" is read from the file on disk
+(the outlet patch really does carry a `nonuniform` list), so the repair is
+EXERCISED and not bypassed.
+
+
+PART C -- THE FOUR PLANTED-ZERO CONTROLS, ON THE REAL ARM FIELDS
+----------------------------------------------------------------
+Not on a fixture -- on these arms' own `60/TMean` and `60/UMean`, into
+COPIES (the fields on disk are never modified).
+
+  arm    plant  planted     seen        reader                          verdict
+  M1_c   P1     1.234e-03   1.234e-03   read_scalar_field               SEEN
+  M1_c   P2     1.234e-03   1.234e-03   read_vector_field (x-component) SEEN
+  M1_c   P3     0.0         0.0         read_scalar_field               NOT DISTINGUISHABLE (correct)
+  M1_c   P4     1.234e-03   1.234e-03   read_boundary_values+_vertex_value  SEEN
+  M2_c   P1     1.234e-03   1.234e-03   read_scalar_field               SEEN
+  M2_c   P2     1.234e-03   1.234e-03   read_vector_field (x-component) SEEN
+  M2_c   P3     0.0         0.0         read_scalar_field               NOT DISTINGUISHABLE (correct)
+  M2_c   P4     1.234e-03   1.234e-03   read_boundary_values+_vertex_value  SEEN
+
+P4 detail, M1_c: cells [159, 319], vertex 1, form
+`fieldAverage calculated+nonuniform`, v_base 299.476320053563 -> planted
+faces read back EXACTLY 0.001234. M2_c: v_base 299.6180981282094, same.
+P4 therefore fires on the channel section 4.5 ADDED, on the real field --
+which is the one channel that would otherwise have had no planted control.
+
+
+PART D -- THE EQUIVALENCE INSTRUMENT THAT REFUSED UNDER K0g NOW RETURNS 0
+-------------------------------------------------------------------------
+`check_k0h_extraction_equivalence.py --case M1_c --case M2_c`, rc = 0
+(wall as timed in the SPEND section below). OpenFOAM's OWN
+`postProcess -func sample` against the
+in-comparator reader, at the 2081 registered points, per registered set:
+
+  case   set                   field      worst |diff|   criterion    verdict
+  M1_c   vertical_midplane     TMean      4.114105e-08   2.00e-05 K   agree
+  M1_c   vertical_midplane     UMean.x    1.822046e-09   5.70e-07 m/s agree
+  M1_c   horizontal_midplane   TMean      1.831029e-08   2.00e-05 K   agree
+  M1_c   horizontal_midplane   UMean.x    5.541721e-11   5.70e-07 m/s agree
+  M2_c   vertical_midplane     TMean      3.232310e-08   2.00e-05 K   agree
+  M2_c   vertical_midplane     UMean.x    1.274134e-09   5.70e-07 m/s agree
+  M2_c   horizontal_midplane   TMean      2.081225e-08   2.00e-05 K   agree
+  M2_c   horizontal_midplane   UMean.x    1.719269e-11   5.70e-07 m/s agree
+
+This is the instrument whose K0g ancestor produced the refusal quoted at
+K0h_PREREGISTRATION.md section 0.2. It is, per VERIFICATION_CHARTER section
+2d.1 condition (2), AN INSTRUMENT THAT GRADES NOTHING. Its own selftest was
+run first (rc = 0, 5/5): the comparison was shown to FIRE at 1.01x the
+criterion and to STAY QUIET at 0.99x.
+
+  ==> THE K0g EXTRACTION DEFECT IS CLOSED ON BOTH COMPLETED ARMS.
+
+
+PART E -- THE TEN ROWS, EXTRACTED (NOT GRADED) FROM EACH COMPLETED ARM
+-----------------------------------------------------------------------
+Driven through `load_case_fields` + `extract_rows`, i.e. the production
+path, under BOTH registered schemes. Printed to show a value comes out.
+NO BAND IS APPLIED TO ANY OF THESE NUMBERS.
+
+M1_c (L1, 25600 cells)   y+max = 3.370987
+  scheme cellPoint (GRADED scheme)          scheme cell (CONTROL scheme)
+  G1  profile 2081 pts, 288.15 .. 308.15    288.178104 .. 307.136258
+  G2  profile 2081 pts, 288.15 .. 291.723391   288.214665 .. 291.764058
+  G3  profile 2081 pts, -0.329049923 .. 0.441070247   -0.329728924 .. 0.438661128
+  G4  profile 2081 pts, -0.365650397 .. 0.400268654   -0.365995196 .. 0.401620746
+  G5a 0.4411872616323672                    0.4387924582610604
+  G5b 0.014000000000000012                  0.013499999999999845
+  G6  167.08233530137952                    167.08233530137952
+  G7  -0.013183872157014775                 -0.008468243465358682
+  G8  0.01078164555                         0.01078164555
+  S1  sign_changes 1, n_cells 2, corner_cell True   (identical under both)
+
+M2_c (L1, 25600 cells)   y+max = 3.524994
+  G1  profile 2081 pts, 288.15 .. 308.15    288.219034 .. 306.714054
+  G2  profile 2081 pts, 288.15 .. 291.990242   288.250486 .. 292.029576
+  G3  profile 2081 pts, -0.322062637 .. 0.444164001   -0.322286327 .. 0.442046763
+  G4  profile 2081 pts, -0.363322332 .. 0.409297726   -0.363359302 .. 0.409665118
+  G5a 0.4442921585411909                    0.442198657572973
+  G5b 0.020000000000000018                  0.02100000000000013
+  G6  199.56294869083385                    199.56294869083385
+  G7  -0.06818215849051512                  -0.05158614913858628
+  G8  0.0154573774                          0.0154573774
+  S1  sign_changes 1, n_cells 2, corner_cell True   (identical under both)
+
+All ten rows are produced, under both schemes, on both arms. There is no
+refusal anywhere in the extraction path.
+
+
+PART F -- AN INDEPENDENT AND UNWELCOME FINDING THE SAME RUN SURFACED
+--------------------------------------------------------------------
+The stationarity instrument of section 7.1', run on the same two arms,
+reports NOT STATIONARY -- by two orders of magnitude. This is a MEASURED
+reading of K0g artifacts, not a projection:
+
+  arm    max_cell |TMean(avg2) - TMean(avg1)|   tol_T      ratio   cells over tol
+  M1_c   6.133684 K                             0.020 K    x306.7  24696 / 25600 = 96.47 %
+  M2_c   6.314012 K                             0.020 K    x315.7  24815 / 25600 = 96.93 %
+
+  arm    max |UMean.x| drift   max |UMean.y| drift   tol_U      cells over tol (x / y)
+  M1_c   0.109011 m/s          0.153332 m/s          0.005 m/s  65.13 % / 68.07 %
+  M2_c   0.101422 m/s          0.125108 m/s          0.005 m/s  61.79 % / 57.40 %
+
+  M1_c drift distribution: median 0.366064, p90 1.169696, p99 3.552365,
+       mean 0.555761 K. Max at cell (45, 5), x = 0.1264 m, y = 0.0104 m --
+       the first cell row above the HEATED FLOOR, i.e. a thermal
+       boundary-layer/bulk-development region, not a chaotic jet.
+  M2_c drift distribution: median 0.383171, p90 0.951969, p99 4.352571,
+       mean 0.624377 K. Max at cell (40, 6), x = 0.1003 m, y = 0.0136 m.
+
+The cavity is still WARMING at 60 s. Volume-mean instantaneous T:
+  M1_c   t=20  289.187662 K   t=40  290.062133 (+0.874471)   t=60  290.376044 (+0.313911)
+  M2_c   t=20  289.058599 K   t=40  290.380985 (+1.322385)   t=60  290.611942 (+0.230957)
+
+PROJECTION, AND IT IS LABELLED A PROJECTION, NEVER A MEASUREMENT.
+Per-cell decay ratio |T(60)-T(40)| / |T(40)-T(20)|, over the cells whose
+first increment exceeds 1e-6 K:
+  M1_c   median 0.4617   p90 2.0340   (n = 25426)
+  M2_c   median 0.2404   p90 0.9486   (n = 25443)
+Applying the MEDIAN ratio per 20 s window to the measured max-cell drift:
+  M1_c   needs 7.41 further 20 s windows past avg2  -> endTime ~ 220 s
+  M2_c   needs 4.04 further 20 s windows past avg2  -> endTime ~ 160 s
+After the ONE registered section 7.1'' extension (endTime 120 s, three
+further windows) the projected max-cell drift is
+  M1_c   0.6038 K  -- OVER tol_T by x30.2
+  M2_c   0.0877 K  -- OVER tol_T by x4.4
+At the p90 ratio, M1_c's drift does NOT decay at all (ratio > 1) and no
+endTime reaches the tolerance.
+
+HONEST LIMITS OF THAT PROJECTION, stated rather than buried: it is a
+single-exponential model fitted to TWO instantaneous-field increments and
+then applied to a MAX-CELL time-average metric. The decay ratio of the
+max-cell metric need not equal the median per-cell ratio, and the spread
+between median and p90 is wide enough to change the conclusion's shape but
+not its sign. What is MEASURED and not projected is the first table in
+this part: both completed arms are two orders of magnitude from tol_T at
+the registered endTime.
+
+Also measured, and recorded so no successor re-derives it: the `TMean`
+written in the `20` directory is DEGENERATE --
+max |TMean(20) - T(20)| = 0.0 exactly on both arms. With `timeStart 20`
+and `restartOnOutput true` the t=20 write is a one-step average and
+carries no averaging window. Only the `40` and `60` writes are windows.
+
+  ==> ROUTED TO THE SUPERVISOR. It bears on P-K0h-1, on the section 8.3
+      stage-1 gate, and on whether the registered ceiling can buy a graded
+      number at all. See K0h_PREREGISTRATION.md AMENDMENT 1 section A1.3.
+
+
+SELFTESTS RUN BEFORE ANY OF THE ABOVE WAS BELIEVED
+---------------------------------------------------
+  scripts/analyse_k0h.py --selftest                      rc=0   95 OK, 0 FAIL
+  scripts/check_k0h_extraction_equivalence.py --selftest rc=0    5 OK, 0 FAIL
+  scripts/mark_done_k0h.py --selftest                    rc=0   all clauses both ways
+  scripts/check_k0h_mesh.py --selftest                   rc=0   all conditions both ways
+  scripts/check_k0h_instrument_standard.py               rc=0   CLEAN under python3 and -O
+  scripts/launch_k0h_selftest.sh                         rc=0   13 passed, 0 failed
+  scripts/orchestrate_k0h.py --selftest                  rc=0   30 passed, 0 failed
+
+SPEND FOR THIS DEMONSTRATION
+-----------------------------
+Grading-path instruments only; NO SOLVER RAN. MEASURED wall seconds,
+ranks = 1 (core-min = wall s / 60):
+
+  scripts/analyse_k0h.py --selftest                        1.74 s
+  scripts/orchestrate_k0h.py --selftest                    0.22 s
+  scripts/mark_done_k0h.py --selftest                      1.32 s
+  scripts/check_k0h_mesh.py --selftest                     0.04 s
+  scripts/check_k0h_instrument_standard.py                 1.56 s
+  scripts/launch_k0h_selftest.sh                           4.33 s
+  check_k0h_extraction_equivalence.py --selftest           0.06 s
+  check_k0h_extraction_equivalence.py on M1_c + M2_c       5.55 s  (invokes postProcess)
+  the PART B/C/E extraction driver                         3.36 s
+  the PART F drift reader                                  0.66 s
+  the PART F decay/projection reader                       0.18 s
+  ------------------------------------------------------ -------
+  TOTAL                                                   19.02 s = 0.317 core-min
+
+That is 4.0 % of the `I <= 8.00 core-min` instrument bound of section 8.2,
+and it is the FIRST separately-timed instrument spend in this family --
+section 11 item 5 asked for exactly this and it is now measured rather
+than bounded. Derived at the owner-reported $0.0513/core-h: $0.00027.
+DERIVED, NOT MEASURED -- the box cannot read its own billing
+(COMPUTE_BUDGET_CHARTER.md section 5).
+
+REPRODUCIBILITY NOTE. The PART F drift figures were measured twice, by two
+separately-written readers, and agreed to every printed digit. The second
+reading was not a formality: the first reader was lost to a mid-task wipe
+of the shared scratchpad by another team (L-186 -- the scratchpad is temp
+only, is shared fleet-wide, and is never a handoff channel). This record
+lives under the case directory precisely so that it cannot be lost that
+way, and it cites no scratch path.
+
+SUBMISSIONS PARKED (standing rule 7): nothing here leaves the box.
