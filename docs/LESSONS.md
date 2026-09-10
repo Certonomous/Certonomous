@@ -25309,3 +25309,148 @@ rule 3 (a control not shown able to see a non-zero is not evidence — here appl
 to a guard rather than to a reader); `CLAUDE.md` rule 2 (the freeze is the
 document's entire evidentiary content, and an inert md5 assert is how a freeze
 stops meaning anything).
+
+## L-524 — A COMMIT MESSAGE IS THE ONE ARTIFACT THE PRIVATE-INDEX PROTOCOL NEVER CHECKS, AND A PER-*TEAM* SCRATCH DIRECTORY DOES NOT MAKE A MESSAGE FILE PRIVATE: `dafoam-lane` is a ROLE, and a supervisor's three concurrent lanes all resolve it to the same path. Third landed instance of a class that already has three lessons and a two-line remedy
+
+**What landed.** `badbcfd2` (2026-09-10 04:50:55 UTC) has a correct tree — **68
+insertions to `cases/dafoam/ladder-a/A3/original_memory_plan/PREREGISTRATION.md`
+and nothing else** — and carries, verbatim, another lane's subject: *"dafoam
+A2-GC-P v0.2: THREE PARENT DEFECTS REGISTERED AS BINDING PRE-FREEZE REQUIREMENTS
+ON run_a2gcp.sh…"*. That subject is now on **two commits with disjoint trees**:
+`d964a85d` (04:50:50, the lane that wrote it, touching only
+`cases/dafoam/A2_GC_P_PRIMAL_TRIM_GRID_CONVERGENCE_PREREGISTRATION.md`,
++217/-3) and `badbcfd2`, its own child, **five seconds later**. No file is
+common to the two diffs. Every guard in rule 10 passed, honestly, both times.
+
+**The mechanism, and it is exactly as racy as the index.** Two dafoam lanes ran
+concurrently under one session and both resolved the scratch subdirectory
+`…/scratchpad/dafoam-lane/` — **the name is per-TEAM, not per-agent** — and both
+used the generic message filenames `msg1` and `msg2`. Between the invocation in
+which the A3 lane wrote `msg2` and the invocation in which its `git commit-tree
+-F msg2` read it, the peer's own `msg2` write landed. `commit-tree` faithfully
+committed a message that lane never wrote. **A message file is exactly as racy as
+`GIT_INDEX_FILE`, and the protocol's assertions do not cover it**: `diff-tree
+--stat` before and `git diff HEAD~1 HEAD --stat` after both examine the **tree**,
+the CAS proves only that the **parent** is current, and nothing anywhere in the
+rule-10 block reads the message.
+
+**Two things measured here that correct the obvious reading of the scene.**
+
+*First, `msg1` was NOT clobbered.* Its first line is character-for-character the
+subject of `13f869a7`, the commit it fed. Only `msg2` holds foreign text. **The
+race is per-file and per-window, not a directory-wide corruption** — which is
+worse for the reader, because the surviving files look untouched and prove
+nothing about the ones that lost. Do not infer from an intact scratch file that
+the directory was safe.
+
+*Second, the private index files did not collide — and that is not safety.* The
+same shared directory holds `idx`, `idx1` and `idx2`, **the exact generic names
+L-324 forbids by name**, with `idx` and `idx2` written in the same 04:50 minute.
+Both were read back and both are clean: `idx` is a pristine `read-tree` of
+`13f869a7` (A2-GC-P at `311641dc`, A3 at `e34b6894` — both the parent-state
+blobs), and `idx2` is a `read-tree` of `d964a85d` plus one `update-index`, its A3
+entry `2909c114` being precisely the blob `badbcfd2` committed. **The trees won
+the same lottery the message lost.** L-256 already stated the stake: *"had the
+race swapped trees instead of messages, no record would have sufficed."* A tree
+swap is not repairable by disclosure. This one is.
+
+**WHY THE REMEDY FAILED, WHICH IS THE ONLY GENUINELY NEW THING HERE.** This
+mechanism is not a discovery. **L-256** (2026-08-23) states it — *"the message
+that lands can be a peer's"* — and mandates the post-commit `git log -1
+--format='%s'` read-back. **L-293** (2026-08-24) makes the **pre**-commit
+first-line assert mandatory and names `msg1.txt`/`msg2.txt` as the anti-pattern
+in those words. **L-324** (2026-08-25) says *"Never `-F msg`"*, extends the rule
+to `GIT_INDEX_FILE`, and requires a per-invocation unique suffix. Three lessons,
+three days, one remedy of two lines. It failed for a **granularity error**: the
+fleet adopted per-role scratch subdirectories, and `dafoam-lane/` *reads* as
+namespaced. It is not. `dafoam-lane` is the name of a ROLE that a supervisor
+instantiates up to three times at once, and those three lanes work the same
+subject matter and therefore commit within seconds of each other. **Per-team
+namespacing closed L-324's cross-team case and left the intra-team case — the
+likelier one — wide open, while making the directory look solved.** A namespace
+is only as fine as the thing that is actually concurrent, and the concurrent
+thing is the AGENT.
+
+**THE RULE, both limbs, and neither is new.**
+1. **Per-AGENT path, not per-team.** The message file and `GIT_INDEX_FILE` carry
+   an identifier unique to the *invocation* — `$$` plus `date +%s%N`, or a
+   per-agent directory carrying both — never a role name, never `msg`, `msg1`,
+   `msg2`, `idx`, `out`, `tmp.py`.
+2. **`cmp`/`grep` the message file's first line against the intended subject
+   INSIDE THE SAME SHELL INVOCATION as `commit-tree`**, and read the subject back
+   with `git log -1 --format='%s'` after `update-ref`. This is the identical
+   *capture-once, assert-in-the-same-invocation* discipline rule 10 already
+   demands for `H`, applied to the other file the chain consumes. A guard in a
+   previous invocation guards nothing (L-223).
+
+**THE DETECTION RULE for damage already done.** *A subject appearing on two
+commits with disjoint trees is the tell.* It is cheap:
+
+```
+git log --all --format='%h %s' | sort -k2 | uniq -f1 -D
+```
+
+then read `--name-only` on each pair and check for a shared path. Duplicate
+subjects with *overlapping* trees are usually amendments or reverts and are
+innocent; **disjoint** trees are the signature. Nothing else in the toolchain
+surfaces this — `git log --grep` for the ruling returns the wrong commit, and
+`git bisect`, an audit and a docket reconciliation all read the message as
+authority.
+
+**THE HONEST LIMIT, and it is the whole cost.** History on `main` is not ours to
+rewrite. `badbcfd2` will carry a false message permanently; the repair is
+**disclosure, not correction**, exactly as L-256's `878f1556` and L-324's
+`3dc99590` were repaired by record. Three landed instances now
+(`878f1556` 2026-08-23, `3dc99590` 2026-08-25, `badbcfd2` 2026-09-10) against
+L-293's two *caught* by the first-line guard on 2026-08-24 — **and the two that
+were caught cost two lines each, while all three that landed are permanent.**
+That ratio is the argument: there is no cure in this class, only the preventive,
+and the preventive is already law.
+
+**The same disease from the other end, tonight, on the same launcher.**
+`d48dd7e6` (2026-09-02 05:00:34 UTC) carries the subject *"emergency snapshot
+before subscription switch: demo drive records, language sweep, a2gc driver, dist
+bundle, report pdf, grid capability doc, docket json, naca4412 uq json"* — 8
+files, +1254/-100, including a 1242-line docket JSON, a PDF and a zip. Verified
+in this lane: that commit is **exactly** where `cases/dafoam/run_a2gc.sh` moved
+from `f3baba360a50c8b7592d0a50142d5e28` to `e7008a7a1bdf0e55ec8bad8e2b8742d4` —
+the frozen-launcher departure L-523 blames for nine days of unnoticed drift
+across the two runs that produced every A2-GC number. The message is not *false*;
+it is **undifferentiated** — it describes its diff as inventory rather than as
+event, and a frozen-instrument breach listed as item three of eight in a
+"snapshot" is a breach nobody is reading a disclosure into. **That is why the
+rule-2 §2d disclosure was never written: the commit carrying the breach was not
+about the breach.** A message that is false about its diff and a message that
+buries the one item in its diff that needed a ruling are the same defect —
+**the record does not put the reader in front of what happened** — and the second
+is the more common, because it is written in good faith.
+
+**Provenance.** dafoam lab-lane, 2026-09-10, at the direction of
+dafoam-supervisor; **records only, ZERO compute** (D6RF10 R3 live under a
+deadline; no solver, container or `mpirun` touched, and no recursive repository
+sweep). Every claim above was verified in this lane against git objects and the
+scratch directory, not relayed: `git show --format=%s -s` and `--name-only` on
+`badbcfd2`, `d964a85d`, `13f869a7`, `878f1556`, `3dc99590`, `d48dd7e6`; first
+lines of `msg1`/`msg2`; `git ls-files --stage` read-only against `idx` and
+`idx2`; `md5sum` of `run_a2gc.sh` at `d48dd7e6` and its parent. Two points of the
+account this lane was handed were **corrected by measurement** and are stated
+above as corrections: `msg1` was not clobbered, and the index files did not
+collide. The "~12.5 hours" between the `run_a2gc.sh` edit and `d48dd7e6` is
+reported by the supervisor and is **not independently measurable from git**,
+which dates the commit and not the working-tree write.
+
+**Related.** **L-256** (the parent: a message file is racy *within* one session;
+the `git log -1` read-back), **L-293** (the mandatory pre-`commit-tree` first-line
+assert, and `msg1`/`msg2` named as the anti-pattern), **L-324** (never `-F msg`;
+per-invocation unique suffixes on the message *and* the index) — this lesson adds
+that the adopted remedy was namespaced one level too coarse. **L-186**, **L-252**,
+**L-260**, **L-298**, **L-351** (the shared-scratchpad family: a generic name in
+a shared directory is a rendezvous point, not a private name). **L-276**,
+**L-286**, **L-449** (records false about themselves from other causes — a stale
+id in a subject, an empty commit with a claiming message, a count the commit's own
+assert had already contradicted). **L-523**, landed hours earlier and adjacent in
+spirit: *a check that passes while not checking the thing that matters* — there an
+opt-in assert that never fires, here a protocol whose every assert fires honestly
+on the tree and none of which looks at the message. `CLAUDE.md` **rule 10** (the
+protocol that must grow this assert) and **rule 13** (the scratchpad is temp only
+— and it is also not private).
