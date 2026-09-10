@@ -1,7 +1,7 @@
 {
   "team": "closure",
   "case_id": "RC2_kaandorp_divergence_repair",
-  "prereg_commit": "PENDING_SUPERVISOR_FREEZE",
+  "prereg_commit": "0aa1a0492b159dd724035da2f11115e5fe96e92f",
   "prereg_path": "cases/RANS_LES_closure_models/RC2_kaandorp_divergence_repair/PREREGISTRATION.md",
   "launch_cmd": [
     "/usr/bin/python3",
@@ -16,5 +16,5 @@
   "memory_floor_gb": 0.5,
   "memory_floor_basis": "ALLOWANCE, not a measurement. RC2 holds one log's text at a time; the largest of the 16 preserved logs is MEASURED at 32,691,552 bytes (31.2 MiB). The citation manifest and re-grade table are both well under 10 MiB of JSON. 0.5 GB is roughly 16x the largest single-file read. This lane did not run the instrument and took no MaxRSS reading; the instrument wraps itself in /usr/bin/time -v and records MaxRSS, converting this allowance into a reading for the next pre-registration. Its absence is an INFRASTRUCTURE defect, not a refusal.",
   "cap_core_min_registered": 12.0,
-  "enqueued_by": "closure-supervisor. NOT YET ENQUEUED: SUPERVISION_CHARTER section 3 check 4 (pre-registration committed before compute) HAS NOT BEEN PERFORMED on this entry. The drafting lane did not perform it and may not: it is the supervisor's own non-delegable act. prereg_commit is not a sha, and the instruments rc2_divergence.py and regrade_rc2.py named in launch_cmd DO NOT YET EXIST (PREREGISTRATION.md section 11) -- the freeze commit must carry this document and both instruments before the check can be taken."
+  "enqueued_by": "closure-supervisor. SUPERVISION_CHARTER section 3 check 4 (pre-registration committed before compute) HAS BEEN PERFORMED PERSONALLY BY THE CLOSURE SUPERVISOR at the freeze commit 0aa1a0492b159dd724035da2f11115e5fe96e92f -- taken by the supervisor as his own non-delegable act, not relayed and not delegated to a lane. At that commit BOTH instruments EXIST and are sha-pinned in PREREGISTRATION.md section 14: rc2_divergence.py ce2acaf0cb4574eb45a533437291406d3359147ef0115eed92521f36c15a8e32 and regrade_rc2.py 1c43b3e531650083f3582682272a292beb3f295212af625beabaebe5e152c7d9. The freeze commit carries PREREGISTRATION.md and both instruments TOGETHER, so the pre-registration is committed BEFORE any compute and the grading path is fixed at that commit (CLAUDE.md rule 2; PREREGISTRATION.md sections 11 and 14). prereg_commit above cites that freeze commit. The previous text of this field stated the check had NOT been performed; that was true when the entry was drafted on 2026-08-28 and is superseded by the 2026-09-10 freeze. Every other field of this entry -- cost_core_min_estimate, cost_basis, cap_core_min_registered, ranks, memory_floor_gb, memory_floor_basis, launch_cmd, cwd, prereg_path -- is a FROZEN registered number or string, copied unchanged and not re-derived."
 }
