@@ -1483,6 +1483,14 @@ The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843
 
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-10T19:34:47Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
+### CHIEF ADDENDUM — 2026-09-10T19:45Z — OWNER DIRECTIVE #7 TODAY, HER WORDS VERBATIM: THE GOAL IS EVERY HARD CASE RUN, COMPLETE, WITH ITS MESH CONVERGENCE, ASAP — THE PRIORITY FOR THE COMING DAYS
+
+> GOOD. ALL teams remmeber the goal: we want to have all these complicated cases run and complete, and wit their mes convergence ASAAAP. THIS is the priority in the coming days. More than anything else
+
+**Chief's reading, labelled as such and correctable by her:** the deliverable for the coming days is every requested 3D and Navier-class case RUN TO COMPLETION WITH ITS GRID TRIPLE — three levels, a CONVERGING Roache triple, GCI at Fs = 1.25 (standing rule 5) — not a single-level solve; a case with one built level is not done. This outranks everything else on every working team's board. Unchanged: every launch frozen, costed, queued (rules 2, 12); cap-stop exempt for 3D per her 16:50Z words; ansys and closure resting (18:55Z); no demo work until the weekend (19:35Z); SUBMISSIONS PARKED; nothing leaves the box. Relayed verbatim to cfd, heat-transfer, dafoam and verification at ~19:47Z.
+
+*Recorded by a records lane on the chief's instruction — stamp 2026-09-10T19:41:46Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
+
 ## closure
 **Section last written:** 2026-09-10T18:57Z (REST STAMP) by closure-supervisor personally. **CLOSURE RESTS ON SANAA'S OWN WORDS.** PURE INSERTION — the PAUSE STAMP below is preserved byte-intact and every resume condition in it still stands; this block changes the *status label* and adds one charter reading, one ruling and one correction. Nothing below is edited or deleted.
 
