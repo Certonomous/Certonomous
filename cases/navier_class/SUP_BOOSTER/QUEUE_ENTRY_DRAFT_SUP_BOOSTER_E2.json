@@ -38,8 +38,8 @@
       "cases/navier_class/SUP_BOOSTER/gen_cone_mesh_e2.py"
     ],
     "disk_blobs_at_2026-09-10_equal_to_HEAD": {
-      "_note": "RE-DERIVED after the condition-7 grader change (commit 8f77d94c). The grader blob has MOVED from the value this draft previously carried; whoever pins section 10 re-derives from git at the freeze commit and never from this note.",
-      "verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py": "eda97d2be9fc265ba74eac075f9d3e5e1619c8cc",
+      "_note": "RE-DERIVED at 2026-09-10 after the condition-7 grader change (8f77d94c) and the SHOCK_EPS figure correction (d1f99874). The grader blob has moved TWICE while this draft stood. Whoever pins section 10 re-derives from git at the freeze commit and never from this note.",
+      "verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py": "3ae305662652baebec2a42f585c3d59bef357501",
       "cases/navier_class/SUP_BOOSTER/gen_cone_mesh_e2.py": "be6cc10481fb93ba541ca025ee44145b32b85ba1",
       "verification/runs/navier_class/SUP_BOOSTER/run_graded_triple_e2.sh": "ea1d674d8fae4393f56e00433c69ea3b2565e548 (launcher; not part of the section-10 grading-path pin, listed for provenance)",
       "verification/runs/navier_class/SUP_BOOSTER/tm_reference_M2p0_tc15.json": "c442a94bfd3166e443124e92248c5d96a929d8a5 (reference, unchanged from E1, section 10 provenance line)"
