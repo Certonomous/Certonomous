@@ -841,3 +841,27 @@ wins.**
 trigger: any change to a guarded record's heading or row grammar.** The trigger, not the date, is
 the guard: **a date alone passes fine the day after the format changes**, which is exactly how the
 gap that motivated all this stayed open.
+
+## Sub-note appended 2026-09-10T02:45Z — DrivAerML baseline geometry staged for DRIVAER (cfd Case 7)
+
+Inbound retrieval (paper-fetch class; nothing left the box). Staged **outside git**,
+under the §4.1 run tree:
+
+```
+/home/ubuntu/certonomous-runs/navier_class/DRIVAER/drivaerml_r7a5c094/
+```
+
+| Field | Value |
+|---|---|
+| Source | HuggingFace dataset `neashton/drivaerml`, revision `7a5c0948ce27be709b1116a3a190f806e7a8f79f` |
+| License | CC-BY-SA-4.0 |
+| Total size | 142,523,535 B (136 MiB) |
+| Geometry | `run_466/drivaer_466.stl` (142,346,740 B; sha256 `9fd0eec1…4c1a3b2`); ASCII STL, 49 car solids, 753,238 facets |
+| Pinned-candidate coeffs (run_466) | Cd 0.2758368, Cl -0.05357145 |
+| Also staged | per-run force/geo CSVs + dataset-wide `force_mom_all.csv`, `geo_parameters_all.csv`, README (card), LICENSE.txt under `meta/` |
+| Not fetched | boundary/volume VTU (multi-GB per run) and all other runs |
+
+Full provenance, rule-15 verdict (PASS) and the meshing handoff live in the
+committed record `cases/navier_class/DRIVAER/DATA_PROVENANCE_drivaerml.md`. This is
+a data pointer only; it does **not** freeze the gate — the final baseline-reference
+run is pinned by cfd-supervisor at freeze (check-4, HELD).
