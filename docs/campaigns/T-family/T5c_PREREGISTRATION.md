@@ -316,3 +316,64 @@ reason to rule §7 either way.**
   successor that does so is doing a different and more dangerous thing.
 - It **does not** claim the stagnation-peak explanation of §3. That is an untested
   hypothesis and is labelled as one.
+
+---
+
+## AMENDMENT 1 — 2026-09-10, heat-transfer supervisor. **T5c IS HELD. DO NOT DROP IT INTO THE QUEUE.**
+
+*Appended at the foot. This amendment alters no gate, threshold, band, cap or
+label; it records a supervisor decision this document already reserves to the
+supervisor by name (§ status block: "dropping T5c into the run/re-grade queue is
+the heat-transfer supervisor's decision"). **Lines whose number changed above this
+section: 0.***
+
+**DECISION: T5c is HELD and must not be run, by any agent, until the condition
+below is discharged.** The hold is not a doubt about T5c's own reasoning, which
+stands. It is that running T5c as it is now written would produce an
+**unsound verdict**, for a reason discovered after this document was frozen.
+
+**THE REASON, measured 2026-09-10.** T5c's grading path copies `grade_row` from
+`analyse_t5b.py` **verbatim**, and that function is **missing registered step 1
+of its own six-step order**. `T5_PREREGISTRATION.md:646` registers step 1 as
+*"any ladder level NOT CONVERGED → NOT A RESULT"*, and `analyse_t5b.py:654`
+opens `grade_row` with the docstring *"THE REGISTERED ORDER (T5 S7.5, rule 5),
+evaluated top to bottom"* — but its step `(1)` at line 657 is the **y+ gate**,
+with the triple at `(2)`. The registered step 1 was dropped **and its number
+reused**, which is why the file reads as compliant. The parent comparator
+`analyse_t5.py:213` still carries the guard (`gate_converged` — *"C1 sustained
+floor AND C2 not growing. Both, never either."*), applied at lines 280-286 as
+*"(1) iterative convergence, BEFORE the triple is classified"*. **T5b is a
+regression from a working guard, not a family that never had one.**
+
+**WHY THIS BITES T5c SPECIFICALLY, AND NOT T5b.** T5b's y+ gate fired on the
+fine level (`cube_front = 2.310` against a target of 1.00) and short-circuited
+every row, so all six came out `NOT A RESULT` and **no published T5b verdict
+rests on a non-converged level** — T5b's verdicts stand, exactly as §9 above
+says. **T5c exists to move that y+ gate off the point maximum onto an area
+average — i.e. to remove the very short-circuit that was accidentally masking
+the missing clause (1).** T5c reads the SAME artifacts (`DEFAULT_ROOT` =
+`T5b_runs`, `CASE_OF` → `T5_CUBE_{c,m,f}`), and those levels are measured, from
+each case's own `log.solve` at `Time = 5000 == endTime`, at **final p_rgh initial
+residual: c 3.210197916e-03, m 1.908190408e-01, f 2.296551939e-01** (Ux
+8.335e-06 / 1.912e-03 / 1.887e-03). **Medium and fine are five orders from
+converged, and the fine is worse than the medium.** With the y+ short-circuit
+removed and clause (1) absent, those two levels would pass straight into
+`classify_triple` and the rung could return **PASS** on a triple built from
+levels that standing rule 5 says are `NOT A RESULT`. T5c costs *< 1 core-min,
+comparator time only, no solver* (§ cost) — so it is cheap enough to be run
+casually, which is exactly why this hold is written here rather than only on the
+board.
+
+**CONDITION TO LIFT THE HOLD.** Clause (1) must be enforced on T5c's grading
+path before T5c grades anything. `analyse_t5b.py` and this document are both
+frozen and **rule 6 forbids editing either**, so the route is a **dated successor
+carrying a clause-(1) gate** (the parent `analyse_t5.py:213` `gate_converged`
+is the proven instrument and should be carried, not re-invented), **or** a
+`verification` ruling on whether clause (1) may be enforced by a separate
+pre-flight instrument against an already-frozen registration. That ruling is
+**not the heat-transfer supervisor's to make** and has been routed.
+
+**A successor must not "repair" this hold away.** The hold is discharged by
+restoring the missing gate, never by re-reading this note as over-caution.
+
+— heat-transfer supervisor, 2026-09-10, [lab-attributed]
