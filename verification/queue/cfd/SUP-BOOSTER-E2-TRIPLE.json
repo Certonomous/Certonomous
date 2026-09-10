@@ -1,0 +1,70 @@
+{
+  "_WHO_MAY_PLACE_IT": "The cfd-supervisor's check-4 is the lab's technical go-ahead and may never be delegated (SUPERVISION_CHARTER.md section 3). It is NOT Sanaa's consent. No agent's relay of any approval is Sanaa's consent (CLAUDE.md rule 9). ENQUEUEING IS NOT AUTHORISATION.",
+  "team": "cfd",
+  "case_id": "SUP_BOOSTER-E2",
+  "prereg_path": "verification/campaign/SUP_BOOSTER_E2_PREREGISTRATION.md",
+  "prereg_commit": "34797ce9d479d9363fddc1d683b3f1f8d020cf93",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUP_BOOSTER/run_graded_triple_e2.sh",
+    "--go"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/navier_class/SUP_BOOSTER",
+  "ranks": 1,
+  "cost_core_min_estimate": 31.0,
+  "cap_core_min_registered": 60.0,
+  "memory_floor_gb": 1.0,
+  "cost_basis": "DERIVED at the on-box c7a.4xlarge rate $0.0513/core-h, REPORTED-BY-OWNER and NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5, CLAUDE.md rule 12). Transcribed from SUP_BOOSTER_E2_PREREGISTRATION.md section 5, not recalled. ESTIMATE 31.0 core-min: this is not an allowance, it is anchored on the E1 MEASURED actual for the same solver, same endTime and near-identical cell counts -- 30.85 core-min measured serial (coarse 243 s + medium 501 s + fine 1107 s wall, ranks 1), recorded in docs/COST_CALIBRATION.md row C-20260909T214553.000000Z-supbe1. Derived dollars at the estimate: 31.0/60 x $0.0513 = $0.0265 DERIVED, NOT MEASURED. CAP 60.0 core-min = 60/60 x $0.0513 = $0.0513 DERIVED, NOT MEASURED, under the $25 pre-authorisation. OVERRUN STOPS THE RUN; it does not get a new budget (CLAUDE.md rule 12). E2's mesh differs from E1's only in radial grading (GR_RADIAL 12 -> 5) at IDENTICAL cell counts, so the E1 rate carries; the residual misprediction risk named as the likeliest-wrong term is that a gentler near-wall distribution changes the LTS local time step and hence iterations-to-plateau at fixed endTime 15000 -- that term has never been measured on the E2 mesh.",
+  "enqueued_by": "cfd-supervisor, 2026-09-10, personally (SUPERVISION_CHARTER check-4, not delegated). SUP_BOOSTER_E2_PREREGISTRATION.md is FROZEN at 34797ce9d479d9363fddc1d683b3f1f8d020cf93; grading path pinned by blob sha in its section 10, each verified disk == HEAD at freeze. Gate C2 is gated per the VERIFICATION-supervisor's ruling 0e9c1bcb framing (ii); the cfd supervisor's conflicting framing-(i) ruling is WITHDRAWN. My check-1 was run TWICE, both as diffs, and both PASS. Launch is via the DETACHED RUNNER against box occupancy, not by hand. No agent message authorised this (CLAUDE.md rule 9).",
+  "_schema_note": "The fields above are scripts/queue_entry_check.py REQUIRED_FIELDS plus cap_core_min_registered. Everything below is a cfd annotation the validator ignores.",
+  "_PROVENANCE_EVERY_VALUE_TRANSCRIBED_NOT_RECALLED": {
+    "case_id": "SUP_BOOSTER_E2_PREREGISTRATION.md:1 (title, '(E2)') and :7 ('§2bc fix-until-runs successor to SUP_BOOSTER E1')",
+    "cost_core_min_estimate 31.0": "SUP_BOOSTER_E2_PREREGISTRATION.md:286 -- '**~31 core-min**'. Anchored on the E1 MEASURED 30.85 core-min, docs/COST_CALIBRATION.md:492.",
+    "cap_core_min_registered 60.0": "SUP_BOOSTER_E2_PREREGISTRATION.md:286 -- '**CAP = 60 core-min** (~2x margin)'. NOW ENFORCED BY AN INSTRUMENT: run_graded_triple_e2.sh carries it as per-level solver timeouts 800/1200/1600 s summing to exactly 3600 s = 60 core-min at 1 rank, with the rc of each level captured INSIDE the detached wrapper. scripts/queue_runner.py's cap_watch REPORTS an overrun and does NOT kill, so an outer wall-clock backstop on the argv remains advisable at placement -- `timeout --signal=TERM --kill-after=120 10800 <launch_cmd>`, where 10800 s = 3 x 60 core-min x 60 / 1 rank, the fleet 3x-cap convention. RESTRICTS ONLY. It is NOT baked into launch_cmd above: the outer bound is the placer's act and this lane does not presume it.",
+    "cost_basis": "SUP_BOOSTER_E2_PREREGISTRATION.md:283-303 (section 5, including the likeliest-wrong cost term at :293).",
+    "ranks 1": "SUP_BOOSTER_E2_PREREGISTRATION.md:289 -- 'Serial (1 rank), sequential coarse->medium->fine (good citizen)'.",
+    "cwd": "The CASE directory. It EXISTS (validator EXEC clause, check_cwd_launchable) and contains NO directory matching the validator's TIME_DIR pattern ^[0-9]+(\\.[0-9]*)?([eE][+-]?[0-9]+)?$ -- its children are 0.orig, constant, system, __pycache__, and '0.orig' does not match (validator AGE-GUARD clause). The REGISTERED RUN ROOT is a different path -- verification/runs/navier_class/SUP_BOOSTER/graded_e2/, pre-registration section 4.1, verified absent -- and is guarded separately by the launcher's own run-root check.",
+    "memory_floor_gb 1.0": "ALLOWANCE, NOT MEASURED, AND SAID SO. No VmHWM or equivalent was recorded for E1 or for the E2 smoke, so there is no measured footprint to carry. 1.0 GB is a floor asserted on the size of the problem -- a 2-D wedge-axisymmetric inviscid rhoCentralFoam case of at most 30,375 cells with 4 graded fields -- on a box whose free memory vastly exceeds it. IF A MEASUREMENT IS TAKEN BEFORE LAUNCH, REPLACE THIS FIGURE AND THIS NOTE WITH IT.",
+    "_line_numbers_note": "Line numbers below were RE-DERIVED at 2026-09-10 against the pre-registration as amended by commit 7006fa9e (368 lines). They moved when section 3 was rewritten. Re-derive again before relying on them; cite the text, not the number."
+  },
+  "_GRADING_PATH_AS_SECTION_10_WILL_PIN_IT": {
+    "note": "grading_freeze is REPORTING-ONLY in the validator (check_grader_freeze always returns [] -- Sanaa 2026-09-03: a pre-registration mismatch never prevents a launch, it is recorded as a prediction and compared on the certificate). Listed here so the prediction is recorded, not as a gate.",
+    "grading_freeze": [
+      "verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py",
+      "cases/navier_class/SUP_BOOSTER/gen_cone_mesh_e2.py"
+    ],
+    "disk_blobs_at_2026-09-10_equal_to_HEAD": {
+      "_note": "RE-DERIVED at 2026-09-10 after the condition-7 grader change (8f77d94c) and the SHOCK_EPS figure correction (d1f99874). The grader blob has moved TWICE while this draft stood. Whoever pins section 10 re-derives from git at the freeze commit and never from this note.",
+      "verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py": "3ae305662652baebec2a42f585c3d59bef357501",
+      "cases/navier_class/SUP_BOOSTER/gen_cone_mesh_e2.py": "be6cc10481fb93ba541ca025ee44145b32b85ba1",
+      "verification/runs/navier_class/SUP_BOOSTER/run_graded_triple_e2.sh": "ea1d674d8fae4393f56e00433c69ea3b2565e548 (launcher; not part of the section-10 grading-path pin, listed for provenance)",
+      "verification/runs/navier_class/SUP_BOOSTER/tm_reference_M2p0_tc15.json": "c442a94bfd3166e443124e92248c5d96a929d8a5 (reference, unchanged from E1, section 10 provenance line)"
+    },
+    "who_pins_them": "The cfd-supervisor, at the freeze commit, into the section 10 placeholder table. Not this lane."
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "the per-level rc captured INSIDE the detached wrapper (never around a setsid line -- `setsid timeout cmd` exits 0 for every outcome)",
+      "each level's log End line, endTime fields (p U T rho) and the 0/T age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342; Sanaa's universal rule 2026-08-26: bookkeeping never voids physics)"
+  },
+  "verdict_state": "PENDING",
+  "_DISCHARGED_2026-09-10": {
+    "launcher_now_exists": "verification/runs/navier_class/SUP_BOOSTER/run_graded_triple_e2.sh was WRITTEN and committed (71e20511). It pins gen_cone_mesh_e2.py and, through the new autograde_sup_booster_e2.sh, grade_sup_booster_e2.py, and carries THIS pre-registration's 60 core-min cap as per-level solver timeouts 800/1200/1600 s summing to exactly 3600 s at 1 rank -- NOT E1's 90 core-min / 1200/1800/2400. Recorded because scripts/queue_entry_check.py does NOT verify that launch_cmd[1] exists: an entry naming an absent launcher validates cleanly and then dies at launch behind a stale LAUNCHED record. Whoever places this row should still confirm the path on disk at placement time rather than trusting this note.",
+    "run_root_now_registered": "verification/runs/navier_class/SUP_BOOSTER/graded_e2/ is registered in SUP_BOOSTER_E2_PREREGISTRATION.md section 4.1 and was verified ABSENT again at 2026-09-10 (ls -d: No such file or directory). The launcher refuses at the top if its run root does not end in graded_e2, and E1's graded/ appears in it only inside comment lines -- assigned to no variable, passed to no command -- so E1's evidence cannot be rm -rf'd by it.",
+    "c2_ruling_conflict_resolved": "NOT by arbitration and NOT by anything going to Sanaa. The cfd-supervisor WITHDREW his own framing-(i) ruling; verification's ruling 0e9c1bcb (framing (ii)) GOVERNS, and its 8 conditions are implemented in grade_sup_booster_e2.py (commit 8f77d94c) and registered in pre-registration sections 3, 3.1-3.4 (commit 7006fa9e). The struck framing-(i) text is preserved in section 3.4 rather than deleted.",
+    "new_pre_registered_number": "B_cons = 0.60 deg, the C2 consistency bound max|beta_i - beta_j| (grader constant BETA_CONS_DEG). Derived as 1.0 x the fine-grid locator increment (about 0.59 deg on the E2 fine mesh, INFERRED from the blockMesh grading law; 0.6243 deg measured on the E1 fine mesh). It is NOT the +/-1.0 deg accuracy band, which ruling condition 5 forbids re-using. Derivation and cross-checks: pre-registration section 3.3."
+  }
+}
