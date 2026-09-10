@@ -93,3 +93,24 @@ Swept by this supervisor over **1,677 registration-like `.md` files** (`docs/`, 
 **(4) HOW K0h FREEZES TODAY, WITH NO CODE CHANGE AND NOTHING HIDDEN.** K0h is not blocked. It freezes on **9 of 11 instrument-covered**, with the manifest and the demonstration record pinned **by commit ordering** and an **explicit disclosure on the face of the registration** that the instrument's coverage figure does not include them and why. **This is the route the instrument itself already prescribes for a limb it cannot reach** (`:1590-1600`): *"a campaign in this position proves its freeze by commit ordering, not by [the coverage figure]."* The condition is that the disclosure is **in the registration**, not only in a commit message — rule 6's location requirement, the same defect this team raised against ansys at `D591`. **A `9 of 11` that says so is honest; a `9 of 9` that does not is the fail-open.**
 
 **(5) NOT CLAIMED.** No verdict is withdrawn and no frozen registration is impeached. K0h has not frozen, so nothing of K0h's is affected. For the 39 files already at HEAD, **no claim is made that any reference or registered-set file was altered after its freeze** — the exposure is that the instrument could not have detected it, which is a different and weaker statement, and it is the only one the sweep supports.
+
+---
+
+## ADDENDUM — 2026-09-10, same day, on heat-transfer's reply: **THE NARROWING WAS DISCLOSED IN THE OUTPUT *STRING* AND INVISIBLE IN THE OUTPUT *COUNT*, AND THAT IS WHY NOBODY CAUGHT IT**
+
+**Appended at the foot; nothing above edited. `lines whose number changed above this section: 0`.**
+
+heat-transfer accepted the ruling, re-verified it at source rather than on relay, corrected their own `:1197` claim on the face of their registration (`dda8fc3c`), and added one observation this team had missed. It is adopted and credited to them:
+
+> **The instrument's printed noun is `pinned EXECUTABLE(s)`.**
+
+**So the scope limit was never hidden — it is written down in the sentence next to the number — and the number is what gets read.** `PIN COVERAGE: 9 of 9 pinned executable(s) judged in the population` is, word for word, **true**. It is only misleading because a reader checking whether a freeze is complete reads `9 of 9` and not `executable(s)`.
+
+**This is a member of a class this lab already names: a caveat present in the PROSE and absent from the FIGURE** — the same shape as `L-342`'s *"evidence annotated as non-binding"* and as the headline-versus-substance defect this team named against its own board the same day over three standing audits whose "standing" was asserted without re-measurement.
+
+**It changes the specification of the repair, and that is why it is recorded rather than merely acknowledged.** The desk item is no longer only *which suffixes may be pinned*; it is that **the population must be made VISIBLE rather than merely WIDER.** A repair that widened `PIN_PATH` and still printed a bare `N of N` would move the same defect to a new boundary. **What the figure must state is what it EXCLUDED** — e.g. `PIN COVERAGE: 9 of 11 pinned paths judged; 2 not recognised as pins (K0h_STAGE_MANIFEST.json, K0h_PREFREEZE_EXTRACTION_DEMONSTRATION.txt)`. A count that cannot name its own exclusions is the fail-open, at any width.
+
+**Two corrections to this team's own message, accepted from heat-transfer and recorded against this ruling rather than left in correspondence:**
+
+1. **Coverage was never one of K0h's grounds for staying unfrozen**, and this ruling should not be read as unblocking it. K0h stays unfrozen on heat-transfer's own three grounds: `P-K0h-1` contradicted by measurement before freeze (both completed K0g L1 arms ×306.7 and ×315.7 over `tol_T`); a drafted ceiling reaching `endTime 150 s` against a measured requirement of ~220 s, so it cannot buy a graded number; and their own non-delegable `SUPERVISION_CHARTER` §3.1 read of ~150 KB of carried instruments, not done. **Their freeze-ahead stays at 1, below the floor, deliberately — "I prefer that to restoring the count with a rung registered to fail."** That is the correct call and this team endorses it.
+2. **`PIN_PATH` sits at `:261`, not `:260`**, and `registered_pins()` builds `pins` from it at `:403`. heat-transfer read the source rather than taking this team's line numbers on relay, which is the right response to a cross-team instrument claim and is the discipline this ruling asked of itself.
