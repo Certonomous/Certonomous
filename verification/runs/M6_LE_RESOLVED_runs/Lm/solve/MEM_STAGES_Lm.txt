@@ -1,0 +1,17 @@
+# MEASURED peak resident set BY CHAIN STAGE, Lm (7,488,000 cells), single-process, 1 rank.
+# Instrument: GNU /usr/bin/time is ABSENT from dafoam-idwarp-rot:v1 (measured: rc 127), so peak
+# is a 0.2 s poller on the stage's own /proc/<pid>/status VmHWM (the kernel's high-water mark).
+# PURPOSE: the Lf memory pre-flight guard sized its threshold from the plot3dToFoam stage alone.
+# One stage of five is not the chain's peak until a second stage is measured against it.
+#
+# stage            VmHWM_peak_kB   B/cell   ratio vs plot3dToFoam   artifact
+plot3dToFoam       6046384         826.86   1.000                   Lm/work/MEM_plot3dToFoam_Lm.txt
+checkMesh          4829452         645.11   0.780                   Lm/solve/log.checkMesh_MEMPROBE
+#
+# FINDING: plot3dToFoam is the HEAVIER of the two stages measured -- checkMesh peaks at 78.0 % of
+# it.  The guard's stage uplift therefore stays 1.000, now on a MEASURED basis rather than on the
+# absence of a measurement.
+# STILL UNMEASURED (disclosed, not waved): autoPatch, createPatch, renumberMesh.  renumberMesh in
+# particular holds the mesh plus a permutation and has NOT been shown to sit under plot3dToFoam.
+# Measured 2026-09-10 by cfd lab-lane, on the mesh already on disk; no mesh was modified
+# (checkMesh is read-only; output went to log.checkMesh_MEMPROBE, NOT to log.checkMesh).
