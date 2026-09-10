@@ -9087,3 +9087,73 @@ dafoam recorded that `D6RF10`'s **`CONV_BAR` = `primalMinResTol × primalMinResT
 **They are the same constraint.** The ordering rule is the *prospective* form — set the tolerance tighter and the gate can bite. The identity test is the *retrospective* form — a gate that cannot bite is not a gate. **A registration satisfying the ordering rule cannot produce this identity, and a registration producing this identity has violated the ordering rule.** Naming them as one closes the gap through which a case could satisfy the letter of one while failing the other.
 
 **Recorded as a cross-reference, not as new law:** `§2a` and the T23G2Rn2 rule both already existed and neither is widened. **dafoam's forward binding on `D6` successors is theirs and stands as they wrote it**; the numerics-record append is dafoam's to make, and this team does not reach into another team's record to make it.
+
+---
+
+## Amendment — v1.80, 2026-09-10 — **§2be.2 NARROWS `§2be.1`'s FAMILY, WHICH WAS PARTLY REFUTED BY MEASUREMENT WITHIN THE HOUR. §2bd.2 CORRECTS `§2bd.1`'s CONSEQUENCE CLAIM. §2bi: `hits[-1]` REACHES THE CORRECTOR SOLVE, WHICH IS THE FIELD THIS TEAM'S OWN 2026-09-08 RULING SAID CANNOT BIND. §2bj: `INSTRUMENT REFUSAL` IS A CAUSE CLASS, NOT A VERDICT**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **cfd** (`611aed5a`) from four plants driven through the real path; the load-bearing items re-verified at source by this supervisor. `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`); standing rule 1's vocabulary is UNTOUCHED.**
+
+### §2be.2 — **`§2be.1`'s FAMILY WAS TOO WIDE AND IS NARROWED. THE OPERATIVE DISTINCTION IS PLANT SHAPE AND JUDGMENT CRITERION, NOT "COMPUTATION DEFECTS ARE UNREACHABLE BY PLANTING"**
+
+This supervisor told cfd that a planting harness could not reach either of their comparator defects, and put the reasoning behind `§2be.1`. **cfd measured it and the claim is half wrong.** Four plants, decision field read rather than output bytes:
+
+| plant | role | result |
+|---|---|---|
+| P1 offset on last row | positive control | **DETECTED** — `CT` 4.732714 → 4.733949 |
+| **P2 drift over the trailing window** | defect probe | **NOT-DETECTED** — `iteratively_plateaued` stayed `True` |
+| **P3 residual, FIRST occurrence** | defect probe | **NOT-DETECTED** — `p` residual stayed 3.8976e-04 |
+| P4 residual, LAST occurrence | positive control | **DETECTED** — 3.8976e-04 → 0.99 |
+
+**P2 plants +20 % drift over the final 100 writes — 40× `PLATEAU_TOL_REL` — with the final step held at 0.05 %.** A trailing-window statistic sees it; an endpoint difference cannot. **`NOT-DETECTED` IS THE DEFECT BEING CAUGHT BY PLANTING**, not planting failing.
+
+> **THE CORRECTED RULE: planting cannot reach a computation defect when the plant is shaped like a GENERIC PERTURBATION and detection is judged on WHETHER THE OUTPUT CHANGED. A plant shaped like the FAILURE MODE, judged on the DECISION FIELD, does reach it.**
+
+**What stays in `§2be.1`'s family:** `:369`'s wrong-file defect — it reads *a* file faithfully, so **only a cross-reader or a source read distinguishes faces from cells** — and hard-coded claim-strings, which **no input can touch**. **What comes OUT: the two-point plateau test.** Stated as *"planting cannot detect these"* the family was wrong about `:368`; stated as the distinction above it is right about all three.
+
+**Consequence for the stage-2 harness, and it is a design requirement not a note:** a `NOT-DETECTED` is **evidence only when the plant was shaped like the hypothesised failure and the reader's DECISION FIELD was read.** A generic perturbation judged on output bytes yields a `DETECTED` that is **true and uninformative** — which is what this supervisor predicted — but that is a limit of *that* plant, not of planting.
+
+### §2bd.2 — CORRECTION TO `§2bd.1`'s CONSEQUENCE CLAIM
+
+`§2bd.1` is headed *"…AND IT REACHES `r` AND THEREFORE `GCI`"*. **cfd has corrected their own report and the correction is against this team's clause: the `nFaces`/`nCells` error is very nearly a COMMON FACTOR across levels, so `r` comes out 1.49937 / 1.49958 against 1.50000 — off by 0.042 % and 0.028 %, which is immaterial.** **The heading overstates and is corrected here rather than edited above.**
+
+**The defect stands and its real damage is restated:** a **published mesh size 4.01× wrong**, and a **spurious unequal-ratio branch**. **The clause's requirement is unchanged** — a cell count used in a refinement ratio is read from a source that counts cells — because a defect that happens to cancel is still a defect and the cancellation is a property of this mesh family, not of the method.
+
+### §2bi — `hits[-1]` REACHES THE CORRECTOR SOLVE, AND THAT IS THE FIELD THIS TEAM ALREADY RULED CANNOT BIND
+
+cfd's P3 caught a **third** gate-affecting defect neither team had flagged. `grade_suboff.py:197-199`, verified at source by this supervisor:
+
+```python
+hits = re.findall(rf"Solving for {f},\s*Initial residual\s*=\s*([-\d.eE+]+)", logtxt)
+if hits:
+    finals[f] = float(hits[-1])
+```
+
+**`hits[-1]` is the LAST `Solving for p` line — the non-orthogonal CORRECTOR solve — not the solve OpenFOAM's own convergence test reads.** Measured on the fine level's final iteration: first-solve **0.01208393174399553** against last-solve **0.0003897631590649481**, a factor of **31.0**, and **24.4× / 23.4× / 31.0×** across the three levels.
+
+**THIS IS EXACTLY THE FIELD THIS TEAM REFUSED ON 2026-09-08**, in `A2_ACCEPT_FLOOR_BINDING_FIELD_RULING`: *"`p_corrected` measures the wrong thing for outer-loop convergence … It can be driven arbitrarily small regardless of whether the outer loop has converged, so it CANNOT establish steady-state iterative convergence."* **And the finding generalises that ruling in the way that matters: there it was a proposed SWITCH, refused as gate-widening by field selection. Here nobody chose it — `hits[-1]` produces it BY DEFAULT.** So the ruling is not a guard against a temptation; **it is a guard against the natural output of the obvious regex**, in a second instrument, in a different team, reached independently.
+
+**It flips no R1b verdict and the record stands. It is a LATENT FALSE-GREEN:** any run whose true `p` residual is 1.2e-02 grades `CONVERGED` whenever the corrector solve lands under `RES_TOL`. **cfd's blocker on any SUBOFF `PASS` is now three defects, not two.**
+
+**And cfd's pattern across all three is adopted, because it is a better organising statement than this charter had:** **each reads a real artifact faithfully and asks it the wrong question** — `:368` the wrong **statistic**, `:369` the wrong **file**, `:197-199` the wrong **line of the right file**. **The third is the most dangerous shape because it is the one that looks most like correct code.**
+
+### §2bj — **`INSTRUMENT REFUSAL` IS A CAUSE CLASS, NOT A VERDICT, AND STANDING RULE 1 IS UNTOUCHED**
+
+Two of cfd's lanes independently hit the same gap: a grading stage that **refuses** has no stop taxonomy and no ladder, so a refusal gets driven up a ladder built for a different failure.
+
+**The vocabulary is not extended.** Standing rule 1 fixes `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` / `PENDING`, and **no new verdict word is created here.** `INSTRUMENT REFUSAL` is a **CAUSE CLASS attached to a `NOT A RESULT`** — the same shape the protocol already asks for when it requires a verdict *"plus cause class"*, and the same relation `NOT HELD` bears to `GATE FAIL` under `§16`.
+
+> **`INSTRUMENT REFUSAL`: a `NOT A RESULT` whose cause is that the GRADING PATH could not reach a verdict, not that the RUN failed. Its distinguishing property, and the reason it needs naming: ITS REGISTERED ACTION IS NEVER MESH, NUMERICS OR MODEL — because the run is not what failed.**
+
+**Why the naming earns its place:** without it, a refusal is triaged up a ladder aimed at the solve, and **every rung of that ladder acts on something that was not the problem** — spending compute to repair a mesh that is fine, in response to a reader that could not parse. It is the reporting-layer twin of `§2c`'s *"a check that did not reach its subject has not passed; it has not run."*
+
+**NOT ADOPTED HERE, and referred rather than legislated:** cfd also reports that the **stage-3 and stage-4 ladders are different** — §4 being *"continuation from a converged neighbor, relaxation reduction, pseudo-transient, then transient re-registration"* against §3's mesh → numerics → model — and that conflating them **acts against a mesh that is not what stopped**, all three SUBOFF levels clearing their quality gates. **That is CASE PROTOCOL territory, that charter is Sanaa's and is still ABSENT at HEAD, and this team does not legislate another document's ladder.** Recorded for her weekly.
+
+| amendment record | **v1.80** |
+|---|---|
+| clauses added | **1** (§2bj, a cause class — **not** a verdict) |
+| existing clauses **narrowed** | **1** (§2be.1's family, on measurement that partly refuted it) |
+| existing clauses **corrected in consequence, not in requirement** | **1** (§2bd.1) |
+| standing rule 1 vocabulary changes | **0** |
+| gate values changed | **0** · executable checks made to refuse | **0** (`D539`) |
+| **lines whose number changed above this section** | **0** |
