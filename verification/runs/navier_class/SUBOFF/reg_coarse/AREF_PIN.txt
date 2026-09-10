@@ -1,0 +1,34 @@
+AREF PIN ADDENDUM -- reg_coarse -- dated 2026-09-10
+(appended beside birth_certificate.json; the birth certificate itself is NOT edited)
+
+RULING (cfd-supervisor, 2026-09-10): SUBOFF R1 uses ONE PINNED forceCoeffs Aref at
+every grid level.  A_ref is a definitional reference area in Cd = F/(0.5 rho U^2 A_ref),
+not a mesh property; a per-level Aref would divide out how well each mesh represents the
+body's wetted area -- which IS part of the discretisation error -- and would inject a
+monotone 0.171% normalisation drift into the Roache triple.
+
+PIN VALUE (m^2, 5 deg sector = 1/72 of a revolution):
+  analytic full-revolution wetted area  = 5.988264212260 m^2
+  Aref PINNED (analytic / 72)           = 0.083170336281 m^2
+  written to system/controlDict as        0.08317033628
+Provenance of the analytic area: Groves/Huang/Chang 1989 (DTRC/SHD-1298-01) TABLE 1,
+report p.4 / PDF p.11, title-page verified; area RE-DERIVED by independent numerical
+quadrature of the surface of revolution by cases/navier_class/SUBOFF/derive_wetted_area.py
+(NOT a facet sum, NOT hull_sector_area()).  The inherited four-figure 5.988 m^2 is
+CONFIRMED as the correct 4 s.f. rounding (derived value is +0.0044% on it).
+
+THIS LEVEL'S MEASURED AREA -- still measured, still recorded, NO LONGER the normalisation:
+  built hull-patch sector area          = 0.083033174509 m^2   (birth_certificate.json area.hull_sector_area_m2)
+  built full-revolution equivalent      = 5.978388564641 m^2
+  built vs analytic                     = -0.16492 %   (control tolerance +/-3%)
+  built sector vs the pin               = -0.16492 %
+
+WHAT CHANGED ON DISK: system/controlDict forceCoeffs `Aref` only, from 0.08303317451 to 0.08317033628,
+by `build_suboff.py --repin-aref --dir <this dir>`, which refuses on a case that holds a
+numeric time directory or an rc sidecar.  No field, no mesh, no other dictionary entry,
+and no line of birth_certificate.json was touched.  This case has NOT been launched.
+
+NOTE for the supervisor's check-4: birth_certificate.json here predates the ruling and
+still carries area.analytic_m2 = 5.988 and no aref_* keys.  build_suboff.py now writes
+the re-derived analytic value and the pin into the certificate, so a REBUILT level would
+carry them; this level was NOT rebuilt because that would destroy its checkMesh evidence.
