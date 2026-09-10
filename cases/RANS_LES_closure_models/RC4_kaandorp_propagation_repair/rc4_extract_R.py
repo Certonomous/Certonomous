@@ -274,22 +274,39 @@ def run_extraction(tag, root=RC4_EXTRACT_ROOT):
     This is the ONLY function in the module that starts a process, and it
     cannot be reached without the freeze: `build_extraction_case` refuses
     first, and so does this.
+
+    AMENDMENT A2: this launch is BOOKED INTO THE CAMPAIGN WALL ACCUMULATOR.
+    Section 9.2 registers the accumulator as "campaign-level" and states the
+    arithmetic it exists to stop -- "9 solves plus AN EXTRACTION at 3,600 s of
+    per-solve timeout would otherwise permit 36,000 s".  An accumulator that
+    books the nine solves and not the extraction is not campaign-level, so the
+    extraction's timeout is likewise `min(1800, cap - spent)` and its wall time
+    lands in the same ledger.  `rc4_run` is imported HERE rather than at module
+    scope because `rc4_run` imports this module.
     """
     B.refuse_if_unfrozen()
+    import rc4_run as RUN                                     # noqa: PLC0415
+    bud = RUN.budget_or_refuse(root, label=tag + " frozen-RANS extraction")
+    eff = min(int(EXTRACT_TIMEOUT_S), int(bud["effective_timeout_s"]))
     case, t0 = build_extraction_case(tag, root)
     t = time.time()
-    r = subprocess.run(
-        FOAM + "; cd " + case + " && timeout " + str(EXTRACT_TIMEOUT_S) + " "
+    subprocess.run(
+        FOAM + "; cd " + case + " && timeout " + str(eff) + " "
         + FROZEN_SOLVER + " -case . > log.frozen 2>&1; echo $? > rc",
         shell=True, executable="/bin/bash")
     wall = round(time.time() - t, 1)
-    rc = open(os.path.join(case, "rc")).read().strip() \
-        if os.path.exists(os.path.join(case, "rc")) else str(r.returncode)
+    if not os.path.exists(os.path.join(case, "rc")):
+        refuse("the " + tag + " extraction recorded NO EXIT STATUS at "
+               + os.path.join(case, "rc") + ".  A missing rc is not rc = 0, and "
+               "the wrapper's own return code is 0 for every outcome")
+    rc = open(os.path.join(case, "rc")).read().strip()
+    RUN.book(root, tag, "FROZENEXTRACT", wall, kind="extraction")
     ok, reason, info = r4_lib.frozen_complete(case)
     if not ok:
         refuse("the " + tag + " extraction is not COMPLETE by the lab's frozen "
                "completion rule (r4_lib.frozen_complete): " + reason)
     return {"case": case, "tag": tag, "rc": rc, "wall_s": wall,
+            "effective_timeout_s": eff, "budget": bud,
             "core_minutes": wall * B.RANKS / 60.0, "completion": info}
 
 

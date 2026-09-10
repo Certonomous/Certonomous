@@ -790,3 +790,336 @@ ruling. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
 nothing may run against it. Zero solver compute produced this amendment. Nothing
 sent, filed, uploaded, registered, posted or commented. No RC2 file was edited or
 depended upon.*
+
+---
+
+## AMENDMENT A2 — 2026-09-10. PRE-FIRST-COMPUTE. The RUNNER, and every refusal in every module.
+
+**Document version: DRAFT v1.2** (was DRAFT v1.1 at Amendment A1; DRAFT v1.0 as
+landed at commit `de28101d`).
+**lines whose number changed above this section: 0** — this amendment is appended
+at the foot and edits no line above it. The assertion is not a claim: the file's
+prefix up to and including A1's closing line was hashed **before** and **after**
+the append inside a single shell invocation, the two prefix digests were shown
+equal, the whole-file digest was shown to MOVE in that same invocation, and a
+**control digest** of a deliberately mutated copy of that same prefix was shown
+to differ — so the hasher is demonstrably not returning a constant and the equal
+prefix digests are evidence rather than an artefact. Byte count and line count of
+the prefix are recorded in the commit that carries this amendment, alongside all
+four digests.
+
+**THIS AMENDMENT IS NOT THE FREEZE.** It changes no gate, no threshold, no cap
+and no label. The Status line of this document still carries the DRAFT/UNFROZEN
+token, that token still occurs **exactly once** in this file — measured, count
+`1`, at the Status line — and this amendment deliberately never writes the token
+string again, so the supervisor's single substitution at the freeze clears
+`build_rc4_cases.refuse_if_unfrozen()` in one edit.
+
+### A2.0 Why this lands, and what it closes
+
+Two defects, both fatal to the item if frozen with them, both cheap now and
+frozen shut afterwards.
+
+**DEFECT 1 — §8's clauses 1–3 had no producer that could satisfy them.**
+`rc4_score.completion` delegates clauses 1–3 to `r4_lib.solve_complete`
+(`rc4_score.py:217`), which requires a file named `rc` in the case directory
+(`r4_lib.py:508-512`) and a log named `log.solve` (`r4_lib.py:495`); §8's clause
+5 reader likewise fixes `LOG_NAME = "log.solve"` (`rc4_score.py:99`). §11
+registered a builder, an extraction gate, a comparator and a scorer — **and no
+runner.** The only producer available was therefore the predecessor's
+`Kaandorp2020_TBRF/aposteriori/run_lane.py`, which writes **`log.run`** and keeps
+the return code in `results.json` only (`run_lane.py:157-158`).
+
+Measured, by this lane, against the 31 real preserved cases of that producer at
+`/home/ubuntu/closure-data/aposteriori/kaandorp`:
+
+| reader | KAANDORP_APOST (the producer RC4 would have run) | R4_APOST (reader control) |
+|---|---|---|
+| a file named `rc` present | **0 of 31** | **60 of 60** |
+| that `rc` reading `0` | 0 of 31 | 32 of 60 |
+| a log named `log.solve` present | **0 of 31** | **60 of 60** |
+| a log named `log.run` present | 31 of 31 | 0 of 60 |
+| **`rc4_score.completion` (clauses 1–6)** | **SATISFIABLE 0 of 31** | — |
+
+All 31 failures returned the same reason, `clauses 1-3
+(r4_lib.solve_complete): no case directory or log.solve`. **The zeros are real
+absences, not a blind reader:** the identical readers return 60 of 60 on the
+sibling population. A completion clause no real producer can satisfy is not
+strict, it is **broken**, and it drives the completion count to zero
+independently of physics — the shape of the `grade_r5d.py:296` defect, recorded
+as finding B of `docs/closure/CLAUSE_SATISFIABILITY_AUDIT.md`.
+
+**The repair taken is the STRICTER of the two available.** §8 is left exactly as
+registered — not one clause is reworded, relaxed or re-channelled — and the
+**producer** is made to emit what the clause reads. The alternative, amending
+clause 1 to read the predecessor's `results.json`, was rejected on three grounds:
+it weakens a completion clause; it makes RC4's completion depend on a JSON the
+runner writes *after* the fact rather than on the exit status captured at the
+moment of exit; and it would import a module whose own guards at `run_lane.py:153`
+and `:273` are `assert` statements that §6.1 forbids.
+
+**DEFECT 2 — §9.2's binding cost control had no implementation.**
+§9.2 registers *"a campaign-level wall accumulator that stops the campaign at
+21,000 wall s at ranks 1 (= 350 core-min), checked before each solve launches"*
+and calls it *"the binding control"*. `build_rc4_cases.CAMPAIGN_WALL_CAP_S = 21000`
+(`build_rc4_cases.py:103`) carried the number as a module constant, and **no code
+in any RC4 module read it.** A registered cost control that nothing enforces is
+not a control. It is now enforced, by `rc4_run.py`, strictly inside both
+registered figures.
+
+### A2.1 The rule-2 condition, and how it was checked — freshly, at this amendment
+
+**Condition: RC4 has had ZERO compute. The run root registered by its own
+instrument does not exist.**
+
+Checked at this amendment, by this lane, at zero solver compute. Every row
+carries the control that FIRED, in the same command shape on a positive case,
+because a "not found" from a probe never shown able to find anything is not
+evidence:
+
+| check | result | control that FIRED |
+|---|---|---|
+| `/home/ubuntu/closure-data/rc4` — the run root named at `build_rc4_cases.py:82` | **ABSENT** | `/home/ubuntu/closure-data` **EXISTS** |
+| `/home/ubuntu/closure-data/rc4/kaandorp` | **ABSENT** | `/home/ubuntu/closure-data/aposteriori/kaandorp` **EXISTS** |
+| `find /home/ubuntu/closure-data -maxdepth 1 -name 'rc[34]*'` | **0 hits** | the same `find` with `-name 'apost*'` returns **2** |
+| the run root re-checked AFTER every selftest in this amendment was executed | **still ABSENT** | as above |
+| files beside this registration | `PREREGISTRATION.md`, `build_rc4_cases.py`, `rc4_extract_R.py`, `rc4_onechange.py`, `rc4_score.py`, `rc4_run.py` — no `RESULTS.md`, no `scores.json`, no run artifact | the sibling `Kaandorp2020_TBRF/aposteriori/` does carry `RESULTS.md`, so the listing is not blind to result files |
+
+Independently, and driven rather than read: **every launching entry point of
+every module exits 2 today.** Measured, exit codes captured from the shell:
+`build_rc4_cases.py` (no args) **2**; `rc4_extract_R.py --p1` **2**;
+`rc4_onechange.py --compare` **2**; `rc4_score.py --score` **2**;
+`rc4_run.py --run-campaign` **2**; `rc4_run.py --run <tag> <cfg>` **2**;
+`rc4_extract_R.run_extraction()` called directly **2**; `rc4_run.run_solve()` and
+`rc4_run.run_campaign()` called directly **2**. Under `python3 -O` as well as
+under `python3`. **No path through the committed instruments can start a solver
+or an extraction against this registration in its present state.**
+
+### A2.2 `rc4_run.py` — REGISTERED into §11 as the fifth module
+
+§11's table is extended by one row. No row is removed and no row is altered.
+
+| module | job | refusals |
+|---|---|---|
+| `rc4_run.py` | run the registered propagation solves for N / T-b / T-bR, serial at ranks 1, `simpleFoam` (§10, FIXED — no new solver is written), and **RECORD** each run so §8 can read it: the solver's stdout+stderr into **`log.solve`**, and the solver's **real exit status**, captured by the shell at the moment of exit, into **`rc`**. Enforce §9.2's per-solve `timeout 3600` and the campaign wall accumulator. Run **P-1 first**, refusing to propagate a case whose extraction cannot reproduce the `k` it came from | `sys.exit(2)` on: RC4 DRAFT/UNFROZEN; an unregistered case tag; an unregistered configuration; a case directory absent; **a case that already carries its own `log.solve` or `rc`**; the campaign wall ledger unreadable, or its total not a non-negative number; **no remaining campaign wall budget**; `log.solve` absent after the solve; `log.solve` **zero bytes** after the solve; **`rc` absent after the solve**; `rc` not an integer; **a channel-name disagreement between this runner and the grader**; a configuration reached by `run_campaign` that was never built |
+
+**The channel-agreement refusal is the guard that would have caught this whole
+defect class**, and it is registered as a gate on the instruments rather than
+left as prose. `check_channel_names()` (`rc4_run.py:147`) refuses unless the log
+name this runner writes **is** `rc4_score.LOG_NAME`, and unless the log name and
+the return-code file name are **the literals `r4_lib.solve_complete` actually
+opens**, read out of that function's own source at run time. Producer and reader
+are compared in code, on every launch. Prose cannot hold that invariant; this
+can.
+
+**Registered implementation of §9.2's accumulator, so its semantics are not left
+to a reader's inference.** Neither registered figure is widened; both bind, and
+the arithmetic is strictly tighter than either alone:
+
+- the ledger is a file **under the run root** (`_campaign_wall.json`), so the
+  spend accumulates **across process invocations** — an accumulator living inside
+  one process caps nothing;
+- **before each launch**, the effective timeout is `min(3600, cap − spent)`, so
+  the campaign cannot exceed the registered **21,000 wall s** even if every solve
+  runs to its limit;
+- a launch with **no remaining budget REFUSES**. Standing rule 12: an overrun
+  **stops** the campaign; it does not get a new budget;
+- the ledger totals in **core-minutes at ranks 1** and records the registered cap
+  beside the spend, so §9.3's calibration has the actual to compare against.
+
+**The extraction is booked into the same ledger.** §9.2's own justification for
+the accumulator is the arithmetic *"9 solves plus an extraction at 3,600 s of
+per-solve timeout would otherwise permit 36,000 s"*, so an accumulator that books
+the nine solves and not the extraction is not campaign-level.
+`rc4_extract_R.run_extraction` now takes its budget from the same ledger, runs
+under `min(1800, cap − spent)`, and books its wall time there
+(`rc4_extract_R.py:288-301`). **Registered as an addition to that module's
+refusal list:** `sys.exit(2)` on no remaining campaign budget, and on the
+extraction recording **no exit status** at all — a missing `rc` is not `rc = 0`.
+
+### A2.3 THE MEASUREMENT — §8 shown SATISFIABLE by the real producer's output, both directions
+
+Standing rule 3, applied to a completion clause: **a clause that has only ever
+returned "unsatisfied" has not been shown able to return "satisfied".** The
+demonstration is committed inside `rc4_run.py --selftest`, so it is re-runnable
+by the supervisor and by any later reader, and it is green under `python3` **and**
+`python3 -O`.
+
+**The artifact it runs on is real, and named once:** the case
+`/home/ubuntu/closure-data/aposteriori/kaandorp/AR_1_Ret_360__TRUTHR` — the one
+prior measurement of the repaired configuration, the row §5's P0 threshold is
+derived from. Its `system/controlDict`, its `0/` fields and its `788/` fields are
+copied with `copy2`, so **the field bytes and the field mtimes are the ones
+`simpleFoam` wrote on this box** and clause 6's age guard is measured against real
+timestamps, not synthetic ones. `log.solve` and `rc` are **not** copied: the
+runner has to produce them, which is the thing under test. The program the runner
+is pointed at emits that case's **real 392,371-byte `simpleFoam` log, byte for
+byte**, and the runner's own wrapper — the redirect, the `timeout`, and the
+`echo $? > rc` — is never substituted.
+
+**SATISFIED direction, measured:** `rc4_score.completion` returns **COMPLETE
+(converged)** on this runner's output, with `n_exec = 383` and `n_time = 383`.
+That is the clause measured **SATISFIABLE 0 of 31** before the runner existed.
+
+**UNSATISFIED direction, measured — one channel scrubbed at a time, seven ways:**
+
+| what was scrubbed from the runner's own output | `completion` result |
+|---|---|
+| the recorded `rc` removed | FAILS — `clauses 1-3: no recorded rc` |
+| `rc` set to `136` (SIGFPE) | FAILS — `clauses 1-3: rc=136` |
+| `log.solve` renamed to the predecessor's `log.run` | FAILS — `no case directory or log.solve` (finding B's second limb) |
+| `kDeficit` removed from `788/` | FAILS — clause 4 names `kDeficit` |
+| `phi` removed from `788/` | FAILS — clause 4 names `phi` |
+| the `788/` fields back-dated behind `0/U` | FAILS — `clause 6 AGE GUARD` names all seven fields |
+| 40 `ExecutionTime` lines scrubbed from the real log | FAILS — `clause 5: 343 != 383` |
+
+**And the recording channels themselves are shown live in both directions, on
+real processes:** a real non-zero exit is recorded as `rc=42` and completion fails
+on it; a solve killed by the registered timeout records `rc=124` and completion
+fails on it — and that kill is produced by **the accumulator's own shrink**, from
+a ledger booked to 1 wall s of remaining budget giving a 1 s effective timeout, so
+the shrink is shown to reach the launched process rather than merely to be
+computed. `verify_record` is driven directly in all four of its failing
+directions and in its passing one.
+
+### A2.4 EVERY REFUSAL IN EVERY MODULE, REGISTERED — A1.4 item 2, closed
+
+A1.4 recorded openly that it *"did not re-examine `rc4_extract_R.py`,
+`rc4_onechange.py` or `rc4_score.py` for further undisclosed refusals"* and that
+any such refusals were **not registered**. An unregistered refusal is as much a
+defect as a missing one. Every module was swept by an **independent `ast` parse**
+— not a `grep` — enumerating every `refuse()` call, every `sys.exit` and every
+`raise SystemExit`. The census is registered here in full, so §11 is a complete
+list and no refusal in this item is undisclosed.
+
+**`ast.Assert` count, independent AST parse, every module: `build_rc4_cases.py`
+0, `rc4_extract_R.py` 0, `rc4_onechange.py` 0, `rc4_score.py` 0, `rc4_run.py` 0.**
+Every refusal below is a `refuse()` → `raise SystemExit(2)` or a bare
+`raise SystemExit`, so every one survives `python3 -O`, as §6.1 requires.
+
+**`build_rc4_cases.py` — 24 refusal sites** (§11 named 3; A1.2 registered a 4th).
+Registered now in full: registration file absent; RC4 DRAFT/UNFROZEN;
+`controlDict` absent; the `libs` entry not present after read-back (L-221); more
+than one top-level `libs` entry after insertion; a pre-existing `0/` or numeric
+time directory (§8 clause 7); an unregistered case tag; the benchmark case
+absent; the benchmark case having no non-zero time directory; a missing benchmark
+field; `polyMesh/boundary` absent; the `bijDelta` read-back shape mismatching;
+the `bijDelta` round trip exceeding its plant-relative tolerance (A1.2); an
+unregistered configuration; T-bR requested with no finished T-b tree; T-bR
+requested with no extracted `kDeficit`; the named `kDeficit` file absent; the
+copied `kDeficit` carrying non-finite values; **the copied `kDeficit` being
+identically zero — T-bR would then not be a different configuration from T-b and
+the item would have no arm**; `0/U` absent after either build path.
+
+**`rc4_extract_R.py` — 13 refusal sites** (§11 named 2). Registered now in full:
+the extraction log absent; the drift line absent for either sign branch; a case
+**propagated with no P-1 reading at all**; a case propagated with drift above the
+registered 0.05; a target that is not an OpenFOAM field file; **the extraction
+recording no exit status** (A2.2); **no remaining campaign wall budget** (A2.2);
+the extraction not COMPLETE by `r4_lib.frozen_complete`; no extraction directory
+for a case; the extraction having written no non-zero time directory; the
+extraction having written no `kDeficit` — there is then no `R` to propagate.
+
+**`rc4_onechange.py` — 13 refusal sites** (§11 named 2). Registered now in full:
+either case directory absent; `--at-build` run when an output artifact is already
+present, so the verdict would not be a total comparison; the two trees not
+carrying the same input files; **any file other than `<time>/kDeficit` differing**;
+`<time>/kDeficit` being **byte-identical** between the two trees; no real
+`kDeficit` field to plant into; the planted `kDeficit` not surviving the round
+trip; **the comparator not reporting the planted file as differing** (§7's third
+falsifier); a target that is not an OpenFOAM field file; a malformed `--compare`
+invocation.
+
+**`rc4_score.py` — 19 refusal sites** (§11 named 3). Registered now in full: a
+source that is not an OpenFOAM field file; the planted control having no real
+field to work on; a shape mismatch between the scored `U` and `U_LES`; §6
+direction B failing — the reader not deterministic; §6 direction A failing — the
+reader cannot see the plant; direction A's read-back exceeding its
+plant-relative tolerance; `score_row` finding no non-zero time directory; `cut()`
+handed a NULL `U_rms` of zero or None as a denominator; `ceiling_for` handed an
+unknown model kind; **§5 P3 — the T-bR two-channel ceiling requested for a b-only
+model**; no measured ceiling for a requested case; `gate_arithmetic` reached by a
+row that failed §8 completion; `gate_arithmetic` reached by a row outside the
+carried-forward 1e-3 continuity bar; `_seal` handed a label outside the fixed
+vocabulary; a scoring pass in which no case directory carried a field for §6's
+controls. `score_all` additionally exits 2 on a `NOT A RESULT` verdict.
+
+**`rc4_run.py` — 20 refusal sites**, all registered in A2.2's table above.
+
+### A2.5 What did NOT move — the clause-by-clause statement rule 2 requires
+
+Every line above this amendment is byte-identical to the version carrying
+Amendment A1; the prefix digest recorded in the commit proves it, and the control
+digest proves the hasher can tell two prefixes apart. Named explicitly, and
+re-read from this document rather than inherited from A1's table:
+
+| clause | line | value, unchanged |
+|---|---|---|
+| **P-1** R-extraction validity | 279 | recovered-`k` relative L2 drift from `k_data` **≤ 0.05**; a failing case is `BLOCKED`; fewer than 2 of 3 surviving ⇒ RC4 `BLOCKED`, denominator never rescaled |
+| **P0** headline gate | 294 | T-bR must cut `U_rms` by **≥ 80%** vs N NULL on **≥ 2 of the 3** in-scope cases |
+| **P1** one-change attribution | 305–313 | exactly one differing field file, `<time>/kDeficit`; any other difference ⇒ `sys.exit(2)`, row `NOT A RESULT` |
+| **P2** mechanism band | 318, 576 | `k/k_LES` on the T-bR row in **`[0.9, 1.1]`** |
+| **P3** two ceilings | 327–333 | published side by side, never substituted |
+| **P4** reader control | 335, 361–386 | three planted controls, on every scoring pass |
+| §8 completion clauses 1–8 | 446–479 | **unchanged, every clause, verbatim.** A2 adds a producer that can satisfy clauses 1–3; it does not touch their wording, their channel or their strictness |
+| continuity | 259, 473 | RMS `div(U)` / gradient scale **< 1e-3** binding, **1e-4** reported beside it; a row outside 1e-3 is NOT CONVERGED whatever its `U_rms` |
+| verdict ladder | 337–358 | PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING, unchanged |
+| falsifiers | 416–443 | unchanged; the 80% bar is never lowered |
+| REGISTERED ESTIMATE | 513 | **140 core-minutes** |
+| REGISTERED CAP | 519 | **350 core-minutes** |
+| campaign accumulator | 539 | **21,000 wall s at ranks 1** (= 350 core-min), checked before each solve launches — the binding control. A2 **implements** this figure; it does not change it |
+| per-solve timeout | 537 | `timeout 3600`. A2 implements it, and tightens the effective value to `min(3600, cap − spent)`, which can only ever be smaller |
+| ranks | 485–489 | **1**, serial, no `mpirun`, no `decomposePar`, no `-parallel` |
+| case set | 228, 577 | `AR_1_Ret_360`, `AR_3_Ret_360`, `CBFS13700`; `BFS5100` BLOCKED; `PHLL10595` out of scope |
+| §11 module list | 614–617 | **unchanged, and extended by one row** (A2.2). No row is removed or altered |
+| Label | header | `RC4`, unchanged |
+
+**No gate, threshold, cap, band, label or verdict rule is altered by this
+amendment.** A2 registers an instrument and a complete refusal census. Every
+refusal it registers can only ever **stop** a run or a row; not one can emit a
+verdict, a value, a band or a label, and not one can manufacture a `PASS`.
+
+### A2.6 What this lane could NOT establish, stated plainly
+
+1. **The runner has never driven `simpleFoam` itself.** §8's clauses 1–6 are
+   measured SATISFIABLE on this runner's own recording of a **real preserved
+   `simpleFoam` log's bytes and real field mtimes**, and the return-code channel
+   is measured on real processes returning `0`, `42` and `124`. What is *not*
+   measured is a `simpleFoam` process launched by this runner, because RC4 is
+   DRAFT and the runner refuses to launch one. **The residual gap is exactly one
+   link: that `simpleFoam`, run under this wrapper, writes the same log it writes
+   under the predecessor's wrapper.** Both wrappers use the identical form
+   (`timeout N simpleFoam -case . > <log> 2>&1`), differing only in the log's
+   name and in this runner also recording `echo $? > rc`; and the sibling
+   population `/home/ubuntu/closure-data/r4/aposteriori` shows that exact
+   convention producing `rc` 60 of 60 and `log.solve` 60 of 60. It is an
+   inference, it is labelled one, and it is closed by RC4's own first solve.
+2. **Clauses 1–3 will not be satisfiable on 31 of 31 rows of any population.**
+   The limb `last time dir == last solver iteration` holds on only **20 of 31**
+   preserved Kaandorp cases; the 11 misses are the predecessor's resumed rows
+   with `purgeWrite 0`, an artefact of a campaign RC4 does not repeat (§8 clause
+   7 builds fresh and never resumes). This is recorded so no reader expects a
+   31-of-31 figure.
+3. **§8 clause 3's wording and `r4_lib`'s implementation are not textually
+   identical.** §8 clause 3 says the last written time must equal *"the iteration
+   it names"*; `r4_lib.solve_complete` compares the last written time to the last
+   `Time = ` line. Measured on the 11 preserved Kaandorp rows that carry the
+   `residualControl` convergence line, the convergence iteration **equals** the
+   last `Time = ` value on **11 of 11**, so the two readings coincide on every
+   real converged row available. It is recorded as a measured equivalence, not
+   assumed to be one.
+4. **Finding C is not this amendment's subject.** `CBFS13700`'s recorded
+   continuity of **0.3219275282624856** is already hardcoded into
+   `rc4_score.py:683`, where the selftest asserts the verdict is `NOT A RESULT` —
+   verified at source by this lane. RC4 is honest about that exposure. The
+   consequence §4 already discloses stands: with `CBFS13700` effectively lost,
+   `MIN_CASES = 2 of 3` has **zero margin**.
+5. **This lane ran no solver and graded nothing.** No `docs/COST_CALIBRATION.md`
+   row is filed, because zero solver compute means there is no
+   estimate-versus-actual pair to calibrate.
+
+*Amendment A2 appended 2026-09-10 by a closure lane on the closure-supervisor's
+dispatch. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
+nothing may run against it. Zero solver compute produced this amendment. Nothing
+sent, filed, uploaded, registered, posted or commented. No frozen file was
+edited. No RC2 file was read for write, edited or depended upon.*
