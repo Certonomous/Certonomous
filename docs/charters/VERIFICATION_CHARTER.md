@@ -9478,3 +9478,86 @@ cfd's disposition, relayed: **M6CP1 `NOT A RESULT`, cause `ENERGY_RUNAWAY_TRAILI
 | verdicts ROUTED TO A DATED SUCCESSOR under `§2bc` | **1** (`M6CP1`) |
 | mesh GATE text written by this charter | **0** — `MESH_STANDARD.md` remains cfd's |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.86, 2026-09-10 — **§2bt THE FOURTH INSTANCE OF ONE CLASS IN ONE DAY, AND THE MOST EXPENSIVE: THE FREEZE ENFORCER RECOGNISES A NOTATION, NOT A PROPERTY — 441 OF 515 REGISTRATIONS (85.6%) PIN ZERO BY ITS RECKONING, AND A HARD-WIRED GATE WOULD HAVE REFUSED THEM ALL TONIGHT. §2bu A PASS THAT DOES NOT DEPEND ON THE CASE IS NOT A PASS ABOUT THE CASE. §2bv THE `§2s.9.2` FAIL-OPEN FIRES AND DOES NOT PROPAGATE — THE WRAPPER IS STRICTLY SAFER THAN THE INSTRUMENT IT WRAPS**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Measured by a verification lane driving the instruments against live cases and against constructed negative controls; **≈9 core-min, single-rank, NON-SOLVER, $0.0077 derived** at $0.0513/core-h (derived from wall stamps, not read from a scheduler record — `COMPUTE_BUDGET_CHARTER` §5). `[lab-attributed]`. **No gate value moves; no verdict is withdrawn; NOTHING IS MADE TO REFUSE (`D539`), and this amendment's central holding is a REFUSAL TO WIRE ONE.**
+
+### §2bt — **441 OF 515: THE RECOGNISER MEASURES A MARKDOWN NOTATION AND THE HOOK REPORTS IT AS "PINS ZERO EXECUTABLES"**
+
+`scripts/check_comparator_freeze.py:261-262`, read as source:
+
+```
+PIN_PATH = re.compile(r"`([A-Za-z0-9_][A-Za-z0-9_./+-]*\.(?:py|sh))`")
+PIN_BLOB = re.compile(r"\b[0-9a-f]{40}\b")
+```
+
+`registered_pins()` (`:384`) requires **both, inside one markdown table row beginning `|`**. A registration that pins its comparator by **sha256** (64 hex — no word-boundary 40-hex substring), or names it in **prose** rather than a table row, yields **zero pins**; zero pins is `refuse()` at `:268`, relayed by the stage-1 hook at `:302` as exit 2.
+
+**MEASURED corpus-wide, by importing the frozen module's own `registered_pins()` in-process — not by re-implementing it:**
+
+| | |
+|---|---|
+| pre-registrations on disk | **515** |
+| pin ≥1 executable by 40-hex git blob (the hook can pass them) | **74** |
+| **pin ZERO → frozen check exits 2 → HOOK REFUSES** | **441 (85.6%)** |
+
+By territory of the 441: **`cases/dafoam` 152**, `verification/campaign` 122, `cases/ansys_verification` 64, `docs/campaigns` 62, `cases/RANS_LES_closure_models` 35. Positive control that the recogniser is not simply returning empty on everything: the same call returns **18** for `K0h_PREREGISTRATION.md`, **10** for `M6SR`, **7** for `M6CP1`.
+
+**The worked instance shows the notation is the whole difference, not the diligence.** `cases/dafoam/A2_B2R_INDEPENDENT_TRIM_PREREGISTRATION.md` **names its comparator** (`:56`, `cases/dafoam/grade_a2b2r.py:52`) **and carries hashes** (`:133` a sha256; `:366` a table row pinning the instrument by md5 **and** sha256, path absolute and outside the repo). **It is pinned by content, carefully, and the recogniser cannot see any of it.**
+
+> **RULED — §2bt, and it is the FOURTH instance today of the class `§2bn` names: `§2bn` a census read a function NAME; `§2bo.1` this supervisor read the WRONG LINE; `§2bq` the gate ran the WRONG FORM of the right tool; and now THE FREEZE ENFORCER READS A MARKDOWN NOTATION AND REPORTS IT AS A FREEZE PROPERTY.**
+>
+> 1. **`pins ZERO executables` MEANS "NO PIN IN THE RECOGNISED NOTATION". IT DOES NOT MEAN "NOT FROZEN", AND IT MAY NOT BE WRITTEN, RELAYED OR BOARDED AS THOUGH IT DID.** That is `§2bn` step 3 exactly: an un-opened census is reported as a **bound**, in the sentence that carries it. **441 is a count of registrations the instrument CANNOT SEE. It is not a count of defects, and anyone converting it into one is manufacturing 441 false accusations.**
+> 2. **`PIN_PATH` IS NOT WIDENED.** `check_comparator_freeze.py` is frozen, and widening what a gate accepts is a **gate change reserved to Sanaa** (`D539`, rule 9). The regex stays.
+> 3. **THE FIX IS ON THE REGISTRATION SIDE AND IS FREE: new registrations pin their comparators in the recognised form** — a markdown table row carrying a backticked `*.py`/`*.sh` path **and** its 40-hex **git blob** sha. A sha256 of file content is a fine hash and is **not** a git blob; the instrument compares against `git rev-parse HEAD:<path>` and can only use the latter. **No existing registration is required to be rewritten, and none is alleged defective.**
+> 4. **AND THE OPERATIONAL HOLDING THAT MATTERS TONIGHT: THE STAGE-1 HOOK IS NOT WIRED INTO ANY LAUNCH OR QUEUE PATH, AND THIS TEAM WILL NOT WIRE IT AS A HARD STOP.** Hard-wiring it unchanged **refuses 441 of 515 registrations**, with dafoam worst hit at 152. **That is not enforcement, it is a lab-wide outage** — on the night the owner's words are *"For now i want the RUNS"* and *"mes convergence ASAAAP … More than anything else"*. It would also violate `§2s.11` `[SANAA-RULED]` — *"A pre-registration mismatch never prevents a launch … Refusing to widen the gate was right; refusing to launch was the expensive part"* — and repeat `§2s.11.1`, this team's own recorded error of attaching a refusal where it was convenient rather than where it belongs.
+> 5. **What the hook IS, and how it is used: an ON-DEMAND stage-1 exit check a team runs before it freezes.** Its verdicts on every live front driven tonight were **correct** — `M6CP1` PASS (7 pins judged, 0 unseen, reproducing the rc 0 cfd already had), `SUBOFF_R1b` and `SUBOFF_R1` PASS (3 judged, **1 unseen**, which is the positive control proving `pins_unseen` can be non-zero), `RUNG2_CRM_M2` PASS (3/0), and **TRUE REFUSALS on `T26`, `MRF_R1` and `A2_B2R`**, each of which genuinely carries no pin in the recognised form and two of which say so on their own face.
+
+### §2bu — **A PASS THAT DOES NOT DEPEND ON THE CASE IS NOT A PASS ABOUT THE CASE**
+
+`case_protocol_freeze_hook.py` uses `--case` at exactly three places: `:198` (basename → the printed label), `:202` (isdir), `:206` (repo discovery). **It is never compared against the registration.** Measured, both at 19:53Z:
+
+```
+--case cases/navier_class/SUBOFF --registration verification/campaign/M6CP1_PREREGISTRATION.md
+   -> STAGE1 FREEZE PASS case=SUBOFF   pins_judged=7 pins_unseen=0 rc=0 reason=freeze-proven   exit 0
+--case docs                     --registration verification/campaign/M6CP1_PREREGISTRATION.md
+   -> STAGE1 FREEZE PASS case=docs     pins_judged=7 pins_unseen=0 rc=0 reason=freeze-proven   exit 0
+```
+
+**`docs/` is not a case at all.** The gate certifies *"M6CP1's registration is clean"* and prints it under whatever `case=` label it is handed. **No malice is required — a copy-pasted command line does it**, and a team whose own registration refuses can satisfy the gate by naming someone else's.
+
+> **RULED — §2bu: this is `§2p`'s class ("a pass is evidence only if the run shows the pass could not have arisen from a degenerate path"), reached by a route `§2p` did not enumerate — not an instrument insensitive to its input, but an instrument whose PASS IS INDEPENDENT OF THE INPUT THE LABEL CLAIMS IT IS ABOUT. `§2p`'s free generator finds it in one line: hand the guard the WRONG case and see whether it notices.**
+>
+> **The remedy is a WARNING and explicitly NOT a refusal:** binding a registration to a case is a **new gate criterion**, and adding one is Sanaa's alone (`D539`). **Until then a `PASS` from this hook is admissible ONLY when the registration it names is the case's own, and that correspondence is asserted by the READER, not by the instrument.** Any record citing a stage-1 hook PASS states the registration path it was run against.
+
+### §2bv — **THE `§2s.9.2` FAIL-OPEN FIRES, AND IT DOES NOT PROPAGATE — WHICH REVERSES THE ADVICE I GAVE FOUR HOURS AGO**
+
+`§2s.9.2` and this team's own reading this afternoon held that `check_comparator_freeze.py:585` answers `FROZEN` when it could not check (`modified` stays `None` when `git cat-file blob` fails). **Constructed and driven on a throwaway repo — not on any repo case:**
+
+| arm | condition | `commit_test` | pin limb | frozen rc | hook |
+|---|---|---|---|---|---|
+| E3a | clean | `FROZEN` | `PIN-OK` | 0 | **PASS** |
+| E3b | worktree drifted | `MODIFIED_AFTER_COMMIT` | `PIN-DRIFT` | 3 | **REFUSE** |
+| E3c | drifted **and HEAD blob object deleted** | **`FROZEN`** ← the fail-open fires | `PIN-DRIFT` | 3 | **REFUSE** |
+
+**The fail-open is REAL and was made to fire on a genuinely drifted file. It cannot reach a hook PASS.** The hook hard-wires `--registration` and `--restrict-to-registration` (`:230-232`), so the population **is** the pinned set, and every row also gets a `pin_rows()` verdict (`:411-435`) whose identity test uses `git hash-object` and `git rev-parse HEAD:<rel>` — **neither touches `cat-file`**, so the pin limb is immune to the same failure and drift lands `PIN-DRIFT` → exit 3.
+
+> **RULED, and it CORRECTS the reading rule this supervisor published earlier today: THE WRAPPER IS STRICTLY SAFER THAN THE INSTRUMENT IT WRAPS, AND THE EXPOSURE IS IN THE HAND-TYPED FORM.** Run `check_comparator_freeze.py` **by hand without `--registration`** and there are no pin rows at all — `:585` is then **the only identity test** and the fail-open is **fully live**. **So: invoke the freeze check THROUGH the hook, or with `--registration --restrict-to-registration`. A bare hand-run of the frozen checker is the exposed path.** The `worktree_differs_from_HEAD` discriminator published earlier stands and is now scoped: it is the tell for **that** hand-run form.
+>
+> **This is an argument for the hook's existence and NOT for wiring it as a stop** — `§2bt.4` governs that, unchanged.
+
+**Two message defects recorded, both repairs designed and NEITHER MADE tonight** (a measurement-script change on the night three teams freeze is a risk this team declines to take at 20:00Z; both are additions to the *message* and *warning* streams and change no verdict): **(a)** `:245` prints the child's actionable `REFUSE:` line only under `--show-check-output`, so a refusal otherwise names no file and no reason — contrary to `CASE_PROTOCOL` §2's *"the failing check, the file, and the line are written to the record"*; **until repaired, `--show-check-output` is MANDATORY in every documented invocation.** **(b)** the `§2bu` warning. **`PIN_PATH` is NOT to be touched by anyone (`§2bt.2`).**
+
+**One open shape this team could not close and will not paper over:** `PIN-ABSENT` is **not** in `PIN_VIOLATING` (`:263`). A registration pinning **two** files, one present and one absent, might escape the empty-population refusal while `PIN-ABSENT` stays non-violating. **That mixed case was NOT constructed. It is the one shape that could still pass vacuously, and it is named as unmeasured rather than assumed safe.**
+
+| amendment record | **v1.86** |
+|---|---|
+| clauses added | **3** (§2bt, §2bu, §2bv) |
+| existing readings **corrected** | **1** — this team's own fail-open advice of today is scoped to the hand-run form (`§2bv`) |
+| gate values changed | **0** · gates wired | **0** · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
+| registrations alleged defective | **0** — the 441 is a bound on what the instrument can SEE |
+| instrument edits made tonight | **0** (two designed, both deferred) |
+| **lines whose number changed above this section** | **0** |
