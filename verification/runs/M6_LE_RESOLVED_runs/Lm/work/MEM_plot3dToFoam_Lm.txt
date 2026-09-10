@@ -1,0 +1,11 @@
+# MEASURED peak resident set of SINGLE-PROCESS plot3dToFoam, Lm.
+# Instrument: GNU /usr/bin/time is ABSENT from dafoam-idwarp-rot:v1 (measured: rc 127), so the
+# peak is taken two independent ways -- a 0.2 s poller on the process's own /proc/<pid>/status
+# VmHWM (the kernel's high-water mark) and the container cgroup-v2 memory.peak (which also
+# counts page cache, hence the larger figure).  Driver: rerun_patch_tail.sh.
+# This converts a previously INFERRED feasibility claim into a MEASUREMENT.
+VmHWM_peak_kB=6046384
+cgroup_peak_bytes=6678343680
+cells=7488000
+bytes_per_cell_VmHWM=826.9
+VmHWM_peak_GiB=5.766

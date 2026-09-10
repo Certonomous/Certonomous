@@ -7,13 +7,13 @@
 \*---------------------------------------------------------------------------*/
 Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
 Arch   : "LSB;label=32;scalar=64"
-Exec   : checkMesh -constant
+Exec   : checkMesh
 Date   : Sep 10 2026
-Time   : 02:55:22
-Host   : 0b9ae432100c
-PID    : 267
+Time   : 04:31:14
+Host   : fbbef60cc183
+PID    : 448
 I/O    : uncollated
-Case   : /run/Lc/solve
+Case   : /home/dafoamuser/mount
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
@@ -25,6 +25,10 @@ Create time
 Overriding DebugSwitches according to controlDict
     SolverPerformance 0;
 
+--> FOAM Warning : 
+    From static Foam::instantList Foam::timeSelector::select0(Foam::Time&, const Foam::argList&)
+    in file db/Time/timeSelector.C at line 284
+    No time specified or available, selecting 'constant'
 Create mesh for time = constant
 
 Check mesh...
@@ -62,8 +66,8 @@ Checking topology...
 Checking patch topology for multiply connected surfaces...
     Patch               Faces    Points     Surface topology
     wing                6240     6309     ok (non-closed singly connected)  
-    inout               6240     6309     ok (non-closed singly connected)  
-    sym                 20400    20536    ok (non-closed singly connected)  
+    farfield            6240     6309     ok (non-closed singly connected)  
+    symmetry            20400    20536    ok (non-closed singly connected)  
     ".*"                32880    32882    ok (closed singly connected)      
 
 
