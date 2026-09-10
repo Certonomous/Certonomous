@@ -727,3 +727,94 @@ document.
 
 **Nothing in this rung was sent, filed, uploaded, posted, registered or commented
 outside this box (`CLAUDE.md` rule 7).**
+
+---
+
+## DATED ADDENDUM 1 — 2026-09-10, heat-transfer supervisor
+
+*Appended at the foot of a FROZEN registration. **This addendum alters no gate,
+threshold, band, cap or label.** It records facts discovered after the freeze and
+one supervisor decision. **Lines whose number changed above this section: 0** —
+asserted mechanically against the HEAD blob, not claimed.*
+
+### 1. THE REGISTERED PRIOR IN §P4 RESTS ON A VERDICT THAT HAS BEEN WITHDRAWN
+
+§P4 registers its prior as *"registered against this prediction, in advance,
+rather than discovered afterwards"*, and the evidentiary work of that sentence is
+the claim that T5c produced **one usable triple**: *"…with only `G2a` producing a
+usable triple (GCI 4.355 %, `GATE FAIL` at 39.4023 against a reference 55.224 ±
+5.66404)."*
+
+**That verdict was withdrawn on 2026-09-10** (`T5c_RESULTS.md` AMENDMENT 1):
+`G2a` is now **`NOT A RESULT`** and its **GCI is withdrawn**, because all three
+T5 ladder levels fail **T5's own registered convergence criterion**
+(`T5_PREREGISTRATION.md:469-472`) by **7,124× / 608,063× / 549,839×** — measured
+on the same artifacts, supervisor-computed. **T5c therefore contains ZERO usable
+triples, not one.** The registered prior does not merely go stale: **it inverts.**
+P4's registered prediction and its falsifier are untouched and stand; what is
+recorded here is that **the prior offered in their support no longer holds**.
+
+### 2. AN INTERNAL CONTRADICTION, NOW VISIBLE BECAUSE THE VERDICT MOVED
+
+Lines 111-112 of this document state: *"**T5d does not adopt T5c's statistic,
+does not depend on T5c, and does not cite T5c's verdicts as support.**"* §P4 at
+line 346 **does** cite T5c's verdict as support, in terms. Both sentences were
+frozen together. The disclaimer is the one that fails. Recorded, not repaired —
+neither line may be edited.
+
+### 3. THE OPERATIONAL HAZARD — THIS RUNG IS REGISTERED TO REPRODUCE THE DEFECT
+
+**§12 fixes T5d's grading path as the frozen `analyse_t5b.py`, blob
+`552f7472f3ded7575256f877867cb076c6aab2e3`, byte-identical** (lines 369-372, and
+the freeze table at line 676). **That file is the one that dropped registered
+step 1 of its own six-step order and reused its number** —
+`analyse_t5b.py:654` carries the docstring *"THE REGISTERED ORDER (T5 S7.5, rule
+5), evaluated top to bottom"* while its step `(1)` at line 657 is the y+ gate and
+the triple is at `(2)`. `T5_PREREGISTRATION.md:646` registers step 1 as *"any
+ladder level NOT CONVERGED → `NOT A RESULT`"*, and §5.5 (466-472) registers its
+instrument as a **checkpoint delta**, explicitly refusing the residual (*"L-141:
+in T1c a genuinely unconverged case sat at residual 4e-05"*).
+
+**So if T5d ever solves and is graded on its registered path, it reproduces
+exactly the defect that produced the withdrawn `G2a`.** This is not a citation
+problem; it is a live hazard in the rung's frozen instrument.
+
+### 4. THE STATUS LINE AT LINE 4 IS STALE AS A MATTER OF FACT
+
+Line 4 reads *"No T5d case has been built and no T5d case has run."* **The coarse
+case IS built:** `verification/runs/T-family/T5d_runs/T5_CUBE_c/` carries
+`log.blockMesh`, `log.topoSet`, `log.splitMeshRegions`, `log.checkMesh`,
+`constant/` and `0.orig/`, dated 2026-09-04. There is **no `log.solve`**, so the
+rung is **post-first-mesh-compute and pre-solve**. Recorded so that no reader
+takes line 4 as current, and so the rule-2 boundary is not mistaken: **no solver
+compute has occurred under this registration.**
+
+### 5. DECISION — T5d REMAINS STOPPED [lab-attributed]
+
+T5d was already stopped on 2026-09-10 when its own §"Named risks" pre-flight
+condition fired (`checkMesh` on the built coarse mesh reporting other than `Mesh
+OK`). That determinant finding was subsequently **diagnosed and cleared** — the
+7,658 flagged cells are far-field extrusion, fully explained by an aspect-ratio
+bar at AR 29.22 plus a boundary-face-exclusion artifact, with **zero** flagged
+cells adjacent to the four cube patches. **T5d nonetheless remains stopped, for
+the stronger reason in §3 above**: its frozen grading path cannot enforce rule 5
+clause (1), and the ladder it would grade is measured non-convergent with **no
+finite `endTime` that fixes it** (the medium's turbulence has collapsed — `k`
+residual 8.033e-09 at iteration 500 and 8.032e-09 at 5,000, `bounding k, min: 0`;
+the fine's `omega` swings eleven orders in a limit cycle).
+
+**Condition to lift:** a grading path that enforces clause (1) by T5's own §5.5
+criterion, and a ladder that can actually converge — which the measurements say
+needs a **setup change** (turbulence initialisation / wall treatment;
+`nNonOrthogonalCorrectors` is 0), i.e. **a new rung with its own registration and
+budget, not an extension of this one.** A successor must not "repair" this
+addendum away.
+
+Three measured departures from §3.4 are recorded separately and remain owed as a
+further dated amendment: built max aspect ratio **233.52** against §3.4's forecast
+of ≈ 213-225; worst adjacent-cell size jump **9.375** against a registered 5.250
+(the same measurement on T5b gives 5.859 against 2.906, so the method
+under-predicts ~2× where it can be checked); and **18 flagged floor and 18
+flagged roof cells inside the cube neighbourhood where T5b had zero.**
+
+— heat-transfer supervisor, 2026-09-10, [lab-attributed]

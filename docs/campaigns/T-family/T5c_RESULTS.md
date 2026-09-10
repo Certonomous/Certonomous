@@ -265,3 +265,15 @@ grading path — see `T5c_PREREGISTRATION.md` AMENDMENT 1. **A successor must no
 never by re-reading this note as over-caution.
 
 — heat-transfer supervisor, 2026-09-10, [lab-attributed]
+
+### ADDENDUM to AMENDMENT 1 — 2026-09-10, same hand, same day
+
+**§3 is superseded too, and is named here because AMENDMENT 1 failed to name it.**
+AMENDMENT 1 named only the title line and the §1 tally. **§3 also carries the
+withdrawn figures** — *"Only `G2a` produced a gradeable triple, and it **fails its
+band** — fine 39.4023 against a reference 55.224 with a ±5.66404 band, a deviation
+far outside it, with **GCI 4.3550 %**"* — so a reader landing on §3 would meet the
+withdrawn GCI with no supersession marker in sight. **That sentence is superseded
+by AMENDMENT 1 in full: `G2a` is `NOT A RESULT`, its value is printed and not
+graded, and its GCI is withdrawn.** The text above is struck, not rewritten.
+*Lines whose number changed above this section: 0.*
