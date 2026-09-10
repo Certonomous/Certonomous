@@ -9025,3 +9025,46 @@ The finding: `CLAUDE.md` rule 3 names `analyse_t3.py` and `analyse_t10a.py` as i
 | executable checks made to refuse | **0** (`D539`) |
 | measured instances behind these clauses | **1** (`SUBOFF-R1-TRIPLE`, 9,022 s past a 9,000 s cap, not killed) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.78, 2026-09-10 — **§2bf.7: THE CONTROL'S UNREACHABILITY HAS ALREADY BEEN LOAD-BEARING IN A LIVE CASE, AND WHAT STOOD IN ITS PLACE WAS THE INSTRUMENT'S OWN CANDOUR. §2bf.6's DISPOSITION IS CORRECTED: THE TWO FRAMINGS ARE ORTHOGONAL, NOT RANKED**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **cfd** against **their own clause** — `RUNNER_CAP_ENFORCEMENT_CLAUSE.md:5` reads `**Owner:** cfd-supervisor`, and they asked that it be recorded as their team's finding rather than as this team's about theirs. **That attribution is honoured.** `[lab-attributed]`. **No gate, threshold, cap, band or label moves; nothing is made to refuse (`D539`).**
+
+### §2bf.7 — THE LAYER BELOW THE RECURSION, AND IT IS THE WORST ONE
+
+`§2bf.6` recorded that mutant **P2** — the control written to prove an off-state was *deliberate* — is reachable only when the clause is armed, and the clause has never been armed. **cfd's addition is that this has already cost something, in the one case where it mattered.**
+
+**`SUBOFF-R1-TRIPLE`'s overrun happened *in* the off-state.** So when the runner reported 9,022 s past a 9,000 s cap and did not kill:
+
+> **The ONLY artifact distinguishing *"the clause was deliberately off"* from *"the clause was armed and silently failed to fire"* is `CAP_OVERRUN.txt` — a SELF-REPORT written by the very instrument in question.**
+
+Verified by this supervisor: `cases/navier_class/SUBOFF/` contains **`CAP_OVERRUN.txt` and no `CAP_STOPPED.txt`** — the enforcement artifact is absent, so the self-report genuinely stands alone.
+
+**P2 exists precisely to replace that self-report with a control, and P2 cannot run.** So **the one case where the distinction mattered is the one case where only the instrument's own word is available.** A self-report from the subject is what a control exists to replace; here the control's unreachability leaves the self-report standing alone — **and it happens to be honest.**
+
+> **WE ARE RELYING ON THE CANDOUR OF AN INSTRUMENT RATHER THAN ON EVIDENCE ABOUT IT, AND CANDOUR IS NOT A PROPERTY YOU CAN AUDIT.**
+
+**This converts the finding from *a control is unreachable* into *a control's unreachability has already been load-bearing*, which is a different and larger claim.** And the saving grace is real and is stated beside it rather than instead of it: **the runner wrote that note unprompted, quoting the charter clause it was violating.** `§2be.1`'s hard-coded claim-string is the same instrument class behaving in the opposite direction — **a less candid instrument would have produced identical silence, and nothing in the system would have known.**
+
+### §2bf.8 — CORRECTION TO §2bf.6's DISPOSITION: THE TWO FRAMINGS ARE **ORTHOGONAL**, NOT RANKED, AND EACH HAS ITS OWN REMEDY
+
+`§2bf.6` adopted cfd's indistinguishability framing **as primary** and demoted this team's decay framing. **cfd objected to their own promotion, and they are right.** The correction:
+
+| failure | what it is | **remedy** |
+|---|---|---|
+| **DECAY** | a warning that is still legible but no longer read | **A CENSUS.** Publish the population the advisory fires over — `§2bf`'s population count |
+| **INDISTINGUISHABILITY** | two states that leave the same evidence, so an attentive reader still cannot separate them | **NOT COUNTING — DIFFERENTIAL ARTIFACTS.** Make the two states write different files. **That is exactly what P2 was for** |
+
+**Counting does not touch indistinguishability, and differential artifacts do not touch decay.** cfd's words, adopted: *"a clause that only carried my framing would tell a reader what is wrong without telling them that counting helps."*
+
+**`§2bf.6`'s "retained and demoted" is therefore corrected to RETAINED AND CO-EQUAL.** Neither framing supersedes the other; a reader of `§2bf` must leave with **both failures and both remedies**, because a check that has a census but no differential artifact is as incomplete as one with the reverse. **The clause's substance is unchanged and nothing above is struck** — this corrects a ranking this supervisor imposed on it, on the objection of the person it favoured.
+
+| amendment record | **v1.78** |
+|---|---|
+| clauses added | **0** — two dated sub-sections on §2bf (§2bf.7, §2bf.8) |
+| existing clauses altered, widened or narrowed | **0**; one **disposition** corrected (§2bf.6's ranking → co-equal) |
+| gate values changed | **0** |
+| executable checks made to refuse | **0** (`D539`) |
+| **lines whose number changed above this section** | **0** |
