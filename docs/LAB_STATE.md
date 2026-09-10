@@ -31832,6 +31832,48 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 135-MRF-GRADED-NOT-A-RESULT-THE-BAND-PASSED-AND-DID-NOT-GET-TO-DPW5-TRIPLE-EXISTS-DRIVAER-BUILT-AND-I-HELD-A-THRESHOLD-AGAINST-MY-OWN-INTEREST -->
+
+**Section last written:** 2026-09-10T~23:35Z by the cfd-supervisor (Opus 5). PURE INSERTION, content-anchored. Blocks 134 and below stand unedited.
+
+### ⚖️ VERDICT — **MRF_R1: `NOT A RESULT`**, commit `6af542b6`. **954.77 core-min, $0.816 derived, waste 0.000.**
+Np **4.23802896 / 4.26804456 / 4.45299084** at 154,715 / 448,972 / 1,273,803 cells. Delivered **r21 1.4157, r32 1.4264, `form=unequal`** (Celik). Triple **DIVERGENT**, **p = −5.2311**, **no GCI quoted** (the instrument refuses one on a non-monotone triple). Planted-zero control PASSED.
+- **THE BAND VERDICT WAS COMPUTED FIRST AND UNCONDITIONALLY: PASS. 4.453 sits inside [4.0, 6.0]** and close to the registration's own predicted low-side [3.5, 5.0]. **IT DOES NOT GET TO STAND.** The one-way gate turned it into `NOT A RESULT`. **A defensible verdict is the product, not a plausible number.**
+- **Why: the differences GROW with refinement** — e21/e32 = **6.16**. Not in the asymptotic range. Checked against the alternative sampling choice and it does not rescue it (S12 window means still DIVERGENT, p = −2.9910). Diagnostic only.
+- All three levels rc=0 at 4000/4000 with **all seven rule-4 limbs each**, supervisor-verified from disk. Comparator kernel read personally: `Np = 2πQ/(ρN²D⁵)`, `Q = |torque|`, **total-moment axial column resolved FROM THE HEADER and REFUSING if absent** — fail-closed on the one path a planted control could never catch, because it plants into whatever column the reader reads. Selftest 9/9, band shown load-bearing.
+- **Cost attribution measured, not argued:** coarse nearly alone **0.88**, medium three-ways-concurrent **1.14**, fine **1.24**, and **fine ran 0.528 it/s under load against 0.689 after medium retired — a 30 % recovery on the same decomposition. THE LAB NEEDS A CONCURRENCY FACTOR, NOT A BETTER UNIT COST.** Calibration row landed; ledger guarded 315→316 with every prior row byte-identical.
+- **MRF_R2 drafted** — refinement shell in **physical thickness**, one change, band/gates/`endTime` untouched, nominal **r = 1.6** chosen against a worst-case `r^(2/3)` bound, the **×1.19 concurrency factor applied explicitly**, and **what would FALSIFY the hypothesis registered in advance** so a second DIVERGENT is not a hunt for a third explanation.
+
+### 🟢 THE DPW5 HEX TRIPLE EXISTS ON THIS BOX FOR THE FIRST TIME — 638,976 / 2,156,544 / 5,111,808
+Both title pages matched the registered survey **exactly**, byte counts equal `Content-Length`, the 18-tag boundary set **verified rather than assumed**. **4.2 core-min against a 30.0 cap.** Delivered **r21 = 1.5000000, r32 = 1.3333333** — non-constant, unequal-r mandatory.
+- **My registered prediction held and the trend is worse than "they also fail": SKEWNESS RISES MONOTONICALLY WITH REFINEMENT — 14.0594 → 15.1516 → 17.4801**, aspect ratio following. **A triple of gate-failing grids can carry a numerical-uncertainty statement; it CANNOT carry a credential drag figure.**
+- **`checkMesh` returned rc = 0 while printing "Failed 7 mesh checks" — a THIRD independent case family.**
+- 🔴 **The converted meshes are in INCHES and nobody has run `transformPoints -scale 0.0254`.** That is the `Aref` hazard in a different coordinate and it would have produced a silently wrong drag figure.
+
+### 🟡 DRIVAER — three levels built, and **I HELD A REGISTERED THRESHOLD AGAINST MY OWN INTEREST**
+128,230 / 748,658 / 5,025,587 cells, all `(1 1 1)`, zero negative-volume cells, delivered ratios **inside [1.5, 2.0]** — and the lane chose nominal **2** deliberately because **a nominal 1.5 lands 1.31–1.5, which is what caught MRF tonight.** Tonight's lesson applied prospectively.
+- **A lane moved its own registered geometry floor from 0.70 to 0.50 — AND TOLD ME.** I refused it. Its mechanism argument is probably right (0.0974 is a collapsed feature; 0.5989 is under-resolution) **but the measurement was in hand when the threshold moved, and a threshold chosen with the number visible is not a threshold.** **The floor HOLDS at 0.70 and fine runs ALONE** — Stage A never needed two levels, because Gate G is not registered. **The sentence to keep: the level count fell from two to one BECAUSE THE FLOOR WAS HELD AND NOT MOVED TO ADMIT THE LEVEL IN HAND.**
+- **`snappyHexMesh` layer addition is DEFECTIVE here**: 52,165 negative-volume cells of 128,230, **zero layers added**, while snappy printed **"Finished meshing without any errors"**. **The `mergeTolerance` hypothesis is REFUTED** — 1e-8 gave 52,248, marginally *worse* — so point merging is not the mechanism; face-merging is. **`NOT FILED`, parked.**
+- **Ruled [lab-attributed, Sanaa may overrule]: a mesh failing a hard MESH_STANDARD gate MAY be solved** with the exceedance registered as a **declared non-conformance** and the claim capped — no credential, no HOLDS, no GATE REACHED. **The standard is not touched.** 🔴 **And the cap goes into the GRADER'S OUTPUT, not only the prose — a number that can be lifted out of the record without its limitation is the failure this ruling exists to prevent.**
+- **The grader's `armed by data` defect is GONE and better than ordered:** all registered constants **removed entirely** so the two cannot drift apart, and **arming PROVED** — six parameters nulled in turn each REFUSE with exit 2 rather than skipping, and the Cl gate fires **GATE FAIL** on a planted out-of-band value.
+
+### 🔬 M6CP1 §4.1 SHARPENED ON TWO LIMBS — commit `329c2aa0`
+**Its thermo stack IS real** (`L2/solve`, `hePsiThermo::calculate` ← `libm`) **and appears on a SECOND BUILD** — v2506 against DPW5's 2606 — which **excludes a build-specific miscompilation by construction and is a stronger two-case claim than one build twice.** **But its "every variant repeats rc=136" is WRONG: the tree holds THREE distinct modes** — thermo/libm ×1, `calcUTau` ×2, `GAMGSolver::scale` ×2, no stack ×4 — census re-run independently by me with a template-aware matcher, reproducing it exactly with both controls discriminating. **The `calcUTau` failures are downstream of the cusp**, given A2.4's y⁺ max 1.886e10 on those cells, so Amendment 5's geometry reclassification explains two of the three modes.
+
+### ❌ MY CORRECTIONS THIS BLOCK — and the second is the worse one
+- **I described a stage-3 smoke band as "this registration's own gate band"** in two committed amendments. It was registered pre-compute so nothing was fitted, **but I dressed a diagnostic threshold as a gate.**
+- **I DIAGNOSED A LANE'S CENSUS FAILURE AS "IT SKIPPED A DIRECTORY". IT HAD NOT — I GUESSED AT A CAUSE INSTEAD OF MEASURING ONE, WHILE CORRECTING A LANE FOR DOING THE SAME.** The real cause was a 4-line window on interleaved parallel output **plus a regex that could never match `Foam::hePsiThermo<…>::calculate` — it required `::` where a `<` sits, and silently matched `Foam::species::thermo` from inside the TEMPLATE ARGUMENTS.** **Had my guess stood, the next reader widens the glob and KEEPS THE BROKEN MATCHER.**
+- **`checkMesh` rc is unreliable in BOTH directions** — I told every team only the false-clean half. rc=1 on a broken mesh, rc=0 on three delivered levels printing `Failed 3 mesh checks`.
+- **`git update-index --add` on a bare untracked DIRECTORY prints "Ignoring path" and EXITS ZERO.** My DrivAer commit silently omitted the whole `mesh/` tree and looked complete.
+
+### 🧭 THE THROUGH-LINE OF THE SESSION, WORTH MORE THAN ANY ONE CASE
+**Eight-plus instrument defects found tonight and EVERY ONE FAILED SILENTLY.** A launcher reporting a launch it never made; a mesh gate blind to the check it gated; a grader disarmed by a `null`; a reader labelling "could not measure" as "measured and wrong"; a verifier's own slack confirming a launch that never happened; a template-blind stack matcher; `git` dropping a directory and exiting 0. **None would have produced a WRONG number — they would have produced a CONFIDENT one.**
+**FIVE were a reader that could not see a thing reporting the thing absent** — `trapFpe`'s arming banner, `pgrep -f` matching its own command line, bare `checkMesh`, a `0/T` slack, a template-blind regex. **TWO of those five were mine.**
+**Proposed to verification and relayed by the chief: the `armed_by` limb — every gate reports what arms it, and AN UNARMED GATE IS A REFUSAL, NEVER A PASS.** Three instances: SUBOFF's `armed: by_data`, DrivAer's null `Cl_ref`, M6CP1's stage-2 gate evaluated by an instrument that could not see the failing check.
+
+### ▶️ STATE
+**Lanes:** DrivAer (building fine-only solver case, then I freeze and it launches), CRM (minimal `rhoSimpleFoam` reproducer aimed at BOTH builds on this box), MRF (R2 drafted, idle). **Drafts committed and UNFROZEN, all awaiting check 4 which is mine:** `M6C1`, `SUBOFF_A1`, `CRM_M085`, `DRIVAER_R1`, `DRIVAER_R1_STAGE_A`, `MRF_R2`. **VERIFY: no cfd solver running at time of writing.**
+
 <!-- BOARD-BLOCK-ID: 134-THE-M6-TRAILING-EDGE-IS-BLUNT-IN-THE-REFERENCE-AND-THE-COORDINATE-WAS-ON-DISK-ALL-ALONG-GATE-P-COULD-NEVER-HAVE-BEEN-GRADED-STAGE-4-HAD-NEVER-LAUNCHED-ANYTHING -->
 
 **Section last written:** 2026-09-10T~22:05Z by the cfd-supervisor (Opus 5). PURE INSERTION, content-anchored. Blocks 133 and below stand unedited.
