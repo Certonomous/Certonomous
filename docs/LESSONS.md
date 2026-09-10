@@ -25601,3 +25601,115 @@ detector to fall silent — so that the check is shown able to see both answers
 rather than merely returning the convenient one.
 
 *Lines whose number changed above this section: 0.*
+
+## L-526 — A GATE CRITERION SET EQUAL TO THE LINEAR-SOLVER TOLERANCE CERTIFIES THE SOLVER'S OWN STOPPING DECISION, NOT CONVERGENCE. It is produced by TWO INDIVIDUALLY CORRECT DECISIONS, which is why no review of either one catches it
+
+**Measured on T23G2Rn2 (heat-transfer), all three levels, 2026-09-10.** In
+`verification/runs/T-family/T23G2Rn2_runs/T23G2Rn2_L*/system/fluid/fvSolution` the
+block `"(U|h|k|omega)"` carries `tolerance 1e-09`. The rung's `G-CONV` gate tests
+`h <= 1e-9`. **The two numbers are the same number.** A linear solver does zero
+iterations when the initial residual is already below its tolerance, so the final
+step of every level reads
+
+```
+DILUPBiCGStab:  Solving for h, Initial residual = 9.98660613323e-10, Final residual = 9.98660613323e-10, No Iterations 0
+```
+
+— initial identical to final, `No Iterations 0`, at **94.8 % (L1), 97.9 % (L2) and
+99.87 % (L3) of the criterion, TIGHTENING WITH REFINEMENT.** `G-CONV` reads that as
+converged. What it actually witnessed is the solver declining to iterate.
+
+**THE TWO DECISIONS WERE EACH RIGHT.** The registration deliberately set the solver
+tolerance **one decade below the 1e-8 `G-CONV` gate** — a sound design, and on
+`p_rgh` it still holds: solver `tolerance 1e-09` against a 1e-8 gate, with GAMG
+ending every step `maxIter`-bound at `No Iterations 100` and final residual
+3.79e-9, so that limb's residual is genuinely physical and the limb is a real
+gate. Separately, the `h` criterion was tightened to 1e-9. **The tightening moved
+the h gate onto the floor the design had put a decade below it.** Neither decision
+is wrong; their interaction collapsed one limb. **So the audit question is not
+"is this threshold right?" but "does any gate criterion EQUAL a solver tolerance,
+a `maxIter`, a `writeInterval` or any other stopping parameter in the same case?"**
+
+**IT PROPAGATES INTO A SECOND GATE, WHICH IS HOW IT WAS FOUND.** Because `h` is not
+updated, `T` is **bit-identical between consecutive writes** — verified on disk,
+payload md5 of `wallHeatFlux` identical across 27800/28000, 26000/28000 and
+12400/28000, with 12200/12400 DIFFERING as the live control. All six graded
+quantities freeze at 12–13 significant digits at iteration 3,000 (L1) / 6,000 (L2)
+/ 12,400 (L3) — **the freeze iteration scales with refinement**, which no reader
+defect explains. That bit-constancy made the rung's `G-RATIO` denominator **exactly
+0.0**, so its ratio returned infinity **without consulting its numerator**, and
+R8 limb 2 correctly voided all six rows: `NOT A RESULT`. **A collapsed convergence
+limb does not announce itself as a convergence failure — it announces itself two
+gates downstream as a degenerate zero.**
+
+**COST CONSEQUENCE, MEASURED:** 784.50 core-min = **56.3 %** of that campaign's
+`ExecutionTime` was spent after the last change in any graded quantity. Not waste
+— `endTime` was frozen pre-compute and running to it is compliance — but it is
+what a gate that cannot see a plateau costs.
+
+**REMEDY.** (1) A convergence criterion must sit at least one decade above every
+stopping parameter that can terminate the solve for that field, and the
+registration must state the margin as a number. (2) `No Iterations 0` on a graded
+field at `endTime` is not evidence of convergence and a comparator should refuse
+on it rather than pass it. (3) Where the margin cannot be opened, register a
+DIFFERENT iterative-error instrument before freezing — the residual is the wrong
+observable once the solver is the thing that stopped.
+
+**EXECUTABLE CHECK — OWED, NAMED RATHER THAN SKIPPED.** Shape, so a successor need
+not re-derive it: a script that, for a case directory and a registered gate table,
+parses `system/*/fvSolution` for every graded field's `tolerance`/`maxIter` and
+**exits 2 when a gate criterion is within one decade of a stopping parameter for
+the same field**, plus a **planted-failure proof in both directions** — plant an
+equal pair and require the detector to fire, widen it a decade and require it to
+fall silent. A detector shown only its silent direction is not shown able to see
+the answer that matters.
+
+*Lines whose number changed above this section: 0.*
+
+## L-527 — A PLANTED-ZERO CONTROL MUST BE ON THE READER THAT PRODUCED THE ZERO. Asserting a control on a DIFFERENT reader in the same tuple reads on the page exactly like a complete plant
+
+**Found on T23G2Rn2's `G-RATIO` (heat-transfer, 2026-09-10), ARMED AND UNFIRED.**
+`docs/campaigns/T-family/analyse_t23g2rn2.py`'s `g_ratio` zero-branch does the
+right thing twice: it **refuses** outright if `control is None` (`:462-471`,
+citing rule 3 by name), and then calls `RT.assert_plant_control(control)`. **But
+the control it is handed is the VALUE reader's control, and the zero it is
+licensing came from a different reader.** The number printed as "finest iterative
+change" is not a value at all — it is `max(tail) - min(tail)`, a peak-to-peak
+plateau spread over a 2000-iteration window, computed by `plateau()` (`:375`,
+statistic at `:384`, called at `:1304` and `:1311`). The eighteen quantity
+controls plant `1.234e-03` into the **last line of the series file** and read it
+back through the value reader; nothing is ever routed through `plateau()`.
+
+**So the gate that refuses without a control was satisfied by a control on the
+wrong reader.** This is the same shape as the G3+G4 finding in dafoam's D3 grader,
+and the lesson from that case is the lesson here: **a PARTIAL plant reads on the
+page exactly like a COMPLETE one.** The author of this comparator knew rule 3 —
+they wired eighteen controls and two more on the y+ readers, and wrote the R5
+amendment specifically to make the exact-zero licence *executable instead of
+documentary*. The repair moved the check from a comment into code and still
+checked a neighbouring reader.
+
+**IT DID NOT PRODUCE A FALSE RESULT, AND THAT IS LUCK, NOT DESIGN.** R8 limb 2
+fired independently on the degenerate-zero ground and returned `NOT A RESULT`
+anyway. Had limb 2 not existed, `G-RATIO` would have PASSED six rows on an exact
+zero under a control that never touched the reader that produced it.
+
+**MITIGATING AND WORTH KNOWING: the plant is not impossible, only unwired.**
+Planting into the last line alone makes `max - min` non-zero, so a control routed
+through `plateau()` would have been valid.
+
+**REMEDY.** For every gate whose licence depends on a control: name the READER the
+gate's own number came from, and assert the control **on that reader**. Where one
+statistic feeds two gates — here the same `plateau()` spread is both `G-PLATEAU`'s
+gated quantity and `G-RATIO`'s denominator — each gate needs the control for the
+reader IT consumes. **The test is not "is a control asserted?" but "is the
+asserted control's reader the one that produced this number?"**
+
+**EXECUTABLE CHECK — OWED, NAMED RATHER THAN SKIPPED.** Shape: a check that, for
+each gate function taking a `control` argument, resolves which reader produced the
+gate's graded number and **exits 2 when the asserted control's reader is not that
+reader** — with a planted-failure proof both ways: cross-wire a control to a
+neighbouring reader and require the detector to fire, wire it correctly and
+require silence.
+
+*Lines whose number changed above this section: 0.*
