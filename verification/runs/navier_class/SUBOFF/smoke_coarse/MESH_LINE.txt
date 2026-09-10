@@ -1,0 +1,2 @@
+checkMesh: Mesh OK; cells=7600; hullFaces=100; maxNonOrtho=65.0335 (<70); maxSkewness=1.9922 (<4.0); negVol=no
+hull sector area (built, wedge 5 deg) = 8.31435248e-02 m^2; wedge fraction = 0.01388889; full-revolution equivalent = 5.986334 m^2; analytic (Groves TABLE 1) = 5.988 m^2; forceCoeffs Aref set to sector = 8.31435248e-02 m^2
