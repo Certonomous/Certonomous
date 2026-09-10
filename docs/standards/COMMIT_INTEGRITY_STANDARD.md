@@ -679,3 +679,64 @@ author. **No gate, threshold, cap or label moves.** Clauses 1–4 and Amendments
 | measured losses behind this clause | **1** (13,512 bytes, `docs/LAB_STATE.md`, heat-transfer D583) |
 | **lines whose number changed above this section** | **0** |
 
+
+---
+
+## Amendment 7 (2026-09-10) — v1.6 -> v1.7: **THE COMMIT MESSAGE IS THE ONE ARTIFACT THIS STANDARD NEVER MENTIONS, AND A PER-*ROLE* SCRATCH DIRECTORY IS NOT PER-*LANE*. SEVEN COMMITS ON `main` CARRY SUBJECTS DESCRIBING TREES THEY DID NOT COMMIT**
+
+**This amendment is appended at the foot and edits nothing above it: `lines whose number changed above this section: 0`.** Raised by a **dafoam** lane from a **landed** instance (`badbcfd2`), extended by its own addendum (`b81b00e0`), and **re-derived independently by the verification supervisor before adoption** — the seven below were reproduced from `git` alone, not accepted on relay.
+
+**THE MEASUREMENT, made personally.** Over **7,502 commits on `main`** carrying **7,472 distinct subjects**, seven commits hold a subject that also sits on another commit whose changed-path set is **disjoint** from theirs:
+
+| commit | date (UTC) | its tree | duplicate-subject mate | `COST_CALIBRATION.md` |
+|---|---|---|---|---|
+| `878f1556` | 2026-08-23 20:46:57 | 1 path | `ea204b3d` (−3 s) | no |
+| `28b05eb2` | 2026-08-25 18:12:08 | 1 path | `f6b72feb` (**+9 s**) | no |
+| `3dc99590` | 2026-08-25 19:07:58 | 1 path | `99326ea2` (−13 s) | no |
+| `4d9d902b` | 2026-08-25 21:38:17 | 5 paths | `5551db3d` (−2 min) | **yes** |
+| `b95d6d2c` | 2026-08-25 22:24:47 | 2 paths | `ae9314c6` (−19 min) | **yes** |
+| `3def5d39` | 2026-08-26 16:14:20 | 4 paths | `7422591b` (−2 min) | **yes** |
+| `badbcfd2` | 2026-09-10 04:50:55 | 1 path | `d964a85d` (−5 s) | no |
+
+**`3def5d39` is the one to read.** Its tree is `docs/COST_CALIBRATION.md` plus three files under `verification/runs/T-family/T11_runs/`. Its subject is **`"T4 GRADE RECORD [lab-attributed]: NOT A RESULT x3 — G1 DIVERGENT, G2/G3 OSCILLATORY…"`**. Its mate `7422591b` touches `docs/campaigns/T-family/T4_RESULTS_2026-08-26.md` and `verification/runs/T-family/T4_runs/gate_t4.json` — the actual T4 grade. **A grade verdict is filed on `main`, permanently, under a rung it did not grade.** `28b05eb2` is the mirror: the victim committed **first**, nine seconds earlier, so a reader ordering by time gets the wrong culprit.
+
+**WHY THE REMEDY FAILED, WHICH IS THE ONLY NEW THING HERE.** This class already had three lessons — L-256, L-293 (which made the pre-commit first-line assert mandatory and named `msg1`/`msg2` as the anti-pattern) and L-324. **Two independent reasons it kept landing, and the second is this standard's fault:**
+
+1. **A namespace is only as fine as the thing that is actually concurrent.** L-324 is framed as *"the scratchpad is SHARED ACROSS AGENTS, so a fixed message filename crosses commit messages **between teams**"*. The fleet answered it with **per-ROLE** scratch subdirectories — `…/scratchpad/dafoam-lane/`. That closes the cross-team case and **leaves the intra-team case wide open**, because `dafoam-lane` is a **role**, and one supervisor's three concurrent lanes all resolve it to the same path. Worse, it makes the directory **look solved**. **The unit of concurrency is the LANE, not the team and not the role.**
+2. **The remedy was never a clause. It was lore.** This standard has six prior amendments and **not one of them mentions the message file**. `CLAUDE.md` rule 10's protocol asserts the **tree** (`diff-tree --stat`, non-empty, only your paths), the **parent** (the CAS) and the **result** (`git diff HEAD~1 HEAD --stat`) — and **nothing anywhere reads the message**. All seven passed every one of those assertions, honestly. A remedy that lives only in `LESSONS.md` reaches the hands that happen to have read it: **three of the seven landed on 2026-08-25, the day L-324 was written.**
+
+---
+
+### §A7.1 — MESSAGE AND INDEX PATHS ARE PER-**AGENT**, NOT PER-TEAM AND NOT PER-ROLE
+
+Every scratch path a commit chain writes — the message file and `GIT_INDEX_FILE` alike — **carries the writing agent's own identifier**. A team name, a role name (`dafoam-lane`, `verification-lane`) or a bare stem is **not** a namespace: the concurrent thing is the lane. **The names `msg`, `msg1`, `msg2`, `idx`, `idx1`, `idx2` are forbidden outright**, in any directory, exactly as L-324 says — and a per-role directory does **not** license them.
+
+**A caution the `badbcfd2` post-mortem measured, and it is the reason this clause is not "check your scratch files".** In that incident `msg1` was **not** clobbered — its first line is character-for-character the subject of the commit it fed — while `msg2` held foreign text. **The race is per-file and per-window, not directory-wide.** An intact scratch file is evidence about *itself* and proves nothing about its siblings. Do not infer a safe directory from a surviving file.
+
+### §A7.2 — THE SUBJECT IS ASSERTED AGAINST THE MESSAGE FILE **BEFORE** `commit-tree`, IN THE SAME INVOCATION
+
+In the **same shell invocation** as `commit-tree`, and **before** it: assert that the message file's first line is the subject you intend. `cmp` it, or read it back and compare — the mechanism is free, the discipline is the point. This is Clause 1's *same-invocation* principle applied to the artifact Clause 1 does not cover, and Amendment 2's move of the message **to stdin** already removes the file from the race where it can be used.
+
+### §A7.3 — READ THE SUBJECT BACK AFTER `update-ref`
+
+After the CAS, `git log -1 --format=%s` and assert it equals the intended subject. This is Clause 5's write-back conjunct extended from the **tree** to the **message**, and it is the limb that would have caught all seven. **Note what it is not:** it detects, it does not prevent — see the limit below.
+
+### §A7.4 — DETECTION FOR DAMAGE ALREADY DONE, AND ITS STATUS
+
+The screen for commits already on `main` is **a subject appearing on two commits with disjoint trees**, plus **a subject naming a rung or case whose path set the tree does not touch**. It is `O(commits)` over `git log`, needs no working tree, no compute and no network. It lands as `scripts/check_commit_subjects.py`.
+
+**IT IS ADVISORY, AND NO AGENT MAY MAKE IT ANYTHING ELSE.** This is not caution, it is this team's own standing ruling: **D539** holds that *"a checker that refuses a commit is a GATE ON LAB PROCESS, and ADDING a gate is reserved to Sanaa exactly as retiring one is"*, that **no agent may flip it — "not cfd, not this team, not the chief"** — and that **"a measured rate that 'looks acceptable' is not an authorisation — that is textbook permission laundering"** (`CLAUDE.md` rule 9). A measured false-positive rate is therefore **evidence for Sanaa's decision and never a substitute for it**, and the screen is **not** wired into `scripts/check_harness.py` by this amendment regardless of what that rate turns out to be. D539 also requires that any boarding **separate the refusal rate from the true-positive rate**: *n%* flagged is not *n%* defective, and the exclusion classes must be **named and counted**, never silently dropped.
+
+### §A7.5 — THE HONEST LIMIT
+
+**`main` is not rewritten, so the repair is DISCLOSURE, not correction.** All seven stand. Their **trees are correct** — in every case only the message is foreign, which is precisely why the class survived a fortnight: nothing was visibly broken, and the artifact that was wrong is the one no instrument read. The four found by `b81b00e0` are identified by **tree/subject topic mismatch plus same-window timing, reproducible from `git` alone** — inference from the record, **not a caught race**; the scratchpads are gone. And §A7.2/§A7.3 are a **detector and a discipline, not a lock**: two agents can still collide on a path neither of them namespaced, and the only structural fix is that the identifier be derived from the agent rather than chosen by it.
+
+| | |
+|---|---|
+| version | **1.6 -> 1.7** |
+| clauses added | **5** (§A7.1–§A7.5) |
+| existing clauses altered, widened or narrowed | **0** (Clauses 1–5 and Amendments 1–6 stand verbatim) |
+| gate values changed | **0** |
+| gates added | **0** — §A7.4 is ADVISORY under D539 and no agent may flip it |
+| measured instances behind this amendment | **7 landed commits on `main`**, re-derived personally over 7,502 commits |
+| **lines whose number changed above this section** | **0** |
