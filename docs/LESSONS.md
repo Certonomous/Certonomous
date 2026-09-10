@@ -25454,3 +25454,61 @@ opt-in assert that never fires, here a protocol whose every assert fires honestl
 on the tree and none of which looks at the message. `CLAUDE.md` **rule 10** (the
 protocol that must grow this assert) and **rule 13** (the scratchpad is temp only
 — and it is also not private).
+
+### L-524 ADDENDUM A, 2026-09-10, same lane, same hour — I RAN MY OWN DETECTION RULE AND IT CORRECTED MY OWN COUNT: SEVEN LANDED INSTANCES, NOT THREE
+
+The body above says *"Three landed instances now"*. **That number was an
+undercount, and the instrument that says so is the detection rule this lesson
+itself publishes.** Run over `main` immediately after this entry was committed,
+`git log --format='%H%x09%s' | cut -f2 | sort | uniq -d` returned 19 duplicate
+subjects; discarding the innocent classes — GitHub's `Add files via upload`,
+merge commits, empty commits (the L-286 class), and pairs whose trees **overlap**
+(board repairs and restores on `docs/LAB_STATE.md`) — **four further pairs have
+disjoint trees, and in each one the subject's topic matches exactly one of the
+two trees.** That asymmetry is what identifies the victim:
+
+| victim (message is foreign) | tree it actually carries | author of that subject | gap |
+|---|---|---|---|
+| `28b05eb2` 2026-08-25 18:12:08 | `…/A6/curriculum_D8/LANE_REPORT.md` | `f6b72feb` 18:12:17 (`…/A2/curriculum_D4/LANE_REPORT.md`) | 9 s |
+| `4d9d902b` 2026-08-25 21:38:17 | `…/A5/curriculum_D10_probe_{F,P}prime/RESULTS.md` | `5551db3d` 21:36:05 (`…/A3/curriculum_D7/D7_DEF4_SCALER_BLOCKER.md`) | 2 min |
+| `b95d6d2c` 2026-08-25 22:24:47 | `…/curriculum_D12/PHASE1_ARREST_AND_DEFECTS.md`, `docs/COST_CALIBRATION.md` | `ae9314c6` 22:05:56 (`…/A3/curriculum_D7/D7_LAUNCHER_REPAIR_AND_ARM_O.md`) | 19 min |
+| `3def5d39` 2026-08-26 16:14:20 | `docs/COST_CALIBRATION.md`, `verification/runs/T-family/T11_runs/…` | `7422591b` 16:12:05 (`docs/campaigns/T-family/T4_RESULTS_2026-08-26.md`, `gate_t4.json`) | 2 min |
+
+Read the third row aloud: a commit touching only **T11** artifacts carries the
+subject *"T4 GRADE RECORD [lab-attributed]: NOT A RESULT x3…"*. **A grade verdict
+is filed under a rung it did not grade.** The second row is the same shape one
+ladder over — a **D8** lane report wearing a **D4** subject — and it is the
+tightest window of the set at nine seconds, with the victim committing *first*.
+
+**So the landed total on `main` is SEVEN**, not three: `878f1556` (2026-08-23,
+L-256), `3dc99590`, `28b05eb2`, `4d9d902b`, `b95d6d2c` (all **2026-08-25**),
+`3def5d39` (2026-08-26) and `badbcfd2` (2026-09-10). **Three of the seven landed
+on 2026-08-25 — the day L-324 was written** — which is the honest measure of how
+long a two-line remedy takes to reach every hand-rolled commit chain: on the day
+the lesson was recorded, the mechanism it described claimed three more commits.
+
+**What this addendum changes about the lesson, and it is the important part.**
+The body argued the preventive from a 3-landed / 2-caught ratio. The real ratio
+is worse, and the class is not an occasional accident — it is **routine**, and it
+was invisible for a fortnight because **no instrument in this lab has ever asked
+the question**. Every one of these seven passed `diff-tree --stat`, the CAS, and
+`git diff HEAD~1 HEAD --stat`. Four of them were never noticed at all until a
+sixteen-character pipeline was run over `git log` for the first time.
+
+**Consequently the detection rule is not a diagnostic for this incident; it is a
+standing screen**, and it belongs beside the other corpus screens rather than in
+a lesson body. It is `O(commits)`, needs no working tree, no compute and no
+network, and its false-positive classes are all cheaply separable by the
+overlapping-tree test above.
+
+**What this addendum does NOT claim.** It does not re-verify each of the four new
+pairs against a scratchpad that no longer exists — the identification rests on
+the tree/subject topic mismatch and the same-window timing, which is strong,
+convergent and reproducible from `git` alone, but it is **inference from the
+record, not a caught race**. It also does not touch the *contents* of any of the
+seven trees: in every case examined the tree is correct and only the message is
+foreign, which is the whole reason the class survived undetected. And per the
+body's honest limit, **none of the seven is corrected** — `main` is not rewritten;
+this table is the repair.
+
+*Lines whose number changed above this section: 0.*
