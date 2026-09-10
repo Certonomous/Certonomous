@@ -1,0 +1,10 @@
+WROTE surfaceMesh_Lc_nocluster.cgns  coarsen=2 cluster=False level=Lc
+  PART_100004    [41, 65, 1]
+  PART_100009    [65, 5, 1]
+  PART_200001    [41, 5, 1]
+  PART_200002    [65, 41, 1]
+  PART_200006    [5, 65, 1]
+  PART_200007    [5, 5, 1]
+  PART_300003    [5, 41, 1]
+  PART_300008    [5, 5, 1]
+  PART_400005    [65, 5, 1]
