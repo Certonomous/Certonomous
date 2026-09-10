@@ -699,3 +699,177 @@ transonic PC being off. With it on, the M6 adjoint converges and FD-verifies at
 and 79,560 cells with memory comfortable; and the sibling A6 wing-alone case is a
 verified PASS. The memory-scaling measurements (Options 3/5) are unaffected — they
 were never in dispute; only the convergence reads above are superseded.
+
+---
+
+## AMENDMENT 2, 2026-09-10 — document version 1.2. The 2026-09-09 correction is COMPLETED to the rule-6 form, the free-lever inventory is stated once, and a line-number defect introduced by that correction is disclosed
+
+**lines whose number changed above this section: 0**
+
+**Version record.** This document carried no explicit version line before today. The
+history is reconstructed from its own commit trail and stated here, at the foot, without
+touching a byte of the body: **v1.0** 2026-07-29 (`216fe7a8`, `3c9379de`, `5a2e49c6`) — the
+D3 envelope through the Option 4/5 sweep; **v1.1** 2026-08-08 (`e9a651e9`, the retroactive
+dead-lever annotations at L610) and 2026-09-09 (`fa124d95`, `CORRECTION 2026-09-09` at
+L641); **v1.2** 2026-09-10 — this amendment. Nothing above this line is rewritten. The
+struck passages named in `CORRECTION 2026-09-09` stay struck, not edited; every measured
+number in them stands exactly as recorded.
+
+### A. Why a second amendment exists at all
+
+`CORRECTION 2026-09-09` (L641–L701) already carries the substance of the repair and is not
+superseded by this one — it is **completed** by it. Three things it did not do, and this
+amendment does:
+
+1. It carries **no version bump and no `lines whose number changed above this section: 0`
+   assertion**, which rule 6 requires because this file is cited **by line** by other
+   records — including two pre-registrations (§D).
+2. It leaves the **free-lever question** unanswered on this document's face, which is the
+   question a cold reader will actually ask next: *if conditioning is the wall, what cheap
+   thing has not been tried?* Reading the body alone, the honest-looking answer is "plenty";
+   the measured answer is "one" (§C).
+3. It **itself broke the line citations** it was written to protect (§D).
+
+### B. The corrected picture, stated so it cannot be misread
+
+A reader of the body's L48–L63 table and paragraph will conclude that the ONERA-M6 adjoint
+has **never converged at any size**. That conclusion is **false**, and it is the single
+most expensive false conclusion available from this file, because it invites two wrong
+follow-on decisions — abandoning a line that works, or renting memory to fix a problem that
+is not memory. What is true, every figure MEASURED and read from the artifact named beside
+it, not from this file:
+
+- **M6 rungs 1 (21,840 cells) and 2 (42,120 cells) CONVERGE and are FD-verified**, with
+  `transonicPCOption 1` active.
+  `cases/dafoam/A3_RUNG3_N52_RESULT.md:88-89`: *"rungs 1 (21,840) and 2 (42,120) converge
+  and are FD-verified; the transonic-PC token remains the difference between double `-5`
+  and convergence at both."* Rung 2's own record,
+  `cases/dafoam/A3_RUNG2_N28_RESULT.md:1,13,20-30`, grades it **CONVERGED + FD PASS**: both
+  adjoint solves `PetscConvergedReason: 2`, and all three FD components PASS —
+  `patchV[1]` 0.0077 %, `twist[1]` 0.2740 %, `shape[115]` 0.0172 % (MEASURED).
+- **The fix WEAKENS the preconditioner.** `transonicPCOption 1` drops `fvm::div(phid, p)`
+  from the PC-matrix pressure equation — `cases/dafoam/R5_ADJOINT_CONDITIONING.md:299`,
+  `cases/dafoam/A3_TPC1_ARM_PREREGISTRATION.md:34`, both against
+  `DAResidualRhoSimpleCFoam.C:172-176`. It is a deliberate PC mismatch, not a stronger solve.
+  This is why the body's instinct — that a harder-working preconditioner is the remedy — is
+  backwards for this operator.
+- **The real wall is `PetscConvergedReason: -3` STAGNATION at rung 3 (79,560 cells), not the
+  `-5` breakdown the body's table records.** MEASURED, `A3_RUNG3_N52_RESULT.md:20-41`: CD
+  runs to its 4,000-iteration cap; total residual reduction **1.31x**
+  (2.121343646203e-02 → 1.615245992220e-02); residual change over iterations 1300→4000 is
+  **3.79e-07 relative** — flat. The record distinguishes this from rung 2's *budget-limited*
+  `-3` (1407x reduction, still descending, resolved by raising the cap), and the distinction
+  was pre-registered before either was seen.
+- **Memory is COMFORTABLE at the wall.** MEASURED, `A3_RUNG3_N52_RESULT.md:50-51`: peak
+  container usage **11.65 GiB against a 22 GiB cap**, host `MemAvailable` never below 17 GB,
+  no swap growth, no OOM. **Conditioning binds, not RAM.** This is the L-15 shape the
+  compute charter names and `DAFOAM_CHARTER.md` §7 restates against this very rung.
+- **The ceiling is BRACKETED, not located: it sits between 42,120 and 79,560 cells**
+  (`A3_RUNG3_N52_RESULT.md:62-64`). The record explicitly declines to claim 79,560 is *the*
+  boundary (`:91-94`), and declines to claim stagnation and the earlier `-5` share a
+  mechanism (`:95-97`). Neither claim is made here either.
+- **The sibling A6 case is a verified win, not a predicted loss.** A6 CRM **wing-alone**
+  (41,760 cells) adjoint is an item verdict **PASS**, two rows, 20/20 FD components, 0 sign
+  flips — `cases/dafoam/ladder-a/A6/curriculum_D8R/RESULTS.md:13-24,38-40`. This overturns
+  the body's L76–L84 inference that A6 "should be expected to hit the same conditioning wall
+  as A3". A6 **wing-body** (579,072 cells) has still had **no adjoint attempted**; it remains
+  memory-predicted only, and that prediction is INFERRED, never measured.
+
+**Two decisions this section exists to foreclose.** (i) *Renting memory does not buy a
+converged M6 gradient at rung 3* — memory was never the binding constraint there, and
+stagnation is expected to return at larger meshes with a better-resolved shock. Renting is
+**necessary-but-not-sufficient**, and is defensible only as a way to measure peak RSS for
+cases that currently OOM, which is a cost-model deliverable and not a gradient. (ii) *There
+is no DAFoam GPU backend* — no CUDA/AMGX/PETSc-GPU path in the tree
+(`docs/GPU_CAPABILITY_STATE.md:118`); "GPU for the adjoint solve" is a build project, not a
+configuration change. Neither point is re-litigable from this document's body.
+
+### C. The free-lever inventory — every entry verified at its own record before being written here
+
+The body's Options 1–5 predate almost all of this. The cheap-lever well for rung-3
+conditioning is, on the evidence, **essentially dry**. Each row was checked against the
+artifact named, not carried from any board or brief:
+
+| lever | state | evidence (MEASURED unless marked) |
+|---|---|---|
+| `renumberMesh` / CuthillMcKee | **already spent at mesh build, on every rung** | `/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-probe80k/logMeshGeneration.txt:346,366-378` — the 79,560-cell mesh, `renumber-method: CuthillMcKee [default]`, **band 73,452 before → 1,550 after**. It is therefore not the differentiator between the converging rungs and the stagnating one. |
+| `adjStateOrdering: cell` | **already the baseline, not a lever** | `cases/dafoam/ladder-a/A3/curriculum_A3FL1/A3FL1_PREREGISTRATION.md:28`, citing `rung3_stage1.log:508` and `runScript_rung3.py:95` — `cell` on rungs 1, 2 **and** the stagnating rung 3. **Conflict disclosed:** `cases/dafoam/ladder-a/A3/original_memory_plan/PREREGISTRATION.md:159` calls it *"UNTRIED — never varied in any lab run"*. That entry is the older one and cites the pyDAFoam default rather than an M6 run log; A3FL1's line-cited log reading is the one this amendment relies on. |
+| `pcFillLevel 0→1` | **spent** | residual improves only **1.859x** despite a ~7-order improvement in mid-cycle condition number — `cases/dafoam/ladder-a/A3/grading_confirmation/RESULTS.md:225-226`. |
+| L3 Richardson (`globalPCIters`/`localPCIters` 3) | **spent, and withdrawn before rung 3 launched** | a material winner at rung 1 (−43 %/−45 % iterations) that **collapses to double `-5` at exactly iteration 200 — `gmresRestart`, the first restart boundary — at rung 2**; `grading_confirmation/RESULTS.md:232-235`, `A3_RUNG3_N52_RESULT.md:10-16`. |
+| `gmresRestart 200→1000` | **spent, at rung 3 itself** | the restart challenge, `cases/dafoam/A3_RUNG3_RESTART_CHALLENGE_PREREGISTRATION.md:108-140` — **BRANCH B**, the restart effect is real but does not rescue the claim; **1.647x** against a pre-registered 10x bar (`grading_confirmation/RESULTS.md:227`), residual flattening at exactly iteration 1000. |
+| `-ksp_type lgmres` | **spent** | `-3` at 400 iterations, residual 8.236875832365e-02 — **5.10x WORSE** than the control, and 3.88x above its own iteration-0 value: `cases/dafoam/A3_STAGE2_UNREACHABLE_CLASS_PREREGISTRATION.md:109-133`, `grading_confirmation/RESULTS.md:228`. |
+| `-pc_type gamg` | **spent** | `-5` at 200 iterations, residual **7.554080154832e+179** — diverged catastrophically, 4-level hierarchy confirmed built; peak 7.0 GiB, memory never a factor: `A3_STAGE2_UNREACHABLE_CLASS_PREREGISTRATION.md:135-160`. |
+| `asmOverlap 1→2` | **spent** | **1.062x worse** — `grading_confirmation/RESULTS.md:224`; `ladder-a/A3/original_memory_plan/PREREGISTRATION.md:160` records it already at its cheapest value with no headroom downward. |
+
+`grading_confirmation/RESULTS.md:215-235` states the aggregate on its own face: **twelve
+conditioning levers eliminated, with numbers**, including the diagnostics that refused to
+discriminate — preconditioned κ = `sMax/sMin` = **9.57e+10** at rung 3, diagonal spread
+**14.47 decades** at rung 3 against **14.40** at the *converging* rung 2, and a Hutchinson
+non-normality ratio of **0.617** against a ≥3.0 bar, i.e. the stalling rung is *less*
+non-normal than the converging one.
+
+**Two honest qualifications, so this section is not over-read.** First, `lgmres` and `gamg`
+were tested as **off-the-shelf members of their classes at documented defaults**, on
+`dafoam-kspopts:v1`; the same record states plainly that this is evidence off-the-shelf AMG
+fails here, *not* that a coarse-space method cannot work, and that a physics-appropriate
+coarse space *"remains untested and is not cheap"*
+(`A3_STAGE2_UNREACHABLE_CLASS_PREREGISTRATION.md:169-175`). Second, **one genuinely-untried
+free lever remains**: `jacMatReOrdering: natural → nd`. Every A3 rung ran `natural`
+(`A3FL1_PREREGISTRATION.md:27`, citing `A3-rung3-n52/rung3_stage1.log:449` and
+`A3-rung2-n28-tpc1/runScript_tpc1.py:101`); `nd` has never run on M6. It is pre-registered
+as A3FL1/A3FL2 (`cases/dafoam/ladder-a/A3/curriculum_A3FL{1,2}/`), and **as of this
+amendment neither directory contains a RESULTS file** — so it is `PENDING`, and its
+pre-registration's own prior expectation is pessimistic. **"Essentially dry" means one lever
+left and a pessimistic prior on it — it does not mean zero.**
+
+### D. Disclosure: `CORRECTION 2026-09-09` shifted body line numbers by +2, and this amendment does not repeat that
+
+Commit `fa124d95` appended the correction at the foot (66 insertions) **but also inserted two
+lines into the body at position 63** — the `[SUPERSEDED — …]` marker now at L65 and its
+blank line. Every body line below L64 therefore moved down by two, and the assertion rule 6
+requires was neither made nor makeable. This is not a cosmetic point: this file is cited by
+line by records that were written against the pre-shift numbering, and several of those
+citations now resolve to the wrong place. Measured examples, checked today:
+
+- `cases/dafoam/ladder-a/A3/original_memory_plan/PREREGISTRATION.md:88` cites `:432` for the
+  power law; the law now sits at **L434**.
+- `docs/MEMORY_ARCHITECTURE.md:51` cites `:625-626` for *"died with it — they are
+  unreconstructible"*; it now sits at **L627-628**.
+- `verification/campaign/COLD_START_TEST_2026-08-11.md:245` cites `:622` for the lost-logs
+  block, which now begins at **L623**.
+- `verification/campaign/DEAD_LEVER_AUDIT_ROUND5_2026-08-14.md:81` cites `:611` for the
+  2026-08-08 annotation, whose heading is now at **L610** and whose item 1 is at **L612**.
+
+**No body line is renumbered to repair this, and none is renumbered by this amendment** —
+un-inserting the marker would shift the numbers a *second* time and break the citations
+written since. The defect is recorded here so a reader who finds an off-by-two citation
+knows why, and so the next amendment to this file does not repeat it. The affected
+citations are reported to the dafoam supervisor, not silently rewritten in the citing
+documents, which are other teams' records.
+
+**One executable check reads this file**: `scripts/self_audit.py:4392`
+(`check_memory_scaling_law`) refits the published power law from the document's own three
+measurement rows. It matches on **content regexes, not line numbers**, so it is unaffected by
+either shift. This amendment deliberately introduces **no** two-column `| cells | MiB |`
+table row and **no** second power-law sentence, so that check continues to read exactly the
+three rows and the one law it was written to read.
+
+### E. What is UNAFFECTED and still stands
+
+The memory measurements are not in dispute and were never in dispute. **Options 3 and 5 —
+the rank sweep and the bytes-per-cell scaling law, including the published fit and its three
+measurement rows — stand unchanged**, as does the per-family window finding that a
+compressible M6 mesh and an incompressible sail mesh of similar size behave differently, and
+as does the coarse-end floor (the 10,920-cell M6 primal that will not converge, so there is
+nothing to linearise about). What is superseded is **only** the convergence reading: the
+L48–L63 table row and paragraph asserting `-5` at every M6 size and "never, at any tested
+size, produced a converged adjoint", and the `-5`-everywhere restatements inside Options 4/5
+and the end-of-Option-5 hardware summary. Those were measured with the transonic
+preconditioner **off** — `transonicPCOption 2` is dead code for `DARhoSimpleCFoam`, which
+accepts only `== 1` (the 2026-08-08 annotation at L612-621) — and they remain true statements
+about that configuration and false as statements about this case.
+
+*Drafted by a dafoam `lab-lane` under zero-compute instruction: no solver, container or
+`mpirun` was invoked, and no number above was produced by this amendment. Every figure is
+read from the artifact cited beside it. `cases/dafoam/A3_RUNG3_N52_RESULT.md` was read and
+not modified.*
