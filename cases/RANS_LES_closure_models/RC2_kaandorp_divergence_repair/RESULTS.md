@@ -360,3 +360,114 @@ Stated plainly, because an honest gap is worth more than a confident summary:
 `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` / `PENDING`,
 and nothing else. Nothing sent, filed, uploaded, registered, posted or
 commented — SUBMISSIONS PARKED.*
+
+---
+
+## ADDENDUM 1 — 2026-09-10. THE *fails-to-converge* LEG IS **HELD, NOT RULED**
+
+**Why this is an addendum and not an edit.** This record landed at
+`2026-09-10T04:04:36Z` (`c0ff576a`). The standing ruling below was issued at
+**`2026-09-10T04:40Z`** — *after* it. Nothing above this line is altered:
+**lines whose number changed above this section: 0** (proved, not asserted —
+see the foot of this addendum).
+
+**This addendum moves no gate, threshold, cap or label, and does not touch the
+verdict.** RC2's run verdict remains **`PASS`** in the registered §5.3 sense
+quoted at the head of this file — *"the re-grade was performed and is
+defensible"*, **not** *"nothing was wrong"*.
+
+### A1.1 The ruling
+
+> **The disposition of the *fails-to-converge* leg is HELD, NOT RULED**
+> [lab-attributed, closure-supervisor, 2026-09-10T04:40Z]. The mechanism
+> correction of the same date *"narrows my mechanism, it does not restore the
+> flag as a measurement, and 9 candidate rows remain candidates."*
+
+**RC2 graded the DIVERGENCE flag. The CONVERGENCE flag belongs to a registered
+successor, not to this record.** §5's table reports the *fails-to-converge* leg
+as **STAYS ARMED on 15 of 16** because that is what `REGRADE_RC2.json`
+`movement.TRIGGER_DISARMED.fails_to_converge_leg` says. **That reading is
+carried forward unchanged as a REPORTED movement and is NOT a ruling that those
+15 rows failed to converge.** Any reader who took §5's phrase *"computed
+independently from the residual history"* to mean the `converged` channel is
+itself settled should stop here: it is not, and §A1.2 says why at source.
+
+### A1.2 Why the `converged` channel is under question — two mechanisms, at source
+
+The *fails-to-converge* leg reads the `converged` field written by
+`cases/RANS_LES_closure_models/Kaandorp2020_TBRF/aposteriori/run_lane.py`. Two
+defects in that writer are established at source; **neither is repaired here and
+neither is graded here.**
+
+| # | mechanism | source | consequence |
+|---|---|---|---|
+| **1** | `out[f"res_{f}_max_last500"] = float(np.max(h[-500:]))` — on a history shorter than 500 iterations the slice is the WHOLE history, so the statistic silently degrades from *max over the last 500* to *max over the entire run* | `run_lane.py:182` | a short run's residual maximum is reported over a window it never had. Measured instance on the board: `frozen_R_AR_1_Ret_360`, **383 iterations**, `res_p_max_last500` exactly **1.0** against `res_p_final` **9.978e-07** |
+| **2** | the reader's convergence test reads `hist.get("Ux")` — **the Ux COMPONENT alone** — while the solver's own termination criterion installed at `run_lane.py:143-144` is `residualControl { p 1e-6; U 1e-6; }`, covering the **whole U VECTOR**, which OpenFOAM satisfies only when Ux, Uy AND Uz are all under tolerance | `run_lane.py:184` vs `:143-144`; the flag is set at `:195-196` | **the reader's test is strictly WEAKER on velocity**, so it can fire while the solver is still running and waiting on Uy/Uz. The two tests do not measure the same thing |
+
+**A WITHDRAWN CLAIM, recorded so no reader reconstructs it.** An earlier and
+BROADER form of mechanism 2 — that `converged: True` is *structurally
+unreachable* on any run stopping on `residualControl` — was published and is
+**FALSIFIED and WITHDRAWN**. Two counter-examples defeat it, and one of them is
+this record's own row: **`AR_3_Ret_360__TRUTH` carries `converged_iteration`
+2283 against 3052 iterations** (769 iterations of margin), and
+`frozen_R_PHLL10595` **3368 against 3450** (82 iterations of margin). Both found
+the 100-iteration window *before* the solver stopped. What survives is only the
+narrow form: **a run that stops within fewer than 100 iterations of its
+residuals crossing cannot exhibit the window** — which does not generalise to
+every `residualControl` stop. The direction of an error does not excuse it: a
+disclosure that OVERSTATES a defect is still a wrong record.
+
+**Consequence for this file, stated plainly:** §5's sole exception
+**`AR_3_Ret_360__TRUTH`** (`converged == true`) is *strengthened*, not weakened,
+by the withdrawal — it is one of the two rows that demonstrated the flag is
+reachable and was reached.
+
+### A1.3 What is HELD, and where it goes
+
+1. **HELD:** whether the 15 armed rows genuinely failed to converge. RC2 does
+   not answer it and is not entitled to.
+2. **NOT held, and unchanged:** the *diverges* leg is **DISARMED on all 16**
+   (§5). That leg is what RC2 registered, graded and controlled, and the
+   planted control fired in both directions on it (§4).
+3. **The ruling's "9 candidate rows remain candidates" is quoted, not
+   re-derived here.** Its population is the mechanism sweep's 19-row population
+   (16 flag-bearing `results.json` rows plus 3 `frozen_R_*` propagate legs), not
+   this record's 16 scored rows; the overlap is not measured in this addendum
+   and is not asserted.
+4. **Route:** the `converged`-channel question belongs to a **registered
+   successor** with its own frozen pre-registration, gate and cap. It is not
+   reachable by amendment to RC2, whose gates closed at first compute
+   (`2026-09-10T03:49:35Z`).
+
+### A1.4 Cross-reference — the stale self-label is already disclosed
+
+The frozen `regrade_rc2.py` hardcodes
+`status = "DRAFT/UNFROZEN -- not a registered result until the freeze commit"`
+at **`regrade_rc2.py:294`**, so `REGRADE_RC2.json`'s own `status` field is
+**FALSE for this run**: RC2 was **FROZEN at `0aa1a049`
+(`2026-09-10T03:43:43Z`)** and the run launched at **`03:49:35Z`**, *after* the
+freeze. Both instruments' on-disk sha256 were verified equal to their HEAD blobs
+and to the registered §14 pins (`rc2_divergence.py` `ce2acaf0…`,
+`regrade_rc2.py` `1c43b3e5…`). **This is a stale self-label inside a frozen
+instrument. The frozen file is NOT edited (rule 6); it is DISCLOSED, NOT
+REPAIRED.** Already carried at **§9 row (a)** of this record; repeated here only
+so the two held items sit together.
+
+### A1.5 Zero-renumbering proof
+
+Method, run in one shell invocation, with the hasher's own control fired in the
+same breath so the equality cannot be a constant:
+
+| quantity | value |
+|---|---|
+| lines above this addendum | **362**, before and after |
+| sha256 of the 362-line prefix, BEFORE the append | `eb129a17f86023acd78854e62c189159a1e2794e00849a770147d237f17f3362` |
+| sha256 of the 362-line prefix, AFTER the append | *(identical — asserted by the appending invocation)* |
+| **control** — whole-file sha256 | **MOVED** from `eb129a17…f3362`, proving the hasher is not returning a constant |
+| insertions / deletions | **appended only; 0 deletions, nothing edited in place** |
+
+*Addendum written by a closure `lab-lane` on the closure-supervisor's dispatch.
+It records a standing supervisor ruling; it asserts no gate verdict of its own.
+Vocabulary: `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` /
+`PENDING`, and nothing else. Nothing sent, filed, uploaded, registered, posted
+or commented — SUBMISSIONS PARKED.*
