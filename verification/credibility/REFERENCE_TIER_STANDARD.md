@@ -42,6 +42,16 @@ Ordinal rank in brackets; a page may show a case AT or BELOW its registered tier
   the time-box or bug-find is stated. Carries the same disavowal as code-verified.
 - **not-applicable-dimension (0)** -- 2D / axisymmetric. **EXCLUDED** from any 3D listing.
 
+> **exact-verified** -- a case whose result was VERIFIED against a CLOSED-FORM ANALYTIC
+> solution or a Method-of-Manufactured-Solutions (MMS) source term (not another code, not
+> internal-only). This is a distinct VERIFICATION tier defined in **§7** (added 2026-09-10),
+> because the five tiers above had no home for an analytic-reference case (e.g. the Navier
+> V&V spine). It is the STRONGEST verification tier but it is VERIFICATION, not validation:
+> it carries the same NOT-experiment-validated disavowal as code-/method-verified. §7 fixes
+> its ordinal placement and display rule. No COMPLETED 3D case is exact-verified today, so
+> §7 changes no entry in §3 and moves no verdict; the gate instrument gains the tier only
+> when the first exact-verified 3D case completes (§7.3).
+
 ---
 
 ## 2. The ordering / gate rule (binding on demo pages and credential entries)
@@ -128,3 +138,69 @@ DAFoam's own tutorial baseline (wing-alone) and makes NO workshop/experiment com
 truthful correction is drafted for the supervisor's review; the file's `validation_tier` field is the
 **geometric** axis (a different axis) and is handled separately. No customer-facing DISPLAY surface
 currently shows any of the six 3D cases above its true reference tier.
+
+---
+
+## 7. The exact-verified tier -- addendum 2026-09-10 (owed since the standard landed; the first Navier EXACT pre-registration triggered it)
+
+**Author:** verification-supervisor. **Provenance:** the reference-tier standard as landed
+(Sanaa 2026-09-09 direct) classifies by reference STRENGTH but its five tiers had no place
+for a case verified against a closed-form ANALYTIC solution -- the Navier V&V spine's
+EXACT-tier cases (e.g. PRD-E1, packed-bed Ergun law; the analytic-law / MMS family). This
+addendum COMPLETES the directed classification; it adds no new standard and, because no
+COMPLETED 3D case is exact-verified today (PRD-E1 is a pre-registration, not a completed
+3D solve), it changes NO entry in the §3 applied table and moves NO verdict. The standard
+as a whole remains a working draft pending Sanaa's ratification (§3).
+
+### 7.1 Definition and mandatory display
+
+- **exact-verified** -- the graded quantity was compared to a CLOSED-FORM ANALYTIC solution
+  of the governing equations (Poiseuille, Blasius, Ergun, a similarity solution, ...) or to
+  an MMS-imposed exact field, to a stated numerical tolerance. *Shown as:* "verified against
+  the exact/analytic <named solution> to <tolerance>", **with the mandatory DISAVOWAL** that
+  this is VERIFICATION of the discretisation against mathematical truth, **NOT** validation
+  against physical reality -- "no experiment; exact-solution verification, not validation".
+- The disavowal is REQUIRED wherever the tier is shown, exactly as for code-verified and
+  method-verified. An exact-verified case shown with an un-negated experiment/wind-tunnel
+  token and no disavowal is a violation (the §2 rule-3 shape).
+- Where the exact-verified claim rests on a Roache-gated grid triple, the case still shows
+  its band and GCI per Rule 5; the exact solution is the REFERENCE the band is taken against.
+
+### 7.2 Ordinal placement (order is what the gate uses, not the raw integer)
+
+exact-verified sits on the VERIFICATION axis, ABOVE code-verified and method-verified
+(a closed-form analytic reference is a stronger verification statement than reproducing
+another code or internal-only checking) and BELOW the VALIDATION tiers (a claim of matching
+PHYSICAL reality -- experiment-validated, bounded-agreement -- is a stronger customer-facing
+credibility claim than matching MATHEMATICAL truth). The total order the §2 over-claim
+refusal uses becomes, strongest to weakest:
+
+    experiment-validated  >  bounded-agreement  >  exact-verified  >  code-verified  >  method-verified  >  not-applicable-dimension
+
+Consequences (all correct): an exact-verified case shown CLAIMING experiment-validation or
+bounded-agreement is an OVER-CLAIM -> the gate refuses; shown as code-/method-verified (below
+it) is a permitted honest under-claim. A page must never present analytic-solution
+verification AS experiment validation.
+
+### 7.3 Instrument change -- SPECIFIED, DEFERRED until the first exact-verified 3D case completes
+
+`check_reference_tier.py` and `reference_tier_registry.json` are NOT changed now (no
+completed 3D case triggers the tier; changing the frozen registry with no case to classify
+would be a change with no evidentiary content). When the first exact-verified 3D case
+completes:
+
+1. Add `exact-verified` to the instrument's tier order, placed per §7.2. PREFER a NAMED-order
+   lookup over raw integer ranks so the two validation tiers need not be renumbered; if
+   integers are retained, experiment-validated and bounded-agreement shift up by one to open
+   the rank between bounded-agreement and code-verified -- an ORDER-PRESERVING renumber, so
+   the over-claim comparison (order-only) is verdict-invariant.
+2. Add the mandatory-disavowal display rule for exact-verified (mirror the code-verified
+   disavowal limb) and a planted-zero control arm that drives the scanner RED on an
+   exact-verified case shown claiming experiment-validation.
+3. Register the completed case's tier in the frozen registry BEFORE any page is scanned
+   (rule 2), tier VERIFIED at source (L-144).
+4. The change is diff-read + plant-driven + committed by the verification-supervisor
+   (§3 check-1), never taken on a lane's PASS.
+
+Until then this addendum is the authority on how an exact-verified case must be shown, and
+no page may present an analytic-verification result as experiment-validated.
