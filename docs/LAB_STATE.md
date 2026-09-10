@@ -19092,6 +19092,29 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-10 (update 74): **FOR SANAA'S 3D DEMO LIST — THE FLAGSHIP THERMAL ACT IS NOT A 3D CASE.** The whole T23/T24 motor family that Act A films is an **AXISYMMETRIC WEDGE**. Measured from the patch tables, not inferred from the renders. Genuinely-3D, solved candidates DO exist in my territory and a lane is grading them.
+
+### THE FINDING SHE NEEDS BEFORE SHE FILMS
+Sanaa asked for *"a list of all the 3D cases that I can shoot as a demo"*. **Act A's cases are not among them, and this had to be checked rather than assumed** because a wedge sector renders as a convincing solid pie-slice and looks entirely three-dimensional on camera.
+Read from `constant/<region>/polyMesh/boundary` directly: **`T23_runs/T23_P305_U10` and `T24_runs/T24_P230_U20` carry `2 × type wedge` in EVERY region — `fluid`, `housing`, `core` and the top-level `constant`.** Fluid cell count 35,200. A `wedge` patch pair is OpenFOAM's axisymmetric construction: the case is a thin rotational sector, mathematically 2D with an imposed axial symmetry. **The same is true of `T23G2Rn2` itself** (2 `wedge` patches in each of `fluid`, `housing`, `core`) — so the entire T23/T24/T23G motor spine, the one whose filming prompt is *"Electric motor in a cooling duct: map the peak temperature in the motor solids across 80 to 305 W and 10 to 40 m/s"*, is axisymmetric.
+**Consequence, stated plainly: the motor act is filmable and its physics is real, but calling it a 3D simulation on camera would be a false claim.** What is true and sayable: an axisymmetric conjugate heat-transfer solve of a motor in a duct, with solid and fluid regions coupled. **And T4e, running now, is also a wedge** (2 `wedge` + 1 `empty`) — so it is not a 3D candidate either.
+
+### TERRITORY-WIDE DIMENSIONALITY CENSUS, from patch tables
+**117 axisymmetric-wedge cases | 284 2D-planar (`empty` patch pairs) | 36 with neither, i.e. GENUINE 3D CANDIDATES.** The 3D candidates cluster in exactly three places:
+- **`T10a` / `T10aR` / `T10aR2`** — `B_c/B_m/B_f`, `S_c/S_m/S_f`, `R_q/R_s/R_x`, `R2_c/R2_m/R2_f`. Solved with time directories on disk. **CAUTION, and it is mine to flag: T10a is the rung whose view-factor quadrature defect is ALREADY on Sanaa's desk as upstream candidate #4.** Its verdict must be quoted before any of it is filmed as a result — I am not clearing it from memory.
+- **`T18_runs/T18_CU_*`** — `T18_CU_c/m/f` plus `T18_CU_f_CT`. Solved, time directories present.
+- **`K2b_runs/K2b3D_probe`** and `K2bU3R3_D59` on the DC-cooling spine, plus the `T21` feasibility probe tree.
+**A lane is now establishing, for each: is it genuinely 3D on the patch evidence, are its fields still on disk or archived away, and WHAT IS ITS VERDICT IN THE FIXED VOCABULARY** — because a beautiful 3D case whose rung graded `NOT A RESULT` may be shot as geometry and flow but must never be presented as a verified result. That distinction, per case, is the deliverable. **The lane is explicitly instructed not to build a detector on an assumed filename convention** — the failure I made three times today.
+
+### ON HER "UNLESS IT'S AN OPENFOAM ISSUE" CLAUSE — I HAVE NOTHING TO SURFACE UNDER IT
+My one live crash is **`T25R_L1`, `rc=134`, `Negative initial temperature T0: -14.4619608928`** from `thermoI.H:57` on the first coupled energy solve. **I triaged it first-hand and it is NOT an OpenFOAM issue**: the solver, the build and the toolchain behaved correctly — `blockMesh` and `checkMesh` passed on both regions, the momentum solve was healthy, and the abort is OpenFOAM correctly refusing a physically impossible state that the CASE SETUP produced (an h↔T inversion inconsistency between the two regions' `thermophysicalProperties`, an over-large first `deltaT` under the imposed source, or insufficient first-iteration relaxation on the coupled assembly). **So it stays in the "fixes continue as usual" bucket and I am not putting it in front of her.** I record the reasoning rather than just the classification, so she can overrule it if she disagrees.
+
+### V-119 — APPROVED, AND I AM NOT THE ONE APPLYING IT
+The board cutover is verification's to apply. **I have changed nothing about my write path and will follow their instruction when it lands.** Recorded because my own standing note said this cutover needs Sanaa's explicit sign-off rather than a relayed approval — her turn carries it in her own words, and the application is still verification's act, not mine.
+
+**Section last written:** 2026-09-10T16:31:51Z by heat-transfer-supervisor personally (`date -u` in the committing invocation). Newest block is **update 74**.
+
+
 ##### heat-transfer 2026-09-10 (update 73): **A CLAIM I PUT IN MY OWN REGISTRATION ABOUT VERIFICATION'S INSTRUMENT IS FALSE, and the real defect is a FAIL-OPEN ON MY OWN FREEZE.** My referral was aimed at a clause that needed nothing; the defect is two lines upstream, and it would have printed a clean **"9 of 9"** while the manifest holding my ceiling and every cap sat **unpinned**. K0h AMENDMENT 2 landed. **My three grounds for not freezing are untouched — the coverage question was never what held it.**
 
 ### THE CORRECTION, AND IT IS AGAINST MY OWN DOCUMENT
