@@ -566,3 +566,23 @@ Stated so no reader has to infer it.
 **AN INSTRUMENT ERROR OF MY OWN, DISCLOSED BECAUSE IT NEARLY BECAME A FALSE ACCUSATION.** My first exit-code reading used `python3 … | tail -3` and then read `${PIPESTATUS[0]}` *after* the subshell — so it was measuring **`tail`**, not the grader, and returned **0 for both mutated runs**. I was one step from filing "this grader cannot refuse" against a grader that refuses correctly. It read `0` on the clean run too — **the right answer for the wrong reason**, which is exactly the vacuous control this lane had already caught in its own code an hour earlier. Re-measured with no pipe: 0 / 1 / 1. **A pipeline's exit status is the last command's, and an exit-code reader must itself be shown able to return non-zero.**
 
 **WHAT THIS ITEM IS AND IS NOT.** It is a **plateau-breaking ladder**, not a grid-convergence study. It does **not** deliver mesh convergence and makes no GCI claim. It exists because A5's primal sits on a measured fixed point (`nuTilda` `primalMaxRes` 3.6201e-04, tightened pair agreeing to **2.9e-11 across a tenfold iteration extension**), and Case Protocol §5's ten-times rule cannot be asserted over that. **Freezing the 119.4 core-min A5 grid triple tonight would have registered a §5 gate I already knew could not be met — that is registering a failure and calling it a plan.** Clear the plateau here and the triple becomes registrable with a gate that can be met.
+
+---
+
+## ADDENDUM 1 — 2026-09-10, POST-COMPUTE. `A5P-LAUNCHER-DEF-1`: the runner invoked `mpirun` without `--allow-run-as-root` inside a `--user 0:0` container. **NO GATE, THRESHOLD, CAP, BAND, LABEL, PREDICTION OR COST MOVES.**
+
+*lines whose number changed above this section: 0.*
+
+**FIRST COMPUTE HAS OCCURRED** — a container ran and exited, so this lands as a **dated addendum** under rule 2 rather than as a pre-compute amendment, even though the arithmetic would have allowed the looser path. **The conservative reading costs nothing and is the one that keeps the freeze meaning something.**
+
+**WHAT HAPPENED.** Arm `P0` launched at 22:56:50Z, container `23eb0f6199cf…`, and **exited after 5 s with `A5P_SOLVER_RC: 1`** and the message `mpirun has detected an attempt to run as root`. The runner's `:248` read `mpirun -np $RANKS python runScript.py -task=run_model`; the `d8r_run_arm.sh` reference it was derived from carries **`mpirun --allow-run-as-root`** at `:341-342`, and the flag was dropped in transcription. **Repaired at `:248` only.** This is an **infrastructure defect, not a numerics one**: no solver iteration ran, no residual was produced, no field was written and no gate was evaluated.
+
+**AND THE ROW WAS NEVER AT RISK OF BEING BELIEVED, WHICH IS THE POINT WORTH RECORDING.** The launch assertion — on its **first real use** — refused:
+
+`launched: false reason=[never_started_container_exited after 5s with no ^ExecutionTime = line; decomposePar_decoy_seen=no solver_call_seen=no] launch_rc=88`
+
+and printed `A5P_LAUNCH_REFUSED arm=P0 rc=88 -- THE SOLVER'S FIRST ARTIFACT NEVER APPEARED. This row is NOT A RESULT and no grading may read it.` **A container-state poll of the kind every other launcher in this territory uses would have seen the container run and exit and would have handed its exit code onward as a result.** The `docker kill` read-back also behaved correctly, reporting `kill_failed(client_error)` with the daemon's own words preserved — `container … is not running` — because the container had already stopped. **Stderr was not swallowed, and that is why the reason is legible.**
+
+**COST OF THE REFUSED ATTEMPT, charged not absorbed:** 5 s wall × 4 ranks = **0.333 core-min**, `$0.000285` **derived, not measured**. It is charged against the ladder's registered 82.5 core-min cap.
+
+**VERDICT ON `P0` ATTEMPT 1: `NOT A RESULT`** — no solver started. `P0` is re-run under the repaired launcher; its determinism prediction and every gate above are untouched.

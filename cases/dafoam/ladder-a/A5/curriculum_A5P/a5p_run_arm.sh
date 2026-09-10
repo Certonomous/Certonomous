@@ -42,11 +42,30 @@ set -uo pipefail
 # Every constant PREREGISTRATION.md must fix is written as __A5P_UNFROZEN__.
 # This guard greps THIS FILE for that token and refuses.  It ASSERTS ITS OWN
 # TRIP COUNT: a grep that matches nothing and reports success is the planted
-# zero this lab keeps paying for.  The guard's own line contains the token, so
-# the threshold is >1, exactly as in the D8G reference.
+# zero this lab keeps paying for.
+#
+# PRE-COMPUTE REPAIR 2026-09-10 (supervisor, rule 2, run root did not exist):
+# the counting pattern was bare '__A5P_UNFROZEN__' against a threshold of >1,
+# but TWO lines of this file legitimately carry the bare token -- the prose
+# above and the grep itself -- so a CORRECTLY FROZEN file counted 2 and the
+# guard REFUSED IT (measured: exit 3).  An off-by-one that blocks only the
+# frozen case is worse than none: it trains a reader to bypass the guard.
+# The pattern now requires a SUFFIX: every real slot is the bare token plus an
+# uppercase name (image, digest, staged-instrument md5, run root, cpuset),
+# while both self-references are bare.  Threshold >0; the guard no longer
+# counts itself.  STRICTLY TIGHTER, not looser: one unfilled slot trips it,
+# where before it needed two.
+#
+# AND A SECOND REPAIR, five minutes later, from the same supervisor: the first
+# version of THIS COMMENT spelled the five slot names out literally, so the
+# guard matched its own documentation and refused again (measured: 3).  A
+# guard that greps its own file is fragile against its own prose.  Slot names
+# are therefore DESCRIBED here, never written.  The lesson is not the typo --
+# it is that this failure is invisible to reading and appears only on
+# execution, which is why the guard is exercised in BOTH directions below.
 # ===========================================================================
-UNFROZEN_TOKENS=$(grep -c '__A5P_UNFROZEN__' "${BASH_SOURCE[0]}" || true)
-if [ "${UNFROZEN_TOKENS:-0}" -gt 1 ]; then
+UNFROZEN_TOKENS=$(grep -cE '__A5P_UNFROZEN__[A-Z0-9_]+' "${BASH_SOURCE[0]}" || true)
+if [ "${UNFROZEN_TOKENS:-0}" -gt 0 ]; then
   echo "ABORT G-FREEZE.0 this file still carries $UNFROZEN_TOKENS unfrozen placeholders."
   echo "  A5P's registered root, image digest, cpuset and instrument md5s are"
   echo "  fixed in cases/dafoam/ladder-a/A5/curriculum_A5P/PREREGISTRATION.md at"
@@ -226,7 +245,7 @@ AGE_DATUM=$(stat -c %Y "$WORK/0/U")
 cat > "$CMDFILE" <<CMDEOF
 set -o pipefail
 cd /mnt/$ARM
-mpirun -np $RANKS python runScript.py -task=run_model 2>&1
+mpirun --allow-run-as-root -np $RANKS python runScript.py -task=run_model 2>&1
 echo "A5P_SOLVER_RC: \$?"
 CMDEOF
 
