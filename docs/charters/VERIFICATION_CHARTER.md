@@ -9636,3 +9636,66 @@ and the `out` it tests comes from `[sys.executable, comparator, "--selftest"]` (
 | canonical instrument named | **1** · implementations retired | **1** (`planted_control`, 0 callers) · arms retained separately | **1** (`check_instrument_source`) |
 | instrument edits made tonight | **0** (four specified, all deferred) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.88, 2026-09-10 — **§2bz THE LAB'S 3D PROBLEM IS NOT MESH CONVERGENCE: NOT ONE 3D TRIPLE HAS EVER FAILED ON THE GRID STATE. §2ca PRD — 1,107.7 CORE-MIN OF FINISHED 3D COMPUTE IS UNGRADED BECAUSE A PLATEAU TOLERANCE SITS BELOW ITS OWN MONITOR'S NOISE FLOOR. §2cb THREE INSTRUMENT FINDINGS, REPORTED AND NOT CHANGED**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Measured by a verification lane over 4,164 JSON artifacts, 139 structurally-detected level families and 128 graded triple rows, with three independent censuses (by identifier, by content, by property) each carrying its positive control; **≈8 core-min single-rank NON-SOLVER, $0.0068 derived**, no solver launched, no repo file written. `[lab-attributed]`. **No gate value moves; no verdict is withdrawn; nothing is made to refuse (`D539`).**
+
+### §2bz — **THE DIAGNOSIS, AND IT REDIRECTS THE LAB'S CURRENT PRIORITY**
+
+The owner's words ~19:45Z: *"all these complicated cases run and complete, and wit their mes convergence ASAAAP … More than anything else."* **The measurement says the obstacle is not where the phrase points.**
+
+Aggregate over 128 graded triple rows: **CONVERGING→PASS 41 · CONVERGING→GATE FAIL 12 · limb (1) 21 · DIVERGENT 6 · STAGNANT 4 · OSCILLATORY 3 · DEGENERATE 1 · state unprinted 5.** Failed triples 40; **limb (1) = 21 (52%)**, limb (2) = 19 (48%).
+
+**Restricted to 3D / Navier-class the picture is absolute:**
+
+| bucket | 3D instances |
+|---|---|
+| CONVERGING | 6 (F25 ×2, F27-R3 ×2, F27-R2 ×2) |
+| **limb (1) — iterative/plateau kill** | **8** (F27_WOMERSLEY ×2, SUBOFF-R1b, **PRD ×5**) |
+| level never completed | 2 (VMFL072-R3 `rc=136` SIGFPE at L3; M6_OWN_FAMILY L2 failed all 7 rule-4 clauses, L3 never built) |
+| never solved, stopped at mesh | 5 (M6I, M6SR, RUNG1_M6_R2, A1WR, DRIVAER) |
+| **limb (2) alone, 3D** | **ZERO** |
+
+> **RULED — §2bz: NOT ONE 3D TRIPLE IN THIS LAB HAS EVER BEEN KILLED BY ITS GRID STATE. Every 3D triple that failed, failed at limb (1) or earlier — a level that did not iteratively converge, did not plateau, crashed, or was never solved. THE BOTTLENECK IS THAT A LEVEL IS NEVER ALLOWED TO FINISH, AND WORK AIMED AT MESHES IS AIMED PAST THE PROBLEM.**
+
+**AND THE `F25`-IS-THE-ONLY-ONE CLAIM IS REFUTED.** `docs/LAB_STATE.md:31544` and `:31565` read *"the lab's ONLY CONVERGING 3D triple"*. **Measured: three cases, six triples** — `F25_DUCT3D` (p = 1.9529 / 1.9698, PASS ×2), `F27_NUMERICS_SUCCESSOR_R3` (2.0327 / 2.2738, PASS ×2), `F27_NUMERICS_SUCCESSOR_R2` (2.0671 PASS / 1.2718 GATE FAIL). Both F27 roots are genuinely 3D **checked from the mesh, not the label** (`§2bn`): `constant/polyMesh/boundary` carries 2 × `cyclic` + 1 × `wall`, **no `empty`, no `wedge`** — identical topology to F25's.
+
+> **THE HONEST HEADLINE, AND IT IS THE SENTENCE THAT SHOULD REACH THE OWNER: the lab holds THREE converging 3D grid triples, and ALL THREE ARE STREAMWISE-CYCLIC LAMINAR / ANALYTIC CODE-VERIFICATION CASES AT r = 2. THE LAB HOLDS ZERO CONVERGING 3D TRIPLES ON A TURBULENT OR EXTERNAL-AERODYNAMIC CASE.** Correcting "one" to "three" without that second sentence would be a truer number and a worse report.
+
+**Two caveats carried up rather than buried:** F25 row 0 reports **GCI = 129.33 %**, F27-R3 row 0 **109.88 %**, F27-R2 row 0 **71.70 %**. These pass their pre-registered bands — the band is on the fine value and `GCI_pct` divides by `f_fine ≈ 7e-4`, so `GCI_abs` (9.60e-4 / 5.87e-4 / 5.22e-4) is the honest figure. **Not a defect, and "PASS with 129 % GCI" is what a reviewer sees**, so it is said here first.
+
+### §2ca — **PRD: FIVE 3D TRIPLES, FIFTEEN COMPLETED SOLVES, 1,107.7 CORE-MIN SPENT, AND NO GATE HAS EVER BEEN EMITTED**
+
+`verification/runs/navier_class/PRD/_scheduler.log` final line: `ALL 15 solves FINISHED; core_min=1107.7; scheduler EXIT; … autograder grades when all plateaued -> …/gate_prd_e1.json`. **That file does not exist.** `autograde_prd.watch.log` was still spinning at 19:47Z — `cases=15 ready=False`, 9 of 15 levels `NOT_PLATEAUED`. **The autograder has been polling a finished job for fourteen hours.**
+
+**All fifteen solves ran their full 3,000 iterations, wrote `End`, and reached final initial residuals of order 1e-7** (e.g. `us4.00_L1/log.simpleFoam`: `Solving for k, Initial residual = 2.2959527e-06 … ExecutionTime = 168.59 s … End`). `iterative_state` is `CONVERGED` everywhere. **The block is the plateau limb alone**, and the failing levels miss `PLATEAU_REL_TOL = 1.0e-4` by factors of **1.8× to 23×** — recomputed from the raw `surfaceFieldValue.dat` monitors by re-implementing the grader's own `plateau_state` exactly, not by re-reading its output.
+
+> **RULED — §2ca.1: A PLATEAU CRITERION WHOSE TOLERANCE IS TIGHTER THAN ITS OWN MONITOR'S CONVERGED RIPPLE IS NOT A CONVERGENCE TEST — IT IS A TEST THAT NO CONVERGED RUN CAN PASS.** The area-averaged inlet Δp carries a bounded ~0.1–0.2 % oscillation the residual norm does not see. **The remedy is a pre-registration amendment (a windowed MEAN rather than a max-deviation, a tolerance defensible from the measured ripple amplitude, or a monitor with a lower noise floor) — and the compute is ALREADY SPENT, so RE-GRADING IS FREE AND RE-RUNNING IS NOT.** This is cfd's registration and cfd's amendment to make; this team rules the principle, not their threshold.
+
+> **§2ca.2 — THE HARDER FINDING UNDERNEATH, AND IT GENERALISES TO EVERY LOW-MACH INTERNAL-FLOW INTEGRAL THIS LAB GRADES. PRD's level-to-level spread is 0.03–0.2 % — THE SAME ORDER AS THE ITERATION RIPPLE THAT IS BLOCKING THE PLATEAU TEST. THE GRID SIGNAL HAS FALLEN BELOW THE ITERATIVE NOISE FLOOR.** Even with the plateau limb repaired, **at best 1 of 5 PRD triples would read CONVERGING** *(INFERRED — the lane's own Roache arithmetic on the last monitor write; `analyse_prd.py` may reduce the series differently. **VERIFY before this figure is quoted upward.**)*
+>
+> **The rule that follows is general and is not about PRD: A REFINEMENT FAMILY WHOSE LEVEL-TO-LEVEL DIFFERENCE IS THE SAME ORDER AS ITS OWN ITERATIVE RIPPLE CANNOT PRODUCE AN OBSERVED ORDER, AND NO PLATEAU TOLERANCE REPAIRS THAT.** `CASE_PROTOCOL` §5 already asks that *"iterative error is verified at least ten times smaller than the level-to-level difference"* — **that ratio is the test, it is computable BEFORE the ladder is graded, and PRD fails it.** Where it fails, the ladder needs a coarser base or a quantity with more grid sensitivity, not a looser gate.
+
+### §2cb — **THREE FINDINGS IN THE SHARED INSTRUMENT. REPORTED. NOT CHANGED.**
+
+`scripts/roache_triple.py` is sound in its guarded core — a reversed ladder REFUSES (`r <= 1.0`), no `ast.Assert` survives, `main` refuses under `python3 -O`, `_seal` structurally re-checks that no GCI escapes beside a non-monotone or non-CONVERGING row, and `band_verdict` grades the **fine value** and never the extrapolate. Three findings stand against it, and **none is repaired here, because two are thresholds and a threshold change escalates to Sanaa.**
+
+1. **`STAGNANT_FLOOR = 0.5` IS A HARD CLIFF AND THE LAB IS SITTING ON IT.** Measured live specimens straddling it: **failing** — `T23G` p = 0.3744 / 0.3766 / 0.3796; `gate_t1b_L4` p = 0.3790 … 0.4350 (seven rows); `gate_t9aD` p = 0.1305; K0cX `Nu_avg` p = 0.1065. **Passing** — `gate_t3c` p = **0.5100**, clearing the floor **by 0.010**, and `gate_t3g` p = 0.5100. **A constant taking its provenance from `T1c:321` is deciding live verdicts by 1 % margins.** That is not a bug and it is more work than the provenance can carry. **Recorded for Sanaa's desk as a threshold question; NOT adjusted, and no verdict moves on it today.**
+2. **THE `OSCILLATORY` TEST PRECEDES THE `DEGENERATE` GUARD, SO "FLAT TO ROUNDOFF" IS REPORTED AS "NOT MONOTONE".** Order is `EXACT` → `e32/e21 < 0 → OSCILLATORY` → `|p| < P_MIN → DEGENERATE`. The docstring's item 5 guards the **same-sign** roundoff case; the **opposite-sign** case never reaches it. **Both land `NOT A RESULT`, so NO VERDICT FLIPS** — but the emitted `why` says *"the three values are not monotone"* when the truth is *"the three values are identical to within noise"*, **and a team reading `OSCILLATORY` will go hunting a physical oscillation that does not exist.** PRD `us1.00` and `us4.00` are exactly this shape (spread 0.085 % and 0.15 %, sign chosen by ripple). **A diagnosis that sends a team after a phantom is a real cost even when the verdict is right.** Referred as a `why`-string repair, which changes no state and no exit code.
+3. **`p` IS PROPORTIONAL TO `dim`, AND NOTHING CROSS-CHECKS A GRADER'S DECLARED `dim` AGAINST ITS MESH.** Since `r = (N_f/N_c)^(1/dim)`, `p = dim · ln|e32/e21| / ln(N_f/N_c)`. **Declaring a 3D case `dim = 2` multiplies the reported order by 2/3 — enough to drive a genuine p = 0.72 to 0.48 and turn `CONVERGING` into `STAGNANT` against finding 1's cliff.** The module refuses a **missing** `dim`; it cannot verify a **wrong** one. **This is `§2bo`'s clause with teeth: the mesh already states its own dimensionality in `log.checkMesh`'s `geometric (non-empty/wedge)` line, and a cheap instrument could compare it to every grader's declared `dim`. THIS TEAM OWNS THAT INSTRUMENT AND IT IS THE NEXT THING THIS TEAM BUILDS** — it is a `§2bo` reader, not a new gate, and it refuses nothing.
+
+**Three items referred, none ruled here:**
+- **`MRF` IS SOLVING RIGHT NOW AGAINST AN EXPLICITLY UNFROZEN PRE-REGISTRATION.** `verification/campaign/MRF_R1_PREREGISTRATION.md:3` reads `**STATUS: DRAFT / UNFROZEN. NO COMPUTE HAS RUN. NOT A GATE YET.**` while `fine/` carried an mtime of 19:49Z. **That is a standing-rule-2 exposure (freeze before compute) and it is cfd-supervisor's check 4. Referred, not acted on** — and named plainly because rule 2's freeze is the entire evidentiary content of a pre-registration.
+- **`SUBOFF` R1b carries TWO contradictory verdict artifacts on disk, unreconciled by any record found**: `VERDICT.R1b_triple.txt` = `NOT A RESULT / grade_suboff.py REFUSED (exit 2)` because **the launcher invoked the grader with no arguments**, and `grade.R1b_triple.REPAIRED.out` = `NOT A RESULT` on limb (1). Same verdict, two entirely different reasons. **Referred to cfd to reconcile.** (Its underlying physics is not a grid question at all: CT = 0.011283 → 0.339200 → **4.732715** against a reference of 0.0036 — the fine level is **1,315×** the reference and residuals **rise** with refinement, on a clean r = 1.5 family. **The meshes are innocent.**)
+- **Two live 3D families are built on a 2D refinement step** — `VMFL072-R2/R3` and `M6SR`, both stepping **4.000 / 4.000** on 3D meshes (implied 3D r = 1.587), so `§2bo.2`'s falsifier fires and **no observed order from either family is interpretable**. And `A1WR` is **not 3D at all**: `STAGE0.log` records `symmetry1 nFaces=130304` with 130,304 cells — **nFaces == nCells, one cell thick**, classified 3D only because it uses `symmetry` rather than `empty` patches. **A structural detector called it 3D and was wrong; opening it corrected that — `§2bn` step 1, working as intended.**
+
+| amendment record | **v1.88** |
+|---|---|
+| clauses added | **3** (§2bz, §2ca, §2cb) · referrals opened | **3** |
+| gate values changed | **0** · thresholds adjusted | **0** (one recorded for Sanaa) · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
+| board claims REFUTED | **1** (`F25` "only converging 3D triple" — three cases, six triples) |
+| instruments this team commits to BUILD next | **1** (declared-`dim` vs `checkMesh` cross-check) |
+| **lines whose number changed above this section** | **0** |
