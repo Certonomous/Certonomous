@@ -47,6 +47,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LABSTATE = os.path.join(REPO, "docs", "LAB_STATE.md")
@@ -348,14 +349,62 @@ def load_provenance(path):
     return recs
 
 
-def provenance_verdict(records, read_bytes):
+def provenance_verdict(records, read_bytes, head_bytes=None, history_sha=None):
     """Pure function, so --selftest can exercise it. Returns [(status, label, msg)].
 
     read_bytes(target) -> bytes   grade this record against these file bytes
                        -> None    the target is gone   -> FAIL
                        -> False   the target is out of this repo -> not graded
 
-    status is one of: ok / fail / superseded / skip.
+    head_bytes(target) -> bytes   the target's bytes at HEAD
+                       -> None    the target is not at HEAD
+                       -> False   out of this repo -- no HEAD reading available
+                       OPTIONAL. When it is NOT SUPPLIED (the default None) this
+                       function behaves EXACTLY as it did before the second reader
+                       existed: recorded bytes absent from the working file are a
+                       FAIL, full stop. No existing caller or selftest limb changes
+                       meaning by the addition of the parameter.
+
+    history_sha(target, want) -> str   a REACHABLE sha whose <target> holds `want`
+                              -> None  history WAS searched to exhaustion; no sha
+                              -> False no history reading available, OR the search
+                                       could not complete within its bound
+                       OPTIONAL, and it is only ever called on a row that has
+                       already reached the absent-on-disk-and-absent-at-HEAD branch
+                       -- 5 rows out of 89 today -- because it is the expensive
+                       reader. When NOT SUPPLIED the disposition is unchanged (not
+                       gated) but the message says the history was NOT SEARCHED.
+
+    status is one of: ok / fail / recoverable-from-history / lost / superseded / skip.
+
+    THE THIRD STATE SHARPENS THE CLAUSE, IT DOES NOT WEAKEN IT. With one reader,
+    bytes-absent-from-the-file collapsed two findings that are not the same finding:
+    a block that was committed and has JUST BEEN DESTROYED IN THE WORKING TREE
+    (recoverable, and the exact thing this clause exists to catch), and a block that
+    was destroyed BEFORE it was ever committed, whose bytes therefore exist at NO
+    sha and never will. The second is unclearable by any action -- the identical
+    shape orphan_verdict rules on in its own THREE-STATES rationale, which see (no
+    line citation: this edit moves those lines) -- and an unclearable red is
+    worse than no clause, because the only way out of it is to switch the clause
+    off. Measured 2026-09-10: the provenance-GATED set and the orphan-UNGATEABLE set
+    were IDENTICAL as sha256 sets (symmetric difference empty, n=5), so this file
+    was rc=1 with no clearable path and its four genuinely clearable FAILs rode
+    behind a red nobody could clear. Splitting the two RECOVERS the live-destruction
+    signal that was drowned in it.
+
+    AND THE SPLIT IS FOUR-WAY, NOT THREE-WAY, BECAUSE A HEAD-ONLY READING CANNOT
+    GROUND THE `lost` SENTENCE. Absent-on-disk-and-absent-at-HEAD is itself two
+    cases that present identically: the block was NEVER committed (bytes at no sha,
+    genuinely unclearable), or the block WAS committed and a LATER commit removed it
+    (bytes at a REACHABLE sha). Measured 2026-09-10 by verification-supervisor on
+    this repository's own five rows: FOUR of the five are the second case -- their
+    bytes are recoverable at a47955768b72, 7811b943e8d9 and c31ccdf5ad06 (twice) --
+    and only 5ae72b9d92e0 is at no sha. The sentence "ITS BYTES EXIST AT NO SHA AND
+    NEVER WILL", inherited from orphan_verdict, was therefore MEASURABLY FALSE on
+    four rows. The disposition (do not gate) may still be right; the GROUND was not,
+    and a gate that declines on a false ground is the exact defect this team audits
+    others for. So the sentence is now printed ONLY where a search actually ran and
+    actually found nothing, and never where no search ran.
     """
     out = []
     # SUPERSESSION. The shared-board protocol REWRITES a section wholesale (rebuild
@@ -414,8 +463,62 @@ def provenance_verdict(records, read_bytes):
             sig = (" COMMAND-SUBSTITUTION SIGNATURE CONFIRMED: the block is present "
                    "with every `...` and $(...) span REMOVED -- this is the "
                    "unquoted-heredoc defect (L-403/L-405), not an ordinary edit.")
-        out.append(("fail", label, "the %d recorded bytes are NO LONGER present in %s.%s"
-                    % (len(want), r["target"], sig)))
+        # THREE STATES, NOT TWO -- and the state is decided by HEAD, exactly as
+        # orphan_verdict's third state is decided by THE DISK. `at_head is False`
+        # means NO HEAD READING IS AVAILABLE (no reader supplied, or the target is
+        # out of this repo), and there the ONLY safe answer is TODAY'S answer: gate.
+        # A missing reading never buys a downgrade.
+        at_head = head_bytes(r["target"]) if head_bytes is not None else False
+        if at_head is False:
+            out.append(("fail", label, "the %d recorded bytes are NO LONGER present in %s.%s"
+                        % (len(want), r["target"], sig)))
+        elif at_head is not None and want in at_head:
+            out.append(("fail", label,
+                        "LIVE WORKING-TREE DESTRUCTION: the %d recorded bytes are NO "
+                        "LONGER present in %s ON DISK but ARE PRESENT AT HEAD. A "
+                        "COMMITTED block was destroyed in the working tree; the bytes "
+                        "exist at HEAD, so this IS clearable -- restore them from "
+                        "`git show HEAD:%s`.%s"
+                        % (len(want), r["target"], r["target"], sig)))
+        else:
+            # ABSENT ON DISK AND ABSENT AT HEAD -- and THAT IS NOT YET A FINDING.
+            # Only a search of HISTORY can say which of the two cases this is, and
+            # FAIL-SAFE ORDERING applies: a search that did not run, or could not
+            # finish, buys NO downgrade and licenses NO assertion. An unmeasured
+            # fact is never asserted.
+            found = history_sha(r["target"], want) if history_sha is not None else False
+            if found is False:
+                out.append(("lost", label,
+                            "NOT GATED, AND THE HISTORY WAS NOT SEARCHED: %d recorded "
+                            "bytes are absent from %s BOTH on disk and at HEAD. Whether "
+                            "they survive at some reachable commit is UNMEASURED here -- "
+                            "no history reading was available, or the bounded search "
+                            "could not complete -- so it is NOT asserted either way. "
+                            "Search it with `git log --all --format=%%H -- %s` and read "
+                            "each revision.%s"
+                            % (len(want), r["target"], r["target"], sig)))
+            elif found:
+                out.append(("recoverable-from-history", label,
+                            "RECOVERABLE FROM HISTORY, NOT GATED: %d recorded bytes are "
+                            "absent from %s BOTH on disk and at HEAD, but THEY SURVIVE "
+                            "AT A REACHABLE SHA -- `git show %s:%s` holds them "
+                            "byte-for-byte. This is a statement of fact and it stops "
+                            "there: WHETHER TO RESTORE THEM IS A HUMAN JUDGEMENT about "
+                            "the record (a struck row is struck on purpose), and no "
+                            "instrument can make that call, so this one does not gate "
+                            "on it.%s"
+                            % (len(want), r["target"], found, r["target"], sig)))
+            else:
+                out.append(("lost", label,
+                            "LOST, NOT GATED: %d recorded bytes are NOT in %s on disk, "
+                            "NOT at HEAD, and NOT in any revision of that file reachable "
+                            "from any ref -- THE HISTORY WAS SEARCHED TO EXHAUSTION AND "
+                            "FOUND NOTHING. The block was destroyed before it was ever "
+                            "committed, so ITS BYTES EXIST AT NO SHA AND NEVER WILL. NO "
+                            "ACTION CAN CLEAR THIS, so it is reported, loudly and "
+                            "distinctly, and never gated. The write protocol that "
+                            "prevents it is COMMIT_INTEGRITY_STANDARD v1.5.%s"
+                            % (len(want), r["target"], sig)))
     return out
 
 
@@ -597,29 +700,101 @@ def check_provenance(strict=False):
         with open(p, "rb") as fh:
             return fh.read()
 
-    graded = 0
-    for status, label, msg in provenance_verdict(recs, read_bytes):
-        if status == "fail":
-            fail("provenance", "%s -- %s" % (label, msg)); graded += 1
-        elif status == "ok":
-            ok("provenance", "%s -- %s" % (label, msg)); graded += 1
-        else:
-            print("  ....  %-14s %s -- %s" % ("provenance", label, msg))
-    if graded == 0:
-        # Same ruling as above: the ledger EXISTS, so this is not day one.
-        fail("provenance",
-             "the ledger holds %d record(s) and NONE was graded -- all are "
-             "superseded or out of repo. The clause measured nothing while "
-             "appearing to run." % len(recs))
-    else:
-        print("  ....  population: %d of %d ledger record(s) graded" % (graded, len(recs)))
-
-    # --- ORPHAN PASS: rows COMMITTED at HEAD whose block is not at HEAD ---------
+    # The HEAD reader is defined HERE, not down in the orphan pass where it used to
+    # live, because the provenance pass now needs it too: without a HEAD reading it
+    # cannot tell a LIVE WORKING-TREE DESTRUCTION (clearable, and the thing the
+    # clause is for) from a block that was LOST before it was ever committed
+    # (clearable by nothing). The orphan pass below uses this same reader.
     def _head(path):
         p = subprocess.run(["git", "-C", REPO, "show", "HEAD:" + path],
                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         return p.stdout if p.returncode == 0 else None
 
+    def head_bytes(target):
+        if not target or os.path.isabs(target):
+            return False
+        return _head(target)
+
+    # THE HISTORY READER IS THE EXPENSIVE LIMB AND IS DELIBERATELY THE LAST RESORT:
+    # provenance_verdict calls it ONLY on a row that is already absent from disk AND
+    # absent at HEAD (5 rows of 89 today), never on the 81 that are fine. MEASURED
+    # 2026-09-10 on this repository, all five rows: this plain revision walk 31.7 s,
+    # a `git log -S` pickaxe first 45.0 s (the pickaxe over 1405 revisions of a
+    # 500 KB file costs more than it saves), a `git cat-file --batch` pipe 26.2 s.
+    # The plain walk is kept: 5.5 s does not buy a hand-rolled batch protocol inside
+    # a gate script, and this ordering (newest first, `git log --all`) reproduces the
+    # supervisor's hand-measured shas exactly.
+    #
+    # BOTH BOUNDS RETURN False, NEVER None: `None` means SEARCHED AND NOT FOUND and
+    # licenses the "exists at no sha" sentence, so a search that was truncated must
+    # never be able to say it.
+    HIST_COMMIT_CAP = 3000
+    HIST_SECONDS_CAP = 60.0
+
+    def history_sha(target, want):
+        if not target or os.path.isabs(target):
+            return False
+        p = subprocess.run(["git", "-C", REPO, "log", "--all", "--format=%H", "--",
+                            target], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        if p.returncode != 0:
+            return False
+        shas = p.stdout.split()
+        if len(shas) > HIST_COMMIT_CAP:
+            return False
+        t0 = time.time()
+        for sha in shas:
+            if time.time() - t0 > HIST_SECONDS_CAP:
+                return False
+            b = subprocess.run(["git", "-C", REPO, "show",
+                                sha.decode() + ":" + target],
+                               stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            if b.returncode == 0 and want in b.stdout:
+                return sha.decode()
+        return None
+
+    graded, p_lost, p_hist = 0, 0, 0
+    for status, label, msg in provenance_verdict(recs, read_bytes, head_bytes,
+                                                 history_sha):
+        if status == "fail":
+            fail("provenance", "%s -- %s" % (label, msg)); graded += 1
+        elif status == "ok":
+            ok("provenance", "%s -- %s" % (label, msg)); graded += 1
+        elif status == "recoverable-from-history":
+            # NOT GATED, and NOT called lost: the bytes are at a sha this message
+            # names. Whether to restore them is a judgement about the record.
+            p_hist += 1
+            warn("provenance", "%s -- %s" % (label, msg))
+        elif status == "lost":
+            # REPORTED, NEVER GATED -- the same disposition, and the same channel,
+            # the orphan pass gives the identical shape.
+            p_lost += 1
+            warn("provenance", "%s -- %s" % (label, msg))
+        else:
+            print("  ....  %-14s %s -- %s" % ("provenance", label, msg))
+    if graded == 0:
+        # Same ruling as above: the ledger EXISTS, so this is not day one. Ungated
+        # rows do NOT count as graded: a population that is ENTIRELY unclearable is
+        # a recorder that measured nothing, and going quiet on it would be the
+        # fail-open this clause exists to avoid.
+        fail("provenance",
+             "the ledger holds %d record(s) and NONE was graded -- all are "
+             "superseded, out of repo, LOST or recoverable-from-history. The clause "
+             "measured nothing while appearing to run." % len(recs))
+    else:
+        print("  ....  population: %d of %d ledger record(s) graded%s%s"
+              % (graded, len(recs),
+                 ", %d RECOVERABLE FROM HISTORY (reported, never gated)" % p_hist
+                 if p_hist else "",
+                 ", %d LOST (reported, never gated)" % p_lost if p_lost else ""))
+
+    # --- ORPHAN PASS: rows COMMITTED at HEAD whose block is not at HEAD ---------
+    # OPEN FINDING, NOT REPAIRED HERE (verification-supervisor, 2026-09-10): the
+    # `lost` limb below carries the SAME HEAD-ONLY GROUND the provenance pass has
+    # just had corrected, and prints "ITS BYTES EXIST AT NO SHA AND NEVER WILL" on
+    # the SAME FIVE ROWS -- of which four are measurably recoverable (a47955768b72,
+    # 7811b943e8d9, c31ccdf5ad06 twice). It has been printing that since 2026-08-31.
+    # It is a separate finding and is left for a separate ruling; do not read this
+    # pass's `lost` wording as verified.
     led_at_head = _head(PROV_LEDGER_REL)
     if led_at_head is None:
         print("  ....  ORPHAN PASS: the ledger is not at HEAD -- every row is IN "
@@ -634,11 +809,6 @@ def check_provenance(strict=False):
         except Exception as exc:
             head_recs.append({"_bad": str(exc), "_line": n}); bad += 1
     inflight = max(0, len(recs) - len(head_recs))
-
-    def head_bytes(target):
-        if not target or os.path.isabs(target):
-            return False
-        return _head(target)
 
     def disk_bytes(target):
         if not target or os.path.isabs(target):
@@ -746,7 +916,8 @@ def provenance_selftest():
     bad, n = 0, 0
     d = tempfile.mkdtemp(prefix="prov_")
 
-    def grade(label, records, reader, want_statuses, want_sig=None):
+    def grade(label, records, reader, want_statuses, want_sig=None,
+              head_reader=None, hist_reader=None, want_in=(), want_not_in=()):
         nonlocal bad, n
         n += 1
         if records is None:
@@ -756,7 +927,7 @@ def provenance_selftest():
             print("  FAIL  selftest    %-28s no ledger to grade (records is None)"
                   % label); bad += 1
             return
-        got = provenance_verdict(records, reader)
+        got = provenance_verdict(records, reader, head_reader, hist_reader)
         statuses = [s for s, _, _ in got]
         msgs = " | ".join(m for _, _, m in got)
         problem = None
@@ -766,6 +937,15 @@ def provenance_selftest():
             has = "SIGNATURE CONFIRMED" in msgs
             if has != want_sig:
                 problem = "signature %s, wanted %s" % (has, want_sig)
+        if problem is None:
+            for frag in want_in:
+                if frag not in msgs:
+                    problem = "message does not carry %r" % frag; break
+        if problem is None:
+            for frag in want_not_in:
+                if frag in msgs:
+                    problem = "message ASSERTS %r, which was never measured" % frag
+                    break
         if problem:
             print("  FAIL  selftest    %-28s %s" % (label, problem)); bad += 1
         else:
@@ -851,6 +1031,84 @@ def provenance_selftest():
         fh.write("{not json\n")
     grade("corrupt ledger line SPEAKS",
           load_provenance(os.path.join(d, "bad.jsonl")), abs_reader, ["fail"])
+
+    # --- LIMBS 9a-9e: THE HEAD-DECIDED STATES OF THE PROVENANCE PASS -------------
+    # (the fourth state, and the ground for the third, are limbs 9f-9i below)
+    # Until 2026-09-10 this selftest POSITIVELY ASSERTED the contradiction it was
+    # supposed to catch: limbs 3 and 4 assert ["fail"] for bytes-absent, while the
+    # only limbs that knew a `lost` state existed ran through orphan_verdict. Same
+    # row, same disk answer, THREE different HEAD answers -- plus the limb that
+    # proves an unsupplied HEAD reader still means exactly what it meant before.
+    r_last = recs2[-1]
+    want_bytes = base64.b64decode(r_last["body_b64"])
+    destroyed = lambda t: b"# Board\n\nthe recorded block is GONE from the working tree\n"
+    # (a) absent on disk, PRESENT at HEAD: a COMMITTED block destroyed just now.
+    # This is the signal the single-reader clause drowned, and it MUST gate.
+    grade("destroyed on disk, AT HEAD: FAIL", [r_last], destroyed, ["fail"],
+          head_reader=lambda t: b"head\n" + want_bytes + b"\ntail")
+    # ...and the heredoc COMMAND-SUBSTITUTION SIGNATURE must survive the split: the
+    # working tree carries the shadow, HEAD carries the true bytes.
+    grade("live destruction keeps SIG", [r_last],
+          lambda t: b"head\n" + heredoc_shadow(want_bytes) + b"\ntail", ["fail"],
+          want_sig=True, head_reader=lambda t: b"h\n" + want_bytes + b"\nt")
+    # (b) absent on disk AND absent at HEAD, WITH NO HISTORY READER SUPPLIED: the
+    # disposition is not-gated, and NO claim about shas is made or asserted here --
+    # limbs 9f-9i below are the ones that ground that claim. This comment used to
+    # say "the bytes are at NO sha", which was the same unmeasured assertion the
+    # instrument itself was printing.
+    grade("absent on disk AND HEAD: LOST", [r_last], destroyed, ["lost"],
+          head_reader=lambda t: b"HEAD does not carry it either")
+    grade("target not at HEAD: LOST", [r_last], destroyed, ["lost"],
+          head_reader=lambda t: None)
+    # BACK-COMPATIBILITY, asserted rather than assumed: with NO head reader the
+    # verdict is byte-identical to the pre-2026-09-10 behaviour -- absent is fail.
+    # An out-of-repo HEAD answer (False = no reading available) is the same case.
+    grade("no head reader: FAIL as before", [r_last], destroyed, ["fail"])
+    grade("HEAD out of repo: FAIL as before", [r_last], destroyed, ["fail"],
+          head_reader=lambda t: False)
+
+    # --- LIMBS 9f-9i: ABSENT ON DISK AND AT HEAD IS **NOT YET A FINDING** ---------
+    # The three-state repair still decided `lost` from a HEAD-ONLY reading, and the
+    # sentence it printed -- "ITS BYTES EXIST AT NO SHA AND NEVER WILL" -- was
+    # MEASURABLY FALSE on four of this repository's five rows: their bytes sit at
+    # a47955768b72, 7811b943e8d9 and c31ccdf5ad06 (twice). A true status word over a
+    # false sentence is still a false instrument, so these limbs assert THE MESSAGE,
+    # not only the status. Same row, same disk answer, same HEAD answer, THREE
+    # different HISTORY answers -- and one limb for no history reader at all.
+    NO_SHA = "EXIST AT NO SHA AND NEVER WILL"
+    probe_sha = "a47955768b72059dd3f1ae5ddf9cf39e2c714984"
+    nowhere = lambda t: b"neither disk nor HEAD carries it"
+    # (2) the bytes ARE at a reachable sha: reported, NOT gated, AND THE SHA IS NAMED
+    grade("at a sha: RECOVERABLE, sha named", [r_last], destroyed,
+          ["recoverable-from-history"], head_reader=nowhere,
+          hist_reader=lambda t, w: probe_sha,
+          want_in=(probe_sha, "git show %s:%s" % (probe_sha, r_last["target"])),
+          want_not_in=(NO_SHA,))
+    # (3) searched to exhaustion, found nothing: ONLY HERE may the sentence be printed
+    grade("searched, no sha: TRUE lost", [r_last], destroyed, ["lost"],
+          head_reader=nowhere, hist_reader=lambda t, w: None,
+          want_in=(NO_SHA, "SEARCHED TO EXHAUSTION"))
+    # (3') the search COULD NOT RUN or could not finish -- the limb that stops the
+    # instrument asserting an unmeasured fact. Disposition unchanged (not gated),
+    # ground NOT claimed.
+    grade("search unavailable: no claim", [r_last], destroyed, ["lost"],
+          head_reader=nowhere, hist_reader=lambda t, w: False,
+          want_in=("THE HISTORY WAS NOT SEARCHED", "UNMEASURED"),
+          want_not_in=(NO_SHA,))
+    grade("NO history reader: no claim", [r_last], destroyed, ["lost"],
+          head_reader=nowhere,
+          want_in=("THE HISTORY WAS NOT SEARCHED",), want_not_in=(NO_SHA,))
+    # and the history reader must NEVER be consulted on a row that is fine, nor on
+    # one that gates: the expensive limb is last-resort BY CONSTRUCTION, not by
+    # convention. A reader that raises proves it was not called.
+    def _must_not_run(t, w):
+        raise AssertionError("history searched on a row that never reached the "
+                             "absent-both-ways branch")
+    grade("ok row does NOT search history", [r_last],
+          lambda t: b"x" + want_bytes + b"y", ["ok"],
+          head_reader=nowhere, hist_reader=_must_not_run)
+    grade("gating row does NOT search history", [r_last], destroyed, ["fail"],
+          head_reader=lambda t: b"h" + want_bytes + b"t", hist_reader=_must_not_run)
 
     # --- LIMB 10 (the fail-open guard): an empty population is NEVER ok ----------
     n += 1
