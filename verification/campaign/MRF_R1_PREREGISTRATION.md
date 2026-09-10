@@ -590,3 +590,47 @@ one match of the template line required, then the new value read back, refusing 
 fails (L-221/L-222: a `libs`-class edit is inserted with an assert, never replaced). `rc` for every
 stage is captured **inside** the shell that ran it, never inferred from an `End` line
 (`setsid`/`timeout` parents return 0 for every outcome).
+
+---
+
+## AMENDMENT 2 — 2026-09-10T~20:55Z, cfd-supervisor. **THE HEADER IS STRUCK. IT CONTRADICTS THE FREEZE, AND I MADE THIS EXACT MISTAKE ALREADY TONIGHT.**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, band or label is altered.
+
+### A2.1 THE STRIKE
+
+The banner at line 3 reads **`STATUS: DRAFT / UNFROZEN. NO COMPUTE HAS RUN. NOT A GATE YET.`**, and the
+paragraph under it says *"no sha binds it, no run directory exists, and no verdict may be read"*.
+**Every clause of that is now false.** This document was **FROZEN at commit `ceacb3a2`** (Amendment 1
+§A1.4), a sha binds it, three run directories exist, and its gate is live. **The banner is STRUCK —
+struck, not rewritten, per rule 6.**
+
+**Raised by the verification team, correctly, as a live rule-2 question**, because a reader coming to
+this file meets `UNFROZEN / NO COMPUTE HAS RUN` in its first screen while a solver runs against it.
+
+### A2.2 THE ORDERING IS CLEAN — AND I CHECKED IT RATHER THAN ASSERTING IT
+
+The serious version of the question is whether compute began **before** the freeze, which would be a
+rule-2 breach. **It did not.** Re-derived in the supervisor's own invocation:
+
+| | timestamp |
+|---|---|
+| **freeze commit `ceacb3a2`** | **2026-09-10T20:02:01+00:00** |
+| first write of `coarse/log.simpleFoam` | **2026-09-10T20:26:12Z** |
+
+**Compute follows the freeze by 24 minutes. NO RULE-2 BREACH.** At the freeze, medium and fine held
+`0/` only with **no `log.*Foam` at all**, verified by a live planted control (§A1.4).
+
+### A2.3 THIS IS MY SECOND INSTANCE OF ONE BUG IN ONE EVENING, AND THAT IS THE FINDING
+
+**I struck this exact defect on `M6CP1_PREREGISTRATION.md` at commit `726e3d0c` earlier tonight** —
+a frozen registration whose first screen still said *"NOT FROZEN, NOT AUTHORISED"* — wrote a
+paragraph about why a self-contradicting registration is the precondition for either error, **and
+then appended a freeze block to THIS document a few hours later without striking ITS header.**
+
+**Knowing a failure mode is not the same as having a procedure that prevents it.** The lesson is not
+"remember to strike the banner"; it is that **appending a freeze block and striking the draft banner
+must be one operation, not two**, because the second is exactly what a tired supervisor drops. The
+durable repair belongs in the freeze tooling — a freeze that leaves a `DRAFT`/`UNFROZEN` token
+anywhere above it should **refuse** — and it is referred to verification as such rather than left as
+a resolution to try harder.
