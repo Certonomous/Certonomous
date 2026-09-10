@@ -388,3 +388,48 @@ exercised by `--selftest` itself, with a negative arm proving the check has teet
 rebound so it cannot see its own plant is caught (`passed: false`, delta 0.0).
 **Launch authorised via the detached queue, not by hand.** Cap 60 core-min, ~31 estimated.
 Results land in a verdict record citing this file by commit hash.*
+
+
+---
+
+## ADDENDUM 2026-09-10 — GRADING PATH WAS NOT PINNED AT THE QUEUE, AND THE SUPERVISOR DISCHARGES THAT CHECK PERSONALLY
+
+**Dated addendum appended at the foot of a FROZEN document (rule 6). It alters NO gate, threshold,
+band, cap or label; §10's pins are unchanged. Lines whose number changed above this section: 0.**
+
+**What happened.** The queue entry I placed for this rung (`verification/queue/cfd/launched/SUP-BOOSTER-E2-TRIPLE.json`)
+**omitted the `grading_freeze` key**. The detached runner therefore launched the rung
+(2026-09-10T04:54:46Z, pid 1119188) and recorded, correctly and in its own words:
+
+> `GRADER-FREEZE SUP_BOOSTER-E2: UNPINNED -- entry declares no 'grading_freeze': no comparator is
+> named, so the sha of the script that will grade case SUP_BOOSTER-E2 is NOT pinned to freeze
+> 34797ce9. Nothing is predicted about this run's grading, and that absence is recorded rather
+> than read as a pass.`
+
+The omission is **the supervisor's**, not the runner's and not a lane's. The companion SUBOFF
+entry carried the key and was logged `PINNED`; I copied a draft that never had it and did not add it.
+
+**What was and was not lost.** The grading path **is** pinned — §10 of this frozen document pins
+`grade_sup_booster_e2.py` at blob `d18f0867ea7d1fd6f86347c00ca1a5b8e3ddb663`, and the freeze commit
+`34797ce9` predates the launch. What was lost is the runner's **independent mechanical
+cross-check at launch time**. Rule 2's requirement — *verify the frozen file IS the file that ran
+by hashing it against the committed blob* — is therefore **not** discharged automatically for this
+rung and **must be discharged by hand before any grade is believed**:
+
+```
+git rev-parse 34797ce9:verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py
+git hash-object   verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py
+```
+**Both must equal `d18f0867ea7d1fd6f86347c00ca1a5b8e3ddb663`. On any drift the grade is REFUSED, not
+adjusted.** That check is the cfd-supervisor's and is recorded here so a successor cannot skip it.
+
+**Why the run was NOT killed.** Killing a legitimate, frozen, correctly-launched run to repair a
+bookkeeping omission would be exactly what the lab's standing universal rule forbids — a ledger
+loss does not void physics. The rung's pre-registration was frozen before launch, its gates are
+closed, its cap is registered, and its grader is pinned in this document. The defect is in the
+queue row's metadata, not in the science, and it is repaired by disclosure plus a by-hand check,
+not by discarding compute.
+
+**Not back-filled.** The launched queue record is left exactly as the runner read it — launched
+records are never back-filled. The case-side draft is corrected so no successor re-registration
+repeats the omission.

@@ -5,6 +5,9 @@
   "case_id": "SUP_BOOSTER-E2",
   "prereg_path": "verification/campaign/SUP_BOOSTER_E2_PREREGISTRATION.md",
   "prereg_commit": "0000000000000000000000000000000000000000",
+  "grading_freeze": [
+    "verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py"
+  ],
   "launch_cmd": [
     "bash",
     "/home/ubuntu/Certonomous/verification/runs/navier_class/SUP_BOOSTER/run_graded_triple_e2.sh",
@@ -22,7 +25,7 @@
     "1_PREREG_COMMIT_IS_A_PLACEHOLDER": "0000...0 is the git null sha, chosen deliberately because it is a valid 40-char lowercase hex string that PASSES the validator's SCHEMA clause and FAILS its COMMIT-EXISTS and PREREG-AT-COMMIT clauses. An entry cannot carry the sha of the commit that contains it. THE CFD-SUPERVISOR REPLACES THIS AT THE FREEZE with the sha of the freeze commit of prereg_path, re-derived from git and NEVER from a subject line. Until then this entry is NOT ENQUEUEABLE and the validator says so."
   },
   "_PROVENANCE_EVERY_VALUE_TRANSCRIBED_NOT_RECALLED": {
-    "case_id": "SUP_BOOSTER_E2_PREREGISTRATION.md:1 (title, '(E2)') and :7 ('\u00a72bc fix-until-runs successor to SUP_BOOSTER E1')",
+    "case_id": "SUP_BOOSTER_E2_PREREGISTRATION.md:1 (title, '(E2)') and :7 ('§2bc fix-until-runs successor to SUP_BOOSTER E1')",
     "cost_core_min_estimate 31.0": "SUP_BOOSTER_E2_PREREGISTRATION.md:286 -- '**~31 core-min**'. Anchored on the E1 MEASURED 30.85 core-min, docs/COST_CALIBRATION.md:492.",
     "cap_core_min_registered 60.0": "SUP_BOOSTER_E2_PREREGISTRATION.md:286 -- '**CAP = 60 core-min** (~2x margin)'. NOW ENFORCED BY AN INSTRUMENT: run_graded_triple_e2.sh carries it as per-level solver timeouts 800/1200/1600 s summing to exactly 3600 s = 60 core-min at 1 rank, with the rc of each level captured INSIDE the detached wrapper. scripts/queue_runner.py's cap_watch REPORTS an overrun and does NOT kill, so an outer wall-clock backstop on the argv remains advisable at placement -- `timeout --signal=TERM --kill-after=120 10800 <launch_cmd>`, where 10800 s = 3 x 60 core-min x 60 / 1 rank, the fleet 3x-cap convention. RESTRICTS ONLY. It is NOT baked into launch_cmd above: the outer bound is the placer's act and this lane does not presume it.",
     "cost_basis": "SUP_BOOSTER_E2_PREREGISTRATION.md:283-303 (section 5, including the likeliest-wrong cost term at :293).",
@@ -70,5 +73,6 @@
     "run_root_now_registered": "verification/runs/navier_class/SUP_BOOSTER/graded_e2/ is registered in SUP_BOOSTER_E2_PREREGISTRATION.md section 4.1 and was verified ABSENT again at 2026-09-10 (ls -d: No such file or directory). The launcher refuses at the top if its run root does not end in graded_e2, and E1's graded/ appears in it only inside comment lines -- assigned to no variable, passed to no command -- so E1's evidence cannot be rm -rf'd by it.",
     "c2_ruling_conflict_resolved": "NOT by arbitration and NOT by anything going to Sanaa. The cfd-supervisor WITHDREW his own framing-(i) ruling; verification's ruling 0e9c1bcb (framing (ii)) GOVERNS, and its 8 conditions are implemented in grade_sup_booster_e2.py (commit 8f77d94c) and registered in pre-registration sections 3, 3.1-3.4 (commit 7006fa9e). The struck framing-(i) text is preserved in section 3.4 rather than deleted.",
     "new_pre_registered_number": "B_cons = 0.60 deg, the C2 consistency bound max|beta_i - beta_j| (grader constant BETA_CONS_DEG). Derived as 1.0 x the fine-grid locator increment (about 0.59 deg on the E2 fine mesh, INFERRED from the blockMesh grading law; 0.6243 deg measured on the E1 fine mesh). It is NOT the +/-1.0 deg accuracy band, which ruling condition 5 forbids re-using. Derivation and cross-checks: pre-registration section 3.3."
-  }
+  },
+  "_GRADING_FREEZE_NOTE": "ADDED 2026-09-10 after the live rung launched WITHOUT it. The runner reads this key to hash the named comparator against the freeze commit and log PINNED / UNPINNED. Omitting it does not stop a launch -- the runner launches anyway and records the absence honestly -- so nothing downstream catches it. Any successor re-registration MUST carry this key, or rule 2's hash-against-the-committed-blob check has to be done by hand."
 }
