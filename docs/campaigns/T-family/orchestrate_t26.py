@@ -147,12 +147,40 @@ def run_set(root, levels, go=False, guard=None, popen=subprocess.Popen):
             print("  PLAN ONLY: clause 7 passed and nothing was launched "
                   "(--go was not given).")
             continue
-        popen(["bash", LAUNCHER, "--case-dir", case, "--timeout", str(t),
-               "--ranks", str(RANKS[lv])],
-              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        launched.append(lv)
-        print("  LAUNCHED %s (stdout to DEVNULL -- which is exactly why the "
-              "guard ran on THIS side of the fork)" % lv)
+        # A LEVEL ENTERS `launched` ONLY ON A WITNESS.
+        # launch_t26.sh now polls for a SOLVER-side witness before it will say
+        # `launched: true`, and exits 8 (the instrument could not run) or 9
+        # (the case died) otherwise. Those two are kept DISTINCT here for the
+        # same reason BROKEN_GUARD_RC_n is kept out of REFUSED: a dead
+        # instrument must not be readable as a dead case.
+        # This call WAITS rather than firing and forgetting -- the launcher has
+        # already detached the solver into its own session, so waiting for the
+        # launcher costs only the witness poll and buys a witnessed record.
+        r = popen(["bash", LAUNCHER, "--case-dir", case, "--timeout", str(t),
+                   "--ranks", str(RANKS[lv])])
+        rc = getattr(r, "returncode", 0) if r is not None else 0
+        if rc == 0:
+            launched.append(lv)
+            print("  LAUNCHED %s -- WITNESSED (the launcher polled for the solver's "
+                  "own pid or its first artifact; a fork returning is not a launch)" % lv)
+            continue
+        rest = ",".join(levels[levels.index(lv) + 1:]) or "none"
+        if rc == 8:
+            print("  REFUSE (WITNESS INSTRUMENT FAILED, exit 8): the launch witness on %s "
+                  "could never be EVALUATED. This is a finding about the launcher, NOT "
+                  "about the case, and it is never recorded as a launch. THE LEVEL SET "
+                  "STOPS HERE. Levels not started: %s" % (lv, rest))
+        elif rc == 9:
+            print("  REFUSE (NO SOLVER WITNESS, exit 9): %s produced no solver pid and no "
+                  "solver artifact inside the deadline. AN UNWITNESSED LAUNCH IS NOT A "
+                  "LAUNCH -- state PENDING, not launched. THE LEVEL SET STOPS HERE. "
+                  "Levels not started: %s" % (lv, rest))
+        else:
+            print("  REFUSE (launcher exit %d): neither 0, 8 nor 9 -- an unclassified "
+                  "launcher outcome, reported as itself rather than folded into one of "
+                  "the known ones. THE LEVEL SET STOPS HERE. Levels not started: %s"
+                  % (rc, rest))
+        return launched, lv, plan
     return launched, None, plan
 
 
@@ -174,9 +202,15 @@ def selftest():
 
         calls = []
 
+        class _R:
+            def __init__(self, rc):
+                self.returncode = rc
+
+        launcher_rc = [0]
+
         def fake_popen(argv, **kw):
             calls.append(argv)
-            return None
+            return _R(launcher_rc[0])
 
         print("\n(i) CS-2 REFUSES BEFORE Popen, AND STOPS THE LEVEL SET")
         for lv in LEVELS:
@@ -250,6 +284,24 @@ def selftest():
         print("  [%s] an ABSENT guard -> %r" % ("ok " if ok else "BAD", kind_absent))
         if not ok:
             fails.append("absent guard kind")
+
+        print("\n(iii-c) A LEVEL ENTERS `launched` ONLY ON A WITNESS.")
+        for rc, name, want_stop in ((9, "no solver witness (case died)", True),
+                                    (8, "witness instrument failed", True),
+                                    (5, "unclassified launcher exit", True)):
+            shutil.rmtree(tmp); os.makedirs(tmp)
+            for lv in LEVELS:
+                mk(lv)
+            calls.clear(); launcher_rc[0] = rc
+            launched, refused, _p = run_set(tmp, list(LEVELS), go=True, popen=fake_popen)
+            ok = (launched == [] and refused == "L1") == want_stop
+            print("  [%s] launcher exit %d (%s) -> launched %s, stopped at %s"
+                  % ("ok " if ok else "BAD", rc, name, launched, refused))
+            if not ok:
+                fails.append("witness rc %d" % rc)
+        launcher_rc[0] = 0
+        print("  [ok ] exit 8 and exit 9 are reported DISTINCTLY -- a dead instrument")
+        print("        is never readable as a dead case")
 
         print("\n(iv) NOTHING LAUNCHES WITHOUT --go")
         shutil.rmtree(tmp); os.makedirs(tmp)
