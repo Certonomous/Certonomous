@@ -69,6 +69,7 @@ EXIT_OK, EXIT_BLOCKED, EXIT_REFUSE = 0, 1, 2
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LAUNCHER = os.path.join(REPO, "scripts", "launch_k0h.sh")
+MARK_DONE = os.path.join(REPO, "scripts", "mark_done_k0h.py")
 
 # The signalling calls R3 forbids.  Read out of this file's own source by
 # --selftest.  A name added to the file without being added here is what the
@@ -306,6 +307,34 @@ def launch_stage(runhome, manifest, stage, foam_bashrc, dry_run=False,
         if verbose:
             print(f"  {n}: cap {cap:.2f} core-min -> timeout {timeout_s} s"
                   + ("   [DRY RUN, not launched]" if dry_run else ""))
+        # ---- CLAUSE 7, ASSERTED HERE AND NOT ONLY IN THE LAUNCHER --------
+        # K0H_CLAUSE7_GUARD
+        #
+        # L-221/L-222, standing rule 14: a lesson is not applied until EVERY
+        # call site asserts it.  `launch_k0h.sh` now guards itself twice, and
+        # that is NOT enough here for a reason specific to this function: the
+        # `Popen` below sends the launcher's stdout to DEVNULL and its stderr
+        # after it, and NEVER WAITS.  A clause-7 refusal inside the launcher
+        # would therefore be written to a discarded pipe and this orchestrator
+        # would append the arm to `launched` and report it as launched.  The
+        # guard has to be applied SYNCHRONOUSLY, on this side of the fork.
+        #
+        # IT IS CALLED, NOT REIMPLEMENTED.  `mark_done_k0h.py` states in its
+        # own docstring that it "is the only place the rule is written down";
+        # a second copy of the rule here would be a second thing to keep in
+        # step.  This runs the same CLI the launcher runs.
+        #
+        # A REFUSAL STOPS THE STAGE, it does not skip the arm.  Skipping would
+        # launch the rest of a stage whose caps and ceiling were costed for all
+        # of its arms, and would leave the dirty arm silently unrun.
+        if not dry_run:
+            g = subprocess.run([sys.executable, MARK_DONE, "--root", runhome,
+                                "--launch-guard", n],
+                               capture_output=True, text=True)
+            if g.returncode != EXIT_OK:
+                refuse(f"{n}: CLAUSE 7 REFUSED THE LAUNCH (rc={g.returncode}). "
+                       f"{(g.stdout + g.stderr).strip()}  No arm of this stage "
+                       f"is launched: a stage is costed as a whole.")
         if not dry_run:
             subprocess.Popen(cmd, stdout=subprocess.DEVNULL,
                              stderr=subprocess.STDOUT)
@@ -648,6 +677,113 @@ def selftest():
     check_("timeout_s = cap x 60 / ranks is the ONE registered conversion "
            "(250.00 core-min, 1 rank -> 15000 s)",
            int(round(250.0 * 60.0 / 1)) == 15000, "15000 s")
+
+    # ---- CLAUSE 7 AT THIS CALL SITE: WHAT IS PROVEN AND WHAT IS NOT ------
+    # ZERO COMPUTE.  `subprocess.Popen` is replaced by a RECORDER, so "the arm
+    # reached the launcher" is observed with no launcher, no solver and no
+    # core-minute spent.
+    #
+    # READ THIS BEFORE TRUSTING THE GUARD IN `launch_stage`.
+    # `arm_state` (:190-197) calls an arm with a case directory and no STATUS
+    # `IN_FLIGHT`, and `launch_stage` (:293-297) skips every arm that is not
+    # `UNLAUNCHED`.  A FRESHLY BUILT ARM HAS A CASE DIRECTORY.  So on any tree
+    # `build_k0h.py` produced, every arm reads `IN_FLIGHT` and is skipped, and
+    # the only arm that reaches the guard is one with NO case directory -- for
+    # which clause 7 refuses "no case directory" rather than on a stray `0/`.
+    #
+    # CONSEQUENCE, STATED RATHER THAN PAPERED OVER: at THIS call site the
+    # guard is proven CALLED and proven able to REFUSE, and its clause-7
+    # directions -- a stray `0/`, a stray numeric time directory -- CANNOT BE
+    # DRIVEN HERE AT ALL, because no input reaches them.  Those two directions
+    # are proven at the launcher instead (`launch_k0h_selftest.sh`, six arms
+    # and two negative controls), which is the path production actually uses.
+    #
+    # THIS IS NOT REPAIRED HERE, AND THE REASON IS NOT SHYNESS.  Splitting
+    # `IN_FLIGHT` into BUILT and IN_FLIGHT changes which arms `charge()` bills
+    # at their CAP under R1, and the cap arithmetic runs against the
+    # REGISTERED CEILING.  That is a registered number, so it is the
+    # supervisor's and verification's, not a lane's.  Referred, not taken.
+    #
+    # THE ARM BELOW IS THE TRIPWIRE.  It asserts the conflation still exists.
+    # WHEN IT FAILS, SOMEONE HAS REPAIRED `arm_state` -- and clause 7's two
+    # real directions become drivable here and MUST THEN BE DRIVEN, because
+    # the guard will have become reachable in a role nothing has yet tested.
+    print("\n-- CLAUSE 7 at the orchestrator call site: CALLED, and its reach "
+          "bounded --")
+    rh5 = os.path.join(tmp, "runs_G")
+    st_g = dict(name="1", arms=[dict(name="M1_c", basis_core_min=100.0,
+                                     cap_core_min=250.0)])
+    import shutil as _sh
+    recorded = []
+    real_popen = subprocess.Popen
+
+    class _Recorder(object):
+        """Records the LAUNCHER invocation instead of spawning it, and passes
+        everything else through to the real `Popen`.
+
+        THE PASSTHROUGH IS NOT A CONVENIENCE.  `subprocess.run` -- which is how
+        the clause-7 guard invokes `mark_done_k0h.py` -- is itself built on
+        `Popen`.  A recorder that swallowed every `Popen` would stop the guard
+        from ever running, and the arms below would then be measuring the
+        stub rather than the guard.  Only the launcher is intercepted; the
+        guard REALLY EXECUTES."""
+        def __new__(cls, cmd, **kw):
+            if cmd and cmd[0] == sys.executable:      # the clause-7 guard call
+                return real_popen(cmd, **kw)
+            recorded.append(cmd)
+            return super(_Recorder, cls).__new__(cls)
+
+        def __init__(self, cmd, **kw):
+            pass
+
+    try:
+        subprocess.Popen = _Recorder
+
+        # TRIPWIRE: a BUILT arm is indistinguishable from an IN-FLIGHT one.
+        _sh.rmtree(rh5, ignore_errors=True)
+        os.makedirs(os.path.join(rh5, "M1_c", "0.orig"))
+        check_("TRIPWIRE -- a freshly BUILT arm (case dir, no STATUS, never "
+               "launched) still reads IN_FLIGHT, so launch_stage skips it and "
+               "clause 7's stray-directory directions are UNREACHABLE here.  "
+               "IF THIS ARM EVER FAILS, arm_state was repaired and the two "
+               "directions below must be driven at this call site.",
+               arm_state(rh5, "M1_c") == "IN_FLIGHT",
+               arm_state(rh5, "M1_c"))
+        recorded[:] = []
+        launch_stage(rh5, m, st_g, None, dry_run=False, verbose=False)
+        check_("... and NOTHING is Popen'd for that built arm",
+               not recorded, f"{len(recorded)} launch(es)")
+
+        # THE GUARD IS CALLED, AND IS SHOWN ABLE TO REFUSE.  The one state
+        # that reaches it is an arm with no case directory.
+        _sh.rmtree(rh5, ignore_errors=True); os.makedirs(rh5)
+        recorded[:] = []
+        fired, said = _refuses(launch_stage, rh5, m, st_g, None,
+                               dry_run=False, verbose=False)
+        check_("the guard IS CALLED on the only arm that reaches it and "
+               "REFUSES (exit 2), naming clause 7, with NOTHING Popen'd",
+               fired and not recorded and "CLAUSE 7" in said,
+               f"refused={fired}, launches={len(recorded)}, "
+               f"said={said.strip()[:90]!r}")
+
+        # NEGATIVE CONTROL: with the guard's verdict forced clear, the SAME
+        # arm REACHES the launcher.  Without this the refusal above is
+        # consistent with the arm being stopped by something incidental.
+        real_run = subprocess.run
+        try:
+            subprocess.run = lambda *a2, **k2: type(
+                "R", (), dict(returncode=0, stdout="", stderr=""))()
+            _sh.rmtree(rh5, ignore_errors=True); os.makedirs(rh5)
+            recorded[:] = []
+            launch_stage(rh5, m, st_g, None, dry_run=False, verbose=False)
+            check_("NEGATIVE CONTROL: with the guard's verdict forced CLEAR "
+                   "the SAME arm REACHES the launcher -- so the refusal above "
+                   "is attributable to the guard and to nothing else",
+                   len(recorded) == 1, f"{len(recorded)} launch(es)")
+        finally:
+            subprocess.run = real_run
+    finally:
+        subprocess.Popen = real_popen
 
     print("\n" + "=" * 70)
     print(f"  {_P[0]} passed, {_F[0]} failed")

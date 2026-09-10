@@ -3749,3 +3749,61 @@ legislate the remedy.**
 **One filing anomaly noted in passing, not repaired:** `verification/queue/verification/queue/`
 exists as an **empty, untracked** nested directory. Cosmetic; recorded so a later reader does
 not mistake it for a lost queue.
+
+---
+
+## §30 — A DEAD LEVER **CLOSED**: K0h's CLAUSE-7 LAUNCH GUARD HAD **ZERO CALL SITES** AND WAS **UNCALLABLE AS SEQUENCED**. THE STAGING ORDER IS REPAIRED, THE GUARD IS WIRED AT EVERY REACHABLE LAUNCH PATH AND DRIVEN BOTH WAYS — AND **ONE CALL SITE IS DECLARED `ACTIVE-UNPROVEN` RATHER THAN CLAIMED** (2026-09-10)
+
+**Appended, append-only. Nothing above is rewritten. Zero solver core-minutes.** Raised by `verification/campaign/K0H_AGE_GUARD_RESTART_RULING_2026-09-10.md` §8, which found the lever and explicitly owed it to this file. Closed by a heat-transfer `lab-lane`. **`lines whose number changed above this section: 0`**, verified byte-for-byte against the HEAD blob in Python.
+
+### §30.1 THE LEVER, AND WHY IT WAS WORSE THAN UNCALLED
+
+`scripts/mark_done_k0h.py --launch-guard` implements standing rule 4's **clause 7** — REFUSE (exit 2) a case in which `0` or any numeric time directory already exists, so a stray write from an earlier process can neither be overwritten nor certified.
+
+| | Finding |
+| --- | --- |
+| **INACTIVE** | Every `launch_guard` reference in `scripts/` lived inside a `mark_done_*.py` file. In `mark_done_k0h.py`: definition `:212`, argparse `:386`, dispatch `:401-408`, selftest `:571-581`. `orchestrate_k0h.py`, `build_k0h.py`, `launch_k0h.sh` and `launch_k0h_selftest.sh` contained **ZERO**. |
+| **UNCALLABLE** | `build_k0h.py write_case` (`:1077-1097`, blob `726216ed`) created `0/` **itself** and wrote no `0.orig`. Invoked **after** the build, clause 7 would have refused **every** K0h case; invoked **before** it, there was nothing to judge. **There was no point in the sequence at which the lever could be pulled.** |
+| **WHY IT SURVIVED** | **The selftest passed.** `mark_done_k0h.py`'s clause-7 arms drive `launch_guard()` **directly, as a function**, and passed throughout the entire period in which the guard had no call site. **A green control over zero call sites is a pass about the code and not about the world** — this file's own thesis, found in a fresh instance. |
+
+**This is the same shape as §20 and §22 of this file**: a correct control that nothing fires. It is distinguished from those by being **structurally unpullable** rather than merely unwired, which is why repairing the *sequence* — not adding a call — was the actual fix.
+
+### §30.2 THE REPAIR, AND THE CENSUS BEFORE AND AFTER
+
+Adopted the pattern `T1b_L4_AMENDMENT.md` §7 already specifies and the ruling's §7.4 recommends: **the build stages into `0.orig`; the launcher creates `0` from `0.orig` immediately before the solver and touches `0/T` LAST** (`run_one_t1b_L4.sh:32,40,45-46`, `launch_t4d.sh:158-160`). This makes clause 7 judgeable *and* clause 6's age guard meaningful — `0/T` now dates the run allowed to produce the answer, not the build.
+
+| launch path | executable clause-7 call sites BEFORE | AFTER |
+| --- | --- | --- |
+| `scripts/launch_k0h.sh` (the path production uses) | **0** | **2** — before the detach fork, and again before the stage |
+| `scripts/orchestrate_k0h.py` `launch_stage` | **0** | **1**, synchronous, before `Popen` (that `Popen` discards output and never waits, so a launcher-side refusal would be invisible to it) |
+| `scripts/build_k0h.py` | **0** | **0** — not a launch path; it refuses a pre-existing case directory on its own account |
+
+`scripts/mark_done_k0h.py` is **byte-identical** (`5f33e94e…`): the rule stays written down in exactly one place.
+
+### §30.3 DRIVEN BOTH WAYS — AND THE NEGATIVE CONTROL IS THE POINT
+
+`launch_k0h_selftest.sh`, **26 passed / 0 failed**, every arm invoking `launch_k0h.sh` — **never `launch_guard()` directly, because calling it directly is the defect**. A clean case LAUNCHES; a pre-existing `0/` is REFUSED at exit 2 with **no STATUS written**; a pre-existing numeric time directory is REFUSED; the **detached** path refuses synchronously before the fork. Then **the negative control: with the two guard blocks deleted, the same dirty cases RUN TO COMPLETION** — so the refusals are attributable to clause 7 and to nothing incidental.
+
+### §30.4 TWO INSTRUMENT ERRORS FOUND *IN THE CONTROLS THEMSELVES*, RECORDED BECAUSE EACH NEARLY PASSED
+
+1. **A census that returned a false zero.** The first repository-wide census returned **zero hits — including inside the file that demonstrably contains the string.** `grep` here is a shell function wrapping **ugrep 7.8.4**, which rejects `--no-ignore`; with `2>/dev/null` the option error was discarded and **an empty result printed as a finding.** Believed, it would have reported *"no implementation exists"* instead of *"no call site exists"*. Re-run with `/usr/bin/grep` behind a **positive control asserted first**.
+2. **A negative control that refused for the wrong reason — in the direction that reads as confirmation.** The guard-stripped launcher copy resolves helpers through `SELF="$(dirname "${BASH_SOURCE[0]}")"`, which in a copy resolves to the temp directory, so `build_k0h.py` was unreachable and the copy **refused rc=2 on every dirty case — from the PRE-FLIGHT, not the guard.** Read carelessly that is *"the guard still fires"*: **a negative control that appears to confirm the very thing it exists to refute.** Caught only because the arm asserts what the control must *do*. The copy's construction is now itself verified — exactly **10** diff lines from the original (two guard blocks + one pinned `SELF` line) and **0** surviving executable call sites.
+3. *(Also, a counter that counted prose as code:* the first call-site counter reported *3 guarded / 1 stripped* and called a **correct** strip broken, because a **comment** names the flag in order to describe the defect. **A census instrument that counts prose as code is the same class of error as a guard that is never called.**)
+
+### §30.5 ONE CALL SITE IS **`ACTIVE-UNPROVEN`**, DECLARED RATHER THAN CLAIMED — AND ENFORCED BY A TRIPWIRE
+
+**`orchestrate_k0h.py`'s guard cannot be driven in its clause-7 role, and this file will not record it as proven.** `arm_state` (`:190-197`) returns **`IN_FLIGHT`** for any arm with a case directory and no `STATUS`; `launch_stage` (`:293-297`) skips every arm that is not `UNLAUNCHED`; **a freshly BUILT arm has a case directory.** Measured: a built arm reads `IN_FLIGHT`, an unbuilt one `UNLAUNCHED`. **So on any tree the builder produced, every arm is skipped and the orchestrator launches nothing** — independently of this repair. The only arm reaching the guard has *no* case directory, for which clause 7 refuses *"no case directory"*, not on a stray `0/`.
+
+- **PROVEN at that call site:** the guard is **called**, **refuses**, and a negative control shows the same arm reaching the launcher when its verdict is forced clear.
+- **NOT PROVEN, and not claimed:** the two stray-directory directions. They are proven at the launcher, which production uses.
+- **NOT REPAIRED, and why:** splitting `IN_FLIGHT` into BUILT and IN-FLIGHT changes which arms `charge()` bills **at their CAP** under R1, against the **registered ceiling**. A registered number is not a lane's. **Referred to the heat-transfer supervisor and verification.**
+
+**The limitation is enforced by code, not by this paragraph.** `orchestrate_k0h.py --selftest` carries a **TRIPWIRE** arm asserting the conflation still exists. **When it fails, `arm_state` was repaired — and clause 7's two real directions become drivable there and MUST THEN BE DRIVEN**, because the guard will have become reachable in a role nothing has yet tested. *A dead lever closed by creating an unwatched one would be no closure at all.*
+
+### §30.6 A FILING OBSERVATION, REPORTED NOT REPAIRED
+
+**Eight of the eleven paths in K0h's freeze set are UNTRACKED** — `build_k0h.py`, `launch_k0h.sh`, `launch_k0h_selftest.sh`, `mark_done_k0h.py`, `analyse_k0h.py`, `check_k0h_mesh.py`, `check_k0h_extraction_equivalence.py`, `check_k0h_instrument_standard.py` are not in `HEAD`; only `orchestrate_k0h.py` and the pre-registration are. The pre-registration's §A1.7 is accurate in calling its table *"worktree blob sha1s … RECORDED, NOT PINNED"*, and its shas match the worktree exactly. **Recorded here because a freeze pins committed blobs, so this must be resolved before K0h can be frozen** — not a defect in any team's diligence, and **not repaired by this lane**, since committing another agent's uncommitted work is the chief's call (rule 10).
+
+### §30.7 STATUS
+
+**K0h's clause-7 guard is now ACTIVE and PROVEN at `launch_k0h.sh`, the launch path production uses — both directions, with negative controls. It is ACTIVE-UNPROVEN at `orchestrate_k0h.py`, declared and tripwired. K0h remains DRAFT / NOT FROZEN**, on AMENDMENT 1 §4's three untouched grounds. This dead lever was a fourth ground and it is **closed**. Registered as pre-compute amendment **A3** of `docs/campaigns/F14-cooling-ladder/K0h_PREREGISTRATION.md`; `verification/runs/F14-cooling-ladder/K0h_runs` **does not exist** and was not created.

@@ -26081,3 +26081,29 @@ measured is L-529's family in the *writer's* voice: the record reads as fact and
 is fiction. Have the script verify (poll for the child's absence, read its RC/log)
 before it writes any outcome line, or write only what it actually observed
 ("SIGTERM sent to pgid -N"), never the consequence it assumed.
+
+## L-534 — AN ERROR SWALLOWED BY `2>/dev/null` BECOMES AN EMPTY RESULT THAT READS AS A FINDING. On this box `grep` is ugrep and rejects flags GNU grep accepts, so the swallowed error is not hypothetical
+
+**Measured while auditing K0h's clause-7 guard, 2026-09-10.** A census for `launch_guard|launch-guard` returned **zero hits repository-wide — including inside `mark_done_k0h.py`, the file that DEFINES the function.** The zero was not a finding. `grep` here wraps **ugrep 7.8.4**, which **rejects `--no-ignore`**; the invocation carried `2>/dev/null`, so the usage error went to the void and an empty stdout was printed as a result.
+
+**Believed, it would have produced the exact opposite conclusion from the truth** — "no clause-7 implementation exists anywhere" — about a guard that exists, is fully implemented, and whose real defect is that it has no CALL SITE. **A wrong answer that agrees with the shape of the thing you are hunting is the one that gets believed.**
+
+**This is a distinct failure from the known ugrep hazards** already on record (a glob-fed `tail -1` returning a different file per run). Those give a WRONG value; this gives NO value, dressed as a measured absence. **`2>/dev/null` converts "this command failed" into "this thing does not exist", and those are not the same fact.**
+
+**REMEDY.** (1) Never `2>/dev/null` a search whose EMPTINESS you intend to report — check the exit status, or drop the redirect. (2) Run a census behind a **positive control**: search for something you KNOW is present, in the same invocation with the same flags, and require it to be found. A census that cannot find a thing it was told is there has not searched. (3) On this box prefer `/usr/bin/grep` explicitly for anything whose absence is load-bearing; the shell's `grep` is not GNU grep and its flag set differs.
+
+*Lines whose number changed above this section: 0.*
+
+## L-535 — A NEGATIVE CONTROL CAN BE WRONG IN THE DANGEROUS DIRECTION: IT APPEARS TO CONFIRM THE THING IT EXISTS TO REFUTE. Assert what the control must DO, never only that it refused
+
+**Measured, 2026-09-10.** A guard's negative-control arm strips the guard's call site from a copy of the launcher and requires the dirty case to **LAUNCH** — proving the guard, and not something incidental, is what refuses. The stripped copy resolved `$SELF` to its own temporary directory, so the builder it invokes was **unreachable**, and the arm refused `rc=2` **from the pre-flight, not from the guard**.
+
+**The control therefore reported a refusal on a case whose guard had been REMOVED** — which reads on the page exactly like "the guard still fires", i.e. it appeared to confirm the very thing it was constructed to refute. **A negative control that fails closed is indistinguishable from a positive result.**
+
+**It was caught only because the arm asserts WHAT THE CONTROL MUST DO — "this case must LAUNCH, rc=0, STATUS written" — rather than merely asserting an exit code.** An arm written as *"expect non-zero"* would have passed, and the guard would have shipped certified by a control that never tested it.
+
+**A related error in the same audit, and the same class:** a counter reported "3 guarded / 1 stripped" and called a **correctly** stripped copy broken, because a **comment** in the file named the flag. **A census that greps for a token counts the token, not the call.**
+
+**REMEDY.** (1) A negative control asserts the POSITIVE OUTCOME it predicts — the thing launches, the value is produced, the row is graded — never just "it did not pass". (2) Assert that the stripped copy differs from the original **by exactly the expected edit** (diff line count, and zero surviving call sites) so a control that broke the file some other way is caught before its result is read. (3) Count call sites by parsing, or exclude comments; a comment naming a flag is not a call site.
+
+*Lines whose number changed above this section: 0.*
