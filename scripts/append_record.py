@@ -658,12 +658,44 @@ KNOWN_EXCLUDED = {
     #    the number). Anchoring on that closing `**` is what keeps this narrower
     #    than "any bold line"; a planted `**N-Z2 a bold entry with no period**`
     #    must still refuse, and does.
+    #  * a CORRECTION block -- a SIXTH spelling, added 2026-09-10 after the tool
+    #    refused EVERY team's NUMERICS append at exit 7 (reproduced: --dry-run
+    #    with a well-formed probe row, exit 7, ONE offender named). Measured
+    #    2026-09-10 on the worktree and on HEAD's blob, identical: exactly 1
+    #    line, `**N-D43 CORRECTION - 2026-09-06 - the "REACHED on the S1 CBFS
+    #    case" half of N-D43 is WITHDRAWN as UNESTABLISHED. ...**` at :6511, and
+    #    its parent primary heading `**N-D43. The DAFoam primal accept floor
+    #    is ...**` EXISTS at :6507 (checked) -- which is what makes this a
+    #    SECOND BLOCK under an existing id and not a lost id. Excluding it drops
+    #    NO number from the arithmetic: N-D43 is counted at :6507, and the id
+    #    count is 138 / 138 distinct before and after, byte for byte.
+    #    SAME TRAP as L-61 / N-T9, and it is why the anchor is what it is: this
+    #    line CONTAINS em-dashes LATER IN THE LINE, so an exclusion written as
+    #    "has no em-dash" -- or any rule testing anywhere-in-line -- would
+    #    misclassify it. It is anchored to the literal word CORRECTION
+    #    immediately after the id's whitespace. DISJOINT BY CONSTRUCTION from a
+    #    genuine entry: the id pattern requires a literal `.` immediately after
+    #    the digits, this requires `[ \t]+`, so no string can satisfy both; the
+    #    (ii) fixture limb asserts the excluded form parses NO id, and the `\b`
+    #    is load-bearing -- a planted `## N-Z4 CORRECTIONS to a theory` must
+    #    still refuse, and does (new near-miss control).
+    #    SIXTH SPELLING, AND THE PREDICTION THAT CAME TRUE: the LESSONS comment
+    #    above called FOUR spellings for one convention a RECORD-level
+    #    inconsistency and warned this register would grow once per spelling.
+    #    It has: this record alone now writes "a second block under an existing
+    #    id" SIX ways (`=`, `COMPANION`, `AMENDMENT`, `- DATED ADDENDUM`, the
+    #    bold-mention citation, and now `CORRECTION`). STILL REFERRED, STILL NOT
+    #    IMPOSED: docs/NUMERICS_KNOWLEDGE.md is not this tool's to reshape (and
+    #    rule 6 forbids editing a frozen record here anyway), and widening the
+    #    pattern to guess at future spellings is exactly the over-reach the
+    #    anchored rules were written to avoid.
     "docs/NUMERICS_KNOWLEDGE.md": (
         r"^(?:\*\*|## )N-[A-Z]+[ \t]*=",
         r"^(?:\*\*|## )N-[A-Z]+\d+[ \t]+COMPANION\b",
         r"^(?:\*\*|## )N-[A-Z]+\d+[ \t]+AMENDMENT\b",
         r"^(?:\*\*|## )N-[A-Z]+\d+[ \t]+—[ \t]+DATED ADDENDUM\b",
         r"^\*\*N-[A-Z]+\d+\*\*",
+        r"^(?:\*\*|## )N-[A-Z]+\d+[ \t]+CORRECTION\b",
     ),
     # A STRUCK id cell carrying its own annotation inside the cell, so the cell
     # does not close after the id and the pattern cannot reach the `|`.
@@ -3600,7 +3632,14 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                 "## N-C6 — DATED ADDENDUM, 2026-09-01: THE SCOPE IS "
                 "NARROWED.\n",
                 "**N-C9**'s bounding evidence are the neighbours: in all "
-                "three the field\n"),
+                "three the field\n",
+                # Added 2026-09-10 with the CORRECTION exclusion: the REAL
+                # committed line at :6511, trimmed, not a paraphrase. Its (ii)
+                # limb asserts it parses NO id (disjointness) and does not
+                # refuse; its (ii-mutation) asserts that dropping the exclusion
+                # set makes it refuse again, so the entry is load-bearing.
+                "**N-D43 CORRECTION — 2026-09-06 — the \"REACHED on the S1 "
+                "CBFS case\" half of N-D43 is WITHDRAWN as UNESTABLISHED.**\n"),
             # Each near-miss is the specimen this record's own exclusion
             # comments already NAME as "must still refuse". They now do so in
             # code rather than in prose.
@@ -3615,7 +3654,13 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                 # The bold-citation exclusion is anchored on the bold CLOSING
                 # immediately after the number. A bold ENTRY missing its period
                 # must still refuse.
-                "**N-Z2 a bold entry with no period**\n"),
+                "**N-Z2 a bold entry with no period**\n",
+                # DISCIPLINE CONTROL (2026-09-10) for the CORRECTION exclusion:
+                # `CORRECTION\b` must not reach a longer word, the same trap the
+                # AMENDMENT/AMENDMENTS pair drives. A genuinely lost fact
+                # written this way MUST still refuse -- if this limb flips, the
+                # exclusion was widened past the convention it was written for.
+                "## N-Z4 CORRECTIONS to a theory\n"),
             "furniture": (),
         },
         "docs/COST_CALIBRATION.md": {
