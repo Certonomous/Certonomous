@@ -185,8 +185,33 @@ def ledger_path(root=B.ROOT):
     return os.path.join(root, LEDGER)
 
 
+def existing_solve_records(root=B.ROOT):
+    """Run records already on disk under `root` -- the accumulator's evidence
+    that something HAS run, held independently of the ledger it is checking.
+
+    Walked, not inferred from the registered case list, so a record written into
+    a directory the census does not name is still seen.  Symlinks are not
+    followed: a record is a file this campaign wrote under its own root.
+    """
+    hits = []
+    if not os.path.isdir(root):
+        return hits
+    for dirpath, _dirnames, filenames in os.walk(root, followlinks=False):
+        for name in (LOG_NAME, RC_NAME):
+            if name in filenames:
+                hits.append(os.path.join(dirpath, name))
+    return sorted(hits)
+
+
 def read_spent(root=B.ROOT):
-    """Wall seconds already spent by this campaign, read from disk."""
+    """Wall seconds already spent by this campaign, read from disk.
+
+    A PURE READER, deliberately: `book` calls it AFTER a solve has written its
+    own run record, so a memory check placed here would refuse the very first
+    booking of every campaign.  The memory check is `memory_or_refuse`, called
+    by `budget_or_refuse` BEFORE any launch, which is the only place a
+    reset cap could do damage.
+    """
     p = ledger_path(root)
     if not os.path.exists(p):
         return 0.0, {"entries": []}
@@ -220,6 +245,35 @@ def book(root, tag, cfg, wall_s, kind="solve"):
     return d
 
 
+def memory_or_refuse(root=B.ROOT, label=""):
+    """THE ACCUMULATOR'S MEMORY, CHECKED BEFORE A LAUNCH.
+
+    An absent ledger is a fresh start ONLY on a root where nothing has run.
+    Standing rule 3 applied to the control's only memory -- the same principle
+    `verify_record` already states for the return-code channel: a zero from a
+    channel not shown able to carry a non-zero is not evidence, and a MISSING
+    ledger is not zero spent.  Without this, deleting the ledger RESETS a
+    registered cap: a root booked to 20,950 of 21,000 wall s shrinks the
+    effective timeout to 50 s, and the same root with its ledger removed hands
+    the next solve the FULL 3,600 s while a finished solve record sits on disk
+    beside it.  An unreadable ledger and a non-numeric total already refuse;
+    an absent one carried the same unknown spend and did not.
+    """
+    if os.path.exists(ledger_path(root)):
+        return {"ledger": "present", "records": None}
+    recs = existing_solve_records(root)
+    if recs:
+        refuse("the campaign wall ledger " + ledger_path(root) + " is ABSENT "
+               "while " + str(len(recs)) + " run record(s) already sit under "
+               + root + " (first: " + recs[0] + "), so the spend is UNKNOWN, "
+               "section 9.2's binding control cannot be evaluated and "
+               + (label or "the next solve") + " does not launch.  An absent "
+               "ledger is a fresh start ONLY on a root where nothing has run.  "
+               "Standing rule 3 applied to the accumulator's only memory: a "
+               "MISSING ledger is not zero spent")
+    return {"ledger": "absent", "records": 0}
+
+
 def budget_or_refuse(root=B.ROOT, label=""):
     """Section 9.2, checked BEFORE the launch.  Returns the effective timeout.
 
@@ -227,6 +281,7 @@ def budget_or_refuse(root=B.ROOT, label=""):
     exceed the registered 21,000 wall s even if every solve runs to its limit.
     Neither registered figure is widened; both bind.
     """
+    mem = memory_or_refuse(root, label)
     spent, _ = read_spent(root)
     remaining = B.CAMPAIGN_WALL_CAP_S - spent
     if remaining <= 0:
@@ -241,7 +296,7 @@ def budget_or_refuse(root=B.ROOT, label=""):
     return {"spent_wall_s": spent, "remaining_wall_s": remaining,
             "effective_timeout_s": int(eff),
             "per_solve_timeout_s": B.PER_SOLVE_TIMEOUT_S,
-            "cap_wall_s": B.CAMPAIGN_WALL_CAP_S}
+            "cap_wall_s": B.CAMPAIGN_WALL_CAP_S, "memory": mem}
 
 
 # ------------------------------------------------------------- the invocation
@@ -317,12 +372,21 @@ def run_solve(case, tag=None, cfg=None, root=B.ROOT, check_freeze=True,
     bud = budget_or_refuse(root, label=str(tag) + "/" + str(cfg))
 
     t0 = time.time()
-    subprocess.run(solver_command(case, bud["effective_timeout_s"], _program),
-                   shell=True, executable="/bin/bash")
-    wall = round(time.time() - t0, 1)
+    try:
+        subprocess.run(solver_command(case, bud["effective_timeout_s"], _program),
+                       shell=True, executable="/bin/bash")
+    finally:
+        # SPEND IS SPEND.  The wall time is booked BEFORE the record is
+        # verified, and even if the launch itself raises, because a solve
+        # REFUSED on its record still burned real wall seconds -- up to the
+        # effective timeout, unbounded across repeated refusals -- and standing
+        # rule 12 says waste is REPORTED, never absorbed.  Booking after
+        # verification let a refused solve's spend vanish from section 9.2's
+        # accumulator entirely.
+        wall = round(time.time() - t0, 1)
+        book(root, tag, cfg, wall, kind="solve")
 
     raw = verify_record(case)
-    book(root, tag, cfg, wall, kind="solve")
     rec = {"case": case, "tag": tag, "config": cfg, "rc": raw,
            "rc_is_zero": raw == "0", "wall_s": wall, "ranks": B.RANKS,
            "core_minutes": wall * B.RANKS / 60.0,
@@ -603,6 +667,59 @@ def selftest():
         json.dump({"wall_s_total": "lots"}, open(ledger_path(bad2), "w"))
         note("a ledger whose total is not a number REFUSES",
              _fires(read_spent, bad2))
+
+        # ---- SPEND IS SPEND: a REFUSED solve's wall time is booked anyway,
+        # with the passing direction beside it so the arm is not a ledger that
+        # moves on everything.
+        wroot = os.path.join(tmp, "waste")
+        wcase = os.path.join(wroot, "AR_1_Ret_360", "N")
+        os.makedirs(wcase)
+        tw = time.time()
+        wfired = _fires(run_solve, wcase, None, None, wroot, False, "sleep 3")
+        wburn = time.time() - tw
+        wspent, _ = read_spent(wroot)
+        note("a REFUSED solve's wall time IS BOOKED -- waste is reported, never "
+             "absorbed (rule 12), and spend does not vanish with the refusal",
+             wfired and wspent >= 2.0,
+             "refused after %.1f real wall s; ledger moved to %.1f s"
+             % (wburn, wspent))
+        wroot2 = os.path.join(tmp, "waste_ok")
+        wcase2 = os.path.join(wroot2, "AR_1_Ret_360", "T-b")
+        os.makedirs(wcase2)
+        wok = run_solve(wcase2, None, None, wroot2, check_freeze=False,
+                        _program="bash -c 'echo alive; sleep 2'")
+        wspent2, _ = read_spent(wroot2)
+        note("CONTROL for the arm above: a PASSING solve books the SAME wall it "
+             "recorded, so the ledger is not simply moving on everything",
+             wok["rc"] == "0" and abs(wspent2 - wok["wall_s"]) < 0.2,
+             "ledger %.1f s == recorded wall %.1f s" % (wspent2, wok["wall_s"]))
+
+        # ---- THE ACCUMULATOR'S MEMORY: an absent ledger is not zero spent.
+        mroot = os.path.join(tmp, "memory")
+        mcase = os.path.join(mroot, "CBFS13700", "N")
+        os.makedirs(mcase)
+        open(os.path.join(mcase, LOG_NAME), "w").write("Time = 1\nEnd\n")
+        open(os.path.join(mcase, RC_NAME), "w").write("0\n")
+        note("an ABSENT ledger REFUSES when a run record already sits under the "
+             "root -- deleting the control's memory does NOT reset the "
+             "registered cap",
+             _fires(budget_or_refuse, mroot)
+             and _fires(memory_or_refuse, mroot),
+             "records seen: %d" % len(existing_solve_records(mroot)))
+        eroot = os.path.join(tmp, "memory_empty")
+        os.makedirs(eroot)
+        e_spent, _ = read_spent(eroot)
+        e_eff = budget_or_refuse(eroot)["effective_timeout_s"]
+        note("CONTROL for the arm above: a genuinely EMPTY root still reads 0.0 "
+             "spent and gets the registered per-solve timeout, so the refusal "
+             "is not a blanket",
+             e_spent == 0.0 and e_eff == B.PER_SOLVE_TIMEOUT_S,
+             "0.0 spent, effective timeout %d s, records seen %d"
+             % (e_eff, len(existing_solve_records(eroot))))
+        note("the record sweep FINDS a record the registered case census would "
+             "not have named, so it is a walk and not a name list",
+             len(existing_solve_records(mroot)) == 2
+             and any("/CBFS13700/N/" in h for h in existing_solve_records(mroot)))
 
         note("run_campaign REFUSES a configuration that was never built",
              _fires(run_campaign, os.path.join(tmp, "unbuilt")))

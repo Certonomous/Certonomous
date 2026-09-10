@@ -1123,3 +1123,242 @@ dispatch. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
 nothing may run against it. Zero solver compute produced this amendment. Nothing
 sent, filed, uploaded, registered, posted or commented. No frozen file was
 edited. No RC2 file was read for write, edited or depended upon.*
+
+---
+
+## AMENDMENT A3 — 2026-09-10. PRE-FIRST-COMPUTE. Two defects in §9.2's binding cost control.
+
+**Document version: DRAFT v1.3** (was DRAFT v1.2 at Amendment A2; DRAFT v1.1 at
+Amendment A1; DRAFT v1.0 as landed at commit `de28101d`).
+**lines whose number changed above this section: 0** — appended at the foot,
+editing no line above it. The assertion is measured, not claimed: the file's
+prefix up to and including A2's closing line was hashed **before** and **after**
+the append inside a single shell invocation, the two prefix digests were shown
+equal, the whole-file digest was shown to MOVE in that same invocation, and a
+**control** digest of a deliberately mutated copy of that same prefix was shown to
+differ — so the hasher is demonstrably not returning a constant. Prefix byte and
+line counts and all four digests are recorded in the commit carrying this
+amendment.
+
+**THIS AMENDMENT IS NOT THE FREEZE.** It changes no gate, no threshold, no band,
+no cap and no label. The Status line still carries the DRAFT/UNFROZEN token, that
+token still occurs **exactly once** in this file — measured, count `1`, at the
+Status line — and this amendment deliberately never writes the token string again,
+so the supervisor's single substitution at the freeze clears
+`build_rc4_cases.refuse_if_unfrozen()` in one edit.
+
+### A3.0 What this closes, and why both repairs are strictly stricter
+
+§9.2 registers the campaign wall accumulator as **the binding control** — "9 solves
+plus an extraction at 3,600 s of per-solve timeout would otherwise permit 36,000 s".
+A2 implemented it. Two defects meant it could still be evaded. **Both repairs can
+only ever make the control MORE binding.** Neither widens a registered figure;
+neither can emit a verdict, a value, a band or a label; neither can manufacture a
+`PASS`.
+
+**DEFECT 1 — A REFUSED SOLVE'S WALL TIME WAS NEVER BOOKED, SO SPEND VANISHED.**
+As A2 landed it, `run_solve` verified the run record and booked the spend only
+afterwards. Any solve refused on its record burned real wall seconds that never
+entered the ledger — up to the effective timeout on each refusal, unbounded across
+repeated refusals.
+
+REPRODUCED by this lane, on its own clock, in temp roots, at zero solver compute:
+
+| direction | measured |
+|---|---|
+| a solve REFUSED on the zero-byte-log guard | **3.3 real wall s burned; the ledger read 0.0 s and the ledger file was never even created** |
+| **CONTROL**, the same call succeeding | recorded wall **2.2 s**, ledger **2.2 s** |
+
+Standing rule 12: **waste is REPORTED, never absorbed.** A campaign could exceed
+the registered 21,000 wall s of real time while its own ledger read less.
+
+**REPAIR 1:** the launch is wrapped in `try` / `finally` and the wall time is booked
+inside the `finally` — before the record is verified, and even if the launch itself
+raises (`rc4_run.py:381-387`). **Spend is spend.**
+
+**DEFECT 2 — AN ABSENT LEDGER READ AS ZERO SPENT, SO DELETING THE CONTROL'S MEMORY
+RESET A REGISTERED CAP.** `read_spent` returned `0.0` for a missing ledger file.
+This module already states the correct principle one function later, for the
+return-code channel — *"a missing rc is not rc = 0 … a zero from a channel not
+shown able to carry a non-zero is not evidence"* — and did not apply it to the
+accumulator's **only** memory.
+
+REPRODUCED by this lane, on its own clock, at zero solver compute:
+
+| direction | measured |
+|---|---|
+| a root booked to **20,950** of 21,000 wall s | effective timeout correctly shrinks to **50 s** |
+| the same root, a finished solve record (`log.solve` + `rc`) written into it, the ledger then deleted | `read_spent` → **0.0**, effective timeout back to the FULL **3,600 s**, with the finished record sitting on disk beside it |
+| **CONTROL**, an unreadable ledger in the same shape | still REFUSES — the pre-existing guard fires, so the absent case was the only hole |
+
+**REPAIR 2:** a new `memory_or_refuse` (`rc4_run.py:248`), called by
+`budget_or_refuse` (`:277`) **before any launch**, refuses when the ledger is absent
+while any run record already sits under the root. Its evidence is
+`existing_solve_records` (`:188`) — an `os.walk` of the root for `log.solve` and
+`rc`, **not** a name list built from the registered case census, so a record written
+into a directory the census does not name is still seen. **An absent ledger is a
+fresh start ONLY on a root where nothing has run.**
+
+**A CORRECTION INSIDE REPAIR 2, RECORDED BECAUSE IT IS THE INSTRUCTIVE PART.** The
+guard was first placed inside `read_spent` itself. Its own new selftest arm then
+FAILED, and the reason is structural rather than incidental: `book` calls
+`read_spent` **after** the solve has already written its own `log.solve` and `rc`,
+so a memory check there refuses the **first** booking of every campaign — repair 1
+and repair 2 collide head-on. `read_spent` is therefore left a **pure reader** and
+the memory check lives at the pre-launch gate, which is the only place a reset cap
+can do damage. **The failing arm is what found this**, one invocation after the
+patch; it is recorded rather than quietly re-shuffled.
+
+### A3.1 The rule-2 condition, and how it was checked — freshly, at this amendment
+
+**Condition: RC4 has had ZERO compute. The run root registered by its own
+instrument does not exist.** Checked at this amendment by this lane, at zero solver
+compute, every row with the control that FIRED — a "not found" from a probe never
+shown able to find anything is not evidence:
+
+| check | result | control that FIRED |
+|---|---|---|
+| `/home/ubuntu/closure-data/rc4` — the run root at `build_rc4_cases.py:82` | **ABSENT** | `/home/ubuntu/closure-data/r4` **EXISTS**, same probe, same invocation |
+| the same root re-checked AFTER every selftest and every reproduction in this amendment | **still ABSENT** | as above, same invocation |
+| files beside this registration | `PREREGISTRATION.md` + the five modules; no `RESULTS.md`, no `scores.json`, no run artifact | — |
+| `rc4_run.py --run-campaign`, and `run_solve` / `run_campaign` called directly | **exit 2**, DRAFT/UNFROZEN | driven, not read; the selftest arm asserts it |
+
+### A3.2 §11's refusal census, updated by exactly one
+
+**`rc4_run.py`: 20 → 21 refusal sites.** Independent `ast` parse by this lane, run
+on **both** versions: the committed version `refuse()` **17** + `raise SystemExit`
+**3** = **20**, matching A2.4's registered figure; the repaired version **18** + **3**
+= **21**. `ast.Assert` count, every module, re-measured at this amendment:
+`build_rc4_cases.py` **0**, `rc4_extract_R.py` **0**, `rc4_onechange.py` **0**,
+`rc4_score.py` **0**, `rc4_run.py` **0**.
+
+**The one new refusal, registered by name:** *the campaign wall ledger is ABSENT
+while one or more run records already sit under the root — the spend is UNKNOWN,
+§9.2's binding control cannot be evaluated, and no solve launches on an unknown
+spend.* Like every other refusal in this item it is a `refuse()` → `raise
+SystemExit(2)`, so it survives `python3 -O`. Repair 1 adds **no** refusal: it moves
+a booking, not a guard.
+
+### A3.3 The one citation this document makes into `rc4_run.py`, proved unchanged
+
+This document cites the runner by line **exactly once** — at line 908,
+`check_channel_names()` at **`rc4_run.py:147`**. **That citation is unchanged, and
+proved so rather than assumed:** the repaired file is **byte-identical to the
+committed version through line 186** (`cmp` on the two prefixes), the first
+differing line is **188**, and a **control** comparison over lines 1–200 in the same
+invocation DIFFERS — so the comparator is not returning equality unconditionally.
+
+New positions, for a later reader: `existing_solve_records` **:188**, `read_spent`
+**:206**, `book` **:232**, `memory_or_refuse` **:248**, `budget_or_refuse` **:277**,
+`run_solve` **:349**, the booking `finally` **:381–387**, `verify_record` call
+**:389**, `run_campaign` **:403**. File **676 → 793** lines.
+
+### A3.4 DISCLOSED, NOT REPAIRED
+
+`run_campaign` hardcodes `out["registered_estimate_core_minutes"] = 140` as a
+literal (now `rc4_run.py:430`) rather than reading §9.2's figure from this document,
+so an amended estimate would silently disagree with the runner's own report. It is
+a **reporting field**: it gates nothing, no refusal reads it, and no verdict depends
+on it. It is disclosed here rather than changed, because the fix would put a
+document parser inside the runner — a new failure surface buying no gate. **The
+registered estimate remains 140 core-minutes and this amendment does not move it**,
+so the literal and the document agree today, and this note exists so a future
+amendment that moves the estimate knows to move the literal with it.
+
+### A3.5 Selftest, both interpreters
+
+`rc4_run.py --selftest`: **39/39 PASS** under `python3` and **39/39 PASS** under
+`python3 -O` (35/35 at A2; four new arms — two refusals and two controls, each
+refusal with its passing direction beside it). `__pycache__` cleared. `ast.Assert`
+**0**. Every reproduction and every selftest in this amendment ran in `mkdtemp`
+roots; RC4's registered run root was re-checked ABSENT afterwards, with a control
+that FIRED in the same invocation.
+
+### A3.6 What did NOT move — the clause-by-clause statement rule 2 requires
+
+| clause | line | value, unchanged |
+|---|---|---|
+| **P-1** R-extraction validity | 279 | drift **≤ 0.05**; a failing case `BLOCKED`; fewer than 2 of 3 surviving ⇒ RC4 `BLOCKED`, denominator never rescaled |
+| **P0** headline gate | 294 | T-bR cuts `U_rms` by **≥ 80%** vs N NULL on **≥ 2 of 3** in-scope cases |
+| **P1** one-change attribution | 305–313 | exactly one differing field file, `<time>/kDeficit` |
+| **P2** mechanism band | 318, 576 | `k/k_LES` in **[0.9, 1.1]** |
+| **P3** two ceilings | 327–333 | published side by side, never substituted |
+| **P4** reader control | 335, 361–386 | three planted controls, every scoring pass |
+| §8 completion clauses 1–8 | 446–479 | **unchanged, every clause, verbatim** |
+| continuity | 259, 473 | **< 1e-3** binding, **1e-4** reported beside it — **NOT MOVED, and see A3.7 item 5** |
+| verdict ladder | 337–358 | unchanged |
+| falsifiers | 416–443 | unchanged; the 80% bar is never lowered |
+| REGISTERED ESTIMATE | 513 | **140 core-minutes** |
+| REGISTERED CAP | 519 | **350 core-minutes** |
+| campaign accumulator | 539 | **21,000 wall s at ranks 1**. A3 makes it harder to evade; it does not change the figure |
+| per-solve timeout | 537 | `timeout 3600`, effective `min(3600, cap − spent)` — unchanged |
+| ranks | 485–489 | **1**, serial |
+| case set | 228, 577 | `AR_1_Ret_360`, `AR_3_Ret_360`, `CBFS13700`; `BFS5100` BLOCKED; `PHLL10595` out of scope. **The denominator is not rescaled and no case is dropped** (§10) |
+| §11 module list | 614–617 | unchanged; A2's fifth row stands, no row removed or altered |
+| Label | header | `RC4`, unchanged |
+
+### A3.7 What this lane could NOT establish, stated plainly
+
+1. **A2.6 item 1 is NOT closed by this amendment.** The runner still has never
+   driven `simpleFoam`. A3 repairs the accumulator; it does not close the one
+   remaining inference. See A3.8.
+2. **The record sweep is scoped to the run root.** `existing_solve_records` walks
+   the root it is given. A run record written *outside* the root is invisible to it,
+   as it is to the ledger. This is a scope, not a hole — the campaign writes only
+   under its own root — but it is stated rather than left implied.
+3. **The absent-ledger refusal is reachable only by deletion or by a crash between
+   launch and booking.** With repair 1 in place, a launched solve books its wall in
+   a `finally`, so a record on disk normally implies a ledger. The refusal exists
+   for the abnormal case, and it was measured firing on one.
+4. **Zero solver compute produced this amendment**, so there is no
+   estimate-versus-actual pair and **no `docs/COST_CALIBRATION.md` row is filed.**
+   The reproductions and selftests cost **≈ 0.9 core-min at ranks 1** in `mkdtemp`
+   roots (wall clocked by this lane; sub-second reads not itemised), which is
+   inside §9.1's registered 300 s scoring-and-selftest block and is **not** compute
+   against any gate.
+5. **The continuity screen's global reach is NOT addressed here and is not mine to
+   address.** §4's binding 1e-3 bar is a registered threshold and `rc4_score.py:429-437`
+   takes the WHOLE item to `NOT A RESULT` on any scored row outside it. A3 does not
+   touch the bar, the screen or the denominator. The separate question of whether
+   RC4 should be frozen and launched with that exposure is referred at A3.8; it is
+   the supervisor's, and on one branch Sanaa's.
+
+### A3.8 A REFERRAL THIS AMENDMENT MAKES AND DOES NOT DECIDE
+
+The supervisor asked for an **apparatus pre-flight** that would measure, before the
+freeze, whether RC4's own solve of `CBFS13700` in configuration **N** lands inside
+the binding 1e-3 continuity bar — the reading on which the spend decision turns.
+**This lane's finding is that such a pre-flight CANNOT be made gate-safe**, because
+`CBFS13700`/`N` is a registered case tag in a registered configuration and its
+`u_rms` is the **denominator of P0** (`rc4_score.py` `gate_arithmetic`), so solving
+it is compute of the thing the gates score, wherever its directory sits.
+`VERIFICATION_CHARTER.md` §2d.2 (v1.32) rules that gates close at **first compute
+under the registration, feasibility compute included**, and that *"§2m is about the
+absence of a gate, not the character of the run."*
+
+**AND A SECOND FINDING MAKES THE SOLVE THE WRONG PURCHASE EVEN IF IT WERE SAFE.**
+On RC4's own preserved population, the solver's own continuity channel and the
+reconstruction reader RC4 grades on disagree by more than ten orders of magnitude
+on the CBFS mesh. `CBFS13700__TRUTHR` — the row whose reader continuity
+**0.3219275282624856** is hardcoded at `rc4_score.py:683` — carries **30,000**
+`time step continuity errors` lines in its own named log whose final reading is
+**`sum local = 2.3702417851257e-13`**; `CBFS13700__NULL` reads
+**`6.39478297050231e-14`**. Both figures are from ONE NAMED artifact each, with
+the reader control firing in the same invocation (`log.foamToVTK` in the same
+directory returns **0** such lines, so the grep is not blind). **This amendment
+records the two numbers and draws no conclusion from them**, because the reader's
+own value on those rows has not been measured by this lane and the comparison is
+what the pre-flight registers.
+
+The argument, the charter citations, the **gate-safe substitute** that answers the
+question at **zero solver compute**, the floor reading, the duct cross-geometry
+control and the **three-way** registered consequence are set out in
+**`cases/RANS_LES_closure_models/RC4_PREFLIGHT_apparatus/PREREGISTRATION.md`**.
+Nothing in that document alters anything in this one, it moves no bar, and this
+amendment asserts no verdict on RC4.
+
+*Amendment A3 appended 2026-09-10 by a closure lane on the closure-supervisor's
+dispatch. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
+nothing may run against it. Zero solver compute produced this amendment. Nothing
+sent, filed, uploaded, registered, posted or commented. No frozen file was edited.
+No RC2 file was read for write, edited or depended upon.*
