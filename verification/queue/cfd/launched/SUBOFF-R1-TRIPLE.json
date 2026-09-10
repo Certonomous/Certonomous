@@ -1,0 +1,75 @@
+{
+  "team": "cfd",
+  "case_id": "SUBOFF-R1-TRIPLE",
+  "prereg_path": "verification/campaign/SUBOFF_R1_PREREGISTRATION.md",
+  "prereg_commit": "94d7afb754532631d4521602ed3ca9f0488025ec",
+  "grading_freeze": [
+    "cases/navier_class/SUBOFF/grade_suboff.py"
+  ],
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/run_suboff_r1_triple.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF",
+  "ranks": 1,
+  "cap_core_min_registered": 150.0,
+  "cost_core_min_estimate": 80.38,
+  "cost_basis": "DERIVED, NOT MEASURED as a dollar figure -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5, CLAUDE.md rule 12). The core-minute figure itself rests on a MEASURED, SUBOFF-SPECIFIC rate and is NOT borrowed from M6: verification/runs/navier_class/SUBOFF/smoke_coarse (the section-6 exercise smoke, already run, rc=0, 7,600 cells, 50 ExecutionTime lines, last ExecutionTime 2.21 s, serial) gives 2.21 s x 1 rank / 60 / (7600 x 50) = 9.693e-8 core-min/cell/iteration, and that smoke's system/fvSolution and system/fvSchemes are byte-identical to all three graded levels. At the section-5a registered endTime 2500 and ranks 1: coarse 39,904 cells 9.67 + medium 89,784 cells 21.76 + fine 202,014 cells 48.95 = 80.38 core-min for the triple, which is what THIS entry spends. The section-7 registered cap 150 core-min additionally covers the section-6 smoke (0.39) and one FINE-level rerun allowance (48.95), total 129.72 with 20.28 headroom. The rate is a deliberate UPPER BOUND: it is 2.85x the M6SR rhoSimpleFoam figure 3.40e-8 (M6SR_PREREGISTRATION.md:462, a DIFFERENT, COMPRESSIBLE solver, on which this estimate does NOT rest) because a 7,600-cell serial run pays per-iteration fixed costs over very few cells; at the M6 rate the triple would be 28.2 core-min, and that spread is the honest width of the estimate. Dollars: 80.38/60 x $0.0513 = $0.0687 DERIVED for this entry, 129.72/60 x $0.0513 = $0.1109 DERIVED for the whole capped rung. Well under the $25 CPU pre-authorised tier (Sanaa 2026-08-18). AN OVERRUN STOPS THE RUN; IT DOES NOT GET A NEW BUDGET.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd-supervisor, 2026-09-10, personally (SUPERVISION_CHARTER check-4, not delegated). SUBOFF_R1_PREREGISTRATION.md is FROZEN at 94d7afb754532631d4521602ed3ca9f0488025ec; its grading path is pinned by blob sha in its section 11 and every pin was verified disk == HEAD at freeze time and again after the freeze commit. Launch is via the DETACHED RUNNER, deliberately not by hand: peer solvers are live and an un-earned contention timeout would be a forbidden NOT A RESULT, so the runner schedules this against box occupancy. No agent message authorised this (CLAUDE.md rule 9); the freeze and this drop are the supervisor's own acts.",
+  "_LAUNCHER": "run_suboff_r1_triple.sh takes NO positional arguments (only an optional --grade, which this entry deliberately does NOT pass: grading is a separate act and the grader diff-read is the supervisor's check-1). It hard-codes the three registered run roots, the registered endTime 2500 / deltaT 1 / ranks 1, the registered cap 150.0 core-min and the per-level sub-caps 15/33/74 core-min whose wall timeouts are derived as sub_cap x 60 / ranks = 900/1980/4440 s. The JSON ranks (1) mirrors the launcher's RANKS=1 and cap_core_min_registered (150.0) mirrors CAP_COREMIN_REGISTERED so a cap watcher reports against the true registered cap. NOTE: queue_entry_check.py does NOT verify that launch_cmd[1] resolves; it was verified by hand on 2026-09-10 -- the file exists at that absolute path, is executable, and `bash -n` is clean.",
+  "_CWD_CHOICE": "cwd is the CASE directory, the lab convention named in queue_entry_check.check_cwd_launchable's own refusal text. It EXISTS (so the EXEC clause passes) and holds NO numeric time directory (so the AGE-GUARD clause passes). The launcher cds into each absolute run root itself and never writes a time directory into cwd.",
+  "_RUN_ROOTS": "The three registered graded levels (pre-registration section 4a) are verification/runs/navier_class/SUBOFF/reg_coarse, reg_medium and reg_fine. Verified on disk 2026-09-10T04:33Z: NONE holds a 0/, a numeric time directory, an rc sidecar, a log.simpleFoam or a postProcessing/, so a launch ADDS rather than overwrites. The launcher re-checks all of that in preflight and REFUSES rather than clearing -- it contains no rm -rf of any kind.",
+  "_OWED_AT_COMPLETION": "Grading via the pinned grade_suboff.py (Roache triple gating rule 5; the two planted-zero controls rule 3) AND a rule-12 COST_CALIBRATION.md row comparing the section-5a estimate (80.38 core-min triple, 150 cap) against the actual core-seconds from the STATUS.R1_<level> sidecars, stating the actual/predicted ratio, attributing the gap (contention, waste, misprediction named separately) and deriving dollars at $0.0513/core-h labelled DERIVED NOT MEASURED. Nothing is sent, filed, uploaded or posted (rule 7).",
+  "_VALIDATION": "Validated in place with scripts/queue_entry_check.py while sitting beside the case. Expected and intended result: exactly ONE refusal, COMMIT-EXISTS on the placeholder prereg_commit. TEAM-BINDING is reported NOT CHECKED because this draft is not in a team drop directory -- that is by design and is why --require-binding is NOT used here.",
+  "_launch": {
+    "utc": "2026-09-10T04:50:41Z",
+    "pid": 1115917,
+    "sid": 1115917,
+    "status_file": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/STATUS.queue.SUBOFF-R1-TRIPLE",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF/launcher.queue.out",
+    "started_epoch": 1789015841.0673337
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.SUBOFF-R1-TRIPLE (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_grading_freeze": {
+    "verdict": "PINNED",
+    "detail": "1 comparator(s) named by 'grading_freeze' hash EXACTLY as commit 94d7afb7 froze them.",
+    "field": "grading_freeze",
+    "paths": [
+      {
+        "path": "cases/navier_class/SUBOFF/grade_suboff.py",
+        "frozen_sha": "9ab71b156d395d1e040851c524f0b81bb0e82ae1",
+        "disk_sha": "9ab71b156d395d1e040851c524f0b81bb0e82ae1",
+        "state": "PINNED"
+      }
+    ],
+    "prereg_commit": "94d7afb754532631d4521602ed3ca9f0488025ec",
+    "refusal_eligible": false,
+    "source": "ENTRY",
+    "schema": "grading_freeze/2",
+    "kind": "PREDICTION",
+    "predicts": "GRADING_WILL_PROCEED",
+    "actual": null,
+    "case_id": "SUBOFF-R1-TRIPLE",
+    "walked_commit": "13f869a7e0cdc52d179668543a0961e085303f42",
+    "recorded_utc": "2026-09-10T04:50:41Z"
+  }
+}
