@@ -1,16 +1,18 @@
 # PREREGISTRATION — R5D, identity-preserving completion of the 15 hills
 
-> **STATUS: DRAFT — UNFROZEN — NOTHING MAY RUN AGAINST IT.**
-> This file registers nothing yet: no gate, threshold, cap or label below is
-> closed, no sha256 binds anything, and no solver, run directory or queue entry
-> is authorised by it. It carries **no freeze stamp and no comparator sha-pin**.
-> **The closure-supervisor freezes it** — this document **and** `grade_r5d.py`
-> together, in one commit — **after a personal `SUPERVISION_CHARTER.md` §3
-> check-1 diff-read** of the grader. Until that act, the lane verdict is
-> **PENDING** and no number here is of record.
+> **STATUS: FROZEN 2026-09-10 by closure-supervisor** (personal
+> `SUPERVISION_CHARTER.md` §3 check-1 diff-read of `grade_r5d.py` + check-4). This
+> document **and** `grade_r5d.py` land in **one commit**, which fixes the grading
+> path at that commit (CLAUDE.md rule 2). **Comparator sha-pin:** `grade_r5d.py`
+> sha256 `aaae8ac6d60c8aa33124748e8410b094483ec48f67f54f289d0aff3af07e5805` — the
+> frozen file is verified to BE the file that runs by hashing against the committed
+> blob. The freeze stamp and its basis are appended at the foot (§7). Rule 6 now
+> binds this file. **The R5D solver run is compute-gated and HELD behind the
+> M6/Navier launch hold**, so the lane verdict is still **PENDING** — freezing
+> fixes the grading path, it asserts no gate verdict.
 >
 > Nothing has been sent, filed, uploaded, registered, posted or commented
-> (CLAUDE.md rules 2, 7). Zero solver compute produced this file.
+> (CLAUDE.md rules 2, 7). Zero solver compute produced this file or its freeze.
 
 **Lane:** closure. **Predecessor:** `../R5C_omega_repair/` (GATE FAIL, frozen
 comparator sha `58eb99e3`). **Successor option:** R5D of
@@ -291,5 +293,56 @@ committed blob. **Until then: UNFROZEN, PENDING.**
 ## 6. VERDICT VOCABULARY
 
 `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` / `PENDING`,
-and nothing else. **Lane verdict at draft time: `PENDING` — nothing has been run
-and nothing is frozen.**
+and nothing else. **Lane verdict: `PENDING` — the grading path is now frozen, but
+the R5D solver run is compute-gated and held; nothing has been graded.**
+
+---
+
+## 7. SUPERVISOR FREEZE STAMP — 2026-09-10 (closure-supervisor)
+
+**FROZEN.** SUPERVISION_CHARTER §3 check-1 (measurement-script diff read of
+`grade_r5d.py`, read in full) and §3 check-4 performed PERSONALLY, not relayed.
+Comparator `grade_r5d.py` sha256
+`aaae8ac6d60c8aa33124748e8410b094483ec48f67f54f289d0aff3af07e5805`.
+
+**Check-1 basis.**
+- The one structural change from R5C — the **distance-to-fixed-point criterion**
+  (`distance_to_fixed_point` + `classify_sequence`) replacing R5C's change-based
+  settle criterion AND the miscalibrated G3(d) ratio — is sound: it bounds the
+  geometric tail `D = s_N/(1−rho)` with `rho = max` over the window (conservative),
+  gates on an **absolute** bar `d_rel ≤ 1e-7` (L-515; a ratio is retired), one
+  order below the 1e-6 identity bar, and refuses spatially-flat/clipped fields and
+  exact-zero cliffs (L-235). It defeats the R5C/L-243 damping trap (a strongly
+  damped `rho→1` yields a large tail even for a tiny step). Rule 5 is carried onto
+  the iterate axis via `classify_sequence` (DIVERGENT/STAGNANT/OSCILLATORY → no
+  distance quoted).
+- The **sole extension of a frozen helper** is `completion_rule4`, which reuses
+  `r4_lib.frozen_complete` UNMODIFIED for the six conditions and appends only the
+  rule-4 clause-5 exec-count `n_exec == write_iter`. Read as a diff and concurred:
+  faithful to clause-5's unit-step adaptive-write mapping for a frozen extraction
+  that breaks out at settle via `writeNow()`; strictly stricter (a new guard).
+- No frozen file edited: `grade_r5c.py` (`58eb99e3…`, git-clean) and `r4_lib` are
+  reused unmodified; R4 artefacts are read-only.
+- **Selftest re-run by the supervisor:** GREEN under `python3` AND `python3 -O`
+  (planted-zero PLANT-relative on an O(10–100) donor; flat-mode and cliff refusals
+  distinct from the planted zero; damped-non-convergence, divergent, stagnant →
+  not CONVERGING; genuine contraction → CONVERGED; identity PASS/FAIL; completion
+  PASS/clipped-INCOMPLETE). 0 `ast.Assert` (independent parse).
+- **Honest PENDING:** `load_snapshots` returns None when `dfpSnaps` is absent — no
+  distance is fabricated; the DFP measurement is compute-gated to the held run.
+
+**Scope (check-4).** Within R3 (SpaRTA operator unchanged; a numerics/criterion
+finding-repair, the FREEZE-AHEAD repair-registration class) — supervisor-freezable.
+The G-DFP constants (`DFP_STAR_TARGET=1e-7`, `DFP_KMIN=3`, `DFP_CV_FLOOR=1e-6`,
+`DFP_RATIO_STAB=4`) are registered BEFORE any run, so they cannot be tuned to fit.
+
+**What is NOT decided.** No gate verdict is asserted — the freeze fixes the grading
+path only. The C2 escalation (§3's NOT-A-RESULT branch) remains Sanaa's call and is
+not pre-committed. **PRE-LAUNCH DEPENDENCY (not a freeze blocker):** the R5D run
+must produce the `dfpSnaps` per-iteration snapshot sequence (item 1's two
+registered mechanisms); the writer is a run-side task to settle before the (held)
+launch, which is itself behind M6/Navier.
+
+*This §7 is the initial freeze stamp (the STATUS-header flip above is part of this
+same freeze commit). Rule 6 now binds: any later departure is a dated addendum
+below, asserting `lines whose number changed above this section: 0`.*

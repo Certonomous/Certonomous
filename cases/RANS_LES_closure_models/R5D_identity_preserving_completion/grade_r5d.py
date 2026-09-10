@@ -1,10 +1,21 @@
 #!/usr/bin/env python3
 """R5D comparator - identity-preserving completion of the 15 hills.
 
-STATUS: DRAFT - UNFROZEN.  This grader carries no sha-pin and no freeze stamp.
-The closure-supervisor freezes it after the SUPERVISION_CHARTER.md sec.3 check-1
-diff-read; until then nothing may be graded against it and no verdict it prints
-is of record.
+STATUS: FROZEN 2026-09-10 by closure-supervisor, after a personal
+SUPERVISION_CHARTER.md sec.3 check-1 diff-read (measurement-script diff, not
+relayed) and check-4.  This grader lands in ONE commit with PREREGISTRATION.md,
+which fixes the grading path at that commit (CLAUDE.md rule 2); the comparator
+sha256 is recorded in PREREGISTRATION.md sec.7.  CHECK-1 found: the one structural
+change (the distance-to-fixed-point criterion replacing R5C's change-based settle
+and the miscalibrated G3(d) ratio) is sound and bounds an ABSOLUTE distance (1e-7,
+one order below the 1e-6 identity bar); the sole extension of a frozen helper is
+completion_rule4's rule-4 clause-5 exec-count, read as a diff and faithful to the
+unit-step adaptive-write mapping (n_exec == write_iter); frozen grade_r5c.py
+(58eb99e3) and r4_lib.frozen_complete are reused UNMODIFIED; selftest all controls
+GREEN under python3 AND python3 -O, 0 ast.Assert.  Rule 6 now binds: no edit
+below this stamp; a departure is a dated addendum.  The R5D solver run is
+compute-gated and HELD behind the M6/Navier launch hold, so no verdict is of
+record yet (PENDING).
 
 It succeeds grade_r5c.py (frozen, sha 58eb99e3 - NOT edited by this file).  The
 one structural change from R5C, registered in PREREGISTRATION.md item (2): R5C's
@@ -533,8 +544,9 @@ def selftest():
 
 def main():
     print(f"comparator sha256: {sha256_file(os.path.abspath(__file__))}")
-    print("STATUS: DRAFT - UNFROZEN.  No verdict below is of record until the "
-          "closure-supervisor freezes this file after a sec.3 check-1 diff-read.")
+    print("STATUS: FROZEN (closure-supervisor, 2026-09-10; sha-pin in "
+          "PREREGISTRATION.md sec.7). The R5D run is compute-gated and HELD "
+          "behind the M6/Navier launch hold; no verdict is of record until it runs.")
     if not os.path.isdir(R5D):
         print(f"\nR5D run root {R5D} absent: the held R5D run has not been "
               f"launched.  Nothing to grade.")
