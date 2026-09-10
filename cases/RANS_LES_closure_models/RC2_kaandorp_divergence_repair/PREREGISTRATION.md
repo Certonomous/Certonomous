@@ -1,25 +1,52 @@
 # RC2 — THE KAANDORP DIVERGENCE-FLAG REPAIR, AND THE RE-GRADE FROM PRESERVED ARTIFACTS
 
-> **THIS COMMIT IS NOT THE FREEZE.** This document is landed to preserve it and
-> to make it reviewable; it is **NOT YET FROZEN** and **NOTHING MAY RUN AGAINST
-> IT**. Standing rule 2 fixes the grading path **at the pre-registration
-> commit**, and this item's instrument does not exist yet — so the freeze is the
-> later commit that carries **this document AND its instrument together**, and
-> that commit's sha is the one an entry's `prereg_commit` must cite. Any run
-> before it is unregistered and its output is **NOT A RESULT**.
-> — closure-supervisor, 2026-08-28
+> **STATUS: FROZEN 2026-09-10 by closure-supervisor** (personal
+> `SUPERVISION_CHARTER.md` §3 check-1 — full read of BOTH instruments as
+> measurement scripts — and §3 check-4, performed personally, not relayed). This
+> document **and** `rc2_divergence.py` **and** `regrade_rc2.py` land in **ONE
+> commit**, which fixes the grading path at that commit (CLAUDE.md rule 2).
+> **Instrument sha-pins:** `rc2_divergence.py` sha256
+> `ce2acaf0cb4574eb45a533437291406d3359147ef0115eed92521f36c15a8e32`;
+> `regrade_rc2.py` sha256
+> `1c43b3e531650083f3582682272a292beb3f295212af625beabaebe5e152c7d9`. Each frozen
+> file is verified to **BE** the file that runs by hashing it against the committed
+> blob before any result is believed. The freeze stamp and its basis are appended
+> at the foot (**§14**). **Rule 6 now binds this file.** The queue entry's
+> `prereg_commit` cites THIS freeze commit; any run against an earlier sha is
+> unregistered and its output is **NOT A RESULT**.
+>
+> **No gate verdict is asserted by the freeze** — freezing fixes the grading path;
+> the RC2 re-grade has not been run and the lane verdict is **`PENDING`**. Nothing
+> has been sent, filed, uploaded, registered, posted or commented (rules 2, 7).
+> Zero solver compute produced this file, its instruments or its freeze.
+
+> **THE ORIGINAL DRAFT HEADER, RETAINED VERBATIM AND SUPERSEDED BY THE FREEZE
+> STAMP ABOVE — struck, never rewritten (rule 2).** Its condition ("this item's
+> instrument does not exist yet") was discharged by the build commit `5fb75aed`
+> and by this freeze:
+>
+> > **THIS COMMIT IS NOT THE FREEZE.** This document is landed to preserve it and
+> > to make it reviewable; it is **NOT YET FROZEN** and **NOTHING MAY RUN AGAINST
+> > IT**. Standing rule 2 fixes the grading path **at the pre-registration
+> > commit**, and this item's instrument does not exist yet — so the freeze is the
+> > later commit that carries **this document AND its instrument together**, and
+> > that commit's sha is the one an entry's `prereg_commit` must cite. Any run
+> > before it is unregistered and its output is **NOT A RESULT**.
+> > — closure-supervisor, 2026-08-28
 
 
 **Rung:** `RC2_kaandorp_divergence_repair`
 **Team:** closure
 **Class:** REPAIR-REGISTRATION (Sanaa's FREEZE-AHEAD amendment, 2026-08-28) — and
 a **D548 instance**
-**Status:** `prereg_commit: PENDING_SUPERVISOR_FREEZE`. The gates, thresholds, cap
-and label below are drafted and are **not yet closed**; the freeze is the
-supervisor's act, performed personally under `SUPERVISION_CHARTER.md` §3 check 4,
-and it is a commit whose message carries the sha256 of this document and of both
-instruments. **Nothing has been staged into the run root, no queue entry has been
-filed, and no compute has been spent.**
+**Status:** **FROZEN.** `prereg_commit:` = the commit that carries this document
+and both instruments together (this freeze commit; its sha is recorded on
+`docs/LAB_STATE.md` and transcribed onto the queue entry). ~~`prereg_commit:
+PENDING_SUPERVISOR_FREEZE`~~ — struck, not rewritten. The gates, thresholds, cap
+and label below are **CLOSED** at this commit; the freeze was the supervisor's own
+act under `SUPERVISION_CHARTER.md` §3 check 4. **Nothing has been staged into the
+run root, no queue entry has been filed, and no compute has been spent** — the
+re-grade has not been run.
 **Drafted:** 2026-08-28, by a closure lane on the closure supervisor's dispatch.
 
 **Why this item exists.** Sanaa's 2026-08-28 amendment makes repair-registrations
@@ -624,3 +651,106 @@ deleted).
   on the record. If it fails, RC2's product is a moved verdict — and the whole
   point of registering the expectation first is that nobody can then say the
   re-grade was not worth running.
+
+---
+
+## 14. SUPERVISOR FREEZE STAMP — 2026-09-10 (closure-supervisor)
+
+**FROZEN.** `SUPERVISION_CHARTER.md` §3 **check-1** (measurement-script read: BOTH
+instruments read IN FULL — `rc2_divergence.py`, 351 lines; `regrade_rc2.py`, 400
+lines) and §3 **check-4** (pre-registration present and committed before compute)
+performed **PERSONALLY** by the closure supervisor, not relayed. A check whose
+result is relayed is a summary, not a check.
+
+**Instrument sha-pins, re-hashed by the supervisor in the freezing invocation and
+verified equal to the committed blobs at `5fb75aed`/`HEAD`:**
+
+| file | sha256 |
+|---|---|
+| `rc2_divergence.py` | `ce2acaf0cb4574eb45a533437291406d3359147ef0115eed92521f36c15a8e32` |
+| `regrade_rc2.py` | `1c43b3e531650083f3582682272a292beb3f295212af625beabaebe5e152c7d9` |
+| `PREREGISTRATION.md` (pre-stamp bytes, i.e. this file BEFORE the header flip and this §14) | `62c9a2af68006d03b8bdb10274c8d4967b95edec023446a1920377073aecae4d` |
+
+### 14.1 Check-1 basis — what was verified, and how
+
+* **The successor's fatal predicate is not a new invention.** `FATAL_RE` in
+  `rc2_divergence.py` is **BYTE-FOR-BYTE identical** to the established
+  `grade_g2.py:129` — five line-anchored channels under `re.MULTILINE`. The
+  `^(?:Floating point exception…)` anchor is precisely what defeats the `trapFpe:`
+  banner that makes the frozen `run_lane.py:175` unanchored substring read
+  `diverged=True` on all 16 preserved logs (D548 / L-396). §13's anti-gaming claim
+  — "no new pattern was invented and none was selected by trying candidates against
+  the 16 logs" — is therefore verifiable by comparison against an instrument frozen
+  for a different rung, and it holds.
+* **No frozen file was edited.** `Kaandorp2020_TBRF/aposteriori/run_lane.py` is
+  git-clean at sha256 `454e37f426296581c1eee7336a284334a3466ce952498928c9ccf31b744046d0`;
+  it is reproduced verbatim ONLY inside the blind mirror control (`_blind_fatal`,
+  the shape `grade_g2.py:1320` already establishes) and is never imported, patched
+  or rewritten. Rules 2 and 6 hold.
+* **The two-direction control is a GATE, not a demonstration, and it runs on real
+  bytes.** 22 real named logs: 6 genuine fatals spanning three distinct signature
+  classes (`FOAM FATAL IO ERROR`, `FOAM FATAL ERROR`, `Foam::sigFpe::sigHandler`)
+  and the case's own 16 banner-only logs. It runs **before any row is read** in the
+  re-grade path as well as under `--selftest`, and it **refuses (`sys.exit(2)`)**,
+  never warns. The blind mirror must **disagree** on all 16 or the control refuses —
+  which is what makes the corpus provably the corpus the defect lives on.
+* **The preserved evidence is protected two ways:** standing rule 4's age guard read
+  **backwards** (`mtime(log) < mtime(results.json)`; a log written after the results
+  file did not produce the row) and a read-only re-stat. Nothing is opened for write
+  outside the RC2 run root.
+* **RC2 REPORTS movement; it does not adjudicate it** (§5.4). `TRIGGER_DISARMED` is
+  a registered THIRD category, not a fold-in of "no verdict moved": the
+  *diverges*-leg of a trigger disarms while the *fails-to-converge*-leg stays armed.
+  Collapsing those would be the evidence-annotated-as-non-binding failure this lab
+  already has a lesson for.
+* **§5.3/§5.4 semantics are internally consistent with what the instruments emit:**
+  `PASS` means "the re-grade was performed and is defensible", **not** "nothing was
+  wrong" — 16 flag cells are *expected* to move and that is the finding.
+* **Selftests re-run BY THE SUPERVISOR** in the freezing invocation, `__pycache__`
+  cleared before each run: `rc2_divergence.py --selftest` and
+  `regrade_rc2.py --selftest` both **rc=0 under `python3` AND under `python3 -O`**.
+  **0 `ast.Assert` in either file** (independent parse) — no refusal, guard, control
+  or gate rides on an `assert` (L-332; the D476 §31.3 hazard).
+
+### 14.2 Two COSMETIC observations, recorded because they were seen — NOT freeze blockers
+
+Neither touches a gate, threshold, cap, label, control or refusal, and neither is
+repaired here (a frozen file is not edited; rule 6):
+
+1. `planted_control_fatal_real` computes a `classes_seen` set that the real-class
+   check does not consume — the check uses `class_keys`. Dead bookkeeping, not a
+   weakened control.
+2. `regrade`'s headline carries a redundant twin-`PASS` branch: the headline is
+   `PASS` iff any row was graded, and both branches reach it.
+
+### 14.3 Scope of the freeze (check-4)
+
+**In scope and supervisor-freezable:** RC2 is a REPAIR-REGISTRATION under Sanaa's
+2026-08-28 FREEZE-AHEAD amendment — a reader repair plus a **zero-solver** re-grade
+from artifacts already on disk. It re-baselines nothing, re-solves nothing, and
+opens no closed campaign. It does **not** touch R3, the R4 reference frame, or any
+committed verdict.
+
+**Not decided by this freeze, and reserved:** the disposition of any verdict RC2
+reports as MOVED is the closure supervisor's, and per Sanaa's routing verification
+rules on each moved verdict. **A lane does not move a verdict.** Nothing here
+authorises a send (rule 7).
+
+**On §12's Files table:** its column is headed *"exists at drafting"* and it remains
+true **as written** — at drafting (2026-08-28) neither instrument existed. Both
+exist now, were built at `5fb75aed`, and are pinned in §14 above. No gate,
+threshold, cap or label is altered by this note, and RC2 has had **zero compute**.
+
+### 14.4 State at freeze
+
+`PENDING`. The RC2 re-grade **has not been run**: estimate **4.0** core-min,
+registered cap **12.0** core-min (§7), single rank, no solver. It is **held** while
+the box is saturated by other families' solvers — a contention-stretched run against
+a registered cap would be a `NOT A RESULT` bought for nothing. **Rule 12's
+estimate-versus-actual calibration row is owed at the re-grade's completion, not at
+this freeze** (zero compute produced the freeze).
+
+*This §14 is the initial freeze stamp (the STATUS-header flip and the §2 status
+strike above are part of this same freeze commit). Rule 6 now binds: any later
+departure is a dated addendum appended BELOW this section, asserting `lines whose
+number changed above this section: 0`.*
