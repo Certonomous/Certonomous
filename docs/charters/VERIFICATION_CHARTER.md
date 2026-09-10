@@ -9823,3 +9823,69 @@ cfd's item (2) pairs DrivAer with a second instance: the motorbike *"rowed as 'n
 | self-corrections today running in another team's favour | **3** (K2bU3R3, `check_comparator_freeze.py`, MRF) |
 | gate values changed | **0** · gates armed | **0** · checks made to refuse | **0** (`D539`) · items recorded for Sanaa | **2** (`STAGNANT_FLOOR`, the banner refusal) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.91, 2026-09-10 — **§2ci A LAUNCH IS NOT A LAUNCH UNTIL A CHILD ARTIFACT EXISTS — `Popen` RETURNING IS NOT EVIDENCE, AND THIS IS THE WORST MEMBER OF TODAY'S CLASS BECAUSE IT IS A FALSE *ACTION*, NOT A FALSE *CHECK*. §2cj THE CENSUS: EVERY STAGE-4 LAUNCH CLAIM IN THE LAB IS FALSE — ONE OF ONE. §2ck A WRAPPER THAT ERASES ITS OWN ERROR CONVERTS A LOUD FAILURE INTO A SILENT SUCCESS**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **cfd** against their own instrument and their own first-ever `--go`. **Census run and every claim re-verified at source by this supervisor at 21:15–21:17Z**, bounded per `§2cf.1` (named-path `find`, `-maxdepth`, no `VTK`/`processor*` walk). `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`).**
+
+### §2ci — **THE SIXTH INSTANCE TODAY, AND THE FIRST THAT IS A FALSE ACTION RATHER THAN A FALSE CHECK**
+
+`scripts/case_protocol_stage4_run.py:365-373` does `Popen(setsid nohup …)`, `sleep 2`, then writes `manifest["launched"] = True` and prints `LAUNCHED` — **without ever checking the child is alive.** The comment **eight lines above names exactly that trap.** The generated wrapper does `set -u` and then sources OpenFOAM's `etc/bashrc`; `WM_PROJECT_DIR` is unset, so the wrapper **aborts before the `cd`, the `touch` and the solver** — and the error is erased by `>/dev/null 2>&1`.
+
+**Every previous member of today's class was a false CHECK: a census that read a name (`§2bn`), a line misread (`§2bo.1`), a gate run in the wrong form (`§2bq`), an enforcer reading a notation (`§2bt`), a detector reading the word "planted" in a banner (`§2bw`). Each produced a wrong belief about work that HAD happened.**
+
+> **THIS ONE PRODUCES A WRONG BELIEF THAT WORK IS HAPPENING WHEN THE BOX IS IDLE. On the night the owner's words are "For now i want the RUNS", a launcher that reports `LAUNCHED` and starts nothing is the single most expensive defect the lab can hold — it does not corrupt a result, it silently removes the run that would have produced one.** It also compounds directly with two things measured tonight: **the pending queue at 0 across all six teams**, and **`/proc/pressure/cpu` at 0.93 %**. A lab that believes it is running and is idle will read both of those as somebody else's problem.
+
+**AND THE LESSON IT DEFEATS WAS ALREADY ON THE BOOKS, APPLIED TO THE WRONG HALF.** This lab already knows that **`setsid timeout cmd` exits 0 for every outcome** and that rc must be captured **inside** the detached wrapper, never around the `setsid` line. **That lesson was applied to the RETURN CODE and never to the LAUNCH.** `Popen` returning a handle proves a process was forked; **it proves nothing whatever about whether the thing you wanted to run is running.**
+
+> **CLAUSE §2ci: A LAUNCHER MAY NOT RECORD `launched: true` — OR PRINT `LAUNCHED`, OR WRITE ANY LAUNCH MARKER — ON THE STRENGTH OF `Popen` RETURNING, A `sleep`, OR THE PARENT'S EXIT CODE. THE CLAIM IS ASSERTED FROM THE CHILD, BY ONE OF EXACTLY TWO WITNESSES:**
+> 1. **LIVENESS OF THE SOLVER ITSELF** — `kill -0` on the **solver's** pid, read from inside the wrapper, **never the `setsid`/`nohup` parent's pid**, which is alive in every outcome; or
+> 2. **A FIRST ARTIFACT THE CHILD PRODUCED** — the first line appearing in the solver log, or the case's `0/T` mtime advancing past its staging time.
+>
+> **A launcher that cannot obtain either witness records `launched: false` and says why. `PENDING` is the honest display state; a launch marker is not a hope.**
+>
+> **Witness 2 costs nothing and the lab already owns it.** `0/T` is touched last at launch precisely so it **dates the run** — that is rule 4's clause-6 age guard. **The same mtime, UNCHANGED, is proof the run never started.** One artifact, two uses, and the second was free the whole time.
+
+### §2cj — **THE CENSUS: TWO STAGE-4 MANIFESTS IN THE LAB, ONE CLAIMS A LAUNCH, AND THERE IS NO SOLVER BEHIND IT**
+
+Bounded named-path census across `verification/runs` and `cases`, disk **and** tracked (`§2cc`'s corpus rule), 21:15:21Z; positive controls on both filters (`FREEZE_MANIFEST*` → 1 on disk; `STAGE2_RECORD` → 1 tracked).
+
+| manifest | `launched` | solver | evidence behind it |
+|---|---|---|---|
+| `verification/runs/M6CP1_runs/STAGE4_MANIFEST_L0.json` | **False** | `rhoPimpleFoam` | correctly negative |
+| `verification/runs/M6CP1_runs/STAGE4_MANIFEST_L2.json` | **True** | `rhoPimpleFoam` | **NONE** |
+
+**Verified at source, 21:16:56Z:** `L2/case/` contains **only** `0`, `constant`, `launch_stage4.sh`, `system` — **no solver log, and no time directory beyond `0`.** And the decisive one, using witness 2 above: **`L2/case/0/T` has mtime `Sep 9 01:03`** — its staging time, **untouched**. The three `log.rhoPimpleFoam` files that do exist under `M6CP1_runs` are in `L2/smoke_M0_baseline/`, `L1/smoke/` and `L2_N1/smoke/` — **smoke runs, not this launch**, and a name-only census would have counted them as the missing evidence.
+
+> **RESULT: ONE OF ONE. Every stage-4 launch claim in this lab is false, and the population is small enough to say so exhaustively rather than as a rate.** `L0`'s honest `false` is the positive control that the manifest field can carry both values.
+>
+> **NO VERDICT MOVES AND NO CASE IS DIRTY — because nothing ran, nothing was graded from it.** `M6CP1` `L2` is `PENDING`, not `NOT A RESULT`: **there is no measurement to demote.** This also **explains rather than excuses** `§2bx`: M6CP1's stage-2 arm was measuring nothing and its stage 4 never started. **The case is not damaged; it is un-begun, and that is a far cheaper position to be in at 21:17Z than the alternative.**
+
+### §2ck — **`set -u` OVER A SOURCED THIRD-PARTY `bashrc`, TWICE TONIGHT — AND THE ERASURE IS THE MULTIPLIER**
+
+Two independent instances: the stage-4 wrapper, and the **MRF wrapper at 20:17Z**. The mechanism is generic and will recur: **OpenFOAM's `etc/bashrc` legitimately reads variables that are unset on first entry; `set -u` turns each into a fatal abort.**
+
+**But `set -u` alone would have been a LOUD failure.** What made it invisible is `>/dev/null 2>&1` on the wrapper invocation: **the diagnosis was generated, correctly, and then discarded** — and the caller, asserting nothing about the child, reported success.
+
+> **CLAUSE §2ck: A WRAPPER'S OWN STDERR IS EVIDENCE AND IS NEVER DISCARDED. It is redirected to a file beside the run, never to `/dev/null`. A launcher that both silences its child and declines to check it has converted a loud, immediate, one-line failure into a silent false success — and the two defects are individually survivable and jointly fatal.**
+>
+> **Operationally:** do not wrap `set -u` around a sourced third-party profile — source it first, then `set -u`, or set the variables the profile needs before entering strict mode. **This is a WRAPPER defect and not an OpenFOAM defect**, so it is repaired here and nothing goes upstream. cfd repairs both under `§2d.1` with their own diff-read, and the exception is properly available: **no result existed, so no gate can have been aimed at an answer.**
+
+### §2cl — **THE CAP RELEASE IS RECORDED, AND THIS TEAM DECLINES THE HEADROOM TONIGHT**
+
+Sanaa's own words: *"any cap increase needed to reach our goal is pre approved by me already. Im giving the team full freedom for this."* **Recorded as authorisation — hers, in her words, so rule 9 is satisfied and no agent's relay is doing the authorising.** `SUPERVISION_CHARTER` §8's lane cap of 3 is lifted for the push.
+
+> **AND THIS TEAM IS NOT SPAWNING MORE LANES TONIGHT, ON MEASUREMENT AND NOT ON CAUTION. `§2cf` measured `/proc/pressure/io full avg300 = 43.24 %` against `/proc/pressure/cpu some avg300 = 0.93 %` — the box is IO-saturated with idle CPUs, and my own lanes' censuses are part of the cause. Adding lanes would consume the very throughput the cap release exists to buy.**
+>
+> **A pre-approved cap increase is PERMISSION, NOT AN INSTRUCTION.** The headroom is real and stays available the moment the IO pressure falls; **using it now would spend Sanaa's grant against her stated goal.** `[lab-attributed]`, recorded so the decision is auditable rather than assumed.
+
+| amendment record | **v1.91** |
+|---|---|
+| clauses added | **4** (§2ci, §2cj, §2ck, §2cl) |
+| **launch claims audited** | **2** · **false** | **1** · population exhaustive | **yes** |
+| gate values changed | **0** · verdicts withdrawn | **0** · verdicts DEMOTED | **0** (`M6CP1 L2` is `PENDING` — nothing ran, so nothing to demote) |
+| cases alleged dirty | **0** · checks made to refuse | **0** (`D539`) |
+| authorisations recorded | **1** (cap release, Sanaa's own words) · **declined tonight on measurement** | **1** |
+| **lines whose number changed above this section** | **0** |
