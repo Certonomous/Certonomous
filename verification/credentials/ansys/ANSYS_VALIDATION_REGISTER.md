@@ -2401,3 +2401,135 @@ for a new pre-registration, not an addendum to this one.
 | cell counts | `.../{L1,L2,L3}/log.blockMesh` (`nCells: 3200 / 12800 / 51200`) |
 | autograder record of the BEFORE reading | `.../VMFL046-R8/AUTOGRADE_WATCH_STATE.txt` |
 | manual | `docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.pdf` p. 155, title-page verified under rule 15 at the R1 registration and carried forward |
+
+## Row #76 — VMFL063-R3 — Separated Laminar Flow Over a Blunt Plate, domain-independence ladder (VM2026R1 p. 193) — **`NOT A RESULT`**
+
+Graded **2026-09-10** by an `ansys-verification` lane (`ansys-lane-opus48`) against the
+**frozen** pre-registration `cases/ansys_verification/VMFL063-R3/PREREGISTRATION.md`
+(freeze commit **`175893cd`**, prereg blob `d0c1e0252b6a3d8881ace440669389adad60dc03`).
+
+Comparator **`grade_vmfl063_r3.py`**, grading-path blob
+**`2769e2aa02f5dd5db2e9b2484f7d83e62a5d7e69`** — `git hash-object` on disk **==** the
+pinned blob **==** the blob committed at `175893cd` **==** the HEAD blob, a **three-way
+identity re-verified in the same shell invocation that ran the comparator** (rule 2,
+L-223: the frozen file *is* the file that ran). `--verify-frozen` returned rc 0 (prereg +
+comparator + the carried R2 gate comparator `5d94fecb` all disk==HEAD).
+
+### THE VERDICT AND — CORRECTED — ITS ROUTE
+
+**`NOT A RESULT`. No gate, band, cap or label was touched, and no gate was ever
+evaluated.** The frozen comparator **REFUSED (exit 2)** on the **first / anchor domain
+D0**, at the strict-completion clause, with the exact frozen text:
+
+> `REFUSING (exit 2): …/VMFL063-R3/D0/log.simpleFoam never reported 'SIMPLE solution
+> converged' — a steady solve that did not meet its own residualControl is not a
+> completed run`
+
+**THE ROUTE IS `ANSYS/PREREG §10 OUTCOME 6 — A FAILED COMPLETION CLAUSE ON THE ANCHOR
+DOMAIN — NOT THE §4.4 PLATEAU FAILURE (OUTCOME 5).** This is a correction to the
+pre-run expectation and it goes in the record because the mechanism matters: both
+`main()` and `pick_dstar()` read the ladder as `{d: _case_lr2t(run_root, d) for d in
+["D0","D1","D2"]}`; D0 is first, its `completion()` raises `SystemExit2` at the
+comparator's own `:652`–`:655` ("never reported 'SIMPLE solution converged'"), and the
+whole process aborts **before `domain_self_convergence()` is ever called** — so no ladder
+is assembled, no `NOT_CONVERGED` state is emitted, and §4.4's terminal-step / `DOMAIN_TOL`
+logic never executes. The destination verdict is `NOT A RESULT` either way, but the route
+that ran is the anchor-domain completion refusal, and the §4.4-plateau route (outcome 5)
+is **unreachable in this artifact state** — even hypothetically dropping D0, the
+comprehension would still refuse on D2, whose run directory does not exist. Reproduced by
+this lane freshly under `python3` and `python3 -O` (both exit 2, identical text) and
+matching the detached autograder's own record (`AUTOGRADE_VMFL063_R3.rc`: `grade_rc=2`,
+`verify_frozen_rc=0`).
+
+### THE TWO RUNGS THAT RAN — measured physics, verified first-hand by the lane
+
+D2 and D0_CONFINED **never ran** (the launcher was killed after D0/D1); the gate triple
+never ran. Only D0 and D1 exist under the run root.
+
+| domain | cells | outcome | evidence on disk |
+|---|---|---|---|
+| **D0** (anchor, = R2 domain, de-confined open top) | **368 640** | **DID NOT CONVERGE** — `SIMPLE_converged_lines = 0`; last `Time` = `endTime` = **100000** (ran the full clock, never met `residualControl`); final **initial** residuals **Ux 2.63e-06 / Uy 9.93e-06 / p 5.78e-04** against criteria **p 1e-08, U 1e-09** (p sits ~4.6 orders ABOVE its criterion and never moved) — a residual limit cycle. Cost **849.85 core-min MEASURED** (`RUN_RC.D0`, wall 50991 s × 1 rank ÷ 60). | `verification/runs/ansys_verification/VMFL063-R3/D0/log.simpleFoam`, `.../RUN_RC.D0` |
+| **D1** (first enlargement, Lu 20·2t, H 40·2t, de-confined open top) | **482 304** | **CONVERGED CLEANLY** — "SIMPLE solution converged in **11941** iterations", `End` line present, last `Time` **11941 < endTime 100000**, `ExecutionTime` count **11941 == last Time**, `Time`-line count 11941; final initial residuals **Ux 2.24e-10 / Uy 9.99e-10 / p 9.05e-11**, all under criteria. Cost **≈ 277.9 core-min** (`ExecutionTime` 16674.73 s × 1 rank ÷ 60; ClockTime 16686 s → 278.1). | `.../VMFL063-R3/D1/log.simpleFoam`, `.../D1/11941/` |
+
+**NO `RUN_RC.D1` EXISTS AND NONE WAS FABRICATED.** The launcher that would have written it
+was dead (it launched D1 under `setsid`, so the ladder-termination SIGTERM missed D1 by
+five seconds). Writing a `RUN_RC` by hand would be fabricating an instrument input; it was
+not done. Under **L-342** the comparator's convention is that an absent `RUN_RC` is
+reported **rc NOT MEASURED** and the grade proceeds on the physics-critical clauses — D1's
+cost above is therefore **log-measured** (from `ExecutionTime`), not `RUN_RC`-measured, and
+is labelled as such. (This is moot for the verdict, which refused on D0 before D1 was
+read.)
+
+### THE FINDING — the only thing of lasting value this case produced
+
+**D0's non-convergence is a property of the CONFINED / TOO-SMALL FAR FIELD, not of the
+case setup.** With the physically-correct de-confined open top BC, the D0 extents place
+the open boundary too close to the growing displacement layer and separation bubble, and
+the steady SIMPLE solve parks in a residual limit cycle. **Enlarging the far field to D1's
+extents (Lu 20·2t, H 40·2t) removed the limit cycle entirely** and produced the first
+converging rung this case has ever had. **D1 converging is precisely what makes this a
+finding rather than a guess:** the same near-field grid, same solver, same BCs, only a
+larger far field — the one variable changed — flipped a non-converging limit cycle into a
+clean convergence to 11941 iterations with all residuals orders below criteria. This is
+exactly what a domain-independence ladder exists to discover, and it is a finding, not a
+failure.
+
+### CONTROLS AND CEILING
+
+`--selftest` green under **`python3` and `python3 -O`: 74 checks, 0 failures each** (the
+two outputs byte-identical after normalising one random `mkdtemp` path). The planted-zero
+control (rule 3) fires **and its refusal path is exercised**: it REFUSES against a blind
+writer where the plant never reaches disk ("the control is shown able to fail"), on both
+the wall-shear (`K_PLANT = 0.05`) and near-wall `u_x` (`K_PLANT_U = 0.05`) channels; the
+§16.4 null control requires a false plateau (5.50/5.505/5.20) to report `NOT_CONVERGED`;
+and an answer-blind ladder settling at ~5.5 (far from the Target 4.0) still reports
+`SELF_CONVERGED`, confirming the self-convergence rule references `DOMAIN_TOL = TOL/10 =
+0.010` only, never the Target or the band.
+
+**`PASS` is unreachable at row level by construction** (limb A is a CONTINUUM claim,
+ceiling `GATE REACHED`; the row is the worst limb), so this case can never be a credential
+(`ANSYS_VERIFICATION_CHARTER` §6). This row is not, and does not approach, a `PASS`.
+
+### AUTOGRADER TIMING — checked, and it did NOT grade a live ladder
+
+The detached autograder wrote its verdict at **16:16:15Z**. D1's final field writes
+(`D1/11941/{U,p}`) and `D1/log.simpleFoam` carry mtime **16:15:14Z** — ~61 s earlier. The
+watcher's terminal signal is **`driver+solver-gone`** (`autograde_watch_vmfl063_r3.sh:110`:
+`STARTED==1 && ! pgrep -f run_vmfl063_r3.sh && ! pgrep -x simpleFoam`), detected at
+16:15:44Z, then a 30 s settle before grading. It therefore graded **after** D1's solver had
+exited, not during it; the trigger's `pgrep -x simpleFoam` gate can only *delay* grading,
+never fire it early. (Latent note, not a defect here: `pgrep -x simpleFoam` is global, so
+another case's live `simpleFoam` would delay — never pre-empt — this grade.) **The outcome
+is unaffected regardless: the refusal is on D0 and stands either way.**
+
+### COST (rule 12) — filed in the calibration ledger
+
+Solver compute for VMFL063-R3: **1127.75 core-min** (D0 849.85 MEASURED + D1 ≈ 277.9
+log-measured); grading act: pure reading, < 0.1 core-min, not solver compute. Against the
+registered ~2500 core-min estimate the ratio is **0.45**; against the 4000 core-min cap,
+**0.28** — the cap was never the binding limit. Dollars ≈ **$0.96 DERIVED, NOT MEASURED**
+at $0.0513/core-h. Full estimate-versus-actual calibration, with the scope-not-completed
+gap and D0's spend named as waste **separately**, is filed in `docs/COST_CALIBRATION.md`.
+
+### THE SUCCESSOR OWED
+
+A **VMFL063-R4** is owed and drafted (`cases/ansys_verification/VMFL063-R4/
+PREREGISTRATION_DRAFT.md`, **NOT FROZEN**): the ladder **starts at or beyond D1's extents
+and never repeats D0**, resuming the same off-gate domain-extent lever from the smallest
+domain shown numerically well-posed. Re-running D0 would only re-buy an 850-core-min
+refusal.
+
+### Provenance — every number above cites an artifact still on disk
+
+| object | path |
+|---|---|
+| frozen pre-registration | `cases/ansys_verification/VMFL063-R3/PREREGISTRATION.md`, blob `d0c1e025`, freeze commit **`175893cd`** |
+| grading path (the file that ran) | `cases/ansys_verification/VMFL063-R3/grade_vmfl063_r3.py`, blob **`2769e2aa02f5dd5db2e9b2484f7d83e62a5d7e69`**, disk == pin == committed == HEAD, re-verified in the running shell |
+| carried R2 gate comparator, byte-identical | `cases/ansys_verification/VMFL063-R2/grade_vmfl063_r2.py`, blob `5d94fecb` |
+| D0 solve (refused) | `.../VMFL063-R3/D0/log.simpleFoam`, `.../RUN_RC.D0`, `.../D0/system/controlDict` (`endTime 100000`) |
+| D1 solve (converged, ungraded — D0 refused first) | `.../VMFL063-R3/D1/log.simpleFoam`, `.../D1/11941/`, `.../D1/system/controlDict` |
+| cell counts | `.../D0/log.checkMesh` (`cells: 368640`), `.../D1/log.checkMesh` (`cells: 482304`) |
+| autograder record | `.../VMFL063-R3/AUTOGRADE_VMFL063_R3.rc`, `.../AUTOGRADE_WATCH_STATE.txt`, `.../GRADING_VMFL063_R3.log` |
+| termination record (D1-converged finding, on the record) | `.../VMFL063-R3/TERMINATION_RECORD.txt` |
+| R4 successor draft (NOT FROZEN) | `cases/ansys_verification/VMFL063-R4/PREREGISTRATION_DRAFT.md` |
+| manual | `docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.pdf` p. 193, Table .63.1 p. 194 (Target LR/(2t) 4.0), title-page verified under rule 15 |
