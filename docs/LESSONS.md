@@ -26303,6 +26303,32 @@ right and the history is complete. Purely a bookkeeping and attribution defect
 `L-223` (the post-commit verify that this shows is path-scoped), `L-368` (name the revision),
 `L-186` / `L-252` (shared temp), `L-342` (bookkeeping vs physics).
 
+
+## L-541 — MEASURE THE QUANTITY AS IT IS DEFINED, NOT BY THE PROXY THAT IS EASY TO MEASURE. Three successive proxies for one gate question each INVERTED the previous conclusion, and the one that finally settled it was the one written into the quantity's own definition.
+
+**2026-09-10, heat-transfer, T26.** One question — *does a population of defective mesh cells threaten a mesh-convergence claim on `Q_strut`?* — was answered three times, each time by a different proxy, and **each answer reversed the one before it.**
+
+| proxy | measurement | conclusion |
+|---|---|---|
+| **bulk fraction** of concave cells | 2.708% → 2.117%, falling | *"probably fine"* |
+| **DISTANCE** from concave cells to the graded surface | 34.8% within one base cell; nearest at 0.10 cells | ***"they are ON the graded surfaces — no falling fraction saves it"*** |
+| **OWNERSHIP** — concave cells owning a graded boundary face | **0 of 16,452**, then 2 of 37,022 | *"essentially clean"* — the previous conclusion inverted |
+| **STENCIL** — owner **or its face-neighbours** concave | 0.073% → 0.032%, falling ×0.44 | settled; **4× the ownership figure, so ownership alone had understated it** |
+
+**`Q_strut` is `∫ k ∂T/∂n dA`.** It is a **gradient**, integrated over **owned faces**. Once that is written down, the right proxy is forced: not how *near* the bad cells are, but **which cells enter the stencil that produces the number.** Distance felt like the natural question and was easy to compute; it was **not a quantity the gate depends on.** The lane's own words: *"I measured what was easy to measure rather than what the quantity was defined as."*
+
+**Both wrong answers were confidently held and each nearly caused a decision.** The distance result nearly killed the rung — a supervisor had stated in advance *"if they are on the strut surfaces, no falling fraction saves it"*, that criterion was honestly applied against the lane's own interest, and it was **the wrong criterion**. Adjacency is not ownership. The supervisor set the wrong test; the lane chose the wrong proxy to answer it; **neither error was caught by review, only by re-deriving from the definition.**
+
+**A ZERO THAT AGREES WITH YOUR HOPES IS THE ONE THAT MOST NEEDS A CONTROL.** The ownership measurement returned **0.000%** on the struts — the answer everyone wanted — and the lane **nearly skipped the positive control because the number looked right.** It ran it anyway: the identical code path, same run, found 104 hub faces and 206 duct faces concave-owned. **That control is the only reason the zero was worth anything.** `CLAUDE.md` rule 3 already says a zero from a reader not shown able to see a non-zero is not evidence; **this is the motivational half nobody had written down — the temptation to skip the control scales with how much you like the answer.**
+
+**Rules.**
+1. **Before measuring a gate quantity's exposure to anything, write down the quantity's DEFINITION and derive the proxy from it.** A surface integral is exposed through the faces it sums and the stencil that produces them — not through proximity, not through bulk fraction.
+2. **When a proxy inverts a previous proxy's conclusion, do not stop at the second answer.** Two proxies disagreeing is evidence that neither is the defined quantity. Here the third and fourth were needed.
+3. **State a criterion in advance, and then be willing to find the criterion itself wrong.** Pre-registering *"if X then no tolerance"* is right; **discovering that X was the wrong variable is not a licence to keep moving the test.** Name the last refinement as the last, and say why it is the physically correct one.
+4. **Run the positive control hardest on the results you like.** A zero, a pass, a clean sheet — those are exactly where a blind reader is invisible.
+5. **A lower bound is disclosed as a lower bound IN the registered threshold**, never in a report that the threshold outlives. The stencil figure used the face-neighbour ring; a non-orthogonal-corrected gradient on a distorted cell reaches further, so the number is a floor and the registration must say so.
+
+*Companion to L-539 (an audit scoped to one lever certifies nothing about the instrument carrying it) and to the same night's pattern of **the instrument manufacturing the defect it then reports** — a domain tangency in a probe, a fixture gentler than the artifact, and a comment-stripper that would have blinded its own reader.*
 ## L-540 — A `timeout` AROUND `docker run` BOUNDS THE CLIENT, NOT THE CONTAINER: THE CLIENT DIES, THE WORK IS REPARENTED TO THE containerd SHIM AND KEEPS RUNNING. MEASURED: A 300 s TIMEOUT LET A GREP RUN 2,834 s AND HELP IO-STARVE THE BOX'S SOLVERS — AND IT WAS INVISIBLE BECAUSE ITS OUTPUT WAS EMPTY
 
 2026-09-10, dafoam, lane-caught and reported to the supervisor unprompted.
