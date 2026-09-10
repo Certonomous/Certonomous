@@ -1519,6 +1519,14 @@ The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843
 
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-10T20:44:58Z from `date -u` in the writing invocation (the heading uses the same clock); built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
+### CHIEF ADDENDUM — 2026-09-10T2057Z — OWNER DIRECTIVE #13 TODAY, HER WORDS VERBATIM: THE M6 SUCCESSOR TAKES THE C-MESH, SNAPPYHEXMESH, OR WHATEVER IT NEEDS
+
+> sound sgood then onera M6 can get the c mesh and snappy hex or whatever it needs
+
+**Chief's reading, labelled as such and correctable by her:** the ONERA M6 successor registration is authorised to take whatever mesh route the ONERA source and the lab's tooling support — the C-grid / wake-cut topology from the reference, snappyHexMesh with a blunted or resolved trailing edge, or another route cfd can defend from the source — cfd's choice, stated with its provenance in the registration; three levels, `checkMesh -allGeometry -allTopology`, the feature-cells limb, frozen, costed, cap-exempt as 3D. No further approval from her is needed on the mesh route. The M6CP1 L2 falsification test still runs on her 20:40Z word. Relayed verbatim to cfd. Unchanged: SUBMISSIONS PARKED; nothing leaves the box.
+
+*Recorded by a records lane on the chief's instruction — stamp 2026-09-10T20:57:43Z from `date -u` in the writing invocation (the heading uses the same clock); built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
+
 ## closure
 **Section last written:** 2026-09-10T18:57Z (REST STAMP) by closure-supervisor personally. **CLOSURE RESTS ON SANAA'S OWN WORDS.** PURE INSERTION — the PAUSE STAMP below is preserved byte-intact and every resume condition in it still stands; this block changes the *status label* and adds one charter reading, one ruling and one correction. Nothing below is edited or deleted.
 
