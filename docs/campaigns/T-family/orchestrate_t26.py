@@ -53,24 +53,69 @@ def hang_guard_s(level):
     return int(round(3.0 * POINT_CORE_MIN[level] * 60.0 / RANKS[level]))
 
 
+# The guard's OWN exit map, mirrored here so a foreign rc cannot be silently
+# folded into a known one.  mark_done_t26.py: 0 proceed, 1 NOT DONE, 2 REFUSE.
+GUARD_PROCEED, GUARD_NOTDONE, GUARD_REFUSE = 0, 1, 2
+
+
 def guard_ok(case_dir, guard=None, verbose=True):
     """CS-2: CLAUSE 7, CALLED SYNCHRONOUSLY, ON THIS SIDE OF THE FORK.
 
-    Returns True only on exit 0 from the ONE definition of the rule.  Its
-    output is CAPTURED AND PRINTED HERE -- never sent to DEVNULL -- because the
-    whole reason this call site exists is that a refusal printed into a
-    discarded pipe is a refusal nobody sees."""
+    Returns (proceed, kind) -- NOT a bare boolean, and that is the whole point
+    of this signature.
+
+    THE DEFECT THIS SIGNATURE EXISTS FOR, and it is not hypothetical.  An
+    earlier draft of this function ended `return r.returncode == 0`, which
+    collapses EVERY non-zero outcome into one boolean.  The direction is
+    fail-closed, so nothing unsafe could launch -- but a GENUINE CLAUSE-7
+    REFUSAL (rc 2) and a BROKEN GUARD (an ImportError, a NameError, a
+    SyntaxError -- rc 1) become INDISTINGUISHABLE, and both print as
+    "clause 7 refused".  That is exactly how `mark_done_k2bU3R3.py` hid: it
+    dies on `NameError: QUEUE_STATUS`, has never certified anything, and was
+    committed and vouched for anyway, because the one lever that was checked
+    was checked for REACHABILITY and the file's own selftest was never run.
+    An orchestrator that cannot tell "the guard refused" from "the guard is
+    broken" will let the next dead instrument look like a working one.
+
+    So the rc is CLASSIFIED, never collapsed:
+        0            -> proceed
+        2            -> REFUSED: clause 7 fired, this is the guard working
+        anything else-> BROKEN GUARD: the guard did not execute to a verdict.
+                        Reported DISTINCTLY, with its stderr, and it still
+                        stops the level set -- a guard that cannot reach a
+                        verdict has not cleared the case.
+    """
     prog = guard or os.environ.get("T26_GUARD_OVERRIDE") or GUARD
     if not os.path.isfile(prog):
-        print("REFUSE: the clause-7 guard %s is absent; an orchestrator with no "
-              "guard is the seven-dead-levers defect" % prog)
-        return False
-    r = subprocess.run([sys.executable, prog, "--launch-guard", case_dir],
-                       capture_output=True, text=True)
+        print("  BROKEN GUARD: the clause-7 guard %s is ABSENT; an orchestrator "
+              "with no guard is the seven-dead-levers defect" % prog)
+        return False, "BROKEN_GUARD_ABSENT"
+    try:
+        r = subprocess.run([sys.executable, prog, "--launch-guard", case_dir],
+                           capture_output=True, text=True)
+    except OSError as e:
+        print("  BROKEN GUARD: could not execute %s: %r" % (prog, e))
+        return False, "BROKEN_GUARD_EXEC"
     if verbose and (r.stdout or r.stderr):
         for ln in (r.stdout + r.stderr).splitlines():
             print("    guard| " + ln)
-    return r.returncode == 0
+    if r.returncode == GUARD_PROCEED:
+        return True, "PROCEED"
+    if r.returncode == GUARD_REFUSE:
+        return False, "REFUSED"
+    # ---- ANY OTHER rc: the guard did not reach a verdict --------------------
+    print("  BROKEN GUARD: %s exited %d, which is NEITHER 0 (proceed) NOR 2 "
+          "(clause-7 refusal). THE GUARD ITSELF FAILED TO EXECUTE TO A VERDICT "
+          "-- this is NOT a clause-7 refusal and must never be read as one."
+          % (prog, r.returncode))
+    if r.stderr.strip():
+        print("  BROKEN GUARD stderr, verbatim:")
+        for ln in r.stderr.strip().splitlines()[-12:]:
+            print("      | " + ln)
+    else:
+        print("  BROKEN GUARD wrote NOTHING to stderr, which is itself the "
+              "finding: a guard that neither passes, refuses, nor explains.")
+    return False, "BROKEN_GUARD_RC_%d" % r.returncode
 
 
 def run_set(root, levels, go=False, guard=None, popen=subprocess.Popen):
@@ -84,11 +129,19 @@ def run_set(root, levels, go=False, guard=None, popen=subprocess.Popen):
         print("\n%s  ranks %d  point %.2f core-min  hang guard %d s "
               "(3.0 x point; NOT a budget cap)" % (lv, RANKS[lv], POINT_CORE_MIN[lv], t))
         # ---- CS-2, BEFORE Popen -------------------------------------------
-        if not guard_ok(case, guard=guard):
-            print("  REFUSE: CLAUSE 7 refused %s at CS-2, BEFORE any Popen. "
-                  "THE LEVEL SET STOPS HERE -- it does not skip a level "
-                  "(registration :650). Levels not started: %s"
-                  % (lv, ",".join(levels[levels.index(lv) + 1:]) or "none"))
+        proceed, kind = guard_ok(case, guard=guard)
+        if not proceed:
+            rest = ",".join(levels[levels.index(lv) + 1:]) or "none"
+            if kind == "REFUSED":
+                print("  REFUSE: CLAUSE 7 refused %s at CS-2, BEFORE any Popen. "
+                      "THE LEVEL SET STOPS HERE -- it does not skip a level "
+                      "(registration :650). Levels not started: %s" % (lv, rest))
+            else:
+                print("  REFUSE (%s): the clause-7 guard did NOT reach a verdict on "
+                      "%s. This is NOT a clause-7 refusal -- the INSTRUMENT is "
+                      "broken, and that is a finding about the instrument, not "
+                      "about the case. THE LEVEL SET STOPS HERE. Levels not "
+                      "started: %s" % (kind, lv, rest))
             return launched, lv, plan
         if not go:
             print("  PLAN ONLY: clause 7 passed and nothing was launched "
@@ -165,6 +218,38 @@ def selftest():
               % ("ok " if ok else "BAD", launched))
         if not ok:
             fails.append("negative control")
+
+        print("\n(iii-b) A BROKEN GUARD IS NAMED AS BROKEN, NOT AS A REFUSAL.")
+        print("        The k2bU3R3 shape: an instrument that dies on NameError.")
+        shutil.rmtree(tmp); os.makedirs(tmp)
+        for lv in LEVELS:
+            mk(lv)                       # every case CLEAN -- only the guard is broken
+        broken = os.path.join(tmp, "broken_guard.py")
+        open(broken, "w").write("raise NameError('QUEUE_STATUS')\n")
+        calls.clear()
+        launched, refused, _p = run_set(tmp, list(LEVELS), go=True, guard=broken,
+                                        popen=fake_popen)
+        proceed, kind = guard_ok(os.path.join(tmp, "L1"), guard=broken, verbose=False)
+        ok = (refused == "L1" and launched == [] and len(calls) == 0
+              and not proceed and kind.startswith("BROKEN_GUARD"))
+        print("  [%s] a guard dying on NameError -> kind %r (NOT 'REFUSED'), "
+              "launched %s, Popen calls %d" % ("ok " if ok else "BAD", kind, launched, len(calls)))
+        if not ok:
+            fails.append("broken guard not distinguished")
+        # and the two outcomes must NOT be the same string
+        _p2, kind_refuse = guard_ok(mk("Lx", dirty=True), verbose=False)
+        ok = (kind_refuse == "REFUSED" and kind != kind_refuse)
+        print("  [%s] a REAL clause-7 refusal -> %r; a broken guard -> %r; "
+              "DISTINGUISHABLE" % ("ok " if ok else "BAD", kind_refuse, kind))
+        if not ok:
+            fails.append("refusal vs broken not distinguishable")
+        # an ABSENT guard is a third, named kind
+        _p3, kind_absent = guard_ok(os.path.join(tmp, "L1"),
+                                    guard=os.path.join(tmp, "nope.py"), verbose=False)
+        ok = kind_absent == "BROKEN_GUARD_ABSENT"
+        print("  [%s] an ABSENT guard -> %r" % ("ok " if ok else "BAD", kind_absent))
+        if not ok:
+            fails.append("absent guard kind")
 
         print("\n(iv) NOTHING LAUNCHES WITHOUT --go")
         shutil.rmtree(tmp); os.makedirs(tmp)

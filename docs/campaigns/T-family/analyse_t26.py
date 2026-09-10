@@ -323,6 +323,101 @@ def read_geometric_directions(logpath):
     return None, None
 
 
+def read_checkmesh_provenance(logpath):
+    """G-PROV: which check set produced this log?  Returns (cmdline, has_geo,
+    has_topo) or (None, False, False) if no command line was recorded.
+
+    READ RAW, DELIBERATELY -- this is the ONE reader that does NOT pass through
+    strip_foam_comments().  The provenance line is metadata ABOUT the artifact,
+    not mesh data inside it, and stripping comments from it would let a
+    `//`-prefixed command line vanish from the very reader that must check it.
+    (That interaction was created and caught in the same session, before the
+    freeze; the launcher now also writes the line unprefixed, so the two
+    defences are independent.)
+
+    WHY THIS GATE EXISTS.  Bare `checkMesh` prints `Mesh OK.` on a mesh that
+    FAILS checks which only run under -allGeometry and -allTopology.  MEASURED
+    on T26's own probe mesh, 2026-09-10, same mesh and same binary:
+        checkMesh                           -> "Mesh OK."
+        checkMesh -allGeometry -allTopology -> "Failed 2 mesh checks."
+                                               2,320 small-determinant cells
+                                              13,099 concave cells
+    cfd spent three M6CP1 smoke rungs on a mesh its stage-2 gate could never
+    have refused.  A directions line read out of a weaker log is a fact about
+    a check set nobody ran."""
+    if not os.path.isfile(logpath):
+        return None, False, False
+    with open(logpath, errors="replace") as fh:
+        for ln in fh:
+            if "CHECKMESH COMMAND LINE:" in ln:
+                cmd = ln.split("CHECKMESH COMMAND LINE:", 1)[1].strip()
+                return cmd, ("-allGeometry" in cmd), ("-allTopology" in cmd)
+            if ln.startswith("Create mesh") or ln.startswith("Time ="):
+                break          # past the header; no provenance line was written
+    return None, False, False
+
+
+def read_min_cell_dimension(logpath):
+    """G-MINCELL: the smallest cell dimension in the mesh, as
+    min(cell volume)**(1/3), from checkMesh's own `Min volume` line.
+    Returns (dim_m, min_vol) or (None, None).  ABSENT is never a passing value.
+
+    A cusped trailing edge PASSES BOTH CHECK SETS and still destroyed the M6.
+    T26's three struts have sharp, unfilleted trailing edges (registration
+    section 11 item 4) -- exactly that geometry."""
+    if not os.path.isfile(logpath):
+        return None, None
+    v = None
+    pat = re.compile(r"Min volume\s*=\s*([0-9.eE+-]+)")
+    with open(logpath, errors="replace") as fh:
+        for ln in fh:
+            m = pat.search(strip_foam_comments(ln))
+            if m:
+                # checkMesh ends the sentence with a FULL STOP: the real line is
+                #     "Min volume = 1.10863e-09."
+                # and the character class above swallows that trailing period, so
+                # float() raises.  MEASURED against a real probe log, 2026-09-10 --
+                # the synthetic fixture had no trailing period and never saw it.
+                # Strip trailing periods, and FAIL CLOSED (None) on anything still
+                # unparseable rather than letting an exception escape a reader whose
+                # whole job is to refuse.
+                tok = m.group(1).rstrip(".")
+                try:
+                    v = float(tok)
+                except ValueError:
+                    return None, None
+    if v is None or v <= 0:
+        return None, v
+    return v ** (1.0 / 3.0), v
+
+
+# G-MINCELL floor, REGISTERED as a FRACTION so it scales with the level rather
+# than being re-chosen per level (registration amendment 13.7).
+MIN_CELL_FRACTION = 0.10
+# smallest registered surface cell per level, metres (registration :417-419,
+# strut surface level 3, shifted one rung by amendment 13.3)
+SMALLEST_SURFACE_CELL = {"L1": 1.500e-03, "L2": 1.000e-03, "L3": 0.667e-03}
+
+
+def mincell_verdict(level, dim_m):
+    floor = MIN_CELL_FRACTION * SMALLEST_SURFACE_CELL[level]
+    if dim_m is None:
+        return dict(ok=False, verdict="NOT A RESULT", floor_m=floor, dim_m=None,
+                    why="checkMesh recorded no usable `Min volume`, so the minimum "
+                        "cell dimension is UNMEASURED. Unmeasured is not passing.")
+    if dim_m < floor:
+        return dict(ok=False, verdict="NOT A RESULT", floor_m=floor, dim_m=dim_m,
+                    why="minimum cell dimension %.4g m is BELOW the registered floor "
+                        "%.4g m (%.2f x the level's smallest surface cell %.4g m). A "
+                        "cell an order of magnitude below the intended surface "
+                        "resolution is a snap artifact, not a resolved feature -- and "
+                        "a cusped trailing edge passes every checkMesh set and still "
+                        "destroyed the M6."
+                        % (dim_m, floor, MIN_CELL_FRACTION, SMALLEST_SURFACE_CELL[level]))
+    return dict(ok=True, verdict="G-MINCELL PASS", floor_m=floor, dim_m=dim_m,
+                why="minimum cell dimension %.4g m >= floor %.4g m" % (dim_m, floor))
+
+
 def read_patch_type_census(boundary_path):
     """D-3D: a census of patch types from constant/polyMesh/boundary, the BUILT
     mesh's own boundary file.  Returns (dict type -> count, total) or (None, 0).
@@ -343,7 +438,7 @@ def read_patch_type_census(boundary_path):
     return (census, sum(census.values())) if census else (None, 0)
 
 
-def dimensionality_verdict(ndirs, verbatim, census):
+def dimensionality_verdict(ndirs, verbatim, census, provenance=None):
     """The D-3D gate.  Returns dict(ok, verdict, why, evidence).
 
     NOT A RESULT is the ONLY outcome available when the mesh is not shown to be
@@ -351,7 +446,26 @@ def dimensionality_verdict(ndirs, verbatim, census):
     genuinely three-dimensional successor`) fails, and a verification verdict
     on a premise that failed is not a verdict."""
     ev = dict(geometric_directions=ndirs, checkMesh_line=verbatim,
-              patch_type_census=census)
+              patch_type_census=census, checkMesh_provenance=provenance)
+    # G-PROV FIRST: a directions line read out of a log that never ran the full
+    # check set is a fact about a check set nobody ran.
+    if provenance is not None:
+        cmd, has_geo, has_topo = provenance
+        if cmd is None:
+            return dict(ok=False, verdict="NOT A RESULT", evidence=ev,
+                        why="log.checkMesh records NO command line, so which check "
+                            "set produced it is UNKNOWABLE. The artifact must prove "
+                            "which instrument produced it.")
+        if not (has_geo and has_topo):
+            missing = " ".join(f for f, p in (("-allGeometry", has_geo),
+                                              ("-allTopology", has_topo)) if not p)
+            return dict(ok=False, verdict="NOT A RESULT", evidence=ev,
+                        why="log.checkMesh was produced WITHOUT %s (recorded command "
+                            "line: %r). Bare checkMesh prints `Mesh OK.` on a mesh "
+                            "that fails those checks -- MEASURED on T26's own probe "
+                            "mesh: bare said `Mesh OK.`, the full set said `Failed 2 "
+                            "mesh checks` with 2,320 small-determinant and 13,099 "
+                            "concave cells. This log is not graded." % (missing, cmd))
     if ndirs is None:
         return dict(ok=False, verdict="NOT A RESULT", evidence=ev,
                     why="checkMesh's `Mesh has N geometric (non-empty/wedge) "
@@ -720,10 +834,85 @@ def control_dimensionality_reader():
         if n5 is not None:
             return dict(passed=False, why="a COMMENTED-OUT directions line was read as LIVE "
                                           "-- the closure defect, reproduced here")
+        # NEGATIVE 6: G-PROV. A log produced WITHOUT the full check set must be
+        # REFUSED even when its directions line reads a perfect 3.
+        weak = os.path.join(tmp, "log.weak")
+        with open(weak, "w") as fh:
+            fh.write("CHECKMESH COMMAND LINE: checkMesh -case /x -allRegions\n")
+            fh.write("Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)\n")
+        pw = read_checkmesh_provenance(weak)
+        nw, lw = read_geometric_directions(weak)
+        vw = dimensionality_verdict(nw, lw, cen, provenance=pw)
+        if nw != 3 or vw["ok"] or "-allGeometry" not in vw["why"]:
+            return dict(passed=False, why="a log WITHOUT -allGeometry/-allTopology was "
+                                          "accepted despite a perfect 3-direction line")
+        # POSITIVE: the full check set is accepted
+        strong = os.path.join(tmp, "log.strong")
+        with open(strong, "w") as fh:
+            fh.write("CHECKMESH COMMAND LINE: checkMesh -case /x -allRegions "
+                     "-allGeometry -allTopology\n")
+            fh.write("Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)\n")
+        ps = read_checkmesh_provenance(strong)
+        ns, ls = read_geometric_directions(strong)
+        if not dimensionality_verdict(ns, ls, cen, provenance=ps)["ok"]:
+            return dict(passed=False, why="a log WITH both flags was rejected")
+        # NEGATIVE 7: no command line recorded at all -> unknowable, refuse
+        noprov = os.path.join(tmp, "log.noprov")
+        open(noprov, "w").write("Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)\n")
+        pn = read_checkmesh_provenance(noprov)
+        if pn[0] is not None:
+            return dict(passed=False, why="a provenance line was invented from nowhere")
+        if dimensionality_verdict(3, ln, cen, provenance=pn)["ok"]:
+            return dict(passed=False, why="a log with NO recorded command line was accepted")
+        # NEGATIVE 8: a `//`-PREFIXED command line must STILL be seen. This is
+        # the near-miss caught in this session: the comment stripper would have
+        # erased the very line the provenance gate must read.
+        pref = os.path.join(tmp, "log.prefixed")
+        with open(pref, "w") as fh:
+            fh.write("// CHECKMESH COMMAND LINE: checkMesh -allRegions -allGeometry "
+                     "-allTopology\n")
+            fh.write("Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)\n")
+        pp = read_checkmesh_provenance(pref)
+        if pp[0] is None or not (pp[1] and pp[2]):
+            return dict(passed=False, why="a `//`-prefixed command line was invisible to "
+                                          "the provenance reader -- the comment-stripper "
+                                          "interaction is NOT defended")
+        # G-MINCELL, both directions
+        big = os.path.join(tmp, "log.bigcell")
+        open(big, "w").write("Min volume = 1e-9\n")     # 1e-3 m cube, well above floor
+        d_ok, _v = read_min_cell_dimension(big)
+        if not mincell_verdict("L2", d_ok)["ok"]:
+            return dict(passed=False, why="a healthy min cell was rejected by G-MINCELL")
+        tiny = os.path.join(tmp, "log.tinycell")
+        open(tiny, "w").write("Min volume = 1e-18\n")   # 1e-6 m cube, far below floor
+        d_bad, _v = read_min_cell_dimension(tiny)
+        if mincell_verdict("L2", d_bad)["ok"]:
+            return dict(passed=False, why="a SUB-FLOOR min cell was NOT caught by G-MINCELL")
+        d_abs, _v = read_min_cell_dimension(os.path.join(tmp, "no_such_log"))
+        if d_abs is not None or mincell_verdict("L2", d_abs)["ok"]:
+            return dict(passed=False, why="an ABSENT Min volume was treated as passing")
+        # REAL-FORMAT ARM: checkMesh's actual line ends in a full stop. The
+        # synthetic fixtures above do not, and that is exactly how this defect
+        # reached a live log before being caught.
+        real = os.path.join(tmp, "log.realformat")
+        open(real, "w").write("Min volume = 1.10863e-09.\n")
+        d_real, v_real = read_min_cell_dimension(real)
+        if d_real is None or abs(v_real - 1.10863e-09) > 1e-20:
+            return dict(passed=False, why="the REAL checkMesh format `Min volume = "
+                                          "1.10863e-09.` (trailing full stop) was not "
+                                          "parsed: got %r" % (v_real,))
+        # and an unparseable value FAILS CLOSED rather than raising
+        junk = os.path.join(tmp, "log.junk")
+        open(junk, "w").write("Min volume = ..\n")
+        d_j, v_j = read_min_cell_dimension(junk)
+        if d_j is not None or mincell_verdict("L2", d_j)["ok"]:
+            return dict(passed=False, why="an unparseable Min volume did not fail closed")
         return dict(passed=True, planted="3 geometric directions + clean census",
-                    negative_arms="2-direction line, empty patch, wedge patch, "
-                                  "absent log, absent boundary, commented-out line "
-                                  "-- all six caught")
+                    negative_arms="2-direction line, empty patch, wedge patch, absent "
+                                  "log, absent boundary, commented-out line, log without "
+                                  "-allGeometry/-allTopology, log with no command line, "
+                                  "`//`-prefixed command line, sub-floor min cell, absent "
+                                  "min cell -- all eleven caught")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -895,13 +1084,18 @@ def measure_level(root, level):
     yp, n_yp = read_yplus(os.path.join(case, "log.yPlus"))
     # D-3D: the 3D claim is carried BY THE GRADED RECORD, per level, verbatim,
     # so it can never again be an inference from a board or a geometry gate.
-    ndirs, dline = read_geometric_directions(os.path.join(case, "log.checkMesh"))
+    cmlog = os.path.join(case, "log.checkMesh")
+    ndirs, dline = read_geometric_directions(cmlog)
     census, _tot = read_patch_type_census(
         os.path.join(case, "constant", "polyMesh", "boundary"))
-    dim = dimensionality_verdict(ndirs, dline, census)
+    prov = read_checkmesh_provenance(cmlog)
+    dim = dimensionality_verdict(ndirs, dline, census, provenance=prov)
+    mind, minvol = read_min_cell_dimension(cmlog)
+    mincell = mincell_verdict(level, mind)
     return dict(level=level, endTime=et, Q1=q1, Q2=q2, Q2_n=n_q2, Q3=q3, Q3_n=n_q3,
                 phi_sum=phi_sum, phi_n=n_phi, residuals=resid, conv=conv,
-                yplus=yp, yplus_n=n_yp, dimensionality=dim,
+                yplus=yp, yplus_n=n_yp, dimensionality=dim, mincell=mincell,
+                checkMesh_provenance=prov, min_cell_volume=minvol,
                 conv_ok=all(c["ok"] for c in conv.values()))
 
 
@@ -1092,8 +1286,20 @@ def main(argv):
         if not d["ok"]:
             not3d.append(l)
             print("      %s" % d["why"])
+    print("\nG-MINCELL, minimum cell dimension against the registered floor:")
+    badcell = []
+    for l in LEVELS:
+        m = lv[l]["mincell"]
+        print("  %s  min cell %s m  floor %.4g m  -> %s"
+              % (l, ("%.4g" % m["dim_m"]) if m["dim_m"] is not None else "UNMEASURED",
+                 m["floor_m"], m["verdict"]))
+        if not m["ok"]:
+            badcell.append(l)
+            print("      %s" % m["why"])
+    not3d = not3d + [l for l in badcell if l not in not3d]
     if not3d:
-        print("\n  THE RUNG'S PREMISE FAILS on level(s) %s. Every graded row below is")
+        print("\n  THE RUNG'S PREMISE FAILS on level(s) %s. Every graded row below is"
+              % ",".join(not3d))
         print("  NOT A RESULT: a verification verdict on a failed premise is not a verdict.")
 
     # G-ITER, the plateau gate: |dQ over the last 1000 iters| <= 0.1 x |level-to-level|
@@ -1163,6 +1369,8 @@ def main(argv):
     out = dict(rung="T26", Fs=FS, r=R_REFINE, rows=rows, controls=controls,
                levels=lv, cell_count_audit=cell_count_audit(),
                dimensionality={l: lv[l]["dimensionality"] for l in LEVELS},
+               mincell={l: lv[l]["mincell"] for l in LEVELS},
+               checkMesh_provenance={l: lv[l]["checkMesh_provenance"] for l in LEVELS},
                dimensionality_failed_levels=not3d,
                note="VERIFICATION, NOT VALIDATION -- reference tier NONE. The 3D "
                     "claim is carried by the per-level checkMesh geometric-directions "

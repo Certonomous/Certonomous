@@ -221,8 +221,30 @@ if [ "$DRYRUN" = "1" ]; then
     exit 0
 fi
 
-# --- checkMesh, recorded rather than assumed (infrastructure) ---------------
-checkMesh -case "$CASE_DIR" -allRegions > "$CASE_DIR/log.checkMesh" 2>&1
+# --- checkMesh, WITH ITS FULL CHECK SET, recorded rather than assumed -------
+# -allGeometry and -allTopology ARE NOT OPTIONAL. Bare `checkMesh` prints
+# `Mesh OK.` on a mesh that FAILS checks which only run under those flags.
+# MEASURED ON T26's OWN PROBE MESH, 2026-09-10, same mesh and same binary:
+#     checkMesh                              -> "Mesh OK."
+#     checkMesh -allGeometry -allTopology    -> "Failed 2 mesh checks."
+#                                               2,320 small-determinant cells
+#                                              13,099 concave cells
+# cfd spent three M6CP1 smoke rungs on a mesh its stage-2 gate could never have
+# refused, and the M6 flow verdict is NOT A RESULT on a trailing-edge cusp.
+# The binary's own help on this box: -allGeometry "Include bounding box
+# checks", -allTopology "Include extra topology checks".
+# -allRegions is kept: T26 is four-region CHT and every region is graded.
+CHECKMESH_CMD="checkMesh -case $CASE_DIR -allRegions -allGeometry -allTopology"
+# The command line is recorded INTO the log, so a reader can tell which check
+# set produced it. analyse_t26.py REFUSES a log that does not carry both flags:
+# the artifact must prove which instrument produced it.
+# NOT prefixed `//`: analyse_t26.py strips OpenFOAM comments before matching
+# (so a commented-out directions line cannot be read as live), and a `//`
+# prefix here would have made the provenance line invisible to the very reader
+# that must check it. Caught before the freeze; the reader also reads RAW for
+# this one line, so the two defences are independent.
+echo "CHECKMESH COMMAND LINE: $CHECKMESH_CMD" > "$CASE_DIR/log.checkMesh"
+$CHECKMESH_CMD >> "$CASE_DIR/log.checkMesh" 2>&1
 CHECKMESH_RC=$?
 
 # --- arm 0/ from 0.orig; 0/fluid/T touched LAST (the age-guard datum) -------
