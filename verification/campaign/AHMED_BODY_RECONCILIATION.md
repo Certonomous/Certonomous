@@ -166,3 +166,74 @@ dominates Reynolds number here by more than an order of magnitude.
 - Batch: `demo-output/website/mega-batch/ledger.jsonl`, 52 rows with
   `"solver": "simplefoam-ahmed-3d-viscous"`, indices 206351–206963,
   2026-07-29T02:12:45Z → 11:16:13Z (35 ok, 17 y+ gate failures).
+
+---
+
+## ADDENDUM 1 — 2026-09-10, cfd-supervisor (Opus 5). A FOURTH Cd BASIS EXISTS, AND IT IS THIS DOCUMENT'S JOB TO CATCH IT.
+
+**lines whose number changed above this section: 0.** Nothing above is edited, withdrawn or
+renumbered. The three-row table above stands exactly as written and every value in it is unchanged.
+
+**Why this addendum exists.** This document was written to stop a narrator attaching the wrong Cd to
+the footage. It reconciles **three** numbers — 0.3041, 0.3219, 0.2510 — and states that all three are
+on the **frontal-area basis** against the 0.285 reference. **There is a fourth set of Ahmed Cd values
+in this lab, on a DIFFERENT basis, and this document did not cover them.** They are the R4 asymptotic
+ladder's, in `verification/campaign/R4_ASYMPTOTIC_RESULTS.md`, and they read **0.0848 → 0.0750** —
+about a quarter of the reference. A narrator holding that table beside the 0.285 reference would be
+out by a factor of three and a half.
+
+### A1.1 THE FACTOR, AND THE MEASUREMENT THAT VERIFIES IT
+
+The R4 cases report on the **planform** area — `Aref 0.401696`, read from
+`verification/runs/R4_runs/c4b/system/controlDict` — while the published reference is on the
+**frontal** area **0.1120 m²** (`models/curriculum/ahmed_25/reference.yaml`, `area_basis: frontal`,
+0.389 × 0.288). The rebase factor is
+
+    Aref / A_frontal  =  0.401696 / 0.1120  =  3.586571
+
+**This is verified, not assumed, and the verification is a coincidence of meshes that makes it
+checkable.** R4's coarsest rung `c1` is background divisions (60 13 36) = **79,439 cells**, raw
+Cd **0.084801801**. Rebased: 0.084801801 × 3.586571 = **0.30415**. **The table at the head of this
+document independently records row 1 — the act's on-camera production result — as Cd 0.3041 at
+79,439 cells.** Same mesh, four significant figures, arrived at from opposite directions and from
+records written six weeks apart. **The R4 ladder and the act's headline number are the same family.**
+
+### A1.2 THE R4 LADDER, REBASED ONTO THIS DOCUMENT'S BASIS
+
+Every row below is on the **frontal basis**, so it is directly comparable with the three-row table
+above and with the 0.285 reference (±15 % band **[0.24225, 0.32775]**):
+
+| rung | cells | raw Cd (planform `Aref` 0.401696) | **frontal basis** | final-window 2σ, as % of value |
+|---|---:|---:|---:|---:|
+| c1 | 79,439 | 0.084801801 | **0.30415** | 0.01 % |
+| c2 | 144,240 | 0.079359699 | **0.28463** | 0.07 % |
+| c3 | 254,911 | 0.073992743 | **0.26538** | 0.10 % |
+| c4 | 454,691 | 0.074882228 | **0.26857** | 0.02 % |
+| c4b *(replicate control)* | 468,509 | 0.074979080 | **0.26892** | 0.03 % |
+| ~~c5~~ | ~~834,351~~ | ~~0.082466071~~ | ~~0.29577~~ | **6.31 % — REFUSED** |
+
+**Every converged level lands inside the band.**
+
+### A1.3 TWO THINGS A NARRATOR MUST NOT DO WITH THIS TABLE
+
+**Do not cite c5.** `c5` (834,351 cells) is **`NOT A RESULT`** and is struck through here for the same
+reason `R4_ASYMPTOTIC_RESULTS.md` strikes it: it ran to `endTime` 4,000 **without `residualControl`
+ever firing**, and its final-window 2σ is **5.2e-03 — 6.31 % of its own value — against the lab's 5 %
+ceiling**. Rule 5 clause 1: a level not iteratively converged is `NOT A RESULT` whatever its value.
+**This matters more than it looks, because rebased, c5 is the SECOND-CLOSEST level to the reference
+at 0.29577.** The most flattering number in the ladder is the one the lab refuses. **The settled
+level to show is `c4b`, 468,509 cells, frontal-basis 0.26892, 2σ 0.03 % of value.**
+
+**Do not say the c3→c4 turn is a finding.** The **+8.895e-4 increment from c3 to c4 is WITHDRAWN as a
+FEATURE** — chief ruling 2026-08-10, recorded at `8f5bf878`, canonical record
+`verification/campaign/R4_AHMED_TURN_WITHDRAWAL_2026-08-10.md`. It is a withdrawn feature between two
+coarser levels. **It is not a verdict on the Ahmed case, and it has nothing to do with c5.**
+
+### A1.4 WHERE THE REBASE WAS, AND WHY THAT WAS NOT ENOUGH
+
+`models/curriculum/ahmed_25/reference.yaml` **already documented** the rebasing, in its `notes`:
+*"The published drag is referenced to frontal area (0.112 m²); the solver reports on measured planform
+area, so the comparison rebases by the ratio…"*. **So this was never undocumented — it was documented
+in the one place a narrator does not read.** The two documents on the filming path — this one and
+`R4_ASYMPTOTIC_RESULTS.md` — both omitted it. **A mitigation that lives outside the path it protects
+is not a mitigation**, and that, rather than the arithmetic, is the finding worth keeping.
