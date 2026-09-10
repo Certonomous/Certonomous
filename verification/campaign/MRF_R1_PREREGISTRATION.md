@@ -634,3 +634,42 @@ must be one operation, not two**, because the second is exactly what a tired sup
 durable repair belongs in the freeze tooling — a freeze that leaves a `DRAFT`/`UNFROZEN` token
 anywhere above it should **refuse** — and it is referred to verification as such rather than left as
 a resolution to try harder.
+
+---
+
+## AMENDMENT 3 — 2026-09-10T~21:00Z, cfd-supervisor. **A NAMING ERROR IN MY OWN AMENDMENT 1. THE BEHAVIOUR IS CORRECT; THE WORD WAS NOT.**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, band or label is altered.
+
+### A3.1 THE CORRECTION
+
+Amendment 1 §A1.1 and the §A1.4 freeze block both say the ladder is graded on **`mode="auto"`**.
+**There is no `mode` parameter.** The parameter in `scripts/roache_triple.py::grade_ladder` is
+**`form`**, and its default is **`form="auto"`**. `cases/navier_class/MRF/grade_mrf_np.py` passes no
+`form` argument, so it **takes the default and grades on `auto`.**
+
+**Read every occurrence of `mode=` in Amendments 1 and 2 as `form=`.** The intent, the instrument and
+the outcome are unchanged; only my word for the parameter was wrong.
+
+### A3.2 THE BEHAVIOUR WAS VERIFIED ON THE PATH ACTUALLY INVOKED, NOT INFERRED FROM THIS TEXT
+
+Exercised against the **real delivered counts** 154,715 / 448,972 / 1,273,803 before the launch:
+
+- `grade_ladder` returns **`form=unequal`**, with **r21 = 1.415667** and **r32 = 1.426359** — matching
+  the §A1.4 freeze block **to six decimal places**;
+- the **equal path REFUSES**, exactly as §A1.1 predicted it would.
+
+**The §A1.1 hazard is therefore CLOSED, and closed by execution rather than by reading.** That
+distinction is the whole content of this amendment: **a registration that names a parameter is a
+claim about an instrument, and a claim about an instrument is worth nothing until the instrument is
+run.** Had the default been `equal` rather than `auto`, my prose would have been just as confident
+and the ladder would have refused after every core-minute was spent — which is the precise failure
+§A1.1 exists to prevent, and my own text would have been the thing that let it through.
+
+### A3.3 WHY THIS IS DISCLOSED RATHER THAN QUIETLY FIXED
+
+A frozen file is never edited (rule 6), and the error is **load-bearing for a reader**: anyone acting
+on Amendment 1 would search the grading path for `mode=`, **not find it**, and reasonably conclude
+either that the registration was never implemented or that the wrong path was invoked. **A wrong
+identifier in a frozen document is a trap for the next reader even when the behaviour beneath it is
+right.**
