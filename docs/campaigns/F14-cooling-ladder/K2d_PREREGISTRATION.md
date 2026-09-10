@@ -279,8 +279,9 @@ standing rule 3 forbids: a reader not shown able to see the thing it must see.
 > It is written by an in-pass function object at the **same 50-iteration
 > cadence** as `T_in,max`, so `G-CYCLE` reads it from the log alone.
 >
-> **Threshold: peak-to-peak spread of `U_ha` ≤ 0.5 % of its sample mean** over
-> the same 400-iteration window, **≥ 9 samples, REFUSED below that**. The
+> **Threshold: peak-to-peak spread of `U_ha` ≤ 0.02 % of the RANGE THE QUANTITY
+> SPANNED OVER THE RUN** — S13's threshold and S13's normaliser, unchanged —
+> over the same 400-iteration window, **≥ 9 samples, REFUSED below that**. The
 > `CYCLING` and `DRIFTING` discriminators are **identical** to §3.3's — ≥ 3 sign
 > changes in the first difference, and linear trend explaining < 25 % of sample
 > variance.
@@ -289,18 +290,63 @@ standing rule 3 forbids: a reader not shown able to see the thing it must see.
 > graded row `NOT A RESULT`.** Both states are printed for every level whichever
 > fires.
 
-**Why 0.5 % and not S13's 0.02 %, stated because a threshold chosen to be
-passable is worthless.** S13's 0.02 % governs a *mass-flow-weighted inlet
-temperature* — an intrinsically smooth, strongly constrained quantity. `U_ha` is
-a volume-averaged velocity in a buoyancy-dominant recirculating region and is
-intrinsically more variable; 0.02 % there would fire on every run and produce a
-gate that cannot be passed, which is not a gate. **0.5 % is 25× looser and is
-chosen so the SPREAD limb only decides whether to look**, while the sign-change
-and trend criteria do the actual discrimination between an oscillation and a
-descent. **The risk of this choice runs one way and is named:** too tight gives
-`NOT A RESULT`, the conservative direction; too loose could miss a
-small-amplitude cycle — **which is exactly what §3.3b exists to bound, and why
-it reports a measured detection floor rather than asserting one.**
+**Both limbs CALL the canonical implementation and neither reimplements it.**
+`scripts/check_convergence.py::classify_monitor` (`:576`) is S13, it applies the
+range normaliser at `:629`, and it carries the **null-variation refusal** — a
+quantity that never resolvably moved is REFUSED, never passed. The comparator
+calls it for `T_in,max` and for `U_ha` alike, so there is one implementation of
+S13 for this rung and no drift is possible, and `U_ha` inherits the
+null-variation refusal for free. Thresholds are read from
+`docs/physics_rules.yaml` at run time and **never copied into a case script**
+(`K2a` §8).
+
+#### 3.3a.1 WHY THE THRESHOLD IS 0.02 % AND NOT THE 0.5 % THIS DOCUMENT FIRST REGISTERED
+
+**A defect in this rung's own first draft of §3.3a, found by checking a docket
+citation at source instead of adopting it, and corrected here before compute.**
+
+This section first registered **0.5 % of the sample MEAN**, justified as *"a
+velocity in a buoyancy-dominant recirculation is noisier than a mass-flow-
+weighted inlet temperature."* **That was wrong in its normaliser, and the
+justification was arguing for a rule the lab no longer uses.**
+
+**`D389` IS NOT OPEN. `D393` SETTLED IT on 2026-08-18 and the repair is live.**
+D389 recorded that S13 normalised the peak-to-peak spread by the quantity's
+**absolute mean** — on a rack-inlet temperature of mean 289 K and range 0.086 K,
+a factor of **3,343** looser than it read. **D393 repaired it**: the spread is
+now referred to **`max(series) − min(series)` over the whole run**, carried in
+`docs/physics_rules.yaml` as **`heat_monitor_normaliser: range_spanned_over_run`**
+and implemented at `scripts/check_convergence.py:629`. **The threshold number
+was deliberately left at 0.02 %**, because its derivation — *"one fiftieth of
+the tightest pass band K0c gated on"* — was always meant as a fraction of the
+thing being resolved, and the mean was only ever a proxy for that.
+
+**So the mean-normalised arithmetic describes S13 as it was three weeks ago, not
+as it is.** Under the live rule both quantities are referred to **their own
+travelled range**, which is what the residual wiggle must be small against. The
+asymmetry that motivated 0.5 % **does not exist** once the normaliser is the
+right one: a velocity's range and a temperature's range are each the distance
+that quantity actually moved, and 0.02 % of each means the same thing.
+
+**A mean-normalised threshold on `U_ha` would have reintroduced, in this rung,
+precisely the defect D393 repaired** — and it would have done so while citing
+the repair's own docket number as its justification.
+
+**The honest limit on carrying 0.02 % across, named rather than glossed.**
+D393's threshold-insensitivity sweep — an identical verdict set anywhere in
+**(0.0027, 0.0642] %**, a 24× span with 0.02 inside it — was measured over 49
+committed cases that grade **Nusselt-like groups and absolute temperatures**.
+**No velocity was in that corpus.** So 0.02 % reaches `U_ha` by **consistency of
+normaliser**, not by a measured sweep on this quantity class, and this document
+says so rather than implying the sweep covers it. **That is exactly the gap
+§3.3b's measured detection floor exists to bound**, and it is why the floor is
+reported beside every `CONVERGED` reading rather than asserted.
+
+**K2d SETTLES NOTHING ABOUT D389 OR D393 AND CHANGES NO EXISTING VERDICT.** It
+registers a threshold on a **new** quantity in a **new** rung, under the
+normaliser already in force. **`T_in,max`'s limb carries S13 at 0.02 % of range,
+unchanged and untouched by this rung** — if the S13 constants are ever revisited,
+that limb moves with the standard and this section does not shield it.
 
 #### 3.3b PLANTED-CYCLE CONTROL — the detector must be SHOWN able to detect a cycle
 
@@ -440,15 +486,33 @@ Grading those `PASS` without comment conflates two very different situations.
 > inside the registered band and stands; it may not be cited as evidence of
 > asymptotic convergence."*
 
-**The measurement that motivates it, and it is live in this family tonight.**
-The T26 lane measured its mesh-defect population growing **faster than its cell
-count** — small-determinant cells ×3.37 and concave cells ×5.06 against a 2.66×
-cell increase. **A defect fraction that RISES under refinement drives `p`
-down**, so a low `p` is the signature of exactly that failure. `G-CHECKMESH` at
-zero tolerance (§5.1) should prevent it here — K2d's rack row is axis-aligned
-rectilinear `blockMesh` with no refinement transitions — **but the annotation
-costs nothing and is the diagnostic that catches it if that expectation is
-wrong.**
+**The MECHANISM that motivates it, stated without leaning on any particular
+measurement.** A Roache order estimate assumes the error is dominated by a term
+that scales as `h^p`. **A defect population that does not DILUTE under
+refinement violates that assumption directly**: if degenerate cells — small
+determinant, concave, high skew — persist as a roughly constant *fraction* of
+the mesh, or grow as one, their contribution to the error does not fall like
+`h^p`, and the fitted `p` is pulled toward zero. **A sub-first-order `p` on a
+nominally second-order scheme is that failure's signature**, and it is
+indistinguishable, from the order alone, from an unresolved feature or a
+discontinuity. All three want naming rather than absorbing into a wide band.
+
+`G-CHECKMESH` at zero tolerance (§5.1) should prevent the mesh-defect route
+here — K2d's rack row is axis-aligned rectilinear `blockMesh` with no refinement
+transitions and no curved or cusped features — **but the annotation costs
+nothing and is the diagnostic that catches it if that expectation is wrong.**
+
+> **A WITHDRAWN CITATION, RECORDED RATHER THAN DELETED.** An earlier draft of
+> this section motivated `A-SUBFIRST` on a T26 measurement of a defect
+> population growing **faster** than its cell count (small-determinant ×3.37,
+> concave ×5.06 against 2.66× cells). **Those figures are WITHDRAWN by the T26
+> lane**: the experiment was confounded — it changed surface-refinement *depth*
+> at a fixed base cell rather than refining the base cell, so it added octree
+> transitions instead of refining, and **on the true triple both fractions
+> FALL.** The citation is struck and this section is re-motivated on the
+> mechanism above, **which does not depend on whether any particular rung
+> exhibits it.** It is recorded rather than silently removed so a reader can see
+> that the gate survived the loss of its original example.
 
 ### 4.4 THE REPORT-ONLY COMPARISON — computed, printed, and GRADING NOTHING
 
@@ -889,6 +953,28 @@ nothing about a case tree created beside it under another name.
 `mark_done_k2d.py` and no case directory, no `STATUS.*`, no `log.solve`, no
 time directory and no field. ZERO solver core-minutes have been spent against
 this document.**
+
+### 14.2a THE BOUNDARY — this manoeuvre must never become routine
+
+**Amending a condition that your own action falsified is a manoeuvre one step
+away from an abuse**, and it is worth naming the step. The general form —
+*"the condition I registered has become inconvenient, so I have replaced it"* —
+is how a pre-registration stops meaning anything.
+
+**The only thing that makes it legitimate here is that the replacement is
+STRICTER and better aimed at standing rule 2's actual concern — FIRST COMPUTE,
+not directory existence.** A restatement that loosened the condition, or that
+aimed at the same concern less precisely, would not be legitimate no matter how
+it was disclosed. **Disclosure is necessary and is not sufficient.**
+
+**The T26 lane faced the identical choice tonight and went the other way**,
+declining to create its run tree at all, because T26's registration makes the
+directory's *absence* itself load-bearing at freeze (its §12 item 3). **Both
+choices are defensible, and the difference is not taste: it is what each
+registration made load-bearing.** K2d's condition was aimed at first compute and
+the directory was a proxy for it; T26's condition is aimed at the directory. A
+reader comparing the two rungs should not have to guess why they diverged, so
+it is written here.
 
 ### 14.3 What this amendment does NOT do
 
