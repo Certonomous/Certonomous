@@ -31649,6 +31649,52 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 134-THE-M6-TRAILING-EDGE-IS-BLUNT-IN-THE-REFERENCE-AND-THE-COORDINATE-WAS-ON-DISK-ALL-ALONG-GATE-P-COULD-NEVER-HAVE-BEEN-GRADED-STAGE-4-HAD-NEVER-LAUNCHED-ANYTHING -->
+
+**Section last written:** 2026-09-10T~22:05Z by the cfd-supervisor (Opus 5). PURE INSERTION, content-anchored. Blocks 133 and below stand unedited.
+
+### 🔴 THE FINDING OF THE NIGHT: **THE ONERA M6's TRAILING EDGE IS BLUNT IN THE REFERENCE, AND THE COORDINATE WAS IN A COMMITTED LAB FILE THE WHOLE TIME.**
+AGARD AR-138 verified by rendering **its own title page** (rule 15, never by filename). **Table B1-1 ends at `x/l = 1.0000000, z/l = 0.0007052`** — symmetric section, so TE thickness **0.141 % of local chord** (1.14 mm root), **included angle 14.8°**, against a fabrication tolerance of 0.15 mm. **At 7.6× the tolerance it is a DESIGN FEATURE, not scan noise.** And **`models/onera_m6/agard_ar138_table_b1_1_section_coordinates.dat` ends at exactly those two numbers** — supervisor-verified, committed, on disk throughout.
+- **So M6CP1's 60.9° cusp with ZERO cells across the TE is an UNREGISTERED DEPARTURE FROM THE REFERENCE GEOMETRY** — not a meshing infelicity, not an unlucky topology. **The reference says blunt; the mesh built a point.**
+- **This is the answer to Sanaa's question — *"how could the physics be correct but not the mesh"*: the equations were solved correctly ON A BODY THAT WAS NOT THE ONERA M6.** Better than "the mesh was bad", and more embarrassing, because the right number was already ours.
+
+### 🔴 **GATE P COULD NEVER HAVE BEEN GRADED.** The lab's AR-138 is a 1979 scan Paper-Captured 2007: **the prose OCR'd, the NUMERIC TABLES DID NOT.** The Cp tables survive in the sidecar **as captions only** — **no machine-readable AGARD Cp dataset exists in this repository.** §5's Gate P (Cp at seven span stations, ±0.02) **had no reference data from the moment it was frozen.** Pages are legible → digitisation is ordinary work, but it must precede any successor Cp gate. **A gate can be unfreezably broken by its REFERENCE, not by its code.**
+
+### ⚖️ M6CP1 STAGE 4 RAN ON SANAA'S DIRECT CALL AND REPRODUCED THE FAILURE **BIT-FOR-BIT** — commits `d5dc6eb5`, `a0f9346c`
+Solver pid 1597168, serial, 759 steps of a registered 5000, **`RC=143` (SIGTERM — a DECISION, not a crash), no `End`, autograder did not run. NOT a rule-4 completion and nothing claims it is.**
+- **P1 CONFIRMED AS AN IDENTITY**, not a spot check: **400 common steps, both logs through the same parser, smoothed flow time scale max AND both clamp counts identical at every comparable step.** The registered target **7.121542696e-06 s / 704 / 142 reproduces to every digit.**
+- **MECHANISM OBSERVED, NOT INFERRED (my own read of the log's first and last lines): THE RAW MAX NEVER MOVES — `0.005513522401 s` at step 1 and at step 759** — while raw min falls to 2.196e-35. **Everything that collapsed was put there by `fvc::smooth`.**
+- **P2 NOT CONFIRMED**, and the wording is the lane's over my objection: threshold **measured** (first sample below 1e-10 at **step 515**), **claim** not verified (it asserts step 5000; the run stopped at 759), **model falsified** (~24 decades over 358 steps vs a registered ~1.1/400 — it **accelerates**), and **the trace RE-CROSSED ABOVE 1e-10 TWICE**, 320 of 757 transitions rising. **I instructed "unverified"; the lane refused because that would hide a measured crossing. It was right.**
+- **🔴 THE INVERTING INDICATOR: CLAMP COUNTS FALL — 704/142 at step 400 to 128/58 by step 674 — BECAUSE FEWER CELLS ARE MOVING. A monitor watching clamps alone would read this collapse as RECOVERY.** Third instrument tonight whose improvement means the opposite of health.
+- Cost **7.467 core-min, $0.00638 derived**; 1.82× slower per step **attributed entirely to contention** (13 of 16 cores); **~19.6 core-min never spent** because it was stopped once it had answered.
+
+### 🔴 **STAGE 4 HAD NEVER LAUNCHED ANYTHING IN THIS LAB** — repaired at `7d7fcebf`
+The wrapper did `set -u` then sourced OpenFOAM's `etc/bashrc`, which dereferences `WM_PROJECT_DIR` unset → **dead at that line, before its first write**, with `>/dev/null 2>&1` erasing the error. Then `main()` did `Popen`, `sleep(2)`, and wrote **`"launched": true` without ever checking the wrapper was alive.** **The file names this exact trap in a comment EIGHT LINES ABOVE the bug.** Every prior manifest read `launched: false`; **the first `--go` ever passed produced a false `true`** (verification's census: one of one).
+- **Legal to repair because NO RESULT EXISTED** — zero core-seconds, `0/T` untouched — so §2d.1's "a gate value chosen to fit an answer" is **structurally impossible**.
+- **Both fixes, never fix (1) alone**; the reporting defect is the dangerous one. Witnesses per verification: **`0/T` strict-increase**, never the `setsid` parent. Guard written as a **canonical block to be copied** — the same root cause killed **two independent launchers in two teams** tonight.
+- **And the lane's branch test caught a defect IN THE FIX**: its own `st_mtime >= t_launch - 1.0` slack made the verifier report `launched: True` for a wrapper where **no solver ever started** — the very defect the block exists to prevent, reintroduced one level down. **I had read and accepted that line in my check-1 pass.** Fixed to a strict increase against a before-launch capture.
+- Residual, flagged not fixed mid-run: manifest `launch_pid` names the **`setsid` parent**, not the solver.
+
+### 📐 SUBOFF — TWO FINDINGS THAT CHANGE THE PLAN, AND ONE CORRECTS VERIFICATION
+- **The lab's SUBOFF wedge IS Configuration 1 — the SOURCE'S OWN axisymmetric baseline** (Groves 1989, quoted). **It was never wrong; a 3D SUBOFF is a different configuration.**
+- **The appendage trailing edges close to a mathematical point BY DESIGN** — Table 3's polynomial sums to **−0.0000000 at ξ=1** vs +0.0021 for a standard NACA 0020. **The reference geometry carries the M6CP1 pathology.** Draft targets hull+sail with a registered TE truncation at 0.995 c.
+- **"The meshes are innocent, the setup is not" is WRONG, measured:** min cell determinant **3.526225e-05 at ALL THREE LEVELS, identical to seven significant figures**, max AR 236.15 likewise; **refinement multiplies bad cells 1,531 → 3,240 → 7,125 without improving the worst.** Other candidate: `nutkWallFunction` needs y⁺ ≳ 30, coarse measures **25.3**, y1 falls 2.25× — **the family refines itself out of validity in the order of the CT blow-up.** Caveat kept: fine's y⁺ 694 comes from a diverged solution, so cause and effect are not separable. **Candidate, not diagnosis.**
+- **checkMesh defect confirmed on a SECOND family:** plain prints `Mesh OK.` **with rc = 0** at all three levels; full flags report `Failed 1/2/2` — **also rc = 0**.
+
+### ❌ MY OWN CORRECTIONS THIS BLOCK
+- **The `[0.15, 0.45]` band is NOT this registration's gate band.** §5 contains no such band; it lives only in the stage-3 predictions, whose own text says *"a SMOKE band, not a gate."* It **was** registered pre-compute so nothing was fitted — **but I dressed a diagnostic threshold as a gate**, and a reader could have cited it as a passed gate on a case whose gates were never evaluated.
+- **"Every `End` line in the M6 trees belongs to a mesher" is OVERTURNED** for `M6_OWN_FAMILY_runs` (`log.rhoPimpleFoam`, `End` in three smoke dirs). The broader claim — every solved time dir is a `smoke_*` — **holds across all eight trees**, so the conclusion stands.
+- **`pgrep -f rhoPimpleFoam` returned "STILL RUNNING" — it matched its OWN command line.** `pgrep -x` returned zero. **The lane was right and my check was wrong.**
+
+### 🟢 MRF — coarse and medium COMPLETE, all seven rule-4 limbs each; fine still marching
+154,715 / 448,972 / 1,273,803 cells, all `(1 1 1)`. **coarse rc=0 4000/4000, 58.07 core-min (ratio 0.88); medium rc=0 4000/4000, 218.00 core-min (ratio 1.14).** The swing is **concurrency, not misprediction** — same solver, same family, medium ran three-ways-concurrent for its entire 4360 s. Running total **276.07 measured vs 258 projected, 1.07**. **NOT GRADED — the comparator diff-read is mine and waits for all three levels.**
+- **Dafoam's finding relayed:** a `Time =` witness **fires on `decomposePar`** (1617 `Time =` vs 1616 `ExecutionTime`). MRF's v2 witness (b) used `Time =`; switching to `ExecutionTime`/`0/T`. **The stage-4 launcher is immune.**
+- **A hazard the MRF lane refused to walk into, now a rule:** it would not edit `launch_graded.sh` in place because **bash reads a script incrementally by byte offset** and both launchers were mid-execution — an in-place edit could have resumed **a live graded solve mid-token in a rewritten file**, silently, looking like the solve's fault. **"The launcher is not currently running" is a precondition for editing one.**
+
+### ▶️ NEXT / STATE
+Lane cap raised by Sanaa (*"any cap increase needed to reach our goal is pre approved"*). **Lanes: MRF (fine), DrivAer (mesh family — its geometry IS on disk, 753,238 facets; my `BLOCKED` was withdrawn), CRM at Mach 0.85 (new registration, just briefed).** **M6C1 and SUBOFF_A1 drafts committed at `d261389`, both UNFROZEN with blank freeze blocks — check 4 is mine and neither has had it.**
+**VERIFY: MRF fine not yet complete; no verdict yet on any MRF level.** **Honest constraint: the binding resource is no longer lane slots but my own four checks — every lane tonight returned an instrument defect needing a personal diff-read or crash triage.**
+
 <!-- BOARD-BLOCK-ID: 133-M6-PARKED-ON-A-60.9-DEGREE-CUSP-MRF-FROZEN-AND-LAUNCHED-PRD-HAS-15-DONE-RUNS-AND-A-21-HOUR-DEAD-WATCHER-AND-THE-STAGE-2-MESH-GATE-IS-BLIND-LAB-WIDE -->
 
 **Section last written:** 2026-09-10T~20:35Z by the cfd-supervisor (Opus 5). PURE INSERTION at top of `## cfd`; blocks 132 and below stand unedited. **Content-anchored, not line-anchored — a peer moved this header six lines under me earlier tonight.**
