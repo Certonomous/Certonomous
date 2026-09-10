@@ -652,3 +652,344 @@ supervisor's ruling (d), that is reported **as an instrument-proxy finding**, an
 **no gate moves on our reading of her sentence.** L2 and L3 are **not run under
 this item.** A2-GC stands at **PENDING for the triple** — one level of three — and
 runs no further here.
+
+---
+
+# AMENDMENT 3 — 2026-09-10T04:33:19Z — §2d DISCLOSURE: THE LAUNCHER THAT RAN WAS NOT THE LAUNCHER THIS DOCUMENT PINS; AND THE CAP IT ENFORCED CAN BE SPENT TWICE
+
+**Version 1.3 -> 1.4. Lines whose number changed above this section: 0.**
+
+**How that assertion was checked, rather than asserted.** This amendment is a
+pure append. Before it was written the document at `HEAD` measured **35,139
+bytes**; after the append, the first **35,139 bytes** of the file on disk were
+compared **byte-for-byte** against `git show HEAD:cases/dafoam/A2_GC_GRID_CONVERGENCE_PREREGISTRATION.md`
+and are identical. Nothing above this line moved by one byte, let alone one
+line. The check is recorded because a previous repair in this lab (`fa124d95`)
+inserted two lines into a document **body** and silently shifted every citation
+below it; this document is cited by line from
+`A2_GC_P_PRIMAL_TRIM_GRID_CONVERGENCE_PREREGISTRATION.md`.
+
+**Nothing here alters a gate, a threshold, a cap, a band or a label**
+(`VERIFICATION_CHARTER.md` §2b clause 2). **No verdict is created, rescued,
+withdrawn or implied.** This item is cap-stopped with no verdict and stands
+exactly where **R6** left it: `PENDING` for the triple, one level of three.
+
+---
+
+## A3.1 The fact, and the exact timeline
+
+`cases/dafoam/run_a2gc.sh` no longer matches the md5 that **AMENDMENT 2** of
+this document pins for it at line 533.
+
+| | md5 |
+|---|---|
+| pinned by AMENDMENT 2 (v1.2), this document line 533 | **`f3baba360a50c8b7592d0a50142d5e28`** |
+| on disk 2026-09-10, and at `HEAD` | **`e7008a7a1bdf0e55ec8bad8e2b8742d4`** |
+
+Read first-hand from git and from the run tree, all times UTC on **2026-09-01**
+except where stated:
+
+| time | event | evidence |
+|---|---|---|
+| 16:19:38 | `82ea0468` — this document frozen v1.0; launcher pinned `bd2e764b…` | commit |
+| 16:25:34 | `7a1baf07` — AMENDMENT 1 (v1.1), pre-compute | commit |
+| 16:27:54 | `b02537f5` — AMENDMENT 2 (v1.2), pre-compute; launcher re-pinned `f3baba36…`, and the blob committed at that commit **is** `f3baba36…` | commit + `git show b02537f5:…` |
+| 16:28:06.969 | **FIRST COMPUTE** — `L1_attempt1_ENVFAIL` launched, running `f3baba36…` | `t0`; `stage.sh:1` = `set -uo pipefail` |
+| 16:28:07.345 | attempt 1 dead in **0.376 s** — `WM_PROJECT_DIR: unbound variable` | `t1`; `container.log:1` |
+| between 16:28:07.345 and 16:28:49.396 | **first departure from the pin** — `set -u` moved after `loadDAFoam.sh` | `L1_attempt2_MPIROOT/stage.sh` already carries the split |
+| 16:28:49.399 → 16:28:58.197 | `L1_attempt2_MPIROOT`, **8.80 s**, rc 1 — OpenMPI refuses to run as root | `t0`/`t1`, `RC`, `level.log` |
+| 16:29:31.390 | **second departure** — `--allow-run-as-root` added; file reaches `e7008a7a…` and has not changed since | file mtime, unchanged to 2026-09-10 |
+| 16:29:31.463 | `L1_attempt3_CAPSTOP` launched, running `e7008a7a…` | `t0`; `solve.sh:27` carries the flag |
+| 16:42:41.088 → 16:50:21.054 | `L1` launched and cap-stopped, running `e7008a7a…` | `t0`/`t1`; `solve.sh` **byte-identical** to attempt 3's |
+| 16:52:44 | `b7374db2` — RESULTS ADDENDUM (v1.3) committed. **At this moment the launcher on disk was `e7008a7a…` and this document still pinned `f3baba36…`. The addendum did not say so.** | commit |
+| **2026-09-02** 05:00:34 | `d48dd7e6` — *"emergency snapshot before subscription switch"* lands `e7008a7a…` into git alongside seven unrelated artifacts | commit |
+
+**Two corrections to the way this defect was first reported, both material.**
+
+1. **The launcher departed from its pin TWICE, not once.** The two hunks did not
+   land together. Attempt 2's generated `stage.sh` already carries the `set -u`
+   split while its `solve.sh` still carries bare `mpirun -np 12`. So a **third
+   launcher state existed** — `f3baba36…` plus the `set -u` hunk only — and it is
+   the state that spent attempt 2's **1.76 core-min**. That state was never
+   pinned, is not in git, and **its md5 is unrecoverable**: no level directory
+   holds a copy of `run_a2gc.sh`, only the scripts it generated.
+2. **`d48dd7e6` did not make the change; it recorded it 12.5 hours later.** The
+   change happened on disk at 16:29:31.390Z on 2026-09-01, inside the run window.
+   `d48dd7e6` is a bulk snapshot that swept the already-changed file up with a
+   PDF, a zip and a docket JSON. That is precisely why no disclosure was written:
+   **the commit that carried the departure was not about the departure.**
+
+---
+
+## A3.2 The change, in full, and why it is off the grading path
+
+Between `f3baba36…` and `e7008a7a…` there are **exactly two hunks and nothing
+else** — verified by diffing the `b02537f5` blob against the working file, and
+by confirming `d48dd7e6` is the only commit to touch this path since `b02537f5`.
+`DEF_CAP`, `NP`, `CPUSET`, every reader and every guard are byte-identical.
+
+- **Hunk A**, launcher line 150 (inside the `solve.sh` heredoc):
+  `mpirun -np $NP …` becomes `mpirun --allow-run-as-root -np $NP …`, plus three
+  comment lines. `-np $NP` is unchanged on the same line.
+- **Hunk B**, launcher lines 160-165 (inside the `stage.sh` heredoc):
+  `set -uo pipefail` becomes `set -o pipefail`, and `set -u` is re-armed
+  immediately after `source …/loadDAFoam.sh`, plus three comment lines.
+
+**What this document declares its grading path to be.** §9 is headed *"Instrument,
+frozen"* and pins five files; the launcher's own line 43 labels that assert block
+*"the frozen grading path must be the file that ran"*. So under **this document's
+own declaration** `run_a2gc.sh` is instrument, and any drift in it is a departure
+from the freeze. That is why this disclosure exists at all.
+
+**What `VERIFICATION_CHARTER.md` §2d means by the grading path** is narrower and
+enumerated: *"every band, every reference, every row definition, every verdict
+rule, the discrimination test and the mutation control."* The two hunks touch
+**none** of them:
+
+- **Bands and thresholds** — §5's `p in [1.5, 2.5]`, §4's `Delta_mesh/delta_iter
+  >= 10.0`, §4's `initRes <= 1e-8`, §4's G-HIST `1e-6` relative, §3's
+  `|CL - 0.5| <= 5e-4` — none appears anywhere in `run_a2gc.sh`.
+- **References** — the published `CD = 0.02962051221` is not in the launcher.
+- **Row definitions, verdict rules, the discrimination test and the mutation
+  control** live in `a2gc_grade.py`, whose md5 is **`f360f6b0cfbaee7029775ad8453c13f5`**
+  on disk on 2026-09-10 — **byte-identical to the value A1.3 pins**. The two
+  other §9 instruments are likewise unmoved: `a2gc_levels.json`
+  **`5bfefe8b…`** and `a2gc_driver_block.py` **`ecd5d4eb…`** both match §9, and
+  the pristine `runScript_AeroOnly.py` matches **`2906d52a…`**. **Of the five
+  pinned files, exactly one has drifted.**
+- **The readers** in the launcher itself (`GC_RESID`, `GC_YPLUS`,
+  `GC_VOLGROWTH`, lines 210-259) and the cost writer (lines 261-265) are
+  untouched; both hunks sit above line 200.
+
+**§2d's own boundary question — *could this change move a number that a verdict
+depends on?* — is answered by measurement, not by argument.** The pinned file
+produced **no number at all**. `f3baba36…` died in 0.376 s with the OpenFOAM
+bashrc's `WM_PROJECT_DIR: unbound variable`; the intermediate state died in
+8.80 s on OpenMPI's own refusal, whose text names the missing flag verbatim.
+There is no pinned-file CD for a repaired-file CD to differ from. That is the
+strongest form the off-grading-path finding can take, and it is read from
+`container.log` and `level.log` rather than reasoned.
+
+**The narrowest statement of what Hunk B changes.** Between the moved boundary
+there is exactly **one executable statement** — the `source` on launcher line
+164 — and `-u` is re-armed on line 165, before the RSS sampler and before both
+`timeout` lines. The two child stages are unaffected either way, because
+`mesh.sh` and `solve.sh` each set `set -uo pipefail` on their own first line
+(launcher lines 103 and 124). **Hunk A** changes only OpenMPI's root-user
+refusal; it alters no rank count, no decomposition, no scheme and no tolerance.
+
+---
+
+## A3.3 The route the charter requires, and why it is §2d and not §2d.1
+
+**The required route is §2d's DISCLOSURE limb, carried as a rule-6 dated
+amendment at the foot of this frozen document with a version bump. That is what
+this section is.** Three clauses, in order:
+
+1. **`VERIFICATION_CHARTER.md` §2d, boundary clause 1** — *"A comparator that
+   cannot run at all … Repairing a path constant so the instrument executes is
+   not tuning an instrument to an answer, and this clause does not forbid it.
+   The test is whether the repair can change a number; a path either resolves or
+   refuses."* Both hunks are of exactly this kind: the container either starts or
+   dies in under nine seconds. **Permitted.**
+2. **§2d's disclosure sentence** — instrumentation off the grading path *"may be
+   added later, and when it is, the record carries a dated disclosure naming what
+   was added, when, what was readable at that moment, and which findings rest on
+   it and which do not."* **Owed, and absent until now.** §A3.1 gives what and
+   when, §A3.4 gives what was readable and which findings rest on it.
+3. **`CLAUDE.md` rule 6** — a departure from a frozen file is disclosed in a
+   dated amendment appended at the foot, with a version bump and the zero-shift
+   assertion. **That is this document's form**, and the assertion is verified in
+   the header above rather than merely stated.
+
+**§2d.1 is NOT the route, and claiming it would misstate the finding.** §2d.1
+exists for *"a change on the grading path made after the first graded solve"* —
+its founding case moved `wall_nu` from an arithmetic to an area-weighted mean and
+**moved every Nusselt number in its rung by 10-27 %.** Invoking it here would
+assert that these hunks were on the grading path, which the evidence in §A3.2
+refutes. The tell is §2d.1's fourth condition, *"the pre-repair values are
+recorded beside the published ones"*: **there are no pre-repair values**, because
+the pre-repair states produced none. A repair with no pre-repair value to record
+is, by construction, not a repair to the grading path.
+
+For completeness, and so nobody re-derives it: the other three §2d.1 conditions
+would in fact be satisfiable — (1) a demonstrable error, a container dead in
+0.376 s; (2) established by instruments that grade nothing and cannot know which
+way a verdict would move, namely the OpenFOAM bashrc and OpenMPI's own root
+guard; (3) disclosed and quantified here. **They are not relied upon.** §2d
+carries this on its own.
+
+**§2b clause 2 is satisfied:** this addendum alters no gate, threshold, cap, band
+or label. §A3.6 and §A3.7 report defects; they repair nothing here.
+
+---
+
+## A3.4 What the divergence does, and does not do, to the L1 numbers
+
+**It does this.** **No number in R1 was produced by the file this document pins.**
+The L1 CD, CL, AoA, y+ and residual figures were all produced by
+`e7008a7a…`. The identification is read from the run tree's own generated
+artifacts, not inferred: attempts 1 and 2 carry the pre-repair text in the
+generated `stage.sh`/`solve.sh`, attempts 3 and 4 carry the post-repair text, and
+attempt 3's and L1's `solve.sh` are **byte-identical to each other**.
+
+**It does not do this.** It does not move an R1 number, because there is no
+pinned-file value for one to have moved from (§A3.2). The frozen prediction
+itself — §1-§12, every gate, threshold, band and label, and A1.1's and A1.2's
+registrations — was fixed at `82ea0468`/`7a1baf07`/`b02537f5`, **before first
+compute at 16:28:06.969Z**, and is untouched by anything in this amendment. The
+grading instrument that will cash that prediction, `a2gc_grade.py`, is
+byte-identical to its A1.3 pin today.
+
+**Which findings rest on `e7008a7a…`** — every measurement in the RESULTS
+ADDENDUM except the two failure rows: R1 in full (CD `0.02961982052`, CL
+`0.4999996084`, AoA `4.326120747 deg`, y+ `67.17/1281.52/321.63`, worst `initRes`
+`7.1566e-06`, worst `finalRes` `4.2364e-07`) and its bit-identical reproduction
+control; R2's per-solve table and the `0.00945 s/iteration` warm rate; R3's
+adjoint-dominance reading and the `~550 core-min` primal-only projection; R4's
+`<= 6 GB` peak-RSS bound and the `>= 1.5x` over-prediction of the M6 memory law;
+R5's rows for attempts 3 and 4.
+
+**Which do not** — §1-§12 entire; A1.1, A1.2, A1.3; R5's rows for attempts 1
+(0.08 core-min) and 2 (1.76 core-min), which record the pre-repair states' own
+failures and are the **evidence for** this disclosure rather than resting on it;
+and R6's standing, which rests on the count of levels that stand, not on the
+launcher.
+
+**No verdict follows from any of this, in either direction.** The item was
+cap-stopped without a verdict; this amendment neither rescues a number nor
+condemns one.
+
+---
+
+## A3.5 Contributing cause: the launcher polices four files and never itself
+
+`run_a2gc.sh` defines `assert_md5` at lines 44-51 and then:
+
+| lines | asserts | condition |
+|---|---|---|
+| 52-54 | `a2gc_grade.py` | **only if** `$A2GC_GRADER_MD5` is set |
+| 55-57 | `a2gc_levels.json` | **only if** `$A2GC_LEVELS_MD5` is set |
+| 58-60 | `a2gc_driver_block.py` | **only if** `$A2GC_BLOCK_MD5` is set |
+| 61 | `runScript_AeroOnly.py` | unconditional, against the constant at line 23 |
+| — | **`run_a2gc.sh` itself** | **never, under any condition** |
+
+So the one file that drifted is the one file the guard cannot see, and its drift
+was unpoliced by construction. §9's sentence *"`run_a2gc.sh` asserts every one of
+these before any solver starts"* is true of the four; it was never true of the
+fifth, and nothing in the guard could have refused.
+
+**A second weakness in the same block, and it is not the one first reported.**
+Three of the four asserts are **opt-in**: with the environment variable unset
+they are silently skipped, and the launcher writes no record of which asserts
+fired. `A2GC_GRADER_MD5`, `A2GC_LEVELS_MD5` and `A2GC_BLOCK_MD5` appear **nowhere
+else in the repository**, so no committed wrapper exports them. **Whether any of
+the three fired on any of the four attempts is therefore NOT VERIFIABLE from the
+run tree** (§A3.7).
+
+**The repair belongs in the successor and is already registered there.** The
+frozen file is not edited (rule 6).
+`cases/dafoam/A2_GC_P_PRIMAL_TRIM_GRID_CONVERGENCE_PREREGISTRATION.md` §9.4
+requires `run_a2gcp.sh` to assert **its own** md5 against a value pinned in that
+document and to refuse (exit 2) on a mismatch, and requires every md5 it pins to
+be verified against `HEAD` rather than only against the working tree.
+
+---
+
+## A3.6 SECOND DEFECT — the same wall cap is armed twice, so a level can spend 2x its registered cap
+
+**The mechanism, at the line.** `CAP_WALL_S` is derived once, at launcher line
+41: `CAP_WALL_S=$(( CAP_CORE_MIN * 60 / NP ))`, with `NP=12`. It is then applied
+as a `timeout` **twice**, sequentially and independently:
+
+- **line 180** — `timeout ${CAP_WALL_S}s bash mesh.sh`
+- **line 191** — `timeout ${CAP_WALL_S}s bash solve.sh`
+
+The second is not the remainder of the first; it is a **fresh full budget**.
+Nothing bounds the pair: the `sudo docker run` at lines 200-205 carries no
+`timeout` and no `--stop-timeout`. Both lines materialise in every generated
+`stage.sh` at its lines 21 and 32, where they can be read directly.
+
+**True worst-case spend per invocation is `2 x CAP_CORE_MIN` core-minutes.**
+
+| level | registered cap (§10) | true worst case |
+|---|---|---|
+| L1 | 60 core-min | **120** |
+| L2 | 500 core-min | **1,000** |
+| L3 | 6,000 core-min | **12,000** |
+| three levels | **6,560** | **13,120** |
+
+§10 registers an **item ceiling of 7,000 core-min**. `13,120 / 7,000 = 1.87` —
+**the instrument cannot hold this document's own item ceiling.** Derived, not
+measured, at `$0.0513/core-h` c7a.4xlarge, reported-by-owner (the box cannot read
+its own billing, `COMPUTE_BUDGET_CHARTER.md` §5): the registered ceiling is
+116.67 core-h -> **$5.99**; the true worst case is 218.67 core-h -> **$11.22**.
+
+**This is not hypothetical. It fired on both completing runs.**
+
+| run | cap given | `CAP_WALL_S` | mesh + container start | solve stage | total | spend vs cap |
+|---|---|---|---|---|---|---|
+| `L1_attempt3_CAPSTOP` | 60 core-min | 300 s | **~8.7 s** | **300 s, timed out** | 309.2 s | **61.83** vs 60 |
+| `L1` | 90 core-min | 450 s | **~9.3 s** | **450 s, timed out** | 460.0 s | **91.99** vs 90 |
+
+Both runs wrote `RC=124` — GNU `timeout`'s own "command timed out" status — so
+the solve stage provably consumed its **entire** budget in each case; the mesh
+stage's spend was then admitted **on top of** it. The mesh-stage figure is a
+proxy read from two independent artifact times that agree to within 0.3 s (the
+birth of `0/`, created by `solve.sh`'s first `cp`, and the last write into
+`constant/polyMesh/`). **The realised overrun was only 1.83 and 1.99 core-min
+because L1's mesh stage is about nine seconds. That is a property of 38,304 cells,
+not of the instrument.** At L3 the mesh stage is the expensive one and the
+exposure grows toward the full 2x.
+
+**One precision, correcting the form in which this defect was first reported.**
+It is **not** true that "every check reported the cap honoured". The cost writer
+at launcher lines 261-265 computes `core_min` from the **true container wall**
+(`t1 - t0`) and did write `overrun=YES-RUN-STOPPED` into both `cost.txt` files,
+and R5 carries both rows honestly. **The accounting instrument told the truth;
+the bounding instrument did not.** The defect is that the cap is not *bounded* by
+any instrument, not that the overrun was concealed. That is the same class as the
+cap defect dafoam repaired in `a3fl2_exercise.sh` — a cap that no instrument
+truly bounds — and the distinction matters, because a cap that reports its own
+breach after the money is spent still breaches rule 12's *"an overrun stops the
+run"*.
+
+**No cap is altered here.** A cap may not be changed after first compute (§2b
+clause 2), and this defect is reported, not repaired. The repair is registered in
+the successor: `A2_GC_P_PRIMAL_TRIM_GRID_CONVERGENCE_PREREGISTRATION.md` splits
+one wall budget across the stages and never re-arms it, and adds a cumulative
+ladder cap of 3,300 core-min set deliberately below the 3,690 sum of its own
+per-level caps.
+
+---
+
+## A3.7 A THIRD FINDING, and what this amendment could NOT verify
+
+**Third finding: `L1` was launched with a cap of 90 core-min against §10's
+registered L1 cap of 60.** `L1/cost.txt` reads `cap_core_min=90`, and its
+generated `stage.sh` carries `timeout 450s` = `90 x 60 / 12`. The launcher takes
+the cap from `argv[2]` at line 28 and applies whatever it is handed; **nothing
+checks that argument against the registered table.** The RESULTS ADDENDUM records
+the 91.99 core-min and R3 mentions "a 450 s wall cap", but neither says the
+registered per-level cap had been raised. The item's total spend, **155.66
+core-min**, remains far below §10's 7,000 item ceiling, so no ceiling was
+breached — but a registered per-level cap was exceeded by instruction, and that
+is recorded here rather than absorbed. **No cap is changed by this amendment**;
+the successor's launcher is where an argv-versus-registered-table check belongs.
+
+**Stated plainly, what could not be verified:**
+
+1. **The md5 of the intermediate launcher state that ran attempt 2 is
+   unrecoverable.** It exists in no commit and no level directory. All that can be
+   established is which of the two hunks it contained, read from the scripts it
+   generated.
+2. **Whether the three conditional md5 asserts fired on any attempt is not
+   verifiable.** The launcher records no such evidence and the three environment
+   variables appear nowhere in the repository (§A3.5).
+3. **The mesh-stage durations in §A3.6 are proxies**, bounded by two artifact
+   mtimes, not read from a stage clock. The launcher writes no per-stage timing.
+   The solve-stage durations are not proxies: `RC=124` is direct.
+4. **The reason `f3baba36…` was edited rather than re-frozen was not recovered.**
+   No dispatch record, docket row or commit message from the run window explains
+   the decision; `d48dd7e6`'s message does not mention it. This amendment
+   discloses what happened and declines to reconstruct why.
