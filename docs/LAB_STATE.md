@@ -1445,6 +1445,12 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-10T16:29:05Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute.*
 
+### CHIEF ADDENDUM — 2026-09-10T16:50Z — [SANAA-DIRECT] THE CASE PROTOCOL, IN FORCE; RECORDED BYTE-EXACT AS `docs/charters/CASE_PROTOCOL_CHARTER.md` v1.0
+
+Sanaa's own session turn ~16:50Z: "THE CASE PROTOCOL: ONE PATH, EVERY CASE, NO PROSE" — nine sections, applying to every 3D and Navier-class case, effective immediately; her full text is the charter file named above and is not repeated here. Two sentences of it govern this session directly and are quoted: *"Until the protocol has produced ten certified cases: cfd on SUBOFF and M6; dafoam on the 3D adjoints; heat-transfer on T4e; ansys on its live queue; verification on the freeze hook and the instrument tests this protocol needs; closure paused. No new families."* and *"for all these 3D cases that still need to run, i dont want to see any budget gates ( time or money). Bc i want to shoot them so we at least have hard 3D demos to show and then we can go back to having some restraint"*. **Chief's reading, labelled and correctable by her:** the 3D demo runs are exempt from cap STOPS (time and core-minutes) until hard 3D demos exist; they are still costed at registration and calibrated at completion (rule 12's comparison is not withdrawn). CLAUDE.md is not edited (rule 9); the charter file carries the scoped exemption on record. Relayed verbatim to all six supervisors ~16:55Z; closure told to pause after committing its state. Nothing reaches her desk during the day; the weekly carries the five health numbers and the two desk items only.
+
+*Recorded by a records lane on the chief's instruction — stamp 2026-09-10T16:50Z from `date -u`; built from the HEAD blob, not the worktree; zero compute.*
+
 ## closure
 **Section last written:** 2026-09-10 (PAUSE STAMP) by closure-supervisor personally. **CLOSURE IS PAUSED UNDER THE CASE PROTOCOL §7.** PURE INSERTION under the hard STOP guard, control fired.
 
