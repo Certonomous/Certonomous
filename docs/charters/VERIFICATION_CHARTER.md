@@ -9889,3 +9889,62 @@ Sanaa's own words: *"any cap increase needed to reach our goal is pre approved b
 | cases alleged dirty | **0** · checks made to refuse | **0** (`D539`) |
 | authorisations recorded | **1** (cap release, Sanaa's own words) · **declined tonight on measurement** | **1** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.92, 2026-09-10 — **§2cm THE WITNESS I PRESCRIBED FORTY MINUTES AGO IS ITSELF A PROXY: `Time =` FIRES ON `decomposePar`, 583 LINES BEFORE ANY SOLVER STEP. §2cn A NORMALISED RESIDUAL IS A RATIO, AND A DIVERGING FIELD DRIVES ITS OWN RESIDUAL TOWARD ZERO. §2co MY CANONICITY RULING AND ITS OPERATING CAVEAT SIT 21 LINES AND ONE CLAUSE APART**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **dafoam** (§2cm, §2cn) and by a **verification lane reading my own charter as a user would** (§2co). **The one instrument edit this team has made today is recorded in §2co with its diff-read and its selftest.** `[lab-attributed]`. **No gate value moves; no verdict is withdrawn; nothing is made to refuse (`D539`).**
+
+### §2cm — **THE SEVENTH INSTANCE TODAY, AND IT IS INSIDE THE CLAUSE I WROTE TO CURE THE SIXTH**
+
+`§2ci` (v1.91, forty minutes old) ruled that `launched: true` must be asserted from the child by one of two witnesses, and named the second as *"the first line appearing in the solver log, or the case's `0/T` mtime advancing past its staging time."*
+
+**dafoam measured the failure mode: `Time =` — the obvious implementation of "the first line in the solver log" — fires on `decomposePar`'s OWN `Time =` line, 583 lines before any solver step. A launcher waiting on it declares `LAUNCHED` on `decomposePar`.**
+
+> **This is the day's own finding turned on its author: `Time =` is a TOKEN THAT USUALLY ACCOMPANIES A SOLVER STEP, and the launcher would be reading the token instead of the property. A PROXY IS NOT THE PROPERTY — and I wrote a proxy into the remedy for the previous proxy, in the same hour.**
+
+> **`§2ci` WITNESS 2 IS CORRECTED AND NARROWED, and the correction is the whole of the change — witness 1 (liveness of the SOLVER's own pid, never the `setsid`/`nohup` parent's) stands untouched:**
+>
+> **WITNESS 2 IS ONE OF EXACTLY TWO ARTIFACTS, AND `Time =` IS NEITHER:**
+> - **the solver's first `ExecutionTime` line** — emitted by the solver's own time loop and **not by `decomposePar`**; or
+> - **`0/T`'s mtime advancing past its staging time** — the artifact rule 4's clause-6 age guard already relies on to date a run.
+>
+> **A pre-processing utility writes into the same log and its output is not evidence that the solver started.** The general form, and it is the transferable half: **a launch witness must be an artifact ONLY THE PROCESS YOU ARE WAITING FOR CAN PRODUCE. Anything a predecessor in the same pipeline also emits is a proxy, however specific it looks.**
+
+### §2cn — **A DIVERGING FIELD DRIVES ITS OWN NORMALISED RESIDUAL TOWARD ZERO, SO A RESIDUAL-ONLY GATE REPORTS ITS BEST NUMBER WHEN THE SOLUTION IS WORST**
+
+dafoam's `N-D45` (`5d5dae408`), measured: **`omega` initial residual `5.87e-31` with `nIters 0`, while that same field's `Norm2` read `1.13e+35` and bounding had fired.** The run **passed DAFoam's acceptance by 17,000×.**
+
+**The mechanism is arithmetic, not a bug: a normalised residual carries the field norm in its DENOMINATOR. A field going to `1e+35` makes any residual look perfect. The gate was reading a ratio and calling it a convergence.**
+
+> **RULED — §2cn: NO GATE READS A RESIDUAL WITHOUT A FIELD-BOUNDEDNESS LIMB BESIDE IT. A normalised residual is a RATIO, and a gate on a ratio is a gate on BOTH ITS TERMS — it is admissible as evidence of convergence only when the denominator is independently shown to be bounded.**
+>
+> **THIS CREATES NO NEW LAW. It is `§2p.3(b)` — "EVERY DIFFERENTIAL GUARD CARRIES AN ABSOLUTE LIMB BESIDE IT" — reaching a class it had not been applied to: the differential guard whose normalisation hides the divergence.** The absolute limb here is field boundedness (`Norm2`, `max`/`min` against physical bounds, or the solver's own bounding warnings), and **a fired bounding warning is a positive finding, not log noise.**
+>
+> **It also composes with `§2az`, and the two answer different questions.** `§2az` fixed **WHICH** residual may bind a gate — the uncorrected initial residual of the first pressure/momentum solve at the final outer iteration, never a within-iteration corrector. **`§2cn` fixes WHETHER A RESIDUAL ALONE MAY BIND ONE AT ALL. Passing `§2az` and failing `§2cn` is exactly what `N-D45` did.**
+>
+> **AND IT IS THE THIRD NORMALISATION ARTIFACT THIS TEAM HAS MEASURED TODAY**, which is why it earns a clause rather than a docket row: `§2bz`'s caveat — `GCI_pct = 129.33 %` on a PASS, because `f_fine ≈ 7e-4` sits in the denominator; `§2ca`'s plateau tolerance, relative to a monitor whose own ripple is the same order; and now `N-D45`. **A NORMALISED QUANTITY STOPS MEANING WHAT ITS NAME SAYS THE MOMENT ITS DENOMINATOR MOVES, AND ITS NAME NEVER WARNS YOU.** Report the absolute beside the relative, always; where only one may be quoted, **quote the absolute.**
+
+### §2co — **MY CANONICITY RULING AND ITS OPERATING CAVEAT ARE 21 LINES AND ONE CLAUSE APART, AND A READER FOUND THAT BY BEING THE READER I DESIGNED FOR**
+
+A lane reported the canonical stage-2 instrument as unusable tonight, because *"the charter's prose does not warn"* about argparse consuming a flag-shaped value. **It does warn — `§2by` point 4, at `:9628`. The lane flagged VERIFY on exactly this point and was right to.** But **the canonicity ruling is at `:9607`, in `§2bx`** — **21 lines and a clause boundary away.** The lane read the sentence that answered its question and stopped, which is what readers do.
+
+> **THIS IS `§2bg` ("A HEADLINE TRAVELS ALONE") AND `§2ae` ("A CORRECTION FILED ONLY AT THE FOOT DOES NOT REACH THE READER OF THE CLAUSE") — MY OWN TWO CLAUSES, IN MY OWN CHARTER, INSIDE A SINGLE COMMIT.** The designation travels; the caveat does not. **RULED: A DESIGNATION OF AN INSTRUMENT AS CANONICAL CARRIES ITS OPERATING CAVEATS IN THE SAME SENTENCE OR THE SAME PARAGRAPH — never in a later clause — because the designation is the part that gets quoted.**
+>
+> **Restated here so the two travel together, and this paragraph is the citable one: `scripts/check_instrument_detects_plant.py` IS THE CANONICAL STAGE-2 INSTRUMENT CHECK, AND IT IS NOT YET MANDATORY. Two caveats bind every use: (i) FLAG-SHAPED READER ARGUMENTS TAKE AN EQUALS SIGN — `--reader-arg=--case`, never `--reader-arg --case`, which exits 2; and (ii) ON A MULTI-COLUMN `.dat` THERE IS NO CORRECT INVOCATION YET — `plant_append`'s marker line decides the verdict by how the reader's tokeniser reacts to it, so a `DETECTED` there is NOT a valid green and the case record STATES THE §2 GAP IN WORDS (`§2by`).**
+
+**THE ONE INSTRUMENT EDIT THIS TEAM HAS MADE TODAY, recorded in full because I have declined nine others tonight and the asymmetry needs its reason.** I edited **one `help=` string** in `check_instrument_detects_plant.py` so the tool states caveat (i) itself.
+
+- **Safe to touch, MEASURED before touching:** the instrument is **pinned by NO registration** — zero hits across `verification/campaign`, `docs/campaigns` and `cases`; positive control on the identical filter returns **5** for a name I know is pinned. **No freeze is broken and rule 2's grading path is untouched.**
+- **`SUPERVISION_CHARTER` §3 check 1 discharged personally: I read the diff.** It adds four lines inside one `add_argument(help=…)` kwarg. **No logic, no constant, no threshold, no exit code, no emitted value.**
+- **Proof nothing moved: `--selftest` re-run at 22:06:21Z — `44 checks, 0 failed / SELFTEST PASS`, rc 0, `ast.Assert node count == 0` still holding.** Identical to the pre-edit figure.
+- **Why this one and not the other nine:** every deferred repair changes **what an instrument DECIDES**. This changes **what it SAYS about how to call it**. **A help string cannot produce, grade or aggregate a measured number, and a lane hitting exit 2 at 02:00 with no explanation is a cost I can retire tonight for zero risk.**
+
+| amendment record | **v1.92** |
+|---|---|
+| clauses added | **3** (§2cm, §2cn, §2co) · existing clauses **CORRECTED** | **1** (`§2ci` witness 2 narrowed; witness 1 untouched) |
+| new law created by §2cn | **0** — `§2p.3(b)` reaching the normalised class |
+| **instrument edits made** | **1** (a `help=` string; diff read personally, selftest 44/44 rc 0, pinned by nothing) · **still deferred** | **9** |
+| gate values changed | **0** · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
+| **lines whose number changed above this section** | **0** |

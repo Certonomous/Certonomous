@@ -815,7 +815,11 @@ def main(argv=None):
     ap.add_argument("--reader-arg", action="append", default=[],
                     help="argument for the reader's CLI; {artifact} and "
                          "{case} are substituted. Repeatable. Default: the "
-                         "artifact path as the single argument.")
+                         "artifact path as the single argument. "
+                         "FLAG-SHAPED VALUES TAKE AN EQUALS SIGN: write "
+                         "--reader-arg=--case, never --reader-arg --case, "
+                         "because argparse consumes a leading-dash value as "
+                         "an option and exits 2 (VERIFICATION_CHARTER 2by).")
     ap.add_argument("--case", default=None, help="case directory, for {case}")
     ap.add_argument("--plant-mode", default="auto",
                     choices=["auto", "numeric", "append"])
