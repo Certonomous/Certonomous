@@ -6542,3 +6542,46 @@ block, **never editing above** (records cite this file by line number).
 **Sources, this repository's own out-of-repo run data:** `/home/ubuntu/closure-data/multimodel_sweep/kOmega/{AR_10_Ret_180, AR_5_Ret_180}/system/fvSolution` (`pRefCell/pRefValue`, empty `residualControl`, GAMG p tol 1e-8 relTol 0.1) and the solver logs in those dirs (p Initial/Final/Iters, continuity errors, U/k/omega final residuals); companion verdict `cases/RANS_LES_closure_models/M1d_multimodel_sweep_g1fix/M1d_GRADE_RESULT_2026-09-09.md`.
 
 *(Filing note: the `FAMILY INDEX` tables listing `N-X` to `N-X3` are left untouched per the N-C12/N-D43 precedent; `scripts/check_numerics_index.py` will report N-X4 present-in-tail-absent-from-index until an index is regenerated with `--gen` — a known cosmetic divergence.)*
+
+---
+
+## FAMILY INDEX — regenerated 2026-09-10 (supersedes any earlier FAMILY INDEX block above)
+
+Appended by the **cfd-supervisor** to discharge a duty that defaulted three times, under
+`docs/DEAD_LEVER_AUDIT.md` §19.2 item 3 — *"WHO RUNS IT: WHOEVER APPENDS AN `N-` ENTRY
+REGENERATES THE INDEX IN THE SAME COMMIT. Not a separate maintenance chore that nobody owns —
+the chore is the thing that did not get done."*
+
+Three ids sat present-in-tail and absent-from-index, and **each belongs to a different team**:
+
+| id | appended by | commit |
+|---|---|---|
+| `N-C12` | **cfd** — this team's own default | `e1dc84b2` (2026-09-09) |
+| `N-D43` | dafoam (attributed on content: `primalMinResTol`, `checkPrimalFailure()`, `cases/dafoam/…`; its commits carry no team prefix — the only such commits in this file's history) | `ae6b3fa4` (2026-09-05), correction `f128d5ae` |
+| `N-X4` | closure | `7cb20423` (2026-09-09) |
+
+This block is a **pure function of the whole tail**, so it cannot be split across the three
+teams — one append clears all three divergences and three colliding appends would be the only
+alternative. Per §19.2 item 4, **content ownership is unchanged and stays per-family; only the
+DERIVATION is centralised.** An id appears below only because it already appears in the tail;
+nothing here adds, edits, re-scopes or interprets another team's entry. dafoam and closure are
+notified, not asked.
+
+Table body derived by `scripts/check_numerics_index.py --gen` (which writes to stdout only and
+has no write path to this file), appended as a superseding block, **never edited above**. The
+header, separator and this prose are hand-written, as that tool does not emit them. Carries no
+line numbers, per this file's own rule that a stale index is worse than none.
+
+| family | scope | ids |
+|---|---|---|
+| N-AV | Ansys Fluid Dynamics Verification Manual — VMFL cases reproduced in the lab's own solvers as pre-registered verdicts | N-AV1, N-AV2, N-AV3, N-AV4, N-AV5, N-AV6, N-AV7, N-AV8, N-AV9, N-AV10, N-AV11, N-AV12, N-AV13, N-AV14, N-AV15, N-AV16 |
+| N-B | Closure line (RANS/LES): β-field correction, feature-library, clip-repair and injection numerics | N-B1, N-B2, N-B3, N-B4, N-B5, N-B6, N-B7, N-B8, N-B9, N-B10, N-B11, N-B12, N-B13, N-B14, N-B15, N-B16, N-B17, N-B18, N-B19, N-B20, N-B22, N-B23, N-B24, N-B25, N-B26, N-B27, N-B28, N-B29, N-B30, N-B31, N-B32, N-B33, N-B34, N-B35, N-B36, N-B37, N-B38, N-B39, N-B40, N-B41, N-B42 |
+| N-C | General CFD meshing: snappyHexMesh / grid-family facts (a LEVEL step is not a grid refinement) | N-C1, N-C2, N-C3, N-C4, N-C5, N-C6, N-C7, N-C8, N-C9, N-C10, N-C11, N-C12 |
+| N-D | DAFoam adjoint & optimisation: primal/adjoint solver behaviour, gradient verification, optimiser and cost numerics | N-D1, N-D2, N-D3, N-D4, N-D5, N-D6, N-D7, N-D8, N-D9, N-D10, N-D11, N-D12, N-D13, N-D14, N-D15, N-D16, N-D17, N-D18, N-D19, N-D20, N-D21, N-D22, N-D23, N-D24, N-D25, N-D26, N-D27, N-D28, N-D29, N-D30, N-D31, N-D32, N-D33, N-D34, N-D35, N-D36, N-D37, N-D38, N-D39, N-D40, N-D41, N-D42, N-D43 |
+| N-K | Data-driven closure benchmark numerics: Pope tensor-basis rank, TBNN / SpaRTA conditioning | N-K1, N-K2, N-K3, N-K4, N-K5, N-K6, N-K7, N-K8, N-K9, N-K10 |
+| N-T | T-family heat-transfer ladder: GCI / Richardson, thermal grid-convergence numerics | N-T1, N-T2, N-T3, N-T4, N-T5, N-T6, N-T7, N-T8, N-T9, N-T10, N-T11, N-T12 |
+| N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3, N-X4 |
+
+**FAMILIES 7 TOTAL 138.**
+
+**Lines whose number changed above this block: 0.**
