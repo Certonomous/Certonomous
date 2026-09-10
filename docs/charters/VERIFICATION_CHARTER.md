@@ -9262,3 +9262,85 @@ A committed comparator gets `SUPERVISION_CHARTER` §3 check-1 as a diff, a selft
 | gate values changed | **0** · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
 | new law created by §2bm | **0** — it is standing rule 3 applied to a class it never reached |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.83, 2026-09-10 — **§2bn A CENSUS BY IDENTIFIER MEASURES THE IDENTIFIER, NOT THE PROPERTY — AND IT CORRECTS `§2bl`'s LOAD-BEARING HALF, WHICH WOULD HAVE LIBELLED THE BEST-GUARDED CASE IN THE LAB THE DAY BEFORE IT IS FILMED. §2bo A DIMENSIONALITY CLAIM IS READ FROM `checkMesh`, NEVER INFERRED FROM A CELL COUNT**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** §2bn raised by **heat-transfer** against their own finding of six hours ago; §2bo raised by **closure** against three of their own families, on the way into a stand-down. Both **verified at source by this supervisor before adoption**, not relayed. `[lab-attributed]`. **No gate value moves; no verdict is withdrawn; nothing is made to refuse (`D539`).**
+
+### §2bn — **`§2bl` IS CORRECTED ON THE HALF THAT MATTERED, AND THE CORRECTION RUNS IN THE DANGEROUS DIRECTION**
+
+`§2bl` (v1.82, six hours old) ruled that rule 4's **clause 7** — refuse a case where `0/` or a numeric time directory already exists — is **family-wide dead**, on a census returning **six** `launch_guard` definers and **zero** call sites lab-wide before heat-transfer's repair of the same day. It named one unresolved discrepancy: heat-transfer reported **seven**.
+
+**Both halves of that discrepancy are now measured, and they fail in opposite directions.**
+
+**(1) The seventh definer was UNTRACKED.** `verification/runs/F14-cooling-ladder/K2b_runs/mark_done_k2bU3R3.py` was invisible to a `git grep` census. It is **TRACKED as of `0e3d2f2f9`** (heat-transfer, today). Re-censused by this supervisor **on the disk, with `find`, not with `git grep`**, at 2026-09-10T18:58:35Z: **seven definers, all seven now tracked.** This half is the already-ruled tracked-path blindness class and adds nothing new.
+
+**(2) THE HALF THAT IS NEW, AND IT IS AGAINST THIS TEAM'S OWN CLAUSE. "Zero call sites lab-wide" is TRUE OF THE FUNCTION NAME AND FALSE OF THE CHECK.**
+
+`K2bU3R3` enforces clause 7 — all of it — **inline in its builder, under no such name.** Verified by this supervisor at source, reading `verification/runs/F14-cooling-ladder/K2b_runs/build_k2bU3R3.py` (**TRACKED**) at 19:08:38Z, not taken from the referral:
+
+- `:149-151` — `if os.path.isdir(os.path.join(case, "0")): sys.exit("REFUSE (exit 2): … the age guard refuses a case that already carries a 0/ (rule 4).")`
+- `:152-155` — `tds = _numeric_time_dirs(case)`; non-empty ⇒ `REFUSE (exit 2)`, naming rule 4.
+- `:156-158` — a **stronger** limb this charter never asked for: a prior `log`/`COST.txt` also refuses, so an existing run's *record* cannot be overwritten either.
+- `:161` — `if not os.path.isdir(case + "/0.orig"): REFUSE`, and only then, at `:164`, `copytree(0.orig → 0)` **at launch, with `0/T` touched last so it dates the run.**
+
+**All four refusals precede the arming copy.** That is `T1b_L4_AMENDMENT` §7's prescription executed exactly, and it is the structure `§2bl` said *could not exist* — because `§2bl` reasoned that the builder creates `0/` itself, so a guard after the build refuses everything and a guard before it has nothing to judge. **The reasoning was sound and the conclusion was false: the resolution is to put the guard in the builder, before the builder's own arming step.** `K2bU3R3` had solved it before this team ruled it unsolvable.
+
+> **RULED, and this team states the correction against itself first: `§2bl`'s clause NAME — "an absent check is neither passed nor failed" — stands and is untouched. `§2bl`'s FINDING that clause 7 was dead lab-wide is NARROWED: it is dead in the `K0` family, where the exculpation of v1.82 §2bl stands verified and unamended, and it was NEVER dead in `K2bU3R3`, which is the one rung in the lab where clause 7 genuinely ran.**
+
+**WHY THIS IS THE DANGEROUS DIRECTION, and it is the whole reason the clause exists.** Every blindness class this lab has ruled so far — the fail-open gate (`§2v`), the unreachable selftest (`§2aj`), the false zero (`§2bm`) — fails **permissively**: it lets something through. **An identifier census fails ACCUSATORILY: it under-reports compliance, and it therefore manufactures a false charge against precisely the cases that implemented the property WELL ENOUGH TO NOT NEED THE STANDARD LIBRARY.** A case that copied the blessed function name is scored compliant; a case that implemented the property better, inline, under its own name, is scored delinquent. **The census rewards the copy and punishes the improvement.**
+
+**AND IT WAS ABOUT TO BE LOAD-BEARING ON CAMERA.** `K2bU3R3` sits behind `DONE.K2bU3R3_D59`, one of only two presentable 3D `GATE REACHED` verdicts in its family — demo material, on the day the owner's stated priority is hard 3D demos. A "seventh dead lever" line, carried unchecked from a name-based census into a demo-adjacent claim, would have been a **false accusation against the best-guarded case in the family**, published in this team's own charter, by this team.
+
+> **CLAUSE §2bn: A CENSUS THAT SEARCHES FOR AN IDENTIFIER MEASURES THE PRESENCE OF THAT IDENTIFIER AND NOTHING ELSE. IT MAY NEVER BE REPORTED AS A CENSUS OF THE PROPERTY THE IDENTIFIER USUALLY IMPLEMENTS.**
+>
+> Operationally, and this is the cheap form:
+> 1. **A negative finding from an identifier census is a HYPOTHESIS, not a finding.** Before it may be written into a record as a defect, each named case is opened and the **property** is looked for **in whatever form it takes there** — inline, renamed, in a builder, in a launcher, in a wrapper.
+> 2. **The count of cases opened is stated beside the census count.** "Six by name, seven on disk, seven opened, one enforces it inline" is a measurement. "Zero call sites" is a grep.
+> 3. **A census may be reported as a bound, never as a total, when step 1 was not done** — and it is named as such in the sentence that carries it: *"no case implements it UNDER THIS NAME"*, never *"no case implements it"*.
+> 4. **`§2bm`'s positive control applies unchanged** and is not sufficient on its own here: a positive control proves the filter can see the identifier. **It cannot prove the identifier is the property.** These are two different failures and the second needs step 1.
+
+**This clause creates no new law about clause 7 and no verdict moves.** `K0f`'s exculpation (`TALLY 0 of 10`, every row `NOT A RESULT`, no band ever read) and `K0g`'s reliance on clause 6 are **re-affirmed exactly as v1.82 verified them**. The disclosure `§2bl` ordered on the `K0`-family registrations is **unchanged and still owed**. `K2bU3R3` is **removed from that disclosure's scope**: it owes no clause-7 disclosure, because its clause 7 fired. `cases/navier_class/PRD/mark_done_prd.py` remains navier-class territory, **referred and untouched**.
+
+**Two acknowledgements this team owes and pays.** heat-transfer found this **against their own finding of the same day**, on a case that would have made their own report look worse rather than better, and said so in the commit subject. And their statement of the limit is adopted verbatim because it is the part most likely to be over-read: *"a blob recorded today pins forward from today and reaches nothing behind it. `DONE.K2bU3R3_D59` was certified on 2026-09-09 by bytes no committed document names."* **Committing the instrument today does not retro-pin the verdict, and `K2bU3R3_PREREGISTRATION.md:226` names no `mark_done` sha to compare against — that gap is real, is separate from clause 7, and is NOT closed by this amendment.**
+
+### §2bo — **A DIMENSIONALITY CLAIM IS READ FROM THE MESH, NEVER INFERRED FROM A CELL COUNT**
+
+closure, on the way into their stand-down, reported against three of their own families: **all three were boarded as 3D and all three were one cell thick.** Their diagnosis, adopted: **the cell counts were right; the dimensionality was inferred from them and never read.** In one family a **commented-out `blockMeshDict` line masqueraded as the live mesh.**
+
+**The instrument already exists in every case that has ever been meshed, and this supervisor verified that before ruling** — sampled at 19:09:18Z across `verification/runs/` and `cases/`: **1,112 `log.checkMesh` files on disk**, and the line is present and discriminating in every one sampled:
+
+- `verification/runs/F2_runs/primary_M0.8_a1.25_Re6e6/log.checkMesh` — `Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)`
+- `verification/runs/F24_PRANDTL_MEYER_runs/coarse/log.checkMesh` — `Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)`
+- `verification/runs/F27_NUMERICS_SUCCESSOR_R3_runs/{coarse,medium,fine}/log.checkMesh` — `Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)`
+
+**A one-cell-thick extrusion reads `2 … (1 1 0)`. There is no ambiguity to resolve and no new instrument to build.**
+
+> **CLAUSE §2bo: ANY CLAIM THAT A CASE IS 3D — in a registration, a board line, a certificate, a docket row, a report to the owner, or a demo caption — CITES `log.checkMesh`'s `N geometric (non-empty/wedge) directions` LINE, PER MESH LEVEL, WITH THE PATH IT WAS READ FROM. A CELL COUNT IS NOT EVIDENCE OF DIMENSIONALITY. NEITHER IS A `blockMeshDict`, WHICH CAN CARRY THE CLAIM ON A COMMENTED-OUT LINE.**
+>
+> - **Per level, not per case.** A family may be 3D at one level and extruded at another; the claim is made where it is measured.
+> - **`3 geometric` is necessary and not sufficient for the word "3D" in a demo caption.** A wedge, a symmetry-plane sector or a single-cell-in-θ axisymmetric mesh can read `3` while being a 2D problem; the `(1 1 1)` triple and the **patch types** (`empty`, `wedge`, `symmetry`) are cited together. *(This limb is stated as the reading rule; `docs/standards/MESH_STANDARD.md` is **cfd's** territory and any gate text there is **theirs to write** — this charter binds the CLAIM, not their mesh gates.)*
+> - **This is `§2bn` applied one level up, and the two clauses are one rule seen from two ends:** clause 7 was audited by the name of its function instead of by the property; a mesh was called 3D by its cell count instead of by its directions. **In both cases a cheap proxy stood in for the artifact that carries the property, and in both cases the proxy was wrong about a case that is about to be filmed.**
+
+**Referred, not ruled here:** closure's two open items — that **"Navier-class" is undefined in `CASE_PROTOCOL_CHARTER`** (the charter's §0 scope line names it and no definition exists; that scope word governs which cases the protocol binds, so it is a real gap and it is **docketed**, not invented by this team), and that **L-525 / L-529 / L-530 owe executable checks.** Both are recorded at `D617`; neither is closed today.
+
+### §2bp — **A THIRD MEASURED INSTANCE OF `§2bk.5`, AND IT ARRIVED INSIDE THIS TEAM'S OWN TASKING**
+
+Recorded because the instance is unusually clean and because it cost nothing only by luck. This supervisor's brief for this session carried, as a measured live reading at 18:4xZ, *"`scripts/check_harness.py`: **FAIL: 2 problems** … `N-AV17` (ansys) and `N-D44` (dafoam) … missing from the index"*, and instructed: **route the two FAILs to their owners.**
+
+**Re-derived by a lane in this session, run started 18:58:38Z: `PASS with 12 warning(s)`, rc 0, ZERO FAILs.** Cleared by **`d223a464c`, 2026-09-10T18:56:52Z** (dafoam), which appended a superseding `FAMILY INDEX` block — `44 insertions, 0 deletions`, `@@ -6796,3 +6796,47 @@`, **zero lines renumbered**, so nothing any frozen document cites by line moved.
+
+**The figure was true when measured and false ~14 minutes later.** It is `§2bk.5`'s class exactly: a state reading, correctly taken, correctly reported, acted on after it decayed. **The cost it nearly incurred is the part worth recording: the routing would have woken the ansys team — stood down by the owner at 18:55Z — to fix an index row that a peer had already fixed three minutes earlier.** `§2bk.5`'s operational form held: the lane re-derived in the invocation that reported, and the stale instruction died there instead of in another team's inbox.
+
+**And the lane's own planted-zero discipline is recorded as the model form of `§2bm`:** it reported `grep -c '^  FAIL '` = 0 **with** its positive controls on the identical corpus (`'^  WARN '` = 12, `'^  ok '` = 93), and named the trap it avoided — a naive `grep FAIL` returns **6** lines on that output, every one of them an `ok` or `WARN` row whose *document title* contains the word (`docs/FAIL_OPEN_GATE_AUDIT.md`). **A filter that matches the subject matter instead of the verdict is the false-zero's mirror image: a false NON-zero, and it would have manufactured four FAILs that do not exist.**
+
+| amendment record | **v1.83** |
+|---|---|
+| clauses added | **3** (§2bn, §2bo, §2bp) |
+| existing clauses **corrected** | **1** — `§2bl`'s finding is NARROWED (its clause name and its `K0` exculpation stand; its "dead lab-wide" reach does not) |
+| gate values changed | **0** · verdicts withdrawn | **0** · verdicts newly alleged dirty | **0** · checks made to refuse | **0** (`D539`) |
+| cases removed from a disclosure obligation | **1** (`K2bU3R3`, on measurement) |
+| new instruments required by §2bo | **0** — `log.checkMesh` already exists in 1,112 places |
+| **lines whose number changed above this section** | **0** |
