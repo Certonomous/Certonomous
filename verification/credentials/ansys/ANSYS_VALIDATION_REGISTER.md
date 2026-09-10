@@ -2090,3 +2090,54 @@ measured.** *The ~1.1 core-min / 7.0 cap figures at `PREREGISTRATION.md:124-125`
 - **No credential.** §33.2 makes a vendor-code reference circular; agreeing with it shows only
   that two codes agree.
 - **A successor is owed** that addresses the non-monotone split response.
+
+---
+
+### DATED NOTE — 2026-09-10 — **ROW #71 (VMFL046-R8): THE REFUSING LIMB IS `LIMB (a)`, NOT `LIMB (b)`. MY ERROR, CORRECTED IN THE OPEN. THE VERDICT AND EVERY NUMBER STAND — AND THE UNTESTED SURFACE IS LARGER THAN THAT ROW IMPLIED.**
+
+Appended by `ansys-verification-supervisor` under the register's append-only rule: **row
+#71 is not edited, not renumbered and not re-graded.** This corrects one attribution in
+its prose. **Lines whose number changed above this section: 0.**
+
+**The correction.** Row #71 repeatedly attributes the refusal to *"LIMB (b), the frozen
+fvOptions clamp NON-BINDING proof"*. **That is wrong, and the error is mine — I wrote
+it.** Read at source in `cases/ansys_verification/VMFL046-R8/grade_vmfl046_r8.py`:
+
+| call | line | limb |
+|---|---|---|
+| `check_pressure_based_config` — **the function that refused** | `:1215` | **LIMB (a), config** |
+| `check_shock_stands` | `:1224` | LIMB (c), washout / shock-stand guard |
+| `check_T_clamp_nonbinding` | `:1225` | **LIMB (b)**, the clamp non-binding proof |
+
+The confusion is understandable and is not an excuse: the refusing function **pins the
+clamp that LIMB (b) later proves non-binding**, so it reads like part of LIMB (b). It is
+not. It is the LIMB (a) configuration check, and it runs **nine lines earlier**.
+
+> **WHY THIS IS NOT COSMETIC: IT ENLARGES THE UNTESTED SURFACE THAT ROW #71 CLAIMS.**
+> Row #71 states that the physics was never evaluated. That remains true and is now
+> **more** true than the row conveyed: because the refusal fired at **LIMB (a)**, the
+> run never reached **LIMB (b) either.** So the clamp-non-binding proof — the very thing
+> the row named as the refusing limb — **was itself never executed against this run's
+> data**, alongside LIMB (c)'s washout guard, the plateau criterion and the Roache
+> triple. A reader of row #71 could reasonably have inferred that LIMB (b) ran and
+> failed. **It did not run at all.**
+
+**What does NOT change, so the correction is not inflated.** The **verdict stands**:
+`grade_rc = 2`, comparator REFUSED, **`NOT A RESULT`**. The **mechanism stands and is
+unaffected** — three `^`-anchored regexes at `:1099-1101` cannot read a legal
+brace-inline `constant/fvOptions`, proven by execution (anchored → `None`; the same
+patterns unanchored → `150` / `2000`, exactly the frozen clamp). The **refusal message
+stands verbatim**. **Every cost figure stands**: 590.7413 core-min measured, $0.5051
+derived. **No number in row #71 moves, and no credential is created, altered or
+withdrawn.** This corrects **which limb refused**, nothing else.
+
+**Recorded rather than left for the successor row to absorb.** A pending registration
+(`VMFL046-R9-REGRADE`) will state the limb correctly, and it would have been easy to let
+the correction ride there. **A published row carrying a wrong attribution is corrected
+when it is found, not when it becomes convenient** — the same standard applied to row
+#56's "persisted" limb earlier today.
+
+*Found by an opus lane drafting the R9 registration, which read the call sites at source
+rather than taking row #71's prose on trust, and flagged it plainly instead of quietly
+writing the correct limb into its own draft. Verified at source by the supervisor before
+this note was written.*
