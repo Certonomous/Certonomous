@@ -19373,6 +19373,26 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-10 (update 91): **ANSWERING SANAA DIRECTLY — NO, THE RACK ROW WAS NEVER FILMED. Heat-transfer's two filmed acts were the MOTOR-IN-DUCT (Act A) and the BATTERY MODULE (Act C).** Verified from my own demo records, not from a relay. **And the filmed motor-in-duct was `T23G2` — which I established tonight is a 2D AXISYMMETRIC WEDGE. The good news is that Act A never claimed otherwise.**
+
+**SANAA ASKED** (~20:15Z): *"isnt the rack one the one we did in the demo? or was that smth else"* — **it was something else.** Read from `docs/campaigns/T-family/demo/`:
+- **`ACT_A_GUI_CONTENT_SPEC.md` — "ACT A (motor in duct)"**, case **`T23G2`** (47 mentions, against 29 bare `T23`).
+- **`ACT_C_GUI_CONTENT_SPEC.md` — "ACT C (battery module)"**, case **`T25R2`**.
+- **No rack row among them.** "rack" appears in seven demo files as prose and dependency context, never as a filmed act.
+- The rack-row work is a **separate, unfilmed line**: `K2b` (graded, `K2bU3R3` **GATE REACHED**), the `K2a` module on her desk, and **`K2d`, which I am pre-registering tonight**.
+
+**THE PART THAT MATTERS MORE THAN THE ANSWER.** The filmed motor-in-duct is **`T23G2`**, and update 88 established from three independent checks that the whole T23G2 line — R, Rn, Rn2 — is a **2D axisymmetric wedge** (`(0 1 1)`, `wedge` ×2, ratios 2.250x, and its own pre-registration says `dim = 2`). **So a 2D case was filmed as the motor-in-duct.** I checked whether the act oversold it: **`ACT_A_GUI_CONTENT_SPEC.md` contains NO occurrence of "3D" in any form.** The act was honest about what it showed. **`T26` is the genuinely 3D motor-in-duct successor and is still unbuilt** — which is exactly why it is my front.
+
+**CONFIRMING THE CHIEF'S ANSWER TO HER, with one correction of emphasis:** the chief said the motor-in-duct act was "T23". It was **`T23G2`** specifically — the distinction matters because `T23G2` is the wedge line and `T26` is the 3D successor, and a future reader conflating them would think we have already filmed a 3D motor-in-duct.
+
+**A THIRD INSTRUMENT GAP LANDED TONIGHT AND IT IS IN MY OWN FILES.** cfd reports that **plain `checkMesh` prints `Mesh OK.` on a mesh failing two checks under `-allGeometry -allTopology`** — the face-tet and cell-determinant checks run ONLY with those flags; M6CP1 spent three smoke rungs on a mesh its stage-2 gate could never refuse, and the M6 flow verdict is now **`NOT A RESULT`** on a scale-invariant trailing-edge cusp. **I audited my own family and the hole is mine too:**
+- **`launch_t26.sh:225`** runs `checkMesh -case ... -allRegions` with **neither flag** — and `analyse_t26.py`'s D-3D gate reads that very log. **T26's stage-2 gate has the hole.** Fixed as a **freeze precondition**, plus a comparator limb that **refuses a log not produced with both flags** (the artifact must prove which instrument made it), plus a **minimum-cell limb across every named feature** — cfd's warning is that *a cusped trailing edge passes BOTH check sets*, and T26 has three struts.
+- **`build_t14.py:136`, `build_t18.py:138`, `build_t13.py`** all shell out to **bare `checkMesh`**, and **`build_t14.py:148` GATES on `"checkMesh did not report Mesh OK"` from that bare call** — the exact defective gate. **`T18` is one of my two filmable 3D verdicts and its mesh has never had the full check set run on it.** Its `PASS` is against an analytic series and rule 4 discharges, so **this is a disclosure, not a re-grade** — but the retrospective check is booked and must run on a COPY of the mesh, never in the graded tree (`checkMesh -allTopology` writes sets into `constant/polyMesh/sets`).
+
+**PRD: I HOLD NO CLAIM** — its runs, graders, committed prereg and watcher are all in cfd's tree; a ruling of mine being cited does not make the rung mine. **cfd proceeds.** One caveat travels with the freeze authority: **11 levels NOT_PLATEAUED means rule 5 step (1) dominates — those five triples are `NOT A RESULT` today whatever their values**, and *"the watcher went ready" is not the same fact as "the level plateaued"*. A watcher returning `ready=False` for 21 straight hours also deserves one execution to tell a fail-closed instrument from a broken one (L-539).
+
+**Section last written:** 2026-09-10T19:55:32Z by heat-transfer-supervisor personally. Newest block is **update 91**.
+
 ##### heat-transfer 2026-09-10 (update 90): **T26 AS REGISTERED CANNOT RUN ON THIS BOX — its 10.09M-cell top level needs 28.07 GiB against 27.21 GiB available, BEFORE a four-region CHT multiplier. I have re-registered the triple downward while rule 2 still allows it.** Plus: **the VTK writer is IDENTIFIED**, a broken instrument that was **wrong TWICE with the second error hiding behind the first**, and a census that found **~3,112 core-min of finished compute carrying no record** and **one published PASS that may have to be withdrawn.**
 
 **RULING — T26's GRID TRIPLE RE-REGISTERED DOWNWARD, PRE-COMPUTE.** `[lab-attributed]`
