@@ -26158,3 +26158,69 @@ renderer can see will sit undetected behind a correct-looking verdict indefinite
 `cases/dafoam/ladder-a/A2/curriculum_D6RF10/D6RF10_GRADE_RECORD.md` and the render record
 `cases/dafoam/D6RF10_RENDER_PREP_2026-09-10.md` for the measurements above. Not a dafoam-only hazard: any
 family that reuses one case directory across legs or arms inherits it.)*
+
+## L-537 — L-256'S `git log -1` READ-BACK IS ONE-DIRECTIONAL: IT PROVES YOUR COMMIT CARRIES YOUR MESSAGE, AND IS STRUCTURALLY BLIND TO YOUR MESSAGE BEING TAKEN BY A PEER'S COMMIT. AND THE DISCOVERY PATH MATTERS MORE THAN THE FINDING — IT WAS A TWO-NUMBER DISCREPANCY I ALMOST LET GO
+
+2026-09-10, dafoam supervisor, self-caught, same session, from `d223a464` / `04b81d0c` / `393e116c`.
+
+**WHAT HAPPENED.** I wrote my commit message to `<scratchpad>/msg` — a generic name at the
+**root of a scratchpad that is shared fleet-wide** (the same directory holds `cfd-sup/`,
+`closure-sup/`, `laneA`, `laneB` and other teams' `block.txt`, `stamp.txt`, `idx`). My commit
+`d223a464` landed correctly and **my `git log -1` read-back showed my own subject, exactly as
+L-256 prescribes.** One minute fifty-seven seconds later a chief records lane's commit
+`04b81d0c` — content entirely correct, an 8-line CHIEF ADDENDUM recording an owner directive
+into `docs/LAB_STATE.md`, touching nothing of mine — landed carrying **my subject line,
+byte-for-byte.** The shared history now holds two commits announcing "dafoam NUMERICS INDEX
+FAIL CLEARED", one of which touches neither `docs/NUMERICS_KNOWLEDGE.md` nor anything dafoam.
+
+**WHY L-256'S MITIGATION DID NOT FIRE, AND THIS IS THE REUSABLE PART.** L-256 says the
+scratchpad commit-message race is caught by "a `git log -1` read-back". **That is true for
+exactly one of the two roles in the collision.** The agent whose *commit* receives a foreign
+message sees the wrong subject in its read-back and catches it. The agent whose *message* is
+taken sees its own correct subject on its own commit, reads back clean, reports clean, and
+**learns nothing** — the corruption is entirely outside the object it is inspecting. **A
+read-back is a check on your own commit; it is not a check on the message file, and the
+message file is the shared object.** The instrument matching the hazard is a namespaced path
+(`<scratchpad>/<team>-<agent>/msg`) plus an **absolute** `-F` argument — a namespaced
+*filename* is not enough if the `-F` is relative and the cwd is the shared root.
+
+**HOW I ACTUALLY FOUND IT, WHICH IS THE PART I WANT THE NEXT AGENT TO COPY.** Not by protocol.
+I ran the insertions-only assert twice on one file and got **22 insertions** from
+`git diff --numstat -- docs/LAB_STATE.md` and **14 insertions** from
+`git diff-tree --numstat $H $T`. Two readings of one edit that disagreed by 8 lines. The
+comfortable move — both say **0 deletions**, the commit is safe, move on — was available and
+wrong, and the 8-line gap was the peer commit's own content sitting in a baseline I had not
+noticed I was using. **A discrepancy between two instruments is a finding about at least one
+of them, and "they agree on the part I cared about" is not a resolution.**
+
+**AND THE BASELINE DEFECT IS `L-368`, WHICH IS THIS TEAM'S OWN LESSON, AND I REPEATED IT.**
+L-368 (dafoam, 2026-08-27) states in its own corollary: *"`git diff --numstat -- <path>` with
+no revision argument diffs the worktree against the **index**, not against `HEAD`… Write
+`git diff HEAD --numstat -- <path>`."* I used the revision-less form **twice today**, in the
+one place it is least affordable — the **insertions-only assert**, the device this team credits
+(S-148b) with having stopped it from destroying a committed measurement. **That assert has been
+running on a baseline nobody's work is stored in.** Under the private-index protocol the shared
+index is stale in the reverting direction by design, so the assert's deletion count can read
+**0 against the index while the tree it commits deletes lines from `HEAD`** — the exact failure
+it exists to prevent. Everything landed safely today only because the `diff-tree $H $T` assert
+inside the commit path uses the right base; the `git diff` reading was decoration, and it was
+the decoration I quoted in a commit message.
+
+**THE COST, STATED RATHER THAN ABSORBED.** Commit `393e116c`'s message asserts *"22 insertions,
+0 deletions"*. **The true figure is 14 insertions, 0 deletions.** The insertion count is wrong
+in a landed commit message. Nothing physical is affected — no verdict, threshold, field or
+number moves, and the deletion count, which is the safety-critical half, was 0 by both
+instruments and by `diff-tree`. **A bookkeeping failure invalidates the bookkeeping, never the
+physics** (Sanaa, 2026-08-26; L-342). It is corrected here and on the board rather than left
+for a reader to trip over, because the alternative is a record whose arithmetic does not
+reproduce.
+
+**THE RULE.** Assert with `git diff-tree --numstat $H $T` — the tree you actually built against
+the parent you actually name — and **quote that figure, not the `git diff` one**, in the commit
+message. Name the revision in every git instrument (L-368). Namespace scratch **directories**,
+not just filenames, and pass `-F` an absolute path. And when a peer's commit can carry your
+message, **your own clean read-back is not evidence that nothing went wrong.**
+
+*Provenance:* dafoam, 2026-09-10, self-caught. Family: `L-256` (the race this sharpens),
+`L-252`, `L-260`, `L-186` (shared scratch), `L-368` (the baseline, this team's own, repeated),
+`L-342` (bookkeeping vs physics), `L-223` (the post-commit verify that did work).
