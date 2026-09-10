@@ -1783,6 +1783,163 @@ def selftest():
            (X_EXIT - WASHOUT_STANDOFF) - ANALYTICAL_SHOCK * (1 + SHOCK_TOL)),
         (X_EXIT - WASHOUT_STANDOFF) > ANALYTICAL_SHOCK * (1 + SHOCK_TOL))
 
+    # ---- LIMB (a) CONFIG READER: the fvOptions DICTIONARY parse -----------------------
+    # ADDITIVE fold-in, pre-registered as P1-P6 of
+    # cases/ansys_verification/VMFL046-R9-REGRADE/PREREGISTRATION.md §2.
+    #
+    # THE GAP THIS CLOSES: the frozen R8 comparator had ZERO arms on
+    # check_pressure_based_config.  The "LIMB (b)" section above drives the T-FIELD physics
+    # side (_clamp_check, check_T_clamp_nonbinding) and NEVER the fvOptions dictionary
+    # reader.  That is why three ^-anchored regexes could defeat a 590.7413 core-min graded
+    # run (register row #71) with a selftest reporting 75 ok / 0 FAILED.  Every arm below
+    # exercises check_pressure_based_config ITSELF.
+    #
+    # ANSWER-BLIND: the function under test reads config text and never a shock location;
+    # no arm here constructs, reads or asserts a gate quantity.
+    print("== LIMB (a) CONFIG: the fvOptions limitTemperature DICTIONARY reader "
+          "(the row #71 gap) ==")
+
+    _FVSOL_OK = ("solvers { }\n\nPIMPLE\n{\n    nOuterCorrectors 3;\n"
+                 "    nCorrectors     2;\n    transonic       no;\n}\n")
+
+    def must_parse(label, fn):
+        """The PASS-side counterpart of must_refuse.  A pass-arm that calls the function
+        under test DIRECTLY would abort the whole suite on an unexpected SystemExit --
+        which is exactly what a reverted repair does here.  Catching it turns an abort
+        into a reported [FAIL], so one broken arm cannot hide the arms after it."""
+        try:
+            res = fn()
+        except SystemExit as e:
+            arm(label + "  -> UNEXPECTED REFUSAL(%s)" % e.code, False)
+            return None
+        arm(label + "  -> clamp [%.1f, %.1f] K" % res["clamp"],
+            res["clamp"] == (T_CLAMP_MIN, T_CLAMP_MAX))
+        return res
+
+    def _fvcase(fvo_text, fvsol_text=_FVSOL_OK, log_text="PIMPLE: iteration 1\n"):
+        """Build a synthetic level dir for check_pressure_based_config.  A None argument
+        OMITS that file, so the absent-artifact refusals are exercised too."""
+        tmp = tempfile.mkdtemp(prefix="vmfl046r9_fvo_")
+        _SYNTH_DIR.append(tmp)
+        os.makedirs(os.path.join(tmp, "system"))
+        os.makedirs(os.path.join(tmp, "constant"))
+        if fvsol_text is not None:
+            open(os.path.join(tmp, "system", "fvSolution"), "w").write(fvsol_text)
+        if fvo_text is not None:
+            open(os.path.join(tmp, "constant", "fvOptions"), "w").write(fvo_text)
+        if log_text is not None:
+            open(os.path.join(tmp, "log.rhoPimpleFoam"), "w").write(log_text)
+        return tmp
+
+    # ARM 1 -- CONTACT WITH THE REAL FROZEN ARTIFACT (§39.5).  Not a synthetic fixture:
+    # the actual constant/fvOptions frozen in the same commit as the R8 comparator, the
+    # file the frozen reader could not parse.  Absent file = FAILED arm, never skipped.
+    _real_fvo = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "..", "VMFL046-R8", "case", "constant", "fvOptions")
+    if not os.path.isfile(_real_fvo):
+        arm("(a) REAL frozen case fvOptions present at %s" % _real_fvo, False)
+    else:
+        must_parse("(a) REAL frozen case constant/fvOptions PARSES -- THE ARM THAT WOULD "
+                   "HAVE CAUGHT ROW #71",
+                   lambda: check_pressure_based_config(
+                       _fvcase(open(_real_fvo).read()), "SELFTEST"))
+
+    _INLINE = ("FoamFile { version 2.0; format ascii; class dictionary; object fvOptions; }\n"
+               "limitT { type limitTemperature; active yes; selectionMode all; "
+               "min 150; max 2000; }\n")
+    _PERLINE = ("FoamFile { object fvOptions; }\nlimitT\n{\n    type limitTemperature;\n"
+                "    active          yes;\n    selectionMode   all;\n"
+                "    min             150;\n    max             2000;\n}\n")
+
+    # ARM 2 -- the brace-inline form, which is what defeated the frozen reader.
+    must_parse("(a) BRACE-INLINE fvOptions parses (the row #71 form)",
+               lambda: check_pressure_based_config(_fvcase(_INLINE), "SELFTEST"))
+
+    # ARM 3 -- NON-WEAKENING: the one-key-per-line form the frozen regexes DID read must
+    # still read.  A repair that traded one format for the other would be no repair.
+    must_parse("(a) ONE-KEY-PER-LINE fvOptions still parses (non-weakening)",
+               lambda: check_pressure_based_config(_fvcase(_PERLINE), "SELFTEST"))
+
+    # ARM 4 -- STRENGTHENING (1/2): a commented-out clamp is NOT a clamp.
+    must_refuse("(a) refuses a fully COMMENTED-OUT clamp (// min 150; // max 2000;)",
+                lambda: check_pressure_based_config(_fvcase(
+                    "FoamFile { object fvOptions; }\nlimitT { type limitTemperature; "
+                    "active yes; }\n// min 150;\n// max 2000;\n"), "SELFTEST"))
+
+    # ARM 5 -- commented decoys must not hijack the LIVE keys that follow them.
+    must_parse("(a) commented DECOYS (// min 999; // max 1;) do not hijack the live keys",
+               lambda: check_pressure_based_config(_fvcase(
+                   "FoamFile { object fvOptions; }\n// min 999;\n// max 1;\n"
+                   "limitT { type limitTemperature; active yes; min 150; max 2000; }\n"),
+                   "SELFTEST"))
+
+    # ARM 6 -- STRENGTHENING (2/2): a SUBSTRING key is not the key.  `Tmin`/`Tmax` belong
+    # to other dictionaries and must never be mistaken for limitTemperature's bounds.
+    must_refuse("(a) refuses SUBSTRING keys only (Tmin 150; Tmax 2000;) -- not min/max",
+                lambda: check_pressure_based_config(_fvcase(
+                    "FoamFile { object fvOptions; }\nlimitT { type limitTemperature; "
+                    "active yes; Tmin 150; Tmax 2000; }\n"), "SELFTEST"))
+
+    # ARM 7 -- a pMinFactor-class neighbour must not be read as the clamp bound.
+    must_parse("(a) pMinFactor 0.1 / pMaxFactor 3.0 are NOT read as the clamp",
+               lambda: check_pressure_based_config(_fvcase(
+                   "FoamFile { object fvOptions; }\npMinFactor 0.1;\npMaxFactor 3.0;\n"
+                   "limitT { type limitTemperature; active yes; min 150; max 2000; }\n"),
+                   "SELFTEST"))
+
+    # ARMS 8-10 -- the refusals the limb exists for: wrong clamp, inactive clamp, no clamp.
+    must_refuse("(a) refuses bounds that are NOT the frozen clamp (min 200; max 2000;)",
+                lambda: check_pressure_based_config(_fvcase(
+                    "FoamFile { object fvOptions; }\nlimitT { type limitTemperature; "
+                    "active yes; min 200; max 2000; }\n"), "SELFTEST"))
+    must_refuse("(a) refuses an INACTIVE clamp (active no;)",
+                lambda: check_pressure_based_config(_fvcase(
+                    "FoamFile { object fvOptions; }\nlimitT { type limitTemperature; "
+                    "active no; min 150; max 2000; }\n"), "SELFTEST"))
+    must_refuse("(a) refuses an fvOptions carrying NO limitTemperature at all",
+                lambda: check_pressure_based_config(_fvcase(
+                    "FoamFile { object fvOptions; }\nlimitU { type limitVelocity; "
+                    "active yes; max 500; }\n"), "SELFTEST"))
+
+    # ARMS 11-14 -- the surrounding config plumbing, none of which had an arm either.
+    must_refuse("(a) refuses an ABSENT constant/fvOptions",
+                lambda: check_pressure_based_config(_fvcase(None), "SELFTEST"))
+    must_refuse("(a) refuses an ABSENT system/fvSolution",
+                lambda: check_pressure_based_config(
+                    _fvcase(_INLINE, fvsol_text=None), "SELFTEST"))
+    must_refuse("(a) refuses an fvSolution with no PIMPLE{ nOuterCorrectors } block",
+                lambda: check_pressure_based_config(
+                    _fvcase(_INLINE, fvsol_text="solvers { }\nSIMPLE\n{\n"
+                            "    nNonOrthogonalCorrectors 2;\n}\n"), "SELFTEST"))
+    must_refuse("(a) refuses a solver log showing NO PIMPLE iteration",
+                lambda: check_pressure_based_config(
+                    _fvcase(_INLINE, log_text="Time = 0.001\nExecutionTime = 1 s\n"),
+                    "SELFTEST"))
+
+    # ARM 15 -- THE NON-WEAKENING PROOF, stated as a machine check rather than a claim:
+    # wherever the FROZEN anchored pattern matched, the REPAIRED pattern must match AND
+    # return the SAME value.  The repair may only ADD readable forms, never trade them.
+    _FROZEN_MIN = r"^\s*min\s+([0-9.eE+\-]+)\s*;"
+    _FROZEN_MAX = r"^\s*max\s+([0-9.eE+\-]+)\s*;"
+    _REPAIR_MIN = r"^(?:(?!//).)*?(?<![A-Za-z0-9_])min\s+([0-9.eE+\-]+)\s*;"
+    _REPAIR_MAX = r"^(?:(?!//).)*?(?<![A-Za-z0-9_])max\s+([0-9.eE+\-]+)\s*;"
+    _corpus = [_INLINE, _PERLINE,
+               "min 150;\nmax 2000;\n", "   min 150;\n   max 2000;\n",
+               "// min 999;\nmin 150;\nmax 2000;\n"]
+    if os.path.isfile(_real_fvo):
+        _corpus.append(open(_real_fvo).read())
+    _weakened = []
+    for _txt in _corpus:
+        for _fz, _rp, _which in ((_FROZEN_MIN, _REPAIR_MIN, "min"),
+                                 (_FROZEN_MAX, _REPAIR_MAX, "max")):
+            _a = re.search(_fz, _txt, re.M)
+            _b = re.search(_rp, _txt, re.M)
+            if _a is not None and (_b is None or _b.group(1) != _a.group(1)):
+                _weakened.append(_which)
+    arm("(a) NON-WEAKENING over %d fixtures: the repaired pattern matches wherever the "
+        "FROZEN one did, with the same value (%d weakened)" % (len(_corpus), len(_weakened)),
+        not _weakened)
+
     print("\nSELFTEST: %d ok, %d FAILED" % (ok[0], bad[0]))
     print("Per charter §39.5 this proves LOGIC and NOT INTERFACE.  The interface evidence is")
     print("PREREGISTRATION §12, which names the real solver-written paths on disk.")
