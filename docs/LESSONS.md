@@ -26107,3 +26107,54 @@ before it writes any outcome line, or write only what it actually observed
 **REMEDY.** (1) A negative control asserts the POSITIVE OUTCOME it predicts — the thing launches, the value is produced, the row is graded — never just "it did not pass". (2) Assert that the stripped copy differs from the original **by exactly the expected edit** (diff line count, and zero surviving call sites) so a control that broke the file some other way is caught before its result is read. (3) Count call sites by parsing, or exclude comments; a comment naming a flag is not a call site.
 
 *Lines whose number changed above this section: 0.*
+
+
+## L-536 — A chained-leg launcher that wipes decomposed state at each leg's start DESTROYS every earlier leg's fields. The grade survives because it is read from the log; nothing else does — no render, no post-hoc diagnostic, no field-based re-grade. Measured on D6RF10, 2026-09-10.
+
+**The mechanism, read from the case's own scripts.** D6RF10 ran a ladder of legs (R1, R2, R3, each with a
+control) inside one case directory. **Line 27 of EVERY leg command script** — `d6rf10_cmd_R3.sh`,
+`d6rf10_cmd_R3_control.sh`, `d6rf10_cmd_R2_control.sh` alike — is:
+
+    rm -rf processor* mp04/processor* mp05/processor* mp06/processor* 2>/dev/null || true
+
+That line is correct in its own terms: it is the fix for a **real** earlier confound, the D6RF9
+decompose collision, where stale `processor*` directories from a previous leg corrupted the next
+decomposition. **The fix works and should not be reverted.** But it has a consequence nobody registered:
+**the last leg to run is the only leg whose fields exist.**
+
+**What it cost, measured.** D6RF10's scientifically interesting leg is **R3** — `DARhoSimpleCFoam`
+(SIMPLEC), `endTime 2000`, the first leg in the D6RF7 → D6RF9 → D6RF10 chain to drive the binding field
+below the accept floor (`p_first_uncorrected` 6.3233727e-06) with a measured plateau. **R3_control ran
+after it and wiped it.** On disk now: `controlDict` reads `endTime 1000` (R3_control's), there are **zero**
+`2000/` directories anywhere, and `mp04/processor0` holds `0` and `1000` only. Corroborated to the second:
+processor dirs created 05:47:25.48, fields written 05:48:58.39–.54 — **93.1 s**, against the leg JSON's
+recorded `wall_s 93.525`.
+
+**The grade was NOT lost, and that is the point worth internalising.** `R3_autograde.json` stands, because
+the graded quantity was parsed **from the solver log**, and logs are not wiped. **A grading path that reads
+the log is survivable; one that reads fields would have been destroyed by a later leg of its own run.**
+Recovering R3's fields now means re-running the leg: **617.6 core-min** by the ledger's own figure.
+
+**THE RULE.** When several legs share one case directory and each clears decomposed state at start:
+1. **Say out loud, in the registration, that only the final leg's fields will survive** — it is a
+   registered property of the design, not an accident.
+2. **Order the legs so the leg you will need fields from runs LAST**, or give each leg its **own** case
+   directory, or copy the fields out before the next leg starts. Any of the three; none is expensive.
+3. **Prefer a log-reading grading path** over a field-reading one for chained legs, or the run can destroy
+   its own evidence before it is graded.
+4. **Never assume a graded leg's fields exist because its grade does.** Check for the time directory before
+   promising anyone a picture, a re-grade or a diagnostic.
+
+**The check that would have caught it:** after a ladder completes, assert that a time directory matching the
+**graded** leg's registered `endTime` exists. On D6RF10 that assert fails instantly — the graded leg
+registered `endTime 2000` and no `2000/` exists.
+
+**How it surfaced, which is the uncomfortable part.** Not from grading, not from an audit — from someone
+asking for a *picture* for a demo. The ladder had run, been graded, been reported and been boarded, and the
+loss was invisible to every one of those steps because each of them reads logs. **A defect that only a
+renderer can see will sit undetected behind a correct-looking verdict indefinitely.**
+
+*(Companion facts: `N-D44` for why the log-read grading path is well-founded here; the D6RF10 grade record
+`cases/dafoam/ladder-a/A2/curriculum_D6RF10/D6RF10_GRADE_RECORD.md` and the render record
+`cases/dafoam/D6RF10_RENDER_PREP_2026-09-10.md` for the measurements above. Not a dafoam-only hazard: any
+family that reuses one case directory across legs or arms inherits it.)*
