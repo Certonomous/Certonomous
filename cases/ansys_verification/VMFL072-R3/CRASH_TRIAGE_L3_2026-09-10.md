@@ -109,3 +109,33 @@ value survives 480x208 would, on this evidence, be expected to fail at 960x416. 
 successor has to make the precursor thickness scale with the cell size, or stop using a
 precursor film for this case. **No gate, threshold, cap or label moves on account of this
 note, and nothing here is a verdict — the frozen comparator decides the row.**
+
+---
+
+## SECOND ADDENDUM — I OVERCLAIMED, AND A LANE WAS RIGHT TO PUSH BACK
+
+Nothing above is altered. This corrects the STRENGTH of the claim, not its direction.
+
+Above I wrote that the dewetting instability is **"grid-dependent"** and that the remedy
+"holds at 120x52 and 240x104 and fails at 480x208". The second half is a measurement and
+stands. **The first half is an inference from a single failing level, and I stated it more
+firmly than one data point can carry.** One crash at one resolution is *consistent with*
+grid-dependent dewetting; it does not establish it. Competing explanations that this
+evidence does not exclude include a level-specific mesh pathology at L3, a Courant or
+time-step interaction that happens to bite at that cell size, or a single unlucky cell.
+
+**The defensible statement, which replaces the stronger one wherever it matters:**
+
+> R3's precursor-film remedy **did not remove the dewetting SIGFPE at 480x208.** Whether
+> the failure threshold scales with cell size is **UNTESTED** and would need a rung
+> registered to test it.
+
+The distinction has teeth for the successor. If the effect really is resolution-scaled,
+`h0` must scale with cell size; if L3 has a local mesh pathology, that is a mesh fix and
+`h0` is innocent. **Those two futures are not distinguishable from what is on disk**, and
+choosing between them by assumption is exactly how a plausible story becomes a wrong one.
+
+Recorded because the overclaim was mine and the correction came from a lane I had asked to
+check my work. **The verdict is untouched either way**: a crashed L3 cannot satisfy strict
+completion, so this triple is `NOT A RESULT` whichever explanation is true — which is
+precisely why there was nothing to be gained by overstating it.
