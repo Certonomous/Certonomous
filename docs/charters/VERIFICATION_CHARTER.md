@@ -10022,3 +10022,65 @@ M6CP1 §5 **Gate P** — Cp at seven stations, ±0.02 — **had no machine-reada
 | instruments this team now owes | **2** (declared-`dim` cross-check; reference-resolvability reader) — **both READERS, neither refuses** |
 | gate values changed | **0** · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.94, 2026-09-10 — **§2ct AN EXIT CODE IS A CHANNEL WHOSE CONTRACT YOU DID NOT WRITE: `checkMesh` RETURNS 0 WHILE PRINTING `Failed 3 mesh checks.` §2cu "ARMED BY DATA" — ONE NULL IN A JSON SILENTLY REMOVES THE GATE, ITS CONTROL, AND THE REFUSAL, BECAUSE ALL THREE SHARE ONE PREDICATE. §2cv WHEN A TOOL'S SELF-REPORT IS THE THING IN QUESTION, THE CONFIRMING READER MUST NOT SHARE ITS CODE PATH**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **cfd** from their DrivAer build. **§2cu's guard read at source by this supervisor at 23:12:38Z; §2ct's and §2cv's figures are cfd's and are recorded as theirs.** `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`).**
+
+### §2ct — **`§2bq` IS SHARPENED, AND THE PART I LEFT OPEN IS THE PART A READER WOULD HAVE USED**
+
+`§2bq` ruled that a mesh-admissibility claim cites the argv, and gave the missing-`Cell determinant`-line discriminator. **It did not say what to read INSTEAD, and the obvious answer — the exit code — is measured wrong in both directions.**
+
+cfd's measurement: **`rc = 1` on a broken mesh, and `rc = 0` on three delivered levels each printing `Failed 3 mesh checks.`** And, compounding it, **plain `checkMesh` reports 1 failure where `-allGeometry -allTopology` reports 3** (small determinant and concave cells are the two it cannot see).
+
+> **RULED — §2ct: THE MESH VERDICT IS THE `Failed N mesh checks` LINE, PARSED, UNDER THE FULL FLAG SET. THE RETURN CODE IS NOT THE VERDICT AND MAY NOT BE GATED ON.** A `Mesh OK.` line with no `Failed` line is the pass; anything else is read from the text.
+>
+> **AND THE FAMILY IS NOW LARGE ENOUGH TO NAME, BECAUSE THIS LAB HAS PAID FOR IT FOUR TIMES: `setsid` returns 0 for every outcome; `Popen` returning proves only a fork (`§2ci`); `§2ak` had to rule the comparator exit-code contract on a census of 238 comparators; and now `checkMesh` returns 0 while printing three failures. AN EXIT CODE IS A CHANNEL WHOSE CONTRACT SOMEBODY ELSE WROTE, AND USUALLY DID NOT DOCUMENT. Where a tool emits a verdict in its OUTPUT, the output is the verdict and the rc is a hint.** *(This does not touch `§2ak`, which governs the exit codes of comparators **this lab writes** — there the contract is ours and it binds.)*
+
+### §2cu — **"ARMED BY DATA": THE GATE, ITS PLANTED CONTROL, AND THE REFUSAL ALL HANG ON ONE `is not None`**
+
+Read at source, `cases/navier_class/DRIVAER/grade_drivaer.py`, verbatim:
+
+```
+350:    cd_ref, cl_ref = ref["Cd"], ref.get("Cl")
+363:    ctrl_cl = coefficient_plant_control(args.fine, "Cl") if cl_ref is not None else None
+364:    if ctrl_cl is not None and not ctrl_cl["passed"]:
+378:    if cl_ref is not None:
+380:        band_cl = (cl_ref - CL_BAND_ABS, cl_ref + CL_BAND_ABS)
+```
+
+**The reference JSON carries `Cl: null`. Trace what that one null does: `:363` the PLANTED CONTROL is never built; `:364` the refusal is doubly gated and cannot fire on a control that does not exist; `:378` the GATE is skipped. Three independent safety layers, ONE predicate, and the grader exits normally having silently graded nothing about lift.**
+
+> **THE KILLER, AND IT IS THE GENERAL FORM: THE CONTROL IS GUARDED BY THE VERY CONDITION IT EXISTS TO CATCH. A planted control disarmed by the same predicate as its gate cannot guard that gate — it can only confirm the gate when the gate was already going to run. Standing rule 3 buys nothing here, and `§2bw`'s null-plant test would pass, because with `Cl: null` there is no plant to run and no claim to test.**
+
+**AND LINE 350 IS THE TEACHING ARTIFACT, because both behaviours sit in one statement:** `ref["Cd"]` is a **subscript** — a missing `Cd` raises `KeyError` and the grader dies loudly. `ref.get("Cl")` is **`.get()`** — a missing or null `Cl` returns `None` and the grader continues. **The author knew how to fail loud; the silent form was chosen for the reference deemed optional, and "optional" then propagated into the control and the refusal without anyone deciding it should.**
+
+> **RULED — §2cu, two limbs:**
+> 1. **A GATE'S ARMING MAY NEVER DEPEND ON THE PRESENCE OF THE DATA IT READS. An absent or null reference is a REFUSAL (exit 2), never a skip.** If a quantity is genuinely optional for a case, **that is a registration decision recorded in the registration** — not an emergent property of a `.get()`.
+> 2. **A CONTROL'S ARMING CONDITION MUST BE INDEPENDENT OF ITS GATE'S.** A control that shares the gate's predicate is not a control; **it is a second copy of the gate's assumptions.** Where they must share a condition, the control's failure to arm is itself reported as `COULD-NOT-RUN`, never as silence.
+>
+> **This is `§2p`'s family reached from a new side — not an instrument insensitive to its input (`§2p.3(a)`), not one whose pass is independent of the input (`§2bu`), but one that DOES NOT RUN AT ALL and says nothing about it. And it composes with `§2cr` from an hour ago: `§2cr` is the reference that does not EXIST; `§2cu` is the reference that exists and is NULL. The first left the gate frozen-and-ungradeable; the second lets the grader exit 0 with a verdict that is silently about fewer quantities than it claims.**
+>
+> **NO VERDICT IS MOVED BY THIS CLAUSE TONIGHT** — DrivAer has not been graded to a landed verdict, so there is nothing to demote. **What is owed is a sweep: any landed verdict whose grader carries a `.get()`-guarded reference must state which gates actually armed.** cfd's to run on their own graders; **I will run it on the T-family and the certificates when the box is not IO-bound (`§2cf.1`).** *(cfd cite the same shape as SUBOFF's `armed: by_data`; I grepped `grade_suboff.py` for `armed` and got zero, but I searched ONE FILE and that zero is a bound, not a finding — `§2cc`.)*
+
+### §2cv — **INDEPENDENT INSTRUMENTATION: THE CONFIRMING READER MUST NOT SHARE THE CODE PATH OF THE TOOL WHOSE SELF-REPORT IS IN QUESTION**
+
+cfd, on DrivAer: **`snappyHexMesh` layer addition produced 52,165 negative-volume cells of 128,230 — 40.7 % of the mesh — while printing all-zeros on its own final check and `"Finished meshing without any errors"`. Reproduced across snap settings, and CONFIRMED BY A NON-OpenFOAM READER CARRYING A PLANTED CONTROL.**
+
+**The finding is theirs and the methodology is the clause.** Today's entire ledger is one disease — a token from a tool believed in place of the property (`§2bn`, `§2bo.1`, `§2bq`, `§2bt`, `§2bw`, `§2ci`, `§2cm`, `§2ct`). **Every one of those was caught, eventually, by reading a DIFFERENT artifact than the one the tool volunteered. cfd did that deliberately and in advance, and it is the first time today a defect of this class was caught BEFORE it cost something.**
+
+> **RULED — §2cv: WHERE A TOOL'S OWN SELF-REPORT IS THE PROPOSITION UNDER TEST, THE CONFIRMING MEASUREMENT MUST BE MADE BY A READER THAT DOES NOT SHARE THE TOOL'S CODE PATH — a different implementation, a different library, or a direct read of the artifact's bytes — AND THAT READER CARRIES ITS OWN PLANTED CONTROL (rule 3, `§2bw`). A second opinion from the same codebase is one opinion stated twice.**
+>
+> **This is the constructive half of the day, and it is the one clause here that tells an agent what TO DO rather than what to distrust.** It is also why `§2bw`'s null-plant test and this clause are complementary: **§2bw asks whether your detector can say no; §2cv asks whether your detector is independent of the thing it is judging.**
+
+**RULE 7 COMPLIANCE RECORDED, because it is exactly right and should be visible:** the `snappyHexMesh` defect is **an OpenFOAM issue**, and the owner's standing directive is that OpenFOAM issues are **surfaced, not worked around**. cfd has drafted it and it is **`NOT FILED` and PARKED**. **Nothing is sent, by anyone, ever, except by Sanaa.** The draft stays current — *parked is not cancelled* — and no reading of this clause converts readiness into sending.
+
+| amendment record | **v1.94** |
+|---|---|
+| clauses added | **3** (§2ct, §2cu, §2cv) · existing clauses SHARPENED | **1** (`§2bq` — read the `Failed N` line, never the rc) |
+| gate values changed | **0** · verdicts withdrawn | **0** · verdicts demoted | **0** (DrivAer has no landed verdict to demote) · checks made to refuse | **0** (`D539`) |
+| sweeps owed | **1** (landed verdicts whose graders carry `.get()`-guarded references — cfd's graders theirs, T-family and certificates mine, deferred under `§2cf.1`) |
+| upstream reports filed | **0** — `NOT FILED`, parked (rule 7) |
+| **lines whose number changed above this section** | **0** |
