@@ -3,23 +3,49 @@
 (SUP_BOOSTER), the Taylor-Maccoll supersonic sharp cone.  Grades the CFD against the same
 REGENERATED TM reference (taylor_maccoll_reference.py, blob 0a17270c); no external PDF.
 
-E2 vs E1 (grade_sup_booster.py, frozen blob 3c8d418a): ONE change -- the shock-angle locator
-(read_shock_angle) now finds the shock by the FREESTREAM-DENSITY-BOUNDARY crossing (scan each
-radial column from the outside inward, shock = outermost r where rho exceeds freestream by
-SHOCK_EPS), replacing E1's max |d rho/dr| which near-wall clustering fooled into a
-non-apex-anchored line (E1 RUN VERDICT NOT A RESULT, refuse on C2).  Everything else --
-rule-3 planted-zero, rule-4 completion (p U T rho + age guard), rule-5 Roache/Celik + plateau,
-the cone-Cp owner-cell plateau reader, refuse-not-degrade, exit vocabulary -- is byte-identical
-to the vetted E1 grader.  Run on the E2 mesh (gen_cone_mesh_e2.py, gentler radial grading) so
-the cone-surface Cp triple is asymptotic/CONVERGING.  Gate bands unchanged from E1.
+E2 vs E1 (grade_sup_booster.py, frozen blob 3c8d418a): TWO changes, both confined to the
+shock-angle path.
+  (1) INSTRUMENT.  read_shock_angle now finds the shock by the FREESTREAM-DENSITY-BOUNDARY
+      crossing (scan each radial column from the outside inward, shock = outermost r where rho
+      exceeds the per-station freestream by SHOCK_EPS), replacing E1's max |d rho/dr| which
+      near-wall clustering fooled into a non-apex-anchored line (E1 RUN VERDICT NOT A RESULT,
+      refuse on C2).  It now ALSO returns the per-station local radial cell size at the located
+      radius, from the single axial column nearest the station, so the locator increment can be
+      measured rather than assumed.
+  (2) GATING METHOD FOR C2 ONLY, per the verification-supervisor's ruling of 2026-09-09
+      (commit 0e9c1bcb).  C2 is decoupled from the "both CONVERGING" Roache coupling and gated
+      by value-in-band + a separate tighter consistency bound; see WHAT IT GRADES below.
+      NO gate value, band, threshold or reference moves (ruling condition 2), C1's Roache path
+      is untouched (condition 1), and no Roache instrument is applied to C2 (condition 8).
+Everything else -- rule-3 planted-zero, rule-4 completion (p U T rho + age guard), C1's
+rule-5 Roache/Celik + iterative plateau, the cone-Cp owner-cell plateau reader,
+refuse-not-degrade, exit vocabulary -- is byte-identical to the vetted E1 grader.  Run on the
+E2 mesh (gen_cone_mesh_e2.py, gentler radial grading) so the cone-surface Cp triple is
+asymptotic/CONVERGING.  Gate bands unchanged from E1.
 
 WHAT IT GRADES (both against the frozen TM reference JSON):
-  * Gate C1  -- cone-surface pressure coefficient Cp_cone (the primary EXACT gate);
-  * Gate C2  -- conical shock angle beta (secondary), by a density-gradient locator fitted
-                through the apex.
-  Both are decided ONLY through the Roache triple over the (coarse, medium, fine) grids:
-  a non-CONVERGING triple is NOT A RESULT whatever the value (rule 5); a CONVERGING triple
-  is PASS inside the pre-registered band else GATE FAIL, with the Celik Fs=1.25 GCI printed.
+  * Gate C1  -- cone-surface pressure coefficient Cp_cone (the PRIMARY EXACT gate).  Decided
+                ONLY through the Roache triple over the (coarse, medium, fine) grids: a
+                non-CONVERGING triple is NOT A RESULT whatever the value (rule 5); a
+                CONVERGING triple is PASS inside the pre-registered band else GATE FAIL,
+                with the Celik Fs=1.25 GCI printed.  UNCHANGED.
+  * Gate C2  -- conical shock angle beta (SECONDARY).  DECOUPLED from the Roache triple by
+                the verification-supervisor's ruling
+                `verification/campaign/SUP_BOOSTER_E2_C2_SHOCK_ANGLE_GATING_RULING_2026-09-09.md`
+                (commit 0e9c1bcb, framing (ii) GRANTED, its 8 conditions binding), on the DMR
+                Gate-P2 / F19 / F4S precedent: a captured shock's located radius is quantised
+                by the cell size, so its Roache triple is systematically OSCILLATORY even for
+                a correct solution and Richardson extrapolation is the WRONG INSTRUMENT.  C2
+                is therefore gated as
+                    ACCURACY     |beta_fine - beta_ref| <= BETA_BAND_DEG      (band unchanged)
+                    CONSISTENCY  max|beta_i - beta_j|   <= BETA_CONS_DEG      (SEPARATE, TIGHTER)
+                with beta_fine REPORTED WITH ITS SUB-CELL LOCATOR INCREMENT, and with the
+                framing's own precondition enforced: if the fine-grid locator increment is not
+                strictly below the band, C2 would be measuring locator resolution rather than
+                accuracy, the registered framing does not hold, and C2 is NOT A RESULT.
+                NO Roache triple, GCI, observed order or Richardson value is computed, printed
+                or reported for C2 -- F4S forbidden-instrument discipline (ruling condition 8).
+  Rung PASS still requires BOTH gates PASS (ruling condition 1): C2 cannot rescue a C1 failure.
 
 NON-NEGOTIABLES BUILT IN:
   * RULE 3 planted-zero control.  Before any clean read is trusted, PLANT a known pressure
@@ -49,7 +75,14 @@ import argparse, glob, gzip, json, math, os, re, shutil, subprocess, sys, tempfi
 # ---- pre-registered gate parameters (frozen with the pre-registration) ----------------
 PLANT_PA        = 1000.0     # Pa, planted-zero control perturbation (>> numerical noise, << signal)
 CP_BAND         = 0.010      # Gate C1: |Cp_cfd - Cp_ref| <= CP_BAND  (~5% of Cp_ref=0.2022)
-BETA_BAND_DEG   = 1.0        # Gate C2: |beta_cfd - beta_ref| <= 1.0 deg
+BETA_BAND_DEG   = 1.0        # Gate C2 ACCURACY: |beta_fine - beta_ref| <= 1.0 deg (UNCHANGED from E1)
+BETA_CONS_DEG   = 0.60       # Gate C2 CONSISTENCY: max|beta_i - beta_j| over the three levels.
+                             # A SEPARATE, TIGHTER, PRE-REGISTERED bound -- NOT the accuracy band
+                             # (ruling condition 5: re-using +/-1.0 deg for both is toothless,
+                             # since any three values within 1.0 deg of the reference are
+                             # trivially within 2.0 deg of each other).  Derived from the
+                             # fine-grid locator increment; the derivation and its three
+                             # independent routes are in SUP_BOOSTER_E2_PREREGISTRATION.md section 3.
 FS_CELIK        = 1.25       # Roache/Celik factor of safety
 PLATEAU_TOL     = 0.005      # rule-5 clause-1: |dCp| between last two writes must be < this (else not iteratively converged)
 TIP_TRIM        = 0.10       # drop the apex-most 10% of cone faces (conical singularity)
@@ -59,8 +92,45 @@ P_INF           = 101325.0
 M_INF           = 2.0
 # shock-locator x-stations as fractions of cone length, in the self-similar mid region
 SHOCK_STATIONS  = [0.35, 0.45, 0.55, 0.65, 0.75, 0.85]
-SHOCK_EPS       = 0.03       # E2: density must exceed freestream by 3% to count as behind the shock
-                             # (>> the uniform-freestream noise floor, << the conical shock jump ~10-20%)
+STATION_HALFWIDTH = 0.02     # axial half-width of each station band, as a fraction of L.
+                             # NARROWED from E1's 0.03 WITH A MEASURED BASIS, not tuned:
+                             #   WHY NARROW.  The conical shock radius grows with x as
+                             #   r_s = x tan(beta) = 0.6725 x, so a band of half-width w*L smears
+                             #   the located radius over +/- w*L*0.6725.  At w=0.03 that is
+                             #   +/-0.0201 m; at w=0.02 it is +/-0.0134 m.  Against the radial
+                             #   cell size at the shock on the E2 FINE mesh (0.00495-0.00704 m,
+                             #   from the blockMesh simpleGrading law, validated to 1% against the
+                             #   E1 fine mesh on disk: predicted 0.00449-0.00799 vs measured
+                             #   0.00445-0.00791), the smear is 5.1-8.1 cells at w=0.03 and
+                             #   3.4-5.4 cells at w=0.02 -- a 33% reduction, exactly proportional.
+                             #   The locator scans inward and stops at the FIRST crossing, so this
+                             #   smear enters as a systematic OUTWARD bias of every located radius.
+                             #   WHY NOT NARROWER.  The band must still hold >= 2 axial columns at
+                             #   every station on the COARSEST grid, or the fit degenerates toward
+                             #   a single column.  Measured on the coarse grid at w=0.02: 3,3,2,2,2,2
+                             #   columns at the six stations -- exactly at the floor.  The axial cell
+                             #   at the last station is 0.0223 m there, so w=0.015 would give a span
+                             #   of 0.0296 m and could isolate ONE column.  0.02 is the narrowest
+                             #   width that keeps every station multi-column on all three grids
+                             #   (measured w=0.02 column counts: coarse 3-2, medium 5-2, fine 7-4).
+                             # Measured 2026-09-10 by a cfd lab-lane on graded/{coarse,medium,fine}/15000.
+SHOCK_EPS       = 0.03       # E2: density must exceed the per-station freestream by 3% to count
+                             # as behind the shock.  The bracket is MEASURED, not asserted, on the
+                             # three E1 graded solutions at endTime 15000 (same solver, same BCs,
+                             # same axial mesh; E2 differs only in radial grading):
+                             #   LOWER  freestream density scatter in the undisturbed outer column
+                             #          (max |rho/rho_inf - 1| over cells at r >= 1.15 r_shock, all
+                             #          six stations): coarse 1.9e-06, medium 8.5e-10, fine 0.0e+00.
+                             #          The fine-grid ZERO was PLANTED-VERIFIED (rule 3): planting
+                             #          1.234e-03 into one far-field cell made the same reader
+                             #          report 1.234e-03.  SHOCK_EPS is >= 1.6e4x this floor.
+                             #   UPPER  density rise just behind the shock foot 18-20% (theory: the
+                             #          normal-Mach relation at beta=33.9147 deg, M_inf=2 gives
+                             #          19.6%); total compression to the cone surface 37.4%
+                             #          (theory 37.8%).  SHOCK_EPS is 6.5x below the shock jump
+                             #          and 12x below the wall compression.
+                             # Both bounds hold with margin.  Measured 2026-09-10 by a cfd lab-lane
+                             # on verification/runs/navier_class/SUP_BOOSTER/graded/{coarse,medium,fine}/15000.
 
 def refuse(msg):
     sys.stderr.write("REFUSE (exit 2): " + msg + "\n"); sys.exit(2)
@@ -253,13 +323,13 @@ def read_shock_angle(case, time, Cx=None, Cy=None):
     if not (len(Cx) == len(Cy) == len(rho)):
         refuse(f"{case}/{time}: Cx/Cy/rho length mismatch")
     L = max(Cx)                     # cone length ~ max x
-    xs, rs = [], []
+    xs, rs, drs = [], [], []
     for frac in SHOCK_STATIONS:
         x0 = frac * L
-        band = [(Cy[i], rho[i]) for i in range(len(Cx)) if abs(Cx[i] - x0) < 0.02 * L and Cy[i] > 0]
+        sel = [i for i in range(len(Cx)) if abs(Cx[i] - x0) < STATION_HALFWIDTH * L and Cy[i] > 0]
+        band = sorted((Cy[i], rho[i]) for i in sel)
         if len(band) < 5:
             continue
-        band.sort()                 # by radius ascending
         # per-station LOCAL freestream = the OUTERMOST cell (r up to R_top > shock, so undisturbed).
         # Using the local outer cell -- not a global min -- is robust to any expansion region
         # elsewhere (e.g. a base/outlet corner where rho dips below freestream).
@@ -269,8 +339,29 @@ def read_shock_angle(case, time, Cx=None, Cy=None):
         for r, rr in reversed(band):   # from OUTSIDE (large r) inward; first departure = shock foot
             if rr >= thresh:
                 shock_r = r; break
-        if shock_r is not None:
-            xs.append(x0); rs.append(shock_r)
+        if shock_r is None:
+            continue
+        # LOCAL RADIAL CELL SIZE at the located radius -- the locator's own quantum, and the
+        # input to the locator increment the C2 gate must report (ruling conditions 3 and 4).
+        # It MUST come from ONE axial column: the station band spans several columns (measured
+        # 2-7 on the graded family), and consecutive radii taken ACROSS columns are not a cell.
+        # Cell centres inside a column share x to ~1e-6 while the axial cell is >= 5.7e-3, so a
+        # 1e-4*L window isolates exactly one column.
+        x_col = min((abs(Cx[i] - x0), Cx[i]) for i in sel)[1]
+        col_r = sorted(Cy[i] for i in sel if abs(Cx[i] - x_col) < 1.0e-4 * L)
+        if len(col_r) < 2:
+            refuse(f"{case}/{time}: station x={x0:.4f} isolated < 2 radial cells in its own "
+                   f"column -- the local radial cell size (locator increment) is not measurable")
+        k = min(range(len(col_r)), key=lambda j: abs(col_r[j] - shock_r))
+        if k == 0:
+            dr = col_r[1] - col_r[0]
+        elif k == len(col_r) - 1:
+            dr = col_r[-1] - col_r[-2]
+        else:
+            dr = 0.5 * ((col_r[k+1] - col_r[k]) + (col_r[k] - col_r[k-1]))
+        if not (dr > 0.0):
+            refuse(f"{case}/{time}: station x={x0:.4f} gave a non-positive radial cell size {dr}")
+        xs.append(x0); rs.append(shock_r); drs.append(dr)
     if len(xs) < 3:
         refuse(f"{case}/{time}: shock locator found < 3 usable stations")
     n = len(xs); sx = sum(xs); sr = sum(rs)
@@ -279,7 +370,45 @@ def read_shock_angle(case, time, Cx=None, Cy=None):
     b = (sr - m*sx) / n
     if abs(b) > 0.05 * L:
         refuse(f"{case}/{time}: shock fit intercept {b:.4f} not near apex (>5% L) -- not a conical shock line")
-    return math.degrees(math.atan(m)), dict(stations_x=xs, stations_r=rs, slope=m, intercept=b)
+    beta = math.degrees(math.atan(m))
+    inc = locator_increment_deg(xs, drs, m)
+    return beta, dict(stations_x=xs, stations_r=rs, stations_dr=drs, slope=m, intercept=b,
+                      locator_increment_deg=inc["rms"],
+                      locator_increment_single_station_deg=inc["single"],
+                      locator_increment_correlated_worst_deg=inc["correlated_worst"])
+
+
+def locator_increment_deg(xs, drs, m):
+    """The SUB-CELL LOCATOR INCREMENT of beta, in degrees -- the angular quantum of this
+    instrument, required beside beta_fine by ruling conditions 3 and 4.
+
+    Each station's located radius is quantised by one local radial cell dr_i.  Propagating that
+    quantum through the SAME least-squares slope the locator fits gives three figures; all are
+    reported, and the REGISTERED increment is the rms one:
+
+      rms               independent one-cell quantisation at every station, propagated in
+                        quadrature -- sigma_m = sqrt(sum(((x_i-xbar) dr_i)^2)) / sum((x_i-xbar)^2).
+                        THIS IS THE REGISTERED LOCATOR INCREMENT.  It is conservative: a genuine
+                        quantisation error is uniform on [-dr/2, +dr/2] with standard deviation
+                        dr/sqrt(12), so using the full dr_i overstates it by a factor ~3.5.
+      single            one cell at ONE station, worst station -- the smallest honest quantum.
+      correlated_worst  every station displaced one cell in the sign pattern that maximises the
+                        slope change.  An adversarial conspiracy, not the instrument's
+                        resolution; reported so nothing is hidden, NOT used for any gate.
+    """
+    n = len(xs)
+    if n < 3 or len(drs) != n:
+        defect(f"locator_increment_deg: {n} stations, {len(drs)} cell sizes")
+    xbar = sum(xs) / n
+    den = sum((x - xbar) ** 2 for x in xs)
+    if den <= 0.0:
+        defect("locator_increment_deg: degenerate station spread")
+    def dbeta(dm):
+        return math.degrees(math.atan(m + dm)) - math.degrees(math.atan(m))
+    sig = math.sqrt(sum(((x - xbar) * d) ** 2 for x, d in zip(xs, drs))) / den
+    single = max(dbeta(abs(x - xbar) * d / den) for x, d in zip(xs, drs))
+    worst = sum(abs(x - xbar) * d for x, d in zip(xs, drs)) / den
+    return dict(rms=dbeta(sig), single=single, correlated_worst=dbeta(worst))
 
 # ---------------------------------------------------------------------------------------
 # planted-zero control (rule 3)
@@ -368,6 +497,62 @@ def grade_gate(name, f_fine, f_med, f_coarse, h1, h2, h3, ref, band, unit):
     out["deviation"] = f_fine - ref
     return out
 
+
+def grade_gate_shock_angle(name, b_fine, b_med, b_coarse, locinfo_fine, ref, band, b_cons, unit):
+    """Gate C2 -- conical shock angle beta.  NOT a Roache gate, by the verification-supervisor's
+    ruling of 2026-09-09 (commit 0e9c1bcb, framing (ii)).  No triple, no GCI, no observed order,
+    no Richardson value is computed or emitted here: for a quantity whose located value is
+    quantised by the cell size, Richardson extrapolation is the wrong instrument, and quoting it
+    anyway is the F4S forbidden-instrument failure (ruling condition 8).
+
+    Three measured things decide C2, and they are printed whatever the verdict:
+      * beta_fine WITH its sub-cell locator increment                     (condition 3)
+      * PRECONDITION: the accuracy band must strictly EXCEED that increment (condition 4).  If it
+        does not, C2 is measuring locator resolution rather than accuracy, the registered framing
+        does not hold, and the honest label is NOT A RESULT -- not a GATE FAIL, because the
+        instrument, not the solution, is what failed.  Substituting a different gate at grade
+        time is forbidden (rule 2), so the grader cannot repair this; it reports it.
+      * ACCURACY    |beta_fine - ref| <= band        AND
+        CONSISTENCY max|beta_i - beta_j| <= b_cons   (a SEPARATE, TIGHTER, pre-registered bound,
+                                                      condition 5)
+      -> PASS iff both hold, else GATE FAIL naming which one failed.
+    """
+    inc = locinfo_fine["locator_increment_deg"]
+    betas = dict(fine=b_fine, medium=b_med, coarse=b_coarse)
+    spread = max(betas.values()) - min(betas.values())
+    out = dict(gate=name, gating_method="value-in-band + locator-increment consistency "
+                                        "(NOT Roache; ruling 0e9c1bcb conditions 1-8)",
+               value_fine=b_fine, value_medium=b_med, value_coarse=b_coarse,
+               reference=ref, band=band, consistency_bound=b_cons, unit=unit,
+               locator_increment_deg=inc,
+               locator_increment_single_station_deg=locinfo_fine["locator_increment_single_station_deg"],
+               locator_increment_correlated_worst_deg=locinfo_fine["locator_increment_correlated_worst_deg"],
+               beta_fine_reported_as=f"{b_fine:.4f} +/- {inc:.4f} {unit} (locator increment)",
+               band_exceeds_locator_increment=bool(inc < band),
+               deviation=b_fine - ref, spread=spread)
+    if not (inc < band):
+        out["verdict"] = "NOT A RESULT"
+        out["reason"] = (f"fine-grid locator increment {inc:.4f} {unit} is not below the "
+                         f"accuracy band {band} {unit}: C2 would be measuring locator resolution, "
+                         f"not accuracy, so the registered framing (ruling condition 4) does not "
+                         f"hold and no verdict on the value is entitled")
+        return out
+    acc_ok = abs(b_fine - ref) <= band
+    con_ok = spread <= b_cons
+    out["accuracy_passed"] = bool(acc_ok)
+    out["consistency_passed"] = bool(con_ok)
+    if acc_ok and con_ok:
+        out["verdict"] = "PASS"
+        return out
+    out["verdict"] = "GATE FAIL"
+    why = []
+    if not acc_ok:
+        why.append(f"ACCURACY: |{b_fine:.4f} - {ref}| = {abs(b_fine-ref):.4f} > band {band}")
+    if not con_ok:
+        why.append(f"CONSISTENCY: max|beta_i - beta_j| = {spread:.4f} > B_cons {b_cons}")
+    out["reason"] = "; ".join(why)
+    return out
+
 # ---------------------------------------------------------------------------------------
 def grade_case(case):
     endT, last = check_completion(case)
@@ -426,8 +611,14 @@ def run_grade(args):
         return 0
     gate_cp = grade_gate("C1 cone-surface Cp", per["fine"]["Cp_cone"], per["medium"]["Cp_cone"],
                          per["coarse"]["Cp_cone"], h["fine"], h["medium"], h["coarse"], cp_ref, CP_BAND, "-")
-    gate_b = grade_gate("C2 shock angle beta", per["fine"]["beta_deg"], per["medium"]["beta_deg"],
-                        per["coarse"]["beta_deg"], h["fine"], h["medium"], h["coarse"], beta_ref, BETA_BAND_DEG, "deg")
+    # C2 is NOT put through grade_gate: no h, no triple, no GCI reaches it (condition 8).
+    gate_b = grade_gate_shock_angle("C2 shock angle beta", per["fine"]["beta_deg"],
+                                    per["medium"]["beta_deg"], per["coarse"]["beta_deg"],
+                                    per["fine"]["shock_fit"], beta_ref, BETA_BAND_DEG,
+                                    BETA_CONS_DEG, "deg")
+    for forbidden in ("triple", "apparent_order_p", "gci_fine", "richardson_extrap"):
+        if forbidden in gate_b:                   # executable form of condition 8
+            defect(f"C2 report carries the forbidden Roache instrument '{forbidden}'")
     report = dict(planted_zero_control=ctrl, per_level=per, grid=dict(nCells=nc, h=h,
                   r_medium_fine=r_fm, r_coarse_medium=r_cm), gates=[gate_cp, gate_b], reference=ref)
     print(json.dumps(report, indent=2))
@@ -451,6 +642,39 @@ def run_selftest(args):
     assert g3["triple"] == "CONVERGING", g3
     assert g3["verdict"] == "GATE FAIL", g3
     print(f"  CONVERGING, dev={g3['deviation']:.4f} > band {CP_BAND} -> {g3['verdict']}")
+    print("== C2 (shock angle) gating -- value-in-band + consistency, NO Roache (ruling 0e9c1bcb) ==")
+    def _loc(inc):
+        return dict(locator_increment_deg=inc, locator_increment_single_station_deg=inc*0.7,
+                    locator_increment_correlated_worst_deg=inc*2.1)
+    c2a = grade_gate_shock_angle("selftest C2 in-band+consistent", 33.85, 33.99, 33.70,
+                                 _loc(0.57), 33.9147, BETA_BAND_DEG, BETA_CONS_DEG, "deg")
+    assert c2a["verdict"] == "PASS", c2a
+    print(f"  in band, spread {c2a['spread']:.4f} <= {BETA_CONS_DEG} -> {c2a['verdict']} "
+          f"(beta reported as {c2a['beta_fine_reported_as']})")
+    c2b = grade_gate_shock_angle("selftest C2 out-of-band", 35.50, 35.40, 35.60,
+                                 _loc(0.57), 33.9147, BETA_BAND_DEG, BETA_CONS_DEG, "deg")
+    assert c2b["verdict"] == "GATE FAIL" and "ACCURACY" in c2b["reason"], c2b
+    print(f"  outside the band, spread OK -> {c2b['verdict']} ({c2b['reason']})")
+    c2c = grade_gate_shock_angle("selftest C2 inconsistent", 33.85, 34.60, 33.20,
+                                 _loc(0.57), 33.9147, BETA_BAND_DEG, BETA_CONS_DEG, "deg")
+    assert c2c["verdict"] == "GATE FAIL" and "CONSISTENCY" in c2c["reason"], c2c
+    print(f"  in band but spread {c2c['spread']:.4f} > {BETA_CONS_DEG} -> {c2c['verdict']}")
+    c2d = grade_gate_shock_angle("selftest C2 locator too coarse", 33.85, 33.99, 33.70,
+                                 _loc(1.30), 33.9147, BETA_BAND_DEG, BETA_CONS_DEG, "deg")
+    assert c2d["verdict"] == "NOT A RESULT", c2d
+    print(f"  locator increment 1.30 deg >= band {BETA_BAND_DEG} deg -> {c2d['verdict']} "
+          f"(condition-4 precondition fails)")
+    print("== condition 8: NO Roache instrument may appear anywhere in a C2 report ==")
+    for g in (c2a, c2b, c2c, c2d):
+        for forbidden in ("triple", "apparent_order_p", "gci_fine", "richardson_extrap"):
+            assert forbidden not in g, (forbidden, g)
+    print("  no triple / apparent_order_p / gci_fine / richardson_extrap in any C2 report -- OK")
+    print("== an OSCILLATORY beta triple no longer vetoes C2 (the spurious veto the ruling removes) ==")
+    osc = grade_gate("beta-as-if-Roache", 33.85, 33.99, 33.70, 1.0, 1.5, 2.25, 33.9147, BETA_BAND_DEG, "deg")
+    assert osc["verdict"] == "NOT A RESULT" and osc["triple"] == "OSCILLATORY", osc
+    assert c2a["verdict"] == "PASS"
+    print(f"  same three values: as a Roache triple -> {osc['triple']}/{osc['verdict']}; "
+          f"under the registered C2 method -> {c2a['verdict']}")
     if args.smoke:
         print(f"== planted-zero control on smoke case {args.smoke} (real disk read) ==")
         ts = time_dirs(args.smoke)
@@ -468,9 +692,17 @@ def run_selftest(args):
         print(f"== E2 robust shock locator on {args.shock_check} (freestream-crossing) ==")
         ts = time_dirs(args.shock_check)
         beta, info = read_shock_angle(args.shock_check, ts[-1])
-        print(f"  located beta = {beta:.3f} deg  (TM reference 33.9147 deg); "
-              f"fit slope={info['slope']:.4f} intercept={info['intercept']:.5f} "
-              f"stations_r={[round(r,3) for r in info['stations_r']]}")
+        print(f"  located beta = {beta:.3f} +/- {info['locator_increment_deg']:.4f} deg "
+              f"(sub-cell locator increment)  (TM reference 33.9147 deg); "
+              f"fit slope={info['slope']:.4f} intercept={info['intercept']:.5f}")
+        print(f"  stations_r={[round(r,4) for r in info['stations_r']]}  "
+              f"dr_at_shock={[round(d,5) for d in info['stations_dr']]}")
+        print(f"  locator increment: rms(registered)={info['locator_increment_deg']:.4f} deg, "
+              f"single-station={info['locator_increment_single_station_deg']:.4f} deg, "
+              f"correlated-worst={info['locator_increment_correlated_worst_deg']:.4f} deg; "
+              f"band {BETA_BAND_DEG} deg "
+              f"{'EXCEEDS' if info['locator_increment_deg'] < BETA_BAND_DEG else 'DOES NOT EXCEED'} "
+              f"the registered increment (ruling condition 4)")
     print("SELFTEST OK")
     return 0
 
