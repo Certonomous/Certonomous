@@ -754,3 +754,170 @@ this freeze** (zero compute produced the freeze).
 strike above are part of this same freeze commit). Rule 6 now binds: any later
 departure is a dated addendum appended BELOW this section, asserting `lines whose
 number changed above this section: 0`.*
+
+---
+
+## 15. DATED AMENDMENT 1 — 2026-09-10, POST-COMPUTE. FOUR DISCLOSURES, NO GATE TOUCHED
+
+**Version: 1.0 (the §14 initial freeze stamp) → 1.1.**
+
+**`lines whose number changed above this section: 0`** — this amendment is a pure
+append at the FOOT. Verified mechanically, not asserted: the sha256 of the first
+**756** lines of this file is
+`64ab53885b55ac37b204a6281e50065090236a6d9a0caf8f32f159dfeafe4f7a`
+**before this section was appended and after**, computed in the appending shell
+invocation. Nothing above line 757 was read, edited, reflowed or renumbered. §14
+itself instructs that any later departure lands here, below it, carrying exactly
+this assertion.
+
+**FIRST COMPUTE HAS OCCURRED.** The RC2 re-grade ran `2026-09-10T03:49:35Z` →
+`03:50:37Z` against freeze `0aa1a049`. **Gates are closed.** Standing rule 2:
+after first compute, changes land only as dated addenda that **cannot alter a
+gate, threshold, cap or label**. **This amendment alters none of the four.** It
+discloses four post-compute observations, three of which are departures of the
+registered text from what actually happened and one of which is an entry-level
+gap. Each is disclosed **because it was seen**, not because it changes anything.
+
+**A disclosure that understates is a wrong record. So is one that overstates.**
+Neither direction is a courtesy: each of the four below is stated at exactly its
+own width, with the reason it does not reach the verdict stated separately from
+the fact itself, so that a reader can disagree with the second without having to
+re-derive the first.
+
+### 15.1 (a) `REGRADE_RC2.json` CARRIES A STALE HARDCODED `status` STRING, AND IT IS FALSE FOR THIS RUN
+
+`/home/ubuntu/closure-data/rc2/REGRADE_RC2.json` carries the top-level field:
+
+    "status": "DRAFT/UNFROZEN -- not a registered result until the freeze commit"
+
+It is emitted unconditionally by the now-frozen instrument at
+`regrade_rc2.py:294`, a literal written when the instrument was authored and
+before the freeze existed.
+
+**That string is FALSE for this run.** The run executed **against the freeze
+commit** `0aa1a0492b159dd724035da2f11115e5fe96e92f`; the queue entry's
+`prereg_commit` field cites that commit
+(`verification/queue/closure/launched/RC2_kaandorp_divergence_repair.json`), and
+the `LAUNCH_LOG.tsv` row of `2026-09-10T03:49:35Z` records the same sha. This is
+a registered result.
+
+**The consequence, stated at its real width:** a reader of `REGRADE_RC2.json`
+**alone**, without this document, would wrongly conclude the result is
+unregistered — that is, the stale string errs in the direction of *understating*
+the result's standing. **An understating disclosure is still a wrong record**, and
+is corrected here for the same reason an overstating one would be: the record's
+job is to be right, not to be modest.
+
+**The instrument is NOT edited.** Rule 6: a frozen file is never edited; a
+departure is disclosed in a dated amendment. This section is that disclosure and
+is the correction of record. `regrade_rc2.py` stands byte-unchanged at
+`1c43b3e531650083f3582682272a292beb3f295212af625beabaebe5e152c7d9`, the sha
+pinned at §14.
+
+**No gate, threshold, cap or label moves.** The headline `PASS` is computed by
+the instrument's `headline()` from the graded rows and does not read the `status`
+literal.
+
+### 15.2 (b) §7's REGISTERED CAP MECHANISM WAS NOT IN THE LAUNCH PATH
+
+§7 registers the cap as *"**REGISTERED CAP: 12.0 core-minutes**, enforced as a
+wall-clock `timeout 720` around the instrument"* (this document, line 488).
+
+**The `timeout 720` was not there.** The entry's `launch_cmd`
+(`verification/queue/closure/launched/RC2_kaandorp_divergence_repair.json`) is:
+
+    ["/usr/bin/python3",
+     ".../regrade_rc2.py", "--run-root", "/home/ubuntu/closure-data/rc2"]
+
+— a bare interpreter invocation with no `timeout` wrapper.
+
+**Why this is disclosed and not absorbed.** The cap was never at risk: the run
+measured **62.14 s** wall (`REGRADE_RC2.json` `wall_s`) against a 720 s
+equivalent — **8.6 %** of the cap — and the queue daemon's own `cap_watch`
+covered the entry independently, so an overrun would have been caught. **But the
+mechanism this document REGISTERED was absent**, and "it would have been caught
+anyway" is a reason the outcome was safe, not a reason the record can stay
+silent. A registered enforcement mechanism that is not in the path is a departure
+whether or not it was ever exercised.
+
+**The cap value 12.0 core-minutes is NOT changed by this note** — that would be a
+gate-touching edit and is forbidden after first compute. What is disclosed is
+that the *mechanism* named in §7 was not the one in force; the *number* stands
+exactly as frozen.
+
+### 15.3 (c) §8's `/usr/bin/time -v` MaxRSS WRAPPING IS NOT IMPLEMENTED
+
+§8 states: *"The instrument wraps itself in `/usr/bin/time -v` and records
+MaxRSS, converting the allowance into a reading for the next pre-registration."*
+
+**It does not.** `time -v`, `MaxRSS`, `maxrss` and `resource.` occur **zero**
+times in either instrument — `regrade_rc2.py` (0) and `rc2_divergence.py` (0),
+counted over the frozen files at their pinned shas.
+
+**Consequence, exactly:** `memory_floor_gb = 0.5` **remains an ALLOWANCE** and
+was **not** converted into a reading. The next pre-registration inherits an
+allowance, not a measurement, and must not cite this run as having measured
+memory. It did not.
+
+**This is registered in advance as an infrastructure defect, not a refusal.** §8's
+own closing sentence reads *"Its absence is an INFRASTRUCTURE defect, not a
+refusal"* — so the disposition of this departure was fixed in the frozen text
+before compute, and this section discharges it as registered rather than deciding
+it now. L-342 governs: **a bookkeeping failure invalidates the bookkeeping, never
+the physics.** The re-grade's 16 rows, their hashes and their provenance are
+untouched by the absence of a MaxRSS reading.
+
+`REGRADE_RC2.json` `infra_defects` is `[]` — the instrument did not self-report
+this one, which is itself part of what is disclosed here: the empty list means
+"the instrument found none", not "there are none".
+
+### 15.4 (d) `GRADER-FREEZE: UNPINNED` — AN ENTRY-LEVEL GAP, AND NOT A RULE-2 GAP
+
+The queue daemon recorded at launch
+(`verification/queue/runner.log`, `2026-09-10T03:49:35Z`, and the `_grading_freeze`
+block of the launched record):
+
+> **`GRADER-FREEZE RC2_kaandorp_divergence_repair: UNPINNED`** — *"entry declares
+> no `grading_freeze`: no comparator is named, so the sha of the script that will
+> grade case RC2_kaandorp_divergence_repair is NOT pinned to freeze `0aa1a049`.
+> Nothing is predicted about this run's grading, and that absence is recorded
+> rather than read as a pass."*
+
+**This is an ENTRY-level infrastructure gap. It is NOT a rule-2 gap, and the
+distinction is the whole content of this section.**
+
+* **What is missing:** a `grading_freeze` key in the queue-entry JSON, which is
+  what lets the *daemon* predict and check the grader sha mechanically.
+* **What is NOT missing:** the grading path itself. It is fixed by **§11** of this
+  frozen document (*"The instruments are `rc2_divergence.py` and `regrade_rc2.py`
+  **as they exist at the pre-registration commit**"*) and by **§14**, which pins
+  both instruments by sha256. Rule 2's requirement — the grading path fixed at
+  the pre-registration commit, and the frozen file verified to **be** the file
+  that ran — is satisfied by this document, not by the entry.
+* **And it was verified, not assumed.** All three files — `PREREGISTRATION.md`,
+  `rc2_divergence.py`, `regrade_rc2.py` — were re-hashed against their committed
+  blobs by the closure supervisor **BEFORE** the run and **AFTER** it, and were
+  **unchanged** in both readings. The instrument that ran is the instrument that
+  was frozen.
+
+**Reported, not fixed.** Adding a `grading_freeze` field to the entry now would be
+a **gate-touching change after first compute** — it writes a prediction about
+grading into a registered entry retroactively, which is exactly the shape rule 2
+forbids. **It is NOT done.** The gap stands on the record, and the remedy belongs
+to the next entry drafted, not to this one.
+
+### 15.5 WHAT THIS AMENDMENT DOES NOT DO
+
+* It **alters no gate, no threshold, no cap and no label.** §5's gate ordering,
+  §5.3's table, §7's 4.0 estimate and 12.0 cap, and the `PASS` headline all stand
+  exactly as frozen at `0aa1a049`.
+* It **strikes nothing and rewrites nothing above.** Originals stand as written;
+  the prefix hash above proves it.
+* It **moves, re-grades and re-labels no verdict.** §5.4 stands: RC2 reports
+  movement; the ruling is the closure supervisor's and verification's.
+* It **edits no frozen file** — neither instrument, nor
+  `Kaandorp2020_TBRF/aposteriori/run_lane.py`, nor `results.json`.
+* **Nothing has been sent, filed, uploaded, registered, posted or commented.**
+  SUBMISSIONS PARKED (standing rule 7).
+
+*End of Amendment 1. `lines whose number changed above this section: 0`.*
