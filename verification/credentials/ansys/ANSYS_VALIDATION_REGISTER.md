@@ -1796,3 +1796,127 @@ has met it.
   The R8 run directory is retained; whether R9 may grade the *existing* L1/L2/L3 artifacts
   without re-solving is a `§2d.1` value-invariant-repair question the R9 registration must
   answer **before** it is frozen, not after.
+
+---
+
+## Row #72 — VMFL022-R2 — Cavitating Flow Through a Sharp-Edged Orifice (Nurick), regime-consistent triple (VM2026R1) — **`NOT A RESULT`**
+
+**A run that finished on 2026-09-07 and sat ungraded for three days, graded 2026-09-10 at
+ZERO solver cost.** No re-solve: the frozen comparator was run over artifacts already on
+disk. Verdict is **`NOT A RESULT`** on **rule 5 step 2** — the grid triple is **`DIVERGENT`**,
+and a row whose triple is not `CONVERGING` is `NOT A RESULT` whatever its value.
+
+### Freeze integrity — checked before anything was graded
+Freeze commit **`7fdbd44c`**, 2026-09-07T16:23:06Z. Earliest artifact in the run root
+2026-09-07T21:33:33Z, so **the freeze predates first compute by 5 h 10 min 27 s**. All **16
+frozen files** are byte-identical to their blobs at `7fdbd44c`. **The supervisor re-verified
+the comparator pin personally rather than accepting the lane's check:** disk
+`ea29630c797e85a1d43c65c0a19036d70d315eb2` == frozen blob == the `comparator_blob` the run
+itself recorded in `LAUNCH_RECORD.txt` at launch time. Three-way match: **the file that ran
+is the file that was frozen.**
+
+### Rule 4 strict completion — PASSES IN FULL at all three levels
+`interPhaseChangeFoam`, adaptive `deltaT` (`adjustTimeStep yes`, `maxCo 5`), `endTime 0.06`.
+
+| limb | L1 (24, 3 328 cells) | L2 (48, 13 312) | L3 (96, 53 248) |
+|---|---|---|---|
+| `rc = 0` | yes | yes | yes |
+| `End` line | yes | yes | yes |
+| last `Time` == `endTime` | 0.06 == 0.06 | 0.06 == 0.06 | 0.06 == 0.06 |
+| fields at `endTime` | `U p_rgh alpha.water` (+ `epsilon k nut p phi`) | same | same |
+| `ExecutionTime` count | 1 344 == 1 344 | 2 666 == 2 666 | 5 171 == 5 171 |
+| age guard (`0/U` → `0.06/*`) | 21:33:34.591 → 21:34:34.49 | 21:34:34.532 → 21:43:30.65 | 21:43:30.724 → 23:13:46.46 |
+
+The adaptive-`deltaT` form of clause 5 applies (`n_exec == steps written`), not the unit-step
+form. The age-guard marker is **per level** — L2's `0/U` postdates L1's completion and L3's
+postdates L2's — so it dates each level's own launch, not one family-wide stamp.
+
+### The measurement, and the planted-zero control that licenses reading it
+**Planted-zero control (rule 3) PASSED on the finest level:** a **proper-subset** plant
+`P = 1.234e-06 m³/s` into 957 of 1 914 window rows; expected shift `6.17e-07`, reader saw
+`6.1699999999999e-07`. The inert whole-set arm returns `1.234e-06`, the value a whole-window
+plant gives for *any* input — so **the L-487 cancellation defect the base case carried is
+demonstrably absent here.** A zero from a reader not shown able to see a non-zero is not
+evidence; this reader was shown.
+
+| level | N2R | min α.water | regime | **Cd** | Q (m³/s) | window CoV |
+|---|---|---|---|---|---|---|
+| L1 | 24 | 0.264870 | CAVITATING | **0.7609052996326724** | 9.341088e-06 | 0.079 % |
+| L2 | 48 | 0.023813 | CAVITATING | **0.7591625961838555** | 9.319694e-06 | 0.219 % |
+| L3 | 96 | 0.030064 | CAVITATING | **0.7397065467618922** | 9.080846e-06 | 1.117 % |
+
+The **a-priori, gate-blind regime precondition** (min α.water ≤ 0.90 at every level) **passed
+at all three levels** — the thing R2 was built to fix *did* get fixed. The plateau gate passed
+(`PLATEAU_COV = 0.03`; worst level 1.117 %). Window t = [0.0420, 0.0600] at every level.
+
+### Roache triple — `DIVERGENT`, and this is what decides the row
+- coarse→medium step **−0.001742703449**; medium→fine step **−0.01945604942**
+- **R = 11.164292** — **the increments GROW by 11× under refinement.** The error is not
+  contracting with h.
+- **`p = None`, `GCI_fine = None`, `Cd_extrapolated = None`** — the comparator refuses to
+  quote an observed order or a GCI on a non-converging triple, exactly as rule 5 requires.
+  **Never quote a GCI when the three values are not monotone in the convergent sense.**
+- **Supervisor re-derived R independently: 11.164292, |R| > 1 → `DIVERGENT`. Confirmed.**
+
+**Gate, printed but not decisive:** |Cd_fine − 0.780| / 0.780 = **5.1658 %** against a **5 %**
+tolerance → `OUT`. Rule 5's ordering means the gate never gets the last word here: the triple
+decides, and it says `NOT A RESULT`.
+
+### The band question, answered plainly because an audit raised it
+Today's §24.7 audit found VMFL022's band was widened 3 % → 5 % partly on an **unvalidated**
+*"the cavitation-model substitution adds ~2 %"* allowance (OpenFOAM has no Zwart-Gerber-Belamri;
+SchnerrSauer was substituted). **That band is frozen and closed — first compute occurred on
+2026-09-07 — and nothing here changes it.** For the record, and it cuts the safe way:
+**5.1658 % is outside the frozen 5 % band AND outside the original 3 % band.** The unvalidated
+allowance **rescued nothing on this case**; the value fails the gate under either band.
+
+### This is the pre-registration's own named principal risk, realised
+Prereg line 9 predicted it before the run: *"the cavitating-Cd triple may be non-monotone (the
+pocket keeps growing 24→48→96 and the functional does not settle) … a genuine mesh-sensitivity
+finding, **NOT to be rescued by dropping a level or widening the band**."* It is not rescued
+and no level is dropped. Two supporting diagnostics, offered as facts and not as an
+interpretation: the finest level's window CoV (1.117 %) is **14×** the coarsest's and is now
+comparable to the L2→L3 change in Cd (2.56 % of Cd); and min α.water is **non-monotone**
+across the triple (0.2649 / 0.0238 / 0.0301) — the vapour pocket does not settle either.
+
+### Provenance
+- **Comparator:** `cases/ansys_verification/VMFL022-R2/grade_vmfl022_r2.py`, blob `ea29630c…`,
+  re-hashed identical **after** grading. rc **0** under `python3` **and** `python3 -O`, stdout
+  and emitted JSON **byte-identical** between the two (rule 14). `--selftest` rc 0 under both.
+- **Pre-registration:** `PREREGISTRATION.md`, blob `fe5b1a65…`, freeze `7fdbd44c`.
+- **Run root:** `verification/runs/ansys_verification/VMFL022-R2/` (L1/L2/L3, `FAMILY_DONE.flag`,
+  `ORCH.log`, `LAUNCH_RECORD.txt`); grading output `GRADING_VMFL022_R2.json`.
+- **Cost:** solver **100.2 core-min MEASURED** (L1 1.0000 + L2 8.9333 + L3 90.2667, from
+  `ORCH.log`), spent 2026-09-07, against a pre-registered estimate of **79** and a cap of
+  **300** → **ratio 1.268**, cap not breached. **$0.0857 DERIVED, NOT measured** at
+  $0.0513/core-h. **This grading cost ZERO solver compute** — three comparator invocations
+  ≈ **0.04 core-min**. Calibration row in `docs/COST_CALIBRATION.md`.
+
+### Why it sat ungraded for three days — a PLUMBING GAP, named so it is not repeated
+Not a parking decision and not a defect in the run. **The grading leg never existed.** The
+driver disclaims grading in its own header (`run_vmfl022_r2.sh:8`, `:29-30`: *"It does NOT
+grade"*) and merely prints the manual grade command; **no detached autograder was ever armed**;
+the queue daemon runs the solve only, and the launched queue JSON's `_grading_freeze` block is
+a **prediction** (`"predicts": "GRADING_WILL_PROCEED"`, `"actual": null`) that nothing ever
+filled in. **This team's §2ba detached-autograder convention (`autograde_watch_*.sh`, PPID=1)
+first appears on 2026-09-09 — two days AFTER this launch.** The run finished 23:13:46Z with no
+live agent present, and the boards were written before the launch and never updated after it
+(`FIX_SUCCESSOR_REGISTRY.md:60` still describes it as awaiting launch). **The §2ba convention
+is exactly the fix, and this row is the evidence it was needed.**
+
+### What this row REFUSES to claim
+- **No observed order, no GCI, no Richardson extrapolate.** The triple is `DIVERGENT`; quoting
+  any of them would be quoting a convergence estimate for a non-converging sequence.
+- **No `GATE FAIL`.** The value is outside the band, but rule 5 orders the triple first, and a
+  `DIVERGENT` triple makes the row `NOT A RESULT` — the gate can only turn a row **into**
+  `NOT A RESULT`, never the reverse. **The 5.1658 % is recorded, not graded.**
+- **No credential**, and no claim that Cd ≈ 0.74 is the physical answer. What the run shows is
+  that **this discretisation family does not converge**, which is a statement about the mesh
+  sequence, not about the orifice.
+- **No claim that the regime fix failed.** It succeeded: all three levels cavitated, which is
+  what R2 existed to achieve. **R2 fixed the regime and uncovered a convergence problem
+  underneath it.**
+- **A successor is OWED** and must address the non-contracting error directly — the interface
+  is under-resolved at 96 cells and refining the same family further is not obviously the
+  answer. Per the frozen pre-registration, it is **NOT** to be rescued by dropping a level or
+  widening the band.
