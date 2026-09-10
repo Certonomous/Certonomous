@@ -1,0 +1,1 @@
+rc=143 wall=8366 checkMesh_rc=0 timeout_s=43350 ranks=1 solver=buoyantBoussinesqPimpleFoam solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqPimpleFoam case=C_lam note=KILLED_BY_SIGNAL_15

@@ -1,0 +1,104 @@
+K0g §2ba CAMPAIGN VERDICT (base 60 s runs)
+Generated: 2026-09-10T03:46:22Z UTC by orchestrate_k0g.py
+Frozen prereg: docs/campaigns/F14-cooling-ladder/K0g_PREREGISTRATION.md (freeze 4d0046c1)
+Grading path: FROZEN §7.7 pins (check_comparator_freeze PASS 8/8)
+
+=== PREP ===
+  M1_c   L1  READY
+  M2_c   L1  READY
+  M1_m   L2  READY
+  M2_m   L2  READY
+  C_lam  L2  READY
+
+=== LAUNCHED / UNRUN ===
+  launched: ['M1_c', 'M2_c', 'M1_m', 'M2_m', 'C_lam']
+  unrun: []
+
+=== PER-ARM STATUS + COST CALIBRATION (rule 12; actual = wall_s/60, ranks=1) ===
+  M1_c   L1  rc=0  wall=9312s  actual=155.20 core-min  POINT=49.15  ratio(actual/POINT)=3.158
+  M2_c   L1  rc=0  wall=9392s  actual=156.53 core-min  POINT=49.15  ratio(actual/POINT)=3.185
+  M1_m   L2  rc=143  wall=17763s  actual=296.05 core-min  POINT=96.34  ratio(actual/POINT)=3.073
+  M2_m   L2  rc=143  wall=8454s  actual=140.90 core-min  POINT=96.34  ratio(actual/POINT)=1.463
+  C_lam  L2  rc=143  wall=8366s  actual=139.43 core-min  POINT=72.25  ratio(actual/POINT)=1.930
+  TOTAL actual = 888.12 core-min  vs CEILING 915.58 core-min (WITHIN)
+  $ derived (0.0513/core-h): 0.7593
+
+=== mark_done_k0g (completion + age guard) ===
+  rc=1
+2/5 cases meet the strict completion rule
+  NOT DONE  C_lam
+            - STATUS is 'rc=143 wall=8366 checkMesh_rc=0 timeout_s=43350 ranks=1 solver=buoyantBoussinesqPimpleFoam solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqPimpleFoam case=C_lam note=KILLED_BY_SIGNAL_15', not rc=0
+            - log.solve has no End line
+            - no time directory beyond 0
+  NOT DONE  M1_m
+            - STATUS is 'rc=143 wall=17763 checkMesh_rc=0 timeout_s=57804 ranks=1 solver=buoyantBoussinesqPimpleFoam solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqPimpleFoam case=M1_m note=KILLED_BY_SIGNAL_15', not rc=0
+            - log.solve has no End line
+            - last written time 20 != endTime 60
+            - 10690 ExecutionTime lines != 10691 'Time =' lines (a truncated or duplicated solver log)
+  NOT DONE  M2_m
+            - STATUS is 'rc=143 wall=8454 checkMesh_rc=0 timeout_s=57804 ranks=1 solver=buoyantBoussinesqPimpleFoam solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqPimpleFoam case=M2_m note=KILLED_BY_SIGNAL_15', not rc=0
+            - log.solve has no End line
+            - no time directory beyond 0
+
+
+
+=== check_k0g_extraction_equivalence (per present arm) ===
+  M1_c: rc=2
+==============================================================
+K0d EXTRACTION EQUIVALENCE CHECK -- registered AD1.1, before compute
+  OpenFOAM postProcess -func sample  vs  analyse_k0g.py's reader
+  criterion: T 2.00e-05 K, U 5.70e-07 m/s
+======================================================================
+REFUSE: /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0g_runs/M1_c/60/TMean: patch 'outlet' carries a NONUNIFORM value. This reader refuses rather than guess the patch face ORDER.  `T` and `U` -- the only fields the registered A1.3a extraction samples -- cannot carry one.
+
+  M2_c: rc=2
+==============================================================
+K0d EXTRACTION EQUIVALENCE CHECK -- registered AD1.1, before compute
+  OpenFOAM postProcess -func sample  vs  analyse_k0g.py's reader
+  criterion: T 2.00e-05 K, U 5.70e-07 m/s
+======================================================================
+REFUSE: /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0g_runs/M2_c/60/TMean: patch 'outlet' carries a NONUNIFORM value. This reader refuses rather than guess the patch face ORDER.  `T` and `U` -- the only fields the registered A1.3a extraction samples -- cannot carry one.
+
+  M1_m: rc=2
+==============================================================
+K0d EXTRACTION EQUIVALENCE CHECK -- registered AD1.1, before compute
+  OpenFOAM postProcess -func sample  vs  analyse_k0g.py's reader
+  criterion: T 2.00e-05 K, U 5.70e-07 m/s
+======================================================================
+REFUSE: /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0g_runs/M1_m/20/TMean: patch 'outlet' carries a NONUNIFORM value. This reader refuses rather than guess the patch face ORDER.  `T` and `U` -- the only fields the registered A1.3a extraction samples -- cannot carry one.
+
+  M2_m: rc=2
+======================================================================
+K0d EXTRACTION EQUIVALENCE CHECK -- registered AD1.1, before compute
+  OpenFOAM postProcess -func sample  vs  analyse_k0g.py's reader
+  criterion: T 2.00e-05 K, U 5.70e-07 m/s
+======================================================================
+REFUSE: /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0g_runs/M2_m/0: no TMean field
+
+  C_lam: rc=2
+======================================================================
+K0d EXTRACTION EQUIVALENCE CHECK -- registered AD1.1, before compute
+  OpenFOAM postProcess -func sample  vs  analyse_k0g.py's reader
+  criterion: T 2.00e-05 K, U 5.70e-07 m/s
+======================================================================
+REFUSE: /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0g_runs/C_lam/0: no TMean field
+
+
+=== analyse_k0g (THE GRADED VERDICT) rc=2 ===
+==========================================================================
+K0d COMPARATOR -- analyse_k0g.py
+  this file's git blob sha1: 409e403d0c648b88d05ca5e06a466c11588ddd8a
+  the OPERATIVE registration is K0d_REREGISTRATION.md;
+  the OPERATIVE cap is 2 748.64 core-min (AMENDMENT 2 A2.2b).
+==========================================================================
+REFUSE: 2 of 5 DONE markers present; MISSING: M1_m, M2_m, C_lam.  The comparator refuses rather than grading a partial rung (re-registration 7.5, AMENDMENT 1 section A1.2b).
+
+
+
+=== §7.1'' EXTENSION DETERMINATION (drift-based; NOT auto-triggered) ===
+  Per-arm stationarity drift is in the analyse_k0g output above.
+  Any TURBULENT arm (M1_c/M1_m/M2_c/M2_m) NOT stationary at 60 s is a candidate
+  for the ONE registered extension to 120 s (§7.1''). C_lam is the discrimination
+  control (P-K0g-2: predicted NON-stationary; NOT extended). The extension is a
+  supervised follow-up: the frozen tooling has no restart mode and the decision is
+  registered as drift-based. FLAGGED for the heat-transfer supervisor.

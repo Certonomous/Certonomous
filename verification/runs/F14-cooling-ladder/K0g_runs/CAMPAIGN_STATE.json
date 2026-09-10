@@ -1,0 +1,22 @@
+{
+  "phase": "graded",
+  "launched": [
+    "M1_c",
+    "M2_c",
+    "M1_m",
+    "M2_m",
+    "C_lam"
+  ],
+  "unrun": [],
+  "present": [
+    "M1_c",
+    "M2_c",
+    "M1_m",
+    "M2_m",
+    "C_lam"
+  ],
+  "mark_done_rc": 1,
+  "analyse_rc": 2,
+  "total_actual_coremin": 888.12,
+  "verdict": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0g_runs/K0g_VERDICT.txt"
+}
