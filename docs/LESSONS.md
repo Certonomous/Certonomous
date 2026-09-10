@@ -26302,3 +26302,47 @@ right and the history is complete. Purely a bookkeeping and attribution defect
 *Provenance:* dafoam, 2026-09-10, self-caught. Family: `L-537` (the same day's mirror case),
 `L-223` (the post-commit verify that this shows is path-scoped), `L-368` (name the revision),
 `L-186` / `L-252` (shared temp), `L-342` (bookkeeping vs physics).
+
+## L-540 — A `timeout` AROUND `docker run` BOUNDS THE CLIENT, NOT THE CONTAINER: THE CLIENT DIES, THE WORK IS REPARENTED TO THE containerd SHIM AND KEEPS RUNNING. MEASURED: A 300 s TIMEOUT LET A GREP RUN 2,834 s AND HELP IO-STARVE THE BOX'S SOLVERS — AND IT WAS INVISIBLE BECAUSE ITS OUTPUT WAS EMPTY
+
+2026-09-10, dafoam, lane-caught and reported to the supervisor unprompted.
+
+**WHAT HAPPENED.** A lane probing DAFoam's in-image source wrapped its container call as
+`timeout 300 docker run … grep -rn … /home/dafoamuser/dafoam/repos/dafoam`. **It ran for
+2,834 seconds — 9.4× its own bound.** `timeout` killed the `docker` **client** on schedule;
+the container kept going, reparented to the containerd shim, walking a whole source tree that
+is host disk via overlay2. It was one of the sweeps that drove the box to **IO pressure 85 %
+and load 47 on 16 vCPU with only ~10 CPU-bound processes**, while real solvers — another
+team's MRF and T4e runs — waited on IO. Killed by explicit container id; `docker ps -q` then
+0. The background task reported **exit 143 (SIGTERM)**, which is what proved it had been alive.
+
+**THE MECHANISM, STATED SO IT GENERALISES.** `docker run` is a **client** talking to a
+daemon. Signalling the client says nothing to the daemon, so **every wrapper that bounds a
+container by bounding its client is not bounding anything** — `timeout`, a shell `&` plus
+`kill`, a harness call limit, an agent's own death. **The only bound on a container is
+`docker kill` / `docker stop` on the container, or `--stop-timeout` on the run itself.**
+This is the same shape as the recorded `setsid` trap — *"`setsid timeout cmd` exits 0 for
+every outcome; capture rc inside the detached wrapper, never around the setsid line"* — and
+the same shape as the lab's watcher lessons: **a wrapper that returns is not a job that
+stopped.**
+
+**AND THE DETECTION FAILURE IS THE HALF WORTH COPYING.** The lane's own account: *"I read its
+empty output, concluded it had failed, and moved on without checking whether it had actually
+stopped. That is the real error: I treated 'no output' as 'process finished.'"* **An empty
+result is a statement about the OUTPUT, not about the PROCESS.** The badly-scoped first
+attempt returned nothing, which looked like a dead end and was actually a live one — so the
+sweep survived precisely **because** it appeared to have failed. A second, correctly-scoped
+call (one container, one resolved path) answered the same question in seconds. **The wrong
+answer and the wrong resource footprint arrived together, and the wrong answer hid the
+footprint.**
+
+**THE RULE.** Bound a container **at the container**: capture the name or id at launch and
+`docker kill` it in the failure path; never rely on `timeout` around the client. And after
+any probe that returns nothing, **check that it stopped** — `docker ps -q`, or the pid —
+before concluding anything from the silence. On a shared box the cost of a leaked container is
+not borne by the lane that leaked it: it is borne by whichever team's solver is waiting on IO.
+
+*Provenance:* dafoam, 2026-09-10, lane self-reported and supervisor-verified from the
+measured elapsed time and the SIGTERM exit. Family: the `setsid` parent-returns-zero trap,
+the agent-watcher lessons, `L-342` (this cost bookkeeping and other teams' throughput, no
+physics).
