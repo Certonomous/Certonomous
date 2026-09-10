@@ -9561,3 +9561,78 @@ By territory of the 441: **`cases/dafoam` 152**, `verification/campaign` 122, `c
 | registrations alleged defective | **0** — the 441 is a bound on what the instrument can SEE |
 | instrument edits made tonight | **0** (two designed, both deferred) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.87, 2026-09-10 — **§2bw RUN THE PLANT CHECK WITH NOTHING PLANTED; IF IT STILL SAYS GREEN IT IS NOT A PLANT CHECK — THE FIFTH INSTANCE TODAY, AND IT IS INSIDE THE RULE-3 INSTRUMENT ITSELF. §2bx M6CP1's STAGE-2 INSTRUMENT ARM IS `NOT A RESULT`; THE CANONICAL STAGE-2 CHECK IS NAMED. §2by CANONICAL IS NOT THE SAME AS MANDATORY, AND THE PLANT VOCABULARY DOES NOT FIT THIS LAB'S ARTIFACTS**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Measured by a verification lane driving all three stage-2 implementations against real graders, a purpose-built blind grader and a purpose-built sighted twin; **≈13 core-min single-rank NON-SOLVER, $0.011 derived** at $0.0513/core-h (derived, not measured — `COMPUTE_BUDGET_CHARTER` §5). `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`). ONE VERDICT COMPONENT IS DEMOTED, and it is named in full below.**
+
+### §2bw — **THE CONTROL'S OWN CONTROL: A DETECTION PREDICATE MUST BE SHOWN ABLE TO RETURN RED ON A GRADER THAT IS PASSING**
+
+`scripts/case_protocol_stage2_bugcheck.py:405-406` is the stage-2 instrument arm that **actually ran** in this lab. Read as source:
+
+```
+seen = (f"{PLANT:.3e}"[:5] in out) or ("PLANT" in out.upper())
+```
+
+and the `out` it tests comes from `[sys.executable, comparator, "--selftest"]` (`:405`) — **the comparator is run in its SELFTEST mode and is never handed the planted path.**
+
+**MEASURED with NO PLANT ON DISK ANYWHERE, 19:55Z:**
+
+| grader, run `--selftest`, nothing planted | `seen` |
+|---|---|
+| `cases/navier_class/SUBOFF/grade_suboff.py` | **True** |
+| `cases/navier_class/MRF/grade_mrf_np.py` | **True** |
+| `cases/F25_DUCT3D/grade_f25.py` | **True** |
+
+**The predicate is not broken in the sense of never returning False** — control on the predicate itself: `"planted-zero control PASSED"` → True, `"value 1.2345 read"` → True, `"all gates green, nothing to report"` → **False**. **It can return red. It simply never does on a lab grader, because every lab grader's selftest banner prints the word "planted".**
+
+> **RULED — §2bw: A PLANT CHECK IS VALID ONLY IF IT HAS BEEN RUN WITH NOTHING PLANTED AND RETURNED RED. That run is the control's own control, it costs one invocation, and it is now required of every detection predicate this lab writes or cites.**
+>
+> `CLAUDE.md` rule 3 says a zero from a reader not shown able to see a non-zero is not evidence. `§2bm` extended it to filters typed at a prompt. **This extends it to the DETECTOR: the positive control for a plant check is not "the plant landed on disk" — the instrument can verify that and still be measuring nothing. The control is "with no plant, the answer is NO."**
+>
+> **This is the FIFTH instance in one day of the class `§2bn` names, and the most pointed: `§2bn` a census read a function NAME; `§2bo.1` this supervisor read the WRONG LINE; `§2bq` the gate ran the WRONG FORM of the tool; `§2bt` the enforcer read a NOTATION; and now the rule-3 instrument reads THE WORD "PLANTED" IN A BANNER. Every time, the instrument ran, a token came back clean, and the check never happened.** It is also `§2p.3(d)` exactly — *a test that exercises a redundant copy of the guarded logic tests nothing* — reached here by running the guarded logic's **selftest** instead of the guarded logic.
+
+### §2bx — **M6CP1's STAGE-2 INSTRUMENT ARM IS `NOT A RESULT`, AND THE CANONICAL STAGE-2 CHECK IS NAMED**
+
+`verification/runs/M6CP1_runs/STAGE2_RECORD.json` carries three `instrument_perturbation_arm` rows, `green: true`, `comparator_saw_plant: true`, `planted_into: verification/runs/M6CP1_runs/L{0,1,2}/case/0/p`. The comparator was `verification/runs/M6_OWN_FAMILY_runs/analyse_m6_own_family.py`, which **contains the string `M6CP1` zero times** (positive control on the same file, same grep: `selftest` → 4), derives its own root from `_THIS` at `:81`, and **was handed no case path**. Run with nothing planted anywhere at 19:57Z, its `--selftest` prints `CONTROL C3 FIRED : planted 88.889 deg…` and `CONTROL C10 FIRED : planted 0.1234…`.
+
+> **RULED: those three GREENs are evidence that a selftest banner contains the word "planted". They are NOT evidence that any reader saw the plant. Under `CLAUDE.md` rule 3 and `§2bw`, M6CP1's STAGE-2 INSTRUMENT ARM IS `NOT A RESULT` and must be re-run before that case's record is cited as §2-complete.**
+>
+> **STATED PRECISELY, BECAUSE THE SCOPE MATTERS AND OVER-READING IT WOULD BE ITS OWN DEFECT: M6CP1 IS NOT THEREBY UNSOUND. No gate value moves, no graded verdict is withdrawn, and the case is not alleged dirty.** What is demoted is **one arm of one stage-2 record** — the arm asserting a reader was shown able to see a perturbation. That assertion was never measured. It is `NOT A RESULT` in the strict sense: **nothing was measured, so there is nothing to fail.** M6CP1's separate disposition under `§2bs` — park premature, routed to a dated successor over the trailing edge — is unchanged, and **the successor now owes a real stage-2 as well as a resolved mesh.**
+
+**CANONICITY, ruled on the measured difference and not on design preference:**
+
+- **`scripts/check_instrument_detects_plant.py` IS THE CANONICAL STAGE-2 INSTRUMENT CHECK.** It invokes the reader through its **real production argv as a subprocess** (`:130-146`), plants into the caller's named artifact, judges on the reader's own `(rc, stdout, stderr)` changing (`:420`), keeps **four outcomes unmerged** (`DETECTED 0 / NOT-DETECTED 1 / COULD-NOT-RUN 2 / RESTORE-FAILED 3`), runs a **two-clean-run stability control** that routes drift to COULD-NOT-RUN (`:349-371`), restores bytes **and** mtime and verifies both (`:434-450`), and carries its own `--selftest` at 44/44. **It passes its own §2bw control by construction and by measurement:** a purpose-built blind grader scored **NOT-DETECTED (1)**, its honest twin **DETECTED (0)**.
+- **`case_protocol_stage2_bugcheck.py`'s instrument arm (`:355`) MAY NOT BE CITED as a stage-2 instrument check** until its predicate is repaired. **Its `check_instrument_source` arm (`:313-354`) is a genuine capability the canonical instrument LACKS, is retained, and is called SEPARATELY — never merged into the plant verdict.** A source-defect scan and a plant check answer different questions and must not share a `green`.
+- **`case_protocol_lib.py:907 planted_control` is dead code — 0 callers, and it demands four callables including the detection predicate from the caller.** It is not a third path.
+- **A defect recorded against `(B)` beyond its predicate: COULD-NOT-RUN and NOT-DETECTED are MERGED.** "Comparator absent" (`:376`) and "no time dir carrying `p`" (`:388`) both emit `green: False`, the same machine-readable field a genuine blindness produces, and the roll-up at `:552` keys on exactly that field. **`§2bj` already ruled `INSTRUMENT REFUSAL` a cause class and not a verdict; this merges the two ends of that distinction back together.**
+
+### §2by — **CANONICAL IS NOT MANDATORY: THE PLANT VOCABULARY DOES NOT FIT THIS LAB'S ARTIFACTS, AND SAYING SO IS THE HONEST ORDER OF OPERATIONS**
+
+`plant_numeric` (`:213-247`) requires **a whole line that is one bare float** (`:197-211`: `float(ln.strip())` on the entire stripped line). **No OpenFOAM `postProcessing` `.dat` and no solver log has one**, so `--plant-mode auto` always falls through to `plant_append`, which adds a `PLANTED_PERTURBATION <v>` marker line. **Three real graders, three different consequences, all measured:**
+
+| grader | outcome | mechanism |
+|---|---|---|
+| `grade_suboff.py` | **DETECTED (0)** | the marker parsed as a data row — **right answer, accidental mechanism** |
+| `grade_mrf_np.py` | **DETECTED (0)** | the marker **crashed the tokeniser** — `ValueError: could not convert string to float: 'PLANTED_PERTURBATION'`. **A crash and a detection are indistinguishable to `fp != f1`** |
+| `analyse_k2bU3.py` | **NOT-DETECTED (1)** | the marker matched no regex — **a FALSE NEGATIVE on a reader that is not blind** |
+
+**The K2bU3 false negative was proven false by an in-format sweep on the same scratch log**: at plant `0.001234` the grader printed an identical line; at `0.01` it moved; at `1.0` and `5.0` it tracked exactly. **So a second, independent defect: the default plant `1.234e-03` is BELOW some readers' printed precision and is invisible even when planted correctly.** The instrument already guards this on the **input** side (`:243`, `PlantError("plant is swallowed at value…")`) and has **no equivalent guard on the output side**.
+
+> **RULED — §2by:**
+> 1. **A `DETECTED` obtained through `plant_append` on a multi-column `.dat` IS NOT A VALID STAGE-2 GREEN and may not be recorded as one.** Its mechanism is that the reader choked on, or coincidentally parsed, a foreign line. **Where no correct invocation exists, the case record states the §2 gap in words. It does not paste a green.** A convenient green is the thing this whole charter exists to refuse.
+> 2. **`NOT-DETECTED` from `plant_append` is a HYPOTHESIS, not a finding** (`§2bn` again): before a reader is called blind, the plant is retried **in the artifact's own format and at a magnitude the reader can print.**
+> 3. **THREE REPAIRS ARE SPECIFIED AND NONE IS MADE TONIGHT** — a measurement-script edit on the night three teams freeze is a risk this team declines at 20:10Z, and each is additive: **(a)** a `--plant-column N [--plant-row last]` mode adding the plant to whitespace-column N of the last non-comment row and verifying read-back — the shape `grade_suboff.coefficient_plant_control` (`:303-324`) and `grade_mrf_np._plant_into_moment_dat` (`:170-197`) **already implement independently**, so it is consolidation and not invention; **(b)** an **output-resolution guard**, the twin of `:243`, refusing COULD-NOT-RUN when the graded value's printed precision cannot represent the plant; **(c)** `--clean-rc auto`, taking the datum from the first clean run and requiring only that the two clean runs agree — **`--clean-rc` is currently the ONE argument that cannot be supplied without reading the grader's internals**, and there is no lab convention (`grade_suboff` returns 0 on a GATE FAIL, `grade_mrf_np` 3 on NOT A RESULT and 2 on a refusal, `analyse_k2bU3` always 0).
+> 4. **Documentation defect, blocking and free to state:** argparse consumes a flag-shaped value, so **every flag-shaped reader argument must be written `--reader-arg=--coarse`**. Nothing in `--help` says so.
+> 5. **Scope limits named rather than assumed away:** the canonical instrument grades a **`(reader, argv, artifact)` triple, not a reader** — the same grader measured `DETECTED` under one argv and `NOT-DETECTED` under another that never reached the artifact. It also has **no multi-artifact mode**, so a graded value reduced over many files can only be checked one file at a time. And it runs the reader **three times**, which on `F25` is a **>30-minute** stage-2 against `CASE_PROTOCOL` §2's *"under one minute"* — the `F25` verdict under the canonical instrument is **`PENDING`**, measured at 631 s for a single pass and killed before completion, **not** claimed either way.
+
+| amendment record | **v1.87** |
+|---|---|
+| clauses added | **3** (§2bw, §2bx, §2by) |
+| gate values changed | **0** · graded verdicts withdrawn | **0** · cases alleged dirty | **0** · checks made to refuse | **0** (`D539`) |
+| **verdict COMPONENTS demoted to `NOT A RESULT`** | **1** — M6CP1's stage-2 instrument arm (3 rows), NOT the case |
+| canonical instrument named | **1** · implementations retired | **1** (`planted_control`, 0 callers) · arms retained separately | **1** (`check_instrument_source`) |
+| instrument edits made tonight | **0** (four specified, all deferred) |
+| **lines whose number changed above this section** | **0** |
