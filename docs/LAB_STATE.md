@@ -31197,6 +31197,46 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 131-M6-IS-FROZEN-AUTHORISED-AND-STILL-NOT-LAUNCHABLE-TRANSONIC-DID-NOT-FIX-IT-AND-I-AM-CHALLENGING-MY-OWN-LANES-NOT-THE-MESH-CONCLUSION -->
+
+**Section last written:** 2026-09-10T~19:05Z by the cfd-supervisor (Opus 5). PURE INSERTION at top of `## cfd`; blocks 130 and below stand unedited. **Brings the section current with the three commits it was missing (`852e77ff8`, `0bdf38639`, `726e3d0c`) and records why the M6 did NOT launch into twelve idle cores.**
+
+### ✅ CHECK 4 ON M6CP1 IS DISCHARGED, PERSONALLY AND UNDELEGATED. The M6 flow registration is FROZEN and AUTHORISED.
+`verification/campaign/M6CP1_PREREGISTRATION.md`, frozen at `852e77ff8`, registration blob `543ffe291e4d8c01e544e4d4d4541a961877ffe6`. **I verified it by hashing, not by looking:** worktree, freeze commit and HEAD all return the same blob. **The pin table is clean too** — all seven grading-path blobs (`analyse_m6_own_family.py`, `case_protocol_lib.py`, stages 1–4, the freeze manifest) are byte-identical at HEAD, so no measurement instrument drifted between the freeze and now. That is check 1 discharged on the grading path.
+
+### 🔴 AND THE M6 STILL DID NOT LAUNCH TODAY. Sanaa's words are "I WANT THAT M6 RUN" and I am not spending the cores on a run that cannot produce a picture.
+**What blocks it is none of the things that blocked it before.** Not capacity — load re-derived at **3.04** on 16 vCPU when I started, ~12 idle cores, and my block-130 ground of "load 45.85" is dead (verification re-derived 3.96 at 17:40Z; it is now `VERIFICATION_CHARTER` §2bk.5). Not authorisation — frozen, above. Not budget — Sanaa exempted 3D demo runs from cap stops on 2026-09-10.
+**It is that STAGE 3 HAS FAILED THREE RUNGS ON ONE CAUSE, `ENERGY_RUNAWAY_TRAILING_EDGE`:**
+
+| rung | level | outcome |
+|---|---|---|
+| M0 baseline | L2 | FAIL — bounded but nonphysical, clamps firing, **Cl = −0.3089** (a wing with negative lift) |
+| M1 mesh tier | L1 | STOPPED, classed — **divergence, Cl = 1.481e+30**, 229 upper / 461 lower clamped, LTS min time scale 4.97e-30 |
+| N1 numerics tier, `transonic yes` | L2_N1 | **FAIL** — see below |
+
+### 🔬 `transonic yes` DID NOT FIX IT — MY OWN CHECK-2 TRIAGE, READ FROM THE LOG BY HAND
+`verification/runs/M6CP1_runs/L2_N1/smoke/log.rhoPimpleFoam`, Time = 400, rc = 0, 117.66 s:
+- **energy initial residual PINNED at 0.9999999824 on every single iteration**, final residual 3.089e-20;
+- **momentum FROZEN** — Ux/Uy/Uz initial residuals 5.211e-08 / 5.318e-08 / 5.122e-08;
+- **clamps still firing at BOTH ENDS** — 225 cells on the 100 K floor, 124 on the 1000 K ceiling, against a registered prediction of **zero** clamped cells.
+**An energy residual that sits at 1.0 for four hundred iterations while the velocity field does not move is not a slow march — it is a clamp-held fake steady state**, and §9 of the registration already names the condition: *a clamp active at the plateau is a boundary condition on the answer, not a stabiliser.* **A stage-4 launch over this buys hours of compute and a `NOT A RESULT`.**
+
+### ⚖️ I AM CHALLENGING MY OWN LANE'S CONCLUSION, AND I REGISTERED THE CHALLENGE BEFORE TESTING IT
+M1 concluded the trailing-edge hot cells are **NOT** a mesh artifact — because they sit at the same x/c on L2 and L1, and because refinement makes it worse. **The ladder then spent its whole mesh tier and pivoted to numerics on that conclusion, so everything downstream rests on it.** I do not think it holds. **A sharp trailing edge with sliver cells ALSO follows the geometry and ALSO worsens on refinement, because slivers get thinner as the grid refines.** Both hypotheses predict exactly what M1 measured, so the measurement does not discriminate. Two other recorded numbers sit badly with the "unstable scheme" reading: **wing-patch y+ max of 149,276 against a geometric first-cell y+ of 187** (factor ~800) and **Cd = 1.52 on a wing**, which is a bluff-body figure. Adjudication dispatched to a lane: checkMesh quality at the TE, colocation of worst cells against hot cells, the LTS `rDeltaT` field, and a direct read of patch types. **Its outcome decides whether the ladder continues on the own-family mesh or whether that family is itself the defect** — and switching to `M6SR_runs/L1` (1,597,440 cells, different build route) would be a NEW registration, not an amendment.
+
+### 📌 AMENDMENT 1 LANDED — the frozen registration contradicted itself about its own authorisation
+Commit **`726e3d0c`**. The document's first screen read *"THIS FILE IS A DRAFT. IT IS NOT FROZEN, NOT AUTHORISED, AND NO GRADED SOLVE HAS RUN UNDER IT"* while its last screen read *"FROZEN BY: cfd-supervisor"*. **All three assertions were false.** That is the precondition for either error — a run launched under a document a later reader believes was never frozen, or a freeze abandoned because its face said draft. **STRUCK, not rewritten** (rule 6), with the assertion **machine-verified rather than asserted**: lines 1–396 diff byte-identical against HEAD, so *lines whose number changed above this section: 0*. No gate, threshold, cap or label touched. The amendment also records that compute has occurred and the gates are now CLOSED.
+
+### 🚫 DISCLOSED, NOT REPAIRED — a contaminated cause in the ladder history
+Attempt 3 of `STAGE3_LADDER_HISTORY.json` is recorded as rung `"baseline"` with cause `"final_residual_U"`. It was the **N1** rung, and `final_residual_U` is the **known reader defect**: `rhoPimpleFoam` emits `Ux`/`Uy`/`Uz` and no `Solving for U` line, so the reader returns `measured=None` and labels COULD-NOT-RUN as FAIL. **I did not touch the reader** — it is a pinned launcher and compute has occurred; a supervisor quietly repairing a pinned instrument after compute is the exact move the freeze exists to prevent. Referred to verification under §2d.1; repair stays staged unapplied at `verification/runs/M6CP1_runs/PROPOSED_REPAIR_stage3_smoke.py`. **It matters because `cause` is the field the two-fails-same-cause rule climbs rungs on** — a contaminated cause can buy a rung the case never earned.
+
+### 🎬 DEMO-READINESS WORK DISPATCHED under Sanaa's 18:55Z "make them demo ready"
+Three lanes live (my cap): **M6 trailing-edge adjudication**; **F25 square duct** — the lab's only CONVERGING 3D triple, PASS ×2; **NASA CRM / DPW5 wing-body** — the flagship industry 3D case. Each lane must fully discharge rule 4 **including the age guard and the ExecutionTime-count clause** — the gap my own block-130 survey admitted it never checked — produce a render export **outside the graded tree** with a before/after mtime manifest and a planted control, and write an honest caption in the fixed vocabulary. **VERIFY: all three outstanding at time of writing.**
+
+### ⚠️ TWO OPERATIONAL NOTES, RE-DERIVED IN THIS INVOCATION
+- **Load 30.00** at 19:05Z, but only **three** CPU-bound processes exist (heat-transfer `buoyantBoussinesqSimpleFoam` pids 1233867 and 1233987 at ~100 % each, ansys `rhoCentralFoam` pid 316601). The rest is my lanes' filesystem sweeps plus `kswapd0`/`kcompactd0`. **Not core contention.** MemAvailable 27 GiB.
+- **`pvbatch` (ParaView) died on SIGABRT** (signal 6, apport-caught, pid 1455612) during demo-export work. **VERIFY** whether ParaView is usable on this box at all — if it is not, every demo render must route through `foamToVTK` plus an external renderer, and that is a finding about the demo toolchain rather than about any case.
+
 <!-- BOARD-BLOCK-ID: 130-M6-HAS-SIX-MESH-FAMILIES-AND-ZERO-FLOW-SOLUTIONS-3D-DEMO-LIST-DELIVERED-RULE3-ARMED-ON-THE-COST-CHANNEL-AND-I-DESTROYED-TWO-LEDGER-ROWS-BY-BATCHING-AN-APPEND -->
 
 **Section last written:** 2026-09-10T~16:50Z by the cfd-supervisor (Opus 5). PURE INSERTION at top of `## cfd`; block 129 and below stand unedited. **Carries the 3D demo inventory Sanaa asked for, rule 3 finally armed on the cost channel, and my THIRTEENTH, FOURTEENTH and FIFTEENTH self-corrections.**
