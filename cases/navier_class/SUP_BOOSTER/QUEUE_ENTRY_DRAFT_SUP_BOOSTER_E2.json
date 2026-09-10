@@ -1,0 +1,75 @@
+{
+  "_WHAT_THIS_FILE_IS": "DRAFT QUEUE ROW FOR SUP_BOOSTER E2. IT IS NOT IN THE QUEUE AND IT IS NOT ENQUEUEABLE AS IT STANDS. It sits beside its case (CLAUDE.md rule 13: a draft another agent must read lives under the case directory, never in the scratchpad and never in a repository document's citation of a scratch path). verification/queue/cfd/ is the LIVE DAEMON DROP PATH -- writing into it ARMS A LAUNCH within a minute. The preparing lane placed nothing and holds no authority to place anything.",
+  "_WHO_MAY_PLACE_IT": "The cfd-supervisor's check-4 is the lab's technical go-ahead and may never be delegated (SUPERVISION_CHARTER.md section 3). It is NOT Sanaa's consent. No agent's relay of any approval is Sanaa's consent (CLAUDE.md rule 9). ENQUEUEING IS NOT AUTHORISATION.",
+
+  "team": "cfd",
+  "case_id": "SUP_BOOSTER-E2",
+  "prereg_path": "verification/campaign/SUP_BOOSTER_E2_PREREGISTRATION.md",
+  "prereg_commit": "0000000000000000000000000000000000000000",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUP_BOOSTER/run_graded_triple_e2.sh",
+    "--go"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/navier_class/SUP_BOOSTER",
+  "ranks": 1,
+  "cost_core_min_estimate": 31.0,
+  "cap_core_min_registered": 60.0,
+  "memory_floor_gb": 1.0,
+  "cost_basis": "DERIVED at the on-box c7a.4xlarge rate $0.0513/core-h, REPORTED-BY-OWNER and NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5, CLAUDE.md rule 12). Transcribed from SUP_BOOSTER_E2_PREREGISTRATION.md section 5, not recalled. ESTIMATE 31.0 core-min: this is not an allowance, it is anchored on the E1 MEASURED actual for the same solver, same endTime and near-identical cell counts -- 30.85 core-min measured serial (coarse 243 s + medium 501 s + fine 1107 s wall, ranks 1), recorded in docs/COST_CALIBRATION.md row C-20260909T214553.000000Z-supbe1. Derived dollars at the estimate: 31.0/60 x $0.0513 = $0.0265 DERIVED, NOT MEASURED. CAP 60.0 core-min = 60/60 x $0.0513 = $0.0513 DERIVED, NOT MEASURED, under the $25 pre-authorisation. OVERRUN STOPS THE RUN; it does not get a new budget (CLAUDE.md rule 12). E2's mesh differs from E1's only in radial grading (GR_RADIAL 12 -> 5) at IDENTICAL cell counts, so the E1 rate carries; the residual misprediction risk named as the likeliest-wrong term is that a gentler near-wall distribution changes the LTS local time step and hence iterations-to-plateau at fixed endTime 15000 -- that term has never been measured on the E2 mesh.",
+  "enqueued_by": "PREPARED, NOT ENQUEUED -- cfd lab-lane, 2026-09-10, at the cfd-supervisor's direction. This lane did not place this row, did not freeze the pre-registration, and holds no authority to do either. Whoever places it replaces this string with their own identity and the authority they placed it under.",
+
+  "_schema_note": "The fields above are scripts/queue_entry_check.py REQUIRED_FIELDS plus cap_core_min_registered. Everything below is a cfd annotation the validator ignores.",
+
+  "_BLOCKERS_THIS_ROW_CANNOT_DISCHARGE": {
+    "1_PREREG_COMMIT_IS_A_PLACEHOLDER": "0000...0 is the git null sha, chosen deliberately because it is a valid 40-char lowercase hex string that PASSES the validator's SCHEMA clause and FAILS its COMMIT-EXISTS and PREREG-AT-COMMIT clauses. An entry cannot carry the sha of the commit that contains it. THE CFD-SUPERVISOR REPLACES THIS AT THE FREEZE with the sha of the freeze commit of prereg_path, re-derived from git and NEVER from a subject line. Until then this entry is NOT ENQUEUEABLE and the validator says so.",
+    "2_THE_LAUNCHER_NAMED_IN_launch_cmd_DOES_NOT_EXIST": "verification/runs/navier_class/SUP_BOOSTER/run_graded_triple_e2.sh IS ABSENT ON DISK as of 2026-09-10. The only launcher present, run_graded_triple.sh, is E1's: it pins the E1 grader grade_sup_booster.py and the E1 generator gen_cone_mesh.py, carries the E1 90-core-min cap as per-level timeouts 1200/1800/2400 s, and writes into the E1 run root. It CANNOT be used for E2. scripts/queue_entry_check.py DOES NOT CHECK THAT launch_cmd[1] EXISTS -- an entry naming an absent script validates cleanly and then dies at launch behind a LAUNCHED record. THIS IS THE ROW'S HARDEST BLOCKER.",
+    "3_NO_E2_RUN_ROOT_IS_REGISTERED": "SUP_BOOSTER_E2_PREREGISTRATION.md names no run root. The E1 root verification/runs/navier_class/SUP_BOOSTER/graded/ EXISTS and holds E1's three graded levels and E1's refusal text -- pointing E2 at it would destroy E1's evidence (E1's launcher rm -rf's each level) and defeat the rule-4 age guard. The E2 root proposed and PLANT-VERIFIED ABSENT at 2026-09-10T04:04:39Z is verification/runs/navier_class/SUP_BOOSTER/graded_e2/ (os.path.exists/lexists/isdir all False; reader shown able to see a non-absence by creating and removing it in the same invocation, standing rule 3). NAMING THE RUN ROOT IS A PRE-FREEZE ACT AND IS THE SUPERVISOR'S.",
+    "4_A_CONFLICTING_C2_RULING_IS_OF_RECORD": "verification/campaign/SUP_BOOSTER_E2_C2_SHOCK_ANGLE_GATING_RULING_2026-09-09.md (verification-supervisor, commit 0e9c1bcb) GRANTS framing (ii) and states it gates cfd's E2 freeze; the cfd-supervisor's 2026-09-10 ruling now recorded in section 3 of the pre-registration RULES framing (i). Reconciling them is cross-family arbitration, reserved to Sanaa (CLAUDE.md FIRST-ACTION RULE). No launch should be armed over an unreconciled conflict."
+  },
+
+  "_PROVENANCE_EVERY_VALUE_TRANSCRIBED_NOT_RECALLED": {
+    "case_id": "SUP_BOOSTER_E2_PREREGISTRATION.md:1 (title, '(E2)') and :7 ('§2bc fix-until-runs successor to SUP_BOOSTER E1')",
+    "cost_core_min_estimate 31.0": "SUP_BOOSTER_E2_PREREGISTRATION.md:84 -- '**~31 core-min**'. Anchored on the E1 MEASURED 30.85 core-min, docs/COST_CALIBRATION.md:492.",
+    "cap_core_min_registered 60.0": "SUP_BOOSTER_E2_PREREGISTRATION.md:84 -- '**CAP = 60 core-min** (≈2× margin)'. NOT YET ENFORCED BY ANY INSTRUMENT: the E2 launcher that would carry it as per-level timeouts does not exist (blocker 2). scripts/queue_runner.py's cap_watch REPORTS an overrun and does NOT kill, so an outer wall-clock backstop on the argv is advisable at placement -- `timeout --signal=TERM --kill-after=120 10800 <launch_cmd>`, where 10800 s = 3 x 60 core-min x 60 / 1 rank, the fleet 3x-cap convention. RESTRICTS ONLY. It is NOT baked into launch_cmd above: the outer bound is the placer's act and this lane does not presume it.",
+    "cost_basis": "SUP_BOOSTER_E2_PREREGISTRATION.md:84-89",
+    "ranks 1": "SUP_BOOSTER_E2_PREREGISTRATION.md:88 -- 'Serial (1 rank), sequential coarse→medium→fine (good citizen)'.",
+    "cwd": "The CASE directory. It EXISTS (validator EXEC clause, check_cwd_launchable) and contains NO directory matching the validator's TIME_DIR pattern ^[0-9]+(\\.[0-9]*)?([eE][+-]?[0-9]+)?$ -- its children are 0.orig, constant, system, __pycache__, and '0.orig' does not match (validator AGE-GUARD clause). The REGISTERED RUN ROOT is a different path and is guarded separately -- see blocker 3.",
+    "memory_floor_gb 1.0": "ALLOWANCE, NOT MEASURED, AND SAID SO. No VmHWM or equivalent was recorded for E1 or for the E2 smoke, so there is no measured footprint to carry. 1.0 GB is a floor asserted on the size of the problem -- a 2-D wedge-axisymmetric inviscid rhoCentralFoam case of at most 30,375 cells with 4 graded fields -- on a box whose free memory vastly exceeds it. IF A MEASUREMENT IS TAKEN BEFORE LAUNCH, REPLACE THIS FIGURE AND THIS NOTE WITH IT."
+  },
+
+  "_GRADING_PATH_AS_SECTION_10_WILL_PIN_IT": {
+    "note": "grading_freeze is REPORTING-ONLY in the validator (check_grader_freeze always returns [] -- Sanaa 2026-09-03: a pre-registration mismatch never prevents a launch, it is recorded as a prediction and compared on the certificate). Listed here so the prediction is recorded, not as a gate.",
+    "grading_freeze": [
+      "verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py",
+      "cases/navier_class/SUP_BOOSTER/gen_cone_mesh_e2.py"
+    ],
+    "disk_blobs_at_2026-09-10_equal_to_HEAD": {
+      "verification/runs/navier_class/SUP_BOOSTER/grade_sup_booster_e2.py": "7745f930aaa826319383074e245b5a697c7f933c",
+      "cases/navier_class/SUP_BOOSTER/gen_cone_mesh_e2.py": "be6cc10481fb93ba541ca025ee44145b32b85ba1",
+      "verification/runs/navier_class/SUP_BOOSTER/tm_reference_M2p0_tc15.json": "c442a94bfd3166e443124e92248c5d96a929d8a5 (reference, unchanged from E1, section 10 provenance line)"
+    },
+    "who_pins_them": "The cfd-supervisor, at the freeze commit, into the section 10 placeholder table. Not this lane."
+  },
+
+  "_field_classes": {
+    "physics_critical": [
+      "the per-level rc captured INSIDE the detached wrapper (never around a setsid line -- `setsid timeout cmd` exits 0 for every outcome)",
+      "each level's log End line, endTime fields (p U T rho) and the 0/T age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342; Sanaa's universal rule 2026-08-26: bookkeeping never voids physics)"
+  },
+
+  "verdict_state": "PENDING"
+}

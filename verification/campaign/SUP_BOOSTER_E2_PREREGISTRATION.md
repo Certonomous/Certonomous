@@ -53,15 +53,72 @@ Both decided only through the Roache triple (Celik F_s=1.25); non-CONVERGING or 
   triple is CONVERGING; else GATE FAIL / NOT A RESULT.
 - **Gate C2 — conical shock angle β (SECONDARY).** PASS iff **|β_fine − 33.9147°| ≤ 1.0°** and
   the triple is CONVERGING; else GATE FAIL / NOT A RESULT.
-  **OPEN DESIGN QUESTION FOR THE SUPERVISOR (freeze-time ruling):** a captured shock's located
-  radius wiggles at the sub-cell level across grids, so the β Roache triple may be OSCILLATORY
-  even with a correct locator (on the E1 solutions the three β were 33.70/33.99/33.85 — all
-  within ±0.30° of TM and inside the ±1.0° band, but not monotone). Two admissible framings —
-  **(i)** keep C2 as a Roache-gated gate (OSCILLATORY → NOT A RESULT), or **(ii)** the DMR
-  precedent (`DMR_PREREGISTRATION.md` §3/§4): **report β_fine with its locator increment as a
-  measurement** and gate only its rung-to-rung consistency (e.g. spread ≤ 1.0°), reserving the
-  band as a PASS check on the fine value. I flag this for your ruling at freeze; I have NOT
-  chosen it unilaterally. The grader implements (i) today.
+  **SUPERVISOR RULING — 2026-09-10 — cfd-supervisor — FRAMING (i) RULED. THE GRADER IS NOT
+  CHANGED.** *(This supersedes the OPEN DESIGN QUESTION previously flagged at this point. It is
+  a legal pre-first-compute amendment under standing rule 2: it is taken BEFORE any E2 graded
+  compute, and it moves no gate, threshold, band, cap or label — it fixes the gating METHOD that
+  the already-committed grader already implements. **Condition and how it was checked:** the E2
+  graded run root `verification/runs/navier_class/SUP_BOOSTER/graded_e2/` DOES NOT EXIST —
+  checked at 2026-09-10T04:04:39Z by `os.path.exists`/`lexists`/`isdir`, all False, with the
+  reader PLANT-VERIFIED able to see a non-absence in the same invocation (the directory was
+  created, seen True, and removed) per standing rule 3. The sibling root `graded/` that DOES
+  exist holds **E1's** compute only, under E1's separate freeze `c8510ff7` and E1's pinned
+  grader `3c8d418a`; no byte of E2 graded compute has been bought.)*
+
+  **The question ruled on, with BOTH options preserved so a reader can see what was decided
+  against.** A captured shock's located radius wiggles at the sub-cell level across grids, so
+  the β Roache triple may be OSCILLATORY even with a correct locator (on the E1 solutions the
+  three β were 33.70/33.99/33.85 — all within ±0.30° of TM and inside the ±1.0° band, but not
+  monotone). Two admissible framings were before the supervisor —
+  **(i)** keep C2 as a Roache-gated gate (OSCILLATORY → NOT A RESULT), which is what
+  `grade_sup_booster_e2.py` implements today; or
+  **(ii)** the DMR precedent (`DMR_PREREGISTRATION.md` §3/§4): **report β_fine with its locator
+  increment as a measurement** and gate only its rung-to-rung consistency (e.g. spread ≤ 1.0°),
+  reserving the band as a PASS check on the fine value.
+  **RULED: (i). NOT (ii).**
+
+  **The four reasons, recorded as the supervisor stated them:**
+
+  1. **GATE-FITTING IS THE DECIDING ARGUMENT.** E1's three beta values (33.70 / 33.99 / 33.85)
+     are ALREADY KNOWN to be non-monotone while sitting inside the +/-1.0 deg band. Choosing
+     framing (ii) now, with that outcome in hand, would convert a likely NOT A RESULT into a
+     likely PASS. That is choosing the gate to fit the answer, and defeating exactly that is the
+     entire evidentiary content of standing rule 2. The fact that (ii) has a respectable physics
+     argument does not rescue it, because the argument arrives AFTER the number.
+  2. **(i) is the status quo**, so the freeze requires no instrument edit at all — the
+     lowest-risk path to a real verdict.
+  3. **I ACCEPT the likely cost of my own ruling and it must be stated on the face of the
+     record:** if beta wiggles again the triple is OSCILLATORY, C2 is NOT A RESULT under rule 5,
+     and since the rung PASSes only if both gates PASS, the RUNG is NOT A RESULT even though
+     C1's physics may be corroborated to 0.13-0.21%. That is an honest outcome, not a failure,
+     and I would rather buy it for 31 core-min than buy a PASS I chose.
+  4. **SEPARATELY, AND NOT AS PART OF THIS FREEZE**, the general question is referred to the
+     verification team as a STANDARDS question, to be answered on the standard and not on this
+     case: is a discretisation-QUANTISED locator output (a captured shock's located radius,
+     whose value is quantised by the cell size) an admissible input to Richardson extrapolation
+     at all, or does the DMR precedent govern that whole class? Roache's theory assumes a smooth
+     functional of the solution. If verification rules the DMR precedent governs, that ruling
+     applies lab-wide and arrives without anyone having chosen it to rescue a known number.
+     Nothing in this freeze pre-empts that.
+
+  **⚠ CONFLICTING RULING OF RECORD — DISCLOSED, NOT RESOLVED HERE (recorded by the preparing
+  lane, 2026-09-10).** A ruling on this exact question already exists in the repository and
+  rules the OTHER WAY: `verification/campaign/SUP_BOOSTER_E2_C2_SHOCK_ANGLE_GATING_RULING_2026-09-09.md`,
+  authored by the **verification-supervisor**, dated 2026-09-09, committed as `0e9c1bcb`, titled
+  *"framing (ii) GRANTED"*, and describing itself as *"gates cfd's SUP_BOOSTER E2 freeze"*. It
+  grants framing (ii) on the DMR/F19/F4S precedent, holds that Rule 5 *"does not mandate that
+  every quantity be Roache-gated"*, and attaches eight binding conditions (its §1), including a
+  localized grader change decoupling C2 from the Roache coupling plus a re-run of check-1. Its
+  own §3 records that *"On a 'keep Roache-gated' reading cfd could instead freeze as-is and
+  accept an OSCILLATORY → NOT A RESULT on C2"* — i.e. it acknowledges (i) as an available
+  reading while recommending against it. **This document does not decide which ruling prevails.**
+  Reconciling a cfd ruling with a verification ruling is cross-family arbitration, which
+  `CLAUDE.md`'s FIRST-ACTION RULE reserves to Sanaa and to no agent at any level. The conflict
+  is recorded here so that it cannot be frozen over silently; **the freeze should not be taken
+  until it is reconciled.** Note also that reason 4 above refers the general question to
+  verification as still-open; verification's 2026-09-09 ruling is that team's answer for THIS
+  case, though it expressly declines to codify a charter clause and flags the general
+  codification for Sanaa's desk (its §2).
 - **Labels:** fixed vocabulary. Rung PASS iff both gates PASS.
 
 ## 4. Grid triple for Celik F_s=1.25 (E2 gentler grading)
