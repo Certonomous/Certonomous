@@ -429,3 +429,164 @@ The smoke run's core-minutes count against the "meshing + smoke" line of §3.
 
 *Nothing below this line exists yet; addenda after the freeze may not alter any
 gate, threshold, cap or band above (rule 2).*
+
+---
+
+## AMENDMENT 1 — 2026-09-10, cfd-supervisor (Opus 5). **PRE-COMPUTE. THREE CORRECTIONS, THEN THE FREEZE.**
+
+**lines whose number changed above this section: 0.**
+
+### A1.0 THE CONDITION, AND HOW IT WAS CHECKED (rule 2)
+
+Rule 2 permits amendment **before first compute** and requires the condition to be stated and the
+check named. **No graded solve has run under this registration.** Verified with a **live planted
+control**, because a zero from a reader not shown able to see a non-zero is not evidence (rule 3):
+
+- **known-positive first:** the time-directory reader was run on `verification/runs/F25_DUCT3D_runs/coarse`
+  and returned **2** time directories. The reader is **shown able to see** what its absence would claim.
+- **then the graded roots:** `verification/runs/navier_class/MRF/medium` and `.../fine` each hold
+  **`0/` only — no solved time directory and NO SOLVER LOG AT ALL** (`log.*Foam` absent in both).
+- `.../coarse` holds `0/` and `50/` from **§7's EXERCISE-SMOKE, which this document itself plans as a
+  pre-freeze step**. It is not a graded solve and grades nothing.
+
+**The three corrections below are therefore legal. After the freeze block at A1.4 they would be gates
+and could not move.** All three were exposed by *building* the family — which is why §8.1 requires
+the build before the freeze.
+
+### A1.1 🔴 CORRECTION 1 — THE GRADER WOULD HAVE REFUSED THIS FAMILY, AFTER THE COMPUTE WAS SPENT
+
+The three levels are built. **The delivered refinement ratio is NOT the registered r = 1.5.**
+
+The snappy background block scales by exactly 1.5 in every direction — **32×32×36 → 48×48×54 →
+72×72×81**, background cells 36,864 → 124,416 → 419,904, ratios exactly 3.3750 and 3.3750. **The
+delivered mesh does not follow it**, because `nCellsBetweenLevels` is a buffer measured **in cells,
+not in physical thickness**: as the base cell shrinks, the refinement-transition shell shrinks with
+it and contributes proportionally fewer cells.
+
+Delivered cells **154,715 / 448,972 / 1,273,803**, so as `roache_triple.representative_h` computes it
+(h = N^(−1/3), dim 3):
+
+    r32 (coarse->medium) = 1.426359
+    r21 (medium->fine)   = 1.415667
+    |r21 - r32|          = 1.069e-02
+
+**`scripts/roache_triple.py` sets `EQUAL_RATIO_TOL = 1.0e-9`. The gap is 1.07e-02 — SEVEN ORDERS OF
+MAGNITUDE OVER.** On `mode="equal"` the instrument **REFUSES**.
+
+**REGISTERED, HERE, BEFORE COMPUTE: the ladder is graded on `mode="auto"`**, which takes Celik's
+fixed-point `gci_unequal` path with q(p). **Both delivered ratios clear Celik's r ≥ 1.3 minimum, so
+the triple is gradeable** — and the ratio is cross-checked by a volume-based h = (V/N)^(1/3), which is
+independent of the count identity: total volumes 0.020935767 / 0.020925508 / 0.020935132 m³ (agreeing
+to 0.05 %) give h = 5.1340 / 3.5988 / 2.5425 mm and r = 1.426592 / 1.415450. **Two instruments, four
+in the fifth digit.**
+
+**Why this is written down rather than fixed in a config:** left unset, the refusal would have arrived
+**at grading time, after every core-minute was spent.** An instrument that refuses is behaving
+correctly; a registration that lets it refuse late is not.
+
+**What is NOT changed:** the gate, the band `Np ∈ [4.0, 6.0]`, the reference `Np_ref = 5.0`, the
+prediction, rule-5 ordering and the one-way gate all stand exactly as drafted. **An unequal-r ladder
+is graded by a different formula, not by a different threshold.**
+
+### A1.2 CORRECTION 2 — THE REGISTERED CELL TARGETS WERE WRONG BY ~1.6×
+
+§4/§7 register ~250 k / 0.85 M / 2.9 M. Those are self-consistent at r = 1.5 **from a 250 k coarse**.
+**The coarse that exists is 154,715 cells — 62 % of its target** — and the family built from it lands
+where it lands. **Corrected to the delivered, measured counts:**
+
+| level | REGISTERED (struck) | **DELIVERED (measured, checkMesh + owner/neighbour cross-check)** |
+|---|---|---|
+| coarse | ~~~250 k~~ | **154,715** |
+| medium | ~~~0.85 M~~ | **448,972** |
+| fine | ~~~2.9 M~~ | **1,273,803** |
+
+Cross-checked, not taken from a summary line: `constant/polyMesh/{owner,neighbour}` headers agree with
+checkMesh at all three levels, and the six patch face counts sum **exactly** to
+`nFaces − nInternalFaces` (17,828 / 39,640 / 73,589).
+
+**Mesh admissibility against the two registered hard gates — all three levels PASS with margin:**
+
+| level | max non-orthogonality (gate ≤ 70°) | max skewness (gate ≤ 4) | max aspect ratio |
+|---|---|---|---|
+| coarse | **53.686** (avg 8.600) | **2.3524** | 3.3940 |
+| medium | **33.731** (avg 6.973) | **2.5115** | 3.2923 |
+| fine | **45.970** (avg 5.697) | **2.4951** | 6.0436 |
+
+**Dimensionality, from the `geometric (non-empty/wedge)` line explicitly** — never a grep on
+`directions`, because `checkMesh` prints a second `solution (non-empty)` line that counts a wedge
+direction as present: **all three levels read `Mesh has 3 geometric (non-empty/wedge) directions
+(1 1 1)`**, with six real wall patches (`tankWall tankBottom tankLid baffles shaft impeller`) and
+**zero occurrences of `empty` or `wedge` in any boundary file.**
+
+**DISCLOSED AND ACCEPTED EXPLICITLY, rather than left as an unexplained line in three logs:** every
+level reports `Failed 1 mesh checks` — `***Concave cells (using face planes) found`, **4,216 (2.73 %)
+/ 9,036 (2.01 %) / 17,212 (1.35 %)**. It is an `-allTopology` check, it is **not** one of this
+registration's two hard gates, and **the fraction falls monotonically with refinement.** It is a
+standing property of this snappyHexMesh geometry — **the coarse level, which was already accepted as
+clean, carries it too.** It is named here so no later reader treats it as new.
+
+### A1.3 CORRECTION 3 — THE 420 CORE-MIN CAP WOULD HAVE TRIPPED, AND IT IS REPLACED BY SANAA'S 3D EXEMPTION
+
+From the coarse exercise smoke — **50 iterations in 49.72 s ExecutionTime, serial** — the measured
+unit cost is **6.427e-06 core-s per cell-iteration**. At the pinned `endTime 4000`:
+
+| level | cells | **projected core-min** | registered estimate (struck) |
+|---|---:|---:|---:|
+| coarse | 154,715 | **~66** | ~~~35~~ |
+| medium | 448,972 | **~192** | ~~~90~~ |
+| fine | 1,273,803 | **~546** | ~~~200~~ |
+| **total** | | **~804** | ~~~355, cap 420~~ |
+
+**~1.9× the registered cap, with the fine level alone exceeding the whole cap.** And the projection is
+**optimistic, not conservative**: it assumes perfect parallel scaling, whereas 16-rank decomposition
+of a 155 k-cell level is latency-bound and will spend *more* core-minutes than the serial anchor.
+
+**Sanaa, 2026-09-10, verbatim: *"for all these 3D cases that still need to run, i dont want to see any
+budget gates ( time or money)"*.** MRF is a 3D Navier-class case she named. **Operationally, and on
+the M6CP1 §1 precedent: `budget_gate: NONE — Sanaa 2026-09-10`. No core-minute cap and no wall-time
+cap STOPS this run.** Rule 12's overrun-stop is suspended for MRF_R1.
+
+**What is NOT suspended: the costing.** The **~804 core-min** projection above is the pre-registered
+estimate and it is **calibration data, not a gate**. The actual lands in `docs/COST_CALIBRATION.md`
+under rule 12's estimate-versus-actual comparison, in core-minutes measured from the logs, with
+dollars **DERIVED at $0.0513/core-h and labelled derived-not-measured** — this box cannot read its own
+billing. Contention is named separately and never absorbed into the ratio.
+
+**Memory (estimate, not measurement — no solve has run):** at 16 ranks, ~2.6 / ~3.2 / ~4.5 GB
+aggregate, ~165 / ~200 / ~280 MB per rank, against 27 GiB available with heat-transfer resident. The
+memory peak of the whole exercise was the **serial mesh build at 1.60 GB, and it is already spent.**
+
+### A1.4 FREEZE BLOCK — cfd-SUPERVISOR, CHECK 4, UNDELEGATED
+
+```
+FROZEN BY:        cfd-supervisor (Opus 5), 2026-09-10, check 4 undelegated
+FREEZE COMMIT:    the commit carrying this amendment; verify with
+                  git log -1 --format=%H -- verification/campaign/MRF_R1_PREREGISTRATION.md
+REGISTRATION BLOB:git rev-parse HEAD:verification/campaign/MRF_R1_PREREGISTRATION.md
+                  (pointers, not transcribed digits: a document cannot state its
+                   own blob without changing it)
+GRADED FAMILY:    coarse 154,715 / medium 448,972 / fine 1,273,803 cells
+                  r32 = 1.426359, r21 = 1.415667, graded on mode="auto" (Celik unequal-r)
+GATE:             fine-level Np, PASS band [4.0, 6.0], rule-5 one-way gating, GCI at Fs = 1.25
+BUDGET GATE:      NONE -- Sanaa 2026-09-10. Estimate ~804 core-min is CALIBRATION DATA.
+NO GRADED COMPUTE UNDER THIS DOCUMENT AS AT FREEZE, verified by a LIVE PLANTED CONTROL:
+  the time-directory reader returned 2 on verification/runs/F25_DUCT3D_runs/coarse
+    -- it is SHOWN ABLE to see a time directory before its absence is believed (rule 3);
+  the same reader returned `0/` ONLY, and NO log.*Foam at all, on
+    verification/runs/navier_class/MRF/{medium,fine};
+  coarse's 50/ is section 7's EXERCISE-SMOKE, planned by this document as pre-freeze.
+```
+
+**AFTER THIS FREEZE THE GATES ARE CLOSED.** Changes land only as dated addenda that cannot alter a
+gate, threshold, cap, band or label. Originals are struck, never rewritten.
+
+### A1.5 A HAZARD IN THE EXISTING BUILDER, RECORDED BECAUSE IT NEARLY DELETED A GRADED LEVEL
+
+`cases/navier_class/MRF/build_mesh.sh` **opens with `rm -rf "$RUNDIR"`.** Pointed at a graded level,
+**that deletes it.** The per-level builder written for this family,
+`cases/navier_class/MRF/build_level.sh`, **refuses an existing RUNDIR instead of removing it**, and
+substitutes the background block count into `blockMeshDict` **with an assert on both sides** — exactly
+one match of the template line required, then the new value read back, refusing if either check
+fails (L-221/L-222: a `libs`-class edit is inserted with an assert, never replaced). `rc` for every
+stage is captured **inside** the shell that ran it, never inferred from an `End` line
+(`setsid`/`timeout` parents return 0 for every outcome).
