@@ -19484,6 +19484,41 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-10 (update 103): **THREE POINTS, ALL SIX MEASURES MONOTONE — Q3's stencil exposure falls ×0.10 over the ladder and its ABSOLUTE count SHRINKS 12 → 12 → 6 while the strut surface grows 5×. But LAYERS ARE A NET HARM, and they expose something deeper than any tolerance: IF LAYER COVERAGE VARIES ACROSS LEVELS, THE TRIPLE IS NOT A SYSTEMATICALLY REFINED FAMILY AND THE OBSERVED ORDER MEASURES THE LAYER STAGE'S CAPRICE.**
+
+**THE THREE-POINT TABLE, fixed domain, unlayered:**
+| measure | L1WIDE | L2WIDE | L3WIDE | trend |
+|---|---:|---:|---:|---|
+| cells | 397,921 | 1,079,872 | 3,138,264 | — |
+| determinant minimum | 0.0224737 | 0.0230555 | 0.0242968 | **OK at all three** |
+| concave / N | 2.584% | 1.883% | **1.478%** | monotone ↓ |
+| **Q3 stencil — faces** | 0.073% | 0.032% | **0.007%** | **×0.10** |
+| **Q3 stencil — area** | 0.069% | 0.028% | **0.006%** | **×0.09** |
+| Q1/Q2 hub stencil — faces | 5.526% | 4.231% | **1.911%** | ×0.35 |
+| bulk concave-or-neighbour | 19.886% | 14.694% | 11.401% | ×0.57 |
+**The strongest single figure: Q3's ABSOLUTE stencil count fell 12 → 12 → 6 while the strut surface grew from 16,452 to 83,624 faces.** *The defective set is not diluting — it is SHRINKING while the mesh grows 5×.* Areas stable (+0.12% hub, +0.97% strut). **My criterion is met on three points and all six measures.**
+
+**LAYERS ARE A NET HARM AND THE COVERAGE IS THE FINDING.** `L1LAY` at the registered 18 / 12 / 5:
+| patch | requested | **achieved** | **coverage** |
+|---|---:|---:|---:|
+| **hub** | **18** | **3.47** | **57.2%** |
+| strutA / B / C | 12 | 6.16 / 5.57 / 5.57 | 80.5% / 72.9% / 72.9% |
+| duct | 5 | 4.19 | 86.6% |
+And the mesh got **WORSE**: **failed checks 1 → 3**; determinant minimum **0.0224737 OK → 0.000276871 FAILS**; small-determinant cells **0 → 138**; concave **10,284 → 30,099 (3×)**; plus a **new** failure, small interpolation weight on 28 faces. ***This is exactly the shape I warned about: the layer stage reports success while delivering 3.47 of 18 on the hub, and it REINTRODUCES the determinant failure the domain fix had cleared.***
+
+**THE ISSUE NEITHER OF US HAD STATED, AND IT IS THE DEEPEST IN THIS RUNG.** `[lab-attributed]` **A Roache triple requires a SYSTEMATICALLY REFINED family** — `p` is meaningful only if the three meshes are a uniform scaling of the *same* discretisation structure. **Coverage is measured at ONE level, and the lane notes it "often degrades further at finer base cells."** **If coverage differs across L1/L2/L3, the near-wall structure changes NON-MONOTONICALLY with refinement and the three meshes are NOT a refined family at all.** `Q_strut` is a **WALL GRADIENT** — the quantity in this entire case most sensitive to near-wall resolution — so **the observed order would measure the layer stage's caprice, not the discretisation.** *That is not a tolerance question and no tolerance touches it.* **Ordered: achieved coverage per patch at ALL THREE levels before anything else. Flat → we have a family. Varying → a finding bigger than the concave cells ever were.**
+
+**RULINGS** `[lab-attributed]`:
+1. **TRY THE STANDARD REMEDIES BEFORE ACCEPTING 57.2% AS FUNDAMENTAL.** The lane changed **nothing** in `addLayersControls` and says the figure may well be fixable — `maxThicknessToMedialRatio`, `nLayerIter`, `nGrow`, `featureAngle`, `minMedialAxisAngle`, `nRelaxedIter`. ***Do not let an untried default become a registered limitation.***
+2. **LAYER COVERAGE BECOMES A GATE, NOT A REPORT.** The lane's framing names a new category — ***"a registered parameter the instrument does not deliver is a dead lever of a new kind"*** — and this family has produced dead levers before. **Register a MINIMUM ACHIEVED COVERAGE per patch and REFUSE below it.** Same move as `G-CHECKMESH` refusing a log that cannot prove which check set produced it.
+3. **THE `:396-402` AMENDMENT IS MINE AND IS NOT YET MADE.** 18 / 12 / 5 derive from **Δ₁ = 35.89 µm at y⁺ = 1**; the mesher delivers 3.47. **Amending a registered PHYSICAL parameter down to what an UNTUNED mesher happens to deliver is FITTING THE REGISTRATION TO THE TOOL — the failure mode rule 2 exists to prevent.** Remedies first, coverage at three levels, then I rule, with the y⁺ consequence restated. **And note: y⁺ is REPORTED, NOT GATED here (update 85) — which makes a coverage shortfall MORE dangerous, not less, because it would pass silently and surface only as a `Q_strut` nobody could explain.**
+
+**THE LANE REFUSED TO BRING THE TOLERANCE, AND FOR THE RIGHT REASON:** *"every number in the three-point table comes from unlayered meshes, and the mesh we would actually grade has layers... registering a tolerance measured on a mesh we will not run repeats the exact error I made with the tangent-domain probe."* ***That is L-541 generalising itself one rung after it was learned, which is the only real evidence a lesson took.***
+
+**STANDING:** `T26_runs/` ABSENT, rule-2 window open, `MESHQ_TOLERANCE` empty, nothing registered, nothing launched. **Four-region Q1 exposure still unmeasured and pre-freeze obligatory.** Box freer — load **6.50**, MemAvailable **23 GiB**, which matters for the eventual layered L3 at ~9.06 GiB.
+
+**Section last written:** 2026-09-10T23:09:31Z by heat-transfer-supervisor personally. Newest block is **update 103**.
+
 ##### heat-transfer 2026-09-10 (update 102): **MY OWN SHARPENED METRIC INVERTED MY CONCLUSION — `Q_strut`'s graded surface is computed on essentially NO defective cells (0 faces at L1, 2 of 37,022 at L2).** *"Adjacency is NOT ownership, and the surface integral sums over OWNERSHIP."* **My distance criterion was the wrong test and the lane did the work twice because I specified the wrong quantity first.** One last refinement named, and **named as the last.**
 
 **THE DECIDING NUMBER, fixed domain:**
