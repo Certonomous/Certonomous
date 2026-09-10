@@ -1,6 +1,10 @@
 # SUBOFF R1 — DARPA SUBOFF bare hull, zero incidence, total-drag parity — PRE-REGISTRATION
 
-**STATUS: DRAFT / UNFROZEN. NO compute has run for this rung. NOT FROZEN (no sha).**
+**STATUS: FROZEN 2026-09-10 by the cfd-supervisor (check-4). NO compute has run for this rung.**
+The gate, threshold, cap and label below are CLOSED as of this commit. From here they change
+only as dated addenda that cannot alter a gate, threshold, cap or label; originals are struck,
+never rewritten (standing rule 2, rule 6). The grading path is pinned by blob sha in §11 —
+verify the frozen file IS the file that ran by hashing it against the committed blob.
 This document is drafted by a cfd lab-lane for the cfd supervisor. The **freeze
 (sha) and any graded launch are the supervisor's check-4**; the grader diff-read is
 the supervisor's check-1. Nothing below is graded, and no number here is a result.
@@ -410,6 +414,53 @@ at rung completion (rule 12).
 
 ---
 
-*Nothing in this file is frozen. The supervisor freezes (sha) and authorises launch
-(check-4) and diff-reads the grader (check-1). Results, when they exist, land in
-`verification/campaign/SUBOFF_R1_RESULTS.md` citing this file by commit hash.*
+---
+
+## 11. FREEZE BLOCK — pinned 2026-09-10 by the cfd-supervisor (check-4)
+
+**Grading path, pinned by blob sha (standing rule 2).** Each was verified `disk == HEAD` at the
+moment of freezing. Before any grade, re-hash the file and refuse on drift:
+
+| blob sha | path |
+|---|---|
+| `9ab71b156d395d1e040851c524f0b81bb0e82ae1` | `cases/navier_class/SUBOFF/grade_suboff.py` |
+| `dcddfe727ea9b85109f2000ea674add80de256c5` | `cases/navier_class/SUBOFF/build_suboff.py` |
+| `ebc0a65f948d5bd47d144cd2ffa82649391f39f8` | `cases/navier_class/SUBOFF/run_suboff_r1_triple.sh` |
+| `d893378817c823605c793e849d2800a1f4a28b5a` | `verification/runs/navier_class/SUBOFF/suboff_reference_ReL1p2e7.json` |
+| `ca5c9554ea807207c9b9bc3955d0ef9c81ed21b0` | `system/controlDict`, IDENTICAL in all three levels |
+
+That the three `controlDict`s share ONE blob is the mechanical proof of the pinned-`Aref` ruling:
+every level normalises on the same `Aref 0.08317033628` and runs the same `endTime 2500`.
+
+**FREEZE PRECONDITIONS, each verified BY ME first-hand, not relayed:**
+
+| precondition | evidence |
+|---|---|
+| §8.1 build-before-freeze: 3 levels built, `checkMesh`'d, admissible | non-orth **57.405 / 63.602 / 68.706** (< 70), skew 1.654 / 1.900 / 2.123 (< 4), `Mesh OK`, 0 severe faces, 0 neg-vol |
+| §4 registered family actually built | 39,904 / 89,784 / 202,014 cells vs target 40k/90k/202.5k (−0.24%), ratio **exactly 2.25000** |
+| §4 geometric similarity read back from the mesh | first cell 1.0000e-3 / 6.6667e-4 / 4.4444e-4 m (ratios exactly 1.5000); max AR invariant to **8 s.f.** |
+| §5 graded `endTime` registered, `deltaT`=1, no `residualControl` | `endTime 2500; deltaT 1;` verified in all three; builder refuses if `residualControl` present |
+| `reference.Aref` pinned, not null | **0.0831703362813915 m²** (sector) = analytic 5.988264212260189 / 72, ratio verified 72.000000000 |
+| launcher exists and writes an rc sidecar (§ launcher precondition) | rc capture proven on a **planted failure** and a forced cap-stop, not on success alone |
+| run roots registered by name and launch-clean | `reg_coarse` / `reg_medium` / `reg_fine`: no `0/`, no numeric time dir, no `rc`, no `log.simpleFoam`, no `postProcessing/` — a launch ADDS, it does not overwrite |
+| grading path present, committed, `disk == HEAD` | all five blobs above |
+
+**WHAT THIS FREEZE DOES NOT CLAIM.** (a) That `endTime 2500` is *enough*: it is defensible on
+its stated prior basis and is **not** a prediction that convergence happens by 2500. If the fine
+level returns `NOT_CONVERGED` with residuals still falling, that is **`NOT A RESULT` reported as
+a truncation finding**, answered by a re-registered successor — **never** by extending this
+`endTime` after seeing residuals, which is the precise thing rule 2 forbids. (b) That the cost
+estimate is tight: the 80.38 core-min triple rests on a deliberately conservative
+within-configuration rate (9.693e-8 core-min/cell/iteration, measured on `smoke_coarse`, whose
+`fvSolution`/`fvSchemes` are byte-identical to the graded levels); at the M6 rate the triple
+would be 28.2 core-min, and **that spread is the honest width of the estimate**. (c) That D1 is
+experiment-validated: the CT anchor 3.6e-3 remains a **MANIFEST / engineering** value
+(ITTC-1957 + form factor), so this rung is **CODE-VERIFIED / BOUNDED-AGREEMENT**, not validation,
+and stays so until a title-verified SUBOFF report lands.
+
+**LAUNCH AUTHORISED** by the cfd-supervisor under this freeze, via the queue (the detached runner
+schedules against box occupancy; this rung is **not** hand-launched). Whole-rung cost 129.72
+core-min against the frozen **150** cap — overrun stops the run and does not get a new budget.
+
+*Results, when they exist, land in `verification/campaign/SUBOFF_R1_RESULTS.md` citing this file
+by commit hash. This file is now FROZEN: it is never edited, only appended to as dated addenda.*
