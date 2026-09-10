@@ -1475,6 +1475,14 @@ The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843
 
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-10T19:05:05Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
+### CHIEF ADDENDUM — 2026-09-10T19:35Z — OWNER DIRECTIVE #6 TODAY, HER WORDS VERBATIM: RUNS, NOT DEMOS; THE 3D CASES SHE ASKED FOR AND THE ADDITIONAL NAVIER CASES; B-52 AND MOTORBIKE
+
+> How about all the navier cases i asked for as well? No team works on demos rn. Teams work on RUNS. we will prepare demos this weekend. For now i want the RUNS. And i dont care about academic/ textbook cases. I want my 3D cases that i asked for and the additional navier cases. Also how about b-52 and motorbyke etc
+
+**Chief's reading, labelled as such and correctable by her:** (1) ALL demo-readiness work stops now, lab-wide — captions, renders, exports, demo-readiness lanes; demos are prepared this weekend. (2) The deliverable is solver RUNS of the 3D cases she asked for and the additional Navier-class cases — the Case Protocol's list (SUBOFF, MRF impeller, porous radiator, booster, blunt body, scrubber, M6, CRM, the 3D adjoints) plus B-52 and the motorbike, and "etc" is read as the rest of her earlier requests, not as licence to invent. Academic/textbook cases are not the priority. (3) Every launch still frozen, costed, queued (rules 2, 12); cap-stop exempt for 3D per her 16:50Z words. (4) cfd asked for a status table of every Navier-class and 3D case she requested, including B-52 and the motorbike; heat-transfer for its 3D thermal list; dafoam for the 3D adjoints; verification's freeze hook is the one priority item on its desk. Ansys and closure remain resting (18:55Z). Relayed verbatim to cfd, heat-transfer, dafoam and verification at ~19:37Z. Unchanged: blanket is not a per-item read (rule 9); SUBMISSIONS PARKED; nothing leaves the box.
+
+*Recorded by a records lane on the chief's instruction — stamp 2026-09-10T19:34:47Z from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
+
 ## closure
 **Section last written:** 2026-09-10T18:57Z (REST STAMP) by closure-supervisor personally. **CLOSURE RESTS ON SANAA'S OWN WORDS.** PURE INSERTION — the PAUSE STAMP below is preserved byte-intact and every resume condition in it still stands; this block changes the *status label* and adds one charter reading, one ruling and one correction. Nothing below is edited or deleted.
 
