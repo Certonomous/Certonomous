@@ -1,0 +1,79 @@
+2026-09-10T04:23:09Z watcher START pid=1072034 ppid=1 pgid_target=827496 trigger=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063-R3/RUN_RC.D0
+2026-09-10T04:23:09Z guard OK: pid 827496 cmdline contains VMFL063-R3
+2026-09-10T11:37:13Z TRIGGER: RUN_RC.D0 exists -- D0 has finished. Contents follow.
+    rc = 0
+    case_id = D0
+    domain = D0
+    level = L3
+    confined = no
+    state = FINISHED
+    wait_rc = 0
+    wall_s = 50991
+    ranks = 1
+    core_min = 849.85
+    total_core_min_so_far = 849.85
+    timeout_s = 240000
+    cap_core_min = 4000
+    endTime = 100000
+    last_time_in_log = 100000
+    End_lines = 1
+    SIMPLE_converged_lines = 0
+    prereg_blob = 8e25317f4f882ab9fa9f303107ac2e8535ecb0a0
+    comparator_blob = 2769e2aa02f5dd5db2e9b2484f7d83e62a5d7e69
+    generator_blob = ee11749c75ae5ca676ccd4d9bd662760e782697f
+    solver_bin = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam
+    utc = 2026-09-10T11:36:59Z
+    note = rc CAPTURED INSIDE the detached subshell; 124 == the RUNNING-TOTAL cap fired (rule 12); endTime is never shrunk to fit. L-342: absent -> comparator reports rc NOT MEASURED.
+2026-09-10T11:37:13Z D0 final log line: Time = 100000
+2026-09-10T11:37:13Z SIGTERM to process group -827496 (supervisor ruling: ladder terminated after D0)
+2026-09-10T11:37:13Z ladder TERMINATED after D0. D1/D2/D0_CONFINED did NOT run, by ruling, not by failure.
+2026-09-10T11:37:13Z EXPECTED VERDICT: NOT A RESULT (frozen comparator refuses D0 at :671 / :654). No gate, band, cap or label was touched.
+2026-09-10T11:37:13Z Detached autograder 827346 now sees the driver gone and grades once.
+2026-09-10T11:37:13Z watcher DONE
+
+--- DATED CORRECTION APPENDED 2026-09-10 BY THE ansys-verification SUPERVISOR ---
+Nothing above this line has been altered. The lines above contain a FALSE STATEMENT
+and this block corrects it on the record; it does not rewrite it.
+
+FALSE: "ladder TERMINATED after D0. D1/D2/D0_CONFINED did NOT run, by ruling, not by
+failure."
+
+FACT: D1 RAN AND IS STILL RUNNING. simpleFoam pid 1211454 started 2026-09-10T11:37:08Z,
+FIVE SECONDS BEFORE the SIGTERM at 11:37:13Z. The launcher launches each solve under
+`setsid`, so D1 was already in its OWN process group and the SIGTERM to process group
+-827496 never reached it. The kill hit the launcher, not the solve it had just started.
+D2 and D0_CONFINED did NOT run -- that half of the statement is true.
+
+THE RULING BEHIND terminate_after_d0.sh IS FALSIFIED BY D1's OWN RESIDUALS.
+That script's stated rationale was that D0's residual limit cycle made D1/D2 a foregone
+waste of ~3000 core-min. Measured this session, initial residuals:
+  D0 at iteration 100000 (PARKED):  Ux 2.63e-06  Uy 9.93e-06  p 5.78e-04
+  D1 trend  (CONVERGING MONOTONE):  Ux 2.02e-05 -> 8.98e-07 -> 4.39e-08 -> 4.00e-09
+                                       -> 2.20e-09, and p already 2.09e-10
+  criteria (system/fvSolution):     p 1e-08, U 1e-09
+D0's p sits 4.6 orders ABOVE its criterion and never moved. D1's p is already BELOW its
+criterion and D1 is expected to satisfy residualControl and stop EARLY, well before
+endTime=100000. The non-convergence at D0 is therefore a property of the CONFINED
+DOMAIN, not of the case setup: enlarging the far field removed the limit cycle. That is
+precisely the behaviour the domain ladder exists to discover, and it is a finding, not a
+failure.
+
+CONSEQUENCE, RULED THIS SESSION [lab-attributed]: D1 IS NOT TO BE TOUCHED. Stopping it
+would destroy the first CONVERGING rung this case has produced and discard the case's
+only path to a gate row. The supervisor verified the frozen comparator's refusal logic
+personally: grade_vmfl063_r3.py refuses a level whose last time is not STRICTLY LESS THAN
+endTime ("reached endTime -- it ran out of clock and did NOT converge"), so D0 is refused
+on its own artifacts and D1, if it converges early, is NOT.
+
+COST CORRECTION. A monitoring lane reported D1 at 66,008 wall s / 1,100 core-min. That is
+wrong: D1 began 11:37:08Z, so it had run ~15,200 s ~= 253 core-min at that reading. The
+running total is D0 849.85 (measured, RUN_RC.D0) + D1 in progress, NOT the ~3,508 core-min
+that a run-to-endTime projection implied. The 4000 core-min running-total cap is NOT in
+danger from D1.
+
+OPEN DEFECT, BOARDED SEPARATELY: the ladder is now DECAPITATED. The launcher process is
+dead, so when D1 exits nothing will launch D2, D0_CONFINED or the gate triple, and the
+frozen 4.4 rule needs the TERMINAL ladder step within DOMAIN_TOL (=TOL/10=0.01) before D*
+can be fixed. Separately, run_vmfl063_r3.sh re-initialises TOTAL_CORE_MIN=0 at every
+invocation and persists it nowhere, so a relaunch would silently restart cap accounting
+from zero. Neither is repaired here; both are recorded.
