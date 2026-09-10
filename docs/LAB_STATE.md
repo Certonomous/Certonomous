@@ -1451,6 +1451,16 @@ Sanaa's own session turn ~16:50Z: "THE CASE PROTOCOL: ONE PATH, EVERY CASE, NO P
 
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-10T16:50Z from `date -u`; built from the HEAD blob, not the worktree; zero compute.*
 
+### CHIEF ADDENDUM — 2026-09-10T17:41Z — OWNER DIRECTIVES #3 AND #4 TODAY, HER WORDS VERBATIM: GPU BOX COMING UP FOR THE M6; 3D INDUSTRY CASES ARE THE DEMO PRIORITY
+
+> ansys: does no 3D case exist bc the ansys verification folder cases doesnt have 3D? closure: which hard cases does it have? CFD: i can turn the gpu box on and you can run the m6. I WANT THAT M6 RUN FOR FUCK SAKE unless i can show the dafoma one ? Since dafoam has to run a primal solve s well ?
+
+> Sounds good. Well then in that case with closure paused, ansys cfd dafoam and heat transfer continue their tasks and list of cases i requested. The more 3D industry cases we have and can put in the demo the better.
+
+**Chief's reading, labelled as such and correctable by her:** (1) Sanaa starts the GPU instance herself (an instance change is hers alone). (2) cfd freezes and runs the M6 flow registration as its first Case Protocol deliverable; it reads from the actual solver stack whether the M6 runs on GPU or CPU; CPU means launch on this box today through the queue runner; the 2026-09-10 cap exemption applies; GPU carries a console-priced GPU-hour cost basis. (3) dafoam's A3 ONERA M6 primal is a complete 3D flow solve of the M6 and is shootable now with an honest shock-location caption; dafoam confirms its details from disk. (4) closure stays PAUSED; its only genuinely 3D case is the R4 Ahmed ladder in verification's tree; its graded work is 2D or one cell thick, corrected on the record by closure itself. (5) ansys, cfd, dafoam and heat-transfer continue their fronts and the requested case list; **3D industry cases for the demo are the priority**. Read with §7's "no new families": finish and render what exists first, then new 3D industry cases through the protocol stages, registered and costed, never cap-stopped under her exemption. (6) A chief lane is exporting the listed cases to VTK (post-processing only, no solver, no live case touched); manifest at `docs/campaigns/DEMO_3D_EXPORT_MANIFEST_2026-09-10.md`; the survey draft is `docs/campaigns/DEMO_3D_CASES_2026-09-10.md`. Relayed verbatim to the four active supervisors and closure ~17:45Z and ~18:00Z.
+
+*Recorded by a records lane on the chief's instruction — stamp from `date -u`; built from the HEAD blob, not the worktree; zero compute.*
+
 ## closure
 **Section last written:** 2026-09-10 (PAUSE STAMP) by closure-supervisor personally. **CLOSURE IS PAUSED UNDER THE CASE PROTOCOL §7.** PURE INSERTION under the hard STOP guard, control fired.
 
