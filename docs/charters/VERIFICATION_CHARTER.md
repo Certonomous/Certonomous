@@ -9414,3 +9414,67 @@ A lane reports that **NASA CRM / DPW5**, carried on cfd's board as `PASS` on 4 g
 | gate values changed | **0** · verdicts withdrawn | **0** · verdicts newly alleged dirty | **0** · checks made to refuse | **0** (`D539`) |
 | cases whose DESCRIPTION is corrected | **2** (`T4e`, `SUBOFF` — wedges, not 3D) · cases whose VERDICT moves | **0** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.85, 2026-09-10 — **§2bq `Mesh OK.` FROM BARE `checkMesh` IS NOT A MESH VERDICT — THE TWO MOST DIAGNOSTIC CHECKS DO NOT RUN AT ALL. §2br A SCALE-INVARIANT GEOMETRIC DEFECT IS A MESH-*CONVERGENCE* DEFECT, AND IT IS THE ONE THAT WASTES A LADDER. §2bs M6CP1's EXHAUSTION EVIDENCE AND ITS NEWLY-FOUND CAUSE POINT IN OPPOSITE DIRECTIONS**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **cfd** from their M6 adjudication (5.38 core-min), against their own case and their own park. **The lab-wide mechanism was re-verified at source by this supervisor on an independent specimen before adoption**; cfd's case-specific integers are relayed and labelled as such. `[lab-attributed]`. **No gate value moves; no verdict is withdrawn; nothing is made to refuse (`D539`).**
+
+### §2bq — **THE MOST-INVOKED GATE IN THE LAB REPORTS `Mesh OK.` WITHOUT RUNNING ITS TWO MOST DIAGNOSTIC CHECKS**
+
+cfd's finding: bare `checkMesh` prints `Mesh OK.` where `checkMesh -allGeometry -allTopology` on the same mesh reports `Failed 2 mesh checks` — **the face-tet quality and cell-determinant (wellposedness) checks only execute under the flags.**
+
+**RE-VERIFIED BY THIS SUPERVISOR ON AN INDEPENDENT SPECIMEN, 19:52:18Z, because a lab-wide clause may not rest on one team's case:**
+
+- **Flagged** — `verification/runs/GEN_ALT_runs/alt_coarse/log.checkMesh`, run with `-allGeometry`: prints `Face tets OK.`, prints `Cell determinant (wellposedness) : minimum: 2.17584e-05`, finds `***Cells with small determinant (< 0.001) found, number of cells: 56`, and concludes **`Failed 1 mesh checks.`**
+- **Bare** — `verification/runs/F27_NUMERICS_SUCCESSOR_R3_runs/coarse/log.checkMesh`: contains **neither** a `Face tets` line **nor** a `Cell determinant` line — the checks did not run — and concludes **`Mesh OK.`**
+
+**The bare invocation does not FAIL the wellposedness test. It never TAKES it.** And `F27_NUMERICS_SUCCESSOR_R3` is a **three-level refinement family** — a mesh-convergence ladder — every level of which was admitted by a check that never ran.
+
+**cfd's case-specific integers, RELAYED not re-measured (`§2bk`): M6CP1 L0 carries 332 low-quality tet faces and 656,877 under-determined cells behind a `mesh_ok: true` record.**
+
+> **CLAUSE §2bq: `Mesh OK.` IS NOT A MESH-ADMISSIBILITY VERDICT. IT IS THE STATEMENT THAT THE SUBSET OF CHECKS THIS PARTICULAR INVOCATION RAN FOUND NOTHING — AND THE TWO MOST DIAGNOSTIC GEOMETRIC CHECKS ARE NOT IN THE DEFAULT SUBSET.**
+>
+> 1. **A mesh-admissibility claim CITES THE ARGV THAT PRODUCED IT**, exactly as `§2bo` makes a dimensionality claim cite the line it was read from. `checkMesh` is not one instrument; it is a family selected by flags, and naming the tool does not name the check.
+> 2. **THE FREE DISCRIMINATOR, which needs no code and no re-run:** a `log.checkMesh` containing **no `Cell determinant` line** is a log in which the wellposedness check **did not execute**. Its `Mesh OK.` carries no information about determinant or face-tet quality. This is the same shape as the `worktree_differs_from_HEAD` discriminator ruled earlier today: **the absence of the line proves the absence of the check**, and it costs one `grep` on a file already on disk.
+> 3. **cfd is landing the flags lab-wide and a feature-cells / wall-face-area-ratio limb; the mesh GATES are theirs and this clause does not write them.** Consistent with `§2bo`, this charter binds **the CLAIM** — what may be asserted, and on what evidence — and `docs/standards/MESH_STANDARD.md` remains cfd's to author. **The chief routed the standard's wording here; this team declines the wider half of that routing rather than take territory it published as cfd's four hours ago.**
+> 4. **AND THIS IS THE THIRD INSTANCE OF ONE CLASS IN ONE DAY.** `§2bn`: a census measured the function NAME, not the property. `§2bo.1`: this supervisor quoted the WRONG LINE of `checkMesh` output. Now: the gate invoked the WRONG FORM of the right tool. **In all three the instrument ran, the token came back clean, and the check never happened. A PROXY IS NOT THE PROPERTY — and today the lab has paid for that sentence three times.**
+
+### §2br — **A SCALE-INVARIANT GEOMETRIC DEFECT IS A MESH-*CONVERGENCE* DEFECT, AND THIS IS THE CLAUSE THAT SERVES THE LAB'S CURRENT PRIORITY**
+
+cfd's second finding is the deeper one, and it is not about a flag: **a cusped trailing edge — 60.9° half-angle, ZERO CELLS ACROSS, scale-invariant under refinement — passes BOTH check sets.** (Geometry integers relayed from cfd, not re-measured here.) **So the gate is INSUFFICIENT as well as mis-invoked**, and no flag repairs that half.
+
+**Why this belongs in the V&V charter and not only in a mesh standard.** The owner's stated priority, her words ~19:45Z today, is *"all these complicated cases run and complete, and wit their mes convergence ASAAAP … More than anything else."* **A feature with zero cells across it is resolved IDENTICALLY at every level of a refinement family.** Its contribution to the discretisation error **does not reduce as `h → 0`**. The level-to-level differences `e21` and `e32` are then contaminated by a term that is **constant across the ladder**, and the observed order fitted from them is **not an order of accuracy at all** — it is an artifact of a defect the refinement never touched.
+
+**This is a direct, mechanical cause of `NOT A RESULT` under rule 5**, and it is the expensive kind: it consumes a full three-level ladder, produces a `STAGNANT`, `DEGENERATE` or `OSCILLATORY` triple, and **presents as a numerics problem while being a geometry problem.** A team reading only the triple's verdict will spend its escalation ladder on relaxation, schemes and pseudo-transient continuation, and none of them can move it.
+
+> **CLAUSE §2br: A REFINEMENT FAMILY MUST BE SHOWN TO RESOLVE ITS NAMED GEOMETRIC FEATURES *BETTER* AT EACH LEVEL, AND THE EVIDENCE IS CELLS-ACROSS-THE-FEATURE PER LEVEL, CITED BESIDE THE CELL TOTALS.**
+>
+> - **A triple whose feature resolution is CONSTANT ACROSS LEVELS IS NOT A REFINEMENT FAMILY**, whatever its total cell counts do, and an observed order fitted on it may not be quoted.
+> - **The check is pre-compute and nearly free**, and it belongs at protocol §1/§2, not at grading: for each feature the registration names (trailing edge, gap, fillet, boundary layer, wake), state the cells across it at L1/L2/L3. **A feature reading `0, 0, 0` — or `n, n, n` — disqualifies the ladder before a single core-minute is spent.**
+> - **It composes with `§2bo.2`'s falsifier and answers a question that one cannot.** `§2bo.2` catches a family whose *totals* step wrong (~4× instead of ~8×). **This catches the family whose totals step perfectly and whose defect never shrinks** — the case that looks correct in every board integer and still cannot converge.
+> - **Stated as guidance because it is what teams will actually hit tonight:** a low observed order is usually the instrument reporting that **you are not in the asymptotic range**. Before treating that as a numerics failure, check whether a named feature is scale-invariant. **If it is, the finer level is not finer where it matters.**
+
+### §2bs — **M6CP1: THE EXHAUSTION EVIDENCE AND THE NEWLY-FOUND CAUSE POINT IN OPPOSITE DIRECTIONS, AND cfd FOUND THE DISQUALIFYING EVIDENCE THEMSELVES**
+
+cfd's disposition, relayed: **M6CP1 `NOT A RESULT`, cause `ENERGY_RUNAWAY_TRAILING_EDGE`, three strikes under `CASE_PROTOCOL_CHARTER` §3.** Protocol §3 authorises exactly that — *"Three failures on the same cause: the case is parked as NOT A RESULT with the cause class and the three actions tried, the lesson is written, and the supervisor moves to the next case."* **The verdict is in the vocabulary, the cause class is named, and the park is procedurally correct on its face.**
+
+**But `§2bc` (v1.74) governs a TERMINAL `NOT A RESULT` and it asks a different question:** such a verdict *"is not an acceptable terminal entry unless it carries exhaustion evidence proving the failure is not a fixable numerics or model/setup artifact."*
+
+> **RULED: three strikes under §3 is exhaustion of the NUMERICS ladder. It is NOT exhaustion under `§2bc`, because cfd's own adjudication — in the same 5.38 core-min — produced AFFIRMATIVE EVIDENCE OF A FIXABLE SETUP ARTIFACT: zero cells across the trailing edge, at the exact feature the cause class names.**
+>
+> **This team asserts NO causal claim** — that the cusp *causes* the energy runaway is a hypothesis, and `§2bn` forbids this team from writing a hypothesis as a finding. **`§2bc` does not require causation. It requires that the failure be shown NOT to be a fixable setup artifact, and a feature the cause class names, carrying zero cells across it, is evidence in the opposite direction.**
+>
+> **THE PARK IS THEREFORE PREMATURE AND THE VERDICT IS ROUTED TO A DATED SUCCESSOR** (`§2bc`'s own remedy), **not withdrawn and not overturned.** The successor is a mesh with cells across the trailing edge. **M6 is not dead, and no one should report it as dead.**
+
+**Said plainly because it is the part that generalises:** cfd ran the audit that disqualified their own park, disclosed it in the same report, and did so on the case the owner has asked for by name. **A team that hands its supervisor the evidence against its own terminus is the reason this charter can be strict without being adversarial.** The three strikes were spent on the numerics ladder while the mesh audit was still running; **that is a sequencing lesson, not a fault** — and `§2br` exists so the next ladder runs its feature-resolution check *before* its escalation ladder rather than beside it.
+
+| amendment record | **v1.85** |
+|---|---|
+| clauses added | **3** (§2bq, §2br, §2bs) |
+| existing clauses altered, widened or narrowed | **0** |
+| gate values changed | **0** · verdicts withdrawn | **0** · verdicts overturned | **0** · checks made to refuse | **0** (`D539`) |
+| verdicts ROUTED TO A DATED SUCCESSOR under `§2bc` | **1** (`M6CP1`) |
+| mesh GATE text written by this charter | **0** — `MESH_STANDARD.md` remains cfd's |
+| **lines whose number changed above this section** | **0** |
