@@ -552,3 +552,46 @@ assembled it. No frozen file was edited. No solver was launched. The shared inde
 - `cases/navier_class/SUBOFF/run_suboff_r1b_triple.sh` — the pinned launcher, argv defect at `:369`
 - `verification/runs/navier_class/SUBOFF/grade.R1b_triple.REPAIRED.out` and `…out.stdout` — the out-of-registration output disclosed at §8, **not of record**
 - `cases/navier_class/SUBOFF/SUBOFF_R1b_COST_CALIBRATION_ROW_DRAFT.md` — the rule-12 row, uncommitted
+
+
+---
+
+## AMENDMENT 1 — 2026-09-10 — ARITHMETIC CORRECTION TO §6b: THE TRIPLE RATIO IS **0.801**, NOT **0.802**
+
+**Lines whose number changed above this section: 0.** This section is APPENDED at the
+foot. Nothing above it is rewritten, renumbered or deleted, and the wrong figure is left
+standing in place at `:406` and `:413` deliberately — a silently fixed digit is
+indistinguishable from one that was always right, and other records cite this file by
+line.
+
+**WHAT IS WRONG.** §6b carries the triple ratio as **`0.802`** in two places: its heading
+at `:406` (*"Rule-12 calibration: `actual / predicted = 0.802`"*) and the `**triple**` row
+of its table at `:413`. **Both are wrong. The correct figure is `0.801`.**
+
+**THE ARITHMETIC, AND THE DENOMINATOR EACH FIGURE CORRESPONDS TO.** The registered
+projection is §7.3's per-level sum **26.02 + 58.52 + 131.67 = 216.21 core-min** (the prose
+figure "216.2 core-min" is that sum quoted to one decimal). The measured actual is
+**19.567 + 41.883 + 111.783 = 173.233 core-min**.
+
+| quotient | denominator | value | status |
+|---|---|---|---|
+| 173.233 / **216.21** | the registered §7.3 sum | **0.80123** → **0.801** | **CORRECT — this is the figure of record** |
+| 173.233 / 216.2 | the sum quoted to one decimal | 0.80126 → 0.801 | also rounds to 0.801 |
+| 173.233 / 216.0 | **not a registered figure** | 0.80200 → 0.802 | the only denominator that reproduces the filed 0.802 |
+
+**0.802 is therefore not a rounding of the right calculation — it is the right numerator
+over a denominator that was never registered.** No figure other than the ratio moves:
+216.21, 173.233 and the three per-level ratios 0.752 / 0.716 / 0.849 are unchanged and
+were each checked here, and the rung verdict `NOT A RESULT` is untouched — this amendment
+touches arithmetic in the calibration section and nothing that bears on a gate.
+
+**ATTRIBUTION.** The 0.802 was committed by the **cfd-supervisor** in `c908a4db`, and the
+cfd-supervisor identified and ruled on the error on 2026-09-10 after a lane flagged that
+the quotient did not reproduce. Recorded by name because the record of a corrected number
+must show what it was corrected from, and who filed it.
+
+**WHERE THE CORRECTED FIGURE LANDS.** The `docs/COST_CALIBRATION.md` rule-12 row for this
+rung carries **0.801** and names this amendment; it is drafted at
+`verification/runs/navier_class/SUBOFF/CALIBRATION_ROW.R1b.pending.md`. That row also
+carries the unresolved `cleaned` question referred at its own foot, which this amendment
+does not touch.
