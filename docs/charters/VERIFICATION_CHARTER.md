@@ -9948,3 +9948,77 @@ A lane reported the canonical stage-2 instrument as unusable tonight, because *"
 | **instrument edits made** | **1** (a `help=` string; diff read personally, selftest 44/44 rc 0, pinned by nothing) · **still deferred** | **9** |
 | gate values changed | **0** · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.93, 2026-09-10 — **§2cp "THE MESHES ARE INNOCENT" IS REFUTED, AND BY MY OWN `§2br`: A QUALITY INVARIANT IDENTICAL ACROSS LEVELS IS SCALE-INVARIANT. §2cq THE WALL-TREATMENT INVERSION — A FAMILY CAN REFINE ITSELF OUT OF ITS OWN MODEL'S VALIDITY BAND. §2cr A GATE UNFREEZABLY BROKEN BY ITS *REFERENCE*, WHICH NO FREEZE CHECK ASKS ABOUT. §2cs M6CP1's CUSP WAS AN UNREGISTERED DEPARTURE FROM A REFERENCE THE LAB HAS HELD SINCE 3 SEPTEMBER**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Raised by **cfd**, and `§2cp` refutes this team's own finding of three hours ago. **The M6 reference coordinate is verified at source by this supervisor; the SUBOFF quality figures are cfd's and are explicitly NOT re-derived here — see the corpus disclosure in `§2cp`.** `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`).**
+
+### §2cp — **I WROTE "THE MESHES ARE INNOCENT" AND MY OWN CLAUSE OF THREE HOURS EARLIER SAYS THEY ARE NOT**
+
+`§2cb` referred SUBOFF with the line *"its physics is not a grid question at all … on a clean r = 1.5 family. **THE MESHES ARE INNOCENT.**"* **I reached that from the REFINEMENT RATIO alone** — r21 = 1.49958, r32 = 1.49937, a textbook family — **and never looked at a single quality invariant.**
+
+cfd's measurement: **min cell determinant `3.526225e-05` identical to seven figures at all three levels; max aspect ratio `236.15` likewise; bad cells multiplying `1,531 → 3,240 → 7,125` with refinement while the worst never improves.**
+
+> **A CLEAN REFINEMENT RATIO IS NOT AN INNOCENT MESH, AND `§2br` ALREADY SAID SO IN THE ONLY WORDS THAT MATTER: a defect identical at every level is SCALE-INVARIANT, its error does not reduce as `h → 0`, and it contaminates `e21` and `e32` with a term constant across the ladder. I wrote that clause at 19:55Z and contradicted it at 20:17Z on the very case it describes.**
+
+> **RULED — §2cp: `§2br` IS GENERALISED FROM FEATURE RESOLUTION TO ANY QUALITY INVARIANT. A refinement family must be shown to IMPROVE — not merely to grow — and the evidence is `checkMesh`'s quality metrics COMPARED ACROSS LEVELS, cited beside the cell counts. A minimum determinant, a maximum aspect ratio or a maximum non-orthogonality that is IDENTICAL ACROSS LEVELS (to the digits printed) is proof the ladder is not refining where it is worst, and it disqualifies an observed order exactly as a zero-cell feature does.**
+>
+> **The check is free and comparative: the numbers are already in every `log.checkMesh`; nobody had put three of them side by side.** And note it composes with `§2bq`: **those metrics must come from the `-allGeometry -allTopology` invocation, or the determinant limb is not in the log to compare.**
+
+**THE CORPUS DISCLOSURE THIS TEAM OWES, because it is `§2cc` against me a fourth time.** I attempted to re-derive cfd's figures and **could not, for two reasons that are both mine:** I first sampled `reg_coarse` and `diag_medium_wp16` — **diagnostic directories, not the graded triple** — and got `236.1509113697265` and `70.845`, non-identical, which would have read as a refutation of a true claim. And my determinant filter returned **zero on `reg_coarse`**, because that log has **no `minimum:` line at all** — a bare `checkMesh`, which is **`§2bq`'s own finding.**
+
+> **cfd's figures are RECORDED AS THEIRS AND NOT RE-DERIVED. My failure to reproduce them is a statement about MY corpus and MY filter, not about their measurement** — the exact discipline `§2bn` and `§2cc` exist to enforce, applied against my own instinct to report a non-reproduction as a finding.
+>
+> **AND THE ATTEMPT PRODUCED A REAL SUB-FINDING: the three GRADED levels — `r1b_coarse`, `r1b_medium`, `r1b_fine` — carry NO `log.checkMesh` AT ALL.** Seven such logs exist under SUBOFF and **not one of them is in a graded directory.** So under `§2bq` the graded triple **cannot cite the argv that admitted its meshes**, because there is no log in the graded levels to cite. **Referred to cfd; not ruled.**
+
+**Two corrections cfd supplies that this team accepts and records against its own earlier framing:** the lab's SUBOFF wedge **IS Groves 1989 Configuration 1, the source's own axisymmetric baseline** — so it was **never wrong to be a wedge**, and a 3D SUBOFF is a *different configuration*, not a better one. `§2bo.3` said the wedge invalidates nothing and forbids only the word "3D"; **that scoping was right and is now confirmed from the source.** And the appendage trailing edges **close to a point by design** (Table 3's polynomial sums to 0 at ξ = 1), so **the reference geometry itself carries the M6CP1 pathology** — which makes `§2br` a reference-level problem, not only a meshing one.
+
+### §2cq — **A REFINEMENT FAMILY CAN REFINE ITSELF OUT OF ITS OWN MODEL'S VALIDITY BAND, AND THE FINEST LEVEL IS THEN THE LEAST TRUSTWORTHY**
+
+cfd's candidate mechanism for SUBOFF: **`nutkWallFunction` requires y+ ≳ 30; the coarse level measures y+ 25.3; `y1` falls 2.25× across the family.** So the family **starts marginally outside its wall treatment's validity and moves further out with every refinement** — in the same order as the CT blow-up.
+
+**cfd's own caveat is adopted verbatim and is the honest half: fine's y+ 694 is POST-DIVERGENCE, so cause and effect are not separable. This is a STRONG CANDIDATE, NOT A DIAGNOSIS**, and this charter will not write it as one (`§2bn`).
+
+> **But the CLASS is rulable independently of whether it is SUBOFF's cause, and it is general and unguarded: REFINEMENT IS NOT MONOTONE IN VALIDITY. Every wall function, every low-Re model, every wall-distance-based closure has a validity BAND in y+, and `h`-refinement moves a family THROUGH that band and out the far side. The finest level — the one Roache weights most heavily and the one `f_fine` is read from — can be the LEAST physically admissible member of its own ladder.**
+>
+> **RULED — §2cq: A REFINEMENT FAMILY MUST HOLD ITS MODEL'S VALIDITY CONDITIONS AT EVERY LEVEL, AND THE CONDITION IS STATED AND MEASURED PER LEVEL IN THE REGISTRATION — for a wall-function closure that means the y+ band, measured, at L1/L2/L3, beside the cell counts. A family that leaves the band at any level has no admissible observed order over that range, and the remedy is a model appropriate to the resolution (a low-Re treatment), NOT a looser gate and NOT a coarser mesh chosen to keep a wall function happy.**
+>
+> **This is a THIRD independent disqualifier of a ladder, and the three are orthogonal — `§2bo.2` catches a family whose TOTALS step wrong; `§2br`/`§2cp` catch one whose DEFECTS do not shrink; `§2cq` catches one whose PHYSICS MODEL stops applying. A family can pass all three checks and still fail, but a family failing any one of them cannot produce an observed order, and ALL THREE ARE COMPUTABLE BEFORE THE LADDER IS GRADED.**
+
+### §2cr — **A GATE BROKEN BY ITS *REFERENCE*: THE FREEZE PINS THE COMPARATOR AND NEVER ASKS WHETHER THE THING IT COMPARES AGAINST EXISTS**
+
+M6CP1 §5 **Gate P** — Cp at seven stations, ±0.02 — **had no machine-readable reference from the moment it was frozen.** The lab's AGARD AR-138 is a **2007 paper-capture whose numeric tables never OCR'd**; the Cp tables **exist only as captions.**
+
+> **This is a genuinely new class and it sits in a hole this team's own doctrine left open. Rule 2, `§2s` and `check_comparator_freeze.py` all pin THE COMPARATOR — its blob, its sha, its commit time. NOTHING ANYWHERE ASKS WHETHER THE REFERENCE THE COMPARATOR READS RESOLVES TO A NUMBER.** A gate can therefore be **perfectly frozen and permanently ungradeable**, and every freeze instrument reports it green.
+>
+> **It is `§2v`'s family — a gate that cannot fail — reached by a route `§2v` did not enumerate: not an unimplemented gate, and not an unreachable one, but a fully implemented gate with NOTHING ON THE OTHER SIDE OF THE COMPARISON.**
+>
+> **RULED — §2cr: A REGISTRATION THAT NAMES A QUANTITATIVE REFERENCE MUST NAME THE ARTIFACT THE NUMBER IS READ FROM — a path and a locator, not a citation — AND THAT ARTIFACT MUST RESOLVE TO A MACHINE-READABLE VALUE AT FREEZE TIME. A bibliographic citation is provenance; it is not a reference. Where the number exists only in a scanned caption, the registration says so ON ITS FACE and the gate is registered as `PENDING` pending transcription — never frozen as if gradeable.**
+>
+> **THE INSTRUMENT, and its authority is bounded as everything else tonight: a reference-resolvability READER — for each registered gate, does its named reference artifact exist and parse? It REFUSES NOTHING and it is mine to build, alongside the declared-`dim` cross-check `§2cb` already committed me to. Arming either as a refusal is `D539` and Sanaa's.** **Gate P is `NOT A RESULT` in the strict sense — nothing was measured, because nothing could be — and that is a disclosure M6CP1's record owes on its face, not a demotion of anything that ran.**
+
+### §2cs — **M6CP1's CUSP WAS AN UNREGISTERED DEPARTURE FROM THE REFERENCE GEOMETRY, AND THE REFERENCE HAS BEEN ON DISK SINCE 3 SEPTEMBER**
+
+**VERIFIED AT SOURCE by this supervisor at 22:18:08Z.** `models/onera_m6/agard_ar138_table_b1_1_section_coordinates.dat` (1,512 B, mtime **2026-09-03 23:02**) — its final data line, verbatim:
+
+```
+1.0000000  0.0007052
+```
+
+**At x/c = 1.0 the reference half-thickness is z/c = 7.052e-4. THE ONERA M6 TRAILING EDGE IS BLUNT** — cfd's reading: 0.141 % chord, a 14.8° included angle, **7.6× the fabrication tolerance.** The case built a **cusp**.
+
+> **RULED — §2cs, and it STRENGTHENS `§2bs` rather than replacing it. `§2bs` held M6CP1's park premature because zero cells across the trailing edge was affirmative evidence of a fixable SETUP artifact. The evidence is now stronger and more specific: THE GEOMETRY ITSELF DEPARTED FROM THE REFERENCE, THE DEPARTURE WAS NEVER REGISTERED, AND THE CORRECT COORDINATE WAS SITTING IN THE REPOSITORY SEVEN DAYS BEFORE THE CASE FROZE.**
+>
+> **THE SUCCESSOR IS NOW SPECIFIED RATHER THAN GESTURED AT: the M6 successor is built on the AGARD AR-138 Table B1-1 section coordinates AS THEY STAND — blunt trailing edge, `z/c = 7.052e-4` at `x/c = 1.0` — with cells resolved across that finite thickness, and the registration states the TE treatment explicitly. `§2br`'s feature-cells table is then a real check rather than a vacuous one, because THERE IS A FEATURE TO PUT CELLS ACROSS.**
+>
+> **AND THE GENERAL RULE THIS EARNS: A GEOMETRY IS PART OF THE REGISTRATION. A departure from the reference geometry — a closed trailing edge, a removed fillet, a simplified junction — IS A REGISTERED CHOICE WITH A STATED REASON, OR IT IS AN UNDISCLOSED CHANGE TO THE CASE BEING VALIDATED.** M6CP1's cusp was neither malicious nor careless; **it was invisible, because no instrument in this lab compares a built geometry against its reference, and no clause required anyone to say.** *(cfd's SUBOFF note cuts the other way and is recorded beside it: there, the appendages close to a point BY DESIGN in the source's own polynomial — so the same pathology can be FAITHFUL. Which is exactly why it must be REGISTERED rather than assumed either way.)*
+
+| amendment record | **v1.93** |
+|---|---|
+| clauses added | **4** (§2cp, §2cq, §2cr, §2cs) · existing clauses GENERALISED | **1** (`§2br` → any quality invariant) · STRENGTHENED | **1** (`§2bs`) |
+| **this team's own findings REFUTED** | **1** ("the meshes are innocent" — by my own `§2br`) · corpus failures disclosed | **1** (`§2cc`, fourth time) |
+| instruments this team now owes | **2** (declared-`dim` cross-check; reference-resolvability reader) — **both READERS, neither refuses** |
+| gate values changed | **0** · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
+| **lines whose number changed above this section** | **0** |
