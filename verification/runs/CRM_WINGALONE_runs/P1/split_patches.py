@@ -19,6 +19,85 @@ FARFIELD_R_MIN = 80.0   # §2: every farfield face centre beyond this radius
 Y_SYMM_TOL = 1e-9       # a face lies IN the root plane only if every vertex does
 # ---------------------------------------------------------------------------
 
+def classify(pl, coords):
+    """Class of one boundary face from its vertex COORDINATES."""
+    pts = [coords[i] for i in pl]
+    if all(abs(p[1]) < Y_SYMM_TOL for p in pts):
+        return "symmetry", 0.0
+    n = len(pts)
+    cx = sum(p[0] for p in pts) / n
+    cy = sum(p[1] for p in pts) / n
+    cz = sum(p[2] for p in pts) / n
+    r = (cx * cx + cy * cy + cz * cz) ** 0.5
+    return ("farfield" if r > 40.0 else "wing"), r
+
+
+def planted_control(faces, coords, apply_plant=True):
+    """Rule 3. Move ONE face's vertices so it genuinely belongs to another class,
+    RE-RUN classify() on it, and require the new class to be reported.
+
+    apply_plant=False is the NEGATIVE ARM: the plant is deliberately NOT applied, so a
+    sound control must report NO detection. A control that 'passes' with the plant
+    withheld is a control that cannot fail, which is the defect this replaces."""
+    out = []
+    idx = None
+    for i, pl in enumerate(faces):
+        c, r = classify(pl, coords)
+        if c == "farfield" and any(abs(coords[j][1]) > 1.0 for j in pl):
+            idx = i
+            break
+    if idx is None:
+        return False, ["no suitable farfield face found to plant into"]
+    pl = faces[idx]
+    before, r_before = classify(pl, coords)
+    saved = {j: coords[j] for j in pl}
+    if apply_plant:
+        for j in pl:
+            x, y, z = coords[j]
+            coords[j] = (x * 0.02, y * 0.02, z * 0.02)   # |r| ~85 -> ~1.7: wing band
+    after, r_after = classify(pl, coords)
+    for j, c in saved.items():
+        coords[j] = c
+    restored, r_restored = classify(pl, coords)
+    detected = (after != before)
+    out.append("face %d: class before = %s (|r| %.3f)" % (idx, before, r_before))
+    out.append("plant applied = %s -> class after = %s (|r| %.3f)" % (apply_plant, after, r_after))
+    out.append("restored -> class = %s (|r| %.3f)%s"
+               % (restored, r_restored, "" if restored == before else "  *** RESIDUE ***"))
+    out.append("classifier responded to the input change: %s" % detected)
+    return (detected and restored == before) if apply_plant else (not detected), out
+
+
+def selftest():
+    """Exercise the control on synthetic geometry, INCLUDING its failure mode.
+    Runs no mesh and is not P1."""
+    coords = {0: (85.0, 40.0, 10.0), 1: (85.0, 41.0, 10.0),
+              2: (86.0, 41.0, 10.0), 3: (86.0, 40.0, 10.0)}
+    faces = [[0, 1, 2, 3]]
+    print("SELFTEST 1 — plant APPLIED, sound classifier: control must PASS")
+    ok, msg = planted_control(faces, dict(coords), apply_plant=True)
+    for m in msg: print("   " + m)
+    print("   -> %s  (expected PASS)" % ("PASS" if ok else "FAIL"))
+    a = ok
+    print("SELFTEST 2 — plant WITHHELD: a control that cannot fail would still say PASS")
+    ok2, msg2 = planted_control(faces, dict(coords), apply_plant=False)
+    for m in msg2: print("   " + m)
+    print("   -> control reports no-detection = %s  (expected: no detection)" % ok2)
+    print("SELFTEST 3 — THE CONTROL MUST BE ABLE TO FAIL: break the classifier's band")
+    global FARFIELD_BAND_BROKEN
+    import __main__ as M
+    saved = M.classify
+    M.classify = lambda pl, c: ("farfield", 99.0)          # a classifier that never changes its mind
+    ok3, msg3 = planted_control(faces, dict(coords), apply_plant=True)
+    M.classify = saved
+    for m in msg3: print("   " + m)
+    print("   -> %s  (expected FAIL — this is the control refusing)" % ("PASS" if ok3 else "FAIL"))
+    good = a and ok2 and (not ok3)
+    print("\nSELFTEST %s" % ("PASS — the control detects a real plant AND refuses a dead classifier"
+                              if good else "FAIL"))
+    return 0 if good else 1
+
+
 def body(path):
     """Return (list_of_lines_after_the_opening_paren, count)."""
     with open(path) as f:
@@ -56,16 +135,6 @@ def main(pm):
         vals = re.findall(r"[-+0-9.eE]+", plines[ps + 1 + idx])
         coords[idx] = (float(vals[0]), float(vals[1]), float(vals[2]))
 
-    def classify(pl):
-        pts = [coords[i] for i in pl]
-        if all(abs(p[1]) < Y_SYMM_TOL for p in pts):
-            return "symmetry"
-        cx = sum(p[0] for p in pts) / len(pts)
-        cy = sum(p[1] for p in pts) / len(pts)
-        cz = sum(p[2] for p in pts) / len(pts)
-        r = (cx * cx + cy * cy + cz * cz) ** 0.5
-        return ("farfield", r) if r > 40.0 else ("wing", r)
-
     got = {"wing": 0, "farfield": 0, "symmetry": 0}
     wing_rmax, ff_rmin = 0.0, 1e18
     labels = []
@@ -93,22 +162,23 @@ def main(pm):
     print("  min farfield face-centre |r| = %9.4f   gate >= %.1f  -> %s" % (ff_rmin, FARFIELD_R_MIN, "PASS" if g2 else "FAIL"))
     ok &= g1 and g2
 
-    # ---- PLANTED CONTROL (rule 3): relabel one face and require detection
-    print("\nPLANTED CONTROL — one face deliberately relabelled")
-    tampered = list(labels)
-    victim = next(i for i, l in enumerate(tampered) if l == "farfield")
-    tampered[victim] = "wing"
-    tgot = {k: tampered.count(k) for k in EXPECT}
-    detected = any(tgot[k] != EXPECT[k] for k in EXPECT)
-    print("  face %d relabelled farfield -> wing; verifier reports %s"
-          % (victim, "A MISMATCH" if detected else "NOTHING"))
-    if not detected:
-        print("  REFUSE: the verifier cannot see a known-bad labelling. Its clean result is NOT evidence.")
+    # ---- PLANTED CONTROL (rule 3) — PLANTED IN THE INPUT, classify() RE-RUN
+    # The previous version relabelled a copy of the OUTPUT list and counted it. That
+    # tested arithmetic, never the classifier, and could not fail for any input.
+    print("\nPLANTED CONTROL — perturb one face's COORDINATES and re-run classify()")
+    ok_ctrl, msg = planted_control(faces, coords)
+    for line in msg:
+        print("  " + line)
+    if not ok_ctrl:
+        print("  REFUSE: the classifier did not respond to a known-bad input. Its clean "
+              "result is NOT evidence.")
         return 2
-    print("  CONTROL PASSED -> the comparison above is evidence, not a blind read.")
+    ok &= ok_ctrl
 
     print("\nP1 %s" % ("PASS" if ok else "GATE FAIL — reported, NOT adjusted"))
     return 0 if ok else 1
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--selftest":
+        sys.exit(selftest())
     sys.exit(main(sys.argv[1]))
