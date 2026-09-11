@@ -148,3 +148,20 @@ image `dafoam-idwarp-rot:v1` @ `sha256:2927768a16acdea0330180fff95c8879c1dda9efc
 **THE HAZARD THAT WOULD HAVE SHIPPED, and it is the reason launch discipline is not ceremony:** `potentialFoam` — N2's initialiser — prints `ExecutionTime = 45.66 s` and `End` **before the primal exists**. Left on stdout it becomes the registered `^ExecutionTime = ` witness and N2 reports LAUNCHED with no solver started. Its output is redirected and `LA.0c` asserts both the redirect and the absence of any unredirected `potentialFoam` line. **A witness is only as good as the set of things that can emit it.**
 
 **N2's UNKNOWN IS RESOLVED AND IT IS NOT BLOCKED:** `Phi` is `READ_IF_PRESENT` in this image — `potentialFoam` ran to `End`, rc 0, continuity error 1.38e-05 on 130,304 cells in 45.66 s, wrote `0/Phi.gz`, rewrote `0/U.gz`, left `0/p` and `0/T` untouched and wrote **no `0/phi`**. Hence the age datum is **`0/T`, not `0/U`** — `0/U` would not mean the same thing on N2 as on the other arms.
+
+## ADDENDUM 1 — 2026-09-11, POST-COMPUTE. `MAAOAF-GUARD-DEF-1`: `LA.0c`'s second assert matched a CORRECTLY redirected command and refused N2. **NO GATE, THRESHOLD, CAP, LABEL OR PREDICTION MOVES.**
+
+*lines whose number changed above this section: 0.*
+
+`LA.0c`'s first assert (the redirect is present) **passed**. Its second read
+`grep -qE '^potentialFoam .*[^>]$'` — testing *"the line does not END in `>`"* as a proxy for
+*"no redirect"*. The staged line is `potentialFoam -writePhi > /mnt/N2/potentialFoam.log 2>&1; PF_RC=$?`:
+redirected, and ending in `$?`. **So the guard matched the correct case and aborted N2 at exit 9 —
+the one arm predicted most likely to work never started.** Repaired to test what it always meant:
+a `potentialFoam` line carrying **no redirect operator anywhere**. Both directions controlled by the
+supervisor — an unredirected line still trips it, a redirected one passes.
+
+**This is the third guard tonight whose only victim was the correct case** (A5P2's `G-FREEZE.0`
+off-by-one, my own repair comment that matched its own documentation, and now this). **All three
+were invisible to reading and appeared only on execution.** N2 relaunched; no gate is touched and
+R0/N1/N3 keep their verdicts.

@@ -341,8 +341,20 @@ if [ "$ARM" = N2 ]; then
     echo "  It prints 'ExecutionTime = ' before the solver runs and would"
     echo "  satisfy the registered launch witness with no solver started."
     exit 9; }
-  grep -qE '^potentialFoam .*[^>]$' "$CMDFILE" && {
-    echo "ABORT LA.0c a potentialFoam invocation without a redirect is present."; exit 9; }
+  # POST-COMPUTE REPAIR 2026-09-11 (supervisor).  The previous form was
+  #     grep -qE '^potentialFoam .*[^>]$'
+  # which tests "the LINE does not END in >" as a proxy for "no redirect".
+  # That is false for every redirect followed by more shell, and the staged
+  # line is exactly that:
+  #     potentialFoam -writePhi > /mnt/N2/potentialFoam.log 2>&1; PF_RC=$?
+  # It ends in `$?`, so the guard MATCHED A CORRECTLY REDIRECTED COMMAND and
+  # ABORTED N2 -- the one arm predicted most likely to work never ran
+  # (measured: exit 9, no container).  Same shape as A5P2's G-FREEZE.0
+  # off-by-one: a guard whose only victim is the CORRECT case.
+  # The test is now what it always meant: a potentialFoam invocation with NO
+  # redirect operator ANYWHERE on its line.
+  if grep -E '^potentialFoam ' "$CMDFILE" | grep -qv '>'; then
+    echo "ABORT LA.0c a potentialFoam invocation without a redirect is present."; exit 9; fi
   echo "MAAOAF_LA0C arm=N2 initialiser_output=redirected_to_file witness_unambiguous=yes"
 fi
 
