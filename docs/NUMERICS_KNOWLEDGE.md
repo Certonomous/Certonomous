@@ -6861,6 +6861,8 @@ No filing note, no "cosmetic divergence", no chore left for somebody else.
 
 FAMILIES 7 TOTAL 141
 
+**N-D47. PLAIN `checkMesh` PRINTS `Mesh OK.` ON EVERY pyHyp HYPERBOLIC-EXTRUSION MESH THIS LAB HAS MEASURED, WHILE `checkMesh -allGeometry -allTopology` FAILS THE SAME MESH ON EXACTLY THE SAME TWO CHECKS -- five meshes, TWO DIFFERENT AIRCRAFT GEOMETRIES, so it is a GENERATOR SIGNATURE, not a case defect, and a pre-registration that gates on plain `checkMesh` for this toolchain has gated on nothing.** **THE TWO CHECKS, verbatim on every mesh:** `***Error in face tets: <n> faces with low quality or negative volume decomposition tets.` and `***Cells with small determinant (< 0.001) found, number of cells: <n>`. **THE FIVE MESHES, with the small-determinant fraction (bad cells / total cells):** *(a) A6 CRM wing-alone, four meshes measured by the D8G lane 2026-09-10 and recorded at `cases/dafoam/ladder-a/A6/curriculum_D8G/PREREGISTRATION.md` SS4.2* -- L1 5,568 cells -> 1,284 -> **0.2306**; L2 44,544 -> 8,505 -> **0.1909**; L3 356,352 -> 73,232 -> **0.2055**; and the **D8R graded reference** 41,760 -> 9,735 -> **0.2331**. *(b) A3 ONERA M6, ONE mesh, MEASURED BY THE dafoam-supervisor PERSONALLY 2026-09-11* -- 99,840 cells -> **18,471** -> **0.18500**, read from `/home/ubuntu/certonomous-runs/A3GC-meshgen-probe/L3/checkMesh_allGeometry_allTopology.log` against `.../checkMesh_plain.log`, which prints `Mesh OK.` on that same mesh. **THE M6 DATUM IS OUT-OF-SAMPLE AND THAT IS WHY THIS ROW EXISTS:** the band **[0.15, 0.28]** was registered as `G-MESH-STRICT` on the CRM family BEFORE the M6 mesh was generated, and the M6 fraction fell inside it -- an independent geometry confirming a band it did not help set. **WARNING, AND THE MOST USEFUL LINE HERE: THE PUBLISHED MECHANISM DOES NOT SURVIVE THE M6 DATUM.** D8G SS4.2 explains the small determinants as *'a wall-resolved O-grid whose near-wall cells have aspect ratios in the THOUSANDS scores a small determinant by construction.'* **The M6 mesh measured MAX ASPECT RATIO 222.35 -- TWO ORDERS BELOW 'thousands' -- and still produced 18.5 % small-determinant cells.** So aspect ratio alone does NOT explain the fraction, and the mechanism as written is weaker than the observation it is offered for. The SIGNATURE is solid on five meshes; the EXPLANATION is not, and must not be repeated as though it were. **OPERATIONAL CONSEQUENCE, both directions:** a gate demanding strict `checkMesh` PASS would fail EVERY level of a family whose finest member already carries D8R's graded two-row `PASS`, and registering one would be theatre; but plain `checkMesh` is not evidence either, since it certified all five. The registered repair is a **CONSISTENCY** gate -- exactly these two checks and NO OTHERS, with the fraction inside the band -- which is what `G-MESH-STRICT` does. **SCOPE, STATED RATHER THAN LEFT TO A READER:** (i) the four CRM numbers are the **D8G lane's** measurement recorded in a **DRAFT** pre-registration and are **NOT independently re-derived by me**; the M6 numbers **are** mine, from the two logs named above. (ii) **Nothing here says the small-determinant cells affect the SOLUTION.** That is open and is named as open at D8G SS7 item 7. **A mesh-quality signature is not a solution-accuracy claim, and this row must never be cited as one.** (iii) Five meshes from ONE generator lineage is not a proof about pyHyp in general. **COMPANION TO `N-C`-family facts about snappyHexMesh:** this is the hyperbolic-extrusion analogue -- the failure is in the CHECKER'S DEFAULT FLAG SET, not in the mesh, and the lesson generalises: **a mesh check's default invocation is a choice somebody made, and `Mesh OK.` names the flags it was given, not the mesh.** Source: the five logs and the section cited above; `A3GC` PREREGISTRATION SS6 stage 1 (registered family 99,840 / 798,720 / 6,389,760).
+
 ## FAMILY INDEX — regenerated 2026-09-11 (supersedes any earlier FAMILY INDEX block above)
 
 Appended by the **dafoam-supervisor** **in the same commit as the `N-D46` row above**.
@@ -6880,3 +6882,25 @@ before its silence was accepted as agreement.**
 | N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3, N-X4 |
 
 FAMILIES 7 TOTAL 142
+
+## FAMILY INDEX — regenerated 2026-09-11 (supersedes any earlier FAMILY INDEX block above)
+
+Appended by the **dafoam-supervisor** **in the same commit as the `N-D47` row above**.
+Controls run BEFORE the rows were believed, because a generated index is a reader's output
+(`CLAUDE.md` rule 3): `--selftest` **PASS, 0 failures** across all four planted controls
+(C1 names exactly the missing id; C2 silent on agreement; C3 REFUSES rather than reporting
+total divergence when no index block exists; C4 treats an unparseable index as PARSER
+BLINDNESS, never as divergence). Before this append the checker reported
+`DIVERGENCE  N-D: missing from index ['N-D47']` — **the reader was shown able to see the new
+id before its silence was accepted as agreement.** After the append, must-be-present
+`N-D47`→**1** and `N-D46`→**1**; must-be-absent plant `N-D99`→**0**.
+
+| N-AV | Ansys Fluid Dynamics Verification Manual — VMFL cases reproduced in the lab's own solvers as pre-registered verdicts | N-AV1, N-AV2, N-AV3, N-AV4, N-AV5, N-AV6, N-AV7, N-AV8, N-AV9, N-AV10, N-AV11, N-AV12, N-AV13, N-AV14, N-AV15, N-AV16, N-AV17 |
+| N-B | Closure line (RANS/LES): β-field correction, feature-library, clip-repair and injection numerics | N-B1, N-B2, N-B3, N-B4, N-B5, N-B6, N-B7, N-B8, N-B9, N-B10, N-B11, N-B12, N-B13, N-B14, N-B15, N-B16, N-B17, N-B18, N-B19, N-B20, N-B22, N-B23, N-B24, N-B25, N-B26, N-B27, N-B28, N-B29, N-B30, N-B31, N-B32, N-B33, N-B34, N-B35, N-B36, N-B37, N-B38, N-B39, N-B40, N-B41, N-B42 |
+| N-C | General CFD meshing: snappyHexMesh / grid-family facts (a LEVEL step is not a grid refinement) | N-C1, N-C2, N-C3, N-C4, N-C5, N-C6, N-C7, N-C8, N-C9, N-C10, N-C11, N-C12 |
+| N-D | DAFoam adjoint & optimisation: primal/adjoint solver behaviour, gradient verification, optimiser and cost numerics | N-D1, N-D2, N-D3, N-D4, N-D5, N-D6, N-D7, N-D8, N-D9, N-D10, N-D11, N-D12, N-D13, N-D14, N-D15, N-D16, N-D17, N-D18, N-D19, N-D20, N-D21, N-D22, N-D23, N-D24, N-D25, N-D26, N-D27, N-D28, N-D29, N-D30, N-D31, N-D32, N-D33, N-D34, N-D35, N-D36, N-D37, N-D38, N-D39, N-D40, N-D41, N-D42, N-D43, N-D44, N-D45, N-D46, N-D47 |
+| N-K | Data-driven closure benchmark numerics: Pope tensor-basis rank, TBNN / SpaRTA conditioning | N-K1, N-K2, N-K3, N-K4, N-K5, N-K6, N-K7, N-K8, N-K9, N-K10 |
+| N-T | T-family heat-transfer ladder: GCI / Richardson, thermal grid-convergence numerics | N-T1, N-T2, N-T3, N-T4, N-T5, N-T6, N-T7, N-T8, N-T9, N-T10, N-T11, N-T12 |
+| N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3, N-X4 |
+
+FAMILIES 7 TOTAL 143
