@@ -192,3 +192,59 @@ solve; grading any other family with `--min-added-frac 0.70` without registering
 that threshold for that family first; or treating the §3 medium/fine rows as
 measured.
 
+---
+
+## AMENDMENT 1 — 2026-09-11 — PRE-COMPUTE, EVIDENCE ADDED TO THE §5 HYPOTHESIS
+
+**Legality condition and how it was checked:** this registration is still
+pre-compute. Checked immediately before writing this section:
+`verification/runs/navier_class/DRIVAER/LAYERFIX_A1_coarse_relativeSizes`
+does not exist on disk, and neither does the A2 directory. No gate, threshold,
+cap or label below or above is altered by this amendment; it adds evidence only.
+
+**lines whose number changed above this section: 0**
+
+### What was checked, at zero compute
+
+§5 registers a hypothesis: *`addLayers false` on the graded family may have been
+set BECAUSE turning layers on produced nothing.* A cheap partial falsifier
+exists and was run — build chronology by file mtime:
+
+| dict written | log finished | `addLayers` | case |
+|---|---|---|---|
+| 21:37:14 | 21:40:11 | **true** | `DIAG_v1_coarse_explicitSnap_tol2_noCarLayers` |
+| 21:46:06 | 21:48:04 | **true** | `DIAG_v2_coarse_implicitSnap_tol1_layersON_BROKEN` |
+| 21:46:07 | 21:48:03 | **true** | `DIAG_v3_coarse_explicitSnap_tol2_layersFixed` |
+| **21:50:21** | 21:51:32 | **false** | `r1_coarse` |
+| 21:54:59 | 22:01:09 | **false** | `r1_medium` |
+| 21:55:00 | 22:34:29 | **false** | `r1_fine` |
+| 23:15:40 | 23:17:09 | **true** | `DIAG_v5_coarse_layersON_mergeTol1e-8` |
+
+All three `addLayers true` diagnostics ran first (21:40 -> 21:48) and **all three
+produced 0 % layers**. The graded family's `addLayers false` dicts were written
+at **21:50:21**, two minutes eighteen seconds after the last of them finished,
+and the whole graded family was then built 21:51 -> 22:34.
+
+### What this does and does not establish
+
+**Does not establish:** causation or intent. An mtime ordering shows sequence,
+not why a value was chosen. This is **not** a finding and the hypothesis is
+**not** promoted.
+
+**Does establish:** the sequence is the one the hypothesis predicts, and it is
+not the one the competing explanation predicts. If `addLayers false` had been an
+independent design decision, there is no reason for the layers-off dicts to
+appear two minutes after three consecutive layers-on collapses. The hypothesis
+is therefore **registered with supporting chronological evidence, still
+unproven**, and A1 remains its real falsifier.
+
+### Filing gap found while checking this
+
+Git history could not be used, because **the graded DrivAer case dicts are
+untracked** — `git ls-files verification/runs/navier_class/DRIVAER/` returns
+**5 files** for the entire directory, and `git check-ignore` returns nothing, so
+they are not ignored, merely never committed. File mtime is consequently the
+only chronological evidence that exists for these builds, and mtime does not
+survive a copy. Recorded here as a defect in its own right; not fixed by this
+lane, and not a blocker for A1.
+
