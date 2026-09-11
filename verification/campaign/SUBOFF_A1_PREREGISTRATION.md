@@ -1060,3 +1060,44 @@ count. Against §8's L1 sub-cap of **2,000 core-min**, with **372.67** spent on 
 date. `cost_basis`: **DERIVED from this case's own measured L1 build, not from a rate card.**
 
 *§12 ends. No gate, threshold, cap or label above is altered. No verdict is issued here.*
+
+## 12.7 🔴 PRE-COMPUTE CORRECTION TO §12.3 — THE REGISTERED SHIFT WOULD HAVE DESTROYED THE HALF-MODEL
+
+**Written BEFORE `L1_SHIFT` was built. The condition and how it was checked are stated, per
+rule 2's allowance for amendments before first compute.**
+
+**THE CONDITION, CHECKED NOT ASSERTED:** `verification/runs/navier_class/SUBOFF_A1/L1_SHIFT/`
+contained no `constant/polyMesh`, no time directory and no solver artifact at the time of
+writing. **No mesh had been built under §12.3 and none has been built under it since.**
+
+**THE DEFECT IN MY OWN REGISTERED TEST.** §12.3 registers a shift of half a base cell
+*"in each of x, y and z"*. **The z shift is invalid and would have produced a meaningless
+mesh.** Checked against L1's own artifacts:
+
+| read from | value |
+|---|---|
+| `L1/constant/polyMesh/boundary` | patch `symm` is **`type symmetryPlane`** |
+| `L1/log.checkMesh.FULLFLAG` | `symm` bounding box **`(-2 -2.9906 0) (9.018 2.9906 0)`** — it lies at **exactly z = 0** |
+| same | `hull` box `(… 0) (… 0.254…)` and `sail` box `(… 0) (… 0.0333…)` — **both bodies have `z_min = 0`** |
+
+**This is a HALF-MODEL whose plane of symmetry is z = 0** (§3.5: *"symmetry plane at z = 0,
+valid at zero drift"*). **Shifting the background grid in z by 39.35 mm would move the
+symmetry plane 39.35 mm INTO the hull**, cutting the body off-centre and mirroring it about
+the wrong plane. The resulting mesh would not be the SUBOFF geometry at all, and its
+determinant would answer a question nobody asked.
+
+> **CORRECTED REGISTERED TEST: the shift is half a base cell (39.35 mm) in **x and y ONLY**.
+> The z origin is UNCHANGED at 0, because z = 0 is the registered symmetry plane.**
+
+**The test's power is not materially reduced and its logic is unchanged.** The purpose is to
+move the surface/octree intersection at fixed resolution; **x and y do that in two of three
+directions**, and the hull axis (y = 0) and the sail (y ∈ [0.252, 0.476]) both sit in the
+shifted directions, so the features that matter are re-aligned. **§12.4's prediction, its
+falsifier and §12.5's ONE-SHIFT limit are unchanged and are not relaxed by this correction.**
+
+**Why this is disclosed rather than quietly fixed:** a registered test corrected silently is
+indistinguishable from a test chosen after the fact. The error was mine, it was caught by
+reading the case's own boundary file rather than trusting the registration, and **it is
+exactly the class of error §12.5 exists to prevent — a change to the experiment that feels
+like a detail.**
+
