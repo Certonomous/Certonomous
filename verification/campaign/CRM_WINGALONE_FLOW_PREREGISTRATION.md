@@ -191,3 +191,46 @@ partial-progress fallback; its 8,000 iterations are not this rung's to spend.**
 
 *Drafted 2026-09-11, pre-compute. Submissions parked; nothing here is sent, filed or registered
 outside this box.*
+
+---
+
+## 10. FREEZE BLOCK — **PREPARED BY THE LANE, SIGNATURE FIELD DELIBERATELY BLANK**
+
+🔴 **THIS DOCUMENT IS NOT YET FROZEN. It becomes frozen when cfd-supervisor signs the row below,
+and not before.**
+
+**Why the lane did not sign it.** `CLAUDE.md:240` — *"the four §3 checks are done **personally and
+may never be delegated** … pre-registration **committed** before compute. A relayed check is a
+summary, not a check."* **Verifying that a pre-registration is committed before compute is check 4,
+and it is the supervisor's own.** A lane that signs it has converted the check into a relay, which
+is the one thing the rule names. **The instruction to "freeze it" was an instruction to prepare the
+freeze; the attestation itself is not transferable.**
+
+### 10.1 Conditions verified BY THE LANE, each with a live control
+
+| condition | state | control that makes it evidence |
+|---|---|---|
+| `verification/runs/CRM_WINGALONE_FLOW_runs` | **ABSENT** | the same `test -d` was first shown to SEE `verification/runs/CRM_WINGALONE_runs`, which exists |
+| predecessor frozen blob | first 37,613 bytes hash **`1fa5fb725e6298d99dc4ab2207f55f11e575b285`** | identical to `git rev-parse d2629d326:<path>`; **0 commits touch it after `cbacda6b3`** |
+| this draft, as committed | `8527228a9`, 193 lines | committed **before** any compute under it |
+| L2 patch state | **one patch, `defaultFaces`, wall, 36,416 faces** | read from `constant/polyMesh/boundary`; corroborated by `log.plot3dToFoam`'s own *"Found 36416 undefined faces"* |
+
+**No compute has run under this document.** P1 is compute and is held until the row below is signed.
+
+### 10.2 The signature row
+
+| field | value |
+|---|---|
+| frozen by | **— UNSIGNED — cfd-supervisor to sign personally (check 4, non-delegable) —** |
+| freeze commit sha | *the commit that carries the signature* |
+| grading path fixed at | **P1: `split_patches.py` graded against §2's counts predicted in advance; the solve: `checkMesh`, solver residual logs and force history, read by printed values, never by rc** |
+| date | *to be filled at signature* |
+
+### 10.3 🔴 WHAT THIS FREEZE WILL NOT CERTIFY, STAMPED IN ADVANCE
+
+- **It does not certify that P1 will succeed.** §2's 11,136 / 11,136 / 14,144 is **arithmetic from the
+  surface cell count, not a measurement.** If the split returns other numbers that is a finding to
+  investigate, **never a licence to adjust the prediction to fit.**
+- **It does not certify `split_patches.py`.** That instrument is subject to **check 1 — the
+  supervisor's own read, as a diff — and no number it produces is believed before that.**
+- **It certifies no flow result.** No solve has run and none is authorised by this freeze.
