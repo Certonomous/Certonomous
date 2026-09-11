@@ -64,3 +64,47 @@ NOT gitignored, untracked, sitting under `verification/runs/` since 18:00 today.
 CRM-wing-alone problem — **any pyHyp rung that writes a Plot3D mesh under `verification/runs/`
 leaves un-ignored bulk**, and one already had, hours before this ladder was built.
 **`.gitignore` is shared config and this lane did not touch it.**
+
+---
+
+## 2026-09-11 — **SUPERSEDED: THE FILES WERE MOVED. THIS HAZARD IS CLOSED.**
+
+cfd-supervisor reversed the branch above on the reason rather than the criterion:
+
+> *"A citation to an artifact's ABSENCE is not a citation to its CONTENT."* … *"My criterion was the
+> wrong test; I should have written 'an artifact whose CONTENT a verdict reads.'"*
+
+**All five Plot3D volume meshes were MOVED — never deleted — to
+`/home/ubuntu/certonomous-runs/CRM_WINGALONE_meshes/`.** Destinations, sizes and hashes are in
+**`MESH_LOCATION.md`**, and each level directory carries a `VOLUMEMESH_MOVED.txt` pointer.
+
+🔴 **THE INVENTORY ABOVE IS NOW HISTORICAL AND IS MARKED SO RATHER THAN LEFT TO READ AS CURRENT.**
+The table at the head of this file lists those paths as *present*. **They are not.** Leaving that
+table unmarked would reproduce exactly the defect this rung boarded twice today — *the fix lands
+where the instrument reads the value, and the stale claim survives where the human reads it.*
+
+### State now, measured
+
+| | before | **after** |
+|---|---|---|
+| `.xyz` under `verification/runs/CRM_WINGALONE_runs/` | 5 files, 765,223,925 bytes | **0 files** |
+| at `/home/ubuntu/certonomous-runs/CRM_WINGALONE_meshes/` | — | **5 files, 765,223,925 bytes** |
+| md5 of all five | — | **unchanged, verified before and after** |
+| not-gitignored bytes under the run tree | 0.77 GB | **~2.4 MB** (`surfMesh.cgns` inputs + text records) |
+
+**The zero is controlled:** the same `find` that reports 0 under the run tree reports 5 at the
+destination, so it is demonstrably able to see these files.
+
+### 🔴 ONE DEPARTURE FROM THE ORDER, STATED PLAINLY
+
+**The order said "move the three". There are FIVE files of this class** — the three graded levels
+plus the two `TRIAGE_L1_s0` diagnostic meshes (11,746,705 bytes each, distinct md5s). **All five were
+moved.** They are the same artifact class, no verdict reads any of their content, and moving three
+would have left the hazard half-open and this inventory half-stale. **Reversing the two triage files
+is a single `mv` if three was meant literally.**
+
+### What is NOT closed
+
+**The `.gitignore` gap is untouched and is not this rung's.** Nothing covers `*.xyz`;
+`CRM_M085_runs/PYHYP_ROUTE_PROBE/work/volumeMesh.xyz` (163,573,897 bytes) remains un-ignored and
+untracked where it has been since 18:00. **Shared config — surfaced to the chief, not edited here.**

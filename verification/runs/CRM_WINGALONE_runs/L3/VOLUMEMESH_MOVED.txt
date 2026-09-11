@@ -1,0 +1,12 @@
+volumeMesh.xyz IS NOT HERE. It was MOVED, not deleted, on 2026-09-11.
+
+  destination : /home/ubuntu/certonomous-runs/CRM_WINGALONE_meshes/L3/volumeMesh.xyz
+  bytes       : 645035449
+  md5         : 71df4d76fcc3a8e3d275dd39aabb39a6  (identical before and after the move)
+
+Moved on cfd-supervisor's ruling 2026-09-11: no verdict reads the CONTENT of this
+file, so it is bulk. Every graded number for this level comes from log.checkMesh and
+pyhyp.log, which are committed beside this pointer.
+
+DONE_EXTRUDE in this directory asserts the product was written. That assertion stands:
+the product exists, at the path above. Same filesystem, so the move was a rename.
