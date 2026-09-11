@@ -139,3 +139,27 @@ Recorded because the overclaim was mine and the correction came from a lane I ha
 check my work. **The verdict is untouched either way**: a crashed L3 cannot satisfy strict
 completion, so this triple is `NOT A RESULT` whichever explanation is true — which is
 precisely why there was nothing to be gained by overstating it.
+
+---
+
+## DATED ADDENDUM — 2026-09-11T16:20Z — **THE GRID LABELS IN THIS DOCUMENT ARE WRONG, AND THEY PROPAGATED**
+
+**Nothing above this section is rewritten; the line numbering above is unchanged (lines whose number changed above this section: 0).**
+
+This document states the levels as **120x52 / 240x104 / 480x208** (lines 10, 36-38, 42-43, 103, 108). **Those figures are not what ran.** Measured from the run artifacts, not from this document:
+
+| level | this doc says | what actually ran (`LEVEL_APPLIED.txt`) | `log.blockMesh` | `log.makeFaMesh` |
+|---|---|---|---|---|
+| L1 | 120x52 | **64 x 16 x 1** | — | — |
+| L2 | 240x104 | **128 x 32 x 1** | — | — |
+| L3 | 480x208 | **256 x 64 x 1** | `nCells: 16384` | `Number of faces: 16384` |
+
+480 x 208 = 99,840 cells; the level that crashed has **16,384**. The three independent artifacts agree with each other and disagree with this document, so the document is the thing that is wrong.
+
+**Why it matters, beyond tidiness.** The central claim of this triage — *"the remedy holds at 120x52 and 240x104 and fails at 480x208"* — is structurally intact (the remedy did hold at the two coarser levels and did fail at the finest) but **every absolute grid number attached to it is wrong by roughly a factor of 2 per direction**, and so is the forward projection at line 108 that *"whatever value survives 480x208 would be expected to fail at 960x416."* The real next refinement is **512 x 128**, not 960 x 416.
+
+**It propagated.** `docs/LAB_STATE.md` S-13d repeated *"the remedy did not remove the SIGFPE at 480x208"* on this document's authority. That board line is wrong for the same reason and is corrected in the ansys section at S-13g.
+
+**The mechanism claim is UNCHANGED and still UNTESTED.** Whether the failure threshold scales with cell size remains untested; correcting the labels does not test it.
+
+**One further control now on record, and it does NOT say what it might appear to say.** `B2` ran the **same 256 x 64 mesh as the level that crashed** and completed `rc=0`. That is NOT evidence that precursor thickness alone is the culprit: B2 differs from L3 in **three** variables at once — `H_IN` 3.8276110199e-04 vs 7.1084204656e-04, `U_IN` 0.997993736 vs 0.537381243, `DELTAT` 7.8125e-04 vs 1.25e-03. It establishes only that **the 256 x 64 mesh is not intrinsically fatal**. No single-variable control exists at fixed grid, and building one is the first thing R4 owes.
