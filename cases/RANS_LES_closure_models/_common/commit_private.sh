@@ -182,6 +182,47 @@ if [ "${1:-}" = "--selftest" ]; then
   if assert_no_new_noncanonical_cal_id "$CN" "$CP" 2>/dev/null; then
     echo "  cal +: GREEN prose-only edit PASSES (no new id row)"
   else echo "CONTROL FAIL: the guard flagged a prose-only edit"; fail=1; fi
+  # --- the planted EMPTY-TREE control (2026-09-11, verification).
+  # Demonstrates BOTH halves: that the unguarded path commits an empty tree and
+  # reports success, and that the guard refuses it. A guard never shown firing
+  # is not a guard.
+  ET=$(mktemp -d); (
+    cd "$ET"
+    git init -q . && git config user.email s@l && git config user.name s
+    echo x > g && git add g && git commit -qm base
+  ) >/dev/null 2>&1
+  EOLD=$(git -C "$ET" rev-parse HEAD)
+  # stage the file UNCHANGED -- exactly the scenario that bit heat-transfer
+  ETREE=$(cd "$ET" && GIT_INDEX_FILE=$ET/.idx sh -c 'rm -f $GIT_INDEX_FILE; git read-tree HEAD; git update-index --add -- g; git write-tree')
+  EN=$(git -C "$ET" diff-tree -r --name-only "$EOLD^{tree}" "$ETREE" | wc -l)
+  if [ "$EN" -eq 0 ]; then
+    echo "  empty +: an UNCHANGED file yields a tree identical to the parent's (N=0)"
+  else echo "CONTROL FAIL: the empty-tree scenario could not be built (N=$EN)"; fail=1; fi
+  # the PRE-FIX behaviour, driven: every downstream check passes over nothing
+  ENEW=$(git -C "$ET" commit-tree "$ETREE" -p "$EOLD" -m "empty as the unguarded path would commit it")
+  if printf '%s' "$ENEW" | grep -qE '^[0-9a-f]{40}$'; then
+    echo "  empty +: UNGUARDED, commit-tree returns a REAL 40-hex sha over the empty tree"
+  else echo "CONTROL FAIL: commit-tree did not return a sha"; fail=1; fi
+  git -C "$ET" update-ref refs/heads/"$(git -C "$ET" symbolic-ref --short HEAD)" "$ENEW" "$EOLD" 2>/dev/null
+  if [ "$(git -C "$ET" rev-parse HEAD)" = "$ENEW" ]; then
+    echo "  empty +: UNGUARDED, the CAS SUCCEEDS and HEAD genuinely MOVES -- the"
+    echo "           HEAD-MOVED gate is SATISFIED and would print [HEAD-MOVED ASSERTED]"
+  else echo "CONTROL FAIL: HEAD did not move; the trap cannot be demonstrated"; fail=1; fi
+  if [ -z "$(git -C "$ET" diff-tree -r --numstat HEAD~1 HEAD)" ]; then
+    echo "  empty -: and the rule-10 POST-COMMIT VERIFY prints NOTHING -- a clean-looking"
+    echo "           verify OF NOTHING, which is the defect this guard exists to catch"
+  else echo "CONTROL FAIL: the post-commit verify was not empty"; fail=1; fi
+  # THE GUARD ITSELF, on the same N
+  if [ "$EN" -eq 0 ]; then
+    echo "  empty +: GUARDED, 'N -eq 0' REFUSES this commit BEFORE commit-tree runs"
+  else echo "CONTROL FAIL: the guard would not fire on N=0"; fail=1; fi
+  # and the guard must NOT fire on a real change (it must be capable of passing)
+  (cd "$ET" && echo y > g && git add g && git commit -qm real) >/dev/null 2>&1
+  RN=$(git -C "$ET" diff-tree -r --name-only 'HEAD~1^{tree}' 'HEAD^{tree}' | wc -l)
+  if [ "$RN" -eq 1 ]; then
+    echo "  empty -: a REAL one-path change gives N=1 and PASSES the guard (not a blanket refusal)"
+  else echo "CONTROL FAIL: a real change did not give N=1 (N=$RN)"; fail=1; fi
+  rm -rf "$ET"
   cd /; rm -rf "$T"
   [ "$fail" -eq 0 ] && { echo "SELFTEST PASS"; exit 0; } || { echo "SELFTEST FAIL"; exit 2; }
 fi
@@ -209,6 +250,44 @@ while : ; do
   git diff-tree -r --name-status "$OLD^{tree}" "$TREE"
   N=$(git diff-tree -r --name-only "$OLD^{tree}" "$TREE" | wc -l)
   echo "--- $N paths changed; ${#FILES[@]} requested"
+  # EMPTY-TREE GUARD (2026-09-11, verification; raised by heat-transfer after this
+  # wrapper committed an EMPTY TREE for them tonight and reported success).
+  #
+  # $N was COMPUTED, PRINTED, AND NEVER TESTED. With a tree identical to the
+  # parent's, every downstream check still passes -- commit-tree returns a real
+  # 40-hex sha, the CAS succeeds, HEAD genuinely moves to $NEW, the HEAD-MOVED
+  # gate at the foot is SATISFIED, and the rule-10 post-commit verify prints
+  # NOTHING because there is nothing to print. The operator is told
+  # "COMMITTED ... [HEAD-MOVED ASSERTED]" over an empty verify.
+  #
+  # That is precisely the failure this file's own header (lines 20-28) lectures
+  # about -- "a clean-looking verify OF NOTHING" and "AN ASSERTION THAT CANNOT
+  # FAIL IN THE SCENARIO IT EXISTS TO CATCH" -- committed by the file that
+  # carries the lecture. The header was right and nothing enforced it.
+  #
+  # Refused BEFORE commit-tree, so no object is created at all: an empty commit
+  # is not an orphan to inspect, it is a lie to avoid telling.
+  if [ "$N" -eq 0 ]; then
+    echo "ABORT: the tree is IDENTICAL to the parent's -- 0 paths changed, ${#FILES[@]} requested."
+    echo "--- NOTHING WOULD HAVE BEEN COMMITTED. No commit object was created."
+    echo "--- Every downstream check would have PASSED: commit-tree returns a real sha,"
+    echo "    the CAS succeeds, HEAD moves, and the post-commit verify prints an EMPTY diff."
+    echo "--- Inspect why your files are unchanged versus HEAD \$OLD=$OLD. Do NOT force."
+    exit 2
+  fi
+  # $N < requested is LEGITIMATE and is reported rather than refused: a directory
+  # argument expands to every file under it and some are routinely unchanged.
+  # $N > requested cannot occur -- only "${FILES[@]}" were staged into an index
+  # read from $OLD -- so it is asserted rather than assumed.
+  if [ "$N" -gt "${#FILES[@]}" ]; then
+    echo "ABORT: $N paths changed but only ${#FILES[@]} were requested -- a path this"
+    echo "--- invocation did not stage is in the tree. That is the sweep class; never force."
+    exit 2
+  fi
+  if [ "$N" -lt "${#FILES[@]}" ]; then
+    echo "--- NOTE: $N of ${#FILES[@]} requested paths differ from \$OLD; the rest are unchanged"
+    echo "    and contribute nothing to this commit. Expected for a directory argument."
+  fi
   NEW=$(git commit-tree "$TREE" -p "$OLD" -F "$MSG")
   # L-382: a commit sha that is empty or malformed makes update-ref a silent no-op.
   if ! printf '%s' "$NEW" | grep -qE '^[0-9a-f]{40}$'; then
