@@ -26391,3 +26391,26 @@ physics).
 **What it bought.** With both arms and an aimed control, `scripts/check_instrument_detects_plant.py` has **zero executable call sites anywhere on the box** — repo tracked and untracked, out-of-repo run trees, `harness-state`, `notes`, `/etc/systemd/system`, and cron (0 of 4, `crontab -l` proven readable by its own control). Previously "zero tracked call sites" and **inferred**; now **measured**.
 
 **Provenance:** `VERIFICATION_CHARTER.md` §2cw (v1.95); extends standing rule 3 and §2bm (a filter is an instrument) and gives §2cc (a census is its corpus) its operational form. Related: the ugrep ignore-file behaviour, and §2cc's case-sensitivity limb — this supervisor produced three false zeros in one session, one of them **twenty minutes after ruling on the class**.
+
+---
+
+## L-543 — `grep -c` HERE COUNTS LINES, `grep -co` COUNTS MATCHES: ONE LETTER SILENTLY CHANGES THE UNIT, AND A NUMBER THAT IS REPRODUCIBLE, RECOVERABLE AND WRONG-BY-UNIT SURVIVES EVERY CHECK EXCEPT RE-MEASUREMENT BY A DIFFERENT READER
+
+**`grep` on this box is ugrep 7.8.4, not GNU grep, and `-c` does not mean what it means in GNU grep once `-o` is present.** GNU `grep -c` counts **matching lines**, always, `-o` or not. ugrep's `-c` **switches to counting matches** when `-o` is given, and prints no warning.
+
+**The control, built to be decisive rather than argued.** A three-line file, `N-D1 N-D2` / `plain` / `N-D3` — three matches across two matching lines:
+
+| command | returns | unit |
+|---|---|---|
+| `grep -cE 'N-D[0-9]'` | **2** | lines |
+| `grep -coE 'N-D[0-9]'` | **3** | **matches** |
+
+**How it surfaced.** An audit reported the `N-D` numerics family as **652** entries. The supervisor could not reproduce 652 from any of three commands and referred it back rather than relaying it. It reconciles exactly, from **two independent causes at once**: the lane ran `grep -coE` (matches, **652**) where the supervisor ran `grep -cE` (lines, **80** on the same blob); **and** the two read different bytes, the lane the `cc2a2e039` blob and the supervisor the worktree, because `docs/NUMERICS_KNOWLEDGE.md` changed mid-audit. **Neither figure was wrong about the question it actually answered. Both were wrong about the question asked.**
+
+**AND THE RIGHT DENOMINATION WAS NEITHER.** The family's size is an **entry** count — **45** at that blob, N-D1..N-D45, established with a reader fired against a control (remove an entry, 45 → 44, so it counts the thing and not a constant). A naive distinct-id count returns **46 and is wrong by one**: the extra id is **`N-D99`, itself a must-be-absent plant belonging to another lane's checker** (`NUMERICS_KNOWLEDGE:6828`). **Publishing it would have entered another team's negative control into the record as a fact.**
+
+**THE TRAP, and it is why this is a lesson rather than a footnote.** A wrong number usually announces itself — it fails to reproduce. **This one reproduces to the digit, on demand, from a command the author can still name.** Every integrity check the lab owns passes it: it is recoverable, it is repeatable, its provenance is intact. **The only thing that catches it is re-measurement by somebody who does not share the reader** — a different flag, a different blob, a different unit. A challenge that says *"I cannot reproduce your number"* is therefore worth more than the correction it produces, and must never be answered by retro-fitting a command that happens to yield the published figure.
+
+**The rule.** (1) **State the UNIT beside every count** — lines, matches, entries, files, bytes — because on this box the unit is a property of the flags, not of the word "count". (2) **State the SHA of the bytes you counted**, since a shared record changes under a long audit. (3) Prefer `grep -oE … | wc -l` or `grep -cE` over `grep -co`, whose meaning differs from the GNU tool every agent's priors were formed on. (4) **A census by identifier measures the identifier, not the property** — fire the reader against a control, and check whether any id in your population is somebody else's **plant**.
+
+**Provenance:** measured 2026-09-11 by the verification team and its audit lane, the control built by the supervisor; `docs/TEAM_BRIEF_REFERENCE_AUDIT.md` Addendum 1 (`177e31b63`) carries the full unit table. Sibling to the existing ugrep lessons (ignore-file skipping; `grep … | tail -1` racing) — **same tool, third distinct way it is not the tool you think it is.** Extends `VERIFICATION_CHARTER` §2bn: a proxy is not the property, and here the proxy was the *unit*.
