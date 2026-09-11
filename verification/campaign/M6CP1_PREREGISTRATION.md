@@ -1168,3 +1168,79 @@ The instrument is at `verification/runs/M6_OWN_FAMILY_runs/STACK_CENSUS/stack_ce
 absent** — `trapFpe`'s arming banner read as an exception, `pgrep -f` matching its own command line,
 bare `checkMesh` blind to the checks it gated, a `0/T` slack confirming a launch that never happened,
 and now a template-blind stack matcher. **Two of the five were the supervisor's.**
+
+---
+
+## ADDENDUM 7 — 2026-09-11 — ❌ **AMENDMENT 2's "SCALE-INVARIANT 60.9°" IS AN ARTIFACT OF MY OWN SAMPLING. THE DEFECT SURVIVES AND IS BETTER STATED.**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, band or label is altered.
+**Amendment 2's `NOT A RESULT` park STANDS** — this corrects its evidence, not its verdict.
+
+### A7.1 WHAT I CLAIMED, AND WHY IT WAS WRONG
+
+§A2.2 recorded the trailing-edge cusp half-angle as **60.85 / 60.92 / 60.92°** at L2/L1/L0 and called it
+**SCALE-INVARIANT** — *"refinement halves the cell and never opens the cusp"* — and I used that
+invariance as the load-bearing evidence that the defect could not be refined away. **I then relayed it
+upward repeatedly.**
+
+**It is an artifact of my sampling.** The dafoam team measured the same quantity with my own
+instruments (`DIAG_D1/diag_d1..d4.py` and my frozen planform normaliser) on a surface whose last
+chordwise step is **4.9× finer**, and read **79.38°**. **My three levels share ONE CHORDWISE SPACING
+LAW AT THE TRAILING EDGE, so they were three samples of a single discretisation, not three samples of
+the geometry.** Three numbers agreeing because they inherit the same spacing is not invariance — **it
+is the same measurement taken three times.**
+
+### A7.2 WHAT THE GEOMETRY ACTUALLY IS — CONFIRMED BY THE SUPERVISOR FROM THE REFERENCE
+
+**Verified directly from `models/onera_m6/agard_ar138_table_b1_1_section_coordinates.dat`** (AGARD
+AR-138 Table B1-1, 72 rows, title-page verified under rule 15). **Its last five panels:**
+
+| x/l interval | half-angle |
+|---|---|
+| 0.9842508 → 0.9885252 | **7.06°** |
+| 0.9885252 → 0.9921438 | **7.06°** |
+| 0.9921438 → 0.9952080 | **7.06°** |
+| 0.9952080 → 0.9978030 | **7.06°** |
+| 0.9978030 → **1.0000000** | **7.06°**, terminating at **z/l = 0.0007052** |
+
+**A CONSTANT 7.06° TAPER RIGHT TO x/l = 1.0, ENDING AT A BLUNT BASE. THERE IS NO CAP AND NO CUSP IN THE
+REFERENCE AT ALL.** dafoam independently measured the surface's taper at **7.05°, constant over eight
+consecutive panels** — faithful to three digits — and its base half-thickness at **~5.7e-4 m**, which
+cross-checks exactly: 7.052e-4 × the 0.8059 m root chord = **5.683e-4 m**.
+
+**So the 60.9° was never the wing. It is the slope of whichever single panel closes an ADDED cap over
+the last ~0.4 % of chord — a feature NOT PRESENT IN THE AGARD DEFINITION — and it steepens WITHOUT
+LIMIT as that cap is refined.** *(This also settles a question dafoam recorded as unresolved: the
+rounded closure in the upstream CGNS surface is not in the reference and was introduced in prep.)*
+
+### A7.3 THE DEFECT SURVIVES, AND THE CORRECTED STATEMENT IS STRONGER
+
+**Struck:** *"a scale-invariant 60.9° cusp that refinement never opens."*
+**Corrected:** **the mesh CLOSES A BASE THAT THE REFERENCE LEAVES BLUNT, and the closing angle is an
+artifact of how finely that added closure is discretised — it worsens without limit under refinement
+rather than holding constant.**
+
+**Everything Amendment 5 established stands untouched and is unaffected by this correction:** the
+reference TE is blunt at **z/l = 0.0007052**, that coordinate sat in a committed lab file throughout,
+and **M6CP1's trailing edge was an unregistered departure from the reference geometry.** **ZERO CELLS
+ACROSS THE TE also stands and was independently confirmed** by dafoam on the upstream surface.
+
+### A7.4 🔴 AND A FINDING THAT WEAKENS THE CAUSAL CLAIM — THE GEOMETRY IS SOLVABLE
+
+**dafoam's A3 solved through THIS SAME cusped trailing edge cleanly:** `DARhoSimpleCFoam`,
+`ddtSchemes steadyState`, **no LTS and no `rDeltaT` field anywhere**, CL stable to **eight significant
+figures** over its last 200 iterations, **y+ max 103.5.**
+
+**So the cusp is a NECESSARY rather than a SUFFICIENT condition for M6CP1's failure.** §A2.3 and §A4.4
+established that `fvc::smooth` propagated a local time-scale collapse to 100 % of cells — **and a
+steady SIMPLE solve has no LTS field for that mechanism to act on.** **The failure was the cusp AND
+LTS together, not the cusp alone**, and this is an existence proof that the geometry admits a
+converged solution under a different solver. **Referred upward: it bears on whether the M6 route is a
+mesh problem or a solver choice, which is not cfd's alone to decide.**
+
+### A7.5 TWO ARTEFACTS UNDER TWO NAMES
+
+**`verification/runs/M6SR_runs/L2` and `L3` `constant/polyMesh` are BYTE-IDENTICAL in all five files**
+to dafoam's `A3-onera-m6-transonic` and `A3-onera-m6-adjoint-coarse` respectively. **Two teams have
+been measuring one artefact under two names.** Recorded here; the cross-team disposition is the
+chief's.
