@@ -1,0 +1,33 @@
+K2f A-INPUT ARM -- DEMONSTRATED BY EXECUTION, BOTH DIRECTIONS
+Registration s.3.1 (the gate's INPUT exists) and s.16 step 3.
+Driven on a REAL OpenFOAM case: buoyantBoussinesqSimpleFoam, 58,368 cells,
+1 rank, endTime 20, function-object cadence 2.  Not a graded case.
+
+WHY THE THROWAWAY RUNS AT A 2-ITERATION CADENCE AND NOT THE REGISTERED 50:
+at the registered cadence a 20-iteration run writes NO SAMPLE AT ALL, so an
+arm asserting on an empty producer could not tell `block absent` from
+`block present but not yet due`.  The FO DECLARATIONS are identical; only
+the interval differs.  Reported as a finding against s.3.1's `~20
+iterations`, which cannot produce a sample at the cadence s.3 registers.
+
+--- POSITIVE ARM: every registered series exists, is non-empty, has samples
+    T_in_0   n=10  first_it=2 last_it=20  last=289  print_res=1e-08  postProcessing/T_in_0/0/surfaceFieldValue.dat
+    T_in_1   n=10  first_it=2 last_it=20  last=289  print_res=1e-08  postProcessing/T_in_1/0/surfaceFieldValue.dat
+    T_in_2   n=10  first_it=2 last_it=20  last=289  print_res=1e-08  postProcessing/T_in_2/0/surfaceFieldValue.dat
+    T_in_3   n=10  first_it=2 last_it=20  last=289  print_res=1e-08  postProcessing/T_in_3/0/surfaceFieldValue.dat
+    U_ha     n=10  first_it=2 last_it=20  last=0.416217247  print_res=1e-11  postProcessing/U_ha/0/volFieldValue.dat
+    T_ca     n=10  first_it=2 last_it=20  last=289  print_res=1e-08  postProcessing/T_ca/0/volFieldValue.dat
+    ASSERT OK: all 6 registered series present, non-empty, >= 1 sample row.
+    exit=0
+
+--- NEGATIVE ARM: the SAME mesh and dictionaries, `functions` block REMOVED
+    (controlDict truncated at the functions block; nothing else changed)
+    $ grep -c functions neg/K2f_L1/system/controlDict
+    0
+    solver rc=0, log.solve carries `End` -- THE RUN SUCCEEDED.
+    $ ls neg/K2f_L1/postProcessing
+    (no such directory)
+    REFUSE: no file matches /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/k2f_tw/neg/K2f_L1/postProcessing/U_ha/*/volFieldValue.dat -- the gate's INPUT was never produced. A-INPUT (s.3.1): a gate whose input was never written fails SILENTLY, and this comparator refuse
+    exit=2
+
+==========================================================================

@@ -1,0 +1,148 @@
+K2f A-DRIVE ARM -- main() POINTED AT A CASE DIRECTORY, ALL FOUR DIRECTIONS
+Registration s.7 and s.16 step 4.  A comparator that cannot be pointed at a
+directory is not a comparator.  analyse_k2d.py:613-619 was a two-branch stub.
+
+--- DIRECTION 1 (s.7.1): a COMPLETE three-level tree -> a VERDICT SET
+    $ python3 analyse_k2f.py <complete tree>
+    ==============================================================================
+    K2f COMPARATOR -- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/k2f_tw/tree_complete
+    registration: docs/campaigns/F14-cooling-ladder/K2f_PREREGISTRATION.md
+    freeze: NOT FROZEN -- registration s.15 carries NO blob digest for any grading-path file. This is the correct PRE-FREEZE state. NO VERDICT PRODUCED BY
+    ==============================================================================
+    
+    -- admission --
+      G-MESHSIM PASS: BUILT counts 58368 / 196992 / 664848, actual steps 3.3750 / 3.3750 (window [3.2063, 3.5438] = 3.375 +- 5 %), implied r = 1.5000 / 1.
+      G-STATEINV: every level reads the same convergence state on every gated quantity; the triple is admissible in principle
+      K2f_L1: STRICT COMPLETION RULE: K2f_L1 DONE, all six clauses (mark_done_k2f.check)
+          G-CHECKMESH PASS (full check set run, 0 failed checks)
+          G-3D CONFIRMED: 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)', no empty/wedge patches
+          G-MINCELL PASS: every named feature >= 5.0 mm (worst 0.02 m)
+          A-INPUT PASS: all 6 registered series present and non-empty (T_in_0, T_in_1, T_in_2, T_in_3, U_ha, T_ca); sample cadences T_in_0=50, T_in_1=50, 
+          planted-zero U_ha: passed=True reader_delta=1.234000e-03 gate_path_delta=1.234000e-03
+          planted-zero T_ca: passed=True reader_delta=1.234000e-03 gate_path_delta=1.234000e-03
+          planted-zero T_in_0: passed=True reader_delta=1.234000e-03 gate_path_delta=1.234000e-03
+      K2f_L2: STRICT COMPLETION RULE: K2f_L2 DONE, all six clauses (mark_done_k2f.check)
+          G-CHECKMESH PASS (full check set run, 0 failed checks)
+          G-3D CONFIRMED: 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)', no empty/wedge patches
+          G-MINCELL PASS: every named feature >= 5.0 mm (worst 0.02 m)
+          A-INPUT PASS: all 6 registered series present and non-empty (T_in_0, T_in_1, T_in_2, T_in_3, U_ha, T_ca); sample cadences T_in_0=50, T_in_1=50, 
+          planted-zero U_ha: passed=True reader_delta=1.234000e-03 gate_path_delta=1.234000e-03
+          planted-zero T_ca: passed=True reader_delta=1.234000e-03 gate_path_delta=1.234000e-03
+          planted-zero T_in_0: passed=True reader_delta=1.234000e-03 gate_path_delta=1.234000e-03
+      K2f_L3: STRICT COMPLETION RULE: K2f_L3 DONE, all six clauses (mark_done_k2f.check)
+          G-CHECKMESH PASS (full check set run, 0 failed checks)
+          G-3D CONFIRMED: 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)', no empty/wedge patches
+          G-MINCELL PASS: every named feature >= 5.0 mm (worst 0.02 m)
+          A-INPUT PASS: all 6 registered series present and non-empty (T_in_0, T_in_1, T_in_2, T_in_3, U_ha, T_ca); sample cadences T_in_0=50, T_in_1=50, 
+          planted-zero U_ha: passed=True reader_delta=1.234000e-03 gate_path_delta=1.234000e-03
+          planted-zero T_ca: passed=True reader_delta=1.234000e-03 gate_path_delta=1.234000e-03
+          planted-zero T_in_0: passed=True reader_delta=1.234000e-03 gate_path_delta=1.234000e-03
+    
+    -- S-ONSET (s.4.1): grades nothing, moves no verdict --
+      K2f_L1   T_in,max  CONVERGED  spread 0.000000 % of range 11 | signs 0 | trend 0.000 | n 60 | detection floor 1.0 x threshold
+               the steady kOmegaSST treatment of the K2a module reads CONVERGED at 58368 cells
+      K2f_L1   U_ha      CONVERGED  spread 0.000000 % of range 0.9 | signs 0 | trend 0.525 | n 60 | detection floor 1.0 x threshold
+               the steady kOmegaSST treatment of the K2a module reads CONVERGED at 58368 cells
+      K2f_L2   T_in,max  CONVERGED  spread 0.000000 % of range 11 | signs 0 | trend 0.000 | n 60 | detection floor 1.0 x threshold
+               the steady kOmegaSST treatment of the K2a module reads CONVERGED at 196992 cells
+      K2f_L2   U_ha      CONVERGED  spread 0.000000 % of range 0.9 | signs 0 | trend 0.525 | n 60 | detection floor 1.0 x threshold
+               the steady kOmegaSST treatment of the K2a module reads CONVERGED at 196992 cells
+      K2f_L3   T_in,max  CONVERGED  spread 0.000000 % of range 11 | signs 0 | trend 0.000 | n 60 | detection floor 1.0 x threshold
+               the steady kOmegaSST treatment of the K2a module reads CONVERGED at 664848 cells
+      K2f_L3   U_ha      CONVERGED  spread 0.000000 % of range 0.9 | signs 0 | trend 0.525 | n 60 | detection floor 1.0 x threshold
+               the steady kOmegaSST treatment of the K2a module reads CONVERGED at 664848 cells
+      decomp_control: NOT RUN
+      C-DECOMP was NOT RUN, so S-ONSET MAY NOT be cited as establishing that the cycle is a property of the case rather than of the parallel path (s.18.3)
+    
+    -- GRADED ROWS --
+      G1  T_in,max      PASS            value 300.1
+          cells [58368, 196992, 664848]  values ['300.50625', '300.225', '300.1']
+          triples ['CONVERGING']  orders [2.0]
+          GCI 0.0417 % = 0.125 abs at Fs = 1.25, dim = 3
+          finest triple ('K2f_L1', 'K2f_L2', 'K2f_L3') CONVERGING at dim = 3, observed order 2.0000 inside the registered band (0.5, 3.5), GCI 0.0417 % = 
+          ANNOTATION: The registered band (0.5, 3.5) is WIDER than this lab's usual (1.5, 2.5) -- s.5.3. A PASS inside it is a WEAKER claim and may NOT be
+      G2  theta_max     PASS            value 0.925
+          cells [58368, 196992, 664848]  values ['0.95885417', '0.93541667', '0.925']
+          triples ['CONVERGING']  orders [2.000000000000009]
+          GCI 1.1261 % = 0.0104167 abs at Fs = 1.25, dim = 3
+          finest triple ('K2f_L1', 'K2f_L2', 'K2f_L3') CONVERGING at dim = 3, observed order 2.0000 inside the registered band (0.5, 3.5), GCI 1.1261 % = 
+          ANNOTATION: The registered band (0.5, 3.5) is WIDER than this lab's usual (1.5, 2.5) -- s.5.3. A PASS inside it is a WEAKER claim and may NOT be
+      G3  T_in,end      PASS            value 300.1
+          cells [58368, 196992, 664848]  values ['300.50625', '300.225', '300.1']
+          triples ['CONVERGING']  orders [2.0]
+          GCI 0.0417 % = 0.125 abs at Fs = 1.25, dim = 3
+          finest triple ('K2f_L1', 'K2f_L2', 'K2f_L3') CONVERGING at dim = 3, observed order 2.0000 inside the registered band (0.5, 3.5), GCI 0.0417 % = 
+          ANNOTATION: The registered band (0.5, 3.5) is WIDER than this lab's usual (1.5, 2.5) -- s.5.3. A PASS inside it is a WEAKER claim and may NOT be
+      G4  T_ca          PASS            value 290.01
+          cells [58368, 196992, 664848]  values ['290.05063', '290.0225', '290.01']
+          triples ['CONVERGING']  orders [2.000000000006231]
+          GCI 0.0043 % = 0.0125 abs at Fs = 1.25, dim = 3
+          finest triple ('K2f_L1', 'K2f_L2', 'K2f_L3') CONVERGING at dim = 3, observed order 2.0000 inside the registered band (0.5, 3.5), GCI 0.0043 % = 
+          ANNOTATION: The registered band (0.5, 3.5) is WIDER than this lab's usual (1.5, 2.5) -- s.5.3. A PASS inside it is a WEAKER claim and may NOT be
+    
+    -- notes carried on every run --
+      registration s.5.1 row G3 names `T_in,1` in a ONE-BASED rack numbering; the builder writes rack0_in..rack3_in, ZERO-BASED. The row is graded on buil
+      registration s.5.1 registers G4 as volume-averaged T over `the cold aisle` and NOWHERE DEFINES THE VOLUME. The comparator grades the `caZone` cellZo
+    
+    exit=0  -- THE EXIT CODE DOES NOT CARRY THE VERDICT (s.9.5).
+    exit=0
+
+--- DIRECTION 2 (s.7.2): L1 is the REAL case whose gate inputs were NEVER PRODUCED -> NAMED refusal, exit 2
+    $ python3 analyse_k2f.py <tree with real no-functions L1>
+    ==============================================================================
+    K2f COMPARATOR -- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/k2f_tw/tree_real_nofunctions
+    registration: docs/campaigns/F14-cooling-ladder/K2f_PREREGISTRATION.md
+    freeze: NOT FROZEN -- registration s.15 carries NO blob digest for any grading-path file. This is the correct PRE-FREEZE state. NO VERDICT PRODUCED BY
+    ==============================================================================
+    
+    REFUSED (exit 2): no file matches /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/k2f_tw/tree_real_nofunctio
+    
+    NOTHING WAS GRADED. No verdict is produced by a refusal, and no record may read one from the exit code.
+    exit=2
+
+--- DIRECTION 3: L1 is the REAL case WITH its functions block -> gets PAST the A-INPUT existence limb and refuses on the CADENCE limb
+    $ python3 analyse_k2f.py <tree with real with-functions L1>
+    ==============================================================================
+    K2f COMPARATOR -- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/k2f_tw/tree_real_withfunctions
+    registration: docs/campaigns/F14-cooling-ladder/K2f_PREREGISTRATION.md
+    freeze: NOT FROZEN -- registration s.15 carries NO blob digest for any grading-path file. This is the correct PRE-FREEZE state. NO VERDICT PRODUCED BY
+    ==============================================================================
+    
+    REFUSED (exit 2): A-INPUT CADENCE: T_ca, T_in_0, T_in_1, T_in_2, T_in_3, U_ha written at T_ca=2, T_in_0=2, T_in_1=2, T_in_2=2, T_in_3=2, U_ha=2 iterat
+    
+    NOTHING WAS GRADED. No verdict is produced by a refusal, and no record may read one from the exit code.
+    exit=2
+
+--- DIRECTION 4: a path that is not a directory -> named refusal
+    $ python3 analyse_k2f.py /no/such/path
+    REFUSED (exit 2): /no/such/path is not a directory. This comparator grades a CASE ROOT holding K2f_L1, K2f_L2, K2f_L3.
+    exit=2
+
+==========================================================================
+THE CLASSIFIER'S REFUSALS, DRIVEN ON THE REAL SERIES THIS RUN PRODUCED
+Standing rule 3's principle is that a reader be SHOWN able to see. These
+are the refusals shown firing on artifacts OpenFOAM wrote, not on synthetic
+series this comparator made for itself.
+
+--- T_in_0: 10 samples, range over run 0, print resolution 1e-08
+    REFUSE: G-CYCLE CANNOT BE EVALUATED for T_in_0: the quantity spanned 0 over the WHOLE run, which is 0 units in the last place of a series printed at a resolution of 1e-08. Below 10 ulp the quantity never resolvably MOVED, so a criterion asking whether it has stopped moving cannot answer. REFUSED rather than scored -- and note that scoring it woul
+    exit=2
+
+--- U_ha: 10 samples, range over run 0.266233, print resolution 1e-11
+    G-CYCLE state=CYCLING spread=89.948396 % of range 0.266233  signs=3 trend=0.178
+    exit=0
+
+READ THIS: `T_in_0` reads 289.0000000000 at EVERY sample -- the rack inlet
+is still at the supply temperature after 20 iterations because the cold
+aisle has not been reached. That is K2b's identity defect live on this
+rung's own artifact: a quantity that CANNOT move scores perfectly on a test
+of whether it HAS stopped moving. The shared null-variation refusal catches
+it and returns a REFUSAL, not the 0.000000 % CONVERGED it would otherwise
+have scored. NOTHING HERE IS A MEASUREMENT OF THE RUNG.
+
+--- PLANTED-ZERO CONTROL (rule 3) on the REAL U_ha artifact
+    planted 1.234000e-03 into the last data row of the real series, by line index
+    production reader read_dat_series delta      = 1.234000000000e-03
+    gate path check_convergence.monitor_series   = 1.234000000000e-03
+    negative arm (untouched copy reads the original) PASSED
+    passed=True -- exit=0
