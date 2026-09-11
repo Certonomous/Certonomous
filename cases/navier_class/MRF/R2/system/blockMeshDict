@@ -1,0 +1,57 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| MRF_R1 background box for snappyHexMesh (Rushton stirred tank).             |
+| Box encloses the tank (R=0.15, z 0..0.30); base cell ~10 mm (coarse level). |
+| snappy carves the fluid = inside tank AND outside impeller/shaft/baffles.   |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   1;
+
+// box: x,y in [-0.16,0.16], z in [-0.02,0.34]
+vertices
+(
+    (-0.16 -0.16 -0.02)
+    ( 0.16 -0.16 -0.02)
+    ( 0.16  0.16 -0.02)
+    (-0.16  0.16 -0.02)
+    (-0.16 -0.16  0.34)
+    ( 0.16 -0.16  0.34)
+    ( 0.16  0.16  0.34)
+    (-0.16  0.16  0.34)
+);
+
+// 0.32/0.01 = 32 ; 0.36/0.01 = 36  (~10 mm base cell)
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (32 32 36) simpleGrading (1 1 1)
+);
+
+edges ();
+
+boundary
+(
+    outer
+    {
+        type patch;
+        faces
+        (
+            (0 3 2 1)
+            (4 5 6 7)
+            (0 1 5 4)
+            (2 3 7 6)
+            (1 2 6 5)
+            (0 4 7 3)
+        );
+    }
+);
+
+mergePatchPairs ();
+
+// ************************************************************************* //
