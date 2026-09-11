@@ -367,3 +367,130 @@ These are UNCHANGED in the worktree at this freeze; none is modified by T4e (CLA
 **Still WITHHELD until the supervisor's separate STAGED launch phase:** the build (`blockMesh`/`checkMesh`
 birth certificate) and the queue entries. Launch is HELD for box capacity (§9). Freeze-now-hold-launch
 (chief-endorsed 2026-09-08).
+
+---
+
+## AMENDMENT A1 — 2026-09-11, **POST-COMPUTE. DISCLOSURE ONLY.** Document **v1.0 → v1.1**.
+
+**`lines whose number changed above this section: 0`.** This amendment is appended at the foot
+under `CLAUDE.md` rule 6. **It alters NO gate, threshold, cap, band, floor, reference, prediction or
+label** (`CLAUDE.md` rule 2: gates closed at first compute, 2026-09-10T15:44:03Z). Nothing in §0–§12
+above is edited, struck or renumbered. **No frozen instrument is patched by this amendment** — see
+A1.4 for why the two instrument gaps below are recorded rather than repaired.
+
+**Occasion.** The rule-4 discharge of the coarse and medium legs, 2026-09-11. Both graded **`PASS`**
+by the registered instrument `verification/runs/T-family/T4e_runs/mark_done_t4e.py` (blob `e4e44396`,
+== the §12 pin), all seven conjuncts evidenced separately: rc 0; exactly one `End`; last time
+30000/60000 == `controlDict` `endTime`; 8/8 fields `T U p_rgh alphat nut k omega phi`;
+`ExecutionTime` count 30000/60000 == `round(endTime/deltaT)` at the registered `deltaT` 1;
+age-guard margins **+1469.0 s** and **+13109.1 s** (oldest field at `endTime` minus the case's own
+`0/T`). **The rung stays `PENDING`** — `T4e_IJ_f` is still iterating, so there is no triple, no
+observed order and no GCI, and none is quoted anywhere in this amendment.
+
+**Grading-path re-hash, recorded because §12 exists to be checked and not merely written.** All six
+frozen files and all three frozen imports were re-hashed against the §12 pins at this reading and
+**every one matches**: `build_t4e.py` `6e77d62f`, `analyse_t4e.py` `740575a7`, `mark_done_t4e.py`
+`e4e44396`, `launch_t4e.sh` `441ccdfb`, `T4e_registered.json` `a11380c6`, `trajectory_t4e.py`
+`512b3691`, `T4_runs/analyse_t4.py` `6f362447`, `scripts/roache_triple.py` `78e56a3b`,
+`T4_runs/build_t4.py` `ff032f3e`. §8's **pure-rename claim was re-proved by forward reproduction**
+rather than taken on trust: `s/T4d/T4e/g; s/t4d/t4e/g` on `T4d_runs/mark_done_t4d.py` reproduces
+`mark_done_t4e.py` **byte-for-byte**, the same on `launch_t4d.sh` (plus `s/T4D_/T4E_/g`) reproduces
+`launch_t4e.sh` **byte-for-byte**, and the same on `analyse_t4d.py` reproduces `analyse_t4e.py` with
+**exactly the three stale-name fixes §8a item 1 discloses, at lines 478, 612 and 740, and nothing
+else**.
+
+### A1.1 — `mark_done_t4e.py:121` does NOT enforce "exactly one `End` line"
+
+**Measured, not inferred.** The clause reads `if n_end == 0: fails.append("log.solve has no End
+line")`. It therefore fails a log with **zero** `End` lines and passes a log with **one or more**.
+`CLAUDE.md` rule 4 and `T1b_L4_AMENDMENT.md` §7 are satisfied by the instrument's behaviour on a
+single-run log, and **both completed legs measure exactly 1** (`T4e_IJ_c/log.solve`,
+`T4e_IJ_m/log.solve`), so **no verdict on this rung is affected and none is withdrawn**.
+
+**Why it is recorded anyway, and it is live rather than hypothetical:** a restarted solver whose
+output is **appended** into the same `log.solve` produces two `End` lines, an `ExecutionTime` count
+that can still sum to `endTime`, and fields written by the second run that are newer than `0/T` — so
+the concatenated-restart case passes every conjunct this instrument tests. `T4e_IJ_f` is **still
+running** at this amendment, which is exactly the window in which such a restart could occur.
+Detection costs nothing: the count is already computed at `:119-120` and only the comparison is
+weak.
+
+### A1.2 — `mark_done_t4e.py:143` uses `mtime < age`, so an EQUAL mtime passes the age guard
+
+`CLAUDE.md` rule 4 requires every field at `endTime` to be **strictly NEWER** than the case's own
+`0/T`. The instrument's test is `os.path.getmtime(...) < age` → stale, so a field whose mtime is
+**exactly equal** to `0/T`'s is not flagged. **Both legs' measured margins are 1469.0 s and
+13109.1 s**, orders of magnitude away from the boundary, so **no verdict is affected**. The
+launcher's `sleep 1` between `cp -r 0.orig 0` and `touch 0/T` (`launch_t4e.sh:167-169`) makes
+equality unlikely in practice; it does not make it impossible on a filesystem with coarse mtime
+granularity, and the rule's word is *strictly*.
+
+### A1.3 — THE D1 EARLY-TERMINATION INSTRUMENT WAS REGISTERED AND NEVER SCHEDULED
+
+**The largest of the three, and it is an infrastructure omission with a measured cost, not a gate
+defect.** §3a registers a clean early terminate for the fine leg, and §9 sizes what it buys. **At
+this amendment `trajectory_t4e.py` has never been run against `T4e_IJ_f`.** Measured
+2026-09-11T15:3x Z: no `trajectory_t4e.py` process in a `ps -eo args` sweep carrying its own planted
+non-zero (the same sweep sees the rate watcher pid 1276443 and the full solver lineage
+1231217 → 1233986 → 1233987); no `crontab` entry; no `D1_CONFIRMED_TERMINATE.T4e_IJ_f` marker; and
+`autograde_t4e.sh` names the instrument **only inside a comment reproducing the §12 freeze table**.
+
+**Consequence, stated exactly.** With the instrument unscheduled the fine leg runs to the 160000
+hard iteration cap whatever its trajectory does. Per §9 that is the difference between the
+**EXPECTED** 2 250.4 core-min at ~120000 and the **WORST/HARD-CAP** 3 000.6 core-min at 160000 —
+**up to ~750 core-min, ~$0.64 derived at $0.0513/core-h** — spent after the answer would have been
+measured. It is **not** a gate deviation: §3a names endTime 160000 as the HARD cap and §11 registers
+the hard-cap landing as **D2** or **D3**, so running to it is a **registered outcome**, and no band,
+threshold, cap or label moves either way.
+
+**And the D1 FINDING ITSELF IS NOT LOST BY THE OMISSION** — this is the reassuring half and it is a
+consequence of registered change #2. `purgeWrite 2 → 0` was registered precisely so *"every written
+checkpoint survives"*, and `trajectory_t4e.py::c63_series` rebuilds the whole trajectory **from disk**
+on every invocation, holding no state between runs. So a D1 classification can be made **at any
+later time, including after the leg has ended**, from the surviving checkpoints. **What the omission
+can cost is core-minutes; it cannot cost the finding.**
+
+### A1.4 — WHY NONE OF A1.1–A1.3 IS PATCHED HERE
+
+`analyse_t4e.py` and `mark_done_t4e.py` are **frozen by sha in §12 and first compute has occurred**
+(2026-09-10T15:44:03Z). Editing either now would be a post-first-compute change to a fixed grading
+path, which `CLAUDE.md` rule 2 forbids and which `scripts/check_comparator_freeze.py` enforces. A1.1
+and A1.2 therefore land as **disclosures carried forward to the successor registration**, where the
+two clauses are written as `n_end == 1` and `mtime <= age → stale`; A1.3 is an **operational** matter
+that changes no file on the grading path and may be discharged at any time by running the already
+frozen `trajectory_t4e.py` unchanged.
+
+### A1.5 — TWO BOOKKEEPING DIVERGENCES IN THE COST FIGURES. **No verdict rests on either.**
+
+Recorded because an unexplained pair of numbers in two files is how a future reader is misled, and
+because **the conservative figure is the registered one** — which is worth stating rather than
+leaving to be re-derived.
+
+1. **`T4E_RATE_PROJECTION.json` reports `registered_cap` 43.334 / 412.2 / 6001.2; the registered
+   `T4e_registered.json` `cases.*.cap_core_min` reads 45 / 412 / 6001.** The projection file's
+   figures are its own `2 × POINT` re-computation (2 × 21.667 = 43.334), **not** a read of the
+   registration. **The registered values are the operative ones and they are the LARGER pair**, and
+   they are what the launcher actually enforced: `launch_t4e.sh:66-75` reads `timeout_s` from
+   `T4e_registered.json` and **refuses any `--timeout` not EQUAL to it**, so the legs ran under
+   `timeout_s` 2700 / 24720 / 360060 s = 45 / 412 / 6001 core-min at ranks 1. The projection file
+   states of itself that it *"Grades nothing, moves no marker, stops no solver"*.
+2. **§9's prose cap for the coarse level reads 45 while its own stated rule `cap = 2× POINT` gives
+   2 × 21.667 = 43.33.** §9's prose figure agrees with the registered JSON and with the enforced
+   `timeout_s`; the 43.33 is the unrounded arithmetic. **The registered 45 is the conservative
+   figure and is the one that bound the run.** Neither leg came near either number (coarse 24.483
+   core-min = 54.4 % of 45; medium 218.500 = 53.0 % of 412), so no cap-stop was in prospect on any
+   reading.
+
+### A1.6 — WHAT THIS AMENDMENT DOES NOT DO
+
+It withdraws no verdict, demotes nothing, and moves no number in §0–§12. It asserts nothing about
+`T4e_IJ_f`, whose rule-4 state is **`PENDING`** and unknowable until the leg lands. It does not
+authorise a launch, a stop, an arming of the D1 trigger, or a send (`CLAUDE.md` rule 7: SUBMISSIONS
+REMAIN PARKED). **And it records one scoping correction for the successor's benefit:** T4e is a
+registered **axisymmetric 2.5° wedge**, and its three `log.checkMesh` files accordingly read
+`Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)` with 2 `wedge` patches and 1 `empty`
+axis patch in `constant/polyMesh/boundary` — **the correct signature for this discretisation**.
+`VERIFICATION_CHARTER.md` §2bo.1/§2bo.3 (v1.84, 2026-09-10, which post-dates this freeze) binds the
+**claim** and not the comparator: **T4e may not be described as a 3D case in any caption, board line,
+report or demo.** No refusal is owed on these runs and no verdict is withdrawn — §2bo.3 says so in
+terms, naming T4e.
