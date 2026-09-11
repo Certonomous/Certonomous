@@ -21,8 +21,12 @@ inferred something that did not happen.
 commit, by an invocation this lane did not make. It is kept byte-intact at
 `verification/runs/navier_class/DRIVAER/r1_fine/STAGE_A_REPORT.PRE_LANE_1604Z.json`
 (sha256 `f09e490b3c7aa16d9b40639fa2a58e25ee66e0d8b856ff3ab768cf9e3a48a7f0`). This lane's
-independent re-run reproduces it **identically** on every planted-control field, every
-multiplicity, the whole histogram and all three gate verdicts.
+independent re-run reproduces it **BYTE-IDENTICALLY** — not merely field-by-field. The
+re-run's report carries the **same sha256** and git stores both paths as the **same blob**
+`5eaf32caeff1c6d06ca7c112c162a0733f615679`; `cmp` reports no difference. The grading path is
+therefore **deterministic on this input**, and every planted-control field, every
+multiplicity, the whole histogram and all three gate verdicts agree because the entire
+artifact does.
 
 ---
 
