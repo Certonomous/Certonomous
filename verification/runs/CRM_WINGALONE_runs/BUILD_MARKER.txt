@@ -1,0 +1,9 @@
+CRM WING-ALONE MESH LADDER — BUILD MARKER
+Written BEFORE any mesh existed, so that no status artifact can outlive its run.
+Registration: verification/campaign/CRM_WINGALONE_PREREGISTRATION.md
+Frozen at commit d2629d326; worktree blob 1fa5fb725e6298d99dc4ab2207f55f11e575b285
+verified byte-identical to the committed blob before any compute.
+Scope: MESH LADDER ONLY — pyHyp extrusion + plot3dToFoam + checkMesh on three levels.
+NO SOLVER RUNS UNDER THIS DOCUMENT.
+Grading path: checkMesh from openfoam2606, read by its PRINTED VERDICT LINES, never by rc.
+Fri Sep 11 21:33:38 UTC 2026
