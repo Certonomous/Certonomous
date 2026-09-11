@@ -1,0 +1,15 @@
+FoamFile { version 2.0; format ascii; class dictionary; object meshQualityDict; }
+// OpenFOAM's UNTOUCHED DEFAULTS (maxNonOrtho 65 strict / 75 relaxed, skew 4/4).
+//
+// DELIBERATELY NOT TUNED TOWARD THE GATE. An earlier draft of this file set
+// maxNonOrtho to 70 -- the MESH_STANDARD 3.1 gate itself. That is LOOSER than
+// OpenFOAM's default of 65 and it would have meant the mesher was relaxed up to
+// exactly the threshold it is about to be judged against, which makes a pass
+// much less informative than it looks. The defaults are STRICTER than the gate,
+// so route (d) clears 3.1 with margin or not at all, and snappy is never told
+// where the gate is.
+maxNonOrtho 65; maxBoundarySkewness 20; maxInternalSkewness 4; maxConcave 80;
+minVol 1e-13; minTetQuality 1e-9; minArea -1; minTwist 0.02; minDeterminant 0.001;
+minFaceWeight 0.02; minVolRatio 0.01; minTriangleTwist -1;
+nSmoothScale 4; errorReduction 0.75;
+relaxed { maxNonOrtho 75; }

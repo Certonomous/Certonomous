@@ -1,0 +1,22 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// M6 route (d) background block. NOTHING MARCHES: the far field is undistorted
+// Cartesian hexahedra, which is the whole point of the mechanism change.
+// Body bbox x [0, 1.140042]  y [0, 1.196300]  z [+/-0.039425];  root chord 0.8059 m.
+// Far field at ~16 m ~= 20 root chords. Background cell 0.5 m -> 66 x 32 x 64.
+// The ymin face is the SYMMETRY PLANE and sits at EXACTLY y = 0, coincident with
+// the STL's open root edges -- that coincidence is what makes the half body legal.
+scale 1;
+vertices
+(
+    (-13  0 -16) ( 20  0 -16) ( 20 16 -16) (-13 16 -16)
+    (-13  0  16) ( 20  0  16) ( 20 16  16) (-13 16  16)
+);
+blocks ( hex (0 1 2 3 4 5 6 7) (132 64 128) simpleGrading (1 1 1) );
+edges ();
+boundary
+(
+    symm     { type symmetryPlane; faces ( (0 1 5 4) ); }   // y = 0
+    farfield { type patch; faces ( (3 2 6 7) (0 4 7 3) (1 2 6 5) (0 3 2 1) (4 5 6 7) ); }
+);
+mergePatchPairs ();
