@@ -32417,6 +32417,42 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 165-SECOND-PROCESS-DEATH-CAUSED-BY-AN-UNQUOTED-HEREDOC-OF-MINE-COARSE-LANDED-AND-THE-CRM-LADDER-IS-BUILDING-ON-A-FREEZE-I-SIGNED -->
+
+**Section last written:** 2026-09-11T21:29:42Z by the cfd-supervisor (Opus 5), through `scripts/lab_state_section.py` + `commit_private.sh` per charter v2.01 §2df, rebuilt against the CURRENT HEAD.
+
+### 🔴 **THE SECOND PROCESS DEATH WAS CAUSED BY ME, AND THE TRAP IS ALREADY IN MY OWN MEMORY**
+**I wrote a board block into an UNQUOTED heredoc (`<<BLKEOF` rather than `<<'BLKEOF'`) so that `${NOW}` would expand — and every backtick and `$(...)` in the block was COMMAND-SUBSTITUTED.** The shell tried to execute `M6C1`, `BLOCKED`, `S2`, `checkMesh`, `SUBOFF_A1_PREREGISTRATION.md:389` **as commands**, then **sourced the OpenFOAM bashrc and opened an interactive OpenFOAM shell session inside my own tool call.** Exit 137.
+- 🔴 ***THE TRAP IS VERBATIM IN MY MEMORY — "backticks kill the commit: `git commit -m` with backticks is command-substituted and silently never runs; use `-F`."*** **I obeyed it for the commit MESSAGE and walked into the identical trap one line above, in the block BODY, because the mechanism is the heredoc and not the flag.** ***A lesson learned about one call site is not learned until every call site is checked — which is L-221/L-222's rule, and I broke it on myself.***
+- **Block 164 was NEVER COMMITTED and is lost.** 🟢 **Its substance survived because a LANE had already committed it: `1c2b9149e` carries L-547 and the M6 route-(c) addendum — the controlled-zero lesson and both precedent corrections.** ***The board block died; the finding did not, because it had been landed by the agent that made it rather than held for the supervisor to narrate.*** **That is an argument for lanes committing their own findings immediately.**
+- **Relayed to all lanes: quote the delimiter, always.**
+
+### 🟢 **COARSE HAS LANDED — FIRST ET8000 LEVEL COMPLETE**
+`Time = 8000`, **one `End`**, **rc = 0**, **161 time dirs**, solver correctly gone. **§9's per-level drift limb is now computable for coarse, and it will be reported WITH ITS STOPPING-POINT SPREAD** — the uncertainty channel adopted after a lane showed that **§9's own trigger at 4000 was a point sample of a statistic 12.0× noisier than its threshold, clearing the limb at only 36/41 nearby stopping points.**
+**Medium 6,347/8,000 at 2.44 wall s/iter → ETA 1.12 h. Fine 3,590/8,000 at 3.83 wall s/iter → ETA 4.69 h.** Both `nice 10`. **Watcher pid 2286540 ALIVE and detached — it survived the process death that killed all three lanes, which is exactly why it was detached.**
+
+### 🟢 **CRM WING-ALONE IS FROZEN AND ITS LADDER IS BUILDING — SANAA'S DIRECTIVE EXECUTED**
+Her words: *"i am back all teams continue, with the goal of solving and reaching all the 3D cases."* **`CRM_WINGALONE_PREREGISTRATION.md` FROZEN at `d2629d326`, check 4 performed by me personally with a live positive control. The mesh ladder is legally launchable and a lane is building L1 → L2 → L3.**
+- **Family `N` 53/105/209, cell layers 52/104/208, volume cells 144,768 / 1,158,144 / 9,265,152 — ratios 8.000000 twice, linear r = 2.000000 twice, refining in ALL THREE directions.**
+- **Free space RE-READ IMMEDIATELY BEFORE EACH LEVEL, never once at the start**, with **L3 held behind a ≥ 8 GB gate**. **A level that cannot be built inside the gate is `BLOCKED`, not a cost overrun.**
+
+### ⚖️ WHAT IS AND IS NOT LAUNCHABLE, ANSWERED PLAINLY
+| case | state |
+|---|---|
+| **CRM wing-alone mesh ladder** | **FROZEN `d2629d326` — BUILDING NOW** |
+| **MRF_R2 ET8000** | **RUNNING** — coarse landed, medium 1.12 h, fine 4.69 h |
+| **SUBOFF** | **`BLOCKED` — NOT launchable.** No admissible triple exists on this box: L1 inadmissible on M-d (geometric, invariant to partitioning AND alignment), L3 unbuildable on 30 GiB RAM. **The admissible triple {L2, L3, L4} needs ~128 GiB — on Sanaa's desk with BOTH halves, ~128 GiB AND \$153.78 at 5.6× the registered cap.** |
+| **M6 route (c)** | **TERMINATED `b0cb2f0c6`** — refuted by measurement; the far-field mechanism is INTRINSIC to pyHyp extrusion on this O-mesh, produced on two bodies. `M6C1` `BLOCKED`. |
+| **DrivAer successor** | **NOT REGISTERED** — requirements exist, no registration, so not launchable. |
+| **CRM flow rung** | **NOT REGISTERED** — §10A names it; an order band there may NOT be cited to `MESH_STANDARD` or rule 5. |
+**NO LAUNCH HAS BEEN CLASSIFIER-DENIED. Nothing is waiting on a permission; the only constraints are the freeze, the gates and the disk.** Lanes are instructed to report any refusal **with its exact command line**, because that is what Sanaa would need verbatim.
+
+### 🟡 RE-PINS — ONE DONE, ONE GENUINELY OWED, BOTH CHECKED BY ME
+- **PRD_E1 → `23afaee32f77`: LANDED**, at `58105c0f7`; the registration contains the pin. **Verification's list was stale on this and re-doing it would have produced a second amendment for one repair.**
+- 🔴 **M6SR → `77fd1e8dda6a`: NOT DONE.** `M6SR_PREREGISTRATION.md` contains **zero** occurrences. Its two most recent addenda are about B5a's thermo signal-8 and the built family, not the pin. **Genuinely owed and routed.**
+
+**Live at 2026-09-11T21:29:42Z: disk 29 GB, 95 %.** ⚠ **CHIEF: other teams are 3.246 GiB/h and volatile — 52 % of a drain cfd does not control; dafoam's S-158 restore; shared index 187 paths; `sdk/geometry/crm_wingbody.stl` mislabelled with consumers unmeasured.** **`MRF_R2` remains `NOT A RESULT`.**
+
 <!-- BOARD-BLOCK-ID: 163-SECTION-9s-OWN-TRIGGER-WAS-A-POINT-SAMPLE-OF-A-STATISTIC-12x-NOISIER-THAN-ITS-THRESHOLD-THE-FOURTH-INSTANCE-AND-THE-ONE-SPENDING-THE-COMPUTE -->
 
 **Section last written:** 2026-09-11T18:36:01Z by the cfd-supervisor (Opus 5), through `scripts/lab_state_section.py` rebuilt against the CURRENT HEAD on every attempt.
