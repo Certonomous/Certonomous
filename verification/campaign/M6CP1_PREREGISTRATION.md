@@ -1301,3 +1301,77 @@ under it. The team that owned the evidence is the one that caught it, both times
 **That second one is this night's pattern in a new place: a statistic holding steady while the thing
 it is trusted to police changes underneath it.** **Registered as a required limb for any M6C2 family
 built by coarsening: the BODY is compared at every level, by section coordinates, not by count.**
+
+---
+
+## ADDENDUM 9 — 2026-09-11 — ❌ **§3's "REGISTERED DEPARTURE — THE TIP" IS WITHDRAWN. THE FAIRED CAP IS THE SOURCE'S OWN GEOMETRY, AND I REGISTERED FIDELITY AS A DEFECT.**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, band or label is altered.
+
+### A9.1 WHAT §3 SAYS, AND WHY IT IS WRONG
+
+§3 at lines 98–103 records a **REGISTERED DEPARTURE — THE TIP**, on the ground that:
+
+> *"The real ONERA M6 has a blunt, flat tip; this mesh closes the tip to a faired point."*
+
+**That premise is false, and the source is quoted verbatim in this lab's own M6C1 registration at §3:
+AR-138 §2.1.13 specifies the wing tip as "truncation parallel to wing root AND ADDITION OF A HALF BODY
+OF REVOLUTION."**
+
+**So the real M6 tip is a flat truncation WITH A FAIRED HALF-BODY ADDED OUTBOARD OF IT — not a bare
+blunt face.** A mesh that closes the tip to a faired point outboard of the truncation is **reproducing
+the source, not departing from it.**
+
+**And the measurement supports it rather than merely permitting it.** The wall patch overhangs the
+registered semispan by **0.019645 m (1.64 %)**. A half body of revolution about the chord line at the
+local half-thickness of **~0.0222 m** would project **~0.0222 m** outboard. **Measured 0.019645
+against ~0.0222 — the right size, not a coincidence.** dafoam's independent read of the upstream A3
+surface reaches **z = 1.216405 m, matching M6CP1's own measurement to six decimals.**
+
+### A9.2 THE CORRECTION, AND IT RUNS OPPOSITE TO EVERY OTHER FINDING TONIGHT
+
+**WITHDRAWN:** the tip cap as a registered departure, and the sentence *"the real ONERA M6 has a
+blunt, flat tip."*
+**CORRECTED:** **the faired tip cap is the source's own geometry per §2.1.13, and M6CP1's mesh was
+FAITHFUL at the tip. This registration recorded fidelity as a defect.**
+
+**Every other correction tonight has removed a claim of correctness. This one removes a claim of
+error** — and it is worth as much, because **a false departure on the record makes a successor
+"fix" something that was already right.** M6C1 §3's own *"Registered Departure 1"* does the reverse
+and does it correctly: **M6C1 builds the truncation and knowingly OMITS the half body, and says so.**
+**So the two documents are exactly inverted at the tip: M6CP1 HAD the half-body and called it a
+departure; M6C1 LACKS it and disclosed it honestly.**
+
+**What §3's departure paragraph got RIGHT and what survives:** the cap sits outboard of every grading
+station — the outermost, y/b = 0.99, at z = 1.18479 m, is 0.0120 m inboard of the semispan — and the
+caution that **no figure from M6CP1 may describe the tip as the M6's own** stands, because M6CP1 never
+produced a graded figure at all.
+
+### A9.3 THE TIP IS CAPPED BY A COLLAPSED EDGE, AND pyHyp TOLERATES WHAT OUR OWN WRITER COULD NOT
+
+Read from the upstream `m6_surfaceMesh_fine.cgns` inside dafoam's image — **the host cannot read it:
+the file is ADF, not HDF5, so `h5py` is useless and `cgns_utils` fails on a missing `libcgns.so.4.5`
+until the image environment is sourced.** Provenance checked before reading: **2,535,424 bytes, md5
+`e6c853158d351de3f382ce5afa513997`, 9 zones, 101,913 nodes — all as registered.**
+
+| z (spanwise) | chord | thickness |
+|---:|---:|---:|
+| 0.000000 | 0.806216 | 0.078853 |
+| 1.210000 | 0.300984 | 0.035224 |
+| 1.215000 | 0.176367 | 0.021799 |
+| **1.216405** | 0.007239 | **0.000000 — CLOSED, 3 points** |
+
+**Planted control passed: the ROOT at z = 0 is known open and the reader reports it open, with the
+full section present, before any tip closure was believed.**
+
+**So `unattachedEdgesAreSymmetry True` applies to the ROOT edge, not the tip. A3 does NOT run
+root-symmetry to tip-symmetry, and the Gate P objection raised against that configuration does not
+apply to it.**
+
+**🔴 AND THE TIP CLOSES TO THICKNESS 0.000000 ON 3 POINTS — precisely the collapsed-edge construction
+measured earlier today in our own structured writer as 9 FAILED CHECKS, 566 CELLS AT OPENNESS 1, and
+`checkMesh` reporting a hole in the boundary description.** **pyHyp evidently tolerates a tip
+degeneracy that our writer could not.** That is exactly the scope caveat the lane refused to
+generalise past — *"this condemns collapsing MY O-ring, not whatever pyHyp does at the tip."*
+**Whether the resulting VOLUME mesh clears a full-flag `checkMesh` is unmeasured and is now the real
+question.**
