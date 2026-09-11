@@ -1140,3 +1140,376 @@ why the strikes above are recorded here rather than applied in place.
 
 *Amendment drafted by a heat-transfer lane, 2026-09-10, on the supervisor's
 ruling. Zero solver compute. Nothing sent, filed or uploaded (`CLAUDE.md` rule 7).*
+
+---
+
+## 14. AMENDMENT 2 — 2026-09-11, PRE-FIRST-COMPUTE: **THERE IS NO BUILT-MESH SIMILARITY GATE, AND THE `N` RATIO THIS DOCUMENT REGISTERS IS ONE THE BUILD CANNOT DELIVER — BECAUSE IT SHOULD NOT**
+
+**STATUS: this document is STILL NOT FROZEN.** Taken under `CLAUDE.md` rule 2's
+pre-first-compute clause. It ADDS a gate and CHANGES no threshold of any gate
+that exists; the one registered number it contradicts is contradicted by a
+measurement, and the remedy registered here moves the MESH, never the window.
+
+### 14.1 THE CONDITION, AND HOW IT WAS CHECKED — under a LIVE PLANTED CONTROL
+
+**THE CONDITION:** *no compute has run under any T26 registration.*
+
+| directory | required | MEASURED 2026-09-11T16:47:16Z, this invocation |
+|---|---|---|
+| `verification/runs/T-family/T26_runs/` | ABSENT | **ABSENT** |
+| `verification/runs/T-family/T26_MESH_runs/` | ABSENT | **ABSENT** |
+| `verification/runs/F14-cooling-ladder/T26*` | ABSENT | **0 matches** |
+
+**THE PLANTED CONTROL (rule 3):** the identical `test -d` predicate was run in
+the same invocation against `verification/runs/T-family/T23_runs/` and returned
+**PRESENT**, and against `verification/runs/T-family/T99_nonexistent` and
+returned **ABSENT**. Both arms fired, so the absences above are statements about
+the disk and not about a blind reader.
+
+**Base amended:** commit `0effc11da4bfda432bab7dda0e2c87cc9ce50f50`, blob
+`b822113aacf236979bef681e40c437734da4a9f2`. **Zero solver core-minutes have been
+spent against this document.** The mesh-development family cited below is NOT a
+T26 level, is not graded, and lives outside the repository at
+`/home/ubuntu/certonomous-runs/T26_mesh_dev/`.
+
+### 14.2 THE DEFECT — A GATE THAT IS ABSENT, AND A NUMBER THAT CANNOT BE MET
+
+This rung's gate set is `GEO-1…8`, `D-3D`, `G-MINCELL`, `G-CONV-*`, `G-CONT`,
+`G-BAL`, `G-ITER`. **None of them reads the BUILT cell count.** §3.4 and §13.3
+register `N` ratio **3.375** and `h` ratio `N^(1/3)` = **1.500** at both steps,
+and §3.5 labels the counts PROJECTIONS — but **nothing on the grading path ever
+compares the projection with what `snappyHexMesh` actually produced.** K2d died
+for want of exactly this check and K2f carries `G-MESHSIM` because of it.
+
+**AND THE PROJECTION IS NOT REACHABLE AT `r = 1.5`, WHICH IS A MEASUREMENT.**
+§3.4 holds TWO things fixed across the ladder, deliberately and for good reason:
+the surface refinement levels (1 / 2 / 3) and the layer counts (18 / 12 / 5,
+Δ₁ constant). **A quantity built from a fixed surface refinement and a fixed
+layer stack does not scale as Δ₀⁻³.** Measured, from two levels of the
+mesh-development family built with THIS rung's approved `snappyHexMeshDict`
+(md5 `dec4c99897dd699801ae2faf9b3f1ee9`, byte-identical at every level) and a
+division step of exactly ×1.5:
+
+| level | divisions | **BUILT cells**, from that level's own `log.checkMesh` |
+|---|---|---:|
+| L1ABS | 128 × 36 × 36 | **532,146** |
+| L2ABS | 192 × 54 × 54 | **1,409,804** |
+
+**BUILT `N` ratio = 2.649280, against a projected 3.375. The conventional
+shortcut `r_eff = N^(1/3)` gives 1.3837 where the base cell Δ₀ refines by
+exactly 1.500. Which of those two the CASE_PROTOCOL §1 band of 1.5 to 2 is read
+against is REFERRED, not decided — §14.4a.** §3.4's projected `N` column is a
+projection this build cannot deliver, and §14.3 explains why it SHOULD not.
+
+The composition, stated so the number is not a surprise: writing the built count
+as a volumetric part scaling `k³` and a surface-plus-layer part scaling `k²`,
+`2.649280 = f·3.375 + (1−f)·2.25` gives **`f` = 0.3549** — only **35.5 %** of the
+mesh refines in three dimensions — **by design, see §14.3.** This is
+corroborated INDEPENDENTLY by §3.5's
+own arithmetic in this document: layers alone are **456,096 of the 769,340**
+projected `fluid` cells.
+
+### 14.3 THE GATE IS KEPT AND ITS QUANTITY IS CHANGED — `G-MESHSIM` GATES `h`, NOT `N`
+
+**A FIRST DRAFT OF THIS AMENDMENT, WRITTEN EARLIER TODAY AND NEVER LANDED OR
+COMMITTED, REGISTERED K2f's WINDOW [3.2063, 3.5438] ON THE BUILT `N` RATIO AND
+REGISTERED THAT THE DIVISIONS WOULD MOVE UNTIL THEY LANDED INSIDE IT. THAT IS
+STRUCK BEFORE IT EVER BOUND ANYTHING, on the supervisor's ruling of 2026-09-11,
+and the reasoning is recorded here rather than deleted, because a remedy that
+was wrong for a stated reason is worth more to the next reader than a clean
+page.** The supervisor's words, which overturn the supervisor's own earlier
+ruling: *"Do NOT move the divisions… a family that passes `G-MESHSIM` by that
+route passes the gate while being worse."*
+
+**WHY THE FIRST DRAFT WAS WRONG.** The 64.5 % of the mesh that refines as `k²`
+rather than `k³` is **not a defect to be corrected — it is the layer stack, and
+it refines in two dimensions BY DESIGN.** Refining the surface gives more layer
+COLUMNS (`k²`) and the same 18 / 12 / 5 layers per column (`k⁰`). §3.4 registers
+that deliberately and says why: *"Δ₁ is held FIXED across the three levels…
+Refining Δ₁ with the base cell would change the wall treatment's y⁺ regime
+between levels and the triple would then measure two things at once."*
+**So `N` can NEVER scale as `k³` on this ladder, and inflating the divisions
+until it does would inflate the BULK to compensate for a boundary layer that is
+deliberately not refining — changing the proportion of the mesh in each region
+between levels, which is the opposite of geometric similarity.**
+
+**K2f's window is correct FOR K2f: K2f has no layers, so its `N` genuinely does
+scale as `k³`. Transplanting a gate is not the same as transplanting its
+window.** The gate is kept. The window is struck.
+
+**REGISTERED IN ITS PLACE — `G-MESHSIM`, on the quantity that genuinely refines:**
+
+> **`G-MESHSIM` gates the BUILT background cell size.** For each step, the ratio
+> `Δ₀(L_k−1) / Δ₀(L_k)` — **verified from the BUILT mesh, never from the
+> dictionary** — must lie in **[1.4250, 1.5750]** (1.500 ± 5 %, the same ±5 % K2f
+> allows). Δ₀ is read as the level-0 background cell edge from each level's own
+> `constant/polyMesh` (`level0Edge`, cross-checked against `checkMesh`'s
+> `Overall domain bounding box` divided by the registered divisions).
+> **A step outside the window ⟹ every graded row `NOT A RESULT`**, with both
+> ratios, all three Δ₀ values and all three BUILT cell counts printed beside
+> the verdict.
+>
+> **REGISTERED ALONGSIDE IT, in the gate's own statement rather than three
+> sections away: the near-wall spacing Δ₁ = 35.89 µm is INVARIANT across the
+> ladder by design, so the triple measures OUTER discretisation error ONLY.**
+> No claim about near-wall discretisation error is available from this ladder
+> and none is registered.
+
+**The BUILT cell counts remain REPORTED at every level, beside the ratios, and
+are never gated** — `CLAUDE.md` rule 12's discipline that a figure is reported,
+not absorbed.
+
+**THE GATE IS MEASURABLE AS WRITTEN, AND THAT IS SHOWN HERE RATHER THAN
+ASSUMED — a gate nobody has read an instrument for is an aspiration.** The
+reader was run on the two completed mesh-development levels, 2026-09-11:
+
+| level | `constant/polyMesh/level0Edge` `value` | equals |
+|---|---:|---|
+| L1ABS | **0.0083984375 m** | 1.075 / 128 exactly |
+| L2ABS | **0.0055989583 m** | 1.075 / 192 exactly |
+
+**BUILT `h` ratio, measured from the built artifact: 1.5000000089. EXACT
+ratio: 192/128 = 1.5, with NO deviation.** The 8.9e-9 is attributable IN FULL to
+`level0Edge`'s ten-significant-digit write precision — 1.075/192 is
+0.005598958333… and the field stores 0.0055989583 — and it is **not a property
+of the mesh.** Both figures are given, and which is which is stated, so that no
+later reader spends an hour chasing a deviation that does not exist. Against the
+same two meshes `N^(1/3)` reads **1.383702**. **The quantity that genuinely
+refines does so exactly as registered; the conventional shortcut does not see
+it.**
+
+### 14.4 THE LIVE GRADING DEFECT THIS EXPOSES — `r = N^(1/3)` IS A FICTION ON A LAYERED MESH
+
+**This is the find, and it is larger than T26.** Anyone forming the Roache ratio
+as `r = (N_fine / N_coarse)^(1/3)` on these meshes gets **1.3837**. The true
+refinement ratio of the quantity actually being refined is **1.5**. A wrong `r`
+propagates into the observed order `p = ln|e32/e21| / ln r` and into every GCI,
+**and it does so silently, because `N^(1/3)` is the conventional shortcut and
+looks entirely reasonable.**
+
+**REGISTERED: this rung's triple is taken on `h`, with `r = 1.500` at both
+steps, and on nothing else.** `analyse_t26.py` already does exactly this —
+`R_REFINE = 1.5` (`:76`) is a registered h-ratio constant and no cell count
+reaches `verdict_t26()` — and **the comparator REFUSES if it is ever handed an
+`r` derived from cell counts on this rung.** The comment at `analyse_t26.py:76`
+reading *"h ratio = N^(1/3) = 1.500"* states a justification that §14.2 has now
+measured to be false; **the VALUE 1.5 is right and the reason given for it is
+not**, and that comment is corrected at the freeze commit.
+
+**THE COMMENT IS CORRECTED AT THIS FREEZE AND THE VALUE DOES NOT MOVE.**
+`analyse_t26.py:76` now reads `R_REFINE = 1.5   # :424  BUILT base-cell h ratio;
+NOT N^(1/3) -- see :14.4`. **1.5 before, 1.5 after. No gate, band, threshold or
+label changes, no verdict moves, and no graded number is affected** — the
+correction removes a false justification for a correct constant, which would
+otherwise survive only until somebody re-derived the constant from the reason
+given for it.
+
+**THE SHARED-INSTRUMENT DEFECT, ROUTED AND NOT QUIETLY FIXED HERE.**
+`scripts/roache_triple.py:229` — `refinement_ratio(n_coarser, n_finer, dim)`
+returns `(N_finer / N_coarser) ** (1/dim)` — and `:217` `representative_h()`
+does the same. **Neither carries any statement that this is invalid on a mesh
+whose refinement is mixed**, which every layered snappyHexMesh family is. T26
+does not call either function (checked: no T26 instrument imports
+`roache_triple`), so this is **not a T26 defect and is not repaired from here**;
+it goes to **verification** as a shared-instrument finding.
+
+**AND A SECOND ONE INSIDE THIS RUNG'S OWN COMPARATOR, DISCLOSED RATHER THAN
+LEFT.** `analyse_t26.py:1179` `cell_count_audit()` discriminates a 3-D from a
+2-D ladder by whether `N` = 3.375 or 2.250. **On a layered mesh that
+discriminator does not discriminate:** the measured built `N` of a genuinely
+3-D T26-dict mesh is **2.649**, which is NEARER the "2-D" signature 2.250 than
+the "3-D" one. The audit runs on the REGISTERED projections and is REPORTED in
+the output JSON, never gated, and its docstring already says it *"CANNOT prove
+the mesh will be 3D — only checkMesh on a BUILT mesh can (D-3D)"*. **REGISTERED:
+`cell_count_audit` is REPORTED-ONLY for this rung and is not evidence of
+dimensionality; `D-3D`, which reads `checkMesh`'s own
+`Mesh has 3 geometric (non-empty/wedge) directions` line, carries that question
+alone.**
+
+**FOR THE RECORD, BECAUSE THE TWO DEFECTS IN THIS SECTION ARE ONE DEFECT AT TWO
+SCALES: both are a CELL-COUNT PROXY STANDING IN FOR A GEOMETRIC FACT.**
+`r = N^(1/3)` proxies for the refinement of `h`; `N = 3.375 vs 2.250` proxies
+for the dimensionality of the mesh. Each proxy is exact on a uniformly refined
+mesh and each is silently wrong on a layered one. The remedy in both cases is
+the same and it is not a better proxy: **read the geometric quantity itself** —
+`level0Edge` for `h`, `checkMesh`'s geometric-directions line for dimension.
+
+### 14.4a REFERRED TO SANAA, NOT DECIDED HERE — WHICH RATIO CASE_PROTOCOL §1's BAND IS READ AGAINST
+
+CASE_PROTOCOL §1 requires a refinement ratio in **1.5 to 2**. **Both numbers are
+stated here and neither reading is adopted:**
+
+| reading | T26's value | complies with 1.5–2 |
+|---|---:|---|
+| against `h` (base cell Δ₀, the quantity that refines) | **1.5000** | **yes, exactly at the floor** |
+| against `N^(1/3)` (the conventional shortcut) | **1.3837** | **no** |
+
+**This is Sanaa's charter and the reading is not a lane's to fix, nor a
+supervisor's where it would widen a gate.** It is flagged, with both numbers,
+and the convenient reading is not chosen.
+
+### 14.5 A FALSIFIABLE PREDICTION, FILED BEFORE THE NUMBER EXISTED
+
+The third mesh-development level was still inside `snappyHexMesh`'s
+layer-addition phase when the model of §14.2 was written down. Carrying `f`
+forward one step (`f(L2)` = 0.4521) predicts **`N(L3)/N(L2)` = 2.7587** and
+**3,889,164 built cells**, band ±3 %. The prediction was written to
+`/home/ubuntu/certonomous-runs/T26_mesh_dev/L3ABS_BUILT_COUNT_PREDICTION.txt` at
+**2026-09-11T16:45:19Z**, before any count for that level existed on disk. **A
+count near 4,758,089 would mean the ladder does scale at 3.375 and §14.2 is
+wrong.** The outcome is reported either way.
+
+### 14.6 What this amendment does NOT do
+
+It does not freeze this document; it does not authorise a launch; it does not
+alter `GEO-*`, `D-3D`, `G-MINCELL`, `G-CONV-*`, `G-CONT`, `G-BAL` or `G-ITER`,
+nor any band, floor or label of theirs; **it leaves the registered divisions
+where they are** (§14.3 strikes the un-landed proposal to move them); and it
+does not touch §§0–13, whose line numbers are unchanged — **lines whose number
+changed above this section: 0** — because `analyse_t26.py`, `mark_done_t26.py`,
+`launch_t26.sh`, `build_t26.py` and `orchestrate_t26.py` all cite this document
+BY LINE.
+
+*Amendment drafted by a heat-transfer lane, 2026-09-11, on the supervisor's
+ruling that T26 gets a built-mesh similarity gate before freeze, and revised
+the same day on the supervisor's ruling overturning the gated quantity from `N`
+to `h`. Zero solver compute.
+Nothing sent, filed or uploaded (`CLAUDE.md` rule 7).*
+
+### 14.7 THE TWO SUPERVISOR RULINGS OF 2026-09-11, RECORDED HERE BECAUSE §§0–13 MAY NOT MOVE
+
+**§0.5 — THE FRONT. T26 PROCEEDS.** `[lab-attributed]` The supervisor's ruling,
+and what it does NOT do first: **it does not amend CASE_PROTOCOL §7, which is
+Sanaa's charter.** It rules on which instruction is operative. §7 named the
+front as **T4e** *before 3D became the priority*; since then Sanaa has said
+*"since rn the priority for me are these 3D cases"*, *"I want all th 3D cases i
+asked for"* and *"the more 3D industry cases we have and can put in the demo the
+better"*, and asked heat-transfer for a 3D thermal list on which this rung sits.
+**T4e is a 2.5° axisymmetric WEDGE — 2 geometric directions — and cannot satisfy
+a 3D instruction at all.** T26 therefore does not compete with the front; it is
+the only way to satisfy an instruction the front is structurally incapable of
+satisfying. "No new families" is complied with: an existing family, existing
+roots, id from the maximum.
+
+**AND THE REVERSAL IS DELIBERATELY KEPT CHEAP, which is why the ruling is
+takeable at this level at all.** The launch is blocked by this session's
+permission classifier, so **Sanaa necessarily sees this rung before one
+core-minute is spent.** Freezing commits no compute. If she reads §7 as admitting
+one live item only, **T26 stops on her word and the lab has lost a document, not
+a spend.**
+
+**§7.3.3 — THE HANG GUARD IS ADMISSIBLE, WITH ONE CONDITION THAT IS NOT
+OPTIONAL.** `[lab-attributed]` **Sanaa suspended budget STOPS, and a hang guard
+is a different object: a cap stop fires because a run is COSTING more than
+agreed; a hang guard fires because a process is PRODUCING NOTHING.** Suspending
+the first says nothing about the second, and a lab with no wedged-process
+detector is not cheaper, it is blind. The 3.0 × POINT discriminator stands, and
+it earns its ruling by naming the trap it avoids: T4e's fine leg carries
+`timeout 360060`, numerically exactly **2.0000 × POINT — a registered CAP
+wearing a hang guard's name.**
+
+> **THE CONDITION, REGISTERED AND BINDING: 3 × POINT is a hang guard ONLY IF
+> POINT IS RIGHT, and K2d proves that is not automatic.** K2d's §7.3 carried the
+> identical rationale while **L2 had ALREADY falsified POINT by 2.62 ×, on disk,
+> before L3 launched, and nobody read it.** Therefore: **before each level's
+> guard is used, POINT is RE-DERIVED from the MEASURED rate of the preceding
+> level, and the re-derivation is RECORDED beside that level's `START.<level>`.**
+> A guard computed from a POINT the ladder's own data has already falsified is a
+> cap in disguise, whatever multiplier stands in front of it.
+>
+> **AND A TRIP IS A FINDING REQUIRING TRIAGE, NEVER A LABEL TAKEN FROM `rc`
+> ALONE** (§11). K2d wrote `note=HANG_GUARD_TRIPPED` mechanically on a solver
+> that was doing work at the instant it died.
+
+### 14.8 THE OBSERVED-ORDER BAND — ASKED AT ITEM 4, ANSWERED FROM THE CODE AND DRIVEN
+
+**`verdict_t26()` DOES band the observed order.** `P_BAND = (0.5, 2.5)`
+(`analyse_t26.py:103`, registration `:581`) is applied at `:1298` in **STEP 3**,
+returning `NOT A RESULT` outside it, with the registered response being to ADD A
+LEVEL rather than clamp. So the flattering-direction hole is closed, and it was
+**driven, not reasoned**:
+
+| triple | state | p | verdict |
+|---|---|---:|---|
+| e21 representable at 9.9476e-14, e32 = 1 | CONVERGING | **+73.838** | **`NOT A RESULT`** — and the GCI it would have quoted is **1.237e-26 %**, the most flattering number the instrument can produce |
+| e21 = 1e-18 added to 100.0 | **EXACT** | none | `NOT A RESULT` at STEP 2 |
+| e21 = 5e-324 (denormal) added to 100.0 | **EXACT** | none | `NOT A RESULT` at STEP 2 |
+
+**A SECOND DEFENCE WAS FOUND IN THE DRIVING, AND IT IS AN ACCIDENT OF FLOAT64
+RATHER THAN A DESIGN, SO IT IS NAMED AS ONE:** at these magnitudes
+`100.0 + 1e-18 == 100.0` exactly, so the perturbation is absorbed and the triple
+reports `EXACT` before any order is formed. **That protection is
+magnitude-dependent and must not be relied on** — a tiny-but-representable `e21`,
+as in the first row, reaches the CONVERGING branch and is stopped by `P_BAND`
+and by nothing else.
+
+---
+
+## 15. FREEZE — 2026-09-11, AND WHAT IS CLOSED BY IT
+
+**THIS DOCUMENT IS FROZEN AT THE COMMIT THAT CARRIES THIS SECTION.** From this
+commit: no gate, threshold, band, floor, cap or label may change. Changes land
+only as dated addenda that cannot alter any of those, and originals are struck,
+never rewritten (`CLAUDE.md` rule 2).
+
+### 15.1 THE PRE-COMPUTE CONDITION, RE-TAKEN IN THE COMMITTING INVOCATION
+
+**§12 item 3 requires this at the freeze, not before it.** Commands run verbatim
+at **2026-09-11T17:11:07Z**, from the repository root, in the same shell invocation that wrote
+this section:
+
+```
+test -d verification/runs/T-family/T26_runs        -> ABSENT
+test -d verification/runs/T-family/T26_MESH_runs   -> ABSENT
+test -d verification/runs/T-family/T23_runs        -> PRESENT     [PLANTED CONTROL, positive arm]
+test -d verification/runs/T-family/T99_nonexistent -> ABSENT      [PLANTED CONTROL, negative arm]
+```
+
+**Both control arms fired**, so the two absences are statements about the disk
+and not about a blind reader (`CLAUDE.md` rule 3). **ZERO SOLVER CORE-MINUTES
+HAVE BEEN SPENT AGAINST THIS DOCUMENT.** The only compute on this rung remains
+the geometry gate's 0.05 core-min.
+
+**Note for a later reader, so the condition cannot go stale the way K2f's §19.7
+did:** this rung's instruments live at `docs/campaigns/T-family/` and NOT under
+the run root, deliberately — `analyse_t26.py`'s own docstring (`:5`–`:11`)
+records that creating `T26_runs/` even only to hold a script would falsify the
+condition the freeze rests on. `launch_t26.sh` creates the run root at launch
+and not one moment earlier.
+
+### 15.2 THE ID, RE-DERIVED FROM THE MAXIMUM AND NOT FROM A COUNT
+
+```
+{ ls docs/campaigns/T-family/ ; ls verification/runs/T-family/ ; } \
+  | grep -oE '^T[0-9]+' | grep -oE '[0-9]+' | sort -n | tail -1
+```
+**Result: 26.** T26 is that maximum and is this document's own id; it is
+taken, by this rung, and by nothing else (`CLAUDE.md` rule 11).
+
+### 15.3 THE INSTRUMENT PINS — §12 item 1's sha256, recorded HERE because §8.3's line numbers may not move
+
+| instrument | sha256 at the freeze |
+|---|---|
+| `docs/campaigns/T-family/analyse_t26.py` | `c1459612fea9c96c1aa1128ee167dd6dbb91930b4ee0890ad08e54a6d335fa6f` |
+| `docs/campaigns/T-family/launch_t26.sh` | `a0887d5b84617f1bf57f1f557250dd4087ea4087f73e6098a9eb5a0b8d161b21` |
+| `docs/campaigns/T-family/mark_done_t26.py` | `7b428a65802e66529e97ce38cf0bafcbcfa6686581fd4ecd0a2523e98d91b4b3` |
+| `docs/campaigns/T-family/build_t26.py` | `533ca56b1514e0067e6fd7dbcbfcd8ec14e5a4d6c2a6c3ea7310d1c6cf026e72` |
+| `docs/campaigns/T-family/orchestrate_t26.py` | `2e79f982463c51efe3c4ef225c0172b73e2481726770d3d3c80dda6aa4fb9868` |
+
+**The grading path is fixed at this commit.** Before grading, each file is
+hashed against the blob committed here; a mismatch is a refusal, not a warning.
+
+### 15.4 WHAT THE FREEZE DOES NOT DO
+
+It does not authorise a launch. **No level may start until the §0.5 ruling of
+§14.7 has been put in front of Sanaa** — the launch is in any case blocked by
+this session's permission classifier, and **no agent works around that.** The
+`G-MESHSIM` block of `analyse_t26.py` (`read_level0_edge`, `meshsim_verdict`,
+`control_level0_edge_reader`) was written after the supervisor's §12 item-4 diff
+read and **has not been read by the supervisor as a diff**; it is pinned by
+sha256 above, so any later change to it is detectable, and a read of it can now
+be honoured only as a dated addendum.
+
+*Frozen by a heat-transfer lane, 2026-09-11, on the supervisor's rulings of the
+same day. Zero solver compute. Nothing sent, filed or uploaded (`CLAUDE.md`
+rule 7).*

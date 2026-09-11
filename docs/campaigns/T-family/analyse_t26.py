@@ -73,13 +73,22 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # --- FROZEN CONSTANTS, every one traced to a line of T26_PREREGISTRATION.md ---
-R_REFINE = 1.5          # :424  h ratio = N^(1/3) = 1.500 at both steps
+MESHSIM_WINDOW = (1.4250, 1.5750)   # :14.3  G-MESHSIM, 1.500 +/- 5 %, on the
+                        # BUILT base cell Delta_0 and NEVER on the cell count.
+                        # The N ratio of a LAYERED ladder is ~2.65, not 3.375,
+                        # and gating N would gate a fiction (:14.2, :14.4).
+R_REFINE = 1.5          # :424  BUILT base-cell h ratio, 1.500 at both steps.
+                        # NOT N^(1/3): on this LAYERED ladder N^(1/3) reads
+                        # 1.3837 (measured, :14.2) because the layer stack
+                        # refines in 2D by design.  The VALUE 1.5 is
+                        # unchanged; only the false reason for it is removed.
 FS = 1.25               # :570  Roache factor of safety
 PLANT_T = 1.234e-03     # K   :772, the T3 family value (analyse_t3.py:81)
 PLANT_FLUX = 7.531e+00  # W   a known non-zero for the wallHeatFlux reader
 PLANT_PHI = 2.468e-03   # kg/s a known non-zero for the phi reader
 PLANT_RESID = 3.210e-07 # -    a known non-zero for the residual reader
 PLANT_YPLUS = 4.321e+00 # -    a known non-zero for the y+ reader
+PLANT_EDGE = 8.765e-03  # m    a known non-zero for the level0Edge reader
 
 LEVELS = ("L1", "L2", "L3")
 END_TIME = {"L1": 8000, "L2": 12000, "L3": 16000}        # :544
@@ -1062,6 +1071,129 @@ def control_dimensionality_reader():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def read_level0_edge(case_dir):
+    """G-MESHSIM's reader: the BUILT background cell size, from the mesh itself.
+
+    `constant/polyMesh/level0Edge` is written by snappyHexMesh and carries the
+    level-0 (background) cell edge as `value <number>;`.  This is the ONLY
+    quantity on this ladder that refines by the registered ratio: the layer
+    stack is fixed by design (:424), so the CELL COUNT does not, and reading
+    the count instead would read a fiction (:14.4).
+
+    Returns the edge in metres, or None.  ABSENT IS NEVER A PASSING VALUE."""
+    path = os.path.join(case_dir, "constant", "polyMesh", "level0Edge")
+    try:
+        with open(path) as fh:
+            text = fh.read()
+    except (IOError, OSError):
+        return None
+    for line in strip_foam_comments(text).splitlines():
+        m = re.match(r"\s*value\s+([-+0-9.eE]+)\s*;", line)
+        if m:
+            try:
+                v = float(m.group(1))
+            except ValueError:
+                return None
+            return v if v > 0.0 else None
+    return None
+
+
+def meshsim_verdict(edges, counts=None):
+    """G-MESHSIM (:14.3).  Gates the BUILT Delta_0 ratio, never the cell count.
+
+    edges: {level: Delta_0 in metres}.  A MISSING level is NOT A RESULT -- an
+    unread ratio is not a passing ratio.  Counts are REPORTED beside the
+    verdict and never gated."""
+    lo, hi = MESHSIM_WINDOW
+    steps, missing = [], [l for l in LEVELS if not edges.get(l)]
+    if missing:
+        return dict(ok=False, verdict="NOT A RESULT", steps=[], edges=dict(edges),
+                    counts=dict(counts or {}), window=[lo, hi],
+                    why="no BUILT level0Edge for %s, so the refinement ratio is "
+                        "UNMEASURED. Unmeasured is not passing." % ", ".join(missing))
+    for i in range(len(LEVELS) - 1):
+        a, b = LEVELS[i], LEVELS[i + 1]
+        r = edges[a] / edges[b]
+        steps.append(dict(step="%s->%s" % (a, b), h_ratio=r, inside=(lo <= r <= hi)))
+    ok = all(st["inside"] for st in steps)
+    out = dict(ok=ok, steps=steps, edges=dict(edges), counts=dict(counts or {}),
+               window=[lo, hi],
+               verdict="G-MESHSIM PASS" if ok else "NOT A RESULT")
+    if not ok:
+        out["why"] = ("BUILT Delta_0 ratio outside the registered window "
+                      "[%.4f, %.4f]: %s. The ladder that ran is not the ladder "
+                      "registered, so every graded row is NOT A RESULT."
+                      % (lo, hi, ", ".join("%s = %.6f" % (st["step"], st["h_ratio"])
+                                           for st in steps)))
+    return out
+
+
+def control_level0_edge_reader():
+    """G-MESHSIM's planted control (rule 3), driven in BOTH directions.
+
+    POSITIVE: a known edge is written to a real level0Edge file and must be read
+    back through the SAME production function.  NEGATIVE, and this is the arm
+    that matters: an ABSENT file, an edge of zero and a file with no `value`
+    line must each return None -- never 0.0, never a default -- and a ratio
+    built from a missing level must return NOT A RESULT rather than skipping
+    the level."""
+    tmp = tempfile.mkdtemp(prefix="t26_plant_h_")
+    try:
+        def mk(name, body):
+            d = os.path.join(tmp, name, "constant", "polyMesh")
+            os.makedirs(d)
+            with open(os.path.join(d, "level0Edge"), "w") as fh:
+                fh.write(body)
+            return os.path.join(tmp, name)
+
+        plant = PLANT_EDGE
+        good = mk("good", "dimensions      [0 1 0 0 0 0 0];\nvalue           %r;\n" % plant)
+        seen = read_level0_edge(good)
+        if seen is None or abs(seen - plant) > 1e-15:
+            return dict(passed=False, planted=plant, seen=seen,
+                        why="the level0Edge reader could not see a %g m edge it "
+                            "wrote to disk" % plant)
+        absent = read_level0_edge(os.path.join(tmp, "not_there"))
+        if absent is not None:
+            return dict(passed=False, why="an ABSENT level0Edge returned %r, not None -- "
+                                          "a reader that cannot tell absent from a value "
+                                          "grades nothing" % absent)
+        zero = read_level0_edge(mk("zero", "value           0;\n"))
+        if zero is not None:
+            return dict(passed=False, why="a ZERO edge returned %r, not None" % zero)
+        noval = read_level0_edge(mk("noval", "dimensions      [0 1 0 0 0 0 0];\n"))
+        if noval is not None:
+            return dict(passed=False, why="a level0Edge with no `value` line returned %r, "
+                                          "not None" % noval)
+        commented = read_level0_edge(mk("cmt", "// value           0.5;\n"))
+        if commented is not None:
+            return dict(passed=False, why="a COMMENTED-OUT value was read as %r; the "
+                                          "comment stripper is not in the path" % commented)
+        # the gate's own negative arms
+        e_in = {"L1": 1.5 * 1.5 * plant, "L2": 1.5 * plant, "L3": plant}
+        if not meshsim_verdict(e_in)["ok"]:
+            return dict(passed=False, why="an exactly-1.5 ladder was REFUSED by G-MESHSIM")
+        e_out = {"L1": 2.0 * 1.5 * plant, "L2": 1.5 * plant, "L3": plant}
+        v_out = meshsim_verdict(e_out)
+        if v_out["ok"] or v_out["verdict"] != "NOT A RESULT":
+            return dict(passed=False, why="a 2.0 step was ADMITTED by G-MESHSIM")
+        e_miss = {"L1": 1.5 * 1.5 * plant, "L3": plant}
+        v_miss = meshsim_verdict(e_miss)
+        if v_miss["ok"] or "UNMEASURED" not in v_miss.get("why", ""):
+            return dict(passed=False, why="a MISSING level was not refused as unmeasured")
+        # and the fiction the gate exists to refuse: the N-derived ratio
+        n_ratio = 1409804 / 532146.0
+        if abs(n_ratio ** (1.0 / 3.0) - 1.3837) > 1e-3:
+            return dict(passed=False, why="the measured N^(1/3) referent moved")
+        return dict(passed=True, planted=plant, seen=seen,
+                    negative_arms="absent file, zero edge, no `value` line, commented-out "
+                                  "value, 2.0 step, missing level -- all six caught",
+                    note="N^(1/3) over the two BUILT mesh-development levels is %.4f, "
+                         "which this gate does NOT read (:14.4)" % n_ratio ** (1.0 / 3.0))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 CONTROLS = (("dimensionality reader (D-3D)", control_dimensionality_reader),
             ("T reader (Q1, Q2 internalField)", control_T_reader),
             ("boundary reader (Q2 interface)", control_boundary_reader),
@@ -1069,7 +1201,8 @@ CONTROLS = (("dimensionality reader (D-3D)", control_dimensionality_reader),
             ("phi reader (G-CONT)", control_phi_reader),
             ("residual reader (G-CONV)", control_residual_reader),
             ("y+ reader (REPORTED, not gated)", control_yplus_reader),
-            ("cost reader (scripts/cost_channel.py)", control_cost_reader))
+            ("cost reader (scripts/cost_channel.py)", control_cost_reader),
+            ("level0Edge reader (G-MESHSIM)", control_level0_edge_reader))
 
 
 def run_all_controls(verbose=True):

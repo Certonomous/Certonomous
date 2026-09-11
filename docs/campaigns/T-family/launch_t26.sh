@@ -50,6 +50,11 @@ set -u
 SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GUARD="$SELF/mark_done_t26.py"
 
+SELF="$(readlink -f "$0")"   # absolutised BEFORE any cd: the setsid re-exec below
+                            # must not depend on how this script was invoked. A
+                            # relative $0 made setsid fail to exec after the cd to
+                            # the case dir, and the launcher then reported a true
+                            # "THE CASE DIED" -- a FALSE FINDING ABOUT THE CASE.
 usage() { sed -n '/^# usage:/,/^# ====/p' "$0" >&2; exit 2; }
 
 # ==========================================================================
@@ -332,7 +337,7 @@ if [ "$DETACH" = "1" ] && [ "${T26_DETACHED:-}" != "1" ]; then
         echo "reason: THE INSTRUMENT COULD NOT RUN -- could not capture the baseline mtime of 0.orig/fluid/T, so the W3 witness cannot be evaluated at all. Nothing was forked." >&2
         exit "$EXIT_WITNESS_INSTRUMENT"
     fi
-    T26_DETACHED=1 setsid "$0" --case-dir "$CASE_DIR" --timeout "$TIMEOUT_S" \
+    T26_DETACHED=1 setsid "$SELF" --case-dir "$CASE_DIR" --timeout "$TIMEOUT_S" \
         --ranks "$RANKS" --solver "$SOLVER" --foam-bashrc "$FOAM_BASHRC" \
         --no-detach </dev/null >>"$CASE_DIR/log.launch" 2>&1 &
     FORK_PID=$!
