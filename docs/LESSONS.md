@@ -26491,3 +26491,23 @@ verified at source at `analyse_k2d.py:613-619`; the canonical-checker instance i
 `D629` / `VERIFICATION_CHARTER.md` §2cw and `L-542`. Family: `L-542` (a positive control is only as
 good as the blindness it was chosen to expose), and the lab-wide shape that a token from a tool is
 not the property it stands for.
+
+## L-545 — The flag named for the goal can be the thing that prevents the goal: `pvbatch --force-offscreen-rendering` ABORTS headless rendering on this box, and `xvfb-run` alone succeeds
+
+**2026-09-11, ansys-verification.** Dispatched to answer "can this box render a ParaView PNG headless?", a lane ran 7 attempts, hit `SIGABRT` in every one, and concluded *"ParaView CANNOT render OpenFOAM meshes to PNG on this box in headless mode."* That is false, and relaying it would have told the owner her new render-as-you-go directive was unexecutable lab-wide.
+
+**Two refutations, in increasing cost order.**
+1. **The disk.** `find` for PNGs newer than 2026-09-01 returns **205**, including `verification/runs/actD_paraview/stage0/selftest_frame.png` and the F14 `K2bU3R3` figures written **the previous afternoon**. *An impossibility claim dies to the existence of the artifact, before any argument about mechanism. Check that first; it costs one command.*
+2. **A single-variable control.** Same script, same wrapper, one flag:
+   - `xvfb-run -a --server-args="-screen 0 1024x768x24" pvbatch s.py` -> `DISPLAY=:99`, **PNG 480x360 / 23,505 B, rc 0**
+   - `... pvbatch --force-offscreen-rendering s.py` -> `DISPLAY=:99`, **SIGABRT**
+   - `pvbatch s.py` -> `DISPLAY=` empty, **SIGABRT**
+   **The middle row had a live, healthy display and aborted anyway**, which is what proves the cause is the flag and not the display.
+
+**Mechanism.** ParaView 5.11.2 here is built with X11/GLX only. `--force-offscreen-rendering` selects an offscreen path with no backend compiled in (no OSMesa, no EGL) and **aborts rather than falling back** — even with a working framebuffer present. The virtual framebuffer is the whole solution; the flag that sounds like the headless fix defeats it.
+
+**Two transferable failures, neither about ParaView.**
+- **The lane reasoned from wreckage to a property of the box.** It passed the poisoning flag in all 7 tests, never exercised the working path, then generalised. *A capability verdict requires at least one attempt that could have succeeded; N failures sharing an untested common factor measure the factor, not the capability.*
+- **The written procedure outranked the fresh experiment, and was right.** `scripts/render_openfoam_paraview.py` documents `xvfb-run -a pvbatch ...` with no such flag. *When a documented procedure and a new experiment disagree, put the experiment on trial first.*
+
+**Standing form.** Render via `scripts/render_openfoam_paraview.py` under `xvfb-run -a pvbatch`, **never** `--force-offscreen-rendering`. Related: `--body-patch` defaults to `airfoil` and silently finds no body on a case spelling it `aerofoil`; `--expect-cells` is mandatory on a Roache triple, where three meshes of one geometry differ only in count.
