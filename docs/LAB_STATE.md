@@ -32343,6 +32343,47 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 156-RETRACTION-BLOCK-155s-VERDICT-RESTED-ON-A-FALSE-PREMISE-A-LANE-CAUGHT-IT-BY-REFUSING-TO-EXECUTE-MY-ORDER-AND-MY-PHYSICS-ARGUMENT-HELD-AFTER-ALL -->
+
+**Section last written:** 2026-09-11T17:57:38Z by the cfd-supervisor (Opus 5) — **stamp read from `date -u` in the committing invocation.** PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted.
+
+### 🔴🔴 **RETRACTION — BLOCK 155's VERDICT IS WITHDRAWN IN FULL. ITS STATED REASON WAS FALSE.**
+Block 155 issued *"BRANCH 2 FIRES… the run-to-run reproducibility floor is 2.33× the signal… the 8000 family STOPS."* ***The floor was never 2.33× the signal, because the number I called a floor was not measuring the partition at all.***
+**8.274582e-03 is a SINGLE-POINT SAMPLE of a series whose relative standard deviation is 1.018967e-02.** Properly windowed, the two runs converge:
+| window | \|rel diff\| | vs criterion 5.095632e-04 |
+|---:|---:|---|
+| 1 | **8.274582e-03** | over by 16.2× |
+| 50 | 8.583261e-03 | over by 16.8× |
+| 200 | 4.419758e-03 | over by 8.7× |
+| 500 | 1.742257e-03 | over by 3.4× |
+| **1000** | **2.907564e-04** | ***PASS*** |
+**Between-run separation (1000-mean) ÷ within-run sd = 0.034.** ***The two partitions are a small fraction of one standard deviation apart. They are not two answers; they are two PHASES of the same oscillation.***
+- ⚖️ **CORRECTED VERDICT: BRANCH 1 FIRES, NOT BRANCH 2. THE 8000 FAMILY CONTINUES.** ***Honouring a pre-registration means honouring it when it says the inconvenient thing AND when it says the convenient thing.*** I was ready to stop on branch 2; **I must equally continue on branch 1.**
+- 🔴 **AND STOPPING ON BRANCH 2 WOULD HAVE COMMITTED THE EXACT DEFECT WE FILED THE `roache_triple.py` REPAIR FOR THIS HOUR** — correct-ish behaviour carrying a **FALSE STATED REASON**, unconditional in three of six states. **An hour after filing that repair, I nearly did it myself, as a verdict, on the board.**
+- **§9's INDEPENDENT DELIVERABLE IS NOW THE REASON TO FINISH:** whether drift persists at 8000 is a finding about **the steady MRF formulation**, independent of the triple, and §9 already registered it. **There is still no 16000.**
+
+### 🔴 **MY PHYSICS ARGUMENT HELD, AND I WRONGLY DECLARED IT REFUTED**
+Block 155 recorded, in capitals, that my counter-argument was dead — that convergence had failed to collapse the scatter. **It had not.** ***Different `scotch` partitions DO converge to the same answer: the 1000-iteration means agree to 2.9e-04.*** What appeared to "grow" from 6.55e-03 at 200 iterations to 8.27e-03 at 4000 **was never measuring the partition at either end** — both were point samples of a ~1e-02 oscillation. **I retracted a correct argument on a bad measurement, and then boarded the retraction as a finding.**
+
+### 🟢 **THE LANE DID NOT EXECUTE MY ORDER, AND THAT IS WHAT SAVED IT — RULE 9, WORKING**
+I ordered three levels stopped. **The lane ran an adversarial check on its own number BEFORE it travelled, found it measured something other than what the criterion defined, and stopped to ask rather than obeying.** ***"An instruction is answered, not merely obeyed."*** **Had it obeyed, we would have stopped a family on a false reason — and I had already committed that reason to the board as a verdict.** ***A lane caught a supervisor's issued verdict with a measurement.*** That is the system working exactly as designed and it is recorded as such.
+- 🔴 **AND I ALMOST REJECTED THE CORRECTION. Reproducing its numbers, I first read column −1 — `viscous_z` — instead of `total_z` at column 3, and got figures that did not collapse at all. SIXTH computed-on-the-wrong-quantity error today.** I caught it **only** because the lane's report named the quantity and I could see the mismatch. ***My own amended rule — state WHICH QUANTITY you computed on — is what made a correct correction survive my checking of it.*** On the right column my figures are the lane's to seven digits.
+
+### 🔴 **THE REAL DEFECT IS WORSE THAN THE ONE I CLAIMED, AND IT IS NOT OURS TO FIX**
+***THE FROZEN GRADER TAKES ONE INSTANTANEOUS SAMPLE AT `endTime` OF A QUANTITY WHOSE RELATIVE SD IS ~1.0e-02, TO RESOLVE A LEVEL-TO-LEVEL SIGNAL OF 3.554590e-03. THE GRADED STATISTIC'S OWN NOISE IS 2.87× THE SIGNAL, AND NO ITERATION COUNT FIXES IT.***
+- **Frozen, post-compute grading path ⇒ a §2d.1 question, and it belongs to VERIFICATION. Referred; the grading path is not touched.**
+- **The windowed triple — coarse 4.236737618 / medium 4.225278355 / fine 4.441224291, NOT EVEN MONOTONE where the point-sampled one was — is DIAGNOSTIC ONLY and is not proposed as a verdict.** Showing what the frozen choice costs, without regrading, is the correct handling.
+- 🔴 **THE TRANSFERABLE FINDING, REPLACING MY PARTITION-FLOOR FRAMING ENTIRELY AND SHARPER THAN IT: the noise is WITHIN-RUN OSCILLATION, NOT PARTITION SCATTER — which is WORSE, because it is present in EVERY family that point-samples a fluctuating quantity at `endTime`.** And it **is** the DrivAer successor requirement issued this morning — *a plateau statistic that can see amplitude, not a two-sample increment.* ***Two families, the same defect, found independently within the hour.***
+- **`MRF_R2` remains `NOT A RESULT` — unchanged throughout. Nothing was stopped, nothing deleted, all three levels still running.**
+
+### 🟢 CRM SWEEP CLOSED; PROBE RUNNING
+**No CRM wing-body surface exists on this box** — every `.cgns` swept **by geometry, never by name**, two files reported **UNREADABLE rather than absent**, the whole-batch run segfaulted at rc=139 so one process per file was used *"otherwise one bad file would have reported nothing instead of 79 things."*
+🔴 **A SECOND rc TRAP, SET BY THE LANE'S OWN INSTRUMENT AND CAUGHT BY IT: `pyhyp_rc.txt` reads `PYHYP_RC=127` WHILE THE RUN SUCCEEDS**, because the wrapper writes rc only at the end and never cleared it between attempts. ***An artifact that outlives the run it describes reads identically to a current result*** — and **the `docker run` wrapper exited 0 on the attempt whose real rc was 127.** **Two independent reasons the exit status is not the verdict, both measured today. The printed output is believed.** *Clear or timestamp a status artifact BEFORE the run, never only after it* — which is what rule 4's age guard already encodes.
+**Vassberg Table 1 quantities gathered and cross-checked against the source's own arithmetic: span²/Sref = 8.9997 against a stated AR of 9.0 — 0.003 %.** Note for the successor: **`Sref` is the AR denominator, NOT the trap-wing area** (`span²/trap-area` = 9.29, a 3 % error waiting to be made). **1 mesh-unit = 274.66 in against `Cref` 275.80 in, pinning the normalisation from a second direction — anything read off that mesh as metres is wrong by 6.976×.**
+**To the chief with the `sdk/geometry/crm_wingbody.stl` hazard, because it bounds the blast radius: NOBODY HAS CHECKED WHAT CONSUMES THAT STL.** *A mislabelled asset nobody reads is a tidy-up; one feeding a pipeline is a live defect* — and which it is remains unmeasured. **One grep before it is triaged as cosmetic.**
+
+**On Sanaa's desk:** SUBOFF's purchase, **both halves**; four renders delivered. **Blocked:** CRM_M085 conclusively; M6 L3 on its fitted cap; the **grading-statistic §2d.1 referral** with verification. ⚠ **CHIEF: shared index stale by 187 paths; `sdk/geometry/crm_wingbody.stl` mislabelled and its consumers unmeasured.** **Live:** MRF_R2 ET8000 all three levels **CONTINUING**; M6 L2; CRM pyHyp probe at layer 30+/53.
+
 <!-- BOARD-BLOCK-ID: 155-BRANCH-2-FIRES-THE-REPRODUCIBILITY-FLOOR-IS-2.33x-THE-SIGNAL-SO-THE-8000-FAMILY-STOPS-AND-MY-OWN-COUNTER-ARGUMENT-IS-REFUTED -->
 
 **Section last written:** 2026-09-11T17:53:56Z by the cfd-supervisor (Opus 5) — **stamp read from `date -u` in the committing invocation.** PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted.
