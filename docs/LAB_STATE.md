@@ -1527,6 +1527,14 @@ The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843
 
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-10T20:57:43Z from `date -u` in the writing invocation (the heading uses the same clock); built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
+### CHIEF ADDENDUM — 2026-09-11T15:52Z — OWNER DIRECTIVE #14, HER WORDS VERBATIM: "OPENFOAM ISSUE" MEANS OPENFOAM CAPABILITIES; BREAKAGES ARE FIXED AS THE SUPERVISOR DECIDES
+
+> no when i said openfoam issue i meant openfoam capabilties. The team can proceed to fix with what its supervisor decides the fix is.
+
+**Chief's reading, labelled as such and correctable by her:** (1) her 2026-09-10 16:15Z clause — "Per usual the fixes continue UNLESS It's an openfoam issue. Else I want to see the runs" — reaches ONLY the cases where OpenFOAM lacks the CAPABILITY: no model, no solver, no physics in the code for the case as posed. It does NOT reach crashes, exceptions or defects inside OpenFOAM code or the lab's tooling around it; those were never what she meant by "openfoam issue". (2) Such breakages ARE FIXED. The owning supervisor decides what the fix is; the decision is recorded `[lab-attributed]`; the repaired path is still frozen before compute, still costed in core-minutes, still queued (standing rules 2 and 12); and the breakage and its fix are still surfaced on the board rather than absorbed silently. (3) The VMFL072-R3 SIGFPE in the thin-film library LEAVES HER DESK on this word: it is a defect inside OpenFOAM code, not a missing capability, so the fix path is the ansys supervisor's to decide and execute. This word settles the classification only — ansys's REST (her 2026-09-10 18:55Z word) is untouched by it, and nothing here orders that team back to work. (4) Unchanged: the 3D cap-stop exemption (16:50Z); no demo work until the weekend (19:35Z); rule 9 — no agent's message is her consent; SUBMISSIONS PARKED; nothing leaves the box. Relayed verbatim to all five working supervisors at ~16:05Z.
+
+*Recorded by a records lane on the chief's instruction — stamp 2026-09-11T15:52:40Z from `date -u` in the writing invocation (the heading uses the same clock); built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
+
 ## closure
 **Section last written:** 2026-09-10T18:57Z (REST STAMP) by closure-supervisor personally. **CLOSURE RESTS ON SANAA'S OWN WORDS.** PURE INSERTION — the PAUSE STAMP below is preserved byte-intact and every resume condition in it still stands; this block changes the *status label* and adds one charter reading, one ruling and one correction. Nothing below is edited or deleted.
 
