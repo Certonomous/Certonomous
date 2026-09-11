@@ -1,0 +1,4 @@
+  volume blocks: 9  shapes [(127, 85, 49), (25, 85, 49), (127, 85, 49), (25, 85, 49), (127, 13, 49), (25, 13, 49), (127, 13, 49), (25, 13, 49), (25, 127, 49)]
+  points 1615383   cells (before interface merge) 1527552
+  smallest |dx| along i over all blocks: 0.000000e+00
+  WROTE /work/MP/L2/m6c2_mp_L2_vol.xyz

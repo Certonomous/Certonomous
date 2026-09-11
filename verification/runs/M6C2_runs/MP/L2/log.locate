@@ -1,0 +1,12 @@
+PLANT: one near face r=0.583 and one far face r=4.001 -> classified 1 inside, 1 outside
+
+nonOrthoFaces in set: 1019
+  r: min 1.5741  median 3.4078  max 4.0523
+  x: min    1.1188  median    3.0838  max    3.7356
+  y: min    0.0182  median    0.0386  max    1.1212
+  z: min   -2.5495  median   -1.0150  max    2.5497
+
+  within r < 2.0 m of the body :       6  (  0.59 %)
+  beyond r >= 2.0 m (far field) :    1013  ( 99.41 %)
+
+PREDICTION READING (MP/L1_PREDICTION.md): HOLDS -- far-field march, cap vindicated

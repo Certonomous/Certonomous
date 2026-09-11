@@ -1,0 +1,112 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : plot3dToFoam -case /home/ubuntu/Certonomous/verification/runs/M6C2_runs/MP/L2/foam -noBlank /home/ubuntu/Certonomous/verification/runs/M6C2_runs/MP/L2/m6c2_mp_L2_vol.xyz
+Date   : Sep 11 2026
+Time   : 18:37:12
+Host   : ip-172-31-43-247
+PID    : 2300806
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/M6C2_runs/MP/L2/foam
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Reading 9 blocks
+block 0 nx:127 ny:85 nz:49
+block 1 nx:25 ny:85 nz:49
+block 2 nx:127 ny:85 nz:49
+block 3 nx:25 ny:85 nz:49
+block 4 nx:127 ny:13 nz:49
+block 5 nx:25 ny:13 nz:49
+block 6 nx:127 ny:13 nz:49
+block 7 nx:25 ny:13 nz:49
+block 8 nx:25 ny:127 nz:49
+Reading block points
+block 0:
+Reading 528955 x coordinates...
+Reading 528955 y coordinates...
+Reading 528955 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 1:
+Reading 104125 x coordinates...
+Reading 104125 y coordinates...
+Reading 104125 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 2:
+Reading 528955 x coordinates...
+Reading 528955 y coordinates...
+Reading 528955 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 3:
+Reading 104125 x coordinates...
+Reading 104125 y coordinates...
+Reading 104125 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 4:
+Reading 80899 x coordinates...
+Reading 80899 y coordinates...
+Reading 80899 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 5:
+Reading 15925 x coordinates...
+Reading 15925 y coordinates...
+Reading 15925 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 6:
+Reading 80899 x coordinates...
+Reading 80899 y coordinates...
+Reading 80899 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 7:
+Reading 15925 x coordinates...
+Reading 15925 y coordinates...
+Reading 15925 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 8:
+Reading 155575 x coordinates...
+Reading 155575 y coordinates...
+Reading 155575 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+Merged points within 1e-15 distance. Merged from 1615383 down to 1566775 points.
+Creating cells
+Creating boundary patches
+--> FOAM Warning : 
+    From Foam::polyMesh::polyMesh(const Foam::IOobject&, Foam::pointField&&, const Foam::cellShapeList&, const Foam::faceListList&, const Foam::wordList&, const Foam::wordList&, const Foam::word&, const Foam::word&, const Foam::wordList&, bool)
+    in file meshes/polyMesh/polyMeshFromShapeMesh.C at line 635
+    Found 78048 undefined faces in mesh; adding to default patch defaultFaces
+Writing polyMesh
+End
+
