@@ -427,3 +427,104 @@ the disposition is Sanaa's.**
 **SUBMISSIONS PARKED (rule 7). PERMANENTLY PRIVATE (rule 8). Nothing in this
 document has been sent, filed or shared, and nothing in `harness/` or `.claude/`
 was changed by the lane that wrote it.**
+
+---
+
+## Addendum 1 — 2026-09-11T15:44:03Z — **THE `652` FIGURE RECONCILES, AND IT WAS RIGHT ABOUT A QUESTION NOBODY ASKED. TWO INDEPENDENT CAUSES, PLUS A THIRD ERROR THE RE-MEASUREMENT EXPOSED: I COUNTED A PLANTED NEGATIVE CONTROL AS A REAL ENTRY.**
+
+**Raised by the verification supervisor's own re-measurement**, not by this lane.
+The supervisor read the artifacts independently, could not reproduce `652` from
+any of three commands, and referred it back. That is the check working.
+
+**Nothing above this section is edited. The original figures stand as written and
+are STRUCK here, not rewritten** (CLAUDE.md rule 6).
+
+**lines whose number changed above this section: 0**
+
+### A1.1 What was claimed
+
+`§2.5` (line 69) and row `DA-8` (line 172) both report **"652 `N-D` mentions /
+occurrences"**, and `§2.5` adds **"families N-D1 through N-D15+"**.
+
+### A1.2 The exact command, recovered — it is reproducible to the digit
+
+```
+git show cc2a2e039:docs/NUMERICS_KNOWLEDGE.md | grep -coE 'N-D[A-Za-z0-9]*'
+```
+
+→ **652**, re-run today and identical. The figure was never invented. **It is a
+MATCH count on the `cc2a2e039` blob, and it is not a line count and not an entry
+count.**
+
+### A1.3 Cause 1 — `-c` silently changes denomination when `-o` is present
+
+`grep` on this box is **ugrep**, where `-c` with `-o` counts **matches**, not
+**lines**. Measured on one named artifact, `docs/NUMERICS_KNOWLEDGE.md`:
+
+| command | value | what it counts |
+|---|---|---|
+| `grep -cE 'N-D[A-Za-z0-9]*'` (no `-o`) | **86** | lines, at HEAD — **the supervisor's figure** |
+| `grep -coE 'N-D[A-Za-z0-9]*'` | **717** | matches, at HEAD |
+| `grep -oE 'N-D[A-Za-z0-9]*' \| wc -l` | **717** | matches, counted independently — confirms the above |
+
+**Adding one letter to a flag changed the unit and printed no warning.** Both
+figures are correct answers to different questions, and only one of them was
+labelled.
+
+### A1.4 Cause 2 — the supervisor and I read different bytes
+
+I read the **`cc2a2e039` blob**; the supervisor read the **worktree**, which is
+current HEAD, and HEAD has moved. `docs/NUMERICS_KNOWLEDGE.md` sha256:
+**`ca8cd4945e58ef7c…` at `cc2a2e039`** against **`78b571c8c80a47de…` at HEAD** —
+the file **changed while this audit was being written**. Commit `5349795d3`,
+"dafoam N-D46", landed a new entry in the interval.
+
+| | `cc2a2e039` (audited) | HEAD (supervisor's read) |
+|---|---|---|
+| matches | **652** | **717** |
+| lines | **80** | **86** |
+
+**`652` and `86` are not in conflict. They differ in BOTH unit and sha.**
+
+### A1.5 The third error, which only the re-measurement exposed
+
+The right denomination for the claim *"the N-D numerics family is yours"* is
+**how many facts the family holds** — neither matches nor lines. Measured with a
+reader fired against a control (removing one entry drops the count 45 → 44, so
+the reader counts the thing and not a constant):
+
+| | `cc2a2e039` | HEAD |
+|---|---|---|
+| **N-D entries** (`grep -cE '\*\*N-D[0-9]+\.'`) | **45**, contiguous N-D1…N-D45 | **46**, N-D1…N-D46 |
+
+**A naive distinct-id count returns 46 at `cc2a2e039` and is wrong by one.** The
+extra id is **`N-D99`, which is itself a must-be-absent PLANT** belonging to
+another lane's checker — `docs/NUMERICS_KNOWLEDGE.md:6828` reads *"a must-be-absent
+plant (`N-D99`) returned…"*. **I would have counted another team's negative
+control as a fact of the family.** That is the same defect as the `652`, one
+level deeper: a census by identifier measuring the identifier, not the property
+(`VERIFICATION_CHARTER` §2bn).
+
+### A1.6 Corrected figures
+
+| struck | reads | replaced by |
+|---|---|---|
+| `§2.5` line 69 | ~~"652 `N-D` mentions"~~ | **45 N-D entries at `cc2a2e039`** (652 = token matches under `grep -co`; 80 = lines) |
+| `§2.5` line 70 | ~~"families N-D1 through N-D15+"~~ | **N-D1 through N-D45, contiguous**, at `cc2a2e039`. The "+15" was an artifact of a `head -20` truncation in the original read — I reported the end of my own output as the end of the family. |
+| `DA-8` line 172 | ~~"652 `N-D` occurrences"~~ | **45 N-D entries**, family opened 2026-08-21 at `docs/NUMERICS_KNOWLEDGE.md:2271` |
+
+### A1.7 What does NOT change
+
+**Row DA-8's verdict stays STILL TRUE.** The claim under audit is that the `N-D`
+numerics family exists and belongs to the dafoam team; it does, at 45 entries and
+counting. **§2.5's finding stays as written** — the planted control is what turned
+a false zero into a measured one, and this addendum is the same lesson a second
+time, caught by a supervisor instead of by a plant. **The headline counts in §3
+are unaffected**: no verdict moved, so 171 / 148 / 16 / 7 stand.
+
+**The one-line form: a number that is reproducible, recoverable and wrong-by-unit
+is more dangerous than one that is simply wrong, because it survives every check
+except a re-measurement by somebody who does not share the reader.**
+
+*Zero core-minutes. Nothing in `harness/` or `.claude/` was read for this addendum
+and nothing in either was changed — they remain byte-identical to `cc2a2e039`.*
