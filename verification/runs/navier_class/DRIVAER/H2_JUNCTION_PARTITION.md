@@ -60,3 +60,45 @@ Measurement only. No registration is required and none is claimed. **The moment 
 becomes a mesh build it needs one.** B2 does not exist; A2 stays unlaunched; H2's two
 limbs remain exactly as `DRIVAER_LAYERFIX_B1_PREREGISTRATION.md` §6 registered them
 **before** any of tonight's results.
+---
+
+## RESULT — 2026-09-11 — **NOT SUPPORTIVE**. Measured after the partition above was
+committed at `2410c4cbd`. *Lines whose number changed above this section: 0.*
+
+| group | `perimeter²/area` range |
+|---|---|
+| CONTROL (layers work) | **15.83 – 81.04** |
+| FAILURE (0.00–0.12 layers) | **9.78 – 80.38** |
+
+**The ranges overlap almost completely.** `BodySide` (a control) scores 81.04, the
+second highest of all seventeen; `WheelSupportrear` (a failure) scores 9.78, the
+lowest of all seventeen.
+
+**Best single threshold: M = 12/17** — and it is the **degenerate classifier**: at
+8.78 every patch scores above it, so all seventeen are called failures and the twelve
+real failures are "correct" by construction. **The metric carries no discriminating
+signal at all.**
+
+Partition row: **M ≤ 14/17 → NOT SUPPORTIVE.** `featureAngle 130` is left **no better
+supported than `minMedialAxisAngle 90`**, and **H2's two limbs stay TIED**.
+
+**Direction was not inverted** (failure median 27.9 against control median 17.8), so
+the wrong-signed refutation row does not fire either. The hypothesis is neither
+supported nor refuted — it is simply not tested by this quantity.
+
+**The `Mirrors2` clause passed only VACUOUSLY** and is reported as such: it lands on
+the failure side, but under a threshold that puts *everything* on the failure side.
+That check cannot distinguish anything here and should not be counted as passed.
+
+**The pre-marking of the secondary metric was vindicated, and it is why it could not
+be used to rescue this.** `boundary_fraction` ranges 0.041–0.089 for controls against
+0.006–0.487 for failures — but `Rimsfront` and `Tiresfront` carry 74,569 and 84,096
+triangles against `BrakeDiscfront`'s 2,721, and their `bfrac` is an order of magnitude
+lower for that reason alone. Exactly the tessellation artifact named in advance. Had
+the primary metric not been fixed first, that spread could have been read as a signal.
+
+**Carry forward:** the discriminator for the DrivAer zero-layer group is **not**
+clearance (H3, refuted), **not** `maxThicknessToMedialRatio` (H1, refuted), and **not**
+patch shape as measured by perimeter-to-area. Patch *size* remains a real but
+non-determining correlation (median 77 mesh faces for failures against 491), with
+`NotchbackB_Pillar` at 54 faces and 4.31 layers as the standing counterexample.
