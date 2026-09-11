@@ -1,0 +1,82 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072 -- primary (gas) region linear solvers.
+//
+// Taken from the shipped filmPanel0 template (PREREGISTRATION.md 3.1), less
+// its cellMotionUx entry, which belongs to a moving-mesh case this one is not.
+// PIMPLE is run in PISO mode (nOuterCorrectors 1) at a fixed step with gas
+// Courant number 0.2778.
+// ---------------------------------------------------------------------------
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    "pcorr.*"
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       0.02;
+        relTol          0;
+    }
+
+    p
+    {
+        $pcorr;
+        tolerance       1e-06;
+        relTol          0.01;
+    }
+
+    pFinal
+    {
+        $p;
+        tolerance       1e-06;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        tolerance       1e-05;
+        relTol          0.01;
+    }
+
+    UFinal
+    {
+        $U;
+        tolerance       1e-06;
+        relTol          0;
+    }
+}
+
+PIMPLE
+{
+    correctPhi          no;
+    nOuterCorrectors    1;
+    nCorrectors         1;
+    nNonOrthogonalCorrectors 0;
+    pRefCell            0;
+    pRefValue           0;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        "U.*"           1;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,75 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072-R2 -- finite-area (film) schemes, VERBATIM from the shipped
+// tutorials/incompressible/pimpleFoam/laminar/inclinedPlaneFilm.
+//
+// R2 3.1 names that tutorial as VMFL072's exact construction at a different
+// angle, so the shipped configuration is used unaltered rather than replaced
+// with a scheme set nothing in this lab has exercised.
+//
+// ** THE STRUCK DOCUMENT'S NOTE HERE WAS WRONG AND IS REPLACED, NOT EDITED
+//    AROUND. ** It read: "the level-to-level difference the triple measures is
+// carried entirely by the numerical decay rate of the inlet perturbation over
+// the 5.9 relaxation lengths upstream of the monitor." Two things are wrong.
+//   (1) The relaxation length is 25.4887 mm, not 76.4660 mm (R2 2.6), so the
+//       monitor sits 17.65 relaxation lengths downstream, not 5.9.
+//   (2) There IS NO TRIPLE. R2 7 declines it, with the statement CLAUDE.md
+//       rule 5 requires. The Nusselt state has uniform h and U, so every
+//       scheme here is exact on it AT EVERY LEVEL, and the predicted
+//       level-to-level difference is 5.37e-12 m -- BELOW the 1e-10 faSolution
+//       floor. A Roache order fitted to that is an order fitted to solver
+//       noise. R2 6.6 gates level-INDEPENDENCE instead.
+// ---------------------------------------------------------------------------
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      faSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+    div(phif_film,hf_film)      Gauss Gamma 0.5;
+    div(phi2s_film,Uf_film)     Gauss linearUpwind;
+}
+
+laplacianSchemes
+{
+    default         none;
+    laplacian(hf_film) Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+lnGradSchemes
+{
+    default         corrected;
+}
+
+fluxRequired
+{
+    hf_film         true;
+}
+
+// ************************************************************************* //

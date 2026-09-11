@@ -1,0 +1,67 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072 -- finite-area (film) linear solvers.
+//
+// TOLERANCES ARE REGISTERED, NOT CHOSEN HERE. PREREGISTRATION.md 5.1:
+//   "the governing floor is the solver's own iterative floor, held below it by
+//    faSolution tolerances on h and Uf of <= 1e-10 (registered)."
+// Both are set to exactly 1e-10 and relTol 0, so every step is solved to the
+// registered absolute floor. This is what makes 5.2's plateau threshold of
+// 2.7750e-07 m a statement about the physics and not about the linear solver.
+//
+// No under-relaxation: nOuterCorr 1 with a fixed, Courant-limited time step is
+// a time-accurate PISO march, and a relaxation factor would make the transient
+// relaxation length -- the only thing the grid triple can see (5.6) -- depend
+// on the factor rather than on the mesh.
+// ---------------------------------------------------------------------------
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      faSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    Uf_film
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0;
+    }
+
+    hf_film
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0;
+    }
+}
+
+PIMPLE
+{
+    momentumPredictor true;
+    nOuterCorr        4;
+    nCorr             1;
+    nNonOrthCorr      0;
+    nFilmCorr         1;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        ".*"            1;
+    }
+}
+
+// ************************************************************************* //

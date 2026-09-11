@@ -1,0 +1,113 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072 -- Liquid Water Flow Over a Flat Plate Under the Influence of Gravity
+//
+// Domain, EXACTLY as the manual prints it (PREREGISTRATION.md 1, 3.3):
+//   500 mm x 100 mm x 100 mm
+//     x  in [0, 0.5]  m  -- DOWNSLOPE (streamwise). Inlet at x = 0.
+//     y  in [0, 0.1]  m  -- SPANWISE.  Full-span film (2.4 reading R1).
+//     z  in [0, 0.1]  m  -- PLATE-NORMAL. THE PLATE IS AT z = 0.
+//
+// AXIS CONVENTION, stated so it cannot be mistaken (constant/g is
+// (6.305746 0 -7.514896) = 9.81*(sin40, 0, -cos40)):
+//   +x is DOWN the slope, so g.x = +9.81 sin(40) drives the film from the
+//   inlet toward the outlet;
+//   the plate is the z = 0 wall and the gas box is ABOVE it, so
+//   g.z = -9.81 cos(40) presses the film ONTO the plate.
+//   kinematicThinFilm uses gs = g - n(n.g); on the z = 0 plate that is
+//   (6.305746 0 0), i.e. |gs| = g sin(theta) = 6.305746 m/s2 = the
+//   comparator's frozen G_SIN. This is the same construction as the shipped
+//   inclinedPlaneFilm tutorial, whose g = (4.905 0 -8.4957) = 9.81*(sin30,
+//   0, -cos30) with its film patch likewise at the bottom.
+//
+// Levels (PREREGISTRATION.md 5.6) are applied by apply_level.sh, which
+// substitutes @NX@ @NY@ @NZ@:
+//   L1  64 x 16 x  8 =   8192 cells   dx = 7.8125 mm
+//   L2 128 x 32 x 16 =  65536 cells   dx = 3.9063 mm
+//   L3 256 x 64 x 32 = 524288 cells   dx = 1.9531 mm
+// Uniform refinement ratio r = 2 in ALL THREE directions.
+// ---------------------------------------------------------------------------
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   1;
+
+vertices
+(
+    (0.0  0.0  0.0)     //  0
+    (0.5  0.0  0.0)     //  1
+    (0.5  0.1  0.0)     //  2
+    (0.0  0.1  0.0)     //  3
+    (0.0  0.0  0.1)     //  4
+    (0.5  0.0  0.1)     //  5
+    (0.5  0.1  0.1)     //  6
+    (0.0  0.1  0.1)     //  7
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (@NX@ @NY@ @NZ@) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    // THE PLATE. z = 0. This is the polyMeshPatch the finite-area film mesh
+    // is built on (system/finite-area/faMeshDefinition) and the patch that
+    // carries the velocityFilmShell BC in 0.orig/U.
+    film
+    {
+        type    wall;
+        faces   ((0 3 2 1));
+    }
+
+    // x = 0. Gas-side inlet; the FILM inlet is the finite-area patch of the
+    // same name, where h_in and U_in are prescribed (3.3).
+    inlet
+    {
+        type    patch;
+        faces   ((0 4 7 3));
+    }
+
+    // x = 0.5 m
+    outlet
+    {
+        type    patch;
+        faces   ((1 2 6 5));
+    }
+
+    // y = 0 and y = 0.1 -- the span-bounding walls.
+    side
+    {
+        type    wall;
+        faces   ((0 1 5 4) (3 7 6 2));
+    }
+
+    // z = 0.1 -- 100 mm of quiescent gas above the plate, as the manual's
+    // third dimension. Air flow is zero (manual, p.211).
+    top
+    {
+        type    patch;
+        faces   ((4 5 6 7));
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

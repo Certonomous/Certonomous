@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072 -- the finite-area (thin-film) mesh.
+//
+// Built on the `film` polyMesh patch, i.e. the z = 0 plate. Its four edges are
+// the three named polyMesh patches below (the `side` patch supplies BOTH the
+// y = 0 and the y = 0.1 edge, and `top` does not touch z = 0 at all), so the
+// film patch boundary is fully covered and makeFaMesh needs no -empty-patch.
+//
+// Structure copied from the shipped
+//   tutorials/incompressible/pimpleFoam/laminar/filmPanel0
+// which is the working template PREREGISTRATION.md 3.1 names.
+// ---------------------------------------------------------------------------
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      faMeshDefinition;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+polyMeshPatches ( film );
+
+boundary
+{
+    inlet
+    {
+        type                patch;
+        neighbourPolyPatch  inlet;
+    }
+
+    outlet
+    {
+        type                patch;
+        neighbourPolyPatch  outlet;
+    }
+
+    side
+    {
+        type                patch;
+        neighbourPolyPatch  side;
+    }
+}
+
+// ************************************************************************* //
