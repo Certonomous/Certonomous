@@ -19638,6 +19638,26 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-11 (update 125): **THE FOUR-REGION SPLIT FAILS, AND A 16 CORE-MINUTE PROBE FOUND IT BEFORE 2,278,150 CELLS DEPENDED ON IT.** ***The strut conduction bridge — the entire physical claim of T26 — DID NOT FORM.*** **So T26 is not only blocked on Sanaa's GEO-8 ruling; it has a builder defect that would have wasted the run regardless.**
+
+**MEASURED, THREE DETACHED BUILDS, ALL rc=0 THROUGH blockMesh/sfe/snappy/split/checkMesh.** `splitMeshRegions -cellZones -overwrite` produced **206 regions named `domain0…domain205`**, not four. **`constant/` carries no region directory of a registered name and the only inter-region patches are `domain0_to_domain1` — `chtMultiRegionSimpleFoam` cannot run on this mesh.**
+
+**THE CAUSE, AND IT IS ONE NUMBER.** **`fluid_env` is built as a 96-gon prism at circumradius 0.125000, and the duct shell occupies r ∈ [0.125, 0.130].** ***So the meshing envelope's outer wall IS the fluid/duct interface, and THE ENTIRE DUCT SOLID LIES OUTSIDE THE ENVELOPE.*** **The derived `duct` seed sits at r = 0.127500 — 2.500 mm OUTSIDE `fluid_env` — in the same connected region as the background box**, so the `duct` cellZone came out at **172,001 cells, 86 % of the mesh, spanning [−0.2095, +0.9321] to r ≤ 0.1912: the whole scaffolding box.** **`derive_seeds` checks that seed against hub/core/duct/strut membership and passes it; it never checks it against `fluid_env`, the one surface that BOUNDS THE DOMAIN.**
+- ***THE DEFECT IS CONFLATING TWO DIFFERENT OBJECTS: "the fluid region's outer surface" and "the meshing envelope".*** **The envelope must enclose ALL FOUR regions — circumradius ≥ 0.130 over x ∈ [0, 0.200] — while the fluid/duct interface stays at 0.125.** §21.12 registers `fluid_env` at 0.125000, so **the fix is an addendum, not a build detail.**
+- ***AND THE BONUS FINDING IS THE WORST ONE: `housing` r_max = 0.0376 = the hub outer radius EXACTLY. THE THREE STRUTS ARE NOT IN `housing`.*** **§3.1's GEO-7 union — *"the struts ARE that path, conjugate at both ends"*, the entire physical claim of this rung — did not form; the strut cells fell into the leaked `duct` zone.**
+
+**ORDER-INDEPENDENCE ALSO FAILS.** Three builds differing **only in the four `locationsInMesh` lines** (verified by diff: 4 lines, nothing else) give completely different meshes — reversing the order empties `housing` and `duct` entirely. ***And the lane's own inferred rule — "the last seed claims the exterior" — was REFUTED by the build it ran to test it: C came out bit-identical to A. It reported the refutation and did NOT guess a second time.*** **The 0.2521 mm clearance argument is not what broke — `core` and `housing` were correct and identical in A and C; the order-dependence enters through the env/duct pair.**
+
+**THE INSTRUMENT WORKED; THE MESH IS WHAT IS BROKEN.** `check_regions` was driven **both directions first** — accepts a synthetic four-region tree, refuses three (with either `core` or `duct` missing) and five, **reading the expected set from §3.1 rather than holding it** — then refused the real meshes correctly.
+
+**COST: 16.0 core-min MEASURED** (351 + 283 + 326 wall s at 1 rank, from each build's own `MESH_RC.txt`), plus ~0.5 for three `writeCellCentres` passes. **Disk stated ≤ 2.5 GiB before consuming; actual 355 MB.** Evidence outside the repository at `/home/ubuntu/certonomous-runs/T26_TOPOLOGY_PROBE_20260911/{A,B,C}/L1/`. ***Sixteen core-minutes to find a failure that would have consumed the whole ladder.*** **Caveat stated: `addLayers false` in the throwaway; the leak is a castellation-stage outcome so layers cannot change zone membership — REASONING, not a measurement.**
+
+**STANDING.** **T26 has TWO blockers now: Sanaa's GEO-8 ruling, and this builder defect which is OURS.** `T26_runs/` ABSENT, `build_t26.py` unmodified at `7fe4c81d6`, `INCLUDED_ANGLE` still the registered 30. **Stale `orchestrate_t26` bytecode from 17:55 — predating the 21:57 repair — cleared by me; selftest re-driven from source with `-B`, PASS.** **K2f unaffected: frozen `e42894dfc`, L1 built, BLOCKED ON THE CLASSIFIER ALONE.** **`T4e_IJ_f` untouched; A2 watch PPID 1, falsifier 3 NOT fired.**
+
+**Section last written:** 2026-09-11T22:40:00Z by heat-transfer-supervisor personally, clock read. Newest block is **update 125**.
+
+
+
 ##### heat-transfer 2026-09-11 (update 124): **THE ANSWER CAME BACK BIGGER THAN THE QUESTION — GEO-8 FAILS ON THE DUCT AT ALL THREE LEVELS OF THE REGISTERED LADDER, AND MY OWN §21 RULING TONIGHT NEVER EVALUATED IT THERE.** ***ON SANAA'S DESK: a frozen gate that cannot be satisfied on this geometry in this box.***
 
 **THE "≥2 CELLS" WAS MINE.** It came from my own brief to the lane — *"whichever of those clears ≥2 cells through the wall at the COARSEST level"* — **and I then asked the lane whether it was registered, as if it had come from somewhere else.** ***Checking a number I introduced by asking somebody else where it came from is the worst version of a supervisor's question.*** The lane answered it straight rather than absorbing it.
