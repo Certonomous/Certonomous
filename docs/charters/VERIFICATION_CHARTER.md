@@ -10234,3 +10234,42 @@ Not defiance, and not ignorance on their part. **I wrote three lane briefs this 
 | clauses of mine refuted by me | **2** · sweeps RELEASED from a condition that never discriminated | **1** (`§2cx`'s arming sweep) · sweeps still deferred on a MEASURED ground | **1** (the same one) |
 | desk items opened for Sanaa | **2** (an IO-pressure threshold; lane provenance in the process table) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.98, 2026-09-11 — **§2da AN OpenFOAM *CAPABILITY GAP* STOPS THE WORK; AN OpenFOAM *DEFECT* IS A BREAKAGE THE SUPERVISOR FIXES — AND THIS CHARTER'S `§2cv` PARAGRAPH PUT `snappyHexMesh`'s NEGATIVE-VOLUME DEFECT ON THE WRONG SIDE OF THAT LINE**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** Occasioned by an owner directive relayed through the chief. **This clause RELEASES work; it makes nothing refuse (`D539`) and moves no gate, threshold or verdict.** `[lab-attributed]` as to the reading; the directive itself is `[SANAA-DIRECT]`.
+
+### §2da — **THE DISTINCTION, IN HER OWN WORDS**
+
+Sanaa, 2026-09-11 ~16:00Z, byte-exact:
+
+> **no when i said openfoam issue i meant openfoam capabilties. The team can proceed to fix with what its supervisor decides the fix is.**
+
+This reads back onto her 2026-09-10 16:15Z directive — *"Per usual the fixes continue UNLESS It's an openfoam issue. Else I want to see the runs."* **The carve-out was never about OpenFOAM code being broken. It is about OpenFOAM not being ABLE to do the thing.**
+
+> **RULED — §2da, the test, and it is one question:** *could OpenFOAM do this if it were working correctly?*
+> - **NO — a CAPABILITY GAP.** The solver, library or utility does not implement it, or cannot represent the physics asked of it. **This stops the work.** It is surfaced to her as a run and its evidence; no workaround is invented; no agent decides to route around a missing capability.
+> - **YES — a DEFECT, CRASH OR BREAKAGE.** A wrong answer, a silent corruption, an exception, a tooling or build failure. **This is ordinary breakage: the OWNING SUPERVISOR decides the fix and proceeds**, `[lab-attributed]`, frozen, costed, queued, and **surfaced on the board either way.**
+>
+> **SURFACING IS UNIVERSAL AND IS NOT THE THING THAT WAS EVER CONDITIONAL. Only the STOP belongs to the capability gap.** The 16:15Z phrase *"surfaced, not worked around"* was carrying both duties at once, and that conflation is what this clause ends: **everything is surfaced; only a missing capability halts.**
+
+### §2da.1 — **THE CORRECTION THIS CHARTER OWES AGAINST ITSELF**
+
+`§2cv`'s closing paragraph (v1.94, at line **10078**) reads: *"the `snappyHexMesh` defect is **an OpenFOAM issue**, and the owner's standing directive is that OpenFOAM issues are **surfaced, not worked around**."*
+
+**Under §2da that classification is WRONG, and it is wrong in the direction that costs a team its work.** The defect `§2cv` records is `snappyHexMesh` **producing 52,165 negative-volume cells of 128,230 — 40.7 % of the mesh — while printing all-zeros on its own final check and `"Finished meshing without any errors"`.** A mesher that silently emits invalid cells and reports success is **not OpenFOAM declining to do something it cannot do. It is OpenFOAM doing it wrong.** That is a defect, therefore a breakage, therefore **cfd's supervisor decides the fix and proceeds.**
+
+**cfd IS UNBLOCKED ON THIS ITEM BY THIS CLAUSE**, and the unblocking is the point of writing it the same hour the directive landed. **The choice of fix is cfd's, not mine** — I classify, I do not prescribe their mesh route.
+
+**AND WHAT IS NOT TOUCHED, stated so nobody reads a release where there is none: RULE 7 IS UNCHANGED.** The drafted upstream defect report stays **`NOT FILED` and PARKED**. **Fixing is not sending.** The lab repairing its own mesh has no bearing whatever on whether a report leaves this box, and **nothing leaves the box except by Sanaa** (rules 7, 8). *Parked is not cancelled*, and no reading of `§2da` converts a proceeding fix into a filed report.
+
+**MEASURED, NOT ASSUMED, ON THE OTHER TWO CHARTERS I WAS ASKED ABOUT:** `docs/charters/CASE_PROTOCOL_CHARTER.md` contains **no occurrence of the token `openfoam`, case-insensitive** — it does not carry the 16:15Z clause in any form, so there is nothing there to append, and it is **Sanaa's byte-exact text and not mine to amend** regardless. `docs/charters/RESULT_PRIORITY_CHARTER.md`: **likewise zero occurrences.** **This charter was the only one of the three carrying it, and it carried it wrongly.**
+
+| amendment record | **v1.98** |
+|---|---|
+| clauses added | **2** (§2da, §2da.1) · existing clause CORRECTED IN ITS CLASSIFICATION | **1** (`§2cv`'s closing paragraph, by appended addendum — the line is NOT edited, rule 6) |
+| gate values changed | **0** · thresholds adjusted | **0** · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
+| teams UNBLOCKED | **1** (cfd, on the `snappyHexMesh` negative-volume defect) · standing rules relaxed | **0** (rule 7 expressly reaffirmed) |
+| **lines whose number changed above this section** | **0** |
