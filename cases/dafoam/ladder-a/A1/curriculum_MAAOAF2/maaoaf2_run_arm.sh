@@ -84,11 +84,11 @@ PREFIX=maaoaf2
 REGISTERED_BASE=/home/ubuntu/certonomous-runs/MAAOAF2-ma288-init
 IMG=dafoam-idwarp-rot:v1TAG
 IMG_ID_EXPECT=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
-MD5_RUNSCRIPT_SRC_EXPECT=__MAAOAF2_UNFROZEN__SRCMD5
-CPUSET_M1=__MAAOAF2_UNFROZEN__CPUSETM1
-CPUSET_M2=__MAAOAF2_UNFROZEN__CPUSETM2
-CPUSET_M3=__MAAOAF2_UNFROZEN__CPUSETM3
-CPUSET_M4=__MAAOAF2_UNFROZEN__CPUSETM4
+MD5_RUNSCRIPT_SRC_EXPECT=bd22df020be42fbd2eef14cbc25182f7
+CPUSET_M1=8
+CPUSET_M2=9
+CPUSET_M3=10
+CPUSET_M4=11
 # A file CANNOT check its own md5 -- writing the hash into the file changes the
 # hash.  There is NO md5-of-this-runner slot.  This runner's md5 and the
 # grader's are recorded in PREREGISTRATION.md at the freeze commit and verified
