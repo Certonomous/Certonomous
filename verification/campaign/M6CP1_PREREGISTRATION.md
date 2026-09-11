@@ -1375,3 +1375,40 @@ degeneracy that our writer could not.** That is exactly the scope caveat the lan
 generalise past — *"this condemns collapsing MY O-ring, not whatever pyHyp does at the tip."*
 **Whether the resulting VOLUME mesh clears a full-flag `checkMesh` is unmeasured and is now the real
 question.**
+
+---
+
+## ADDENDUM 10 — 2026-09-11, cfd `lab-lane`. **THIRD-PARTY CORROBORATION OF ONE MECHANISM, AND NOTHING WIDER.**
+
+**lines whose number changed above this section: 0.** Pure append, proven by hashing the
+pre-existing lines against the committed blob. **No gate, threshold, cap, band or label
+is altered, and Amendment 2's `NOT A RESULT` park stands untouched.**
+
+**One point only.** While building the M6C2 successor line, pyHyp — dafoam's hyperbolic
+extruder, the standard ONERA M6 route, with no stake in this lab's reasoning — was run
+on an **uncapped** M6 surface with A3's own option `unattachedEdgesAreSymmetry True`. It
+exited **rc = 0** after reporting *"Normals are consistent"* and *"Topology complete"*,
+and **refused**:
+
+    ERROR: A free corner or other topology that is not an edge was detected with
+    the unattachedEdgesAreSymmetry option. This option can only be used for
+    configurations that become closed when mirrored.
+
+**Mirroring about the root plane closes the root; an uncapped tip leaves a free corner,
+and the tool will not proceed.** Therefore **A3 cannot be running root-symmetry to
+tip-symmetry — the tool would not permit it** — which is consistent with the direct read
+of A3's own surface, whose tip is closed across 9 zones.
+
+**WHAT THIS ESTABLISHES AND WHAT IT DOES NOT.** It establishes **one mechanism**: a
+hyperbolically extruded M6 of this class must have a closed tip, so a tip-symmetry
+configuration is not what A3 ran. **It is corroboration from a source with no stake in
+the argument, and that is its whole value.**
+
+**It does NOT re-argue Gate P, and it does NOT bear on whether Gate P would have passed
+or failed on any mesh.** No gate is evaluated here, no value is produced, and nothing in
+this addendum may be read as narrowing or widening §5's Gate P. Evidence for the
+verdict `NOT A RESULT` recorded in Amendment 2 is unchanged.
+
+**Artifacts:** `verification/runs/M6C2_runs/L1/log.pyhyp_noseam` (the refusal, rc = 0 in
+`rc.pyhyp_noseam`); `run_pyhyp_noseam.py` (the invocation). **Cost: container work only,
+inside the ≈ 10 core-min recorded against the M6C2 leg; no separate spend.**

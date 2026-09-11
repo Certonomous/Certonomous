@@ -670,3 +670,90 @@ registered next step and it is new work, not a fourth parameter.**
    numbers alone.
 
 **Total cost: ~75 core-min, single-rank Python meshing. No solver core-seconds. Nothing deleted.**
+
+---
+
+## ADDENDUM 1 — 2026-09-11, cfd `lab-lane`. Document version v1.0 → v1.1. **THE M6 MESH LINE IS `BLOCKED`.**
+
+**lines whose number changed above this section: 0.** Proven by hashing the pre-existing
+lines against the committed blob, not asserted. Pure append; no gate, threshold, cap,
+band or label is altered. **§13's freeze block remains BLANK — check 4 is the
+cfd-supervisor's and nothing here forecloses it.**
+
+### A1.1 VERDICT: `BLOCKED`
+
+**Not `GATE FAIL` — nothing was graded. Not `NOT A RESULT` — no value was produced.
+`BLOCKED`: three mesh topologies were built and each carries a measured objection, so
+no admissible mesh exists and no solver can be launched.**
+
+| # | topology | measured objection | evidence |
+|---|---|---|---|
+| 1 | structured O-grid + **flat cap by structured interior fill** | **false corner; max non-orthogonality 66.57° at L1 but 70.99° at L2 against a gate of 70**, and the defect **WORSENS under refinement** (2-D lens 63.34 / 70.88 / 76.62 across the three levels). All 72 over-gate faces at L2 are the one corner. | `M6C1_runs/L1`, `M6C1_runs/L2` `log.checkMesh` |
+| 2 | **rounded tip by collapsing the O-ring** | **9 failed mesh checks**; `checkMesh` reports *a hole in the boundary description*, **566 cells at openness 1** — not closed at all — 747 misoriented face pyramids, 605 concave cells. **The line collapse (the form used in practice) is WORSE than the point collapse: 179.77° against 170.99°.** | measured 2026-09-11 |
+| 3 | **pyHyp hyperbolic extrusion** (dafoam's A3 route) | **uncapped: pyHyp REFUSES, rc = 0** — *"A free corner … `unattachedEdgesAreSymmetry` … can only be used for configurations that become closed when mirrored."* **Capped by collapse: segfault, rc = 139, before the orientation check.** A valid cap is a multi-patch surface, which is topology 1's fill problem returned. | `M6C2_runs/L1/log.pyhyp_noseam`, `rc.pyhyp_final` |
+
+### A1.2 WHAT WOULD UNBLOCK IT, CONCRETELY
+
+**A multi-patch tip-cap SURFACE in A3's style.** A3's `m6_surfaceMesh_fine.cgns` carries
+**9 zones** — including 17×17 and 257×17 patches over the tip band — so such a cap
+demonstrably exists and the construction is possible. **Nobody is attempting it now.**
+Everything upstream of the cap is built and verified and a successor inherits it:
+the source-faithful section, the conical loft (**t_TE/c = 1.4104000e-03 at every one of
+20 stations**), the exact ×1.5 family, the annulus at **60.83° with ZERO severe faces in
+the wing region**, the three-level surface family, regenerated deterministically in seconds by
+`verification/runs/M6C2_runs/surface/build_surface.py` (the `.xyz` bulk is not
+committed; the generator is), and the body-comparison instrument
+`verification/runs/M6C2_runs/surface/compare_body.py`, which is plant-controlled
+against both failure modes dafoam measured.
+
+### A1.3 🔴 A PREDICTION THAT WAS NEVER TESTED, AND IS NOT RESOLVED IN ITS OWN FAVOUR
+
+Before building topology 3 this lane registered: *if the outward/inward normal
+asymmetry is the governing mechanism, the extruded family clears both hard gates at
+every level.*
+
+**It is NOT falsified and NOT confirmed. pyHyp never reached the extrusion on a valid
+capped surface, so the prediction was never tested.** The asymmetry finding — outward
+marching diverges and is stable, inward marching converges and folds — **stands on the
+annulus evidence alone, exactly as strong as it was, and no stronger. A prediction that
+could not be tested is not a prediction that was right.**
+
+### A1.4 🔴 A GENERAL MESHING HAZARD, WORTH MORE THAN THIS CASE
+
+**A ZERO-LENGTH EDGE IS REPORTED AS `NaN` IN A QUALITY COLUMN, NEVER AS AN ERROR, AND
+THE TOPOLOGY CHECKS PASS STRAIGHT OVER IT.** Same geometry, same tool, one duplicated
+seam column apart:
+
+- **with** the duplicate: **27 `NaN`s and rc = 139**, while pyHyp still printed
+  *"Normals are consistent"* and *"Topology complete"*;
+- **without** it: **rc = 0** and an explicit, readable refusal.
+
+**The NaN column was the only signal.** This lane nearly read the segfault as *"pyHyp
+cannot take this geometry"* when the fault was in its own surface file.
+
+**Two tool defects, each proven by a planted control rather than inferred:**
+1. **`cgns_utils plot3d2cgns` cannot read the output of its own sibling `cgns2plot3d`** —
+   identical `Fortran runtime error: End of file` at `cgns_utilities.F90:2616` on a file
+   the toolchain itself wrote from a known-good CGNS (`M6C2_runs/L1/rc.ctl` = 2). **Two
+   reformattings of this lane's own file were spent before the control was run.**
+2. **The `cgnsutilities` CGNS writer rejects a 2-D zone whose dims and coords match the
+   reference file's exactly** — `Invalid input: VertexSize[0]=201 and CellSize[0]=64`.
+
+**Both are bypassed by pyHyp's `patches` option, which takes the surface as numpy arrays
+and needs neither tool.**
+
+### A1.5 COST (rule 12) — ACTUAL AGAINST §10, AND §10 DID NOT COST THE THING THAT KILLED THE CASE
+
+**Actual: ≈ 85 core-min**, all single-rank Python meshing and container work —
+≈ 75 on topologies 1 and 2, ≈ 10 on topology 3. **$0.0727 DERIVED, NOT MEASURED** at
+$0.0513/core-h; the box cannot read its own billing.
+
+**Against §10's estimate of 24,170 core-min: 0.35 %.** But the ratio is not the finding.
+**§10 estimates the SOLVE triple and budgets NOTHING for mesh construction — and mesh
+construction is where the entire case died.** Not one core-second of the 24,170 was
+spent, because no admissible mesh was ever produced to spend it on. **The
+estimate-versus-actual lesson here is not a misprediction of rate; it is a missing line
+item.** A registration that costs only the solve cannot see a case that never reaches one.
+
+Rule 12's calibration row is owed to `docs/COST_CALIBRATION.md` and is **not** discharged
+by this addendum.

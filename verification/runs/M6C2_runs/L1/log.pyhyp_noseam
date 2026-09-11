@@ -1,0 +1,16 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+  patches: 1  shape (200, 57, 3)
+#--------------------#
+ Total Nodes:   11400 
+ Unique Nodes:  11400 
+ Total Faces:   11144 
+#--------------------#
+ Normal orientation check ...
+ Normals are consistent!
+ Determining topology ...
+ Topology complete.
+ ERROR: A free corner or other topology that is not an 
+ edge was detected with the unattachedEdgesAreSymmetry option.
+ This option can only be used for configurations that become 
+ closed when mirrored.
