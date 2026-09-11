@@ -223,3 +223,19 @@ pristine tutorial clone + the commands and edits documented above):
 `/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/`,
 `/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-coarse/`,
 `/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-vcoarse/`.
+
+---
+
+## NOTE — 2026-09-11 — **A3's MESH GEOMETRY DIFFERS FROM THE AGARD REFERENCE IT IS VALIDATED AGAINST: the upstream surface CLOSES a trailing-edge base the reference leaves BLUNT.** Established jointly with the cfd team; no A3 verdict moves.
+
+**What the reference says.** `models/onera_m6/agard_ar138_table_b1_1_section_coordinates.dat` (AGARD AR-138 Table B1-1, 72 rows, title-page verified under rule 15) runs a **constant 7.06° half-angle taper right to `x/l = 1.0000000` and TERMINATES AT A BLUNT BASE of half-thickness `z/l = 7.052e-4`. There is no rounded cap in the reference.**
+
+**What A3's mesh has.** A 7.05° taper — **faithful to three digits** — and then a **ROUNDED CAP over the last ~0.4 % of chord**, slopes 0.123 → 0.889 → 5.33, closing the section to a point. **Zero cells across the trailing edge.**
+
+**The cross-check, re-derived by me rather than accepted:** `7.052e-4 × 0.8059 m` root chord = **5.6832e-04 m** against A3's measured base half-thickness of ~5.7e-4 m — **0.295 % agreement** — and the reference's own last panel computes to **7.06°** against A3's measured 7.05°. **So the taper is right and the closure is added.**
+
+**WHY IT IS RECORDED HERE.** A3's validation compares surface `Cp` against **AGARD AR-138 Case 2308** — the same document family — so the computed flow is over a geometry that **differs from the experiment's in a measured way**, at the trailing edge, by an added closure of a base `7.052e-4` of chord. **Every A3 artefact inherits it**, because every one descends from the same upstream `m6_surfaceMesh_fine.cgns`.
+
+**WHAT THIS DOES AND DOES NOT CHANGE.** **No A3 verdict moves and nothing is withdrawn.** The difference is small (base ≈ 0.07 % of chord) and the shocks sit at `x/c` 0.222–0.672, far upstream; the `Cp` comparison's own disagreement is on the **upper surface**, and its span pattern **changes sign** (+0.096c at η=0.20 to −0.001c at 0.80), which a span-uniform TE feature cannot produce. **But it is now a NAMED difference between our geometry and the reference rather than an unexamined assumption, and any A3 result quoted against AGARD should carry it.** **UNMEASURED: whether the added closure moves `Cp` at all.** That needs a run on a surface built to the reference's blunt base, which does not exist.
+
+**PROVENANCE:** the reference coordinates and their reading are the cfd team's; the A3-side geometry measurements and the two cross-checks above are mine. The finding also corrected a committed cfd claim — their "scale-invariant 60.9° cusp half-angle" was three samples of one chordwise spacing law, not three samples of the geometry.
