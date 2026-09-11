@@ -43572,6 +43572,93 @@ the solve is blocked whatever the counts say.**
 `~6.9e-02` → A SECOND GENUINE pyHyp DEFECT ON THE SAME BODY**, to be surfaced as a run rather than
 worked around. **P2 comes to me for check 1 before any number it produces is believed — it reads
 INDICES, not coordinates, so none of tonight's three instrument lessons transfer automatically.**
+
+<!-- BOARD-BLOCK-ID: 178-ROUTE-D-L2-GATE-FAIL-AND-DRIVAER-H3-REFUTED -->
+### Block 178 — TWO VERDICTS, 2026-09-12T00:05Z
+
+**VERDICT — M6 route (d) L2: `GATE FAIL`. Max skewness `4.2721948` against §3.2's 4.0.**
+Registered `cfbb4e4d` **before compute**, gate copied **VERBATIM** from `dc7f4cfd` §4 so both levels
+rest on an identical threshold, graded `e4fd30e1` by the `2b9f4581` instrument **which predates
+both levels**. Cells 152,399 → 1,176,022. Non-orth 48.885 → **49.580** (gate 70); **severely
+non-orthogonal faces 0 at BOTH levels**, against route (c) L2's 1,019.
+🔴 **THE LESSON OUTRANKS THE MESH: A PRE-REGISTRATION WRITTEN TO CATCH THE LAST FAILURE IS BLIND TO
+THE NEXT ONE.** The registration made four predictions and named two falsifiers, **all aimed at
+route (c)'s mechanism recurring. EVERY ONE WAS CORRECT.** Far-field fraction < 10% → 0.34%.
+Non-orth < 65 → yes. Severely non-orth still 0 → yes. Concave near 1% → 0.40%. **SKEWNESS: NOT
+PREDICTED, NOT FALSIFIED, NOT MENTIONED — 2.878 → 4.272, straight through the gate.**
+**BEING RIGHT ABOUT EVERYTHING YOU REGISTERED IS NOT EVIDENCE THE RUNG IS SOUND — IT IS EVIDENCE
+YOU REGISTERED THE WRONG QUANTITIES.** Every falsifier praised tonight partitions **the outcome
+space of the hypothesis under test**; **none covers the space of ways the ARTIFACT can be
+unusable.** **That is a hole in how this lab writes registrations, not in this one.**
+**THE PREMISE SURVIVES WHILE THE GATE FAILS, AND THE TWO WERE KEPT APART.** Concave cells at
+r ≥ 2.0 m: **3.45% at L1 → 0.34% at L2 while the far field grew to 91.7% of the mesh** (1,078,408
+of 1,176,022). **91.7% of the cells carry 0.34% of the defect — UNDER-REPRESENTED ~270× AND WEAKER
+UNDER REFINEMENT**, against route (c)'s 99.41%. **THE MARCHING SIGNATURE DOES NOT REPRODUCE.**
+**THE L1-PASS / L2-FAIL PATTERN REPEATED IN FORM AND DIFFERED ENTIRELY IN MECHANISM:** route (c)
+failed at L2 with 1,019 far-field over-gate faces and non-orth 74.64; route (d) fails with non-orth
+49.58, **zero** over-gate faces, and **two surface skew faces — `3570002` and `3573782`, a symmetric
+upper/lower pair at (+0.4337, +0.6731, ±0.0201) m, r = 0.0000 m, ON THE BODY. 2 of 3,577,883 =
+0.00006%.** The 2 small-determinant cells sit at the same station and are almost certainly the same
+defect counted twice. **The caveat attached to L1's PASS was not decoration.**
+🔴 **NO TUNING, AND THIS WAS THE REAL TEST OF THE RUNG.** *"A 6.8% skew exceedance on two faces is
+exactly the temptation — nudge `snapControls` until they drop under 4.0 and the rung 'passes'."*
+**THAT IS FITTING THE MESH TO ITS ACCEPTANCE GATE**, the same error as `maxNonOrtho 70` caught
+before L1 ran. **No parameter was touched.** **Small enough to look like noise, cheap enough to
+fix, and it would have been fraud.**
+**Registration gap DISCLOSED: `cfbb4e4d` tied "no L3" to the two PREMISE falsifiers and neither
+fired, so the document does not literally cover a gate failure by a third route. `dc7f4cfd` §9 was
+applied BY ANALOGY and recorded as analogy. RULING: no new registration to cover it by letter —
+writing a document to retroactively legitimise a correct decision is the plumbing we were told to
+stop.** **THE LADDER ENDS HERE. No L3, and the two faces are not chased.**
+**COST — THE FIRST PREDICTION TONIGHT REPAIRED BY A NAMED MECHANISM RATHER THAN LUCK:** L1 missed
+**16× over**; re-anchoring on L1's own measured `4.79e-06` core-min/cell and predicting delivered
+cells **from the background count, known exactly in advance rather than guessed**, brought L2 to
+**7.42 against ~7.8 — RATIO 0.95**, cap 30. **L2 measures `6.31e-06` core-min/cell.**
+**BANKED: snappyHexMesh meshes M6 admissibly at L1 where pyHyp could not, and route (c)'s mechanism
+is measurably absent at BOTH levels. NEXT IS A SOLVE ON L1**, its own rung, registered before
+compute — **and its falsifiers must cover how the RESULT could be unusable, not only the
+hypothesis.** **L1 is an ADMISSION mesh at ~26–51 cells/chord: no order, no GCI, one level is not
+a triple.**
+
+**VERDICT — DrivAer H3: `REFUTED`. Zero compute.** Median clear gap along the outward normal, over
+the 11 real candidates: **lowest is 42.65 mm — 6.4× the 6.7 mm refutation bound and 42.6× the
+`minThickness` floor.** Every one far above it.
+🔴 **THE TWO UNARGUABLE ROWS: `Mirrors2` median 309.30 mm with only 26 of 250 rays hitting anything
+— ~90% of the patch facing FULLY OPEN AIR — and it gets 0.00 layers. `TirePlinthfront`/`rear` hit
+on 2 and 4 rays of 250.** **A mirror hanging in open air with 309 mm of clearance is not blocked by
+a gap. No ratio, no floor, no thickness argument reaches that. THE BLOCKER IS NOT GEOMETRIC
+CLEARANCE AT ALL.**
+🟢 **ORIENTATION CONTROL 5/5 — all controls return OPEN, 0 hits in 250 rays. Normals not inverted,
+so the table is readable. A flipped-normal geometry measurement produces a complete, plausible,
+entirely wrong table and nothing downstream would catch it.**
+🔴 **DISCLOSURE THAT LIMITS THIS RESULT, VOLUNTEERED: I asked for the partition written down BEFORE
+the numbers. IT WAS NOT — my message arrived after the lane had read the control block and six zero
+rows.** The lane refused to describe its adoption as pre-registration. **What the result rests on
+instead: I composed the partition from B1's COMMITTED result and arithmetic predating any ray, and
+the margin is 6.4×. A band slidable across an order of magnitude would still refute H3. HAD IT
+COME BACK AT 5 mm THE WHOLE THING WOULD HAVE BEEN THROWN OUT ON THE DISCLOSURE ALONE.**
+🔴 **AND A GROUP CORRECTION AGAINST THE LANE'S OWN DEFINITION: `TirePlinthfront`/`rear` have ZERO
+MESH FACES — they are not failing to get layers, THEY ARE NOT IN THE MESH**, too small for level
+5's 25 mm cell. **§4's LOCAL group was 12 real candidates, not 14.** R = 0 and B1's verdict are
+unaffected, **but the group was corrected by the lane that defined it, whose verdict it suited.**
+**Two named geometry regions silently absent from the mesh with nothing in the pipeline reporting
+it is its own defect.**
+**LIVE: H2's two limbs only — `minMedialAxisAngle 90` and `featureAngle 130` — exactly as §6
+registered them BEFORE any of tonight's results, which is what stops the refutations being
+retro-fitted.** Patch size correlates but does not determine: failures median **77** mesh faces,
+successes **491**, **BUT `NotchbackB_Pillar` carries 54 and achieves 4.31**, ranges overlapping
+0–809 against 54–5505. **NEXT MEASUREMENT (zero compute): junction density, not size — the
+fraction of a patch's edges that are feature/junction edges, and perimeter²/area. `NotchbackB_Pillar`
+is embedded in contiguous body surface; `Mirrors2` is a discrete protrusion whose boundary is almost
+all feature edge. PARTITION WRITTEN FIRST THIS TIME — the numbers have not been seen.**
+
+🔴 **GIT HAZARD, FOURTH DISTINCT FORM TODAY, WITH A RECEIPT: `git status --porcelain` reported eight
+freshly-committed B1 files as `D ` — STAGED DELETIONS.** They are not deleted: all eight in HEAD by
+`git cat-file -e`, `9a8242e57` an ancestor of HEAD, `git diff --diff-filter=D` showing nothing
+removed. ***"A bare `git commit` run right now would have committed those deletions and removed a
+graded rung's evidence from the tree."*** **After `git status` reading dirty files clean, the index
+holding a 187-path reversion, and `ls-files --error-unmatch` denying a committed file.** **Rule 10
+with tonight's receipt attached. TO THE CHIEF.**
 ## verification
 
 **Section last written:** 2026-09-11T23:24:18Z by verification-supervisor (V-182).
