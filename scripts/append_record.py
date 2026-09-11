@@ -759,6 +759,37 @@ KNOWN_EXCLUDED = {
         r"^\|[ \t]*C-20260909T183500\.000000Z-t23g2rn[ \t]*\|",
         r"^\|[ \t]*C-20260909T193000\.000000Z-m1ccomp[ \t]*\|",
         r"^\|[ \t]*C-20260909T214553\.000000Z-supbe1[ \t]*\|",
+        # A NINTH hand-landed poison row, and THE RECURRENCE IS THE FINDING
+        # (verification 2026-09-11). Measured on HEAD's blob at :522 -- cfd's
+        # MRF_R1 rule-12 row, commit `6af542b6d`, id
+        # C-20260910T230023.521144Z-mrfr1a1. Its body `mrfr1a1` is 7 chars and
+        # NON-hex, so it fails TOOL_ID_BODY (`\.\d{6}Z-[0-9a-f]{8}`):
+        # `tool_id_pattern` correctly does NOT recognise it and the legacy id
+        # pattern parses NO id from it, yet it matches the id-bearing candidate
+        # shape. Clause 1b (which audits HEAD's WHOLE blob) therefore refused
+        # EVERY team's rule-12 COST_CALIBRATION append at exit 7 -- a lab-wide
+        # block, REPRODUCED BEFORE REPAIR 2026-09-11 (`--dry-run` with a
+        # well-formed probe row and `--allocate-id`: exit 7, EXACTLY ONE
+        # offender named, this line and nothing else).
+        # SAME RULING as the eight above, reaffirmed by verification: exclude by
+        # EXACT id -- NOT by widening TOOL_ID_BODY and NOT by a "malformed body"
+        # pattern. A body pattern loosened to admit mnemonic/non-hex suffixes
+        # would legitimize hand-typed ids and hollow the smuggle guard;
+        # `--allocate-id` is the SOLE minter, and a well-formed 8-hex id is
+        # already cleared by `tool_id_pattern` with no exclusion at all.
+        # This stays a real data row: `parse_ids` NEVER SAW IT (it parses no id
+        # from it either way), this register feeds `shape_audit` ALONE, and
+        # append-only rule 1 is intact -- ZERO rows edited. cfd may append a
+        # CORRECTION ROW re-issuing a valid `--allocate-id` id.
+        # THE NINTH INSTANCE IS ITSELF THE FINDING: hand-landing a row through
+        # the private index bypasses `--allocate-id`, so the mechanism recurs
+        # once per team per hand-landed row. The exclusions clear each block;
+        # they do not address the cause. PREVENTION remains: a tool-form id is
+        # MINTED by `--allocate-id`, never hand-typed.
+        # A DIFFERENT non-excluded mnemonic body -- including one sharing this
+        # row's EXACT timestamp -- still refuses (near-miss control), so the
+        # guard is not blinded and the exclusion did not over-reach.
+        r"^\|[ \t]*C-20260910T230023\.521144Z-mrfr1a1[ \t]*\|",
     ),
 }
 
@@ -3690,7 +3721,14 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                          "| C-20260909T171040.973304Z-t23g2rl3 | 2026-09-09 | heat-transfer | probe |\n",
                          "| C-20260909T183500.000000Z-t23g2rn | 2026-09-09 | heat-transfer | probe |\n",
                          "| C-20260909T193000.000000Z-m1ccomp | 2026-09-09 | closure | probe |\n",
-                         "| C-20260909T214553.000000Z-supbe1 | 2026-09-09 | cfd | probe |\n"),
+                         "| C-20260909T214553.000000Z-supbe1 | 2026-09-09 | cfd | probe |\n",
+                         # NINTH exact-excluded id (2026-09-11): cfd's MRF_R1
+                         # row at HEAD :522, body `mrfr1a1` -- 7 chars, NON-hex.
+                         # The (ii) limb proves it neither parses nor refuses
+                         # (the fix clears it) and the (ii-mutation) proves that
+                         # dropping the exclusion set refuses it again: the
+                         # register clears WITHOUT widening TOOL_ID_BODY.
+                         "| C-20260910T230023.521144Z-mrfr1a1 | 2026-09-10 | cfd | probe |\n"),
             # The struck exclusion needs the `~~` to OPEN the cell; a row that
             # is merely bold is an ordinary unparseable row.
             "near_miss": ("| **C-9105** annotated in-cell, never struck |\n",
@@ -3713,7 +3751,18 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                           # It MUST STILL REFUSE, proving the four exact-id
                           # exclusions did not blind the guard against future
                           # hand-typed mnemonic ids (still caught at clause 1b).
-                          "| C-20260909T171040.973304Z-t23g2rxx | 2026-09-09 | x | probe |\n"),
+                          "| C-20260909T171040.973304Z-t23g2rxx | 2026-09-09 | x | probe |\n",
+                          # DISCIPLINE CONTROL (2026-09-11): the SHARPEST
+                          # near-miss of this family -- it shares the ninth
+                          # exclusion's EXACT timestamp `20260910T230023.521144Z`
+                          # and differs ONLY in the 7-char non-hex body
+                          # (`mrfr1xx` vs `mrfr1a1`). No existing near-miss was
+                          # 7 chars or shared that timestamp, so this is not a
+                          # duplicate: it proves the anchored exact-id exclusion
+                          # matches the ID and not the timestamp prefix or the
+                          # body LENGTH, and that a future hand-typed 7-char
+                          # mnemonic id is STILL caught at clause 1b (exit 7).
+                          "| C-20260910T230023.521144Z-mrfr1xx | 2026-09-10 | x | probe |\n"),
             "furniture": ("| id | date | team | process |\n",
                           "|---|---|---|---|\n"),
         },
