@@ -43037,6 +43037,100 @@ also records the 15 GiB crossing to `CROSSED_15GiB.txt` **with the note that no 
 act on it and that it is a cross-team call** — the crossing is on the record even though nothing
 of ours will move. Route (d)'s grading path `2b9f4581` is frozen alongside `dc7f4cfd`, so whoever
 runs it inherits a fixed gate and a plant-gated reader.
+
+<!-- BOARD-BLOCK-ID: 171-DRIVAER-A1-GATE-FAIL-AND-THE-52K-NEGVOL-WAS-NEVER-A-MESH-PROPERTY -->
+### Block 171 — 2026-09-11T22:47Z
+
+**VERDICT — DrivAer A1 (`relativeSizes true`): `GATE FAIL` at 50.057%.** `58,479 / 116,825`
+layer cells, 23 refusals. §5's **middle** band — *"> 0% but < 70% → GATE FAIL — mechanism is real
+but `relativeSizes true` alone is not sufficient"* — **fired exactly as frozen at `41d4d1ffa`**
+(amendments `4b7597fe0`, `d29965a5e`); registration commit confirmed to EXIST, worktree == HEAD
+blob, graded by the guard **run from its HEAD blob**. **Exactly one change, verified by diff**
+(`relativeSizes false→true`, `firstLayerThickness 0.00075 → finalLayerThickness 0.5`,
+`minThickness 0.0003 → 0.02`); every other `system/` file byte-identical by `cmp`. Commit
+`01401740f`. **Cost 2.52 core-min vs 3 estimated, ratio 0.84, cap 15, within** — slight
+under-prediction, no waste, no contention; disk ~60 MiB vs 90 MiB derived.
+**MECHANISM CONFIRMED: 0% → 50.06%.** DIAG_v3 ladder collapses 26.69% → 0% over 32 iterations;
+A1 converges 85.00% → 72.30% in 8, removals decaying 1152→339→124→61→15→12. Snapped 128,230 →
+layer 186,709 cells, **`Mesh with layers` present, 0 illegal faces**.
+**WHY IT STILL FAILS, and it partitions the next experiment:** large smooth surfaces carry layers
+(`floorNoSlip` 4.62/5, `NotchbackRoof` 4.45/5, `BodyHood` 4.14/5); **small parts in tight gaps get
+NOTHING** — `Rims*`, `TirePlinth*`, `WheelSupport*`, `BrakeDisc*`, `Mirrors2`, `ExhaustSystem1`
+all **0.00/5**. `relativeSizes` fixed the **GLOBAL** aspect-ratio problem; the wheel/underbody
+region is **LOCAL** (`maxThicknessToMedialRatio 0.3` biting in tight gaps). **A different
+experiment: its own pre-registration, committed before compute, with its own band. A1's is NOT
+extended.** **A2 NOT LAUNCHED — §4 makes it contingent on A1 `PASS`; launching it would run an arm
+the registration does not authorise.**
+
+🔴 **THE 52,165 NEGATIVE VOLUMES WERE NEVER A MESH PROPERTY. THERE WAS ONLY EVER ONE DEFECT.**
+**VERIFIED BY ME PERSONALLY from the mesh files (§3 check 3, not delegable):**
+`DIAG_v3_coarse_explicitSnap_tol2_layersFixed/constant/polyMesh` **points 157,745**, faces 410,969
+— **and `0/polyMesh` EXISTS with points 156,507.** `LAYERFIX_A1_coarse_relativeSizes/constant/
+polyMesh` points 221,464, faces 592,877 — **`0/polyMesh` ABSENT.**
+**DIAG_v3 CARRIES TWO polyMesh DIRECTORIES WITH DIFFERENT POINT COUNTS IN ONE CASE; A1 CARRIES
+ONE.** So `checkMesh -constant` on DIAG_v3 read **points from one mesh state against faces from
+another: the mesh it graded never existed.** **CONFIRMED BY MY OWN READ.**
+**NOT independently confirmed by me, and it must not travel as though it were:** the
+cross-attribution that 157,745 is snappy's *Snapped* points and 410,969 its *Layer* faces is the
+lane's reading — my grep did not match the log format. **The artifact is proved; the precise
+splice is corroborated, not confirmed.**
+**CONSEQUENCES.** (a) "52,165 neg-vol / 40.7%" is a **SYMPTOM of the zero-layer defect**, not a
+second defect, and can no longer reattach to the graded family — it is not a number about a mesh.
+(b) 🔴 **IT KILLS THE `mergeTolerance` REFUTATION RETROSPECTIVELY:** 1e-8 giving 52,248 against
+52,165 was **measuring the size of an index mismatch, which jitters meaninglessly between
+builds.** That experiment **never tested point merging**; the face-merging hypothesis dies the
+same way. **Both were fitted to an artifact — a refutation computed against a quantity that was
+not the quantity, at real compute cost.**
+(c) **RULE ADOPTED: a physically impossible value is evidence about the INSTRUMENT and it
+OUTRANKS every plausible-looking value reported beside it.** `max aspect ratio 2.78e+101` sat in
+the log the whole time; its neighbour 52,165 was believed for days **because it looked
+reasonable**. **The absurd number was the honest one; the plausible one beside it was the liar.**
+
+**DISK — THE 48 GiB/h ALARM WAS A BURST AND IS WITHDRAWN. NOTHING WAS STOPPED, NOTHING DELETED,
+AND IT WAS NOT ESCALATED UPWARD ON THAT NUMBER.** A lane measured 7.34 GiB gone in ten minutes
+(22:28:20Z 22.128 → 22:38:21Z 14.789 GiB) and escalated *"zero before ~23:00Z"*. **I re-measured
+before relaying: one clean 60 s window, `df` both ends, clock by `date -u` in the same invocation
+— `22:40:52Z 15,081 MB → 22:41:52Z 15,078 MB` = 3 MB/min ≈ 0.2 GiB/h, TIME TO ZERO 83.8 HOURS.**
+A 20 s per-process sweep found **one** writer above 1 MB — `snappyHexMesh -overwrite` pid 2365805
+in heat-transfer's `T26_TOPOLOGY_PROBE_.../D3/L1`, 44 MB/20 s and **bounded**; **no deleted-but-open
+file above 1 GiB box-wide.** The mesh lane measured the elbow independently (46 GiB/h across
+22:34–22:37, then 1.25 GiB/h, then 0.7) and was **eliminated as a cause by measurement**: zero
+bytes copied, and its `certonomous-runs/CRM_WINGALONE_meshes/` move was a **rename with `st_dev`
+66305 proved identical both sides — zero bytes, 45 minutes before the window.**
+🔴 **RULE ADOPTED — A RATE IS NOT A STATE.** `~48 GiB/h over the last nine minutes` was computed
+**across a burst and quoted as current**; the elbow at 22:37Z was **inside the data sent**. Before
+any extrapolation is acted on, **re-measure over the MOST RECENT interval and quote that, never
+the window average — and state both when they disagree.** Same defect as *clock audit before rate
+judgments*, arriving through a drain instead of a throughput. **It binds in BOTH directions: an
+instantaneous reading is not a baseline, and that includes the frightening ones.** The escalating
+lane withdrew it independently, naming it as the mirror of the trough error it had flagged in me
+an hour earlier. **Escalating on that data was still the right call** — days of two other teams'
+compute against a nine-minute delay is not a close asymmetry.
+**The 15 GiB crossing is REAL and recorded** (`CROSSED_15GiB.txt`, 22:37:39Z, free 14.806 GiB,
+fine at `Time = 4631`). **The 7.34 GiB consumer is UNIDENTIFIED and no culprit is named** — `du`
+timed out, nothing over 200 MB was recently modified, so it was many small files; the two
+half-gigabyte `rhoCentralFoam` logs were checked and are growing at **0.00 MB/30 s**, not the
+cause. **Not cfd: fine's entire tree is 1,321 MB and writes only at 4000 and 8000.**
+
+**M6 ROUTE (d) — THE BLOCKER WAS A FORMAT GAP, NOW CLOSED; THE BUILD STILL DOES NOT LAUNCH.**
+snappy could not consume the proven body at all: it is a **9-block structured PLOT3D surface and
+no M6 STL existed in the repo.** All three levels converted at **max |STL vertex − PLOT3D point| =
+0.000e+00**, so the AR-138 proof transfers unchanged; manifoldness zeros stated **at each
+resolution measured** (28,288 / 63,648 / 143,208 triangles) and **gated by a plant that fired
+every time.** Free is below the **20 GiB floor frozen in §10** and **the floor did not move when
+the panic ended** — a floor relaxed on relief is as broken as one relaxed on impatience.
+
+**Live:** MRF fine ~4,650/8,000, pid 2200481, ETA ~02:12Z. Detached and surviving their lanes:
+disk watcher 2286540, §9 on-landing reporter 2320899, fine watcher 2366411 (**keyed on the
+launcher, the process that writes `rc`**). Untouched: 316601 (ansys), 1233987 (heat-transfer).
+**Next:** fine lands → R2 triple, **both estimators printed side by side, NEITHER quoted alone** ·
+`COST_CALIBRATION.md` row for all three levels · DrivAer LOCAL-hypothesis registration ·
+route (d) when 20 GiB clears · **M6SR re-pin to `77fd1e8dda6a` still owed**.
+**On Sanaa's desk:** nothing from cfd.
+**To the chief:** `verification/runs/ansys_verification/VMFL017-R3/L3/log.rhoCentralFoam` is
+**521 MB, unbounded, git-ignored by `.gitignore:260`** — in no team's disk budget and only grows.
+**Blocked:** route (d) on disk · SUBOFF_A1 · CRM_M085 · M6C1 · M6 §A1.3 falsified, route (c)
+terminated · DrivAer A2 on A1's GATE FAIL.
 ## verification
 
 **Section last written:** 2026-09-11T18:21:09Z by verification-supervisor (V-181; `date -u` in THIS committing invocation). **CHARTER AT v2.01 (`af5272e0d`) — THE BOARD SWEEPS WERE NEVER A MISSING INSTRUMENT. THE CURE WAS ON DISK, GREEN, AND UNUSED, BECAUSE MY OWN V-175 RULING POINTED EVERY TEAM PAST IT. THIS BLOCK WAS COMMITTED BY THE NEW PATH.**
