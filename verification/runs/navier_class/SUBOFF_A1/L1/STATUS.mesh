@@ -1,0 +1,12 @@
+started_utc=2026-09-11T15:43:23Z
+surfaceCheck_hull_rc=0
+surfaceCheck_sail_rc=0
+blockMesh_rc=0
+decomposePar_rc=0
+snappyHexMesh_rc=0
+reconstructParMesh_rc=0
+checkMesh_rc_NOT_THE_VERDICT=0
+wall_s=578
+ranks=8
+core_min=77.06666666666666666666
+finished_utc=2026-09-11T15:53:01Z

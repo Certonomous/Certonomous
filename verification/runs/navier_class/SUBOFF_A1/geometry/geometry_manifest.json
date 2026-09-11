@@ -1,0 +1,38 @@
+{
+  "source": "Groves, Huang, Chang 1989, DTRC/SHD-1298-01 (AD-A210 642)",
+  "source_pdf": "docs/papers/benchmark_test_cases/groves_1989_dtrc_shd1298_darpa_suboff_geometry.pdf",
+  "title_page_verified_by": "RENDERED IMAGE of PDF page 1, cfd lab-lane 2026-09-11",
+  "table1_pages_report": "5-6",
+  "table2_pages_pdf_rendered": "14-15",
+  "configuration": "Configuration 2 -- axisymmetric body WITH FAIRWATER, zero incidence",
+  "units_emitted": "metres (source is feet, x0.3048)",
+  "hull": {
+    "L_ft": 14.291667,
+    "L_m": 4.3561001016,
+    "Rmax_ft": 0.8333333333333334,
+    "Dmax_m": 0.508,
+    "LoverD": 8.5750002,
+    "n_tris": 355840
+  },
+  "sail": {
+    "LE_ft": 3.032986,
+    "TE_ft_reference": 4.241319,
+    "chord_ft": 1.208333,
+    "zmax_ft": 0.109375,
+    "span_uniform_ft": 0.674479,
+    "y_cap_ft": 1.507813,
+    "root_hull_radius_at_LE_ft": 0.8321177122843233,
+    "n_tris": 225196
+  },
+  "REGISTERED_DEPARTURE_te_truncation": {
+    "reference_TE_half_thickness_ft": 0.0,
+    "reference_TE_closes_to": "a MATHEMATICAL POINT (exactly zero)",
+    "truncation_fraction_of_chord": 0.995,
+    "truncated_TE_x_ft": 4.235277335,
+    "base_half_thickness_ft": 0.002150417592608238,
+    "base_half_thickness_mm": 0.655447282226991,
+    "base_FULL_thickness_mm": 1.310894564453982,
+    "base_over_chord_percent": 0.3559312859299941,
+    "chord_removed_mm": 1.8414994919999075
+  }
+}

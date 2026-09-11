@@ -1,0 +1,69 @@
+{
+  "case": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1/L1",
+  "level": "L1",
+  "rule3_plant": {
+    "PLANT_N": 13,
+    "returned": 13,
+    "excluded_window_returned": 0,
+    "verdict": "ARMED"
+  },
+  "finest_cell_m": 0.0001537109375,
+  "truncated_base_full_thickness_mm": 1.310895,
+  "te_base_stations": [
+    {
+      "y_m": 0.248194828048,
+      "half_model_count": 5,
+      "full_base_equivalent": 10
+    },
+    {
+      "y_m": 0.27142057763733335,
+      "half_model_count": 5,
+      "full_base_equivalent": 10
+    },
+    {
+      "y_m": 0.29464632722666667,
+      "half_model_count": 5,
+      "full_base_equivalent": 10
+    },
+    {
+      "y_m": 0.31787207681600005,
+      "half_model_count": 5,
+      "full_base_equivalent": 10
+    },
+    {
+      "y_m": 0.34109782640533337,
+      "half_model_count": 5,
+      "full_base_equivalent": 10
+    },
+    {
+      "y_m": 0.3643235759946667,
+      "half_model_count": 5,
+      "full_base_equivalent": 10
+    },
+    {
+      "y_m": 0.387549325584,
+      "half_model_count": 5,
+      "full_base_equivalent": 10
+    },
+    {
+      "y_m": 0.4107750751733334,
+      "half_model_count": 5,
+      "full_base_equivalent": 10
+    },
+    {
+      "y_m": 0.43400082476266677,
+      "half_model_count": 5,
+      "full_base_equivalent": 10
+    },
+    {
+      "y_m": 0.4572265743520001,
+      "half_model_count": 4,
+      "full_base_equivalent": 8
+    }
+  ],
+  "te_base_full_equivalent_min": 8,
+  "te_base_full_equivalent_median": 10.0,
+  "GATE_M_b_1_TE_FLOOR": 8,
+  "n_cells_total": 3268613,
+  "NOTE": "counts are MEASURED from constant/C of a SCRATCH COPY; the graded tree was not written to. The gate verdict is the cfd-supervisor's."
+}

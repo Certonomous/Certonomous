@@ -85,11 +85,29 @@ def read_cell_centres(case, scratch):
         sys.stderr.write("REFUSED: writeCellCentres produced no constant/C. "
                          f"See {work}/log.writeCellCentres.\n"); sys.exit(2)
     txt = open(cpath).read()
+    # PARSE ONLY internalField.  Measured defect, 2026-09-11: slicing from
+    # "internalField" to EOF also swallows boundaryField, and the probe then read
+    # 3,495,646 "cells" against checkMesh's 3,268,613 -- 227,033 BOUNDARY FACE
+    # centres counted as cells.  The rule-3 plant does NOT catch this: it validates
+    # the COUNTER, not the PARSER.  So the parsed count is now CROSS-CHECKED against
+    # the header count that OpenFOAM itself writes, and the probe REFUSES on a
+    # mismatch.
     i = txt.index("internalField")
-    body = txt[i:]
+    j = txt.find("boundaryField", i)
+    body = txt[i:j if j > 0 else len(txt)]
+    m = re.search(r"internalField\s+nonuniform\s+List<vector>\s*\n?\s*(\d+)", body)
     vals = re.findall(r"\(([-0-9.eE+]+)\s+([-0-9.eE+]+)\s+([-0-9.eE+]+)\)", body)
     if not vals:
         sys.stderr.write("REFUSED: constant/C parsed to zero cell centres.\n"); sys.exit(2)
+    if m is None:
+        sys.stderr.write("REFUSED: constant/C has no internalField element count to "
+                         "cross-check the parse against.\n"); sys.exit(2)
+    declared = int(m.group(1))
+    if len(vals) != declared:
+        sys.stderr.write(f"REFUSED: parsed {len(vals)} cell centres but constant/C "
+                         f"declares {declared}. The parser is reading something that "
+                         f"is not a cell centre.\n")
+        sys.exit(2)
     return np.array(vals, dtype=float), work
 
 

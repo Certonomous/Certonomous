@@ -1,0 +1,49 @@
+{
+  "level": "L1",
+  "base_cell_m": 0.0787,
+  "background": {
+    "nx": 140,
+    "ny": 76,
+    "nz": 38,
+    "cells": 404320,
+    "bbox": [
+      [
+        -2.0,
+        -2.9906,
+        0.0
+      ],
+      [
+        9.018,
+        2.9906,
+        2.9906
+      ]
+    ]
+  },
+  "levels": {
+    "hull": 4,
+    "sail": [
+      6,
+      7
+    ],
+    "teBox": 9,
+    "jctBox": 6,
+    "nLayers": 6
+  },
+  "te_box_m": [
+    [
+      1.289412531708,
+      0.24384,
+      -0.0026218
+    ],
+    [
+      1.2924125317080002,
+      0.46158140240000006,
+      0.0026218
+    ]
+  ],
+  "finest_cell_m": 0.0001537109375,
+  "hull_surface_cell_m": 0.00491875,
+  "hull_axial_faces_predicted": 885.6112023583227,
+  "PREDICTED_cells_across_truncated_TE_base": 8.528345616264295,
+  "note": "PREDICTED counts are octree arithmetic, NOT measurements. The gate reads the BUILT mesh (probe_suboff_a1_features.py), never this file."
+}
