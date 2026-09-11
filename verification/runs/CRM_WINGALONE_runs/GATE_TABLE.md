@@ -11,9 +11,25 @@ Verdict vocabulary is rule 1's, and only rule 1's.
 | **G-M4** march, `Sl` -> 1.000, min quality & volume **positive at EVERY layer** | all clauses | **🔴 GATE FAIL** — min quality **-0.05046** at layer 3 | **PASS** — min quality **+0.00743**, `Sl` 1.001 | **PASS** — min quality **0.07911**, `Sl` 1.000 |
 | **G-M5** nesting: 26 blocks, dims halving, 4 triple- / 20 quad-points | structural | **PASS** | **PASS** | **PASS** |
 
-**Artifacts** (all still on disk):
-`L1|L2|L3/log.checkMesh`, `L1|L2|L3/pyhyp.log`, `L1|L2|L3/CONVERT_RC.txt`, `L1|L2|L3/DONE_EXTRUDE`,
-`L1|L2|L3/DONE_CHECK`, `L3/foam/constant/polyMesh/sets/nonOrthoFaces`.
+**Artifacts — split by DURABILITY, because "on disk" and "in git" are not the same claim.**
+
+**COMMITTED — these ARE the artifacts the verdicts above cite.** A graded value's evidence is its
+transcription in a committed record; the solver log is the SOURCE, not the artifact:
+`GATE_TABLE.md` (this file — it carries every graded value verbatim), `L1|L2|L3/pyhyp.log`,
+`L1|L2|L3/CONVERT_RC.txt`, `L1|L2|L3/DONE_EXTRUDE`, `L1|L2|L3/DONE_CHECK`,
+`L3/nonortho_faces_raw.txt`, `L3/nonortho_points_raw.txt`.
+
+**SOURCE — GIT-IGNORED, ON DISK ONLY. These do NOT survive a lost worktree:**
+`L1|L2|L3/log.checkMesh` and `L1|L2|L3/log.plot3dToFoam` (excluded by `.gitignore:260`,
+`verification/runs/*_runs/**/log.*`, which governs 5,800 files lab-wide), and
+`L3/foam/constant/polyMesh/sets/nonOrthoFaces` (excluded by `.gitignore:66`,
+`**/constant/polyMesh/`).
+
+🔴 **The G-M1/G-M2/G-M3 values are read from `log.checkMesh`, which is git-ignored.** They are
+durable only because every one is transcribed verbatim into this committed file, and the eight
+breaching face ids and their coordinates are transcribed into the two committed
+`nonortho_*_raw.txt` files. **Verified from HEAD, not from the worktree — checking a committed
+transcription against the worktree proves nothing, because the worktree is what would be lost.**
 
 ## G-M5 in detail — BOTH pairs measured, including the one §9 left open
 
