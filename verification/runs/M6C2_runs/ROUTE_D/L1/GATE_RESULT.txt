@@ -1,0 +1,57 @@
+M6C2 ROUTE (d) L1 -- GATE RESULT
+graded 2026-09-11T23:26:59Z by grade_route_d.py frozen at 2b9f4581
+grader disk blob 5b35510bd5b560f71d6a81766526cda45ae854f0 == frozen blob 5b35510bd5b560f71d6a81766526cda45ae854f0
+pre-registration dc7f4cfd, committed BEFORE first compute
+
+VERDICT: PASS (MESH_STANDARD sec.3.1 and sec.3.2, no negative volumes, mesh closed)
+
+  max non-orthogonality 48.884828   gate 70      (route (c) L2 was 74.6431)
+  max skewness           2.8779877   gate 4
+  max aspect ratio       5.8395115   advisory 1000
+  severely non-orth faces        0   negative volumes 0   mesh closed
+  average non-orthogonality 3.7813911
+
+  cells 152,399 (background 135,168 + ~17k refinement). THIS IS AN ADMISSION
+  MESH, NOT A SOLVE MESH: the wing carries ~26-51 cells/chord.
+
+DISCLOSED FAILING CHECK, NOT COVERED BY THE REGISTERED GATE:
+  ***Concave cells (using face planes) found, number of cells: 1362
+  checkMesh reports 'Failed 1 mesh checks'. The gate registered in sec.4 of
+  dc7f4cfd covers sec.3.1 non-orth, sec.3.2 skew, sec.3.3 aspect ratio, plus
+  negative volumes / illegal faces / non-closed. CONCAVE CELLS ARE IN NONE OF
+  THOSE. The gate was frozen before compute and IS NOT BEING RETROFITTED to
+  make this fail -- and it is NOT being buried as 'diagnostic only' either.
+  It is a real finding, disclosed at the same volume as the PASS.
+  (The build ran checkMesh -allTopology -allGeometry, i.e. MORE checks than the
+   gate required. The extra checks found this; running fewer would have hidden it.)
+
+SECTION 11 FALSIFIER -- ANSWERED. THE PREMISE HOLDS.
+  Route (d) rests on the claim that route (c)'s defect was MARCHING, not the body.
+  It would be falsified if the defect concentrated in the FAR FIELD at r >= 2.0 m.
+  Concave cells binned by distance from the wing's bounding box:
+    r in [0,   0.1) m :  671  (49.3%)
+    r in [0.1, 0.5) m :  330  (24.2%)
+    r in [0.5, 2.0) m :  314  (23.1%)
+    r in [2.0, inf) m :   47  ( 3.5%)
+  ROUTE (c): 99.41% of defects at r >= 2.0 m.
+  ROUTE (d):  3.45% at r >= 2.0 m -- while the far field is 88.5% of the mesh
+  (134,834 of 152,399 cells). The defect is CONCENTRATED AT THE BODY, where
+  snapping happens, and is UNDER-represented in the far field by ~25x.
+  THE FAR-FIELD MARCHING SIGNATURE DOES NOT REPRODUCE.
+
+WHAT THIS DOES NOT ESTABLISH -- THE ROUTE (c) TRAP, APPLIED TO THIS RESULT:
+  This is L1 at 152,399 cells. ROUTE (c)'s L1 ALSO SHOWED ZERO OVER-GATE FACES;
+  ITS L2 SHOWED 1,019. A pass at the coarsest level is precisely the evidence
+  that did not survive refinement last time. THIS PASS IS A STATEMENT ABOUT THIS
+  MESH AT THIS RESOLUTION AND NOTHING FINER. No L2 exists; sec.9 registered ONE
+  level deliberately and forbids any grid-convergence claim from it.
+  M6 sec.A1.3 stays FALSIFIED; route (c) stays TERMINATED; M6C1 stays BLOCKED.
+
+COST (rule 12):
+  estimated  ~11.8 core-min (sec.10), cap 60
+  ACTUAL       0.73 core-min (44 wall s x 1 rank), rc=0
+  ratio actual/predicted = 0.062 -- I OVER-estimated by ~16x. Cause: the sec.10
+  anchor was MRF's 2,418,780-cell snappy build at 4.4e-06 core-min/cell; this
+  mesh is 152,399 cells, 15.9x smaller, and I sized the estimate from a target
+  of ~1.0M cells that the refinement did not produce. MISPREDICTION OF THE
+  DELIVERED CELL COUNT, not contention -- named, not absorbed.
