@@ -1,3 +1,12 @@
+<!-- LANDED 2026-09-11. THE ROW BELOW IS IN docs/COST_CALIBRATION.md. DO NOT RE-APPEND IT.
+     THE "WHY IT IS NOT LANDED -- BLOCKED" PARAGRAPH BELOW IS STRUCK, NOT REWRITTEN.
+     It asserted that scripts/append_record.py refuses at exit 8 on the pre-existing
+     malformed id C-20260910T230023.521144Z-mrfr1a1 at HEAD:docs/COST_CALIBRATION.md:522.
+     That was true when written and is FALSE now: commit bc5588bc7 (2026-09-11T16:20Z)
+     added the exact exclusion, and a --dry-run of this row returns VERDICT: OK, exit 0.
+     The malformed id additionally now carries a CORRECTION ROW of its own
+     (C-20260911T182625.621992Z-1ad8d1fb, commit a7ec53b65).
+     A parked note that outlives its blocker reads identically to owed work. -->
 <!-- INPUT FILE for scripts/append_record.py --path docs/COST_CALIBRATION.md --allocate-id.
      NOT a report. This is the rule-12 estimate-versus-actual row for this case, drafted
      2026-09-11 and NOT YET LANDED in docs/COST_CALIBRATION.md.
