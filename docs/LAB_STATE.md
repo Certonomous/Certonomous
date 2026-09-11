@@ -41166,6 +41166,77 @@ banner disclosure and the `COST_CALIBRATION.md` row; decide CRM_M085_R2's mesh s
 **Blocked:** **M6 mesh line `BLOCKED`** — three topologies, three measured objections. Unblocked
 only by an A3-style multi-patch tip-cap surface; that fourth route is under attempt now.
 
+### cfd block 138 — 2026-09-11 ~05:05Z — delta on 137: three more commits, A3's body, the route probe
+
+**Commits since 137:** `1a5603eba` M6C1 Addendum 2 (framing) · `6d264ed1c` rule-4 **limb-6
+strengthening** · `90f2fcbdd` **DrivAer Stage A Addendum A1 — the plateau repair, committed**.
+
+**DrivAer plateau repair — LANDED AND INDEPENDENTLY VERIFIED BY ME.** Comparator disk
+`sha256(16) = 1b51dc1d4438f66a`, matching A1.6's NEW row; the OLD frozen §8 pin
+`0eddb5588c337114` is left unchanged and superseded by the addendum's own authority.
+**Prediction on record ahead of the data at `2026-09-11T04:50:04Z`, iteration 1,175/3,000:
+the repaired limb returns `NOT_PLATEAUED`.** Selftest run live by me, both directions:
+flat → `PLATEAUED` 6.67e-05; drifting → `NOT_PLATEAUED` 3.38e-02; the **superseded
+two-sample test is in the suite and asserted to PASS the drifting trace** — the defect is a
+permanent executable exhibit. Short `endTime` **REFUSES** (20/100/190 → exit 2) instead of
+clamping to a 2-sample window, which is the bug the repair exists to remove. Six mutants all
+fail the selftest; the control passes.
+
+**Two defects I caught by reading the repair as a diff — BOTH WERE IN THE REPAIR, NOT THE
+ORIGINAL.** (1) `max(2, …)` in the window helper: at `endTime 20` it yields W=2, and **a
+2-sample window IS the two-sample increment** — the repair silently becoming the bug on
+exactly the smoke cases nobody scrutinises. (2) The "20× finer" claim cited **Gate V1's
+relative ±0.10, which Stage A never executes**; the band in force is **A2's absolute
+[0.15, 0.60], ≈120×**. Neither would have shown in a summary: `max(2, …)` reads as
+defensive, and "20×" reads as correct *because it is correct*, just about the wrong gate.
+
+**🔴 THE PATTERN OF THE NIGHT, four instances in four unrelated places:** a value gets
+corrected and **the prose asserting it is left behind** — M6CP1's DRAFT banner over a frozen
+registration; MRF_R1's, **which I committed myself hours after fixing the first**; six MRF
+controlDicts reading *"50-step smoke"* above `endTime 4000`, one under an already-graded
+verdict; and the DrivAer comparator's own comment, corrected in every emitted field and
+stale in the sentence above them. **The fix lands where the code reads the value; the stale
+claim survives where the human reads it, and no passing test can see the difference.** The
+durable repair is tooling: a freeze or commit leaving a superseded claim above the thing it
+describes should refuse.
+
+**🔴 A3's SURFACE BODY DEPARTS FROM AR-138 — for dafoam, measured by us, not interpreted.**
+Trailing-edge thickness held **constant in absolute terms, 0.0011366 m at every station,
+spread 0.000%**, where a conical loft requires `t_TE/c` constant. Ratio runs
+**1.410400e-03 at the root — the source value to seven digits — to 2.456634e-03 near the
+tip, 1.74×**, spreading 54.6% across the span. **It matches perfectly at the one station
+anybody would check and departs monotonically where they would not.** Planform exact
+(x_TE 1.13424 vs 1.13421 predicted), so the wing is right and only the thickness *law* is
+wrong; it also explains the 1-cell-across-TE cusp report. Method note that must travel with
+it: a slab sample `|z − z_target| < 2 mm` on a 9-zone surface picks an arbitrary subset and
+gave a root chord of 0.39 m where it must be ~0.79 — caught **only because it was absurd**.
+
+**M6 route probe — RUNNING**, granted by me. A3's surface is disqualified as an M6 *mesh
+source* but is still a genuine capped multi-patch 9-zone surface, so extruding it answers the
+**route** question both campaigns ride on while producing **no physics**. My bound 1 said a
+wrong body stops the attempt *"because it produces numbers"*; a probe produces none, so the
+bound's own reason did not reach it. **Without it CRM_M085_R2 parks on an M6 body defect
+unrelated to the CRM.** Output labelled **`ROUTE_PROBE — NOT AN M6 MESH — THE BODY IS
+WRONG`**, marker written **before** the mesh. Seam checker's **planted control passed: clean
+surface → 0 coincident pairs, one duplicate injected → 1**, and it is geometry-agnostic.
+
+**For the CRM, already established:** the lane's own surface family carries a **blunt TE with
+16 / 24 / 36 cells across, verified at 20 stations per level**, and **not one failure in this
+entire line was at the trailing edge** — every one was at the tip cap or the interior fill.
+
+**Correction to a claim of mine the MRF lane refused:** *"a post-processor cannot manufacture
+the decomposed fields"* is **false** — `decomposePar -fields` and `redistributePar` both
+write `processor*/<t>/`. What carries limb 6 is an **ordering test**: a single
+`log.decomposePar` 95 min earlier with **zero occurrences of `fields`**, and decomposed
+03:56:38Z preceding reconstructed 03:56:41Z by 2.3 s. **A serial run has no `processor*/` at
+all**, so a family adopting this blanket gets a check that silently does nothing.
+
+**Live:** DrivAer 1,200/3,000 · MRF_R2 medium 1,746/4,000 · fine 1,315/4,000. All nice 5.
+**Next:** probe's five mesh-quality numbers; M6C1 Addendum 3; DrivAer completion → seven
+rule-4 limbs then **my** comparator read against the registered prediction; MRF triple grades
+with the six-file banner disclosure and the `COST_CALIBRATION.md` row.
+**On Sanaa's desk:** nothing. **Blocked:** M6 mesh line; CRM_M085_R2 pending the probe.
+
 ## verification
 
 **Section last written:** 2026-09-10T23:43:20Z by verification-supervisor (V-174; `date -u` in THIS committing invocation; **write+commit ONE invocation per §A6.3 part 4**; CONTENT-anchored, anchor re-derived here). **FIVE MORE CHARTER VERSIONS — v1.92 → v1.96, `D626`–`D630`, plus `L-542`. CHARTER AT v1.96; 16 COMMITS TODAY; ZERO SOLVER CORE-MINUTES.** **THE DAY IS ONE SENTENCE IN NINE MEASURED INSTANCES: A PROXY IS NOT THE PROPERTY** — a function NAME (§2bn), the WRONG LINE of `checkMesh` (§2bo.1), the WRONG FORM of the right tool (§2bq), a MARKDOWN NOTATION (§2bt), the word "PLANTED" IN A BANNER (§2bw), `Popen` RETURNING (§2ci), `Time =` FROM `decomposePar` (§2cm), an EXIT CODE (§2ct), and a CLEAN REFINEMENT RATIO standing in for an innocent mesh (§2cp). **Five were false CHECKS; one was a false ACTION; three were mine.** **I ARMED NO GATE (`D539`) AND DECLINED FIVE REFUSALS — one proposed by the team it would constrain. I MADE ONE INSTRUMENT EDIT ALL DAY: a `help=` string, diff-read personally, selftest 44/44 unchanged. I WITHDREW FOUR OF MY OWN ACCUSATIONS, ALL FOUR IN ANOTHER TEAM'S FAVOUR.**
