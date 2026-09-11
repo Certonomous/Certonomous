@@ -956,3 +956,108 @@ SUBOFF_A1 ladder alone is about to mesh an L3 of roughly 25 M cells).
    the standing proof that an agreeable number is not a result.
 
 *A1.9 ends. This is a constraint report, not a gate change.*
+
+---
+
+## ADDENDUM 1, SECTION A1.10 — `writeInterval` ON FINE: A DECLARED NON-CONFORMANCE, PROVED INERT
+
+**2026-09-11, written and committed BEFORE fine's compute.** Alters no gate, no threshold, no
+cap, no label. The 600 lines above the foot remain unmoved; A1.0's hash proof still holds and
+is re-verified in this commit.
+
+### The change
+
+`verification/runs/navier_class/MRF/R2/ET8000/fine/system/controlDict:29`,
+`writeInterval 50;` → `writeInterval 4000;`, set at **staging**, before the level had run.
+Authorised by the cfd-supervisor 2026-09-11 on the condition that it be **measured, not
+argued**. Cause: A1.9 — fine's intermediate writes are 49.1 GiB that nothing reads, against a
+disk that has fallen from 52 to 45 GiB free (91 %) during this session. **Coarse and medium
+were NOT touched**: they were already running, and `runTimeModifiable false` means a change
+could not have taken effect in them, only corrupted the record.
+
+### THE DECLARED NON-CONFORMANCE — three parameters vary across the graded triple, not one
+
+| parameter | coarse | medium | fine | status |
+|---|---|---|---|---|
+| mesh | 154,715 | 601,696 | 2,418,780 cells | **the intended variable** — this is the grid triple |
+| ranks | 2 | 2 | 6 | inherited from the 4000 family for comparability; **declared, not hidden** |
+| `writeInterval` | 50 | 50 | **4000** | A1.9 disk constraint; **proved inert below** |
+
+Neither ranks nor `writeInterval` varies *with h* in the way the Roache extrapolation reads:
+both are fixed per level and identical between the 4000 and 8000 families. A reader must see
+**both** extra parameters, not one.
+
+### THE PROOF — and the first attempt at it FAILED, which is why there is a proof at all
+
+**Attempt 1 (confounded, reported rather than discarded).** Two arms on the coarse mesh,
+`endTime` 200, differing in one controlDict line. `moment.dat` **differed at byte 207, line 5 —
+the first data row, iteration 1**, before any write can exist. The cause was not
+`writeInterval`: `scotch` partitioned the same 154,715-cell mesh **differently on every
+invocation** of one identical `decomposeParDict` (md5 `ea1336801ca0`, `method scotch;`, no seed,
+no coeffs) — measured **77900/76815, 77011/77704, 77505/77210, 76965/77750**. A third arm,
+identical to the first in every file, took its own partition and landed **6.554504e-03** away in
+`Np` at iteration 200, *further* than the arm that also differed in `writeInterval`
+(3.637007e-03). **`writeInterval`'s effect was invisible beneath the decomposition scatter.**
+The registered decision rule — written before the comparison, at
+`WRITEINTERVAL_CONTROL/CONTROL_PREDICTION_REGISTERED_BEFORE_RESULT.txt` — said a two-arm design
+could not attribute such a difference to `writeInterval`, and it was right.
+
+**Attempt 2 (the confound REMOVED, not argued past).**
+`WRITEINTERVAL_CONTROL/CLEAN_D1_wi50/` and `CLEAN_D2_wi4000/`: `decomposePar` run **exactly
+once**, the fully prepared tree copied with `cp -a` including `processor*/`, then one line
+changed. Verified before either solve started — `diff -r` over the two arms returns **exactly
+one line** and "no other difference"; `processor0` owner md5 `b4929f87d94f` and `processor1`
+`1b017f468f70` **identical in both**.
+
+**RESULT: `postProcessing/impellerForces/0/moment.dat` is BIT-FOR-BIT IDENTICAL.**
+```
+CLEAN_D1_wi50   sha256 b54c9004bf37f6d8eb573697d97296f3823019d272761acc05dea5252edc9877
+CLEAN_D2_wi4000 sha256 b54c9004bf37f6d8eb573697d97296f3823019d272761acc05dea5252edc9877
+```
+Both rc=0, 200 `ExecutionTime` lines, one `End` each, 10.40 and 10.43 core-min.
+
+**AND THE COMPARISON IS NOT BLIND (rule 3).** A zero from a reader not shown able to see a
+non-zero is not evidence. `1.234e-09` was planted into `total_z` of the first data row of a
+**copy**, and the same comparison **saw it**. The identity above is therefore evidence, not a
+reader that cannot tell files apart.
+
+**`writeInterval` IS INERT ON THIS SOLVER AND THIS CASE — MEASURED, NOT ARGUED.**
+
+### A constraint that would bite a successor
+
+OpenFOAM writes only at an output time, so **`writeInterval` must divide `endTime`**.
+Demonstrated, not asserted: at `endTime` 200, D1 (`writeInterval` 50) wrote
+`processor0/{0,50,100,150,200}`; **D2 (`writeInterval` 4000) wrote only `processor0/0`** —
+nothing at 200, because 200 is not a multiple of 4000. `8000 % 4000 = 0`, so fine writes
+`processor*/4000` and `processor*/8000`, `reconstructPar -latestTime` has 8000 to reconstruct,
+and rule 4's "fields present at `endTime`" holds. **A successor picking a non-divisor would pass
+every argument above and still fail rule 4.** Disk, measured on the arms: 143 MB against 61 MB.
+
+### The larger finding this control produced, recorded because it outlives the rung
+
+**`scotch` decomposition is not reproducible on this box, and no parallel run in this lab has
+ever been checked for it.** This is **ours, not an OpenFOAM defect** — the library offers
+deterministic methods and we asked for none; we chose `scotch`, never pinned the partition and
+never verified reproducibility. It is **not** filed as a §2da defect.
+
+Transferable form: ***a Roache triple is meaningless unless the level-to-level differences
+exceed the run-to-run reproducibility floor — and this lab has never measured that floor for
+any family.*** If the floor is the order of the signal, a `DIVERGENT` triple is exactly what
+one would expect. **Candidate root cause for MRF grading the same way twice with a band-PASS
+value underneath both times — candidate, not conclusion.** The measurement that tests it is
+running at no cost: `ET8000/free_scatter_at_4000.py`, with its criterion (**5.095632e-04**,
+nominal-r, the stricter of three) and its three branches **registered before the number
+existed**. **Nothing in this addendum claims the R2 triple is inside noise, and nothing may.**
+
+**The durable repair costs negative compute:** decompose once per level and archive
+`processor*/constant/polyMesh` as a run artifact. The 8000 family's disk problem is 49.1 GiB of
+`processor*` field writes we throw away, while the ~60 MB of `processor*/constant/polyMesh` that
+would make the run reproducible is the part nobody kept. That goes to `MESH_STANDARD` as a
+**proposal**; this lane does not amend a standard.
+
+### Cost of the controls (rule 12)
+
+**55.86 core-min** charged, 2 ranks, all rc=0: A 12.50, B 10.80, C 11.73, D1 10.40, D2 10.43.
+Derived **$0.048** at $0.0513/core-h — **DERIVED, NOT MEASURED**; the box cannot read its own
+billing. Not in the 7,115 core-min registered for the relaunch, and named separately here
+rather than absorbed into it.
