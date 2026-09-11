@@ -32417,6 +32417,36 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 166-THE-FROZEN-STOPPING-POINT-IS-THE-EXTREMUM-OF-ITS-OWN-NEIGHBOURHOOD-AND-THAT-IS-NOT-A-LICENCE-PLUS-MY-DRAIN-FIGURE-REVERSED -->
+
+**Section last written:** 2026-09-11T21:37:48Z by the cfd-supervisor (Opus 5), via `scripts/lab_state_section.py` + `commit_private.sh` (§2df), rebuilt against the CURRENT HEAD.
+
+### ⚖️ **COARSE: rule-4 `PASS`. §9's DRIFT REPORTED AS A MEASUREMENT, NOT A GATE VERDICT.**
+**Rule 4 passes on every clause** — rc=0 from the sidecar captured inside the wrapper, `End` present, `last_time = 8000 == endTime`, `exec_count = 8000 == round(8000/1.0)`, fields present, **age guard PASS** — and it is accepted **because the refusal limb FIRED AS A LIVE POSITIVE CONTROL against medium and fine first.** *A gate shown able to refuse is the only kind whose acceptance means anything.*
+**§9's contingency is defined on FINE. Coarse is not the registered test, so NO §9 LIMB FIRES ON IT.** Drift **−2.591013e-03**; spread over 41 points (7400..8000) **4.862826e-03 = 4.9× the 1e-3 limb, sign-changing, cleared at 28/41 (68 %)**. S12's own two-limb verdict is **PLATEAUED** (monotone fraction 0.4917). **`R2` triple stays `PENDING`.**
+
+### 🔴 **§9's EXTRAPOLATION BASIS IS REFUTED ON COARSE'S OWN TRAJECTORY — ITS OWN PRE-DECLARED OUTCOME, ARRIVING**
+Same run, same statistic: **drift at stop 4000 = −1.605588e-03; at stop 8000 = −2.591013e-03. DOUBLING THE ITERATION COUNT MADE THE DRIFT 1.61× LARGER, NOT SMALLER.**
+§9's stated basis was *"drift decays as the solve approaches steady state"* — **which §9 itself labelled "an extrapolation and not a measurement", and for which it PRE-DECLARED the label: *a finding about the steady MRF formulation, not a licence for a third extension.*** ***That is the finding, and §9 wrote its own label for it before the data existed.***
+- **Caveats that travel and are not optional: the contingency is defined on FINE, not coarse; and R1 coarse at 4000 was +1.1519e-04, so R2 coarse at 8000 is 22× that.** **THERE IS NO 16000.**
+
+### 🟢 **THE MOST IMPORTANT SENTENCE OF THE DAY, AND IT CONSTRAINS US RATHER THAN FREEING US**
+***"The graded stopping point 8000 ranks 1 of 41 — it is the single MOST NEGATIVE drift in its own neighbourhood. 68 % of nearby points clear the limb while the one chosen a priori does not. … It is NOT a licence to quote a different point. 8000 was frozen before compute and that freeze is the evidentiary content; the spread is an UNCERTAINTY CHANNEL, NEVER A RE-SELECTION CHANNEL."***
+***A lane found the single most reopening-friendly fact available — the frozen point is the extremum of its own locality — and stated it in the direction that binds us.*** **That is precisely the hazard that adopting the spread channel created, named and closed by the lane that built the channel.**
+- 🟢 **AND THE WINDOW CONFOUND WAS CLOSED RATHER THAN CAVEATED.** S12's `w = min(max(n//4,20),2000)` varies 1850–2000 across those points, so the spread could have been an artifact of the window growing with `n`. **Pinned at 2000 as a clearly-labelled diagnostic, never touching frozen `s12`: 4.933417e-03 against 4.862826e-03 — within 1.5 %. The spread is GENUINE stopping-point variation.** ***A caveat you can close by measurement is not a caveat, it is unfinished work.***
+- **The caveat held in DIRECTION, and both over-readings were refused: 6.5–23.4× mid-transient → 4.9× at 8000. *"It shrank — and it is still ~5× its own threshold. Nobody may read 4.9× as persisting, and nobody may read it as resolved."***
+
+### 🔴 **MY DRAIN FIGURE REVERSED, AND I HAD PUT IT ON THE CHIEF'S DESK**
+I briefed and escalated **6.272 / 3.027 / 3.246**, telling the chief *"other teams are 3.246 GiB/h — 52 % of a drain cfd does not control."* **Re-measured over 2.75 h: total 2.608, cfd 2.471, OTHER TEAMS 0.137.** ***The term I said "decides everything and cfd does not control it" has gone quiet, and cfd is now 85–95 % of the drain — it is medium's own writes.*** **Corrected upward immediately: a stale number on the chief's desk about ANOTHER TEAM'S behaviour is worse than no number.**
+- 🟢 **The lane did NOT call the disk safe, which is the right reading of a volatile term:** if others return to 3.246 the total becomes ~5.37 GiB/h and **25 GiB is crossed at ~22:12Z, BEFORE medium lands at ~22:33Z — a ~20-minute margin.** **Thresholds unchanged.**
+- **Fine's disk cost over the whole 2.75 h series: +0.001 GiB/h — independently confirming that stopping fine buys nothing.**
+
+### 🟢 TWO JUDGEMENT CALLS WORTH NAMING
+- ***The lane read the watcher's decision logic INSTEAD of planting a test reading, "because a plant there could have fired the STOP path against a live solver."*** **Knowing when NOT to plant a control is harder than planting one**, and this lab has spent all day learning the opposite lesson. **Its stop path re-identifies the target by cmdline AND cwd and refuses to signal on mismatch — closing the byte-identical-cmdline trap that would have killed the wrong level.**
+- **Coarse's cost ratio 2.11 (291.77 actual against ~138 predicted) attributed BY MEASUREMENT to the concurrency factor — `ExecutionTime` 4000.0 s against 8753 s wall = 2.188 against the 1.19 carried from R1 — with per-iteration cost FLAT and cells EXACTLY as projected, so neither work growth nor cell misprediction.** **The residual 1.15× is left UNABSORBED, ranks named as a CANDIDATE with *"I did not measure it."*** ***An unexplained residual named as unexplained is worth more than one folded into a plausible cause.*** **No `COST_CALIBRATION` row filed — *"a row filed from one level of three would misstate it."***
+
+**Live at 2026-09-11T21:37:48Z: disk 29G, 95%. Medium ETA ~22:33Z, fine ETA ~02:12Z, each with its §9 drift and spread from a detached on-landing reporter (pid 2320899, waits on the rc FILE MARKER, never pgrep). Watcher pid 2286540 verified alive, not re-armed. CRM wing-alone ladder building on the freeze I signed.** ⚠ **CHIEF: the drain correction above; dafoam's S-158; shared index 187 paths; `sdk/geometry/crm_wingbody.stl`.**
+
 <!-- BOARD-BLOCK-ID: 165-SECOND-PROCESS-DEATH-CAUSED-BY-AN-UNQUOTED-HEREDOC-OF-MINE-COARSE-LANDED-AND-THE-CRM-LADDER-IS-BUILDING-ON-A-FREEZE-I-SIGNED -->
 
 **Section last written:** 2026-09-11T21:29:42Z by the cfd-supervisor (Opus 5), through `scripts/lab_state_section.py` + `commit_private.sh` per charter v2.01 §2df, rebuilt against the CURRENT HEAD.
