@@ -32370,6 +32370,37 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 159-PROCESS-DEATH-RECONCILED-THE-STOP-RULING-WAS-RETRACTED-NOT-UNEXECUTED-AND-EVERY-DETACHED-RUN-SURVIVED -->
+
+**Section last written:** 2026-09-11T18:19:55Z by the cfd-supervisor (Opus 5) — **stamp, disk and iteration counts all read in the committing invocation.** PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted, `--add --cacheinfo`.
+
+### 🟢 **THE CLAUDE CODE PROCESS DIED. EVERY DETACHED RUN SURVIVED. ALL THREE LANES DID NOT.**
+Sanaa is back — *"i am back all teams continue."* **Reattached, not relaunched.** Verified from disk at 18:17Z:
+| run | pid | state |
+|---|---|---|
+| MRF_R2 ET8000 coarse | 2136885 (2 ranks) | `Time = 5671` / 8000 |
+| MRF_R2 ET8000 medium | 2140182 (2 ranks) | `Time = 1587` / 8000 |
+| MRF_R2 ET8000 fine | 2200471 (6 ranks) | `Time = 727` / 8000 |
+| M6C2 **L2 pyHyp extrusion** | 2209311/2 (`docker run`) | ~59 min in, `MP/L2/log.extrude` |
+**All `nice 10`. Untouched throughout and untouched now:** pid 316601 `rhoCentralFoam` (ansys, 3 d 6 h) and pid 1233987 `buoyantBoussinesqSimpleFoam` (heat-transfer, 1 d 2 h). **Three fresh lanes spawned to reattach; nothing relaunched.**
+
+### 🔴 **RECONCILIATION THE CHIEF ASKED FOR — AND NEITHER OF ITS TWO ALTERNATIVES IS WHAT HAPPENED**
+The chief read commit `753d5f11a` — *"BRANCH 2 FIRES … the MRF_R2 8000 family STOPS"* — against three live solvers, and asked whether the family was stopped or the ruling did not execute. ***Neither. THE RULING WAS RETRACTED IN FULL by commit `2870f4fa9`, and the runs are correctly continuing under BRANCH 1.***
+- **Why:** the 8.274582e-03 I called a "run-to-run reproducibility floor" was **a SINGLE-POINT SAMPLE of a series whose relative sd is 1.018967e-02.** Windowed over 1000 iterations the two partitions agree to **2.907564e-04 — BELOW the registered criterion of 5.095632e-04 — at 0.034 of one within-run sd.** ***Different `scotch` partitions DO converge to the same answer; my physics argument held and I had wrongly declared it refuted.***
+- 🔴 **A COMMIT SUBJECT OUTLIVED THE VERDICT IT ANNOUNCED.** `753d5f11a` is still the most eye-catching line in `git log` and it is **withdrawn**. ***This is the same class as everything else today — a status artifact that outlives the run it describes reads identically to a current result*** — arriving in **`git log` itself**, where no `.SUPERSEDED_` sidecar can reach it. **The retraction is one commit later and a reader scanning subjects will not see it.** Recorded here because the board is where that is fixable.
+- **`MRF_R2` remains `NOT A RESULT`. Nothing today moved it. §9's per-level drift limb at 8000 is the live deliverable. THERE IS NO 16000.**
+
+### 🟡 THE DISK WATCH DIED WITH ITS AGENT AND IS RE-ARMED FIRST
+**38G free, 93%** — above the 25 GiB reporting threshold, **but the watcher armed before the crash is gone and the thresholds were unwatched until now.** Re-armed as the incoming lane's **first** item, bookkeeping **in the scratchpad, never in a graded tree**. Unchanged: **<25 GiB report with medium's iteration count, no autonomous action; <15 GiB stop medium on pre-registered authority and report immediately — *pre-authorised is not unsupervised*.** Medium is the sacrifice because **§9's deliverable is answerable PER LEVEL and survives it** while the triple does not, and the triple's graded statistic already carries noise **2.87× the signal.**
+- ***THE GENERAL FORM, AND IT IS WHY THIS IS BOARDED RATHER THAN JUST FIXED: AN AGENT-OWNED WATCHER IS A SINGLE POINT OF FAILURE THAT DIES SILENTLY AND LEAVES ITS THRESHOLD LOOKING GUARDED.*** The detached solvers survived the crash precisely because they were **not** agent-owned. **A watcher guarding a decision should be as detached as the thing it watches.**
+
+### ▶️ THREE LANES, ALL ON SANAA'S CASES
+**MRF** — re-arm the disk watch, then §9's per-level drift limb from the **frozen** `measure_states_mrf.py` imported unmodified, then the owed records (two parked cost rows, the `mrfr1a1` **correction row** never an edit, and the `MRF_R1_GRADED_ROW.json` addendum recording a **false stated REASON with the verdict unchanged**).
+**M6** — reattach to L2, report **S2, its trend against `H = 0.10`, skew-face count and location, the non-orthogonality axis, and DELIVERED cells with r21 re-derived from what `checkMesh` reports**; then the **fitted** L3 cap on the corrected model (**s/KSP/face invariant to 3.7 %; ΣKSP is the only unknown and it does NOT scale — 1.31× at eta 0.30, 1.14× at 0.50, with 84 % of L1's ΣKSP in its last six levels**). **L3 stays unlaunched until I see the fit.**
+**CRM** — measure whether a multiblock CGNS coarsener exists and works, verified **block-by-block on all 26** *and* by the **units-invariant sweep/taper check**. **If it does not, no triple is available and the registration does not happen — a legitimate outcome, not a failure.**
+
+**On Sanaa's desk:** SUBOFF's purchase, **both halves — ~128 GiB AND $153.78 at 5.6× the registered cap**; four renders delivered. ⚠ **CHIEF: shared index stale by 187 paths; `sdk/geometry/crm_wingbody.stl` mislabelled with consumers UNMEASURED; `--cacheinfo` silently does not cover new files.**
+
 <!-- BOARD-BLOCK-ID: 158-A-MONITOR-CAUGHT-ITSELF-BEFORE-IT-LITTERED-A-GRADED-TREE-AND-THE-DISK-IRONY-GENERALISES-INTO-THE-SAME-SHAPE-AS-THE-S12-GAP -->
 
 **Section last written:** 2026-09-11T18:05:57Z by the cfd-supervisor (Opus 5) — **stamp, disk and iteration counts all read in the committing invocation.** PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted, `--add --cacheinfo`.
