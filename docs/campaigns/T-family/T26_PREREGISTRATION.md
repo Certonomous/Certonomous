@@ -1863,3 +1863,90 @@ stand unchanged — those three files are untouched by this addendum.**
 
 *Recorded by a heat-transfer lane, 2026-09-11T17:57:05Z. Zero solver compute. Nothing sent,
 filed or uploaded (`CLAUDE.md` rule 7).*
+
+---
+
+## 20. ADDENDUM 5 — 2026-09-11T18:02:23Z. **§15.3 ASSERTED A FREEZE CHECK THAT DID NOT EXIST. IT EXISTS NOW, AND ITS FIRST ACT WAS TO CATCH ITS OWN AUTHOR**
+
+**DATED ADDENDUM UNDER `CLAUDE.md` RULE 2, PRE-FIRST-COMPUTE. Alters no gate,
+threshold, band, floor, cap or label.**
+
+### 20.1 THE FINDING, AND IT IS AGAINST MY OWN FREEZE TEXT
+
+**§15.3 states: *"Before grading, each file is hashed against the blob committed
+here; a mismatch is a refusal, not a warning."* WHEN THAT SENTENCE WAS WRITTEN NO
+SUCH CHECK EXISTED ANYWHERE IN THIS RUNG.** Measured by grep across all five
+instruments for `sha256`, `hashlib`, `sha256sum` and `git hash-object`:
+**zero occurrences.** The registration asserted an instrument that was not there
+— the same class of defect this rung has caught three times today in other
+people's work, here in its own freeze text, **written by the lane that wrote
+this sentence.**
+
+**It is worse than the K2f case it resembles.** K2f's `verify_freeze()` covered
+four of five pinned files while its registration claimed all five. **T26's
+covered zero of five.**
+
+### 20.2 THE INSTRUMENT — and it runs AT GRADE TIME, not only at freeze time
+
+`analyse_t26.py` now carries `read_registered_pins()`, `sha256_file()`,
+`verify_freeze()` and `control_freeze_reader()`. Three properties are
+registered, each of them learned from a specific failure:
+
+1. **IT RUNS AT GRADE TIME.** K2f's lesson: a shared instrument moves under a
+   rung without the rung being told. **Here the instrument moved under its own
+   rung** — §19 repaired two files after the freeze.
+2. **IT READS THE LAST PIN FOR EACH FILE, and REPORTS WHICH SECTION IT CAME
+   FROM.** Document order is supersession order. Never inferred, always printed.
+3. **IT HOLDS THE REQUIRED FILE LIST ITSELF** (`REQUIRED_INSTRUMENTS`, five
+   names) **and REFUSES if any required instrument has no pin** — so a pin
+   silently dropped from the registration cannot silently reduce coverage.
+   **That is K2f's four-of-five defect, closed by construction.**
+
+### 20.3 A SECOND DEFECT, FOUND BY DRIVING RATHER THAN BY READING
+
+**Written to accept only §15.3's full-path form, the checker was BLIND to §19.4
+and reported the two repaired files as MISMATCH against pins §19.4 had already
+replaced.** The cause is in §19.4's own formatting: §15.3 writes
+`\`docs/campaigns/T-family/orchestrate_t26.py\`` and §19.4 writes
+`\`orchestrate_t26.py\``. **A supersession an instrument cannot see is not a
+supersession.** Both forms are now accepted, restricted to the five required
+names so no unrelated table row can be mistaken for a pin. **§19.4 is not
+edited — it is committed and this document is frozen.**
+
+### 20.4 DRIVEN AGAINST THE REAL REGISTRATION
+
+| instrument | pin read from | result |
+|---|---|---|
+| `analyse_t26.py` | §15.3 | **MISMATCH — see §20.5** |
+| `build_t26.py` | §15.3 | MATCH |
+| `launch_t26.sh` | **§19.4** | MATCH |
+| `mark_done_t26.py` | §15.3 | MATCH |
+| `orchestrate_t26.py` | **§19.4** | MATCH |
+
+**The two repaired files resolve to §19.4 and the three untouched ones to
+§15.3 — which is the question this addendum was required to answer.**
+
+The planted control (rule 3) drives six negative arms: stale-section
+supersession in the bare-name form, the four-of-five coverage gap, an absent
+registration, a registration with no pins, a mutated pinned file and an absent
+pinned file. **All six caught.**
+
+### 20.5 THE RE-PIN — the check caught its own author, which is the point
+
+`analyse_t26.py` MISMATCHED **because adding `verify_freeze()` to it changed
+it.** The check's first act on the real registration was to refuse the file that
+contains it. **Superseding §15.3 for that one file:**
+
+| instrument | sha256 — SUPERSEDES §15.3 |
+|---|---|
+| `analyse_t26.py` | `9bb11412cb3b5342868c173b64d300b88bd7f7041e31c6a575146f04c01d751b` |
+
+**§15.3's pins for `build_t26.py` and `mark_done_t26.py` stand; §19.4's for
+`launch_t26.sh` and `orchestrate_t26.py` stand.**
+
+Pre-compute condition re-taken in the committing invocation at **2026-09-11T18:02:23Z**:
+`T26_runs/` **ABSENT**; planted control arms `T23_runs/` **PRESENT** and
+`T99_nonexistent` **ABSENT** — both fired.
+
+*Recorded by a heat-transfer lane, 2026-09-11T18:02:23Z. Zero solver compute. Nothing sent,
+filed or uploaded (`CLAUDE.md` rule 7).*

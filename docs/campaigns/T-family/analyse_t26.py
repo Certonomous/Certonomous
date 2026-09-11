@@ -62,6 +62,7 @@ WHAT THIS COMPARATOR CANNOT SEE, named rather than hidden:
 Usage:  python3 analyse_t26.py [--root DIR] [--json OUT]
         python3 analyse_t26.py --selftest
 """
+import hashlib
 import json
 import math
 import os
@@ -1071,6 +1072,202 @@ def control_dimensionality_reader():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+# ---------------------------------------------------------------------------
+# THE FREEZE VERIFICATION -- added 2026-09-11, pre-first-compute.
+#
+# T26_PREREGISTRATION.md section 15.3 states, of the instruments it pins:
+# "Before grading, each file is hashed against the blob committed here; a
+# mismatch is a refusal, not a warning."  WHEN THAT SENTENCE WAS WRITTEN NO
+# SUCH CHECK EXISTED ANYWHERE IN THIS RUNG -- not in this file, not in
+# mark_done_t26.py, not in orchestrate_t26.py.  The registration asserted an
+# instrument that was not there.  This is that instrument.
+#
+# TWO THINGS IT MUST GET RIGHT, both learned the same day:
+#  1. IT RUNS AT GRADE TIME, not only at freeze time.  K2f's lesson: a shared
+#     instrument moves under a rung without the rung being told.  Here the
+#     instrument moved under its OWN rung -- section 19 repaired
+#     orchestrate_t26.py and launch_t26.sh after the freeze.
+#  2. IT READS THE LAST PIN FOR EACH FILE, not the first.  Section 19.4
+#     SUPERSEDES section 15.3 for two of the five files.  A checker that read
+#     15.3 would either refuse on a repair we deliberately made, or pass
+#     against pins nobody updated.  Document order IS supersession order and
+#     the section each pin came from is REPORTED, never inferred.
+# ---------------------------------------------------------------------------
+
+REGISTRATION = os.path.join(HERE, "T26_PREREGISTRATION.md")
+
+#: The instruments that MUST carry a pin.  Held here and not derived from the
+#: document, so that a pin silently DROPPED from the registration cannot
+#: silently reduce this check's coverage -- K2f's defect was a freeze check
+#: that covered four of five files while its registration claimed all five.
+REQUIRED_INSTRUMENTS = ("analyse_t26.py", "build_t26.py", "launch_t26.sh",
+                        "mark_done_t26.py", "orchestrate_t26.py")
+
+#: A pin row names the file either by full repo path (section 15.3's form) or by
+#: bare basename (section 19.4's form).  BOTH ARE ACCEPTED, and the reason is a
+#: measurement: written to accept only the first, this checker read 15.3 and was
+#: BLIND to 19.4's supersession -- it reported the repaired files as MISMATCH
+#: against pins that section 19.4 had already replaced.  A supersession an
+#: instrument cannot see is not a supersession.
+_PIN_RE = re.compile(r"^\|\s*`(?:docs/campaigns/T-family/)?([A-Za-z0-9_.]+\.(?:py|sh))`"
+                     r"\s*\|\s*`([0-9a-f]{64})`\s*\|")
+_HEAD_RE = re.compile(r"^(#{2,4})\s+(\S+)")
+
+
+def read_registered_pins(path=None):
+    """Every sha256 pin in the registration, LAST occurrence per file wins.
+
+    Returns {relpath: (sha256, section)}.  Returns {} if the registration is
+    unreadable -- and the CALLER refuses on empty, because a pin set that
+    cannot be read is not a pin set that passed."""
+    path = path or REGISTRATION
+    pins, section = {}, "?"
+    try:
+        with open(path) as fh:
+            lines = fh.read().splitlines()
+    except (IOError, OSError):
+        return {}
+    for line in lines:
+        h = _HEAD_RE.match(line)
+        if h:
+            section = h.group(2).rstrip(".")
+        m = _PIN_RE.match(line)
+        if m and m.group(1) in REQUIRED_INSTRUMENTS:
+            pins[m.group(1)] = (m.group(2), section)   # later overwrites earlier
+    return pins
+
+
+def sha256_file(path):
+    try:
+        with open(path, "rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest()
+    except (IOError, OSError):
+        return None
+
+
+def verify_freeze(path=None, repo_root=None):
+    """Hash every pinned instrument against its LAST registered pin.
+
+    A mismatch, a missing file or an unreadable/empty pin set is a REFUSAL.
+    Never a warning -- section 15.3's own words."""
+    repo_root = repo_root or os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+    pins = read_registered_pins(path)
+    if not pins:
+        return dict(ok=False, rows=[],
+                    why="no sha256 pins could be read from the registration at %s. "
+                        "A pin set that cannot be read is not a pin set that passed."
+                        % (path or REGISTRATION))
+    missing = [f for f in REQUIRED_INSTRUMENTS if f not in pins]
+    if missing:
+        return dict(ok=False, rows=[], bad=list(missing),
+                    why="no sha256 pin in the registration for %s. A required "
+                        "instrument with no pin is UNVERIFIED, and unverified is "
+                        "not passing." % ", ".join(missing))
+    rows, bad = [], []
+    for rel in sorted(pins):
+        want, section = pins[rel]
+        got = sha256_file(os.path.join(repo_root, "docs", "campaigns", "T-family", rel))
+        ok = (got == want)
+        rows.append(dict(file=rel, section=section, want=want, got=got, ok=ok))
+        if not ok:
+            bad.append(rel)
+    return dict(ok=not bad, rows=rows, bad=bad,
+                why="" if not bad else
+                    "the file that would grade is NOT the file that was frozen: %s"
+                    % ", ".join(bad))
+
+
+def control_freeze_reader():
+    """Planted control on the freeze check itself (rule 3), both directions.
+
+    POSITIVE: a mutated pinned file must be CAUGHT.  NEGATIVE arms: an absent
+    registration; a registration with NO pins; a registration missing ONE of
+    the five required instruments (K2f's four-of-five defect); and a pin
+    SUPERSEDED by a later section, which must resolve to the LATER value or the
+    checker is reading a stale section."""
+    tmp = tempfile.mkdtemp(prefix="t26_plant_freeze_")
+    try:
+        root = os.path.join(tmp, "repo", "docs", "campaigns", "T-family")
+        os.makedirs(root)
+        real = {}
+        for name in REQUIRED_INSTRUMENTS:
+            f = os.path.join(root, name)
+            with open(f, "w") as fh:
+                fh.write("original %s\n" % name)
+            real[name] = sha256_file(f)
+
+        def write_reg(path, pins_15, pins_19, bare_19=True):
+            with open(path, "w") as fh:
+                fh.write("## 15. FREEZE\n\n| instrument | sha256 |\n|---|---|\n")
+                for n, h in pins_15:
+                    fh.write("| `docs/campaigns/T-family/%s` | `%s` |\n" % (n, h))
+                if pins_19:
+                    fh.write("\n## 19. ADDENDUM 4\n\n| instrument | sha256 |\n|---|---|\n")
+                    for n, h in pins_19:
+                        fh.write("| `%s` | `%s` |\n"
+                                 % (n if bare_19 else "docs/campaigns/T-family/" + n, h))
+
+        reg = os.path.join(tmp, "reg.md")
+        repo = os.path.join(tmp, "repo")
+
+        # --- SUPERSESSION: 15.3 holds a WRONG pin, 19.4 the right one, BARE ---
+        stale = "0" * 64
+        write_reg(reg, [(n, stale if n == "orchestrate_t26.py" else real[n])
+                        for n in REQUIRED_INSTRUMENTS],
+                  [("orchestrate_t26.py", real["orchestrate_t26.py"])])
+        pins = read_registered_pins(reg)
+        got = pins.get("orchestrate_t26.py")
+        if not got or got[0] != real["orchestrate_t26.py"]:
+            return dict(passed=False,
+                        why="a pin superseded by a later section resolved to the STALE "
+                            "value -- the checker is reading section %r" % (got,))
+        if got[1] != "19":
+            return dict(passed=False, why="winning pin reported section %r, not 19" % got[1])
+        v = verify_freeze(reg, repo)
+        if not v["ok"]:
+            return dict(passed=False, why="a correctly superseded pin set FAILED: %s" % v["why"])
+
+        # --- COVERAGE: one required instrument missing must REFUSE (K2f) ------
+        write_reg(reg, [(n, real[n]) for n in REQUIRED_INSTRUMENTS[:-1]], [])
+        v = verify_freeze(reg, repo)
+        if v["ok"] or "no sha256 pin" not in v["why"]:
+            return dict(passed=False,
+                        why="a registration missing one of the five instruments PASSED "
+                            "-- that is K2f's four-of-five defect")
+
+        # --- absent registration, and one with no pins at all -----------------
+        if read_registered_pins(os.path.join(tmp, "nope.md")) != {}:
+            return dict(passed=False, why="an ABSENT registration did not return {}")
+        v = verify_freeze(os.path.join(tmp, "nope.md"), repo)
+        if v["ok"] or "cannot be read" not in v["why"]:
+            return dict(passed=False, why="an ABSENT registration did not refuse")
+        nopins = os.path.join(tmp, "nopins.md")
+        with open(nopins, "w") as fh:
+            fh.write("## 15. FREEZE\n\nno pins here at all\n")
+        if verify_freeze(nopins, repo)["ok"]:
+            return dict(passed=False, why="a registration with NO pins PASSED -- vacuous")
+
+        # --- POSITIVE: mutate a pinned file, then remove it --------------------
+        write_reg(reg, [(n, real[n]) for n in REQUIRED_INSTRUMENTS], [])
+        if not verify_freeze(reg, repo)["ok"]:
+            return dict(passed=False, why="an UNMUTATED tree failed its own pins")
+        target = os.path.join(root, "analyse_t26.py")
+        with open(target, "w") as fh:
+            fh.write("MUTATED\n")
+        if verify_freeze(reg, repo)["ok"]:
+            return dict(passed=False, why="a MUTATED pinned file PASSED the freeze check")
+        os.remove(target)
+        if verify_freeze(reg, repo)["ok"]:
+            return dict(passed=False, why="an ABSENT pinned file PASSED the freeze check")
+        return dict(passed=True,
+                    negative_arms="stale-section supersession (bare-name form), "
+                                  "four-of-five coverage gap, absent registration, "
+                                  "registration with no pins, mutated pinned file, "
+                                  "absent pinned file -- all six caught")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 def read_level0_edge(case_dir):
     """G-MESHSIM's reader: the BUILT background cell size, from the mesh itself.
 
@@ -1202,7 +1399,8 @@ CONTROLS = (("dimensionality reader (D-3D)", control_dimensionality_reader),
             ("residual reader (G-CONV)", control_residual_reader),
             ("y+ reader (REPORTED, not gated)", control_yplus_reader),
             ("cost reader (scripts/cost_channel.py)", control_cost_reader),
-            ("level0Edge reader (G-MESHSIM)", control_level0_edge_reader))
+            ("level0Edge reader (G-MESHSIM)", control_level0_edge_reader),
+            ("freeze verifier (section 15.3 / 19.4 pins)", control_freeze_reader))
 
 
 def run_all_controls(verbose=True):
