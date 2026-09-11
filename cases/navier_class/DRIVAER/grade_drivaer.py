@@ -397,19 +397,164 @@ def planted_zero_control(case, time):
                 base_mean_p=base, seen_mean_p=seen, reader_delta=delta,
                 expected_delta=expected, n_body_cells=n)
 
+
+# =======================================================================================
+# WINDOWED PLATEAU -- repaired under VERIFICATION_CHARTER §2d.1, ADDENDUM A1 (2026-09-11).
+# SCOPE: the plateau limb ONLY.  The band, the reference, every other gate: untouched.
+#
+# WHAT WAS THERE, AND WHY IT COULD NOT FAIL:
+#     cd_plat = abs(cd[-1] - cd[-2]) <= PLATEAU_TOL_REL * abs(cd[-1]) if cd[-1] else False
+#     cl_plat = abs(cl[-1] - cl[-2]) <= max(PLATEAU_TOL_REL * abs(cl[-1]), 1e-4)
+# A TWO-SAMPLE INCREMENT wearing a plateau's name.  The pinned system/forceCoeffs writes
+# `writeControl timeStep; writeInterval 1`, one coefficient row per iteration, so
+# cd[-1]-cd[-2] is an ADJACENT-ITERATION delta.  Measured on this run at iteration 1,144:
+# that delta was 1.27e-05 against a tolerance of 1.53e-03 -- it PASSED BY 120x -- while
+# the trace's own excursion was 2.40 % over 50 iterations, 4.59 % over 100 and 8.35 % over
+# 500.  The test measured a quantity two orders of magnitude below the signal's own
+# ripple, so it reported PLATEAUED on a signal that was plainly still moving.  It could
+# not fail, and a limb that cannot fail is not a limb.
+#
+# THE RULE, FIXED IN ADVANCE OF MEASUREMENT (derived, not chosen):
+#   W         = 10 % of endTime, i.e. 300 iterations for endTime 3000 -- taken from the
+#               run's own registered length by a data-independent rule, never from which
+#               window happens to read best.
+#   statistic = (max - min) / |mean| over the trailing W samples: the natural reading of
+#               "plateaued" is that the signal stops MOVING over a stretch.
+#   tolerance = PLATEAU_TOL_REL, STILL 0.005, UNCHANGED.  Only the quantity it measures is
+#               repaired.  The narrowest possible repair, deliberately.
+#   Cl        = the IDENTICAL rule.  The old asymmetry (Cd guarded by `if cd[-1] else
+#               False`, Cl floored by `max(..., 1e-4)`) is not carried forward.
+#
+# CAN IT SEE WHAT IT MUST -- AND THE BAND MUST BE NAMED BY KIND, because this limb feeds
+# two paths whose bands are of DIFFERENT KINDS, and citing one alone is how the ambiguity
+# arises:
+#   Gate V1  +/-0.10  RELATIVE  -- the TIGHTEST band among this limb's consumers, but on
+#                                  the grade_ladder path, which STAGE A NEVER EXECUTES
+#                                  -> the criterion resolves 20x finer
+#   Gate A2  [0.15, 0.60] ABSOLUTE -- the band ACTUALLY IN FORCE for this Stage A run;
+#                                  half-width 0.225 about a midpoint of 0.375 = 0.60
+#                                  relative -> resolves ~120x finer at its midpoint
+# Both are emitted by the record and both are asserted in --selftest.
+#
+# AND THE GENERAL OBSERVATION, because this comment is itself an instance of it:
+#   WHEN A NUMBER IS CORRECTED, THE SENTENCE THAT ASSERTS IT IS THE PART LEFT BEHIND --
+#   AND THE SENTENCE IS WHAT PEOPLE READ.
+# The first draft of this repair fixed the record fields and the selftest assertions and
+# left THIS comment citing one unlabelled band as "the tightest band it feeds".  Four
+# instances of the same failure landed in this lab on 2026-09-10/11: two stale DRAFT
+# banners over frozen registrations, six controlDicts whose header says "50-step smoke"
+# above a line reading endTime 4000 (one of them under an already-graded verdict), and
+# this comment.  A reader reaches the prose first and stops there.
+#
+# UNSATISFIABILITY GUARD -- the mirror of PRD's defect, and it is checked, not assumed.
+# PRD registered a plateau tolerance TIGHTER than its own converged ripple, making it a
+# criterion a correct run could not satisfy.  This repair could commit that sin in
+# reverse.  So: if a converged run's excursion over W exceeds 0.005, THIS CRITERION IS
+# UNSATISFIABLE AND THAT IS A FINDING TO REPORT, NOT A FAIL TO RECORD.  A criterion that
+# cannot be met is as broken as one that cannot fail.  The returned record therefore
+# carries the measured excursion beside the verdict so the question can be asked of the
+# number rather than of the label.
+#
+# ARMING (§2cx): the limb reports `armed_by`, and reports NOT-ARMED rather than falling
+# silent.  An unarmed gate is a REFUSAL, never a pass -- the defect `ref.get("Cl")` had,
+# where a missing value removed a gate, its control and its refusal all at once and said
+# nothing.
+# =======================================================================================
+PLATEAU_WINDOW_FRAC = 0.10      # W = 10% of endTime; data-independent
+# MINIMUM WINDOW, DERIVED -- and it REFUSES below it, it does not clamp.
+# The first draft of this function read `return max(2, int(round(...)))`.  That floor
+# is the defect this whole addendum repairs, waiting to come back: at endTime 20 it
+# yields W = 2, and a 2-sample window IS the two-sample increment.  The repair would
+# have silently become the bug on exactly the short smoke cases where nobody looks.
+# 20 samples is the floor because below roughly that, (max - min) over the window is
+# decided by two or three points and the statistic stops meaning "the signal stopped
+# moving".  A clamp is the same species as `ref.get("Cl")`: it substitutes a usable-
+# looking answer for an unanswerable question.  So: NOT ARMED, exit 2.
+MIN_PLATEAU_WINDOW = 20
+
+
+def _a2_relative_halfwidth():
+    """Gate A2's ABSOLUTE band expressed relative to its own midpoint, so it can be
+    compared with a relative tolerance at all.  (0.15, 0.60) -> half-width 0.225 about
+    a midpoint of 0.375 -> 0.60 relative.
+
+    CD_DIAG_BAND is defined ~235 lines BELOW this function and is resolved AT CALL TIME,
+    not at import.  Correct as the module stands; it would break only if something called
+    this during import.  Recorded rather than fixed by moving the constant."""
+    lo, hi = CD_DIAG_BAND
+    return ((hi - lo) / 2.0) / ((hi + lo) / 2.0)
+
+
+def plateau_window(end_time, name="plateau"):
+    """W in samples, from the run's own registered length.  Never from the data.
+    REFUSES below MIN_PLATEAU_WINDOW rather than clamping."""
+    W = int(round(PLATEAU_WINDOW_FRAC * float(end_time)))
+    if W < MIN_PLATEAU_WINDOW:
+        refuse(f"{name} limb NOT ARMED: endTime {end_time} gives a window of W={W} "
+               f"samples ({PLATEAU_WINDOW_FRAC:.0%} of endTime), below the minimum "
+               f"{MIN_PLATEAU_WINDOW}. A window that short is the two-sample increment "
+               f"this limb exists to replace. An unarmed gate is a REFUSAL, never a pass.")
+    return W
+
+
+def windowed_plateau(series, end_time, name):
+    """Return the plateau record for `series`.  REFUSES if it cannot be armed."""
+    W = plateau_window(end_time, name)
+    n = len(series)
+    if n < W:
+        refuse(f"{name} plateau limb NOT ARMED: the window is {W} samples "
+               f"(= {PLATEAU_WINDOW_FRAC:.0%} of endTime {end_time}) but only {n} "
+               f"coefficient rows exist. An unarmed gate is a REFUSAL, never a pass.")
+    w = series[-W:]
+    mean = sum(w) / W
+    if mean == 0.0:
+        # zero-value edge case, stated rather than left implicit: a zero mean makes a
+        # RELATIVE excursion undefined.  It is not silently floored to an absolute
+        # tolerance (which is what the old Cl branch did with max(..., 1e-4)); it refuses.
+        refuse(f"{name} plateau limb NOT ARMED: window mean is exactly zero, so a "
+               f"relative excursion is undefined. Refusing rather than substituting an "
+               f"absolute floor.")
+    exc = (max(w) - min(w)) / abs(mean)
+    return dict(
+        quantity=name, state="PLATEAUED" if exc <= PLATEAU_TOL_REL else "NOT_PLATEAUED",
+        excursion_rel=exc, tol=PLATEAU_TOL_REL, window=W, n_samples=n,
+        window_frac_of_endTime=PLATEAU_WINDOW_FRAC, end_time=float(end_time),
+        window_mean=mean, window_min=min(w), window_max=max(w),
+        armed=True, armed_by=(f"{W}-sample window from endTime {end_time} "
+                              f"({PLATEAU_WINDOW_FRAC:.0%}); {n} rows available"),
+        statistic="(max-min)/|mean| over the trailing window",
+        # The limb feeds TWO paths with bands of DIFFERENT KIND, so both are reported
+        # and each is named.  Citing one alone is how the ambiguity arises.
+        resolves_finer_than_V1_RELATIVE_band_by=CD_BAND_REL / PLATEAU_TOL_REL,
+        resolves_finer_than_A2_ABSOLUTE_band_by=_a2_relative_halfwidth() / PLATEAU_TOL_REL,
+        band_kinds=("Gate V1 +/-%.2f RELATIVE (grade_ladder path, NOT executed by "
+                    "Stage A); Gate A2 %s ABSOLUTE (the band in force for Stage A)"
+                    % (CD_BAND_REL, str(CD_DIAG_BAND))),
+        unsatisfiability_note=(
+            "if a CONVERGED run's excursion over this window exceeds the tolerance, the "
+            "criterion is UNSATISFIABLE and that is a finding to report, not a fail to "
+            "record. DIAGNOSIS REQUIRED BEFORE THAT CALL: (max-min) over 300 samples is "
+            "set by the tails, so ONE BLIP DOMINATES IT. Separate genuine drift from a "
+            "single outlier -- only genuine drift means 'run longer'. Conservative by "
+            "design: the statistic cannot favour the run."))
+
+
 # ---------------------------------------------------------------------------------------
 def grade_case(case, want):
     endT, last = check_completion(case)
     fc = assert_forcecoeffs_constants(case, want)
     d_dat, cd = read_coeff(case, "Cd")
     _, cl = read_coeff(case, "Cl")
-    cd_plat = abs(cd[-1] - cd[-2]) <= PLATEAU_TOL_REL * abs(cd[-1]) if cd[-1] else False
-    cl_plat = abs(cl[-1] - cl[-2]) <= max(PLATEAU_TOL_REL * abs(cl[-1]), 1e-4)
+    cd_pl = windowed_plateau(cd, endT, "Cd")       # ADDENDUM A1: windowed, not two-sample
+    cl_pl = windowed_plateau(cl, endT, "Cl")       # identical rule, no asymmetry
+    cd_plat = (cd_pl["state"] == "PLATEAUED")
+    cl_plat = (cl_pl["state"] == "PLATEAUED")
     ncells = len(parse_owner(case))
     it_state, it_detail = read_iterative_state(case)   # rule-5 clause-1, READ not defaulted
     return dict(case=case, nCells=ncells, endTime=endT, last=last, Cd=cd[-1], Cl=cl[-1],
                 Cd_prev=cd[-2], Cl_prev=cl[-2], coefficient_dat=d_dat,
                 cd_plateaued=bool(cd_plat), cl_plateaued=bool(cl_plat),
+                plateau_Cd=cd_pl, plateau_Cl=cl_pl,
                 iterative_state=it_state, iterative_detail=it_detail,
                 forceCoeffs_constants=fc)
 
@@ -817,6 +962,68 @@ def run_selftest(args):
                       f"no cap and no pass can be emitted unmeasured")
     finally:
         shutil.rmtree(tmp3, ignore_errors=True)
+
+    print("== ARMING PROOF 4 (ADDENDUM A1): the windowed plateau limb, BOTH directions ==")
+    import math as _m
+    END = 3000
+    W = plateau_window(END)
+    assert W == 300, W
+    print(f"  window W = {W} samples = 10% of endTime {END} (derived, not chosen)")
+    # (a) FLAT trace -> must say PLATEAUED
+    flat = [0.30 + 1e-5*_m.sin(i/7.0) for i in range(END)]
+    r = windowed_plateau(flat, END, "Cd")
+    assert r["state"] == "PLATEAUED", r
+    print(f"  [PASS] flat trace      -> {r['state']:14s} excursion {r['excursion_rel']:.3e} <= {r['tol']}")
+    # (b) DRIFTING trace -> must say NOT_PLATEAUED
+    drift = [0.30 + 5e-5*i for i in range(END)]
+    r = windowed_plateau(drift, END, "Cd")
+    assert r["state"] == "NOT_PLATEAUED", r
+    print(f"  [PASS] drifting trace  -> {r['state']:14s} excursion {r['excursion_rel']:.3e} >  {r['tol']}")
+    # (c) OSCILLATING inside tol -> PLATEAUED;  (d) oscillating outside -> NOT_PLATEAUED
+    for amp, want in ((0.30*0.001, "PLATEAUED"), (0.30*0.02, "NOT_PLATEAUED")):
+        osc = [0.30 + amp*_m.sin(i/23.0) for i in range(END)]
+        r = windowed_plateau(osc, END, "Cd")
+        assert r["state"] == want, (amp, r)
+        print(f"  [PASS] oscillation +/-{amp/0.30:.3%} -> {r['state']:14s} excursion {r['excursion_rel']:.3e}")
+    # (e) THE OLD TEST WOULD HAVE PASSED THE DRIFTING TRACE -- the defect, demonstrated
+    old = abs(drift[-1]-drift[-2]) <= PLATEAU_TOL_REL*abs(drift[-1])
+    print(f"  [DEFECT DEMONSTRATED] the SUPERSEDED two-sample test on that same drifting "
+          f"trace: {'PLATEAUED' if old else 'NOT_PLATEAUED'} "
+          f"(|d|={abs(drift[-1]-drift[-2]):.3e} vs tol {PLATEAU_TOL_REL*abs(drift[-1]):.3e})")
+    assert old, "the superseded test should pass the drifting trace; that was the defect"
+    # (f) ARMING: too few samples must REFUSE, never pass
+    try:
+        windowed_plateau([0.3]*10, END, "Cd"); raise AssertionError("NOT ARMED check missing")
+    except SystemExit as e:
+        assert e.code == EXIT_REFUSE, e.code
+        print(f"  [PASS] 10 samples vs a 300 window -> REFUSED (exit {e.code}), not passed")
+    # (g) zero-mean edge case must REFUSE, not fall back to an absolute floor
+    try:
+        windowed_plateau([0.0]*END, END, "Cl"); raise AssertionError("zero-mean check missing")
+    except SystemExit as e:
+        assert e.code == EXIT_REFUSE, e.code
+        print(f"  [PASS] zero window mean -> REFUSED (exit {e.code}); no silent absolute floor")
+    # (h) CORRECTION 1: a short endTime must REFUSE, never clamp to a 2-sample window
+    for et in (20, 100, 190):
+        try:
+            plateau_window(et, "Cd")
+            raise AssertionError(f"NOT ARMED check missing: endTime {et} was accepted")
+        except SystemExit as e:
+            assert e.code == EXIT_REFUSE, (et, e.code)
+        print(f"  [PASS] endTime {et:4d} -> W={int(round(PLATEAU_WINDOW_FRAC*et)):2d} < "
+              f"{MIN_PLATEAU_WINDOW} -> REFUSED (exit 2), NOT clamped to a 2-sample window")
+    assert plateau_window(200, "Cd") == 20
+    print(f"  [PASS] endTime  200 -> W=20 == the minimum -> armed")
+    # (i) CORRECTION 2: both bands reported, each named by kind
+    r = windowed_plateau(flat, END, "Cd")
+    v1, a2 = r["resolves_finer_than_V1_RELATIVE_band_by"], r["resolves_finer_than_A2_ABSOLUTE_band_by"]
+    assert abs(v1 - 20.0) < 1e-9 and abs(a2 - 120.0) < 1e-9, (v1, a2)
+    print(f"  [PASS] resolves {v1:.0f}x finer than Gate V1 (+/-{CD_BAND_REL} RELATIVE, "
+          f"grade_ladder path -- NOT executed by Stage A)")
+    print(f"  [PASS] resolves {a2:.0f}x finer than Gate A2 ({CD_DIAG_BAND} ABSOLUTE, "
+          f"the band IN FORCE for this run) at its midpoint")
+    assert "ONE BLIP DOMINATES IT" in r["unsatisfiability_note"]
+    print("  [PASS] unsatisfiability note carries the drift-vs-single-outlier distinction")
 
     if args.smoke:
         ts = time_dirs(args.smoke)

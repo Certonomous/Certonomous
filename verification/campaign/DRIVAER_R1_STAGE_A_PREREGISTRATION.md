@@ -546,3 +546,145 @@ restarted, nothing stopped, no registration touched.
 **The general lesson, which belongs to the lab and not to this case: a cap denominated in
 core-minutes is partly a cap on how busy the rest of the box is, so a CAPPED run and an UNCAPPED run
 must never compete at equal priority.**
+
+---
+
+## ADDENDUM A1 — 2026-09-11 — WINDOWED PLATEAU LIMB (VERIFICATION_CHARTER §2d.1)
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.**
+
+**Granted narrowly by verification under §2d.1. SCOPE: THE PLATEAU LIMB ONLY.** The band,
+the reference values, Gate A1's other checks, Gate A2/A3, the completion rule and the
+declared non-conformance are **frozen and untouched**. `PLATEAU_TOL_REL = 0.005` **does
+not change**; only the quantity it measures is repaired.
+
+### A1.1 The original, STRUCK — not rewritten
+
+The frozen comparator `grade_drivaer.py` (sha256 `0eddb5588c…`) at lines 406–407 read:
+
+> ~~`cd_plat = abs(cd[-1] - cd[-2]) <= PLATEAU_TOL_REL * abs(cd[-1]) if cd[-1] else False`~~
+>
+> ~~`cl_plat = abs(cl[-1] - cl[-2]) <= max(PLATEAU_TOL_REL * abs(cl[-1]), 1e-4)`~~
+
+**Why it could not fail.** The pinned `system/forceCoeffs` (sha256 `4482746d0e336546`)
+writes `writeControl timeStep; writeInterval 1` — **one coefficient row per iteration** —
+so `cd[-1] − cd[-2]` is an **adjacent-iteration delta**, not a plateau. Measured on this
+run at iteration 1,144: that delta was **1.27e-05** against a tolerance of **1.53e-03**,
+**passing by 120×**, while the trace's own excursion was **2.40 % over 50 iterations,
+4.59 % over 100 and 8.35 % over 500**. The test measured a quantity **two orders of
+magnitude below the signal's own ripple**, so it reported PLATEAUED on a signal that was
+plainly still moving. **A limb that cannot fail is not a limb.**
+
+### A1.2 DISCLOSURE — a live Cd had been seen when the defect was found
+
+**`Cd = 0.3053` was read off this live, ungraded run during the investigation that found
+the defect**, and the excursion figures above were measured on the same live trace. That
+is recorded here, on the face of the record, because **a repair argued after seeing the
+number has to answer for having seen it.** The repair is **strictly stricter** than what
+it replaces — it can only turn PLATEAUED into NOT_PLATEAUED, never the reverse — and
+`Cd = 0.3053` informs nothing this addendum changes.
+
+### A1.3 The rule — DERIVED, and fixed in advance of measurement
+
+| | |
+|---|---|
+| Window `W` | **10 % of `endTime`** → **300** samples at `endTime 3000`. From the run's own registered length by a **data-independent** rule, never from which window reads best. |
+| Minimum window | **`MIN_PLATEAU_WINDOW = 20`, and below it the limb REFUSES (exit 2) — it does not clamp.** Derived: below ~20 samples `(max − min)` is decided by two or three points and the statistic stops meaning "the signal stopped moving". **The first draft of this repair read `return max(2, …)`, which at `endTime 20` yields `W = 2` — and a 2-sample window IS the two-sample increment this addendum replaces.** The repair would have silently become the defect on exactly the short smoke cases nobody inspects, and `grade_case` is not Stage-A-only, so that path was reachable. A clamp is the same species as `ref.get("Cl")`: it substitutes a usable-looking answer for an unanswerable question. |
+| Statistic | **`(max − min) / |mean|` over the trailing `W` samples** — the natural reading of "plateaued": the signal stops **moving** over a stretch, not between two adjacent samples. |
+| Tolerance | **`PLATEAU_TOL_REL = 0.005`, UNCHANGED.** |
+| Cl | **The identical rule.** The old asymmetry — Cd guarded by `if cd[-1] else False`, Cl floored by `max(..., 1e-4)` — is **not carried forward**. |
+| Zero-value edge case | A zero window mean makes a relative excursion undefined. It **REFUSES (exit 2)**; it is **not** silently floored to an absolute tolerance, which is what the old Cl branch did. |
+
+**Can it see what it must — and the band must be named by KIND, because the limb feeds
+two paths whose bands are of different kinds.** Citing one alone is how the ambiguity
+arises, and the first draft of this addendum cited the wrong one for this run:
+
+| consumer | band | kind | criterion resolves |
+|---|---|---|---|
+| **Gate V1** | ±0.10 | **RELATIVE** (`band_cd = (cd_ref*(1−CD_BAND_REL), cd_ref*(1+CD_BAND_REL))`, line 527) — the **tightest** band among the limb's consumers, but on the `grade_ladder` path, which **Stage A never executes** | **20× finer** |
+| **Gate A2** | [0.15, 0.60] | **ABSOLUTE** — the band **actually in force for this Stage A run**; half-width 0.225 about a midpoint of 0.375 = 0.60 relative | **≈120× finer** at its midpoint |
+
+Both figures are true of different things. The comparator therefore emits **both**, each
+named by kind, in `resolves_finer_than_V1_RELATIVE_band_by` and
+`resolves_finer_than_A2_ABSOLUTE_band_by`, with a `band_kinds` string stating which path
+is executed. **Reporting the absolute beside the relative is what stops the ambiguity
+arising at all.**
+
+**Arming (§2cx).** The limb reports **`armed_by`** and reports **NOT-ARMED rather than
+falling silent**: fewer coefficient rows than the window is a **REFUSAL (exit 2)**, never
+a pass. **An unarmed gate is a refusal.** This is the defect `ref.get("Cl")` had, where a
+missing value removed a gate, its control and its refusal at once and said nothing.
+
+### A1.4 UNSATISFIABILITY GUARD — the mirror of PRD's defect
+
+PRD registered a plateau tolerance **tighter than its own converged ripple**, making it a
+criterion a correct run could not satisfy. This repair could commit that sin in reverse.
+**So it is written here in advance: if a CONVERGED run's excursion over the 300-sample
+window exceeds 0.005, THIS CRITERION IS UNSATISFIABLE, AND THAT IS A FINDING TO REPORT,
+NOT A FAIL TO RECORD.** A criterion that cannot be met is as broken as one that cannot
+fail. The comparator therefore emits the **measured excursion beside the verdict**, so
+the question can be asked of the number rather than of the label.
+
+**And the diagnosis required before that call is written into the note the comparator
+emits.** Over 300 samples `(max − min)` is set by the **tails**, so **a single blip
+dominates it**. That property is kept deliberately — it makes the criterion conservative,
+which is the correct direction for a repair that must not favour the run. But it means
+**an unsatisfiability finding must separate genuine drift from one outlier: only genuine
+drift means "run longer".**
+
+### A1.5 THE PREDICTION, REGISTERED BEFORE THE DATA
+
+**Registered 2026-09-11T04:50:04Z, at iteration 1175 of 3000 — before this run reaches `endTime` and
+before the 300-sample window at `endTime` exists.**
+
+> **PREDICTION: the repaired plateau limb will return `NOT_PLATEAUED` for Cd on this run.**
+> By rule 5 limb (1) the rung is then **NOT A RESULT**.
+> **If it instead returns PLATEAUED, that is a FINDING and will be reported as one.**
+
+This timestamped prediction **against our own interest** is the evidentiary content this
+repair has **in place of a freeze**. Stated honestly: the prediction is **not blind** —
+the excursions in A1.1 were measured on the live trace before the rule was fixed. What
+protects it is that **the rule in A1.3 was fixed by the supervisor in advance and
+implemented without tuning**, that the window is derived from `endTime` rather than
+chosen, and that **the 300-sample excursion at `endTime` has not been computed by this
+lane**.
+
+**`NOT A RESULT` here is the honest outcome, not a failure of the case.** An 8.35 %
+excursion over 500 iterations says the case must run **longer**, not differently. It
+routes to a dated successor with a longer run and the repaired criterion registered up
+front. **It is not a numerics escalation: the signal is drifting, not oscillating.**
+
+### A1.6 The pin, re-recorded — the §8 row is NOT silently broken
+
+Repairing the comparator changes its hash. Both are recorded:
+
+| | sha256 |
+|---|---|
+| **OLD** (frozen §8 row) | `0eddb5588c3371140d6e7b75ee763c05048b0f83f8d1917fe3297d9c68908c72` |
+| **NEW** (repaired) | `1b51dc1d4438f66a852b104c22f5756c6ca38282e02891fe4f4469e6fe9be44d` |
+
+**The §8 row's pin now refers to the repaired file by this addendum's authority.** §8 is
+not edited; this addendum supersedes its comparator hash and nothing else.
+
+### A1.7 Shown able to say both words, and mutation-tested
+
+`--selftest` (ARMING PROOF 4), no arguments, synthetic traces only:
+
+- flat trace → **PLATEAUED** (excursion 6.67e-05)
+- drifting trace → **NOT_PLATEAUED** (excursion 3.38e-02)
+- oscillation ±0.100 % → **PLATEAUED**; ±2.000 % → **NOT_PLATEAUED**
+- **the superseded two-sample test on that same drifting trace → PLATEAUED** — the defect
+  demonstrated in the test suite rather than argued
+- 10 samples against a 300 window → **REFUSED (exit 2)**, not passed
+- zero window mean → **REFUSED (exit 2)**, no silent absolute floor
+- `endTime` 20 / 100 / 190 → `W` = 2 / 10 / 19, all below the minimum → **REFUSED
+  (exit 2), not clamped**; `endTime` 200 → `W` = 20 → armed
+- both band ratios asserted: **20× relative (V1)** and **120× absolute (A2)**
+
+Mutation-tested, as `scripts/openfoam_fault_pattern.py` was: reverting to the two-sample
+form, loosening the tolerance 10×, dropping the arming refusal, shrinking the window
+fraction to 0.1 %, **reinstating the `max(2, …)` clamp**, and lowering
+`MIN_PLATEAU_WINDOW` to 2 — **all six make `--selftest` FAIL**; the unmutated control
+passes. The fifth and sixth exist because that clamp was a real defect in the first
+draft of this repair, caught in a diff read, and a test now stops it returning. **A criterion
+shown able to say only one of the two words is not shown to work.**
