@@ -293,7 +293,13 @@ run; it does not get a new budget.** The rule-12 estimate-versus-actual row is o
 FALLING AT 3.78 GiB/h** (measured by another lane) — faster than this lane was briefed, so the window
 is narrower than the raw free-space figure suggests and the ordering below is load-bearing, not tidy. The ladder needs **~2.99 GB** of
 volume meshes alone, before any solution files. **L3 is to be extruded only after a free-space check
-confirms ≥ 8 GB**, and the ladder is built **L1 → L2 → L3** so the cheap levels land first. The probe
+confirms ≥ 8 GB**, and the ladder is built **L1 → L2 → L3** so the cheap levels land first.
+
+🔴 **FREE SPACE IS RE-READ IMMEDIATELY BEFORE EACH LEVEL, NEVER ONCE AT THE START.** Another lane has
+measured the drain decomposition: **total 6.272 GiB/h, of which cfd is only 48 % and other teams
+3.246 GiB/h and volatile.** **The number this gate gates on is moving for reasons this team does not
+control**, so a reading taken before L1 is not evidence about the disk at L3. A stale free-space
+reading is the same defect as a status artifact outliving its run. The probe
 directory itself is small (the coarse surface is 348,160 bytes).
 
 ---
@@ -469,6 +475,19 @@ and a GCI on a self-consistent QoI — with the physics REPORTED, NOT GATED.**
 > **Absence of reference data does not weaken a verification rung; it bars a validation claim this rung
 > should not make.**
 
+🔴 **TWO CONSTRAINTS THE SUCCESSOR INHERITS FROM §10B, BOTH BINDING ON IT:**
+
+1. **When §10A registers an observed-order band it may NOT cite `MESH_STANDARD` or rule 5 for it.** The
+   numbers that were offered came from a ratio-versus-order conflation (§10B). **It must cite Roache or
+   Celik directly, with edition and page, or register the band as a LAB CHOICE with its reasoning —
+   never as "inherited".** *"Inherited" is what justifies freezing without a reference dataset; it may
+   not be claimed for a band that has no ancestor.*
+2. **A `GCI` gate must state ABSOLUTE or RELATIVE explicitly.** `VERIFICATION_CHARTER` §2bz records
+   **GCI = 129.33 %, 109.88 % and 71.70 % ON ROWS THAT PASSED**, because `GCI_pct` divides by a small
+   `f_fine`, and it rules: **"Report the absolute beside the relative, always; where only one may be
+   quoted, quote the absolute."** **A bare `GCI_fine < 3 %` does not say which it is, and on the wrong
+   denominator it is meaningless.**
+
 ---
 
 ## 10B. 🔴 TWO PROBLEMS WITH THE PROPOSED GATE SET, RAISED RATHER THAN ABSORBED
@@ -483,14 +502,28 @@ nothing to extrapolate and no `p` to observe.** Registering them here would regi
 compute is physically incapable of firing** — and *a gate that cannot fire reads downstream as a gate
 that passed*, which is worse than no gate at all. **They belong to §10A's successor, where a QoI exists.**
 
-**PROBLEM 2 — I CANNOT FIND THEM IN A STANDARD, SO "INHERITED" IS UNVERIFIED.** This lane searched
-`MESH_STANDARD.md` and `VERIFICATION_CHARTER.md` for the window `[1.3, 2.5]` and for a `GCI < 3 %` gate
-and **found neither** (the charter references *"the order window"* at §3.2/`:219` without fixing those
-bounds). **The claim that they are inherited is what justified freezing them without a reference
-dataset**; if they are not in a standard, they are **invented numbers wearing inherited clothing — the
-exact failure this document caught in §9A, twelve hours after it was caught.** 🔴 **A citation is
-requested before either appears in any frozen document.** If one exists, this lane simply did not find it
-and the citation settles it; the sweep that failed to find it is recorded so it can be checked.
+**PROBLEM 2 — THEY ARE IN NO STANDARD, AND THE ROOT CAUSE IS A QUANTITY CONFUSION. ✅ RESOLVED.**
+This lane searched `MESH_STANDARD.md` and `VERIFICATION_CHARTER.md` and found neither. **The supervisor
+then re-ran the sweep independently, with its own positive control, and confirmed it — and found more:**
+
+- **`[1.3, 2.5]` appears in NO standard, NO charter, and NOT in `CLAUDE.md`.**
+- **`GCI < 3 %` exists nowhere as a gate.** The only GCI text in the charter is §2bz's *caveat* about
+  129.33 % percentages.
+- 🔴 **`docs/standards/MESH_STANDARD.md` HAS NO §9** — it runs §1 to §7, and the other `MESH_STANDARD.md`
+  uses lettered sections. **The section originally cited does not exist in either file.**
+
+🔴 **THE ROOT IS NOT AN UNSOURCED NUMBER — IT IS A QUANTITY CONFUSION, AND IT INVERTS THE MEANING OF
+1.3.** F28 records *"Both exceed the required 1.3"* about **`r_21 = 1.3484` and `r_32 = 1.3540` —
+REFINEMENT RATIOS.** That is **Celik's requirement that the grid refinement RATIO `r ≥ 1.3`.** It became
+a band on the observed **ORDER `p`**. **Two entirely different quantities that happen to share the
+number 1.3** — the right threshold against the wrong quantity, which is a defect class this lab hit
+repeatedly on 2026-09-11. **It was one signature from being frozen into this registration.**
+
+🟢 **AND CORRECTING IT STRENGTHENS THIS RUNG RATHER THAN COSTING IT ANYTHING.** The real requirement is
+a **floor on the refinement ratio**, and **this family's ratio is `r = 2.000000`, twice over** (§4).
+**It clears Celik's `r ≥ 1.3` by a factor of 1.54, at both level pairs, exactly and not within a
+tolerance.** The number 1.3 *is* relevant here — **as the ratio floor this family comfortably passes,
+never as a band on an order this rung cannot compute.**
 
 **A third caution, for whoever registers `GCI_fine < 3 %` later:** `VERIFICATION_CHARTER` §2bz records
 GCI percentages of **129.33 %, 109.88 % and 71.70 % on rows that PASSED**, because `GCI_pct` divides by a
