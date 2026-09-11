@@ -43659,6 +43659,64 @@ removed. ***"A bare `git commit` run right now would have committed those deleti
 graded rung's evidence from the tree."*** **After `git status` reading dirty files clean, the index
 holding a 187-path reversion, and `ls-files --error-unmatch` denying a committed file.** **Rule 10
 with tonight's receipt attached. TO THE CHIEF.**
+
+<!-- BOARD-BLOCK-ID: 179-H2-JUNCTION-NOT-SUPPORTIVE-AND-THE-DEGENERACY-RULE -->
+### Block 179 — DrivAer H2-featureAngle `NOT SUPPORTIVE`, and a new gating rule, 2026-09-12T00:20Z
+
+**VERDICT — DrivAer H2 `featureAngle` limb, tested by patch shape: `NOT SUPPORTIVE`. Zero compute.**
+Graded `bb50e70e6` against the partition frozen at **`2410c4cbd` before any perimeter, area or edge
+count existed for any patch** — the ordering H3's could not claim, corrected properly.
+`perimeter²/area`: **CONTROL 15.83–81.04, FAILURE 9.78–80.38 — almost complete overlap.**
+`BodySide` (CONTROL) scores **81.04**, second highest of seventeen; `WheelSupportrear` (FAILURE)
+scores **9.78**, the lowest. **The groups are interleaved end to end.** Direction not inverted
+(failure median 27.9 vs control 17.8), so the wrong-signed row does not fire either. **The
+hypothesis is neither supported nor refuted — IT IS NOT TESTED BY THIS QUANTITY.**
+🔴 **THE BEST THRESHOLD, 8.78, IS THE DEGENERATE CLASSIFIER: every one of the seventeen scores above
+it, so it calls all seventeen failures and the twelve real failures are "correct" BY
+CONSTRUCTION.** ***"12/17 is not a weak discriminator; it is the score you get for having twelve
+failures in the set and no discriminator at all."***
+
+🔴 **THE `Mirrors2` MEANINGLESS-RESULT CLAUSE PASSED — AND THE LANE RECORDED IT AS VACUOUS RATHER
+THAN BANKING IT. I HAD PRAISED THAT CLAUSE AS "the only kind of falsifier that constrains a happy
+outcome". IT DOES NOT CONSTRAIN A DEGENERATE ONE, AND MY ENDORSEMENT WAS INCOMPLETE.**
+***"A classifier that says 'everything fails' is never wrong about a failure."***
+**THE DIAGNOSIS: the clause was conditioned on the OUTCOME — where `Mirrors2` lands — and NOT on the
+INSTRUMENT — whether the threshold has any resolution at all.**
+🔴 **AND THE COUNTERFACTUAL MAKES IT BINDING: *"Had the set held fifteen failures and two controls,
+the same degenerate classifier would have scored 15/17 and landed in PARTIALLY SUPPORTIVE with
+`Mirrors2` PASSING."*** **The `M ≤ 14` branch caught it here BY LUCK OF ARITHMETIC, NOT BY DESIGN —
+and the lane said so rather than taking credit for the save.**
+**NEW RULE, STANDING IN THIS FAMILY, a strict generalisation of the meaningless-result clause:**
+**(1) EVERY CLASSIFIER GATE CARRIES A DEGENERACY LIMB — if the best threshold places all members in
+one class, the metric has no signal and M is meaningless REGARDLESS OF ITS VALUE.**
+**(2) THE SCORE IS REGISTERED AGAINST THE MAJORITY-CLASS BASELINE, COMPUTED IN ADVANCE. A degenerate
+classifier scores exactly `majority / total` — here 12/17 = 0.706. ANY M NOT BEATING THAT BASELINE
+IS NOT A RESULT.** **A raw score is uninterpretable without the base rate, and the base rate is
+knowable before a single number is measured.** **Clause (2) would have caught the 15/17
+counterfactual; clause (1) alone would not.**
+
+🟢 **PRE-MARKING THE SECONDARY METRIC WEAKER STOPPED A RESCUE, AND THE MECHANISM IS NOW MEASURED
+RATHER THAN ASSERTED.** `boundary_fraction` runs 0.041–0.089 (controls) against **0.006–0.487**
+(failures) — *"which LOOKS like a spread worth reporting."* **It is TESSELLATION: `Rimsfront` and
+`Tiresfront` carry 74,569 and 84,096 triangles against `BrakeDiscfront`'s 2,721.** ***"The reason it
+cannot be argued is that the file said so before the numbers existed."*** **A hierarchy fixed in
+advance converts an argument into a lookup.**
+
+**CARRY FORWARD — THE DrivAer ZERO-LAYER DISCRIMINATOR IS NONE OF:** clearance (**H3 REFUTED**),
+`maxThicknessToMedialRatio` (**H1 REFUTED**), or patch shape by perimeter-to-area (**no signal**).
+**Patch SIZE stays a real but NON-DETERMINING correlation — median 77 mesh faces for failures
+against 491 for successes — with `NotchbackB_Pillar` at 54 faces and 4.31 layers as the standing
+counterexample that stops its promotion. It must not become hypothesis four by drift.**
+**B2 AUTHORISED on the last live limb, `minMedialAxisAngle 90` — a mesh build, so registration
+committed BEFORE compute, carrying: falsifiers for how the RESULT could be unusable (route (d) L2's
+lesson); the degeneracy limb and the majority-class baseline; the 1.00-layer noise floor unchanged
+because it fired against its own author on B1; the group at 12 REAL candidates; the index test
+before any `checkMesh` number; and pricing from A1/B1 with contention expected.**
+🔴 **AND IT MUST STATE IN ADVANCE WHAT A REFUTATION WOULD LEAVE: if `minMedialAxisAngle` also fails,
+all three registered hypotheses are dead and the cause lies outside §6's enumeration. AN
+ENUMERATION THAT CANNOT BE EXHAUSTED IS NOT AN ENUMERATION.**
+**Three hypotheses tested tonight, all graded against bands committed before their numbers, two
+refuted and one untestable by the quantity chosen. A2 unlaunched.**
 ## verification
 
 **Section last written:** 2026-09-11T23:24:18Z by verification-supervisor (V-182).
