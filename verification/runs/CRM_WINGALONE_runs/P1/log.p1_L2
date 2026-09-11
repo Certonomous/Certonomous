@@ -1,0 +1,19 @@
+BOUNDARY defaultFaces nFaces=36416 startFace=3456224
+
+PREDICTED (registered before the run) vs ACHIEVED
+  wing      predicted  11136   achieved  11908   *** MISMATCH ***
+  farfield  predicted  11136   achieved  11196   *** MISMATCH ***
+  symmetry  predicted  14144   achieved  13312   *** MISMATCH ***
+  total     predicted  36416   achieved  36416
+
+GEOMETRIC ASSERTION (counts can be right for the wrong reason)
+  max wing face-centre |r|     =   38.3271   gate <= 4.3  -> FAIL
+  min farfield face-centre |r| =   40.9425   gate >= 80.0  -> FAIL
+
+PLANTED CONTROL — perturb one face's COORDINATES and re-run classify()
+  face 3808: class before = farfield (|r| 80.465)
+  plant applied = True -> class after = wing (|r| 1.609)
+  restored -> class = farfield (|r| 80.465)
+  classifier responded to the input change: True
+
+P1 GATE FAIL — reported, NOT adjusted

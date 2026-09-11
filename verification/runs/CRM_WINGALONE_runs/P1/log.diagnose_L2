@@ -1,0 +1,15 @@
+max|y| over each boundary face's vertices:
+  1e-3..1e-1                      272
+  1e-6..1e-3                      416
+  1e-9..1e-6                      416
+  >1e-1 (genuinely off-plane)   22000
+  symmetry (maxy<1e-9)          13312
+
+faces with 1e-9 <= max|y| < 1e-1  (candidates for a too-tight tolerance): 1104
+  their |r| range: 0.013 .. 83.181
+  their max|y| range: 4.059e-07 .. 6.920e-02
+
+genuinely off-plane faces: 22000, |r| range 0.122 .. 88.473
+
+*** DOES THE SYMMETRY PLANE SPAN THE RADIUS RANGE THE r>40 BAND ASSUMES IS EMPTY? ***
+  symmetry-plane face |r|: min 0.003  max 84.248  -- spans the 4.3..80 'dead zone': YES

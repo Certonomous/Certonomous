@@ -68,6 +68,56 @@ def planted_control(faces, coords, apply_plant=True):
     return (detected and restored == before) if apply_plant else (not detected), out
 
 
+
+def _write_synth(d):
+    """Build a tiny synthetic polyMesh whose boundary has exactly the registered
+    counts, so main() runs end to end and the SYMMETRY branch is proven live."""
+    import os
+    os.makedirs(d, exist_ok=True)
+    nsym, nwing, nff = EXPECT["symmetry"], EXPECT["wing"], EXPECT["farfield"]
+    start = 10
+    pts, faces = [], []
+    def quad(base, y, scale):
+        o = len(pts)
+        for dx, dz in ((0, 0), (1, 0), (1, 1), (0, 1)):
+            pts.append((base + dx * 0.01, y, scale + dz * 0.01))
+        return [o, o + 1, o + 2, o + 3]
+    for _ in range(start):                       # dummy internal faces
+        faces.append(quad(0.0, 0.5, 0.5))
+    for _ in range(nsym):                        # y == 0 exactly -> symmetry
+        faces.append(quad(1.0, 0.0, 1.0))
+    for _ in range(nwing):                       # |r| ~1.7 -> wing (<= 4.3)
+        faces.append(quad(1.0, 1.0, 1.0))
+    for _ in range(nff):                         # |r| ~86 -> farfield (>= 80)
+        faces.append(quad(50.0, 50.0, 50.0))
+    hdr = "\n".join(["// synthetic"] * 12) + "\n%d\n(\n"
+    with open(os.path.join(d, "points"), "w") as f:
+        f.write(hdr % len(pts))
+        for x, y, z in pts: f.write("(%.10f %.10f %.10f)\n" % (x, y, z))
+        f.write(")\n")
+    with open(os.path.join(d, "faces"), "w") as f:
+        f.write(hdr % len(faces))
+        for q in faces: f.write("4(%d %d %d %d)\n" % tuple(q))
+        f.write(")\n")
+    with open(os.path.join(d, "boundary"), "w") as f:
+        f.write("FoamFile{}\n1\n(\n    defaultFaces\n    {\n        type wall;\n"
+                "        nFaces %d;\n        startFace %d;\n    }\n)\n"
+                % (nsym + nwing + nff, start))
+    return d
+
+
+def selftest_main():
+    """Arm 4 — RUN main() END TO END on a synthetic mesh. Arms 1-3 exercise
+    planted_control() only and CANNOT see a broken main(); this arm can."""
+    import tempfile
+    d = _write_synth(os.path.join(tempfile.gettempdir(), "p1_synth_polyMesh"))
+    print("SELFTEST 4 — main() END TO END on a SYNTHETIC mesh (not the real one)")
+    print("   built at %s with a KNOWN symmetry face set, so the symmetry branch is proven live" % d)
+    rc = main(d)
+    print("   -> main() rc=%d  (expected 0)" % rc)
+    return rc
+
+
 def selftest():
     """Exercise the control on synthetic geometry, INCLUDING its failure mode.
     Runs no mesh and is not P1."""
@@ -93,7 +143,10 @@ def selftest():
     for m in msg3: print("   " + m)
     print("   -> %s  (expected FAIL — this is the control refusing)" % ("PASS" if ok3 else "FAIL"))
     good = a and ok2 and (not ok3)
-    print("\nSELFTEST %s" % ("PASS — the control detects a real plant AND refuses a dead classifier"
+    rc4 = selftest_main()
+    good = good and rc4 == 0
+    print("\nSELFTEST %s" % ("PASS — control detects a real plant, refuses a dead classifier, "
+                              "AND main() runs end to end with all three branches live"
                               if good else "FAIL"))
     return 0 if good else 1
 
@@ -139,13 +192,10 @@ def main(pm):
     wing_rmax, ff_rmin = 0.0, 1e18
     labels = []
     for pl in faces:
-        c = classify(pl)
-        if c == "symmetry":
-            got["symmetry"] += 1; labels.append("symmetry"); continue
-        name, r = c
+        name, r = classify(pl, coords)      # classify takes coords; it ALWAYS returns a tuple
         got[name] += 1; labels.append(name)
-        if name == "wing":  wing_rmax = max(wing_rmax, r)
-        else:               ff_rmin = min(ff_rmin, r)
+        if name == "wing":       wing_rmax = max(wing_rmax, r)
+        elif name == "farfield": ff_rmin = min(ff_rmin, r)
 
     print("\nPREDICTED (registered before the run) vs ACHIEVED")
     ok = True

@@ -1,0 +1,2 @@
+P1_INNER_RC=1
+WALL_S=18
