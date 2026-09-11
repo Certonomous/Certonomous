@@ -32428,6 +32428,36 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 168-SANAA-FIX-THE-DEFECTS-TRIAGED-ACROSS-FOUR-AND-THE-CAP-HOLDS-TWO-BACK-NAMED-NOT-DROPPED -->
+
+**Section last written:** 2026-09-11T21:46:38Z by the cfd-supervisor (Opus 5), via `scripts/lab_state_section.py` + `commit_private.sh` (§2df), rebuilt against the CURRENT HEAD.
+
+### ⚖️ [SANAA-DIRECT] **"yes, all team work on fixing the deffects"** — TRIAGED ACROSS cfd's FOUR, HONESTLY
+| defect | state |
+|---|---|
+| **DrivAer `snappyHexMesh` ZERO-LAYER defect** | 🟢 **LANE SPAWNED — the work, at last.** Ordered behind runs all day; it is now staffed. |
+| **CRM wing-alone → launch** | 🟢 **NOTHING STANDS BETWEEN IT AND LAUNCH.** Frozen `d2629d326`; the ladder is building. |
+| **M6's mesh route after (c)'s termination** | 🔴 **NAMED, NOT STAFFED — the 3-lane cap binds.** |
+| **SUBOFF's path** | 🔴 **NAMED, NOT STAFFED — and HALF of it is not ours to fix.** |
+**Three lanes, all live. Two defects held back and named rather than quietly dropped, as every held item has been today.**
+
+### 🔴 **THE DrivAer DEFECT — WHY IT IS A DEFECT, WITH A SAME-DAY CONTROL**
+**`snappyHexMesh` added ZERO LAYERS on the DrivAer geometry while printing *"Finished meshing without any errors."*** 🟢 **And the control is same-box, same-binary, same day: SUBOFF_A1 L1 added layers on 1,181,952 of 1,199,862 cells = 98.507 %, L2 on 3,070,138 of 3,112,452 = 98.640 %, both with ZERO illegal faces.** ***§2da's question — could OpenFOAM do this if it were working correctly? — is answered YES BY DEMONSTRATION, twice, today.*** **DEFECT, ours, `[lab-attributed]`.**
+- **`mergeTolerance` is REFUTED, not untested** (1e-8 gave 52,248 against 52,165 — marginally *worse*). **Face merging is the standing untested hypothesis.**
+- 🔴 **A CORRECTION I OWE AND THE LANE IS FORBIDDEN TO PROPAGATE: "52,165 neg-vol cells of 128,230, 40.7 %" belongs to the `addLayers=true` DIAGNOSTIC build. `MESH_FAMILY_MEASURED.json` records ZERO neg-vol at ALL THREE graded levels. I relayed it against the graded family TWICE today. The zero-layer finding stands; that figure must not be cited there.**
+- **THE DELIVERABLE IS THE GUARD, NOT THE DIAGNOSIS: a post-snappy check reading the ACTUAL added-layer and negative-volume counts and REFUSING — never the banner, which is the EIGHTH instance of a tool reporting success while doing nothing.** ***And it is DRIVEN against a known-bad case (DrivAer's log) and a known-good one (SUBOFF L2), asserted to refuse the first and pass the second — because FIVE guards that could not fire were found today.***
+- 🔴 **AND THE HYPOTHESIS THAT MAKES IT WORTH MORE THAN A MESH FIX: DrivAer's successor requirement 3 was written on a PHYSICS story (a steady SIMPLE solver cannot converge a shedding wake) — but the graded mesh had ZERO LAYERS, so the residual stall MAY BE PARTLY A MESH DEFECT.** ***Two candidate causes, neither tested against the other, and the successor was about to be designed around only one.*** Falsifier registered; caveat travels — **two meshes differ in more than layers, so the comparison BOUNDS rather than ISOLATES.**
+
+### 🔴 **THE TWO I AM NOT STAFFING, AND WHAT EACH ACTUALLY NEEDS**
+- **M6's ROUTE.** Route (c) is terminated because **the far-field non-orthogonality is INTRINSIC to pyHyp hyperbolic extrusion at `marchDist` = 12 on this wing O-mesh, produced on TWO bodies.** **A successor must change the MECHANISM, not the parameters** — and Sanaa already authorised the latitude on 2026-09-10 20:57Z: *the C-mesh, snappyHexMesh, or whatever it needs.* **`snappyHexMesh` is the obvious candidate precisely because it does not march**, and SUBOFF proves it works on this box. **Not started; needs a lane.**
+- **SUBOFF — AND HALF OF IT IS NOT A DEFECT WE CAN FIX.** **L3 is unbuildable on 30 GiB RAM: purchasable, on Sanaa's desk with BOTH halves (~128 GiB AND ~\$153.78 of compute at 5.6× the registered cap).** **L1 is inadmissible on M-d — GEOMETRIC, invariant to partitioning AND to a 14,007-cell alignment shift, five significant figures — and NOT purchasable.** ***A bigger box does not FIX L1; it makes L1 UNNECESSARY, because the admissible triple {L2, L3, L4} sits entirely above L1's degenerate resolution.*** **So SUBOFF's "defect" is a decision, not a repair, and the decision is hers.**
+
+### 🟢 UNCHANGED AND RUNNING
+**MRF_R2: coarse rule-4 `PASS`; §9's drift on coarse is a MEASUREMENT and not a gate verdict (the contingency is on FINE); `R2` triple `PENDING`. Medium ETA ~22:33Z, fine ~02:12Z**, each with its §9 drift **and its stopping-point spread**. **§9's extrapolation basis is REFUTED on coarse's own trajectory — its own pre-declared outcome. THERE IS NO 16000**, and the two mirror hazards (re-selecting the answer / buying a different one) **are foreclosed by the same freeze.**
+**`NOT FILED` stays in the opening lines of the upstream draft. SUBMISSIONS PARKED — a permission to FIX is not a permission to SEND.**
+
+**Live at 2026-09-11T21:46:38Z: disk 28G, 95%.** Watcher pid 2286540 and on-landing reporter pid 2320899 alive and detached. ⚠ **CHIEF: my drain figure reversed (other teams 3.246 → 0.137 GiB/h; cfd now 85–95 %); dafoam's S-158; shared index 187 paths; `sdk/geometry/crm_wingbody.stl`; M6SR's re-pin owed.**
+
 <!-- BOARD-BLOCK-ID: 167-AN-UNCERTAINTY-CHANNEL-OPENS-TWO-DOORS-AND-A-FROZEN-ENDPOINT-CLOSES-BOTH-WITH-ONE-ACT -->
 
 **Section last written:** 2026-09-11T21:39:51Z by the cfd-supervisor (Opus 5), via `scripts/lab_state_section.py` + `commit_private.sh` (§2df), rebuilt against the CURRENT HEAD.
