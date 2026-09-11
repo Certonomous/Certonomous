@@ -59,6 +59,7 @@ dimension at each level is reported by --arith and gated by G-MINCELL.
 import json
 import math
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -333,12 +334,12 @@ def _fields(case):
       "    \"(walls|rack_sides)\" { type noSlip; }\n"
       % (u_tile, racks_in.replace(" ", "|"), -u_rack,
          racks_out.replace(" ", "|"), u_rack))
-    w("p_rgh", "volScalarField", "[1 -1 -2 0 0 0 0]", "0",
+    w("p_rgh", "volScalarField", "[0 2 -2 0 0 0 0]", "0",
       "    return { type fixedValue; value uniform 0; }\n"
       "    \"(tile|%s|%s)\" { type fixedFluxPressure; value uniform 0; }\n"
       "    \"(walls|rack_sides)\" { type fixedFluxPressure; value uniform 0; }\n"
       % (racks_in.replace(" ", "|"), racks_out.replace(" ", "|")))
-    w("p", "volScalarField", "[1 -1 -2 0 0 0 0]", "0",
+    w("p", "volScalarField", "[0 2 -2 0 0 0 0]", "0",
       "    \".*\" { type calculated; value uniform 0; }\n")
     w("k", "volScalarField", "[0 2 -2 0 0 0 0]", "%.6e" % k_sup,
       "    \"(tile|return|%s|%s)\" { type inletOutlet; inletValue uniform %.6e; "
@@ -355,8 +356,8 @@ def _fields(case):
     w("nut", "volScalarField", "[0 2 -1 0 0 0 0]", "0",
       "    \"(walls|rack_sides)\" { type nutkWallFunction; value uniform 0; }\n"
       "    \".*\" { type calculated; value uniform 0; }\n")
-    w("alphat", "volScalarField", "[1 -1 -1 0 0 0 0]", "0",
-      "    \"(walls|rack_sides)\" { type compressible::alphatWallFunction; "
+    w("alphat", "volScalarField", "[0 2 -1 0 0 0 0]", "0",
+      "    \"(walls|rack_sides)\" { type alphatJayatillekeWallFunction; "
       "Prt %.4f; value uniform 0; }\n"
       "    \".*\" { type calculated; value uniform 0; }\n" % PRT)
 
@@ -398,7 +399,13 @@ def _system_and_constant(case, level):
                    "    div((nuEff*dev2(T(grad(U))))) Gauss linear;\n}\n"
                    "laplacianSchemes { default Gauss linear corrected; }\n"
                    "interpolationSchemes { default linear; }\n"
-                   "snGradSchemes { default corrected; }\n")
+                   "snGradSchemes { default corrected; }\n"
+                   # kOmegaSST needs a wall distance and REFUSES TO START
+                   # without this entry: `Entry 'method' not found in
+                   # dictionary "system/fvSchemes/wallDist"`, rc=1 in 1 second.
+                   # Added under VERIFICATION_CHARTER 2d.1 (addendum 1,
+                   # 2026-09-11) after it faulted the first launch.
+                   "wallDist { method meshWave; }\n")
     with open(os.path.join(sysd, "fvSolution"), "w") as fh:
         fh.write(_hdr("dictionary", "fvSolution", "system")
                  + "solvers\n{\n    p_rgh { solver GAMG; tolerance 1e-8; relTol 0.01;\n"
@@ -526,6 +533,57 @@ def selftest():
                     lambda: build("K2d_L9", root=root, run_mesh=False))
     finally:
         shutil.rmtree(root, ignore_errors=True)
+
+    # ----------------------------------------------------------------------
+    # THE ARM THAT WOULD HAVE CAUGHT THE FIRST LAUNCH FAILING, AND DID NOT
+    # EXIST WHEN IT DID.
+    #
+    # The eight arms above test this builder's OUTPUTS -- that files exist,
+    # that 0/ does not, that the block count is right.  NOT ONE OF THEM STARTS
+    # A SOLVER.  A case can be structurally complete and DICTIONARY-INCOMPLETE,
+    # and no amount of checking the builder's own outputs against the builder's
+    # own intentions can see that: both sides of the comparison share the
+    # omission.  K2d's first launch died in 1 second on a missing
+    # `wallDist { method meshWave; }` that every arm above was blind to.
+    #
+    # The only instrument that can catch the whole class is the solver's own
+    # dictionary reader -- which grades nothing and has no numerical opinion,
+    # which is exactly why VERIFICATION_CHARTER 2d.1 accepted it as the
+    # independent instrument for the repair.
+    #
+    # So: build a real mesh, run the real solver for ONE iteration, and require
+    # that it gets past dictionary parsing.  Costs a few seconds and is the
+    # cheapest possible insurance against an entire failure class.
+    print("-- SOLVER DICTIONARY-PARSE ARM (starts a real solver) --")
+    root2 = tempfile.mkdtemp(prefix="k2d_parse_")
+    try:
+        res = build("K2d_L1", root=root2, run_mesh=True)
+        case2 = res["case"]
+        if not res.get("built"):
+            arm("mesh built for the parse arm", False, True)
+        else:
+            cd = os.path.join(case2, "system", "controlDict")
+            txt = open(cd).read().replace("endTime 3000;", "endTime 1;") \
+                                 .replace("writeInterval 3000;", "writeInterval 1;")
+            open(cd, "w").write(txt)
+            shutil.copytree(os.path.join(case2, "0.orig"),
+                            os.path.join(case2, "0"), dirs_exist_ok=True)
+            r = subprocess.run(
+                ["bash", "-lc", SH_PREAMBLE +
+                 "timeout 300 buoyantBoussinesqSimpleFoam > log.parse 2>&1; echo rc=$?"],
+                cwd=case2, capture_output=True, text=True)
+            out = open(os.path.join(case2, "log.parse"), errors="replace").read()
+            arm("the solver gets PAST dictionary parsing "
+                "(no FOAM FATAL IO ERROR) -- the arm that was missing",
+                "FOAM FATAL IO ERROR" in out, False)
+            arm("...and reaches at least one Time step",
+                bool(re.search(r"^Time = ", out, re.M)), True)
+            if "FOAM FATAL IO ERROR" in out:
+                for ln in out.splitlines():
+                    if "not found in dictionary" in ln or "FOAM FATAL IO" in ln:
+                        print("        %s" % ln.strip()[:150])
+    finally:
+        shutil.rmtree(root2, ignore_errors=True)
 
     print("\nSELFTEST %s" % ("PASS -- every arm fired as registered" if ok_all
                              else "FAIL -- an arm did not behave as registered"))

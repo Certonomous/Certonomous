@@ -998,5 +998,105 @@ disclosure reopens them.
 
 ---
 
+## 15. ADDENDUM 1 — 2026-09-11. **GATES ARE CLOSED. THIS ALTERS NO GATE, THRESHOLD, CAP OR LABEL.** A §2d.1 repair to `build_k2d.py`, and the failed launch that forced it
+
+**Gates closed at the freeze commit `e7979e29b706c1f4b91404c04731f29a80f128bd`.
+This is a dated addendum under standing rule 2, not an amendment.** It changes
+no gate, no band, no threshold, no floor, no cap and no label. Nothing above is
+edited; **lines whose number changed above this section: 0.**
+
+### 15.1 THE FIRST LAUNCH, RECORDED BEFORE ANYTHING ELSE
+
+| | |
+|---|---|
+| launched | **true, by witness** — `log.solve` mtime `1789090917` strictly greater than the before-launch captured `1789090915`; corroborated by a live solver pid. No absolute time, no slack |
+| pid | **1890509** |
+| cwd | `verification/runs/F14-cooling-ladder/K2d_runs/K2d_L1` |
+| ranks | 4 |
+| timeout | 1,485 s (hang guard; did not trip) |
+| outcome | **`rc = 1`, `note=SOLVER_NONZERO_EXIT`, wall 1 s** |
+| **cost** | **0.067 core-min, MEASURED** from `STATUS.K2d_L1` |
+
+**This was `launched: true` with a fault, not a failed launch.** The solver
+started, read its dictionaries and exited nonzero. Collapsing that into
+`launched: false` would have hidden a finding about the case behind a launch
+failure.
+
+### 15.2 THE DEFECT, AND A SECOND ONE THE REPAIR'S OWN NEW CONTROL THEN FOUND
+
+**Defect 1, which killed the launch.** `buoyantBoussinesqSimpleFoam` with
+`kOmegaSST` requires a wall-distance method and the builder emitted none:
+
+> `FOAM FATAL IO ERROR: Entry 'method' not found in dictionary "system/fvSchemes/wallDist"`
+
+**Defect 2, found by the new control described in §15.4 and not by any human
+re-reading.** With `wallDist` supplied the solver got past parsing and then
+aborted on `Different dimensions for '(a + b)': [1 -1 -2 0 0 0 0] !=
+[0 2 -2 0 0 0 0]`. **In this solver `p_rgh` and `p` are KINEMATIC** (m²/s²),
+not pressures in Pa, and **`alphat` is a kinematic turbulent diffusivity**
+(m²/s), not a dynamic one — and its wall function is the incompressible
+`alphatJayatillekeWallFunction`, not `compressible::alphatWallFunction`. All
+four were read from a **committed case of the same solver**
+(`K2b_runs/K2bP_coarse/0.orig/{p_rgh,alphat}`) rather than recalled.
+
+### 15.3 THE FOUR §2d.1 CONDITIONS, EACH CHECKED
+
+**Granted by the heat-transfer supervisor, 2026-09-11.**
+
+1. **A demonstrable error, not a preference.** The solver cannot start. There is
+   no version of this rung that runs without these entries.
+2. **Established by an instrument INDEPENDENT OF THE HYPOTHESIS, one that grades
+   nothing** — **OpenFOAM's own dictionary reader and dimension checker.** The
+   charter calls this the load-bearing condition. It holds here in a *stronger*
+   form than in K0cS, the case §2d.1 was cut from: that repair was found by a
+   heat balance, a near-identity that at least produces a number. **A dictionary
+   parser has no numerical opinion at all** and cannot have been selected to
+   move a verdict in a wanted direction.
+3. **Disclosed, instrument named, and WHAT MOVED quantified: NOTHING MOVED.** No
+   graded row existed before the repair. No band, threshold, floor, cap or label
+   changes.
+4. **Pre-repair values recorded beside the published ones: THERE ARE NONE.** The
+   solver produced no field, no time directory and no value.
+
+**The contrast §2d.1 exists to forbid — *"the numbers looked wrong, so the band
+was widened"* — is absent: no number exists.**
+
+**BOTH READINGS ARE RECORDED, and the conservative one was taken.** §2d.1's
+trigger is *"a change on the grading path made after the FIRST GRADED SOLVE."*
+**There has been no graded solve** — one second, no field, nothing graded — so
+§2d arguably never bit at all. **The repair is nonetheless taken under §2d.1
+with all four conditions recorded**, because where both routes are open, putting
+the repair on the record under discipline is worth more than resting it on a
+definitional escape.
+
+### 15.4 THE GENERALIZABLE DEFECT — the selftest had eight arms and none started a solver
+
+**This is the finding, and it is worth more than the two fixes.**
+
+The builder's eight original arms tested its **outputs**: that files exist, that
+`0/` does not, that the block count is right. **Not one started a solver.** A
+case can be **structurally complete and dictionary-incomplete**, and no amount
+of checking a builder's outputs against that builder's own intentions can see
+it — *both sides of the comparison share the omission.*
+
+**A ninth and tenth arm are added: build a real mesh, run the real solver for
+one iteration, and require that it gets past dictionary parsing AND reaches a
+`Time =` step.** It costs a few seconds and is the cheapest available insurance
+against the entire class.
+
+**It earned itself immediately: defect 2 above was found by that arm, not by a
+human re-reading the file.** The arm that was added because of defect 1 caught
+defect 2 on its first execution.
+
+### 15.5 The re-pinned instrument
+
+`build_k2d.py` changes blob. `analyse_k2d.py`, `mark_done_k2d.py` and
+`scripts/roache_triple.py` are **untouched** and their §9 pins stand. The new
+`build_k2d.py` blob is recorded in the re-freeze commit's message, since a file
+cannot contain its own hash.
+
+---
+
 *Nothing was sent, filed, uploaded, registered, posted or commented outside this
-box (rule 7). Zero solver core-minutes spent in writing this document.*
+box (rule 7). Solver compute spent against this document to date: **0.067
+core-min, measured.***
