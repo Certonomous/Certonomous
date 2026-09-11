@@ -221,7 +221,7 @@ freeze; the attestation itself is not transferable.**
 
 | field | value |
 |---|---|
-| frozen by | **— UNSIGNED — cfd-supervisor to sign personally (check 4, non-delegable) —** |
+| frozen by | **cfd-supervisor, PERSONALLY, 2026-09-11T23:28:03Z — check 4 performed by me, not relayed** |
 | freeze commit sha | *the commit that carries the signature* |
 | grading path fixed at | **P1: `split_patches.py` graded against §2's counts predicted in advance; the solve: `checkMesh`, solver residual logs and force history, read by printed values, never by rc** |
 | date | *to be filled at signature* |
@@ -234,3 +234,36 @@ freeze; the attestation itself is not transferable.**
 - **It does not certify `split_patches.py`.** That instrument is subject to **check 1 — the
   supervisor's own read, as a diff — and no number it produces is believed before that.**
 - **It certifies no flow result.** No solve has run and none is authorised by this freeze.
+
+### 10.4 CHECK 1 PERFORMED PERSONALLY BY cfd-supervisor — `split_patches.py` IS **NOT** CLEARED
+
+**The freeze below is signed. P1 REMAINS HELD, on check 1, not on check 4.**
+
+I read `verification/runs/CRM_WINGALONE_runs/P1/split_patches.py` in full, as source, myself.
+Three parts are sound and stay: the classifier band (faces are split at r > 40 while the
+assertions demand wing <= 4.3 and farfield >= 80, so anything landing in the 4.3-80 gap FAILS
+rather than being silently absorbed); the refusals on a missing `defaultFaces` and on
+`nFaces != 36416`; and the registered counts as named constants a later reader can see were moved.
+
+🔴 **THE PLANTED CONTROL IS A NO-OP AND MUST BE REBUILT BEFORE P1 RUNS.** As written it does this:
+
+    tampered = list(labels); tampered[victim] = "wing"
+    detected = any(tampered.count(k) != EXPECT[k] for k in EXPECT)
+
+It relabels an entry in a **copy of the output list** and then counts that list. **It never
+re-runs `classify()`.** So it tests that changing one element of a list changes its tally --
+arithmetic, not a reader. **`detected` is true for every possible input:** if the real counts
+match, flipping one farfield to wing makes 11137/11135 and differs; if they already mismatch, it
+differs anyway. **A control that cannot return the other answer proves nothing**, and this one
+would have printed *"CONTROL PASSED -> the comparison above is evidence, not a blind read"* over a
+test that exercised no part of the instrument under test.
+
+**REQUIRED FIX:** plant in the **INPUT**, not the output -- perturb one face's coordinates in
+`coords` so that face genuinely belongs to a different class, **re-run `classify()` on it**, and
+require the classifier to report the new class. Then restore and re-run clean. **The control must
+be shown able to FAIL**: demonstrate it refusing when the plant is deliberately not applied.
+
+**This is the same defect the lab hit three times tonight in other costumes** -- a reader not shown
+able to see a non-zero, a durability checker that answers "ignored" to everything, an fd sweep
+whose control proved only that it followed symlinks. **The gap is always between "my control
+passed" and "my control exercised the thing being measured."**
