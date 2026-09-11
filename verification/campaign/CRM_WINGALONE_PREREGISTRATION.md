@@ -1,17 +1,5 @@
 # CRM-WING-ALONE — NASA Common Research Model **WING-ALONE**, pyHyp-extruded r = 2 structured family
 
-<!-- ============================ DRAFT BANNER — STRIKE THIS ONE BLOCK ============================ -->
-> ## 🟠 DRAFT. **NOT FROZEN. NOT AUTHORISED. NO COMPUTE HAS RUN UNDER IT.** §12's freeze block is BLANK.
-> Drafted by a cfd `lab-lane`, 2026-09-11, on the cfd-supervisor's brief, **after** the gating
-> measurement in §3 returned a positive result. **Check 4 — pre-registration COMMITTED before
-> compute — is the supervisor's, is personal, and is not delegated to this lane.**
-> **§10 carries OPEN DECISIONS RESERVED TO THE SUPERVISOR.** They are marked, not filled. A gate this
-> lane invented would defeat the entire evidentiary purpose of the freeze (rule 2).
-> **THIS BANNER IS A SINGLE BLOCK BOUNDED BY THE TWO COMMENT RULES ABOVE AND BELOW IT, SO IT CAN BE
-> STRUCK AT FREEZE IN ONE EDIT.**
-> **SUBMISSIONS PARKED (rule 7). No agent's message is Sanaa's consent (rule 9).**
-<!-- ========================== END DRAFT BANNER — STRIKE TO HERE ================================= -->
-
 ---
 
 ## 1. 🔴 THIS RUNG INHERITS NOTHING FROM `CRM_M085`
@@ -563,10 +551,45 @@ registered risk that `N` 105 and 209 have never been marched.
 
 | field | value |
 |---|---|
-| frozen by | |
-| freeze commit sha | |
-| grading path fixed at | |
-| date | |
+| frozen by | **cfd-supervisor (Opus 5), personally. Check 4 was performed by me and is not delegated.** |
+| freeze commit sha | **the commit that carries this file** — the sha cannot precede the commit that creates it |
+| grading path fixed at | **`checkMesh` from `openfoam2606`, read by its PRINTED VERDICT LINES and never by its rc**, plus the §3.1–3.3 nesting / planform / connectivity procedures |
+| date | **2026-09-11T18:51:47Z** |
+
+### 12.1 🔴 WHAT THIS FREEZE DOES **NOT** CERTIFY — STAMPED IN, NOT LEFT TO INFERENCE
+
+**This freeze fixes the GATES. It does NOT certify an INSTRUMENT that has not been built.**
+Verified by me at freeze: **no CRM verification script is committed anywhere in this repository.**
+G-M5's structural nesting check, the planform reader used in §3.2, and the build launcher **exist as
+procedures in this document and as one lane's uncommitted working code — not as pinned instruments.**
+- **Each is subject to check 1 — the supervisor's own read, as a diff — WHEN IT IS BUILT, and no
+  number any of them produces is believed before that.**
+- **`checkMesh`'s rc is meaningless in both directions and is not the grading path; the printed
+  verdict lines are.** And when a level's dimensionality is read, **match `geometric` specifically** —
+  `checkMesh` prints a `solution (non-empty) directions` line four lines away that reads **3 for a wedge**.
+- **The §3.2 planform numbers rest on ONE reader. Its predecessor's figures (`34.91`, `0.2808`) were
+  found to have NO ARTIFACT ANYWHERE IN THIS REPOSITORY, so there is no second instrument and running
+  this one twice proves nothing.** What grounds them is agreement with the **source** — Vassberg
+  Table 1, title-page verified on disk — **not agreement with another reader.**
+
+### 12.2 CHECK 4, PERFORMED BY ME AT FREEZE
+
+- **Freeze conditions verified WITH A LIVE POSITIVE CONTROL** — the test was first shown able to see
+  `verification/runs/CRM_M085_runs`, which **does** exist, so the absences below are evidence and not
+  a blind reader. **`CRM_WINGALONE_runs`, `cases/navier_class/CRM_WINGALONE` and
+  `runs/navier_class/CRM_WINGALONE` are ALL ABSENT. NO COMPUTE EXISTS UNDER THIS DOCUMENT.**
+- **Arithmetic recomputed by me rather than read:** `Sref` 594,720 in² → **383.689555 m²** (Δ 4.5e-05,
+  the tolerance this document itself states); `Cref` → **7.005320 m** exactly; semispan →
+  **29.381450 m** to 3.6e-15; all three `MRC` components exact. **span²/`Sref` = 8.999667** against a
+  printed AR of 9.0; **span²/trap-area = 9.292157 — the trap costs 3.25 % on AR, from the row
+  DIRECTLY BELOW.** Normalisation **6.976368 m = 274.6602 in** against `Cref` 275.80, **0.413 %**.
+- **§10's thresholds were read out of `MESH_STANDARD` BY THE DRAFTING LANE, not relayed from me** —
+  and that is load-bearing, because **two gates I supplied as "inherited" (`p ∈ [1.3, 2.5]`,
+  `GCI_fine < 3 %`) exist in NO standard and NO charter, and `MESH_STANDARD.md` HAS NO §9.**
+  **The root was mine and it was a QUANTITY CONFUSION: 1.3 is Celik's floor on the refinement RATIO,
+  not a band on the observed ORDER.** Both are excluded here and bound in §10A.
+- 🟢 **Corrected, the ratio floor is a gate this family PASSES OUTRIGHT: r = 2.000000 at both level
+  pairs, exactly, clearing r ≥ 1.3 by a factor of 1.54.**
 
 **No compute may run under this document until this block is filled and committed (rule 2), and §10 is
 closed.**
