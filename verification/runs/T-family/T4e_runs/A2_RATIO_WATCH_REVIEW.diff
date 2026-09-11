@@ -1,9 +1,20 @@
+# A2_RATIO_WATCH_REVIEW.diff -- the heat-transfer supervisor's SUPERVISION_CHARTER 3.1
+# measurement-script read, regenerated 2026-09-11 to match the SHIPPED instrument.
+#
+# PROVENANCE, stated because a review artifact that misstates its own subject is
+# worse than none: the version FIRST sent for the 3.1 read was 300 added lines and
+# did NOT contain the durable-state fix. The supervisor's read CAUGHT that the
+# consecutive counter lived only in memory, so three sub-floor checkpoints spanning
 diff --git a/verification/runs/T-family/T4e_runs/ratio_watch_t4e.py b/verification/runs/T-family/T4e_runs/ratio_watch_t4e.py
+# answers. The fix (parse_rows/trailing_run + backfill) and its selftest arm were
+# added after that read, and THIS diff is the post-fix instrument as armed.
+#
+diff --git a/ratio_watch_t4e.py b/ratio_watch_t4e.py
 new file mode 100644
-index 000000000..3bff7b888
+index 000000000..43d9f43b5
 --- /dev/null
 +++ b/ratio_watch_t4e.py
-@@ -0,0 +1,299 @@
+@@ -0,0 +1,373 @@
 +#!/usr/bin/env python3
 +"""ratio_watch_t4e.py -- score ADDENDUM A2 falsifier 3, and NOTHING else.
 +
@@ -144,6 +155,33 @@ index 000000000..3bff7b888
 +    return max(abs(cur["%g" % rod] - prev["%g" % rod]) for _, rod in GROWS)
 +
 +
++def parse_rows(path):
++    """Rows already scored, read back FROM DISK. The run-length is reconstructed
++    from this, never carried in memory -- a counter that lives only in a process
++    reports "not falsified" when the falsifying condition was met but spanned a
++    restart, which is a FALSE NEGATIVE on the one question this watch answers."""
++    out = []
++    if not os.path.exists(path):
++        return out
++    for ln in open(path):
++        if not ln or not ln[0].isdigit():
++            continue
++        f = ln.rstrip("\n").split("\t")
++        out.append((int(f[0]), f[8] == "YES"))
++    return sorted(out)
++
++
++def trailing_run(pairs):
++    """How many of the most recent checkpoints are at or below the floor, counting
++    backwards and stopping at the first that is not."""
++    n = 0
++    for _, low in reversed(sorted(pairs)):
++        if not low:
++            break
++        n += 1
++    return n
++
++
 +def emit_header():
 +    if os.path.exists(OUT):
 +        return
@@ -156,8 +194,13 @@ index 000000000..3bff7b888
 +        fh.write("#   %.4f = (2e-4 / %.18g)^(1/%d), the ratio that would reach tol at the cap.\n"
 +                 % (RATIO_FLOOR, ANCHOR_C63, N_REMAIN))
 +        fh.write("# Raw peaks are printed beside every ratio so a reader can RECOMPUTE, not trust.\n")
-+        fh.write("iter\tpeak_G1\tpeak_G2\tpeak_G3\tC6_3\tC6_3_over_tol\tratio_vs_prev\t"
-+                 "at_or_below_floor\tconsec_at_or_below\tfalsifier_3\tcensus\n")
++        fh.write("# CONSECUTIVE means consecutive over CHECKPOINTS PRESENT ON DISK, not over\n")
++        fh.write("#   evaluations this process performed. On every start the watch BACKFILLS\n")
++        fh.write("#   every checkpoint it holds no row for, and rebuilds the run-length FROM\n")
++        fh.write("#   THIS FILE -- never from memory -- so a restart loses nothing and cannot\n")
++        fh.write("#   silently break a run of three. step_from_prev exposes any gap.\n")
++        fh.write("iter\tstep_from_prev\tpeak_G1\tpeak_G2\tpeak_G3\tC6_3\tC6_3_over_tol\t"
++                 "ratio_vs_prev\tat_or_below_floor\tconsec_at_or_below\tfalsifier_3\tcensus\n")
 +
 +
 +def run(mirror, once):
@@ -188,16 +231,19 @@ index 000000000..3bff7b888
 +
 +    emit_header()
 +    base_census = census(LIVE)
-+    consec = 0
-+    done = set()
-+    for ln in open(OUT):
-+        if ln and ln[0].isdigit():
-+            done.add(int(ln.split("\t")[0]))
++    rows = parse_rows(OUT)                     # DURABLE state, reconstructed from disk
++    done = set(t for t, _ in rows)
++    if rows:
++        say("resumed from %s: %d rows on disk, trailing run at or below floor = %d"
++            % (os.path.basename(OUT), len(rows), trailing_run(rows)))
 +
 +    while True:
 +        beat("watching")
-+        live_ts = [t for t in times_of(LIVE) if t >= ANCHOR_IT and settled(LIVE, t)]
-+        new = [t for t in live_ts if t not in done]
++        live_ts = [t for t in times_of(LIVE)
++                   if t > ANCHOR_IT and t <= CAP and settled(LIVE, t)]
++        new = sorted(t for t in live_ts if t not in done)   # BACKFILL, ascending
++        if new and len(new) > 1:
++            say("backfilling %d checkpoints not yet scored: %s" % (len(new), new))
 +        for t in new:
 +            src, dst = os.path.join(LIVE, str(t)), os.path.join(mirror, str(t))
 +            if not os.path.isdir(dst):
@@ -219,13 +265,17 @@ index 000000000..3bff7b888
 +                       "baseline is not a measurement" % (prev_t, v_prev))
 +            ratio = v_cur / v_prev
 +            low = (ratio <= RATIO_FLOOR)
-+            consec = consec + 1 if low else 0
++            rows.append((t, low))
++            consec = trailing_run(rows)        # FROM THE DATA, never from a counter
 +            fired = consec >= CONSEC_TO_FALSIFY
++            prev_it = max((i for i, _ in rows if i < t), default=None)
++            step = (t - prev_it) if prev_it is not None else 0
 +            drift = "UNCHANGED" if census(LIVE) == base_census else "*** LIVE system/constant CHANGED ***"
 +            with open(OUT, "a") as fh:
-+                fh.write("%d\t%.17g\t%.17g\t%.17g\t%.17g\t%.2f\t%.5f\t%s\t%d\t%s\t%s\n"
-+                         % (t, cp["%g" % GROWS[0][1]], cp["%g" % GROWS[1][1]], cp["%g" % GROWS[2][1]],
-+                            v_cur, v_cur / TOL, ratio, "YES" if low else "no", consec,
++                fh.write("%d\t%d\t%.17g\t%.17g\t%.17g\t%.17g\t%.2f\t%.5f\t%s\t%d\t%s\t%s\n"
++                         % (t, step, cp["%g" % GROWS[0][1]], cp["%g" % GROWS[1][1]],
++                            cp["%g" % GROWS[2][1]], v_cur, v_cur / TOL, ratio,
++                            "YES" if low else "no", consec,
 +                            "FALSIFIED" if fired else "not falsified", drift))
 +            json.dump(cache, open(CACHE, "w"))
 +            say("iter=%d C6.3=%.6e (%.1fx tol) ratio=%.5f floor=%.4f consec<=floor=%d %s [%s]"
@@ -284,6 +334,41 @@ index 000000000..3bff7b888
 +        chk("no D1/stop machinery BOUND: %r is not an executable name" % bad, bad not in ids)
 +    chk("PLANTED CONTROL: the AST scan sees a name that IS bound ('peaks_at')",
 +        "peaks_at" in ids)
++
++    # ---- THE RESTART ARM: the case the in-memory counter got WRONG ----------
++    # Two sub-floor checkpoints are scored, the process DIES, a third sub-floor
++    # checkpoint arrives. A counter rebuilt from zero reports "not falsified";
++    # reconstructing from the file must FIRE.
++    import tempfile
++    d = tempfile.mkdtemp(prefix="a2ratio_selftest_")
++    tsv = os.path.join(d, "t.tsv")
++    with open(tsv, "w") as fh:
++        fh.write("iter\tstep\tg1\tg2\tg3\tc63\tovertol\tratio\tat_or_below_floor\t"
++                 "consec\tfals\tcensus\n")
++        for it, r in ((68000, 0.80), (72000, 0.81)):
++            fh.write("%d\t4000\t1\t1\t1\t1e-2\t50.0\t%.5f\tYES\t0\tnot falsified\t"
++                     "UNCHANGED\n" % (it, r))
++    restored = parse_rows(tsv)
++    chk("restart: two sub-floor rows are read BACK from disk",
++        [t for t, _ in restored] == [68000, 72000] and all(l for _, l in restored))
++    chk("restart: trailing run from the file alone is 2 (a fresh counter would say 0)",
++        trailing_run(restored) == 2)
++    restored.append((76000, True))
++    chk("restart: a third sub-floor checkpoint after a restart FIRES the falsifier",
++        trailing_run(restored) >= CONSEC_TO_FALSIFY)
++    # negative control on the same path: a third ABOVE the floor must reset to 0
++    reset = parse_rows(tsv) + [(76000, False)]
++    chk("restart NEGATIVE control: a third ABOVE the floor resets the run to 0",
++        trailing_run(reset) == 0)
++    # and the old in-memory behaviour is exhibited, so the fix is shown to matter
++    chk("the defect is real: a counter starting at 0 would have reported 1, not 3",
++        (0 + 1) < CONSEC_TO_FALSIFY)
++    with open(tsv, "a") as fh:
++        fh.write("76000\t4000\t1\t1\t1\t1e-2\t50.0\t0.79000\tYES\t3\tFALSIFIED\t"
++                 "UNCHANGED\n")
++    chk("restart: the FIRED state survives another round-trip through the file",
++        trailing_run(parse_rows(tsv)) >= CONSEC_TO_FALSIFY)
++    shutil.rmtree(d, ignore_errors=True)
 +    print("SELFTEST %s" % ("PASS" if ok else "FAIL"))
 +    return 0 if ok else 1
 +
