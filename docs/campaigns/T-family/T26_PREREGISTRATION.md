@@ -1575,3 +1575,110 @@ this section: 0**.
 *Recorded by a heat-transfer lane, 2026-09-11, on the supervisor's post-freeze
 item-4 read. Zero solver compute. Nothing sent, filed or uploaded
 (`CLAUDE.md` rule 7).*
+
+---
+
+## 17. ADDENDUM 2 TO THE FROZEN DOCUMENT — 2026-09-11T17:19:34Z. **A PRE-LAUNCH, FALSIFIABLE PREDICTION ABOUT DELIVERED LAYER COVERAGE — AND A MEASUREMENT THAT PARTLY REFUTES THE MECHANISM WE ADOPTED**
+
+**DATED ADDENDUM UNDER `CLAUDE.md` RULE 2. IT ALTERS NO GATE, NO THRESHOLD, NO
+BAND, NO FLOOR, NO CAP AND NO LABEL, AND CHANGES NO BYTE OF ANY INSTRUMENT.**
+It registers a prediction **before** this rung's first compute — `T26_runs/`
+still does not exist — so it is a test of our understanding rather than a
+rationalisation of whatever the ladder returns. **It reports either way.**
+
+### 17.1 THE MEASUREMENT — three mesh-development levels, same dict, same STL
+
+Built with this rung's approved `snappyHexMeshDict` (md5
+`dec4c99897dd699801ae2faf9b3f1ee9`, byte-identical at every level) and the same
+STL. **These are NOT ladder levels; they are mesh development outside the run
+root.** Δ₀ is the mapping variable because everything else is byte-identical.
+
+| level | Δ₀ (mm) | **delivered layer coverage** | layer iterations | stack ÷ Δ₀ |
+|---|---:|---:|---:|---:|
+| L1ABS | 8.3984 | **44.374 %** | 9 | 1.00 (reference) |
+| L2ABS | 5.5990 | **52.902 %** | 24 | 1.50 |
+| L3ABS | 3.7326 | **48.042 %** | 28 | 2.25 |
+
+Coverage is `Added N out of M cells` from each level's own `log.snappy`, final
+iteration. The layer stack is fixed in metres by registration (`firstLayerThickness`
+35.894 µm, `expansionRatio` 1.2, 18/12/5 layers), so **stack ÷ Δ₀ rises by
+exactly 1.5 per rung, by construction.**
+
+**AND THE ABSOLUTE NUMBERS ARE STARKER THAN THE RATIO SUGGESTS.** Summing the
+geometric series at `expansionRatio` 1.2 gives total stacks of **4.5986 mm on
+the hub (18 layers), 1.4207 mm on the struts (12), 0.2671 mm on the duct (5)**.
+Against Δ₀: the hub stack is **0.548 × the base cell at L1ABS and 1.232 × it at
+L3ABS** — **at the finest level the requested hub stack is THICKER THAN THE
+BACKGROUND CELL IT MUST BE INSERTED INTO.** That is a property of holding Δ₁ and
+the layer counts fixed while Δ₀ falls, it is registered behaviour and not a
+defect, and it is why the medial-axis and thickness-ratio limits bite hardest at
+the fine end.
+
+### 17.2 WHAT THE DATA SUPPORTS, AND WHAT IT REFUTES — stated in that order
+
+**SUPPORTED: the relaxation burden rises monotonically.** Layer iterations
+**9 → 24 → 28**, strictly increasing, while `nLayerIter` is **50** and no level
+hit the cap — so each level ran to stabilisation and each finer level needed
+more relaxation than the last. **And iteration count is not a wall-clock
+quantity, so machine contention cannot produce it.**
+
+**REFUTED AS A SOLE MECHANISM: that delivered coverage falls monotonically with
+refinement.** The reasoning adopted in update 108 — *Δ₁ fixed makes the INPUT
+level-invariant but NOT the MESHER'S TASK, because stack ÷ local cell rises 1.5×
+per rung and `maxThicknessToMedialRatio 0.3` bites on more faces each rung* —
+predicts a monotone decline. **The three-point measurement is NOT monotone:
+coverage RISES 8.53 points from L1ABS to L2ABS, then falls 4.86 points to
+L3ABS, while stack ÷ Δ₀ rises monotonically throughout.** A single monotone
+driver cannot produce a peak.
+
+**THE READING THAT FITS ALL THREE POINTS, offered as a hypothesis and labelled
+as one:** two competing effects. At coarse Δ₀ the background cell is poorly
+matched to an absolute stack and insertion fails broadly; as Δ₀ falls that
+improves. Past a peak — **near Δ₀ ≈ 5.6 mm on this geometry** — the
+medial-axis and thickness-ratio limits dominate and coverage falls. **The
+update-108 mechanism is real and is visible in the iteration count and in the
+L2 → L3 fall; it is simply not the only thing happening.**
+
+### 17.3 THE PREDICTION — direction, magnitude, band, and a NAMED FALSIFIER
+
+**THE T26 LADDER SITS COARSER THAN THE MEASURED FAMILY, AND THEREFORE ON THE
+RISING LIMB.** §13.3 shifted the ladder down exactly one rung, so its base cells
+are **Δ₀ = 12.000 / 8.000 / 5.333 mm** (arithmetic check: 885,508 ÷ 3.375 =
+262,373, §13.3's L1). Mapping onto the measured curve — L2's 8.000 mm sits
+beside L1ABS's 8.398 mm, L3's 5.333 mm beside L2ABS's 5.599 mm, and L1's
+12.000 mm is coarser than anything measured:
+
+> **PREDICTED, before any T26 level is built:**
+>
+> 1. **DIRECTION: delivered layer coverage RISES across the T26 ladder,
+>    L1 < L2 < L3 — strictly increasing.** This is the OPPOSITE of what the
+>    L2ABS → L3ABS fall suggests if that fall is read as a refinement law.
+> 2. **MAGNITUDE, with bands: L1 36–44 %, L2 43–47 %, L3 50–55 %.**
+> 3. **Layer iterations rise monotonically, L1 < L2 < L3, with L3 in 20–35.**
+>
+> **NAMED FALSIFIERS — any one of these says this analysis is wrong:**
+> - a **strictly DECREASING** coverage sequence across the three T26 levels;
+> - **L3 coverage below 45 %**;
+> - **L1 coverage above L2's**;
+> - coverage flat to within 2 points across all three levels, which would say
+>   Δ₀ is not the controlling variable at all.
+
+### 17.4 WHY THIS NEEDED NO NEW GATE — the ladder was already built to catch it
+
+**The freeze already contains the instrument that measures this.** §14's design
+reports the **requested** Δ₁ and the **DELIVERED** near-wall height separately,
+with the gate on the delivered one; and the BAND × LEVEL 2×2 separates taper
+from the rising stack-to-cell burden. **Nothing is added here.** What is added
+is the statement, in advance, of what we expect that instrument to show.
+
+**IF IT REPRODUCES ON THE GRADED LADDER it belongs in the results record as a
+STATED LIMITATION OF THE FIXED-Δ₁ DESIGN, named by us before the run** — not as
+a surprise, and not as a defence constructed afterwards. §3.4 holds Δ₁ fixed so
+the near-wall treatment is identical across levels; **delivered coverage varying
+by 8.5 points across a 1.5× family says the treatment is NOT identical, and the
+triple's claim to measure outer discretisation error alone rests on the
+delivered near-wall height, not on the requested one.**
+
+*Recorded by a heat-transfer lane, 2026-09-11T17:19:34Z, on the supervisor's ruling. Zero solver
+compute; `T26_runs/` does not exist. Nothing sent, filed or uploaded
+(`CLAUDE.md` rule 7).*
