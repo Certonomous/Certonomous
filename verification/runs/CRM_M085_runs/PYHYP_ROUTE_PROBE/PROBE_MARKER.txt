@@ -1,0 +1,19 @@
+PYHYP ROUTE PROBE -- MARKER WRITTEN BEFORE ANY MESH EXISTS
+written_utc_before_run=2026-09-11T17:51:16Z
+WHAT THIS IS: a toolchain probe. Does pyHyp run end-to-end on this box and emit a
+volume mesh from the CRM WING surface?
+WHAT THIS IS NOT:
+  - NOT a graded run. No gate, no threshold, no verdict, no number that grades anything.
+  - NOT physics. No solver is invoked and no flow quantity is produced or claimed.
+  - NOT a wing-BODY feasibility result. The surface is WING-ONLY (measured:
+    rootLen/totLen = 0.5208, span 3.7667, root at the side-of-body). Hyperbolic
+    extrusion from a CLOSED WING-BODY surface is a materially harder problem, and
+    that is a STATED EXPECTATION, NOT A MEASUREMENT. This probe CANNOT test it,
+    because no CRM wing-body surface exists on this box (sweep of 80+ CGNS files
+    plus the STL library, by GEOMETRY not by name).
+  - NOT a configuration clearance. CRM_M085 is registered for the WING-BODY and is
+    post-compute, so its gates are closed (rule 2). This probe changes nothing about it.
+A GREEN RESULT HERE CLEARS THE TOOLCHAIN, NOT THE CONFIGURATION.
+rc DISCIPLINE: rc is captured INSIDE the container wrapper, never around `docker run`.
+The PRINTED output is read; rc alone is not the verdict (pyHyp has failed at rc=0 here).
+graded tree: NONE touched. Inputs are a scratch copy of the surface.
