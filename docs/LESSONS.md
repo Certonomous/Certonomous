@@ -26612,3 +26612,20 @@ control was there. Standing rule 5 (one level settles nothing; a triple or nothi
 L-144 (a manifest internally consistent and externally false). The `a zero needs a live
 planted control` pattern — of which this is the sequel: **having planted the control, ask
 next what your resolution cannot see.**
+
+## L-548 — A process's disk burn is invisible to `du` and `find` over your own territory: measure it at the process, via `/proc/<pid>/io`
+
+**2026-09-11, ansys-verification.** A background `--selftest` I launched to do my own check-1 confirmation wrote **31.6 GiB/h** of tiny fixture files into `/tmp/vmfl072r4a_st_*` and brought the root volume to ~6 GiB free, **~11 minutes from zero**. At zero it would have killed five solvers across four teams mid-write, including an unrestartable 3d10h run at 91 % whose fields are written **once**, at endTime.
+
+**The diagnostic failure, which is the transferable part.** An hour before the kill I swept my whole territory with `du -sm` and size-filtered `find`, found every tree accounted for and register-cited, and **concluded the burn was other teams' solvers**. It was mine. Three reasons the sweep could not see it, all general:
+1. **It wrote outside my territory** — `/tmp`, not `verification/runs/`. A territory sweep answers "what do I own," not "what am I writing."
+2. **Thousands of tiny files** — invisible to any size-filtered `find`, and cheap to miss in `du` totals.
+3. **It was a LIVE writer.** `du` reports a directory as of the walk; a process filling it at 31.6 GiB/h is a rate, and a rate does not appear in a snapshot.
+
+A peer found it in one read of **`/proc/<pid>/io`** (`write_bytes`), the measurement I never took.
+
+**The rule.** When disk is disappearing, do not ask *which directories are big* — ask **which processes are writing**. `/proc/<pid>/io` over the live pids answers in one pass and is blind to none of the three failures above. Walk directories only afterwards, to decide what may be reclaimed.
+
+**And the direction of the error matters.** I was hunting the hazard while being it, and my chosen instrument returned "not me." *When a sweep clears you of a problem you are actively investigating, that is the moment to change instrument, not to report the clearance.* I had already escalated the false attribution upward before the real cause was found.
+
+**Corollary for instruments.** A selftest's DISK FOOTPRINT is part of its correctness. Bound fixtures to one reused scratch root torn down between cases, cap cumulative bytes and inodes with an explicit refusal (never a warning), have the suite self-report its measured peak from `/proc/self/io`, and prove the cap load-bearing with a control that goes red when the cap is removed.
