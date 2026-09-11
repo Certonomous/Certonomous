@@ -825,3 +825,173 @@ the three outcomes are fixed here, in advance, and whichever occurs is the one r
 
 **A prediction that could not be tested is not a prediction that was right, and the third
 row will not be quietly reported as the first.**
+
+---
+
+## ADDENDUM 3 — 2026-09-11, cfd `lab-lane`. Document version v1.2 → v1.3. **THE DIRECTED SURFACE ROUTE IS REJECTED ON THE BODY. `BLOCKED` AT THREE TOPOLOGIES PLUS ONE REJECTED SURFACE SOURCE.**
+
+**lines whose number changed above this section: 0.** Pure append, proven by hashing the
+pre-existing lines against the committed blob. **No gate, threshold, cap, band or label
+is altered.**
+
+### A3.1 THE OUTCOME ADDENDUM 2 DECLINED TO PRE-WRITE
+
+Addendum 2 directed route (b): take dafoam's A3 surface family as M6C2's surface source
+and extrude it, under four bounds, the first being that **the body is proven against
+AR-138 before it is extruded.**
+
+**Bound 1 rejected it. Nothing was extruded; bounds 2, 3 and 4 are unspent.**
+
+### A3.2 THE MEASUREMENT — A3's TRAILING-EDGE THICKNESS LAW IS NOT AR-138's
+
+**AR-138 specifies a CONICAL loft, which requires `t_TE/c` CONSTANT at 1.4104e-03.
+A3's surface instead holds the trailing-edge thickness CONSTANT IN ABSOLUTE TERMS at
+0.0011366 m — spread 0.000 % across the whole span — so the ratio grows as the chord
+shrinks.** Measured on `m6_surfaceMesh_fine.cgns` along the structured indices of zone 0
+(upper) and zone 3 (lower):
+
+| z (m) | t_TE (m) | chord (m) | t_TE/c | vs AR-138 |
+|---:|---:|---:|---:|---:|
+| 0.0000 | 0.0011366 | 0.80590 | **1.410400e-03** | **1.0000×** |
+| 0.2883 | 0.0011366 | 0.72084 | 1.576832e-03 | 1.1180× |
+| 0.5745 | 0.0011366 | 0.63637 | 1.786119e-03 | 1.2664× |
+| 0.8459 | 0.0011366 | 0.55631 | 2.043197e-03 | 1.4487× |
+| 1.1631 | 0.0011366 | 0.46268 | **2.456634e-03** | **1.7418×** |
+
+**`t_TE/c` spreads 54.6 % across the span.**
+
+**🔴 IT MATCHES THE SOURCE TO SEVEN DIGITS AT THE ROOT — 1.410400e-03 — AND DEPARTS
+MONOTONICALLY OUTBOARD.** It agrees perfectly at the one station anyone would naturally
+check. **This is the mirror of the hazard registered elsewhere in this campaign: there,
+the body changes while the ratios stay perfect; here, the body matches perfectly at the
+reference station while departing everywhere else.** A root spot check passes it.
+
+**THE PLANFORM IS CORRECT, WHICH IS WHAT MAKES THE FINDING NARROW.** A3's x_TE at
+z = 1.1631 is **1.13424** against **1.13421** predicted from 30° sweep and the conical
+chord — five decimals. **The wing is right; the trailing-edge thickness LAW is wrong.**
+And it independently accounts for the cusp report: **1 cell across the TE** (two points,
+upper and lower) at every station.
+
+**Scope, deliberately narrow: this is what was measured on ONE surface file. Nothing is
+concluded here about any result computed on it.**
+
+### A3.3 🔴 A METHOD NOTE THAT OUTLIVES THIS CASE — SLAB SAMPLING A MULTI-ZONE SURFACE
+
+The first attempt at this measurement sampled sections by **`|z − z_target| < 2 mm`** and
+produced incoherent output: **a root chord of 0.39 m where it must be ≈0.79**, and
+`t_TE/c` ratios swinging from 131× to 0.65×. **On a surface of 9 zones with very
+different point densities, a slab samples an arbitrary subset across zones.** The
+measurement above was re-taken along the structured indices instead.
+
+**It was caught only because the number was absurd. Had it been merely plausible, it
+would have been reported.** Any measurement on a multi-zone surface is taken along the
+structured indices, never by slabbing.
+
+### A3.4 THE PREDICTION REMAINS UNTESTED — DECLINED TWICE, DELIBERATELY
+
+Addendum 2 §A2.3 fixed three outcomes in advance. **The third obtains: extrusion never
+completed on a valid capped surface, so the prediction is STILL UNTESTED.**
+
+**This is the second time this line has failed to test it, and the second time it has not
+been banked as support.** The first failure was the tool refusing; this one is the
+surface being rejected on its body before the tool was invoked. **Neither is evidence.
+The outward/inward normal asymmetry stands on the annulus evidence alone — exactly as
+strong as it was, and no stronger.**
+
+### A3.5 VERDICT AND COST
+
+**`BLOCKED`, at three mesh topologies plus one rejected surface source.** The unblock
+condition of §A1.2 is unchanged: a multi-patch tip-cap surface **on a body that matches
+AR-138**. A3's cap is the right artefact on the wrong wing.
+
+**Cost of this leg: ≈ 4 core-min**, container reads and one re-measurement, single rank.
+**$0.0034 DERIVED, NOT MEASURED** at $0.0513/core-h — the box cannot read its own
+billing. Cumulative for the M6 mesh line: **≈ 89 core-min, $0.0761 derived.** §10's
+estimate of 24,170 core-min remains unspent, for the reason given in §A1.5: **it costs
+the solve and budgets nothing for mesh construction.** The rule-12 calibration row is
+owed and is not discharged here.
+
+---
+
+## ADDENDUM 4 — 2026-09-11, cfd `lab-lane`. Document version v1.3 → v1.4. **THE UNBLOCK CONDITION OF §A1.2 IS SATISFIED ON THE BODY. COST REGISTERED BEFORE THE EXTRUSION RUNS.**
+
+**lines whose number changed above this section: 0.** Pure append. **No gate, threshold,
+cap, band or label is altered, and §A2.3's outcome table is binding on this route
+exactly as written.**
+
+### A4.1 ROUTE (c) — OUR OWN MULTI-PATCH CAP ON OUR OWN BODY
+
+Addendum 3 rejected A3's surface on **bound 1**, the body. It did not spend bounds 2, 3
+or 4. Route (c) keeps A3's **cap TOPOLOGY** — 9 patches, 4 section arcs + 4 collar arcs
++ 1 crown H-patch, no collapsed point and no interior fill of a full-size section — and
+puts it on **this lab's own AR-138-faithful conical loft**. None of A3's geometry is
+used. Generator: `verification/runs/M6C2_runs/surface/build_capped_multipatch.py`.
+
+**The cap fairing's SIZE is a registered departure.** AR-138 §2.1.13 specifies the tip as
+truncation plus a half body of revolution, but the lab's 1979 scan carries figure B1-1 as
+a page image with no readable dimensions. H = 0.026273 m, s_end = 0.983175 and
+R = 0.143795 m are therefore **taken from the A3 reference implementation**, measured
+from its zone corners. They are **physical constants, identical at all three levels**, so
+the body cannot drift under refinement. The semispan is unchanged at 1.1963 m.
+
+### A4.2 BOUND 1 IS SATISFIED — MEASURED, NOT ARGUED
+
+`verification/runs/M6C2_runs/surface/compare_body_mp.py`, which calls `compare_body.py`'s
+own comparison functions rather than reimplementing them, on all three levels.
+Artifact: `verification/runs/M6C2_runs/surface/BODY_PROOF_MP.txt`, rc = 0.
+
+Four planted controls all fire — **including C4, which plants A3's exact failure mode**
+(`t_TE` held constant in absolute terms) and is refused at dTE 9.68e-04.
+
+| comparison | max dev (m) | d(t_TE/c) | d(chord) |
+|---|---:|---:|---:|
+| L1 vs AR-138 conical loft | 1.887e-15 | 1.084e-17 | 8.006e-15 |
+| L2 vs AR-138 conical loft | 2.442e-15 | 1.106e-17 | 7.392e-15 |
+| L3 vs AR-138 conical loft | 1.915e-15 | 9.758e-18 | 5.899e-15 |
+
+**All three levels match the AR-138 conical loft at machine precision.** This is the
+check A3's surface failed, and it is made against the source table itself — not
+level-to-level, which three wrong levels would pass.
+
+### A4.3 THE FIRST EXTRUSION THAT MARCHED — AND WHY ITS rc WAS 1
+
+`verification/runs/M6C2_runs/MP/L1/log.extrude`, rc = 1, 922.69 s wall.
+
+**pyHyp marched ALL 33 levels to eta = 1.000 on the capped multi-patch surface**, min
+quality 0.30122 at the final level, grid ratio 1.3575, after the in-memory coincident-
+point control passed (clean 0 pairs, planted duplicate seen → 1). **It neither refused
+nor segfaulted.** Topology 3 did both; this did neither.
+
+**The rc = 1 is `cgio_open_file:ADF 8: Permission denied` on `writeCGNS` — a uid
+mismatch on the bind mount, measured: the container runs as uid 1002 (`dafoamuser`),
+the output directory is 1000:1000 mode 775. It is not a meshing failure and is not
+evidence about the mesh.** The volume was computed and then could not be written.
+
+**This does NOT discharge §A2.3. The prediction stays `STILL UNTESTED` until a volume
+exists and `checkMesh` has read it.** A march that completed is not a volume that
+cleared a gate, and the third row will not be reported as the first.
+
+### A4.4 COST, REGISTERED BEFORE THE RUN (rule 12)
+
+pyHyp here is **serial, 1 rank**, niced; the box is shared and this lane is not the
+priority job.
+
+| item | basis | core-min |
+|---|---|---:|
+| L1 re-extrusion | measured 922.69 s × 1 rank | 15.4 |
+| L2 extrusion | est. 2.5× L1 on node count | 39 |
+| L3 extrusion | est. 5.0× L1 on node count | 77 |
+| CGNS→OpenFOAM conversion + `checkMesh` ×3 | est. | 30 |
+| **CAP for the whole route (c) mesh family** | | **300** |
+
+**300 core-min = 5.00 core-h. Derived cost $0.257 at $0.0513/core-h — DERIVED, NOT
+MEASURED; the box cannot read its own billing.** Overrun stops the route; it does not
+get a new budget.
+
+### A4.5 WHAT WOULD STILL LEAVE THIS `BLOCKED`
+
+Bounds 2, 3 and 4 of §A2.2 carry over unchanged and bound 4 is spent on route (c). If
+the volume does not clear **both** hard gates (non-orthogonality ≤ 70°, skewness ≤ 4) at
+every level, §A2.3 row 2 obtains: the prediction is **FALSIFIED**, the asymmetry is not
+the governing mechanism, and that is worth more than the mesh. The verdict stands
+`BLOCKED` until a volume is measured. **Nothing here is a result.**

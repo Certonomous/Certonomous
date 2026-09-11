@@ -1,0 +1,19 @@
+  m6_mp_L1: reassembled 57 stations x 201 section points
+  m6_mp_L2: reassembled 85 stations x 301 section points
+  m6_mp_L3: reassembled 127 stations x 451 section points
+
+PLANTED CONTROLS -- run on THIS family's own body, via compare_body's code
+  PASS  C1 identical body -> AGREE                     max dev 0.00e+00
+  PASS  C2 planted TE COLLAPSE -> REFUSE               max dev 2.02e-04, dTE 1.41e-03
+  PASS  C3 planted LE TRUNCATION 0.41% -> REFUSE       max dev 5.07e-03, dchord 6.91e-03
+  PASS  C4 planted A3 CONSTANT-ABSOLUTE t_TE -> REFUSE max dev 7.16e-04, dTE 9.68e-04
+
+LEVEL-TO-LEVEL  (three levels can agree and all three be the wrong wing)
+  m6_mp_L1 vs m6_mp_L2               max dev 4.558e-05   dTE(t/c) 1.540e-17   dchord 1.041e-14   -> SAME BODY
+  m6_mp_L2 vs m6_mp_L3               max dev 4.674e-05   dTE(t/c) 4.770e-18   dchord 3.479e-15   -> SAME BODY
+
+AGAINST AR-138 TABLE B1-1 ITSELF  (the check level-to-level cannot make)
+  m6_mp_L1 vs AR-138 conical loft    max dev 1.887e-15   dTE(t/c) 1.084e-17   dchord 8.006e-15   -> SAME BODY
+  m6_mp_L2 vs AR-138 conical loft    max dev 2.442e-15   dTE(t/c) 1.106e-17   dchord 7.392e-15   -> SAME BODY
+  m6_mp_L3 vs AR-138 conical loft    max dev 1.915e-15   dTE(t/c) 9.758e-18   dchord 5.899e-15   -> SAME BODY
+rc=0
