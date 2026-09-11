@@ -86,3 +86,28 @@ It is **not** a measurement of rung K2f. No graded level was built into
 `K2f_runs/`, no graded level was launched, and the registration remains
 **UNFROZEN**. The throwaway trees were built under the session scratchpad and
 are gone.
+
+---
+
+## LANDED 2026-09-11 — the row is in the ledger
+
+**This cost comparison IS IN `docs/COST_CALIBRATION.md`.** Do not append it again.
+
+- **Allocated id `C-20260911T183135.728475Z-061a73d4`**, minted by
+  `scripts/append_record.py --allocate-id`. **No id was hand-typed.**
+- **Landing commit `7f1a85d7a13cf210cf32a16061286263ed8b93d6`.**
+- **The lab-wide exit-7 refusal cleared at `bc5588bc7`** (verification).
+- **Duplicate check before the write and re-derived at commit time:**
+  `K2f throwaway`, `A-DRIVE`, `194,560` — zero hits each over HEAD's blob.
+- **The ratio landed as a MISS, not as an under-spend:** 0.107 is a 9.4×
+  over-prediction, and the mesh-generation prior that caused it (25 core-s against a
+  measured 2) is named in the row for retirement.
+- **The limitation is stated in the row itself:** the throwaway trees are gone by
+  design, so these figures are re-derivable from **this committed file** and from no
+  surviving case tree.
+- **ONE STATEMENT ABOVE IS NOW OUT OF DATE AND IS CORRECTED HERE RATHER THAN
+  REWRITTEN:** the closing section says *"the registration remains UNFROZEN"*. That
+  was true when written. **K2f was frozen afterwards at `e42894dfc`** (2026-09-11
+  16:52:21Z), and this file's own commit `57330169b` (16:43:50Z) is a verified
+  ancestor of it — so **the whole of this spend is pre-freeze**, which is what the
+  ledger row states.
