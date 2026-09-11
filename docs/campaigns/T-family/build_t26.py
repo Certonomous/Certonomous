@@ -1582,11 +1582,28 @@ def build_surfaces(stl_path, out_dir, registration=None, verbose=True):
     prof, spread = hub_profile(comps["hub"]["tris"])
     hub_az, step = gon_azimuths(comps["hub"]["tris"],
                                 max(r for _, r in prof))
+    gon_step = step
     say("  hub is a %d-gon of revolution, station radius spread %.2e m, "
         "vertex pitch %.6f deg" % (len(hub_az), spread, math.degrees(step)))
 
     inset = reg_core_inset(text)
-    core_prof = miter_offset_profile(prof, inset)
+    # THE INSET IS APPLIED TO THE FACETED SURFACE, NOT TO AN IDEALISED SURFACE
+    # OF REVOLUTION.  The hub on disk is a 96-gon prism-of-revolution, and every
+    # flat face lies at the APOTHEM R cos(1.875 deg), not at R.  A 4 mm erosion
+    # moves each face plane inward by 4 mm, so the offset is taken in the
+    # apothem coordinate and converted back afterwards.
+    #
+    # IT IS A 2.2 MICROMETRE DIFFERENCE AND IT MATTERS.  Eroding the idealised
+    # surface instead gives a core circumradius of 0.0335000 at the barrel and a
+    # strut-to-core clearance of 0.2500 mm; eroding the FACETS gives 0.0334978
+    # and 0.2522 mm -- which is section 21.12's registered 0.2521 mm.  The
+    # difference is 0.006 % of a radius and it is the difference between
+    # reproducing the registration and not.  The facets are what
+    # snappyHexMesh meshes, so the faceted erosion is the physical one.
+    cosh_ = math.cos(gon_step / 2.0)
+    apo = [(x, r * cosh_) for x, r in prof]
+    core_apo = miter_offset_profile(apo, inset)
+    core_prof = [[x, r / cosh_] for x, r in core_apo]
     core_tris = revolve(core_prof, hub_az)
     core_vol = signed_volume(core_tris)
     if core_vol <= 0:
