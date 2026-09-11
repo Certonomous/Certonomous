@@ -32246,6 +32246,46 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 145-E2s-PASS-IS-AN-ARTIFACT-OF-HOW-OFTEN-THE-SOLVER-WROTE-FILES-AND-THE-LAB-HAS-NO-3D-RENDERER -->
+
+**Section last written:** 2026-09-11T~17:00Z by the cfd-supervisor (Opus 5). PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted. Short, per Sanaa's "action not plumbing".
+
+### 🔴 **SUP_BOOSTER E2's `PASS` IS AN ARTIFACT OF HOW OFTEN THE SOLVER WROTE FILES. THE OBJECTION TO MY FINDING IS DEAD.**
+Block 143 conceded the one honest weakness: my windowed statistic disagreed with the registered two-sample test, and **at last-2 and last-3 writes the registered test still passed**, so a reader could say I had chosen my window. **A lane's flag closed it** — `Cp_prev_write` means the limb compares the last two *WRITTEN* times, **so its answer is a function of `writeInterval`.** Tested against the 15-write series already measured. **Same run, same data, same registered 5.0e-03 tolerance:**
+| `writeInterval` | prev write | \|dCp\|/Cp | verdict |
+|---|---|---|---|
+| **1000** (as run) | 14000 | **1.862171e-03** | **PASS**, 2.69× margin |
+| **3000** | 12000 | **1.016508e-02** | **FAIL**, 2.03× over |
+| **5000** | 10000 | **9.225308e-03** | **FAIL**, 1.85× over |
+- 🔴 ***A GATE WHOSE VERDICT IS A FUNCTION OF AN I/O PARAMETER IS NOT A GATE ON THE SOLUTION.*** Had this run been configured to write every 3,000 or 5,000 steps — a choice with no physical content whatever — **the identical solution would have graded `NOT A RESULT`.** **I am no longer choosing a window; the registration's own test gives opposite answers on identical data.**
+- **Referred to verification for the §2d.1 grant, with the lane's flag named as what produced it.** I have changed no instrument and withdrawn nothing. The point going with it: **rule 5's gate is ONE-WAY and may only turn a `PASS` INTO `NOT A RESULT`** — this moves in the direction the rule already permits.
+- **Transferable, and it is the real lesson: a plateau limb that reads WRITES rather than ITERATIONS inherits `writeInterval` as a hidden free parameter.** Every such limb in this lab is suspect. **MRF's grader provably does not have it** — measured today, not assumed.
+
+### 🔴 **THE LAB HAS NO 3-D RENDERER, AND THAT IS WHAT BLOCKS SANAA'S RENDERS — NOT THE VERDICTS**
+Measured on F25-DUCT3D: `scripts/render_openfoam_paraview.py` returns rc=1, **"the mid-span slice produced 32768 polygons for a 2097152-cell mesh"** — **1.56 % of the grid.** It is **2-D-extruded-only by construction**: its one topology-changing filter is a mid-span Slice and it asserts slice-polygons == cell count, an identity that **can never hold on a genuine 3-D mesh.**
+- 🟢 **THE REFUSAL IS CORRECT AND THE LANE WAS RIGHT NOT TO ROUTE AROUND IT.** A mid-span slice of a 3-D duct **is not the solved grid**, and shipping it is exactly the mis-picture the guard exists to stop. **The instrument is right; it is the wrong instrument, and the lab does not own the right one.**
+- **So every one of the five cases Sanaa's loosened trigger qualifies hits the same refusal. Renderable-by-verdict is no longer the binding constraint — renderable-by-instrument is, and it is ZERO.**
+- ⚖️ **RULING [lab-attributed]: BUILD THE 3-D PATH.** It is **not plumbing** — it blocks her direct request, costs **zero solver compute**, and is **not an OpenFOAM capability gap**: ParaView renders 3-D fine and we have no script for it. **Ours to write.** Spec held small: read-only **by construction** (stage to scratch, `case.foam` never written into the graded tree), reuse the existing ParaView invocation wholesale, and **replace the polygon-identity guard with one appropriate to 3-D — rendered surface face count against `nFaces` summed over the rendered patches from `constant/polyMesh/boundary`. MEASURE the relationship before fixing the assertion's form** (ParaView may triangulate); **asserting equality and loosening it when it fails is fitting a guard to the answer.** The guard must be **driven** to REFUSE on a wrong case and on a decimated surface — **two instruments today shipped guards that could not fire, and I will not make it three.**
+- 🟢 **L-545 IS REFUTED BY EXECUTION, NOT BY COUNTING OLD PNGs.** ParaView 5.11.2 under `xvfb-run -a pvbatch` loaded a 2.1 M-cell OpenFOAM case and counted slice polygons on this box. **"ParaView cannot render on this box" is dead.**
+
+### 🔴 **THE MTIME CENSUS CAUGHT A THIRD INSTRUMENT WRITING INTO A GRADED TREE — AND ONLY BECAUSE IT WAS COMPARED**
+The renderer creates `verification/runs/F25_DUCT3D_runs/fine/case.foam` (zero bytes) **inside the graded case**. Hashes differ before/after: `52e70eb1…` → `0b33c3a0…`. **Scope honestly: damage nil** — zero bytes, no field data, not in `0/`, not a field at `endTime`, **rule 4's age guard untouched, no verdict moves.** But the property is breached.
+- **NOT DELETED. Deleting would be ANOTHER write to a graded tree**, which is the property we are restoring. Documented instead.
+- **THREE instruments now: `grade_sup_booster_e2.py:236`, the renderer, and whatever wrote `log.writeCellCentres` into that same tree on 28 August. A pattern, not an incident.**
+- ***THE METHOD POINT IS WORTH MORE THAN THE FINDING: a census that is COMPARED finds a zero-byte file; a census that is ASSERTED reports success.*** Not investigating the August one — it blocks no run.
+
+### 🟢 SUBOFF L2 MEASURED, L3 `BLOCKED`, STATUS TABLE DELIVERED
+L1/L2: **3,268,613 / 9,121,237 cells**, non-orth 64.953/64.906, skew 2.913/3.126, min determinant **8.6227045e-04 / 1.5198839e-03**, layers **98.507 % / 98.640 %**, **zero illegal faces both**, 77.07 + 228.53 core-min. **r = 1.407873 delivered** (P3 holds). **L3 `BLOCKED` on RAM** — 41.7 GiB predicted against a 30 GiB box; shrinking to fit gives r ≈ 1.13, **a triple in name only.**
+- **`L1_DECOMP4` in flight, single-variable (decomposition only; `meshQualityControls` blocks diffed identical, no script edited). Layer counts ALREADY differ — 1,190,436 vs 1,190,468 — so the perturbation is real.** Either outcome decisive.
+- **Status table: `CFD_NAVIER_CLASS_AND_3D_STATUS_TABLE_2026-09-11.md`**, base `106ebe9a4` + Amendment 1 `1450af0c4`. **16 rows + 7 families found by sweeping. ZERO `CONVERGING` triples across sixteen 3-D/Navier rows** — three DIVERGENT, and the lab's one 3-D CONVERGING triple is a laminar square duct. **No graded motorBike case exists in this repository at all.** 4 VERIFY rows, incl. B-52 rungs carrying verdicts **outside the fixed vocabulary** ("REPRODUCE"), which the lane refused to translate — correct. **Newly found and uncatalogued: `F29_CONE_TM` and `MDS1`, both with code and run artifacts and NO campaign record.**
+- **The table's own stated weakness, flagged not buried: its "frozen" column proves a gate cannot NOW be edited invisibly, NOT that the freeze preceded first compute.**
+
+### 🟡 OWED, DELEGATED TO WAITING GAPS ONLY — ledger unblocked (`bc5588bc7`), `roache_triple` repaired (`a7b3846d8`, verdict-neutral over 44,570 ladders)
+Land both parked cost rows **via `--allocate-id`, never hand-typed** (hand-landing was the mechanism in **all nine** malformed-id instances); a **correction row** for `mrfr1a1`, never an edit; the `MRF_R1_GRADED_ROW.json` dated addendum (**verdict unchanged** — only a false stated reason is corrected); and **PRD_E1's re-pin first, because it unblocks a render Sanaa named** — its registration claims a run dir that "does not exist" and it exists today (75 logs, 15 DONE), so it rides §2d.1 as a dated amendment. **Lane told to verify the new blob itself rather than take my pin: mine were wrong twice today.**
+**Ansys's SIGSTOP offer DECLINED, with the reason: cores are not my binding constraint — DISK is** (48 GiB at 91 %, falling ~1 GiB/10 min). One core does not buy a 3-day run's suspension. Offer gratefully held open.
+
+**On Sanaa's desk:** the SUBOFF instance question (a true 25 Mcell fine level needs more RAM than this box has) — **and, as information not a decision, that her 3-D renders needed a renderer the lab did not have; we are building it at zero solver cost.** **Blocked:** M6 mesh line (lane live on the 4th route); CRM mesh source (same lane); MRF fine pending the control; SUBOFF L3 on RAM; E2's §2d.1 referral. **Live:** MRF_R2 ET8000 coarse 902/8000 + medium 242/8000 (nice 10 child ranks), the two-arm control, SUBOFF `L1_DECOMP4`. Three lanes at cap.
+
 <!-- BOARD-BLOCK-ID: 144-SANAA-LOOSENED-THE-RENDER-TRIGGER-AND-TOLD-US-ACTION-NOT-PLUMBING-THE-CORRECTION-LANDS-ON-ME -->
 
 **Section last written:** 2026-09-11T~16:50Z by the cfd-supervisor (Opus 5). PURE INSERTION, built from `git show HEAD:` with `deletions == 0` asserted. **Deliberately short — see §2.**
