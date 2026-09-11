@@ -565,3 +565,108 @@ DELIVERED REFINEMENT RATIOS VERIFIED FROM BUILT CELL COUNTS (§4):          [ ]
 GATE M CLEARED AT ALL THREE LEVELS BEFORE FREEZE (§5.1, build-before-freeze): [ ]
 DRAFT BANNER STRUCK (the blockquote above §0, in one cut):                 [ ]
 ```
+
+---
+
+# 🔴 MESH-FAMILY PARK — 2026-09-11. **M6C1's FILL TOPOLOGY IS PARKED. NO SOLVE WAS LAUNCHED AND NO GATE WAS EVALUATED.**
+
+**This document was never frozen.** No compute ran under it beyond mesh construction, so nothing here
+is a graded verdict — it is a **mesh-family park with a measured reason**, in the shape M6CP1's
+Amendment 2 used. **Gate P and Gate G were never evaluated.**
+
+## P.1 THE RULE THAT WAS APPLIED, AND IT WAS SET BEFORE THE ATTEMPT
+
+The supervisor time-boxed the fill three times and, on the third, registered the stop condition in
+advance: *"One attempt. If the C-H does not clear 70° at all three levels, M6C1's mesh PARKS and we
+take the findings. No fourth topology."* **It cleared at L1 and not at L2. The rule is honoured
+rather than reinterpreted, and the lane brought the park rather than a fourth topology.**
+
+## P.2 THE MEASUREMENT
+
+| level | cells | max non-orthogonality | max skewness | M-d |
+|---|---:|---:|---:|---|
+| L1 | 1,313,792 | **66.57** | 1.443 | **PASS** |
+| L2 | 4,434,048 | **70.99** | 1.443 | **FAIL by 0.99°** |
+
+**All 72 over-gate faces at L2 are in-plane, on two adjacent quads at the nose lens's C3 corner** —
+the same corner that owns the concave cells, the low-weight faces and the face-volume-ratio faces.
+**One defect, every failing check.**
+
+## P.3 🔴 WHY IT IS STRUCTURAL AND NOT MARGINAL — IT WORSENS UNDER REFINEMENT
+
+**The false corner's non-orthogonality GROWS with refinement: 63.34 → 70.88 → 76.62°.** A 0.99°
+miss at L2 is not a near-pass; **L3 projects to ~76.6° and the trend is monotone.** **This is the
+same "worse under refinement" signature as M6CP1's 60.9° cusp, in a different guise** — and **a
+family gate exists precisely to catch it, so the gate is working.**
+
+**And the mechanism is isolated, not guessed.** Sweeping `nb` at fixed `ni` moves the corner along
+the surface:
+
+| `nb` | corner at x/c | max non-orth |
+|---:|---:|---:|
+| 16 | 0.0088 | 73.23 |
+| 24 | 0.0334 | 84.31 |
+| 32 | 0.0752 | 88.30 |
+| 48 | 0.2165 | 89.09 |
+| 80 | 0.7476 | 89.83 |
+
+**The worst edge sits AT the corner in every case, and moving it aft makes it worse.** The reason is
+geometric: **a 90° block corner on a FLAT boundary is maximally false; tucked at the leading edge,
+where the boundary genuinely turns through 180°, it is LEAST false. So the best available placement
+is the one that already fails.** Removing the lens entirely — putting all four corners on the loop —
+is worse still: 73.23 / 78.66 / 82.87.
+
+**THE DEFENSIBLE CONCLUSION: an airfoil section interior cannot be filled by a one- or two-block
+structured mesh without a false corner, and that corner exceeds 70° at the refined levels however it
+is placed.** Clearing it requires a fill with **no artificial corner at all** — a genuinely
+multi-block elliptic construction with free interfaces, or an unstructured cap. **That is the
+registered next step and it is new work, not a fourth parameter.**
+
+## P.4 THE FULL LEDGER, SO NOBODY RE-SPENDS THESE HOURS
+
+| variant | ni | 2-D max | > 70 | note |
+|---|---:|---:|---:|---|
+| butterfly, shrunk-section core | 200 | 84.89 | 7940/8632 | rhombus core, ~15° corners |
+| butterfly, **rectangular** core | 200 | 84.04 | 368/8344 | **21× better — corner ANGLE, not elongation** |
+| + Winslow interior only | 200 | 83.70 | 152/8344 | area exact; **interfaces frozen** |
+| + interface coupling | 200 | **89.77** | 88/8344 | **max WORSE while count fell; area drifted 4.4e-04** |
+| **C-H two-block (lens)** | 200 | **63.34** | **0** | the only variant that passes anywhere |
+| C-H two-block (lens) | 300 | 70.88 | 2 | |
+| C-H two-block (lens) | 450 | 76.62 | 2 | |
+| C-H one-block (no lens) | 200 | 73.23 | 4 | |
+| C-H one-block (no lens) | 450 | 82.87 | 24 | |
+
+## P.5 WHAT IS BANKED AND MUST NOT BE REBUILT
+
+- **The source-faithful section and conical loft: `t_TE/c = 1.4104000e-03` at every one of 20 stations
+  at both built levels**, against AGARD's 1.4104e-03. **The blunt base that M6CP1 built as a cusp is
+  built correctly here and verified by measurement at twenty independent stations.**
+- **The exact ×1.5 family — 3.375000 delivered**, by construction, with no `nCellsBetweenLevels` trap.
+- **The annulus at 60.83° with ZERO severe faces in the wing region.**
+- **The capped topology with a real, closed `tipCap` wall patch** — the defect M-b-2 caught when the
+  patch was the whole spanwise end plane typed `wall` at 404,011:1.
+- **THE REPLACEMENT LIMB WORKED EXACTLY AS DESIGNED.** The `tipCap` exemption was granted only with a
+  minimum-face-area limb tied to the registered resolution. Measured: **the minimum face sits at
+  x-fraction 1.0000 — the base — with measured/predicted 1.018 at L1 and 1.004 at L2. Resolution, not
+  collapse, demonstrated numerically rather than asserted.**
+
+## P.6 THE FINDINGS THAT OUTLIVE THE MESH
+
+1. **It is corner ANGLE, not elongation, that sets non-orthogonality.** A rectangular core beat a
+   shrunk-section core **21-fold** while barely moving the maximum. *"Make the core rounder"* is the
+   intuitive fix and it is wrong.
+2. **Outward-marching normals DIVERGE and the march is stable; inward-marching normals CONVERGE and
+   cross at focal points.** This is why the trick that took the annulus from 85.9° to 60.8° **cannot
+   be reused inside a closed curve** — and the shoelace area check, reading 1–110 % error, is the
+   only thing that caught it.
+3. **Optimising a RECORDED metric at a GATED one's expense.** Varying the radial distribution to
+   improve aspect ratio tilted every spanwise grid line; removing it cut severe faces **568,440 →
+   192,768**, with **zero remaining in the wing region.**
+4. **Interior elliptic smoothing cannot fix what sits on a block interface**, because the solve holds
+   interfaces fixed — **and freeing them crudely made the MAXIMUM worse (84.04 → 89.77) while the
+   COUNT improved (368 → 88).** A statistic moving while the gated quantity degrades.
+5. **THREE separate occasions where the shoelace area check or a planted control caught something the
+   quality metric was reporting as an improvement.** Every one would have shipped on its quality
+   numbers alone.
+
+**Total cost: ~75 core-min, single-rank Python meshing. No solver core-seconds. Nothing deleted.**
