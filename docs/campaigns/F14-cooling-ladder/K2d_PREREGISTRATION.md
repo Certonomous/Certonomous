@@ -3,13 +3,24 @@
 **Campaign F14, DC-cooling spine. Rung `K2d`. Team: heat-transfer.**
 **Written 2026-09-10 by a heat-transfer `lab-lane` at ZERO solver core-minutes.**
 
-> # DRAFT — NOT FROZEN. NO COMPUTE UNDER THIS DOCUMENT.
+> # FROZEN 2026-09-11 by heat-transfer-supervisor. GATES ARE CLOSED.
 >
-> **No gate, band, threshold, floor, cap or label in this file is frozen.**
-> `GRADING_PATH_FREEZE_COMMIT` reads **`PIN-AT-FREEZE`** throughout. Until the
-> heat-transfer supervisor freezes this document by sha, it is amendable, and
-> **every amendment must state its condition and how it was checked** (standing
-> rule 2).
+> **Every gate, band, threshold, floor, cap and label in this file is FROZEN**
+> and may no longer be amended. The grading path is pinned by blob in section 9;
+> the freeze commit's own sha is recorded in that commit's message, because a
+> file cannot contain its own committed hash. Changes land only as dated addenda
+> that cannot alter a gate, threshold, cap or label (standing rule 2); originals
+> are struck, never rewritten.
+>
+> **STRUCK AT FREEZE:** the DRAFT banner this replaces, together with its
+> amendment condition *"`K2d_runs/` does not exist"* — superseded before this
+> freeze by section 14's stricter restatement. **First SOLVER compute has NOT
+> occurred.** `blockMesh` and `checkMesh` are meshing and inspection utilities;
+> L1 is built at **58,368 cells** and returns **`Failed 0 mesh checks`** under
+> `-allGeometry -allTopology`, with `Mesh has 3 geometric (non-empty/wedge)
+> directions (1 1 1)` and no `0/`. Later sections stating this document is not
+> frozen are dated records of past amendments, true when written and superseded
+> by this banner.
 >
 > **THE AMENDMENT CONDITION, AND HOW IT WAS CHECKED:**
 > *"`verification/runs/F14-cooling-ladder/K2d_runs/` does not exist."*
@@ -799,11 +810,11 @@ T4e's fine leg holds a core for ~40 more hours and T26 will want capacity.
 
 | item | value |
 |---|---|
-| `GRADING_PATH_FREEZE_COMMIT` | `PIN-AT-FREEZE` |
-| `build_k2d.py` | `PIN-AT-FREEZE` |
-| `analyse_k2d.py` | `PIN-AT-FREEZE` |
-| `mark_done_k2d.py` | `PIN-AT-FREEZE` |
-| `scripts/roache_triple.py` | `PIN-AT-FREEZE` |
+| `GRADING_PATH_FREEZE_COMMIT` | recorded in THIS freeze commit's message |
+| `build_k2d.py` | `36a2f3e3ad2133f7b7a7af77d657fea9047edc25` |
+| `analyse_k2d.py` | `f61ab074425f2664929abb15cce6e0f403cb5b9f` |
+| `mark_done_k2d.py` | `0a095552afc051b3ce3795cb471deb145da53db2` |
+| `scripts/roache_triple.py` | `78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8` |
 | referent PDF sha256 | `4de4798ed5eed60feda123c7a2398674a6a9177f44906175847d90f5227d7b77` |
 
 **The grading path is fixed at the freeze commit.** The comparator verifies each
