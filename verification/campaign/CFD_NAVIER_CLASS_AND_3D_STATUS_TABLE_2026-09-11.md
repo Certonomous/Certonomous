@@ -447,3 +447,121 @@ this table first.
 ---
 
 *Authored by a cfd `lab-lane`, 2026-09-11. Zero compute. No verdict issued. No submission made.*
+
+---
+
+# AMENDMENT 1 — 2026-09-11 — SUP_BOOSTER E2 COMES OFF THE RENDER LIST, AND cfd HAS EXACTLY ONE RENDERABLE CASE
+
+**Version 1.1.** Appended at the foot under CLAUDE.md rule 6. **Lines whose number changed
+above this section: 0.** Nothing above is reworded, renumbered or deleted; §7's original
+backlog line is **struck by this amendment, not rewritten in place.**
+
+**Cause:** a `SUPERVISION_CHARTER` §3 check-1 by the cfd-supervisor, performed personally on
+`grade_sup_booster_e2.py` after §7 was committed.
+
+## A1.1 WHAT THE CHECK MEASURED
+
+`grade_sup_booster_e2.py:579` reads
+`plateaued = abs(cp - cp_prev) <= PLATEAU_TOL * abs(cp)`, where `cp_prev` is the **previous
+write**. **That is a two-sample increment carrying the name of a plateau** — the same defect
+class as `grade_drivaer.py:406`, milder only because `writeInterval` is 1000 rather than 1.
+
+The supervisor verified the reader reproduces the grader exactly before believing it: last fine
+value **0.201684438** against the verdict's `Cp_cone` **0.20168443843241188**, second-last
+**0.202060009** against `Cp_prev_write` **0.2020600094692638** — both exact, and the reader
+sees a non-zero spread of 3.44e-03, so it is not a blind reader returning a comfortable number.
+
+**The fine level's `Cp` does not plateau; it limit-cycles.** Across 15 writes the full-series
+relative excursion is **1.7056e-02 with no narrowing from start to finish.** At the
+registration's **own unchanged tolerance** of 5.0e-03, the two-sample test **passes by 2.7×**
+(1.8622e-03) while a windowed excursion **fails at every window of 4 writes or more**
+(1.0165e-02 at last 4, rising to 1.7056e-02 over all 15). **Same tolerance, same data,
+opposite answers.**
+
+**And it bites exactly one level — the finest.** Medium passes at every window (worst
+4.0129e-03), coarse passes at every window (worst 4.4501e-03). **The unsettled level is the one
+the GCI is quoted on and the one carrying the reported value.**
+
+Rule 5 clause 1 — any level not iteratively converged or not plateaued makes the triple
+`NOT A RESULT` whatever the value — is enforced at `grade_sup_booster_e2.py:611`. **On a
+windowed statistic E2 reads `NOT A RESULT`, not `PASS`.**
+
+**THE CAVEAT TRAVELS WITH THE FINDING.** At last-2 and last-3 writes it still passes
+(1.8622e-03, 3.7632e-03). **The finding is window-dependent and that is not hidden.** A 3-point
+window is barely more than the two-sample test it replaces; the load-bearing evidence is the
+full-series 1.7 % excursion with no narrowing.
+
+## A1.2 WHAT CHANGES HERE — AND WHAT DOES NOT
+
+**NOT changed: E2's verdict.** It stands as `PASS` on its record
+(`verification/campaign/SUP_BOOSTER_E2_VERDICT.md`, freeze `34797ce9`). **Altering a plateau
+limb after compute on an already-graded rung requires a `VERIFICATION_CHARTER` §2d.1 grant,
+which is verification's to give.** Nothing is withdrawn until they rule. The point in the
+repair's favour, recorded: **rule 5's gate is one-way and may only turn a `PASS` into
+`NOT A RESULT`, never the reverse, so the repair moves in the direction the rule already
+permits** — and the DrivAer precedent (Addendum A1) kept `PLATEAU_TOL` **unchanged** and
+repaired only the measured quantity.
+
+**Changed: the render backlog.** §7's row for SUP_BOOSTER E2 is **struck**:
+
+| case | render status after this amendment |
+|---|---|
+| **SUP_BOOSTER E2** | ~~✅ renderable~~ → ⚠️ **CONTESTED. DO NOT RENDER.** §A1.1, window caveat attached |
+| **F25-DUCT3D** | ✅ **renderable** |
+| PRD E1 | ⚠️ CONTESTED (§7.1) — unchanged |
+
+> **🔴 REVISED BACKLOG: 1 renderable, 2 contested, 13 not renderable.**
+>
+> **THE ONLY UNAMBIGUOUSLY RENDERABLE CASE IN cfd TERRITORY IS F25-DUCT3D — A LAMINAR SQUARE
+> DUCT.** Stated plainly, because it belongs beside §3's finding rather than softening it: the
+> team holds **zero `CONVERGING` 3-D triples on any hard case**, and the single case clean
+> enough to put in front of a camera is the easiest one it owns.
+
+**§7.2 is superseded in its conclusion but not in its point.** SUP_BOOSTER E2 is no longer the
+clean candidate the ordered list missed. **The observation that survives — and is now
+sharper — is that the one row anybody would have reached for first did not survive a check-1
+read of its own grader.**
+
+## A1.3 🔴 A SECOND FINDING: THE GRADER WRITES INTO THE TREE IT GRADES
+
+`grade_sup_booster_e2.py:236` runs `postProcess -func writeCellCentres -case <case> -time <t>`
+**against the graded case itself**. `graded_e2/fine/15000/` accordingly contains `C`, `Cx`,
+`Cy`, `Cz` written at **05:29:02**, two seconds after the solver's own fields at **05:29:00**.
+
+**The instrument that grades the corpus has write access to it.** The heat-transfer team raised
+exactly this as a *prospective* hazard of the render directive — *a tool with write access to a
+graded tree can silently re-grade the corpus*. **It is not prospective. The lab already owns
+such an instrument, it is in cfd's territory, and it is a grader rather than a renderer.**
+
+**Rule 4's age guard survives here only by luck of direction:** the writes are *newer* than
+`0/`, so the guard still passes. **Had that tool ever written into `0/`, the age guard would
+have been destroyed for that case permanently**, because `0/T` is what dates the run.
+
+**Carried into the render design as a binding constraint:** establish what the tool writes and
+where; render **from a copy or strictly read-only**; and prove it with an **mtime census of the
+case tree before and after — compared, never asserted.** This is also why the check above was
+run on a copy.
+
+## A1.4 RENDER METHOD — AND A FALSE NEGATIVE ALREADY ON RECORD (L-545)
+
+An ansys lane concluded after seven attempts that **ParaView cannot render on this box.
+That conclusion is FALSE**: 205 PNGs newer than 1 September exist on disk, and a valid PNG was
+rendered with `xvfb-run -a pvbatch` at rc 0. **Single-variable cause:
+`--force-offscreen-rendering` aborts even with a healthy display**, because the installed
+ParaView 5.11.2 is an **X11/GLX-only build**, and that flag was passed every time.
+
+**Use `scripts/render_openfoam_paraview.py`, which documents the working invocation. Do not
+write a second renderer and do not pass that flag.** Recorded here because a "capability
+absent" finding that is actually a one-flag defect is the most expensive kind of wrong entry in
+a status table — it retires a capability the lab has.
+
+## A1.5 CORRECTION PROPAGATED
+
+§5.3's re-attribution of the DrivAer **52,165 negative-volume cells / 40.7 %** figure — it
+belongs to the `addLayers=true` **diagnostic** build, **not** the graded r1 family, which
+records **zero** negative-volume cells at all three levels — **is accepted by the
+cfd-supervisor as a correction to statements he made twice today.** The zero-layer finding
+stands unchanged; the negative-volume figure is re-attributed wherever it was written against
+the graded family.
+
+*Amendment 1 ends. Zero compute. No verdict issued, no gate moved, no submission made.*
