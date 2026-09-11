@@ -41084,6 +41084,88 @@ comparator and on JF1's; runner cap enforcement per Sanaa's ruling 3 (**`queue_r
 `check_commit_size.py` is a DIFFERENT object and stays advisory**); fossil deletion — **1 path,
 by explicit path only, PATH NOT YET RECEIVED**.
 
+### cfd block 137 — 2026-09-11 ~04:55Z — M6 mesh line BLOCKED; DrivAer plateau limb repaired under a §2d.1 grant
+
+**Last commit:** `f8ef8de1a` — M6C1 Addendum 1 (**verdict `BLOCKED`**) + M6CP1 Addendum 10 + the
+M6C2 L1 evidence, 25 files, 641 insertions. Both `lines whose number changed above this section: 0`
+assertions were **proven by hashing the pre-existing lines against `HEAD:`**, not asserted.
+
+**Live jobs** `[MEASURED 04:45Z]`
+| run | pid | cwd | iters | ranks |
+|---|---|---|---|---|
+| DrivAer Stage A | 1878870 | `verification/runs/navier_class/DRIVAER/r1_fine` | 1,150 / 3,000 | 8 |
+| MRF_R2 fine | 1899485 | `verification/runs/navier_class/MRF/R2/fine` | 1,240 / 4,000 | 6 |
+| MRF_R2 medium | 1904928 | `verification/runs/navier_class/MRF/R2/medium` | 1,605 / 4,000 | 2 |
+
+All ranks nice 5. MRF_R2 coarse complete (4000, `End`). ETA medium ~3.3 h, fine ~6.7 h.
+Watches: DrivAer `b2paq9eie`; MRF pid 1949526 (both logs, one watcher).
+
+**Rungs without verdicts**
+- **DrivAer Stage A** — running. **Gate A1's plateau limb is being repaired under a §2d.1 grant
+  from verification.** The registered test `|cd[-1]-cd[-2]| <= 0.005*|cd[-1]|` reads an
+  **adjacent-iteration delta** (`forceCoeffs writeInterval 1`): at iteration 1,144 it is
+  **1.27e-05 against 1.53e-03 — passing by 120x**, while the signal's own excursion is
+  **2.40% / 4.59% / 8.35% of Cd over 50 / 100 / 500 iterations**. A limb that cannot fail.
+  **Repair rule fixed by me IN ADVANCE, not chosen from the data: W = 10% of endTime = 300;
+  statistic = windowed relative excursion; `PLATEAU_TOL_REL = 0.005` UNCHANGED.** Threshold value
+  frozen, only the measured quantity repaired. **The addendum must register, before the run lands,
+  the prediction that the repaired limb returns `NOT_PLATEAUED`** — that timestamped
+  against-interest prediction is the evidentiary content this repair has in place of a freeze.
+  Expected outcome then: rule 5 limb (1) -> **`NOT A RESULT`**, routed to a longer successor. Not
+  terminal; the signal is **drifting, not oscillating**.
+- **MRF_R2 medium and fine** — running, ungraded. Comparator read and Roache triple are **mine**.
+- **CRM_M085_R2** — was to follow M6C2 on a lab-built conforming family. **That premise is gone
+  with the M6 mesh park.** Needs a new mesh source decided. `[VERIFY]`
+- **PRD** — check-1 diff read done; `us1.00_L1` limit-cycle diagnostic as §2bc ladder L0 still open.
+
+**Findings landed this leg**
+- **M6: three topologies, three measured objections.** pyHyp **refuses `unattachedEdgesAreSymmetry`
+  on any body that does not close when mirrored** — so dafoam's A3 cannot be running tip-symmetry;
+  third-party corroboration of the Gate P reasoning. A **fourth route is now directed** (chief,
+  2026-09-11): take A3's 9-zone multi-patch capped surface as the M6C2 surface source, prove the
+  body against AR-138 at every level first, then extrude. **Addendum 2 owed to M6C1 because
+  Addendum 1's "Nobody is attempting it now" is now false.**
+- 🔴 **pyHyp seam hazard, reusable well beyond the M6:** a **zero-length edge (a duplicated seam
+  point) surfaces as NaN in a quality column while pyHyp still prints "Normals are consistent" and
+  "Topology complete".** Both topology checks pass straight over it. Detect it by scanning the
+  surface arrays and refusing, never by reading the log.
+- 🔴 **MRF controlDict banner: SIX files, ONE sha256, TWO graded families.** Line 2 of every R1 and
+  R2 `system/controlDict` says *"THIS COPY IS THE EXERCISE-SMOKE config: endTime 50"* while line 25
+  reads `endTime 4000`. **R1 is ALREADY GRADED** (`MRF_R1_GRADED_ROW.json`) under a file whose face
+  says smoke test. One defective template stamped six times — the repair is in the **tooling**, not
+  six edits. **Nothing edited**; disclosure lands as dated addenda at grading on both families.
+- **MRF_R2 check 4 (mine):** fine's **mesh** was built 01:03:43-01:14:19, the registration was
+  committed **01:26:13** — 23 minutes later. **Rule 2 is satisfied** (it gates the solver;
+  `simpleFoam` began after 02:11). The registration labels those numbers **"FINE, AS BUILT"** on
+  its face and the admission thresholds (non-orth <= 70 deg, skewness <= 4) are **inherited from
+  `MESH_STANDARD` §3**, so they cannot have been fitted to a measured mesh. Belongs in the grading
+  record as a stated weakness of the fine level's mesh-admission limb.
+- **`grade_drivaer.py`: I was wrong twice, in the safe-looking direction.** I told two lanes that
+  `BODY_PATCH` and the `cl_ref is None` disarm were unrepaired. **Both were repaired BEFORE the
+  comparator was pinned** — §8 of the registration is literally headed *"repaired before pinning"* —
+  and the file hashes to its pinned `0eddb5588c337114`. I was reading the comment that documents
+  the fix and calling it the bug. **Only the plateau stands.**
+
+**Traps measured this leg, for whoever reads this next**
+- **`mpirun`'s nice records how a job was LAUNCHED; the ranks' nice records what they RUN at.** They
+  agree only when the nice came from the launcher. DrivAer 5/5 (nice'd wrapper); MRF R2 fine and
+  medium **0/5** — the signature of a post-launch renice. **Read the children.**
+- **Three adjacent samples are not a trend.** My first drift read took three rows and projected
+  **+0.56** in Cd; over 200 steps it is **93/199 positive**, mean step +2.34e-05, projecting
+  **+0.04**. Re-measured before it was reported, but only just.
+- `cgns_utils plot3d2cgns` **cannot read the output of its own sibling** `cgns2plot3d` — identical
+  `End of file` at `cgns_utilities.F90:2616`, proven by a control on a file the toolchain wrote.
+
+**Next actions:** register the DrivAer plateau prediction **before the run reaches 3,000** (hard
+deadline, ~4 h from 04:55Z); read the comparator repair **as a diff** (mine, undelegated); M6C1
+Addendum 2 + the A3-surface extrusion attempt; MRF triple grades at completion with the six-file
+banner disclosure and the `COST_CALIBRATION.md` row; decide CRM_M085_R2's mesh source.
+
+**On Sanaa's desk:** nothing.
+
+**Blocked:** **M6 mesh line `BLOCKED`** — three topologies, three measured objections. Unblocked
+only by an A3-style multi-patch tip-cap surface; that fourth route is under attempt now.
+
 ## verification
 
 **Section last written:** 2026-09-10T23:43:20Z by verification-supervisor (V-174; `date -u` in THIS committing invocation; **write+commit ONE invocation per §A6.3 part 4**; CONTENT-anchored, anchor re-derived here). **FIVE MORE CHARTER VERSIONS — v1.92 → v1.96, `D626`–`D630`, plus `L-542`. CHARTER AT v1.96; 16 COMMITS TODAY; ZERO SOLVER CORE-MINUTES.** **THE DAY IS ONE SENTENCE IN NINE MEASURED INSTANCES: A PROXY IS NOT THE PROPERTY** — a function NAME (§2bn), the WRONG LINE of `checkMesh` (§2bo.1), the WRONG FORM of the right tool (§2bq), a MARKDOWN NOTATION (§2bt), the word "PLANTED" IN A BANNER (§2bw), `Popen` RETURNING (§2ci), `Time =` FROM `decomposePar` (§2cm), an EXIT CODE (§2ct), and a CLEAN REFINEMENT RATIO standing in for an innocent mesh (§2cp). **Five were false CHECKS; one was a false ACTION; three were mine.** **I ARMED NO GATE (`D539`) AND DECLINED FIVE REFUSALS — one proposed by the team it would constrain. I MADE ONE INSTRUMENT EDIT ALL DAY: a `help=` string, diff-read personally, selftest 44/44 unchanged. I WITHDREW FOUR OF MY OWN ACCUSATIONS, ALL FOUR IN ANOTHER TEAM'S FAVOUR.**
