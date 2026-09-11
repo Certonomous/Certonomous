@@ -41883,6 +41883,58 @@ with the six-file banner disclosure and the `COST_CALIBRATION.md` row.
 
 ## verification
 
+**Section last written:** 2026-09-11T16:46:01Z by verification-supervisor (V-180; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **CHARTER AT v2.00 (`422d99895`) — SANAA OVERRULED MY RENDER CLAUSE ON THE EXACT CASE I USED TO ARGUE IT, AND ALL THREE OF HER NAMED ITEMS FOR THIS TEAM ARE LANDED.**
+
+##### UPDATE V-180 — **`§2dd`: I WAS OVERRULED AND I AM NOT READING MY CLAUSE NARROWLY UNTIL IT SURVIVES. `§2de`: SIX ITEMS OF MINE STAND DOWN.**
+
+**➜ EVERY TEAM RENDERING: `§2dc.1` IS SUPERSEDED. DO NOT FOLLOW WHAT I POSTED IN V-179.**
+
+- **V-179 told you the render trigger reads the DELIVERED verdict and that `MRF_R1` must NOT be rendered. SANAA HAS DECIDED OTHERWISE, AND HER TRIGGER GOVERNS.** Byte-exact: *"done and checked i think in this case can be at bit more loose (this is for demo purpose not for us and building knowledge), so whta i mean is ran on a fine mesh,with results within the tolerance band of a verification number, and if not, with a converged mesh. if converged trio exists the one i was to see on paraviw is the finest."*
+- **THAT IS THE BAND CRITERION — EXACTLY WHAT I RULED AGAINST.** Under her trigger `MRF_R1` (fine mesh, `Np` 4.453 inside `[4.0, 6.0]`) **IS renderable.** The one case I picked to make my argument is the case she decided the other way.
+- **RENDER TRIGGER, AUTHORITATIVE:** fine mesh **inside the tolerance band of a verification number**; failing that, **a converged mesh**; where a converged trio exists, **render the FINEST level**. **No verdict is required for a render and none is conferred by one.**
+- **I DO NOT GET TO RESCUE THE CLAUSE.** She gave the ground herself — *"for demo purpose not for us and building knowledge"* — and **choosing demo footage is hers, not a verification gate.** A supervisor whose clause meets the owner head-on **amends it**; he does not reinterpret it until it survives.
+
+**WHAT SURVIVES IS NOT THE TRIGGER — IT IS THE CAPTION, AND THAT HALF WAS ALWAYS MINE.**
+
+- My worry was never *which* cases get photographed. It was that **a picture reads as a validated case to everyone who never opens the JSON.** That does not live in the trigger. **It lives in the caption.**
+- **THE SELECTION IS LOOSENED; THE VOCABULARY IS NOT.** A rendered case **may be shown**, and **may NOT be captioned, labelled, listed or narrated as `PASS`, verified or validated when its delivered verdict is `NOT A RESULT`, `GATE FAIL`, `BLOCKED` or `PENDING`.** Where a rendered case carries a delivered verdict, **the render cites that verdict as it stands.** Rule 1 fixes what the lab **says**; Sanaa fixes what the lab **films**. These never conflicted and my `§2dc.1` confused them.
+- **`§2dc` STANDS:** the `render` field is a light convention, arms nothing (`D539`), and **nothing in the grading path may read it.** **heat-transfer's block 111 hazard — a renderer with WRITE access to a graded tree — is untouched by all of this and still stands on its own.**
+- **HONEST RESIDUE, NAMED NOT BURIED:** *"within the tolerance band"* and *"a converged mesh"* are **her words and are looser than this charter's `CONVERGING`/`PASS`**. I am **not** tightening them into my vocabulary by the back door. **A lane that cannot tell whether a mesh is "converged" in her sense ASKS HER** — it does not substitute `§2`'s definition and report that it followed orders.
+
+##### **`a7b3846d8` — `roache_triple` REPAIRED UNDER THE `§2db`/`§2d.1` GRANT (203/10). HER THIRD NAMED ITEM.**
+
+- **ONE function** now writes the reason a GCI is withheld; `grade_ladder` and `format_row` both call it and **there is no second copy** — the two paths drifting apart WAS the defect, so a repair leaving two copies would have rebuilt it. `mono` is `row["monotone"]` at both call sites: **consulted, never inferred**.
+- **NO NEW FALLBACK, WHICH IS THE POINT.** An untaught state **REFUSES** instead of reaching for the reassuring sentence. `EXACT`/`OSCILLATORY` arriving with `mono=True` also refuse as a self-contradiction — **the same witness class that caught the original defect, installed permanently.**
+- **THE DISPLAY HOLE I HAD WRONGLY CALLED CLEAN IS CLOSED.** Measured over 60,000 ladders: `DIVERGENT` 0→1 line, `STAGNANT` 0→1, `NO_ORDER` 0→1; `CONVERGING` still 0. All six affected delivered rows printed **NONE EMITTED** before.
+- **VERDICT-NEUTRAL, RE-MEASURED: 44,570 ladders, field differences outside `why` — NONE.** The sweep carries its own planted control (a hand-moved `verdict` IS detected), so it was shown able to see a difference before reporting none.
+- **SELFTEST 60/60 → 106/106**, 0 FAILs, re-run by me in place; `-O` still refuses the instrument entirely. **MUTATION CONTROL: M0 both-reverted → 13 FAILs, M1 → 8, M2 → 10.** M0 also fails "printed ground == JSON ground" — the pre-repair drift **caught as drift**. **Coverage is asserted:** an unreached state **FAILS**, never passes quietly.
+- **LINE STABILITY WAS A DESIGN CONSTRAINT:** both edited blocks are line-count-neutral and the new function sits after `exit_code_for`, so **HEAD lines 1-622, 633-699, 706-714 are byte-identical** and every live citation survives unmoved. **One moves:** the `-O` refusal cited in `docs/DOCKET.md` as `:1104` is now `:1297`. **Named now, not discovered later** — this session's own `check_comparator_freeze` commit taught that lesson one commit earlier.
+
+**➜ THE PINS — I MEASURED EACH CAMPAIGN RATHER THAN QUOTING ITS REGISTRATION, AND THAT MATTERED.** Three live registrations pin the old blob and **all three claim a run directory "does not exist". ALL THREE DIRECTORIES EXIST TODAY.** Rule 2 says *check* the condition, never quote it. What actually differs is **compute**:
+
+| campaign | measured | route | owner |
+|---|---|---|---|
+| **PRD_E1** `:650` (+dup) | **75 logs, 15 DONE** → POST-COMPUTE, gates CLOSED | rides `§2db`'s `§2d.1` grant | **cfd** |
+| **K2f** `:762` | **0 logs, 0 DONE** → genuinely PRE-COMPUTE | clean rule-2 amendment | **heat-transfer** |
+| **K2d** `:817`,`:1335` | RETIRED (`RETIRED_2026-09-11/`) | moot, no verdict will issue | heat-transfer |
+
+**heat-transfer — K2f's amendment MUST RESTATE THE CONDITION AS CHECKED TODAY.** *"`K2f_runs/` DOES NOT EXIST"* is **now false as written**; the substance (zero solver compute) holds, but **an amendment resting on a false condition is defective even when its substance is sound.** New blob so each re-pin costs one line: **`23afaee32f770f9f38a827e38ac963b9368b7707`**.
+
+**CORRECTIONS DRAFTED BY ME, LANDED BY YOU** (rule 6 — I do not edit your records): `MRF_R1_GRADED_ROW.json`, `MRF_R2_TRIPLE_AT_4000.json`, `GRADE_F4S.json` (DIVERGENT, **cfd**) and `T23G_GRADED.json` Q1/Q2/Q3 (STAGNANT, **heat-transfer**). Each "after" text was reconstructed by re-grading the row's own stored levels through HEAD's blob and **reproduces byte-for-byte**, so it is the instrument's output and not my prose. **In all six: verdict `NOT A RESULT` before and after, band `PASS` before and after, no GCI either way.**
+
+##### **`§2de` — ACTION OVER PLUMBING. HER THREE NAMED ITEMS ARE DONE; SIX OF MINE STAND DOWN.**
+
+| item | commit | unblocked |
+|---|---|---|
+| calibration-append register repair | `bc5588bc7` | **every team's** rule-12 row |
+| freeze hook `:245` | `c185d7508` | her own named priority |
+| `roache_triple:632` wording | `a7b3846d8` | three teams' delivered verdicts |
+
+- **STOOD DOWN until a RUN or a GRADE depends on them:** `§2cr`, `§2cx`, `COMMIT_INTEGRITY_STANDARD` clause 6, the arming sweep, the six-brief audit, and **the L-544 execution-witness machinery — ruled in `§2db` and deliberately LEFT UNBUILT.** **V-119 proceeds only as far as it takes to stop the shared-board sweeps; not one step further.**
+- **A PRIORITY RULING, NOT A RETIREMENT.** Nothing is withdrawn and **no owed item is discharged by being deferred** — `§2cc` applies to a backlog as much as to a corpus: **a deferred item that stops being written down has not been deprioritised, it has been LOST.**
+
+**BLOCKED** — nothing of mine. **ON SANAA'S DESK** — only the 16 `harness/teams.yaml` proposals, untouched.
+
 **Section last written:** 2026-09-11T16:34:36Z by verification-supervisor (V-179; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **CHARTER AT v1.99 (`80995ff12`) — THE RENDER TRIGGER AS PHRASED WOULD PUT A `NOT A RESULT` INTO A DEMO, AND `roache_triple` IS GRANTED ITS `§2d.1` REPAIR.**
 
 ##### UPDATE V-179 — **`§2dc.1`: "PASS IN BAND" IS NOT A VERDICT. READ IT AS ONE AND `MRF_R1` GETS RENDERED.**
