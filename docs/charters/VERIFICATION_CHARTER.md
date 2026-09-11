@@ -10273,3 +10273,206 @@ This reads back onto her 2026-09-10 16:15Z directive — *"Per usual the fixes c
 | gate values changed | **0** · thresholds adjusted | **0** · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
 | teams UNBLOCKED | **1** (cfd, on the `snappyHexMesh` negative-volume defect) · standing rules relaxed | **0** (rule 7 expressly reaffirmed) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.99, 2026-09-11 — **§2db THE `§2d.1` GRANT FOR `roache_triple.py`: A GATE THAT DECIDES CORRECTLY AND EXPLAINS FALSELY, IN THREE OF SIX STATES, 100 % OF THE TIME — AND THE SUITE THAT NEVER LOOKED. §2dc THE RENDER FIELD IS A LIGHT CONVENTION, AND THE TRIGGER AS PHRASED WOULD RENDER A `NOT A RESULT`**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`).**
+
+### §2db — THE GRANT
+
+**THE DEFECT.** `scripts/roache_triple.py` at `:629-632`, on the `NOT A RESULT`
+branch, appends to the delivered `row["why"]`:
+
+> *"...NO GCI is quoted because the three values are not monotone"*
+
+as the **`else` of a two-way branch over a SIX-state vocabulary**
+(`NOT_A_RESULT_STATES` at `:182`: `DIVERGENT`, `STAGNANT`, `OSCILLATORY`,
+`EXACT`, `DEGENERATE`, `NO_ORDER`). Everything that is not `DEGENERATE` is told
+the reader it was non-monotone — **without ever consulting `row["monotone"]`,
+which the same function computed at `:599` and carries in the same row.**
+
+**IT IS UNCONDITIONAL, NOT OCCASIONAL, AND THAT WAS MEASURED RATHER THAN
+ARGUED.** A sweep of both classifiers over 828k+ triples, with a planted control
+on the sweep predicate itself, finds the state/monotone relation **structural,
+with zero counterexamples**:
+
+| state | `monotone` | n | stated reason |
+|---|---|---|---|
+| `DIVERGENT` | **always True** | 135,306 | **FALSE** |
+| `STAGNANT` | **always True** | 20,932 | **FALSE** |
+| `NO_ORDER` | **always True** | 4,571 | **FALSE** |
+| `DEGENERATE` | always True | 6,737 | correct |
+| `OSCILLATORY` | always False | 559,130 | **correct BY ACCIDENT** |
+| `EXACT` | always False | 2,560 | **correct BY ACCIDENT** |
+
+**Three of six states carry a false stated reason 100 % of the time.** The two
+it gets right, it gets right without ever having asked — `OSCILLATORY` and
+`EXACT` are classified on `ratio < 0` and `e21 == 0` before any other branch is
+reachable. **A reason that is right only because the two branches happen to
+coincide is not a reason; it is a coincidence that has not failed yet.**
+
+**A PARTIAL REPAIR THAT STOPPED, AND THE HISTORY MATTERS.** The defect dates to
+the instrument's first commit `9c69a79a9`, where the sentence was an
+unconditional string and **all six states** were told "not monotone". The
+`DEGENERATE` branch added at blob `78e56a3b` **was itself a repair of this exact
+defect — it fixed one state of six and left five standing.** This amendment
+finishes it.
+
+**THE SAFETY BEHAVIOUR IS SOUND AND IS NOT TOUCHED.** `_seal` at `:664-667`
+independently refuses any GCI beside a non-monotone or non-`CONVERGING` triple.
+**No GCI leaked anywhere, in any affected row.** The gate DECIDES correctly. It
+EXPLAINS falsely. **That distinction is the whole of this ruling, and it is a
+distinction this charter has not previously had to draw.**
+
+**I ALSO RECORD THAT I GOT PART OF THIS WRONG.** I briefed the censusing lane
+that the human-readable path was clean — that `format_row` at `:700-705`
+branches on `monotone` first and is therefore correct. **It is not clean.** For
+monotone `DIVERGENT`/`STAGNANT`/`NO_ORDER` **both** of its branches miss, so
+**no "GCI NOT QUOTED" line is emitted at all**, and `:708` then prints
+`row["why"]` verbatim — **so the printed row carries the false sentence too.**
+The blast radius is every printed grading output, not only the JSON. The lane
+checked instead of believing me. **That is the behaviour this lab wants from a
+lane and it is recorded as such.**
+
+**SIX DELIVERED ROWS, FOUR FILES, THREE TEAMS.** `MRF_R1_GRADED_ROW.json`
+(`DIVERGENT`, `monotone: true`, p = −5.2311); `MRF_R2_TRIPLE_AT_4000.json`
+(p = −5.7784); `GRADE_F4S.json` (p = −0.3326); and **`T23G_GRADED.json`**, three
+quantities, `STAGNANT`, `monotone: true`. **14 pre-registrations pin this
+instrument by sha; five are already graded to landed verdicts.**
+
+#### §2db.1 THE FOUR CONDITIONS, RULED
+
+1. **DEMONSTRABLE ERROR — MET.** A row asserts "the three values are not
+   monotone" while **the same row reports `monotone: true`**. This is not a
+   preference and not a reading: it is **a self-contradiction inside one
+   delivered artifact**, exhibited from the delivered code against its own
+   delivered data.
+2. **INDEPENDENT INSTRUMENT — MET, IN THE STRONGEST FORM THIS CLAUSE HAS SEEN.**
+   `§2d.5` ruled a sha-frozen pre-registration qualifies because it cannot have
+   been selected to move a verdict; `§2d.3.2` extended that to a standing
+   `CLAUDE.md` rule. **Here the witness is narrower still and therefore stronger:
+   the module's OWN `monotone()` at `:599`, which grades no reason string,
+   reaches no verdict, and cannot know which direction any verdict wants.
+   THE DELIVERED ROW IS ITS OWN WITNESS.** No external instrument is required,
+   and none was consulted to establish the error.
+3. **and 4. BITE IN FULL.** Six delivered rows carry published text, so
+   `§2d.4.1` applies exactly. **REQUIRED: for each affected row, publish the
+   pre-repair sentence verbatim beside the post-repair sentence, AND state
+   explicitly that the VERDICT IS UNCHANGED — `NOT A RESULT` before and after,
+   with no GCI ever quoted because `_seal` held.** That statement must appear in
+   the record and must not be left for a reader to infer.
+
+**DIRECTION — SATISFIED *A FORTIORI*, AND THIS IS THE CLEANEST DIRECTION TEST IN
+THE SERIES.** `§2d.1` permits a repair to move a verdict in one direction only:
+`PASS` or `GATE FAIL` **into** `NOT A RESULT`. **This repair moves no verdict in
+any direction whatsoever.** Measured across **2,395 graded ladders**, patched
+against unpatched agree on **every field except `why`** — verdict, band verdict,
+`monotone`, states, orders and GCI presence all identical. **A repair that
+cannot move a verdict at all is strictly weaker than one that may move it in the
+permitted direction**, and so passes the direction test without needing its
+indulgence.
+
+> **RULED: the `§2d.1` exception is GRANTED for `scripts/roache_triple.py`, on
+> all four conditions, with the row-level before/after published. The repair is
+> LEGAL. The landed verdicts STAND — every one of them, unchanged.**
+
+**WHAT THE GRANT DOES NOT DO.** It does not edit a landed record (rule 6): the
+six rows receive a **dated correction** stating the false sentence and the
+unchanged verdict, drafted by verification and **landed by their owning teams**,
+cfd and heat-transfer. It does not re-grade anything. It is not a budget and not
+a launch order.
+
+#### §2db.2 THE REAL FINDING: A SUITE THAT TESTS WHETHER THE GATE *DECIDES* AND NEVER WHETHER IT *EXPLAINS*
+
+**`row["why"]` HAS ZERO TEST COVERAGE.** It is written at `:615`, `:623` and
+`:642`, read at `:708`, and **not one `check()` in the entire selftest
+references it.** The field that lands **verbatim in delivered JSON verdicts** is
+the module's only wholly untested output.
+
+**AND THE FIXTURES ALREADY CONTAINED THE BUG.** Limb `(vi)` at `:953-956`
+already drives `DIVERGENT (1.00, 1.02, 1.05)` and `STAGNANT (1.0, 1.03375,
+1.06375)` — **both monotone, both emitting the false sentence on every run since
+the instrument was written.** The limb asserted the verdict, the band verdict,
+the absence of `GCI_pct`, and that the triples are printed. **It never read the
+sentence those very rows carry.**
+
+**THE SHARPEST EVIDENCE, AND THE ONE TO REMEMBER: the patched module scores
+60/60 on the existing selftest, exactly as the unpatched module does.** A change
+that corrects delivered verdict text for three of six states **moves not a
+single existing check.**
+
+> **§2db.2 RULED, AND IT BINDS BEYOND THIS INSTRUMENT: A FIELD THAT REACHES A
+> DELIVERED VERDICT IS A GRADED OUTPUT AND CARRIES A CONTROL, WHETHER OR NOT A
+> GATE READS IT.** A green suite over a field nobody asserts is not evidence
+> about that field — it is silence about it. **Prose inside a verdict is part of
+> the verdict.** Rule 1 already says honesty is carried by the value, the
+> interval, the chip and the uncertainty channels and never by adjectives; this
+> clause adds the converse — **where the lab does ship an explanatory sentence,
+> that sentence is graded output and must be shown capable of being wrong.**
+
+**OWED, AND NAMED AS OWED:** a bounded sweep for affected rows deeper than
+`maxdepth 4` or in non-`.md`/`.json` artifacts (a `GRADING_OUTPUT.txt` is cited
+by `VMFL076/RESULTS.md`), and the four campaigns pinned at the older
+`8dee0d31` blob, **where all six states carry the false reason**. Both deferred
+under `§2cf.1`; **both are bounds, not findings** (`§2cc`).
+
+### §2dc — THE RENDER FIELD, AND A TRAP IN THE TRIGGER
+
+Sanaa, 2026-09-11, byte-exact: *"whenever a case finishes and completes (i.e run
+converged or is within bands of a known reference/ solution), an agent from the
+designated team needs to render the stl file (3D geometry) then the mesh
+paraview, better to do this as we go since well use them in the demos, instead
+of us waiting for the day we shoot. (But only whenever a case is done and
+checked)."*
+
+**MY TERRITORY HERE IS NARROW AND I KEEP IT NARROW.** The rendering itself,
+its tooling and its scheduling belong to the owning teams. One question was
+routed to me — whether the Case Protocol per-case state file (`§6`) should carry
+a `render` field — and one hazard is mine to raise because it is a verdict
+question wearing a rendering costume.
+
+**RULED: YES, a `render` field, as a LIGHT CONVENTION AND NOT A GATE.**
+It records the paths of the STL and mesh renders for a done-and-checked case so
+the rollup can show which ones have them. **It arms nothing, refuses nothing,
+and gates nothing (`D539`).** **Nothing in the grading path may READ it** — it is
+write-only with respect to every verdict, and a case with no render is not
+thereby anything other than what its verdict says it is.
+
+#### §2dc.1 THE TRAP: "PASS IN BAND" IS NOT A VERDICT, AND READING IT AS ONE WOULD RENDER A `NOT A RESULT`
+
+The chief's reading — offered as correctable — gives the trigger as rule-4
+complete **and** graded converged *"or `PASS` in band"*. **That phrase is
+ambiguous and the ambiguity has a live example sitting in the repository.**
+
+**`MRF_R1` carries `band_verdict: PASS` and delivered verdict `NOT A RESULT`.**
+Its own record says so: *"Band verdict computed first and unconditionally: PASS
+(4.453 in [4.0,6.0]) — turned to `NOT A RESULT` by the one-way gate."* That is
+rule 5 working exactly as designed: the band is computed unconditionally so the
+gate can only ever restrict it.
+
+**So a lane reading "PASS in band" as `band_verdict == PASS` would render
+`MRF_R1` — a `NOT A RESULT` — as a done-and-checked case.** And a render is
+destined for a DEMO, where a picture of a case reads as a validated case to
+every viewer who never opens the JSON.
+
+> **RULED, INSIDE MY TERRITORY: THE RENDER TRIGGER READS THE *DELIVERED
+> VERDICT*, NEVER THE BAND VERDICT.** A case is eligible when it is rule-4
+> complete **and its DELIVERED verdict is `PASS`** (or a `CONVERGING` triple
+> where a triple is claimed). **`NOT A RESULT`, `GATE FAIL`, `BLOCKED` and
+> `PENDING` are not rendered — and a `NOT A RESULT` whose band would have passed
+> is STILL NOT RENDERED.** The one-way gate exists precisely so that a
+> restricted verdict cannot be read back out through its own unrestricted
+> intermediate; **a renderer that reads `band_verdict` would be doing exactly
+> that, and would be the first thing in this lab to defeat rule 5's one-way
+> property — through a picture rather than through a number.**
+
+**This is a clarification of the chief's reading, not a contradiction of it** —
+the chief labelled the reading correctable and this is the correction. **Sanaa's
+own words are satisfied either way**: *"only whenever a case is done and
+checked"*, and a `NOT A RESULT` is precisely a case the lab has checked and
+declined to stand behind.
+
+**RULE 7 UNCHANGED.** Renders are demo artifacts and **stay in the box** like
+everything else. Producing them is not sending them.
