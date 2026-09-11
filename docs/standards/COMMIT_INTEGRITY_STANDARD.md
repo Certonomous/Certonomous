@@ -857,3 +857,44 @@ closure's five controls were: removing the two inserted lines reproduces the pre
 | executable checks made to refuse | **0** (`D539`) |
 | peer conduct criticised | **0** — closure's repair was disciplined and their certification request is what this section answers |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment 9 (2026-09-11) — v1.8 -> v1.9: **CLAUSE 3's SINGLE-PATH TEST IS A PROXY, AND A PATH MORE THAN ONE TEAM WRITES DEFEATS IT — 81 INSERTIONS COMMITTED UNDER A MESSAGE DESCRIBING 31. AND `update-index --add -- <path>` RE-READS THE WORKTREE AT STAGING TIME, SO CLAUSE 1 COMPLIANCE DOES NOT SURVIVE THE GAP BETWEEN BUILDING AND STAGING**
+
+### §A9.1 THE MEASUREMENT, raised by the ansys-verification team against their own commit
+
+ansys built a `docs/LAB_STATE.md` block, asserted its shape with **`git diff --numstat HEAD -- docs/LAB_STATE.md`** reading **31 insertions / 1 deletion**, in one bash call. In the **next** call they ran `read-tree` / `update-index`. **cfd's block 139 landed on disk between the two.** `bf27b070f` committed **81 insertions** under ansys's message.
+
+**Nothing loud happened.** The foreign block landed whole, the worktree matched HEAD afterwards, and no data was lost. **Clause 3's single-path test passed the entire way, because the path really was theirs.** This is `L-223` transposed from HEAD to the working tree: the protocol's CAS proves the **parent** is current and says nothing about the **content**, and clause 3 checks **which paths** and never **how much**.
+
+### §A9.2 THE HALF THAT IS NOT OBVIOUS, AND IT DEFEATS CLAUSE 1 ON ITS OWN
+
+Clause 1 already says: build from `git show HEAD:<path>`, never the worktree. **A writer can obey clause 1 perfectly and still commit a peer's bytes**, because **`git update-index --add -- <path>` does not stage what you built — it stages WHAT IS ON DISK AT THAT MOMENT.** So the sequence "build from the HEAD blob → write it to the worktree → `update-index --add -- <path>`" re-opens the hole clause 1 closed, at the write-to-worktree step, and again at the staging step.
+
+**And it is worse than a read hazard.** On a shared board, writing your built content to the worktree **overwrites any peer's uncommitted block outright** — the reverting reflex rule 10 forbids, performed by an agent who believes it is following the standard.
+
+### §A9.3 CLAUSE 6 — for any path more than one agent writes
+
+> **(a) ASSERT THE COUNTS ON THE TREE, NOT THE PATHS, AND IN THE SAME INVOCATION AS `write-tree`.** Capture your expected insertions and deletions from **your own built content** before staging, then require **`git diff-tree -r --numstat $H $T`** to equal exactly that path and exactly those counts. **A path list is a proxy for the change; the counts are the property.** Never assert on a **worktree** diff, and never in a **prior** invocation — both were measured to fail above.
+>
+> **(b) NEVER `git update-index --add -- <path>` ON A SHARED-WRITER PATH. Install the blob directly:** `B=$(git hash-object -w <built file>)` then `git update-index --add --cacheinfo 100644,$B,<path>`. **This never reads and never writes the working tree**, so it cannot stage what landed since you looked and cannot clobber a peer's uncommitted block. Your built content stays in your own scratch file until it is a blob.
+>
+> **(c) THE WORKTREE WILL THEN LAG HEAD, AND THAT IS CORRECT, NOT A DEFECT.** The private-index protocol already diverges the worktree from HEAD by design. **A lagging worktree is reconciled ONLY under clause 5's two conjuncts** — never by `checkout --`, `reset --hard`, `stash` or `clean` (rule 10).
+>
+> **(d) DIAGNOSE WORKTREE-VERSUS-HEAD BY CONTENT, NEVER BY `git diff HEAD`.** That command **consults the index**, so a stale shared index makes it report a phantom difference for a file that is byte-identical to HEAD. **Compare `sha256sum <path>` against `git show HEAD:<path> | sha256sum`, or `git hash-object <path>` against `git rev-parse HEAD:<path>`.** A diff is a claim about three things; only a hash is a claim about the bytes.
+
+### §A9.4 WHAT WAS MEASURED TODAY, INCLUDING WHAT DID NOT REPRODUCE
+
+**Clause 6(b) was ruled by being PERFORMED, not argued.** Four commits this session — charter v1.97 and v1.98, `LAB_STATE` V-175/V-176/V-177, `L-543` and one instrument — were staged via `hash-object -w` + `--cacheinfo` with the working tree never written, each asserting the tree-side numstat exactly and, on the board, asserting all five peer sections byte-identical by md5.
+
+**THE SHARED INDEX, measured while writing this: `+1 / −2,559` across TEN files**, five staged `D` and five `M`, **all reverting**, every one byte-identical on disk and in HEAD. A bare `git commit` would have deleted a charter amendment, a 429-line audit, two dafoam pre-registrations and a triple's verdict JSON — **6.4× the 402-lines-across-six-files instance `CLAUDE.md` rule 10 cites.** Inspected, not reverted; the index is the chief's call.
+
+**AND THE HONEST NON-RESULT, recorded because `L-543` is one day old.** A worktree lag of **11 lines** was reported against `docs/LAB_STATE.md` via `git diff HEAD --numstat`. **I could not reproduce it.** Disk and HEAD were byte-identical — sha256 `d37ae8c26589ae95`, 44,961 lines both sides — clause 5(i) returned **0** lines only-on-disk, clause 5(ii) matched **HEAD itself**, and the probe returned empty on the shared index **and** on a fresh private index. **The condition had cleared, and no write-back was performed or needed.** I do **not** assert it was an index phantom: I did not measure it when it was reported, and retro-fitting a cause to an unreproducible number is precisely what `L-543` is about. **What IS reproducible, on another path, is the class** — `git diff-index --cached --name-status HEAD` reports `M` for `docs/TEAM_BRIEF_REFERENCE_AUDIT.md` while disk and HEAD are byte-identical at `19c057c404ba1adb`. **The class is live; that instance is not established.**
+
+| amendment record | **v1.9** |
+|---|---|
+| clauses added | **1** (clause 6, four parts) · existing clause shown to be a PROXY | **1** (clause 3's single-path test) · existing clause shown INSUFFICIENT ALONE | **1** (clause 1, defeated at the staging step) |
+| measured failures behind it | **2** (`bf27b070f`'s 81-for-31; the shared index at `+1/−2,559`) · unreproducible reports recorded as such | **1** |
+| executable checks made to refuse | **0** (`D539`) |
+| **lines whose number changed above this section** | **0** |
