@@ -31,26 +31,66 @@ written to be launched rather than to be true.
 **None of these is a reason not to run. Each is a reason to run something specific.** §2, §4 and §5
 say what.
 
-## 1. 🔴 F3 IS NOT A ONE-CASE ANOMALY. IT IS THE SAME DEFECT M6CP1 MEASURED TONIGHT, ON A DIFFERENT GEOMETRY AND A DIFFERENT GRID FAMILY
+## 1. 🔴 F3 IS A TWO-CASE, **TWO-BUILD** THERMO/`libm` FAILURE — AND THE M6 TREE HOLDS THREE DISTINCT FAILURES, NOT ONE
 
-This is the most transferable thing in this document and it is registered before any compute.
+### 1.1 THE SHARED SIGNATURE, READ FROM BOTH STACKS
 
-| | DPW5 CRM wing-body | ONERA M6 (M6CP1 §4.1) |
+| | **DPW5 CRM wing-body** | **ONERA M6, `M6_OWN_FAMILY_runs/L2/solve`** |
 |---|---|---|
-| grid family | DPW5 committee hex/prism/hybrid, 660,177 points | own-family hex, independently built |
-| geometry | wing-body transport | swept wing |
-| solver | `rhoSimpleFoam` | `rhoSimpleFoam` |
-| condition | M 0.850, 295 m/s, 300 K, α 2.11° | M 0.8395 |
-| failure | **dies at iteration 2**, inside `libfluidThermophysicalModels.so` | **SIGFPE rc = 136 in the FIRST thermo update**, inside `Foam::hePsiThermo<...>::calculate` from `::correct()` |
-| `transonic yes` tried? | **yes — still dies** (iteration 2, and iteration 1 in a second variant) | registered pullable; the N1 rung ran and did **not** repair the case |
-| variants | all three topologies | **24 diagnostic solves, every one rc = 136** |
-| what survived | *(not tried at M 0.85 here)* | **`rhoPimpleFoam` LTS — every variant exited rc = 0** |
+| build | **openfoam2606** | **OPENFOAM=2506** (the dafoam build) |
+| invocation | `rhoSimpleFoam -parallel` | `rhoSimpleFoam -parallel`, 4 ranks |
+| dies at | **Time = 2**, signal 8 | signal 8 |
+| stack | `libm.so.6` ← `libfluidThermophysicalModels.so` ×2 ← `rhoSimpleFoam` | `libm.so.6` ← **`Foam::hePsiThermo<psiThermo, pureMixture<sutherlandTransport<species::thermo<hConstThermo<perfectGas<specie>>, sensibleInternalEnergy>>>>::calculate`** ← `::correct()` ← `libfluidThermophysicalModels.so` |
+| thermo package | `hePsiThermo` / `pureMixture` / `sutherland` / `hConst` / `perfectGas` / `sensibleInternalEnergy` | **identical** |
 
-**Two independent geometries, two independent grid families, two independent lanes, one solver, one
-library, one failure mode.** `COMMITTEE_GRID_NUMERICS.md` §4 called it *"a solver-configuration defect
-in this lab's `rhoSimpleFoam` setup, it is independent of the grid, and it is unresolved."* **M6CP1
-reached the same attribution from the other side and found the escape.** The pattern is now
-two-case and reproducible.
+**THE SAME THERMO PACKAGE, THE SAME `libm` DOMAIN ERROR, ON TWO DIFFERENT OpenFOAM BUILDS, TWO
+GEOMETRIES AND TWO INDEPENDENT GRID FAMILIES.** **Two builds showing one signature is a stronger
+claim than one build showing it twice**, because a build-specific miscompilation is excluded by
+construction. The FPE is raised *inside* `libm` — a domain error on a `pow`/`log`/`sqrt`, consistent
+with a non-positive temperature or pressure reaching the equation of state.
+
+**It is still NOT decided here whether that is an OpenFOAM defect or a setup defect.** Two records
+agreeing is a coincidence of authorship, not evidence. **The decision requires a minimal reproducer
+and the single change that clears it**, which is registered as this campaign's rung 0 and is being
+built separately.
+
+### 1.2 THE M6 TREE HOLDS **THREE** DISTINCT FAILURES, WHICH REFINES M6CP1 §4.1
+
+M6CP1 §4.1 says *"every `rhoSimpleFoam` variant across 24 diagnostic solves repeats rc = 136"*, as
+though one cause. Measured across all nine `rhoSimpleFoam` logs in
+`verification/runs/M6_OWN_FAMILY_runs/`, by a plant-controlled reader:
+
+| failure | logs | frame |
+|---|---:|---|
+| **thermo / `libm`** | 1 (`L2/solve`) | `hePsiThermo::calculate` ← `libm` |
+| **wall function** | 2 (`smoke_diag_fo`, `smoke_potentialfoam2`) | `nutUSpaldingWallFunctionFvPatchScalarField::calcUTau` |
+| **linear solver** | 2 (`smoke_simplec`, `smoke_stabilized`) | `GAMGSolver::scale` |
+| no SIGFPE stack at all | 4 | — |
+
+**Only the graded attempt (`L2/solve`) carries the thermo abort. The smoke variants do not.** The
+`calcUTau` failures are a **downstream** consequence of the 60.9° cusp M6CP1 A2.2 measured — a
+Spalding wall function iterating on a collapsed trailing edge, on the same cells where A2.4 recorded
+a y⁺ maximum of **1.886e10**. **Those are setup/mesh. The thermo abort is a separate question.**
+
+### 1.3 🔴 A READER DEFECT OF THIS LANE'S OWN, RECORDED BECAUSE IT IS THE LESSON
+
+An earlier version of this section asserted **"ZERO of the nine logs carry a `hePsiThermo` frame"**.
+**That was FALSE**, and it was produced by this lane's own reader, twice over:
+
+1. **A 4-line window.** `grep -A4 "sigFpe::sigHandler"` — in `L2/solve` the handler line and the
+   `hePsiThermo` frame are **eight lines apart**, because a 4-rank parallel backtrace interleaves
+   `[0] [1] [2]` prefixes and shreds single frames across several lines.
+2. **A regex that could not match the symbol.** `Foam::[A-Za-z_]\w*(?:::[A-Za-z_~]\w*)+` requires
+   `::` directly after the class name. `Foam::hePsiThermo<...>::calculate` has `<` there, so the
+   pattern could **never** match it and silently matched `Foam::species::thermo` from inside the
+   **template arguments** instead.
+
+**A universal negative from a reader never shown able to see a positive is not evidence (rule 3), and
+this lane published one.** The census above was re-taken with a reader carrying three planted
+controls — a known-positive `hePsiThermo`, a known-positive `GAMGSolver`, and a discrimination check
+that the first log does **not** report the second's frame — and **it REFUSED on its first run**,
+catching defect 2 before any absence was reported. Instrument and controls:
+`verification/runs/M6_OWN_FAMILY_runs/STACK_CENSUS/stack_census.py`.
 
 **CRM-M085 THEREFORE REGISTERS `rhoPimpleFoam` AS ITS SOLVER, WITH `rhoSimpleFoam` AS A MEASURED
 TWO-CASE COUNTER-EXAMPLE — recorded, not quietly substituted** (the `CASE_PROTOCOL` "class default,
@@ -123,22 +163,53 @@ unit-area `Aref` against an inch-based mesh is off by the reference area itself.
 **This is an INFERENCE from the bounding box, not a measurement of the model.** §6.1 registers the
 measurement that settles it and the refusal if it disagrees.
 
-### 3.2 THE REGISTERED CONDITION
+### 3.2 THE REGISTERED CONDITION — MEASURED AND DERIVED, NOT TYPED
 
-| quantity | value | provenance / status |
+**The mesh has been scaled.** `transformPoints -scale (0.0254 0.0254 0.0254)` was run — nothing had
+run it, and every reference quantity depends on it. Proof on the face of the logs: overall bounding
+box **(-30328.2 0 -31438.1) (32996.6 31664.3 31866)** before, **(-770.336 0 -798.527) (838.113
+804.273 809.396)** after. The domain is ≈110 `cref`, matching DPW5's ~100-`cref` specification.
+
+**THE ADMISSION LIMB IS MEASURED, NOT ASSUMED.** The `wall` patch's own extent, parsed from the
+polyMesh: x 2.349500…65.097228, **y 0…29.460136**, z 2.310308…8.715974 m; the `symmetry` patch is
+planar at exactly y = 0. **Measured semispan 29.460136 m against the published 1156.75 in =
+29.381450 m — agreement +0.268 %, inside the 1 % band. ADMITTED.** That agreement is what licenses
+using the published `Sref`, `cref` and MRC; without it this registration refuses rather than picks.
+Axes confirmed from the measurement: **x streamwise, y spanwise, z vertical.**
+
+| quantity | value | how obtained |
 |---|---|---|
-| M∞ | **0.850** | Sanaa's instruction; DPW5/DPW-VI case condition |
-| Re(cref) | **5.0 × 10⁶** | `docs/DPW-CRM-SCOPING.md` §1 — **a lab scoping report citing URLs, NOT a title-page-verified primary source (rule 15)**. §6.1 requires the primary. |
-| target CL | **0.500** | as above. DPW case 1 is a **fixed-CL** case. |
-| α | **≈ 2.5° to trim to CL 0.500**, and **2.11° is the lab's own archived CRM angle** | **NOT reconciled. Registered as an open question, not as a number.** §6.1. |
-| cref | **275.8 in** | scoping report; **to be confirmed against the grid** |
-| Sref (semispan) | **to be measured, NOT 1.0** | §6.1 |
-| MRC | **to be read from the primary reference** | §6.1 |
-| grid units | **inches (inferred from the bounding box, §3.1)** | **to be confirmed, §6.1** |
+| M∞ | **0.850000** | Sanaa's instruction; verified `U/a` = 0.850000 |
+| T∞ | **300 K** | the archived CRM condition |
+| a(300 K) | **347.238 m/s** | `sqrt(γRT)`, γ = 1.40011 and R = 287.0580 from the case's **own** `thermophysicalProperties` (`Cp 1004.5`, `molWeight 28.964425`) |
+| U∞ | **295.1522 m/s** | `M·a` |
+| α | **2.11°**, a **FIXED-α PROBE** | §6.1 limb 4, second branch: registered *as* a fixed-α probe with **NO CL claim**. It is the lab's own archived CRM angle. **This is NOT the DPW fixed-CL 0.500 case and must never be reported as one.** |
+| U vector | **(294.952035 0 10.866949)** | `U(cos α, 0, sin α)` |
+| μ(300 K) | **1.990163e-05 Pa·s** | Sutherland from the case's own `As 1.571860616e-06`, `Ts 110.4` |
+| ρ∞ | **0.048127 kg/m³** | **derived** from Re(cref) = 5.0e6: `ρ = Re·μ/(U·cref)`; verified Re = 5.0000e+06 |
+| p∞ | **4144.53 Pa** | `ρRT` |
+| cref / lRef | **7.005320 m** | 275.8 in × 0.0254 |
+| **Sref / Aref** | **191.8448 m²** | 297,360 in² × 0.0254². **`Aref 1.0` is forbidden and is not used.** |
+| MRC / CofR | **(33.67786 0 4.51993) m** | (1325.9 0 177.95) in × 0.0254 |
+| k∞ / ω∞ | **0.1306722 / 9.421130** | I = 0.1 %, ℓt = 0.01·cref |
 
-**A fixed-CL case cannot be run at a guessed α, and a guessed α is how a drag number becomes
-fiction.** **CRM-M085 registers α as a MEASURED input, not an assumed one**, and §6.1's limb refuses
-the case rather than picking a value.
+**`forceCoeffs` carries `rho rho;`** — the field, not a typed density — plus `rhoInf 0.048127`, which
+this build requires as the coefficient **denominator**. Every one of these is consistent with the
+field that actually runs. **The `RUNG2_CRM_M2` defect was the opposite: a `magUInf 295.0` naming a
+velocity its M 0.196 field never had, with `Aref 1.0`. Nothing from that block is inherited.**
+
+### 3.3 DECLARED NON-CONFORMANCE, ON THE FACE OF THIS DOCUMENT
+
+**L1.T FAILS BOTH HARD MESH GATES AND IS RUN ANYWAY, KNOWINGLY.** Measured by this campaign's own
+`checkMesh -allGeometry -allTopology`, post-scale: **max non-orthogonality 89.7134° against the 70°
+gate; max skewness 14.0593 against the gate of 4; max aspect ratio 14,426.8 on 10,799 cells;
+`Failed 7 mesh checks`.** 638,976 cells, all hexahedra, 3 geometric (non-empty/wedge) directions.
+
+**And `checkMesh` returned rc = 0 while printing `Failed 7 mesh checks`** — so rc is not evidence and
+is not used as evidence anywhere here.
+
+**CONSEQUENCE, CARRIED IN THE GRADER'S JSON AND NOT ONLY IN PROSE: NO CREDENTIAL. NO VALIDATED FORCE.
+NO DRAG CLAIM.** Stage A is a probe of whether a M 0.85 CRM case runs at all.
 
 ## 4. THE MANDATORY LIMBS — FROM TONIGHT'S FINDINGS, IN THE REGISTRATION AND NOT IN A LANE'S HEAD
 
@@ -335,3 +406,54 @@ NO COMPUTE UNDER THIS DOCUMENT AS AT FREEZE, verified with a live planted contro
 
 **AFTER THE FREEZE COMMIT THE GATES ARE CLOSED.** Changes land only as dated addenda that cannot alter
 a gate, threshold, cap or label. Originals are struck, never rewritten.
+
+---
+
+## §13 FREEZE BLOCK — cfd-SUPERVISOR, CHECK 4, UNDELEGATED
+
+```
+FROZEN BY:        cfd-supervisor (Opus 5), 2026-09-11, check 4 undelegated
+FREEZE COMMIT:    the commit carrying this block; verify with
+                  git log -1 --format=%H -- verification/campaign/CRM_M085_PREREGISTRATION.md
+REGISTRATION BLOB:git rev-parse HEAD:verification/campaign/CRM_M085_PREREGISTRATION.md
+STAGE A:          L1.T SINGLE LEVEL, 638,976 hex. GATE G NOT REGISTERED -- no triple.
+MESH SCALED:      transformPoints -scale (0.0254 ...) RUN. Nothing had run it, and
+                  the grids ship in INCHES. Provable on the logs' face: bbox
+                  (-30328.2 0 -31438.1)(32996.6 31664.3 31866) BEFORE,
+                  (-770.336 0 -798.527)(838.113 804.273 809.396) AFTER. ~110 cref.
+REFERENCE ADMITTED BY MEASUREMENT, NOT ASSUMED: the `wall` patch's own measured
+                  extent gives semispan y = 29.460136 m against the published
+                  1156.75 in = 29.381450 m -- +0.268 %, inside the 1 % band.
+                  THAT AGREEMENT IS WHAT LICENSES the published Sref/cref/MRC;
+                  without it this registration REFUSES rather than picks.
+                  Aref 191.8448 m2 -- NOT 1.0. lRef 7.005320. rhoInf 0.048127
+                  DERIVED from Re(cref)=5e6 with Sutherland mu, round-trip
+                  verified at Re = 5.0000e+06, M = 0.850000.
+ALPHA:            FIXED-ALPHA PROBE at 2.11 deg, the lab's archived CRM angle,
+                  with NO CL CLAIM. Explicitly NOT the DPW fixed-CL 0.500 case.
+DECLARED NON-CONFORMANCE (ruled 2026-09-10, Sanaa may overrule): L1.T FAILS BOTH
+                  HARD GATES AND IS RUN ANYWAY, KNOWINGLY -- max non-orthogonality
+                  89.7134 (gate 70), max skewness 14.0593 (gate 4), max aspect
+                  ratio 14,426.8 on 10,799 cells, "Failed 7 mesh checks", measured
+                  post-scale by this campaign's OWN -allGeometry -allTopology run.
+                  checkMesh RETURNED rc = 0 while printing that, so rc is used as
+                  evidence NOWHERE. The standard is NOT touched; no threshold moves.
+                  CAP: NO CREDENTIAL, NO VALIDATED FORCE, NO DRAG CLAIM -- emitted
+                  in the GRADER'S JSON, not only in prose.
+BUDGET GATE:      NONE -- Sanaa 2026-09-10 (3D exemption). NOTE: the registered
+                  ~301 core-min may be LOW BY 2-3x; see the addendum-free note below.
+NO COMPUTE UNDER THIS DOCUMENT AS AT FREEZE, verified by a LIVE PLANTED CONTROL:
+  the time-directory reader returned 2 on verification/runs/navier_class/MRF/coarse
+    -- SHOWN ABLE to see a time directory before an absence is believed (rule 3);
+  the same reader returned ZERO on verification/runs/CRM_M085_runs/L1T/case, whose
+    contents are `0.orig constant system` only -- no 0/, no time dir, no rc, no log.
+  The graded case and the dry run differ by EXACTLY ONE LINE: endTime 5000 vs 1.
+COST HONESTY AT FREEZE: the dry run's first iteration took 13.41 s serial against
+  the 2.89 s/step this registration assumed. That step includes wallDist and field
+  init so it is an UPPER bound, not a steady rate -- but if the steady rate lands
+  near it the real figure is 600-900 core-min, not 301. Recorded HERE, before
+  compute, so the estimate is never quoted as though it held.
+```
+
+**AFTER THIS FREEZE THE GATES ARE CLOSED.** Changes land only as dated addenda that cannot alter a
+gate, threshold, cap, band or label.
