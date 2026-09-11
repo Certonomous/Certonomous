@@ -97,3 +97,45 @@ directly. **Settings do not rescue an 89.71° / 14.06 mesh.**
 it is a property of this hex family too.**
 
 **Gate P and Gate G were never evaluated. No credential, no validated force, no drag claim.**
+
+---
+
+## MESH SOURCE — 2026-09-11, cfd `lab-lane`. **THE DPW5 COMMITTEE HEX FAMILY CANNOT SUPPLY THE CONFORMING GRID. MEASURED, ACROSS THREE LEVELS.**
+
+The verdict above says *"the case waits on a conforming grid."* The obvious candidate was the
+rest of the family this case already drew L1.T from. **It is measured and it is refuted.**
+
+| level | source `.ugrid` | cells | max non-orth (gate 70) | max skew (gate 4) | misoriented pyramids | concave cells |
+|---|---|---:|---:|---:|---:|---:|
+| L1.T | `L1.T.rev01.p3d.hex.r8` | 638,976 | 89.7134 | 14.0593 | 35 | 499 |
+| L2.C | `L2.C.rev01.p3d.hex.r8` | 2,156,544 | 89.7374 | 15.1516 | 45 | 780 |
+| L3.M | `L3.M.rev01.p3d.hex.r8` | 5,111,808 | 89.7454 | 17.4801 | 53 | 1065 |
+
+**EVERY COLUMN WORSENS MONOTONICALLY UNDER REFINEMENT.** Skewness climbs **+24.3 %** across the
+family against a gate of 4; non-orthogonality is pinned just under 90° at all three levels — a
+sliver face, not a resolution deficit. **Refining this family moves every gate metric AWAY from
+its gate.** There is no finer member that clears, and waiting for one is waiting for a trend to
+reverse that has been measured three times and never has.
+
+Artifacts: `verification/runs/RUNG2_CRM_runs/GRID_ACQ/{L2C,L3M}/log.checkMesh` and
+`BIRTH_CERTIFICATE.json`; `verification/runs/CRM_M085_runs/L1T/log.checkMesh_POSTSCALE`.
+
+**ROUTE KILLED.** The CRM mesh source must come from outside this family. The case stays
+`BLOCKED` on its mesh source; nothing here is a result and no gate is evaluated.
+
+### THE INCHES HAZARD — VERIFIED AGAINST A KNOWN DIMENSION, NOT ASSUMED
+
+**`GRID_ACQ`'s L2.C and L3.M are in INCHES and carry no `transformPoints`.** Their `wall` patch
+spans y = 0 → **1159.85**, against the NASA CRM semispan of **1156.75 in** (ratio 1.00268, the
+tip cap). In metres that number would read 29.38.
+
+L1.T is the control: **pre-scale wall y-max 1159.85 → post-scale 29.4601 m**, against
+1156.75 in × 0.0254 = **29.3815 m** — **the same 1.00268 ratio at both levels**, so the scale
+factor is confirmed by an independent known dimension rather than by the number it produced.
+
+**🔴 AND THE GATE METRICS ARE SCALE-INVARIANT — MEASURED, NOT ARGUED.** The same L1.T mesh in
+both unit systems: non-orthogonality **89.7134 in both**, skewness **14.0594 vs 14.0593**, max
+aspect ratio **14426.8 in both**. So the table above is valid gate evidence **even though L2.C
+and L3.M were checked before scaling** — and, the other way round, **a wrong-units mesh passes
+or fails exactly the same quality gates, which is precisely why no gate screen can catch it.**
+Units are verified against a known dimension or they are not verified.
