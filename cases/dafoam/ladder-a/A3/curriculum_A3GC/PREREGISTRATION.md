@@ -1000,3 +1000,99 @@ tolerances and AMENDMENT 3's compositions all stand **exactly as registered**. I
 nothing else. **THE ITEM STILL HAS NO RUNNER AND NO A3GC LEVEL HAS BEEN SOLVED.**
 
 **SUBMISSIONS PARKED.**
+
+
+---
+
+## AMENDMENT 5 — 2026-09-11 — **PRE-COMPUTE. THE FROZEN MESH GENERATOR COULD NOT EXECUTE AT ALL, AND THE DEFECT WAS A SILENT `|| true`, NOT THE uid IT HID.**
+
+**Lines whose number changed above this section: 0.**
+
+### THE DEFECT
+
+`a3gc_genmesh.sh`, frozen at `2215b4e76` / re-frozen at `367799db0` with md5
+`07bc22d7b591dfae3c22661b00b40ddf`, **exits `rc=127` — `cgns_utils: command not found` — at its
+FIRST container step.** All seven container steps route through one `RUN()` helper, so **not one of
+them could ever have worked.** §6 stage 1 was unreachable and the item could not have been run.
+
+**THE DEFECT IS THE SUPPRESSION, NOT THE uid.** `RUN()` ran
+`source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1 || true`. That silenced the one step
+that makes every later step possible, so **a dead environment presented itself as a missing binary,
+seven times, with no cause attached.** Unsuppressed, the identical invocation names its own cause in
+one line — `Permission denied` — and the diagnosis takes a second. **A silent `|| true` on a
+prerequisite is not defensive: it converts a precise failure into an imprecise one and moves it
+seven steps downstream.**
+
+**THE MECHANISM IS NOT WHAT IT LOOKS LIKE, and the supervisor's first statement of it was wrong.**
+`loadDAFoam.sh` is `-rwxr-xr-x` and **world-readable**, so this is not a file mode. It is
+**DIRECTORY TRAVERSAL**: `/home/dafoamuser` is `drwxr-x---` `1002:1002`, so uid 1000 cannot enter it
+at all. Host `id -u` = **1000**; the image's `dafoamuser` = **1002**.
+
+**AND HERE IS WHY IT SURVIVED INTO A FROZEN FILE: THE `--dry-run` PRINTER OMITTED EXACTLY THE TWO
+THINGS THAT BREAK** — the `-u` flag and the environment-load prefix. `--dry-run` was never a
+rehearsal of the real command, so it produced confidence instead of evidence. The feasibility probe
+worked only because its own launcher passed **no `-u` at all** and ran as the image default.
+
+### THE REPAIR — THREE PARTS, AND BOTH OBVIOUS FIXES WERE MEASURED AND ARE WRONG
+
+**(a) THE SUPPRESSION IS DELETED AND NOT REPLACED BY A QUIETER ONE.** It is replaced by a
+**POSITIVE CAPABILITY ASSERTION** — `CLAUDE.md` rule 3, plant-the-zero, applied to an *environment*
+rather than a field — which demands the shell SHOW a variable and a binary that exist only after a
+successful load, and **exits 97 naming `WM_PROJECT_DIR`, `cgns_utils` and `id`** if it cannot.
+**Both obvious alternatives were measured and both fail:**
+* **`set -e` hoisted above the source ABORTS THE SHELL, rc=1**, at `OpenFOAM-v2506
+  etc/config.sh/setup:207` — measured in this pinned image under both `bash -c` and `bash -lc`, at
+  uid 1002 and uid 0. **That is the same defect class that breaks D8G's generated `cmd.sh`
+  (`d8g_genmesh.sh:232-233`), and the obvious fix would have imported it straight into A3GC.**
+* **The source's rc is not a test:** without `set -e` it returns **rc 0 even when the environment did
+  not load** (measured at uid 1000: rc 0, `WM_PROJECT_DIR` empty, `cgns_utils` absent). **A silent
+  success and a silent failure carry the same rc.**
+PLANTED CONTROL, measured, so the assertion is shown able to fail: uid 1000 → `SENTINEL_FAIL`;
+uid 1002 → `SENTINEL_PASS`. `set -e` is armed **after** the assertion, where it can do its job.
+
+**(b) THE uid.** `-u "$(id -u):$(id -g)"` → `-u 1002:<host gid>`, plus `-e HOME=/home/dafoamuser` so
+`HOME` no longer leaks from the host. uid 1002 traverses by the **owner** bit regardless of gid,
+which is what makes (c) possible.
+
+**(c) PRINT EQUALS EXEC, STRUCTURALLY.** `RUN()` and `HOST()` now build **one** argv array and either
+print it or execute it — never two spellings. **A dry-run that rehearses a different command is worse
+than no dry-run, because it manufactures confidence.** Exercised rather than argued: the dry-run's own
+printed lines were fed back to `bash` verbatim, nothing retyped, and produced a real
+`surfaceMesh.cgns`. Two divergences remain by design and are **named** in the repair diff rather than
+left to be rediscovered.
+
+### THE OWNERSHIP DECISION, AND WHY THE PROBE'S `0777` WAS A HALF-MEASURE
+
+`uid 1002` + **the host's own gid** + `umask 0002` + `chmod 2775` on the mesh root + `chmod -R g+w`
+over the copied template. **Measured:** with a `0777` root the container writes fine and then creates
+`1002:1002` `0755` **subdirectories** that the host cannot modify or delete — **`rm -rf` of its own
+run root fails.** That is a level-three discovery, bought here for nothing. The setgid + host-gid
+choice yields artifacts `0664`/`0775` in the host's own group: the host can read, modify and remove
+them, and **nothing on this box is made world-writable.**
+
+### WHAT THIS AMENDMENT DOES AND DOES NOT DO
+
+**CHANGES HOW THE CONTAINER IS INVOKED. CHANGES NOTHING ABOUT WHAT IS MEASURED OR WHAT WOULD PASS.**
+`COARSEN_PASSES`, `N_LAYERS`, `WANT_CELLS`, `WANT_WING`, `S0`, `MARCH_DIST`, `CMAX`,
+`AUTOPATCH_ANGLE` and the `IMAGE_DIGEST` are **byte-identical**, verified key by key; so are §6's
+exit condition, the 99,840 / 798,720 / 6,389,760 refusal, the wing-`nFaces` refusal and the `G-MESH`
+`checkMesh` assertion. **The grading path is NOT TOUCHED** — `a3gc_grade.py`
+`73dbe368934956700da87e5a1f44ea0c` and `a3gc_grade_selftest.sh` `3a709fa46edfe996a7cd5d1de2100bab`
+re-verify byte-identical against HEAD.
+
+**LEGAL PRE-COMPUTE:** rule 2 closes gates after FIRST COMPUTE and **no A3GC level has solved**. The
+`rc=127` attempt is ruled **not** to touch AMENDMENT 4's absence condition — it produced no mesh, no
+cell count, **no artifact any gate reads**, the same test applied to the feasibility probe in the
+`G-QUARANTINE` ruling. All three registered roots re-checked **ABSENT**, with the reader shown able
+to return EXISTS for three directories that are there. The failed attempt is preserved as evidence at
+`/home/ubuntu/certonomous-runs/A3GC-STAGE1-FAILED-L3-20260911T1754Z`.
+
+### RE-FREEZE — ALL THREE HASHES ON THE RECORD
+
+| instrument | frozen `367799db0` | **re-frozen, this amendment** |
+|---|---|---|
+| `a3gc_genmesh.sh` | `07bc22d7b591dfae3c22661b00b40ddf` | **`9fa240d9643308f5e9a4988614b58884`** |
+| `a3gc_grade.py` | `73dbe368934956700da87e5a1f44ea0c` | unchanged |
+| `a3gc_grade_selftest.sh` | `3a709fa46edfe996a7cd5d1de2100bab` | unchanged |
+
+**SUBMISSIONS PARKED.**

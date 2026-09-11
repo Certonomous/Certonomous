@@ -1,0 +1,342 @@
+# a3gc_genmesh_CONTAINER_REPAIR.diff
+#
+#   THE FROZEN a3gc_genmesh.sh (md5 07bc22d7b591dfae3c22661b00b40ddf, commit
+#   367799db0) CANNOT EXECUTE AT ALL.  Every one of its seven container steps
+#   exits rc=127 `cgns_utils: command not found`.  MEASURED end to end on this
+#   box 2026-09-11: the frozen spelling returns 127; the candidate's returns 0.
+#
+#   THE FROZEN FILE IS NOT EDITED.  This diff is against a candidate,
+#   a3gc_genmesh_candidate.sh (md5 9fa240d9643308f5e9a4988614b58884).  The
+#   amendment and the re-freeze are the dafoam-supervisor's acts.
+#
+#   NOTHING IN THIS DIFF TOUCHES A GATE, THRESHOLD, CAP, LABEL OR REGISTERED
+#   PARAMETER.  COARSEN_PASSES, N_LAYERS, WANT_CELLS, WANT_WING, S0, MARCH_DIST,
+#   CMAX, AUTOPATCH_ANGLE, the IMAGE_DIGEST, the Sec.6 exit condition, the
+#   99,840 / 798,720 / 6,389,760 refusal, the wing-nFaces refusal and the
+#   G-MESH checkMesh assertion are byte-identical.  The grading path
+#   a3gc_grade.py (73dbe368934956700da87e5a1f44ea0c) and its selftest
+#   (3a709fa46edfe996a7cd5d1de2100bab) ARE NOT TOUCHED and re-verify against
+#   HEAD unchanged.  This diff changes HOW THE CONTAINER IS INVOKED, and
+#   nothing about WHAT IS MEASURED OR WHAT WOULD PASS.
+#
+# THE HUNKS, BY CLASS
+#
+# (a) *** THE MOST IMPORTANT HUNK IS THE DELETION, NOT THE UID FIX. ***
+#     The frozen RUN() body ran
+#         source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1 || true
+#     `>/dev/null 2>&1 || true` IS THE DEFECT.  rc=127 was only its symptom.
+#     The step it silenced is the one that makes every later step possible, so a
+#     dead environment presented itself as a missing binary, seven times, with
+#     no cause attached.  UNSUPPRESSED, THE SAME INVOCATION NAMES ITS OWN CAUSE
+#     IN ONE LINE -- `Permission denied` -- and the uid bug is a one-second
+#     diagnosis instead of a frozen instrument that cannot run.  A silent
+#     `|| true` on a prerequisite is not defensive; it converts a precise
+#     failure into an imprecise one and moves it seven steps downstream.
+#     THE SUPPRESSION IS DELETED AND IS NOT REPLACED BY A QUIETER ONE.
+#
+#     It is replaced by a POSITIVE CAPABILITY ASSERTION, because BOTH obvious
+#     alternatives were measured and BOTH are wrong:
+#       - `set -e` hoisted above the source ABORTS THE SHELL, rc=1, at
+#         OpenFOAM-v2506 etc/config.sh/setup:207 "pop_var_context: head of
+#         shell_variables not a function context".  Measured in this pinned
+#         image under both `bash -c` and `bash -lc`, at uid 1002 and at uid 0.
+#         (This is the SAME DEFECT CLASS that breaks D8G's generated cmd.sh --
+#         see d8g_genmesh.sh:232-233 -- and it would have been imported straight
+#         into A3GC by the obvious fix.)
+#       - the source's rc is not a test: WITHOUT `set -e` it returns rc 0 EVEN
+#         WHEN THE ENVIRONMENT DID NOT LOAD (measured at uid 1000: rc 0,
+#         WM_PROJECT_DIR empty, cgns_utils absent).  A silent success and a
+#         silent failure carry the same rc.
+#     So the prologue demands the environment SHOW a variable and a binary that
+#     exist only after a successful load, and exits 97 naming WM_PROJECT_DIR,
+#     cgns_utils and `id` if it cannot.  This is CLAUDE.md rule 3 -- plant the
+#     zero -- applied to an environment rather than a field.
+#     PLANTED CONTROL, MEASURED, so the assertion is shown able to fail:
+#       uid 1000 -> WM_PROJECT_DIR=[<empty>], cgns_utils MISSING, SENTINEL_FAIL
+#       uid 1002 -> WM_PROJECT_DIR=/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506,
+#                   SENTINEL_PASS
+#     `set -e` is armed AFTER the assertion, which is where it can do its job.
+#
+# (b) THE UID.  `-u "$(id -u):$(id -g)"` (= 1000:1000) -> `-u 1002:$(id -g)`.
+#     MEASURED, NOT ASSUMED, AND THE MECHANISM IS NOT THE ONE IT LOOKS LIKE:
+#     loadDAFoam.sh is -rwxr-xr-x and WORLD-READABLE, so the failure is not a
+#     file mode.  It is DIRECTORY TRAVERSAL -- /home/dafoamuser is
+#     drwxr-x--- dafoamuser dafoamuser (0750, uid 1002) -- so uid 1000 cannot
+#     enter the directory at all.  uid 1002 is the OWNER and traverses by the
+#     owner bit regardless of gid, which is what makes hunk (c) possible.
+#
+# (c) THE OWNERSHIP CONSEQUENCE, DECIDED IN ADVANCE RATHER THAN AT LEVEL THREE.
+#     Running as 1002 makes the container write artifacts the host (1000) does
+#     not own.  The earlier mesh probe survived this only because its tree was
+#     drwxrwxrwx, AND THAT IS A HALF-MEASURE, MEASURED:  with a 0777 root the
+#     container writes fine, but it then creates 1002:1002 0755 SUBDIRECTORIES
+#     (constant/, constant/polyMesh/, ...) and the host CANNOT delete or modify
+#     anything inside them -- `rm -rf` of its own run root FAILS.  There is no
+#     passwordless sudo inside this image to chown afterwards (D8G solves the
+#     same problem the other way, running --user 0:0 and calling `sudo -n chown
+#     -R ubuntu:ubuntu` on the host afterwards; that route needs host sudo and
+#     is not available to this script's container).
+#     THE DECISION: uid 1002 (traversal) + THE HOST'S OWN gid + `umask 0002`
+#     inside the container + `chmod 2775` on the mesh root (group-writable,
+#     setgid so every container-created subdirectory inherits the host's group
+#     whatever the container's gid) + `chmod -R g+w` over the host-copied
+#     template and the shipped surface, which arrive 0744 owned 1002.
+#     RESULT, MEASURED: artifacts land 0664/0775 group-owned by the host's own
+#     group; the host can read, modify and `rm -rf` the whole tree; and NOTHING
+#     ON THIS BOX IS MADE WORLD-WRITABLE.
+#
+# (d) *** ONE SPELLING.  THIS IS WHY THE DEFECT SURVIVED INTO A FROZEN FILE. ***
+#     The frozen RUN() had TWO bodies.  The --dry-run PRINTER at :117 omitted
+#     EXACTLY THE TWO THINGS THAT BREAK -- no `-u` flag and no environment-load
+#     prefix -- so `--dry-run` was never a rehearsal of the command that runs.
+#     It reported success about something it was not testing.  A dry-run that
+#     rehearses a DIFFERENT command is worse than no dry-run, because it
+#     manufactures confidence in a file nobody has executed.
+#     RUN() now builds ONE argv array and `$DRY` chooses PRINT or EXEC on it.
+#     The two spellings cannot drift because there are no longer two.
+#     The same rule is applied to the two other places the frozen file forked:
+#       - the host setup steps (a new HOST() helper: print or exec, one argv);
+#         the frozen printer also printed an UNCONDITIONAL `cp .../0.orig`
+#         while the executor guarded it with `[ -d ]`;
+#       - genWingMesh.py, whose frozen dry-run printed a FOUR-VALUE SUMMARY of
+#         a file it would write.  A summary is not a rehearsal.  The bytes are
+#         now built once into $PYSRC and either printed verbatim or written.
+#     THE SANCTIONED DIVERGENCES, NAMED RATHER THAN HIDDEN.  Two remain, both
+#     inherited and both deliberate: --dry-run still skips the input/docker/
+#     image preflight (so it can be read on a box without docker), and the
+#     existence GUARD still prints "would REFUSE" and CONTINUES instead of
+#     exiting (so one dry-run can rehearse all three levels).  Neither alters
+#     the command that is printed.  They are listed here so that the next
+#     reader does not have to rediscover them the way this one rediscovered
+#     the missing `-u`.
+#
+# VERIFIED AFTER THE PASS
+#   bash -n clean.  Frozen a3gc_genmesh.sh, a3gc_grade.py and
+#   a3gc_grade_selftest.sh all re-hash to their registered md5s, unmodified.
+#   --dry-run emits 7 container steps, every one carrying `-u 1002:1000` and
+#   the prologue, and ZERO surviving `>/dev/null 2>&1 || true`.
+#   *** THE PRINT-EQUALS-EXEC CLAIM IS NOT ARGUED, IT IS EXERCISED: the
+#   dry-run's OWN printed lines were fed back to bash verbatim, nothing
+#   retyped.  The six host lines returned rc 0; the printed container step
+#   returned rc 0 and produced surfaceMesh.cgns, 258,048 B, owned 1002:1000
+#   mode 0664, in a drwxrwsr-x root -- and the host then touched it and
+#   rm -rf'd it successfully.  1 wall s, 1 rank, 0.017 core-minutes. ***
+#   NO REGISTERED RUN ROOT WAS CREATED OR TOUCHED: this exercise ran under the
+#   scratchpad, and A3GC-L3 / -L2 / -L1 all still read ABSENT.
+#
+# NOT DONE, AND NEEDING THE SUPERVISOR'S WORD: the Sec.6 stage-1 generation of
+# L3 under its registered root (the exactly-99,840-cell exit condition) has NOT
+# been run.  The brief reserves it until this diff is read.
+#
+
+--- a3gc_genmesh.sh	2026-09-11 16:58:31.769924240 +0000
++++ a3gc_genmesh_candidate.sh	2026-09-11 18:25:24.420214423 +0000
+@@ -1,6 +1,13 @@
+ #!/usr/bin/env bash
+ # =====================================================================
+-# a3gc_genmesh.sh -- **FROZEN by the dafoam-supervisor, 2026-09-11.**
++# a3gc_genmesh_candidate.sh -- **CANDIDATE, NOT FROZEN.**
++#
++# A repair candidate for the FROZEN a3gc_genmesh.sh (md5
++# 07bc22d7b591dfae3c22661b00b40ddf at commit 367799db0), which CANNOT EXECUTE:
++# every one of its seven container steps exits rc=127 `cgns_utils: command not
++# found`.  The frozen file is NOT edited.  The classifying diff the supervisor
++# reads is a3gc_genmesh_CONTAINER_REPAIR.diff; the amendment and the re-freeze
++# are the supervisor's acts, not this lane's.
+ #
+ # Stage 1 of A3GC: generate the three registered volume meshes
+ #
+@@ -35,6 +42,31 @@
+ IMAGE_DIGEST="sha256:8352629516bb363345fd802ed6092f878bad0a612c05c98d492a14bd94729d46"
+ 
+ # --------------------------------------------------------------------
++# CONTAINER IDENTITY -- MEASURED ON THIS BOX 2026-09-11, NOT ASSUMED.
++#
++# The frozen file ran the container as `-u "$(id -u):$(id -g)"` = 1000:1000.
++# That uid DOES NOT EXIST in the pinned image, whose own user is
++# dafoamuser = uid 1002, gid 1002.  The failure is NOT a file mode:
++# loadDAFoam.sh is -rwxr-xr-x and world-readable.  It is DIRECTORY TRAVERSAL --
++#   /home/dafoamuser is drwxr-x---  dafoamuser dafoamuser
++# so uid 1000 cannot traverse into it and the source dies "Permission denied".
++# Measured, frozen spelling, whole pipeline: rc = 127.
++# Measured, this spelling:                   rc = 0.
++#
++# WHY uid 1002 BUT THE HOST'S gid.  Running 1002:1002 works and is what the
++# probe did, but it makes the container write 1002:1002 artifacts, and MEASURED:
++# the host (uid 1000) then CANNOT `rm -rf` its own run root -- deletion inside a
++# container-created subdirectory is refused.  A graded run root the host cannot
++# manage is a liability discovered at level three, not at level one.
++# uid 1002 (so /home/dafoamuser traverses) + the HOST's gid + `umask 0002`
++# (below) yields artifacts 0664/0775 group-owned by the host's own group:
++# host-readable, host-writable, host-deletable, with NO world-writable
++# directory anywhere.  Measured: HOST_MODIFY_NESTED ok, HOST_RMRF ok.
++# --------------------------------------------------------------------
++CONTAINER_UID="1002"          # the image's dafoamuser; measured, not assumed
++CONTAINER_GID="$(id -g)"      # the HOST's group, so artifacts stay manageable
++
++# --------------------------------------------------------------------
+ # REGISTERED PARAMETERS -- each cites the section that fixed it
+ # --------------------------------------------------------------------
+ # Sec.2.3: the coarsening chain.  c0 is the source; c1/c2 are 1 and 2
+@@ -111,14 +143,88 @@
+     || refuse "IMAGE" "the pinned image $IMAGE_DIGEST is not present.  The image is named by hash, never by tag (DAFOAM_CHARTER Sec.6); this script will not silently fall back to a tag."
+ fi
+ 
++# --------------------------------------------------------------------
++# THE IN-CONTAINER PROLOGUE.  ITS ORDER IS LOAD-BEARING AND MEASURED.
++#
++# The frozen file wrote `source ... >/dev/null 2>&1 || true; set -e; <cmd>`.
++# *** THE `>/dev/null 2>&1 || true` IS THE DEFECT.  rc=127 was only its
++#     symptom. ***  It silenced the one step that makes every later step
++#     possible, so a broken environment presented as a missing binary seven
++#     times over.  Unsuppressed, the same invocation names its own cause in one
++#     line -- "Permission denied" -- and the uid bug is a one-second diagnosis.
++#     The suppression is deleted.  It is not replaced by a quieter suppression.
++#
++# But `set -e` may NOT simply be hoisted above the source.  MEASURED in this
++# pinned image, both `bash -c` and `bash -lc`, at uid 1002 and at uid 0:
++#   `set -e; source /home/dafoamuser/dafoam/loadDAFoam.sh`
++#     -> OpenFOAM-v2506/etc/config.sh/setup: line 207:
++#        pop_var_context: head of shell_variables not a function context
++#     -> THE SHELL ABORTS, rc = 1, and the next line never runs.
++# And rc is no test either: without `set -e` the source returns rc 0 EVEN WHEN
++# THE ENVIRONMENT DID NOT LOAD (measured at uid 1000: rc 0, WM_PROJECT_DIR
++# empty, cgns_utils absent).  A silent success and a silent failure are the
++# same rc.
++#
++# So the environment is tested the only honest way: A POSITIVE CAPABILITY
++# ASSERTION -- demand it show a variable and a binary that exist ONLY after a
++# successful load, and REFUSE loudly if it cannot.  This is CLAUDE.md rule 3,
++# plant-the-zero, applied to an environment instead of a field: a load not
++# shown able to produce cgns_utils is not evidence that cgns_utils is there.
++# PLANTED CONTROL, measured: at uid 1000 the assertion FAILS
++# (WM_PROJECT_DIR=[], cgns_utils MISSING); at uid 1002 it PASSES
++# (WM_PROJECT_DIR=/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506).
++# `set -e` is armed AFTER the assertion, which is where it can do its job.
++# --------------------------------------------------------------------
++CONTAINER_PROLOGUE=$(cat <<'PROEOF'
++umask 0002
++source /home/dafoamuser/dafoam/loadDAFoam.sh
++if [ -z "${WM_PROJECT_DIR:-}" ] || ! command -v cgns_utils >/dev/null 2>&1; then
++  printf 'REFUSE [ENV] loadDAFoam.sh did not populate the environment.\n' >&2
++  printf '  WM_PROJECT_DIR = [%s]\n' "${WM_PROJECT_DIR:-}" >&2
++  printf '  cgns_utils     = %s\n' "$(command -v cgns_utils || echo MISSING)" >&2
++  printf '  id             = %s\n' "$(id)" >&2
++  printf '  exit 97 -- refusing rather than running the step in a dead environment.\n' >&2
++  exit 97
++fi
++set -e
++PROEOF
++)
++
++# --------------------------------------------------------------------
++# ONE SPELLING.  The invocation is BUILT ONCE into argv and then either
++# PRINTED or EXECUTED -- never composed twice.
++#
++# *** THIS IS WHY THE DEFECT SURVIVED INTO A FROZEN FILE.  The frozen
++#     --dry-run printer omitted EXACTLY the two things that break: it printed
++#     no `-u` flag and no environment-load prefix.  `--dry-run` was therefore
++#     never a rehearsal of the real command, and it reported success about
++#     something it was not testing.  A dry-run that rehearses a DIFFERENT
++#     command is worse than no dry-run at all, because it manufactures
++#     confidence.  Below, `$DRY` chooses between print and exec on ONE array;
++#     the two can no longer drift, because there are no longer two. ***
++# --------------------------------------------------------------------
+ RUN() {   # RUN <workdir> <command...>   -- inside the pinned image, 1 cpu
+   local wd="$1"; shift
++  local script argv
++  script="$CONTAINER_PROLOGUE
++$*"
++  local -a argv=( docker run --rm --cpus=1
++                  -u "${CONTAINER_UID}:${CONTAINER_GID}"
++                  -e "HOME=/home/dafoamuser"
++                  -v "$wd":/w -w /w "$IMAGE_DIGEST"
++                  bash -lc "$script" )
++  if [ "$DRY" = 1 ]; then
++    printf '    '; printf '%q ' "${argv[@]}"; printf '\n'
++  else
++    "${argv[@]}"
++  fi
++}
++
++HOST() {  # HOST <command...>   -- on the host; same build-once rule as RUN
+   if [ "$DRY" = 1 ]; then
+-    printf '    docker run --rm --cpus=1 -v %s:/w -w /w %s bash -lc %q\n' "$wd" "$IMAGE_DIGEST" "$*"
++    printf '    '; printf '%q ' "$@"; printf '\n'
+   else
+-    docker run --rm --cpus=1 -u "$(id -u):$(id -g)" \
+-      -v "$wd":/w -w /w "$IMAGE_DIGEST" \
+-      bash -lc "source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1 || true; set -e; $*"
++    "$@"
+   fi
+ }
+ 
+@@ -138,15 +244,31 @@
+     fi
+   fi
+ 
+-  if [ "$DRY" = 1 ]; then
+-    printf '    mkdir -p %s && cp -r %s/system %s/0.orig %s/\n' "$WD" "$TEMPLATE" "$TEMPLATE" "$WD"
+-    printf '    cp %s %s/m6_surfaceMesh_fine.cgns\n' "$SOURCE" "$WD"
+-  else
+-    mkdir -p "$WD"
+-    cp -r "$TEMPLATE/system" "$WD/"
+-    [ -d "$TEMPLATE/0.orig" ] && cp -r "$TEMPLATE/0.orig" "$WD/"
+-    cp "$SOURCE" "$WD/m6_surfaceMesh_fine.cgns"
++  # --- THE MESH ROOT'S MODE IS PART OF THE REPAIR, NOT AN AFTERTHOUGHT.
++  #     The container runs as uid 1002 with THIS host user's gid, so the root
++  #     must be GROUP-WRITABLE or every container step dies "Permission denied"
++  #     (measured on a plain 0755 root: touch and mkdir both refused).
++  #     2775 = group-writable + setgid, so every directory the container creates
++  #     beneath it inherits the host's group REGARDLESS of the container's gid.
++  #     *** 0777 IS DELIBERATELY NOT USED.  It is what the earlier mesh probe
++  #         did, and it is a half-measure: it lets the container write, but the
++  #         container then creates 1002:1002 0755 SUBDIRECTORIES, and the host
++  #         cannot delete or modify anything inside them.  MEASURED: `rm -rf` of
++  #         such a root FAILS for the host that owns it.  2775 + the host gid +
++  #         `umask 0002` leaves the whole tree host-manageable and nothing on
++  #         this box world-writable. ***
++  HOST mkdir -p "$WD"
++  HOST chmod 2775 "$WD"
++  HOST cp -r "$TEMPLATE/system" "$WD/"
++  if [ -d "$TEMPLATE/0.orig" ]; then
++    HOST cp -r "$TEMPLATE/0.orig" "$WD/"
++  elif [ "$DRY" = 1 ]; then
++    printf '    (no %s/0.orig -- this copy would be SKIPPED)\n' "$TEMPLATE"
+   fi
++  HOST cp "$SOURCE" "$WD/m6_surfaceMesh_fine.cgns"
++  # the template and the source surface arrive with their own modes (the shipped
++  # surface is 0744, owned 1002); g+w so the container can rewrite in place.
++  HOST chmod -R g+w "$WD"
+ 
+   # --- 1. cgns_utils coarsen, NP times, c0 -> surfaceMesh.cgns
+   #        (the shipped case's own chain: first pass names the output, later
+@@ -163,11 +285,10 @@
+   # --- 2. genWingMesh.py -- pyHyp hyperbolic extrusion.
+   #        Written per level because N is the only thing that moves;
+   #        s0/marchDist/cMax are the registered constants above.
+-  if [ "$DRY" = 1 ]; then
+-    printf '    write %s/genWingMesh.py  with  "N": %d, "s0": %s, "marchDist": %s, "cMax": %s\n' \
+-      "$WD" "$NL" "$S0" "$MARCH_DIST" "$CMAX"
+-  else
+-    cat > "$WD/genWingMesh.py" <<PYEOF
++  # BUILD ONCE, THEN PRINT OR WRITE -- the same rule as RUN().  The frozen
++  # dry-run printed a four-value SUMMARY of this file; a summary is not a
++  # rehearsal.  The dry-run now emits the exact bytes that would be written.
++  PYSRC=$(cat <<PYEOF
+ """A3GC level $LV -- pyHyp extrusion of surfaceMesh.cgns.
+ N = $NL (wall-normal layers; wall-normal CELLS = N-1 = $((NL-1))).
+ s0 = $S0 -- HELD FIXED ON ALL THREE LEVELS, deliberately (PREREG Sec.2.6).
+@@ -202,6 +323,12 @@
+ hyp.run()
+ hyp.writePlot3D("volumeMesh.xyz")
+ PYEOF
++)
++  if [ "$DRY" = 1 ]; then
++    printf '    write %s/genWingMesh.py (%d bytes), verbatim:\n' "$WD" "${#PYSRC}"
++    printf '%s\n' "$PYSRC" | sed 's/^/      | /'
++  else
++    printf '%s\n' "$PYSRC" > "$WD/genWingMesh.py"
+   fi
+ 
+   # --- 3. extrude, convert, patch, renumber
