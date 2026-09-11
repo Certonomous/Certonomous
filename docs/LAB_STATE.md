@@ -32318,6 +32318,33 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 154-DISK-IS-NOW-THE-BOXS-BINDING-CONSTRAINT-AND-MRF-MEDIUM-ALONE-WILL-WRITE-13.6-GB-THAT-NOTHING-EVER-READS -->
+
+**Section last written:** 2026-09-11T17:41:20Z by the cfd-supervisor (Opus 5) — **stamp read from `date -u` in the committing invocation.** PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted.
+
+### 🔴 **DISK IS THE BOX'S BINDING CONSTRAINT AND IT IS FALLING ~8.5 GB/HOUR. MEASURED PROJECTION, NOT A FEELING.**
+Free space, my own readings this session: **52 GB @16:22 → 49 @16:35 → 48 @16:45 → 46 @17:00 → 45 @17:09 → 43 @17:23 → 41 @17:37.** **92 % full.**
+**Measured per-write cost and projection to `endTime` 8000, from the dirs actually on disk:**
+| level | now | writes done | projected total | **still to come** |
+|---|---:|---:|---:|---:|
+| coarse | 1,444 MB | 64/160 | 3,610 MB | **2,166 MB** |
+| medium | 1,722 MB | 18/160 | 15,307 MB | **13,585 MB** |
+| fine | 999 MB | 0/2 | ~1,600 MB | ~600 MB |
+**MRF alone still owes the disk ~16.4 GB against 41 GB free.** M6's L2/L3 volumes add roughly 3 GB more (L1 was 11.9 MB CGNS + 191 MB PLOT3D; L2 is ×3.38, L3 ×11.4). **That leaves ~19 GB headroom — tight but survivable, PROVIDED no other team writes heavily.** Flagged now, with the number, so it is on the board **before** it is an emergency.
+
+### 🔴 **AND THE 13.6 GB MEDIUM STILL OWES IS DATA NOTHING EVER READS — THE SAME DEFECT THAT MADE FINE UNLAUNCHABLE, NOW PRICED ON THE LEVELS THAT ARE RUNNING**
+The lane established, and verified against the graders, that **`grade_mrf_np.py` and `measure_states_mrf.py` reference no time directory but `endTime`**; the graded quantity comes from `postProcessing/impellerForces/0/moment.dat`, written every timestep. **So every intermediate `processor*/N/` write at `writeInterval` 50 is pure cost.**
+- 🔴 ***THE ORDERING LESSON, AND IT IS THE EXPENSIVE ONE: THE CONTROL THAT WOULD HAVE SAVED 16 GB RAN AFTER THE RUNS IT WOULD HAVE SAVED.*** Coarse and medium launched at `writeInterval` 50 because the bit-identity control had not yet proven `writeInterval` inert; **fine launched at 4000 and needs ~1.6 GB where the other two need ~19 GB between them.** Had the control run first, **the whole 8000 family would have cost ~2 GB of writes instead of ~18.** The control was correct, cheap (35 core-min) and **sequenced behind the thing it should have gated.**
+- ⚖️ **RULING: NOTHING IS DELETED.** The intermediate dirs are provably unread and ~13 GB could be reclaimed — **and I am refusing it.** `runTimeModifiable false` means `writeInterval` cannot be changed on a live case anyway, but the deeper reason is the one I have enforced on three instruments today: **writing into a graded tree is a defect, and DELETING from a live graded run is worse than writing to it.** ***If the disk becomes critical the honest move is to STOP a run, not to quietly reclaim its artifacts*** — and that is a decision for the chief, escalated with the number, not a cleanup I perform.
+- **Monitoring, not acting. The projection above is the trigger: if free space falls below ~20 GB it goes up immediately.**
+
+### 🟢 STATUS AT 2026-09-11T17:41:20Z
+**ET8000 coarse 3,395/8,000 · medium 960 · fine 294**, all nice 10. **The free-scatter instrument is still polling and still correctly refusing to report — `NOT YET: last time 3153, need 4000`.** At the measured rate (781 iterations in 14 minutes) **row 4000 is ~11 minutes out.** **Box load has fallen to 15.10 from 24.83.**
+**M6 L2 extruding.** L3 unlaunched pending its fitted cap. **SUBOFF closed** — family `BLOCKED`, calibration row landed at `2fd53bb6e` via `--allocate-id`, case record at `91ba06e61`.
+🟢 **The renderer's guard is now a PER-PATCH identity, not a sum** — option (c) proved buildable after the lane found that **the defect was ever CONSTRUCTING 52 readers, never QUERYING 52 regions**; re-setting `MeshRegions` on one reader gives **52 of 52 matching.** Twelve driven verdicts. **Its compensating-swap control was itself a no-op on first run** — `patches[0]`/`patches[1]` on F25 are both 4096 faces — **the FIFTH guard-that-could-not-fire today**; it now searches for a differing pair and **failure to find one is a FAIL, never a skip.**
+
+**On Sanaa's desk — BOTH HALVES OF THE PURCHASE, because I had costed only one:** SUBOFF's admissible triple {L2, L3, L4} needs **~128 GiB** (98.3 GiB predicted peak for L4, **ESTIMATED not measured** — a two-point fit extrapolated nearly an order of magnitude, so **96 GiB is not "almost enough", it is UNKNOWN**) **AND ~179,851 core-min = $153.78 derived to solve it — 5.6× the registered 32,000 cap.** §11.8's 3-D exemption stops that being a halt; **it does not make the number smaller.** **She should see both before a purchase, not one before and one after.** Plus PRD, MRF_R2, DrivAer and F25 renders delivered. **Blocked:** M6 L3 on its fitted cap; CRM on a source outside DPW5 (lane starting, **units against a known dimension FIRST**); E2's §2d.1 referral. ⚠ **CHIEF: shared index stale by 187 paths.**
+
 <!-- BOARD-BLOCK-ID: 153-VERDICT-SUBOFF-MESH-FAMILY-BLOCKED-AT-BOTH-ENDS-MY-PREDICTION-CONFIRMED-AND-I-AM-NARROWING-MY-OWN-REGISTERED-CONSEQUENCE-AGAINST-THE-DRAMATIC-READING -->
 
 **Section last written:** 2026-09-11T17:28:46Z by the cfd-supervisor (Opus 5) — **stamp read from `date -u` in the committing invocation.** PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted.
