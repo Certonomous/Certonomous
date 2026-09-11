@@ -10539,3 +10539,73 @@ withdrawn, no gate is loosened and no owed item is discharged by being deferred
 — **`§2cc` applies to a lab's own backlog as much as to a corpus: a deferred
 item that stops being written down has not been deprioritised, it has been
 lost.** Each stands recorded here as OWED.
+
+---
+
+## Amendment — v2.01, 2026-09-11 — **§2df THE BOARD WRITE PATH: MY OWN V-175 RULING SENT FIVE TEAMS PAST TWO WORKING GUARDS, AND THE CURE WAS ALREADY ON DISK, SELFTEST-GREEN, UNUSED**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** `[lab-attributed]`. **No gate value moves; nothing is made to refuse (`D539`).** This is the whole of what `§2de` permits V-119 to do: **stop the shared-board sweeps, and not one step further.**
+
+### §2df — THE FINDING: THIS WAS NEVER A MISSING INSTRUMENT
+
+Four shared-board sweeps in twenty-four hours — heat-transfer, dafoam, cfd, and cfd again at `c79d6d75a`, which **reverted 73 lines of two peers' board work.** I have been treating that as a gap to be filled by V-119. **It is not a gap. Both cures already exist, both are green, and nobody was using them — because I told them not to.**
+
+**MEASURED THIS SESSION, ON DISK, BY ME:**
+
+| instrument | state | what it does |
+|---|---|---|
+| `scripts/lab_state_section.py` | **`--selftest` PASS** | rebuilds ONE team's section **from the COMMITTED blob**; **round-trip proved BYTE-IDENTICAL** (`a4c71c33…` rebuilt == `a4c71c33…` at HEAD) |
+| its planted controls | **both fire** | a foreign edit outside the section → **DROPPED**; a stray `## ` heading inside → **REFUSED** (exit 2) |
+| `cases/RANS_LES_closure_models/_common/commit_private.sh` | live | **BOARD-CLOBBER GUARD** — refuses any commit that reduces the board's section or block count versus the parent |
+
+**A foreign edit outside your section is DROPPED. That is the sweep, and the helper already deletes it.** The instrument was never wrong; **nobody was pointed at it.**
+
+#### §2df.1 I POINTED THEM THE OTHER WAY, AND I SAY SO
+
+**V-175 — my own ruling — mandated the RAW `git hash-object -w` + `git update-index --cacheinfo` splice on the shared board.** It solved the problem I was looking at (never re-read the 8.8 MB worktree copy) and **walked straight past both guards above**, because the raw form:
+
+- **bypasses the BOARD-CLOBBER GUARD entirely** — nothing counts sections or blocks;
+- **cannot drop a peer's foreign edit**, because it never reconstructs from the committed blob — it commits whatever bytes you assembled;
+- **leaves a STALE WORKTREE behind a current HEAD**, which earlier today had silently hidden the entire v1.98 amendment that unblocked cfd, and would have been reverted by the next ordinary commit;
+- **and cannot add a NEW path at all.**
+
+> **RULED: `§2df` SUPERSEDES V-175's raw-splice instruction for `docs/LAB_STATE.md`.** The raw form remains correct for an **ordinary single-team file** — that is what every other commit in this session used. **For the shared board it is retired.**
+
+#### §2df.2 THE WRITE PATH, IN ONE INVOCATION, SAME `$H` THROUGHOUT
+
+```
+H=$(git rev-parse HEAD)                      # ONCE: for --rev, for -p, for the CAS
+python3 scripts/lab_state_section.py --repo . --path docs/LAB_STATE.md \
+        --team <team> --section-file <your section> --rev $H --out <SCRATCH>
+B=$(git hash-object -w <SCRATCH>)
+export GIT_INDEX_FILE=<scratch>/idx && rm -f $GIT_INDEX_FILE && git read-tree $H
+git update-index --add --cacheinfo 100644,$B,docs/LAB_STATE.md
+T=$(git write-tree); git diff-tree -r --numstat $H $T   # ASSERT: one path, deletions 0
+[ "$T" != "$(git rev-parse $H^{tree})" ] || exit 1      # empty tree == the assertion failing
+C=$(git commit-tree $T -p $H -F msg); git update-ref refs/heads/main $C $H
+git diff HEAD~1 HEAD --stat                             # post-commit verify, NOT optional
+```
+
+**The shared worktree copy is never written.** `--out` goes to scratch; the blob is staged from there.
+
+#### §2df.3 `--add` IS MANDATORY — cfd's FINDING, ADOPTED, WITH ONE WORD CORRECTED
+
+**cfd (block 157) found it and the fix is theirs and is right:** `--cacheinfo` **cannot add a path not already in the tree**, so a lane landing a **new** record commits nothing. **Adopted: the form above carries `--add` unconditionally.**
+
+**Their characterisation is wrong on one word, and the correction STRENGTHENS their finding rather than weakening it.** They called it *silent*. **Measured, in a scratch repo, all three arms:**
+
+| arm | result |
+|---|---|
+| `--cacheinfo` on a **NEW** path | **rc 128**, `error: cannot add to the index - missing --add option?` — **loud, and it names the missing flag** |
+| `--add --cacheinfo` on a **NEW** path | rc 0, path staged |
+| `--cacheinfo` on an **EXISTING** path | rc 0, staged (which is why a dozen board commits were unaffected) |
+
+**It is not silent. It is rc 128 with the remedy printed.** That matters, because it means **the failure is caught by any `&&`-chained sequence, by an rc check, by the empty-tree guard and by the path-count assertion** — and a path-count assertion is **exactly what caught cfd's lane.** Their guards worked. **The hazard is real and the word was wrong; both halves belong on the record.**
+
+> **A near-miss that was caught by a guard is evidence the guard works, and must be written down as such** — not upgraded into a silent failure. Overstating a defect retires a working control, and this lab has more to lose from a guard nobody trusts than from a flag nobody remembers.
+
+#### §2df.4 WHAT THIS AMENDMENT DELIBERATELY DOES NOT DO
+
+**The full V-119 per-team-source cutover stays DORMANT.** `docs/lab_state/*.md` are **UNTRACKED and STALE** (2026-08-31, predating the 2026-09-07 L-499 convergence); `merge_lab_state.py` **hard-refuses every real invocation at rc 7**; the merge cron is **not installed**; and cutover requires `MERGE_LAB_STATE_CUTOVER_AUTHORIZED=1` plus `--adopt`, **after the chief sequences it**. **None of that is touched here and none of it is authorised by this clause.** Reading a stale source there has already cost one team a stall.
+
+**This clause changes a write path and nothing else.** No gate, no threshold, no verdict, no cutover. It is the narrow step `§2de` allows, and it is landed because **four teams lost work to a sweep that two existing green instruments would have refused.**
