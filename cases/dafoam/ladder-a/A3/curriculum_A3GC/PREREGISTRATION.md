@@ -1,4 +1,4 @@
-# PERMISSION: NOT_FROZEN — DRAFT
+# PERMISSION: FROZEN — frozen by the dafoam-supervisor 2026-09-11. Gates, thresholds, caps and labels are CLOSED to change except by dated addendum that cannot alter them.
 
 **`A3GC` — ONERA M6 PRIMAL grid-convergence triple on a surface-refined family.**
 
@@ -608,3 +608,285 @@ post-check refusing on any patch table other than the registered one.
 **ALTERS NO** prediction band, cap, cost, tolerance or label: §4.3's bands, §4.2's Roache order, §4.4's
 falsifier, §4.5's P1–P4 and §5's cost stand exactly as registered. **The item remains primal-only and owes
 no FD table.** **SUBMISSIONS PARKED.**
+
+
+---
+
+## AMENDMENT 3 — 2026-09-11 — **PRE-COMPUTE. The document registered NO COMPOSITION AT ALL — not for a partial shock result, not for the P4 branch, not for the item. Five compositions registered here, one of them an OPENLY INTERPRETIVE CHOICE. Plus a correction to AMENDMENT 1's own condition statement, which events have overtaken, and an examination of AMENDMENT 2's `G-NEST` that I did not want to have to write.**
+
+*lines whose number changed above this section: 0.* Appended; nothing above is rewritten or struck.
+
+**Registered by the dafoam-supervisor.** Drafted by a `lab-lane` to the supervisor's rulings; the rulings
+are the supervisor's and are marked where they are interpretation rather than reading.
+
+### CONDITION, AND HOW IT WAS CHECKED (`CLAUDE.md` rule 2)
+
+**The registered run directories do not exist.** Checked 2026-09-11T16:42Z:
+
+```
+A3GC-L3      does not exist
+A3GC-L2      does not exist
+A3GC-L1      does not exist
+A3GC-graded  does not exist
+```
+
+**NO LEVEL HAS SOLVED, AND THAT ZERO CARRIES A PLANTED CONTROL** (`CLAUDE.md` rule 3; §3.4 records a
+reader that returned a false zero on exactly these trees). A recursive grep for
+`DARhoSimpleCFoam|Starting time loop|primalMinResTol` returns **0 files** under every A3GC root — and
+**the same reader, same pattern, returns 11 files** under `cases/dafoam/ladder-a/logs_A3/` and **9 files**
+under `/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/`. **The reader is shown able to see a
+non-zero in the class being asked about, so the zero is evidence and not an absence.**
+
+#### A MESH-GENERATION PROBE IS RUNNING, IT IS DISCLOSED HERE, AND IT IS QUARANTINED
+
+**`/home/ubuntu/certonomous-runs/A3GC-meshgen-probe/` exists** — a second A3GC root, created
+2026-09-11T15:41Z, **111 MB**, still generating L1 at the time of writing at **58.00 core-min** by its own
+`BUDGET_WATCHDOG.log`. It holds `L3/` and `L2/` volume meshes at **99,840** and **798,720** cells —
+both **exactly** the §2.5 registered counts, read from each level's own `constant/polyMesh/owner.gz`
+note — plus `checkMesh` logs and `logMeshGeneration.txt` per level. **It is not hidden and it is not
+described as nothing.**
+
+**WHY IT IS NOT "FIRST COMPUTE", STATED AS A TEST RATHER THAN AN EXCUSE.** *"It is only a probe"* is not
+a principle; it is what every violation says about itself. Rule 2 closes gates once compute has produced
+**an artifact that a gate of this item reads**, because that is the configuration in which a gate could
+be chosen to fit an answer. Checked, not reasoned about:
+
+| test | result |
+|---|---|
+| does any comparator path read the probe root? | **no** — `grep -c 'meshgen-probe'` returns **0** in both `a3gc_grade.py.DRAFT` and `a3gc_grade_selftest.sh.DRAFT`. The two probe references the comparator carries (`:69`, `:732`) name `A3GC-mesh-family-probe`, the §2.3 **surface** probe — a **different directory** |
+| do the registered run directories exist? | **no** (table above) |
+| has any level solved? | **no**, proved by planted control above |
+| could **this amendment's** rulings have been fitted to an answer? | **no.** They govern P1–P4 and the item composition. **P1/P2/P3 read Cp from SOLVED SURFACE FIELDS.** No solved field and no surface VTK exists for any level, and none can be computed from anything on disk. **The answer these rulings would have to be fitted to does not exist** |
+
+#### THE PRICE, AND IT IS BINDING — `G-QUARANTINE`
+
+> **THE PROBE'S MESHES MAY NEVER BE PROMOTED INTO THE GRADED RUN.** §6 stage 1 regenerates the family
+> under this item's own registered run root. **Every artifact under
+> `/home/ubuntu/certonomous-runs/A3GC-meshgen-probe/` is QUARANTINED FROM THE GRADED PATH PERMANENTLY.**
+> If any A3GC level is ever graded on a mesh this probe generated, then **the probe WAS first compute
+> after all, retroactively, and AMENDMENT 3 becomes illegitimate along with everything resting on it.**
+
+**A ruling that costs its author nothing is not a ruling.** This one costs the party who made it: the
+supervisor who ruled the probe out of scope is the party who **throws away 58+ core-min of correct mesh
+work and pays to generate it again inside the graded chain.** That is what makes the ruling honest
+rather than convenient, and it is registered so a later reader can check that the price was actually
+paid.
+
+### (a) EACH PREDICTION'S OWN TOKEN — the document implies one and never states one
+
+§4.5 gives P1, P2 and P3 **two** thresholds each — a PASS condition and a separate, lower FALSIFICATION
+condition — and §6 stage 5 demands *"verdict from the six tokens only"*, but **no token is named for any
+prediction anywhere.** Registered now:
+
+> **PASS** when the prediction meets its registered §4.5 PASS condition.
+> **GATE FAIL** when its registered §4.5 FALSIFICATION condition holds.
+> **`NOT A RESULT`** when it lies in the **MIDDLE BAND** between the two — **because a registration that
+> supplies two thresholds has by construction declared the space between them evidence for neither.**
+
+**The three middle bands, written out so no reader has to derive them:**
+
+| | PASS (§4.5) | FALSIFIED (§4.5) | **MIDDLE BAND → `NOT A RESULT`** |
+|---|---|---|---|
+| **P1** sharpening | slope increase **≥ +40 %** at **both** η = 0.80 **and** η = 0.90 | increase **< +15 %** at **both** stations | anything else — e.g. a 15–40 % increase at both, or a split result (≥ 40 % at one station, below it at the other) |
+| **P2** position | mean abs. shift drop **≥ 30 %** **and** η = 0.20 error **< +0.060 c** on L1 | η = 0.20 error **> +0.085 c** on L1 | e.g. η = 0.20 lands in [0.060, 0.085] c, or the drop misses 30 % while η = 0.20 is under 0.060 c |
+| **P3** pooled Cp | pooled upper-surface Cp RMS on L1 **≤ 0.055** | RMS **> 0.070** | **0.055 < RMS ≤ 0.070** |
+
+**A DIRECTION NOTE, because it would otherwise be a trap.** The falsification condition points *downward*
+for P1 (a small increase falsifies) and *upward* for P2 and P3 (a large error falsifies). **The
+comparator therefore tests each prediction's falsification condition AS §4.5 WORDS IT**, and no boundary
+is restated in a direction-neutral form that would silently move it.
+
+### (b) P4's "ALL FAIL" MEANS ALL THREE **FALSIFIED** — the strong form
+
+§4.5 P4 fires *"If P1, P2 and P3 all fail"*, and with two thresholds per prediction that phrase reads
+two ways: **all-three-not-PASS** (weak) or **all-three-FALSIFIED** (strong). Registered: **the STRONG
+form.**
+
+**Why.** P4 is registered as *"the honest counter-hypothesis"*, and **a counter-hypothesis is ADOPTED on
+strong evidence, never on mere non-confirmation.** The weak reading would let P4 fire on three middling
+results. The strong form is also **the conservative direction — it makes P4 HARDER to fire** — so this
+choice cannot be accused of easing the item's path to a favourable reading.
+
+### (c) PARTIAL FAILURE — P4 DOES NOT FIRE, and the stage takes the worst of the three
+
+§4.5 registers P1, P2, P3 individually and registers only the all-three case, as P4. **The partial case
+— some but not all falsified — is addressed nowhere in the document.** Registered:
+
+> **If fewer than all three are FALSIFIED, P4 does not fire and its registered reading is NOT PRINTED**,
+> so it cannot be adopted after the fact by a reader skimming for it. Each prediction carries its own
+> token per (a), and **the SHOCK STAGE carries the WORST of the three** under the ordering of (e).
+
+### (d) THE P4 BRANCH CARRIES **`GATE REACHED`** — ⚠ AN INTERPRETIVE CHOICE, SAID OUT LOUD
+
+> When **all three are FALSIFIED** *and* the CD/CL triple is **CONVERGING**, the shock stage is
+> **`GATE REACHED`**, and §4.5 P4's registered reading is printed **verbatim** beside it.
+> If all three are FALSIFIED while the triple is **not** CONVERGING, **P4 does not fire** (§4.5
+> conditions it on a CONVERGING triple) and the stage carries the worst of the three, i.e. `GATE FAIL`.
+
+**⚠ THE DOCUMENT NAMES NO TOKEN HERE. A SUPERVISOR CHOSE ONE. A LATER READER MUST BE ABLE TO SEE THAT,
+RATHER THAN BELIEVING THE DOCUMENT SAID IT.** §4.5 P4 gives a **prose reading** — *"that is a `result`,
+reported as such, not a failure of the item"* — and names none of the six tokens, while §6 stage 5
+requires a verdict from the six. The reasoning for `GATE REACHED`:
+
+- **It is not `PASS`**, because **no shock band was met** and nothing may read as though one was.
+- **It is not `GATE FAIL`**, because §4.5 registers this exact configuration as *"a `result` … not a
+  failure of the item"*, and **a preference does not overwrite a frozen registration.** *(This
+  supervisor made exactly that mistake earlier the same day on this same gate — ruling that a shock
+  `GATE FAIL` must compose upward — read §4.5 afterwards, and withdrew it before the lane built on it.
+  The withdrawal is recorded here because the error is instructive and the correction is the only
+  reason this clause is right.)*
+- **`GATE REACHED` is what the token means in this lab:** the item reached and evaluated its registered
+  gate and produced a graded outcome that is **not a band statement**. The lab's own precedent is
+  **D8R's `G-O`**, where an optimiser that hit max iterations while meeting a registered intermediate
+  threshold graded `GATE REACHED` rather than `PASS` or `GATE FAIL`.
+
+### (e) THE ITEM DOES CARRY A COMPOSED VERDICT — registered now, and **IT IS NOT A GATE**
+
+**Measured on the document: the string `overall` does not occur in this pre-registration at all**
+(`grep -ci overall` returns 0), and no composition of any kind was registered. `A3GC OVERALL` was the
+comparator's own construct with no registered basis. Registered:
+
+> **The item's verdict is composed WORST-FIRST over every graded gate — the CD triple, the CL triple and
+> the shock stage — using the fixed vocabulary's own severity ordering:**
+>
+> ```
+> NOT A RESULT  <  GATE FAIL  <  BLOCKED  <  PENDING  <  GATE REACHED  <  PASS
+> ```
+
+**THIS ORDERING IS NOT A GATE AND REGISTERS NO THRESHOLD.** It is the six tokens ranked by **how little
+evidence each carries**, and every clause cites the standing rule that forces it:
+
+| clause | forced by |
+|---|---|
+| `NOT A RESULT` outranks everything | standing rule 5 / §4.2: *"the gate can only turn a PASS or GATE FAIL **into** NOT A RESULT, never the reverse."* Nothing may outrank it |
+| `GATE FAIL` above `BLOCKED` and `PENDING` | `CLAUDE.md` rule 1: PENDING is a display/queue state, *"use it for 'not yet run', **never to soften a GATE FAIL**"* |
+| `BLOCKED` and `PENDING` above the graded-good tokens | both mean **no graded evidence**. An item may not stand at `PASS` on a stage that produced none. `BLOCKED` is an obstruction hit; `PENDING` is simply not yet run |
+| `GATE REACHED` below `PASS` | a graded outcome short of a band statement |
+
+**CONSEQUENCE, REGISTERED BEFORE IT CAN EMBARRASS ANYONE:** §6 stage 5 registers P1–P4 evaluation as
+part of the grading path, so **while the shock stage is un-evaluated the item is `PENDING` and CANNOT be
+`PASS`**, however well the CD and CL triples grade. **A registered stage that produced no evidence does
+not leave the item at PASS.**
+
+### CORRECTION TO **AMENDMENT 1**'s CONDITION STATEMENT — events overtook it, clause by clause
+
+`CLAUDE.md` rule 6: frozen files are never edited. AMENDMENT 1's condition statement (`:420`–`:425`) is
+**not rewritten**; it is corrected here, and **the whole clause did not die**:
+
+| clause | line | status |
+|---|---|---|
+| *"the only A3GC root on disk is `…/A3GC-mesh-family-probe/`"* | `:420`–`:421` | **NOW FALSE.** A second root, `…/A3GC-meshgen-probe/`, exists and is the supervisor's |
+| *"The three VOLUME meshes of §2.5 do not exist"* | `:424` | **NOW FALSE IN PART.** Volume meshes at the registered counts (**99,840** and **798,720**, both exact) exist **in the PROBE root**; the third is mid-generation; **NONE exists in a graded run directory** |
+| *"and no level has been solved"* | `:424` | **STILL TRUE** — and now **proved by planted control**, not asserted |
+| *"The run directories this item will create — one per level — do not exist"* | `:425` | **STILL TRUE** |
+
+### THE `G-NEST` DISCLOSURE QUESTION — examined because it is the supervisor's own work
+
+AMENDMENT 2(a) registered `G-NEST` **carrying its own passing measurement inside the registered gate
+text** — *"Measured on the real surfaces: 0 misses of 6,765 c2 points in c1, and 0 misses of 26,001 c1
+points in c0."* **The measurement therefore preceded the registration, and it is disclosed in as many
+words, in the block quote that IS the gate.** That is the lab's accepted pattern — measuring
+**ACHIEVABILITY** before registering, disclosed — which `D8G` used and which **AMENDMENT 1(a) of this
+very document used**, under the heading *"ACHIEVABILITY CHECKED BEFORE REGISTERING — this is not a gate
+registered to fail."*
+
+**⚠ BUT THE SYMMETRY IS NOT EXACT, AND THE DIFFERENCE IS NAMED RATHER THAN WAVED THROUGH.** AMENDMENT
+1(a) measured a **threshold** gate to check a criterion was *meetable*. `G-NEST` is a **binary
+structural** gate that was measured to **pass outright** before being registered — and it was
+registered in the same session, by the same author, on the same surfaces, **as the replacement for a
+limb that had just been measured to FAIL.** That is a configuration in which the choice of which limb to
+register **could** have been made by consulting which one passed, and saying so is the only way a later
+reader can weigh it.
+
+**What defends `G-NEST`, and it is not that it passed:**
+
+1. **It is a priori, not fitted.** *"An exact factor-2 coarsening **must** satisfy this — it selects
+   alternate points, it does not move them."* The gate follows from the operator's definition; the
+   measurement **confirms the operator behaved as defined**, it does not choose the criterion.
+2. **It is STRICTLY STRONGER than what it replaced**, which is the direction that cannot be
+   self-serving. A struck gate replaced by a weaker one is the failure mode; this is its opposite.
+3. **It can fail, and has been SEEN to fail.** AMENDMENT 2(a) predicted *"a single 1e-6 nudge to one
+   coordinate breaks it"*, and the selftest demonstrates it: unit `B4a` nudges one `CoordinateY` by
+   1e-6 and the limb reports **1 miss of 6765, FAIL**, and the comparator **refuses**.
+4. **It rejects the excluded `c3` independently** of limb 4.
+
+**Verdict on the question: DISCLOSED AND DEFENSIBLE, with the asymmetry recorded above rather than
+resolved away.** No change to `G-NEST` is made.
+
+### WHAT THIS AMENDMENT DOES AND DOES NOT DO
+
+**ADDS** five compositions the document never contained — (a) each prediction's token including the
+middle band, (b) the strong reading of P4's "all fail", (c) the partial case, (d) the P4 branch's token,
+(e) the item's composed verdict — plus **`G-QUARANTINE`**. **CORRECTS** AMENDMENT 1's condition
+statement, clause by clause, by appending. **EXAMINES** `G-NEST` and changes nothing about it.
+
+**ALTERS NO gate, band, threshold, cap or label registered above.** §4.5's P1–P4 texts and every one of
+their thresholds, §4.2's Roache limbs and order, §4.3's `p` band and GCI bands, §3.5's tolerances,
+§3.1's limbs including `G-NEST`, AMENDMENT 1's `G-PLAT`, AMENDMENT 2's `autoPatch 60` and pinned binding
+difference, §5's cost and cap, and §6's stage table **all stand exactly as registered.** **No number in
+this document moved.** The item remains **primal-only and owes no FD table** (`DAFOAM_CHARTER.md` §1) —
+restated because this amendment touches the shock gate and a later reader must not infer that the
+adjoint scope moved.
+
+**`evaluate_shock` HAS NEVER RUN AGAINST REAL VTK.** None exists for any level. Everything in (a)–(d) is
+registered **before** the data that would exercise it can be produced, which is the entire evidentiary
+point, and no green selftest may be read as saying otherwise. **SUBMISSIONS PARKED.**
+
+
+---
+
+## FREEZE RECORD — 2026-09-11, the dafoam-supervisor
+
+**`A3GC` IS FROZEN.** `CLAUDE.md` rule 2: the grading path is fixed at the pre-registration
+commit, and the frozen file is verified to be the file that ran by hashing it against the
+committed blob. These are the hashes that pin it.
+
+| instrument | md5 | what it is |
+|---|---|---|
+| `a3gc_grade.py` | `74bae3b43a1d6cf29e4b3e50ec1b6275` | THE COMPARATOR — the grading path |
+| `a3gc_grade_selftest.sh` | `6adcf46aca9aad7b3f249e7aa1285dac` | its selftest, 119 units / 0 failures |
+| `a3gc_genmesh.sh` | `07bc22d7b591dfae3c22661b00b40ddf` | the §2.5 family generator, §6 stage 1 |
+
+**VERIFIED BY THE SUPERVISOR PERSONALLY, not relayed**, immediately before this freeze:
+selftest **119 passed / 0 failed** on the supervisor's own run; `ast.Assert` census **0**
+(L-332); `bash -n` clean on both shell instruments; **zero `meshgen-probe` references in any
+of the three**, so the `G-QUARANTINE` of AMENDMENT 3 is intact in the instruments themselves;
+`diff <(git show HEAD:PREREGISTRATION.md) <(head -610 PREREGISTRATION.md)` **empty, rc 0**, so
+`lines whose number changed above this section: 0` holds byte-exactly for AMENDMENT 3; and the
+repaired `a3gc_genmesh.sh:221` reference was **driven** — `a3gc_grade.py probe --case
+A3-onera-m6-transonic` returns rc 0 reading a real mesh.
+
+### THE RENAME MAPPING — stated here because committed records name the old files
+
+The `.DRAFT` suffix was dropped **in the same act as the freeze**: a `.DRAFT` suffix on a frozen
+instrument misleads exactly as badly as a suffix-less unfrozen one, only in the other direction.
+Records committed earlier today — `PREREGISTRATION.md:535` (AMENDMENT 2), `:656` (AMENDMENT 3),
+`docs/LAB_STATE.md:7017` and `:7020`, and the three diffs — name the OLD filenames. **Those
+records are NOT rewritten.** Rule 6 forbids editing a frozen amendment, and each is a
+*historically accurate* record of a check performed on a file that then bore that name. The gap
+was discoverability, not truth, and this mapping closes it:
+
+    a3gc_grade.py.DRAFT           ->  a3gc_grade.py
+    a3gc_grade_selftest.sh.DRAFT  ->  a3gc_grade_selftest.sh
+    a3gc_genmesh.sh.DRAFT         ->  a3gc_genmesh.sh
+
+The three diffs (`a3gc_grade_REPAIR.diff`, `a3gc_grade_RULINGS.diff`, `a3gc_FREEZE_RENAME.diff`)
+retain the old names **deliberately**: a diff is the record of a file state that existed, and
+renaming inside it would falsify what was read.
+
+### FROZEN BEFORE ITS RUNNER EXISTS — DELIBERATELY, AND IN THAT ORDER
+
+**This item has NO runner.** There is no launcher, no runScript and no `decomposeParDict`; the
+comparator takes `--l3 --l2 --l1` as SOLVED case directories that nothing yet produces. The
+freeze is taken anyway and on purpose: **the comparator is the SPECIFICATION and the runner
+conforms to it.** Freezing first makes it impossible for the grader to be shaped to whatever the
+solver happens to emit. If the runner cannot satisfy this contract, that is a finding brought to
+the supervisor, and the grader is not adjusted to accommodate it.
+
+**What this freeze does NOT assert.** `evaluate_shock` has **never run against real VTK** — none
+exists for any A3GC level and none can be computed from anything on disk. Every shock fixture in
+the selftest is synthetic and is banner-marked as such in the comparator's own output. A 119/0
+suite says the gates refuse what they claim to refuse; **it says nothing whatever about the M6
+shock.** No A3GC level has been solved.
+
+**SUBMISSIONS PARKED.**

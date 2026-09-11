@@ -1,0 +1,940 @@
+# a3gc_grade_REPAIR.diff
+#
+#   diff -u <pre-repair> <post-repair>  for BOTH halves of the A3GC grading path:
+#     a3gc_grade.py.DRAFT            md5 d5cf6577ee053fad078245a78d7181e3  ->  see foot
+#     a3gc_grade_selftest.sh.DRAFT   md5 643602f94558e1526993f70d3920fe15  ->  see foot
+#
+# WRITTEN BY A lab-lane ON THE dafoam-supervisor's BRIEF, 2026-09-11.  NOT FROZEN,
+# NOT COMMITTED, NOT RENAMED.  The freeze and the md5 into PREREGISTRATION.md are
+# the supervisor's (CLAUDE.md rule 2; SUPERVISION_CHARTER.md Sec.3 check 1: a
+# measurement-script change is read AS A DIFF, personally).  PREREGISTRATION.md
+# IS NOT TOUCHED BY THIS DIFF.  SUBMISSIONS PARKED.
+#
+# STATE BEFORE:  passed=37 failed=24   (reproduced by this lane, matching the
+#                supervisor's 2026-09-11T16:15Z measurement exactly)
+# STATE AFTER:   passed=93 failed=0, exit 0, under python3; C5b/C5c also drive
+#                the clean triple under `python3 -O`.
+#
+# =====================================================================
+# THE HUNKS, BY CLASS
+# =====================================================================
+#
+# (a) DEFECT B -- THE COMPOSITION ORDERING WAS NOT TOTAL OVER THE VOCABULARY.
+#     grader: NEW `VERDICT_SEVERITY` (all six tokens, worst-first) and NEW
+#     `compose_verdicts()`, replacing
+#         order = ["NOT A RESULT", "GATE FAIL", "PASS"]
+#         overall = sorted(verdicts.values(), key=lambda v: order.index(v))[0]
+#     which RAISED ValueError on PENDING, GATE REACHED or BLOCKED.  The new
+#     function refuses (exit 2) on three things it cannot answer: an ordering
+#     that is not a permutation of VERDICTS, a token outside the vocabulary, and
+#     an EMPTY item set (which would have returned a vacuous PASS out of no
+#     evidence -- a planted zero, CLAUDE.md rule 3).  THE PRECEDENCE REGISTERS NO
+#     THRESHOLD AND IS NOT A GATE; each clause cites the rule that forces it, in
+#     the comment block above the tuple (standing rule 5 for NOT A RESULT on top;
+#     CLAUDE.md rule 1's "NEVER to soften a GATE FAIL" for GATE FAIL above
+#     BLOCKED/PENDING).
+#     grader: NEW `compose` subcommand (`--gate LABEL=TOKEN`, `--census`).  Not a
+#     test-only backdoor -- it is the ordering made inspectable from the command
+#     line, which is the only way to drive tokens the grading path does not
+#     happen to emit today.  DEFECT B lived precisely in a path nothing drove.
+#
+# (b) DEFECT A -- A REGISTERED STAGE THAT DID NOT RUN LEFT THE ITEM AT PASS.
+#     grader, cmd_grade: the PENDING shock branch now WRITES INTO `verdicts`
+#     (`verdicts["P1-P4 shock"] = emit_verdict(...)`).  Neither branch did, and
+#     the composed line was taken over CD and CL only -- the observed output was
+#     `VERDICT  P1-P4 shock : PENDING` followed by `VERDICT  A3GC OVERALL : PASS`.
+#     BASIS, and it is registration, not preference: PREREG Sec.6 stage 5 lists
+#     "shock predictions P1-P4 evaluated" as part of the grading path and
+#     AMENDMENT 2 preserves Sec.4.5 verbatim, so the stage is REGISTERED; and
+#     CLAUDE.md rule 1 fixes PENDING as "not yet run" and forbids it softening.
+#     Clean triple now composes to A3GC OVERALL : PENDING (rc=1), never PASS.
+#
+# (c) DEFECT A, THE OTHER HALF -- THE COMPARATOR DECLINES TO COMPOSE AN
+#     EVALUATED SHOCK, AND THAT IS A FINDING FOR THE SUPERVISOR, NOT A RULE THE
+#     LANE CHOSE.  When --vtp-l3/--vtp-l1 ARE supplied the per-prediction
+#     verdicts are emitted and every number is printed, and then the comparator
+#     REFUSES [COMPOSE-UNREGISTERED] instead of composing an item token.
+#     Measured against the document: the string "overall" does not occur in
+#     PREREGISTRATION.md at all; Sec.4.5 P4 registers a PROSE reading ("that is
+#     a *result* ... not a failure of the item") and names none of the six
+#     tokens while Sec.6 stage 5 demands "verdict from the six tokens only"; and
+#     the PARTIAL case -- some but not all of P1/P2/P3 failing -- is not
+#     addressed anywhere.  Composing anyway would be the comparator manufacturing
+#     a gate.  This branch is UNREACHABLE from any input that exists today (no
+#     A3GC level has solved, no surface VTK exists), so it blocks nothing; it is
+#     unblocked by an amendment, which is still legal pre-compute.
+#
+# (d) L-332 -- A THIRD DEFECT, FOUND WHILE REPAIRING A AND B, NOT IN THE BRIEF.
+#     The N-D44 structural guard on `_INITRES_RE` WAS AN `assert`.  `python3 -O`
+#     strips it, so under -O the single guard standing between the residual
+#     reader and finalRes-blindness was not there at all.  Converted to an
+#     explicit `if ...: refuse("N-D44", ...)`.  NEW `count_ast_asserts()` /
+#     `guard_no_asserts()`: the module now counts its OWN ast.Assert nodes off
+#     the source file on disk and REFUSES TO RUN on any, on every invocation.
+#     Census is now 0 (it was 1).
+#
+# (e) SELFTEST -- STALE EXPECTATIONS REALIGNED TO AMENDMENT 2.  Every one of the
+#     24 failures is category (i), a stale expectation, and 21 of the 24 had ONE
+#     cause: the tests still passed `--limb5-unpinned-recipe-diagnostic`, a flag
+#     AMENDMENT 2(a) removed with the limb it gated, so argparse rejected the
+#     command line before any gate ran.  The flag is removed from all 14 call
+#     sites.  C1e (the flag FORCES NOT A RESULT) and C2a (limb 5 REFUSES the
+#     family) asserted behaviour the amendment struck; both are INVERTED AND
+#     SHARPENED, not relaxed -- see class (g).  B4's regex was written against a
+#     print that said "nested"; the limb is now named G-NEST (AMENDMENT 2(a)) and
+#     the regex follows the print, with an added refusal assertion.
+#     NO ASSERTION IS WEAKENED ANYWHERE IN THIS DIFF.
+#
+# (f) SELFTEST -- FIVE FALSE PASSES REPAIRED.  A defect the 24 failures were
+#     hiding: `expect_rc 2` cannot tell a gate's refusal from an ARGPARSE USAGE
+#     ERROR, which also exits 2.  B1b / B2a / B3a / B5a / B14 were therefore
+#     PASSING, in the 37, on the unrecognised flag, with the gate they name never
+#     reached.  NEW `expect_refusal <CODE>` demands rc==2 AND the comparator's own
+#     `REFUSE [CODE]` banner; nine units converted to it (those five plus A7c,
+#     B7b, B8a, B8c).  NEW `expect_no_out` for assertions that must NOT match.
+#
+# (g) SELFTEST -- NEW UNITS.  C1e/C1f/C1g/C1h (the struck limb 5 is printed,
+#     reads AMENDMENT 2(a)'s own 0.0243 % root and 100 % mid/tip, says it never
+#     gates, and the replacement G-NEST is green on the real surfaces);
+#     C2a/C2b/C2c (G-SYS does NOT refuse the registered family, says all five
+#     limbs green, and states why the limb was struck); C3a-C3e (DEFECT A);
+#     C4a-C4h (DEFECT B, including the token census and both refusals);
+#     C5a/C5b/C5c (L-332 census, and the clean triple re-graded under -O).
+#
+# (h) SELFTEST -- SECTION D, THE MUTATION CONTROLS.  A FIX WITH NO CONTROL
+#     PROVING IT LIVE IS NOT A FIX.  Modelled on D8G's seven.  `mutate` refuses
+#     unless the pattern occurs EXACTLY ONCE, and `mut_must_fail` refuses unless
+#     the mutant DIFFERS from the original before it is run (a no-op mutation
+#     would let the suite pass and report "failed to fail"):
+#        D-DEFECT-A-SHOCK-NOT-COMPOSED  catcher C3b/C3c/C3d  (+D1b: the mutant
+#           reproduces the OBSERVED wrong line, OVERALL PASS beside PENDING)
+#        D-DEFECT-B-PARTIAL-ORDER       catcher C4a/C4b      (+D2b: REFUSE)
+#        D-DEFECT-B-ORDER-INDEX         catcher C4c          (+D2d: the original
+#           expression is SEEN to raise ValueError on PENDING)
+#        D-L332-ASSERT-PLANTED          catcher C5a/guard_no_asserts (+D3b)
+#        D4 SHOCK-EVALUATED-BRANCH      a BRANCH PROBE, labelled as one and not
+#           a defect control: it is the only way to reach class (c).
+#
+# NOT CHANGED BY THIS DIFF, and visible as context: every gate limb of G-SYS,
+# G-COLD, G-TOL, G-RES, G-PLAT and G-TRIPLE; the ADF/CGNS reader; the planted
+# controls; the Untouched() evidence guard; every registered constant, threshold
+# and band.  No threshold moved.  PREREGISTRATION.md is untouched.
+#
+# PERMISSION: NOT_FROZEN -- DRAFT.
+
+--- a3gc_grade.py.DRAFT  (PRE-REPAIR, md5 d5cf6577ee053fad078245a78d7181e3)
++++ a3gc_grade.py.DRAFT  (POST-REPAIR)
+@@ -83,6 +83,7 @@
+ """
+ 
+ import argparse
++import ast
+ import filecmp
+ import glob
+ import gzip
+@@ -128,6 +129,74 @@
+     return verdict
+ 
+ 
++# ---------------------------------------------------------------------
++# VERDICT SEVERITY -- TOTAL OVER THE WHOLE VOCABULARY.
++#
++# *** DEFECT B, FOUND BY THE dafoam-supervisor 2026-09-11 AND REPAIRED HERE. ***
++# The composed line used to rank THREE of the six tokens:
++#
++#     order = ["NOT A RESULT", "GATE FAIL", "PASS"]
++#     overall = sorted(verdicts.values(), key=lambda v: order.index(v))[0]
++#
++# `order.index(v)` raises ValueError on PENDING, GATE REACHED or BLOCKED -- a
++# TRACEBACK, not a refusal -- and would silently mis-sort any token it did
++# happen to find.  A comparator refuses cleanly or it is not a comparator (this
++# file's own preamble; PREREG Sec.3: "every one of these refuses (exit 2) rather
++# than degrades").  The order below is TOTAL over VERDICTS and worst-first.
++#
++# WHY THIS PRECEDENCE.  It is not a gate and it registers no threshold; it is
++# the fixed vocabulary's own ordering, and each clause cites the rule that
++# forces it:
++#
++#   NOT A RESULT  worst     standing rule 5 / PREREG Sec.4.2: "the gate can only
++#                           turn a PASS or GATE FAIL INTO NOT A RESULT, never
++#                           the reverse."  Nothing may outrank it.
++#   GATE FAIL     next      CLAUDE.md rule 1: PENDING "is a display/queue state
++#                           ... use it for 'not yet run', NEVER to soften a
++#                           GATE FAIL."  So GATE FAIL must outrank BLOCKED and
++#                           PENDING, or a queue state would soften a failure.
++#   BLOCKED                 no graded evidence, because an obstruction was hit.
++#   PENDING                 no graded evidence, because it has not yet run.
++#                           Both outrank the graded-good tokens: an item cannot
++#                           stand at PASS on a stage that produced no evidence.
++#   GATE REACHED            a graded outcome short of a band statement.
++#   PASS          best      the only token that means every graded gate passed.
++VERDICT_SEVERITY = ("NOT A RESULT", "GATE FAIL", "BLOCKED", "PENDING",
++                    "GATE REACHED", "PASS")
++
++
++def compose_verdicts(items):
++    """items: {gate label -> verdict token}.  Returns the WORST token present.
++
++    Refuses (exit 2) rather than raising, on any of the three ways this can be
++    asked something it cannot answer:
++      * VERDICT_SEVERITY not a permutation of VERDICTS -- the ordering is not
++        total, which is exactly the defect being repaired;
++      * a token outside the fixed vocabulary -- `.index()` would raise;
++      * an EMPTY item set -- a composition over nothing would return a vacuous
++        PASS, which is a planted zero (CLAUDE.md rule 3).
++    """
++    if sorted(VERDICT_SEVERITY) != sorted(VERDICTS):
++        refuse("COMPOSE", "VERDICT_SEVERITY %r is not a permutation of the fixed "
++                          "vocabulary %r.  The composition ordering is not TOTAL "
++                          "and would raise on a token it does not list "
++                          "(CLAUDE.md rule 1)."
++               % (list(VERDICT_SEVERITY), list(VERDICTS)))
++    if not items:
++        refuse("COMPOSE", "asked to compose an item verdict over ZERO gates.  An "
++                          "empty composition would return the best token in the "
++                          "vocabulary out of no evidence at all -- a zero from a "
++                          "reader not shown able to see a non-zero (CLAUDE.md "
++                          "rule 3).")
++    for lab in sorted(items):
++        if items[lab] not in VERDICT_SEVERITY:
++            refuse("COMPOSE", "gate %r carries verdict token %r, which is outside "
++                              "the fixed vocabulary %r.  Refusing rather than "
++                              "sorting it (CLAUDE.md rule 1)."
++                   % (lab, items[lab], list(VERDICTS)))
++    return min(items.values(), key=VERDICT_SEVERITY.index)
++
++
+ # =====================================================================
+ # 1.  REGISTERED CONSTANTS -- every one cites the section that fixed it
+ # =====================================================================
+@@ -512,8 +581,48 @@
+ #  capture group, so no code path in this file can return it.  The selftest
+ #  feeds this reader a log carrying a SMALL initRes beside a LARGE finalRes and
+ #  asserts the small one comes back.
+-assert "finalRes" not in _INITRES_RE.pattern.split("(")[1], \
+-    "N-D44: finalRes must never sit inside a capture group"
++#
++#  *** THIS GUARD WAS AN `assert` AND IS NOT ANY MORE (L-332). ***  Found by
++#  this lane 2026-09-11 while repairing Defects A and B: `python3 -O` strips
++#  `assert` outright, so under -O the one structural guard standing between the
++#  reader and N-D44's blindness simply was not there.  A comparator that gates
++#  on `assert` gates on nothing under -O.  It refuses now, in both modes.
++if "finalRes" in _INITRES_RE.pattern.split("(")[1]:
++    refuse("N-D44", "finalRes sits inside the FIRST CAPTURE GROUP of _INITRES_RE. "
++                    "PREREG Sec.3.6: 'No gate in this item reads finalRes.  A "
++                    "finalRes comparator is structurally blind to the condition "
++                    "DAFoam fails on.'  Refusing to run at all.")
++
++
++def count_ast_asserts(path=None):
++    """L-332: count this module's own `ast.Assert` nodes.
++
++    A comparator that gates on `assert` gates on NOTHING under `python3 -O`.
++    This file must carry zero, and it checks itself rather than trusting a
++    reader elsewhere to check it.  Reads the SOURCE FILE from disk, not the
++    compiled module, because that is the artifact the freeze hashes.
++    """
++    p = path or os.path.abspath(__file__)
++    try:
++        src = open(p, "r", encoding="utf-8", errors="replace").read()
++    except OSError as e:
++        refuse("L-332", "cannot read own source at %s to run the assert census: "
++                        "%s.  A census that cannot read anything is a planted "
++                        "zero (CLAUDE.md rule 3)." % (p, e))
++    tree = ast.parse(src)
++    nodes = [n for n in ast.walk(tree) if isinstance(n, ast.Assert)]
++    return len(nodes), [n.lineno for n in nodes]
++
++
++def guard_no_asserts():
++    """Refuse to run at all if this file carries an `assert` (L-332)."""
++    n, lines = count_ast_asserts()
++    if n:
++        refuse("L-332", "this comparator carries %d `assert` statement(s), at "
++                        "line(s) %s.  `python3 -O` strips them, so every one is a "
++                        "gate that disappears under an interpreter flag (L-332). "
++                        "Refusing to run." % (n, lines))
++    return n
+ 
+ 
+ def read_log(path):
+@@ -1084,9 +1193,10 @@
+     p1_pass = all(v >= REG_P1_PASS_PCT for v in incs.values())
+     p1_falsified = all(v < REG_P1_FALSIFY_PCT for v in incs.values())
+     res["P1"] = {"increases": incs, "pass": p1_pass, "falsified": p1_falsified}
+-    emit_verdict("P1 sharpening", "PASS" if p1_pass else "GATE FAIL",
+-                 "falsified (< +15 %% at BOTH stations): the smearing is model, "
+-                 "not mesh" if p1_falsified else "")
++    res["P1"]["verdict"] = emit_verdict(
++        "P1 sharpening", "PASS" if p1_pass else "GATE FAIL",
++        "falsified (< +15 %% at BOTH stations): the smearing is model, "
++        "not mesh" if p1_falsified else "")
+ 
+     # P2 -- mean |shock position error| falls >= 30 %, and eta=0.20 below +0.060 c
+     def mean_abs(sh):
+@@ -1105,9 +1215,10 @@
+     p2_falsified = (e20 > REG_P2_ETA20_FALSIFY)
+     res["P2"] = {"mean_L3": m3, "mean_L1": m1, "drop": drop, "eta20_L1": e20,
+                  "pass": p2_pass, "falsified": p2_falsified}
+-    emit_verdict("P2 position", "PASS" if p2_pass else "GATE FAIL",
+-                 "falsified (eta=0.20 stays above +0.085 c): the aft bias is the "
+-                 "SA model's shock/BL interaction, not resolution" if p2_falsified else "")
++    res["P2"]["verdict"] = emit_verdict(
++        "P2 position", "PASS" if p2_pass else "GATE FAIL",
++        "falsified (eta=0.20 stays above +0.085 c): the aft bias is the "
++        "SA model's shock/BL interaction, not resolution" if p2_falsified else "")
+ 
+     # P3 -- pooled upper-surface Cp RMS on L1 improves to <= 0.055
+     rms, npts = pooled_upper_rms(cmp_L1)
+@@ -1117,8 +1228,9 @@
+     p3_falsified = rms > REG_P3_FALSIFY_RMS
+     res["P3"] = {"pooled_upper_rms_L1": rms, "n_points": npts,
+                  "pass": p3_pass, "falsified": p3_falsified}
+-    emit_verdict("P3 pooled Cp", "PASS" if p3_pass else "GATE FAIL",
+-                 "falsified (> 0.070)" if p3_falsified else "")
++    res["P3"]["verdict"] = emit_verdict(
++        "P3 pooled Cp", "PASS" if p3_pass else "GATE FAIL",
++        "falsified (> 0.070)" if p3_falsified else "")
+ 
+     # P4 -- the registered counter-hypothesis
+     p4 = p1_falsified and p2_falsified and p3_falsified
+@@ -1425,7 +1537,23 @@
+               "finding about the CASE, not about the family.  It is NOT repaired "
+               "by adding a level, widening the band, or dropping the coarse level.")
+ 
+-    # ---- shock
++    # ---- shock  (PREREG Sec.4.5; Sec.6 stage 5)
++    #
++    # *** DEFECT A, FOUND BY THE dafoam-supervisor 2026-09-11 AND REPAIRED HERE. ***
++    # NEITHER branch below used to write into `verdicts`, and the composed line
++    # was taken over CD and CL ONLY.  The observed consequence, on the clean
++    # triple: "VERDICT  P1-P4 shock : PENDING" followed by "VERDICT  A3GC
++    # OVERALL : PASS".  A registered stage that produced NO GRADED EVIDENCE left
++    # the item standing at PASS.
++    #
++    # Sec.6 stage 5 registers the grading path as "Roache order applied (Sec.4.2);
++    # GCI at Fs=1.25; SHOCK PREDICTIONS P1-P4 EVALUATED", and AMENDMENT 2's
++    # closing paragraph preserves it verbatim ("Sec.4.5's P1-P4 ... stand exactly
++    # as registered").  P1-P4 evaluation is therefore a REGISTERED STAGE of the
++    # grading path, not an optional extra, and CLAUDE.md rule 1 fixes PENDING as
++    # "not yet run" and forbids it softening anything.  The PENDING branch is
++    # consequently entered into the composition, where it cannot produce a PASS.
++    shock_evaluated = False
+     if args.vtp_l3 and args.vtp_l1:
+         wd3 = os.path.join(args.scratch, "shock_L3")
+         wd1 = os.path.join(args.scratch, "shock_L1")
+@@ -1433,18 +1561,54 @@
+         c1, s1 = run_shock_chain(args.vtp_l1, wd1, args.logs_a3)
+         evaluate_shock({str(k): v for k, v in s3.items()},
+                        {str(k): v for k, v in s1.items()}, c1, report)
++        shock_evaluated = True
+     else:
+         print("\n--- SHOCK P1-P4 ---")
+-        emit_verdict("P1-P4 shock", "PENDING",
+-                     "no surface VTK supplied (--vtp-l3 / --vtp-l1); the archived "
+-                     "comparator path has not been re-run")
++        verdicts["P1-P4 shock"] = emit_verdict(
++            "P1-P4 shock", "PENDING",
++            "no surface VTK supplied (--vtp-l3 / --vtp-l1); the archived "
++            "comparator path has not been re-run.  Sec.6 stage 5 registers this "
++            "evaluation as part of the grading path, so the item is NOT GRADED")
+ 
+     # ---- overall
+     print("\n" + "=" * 78)
+-    order = ["NOT A RESULT", "GATE FAIL", "PASS"]
+-    overall = sorted(verdicts.values(), key=lambda v: order.index(v))[0]
++    if shock_evaluated:
++        # *** THE COMPARATOR DECLINES TO COMPOSE.  READ THIS BEFORE "FIXING" IT. ***
++        # P1/P2/P3 have been evaluated and every number is printed above; what is
++        # refused here is only the COMPOSED ITEM TOKEN, because the
++        # pre-registration does not register one.  Checked against the document,
++        # 2026-09-11: the string "overall" does not occur in PREREGISTRATION.md at
++        # all, and neither does any composition rule.  Specifically UNREGISTERED:
++        #   (a) the PARTIAL case -- some but not all of P1/P2/P3 failing.  Sec.4.5
++        #       registers P1, P2, P3 individually and registers only the
++        #       ALL-THREE case, as P4.  Nothing addresses the partial case.
++        #   (b) the TOKEN the P4 branch carries.  Sec.4.5 P4 registers a READING
++        #       IN PROSE -- "that is a *result*, reported as such, not a failure
++        #       of the item" -- and names none of the six tokens, while Sec.6
++        #       stage 5 requires "verdict from the six tokens only".
++        #   (c) "all fail" in P4 is itself ambiguous between "all three not PASS"
++        #       and "all three FALSIFIED" (Sec.4.5 gives each prediction a PASS
++        #       threshold AND a separate, lower falsification threshold, so the
++        #       two readings differ on the middle band).
++        # Composing anyway would be the comparator choosing a gate the document
++        # does not contain.  It refuses instead (PREREG Sec.3 preamble: refuse,
++        # never degrade).  This is the dafoam-supervisor's amendment to write,
++        # pre-compute, and it is still legal to write: no A3GC level has solved.
++        refuse("COMPOSE-UNREGISTERED",
++               "the shock stage was EVALUATED and its per-prediction verdicts are "
++               "printed above, but PREREGISTRATION.md registers NO composition of "
++               "P1-P4 into an item verdict: the word 'overall' does not occur in "
++               "the document, Sec.4.5 P4 gives a prose reading and no token, and "
++               "the partial-failure case is not addressed at all.  The comparator "
++               "will not choose one.  An amendment registering (a) the partial "
++               "case, (b) the P4 branch's token and (c) whether P4's 'all fail' "
++               "means all-not-PASS or all-FALSIFIED unblocks this path; until "
++               "then the shock numbers stand as REPORTED and the item is NOT "
++               "COMPOSED.")
++    overall = compose_verdicts(verdicts)
+     emit_verdict("A3GC OVERALL", overall,
+-                 "CD = %s, CL = %s" % (verdicts["CD"], verdicts["CL"]))
++                 "composed worst-first over %s"
++                 % ", ".join("%s = %s" % (k, verdicts[k]) for k in sorted(verdicts)))
+     print("=" * 78)
+     report["verdicts"] = verdicts
+     report["overall"] = overall
+@@ -1504,6 +1668,47 @@
+     return EXIT_OK
+ 
+ 
++def cmd_compose(args):
++    """Drive `compose_verdicts()` directly, with no solve and no fixture.
++
++    This is NOT a test-only backdoor: it is the composition rule made
++    INSPECTABLE from the command line, which is the only way a reader can check
++    the ordering over tokens the grading path does not happen to produce today.
++    DEFECT B was exactly that -- an ordering over three of six tokens, sitting
++    in a code path nothing drove.
++
++    `--census` drives EVERY token in the fixed vocabulary through the ordering,
++    singly and paired against PASS, and prints the composed result for each.
++    """
++    if args.census:
++        print("--- VERDICT_SEVERITY census: every token in the fixed vocabulary ---")
++        print("  ordering (worst-first): %s" % " < ".join(VERDICT_SEVERITY))
++        for t in VERDICTS:
++            solo = compose_verdicts({"only": t})
++            pair = compose_verdicts({"other": "PASS", "only": t})
++            print("  token %-13s solo -> %-13s  beside a PASS -> %s" % (t, solo, pair))
++            if solo != t:
++                refuse("COMPOSE", "composing the single token %r returned %r"
++                       % (t, solo))
++            if pair != t:
++                refuse("COMPOSE", "token %r beside a PASS composed to %r; every "
++                                  "token in the vocabulary is at least as severe "
++                                  "as PASS" % (t, pair))
++        print("  every one of the %d tokens composed without raising." % len(VERDICTS))
++        return EXIT_OK
++    items = {}
++    for spec in (args.gate or []):
++        if "=" not in spec:
++            refuse("ARGS", "--gate wants LABEL=TOKEN, got %r" % spec)
++        lab, tok = spec.split("=", 1)
++        items[lab.strip()] = tok.strip()
++    overall = compose_verdicts(items)
++    for lab in sorted(items):
++        print("  gate %-28s : %s" % (lab, items[lab]))
++    emit_verdict("COMPOSED", overall, "worst-first over %d gate(s)" % len(items))
++    return EXIT_OK if overall == "PASS" else EXIT_VERDICT_NOT_PASS
++
++
+ def cmd_probe(args):
+     """Dump the measured quantities for one run root, for the selftest."""
+     out = {}
+@@ -1556,7 +1761,18 @@
+     r.add_argument("--case", required=True)
+     r.add_argument("--cgns")
+ 
++    m = sub.add_parser("compose")
++    m.add_argument("--gate", action="append",
++                   help="LABEL=TOKEN, repeatable")
++    m.add_argument("--census", action="store_true",
++                   help="drive every token of the fixed vocabulary through the "
++                        "ordering and print the composed result for each")
++
+     a = ap.parse_args(argv)
++    # L-332, on EVERY invocation and in both interpreter modes: this file must
++    # carry zero `assert` statements, and it counts its own rather than trusting
++    # a reader elsewhere.  It refuses to run if it finds one.
++    guard_no_asserts()
+     if a.cmd == "grade":
+         a.surfaces = {"L3": a.surface_l3, "L2": a.surface_l2, "L1": a.surface_l1}
+         os.makedirs(a.scratch, exist_ok=True)
+@@ -1569,6 +1785,8 @@
+         return cmd_cold(a)
+     if a.cmd == "probe":
+         return cmd_probe(a)
++    if a.cmd == "compose":
++        return cmd_compose(a)
+     ap.print_help()
+     return EXIT_REFUSE
+ 
+
+--- a3gc_grade_selftest.sh.DRAFT  (PRE-REPAIR, md5 643602f94558e1526993f70d3920fe15)
++++ a3gc_grade_selftest.sh.DRAFT  (POST-REPAIR)
+@@ -81,6 +81,37 @@
+   fi
+ }
+ 
++# expect_refusal <refuse-code-regex> <name> <cmd...>
++#   rc == 2 IS NOT ENOUGH.  argparse ALSO exits 2 on an unrecognised argument,
++#   so a stale flag in this file made FIVE `expect_rc 2` units pass on an
++#   ARGPARSE USAGE ERROR while the gate they name was never reached.  Measured
++#   by this lane 2026-09-11: B1b / B2a / B3a / B5a / B14 all passed that way
++#   after AMENDMENT 2(a) removed the struck limb-5 flag.  A refusal unit now
++#   demands rc == 2 AND the comparator's own `REFUSE [CODE]` banner, so a usage
++#   error can never wear a gate's name.
++expect_refusal() {
++  local code="$1" name="$2"; shift 2
++  local out rc
++  out="$("$@" 2>&1)"; rc=$?
++  if [ "$rc" = 2 ] && printf '%s' "$out" | grep -qE "REFUSE \[$code\]"; then
++    ok "$name (rc=2, REFUSE [$code])"
++  else
++    bad "$name (wanted rc=2 AND REFUSE [$code]; got rc=$rc)"
++    printf '%s\n' "$out" | tail -12 | sed 's/^/        | /'
++  fi
++}
++
++# expect_no_out <regex> <name> <cmd...> -- the output must NOT match.
++expect_no_out() {
++  local rx="$1" name="$2"; shift 2
++  local out
++  out="$("$@" 2>&1)"
++  if printf '%s' "$out" | grep -qE "$rx"; then
++    bad "$name (output matched /$rx/ and must not have)"
++    printf '%s\n' "$out" | grep -nE "$rx" | head -4 | sed 's/^/        | /'
++  else ok "$name"; fi
++}
++
+ # ---------------------------------------------------------------------
+ # fixture builder -- synthetic run roots and synthetic solver logs.
+ # These are FABRICATED TEST FIXTURES.  They live only in the scratch dir,
+@@ -203,7 +234,7 @@
+   "$PY" "$GRADE" probe --case "$SCRATCH/fmt_plain"
+ #   (c) NEITHER -- must REFUSE (exit 2).  It must never report 0 cells.
+ mkdir -p "$SCRATCH/fmt_none/constant/polyMesh"
+-expect_rc 2 "A7c neither owner nor owner.gz -> REFUSES, never reports 0" \
++expect_refusal 'READ' "A7c neither owner nor owner.gz -> REFUSES, never reports 0" \
+   "$PY" "$GRADE" probe --case "$SCRATCH/fmt_none"
+ expect_out 'FALSE ZERO' "A7c the refusal names the false-zero it is preventing" \
+   "$PY" "$GRADE" probe --case "$SCRATCH/fmt_none"
+@@ -240,7 +271,7 @@
+ }
+ build_clean "$SCRATCH/clean"
+ CLEAN=( --l3 "$SCRATCH/clean/L3" --l2 "$SCRATCH/clean/L2" --l1 "$SCRATCH/clean/L1"
+-        --log-name log.primal --limb5-unpinned-recipe-diagnostic )
++        --log-name log.primal )
+ 
+ expect_out 'VERDICT  CD triple +: PASS' "C1a a clean CD triple grades PASS" \
+   "$PY" "$GRADE" grade "${CLEAN[@]}"
+@@ -250,9 +281,28 @@
+   "$PY" "$GRADE" grade "${CLEAN[@]}"
+ expect_out 'GCI\(fine, Fs=1\.25\)' "C1d GCI is quoted on a monotone triple" \
+   "$PY" "$GRADE" grade "${CLEAN[@]}"
+-# ...and the limb-5 flag can NEVER buy a PASS:
+-expect_out 'VERDICT  A3GC OVERALL +: NOT A RESULT' \
+-  "C1e the limb-5 diagnostic flag FORCES overall NOT A RESULT" \
++# ---- C1e/C1f/C1g  REPLACE the pre-AMENDMENT-2 limb-5 units.
++# WHAT WAS HERE, and why it is gone: C1e used to pass
++# --limb5-unpinned-recipe-diagnostic and assert that the flag FORCED the overall
++# to NOT A RESULT.  AMENDMENT 2(a) STRUCK Sec.3.1 limb 5 as a gate -- as
++# UNMEASURABLE AS WRITTEN, demonstrated by measurement, NOT because it failed --
++# and demoted it to a printed diagnostic, so neither the flag nor the forcing
++# exists.  The assertion is not dropped, it is INVERTED and made sharper: on the
++# REAL registered family the struck limb reads a 100 % spread at mid and tip
++# (AMENDMENT 2(a)'s own measured figures), and the item must grade anyway.  A
++# struck limb that still moved a verdict would be the amendment not applied.
++expect_out 'limb5 root    DIAGNOSTIC: spread = 0\.0243 %' \
++  "C1e the struck limb 5 is REPORTED, at AMENDMENT 2(a)'s own measured root spread" \
++  "$PY" "$GRADE" grade "${CLEAN[@]}"
++expect_out 'limb5 (mid|tip) +DIAGNOSTIC: spread = 100\.0000 %.*would have said FAIL' \
++  "C1f the struck limb WOULD have said FAIL on the registered family..." \
++  "$PY" "$GRADE" grade "${CLEAN[@]}"
++expect_out 'limb5 +\*\*\* REPORTED, NEVER GATING' \
++  "C1g ...and it does not gate: it says so, and C1a/C1b PASS beside it" \
++  "$PY" "$GRADE" grade "${CLEAN[@]}"
++# and the REPLACEMENT gate of AMENDMENT 2(a) is green on the real surfaces:
++expect_out 'G-NEST +every L3 point present BIT-EXACTLY in L2 : 0 misses of 6765 +OK' \
++  "C1h G-NEST (limb 5', the stronger replacement) is green on the real family" \
+   "$PY" "$GRADE" grade "${CLEAN[@]}"
+ 
+ # =====================================================================
+@@ -273,10 +323,11 @@
+ cp "$TRAP_CASE/constant/polyMesh/boundary"  "$SCRATCH/trap/L3/constant/polyMesh/"
+ cp "$S_C3" "$SCRATCH/trap/L3/surfaceMesh.cgns"
+ TRAPARGS=( --l3 "$SCRATCH/trap/L3" --l2 "$SCRATCH/trap/L2" --l1 "$SCRATCH/trap/L1"
+-           --log-name log.primal --limb5-unpinned-recipe-diagnostic )
++           --log-name log.primal )
+ expect_out 'cells=99840' "B1a the impostor's cell count MATCHES the registered L3" \
+   "$PY" "$GRADE" grade "${TRAPARGS[@]}"
+-expect_rc 2 "B1b G-SYS REFUSES the impostor" "$PY" "$GRADE" grade "${TRAPARGS[@]}"
++expect_refusal 'G-SYS' "B1b G-SYS REFUSES the impostor" \
++  "$PY" "$GRADE" grade "${TRAPARGS[@]}"
+ expect_out 'limb2 faces +L2/L3 = 24960/1560' \
+   "B1c the face-count limb is what catches it (ratio 16, not 4)" \
+   "$PY" "$GRADE" grade "${TRAPARGS[@]}"
+@@ -291,23 +342,23 @@
+ head1 "B2 -- a level with the wrong cell count"
+ cp -r "$SCRATCH/clean" "$SCRATCH/mut_cells"
+ mkfix 'owner(sys.argv[2], 800000); boundary(sys.argv[2], 24960)' "$SCRATCH/mut_cells/L2"
+-expect_rc 2 "B2a a 800,000-cell L2 (ratio 8.013) is REFUSED" \
++expect_refusal 'G-SYS' "B2a a 800,000-cell L2 (ratio 8.013) is REFUSED" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_cells/L3" --l2 "$SCRATCH/mut_cells/L2" \
+-    --l1 "$SCRATCH/mut_cells/L1" --log-name log.primal --limb5-unpinned-recipe-diagnostic
++    --l1 "$SCRATCH/mut_cells/L1" --log-name log.primal
+ expect_out 'launch-blocking refusal, not a note' "B2b the refusal quotes Sec.2.5" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_cells/L3" --l2 "$SCRATCH/mut_cells/L2" \
+-    --l1 "$SCRATCH/mut_cells/L1" --log-name log.primal --limb5-unpinned-recipe-diagnostic
++    --l1 "$SCRATCH/mut_cells/L1" --log-name log.primal
+ 
+ # ---- B3  coordinate limb: two levels handed the SAME surface
+ head1 "B3 -- two levels handed the identical surface"
+ cp -r "$SCRATCH/clean" "$SCRATCH/mut_same"
+ cp "$S_C2" "$SCRATCH/mut_same/L2/surfaceMesh.cgns"
+-expect_rc 2 "B3a identical coordinate arrays on L3 and L2 are REFUSED" \
++expect_refusal 'G-SYS' "B3a identical coordinate arrays on L3 and L2 are REFUSED" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_same/L3" --l2 "$SCRATCH/mut_same/L2" \
+-    --l1 "$SCRATCH/mut_same/L1" --log-name log.primal --limb5-unpinned-recipe-diagnostic
++    --l1 "$SCRATCH/mut_same/L1" --log-name log.primal
+ expect_out 'limb3 coords .*DIFFER : FAIL' "B3b the coordinate limb is what fails" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_same/L3" --l2 "$SCRATCH/mut_same/L2" \
+-    --l1 "$SCRATCH/mut_same/L1" --log-name log.primal --limb5-unpinned-recipe-diagnostic
++    --l1 "$SCRATCH/mut_same/L1" --log-name log.primal
+ 
+ # ---- B4  nesting limb: a surface that is NOT a coarsening of the finer one
+ head1 "B4 -- a surface whose points are not a subset of the finer level's"
+@@ -329,23 +380,30 @@
+ open(dst, "wb").write(bytes(b))
+ print("perturbed one CoordinateY by 1e-6")
+ PERTURB
+-expect_out 'nested .*misses of 6765 FAIL|nested .* 1 misses' \
+-  "B4 a single 1e-6 coordinate nudge breaks the nesting limb" \
++# The regex here was written against a pre-AMENDMENT-2 print that called the
++# limb "nested".  AMENDMENT 2(a) registered it as G-NEST (limb 5') and the
++# comparator prints that name.  The BEHAVIOUR asserted is unchanged and is
++# STRENGTHENED: the nudge must be caught (1 miss, FAIL) AND the run must refuse.
++expect_out 'G-NEST +every L3 point present BIT-EXACTLY in L2 : 1 misses of 6765 +FAIL' \
++  "B4a a single 1e-6 coordinate nudge breaks G-NEST (limb 5', AMENDMENT 2(a))" \
++  "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_nest/L3" --l2 "$SCRATCH/mut_nest/L2" \
++    --l1 "$SCRATCH/mut_nest/L1" --log-name log.primal
++expect_refusal 'G-SYS' "B4b and the comparator REFUSES on it, never degrades" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_nest/L3" --l2 "$SCRATCH/mut_nest/L2" \
+-    --l1 "$SCRATCH/mut_nest/L1" --log-name log.primal --limb5-unpinned-recipe-diagnostic
++    --l1 "$SCRATCH/mut_nest/L1" --log-name log.primal
+ 
+ # ---- B5  G-TOL: the solver dumped a different tolerance product
+ head1 "B5 -- G-TOL against a wrong tolerance product"
+ cp -r "$SCRATCH/clean" "$SCRATCH/mut_tol"
+ mkfix 'log(sys.argv[2]+"/log.primal", flat(0.0239956), flat(0.3181159), diff=10000)' \
+   "$SCRATCH/mut_tol/L3"
+-expect_rc 2 "B5a primalMinResTolDiff 10000 is REFUSED" \
++expect_refusal 'G-TOL' "B5a primalMinResTolDiff 10000 is REFUSED" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_tol/L3" --l2 "$SCRATCH/mut_tol/L2" \
+-    --l1 "$SCRATCH/mut_tol/L1" --log-name log.primal --limb5-unpinned-recipe-diagnostic
++    --l1 "$SCRATCH/mut_tol/L1" --log-name log.primal
+ expect_out 'accept floor \(PRODUCT, N-D43\) = 0\.0001' \
+   "B5b the accept floor is the PRODUCT, not either factor (N-D43)" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_tol/L3" --l2 "$SCRATCH/mut_tol/L2" \
+-    --l1 "$SCRATCH/mut_tol/L1" --log-name log.primal --limb5-unpinned-recipe-diagnostic
++    --l1 "$SCRATCH/mut_tol/L1" --log-name log.primal
+ 
+ # ---- B6  G-RES / N-D44: the reader must read initRes, never finalRes
+ head1 "B6 -- G-RES reads initRes, NEVER finalRes (N-D44)"
+@@ -357,11 +415,11 @@
+ expect_out 'initRes = 1\.000000e-03.*FAIL' \
+   "B6a a 1e-3 initRes beside a 1e-4 finalRes FAILS the gate (it read the right one)" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_res/L3" --l2 "$SCRATCH/mut_res/L2" \
+-    --l1 "$SCRATCH/mut_res/L1" --log-name log.primal --limb5-unpinned-recipe-diagnostic
++    --l1 "$SCRATCH/mut_res/L1" --log-name log.primal
+ expect_out 'VERDICT  CD triple +: NOT A RESULT' \
+   "B6b and standing rule 5 clause 1 makes the whole triple NOT A RESULT" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_res/L3" --l2 "$SCRATCH/mut_res/L2" \
+-    --l1 "$SCRATCH/mut_res/L1" --log-name log.primal --limb5-unpinned-recipe-diagnostic
++    --l1 "$SCRATCH/mut_res/L1" --log-name log.primal
+ expect_out 'PRECONDITION, NOT DISCRIMINATING' \
+   "B6c G-RES is labelled a precondition, per AMENDMENT 1(b)" \
+   "$PY" "$GRADE" grade "${CLEAN[@]}"
+@@ -377,17 +435,17 @@
+   "$PY" "$GRADE" cold --case "$SCRATCH/cold_ok"
+ cp -r "$SCRATCH/cold_ok" "$SCRATCH/cold_time"
+ mkdir -p "$SCRATCH/cold_time/processor0/1000"
+-expect_rc 2 "B7b a stray time directory is REFUSED" \
++expect_refusal 'G-COLD' "B7b a stray time directory is REFUSED" \
+   "$PY" "$GRADE" cold --case "$SCRATCH/cold_time"
+ cp -r "$SCRATCH/cold_ok" "$SCRATCH/cold_warm"
+ "$PY" -c "open('$SCRATCH/cold_warm/processor0/0/U','w').write('X'*200000)"
+-expect_rc 2 "B8a an oversized 0-field (a WRITTEN SOLUTION) is REFUSED" \
++expect_refusal 'G-COLD' "B8a an oversized 0-field (a WRITTEN SOLUTION) is REFUSED" \
+   "$PY" "$GRADE" cold --case "$SCRATCH/cold_warm"
+ expect_out 'WRITTEN SOLUTION, not an initial condition' \
+   "B8b the refusal names the pyDAFoam warm-start it is catching" \
+   "$PY" "$GRADE" cold --case "$SCRATCH/cold_warm"
+ mkdir -p "$SCRATCH/cold_empty"
+-expect_rc 2 "B8c a case with NO 0-fields REFUSES rather than passing vacuously" \
++expect_refusal 'G-COLD' "B8c a case with NO 0-fields REFUSES rather than passing vacuously" \
+   "$PY" "$GRADE" cold --case "$SCRATCH/cold_empty"
+ 
+ # =====================================================================
+@@ -440,7 +498,7 @@
+ cp -r "$SCRATCH/clean" "$SCRATCH/mut_osc"
+ mkfix 'log(sys.argv[2]+"/log.primal", flat(0.0228956), flat(0.3181159))' "$SCRATCH/mut_osc/L3"
+ OSC=( --l3 "$SCRATCH/mut_osc/L3" --l2 "$SCRATCH/mut_osc/L2" --l1 "$SCRATCH/mut_osc/L1"
+-      --log-name log.primal --limb5-unpinned-recipe-diagnostic )
++      --log-name log.primal )
+ expect_out 'class = OSCILLATORY' "B11a the triple is classified OSCILLATORY" \
+   "$PY" "$GRADE" grade "${OSC[@]}"
+ expect_out 'GCI: NOT QUOTED' "B11b no GCI is quoted on a non-monotone triple" \
+@@ -457,7 +515,7 @@
+ # eps21 = 2e-4, eps32 = 2e-4*2^4 = 3.2e-3  -> p = 4, outside the band
+ mkfix 'log(sys.argv[2]+"/log.primal", flat(0.0229956+2e-4+3.2e-3), flat(0.3181159))' "$SCRATCH/mut_p/L3"
+ PBAD=( --l3 "$SCRATCH/mut_p/L3" --l2 "$SCRATCH/mut_p/L2" --l1 "$SCRATCH/mut_p/L1"
+-       --log-name log.primal --limb5-unpinned-recipe-diagnostic )
++       --log-name log.primal )
+ expect_out 'observed order p = 4\.0000' "B12a p = 4.0000 is recovered" \
+   "$PY" "$GRADE" grade "${PBAD[@]}"
+ expect_out 'outside \[1\.0, 3\.0\]' "B12b the band is the registered Sec.4.3 one" \
+@@ -469,9 +527,9 @@
+ head1 "B14 -- two candidate logs must be refused, not guessed"
+ cp -r "$SCRATCH/clean" "$SCRATCH/mut_logs"
+ cp "$SCRATCH/mut_logs/L3/log.primal" "$SCRATCH/mut_logs/L3/log.other"
+-expect_rc 2 "B14 two candidate logs and no --log-name -> REFUSE (no coin flip)" \
++expect_refusal 'READ' "B14 two candidate logs and no --log-name -> REFUSE (no coin flip)" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_logs/L3" --l2 "$SCRATCH/mut_logs/L2" \
+-    --l1 "$SCRATCH/mut_logs/L1" --limb5-unpinned-recipe-diagnostic
++    --l1 "$SCRATCH/mut_logs/L1"
+ 
+ # =====================================================================
+ head1 "B13 -- EVIDENCE PROTECTION: not one real artifact moved"
+@@ -484,12 +542,30 @@
+ fi
+ 
+ # =====================================================================
+-head1 "C2 -- G-SYS limb 5 on the REAL family surfaces (the registered form)"
++head1 "C2 -- G-SYS limb 5 on the REAL family surfaces, AS AMENDMENT 2(a) LEFT IT"
+ # =====================================================================
+-# PREREG Sec.3.1 limb 5 registers a 1 % cross-level agreement on TE thickness
+-# but records no measurement recipe.  Run it as registered, against the real
+-# c2/c1/c0 surfaces, and let the number speak.
+-expect_rc 2 "C2a the registered G-SYS limb 5 REFUSES the registered family" \
++# WHAT WAS HERE: C2a asserted rc=2 -- that the REGISTERED Sec.3.1 limb 5 (a 1 %
++# cross-level TE-thickness agreement, registered with NO measurement recipe)
++# REFUSES the real c2/c1/c0 family.  It did, and AMENDMENT 2(a) is the record of
++# what the supervisor did about it: the limb was STRUCK AS A GATE because it is
++# UNMEASURABLE AS WRITTEN -- every window-based TE statistic is point-density
++# dependent and these levels differ 4x in point count by construction -- and NOT
++# because it failed.  It was replaced by the STRICTLY STRONGER G-NEST (limb 5'),
++# which C1h and B4a above drive.
++#
++# So the unit is inverted, not deleted, and it is now the CONTROL ON THE
++# AMENDMENT ITSELF: the registered family must NOT be refused by G-SYS, while
++# the struck limb's own numbers are still printed in full.
++expect_no_out 'REFUSE \[G-SYS\]' \
++  "C2a G-SYS does NOT refuse the registered family (limb 5 struck, AMENDMENT 2(a))" \
++  "$PY" "$GRADE" grade --l3 "$SCRATCH/clean/L3" --l2 "$SCRATCH/clean/L2" \
++    --l1 "$SCRATCH/clean/L1" --log-name log.primal
++expect_out 'G-SYS: all five limbs green' \
++  "C2b and it says so: all five limbs green on the real surfaces" \
++  "$PY" "$GRADE" grade --l3 "$SCRATCH/clean/L3" --l2 "$SCRATCH/clean/L2" \
++    --l1 "$SCRATCH/clean/L1" --log-name log.primal
++expect_out 'UNMEASURABLE AS WRITTEN' \
++  "C2c the record says WHY the limb was struck, in the comparator's own output" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/clean/L3" --l2 "$SCRATCH/clean/L2" \
+     --l1 "$SCRATCH/clean/L1" --log-name log.primal
+ printf '\n  --- measured TE thickness, real surfaces, comparator definition ---\n'
+@@ -497,6 +573,197 @@
+   --l1 "$SCRATCH/clean/L1" --log-name log.primal 2>&1 | grep -E 'limb5' | sed 's/^/  /'
+ 
+ # =====================================================================
++head1 "C3 -- DEFECT A: a REGISTERED STAGE THAT DID NOT RUN MAY NOT LEAVE THE ITEM AT PASS"
++# =====================================================================
++# Found by the dafoam-supervisor 2026-09-11 and observed directly: the clean
++# triple printed `VERDICT  P1-P4 shock : PENDING` and then
++# `VERDICT  A3GC OVERALL : PASS`.  NEITHER shock branch wrote into the
++# composition dict and the overall was taken over CD and CL only.
++# PREREG Sec.6 stage 5 registers the grading path as "Roache order applied
++# (Sec.4.2); GCI at Fs=1.25; SHOCK PREDICTIONS P1-P4 EVALUATED", and AMENDMENT 2
++# preserves Sec.4.5 verbatim, so P1-P4 evaluation is a REGISTERED STAGE.
++# CLAUDE.md rule 1 fixes PENDING as "not yet run" and forbids it softening
++# anything.  An item cannot stand at PASS on a stage that produced no evidence.
++expect_out 'VERDICT  P1-P4 shock +: PENDING' \
++  "C3a the ungraded shock stage carries PENDING, from the fixed vocabulary" \
++  "$PY" "$GRADE" grade "${CLEAN[@]}"
++expect_out 'VERDICT  A3GC OVERALL +: PENDING' \
++  "C3b DEFECT A: the item is PENDING, NOT PASS, while a registered stage is ungraded" \
++  "$PY" "$GRADE" grade "${CLEAN[@]}"
++expect_no_out 'VERDICT  A3GC OVERALL +: PASS' \
++  "C3c and it is NEVER PASS on this input -- the exact line that was observed" \
++  "$PY" "$GRADE" grade "${CLEAN[@]}"
++expect_out 'composed worst-first over .*P1-P4 shock = PENDING' \
++  "C3d the shock gate is NAMED in the composition roster, not silently dropped" \
++  "$PY" "$GRADE" grade "${CLEAN[@]}"
++# ...and PENDING must not soften a worse token: the OSCILLATORY triple still wins.
++expect_out 'VERDICT  A3GC OVERALL +: NOT A RESULT' \
++  "C3e a NOT A RESULT triple still dominates the PENDING shock (rule 1: PENDING never softens)" \
++  "$PY" "$GRADE" grade "${OSC[@]}"
++
++# =====================================================================
++head1 "C4 -- DEFECT B: the composition ordering must be TOTAL over all six tokens"
++# =====================================================================
++# The old ordering listed three of the six: ["NOT A RESULT","GATE FAIL","PASS"].
++# `order.index(v)` raises ValueError on PENDING, GATE REACHED or BLOCKED -- a
++# traceback, not a refusal.  A comparator refuses cleanly or it is not one.
++expect_rc 0 "C4a every token in the fixed vocabulary drives the ordering" \
++  "$PY" "$GRADE" compose --census
++expect_out 'every one of the 6 tokens composed without raising' \
++  "C4b and the census says so, over all six" \
++  "$PY" "$GRADE" compose --census
++expect_no_out 'Traceback' \
++  "C4c NO TRACEBACK on any token -- this is the defect, stated directly" \
++  "$PY" "$GRADE" compose --census
++expect_out 'VERDICT  COMPOSED +: GATE FAIL' \
++  "C4d a GATE FAIL beside a PENDING composes to GATE FAIL (rule 1: PENDING never softens)" \
++  "$PY" "$GRADE" compose --gate 'CD=PASS' --gate 'shock=PENDING' --gate 'CL=GATE FAIL'
++expect_out 'VERDICT  COMPOSED +: NOT A RESULT' \
++  "C4e NOT A RESULT outranks everything (standing rule 5: never the reverse)" \
++  "$PY" "$GRADE" compose --gate 'CD=NOT A RESULT' --gate 'shock=PENDING' --gate 'CL=PASS'
++expect_out 'VERDICT  COMPOSED +: BLOCKED' \
++  "C4f BLOCKED and GATE REACHED are ranked too, not merely accepted" \
++  "$PY" "$GRADE" compose --gate 'a=GATE REACHED' --gate 'b=BLOCKED' --gate 'c=PASS'
++expect_refusal 'COMPOSE' "C4g a token outside the vocabulary REFUSES, never sorts" \
++  "$PY" "$GRADE" compose --gate 'CD=ROUGHLY CONVERGED'
++expect_refusal 'COMPOSE' "C4h an EMPTY composition REFUSES, never returns a vacuous PASS" \
++  "$PY" "$GRADE" compose
++
++# =====================================================================
++head1 "C5 -- L-332: this comparator carries ZERO asserts, and counts its own"
++# =====================================================================
++# Found by this lane while repairing A and B: the N-D44 structural guard on
++# _INITRES_RE WAS an `assert`.  `python3 -O` strips it, so under -O the one
++# guard standing between the reader and finalRes-blindness was not there.
++expect_rc 0 "C5a ast.Assert census == 0, read off the file on disk" \
++  "$PY" -c "import ast,sys;n=sum(1 for x in ast.walk(ast.parse(open(sys.argv[1],encoding='utf-8').read())) if isinstance(x,ast.Assert));print(n);sys.exit(0 if n==0 else 1)" "$GRADE"
++expect_out 'VERDICT  CD triple +: PASS' \
++  "C5b the clean triple grades identically under python3 -O (no gate vanishes)" \
++  "$PY" -O "$GRADE" grade "${CLEAN[@]}"
++expect_out 'VERDICT  A3GC OVERALL +: PENDING' \
++  "C5c and the DEFECT A repair survives -O too" \
++  "$PY" -O "$GRADE" grade "${CLEAN[@]}"
++
++# =====================================================================
++head1 "D -- MUTATION CONTROLS on the DEFECT A and DEFECT B repairs"
++# =====================================================================
++# A FIX WITH NO CONTROL PROVING IT IS LIVE IS NOT A FIX.  Each mutation below
++# removes exactly one repair's teeth from a COPY of the comparator and asserts a
++# NAMED unit above goes BAD.  If a mutation is applied and the named unit still
++# passes, that unit is ceremony.
++#
++# THE MUTATOR IS ITSELF A PLANTED-ZERO RISK AND IS GUARDED (D8G's rule): a
++# replacement that matches nothing yields an UNMUTATED copy, the unit then
++# passes, and the control reports "failed to fail" when nothing was mutated.
++# Every mutation asserts REPLACEMENT COUNT == 1 and asserts the copy DIFFERS
++# from the original BEFORE it is run.
++MUTDIR="$SCRATCH/mutants"; mkdir -p "$MUTDIR"
++
++mutate() {  # $1 = tag  $2 = old text  $3 = new text
++  "$PY" - "$GRADE" "$MUTDIR/$1.py" "$2" "$3" <<'MUTPY'
++import sys
++src, dst, old, new = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
++s = open(src, encoding="utf-8").read()
++n = s.count(old)
++if n != 1:
++    sys.stderr.write("MUTATOR REFUSE: pattern occurs %d times, not once\n" % n)
++    sys.exit(3)
++open(dst, "w", encoding="utf-8").write(s.replace(old, new))
++MUTPY
++}
++
++# mut_must_fail <tag> <named-catcher> <regex the UNMUTATED grader satisfies> <cmd...>
++#   asserts the mutant was really built, then asserts the catcher's own regex
++#   NO LONGER matches against the mutant.
++mut_must_fail() {
++  local tag="$1" catcher="$2" rx="$3"; shift 3
++  if [ ! -s "$MUTDIR/$tag.py" ]; then
++    bad "D-$tag MUTATOR did not build a mutant (planted-zero guard)"; return
++  fi
++  if cmp -s "$GRADE" "$MUTDIR/$tag.py"; then
++    bad "D-$tag mutant is IDENTICAL to the original (planted-zero guard)"; return
++  fi
++  local out; out="$("$@" 2>&1)"
++  if printf '%s' "$out" | grep -qE "$rx"; then
++    bad "D-$tag THE SUITE FAILED TO FAIL: [$catcher] still matches /$rx/ under the mutation"
++    printf '%s\n' "$out" | tail -8 | sed 's/^/        | /'
++  else
++    ok "D-$tag mutation caught; the catcher is [$catcher]"
++  fi
++}
++
++# ---- D1  DEFECT A reinstated: the shock verdict stops entering the composition.
++#      The overall then reverts to being taken over CD and CL only -- which is
++#      exactly the line the supervisor observed: OVERALL PASS beside a PENDING
++#      registered stage.
++mutate DEFECT-A-SHOCK-NOT-COMPOSED \
++  '        verdicts["P1-P4 shock"] = emit_verdict(' \
++  '        emit_verdict(' \
++  && mut_must_fail DEFECT-A-SHOCK-NOT-COMPOSED 'C3b/C3c/C3d' 'VERDICT  A3GC OVERALL +: PENDING' \
++       "$PY" "$MUTDIR/DEFECT-A-SHOCK-NOT-COMPOSED.py" grade "${CLEAN[@]}"
++# and the mutant must be seen to produce the ORIGINAL WRONG ANSWER, not merely a
++# different one -- otherwise the control does not prove which defect it reinstated.
++expect_out 'VERDICT  A3GC OVERALL +: PASS' \
++  "D1b the mutant reproduces the OBSERVED defect exactly: OVERALL PASS beside a PENDING stage" \
++  "$PY" "$MUTDIR/DEFECT-A-SHOCK-NOT-COMPOSED.py" grade "${CLEAN[@]}"
++
++# ---- D2  DEFECT B reinstated in its own shape: the ordering loses three tokens.
++#      compose_verdicts' permutation guard must catch it and REFUSE.
++mutate DEFECT-B-PARTIAL-ORDER \
++  'VERDICT_SEVERITY = ("NOT A RESULT", "GATE FAIL", "BLOCKED", "PENDING",
++                    "GATE REACHED", "PASS")' \
++  'VERDICT_SEVERITY = ("NOT A RESULT", "GATE FAIL", "PASS")' \
++  && mut_must_fail DEFECT-B-PARTIAL-ORDER 'C4a/C4b' 'every one of the 6 tokens composed without raising' \
++       "$PY" "$MUTDIR/DEFECT-B-PARTIAL-ORDER.py" compose --census
++expect_refusal 'COMPOSE' \
++  "D2b the partial ordering REFUSES (not a permutation of the vocabulary), never raises" \
++  "$PY" "$MUTDIR/DEFECT-B-PARTIAL-ORDER.py" compose --census
++
++# ---- D2c  DEFECT B in its ORIGINAL form: the literal `order.index(v)` line the
++#      supervisor found, put back.  It must TRACEBACK on PENDING -- which is the
++#      behaviour C4c forbids, and the proof C4c is not ceremony.
++mutate DEFECT-B-ORDER-INDEX \
++  '    return min(items.values(), key=VERDICT_SEVERITY.index)' \
++  '    order = ["NOT A RESULT", "GATE FAIL", "PASS"]
++    return sorted(items.values(), key=lambda v: order.index(v))[0]' \
++  && mut_must_fail DEFECT-B-ORDER-INDEX 'C4c' 'every one of the 6 tokens composed without raising' \
++       "$PY" "$MUTDIR/DEFECT-B-ORDER-INDEX.py" compose --census
++expect_out 'Traceback|ValueError' \
++  "D2d the original expression is SEEN to raise ValueError on a token it does not list" \
++  "$PY" "$MUTDIR/DEFECT-B-ORDER-INDEX.py" compose --gate 'shock=PENDING' --gate 'CD=PASS'
++
++# ---- D3  L-332: plant an `assert` and the module's own census must refuse.
++mutate L332-ASSERT-PLANTED \
++  'def read_log(path):' \
++  'def read_log(path):
++    assert path, "PLANTED ASSERT -- L-332 control, must be refused"' \
++  && mut_must_fail L332-ASSERT-PLANTED 'C5a/guard_no_asserts' 'VERDICT  CD triple +: PASS' \
++       "$PY" "$MUTDIR/L332-ASSERT-PLANTED.py" grade "${CLEAN[@]}"
++expect_refusal 'L-332' \
++  "D3b the module counts its OWN asserts and refuses to run on one" \
++  "$PY" "$MUTDIR/L332-ASSERT-PLANTED.py" grade "${CLEAN[@]}"
++
++# ---- D4  BRANCH PROBE, not a defect control, and labelled as one.
++#      When the shock stage IS evaluated the comparator DECLINES TO COMPOSE and
++#      refuses, because PREREGISTRATION.md registers no composition of P1-P4
++#      into an item verdict: the word "overall" does not occur in the document,
++#      Sec.4.5 P4 gives a PROSE reading and names none of the six tokens, and
++#      the partial-failure case (some but not all of P1/P2/P3) is not addressed
++#      at all.  That branch cannot be reached from any input that exists today
++#      -- no A3GC level has solved and no surface VTK exists -- so it is reached
++#      here by forcing the flag on a COPY.  A comparator branch nothing can
++#      drive is a branch nobody has read.
++mutate SHOCK-EVALUATED-BRANCH \
++  '    shock_evaluated = False' \
++  '    shock_evaluated = True   # BRANCH PROBE, selftest D4' \
++  && expect_refusal 'COMPOSE-UNREGISTERED' \
++       "D4 the evaluated-shock branch DECLINES TO COMPOSE rather than inventing a rule" \
++       "$PY" "$MUTDIR/SHOCK-EVALUATED-BRANCH.py" grade "${CLEAN[@]}"
++expect_out "does not occur in the document" \
++  "D4b and the refusal names the registration gap an amendment must close" \
++  "$PY" "$MUTDIR/SHOCK-EVALUATED-BRANCH.py" grade "${CLEAN[@]}"
++
++# =====================================================================
+ printf '\n=========================================================================\n'
+ printf 'SELFTEST RESULT   passed=%d   failed=%d\n' "$NPASS" "$NFAIL"
+ if [ "$NFAIL" -ne 0 ]; then
+
+# ===================================================================
+# POST-REPAIR md5:
+#   c14fd02f4b894d35e307d60b2db8727b  a3gc_grade.py.DRAFT
+#   4f64f48d74df03cf5aed8573aea02c38  a3gc_grade_selftest.sh.DRAFT
+#   (informational only -- the FREEZE md5 is the supervisor's to take at
+#    commit, on the file as it then stands.)

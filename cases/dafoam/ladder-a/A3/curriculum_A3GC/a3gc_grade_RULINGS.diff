@@ -1,0 +1,666 @@
+# a3gc_grade_RULINGS.diff
+#
+#   diff -u <post-REPAIR> <post-RULINGS>  for both halves of the A3GC grading path.
+#   SECOND diff, deliberately: a3gc_grade_REPAIR.diff stays EXACTLY as the
+#   dafoam-supervisor already read it (Sec.3 check 1 discharged on it 2026-09-11),
+#   and the AMENDMENT 3 rulings arrive as their own reviewable unit.
+#
+#     BASELINE (= the file the supervisor read as a diff):
+#       a3gc_grade.py.DRAFT           md5 c14fd02f4b894d35e307d60b2db8727b
+#       a3gc_grade_selftest.sh.DRAFT  md5 4f64f48d74df03cf5aed8573aea02c38
+#
+# WRITTEN BY A lab-lane, 2026-09-11.  NOT FROZEN, NOT COMMITTED, NOT RENAMED.
+# NO COMPUTE LAUNCHED.  The running mesh probe was not touched.  SUBMISSIONS PARKED.
+#
+# STATE BEFORE:  passed=93  failed=0
+# STATE AFTER:   passed=119 failed=0, exit 0.
+#
+# *** READ THIS BEFORE THE HUNKS.  evaluate_shock HAS NEVER RUN AGAINST REAL VTK.
+#     None exists for any A3GC level and none can be computed from anything on
+#     disk.  Every fixture in selftest section E is SYNTHETIC and is banner-marked
+#     as such in the comparator's own output.  A 119/0 suite says the prediction
+#     logic does what AMENDMENT 3 registers; it says NOTHING about the M6 shock. ***
+#
+# =====================================================================
+# THE HUNKS, BY CLASS
+# =====================================================================
+#
+# (a) AMENDMENT 3(a) -- EACH PREDICTION'S OWN TOKEN, INCLUDING THE MIDDLE BAND.
+#     NEW `prediction_token(passed, falsified)`: PASS on the Sec.4.5 PASS
+#     condition, GATE FAIL on the Sec.4.5 FALSIFICATION condition, NOT A RESULT
+#     in the MIDDLE BAND between them -- "a registration that supplies two
+#     thresholds has by construction declared the space between them evidence for
+#     neither."  It REFUSES on the impossible corner (both conditions true at
+#     once) rather than picking a winner.  P1/P2/P3 now emit through it, each
+#     printing which band it landed in.
+#     NO THRESHOLD MOVED.  A DIRECTION NOTE is carried in the constants block
+#     because the falsification condition points DOWNWARD for P1 and UPWARD for
+#     P2/P3, so each is tested AS Sec.4.5 WORDS IT rather than restated in a
+#     direction-neutral form that would silently move a boundary.
+#
+# (b) AMENDMENT 3(b) -- P4's "ALL FAIL" IS THE STRONG FORM.  NEW constant
+#     `REG_P4_REQUIRES_ALL_FALSIFIED = True`.  P4 fires only when all three are
+#     FALSIFIED, never on the weak all-three-not-PASS reading.  When the weak
+#     condition holds and the strong one does not, the comparator SAYS SO and
+#     says the weak reading is not registered.
+#
+# (c) AMENDMENT 3(c) -- PARTIAL FAILURE.  P4 does not fire and ITS REGISTERED
+#     READING IS NOT PRINTED, so it cannot be adopted after the fact by a reader
+#     skimming the output.  The shock stage carries the WORST of the three
+#     per-prediction tokens, through the same compose_verdicts() the item uses.
+#
+# (d) AMENDMENT 3(d) -- THE P4 BRANCH CARRIES `GATE REACHED`, AND THE CODE SAYS
+#     IT IS AN INTERPRETIVE CHOICE.  Sec.4.5 P4 gives a PROSE reading and names
+#     none of the six tokens.  The emitted detail string carries the words
+#     "AN INTERPRETIVE CHOICE" into the comparator's own output, so a later
+#     reader cannot mistake a supervisor's choice for the document's text.
+#     The Sec.4.5 precondition is MEASURED, not inferred: cmd_grade reads
+#     report["triples"][f]["class"] for BOTH functionals and passes
+#     `triple_converging` in, because a triple can be NOT A RESULT for a clause-1
+#     reason while still classifying CONVERGING, and vice versa.
+#
+# (e) AMENDMENT 3(e) -- THE COMPOSE-UNREGISTERED REFUSAL IS RESOLVED, NOT DELETED.
+#     The refusal block is replaced by a comment recording WHAT it was waiting
+#     for and WHICH amendment supplied it.  `VERDICT_SEVERITY` and
+#     `compose_verdicts()` are UNCHANGED by this diff -- AMENDMENT 3(e) registers
+#     the ordering the repair diff already implemented, rather than altering it.
+#     The shock stage's token now enters `verdicts` on the evaluated path too.
+#
+# (f) NEW `shock` SUBCOMMAND, and why it is not a convenience.  P1-P4 read Cp from
+#     SOLVED SURFACE FIELDS; none exists, so the whole of (a)-(d) would otherwise
+#     sit in a code path NOTHING CAN DRIVE -- which is exactly where DEFECT B
+#     lived.  It drives evaluate_shock() from JSON in the exact shape the archived
+#     logs_A3 chain writes, and PRINTS A BANNER saying the inputs are inputs and
+#     not measurements.  It REFUSES unless the Sec.4.5 P4 precondition is named
+#     explicitly (--triple-converging / --triple-not-converging): the comparator
+#     will not assume it either way.
+#
+# (g) SELFTEST SECTION E -- 21 NEW UNITS driving the rulings: E1 all-pass control,
+#     E2 the P4 branch incl. the verbatim reading and "INTERPRETIVE CHOICE",
+#     E3 P4 shut by a non-CONVERGING triple, E4 THE MIDDLE BAND (E4b asserts a
+#     middle-band value does NOT silently read as PASS), E5 THE WEAK READING
+#     (E5b asserts P4 stays shut), E6 partial failure, E7 the precondition refusal.
+#     Every fixture is banner-marked SYNTHETIC / NOT A MEASUREMENT.
+#
+# (h) SELFTEST -- FOUR NEW MUTATION CONTROLS, each naming its catcher, plus the
+#     two the supervisor asked for by name:
+#        D-P4-WEAK-READING     catcher E5b/E5c  <- the WEAK reading is caught
+#                              (+D5b: the mutant is SEEN to adopt P4 on three
+#                               middling results, which is why it is not registered)
+#        D-MIDDLE-BAND-IS-PASS catcher E4a/E4b  <- a middle-band value cannot
+#                              silently read as PASS
+#                              (+D6b: the mutant is SEEN to print P3 : PASS at 0.060)
+#        D-P4-IGNORES-TRIPLE   catcher E3b      <- Sec.4.5's P4 precondition
+#        D-STAGE-NOT-WORST     catcher E6b      <- AMENDMENT 3(c)'s worst-of-three
+#     D4 changes from asserting the COMPOSE-UNREGISTERED refusal to asserting it
+#     is GONE-BECAUSE-RESOLVED.  The four controls from the repair diff
+#     (DEFECT-A, DEFECT-B x2, L332) are unchanged and still green.
+#
+# NOT CHANGED BY THIS DIFF, and visible as context: VERDICT_SEVERITY,
+# compose_verdicts, guard_no_asserts, every gate limb of G-SYS / G-COLD / G-TOL /
+# G-RES / G-PLAT / G-TRIPLE, the ADF/CGNS reader, the planted controls, the
+# Untouched() evidence guard, and EVERY registered constant, threshold and band.
+# NO NUMBER IN THE PRE-REGISTRATION MOVED.
+#
+# PERMISSION: NOT_FROZEN -- DRAFT.
+
+--- a3gc_grade.py.DRAFT  (post-REPAIR, md5 c14fd02f4b894d35e307d60b2db8727b)
++++ a3gc_grade.py.DRAFT  (post-RULINGS)
+@@ -258,6 +258,45 @@
+ REG_P3_FALSIFY_RMS = 0.070
+ REG_BASELINE_POOLED_RMS = 0.0575                 # Sec.4.5, measured on 399,360 cells
+ 
++# --- AMENDMENT 3(a): each prediction's own token.  Sec.4.5 gives every
++#     prediction TWO thresholds -- a PASS condition and a separate, lower
++#     FALSIFICATION condition -- and named no token for either.  Registered:
++#       PASS         the registered Sec.4.5 PASS condition holds
++#       GATE FAIL    the registered Sec.4.5 FALSIFICATION condition holds
++#       NOT A RESULT the MIDDLE BAND between them, "because a registration that
++#                    supplies two thresholds has by construction declared the
++#                    space between them evidence for neither"
++#     DIRECTION NOTE (AMENDMENT 3(a), and it would otherwise be a trap): the
++#     falsification condition points DOWNWARD for P1 (a small increase falsifies)
++#     and UPWARD for P2 and P3 (a large error falsifies).  Each is therefore
++#     tested AS Sec.4.5 WORDS IT below, and no boundary is restated in a
++#     direction-neutral form that would silently move it.
++#
++# --- AMENDMENT 3(b): P4's "all fail" means ALL THREE FALSIFIED, the STRONG
++#     form.  A counter-hypothesis is ADOPTED on strong evidence, never on mere
++#     non-confirmation; and the strong form is the CONSERVATIVE direction --
++#     it makes P4 HARDER to fire.
++REG_P4_REQUIRES_ALL_FALSIFIED = True
++
++
++def prediction_token(passed, falsified):
++    """AMENDMENT 3(a).  One prediction's token from its two registered conditions.
++
++    Refuses on the impossible corner rather than picking a winner: a prediction
++    cannot simultaneously meet its PASS condition and its FALSIFICATION
++    condition, and if the arithmetic ever says both, the comparator has a defect
++    and must not render a verdict out of it.
++    """
++    if passed and falsified:
++        refuse("SHOCK", "a prediction reported BOTH its Sec.4.5 PASS condition and "
++                        "its Sec.4.5 FALSIFICATION condition.  Those are disjoint by "
++                        "construction; the comparator will not choose between them.")
++    if passed:
++        return "PASS"
++    if falsified:
++        return "GATE FAIL"
++    return "NOT A RESULT"
++
+ # --- Sec.3.4: the planted perturbation.  A distinctive value no mesh or log
+ #     could carry by accident.
+ PLANT = 1.234e-03
+@@ -1174,8 +1213,13 @@
+     return math.sqrt(num / n), n
+ 
+ 
+-def evaluate_shock(shock_L3, shock_L1, cmp_L1, report):
+-    """P1-P4, PREREG Sec.4.5.  Each can fail, and failure is reported as failure."""
++def evaluate_shock(shock_L3, shock_L1, cmp_L1, report, triple_converging):
++    """P1-P4, PREREG Sec.4.5.  Each can fail, and failure is reported as failure.
++
++    `triple_converging` is TRUE only when BOTH the CD and the CL triple classified
++    CONVERGING.  Sec.4.5 P4 conditions the counter-hypothesis on exactly that, so
++    the caller measures it and this function never infers it.
++    """
+     print("\n--- SHOCK PREDICTIONS P1-P4  (PREREG Sec.4.5) ---")
+     res = {}
+ 
+@@ -1194,9 +1238,13 @@
+     p1_falsified = all(v < REG_P1_FALSIFY_PCT for v in incs.values())
+     res["P1"] = {"increases": incs, "pass": p1_pass, "falsified": p1_falsified}
+     res["P1"]["verdict"] = emit_verdict(
+-        "P1 sharpening", "PASS" if p1_pass else "GATE FAIL",
+-        "falsified (< +15 %% at BOTH stations): the smearing is model, "
+-        "not mesh" if p1_falsified else "")
++        "P1 sharpening", prediction_token(p1_pass, p1_falsified),
++        ("falsified (< +15 %% at BOTH stations): the smearing is model, not mesh"
++         if p1_falsified else
++         ("" if p1_pass else
++          "MIDDLE BAND (AMENDMENT 3(a)): neither >= +40 %% at both stations nor "
++          "< +15 %% at both -- the registration supplies two thresholds and has "
++          "declared the space between them evidence for NEITHER")))
+ 
+     # P2 -- mean |shock position error| falls >= 30 %, and eta=0.20 below +0.060 c
+     def mean_abs(sh):
+@@ -1216,9 +1264,12 @@
+     res["P2"] = {"mean_L3": m3, "mean_L1": m1, "drop": drop, "eta20_L1": e20,
+                  "pass": p2_pass, "falsified": p2_falsified}
+     res["P2"]["verdict"] = emit_verdict(
+-        "P2 position", "PASS" if p2_pass else "GATE FAIL",
+-        "falsified (eta=0.20 stays above +0.085 c): the aft bias is the "
+-        "SA model's shock/BL interaction, not resolution" if p2_falsified else "")
++        "P2 position", prediction_token(p2_pass, p2_falsified),
++        ("falsified (eta=0.20 stays above +0.085 c): the aft bias is the "
++         "SA model's shock/BL interaction, not resolution" if p2_falsified else
++         ("" if p2_pass else
++          "MIDDLE BAND (AMENDMENT 3(a)): the Sec.4.5 PASS pair (drop >= 30 %% AND "
++          "eta=0.20 < +0.060 c) is not met and eta=0.20 is not above +0.085 c")))
+ 
+     # P3 -- pooled upper-surface Cp RMS on L1 improves to <= 0.055
+     rms, npts = pooled_upper_rms(cmp_L1)
+@@ -1229,21 +1280,77 @@
+     res["P3"] = {"pooled_upper_rms_L1": rms, "n_points": npts,
+                  "pass": p3_pass, "falsified": p3_falsified}
+     res["P3"]["verdict"] = emit_verdict(
+-        "P3 pooled Cp", "PASS" if p3_pass else "GATE FAIL",
+-        "falsified (> 0.070)" if p3_falsified else "")
++        "P3 pooled Cp", prediction_token(p3_pass, p3_falsified),
++        ("falsified (> 0.070)" if p3_falsified else
++         ("" if p3_pass else
++          "MIDDLE BAND (AMENDMENT 3(a)): 0.055 < RMS <= 0.070")))
+ 
+-    # P4 -- the registered counter-hypothesis
+-    p4 = p1_falsified and p2_falsified and p3_falsified
++    # ---- P4 -- the registered counter-hypothesis.
++    #
++    # AMENDMENT 3(b): "all fail" means ALL THREE **FALSIFIED**, the STRONG form.
++    # Sec.4.5 gives each prediction a PASS threshold AND a separate, lower
++    # FALSIFICATION threshold, so "all fail" read two ways: all-three-not-PASS
++    # (weak) or all-three-FALSIFIED (strong).  The WEAK reading would let P4 fire
++    # on three MIDDLING results, and a counter-hypothesis is ADOPTED on strong
++    # evidence, never on mere non-confirmation.  The strong form is also the
++    # CONSERVATIVE direction: it makes P4 HARDER to fire.
++    #
++    # AMENDMENT 3(c): if FEWER THAN ALL THREE are falsified, P4 DOES NOT FIRE and
++    # ITS REGISTERED READING IS NOT PRINTED -- so it cannot be adopted after the
++    # fact by a reader skimming the output for it.
++    all_falsified = p1_falsified and p2_falsified and p3_falsified
++    all_not_pass = not (p1_pass and p2_pass and p3_pass)
++    p4 = all_falsified if REG_P4_REQUIRES_ALL_FALSIFIED else all_not_pass
+     res["P4_counter_hypothesis_active"] = p4
+-    if p4:
+-        print("  P4  ALL THREE FALSIFIED.  The registered reading (Sec.4.5 P4) is:")
++    res["P4_all_falsified"] = all_falsified
++    res["P4_triple_converging"] = bool(triple_converging)
++    if p4 and triple_converging:
++        print("  P4  ALL THREE FALSIFIED and the CD/CL triple is CONVERGING.")
++        print("      The registered reading (Sec.4.5 P4) is:")
+         print('      "the M6 shock disagreement on this configuration is a '
+               'turbulence-model limitation, not a grid limitation"')
+         print("      -- and that is a RESULT, reported as such, not a failure of the item.")
+-        print("      (P4 is conditioned on the CD/CL triple being CONVERGING; see the "
+-              "triple verdicts above.)")
++    elif p4 and not triple_converging:
++        print("  P4  all three FALSIFIED, but the CD/CL triple is NOT CONVERGING.")
++        print("      Sec.4.5 conditions P4 on a CONVERGING triple, so P4 DOES NOT FIRE")
++        print("      and its registered reading is NOT printed (AMENDMENT 3(c)/(d)).")
+     else:
+-        print("  P4  not active (P1/P2/P3 were not all falsified).")
++        print("  P4  NOT ACTIVE.  AMENDMENT 3(b): P4 fires only when ALL THREE are")
++        print("      FALSIFIED (the STRONG form).  Falsified here: P1=%s P2=%s P3=%s."
++              % (p1_falsified, p2_falsified, p3_falsified))
++        if all_not_pass and not all_falsified:
++            print("      (All three are non-PASS, which is the WEAK reading of Sec.4.5's")
++            print("       'all fail'.  THAT READING IS NOT REGISTERED and P4 stays shut:")
++            print("       a counter-hypothesis is adopted on strong evidence, never on")
++            print("       mere non-confirmation.)")
++
++    # ---- THE SHOCK STAGE'S OWN TOKEN.
++    # AMENDMENT 3(d): when all three are FALSIFIED **and** the triple is
++    # CONVERGING the stage is GATE REACHED -- the item reached and evaluated its
++    # registered gate and produced a graded outcome that is NOT a band statement.
++    # *** THAT IS AN INTERPRETIVE CHOICE BY A SUPERVISOR, NOT A READING OFF THE
++    # DOCUMENT.  Sec.4.5 P4 gives a PROSE reading and names NONE of the six
++    # tokens, while Sec.6 stage 5 requires one.  It is not PASS (no shock band
++    # was met); it is not GATE FAIL (Sec.4.5 registers this exact configuration
++    # as "a *result* ... not a failure of the item", and a preference does not
++    # overwrite a frozen registration).  Precedent: D8R's G-O. ***
++    # AMENDMENT 3(c): otherwise the stage carries the WORST of the three
++    # per-prediction tokens, under the ordering of AMENDMENT 3(e).
++    toks = {"P1 sharpening": res["P1"]["verdict"],
++            "P2 position": res["P2"]["verdict"],
++            "P3 pooled Cp": res["P3"]["verdict"]}
++    if p4 and triple_converging:
++        stage = emit_verdict("P1-P4 shock stage", "GATE REACHED",
++                             "AMENDMENT 3(d), AN INTERPRETIVE CHOICE: all three "
++                             "FALSIFIED with a CONVERGING triple is registered at "
++                             "Sec.4.5 P4 as a RESULT, not a failure of the item; "
++                             "the document names no token and a supervisor chose "
++                             "this one")
++    else:
++        stage = emit_verdict("P1-P4 shock stage", compose_verdicts(toks),
++                             "AMENDMENT 3(c): worst of %s"
++                             % ", ".join("%s = %s" % (k, toks[k]) for k in sorted(toks)))
++    res["stage_verdict"] = stage
+     report["shock"] = res
+     return res
+ 
+@@ -1553,15 +1660,24 @@
+     # grading path, not an optional extra, and CLAUDE.md rule 1 fixes PENDING as
+     # "not yet run" and forbids it softening anything.  The PENDING branch is
+     # consequently entered into the composition, where it cannot produce a PASS.
+-    shock_evaluated = False
+     if args.vtp_l3 and args.vtp_l1:
+         wd3 = os.path.join(args.scratch, "shock_L3")
+         wd1 = os.path.join(args.scratch, "shock_L1")
+         _c3, s3 = run_shock_chain(args.vtp_l3, wd3, args.logs_a3)
+         c1, s1 = run_shock_chain(args.vtp_l1, wd1, args.logs_a3)
+-        evaluate_shock({str(k): v for k, v in s3.items()},
+-                       {str(k): v for k, v in s1.items()}, c1, report)
+-        shock_evaluated = True
++        # Sec.4.5 P4 is conditioned on "the CD/CL triple being CONVERGING".
++        # MEASURED HERE from the classifier's own output, never inferred from a
++        # verdict token (a triple can be NOT A RESULT for a clause-1 reason while
++        # still classifying CONVERGING, and vice versa).
++        classes = {f: report["triples"][f]["class"] for f in REG_PLAT_FUNCTIONALS}
++        triple_converging = all(c == "CONVERGING" for c in classes.values())
++        print("\n  Sec.4.5 P4 precondition: CD class = %s, CL class = %s "
++              "-> triple CONVERGING = %s"
++              % (classes["CD"], classes["CL"], triple_converging))
++        sres = evaluate_shock({str(k): v for k, v in s3.items()},
++                              {str(k): v for k, v in s1.items()}, c1, report,
++                              triple_converging)
++        verdicts["P1-P4 shock"] = sres["stage_verdict"]
+     else:
+         print("\n--- SHOCK P1-P4 ---")
+         verdicts["P1-P4 shock"] = emit_verdict(
+@@ -1572,39 +1688,21 @@
+ 
+     # ---- overall
+     print("\n" + "=" * 78)
+-    if shock_evaluated:
+-        # *** THE COMPARATOR DECLINES TO COMPOSE.  READ THIS BEFORE "FIXING" IT. ***
+-        # P1/P2/P3 have been evaluated and every number is printed above; what is
+-        # refused here is only the COMPOSED ITEM TOKEN, because the
+-        # pre-registration does not register one.  Checked against the document,
+-        # 2026-09-11: the string "overall" does not occur in PREREGISTRATION.md at
+-        # all, and neither does any composition rule.  Specifically UNREGISTERED:
+-        #   (a) the PARTIAL case -- some but not all of P1/P2/P3 failing.  Sec.4.5
+-        #       registers P1, P2, P3 individually and registers only the
+-        #       ALL-THREE case, as P4.  Nothing addresses the partial case.
+-        #   (b) the TOKEN the P4 branch carries.  Sec.4.5 P4 registers a READING
+-        #       IN PROSE -- "that is a *result*, reported as such, not a failure
+-        #       of the item" -- and names none of the six tokens, while Sec.6
+-        #       stage 5 requires "verdict from the six tokens only".
+-        #   (c) "all fail" in P4 is itself ambiguous between "all three not PASS"
+-        #       and "all three FALSIFIED" (Sec.4.5 gives each prediction a PASS
+-        #       threshold AND a separate, lower falsification threshold, so the
+-        #       two readings differ on the middle band).
+-        # Composing anyway would be the comparator choosing a gate the document
+-        # does not contain.  It refuses instead (PREREG Sec.3 preamble: refuse,
+-        # never degrade).  This is the dafoam-supervisor's amendment to write,
+-        # pre-compute, and it is still legal to write: no A3GC level has solved.
+-        refuse("COMPOSE-UNREGISTERED",
+-               "the shock stage was EVALUATED and its per-prediction verdicts are "
+-               "printed above, but PREREGISTRATION.md registers NO composition of "
+-               "P1-P4 into an item verdict: the word 'overall' does not occur in "
+-               "the document, Sec.4.5 P4 gives a prose reading and no token, and "
+-               "the partial-failure case is not addressed at all.  The comparator "
+-               "will not choose one.  An amendment registering (a) the partial "
+-               "case, (b) the P4 branch's token and (c) whether P4's 'all fail' "
+-               "means all-not-PASS or all-FALSIFIED unblocks this path; until "
+-               "then the shock numbers stand as REPORTED and the item is NOT "
+-               "COMPOSED.")
++    # AMENDMENT 3(e) REGISTERS THIS COMPOSITION.  Before it, the document
++    # registered none -- the string "overall" did not occur in it at all -- and
++    # this comparator REFUSED [COMPOSE-UNREGISTERED] rather than choose one.
++    # That refusal is now RESOLVED, not removed: the rule it waited for exists.
++    #
++    #   NOT A RESULT < GATE FAIL < BLOCKED < PENDING < GATE REACHED < PASS
++    #
++    # IT IS NOT A GATE AND REGISTERS NO THRESHOLD -- it is the six tokens ranked
++    # by how little evidence each carries, every clause forced by a standing rule
++    # (see VERDICT_SEVERITY above for the per-clause citations).
++    #
++    # CONSEQUENCE, registered at AMENDMENT 3(e) before it could embarrass anyone:
++    # Sec.6 stage 5 registers P1-P4 evaluation as part of the grading path, so
++    # WHILE THE SHOCK STAGE IS UN-EVALUATED THE ITEM IS PENDING AND CANNOT BE
++    # PASS, however well the CD and CL triples grade.
+     overall = compose_verdicts(verdicts)
+     emit_verdict("A3GC OVERALL", overall,
+                  "composed worst-first over %s"
+@@ -1668,6 +1766,43 @@
+     return EXIT_OK
+ 
+ 
++def cmd_shock(args):
++    """Drive `evaluate_shock()` from SUPPLIED JSON, in the exact shape the
++    archived logs_A3 chain writes (`shock_location.json`, `cp_comparison.json`).
++
++    WHY THIS EXISTS, stated so nobody mistakes it for a convenience.  P1-P4 read
++    Cp from SOLVED SURFACE FIELDS.  **No solved field and no surface VTK exists
++    for any A3GC level**, so the archived chain cannot be run and the whole of
++    AMENDMENT 3(a)-(d) would otherwise sit in a code path NOTHING CAN DRIVE --
++    which is exactly where DEFECT B lived.  This makes the prediction logic
++    inspectable and controllable without inventing a solve.
++
++    *** ANY JSON HANDED TO THIS SUBCOMMAND IS AN INPUT, NOT A MEASUREMENT.  It
++    renders NO LAB RESULT and NOTHING it prints may be quoted as one. ***
++    """
++    def load(p, what):
++        if not os.path.isfile(p):
++            refuse("SHOCK", "%s not found: %s" % (what, p))
++        with open(p) as fh:
++            d = json.load(fh)
++        if not d:
++            refuse("SHOCK", "%s read EMPTY from %s.  A zero from a reader not "
++                            "shown able to see a non-zero is not evidence "
++                            "(CLAUDE.md rule 3)." % (what, p))
++        return d
++    print("=" * 78)
++    print("A3GC SHOCK PREDICTION LOGIC, DRIVEN FROM SUPPLIED JSON.")
++    print("*** THE INPUTS BELOW ARE INPUTS, NOT MEASUREMENTS.  evaluate_shock has")
++    print("    NEVER RUN AGAINST REAL VTK -- none exists for any A3GC level. ***")
++    print("=" * 78)
++    report = {}
++    res = evaluate_shock(load(args.shock_l3, "shock_location.json for L3"),
++                         load(args.shock_l1, "shock_location.json for L1"),
++                         load(args.cmp_l1, "cp_comparison.json for L1"),
++                         report, args.triple_converging)
++    return EXIT_OK if res["stage_verdict"] == "PASS" else EXIT_VERDICT_NOT_PASS
++
++
+ def cmd_compose(args):
+     """Drive `compose_verdicts()` directly, with no solve and no fixture.
+ 
+@@ -1761,6 +1896,17 @@
+     r.add_argument("--case", required=True)
+     r.add_argument("--cgns")
+ 
++    k = sub.add_parser("shock")
++    k.add_argument("--shock-l3", required=True)
++    k.add_argument("--shock-l1", required=True)
++    k.add_argument("--cmp-l1", required=True)
++    k.add_argument("--triple-converging", dest="triple_converging",
++                   action="store_true", default=None,
++                   help="Sec.4.5 P4's precondition, stated explicitly")
++    k.add_argument("--triple-not-converging", dest="triple_converging",
++                   action="store_false",
++                   help="the other half of the P4 precondition")
++
+     m = sub.add_parser("compose")
+     m.add_argument("--gate", action="append",
+                    help="LABEL=TOKEN, repeatable")
+@@ -1787,6 +1933,13 @@
+         return cmd_probe(a)
+     if a.cmd == "compose":
+         return cmd_compose(a)
++    if a.cmd == "shock":
++        if a.triple_converging is None:
++            refuse("ARGS", "name the Sec.4.5 P4 precondition explicitly: "
++                           "--triple-converging or --triple-not-converging.  P4 "
++                           "is conditioned on it and the comparator will not "
++                           "assume it either way.")
++        return cmd_shock(a)
+     ap.print_help()
+     return EXIT_REFUSE
+ 
+
+--- a3gc_grade_selftest.sh.DRAFT  (post-REPAIR, md5 4f64f48d74df03cf5aed8573aea02c38)
++++ a3gc_grade_selftest.sh.DRAFT  (post-RULINGS)
+@@ -645,6 +645,120 @@
+   "$PY" -O "$GRADE" grade "${CLEAN[@]}"
+ 
+ # =====================================================================
++head1 "E -- AMENDMENT 3: the shock prediction tokens, P4's strong form, the stage"
++# =====================================================================
++# *** EVERY JSON BELOW IS A SYNTHETIC TEST FIXTURE.  NOT A MEASUREMENT.  Not
++# evidence.  evaluate_shock HAS NEVER RUN AGAINST REAL VTK -- none exists for
++# any A3GC level -- so these fixtures are the ONLY way AMENDMENT 3(a)-(d) can be
++# driven at all, and NOTHING they print is a lab result. ***
++SH="$SCRATCH/shock"; mkdir -p "$SH"
++mkshock() { "$PY" - "$@" <<'SHPY'
++import json, os, sys
++# Sec.4.5's seven stations.  Baselines are the L3 side; the L1 side is built to
++# land the run in the band the caller names.  SYNTHETIC.  NOT A MEASUREMENT.
++ETAS = ["0.2", "0.44", "0.65", "0.8", "0.9", "0.96", "0.99"]
++def write(d, p1, p2, p3):
++    # p1: slope multiplier on L1 vs L3 at eta 0.8/0.9
++    # p2: (mean-shift multiplier, eta-0.20 shift on L1)
++    # p3: pooled upper-surface RMS on L1
++    l3 = {e: {"cfd_slope": 5.0, "shift_xoc": 0.10} for e in ETAS}
++    l1 = {e: {"cfd_slope": 5.0 * (p1 if e in ("0.8", "0.9") else 1.0),
++              "shift_xoc": 0.10 * p2[0]} for e in ETAS}
++    l1["0.2"]["shift_xoc"] = p2[1]
++    cmp1 = {e: {"upper": {"rms_dev": p3, "n_common": 40}} for e in ETAS}
++    for nm, obj in (("shock_L3.json", l3), ("shock_L1.json", l1),
++                    ("cmp_L1.json", cmp1)):
++        json.dump(obj, open(os.path.join(d, nm), "w"), indent=1)
++if __name__ == "__main__":
++    exec(sys.argv[2])
++SHPY
++}
++# runs the shock logic on one fixture dir
++shockrun() { local d="$1" conv="$2"; shift 2
++  "$PY" "$GRADE" shock --shock-l3 "$d/shock_L3.json" --shock-l1 "$d/shock_L1.json" \
++    --cmp-l1 "$d/cmp_L1.json" "$conv"; }
++
++# ---- E1  ALL THREE PASS, triple CONVERGING.  The control: if this does not
++#          grade PASS, nothing else in section E means anything.
++mkdir -p "$SH/allpass"; mkshock "$SH/allpass" 'write(sys.argv[1], 1.60, (0.50, 0.040), 0.050)'
++expect_out 'VERDICT  P1 sharpening +: PASS' "E1a P1 PASS at a +60 % slope increase" \
++  shockrun "$SH/allpass" --triple-converging
++expect_out 'VERDICT  P1-P4 shock stage +: PASS' "E1b the stage is PASS when all three pass" \
++  shockrun "$SH/allpass" --triple-converging
++expect_no_out 'P4  ALL THREE FALSIFIED' "E1c P4 does NOT fire on three passes" \
++  shockrun "$SH/allpass" --triple-converging
++
++# ---- E2  ALL THREE FALSIFIED + CONVERGING triple -> AMENDMENT 3(d) GATE REACHED.
++mkdir -p "$SH/allfals"; mkshock "$SH/allfals" 'write(sys.argv[1], 1.05, (1.00, 0.120), 0.090)'
++expect_out 'VERDICT  P1 sharpening +: GATE FAIL' "E2a a falsified P1 is GATE FAIL" \
++  shockrun "$SH/allfals" --triple-converging
++expect_out 'P4  ALL THREE FALSIFIED and the CD/CL triple is CONVERGING' \
++  "E2b P4 fires on the STRONG form with a CONVERGING triple" \
++  shockrun "$SH/allfals" --triple-converging
++expect_out 'turbulence-model limitation, not a grid limitation' \
++  "E2c and Sec.4.5 P4's registered reading is printed VERBATIM" \
++  shockrun "$SH/allfals" --triple-converging
++expect_out 'VERDICT  P1-P4 shock stage +: GATE REACHED' \
++  "E2d the stage is GATE REACHED (AMENDMENT 3(d), an INTERPRETIVE CHOICE)" \
++  shockrun "$SH/allfals" --triple-converging
++expect_out 'INTERPRETIVE CHOICE' \
++  "E2e and the output SAYS it is interpretive, so no reader thinks the document said it" \
++  shockrun "$SH/allfals" --triple-converging
++expect_no_out 'VERDICT  P1-P4 shock stage +: PASS' \
++  "E2f it is NEVER PASS -- no shock band was met" \
++  shockrun "$SH/allfals" --triple-converging
++
++# ---- E3  ALL THREE FALSIFIED but the triple is NOT CONVERGING -> P4 SHUT.
++expect_no_out 'turbulence-model limitation, not a grid limitation' \
++  "E3a P4's reading is NOT PRINTED when the triple is not CONVERGING (Sec.4.5 precondition)" \
++  shockrun "$SH/allfals" --triple-not-converging
++expect_out 'VERDICT  P1-P4 shock stage +: GATE FAIL' \
++  "E3b and the stage carries the worst of the three instead" \
++  shockrun "$SH/allfals" --triple-not-converging
++
++# ---- E4  THE MIDDLE BAND.  A value between the two registered thresholds is
++#          NOT A RESULT and MUST NEVER READ AS PASS.
++mkdir -p "$SH/middle"; mkshock "$SH/middle" 'write(sys.argv[1], 1.60, (0.50, 0.040), 0.060)'
++expect_out 'VERDICT  P3 pooled Cp +: NOT A RESULT' \
++  "E4a P3 at RMS 0.060 -- above the 0.055 PASS, below the 0.070 falsifier -- is NOT A RESULT" \
++  shockrun "$SH/middle" --triple-converging
++expect_no_out 'VERDICT  P3 pooled Cp +: PASS' \
++  "E4b A MIDDLE-BAND VALUE DOES NOT SILENTLY READ AS PASS" \
++  shockrun "$SH/middle" --triple-converging
++expect_out 'MIDDLE BAND \(AMENDMENT 3\(a\)\)' \
++  "E4c and the output names the band and the amendment that registered it" \
++  shockrun "$SH/middle" --triple-converging
++expect_out 'VERDICT  P1-P4 shock stage +: NOT A RESULT' \
++  "E4d the stage takes the worst of the three (AMENDMENT 3(c))" \
++  shockrun "$SH/middle" --triple-converging
++
++# ---- E5  THE WEAK READING OF "ALL FAIL".  All three NON-PASS, none FALSIFIED.
++#          P4 must stay SHUT -- this is AMENDMENT 3(b)'s whole content.
++mkdir -p "$SH/weak"; mkshock "$SH/weak" 'write(sys.argv[1], 1.25, (0.90, 0.070), 0.060)'
++expect_out 'VERDICT  P1 sharpening +: NOT A RESULT' \
++  "E5a a 25 % slope increase is neither PASS (>=40 %) nor falsified (<15 %)" \
++  shockrun "$SH/weak" --triple-converging
++expect_no_out 'turbulence-model limitation, not a grid limitation' \
++  "E5b P4 DOES NOT FIRE on the WEAK reading -- three middling results are not a counter-hypothesis" \
++  shockrun "$SH/weak" --triple-converging
++expect_out 'THAT READING IS NOT REGISTERED and P4 stays shut' \
++  "E5c and the output says so in as many words" \
++  shockrun "$SH/weak" --triple-converging
++
++# ---- E6  PARTIAL FAILURE (AMENDMENT 3(c)): one falsified, two passing.
++mkdir -p "$SH/partial"; mkshock "$SH/partial" 'write(sys.argv[1], 1.60, (0.50, 0.040), 0.090)'
++expect_no_out 'P4  ALL THREE FALSIFIED' \
++  "E6a P4 does not fire on a partial result" shockrun "$SH/partial" --triple-converging
++expect_out 'VERDICT  P1-P4 shock stage +: GATE FAIL' \
++  "E6b the stage takes the WORST of the three (AMENDMENT 3(c))" \
++  shockrun "$SH/partial" --triple-converging
++
++# ---- E7  the P4 precondition may not be assumed either way.
++expect_refusal 'ARGS' "E7 neither --triple-converging nor --triple-not-converging -> REFUSE" \
++  "$PY" "$GRADE" shock --shock-l3 "$SH/allfals/shock_L3.json" \
++    --shock-l1 "$SH/allfals/shock_L1.json" --cmp-l1 "$SH/allfals/cmp_L1.json"
++
++# =====================================================================
+ head1 "D -- MUTATION CONTROLS on the DEFECT A and DEFECT B repairs"
+ # =====================================================================
+ # A FIX WITH NO CONTROL PROVING IT IS LIVE IS NOT A FIX.  Each mutation below
+@@ -743,25 +857,66 @@
+   "D3b the module counts its OWN asserts and refuses to run on one" \
+   "$PY" "$MUTDIR/L332-ASSERT-PLANTED.py" grade "${CLEAN[@]}"
+ 
++# ---- D5  AMENDMENT 3(b) REVERSED: P4 fires on the WEAK reading of "all fail".
++#      Three middling results would then be adopted as the counter-hypothesis.
++mutate P4-WEAK-READING \
++  'REG_P4_REQUIRES_ALL_FALSIFIED = True' \
++  'REG_P4_REQUIRES_ALL_FALSIFIED = False' \
++  && mut_must_fail P4-WEAK-READING 'E5b/E5c' 'THAT READING IS NOT REGISTERED and P4 stays shut' \
++       "$PY" "$MUTDIR/P4-WEAK-READING.py" shock --shock-l3 "$SH/weak/shock_L3.json" \
++         --shock-l1 "$SH/weak/shock_L1.json" --cmp-l1 "$SH/weak/cmp_L1.json" --triple-converging
++expect_out 'turbulence-model limitation, not a grid limitation' \
++  "D5b the WEAK reading is SEEN to adopt P4 on three middling results -- which is why it is not registered" \
++  "$PY" "$MUTDIR/P4-WEAK-READING.py" shock --shock-l3 "$SH/weak/shock_L3.json" \
++    --shock-l1 "$SH/weak/shock_L1.json" --cmp-l1 "$SH/weak/cmp_L1.json" --triple-converging
++
++# ---- D6  AMENDMENT 3(a) REVERSED: the MIDDLE BAND collapses into PASS.
++mutate MIDDLE-BAND-IS-PASS \
++  '    if falsified:
++        return "GATE FAIL"
++    return "NOT A RESULT"' \
++  '    if falsified:
++        return "GATE FAIL"
++    return "PASS"' \
++  && mut_must_fail MIDDLE-BAND-IS-PASS 'E4a/E4b' 'VERDICT  P3 pooled Cp +: NOT A RESULT' \
++       "$PY" "$MUTDIR/MIDDLE-BAND-IS-PASS.py" shock --shock-l3 "$SH/middle/shock_L3.json" \
++         --shock-l1 "$SH/middle/shock_L1.json" --cmp-l1 "$SH/middle/cmp_L1.json" --triple-converging
++expect_out 'VERDICT  P3 pooled Cp +: PASS' \
++  "D6b a middle-band RMS of 0.060 is SEEN to read as PASS under the mutation -- the exact silent-pass E4b forbids" \
++  "$PY" "$MUTDIR/MIDDLE-BAND-IS-PASS.py" shock --shock-l3 "$SH/middle/shock_L3.json" \
++    --shock-l1 "$SH/middle/shock_L1.json" --cmp-l1 "$SH/middle/cmp_L1.json" --triple-converging
++
++# ---- D7  Sec.4.5's P4 PRECONDITION dropped: P4 would fire on a non-CONVERGING triple.
++mutate P4-IGNORES-TRIPLE \
++  '    if p4 and triple_converging:
++        stage = emit_verdict("P1-P4 shock stage", "GATE REACHED",' \
++  '    if p4:
++        stage = emit_verdict("P1-P4 shock stage", "GATE REACHED",' \
++  && mut_must_fail P4-IGNORES-TRIPLE 'E3b' 'VERDICT  P1-P4 shock stage +: GATE FAIL' \
++       "$PY" "$MUTDIR/P4-IGNORES-TRIPLE.py" shock --shock-l3 "$SH/allfals/shock_L3.json" \
++         --shock-l1 "$SH/allfals/shock_L1.json" --cmp-l1 "$SH/allfals/cmp_L1.json" \
++         --triple-not-converging
++
++# ---- D8  AMENDMENT 3(c) REVERSED: the stage stops taking the WORST of the three.
++mutate STAGE-NOT-WORST \
++  '        stage = emit_verdict("P1-P4 shock stage", compose_verdicts(toks),' \
++  '        stage = emit_verdict("P1-P4 shock stage", toks["P1 sharpening"],' \
++  && mut_must_fail STAGE-NOT-WORST 'E6b' 'VERDICT  P1-P4 shock stage +: GATE FAIL' \
++       "$PY" "$MUTDIR/STAGE-NOT-WORST.py" shock --shock-l3 "$SH/partial/shock_L3.json" \
++         --shock-l1 "$SH/partial/shock_L1.json" --cmp-l1 "$SH/partial/cmp_L1.json" --triple-converging
++
+ # ---- D4  BRANCH PROBE, not a defect control, and labelled as one.
+-#      When the shock stage IS evaluated the comparator DECLINES TO COMPOSE and
+-#      refuses, because PREREGISTRATION.md registers no composition of P1-P4
+-#      into an item verdict: the word "overall" does not occur in the document,
+-#      Sec.4.5 P4 gives a PROSE reading and names none of the six tokens, and
+-#      the partial-failure case (some but not all of P1/P2/P3) is not addressed
+-#      at all.  That branch cannot be reached from any input that exists today
+-#      -- no A3GC level has solved and no surface VTK exists -- so it is reached
+-#      here by forcing the flag on a COPY.  A comparator branch nothing can
+-#      drive is a branch nobody has read.
+-mutate SHOCK-EVALUATED-BRANCH \
+-  '    shock_evaluated = False' \
+-  '    shock_evaluated = True   # BRANCH PROBE, selftest D4' \
+-  && expect_refusal 'COMPOSE-UNREGISTERED' \
+-       "D4 the evaluated-shock branch DECLINES TO COMPOSE rather than inventing a rule" \
+-       "$PY" "$MUTDIR/SHOCK-EVALUATED-BRANCH.py" grade "${CLEAN[@]}"
+-expect_out "does not occur in the document" \
+-  "D4b and the refusal names the registration gap an amendment must close" \
+-  "$PY" "$MUTDIR/SHOCK-EVALUATED-BRANCH.py" grade "${CLEAN[@]}"
++#      WHAT WAS HERE: D4 asserted REFUSE [COMPOSE-UNREGISTERED] -- the comparator
++#      declining to compose an evaluated shock stage because the document
++#      registered no composition.  AMENDMENT 3(e) REGISTERS ONE, so that refusal
++#      is RESOLVED, not removed: the rule it was waiting for now exists, and
++#      section E drives the composition it waited for.  The unit that remains is
++#      the one AMENDMENT 3(e) makes load-bearing -- that an UN-EVALUATED stage
++#      still cannot leave the item at PASS -- which C3b/C3c already assert on the
++#      real grading path and D-DEFECT-A-SHOCK-NOT-COMPOSED already controls.
++expect_no_out 'COMPOSE-UNREGISTERED' \
++  "D4 the COMPOSE-UNREGISTERED refusal is RESOLVED by AMENDMENT 3(e), not merely deleted" \
++  "$PY" "$GRADE" grade "${CLEAN[@]}"
+ 
+ # =====================================================================
+ printf '\n=========================================================================\n'
+
+# ===================================================================
+# POST-RULINGS md5:
+#   b288a8cc0df62f7b5abb308bcb8cded5  a3gc_grade.py.DRAFT
+#   1ced4c39f124268d34ff962913be8d81  a3gc_grade_selftest.sh.DRAFT
+#   d80cfaa534ea9fe7859b4bf9320a01c1  PREREGISTRATION.md
+#   (informational only -- the FREEZE md5 is the supervisor's to take at commit.)
