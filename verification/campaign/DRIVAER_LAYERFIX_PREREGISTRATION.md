@@ -248,3 +248,111 @@ only chronological evidence that exists for these builds, and mtime does not
 survive a copy. Recorded here as a defect in its own right; not fixed by this
 lane, and not a blocker for A1.
 
+---
+
+## AMENDMENT 2 — 2026-09-11 — PRE-COMPUTE — §7's DISK PRECONDITION, DERIVED
+
+**Legality condition and how it was checked:** still pre-compute. Checked
+immediately before writing:
+`verification/runs/navier_class/DRIVAER/LAYERFIX_A1_coarse_relativeSizes` does
+not exist on disk, and neither does the A2 directory. **No gate, threshold, cap
+or label is altered** — §5's gate table and §6's 75 core-min cap stand exactly
+as frozen. This amendment touches one launch **precondition** only.
+
+**lines whose number changed above this section: 0**
+
+### Why this is being derived rather than adjusted
+
+§7 requires **>= 30 GiB free**. That number was never derived — I wrote it, and
+I did not compute it from anything. The supervisor has since measured that the
+box sits at 24 GiB with MRF's ET8000 tree alone holding 17 GB, and that medium
+completing does not free space but only stops adding, so nothing on the current
+trajectory reaches 30 GiB.
+
+**That fact is not the justification for this amendment and must not be read as
+one.** Changing a precondition because it stands in the way is fitting the gate
+to the circumstance. What follows is A1's footprint derived from builds already
+on disk; the fact that the derived figure happens to be satisfiable is a
+*consequence*, not the reason. **Had the derivation come out above 30 GiB, the
+correct outcome was `BLOCKED` on disk, and that is what this section would say.**
+
+### Measured inputs (all read off this box, 2026-09-11, zero compute)
+
+**`writeFlags ( )` is EMPTY** in the DrivAer dict — snappy writes no
+intermediate meshes, only the final mesh to `constant`. Confirmed by directory
+listing: `DIAG_v3` contains `0/`, `constant/`, `system/` and no intermediate time
+directories. **Therefore peak disk == final disk for these builds**, and no
+intermediate-write multiplier applies. (SUBOFF uses `writeFlags (noRefinement)`,
+which also suppresses them.)
+
+| case | measured dir | cells | B/cell |
+|---|---|---|---|
+| `r1_coarse` (no layers) | 30 MiB | 128,230 | 245 |
+| `DIAG_v3` (layers attempted, 0 added) | 46 MiB | 128,230 | 376 |
+| `r1_medium` (no layers) | 140 MiB | 748,658 | 196 |
+| `SUBOFF_A1/L1` (layers ACTUALLY added) | 699 MiB | 3,268,613 | 224 |
+
+`r1_fine` (6,136 MiB) is **excluded as a basis**: its directory carries solve
+output, not mesh alone, and using it would inflate the estimate ~5x.
+
+### Derivation
+
+A1 at 100 % extrusion: 128,230 snapped + (23,365 faces x 5 layers) = **245,055
+cells**, a factor 1.911 on the snapped mesh.
+
+- on the `DIAG_v3` basis: 46 MiB x 1.911 = **88 MiB**
+- on the `SUBOFF_A1/L1` layers-on basis (224 B/cell): **52 MiB**
+- **conservative A1 footprint: 90 MiB**
+
+A2 at the same factor: 748,658 -> 1,430,729 cells.
+
+- on the `r1_medium` basis (196 B/cell): 267 MiB
+- on the `DIAG_v3` basis (376 B/cell): 513 MiB
+- **conservative A2 footprint: 550 MiB**
+
+**The §7 per-arm figures as frozen — A1 < 0.5 GiB, A2 < 2 GiB — survive this
+derivation unchanged and are retained.** They were already conservative by 5x
+and 3.7x respectively. Only the free-space gate was undderived.
+
+### The replacement precondition
+
+> **Free space before staging must be at least `max(10 x derived arm footprint,
+> 8 GiB)`.** For A1 that is `max(0.88, 8)` = **8 GiB**. For A2,
+> `max(5.37, 8)` = **8 GiB**.
+
+The two terms, stated separately because they have different standing:
+
+1. **`10 x derived arm footprint` is derived** — 90 MiB and 550 MiB above, times
+   ten. The 10x covers the one genuinely uncertain input: A1's cell count is a
+   *prediction* (245,055 assumes 100 % extrusion), so if the fix overshoots or
+   the mesh behaves unexpectedly the footprint could exceed the estimate. It is
+   not covering intermediate writes, because `writeFlags ( )` shows there are
+   none.
+2. **The `8 GiB` absolute floor is a JUDGEMENT, not a derivation**, and is
+   labelled as such. It is anchored on two quantities: A1+A2 combined are
+   0.64 GiB, so they cannot be what tips the box; and the floor leaves roughly
+   two hours of headroom at the box's stated ~2.7 GiB/h concurrent write rate for
+   peers. Its purpose is protecting **other people's runs** — pid 316601 and the
+   MRF `simpleFoam` ranks — from a full disk, which is not a quantity A1's own
+   footprint can speak to. **Anyone is free to argue the floor should be higher;
+   nobody should present it as measured.**
+
+**For A1 the binding term is the floor, not A1's own footprint** — A1 needs
+0.88 GiB by the derived rule and is held to 8 GiB by the shared-box judgement.
+Stated plainly so the 9x gap is visible rather than buried.
+
+### Consequence and status
+
+Free space read while writing this section: **23 GiB** (down from 24 GiB earlier
+today — it is falling, which is an argument for a real floor rather than none).
+
+**A1 is therefore NOT blocked on disk.** It remains **`PENDING`** on the other
+§7 preconditions, which are unchanged: MRF medium must complete first, and pid
+316601 and the MRF `simpleFoam` ranks must not be touched. A2 remains contingent
+on A1 being PASS.
+
+**Not verified by this lane:** the supervisor's measurement that MRF's ET8000
+tree holds 17 GB and that medium completing frees nothing. I did not re-measure
+it, and this derivation does not depend on it — the derived requirement is
+8 GiB whether or not medium frees anything.
+
