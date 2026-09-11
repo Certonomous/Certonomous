@@ -43337,6 +43337,133 @@ cleanliness check we have.**
 **Reclamation ruling unchanged: ZERO BYTES DELETED.** Deleted-fd hypothesis refuted at **11,132
 bytes box-wide with the lane's plant released and RE-MEASURED, not assumed** — *"it should have
 been released" is not a measurement.*
+
+<!-- BOARD-BLOCK-ID: 175-M6-ROUTE-D-L1-PASS-AND-DRIVAER-H1-REFUTED -->
+### Block 175 — TWO VERDICTS, 2026-09-11T23:35Z
+
+**VERDICT — M6 route (d) L1: `PASS`. THE FIRST ADMISSIBLE M6 MESH THIS LAB HAS PRODUCED.**
+Max non-orthogonality **48.884828** against §4's gate of 70 (route (c) L2: **74.6431**);
+**severely non-orthogonal faces 0** (route (c) L2: **1,019**); skewness 2.8779877 against 4;
+aspect ratio 5.8395115 against advisory 1000; **negative volumes 0**; mesh closed. Build rc=0, all
+four stages rc=0 with `End` lines, **4 `log.<app>` files — the count stated BEFORE the sweep**.
+Commit `e9e6174d`; artifact `verification/runs/M6C2_runs/ROUTE_D/L1/GATE_RESULT.txt`.
+**snappyHexMesh meshes M6 admissibly where pyHyp could not.**
+🔴 **§11's FALSIFIER ANSWERED BY LOCATION, NOT COUNT — which is what makes it evidence.** Defect
+binned by distance from the wing: **r ≥ 2.0 m holds 3.45% of defects WHILE THE FAR FIELD IS 88.5%
+OF THE MESH** (134,834 of 152,399 cells). **Route (c) put 99.41% there.** **The distribution is
+INVERTED and the far-field marching signature is UNDER-represented by ~25× exactly where it would
+have to show.** Not *"route (d) passed"* but *"route (d) passed AND route (c)'s specific mechanism
+is absent where 88.5% of the cells would have revealed it."*
+🟢 **AND THE LANE APPLIED ROUTE (c)'s OWN TRAP TO ITS OWN RESULT: *"route (c)'s L1 ALSO showed zero
+over-gate faces; its L2 showed 1,019."* A pass at the coarsest level is precisely the evidence
+that did not survive refinement last time.** **THIS PASS IS A STATEMENT ABOUT THIS MESH AT THIS
+RESOLUTION AND NOTHING FINER** — 152,399 cells, ~26–51 cells/chord, **an ADMISSION mesh, not a
+solve mesh.** **L2 is the next build and is registered as its OWN successor rung reusing §4's gate
+set VERBATIM** — the comparison only means anything if the threshold is identical.
+**§A1.3 stays FALSIFIED, route (c) TERMINATED, `M6C1` BLOCKED.** All twelve frozen files hashed
+byte-identical BEFORE the run; `meshQualityDict` re-verified at OpenFOAM defaults **AFTER** it too.
+**Cost: estimated ~11.8 core-min, cap 60, ACTUAL 0.73 — ratio 0.062, a 16× OVER-estimate**, cause
+named as misprediction of delivered cell count, not contention. **The only reversed-sign row
+tonight, and a ledger with one sign misleads.**
+
+**VERDICT — DrivAer B1: `H1 REFUTED`.** Gate evaluated in registered order; **row 6, `R = 0`.**
+Doubling `maxThicknessToMedialRatio` 0.3 → 0.6 moved **ZERO** of the 14 blocked patches past one
+layer. **Eleven still EXACTLY 0.00.** Achieved layer cells 50.057% → 50.475% (**+0.42 pp**), layer
+mesh +0.26%, **same 8 iterations**, checkMesh Failed 3 both. Commit `9a8242e57`. Frozen
+`a0b87680b` before compute; one change verified by diff, all other `system/` files and both
+STL/eMesh byte-identical by `cmp`.
+🔴 **THE NOISE FLOOR FIRED ON ITS FIRST USE — AND THAT IS THE ARGUMENT FOR FIXING IT SIGHT-UNSEEN.**
+`CTRL_SURFACE_Outlet 0.00 → 0.66` and `Mirrors2 0.00 → 0.55`. **Without the 1.00 threshold
+committed in advance those read as "the mechanism reaches them."** **They do not — below one full
+layer there is no continuous prismatic layer, only the partial extrusion A1 already had.** The
+lane had a confirmed mechanism behind it and every incentive to call 0.66 a partial success, **and
+the threshold was not its to move.** **A falsifier that fires against its own author on the first
+run is the only kind that has been proved to partition anything.**
+**INDEX TEST RUN BEFORE ANY `checkMesh` NUMBER, per §8:** points 221,881, max face index 221,880,
+**zero unused**, `0/polyMesh` ABSENT, matching snappy's own `Layer mesh : faces:594251
+points:221881`. **NO SPLICE.**
+**EXCLUDED: `maxThicknessToMedialRatio` is not what holds the wheel/underbody group at zero.**
+§6's alternatives were registered BEFORE this result so the refutation **cannot be retro-fitted**
+into "we always thought it was something else": `minMedialAxisAngle 90`; `featureAngle 130`; **or
+the gaps being narrower than `minThickness` permits at any ratio.** **The third is the reading —
+a limb that cares about thickness-to-medial-axis ratio was DOUBLED and moved nothing, which is
+what a hard geometric floor looks like, not a tunable constraint. A READING, NOT A RESULT.**
+**NEXT IS A MEASUREMENT, NOT A BUILD: H3 predicts a GEOMETRIC fact — gap widths at the 11
+zero patches below `minThickness`. Measurable from the STL with no mesh and no registration.**
+🔴 **UNITS HAZARD NAMED IN ADVANCE: `minThickness` is ABSOLUTE when `relativeSizes` is false and a
+FRACTION when true — and B1 ran `relativeSizes true`. The resolved absolute value in metres is
+stated before anything is compared to it.** A mixed-unit gap comparison would look entirely
+reasonable and mean nothing.
+
+🔴 **I WAS WRONG ABOUT SUBOFF L3 ON BOTH LEGS AND A LANE REFUTED ME FROM THE REGISTRATION.**
+I ordered the L3 mesh built, reasoning disk was the blocker and that it would clear Gate M and the
+triple. **False twice.** (a) **L3 needs ~41.7 GiB RAM against a box with 30.6 GiB total, 19.5
+available — OOM-killed, not over budget. Sanaa's volume growth does not touch a MEMORY
+constraint, and "blocked on ~128 GiB" was never a disk objection.** (b) **L1 FAILS Gate M's M-d
+limb PERMANENTLY: min cell determinant 8.6227045e-04 against a 1.0e-03 floor, INVARIANT TO FIVE
+SIGNIFICANT FIGURES across an 8-rank build, a 4-rank build and a half-cell geometric shift.** A
+defect surviving both perturbations is a property of the **geometry**. Gate M needs all limbs at
+L1, L2 **and** L3, so **L1 keeps it shut regardless of what is built above it** — I would have
+spent ~800 core-min to relieve a blocker that would not have moved.
+🟢 **THE REAL FINDING IS BETTER NEWS: *"Everyone reasoned DOWNWARD from L1. The admissible family
+is ABOVE it."* The clean triple is {L2, L3, L4} at 9.121 / 25.453 / 71.029 M cells, equal
+delivered ratios 1.407873, all above Celik's 1.3 — AND ITS COARSEST MEMBER IS ALREADY BUILT AND
+MEASURED CLEAN** (index test clean, non-ortho 64.906, skewness 3.126, zero negative volumes).
+**SUBOFF IS BLOCKED ON HARDWARE, NOT BUDGET — 128 GiB buys all three. An instance change, Sanaa's
+reserved call, already on her desk.** **The RAM fit is a TWO-POINT EXTRAPOLATION; only L2's 17.71
+GiB is measured, and 41.7 / 98.3 are NOT quoted as measurements.**
+
+🔴 **CHECK 1 CAUGHT TWO FAULTS IN ONE CRM INSTRUMENT, AND CHECK 4 WAS REFUSED TO ME CORRECTLY.**
+**The lane declined to sign the freeze: verifying a pre-registration is committed before compute
+IS check 4, `CLAUDE.md:240` says it may never be delegated, and a lane signing converts the check
+into the relay that sentence forbids. It refused a direct instruction from me, on my own rule, and
+was right. I signed it personally at `51e5cd32f`** after doing the check myself (run dir ABSENT
+with a live control; draft committed `8527228a9` before compute; predecessor hash `1fa5fb725e…`
+clean, zero commits after `cbacda6b3`).
+**FAULT 1 — the planted control was a NO-OP:** it relabelled an entry in a **copy of the OUTPUT
+list** and counted it, **never re-running `classify()`**. `detected` was true for every possible
+input. It would have printed *"CONTROL PASSED → evidence, not a blind read"* over a test that
+exercised no part of the instrument under test. **Rewritten to plant in the INPUT, re-run
+`classify()`, restore and re-run to prove no residue; three selftest arms including the plant
+withheld and the classifier stubbed dead — shown able to FAIL.**
+**FAULT 2 — the fix broke `main()`:** hoisting `classify` to module scope with a second parameter
+left **line 142 at `classify(pl)`** (`TypeError` on the first face), and behind it **the new
+always-tuple return makes `if c == "symmetry"` unreachable — the symmetry branch is DEAD and
+symmetry faces would be silently counted as wing or farfield.** **The second would NOT crash; it
+would produce a confident wrong answer.** **P1 held until both lines are fixed and a selftest arm
+exercises `main()` against a synthetic mesh with a known symmetry face.**
+🔴 **THE GENERALISATION, THIRD COSTUME IN ONE FILE: THE TEST KEEPS COVERING THE THING THAT WAS
+ALREADY RIGHT AND MISSING THE THING THAT JUST CHANGED.** fd sweep — proved the reader followed
+symlinks, not that it saw `(deleted)`. Old plant — proved counting a modified list changes the
+tally, not that the classifier reads coordinates. Selftest — proved the control works, not that
+the program calling it runs, and returned **rc 0 over code that cannot execute**. **A SELFTEST MUST
+EXERCISE THE CODE PATH THE COMMIT TOUCHED — and hoisting a function out of a closure touches every
+call site, not just the new ones.** The lane's own line, kept: ***"Catching a failure mode once
+does not inoculate you against it."*** It wrote this rule four hours ago, shipped the defect,
+fixed it correctly, and shipped its sibling in the fix. **Only reading the source as source caught
+either — which is the argument for check 1 being non-delegable.**
+
+🔴 **CONTENTION IS UNMODELLED AND IT IS WIDER THAN EVERY RATIO WE HAVE FILED.** **A1 ratio 0.84 and
+B1 ratio 1.17 BRACKET 1.0 FROM BOTH SIDES on the SAME build at the SAME size, 40 minutes apart —
+~40% on wall time alone**, because heat-transfer's four-process T26 probe was live for one and not
+the other. B1 ran the **same 8 iterations** and built a **0.26% larger** mesh, so **the layer phase
+is not what cost more.** **No per-build cost model on this box beats that band without a contention
+term, and none of the three DrivAer rows has one.** **That is a finding about the calibration
+ledger itself.**
+**`MESH_STANDARD` AMENDMENT OWED, on my desk, THREE families now: route (d) L1 (1,362 concave
+cells) and SUBOFF L2 (131,728, 1.44%) both report `Failed 1 mesh checks` on a metric NO gate set
+covers; DrivAer A1/B1 both exceed §3.2's skewness gate of 4 (4.78, 4.85) PRE-EXISTING and outside
+their rung's gate.** **Both lanes refused to retrofit a threshold to make their result fail AND
+refused to file it as "diagnostic only" — a discrepancy annotated as non-binding is worse than one
+never computed. Right call twice; the gap is in the STANDARD, not the runs.**
+**AND: route (d)'s build ran `checkMesh -allTopology -allGeometry`, MORE checks than its gate
+required — the default invocation would have hidden the concave failure entirely.**
+
+**Live:** MRF fine ~5,000/8,000, ETA ~02:30Z, grader pid 2381356 armed and re-verifying against
+frozen `5c6869f7` before firing — **not pre-empted.** **Next:** route (d) L2 · CRM P1 on its
+`main()` fix then the L2 solve · DrivAer H3 gap MEASUREMENT · `COST_CALIBRATION.md` all three MRF
+levels when fine lands. **On Sanaa's desk:** the 128 GiB instance for SUBOFF's admissible triple.
+**Blocked:** SUBOFF on RAM · `M6C1` · §A1.3 · DrivAer A2 on A1's GATE FAIL.
 ## verification
 
 **Section last written:** 2026-09-11T23:24:18Z by verification-supervisor (V-182).
