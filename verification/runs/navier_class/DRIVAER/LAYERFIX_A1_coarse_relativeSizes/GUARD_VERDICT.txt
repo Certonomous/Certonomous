@@ -1,0 +1,36 @@
+snappy log      : /home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/LAYERFIX_A1_coarse_relativeSizes/log.snappyHexMesh
+checkMesh logs  : log.checkMeshFull, log.checkMeshPlain
+snapped cells   : 128230
+layer mesh cells: 186709  (net gain 58479)
+layer iterations: 8
+final extruded  : 16887 / 23365 faces
+ACHIEVED layers : 58479 / 116825 cells = 50.057%
+achieved table  : floorNoSlip 4.62/5, BodyA_Pillar 0.40/5, BodyDoorhandles 0.16/5, BodyFasciafront1 1.65/5, BodyFasciafront2 0.26/5, BodyFender 2.42/5, BodyHeadlamps 2.03/5, BodyHood 4.14/5, BodyRear 1.37/5, BodyRearAccess 2.46/5, BodyRocker 3.37/5, BodyRoof 3.81/5, BodySide 3.48/5, BodyWindowfront 2.84/5, BodyWindowfrontframe 0.43/5, BodyWindowSide 2.49/5, BodyWindowsideframe 1.51/5, BrakeDiscfront 0.00/5, BrakeDiscrear 0.00/5, ClosedGrillLowerInsert 2.97/5, ClosedGrillUpperInsert 1.71/5, CTRL_SURFACE_Outlet 0.00/5, CTRL_SURFACE_Wheelhouse_LHS 2.33/5, CTRL_SURFACE_Wheelshouse_RHS 2.47/5, EngineUndershield 2.55/5, ExhaustSystem1 0.00/5, ExhaustSystem2 0.60/5, ExhaustSystem3 0.34/5, Mirrors1 0.71/5, Mirrors2 0.00/5, NotchbackB_Pillar 4.31/5, NotchbackBodyside 3.18/5, NotchbackC_Pillar 2.26/5, NotchbackRoof 4.45/5, NotchbackTrunk 2.94/5, NotchbackWindowrear 4.34/5, NotchbackWindowrearframe 3.00/5, NotchbackWindowside 3.66/5, NotchbackWindowsideframe 2.81/5, OCDADetailedUnderbody 1.19/5, Powertrain 0.28/5, Rimsfront 0.00/5, Rimsrear 0.00/5, TirePlinthfront 0.00/5, TirePlinthrear 0.00/5, Tiresfront 0.11/5, Tiresrear 0.03/5, WheelSupportfront1 0.02/5, WheelSupportfront2 0.00/5, WheelSupportrear 0.00/5
+final illegal   : 0
+banner present  : True   [NOT USED AS EVIDENCE]
+
+REFUSE: INSUFFICIENT LAYERS: achieved 58479/116825 layer cells = 50.057% < 70.000% required.
+REFUSE: PATCH SHORT: BodyA_Pillar achieved 0.40 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: BodyDoorhandles achieved 0.16 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: BodyFasciafront2 achieved 0.26 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: BodyWindowfrontframe achieved 0.43 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: BrakeDiscfront achieved 0.00 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: BrakeDiscrear achieved 0.00 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: CTRL_SURFACE_Outlet achieved 0.00 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: ExhaustSystem1 achieved 0.00 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: ExhaustSystem2 achieved 0.60 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: ExhaustSystem3 achieved 0.34 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: Mirrors1 achieved 0.71 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: Mirrors2 achieved 0.00 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: Powertrain achieved 0.28 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: Rimsfront achieved 0.00 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: Rimsrear achieved 0.00 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: TirePlinthfront achieved 0.00 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: TirePlinthrear achieved 0.00 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: Tiresfront achieved 0.11 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: Tiresrear achieved 0.03 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: WheelSupportfront1 achieved 0.02 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: WheelSupportfront2 achieved 0.00 layers (target 5) < 1.00 required.
+REFUSE: PATCH SHORT: WheelSupportrear achieved 0.00 layers (target 5) < 1.00 required.
+
+VERDICT: GATE FAIL (23 refusals)
