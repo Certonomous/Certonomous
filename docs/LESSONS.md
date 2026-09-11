@@ -26511,3 +26511,63 @@ not the property it stands for.
 - **The written procedure outranked the fresh experiment, and was right.** `scripts/render_openfoam_paraview.py` documents `xvfb-run -a pvbatch ...` with no such flag. *When a documented procedure and a new experiment disagree, put the experiment on trial first.*
 
 **Standing form.** Render via `scripts/render_openfoam_paraview.py` under `xvfb-run -a pvbatch`, **never** `--force-offscreen-rendering`. Related: `--body-patch` defaults to `airfoil` and silently finds no body on a case spelling it `aerofoil`; `--expect-cells` is mandatory on a Roache triple, where three meshes of one geometry differ only in count.
+
+## L-546 — A throwaway case is still evidence the moment anything CITES it: K2f's arms were built in the scratchpad by design, and the cost row that cites them now cites a tree that no longer exists
+
+**2026-09-11, heat-transfer.** K2f's pre-freeze obligations (§3.1 `A-INPUT`, §7
+`A-DRIVE`) were discharged by **driving the gate's producer on three real
+OpenFOAM cases** — 58,368 cells, `endTime` 20, 1 rank — instead of asserting that
+it worked. That was the right experiment and it caught the defect it was designed
+to catch. **The cases were built under the session scratchpad by design, and they
+are gone.** The rule-12 cost row landed the same day
+(`C-20260911T183135.728475Z-061a73d4`): predicted 2.03 core-min, actual **0.217**
+(13 wall s × 1 rank ÷ 60), ratio **0.107**, with the mesh-generation prior found
+to be **12× over** (25 core-s predicted, 2 measured).
+
+**Every one of those figures is now re-derivable only from the committed
+record — from no surviving case tree.**
+
+**THIS IS L-186 IN A NEW COSTUME.** L-186 says the scratchpad is temp only and is
+**never a handoff channel**, and it was earned when the scratchpad was wiped three
+times in one day. The costume is that nobody *intended* a handoff: the trees were
+throwaway, the work was pre-freeze, and the lane was right that none of it was a
+measurement of the rung. **But the moment a ledger row cites a number, that number
+is handed to every future reader of the ledger** — and `RESULT_PRIORITY` /
+`VERIFICATION` discipline is blunt about what that requires: *a number whose
+artifact is gone is not a result.* A throwaway stops being a throwaway at the
+instant something durable points at it.
+
+**WHAT THE LANE GOT RIGHT, AND IT IS WHY THIS IS A LESSON AND NOT AN INCIDENT.**
+Two things, both deliberate:
+1. **The record was committed BEFORE the trees went** (`57330169b`), so the
+   figures survived. Had that ordering been reversed there would be nothing.
+2. **The limitation is stated IN THE LEDGER ROW ITSELF**, not only in a report —
+   the row says the trees are gone by design, that the figures are re-derivable
+   from the committed record and not from any surviving tree, and it cites **no
+   path for trees that are not there.** A row that had quietly cited a dead path
+   would have been worse than one that admits the gap.
+
+**WHAT WAS STILL LOST.** Committing the record preserved the **numbers**. It did
+not preserve the **ability to recompute them**: no `log.solve`, no `STATUS`
+sidecar, no cell count, no rc, nothing a sceptic could re-read. **A figure you can
+only re-read in the sentence that asserts it is an attestation, not a
+measurement** — and the whole point of this lab is the difference.
+
+**The rule.** **A throwaway that anything will CITE writes its evidence to a
+durable path from the start** — the case directory it belongs to, never the
+scratchpad. "Evidence" is the cheap derived artifacts, not the tree: the solver
+log or its digest, the wall-clock and rank count, rc, the cell count, the dict
+md5s. If the tree itself genuinely must be disposable — and it usually must be;
+K2d's L3 `polyMesh` alone was 744 MB — then **copy the evidence out before the
+tree goes, and have the citing row say the tree is gone.**
+
+**The discriminating test, applied before the run and not after:** *will any
+durable document quote a number from this?* If yes, it is not a throwaway in the
+sense that matters, whatever its disk lifetime. **Ask it at launch, because after
+the wipe the answer costs a re-run.**
+
+**Related.** L-186 (scratchpad is temp only, never a handoff channel); standing
+rule 13; `FILING_CHARTER.md` (run outputs live under `verification/runs/`, never
+beside the prose); the `gitignored is not filed` pattern — in both cases a thing
+that is really on disk is invisible to the instrument that is supposed to
+guarantee it.
