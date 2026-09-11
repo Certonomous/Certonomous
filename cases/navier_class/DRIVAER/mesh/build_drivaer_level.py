@@ -148,7 +148,7 @@ mergePatchPairs ();
                      background_cells=(nxA + nxB) * ny * nz, h_bg=h)
 
 
-def snappy(regions, fsnap, snap_tol, addlayers):
+def snappy(regions, fsnap, snap_tol, addlayers, merge_tol):
     ADDLAYERS = 'true' if addlayers else 'false'
     reg_geom, reg_ref, reg_lay = [], [], []
     for raw in regions:
@@ -270,7 +270,7 @@ meshQualityControls
 }}
 
 writeFlags ( );
-mergeTolerance 1e-6;
+mergeTolerance {merge_tol};
 """
 
 
@@ -360,6 +360,10 @@ def main():
                     choices=["explicit", "implicit", "none"])
     ap.add_argument("--snap-tol", type=float, default=SNAP_TOL)
     ap.add_argument("--no-layers", action="store_true")
+    ap.add_argument("--merge-tol", type=float, default=1e-6,
+                    help="snappy mergeTolerance, RELATIVE to the domain "
+                         "bounding box: 1e-6 x 52 m = 52 um, against an STL "
+                         "whose minimum edge is 12 um")
     a = ap.parse_args()
     root = Path(a.root)
     if root.exists():
@@ -372,7 +376,7 @@ def main():
     (root / "system").mkdir(parents=True)
     (root / "constant" / "triSurface").mkdir(parents=True)
     for name, txt in (("blockMeshDict", bm),
-                      ("snappyHexMeshDict", snappy(regions, a.feature_snap, a.snap_tol, not a.no_layers)),
+                      ("snappyHexMeshDict", snappy(regions, a.feature_snap, a.snap_tol, not a.no_layers, a.merge_tol)),
                       ("meshQualityDict", MESHQUALITY),
                       ("controlDict", CONTROLDICT),
                       ("fvSchemes", FVSCHEMES),
@@ -381,7 +385,7 @@ def main():
         (root / "system" / name).write_text(txt)
     os.symlink(STL, root / "constant" / "triSurface" / "drivaer_466.stl")
     meta.update(level=a.level_name, feature_snap=a.feature_snap,
-                snap_tolerance=a.snap_tol, add_layers=not a.no_layers, n_regions=len(regions),
+                snap_tolerance=a.snap_tol, add_layers=not a.no_layers, merge_tol=a.merge_tol, n_regions=len(regions),
                 region_map={r: sanitise(r) for r in regions},
                 domain=dict(x=[X0, XBL, X1], y=[Y0, Y1], z=[Z0, Z1]),
                 aRef=AREF, lRef=LREF,

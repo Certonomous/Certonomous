@@ -59,13 +59,33 @@ CD_BAND_REL     = 0.10       # Gate V1: |Cd_cfd - Cd_ref| <= 10% of Cd_ref
 CL_BAND_ABS     = 0.05       # Gate V2: |Cl_cfd - Cl_ref| <= 0.05 (absolute; Cl is small)
 FS_CELIK        = 1.25
 PLATEAU_TOL_REL = 0.005
-BODY_PATCH      = "body"     # the vehicle wall patch group drag is integrated on
-# registered forceCoeffs constants -- DrivAerML setup (arXiv:2408.11969v2, p.5-6)
-MAG_U_INF       = 38.889     # m/s  (DrivAerML freestream)
-L_REF           = 2.786      # m    (wheelbase; DrivAerML characteristic length)
-A_REF           = 2.17       # m2   (DrivAerML reference frontal area)
-RHO_INF         = 1.225      # kg/m3 (air; CONFIRM against DrivAerML rho at freeze)
-# Re_L = U*L/nu = 7.19e6 (DrivAerML), incompressible (M ~ 0.11)
+# The VEHICLE is defined by EXCLUDING the registered domain patches, never by a
+# substring of the vehicle's own names.  BODY_PATCH = "body" was measured on the built
+# fine mesh to match 18 of 47 vehicle patches and 21.98 m2 of 34.67 m2 -- it MISSED
+# every wheel, tyre, mirror, the entire exhaust system, the powertrain and all the
+# Notchback roof/trunk/window surfaces (29 patches, 12.70 m2, 37% of the wetted area).
+# Its own docstring claimed it covered "body, mirrors, wheels, underbody"; "body" is
+# not a substring of "Mirrors1" or "Tiresfront", so the code never did what the comment
+# said.  A control that silently covers 63% of the surface looks like coverage.
+DOMAIN_PATCHES  = ("inlet", "outlet", "floorslip", "floornoslip",
+                   "top", "sideminus", "sideplus")
+
+# ---- THERE ARE NO REGISTERED CONSTANTS IN THIS FILE, DELIBERATELY --------------------
+# magUInf / lRef / Aref / rhoInf / Cd / Cl used to be literals here (38.889 / 2.786 /
+# 2.17 / 1.225 / 0.28 / None).  They drifted out of step with the registration the
+# moment the registration settled on run_466's PER-GEOMETRY reference convention
+# (Aref 2.298, lRef 2.79, rhoInf 1.0), and a grader holding the other convention
+# would have REFUSED a correctly-configured case -- the assertion working exactly as
+# designed, against the wrong target.  Two places holding one number is one place too
+# many.  Every one of them is now READ from the pinned reference file and every one is
+# MANDATORY: see resolve_reference().
+REQUIRED_REF_KEYS = {
+    "magUInf": "magUInf_m_s",
+    "lRef":    "L_ref_m",
+    "Aref":    "Aref_m2",
+    "rhoInf":  "rho_kg_m3",
+}
+REQUIRED_GATE_KEYS = ("Cd", "Cl")   # BOTH gates are armed.  Neither may be absent.
 
 EXIT_REFUSE, EXIT_DEFECT = 2, 70
 def refuse(msg):
@@ -125,12 +145,19 @@ def parse_owner(case):
     return own
 
 def body_owner_cells(case):
-    """Owner cells of every wall face whose patch name contains BODY_PATCH (the DrivAer
-    body group may be split into several patches: body, mirrors, wheels, underbody)."""
+    """Owner cells of every wall face on the VEHICLE -- i.e. every patch that is not
+    one of the registered DOMAIN_PATCHES.  Defined by exclusion on purpose: see the
+    measurement beside DOMAIN_PATCHES."""
     bnd = parse_boundary(case); own = parse_owner(case); cells = []
-    matched = [p for p in bnd if BODY_PATCH in p.lower()]
+    matched = [p for p in bnd if p.lower() not in DOMAIN_PATCHES]
     if not matched:
-        refuse(f"no patch whose name contains '{BODY_PATCH}' in {case}")
+        refuse(f"no vehicle patch in {case}: every patch is a registered domain "
+               f"patch {DOMAIN_PATCHES}")
+    unknown = [p for p in bnd if p.lower() in DOMAIN_PATCHES]
+    if len(unknown) != len(DOMAIN_PATCHES):
+        refuse(f"{case}: expected all {len(DOMAIN_PATCHES)} registered domain patches "
+               f"{DOMAIN_PATCHES} on the mesh, found {sorted(unknown)}. A missing or "
+               f"renamed domain patch would silently be counted as vehicle surface.")
     for p in matched:
         nF, sF = bnd[p]
         if sF + nF > len(own):
@@ -229,7 +256,47 @@ def check_completion(case):
     return endT, last
 
 # ---------------------------------------------------------------------------------------
-def assert_forcecoeffs_constants(case):
+def resolve_reference(path):
+    """Read every gate parameter from the pinned reference file.  REFUSE on any absent
+    one.  A GATE THAT DATA CAN DISARM IS NOT A GATE.
+
+    The predecessor of this function did not exist: the caller wrote
+        cd_ref, cl_ref = ref["Cd"], ref.get("Cl")
+    and then guarded the whole V2 gate and its planted control with
+        if cl_ref is not None:
+    so a reference file carrying "Cl": null -- which the shipped one did, with the note
+    "Leave null to skip gate V2 until pinned" -- SILENTLY DROPPED gate V2 and its
+    control, and the grader still exited 0 with a verdict.  A limb that disarms itself
+    on missing data and says nothing about it is the failure this refuses.
+    """
+    try:
+        doc = json.load(open(path))
+    except Exception as e:
+        refuse(f"reference {path}: unreadable ({e})")
+    if "reference" not in doc:
+        refuse(f"reference {path}: no 'reference' object")
+    ref = doc["reference"]
+    out = {}
+    for name, key in REQUIRED_REF_KEYS.items():
+        v = ref.get(key)
+        if v is None:
+            refuse(f"reference {path}: '{key}' is absent or null.  It sets the "
+                   f"forceCoeffs constant {name!r} that the on-disk assertion compares "
+                   f"against; without it the assertion cannot be evaluated, and an "
+                   f"unevaluated assertion is not a passed one.")
+        out[name] = float(v)
+    for key in REQUIRED_GATE_KEYS:
+        v = ref.get(key)
+        if v is None:
+            refuse(f"reference {path}: gate reference '{key}' is absent or null.  "
+                   f"Gate V{'1' if key == 'Cd' else '2'} cannot be evaluated.  This is a "
+                   f"REFUSAL and not a skip: the gate does not disarm because its "
+                   f"reference is missing.")
+        out[key] = float(v)
+    return out
+
+
+def assert_forcecoeffs_constants(case, want):
     txt = _read(os.path.join(case, "system/controlDict"))
     blob = (txt or "") + (_read(os.path.join(case, "system", "forceCoeffs")) or "")
     if not blob:
@@ -237,9 +304,9 @@ def assert_forcecoeffs_constants(case):
     def _get(key):
         m = re.search(rf"\b{key}\s+([-\deE.+]+)\s*;", blob)
         return float(m.group(1)) if m else None
-    got = {k: _get(k) for k in ("magUInf", "lRef", "Aref", "rhoInf")}
-    want = {"magUInf": MAG_U_INF, "lRef": L_REF, "Aref": A_REF, "rhoInf": RHO_INF}
-    for k, v in want.items():
+    got = {k: _get(k) for k in REQUIRED_REF_KEYS}
+    for k in REQUIRED_REF_KEYS:
+        v = want[k]
         if got[k] is None:
             refuse(f"{case}: forceCoeffs constant {k} not found on disk")
         if abs(got[k] - v) > 1e-4 * max(1.0, abs(v)):
@@ -325,14 +392,15 @@ def planted_zero_control(case, time):
     delta = seen - base; expected = PLANT_KPRESS / n
     ok = abs(delta - expected) < 0.02 * expected
     return dict(passed=bool(ok), planted=PLANT_KPRESS, reader="body_mean_pressure",
+                n_vehicle_patches=len(patches),
                 artifact=os.path.join(case, str(time), "p"), patches=patches,
                 base_mean_p=base, seen_mean_p=seen, reader_delta=delta,
                 expected_delta=expected, n_body_cells=n)
 
 # ---------------------------------------------------------------------------------------
-def grade_case(case):
+def grade_case(case, want):
     endT, last = check_completion(case)
-    fc = assert_forcecoeffs_constants(case)
+    fc = assert_forcecoeffs_constants(case, want)
     d_dat, cd = read_coeff(case, "Cd")
     _, cl = read_coeff(case, "Cl")
     cd_plat = abs(cd[-1] - cd[-2]) <= PLATEAU_TOL_REL * abs(cd[-1]) if cd[-1] else False
@@ -347,7 +415,8 @@ def grade_case(case):
 
 def run_grade(args):
     ref = json.load(open(args.reference))["reference"]
-    cd_ref, cl_ref = ref["Cd"], ref.get("Cl")
+    want = resolve_reference(args.reference)      # REFUSES on any absent parameter
+    cd_ref, cl_ref = want["Cd"], want["Cl"]
     levels_in = {"coarse": args.coarse, "medium": args.medium, "fine": args.fine}
     if not all(levels_in.values()):
         refuse("all three of --coarse --medium --fine are required for the Roache triple")
@@ -360,11 +429,11 @@ def run_grade(args):
     ctrl_cd = coefficient_plant_control(args.fine, "Cd")
     if not ctrl_cd["passed"]:
         refuse(f"coefficient.dat Cd (gate-reader) planted-zero control did not behave: {ctrl_cd}")
-    ctrl_cl = coefficient_plant_control(args.fine, "Cl") if cl_ref is not None else None
-    if ctrl_cl is not None and not ctrl_cl["passed"]:
+    ctrl_cl = coefficient_plant_control(args.fine, "Cl")   # unconditional: V2 is armed
+    if not ctrl_cl["passed"]:
         refuse(f"coefficient.dat Cl (gate-reader) planted-zero control did not behave: {ctrl_cl}")
     ctrl = ctrl_cd   # gate-reader control is the primary passed to grade_ladder
-    per = {n: grade_case(d) for n, d in levels_in.items()}
+    per = {n: grade_case(d, want) for n, d in levels_in.items()}
     order = ("coarse", "medium", "fine")
     lv_cd = [dict(name=n, cells=per[n]["nCells"], value=per[n]["Cd"]) for n in order]
     band_cd = (cd_ref * (1 - CD_BAND_REL), cd_ref * (1 + CD_BAND_REL))
@@ -375,7 +444,7 @@ def run_grade(args):
                               plant_control=ctrl, iterative_states=it, plateau_states=pl_cd,
                               fs=FS_CELIK, reference=cd_ref)
     gates = [gate_cd]
-    if cl_ref is not None:
+    if True:   # V2 is unconditional; the reference cannot disarm it (resolve_reference)
         lv_cl = [dict(name=n, cells=per[n]["nCells"], value=per[n]["Cl"]) for n in order]
         band_cl = (cl_ref - CL_BAND_ABS, cl_ref + CL_BAND_ABS)
         pl_cl = {n: ("PLATEAUED" if per[n]["cl_plateaued"] else "NOT_PLATEAUED") for n in per}
@@ -389,6 +458,216 @@ def run_grade(args):
     if args.report:
         json.dump(report, open(args.report, "w"), indent=2, default=str)
     return 0 if all(g.get("verdict") in ("PASS", "GATE FAIL", "NOT A RESULT") for g in gates) else EXIT_DEFECT
+
+
+
+# =======================================================================================
+# DECLARED NON-CONFORMANCE -- THE CAP TRAVELS WITH THE NUMBER, IN THE JSON.
+#
+# A mesh failing a hard MESH_STANDARD gate MAY be solved, provided the exceedance is
+# registered with its MEASURED values and the result's claim is capped.  What is NOT
+# permitted is the number later being cited without the cap.  Prose in a registration
+# does not travel with a JSON value into somebody's table -- so the cap is emitted
+# here, attached to the number, and it CANNOT be emitted without the measurements
+# because both are parsed from the level's own checkMesh artifact or the grader
+# refuses.
+# =======================================================================================
+MESH_STANDARD_SOURCE = "docs/standards/MESH_STANDARD.md"
+MESH_STANDARD_LIMITS = {"max_skewness": 4.0, "max_non_ortho": 70.0}
+CLAIM_CAP = ("CLAIM CAP -- THIS RESULT IS NOT A CREDENTIAL. The mesh does not meet "
+             f"{MESH_STANDARD_SOURCE}. This number MUST NOT be recorded as a "
+             "credential, MUST NOT be entered in a matrix as HOLDS or GATE REACHED, "
+             "and may appear only as a STATED-LIMITATION row carrying the measured "
+             "exceedance below. Citing it without this cap is the failure the "
+             "non-conformance ruling exists to prevent.")
+
+
+def read_mesh_conformance(case):
+    """Parse the level's OWN full-flag checkMesh artifact and measure the exceedances.
+
+    REFUSES if the artifact is absent or if a metric cannot be read.  That refusal is
+    the point: the non-conformance block cannot be produced without the measured
+    values attached to it, so there is no way to emit a capped number whose cap is
+    not backed by a measurement, and no way to emit an uncapped number by losing the
+    artifact.
+    """
+    path = os.path.join(case, "log.checkMeshFull")
+    txt = _read(path)
+    if not txt:
+        refuse(f"{case}: no log.checkMeshFull. The full-flag checkMesh artifact is "
+               f"required: mesh conformance against {MESH_STANDARD_SOURCE} is measured "
+               f"from it, and without it neither conformance nor non-conformance can "
+               f"be stated. An unmeasured mesh is not a conforming one.")
+    m = re.search(r"Max skewness = ([\d.eE+-]+)", txt)
+    if not m:
+        refuse(f"{path}: no 'Max skewness' line -- the metric "
+               f"{MESH_STANDARD_SOURCE} gates on cannot be read")
+    skew = float(m.group(1))
+    m = re.search(r"Mesh non-orthogonality Max: ([\d.eE+-]+)", txt)
+    if not m:
+        refuse(f"{path}: no 'Mesh non-orthogonality Max' line")
+    nonortho = float(m.group(1))
+    fm = re.search(r"^Failed (\d+) mesh checks\.", txt, re.M)
+    failed = int(fm.group(1)) if fm else 0
+    nf = re.search(r"([\d]+) highly skew faces detected", txt)
+    measured = {"max_skewness": skew, "max_non_ortho": nonortho}
+    breaches = []
+    for k, limit in MESH_STANDARD_LIMITS.items():
+        if measured[k] > limit:
+            breaches.append(dict(metric=k, measured=measured[k], threshold=limit,
+                                 standard=MESH_STANDARD_SOURCE,
+                                 exceedance_factor=measured[k] / limit,
+                                 n_faces_affected=int(nf.group(1)) if (
+                                     k == "max_skewness" and nf) else None))
+    return dict(case=case, artifact=path, measured=measured,
+                failed_mesh_checks_full_flags=failed,
+                conforms=not breaches, breaches=breaches)
+
+
+# =======================================================================================
+# STAGE A -- the gate this setup can actually support, and NOTHING MORE.
+#
+# Stage A has NO WALL LAYERS (snappyHexMesh layer addition is defective on this
+# geometry) and therefore y+ ~ 2342 / 1171 / 585.  Standard wall functions are
+# calibrated for the log layer, y+ ~ 30-300.  On a bluff body whose drag is set by
+# boundary-layer separation and base pressure, a Cd from a first cell centre sitting
+# out in the wake is NOT A MEASUREMENT OF Cd.
+#
+# So Stage A DOES NOT ROUTE THROUGH grade_ladder AT ALL:
+#   * no Roache triple, no GCI, no observed order -- a y+ varying 4x across levels
+#     would measure the wall model changing, not the grid;
+#   * two levels, not three, because only two pass the geometry limb -- and
+#     grade_ladder refuses fewer than three levels, which is the correct refusal and
+#     is why this path is separate rather than a weakened call into it.
+# What it CAN check is real: rule-4 completion, the on-disk constants, every planted
+# control firing, plateau, and a DELIBERATELY WIDE gross-error band on Cd.
+#
+# THE Cd BAND IS A DIAGNOSTIC BAND, NOT A VALIDATION GATE.  Its bounds are set from
+# what is physically possible for a road car, NOT from the DrivAerML reference: no
+# passenger car has Cd below ~0.15 or above ~0.60.  It catches a wrong sign, a wrong
+# order of magnitude, a gross Aref blunder and a bluff-body 1.5.  It CANNOT and DOES
+# NOT establish agreement with Cd_ref = 0.2758368, and every record it emits says so
+# in a field a later reader cannot miss.
+# =======================================================================================
+CD_DIAG_BAND = (0.15, 0.60)     # physical bounds for a road car; NOT a reference band
+CL_DIAG_BAND = (-0.50, 0.50)    # a notchback DrivAer cannot be outside this
+NOT_VALIDATION = ("DIAGNOSTIC BAND, NOT A VALIDATION GATE. An in-band value is NOT "
+                  "agreement with the DrivAerML reference Cd_ref=0.2758368 and MUST "
+                  "NOT be cited as agreement. Stage A has no wall layers, y+ is "
+                  "roughly an order of magnitude above the wall-function range, and "
+                  "no grid gate (Gate G) is registered for it.")
+
+
+def _band_verdict(value, band, name):
+    lo, hi = band
+    ok = (lo <= value <= hi)
+    return dict(gate=name, value=value, band=[lo, hi],
+                verdict="PASS" if ok else "GATE FAIL",
+                interpretation=NOT_VALIDATION)
+
+
+def run_stage_a(args):
+    """Stage A: completion + instrument, plus a gross-error diagnostic band."""
+    want = resolve_reference(args.reference)      # REFUSES on any absent parameter
+    levels = []
+    for spec in args.levels:
+        if "=" not in spec:
+            refuse(f"--levels takes name=path, got {spec!r}")
+        levels.append(tuple(spec.split("=", 1)))
+    # STAGE A IS REGISTERED FOR EXACTLY ONE LEVEL, and the count is enforced.
+    # One level is coherent here precisely BECAUSE Gate G is not registered: there is
+    # no triple to form and no grid verdict on offer, so a second level would buy a
+    # grid sensitivity that nothing grades.  The count fell from two to one because
+    # the registered geometry-limb floor B2=0.70 was HELD and not moved to admit the
+    # level in hand -- medium reads 0.5989 against it.
+    if len(levels) != 1:
+        refuse(f"Stage A is registered for EXACTLY ONE level (fine); got "
+               f"{len(levels)}: {[n for n, _ in levels]}. Two levels would be a grid "
+               f"sensitivity pair and three a Roache triple; neither is registered "
+               f"for Stage A, and a triple must go through grade_ladder with a "
+               f"registered Gate G -- which Stage A deliberately does not have. "
+               f"Refusing rather than silently grading extra levels under a "
+               f"diagnostic band.")
+    finest = levels[-1][1]
+
+    # ---- RULE 3, before anything is trusted; all three controls UNCONDITIONAL --------
+    last_fine = check_completion(finest)[1]
+    ctrl_field = planted_zero_control(finest, last_fine)
+    if not ctrl_field["passed"]:
+        refuse(f"p-field planted-zero control did not behave: {ctrl_field}")
+    ctrl_cd = coefficient_plant_control(finest, "Cd")
+    if not ctrl_cd["passed"]:
+        refuse(f"coefficient.dat Cd gate-reader control did not behave: {ctrl_cd}")
+    ctrl_cl = coefficient_plant_control(finest, "Cl")
+    if not ctrl_cl["passed"]:
+        refuse(f"coefficient.dat Cl gate-reader control did not behave: {ctrl_cl}")
+
+    per, conf = {}, {}
+    for name, path in levels:
+        per[name] = grade_case(path, want)        # rule-4 completion + on-disk constants
+        conf[name] = read_mesh_conformance(path)  # REFUSES if the artifact is absent
+
+    # ---- Gate A1: completion and instrument.  This one is a REAL gate. --------------
+    bad = []
+    for name in per:
+        if per[name]["iterative_state"] != "CONVERGED":
+            bad.append(f"{name}: iterative state {per[name]['iterative_state']}")
+        if not per[name]["cd_plateaued"]:
+            bad.append(f"{name}: Cd not plateaued")
+        if not per[name]["cl_plateaued"]:
+            bad.append(f"{name}: Cl not plateaued")
+    gate_a1 = dict(gate="A1 completion and instrument",
+                   verdict="PASS" if not bad else "GATE FAIL",
+                   failures=bad,
+                   checked=["rule-4 completion on every level (rc sidecar, End line, "
+                            "last==endTime, field set, ExecutionTime count, age guard)",
+                            "forceCoeffs magUInf/lRef/Aref/rhoInf asserted on disk "
+                            "against the pinned reference",
+                            "planted control on the p-field reader",
+                            "planted control on the Cd gate reader",
+                            "planted control on the Cl gate reader",
+                            "iterative convergence READ from each log",
+                            "Cd and Cl plateau"],
+                   planted_controls=dict(field=ctrl_field, Cd=ctrl_cd, Cl=ctrl_cl))
+
+    # ---- Gate A2/A3: gross-error diagnostic bands.  NOT validation. -----------------
+    cd_fine, cl_fine = per[levels[-1][0]]["Cd"], per[levels[-1][0]]["Cl"]
+    gate_a2 = _band_verdict(cd_fine, CD_DIAG_BAND, "A2 Cd gross-error diagnostic band")
+    gate_a3 = _band_verdict(cl_fine, CL_DIAG_BAND, "A3 Cl gross-error diagnostic band")
+
+    nonconf = {n: c for n, c in conf.items() if not c["conforms"]}
+    cap = None
+    if nonconf:
+        cap = dict(
+            claim_cap=CLAIM_CAP,
+            credential_eligible=False,
+            matrix_status=("STATED LIMITATION -- not HOLDS, not GATE REACHED, "
+                           "not a credential"),
+            standard=MESH_STANDARD_SOURCE,
+            non_conforming_levels=sorted(nonconf),
+            breaches={n: c["breaches"] for n, c in nonconf.items()},
+            measured={n: c["measured"] for n, c in nonconf.items()})
+
+    report = dict(rung="DRIVAER_R1_STAGE_A",
+                  mesh_conformance=conf,
+                  declared_non_conformance=cap,
+                  credential_eligible=(cap is None),
+                  stage_a_scope=NOT_VALIDATION,
+                  gate_G_registered=False,
+                  gate_G_absent_because=("y+ ~ 2342/1171/585 without wall layers and "
+                                         "varying 4x across levels; a Roache order "
+                                         "from that measures the wall model changing, "
+                                         "not the grid"),
+                  levels=[n for n, _ in levels],
+                  gates=[gate_a1, gate_a2, gate_a3],
+                  per_level=per, reference=want,
+                  reference_Cd_NOT_GATED_AGAINST=want["Cd"],
+                  reference_Cl_NOT_GATED_AGAINST=want["Cl"])
+    print(json.dumps(report, indent=2, default=str))
+    if args.report:
+        json.dump(report, open(args.report, "w"), indent=2, default=str)
+    return 0
+
 
 def run_selftest(args):
     ctrl_ok = dict(passed=True, planted=PLANT_KPRESS, reader="selftest",
@@ -432,6 +711,113 @@ def run_selftest(args):
             print(f"  {nm}: reader saw planted {c['planted']} ({c['before']} -> {c['after']})")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+    # ===================================================================================
+    # ARMING PROOFS.  A gate that has not been SHOWN ABLE TO REFUSE is not armed.
+    # The three tests above prove the ladder can READ.  These prove the Cl gate and the
+    # on-disk assertion can FIRE and can REFUSE -- which is the property that was
+    # actually missing: "Cl": null used to disarm gate V2 in silence.
+    # ===================================================================================
+    print("== ARMING PROOF 1: an absent Cl reference REFUSES (it must not skip) ==")
+    tmp2 = tempfile.mkdtemp(prefix="drivaer_arming_")
+    try:
+        full = {"reference": {"magUInf_m_s": 38.889, "L_ref_m": 2.79, "Aref_m2": 2.298,
+                              "rho_kg_m3": 1.0, "Cd": 0.2758368, "Cl": -0.05357145}}
+        good = os.path.join(tmp2, "ref_full.json")
+        json.dump(full, open(good, "w"))
+        got = resolve_reference(good)
+        assert got["Cl"] == -0.05357145 and got["Aref"] == 2.298, got
+        print(f"  complete reference resolves: Aref={got['Aref']} lRef={got['lRef']} "
+              f"rhoInf={got['rhoInf']} Cd={got['Cd']} Cl={got['Cl']}")
+        for drop in ("Cl", "Cd", "Aref_m2", "rho_kg_m3", "L_ref_m", "magUInf_m_s"):
+            import copy
+            bad = copy.deepcopy(full); bad["reference"][drop] = None
+            bpath = os.path.join(tmp2, f"ref_no_{drop}.json")
+            json.dump(bad, open(bpath, "w"))
+            try:
+                resolve_reference(bpath)
+                raise AssertionError(f"NOT ARMED: a null {drop} was accepted")
+            except SystemExit as e:
+                assert e.code == EXIT_REFUSE, (drop, e.code)
+                print(f"  null {drop:12s} -> REFUSED (exit {e.code}), not skipped")
+    finally:
+        shutil.rmtree(tmp2, ignore_errors=True)
+
+    print("== ARMING PROOF 2: the Cl gate FIRES on a planted wrong value ==")
+    cl_ref = -0.05357145
+    band_cl = (cl_ref - CL_BAND_ABS, cl_ref + CL_BAND_ABS)
+    lv_ok = [dict(name="coarse", cells=128_230, value=-0.070),
+             dict(name="medium", cells=748_658, value=-0.062),
+             dict(name="fine",   cells=5_025_587, value=-0.058)]
+    st = dict(iterative_states={l["name"]: "CONVERGED" for l in lv_ok},
+              plateau_states={l["name"]: "PLATEAUED" for l in lv_ok})
+    r_ok = RT.grade_ladder("arming Cl in band", lv_ok, dim=3, band=band_cl,
+                           plant_control=ctrl_ok, fs=FS_CELIK, reference=cl_ref,
+                           form="unequal", **st)
+    assert r_ok["verdict"] == "PASS", r_ok
+    print(f"  in-band  Cl={lv_ok[-1]['value']} -> {r_ok['verdict']}")
+    # plant the wrong value into the SAME ladder: only the finest value moves
+    lv_bad = [dict(l) for l in lv_ok]
+    lv_bad[-1]["value"] = cl_ref + 3.0 * CL_BAND_ABS      # the plant
+    r_bad = RT.grade_ladder("arming Cl planted wrong", lv_bad, dim=3, band=band_cl,
+                            plant_control=ctrl_ok, fs=FS_CELIK, reference=cl_ref,
+                            form="unequal",
+                            iterative_states={l["name"]: "CONVERGED" for l in lv_bad},
+                            plateau_states={l["name"]: "PLATEAUED" for l in lv_bad})
+    assert r_bad["band_verdict"] == "GATE FAIL", r_bad
+    print(f"  planted  Cl={lv_bad[-1]['value']:.6f} -> band_verdict={r_bad['band_verdict']} "
+          f"(band {r_bad['band']}); the gate moved when the value moved")
+
+    print("== ARMING PROOF 3: the CLAIM CAP is emitted, and cannot be emitted "
+          "without the measured values ==")
+    tmp3 = tempfile.mkdtemp(prefix="drivaer_cap_")
+    try:
+        def _mk(name, body):
+            d = os.path.join(tmp3, name); os.makedirs(d)
+            if body is not None:
+                open(os.path.join(d, "log.checkMeshFull"), "w").write(body)
+            return d
+        good = _mk("conforming",
+                   "    Mesh non-orthogonality Max: 41.2 average: 6.1\n"
+                   "    Max skewness = 3.5 OK.\n")
+        c = read_mesh_conformance(good)
+        assert c["conforms"] and not c["breaches"], c
+        print(f"  conforming mesh (skew 3.5)  -> conforms=True, no cap")
+
+        bad = _mk("nonconforming",
+                  "    Mesh non-orthogonality Max: 64.940718 average: 5.4484841\n"
+                  " ***Max skewness = 10.315144, 16 highly skew faces detected\n"
+                  "Failed 3 mesh checks.\n")
+        c = read_mesh_conformance(bad)
+        assert not c["conforms"], c
+        b = c["breaches"][0]
+        assert b["metric"] == "max_skewness", b
+        assert abs(b["measured"] - 10.315144) < 1e-9, b
+        assert b["threshold"] == 4.0 and b["n_faces_affected"] == 16, b
+        print(f"  non-conforming (skew {b['measured']}) -> breach carries measured="
+              f"{b['measured']}, threshold={b['threshold']}, "
+              f"faces={b['n_faces_affected']}, factor={b['exceedance_factor']:.3f}")
+        for tok in ("NOT A CREDENTIAL", "HOLDS", "GATE REACHED", "STATED-LIMITATION"):
+            assert tok in CLAIM_CAP, tok
+        print(f"  CLAIM_CAP names all of: NOT A CREDENTIAL / HOLDS / GATE REACHED / "
+              f"STATED-LIMITATION")
+
+        # the cap CANNOT be produced without the measurements
+        for name, body, why in (
+                ("no_artifact", None, "checkMesh artifact absent"),
+                ("no_skew", "    Mesh non-orthogonality Max: 41.2 average: 6.1\n",
+                 "no Max skewness line"),
+                ("no_nonortho", "    Max skewness = 3.5 OK.\n", "no non-orthogonality line")):
+            d = _mk(name, body)
+            try:
+                read_mesh_conformance(d)
+                raise AssertionError(f"NOT ARMED: conformance claimed with {why}")
+            except SystemExit as e:
+                assert e.code == EXIT_REFUSE, (name, e.code)
+                print(f"  {why:34s} -> REFUSED (exit {e.code}); "
+                      f"no cap and no pass can be emitted unmeasured")
+    finally:
+        shutil.rmtree(tmp3, ignore_errors=True)
+
     if args.smoke:
         ts = time_dirs(args.smoke)
         if not ts:
@@ -449,9 +835,15 @@ def main():
     ap.add_argument("--coarse"); ap.add_argument("--medium"); ap.add_argument("--fine")
     ap.add_argument("--reference"); ap.add_argument("--report")
     ap.add_argument("--selftest", action="store_true"); ap.add_argument("--smoke")
+    ap.add_argument("--stage-a", action="store_true")
+    ap.add_argument("--levels", nargs="+", default=[])
     args = ap.parse_args()
     if args.selftest:
         sys.exit(run_selftest(args))
+    if args.stage_a:
+        if not (args.levels and args.reference):
+            refuse("Stage A needs --levels name=path name=path and --reference")
+        sys.exit(run_stage_a(args))
     if not (args.coarse and args.medium and args.fine and args.reference):
         refuse("need --coarse --medium --fine --reference (or --selftest)")
     sys.exit(run_grade(args))
