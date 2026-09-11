@@ -1,0 +1,68 @@
+M6C2 ROUTE (d) L2 -- GATE RESULT
+graded 2026-09-11T23:41:32Z by grade_route_d.py frozen at 2b9f4581, which predates BOTH levels
+registered cfbb4e4d BEFORE compute; gate copied VERBATIM from dc7f4cfd sec.4
+
+VERDICT: GATE FAIL -- MESH_STANDARD sec.3.2, max skewness 4.2721948 > 4.0
+
+                          L1            L2         gate
+  cells              152,399     1,176,022
+  max non-orth      48.884828     49.579525      <= 70    (route (c) L2: 74.6431)
+  severely non-orth         0             0               (route (c) L2: 1,019)
+  max skewness      2.8779877     4.2721948      <= 4     <-- THE FAILURE
+  max aspect ratio  5.8395115     5.6205446      adv 1000
+  negative volumes          0             0
+
+THE FAILURE IS TWO FACES OUT OF 3,577,883 (0.00006%), AND THEY ARE ON THE BODY:
+  face 3570002  centre (+0.4337, +0.6731, +0.0201) m   r from body = 0.0000 m
+  face 3573782  centre (+0.4337, +0.6731, -0.0201) m   r from body = 0.0000 m
+  A symmetric upper/lower pair at the same (x,y) -- mid-chord, mid-span. This is a
+  SNAPPING artifact at one surface location, not a far-field mechanism.
+
+I DID NOT PREDICT THIS FAILURE MODE. cfbb4e4d predicted four things and named two
+falsifiers, ALL AIMED AT ROUTE (c)'s MECHANISM RECURRING. Scorecard:
+  1. far-field defect fraction stays below 10%          CORRECT -- 0.34%, DOWN from L1's 3.45%
+  2. max non-orthogonality stays below 65               CORRECT -- 49.579525
+  3. severely non-orthogonal faces stay 0               CORRECT -- 0
+  4. concave-cell FRACTION stays near 1%                PARTLY -- 0.40%, down from 0.89%;
+     count 1,362 -> 4,710 is 3.5x while cells grew 7.7x, so it grew SLOWER than cell count
+  5. THE SKEWNESS GATE                                  NOT PREDICTED AT ALL.
+     L1 2.878 -> L2 4.272. No skew prediction was made and no falsifier covered it.
+  => A FALSIFIER SET AIMED AT THE PREVIOUS FAILURE MODE WAS ENTIRELY CORRECT AND STILL
+     MISSED THE ACTUAL FAILURE. That is the lesson of this rung.
+
+THE PREMISE FALSIFIERS DID NOT FIRE -- AND THE MECHANISM IS MORE ABSENT, NOT LESS:
+  concave cells at r >= 2.0 m:  L1 3.45%  ->  L2 0.34%
+  while the far field is 91.7% of the L2 mesh (1,078,408 of 1,176,022 cells).
+  The far field carries 0.34% of the defect while holding 91.7% of the cells --
+  UNDER-REPRESENTED BY ~270x. Route (c) put 99.41% of its defects beyond 2.0 m.
+  THE FAR-FIELD MARCHING SIGNATURE DOES NOT REPRODUCE AT L2 EITHER, AND IS WEAKER
+  THAN AT L1. Route (d)'s premise -- that route (c)'s defect was the MARCHING and not
+  the body -- SURVIVES. The rung fails the GATE without refuting the PREMISE, and
+  those are two different questions that must not be merged.
+
+THE L1-PASS / L2-FAIL PATTERN REPEATED IN FORM AND DIFFERED ENTIRELY IN MECHANISM.
+  Route (c): L1 zero over-gate faces -> L2 1,019, 99.41% far-field, non-orth 74.64.
+  Route (d): L1 PASS -> L2 GATE FAIL, 2 skew faces on the body, non-orth 49.58, 0 over-gate.
+  The warning attached to L1's PASS -- that it was a statement about L1 and nothing
+  finer -- was correct, and this is why that caveat was not decoration.
+
+OTHER FAILING CHECKS, DISCLOSED AND UNGATED (checkMesh: Failed 3 mesh checks):
+  ***Cells with small determinant (< 0.001): 2 -- BOTH at r = 0.0000 m, the same
+     surface location as the skew pair. Almost certainly the same defect seen twice.
+  ***Concave cells: 4,710 (0.40% of mesh) -- ungated at L1 and L2 alike, deliberately,
+     because changing the gate set between levels would destroy the comparison.
+
+NO L3 IS BUILT. My registration tied 'no L3' to the two PREMISE falsifiers, and
+neither fired -- so this case is a GAP IN MY OWN REGISTRATION, disclosed rather than
+papered over. I apply dc7f4cfd sec.9's analogous discipline: a level that fails the
+gate ends the ladder. AND NO PARAMETER IS TUNED TO RECOVER THE 6.8% SKEW EXCEEDANCE.
+  Adjusting snapControls until 2 faces drop under 4.0 would be fitting the mesh to its
+  acceptance gate -- the same error as setting maxNonOrtho to 70, caught at L1. Any
+  remedy is a NEW REGISTERED RUNG with its prediction written before it runs.
+
+COST (rule 12): estimated ~7.8 core-min, cap 30, ACTUAL 7.42 (445 wall s x 1 rank).
+  RATIO 0.95. L1's estimate missed by 16x; re-anchoring on L1's OWN measured
+  4.79e-06 core-min/cell and predicting delivered cells from the background count
+  brought it to within 5%. The correction worked and the mechanism is named:
+  the L1 error was a misprediction of DELIVERED CELL COUNT, not contention.
+  L2 measured: 7.42 core-min / 1,176,022 cells = 6.31e-06 core-min/cell.
