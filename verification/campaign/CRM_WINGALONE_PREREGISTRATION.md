@@ -85,7 +85,7 @@ bin count where the coarse point cloud is not starved (16–40 bins, minimum bin
 | `A6` source | **35.00244°** | **0.272794** | ≤ 3.7e-05 |
 | coarsened output | **35.00243°** | **0.272793** | ≤ 4.6e-05 |
 | **difference** | **1e-05 °** | **1e-06** | — |
-| Vassberg | 35° | 0.275 | — |
+| **Vassberg Table 1, verified at source** | **35°** (Λ_C/4) | **0.275** (λ) | — |
 
 Sweep agrees with Vassberg to **0.007 %** and taper to **0.80 %**; source and output agree with each
 other to **1e-05 degrees**. The trailing-edge residual of order 1e-05 says the outboard TE is a
@@ -174,12 +174,31 @@ unequal-r machinery at all.**
 Every number in this table is the **source's**, not a measurement of any grid in §4. A reference
 quantity read off a mesh is a circular gate.
 
-| quantity | value | source |
-|---|---|---|
-| `Sref` | **383.6896 m²** | Vassberg Table 1 |
-| `Cref` | **7.005320 m** | Vassberg Table 1 |
-| semispan | **29.381450 m** | Vassberg Table 1 |
-| `MRC` | **(33.677860, 11.906250, 4.519930) m** | Vassberg Table 1 |
+🔴 **TABLE 1 IS IN INCHES. THE METRIC VALUES BELOW ARE EXACT UNIT CONVERSIONS OF IT, NOT QUOTATIONS
+FROM IT** — and that is itself the first warning of §5.3's hazard: **the source of this geometry is an
+imperial document.** All six were re-derived from the printed inch values by this lane and agree to
+**≤ 4.5e-05** (the single non-zero residual is `Sref`, from rounding in the source's own 5th decimal).
+
+| quantity | **Table 1, as printed (in)** | **registered value (SI, converted)** | conversion residual |
+|---|---|---|---|
+| `Sref` | **594,720.0 in²** | **383.6896 m²** | 4.5e-05 |
+| `Cref` | **275.80 in** | **7.005320 m** | 0.0 |
+| span (**full**) | **2,313.50 in** | semispan **29.381450 m** | 3.6e-15 |
+| `Xref` | **1,325.90 in** | **33.677860 m** | 0.0 |
+| `Yref` | **468.75 in** | **11.906250 m** | 0.0 |
+| `Zref` | **177.95 in** | **4.519930 m** | 0.0 |
+| λ (taper) | **0.275** | dimensionless | — |
+| Λ_C/4 | **35°** | dimensionless | — |
+| AR | **9.0** | dimensionless | — |
+
+⚠️ **Table 1's "Span" row is the FULL span, 2,313.50 in.** The semispan above is half of it. A half-model
+run that takes the printed row as a semispan doubles the aircraft.
+
+**L-144 title-page verification — DONE BY THIS LANE, DIRECTLY, NOT INHERITED.** `docs/papers/
+benchmark_test_cases/vassberg_2008_nasa_common_research_model.pdf` with its `.txt` sidecar: **AIAA
+2008-6919, "Development of a Common Research Model for Applied CFD Validation Studies", Vassberg,
+DeHaan, Rivers, Wahls (Boeing / NASA Langley).** Table 1 is titled *"Reference Quantities for the
+CRM."* The yehudi break at **37 % semispan** used in §3.2 and §5.3 is the source's own wording.
 
 ### 5.1 Cross-check, reproduced here rather than asserted
 
@@ -190,10 +209,17 @@ numbers above are mutually consistent to **0.004 %**, so they were transcribed c
 
 ### 5.2 🔴 REGISTERED TRAP — `Sref` IS THE AR DENOMINATOR; THE TRAP-WING AREA IS NOT
 
-The same table carries a **trapezoidal wing area of 576,000 in² = 371.61216 m²**, **two rows apart**
-from `Sref`. Substituting it:
+🔴 **CORRECTED AGAINST THE SOURCE, AND THE TRAP IS WORSE THAN FIRST DRAFTED.** The two areas are not
+"two rows apart" — they are **ADJACENT, rows 1 and 2 of Table 1**, printed one directly above the other:
 
-**span² / trap-area = 3453.0784 / 371.61216 = 9.292157** — against the true **8.999666**.
+| Table 1 row 1 | `Sref` | **594,720.0 in²** | = 4,130 ft² | **the AR denominator and the force-coefficient reference area** |
+|---|---|---|---|---|
+| **Table 1 row 2** | **Trap-Wing Area** | **576,000.0 in²** | = 4,000 ft² | **NOT either of those** |
+
+**Worked in the source's own native inches, with no unit conversion in the path at all:**
+
+- span² / `Sref` = 2,313.50² / 594,720 = **8.999667** ✅ against the printed **AR 9.0**
+- span² / trap-area = 2,313.50² / 576,000 = **9.292157** ❌
 
 **That is a 3.25 % error in aspect ratio, from picking the wrong row of the right table.** `Sref` =
 **383.6896 m²** is the AR denominator and the reference area for all force coefficients. **576,000 in²
@@ -249,7 +275,9 @@ run; it does not get a new budget.** The rule-12 estimate-versus-actual row is o
 
 ### 6.1 Registered precondition — DISK
 
-**Measured 2026-09-11: 38 GB free, 93 % used**, before any staging. The ladder needs **~2.99 GB** of
+**Measured 2026-09-11: 38 GB free, 93 % used**, before any staging. **The live figure is now 37 GB and
+FALLING AT 3.78 GiB/h** (measured by another lane) — faster than this lane was briefed, so the window
+is narrower than the raw free-space figure suggests and the ordering below is load-bearing, not tidy. The ladder needs **~2.99 GB** of
 volume meshes alone, before any solution files. **L3 is to be extruded only after a free-space check
 confirms ≥ 8 GB**, and the ladder is built **L1 → L2 → L3** so the cheap levels land first. The probe
 directory itself is small (the coarse surface is 348,160 bytes).
@@ -304,8 +332,80 @@ Stated plainly, because an honest gap is worth more than a confident guess.
   pair (34.91° / 0.2808) exactly; it returns **35.00244° / 0.272794**. Both land within ~1 % of
   Vassberg. This is a difference of instrument, **stated rather than reconciled**, and the reader's
   starved-configuration failure mode is recorded in §3.2.
-- **Vassberg Table 1 values in §5 are as supplied in the brief**, cross-checked for internal
-  consistency (§5.1) but **not** re-read by this lane from the paper's title page (L-144).
+- ~~Vassberg Table 1 values are as supplied in the brief and not re-read from the title page.~~
+  **CLOSED.** The paper was on disk with a sidecar; this lane verified the title page (L-144) and read
+  Table 1 directly. All six values confirmed, **and two errors in this lane's own first draft were
+  found and corrected by doing so** (§5: the table is in inches, not metres; §5.2: the two areas are
+  adjacent rows, not two apart). **The gap was worth closing rather than declaring.**
+
+---
+
+## 9A. THE TWO-READER RECONCILIATION — **THE SECOND READER DOES NOT EXIST ON DISK**
+
+The supervisor asked, correctly, that two readers disagreeing on one geometry be reconciled as a
+**measured** quantity before a freeze, not left as a provenance difference. **It cannot be done the way
+it was asked, and the reason is itself the finding.**
+
+**The earlier reader is not on this box.** Swept with a **live positive control** (the same sweep was
+first shown able to find a string known to be present, so a zero here is evidence and not a blind
+reader — rule 3): `34.91` and `0.2808` appear in **no `.md` or `.py` in the repository except this
+document**; `0.4449` appears in no file but this one and a handful of solver residual logs where it is
+a coincidental digit string. **No CRM planform reader exists anywhere in the repository or in
+`certonomous-runs`.** Those two numbers reached this lane **only through a supervisor's brief**, with
+no artifact behind them. **A number whose artifact is gone is not a result** — so there is no second
+instrument to run, and running this lane's reader twice would prove nothing.
+
+**What CAN be done, and is better than reader-versus-reader:** Table 1 is now verified at source
+(§5), so **both readings can be graded against the source instead of against each other.**
+
+| quantity | **source (Table 1, verified)** | **this lane's reader** | **the earlier figure** |
+|---|---|---|---|
+| quarter-chord sweep | **35°** | **35.00244° (+0.007 %)** | 34.91° (−0.257 %) |
+| taper ratio | **0.275** | **0.272794 (−0.802 %)** | 0.2808 (+2.109 %) |
+
+**This lane's reader is closer on both quantities, by 37× on sweep and 2.6× on taper** — and its
+LE/TE straight-line residual of ≤ 4.6e-05 is independent evidence that it is resolving the real
+planform. **That is not a claim that the earlier figure was wrong**; without its code, what produced it
+cannot be inspected. It is a statement that **only one of the two readings is reproducible today**, and
+the reproducible one agrees with the source better.
+
+🔴 **THE REAL FINDING IS NOT WHICH READER WON.** A pair of geometry numbers was quoted, relied on, and
+passed between lanes **all evening with no script and no artifact behind it.** Had this freeze cited
+34.91°/0.2808, it would have cited something unreproducible. **That is the exact failure the citation
+rule exists to prevent, and it was one freeze away.** This lane's readers are on disk, named in §3.4.
+
+---
+
+## 9B. REFERENCE DATA FOR A QoI BAND — **WHAT EXISTS, NOT WHAT WOULD BE NICE**
+
+Swept for machine-readable CRM force or `Cp` data (`.csv`/`.json` across the repository and
+`certonomous-runs`, with a live positive control). **The result determines whether §10's O3 can be a
+graded band at all.**
+
+| candidate | what it actually is | usable as a wing-alone band? |
+|---|---|---|
+| `docs/DPW-CRM-SCOPING.md` | median **257 drag counts**, IQR **252–262**, suggested band **250–264** | 🔴 **NO — explicitly "DPW-VI CFD Results — *Wing-Body* (Case 2A)"** |
+| Vassberg 2008 Figs 11–13 | `Cp` distributions | 🔴 **NO — figures in a PDF, and an OVERFLOW solution of the *WB* configuration** |
+| `verification/credibility/reference_tier_registry.json` | 15 entries | 🔴 **NO — zero Vassberg entries** |
+| DPW5 `.json` in `RUNG0b_exports` | mesh-conversion roundtrip records | 🔴 **NO — not aerodynamic data** |
+
+**Conclusion, stated plainly: there is NO machine-readable wing-alone CRM force or `Cp` dataset on this
+box.** Everything available is **wing-body**. A fuselage is not a small correction to wing-alone drag,
+so **grading a wing-alone solve against a wing-body band would be a category error that a plausible-looking
+number would hide.** The scoping document's own figures are additionally web-sourced prose, and it
+records that the wind-tunnel values are **held proprietary by NASA**.
+
+Two further mismatches, recorded so they are not discovered after a gate cites one of them:
+- **Reynolds number.** Vassberg's design point is **Rn = 40 million** per chord (flight); DPW's common
+  condition is **Re = 5 × 10⁶** (wind tunnel). **These are not the same case.**
+- **Configuration.** Vassberg's design point is quoted for the **wing/body**, not the wing alone.
+
+🟢 **THE CONSEQUENCE, WHICH IS A LEGITIMATE OUTCOME AND NOT A SHORTFALL.** O3 should be registered as a
+**grid-convergence gate alone** — an observed order and a GCI on a self-consistent QoI, which needs **no
+external dataset** and is exactly what an r = 2.000000 nested triple is *for*. **The physics is then
+REPORTED, NOT GATED.** Inventing a band would repeat `CRM_M085`'s error of grading against nothing; the
+band is absent, so it is not registered. **Absence of reference data does not weaken a verification
+rung — it only bars a validation claim, which this rung should not make.**
 
 ---
 
@@ -318,7 +418,7 @@ following is the supervisor's act, and §12 cannot be signed until each carries 
 |---|---|---|
 | **O1** | **Flow condition** (M∞, Re, α or CL target) | not specified in the brief; determines everything below |
 | **O2** | **Solver** | `CRM_M085`'s solver ruling is **not inherited** (§1); the §4 meshes are structured CGNS from the MACH stack, which points at a different solver than that rung's OpenFOAM path |
-| **O3** | **QoI and its threshold band** | **rule 2: the gate is the document's entire evidentiary content.** A threshold chosen by the lane that produced the mesh proves nothing |
+| **O3** | **QoI and its threshold band** | **rule 2: the gate is the document's entire evidentiary content.** A threshold chosen by the lane that produced the mesh proves nothing. **§9B now bounds this decision: no wing-alone reference data exists, so the honest form is a grid-convergence gate with the physics REPORTED, NOT GATED** |
 | **O4** | **Observed-order band** for the Roache triple | same |
 | **O5** | **Solver core-min estimate and cap** | follows O1–O2; **rule 12 forbids freezing without it** |
 
