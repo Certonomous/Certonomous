@@ -21,6 +21,14 @@ confident-looking picture.  So every render asserts:
     sum over rendered patches of (rendered surface cells) == sum of nFaces for
     those patches, read from the case's own constant/polyMesh/boundary
 
+SCOPE OF THAT GUARD, STATED HONESTLY: it is a SUM identity, not a per-patch one.
+It catches a reader that drops whole patches -- measured: DrivAer r1_fine returned
+13,734 of 379,519 faces with 48 of 52 patches silently zero -- because dropped
+patches change the total.  It would NOT catch a COMPENSATING error in which two
+patches exchanged counts.  A per-patch identity (rendered[p] == nFaces[p] for
+every p) is strictly stronger and is the known better guard; until it is built,
+this guard is the sum and is described as the sum.
+
 MEASURED, NOT ASSUMED.  The ratio was established by measurement before this
 assertion's form was fixed (probe on F25-DUCT3D fine, 2026-09-11):
 
@@ -184,11 +192,35 @@ def rendered_face_count(foam, patches, decimate=False):
     """Total rendered surface cells over `patches`, read back from the pipeline."""
     from paraview.simple import (OpenFOAMReader, Decimate, ExtractSurface,
                                  Triangulate)
+    # === ONE READER FOR ALL PATCHES. MEASURED DEFECT, 2026-09-11. ===
+    # This was written as one OpenFOAMReader PER PATCH.  On DrivAer r1_fine (52
+    # wall patches) that returned 13,734 faces against 379,519 declared: only the
+    # FIRST FOUR patches alphabetically produced geometry and the other 48
+    # returned EXACTLY ZERO -- silently, with no exception and no warning.  It
+    # would have rendered a car from four body panels, which reads as a styling
+    # crop rather than as a broken render, and rc would have been 0.
+    # ONLY THE FACE-COUNT IDENTITY CAUGHT IT.
+    # A single reader carrying all 52 MeshRegions returns 379,519 == 379,519,
+    # measured.  So the per-patch total is built from ONE reader, and per-patch
+    # figures are reported by reading each region off that same reader only when
+    # a breakdown is asked for.
+    # BOTH PATHS USE THE SINGLE READER.  An earlier version guarded the fast path
+    # with `if not decimate:` and left decimate=True falling through to the
+    # per-patch form -- so the DECIMATION CONTROL ran through the known
+    # under-reading reader.  That control asserts the guard REFUSES on a decimated
+    # surface; driven through an under-reading counter it could have gone green
+    # BECAUSE THE READER UNDER-READ rather than because decimation worked, and the
+    # two are indistinguishable from the verdict line.  It was safe only because
+    # the selftest fixture has few patches -- an accident of the fixture, not a
+    # property of the control.  NO PATH KEEPS THE DEFECTIVE FORM.
+    r = OpenFOAMReader(FileName=foam)
+    r.MeshRegions = ["patch/" + n for n in patches]
+    r.UpdatePipeline()
+    if not decimate:
+        total = r.GetDataInformation().GetNumberOfCells()
+        return total, {"__sum_over_all_patches_one_reader__": total}
     total, per = 0, {}
-    for name in patches:
-        r = OpenFOAMReader(FileName=foam)
-        r.MeshRegions = ["patch/" + name]
-        r.UpdatePipeline()
+    for name in [None]:
         src = r
         if decimate:
             # MEASURED GOTCHA, 2026-09-11: vtkDecimatePro REFUSES non-triangle
@@ -213,7 +245,7 @@ def rendered_face_count(foam, patches, decimate=False):
                            TargetReduction=0.9)
             src.UpdatePipeline()
         n = src.GetDataInformation().GetNumberOfCells()
-        per[name] = n
+        per["__decimated_all_patches__"] = n
         total += n
     return total, per
 
@@ -397,6 +429,11 @@ def main(argv):
     ap.add_argument("--clip", default=None,
                     help="Optional clip as 'ox,oy,oz,nx,ny,nz' (origin + normal).")
     ap.add_argument("--field", default=None, help="Cell/point field to colour by.")
+    ap.add_argument("--up", default="y", choices=("x", "y", "z"),
+                    help="Which axis is 'up' for this case. OpenFOAM cases do not "
+                         "agree: F25/PRD/MRF are y-up, DrivAer is z-up (automotive "
+                         "convention). A generic camera CANNOT know, and guessing "
+                         "renders a car upside down -- measured 2026-09-11.")
     ap.add_argument("--resolution", default="1920x1080")
     ap.add_argument("--min-ink", type=float, default=0.002)
     ap.add_argument("--prefix", default=None)
@@ -482,9 +519,11 @@ def main(argv):
     import math
     diag = max(view.CameraPosition[i] - fp[i] for i in range(3)) or 1.0
     r = abs(diag) * 1.8
-    view.CameraPosition = [fp[0] + r * 0.75, fp[1] + r * 0.55, fp[2] + r * 0.9]
-    view.CameraViewUp = [0.0, 1.0, 0.0]
-    view.ResetCamera()
+    up = {"x": [1.0, 0.0, 0.0], "y": [0.0, 1.0, 0.0], "z": [0.0, 0.0, 1.0]}[a.up]
+    off = {"x": [0.55, 0.9, 0.75], "y": [0.75, 0.55, 0.9],
+           "z": [0.75, 0.9, 0.55]}[a.up]
+    view.CameraPosition = [fp[i] + r * off[i] for i in range(3)]
+    view.CameraViewUp = up
     Render()
 
     prefix = a.prefix or os.path.basename(case.rstrip("/"))
