@@ -141,3 +141,16 @@ one core throughout, so the box's load average of ~16.9 on 16 vCPU did not starv
 The misprediction is the degeneracy above: the registered figure was scaled from L1 on a
 node count, by a fit that could not see the crossover. Waste: **none** — no run was
 abandoned and no level was re-run. A ledger row lands in `docs/COST_CALIBRATION.md`.
+
+---
+
+## ADDENDUM 1 — 2026-09-11. **L3 WILL NOT BE BUILT. THE CAP ABOVE IS NEVER SPENT.**
+
+The supervisor's reserved Axis C contingency fired: **L2 returned C2** (74.6431 > 70,
+1,019 over-gate faces), so the family is inadmissible under `MESH_STANDARD` §3.1 and
+cannot be shown admissible under §8.1. **Route (c) terminates on the gate, not on this
+cap.** The fit above stands as a measured cost law and as the record of why three prior
+estimates were low; **it is not a live budget.** See `../ROUTE_C_REFUTATION.md`.
+
+**No gate, threshold, cap, band or label is altered by this addendum.**
+**Lines whose number changed above this section: 0.**
