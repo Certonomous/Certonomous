@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
-"""build_k2d.py -- K2d three-level rack-row builder.  F14 cooling ladder.
+"""build_k2f.py -- K2f three-level rack-row builder.  F14 cooling ladder.
 
-    python3 build_k2d.py K2f_L1 [K2f_L2 K2f_L3]   # build named levels
-    python3 build_k2d.py --arith                  # ladder arithmetic, no build
-    python3 build_k2d.py --selftest               # mutation matrix, no build
+    python3 build_k2f.py K2f_L1 [K2f_L2 K2f_L3]   # build named levels
+    python3 build_k2f.py --arith                  # ladder arithmetic, no build
+    python3 build_k2f.py --selftest               # mutation matrix, no build
 
 REGISTRATION
 ------------
-`docs/campaigns/F14-cooling-ladder/K2d_PREREGISTRATION.md`.  Geometry, boundary
+`docs/campaigns/F14-cooling-ladder/K2f_PREREGISTRATION.md`.  Geometry, boundary
 conditions and properties are K2a's defaults, inherited by citation (K2a
 sections 2, 2.1, 3); this file builds them and invents none.
 
-EXIT MAP -- registration section 6.4
+THE FIRST FORM OF THIS FILE NAMED ITSELF `build_k2d.py` AND CITED
+`K2d_PREREGISTRATION.md`, WHICH IS RETIRED (K2d s.17, Addendum 4).  A builder
+whose stated authority is a retired document is pinned to nothing.  Corrected
+2026-09-11, pre-freeze, together with the two defects below.
+
+EXIT MAP -- registration section 9.5
     0 EXIT_OK    every named level built and passed its own checkMesh
     1 EXIT_FAIL  a level built but FAILED checkMesh
     2 EXIT_REFUSE a precondition is missing, or clause 7 refuses the directory
@@ -92,9 +97,18 @@ MONITOR_INTERVAL = 50          # the registered G-CYCLE cadence (s.3, s.6.1)
 HA_ZONE = "haZone"
 HA_BOX = ((0.6, 2.3, 0.0), (3.0, 3.5, 2.0))   # x first->last rack face,
                                               # y full W_ha, z floor->H_r
-# The series the gate READS. A-INPUT (s.3.1) asserts every one of these exists
-# and is non-empty before this document may be frozen.
-SERIES = tuple("T_in_%d" % i for i in range(N_RACKS)) + ("U_ha",)
+# THE COLD-AISLE CONTROL VOLUME FOR GRADED ROW G4, AND IT IS A PROPOSAL.
+# Registration s.5.1 registers G4 as "volume-averaged `T` over the cold aisle"
+# and NOWHERE DEFINES THE VOLUME.  s.3 defines U_ha's control volume to the
+# metre and says nothing about this one.  A gate whose control volume is
+# undefined cannot be graded, and choosing one is the REGISTRATION's job, not a
+# lane's.  The box below is the exact parallel of the registered HA_BOX -- full
+# W_ca in y (0 -> 1.2, K2a's 1.20 m), the rack row's first-to-last face in x,
+# floor to rack top H_r in z -- and it is written here so the rung is RUNNABLE
+# while the supervisor decides.  IT IS NOT A REGISTERED DEFINITION AND THE
+# COMPARATOR SAYS SO IN ITS OUTPUT ON EVERY RUN.
+CA_ZONE = "caZone"
+CA_BOX = ((0.6, 0.0, 0.0), (3.0, 1.2, 2.0))
 MINCELL_FLOOR_M = 5.0e-3
 
 # --- boundary conditions: K2a section 2.1 defaults --------------------------
@@ -108,6 +122,17 @@ BETA = 3.333333e-03
 T_REF = 300.0
 PR, PRT = 0.71, 0.85
 I_SUP = 0.10            # supply turbulence intensity
+
+# The series the gate READS, and THE NAMES ARE THE FUNCTION-OBJECT NAMES in
+# _functions_block() below, so the producer and the consumer cannot drift apart
+# silently.  A-INPUT (s.3.1) asserts every one of these exists on disk and is
+# non-empty before this document may be frozen.
+#
+# DEFINED HERE AND NOT AT THE TOP OF THE FILE: it reads N_RACKS, and N_RACKS is
+# bound above.  The first form of this line sat ABOVE `N_RACKS = 4` and raised
+# NameError AT IMPORT -- this builder could not be imported at all, let alone
+# run.  Repaired 2026-09-11, pre-freeze, by a heat-transfer lab-lane.
+SERIES = tuple("T_in_%d" % i for i in range(N_RACKS)) + ("U_ha", "T_ca")
 
 NAMED_FEATURES = ("rack front face", "rack rear face", "rack side faces",
                   "supply tile face", "return face",
@@ -187,7 +212,7 @@ def arith_report():
     """Everything that can be checked BEFORE a mesh exists.  Prints and returns ok."""
     ok = True
     prev = None
-    print("K2d LADDER ARITHMETIC -- checked before any mesh is built")
+    print("K2f LADDER ARITHMETIC -- checked before any mesh is built")
     print("%-8s %-34s %12s %12s %8s %9s" %
           ("level", "divisions (x/y/z totals)", "cells", "target", "delta", "step"))
     for lv in LEVELS:
@@ -375,6 +400,116 @@ def _fields(case):
       "    \".*\" { type calculated; value uniform 0; }\n" % PRT)
 
 
+def _functions_block():
+    """THE GATE'S PRODUCERS -- registration s.3, AND THE DEFECT THAT KILLED K2d.
+
+    K2d registered `T_in,max` and `U_ha` as in-pass function-object output
+    (`K2d:290`, `K2d:413`) and its pinned builder emitted NO function objects at
+    all: `grep -c functions` returned 0 on all three controlDicts and no
+    `postProcessing/` was ever created.  `G-CYCLE` had no input at ANY level.
+    Neither K2d's 16 green builder arms nor its 31 green comparator arms asked
+    whether the quantity the gate READS had been WRITTEN -- every one of them
+    compared this builder's outputs against this builder's own intentions, and
+    both sides of that comparison share the omission.
+
+    `A-INPUT` (s.3.1) is the arm that asks, and this is the block it asks about.
+    It was itself MISSING from the first form of this file -- `_system_and_constant`
+    CALLED `_functions_block()` and nothing defined it, so every build raised
+    NameError.  Repaired 2026-09-11, pre-freeze, by a heat-transfer lab-lane.
+
+    WHAT IS WRITTEN HERE, AND WHAT IS DERIVED
+    -----------------------------------------
+    WRITTEN, one series per file, at the registered 50-iteration cadence:
+      * `T_in_<i>` -- mass-flow-weighted mean `T` over `rack<i>_in`, per rack.
+      * `U_ha`     -- volume-averaged |U| over the `haZone` cellZone.
+
+    DERIVED BY THE COMPARATOR, because neither HAS an OpenFOAM producer and
+    neither NEEDS one -- both are pure algebra on the two series above with
+    every constant registered:
+      * `T_in,max` = max over i of `T_in_i`.  This is a maximum over four PATCH
+        AVERAGES.  It is NOT what any single function object's `max` operation
+        returns, which is a maximum over FACES -- a different quantity that
+        would read the hottest face rather than the hottest rack.
+      * `theta_i`  = (`T_in_i` - `T_SUP`) / `DT_RACK`, an affine map whose two
+        constants are registered at K2a's defaults (s.2).
+
+    REPORTED AS A FINDING, not left for a reader to infer: registration s.3
+    lists all four quantities as "written by in-pass `functions` entries", and
+    TWO OF THE FOUR ARE DERIVED.  The registration's wording is the thing that
+    should move, not the arithmetic -- but a lane does not move it, so it is
+    reported.
+
+    `U_ha` NEEDS TWO OBJECTS, NOT ONE, AND THE ORDER IS LOAD-BEARING.
+    `volFieldValue` cannot take a magnitude on the fly, and THE VOLUME AVERAGE
+    OF A VECTOR IS NOT THE VOLUME AVERAGE OF ITS MAGNITUDE: on a recirculating
+    hot aisle the first can sit near zero while the second is the number the
+    registration asks for.  So `mag` writes the derived field `magU` first and
+    `U_ha` volume-averages THAT.  Function objects execute in dictionary order,
+    so `magU` is declared first; that is not a stylistic choice.
+    """
+    fos = ["""
+    magU
+    {
+        type            mag;
+        libs            (fieldFunctionObjects);
+        field           U;
+        result          magU;
+        executeControl  timeStep;
+        executeInterval %d;
+        writeControl    none;
+    }
+    U_ha
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            %s;
+        operation       volAverage;
+        fields          (magU);
+        writeFields     false;
+        executeControl  timeStep;
+        executeInterval %d;
+        writeControl    timeStep;
+        writeInterval   %d;
+        log             true;
+    }
+    T_ca
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            %s;
+        operation       volAverage;
+        fields          (T);
+        writeFields     false;
+        executeControl  timeStep;
+        executeInterval %d;
+        writeControl    timeStep;
+        writeInterval   %d;
+        log             true;
+    }""" % (MONITOR_INTERVAL, HA_ZONE, MONITOR_INTERVAL, MONITOR_INTERVAL,
+            CA_ZONE, MONITOR_INTERVAL, MONITOR_INTERVAL)]
+    for i in range(N_RACKS):
+        fos.append("""
+    T_in_%d
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            rack%d_in;
+        operation       weightedAreaAverage;
+        weightField     phi;
+        fields          (T);
+        writeFields     false;
+        executeControl  timeStep;
+        executeInterval %d;
+        writeControl    timeStep;
+        writeInterval   %d;
+        log             true;
+    }""" % (i, i, MONITOR_INTERVAL, MONITOR_INTERVAL))
+    return "\nfunctions\n{" + "".join(fos) + "\n}\n"
+
+
 def _system_and_constant(case, level):
     sysd, cond = os.path.join(case, "system"), os.path.join(case, "constant")
     os.makedirs(sysd, exist_ok=True)
@@ -411,10 +546,17 @@ def _system_and_constant(case, level):
                    "    { name %s; type cellSet;     action new;\n"
                    "      source boxToCell; box (%g %g %g) (%g %g %g); }\n"
                    "    { name %s; type cellZoneSet; action new;\n"
+                   "      source setToCellZone; set %s; }\n"
+                   "    { name %s; type cellSet;     action new;\n"
+                   "      source boxToCell; box (%g %g %g) (%g %g %g); }\n"
+                   "    { name %s; type cellZoneSet; action new;\n"
                    "      source setToCellZone; set %s; }\n);\n"
                  % (HA_ZONE, HA_BOX[0][0], HA_BOX[0][1], HA_BOX[0][2],
                     HA_BOX[1][0], HA_BOX[1][1], HA_BOX[1][2],
-                    HA_ZONE, HA_ZONE))
+                    HA_ZONE, HA_ZONE,
+                    CA_ZONE, CA_BOX[0][0], CA_BOX[0][1], CA_BOX[0][2],
+                    CA_BOX[1][0], CA_BOX[1][1], CA_BOX[1][2],
+                    CA_ZONE, CA_ZONE))
     with open(os.path.join(sysd, "fvSchemes"), "w") as fh:
         fh.write(_hdr("dictionary", "fvSchemes", "system")
                  + "ddtSchemes { default steadyState; }\n"
