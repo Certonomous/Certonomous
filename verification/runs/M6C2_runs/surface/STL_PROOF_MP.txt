@@ -1,0 +1,64 @@
+STL CONVERSION PROOF -- route (d), generated 2026-09-11T21:57:50Z
+Body NOT re-derived here; see BODY_PROOF_MP.txt. Proven here: the conversion
+did not move the body, and the result is manifold and closed except the root.
+
+=== m6_mp_L1.xyz -> m6_mp_L1.stl ===
+  patch wing_upper     57 x   85
+  patch wing_base      57 x   17
+  patch wing_lower     57 x   85
+  patch wing_nose      57 x   17
+  patch cap_upper       9 x   85
+  patch cap_base        9 x   17
+  patch cap_lower       9 x   85
+  patch cap_nose        9 x   17
+  patch crown          85 x   17
+  triangles 28288 (expected 28288)
+  [limb 1] max |STL vertex - PLOT3D point| = 0.000e+00
+  [limb 2 PLANT] as built 200 open edges; crown displaced 1 mm -> 600
+    control PASSES -- the reader is shown able to SEE an open seam
+  [limb 2] open edges 200: 200 on the ROOT plane |y|<=1e-09 (the symmetry plane, expected), 0 elsewhere
+  bbox x [0.000000, 1.140042]  y [0.000000, 1.196300]  z [-0.039425, 0.039425]
+  WROTE m6_mp_L1.stl  (7.45 MB, 28288 triangles, 9 named solids)
+  ACCEPTED: closed except the root symmetry plane, manifold, body unmoved.
+rc=0
+
+=== m6_mp_L2.xyz -> m6_mp_L2.stl ===
+  patch wing_upper     85 x  127
+  patch wing_base      85 x   25
+  patch wing_lower     85 x  127
+  patch wing_nose      85 x   25
+  patch cap_upper      13 x  127
+  patch cap_base       13 x   25
+  patch cap_lower      13 x  127
+  patch cap_nose       13 x   25
+  patch crown         127 x   25
+  triangles 63648 (expected 63648)
+  [limb 1] max |STL vertex - PLOT3D point| = 0.000e+00
+  [limb 2 PLANT] as built 300 open edges; crown displaced 1 mm -> 900
+    control PASSES -- the reader is shown able to SEE an open seam
+  [limb 2] open edges 300: 300 on the ROOT plane |y|<=1e-09 (the symmetry plane, expected), 0 elsewhere
+  bbox x [0.000000, 1.140042]  y [0.000000, 1.196300]  z [-0.039420, 0.039420]
+  WROTE m6_mp_L2.stl  (16.83 MB, 63648 triangles, 9 named solids)
+  ACCEPTED: closed except the root symmetry plane, manifold, body unmoved.
+rc=0
+
+=== m6_mp_L3.xyz -> m6_mp_L3.stl ===
+  patch wing_upper    127 x  190
+  patch wing_base     127 x   37
+  patch wing_lower    127 x  190
+  patch wing_nose     127 x   37
+  patch cap_upper      19 x  190
+  patch cap_base       19 x   37
+  patch cap_lower      19 x  190
+  patch cap_nose       19 x   37
+  patch crown         190 x   37
+  triangles 143208 (expected 143208)
+  [limb 1] max |STL vertex - PLOT3D point| = 0.000e+00
+  [limb 2 PLANT] as built 450 open edges; crown displaced 1 mm -> 1350
+    control PASSES -- the reader is shown able to SEE an open seam
+  [limb 2] open edges 450: 450 on the ROOT plane |y|<=1e-09 (the symmetry plane, expected), 0 elsewhere
+  bbox x [0.000000, 1.140042]  y [0.000000, 1.196300]  z [-0.039432, 0.039432]
+  WROTE m6_mp_L3.stl  (37.91 MB, 143208 triangles, 9 named solids)
+  ACCEPTED: closed except the root symmetry plane, manifold, body unmoved.
+rc=0
+
