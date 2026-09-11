@@ -32271,6 +32271,36 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 148-I-ORDERED-A-WEDGE-RENDERED-AS-A-3D-CASE-ON-THE-DAY-SANAA-ASKED-FOR-3D-AFTER-READING-THE-WARNING-THAT-MORNING -->
+
+**Section last written:** 2026-09-11T~17:35Z by the cfd-supervisor (Opus 5). PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted. **Corrects blocks 144 and 145 and a Sanaa-desk item.**
+
+### 🔴 **CORRECTION — I ORDERED AN AXISYMMETRIC WEDGE RENDERED AS A 3-D CASE, AND I HAD READ THE WARNING THAT MORNING**
+**`SUP_BOOSTER E2` is a 2-D axisymmetric WEDGE.** From its own `constant/polyMesh/boundary`: **`front` type=wedge nFaces=30375, `back` type=wedge nFaces=30375, `axis` type=empty nFaces=0** — and the solid body, the `cone` wall patch, is **165 FACES**. **Block 144 listed it as renderable under limb 2 and I instructed the lane to render its finest level.** I never checked its dimensionality.
+- 🔴 **AND HEAT-TRANSFER HAD ALREADY WRITTEN THE HAZARD DOWN, IN TERMS, THIS MORNING.** Their update 111: *"`T4e` is a 2.5° axisymmetric WEDGE — 2 geometric directions, 2 wedge patches, 1 empty — it has NO STL and it may NEVER be presented as 3D"*, warning that a renderer *"would put a wedge in front of the owner as a 3D case."* **I read that, relayed parts of it, and then built a render list without running the one check it names.** ***The lab was one render from doing the precise thing another supervisor had already recorded as the hazard — on the day she asked for 3-D.***
+- **The lane's `dim` column carried an em-dash where the check belonged, and it said so against itself. But it sat under an instruction from ME that never required the check. The requirement belonged on the supervisor's list.**
+- **Two independent reasons now keep E2 off the 3-D set: my plateau contest and its dimensionality. NEITHER touches its verdict**, which stands exactly as graded.
+- **The lane's status table is wrong in the same direction at §7.2 and Amendment A1.2** ("the one case that unambiguously clears the render test", "1 renderable, 2 contested"). **Correction recorded here rather than as more table prose, deliberately.**
+
+### ⚖️ **RULING — THE RENDERER GETS A DIMENSIONALITY GUARD THAT REFUSES, AND THE INK FLOOR IS THE WRONG INSTRUMENT**
+**Measured proof that the existing guard is inadequate: the 165-face sliver PASSED `--min-ink` 0.0020 at 0.0026 — by 30 %.** A guard a wedge clears by 30 % will not catch the next one. **Raising the floor is a patch.**
+- **Structural fix ordered: read `constant/polyMesh/boundary` and REFUSE any case carrying a `wedge` or `empty` patch, naming the patch and type; cross-check `checkMesh`'s geometric-directions line and REFUSE ON DISAGREEMENT rather than preferring either reading.** **This is `SUBOFF_A1` §5.1's M-c limb, which already existed and which nothing was applying at render time.**
+- **Driven in `--selftest` against SUP_BOOSTER E2 itself — now the lab's own known-wedge fixture — asserted to REFUSE. Three guards-that-could-not-fire have been found today; this one is driven before it is believed.**
+- **EVERY case on the list gets the check, not only the one that failed** — PRD_E1, F25_DUCT3D, MRF_R2 fine, DrivAer r1_fine, each with its patch types reported. **I believe all four are genuinely 3-D and that belief is exactly what just failed.** ***A case named `F25_DUCT3D` is a reputation, not a measurement.***
+
+### 🟢 RENDERS — **PRD_E1 IS REAL DEMO MATERIAL AND IT IS THE ONE SANAA NAMED**
+`PRD_E1_us1.00_L3`: **61,440 faces**, ink 0.1257, guard PASS, graded tree proven untouched — the duct's pressure gradient reading red→blue along its length with the mesh legible over it. `docs/campaigns/navier_class/PRD/demo/PRD_E1_us1.00_L3_surface.png`. **F25_DUCT3D fine** renders real but **at the legibility limit** — 131,072 faces at ~one pixel per cell, so edges saturate into moiré; **the tool now prints that warning itself above 200k faces**, which is the right shape: an instrument that says the picture is at its limit beats a human noticing later. **The demo answer there is a clip or a zoomed view, not a finer render.** MRF_R2 fine and DrivAer r1_fine still rendering.
+- 🟢 **EVERY render so far proves `census_before == census_after` BYTE-IDENTICAL, with both hashes written into each image's sidecar JSON. The symlink staging is holding and the proof travels with the artifact.** That is the part working exactly as designed.
+
+### 🟢 **THE BEST OBSERVATION OF THE DAY CAME FROM A LANE AND IT IS SHARPER THAN THE RULE IT DEFENDS**
+On my pre-registered "one shift is a test, a series of shifts is a search" limit, the lane wrote: ***"Having just refused to tune `nSmoothScale`, I would have found a second shift much easier to justify than the first, because it would have felt like the same experiment rather than a new one. That is precisely how a search disguises itself as a test."***
+- **A refusal already made makes the NEXT step feel pre-approved — the discipline of the first refusal becomes the warrant for the second attempt.** That is exactly why the limit had to be registered **before** the result. **Lesson-grade, and it will be proposed in the lane's own wording.**
+
+### 🔴 CORRECTION TO SANAA'S DESK ITEM — **THE INSTANCE QUESTION BUYS L3 AND DOES NOT FIX L1**
+Restated because it reached her desk in the looser form: **L3 is RAM and purchasable; L1's determinant failure is geometry and survives any box size.** **Only one of the two is purchasable, and a desk item implying otherwise misinforms her.** The lane flagged this independently and was right.
+
+**On Sanaa's desk:** the SUBOFF instance question **correctly scoped** (buys the top of the family, not the bottom); as information, the 3-D renderer the lab lacked — **now producing real demo material, with PRD_E1 done.** **Blocked:** MRF fine on the clean control; SUBOFF triple on `L1_SHIFT` (amendment committed before the build); M6 + CRM (lane live, no report yet); E2's §2d.1 referral. **Live:** ET8000 coarse + medium at nice 10; clean control D2; free measurement armed; MRF_R2 and DrivAer renders. Three lanes at cap.
+
 <!-- BOARD-BLOCK-ID: 147-MY-THIRD-NUMERICAL-ERROR-TODAY-AND-A-LANE-CAUGHT-ALL-THREE-PLUS-THE-BETTER-SUPPORTED-NUMBER-IS-THE-ONE-THAT-DOES-NOT-MATTER -->
 
 **Section last written:** 2026-09-11T~17:25Z by the cfd-supervisor (Opus 5). PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted.
