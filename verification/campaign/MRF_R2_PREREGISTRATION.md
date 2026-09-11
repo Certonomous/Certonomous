@@ -598,3 +598,361 @@ NO COMPUTE UNDER THIS DOCUMENT AS AT FREEZE, verified by a LIVE PLANTED CONTROL:
 
 **AFTER THIS FREEZE THE GATES ARE CLOSED.** Changes land only as dated addenda that cannot alter a
 gate, threshold, cap, band or label.
+
+---
+
+## ADDENDUM 1 — 2026-09-11 — THE `endTime` 8000 RELAUNCH, ALL THREE LEVELS, FROM `0`
+
+**Document version: FROZEN v1.0 (freeze commit `558a430a`, blob `dba6e43a`) → v1.1 with this addendum.**
+Authored by a cfd lab-lane, 2026-09-11T16:25Z, **BEFORE any compute under it.**
+
+### A1.0 — The frozen-file assertion, PROVED and not asserted (rule 6)
+
+**`lines whose number changed above this section: 0`.**
+
+Not offered as a claim. The 600 lines above this heading are byte-identical to the
+committed blob, and the proof is a hash, not an assurance:
+
+| what | value |
+|---|---|
+| registration blob (git sha1), freeze commit `558a430a` | `dba6e43ac046ae642eae259efad524cb801a6004` |
+| `git show HEAD:verification/campaign/MRF_R2_PREREGISTRATION.md \| sha256sum` | `2942e35143364e533731e8e157987c5b4a0fcbc2163fb3ba6acd2045f5348041` |
+| `head -n 600 <this file> \| sha256sum` **after this addendum was appended** | `2942e35143364e533731e8e157987c5b4a0fcbc2163fb3ba6acd2045f5348041` |
+| bytes above this section | 36,063 — the byte count of the frozen file, which ends in `\n` |
+
+The two sha256 values are equal, so every pre-existing line is unmoved and unedited.
+Anyone may re-run those three commands; the check fails loudly if a byte above moved.
+
+### A1.1 — THE RULING [lab-attributed]
+
+**Recorded by the cfd-supervisor on `docs/LAB_STATE.md` block 140.** §9's contingency is
+executed **literally on fine** and **the same remedy is extended to coarse and medium**:
+all three levels re-run **from `0`** at **`endTime` 8000**, and **the 8000 family is the
+graded one**.
+
+**Why, in the supervisor's reason:** the deliverable is a **triple**. A family that
+breaches its own drift limb at **every** level yields a DIVERGENT triple that cannot
+distinguish *"this family diverges"* from *"this family is not finished"*. Re-running one
+level of three would produce levels that no longer share a convergence history — the
+comparison would then be between an 8000-iteration fine and two 4000-iteration siblings,
+and the grid-convergence claim would be contaminated by an iteration-count difference that
+no Roache triple can separate from a mesh effect.
+
+**The condition that fired, re-measured by this lane rather than accepted** — `measure_states_mrf.py`'s
+own S12 functions, imported unmodified, applied to the three R2 `moment.dat` files, with
+that reader first shown able to see a planted `1.234e-03` (rule 3, PASS, reader returned
+`1.234e-03`):
+
+| level | S12 relative drift at 4000 | monotone fraction | ≥ 1e-3 ? | S12 two-limb state |
+|---|---:|---:|---|---|
+| coarse | **+1.3001e-03** | 0.5195 | **YES, 1.30×** | SILENT → `PLATEAUED` |
+| medium | **+4.9190e-03** | 0.4935 | **YES, 4.92× — the worst level** | SILENT → `PLATEAUED` |
+| fine | **−4.2576e-03** | 0.4675 | **YES, 4.26×** | SILENT → `PLATEAUED` |
+
+Artifacts: `verification/runs/navier_class/MRF/R2/{coarse,medium,fine}/postProcessing/impellerForces/0/moment.dat`.
+The §9 limb fires **on the drift limb alone**, exactly as §9 wrote it; the `PLATEAUED`
+calls above are S12's own two-limb verdict and are **not** revisited or overturned here.
+
+**§9 registered the contingency for fine. It did not contemplate all three breaching.**
+That is stated plainly rather than smoothed over: the extension to coarse and medium is a
+**supervisor ruling of 2026-09-11, not a clause of the frozen document**, and it is
+labelled `[lab-attributed]` for exactly that reason.
+
+**THERE WILL BE NO 16000.** §9 already settled it — *"If 8000 also leaves |drift| ≥ 1e-3,
+that is a finding about the steady MRF formulation, not a licence for a third extension."*
+This addendum does not reopen that and no third extension may be proposed under it.
+
+### A1.2 — WHAT THIS ADDENDUM DOES NOT ALTER, AND WHAT IT DOES
+
+**IT ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** Specifically and by name:
+
+- **Gate** — unchanged: fine-level `Np`, one-way rule-5 grid gating, GCI at Fs = 1.25.
+- **Threshold / band** — unchanged: PASS band **[4.0, 6.0]**, reference 5.0, tier unchanged (§2, §3).
+- **Threshold, S12** — unchanged: |relative drift| ≥ 1e-3 and monotone ≥ 0.90, MONITOR_STANDARD S12.
+- **Cap** — unchanged: `budget_gate: NONE` (Sanaa 2026-09-10, 3-D exemption). No cap is created, raised or lowered here.
+- **Label** — unchanged: the rule-1 vocabulary, and the one-way direction of §3's gate.
+- **Grading path** — unchanged: `cases/navier_class/MRF/grade_mrf_np.py`, sha256
+  `2a443bfe731ea43e2fe1cab5dbe692e9bf935c751bef463ea585409d7f63f08d`, verified byte-identical
+  to its HEAD blob as this addendum was written.
+- **Solver, numerics, MRF setup, mesh** — unchanged. The 8000 family reuses the 4000
+  family's `constant/polyMesh` **byte-for-byte**, asserted by the launcher's own md5 over
+  `points faces owner neighbour cellZones`. No level is re-meshed, so the geometric
+  similarity this rung exists to establish is carried over exactly rather than rebuilt.
+- **Rank counts** — unchanged per level (coarse 2, medium 2, fine 6), deliberately, so the
+  decomposition is not a second thing that changed.
+
+**WHAT IT DOES ALTER, and this is the whole of it:**
+
+1. **`endTime`: 4000 → 8000**, on **all three levels**, each **re-run from `0`** — never a
+   restart from 4000, so rule 4 clauses 3 and 4 hold cleanly against a single pinned `endTime`.
+2. **Which artifacts grade:** the 8000 family. The 4000 family is **retained, not deleted,
+   not superseded in the record** — it is the measured evidence that the contingency fired,
+   it is cited by `verification/runs/navier_class/MRF/R2/MRF_R2_TRIPLE_AT_4000.json`, and
+   its verdict **`NOT A RESULT`** at `endTime` 4000 stands as a graded fact.
+3. **Where the 8000 family lives:** a new subtree, **not** on top of the 4000 trees.
+
+### A1.3 — WRITTEN BEFORE COMPUTE: the run directories that DO NOT EXIST (rule 2)
+
+Rule 2 requires the condition and **how it was checked**. Checked on disk at
+**2026-09-11T16:22:37Z**, before any staging and before any solver:
+
+| directory | state at 16:22:37Z |
+|---|---|
+| `verification/runs/navier_class/MRF/R2/ET8000/coarse` | **ABSENT** |
+| `verification/runs/navier_class/MRF/R2/ET8000/medium` | **ABSENT** |
+| `verification/runs/navier_class/MRF/R2/ET8000/fine` | **ABSENT** |
+
+`verification/runs/navier_class/MRF/R2/` at that moment held exactly:
+`COST_CALIBRATION_ROW_PENDING.md`, `LIMB6_AGE_GUARD_STRENGTHENING.md`,
+`MRF_R2_TRIPLE_AT_4000.json`, `RUNAWAY_REPORT.txt`, `coarse`, `fine`, `medium` — **no
+`ET8000`**. This addendum therefore cannot be a post-hoc rescue of a number it has not seen.
+
+**Why `ET8000` and not `8000`.** A directory literally named `8000` sitting directly under
+`R2/` is a **time-directory-shaped name**. `grade_mrf_np.py` finds time directories by
+`os.listdir` over a case directory and keeps the numeric-named ones; a reader ever pointed
+one level too high at `R2/` would see `8000` and read it as a time. The name is made
+non-numeric so that mistake is not available. This costs nothing and removes a trap.
+
+**The 4000 trees are preserved and were not touched.** Staging copies **out of** them and
+**into** `ET8000/`; nothing is deleted, moved or overwritten. The launcher itself refuses
+(exit 2) if `RC.txt` or any numeric time directory other than `0` is already present
+(`cases/navier_class/MRF/launch_graded.sh` lines 61–64) and its header states *"NOTHING IS
+EVER DELETED to clear this"* — which is the rule-4 age guard's precondition, not a
+convenience.
+
+### A1.4 — COST (rule 12), on the MEASURED rates of the 4000 family, not the lab's anchor
+
+**Re-derived by this lane from the 4000 family's own `log.simpleFoam` files rather than
+copied.** The rate is `ExecutionTime_last × ranks ÷ (cells × iterations)`, i.e. CPU-held
+core-seconds per cell-iteration:
+
+| level | ranks | cells | cells/rank | `ExecutionTime` at 4000 | re-derived rate (core-s per cell-iter) | figure on record |
+|---|---:|---:|---:|---:|---:|---:|
+| coarse | 2 | 154,715 | 77,358 | 2,805.12 s | **9.0654e-06** | 9.066e-06 |
+| medium | 2 | 601,696 | 300,848 | 11,997.59 s | **9.9698e-06** | 9.968e-06 |
+| fine | 6 | 2,418,780 | 403,130 | 22,203.9 s | **1.3770e-05** | 1.3770e-05 |
+
+**The re-derivation AGREES** to four significant figures on all three levels (medium differs
+by 0.02 %, rounding only). The lab's anchor **5.630e-06** was measured at 38,679 cells per
+rank and is optimistic by **1.61× / 1.77× / 2.45×** here; it is **not** used below. Because
+the 8000 family keeps the same ranks and the same meshes, **no cells-per-rank correction is
+needed** — the rate transfers directly.
+
+**The linear-in-iterations assumption is measured, not assumed.** Per-iteration
+`ExecutionTime` over the last quarter against the first quarter: coarse ×1.056, medium
+×1.105, fine ×1.039. Carrying the *last-quarter* rate forward for iterations 4001–8000 gives
+189.1 / 804.7 / 4,333.0 core-min — within **2 %** of the linear-doubling figures below, so
+doubling is supported by the run's own slope.
+
+**ESTIMATE — two bases, both stated, neither hidden:**
+
+| level | CPU-held floor (contention-free) | charged, at the 4000 family's own measured contention (×1.311) |
+|---|---:|---:|
+| coarse | 187.0 core-min | **381.7 core-min** |
+| medium | 799.8 core-min | **1,272.1 core-min** |
+| fine | 4,440.8 core-min | **5,460.8 core-min** |
+| meshing | **0** — the 4000 meshes are reused byte-for-byte | **0** |
+| **total** | **5,427.6 core-min** | **7,114.7 core-min** |
+
+**REGISTERED ESTIMATE: 7,115 core-min charged, with a contention-free floor of 5,428 core-min.**
+The 31.1 % contention uplift is the 4000 family's **own measured** figure (charged 3,557.34
+core-min against CPU-held 2,713.81), taken from `verification/runs/navier_class/MRF/R2/COST_CALIBRATION_ROW_PENDING.md`
+and reproducible from the per-level `CORE_MINUTES.txt`, `WALL_SECONDS_SOLVE.txt` and `RANKS.txt`.
+
+**Dollars: 7,114.7 core-min = 118.58 core-h × $0.0513/core-h = $6.08 — DERIVED, NOT
+MEASURED.** The floor derives to $4.64. **The box cannot read its own billing**
+(`COMPUTE_BUDGET_CHARTER.md` §5); the rate is owner-stated 2026-08-21/22. `cost_basis:
+derived-from-core-minutes-at-owner-stated-rate; reported-by-owner; NOT measured.` 0 GPU-h.
+
+**Two honest reasons the charged figure may be exceeded, declared in advance:** (1) this
+lane runs its levels at **`nice 10`** (A1.6), which buys wall time back to the uncapped runs
+already on the box and therefore **inflates charged core-minutes** relative to a nice-0
+forecast; (2) box contention in this window is not the contention of the 02:00Z window the
+uplift was measured in. Neither is a licence to re-forecast after the fact: the estimate
+above is the registered one and the ratio actual/predicted will be reported against it.
+
+### A1.5 — CAP-STOP EXEMPTION, AND THE CALIBRATION THAT STILL OWES
+
+`budget_gate: NONE` — **Sanaa 2026-09-10 CASE PROTOCOL, 3-D demo runs are exempt from
+cap stops.** The exemption is from the *stop*, not from the *accounting*: this run is costed
+here **before** it starts (rule 12: a proposal with no cost is disqualified), and at
+completion the **estimate-versus-actual comparison is owed** in the lab's measured unit —
+actual core-minutes from the logs against the **7,115 core-min** registered above, ratio
+stated, gap attributed, waste named separately and never absorbed into the ratio, landing as
+a row in `docs/COST_CALIBRATION.md`. **A completion report without that comparison is
+incomplete.** Note that this case's *previous* calibration row is already **BLOCKED** on a
+pre-existing malformed id in that ledger (documented in
+`verification/runs/navier_class/MRF/R2/COST_CALIBRATION_ROW_PENDING.md`); that blocker is not
+cleared by this addendum and the 8000 row will meet the same refusal until it is repaired by
+its owner.
+
+### A1.6 — HOW THE RELAUNCH IS RUN, AND THE PRIORITY IT IS RUN AT
+
+- **Launcher:** `cases/navier_class/MRF/launch_graded.sh`, invoked as
+  `<RUNDIR> <RANKS> 8000 <STAGGER>`. **`endTime` is already a parameter of that script** —
+  no script edit was needed or made for this relaunch. The bytes launched with are recorded
+  in each level's `RELAUNCH_PROVENANCE.txt`.
+- **Priority, set deliberately and recorded:** the levels are launched under **`nice 10`**.
+  A capped or discretionary run must never compete at equal priority with an uncapped one,
+  and three uncapped solves belonging to other teams were live on this box at launch. The
+  nice value is set **at the launcher**, so it is inherited by `mpirun` **and by the
+  `simpleFoam` rank processes**; **the verification is taken on the CHILD ranks' `ni` column,
+  never on `mpirun`'s** — the two agree only when the nice came from the launcher, and
+  reading the parent would hide exactly the case where it did not.
+- **THE RUNG IS TAKEN FROM THE PATH, NEVER FROM THE BANNER.** That rule is not decorative
+  here — see A1.7 — and it applies to `LAUNCH.log` as much as to `controlDict`.
+  *Correction to a statement this lane was handed and checked:* the three graded R2
+  `LAUNCH.log` files (02:10–02:21Z) already read `=== MRF graded launch`, rung-neutral; the
+  mislabel `MRF_R1 graded launch` **on an R2 path** survives in exactly one place on disk,
+  `verification/runs/navier_class/MRF/R2/fine/STOPPED_2RANK_ATTEMPT/LAUNCH.log` (01:36:57Z),
+  which predates the fix. The R1 trees' own logs say `MRF_R1` and are correct. The rule
+  stands on its own merits regardless of how many files currently violate it.
+
+### A1.7 — DISCLOSURE: SIX `system/controlDict` FILES SHARE ONE sha256 AND ITS BANNER IS FALSE
+
+**Verified on disk by this lane, 2026-09-11, before writing this paragraph.** Six
+`system/controlDict` files — **the three R1 graded levels and the three R2 graded levels** —
+are byte-identical:
+
+```
+sha256 a16a4a814675a414887c748856b4a1f68ef89a87b9e0b003bea0527b3803f467
+  verification/runs/navier_class/MRF/{coarse,medium,fine}/system/controlDict      <- R1, GRADED
+  verification/runs/navier_class/MRF/R2/{coarse,medium,fine}/system/controlDict   <- R2, GRADED
+```
+
+In that one file:
+
+- **line 2** reads `| MRF_R1 controlDict. THIS COPY IS THE EXERCISE-SMOKE config: endTime 50, a |`
+- **line 25** reads `endTime         4000;          // EXERCISE SMOKE (graded run: 4000, set by launcher)`
+
+So the banner calls the file an exercise-smoke config at `endTime` 50 while the file it sits
+in is the graded config at 4000, and it calls every copy `MRF_R1` including the three that
+are R2. The case-source copies (`cases/navier_class/MRF/system/controlDict` and
+`cases/navier_class/MRF/R2/system/controlDict`, sha256 `7b6a51a9884cc5a4…`) genuinely do
+carry `endTime 50;` — the banner was true where it was written and became false in every
+copy the launcher stamped.
+
+**R1 IS ALREADY GRADED UNDER THIS FILE.** That is disclosed, not minimised. What the defect
+does and does not reach:
+
+- It does **not** change any computed number. The `endTime` actually in force is line 25,
+  substituted by the launcher with a read-back assert (lines 93–97), and the R1 and R2
+  graded rows both show 4,000 `ExecutionTime` lines and `last time == endTime == 4000`. The
+  banner is a comment; OpenFOAM does not read it.
+- It **does** mean a reader auditing provenance by the banner would conclude a graded run was
+  a smoke test, and would attribute three R2 runs to R1. **That is why the rung is taken from
+  the path.**
+
+**NOTHING WAS EDITED.** Not one of the six. They are the graded inputs of two rungs and
+editing them would rewrite the provenance of a completed grade to make a comment tidy. The
+8000 family will inherit the same false banner, by copy, and this paragraph is its disclosure.
+
+**The durable repair is not six edits.** One template was stamped six times by the tooling
+that stages a run directory; six hand-edits would leave the stamp intact and the seventh copy
+would be wrong again. **The repair belongs in whatever writes the copy** — either it stops
+copying a banner that describes a different file, or it rewrites line 2 in the same
+assert-and-read-back way it already rewrites line 25. **This lane does not make that change:**
+it touches a path that stages graded runs, so it goes to the cfd-supervisor as a diff first
+(supervision check 1, undelegable). Recorded here so it is not rediscovered a third time.
+
+### A1.8 — REGISTERED PREDICTION, AGAINST INTEREST, TIMESTAMPED BEFORE THE DATA
+
+**Registered 2026-09-11T16:25Z, before `ET8000` held a single iteration.** This block
+**cannot alter any gate, threshold, cap or label** and is not consulted by the grader. It
+exists so the 8000 grading cannot be read backwards.
+
+**On record before the data, the cfd-supervisor does NOT expect the 8000 family to
+converge.** This lane's own prediction, which is against the interest of the ~7,115
+core-minutes it is about to spend:
+
+- **P1 — at least one of the three levels will still show |S12 relative drift| ≥ 1e-3 at
+  8000.** Stated with high confidence. The drift *grew* from R1 to R2 at every level
+  (1.15e-4 → 1.30e-3 coarse, 4.82e-4 → 4.92e-3 medium, 1.20e-3 → 4.26e-3 fine) while the
+  meshes grew; the residual tail of a steady MRF solve on a rotating-impeller tank is not
+  obviously a decaying transient, and §9's own basis for the factor of 2 was declared an
+  extrapolation with **no measurement behind it**.
+- **P2 — the 8000 triple will again be DIVERGENT and the row will again grade
+  `NOT A RESULT`.** Concretely: `Np(fine)` will remain above **both** `Np(coarse)` and
+  `Np(medium)` by more than 2 %. Two independent mesh families (R1 at r ≈ 1.42, R2 at
+  r ≈ 1.59) have now produced the same shape — coarse ≈ medium, fine markedly higher — with
+  observed orders −5.2311 and −5.7784. That is the signature of something that appears at the
+  fine level, not of a coin landing the same way twice.
+- **P3 — each level's `Np` at 8000 will differ from its 4000 value by less than 2 %**
+  (coarse 4.206205499, medium 4.221156836, fine 4.439168331).
+
+**P2 and P3 are jointly the point.** If both hold, then doubling the iterations did not move
+the physics and the divergence is a property of the mesh family or the formulation rather
+than of under-convergence — which is precisely the **finding** §9 anticipated, and it will be
+reported as a finding at the core-minutes spent, **not** as a licence for a third extension.
+**If P2 fails and the triple grades CONVERGING, this lane was wrong and says so in the same
+breath as the result.**
+
+---
+
+*A1.8 ends. Section A1.9 below completes Addendum 1. Nothing above line 600 was edited;
+A1.0 proves it by hash rather than asserting it.*
+
+---
+
+## ADDENDUM 1, SECTION A1.9 — DISK FEASIBILITY: THE FINE LEVEL CANNOT START. `BLOCKED`.
+
+**Measured 2026-09-11T16:25:16Z, before any of the 8000 family was staged.** This section is
+part of Addendum 1 and alters no gate, threshold, cap or label. It records a **physical
+constraint discovered while costing the relaunch**, and it is written here rather than
+discovered halfway through a 5,460-core-minute solve that dies with the disk full.
+
+The graded MRF configuration writes fields every 50 timesteps with `purgeWrite 0`
+(`system/controlDict` lines 28–30). Nothing reads those intermediate writes: the grader
+reads the **reconstructed** `endTime` directory and `postProcessing/impellerForces/0/moment.dat`,
+`reconstructPar -latestTime` reconstructs only the last time, and the `processor*/` time
+directories are never opened again. They are nevertheless kept in full.
+
+**Measured footprint of the 4000 family** (`du` over the `processor*` trees, scaled by the
+level's rank count):
+
+| level | numeric time dirs written at 4000 | footprint per written step, all ranks | level total at 4000 |
+|---|---:|---:|---:|
+| coarse | 81 (`0` + 80 writes) | 20 MiB | 1.7 GiB |
+| medium | 81 | 78 MiB | 6.4 GiB |
+| fine | 81 | **314 MiB** | **28 GiB** |
+
+**Projection to `endTime` 8000** (161 time dirs: `0` + 160 writes), same meshes, same ranks:
+
+| level | projected 8000 footprint | fits? |
+|---|---:|---|
+| coarse | ≈ 3.1 GiB | yes |
+| medium | ≈ 12.2 GiB | yes |
+| **fine** | **≈ 49.1 GiB** | **NO** |
+| **total** | **≈ 64.4 GiB** | **NO** |
+
+**Free space on `/` at 16:25:16Z: 52 GiB (484 G total, 432 G used, 90 % full).** Coarse and
+medium together need ≈ 15.3 GiB and leave ≈ 36.7 GiB. **Fine needs ≈ 49.1 GiB and cannot
+have it**, and the margin does not exist even if coarse and medium were held back: 49.1
+against 52 is a 6 % margin on a shared box where other teams are actively writing (the
+SUBOFF_A1 ladder alone is about to mesh an L3 of roughly 25 M cells).
+
+**REGISTERED CONSEQUENCE, declared before compute:**
+
+1. **coarse and medium launch now**, at `endTime` 8000, from `0`, with **nothing changed but
+   `endTime`** — no write-policy change, no config change of any kind.
+2. **fine is `BLOCKED`** — not `PENDING`, not "deferred". It is blocked on a measured
+   physical constraint, and the constraint is disclosed here rather than absorbed.
+3. **No file was edited to clear it and nothing was deleted to make room.** Both available
+   remedies — changing the run copy's write policy (`purgeWrite` / `writeInterval`), or
+   reclaiming space from the 4000 family's `processor*` trees — touch either a graded run's
+   staging path or a graded run's artifacts. **Neither is this lane's call.** Both go to the
+   cfd-supervisor as a diff and a proposal (supervision check 1, undelegable; and
+   "INSPECT, NEVER DELETE").
+4. **For the record, so the supervisor is choosing between measured options:** a write-policy
+   change alters **no computed number** — `simpleFoam` with `runTimeModifiable false` does not
+   feed writes back into the solution, the graded quantity comes from a function object that
+   writes every timestep into `postProcessing/`, and rule 4 requires fields at `endTime` only.
+   It does change wall time slightly through I/O, i.e. it changes the **cost**, not the answer.
+   That is an argument for the change being safe; it is **not** authority to make it.
+5. **The triple cannot grade until fine runs.** `grade_ladder` refuses fewer than three
+   levels (§4A), so the rung's display state stays `PENDING: verification/runs/navier_class/MRF/R2/`
+   and **no verdict of any kind may be read from coarse and medium alone** — §4A already
+   settled that, and R1's in-band fine `Np` of 4.45299084 under a `NOT A RESULT` verdict is
+   the standing proof that an agreeable number is not a result.
+
+*A1.9 ends. This is a constraint report, not a gate change.*
