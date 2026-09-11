@@ -1,0 +1,49 @@
+# d8g_decomposeParDict_DELTAS_from_d8r.diff
+#
+# `diff -u curriculum_D8R/d8r_decomposeParDict curriculum_D8G/d8g_decomposeParDict.DRAFT`
+#
+# THE DIFF BELOW IS EMPTY, AND THAT IS THE FINDING.
+#
+# d8g_decomposeParDict.DRAFT is a BYTE COPY of curriculum_D8R/d8r_decomposeParDict, which is
+# FROZEN BEHIND A GRADED TWO-ROW PASS.  Both files hash to
+#   1dbd9ead3f40a29f483444dc5fa1288b
+# verified against both paths by the lane that wrote this line.  The decomposition is
+# therefore NOT A D8G CHOICE AT ALL: it is D8R's graded one, unchanged, and the launcher and
+# chain driver can assert that md5 as a real value rather than a placeholder.
+#
+# WHY IT IS THE SAME ON ALL THREE LEVELS, since the question was asked and the answer is not
+# "it seemed fine":
+#
+#  1. THE SUBDOMAIN COUNT IS NOT FREE.  Every one of the ten arms runs at np = 4
+#     (PREREGISTRATION.md section 3; d8g_grade.py NPROCS_REGISTERED = 4, and grade() REFUSES
+#     any artefact whose nprocs differs, on every arm and every level).  G12 pins the cpuset
+#     to four cores, 0,1,12,15.  `numberOfSubdomains 4` is therefore forced, at every level,
+#     by the comparator and by the placement gate.  A per-level subdomain count would make
+#     the item ungradeable, not merely unusual.
+#
+#  2. THE METHOD IS `scotch` AND CHANGING IT PER LEVEL WOULD BREAK THE FAMILY.  A grid triple
+#     compares three solves that differ ONLY in the mesh.  Changing the partitioner between
+#     levels adds a second difference, and the comparator has no gate that could separate the
+#     two -- a non-CONVERGING triple would then have two candidate causes and the item would
+#     be NOT A RESULT with nothing learned.  This is the same principle section 4.5 invokes
+#     for the acceptance pair: "a family whose acceptance rule changes between levels is not
+#     a family", and "neither may be carried from the other".
+#
+#  3. THE OBVIOUS ALTERNATIVE IS WORSE HERE.  `simple (2 2 1)` would be exactly reproducible
+#     across builds, which scotch is not guaranteed to be.  But it cuts in CARTESIAN space,
+#     and these are hyperbolically-extruded O-grids around a swept wing: at L1 (5,568 cells
+#     = 696 wing faces x 8 layers) a (2,2,1) cut would load the four ranks very unevenly.
+#     More decisively, it would differ from D8R's GRADED decomposition, and D8R's numbers are
+#     the anchor this item's cost model and its P5 two-row control both lean on.
+#
+#  4. WHAT THIS DOES NOT ESTABLISH, STATED PLAINLY.  scotch is deterministic for a given mesh
+#     and a given Scotch build, but the two toolchain rows run DIFFERENT IMAGES.  Both carry
+#     OpenFOAM 2506 and the images differ only in IDWarp, so the partition should be
+#     identical between rows -- BUT THAT IS AN INFERENCE FROM THE IMAGE PROVENANCE, NOT A
+#     MEASUREMENT, and this lane did not measure it (measuring it means running decomposePar
+#     in both images, which is compute).  If the two rows ever disagree by more than the
+#     case's own noise floor, P5's note in the comparator already says the right thing: that
+#     is a finding about the IMAGES, and the decomposition is one of the things to check.
+#
+# PERMISSION: NOT_FROZEN -- DRAFT.
+#

@@ -1,0 +1,82 @@
+# d8g_runScript_DELTAS_from_d8r.diff
+#
+# `diff -u curriculum_D8R/d8r_runScript.py curriculum_D8G/d8g_runScript.py.DRAFT`
+#
+# THE DIFF BELOW IS EMPTY, AND THAT IS NOT A SHORTCUT -- IT IS WHAT THE FROZEN DOCUMENT
+# REGISTERS.  PREREGISTRATION.md:316, verbatim:
+#
+#     "D8G inherits the D8R producer's values -- primalMinResTol 1e-08,
+#      primalMinResTolDiff 10000, accept floor 1.0e-4 -- BECAUSE D8G'S PRODUCER IS D8R'S
+#      and a family whose acceptance rule changes between levels is not a family."
+#
+# That sentence is above AMENDMENT 1 and AMENDMENT 2 and is untouched by either.  A lane
+# that shipped a MODIFIED producer here would be departing from a registered statement and
+# would owe an amendment for it.  So the deltas are none, deliberately, and the work of
+# this task was not designing a producer -- it was PROVING the one that is registered
+# actually satisfies the contract `d8g_of.py` reads it through.
+#
+# THE PROVENANCE IS A THREE-WAY BYTE IDENTITY, MEASURED:
+#   28c7819487a025a5f6554d38062a2b66  curriculum_D8G/d8g_runScript.py.DRAFT
+#   28c7819487a025a5f6554d38062a2b66  curriculum_D8R/d8r_runScript.py          (FROZEN, graded two-row PASS)
+#   28c7819487a025a5f6554d38062a2b66  /home/ubuntu/certonomous-runs/CURRICULUM-D8-a6-twist-opt/opt/runScript.py
+# D8 RESULTS.md section 7 proved the last of those is `d8_gen_arm.py` applied to the A6
+# tutorial script.  The chain therefore runs D8 -> D8R -> D8G on one hash.
+#
+# AND THE WRONG FILE IS REFUSED BY MD5, NOT BY EYE.  The archived A6 tutorial's own
+# `runScript.py` (md5 0de915d21166a91a9a54b37ab11214cf) sits in the SAME staging tree that
+# d8g_genmesh.sh copies the case from, and it carries a DIFFERENT acceptance pair -- the
+# `primalMinResTolDiff 100` / accept floor 1e-06 row PREREGISTRATION.md section 4.5
+# tabulates.  `d8g_run_arm.sh` deletes it from $WORK before staging this one, and unit U4
+# of the contract checker refuses a producer that hashes to it.  Staging the wrong file
+# would complete the arm and be REFUSED by the comparator afterwards, on the log read-back.
+#
+# WHAT WAS ACTUALLY BUILT FOR THIS TASK, since the producer itself is a copy:
+#
+#   d8g_runScript_contract.py.DRAFT   27 units.  `d8g_of.py` does not import this producer;
+#       it EXECS the slice above the anchor `# OpenMDAO setup` and reaches into the
+#       resulting namespace for `Top` and `daOptions`.  That contract has three silent
+#       failure modes and the checker covers all three:
+#         THE SPLIT (U5-U13).  `class Top` and `daOptions` must be ABOVE the anchor or the
+#           exec succeeds and the lookup KeyErrors after the container has started;
+#           `om.Problem`, `prob.setup` and `om.n2` must be BELOW it or the header builds a
+#           second Problem and writes mphys.html into a cold-started arm.  The header must
+#           PRINT NOTHING (G-PRIMAL and G-PLAT read the solver's own stdout) and must never
+#           CONSUME the parsed args (d8g_of.py substitutes sys.argv).
+#         THE ACCEPTANCE PAIR (U14-U23), EXTRACTED BY AST AND NEVER BY REGEX -- a regex over
+#           source text cannot tell a value inside `daOptions` from the same characters in a
+#           comment or a sibling dict.  Both values, their PRODUCT against the comparator's
+#           ACCEPT_FLOOR 1.0e-4, printInterval, primalMinIters, designSurfaces, and BOTH
+#           graded functionals with their patchVelocityInputName.
+#         THE DESIGN VARIABLES (U24-U26).  `read_A` requires adjoint.{CD,CL}.{twist,patchV}
+#           and indexes twist up to 5 with twist[6] NOT A RESULT BY NAME.  MEASURED: the FFD
+#           is one PLOT3D block of 12 x 8 x 2 and is BYTE-IDENTICAL on both staging paths
+#           (905ade2c1120aee7e6517432cd8abbaf), so alignIndex 'j' gives 8 ref-axis points,
+#           `twist` has 8-1 = 7 entries, and the registered indices are well-formed AT EVERY
+#           LEVEL -- the FFD does not depend on the mesh, which is exactly what a fixed-design
+#           grid triple needs.
+#         U27 drives the producer's daOptions through `d8g_of.py`'s OWN
+#           check_registered_daoptions() and its OWN plateau forecast (101 samples, window
+#           11), so the two halves are checked AGAINST EACH OTHER rather than against two
+#           copies of the same table.
+#
+#   d8g_runScript_selftest.sh.DRAFT   25/25.  The checker under python3 and python3 -O, the
+#       three-way identity, and THIRTEEN MUTATION CONTROLS.  Note the direction: THE
+#       PRODUCER IS MUTATED, NOT THE CHECKER -- mutating the checker would prove only that
+#       it can fail, not that it can catch.  Each mutation names its catching unit:
+#       tolDiff->100 (U17), tol->1e-6 (U16), printInterval->100 (U19), Top renamed (U7),
+#       anchor deleted (U5), anchor DUPLICATED (U5, the other direction), designSurfaces
+#       case-changed (U21), the CL functional removed (U22), patchV dropped as a DV (U24),
+#       an om.Problem injected above the anchor (U10), a print injected into the header
+#       (U12), the header made to branch on args (U13), and one byte changed (U1).
+#
+# WHAT NO GREEN ABOVE PROVES, NAMED HERE AND IN THE CHECKER'S OWN OUTPUT SO IT CANNOT BE
+# READ IN: nothing here imports DAFoam, IDWarp, mphys, pyGeo or OpenMDAO, and THE HEADER IS
+# NEVER EXECUTED.  It is not proved that DAFoamBuilder accepts these options, that
+# nom_addRefAxis returns 8 (pyGeo's alignIndex semantics is the one INFERENCE in U26; the
+# 12x8x2 shape and the `nRefAxPts - 1` source line are measurements, and 8-1 = 7 agrees with
+# the 7 components D8 measured and the comparator's fixture carries -- three agreements, one
+# inference), or that the L1 surface's 696 quads support the 25x30 thickness-constraint
+# projection `configure()` runs on every arm.  THOSE ARE UNTESTED UNTIL AN ARM RUNS.
+#
+# PERMISSION: NOT_FROZEN -- DRAFT.
+#

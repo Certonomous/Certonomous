@@ -1,0 +1,23 @@
+D8G GRADER SELFTEST  target=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_grade.py  md5=12688063e20cbb6fa79cf08d0996d4e1
+                     date_u=2026-09-11T17:46:02Z  host_python=Python 3.12.3
+
+A. the comparator's own planted-fixture suite
+  PASS  A1 suite under python3  (expected=0 got=0)
+  PASS  A2 suite under python3 -O  (expected=0 got=0)
+  PASS  A3 unit count under python3  (expected=50 got=50)
+  PASS  A4 unit count under python3 -O  (expected=50 got=50)
+  PASS  A5 zero BAD units  (expected=0 got=0)
+  PASS  A6 ast.Assert census == 0 (L-332)  (expected=0 got=0)
+
+B. mutation controls -- the suite must be SEEN TO FAIL
+  PASS  B-G-PLAT-ADJACENT SUITE FAILS and [U8 MUTATION drifting CD history] is the catcher  (expected=yes got=yes)
+  PASS  B-G-PRIMAL-SOFT SUITE FAILS and [U10 MUTATION primalMinResTolDiff 100] is the catcher  (expected=yes got=yes)
+  PASS  B-G-FD-NO-WITHDRAWAL SUITE FAILS and [U11 MUTATION the deliberately-wrong 1e-3 step ALSO PASSES] is the catcher  (expected=yes got=yes)
+  PASS  B-G-FD-NO-SIGNFLIP SUITE FAILS and [U12 MUTATION sign-flipped twist] is the catcher  (expected=yes got=yes)
+  PASS  B-G-FD-PLATEAU-WIDE SUITE FAILS and [U15 a component that stabilises NOWHERE] is the catcher  (expected=yes got=yes)
+  PASS  B-G-PRIMAL-FINALRES-ONLY SUITE FAILS and [residual_reader_must_see_plant_not_seen] is the catcher  (expected=yes got=yes)
+  PASS  B-G-PRIMAL-FINALRES-MAX SUITE FAILS and [residual_reader_SAW_THE_FINALRES_ANTI_PLANT] is the catcher  (expected=yes got=yes)
+  PASS  B-G1-RUN-HOLE-REINSTATED SUITE FAILS and [U44 THE DEAD SOLVE] is the catcher  (expected=yes got=yes)
+
+D8G GRADER SELFTEST SUMMARY pass=14 fail=0
+SELFTEST PASS 14/14

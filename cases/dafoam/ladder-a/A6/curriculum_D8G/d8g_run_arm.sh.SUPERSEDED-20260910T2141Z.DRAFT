@@ -1,0 +1,444 @@
+#!/usr/bin/env bash
+# =============================================================================
+# PERMISSION: NOT_FROZEN -- DRAFT.  NOT COMMITTED BY ITS AUTHOR.  NOT RUNNABLE
+# UNTIL THE FREEZE PLACEHOLDERS BELOW ARE REPLACED (G-FREEZE.0 refuses).
+#
+# Curriculum D8G arm launcher -- DERIVED FROM
+#   cases/dafoam/ladder-a/A6/curriculum_D8R/d8r_run_arm.sh
+# (a graded-PASS frozen instrument, NOT edited by this draft) with ONE
+# behavioural delta and its supporting plumbing:
+#
+#   THE LAUNCH ASSERTION.  "LAUNCHED" IS ASSERTED FROM THE SOLVER'S OWN FIRST
+#   ARTIFACT, NEVER FROM THE LAUNCH COMMAND RETURNING AND NEVER FROM CONTAINER
+#   STATE ALONE.
+#
+# WHY THIS DELTA EXISTS -- three separate findings, all measured:
+#
+#  (1) cfd's scripts/case_protocol_stage4_run.py reported LAUNCHED on a Popen
+#      return alone while the solver had already aborted; a manifest said
+#      `launched: true` with no solve behind it.
+#
+#  (2) EVERY ONE of the 58 `cases/dafoam/**/*_run_arm.sh` launchers -- D8R and
+#      the whole D6RF family included -- asserts CONTAINER STATE ONLY.  Each
+#      polls `docker inspect --format '{{.State.Running}}'` and reads
+#      `docker logs` ONLY AFTER that loop has already broken.  Not one of them
+#      reads a solver artifact while the container is alive.  A container can
+#      report Running while the `bash -lc` chain inside it is still in
+#      `decomposePar`, or while python has raised and the shell is winding
+#      down, and the D8R-shaped launcher cannot tell those from a solve.
+#
+#  (3) THE OBVIOUS WITNESS IS A FALSE ONE.  `^Time = ` DOES NOT PROVE THE
+#      SOLVER STARTED IN THIS HARNESS.  Measured on the D8R producer's own
+#      graded arm log
+#        /home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv/O-P_20260827T223101Z_1595223.log
+#      `decomposePar` PRINTS `Time = 0` at line 142, 19 lines BEFORE its own
+#      `End` at line 161 and 583 lines before the solver's first completed
+#      step.  Counted over the whole file: `^Time = ` occurs 1617 times,
+#      `^ExecutionTime` 1616 -- the difference is exactly decomposePar's line.
+#      A launcher that waited on `^Time = ` would have declared LAUNCHED on
+#      decomposePar, which is precisely the thing the principle forbids.
+#
+# THE REGISTERED WITNESS IS THEREFORE `^ExecutionTime = `.  Justification in
+# section LA.0 below.
+#
+# BINDING SCOPE (verification team, relayed by dafoam-supervisor):
+#   "a launch is asserted only from the solver/container process's own liveness
+#    or from a first artifact it produced (first log line, a time-dir or 0/
+#    field mtime advancing past staging); a launch command returning is not a
+#    witness; otherwise `launched: false` with a reason.  Wrapper stderr is
+#    never discarded."
+# Consequences implemented here: the reason string (LA.4), the staging-anchored
+# mtime corroborator (LA.3), and the stderr-preserving readers (LA.1) that make
+# "I could not look" a THIRD outcome distinct from "I looked and saw nothing".
+#
+# 8.2 inherited from D8R: NO --rm, so `docker inspect .State.ExitCode/
+# .State.OOMKilled` survives the arm and the KERNEL's verdict is read.
+# =============================================================================
+set -uo pipefail
+
+# ===========================================================================
+# G-FREEZE.0 -- A DRAFT MUST NOT BE RUNNABLE BY ACCIDENT.
+# Every constant D8G's PREREGISTRATION.md must fix is written as the token
+# __D8G_UNFROZEN__.  This guard greps THIS FILE for that token and refuses.
+# It is the first executable statement so no placeholder can reach a container.
+# The guard asserts its own trip count: a grep that matches nothing and reports
+# success is the planted zero this lab keeps paying for.
+# ===========================================================================
+UNFROZEN_TOKENS=$(grep -c '__D8G_UNFROZEN__' "${BASH_SOURCE[0]}" || true)
+if [ "${UNFROZEN_TOKENS:-0}" -gt 1 ]; then
+  echo "ABORT G-FREEZE.0 this file still carries $UNFROZEN_TOKENS unfrozen placeholders."
+  echo "  D8G's registered root, cap table, cpuset, image digests and instrument"
+  echo "  md5s are fixed in cases/dafoam/ladder-a/A6/curriculum_D8G/PREREGISTRATION.md"
+  echo "  at its freeze commit.  A launcher that runs on placeholders would produce"
+  echo "  a row no pre-registration covers.  REFUSED."
+  exit 3
+fi
+
+ITEM=D8G
+REGISTERED_BASE=__D8G_UNFROZEN__ROOT
+BASE="${BASE:-$REGISTERED_BASE}"
+PREFIX=d8g
+
+# ---------------------------------------------------------------------------
+# [D8R lines 59-338 are inherited UNCHANGED except for the d8r_ -> d8g_ prefix
+#  and the frozen constants above: G-ROOT.1 (registered root, normalised),
+#  G-ROOT.2 (forbidden-roots list, with CURRICULUM-D8R-a6-twist-opt-conv ADDED
+#  -- D8G must never write into the item it inherits from), G-ROOT.3 (ledger
+#  ownership), G-ROOT.5 (live-arm / driver-pidfile refusal), the cap assertion,
+#  the host pre-read, the staged-instrument md5 checks, the image-digest and
+#  G-ROW checks, the cold-start G-COLD sweep and the age datum.
+#  THIS DRAFT DOES NOT RESTATE THEM: restating 280 lines invites a silent
+#  divergence from the instrument they were graded in.  The supervisor lands
+#  them by deriving this file from d8r_run_arm.sh and applying ONLY the deltas
+#  marked LA.* below, then recording the diff in
+#  d8g_run_arm_DELTAS_from_d8r.diff exactly as D8R recorded its own from D16.]
+# ---------------------------------------------------------------------------
+# The inherited block leaves these set, and the LA.* code below uses them:
+#   ARM RANKS CAP MEM TMO CPUSET IMG GOT_DIGEST ROW BASE BASE_REAL
+#   STAMP NAME WORK LOG CMDFILE AGE_DATUM SAMPLER
+# AGE_DATUM is the epoch seconds of "$WORK/0/U", touched LAST at staging.  It
+# is THE STAGING ANCHOR the mtime corroborator in LA.3 compares against; an
+# absolute mtime proves nothing (verification team, this brief).
+# ---------------------------------------------------------------------------
+
+# ===========================================================================
+# LA.0 -- THE REGISTERED LAUNCH WITNESS, AND WHY IT IS THIS ONE.
+#
+# Candidates considered, each against the question "does its appearance prove
+# THE SOLVER ITSELF started?", with the line number it occupies in the D8R
+# producer's graded O-P arm log (named in full at the head of this file):
+#
+#  line   marker                                   proves
+#  ----   --------------------------------------   ---------------------------
+#     1   D4S_CONTAINER_UID: 0                     the container bash chain runs
+#     6   D4S_DEADLINE_IN_CONTAINER_S: 15000       env sourced, idwarp imported
+#    18   MCW rank 0 bound to socket 0[core 0...]  mpirun placed the ranks
+#    46   Exec   : decomposePar                    decomposePar started
+#   142   Time = 0                                 *** decomposePar's OWN time
+#                                                  loop.  A FALSE WITNESS.
+#   161   End                                      decomposePar finished
+#   177   Initializing mesh and runtime for        DASolver construction BEGUN
+#         DASolver                                 -- can print and then wedge
+#                                                  in Create mesh / wallDist
+#   185   DAOption created. DASolver initialized.  DASolver object exists
+#   213   Initializing fields for DARhoSimpleCFoam the solver class is named and
+#                                                  its fields are being built
+#   725   Running Primal Solver 001                solvePrimal() was CALLED
+#   730   Time = 1                                 first primal step begun
+#   745   ExecutionTime = 2.58 s  ClockTime = 4 s  *** FIRST PRIMAL STEP
+#                                                  COMPLETED
+#
+# REJECTED, with reasons:
+#  - `log.decomposePar` completing / `Exec : decomposePar` / processor* dirs
+#    appearing: decomposePar succeeding proves NOTHING about the solver.  All
+#    three are satisfied at line 161, 584 lines before any solver step.
+#  - `^Time = ` : REFUTED BY MEASUREMENT (line 142).  Any bare-regex wait on it
+#    declares LAUNCHED on decomposePar.  It is registered below as a FORBIDDEN
+#    pattern precisely so a successor cannot quietly reintroduce it.
+#  - `Initializing mesh and runtime for DASolver` (177) : too optimistic.  It
+#    is printed BEFORE `Create mesh for time = 0` and before wallDist; an MPI
+#    or mesh hang after it still shows the marker.  It proves construction was
+#    ENTERED, not that anything solved.
+#  - `Running Primal Solver 001` (725) : strong -- it is the last thing printed
+#    before solvePrimal() -- but it proves the CALL, not a step.  It is
+#    recorded as a corroborator (LA.3), not as the gate.
+#  - a processor time directory appearing : written at writeInterval, i.e.
+#    hundreds of steps later.  Far too late to bound a launch wait.
+#
+# REGISTERED: the FIRST `^ExecutionTime = ` line in the container's own stdout.
+#  (a) It is emitted ONLY by an OpenFOAM solver's time loop.  MEASURED on this
+#      harness: 1616 occurrences against `^Time = `'s 1617, the one-line
+#      difference being decomposePar's.  It cannot be produced by decomposePar,
+#      by python import, or by the container shell.
+#  (b) It proves a COMPLETED first iteration, not merely a call -- the
+#      strongest claim available from stdout, and it is EARLY: 2.58 s of solver
+#      time, ClockTime 4 s, at log line 745 of 1.9 MB.
+#  (c) It is the SAME token CLAUDE.md rule 4 already counts for completion
+#      (`ExecutionTime` count == steps).  One reader, one idiom; no second
+#      vocabulary to drift from the first.
+# ===========================================================================
+
+# >>> D8G_LAUNCH_ASSERT_BEGIN
+# ---------------------------------------------------------------------------
+# THE BYTES BETWEEN THESE TWO MARKERS ARE EXTRACTED AND DRIVEN BY
+#   d8g_launch_assert_selftest.sh
+# The selftest evals THIS FILE'S bytes, not a copy, so a divergence between the
+# tested assertion and the shipped one is impossible.  Every external
+# dependency is injected through a variable so the selftest can substitute a
+# fixture; NOTHING here is hard-coded to the docker client.
+# ---------------------------------------------------------------------------
+: "${DOCKER:=sudo -n docker}"                       # injectable client
+: "${LAUNCH_WITNESS_RE:=^ExecutionTime = }"         # LA.0, registered
+: "${LAUNCH_WITNESS_FORBIDDEN_RE:=^Time = }"        # the decomposePar decoy
+: "${LAUNCH_CORROBORATOR_RE:=^Running Primal Solver}"
+: "${LAUNCH_WITNESS_POLL_S:=5}"                     # poll period
+: "${LAUNCH_READER_RETRIES:=6}"                     # consecutive unreadable ticks tolerated
+: "${LAUNCH_KILL:=yes}"                             # L-540: refusal kills the container
+
+# --- LA.1  READERS THAT PRESERVE STDERR ------------------------------------
+# The defect being repaired: every dafoam launcher writes
+#     docker inspect --format '{{.State.Running}}' "$NAME" 2>/dev/null
+# so a daemon error, a sudo refusal and a typo'd name ALL read as the empty
+# string, which the caller then compares against "true" and treats as "not
+# running".  A daemon failure and a finished container become the same event.
+# Here stderr is CAPTURED and reported, and "could not look" is a THIRD return
+# value that never collapses into either of the other two.
+
+la_state() {            # $1 = container id/name, $2 = path to append stderr to
+  # echoes exactly one of: true | false | UNREADABLE
+  local out rc
+  out=$($DOCKER inspect --format '{{.State.Running}}' "$1" 2>>"$2"); rc=$?
+  if [ "$rc" -ne 0 ]; then echo "UNREADABLE"; return 0; fi
+  case "$out" in
+    true|false) echo "$out" ;;
+    *) printf 'la_state: inspect rc=0 but value was %q\n' "$out" >> "$2"; echo "UNREADABLE" ;;
+  esac
+}
+
+la_logs() {             # $1 = container id/name, $2 = destination file
+  # rc 0 = the log was read (destination holds container stdout+stderr).
+  # rc != 0 = COULD NOT LOOK; the destination holds the client's own error text,
+  #           which is DELIBERATELY not discarded -- it becomes the reason.
+  $DOCKER logs "$1" > "$2" 2>&1
+}
+
+# --- LA.2  THE ASSERTION ----------------------------------------------------
+# Returns:
+#   0  witness seen                       -> launched: true
+#  88  container exited before any witness -> launched: false, never started
+#  89  bounded wait elapsed, still alive, no witness -> launched: false, wedged
+#  90  the witness reader itself failed    -> launched: false, could not look
+# 88/89/90 are DISJOINT from every exit code this family's solver produces
+# (0, 1, 77 units refusal, 124/137 from the in-container timeout, 125 docker),
+# so "never started" is never confusable with "started and failed".
+# LIMIT, STATED: nothing prevents a future solver from exiting 88/89/90 of its
+# own accord.  That is why the LEDGER carries an explicit `launched: false
+# reason=<r>` token and the grader reads the TOKEN, not the number alone.
+la_assert_launch() {    # $1 = cid  $2 = deadline seconds  $3 = scratch dir
+  local cid="$1" budget="$2" tmp="$3"
+  local logf="$tmp/la.log" errf="$tmp/la.stderr" t0 el st rc
+  # TWO COUNTERS, NOT ONE.  THE SELFTEST CAUGHT THIS: with a single counter, a
+  # SUCCESSFUL `docker inspect` reset the tally of FAILED `docker logs` reads on
+  # every tick, so a permanently broken log reader could never reach the retry
+  # threshold and was reported as `never_started_wedged` (89) instead of
+  # `witness_reader_unreadable` (90).  That is exactly the conflation the rule
+  # forbids -- "I could not look" reported as "I looked and saw nothing".
+  # Each reader's failures are counted and cleared BY THAT READER ALONE.
+  local unread_logs=0 unread_state=0
+  : > "$errf"
+  t0=$(date -u +%s)
+  LA_REASON=""; LA_WITNESS_LINE=""; LA_WAITED_S=0; LA_CORROBORATED=no; LA_DECOY_SEEN=no
+  while :; do
+    el=$(( $(date -u +%s) - t0 )); LA_WAITED_S=$el
+
+    if la_logs "$cid" "$logf"; then
+      unread_logs=0
+      if grep -aqE "$LAUNCH_CORROBORATOR_RE" "$logf" 2>/dev/null; then LA_CORROBORATED=yes; fi
+      if grep -aqE "$LAUNCH_WITNESS_FORBIDDEN_RE" "$logf" 2>/dev/null; then LA_DECOY_SEEN=yes; fi
+      LA_WITNESS_LINE=$(grep -anE "$LAUNCH_WITNESS_RE" "$logf" 2>/dev/null | head -1)
+      if [ -n "$LA_WITNESS_LINE" ]; then
+        LA_REASON="witness=$LAUNCH_WITNESS_RE seen after ${el}s at log line ${LA_WITNESS_LINE%%:*}"
+        return 0
+      fi
+    else
+      unread_logs=$((unread_logs+1))
+      # the client's own error text, kept, not discarded
+      printf 'la_logs failed (attempt %d): %s\n' "$unread_logs" "$(head -c 400 "$logf" 2>/dev/null | tr '\n' ' ')" >> "$errf"
+      if [ "$unread_logs" -ge "$LAUNCH_READER_RETRIES" ]; then
+        LA_REASON="witness_reader_unreadable (docker logs) after $unread_logs consecutive failures: $(tail -1 "$errf" | head -c 300)"
+        return 90
+      fi
+    fi
+
+    st=$(la_state "$cid" "$errf")
+    case "$st" in
+      false)
+        # The container is gone and no witness was ever seen.  ONE FINAL READ:
+        # the last poll may have raced the final flush.  Only after that read
+        # comes back witness-free is "never started" asserted.
+        if la_logs "$cid" "$logf"; then
+          LA_WITNESS_LINE=$(grep -anE "$LAUNCH_WITNESS_RE" "$logf" 2>/dev/null | head -1)
+          if [ -n "$LA_WITNESS_LINE" ]; then
+            LA_REASON="witness seen on the final read after ${el}s at log line ${LA_WITNESS_LINE%%:*}"
+            return 0
+          fi
+        fi
+        LA_REASON="never_started_container_exited after ${el}s with no ${LAUNCH_WITNESS_RE} line; decomposePar_decoy_seen=$LA_DECOY_SEEN solver_call_seen=$LA_CORROBORATED"
+        return 88 ;;
+      UNREADABLE)
+        unread_state=$((unread_state+1))
+        if [ "$unread_state" -ge "$LAUNCH_READER_RETRIES" ]; then
+          LA_REASON="witness_reader_unreadable (docker inspect) after $unread_state consecutive failures: $(tail -1 "$errf" | head -c 300)"
+          return 90
+        fi ;;
+      true) unread_state=0 ;;
+    esac
+
+    if [ "$el" -ge "$budget" ]; then
+      LA_REASON="never_started_wedged: ${budget}s elapsed, container still Running, no ${LAUNCH_WITNESS_RE} line; decomposePar_decoy_seen=$LA_DECOY_SEEN solver_call_seen=$LA_CORROBORATED"
+      return 89
+    fi
+    sleep "$LAUNCH_WITNESS_POLL_S"
+  done
+}
+
+# --- LA.1b  THE mtime WITNESS: A STRICT INCREASE AGAINST A RECORDED CAPTURE --
+# cfd's stage-4 repair (commit 7d7fcebf) found a witness of the form
+#     mtime >= t_launch - slack
+# CONFIRMING A LAUNCH WHERE NO SOLVER STARTED: pre-existing STAGED files
+# satisfied it.  Any absolute-time comparison, and any slack term, has that
+# hole.  The required form, implemented here:
+#   - capture every file's mtime BEFORE the container starts;
+#   - WRITE THE CAPTURE TO DISK so a later reader can see what was compared
+#     against -- a before-value held only in a shell variable is not auditable;
+#   - assert a STRICT increase against that captured value.  Not `>=`.  Not
+#     `>= t - slack`.  Not against wall-clock at all.  NO SLACK TERM EXISTS IN
+#     THIS FILE, and none may be added: a witness needing slack is the wrong
+#     witness.
+la_capture_pre() {      # $1 = work dir, $2 = capture file.  echoes the row count.
+  : > "$2"
+  find "$1" -type f -printf '%T@ %p\n' 2>/dev/null | sort > "$2"
+  wc -l < "$2" | tr -d ' '
+}
+
+la_mtime_witness() {    # $1 = work dir, $2 = the capture written by la_capture_pre
+  # rc 0 = at least one file is STRICTLY newer than its captured mtime, or did
+  #        not exist at capture time.   rc 1 = the tree is unchanged since the
+  #        capture, i.e. NOTHING WROTE -- staged files alone can never satisfy
+  #        this, because they are IN the capture at their own mtimes.
+  LA_MTIME_EVIDENCE=$(find "$1" -type f -printf '%T@ %p\n' 2>/dev/null | sort | awk -v prefile="$2" '
+    BEGIN { while ((getline l < prefile) > 0) { i=index(l," "); p=substr(l,i+1); pre[p]=substr(l,1,i-1)+0; seen[p]=1 } }
+    { i=index($0," "); p=substr($0,i+1); m=substr($0,1,i-1)+0
+      if (!(p in seen))      { print "NEW "      p;                              n++ }
+      else if (m > pre[p])   { print "ADVANCED " p " " pre[p] " -> " m;          n++ } }
+    END { exit (n > 0 ? 0 : 1) }')
+  return $?
+}
+
+# --- LA.2b  THE REFUSAL PATH KILLS THE CONTAINER (L-540) --------------------
+# `timeout` around a docker CLIENT does not stop the CONTAINER.  A lane on this
+# team leaked a container that ran 2,834 s against a 300 s timeout and helped
+# starve the box.  A launch refusal therefore KILLS, and it RECORDS whether the
+# kill itself succeeded -- an unverified kill is not a kill.
+la_kill() {             # $1 = cid, $2 = stderr sink ; echoes killed|kill_failed|not_attempted
+  [ "$LAUNCH_KILL" = "yes" ] || { echo "not_attempted"; return 0; }
+  if $DOCKER kill "$1" >/dev/null 2>>"$2"; then
+    # READ BACK.  A kill that returns 0 and leaves the container Running is the
+    # same false zero as a reader that cannot see a non-zero.
+    local st; st=$(la_state "$1" "$2")
+    case "$st" in false) echo "killed" ;; *) echo "kill_failed(state_after=$st)" ;; esac
+  else
+    echo "kill_failed(client_error)"
+  fi
+}
+# <<< D8G_LAUNCH_ASSERT_END
+
+# ===========================================================================
+# LA.3 -- WHERE THE ASSERTION SITS IN THE ARM, AND THE CORROBORATORS.
+# It sits BETWEEN the `docker run -d` and the runaway-guard poll loop, so no
+# ledger row and no downstream grading can be reached without it.
+# ===========================================================================
+
+# THE BEFORE-LAUNCH CAPTURE.  Taken AFTER staging (so every staged file is in
+# it, at its own mtime) and BEFORE `docker run` (so nothing the container does
+# can be in it).  IT IS WRITTEN TO DISK AND ITS PATH AND ROW COUNT GO INTO THE
+# LEDGER, so a later reader can see exactly what the strict comparison was
+# made against.  A zero-row capture would make the witness vacuous -- every
+# file would read as NEW -- so the row count is ASSERTED non-zero.
+LAUNCH_PRE="$BASE/${ARM}_${STAMP}.launch_pre.tsv"
+PRE_ROWS=$(la_capture_pre "$WORK" "$LAUNCH_PRE")
+test "${PRE_ROWS:-0}" -gt 0 || { echo "ABORT LA.1b the before-launch capture of $WORK is EMPTY; the mtime witness would call every file NEW and confirm a launch that never happened"; exit 5; }
+echo "D8G_LAUNCH_PRECAPTURE arm=$ARM capture=$(basename "$LAUNCH_PRE") rows=$PRE_ROWS staging_anchor_epoch=$AGE_DATUM comparison=strict_increase slack=none"
+
+# THE CONTAINER ID IS CAPTURED.  D8R throws it away (`> /dev/null 2>&1` on the
+# run line, d8r_run_arm.sh:410) and then addresses the container BY NAME for
+# the rest of the arm.  Names are reusable; ids are not.  Every reader below
+# addresses the ID.
+CIDFILE="$BASE/${ARM}_${STAMP}.cid"
+CID=$(sudo -n docker run -d --name "$NAME" \
+    --user 0:0 --cpus=$RANKS --cpuset-cpus=$CPUSET --memory=$MEM --memory-swap=$MEM --oom-score-adj=500 \
+    -v "$BASE":/mnt -w "/mnt/$ARM" "$IMG" bash -lc \
+    "source /home/dafoamuser/dafoam/loadDAFoam.sh && \
+     echo D4S_CONTAINER_UID: \$(id -u) && \
+     python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4S_IDWARP_IMPORTED_FROM:\",p); print(\"D4S_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
+     echo D4S_DEADLINE_IN_CONTAINER_S: $TMO && \
+     timeout -k 60 $TMO bash /mnt/$ARM/${PREFIX}_cmd.sh" 2> "$BASE/${ARM}_${STAMP}.runerr") \
+  || { echo "ABORT could not start container: $(head -c 400 "$BASE/${ARM}_${STAMP}.runerr")"; exit 4; }
+# THE RUN COMMAND RETURNING IS NOT A WITNESS.  It has bought exactly one thing:
+# an id to address.  Everything else is asserted below.
+case "$CID" in
+  [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]*) : ;;
+  *) echo "ABORT docker run returned something that is not a container id: '$CID'"; exit 4 ;;
+esac
+echo "$CID" > "$CIDFILE"
+T0=$(date -u +%s)
+echo "D8G_CONTAINER_ID arm=$ARM name=$NAME cid=$CID launched_claim=NOT_YET_ASSERTED"
+
+# THE WITNESS BUDGET.  It is registered per arm, and it is ASSERTED to be a
+# strict fraction of the in-container deadline: a launch wait as long as the
+# cap is not a wait, it is the run.  __D8G_UNFROZEN__WITNESS_BUDGET is fixed in
+# PREREGISTRATION.md alongside the cap table.
+# SIZING EVIDENCE: on D8R's O-P arm (41,760 cells, 4 ranks) the container
+# reached `Exec : decomposePar` 15 s after StartedAt (container start
+# 22:31:01Z from the arm stamp; decomposePar's own header `Time : 22:31:16`)
+# and the first `ExecutionTime` line came after decomposePar plus DASolver
+# construction plus a 4 s solver ClockTime.  D8G's coarse and medium levels are
+# SMALLER than D8R's mesh and its fine level larger; the budget must be sized
+# PER LEVEL from that scaling and written into the cap table, not guessed here.
+LAUNCH_BUDGET_S=__D8G_UNFROZEN__WITNESS_BUDGET
+python3 -c "
+import sys
+b, t = $LAUNCH_BUDGET_S, $TMO
+if not (0 < b < 0.5*t):
+    sys.stderr.write('ABORT LA budget %r is not a strict minority of the deadline %r\n' % (b, t)); sys.exit(1)
+" || { echo "ABORT LA.3 launch-witness budget vs deadline"; exit 65; }
+
+LA_TMP="$BASE/.la_${ARM}_${STAMP}"; mkdir -p "$LA_TMP"
+la_assert_launch "$CID" "$LAUNCH_BUDGET_S" "$LA_TMP"; LA_RC=$?
+
+# THE mtime WITNESS, EVALUATED AGAINST THE RECORDED CAPTURE (LA.1b).
+# It is CORROBORATING, NOT GATING, and the reason is specific to this harness:
+# DAFoam writes its fields to processor*/ at writeInterval, hundreds of steps
+# after launch, while processor*/ ITSELF is created by decomposePar -- so as a
+# GATE it would either fire on decomposePar (the same false witness as
+# `^Time = `) or fire far too late to bound a wait.  The LOG witness gates.
+# But it is recorded on every arm, in both directions, because a `launched:
+# true` from the log witness with NOTHING written since the capture is a
+# contradiction a grader must be able to see.
+if la_mtime_witness "$WORK" "$LAUNCH_PRE"; then
+  LA_MTIME=advanced
+else
+  LA_MTIME=unchanged_since_capture
+fi
+echo "D8G_LAUNCH_MTIME_WITNESS arm=$ARM result=$LA_MTIME capture=$(basename "$LAUNCH_PRE") rows=$PRE_ROWS gating=no evidence=[$(printf '%s' "${LA_MTIME_EVIDENCE:-none}" | tr '\n' ';' | head -c 300)]"
+if [ "$LA_RC" -eq 0 ] && [ "$LA_MTIME" = "unchanged_since_capture" ]; then
+  echo "D8G_LAUNCH_CONTRADICTION arm=$ARM the log witness fired but NOT ONE FILE in $WORK is strictly newer than the recorded capture.  A grader must treat this row as suspect."  | tee -a "$BASE/ledger.txt"
+fi
+
+# ===========================================================================
+# LA.4 -- `launched: false` WITH A REASON.  Not a bare false, not an rc alone.
+# ===========================================================================
+if [ "$LA_RC" -ne 0 ]; then
+  KILLED=$(la_kill "$CID" "$LA_TMP/la.stderr")
+  sudo -n docker logs "$CID" > "$LOG" 2>&1
+  EXITCODE=$(sudo -n docker inspect --format '{{.State.ExitCode}} {{.State.OOMKilled}}' "$CID" 2>>"$LA_TMP/la.stderr")
+  kill $SAMPLER 2>/dev/null; wait $SAMPLER 2>/dev/null
+  {
+    echo "ARM=$ARM ROW=$ROW IMG=$IMG DIGEST=$GOT_DIGEST launched: false reason=[$LA_REASON] launch_rc=$LA_RC waited_s=$LA_WAITED_S budget_s=$LAUNCH_BUDGET_S mtime_witness=$LA_MTIME precapture=$(basename "$LAUNCH_PRE") precapture_rows=$PRE_ROWS cid=$CID container_kill=$KILLED inspect(exit,oomkilled)=[$EXITCODE] decomposePar_decoy_seen=$LA_DECOY_SEEN solver_call_seen=$LA_CORROBORATED log=$(basename "$LOG") stamp=$STAMP"
+    echo "D8G_LAUNCH_REFUSED arm=$ARM rc=$LA_RC -- THE SOLVER'S FIRST ARTIFACT NEVER APPEARED.  This row is NOT A RESULT and no grading may read it."
+    echo "D8G_LAUNCH_READER_STDERR arm=$ARM: $(tr '\n' ' ' < "$LA_TMP/la.stderr" | head -c 600)"
+  } | tee -a "$BASE/ledger.txt"
+  sudo -n docker rm "$CID" >/dev/null 2>&1
+  exit "$LA_RC"
+fi
+echo "D8G_LAUNCH_ASSERTED arm=$ARM launched: true reason=[$LA_REASON] waited_s=$LA_WAITED_S budget_s=$LAUNCH_BUDGET_S mtime_witness=$LA_MTIME precapture=$(basename "$LAUNCH_PRE") precapture_rows=$PRE_ROWS cid=$CID solver_call_seen=$LA_CORROBORATED" | tee -a "$BASE/ledger.txt"
+
+# ---------------------------------------------------------------------------
+# [D8R lines 413-475 follow UNCHANGED except that every `"$NAME"` becomes
+#  `"$CID"` and every `2>/dev/null` on a `docker inspect` becomes
+#  `2>>"$LA_TMP/la.stderr"` with an UNREADABLE branch -- the runaway guard, the
+#  cap-crossing and ceiling rows, `docker logs` into $LOG, the kernel rc, the
+#  CPU-sample reduction, the inspect record, `docker rm`, the chown, the ledger
+#  row and `exit $rc`.  T0 is now set at LA.3 above, BEFORE the launch wait, so
+#  the launch wait is INSIDE the graded wall and cannot be spent for free.]
+# ---------------------------------------------------------------------------

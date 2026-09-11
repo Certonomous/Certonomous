@@ -1,4 +1,4 @@
-# PERMISSION: NOT_FROZEN — DRAFT, awaiting supervisor check
+# PERMISSION: FROZEN — frozen by the dafoam-supervisor 2026-09-11. Gates, thresholds, caps and labels are CLOSED except by dated addendum that cannot alter them.
 
 > **THIS DOCUMENT IS A DRAFT. IT IS NOT FROZEN, IT IS NOT COMMITTED, AND NO ARM MAY LAUNCH AGAINST IT.**
 > Freezing is the `dafoam-supervisor`'s act and is not delegated (`CLAUDE.md` rule 2;
@@ -857,4 +857,416 @@ functionals) and **DISCLOSES** the threshold coincidence. **ALTERS NO** gate ban
 cost or label registered above: §4.6's Roache order and `p` band, §4.7's FD bands and trivial-baseline
 control, §6.3's 359.748 core-min estimate and 1,079.25 cap, and §7's two-level adjoint ceiling are
 untouched. **The FD table at L2 remains owed and remains the bright line** (`DAFOAM_CHARTER.md` §1).
+**SUBMISSIONS PARKED.**
+
+---
+
+## AMENDMENT 2 — 2026-09-11 — **PRE-COMPUTE. §6.3 mispriced the FD arms by not counting the trivial baseline's own primals, and §5 registers no aggregate memory ceiling at all.**
+
+*lines whose number changed above this section: 0.* Appended; nothing above is rewritten or struck.
+
+**Registered by the `dafoam-supervisor`** (Rulings 1 and 2, this date), on a lane's measurement.
+**Pre-compute**, and therefore legal (`CLAUDE.md` rule 2). **It moves no gate, no band, no threshold
+and no label** — see the closing block.
+
+### CONDITION, AND HOW IT WAS CHECKED
+
+**No compute of any kind has been spent against this registration.** Checked **2026-09-11T16:47Z**:
+
+* `stat /home/ubuntu/certonomous-runs/CURRICULUM-D8G-a6-grid-triple` → **`No such file or directory`.**
+  **The registered run root does not exist.**
+* `find /home/ubuntu/certonomous-runs -maxdepth 2 -iname '*d8g*'` → **empty.** No level base, no mesh
+  record, no ledger, no arm directory.
+* `docker ps -a` carries **no container whose name contains `d8g`**, live or exited.
+
+**AND THE FINDER WAS PLANTED BEFORE ITS ZERO WAS BELIEVED** (`CLAUDE.md` rule 3). The same `find`
+invocation, re-run against `*d8r*`, returned **three** paths including
+`/home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv`. A reader not shown able to see a
+non-zero is not evidence; this one was shown, and only then was its zero on `*d8g*` taken as one.
+
+---
+
+### (a) RULING 1 — THE FD-ARM COST IS CORRECTED **BEFORE** THE RUN, AND THE CORRECTION IS ARITHMETIC, NOT A NEW GATE
+
+**What §6.3 got wrong.** Its FD-arm figures were obtained by scaling **D8R's measured F arms** by the
+cell ratio 1.06667. D8R's F arm evaluated **three** steps; **D8G's §4 registers a fourth — the
+trivial baseline at 1e-3 deg** — and that step is **not optional**: the comparator's
+`_trivial_baseline` **refuses outright** below three components at the trivial step, so the arm that
+§4 registered was never the arm §6.3 priced. **§6.3 did not change its mind; it mispredicted by not
+counting the primals a gate it had already registered would force.**
+
+| | primals |
+|---|---|
+| D8R F arm: 3 steps × 5 components × 2 (central) + 2 baselines | **32** |
+| D8G F arm: 4 steps (3 graded **+ the §4 trivial baseline**) × 5 × 2 + 2 baselines | **42** |
+| ratio | **1.3125** |
+
+**The 32 is MEASURED, not assumed:** `grep -c '^Running Primal Solver'` on D8R's own arm log
+`/home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv/F-P_20260827T235119Z_1656338.log`
+returns **32**, exactly.
+
+**TWO INDEPENDENT ROUTES TO THE CORRECTED FIGURE. THE AGREEMENT IS THE EVIDENCE, NOT THE NUMBER.**
+
+**Route A — per-primal scaling of the registered figures.**
+`F2-P: 67.840 × 42/32 = ` **89.040 core-min**; `F2-S: 71.395 × 42/32 = ` **93.706 core-min**.
+Increase `21.200 + 22.311 = ` **43.511 core-min**.
+
+**Route B — from D8R's measured wall, touching none of §6.3's numbers.**
+D8R's `F-P` inspect record gives `StartedAt 2026-08-27T23:51:19.974472495Z` →
+`FinishedAt 2026-08-28T00:07:12.293796543Z` = **952.319 s** × 4 ranks ÷ 60 = **63.488 core-min**
+(§6.3 registered 63.600 for that arm — the two agree to **0.18 %**, which is what makes Route B an
+independent check rather than a restatement). Subtracting the **measured** launch head of ≤ 15.0 s
+(§(c) below) leaves 937.3 s over 32 primals = **29.291 s per primal**; 42 primals + the same head =
+1,245.2 s = **83.015 core-min** at 41,760 cells, and × 1.06667 for L2's cells = **88.550 core-min**.
+
+**Route A gives 89.040; Route B gives 88.550. They agree to 0.55 %.**
+
+**REGISTERED, replacing the §6.3 line items of the same names:**
+
+| arm | §6.3 as written | **corrected** |
+|---|---|---|
+| F2-P | 67.840 | **89.040** |
+| F2-S | 71.395 | **93.706** |
+| **ITEM POINT ESTIMATE** | 359.748 | **403.259 core-min** |
+| **derived dollars at $0.0513/core-h** | $0.3076 | **$0.3448 — DERIVED, NOT MEASURED** |
+
+**WHY THIS IS DONE NOW AND WOULD BE ILLEGAL LATER, STATED IN AS MANY WORDS.** If the prediction
+stayed at 359.748, `G10` would report `actual/predicted ≈ 1.31` at grading time, and rule 12's
+attribution machinery would then offer **contention** or **waste** as the explanation for a gap whose
+true cause is **an arithmetic error in this registration**. `COMPUTE_BUDGET_CHARTER.md` §6 keeps
+**waste separately named and never absorbed into the ratio**; **the mirror obligation is that a
+MISPREDICTION IS NOT LAUNDERED INTO CONTENTION.** A registration that knows it mispriced an arm and
+lets the run report the difference as contention is not reporting waste honestly — it is hiding its
+own error inside someone else's. Correcting it before the first container is the only moment at which
+this is a bookkeeping fix rather than a gate moved to fit an answer.
+
+**WHAT THIS OBLIGES THE FREEZE TO DO, AND THIS AMENDMENT DOES NOT DO IT.** `d8g_grade.py`'s
+`PREDICTED_CORE_MIN` dict carries `"F2-P": 67.840` and `"F2-S": 71.395` **as constants in the
+comparator**, and `CAPS` is derived in that file as `3 ×` each. **`G10`'s ratio and the
+`docs/COST_CALIBRATION.md` row are computed from those constants, not from this document**, so this
+amendment is **INERT UNTIL THE COMPARATOR'S TWO ENTRIES ARE UPDATED AT THE FREEZE.** The consequential
+per-arm caps become `F2-P 267.120` and `F2-S 281.118` core-min (from 203.52 and 214.185). The lane
+that measured this **did not touch the comparator** — editing it is the supervisor's act and the
+comparator is about to be frozen.
+
+**THE ITEM CEILING IS NOT MOVED BY THIS AMENDMENT.** §6.4's **1,079.25 core-min** stands as written.
+`3 × 403.259 = 1,209.78` is recorded here **as a reading, not a registration**, because §6.4 already
+**suspends the cap as a stop** for this 3D item on Sanaa's 2026-09-10 directive and the comparator's
+`G10` is **REPORT-ONLY** — so nothing halts on either number, and moving a ceiling that stops nothing
+would be motion without meaning.
+
+---
+
+### (b) RULING 2 — §5 GETS AN AGGREGATE MEMORY LIMB, AND IT IS A **CHECK WITH ONE DERIVED CONSTANT**, NOT AN INHERITED NUMBER
+
+§5 registers per-arm container caps and per-arm pre-launch headroom. **It registers no aggregate
+ceiling**, and the chain driver needs one. **D8R's 30.6 GiB IS NOT CARRIED ACROSS**, and the reason is
+the one §4.5 already gives for `primalMinResTolDiff`: a constant belongs to the registration that
+measured it, and neither half of a family may be carried from the other.
+
+**MEASURED ON THIS BOX, 2026-09-11T16:50Z, first-hand:**
+
+| quantity | measured |
+|---|---|
+| `MemTotal` | 32,132,596 kB = **30.644 GiB** |
+| `MemAvailable` at the reading | **19.289 GiB** |
+| live containers' *actual* usage (`docker stats`) | 122.2 MiB + 506.1 MiB = **0.614 GiB** |
+| **host non-container RSS** = (MemTotal − MemAvailable) − container usage | **10.741 GiB** |
+| worst D8G arm cap (§5: the L2 adjoint / FD arms) | **14 GiB** |
+| aggregate a worst-case arm would present **today** | 14 + 10.741 + 0 = **24.741 GiB** |
+
+**FIRST, A DEFECT IN THE READING ITSELF, AND IT IS LIVE RIGHT NOW.** `d8g_aggregate_memory.py`
+composes `aggregate = Σ(live container CAPS) + this arm's cap + host non-container RSS`, where
+`host_nc = (MemTotal − MemAvailable) − Σ(live container USAGE)`. **Both containers running on this box
+at the reading carried `HostConfig.Memory = 0` — no cap at all.** An uncapped container therefore
+contributes **0** to the caps term *and* has its real usage **subtracted** out of `host_nc`: **it is
+doubly invisible.** A neighbour growing uncapped to 20 GiB would move the aggregate by
+**approximately nothing**. **A ceiling compared against a number blind to the largest thing on the
+box is theatre**, so the limb below is registered **together with** the reading's repair (recorded in
+`d8g_aggregate_memory_DELTAS_from_d8r.diff`): an uncapped live container is counted **at its current
+usage**, **named**, and carried in the reading as `uncapped_containers`, so a grader can see the
+aggregate was taken against an unbounded neighbour.
+
+**SECOND, WHY D8R's NUMBER WOULD HAVE BEEN INERT ANYWAY.** `30.6 GiB` against this box's
+`MemTotal 30.644 GiB` is `MemTotal − 0.044` — **the whole machine.** It is not a ceiling; it is a
+value that can essentially never refuse.
+
+> **§5, NEW LIMB — `G-AGG`, THE AGGREGATE MEMORY CHECK.** Before each arm, and **in addition to** the
+> per-arm H5 window already registered:
+> **`AGG_CEILING_GIB = MemTotal_GiB − RESERVE_GIB`, with `RESERVE_GIB = 4.0`** — **on this box,
+> 30.644 − 4.0 = 26.644 GiB.**
+> **IT IS REGISTERED AS THE FORMULA, NOT AS THE LITERAL 26.644**, because an instance change is
+> Sanaa's call and does happen, and a literal would silently describe the wrong machine afterwards.
+> The aggregate reading must satisfy `Σ(live caps, uncapped counted at current usage) + this arm's cap
+> + host non-container RSS < AGG_CEILING_GIB`, or the driver **WAITS** (bounded, as registered) and
+> then **BLOCKS**.
+
+**THE DERIVATION OF `RESERVE_GIB = 4.0`, INCLUDING WHAT IT IS *NOT* FOR.** Host non-container RSS is
+**already a term inside the sum**, so the reserve is not protecting it. The reserve covers exactly two
+things: **(i)** growth of that host RSS *between the pre-launch reading and the arm's peak* — the lab
+fleet keeps working while an arm runs — and **(ii)** the arm exceeding §5's linear model, whose own
+measured error is the **1.147×** M2 underprediction §5 already discloses. Sized against today's
+worst case: `24.741 GiB` presented, ceiling `26.644 GiB`, **slack 1.903 GiB** — enough to admit the
+box as it stands and to **refuse** once roughly 2 GiB of further committed caps appear. A reserve of
+0 (D8R's effective choice) refuses nothing; a reserve large enough to be comfortable would refuse the
+A2/F2 arms outright on a box already carrying the lab fleet.
+
+**WHAT IS NOT DEFENSIBLE AS A CONSTANT, AND IS THEREFORE NOT REGISTERED AS ONE.** The binding
+quantity is **one arm plus whatever else is on the box**, and *whatever else* is set by other teams'
+fleets, which this document does not govern and cannot predict. **`host_nc = 10.741 GiB` is ONE
+SAMPLE, not a distribution** — the lane took a single reading and is not entitled to call it typical.
+That is precisely why the limb is written as a **pre-launch check against the live reading** with one
+small derived reserve, rather than as a registered aggregate figure: **the check is honest about
+being contention-dependent; a constant would not be.**
+
+---
+
+### (c) THE WITNESS BUDGET STAYS A TOKEN, AND A TIMESTAMP IS ADDED SO THE FIRST ARM MEASURES IT
+
+`d8g_run_arm.sh`'s `LAUNCH_BUDGET_S` bounds `StartedAt → the first `^ExecutionTime = ` line`, and is
+asserted to be a strict minority of the in-container deadline `TMO = cap_core_min × 60 ÷ 4` (ceilings
+**352 / 393 / 719 / 915 / 1,526 / 1,606 s** for L1 / L2 / L3 / A2 / F2-P / F2-S).
+
+**MEASURED, from D8R's four inspect records and arm logs (41,760 cells, 4 ranks):** `StartedAt` → the
+decomposePar banner **13.94 / 5.65 / 8.03 / 7.93 s**; → `processor3/constant/polyMesh/owner.gz`
+written **14.94 / 6.65 / 9.03 / 8.93 s**. **6.7–15.0 s, a 2.2× spread on identical work** — the budget
+must absorb host contention, not merely the mesh.
+
+**NOT MEASURED, AND NOT ESTIMATED.** The second leg — decomposePar complete → the first
+`^ExecutionTime` — **is timestamped nowhere in the surviving artefacts**. The `ClockTime = 3–4 s` on
+that line is the **solver's own** clock and says nothing about DASolver construction. `StartedAt` →
+witness is therefore bounded **below** at ≈ 15 s and **not bounded above by any evidence this lab
+holds**. **`__D8G_UNFROZEN__WITNESS_BUDGET` REMAINS A TOKEN** rather than a guess.
+
+> **REGISTERED:** the in-container wrapper echoes `date -u +%s` **immediately before** the `mpirun`
+> line. It costs nothing, it is not a gate, and it converts the witness budget from a judgement into a
+> **measurement on the very first D8G arm**. The token is filled from that measurement, not before.
+
+---
+
+### (d) NAMED UNKNOWN, CARRIED INTO THE RECORD RATHER THAN LEFT AS A FOOTNOTE
+
+`d8g_decomposeParDict` is a **byte copy** of the frozen, graded `curriculum_D8R/d8r_decomposeParDict`
+(both md5 `1dbd9ead3f40a29f483444dc5fa1288b`, verified against both paths). `numberOfSubdomains 4` is
+**forced**, not chosen: every arm is np = 4 (§3), the comparator's `NPROCS_REGISTERED = 4` **refuses**
+any artefact that differs, and `G12` pins four cores. `scotch` is held across all three levels so the
+triple's three solves differ **only in the mesh**.
+
+> **UNKNOWN, added to §10's list in substance and named here because §10 is above this line and is not
+> edited:** **whether `scotch` produces the SAME partition in the PATCHED and SHIPPED images is an
+> INFERENCE FROM IMAGE PROVENANCE, NOT A MEASUREMENT.** Both carry OpenFOAM 2506 and differ only in
+> IDWarp, so the partition *should* be identical — but measuring it means running `decomposePar` in
+> both images, which is compute, and **no lane has run it.** If the two rows ever disagree by more
+> than the case's own noise floor, the comparator's `P5` note already points at the images; **the
+> decomposition is one of the things that must then be checked, and this sentence is why.**
+
+---
+
+### WHAT THIS AMENDMENT DOES AND DOES NOT DO
+
+**CORRECTS** two §6.3 cost line items by arithmetic that a gate registered in §4 had already forced,
+and **ADDS** an aggregate-memory limb to §5 where none existed. **ALTERS NO** gate, band, threshold,
+tolerance or label registered above: §4.1–§4.8's gates, §4.6's Roache order and `p ∈ [1.0, 3.0]`,
+§4.7's FD bands and trivial-baseline withdrawal, `AMENDMENT 1`'s `G-PLAT` and `G-PRIMAL`, §6.4's
+1,079.25 ceiling and its REPORT-ONLY status, §7's two-level adjoint ceiling, and §8's predictions are
+**untouched**. **It adds no gate and removes none.** The FD table at L2 remains owed and **remains the
+bright line** (`DAFOAM_CHARTER.md` §1). **The comparator's `PREDICTED_CORE_MIN` entries are NOT
+changed by this document and must be changed at the freeze, or (a) is inert.** **SUBMISSIONS PARKED.**
+
+---
+
+## AMENDMENT 3 — 2026-09-11 — **PRE-COMPUTE. `G1` implemented four of `CLAUDE.md` rule 4's clauses and none of the rest, and a solve that died at iteration 490 of a registered 1,000 graded `PASS` on both rows at observed order 2.0000.**
+
+*lines whose number changed above this section: 0.* Appended; nothing above is rewritten or struck.
+
+**Registered by the `dafoam-supervisor`** on a lane's code-reading and its demonstration.
+**Pre-compute**, and therefore legal to add a gate (`CLAUDE.md` rule 2). **This amendment ADDS
+REFUSALS AND NOTHING ELSE** — see the closing block.
+
+### CONDITION, AND HOW IT WAS CHECKED
+
+**No compute of any kind has been spent against this registration.** Checked
+**2026-09-11T17:31Z**: `stat` on the registered run root
+`/home/ubuntu/certonomous-runs/CURRICULUM-D8G-a6-grid-triple` → **absent**;
+`find /home/ubuntu/certonomous-runs -maxdepth 2 -iname '*d8g*'` → **0 hits**. **AND THE FINDER
+WAS PLANTED BEFORE ITS ZERO WAS BELIEVED** (rule 3): the same invocation against `*d8r*`
+returned **10** hits. A reader not shown able to see a non-zero is not evidence.
+
+### (a) WHAT WAS MISSING, MEASURED RATHER THAN ARGUED
+
+`G1` implemented `rc == 0`, `OOMKilled`, the age guard on the artefact, and the instrument's
+terminal marker. Of rule 4's remaining clauses it implemented **none**, and the evidence is a
+census of the comparator's own source:
+
+| rule 4 clause | in the comparator, before this amendment |
+|---|---|
+| an `End` line | the string occurred **ZERO** times |
+| last time == `endTime` | `endTime` was read into `read_P` and **never compared to anything** |
+| the `ExecutionTime` count | `ExecutionTime` occurred **once — in the fixture BUILDER**, in no reader and no gate |
+| the field set present | not checked at all |
+
+**AND THE LABEL WAS FALSE, WHICH IS WORSE THAN THE CHECK BEING ABSENT.** `g_primal` reported
+its reading in a field named **`max_initRes_at_endTime`**, while `read_max_init_res` walks
+backwards to the last parseable `initRes` block **wherever it is** and never establishes that
+it is at `endTime`. **An absent check is a gap; an absent check WEARING THE NAME OF A PRESENT
+ONE is an assertion the instrument cannot support.** The clause below makes the name true, and
+the name is kept only because it now is.
+
+### (b) THE DEMONSTRATION, DRIVEN THROUGH THE COMPARATOR'S OWN `grade()`
+
+A clean fixture grades `PASS`. Rewrite one arm's log (`L2-P`) as a primal that ran **50 printed
+steps — iteration 490 of a registered 1,000** — with a **perfectly flat tail**, which is what a
+primal that is converging normally looks like right up to the moment it is killed. Leave the
+artefact untouched, still claiming `endTime = 1000`:
+
+```
+G1 completion    PASS
+G-PRIMAL   L2    PASS    "max_initRes_at_endTime": 5e-05   <- read at iteration 490
+G-PLAT  L2 CD    PASS    peak-to-peak 0.0 over a window of 10
+G-TRIPLE         PASS    CD CONVERGING, order 2.0000, GCI 0.5556 %
+ITEM VERDICT     PASS    PATCHED PASS, SHIPPED PASS
+```
+
+**A comparator that certifies a corpse at order 2.0000 is the most dangerous possible failure,
+because every number in that chain looks like success.** The log and the artefact disagreed
+about how far the run went and nothing compared them.
+
+**THE NEAR-MISS IS REGISTERED HERE BECAUSE IT IS THE LESSON.** The first attempt at this
+demonstration truncated the fixture's *decaying-oscillation* history, and **G-PLAT caught it —
+for a reason that has nothing to do with completion.** A suite built on that fixture would have
+shown a green completion story while having no completion gate at all. **A CONTROL THAT HAPPENS
+TO FIRE FOR AN UNRELATED REASON READS AS A GATE THAT WORKS.** Rebuilding with a flat tail
+removed the luck and turned a coincidence into a proof. That difference is now itself a unit:
+a flat truncated tail is **invisible** to `G-PLAT` (peak-to-peak 0.0, clearing `DELTA_REF/10`)
+while a decaying-oscillation truncation is not — so only `G1` can catch the flat one.
+
+### (c) THE CLAUSE, REGISTERED
+
+> **`G1-RUN`.** Per arm, on the **LAST primal segment** — the same segment `G-PRIMAL` and
+> `G-PLAT` grade, so the run this clause certifies is the run they read. **Any clause failing
+> is a REFUSAL (exit 2), not a gate that composes to `GATE FAIL`: a run that fails any clause
+> is not done.**
+> 1. `printInterval` is **read back from this arm's own log** and asserted equal to the
+>    registered **10** — the same discipline as `G-PRIMAL`'s acceptance pair, and for the same
+>    reason: the expected step count is *derived from it*.
+> 2. the last `Time =` in that segment **equals `endTime` (1000)**;
+> 3. **exactly one `End` line** is present in that segment;
+> 4. the `ExecutionTime` count equals the **DERIVED** expected printed-step count;
+> 5. the field set **`T U p nuTilda nut alphat phi`** is present at `endTime` in **every one of
+>    the 4 processor directories**, and **every field is NEWER than the arm's own age datum**.
+
+**CLAUSE 4 IS DERIVED IN THE FILE AND IS NOT THE LITERAL 101.** The count is the size of the
+set `{1} ∪ {pi, 2·pi, … ≤ endTime/deltaT}`. **The unit-step form `round(endTime/deltaT)` = 1000
+WOULD REFUSE EVERY CORRECT ARM**, because this family's output cadence is `printInterval 10`;
+rule 4 clause 5 fixes the unit-step form as the **historical** case and says the count must
+match the steps **WRITTEN**, not the steps **TAKEN**. A literal 101 would pass every test and
+become silently wrong the moment any of the three inputs moved — the same class of defect as a
+memory ceiling that describes the wrong machine. `d8g_of.py`'s `printed_sample_count()` computes
+the same set, so **the gate and the producer agree by construction, not by two copies of one
+number.**
+
+**EVERY CLAUSE WAS MEASURED ON A REAL, GRADED ARM BEFORE IT WAS WRITTEN** — a gate built on a
+line that does not exist refuses every correct run. On D8R's `F-P` arm
+(`F-P_20260827T235119Z_1656338.log`, 41,760 cells, np = 4): the last primal segment carries
+**exactly 101 `ExecutionTime` lines, 101 `Time =` lines, last `Time = 1000`, and exactly one
+`End`** (33 in the whole 32-primal log, the extra being `decomposePar`'s); `printInterval 10`
+reads back from the log; **4** processor directories exist; and **all seven fields are present,
+gzipped, at time 1000 in every one of them, every one newer than the arm's own age datum.**
+
+### (d) WHAT ELSE THIS FORCED, AND IT IS AN IMPROVEMENT
+
+The clause **subsumed the suite's old "too few samples" fixture**, which had shortened the whole
+log — now a *completion* failure, so `G1` refused it and `G-PLAT`'s want-of-evidence limb could
+never be reached. The fixture is corrected so the two are **independent**: a run that completes
+to `endTime` and still prints too few `CD:` lines. **A control reached only because a different
+control let it through is not a control.** The fixture was also corrected to emit the `End` line
+a real DAFoam arm prints, because a fixture that did not would make this clause refuse every
+correct arm.
+
+**AND ONE UNIT OF THIS AMENDMENT'S OWN SUITE WAS WRONG BEFORE IT WAS RIGHT, WHICH IS RECORDED
+RATHER THAN QUIETLY FIXED.** The anti-hard-coding unit first asserted the formula returns
+**1001** at `printInterval 1`. It returns **1000**: the printed set is `{1} ∪ {1,2,…,1000}` and
+iteration 1 is in both halves. **The test had fallen for exactly the double-count the set-based
+formula exists to prevent — the formula was right and the test was wrong**, a direction only
+caught by driving the function rather than trusting it.
+
+### WHAT THIS AMENDMENT DOES AND DOES NOT DO
+
+**ADDS** the `G1-RUN` completion clause, which **adds refusals and nothing else**: it can turn a
+`PASS` or a `GATE FAIL` into a refusal and **can never manufacture a favourable verdict**. It
+was found by code-reading, not by anyone looking at an answer they wanted. **ALTERS NO** gate
+band, threshold, tolerance, label, cap or cost registered above: §4.1–§4.8, §4.6's Roache order
+and `p ∈ [1.0, 3.0]`, §4.7's FD bands and trivial-baseline withdrawal, `AMENDMENT 1`'s `G-PLAT`
+and `G-PRIMAL`, `AMENDMENT 2`'s corrected §6.3 line items and its §5 aggregate limb, §6.4's
+ceiling and its REPORT-ONLY status, and §7's two-level adjoint ceiling are **untouched**. The FD
+table at L2 remains owed and **remains the bright line** (`DAFOAM_CHARTER.md` §1).
+**SUBMISSIONS PARKED.**
+
+
+---
+
+## FREEZE RECORD — 2026-09-11, the dafoam-supervisor
+
+**`D8G` IS FROZEN.** `CLAUDE.md` rule 2: the grading path is fixed at the pre-registration commit,
+and the frozen file is verified to be the file that ran by hashing it against the committed blob.
+
+| instrument | md5 |
+|---|---|
+| `d8g_grade.py` — THE COMPARATOR | `12688063e20cbb6fa79cf08d0996d4e1` |
+| `d8g_of.py` — the producer | `f17b4a26fc5dcbbb44e9c820ba16df6c` |
+| `d8g_runScript.py` | `28c7819487a025a5f6554d38062a2b66` |
+| `d8g_decomposeParDict` | `1dbd9ead3f40a29f483444dc5fa1288b` |
+| `d8g_genmesh.sh` | `5b9db5102a4ffe04abffec6f7648d0c1` |
+| `d8g_run_arm.sh` — the launcher | `05b7f8b1446968b64bc74d2f0f531fcb` |
+| `d8g_chain_driver.sh` | `8c993186d6ff88d52f285907eba9b334` |
+| `d8g_aggregate_memory.py` | `4218ea7f04433fd5c1a17cf90b80c1bf` |
+| `d8g_cpuset_overlap.py` | `c57598a84b46e82c05be2ecb483fa301` |
+| `d8g_runScript_contract.py` | `d5193d6309816909415894a9d98e1116` |
+
+**VERIFIED BY THE SUPERVISOR PERSONALLY, not relayed**, immediately before this freeze: every md5
+above re-taken from disk and matching; comparator suite **14/14 on the supervisor's own run**;
+`ast.Assert` census **0** across all five Python instruments; and the run root
+`/home/ubuntu/certonomous-runs/CURRICULUM-D8G-a6-grid-triple` **absent**, with the reader shown able
+to see a directory that IS there — `CURRICULUM-D8R-a6-twist-opt-conv` resolves — so that zero is
+**measured, not assumed**. No D8G compute has run.
+
+### ONE TOKEN REMAINS OPEN, DELIBERATELY
+
+**`LAUNCH_BUDGET_S` in `d8g_run_arm.sh` is still `__D8G_UNFROZEN__`, and the launcher is therefore
+FROZEN AND DELIBERATELY NOT YET RUNNABLE.** That value is the per-arm launch-witness deadline and it
+is **measured by the first arm's `D4S_MPIRUN_EPOCH` line, never guessed** — the second leg of the
+launch path (decomposePar-complete → first `ExecutionTime`) is timestamped nowhere in the surviving
+artefacts, so it is bounded below at ~15 s and not bounded above by any evidence held. **A budget
+invented here would be a number wearing the costume of a measurement.**
+
+### THREE INSTRUMENTS CARRY NO PERMISSION LINE, BY REGISTERED EXCEPTION
+
+`d8g_runScript.py`, `d8g_decomposeParDict` and `d8g_cpuset_overlap.py` are **byte copies** of frozen
+D8/D8R instruments, and their provenance **is** their byte identity. A permission line would destroy
+it — and for the producer would invalidate `PRODUCER_MD5` and the three-way `D8 → D8R → D8G`
+identity on `28c7819487a025a5f6554d38062a2b66`. Their permission lives in their deltas diffs and
+their md5s. This is an exception taken deliberately, not an oversight.
+
+### A HAZARD CLOSED BEFORE THE FREEZE, AND IT WOULD HAVE FALSIFIED THREE REGISTRATIONS
+
+With its md5 tokens filled, `d8g_chain_driver.sh` no longer aborted at its freeze guard — and the
+next thing it did was `mkdir -p "$BASE"`. **Merely RUNNING the driver would have created the run
+root**, falsifying the *"the run root does not exist"* condition that **AMENDMENTS 1, 2 AND 3 are
+each registered against** — an irreversible edit to the evidence for three registrations, made by a
+script that then aborts because there is nothing to run. The driver now **refuses** when the root is
+absent and names the step that legitimately creates it (`d8g_genmesh.sh:127`, which makes it when it
+first has something to put in it). Verified by running the driver after the tokens were filled: exit
+5, run root checked absent before **and** after.
+
+### WHAT THIS FREEZE DOES NOT ASSERT
+
+**No D8G level has been solved and nothing downstream of the freeze guards has ever executed.**
+Nothing in this item has imported DAFoam, IDWarp, mphys, pyGeo or OpenMDAO. Specifically **NOT**
+established: that `DAFoamBuilder` accepts these options; that `nom_addRefAxis` returns 8; and that
+**the L1 surface's 696 quads support the 25×30 thickness-constraint projection `configure()` runs
+inside `prob.setup()` on every arm** — which, if it throws, throws **before the first primal**. That
+is the sharpest known risk on this rung and it is bought cheaply by an L1 smoke, which is the first
+thing to run after this freeze. A failure there is a **finding about the coarse level of a
+fixed-design triple**, not a nuisance.
+
 **SUBMISSIONS PARKED.**

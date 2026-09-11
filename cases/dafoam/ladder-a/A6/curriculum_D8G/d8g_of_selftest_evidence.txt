@@ -1,0 +1,30 @@
+D8G PRODUCER SELFTEST  target=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_of.py  md5=f17b4a26fc5dcbbb44e9c820ba16df6c
+                       spec=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_grade.py  md5=12688063e20cbb6fa79cf08d0996d4e1
+                       date_u=2026-09-11T17:46:25Z  host_python=Python 3.12.3
+
+A. the producer's planted-fixture suite, driven through the comparator's own readers
+  PASS  A0 the comparator is the md5 the supervisor verified  (expected=12688063e20cbb6fa79cf08d0996d4e1 got=12688063e20cbb6fa79cf08d0996d4e1)
+  PASS  A1 suite under python3  (expected=0 got=0)
+  PASS  A2 suite under python3 -O  (expected=0 got=0)
+  PASS  A3 unit count under python3  (expected=54 got=54)
+  PASS  A4 unit count under python3 -O  (expected=54 got=54)
+  PASS  A5 zero BAD units  (expected=0 got=0)
+  PASS  A6 ast.Assert census == 0 (L-332)  (expected=0 got=0)
+  PASS  A7 PRODUCER_MD5 is PINNED to the frozen producer md5 (the token is gone)  (expected=1 got=1)
+  PASS  A7b the unfrozen token no longer appears anywhere in the producer  (expected=0 got=0)
+
+B. mutation controls -- the suite must be SEEN TO FAIL
+  PASS  B-FD-NO-TRIVIAL-STEP SUITE FAILS and [BAD] U32 every registered component carries ALL FOUR steps] is the catcher  (expected=yes got=yes)
+  PASS  B-FD-COMPONENTS-SHORT SUITE FAILS and [BAD] U31 comparator read_F ACCEPTS] is the catcher  (expected=yes got=yes)
+  PASS  B-FD-TRIVIAL-NEAR-MISS SUITE FAILS and [BAD] U31 comparator read_F ACCEPTS] is the catcher  (expected=yes got=yes)
+  PASS  B-CTRL-ZERO-NOT-EXACT SUITE FAILS and [BAD] U35 comparator ctrl_control RECOVERS] is the catcher  (expected=yes got=yes)
+  PASS  B-CTRL-PLANT-NO-FACTOR-TWO SUITE FAILS and [BAD] U35 comparator ctrl_control RECOVERS] is the catcher  (expected=yes got=yes)
+  PASS  B-CTRL-COLLISION-INERT SUITE FAILS and [BAD] U45 check_ctrl_not_confusable REFUSES a MEASURED derivative that is exactly 0.0] is the catcher  (expected=yes got=yes)
+  PASS  B-CELLS-NO-CROSSCHECK SUITE FAILS and [BAD] U10 measure_cells REFUSES a header note that disagrees] is the catcher  (expected=yes got=yes)
+  PASS  B-PLATEAU-FORECAST-ALWAYS-OK SUITE FAILS and [BAD] U21 the forecast REFUSES printInterval 200] is the catcher  (expected=yes got=yes)
+  PASS  B-LOG-PREFIX-DROPPED SUITE FAILS and [BAD] U23 every line this instrument prints is D8G_-prefixed] is the catcher  (expected=yes got=yes)
+  PASS  B-LOG-HYGIENE-INERT SUITE FAILS and [BAD] U24 lines_are_clean CATCHES a forged solver line] is the catcher  (expected=yes got=yes)
+  PASS  B-READBACK-NO-SOURCE-MD5 SUITE FAILS and [BAD] U50 verify_written_F REFUSES an adjoint_source md5] is the catcher  (expected=yes got=yes)
+
+D8G PRODUCER SELFTEST SUMMARY pass=20 fail=0
+SELFTEST PASS 20/20

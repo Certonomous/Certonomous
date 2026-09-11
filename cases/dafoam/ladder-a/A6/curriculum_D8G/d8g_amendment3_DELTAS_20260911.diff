@@ -1,0 +1,507 @@
+# d8g_amendment3_DELTAS_20260911.diff
+#
+# ONE CLASSIFYING DIFF FOR AMENDMENT 3, 2026-09-11.
+# PERMISSION: NOT_FROZEN -- DRAFT.  NOTHING COMMITTED.  PREREGISTRATION.md's permission line
+# is UNTOUCHED; the freeze, the flip and the commit remain the dafoam-supervisor's act.
+#
+# WHAT THIS FIXES.  G1 implemented rc == 0, OOMKilled, the age guard and the terminal marker,
+# and NONE of CLAUDE.md rule 4's remaining clauses.  A census of the comparator's own source:
+# `End` occurred ZERO times; `endTime` was read into read_P and NEVER COMPARED TO ANYTHING;
+# `ExecutionTime` occurred ONCE, in the fixture BUILDER, in no reader and no gate; the field
+# set was not checked at all.  A DEAD SOLVE THEREFORE GRADED PASS -- a primal truncated at
+# iteration 490 of a registered 1000, flat tail, artefact still claiming endTime 1000, came
+# out G1 PASS / G-PRIMAL PASS / G-PLAT PASS at peak-to-peak 0.0 / G-TRIPLE CONVERGING at order
+# 2.0000 with GCI 0.5556 % / ITEM PASS on both rows.
+#
+# THE HUNKS FALL IN SIX CLASSES:
+#
+#   (a) REGISTERED CONSTANTS.  ENDTIME_REGISTERED, DELTAT_REGISTERED,
+#       PRINT_INTERVAL_REGISTERED and FIELDS_AT_ENDTIME.  The field set is A6's
+#       (T U p nuTilda nut alphat phi), NOT the thermal family's -- carrying that one here
+#       would refuse every correct arm.
+#
+#   (b) NEW READERS AND THE CLAUSE: read_print_interval (read BACK from the arm's own log,
+#       same discipline as G-PRIMAL's acceptance pair), expected_printed_steps (DERIVED), and
+#       g1_run_completion.  It is wired INSIDE g_completion, so a failure is a REFUSAL and no
+#       verdict is written -- not a gate that composes to GATE FAIL.
+#
+#   (c) EVERY CLAUSE WAS MEASURED ON A REAL GRADED ARM BEFORE IT WAS WRITTEN, because a gate
+#       built on a line that does not exist refuses every correct run.  On D8R's F-P arm the
+#       last primal segment carries exactly 101 ExecutionTime lines, 101 Time lines, last
+#       Time = 1000 and exactly ONE `End` (33 in the 32-primal log, the extra being
+#       decomposePar's); printInterval 10 reads back; 4 processor dirs; all seven fields
+#       present and gzipped at time 1000 in every one, every one newer than the age datum.
+#
+#   (d) THE COUNT IS DERIVED, NOT THE LITERAL 101.  |{1} u {pi, 2pi, ... <= endTime/deltaT}|.
+#       The unit-step form round(endTime/deltaT) = 1000 WOULD REFUSE EVERY CORRECT ARM on this
+#       family, whose cadence is printInterval 10; rule 4 clause 5 fixes the unit-step form as
+#       the HISTORICAL case and says the count matches the steps WRITTEN, not TAKEN.
+#       d8g_of.py's printed_sample_count() computes the same set, so gate and producer agree
+#       BY CONSTRUCTION rather than by two copies of one number.
+#
+#   (e) FIXTURE CORRECTIONS FORCED BY THE CLAUSE, AND BOTH ARE IMPROVEMENTS.
+#       * _armlog now emits the `End` line a real DAFoam arm prints.  A fixture without it
+#         would have made this clause refuse every correct arm.
+#       * _armlog gains `nblocks`, DECOUPLING the step count from the functional-sample count.
+#         The clause SUBSUMED the old "too few samples" fixture, which shortened the whole log
+#         -- now a COMPLETION failure, so G1 refused it and G-PLAT's want-of-evidence limb
+#         could never be reached.  The two are now independent: a run that completes to endTime
+#         and still prints too few CD: lines.  A CONTROL REACHED ONLY BECAUSE A DIFFERENT
+#         CONTROL LET IT THROUGH IS NOT A CONTROL.
+#       * _history gains a "dead" mode and _fix gains pi / end / fields knobs and the
+#         processor*/1000 field tree.
+#
+#   (f) SEVEN NEW UNITS (43 -> 50) AND AN EIGHTH MUTATION CONTROL.
+#       U44 IS THE DEMONSTRATION THAT FORCED THE AMENDMENT, TURNED INTO A REGRESSION TEST.
+#       U45 IS THE NEAR-MISS, MEASURED RATHER THAN RECALLED: the first attempt truncated the
+#         DECAYING-OSCILLATION history and G-PLAT caught it for an unrelated reason, so a suite
+#         with NO completion gate would have looked like one with a working gate.  U45 now
+#         measures the difference -- a flat tail is INVISIBLE to G-PLAT (peak-to-peak 0.0,
+#         clearing DELTA_REF/10) while an oscillating truncation is not.
+#       U46 End absent; U47 cadence mismatch; U48 fields absent; U49 fields not newer than the
+#         datum; U50 THE ANTI-HARD-CODING UNIT.
+#       B8 REINSTATES THE HOLE (g1_run_completion is replaced by a stub) and U44 is SEEN to
+#         catch it.  If that mutation ever stops being caught, the comparator has silently gone
+#         back to certifying a corpse at order 2.0000.
+#
+# ONE UNIT OF THIS AMENDMENT'S OWN SUITE WAS WRONG BEFORE IT WAS RIGHT, AND IT IS RECORDED
+# RATHER THAN QUIETLY FIXED.  U50 first asserted the formula returns 1001 at printInterval 1.
+# It returns 1000: the printed set is {1} u {1,2,...,1000} and iteration 1 is in both halves.
+# THE TEST HAD FALLEN FOR EXACTLY THE DOUBLE-COUNT THE SET-BASED FORMULA EXISTS TO PREVENT --
+# the formula was right and the test was wrong, a direction only caught by DRIVING the function
+# rather than trusting it.  U50's printed NAME was then corrected too, because a unit whose
+# name states a number it does not check is the same defect as `max_initRes_at_endTime`.
+#
+# THE COMPARATOR'S md5 MOVED A SECOND TIME (643368e6... -> a7293a13...) and the producer
+# selftest's A0 pin fired a second time.  That is the pin doing its job twice, not noise.  THE
+# SUPERVISOR'S RE-READ DOES NOT TRANSFER ACROSS EITHER MOVE.
+#
+# SUITES, ALL GREEN: comparator 50/50 under python3 AND python3 -O with 14/14 in the shell
+# harness (EIGHT mutation controls); producer 54/54 with 20/20 and eleven controls; runScript
+# 27/27 with 25/25 and thirteen controls; launch-assert 41/41; aggregate-memory 11/11.
+# ast.Assert census 0 across all five Python instruments.  No __pycache__.
+#
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/grade.pre_a3.py	2026-09-11 17:26:15.901800493 +0000
++++ d8g_grade.py.DRAFT	2026-09-11 17:29:54.717686405 +0000
+@@ -266,6 +266,35 @@
+ TUTORIAL_FLOOR_DIAGNOSTIC = 1.0e-6                # reported per level, NEVER graded
+ PRIMAL_EQUATIONS = ("U", "he", "p", "nuTilda")    # U = median(U0, U1, U2), N-D44
+ 
++# ---- AMENDMENT 3 (2026-09-11): G1-RUN, THE COMPLETION CLAUSE THAT WAS MISSING --------
++# Until this amendment G1 implemented rc == 0, OOMKilled, the age guard and the terminal
++# marker, and NONE of rule 4's remaining clauses.  MEASURED, not argued: `End` appeared ZERO
++# times in this file, `endTime` was read into read_P and NEVER COMPARED TO ANYTHING, and
++# `ExecutionTime` appeared ONCE -- in the fixture BUILDER, in no reader and no gate.
++# A DEAD SOLVE THEREFORE GRADED `PASS`: a primal truncated at iteration 490 of a registered
++# 1000, with a perfectly plateaued tail and its artefact still claiming endTime = 1000, came
++# out G1 PASS / G-PRIMAL PASS / G-PLAT PASS (peak-to-peak 0.0) / G-TRIPLE CONVERGING at
++# order 2.0000, GCI 0.5556 %, ITEM PASS on both rows.  A comparator that certifies a corpse
++# at order 2.0000 is the most dangerous possible failure, because every number in the chain
++# looks like success.
++# THE NEAR-MISS IS KEPT BECAUSE IT IS THE LESSON: the first attempt at that demonstration was
++# caught -- by G-PLAT, not by G1, and only because the fixture's "clean" history is a
++# DECAYING OSCILLATION whose truncated tail still excurses.  A CONTROL THAT HAPPENS TO FIRE
++# FOR AN UNRELATED REASON READS AS A GATE THAT WORKS.  Rebuilding with a flat tail removed
++# the luck and turned a coincidence into a proof.
++# AND THE LABEL: `max_initRes_at_endTime` named a property read_max_init_res never
++# established -- it walks backwards to the last parseable block WHEREVER IT IS.  An absent
++# check is a gap; AN ABSENT CHECK WEARING THE NAME OF A PRESENT ONE is an assertion the
++# instrument cannot support.  The clause below makes the name true; the name stays only
++# because it now is.
++ENDTIME_REGISTERED = 1000.0                       # controlDict endTime, section 4.5
++DELTAT_REGISTERED = 1.0                           # controlDict deltaT
++PRINT_INTERVAL_REGISTERED = 10                    # daOptions printInterval, READ BACK from the log
++# The field set DARhoSimpleCFoam writes at endTime.  MEASURED first-hand on D8R's graded
++# F-P arm: present, gzipped, in ALL FOUR processor dirs at time 1000.  NOT the thermal
++# family's set -- carrying that one here would refuse every correct arm.
++FIELDS_AT_ENDTIME = ("T", "U", "p", "nuTilda", "nut", "alphat", "phi")
++
+ # ---- AMENDMENT 1(a), G-PLAT ----------------------------------------------------------
+ PLAT_FUNCTIONALS = ("CD", "CL")                   # section 4.6 grades BOTH
+ PLAT_WINDOW_FRAC = 0.10                           # "the last 10 % of printed samples"
+@@ -314,7 +343,7 @@
+                          "siblings_post", "log", "wall_s")
+ NOT_MEASURED = "NOT_MEASURED"
+ VOCAB = {"PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"}
+-EXPECTED_UNITS = 43
++EXPECTED_UNITS = 50
+ 
+ 
+ class Refusal(Exception):
+@@ -470,6 +499,9 @@
+             refuse("G1", {"terminal_marker_absent": TERMINAL[arm], "arm": arm, "log": logname})
+         r["log_text"] = text
+         r["log_path"] = logpath
++        # AMENDMENT 3: rule 4's remaining clauses.  Placed HERE, inside G1, so a failure is a
++        # REFUSAL and no verdict is written -- not a gate that composes to GATE FAIL.
++        out.setdefault("run_completion", {})[arm] = g1_run_completion(base, arm, text)
+         out["arms"][arm] = {"kind": ARM_KIND[arm], "level": ARM_LEVEL[arm], "mode": ARM_MODE[arm],
+                             "kernel_rc": kernel_rc, "oomkilled": oom, "artefact": ARTEFACT[arm],
+                             "source": r["source"], "field_sources": r["field_sources"]}
+@@ -540,6 +572,116 @@
+     return None
+ 
+ 
++_RE_PRINTINTERVAL = re.compile(r"^\s*printInterval\s+(\d+)\s*;", re.M)
++_RE_END = re.compile(r"^End$", re.M)
++_RE_EXECTIME = re.compile(r"^ExecutionTime = ", re.M)
++_RE_TIMEVAL = re.compile(r"^Time = (\S+)", re.M)
++
++
++def read_print_interval(text, arm):
++    """READ BACK FROM THIS ARM'S OWN LOG, exactly as the acceptance pair is, and for the same
++    reason: the printed-step count the completion clause checks is DERIVED from it, so a
++    cadence this grader assumed rather than read would make the derivation describe a
++    different run."""
++    m = _RE_PRINTINTERVAL.search(text)
++    if m is None:
++        refuse("G1-RUN", {"arm": arm, "printInterval_absent_from_log": True,
++                          "note": "the output cadence is a PHYSICS field here: the completion "
++                                  "clause's expected step count is derived from it"})
++    pi = int(m.group(1))
++    if pi != PRINT_INTERVAL_REGISTERED:
++        refuse("G1-RUN", {"arm": arm, "log_printInterval": pi, "registered": PRINT_INTERVAL_REGISTERED,
++                          "note": "a family whose output cadence changes between arms is not a family"})
++    return pi
++
++
++def expected_printed_steps(end_time, delta_t, print_interval):
++    """THE COUNT IS DERIVED, NEVER HARD-CODED.  DAFoam prints the step block when
++    `iter % printInterval == 0` OR `iter == 1`, so the count is the SIZE OF THE SET
++    {1} u {pi, 2pi, ... <= N}, N = endTime/deltaT.  Computed as a set so the printInterval == 1
++    double-count cannot creep in.  A literal 101 here would silently become wrong the moment
++    endTime, deltaT or printInterval moved -- the same class of defect as a memory ceiling
++    that describes the wrong machine.  d8g_of.py's printed_sample_count() computes this same
++    set, so the gate and the producer agree BY CONSTRUCTION and not by two copies of a number.
++    MEASURED on D8R's graded F-P arm: endTime 1000 / deltaT 1 / printInterval 10 -> the last
++    primal segment carries exactly 101 `ExecutionTime` lines, 101 `Time =` lines, last
++    Time = 1000, and exactly one `End`."""
++    if delta_t <= 0 or print_interval <= 0 or end_time <= 0:
++        return 0
++    n_iter = int(round(float(end_time) / float(delta_t)))
++    pi = int(round(float(print_interval)))
++    printed = {1} if n_iter >= 1 else set()
++    printed.update(range(pi, n_iter + 1, pi))
++    return len(printed)
++
++
++def g1_run_completion(base, arm, logtext):
++    """AMENDMENT 3.  CLAUDE.md rule 4's remaining clauses, on the LAST primal segment -- the
++    same segment G-PRIMAL and G-PLAT grade, so the run this clause certifies is the run they
++    read.  ANY clause failing is a REFUSAL: a run that fails any clause is not done."""
++    pi = read_print_interval(logtext, arm)
++    seg = last_primal_segment(logtext)
++    want = expected_printed_steps(ENDTIME_REGISTERED, DELTAT_REGISTERED, pi)
++    times = _RE_TIMEVAL.findall(seg)
++    n_exec = len(_RE_EXECTIME.findall(seg))
++    n_end = len(_RE_END.findall(seg))
++    out = {"arm": arm, "printInterval_read_back": pi, "endTime_registered": ENDTIME_REGISTERED,
++           "deltaT_registered": DELTAT_REGISTERED, "expected_printed_steps_DERIVED": want,
++           "n_ExecutionTime": n_exec, "n_Time": len(times),
++           "last_time": (times[-1] if times else None), "n_End": n_end,
++           "derivation": "|{1} u {pi, 2pi, ... <= endTime/deltaT}| -- DERIVED, never hard-coded"}
++    if not times:
++        refuse("G1-RUN", {"arm": arm, "no_Time_lines_in_the_last_primal_segment": True})
++    try:
++        last_t = float(times[-1])
++    except ValueError:
++        refuse("G1-RUN", {"arm": arm, "last_time_unparseable": times[-1]})
++    if abs(last_t - ENDTIME_REGISTERED) > 1e-9:
++        refuse("G1-RUN", {"arm": arm, "last_time": last_t, "endTime_registered": ENDTIME_REGISTERED,
++                          "note": "rule 4: last time == endTime.  A primal that stopped short is not "
++                                  "done, however plateaued its tail looks"})
++    if n_end != 1:
++        refuse("G1-RUN", {"arm": arm, "n_End_in_last_primal_segment": n_end,
++                          "note": "rule 4: an `End` line.  MEASURED on D8R's graded arm: exactly one "
++                                  "per primal segment (33 in a 32-primal log, the extra being "
++                                  "decomposePar's)"})
++    if n_exec != want:
++        refuse("G1-RUN", {"arm": arm, "n_ExecutionTime": n_exec, "expected_DERIVED": want,
++                          "printInterval": pi, "endTime": ENDTIME_REGISTERED, "deltaT": DELTAT_REGISTERED,
++                          "note": "rule 4 clause 5: the count must match the steps WRITTEN, not the "
++                                  "steps TAKEN -- this family writes at printInterval, so the unit-step "
++                                  "form round(endTime/deltaT) would refuse every correct arm"})
++    adir = os.path.join(base, arm)
++    datum_p = os.path.join(adir, ".d8g_age_datum")
++    datum = int(open(datum_p).read().strip()) if os.path.isfile(datum_p) else None
++    missing, stale = [], []
++    procs = sorted(glob.glob(os.path.join(adir, "processor*")))
++    if len(procs) != NPROCS_REGISTERED:
++        refuse("G1-RUN", {"arm": arm, "processor_dirs": len(procs), "registered": NPROCS_REGISTERED,
++                          "note": "rule 4: the field set at endTime, written by every rank"})
++    tdir = ("%d" % int(ENDTIME_REGISTERED)) if float(ENDTIME_REGISTERED).is_integer() else repr(ENDTIME_REGISTERED)
++    for pd in procs:
++        for fld in FIELDS_AT_ENDTIME:
++            hits = [q for q in (os.path.join(pd, tdir, fld), os.path.join(pd, tdir, fld + ".gz"))
++                    if os.path.isfile(q)]
++            if not hits:
++                missing.append(os.path.join(os.path.basename(pd), tdir, fld))
++                continue
++            if datum is not None and os.path.getmtime(hits[0]) <= datum:
++                stale.append(os.path.join(os.path.basename(pd), tdir, fld))
++    if missing:
++        refuse("G1-RUN", {"arm": arm, "fields_absent_at_endTime": missing[:12],
++                          "n_missing": len(missing), "field_set": list(FIELDS_AT_ENDTIME),
++                          "note": "rule 4: the field set present at endTime -> PHYSICS absent, REFUSE"})
++    if stale:
++        refuse("G1-RUN", {"arm": arm, "fields_not_newer_than_the_age_datum": stale[:12],
++                          "n_stale": len(stale), "datum": datum,
++                          "note": "rule 4's AGE GUARD on the fields themselves: 0/U is touched last at "
++                                  "stage time, so a field not newer than it did not come from this run"})
++    out["fields_at_endTime_present_and_newer_than_datum"] = True
++    return out
++
++
+ def read_functional_history(segment, of):
+     """The `CD:` / `CL:` lines calcAllFunctions emits at printInterval.  MEASURED on the
+     D8R producer's own arm: 3,232 of each against 3,233 `Time = ` lines.  There is no
+@@ -1529,6 +1671,14 @@
+     short : too few printed samples to judge."""
+     if mode == "short":
+         return [target + amp * 1e-6 * i for i in range(6)]
++    if mode == "dead":
++        # THE DEAD SOLVE (AMENDMENT 3).  Fifty printed steps -- iteration 490 of a registered
++        # 1000 -- with a PERFECTLY FLAT tail, which is what a primal that is converging
++        # normally looks like right up to the moment it is killed.  THE FLATNESS IS THE POINT:
++        # the first attempt at this fixture used the decaying-oscillation "clean" history, and
++        # G-PLAT caught it for an unrelated reason, which would have made a suite with NO
++        # completion gate look like a suite with a working one.
++        return [target] * 50
+     if mode == "drift":
+         # per-sample increment amp*2e-3; over the 11-sample window the EXCURSION is 10x
+         # that, which FAILS the peak-to-peak gate, while the increment itself PASSES an
+@@ -1538,21 +1688,40 @@
+     return [target + amp * math.exp(-i / 10.0) * (1.0 if i % 2 == 0 else -1.0) for i in range(FIX_NBLOCK)]
+ 
+ 
+-def _armlog(so, terminal, tol, toldiff, maxres, cdh, clh):
++def _armlog(so, terminal, tol, toldiff, maxres, cdh, clh, pi=10, end=True, nblocks=None):
++    """`nblocks` DECOUPLES THE STEP COUNT FROM THE FUNCTIONAL-SAMPLE COUNT, and that
++    separation is required by AMENDMENT 3.  Before it, the only way to build a
++    too-few-samples fixture was to shorten the whole log -- which is now a COMPLETION
++    failure, so G1 would refuse it and G-PLAT's want-of-evidence limb could never be
++    reached.  A run CAN complete to endTime and still print too few `CD:` lines, and that
++    degenerate case is precisely what G-PLAT's minimum window exists for.  Keeping the two
++    fixtures independent is the same lesson as the near-miss: a control reached only
++    because a DIFFERENT control let it through is not a control."""
+     L = ["D4S_CONTAINER_UID: 0", "D4S_IDWARP_SO_MD5: %s" % so, "D4S_DEADLINE_IN_CONTAINER_S: 600",
+          "    primalMinResTol %s;" % repr(tol), "    primalMinResTolDiff %s;" % repr(toldiff),
+-         "    printInterval   10;", "Running Primal Solver 001", "", "Starting time loop"]
++         "    printInterval   %d;" % pi, "Running Primal Solver 001", "", "Starting time loop"]
+     small = repr(maxres / 5.0)
+-    for i, (cd, cl) in enumerate(zip(cdh, clh)):
+-        L += ["", "Time = %d" % (i * 10 if i else 1), "",
++    nb = len(cdh) if nblocks is None else nblocks
++    for i in range(nb):
++        cd = cdh[i] if i < len(cdh) else None
++        cl = clh[i] if i < len(clh) else None
++        L += ["", "Time = %d" % (i * pi if i else 1), "",
+               "U0 initRes: %s finalRes: 1e-09 nIters: 2" % small,
+               "U1 initRes: %s finalRes: 1e-09 nIters: 2" % small,
+               "U2 initRes: %s finalRes: 1e-09 nIters: 2" % small,
+               "he initRes: %s finalRes: 1e-09 nIters: 2" % repr(maxres / 2.0),
+               "p initRes: %s finalRes: 1e-09 nIters: 10" % repr(maxres),
+               "nuTilda initRes: %s finalRes: 1e-09 nIters: 2" % small,
+-              "CD: %s final: %s" % (repr(cd), repr(cd)), "CL: %s final: %s" % (repr(cl), repr(cl)),
+-              "ExecutionTime = %.2f s  ClockTime = %d s" % (2.5 + i * 0.3, 3 + i)]
++              ]
++        if cd is not None:
++            L += ["CD: %s final: %s" % (repr(cd), repr(cd)), "CL: %s final: %s" % (repr(cl), repr(cl))]
++        L += ["ExecutionTime = %.2f s  ClockTime = %d s" % (2.5 + i * 0.3, 3 + i)]
++    # A REAL DAFoam ARM LOG PRINTS `End` AFTER THE TIME LOOP.  MEASURED on D8R's graded
++    # F-P arm: exactly one per primal segment (33 in a 32-primal log, the extra being
++    # decomposePar's).  A fixture without it would make AMENDMENT 3's clause refuse every
++    # correct arm, so the fixture is corrected to match the instrument it stands in for.
++    if end:
++        L += ["", "End", ""]
+     if terminal:
+         L.append(terminal + " ok")
+     return "\n".join(L) + "\n"
+@@ -1569,6 +1738,8 @@
+          "cd": dict(FIX_CD), "cl": dict(FIX_CL), "hist": {a: "clean" for a in PRIMAL_ARMS},
+          "toldiff": {a: PRIMAL_MIN_RES_TOL_DIFF for a in PRIMAL_ARMS},
+          "maxres": {a: 5.0e-5 for a in PRIMAL_ARMS},
++         "pi": {a: 10 for a in PRIMAL_ARMS}, "end": {a: True for a in ARMS_REQUIRED},
++         "fields": {a: "ok" for a in ARMS_REQUIRED},
+          "err": {"S": {}, "P": {}}, "flip": {"S": set(), "P": set()}, "nospread": {"S": set(), "P": set()},
+          "trivial_scale": {"S": 1.30, "P": 1.30}, "adjoint_ok": {"S": True, "P": True},
+          "mesh": {lv: {} for lv in LEVELS}}
+@@ -1604,22 +1775,47 @@
+         open(ref, "w").write("U\n")
+         t0 = int(os.path.getmtime(ref))
+         open(os.path.join(d, ".d8g_age_datum"), "w").write("%d\n" % t0)
++        # THE FIELD SET EVERY RANK WRITES AT endTime (AMENDMENT 3).  MEASURED on D8R's graded
++        # F-P arm: present, gzipped, in all four processor dirs at time 1000, every one newer
++        # than the arm's own age datum.
++        if k["fields"][arm] != "none":
++            tdir = "%d" % int(ENDTIME_REGISTERED)
++            for pn in range(NPROCS_REGISTERED):
++                fd = os.path.join(d, "processor%d" % pn, tdir)
++                os.makedirs(fd, exist_ok=True)
++                for fld in FIELDS_AT_ENDTIME:
++                    if k["fields"][arm] == "missing" and fld == "phi" and pn == 2:
++                        continue
++                    fp = os.path.join(fd, fld + ".gz")
++                    open(fp, "w").write("field\n")
++                    os.utime(fp, (t0 - 5, t0 - 5) if k["fields"][arm] == "stale" else (t0 + 5, t0 + 5))
+         log = "%s_x.log" % arm
+         so = k["so"][arm]
+         ident = {"libidwarp_so_md5": so, "idwarp_file": "/x/idwarp/__init__.py"}
+         art = os.path.join(d, ARTEFACT[arm])
+         pmd5 = hashlib.md5(k["points"][lv]).hexdigest()
+         if mode == "P":
++            pi = k["pi"][arm]
++            # THE BLOCK COUNT FOLLOWS THE CADENCE, DERIVED THE SAME WAY THE GATE DERIVES IT.
++            # A fixture with a hard-coded 101 could not exercise the derivation at all.
++            nb = expected_printed_steps(ENDTIME_REGISTERED, DELTAT_REGISTERED, pi)
+             cdh = _history(k["hist"][arm], k["cd"][lv], 0.01)
+             clh = _history(k["hist"][arm], k["cl"][lv], 0.10)
++            if k["hist"][arm] == "clean" and nb != FIX_NBLOCK:
++                cdh, clh = cdh[:1] * nb, clh[:1] * nb
++            # A DEAD arm is TRUNCATED -- its step count is its sample count.  Every other
++            # mode runs the full registered length and varies only what it PRINTS.
++            nbl = len(cdh) if k["hist"][arm] == "dead" else nb
+             text = _armlog(so, (TERMINAL[arm] if k["terminal"][arm] else None), PRIMAL_MIN_RES_TOL,
+-                           k["toldiff"][arm], k["maxres"][arm], cdh, clh)
++                           k["toldiff"][arm], k["maxres"][arm], cdh, clh, pi=pi, end=k["end"][arm],
++                           nblocks=nbl)
+             json.dump({"item": "D8G", "mode": "P", "level": lv, "cells": CELLS[lv], "nprocs": k["nprocs"],
+                        "identity": ident, "points_md5": pmd5, "endTime": 1000,
+                        "CD": repr(k["cd"][lv]), "CL": repr(k["cl"][lv])}, open(art, "w"))
+         elif mode == "A":
+             text = _armlog(so, (TERMINAL[arm] if k["terminal"][arm] else None), PRIMAL_MIN_RES_TOL,
+-                           PRIMAL_MIN_RES_TOL_DIFF, 5.0e-5, [k["cd"][lv]] * 3, [k["cl"][lv]] * 3)
++                           PRIMAL_MIN_RES_TOL_DIFF, 5.0e-5, [k["cd"][lv]] * FIX_NBLOCK,
++                           [k["cl"][lv]] * FIX_NBLOCK, end=k["end"][arm])
+             adj = {"CD": {dv: [repr(v) for v in FIX_J[dv]] for dv in FIX_J},
+                    "CL": {dv: [repr(v * 10.0) for v in FIX_J[dv]] for dv in FIX_J}}
+             json.dump({"item": "D8G", "mode": "A", "level": lv, "nprocs": k["nprocs"], "identity": ident,
+@@ -1628,7 +1824,8 @@
+             amd5[rk] = None                                # filled after the file is written
+         else:
+             text = _armlog(so, (TERMINAL[arm] if k["terminal"][arm] else None), PRIMAL_MIN_RES_TOL,
+-                           PRIMAL_MIN_RES_TOL_DIFF, 5.0e-5, [k["cd"][lv]] * 3, [k["cl"][lv]] * 3)
++                           PRIMAL_MIN_RES_TOL_DIFF, 5.0e-5, [k["cd"][lv]] * FIX_NBLOCK,
++                           [k["cl"][lv]] * FIX_NBLOCK, end=k["end"][arm])
+             rows_ = []
+             for dv, idx in COMPONENTS_REGISTERED:
+                 j = FIX_J[dv][idx]
+@@ -1710,6 +1907,9 @@
+ 
+     # ================= the clean fixture ==============================================
+     r = grade(_fix(tmp))
++    # POSITIVE EVIDENCE FOR U50: a gate that merely fails to refuse has not been shown to have
++    # READ anything.  This captures what G1-RUN actually measured on a correct arm.
++    _clean_run_completion = r["completion"]["run_completion"]["L2-P"]
+     unit("U1 clean fixture -> item PASS, both rows PASS, G-MESH/G-MESH-STRICT/G-SYS/G-BODY/G-TE/G-M2/G9/G12 PASS",
+          r["verdict"] == "PASS" and r["rows"] == {"SHIPPED": "PASS", "PATCHED": "PASS"}
+          and r["gates"]["G-MESH"]["verdict"] == "PASS" and r["gates"]["G-MESH-STRICT"]["verdict"] == "PASS"
+@@ -1889,6 +2089,63 @@
+     open(p, "w").write("x = 1\nassert x == 1\n")
+     unit("U43 the assert counter is shown able to COUNT a planted assert (=1)", count_asserts(p) == 1)
+ 
++    # ================= AMENDMENT 3: G1-RUN, THE COMPLETION CLAUSE ====================
++    # U44 IS THE DEMONSTRATION THAT FORCED THE AMENDMENT, TURNED INTO A REGRESSION TEST.
++    # Before the clause this exact fixture came out G1 PASS / G-PRIMAL PASS / G-PLAT PASS at
++    # peak-to-peak 0.0 / G-TRIPLE CONVERGING at order 2.0000, GCI 0.5556 %, ITEM PASS on both
++    # rows -- a comparator certifying a corpse at order 2.0000, where every number in the
++    # chain looks like success.
++    unit("U44 THE DEAD SOLVE: a primal truncated at iteration 490 of a registered 1000, with a "
++         "PERFECTLY FLAT tail and its artefact still claiming endTime 1000, is REFUSED by G1 "
++         "-- it graded PASS on both rows before AMENDMENT 3",
++         refused(_fix(tmp, tw(hist={"L2-P": "dead"}))))
++    # U45 IS THE NEAR-MISS, MADE INTO A MEASUREMENT.  The first attempt at U44's demonstration
++    # truncated the DECAYING-OSCILLATION history, and G-PLAT caught it -- for a reason that has
++    # nothing to do with completion.  A suite built on that fixture would have shown a green
++    # completion story while having NO completion gate at all.  The two truncations are NOT
++    # equivalent and this unit measures the difference: a FLAT tail is INVISIBLE to G-PLAT, so
++    # only G1 can catch it.  A CONTROL REACHED ONLY BECAUSE A DIFFERENT CONTROL LET IT THROUGH
++    # IS NOT A CONTROL.
++    _dref = min(abs(FIX_CD["L1"] - FIX_CD["L2"]), abs(FIX_CD["L2"] - FIX_CD["L3"]))
++    _flat = plateau_statistic(plateau_window([FIX_CD["L2"]] * 50))["peak_to_peak"]
++    _osc = plateau_statistic(plateau_window(_history("clean", FIX_CD["L2"], 0.01)[:50]))["peak_to_peak"]
++    unit("U45 a FLAT truncated tail is INVISIBLE to G-PLAT (peak-to-peak 0.0, clears DELTA_REF/%g) "
++         "while a DECAYING-OSCILLATION truncation is not -- so U44's fixture reaches G1 and the "
++         "first attempt at it never did.  The near-miss, measured rather than recalled"
++         % PLAT_FACTOR,
++         _flat == 0.0 and _flat * PLAT_FACTOR <= _dref and _osc * PLAT_FACTOR > _dref)
++    unit("U46 a log that completed to endTime but carries NO `End` line is REFUSED (rule 4)",
++         refused(_fix(tmp, tw(end={"L3-P": False}))))
++    unit("U47 a log whose printInterval read-back is not the registered cadence is REFUSED -- "
++         "the expected step count is DERIVED from it, so an unread cadence would make the "
++         "derivation describe a different run",
++         refused(_fix(tmp, tw(pi={"L1-P": 100}))))
++    unit("U48 the field set at endTime absent from ANY rank is REFUSED (rule 4: PHYSICS absent)",
++         refused(_fix(tmp, tw(fields={"L2-S": "missing"}))))
++    unit("U49 fields present at endTime but NOT NEWER than the arm's own age datum are REFUSED "
++         "-- 0/U is touched last at stage time, so a field older than it did not come from "
++         "this run", refused(_fix(tmp, tw(fields={"L1-S": "stale"}))))
++    # U50 IS THE ANTI-HARD-CODING UNIT THE AMENDMENT DEMANDS.  A literal 101 would pass every
++    # test above and be silently wrong the moment endTime, deltaT or printInterval moved.
++    unit("U50 the expected step count is DERIVED, not the literal 101: the formula returns 101 / "
++         "51 / 1000 / 11 at printInterval 10 / 20 / 1 / 100, and the clean fixture's own gate "
++         "reports the value the formula gives for the cadence it read back",
++         expected_printed_steps(1000.0, 1.0, 10) == 101
++         and expected_printed_steps(1000.0, 1.0, 20) == 51
++         # 1000, NOT 1001.  At printInterval 1 the printed set is {1} u {1,2,...,1000}, whose
++         # SIZE IS 1000 -- iteration 1 is in both halves.  The first draft of this unit
++         # asserted 1001 and was WRONG: it fell for exactly the double-count the set-based
++         # formula exists to prevent.  The formula was right and the test was wrong, which is
++         # the direction that only gets caught by driving the function rather than trusting it.
++         and expected_printed_steps(1000.0, 1.0, 1) == 1000
++         and expected_printed_steps(1000.0, 1.0, 100) == 11
++         and _clean_run_completion["expected_printed_steps_DERIVED"]
++         == expected_printed_steps(ENDTIME_REGISTERED, DELTAT_REGISTERED,
++                                   _clean_run_completion["printInterval_read_back"])
++         and _clean_run_completion["n_ExecutionTime"] == 101
++         and float(_clean_run_completion["last_time"]) == ENDTIME_REGISTERED
++         and _clean_run_completion["n_End"] == 1)
++
+     print("D8G GRADER SELFTEST units=%d expected=%d failures=%d python_O=%s" % (n, EXPECTED_UNITS, len(fails), not __debug__))
+     if n != EXPECTED_UNITS or fails:
+         print("SELFTEST FAIL: %s" % (fails or "unit count %d != %d" % (n, EXPECTED_UNITS)))
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/gst.pre.sh	2026-09-11 17:29:54.733517827 +0000
++++ d8g_grade_selftest.sh.DRAFT	2026-09-11 17:31:12.232298687 +0000
+@@ -12,9 +12,11 @@
+ #      is itself unit-tested against a planted one), and
+ #
+ #  (2) IT MUTATES A COPY OF THE COMPARATOR AND ASSERTS THE SUITE THEN FAILS.
+-#      A SUITE THAT PASSES PROVES NOTHING UNTIL IT IS SEEN TO FAIL.  Six
++#      A SUITE THAT PASSES PROVES NOTHING UNTIL IT IS SEEN TO FAIL.  EIGHT
+ #      mutations, each removing exactly one gate's teeth, each asserted to make
+-#      a NAMED unit go BAD.  If a mutation is applied and the suite still
++#      a NAMED unit go BAD.  The eighth (AMENDMENT 3, 2026-09-11) REINSTATES THE
++#      COMPLETION HOLE the comparator carried until that date, and the dead-solve
++#      demonstration that forced the amendment is the unit that must catch it.  If a mutation is applied and the suite still
+ #      passes, the unit that was supposed to catch it is ceremony.
+ #
+ # THE MUTATOR IS ITSELF A PLANTED-ZERO RISK AND IS GUARDED.  A `sed`/replace
+@@ -54,8 +56,8 @@
+ check "A1 suite under python3"        0 "$RC1"
+ check "A2 suite under python3 -O"     0 "$RC2"
+ UNITS=$(grep -c '^  \[OK \]' "$TMP/clean.out")
+-check "A3 unit count under python3"  43 "$UNITS"
+-check "A4 unit count under python3 -O" 43 "$(grep -c '^  \[OK \]' "$TMP/cleanO.out")"
++check "A3 unit count under python3"  50 "$UNITS"
++check "A4 unit count under python3 -O" 50 "$(grep -c '^  \[OK \]' "$TMP/cleanO.out")"
+ check "A5 zero BAD units"             0 "$(grep -c '^  \[BAD\]' "$TMP/clean.out")"
+ check "A6 ast.Assert census == 0 (L-332)" 0 \
+   "$(python3 -c "import ast;print(sum(1 for n in ast.walk(ast.parse(open('$TARGET').read())) if isinstance(n,ast.Assert)))")"
+@@ -143,6 +145,17 @@
+   '            vals[m.group(1)] = max(float(m.group(2)), float(re.search(r"finalRes:\s+([0-9.eE+-]+)", m.string[m.start():m.end() + 60]).group(1)))' \
+   && run_mut G-PRIMAL-FINALRES-MAX 'residual_reader_SAW_THE_FINALRES_ANTI_PLANT'
+ 
++# B8  AMENDMENT 3's CLAUSE IS REINSTATED AS THE HOLE IT REPLACED -- G1 stops running the
++#     completion check at all, which is EXACTLY the state the comparator was in until
++#     2026-09-11.  U44's dead solve must then grade instead of being refused.  THE
++#     DEMONSTRATION THAT FORCED THE AMENDMENT IS NOW THE REGRESSION TEST THAT GUARDS IT:
++#     if this mutation ever stops being caught, the comparator has silently gone back to
++#     certifying a corpse at order 2.0000, and every number in that chain looks like success.
++mutate G1-RUN-HOLE-REINSTATED \
++  '        out.setdefault("run_completion", {})[arm] = g1_run_completion(base, arm, text)' \
++  '        out.setdefault("run_completion", {})[arm] = {"HOLE_REINSTATED": True}' \
++  && run_mut G1-RUN-HOLE-REINSTATED 'U44 THE DEAD SOLVE'
++
+ say ""
+ say "D8G GRADER SELFTEST SUMMARY pass=$PASS fail=$FAIL"
+ if [ "$FAIL" -ne 0 ]; then say "SELFTEST FAIL"; exit 2; fi

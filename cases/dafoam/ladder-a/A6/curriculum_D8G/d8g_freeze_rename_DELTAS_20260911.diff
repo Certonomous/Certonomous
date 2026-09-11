@@ -1,0 +1,490 @@
+# d8g_freeze_rename_DELTAS_20260911.diff
+#
+# THE RENAME PASS -- steps 3, 4 and 5 of the freeze preparation, 2026-09-11.
+# PERMISSION: PREREGISTRATION.md's own permission line is UNTOUCHED and NOTHING IS COMMITTED.
+# The freeze record, the PREREGISTRATION flip and the commit remain the dafoam-supervisor's.
+#
+# ---------------------------------------------------------------------------------------
+# (0) A HAZARD CLOSED BEFORE THE RENAME, AND IT WOULD HAVE BEEN IRREVERSIBLE.
+#     With its five md5 tokens filled, d8g_chain_driver.sh no longer aborts at G-FREEZE.0 --
+#     and the next thing it did was `test -d "$BASE" || mkdir -p "$BASE"`.  MERELY RUNNING
+#     THE DRIVER WOULD HAVE CREATED THE RUN ROOT, falsifying the "the run root does not
+#     exist" condition that PREREGISTRATION.md's AMENDMENTS 1, 2 AND 3 are EACH registered
+#     against -- an irreversible edit to the evidence for three registrations, made by a
+#     script that then aborts because there is nothing to run.  d8g_genmesh.sh:127 already
+#     creates the root, as the step that first has something to put in it.  The driver now
+#     REFUSES when the root is absent and names the step that makes it.
+#     VERIFIED, not assumed: the driver was run after the tokens were filled, exited 5, and
+#     the run root was checked absent before AND after.
+#
+# (1) THE RENAME.  Fourteen instruments lost the `.DRAFT` suffix.  The SUPERSEDED launcher
+#     keeps its suffix and stays OUTSIDE the set, as instructed.
+#
+# (2) PERMISSION LINES flipped to `PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.`
+#     in the eleven instruments that carry one.
+#     THREE DELIBERATELY DO NOT, AND THIS IS A REGISTERED EXCEPTION, NOT AN OVERSIGHT:
+#       d8g_runScript.py, d8g_decomposeParDict, d8g_cpuset_overlap.py
+#     are BYTE COPIES of frozen D8/D8R instruments.  Their provenance IS their byte
+#     identity, and adding a permission line would destroy it -- for the producer it would
+#     also invalidate d8g_of.py's PRODUCER_MD5 and the three-way D8 -> D8R -> D8G identity.
+#     Their permission is recorded in their deltas diffs and by their md5s.
+#     d8g_run_arm.sh's flipped line says something the others do not: the file is FROZEN and
+#     is deliberately NOT YET RUNNABLE, because one placeholder remains by design.  Those
+#     are different things and the line says so.
+#
+# (3) THE POST-RENAME SWEEP -- and it earned its keep FOUR times.  A rename is not verified
+#     by the map made before it, and the pre-rename map found 13 references while the sweep
+#     found things the map could not:
+#
+#     (a) A DEAD BRANCH.  d8g_of.py's U4 searched BOTH spellings so it would survive this
+#         rename.  The rename has happened; a branch that can never be taken again reads
+#         like a live possibility, so it is collapsed to the single spelling.
+#
+#     (b) NINE FALSE NAMES.  Docstrings and headers still said "SELFTEST FOR
+#         d8g_grade.py.DRAFT" and the like.  Not functional -- and false.  A label naming a
+#         file that no longer exists under that name is the same defect as
+#         `max_initRes_at_endTime` naming a property its reader never established, which is
+#         what AMENDMENT 3 exists for.  All corrected.
+#
+#     (c) A PROVENANCE CLAIM THAT CITED A MOVED FILE.  d8g_run_arm.sh asserted its
+#         launch-assert block was byte-identical to the one in `d8g_run_arm.sh.DRAFT`,
+#         executed at 41/0 -- a claim written when that name belonged to the SUPERSEDED
+#         444-line launcher.  IT WAS RE-VERIFIED RATHER THAN RE-WORDED: both blocks are
+#         9,481 bytes and hash to 7f73817a294c07e65b0ee0a3ab00ea75.  The claim was TRUE;
+#         only its citation was stale.  The comment now names the superseded file and
+#         records the re-verification.
+#         THE FIRST ATTEMPT AT THAT COMPARISON RETURNED A CONFIDENT, WRONG `not identical`:
+#         the marker string occurs TWICE in the live file (once in prose) and the reader
+#         matched the prose mention, yielding a 36-byte "block".  A reader that matches the
+#         wrong occurrence gives a wrong answer with no sign that it is wrong.  Recorded
+#         because it is the third time in this pass that a control had to be driven rather
+#         than trusted.
+#
+#     (d) A FREEZE MESSAGE THAT HAD BECOME FALSE.  With INSTRUMENT_MD5S filled, the
+#         launcher's G-FREEZE.0 refusal still printed "STILL OWED ... INSTRUMENT_MD5S --
+#         THOSE INSTRUMENTS DO NOT YET EXIST".  Corrected to name the one placeholder that
+#         genuinely remains.  AND THE FIX MOVED THE LAUNCHER'S BYTES, so MD5_LAUNCHER was
+#         RE-TAKEN (ec33dea4... -> 05b7f8b1...).  "Hash last" means last, and `last` moved
+#         when the sweep found this -- which is the whole argument for sweeping after.
+#
+# (4) HASH LAST, IN ORDER.  A0 pin <- md5(d8g_grade.py); INSTRUMENT_MD5S <- the three staged
+#     instruments; then the launcher was final, so MD5_LAUNCHER; then the four remaining
+#     driver md5s.  Every value taken AFTER every byte that will ever change had changed.
+#     The chain driver now also stages d8g_decomposeParDict at the run root, because the
+#     launcher's manifest is level-independent (it substitutes only @BASE@) while the
+#     per-level overlay lives in base_<LEVEL>/system/.
+#     LAUNCH_BUDGET_S REMAINS A TOKEN.  It is measured by the first arm's D4S_MPIRUN_EPOCH
+#     line and is never guessed.  The launcher is FROZEN and still refuses; that is correct.
+#
+# (5) THE MANIFEST WAS EXERCISED, because the launcher aborts at G-FREEZE.0 before ever
+#     reaching it, so it would otherwise ship untested.  Driven in isolation exactly as
+#     line 336 drives it: 3 OK lines, rc 0.  AND THE CHECKER WAS PLANTED -- one hash
+#     corrupted gives 2 OK lines and rc 1, so its pass is evidence.
+#     The five driver md5s were exercised too: the driver exits 5 (no level bases) and NOT 4
+#     (md5 mismatch), so all five verify against the files on disk.
+#
+# THE PRODUCER'S A0 PIN FIRED A THIRD TIME, exactly as predicted, when nothing but the
+# rename and the permission flip moved the comparator's bytes.  That is the pin working.
+#
+# SUITES, ALL GREEN AGAINST THE RENAMED FILES: comparator 50/50 + 14/14 (eight mutation
+# controls); producer 54/54 + 20/20 (eleven); runScript 27/27 + 25/25 (thirteen);
+# launch-assert 41/41; aggregate-memory 11/11.  ast.Assert census 0.  No __pycache__.
+#
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/pre_rename/d8g_grade.py.DRAFT	2026-09-11 17:39:42.023474204 +0000
++++ d8g_grade.py	2026-09-11 17:40:03.971708116 +0000
+@@ -4,9 +4,9 @@
+ adjoint FD table at L2 and NO GRADIENT TRIPLE (PREREGISTRATION.md section 7: the adjoint
+ is available at two of the three levels and two levels is not a triple).
+ 
+-PERMISSION: NOT_FROZEN -- DRAFT.  NOT COMMITTED BY ITS AUTHOR.  The freeze is the
++PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.  The freeze is the
+ dafoam-supervisor's act (CLAUDE.md rule 2; SUPERVISION_CHARTER.md section 3) and this
+-file's md5 belongs in PREREGISTRATION.md at that commit.  Computes nothing about
++file's md5 is recorded in PREREGISTRATION.md at that commit.  Computes nothing about
+ physics; renders verdicts from the FIXED vocabulary only (PASS / GATE REACHED /
+ GATE FAIL / NOT A RESULT / BLOCKED / PENDING).
+ 
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/pre_rename/d8g_of.py.DRAFT	2026-09-11 17:39:42.023681196 +0000
++++ d8g_of.py	2026-09-11 17:42:08.143026219 +0000
+@@ -4,14 +4,14 @@
+ adjoint `compute_totals` at the baseline design), F (the L2 central-FD table beside it,
+ INCLUDING the section-4 trivial-baseline step).  NO OPTIMISER RUNS IN THIS ITEM.
+ 
+-PERMISSION: NOT_FROZEN -- DRAFT.  NOT COMMITTED BY ITS AUTHOR.  The freeze is the
+-dafoam-supervisor's act (CLAUDE.md rule 2) and this file's md5 belongs in the launcher's
+-INSTRUMENT_MD5S manifest and in PREREGISTRATION.md at that commit.
++PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.  The freeze is the
++dafoam-supervisor's act (CLAUDE.md rule 2) and this file's md5 is recorded in the
++launcher's INSTRUMENT_MD5S manifest and in PREREGISTRATION.md at that commit.
+ 
+ THE DIRECTION OF FIT, WHICH IS THE WHOLE POINT: `d8g_grade.py` IS THE SPECIFICATION AND
+ THIS FILE CONFORMS TO IT.  Nothing here may be satisfied by editing the comparator.  Every
+ key written below is a key the comparator's read_P / read_A / read_F / ctrl_control /
+-grader_plant_control actually reads, and `d8g_of_selftest.sh.DRAFT` drives producer-built
++grader_plant_control actually reads, and `d8g_of_selftest.sh` drives producer-built
+ artefacts THROUGH THE COMPARATOR'S OWN READERS to prove it -- because a key the grader
+ reads and the producer never writes is a rung that dies at grading time, after the compute
+ is spent.
+@@ -1006,7 +1006,7 @@
+ # ================= SELFTEST: producer artefacts driven THROUGH THE COMPARATOR ==========
+ # THE POINT OF THIS SUITE, STATED ONCE.  A producer selftest that only checked its own
+ # output against its own expectations would be a mirror.  This one loads
+-# d8g_grade.py.DRAFT -- THE SPECIFICATION -- and feeds it artefacts built by the SAME
++# d8g_grade.py -- THE SPECIFICATION -- and feeds it artefacts built by the SAME
+ # builders main() uses, through the comparator's OWN read_P / read_A / read_F /
+ # functional_plant_control / ctrl_control / grader_plant_control / grade_components /
+ # _trivial_baseline.  A key the grader reads and the producer never writes fails HERE, for
+@@ -1024,7 +1024,7 @@
+ # duty toward those three is NEGATIVE -- to emit nothing that could be mistaken for them --
+ # and U19/U20 below test exactly that.
+ 
+-SELFTEST_GRADER = "d8g_grade.py.DRAFT"
++SELFTEST_GRADER = "d8g_grade.py"
+ 
+ # The synthetic case.  CD(x) = c0 + sum_i A_TWIST[i] * x_i, plus a DETERMINISTIC solver
+ # noise of amplitude SELF_ETA whose sign follows the sign of the perturbation, so the
+@@ -1140,7 +1140,7 @@
+     # WOULD REPORT A CATCH IT DID NOT MAKE.
+     import importlib.machinery
+     import importlib.util
+-    # NO BYTECODE CACHE.  Loading `d8g_grade.py.DRAFT` by loader caches it as
++    # NO BYTECODE CACHE.  Loading `d8g_grade.py` by loader caches it as
+     # `__pycache__/d8g_grade.py.cpython-*.pyc`, and a STALE cache is exactly the failure
+     # that inverts a mutation suite -- the clean control fails and the mutated case passes.
+     # It also drops build clutter into a CASE directory, where nothing but the case belongs.
+@@ -1205,12 +1205,11 @@
+     # INVERTED into the property that replaced it: the pinned constant must be the frozen
+     # three-way md5 AND the producer script actually sitting beside this file must hash to it.
+     # A pinned constant nobody checks against the real file is a hash that describes nothing.
+-    _rs = None
+-    for _c in ("d8g_runScript.py", "d8g_runScript.py.DRAFT"):
+-        _p = os.path.join(here, _c)
+-        if os.path.isfile(_p):
+-            _rs = _p
+-            break
++    # The dual-spelling search this unit carried until 2026-09-11 existed so U4 would
++    # survive the freeze rename.  The rename has happened; a branch that can never be taken
++    # again reads like a live possibility and is removed.
++    _p = os.path.join(here, "d8g_runScript.py")
++    _rs = _p if os.path.isfile(_p) else None
+     unit("U4 PRODUCER_MD5 is PINNED to the frozen D8 -> D8R -> D8G md5 AND the producer script "
+          "beside this file hashes to it",
+          PRODUCER_MD5 == "28c7819487a025a5f6554d38062a2b66"
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/pre_rename/d8g_run_arm.sh.DRAFT	2026-09-11 17:39:42.024058909 +0000
++++ d8g_run_arm.sh	2026-09-11 17:44:28.050433831 +0000
+@@ -1,8 +1,9 @@
+ #!/usr/bin/env bash
+ # =============================================================================
+-# PERMISSION: NOT_FROZEN -- NOT RUNNABLE UNTIL THE REMAINING FREEZE PLACEHOLDERS
+-# ARE REPLACED (G-FREEZE.0 below refuses while more than one remains, and TWO
+-# remain by design -- see the list it prints).  NOT COMMITTED BY ITS AUTHOR.
++# PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.  ONE FREEZE PLACEHOLDER REMAINS BY
++# DESIGN -- LAUNCH_BUDGET_S, which is MEASURED by the first arm's D4S_MPIRUN_EPOCH line
++# and is never guessed -- so G-FREEZE.0 still refuses until that measurement is in.
++# The file is FROZEN; it is deliberately NOT YET RUNNABLE, and those are different things.
+ #
+ # Curriculum D8G arm launcher -- A6 CRM WING-ALONE, a THREE-LEVEL GRID triple at
+ # r = 2 exactly on TWO TOOLCHAIN ROWS, with the adjoint and the FD table at L2.
+@@ -47,9 +48,18 @@
+ #    never discarded."
+ #
+ # THE BYTES BETWEEN `# >>> D8G_LAUNCH_ASSERT_BEGIN` AND `# <<< D8G_LAUNCH_ASSERT_END`
+-# ARE BYTE-IDENTICAL TO THOSE IN d8g_run_arm.sh.DRAFT, WHICH THE dafoam-supervisor
+-# EXECUTED THROUGH d8g_launch_assert_selftest.sh.DRAFT (41 pass / 0 fail; the
+-# mutation control 31 pass / 10 fail).  THEY ARE NOT RE-AUTHORED HERE.
++# ARE BYTE-IDENTICAL TO THOSE IN THE LAUNCHER THIS FILE SUPERSEDED, now
++# d8g_run_arm.sh.SUPERSEDED-20260910T2141Z.DRAFT, WHICH THE dafoam-supervisor EXECUTED
++# THROUGH d8g_launch_assert_selftest.sh (41 pass / 0 fail; the mutation control 31 pass /
++# 10 fail).  THEY ARE NOT RE-AUTHORED HERE.
++# RE-VERIFIED 2026-09-11, AT THE FREEZE RENAME, BECAUSE THE CLAIM CITED A FILENAME THAT HAD
++# MOVED: both blocks are 9,481 bytes and hash to 7f73817a294c07e65b0ee0a3ab00ea75.  The
++# claim was true; only its citation was stale.  (The first attempt at that comparison
++# matched a PROSE MENTION of the marker instead of the marker itself -- the string occurs
++# twice in this file -- and returned a confident, wrong `not identical`.  A reader that
++# matches the wrong occurrence gives a wrong answer with no sign that it is wrong.)
++# AND THE SELFTEST NOW TARGETS THIS FILE: until the rename it read `d8g_run_arm.sh.DRAFT`,
++# which was the SUPERSEDED 444-line launcher, so its green was about the wrong file.
+ #
+ # 8.2 inherited from D8R: NO --rm, so `docker inspect .State.ExitCode/
+ # .State.OOMKilled` survives the arm and the KERNEL's verdict is read.
+@@ -88,15 +98,13 @@
+ if [ "${UNFROZEN_TOKENS:-0}" -gt 0 ]; then
+   echo "ABORT G-FREEZE.0 this file still carries $UNFROZEN_TOKENS unfrozen placeholder line(s):"
+   grep -n "$FREEZE_TOK" "${BASH_SOURCE[0]}" | sed 's/^/    /'
+-  echo "  STILL OWED, AND NEITHER IS GUESSABLE FROM THIS LANE'S DESK:"
+-  echo "   * INSTRUMENT_MD5S -- the md5s of the staged d8g_runScript.py, d8g_of.py and"
+-  echo "     d8g_decomposeParDict.  THOSE INSTRUMENTS DO NOT YET EXIST; a launcher"
+-  echo "     cannot assert the hash of a file nobody has written."
++  echo "  ONE PLACEHOLDER REMAINS BY DESIGN, AND IT IS NOT GUESSABLE FROM ANY DESK:"
+   echo "   * WITNESS_BUDGET  -- the per-arm launch-witness deadline.  It must be SIZED"
+   echo "     PER LEVEL from a measurement (D8R reached decomposePar 15 s after StartedAt"
+   echo "     at 41,760 cells; D8G's L3 is 8.5x that mesh).  A guessed budget either"
+   echo "     declares a slow-starting arm wedged or waits so long it stops bounding"
+   echo "     anything.  IT IS LEFT AS A TOKEN DELIBERATELY."
++  echo "  INSTRUMENT_MD5S WAS FILLED AT THE FREEZE, 2026-09-11, and is no longer owed."
+   echo "  A launcher that ran on placeholders would produce a row no pre-registration"
+   echo "  covers.  REFUSED."
+   exit 3
+@@ -259,7 +267,12 @@
+ # ---- catch.  At the freeze the supervisor replaces the token with three
+ # ---- `<md5>  <path>` lines; the check below asserts THREE `OK` lines came back,
+ # ---- so a manifest that silently loses a row cannot pass.
+-INSTRUMENT_MD5S="__D8G_UNFROZEN__INSTRUMENT_MD5S"
++# FILLED AT THE FREEZE, 2026-09-11.  Three `<md5>  <path>` lines; the check below asserts
++# THREE `OK` lines came back, so a manifest that silently loses a row cannot pass.  @BASE@ is
++# substituted with the run root.  TAKEN AFTER THE RENAME AND THE PERMISSION FLIP, because a
++# hash taken before every byte that will ever change has changed names a file that no longer
++# exists in that form.
++INSTRUMENT_MD5S="28c7819487a025a5f6554d38062a2b66  @BASE@/d8g_runScript.py\nf17b4a26fc5dcbbb44e9c820ba16df6c  @BASE@/d8g_of.py\n1dbd9ead3f40a29f483444dc5fa1288b  @BASE@/d8g_decomposeParDict"
+ 
+ ARM="${1:-}"; IMG="${2:-}"
+ test -n "$ARM" || { echo "ABORT usage: d8g_run_arm.sh <L1-P|L2-P|L3-P|A2-P|F2-P|L1-S|L2-S|L3-S|A2-S|F2-S> <image>"; exit 64; }
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/pre_rename/d8g_chain_driver.sh.DRAFT	2026-09-11 17:39:42.020134107 +0000
++++ d8g_chain_driver.sh	2026-09-11 17:44:28.054959678 +0000
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env bash
+ # =============================================================================
+-# D8G CHAIN DRIVER -- PERMISSION: NOT_FROZEN -- DRAFT.  NOT COMMITTED BY ITS AUTHOR.
++# D8G CHAIN DRIVER -- PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.
+ #
+ # DERIVED from curriculum_D8R/d8r_chain_driver.sh -- FROZEN behind a graded two-row PASS
+ # and NOT EDITED BY THIS ITEM.  The deltas are recorded in
+@@ -79,8 +79,6 @@
+   echo "     (d8g_run_arm.sh itself still carries two unfrozen tokens).  Pinning the md5 of a"
+   echo "     file that is about to change is worse than not pinning it: it manufactures the"
+   echo "     appearance of a freeze."
+-  echo "   * MD5_RUNSCRIPT / MD5_OF -- d8g_runScript.py DOES NOT EXIST, and d8g_of.py.DRAFT"
+-  echo "     is a draft whose own PRODUCER_MD5 is itself still a token."
+   echo "  A driver that ran on placeholders would produce a chain no pre-registration governs."
+   exit 3
+ fi
+@@ -111,11 +109,11 @@
+ AGG_RESERVE_GIB=4.0
+ AGG_POLL_S=30; AGG_BOUND_S=14400
+ # ---- FROZEN INSTRUMENT HASHES.  See G-FREEZE.0 above for why five of the six are tokens.
+-MD5_LAUNCHER=__D8G_UNFROZEN__MD5_LAUNCHER
+-MD5_GRADER=__D8G_UNFROZEN__MD5_GRADER
+-MD5_GENMESH=__D8G_UNFROZEN__MD5_GENMESH
+-MD5_RUNSCRIPT=__D8G_UNFROZEN__MD5_RUNSCRIPT
+-MD5_OF=__D8G_UNFROZEN__MD5_OF
++MD5_LAUNCHER=05b7f8b1446968b64bc74d2f0f531fcb
++MD5_GRADER=12688063e20cbb6fa79cf08d0996d4e1
++MD5_GENMESH=5b9db5102a4ffe04abffec6f7648d0c1
++MD5_RUNSCRIPT=28c7819487a025a5f6554d38062a2b66
++MD5_OF=f17b4a26fc5dcbbb44e9c820ba16df6c
+ # THE ONE HASH THIS FILE MAY ASSERT, AND WHY IT IS NOT A GUESS: d8g_decomposeParDict is a
+ # BYTE COPY of curriculum_D8R/d8r_decomposeParDict, which is FROZEN BEHIND A GRADED TWO-ROW
+ # PASS.  The hash was verified against both files by the lane that wrote this line.  The
+@@ -130,7 +128,21 @@
+ done
+ 
+ # ---- ROOT AND LEVEL BASES.  THE DRIVER LAUNCHES NO MESH GENERATION. --------
+-test -d "$BASE" || { mkdir -p "$BASE" && chmod 777 "$BASE"; } || { echo "ABORT cannot create run root $BASE"; exit 4; }
++# THE DRIVER DOES NOT CREATE THE RUN ROOT, AND THAT IS A SAFETY PROPERTY, NOT TIDINESS.
++# d8g_genmesh.sh:127 creates it (`mkdir -p "$ROOT"`), as the step that first has something to
++# put in it.  A driver that created it would mean MERELY RUNNING THIS FILE falsifies the
++# "the run root does not exist" condition on which PREREGISTRATION.md's AMENDMENTS 1, 2 AND 3
++# each rest -- an irreversible edit to the evidence for three registrations, made by a script
++# that then aborts because there is nothing to run.  It refuses instead, and names the step.
++if [ ! -d "$BASE" ]; then
++  echo "ABORT the run root $BASE does not exist."
++  echo "  This driver does not create it: d8g_genmesh.sh does, as the step that first has"
++  echo "  something to put in it.  Creating it here would falsify the 'run root does not exist'"
++  echo "  condition PREREGISTRATION.md's AMENDMENTS 1, 2 and 3 are each registered against."
++  echo "  Run, per level:"
++  for LV in $LEVELS; do echo "    bash $GENMESH $LV"; done
++  exit 5
++fi
+ MISSING=""
+ for LV in $LEVELS; do
+   test -d "$BASE/base_$LV" || MISSING="$MISSING base_$LV"
+@@ -175,7 +187,11 @@
+ done
+ 
+ # ---- the two instruments the arms execute, staged once at the run root ------
+-cp -a "$HERE/d8g_runScript.py" "$HERE/d8g_of.py" "$BASE/" || { echo "ABORT copy instruments to $BASE"; exit 4; }
++# THE THREE STAGED INSTRUMENTS THE LAUNCHER's INSTRUMENT_MD5S MANIFEST CHECKS.  The
++# decomposeParDict is ALSO overlaid per level above; this root copy is the one the manifest
++# names, because the manifest is level-independent (the launcher only substitutes @BASE@).
++cp -a "$HERE/d8g_runScript.py" "$HERE/d8g_of.py" "$HERE/d8g_decomposeParDict" "$BASE/" \
++  || { echo "ABORT copy instruments to $BASE"; exit 4; }
+ { echo "$MD5_RUNSCRIPT  $BASE/d8g_runScript.py"; echo "$MD5_OF  $BASE/d8g_of.py"; } | md5sum -c - \
+   || { echo "ABORT staged instrument md5"; exit 4; }
+ 
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/pre_rename/d8g_of_selftest.sh.DRAFT	2026-09-11 17:39:42.023762456 +0000
++++ d8g_of_selftest.sh	2026-09-11 17:42:35.118939275 +0000
+@@ -1,12 +1,12 @@
+ #!/usr/bin/env bash
+ # =============================================================================
+-# PERMISSION: NOT_FROZEN -- DRAFT.  NOT COMMITTED BY ITS AUTHOR.
++# PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.
+ #
+-# SELFTEST FOR d8g_of.py.DRAFT -- THE PRODUCER.
++# SELFTEST FOR d8g_of.py -- THE PRODUCER.
+ #
+ # The producer's whole duty is CONFORMANCE TO THE COMPARATOR.  So this suite does
+ # not check the producer against the producer's own expectations -- that would be
+-# a mirror.  It loads d8g_grade.py.DRAFT, THE SPECIFICATION, and drives artefacts
++# a mirror.  It loads d8g_grade.py, THE SPECIFICATION, and drives artefacts
+ # built by the producer's OWN builders through the comparator's OWN read_P /
+ # read_A / read_F / functional_plant_control / ctrl_control / grader_plant_control
+ # / grade_components / _trivial_baseline.  A key the comparator reads and the
+@@ -45,8 +45,8 @@
+ set -uo pipefail
+ 
+ HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+-TARGET="$HERE/d8g_of.py.DRAFT"
+-SPEC="$HERE/d8g_grade.py.DRAFT"
++TARGET="$HERE/d8g_of.py"
++SPEC="$HERE/d8g_grade.py"
+ # CONFORMANCE IS TO A SPECIFIC FILE, NOT TO A FILENAME.
+ # 2026-09-11T16:15Z the dafoam-supervisor verified md5 e94409f1da5732ce206c12924aec9e22
+ # personally (13/13, 43/43 units under python3 and python3 -O, zero ast.Assert, seven
+@@ -58,7 +58,11 @@
+ # comparator must be RE-READ at the md5 below before it is frozen.
+ # 2026-09-11, AGAIN: AMENDMENT 3 added the G1-RUN completion clause, so the bytes moved a
+ # SECOND time.  The pin fired a second time, which is the pin doing its job twice, not noise.
+-SPEC_MD5_VERIFIED=a7293a130442e2531ebcfd70d18a5259
++# 2026-09-11, A THIRD TIME: the freeze rename and the permission-line flip moved the bytes
++# again, WITH NO CHANGE TO ANY GATE.  That is precisely why the value below is taken AFTER
++# every byte that will ever change has changed -- a pin taken before the flip would name a
++# file that no longer exists in that form.
++SPEC_MD5_VERIFIED=12688063e20cbb6fa79cf08d0996d4e1
+ TMP=$(mktemp -d)
+ trap 'rm -rf "$TMP"' EXIT
+ PASS=0; FAIL=0
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/pre_rename/d8g_runScript_contract.py.DRAFT	2026-09-11 17:39:42.023915807 +0000
++++ d8g_runScript_contract.py	2026-09-11 17:40:24.253058988 +0000
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env python3
+ """CONTRACT CHECKER FOR d8g_runScript.py -- the D8G producer script.
+ 
+-PERMISSION: NOT_FROZEN -- DRAFT.  NOT COMMITTED BY ITS AUTHOR.
++PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.
+ 
+ WHY THIS IS A SEPARATE FILE, WHICH IS THE FIRST THING TO UNDERSTAND ABOUT IT.
+ `d8g_runScript.py` is a BYTE COPY of `curriculum_D8R/d8r_runScript.py`, which is itself a
+@@ -57,8 +57,8 @@
+ import sys
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+-DEFAULT_TARGET = os.path.join(HERE, "d8g_runScript.py.DRAFT")
+-DEFAULT_OF = os.path.join(HERE, "d8g_of.py.DRAFT")
++DEFAULT_TARGET = os.path.join(HERE, "d8g_runScript.py")
++DEFAULT_OF = os.path.join(HERE, "d8g_of.py")
+ 
+ ANCHOR = "# OpenMDAO setup"
+ # The three-way byte identity.  D8 -> D8R -> D8G, one md5.
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/pre_rename/d8g_grade_selftest.sh.DRAFT	2026-09-11 17:39:42.023588375 +0000
++++ d8g_grade_selftest.sh	2026-09-11 17:42:08.142630006 +0000
+@@ -1,8 +1,8 @@
+ #!/usr/bin/env bash
+ # =============================================================================
+-# PERMISSION: NOT_FROZEN -- DRAFT.  NOT COMMITTED BY ITS AUTHOR.
++# PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.
+ #
+-# SELFTEST FOR d8g_grade.py.DRAFT.
++# SELFTEST FOR d8g_grade.py.
+ #
+ # It does TWO things, and the second is the one that matters:
+ #
+@@ -32,7 +32,7 @@
+ set -uo pipefail
+ 
+ HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+-TARGET="$HERE/d8g_grade.py.DRAFT"
++TARGET="$HERE/d8g_grade.py"
+ TMP=$(mktemp -d)
+ trap 'rm -rf "$TMP"' EXIT
+ PASS=0; FAIL=0
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/pre_rename/d8g_runScript_selftest.sh.DRAFT	2026-09-11 17:39:42.024000818 +0000
++++ d8g_runScript_selftest.sh	2026-09-11 17:42:08.142538175 +0000
+@@ -1,15 +1,15 @@
+ #!/usr/bin/env bash
+ # =============================================================================
+-# PERMISSION: NOT_FROZEN -- DRAFT.  NOT COMMITTED BY ITS AUTHOR.
++# PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.
+ #
+-# SELFTEST FOR d8g_runScript.py.DRAFT -- THE D8G PRODUCER SCRIPT.
++# SELFTEST FOR d8g_runScript.py -- THE D8G PRODUCER SCRIPT.
+ #
+ # THE PRODUCER IS A BYTE COPY AND THAT IS THE REGISTRATION, NOT A CONVENIENCE.
+ # PREREGISTRATION.md:316 says it in as many words: "because D8G's producer is D8R's
+ # and a family whose acceptance rule changes between levels is not a family."  So
+ # this suite cannot live inside the file it tests -- a `--selftest` block would
+ # break the byte identity that IS the provenance.  It tests
+-# `d8g_runScript_contract.py.DRAFT`, the separate checker, in three ways:
++# `d8g_runScript_contract.py`, the separate checker, in three ways:
+ #
+ #  (1) the checker's 27 units against the real producer, under BOTH `python3` and
+ #      `python3 -O` (L-332: an instrument that gates on `assert` gates on nothing
+@@ -43,9 +43,9 @@
+ set -uo pipefail
+ 
+ HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+-TARGET="$HERE/d8g_runScript.py.DRAFT"
+-CHECKER="$HERE/d8g_runScript_contract.py.DRAFT"
+-OF="$HERE/d8g_of.py.DRAFT"
++TARGET="$HERE/d8g_runScript.py"
++CHECKER="$HERE/d8g_runScript_contract.py"
++OF="$HERE/d8g_of.py"
+ FROZEN_MD5=28c7819487a025a5f6554d38062a2b66
+ D8R_PRODUCER=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A6/curriculum_D8R/d8r_runScript.py
+ D8_PRODUCER=/home/ubuntu/certonomous-runs/CURRICULUM-D8-a6-twist-opt/opt/runScript.py
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/pre_rename/d8g_launch_assert_selftest.sh.DRAFT	2026-09-11 17:39:42.023632055 +0000
++++ d8g_launch_assert_selftest.sh	2026-09-11 17:42:08.142382954 +0000
+@@ -1,11 +1,11 @@
+ #!/usr/bin/env bash
+ # =============================================================================
+-# PERMISSION: NOT_FROZEN -- DRAFT.  NOT COMMITTED BY ITS AUTHOR.
++# PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.
+ #
+ # SELFTEST FOR THE D8G LAUNCH ASSERTION.
+ #
+ # WHAT IT DRIVES: the bytes between `# >>> D8G_LAUNCH_ASSERT_BEGIN` and
+-# `# <<< D8G_LAUNCH_ASSERT_END` in d8g_run_arm.sh.DRAFT.  They are EXTRACTED
++# `# <<< D8G_LAUNCH_ASSERT_END` in d8g_run_arm.sh.  They are EXTRACTED
+ # FROM THAT FILE AND EVAL'D -- not copied here.  A selftest that tests a copy
+ # tests the copy.
+ #
+@@ -24,7 +24,7 @@
+ set -uo pipefail
+ 
+ HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+-TARGET="$HERE/d8g_run_arm.sh.DRAFT"
++TARGET="$HERE/d8g_run_arm.sh"
+ TMP=$(mktemp -d)
+ trap 'rm -rf "$TMP"' EXIT
+ PASS=0; FAIL=0
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/pre_rename/d8g_genmesh.sh.DRAFT	2026-09-11 17:39:42.023414533 +0000
++++ d8g_genmesh.sh	2026-09-11 17:40:03.973900134 +0000
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env bash
+ # =============================================================================
+-# PERMISSION: NOT_FROZEN -- DRAFT.  NOT COMMITTED BY ITS AUTHOR.
++# PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.
+ # **THIS SCRIPT HAS NEVER BEEN EXECUTED.**  The lane that wrote it ran ZERO
+ # solver compute and ZERO mesh generation by instruction.  Every number it
+ # asserts below was measured by the DRAFTING lane's pre-compute probe
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/pre_rename/d8g_aggregate_memory.py.DRAFT	2026-09-11 17:39:42.020057526 +0000
++++ d8g_aggregate_memory.py	2026-09-11 17:40:03.973232749 +0000
+@@ -2,7 +2,7 @@
+ 
+ DERIVED FROM curriculum_D8R/d8r_aggregate_memory.py -- FROZEN behind a graded two-row PASS
+ and NOT EDITED BY THIS ITEM.  Deltas in d8g_aggregate_memory_DELTAS_from_d8r.diff.
+-PERMISSION: NOT_FROZEN -- DRAFT.
++PERMISSION: FROZEN by the dafoam-supervisor 2026-09-11.
+ 
+ aggregate = sum of LIVE containers' memory claims + this arm's cap + host non-container RSS,
+ which must be under the ceiling.  Passive: reads docker and /proc/meminfo, prints one JSON

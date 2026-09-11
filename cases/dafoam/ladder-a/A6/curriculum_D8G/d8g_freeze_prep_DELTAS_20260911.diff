@@ -1,0 +1,92 @@
+# d8g_freeze_prep_DELTAS_20260911.diff
+#
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/of.pre_freeze.py	2026-09-11 17:18:12.228776095 +0000
++++ d8g_of.py.DRAFT	2026-09-11 17:18:12.267321813 +0000
+@@ -87,14 +87,15 @@
+ ITEM = "D8G"
+ SCENARIO = "scenario1"
+ PRODUCER = "d8g_runScript.py"
+-# THE PRODUCER SCRIPT DOES NOT EXIST YET AND ITS md5 IS THEREFORE A TOKEN, EXACTLY AS
+-# d8g_run_arm.sh's INSTRUMENT_MD5S is a token and for the same stated reason: a launcher
+-# cannot assert the hash of a file nobody has written, and writing a plausible-looking hash
+-# here would be the precise defect the check exists to catch.  While the token stands this
+-# instrument REFUSES TO RUN (fail-closed).  At the freeze the supervisor replaces it with
+-# the frozen d8g_runScript.py md5.
+-PRODUCER_MD5 = "__D8G_UNFROZEN__PRODUCER_MD5"
+-UNFROZEN_TOKEN = "__D8G_UNFROZEN__PRODUCER_MD5"
++# PINNED, 2026-09-11.  THE PRODUCER SCRIPT NOW EXISTS AND THIS IS NOT A GUESS: it is a
++# BYTE COPY of curriculum_D8R/d8r_runScript.py, which is itself a byte copy of D8's frozen
++# opt/runScript.py -- ALL THREE HASH TO THE VALUE BELOW, verified against all three paths.
++# PREREGISTRATION.md:316 registers the identity in as many words ("because D8G's producer
++# is D8R's"), so pinning this constant records a registered fact rather than choosing one.
++# d8g_runScript_contract.py's U1-U4 re-prove the identity and refuse the archived A6
++# tutorial runScript (0de915d21166a91a9a54b37ab11214cf), the WRONG file that sits in the
++# same staging tree carrying a different acceptance pair.
++PRODUCER_MD5 = "28c7819487a025a5f6554d38062a2b66"
+ ANCHOR = "# OpenMDAO setup"
+ 
+ LEVELS = ("L1", "L2", "L3")
+@@ -383,11 +384,6 @@
+ 
+ def check_producer_md5(path, registered):
+     """Fail-closed while the md5 is the unfrozen token.  Returns (ok, got, why)."""
+-    if registered == UNFROZEN_TOKEN:
+-        return False, None, ("PRODUCER_MD5 is still the unfrozen token: d8g_runScript.py has not been "
+-                             "written and frozen.  The supervisor replaces this constant, and the "
+-                             "launcher's INSTRUMENT_MD5S manifest, at the freeze.  REFUSED rather than "
+-                             "run against an unpinned producer.")
+     if not os.path.isfile(path):
+         return False, None, "producer %s absent" % path
+     got = md5_of(path)
+@@ -1205,8 +1201,20 @@
+          parse_args(["x", "-mode", "A", "-level", "L1"]) == (None, None))
+     unit("U3 parse_args REFUSES an unregistered mode",
+          parse_args(["x", "-mode", "O", "-level", "L2"]) == (None, None))
+-    unit("U4 check_producer_md5 REFUSES while PRODUCER_MD5 is the unfrozen token (fail-closed)",
+-         check_producer_md5(__file__, UNFROZEN_TOKEN)[0] is False)
++    # U4 WAS "refuses while the token stands".  The token is gone (2026-09-11), so the unit is
++    # INVERTED into the property that replaced it: the pinned constant must be the frozen
++    # three-way md5 AND the producer script actually sitting beside this file must hash to it.
++    # A pinned constant nobody checks against the real file is a hash that describes nothing.
++    _rs = None
++    for _c in ("d8g_runScript.py", "d8g_runScript.py.DRAFT"):
++        _p = os.path.join(here, _c)
++        if os.path.isfile(_p):
++            _rs = _p
++            break
++    unit("U4 PRODUCER_MD5 is PINNED to the frozen D8 -> D8R -> D8G md5 AND the producer script "
++         "beside this file hashes to it",
++         PRODUCER_MD5 == "28c7819487a025a5f6554d38062a2b66"
++         and _rs is not None and md5_of(_rs) == PRODUCER_MD5)
+     unit("U5 check_producer_md5 accepts a file that hashes to the registered md5",
+          check_producer_md5(__file__, md5_of(__file__))[0] is True)
+     unit("U6 check_producer_md5 REFUSES a file that does not",
+
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/d8g/grade.pre_freeze.py	2026-09-11 17:18:12.233898019 +0000
++++ d8g_grade.py.DRAFT	2026-09-11 17:18:12.267748027 +0000
+@@ -223,8 +223,22 @@
+ PRIMAL_ARMS = [a for a in ARMS_REQUIRED if ARM_MODE[a] == "P"]
+ 
+ # ---- cost, section 6.3 verbatim; caps are 3x the point estimate (CASE_PROTOCOL sec 1) --
+-PREDICTED_CORE_MIN = {"L1-P": 15.659, "L2-P": 17.472, "L3-P": 31.974, "A2-P": 40.652, "F2-P": 67.840,
+-                      "L1-S": 15.659, "L2-S": 17.472, "L3-S": 31.974, "A2-S": 40.652, "F2-S": 71.395}
++# AMENDMENT 2 (a), 2026-09-11, PRE-COMPUTE: the FD arms were mispriced.  Section 6.3 scaled
++# D8R's MEASURED F arms, which ran 3 steps x 5 components x 2 + 2 baselines = 32 primals
++# (measured: 32 `Running Primal Solver` calls in D8R's own F-P log).  D8G's section 4
++# registers a FOURTH step -- the trivial baseline at 1e-3 deg, which the comparator's
++# _trivial_baseline REFUSES to grade without -- so the arm is 4 x 5 x 2 + 2 = 42 primals,
++# a factor 42/32 = 1.3125.  F2-P 67.840 -> 89.040 and F2-S 71.395 -> 93.706 (CAPS below are
++# derived as 3x, so they follow: 267.120 and 281.118).  TWO INDEPENDENT ROUTES AGREE TO
++# 0.55 %: per-primal scaling gives 89.040, and D8R's measured 952.319 s F-P wall less its
++# measured <= 15 s launch head gives 29.291 s/primal -> 88.550 at L2's cell count.
++# WHY IT IS CORRECTED HERE AND NOT EXPLAINED LATER: G10's actual/predicted ratio is computed
++# from THESE constants.  Left at 67.840 the run would report ~1.31 and rule 12's attribution
++# would offer contention or waste for a gap whose true cause is an arithmetic error in the
++# registration.  COMPUTE_BUDGET_CHARTER section 6 keeps waste separately named and never
++# absorbed; the mirror obligation is that A MISPREDICTION IS NOT LAUNDERED INTO CONTENTION.
++PREDICTED_CORE_MIN = {"L1-P": 15.659, "L2-P": 17.472, "L3-P": 31.974, "A2-P": 40.652, "F2-P": 89.040,
++                      "L1-S": 15.659, "L2-S": 17.472, "L3-S": 31.974, "A2-S": 40.652, "F2-S": 93.706}
+ CAPS = {a: round(3.0 * v, 3) for a, v in PREDICTED_CORE_MIN.items()}
+ ITEM_CEILING_CORE_MIN = 1079.25                   # section 6.4, registered
+ CAP_IS_A_STOP = False                             # section 6.4: SUSPENDED for this 3D item

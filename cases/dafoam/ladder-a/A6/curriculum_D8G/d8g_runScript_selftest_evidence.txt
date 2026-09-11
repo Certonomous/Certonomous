@@ -1,0 +1,38 @@
+D8G RUNSCRIPT SELFTEST  target=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_runScript.py
+                        md5=28c7819487a025a5f6554d38062a2b66
+                        checker=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_runScript_contract.py
+                        date_u=2026-09-11T17:46:29Z  host_python=Python 3.12.3
+
+A. the contract checker against the real producer, both interpreter modes
+  PASS  A1 checker under python3  (expected=0 got=0)
+  PASS  A2 checker under python3 -O  (expected=0 got=0)
+  PASS  A3 unit count under python3  (expected=27 got=27)
+  PASS  A4 unit count under python3 -O  (expected=27 got=27)
+  PASS  A5 zero BAD units  (expected=0 got=0)
+  PASS  A6 ast.Assert census of the PRODUCER is 0 (L-332)  (expected=0 got=0)
+  PASS  A7 ast.Assert census of the CHECKER is 0 (L-332)  (expected=0 got=0)
+  PASS  A8 the checker leaves NO __pycache__ in the case directory (a stale cache inverts the mutation controls below)  (expected=absent got=absent)
+
+B. THE THREE-WAY BYTE IDENTITY -- the provenance claim, checked here too
+  PASS  B1 producer == the frozen D8->D8R->D8G md5  (expected=28c7819487a025a5f6554d38062a2b66 got=28c7819487a025a5f6554d38062a2b66)
+  PASS  B2 producer == curriculum_D8R/d8r_runScript.py (FROZEN, graded two-row PASS)  (expected=28c7819487a025a5f6554d38062a2b66 got=28c7819487a025a5f6554d38062a2b66)
+  PASS  B3 producer == D8's own frozen opt/runScript.py  (expected=28c7819487a025a5f6554d38062a2b66 got=28c7819487a025a5f6554d38062a2b66)
+  PASS  B4 producer is NOT the archived A6 tutorial runScript (the WRONG file, same staging tree)  (expected=different got=different)
+
+C. mutation controls -- THE PRODUCER IS MUTATED and the checker must be SEEN TO FAIL
+  PASS  C-TOLDIFF-IS-THE-TUTORIALS CHECKER FAILS and [BAD] U17 primalMinResTolDiff == 10000] is the catcher  (expected=yes got=yes)
+  PASS  C-TOL-DRIFTED CHECKER FAILS and [BAD] U16 primalMinResTol == 1.0e-08] is the catcher  (expected=yes got=yes)
+  PASS  C-PRINTINTERVAL-100 CHECKER FAILS and [BAD] U19 printInterval == 10] is the catcher  (expected=yes got=yes)
+  PASS  C-TOP-RENAMED CHECKER FAILS and [BAD] U7 `class Top` is defined ABOVE the anchor] is the catcher  (expected=yes got=yes)
+  PASS  C-ANCHOR-GONE CHECKER FAILS and [BAD] U5 the anchor] is the catcher  (expected=yes got=yes)
+  PASS  C-ANCHOR-TWICE CHECKER FAILS and [BAD] U5 the anchor] is the catcher  (expected=yes got=yes)
+  PASS  C-DESIGNSURFACE-CASE CHECKER FAILS and [BAD] U21 designSurfaces] is the catcher  (expected=yes got=yes)
+  PASS  C-CL-FUNCTION-GONE CHECKER FAILS and [BAD] U22 daOptions] is the catcher  (expected=yes got=yes)
+  PASS  C-PATCHV-NOT-A-DV CHECKER FAILS and [BAD] U24 both] is the catcher  (expected=yes got=yes)
+  PASS  C-HEADER-BUILDS-PROBLEM CHECKER FAILS and [BAD] U10 the header builds NO om.Problem] is the catcher  (expected=yes got=yes)
+  PASS  C-HEADER-PRINTS CHECKER FAILS and [BAD] U12 the header PRINTS NOTHING] is the catcher  (expected=yes got=yes)
+  PASS  C-HEADER-USES-ARGS CHECKER FAILS and [BAD] U13 the header never CONSUMES the parsed args] is the catcher  (expected=yes got=yes)
+  PASS  C-BYTES-MOVED CHECKER FAILS and [BAD] U1 the producer hashes to the frozen] is the catcher  (expected=yes got=yes)
+
+D8G RUNSCRIPT SELFTEST SUMMARY pass=25 fail=0
+SELFTEST PASS 25/25
