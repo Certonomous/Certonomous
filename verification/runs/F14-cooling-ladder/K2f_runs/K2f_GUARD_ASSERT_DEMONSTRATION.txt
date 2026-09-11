@@ -1,0 +1,66 @@
+K2f GUARD/RANK ASSERTION -- DEMONSTRATED BY EXECUTION, BOTH DIRECTIONS
+Registration section 11 (launcher obligation) and section 16 step 6.
+Driven 2026-09-11T16:03:19Z. No solver was launched: --check-only.
+A clause that has never been executed is a claim, not a guard.
+
+--- CONTROL: the registered L3 row
+    $ ./launch_k2f.sh --check-only K2f_L3 8 20187
+    ASSERT OK: K2f_L3 (main row) ranks=8 guard=20187s matches the registered row.
+    exit=0
+
+--- K2d's ACTUAL MISTAKE: 4 ranks and the hand-passed 8034 s
+    $ ./launch_k2f.sh --check-only K2f_L3 4 8034
+    REFUSE: handed ranks=4 guard=8034s for K2f_L3 (main row),
+            but the REGISTERED row is ranks=8 guard=20187s.
+            The registered table in this file is the only legitimate source
+            of either number. K2d_L3 was launched on a hand-passed 8034 s
+            against a registered 20,250 s and lost 535.600 core-minutes.
+    exit=2
+
+--- right ranks, wrong guard (K2d's section 7.3 number)
+    $ ./launch_k2f.sh --check-only K2f_L3 8 20250
+    REFUSE: handed ranks=8 guard=20250s for K2f_L3 (main row),
+            but the REGISTERED row is ranks=8 guard=20187s.
+            The registered table in this file is the only legitimate source
+            of either number. K2d_L3 was launched on a hand-passed 8034 s
+            against a registered 20,250 s and lost 535.600 core-minutes.
+    exit=2
+
+--- CONTROL: the registered L1 row
+    $ ./launch_k2f.sh --check-only K2f_L1 4 702
+    ASSERT OK: K2f_L1 (main row) ranks=4 guard=702s matches the registered row.
+    exit=0
+
+--- CONTROL: L1 C-DECOMP alt row
+    $ ./launch_k2f.sh --check-only K2f_L1 2 1404 --alt
+    ASSERT OK: K2f_L1 (alt row) ranks=2 guard=1404s matches the registered row.
+    exit=0
+
+--- CONTROL: L2 C-DECOMP alt row
+    $ ./launch_k2f.sh --check-only K2f_L2 8 2358 --alt
+    ASSERT OK: K2f_L2 (alt row) ranks=8 guard=2358s matches the registered row.
+    exit=0
+
+--- the alt value offered on the MAIN row
+    $ ./launch_k2f.sh --check-only K2f_L2 8 2358
+    REFUSE: handed ranks=8 guard=2358s for K2f_L2 (main row),
+            but the REGISTERED row is ranks=4 guard=4716s.
+            The registered table in this file is the only legitimate source
+            of either number. K2d_L3 was launched on a hand-passed 8034 s
+            against a registered 20,250 s and lost 535.600 core-minutes.
+    exit=2
+
+--- the alt value offered on the MAIN row (L3)
+    $ ./launch_k2f.sh --check-only K2f_L3 4 40374
+    REFUSE: handed ranks=4 guard=40374s for K2f_L3 (main row),
+            but the REGISTERED row is ranks=8 guard=20187s.
+            The registered table in this file is the only legitimate source
+            of either number. K2d_L3 was launched on a hand-passed 8034 s
+            against a registered 20,250 s and lost 535.600 core-minutes.
+    exit=2
+
+--- a level off the K2f ladder
+    $ ./launch_k2f.sh --check-only K2d_L3 4 8034
+    REFUSE: K2d_L3 is not a K2f level. The registered levels are K2f_L1, K2f_L2, K2f_L3.
+    exit=2
+
