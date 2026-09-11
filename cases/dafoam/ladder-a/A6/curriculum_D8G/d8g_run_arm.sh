@@ -324,14 +324,50 @@ test -n "$MEM" || { echo "ABORT unknown arm $ARM -- no registered memory cap"; e
 # that cap by inverting the arithmetic.  There is no second number anywhere in
 # this file that could drift from the first.
 TMO=$(python3 -c "print(int(round($CAP*60.0/$RANKS)))") || { echo "ABORT tmo calc"; exit 65; }
+# *** THE INVERSION IS AGAINST THE UNROUNDED DERIVATION.  MEASURED 2026-09-11
+# 23:08:15Z, the first real launch attempt of this item: L1-P ABORTED with
+#   "ABORT CAP MISMATCH registered=46.977 enforced=47.0"
+# on a cap that is perfectly correct.  TMO is rounded to an INTEGER SECOND, and
+# the old back-check reconstructed the cap FROM THAT ROUNDED INTEGER and
+# compared it to the registered cap at a 0.02 core-min tolerance.  Rounding is
+# worth up to 0.5 s, which at 4 ranks is 0.5*4/60 = 0.0333 core-min -- LARGER
+# THAN THE TOLERANCE THE SAME CODE ENFORCED.  So the guard could refuse a
+# correct cap, and WHICH arms it refused was decided by nothing but where
+# cap*60/RANKS fell relative to a half-second.  MEASURED across the ten
+# registered arms, four died: L1-P, L1-S (err 0.0230) and A2-P, A2-S (0.0227).
+#
+# WHY THE FREEZE DID NOT CATCH IT: this assertion was inherited "unchanged in
+# substance" from d8r_run_arm.sh, a frozen instrument behind a graded two-row
+# pass.  D8R's caps are 1000.0 and 120.0, which divide to EXACT integer seconds
+# (15000 and 1800), so its back-check error is IDENTICALLY ZERO and the
+# assertion COULD NEVER FIRE THERE.  It rode a whole graded campaign without
+# once being executed against a case able to fail it.  A GUARD INHERITED FROM A
+# PASSING INSTRUMENT IS NOT A GUARD THAT HAS BEEN SHOWN TO WORK.
+#
+# THE REPAIR, AND WHAT IT IS NOT.  The tolerance is NOT widened -- widening it
+# would weaken a real guard to hide an arithmetic artifact.  The caps are NOT
+# touched; they are registered numbers.  The comparison is moved onto the
+# quantity the code actually derived: the UNROUNDED wall cap*60/RANKS, in
+# SECONDS, and the admitted difference is EXACTLY the rounding quantum of 0.5 s
+# and nothing more.  That is the tightest bound that can admit a correct
+# rounding, so the guard is not loosened -- it is pointed at the right number.
+# A genuinely mismatched wall is still refused: the planted control shows a
+# hard-coded TMO of 700 s against L1-P's exact 704.655 s aborting on a 4.655 s
+# drift.  This repairs an implementation that failed to test what it claimed to
+# test; it changes no gate, cap, band or label.
+EXACT_WALL=$(python3 -c "print('%.6f' % ($CAP*60.0/$RANKS))") || { echo "ABORT exact wall calc"; exit 65; }
 BACKCHECK=$(python3 -c "print('%.6f' % ($TMO*$RANKS/60.0))") || { echo "ABORT backcheck"; exit 65; }
 python3 -c "
 import sys
-cap, back = $CAP, $BACKCHECK
-if abs(cap-back) > 0.02:
-    sys.stderr.write('ABORT CAP MISMATCH registered=%r enforced=%r\n' % (cap, back)); sys.exit(1)
-" || { echo "ABORT enforced cap != registered cap"; exit 65; }
-echo "D4_CAP_ASSERT arm=$ARM level=$LEVEL mode=$MODE registered_core_min=$CAP ranks=$RANKS enforced_wall_s=$TMO enforced_core_min=$BACKCHECK memory=$MEM"
+tmo, exact, cap, back = $TMO, $EXACT_WALL, $CAP, $BACKCHECK
+QUANTUM = 0.5   # one rounding of int(round()), in seconds.  Not a fudge factor:
+                # it is the exact width of the operation performed above.
+drift = abs(tmo - exact)
+if drift > QUANTUM + 1e-9:
+    sys.stderr.write('ABORT CAP MISMATCH registered_cap=%r exact_wall_s=%r enforced_wall_s=%r drift_s=%r exceeds rounding quantum %r (enforced_core_min=%r)\n'
+                     % (cap, exact, tmo, drift, QUANTUM, back)); sys.exit(1)
+" || { echo "ABORT enforced wall != wall derived from registered cap"; exit 65; }
+echo "D4_CAP_ASSERT arm=$ARM level=$LEVEL mode=$MODE registered_core_min=$CAP ranks=$RANKS exact_wall_s=$EXACT_WALL enforced_wall_s=$TMO drift_s=$(python3 -c "print('%.6f' % abs($TMO-$EXACT_WALL))") enforced_core_min=$BACKCHECK memory=$MEM"
 
 # ---- host state, read before ranks are claimed ---------------------------
 MEMAVAIL_KB=$(awk '/MemAvailable/{print $2}' /proc/meminfo)

@@ -1,0 +1,126 @@
+=====================================================================
+CLASSIFYING DIFF -- d8g_run_arm_candidate.sh : THE CAP BACK-CHECK
+for: dafoam-supervisor, to be read AS A DIFF.  date: 2026-09-11
+FROZEN d8g_run_arm.sh NOT TOUCHED -- md5 51ff683dda23aa0143d1a2fe5047c780 on
+disk and at HEAD (10e637205).  NOT COMMITTED.  SUBMISSIONS PARKED.
+
+CLASSIFICATION: REPAIR OF AN IMPLEMENTATION THAT FAILED TO TEST WHAT IT CLAIMED
+TO TEST.  No gate, cap, band, threshold or label is touched.  The tolerance is
+NOT widened and the caps are NOT edited.  Same class as A3GC's G-COLD
+misclassifying 0.orig.
+
+THE DEFECT, MEASURED AT 23:08:15Z ON THE FIRST REAL LAUNCH OF THIS ITEM:
+  L1-P aborted with "ABORT CAP MISMATCH registered=46.977 enforced=47.0" on a
+  cap that is perfectly correct.  TMO is rounded to an INTEGER SECOND; the old
+  back-check reconstructed the cap FROM THAT ROUNDED INTEGER and compared it to
+  the registered cap at 0.02 core-min.  Rounding is worth up to 0.5 s = 0.0333
+  core-min at 4 ranks -- LARGER THAN THE TOLERANCE THE SAME CODE ENFORCED.
+  Four of ten arms died: L1-P, L1-S (err 0.0230), A2-P, A2-S (0.0227).
+
+WHY THE FREEZE DID NOT CATCH IT:
+  inherited "unchanged in substance" from d8r_run_arm.sh, a frozen instrument
+  behind a graded two-row pass.  D8R's caps are 1000.0 and 120.0, which divide
+  to EXACT integer seconds (15000, 1800), so its back-check error is IDENTICALLY
+  ZERO and the assertion COULD NEVER FIRE THERE.  It rode a whole graded
+  campaign without once being executed against a case able to fail it.
+  A GUARD INHERITED FROM A PASSING INSTRUMENT IS NOT A GUARD SHOWN TO WORK.
+
+THE REPAIR: the inversion is moved onto the quantity the code actually derived
+-- the UNROUNDED wall cap*60/RANKS, in SECONDS -- and the admitted difference is
+EXACTLY the rounding quantum, 0.5 s, and nothing more.  That is the tightest
+bound that can admit a correct rounding, so the guard is not loosened; it is
+pointed at the right number.  D4_CAP_ASSERT now also prints exact_wall_s and
+drift_s, so the quantity being judged is in the record.
+
+PLANT A -- every registered cap under the repaired rule (arithmetic, all ten):
+  arm     cap      exact_wall_s   TMO    drift_s   OLD rule   NEW rule
+  L1-P     46.977     704.6550    705    0.3450    ABORT      PASS
+  L1-S     46.977     704.6550    705    0.3450    ABORT      PASS
+  L2-P     52.416     786.2400    786    0.2400    pass       PASS
+  L2-S     52.416     786.2400    786    0.2400    pass       PASS
+  L3-P     95.922    1438.8300   1439    0.1700    pass       PASS
+  L3-S     95.922    1438.8300   1439    0.1700    pass       PASS
+  A2-P    121.956    1829.3400   1829    0.3400    ABORT      PASS
+  A2-S    121.956    1829.3400   1829    0.3400    ABORT      PASS
+  F2-P    203.520    3052.8000   3053    0.2000    pass       PASS
+  F2-S    214.185    3212.7750   3213    0.2250    pass       PASS
+  Every drift is <= 0.345 s, comfortably inside the 0.5 s quantum and nowhere
+  near it by accident: the maximum possible drift IS 0.5 s by construction.
+
+PLANT B -- END TO END IN THE REAL INSTRUMENT, both directions, L1-P, via a
+probe that stops at the assertion so nothing is staged or launched:
+  CORRECT CAP -> passes and prints
+    D4_CAP_ASSERT arm=L1-P level=L1 mode=P registered_core_min=46.977 ranks=4
+      exact_wall_s=704.655000 enforced_wall_s=705 drift_s=0.345000
+      enforced_core_min=47.000000 memory=6g
+  WALL HARD-CODED TO 700 s (a genuine mismatch) -> STILL ABORTS
+    ABORT CAP MISMATCH registered_cap=46.977 exact_wall_s=704.655
+      enforced_wall_s=700 drift_s=4.655 exceeds rounding quantum 0.5
+      (enforced_core_min=46.666667)                      rc=65
+  The guard therefore remains strict against the thing it exists to catch --
+  a wall that does not correspond to the registered cap -- while no longer
+  refusing a wall that does.
+
+WHAT IS *NOT* CLAIMED: this is not evidence any arm solves, converges or grades.
+It is evidence that a correct cap is no longer refused and an incorrect wall
+still is.
+=====================================================================
+
+--- d8g_run_arm.sh	2026-09-11 23:05:33.254229990 +0000
++++ d8g_run_arm_candidate.sh	2026-09-11 23:15:09.417091988 +0000
+@@ -324,14 +324,50 @@
+ # that cap by inverting the arithmetic.  There is no second number anywhere in
+ # this file that could drift from the first.
+ TMO=$(python3 -c "print(int(round($CAP*60.0/$RANKS)))") || { echo "ABORT tmo calc"; exit 65; }
++# *** THE INVERSION IS AGAINST THE UNROUNDED DERIVATION.  MEASURED 2026-09-11
++# 23:08:15Z, the first real launch attempt of this item: L1-P ABORTED with
++#   "ABORT CAP MISMATCH registered=46.977 enforced=47.0"
++# on a cap that is perfectly correct.  TMO is rounded to an INTEGER SECOND, and
++# the old back-check reconstructed the cap FROM THAT ROUNDED INTEGER and
++# compared it to the registered cap at a 0.02 core-min tolerance.  Rounding is
++# worth up to 0.5 s, which at 4 ranks is 0.5*4/60 = 0.0333 core-min -- LARGER
++# THAN THE TOLERANCE THE SAME CODE ENFORCED.  So the guard could refuse a
++# correct cap, and WHICH arms it refused was decided by nothing but where
++# cap*60/RANKS fell relative to a half-second.  MEASURED across the ten
++# registered arms, four died: L1-P, L1-S (err 0.0230) and A2-P, A2-S (0.0227).
++#
++# WHY THE FREEZE DID NOT CATCH IT: this assertion was inherited "unchanged in
++# substance" from d8r_run_arm.sh, a frozen instrument behind a graded two-row
++# pass.  D8R's caps are 1000.0 and 120.0, which divide to EXACT integer seconds
++# (15000 and 1800), so its back-check error is IDENTICALLY ZERO and the
++# assertion COULD NEVER FIRE THERE.  It rode a whole graded campaign without
++# once being executed against a case able to fail it.  A GUARD INHERITED FROM A
++# PASSING INSTRUMENT IS NOT A GUARD THAT HAS BEEN SHOWN TO WORK.
++#
++# THE REPAIR, AND WHAT IT IS NOT.  The tolerance is NOT widened -- widening it
++# would weaken a real guard to hide an arithmetic artifact.  The caps are NOT
++# touched; they are registered numbers.  The comparison is moved onto the
++# quantity the code actually derived: the UNROUNDED wall cap*60/RANKS, in
++# SECONDS, and the admitted difference is EXACTLY the rounding quantum of 0.5 s
++# and nothing more.  That is the tightest bound that can admit a correct
++# rounding, so the guard is not loosened -- it is pointed at the right number.
++# A genuinely mismatched wall is still refused: the planted control shows a
++# hard-coded TMO of 700 s against L1-P's exact 704.655 s aborting on a 4.655 s
++# drift.  This repairs an implementation that failed to test what it claimed to
++# test; it changes no gate, cap, band or label.
++EXACT_WALL=$(python3 -c "print('%.6f' % ($CAP*60.0/$RANKS))") || { echo "ABORT exact wall calc"; exit 65; }
+ BACKCHECK=$(python3 -c "print('%.6f' % ($TMO*$RANKS/60.0))") || { echo "ABORT backcheck"; exit 65; }
+ python3 -c "
+ import sys
+-cap, back = $CAP, $BACKCHECK
+-if abs(cap-back) > 0.02:
+-    sys.stderr.write('ABORT CAP MISMATCH registered=%r enforced=%r\n' % (cap, back)); sys.exit(1)
+-" || { echo "ABORT enforced cap != registered cap"; exit 65; }
+-echo "D4_CAP_ASSERT arm=$ARM level=$LEVEL mode=$MODE registered_core_min=$CAP ranks=$RANKS enforced_wall_s=$TMO enforced_core_min=$BACKCHECK memory=$MEM"
++tmo, exact, cap, back = $TMO, $EXACT_WALL, $CAP, $BACKCHECK
++QUANTUM = 0.5   # one rounding of int(round()), in seconds.  Not a fudge factor:
++                # it is the exact width of the operation performed above.
++drift = abs(tmo - exact)
++if drift > QUANTUM + 1e-9:
++    sys.stderr.write('ABORT CAP MISMATCH registered_cap=%r exact_wall_s=%r enforced_wall_s=%r drift_s=%r exceeds rounding quantum %r (enforced_core_min=%r)\n'
++                     % (cap, exact, tmo, drift, QUANTUM, back)); sys.exit(1)
++" || { echo "ABORT enforced wall != wall derived from registered cap"; exit 65; }
++echo "D4_CAP_ASSERT arm=$ARM level=$LEVEL mode=$MODE registered_core_min=$CAP ranks=$RANKS exact_wall_s=$EXACT_WALL enforced_wall_s=$TMO drift_s=$(python3 -c "print('%.6f' % abs($TMO-$EXACT_WALL))") enforced_core_min=$BACKCHECK memory=$MEM"
+ 
+ # ---- host state, read before ranks are claimed ---------------------------
+ MEMAVAIL_KB=$(awk '/MemAvailable/{print $2}' /proc/meminfo)

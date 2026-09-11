@@ -1460,3 +1460,77 @@ recorded here in advance as infrastructure, not as a physics failure.**
 **`51ff683dda23aa0143d1a2fe5047c780`**. **Zero `__D8G_UNFROZEN__` tokens remain.**
 
 **SUBMISSIONS PARKED.**
+
+
+---
+
+## ADDENDUM 2 — 2026-09-11 — **THE CAP ASSERTION REFUSED FOUR OF TEN ARMS ON ITS OWN ROUNDING, AND IT RODE THROUGH A GRADED TWO-ROW CAMPAIGN WITHOUT ONCE BEING TESTED.**
+
+**Lines whose number changed above this section: 0.**
+
+### THE DEFECT
+
+`d8g_run_arm.sh` derives `TMO = int(round(cap × 60 / RANKS))` — an **integer second** — then
+back-checks by reconstructing `TMO × RANKS / 60` and comparing it to the registered cap at a
+**0.02** tolerance. **The rounding is worth up to 0.5 s, which at 4 ranks is 0.0333 core-min —
+LARGER THAN THE TOLERANCE THE SAME CODE ENFORCES.** The guard therefore refuses perfectly correct
+caps, and **which** arms it refuses is decided by nothing but where `cap × 60 / RANKS` happens to
+fall relative to a half-second.
+
+**FOUR OF TEN ARMS COULD NOT LAUNCH AT ALL:** `L1-P`/`L1-S` (error 0.0230) and `A2-P`/`A2-S`
+(0.0227), aborting in under one second at `ABORT CAP MISMATCH registered=46.977 enforced=47.0`,
+**before any container, ledger row or cost.**
+
+### WHY THE FREEZE DID NOT CATCH IT — THE PART WORTH KEEPING
+
+The header marks this assertion **"inherited unchanged"** from `d8r_run_arm.sh`, *"A FROZEN
+INSTRUMENT BEHIND A GRADED TWO-ROW PASS."* **D8R's caps are 1000.0 and 120.0, which divide to EXACT
+INTEGER SECONDS — 15000 and 1800 — so the back-check error is IDENTICALLY ZERO and the assertion
+COULD NEVER FIRE.** It passed an entire graded campaign **without once being executed against a case
+capable of failing it**, then inherited into D8G, whose three-decimal caps make it fire immediately.
+
+**A GUARD INHERITED FROM A PASSING INSTRUMENT IS NOT A GUARD THAT HAS BEEN SHOWN TO WORK.** This is
+the seventh check in one session trusted because nothing had ever made it fail. **It at least fails
+SAFE** — refusing a good run rather than passing a bad one — which is the right direction for a guard
+to be broken in and why it cost **0 core-min**.
+
+**AND IT WAS FOUND BY LUCK OF ORDERING, which is recorded rather than dressed up as method:** the
+first arm sent to launch was `L1-P`, one of exactly four that trip it. Had the first launch been
+`L2`, `L3` or either `F2` arm, the assertion would have passed and **four arms would have died at
+staging later, after their meshes and staging costs had been paid.**
+
+### THE REPAIR
+
+The inversion now runs against the quantity the code **actually derived** — the **unrounded**
+`cap × 60 / RANKS` in seconds — and admits **exactly the rounding quantum, 0.5 s, and nothing more**.
+That is the tightest bound that can admit a correct `int(round())`, so **the guard is not loosened;
+it is pointed at the right number.** `D4_CAP_ASSERT` now prints `exact_wall_s` and `drift_s`, so the
+judged quantity is in the record rather than inferred.
+
+**THE TOLERANCE IS NOT WIDENED AND THE REGISTERED CAPS ARE NOT TOUCHED.** Widening the tolerance
+would weaken a real guard to hide an arithmetic artifact; the caps are registered numbers.
+
+| arm | cap | `exact_wall_s` | `TMO` | `drift_s` | old rule | new rule |
+|---|---|---|---|---|---|---|
+| L1-P / L1-S | 46.977 | 704.6550 | 705 | 0.3450 | **ABORT** | PASS |
+| L2-P / L2-S | 52.416 | 786.2400 | 786 | 0.2400 | pass | PASS |
+| L3-P / L3-S | 95.922 | 1438.8300 | 1439 | 0.1700 | pass | PASS |
+| A2-P / A2-S | 121.956 | 1829.3400 | 1829 | 0.3400 | **ABORT** | PASS |
+| F2-P | 203.520 | 3052.8000 | 3053 | 0.2000 | pass | PASS |
+| F2-S | 214.185 | 3212.7750 | 3213 | 0.2250 | pass | PASS |
+
+**The maximum possible drift is 0.5 s BY CONSTRUCTION**, so the bound cannot be exceeded by a
+correctly derived wall for any cap — the margins above are structural, not luck.
+
+**PLANTED BOTH WAYS, end to end in the real script, stopping at the assertion so nothing staged or
+launched:** a correct cap **passes** (`exact_wall_s=704.655000 enforced_wall_s=705
+drift_s=0.345000`); a wall hard-coded to 700 s **still ABORTS** (`drift_s=4.655 exceeds rounding
+quantum 0.5`, rc=65). **The guard remains strict against exactly what it exists to catch.**
+
+**ALTERS NO** gate, band, threshold, cap or label. `d8g_grade.py`
+`12688063e20cbb6fa79cf08d0996d4e1` untouched.
+
+**RE-FREEZE:** `d8g_run_arm.sh` `51ff683dda23aa0143d1a2fe5047c780` →
+**`32d0911ed3749fef4a4cb36db62b46d8`**.
+
+**SUBMISSIONS PARKED.**
