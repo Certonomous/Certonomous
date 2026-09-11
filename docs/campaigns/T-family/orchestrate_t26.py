@@ -51,9 +51,16 @@ LEVELS = ("L1", "L2", "L3")
 # so every level would have run at the ranks and hang guard of the level ABOVE
 # it.  That is K2d's death (a level launched at ranks that do not match its
 # registered row, 535.600 core-min lost) and launch_t26.sh now refuses it.
-# Registered source: T26_PREREGISTRATION.md section 13.4 (cost table and the
-# hang-guard table beneath it).  NOT :705-709, which 13.4 supersedes.
-POINT_CORE_MIN = {"L1": 141.28, "L2": 865.09, "L3": 4230.09}
+# Registered source: T26_PREREGISTRATION.md SECTION 21.6 (cost table and the
+# hang-guard column).  NOT 13.4, which 21.6 supersedes, and NOT :705-709, which
+# 13.4 had already superseded.  Section 21 raised the strut surface refinement
+# level to 4 uniformly and moved the ladder to Delta0 = 18.000 / 12.000 / 8.000
+# mm so that the FROZEN gate GEO-8 (surface cell <= 1.333 mm, section 2.1) holds
+# at the COARSEST level; the counts, endTimes and cost follow arithmetically.
+#   L1 278.44   L2 947.55   L3 2999.77 core-min   (21.6)
+# RANKS ARE UNCHANGED at 4 / 8 / 16 -- section 21.5 -- so section 19.2's repair
+# of this table stands and only the POINT row moves.
+POINT_CORE_MIN = {"L1": 278.44, "L2": 947.55, "L3": 2999.77}
 RANKS = {"L1": 4, "L2": 8, "L3": 16}
 EXIT_OK, EXIT_REFUSE = 0, 2
 

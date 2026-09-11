@@ -251,14 +251,17 @@ CASE_DIR="$(cd "$CASE_DIR" && pwd)"
 # number for a T26 level, and it is held HERE, in the launcher, so that a
 # caller cannot supply both the value and its justification.
 #
-# Source: T26_PREREGISTRATION.md section 13.4 -- ranks 4/8/16 and hang guards
-# 3.0 x POINT x 60 / ranks at POINT 141.28 / 865.09 / 4230.09 core-min.
+# Source: T26_PREREGISTRATION.md SECTION 21.6 -- ranks 4/8/16 and hang guards
+# 3.0 x POINT x 60 / ranks at POINT 278.44 / 947.55 / 2999.77 core-min.
+# Section 21.6 SUPERSEDES 13.4: the strut surface refinement level rose to 4
+# uniformly and the ladder moved to Delta0 = 18.000 / 12.000 / 8.000 mm so that
+# the FROZEN gate GEO-8 holds at the COARSEST level.  RANKS DID NOT MOVE.
 #   row = "<ranks> <guard_s>"
 t26_reg_row() {
   case "$1" in
-    L1) echo "4 6358"   ;;   # 3 x 141.28  x 60 /  4
-    L2) echo "8 19465"  ;;   # 3 x 865.09  x 60 /  8
-    L3) echo "16 47589" ;;   # 3 x 4230.09 x 60 / 16
+    L1) echo "4 12530"  ;;   # 3 x  278.44 x 60 /  4
+    L2) echo "8 21320"  ;;   # 3 x  947.55 x 60 /  8
+    L3) echo "16 33747" ;;   # 3 x 2999.77 x 60 / 16
     *)  echo ""         ;;
   esac
 }

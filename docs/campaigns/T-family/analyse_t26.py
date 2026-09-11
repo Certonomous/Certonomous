@@ -92,8 +92,26 @@ PLANT_YPLUS = 4.321e+00 # -    a known non-zero for the y+ reader
 PLANT_EDGE = 8.765e-03  # m    a known non-zero for the level0Edge reader
 
 LEVELS = ("L1", "L2", "L3")
-END_TIME = {"L1": 8000, "L2": 12000, "L3": 16000}        # :544
-CELLS_PROJECTED = {"L1": 885508, "L2": 2988590, "L3": 10086491}   # :430
+
+# END_TIME AND CELLS_PROJECTED ARE DELETED, NOT CORRECTED -- section 21 ruling 5.
+# They held {8000, 12000, 16000} and {885508, 2988590, 10086491}: section 4.3's
+# and section 3.4's PRE-SHIFT values, STRUCK by amendment 13.3.  measure_level()
+# would therefore have read EVERY LEVEL AT THE endTime OF THE LEVEL ABOVE IT --
+# L1 at 8000 where it ends at 4000, L2 at 12000 where it ends at 8000, L3 at
+# 16000 where it ends at 12000.  That is the identical signature section 19.1
+# found in orchestrate_t26.py's RANKS and POINT tables, and this is the FOURTH
+# instrument in this rung to have carried a private copy of a registered
+# quantity.  CORRECTING THE NUMBERS WOULD HAVE LEFT THE FIFTH TRAP.
+#
+# The ladder is now READ from two independent places that must agree:
+#   case_end_time(case)       -- what the case is CONFIGURED to run, from its
+#                                own system/controlDict (mark_done_t26.py:169
+#                                already did this; this file did not, and that
+#                                difference WAS the defect)
+#   read_registered_ladder()  -- what the REGISTRATION registers, from the
+#                                registration file itself
+# and measure_level() REFUSES when they disagree.  No copy of a registered
+# quantity lives in this file.
 
 # gates, T26_PREREGISTRATION.md:513-519
 G_CONV = {"h": 1.0e-06, "p_rgh": 1.0e-05, "Ux": 1.0e-05, "Uy": 1.0e-05,
@@ -1507,6 +1525,80 @@ def verdict_t26(v1, v2, v3, band, conv_ok, plateau_ok, extra_triple=None):
 # ===========================================================================
 # per-level measurement
 # ===========================================================================
+# ===========================================================================
+# THE REGISTERED LADDER IS READ, NEVER COPIED  (section 21, ruling 5)
+#
+# The registration carries one machine-readable line per level, so the reader
+# never parses prose and a table reformat cannot silently change a number:
+#
+#   REGISTERED-LADDER L1 cells=402409 endTime=5400 ranks=4 delta0_mm=18.000
+#
+# A registration with no such line, with a level missing, or with a level
+# registered twice is a REFUSAL.  It is never a default: a defaulted ladder is
+# exactly the private copy this section exists to remove.
+# ===========================================================================
+
+LADDER_RE = re.compile(
+    r"^REGISTERED-LADDER\s+(L[0-9]+)\s+cells=([0-9]+)\s+endTime=([0-9]+)"
+    r"\s+ranks=([0-9]+)\s+delta0_mm=([0-9]+\.[0-9]+)\s*$", re.M)
+
+
+def read_registered_ladder(path=None):
+    """The ladder, READ from the registration.  Never a constant in this file."""
+    p = path or REGISTRATION
+    if not os.path.isfile(p):
+        refuse("no registration at %s -- the ladder is READ from it and is "
+               "never defaulted (section 21 ruling 5)" % p)
+    txt = open(p, "r", errors="replace").read()
+    rows = LADDER_RE.findall(txt)
+    if not rows:
+        refuse("registration %s carries no REGISTERED-LADDER line; the ladder "
+               "is read, never assumed (section 21 ruling 5)" % p)
+    out = {}
+    for lvl, cells, et, ranks, d0 in rows:
+        if lvl in out:
+            refuse("registration %s registers level %s TWICE -- an ambiguous "
+                   "ladder is refused, never resolved by choosing" % (p, lvl))
+        out[lvl] = dict(cells=int(cells), endTime=int(et),
+                        ranks=int(ranks), delta0_mm=float(d0))
+    for lvl in LEVELS:
+        if lvl not in out:
+            refuse("registration %s registers no ladder row for %s" % (p, lvl))
+    return out
+
+
+def case_end_time(case):
+    """endTime from the CASE's OWN system/controlDict -- mark_done_t26.py:169."""
+    cd = os.path.join(case, "system", "controlDict")
+    if not os.path.isfile(cd):
+        refuse("no system/controlDict in %s -- endTime is unknowable, and this "
+               "comparator no longer holds a copy to fall back on" % case)
+    m = re.search(r"^\s*endTime\s+([0-9.eE+-]+)\s*;",
+                  open(cd, "r", errors="replace").read(), re.M)
+    if not m:
+        refuse("controlDict in %s states no endTime" % cd)
+    return float(m.group(1))
+
+
+def resolve_end_time(case, level, reg_path=None):
+    """The ONLY source of endTime for a graded level, and it reconciles two.
+
+    Returns the endTime the level ACTUALLY ran to, having refused unless the
+    registration registers the same number.  This function is measure_level()'s
+    only route to an endTime, so driving it drives the production path."""
+    et = case_end_time(case)
+    reg = read_registered_ladder(reg_path)[level]["endTime"]
+    if et != float(reg):
+        refuse("level %s: its own system/controlDict says endTime %g but the "
+               "registration registers endTime %d. A level whose run length "
+               "disagrees with its registration is NOT graded around "
+               "(section 21 ruling 5). Before that ruling this file held a "
+               "private copy of the ladder and would have read every level at "
+               "the endTime of the level ABOVE it, silently."
+               % (level, et, reg))
+    return et
+
+
 def cell_count_audit(counts=None):
     """Are the registered cell counts internally consistent with 3D refinement?
 
@@ -1515,11 +1607,19 @@ def cell_count_audit(counts=None):
     the RATIO ALONE discriminates.  This runs on the REGISTERED NUMBERS and
     needs no mesh, so it is available before any compute.
 
+    REPORTED-ONLY SINCE SECTION 21.  The N-ratio limb was a RESIDUE OF A GATE
+    14.3 ALREADY STRUCK when it moved G-MESHSIM from N to h, and as an enforcing
+    check it was CIRCULAR: it passes any triple formed by MULTIPLYING by 3.375
+    and fails any triple re-derived from the registration's own open arithmetic
+    of 3.5 (the section 21 ladder reads N = 2.357 and 2.402, off 3.375 by 30 %
+    and 29 %).  A check that passes only what multiplication produced cannot
+    discriminate anything real.  It is now printed and never gated.
+
     ITS LIMIT, STATED: registration :456 labels these counts PROJECTIONS. This
     audit can prove the registration is NOT built on a 2D refinement pattern.
     It CANNOT prove the mesh will be 3D -- only checkMesh on a BUILT mesh can
     (D-3D above), and this function never claims otherwise."""
-    c = counts or [CELLS_PROJECTED[l] for l in LEVELS]
+    c = counts or [read_registered_ladder()[l]["cells"] for l in LEVELS]
     rows = []
     for i in range(len(c) - 1):
         N = c[i + 1] / float(c[i])
@@ -1529,8 +1629,11 @@ def cell_count_audit(counts=None):
                          matches_3D_at_r1p5=abs(N - 1.5 ** 3) / 1.5 ** 3 < 1e-3,
                          matches_2D_at_r1p5=abs(N - 1.5 ** 2) / 1.5 ** 2 < 1e-3))
     ok = all(r["matches_3D_at_r1p5"] for r in rows)
-    return dict(consistent_with_3D=ok, counts=c, steps=rows,
-                note=("PROJECTIONS, not measured cell counts (registration :456). "
+    return dict(consistent_with_3D=ok, counts=c, steps=rows, gated=False,
+                note=("REPORTED, NEVER GATED (section 21): 14.3 moved G-MESHSIM "
+                      "from N to h and N^(1/3) is a fiction on a layered ladder "
+                      "(14.4). "
+                      "PROJECTIONS, not measured cell counts (registration :456). "
                       "Consistency with a 3D refinement pattern is NECESSARY and "
                       "NOT SUFFICIENT for a 3D claim; only checkMesh on a built "
                       "mesh (D-3D) can establish dimensionality."))
@@ -1544,7 +1647,7 @@ def measure_level(root, level):
         refuse("no completion marker DONE.%s -- mark_done_t26.py has not passed "
                "this level under the strict completion rule, and an ungraded "
                "level is never graded around" % level)
-    et = END_TIME[level]
+    et = resolve_end_time(case, level)
     log = os.path.join(case, "log.solve")
     resid = read_residuals(log)
     conv = {}
@@ -1683,26 +1786,131 @@ def selftest():
     if not ok:
         fails.append("order band")
 
-    print("\n(vi) THE REGISTERED CELL COUNTS -- 3D or 2D refinement pattern?")
+    print("\n(vi) THE CELL COUNTS -- REPORTED, NEVER GATED (section 21.8)")
     a = cell_count_audit()
     for r in a["steps"]:
         print("  %s  N = %.6f -> r would be %.4f in 1D, %.4f in 2D, %.4f in 3D  [3D at r=1.5: %s]"
               % (r["step"], r["N_ratio"], r["r_if_1D"], r["r_if_2D"], r["r_if_3D"],
                  "YES" if r["matches_3D_at_r1p5"] else "NO"))
-    ok = a["consistent_with_3D"]
-    print("  [%s] registered counts %s consistent with 3D refinement at r = 1.5 "
-          "(N = 3.375); a 2D pattern would give N = 2.250"
-          % ("ok " if ok else "BAD", "ARE" if ok else "ARE NOT"))
+    print("  REPORTED ONLY: 14.3 moved G-MESHSIM from N to h and 14.4 called")
+    print("  r = N^(1/3) a fiction on a layered ladder. The N limb enforced a gate")
+    print("  already struck, and it was CIRCULAR -- it passes any triple formed by")
+    print("  MULTIPLYING by 3.375 and fails any triple re-derived from 3.5's own")
+    print("  arithmetic. No verdict and no exit code reads this row.")
+    ok = (a.get("gated") is False)
+    print("  [%s] the audit declares itself NOT GATED" % ("ok " if ok else "BAD"))
     if not ok:
-        fails.append("cell-count 3D consistency")
-    # the MUTATION: a 2D count triple must be REJECTED by the same function
+        fails.append("cell-count limb still claims to gate")
+    # LIVE CONTROL (rule 3): the discriminator must be shown able to answer BOTH
+    # ways, or its 'NO' is not evidence.  It is reported, not gated -- but a
+    # reported number from a blind reader is still worth nothing.
+    three_d = [885508, int(885508 * 3.375), int(885508 * 3.375 * 3.375)]
     two_d = [885508, int(885508 * 2.25), int(885508 * 2.25 * 2.25)]
-    m = cell_count_audit(two_d)
-    ok = not m["consistent_with_3D"]
-    print("  [%s] MUTATION: a 2D-pattern triple %s -> consistent_with_3D = %s (must be False)"
-          % ("ok " if ok else "BAD", two_d, m["consistent_with_3D"]))
+    p3 = cell_count_audit(three_d)["consistent_with_3D"]
+    p2 = cell_count_audit(two_d)["consistent_with_3D"]
+    ok = (p3 is True and p2 is False)
+    print("  [%s] CONTROL: 3.375-spaced -> %s ; 2.25-spaced -> %s "
+          "(must be True then False, or the row is blind)"
+          % ("ok " if ok else "BAD", p3, p2))
     if not ok:
-        fails.append("cell-count mutation not caught")
+        fails.append("cell-count discriminator blind")
+
+    print("\n(vi-b) THE LADDER IS READ, NOT COPIED -- AND THE REFUSAL IS DRIVEN")
+    print("  analyse_t26.py:95 used to hold END_TIME = {8000, 12000, 16000}, section")
+    print("  4.3's PRE-SHIFT triple struck by 13.3. Every level would have been read")
+    print("  at the endTime of the level ABOVE it. The constant is DELETED, and")
+    print("  these arms drive the refusal that replaced it (section 21.7).")
+    import io as _io
+    import contextlib as _ctx
+
+    def _drive(fn, *args):
+        """Run fn for real, capture its REFUSE text and exit code."""
+        buf = _io.StringIO()
+        try:
+            with _ctx.redirect_stdout(buf):
+                fn(*args)
+        except SystemExit as e:
+            return (e.code, buf.getvalue())
+        return (None, buf.getvalue())
+
+    tmpL = tempfile.mkdtemp(prefix="t26_ladder_")
+    try:
+        good = ("prose above\n"
+                "REGISTERED-LADDER L1 cells=402409 endTime=5400 ranks=4 delta0_mm=18.000\n"
+                "REGISTERED-LADDER L2 cells=948625 endTime=8200 ranks=8 delta0_mm=12.000\n"
+                "REGISTERED-LADDER L3 cells=2278150 endTime=11100 ranks=16 delta0_mm=8.000\n")
+        rg = os.path.join(tmpL, "REG_ok.md")
+        open(rg, "w").write(good)
+        lad = read_registered_ladder(rg)
+        ok = (lad["L1"]["endTime"] == 5400 and lad["L3"]["cells"] == 2278150
+              and lad["L2"]["ranks"] == 8 and abs(lad["L1"]["delta0_mm"] - 18.0) < 1e-9)
+        print("  [%s] POSITIVE: a well-formed ladder READS (L1 endTime %s, L3 cells %s)"
+              % ("ok " if ok else "BAD", lad["L1"]["endTime"], lad["L3"]["cells"]))
+        if not ok:
+            fails.append("ladder reader cannot read a good ladder")
+
+        rm = os.path.join(tmpL, "REG_mut.md")
+        open(rm, "w").write(good.replace("endTime=5400", "endTime=9999"))
+        ok = read_registered_ladder(rm)["L1"]["endTime"] == 9999
+        print("  [%s] MUTATION: a CHANGED registered endTime is SEEN as 9999 -- the"
+              % ("ok " if ok else "BAD"))
+        print("       reader is shown able to see a different number before any")
+        print("       agreement it reports is believed (CLAUDE.md rule 3)")
+        if not ok:
+            fails.append("ladder reader blind to a mutated registration")
+
+        for nm, body, why in (
+                ("REG_none.md", "prose with no ladder line whatever\n",
+                 "a registration with NO REGISTERED-LADDER line"),
+                ("REG_short.md",
+                 "REGISTERED-LADDER L1 cells=1 endTime=2 ranks=3 delta0_mm=4.000\n",
+                 "a registration missing L2 and L3"),
+                ("REG_dup.md",
+                 "REGISTERED-LADDER L1 cells=1 endTime=2 ranks=3 delta0_mm=4.000\n"
+                 "REGISTERED-LADDER L1 cells=9 endTime=8 ranks=7 delta0_mm=6.000\n",
+                 "a registration registering L1 TWICE"),
+                ("REG_absent.md", None, "a registration that does not exist")):
+            p = os.path.join(tmpL, nm)
+            if body is not None:
+                open(p, "w").write(body)
+            code, _txt = _drive(read_registered_ladder, p)
+            ok = (code == EXIT_REFUSE)
+            print("  [%s] REFUSES (exit %s, wanted %d): %s"
+                  % ("ok " if ok else "BAD", code, EXIT_REFUSE, why))
+            if not ok:
+                fails.append("ladder reader did not refuse: " + why)
+
+        # THE REAL POINT, DRIVEN THROUGH measure_level() ITSELF against the REAL
+        # registration -- arms B and C of the 6 pattern, on a throwaway case.
+        root = os.path.join(tmpL, "runs")
+        for lvl, et in (("L1", 9999), ("L1", 5400)):
+            cs = os.path.join(root, lvl, "system")
+            if os.path.isdir(os.path.join(root, lvl)):
+                shutil.rmtree(os.path.join(root, lvl))
+            os.makedirs(cs)
+            open(os.path.join(cs, "controlDict"), "w").write(
+                "endTime %d;\ndeltaT 1;\n" % et)
+            open(os.path.join(root, "DONE.%s" % lvl), "w").write("x\n")
+            code, txt = _drive(measure_level, root, lvl)
+            hit = "disagrees with its registration" in txt
+            if et == 9999:
+                ok = (code == EXIT_REFUSE and hit)
+                print("  [%s] ARM B: controlDict endTime 9999 vs the REGISTERED "
+                      "5400 -> REFUSE (exit %s), and the refusal names the "
+                      "disagreement" % ("ok " if ok else "BAD", code))
+                if not ok:
+                    fails.append("measure_level did not refuse a mismatched endTime")
+            else:
+                ok = not hit
+                print("  [%s] ARM C (NEGATIVE CONTROL): controlDict endTime 5400 "
+                      "MATCHES the registration -> the endTime check PASSES and any "
+                      "later refusal is for another reason. Arm C is what makes arm "
+                      "B attributable to the check and not to the empty case."
+                      % ("ok " if ok else "BAD"))
+                if not ok:
+                    fails.append("ARM C: a MATCHING endTime still tripped the check")
+    finally:
+        shutil.rmtree(tmpL, ignore_errors=True)
 
     print("\n(vii) NO `assert` STATEMENT IN THIS FILE (L-332: -O strips them)")
     import ast
@@ -1732,7 +1940,9 @@ def main(argv):
                   % (r["step"], r["N_ratio"], r["r_if_1D"], r["r_if_2D"],
                      r["r_if_3D"], r["matches_3D_at_r1p5"]))
         print(a["note"])
-        return EXIT_OK if a["consistent_with_3D"] else EXIT_FAIL
+        print("REPORTED, NOT GATED (section 21): this limb no longer drives an "
+              "exit code. G-MESHSIM gates h (14.3); N is reported beside it.")
+        return EXIT_OK
     root = os.path.join(HERE, "..", "..", "..", "verification", "runs", "T-family", "T26_runs")
     if "--root" in argv:
         root = argv[argv.index("--root") + 1]

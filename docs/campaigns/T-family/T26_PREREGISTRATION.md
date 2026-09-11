@@ -1950,3 +1950,586 @@ Pre-compute condition re-taken in the committing invocation at **2026-09-11T18:0
 
 *Recorded by a heat-transfer lane, 2026-09-11T18:02:23Z. Zero solver compute. Nothing sent,
 filed or uploaded (`CLAUDE.md` rule 7).*
+
+---
+
+## 21. ADDENDUM 6 — 2026-09-11T18:51:25Z. **GEO-8 IS A FROZEN GATE AND THE AMENDED LADDER BREAKS IT AT L1. THE LADDER MOVES; THE GATE DOES NOT.**
+
+**DATED ADDENDUM UNDER `CLAUDE.md` RULE 2, TAKEN PRE-FIRST-COMPUTE.**
+
+**IT IS AN ADDENDUM AND NOT AN AMENDMENT, AND THAT IS NOT A NAMING PREFERENCE.**
+§15 froze this document: *"no gate, threshold, band, floor, cap or label may
+change. Changes land only as dated addenda that cannot alter any of those."*
+Rule 2 would permit an amendment pre-compute; **§15 is this rung's own stricter
+self-imposed rule and the stricter of the two binds.** The six forbidden words,
+checked ONE AT A TIME rather than waved at collectively:
+
+| §15's word | does it move? |
+|---|---|
+| **gate** | **No.** `GEO-8` and `G-MESHSIM` are untouched. GEO-8 holding is the REASON for this addendum. |
+| **threshold** | **No.** GEO-8's 1.333 mm stands exactly as §2.1 froze it. |
+| **band** | **No.** `G-MESHSIM` [1.4250, 1.5750] and the observed-order band [0.5, 2.5] stand. |
+| **floor** | **No** — and the memory floor moves *down*, 9.06 → 7.15 GiB. Nothing is relaxed. |
+| **cap** | **No.** §7.3 suspended the budget cap under Sanaa's exemption; §13.4 built the guards at 3.0 × POINT precisely so they cannot be read as caps. |
+| **label** | **No.** The verdict vocabulary is untouched. |
+
+What moves is **Δ₀, the strut surface refinement level, and the cell counts,
+endTimes and cost that follow arithmetically** — design parameters and their
+consequences, none of them in §15's list.
+
+### 21.1 THE PRE-COMPUTE CONDITION, RE-TAKEN IN THE COMMITTING INVOCATION
+
+Commands run verbatim at **2026-09-11T18:51:25Z**, from the repository root, in the same shell
+invocation that wrote this section:
+
+```
+test -d verification/runs/T-family/T26_runs        -> ABSENT
+test -d verification/runs/T-family/T26_MESH_runs   -> ABSENT
+test -d verification/runs/T-family/T23_runs        -> PRESENT     [PLANTED CONTROL, positive arm]
+test -d verification/runs/T-family/T99_nonexistent -> ABSENT      [PLANTED CONTROL, negative arm]
+```
+
+**Both control arms fired.** ZERO SOLVER CORE-MINUTES HAVE BEEN SPENT AGAINST
+THIS DOCUMENT; the only compute on this rung remains the geometry gate's
+**0.05 core-min, MEASURED**.
+
+### 21.2 THE DEFECT — A FROZEN GATE THAT THE AMENDED LADDER CANNOT CLEAR
+
+§2.1 freezes **GEO-8** at *"surface cell ≤ ⅓ of the smallest named feature ...
+strut thickness 4.000 mm ⟹ cell ≤ **1.333 mm**"*, and §14.6 states that
+Amendment 2 *"does not alter `GEO-*`"*. §3.3 discharges GEO-8 with *"Struts are
+refined to 1.000 mm at L1 (surface level 3), so the threshold holds at the
+COARSEST level and a fortiori at L2 and L3"* — which is Δ₀ = 8.000 mm ÷ 2³.
+
+Amendment 1 (§13.3) shifted the ladder down one rung and struck §3.4's cell
+counts, endTimes and ranks. **It did not strike §3.4's Δ₀ row or its
+strut-surface-level row.** §17.3 then states the shifted base cells as
+Δ₀ = 12.000 / 8.000 / 5.333 mm.
+
+> **At Δ₀(L1) = 12.000 mm and surface level 3 the built strut cell is
+> 12.000 ÷ 8 = 1.500 mm > 1.333 mm. GEO-8 FAILS AT THE COARSEST LEVEL.**
+
+**THE TRILEMMA, AND TWO HORNS REFUSED BEFORE THE THIRD WAS TAKEN.**
+
+1. **Widen GEO-8.** **REFUSED, and not by this team.** Narrowing or retiring a
+   gate threshold is reserved to Sanaa (`CLAUDE.md` FIRST-ACTION). *"The gate no
+   longer holds, so move the gate"* is the exact shape this laboratory exists to
+   refuse. **Not available at any price.**
+2. **Undo §13.3 and hold Δ₀ at 8.000 mm.** **REFUSED.** It contradicts the
+   amended count 262,373, and §13.3's shift was forced by the **memory floor** —
+   §3.4's L3 at 28.07 GiB *"does not fit even at μ = 1"*. Reverting re-creates
+   the constraint that forced the amendment.
+3. **Raise the strut surface refinement level.** **TAKEN.** A refinement level
+   is a design parameter, not a gate threshold.
+
+> **AND IT RISES UNIFORMLY OR NOT AT ALL. REFUSED EXPLICITLY, SO NO LATER READER
+> RE-INVENTS IT AS A CHEAP FIX: level 4 at L1 with level 3 at L2 and L3 would
+> satisfy GEO-8 and destroy the thing the ladder exists to measure.** The levels
+> would no longer be geometrically similar, and **Roache needs similarity, not
+> merely three meshes**. A ladder whose levels differ in kind measures a
+> mixture. This is the same class as the K2d finding adopted at §0.3.
+
+### 21.3 THE FIRST REMEDY WAS COSTED AND REFUSED ON ITS OWN NUMBERS
+
+Uniform level 4 on the **amended** Δ₀ ladder (12.000 / 8.000 / 5.3333 mm) was
+derived before it was adopted, and it was then refused:
+
+| level | Δ₀ mm | strut cell | GEO-8 | cells | FLOOR | μ@22 GiB |
+|---|---:|---:|:--:|---:|---:|---:|
+| L1 | 12.0000 | 0.7500 | PASS | 948,625 | 2.80 GiB | 7.85 |
+| L2 | 8.0000 | 0.5000 | PASS | 2,278,150 | 6.63 GiB | 3.32 |
+| L3 | 5.3333 | 0.3333 | PASS | 5,615,935 | **16.09 GiB** | **1.367** |
+
+§13.5's own rejection precedent: 11.77 GiB / μ 1.87 **rejected**; 14.44 / 1.52
+**rejected**; 17.12 / 1.28 **rejected**; and §13.2 states the amended top level
+*"is chosen to tolerate μ ≥ 2.4"*. **16.09 GiB at μ 1.367 sits between two rows
+this document already rejected**, and applying §13.2's own disclosed **9 %
+floor under-prediction** puts it near **17.5 GiB — past the worst row that was
+rejected.** It was refused on the registration's own precedent, not on
+judgement.
+
+### 21.4 THE REGISTERED LADDER — Δ₀ = 18.000 / 12.000 / 8.000 mm, STRUT SURFACE LEVEL 4
+
+**EVERY COUNT BELOW IS RE-DERIVED FROM §3.5's OPEN ARITHMETIC. NONE IS
+MULTIPLIED.** §13.3 formed its counts by division — its own text reads
+*"885,508 / 3.375"* — and §3.5's arithmetic at Δ₀ = 5.3333 mm with level-3
+struts returns **2,189,109** against the registered 2,988,590, **a 27 % gap**.
+That is the multiply-versus-re-derive defect §14.2 found in the BUILT mesh,
+sitting in the PROJECTIONS. **It supersedes §13.3's three counts and §3.4's
+three counts alike.**
+
+```
+REGISTERED-LADDER L1 cells=402409 endTime=5400 ranks=4 delta0_mm=18.000
+REGISTERED-LADDER L2 cells=948625 endTime=8200 ranks=8 delta0_mm=12.000
+REGISTERED-LADDER L3 cells=2278150 endTime=11100 ranks=16 delta0_mm=8.000
+```
+
+**Those three lines are machine-readable and are the ONLY source of the ladder
+for any instrument.** `analyse_t26.py` reads them; it holds no copy (§21.7).
+
+| | L1 | L2 | L3 |
+|---|---:|---:|---:|
+| base cell Δ₀ | **18.000 mm** | **12.000 mm** | **8.000 mm** |
+| duct-bore surface level | 1 (9.000 mm) | 1 (6.000 mm) | 1 (4.000 mm) |
+| hub surface level | 2 (4.500 mm) | 2 (3.000 mm) | 2 (2.000 mm) |
+| **strut surface level** | **4 (1.1250 mm)** | **4 (0.7500 mm)** | **4 (0.5000 mm)** |
+| **GEO-8 (≤ 1.333 mm)** | **PASS, 15.6 % margin** | **PASS** | **PASS** |
+| layers (hub / strut / duct) | 18 / 12 / 5 | 18 / 12 / 5 | 18 / 12 / 5 |
+| Δ₁ on hub and struts | 35.89 µm | 35.89 µm | 35.89 µm |
+| **projected cells** | **402,409** | **948,625** | **2,278,150** |
+| **Δ₀ (h) ratio** | — | **1.500000** | **1.500000** |
+
+**GEO-8 now holds at the COARSEST level and a fortiori above — §3.3's own design
+intent, restored rather than altered.**
+
+**THE STRUT-REGION BURDEN, SHOWN SEPARATELY BECAUSE IT IS NOT A ROUNDING.** At
+Δ₀ = 8.000 mm, level 3 → level 4:
+
+| term | level 3 | level 4 | × |
+|---|---:|---:|---:|
+| strut surface refinement | 326,225 | 1,305,794 | 4.00 |
+| strut layers | 522,372 | 2,089,476 | 4.00 |
+| housing shell | 103,528 | 207,056 | 2.00 |
+| housing struts (solid) | 110,946 | 887,571 | 8.00 |
+| **strut-region subtotal** | **1,063,071** | **4,489,897** | **4.22** |
+
+The ×8 applies **only** to the strut solid interior (t⁻³). The two largest terms
+go ×4 because they are surface-and-layer terms (t⁻²) — §14.2's k² stack again.
+The strut region is **48.6 %** of the mesh at level 3, so ×4.22 on half the mesh
+carries the total.
+
+**THE ONE-CELL CONTROL, DISCLOSED RATHER THAN FUDGED.** §3.5's arithmetic,
+parameterised on Δ₀ and the strut level and run at Δ₀ = 8.000 mm level 3 —
+the configuration §3.5 itself prints — returns **885,509** where §3.5 prints
+**885,508**. The gap is ONE rounding: §3.5's hub-refinement term carries
+*"−360 replaced"* where its own expression 0.030676 × 0.006 / 5.12e-7 evaluates
+to **359.484**. Every count in this section carries that same **1.1 ppm**
+offset. **A model that reproduces its reference exactly on the first run is a
+model nobody has tested; this one was.**
+
+**THE `N` RATIO IS NOT 3.375 AND NEVER WAS, ON §3.5's OWN ARITHMETIC.**
+Re-derived: **2.357365** and **2.401529**, giving N^(1/3) = 1.3392 and 1.3509.
+§14.3 had already struck the `N`-based gate and moved `G-MESHSIM` to `h` for a
+different reason; **that move turns out to have been righter than it knew.**
+**The `h` ratios are 18/12 = 1.500000 and 12/8 = 1.500000 — exact, and dead
+centre of `G-MESHSIM`'s [1.4250, 1.5750].** The strut surface level appears only
+in terms carrying the strut cell size `t` and in no term carrying Δ₀, so
+`G-MESHSIM`, which reads Δ₀ from `level0Edge`, cannot be touched by it.
+
+### 21.5 endTime — §13.3's REGISTERED RULE, APPLIED, WITH THE RULE REPRODUCING ITSELF AS THE CONTROL
+
+§13.3 registers *"endTime is attached to CELL COUNT, not to ladder position"*,
+with the pairs 262,373→4,000, 885,508→8,000, 2,988,590→12,000 and a
+**+4,000-per-3.375×-step** pattern. Written out, that rule is
+
+> `endTime(N) = 8,000 + 4,000 × ln(N / 885,508) / ln(3.375)`
+
+**Run against §13.3's own three registered pairs it returns 4000.0 / 8000.0 /
+12000.0 — the registered values to the decimal. So it is §13.3's rule and not a
+reconstruction of it.** Applied to the re-derived counts: **5,406.5 / 8,226.4 /
+11,107.4**, registered at the nearest 100 as **5,400 / 8,200 / 11,100**.
+
+**Rounding to the nearest 1,000 was considered and REFUSED.** It would give
+5,000 / 8,000 / 11,000, preserving §13.3's round-thousand style but drifting
+**7.5 % at L1** — and L1 is precisely the level whose layer coverage is most at
+risk (§21.9). **Style loses to fidelity: the rounding preserves the rule's
+output, not a cosmetic.**
+
+**RANKS ARE UNCHANGED at 4 / 8 / 16.** Nothing forces them to move, every floor
+clears at them, and cells-per-rank becomes *more* even than the superseded
+ladder — 100,602 / 118,578 / 142,384 against 65,593 / 110,689 / 186,787. **§19.2's
+`RANKS` repair therefore stands untouched; only `POINT_CORE_MIN` and the hang
+guards move.**
+
+### 21.6 COST AND HANG GUARDS — §7.2's FORMULA UNCHANGED
+
+`core-min = N_cells × N_iter × 4.9328e-06 ÷ 60 ÷ 0.75`; mesh at
+`6.0e-03 core-s/cell`. Both are §7.1's registrations, untouched.
+
+| level | cells | iters | solve | mesh | **level total** | ranks | wall h | **hang guard s** | **memory FLOOR** |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| L1 | 402,409 | 5,400 | 238.20 | 40.24 | **278.44** | 4 | 1.16 | **12,530** | 1.34 GiB |
+| L2 | 948,625 | 8,200 | 852.69 | 94.86 | **947.55** | 8 | 1.97 | **21,320** | 3.07 GiB |
+| L3 | 2,278,150 | 11,100 | 2,771.96 | 227.81 | **2,999.77** | 16 | 3.12 | **33,747** | **7.15 GiB** |
+| geometry gate | — | — | — | — | 0.05 (MEASURED) | 1 | — | — | — |
+| **RUNG POINT** | | | **3,862.84** | **362.92** | **4,225.81** | | **≈ 6.25 h** | | |
+
+**RUNG POINT = 4,225.81 core-min = 70.43 core-h.**
+**USD = 70.43 × $0.0513/core-h = $3.613 — DERIVED, NOT MEASURED**
+(`cost_basis` = reported-by-owner; the box cannot read its own billing,
+`COMPUTE_BUDGET_CHARTER.md` §5).
+
+~~**SUPERSEDED: §13.4's RUNG POINT 4,822.81 solve + 413.65 mesh = 5,236.51 core-min = $4.477 derived.**~~
+**RATIO this/superseded = 0.8070 — the repaired ladder is 19.3 % CHEAPER**,
+1,010.70 core-min not spent. Guards are **3.0 × POINT × 60 ÷ ranks** and are
+**hang guards, NOT budget gates** (§7.3 item 3).
+
+**MEMORY, on §13.2's model** (marginal 2,877 B/cell, per-rank fixed 67.04 MiB;
+it reproduces §13.3's three registered floors to 0.01 GiB). **L3's floor falls
+9.06 → 7.15 GiB and μ@22 GiB rises 2.43 → 3.08**, clearing §13.2's registered
+μ ≥ 2.4 **with §13.2's own 9 % under-prediction applied** (≈ 7.8 GiB, μ ≈ 2.82).
+**μ remains UNMEASURED and is not invented here** (§13.2); every μ above is
+*"the μ at which the floor exhausts 22 GiB"*, never a prediction.
+
+### 21.7 THE GRADER HELD ITS OWN COPY OF A REGISTERED QUANTITY — AND WOULD HAVE READ EVERY LEVEL AT THE endTime OF THE LEVEL ABOVE IT
+
+**This is the fourth instrument in this rung to carry a stale private copy of a
+value §13.3 struck, and it is the first one inside the instrument that produces
+the verdict.**
+
+`analyse_t26.py:95` held `END_TIME = {"L1": 8000, "L2": 12000, "L3": 16000}` —
+**§4.3's PRE-SHIFT triple**, struck by §13.3, which registered 4,000 / 8,000 /
+12,000. `measure_level()` took `et = END_TIME[level]` and read Q1, Q2, Q3 and the
+φ sum from `<case>/<et>/`.
+
+| level | run ends at | grader would have read |
+|---|---:|---:|
+| L1 | 4,000 | **8,000** |
+| L2 | 8,000 | **12,000** |
+| L3 | 12,000 | **16,000** |
+
+**Every level read at the endTime of the level above it — the identical
+signature §19.1 found in `orchestrate_t26.py`'s `RANKS` and `POINT` tables, and
+for the identical reason: both were built from the pre-§13.3 triple and the
+amendment shifted the ladder down exactly one rung.** §19 repaired
+`launch_t26.sh` and `orchestrate_t26.py`; **it did not look in the grader.** §20
+then touched and re-pinned `analyse_t26.py` for an unrelated reason
+(`verify_freeze`), so the file was re-pinned *after* §19 without its constants
+being read.
+
+It fails **loud** — `read_q1_tmax` refuses rather than returning a false zero —
+but **it refuses after the full 4,225.81 core-min is spent.**
+
+> **THE DEFECT IS NOT THE WRONG NUMBERS. IT IS THAT THE GRADER HELD ITS OWN COPY
+> OF A REGISTERED QUANTITY INSTEAD OF READING IT.** `mark_done_t26.py:169` reads
+> `endTime` from the case's own `system/controlDict`; the grader did not, **and
+> that difference WAS the defect**. Correcting the numbers would have left the
+> fifth trap.
+
+**THE REPAIR, REGISTERED: `END_TIME` AND `CELLS_PROJECTED` ARE DELETED, NOT
+CORRECTED.** The ladder is now read from two independent places that must agree:
+
+| function | reads | from |
+|---|---|---|
+| `case_end_time(case)` | what the case is **configured** to run | the case's own `system/controlDict` |
+| `read_registered_ladder()` | what this document **registers** | §21.4's `REGISTERED-LADDER` lines |
+| `resolve_end_time(case, level)` | the reconciled value | **REFUSES when the two disagree** |
+
+`resolve_end_time` is `measure_level`'s **only** route to an endTime, so driving
+it drives the production path. `read_registered_ladder` **REFUSES** — never
+defaults — on a missing registration, a registration with no `REGISTERED-LADDER`
+line, a level missing, or a level registered twice. **A defaulted ladder is
+exactly the private copy this section removes.**
+
+**NO REGISTERED VALUE IS INVENTED BY THE INSTRUMENT.** Every number it now uses
+for the ladder is read from this document.
+
+### 21.8 THE `N`-RATIO LIMB WAS A RESIDUE OF A GATE §14.3 STRUCK, AND IT WAS CIRCULAR
+
+`analyse_t26.py:96` held `CELLS_PROJECTED = {"L1": 885508, "L2": 2988590,
+"L3": 10086491}` — §3.4's original counts, **including the 10,086,491 top level
+§13.2 measured as unable to run at all.** `cell_count_audit()` tested
+`|N − 3.375|/3.375 < 1e-3` on them and **drove an exit code**.
+
+**THE CHECK COULD NOT DISCRIMINATE ANYTHING REAL.**
+
+| triple | N | \|N−3.375\|/3.375 | |
+|---|---:|---:|---|
+| 262,373 → 885,508 (§13.3, **divided**) | 3.374997 | 9.9e-07 | PASS |
+| 885,508 → 2,988,590 (§13.3, **divided**) | 3.375001 | 1.7e-07 | PASS |
+| 402,409 → 948,625 (**re-derived**) | 2.357365 | 3.0e-01 | FAIL |
+| 948,625 → 2,278,150 (**re-derived**) | 2.401529 | 2.9e-01 | FAIL |
+
+**It passes anything built by multiplying by 3.375 and fails anything built from
+this registration's own open arithmetic.** And §14.3 had already struck the
+`N`-based gate when it moved `G-MESHSIM` to `h`, and §14.4 had already called
+`r = N^(1/3)` a fiction on a layered mesh.
+
+**REGISTERED: the `N`-ratio limb becomes REPORTED-ONLY.** It prints the ratios
+beside the verdict and drives no exit code. `CELLS_PROJECTED` is deleted; the
+counts are read from §21.4. **Making the instrument agree with the document is a
+REPAIR, exactly as §19 was for the orchestrator — not a new retirement.** The
+`--audit-counts` subcommand now returns 0 and says so in its own output.
+
+**The live control is kept and strengthened**: the selftest feeds the same
+function a 3.375-spaced triple and a 2.25-spaced triple and requires the flags to
+come back **True then False**. A discriminator shown able to answer only one way
+is not evidence (`CLAUDE.md` rule 3).
+
+### 21.9 §17.3's FALSIFIER "L3 COVERAGE BELOW 45 %" IS STRUCK — AND REPLACED IN THE SAME BREATH
+
+**A falsifier struck because it is about to fire is gate-shopping, and the only
+thing distinguishing this from that is the replacement. So the replacement is
+registered here, not promised.**
+
+§17.3 registered four falsifiers against the **12.000 / 8.000 / 5.333 mm**
+ladder, one of them *"**L3 coverage below 45 %**"*. **This addendum moves L3 to
+Δ₀ = 8.000 mm, where the measured neighbour — L1ABS at 8.3984 mm — delivered
+44.374 %.**
+
+> ~~**STRUCK: "L3 coverage below 45 %" as a falsifier.**~~
+> **REASON, stated rather than implied: the ladder moved out from under the
+> prediction. The falsifier was written against a ladder whose L3 sat at
+> 5.333 mm, and it is not transportable to one whose L3 sits where the
+> measurement reads 44.374 %.** **IT WOULD LIKELY HAVE FIRED ON THE NEW LADDER,
+> AND THAT IS RECORDED HERE IN ADVANCE RATHER THAN DISCOVERED AFTERWARDS.**
+> The other three §17.3 falsifiers — a strictly DECREASING sequence, L1 above
+> L2, and coverage flat within 2 points — **stand unchanged and are not
+> weakened.**
+>
+> **REGISTERED IN ITS PLACE, against the 18 / 12 / 8 ladder, and it can still
+> fire: L3 COVERAGE BELOW 40 %.** L3 now sits **0.398 mm FINER** than the
+> coarsest measured point, whose delivered coverage was 44.374 %; **40 % is
+> below every value the measured family produced**, so a reading under it says
+> the coarse-limb reasoning is wrong. The band that follows is 44–48 %, so the
+> falsifier sits 4 points clear of the band's lower edge — **a real gap, not a
+> threshold tucked under a prediction.**
+
+**THE RE-REGISTERED BANDS — and two of the three are BETTER SUPPORTED than
+§17.3's were:**
+
+| level | Δ₀ | basis | registered |
+|---|---:|---|---|
+| **L3** | **8.000 mm** | **INTERPOLATION** — 0.398 mm finer than L1ABS's 8.3984 mm (44.374 % measured); the §18.1 parabola reads 46.75 % there | **44–48 %** |
+| **L2** | **12.000 mm** | **§17.3's OWN L1 POINT, inherited unchanged.** The same Δ₀ keeps the same band; no new number is invented | **36–44 %** |
+| **L1** | **18.000 mm** | **NO BAND IS REGISTERABLE.** See below | **one-sided: below L2's delivered value** |
+
+> **WHY L1 GETS NO BAND, STATED AS A REFUSAL RATHER THAN AS AN OMISSION.**
+> §18.2 already recorded that §17's 36–44 % band at 12.000 mm *"rests on
+> DIRECTION ALONE and on no fitted curve whatever"*, because the parabola returns
+> **5.48 %** there. **At 18.000 mm the same parabola returns −129.06 %.** There
+> is no curve to extrapolate, and **a two-sided band at 18.000 mm would be an
+> invented number.** What is registerable is the DIRECTION, which §18.3 showed
+> does not depend on the peak's location because all three base cells lie on the
+> coarse side of every peak estimate: **L1 < L2, strictly.**
+
+**AND THE COST OF THIS LADDER, NAMED RATHER THAN ACCEPTED SILENTLY: L1 at
+18.000 mm is 3.2 × coarser than the Δ₀ ≈ 5.3–5.7 mm coverage peak §17/§18
+measured, and 2.14 × coarser than the coarsest measurement that exists.
+L1's delivered layer coverage will be the worst this family has seen.** That is
+a real cost of clearing GEO-8 at the coarsest level and it is registered as one.
+
+**A GENUINE IMPROVEMENT BOUGHT BY A CHANGE MADE FOR AN UNRELATED REASON, RECORDED
+BECAUSE IT WOULD OTHERWISE GO UNNOTICED: L3 becomes an INTERPOLATION for the
+first time in this rung.** §17's L3 band rested on §18.1's least-determined
+limb, with the fitted peak only 0.408 mm away and the curve flat to first order
+there. The new L3 sits inside the measured range.
+
+### 21.10 THE NEAR-WALL READING RULE — REGISTERED BEFORE THE RUN, AND WE EXPECT IT TO FIRE
+
+§3.4's entire justification for holding Δ₁ fixed is that *"the near-wall
+treatment is identical across levels"*, so the triple measures outer
+discretisation error alone. §17.4 already observed that **delivered** coverage
+varying by 8.5 points across a 1.5× family says the treatment is **not**
+identical. What was missing was the expectation, not the measurement.
+
+> **REGISTERED — A READING RULE, NOT A GATE. IT CHANGES WHAT THE RECORD SAYS AND
+> NEVER CHANGES A VERDICT.** (§15 forbids changing a gate, and §17.4 recorded
+> why this needed no new one.)
+>
+> **If the SPREAD in delivered layer coverage across the three levels exceeds
+> 8.5 PERCENTAGE POINTS, or any level's delivered coverage falls below 30.0 %,
+> the near-wall treatment is DECLARED QUALITATIVELY DIFFERENT ACROSS LEVELS.**
+> §3.4's justification for holding Δ₁ fixed is then recorded as **NOT HOLDING**,
+> every graded row carries that as a **stated limitation**, and the triple's
+> claim to measure outer discretisation error alone is **withdrawn in the
+> results record.**
+>
+> **BASIS, because a threshold without one is a preference:**
+> - **8.5 points is this document's own sentence**, from §17.4, not an
+>   invention here. The measured family spans 44.374 → 52.902 = **8.53 points**.
+> - **30.0 % is a JUDGEMENT and is labelled as one** — the only number in this
+>   addendum derived from neither a measurement nor a registered sentence. Its
+>   basis: below 30 %, **more than two-thirds of the wall does not carry the
+>   registered stack**, so Δ₁ = 35.89 µm is not what is on the wall.
+>
+> **AND WE EXPECT IT TO FIRE. §17.3's own predicted bands imply a spread of up
+> to 19 points.** Registering a threshold you expect to cross is the exact
+> opposite of gate-shopping, and **saying so before the run is what makes it
+> worth anything.**
+
+**The instrument already exists**: §14 reports requested Δ₁ and **delivered**
+near-wall height separately with the gate on the delivered one, and the
+BAND × LEVEL 2×2 separates taper from the stack-to-cell burden. **Nothing is
+added to it here.**
+
+### 21.11 THE MESH PATH — REGISTERED, NOT LEFT A BUILD DETAIL
+
+The `polyMesh` trees were unregistered, which made their location a build
+decision. Registered now:
+
+> **The built `constant/polyMesh` trees live OUTSIDE the repository, under
+> `/home/ubuntu/certonomous-runs/T26_mesh/<level>/`.** §3.6's birth certificates
+> stay at their registered path, `verification/runs/T-family/T26_runs/<level>/MESH_BIRTH_CERTIFICATE.json`.
+
+`CLAUDE.md` puts data too large for git outside it; `**/constant/polyMesh/` is
+gitignored (`.gitignore:66`) so nothing enters git either way. **Measured before
+consuming it: `/` is at 93 % with 38 G free and `verification/runs/T-family`
+already holds 46 G.** Three four-region meshes totalling 3.63 M cells are
+estimated at **6–8 GB, about a fifth of what remains**, with
+`snappyHexMesh -overwrite` so no intermediate time directories survive.
+
+### 21.12 THE REGION SPLIT — THE FOUR REGISTERED REGIONS ARE CONSTRUCTIBLE, AND TWO SURFACES MUST BE SYNTHESISED
+
+**§3.1 registers four regions. The five STL components cannot produce them
+alone, and this was established from the STL rather than assumed from §3.1.**
+All measurements below are on the registered surface,
+`cases/demo-surfaces/motor_in_duct.stl`, sha256 `131aab8e…db5f`.
+
+| region | from disk? | |
+|---|---|---|
+| `duct` | **directly** | component 1 *is* the closed 5.000 mm annular shell |
+| `housing` | via `core` | hub-minus-core ∪ the three struts |
+| `core` | **NO** | needs a synthesised **4 mm inward offset of the hub** |
+| `fluid` | **partly** | the STL bounds the bore only over x ∈ [0, 0.200]; §3.2's domain runs x ∈ [−0.175, +0.900] |
+
+**INDEPENDENT REPRODUCTION OF §1 AND OF GEO-2/3a/3b/4**: facets 5,376 / 768 /
+48 / 48 / 48; volumes +4.627164e-04, +8.005344e-04, +1.095750e-05 ×3; areas
+0.030676 / 0.328391 / 0.006449 — §1's table to every digit it prints. All five
+components watertight and consistently oriented: **0 duplicated directed edges,
+0 unmatched directed edges, on all five.** Facets are contiguous by component in
+file order — duct [0, 768), hub [768, 6144), struts at 6144 / 6192 / 6240 — so
+the split is deterministic **and is asserted against per-component volume and
+bbox, never trusted from order.**
+
+**THE 4 mm INSET IS VALID, AND PROVABLY.** The hub is an exact 96-gon of
+revolution: at each of its 30 axial stations the 96 vertex radii agree to
+**1e-9 m**. **All 28 meridional turn angles carry the same sign** (−13.6785° to
+−1.9195°), so the profile is convex throughout and the erosion boundary is a
+simple curve **with no interior cusp** — it emits as a single 96-gon of
+revolution. *An offset that exists and an offset that is a single closed curve
+are different claims; this is the second.*
+
+- **Control on the extraction**: revolving the extracted polyline gives
+  4.630469e-04 m³; × the 96-gon area factor 0.999286 gives **4.627164e-04** —
+  the STL's own signed volume to 7 significant figures.
+- **Core volume, two independent methods**: meridional grid quadrature
+  **3.4989e-04 m³**; Monte Carlo, 6e6 samples, seed 20260911,
+  **3.5007e-04 ± 1.1e-07 m³**. Agreement **0.05 %**.
+- Core axial span **[0.0415385, 0.1584442] m** against the hub's
+  [0.0375, 0.1625]; nose recession 4.0385 mm, tail recession 4.0558 mm — both
+  exceed 4 mm because both ends taper. **Neither end degenerates.**
+
+**THE CLEARANCE THAT MAKES THE SPLIT SAFE IS 0.2521 mm.** The struts are exact
+rectangular boxes — x ∈ [0.0825, 0.1125], radial face y ∈ [0.033750, 0.1250625],
+thickness **exactly 4.0000 mm** at all three radial stations, confirming §1's
+"constant physical thickness" with no knife edge. The hub and the duct bore share
+one 96-gon phase and **0°/±120° are vertices of both**, so each strut embeds
+against the circumradius: embedment **3.7500 mm** mid-plane (§2.3's value),
+3.6825 mm at the ±2 mm corners.
+
+> **Minimum strut → core clearance: 0.2521 mm at the mid-plane, 0.3174 mm at the
+> corners. NO STRUT POINT LIES INSIDE THE CORE.** `core` and `strut` are
+> therefore **disjoint sets**, no cell centre can lie in both, and **the
+> `core`-versus-`housing` cellZone assignment is ORDER-INDEPENDENT.**
+> **REGISTERED AS A BUILD ASSERT, not as a reassurance** — an order-dependent
+> zone assignment is a mesh that changes when nothing changed.
+
+**THE SPLIT, REGISTERED.** Background `blockMesh` box → `snappyHexMesh` in
+multi-region mode (`locationsInMesh` + `refinementSurfaces` with
+`cellZone`/`faceZone`/`cellZoneInside inside`) → `splitMeshRegions -cellZones
+-overwrite`. OpenFOAM **v2606**.
+
+| surface | source | cellZone |
+|---|---|---|
+| `fluid_env.stl` | **SYNTHESISED**: 96-gon prism, circumradius 0.125000, vertices at k × 3.75°, x −0.175 → +0.900, capped | `fluid` |
+| `duct` | STL facets [0, 768) | `duct` |
+| `hub` | STL facets [768, 6144) | `housing` |
+| `strutA/B/C` | STL facets at 6144 / 6192 / 6240 | `housing` |
+| `core.stl` | **SYNTHESISED**: the 4 mm inward offset, same 96-gon phase | `core` |
+
+`fluid_env` coincides exactly with the duct's inner face over x ∈ [0, 0.2]; that
+shared-wall pattern is what produces the fluid/duct conjugate interface and is
+what OpenFOAM's own multi-region tutorials use.
+
+**BOTH SYNTHESISED SURFACES ARE GENERATED IN THE BUILD FROM THE REGISTERED
+BINARY STL, NEVER INHERITED.** The named-solid ASCII copy at
+`/home/ubuntu/certonomous-runs/T26_mesh_dev/surface/motor_in_duct.stl` is a
+**different file** — sha256 `547c3613…`, not the registered `131aab8e…` — even
+though its vertex set is identical to 1e-6 m and its per-solid facet counts
+match §1 exactly. **A file identical in every respect we checked is still not
+the file the registration pins.**
+
+### 21.13 DISCLOSURES — STATED SO A LATER READER FINDS THEM RATHER THAN REDISCOVERING THEM
+
+**None of these is repaired. Each is a measurement placed beside a registered
+statement it does not match, with no gate touched.**
+
+**D-1 — §1's hub nose/barrel/tail split is wrong by 4.4 mm and 5.0 mm.** §1
+registers *"rounded nose 0.025 m, barrel 0.0694 m, tapered tail 0.030 m"* and a
+*"constant-radius barrel to x ≈ 0.132"*. **Measured from the STL: nose 0.0250 m
+(x 0.0375 → 0.0625), barrel 0.0650 m (0.0625 → 0.1275), tail 0.0350 m
+(0.1275 → 0.1625)**, the three summing to 0.125 m exactly. The profile is
+exactly an ellipsoidal nose (semi-axes 0.025 × 0.0375), a cylinder, and an
+ellipsoidal tail (0.035 × 0.0375), verified to 7 digits against the station
+radii. **Descriptive only; no gate reads the barrel length.**
+
+**D-2 — §3.5's solid volumes are projection inputs and both are off.** §3.5
+projects on core = 3.400e-04 m³ and housing shell = 1.2270e-04 m³. **Measured
+4 mm inset: core 3.5007e-04 (1.0296 ×), shell 1.1265e-04 (0.9181 ×).** Net
+effect on the L1 projection is **−2,141 cells on 885,508 = −0.242 %.** §3.5
+already labels these PROJECTIONS replaced by measurement, so this is a report.
+**The §21.4 counts are computed on §3.5's own volume inputs, not on these**, so
+that §21.4 remains §3.5's arithmetic rather than a hybrid; the difference is
+disclosed here instead of being folded in silently.
+
+**D-3 — §2.3's strut-to-duct overlap differences two radii where the
+perpendicular distance is smaller.** §2.3 records *"0.145 mm past the 96-gon
+flats"*; the perpendicular distance from the strut corner to the bore facet
+plane is **0.1279 mm**. The protrusion past the r = 0.125 vertex is **0.0785 mm**,
+confirming §2.3's 0.079 mm. **Both are sub-cell at every level** — 1.1250 mm is
+the finest registered strut cell at L1 — so §2.3's treatment as *"a snap detail,
+not a geometric feature"* stands. **Stated only so the definitional difference
+is not rediscovered as a discrepancy.**
+
+**D-4 — THE ABS MESH-DEVELOPMENT LADDER CALIBRATES NOTHING IN §21.6, AND ITS
+SPEND IS NOT THIS RUNG'S.** The three-level ABS family recorded at
+`/home/ubuntu/certonomous-runs/T26_mesh_dev/` (60.07 core-min, as recorded by
+that family — **not re-measured here**) was built at Δ₀ = 8.3984 / 5.5990 /
+3.7326 mm, **single-region, from a different STL file** (§21.12), and with
+**strut surface level 3**. **It shares with §21.4's ladder neither the base cell,
+nor the region count, nor the refinement level, nor the source file.** Its
+`log.snappy` coverage figures are used in §17/§18/§21.9 as a **mapping in Δ₀**
+and for nothing else. **It is NOT an estimate-versus-actual anchor for the mesh
+rate of §7.1, and §7.4's calibration row must be built on T26's own built
+meshes.** *A number measured on a different object is not a calibration of this
+one.*
+
+**D-5 — THE §3.5 ONE-CELL CONTROL.** Restated here as a disclosure because it is
+the reason to believe §21.4: the parameterised arithmetic returns **885,509**
+against §3.5's printed **885,508**, traced to *"−360 replaced"* where the
+expression evaluates to **359.484**. **1.1 ppm, carried by every count in
+§21.4, and not fudged to match.**
+
+### 21.14 WHAT THIS ADDENDUM DOES **NOT** DO
+
+It does **not** freeze or re-freeze this document; it does **not** authorise a
+launch; it does **not** alter `GEO-*`, `D-3D`, `G-MINCELL`, `G-MESHSIM`,
+`G-CONV-*`, `G-CONT`, `G-BAL` or `G-ITER`, nor any band, floor, cap or label of
+theirs; it does **not** touch the verdict vocabulary, `Fs = 1.25`, the
+observed-order band [0.5, 2.5], or the reference tier NONE of §5.4; it does
+**not** widen GEO-8 by a micron; it does **not** relax §13.2's registered
+μ ≥ 2.4; and it does **not** move ranks, which remain 4 / 8 / 16.
+
+It does **not** touch §§0–20, whose line numbers are unchanged —
+**lines whose number changed above this section: 0**, verified by diffing the
+first 1,952 lines of this file against its pre-addendum state in the same
+invocation that wrote this section — because `analyse_t26.py`,
+`mark_done_t26.py`, `launch_t26.sh`, `build_t26.py` and `orchestrate_t26.py` all
+cite this document **BY LINE**.
+
+**Three things it leaves open, named rather than buried:**
+1. **`build_t26.py` still contains no mesh instrument.** `blockMesh`,
+   `snappyHexMesh`, `surfaceFeatureExtract`, `splitMeshRegions` and `topoSet`
+   appear **zero times** in `build_t26.py`, `launch_t26.sh` and
+   `orchestrate_t26.py`, the orchestrator never calls the builder, and
+   `launch_t26.sh`'s pre-flight **requires `constant/polyMesh/owner` to already
+   exist**. §3.6 registers a per-level BIRTH certificate *"written by
+   `build_t26.py`"* and `BIRTH`/`certificate` appear **zero times** in that file.
+   **The chain requires a mesh no member of the chain creates.** §21.12
+   registers how the regions are built; **the instrument that builds them is not
+   written and this addendum does not write it.**
+2. **μ, the four-region memory multiplier, remains UNMEASURED** (§13.2), and is
+   not invented here.
+3. **§14.4a's referral to Sanaa** — which ratio CASE_PROTOCOL §1's band is read
+   against — **stands unruled**, and §15.4's launch block stands.
