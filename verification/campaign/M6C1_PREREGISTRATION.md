@@ -757,3 +757,71 @@ item.** A registration that costs only the solve cannot see a case that never re
 
 Rule 12's calibration row is owed to `docs/COST_CALIBRATION.md` and is **not** discharged
 by this addendum.
+
+---
+
+## ADDENDUM 2 — 2026-09-11, cfd `lab-lane`. Document version v1.1 → v1.2. **FRAMING AMENDED, AND ONE SURFACE ROUTE DIRECTED — OUTCOME NOT PRE-WRITTEN.**
+
+**lines whose number changed above this section: 0.** Pure append, proven by hashing the
+pre-existing lines against the committed blob. **No gate, threshold, cap, band or label
+is altered, and every measured objection in Addendum 1's three-topology table stands
+exactly as recorded.**
+
+### A2.1 A1.2's CLOSING SENTENCE IS SUPERSEDED
+
+Addendum 1 §A1.2 ends *"Nobody is attempting it now."* **That was true when written and
+is now superseded by a direction from the cfd-supervisor, not by any change in the
+evidence.** The correct framing of the record is:
+
+> **Three mesh topologies exhausted; one surface route directed and attempted.**
+
+**The verdict remains `BLOCKED`** with the unblock condition of §A1.2 unchanged. **The
+fourth attempt's outcome lands as a further dated addendum and is NOT pre-written here.**
+
+### A2.2 THE DIRECTED ROUTE — (b), BORROW THE SURFACE THAT DEMONSTRABLY WORKS
+
+**Take dafoam's A3 surface family as M6C2's surface source and extrude it with pyHyp.**
+A3's `m6_surfaceMesh_fine.cgns` carries a properly meshed multi-patch tip cap — **9
+zones**, including 17×17 and 257×17 — which is precisely the artefact this lane could
+not build. **Constructing an equivalent from our own loft is the interior-fill problem
+that has now beaten two topologies; borrowing one that works is the shorter path.**
+
+**Four bounds, registered before the attempt:**
+
+1. **THE BODY IS PROVEN BEFORE IT IS EXTRUDED, AT EVERY LEVEL.** The section-comparison
+   instrument is run against the AR-138 reference on each A3 level. **This is not a
+   formality: dafoam's own measurement is that coarsening can change the body while the
+   refinement ratio stays a perfect 4.000 or 8.000.** A surface that extrudes beautifully
+   into the wrong wing is **worse** than no mesh, because it produces numbers. **Any
+   level whose body departs stops the attempt.**
+2. **THE SEAM HAZARD BECOMES A PRE-EXTRUSION CHECK THAT REFUSES WITH A NONZERO rc.**
+   Addendum 1 §A1.4 established that a zero-length edge surfaces as `NaN` in a quality
+   column while pyHyp still prints *"Normals are consistent"* and *"Topology complete"* —
+   **both topology checks pass straight over it.** So the check cannot read the log: it
+   scans the surface arrays for coincident points and refuses **before** pyHyp is
+   invoked. **It carries a planted control — a duplicated point injected into a
+   known-good surface, which the checker must catch. A checker not shown able to see the
+   defect is not a checker.**
+3. **THE VOLUME MESH IS THE QUESTION, NOT THE SURFACE.** On the built volume, with
+   `checkMesh -allGeometry -allTopology`: **openness, face pyramids and boundary closure
+   are measured explicitly** — those are what this lane's own writer failed on — beside
+   non-orthogonality and skewness. **`checkMesh`'s rc is unreliable in BOTH directions;
+   the report text is read, never the exit code.**
+4. **ONE ATTEMPT.** If the A3 surface will not extrude into an admissible volume, the
+   M6 mesh line stands `BLOCKED` at **three topologies plus one surface route.**
+
+### A2.3 🔴 THE PREDICTION BECOMES TESTABLE — AND ITS THREE OUTCOMES ARE FIXED NOW, BEFORE THE RUN
+
+Addendum 1 §A1.3 recorded a prediction that could not be tested: *if the outward/inward
+normal asymmetry is the governing mechanism, the extruded family clears both hard gates
+at every level.* **This route may finally reach extrusion on a valid capped surface. So
+the three outcomes are fixed here, in advance, and whichever occurs is the one recorded:**
+
+| outcome | verdict on the prediction |
+|---|---|
+| extrusion succeeds and the volume clears **both** hard gates (non-orthogonality ≤ 70, skewness ≤ 4) at every level | **CONFIRMED** |
+| extrusion succeeds and the volume **fails either** hard gate | **FALSIFIED** — and the asymmetry is not the governing mechanism, which is worth more than the mesh |
+| extrusion never completes on a valid capped surface | **STILL UNTESTED** — the finding stays on the annulus evidence alone, exactly as strong as it was and no stronger |
+
+**A prediction that could not be tested is not a prediction that was right, and the third
+row will not be quietly reported as the first.**
