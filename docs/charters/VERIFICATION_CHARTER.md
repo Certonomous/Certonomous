@@ -10476,3 +10476,66 @@ declined to stand behind.
 
 **RULE 7 UNCHANGED.** Renders are demo artifacts and **stay in the box** like
 everything else. Producing them is not sending them.
+
+---
+
+## Amendment — v2.00, 2026-09-11 — **§2dd `§2dc.1` IS SUPERSEDED BY THE OWNER, ON THE EXACT CASE I USED TO ARGUE IT. WHAT SURVIVES IS NOT THE TRIGGER BUT THE CAPTION. §2de ACTION OVER PLUMBING: SIX ITEMS OF MINE STAND DOWN**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** `[lab-attributed]` except where Sanaa is quoted. **No gate value moves; nothing is made to refuse (`D539`).**
+
+### §2dd — I WAS OVERRULED, AND I SAY SO PLAINLY RATHER THAN READING MY CLAUSE NARROWLY UNTIL IT SURVIVES
+
+**Hours ago I ruled `§2dc.1`:** the render trigger reads the **delivered verdict**, never `band_verdict`; a `NOT A RESULT` whose band would have passed is **still not rendered**. I built the argument on `MRF_R1` — `band_verdict: PASS`, `verdict: NOT A RESULT`.
+
+**Sanaa, 2026-09-11, byte-exact:** *"About your 'done and checked' reading : 1. done and checked i think in this case can be at bit more loose (this is for demo purpose not for us and building knowledge), so whta i mean is ran on a fine mesh,with results within the tolerance band of a verification number, and if not, with a converged mesh. if converged trio exists the one i was to see on paraviw is the finest."*
+
+**THAT IS THE BAND CRITERION, AND IT IS EXACTLY WHAT I RULED AGAINST.** Under her trigger `MRF_R1` — fine mesh, `Np` 4.453 inside `[4.0, 6.0]`, the band of a verification number — **IS renderable.** The one case I chose to make my argument is the case she has decided the other way.
+
+> **RULED: `§2dc.1`'s TRIGGER IS SUPERSEDED. The render trigger is Sanaa's:
+> a FINE MESH with results INSIDE THE TOLERANCE BAND of a verification number;
+> failing that, a CONVERGED MESH; and where a converged trio exists, THE FINEST
+> LEVEL is the one rendered.** No verdict is required for a render and **no
+> verdict is conferred by one.**
+
+**I DO NOT GET TO RESCUE THE CLAUSE BY READING IT NARROWLY.** She gave the ground herself — *"this is for demo purpose not for us and building knowledge"* — and **selecting demo footage is hers, not a verification gate.** A supervisor whose clause meets the owner's instruction head-on amends it; he does not reinterpret it until it survives.
+
+#### §2dd.1 WHAT ACTUALLY SURVIVES, AND IT IS THE HALF THAT WAS ALWAYS MINE
+
+My concern was never *which* cases get photographed. It was that **a picture reads as a validated case to every viewer who never opens the JSON.** That concern does not live in the trigger. It lives in the **caption**, and the caption is still governed by rule 1.
+
+> **THE SELECTION IS LOOSENED; THE VOCABULARY IS NOT.** A case rendered under the
+> demo trigger **may be shown**, and **may not be captioned, labelled, listed or
+> narrated as `PASS`, as verified, or as validated when its delivered verdict is
+> `NOT A RESULT`, `GATE FAIL`, `BLOCKED` or `PENDING`.** Where a rendered case
+> carries a delivered verdict, **the render cites that verdict as it stands.**
+> Rule 1 fixes the vocabulary for what the lab *says*; Sanaa fixes what the lab
+> *films*. **These never conflicted, and `§2dc.1` confused them.**
+
+**`§2dc` ITSELF STANDS UNCHANGED:** the `render` field is a light convention, not a gate; it arms nothing, refuses nothing (`D539`), and **nothing in the grading path may read it.** A render moves no verdict, and heat-transfer's separate hazard — **a renderer with write access to a graded tree** — is untouched by this amendment and still stands on its own.
+
+**THE HONEST RESIDUE, NAMED RATHER THAN BURIED:** "within the tolerance band of a verification number" and "a converged mesh" are **the owner's words and are looser than this charter's `CONVERGING`/`PASS`**. I am not tightening them into my vocabulary by the back door — **the trigger is hers as stated.** Where a lane cannot tell whether a mesh is "converged" in her sense, it asks her rather than substituting `§2`'s definition and reporting that it followed orders.
+
+### §2de — ACTION OVER PLUMBING: WHAT THIS TEAM STOPS DOING
+
+**Sanaa, byte-exact:** *"I am re insisting what i said yesterday, i want as much actiona dn reaction as possible instad of plumbing, I want all th 3D cases i asked for and the multipoin tcompressible/ incompressible optimizations. When we finish these well run more stuff."*
+
+**Her three named items for this team are LANDED as of this amendment**, and each unblocked a run or a grade:
+
+| item | commit | what it unblocked |
+|---|---|---|
+| the calibration-append register repair | `bc5588bc7` | **every team's** rule-12 row |
+| the freeze hook `:245` landing | `c185d7508` | her own named priority |
+| `roache_triple.py:632` wording | `a7b3846d8` | three teams' delivered verdicts |
+
+> **STOOD DOWN until a RUN or a GRADE depends on them:** the `§2cr` and `§2cx`
+> instruments, `COMMIT_INTEGRITY_STANDARD` clause 6, the `§2cx` arming sweep,
+> the six-brief audit, and the L-544 execution-witness machinery — **ruled in
+> `§2db`/V-179 and deliberately LEFT UNBUILT.** **V-119 proceeds only as far as
+> it takes to stop the shared-board sweeps**, which cost three teams work today;
+> not one step further.
+
+**THIS CLAUSE IS A PRIORITY RULING, NOT A RETIREMENT.** Nothing above is
+withdrawn, no gate is loosened and no owed item is discharged by being deferred
+— **`§2cc` applies to a lab's own backlog as much as to a corpus: a deferred
+item that stops being written down has not been deprioritised, it has been
+lost.** Each stands recorded here as OWED.
