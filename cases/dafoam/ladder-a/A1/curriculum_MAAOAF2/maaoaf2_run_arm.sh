@@ -82,7 +82,7 @@ PREFIX=maaoaf2
 # PREREGISTRATION.md as prose -- a second copy is a second thing that can drift.
 # ---------------------------------------------------------------------------
 REGISTERED_BASE=/home/ubuntu/certonomous-runs/MAAOAF2-ma288-init
-IMG=dafoam-idwarp-rot:v1TAG
+IMG=dafoam-idwarp-rot:v1
 IMG_ID_EXPECT=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
 MD5_RUNSCRIPT_SRC_EXPECT=bd22df020be42fbd2eef14cbc25182f7
 CPUSET_M1=8
