@@ -890,3 +890,113 @@ suite says the gates refuse what they claim to refuse; **it says nothing whateve
 shock.** No A3GC level has been solved.
 
 **SUBMISSIONS PARKED.**
+
+
+---
+
+## AMENDMENT 4 — 2026-09-11 — **PRE-COMPUTE. THE COMPARATOR FROZEN THIS AFTERNOON DID NOT IMPLEMENT §3.7, AND A DEAD SOLVE WOULD HAVE GRADED `CONVERGING`.**
+
+**Lines whose number changed above this section: 0.**
+
+### THE DEFECT
+
+`a3gc_grade.py`, as frozen at commit `2215b4e765264a3f4d1f87157b0d3374acfdd15e` with md5
+`74bae3b43a1d6cf29e4b3e50ec1b6275`, **did not implement the strict completion rule or the age
+guard that §3.7 registers.** `read_log` parsed `end_line`, `times` and `exec_times` and **nothing
+ever read them again.** There was no `rc` check, no `End`-line gate, no `last time == endTime`, no
+`ExecutionTime` count and no field-age guard.
+
+**The consequence, and it is the dangerous kind because every number in it looks like success.** A
+level that died partway through would have been graded on its truncated history, and **a dead solve
+plateaus perfectly** — so `G-PLAT` would have seen an immaculate tail and passed it, and the triple
+could have returned `CONVERGING` on a corpse. At §5's registered **1,525 core-min** that is the whole
+spend of the item, used to certify a dead solve as converged.
+
+### WHY THIS IS A REPAIR AND NOT A NEW GATE
+
+**§3.7 has registered the completion rule since this document was written.** The comparator was not
+missing a gate; it was **failing to do what its own document says it does.** Making an instrument
+obey its own registration is a repair, not a registration change.
+
+**Legal because `CLAUDE.md` rule 2 closes gates after FIRST COMPUTE, and no A3GC level has solved.**
+Re-checked at this amendment: `/home/ubuntu/certonomous-runs/A3GC-L3`, `A3GC-L2` and `A3GC-L1` **do
+not exist**, and the reader was shown able to see a directory that does — `A3-onera-m6-transonic`
+resolves — so that absence is measured, not assumed. `VERIFICATION_CHARTER.md` §2d.1's four-condition
+repair exception was consulted and **does not apply**: it governs changes made after the FIRST GRADED
+SOLVE, and there has been none.
+
+**EVERY HAZARD POINTS ONE WAY, which is the test that decides it.** The change is **strictly
+stricter**, adding refusals only. **A completion gate can turn a `PASS` into `NOT A RESULT` and can
+never manufacture a favourable verdict.** It implements something already registered rather than
+inventing a criterion. No result exists that could have shaped it. And it was **found by reading the
+code, not by anyone looking at an answer they wanted.**
+
+### THE RE-FREEZE, WITH BOTH HASHES ON THE RECORD
+
+**A freeze that quietly changed its own hash would be worthless.** Both are recorded:
+
+| instrument | frozen `2215b4e76` | **re-frozen, this amendment** |
+|---|---|---|
+| `a3gc_grade.py` | `74bae3b43a1d6cf29e4b3e50ec1b6275` | **`73dbe368934956700da87e5a1f44ea0c`** |
+| `a3gc_grade_selftest.sh` | `6adcf46aca9aad7b3f249e7aa1285dac` | **`3a709fa46edfe996a7cd5d1de2100bab`** |
+| `a3gc_genmesh.sh` | `07bc22d7b591dfae3c22661b00b40ddf` | `07bc22d7b591dfae3c22661b00b40ddf` — UNCHANGED |
+
+Selftest **119 → 143 passed, 0 failed**, verified on the supervisor's own run; `ast.Assert` census
+**0**; zero `meshgen-probe` references, so AMENDMENT 3's `G-QUARANTINE` is intact.
+
+### `G-COMPLETE`, AND THE FOUR THINGS DECIDED BY MEASUREMENT
+
+Six clauses, **each printing its measured value pass or fail**, because a completion gate that reports
+only its verdict is unauditable: (1) `rc == 0`; (2) an `End` line; (3) last printed `Time =` equals
+`endTime`; (4) the field set present at `endTime`; (5) the `ExecutionTime` count; (6) **the age
+guard**, referenced to the case's own `0/T` because `0/T` is touched last at launch and so dates the
+run allowed to produce the answer. A failing clause makes the level `NOT A RESULT` and, by standing
+rule 5 clause 1, the triple with it.
+
+* **`endTime` IS NOT IN THE LOG** — zero occurrences in this case's validated primal — so clause 3 is
+  uncheckable from the log alone and the case's own `system/controlDict` is the only source.
+  **Absent → REFUSE, never assume.**
+* **`rc` IS NOT IN THE LOG.** Read from `<case>/<log>.rc` then `<case>/rc`; **absent → REFUSE, because
+  a missing exit code is not a zero exit code.** The refusal names where the runner must write it and
+  that it must be captured **inside** the detached wrapper — `setsid timeout cmd` exits 0 for every
+  outcome.
+* **WHICH FORM OF RULE 4 CLAUSE 5 APPLIES, decided by measurement.** The rule gives
+  `round(endTime/deltaT)` for the historical unit-step case where every step prints, and
+  `n_exec == steps written` otherwise. **This family prints at `printInterval`** — measured, 61
+  `ExecutionTime` lines against `endTime` 6000 at `deltaT` 1 — so **`n_exec == n_times` is the gated
+  form**, and the `1 + floor(endTime/printInterval)` arithmetic is printed beside it as a **reported
+  cross-check, never gated.** Gating the unit-step form would have refused every correct level.
+* **"FIELDS PRESENT" IS NOT AN INVENTED LIST.** The required set is whatever the case's **own `0`**
+  holds: the item must write back what it initialised. Searched under the case root and every
+  `processor*/`; **no `endTime` directory is a FAILURE, never a pass.**
+
+### THE CONTROL THAT PROVES IT, AND THE DEFECT IT CAUGHT IN ITS OWN FIXTURE
+
+`D-NO-COMPLETION-GATE` removes the gate and requires the dead solve to be **SEEN** to grade `PASS`.
+**On its first run it reported "THE SUITE FAILED TO FAIL"** — the dead fixture carried only 8 samples,
+so **`G-PLAT` refused it for want of evidence and `G-COMPLETE` was never the thing under test.** The
+fixture now carries **12 samples flat to 1e-9 ending at `Time = 1100` against an `endTime` of 6000**:
+a solver that died at 1,100 of 6,000 iterations with an immaculate tail. Unit `F1g` asserts that
+**G-PLAT has no complaint about it** and that G-COMPLETE is the only thing catching it.
+
+**The lesson is recorded because it generalises past this file: a control that happens to fire for an
+unrelated reason reads as a gate that works.** Rebuilding the fixture to remove that luck is what
+turned a coincidence into a proof. In the same pass every fixture `cp -r` became `cp -a` — **mtimes
+are now evidence, and a copy that resets them destroys the thing under test.**
+
+### THE INPUT CONTRACT MOVED, AND THE RUNNER IS WHAT MUST SATISFY IT
+
+**A graded level must now carry `system/controlDict` and an `rc` artifact.** Nothing on disk has
+either, because nothing has run. This is recorded beside the hashes because the runner — which does
+not yet exist — is the only thing that will satisfy it, and it must be written to this contract
+rather than the contract bent to it.
+
+### WHAT THIS AMENDMENT DOES AND DOES NOT DO
+
+**IMPLEMENTS** §3.7 in the instrument that claims to grade under it, and re-freezes with both hashes
+disclosed. **ALTERS NO** gate, band, threshold, cap, tolerance, cost or label: §4.2's Roache order and
+`p` band, §4.3's prediction bands, §4.4's falsifier, §4.5's P1–P4, §5's cost and cap, §3.5's
+tolerances and AMENDMENT 3's compositions all stand **exactly as registered**. It adds refusals and
+nothing else. **THE ITEM STILL HAS NO RUNNER AND NO A3GC LEVEL HAS BEEN SOLVED.**
+
+**SUBMISSIONS PARKED.**

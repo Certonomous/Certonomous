@@ -988,6 +988,249 @@ def gate_g_res(log, accept_floor, report):
     return bool(ok)
 
 
+# =====================================================================
+# G-COMPLETE -- PREREG Sec.3.7 / CLAUDE.md rule 4.
+#
+# *** WHY THIS EXISTS, AND WHY IT IS A REPAIR AND NOT A NEW GATE. ***
+# Sec.3.7 has registered the strict completion rule and the age guard since the
+# document was written.  The comparator DID NOT IMPLEMENT ITS OWN REGISTRATION:
+# `read_log` parsed `end_line`, `times` and `exec_times` and NOTHING EVER READ
+# THEM AGAIN.  Found 2026-09-11 by reading the code, before any level had solved.
+# Making the instrument do what its document already says it does is a repair.
+#
+# THE FAILURE IT PREVENTS, CONCRETELY: a level that dies at iteration 4,000 with
+# no `End` line leaves a TRUNCATED log whose tail is PERFECTLY PLATEAUED -- a
+# dead solve plateaus better than a live one -- so G-PLAT passes it, the triple
+# grades CONVERGING, and the item returns a converged verdict ON A CORPSE.
+#
+# DIRECTION: every clause here can only turn a PASS into NOT A RESULT.  It adds
+# refusals and can never manufacture a favourable verdict.
+# =====================================================================
+
+_CONTROLDICT_RE = {
+    "endTime": re.compile(r"^\s*endTime\s+([0-9.eE+-]+)\s*;", re.M),
+    "deltaT": re.compile(r"^\s*deltaT\s+([0-9.eE+-]+)\s*;", re.M),
+    "writeInterval": re.compile(r"^\s*writeInterval\s+([0-9.eE+-]+)\s*;", re.M),
+}
+
+
+def read_controldict(case_root):
+    """endTime / deltaT / writeInterval from the case's OWN system/controlDict.
+
+    The solver log does not print endTime (measured: zero occurrences in
+    cases/dafoam/ladder-a/logs_A3/run_model_run3.log, the validated primal of
+    this case), so `last time == endTime` cannot be checked from the log alone
+    and the case's own controlDict is the only source.  Refuses if absent
+    rather than assuming a value.
+    """
+    p = os.path.join(case_root, "system", "controlDict")
+    if not os.path.isfile(p):
+        refuse("G-COMPLETE", "%s: no system/controlDict, so `last time == endTime` "
+                             "(CLAUDE.md rule 4) cannot be checked.  The solver log "
+                             "does not print endTime.  Refusing rather than "
+                             "assuming one." % case_root)
+    txt = open(p, "r", errors="replace").read()
+    out = {}
+    for k, rx in _CONTROLDICT_RE.items():
+        m = rx.search(txt)
+        out[k] = float(m.group(1)) if m else None
+    if out["endTime"] is None:
+        refuse("G-COMPLETE", "%s: system/controlDict has no `endTime` entry." % p)
+    return out
+
+
+def _field_basenames(d):
+    """Field names in a time directory, `.gz` stripped, sub-directories ignored
+    (polyMesh/ and uniform/ are not fields)."""
+    out = {}
+    if not os.path.isdir(d):
+        return out
+    for f in sorted(os.listdir(d)):
+        fp = os.path.join(d, f)
+        if not os.path.isfile(fp):
+            continue
+        out[f[:-3] if f.endswith(".gz") else f] = fp
+    return out
+
+
+def _time_dirs(root):
+    """{float time: path} for every numeric directory directly under `root`."""
+    out = {}
+    if not os.path.isdir(root):
+        return out
+    for d in sorted(os.listdir(root)):
+        full = os.path.join(root, d)
+        if not os.path.isdir(full):
+            continue
+        try:
+            out[float(d)] = full
+        except ValueError:
+            pass
+    return out
+
+
+def read_rc(case_root, log_path):
+    """The solver's exit code, from an artifact the RUNNER must write.
+
+    CLAUDE.md rule 4 clause 1 is `rc = 0`, and an exit code is not in the log --
+    `setsid timeout cmd` exits 0 for every outcome, so an rc captured AROUND the
+    launch is worthless and only an rc captured INSIDE the detached wrapper means
+    anything.  Looked for, in order: <case>/<logbasename>.rc, then <case>/rc.
+    ABSENT -> REFUSE.  A missing exit code is not a zero exit code.
+    """
+    cands = [os.path.join(case_root, os.path.basename(log_path) + ".rc"),
+             os.path.join(case_root, "rc")]
+    for c in cands:
+        if os.path.isfile(c):
+            txt = open(c, "r", errors="replace").read().strip()
+            m = re.search(r"(-?\d+)", txt)
+            if not m:
+                refuse("G-COMPLETE", "%s: exit-code artifact holds no integer: %r"
+                       % (c, txt[:80]))
+            return int(m.group(1)), c
+    refuse("G-COMPLETE", "%s: no solver exit code on disk.  CLAUDE.md rule 4 "
+                         "clause 1 is `rc = 0` and A MISSING EXIT CODE IS NOT A "
+                         "ZERO EXIT CODE.  The runner must write it to one of:\n"
+                         "    %s\n"
+                         "  capturing it INSIDE the detached wrapper -- `setsid "
+                         "timeout cmd` returns 0 for every outcome, so an rc taken "
+                         "around the launch measures nothing."
+           % (case_root, "\n    ".join(cands)))
+
+
+def gate_g_complete(case_root, log, level, report):
+    """PREREG Sec.3.7 / CLAUDE.md rule 4.  ALL of it holds, or the level is
+    NOT A RESULT and -- by standing rule 5 clause 1 -- the triple with it.
+
+    EVERY CLAUSE PRINTS ITS MEASURED VALUE, pass or fail: a completion gate that
+    reports only its verdict is unauditable.
+    """
+    print("\n--- G-COMPLETE  (PREREG Sec.3.7 / CLAUDE.md rule 4) on %s ---" % level)
+    cd = read_controldict(case_root)
+    rc, rc_src = read_rc(case_root, log["path"])
+    rec = {"controlDict": cd, "rc": rc, "rc_source": rc_src, "clauses": {}}
+    ok = True
+
+    def clause(name, good, detail):
+        rec["clauses"][name] = {"pass": bool(good), "detail": detail}
+        print("  %-26s %-4s  %s" % (name, "OK" if good else "FAIL", detail))
+        return bool(good)
+
+    # ---- clause 1: rc == 0
+    ok &= clause("1 rc == 0", rc == 0, "rc = %d   (from %s)" % (rc, rc_src))
+
+    # ---- clause 2: an `End` line
+    ok &= clause("2 `End` line present", log["end_line"],
+                 "End line %s in %s" % ("FOUND" if log["end_line"] else "ABSENT",
+                                        os.path.basename(log["path"])))
+
+    # ---- clause 3: last time == endTime
+    times = log["times"]
+    if not times:
+        ok &= clause("3 last time == endTime", False,
+                     "read ZERO `Time = ` lines -- refusing to call that complete")
+        last_t = None
+    else:
+        last_t = times[-1]
+        ok &= clause("3 last time == endTime", last_t == cd["endTime"],
+                     "last printed Time = %g, controlDict endTime = %g"
+                     % (last_t, cd["endTime"]))
+
+    # ---- clause 5: ExecutionTime count consistent with the step count.
+    # NOTE ON WHICH FORM APPLIES.  CLAUDE.md rule 4 clause 5 reads
+    # `ExecutionTime count == round(endTime/deltaT)` for the HISTORICAL UNIT-STEP
+    # case where every step is printed, and `n_exec == steps written` otherwise.
+    # THIS FAMILY PRINTS AT printInterval, NOT EVERY STEP -- measured on the
+    # validated primal: 61 ExecutionTime lines against endTime 6000 and deltaT 1.
+    # The binding form here is therefore n_exec == n_times.  The round(E/dT)
+    # arithmetic is printed BESIDE it as a REPORTED cross-check, never gated.
+    n_exec, n_times = len(log["exec_times"]), len(times)
+    ok &= clause("5 ExecutionTime count", n_exec == n_times,
+                 "%d ExecutionTime lines vs %d `Time = ` lines" % (n_exec, n_times))
+    pi = log.get("printInterval")
+    if pi and cd["endTime"]:
+        pred = 1 + int(cd["endTime"] // pi)
+        print("  %-26s      predicted 1 + floor(endTime/printInterval) = "
+              "1 + floor(%g/%g) = %d, measured %d   [REPORTED, NOT GATED]"
+              % ("  cadence cross-check", cd["endTime"], pi, pred, n_times))
+        rec["cadence_predicted"] = pred
+
+    # ---- clause 4: fields present at endTime, and clause 6: THE AGE GUARD.
+    # Time directories live under the case root for a reconstructed run and under
+    # processor*/ for a decomposed one; BOTH are searched, and finding none at
+    # endTime is a failure, never a pass.
+    roots = [case_root] + sorted(glob.glob(os.path.join(case_root, "processor*")))
+    end_dirs, zero_dirs = [], []
+    for r in roots:
+        td = _time_dirs(r)
+        if cd["endTime"] in td:
+            end_dirs.append(td[cd["endTime"]])
+        if 0.0 in td:
+            zero_dirs.append(td[0.0])
+    if not end_dirs:
+        ok &= clause("4 fields at endTime", False,
+                     "NO time directory `%g` under %s or any processor* -- a run "
+                     "whose endTime was never written is not complete"
+                     % (cd["endTime"], case_root))
+        ok &= clause("6 AGE GUARD", False, "no endTime directory to age-check")
+    else:
+        # required fields = whatever the case's OWN `0` holds.  NOT an invented
+        # list: the item must have written back what it initialised.
+        req = set()
+        for z in zero_dirs:
+            req |= set(_field_basenames(z))
+        got = set()
+        for e in end_dirs:
+            got |= set(_field_basenames(e))
+        missing = sorted(req - got)
+        ok &= clause("4 fields at endTime", (not missing) and bool(req),
+                     ("all %d field(s) from `0` present at endTime: %s"
+                      % (len(req), " ".join(sorted(req)))) if (req and not missing)
+                     else ("MISSING at endTime: %s" % " ".join(missing) if missing
+                           else "read ZERO fields under any `0` -- refusing to "
+                                "call an empty requirement satisfied"))
+
+        # ---- clause 6: THE AGE GUARD.
+        # Every field at endTime must be NEWER than the case's own `0/T`, because
+        # `0/T` is touched last at launch and so DATES THE RUN ALLOWED TO PRODUCE
+        # THE ANSWER.  A field older than it was produced by some earlier run.
+        ref, ref_path = None, None
+        for z in zero_dirs:
+            fb = _field_basenames(z)
+            if "T" in fb:
+                st = os.stat(fb["T"])
+                if ref is None or st.st_mtime > ref:
+                    ref, ref_path = st.st_mtime, fb["T"]
+        if ref is None:
+            ok &= clause("6 AGE GUARD", False,
+                         "no `0/T` in %s or any processor* -- the age guard has no "
+                         "reference and is NOT waived for want of one" % case_root)
+        else:
+            stale = []
+            n_checked = 0
+            for e in end_dirs:
+                for nm, fp in sorted(_field_basenames(e).items()):
+                    n_checked += 1
+                    if os.stat(fp).st_mtime <= ref:
+                        stale.append(nm)
+            ok &= clause("6 AGE GUARD", not stale and n_checked > 0,
+                         ("all %d endTime field(s) NEWER than %s"
+                          % (n_checked, ref_path)) if (not stale and n_checked)
+                         else ("%d endTime field(s) NOT newer than %s: %s"
+                               % (len(stale), ref_path, " ".join(sorted(set(stale))))
+                               if stale else
+                               "read ZERO fields at endTime -- not a pass"))
+
+    rec["pass"] = bool(ok)
+    report.setdefault("G-COMPLETE", {})[level] = rec
+    if not ok:
+        print("  G-COMPLETE: %s is NOT COMPLETE -> NOT A RESULT, and by standing "
+              "rule 5 clause 1 the triple with it." % level)
+    else:
+        print("  G-COMPLETE: all six clauses hold for %s." % level)
+    return bool(ok)
+
+
 def peak_to_peak(xs):
     """AMENDMENT 1(a): the registered statistic is the PEAK-TO-PEAK excursion
     max - min over the window.
@@ -1086,7 +1329,7 @@ def is_monotone(f3, f2, f1):
     return (f3 - f2) * (f2 - f1) > 0.0
 
 
-def gate_g_triple(func, vals, plat_ok, res_ok, report):
+def gate_g_triple(func, vals, plat_ok, res_ok, complete_ok, report):
     """Standing rule 5, APPLIED IN ORDER (PREREG Sec.4.2):
       (1) any level not iteratively converged or failing G-PLAT -> NOT A RESULT
       (2) triple DIVERGENT/STAGNANT/OSCILLATORY/EXACT -> NOT A RESULT, with the
@@ -1120,11 +1363,18 @@ def gate_g_triple(func, vals, plat_ok, res_ok, report):
               "(standing rule 5: never quote a GCI when the three values are not "
               "monotone).")
 
-    # ---- clause 1 (precedence): a level not converged / not plateaued
-    if not plat_ok or not res_ok:
+    # ---- clause 1 (precedence): a level not COMPLETE / not converged / not plateaued
+    if not complete_ok or not plat_ok or not res_ok:
+        why = []
+        if not complete_ok:
+            why.append("G-COMPLETE (Sec.3.7 / rule 4)")
+        if not plat_ok:
+            why.append("G-PLAT")
+        if not res_ok:
+            why.append("the G-RES precondition")
         rec["verdict"] = emit_verdict(
             "%s triple" % func, "NOT A RESULT",
-            "clause 1: a level failed G-PLAT or the G-RES precondition")
+            "clause 1: a level failed " + " and ".join(why))
         report.setdefault("triples", {})[func] = rec
         return rec["verdict"]
 
@@ -1587,7 +1837,7 @@ def cmd_grade(args):
         print("\n--- G-COLD: not requested (--cold).  Sec.3.3 runs it AT LAUNCH, "
               "per level, before the solver starts. ---")
 
-    res_ok = {}
+    res_ok, complete_ok = {}, {}
     hist = {"CD": {}, "CL": {}}
     for lv in LEVELS:
         root = level_dir(args, lv)
@@ -1596,6 +1846,11 @@ def cmd_grade(args):
         print("\n===== %s : %s =====" % (lv, lp))
         floor = gate_g_tol(logs[lv], report)
         res_ok[lv] = gate_g_res(logs[lv], floor, report)
+        # PREREG Sec.3.7 / CLAUDE.md rule 4 -- ALL of it, or the level is
+        # NOT A RESULT.  This runs BEFORE G-PLAT deliberately: a truncated log
+        # has a perfectly plateaued tail, so G-PLAT must never be the only thing
+        # standing between a dead solve and a CONVERGING verdict.
+        complete_ok[lv] = gate_g_complete(root, logs[lv], lv, report)
         for f in REG_PLAT_FUNCTIONALS:
             hist[f][lv] = logs[lv][f]
             if not logs[lv][f]:
@@ -1632,7 +1887,9 @@ def cmd_grade(args):
     verdicts = {}
     for f in REG_PLAT_FUNCTIONALS:
         all_res_ok = all(res_ok[lv] for lv in LEVELS)
-        verdicts[f] = gate_g_triple(f, finals[f], plat_ok[f], all_res_ok, report)
+        all_complete = all(complete_ok[lv] for lv in LEVELS)
+        verdicts[f] = gate_g_triple(f, finals[f], plat_ok[f], all_res_ok,
+                                    all_complete, report)
 
     # Both triples and both orders printed beside any NOT A RESULT (clause 2)
     if any(v == "NOT A RESULT" for v in verdicts.values()):

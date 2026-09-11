@@ -1,0 +1,749 @@
+# a3gc_grade_COMPLETION.diff
+#
+#   FOURTH diff. The three before it stay byte-identical to what the supervisor read:
+#     a3gc_grade_REPAIR.diff       322edc30675039fc0b555db76c3b8cb5
+#     a3gc_grade_RULINGS.diff      2ef09d2dc5bdbb89495389641f327c1d
+#     a3gc_FREEZE_RENAME.diff      (the freeze-preparation pass)
+#
+#   BASELINE = THE FROZEN FILES OF COMMIT 2215b4e765264a3f4d1f87157b0d3374acfdd15e:
+#     a3gc_grade.py           74bae3b43a1d6cf29e4b3e50ec1b6275
+#     a3gc_grade_selftest.sh  6adcf46aca9aad7b3f249e7aa1285dac
+#
+#   STATE BEFORE: 119 passed / 0 failed.    STATE AFTER: 143 passed / 0 failed, exit 0.
+#
+# *** THIS DIFF EDITS A FROZEN FILE.  READ WHY BEFORE READING WHAT. ***
+# §3.7 has registered the strict completion rule and the age guard since the document
+# was written.  THE COMPARATOR DID NOT IMPLEMENT ITS OWN REGISTRATION: `read_log`
+# parsed `end_line`, `times` and `exec_times` at lines 684-686 and NOTHING EVER READ
+# THEM AGAIN.  That is not a missing gate; it is an instrument failing to do what its
+# document says it does.  Making it do so is a REPAIR.  Legal because CLAUDE.md rule 2
+# closes gates AFTER FIRST COMPUTE and NO A3GC LEVEL HAS SOLVED -- proved by planted
+# control and registered in AMENDMENT 3.  The dafoam-supervisor ruled it and will
+# re-freeze with BOTH md5s on the record, because a freeze that quietly changed its
+# own hash would be worthless.
+#
+# DIRECTION, which is the test that matters: every clause here can only turn a PASS
+# into NOT A RESULT.  It adds refusals and can never manufacture a favourable verdict.
+# NO gate, band, threshold, cap or label is touched.
+#
+# THE HUNKS, BY CLASS
+#
+# (a) NEW `gate_g_complete()` -- six clauses, EACH PRINTING ITS MEASURED VALUE pass or
+#     fail, because a completion gate that reports only its verdict is unauditable:
+#       1 rc == 0            2 `End` line present      3 last time == endTime
+#       4 fields at endTime  5 ExecutionTime count     6 THE AGE GUARD
+#     Built on what `read_log` ALREADY PARSED AND THREW AWAY.
+#
+# (b) NEW `read_controldict()`.  THE LOG DOES NOT PRINT endTime -- measured: zero
+#     occurrences in logs_A3/run_model_run3.log, the validated primal of this case --
+#     so `last time == endTime` is uncheckable from the log alone and the case's own
+#     system/controlDict is the only source.  Absent -> REFUSE, never assume.
+#
+# (c) NEW `read_rc()`.  An exit code is not in the log.  Reads <case>/<log>.rc then
+#     <case>/rc; ABSENT -> REFUSE, because A MISSING EXIT CODE IS NOT A ZERO EXIT CODE.
+#     The refusal names where the runner must write it AND says it must be captured
+#     INSIDE the detached wrapper -- `setsid timeout cmd` exits 0 for every outcome.
+#
+# (d) WHICH FORM OF RULE 4 CLAUSE 5 APPLIES, decided by measurement not by reading.
+#     The rule reads `ExecutionTime count == round(endTime/deltaT)` for the historical
+#     UNIT-STEP case where every step prints, and `n_exec == steps written` otherwise.
+#     THIS FAMILY PRINTS AT printInterval: measured 61 ExecutionTime lines against
+#     endTime 6000, deltaT 1.  So `n_exec == n_times` is GATED and the
+#     1 + floor(endTime/printInterval) arithmetic is printed beside it as a REPORTED
+#     cross-check, never gated.
+#
+# (e) "FIELDS PRESENT" IS NOT AN INVENTED LIST.  The required set is whatever the
+#     case's OWN `0` directory holds: the item must have written back what it
+#     initialised.  Time directories are searched under the case root AND under every
+#     processor*/ (decomposed runs write there); finding none at endTime is a FAILURE,
+#     never a pass.
+#
+# (f) THE AGE GUARD reference is the case's own `0/T`, because `0/T` is touched LAST at
+#     launch and so DATES THE RUN ALLOWED TO PRODUCE THE ANSWER.  No `0/T` -> FAIL; the
+#     guard is NOT waived for want of a reference.  `--launch-epoch` is UNCHANGED and
+#     still does its own `0`-field check; this is the general case, not a replacement.
+#
+# (g) `gate_g_triple()` takes `complete_ok` and standing rule 5 clause 1 now names
+#     which of G-COMPLETE / G-PLAT / G-RES failed.  G-COMPLETE runs BEFORE G-PLAT
+#     deliberately.
+#
+# (h) SELFTEST: fixtures.  NEW `complete()` writes system/controlDict, the rc artifact,
+#     `0` and the endTime directory, SETTING MTIMES EXPLICITLY because the age guard
+#     reads them.  Every `cp -r` became `cp -a` (11 sites): MTIMES ARE NOW EVIDENCE and
+#     a copy that resets them destroys the thing under test.
+#
+# (i) SELFTEST: NEW SECTION F, 18 units, one per clause plus refusals and the control
+#     that the age guard PASSES on a genuinely fresh run (it is not always-fail).
+#
+# (j) *** SELFTEST: FOUR NEW MUTATION CONTROLS, AND ONE OF THEM CAUGHT A DEFECT IN MY
+#     OWN FIXTURE. ***  D-NO-COMPLETION-GATE removes the gate and requires the dead
+#     solve to be SEEN to grade.  On the first run it reported "THE SUITE FAILED TO
+#     FAIL" -- because my dead fixture had only 8 samples, so G-PLAT refused it for
+#     want of evidence and G-COMPLETE was never the thing under test.  The fixture now
+#     carries TWELVE samples flat to 1e-9, ending at Time = 1100 against endTime 6000:
+#     a solver that died at 1,100 of 6,000 iterations with an immaculate tail.  Unit
+#     F1g asserts G-PLAT has NO COMPLAINT about it, and D9b shows the mutant printing
+#     `VERDICT CD triple : PASS` on that corpse.  THE CONTROL IS DEMONSTRATED, NOT
+#     ASSERTED, which is what was asked for.
+#       D-NO-COMPLETION-GATE        catcher F1d/F1e   (+D9b, +D9c)
+#       D-COMPLETION-NOT-IN-CLAUSE1 catcher F2b
+#       D-MISSING-RC-IS-ZERO        catcher F3a/F3b
+#       D-AGE-GUARD-INVERTED        catcher F5a/F5b
+#     The eight controls from the earlier diffs are unchanged and still green.
+#
+# NOT CHANGED: every gate limb of G-SYS / G-COLD / G-TOL / G-RES / G-PLAT / G-TRIPLE,
+# VERDICT_SEVERITY, compose_verdicts, prediction_token, the P4 logic, the ADF/CGNS
+# reader, the planted controls, the Untouched() guard, and every registered constant,
+# threshold and band.  PREREGISTRATION.md NOT TOUCHED -- AMENDMENT 4 is the
+# supervisor's act at the supervisor's commit.
+
+--- a3gc_grade.py  (FROZEN 2215b4e7, md5 74bae3b43a1d6cf29e4b3e50ec1b6275)
++++ a3gc_grade.py  (COMPLETION REPAIR)
+@@ -988,6 +988,249 @@
+     return bool(ok)
+ 
+ 
++# =====================================================================
++# G-COMPLETE -- PREREG Sec.3.7 / CLAUDE.md rule 4.
++#
++# *** WHY THIS EXISTS, AND WHY IT IS A REPAIR AND NOT A NEW GATE. ***
++# Sec.3.7 has registered the strict completion rule and the age guard since the
++# document was written.  The comparator DID NOT IMPLEMENT ITS OWN REGISTRATION:
++# `read_log` parsed `end_line`, `times` and `exec_times` and NOTHING EVER READ
++# THEM AGAIN.  Found 2026-09-11 by reading the code, before any level had solved.
++# Making the instrument do what its document already says it does is a repair.
++#
++# THE FAILURE IT PREVENTS, CONCRETELY: a level that dies at iteration 4,000 with
++# no `End` line leaves a TRUNCATED log whose tail is PERFECTLY PLATEAUED -- a
++# dead solve plateaus better than a live one -- so G-PLAT passes it, the triple
++# grades CONVERGING, and the item returns a converged verdict ON A CORPSE.
++#
++# DIRECTION: every clause here can only turn a PASS into NOT A RESULT.  It adds
++# refusals and can never manufacture a favourable verdict.
++# =====================================================================
++
++_CONTROLDICT_RE = {
++    "endTime": re.compile(r"^\s*endTime\s+([0-9.eE+-]+)\s*;", re.M),
++    "deltaT": re.compile(r"^\s*deltaT\s+([0-9.eE+-]+)\s*;", re.M),
++    "writeInterval": re.compile(r"^\s*writeInterval\s+([0-9.eE+-]+)\s*;", re.M),
++}
++
++
++def read_controldict(case_root):
++    """endTime / deltaT / writeInterval from the case's OWN system/controlDict.
++
++    The solver log does not print endTime (measured: zero occurrences in
++    cases/dafoam/ladder-a/logs_A3/run_model_run3.log, the validated primal of
++    this case), so `last time == endTime` cannot be checked from the log alone
++    and the case's own controlDict is the only source.  Refuses if absent
++    rather than assuming a value.
++    """
++    p = os.path.join(case_root, "system", "controlDict")
++    if not os.path.isfile(p):
++        refuse("G-COMPLETE", "%s: no system/controlDict, so `last time == endTime` "
++                             "(CLAUDE.md rule 4) cannot be checked.  The solver log "
++                             "does not print endTime.  Refusing rather than "
++                             "assuming one." % case_root)
++    txt = open(p, "r", errors="replace").read()
++    out = {}
++    for k, rx in _CONTROLDICT_RE.items():
++        m = rx.search(txt)
++        out[k] = float(m.group(1)) if m else None
++    if out["endTime"] is None:
++        refuse("G-COMPLETE", "%s: system/controlDict has no `endTime` entry." % p)
++    return out
++
++
++def _field_basenames(d):
++    """Field names in a time directory, `.gz` stripped, sub-directories ignored
++    (polyMesh/ and uniform/ are not fields)."""
++    out = {}
++    if not os.path.isdir(d):
++        return out
++    for f in sorted(os.listdir(d)):
++        fp = os.path.join(d, f)
++        if not os.path.isfile(fp):
++            continue
++        out[f[:-3] if f.endswith(".gz") else f] = fp
++    return out
++
++
++def _time_dirs(root):
++    """{float time: path} for every numeric directory directly under `root`."""
++    out = {}
++    if not os.path.isdir(root):
++        return out
++    for d in sorted(os.listdir(root)):
++        full = os.path.join(root, d)
++        if not os.path.isdir(full):
++            continue
++        try:
++            out[float(d)] = full
++        except ValueError:
++            pass
++    return out
++
++
++def read_rc(case_root, log_path):
++    """The solver's exit code, from an artifact the RUNNER must write.
++
++    CLAUDE.md rule 4 clause 1 is `rc = 0`, and an exit code is not in the log --
++    `setsid timeout cmd` exits 0 for every outcome, so an rc captured AROUND the
++    launch is worthless and only an rc captured INSIDE the detached wrapper means
++    anything.  Looked for, in order: <case>/<logbasename>.rc, then <case>/rc.
++    ABSENT -> REFUSE.  A missing exit code is not a zero exit code.
++    """
++    cands = [os.path.join(case_root, os.path.basename(log_path) + ".rc"),
++             os.path.join(case_root, "rc")]
++    for c in cands:
++        if os.path.isfile(c):
++            txt = open(c, "r", errors="replace").read().strip()
++            m = re.search(r"(-?\d+)", txt)
++            if not m:
++                refuse("G-COMPLETE", "%s: exit-code artifact holds no integer: %r"
++                       % (c, txt[:80]))
++            return int(m.group(1)), c
++    refuse("G-COMPLETE", "%s: no solver exit code on disk.  CLAUDE.md rule 4 "
++                         "clause 1 is `rc = 0` and A MISSING EXIT CODE IS NOT A "
++                         "ZERO EXIT CODE.  The runner must write it to one of:\n"
++                         "    %s\n"
++                         "  capturing it INSIDE the detached wrapper -- `setsid "
++                         "timeout cmd` returns 0 for every outcome, so an rc taken "
++                         "around the launch measures nothing."
++           % (case_root, "\n    ".join(cands)))
++
++
++def gate_g_complete(case_root, log, level, report):
++    """PREREG Sec.3.7 / CLAUDE.md rule 4.  ALL of it holds, or the level is
++    NOT A RESULT and -- by standing rule 5 clause 1 -- the triple with it.
++
++    EVERY CLAUSE PRINTS ITS MEASURED VALUE, pass or fail: a completion gate that
++    reports only its verdict is unauditable.
++    """
++    print("\n--- G-COMPLETE  (PREREG Sec.3.7 / CLAUDE.md rule 4) on %s ---" % level)
++    cd = read_controldict(case_root)
++    rc, rc_src = read_rc(case_root, log["path"])
++    rec = {"controlDict": cd, "rc": rc, "rc_source": rc_src, "clauses": {}}
++    ok = True
++
++    def clause(name, good, detail):
++        rec["clauses"][name] = {"pass": bool(good), "detail": detail}
++        print("  %-26s %-4s  %s" % (name, "OK" if good else "FAIL", detail))
++        return bool(good)
++
++    # ---- clause 1: rc == 0
++    ok &= clause("1 rc == 0", rc == 0, "rc = %d   (from %s)" % (rc, rc_src))
++
++    # ---- clause 2: an `End` line
++    ok &= clause("2 `End` line present", log["end_line"],
++                 "End line %s in %s" % ("FOUND" if log["end_line"] else "ABSENT",
++                                        os.path.basename(log["path"])))
++
++    # ---- clause 3: last time == endTime
++    times = log["times"]
++    if not times:
++        ok &= clause("3 last time == endTime", False,
++                     "read ZERO `Time = ` lines -- refusing to call that complete")
++        last_t = None
++    else:
++        last_t = times[-1]
++        ok &= clause("3 last time == endTime", last_t == cd["endTime"],
++                     "last printed Time = %g, controlDict endTime = %g"
++                     % (last_t, cd["endTime"]))
++
++    # ---- clause 5: ExecutionTime count consistent with the step count.
++    # NOTE ON WHICH FORM APPLIES.  CLAUDE.md rule 4 clause 5 reads
++    # `ExecutionTime count == round(endTime/deltaT)` for the HISTORICAL UNIT-STEP
++    # case where every step is printed, and `n_exec == steps written` otherwise.
++    # THIS FAMILY PRINTS AT printInterval, NOT EVERY STEP -- measured on the
++    # validated primal: 61 ExecutionTime lines against endTime 6000 and deltaT 1.
++    # The binding form here is therefore n_exec == n_times.  The round(E/dT)
++    # arithmetic is printed BESIDE it as a REPORTED cross-check, never gated.
++    n_exec, n_times = len(log["exec_times"]), len(times)
++    ok &= clause("5 ExecutionTime count", n_exec == n_times,
++                 "%d ExecutionTime lines vs %d `Time = ` lines" % (n_exec, n_times))
++    pi = log.get("printInterval")
++    if pi and cd["endTime"]:
++        pred = 1 + int(cd["endTime"] // pi)
++        print("  %-26s      predicted 1 + floor(endTime/printInterval) = "
++              "1 + floor(%g/%g) = %d, measured %d   [REPORTED, NOT GATED]"
++              % ("  cadence cross-check", cd["endTime"], pi, pred, n_times))
++        rec["cadence_predicted"] = pred
++
++    # ---- clause 4: fields present at endTime, and clause 6: THE AGE GUARD.
++    # Time directories live under the case root for a reconstructed run and under
++    # processor*/ for a decomposed one; BOTH are searched, and finding none at
++    # endTime is a failure, never a pass.
++    roots = [case_root] + sorted(glob.glob(os.path.join(case_root, "processor*")))
++    end_dirs, zero_dirs = [], []
++    for r in roots:
++        td = _time_dirs(r)
++        if cd["endTime"] in td:
++            end_dirs.append(td[cd["endTime"]])
++        if 0.0 in td:
++            zero_dirs.append(td[0.0])
++    if not end_dirs:
++        ok &= clause("4 fields at endTime", False,
++                     "NO time directory `%g` under %s or any processor* -- a run "
++                     "whose endTime was never written is not complete"
++                     % (cd["endTime"], case_root))
++        ok &= clause("6 AGE GUARD", False, "no endTime directory to age-check")
++    else:
++        # required fields = whatever the case's OWN `0` holds.  NOT an invented
++        # list: the item must have written back what it initialised.
++        req = set()
++        for z in zero_dirs:
++            req |= set(_field_basenames(z))
++        got = set()
++        for e in end_dirs:
++            got |= set(_field_basenames(e))
++        missing = sorted(req - got)
++        ok &= clause("4 fields at endTime", (not missing) and bool(req),
++                     ("all %d field(s) from `0` present at endTime: %s"
++                      % (len(req), " ".join(sorted(req)))) if (req and not missing)
++                     else ("MISSING at endTime: %s" % " ".join(missing) if missing
++                           else "read ZERO fields under any `0` -- refusing to "
++                                "call an empty requirement satisfied"))
++
++        # ---- clause 6: THE AGE GUARD.
++        # Every field at endTime must be NEWER than the case's own `0/T`, because
++        # `0/T` is touched last at launch and so DATES THE RUN ALLOWED TO PRODUCE
++        # THE ANSWER.  A field older than it was produced by some earlier run.
++        ref, ref_path = None, None
++        for z in zero_dirs:
++            fb = _field_basenames(z)
++            if "T" in fb:
++                st = os.stat(fb["T"])
++                if ref is None or st.st_mtime > ref:
++                    ref, ref_path = st.st_mtime, fb["T"]
++        if ref is None:
++            ok &= clause("6 AGE GUARD", False,
++                         "no `0/T` in %s or any processor* -- the age guard has no "
++                         "reference and is NOT waived for want of one" % case_root)
++        else:
++            stale = []
++            n_checked = 0
++            for e in end_dirs:
++                for nm, fp in sorted(_field_basenames(e).items()):
++                    n_checked += 1
++                    if os.stat(fp).st_mtime <= ref:
++                        stale.append(nm)
++            ok &= clause("6 AGE GUARD", not stale and n_checked > 0,
++                         ("all %d endTime field(s) NEWER than %s"
++                          % (n_checked, ref_path)) if (not stale and n_checked)
++                         else ("%d endTime field(s) NOT newer than %s: %s"
++                               % (len(stale), ref_path, " ".join(sorted(set(stale))))
++                               if stale else
++                               "read ZERO fields at endTime -- not a pass"))
++
++    rec["pass"] = bool(ok)
++    report.setdefault("G-COMPLETE", {})[level] = rec
++    if not ok:
++        print("  G-COMPLETE: %s is NOT COMPLETE -> NOT A RESULT, and by standing "
++              "rule 5 clause 1 the triple with it." % level)
++    else:
++        print("  G-COMPLETE: all six clauses hold for %s." % level)
++    return bool(ok)
++
++
+ def peak_to_peak(xs):
+     """AMENDMENT 1(a): the registered statistic is the PEAK-TO-PEAK excursion
+     max - min over the window.
+@@ -1086,7 +1329,7 @@
+     return (f3 - f2) * (f2 - f1) > 0.0
+ 
+ 
+-def gate_g_triple(func, vals, plat_ok, res_ok, report):
++def gate_g_triple(func, vals, plat_ok, res_ok, complete_ok, report):
+     """Standing rule 5, APPLIED IN ORDER (PREREG Sec.4.2):
+       (1) any level not iteratively converged or failing G-PLAT -> NOT A RESULT
+       (2) triple DIVERGENT/STAGNANT/OSCILLATORY/EXACT -> NOT A RESULT, with the
+@@ -1120,11 +1363,18 @@
+               "(standing rule 5: never quote a GCI when the three values are not "
+               "monotone).")
+ 
+-    # ---- clause 1 (precedence): a level not converged / not plateaued
+-    if not plat_ok or not res_ok:
++    # ---- clause 1 (precedence): a level not COMPLETE / not converged / not plateaued
++    if not complete_ok or not plat_ok or not res_ok:
++        why = []
++        if not complete_ok:
++            why.append("G-COMPLETE (Sec.3.7 / rule 4)")
++        if not plat_ok:
++            why.append("G-PLAT")
++        if not res_ok:
++            why.append("the G-RES precondition")
+         rec["verdict"] = emit_verdict(
+             "%s triple" % func, "NOT A RESULT",
+-            "clause 1: a level failed G-PLAT or the G-RES precondition")
++            "clause 1: a level failed " + " and ".join(why))
+         report.setdefault("triples", {})[func] = rec
+         return rec["verdict"]
+ 
+@@ -1587,7 +1837,7 @@
+         print("\n--- G-COLD: not requested (--cold).  Sec.3.3 runs it AT LAUNCH, "
+               "per level, before the solver starts. ---")
+ 
+-    res_ok = {}
++    res_ok, complete_ok = {}, {}
+     hist = {"CD": {}, "CL": {}}
+     for lv in LEVELS:
+         root = level_dir(args, lv)
+@@ -1596,6 +1846,11 @@
+         print("\n===== %s : %s =====" % (lv, lp))
+         floor = gate_g_tol(logs[lv], report)
+         res_ok[lv] = gate_g_res(logs[lv], floor, report)
++        # PREREG Sec.3.7 / CLAUDE.md rule 4 -- ALL of it, or the level is
++        # NOT A RESULT.  This runs BEFORE G-PLAT deliberately: a truncated log
++        # has a perfectly plateaued tail, so G-PLAT must never be the only thing
++        # standing between a dead solve and a CONVERGING verdict.
++        complete_ok[lv] = gate_g_complete(root, logs[lv], lv, report)
+         for f in REG_PLAT_FUNCTIONALS:
+             hist[f][lv] = logs[lv][f]
+             if not logs[lv][f]:
+@@ -1632,7 +1887,9 @@
+     verdicts = {}
+     for f in REG_PLAT_FUNCTIONALS:
+         all_res_ok = all(res_ok[lv] for lv in LEVELS)
+-        verdicts[f] = gate_g_triple(f, finals[f], plat_ok[f], all_res_ok, report)
++        all_complete = all(complete_ok[lv] for lv in LEVELS)
++        verdicts[f] = gate_g_triple(f, finals[f], plat_ok[f], all_res_ok,
++                                    all_complete, report)
+ 
+     # Both triples and both orders printed beside any NOT A RESULT (clause 2)
+     if any(v == "NOT A RESULT" for v in verdicts.values()):
+
+--- a3gc_grade_selftest.sh  (FROZEN 2215b4e7, md5 6adcf46aca9aad7b3f249e7aa1285dac)
++++ a3gc_grade_selftest.sh  (COMPLETION REPAIR)
+@@ -119,7 +119,7 @@
+ # measurement.  Every fixture file carries a banner saying so.
+ # ---------------------------------------------------------------------
+ mkfix() { "$PY" - "$@" <<'FIXPY'
+-import gzip, os, sys
++import gzip, os, shutil, sys
+ 
+ BANNER = ("// SYNTHETIC TEST FIXTURE generated by a3gc_grade_selftest.sh.\n"
+           "// NOT A MEASUREMENT.  Not evidence.  Never copy into a run root.\n")
+@@ -172,6 +172,48 @@
+     if end: L.append("End")
+     open(path, "w").write("\n".join(L) + "\n")
+ 
++def complete(root, endtime, fields=("T", "U", "p", "alphat", "nut", "nuTilda"),
++             rc=0, rc_name="log.primal.rc", end_newer=True, write_end=True,
++             end_fields=None):
++    """Make `root` satisfy PREREG Sec.3.7 / CLAUDE.md rule 4.
++
++    Writes system/controlDict (endTime), the solver exit code, a `0` directory,
++    and the endTime directory.  MTIMES ARE SET EXPLICITLY, because the age guard
++    reads them: every `0` field is backdated 200 s, `0/T` 100 s (it is touched
++    LAST at launch and so dates the run allowed to produce the answer), and the
++    endTime fields are `now`.  SYNTHETIC TEST FIXTURE.  NOT A MEASUREMENT.
++    """
++    import time as _t
++    os.makedirs(os.path.join(root, "system"), exist_ok=True)
++    open(os.path.join(root, "system", "controlDict"), "w").write(
++        BANNER + "FoamFile\n{\n    version 2.0;\n    object controlDict;\n}\n"
++        "stopAt          endTime;\nendTime         %g;\ndeltaT          1;\n"
++        "writeInterval   %g;\n" % (endtime, endtime))
++    open(os.path.join(root, rc_name), "w").write("%d\n" % rc)
++    now = _t.time()
++    z = os.path.join(root, "0"); os.makedirs(z, exist_ok=True)
++    for f in fields:
++        p = os.path.join(z, f)
++        open(p, "w").write(BANNER + "placeholder initial condition for %s\n" % f)
++        os.utime(p, (now - 200, now - 200))
++    os.utime(os.path.join(z, "T"), (now - 100, now - 100))
++    e = os.path.join(root, "%g" % endtime)
++    # CLEAR IT FIRST.  These fixtures are built by `cp -a` from a COMPLETE case,
++    # so an endTime directory is usually already there; without this,
++    # write_end=False and a reduced end_fields both silently leave the ORIGINAL
++    # complete directory in place and the clause under test never fires.
++    # Measured: that is exactly what made F1c and F4 pass vacuously on the first
++    # run of this section.
++    shutil.rmtree(e, ignore_errors=True)
++    if write_end:
++        os.makedirs(e, exist_ok=True)
++        for f in (end_fields if end_fields is not None else fields):
++            p = os.path.join(e, f)
++            open(p, "w").write(BANNER + "written field %s at t=%g\n" % (f, endtime))
++            st = now if end_newer else now - 150      # -150 is OLDER than 0/T
++            os.utime(p, (st, st))
++
++
+ def flat(v, n=12, jitter=1e-8):
+     return [v + jitter * ((-1) ** i) for i in range(n)]
+ 
+@@ -268,6 +310,9 @@
+   mkfix 'log(sys.argv[2]+"/log.primal", flat(0.0239956), flat(0.3181159))' "$base/L3"
+   mkfix 'log(sys.argv[2]+"/log.primal", flat(0.0231956), flat(0.3141159))' "$base/L2"
+   mkfix 'log(sys.argv[2]+"/log.primal", flat(0.0229956), flat(0.3131159))' "$base/L1"
++  # Sec.3.7 / rule 4: each level must also be COMPLETE.  The 12-sample log runs
++  # Time = 1, 100, 200 ... 1100, so endTime is 1100.
++  for lv in L3 L2 L1; do mkfix 'complete(sys.argv[2], 1100)' "$base/$lv"; done
+ }
+ build_clean "$SCRATCH/clean"
+ CLEAN=( --l3 "$SCRATCH/clean/L3" --l2 "$SCRATCH/clean/L2" --l1 "$SCRATCH/clean/L1"
+@@ -316,7 +361,7 @@
+ #      nFaces = 6240 (surface c2, N=17).  SAME CELL COUNT, DIFFERENT BODY,
+ #      DIFFERENT DISCRETISATION.  Cell count alone does not identify a level.
+ head1 "B1 -- the 99,840-cell impostor offered as L3"
+-cp -r "$SCRATCH/clean" "$SCRATCH/trap"
++cp -a "$SCRATCH/clean" "$SCRATCH/trap"
+ rm -rf "$SCRATCH/trap/L3/constant"
+ mkdir -p "$SCRATCH/trap/L3/constant/polyMesh"
+ cp "$TRAP_CASE/constant/polyMesh/owner.gz"  "$SCRATCH/trap/L3/constant/polyMesh/"
+@@ -340,7 +385,7 @@
+ 
+ # ---- B2  cell-count ratio / registered count
+ head1 "B2 -- a level with the wrong cell count"
+-cp -r "$SCRATCH/clean" "$SCRATCH/mut_cells"
++cp -a "$SCRATCH/clean" "$SCRATCH/mut_cells"
+ mkfix 'owner(sys.argv[2], 800000); boundary(sys.argv[2], 24960)' "$SCRATCH/mut_cells/L2"
+ expect_refusal 'G-SYS' "B2a a 800,000-cell L2 (ratio 8.013) is REFUSED" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_cells/L3" --l2 "$SCRATCH/mut_cells/L2" \
+@@ -351,7 +396,7 @@
+ 
+ # ---- B3  coordinate limb: two levels handed the SAME surface
+ head1 "B3 -- two levels handed the identical surface"
+-cp -r "$SCRATCH/clean" "$SCRATCH/mut_same"
++cp -a "$SCRATCH/clean" "$SCRATCH/mut_same"
+ cp "$S_C2" "$SCRATCH/mut_same/L2/surfaceMesh.cgns"
+ expect_refusal 'G-SYS' "B3a identical coordinate arrays on L3 and L2 are REFUSED" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_same/L3" --l2 "$SCRATCH/mut_same/L2" \
+@@ -362,7 +407,7 @@
+ 
+ # ---- B4  nesting limb: a surface that is NOT a coarsening of the finer one
+ head1 "B4 -- a surface whose points are not a subset of the finer level's"
+-cp -r "$SCRATCH/clean" "$SCRATCH/mut_nest"
++cp -a "$SCRATCH/clean" "$SCRATCH/mut_nest"
+ "$PY" - "$S_C2" "$SCRATCH/mut_nest/L3/surfaceMesh.cgns" <<'PERTURB'
+ import shutil, struct, sys
+ src, dst = sys.argv[1], sys.argv[2]
+@@ -394,7 +439,7 @@
+ 
+ # ---- B5  G-TOL: the solver dumped a different tolerance product
+ head1 "B5 -- G-TOL against a wrong tolerance product"
+-cp -r "$SCRATCH/clean" "$SCRATCH/mut_tol"
++cp -a "$SCRATCH/clean" "$SCRATCH/mut_tol"
+ mkfix 'log(sys.argv[2]+"/log.primal", flat(0.0239956), flat(0.3181159), diff=10000)' \
+   "$SCRATCH/mut_tol/L3"
+ expect_refusal 'G-TOL' "B5a primalMinResTolDiff 10000 is REFUSED" \
+@@ -409,7 +454,7 @@
+ head1 "B6 -- G-RES reads initRes, NEVER finalRes (N-D44)"
+ # the plant in A1-A6 already fed it a SMALL initRes beside a LARGE finalRes;
+ # here the converse: a LARGE initRes beside a SMALL finalRes must FAIL the gate.
+-cp -r "$SCRATCH/clean" "$SCRATCH/mut_res"
++cp -a "$SCRATCH/clean" "$SCRATCH/mut_res"
+ mkfix 'log(sys.argv[2]+"/log.primal", flat(0.0239956), flat(0.3181159), extra_initres=1.0e-03)' \
+   "$SCRATCH/mut_res/L3"
+ expect_out 'initRes = 1\.000000e-03.*FAIL' \
+@@ -433,11 +478,11 @@
+ done
+ expect_rc 0 "B7a a genuinely cold case passes G-COLD" \
+   "$PY" "$GRADE" cold --case "$SCRATCH/cold_ok"
+-cp -r "$SCRATCH/cold_ok" "$SCRATCH/cold_time"
++cp -a "$SCRATCH/cold_ok" "$SCRATCH/cold_time"
+ mkdir -p "$SCRATCH/cold_time/processor0/1000"
+ expect_refusal 'G-COLD' "B7b a stray time directory is REFUSED" \
+   "$PY" "$GRADE" cold --case "$SCRATCH/cold_time"
+-cp -r "$SCRATCH/cold_ok" "$SCRATCH/cold_warm"
++cp -a "$SCRATCH/cold_ok" "$SCRATCH/cold_warm"
+ "$PY" -c "open('$SCRATCH/cold_warm/processor0/0/U','w').write('X'*200000)"
+ expect_refusal 'G-COLD' "B8a an oversized 0-field (a WRITTEN SOLUTION) is REFUSED" \
+   "$PY" "$GRADE" cold --case "$SCRATCH/cold_warm"
+@@ -495,7 +540,7 @@
+ 
+ # ---- B11  non-monotone triple: NOT A RESULT, and NO GCI quoted
+ head1 "B11 -- a non-monotone triple must not be given a GCI"
+-cp -r "$SCRATCH/clean" "$SCRATCH/mut_osc"
++cp -a "$SCRATCH/clean" "$SCRATCH/mut_osc"
+ mkfix 'log(sys.argv[2]+"/log.primal", flat(0.0228956), flat(0.3181159))' "$SCRATCH/mut_osc/L3"
+ OSC=( --l3 "$SCRATCH/mut_osc/L3" --l2 "$SCRATCH/mut_osc/L2" --l1 "$SCRATCH/mut_osc/L1"
+       --log-name log.primal )
+@@ -511,7 +556,7 @@
+ 
+ # ---- B12  observed order outside the registered band
+ head1 "B12 -- observed order outside [1.0, 3.0]"
+-cp -r "$SCRATCH/clean" "$SCRATCH/mut_p"
++cp -a "$SCRATCH/clean" "$SCRATCH/mut_p"
+ # eps21 = 2e-4, eps32 = 2e-4*2^4 = 3.2e-3  -> p = 4, outside the band
+ mkfix 'log(sys.argv[2]+"/log.primal", flat(0.0229956+2e-4+3.2e-3), flat(0.3181159))' "$SCRATCH/mut_p/L3"
+ PBAD=( --l3 "$SCRATCH/mut_p/L3" --l2 "$SCRATCH/mut_p/L2" --l1 "$SCRATCH/mut_p/L1"
+@@ -525,7 +570,7 @@
+ 
+ # ---- B14  an ambiguous log choice is refused, never guessed
+ head1 "B14 -- two candidate logs must be refused, not guessed"
+-cp -r "$SCRATCH/clean" "$SCRATCH/mut_logs"
++cp -a "$SCRATCH/clean" "$SCRATCH/mut_logs"
+ cp "$SCRATCH/mut_logs/L3/log.primal" "$SCRATCH/mut_logs/L3/log.other"
+ expect_refusal 'READ' "B14 two candidate logs and no --log-name -> REFUSE (no coin flip)" \
+   "$PY" "$GRADE" grade --l3 "$SCRATCH/mut_logs/L3" --l2 "$SCRATCH/mut_logs/L2" \
+@@ -759,6 +804,113 @@
+     --shock-l1 "$SH/allfals/shock_L1.json" --cmp-l1 "$SH/allfals/cmp_L1.json"
+ 
+ # =====================================================================
++head1 "F -- G-COMPLETE: PREREG Sec.3.7 / CLAUDE.md rule 4, clause by clause"
++# =====================================================================
++# THE FAILURE THIS GATE EXISTS TO PREVENT, and F1 demonstrates it rather than
++# asserting it: a level that DIES mid-run leaves a TRUNCATED log whose tail is
++# PERFECTLY PLATEAUED -- a dead solve plateaus better than a live one -- so
++# G-PLAT passes it and the triple would grade CONVERGING ON A CORPSE.
++# A3GC is registered at 1,525 core-min; spending that to grade a dead solve as
++# converged is the outcome this repair buys out.
++mkcase() { local d="$1"; shift; mkdir -p "$d"
++  mkfix "owner(sys.argv[2], 99840); boundary(sys.argv[2], 6240)" "$d"
++  cp "$S_C2" "$d/surfaceMesh.cgns"; }
++
++# ---- F1  THE TRUNCATED LOG WITH A PERFECTLY PLATEAUED TAIL.
++#      endTime 1100, but the solver died after Time = 700: 8 samples, flat to
++#      1e-9, no `End` line.  Every value G-PLAT looks at says "plateaued".
++head1 "F1 -- a DEAD solve whose tail is perfectly flat"
++# *** THE FIXTURE MUST GIVE G-PLAT NOTHING TO COMPLAIN ABOUT, OR IT PROVES
++# NOTHING.  First cut used 8 samples; G-PLAT refused it for want of evidence
++# (<10) and the D9 mutation control caught that G-COMPLETE was never the thing
++# under test.  So: TWELVE samples, flat to 1e-9 -- G-PLAT passes it happily --
++# ending at Time = 1100 against a registered endTime of 6000.  The solver died
++# at 1,100 of 6,000 iterations and its tail is immaculate. ***
++D="$SCRATCH/dead"; cp -a "$SCRATCH/clean" "$D"
++mkfix 'log(sys.argv[2]+"/log.primal", flat(0.0239956, 12, 1e-9), flat(0.3181159, 12, 1e-9), end=False)' "$D/L3"
++mkfix 'complete(sys.argv[2], 6000, write_end=False)' "$D/L3"
++DEAD=( --l3 "$D/L3" --l2 "$D/L2" --l1 "$D/L1" --log-name log.primal )
++expect_out '2 `End` line present +FAIL' \
++  "F1a the missing End line is caught (rule 4 clause 2)" "$PY" "$GRADE" grade "${DEAD[@]}"
++expect_out '3 last time == endTime +FAIL +last printed Time = 1100, controlDict endTime = 6000' \
++  "F1b the truncation is caught: died at 1,100 of 6,000 iterations (clause 3)" \
++  "$PY" "$GRADE" grade "${DEAD[@]}"
++expect_out '4 fields at endTime +FAIL' \
++  "F1c and endTime was never written (clause 4)" "$PY" "$GRADE" grade "${DEAD[@]}"
++expect_out 'VERDICT  CD triple +: NOT A RESULT' \
++  "F1d THE DEAD SOLVE IS NOT A RESULT" "$PY" "$GRADE" grade "${DEAD[@]}"
++expect_out 'clause 1: a level failed G-COMPLETE' \
++  "F1e and standing rule 5 clause 1 names G-COMPLETE as the reason" \
++  "$PY" "$GRADE" grade "${DEAD[@]}"
++expect_no_out 'VERDICT  A3GC OVERALL +: PASS' \
++  "F1f the item is NEVER PASS on a corpse" "$PY" "$GRADE" grade "${DEAD[@]}"
++expect_no_out 'L3 CD: only [0-9]+ printed samples' \
++  "F1g *** AND G-PLAT HAS NO COMPLAINT: the dead tail is not short, it is FLAT. G-COMPLETE is the only thing catching this. ***" \
++  "$PY" "$GRADE" grade "${DEAD[@]}"
++
++# ---- F2  rc != 0  (clause 1)
++head1 "F2 -- a non-zero solver exit code"
++cp -a "$SCRATCH/clean" "$SCRATCH/rcbad"
++mkfix 'complete(sys.argv[2], 1100, rc=137)' "$SCRATCH/rcbad/L2"
++RCBAD=( --l3 "$SCRATCH/rcbad/L3" --l2 "$SCRATCH/rcbad/L2" --l1 "$SCRATCH/rcbad/L1" --log-name log.primal )
++expect_out '1 rc == 0 +FAIL +rc = 137' "F2a rc=137 (an OOM kill) is caught" \
++  "$PY" "$GRADE" grade "${RCBAD[@]}"
++expect_out 'VERDICT  CD triple +: NOT A RESULT' "F2b and the triple is NOT A RESULT" \
++  "$PY" "$GRADE" grade "${RCBAD[@]}"
++
++# ---- F3  NO rc artifact at all.  A MISSING EXIT CODE IS NOT A ZERO EXIT CODE.
++head1 "F3 -- no exit code on disk must REFUSE, never pass"
++cp -a "$SCRATCH/clean" "$SCRATCH/rcnone"; rm -f "$SCRATCH/rcnone/L3/log.primal.rc"
++expect_refusal 'G-COMPLETE' "F3a an absent exit code REFUSES (it is not a zero)" \
++  "$PY" "$GRADE" grade --l3 "$SCRATCH/rcnone/L3" --l2 "$SCRATCH/rcnone/L2" \
++    --l1 "$SCRATCH/rcnone/L1" --log-name log.primal
++expect_out 'A MISSING EXIT CODE IS NOT A ZERO EXIT CODE' \
++  "F3b and the refusal says so, and names where the runner must write it" \
++  "$PY" "$GRADE" grade --l3 "$SCRATCH/rcnone/L3" --l2 "$SCRATCH/rcnone/L2" \
++    --l1 "$SCRATCH/rcnone/L1" --log-name log.primal
++
++# ---- F4  A MISSING FIELD at endTime (clause 4)
++head1 "F4 -- a field missing from the endTime directory"
++cp -a "$SCRATCH/clean" "$SCRATCH/nofield"
++mkfix 'complete(sys.argv[2], 1100, end_fields=("T","U","p","alphat","nut"))' "$SCRATCH/nofield/L1"
++expect_out '4 fields at endTime +FAIL +MISSING at endTime: nuTilda' \
++  "F4 a field present in 0 but absent at endTime is named" \
++  "$PY" "$GRADE" grade --l3 "$SCRATCH/nofield/L3" --l2 "$SCRATCH/nofield/L2" \
++    --l1 "$SCRATCH/nofield/L1" --log-name log.primal
++
++# ---- F5  THE AGE GUARD (clause 6): endTime fields OLDER than the case's own 0/T.
++#      This is the stale-answer trap -- fields left by an EARLIER run, with a
++#      fresh `0` written over them at this launch.
++head1 "F5 -- endTime fields older than 0/T: an answer from a PREVIOUS run"
++cp -a "$SCRATCH/clean" "$SCRATCH/stale"
++mkfix 'complete(sys.argv[2], 1100, end_newer=False)' "$SCRATCH/stale/L2"
++expect_out '6 AGE GUARD +FAIL +6 endTime field\(s\) NOT newer than' \
++  "F5a fields older than 0/T are caught -- 0/T dates the run allowed to answer" \
++  "$PY" "$GRADE" grade --l3 "$SCRATCH/stale/L3" --l2 "$SCRATCH/stale/L2" \
++    --l1 "$SCRATCH/stale/L1" --log-name log.primal
++expect_out 'VERDICT  CD triple +: NOT A RESULT' "F5b and the triple is NOT A RESULT" \
++  "$PY" "$GRADE" grade --l3 "$SCRATCH/stale/L3" --l2 "$SCRATCH/stale/L2" \
++    --l1 "$SCRATCH/stale/L1" --log-name log.primal
++
++# ---- F6  no system/controlDict -> REFUSE (endTime is not in the log)
++head1 "F6 -- no controlDict: endTime is unknowable, so REFUSE"
++cp -a "$SCRATCH/clean" "$SCRATCH/nocd"; rm -rf "$SCRATCH/nocd/L3/system"
++expect_refusal 'G-COMPLETE' "F6 absent controlDict REFUSES rather than assuming an endTime" \
++  "$PY" "$GRADE" grade --l3 "$SCRATCH/nocd/L3" --l2 "$SCRATCH/nocd/L2" \
++    --l1 "$SCRATCH/nocd/L1" --log-name log.primal
++
++# ---- F7  THE CONTROL: the clean triple is COMPLETE and every clause says so.
++head1 "F7 -- CONTROL: all six clauses green on the clean triple"
++expect_out 'G-COMPLETE: all six clauses hold for L3' "F7a L3 is complete" \
++  "$PY" "$GRADE" grade "${CLEAN[@]}"
++expect_out '6 AGE GUARD +OK +all 6 endTime field\(s\) NEWER than' \
++  "F7b the age guard PASSES on a genuinely fresh run (it is not always-fail)" \
++  "$PY" "$GRADE" grade "${CLEAN[@]}"
++expect_out 'cadence cross-check +predicted 1 \+ floor\(endTime/printInterval\) = 1 \+ floor\(1100/100\) = 12, measured 12' \
++  "F7c the cadence arithmetic is printed beside clause 5, REPORTED not gated" \
++  "$PY" "$GRADE" grade "${CLEAN[@]}"
++
++# =====================================================================
+ head1 "D -- MUTATION CONTROLS on the DEFECT A and DEFECT B repairs"
+ # =====================================================================
+ # A FIX WITH NO CONTROL PROVING IT IS LIVE IS NOT A FIX.  Each mutation below
+@@ -857,6 +1009,47 @@
+   "D3b the module counts its OWN asserts and refuses to run on one" \
+   "$PY" "$MUTDIR/L332-ASSERT-PLANTED.py" grade "${CLEAN[@]}"
+ 
++# ---- D9  *** THE CONTROL THE SUPERVISOR ASKED FOR BY NAME. ***
++#      G-COMPLETE removed from the grading path entirely.  The DEAD SOLVE of
++#      F1 -- truncated at Time = 700 against endTime 1100, no `End` line,
++#      endTime never written -- must then be SEEN TO GRADE, because its tail is
++#      perfectly flat and G-PLAT has no complaint about a corpse.
++mutate NO-COMPLETION-GATE \
++  '        complete_ok[lv] = gate_g_complete(root, logs[lv], lv, report)' \
++  '        complete_ok[lv] = True   # MUTATION: the completion gate removed' \
++  && mut_must_fail NO-COMPLETION-GATE 'F1d/F1e' 'VERDICT  CD triple +: NOT A RESULT' \
++       "$PY" "$MUTDIR/NO-COMPLETION-GATE.py" grade "${DEAD[@]}"
++expect_out 'VERDICT  CD triple +: PASS' \
++  "D9b THE DEAD SOLVE IS SEEN TO GRADE **PASS** WITHOUT THE GATE -- 1,525 core-min to certify a corpse" \
++  "$PY" "$MUTDIR/NO-COMPLETION-GATE.py" grade "${DEAD[@]}"
++expect_out 'peak-to-peak\(last 10\)' \
++  "D9c and G-PLAT is SEEN to have no complaint about it: the tail plateaus perfectly" \
++  "$PY" "$MUTDIR/NO-COMPLETION-GATE.py" grade "${DEAD[@]}"
++
++# ---- D10  the completion result stops reaching standing rule 5 clause 1.
++mutate COMPLETION-NOT-IN-CLAUSE1 \
++  '    if not complete_ok or not plat_ok or not res_ok:' \
++  '    if not plat_ok or not res_ok:' \
++  && mut_must_fail COMPLETION-NOT-IN-CLAUSE1 'F2b' 'VERDICT  CD triple +: NOT A RESULT' \
++       "$PY" "$MUTDIR/COMPLETION-NOT-IN-CLAUSE1.py" grade "${RCBAD[@]}"
++
++# ---- D11  a MISSING exit code silently reads as zero.
++mutate MISSING-RC-IS-ZERO \
++  '    refuse("G-COMPLETE", "%s: no solver exit code on disk.  CLAUDE.md rule 4 "' \
++  '    return 0, "MUTATION: assumed zero"
++    refuse("G-COMPLETE", "%s: no solver exit code on disk.  CLAUDE.md rule 4 "' \
++  && mut_must_fail MISSING-RC-IS-ZERO 'F3a/F3b' 'A MISSING EXIT CODE IS NOT A ZERO EXIT CODE' \
++       "$PY" "$MUTDIR/MISSING-RC-IS-ZERO.py" grade --l3 "$SCRATCH/rcnone/L3" \
++         --l2 "$SCRATCH/rcnone/L2" --l1 "$SCRATCH/rcnone/L1" --log-name log.primal
++
++# ---- D12  the AGE GUARD compares the wrong way round, so stale fields pass.
++mutate AGE-GUARD-INVERTED \
++  '                    if os.stat(fp).st_mtime <= ref:' \
++  '                    if False:' \
++  && mut_must_fail AGE-GUARD-INVERTED 'F5a/F5b' '6 AGE GUARD +FAIL' \
++       "$PY" "$MUTDIR/AGE-GUARD-INVERTED.py" grade --l3 "$SCRATCH/stale/L3" \
++         --l2 "$SCRATCH/stale/L2" --l1 "$SCRATCH/stale/L1" --log-name log.primal
++
+ # ---- D5  AMENDMENT 3(b) REVERSED: P4 fires on the WEAK reading of "all fail".
+ #      Three middling results would then be adopted as the counter-hypothesis.
+ mutate P4-WEAK-READING \
+
+# ===================================================================
+# POST-REPAIR md5 -- THE VALUES FOR THE RE-FREEZE:
+#   73dbe368934956700da87e5a1f44ea0c  a3gc_grade.py
+#   3a709fa46edfe996a7cd5d1de2100bab  a3gc_grade_selftest.sh
+#   07bc22d7b591dfae3c22661b00b40ddf  a3gc_genmesh.sh
+#   a3gc_genmesh.sh is UNCHANGED by this diff (07bc22d7... as frozen).
