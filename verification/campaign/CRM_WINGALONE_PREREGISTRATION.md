@@ -36,9 +36,23 @@ title for exactly this reason**: the geometry is different, so the registration 
 
 ## 2. WHAT IS BEING REGISTERED
 
+🔴 **SCOPE, FIXED: THIS DOCUMENT REGISTERS THE MESH LADDER AND NOTHING ELSE.**
+
 A **three-level, geometrically nested, r = 2 grid family** on the CRM **wing-alone** surface, built by
 hyperbolic extrusion (pyHyp) from three structured multiblock CGNS surfaces that **all now exist on
-disk**, for a Roache grid-convergence study (rule 5) of an aerodynamic quantity of interest named in §10.
+disk**, and admitted against **mesh gates INHERITED from `MESH_STANDARD` §3** (§10).
+
+**No flow condition, no solver, and no aerodynamic quantity of interest is registered here.** Those are
+**deferred in full to a successor flow rung (§10A)** — not omitted, not implied, and **not to be read
+into this document by anything downstream of it.**
+
+**Why the scope is drawn here, and why it is a strength rather than a deferral:** the mesh gates below
+are **inherited from a standard written before this geometry existed**, so they **cannot have been
+fitted to this mesh** — which is exactly what lets them be frozen tonight **with no reference dataset
+at all** (§9B). A flow gate has no such property and needs its own registration.
+
+**This rung's entire compute is `pyHyp` extrusion + convert + `checkMesh` on three levels. No solver runs
+under this document.**
 
 ---
 
@@ -409,18 +423,97 @@ rung — it only bars a validation claim, which this rung should not make.**
 
 ---
 
-## 10. 🟠 OPEN DECISIONS — RESERVED TO THE SUPERVISOR, DELIBERATELY NOT FILLED
+## 10. REGISTERED GATES — **MESH ADMISSION, INHERITED FROM `MESH_STANDARD` §3**
 
-This lane measured the geometry and the toolchain. **It did not invent a gate.** Freezing any of the
-following is the supervisor's act, and §12 cannot be signed until each carries a value **and a cost**.
+**Every threshold below was read by this lane out of `docs/standards/MESH_STANDARD.md` directly, not
+relayed.** They pre-date this geometry, so they **cannot have been fitted to it** — which is the whole
+reason they can be frozen with no reference dataset (§9B). Each is evaluated by **`checkMesh` on each of
+the three levels of §4. No solver is required for any of them.**
 
-| # | open decision | why this lane did not fill it |
+| gate | threshold | source, verified by this lane | verdict if breached |
+|---|---|---|---|
+| **G-M1** | **max non-orthogonality ≤ 70°** (warning band **65–70**) | `MESH_STANDARD` §3.1 — *"hard gate 70 degrees, warning band 65 to 70"*; basis is `nonOrthThreshold_ = 70` in the OpenFOAM source | **`GATE FAIL`** for that level |
+| **G-M2** | **max skewness ≤ 4, BOUNDARY FACES INCLUDED** | `MESH_STANDARD` §3.2 — *"hard gate 4, boundary faces included"*; the lab deliberately enforces 4 on boundary faces where snappyHexMesh would allow `maxBoundarySkewness 20` | **`GATE FAIL`** for that level |
+| **G-M3** | **aspect ratio — ADVISORY at 1000, NEVER A LONE REJECTION** | `MESH_STANDARD` §3.3, verbatim | **reported, never a rejection on its own** |
+| **G-M4** | **all three levels march to completion**, `Sl` reaching 1.000, **min quality and min volume POSITIVE AT EVERY LAYER** | the `59dfc5232` probe's own read-the-columns discipline (§7) | level **`BLOCKED`** (§7), triple **`NOT A RESULT`** |
+| **G-M5** | **structural nesting preserved at every level**: 26 blocks, dims exactly halving, **4 triple-points and 20 quad-points** | measured, §3.1 / §3.3 | **`GATE FAIL`** — the family is not nested |
+
+⚠️ **G-M3 IS ADVISORY AND IS REGISTERED AS ADVISORY.** A pyHyp boundary-layer mesh has, by design,
+enormous near-wall aspect ratios. `MESH_STANDARD` §3.3 anticipates exactly this and says *"never a lone
+rejection"*. **A high aspect ratio on these meshes is the intended construction, not a defect**, and it
+must not be allowed to read as a failure.
+
+**Cost of evaluating §10: already inside the convert + `checkMesh` line of §6 (9.56 core-min total).**
+
+---
+
+## 10A. DEFERRED IN FULL TO A SUCCESSOR FLOW RUNG — **NOT REGISTERED HERE**
+
+These are **real choices with consequences**, and neither a lane nor a supervisor should settle them at
+the end of a long session. They are recorded so the successor inherits the reasoning, **not so this
+document can be read as having decided them.**
+
+| # | deferred decision | what the successor inherits from here |
 |---|---|---|
-| **O1** | **Flow condition** (M∞, Re, α or CL target) | not specified in the brief; determines everything below |
-| **O2** | **Solver** | `CRM_M085`'s solver ruling is **not inherited** (§1); the §4 meshes are structured CGNS from the MACH stack, which points at a different solver than that rung's OpenFOAM path |
-| **O3** | **QoI and its threshold band** | **rule 2: the gate is the document's entire evidentiary content.** A threshold chosen by the lane that produced the mesh proves nothing. **§9B now bounds this decision: no wing-alone reference data exists, so the honest form is a grid-convergence gate with the physics REPORTED, NOT GATED** |
-| **O4** | **Observed-order band** for the Roache triple | same |
-| **O5** | **Solver core-min estimate and cap** | follows O1–O2; **rule 12 forbids freezing without it** |
+
+| **O1** | **Flow condition** (M∞, Re, α or CL target) | **MOVED to §10A.** Not registered here |
+| **O2** | **Solver** | **MOVED to §10A.** `CRM_M085`'s solver ruling is **not inherited** (§1) |
+| **O3** | **QoI and its threshold band** | **MOVED to §10A**, where §9B fixes its honest form |
+| **O4** | **Observed-order band** | **MOVED to §10A** — and see §10B, which is a **query back to the supervisor**, not a deferral |
+| **O5** | **Solver core-min estimate and cap** | **MOVED to §10A**; rule 12 forbids freezing it without a cost |
+
+**The successor's O3 carries this rung's finding, which bounds it:** no wing-alone reference data
+exists on this box (§9B), so **O3's honest form is a grid-convergence gate ALONE — an observed order
+and a GCI on a self-consistent QoI — with the physics REPORTED, NOT GATED.**
+
+> **Absence of reference data does not weaken a verification rung; it bars a validation claim this rung
+> should not make.**
+
+---
+
+## 10B. 🔴 TWO PROBLEMS WITH THE PROPOSED GATE SET, RAISED RATHER THAN ABSORBED
+
+The gate set proposed to this lane included **`p ∈ [1.3, 2.5]` and `GCI_fine < 3 %` at `Fs = 1.25`**,
+described as inherited. **Neither is registered above, for two independent reasons.**
+
+**PROBLEM 1 — THIS RUNG CANNOT EVALUATE THEM, BECAUSE IT HAS NO QoI.** An observed order and a GCI are
+**Richardson quantities computed on a scalar that converges under refinement.** This rung's entire
+compute is extrusion + convert + `checkMesh` (§2). **There is no solve, so there is no QoI, so there is
+nothing to extrapolate and no `p` to observe.** Registering them here would register **gates this rung's
+compute is physically incapable of firing** — and *a gate that cannot fire reads downstream as a gate
+that passed*, which is worse than no gate at all. **They belong to §10A's successor, where a QoI exists.**
+
+**PROBLEM 2 — I CANNOT FIND THEM IN A STANDARD, SO "INHERITED" IS UNVERIFIED.** This lane searched
+`MESH_STANDARD.md` and `VERIFICATION_CHARTER.md` for the window `[1.3, 2.5]` and for a `GCI < 3 %` gate
+and **found neither** (the charter references *"the order window"* at §3.2/`:219` without fixing those
+bounds). **The claim that they are inherited is what justified freezing them without a reference
+dataset**; if they are not in a standard, they are **invented numbers wearing inherited clothing — the
+exact failure this document caught in §9A, twelve hours after it was caught.** 🔴 **A citation is
+requested before either appears in any frozen document.** If one exists, this lane simply did not find it
+and the citation settles it; the sweep that failed to find it is recorded so it can be checked.
+
+**A third caution, for whoever registers `GCI_fine < 3 %` later:** `VERIFICATION_CHARTER` §2bz records
+GCI percentages of **129.33 %, 109.88 % and 71.70 % on rows that PASSED**, because `GCI_pct` divides by a
+small `f_fine`, and rules **"Report the absolute beside the relative, always; where only one may be
+quoted, quote the absolute."** **A bare `GCI_fine < 3 %` gate does not say which it is, and on the wrong
+denominator it is meaningless.** State absolute or relative explicitly.
+
+---
+
+## 10C. FREEZE PRECONDITIONS — VERIFIED BY THIS LANE, WITH A LIVE CONTROL
+
+Rule 2 requires naming the run directory that does not exist. **Checked, and the check was first shown
+able to see a directory that DOES exist** (`verification/runs/CRM_M085_runs`), so these absences are
+evidence and not a blind test:
+
+| path | state |
+|---|---|
+| `verification/runs/CRM_WINGALONE_runs` | **ABSENT** |
+| `cases/navier_class/CRM_WINGALONE` | **ABSENT** |
+| `verification/runs/navier_class/CRM_WINGALONE` | **ABSENT** |
+
+**No compute exists under this document.** Amendments are therefore still legal (rule 2); after the
+first extrusion they are not.
 
 ---
 
