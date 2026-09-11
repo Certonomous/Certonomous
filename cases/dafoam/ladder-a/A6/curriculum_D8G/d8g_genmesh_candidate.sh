@@ -337,6 +337,52 @@ echo "D8G_GENMESH_IMAGE ref=$IMG_REF digest=$GOT_DIGEST pinned_by=digest"
 # construction, not a measurement.  The deadline exists so a wedged pyHyp cannot
 # hold the box; the L3 generation was measured at 125.47 wall s on 2 cores by the
 # drafting lane's probe (section 9.4), so 3,600 s is ~29x that.
+# =============================================================================
+# STAGE system/ INTO THE WORKING DIRECTORY -- THE REPAIR (candidate, 2026-09-11)
+#
+# *** MEASURED 2026-09-11 21:36Z, THE FIRST EVER EXECUTION OF THIS GENERATOR.
+# cmd.sh runs plot3dToFoam, autoPatch, createPatch, renumberMesh and checkMesh
+# twice with -w /mnt/mesh_build_<LEVEL>, AND NOTHING EVER PUT A CASE THERE.
+# Every one of those utilities reads system/controlDict before it will start:
+#   --> FOAM FATAL ERROR: cannot find file
+#       "/mnt/mesh_build_L1/system/controlDict"
+# `set -e` then aborted the container and G-GEN.5 refused, rc=1.
+# THE ONLY copy of system/ in the frozen file is line ~355,
+#     cp -a "$ARCHIVE/system/." "$BASEOUT/system/"
+# which lands in base_<LEVEL>/ and runs AFTER the container step.  Too late, and
+# in the wrong directory.  NOT LEVEL-SPECIFIC: L2 and L3 take the same path and
+# would die at the same line.  The frozen generator cannot complete ANY level.
+#
+# WHY THE FREEZE DID NOT CATCH IT, from the script's own header: "THIS SCRIPT
+# HAS NEVER BEEN EXECUTED".  Its numbers are the drafting lane's probe
+# predictions, and that probe evidently ran the OpenFOAM chain somewhere that
+# already had a system/.  A GENERATOR FROZEN WITHOUT ONE END-TO-END EXECUTION
+# IS FROZEN AROUND WHATEVER ITS PROBE HAPPENED TO HAVE ON DISK. ***
+#
+# NO controlDict IS INVENTED HERE.  The source is $ARCHIVE/system -- the same
+# directory line ~355 already stages into base_<LEVEL>/, and the same five dicts
+# whose md5s THIS SCRIPT ALREADY REGISTERS in DICT_MD5 (section 4).  Nothing new
+# is registered; a registered input is merely put where the tools can read it.
+#
+# VERIFY, THEN COPY -- NEVER COPY, THEN VERIFY.  The registered manifest is
+# checked BEFORE anything is written into the build directory, so a mismatched
+# archive leaves NO staged dict behind for a later step to pick up.  (The
+# existing G-GEN.6 check after the container is left exactly as it was.)
+# =============================================================================
+printf '%s\n' "$DICT_MD5" | sed "s#@A@#$ARCHIVE#g" | md5sum -c - > "$LOGS/dict_md5_prestage.txt" 2>&1 \
+  || { echo "ABORT G-GEN.5a archive dict/field md5 mismatch BEFORE staging; see $LOGS/dict_md5_prestage.txt"; exit 4; }
+NOK_PRE=$(grep -c ': OK$' "$LOGS/dict_md5_prestage.txt")
+test "$NOK_PRE" -eq "$N_DICTS" || {
+  echo "ABORT G-GEN.5a pre-stage manifest returned $NOK_PRE OK lines, not $N_DICTS"; exit 4; }
+mkdir -p "$BUILD/system" || { echo "ABORT cannot create $BUILD/system"; exit 4; }
+cp -a "$ARCHIVE/system/." "$BUILD/system/" || { echo "ABORT cannot stage system/ into $BUILD"; exit 4; }
+# The two the chain actually opens, named individually: a directory that exists
+# but is empty would pass a `test -d` and fail exactly as before.
+for d in controlDict createPatchDict; do
+  test -f "$BUILD/system/$d" || { echo "ABORT G-GEN.5a $BUILD/system/$d absent after staging"; exit 4; }
+done
+echo "D8G_GENMESH_SYSTEM_STAGED from=$ARCHIVE/system dicts=$(ls -1 "$BUILD/system" | wc -l) manifest_ok=$NOK_PRE/$N_DICTS"
+
 sudo -n docker run --rm --user 0:0 --cpus=2 --memory=12g --memory-swap=12g \
   -v "$ROOT":/mnt -w "/mnt/mesh_build_$LEVEL" "$IMG_REF" \
   bash -lc "timeout -k 60 3600 bash /mnt/mesh_build_$LEVEL/cmd.sh" > "$LOGS/genmesh.log" 2>&1
@@ -360,6 +406,7 @@ test -f "$BASEOUT/constant/polyMesh/points.gz" || { echo "ABORT no points.gz in 
 # ---- WRITE THE CONSTRUCTION RECORD d8g_grade.py READS ------------------------
 # EVERY FIELD IS MEASURED FROM THE LOGS AND THE MESH THIS RUN JUST PRODUCED.
 # Nothing is copied forward from the drafting lane's probe.
+D8G_GENERATED_BY="$(basename "${BASH_SOURCE[0]}")" \
 python3 - "$LEVEL" "$BUILD" "$BASEOUT" "$ROOT" "$WANT_CELLS" "$FINER" <<'PYEOF'
 import hashlib, json, os, re, sys
 level, build, baseout, root, want_cells, finer = sys.argv[1:7]
@@ -434,7 +481,15 @@ rec = {"level": level, "cells": cells, "cells_registered": want_cells,
        "surface_max_coord_delta_to_finer": delta,
        "points_md5": hashlib.md5(open(pts, "rb").read()).hexdigest(),
        "image_digest": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35",
-       "generated_by": "d8g_genmesh.sh",
+       # *** THIS WAS THE HARDCODED LITERAL "d8g_genmesh.sh" AND IT WAS FALSE
+       # WHENEVER ANYTHING ELSE RAN.  MEASURED 2026-09-11 21:51Z: this candidate
+       # produced mesh_record_L1.json and the record named the FROZEN file as its
+       # producer.  d8g_grade.py does not read this field, so nothing would have
+       # caught it -- which is worse, not better: an ungated provenance string is
+       # one nobody checks.  It hid the single question the supervisor has to
+       # answer about this mesh, namely that it was NOT built by the frozen
+       # script.  The record now reports the file that actually ran. ***
+       "generated_by": os.environ.get("D8G_GENERATED_BY", "UNKNOWN -- generator did not declare itself"),
        "NOTE": "this record is MEASURED EVIDENCE, not a claim: d8g_grade.py's G-MESH gates every "
                "field in it against the values PREREGISTRATION.md section 2.2/4.1-4.4 registered, "
                "so it cannot self-certify."}

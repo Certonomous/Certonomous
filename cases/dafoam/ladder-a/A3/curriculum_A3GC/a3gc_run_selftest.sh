@@ -75,8 +75,25 @@ if __name__ == "__main__":
 GPY
 }
 # --- a template with the 0.orig the runner cold-starts from
-TPL="$SCRATCH/template"; mkdir -p "$TPL/0.orig"
+TPL="$SCRATCH/template"; mkdir -p "$TPL/0.orig" "$TPL/constant"
 for f in T U p alphat nut nuTilda; do printf 'placeholder initial condition\n' > "$TPL/0.orig/$f"; done
+# *** THE FIXTURE GAINED constant/, AND THIS IS NOT A TEST BENT TO FIT THE CODE.
+# MEASURED 2026-09-11 21:40Z on the real L3: DARhoSimpleCFoam stopped with
+#   "cannot find file .../processor0/constant/thermophysicalProperties"
+# because NOTHING in this rung ever staged the model dicts.  The runner now
+# stages them from the template and ASSERTS what it staged (Sec.4.1's
+# SpalartAllmaras, hePsiThermo, and the registered freestream Mach recomputed
+# from the dict's own molWeight and Cp).  THIS FIXTURE HAD BEEN ASSERTING THAT
+# PREPARE SUCCEEDS ON A TEMPLATE THAT COULD NEVER HAVE SOLVED -- the gap was in
+# the fixture's idea of a template, and the real run is what exposed it.
+# No assertion below is weakened or removed; the fixture is made real, and it is
+# made real by COPYING THE VALIDATED RUN'S OWN DICTS rather than by hand-writing
+# physics that would only have to agree with them anyway.
+for d in thermophysicalProperties turbulenceProperties; do
+  src="/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/constant/$d"
+  [ -f "$src" ] || { printf 'SELFTEST ABORT: fixture source absent: %s\n' "$src" >&2; exit 2; }
+  cp -a "$src" "$TPL/constant/$d"
+done
 
 # --- fabricate a COMPLETED solve on top of a prepared case (NO COMPUTE)
 fake_solve() { "$PY" - "$@" <<'FPY'

@@ -1,0 +1,387 @@
+=====================================================================
+CLASSIFYING DIFF -- a3gc_run.sh, LAUNCH-PATH REPAIR (SEVEN ITEMS)
+for: dafoam-supervisor, to be read AS A DIFF (SUPERVISION_CHARTER Sec.3)
+date: 2026-09-11
+base: a3gc_run.sh at HEAD 1c2b9149e, md5 1a6093deb504e82bb52d075a5acfb032
+NOT COMMITTED.  NOTHING SENT ANYWHERE -- SUBMISSIONS PARKED.
+
+CLASSIFICATION: PRODUCING-PATH REPAIR.  NO gate, threshold, band, cap, label,
+rank count, endTime or registered VALUE moves.  Item 2 changes a Python
+literal's TYPE and is argued in full below.  The frozen grading path is
+untouched and is re-verified against HEAD at the foot of this file.
+
+THE REUSABLE HALF, AND IT IS ABOUT THE PREVIOUS REPAIR, NOT THIS BUG:
+  a3gc_genmesh.sh was repaired this morning under AMENDMENT 5 for EXACTLY this
+  defect class -- a containerised DAFoam tool invoked without first
+  establishing its environment.  THAT REPAIR FIXED ONE INSTRUMENT AND DID NOT
+  SWEEP ITS SIBLINGS.  a3gc_run.sh shared the pattern, was never opened, and
+  died rc=134 nine hours later.  A REPAIR IS NOT COMPLETE UNTIL EVERY
+  INSTRUMENT SHARING THE PATTERN HAS BEEN OPENED AND CHECKED.  Three
+  instruments in this family have now failed this one class three different
+  ways: genmesh SUPPRESSED the load with `|| true` and blamed a missing binary;
+  D8G's cmd.sh armed `set -e` AHEAD of the load and aborted inside OpenFOAM's
+  own bashrc; this runner OMITTED the load entirely and blamed mpirun.
+
+---------------------------------------------------------------------
+ITEM 1 -- THE CONTAINER INVOCATION (the reported defect)
+---------------------------------------------------------------------
+The wrapper's docker run now carries -u 1002:<host gid>, -e HOME, `bash -lc`,
+and the genmesh prologue: umask 0002; source loadDAFoam.sh; POSITIVE CAPABILITY
+ASSERTION; `set -e` armed AFTER it.  The pattern is COPIED from the frozen
+a3gc_genmesh.sh (md5 9fa240d9...), not invented.  Its three measured
+constraints are all honoured: `set -e` is not hoisted above the source (above
+it the shell aborts rc=1 in OpenFOAM-v2506/etc/config.sh/setup:207); the
+source's rc is not used as a test (it returns 0 even when nothing loaded); and
+the assertion is SHOWN ABLE TO FAIL.
+
+  PLANTED CONTROL, 2026-09-11 21:29Z, this prologue, this pinned image:
+    uid 1000:1000  -> "REFUSE [ENV] ... WM_PROJECT_DIR=[] python=MISSING
+                       mpirun=/usr/bin/mpirun",  rc = 97   *** SENTINEL_FAIL ***
+    uid 1002:1000  -> SENTINEL_PASS, rc = 0                *** SENTINEL_PASS ***
+                      WM_PROJECT_DIR=/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506
+                      python=/home/dafoamuser/dafoam/packages/miniconda3/bin/python
+
+  *** A FINDING INSIDE THE CONTROL THAT DECIDED THE ASSERTION'S WORDING:
+  `mpirun` RESOLVED IN BOTH DIRECTIONS, to the same /usr/bin/mpirun.  It is the
+  distribution's MPI and is present with NO DAFoam environment at all.  AN
+  ASSERTION DEMANDING ONLY `mpirun` WOULD HAVE PASSED THE EXACT ENVIRONMENT
+  THAT PRODUCED rc=134.  `python` -- the miniconda interpreter that exists only
+  after the load, and the binary mpirun itself named in its refusal -- is the
+  discriminating term.  An assertion must name the thing that failed. ***
+
+  A SECOND, INDEPENDENT DEFECT IN THE SAME LINE: the old spelling passed no
+  `-u` at all, so the container ran as the image's 1002:1002 into a 2775
+  ubuntu:ubuntu case directory whose "other" bits are r-x.  IT COULD NOT HAVE
+  WRITTEN A TIME DIRECTORY even had its environment loaded.  VERIFIED IN THE
+  LIVE RUN: at 21:39Z the container rewrote system/decomposeParDict in place
+  and the file is still owned ubuntu:ubuntu -- host-readable, host-writable,
+  host-deletable, exactly the genmesh property.
+
+---------------------------------------------------------------------
+ITEM 2 -- A PYTHON LITERAL'S TYPE, FORCED BY THE SOLVER'S OWN CHECKER
+---------------------------------------------------------------------
+  PRIMAL_MIN_RES_TOL_DIFF="100"  ->  "100.0"
+
+  Found by running it.  With item 1 in place the environment loaded, four ranks
+  started and pyDAFoam reached its own option initialiser, which refused
+  (pyDAFoam.py:2029, 21:32Z, four ranks):
+    "Datatype for Option primalMinResTolDiff was not valid.
+     Expected data type is <class 'float'>  Received data type is <class 'int'>"
+
+  *** THE VALUE DOES NOT MOVE AND NO GATE MOVES WITH IT.  The FROZEN
+  a3gc_grade.py already registers REG_PRIMAL_MIN_RES_TOL_DIFF = 100.0 (line
+  232) and reads the number out of the solver's own DAOption dump through
+  float() (line 619), so `100` and `100.0` are THE SAME NUMBER to G-TOL, and
+  the accept floor 1e-8 x 100 = 1e-6 is unchanged.  This is a Python literal
+  type the solver demands, not a threshold edit.  Flagged separately and
+  loudly because it is the one item outside "container invocation only", and it
+  is the supervisor's to accept or refuse, not the lane's to absorb. ***
+
+---------------------------------------------------------------------
+ITEM 3 -- A DEFECT THIS LANE INTRODUCED, AND HOW IT ANNOUNCED ITSELF
+---------------------------------------------------------------------
+  The item-1 explanation was first written INSIDE the wrapper heredoc.  That
+  heredoc is UNQUOTED (<<WEOF -- deliberately, so $WD, $NP, $LOG and
+  $IMAGE_DIGEST resolve at write time).  The comment carried backticks and bare
+  dollars, SO THE HOST SHELL COMMAND-SUBSTITUTED THEM WHILE WRITING THE FILE
+  AND ACTUALLY EXECUTED `mpirun` ON THE HOST at 21:31Z.  (Measured: the
+  attempted substitutions were mpirun's own usage error, `|| true`, `set -e`
+  and four bare variable names; none wrote anything.)  The explanation now
+  lives in the RUNNER's comments, which are never expanded; the wrapper carries
+  three plain lines with no backtick and no bare dollar.
+
+---------------------------------------------------------------------
+ITEM 4 -- THE GENERATOR IS NOW ASKED WHAT IT ACTUALLY WROTE
+---------------------------------------------------------------------
+  A GENERATOR THAT IS NOT ASKED WHAT IT WROTE WILL WRITE ANYTHING.  Two checks:
+    (a) PRODUCT SIDE: the wrapper must parse (`bash -n`) and must contain all
+        seven load-bearing terms -- loadDAFoam.sh, WM_PROJECT_DIR, exit 97,
+        -u <uid>:<gid>, -e HOME, the exact exec line, the pinned digest.
+    (b) SOURCE SIDE: the heredoc region of the runner's OWN source must contain
+        no backtick, and every `$` in it must be either escaped or one of the
+        seven host values this runner resolves at write time.
+
+  *** WHY (b) EXISTS, AND IT IS THE SHARPEST THING MEASURED TODAY.  A
+  product-side check for the item-3 defect was WRITTEN FIRST, PLANTED, AND
+  PASSED THE MUTANT.  It had to.  THE HOST SHELL CONSUMES THE BACKTICKS AS IT
+  WRITES: the substitution's OUTPUT lands in the file and the backticks are
+  gone, so the wrapper on disk looks innocent while the command has already
+  run.  A PRODUCT-SIDE CHECK IS STRUCTURALLY BLIND TO THIS DEFECT -- the only
+  place the evidence survives is the generator's source.  Had the plant not
+  been run, a guard that cannot see its own target would have shipped wearing
+  the word "asserted". ***
+
+  PLANTED CONTROL ON THE GUARDS, 2026-09-11 21:36Z -- four mutants, four
+  refusals, and the real path passing both lines:
+    mut1  backticked comment restored inside the heredoc  -> REFUSE (BACKTICK)
+    mut2  `-u $CONTAINER_UID:$CONTAINER_GID` deleted      -> REFUSE (missing term
+                                                              [-u 1002:1000])
+    mut3  an unescaped $HOSTNAME added to the heredoc     -> REFUSE (UNESCAPED $)
+    mut4  the source extraction forced empty              -> REFUSE (extracted no
+                                                              wrapper source)
+    real  -> "heredoc source asserted: no backtick, no unintended expansion"
+            "wrapper asserted: parses, and carries all 7 load-bearing terms"
+  mut4 is the planted zero on the reader itself (CLAUDE.md rule 3): a check
+  that reads nothing passes everything, so it is made to refuse.
+
+---------------------------------------------------------------------
+ITEM 5 -- THE MODEL DICTS WERE NEVER STAGED BY ANYTHING
+---------------------------------------------------------------------
+  With items 1-4 in place the run reached "DAOption created.  DASolver
+  initialized", selected DARhoSimpleCFoam, decomposed into 4 subdomains at
+  24,960 cells each (x4 = 99,840 EXACTLY) and printed "Calculations will run
+  for 6000 steps" -- then stopped:
+    [0] --> FOAM FATAL ERROR: cannot find file
+        ".../A3GC-L3/processor0/constant/thermophysicalProperties"
+  The case held constant/polyMesh AND NOTHING ELSE.  a3gc_genmesh.sh builds the
+  mesh; the runner wrote system/ and 0/; NEITHER ever staged the model dicts,
+  and DARhoSimpleCFoam is compressible and cannot start without them.
+
+  THE PREREGISTRATION GOVERNS BOTH, so this stages a REGISTERED input rather
+  than choosing physics: Sec.4.1 -- "solver DARhoSimpleCFoam; turbulence
+  SpalartAllmaras with wall functions ... the same definitions the validated run
+  used", and the validated run IS the default $TEMPLATE.  The runner's
+  "nothing is inherited" header names THREE disagreements with the shipped
+  producer -- primalMinResTol, endTime, numberOfSubdomains -- and all three live
+  in the runScript and system/, NOT in constant/.
+
+  A REGISTERED SOURCE IS STILL NOT EVIDENCE THAT THE FILE SAYS WHAT IT SHOULD,
+  so the staged pair is asserted, and the sharpest assertion is arithmetic
+  rather than a grep: the thermo dict must REPRODUCE Sec.4.1's registered
+  freestream Mach from its OWN molWeight and Cp.  MEASURED on the real dict:
+  R = 286.99, gamma = 1.4001, a = 347.17 m/s, M = 291.6/347.17 = 0.83997
+  against Sec.4.1's 0.83997 -- five decimal places.  A plausible thermo dict
+  for a DIFFERENT gas passes a filename check and passes a "perfectGas" grep;
+  it does not pass this one.
+    PLANTED CONTROL: molWeight 32 (oxygen-like) -> "Mach 0.89935 ... THE STAGED
+      GAS IS NOT THE REGISTERED GAS", rc 2.
+    PLANTED CONTROL: RASModel kOmegaSST -> refused on Sec.4.1.
+    REAL: "staged constant/: SpalartAllmaras on, hePsiThermo,
+           M(from the dict) = 0.83997 (Sec.4.1: 0.83997)".
+
+  Cold start additionally clears a previous attempt's processor* directories.
+  G-COLD has ALREADY refused any processor*/<non-zero time> before this point,
+  so what it removes is only a cold decomposition from an attempt that produced
+  nothing -- and no attempt is ever cleared before its log, rc and wrapper are
+  preserved in a sibling directory.
+
+---------------------------------------------------------------------
+ITEM 6 -- A HAZARD THIS LANE CREATED, PLANTED, AND ONLY THEN SAW
+---------------------------------------------------------------------
+  *** ITEM 5's FIRST SPELLING COPIED BOTH DICTS INTO THE CASE AND ASSERTED
+  AFTERWARDS.  The refusal was correct, loud and useless: it left the REJECTED
+  dict in the case directory.  MEASURED -- after the oxygen plant refused,
+  /home/ubuntu/certonomous-runs/A3GC-L3/constant/thermophysicalProperties read
+  molWeight 32.000000.  Any later `--stage launch` that did not re-run prepare
+  would have solved THE WRONG GAS with nothing in the record to say so.  A GUARD
+  THAT WRITES BEFORE IT JUDGES TURNS A CLEAN REFUSAL INTO A CONTAMINATED CASE.
+  Every assertion now reads $TEMPLATE and the case is written only once all of
+  them pass. ***
+
+  AND THE FIRST ATTEMPT TO VERIFY THE FIX PROVED NOTHING, WHICH IS ITS OWN
+  LESSON: re-planting the wrong gas showed molWeight 32 still in the case -- but
+  that was the EARLIER contamination, not a new one.  The test could not
+  discriminate.  Done properly, on one case, in order:
+    restore from the real template -> case reads 28.970000   (the live positive)
+    plant the wrong gas            -> REFUSED
+    case still reads               -> 28.970000              (nothing written)
+
+---------------------------------------------------------------------
+ITEM 7 -- A TEST FIXTURE CHANGED, AND WHY IT IS NOT THE TEST BENT TO THE CODE
+---------------------------------------------------------------------
+  a3gc_run_selftest.sh (NOT frozen, not part of the grading path) built its
+  template as a 0.orig and nothing else, so item 5's requirement made P0 and
+  nine dependents fail.  THE FIXTURE HAD BEEN ASSERTING THAT PREPARE SUCCEEDS ON
+  A TEMPLATE THAT COULD NEVER HAVE SOLVED.  The real run is what exposed that.
+  NO ASSERTION WAS WEAKENED OR REMOVED: the fixture now copies the VALIDATED
+  RUN'S OWN two dicts, rather than hand-written physics that would only have had
+  to agree with them anyway.  Reported here because a lane editing the test that
+  judges its own change is exactly the move a supervisor must see as a diff.
+
+---------------------------------------------------------------------
+REGRESSION: a3gc_run_selftest.sh -- 41 passed, 0 failed, BEFORE and AFTER.
+
+WHAT IS *NOT* CLAIMED HERE:
+  This repair is shown to establish the ENVIRONMENT, the WRITE PERMISSION and
+  the GENERATOR'S HONESTY.  It is NOT evidence that the primal converges, that
+  runScript_a3gc.py is correct, or that any gate will pass.  A container that
+  starts is not a physics result.
+=====================================================================
+
+diff --git a/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_run.sh b/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_run.sh
+index e0f0c3383..abef31be9 100755
+--- a/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_run.sh
++++ b/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_run.sh
+@@ -75,7 +75,16 @@ assert_not_quarantined() {
+ # EVERY VALUE BELOW IS SET EXPLICITLY AND NONE IS INHERITED.
+ # =====================================================================
+ PRIMAL_MIN_RES_TOL="1.0e-8"        # Sec.3.5 -- G-TOL refuses anything else
+-PRIMAL_MIN_RES_TOL_DIFF="100"      # Sec.3.5 -- the accept floor is the PRODUCT (N-D43)
++# *** `100` WAS A PYTHON `int` AND pyDAFoam REFUSES IT AT ITS OWN TYPE CHECK.
++# MEASURED 2026-09-11 21:32Z, four ranks, pyDAFoam.py:2029:
++#   "Datatype for Option primalMinResTolDiff was not valid.
++#    Expected data type is <class 'float'>  Received data type is <class 'int'>"
++# THE VALUE DOES NOT MOVE AND NO GATE MOVES WITH IT.  The frozen a3gc_grade.py
++# already registers REG_PRIMAL_MIN_RES_TOL_DIFF = 100.0 (line 232) and reads the
++# solver's own DAOption dump through float() (line 619), so `100` and `100.0`
++# are the SAME NUMBER to G-TOL.  This is a Python literal-type spelling forced
++# by the solver, not a threshold edit.
++PRIMAL_MIN_RES_TOL_DIFF="100.0"    # Sec.3.5 -- the accept floor is the PRODUCT (N-D43)
+ END_TIME="6000"                    # Sec.4.1 anchor / Sec.5 cost basis
+ DELTA_T="1"                        # Sec.4.1 -- unit steps
+ PRINT_INTERVAL="100"               # AMENDMENT 1(a): 1+floor(6000/100)=61 samples
+@@ -104,6 +113,18 @@ declare -A WANT_WING=(  [L3]=6240  [L2]=24960  [L1]=99840   )
+ # Sec.2.2 / DAFOAM_CHARTER Sec.6: the image is pinned BY DIGEST, never by tag.
+ IMAGE_DIGEST="sha256:8352629516bb363345fd802ed6092f878bad0a612c05c98d492a14bd94729d46"
+ 
++# CONTAINER IDENTITY -- the same measured choice a3gc_genmesh.sh makes, and for
++# the same two measured reasons.  uid 1002 is the image's own dafoamuser, and
++# /home/dafoamuser is drwxr-x--- 1002:1002, so ONLY uid 1002 can traverse it to
++# reach loadDAFoam.sh.  The gid is the HOST's, with `umask 0002` below, so the
++# solver's time directories land group-writable to the host and the host can
++# still clean its own run root.  THE LAUNCH PREVIOUSLY PASSED NO `-u` AT ALL,
++# so it ran as 1002:1002 into a 2775 ubuntu:ubuntu case directory, where
++# "other" is r-x: THE SOLVER COULD NOT HAVE WRITTEN A SINGLE TIME DIRECTORY
++# even if its environment had loaded.
++CONTAINER_UID="1002"
++CONTAINER_GID="$(id -g)"
++
+ # --------------------------------------------------------------------
+ LEVEL=""; ROOT=""; TEMPLATE="/home/ubuntu/certonomous-runs/A3-onera-m6-transonic"
+ STAGE="all"; DRY=0
+@@ -386,19 +407,126 @@ do_launch() {
+   # *** THE rc IS CAPTURED INSIDE THE DETACHED WRAPPER, NEVER AROUND THE setsid
+   # LINE.  `setsid timeout cmd` EXITS 0 FOR EVERY OUTCOME -- success, timeout,
+   # SIGKILL -- so an rc taken around the launch measures nothing at all. ***
++  # *** THE DAFOAM ENVIRONMENT IS LOADED BEFORE DAFOAM TOOLS ARE INVOKED.
++  # This line previously ran `mpirun -np N python runScript...` as the container's
++  # command with NO shell and NO environment load whatsoever, and it died rc=134:
++  #   "mpirun was unable to find the specified executable file ... Executable:
++  #    python ... 4 total processes failed to start".
++  # `python`, `mpirun` and the DAFoam libraries live behind loadDAFoam.sh; without
++  # it the container has no DAFoam at all.  THIS IS THE THIRD INSTRUMENT IN THIS
++  # RUNG FAMILY TO INVOKE A CONTAINERISED TOOL WITHOUT ESTABLISHING ITS
++  # ENVIRONMENT FIRST, and the three failed three different ways: a3gc_genmesh.sh
++  # SUPPRESSED the load with `|| true` and reported a missing binary; D8G's
++  # cmd.sh put `set -e` AHEAD of the load and aborted inside OpenFOAM's bashrc;
++  # this one OMITTED the load entirely and blamed mpirun.
++  # The environment is checked by a POSITIVE CAPABILITY ASSERTION, not by rc --
++  # the source returns 0 even when nothing loaded -- and `set -e` is armed AFTER
++  # the assertion, because armed BEFORE the source it aborts in
++  # OpenFOAM-v2506/etc/config.sh/setup:207 (measured).
++  # *** WHY THE ASSERTION NAMES `python` AND WHY `mpirun` ALONE WOULD HAVE BEEN
++  # WORTHLESS.  PLANTED CONTROL, MEASURED ON THIS BOX 2026-09-11 21:29Z, this
++  # exact prologue, this pinned image, a scratch mount:
++  #   uid 1000:1000 (cannot traverse drwxr-x--- /home/dafoamuser) -> exit 97,
++  #     WM_PROJECT_DIR=[]  python=MISSING  mpirun=/usr/bin/mpirun
++  #   uid 1002:<host gid> -> SENTINEL_PASS,
++  #     WM_PROJECT_DIR=/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506
++  #     python=/home/dafoamuser/dafoam/packages/miniconda3/bin/python
++  #     mpirun=/usr/bin/mpirun
++  # *** `mpirun` RESOLVES IDENTICALLY IN BOTH -- IT IS THE DISTRIBUTION'S
++  # /usr/bin/mpirun AND IS PRESENT WITH NO DAFOAM ENVIRONMENT AT ALL.  An
++  # assertion that demanded only `mpirun` would have PASSED the very environment
++  # that produced rc=134.  `python` is the miniconda interpreter that exists ONLY
++  # after the load, so `python` is the discriminating term; `mpirun` is asserted
++  # too, but it is not what makes this assertion an assertion. ***
++  # NOTE THE ESCAPING: this heredoc is UNQUOTED (<<WEOF), so every `$` that must
++  # survive to the CONTAINER is backslash-escaped, exactly as the existing
++  # `rc=\$?` and `"\$rc"` are.  `$NP`, `$WD`, `$LOG` and `$IMAGE_DIGEST` are
++  # deliberately NOT escaped: those are host values, resolved as the wrapper is
++  # written. ***
+   rm -f "$RC"
+   cat > "$WD/_a3gc_wrapper.sh" <<WEOF
+ #!/usr/bin/env bash
+ # Generated by a3gc_run.sh.  The exit code is captured HERE, INSIDE the
+ # detached process, for the reason in the runner's do_launch().
+ cd "$WD"
+-docker run --rm --cpus=$NP -v "$WD":"$WD" -w "$WD" \\
++# The environment is established before any DAFoam tool runs; the runner
++# comments above do_launch() carry the whole reasoning, and are kept THERE
++# because THIS heredoc is unquoted.  No backtick and no bare dollar below.
++docker run --rm --cpus=$NP -u $CONTAINER_UID:$CONTAINER_GID -e HOME=/home/dafoamuser \\
++  -v "$WD":"$WD" -w "$WD" \\
+   "$IMAGE_DIGEST" \\
+-  mpirun -np $NP python runScript_a3gc.py > "$LOG" 2>&1
++  bash -lc 'umask 0002; source /home/dafoamuser/dafoam/loadDAFoam.sh; if [ -z "\${WM_PROJECT_DIR:-}" ] || ! command -v python >/dev/null 2>&1 || ! command -v mpirun >/dev/null 2>&1; then printf "REFUSE [ENV] loadDAFoam.sh did not populate the environment: WM_PROJECT_DIR=[%s] python=%s mpirun=%s id=%s\\n" "\${WM_PROJECT_DIR:-}" "\$(command -v python || echo MISSING)" "\$(command -v mpirun || echo MISSING)" "\$(id)" >&2; exit 97; fi; set -e; exec mpirun -np $NP python runScript_a3gc.py' > "$LOG" 2>&1
+ rc=\$?
+ printf '%d\\n' "\$rc" > "$RC"
+ WEOF
+   chmod +x "$WD/_a3gc_wrapper.sh"
++
++  # ================================================================
++  # THE GENERATOR ASSERTS WHAT IT ACTUALLY WROTE.  MEASURED, NOT ASSUMED.
++  #
++  # *** THIS GUARD EXISTS BECAUSE THIS GENERATOR ONCE WROTE A FILE IT DID NOT
++  # INTEND.  The heredoc below is UNQUOTED (<<WEOF, deliberately -- $WD, $NP,
++  # $LOG and $IMAGE_DIGEST must resolve as the wrapper is written).  An
++  # explanatory comment block was added INSIDE it carrying backticks and bare
++  # dollars; the HOST shell command-substituted them while writing the file and
++  # ACTUALLY EXECUTED `mpirun` on the host.  The wrapper still ran, so nothing
++  # announced the damage.  A GENERATOR THAT IS NOT ASKED WHAT IT WROTE WILL
++  # WRITE ANYTHING.  Every term below is one this launch cannot be correct
++  # without, so the assertion FAILS if the expansion is ever damaged again. ***
++  # ================================================================
++  W="$WD/_a3gc_wrapper.sh"
++  bash -n "$W" || refuse "WRAPPER" "the generated wrapper does not parse: $W"
++  for need in "loadDAFoam.sh" \
++              "WM_PROJECT_DIR" \
++              "exit 97" \
++              "-u $CONTAINER_UID:$CONTAINER_GID" \
++              "-e HOME=/home/dafoamuser" \
++              "exec mpirun -np $NP python runScript_a3gc.py" \
++              "$IMAGE_DIGEST"; do
++    grep -qF -- "$need" "$W" || refuse "WRAPPER" "the generated wrapper is missing
++  a load-bearing term: [$need]
++  The generator did not write what it intended.  Refusing to launch rather than
++  discovering it from a solver log an hour later."
++  done
++  # ================================================================
++  # AND THE FAILURE MODE ABOVE CANNOT BE SEEN IN THE PRODUCT AT ALL.
++  #
++  # *** MEASURED, PLANTED CONTROL 2026-09-11 21:36Z: a comment carrying
++  # backticks was re-inserted into the heredoc, and the guard that inspected the
++  # WRITTEN WRAPPER passed it.  It had to.  THE HOST SHELL CONSUMES THE
++  # BACKTICKS AS IT WRITES -- the substitution's OUTPUT lands in the file and the
++  # backticks are gone, so the wrapper on disk looks innocent while `mpirun` has
++  # already been executed on the host.  A PRODUCT-SIDE CHECK IS STRUCTURALLY
++  # BLIND TO THIS DEFECT.  The only place the evidence still exists is THE
++  # GENERATOR'S OWN SOURCE, so that is what is checked. ***
++  # ================================================================
++  HD=$(sed -n '/^  cat > "\$WD\/_a3gc_wrapper.sh" <<WEOF$/,/^WEOF$/p' "$0")
++  # PLANT THE ZERO (CLAUDE.md rule 3): an extraction that silently matched
++  # nothing would pass every test below vacuously.  Demand it saw the real text.
++  case "$HD" in
++    *"docker run --rm --cpus="*) : ;;
++    *) refuse "WRAPPER" "the heredoc self-check extracted no wrapper source from $0.
++  A check that reads nothing passes everything.  Refusing." ;;
++  esac
++  case "$HD" in
++    *'`'*) refuse "WRAPPER" "the wrapper heredoc in $0 contains a BACKTICK.  This
++  heredoc is UNQUOTED, so the host shell will execute that text while writing the
++  wrapper and the evidence will not survive into the file.  Refusing." ;;
++  esac
++  # Every '$' in the heredoc must be either escaped (\$, meant for the container)
++  # or one of the SEVEN host values this runner deliberately resolves at write
++  # time.  Anything else is an expansion nobody intended.
++  HDCHK=$(printf '%s' "$HD" | sed -e 's/\\\$/@/g' \
++      -e 's/\$WD/@/g' -e 's/\$NP/@/g' -e 's/\$LOG/@/g' -e 's/\$RC/@/g' \
++      -e 's/\$IMAGE_DIGEST/@/g' -e 's/\$CONTAINER_UID/@/g' -e 's/\$CONTAINER_GID/@/g')
++  case "$HDCHK" in
++    *'$'*) refuse "WRAPPER" "the wrapper heredoc in $0 contains an UNESCAPED '\$' that is
++  not one of the seven host values this runner resolves at write time.  It will be
++  expanded by the HOST while writing the wrapper, not by the container.  Escape it
++  as \\\$ if it is meant for the container.  Refusing." ;;
++  esac
++  printf '  heredoc source asserted: no backtick, no unintended expansion\n'
++  printf '  wrapper asserted: parses, and carries all 7 load-bearing terms\n'
+   if [ "$DRY" = 1 ]; then
+     printf '  [dry-run] wrapper written; would run: setsid nohup %s &\n' "$WD/_a3gc_wrapper.sh"
+     printf '  [dry-run] rc would be captured INSIDE the wrapper into %s\n' "$RC"
+
+=== FROZEN PATHS, RE-VERIFIED AGAINST HEAD AT WRITE TIME ===
+a3gc_grade.py              disk=73dbe368934956700da87e5a1f44ea0c  HEAD=73dbe368934956700da87e5a1f44ea0c  UNCHANGED
+a3gc_grade_selftest.sh     disk=3a709fa46edfe996a7cd5d1de2100bab  HEAD=3a709fa46edfe996a7cd5d1de2100bab  UNCHANGED
+a3gc_genmesh.sh            disk=9fa240d9643308f5e9a4988614b58884  HEAD=9fa240d9643308f5e9a4988614b58884  UNCHANGED
+d8g_genmesh.sh             disk=2b22d01e265ba8362a12644c32bbd409  HEAD=2b22d01e265ba8362a12644c32bbd409  UNCHANGED
+a3gc_run.sh (PRODUCING, not frozen)  new md5 = 984eeac92c32893ed3eacd039797c9dd
