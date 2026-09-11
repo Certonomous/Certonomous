@@ -1260,3 +1260,244 @@ the solver to reach a `Time =` step.**
 and no graded row were produced before the repair. The contrast section 2d.1
 forbids, *"the numbers looked wrong, so the band was widened"*, is absent: no
 number existed and no band was touched.
+
+---
+
+## 17. ADDENDUM 4 — 2026-09-11. **K2d IS RETIRED.** The rung could never have been graded, and the timeout is not why
+
+**Document version 1.3 → 1.4.**
+**Lines whose number changed above this section: 0.** Nothing above is edited.
+**Gates were closed at the freeze commit `e7979e29b706c1f4b91404c04731f29a80f128bd`.**
+This is a dated addendum under standing rule 2 and standing rule 6. **It alters
+no gate, no band, no threshold, no floor, no cap and no label. It records that
+they could never be evaluated.**
+
+Ruled by heat-transfer-supervisor 2026-09-11, on a triage carried out by a
+heat-transfer `lab-lane` from the artifacts. The supervisor verified both
+blockers of §17.2 personally before accepting them (`SUPERVISION_CHARTER.md` §3
+check 3).
+
+### 17.1 THE THREE VERDICTS
+
+| subject | verdict |
+|---|---|
+| **`K2d_L3`** | **`NOT A RESULT`** |
+| **Every registered quantity of K2d — `G1`, `G2`, `G3`, `G4` — at ALL THREE LEVELS** | **`NOT A RESULT`** |
+| **The rung** | **`BLOCKED` on a defective frozen grading path** |
+
+**`K2d_L3` fails standing rule 4 on five of its six conjuncts**, measured from
+`log.solve` and `STATUS.K2d_L3` at their retired path (§17.6): no `End` line;
+last written time 995 ≠ `endTime` 3000; no fields at `endTime`; 994
+`ExecutionTime` lines ≠ 3000; and no field exists to age-guard. Only clause 1's
+negation is unambiguous — `rc = 124`, not 0.
+
+**L1 and L2 are as ungradeable as L3, and the ground is the instrument, not the
+timeout.** `G-CYCLE` is evaluated per level and **before** any triple is
+classified (§4.2 step 2), so standing rule 5 clause (1) bites at every level.
+Its two inputs were never written (§17.2) and **cannot be reconstructed**: every
+level wrote fields only at `endTime` under `writeInterval 3000`, and a
+400-iteration monitor series at a 50-iteration cadence cannot be recovered from
+one end-of-run snapshot. There is no re-analysis that rescues L1 or L2.
+
+### 17.2 THE TWO BLOCKERS — both on the pinned grading path, both independent of the timeout
+
+**BLOCKER 1 — the gate's own inputs were never written.**
+
+This document registers both monitored quantities as in-pass function-object
+output:
+
+- `:290` — `U_ha` is *"written by an in-pass function object at the **same
+  50-iteration cadence** as `T_in,max`, so `G-CYCLE` reads it from the log
+  alone."*
+- `:413` — `T_in,i`, `T_in,max` and `θ_i` are *"all computed by in-pass function
+  objects at the monitor cadence so S13 reads them from the log alone."*
+
+**The pinned builder emits no function objects.** `build_k2d.py` writes
+`system/controlDict` at `:384`–`:385`; `grep -c functions` returns **0** on all
+three built `system/controlDict` files, which end at `runTimeModifiable false;`.
+The only "functions" matches in `build_k2d.py` are the prose words *"wall
+functions"* at `:50` and `:203`. **No `postProcessing/` directory exists anywhere
+under `K2d_runs/`**, no `T_in*.dat`, no `U_ha` output, and no matching string in
+any of the three `log.solve` files. `G-CYCLE` has no input at any level.
+
+**BLOCKER 2 — the pinned comparator has no grading path.**
+`analyse_k2d.py:613`–`:619` is a two-branch stub: `--selftest`, or a
+**hardcoded** `EXIT_REFUSE` printing *"no K2d case directory exists yet."*
+`main()` never reads a case directory. `read_checkmesh`, `read_patch_census`,
+`gate_mincell` and `built_cell_count` all take a `case_dir` that `main()` never
+supplies. Every gate function exists and is exercised by 31 selftest arms;
+**nothing wires any of them to a run.**
+
+**All four §9 pins reproduce byte-exact on disk** — `build_k2d.py`
+`0be84519c033e5b663e63043bc01bfa0a91319d5`, `analyse_k2d.py`
+`f61ab074425f2664929abb15cce6e0f403cb5b9f`, `mark_done_k2d.py`
+`0a095552afc051b3ce3795cb471deb145da53db2`, `scripts/roache_triple.py`
+`78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8` — and the freeze commit is an
+ancestor of `main`. **The stub IS the pinned comparator.** §9 fixes the grading
+path at the freeze commit, so this is not a file that can be quietly completed.
+
+**THE STANDING CORRECTION, recorded by the heat-transfer supervisor under their
+own name.** This document was frozen on a comparator whose 31 selftest arms were
+green, and the arms were read while the entry point was not. **A selftest count
+is evidence about gate functions and evidence about nothing else. The check is
+that the comparator can be pointed at a case directory and return a verdict.**
+
+### 17.3 WHY NOT A §2d.1 REPAIR
+
+The four-condition repair exception (`VERIFICATION_CHARTER.md:1914`–`:1945`) is
+plausibly satisfiable here — condition (2) in its strongest form, since **no
+graded value exists that a repair could have been selected to favour.** It is
+declined anyway, and the ground is that **§2d.1 buys nothing**: a repaired
+comparator would still have nothing to grade, because every level must rerun
+regardless. An exception invoked where it preserves no evidence is an exception
+invoked to keep a document alive. `VERIFICATION_CHARTER.md:2155`–`:2157` points
+the same way — where a repair would make a graded refinement family
+incommensurable, the whole ladder is re-registered rather than patched.
+
+**The route out is a successor registration, `K2f`, drafted separately and
+UNFROZEN.** Sanaa approved **K2a** — the rack-row module — in her own words on
+2026-09-10. **That approval travels with the case, not with this document's
+filename**, and K2f realises the same approved module unchanged. Nothing here
+goes back to her desk and no agent's message is her consent.
+
+### 17.4 `note=HANG_GUARD_TRIPPED` IS FACTUALLY WRONG
+
+`STATUS.K2d_L3` carries `note=HANG_GUARD_TRIPPED`. That string is written
+mechanically by `launch_k2d.sh:45` on any `rc=124` and carries **no diagnosis
+whatever**. The solver had not hung.
+
+**Measured from `log.solve`:** over its last 194 iterations L3 ran at **5.610
+`ExecutionTime` s/iteration and 8.974 `ClockTime` s/iteration** — it was doing
+work at the instant it died. Its final step block is **10 lines with no
+`ExecutionTime` line**: the kill landed *inside* iteration 995, after that
+step's two `p_rgh` solves and its continuity line and before its `k` and `omega`
+solves. `rc=124` is GNU `timeout`'s kill code and `wall_s` **8034** equals
+`timeout_s` **8034** exactly.
+
+**This was a budget stop wearing a hang guard's name — the exact confusion §7.3
+was written to prevent**, and §7.3 says so in terms: *"A timeout numerically
+equal to a cap … makes a labelled hang guard function as a budget stop, and a
+reader cannot tell which fired."*
+
+**A second correction, against the convenient reading.** L3's residual
+*magnitudes* at the kill were small, but its *trajectory* had already reversed.
+L3 descended cleanly for three decades to a minimum at iteration ~945 (Ux
+initial residual **1.1271e-04**, T **7.8362e-05**) and was **rising** when it
+died: at 995, Ux **1.5725e-04** (**+39.5 %** off its own minimum) and T
+**1.0293e-04** (**+31.3 %**). It was killed on the rising limb of an
+oscillation, not on a converged step. **This is diagnostic evidence and is NOT
+the registered gate** — `G-CYCLE` gates on `T_in,max` and `U_ha` normalised by
+range-spanned, never on solver residuals. It is recorded because it is the only
+convergence evidence this rung produced.
+
+### 17.5 THE §7.3 DEPARTURE — and L1 shows the launcher had the registered value right one level earlier
+
+§7.3's frozen table registers ranks and hang guard per level. What ran:
+
+| level | §7.3 registered | as run (`STATUS.K2d_L*`) | departure |
+|---|---|---|---|
+| **L1** | 4 ranks, **1,485 s** | 4 ranks, **1,485 s** | **none — the registered value, used exactly** |
+| **L2** | 8 ranks, **3,757 s** | 4 ranks, **2,381 s** | ranks halved; guard **1.58× tighter** |
+| **L3** | 8 ranks, **20,250 s** (`:779`) | 4 ranks, **8,034 s** | ranks halved; guard **2.52× tighter** |
+
+**L1 used the registered guard.** That makes L2 and L3 a departure from a value
+the launcher had demonstrably been using correctly one level earlier — sharper
+than "a different basis was used", because nothing changed but the caller.
+
+**Provenance of 8,034 s: a hand-passed argument, not a registered cap and not a
+computed one.** `launch_k2d.sh:7` reads `CASE="$1"; RANKS="$2"; GUARD_S="$3"` —
+the launcher computes no guard and asserts nothing about the one it is handed.
+The value came from the retired L3 watcher at
+`K2d_runs/RETIRED_2026-09-11/watch_l3.sh:46`–`:47`:
+
+> `# hang guard 3x the re-derived POINT (178.5 core-min on 4 ranks = 2678 s wall)`
+> `./launch_k2d.sh K2d_L3 4 8034`
+
+178.5 core-min ÷ 4 ranks = 2,677.5 s → 2,678 × 3 = **8,034**, exactly. The
+178.5 is Addendum 3 §16.2's re-derivation, i.e. §7.3's *rule* ("≈3× POINT")
+applied to a **re-derived** POINT rather than to the POINT in the frozen table.
+
+**Whether §7.3's timeout column sits inside the freeze is left open and is
+recorded as open.** §7.3 disclaims it as a cap in terms; standing rule 2 freezes
+"gate, threshold, cap and label". It is nonetheless a numeric value in a frozen
+document that was departed from downward without an addendum at the time. **No
+verdict in this document turns on the answer** — every row is `NOT A RESULT` on
+§17.2's grounds, which are independent of the guard.
+
+**Why the re-derivation was wrong, measured.** §16.2 extrapolated L2 and L3 from
+L1 at a **constant** cell-iter rate. The measured rate falls steeply with mesh
+(`ExecutionTime` basis, contention removed):
+
+| level | cells (built) | cell-iter/core-s | vs previous | contention (`ClockTime`/`ExecutionTime`) |
+|---|---:|---:|---|---:|
+| L1 | 58,368 | 187,700 | — | 1.003 |
+| L2 | 196,992 | 93,986 | ÷1.997 | 1.320 |
+| L3 | 664,848 | 37,051 | ÷2.537 | 1.775 |
+
+Cost per iteration scales as roughly **N^1.6 – N^1.77**, not N^1.0.
+**And the evidence was on disk before L3 launched and nobody read it:** §16.2
+predicted **52.9** core-min for L2 and `STATUS.K2d_L2` records **138.400** — a
+**2.617×** miss, written at 02:48:02Z. L3 had launched at 02:36:58Z.
+
+### 17.6 `endTime 3000` WAS NOT ADEQUATE, AND L2 IS THE PROOF
+
+**L2 completed all 3,000 iterations with `rc = 0` and an `End` line — and never
+plateaued.** Its initial residuals bottomed at iteration ~800 (Ux
+**1.7465e-04**) and then rose and oscillated for the remaining 2,200 iterations
+with no further descent, peaking at ~1000 (5.28e-04), ~1800 (4.84e-04) and
+~2800 (3.16e-04). Over its final 400 iterations:
+
+| quantity | min | max | peak-to-peak / mean | sign changes in 1st difference |
+|---|---|---|---:|---:|
+| Ux initial residual | 1.6524e-04 | 5.0873e-04 | **109.1 %** | 6 |
+| T | 1.5570e-04 | 4.6188e-04 | **104.5 %** | 16 |
+| `p_rgh` | 1.5301e-03 | 4.3454e-03 | **100.6 %** | 16 |
+
+That is the signature of a limit cycle, not a plateau, and L3 was arriving at
+the same place by the same route (§17.4). It is what Wibron 2018 §3.4 reported
+for this flow class and what K2b-U found in 2D in this geometry — both already
+cited in §3.3 as the reason `G-CYCLE` exists.
+
+**`P-K2d-2` and `P-K2d-3` ARE SCORED NEITHER HIT NOR LOSS.** Both are predictions
+about a `G-CYCLE` reading, and `G-CYCLE` was never evaluable. Scoring them from
+residuals would be scoring them on a quantity they were not written against.
+**They are carried UNSCORED into K2f**, where the detector they need will exist.
+`P-K2d-1` is likewise unscored: §4.4's report-only comparison never ran.
+
+### 17.7 WHAT WAS SPENT, AND ALL OF IT IS WASTE
+
+| stage | ranks | wall | core-min | outcome |
+|---|---:|---:|---:|---|
+| failed launch (Addendum 1) | 4 | 1 s | 0.067 | `rc=1`, dictionary fault |
+| L1 | 4 | 235 s | 15.667 | rule-4 DONE — **ungradeable** |
+| L2 | 4 | 2,076 s | 138.400 | 3,000 iters, `End` line — **ungradeable, not plateaued** |
+| L3 | 4 | 8,034 s | 535.600 | **0 fields, 0 time dirs, no restart point** |
+| **total, gross** | | | **689.734** | |
+
+**All 689.734 core-min is WASTE** under `COMPUTE_BUDGET_CHARTER.md` §6 — not
+merely L3's 535.600. L1 and L2 bought completed solves that no instrument on the
+frozen path can grade. **$0.590 derived** at $0.0513/core-h — **derived, never
+measured**; the box cannot read its own billing. The row lands in
+`docs/COST_CALIBRATION.md` under that file's append rules, waste separately
+named and never absorbed into a ratio.
+
+### 17.8 THE EVIDENCE, AND WHERE IT NOW LIVES
+
+`K2d_L3` and `STATUS.K2d_L3` were **MOVED, never deleted**, to
+`verification/runs/F14-cooling-ladder/K2d_runs/RETIRED_2026-09-11/`, so that no
+future reader takes the old `rc=124` for a new run's. `log.solve` is
+byte-identical across the move (sha256
+`2731e614ab63019fcae12ef5085213e2501991aa5a7ca8515c8e686075eb55b0`, 1,098,002
+bytes) and mtimes are preserved. `K2d_L1` and `K2d_L2` remain in place.
+
+**Both frozen instruments refuse the case in place, verified by execution:**
+`mark_done_k2d.py --guard K2d_L3` returned **rc=1** on the pre-existing `0/`
+limb, and `build_k2d.py:433` refuses the same condition independently. A restart
+would in any case have bought nothing — `startFrom latestTime` with
+`processor*/` holding only `0` means latestTime **is** 0.
+
+---
+
+*Nothing was sent, filed, uploaded, registered, posted or commented outside this
+box (rule 7). K2d is retired. Total solver compute against this document:
+**689.734 core-min, measured, all of it waste.***
