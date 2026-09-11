@@ -1,0 +1,132 @@
+{
+ "G4_control_volume": "registration s.5.1 registers G4 as volume-averaged T over `the cold aisle` and NOWHERE DEFINES THE VOLUME. The comparator grades the `caZone` cellZone that build_k2f.py writes, which is the exact parallel of the registered HA_BOX. THAT BOX IS A PROPOSAL AND NOT A REGISTERED DEFINITION; until s.3 fixes it, no G4 verdict from this comparator is a registered measurement.",
+ "dim": 3,
+ "end_rack_mapping": "registration s.5.1 row G3 names `T_in,1` in a ONE-BASED rack numbering; the builder writes rack0_in..rack3_in, ZERO-BASED. The row is graded on builder index 0 -- the rack at x in [0.6, 1.2], against the row's outer end, which is the rack the registration's own parenthetical identifies.",
+ "freeze": {
+  "pinned": {
+   "analyse_k2f.py": "c7ccd5f406334b42a6fa32f58d3b83466ec6f235",
+   "build_k2f.py": "c850883be4e7827de0a0384589b10bf38d472f7e",
+   "launch_k2f.sh": "97a768d982ff63ebeba081f3c0da74a7b65ec401",
+   "mark_done_k2f.py": "40a1daaae59b10ecd4446747c88588d887adbf45",
+   "scripts/roache_triple.py": "23afaee32f770f9f38a827e38ac963b9368b7707"
+  },
+  "state": "FROZEN AND VERIFIED"
+ },
+ "levels": {
+  "K2f_L1": {
+   "a_input": {
+    "ok": true,
+    "series": {
+     "T_ca": {
+      "last": 289.00003441,
+      "n_samples": 60,
+      "path": "./K2f_L1/postProcessing/T_ca/0/volFieldValue.dat",
+      "print_resolution": 1e-08,
+      "run_range": 3.438999999616499e-05
+     },
+     "T_in_0": {
+      "last": 289.00058519,
+      "n_samples": 60,
+      "path": "./K2f_L1/postProcessing/T_in_0/0/surfaceFieldValue.dat",
+      "print_resolution": 1e-08,
+      "run_range": 0.0006117500000186737
+     },
+     "T_in_1": {
+      "last": 289.00000864,
+      "n_samples": 60,
+      "path": "./K2f_L1/postProcessing/T_in_1/0/surfaceFieldValue.dat",
+      "print_resolution": 1e-08,
+      "run_range": 8.609999952113867e-06
+     },
+     "T_in_2": {
+      "last": 289.00000865,
+      "n_samples": 60,
+      "path": "./K2f_L1/postProcessing/T_in_2/0/surfaceFieldValue.dat",
+      "print_resolution": 1e-08,
+      "run_range": 8.619999960046698e-06
+     },
+     "T_in_3": {
+      "last": 289.0005852,
+      "n_samples": 60,
+      "path": "./K2f_L1/postProcessing/T_in_3/0/surfaceFieldValue.dat",
+      "print_resolution": 1e-08,
+      "run_range": 0.0006092200000011871
+     },
+     "U_ha": {
+      "last": 0.52425775937,
+      "n_samples": 60,
+      "path": "./K2f_L1/postProcessing/U_ha/0/volFieldValue.dat",
+      "print_resolution": 1e-11,
+      "run_range": 0.03529855758
+     }
+    },
+    "why": "A-INPUT PASS: all 6 registered series present and non-empty (T_in_0, T_in_1, T_in_2, T_in_3, U_ha, T_ca); sample cadences T_in_0=50, T_in_1=50, T_in_2=50, T_in_3=50, U_ha=50, T_ca=50"
+   },
+   "case": "./K2f_L1",
+   "cells": 58368,
+   "checkmesh": {
+    "n_failed": 0,
+    "ok": true,
+    "why": "G-CHECKMESH PASS (full check set run, 0 failed checks)"
+   },
+   "completion": {
+    "ok": true,
+    "why": "STRICT COMPLETION RULE: K2f_L1 DONE, all six clauses (mark_done_k2f.check)"
+   },
+   "derived": {
+    "T_in_max_last": 289.0005852,
+    "note": "T_in,max and theta_max have NO OpenFOAM producer and need none: the first is a max over four PATCH AVERAGES (not over faces, which is what a function object's `max` would return) and the second is an affine map of it with both constants registered at s.2. Registration s.3 lists both as `written by in-pass functions entries` and BOTH ARE DERIVED -- reported as a finding.",
+    "theta_max_last": 4.876666666575602e-05
+   },
+   "g3d": {
+    "census": {
+     "cyclic": 0,
+     "empty": 0,
+     "mappedWall": 0,
+     "patch": 10,
+     "symmetry": 0,
+     "wall": 2,
+     "wedge": 0
+    },
+    "ok": true,
+    "why": "G-3D CONFIRMED: 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)', no empty/wedge patches"
+   },
+   "mincell": {
+    "ok": true,
+    "why": "G-MINCELL PASS: every named feature >= 5.0 mm (worst 0.075 m)",
+    "worst": 0.07499999999999996
+   },
+   "planted_zero": {
+    "T_ca": {
+     "artifact": "./K2f_L1/postProcessing/T_ca/0/volFieldValue.dat",
+     "gate_path_delta": 0.0012340000000108375,
+     "passed": true,
+     "planted": 0.001234,
+     "reader_delta": 0.0012340000000108375
+    },
+    "T_in_0": {
+     "artifact": "./K2f_L1/postProcessing/T_in_0/0/surfaceFieldValue.dat",
+     "gate_path_delta": 0.0012340000000108375,
+     "passed": true,
+     "planted": 0.001234,
+     "reader_delta": 0.0012340000000108375
+    },
+    "U_ha": {
+     "artifact": "./K2f_L1/postProcessing/U_ha/0/volFieldValue.dat",
+     "gate_path_delta": 0.0012339999999999574,
+     "passed": true,
+     "planted": 0.001234,
+     "reader_delta": 0.0012339999999999574
+    }
+   }
+  }
+ },
+ "refusals": [
+  "PLANTED-CYCLE CONTROL FAILED (positive arm) for K2f_L1::T_in,max: a sinusoid planted at 2x the registered spread threshold, period 200 iterations, classified 'DRIFTING' and not CYCLING. The detector cannot see the phenomenon P-K2f-1 predicts, so this comparator will not grade."
+ ],
+ "registration": "docs/campaigns/F14-cooling-ladder/K2f_PREREGISTRATION.md",
+ "root": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2f_runs",
+ "rows": [],
+ "rung": "K2f",
+ "verdicts": {}
+}

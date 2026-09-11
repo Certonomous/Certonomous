@@ -86,3 +86,77 @@ about K2a's rack-row case, not about the comparator.
 
 *Nothing was sent, filed, uploaded, registered, posted or commented outside this
 box (rule 7). No gate, threshold, cap or label is altered by this file.*
+
+---
+
+## SCORING — appended 2026-09-11 after `K2f_L2` completed. **ALL THREE LOSE.**
+
+`K2f_L2` is **DONE** on the frozen rule-4 instrument (all six clauses, exit 0);
+`wall_s` 960, 4 ranks, `rc=0`, `note=clean`. The frozen comparator **REFUSED
+again at exit 2**, and on the **same L1 arm** — it iterates levels in order and
+never reached L2. **No verdict exists for either level.** The scores below were
+taken by calling the frozen `planted_cycle_control` / `classify_monitor` path on
+L2's own series; they **grade nothing** and produce no verdict.
+
+| prediction | predicted | measured | score |
+|---|---|---|---|
+| `P-K2f-L2-COST` | 89.35 core-min cf, band 67.0–111.7 | **58.518** cf (64.000 gross) | **LOSS** |
+| `P-K2f-L2-RANGE` | `T_in,max` run-range ≥ 1.0e-02 K | **6.9584e-04 K** | **LOSS** |
+| `P-K2f-L2-ARM` | §6.2 positive arm PASSES | **FAILS** (`DRIFTING`) | **LOSS** |
+
+**`P-K2f-3` of the frozen registration §13 also LOSES** on the same figures:
+L1's measured rate extrapolated at `N^1.568` predicted 89.35 core-min against
+L2's measured contention-free 58.518 — **ratio 0.655, outside its ±25 % band.**
+The measured L1→L2 exponent is **`N^1.2937`**, not the registered 1.568.
+
+### Why `P-K2f-L2-ARM` lost, and the mechanism was RIGHT while the prediction was WRONG
+
+I predicted the arm would pass **because L2 would limit-cycle and `trend_frac`
+would collapse.** **L2 does limit-cycle** — Ux floors at 1.756e-04 with 10 sign
+changes over the final 400 iterations, reproducing K2d's L2 — **and
+`trend_frac` did collapse, from 0.7648 at L1 to 0.0048 at L2.** The predicted
+mechanism is confirmed and the prediction still failed, on a limb I did not
+consider: **`sign_changes` = 1, below §6.1's required 3.**
+
+**The control has a CEILING as well as a floor, and the registration relates the
+plant to neither.** The 2× plant is sized against the **run-range**; whether it
+is detectable depends on the base's **window** behaviour. At L2 the base's own
+window spread is **7.756e-05 K = 139.3× the planted peak-to-peak**, so the plant
+cannot influence the first-difference sign pattern at all. Driven at f = 2, 10,
+50, 100, 200, 400, 800, the arm recovers `CYCLING` **only at f ≈ 200 — a
+hundred times the registered plant** — and the crossing tracks
+`planted_p2p / window_spread ≈ 0.72`, with `trend_frac` never leaving ~0.005.
+
+**Four arms across two levels, three of them fail, by two opposite mechanisms:**
+
+| level / quantity | limb that failed | figure |
+|---|---|---|
+| L1 `T_in,max` | trend (FLOOR) | drift / planted p2p = **2.17**, `trend_frac` 0.7648 |
+| L1 `U_ha` | — **PASSES** | drift / planted p2p = 0.0003, `trend_frac` 0.0000 |
+| L2 `T_in,max` | sign changes (CEILING) | window spread / planted p2p = **139.3**, `sign_changes` 1 |
+| L2 `U_ha` | trend (FLOOR) | drift / planted p2p = **15.4**, `trend_frac` 0.9212 |
+
+### The finding `P-K2f-L2-RANGE` bought, and it is the one that matters
+
+**`θ_max` = 4.678e-05 at L2 against 4.876e-05 at L1 — essentially unchanged
+across a 3.375× refinement.** `T_in,max` spanned **6.9584e-04 K** at L2 against
+6.0922e-04 K at L1, a factor **1.14**, where the prediction needed 16. **Rack
+inlet air is supply air at both resolutions**, on a registered rack ΔT of 12 K,
+and the T field is healthy at both (L1 289.000 → 301.000 K).
+
+> **The registered gate quantity has no signal on K2a's rack-row module at
+> either resolution run.** `G1`, `G2` and `G3` are all functions of `T_in,i`.
+> **This is a finding about the case, not about the comparator.**
+
+**`U_ha` is the contrast and it DOES have a signal**: run-range 9.1216e-02 m/s
+at L2 against 3.5299e-02 at L1. But its `trend_frac` of 0.9212 says **`U_ha` has
+not plateaued at `endTime` 3000** — the one outcome §10.3 registers as the case
+where 3,000 iterations may be too short.
+
+**`P-K2f-1` CANNOT BE SCORED and is NOT scored here.** It is written against the
+`G-CYCLE` **state**, which the comparator refused to produce. Scoring it from
+residuals would score it on a quantity it was not written against — K2d §17.6
+refused exactly that, and so does this record.
+
+*Nothing was sent, filed, uploaded, registered, posted or commented outside this
+box (rule 7). No gate, threshold, cap or label is altered by this section.*

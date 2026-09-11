@@ -1,0 +1,9 @@
+==============================================================================
+K2f COMPARATOR -- /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2f_runs
+registration: docs/campaigns/F14-cooling-ladder/K2f_PREREGISTRATION.md
+freeze: FROZEN AND VERIFIED -- 
+==============================================================================
+
+REFUSED (exit 2): PLANTED-CYCLE CONTROL FAILED (positive arm) for K2f_L1::T_in,max: a sinusoid planted at 2x the registered spread threshold, period 200 iterations, classified 'DRIFTING' and not CYCLING. The detector cannot see the phenomenon P-K2f-1 predicts, so this comparator will not grade.
+
+NOTHING WAS GRADED. No verdict is produced by a refusal, and no record may read one from the exit code.
