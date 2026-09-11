@@ -10157,3 +10157,80 @@ cfd's framing, adopted as the clause name: **SUBOFF's `armed: by_data`, DrivAer'
 | **self-reported violations of this team's own clause** | **1** (2h43m, after ruling) |
 | deferred sweeps released tonight | **0** — the rule keys on solvers, not on pressure |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.97, 2026-09-11 — **§2cy `§2cf.1`'s TRIGGER IS A PROXY AND IT HAS NEVER DISCRIMINATED: THE RUNNING SOLVERS SUPPLY 0.0018 % OF THIS BOX'S BLOCK IO AND ZERO OF ITS READS, WHILE MY OWN LANES SUPPLY 459 MB/s. §2cz `§2cf.2` ORDERS AN ACTION THIS TEAM CANNOT PERFORM — A PARTIAL DEAD LEVER, FOUND BY TRYING TO OBEY IT. §2cf.3 A DISCIPLINE THAT LIVES IN THE CHARTER AND NOT IN THE BRIEF IS NOT IN FORCE ON THE LANE**
+
+**Appended at the foot; nothing above is edited, struck, widened or narrowed. `lines whose number changed above this section: 0`.** All three raised by **this supervisor against this supervisor's own clauses of yesterday**, on measurement taken at 15:26–15:32Z today. `[lab-attributed]`. **No gate value moves; no verdict moves; nothing is made to refuse (`D539`).** **One clause of mine is REFUTED in its trigger, one is declared a PARTIAL DEAD LEVER, and the third repairs the reason all three of my lanes were violating the first within ten minutes of dispatch.**
+
+### §2cy — **THE SOLVERS ARE NOT THE IO. MEASURED, NOT ARGUED.**
+
+`§2cf.1` defers a corpus-complete census **"while solvers are running"** and says such a census **"runs when the box is not solving."** I wrote that yesterday at 20:39Z. Today I measured what the running solvers actually cost.
+
+**THE WINDOW, 15:28:11Z → 15:29:41Z (90 s), `/proc/diskstats` on `nvme0n1` beside `/proc/<pid>/io` for both live solvers:**
+
+| | read | written |
+|---|---|---|
+| **whole box** | 22,982,080 sectors = **11.77 GB** (130.7 MB/s) | 79,880 sectors = **40.9 MB** (0.45 MB/s) |
+| `rhoCentralFoam` pid 316601 (ansys VMFL017-R3/L3) | **0 bytes** | 217,088 B |
+| `buoyantBoussinesqSimpleFoam` pid 1233987 (heat-transfer T4e_IJ_f) | **0 bytes** | 139,264 B |
+| **both solvers together** | **0 bytes — not rounded, zero** | **348 KB** |
+
+**Solver share of the box's block IO in that window: 0.0029 %. Solver share of its READS: 0.000 %.**
+
+**AND THE LIFETIME FIGURE, which no windowing objection can reach** — a 90 s window may fall between writeIntervals, so here is each solver's whole life: pid 316601 has run **3d 03h 07m 34s** and moved **589.9 MB** total → **2.18 KB/s**. pid 1233987 has run **23h 42m 54s** and moved **520.3 MB** → **6.09 KB/s**. **Together, 8.27 KB/s, averaged over every second they have existed.**
+
+**WHAT THE IO ACTUALLY WAS.** A 15 s attribution sweep at ~15:31Z over every `/proc/<pid>/io`: `claude` pid 1982218 read **5.27 GB** (351 MB/s); a `ugrep -rn launch_k2d.sh … .` read **1.46 GB**; a `grep -rn 'geometric (non-empty' … verification/runs cases` read **145 MB**. **Top three ≈ 6.88 GB in 15 s ≈ 459 MB/s — the agent fleet, and one of those three is a search my own brief commissioned twenty minutes earlier.** `/proc/pressure/cpu full avg10 = 0.00` throughout: the box has idle CPUs and is read-starved, `§2cf` exactly.
+
+**8.27 KB/s against 459 MB/s is 0.0018 %.**
+
+> **RULED — §2cy: "SOLVERS ARE RUNNING" IS A PROXY FOR IO CONTENTION AND IT IS NOT THE PROPERTY. A CENSUS MAY BE DEFERRED FOR IO, AND THE DEFERRAL MUST CITE (a) THE MEASURED `/proc/pressure/io full avg60` AND (b) THE RUNNING SOLVERS' MEASURED SHARE OF BLOCK IO OVER A STATED WINDOW. THE EXISTENCE OF A SOLVER IS NO LONGER A GROUND ON ITS OWN.** Each deferral is a **fresh measurement**; a census deferred for IO is **re-tested, never re-deferred by recall**.
+>
+> **I SET NO THRESHOLD AND THAT IS DELIBERATE.** `§2cb` finding 1 is my own criticism of `STAGNANT_FLOOR = 0.5` — a constant whose provenance is thinner than the work it does, deciding live verdicts by 1 % margins. **Inventing a pressure threshold this afternoon would be the identical error committed knowingly.** The clause is therefore a **disclosure** rule, which needs no number, and **the threshold goes to Sanaa's desk** beside `STAGNANT_FLOOR`.
+>
+> **`§2cf.1`'s SUBSTANTIVE LIMBS ARE NOT WEAKENED — THEY ARE VINDICATED AND MADE UNCONDITIONAL.** Today's measurement is the best evidence the lab has ever had that unbounded searches saturate this box: three of them took 459 MB/s. **So "no repo-wide `grep -r`, no unbounded `find`, never walk `processor*/`, `VTK/`, `postProcessing/` or a time-directory tree" ceases to be conditioned on solving and applies ALWAYS** — because the contention it guards against is **agent-versus-agent**, which is what the numbers say, and not agent-versus-solver, which is what the clause assumed. **This is strictly MORE discipline in the common case and less in none.**
+
+**WHY THIS IS A DISCRIMINATION FAILURE AND NOT A TUNING QUESTION (`§2c`).** The clause has now been evaluated in the two extreme states of its own domain:
+
+| when | measured `io full` | solvers running | clause output |
+|---|---|---|---|
+| **2026-09-10 23:36:55Z** (my own board) | **1.88** — drained | three | **DEFER** |
+| **2026-09-11 15:29:41Z** (today) | **75.20** — saturated | two | **DEFER** |
+
+**A factor of forty apart, spanning the whole range the clause is about, and it returns the same answer both times. It has never once discriminated.** Ask `§2a`'s question of it — *what reading would make this clause say GO?* — and the honest answer yesterday was *none, while any solver exists*, which on a box that is essentially always solving is a permanent stop wearing a scheduler's name. **My deferred sweeps were not scheduled. They were parked, by a test that cannot return the other answer.**
+
+**AND THE CAUSALITY IS INVERTED, WHICH IS THE PART I MISSED.** `§2cf.1` defers *this team's* census to protect *the solvers* from IO contention. Measured: the solvers read **nothing**, and the entire read storm is **the censuses themselves, competing with each other**. **The clause was protecting the one party on the box that was not in the contest.**
+
+**OPERATIONAL CONSEQUENCE TODAY, and it cuts against me both ways.** The deferred `§2cx` arming sweep over the T-family and `verification/certificates/` is **released from the solver condition** — and **stays deferred anyway**, now for a reason that is measured and true: `io full avg60 = 75.20`, and **the cause is my own three lanes.** The right answer was never "wait for the solvers to stop." It was **"stop over-subscribing the disk with my own agents,"** which is a different action entirely, and one I could have taken yesterday.
+
+### §2cz — **`§2cf.2` ORDERS AN ACTION THIS TEAM CANNOT TAKE. I FOUND OUT BY TRYING TO OBEY IT.**
+
+`§2cf.2`, mine, yesterday: *"Ruling a class obliges the ruler to SWEEP THE PROCESS TABLE FOR LIVE INSTANCES OF IT, in the same invocation as the ruling. `ps` for the pattern you just forbade, and stop your own — by explicit pid, never `pkill`, which matches its own invoking shell."*
+
+**I ran the sweep before writing `§2cy`. IT WORKED, AND THAT HALF IS ALIVE:** within ten minutes of my dispatching three lanes it found **three live violations** — a `bfs … / -name layerParameters.C` (an **unbounded whole-disk find**, the exact 4h17m shape `§2cf.2` was written about), a repo-wide `ugrep -rn … .`, and a two-root `grep -rn` that walks `processor*/` and time directories in breach of `§2cf.1`'s second limb.
+
+**THEN THE SECOND HALF FAILED, TWICE, FOR TWO INDEPENDENT REASONS.**
+
+1. **"YOUR OWN" IS NOT RECOVERABLE FROM THE PROCESS TABLE.** Every agent in this fleet — six supervisors, every lane — is a child of **one** `claude` pid (1982218). Each search's ancestry is `claude → bash -c <shell-snapshot> → the search`. **There is no agent id, team name or lane id anywhere in `ps`.** I could attribute exactly **one** of the three, and only by recognising a string my own brief had commissioned (`geometric (non-empty`). The other two I attributed by **guessing from content** — `launch_k2d.sh` looks like heat-transfer's K2d, `layerParameters.C` looks like cfd's snappyHexMesh work — **and a content guess is not attribution.** Under `§2cf.2` as written I would have had to either stop processes that may be another team's mid-flight work, or stop none.
+2. **AND FOR THE ONE I DID OWN, THE ACTION WAS DENIED.** `kill -TERM 1989031`, explicit pid, no `pkill`, was **refused by this session's permission classifier** (*Interfere With Workloads*). **I did not route around it and I am not asking a peer to do it for me** — that is permission laundering across sessions (rule 9), and the denial is the user's decision, not an obstacle. **So the clause's mandated verb is unavailable to this team in this session, for its own processes, with correct syntax.**
+
+> **RULED — §2cz: `§2cf.2`'s SWEEP LIMB STANDS; ITS *STOP* LIMB IS A PARTIAL DEAD LEVER AND IS REPLACED BY A VERB THAT IS ALWAYS PERFORMABLE. The obligation is SWEEP, then STOP WHERE YOU CAN, AND OTHERWISE DISCLOSE — by pid, with its command line, its measured IO cost and its elapsed time, to the chief and to the supervisor whose content it appears to be, naming the attribution as a GUESS where it is one.** **Disclosure can always be executed; termination cannot, and a clause whose only verb is the one you may be unable to perform silently converts into no obligation at all.** Filed to `docs/DEAD_LEVER_AUDIT.md` as a **PARTIAL** dead lever — the rarer and more dangerous kind, because the half that works produces the feeling that the clause is working.
+>
+> **AND A SECOND-ORDER CONSEQUENCE I AM NOT AUTHORISED TO FIX:** an agent fleet that is unattributable in the process table cannot be governed by any per-agent process rule, not just this one. **Making lane provenance visible in `ps` is a harness change and `harness/` is not mine to edit (rule 9). It goes on Sanaa's desk** as the enabling condition for every clause of this shape.
+
+**THE THREE VIOLATIONS ARE DISCLOSED HERE UNDER THE VERB THIS CLAUSE INSTALLS**, attribution labelled: pid **1989031**, `grep -rn 'geometric (non-empty' … verification/runs cases`, 145 MB in 15 s — **MINE**, commissioned by my own brief. pid **1988579**, `ugrep -rn launch_k2d.sh … .` (repo-wide), **20.95 GB read cumulatively** — **GUESS: heat-transfer**. pid **1994631**, `bfs … / -name layerParameters.C` (whole disk from `/`), **GUESS: cfd**. **Neither guess is acted on by me.**
+
+### §2cf.3 — **WHY ALL THREE OF MY LANES WERE VIOLATING `§2cf.1` TEN MINUTES AFTER DISPATCH**
+
+Not defiance, and not ignorance on their part. **I wrote three lane briefs this afternoon and `§2cf.1` appears in none of them.** I told one lane to census the corpus and warned it about load in general terms; I never gave it the bounded-search form, the forbidden roots, or the clause's name. It then did exactly what an unbriefed competent agent does.
+
+> **RULED — §2cf.3: A SEARCH-DISCIPLINE CLAUSE BINDS THE LANE ONLY IF IT IS IN THE LANE'S BRIEF. A supervisor dispatching work that will read the corpus states the bounded form IN THE BRIEF — the explicit roots, the `-maxdepth`, `git grep` with a pathspec, and the absolute exclusion of `processor*/`, `VTK/`, `postProcessing/` and time-directory trees — and does not rely on the lane having read this charter.** Lanes are not issued this document. **A rule the worker never sees is not a rule; it is a grievance waiting to be filed against someone who could not have complied.** This is the dispatch-side twin of `§2bl`: an absent check is neither passed nor failed, and an untransmitted rule is neither obeyed nor broken.
+
+| amendment record | **v1.97** |
+|---|---|
+| clauses added | **3** (§2cy, §2cz, §2cf.3) · existing clause REFUTED IN ITS TRIGGER | **1** (`§2cf.1`) · existing clause made UNCONDITIONAL and thereby STRENGTHENED | **1** (`§2cf.1`'s substantive limbs) · existing clause declared a PARTIAL DEAD LEVER | **1** (`§2cf.2`'s stop limb) |
+| gate values changed | **0** · thresholds adjusted | **0** (one more recorded for Sanaa) · verdicts withdrawn | **0** · checks made to refuse | **0** (`D539`) |
+| clauses of mine refuted by me | **2** · sweeps RELEASED from a condition that never discriminated | **1** (`§2cx`'s arming sweep) · sweeps still deferred on a MEASURED ground | **1** (the same one) |
+| desk items opened for Sanaa | **2** (an IO-pressure threshold; lane provenance in the process table) |
+| **lines whose number changed above this section** | **0** |
