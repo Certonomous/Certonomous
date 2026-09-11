@@ -1600,3 +1600,47 @@ untouched.
 **`7ce53b9242ac6e850cc330712d93d5b0`**.
 
 **SUBMISSIONS PARKED.**
+
+
+---
+
+## ADDENDUM 4 — 2026-09-11 — **TWO STALE INSTRUMENT PINS. ONE HAD BEEN STALE SINCE 18:37 AND NOBODY COULD SEE IT, BECAUSE THE LOOP ABORTS AT ITS FIRST FAILURE.**
+
+**Lines whose number changed above this section: 0.**
+
+`d8g_chain_driver.sh` pins the md5 of each frozen instrument it stages, and **two pins were stale**:
+
+| pin | file | pinned | actual | |
+|---|---|---|---|---|
+| `MD5_LAUNCHER` | `d8g_run_arm.sh` | `05b7f8b1…` | `7ce53b92…` | **STALE** |
+| **`MD5_GENMESH`** | `d8g_genmesh.sh` | `5b9db510…` | `0d18d20d…` | **STALE** |
+| `MD5_GRADER` | `d8g_grade.py` | — | — | OK |
+| `MD5_DECOMP` | `d8g_decomposeParDict` | — | — | OK |
+
+**ONLY THE FIRST FIRED.** `MD5_GENMESH` has been stale since **18:37** (ADDENDUM 4's genmesh repair),
+superseded again at 21:58 — **hours before tonight's launcher work — so the chain driver has not been
+runnable since then and nothing revealed it, because the loop aborts at its first failure.**
+**Repairing only the pin that fired would have bought exactly one more abort.** The pin that fires is
+not the same question as the pins that are true.
+
+**THE STRUCTURAL POINT, recorded so it is not rediscovered later:** a frozen instrument that pins the
+md5 of another frozen instrument is a **CASCADE** — every amendment to a pinned file invalidates the
+pinning file, and since both are frozen, **one repair costs two amendments**. The mechanism is still
+correct: those pins are exactly what makes "not built by the frozen path" detectable, the ruling that
+has held three times on this item and cost one mesh regeneration to establish. **The cascade is a
+maintenance cost of that guarantee, not a reason to drop it.**
+
+**Planted four ways on COPIES, the frozen originals never modified:** untampered → all four OK;
+launcher tampered one byte → ABORT on it; genmesh tampered → ABORT on it; restored → all four OK.
+**Each of the two updated pins is shown refusing**, so the new hashes are not a reader that accepts
+anything.
+
+**ALTERS NO** gate, band, threshold, cap or label.
+**RE-FREEZE:** `d8g_chain_driver.sh` `8c993186d6ff88d52f285907eba9b334` →
+**`b3a19380eeb2c67d2a860cc05f0ef559`**.
+
+**FOUR LAUNCH ATTEMPTS TONIGHT, FOUR ABORTS, ZERO CORE-MIN, FOUR DISTINCT REAL DEFECTS** — the cap
+back-check arithmetic, the witness-budget placeholder, the manifest's literal backslash-n, and these
+two pins. **Every one caught by a guard before anything was spent.**
+
+**SUBMISSIONS PARKED.**

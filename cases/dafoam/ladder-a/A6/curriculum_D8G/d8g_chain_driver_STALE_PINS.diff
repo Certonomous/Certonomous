@@ -1,0 +1,102 @@
+=====================================================================
+CLASSIFYING DIFF -- d8g_chain_driver_candidate.sh : TWO STALE PINS
+for: dafoam-supervisor, to be read AS A DIFF.  date: 2026-09-11
+FROZEN d8g_chain_driver.sh NOT TOUCHED -- md5 8c993186d6ff88d52f285907eba9b334
+on disk and at HEAD.  NOT COMMITTED.  SUBMISSIONS PARKED.
+
+CLASSIFICATION: TWO IDENTITY PINS UPDATED TO THE HASHES THEY ARE SUPPOSED TO
+NAME.  No gate, cap, band, threshold or label touched.  Nothing inserted above
+any line; the amendment block is appended at the FOOT with
+"lines whose number changed above this section: 0".
+
+  MD5_LAUNCHER  05b7f8b1446968b64bc74d2f0f531fcb -> 7ce53b9242ac6e850cc330712d93d5b0
+  MD5_GENMESH   5b9db5102a4ffe04abffec6f7648d0c1 -> 0d18d20d9bea13d1ef794892a1d4edd5
+  MD5_GRADER and MD5_DECOMP were checked and are CORRECT.  Not touched.
+
+WHAT HAPPENED, 23:24:54Z, launching L1-P through the driver as ruled:
+  "ABORT instrument md5 drifted before staging: .../d8g_run_arm.sh"
+  The driver still pinned the launcher's PRE-ADDENDUM hash, and the launcher was
+  re-frozen three times tonight (ADDENDA 1-3).  Expected, and the driver was
+  right to refuse.
+
+*** THE SECOND PIN IS THE ONE THAT MATTERS, AND THE DRIVER NEVER REACHED IT. ***
+  MD5_GENMESH pins 5b9db5102a4ffe04abffec6f7648d0c1.  git shows that is the
+  genmesh at 075f6edf6 (17:50) -- the ORIGINAL freeze -- superseded by
+  AMENDMENT 4 at 18:37 (40ef1f42d, 2b22d01e...) and again by AMENDMENT 5 at
+  21:58 (5fc6aa53a, 0d18d20d...).  THE PIN HAS BEEN STALE SINCE 18:37, HOURS
+  BEFORE TONIGHT'S LAUNCHER WORK, SO THE CHAIN DRIVER HAS NOT BEEN RUNNABLE
+  SINCE THEN.  The loop aborts at its FIRST failure, so fixing only the pin that
+  fired would have bought exactly one more abort.  All four were checked
+  because the one that fires is not the same question as the ones that are true.
+
+THE STRUCTURAL COST, stated rather than hidden: a frozen instrument that pins
+the md5 of ANOTHER frozen instrument is a CASCADE.  Every amendment to the
+pinned file invalidates the pinning file, and because both are frozen, one
+repair costs two amendments.  The mechanism is still RIGHT -- these pins are
+what make "not built by the frozen path" detectable at all, which is the ruling
+that has held three times tonight.  But the cascade is real and belongs in the
+item's maintenance record.
+
+PLANTED CONTROL, four ways, on copies -- the frozen originals were never
+modified:
+  1. all four instruments untampered   -> all four pins OK
+  2. d8g_run_arm.sh tampered one byte  -> ABORT drifted: d8g_run_arm.sh
+  3. d8g_genmesh.sh tampered one byte  -> ABORT drifted: d8g_genmesh.sh
+  4. restored                          -> all four pins OK
+  The check is shown refusing EACH of the two pins being updated, and passing
+  again once restored -- so the new hashes are not a reader that accepts
+  anything.
+
+WHAT IS *NOT* CLAIMED: no arm has staged, launched, solved or graded.  This is
+evidence that the driver's pins now name the files that exist, and still refuse
+files that have drifted.
+=====================================================================
+
+--- d8g_chain_driver.sh	2026-09-11 17:44:28.054959678 +0000
++++ d8g_chain_driver_candidate.sh	2026-09-11 23:26:57.364478292 +0000
+@@ -109,9 +109,9 @@
+ AGG_RESERVE_GIB=4.0
+ AGG_POLL_S=30; AGG_BOUND_S=14400
+ # ---- FROZEN INSTRUMENT HASHES.  See G-FREEZE.0 above for why five of the six are tokens.
+-MD5_LAUNCHER=05b7f8b1446968b64bc74d2f0f531fcb
++MD5_LAUNCHER=7ce53b9242ac6e850cc330712d93d5b0
+ MD5_GRADER=12688063e20cbb6fa79cf08d0996d4e1
+-MD5_GENMESH=5b9db5102a4ffe04abffec6f7648d0c1
++MD5_GENMESH=0d18d20d9bea13d1ef794892a1d4edd5
+ MD5_RUNSCRIPT=28c7819487a025a5f6554d38062a2b66
+ MD5_OF=f17b4a26fc5dcbbb44e9c820ba16df6c
+ # THE ONE HASH THIS FILE MAY ASSERT, AND WHY IT IS NOT A GUESS: d8g_decomposeParDict is a
+@@ -333,3 +333,33 @@
+ fi
+ echo "D8G_DRIVER end=$(date -u +%Y%m%dT%H%M%SZ) chain_rc=$CHAIN_RC"
+ exit "$CHAIN_RC"
++
++# =============================================================================
++# AMENDMENT (candidate) -- 2026-09-11 -- TWO STALE INSTRUMENT PINS
++# lines whose number changed above this section: 0
++#
++# MD5_LAUNCHER  05b7f8b1446968b64bc74d2f0f531fcb -> 7ce53b9242ac6e850cc330712d93d5b0
++# MD5_GENMESH   5b9db5102a4ffe04abffec6f7648d0c1 -> 0d18d20d9bea13d1ef794892a1d4edd5
++# (MD5_GRADER and MD5_DECOMP were checked and are CORRECT; they are not touched.)
++#
++# MEASURED 2026-09-11 23:24:54Z: the driver aborted at its FIRST pin --
++#   "ABORT instrument md5 drifted before staging: .../d8g_run_arm.sh"
++# -- because d8g_run_arm.sh was re-frozen three times tonight (ADDENDA 1-3) and
++# the driver still pinned its pre-addendum hash.
++#
++# *** THE SECOND PIN IS THE MORE SERIOUS ONE, AND THE DRIVER NEVER REACHED IT.
++# MD5_GENMESH pinned 5b9db5102a4ffe04abffec6f7648d0c1, which git shows is the
++# genmesh at commit 075f6edf6 (17:50) -- the ORIGINAL freeze, superseded by
++# AMENDMENT 4 at 18:37 (40ef1f42d) and again by AMENDMENT 5 at 21:58
++# (5fc6aa53a).  SO THIS PIN HAS BEEN STALE SINCE 18:37, HOURS BEFORE TONIGHT'S
++# LAUNCHER WORK, AND THE CHAIN DRIVER HAS NOT BEEN RUNNABLE SINCE THEN.  Fixing
++# only the pin that fired would have produced one more abort at the next one. ***
++#
++# THE STRUCTURAL POINT, for whoever reads this next: a frozen instrument that
++# pins the md5 of ANOTHER frozen instrument creates a CASCADE -- every amendment
++# to the pinned file invalidates the pinning file, and because both are frozen,
++# one repair costs two amendments.  Tonight that cascade was invisible because
++# the driver had not been run since the first link moved.  The pins are correct
++# as a mechanism (they are what makes "not built by the frozen path" detectable);
++# the cost is real and belongs in the item's maintenance record, not hidden.
++# =============================================================================
