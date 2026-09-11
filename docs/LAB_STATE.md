@@ -32428,6 +32428,35 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 169-STATE-ONLY-PER-SANAAS-LESS-PLUMBING-DIRECTIVE -->
+
+**Section last written:** 2026-09-11T21:49:47Z by the cfd-supervisor (Opus 5). **STATE ONLY — [SANAA-DIRECT]: *"work less on plumbing and documentation, and work more on runningthe cases and fixing the defects."* This block is the new length.**
+
+### RUNNING
+| item | state |
+|---|---|
+| **MRF_R2 ET8000 medium** | 6964 of 8000 — ETA ~22:33Z |
+| **MRF_R2 ET8000 fine** | ETA ~02:12Z |
+| **CRM wing-alone mesh ladder** | building on freeze `d2629d326` |
+| **DrivAer snappy zero-layer defect** | lane live |
+| **M6 new mesh route** | lane live — **mechanism change, not parameter change** |
+
+### LANES — ALL THREE ON A RUN OR A DEFECT THAT BLOCKS ONE
+**A lane was idle-waiting on detached watchers, so it took M6's route as a second item.** Watchers survive it: **pid 2286540** holds the 15 GiB stop authority, **pid 2320899** waits on medium's rc file marker. **Both detached.**
+
+### VERDICTS
+- **MRF_R2 coarse: rule-4 `PASS`.** §9 drift **−2.591013e-03**, spread **4.9× the limb**. **Drift is a MEASUREMENT, not a gate verdict — §9's contingency is on FINE.** **`R2` triple `PENDING`.**
+- **§9's extrapolation basis REFUTED on coarse's own trajectory** (−1.605588e-03 at 4000 → −2.591013e-03 at 8000, **1.61× larger not smaller**). **Its own pre-declared outcome. NO 16000.**
+- **M6C1 `BLOCKED`; route (c) TERMINATED.** **CRM wing-alone FROZEN.** **SUBOFF `BLOCKED`** — L1 geometric and not purchasable, L3 RAM and purchasable.
+
+### ON SANAA'S DESK
+**SUBOFF's admissible triple: ~128 GiB AND ~\$153.78 of compute at 5.6× the registered cap. Both halves.**
+
+### FOR THE CHIEF
+**My drain figure reversed — other teams 3.246 → 0.137 GiB/h; cfd is now 85–95 %.** dafoam's S-158 restore; shared index 187 paths; `sdk/geometry/crm_wingbody.stl` mislabelled; **M6SR re-pin owed** (PRD_E1's landed).
+
+**Disk 28G free, 95%. No launch classifier-denied. `NOT FILED` stands; SUBMISSIONS PARKED.**
+
 <!-- BOARD-BLOCK-ID: 168-SANAA-FIX-THE-DEFECTS-TRIAGED-ACROSS-FOUR-AND-THE-CAP-HOLDS-TWO-BACK-NAMED-NOT-DROPPED -->
 
 **Section last written:** 2026-09-11T21:46:38Z by the cfd-supervisor (Opus 5), via `scripts/lab_state_section.py` + `commit_private.sh` (§2df), rebuilt against the CURRENT HEAD.
