@@ -621,3 +621,354 @@ DELIVERED REFINEMENT RATIOS VERIFIED FROM BUILT CELL COUNTS (§4):        [ ]
 GATE M CLEARED AT ALL THREE LEVELS BEFORE FREEZE (build-before-freeze):  [ ]
 DRAFT BANNER STRUCK (the blockquote above §0, in one cut):               [ ]
 ```
+
+---
+
+# §11. EXTENSION — 2026-09-11 — SOURCE RE-READ FROM RENDERED PAGES, GATE ARMING, THE PLANT, THE AGE-GUARD ANCHOR, AND THE MEASURED COST OF GATE M-b-1
+
+**Written by a second cfd `lab-lane`, 2026-09-11, on `HEAD = cc2a2e039`. The document
+is still a DRAFT and still UNFROZEN — the banner at the head stands. Under CLAUDE.md
+rule 2 amendments before first compute are legal and must state the condition and how
+it was checked; §11.0 does that. Nothing above this section was renumbered, reworded or
+deleted: `lines whose number changed above this section: 0`.**
+
+**Authority for the work:** Sanaa, 2026-09-10, verbatim: *"3D SUBOFF. Papers read and
+mesh selected accordingly. Also must run asap."*
+
+---
+
+## 11.0 THE RULE-2 PRE-COMPUTE CONDITION, RESTATED SO IT IS STILL CHECKABLE
+
+**§0 asserted that `verification/runs/navier_class/SUBOFF_A1/` did not exist. IT NOW
+EXISTS.** This lane built the geometry and the L1 mesh under it. The absence of a
+directory was never the thing rule 2 protects; **the absence of a SOLVER RESULT is.**
+The condition is therefore restated in a form that survives mesh building and that the
+freeze block must check:
+
+> **For every level `L ∈ {L1, L2, L3}` of `verification/runs/navier_class/SUBOFF_A1/`:
+> no `0/` directory, no time directory, no `log.simpleFoam`, no `rc`, no `RC.txt`,
+> no `postProcessing/`. Checked by `ls`, printed into the freeze block, not asserted.**
+
+**No solver has been invoked under this document. Mesh building is not a graded run and
+does not need the freeze; it needs `docs/standards/MESH_STANDARD.md` and a full-flag
+`checkMesh`, and it got both.**
+
+---
+
+## 11.1 THE SOURCE, RE-READ FROM **RENDERED PAGES** — TWO CITATION DEFECTS AND ONE CONFIRMATION
+
+Rule 15 forbids verifying a paper by filename, file type or hash. §2.1 verified the
+title page with `pdftotext`. **This lane verified it by RENDERING PDF page 1 as an image
+and reading it.** What is printed on that page:
+
+| field | as READ FROM THE RENDERED PAGE |
+|---|---|
+| institution | **David Taylor Research Center**, Bethesda, MD 20084-5000 |
+| report / date | **DTRC/SHD-1298-01, March 1989**, Ship Hydromechanics Department |
+| title | **GEOMETRIC CHARACTERISTICS OF DARPA SUBOFF MODELS (DTRC MODEL NOS. 5470 and 5471)** |
+| authors | **Nancy C. Groves, Thomas T. Huang, Ming S. Chang** |
+| accession | **AD-A210 642**, spine; DTIC stamp JUL 31 1989 |
+| distribution | Approved for public release; distribution unlimited |
+
+**🔴 DEFECT 1 — THE THIRD AUTHOR.** The report's third author is **Ming S. CHANG**. Any
+record naming the third author "Belt" is wrong; the title page says Chang. *(This is
+recorded because a briefing this lane received carried "Belt".)*
+
+**🔴 DEFECT 2 — §3.2 CITES TABLE 2 AT THE WRONG PAGES.** §3.2 gives *"Fairwater / sail
+(Table 2, PDF pages 18–19)"*. **PDF pages 18–19 are report pages 11–12 and carry FIGURE 5
+(stern-appendage locations) and the stern-appendage / ring-wing prose.** Table 2 is at
+**PDF pages 14–15 = report pages 7–8**, rendered and read by this lane. The *page
+citation* is wrong; **the equations §3.2/§3.3 quote are RIGHT** — re-derived here term by
+term from the rendered images and reproduced below so a successor need not re-render.
+
+**✅ CONFIRMATION — THE SAIL TRAILING EDGE CLOSES TO A MATHEMATICAL POINT.** Table 2,
+read from the rendered page:
+
+```
+SAIL FOREBODY   3.032986 <= x <= 3.358507,  y <= 1.507813
+   z1 = Zmax [ 2.094759 A + .2071781 B + C ]^(1/2)
+   A = 2D(D-1)^4 ;  B = 1/3 D^2 (D-1)^3 ;  C = 1 - (D-1)^4 (4D+1)
+   D = 3.072000 (x - 3.032986)
+SAIL PARALLEL MB 3.358507 <= x <= 3.559028 :  z1 = Zmax = .109375 Ft = 1.3125 inch
+SAIL AFTERBODY  (Revised 11 January 1989)  3.559028 <= x <= 4.241319, y <= 1.507813
+   z1 = .1093750 [ 2.238361 (E(E-1)^4) + 3.106529 (E^2 (E-1)^3) + (1-(E-1)^4 (4E+1)) ]
+   E  = (4.241319 - x)/0.6822917
+SAIL CAP        z2 = [ z1^2 - (2(y - 1.507813))^2 ]^(1/2),  1.507813 <= y <= z1/2 + 1.507813
+HULL/SAIL       [R_HB(x)]^2 = y^2 + z1^2 ,  R_HB = the hull BOW equation (Table 1)
+```
+
+> **🔴 THE AFTERBODY EXPRESSION IS *NOT* SQUARE-ROOTED. THE FOREBODY ONE IS.** The two
+> equations look alike on the page and differ in exactly that. An implementation that
+> carries the `^(1/2)` into the afterbody silently changes the whole aft 56 % of the sail
+> and still produces a plausible-looking foil. **This is registered as a named
+> implementation hazard**, because it would not be caught by any mesh gate.
+
+At the trailing edge `E = 0`, so `A = B = 0` and `C = 1 − (−1)⁴(4·0+1) = 0`:
+**`z1(x = 4.241319 ft) = 0` EXACTLY** — re-evaluated numerically here and returned as
+`0.0`, not as a small number. `build_suboff_a1_geometry.py` **REFUSES to build (exit 2)**
+if that evaluation is not exactly zero, because the entire justification for the
+registered truncation is that premise.
+
+**✅ NEW MEASUREMENT — THE SAIL *LEADING* EDGE IS NOT A CUSP, AND §5.1 M-b-1's LE LIMB
+NOW HAS A NUMBER.** Near the LE the forebody bracket behaves as `≈ 4.1895 D`, so
+`z1 ∝ √(x − x_LE)` — a **rounded** nose, not a knife edge. The leading-edge radius,
+evaluated as `z1²/2s` at `s = 10⁻⁶ … 10⁻⁹ ft` and **converged to six significant figures
+at every one of them**:
+
+> **Sail leading-edge radius `r_LE = 0.076982 ft = 23.464 mm`, `r_LE/c = 6.371 %`.**
+
+For context, a NACA 4-digit section of the same thickness (`t/c` measured here as
+**18.1035 %**, matching §3.2's 18.1 %) has `r/c = 1.1019 (t/c)² = 3.61 %`. **The SUBOFF
+sail leading edge is 1.76× blunter than a NACA section of its own thickness.** §5.1
+M-b-1 registers "≥ 12 cells around the LE radius": 12 cells around a quarter-circle of
+radius 23.464 mm is a **3.07 mm** cell, and the registered sail surface cell at L1 is
+**1.23 mm**, so the limb is met with ~2.5× margin. **This limb is therefore NOT the
+binding one — §11.6 identifies the one that is.**
+
+---
+
+## 11.2 GATE ARMING — EVERY GATE NAMES WHAT ARMS IT AND **REFUSES** WHEN UNARMED
+
+**The defect this repairs, stated plainly:** SUBOFF's earlier gate carried
+`armed: by_data`. A gate armed *by its own data* **passes when the data is missing**,
+because "no disagreement found" and "nothing was compared" read identically. That is a
+gate that cannot fail. It is the same family of defect as §5.1 M-a (`Mesh OK.` with
+`rc = 0` on a mesh failing three checks) and as §3a of `SUBOFF_R1b_RESULTS.md` (a
+two-point plateau test that cannot see a drift).
+
+> **REGISTERED, FOR EVERY GATE IN §5 AND §11: a gate has an ARMING CONDITION and an
+> UNARMED VERDICT, and the unarmed verdict is NEVER `PASS`.**
+
+| gate | ARMED BY — and this is read from disk, not from a flag | UNARMED VERDICT |
+|---|---|---|
+| **M-a** full-flag `checkMesh` | the level's `log.checkMesh.FULLFLAG` exists, contains the literal string `-allGeometry`, contains the literal string `-allTopology`, and contains a line matching `^Failed [0-9]+ mesh checks\.$` **or** `^Mesh OK\.$` | **`BLOCKED`** |
+| **M-b-1** feature counts | the built mesh yields a non-empty cell-centre set inside the registered probe box at **every** named feature, **and the probe's planted control (§11.3) fired** | **`BLOCKED`** |
+| **M-b-2** wall face-area ratio | both wall patches (`hull`, `sail`) exist in `constant/polyMesh/boundary` with `nFaces > 0` | **`BLOCKED`** |
+| **M-c** dimensionality | `log.checkMesh.FULLFLAG` contains a line beginning `Mesh has ` and `geometric (non-empty/wedge) directions` — **the `solution (non-empty)` line is not a substitute and a reader that matches it is a defect** (§5.1 M-c) | **`BLOCKED`** |
+| **M-d** quality | the three numeric lines (`non-orthogonality Max`, `Max skewness`, `determinant`) all parse to floats | **`BLOCKED`** |
+| **W** wall treatment | `y+` was written at `endTime` **and** every wall patch in `0/nut` carries `nutUSpaldingWallFunction` | **`BLOCKED`** |
+| **D2** `CT` | the reference JSON exists, its `CT_ref` parses to a float, and the run cleared §7 completion | **`BLOCKED`** |
+
+**`BLOCKED` is a refusal to read a gate, not a soft pass and not a `NOT A RESULT`.** No
+gate in this document may return `PASS` from an empty comparison, and the comparator
+**exits 2 rather than degrade** (§7).
+
+---
+
+## 11.3 THE PLANTED-ZERO CONTROL (CLAUDE.md rule 3) — REGISTERED, NOT INHERITED
+
+§4 listed "the planted-zero discipline" as *inherited*. **A discipline is not a control.**
+Rule 3 requires a reader to be **shown able to see a non-zero** before its zero is
+evidence, and this rung's most dangerous zero is *"zero cells across the trailing-edge
+base"* — which is exactly what a probe with a mis-specified box also returns.
+
+> **REGISTERED. The feature probe (`probe_suboff_a1_features.py`) plants a synthetic
+> cell-centre set of a KNOWN count `PLANT_N = 13` spanning a segment of known length,
+> runs the SAME counting function that grades the mesh over it, and REFUSES (exit 2)
+> unless the function returns exactly 13. The plant runs on EVERY invocation, before
+> any mesh is read, and its result is printed into the record beside the measured
+> counts.**
+
+**Two failure modes this catches and the existing discipline does not:** a probe box in
+the wrong units or the wrong coordinate (returns 0 everywhere, reads as "cusp not
+resolved"), and an off-by-one that halves every count in a half-model (reads as "family
+is half as good as it is"). **The plant is run on the counting function, not on a copy
+of the mesh, so it costs no compute and cannot be skipped for cost.**
+
+**A second, independent control, registered because the half-model makes it necessary:**
+the probe reports the **full-base-equivalent** count as `2 × (count in z ∈ [0, z_base])`
+and **also** reports the raw half-model count. **Both go in the record.** A reader that
+sees only one of them cannot tell a factor-of-two convention error from a physical
+result.
+
+---
+
+## 11.4 RULE-4 LIMB 6 — THE AGE GUARD IS ANCHORED ON THE **SOLVER-WRITTEN** `processor*/<endTime>/` FIELDS, AND THE ORDERING TEST IS THE OTHER HALF OF IT
+
+§7 states the age guard against `0/` and records the weakness that it "cannot
+distinguish a solver-written field from a post-processor-written one (commit
+`0bdf38639`)". **`6d264ed1c` closed that weakness for `MRF_R2` and this rung adopts it
+verbatim rather than re-deriving it.**
+
+> **REGISTERED LIMB 6, AS IT WILL BE GRADED:**
+> 1. Every field at `endTime` in the **reconstructed** `<endTime>/` is strictly newer
+>    than the case's own `0/T`. *(the existing §7 limb, retained)*
+> 2. **AND** every field at `endTime` in **`processor*/<endTime>/`** is strictly newer
+>    than `0/T`, with **none stale, none missing**, across all ranks.
+> 3. **AND the ordering test**, read off disk: `log.decomposePar` is **older** than the
+>    `processor*/<endTime>/` fields, and `log.reconstructPar` is **newer** than them —
+>    the order a solve-then-reconstruct produces and a stray post-processor does not.
+
+**Two limitations, stated because `6d264ed1c` states them and a limb quoted without its
+limitations is worse than none:**
+- **The anchor is a strong default, NOT an impossibility.** `decomposePar -fields` and
+  `redistributePar` both write `processor*/<t>/`. Limb 6.2 alone can be manufactured;
+  6.2 **with** 6.3 is what carries.
+- **A SERIAL run has no `processor*/` at all.** This rung runs in parallel at every
+  level (§8), so the anchor is available; **if any level is ever run serially, limb 6.2
+  and 6.3 are `BLOCKED`, not passed** (§11.2's arming rule applies to them too).
+
+---
+
+## 11.5 THE WALL-TREATMENT DECISION, WITH ITS NUMBERS — WHY NOT WALL-RESOLVED
+
+§5.2 registers `nutUSpaldingWallFunction`. **This lane endorses it and adds the
+arithmetic that makes the choice a decision rather than a preference**, because §1.2's
+finding — *the R1b family refines itself out of `nutkWallFunction` validity* — is only
+half an argument until the alternative is costed.
+
+At `Re_L = 1.2×10⁷` on `L = 4.35610 m` with `ν = 1×10⁻⁶ m²/s`: `U = 2.7548 m/s`;
+ITTC-1957 `Cf = 0.075/(log₁₀Re − 2)² = 2.907×10⁻³`; `u_τ = 0.10503 m/s`.
+**Cross-check, not a coincidence:** `cases/navier_class/SUBOFF/build_suboff.py` carries
+`Y1_TARGET = 1.0e-3 m` annotated *"y+ ~ 100"*, and `1×10⁻³ × 0.10503 / 1×10⁻⁶ = 105`.
+**The lab's own inherited constant reproduces this `u_τ` to 5 %,** so the numbers below
+are not a new calibration.
+
+| route | first-cell height `y₁` | verdict |
+|---|---|---|
+| **wall-resolved, `y⁺ = 1`** | **9.52 µm** | **REJECTED — and the reason is costed, not asserted.** 9.52 µm first cells over a 2.994 m² half-model wetted area, at a layer expansion of 1.2, need ~28 prism layers to reach the 4.9 mm outer cell. At L1 that is ≈ 1.7×10⁷ layer cells **alone**, ~7× this rung's whole registered L1 budget, before a single off-body cell. |
+| **`nutkWallFunction`, `y⁺ ≥ 30`** | 286 µm at L1 | **REJECTED — this is R1b's failure mode.** `y₁` falls by `r = 1.5` per level, so `y⁺` runs **30 → 20 → 13.3** and the family walks out of the model's validity **in the same order as refinement**, which is §1.2's finding exactly. |
+| **`nutUSpaldingWallFunction` (all-`y⁺`) — REGISTERED** | 286 / 191 / 127 µm | **Valid from the viscous sublayer through the log layer.** The `y⁺` **30 → 20 → 13.3** walk that kills the high-Re route is inside Spalding's range at every level. |
+
+> **REGISTERED `y⁺` TARGETS, reported per level whatever the outcome (§5.2):
+> L1 ≈ 30, L2 ≈ 20, L3 ≈ 13.3, with the Gate-W ceiling `y⁺ < 300` unchanged.**
+> **These are PREDICTIONS from the ITTC anchor, not measurements** — the measured `y⁺`
+> goes in the results record and §11.7 registers what would falsify them.
+
+---
+
+## 11.6 🔴 THE MEASURED OCTREE COST OF GATE M-b-1 — AND IT CONTRADICTS §4's FAMILY SIZING
+
+**This is the finding of §11 and it was paid for in compute.**
+
+§5.1 M-b-1 registers **≥ 8 cells across the 1.311 mm truncated base**. §4 registers
+**L1 = 0.95 M cells**. **A first build of L1 measured that those two numbers cannot both
+be true**, and it measured it the expensive way:
+
+| what was built | measured |
+|---|---|
+| L1 with refinement **boxes** around the near field and a 40 × 271 × 20 mm level-9 box at the trailing edge | **8,740,333 cells at surface-refinement iteration 6, still climbing** when the build was stopped |
+
+**The arithmetic behind it, which is the transferable part.** The gate fixes the cell
+size at the base: `1.3109 mm / 8 = 164 µm`. An octree reaches 164 µm from a 78.7 mm base
+cell at **level 9** (`78.7/2⁹ = 153.7 µm`). The cost of a level-9 region is its volume
+divided by `(153.7 µm)³ = 3.63×10⁻¹² m³` — **2.75×10¹¹ cells per cubic metre.** The
+first teBox held 2.17×10⁻⁴ m³ and therefore **~6.0×10⁷ cells on its own.**
+
+**The repair, and it is a geometry decision rather than a tuning one:** the level-9
+region was cut to the base itself — **3 mm (x) × 217.7 mm (y) × ±2.62 mm (z)**, i.e.
+`1.71×10⁻⁶ m³ ≈ 4.7×10⁵` cells — and every near-field box was replaced by
+`mode distance` shells that hug the body. **The registered regions are now:**
+
+```
+refinementSurfaces : hull (4 4)    sail (6 7)
+refinementRegions  : hull   mode distance ((0.030 3) (0.150 2) (0.500 1))
+                     sail   mode distance ((0.006 6) (0.030 5))
+                     jctBox mode inside   ((1e15 6))    x[LE-20mm, TE+20mm] y[Rmax-20, Rmax+10] z +/-25mm
+                     teBox  mode inside   ((1e15 9))    3mm x 217.7mm x +/-2.62mm at the truncated base
+```
+
+> **🔴 REGISTERED CONSEQUENCE, BEFORE THE FREEZE AND BEFORE ANY SOLVER: §4's target cell
+> counts (0.95 M / 3.21 M / 10.83 M) ARE NOT ACHIEVABLE UNDER GATE M-b-1 AS REGISTERED.
+> The BUILT counts are what §4's delivered ratio is computed from, and they are recorded
+> in §11.7 below. The cfd-supervisor's freeze must either (a) accept the built counts and
+> re-cost §8 from them, or (b) coarsen the registered truncation — §3.4's own table
+> offers 0.990 c, whose 2.601 mm base needs only 325 µm cells and is therefore ~8× cheaper
+> in the teBox — or (c) lower the feature floor below 8. THIS LANE DOES NOT CHOOSE
+> BETWEEN THEM: a gate threshold is not a lane's to move (CLAUDE.md rule 9).**
+
+**Why this is a finding and not a mishap.** §3.4 chose 0.995 c over 0.998 c *"on cost"*,
+and costed it by the **TE cell size** (164 µm) alone. **The TE cell size is not the cost;
+the octree volume at that cell size is**, and the two differ by the ratio of the region
+volume to the cell volume — here a factor of ~10⁵. **The same error is available to every
+future rung that registers a feature floor on a thin base**, which is why it is written
+here rather than in a lane's report.
+
+---
+
+## 11.7 REGISTERED PREDICTIONS, AND WHAT WOULD FALSIFY EACH
+
+**Registered BEFORE the solver, and each one names the artifact that settles it. A
+prediction with no falsifier is a hope (`INNOVATION_STANDARD`).**
+
+| # | PREDICTION | FALSIFIED BY |
+|---|---|---|
+| **P1** | Full-flag `checkMesh` **fails at least one check** at **every** level, and the failing check is **`Cells with small determinant`** or **high aspect ratio**, not non-orthogonality or skewness. *(Basis: every `snappyHexMesh` family this lab has measured — M6CP1, MRF, DrivAer — fails on determinant/AR and clears nonOrtho/skew; §1.1 measured R1b's determinant at 3.526225e-05, 28× below `checkMesh`'s own 1e-3.)* | a level printing `Failed 0 mesh checks`, or a level failing on **non-orthogonality or skewness instead** |
+| **P2** | Minimum cell determinant is **NOT identical across the three levels** — it varies by more than 1 % between L1 and L3. *(Basis: §1.1 measured 3.526225e-05 at all three R1b levels, identical to 7 s.f., because that family was a scaled wedge. A `snappyHexMesh` family re-snaps at every level, so scale-invariant degeneracy should not survive.)* | the three determinants agreeing to better than 1 % — which would mean **the new family carries R1b's pathology too**, and would make M-d's `≥ 1.0e-03` limb the binding gate |
+| **P3** | The delivered refinement ratios computed from **built** cell counts are **not** 1.5 — they differ from the nominal by more than 1 %. *(Basis: MRF delivered 1.4157/1.4264 against a registered 1.5 — `nCellsBetweenLevels` buffers in CELLS, not thickness.)* | both delivered ratios landing within 1 % of 1.5 |
+| **P4** | Cells across the truncated TE base are **non-decreasing** L1→L2→L3 and **≥ 8** at L1. *(This is M-b-1; it is registered as a prediction as well as a gate so that a flat count is visible as a failed prediction even if the gate is later argued about.)* | a flat or decreasing count — **the M6CP1 signature**, and it would mean the truncation did not remove the cusp |
+| **P5** | Measured hull-patch `y⁺` at `endTime` lands within **±50 %** of the §11.5 predictions (30/20/13.3). | a measured `y⁺` outside that band at any level — which would falsify the ITTC anchor `u_τ` and, with it, **the wall-treatment argument in §11.5**, not merely a number |
+| **P6** | **No solver-independent claim is made about `CT`.** | — *(not a prediction; recorded so the list cannot be read as one)* |
+
+**Registered now, before the freeze: P1–P5 are reported in the results record WHETHER OR
+NOT they hold, and a falsified prediction is written up as falsified, not quietly
+dropped.** §11.6 is what this looks like when it happens to a cost estimate.
+
+---
+
+## 11.8 M3 REPORTING, NOT STOPPING — SANAA'S 3-D EXEMPTION, READ NARROWLY
+
+§8 records that Sanaa's 2026-09-10 Case Protocol exempts 3-D runs from cap **stops**.
+§7's monitor table carries that as `S4 → record and continue`. **Registered here as the
+explicit reporting rule, and its boundary:**
+
+> **`M3 REPORTING`. On a cap or sub-cap breach at any level: write `CAP_BREACH.txt` into
+> that level's directory with the breached figure, the cap, the ratio and the UTC
+> timestamp; append the same row to the run record; and **CONTINUE**. The breach is
+> reported to the cfd-supervisor at the next report boundary, not at the moment of
+> breach, and it is never absorbed into the rule-12 calibration ratio — `COMPUTE_BUDGET
+> _CHARTER` §6 keeps waste separately named.**
+
+**THE EXEMPTION IS READ NARROWLY, AND THIS IS THE ONLY THING IT DISPLACES.** It displaces
+rule 12's *"an overrun stops the run"* **for cap breaches on 3-D runs, and nothing else.**
+It does **not** widen the cap, does not authorise a second run, and does not touch S1, S2,
+S3 or S5, **all of which still STOP the level.** It rests on Sanaa's own words and **no
+agent message widened it** (CLAUDE.md rule 9).
+
+---
+
+## 11.9 THE GEOMETRY PIPELINE, AND THE THREE DEFECTS IT CAUGHT BEFORE ANY MESH EXISTED
+
+**Registered path**, all three stages required, the later ones REFUSING on the earlier:
+
+```
+cases/navier_class/SUBOFF_A1/build_suboff_a1_geometry.py   (Table 1 + Table 2 -> hull.stl, sail.stl)
+cases/navier_class/SUBOFF_A1/prepare_geometry.sh           (generate -> surfaceOrient -> surfaceCheck, REFUSES)
+cases/navier_class/SUBOFF_A1/build_suboff_a1_mesh.py       (one level; REFUSES over an existing polyMesh)
+cases/navier_class/SUBOFF_A1/mesh_level.sh                 (blockMesh -> snappy -> full-flag checkMesh)
+```
+
+**`prepare_geometry.sh` REFUSES unless, for BOTH surfaces, `surfaceCheck` prints
+`Surface is closed`, `no illegal triangles`, and `consistent normal) : 1`.** Its rc is
+**not** consulted — the printed report is.
+
+**What that refusal caught, measured on the first emission:**
+
+| defect | measured | why it matters |
+|---|---|---|
+| **hull apex fans emitted as zero-area triangles** | `Surface has 256 illegal triangles`, `Number of unconnected parts : 2` — 256 = the azimuthal division count, i.e. one per nose-apex and tail-apex facet | a body of revolution built naively is **OPEN at both ends**, and `snappyHexMesh` then meshes the inside of the hull |
+| **knife-edge vertex pairs at ±1.4×10⁻¹⁰ m** on the sail cap near the LE, where the cap ellipse degenerates | `close unconnected points … distance: 2.78e-10` | the two sides of a zero-thickness edge fail to share a vertex, so the surface is **not closed** by a distance 10⁶ times smaller than the finest registered cell |
+| **inconsistent surface normals on the sail** | `Number of zones (connected area with consistent normal) : 2` | `snappyHexMesh`'s inside/outside test on an **overlapping-solid union** is unreliable when normals disagree |
+
+**Repairs, all registered in the builder:** proper apex fans oriented upstream at the
+nose and downstream at the tail; a coordinate snap at **`SNAP_ABS = 2×10⁻⁷ m = 0.2 µm`**
+(**0.13 % of the finest registered cell, 153.7 µm**, so geometrically inert) with
+zero-area triangles **dropped and counted, not written**; and `surfaceOrient` against an
+external point. **After repair both surfaces measure `Surface is closed`,
+`All edges connected to two faces`, `unconnected parts : 1`, `zones … : 1`,
+`no illegal triangles`.**
+
+**The union topology, registered so a successor does not "fix" it:** `hull.stl` and
+`sail.stl` are **two separately closed solids that overlap** — the sail's lower lid is
+buried at `y = 0`, on the hull axis. `snappyHexMesh` keeps only cells reachable from
+`locationInMesh`, so **the union is what survives**; no boolean is performed and no
+coincident-surface sliver is created. **A successor who "cleans this up" by trimming the
+sail to the hull surface will reintroduce exactly the sliver this avoids.**
+
+**Geometry cross-checks, computed and recorded** (`geometry_manifest.json` beside the
+STLs): max sail `t/c = 18.1035 %` against §3.2's 18.1 %; hull radius at the sail LE
+`0.2536295 m` and at the sail TE `0.2540000 m` (= `R_max`, the sail TE sits on the
+parallel middle body); truncated base **full** thickness **1.310895 mm = 0.35592 % of the
+368.2999 mm chord**, `1.841 mm` of chord removed. **§3.4's registered 1.311 mm / 0.356 %
+is CONFIRMED to 4 significant figures from the rendered equations.**
+
