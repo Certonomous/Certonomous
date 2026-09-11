@@ -238,6 +238,56 @@ case "$RANKS"     in ''|*[!0-9]*) echo "REFUSE: --ranks must be an integer" >&2;
 case "$TIMEOUT_S" in ''|*[!0-9]*) echo "REFUSE: --timeout must be integer seconds" >&2; exit 2;; esac
 
 CASE_DIR="$(cd "$CASE_DIR" && pwd)"
+
+# ==========================================================================
+# THE REGISTERED-ROW ASSERTION, added 2026-09-11 pre-first-compute.
+#
+# K2d_L3 was launched on a hand-passed 8034 s guard against a registered
+# 20,250 s and lost 535.600 core-minutes.  launch_k2f.sh was written with
+# reg_row() to make that impossible -- and T26 was frozen WITHOUT it, while
+# orchestrate_t26.py was handing every level the ranks and hang guard of the
+# level ABOVE it (amendment 13.3 struck ranks 8/16/16; the orchestrator still
+# carried them).  The table below is the ONLY legitimate source of either
+# number for a T26 level, and it is held HERE, in the launcher, so that a
+# caller cannot supply both the value and its justification.
+#
+# Source: T26_PREREGISTRATION.md section 13.4 -- ranks 4/8/16 and hang guards
+# 3.0 x POINT x 60 / ranks at POINT 141.28 / 865.09 / 4230.09 core-min.
+#   row = "<ranks> <guard_s>"
+t26_reg_row() {
+  case "$1" in
+    L1) echo "4 6358"   ;;   # 3 x 141.28  x 60 /  4
+    L2) echo "8 19465"  ;;   # 3 x 865.09  x 60 /  8
+    L3) echo "16 47589" ;;   # 3 x 4230.09 x 60 / 16
+    *)  echo ""         ;;
+  esac
+}
+T26_LEVEL="$(basename "$CASE_DIR")"
+T26_WANT="$(t26_reg_row "$T26_LEVEL")"
+if [ -n "$T26_WANT" ]; then
+    T26_WR="${T26_WANT% *}"; T26_WG="${T26_WANT#* }"
+    if [ "$RANKS" != "$T26_WR" ] || [ "$TIMEOUT_S" != "$T26_WG" ]; then
+        echo "REFUSE: handed ranks=$RANKS timeout=${TIMEOUT_S}s for $T26_LEVEL," >&2
+        echo "        but the REGISTERED row is ranks=$T26_WR guard=${T26_WG}s" >&2
+        echo "        (T26_PREREGISTRATION.md section 13.4). The table in THIS FILE is the" >&2
+        echo "        only legitimate source of either number. K2d_L3 was launched on a" >&2
+        echo "        hand-passed guard against its registered row and lost 535.600" >&2
+        echo "        core-minutes; amendment 13.3 struck ranks 8/16/16 and an" >&2
+        echo "        unrepaired orchestrator would have run every level one rung high." >&2
+        exit 2
+    fi
+    echo "ASSERT OK: $T26_LEVEL ranks=$RANKS guard=${TIMEOUT_S}s matches the registered row."
+elif [ "${CASE_DIR#*T26_runs}" != "$CASE_DIR" ]; then
+    echo "REFUSE: $CASE_DIR is under the T26 run root but '$T26_LEVEL' is not a" >&2
+    echo "        registered level. The registered levels are L1, L2, L3." >&2
+    exit 2
+else
+    # ANNOUNCED, never silent: a skipped assertion that says nothing is how a
+    # bypass hides.  Selftest fixtures live outside the run root and land here.
+    echo "NOTE: registered-row assertion NOT APPLICABLE -- '$T26_LEVEL' is not a T26" \
+         "level and $CASE_DIR is not under a T26 run root."
+fi
+# ==========================================================================
 ROOT="$(dirname "$CASE_DIR")"
 CASE="$(basename "$CASE_DIR")"
 STATUS="$ROOT/STATUS.$CASE"

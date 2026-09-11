@@ -42,9 +42,19 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 GUARD = os.path.join(HERE, "mark_done_t26.py")
 LAUNCHER = os.path.join(HERE, "launch_t26.sh")
 LEVELS = ("L1", "L2", "L3")
-# registration :705-709 (level totals) and :737 (hang guard = 3.0 x POINT)
-POINT_CORE_MIN = {"L1": 865.09, "L2": 4230.09, "L3": 18699.19}
-RANKS = {"L1": 8, "L2": 16, "L3": 16}
+# REPAIRED 2026-09-11, PRE-FIRST-COMPUTE.  These were taken from the cost table
+# at registration :705-709, which is computed on the cell counts AMENDMENT 13.3
+# STRUCK (885,508 / 2,988,590 / 10,086,491) and carries the ranks 13.3 struck
+# (8 / 16 / 16).  The values below are AMENDMENT 13.4's, which re-derived both
+# for the shifted ladder.  THE DEFECT WAS EXACTLY ONE RUNG: the old POINT["L1"]
+# is 13.4's L2, the old POINT["L2"] is 13.4's L3, and the old ranks likewise --
+# so every level would have run at the ranks and hang guard of the level ABOVE
+# it.  That is K2d's death (a level launched at ranks that do not match its
+# registered row, 535.600 core-min lost) and launch_t26.sh now refuses it.
+# Registered source: T26_PREREGISTRATION.md section 13.4 (cost table and the
+# hang-guard table beneath it).  NOT :705-709, which 13.4 supersedes.
+POINT_CORE_MIN = {"L1": 141.28, "L2": 865.09, "L3": 4230.09}
+RANKS = {"L1": 4, "L2": 8, "L3": 16}
 EXIT_OK, EXIT_REFUSE = 0, 2
 
 

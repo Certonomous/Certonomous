@@ -1749,3 +1749,117 @@ weakness rather than adjusting a band to cover it.
 *Recorded by a heat-transfer lane, 2026-09-11T17:23:39Z, on the supervisor's instruction to name
 the prediction's weakest joint. Zero solver compute; `T26_runs/` does not exist.
 Nothing sent, filed or uploaded (`CLAUDE.md` rule 7).*
+
+---
+
+## 19. ADDENDUM 4 — 2026-09-11T17:57:05Z. **THE ORCHESTRATOR WAS DRIVEN BY VALUES §13.3 STRUCK: EVERY LEVEL WOULD HAVE RUN AT THE RANKS AND HANG GUARD OF THE LEVEL ABOVE IT**
+
+**DATED ADDENDUM UNDER `CLAUDE.md` RULE 2, TAKEN PRE-FIRST-COMPUTE.** It
+**alters no gate, threshold, band, floor, cap or label** — every value written
+into the instruments here is one **this document already registered at §13.4**.
+It repairs two instruments that CONTRADICTED the frozen registration, and
+re-pins them. **Found by the supervisor while checking numbers before writing a
+launch line for Sanaa; the launch line was refused rather than written.**
+
+### 19.1 THE DEFECT, AND ITS SIGNATURE: EXACTLY ONE RUNG
+
+`orchestrate_t26.py` carried, at `:46`–`:47`:
+
+```
+POINT_CORE_MIN = {"L1": 865.09, "L2": 4230.09, "L3": 18699.19}
+RANKS          = {"L1": 8,      "L2": 16,      "L3": 16}
+```
+
+Those are §7.2's level totals — **computed on the cell counts §13.3 STRUCK**
+(885,508 / 2,988,590 / 10,086,491) — and **the ranks §13.3 struck, character for
+character** (`~~ranks 8 / 16 / 16~~`, §13.3). §13.4 re-derived both for the
+shifted ladder: **POINT 141.28 / 865.09 / 4230.09, ranks 4 / 8 / 16.**
+
+**THE SIGNATURE IS UNAMBIGUOUS — the instrument was one rung high throughout:**
+
+| | orchestrator held | §13.4 registers | equals §13.4's next level up? |
+|---|---:|---:|---|
+| POINT L1 | 865.09 | 141.28 | **= 13.4's L2, exactly** |
+| POINT L2 | 4,230.09 | 865.09 | **= 13.4's L3, exactly** |
+| ranks L1 | 8 | 4 | **= 13.4's L2** |
+| ranks L2 | 16 | 8 | **= 13.4's L3** |
+| hang guard L1 | 19,465 s | 6,358 s | **= 13.4's L2 guard, to the second** |
+| hang guard L2 | 47,589 s | 19,465 s | **= 13.4's L3 guard, to the second** |
+| hang guard L3 | 210,366 s | 47,589 s | 4.42 × too loose |
+
+**IT WOULD HAVE LAUNCHED L1 AT 8 RANKS WHERE THE REGISTRATION SAYS 4, AND L2 AT
+16 WHERE IT SAYS 8 — K2d's death exactly**, a level launched at ranks that do
+not match its registered row, which cost 535.600 core-minutes. And it would have
+planned **23,794.42 core-min (0.344)** against a registered rung of
+**5,236.51 (.477)** — **4.54 × the real figure.**
+
+**AND §13.3's OWN SCOPE SENTENCE IS FALSIFIED BY THIS.** It reads *"THE LADDER
+IS SHIFTED DOWN EXACTLY ONE RUNG. NOTHING ELSE CHANGES."* **Something else did
+change and was not propagated.** §7.2's per-level table was never struck — only
+its `RUNG POINT` line was, at §13.4 — so a reader arriving at `:705`–`:709`,
+**which is exactly where `orchestrate_t26.py:46` cited**, sees the superseded
+numbers with no strike beside them. **An amendment that states its own scope and
+is wrong about it is worse than one that states none, because a reader checks the
+scope sentence and stops.** §7.2's table is **frozen and cited by line and is
+therefore NOT edited**; this addendum is its forward pointer. **§13.4 governs.**
+
+### 19.2 THE REPAIR — no registered value moves
+
+`orchestrate_t26.py` now carries §13.4's values, with the citation corrected
+from `:705-709` to §13.4. **Verified by re-deriving, not by inspection:**
+`hang_guard_s()` now returns **6,358 / 19,465 / 47,589 s**, reproducing §13.4's
+hang-guard table **to the second at every level**, and `Σ POINT_CORE_MIN` =
+**5,236.46** core-min, which with the geometry gate's measured 0.05 is §13.4's
+**RUNG POINT 5,236.51 exactly.**
+
+### 19.3 THE ASSERTION T26 LACKED, NOW PRESENT AND DRIVEN
+
+**`launch_k2f.sh` was written with `reg_row()` after K2d, and T26 was frozen
+without it.** `launch_t26.sh` now holds the registered table **in the launcher
+itself**, so a caller cannot supply both a value and its justification:
+
+| level | ranks | hang guard |
+|---|---:|---:|
+| L1 | 4 | 6,358 s |
+| L2 | 8 | 19,465 s |
+| L3 | 16 | 47,589 s |
+
+**All four branches DRIVEN, not asserted:**
+1. registered row (L1, 4, 6358) → `ASSERT OK`, proceeds;
+2. **the struck row (L1, 8, 19465) — precisely what the unrepaired orchestrator
+   would have handed L1 → REFUSE, exit 2**;
+3. a case under a T26 run root whose basename is not a registered level →
+   REFUSE, exit 2;
+4. a non-T26 fixture outside the run root → **an ANNOUNCED "NOT APPLICABLE"
+   note, never a silent skip** — a skipped assertion that says nothing is how a
+   bypass hides.
+
+All six instrument selftests re-run after the repair: `analyse_t26.py`,
+`build_t26.py`, `mark_done_t26.py`, `orchestrate_t26.py`,
+`launch_t26.sh --selftest-clause7` and `--selftest-witness` — **rc = 0 on every
+one.**
+
+### 19.4 RE-PIN, AND THE CONDITION RE-TAKEN IN THE COMMITTING INVOCATION
+
+**§15.3's pins for these two files are superseded by this addendum.** The re-pin
+is clean **because no compute has occurred at all** — not "post-compute but
+ungraded", but **never run**:
+
+```
+test -d verification/runs/T-family/T26_runs        -> ABSENT
+test -d verification/runs/T-family/T26_MESH_runs   -> ABSENT
+test -d verification/runs/T-family/T23_runs        -> PRESENT     [PLANTED CONTROL +]
+test -d verification/runs/T-family/T99_nonexistent -> ABSENT      [PLANTED CONTROL -]
+```
+**Both control arms fired**, at **2026-09-11T17:57:05Z**, in the invocation that wrote this.
+
+| instrument | sha256 — SUPERSEDES §15.3 |
+|---|---|
+| `orchestrate_t26.py` | `fded258604ae5c97cc9711997cb42ab70be8fe93d3257b75430c6c700ef723ed` |
+| `launch_t26.sh` | `a9ee6126a30759d6d7ec4a0db220d2d133ce0c1791c1707900b93303627c892a` |
+
+**§15.3's pins for `analyse_t26.py`, `mark_done_t26.py` and `build_t26.py`
+stand unchanged — those three files are untouched by this addendum.**
+
+*Recorded by a heat-transfer lane, 2026-09-11T17:57:05Z. Zero solver compute. Nothing sent,
+filed or uploaded (`CLAUDE.md` rule 7).*
