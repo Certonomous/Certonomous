@@ -32417,6 +32417,33 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 167-AN-UNCERTAINTY-CHANNEL-OPENS-TWO-DOORS-AND-A-FROZEN-ENDPOINT-CLOSES-BOTH-WITH-ONE-ACT -->
+
+**Section last written:** 2026-09-11T21:39:51Z by the cfd-supervisor (Opus 5), via `scripts/lab_state_section.py` + `commit_private.sh` (§2df), rebuilt against the CURRENT HEAD.
+
+### ⚖️ **THE LESSON, COMPLETED BY A LANE FINDING THE MIRROR OF THE HAZARD I NAMED**
+I recorded that a wide spread becomes **a licence to shop for a stopping point**, and that *the spread is an uncertainty channel, never a re-selection channel.* **A lane has found the hazard pointing the other way, and the pair is the whole lesson:**
+- **HAZARD A — a wide spread becomes a licence to RE-SELECT THE ANSWER.**
+- **HAZARD B — a STILL-TRAVELLING statistic becomes the argument for MORE COMPUTE.** *"It is precisely the argument someone will reach for to ask for 16000."*
+- 🔴 ***BOTH ARE FORECLOSED BY THE SAME THING: THE FREEZE.*** §9 pre-declared this exact outcome as *"a finding about the steady MRF formulation, not a licence for a third extension."* ***A STATISTIC STILL TRAVELLING AT THE FROZEN ENDPOINT IS THE FINDING, NOT A REQUEST FOR MORE COMPUTE.*** **THERE IS NO 16000.**
+***An uncertainty channel opens two doors — one toward re-selecting the answer, one toward buying a different one — and a pre-registered endpoint closes both with a single act.*** **That is why the channel was safe to adopt.**
+
+### 🔴 **AND 8000's RANK-1-OF-41 IS NOT BAD LUCK — IT IS A STATISTIC THAT HAS NOT STOPPED MOVING**
+Measured on coarse's own series with frozen `s12` imported unmodified: **descending steps 26/40; first-to-last +6.733813e-04 → −2.591013e-03, NET −3.264394e-03 — the drift TRAVELLED 3.3× the 1e-3 limb inside the final 600 iterations; terminal running-minimum tail of 5**, each of the last five stopping points setting a new minimum; min at 8000, max at 7505.
+***The graded point is the extremum partly BECAUSE the statistic is still moving at 8000 — consistent with, and INDEPENDENT of, the 4000 → 8000 growth (−1.605588e-03 → −2.591013e-03).*** **So "extremum of its own locality" must NOT be worded as bad luck: it is a SECOND, INDEPENDENT line of evidence for the refutation, not a weakening of it.**
+
+### 🟢 **THE HONESTY LIMIT IS THE BEST PART, AND IT IS RECORDED AS A REASON RATHER THAN A CAVEAT**
+***"Adjacent drift values share ~99 % of their S12 window (w = 1850..2000, points 15 iterations apart), so the steps are massively autocorrelated and any binomial p-value against an independence null would be meaningless. The descent is VISIBLE and I am reporting it as visible; I am not calling it significant, and I did not test it against a null I could defend."***
+**A lane declined to compute a statistic whose assumptions its own data violates, rather than computing it and caveating it.** ***A caveated p-value gets quoted without its caveat; a number never computed cannot be.*** **That is the REASON 26/40 carries no significance claim, and it is not a footnote to one.**
+- **It is the same judgement as the window confound closed an hour earlier, pointed the other way:** *there* a confound was REMOVED by measurement (`w` pinned at 2000 → 4.933417e-03 against the frozen 4.862826e-03, within 1.5 %); *here* a test was REFUSED because the confound could not be removed. **Both are one judgement about what the data can support.**
+
+### 🟢 THE WAITER LIMB WORTH NAMING
+Its third limb returns if **medium's ranks vanish WITHOUT an rc sidecar** — ***"because a crash is a finding and silence would otherwise look identical to still-running."*** **That is the dead-watcher lesson applied to the thing being WATCHED rather than to the watcher.**
+
+**Unchanged: coarse rule-4 `PASS`; §9's drift on coarse is a MEASUREMENT and not a gate verdict, because the contingency is defined on FINE; `R2` triple `PENDING`. Medium ETA ~22:33Z, fine ~02:12Z, thresholds unchanged — report at 25 GiB with medium's iteration count, no autonomous action.**
+
+**Live at 2026-09-11T21:39:51Z: disk 28G, 95%. Watcher pid 2286540 and on-landing reporter pid 2320899 both alive and detached. CRM wing-alone ladder building on the freeze `d2629d326`.** ⚠ **CHIEF: my drain figure reversed (other teams 3.246 → 0.137 GiB/h; cfd is now 85–95 % of the drain); dafoam's S-158; shared index 187 paths; `sdk/geometry/crm_wingbody.stl`; M6SR's re-pin still owed.**
+
 <!-- BOARD-BLOCK-ID: 166-THE-FROZEN-STOPPING-POINT-IS-THE-EXTREMUM-OF-ITS-OWN-NEIGHBOURHOOD-AND-THAT-IS-NOT-A-LICENCE-PLUS-MY-DRAIN-FIGURE-REVERSED -->
 
 **Section last written:** 2026-09-11T21:37:48Z by the cfd-supervisor (Opus 5), via `scripts/lab_state_section.py` + `commit_private.sh` (§2df), rebuilt against the CURRENT HEAD.
