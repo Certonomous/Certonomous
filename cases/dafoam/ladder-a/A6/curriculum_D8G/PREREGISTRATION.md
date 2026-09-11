@@ -1644,3 +1644,54 @@ back-check arithmetic, the witness-budget placeholder, the manifest's literal ba
 two pins. **Every one caught by a guard before anything was spent.**
 
 **SUBMISSIONS PARKED.**
+
+
+---
+
+## ADDENDUM 5 — 2026-09-11 — **NOTHING STAGED THE MODEL DICTS. THE SAME DEFECT, THE SAME SOLVER AND THE SAME MISSING FILE HAD ALREADY APPEARED IN A3GC HOURS EARLIER — ONE FAMILY-WIDE GAP, NOT TWO BUGS.**
+
+**Lines whose number changed above this section: 0.**
+
+`DARhoSimpleCFoam` is compressible and cannot start without
+`constant/thermophysicalProperties`. `base_L1/constant/` held **`polyMesh` and nothing else**; the
+registered archive `A6-crm-wing/constant/` **has** both that dict and `turbulenceProperties`, and
+**nothing staged them**. L1-P died at
+`FOAM FATAL ERROR: cannot find file ".../processor0/constant/thermophysicalProperties"` —
+**after every gate had passed.**
+
+**THIS IS THE SECOND ITEM.** A3GC hit the identical defect at 21:40Z: same solver, same missing dict,
+same symptom, likewise reached only once every gate was green. **It has now cost A3GC three attempts
+and D8G one, and the next compressible rung in this family will carry it too.**
+
+**THE REPAIR.** The dicts are staged from the registered archive, **invented nowhere**, in the
+driver's per-level loop beside the `decomposeParDict` overlay that already writes into `base_$LV`;
+the arm copies `base_$LEVEL` wholesale, so one placement reaches **every arm of that level**. Placed
+there rather than in `d8g_genmesh.sh` deliberately: that route would require **regenerating all three
+meshes and re-pinning `MD5_GENMESH`** — a further amendment — for a staging step that is not mesh
+construction.
+
+**ASSERTED ARITHMETICALLY, NOT BY PRESENCE.** The staged dict must reproduce **R = 287.0025** against
+the frozen `d8g_runScript.py`'s registered `rho0 = p0/T0/287.0`. **A file-presence check would pass a
+wrong gas**; `rho0` feeds the force normalisation directly, so this binds the staged gas to a
+registered constant of this item.
+
+**PLANTED FOUR WAYS, and the leftovers count is part of the control:** archive gas → **PASSED
+R=287.0025, leftovers 0**; `molWeight 32` → **REFUSED R=259.8270, leftovers 0**; `kOmegaSST` →
+**REFUSED**; restored → **PASSED**. **Assert-then-move**, because staging that copies first and
+asserts after leaves the *rejected* dict in the case for a later launch to solve silently — the
+hazard A3GC created, planted and caught tonight, and which is not being paid for a third time.
+
+**ALTERS NO** gate, band, threshold, cap or label.
+**RE-FREEZE:** `d8g_chain_driver.sh` `b3a19380eeb2c67d2a860cc05f0ef559` →
+**`1cfc0f17e0d7dfaf3d711b690446860b`**.
+
+**FIFTH ABORT, and its cost is a MEASUREMENT:** 248 s × 4 ranks = **16.5 core-min GROSS with
+`ExecutionTime` count 0** — **zero solve time**, all container start, TensorFlow import,
+`decomposePar` and teardown. That is the first clean isolation of this item's **fixed per-run
+overhead**, with no solve mixed in, and it recurs on all ten arms.
+
+**ADDENDUM 1's WITNESS BOUND REMAINS UNDETERMINED.** `D4S_MPIRUN_EPOCH` at **+50 s** is a wide margin
+**at the mpirun stage only**; the budget must cover the **first iteration**, which this run never
+reached. **The +50 s is not clearance of the 352 s question.**
+
+**SUBMISSIONS PARKED.**

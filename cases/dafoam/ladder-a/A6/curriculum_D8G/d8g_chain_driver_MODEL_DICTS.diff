@@ -1,0 +1,98 @@
+=====================================================================
+CLASSIFYING DIFF -- d8g_chain_driver_candidate.sh : MODEL DICTS
+for: dafoam-supervisor.  date: 2026-09-11
+FROZEN d8g_chain_driver.sh NOT TOUCHED -- b3a19380eeb2c67d2a860cc05f0ef559.
+NOT COMMITTED.  SUBMISSIONS PARKED.
+
+CLASSIFICATION: CASE CONSTRUCTION.  Stages two REGISTERED dicts from the
+registered archive.  No gate, cap, band, threshold or label touched.
+
+*** THIS IS A FAMILY-WIDE GAP, NOT TWO BUGS.  The identical defect was found on
+A3GC at 21:40Z and on D8G at 23:35Z: same solver (DARhoSimpleCFoam), same
+missing dict (constant/thermophysicalProperties), same symptom -- a FOAM FATAL
+reached only AFTER every gate passed.  Neither item's frozen path staged the
+model dicts at all.  It has now cost A3GC three attempts and D8G one.  THE NEXT
+COMPRESSIBLE RUNG IN THIS FAMILY WILL HAVE IT TOO unless staging is checked
+when the rung is written, not when its first arm dies. ***
+
+WHERE: the per-level loop, beside the decomposeParDict overlay that already
+writes into base_$LV.  The arm copies base_$LEVEL wholesale (d8g_run_arm.sh:448),
+so the dicts reach every arm of that level.  Chosen over d8g_genmesh.sh
+deliberately: genmesh would mean regenerating all three meshes and re-pinning
+MD5_GENMESH, i.e. a fifth amendment, for a staging step that is not mesh
+construction.
+
+WHAT: constant/{thermophysicalProperties,turbulenceProperties} from
+/home/ubuntu/certonomous-runs/A6-crm-wing/constant -- the registered archive,
+byte-for-byte, nothing invented.
+
+THE ASSERTION IS ARITHMETIC, NOT A grep.  The frozen d8g_runScript.py computes
+rho0 = p0 / T0 / 287.0, so 287.0 is a REGISTERED constant of this item.  The
+staged gas must reproduce it FROM ITS OWN molWeight: R = 8314.462618 / W.
+MEASURED on the archive dict: R = 287.0025 against the registered 287.0.
+A file-presence check passes any gas; a wrong gas silently mis-normalises every
+force the arm reports, and rho0 feeds the force scaling directly.
+
+ORDERED ASSERT-THEN-MOVE.  Staged to a dotted temp name, asserted, then moved.
+This is the hazard built, planted and caught on A3GC at ~22:0xZ, where copying
+first left the REJECTED dict in the case so a later launch would solve the wrong
+gas in silence.  Paid for twice; not paid for a third time.
+
+PLANTED CONTROL, four ways, on copies:
+  1. archive gas                -> PASSED R=287.0025      leftovers 0
+  2. molWeight 32 (oxygen-like) -> REFUSED R=259.8270     leftovers 0
+  3. RASModel kOmegaSST         -> REFUSED not SpalartAllmaras
+  4. restored                   -> PASSED R=287.0025
+  The reader swings both ways on one fixture, and a refusal leaves NOTHING
+  behind -- the leftovers count is part of the control, not an afterthought.
+
+WHAT IS *NOT* CLAIMED: no arm has solved, converged or graded.  This is evidence
+that the registered gas and turbulence model now reach the case, and that a
+wrong one does not.
+=====================================================================
+
+--- d8g_chain_driver.sh	2026-09-11 23:28:33.474134566 +0000
++++ d8g_chain_driver_candidate.sh	2026-09-11 23:38:57.481998394 +0000
+@@ -183,6 +183,42 @@
+   fi
+   cp -a "$DECOMP" "$BASE/base_$LV/system/decomposeParDict" || { echo "ABORT overlay decomposeParDict into base_$LV"; exit 4; }
+   echo "$MD5_DECOMP  $BASE/base_$LV/system/decomposeParDict" | md5sum -c - || { echo "ABORT staged decomposeParDict md5 in base_$LV"; exit 4; }
++  # ---- MODEL DICTS.  STAGED FROM THE REGISTERED ARCHIVE, ASSERTED, THEN MOVED.
++  ARCH_CONST=/home/ubuntu/certonomous-runs/A6-crm-wing/constant
++  for d in thermophysicalProperties turbulenceProperties; do
++    test -f "$ARCH_CONST/$d" || { echo "ABORT model dict $d absent from the registered archive $ARCH_CONST"; exit 4; }
++    cp -a "$ARCH_CONST/$d" "$BASE/base_$LV/constant/.$d.staging" || { echo "ABORT stage $d into base_$LV"; exit 4; }
++  done
++  TH="$BASE/base_$LV/constant/.thermophysicalProperties.staging"
++  TT="$BASE/base_$LV/constant/.turbulenceProperties.staging"
++  grep -qE '^[[:space:]]*RASModel[[:space:]]+SpalartAllmaras;' "$TT" \
++    || { echo "ABORT staged turbulenceProperties does not declare SpalartAllmaras"; rm -f "$TH" "$TT"; exit 4; }
++  grep -qE '^[[:space:]]*turbulence[[:space:]]+on;' "$TT" \
++    || { echo "ABORT staged turbulenceProperties does not have turbulence on"; rm -f "$TH" "$TT"; exit 4; }
++  grep -q 'hePsiThermo' "$TH" \
++    || { echo "ABORT staged thermophysicalProperties is not hePsiThermo (DARhoSimpleCFoam is compressible)"; rm -f "$TH" "$TT"; exit 4; }
++  # THE DISCRIMINATING CHECK IS ARITHMETIC, NOT A grep.  The frozen d8g_runScript.py
++  # computes rho0 = p0 / T0 / 287.0, so 287.0 is a REGISTERED constant of this item.
++  # The staged gas must reproduce it from its OWN molWeight: R = 8314.462618/W.
++  # A file-presence check passes any gas; this one does not.
++  GASR=$(python3 -c "
++import re,sys
++t=open('$TH').read()
++m=re.search(r'^\s*molWeight\s+([0-9.eE+-]+)\s*;', t, re.M)
++if not m: sys.exit('MISSING molWeight')
++print('%.4f' % (8314.462618/float(m.group(1))))
++") || { echo "ABORT could not read molWeight from the staged thermo dict: $GASR"; rm -f "$TH" "$TT"; exit 4; }
++  python3 -c "
++import sys
++sys.exit(0 if abs(float('$GASR') - 287.0) <= 0.01 else 1)" || {
++    echo "ABORT THE STAGED GAS IS NOT THE REGISTERED GAS: its molWeight gives R=$GASR J/kg/K,"
++    echo "  but the frozen d8g_runScript.py computes rho0 = p0/T0/287.0.  A wrong gas would"
++    echo "  silently mis-normalise every force this arm reports.  REFUSED."
++    rm -f "$TH" "$TT"; exit 4; }
++  # Only now, with every assertion passed, do the dicts enter the case.
++  mv "$TH" "$BASE/base_$LV/constant/thermophysicalProperties" || { echo "ABORT move thermo into base_$LV"; exit 4; }
++  mv "$TT" "$BASE/base_$LV/constant/turbulenceProperties"     || { echo "ABORT move turbulence into base_$LV"; exit 4; }
++  echo "D8G_MODEL_DICTS_STAGED level=$LV source=$ARCH_CONST SpalartAllmaras=on thermo=hePsiThermo R_from_dict=$GASR registered_R=287.0"
+   echo "D8G_LEVEL_STAGED level=$LV cells=$RC_CELLS points_md5=$GOT_PTS decomposeParDict=$MD5_DECOMP"
+ done
+ 

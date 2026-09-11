@@ -183,6 +183,42 @@ for LV in $LEVELS; do
   fi
   cp -a "$DECOMP" "$BASE/base_$LV/system/decomposeParDict" || { echo "ABORT overlay decomposeParDict into base_$LV"; exit 4; }
   echo "$MD5_DECOMP  $BASE/base_$LV/system/decomposeParDict" | md5sum -c - || { echo "ABORT staged decomposeParDict md5 in base_$LV"; exit 4; }
+  # ---- MODEL DICTS.  STAGED FROM THE REGISTERED ARCHIVE, ASSERTED, THEN MOVED.
+  ARCH_CONST=/home/ubuntu/certonomous-runs/A6-crm-wing/constant
+  for d in thermophysicalProperties turbulenceProperties; do
+    test -f "$ARCH_CONST/$d" || { echo "ABORT model dict $d absent from the registered archive $ARCH_CONST"; exit 4; }
+    cp -a "$ARCH_CONST/$d" "$BASE/base_$LV/constant/.$d.staging" || { echo "ABORT stage $d into base_$LV"; exit 4; }
+  done
+  TH="$BASE/base_$LV/constant/.thermophysicalProperties.staging"
+  TT="$BASE/base_$LV/constant/.turbulenceProperties.staging"
+  grep -qE '^[[:space:]]*RASModel[[:space:]]+SpalartAllmaras;' "$TT" \
+    || { echo "ABORT staged turbulenceProperties does not declare SpalartAllmaras"; rm -f "$TH" "$TT"; exit 4; }
+  grep -qE '^[[:space:]]*turbulence[[:space:]]+on;' "$TT" \
+    || { echo "ABORT staged turbulenceProperties does not have turbulence on"; rm -f "$TH" "$TT"; exit 4; }
+  grep -q 'hePsiThermo' "$TH" \
+    || { echo "ABORT staged thermophysicalProperties is not hePsiThermo (DARhoSimpleCFoam is compressible)"; rm -f "$TH" "$TT"; exit 4; }
+  # THE DISCRIMINATING CHECK IS ARITHMETIC, NOT A grep.  The frozen d8g_runScript.py
+  # computes rho0 = p0 / T0 / 287.0, so 287.0 is a REGISTERED constant of this item.
+  # The staged gas must reproduce it from its OWN molWeight: R = 8314.462618/W.
+  # A file-presence check passes any gas; this one does not.
+  GASR=$(python3 -c "
+import re,sys
+t=open('$TH').read()
+m=re.search(r'^\s*molWeight\s+([0-9.eE+-]+)\s*;', t, re.M)
+if not m: sys.exit('MISSING molWeight')
+print('%.4f' % (8314.462618/float(m.group(1))))
+") || { echo "ABORT could not read molWeight from the staged thermo dict: $GASR"; rm -f "$TH" "$TT"; exit 4; }
+  python3 -c "
+import sys
+sys.exit(0 if abs(float('$GASR') - 287.0) <= 0.01 else 1)" || {
+    echo "ABORT THE STAGED GAS IS NOT THE REGISTERED GAS: its molWeight gives R=$GASR J/kg/K,"
+    echo "  but the frozen d8g_runScript.py computes rho0 = p0/T0/287.0.  A wrong gas would"
+    echo "  silently mis-normalise every force this arm reports.  REFUSED."
+    rm -f "$TH" "$TT"; exit 4; }
+  # Only now, with every assertion passed, do the dicts enter the case.
+  mv "$TH" "$BASE/base_$LV/constant/thermophysicalProperties" || { echo "ABORT move thermo into base_$LV"; exit 4; }
+  mv "$TT" "$BASE/base_$LV/constant/turbulenceProperties"     || { echo "ABORT move turbulence into base_$LV"; exit 4; }
+  echo "D8G_MODEL_DICTS_STAGED level=$LV source=$ARCH_CONST SpalartAllmaras=on thermo=hePsiThermo R_from_dict=$GASR registered_R=287.0"
   echo "D8G_LEVEL_STAGED level=$LV cells=$RC_CELLS points_md5=$GOT_PTS decomposeParDict=$MD5_DECOMP"
 done
 
