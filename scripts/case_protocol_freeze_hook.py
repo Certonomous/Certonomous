@@ -50,6 +50,16 @@ repository, timeout, an exception, an unexpected exit code, or an inventory
 that does not agree with itself: all REFUSE.  A check that did not reach its
 subject has not passed; it has not run.
 
+A REFUSAL CARRIES ITS REASON.  When this hook refuses AFTER the frozen
+instrument has run, that instrument's captured stdout and stderr are printed
+UNCONDITIONALLY.  --show-check-output is no longer needed to learn why a
+refusal happened -- it was previously the only way, so the board's standing
+mitigation was to make the flag mandatory in every documented invocation, and
+that mandate is retired.  Passing the flag AND refusing prints the account
+once, not twice.  On the PASS path the flag keeps exactly its old meaning.  The
+argument for flushing at refuse() rather than at each refusal site, and the
+statement that this can move no verdict, sit above refuse() itself.
+
 --------------------------------------------------------------------------
 WHY THIS HOOK IS NOT JUST A WRAPPER -- THE THREE KNOWN DEFECTS
 --------------------------------------------------------------------------
@@ -184,12 +194,70 @@ def bare_filename_pins(repo, paths):
     return out
 
 
+# --------------------------------------------------------------------------
+# THE REFUSAL CARRIES ITS REASON -- the captured account of the frozen
+# instrument, and why it is flushed HERE and not at each refusal site.
+#
+# This hook gates on the frozen instrument's EXIT CODE, but that instrument
+# also PRINTS why it refused.  That text was captured and then discarded unless
+# --show-check-output happened to be passed, so a REFUSAL showed the operator a
+# one-line status and threw away the only account of its own cause.  The
+# standing mitigation was to make --show-check-output mandatory in every
+# documented invocation; this holder retires that mandate.
+#
+# WHY A MODULE-LEVEL HOLDER FLUSHED BY refuse(), AND NOT A PRINT PER SITE.
+# Every refusal in this file leaves through refuse().  Flushing there reaches
+# EVERY post-subprocess refusal path -- the two inventory-disagreement limbs,
+# the rc limb, the strict-flag limb, the unreadable-registration limb -- AND
+# every limb a later hand adds.  A per-site print covers only the sites that
+# existed when it was written, and a future refusal that forgets to print its
+# evidence is precisely the defect being repaired here; only the single choke
+# point is immune to it.
+#
+# WHY IT CANNOT MOVE A VERDICT.  refuse() already ended in an unconditional
+# sys.exit(EXIT_REFUSE).  This adds output strictly before that call.  It reads
+# no predicate, compares no rc, and returns no value that anything branches on.
+# The "printed" latch makes the flush idempotent, so --show-check-output plus a
+# refusal prints the account ONCE, not twice.
+#
+# LIMIT, STATED PLAINLY.  The holder is filled only when the subprocess
+# RETURNS.  The timeout and exception refusals above it never reach it and
+# print only what they already printed; recovering TimeoutExpired's partial
+# output is a different change and is deliberately NOT made here.
+# --------------------------------------------------------------------------
+_CAPTURED = {"out": None, "err": None, "printed": False}
+
+
+def capture_check_output(out, err):
+    """Hold the frozen instrument's own account, immediately after it returns."""
+    _CAPTURED["out"] = out
+    _CAPTURED["err"] = err
+    _CAPTURED["printed"] = False
+
+
+def emit_captured():
+    """Print the held account AT MOST ONCE.  True if it printed here; False if
+    nothing is held (the subprocess never returned) or it was already printed."""
+    if _CAPTURED["printed"]:
+        return False
+    if _CAPTURED["out"] is None and _CAPTURED["err"] is None:
+        return False
+    _CAPTURED["printed"] = True
+    print("STAGE1 the frozen instrument's own account follows "
+          "(its stdout, then its stderr):")
+    print(_CAPTURED["out"] or "")
+    if _CAPTURED["err"]:
+        print(_CAPTURED["err"])
+    return True
+
+
 def status_line(verdict, case_id, judged, unseen, rc, reason):
     print(f"STAGE1 FREEZE {verdict} case={case_id} pins_judged={judged} "
           f"pins_unseen={unseen} rc={rc} reason={reason}")
 
 
 def refuse(case_id, judged, unseen, rc, reason):
+    emit_captured()  # REFUSAL-REASON FLUSH -- selftest ARM B mutates this line
     status_line("REFUSE", case_id, judged, unseen, rc, reason)
     sys.exit(EXIT_REFUSE)
 
@@ -241,10 +309,9 @@ def run_gate(a):
         refuse(case_id, 0, 0, "n/a", "frozen-check-raised")
     rc = r.returncode
     out = r.stdout or ""
+    capture_check_output(out, r.stderr)   # held for EVERY refusal below
     if a.show_check_output:
-        print(out)
-        if r.stderr:
-            print(r.stderr)
+        emit_captured()                   # PASS path keeps its old meaning
 
     # ---- LIMB 2: the independent inventory ---------------------------------
     try:
@@ -358,11 +425,56 @@ def _pyargv():
     return argv
 
 
-def _hook(repo, case, reg, *extra):
+def _hook_at(script, repo, case, reg, *extra):
+    """Run an arbitrary BUILD of this hook.  ARM B needs this: the control that
+    makes ARM A evidence is a copy of this file with the repair removed."""
     return subprocess.run(
-        _pyargv() + [os.path.abspath(__file__), "--repo", repo,
+        _pyargv() + [script, "--repo", repo,
                      "--case", case, "--registration", reg] + list(extra),
         capture_output=True, text=True)
+
+
+def _hook(repo, case, reg, *extra):
+    return _hook_at(os.path.abspath(__file__), repo, case, reg, *extra)
+
+
+# ARM A/B/C plants.  These two strings are emitted by the stub below and by
+# NOTHING ELSE in the pipeline -- not by the real frozen instrument, not by this
+# hook, not by git.  A zero (the token absent) is therefore only evidence
+# because ARM A first shows the same reader seeing a non-zero (CLAUDE.md rule 3).
+_PLANT_OUT = "PLANTED-FROZEN-STDOUT-a7f3c19e5b2d4086"
+_PLANT_ERR = "PLANTED-FROZEN-STDERR-a7f3c19e5b2d4086"
+
+# A stand-in for the frozen instrument.  It exits 3, so the hook refuses on the
+# rc limb -- a refusal that happens strictly AFTER the subprocess returned,
+# which is the exact path the repair covers.  It carries the four attributes
+# run_gate() requires of the imported module; registered_pins() returns an empty
+# mapping so the inventory limbs are quiet and the rc limb is the one that fires.
+_STUB_FROZEN = '''#!/usr/bin/env python3
+"""Selftest stub for the frozen instrument.  Prints a planted marker on stdout
+and another on stderr, then exits 3."""
+import re
+import sys
+
+STRIKE_SPAN = re.compile(r"~~.*?~~", re.S)
+PIN_BLOB = re.compile(r"\\b[0-9a-f]{40}\\b")
+PIN_PATH = re.compile(r"`([^`]+\\.(?:py|sh))`")
+
+
+def registered_pins(path):
+    return {}
+
+
+if __name__ == "__main__":
+    print("%s")
+    sys.stderr.write("%s\\n")
+    sys.exit(3)
+''' % (_PLANT_OUT, _PLANT_ERR)
+
+# the line refuse() carries, and what ARM B replaces it with.  Both are matched
+# by an explicit counted comparison, never by a bare assert (see :105).
+_ANCHOR = "    emit_captured()  # REFUSAL-REASON FLUSH"
+_ANCHOR_MUT = "    pass  # MUTATED: refusal-reason flush REMOVED\n"
 
 
 def selftest():
@@ -485,13 +597,96 @@ def selftest():
         _check("data-only registration REFUSES", r5.returncode, EXIT_REFUSE)
         _check("data-only registration reports 0 judged, 1 unseen",
                "pins_judged=0 pins_unseen=1" in r5.stdout, True)
+
+        # ---- ARM 6: THE REFUSAL CARRIES ITS REASON -------------------------
+        # A refusal that happens AFTER the subprocess returned must show the
+        # frozen instrument's own account WITHOUT --show-check-output (A);
+        # a build with the flush removed must NOT show it, or (A) proves
+        # nothing (B); and the flag plus a refusal must print it ONCE (C).
+        repo6 = _mkrepo(os.path.join(tmp, "r6"))
+        case6 = os.path.join(repo6, "cases", "SCRATCH6")
+        os.makedirs(case6, exist_ok=True)
+        os.makedirs(os.path.join(repo6, "scripts"), exist_ok=True)
+        _write(repo6, FROZEN_REL, _STUB_FROZEN)
+        _write(repo6, "verification/t/analyse_y.py", "print('y')\n")
+        _write(repo6, "cases/SCRATCH6/.keep", "")
+        _git(repo6, "add", "--", FROZEN_REL, "verification/t/analyse_y.py",
+             "cases/SCRATCH6/.keep")
+        _git(repo6, "commit", "-q", "-m", "stub instrument")
+        b_y = _blob(repo6, "verification/t/analyse_y.py")
+        reg6 = os.path.join(repo6, "REG6.md")
+        _write(repo6, "REG6.md",
+               _reg_body([("verification/t/analyse_y.py", b_y)]))
+        _check("ARM6 scratch: the stub repo pins a real 40-hex blob",
+               len(b_y), 40)
+
+        # ARM A -- the repair, on the unflagged refusal path
+        r6a = _hook_at(os.path.abspath(__file__), repo6, case6, reg6)
+        _check("ARM A: the post-subprocess refusal still REFUSES",
+               r6a.returncode, EXIT_REFUSE)
+        _check("ARM A: and it is the rc limb, after the subprocess returned",
+               "reason=frozen-check-VIOLATION" in r6a.stdout, True)
+        _check("ARM A: WITHOUT the flag, the planted STDOUT is shown",
+               _PLANT_OUT in r6a.stdout, True)
+        _check("ARM A: WITHOUT the flag, the planted STDERR is shown",
+               _PLANT_ERR in r6a.stdout, True)
+
+        # ARM B -- the control.  A build with the flush line removed, so ARM A
+        # is shown CAPABLE OF FAILING.  The mutation is counted, not asserted.
+        src = open(os.path.abspath(__file__)).read().splitlines(True)
+        hits = [i for i, ln in enumerate(src) if ln.startswith(_ANCHOR)]
+        _check("ARM B: the refusal-reason flush line occurs exactly once",
+               len(hits), 1)
+        if len(hits) != 1:
+            fails.append("ARM B: cannot build the control")
+        else:
+            src[hits[0]] = _ANCHOR_MUT
+            mut = os.path.join(tmp, "unrepaired_hook.py")
+            with open(mut, "w") as fh:
+                fh.write("".join(src))
+            r6b = _hook_at(mut, repo6, case6, reg6)
+            _check("ARM B control: the unrepaired build still REFUSES",
+                   r6b.returncode, EXIT_REFUSE)
+            _check("ARM B control: unrepaired, the planted STDOUT is LOST",
+                   _PLANT_OUT in r6b.stdout, False)
+            _check("ARM B control: unrepaired, the planted STDERR is LOST",
+                   _PLANT_ERR in r6b.stdout, False)
+            # and prove the control is a faithful stand-in for the old code
+            # rather than a build that simply captures nothing:
+            r6b2 = _hook_at(mut, repo6, case6, reg6, "--show-check-output")
+            _check("ARM B control: unrepaired, only the flag reveals it",
+                   _PLANT_OUT in r6b2.stdout, True)
+
+        # ARM C -- no double print
+        r6c = _hook_at(os.path.abspath(__file__), repo6, case6, reg6,
+                       "--show-check-output")
+        _check("ARM C: flag AND refusal still REFUSES", r6c.returncode,
+               EXIT_REFUSE)
+        _check("ARM C: the planted STDOUT appears EXACTLY once",
+               r6c.stdout.count(_PLANT_OUT), 1)
+        _check("ARM C: the planted STDERR appears EXACTLY once",
+               r6c.stdout.count(_PLANT_ERR), 1)
+
+        # ARM D -- --show-check-output keeps its old meaning on the PASS path,
+        # against the REAL frozen instrument, not the stub.
+        _write(repo, "REG.md", _reg_body([("verification/t/analyse_x.py", b_py)]))
+        r6d = _hook(repo, case, reg, "--show-check-output")
+        _check("ARM D: a clean case still PASSES under the flag",
+               r6d.returncode, EXIT_PASS)
+        _check("ARM D: and the flag still echoes the check on the PASS path",
+               r6d.stdout.count("PIN COVERAGE: 1 of 1"), 1)
+        r6e = _hook(repo, case, reg)
+        _check("ARM E: without the flag a PASS is still quiet",
+               "PIN COVERAGE" in r6e.stdout, False)
+        _check("ARM E: and still PASSES", r6e.returncode, EXIT_PASS)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
     if fails:
         print(f"SELFTEST: {len(fails)} FAILED: {', '.join(fails)}")
         return False
-    print("SELFTEST: all arms OK (positive, negative, defect(a), fail-closed)")
+    print("SELFTEST: all arms OK (positive, negative, defect(a), fail-closed, "
+          "refusal-carries-its-reason A/B/C + flag-on-PASS D/E)")
     return True
 
 
@@ -514,7 +709,11 @@ def main():
                          "that D539 reserves to her. The count is on the "
                          "status line either way.")
     ap.add_argument("--show-check-output", action="store_true",
-                    help="echo the frozen check's stdout")
+                    help="echo the frozen check's stdout on the PASS path. NOT "
+                         "needed to see a REFUSAL's reason: a refusal after "
+                         "the frozen check ran prints that check's stdout and "
+                         "stderr unconditionally, and passing this flag as "
+                         "well prints them once, not twice.")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
