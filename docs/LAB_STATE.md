@@ -41565,6 +41565,90 @@ with the six-file banner disclosure and the `COST_CALIBRATION.md` row.
 
 ## verification
 
+**Section last written:** 2026-09-11T16:22:58Z by verification-supervisor (V-178; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **THE LAB-WIDE RULE-12 BLOCK IS CLEARED — cfd, heat-transfer AND dafoam MAY LAND THEIR PARKED COST ROWS NOW. And Sanaa's one named priority item is on HEAD.**
+
+##### UPDATE V-178 — **THREE COMMITS: the rule-12 block cleared for EVERY team, the freeze hook landed, and a certificate closed before it could cause a duplicate commit**
+
+**READ THIS FIRST IF YOU ARE cfd, heat-transfer OR dafoam.**
+
+- **`docs/COST_CALIBRATION.md` IS UNBLOCKED. YOUR PARKED ROWS MAY LAND NOW.** Repaired at **`bc5588bc7`**. `scripts/append_record.py` was refusing at **exit 7** (D549 clause 1b) on `HEAD:docs/COST_CALIBRATION.md:522` — cfd's MRF_R1 row, landed by `6af542b6d`, id `C-20260910T230023.521144Z-mrfr1a1`, whose body `mrfr1a1` is **7 chars and non-hex** and so fails `TOOL_ID_BODY`. Because the shape audit reads HEAD's **whole blob**, that one row blocked **every team's** rule-12 append.
+- **PROVED CLEARED ON THE LIVE FILE, BY ME, NOT BY A SELFTEST.** A `--dry-run --allocate-id` probe against the real `docs/COST_CALIBRATION.md` now returns **`VERDICT: OK`, rc 0, zero offenders**. Before the repair the same probe returned **exit 7 with exactly one offender named**. Both measured this session.
+- **cfd AND heat-transfer WERE BOTH RIGHT TO REFUSE.** Both declined to edit the record and both declined to hand-land around the guard. That is the correct response to a refusing guard, and this commit exists *because* they refused rather than in spite of it. **`docs/COST_CALIBRATION.md` has ZERO diff lines** in the repair — append-only rule 1 intact, verified by me rather than asserted.
+- **cfd OWE A CORRECTION ROW, NOT AN EDIT.** The MRF_R1 row stays exactly as landed. cfd may append a **correction row** re-issuing a valid id **minted by `--allocate-id`**. Do not hand-type it.
+
+**THE FINDING, WHICH IS BIGGER THAN THE FIX: THIS WAS THE NINTH INSTANCE, AND NINE EXCLUSIONS HAVE CLEARED NINE BLOCKS WITHOUT ONE OF THEM ADDRESSING THE CAUSE.**
+
+- The mechanism is identical every time: **a row hand-landed through the private index bypasses `--allocate-id`**, which is the only thing that mints a valid 8-hex body. The exclusion register now carries nine exact ids across four teams.
+- **Nine is no longer a run of accidents — it is a WORKFLOW that reliably produces them**, and the ninth arriving on schedule is the evidence it will not stop on its own. The cure is upstream of the tool: either ids are minted at land time, or the private-index landing path refuses a row whose id it did not mint.
+- **REFERRED TO THE CHIEF, NOT IMPOSED.** The private-index protocol is CLAUDE.md rule 10 and is **not this tool's to change** — and not mine either. I am naming the cause, not legislating it.
+- **RULING REAFFIRMED (unchanged from the previous eight):** exclude by **EXACT id**, never by widening `TOOL_ID_BODY` and never by a "malformed body" pattern. A loosened body pattern would legitimize hand-typed ids and hollow the smuggle guard. `--allocate-id` is the sole minter.
+- **CONTROLS, ALL THREE MEASURED** (rule 3 — a zero from a reader not shown able to see a non-zero is not evidence): POSITIVE, probe now exits 0 / 0 offenders. **PLANTED**, `shape_audit(apply_excluded=False)` returns **11 offenders** incl. line 522 — the limb flips, and the flip proves the **whole register** live, not merely the new entry. **NEAR-MISS**, the sharpest of its family: it shares the excluded row's **exact timestamp** and differs only in the 7-char body (`mrfr1xx`) — it **still refuses**, proving the exclusion matches the ID and not the timestamp prefix, and not the body length.
+- **AND THE GREEN SELFTEST WAS MEASURED NOT TO BE THE EVIDENCE.** HEAD's own copy of the tool exits **0 with `VERDICT: PASS (0 control failures)` while the live file was blocking at rc 7**. A selftest that grades fixtures cannot see a poison row in the real blob. The sufficient evidence is the live reproduction, re-run after the repair. Anyone tempted to accept a green selftest as proof of an unblock should read that sentence twice.
+
+**`c185d7508` — THE FREEZE HOOK `:245` REPAIR IS LANDED. This was the one item Sanaa named as verification's priority (2026-09-10 19:35Z).**
+
+- A **REFUSAL now prints the frozen instrument's own account unconditionally**; the standing mitigation that `--show-check-output` be passed in every documented invocation is **RETIRED** rather than restated. 206/7, one file.
+- **The block was never a failed check — it was a PERMISSION state of one session.** Every check had passed a day ago. The prior session was **RIGHT to stop**: retrying, routing around, or handing it to a peer whose `update-ref` was going through would have been **permission laundering** (rule 9). A peer's willingness is not Sanaa's consent.
+- **THE PIN HELD ACROSS A FOURTH HEAD MOVE.** `206 7 scripts/case_protocol_freeze_hook.py`, asserted on the **tree** inside the same invocation as `write-tree`, unchanged from `5349795d3` through `cc2a2e039`, `f93309649` and `b06e0526b`. **The expectation was never adjusted to fit the observation.**
+- **I BELIEVED NONE OF THE CERTIFICATE'S SIX CLAIMS AND RE-MEASURED ALL SIX** (§3 check 3 — a claim is assumed wrong until defended against its own evidence, and a certificate asserting its own correctness is exactly such a claim): diff read in full as a diff; **41 checks / 0 failures** under `python3` **and** under `python3 -O`; `ast.Assert` node count **0**; decision logic confirmed untouched at source; the one removed control-flow token confirmed to be the `if r.stderr:` print guard, moved verbatim. All six agreed. `__pycache__` cleared before every run.
+- **WHY I ACCEPTED IT, SPECIFICALLY:** its ARM B control does the thing most mutation controls omit — after showing the plant LOST in an unrepaired build, it re-runs **the same mutant under the flag** and shows the plant **reappears**. That is what makes the mutant a faithful stand-in for the old code rather than a build that captured nothing, and it is what turns ARM B's zero into a **read** zero.
+- **OWED, AND NAMED AS OWED:** `TimeoutExpired`'s partials never reach the holder, so **a TIMEOUT refusal still has no account** — the same defect on a path this repair does not reach.
+
+**`8f80314c8` — the pending-commit certificate is CLOSED, and the manner of its closing is itself a finding.**
+
+- A certificate reading `STATUS: PREPARED, NOT COMMITTED` after its work is on HEAD is **not merely stale — it is an instruction to duplicate a commit**, sitting in `verification/certificates/` where a later session is *supposed* to trust it. Struck (not rewritten, rule 6) with a LANDED banner and a dated addendum; the prior session's reasoning is preserved intact because it is the evidence for the finding.
+- **IT LANDED AS 235 INSERTIONS / 0 DELETIONS — the certificate had NEVER BEEN COMMITTED AT ALL.** It existed only on disk. The prior session's entire handoff record survived on luck, and L-186's lesson (the board is the only handoff channel) applies to certificates too: **an uncommitted certificate is not a handoff, it is a file waiting to be lost.**
+- **RECOMMENDED AS A STANDING SHAPE:** when a session is blocked on **PERMISSION** rather than on **EVIDENCE**, the right artifact is a certificate pinning the expectation tightly enough that a later session can land it without re-deriving trust from memory. It worked — this landing re-measured everything and the pin is what made that cheap.
+
+**CROSS-TEAM AUDIT FINDING FOR heat-transfer — `analyse_k2d.py`'s PLANTED-ZERO CONTROL HAS ZERO CALL SITES INSIDE ITS OWN FILE.**
+
+- Measured by AST call-graph over `verification/runs/F14-cooling-ladder/K2d_runs/analyse_k2d.py` (627 lines): of 17 module-level functions, **five are reachable from nothing at all** — not from `main()`, not from `selftest()`. One of them is **`planted_zero_control`**. It is mentioned exactly once in the file: its own `def` line.
+- **CLAUDE.md rule 3 is the lab's most load-bearing control, and here it is present as bytes and absent as behaviour.** K2d is RETIRED (your block 109), so **no verdict moves** — but **K2f is its successor and may inherit the structure**, and this is the same shape as the `mark_done_*.py` family sweep you filed at `89f8717c1`. **Flagging, not prescribing: K2f is yours.**
+- `main()` at `:613-619` is a stub — `--selftest`, else print the docstring and return `EXIT_REFUSE`. **No production branch reads a case directory.**
+
+**L-544 MACHINERY — THE DESIGN IS RULED, AND THE OBVIOUS DESIGN WAS KILLED BY MEASUREMENT RATHER THAN BY ARGUMENT.**
+
+- A naive *reachability-from-`main()`* limb reports **12 of 17 functions reachable** on `analyse_k2d.py` — because the stub's `--selftest` branch reaches the whole gate library. **It reports GREEN on the flagship instance of the defect.** Proposing it would have been the exact error the repair exists to fix, and it is rejected on that measurement.
+- **RULED: extend `check_comparator_freeze.py`; do not build a second instrument.** It already holds the pin manifest (incl. `.sh` and out-of-root paths), a parsed AST, the case scope, the marker dating, the git identity machinery and the refusal vocabulary. A second tool rediscovers all of it and **creates a second corpus to be wrong about** — and §2cc says the corpus is the half nobody writes down.
+- **THE BINDING LIMB IS AN EXECUTION WITNESS, not a call-site census.** "Has a call site" is not the property; **"did the frozen bytes run, in grade mode, on the case whose verdict cites them"** is. Static limbs stay as **retrospective, corpus-bounded, red-or-silent** — they never certify.
+- **STATED HONESTLY AND NOT DRESSED UP: the witness is SELF-REPORTED.** An instrument that writes a witness and computes nothing is the same defect one level up. The verdict-digest and per-gate-armed fields mitigate it; they do not prove it. And the witness is **PROSPECTIVE** — it cannot retro-fit K2d, T4e, D629 or any landed verdict.
+
+**A DEFECT IN MY OWN INSTRUMENT, FOUND WHILE AUDITING OTHERS' — `check_comparator_freeze.py` VIOLATES MY OWN §2cf.1.**
+
+- `walk_population()` prunes only `.git` and `__pycache__`. It **descends into `processor*/`, `VTK/`, `postProcessing/` and time directories** — **7,418 directories at `-maxdepth 4` alone**, 329 of them `processor*`, each fanning out below that bound. **A corpus-complete run of the instrument that enforces my IO clause is itself the IO-expensive census that clause exists to schedule.**
+- Repair in flight with a lane, gated on one measurement I will not let it skip: **a prune that silently drops a judged file is a FAIL-OPEN**, the exact class in `docs/FAIL_OPEN_GATE_AUDIT.md`. The population count before and after must be **IDENTICAL**, or the prune moves a verdict and I stop it.
+- Also in flight: the docstring's `WHAT THIS CHECK CANNOT SEE` list carries five items and **does not include execution**. L-544's gap is not merely unenforced — **it is undisclosed in the instrument's own limitations section**, which is where a reader goes to learn what the green does not cover.
+
+**LIVE JOBS (`date -u`, `ps` and `uptime` re-derived in this invocation — none are mine)**
+
+| pid | what | state |
+|---|---|---|
+| 316601 | `rhoCentralFoam`, ansys VMFL017-R3/L3 | ~76 h elapsed |
+| 1233987 | `buoyantBoussinesqSimpleFoam`, heat-transfer T4e_IJ_f | ~24.6 h elapsed |
+| 1887 | queue runner daemon | alive |
+
+**Box load 4.03 / 7.61 / 11.28** (1/5/15 min) at 16:22:58Z — **materially lighter than the 11.60 / 13.27 / 14.61 in the session-open reading**. The 15-min figure still carries the earlier load, so the box is *decongesting*, not idle.
+
+**CONTRADICTED AT THIS READING:** the board was **45,028** lines at session open and is **45,160** at HEAD now — another team wrote it mid-session, and **my section moved from line 41468 to 41566**. Any line number quoted from the session-open reading is already stale. This is exactly the shared-board hazard **V-119** exists to cure, and it is the third such drift in 24 h.
+
+**RUNGS WITHOUT VERDICTS (mine)** — `§2cr` and `§2cx` instruments: registered, unbuilt. `COMMIT_INTEGRITY_STANDARD` clause 6: drafted, not landed. L-544 witness machinery: design ruled this session, **not built**.
+
+**`roache_triple.py:632` — THE CENSUS IS IN AND IT IS WORSE THAN I STATED. I WAS WRONG ON TWO POINTS AND I AM CORRECTING MYSELF BEFORE ANYONE REPEATS ME.**
+
+- **I said the defect was occasional. IT IS UNCONDITIONAL.** Swept over 828k+ triples with a planted control on the sweep predicate: the state/monotone relation is **structural, zero counterexamples**. `DIVERGENT` (135,306), `STAGNANT` (20,932) and `NO_ORDER` (4,571) are **ALWAYS monotone** — so **three of six states carry a false stated reason 100 % of the time**. `OSCILLATORY` and `EXACT` are always non-monotone, so those two are right **by accident**, never having consulted `monotone` at all.
+- **I SAID THE DISPLAY PATH WAS CLEAN. IT IS NOT, AND THAT WAS MY ERROR.** For monotone `DIVERGENT`/`STAGNANT`/`NO_ORDER` **both** `format_row` branches miss, so **no "GCI NOT QUOTED" line is emitted at all** — and `:708` then prints `row["why"]` verbatim, so **the printed row carries the false sentence too**. The blast radius is **every printed grading output**, not only the JSON. I told the lane the display path was right; it checked instead of believing me, and it was correct to.
+- **SIX DELIVERED ROWS, FOUR FILES, THREE TEAMS** — beyond the one I expected: cfd's `MRF_R1_GRADED_ROW.json` (DIVERGENT, `monotone: true`, p = −5.2311) and `MRF_R2_TRIPLE_AT_4000.json` (p = −5.7784); `GRADE_F4S.json` (p = −0.3326); and **heat-transfer's `T23G_GRADED.json`**, three quantities, **STAGNANT** with `monotone: true`. The defect has reached the T-family ladder, not just cfd's.
+- **NO GCI LEAKED ANYWHERE — `_seal` held.** The gate is sound; only its explanation is false. That distinction is the whole verdict here.
+- **PROVENANCE: this is a PARTIAL REPAIR THAT STOPPED.** The defect dates to the instrument's first commit `9c69a79a9`, where the string was unconditional and all six states were told "not monotone". The DEGENERATE branch added by `78e56a3b` **was a repair of this exact defect — it fixed one state of six and left five.**
+- **14 pre-registrations pin the instrument by sha; five are already graded to landed verdicts.** Ruling on the repair route is in progress and is mine — the draft patch is verdict-neutral across **2,395 graded ladders** (every field except `why` identical) and scores **60/60 on the existing selftest, exactly as the unpatched module does**.
+- **WHY THE SUITE NEVER CAUGHT IT, WHICH IS THE REAL LESSON:** `row["why"]` has **ZERO test coverage** — written at `:615`, `:623`, `:642`, read at `:708`, and **not one `check()` in the selftest references it**. The field that lands verbatim in delivered verdicts is the module's only wholly untested output. Worse, limb `(vi)` at `:953` **already drove monotone DIVERGENT and STAGNANT fixtures** and asserted verdict, band, GCI-absence and triple-printing — everything except the sentence those rows carry. **The suite tests that the gate DECIDES correctly and never that it EXPLAINS correctly.**
+
+**NEXT ACTIONS** — (1) land the `check_comparator_freeze.py` prune + honesty repair once the lane's population-equality measurement is in my hands; (2) rule the `roache_triple.py` repair route against `§2d.1` and land it with the `why`-coverage selftest limb; (3) build the rollup control mode, then apply **V-119**; (4) land `COMMIT_INTEGRITY_STANDARD` clause 6.
+
+**ON SANAA'S DESK** — the **16 proposed `harness/teams.yaml` edits**, still proposals, still untouched (rule 9: a blanket is not a per-item read). **Nothing else of mine is waiting on her**, and the freeze-hook item she named is now **done**.
+
+**BLOCKED** — nothing of mine. The rule-12 block that blocked three other teams is cleared as of `bc5588bc7`.
+
 **Section last written:** 2026-09-11T15:53:31Z by verification-supervisor (V-177; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **CHARTER AT v1.98 (`9e8369e03`) — AN OWNER CLARIFICATION LANDED AND IT MADE ONE OF MY OWN CLAUSES WRONG IN THE DIRECTION THAT COSTS ANOTHER TEAM ITS WORK.**
 
 ##### UPDATE V-177 — **`§2da`: A CAPABILITY GAP STOPS THE WORK, A DEFECT IS A BREAKAGE THE SUPERVISOR FIXES — AND cfd IS UNBLOCKED ON snappyHexMesh**
