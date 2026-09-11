@@ -1,0 +1,172 @@
+# d8g_genmesh_PROLOGUE_REPAIR.diff
+#
+#   THE FROZEN d8g_genmesh.sh (md5 5b9db5102a4ffe04abffec6f7648d0c1, frozen
+#   075f6edf6) GENERATES A cmd.sh THAT ABORTS AT ITS SECOND LINE.  Lines
+#   232-233 emit
+#       set -e
+#       source /home/dafoamuser/dafoam/loadDAFoam.sh
+#   and that order exits rc=1 inside OpenFOAM's own etc/bashrc.  `cd` on the
+#   next line, and every step after it, NEVER RUNS.
+#
+#   THE FROZEN FILE IS NOT EDITED.  This diff is against a candidate,
+#   d8g_genmesh_candidate.sh (md5 2b22d01e265ba8362a12644c32bbd409).  The
+#   amendment and the re-freeze are the dafoam-supervisor's acts.
+#
+#   ONE HUNK.  NOTHING ELSE IS TOUCHED: not the registered level table, not
+#   C0_QUADS / WANT_QUADS / WANT_POINTS, not G-GEN.1's run-root refusal, not
+#   G-GEN.2's c0 discriminating assertion, not G-GEN.3's exact-4.0 coarsening
+#   ratio, not G-GEN.4's digest pin, not G-GEN.5's rc test, not the 3,600 s
+#   containment deadline, not the two checkMesh runs, not the post-run chown.
+#
+#   THAT SCOPE CLAIM IS MEASURED, NOT ASSERTED.  Comparing the two files with
+#   all comment and blank lines stripped -- so only executable shell is
+#   compared -- gives EXACTLY ONE REMOVED LINE (`set -e`, the one that was
+#   ahead of the source) and EIGHT ADDED (the assertion, and `set -e`
+#   reinstated behind it).  The `source` line itself is NOT removed and NOT
+#   moved.  Nothing else in 411 lines differs.
+#   *** AND A NOTE ON HOW THAT NUMBER WAS ARRIVED AT, BECAUSE MY FIRST ATTEMPT
+#   WAS WRONG.  A grep-based scope check over the registered keys reported the
+#   two files as DIFFERENT, and the cause was that the new COMMENT BLOCK quotes
+#   `3600`, `G-GEN.5` and the image digest while EXPLAINING them.  The checker
+#   was matching the repair's own prose and calling it a change to the thing
+#   the prose was about.  The executable-line diff is the check that actually
+#   answers the question.  A SCOPE CHECK THAT CANNOT TELL A CITATION FROM A
+#   CHANGE IS NOT A SCOPE CHECK -- and it failed in the direction that would
+#   have had me report a false difference, not a false sameness. ***
+#
+# OBSERVED, NOT INFERRED
+#   Measured on D8G's OWN pinned image
+#   sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
+#   -- NOT the A3GC image; D8G pins `dafoam-idwarp-rot`, a different image, and
+#   an earlier reading of this defect was taken on the wrong one --
+#   at D8G's OWN `--user 0:0`, under D8G's OWN nesting
+#   `bash -lc "timeout -k 60 3600 bash cmd.sh"`, with lines 232-233 copied
+#   VERBATIM from the frozen file:
+#       OpenFOAM-v2506/etc/config.sh/setup: line 207:
+#       pop_var_context: head of shell_variables not a function context
+#       rc = 1, line 3 NEVER REACHED.
+#   Control, `set -e` removed from the same file: line 3 reached, rc = 0.
+#   The abort is inside OpenFOAM's own etc/bashrc, is INDEPENDENT OF uid (it
+#   reproduces at uid 0 and at uid 1002) and happens under both `bash -c` and
+#   `bash -lc`.
+#   STILL NOT OBSERVED, AND SAID PLAINLY: d8g_genmesh.sh has not been run end
+#   to end, so the abort has been observed on THE GENERATED COMMAND rather than
+#   on the script as a whole.  What is observed is the exact two lines this
+#   file emits, at its uid, in its image, under its nesting.
+#
+# THE HUNK
+#
+# (a) *** THE ORDER IS REVERSED, AND `set -e` IS NOT MERELY MOVED -- IT IS
+#     MOVED BEHIND A TEST, BECAUSE THE OBVIOUS REPAIR IS ALSO WRONG. ***
+#     Simply deleting `set -e` would "work" and would be a defect: WITHOUT
+#     `set -e` this source returns rc 0 EVEN WHEN THE ENVIRONMENT DID NOT LOAD
+#     (measured: rc 0, WM_PROJECT_DIR empty, cgns_utils absent).  A SILENT
+#     SUCCESS AND A SILENT FAILURE CARRY THE SAME rc, so rc cannot be the test.
+#     The source is therefore checked by a POSITIVE CAPABILITY ASSERTION --
+#     demand the environment SHOW `WM_PROJECT_DIR` and `cgns_utils`, which
+#     exist only after a successful load, and exit 97 naming both plus `id` if
+#     it cannot.  CLAUDE.md rule 3, plant the zero, applied to an environment
+#     instead of a field.  `set -e` is armed immediately AFTER the assertion,
+#     where it can still do its job for every step that follows.
+#     PLANTED CONTROL, MEASURED ON THE GENERATED FILE ITSELF, so the assertion
+#     is shown able to fail and not merely able to pass:
+#       --user 0:0    -> reaches past the prologue, `cgns_utils` usable, rc 0
+#       --user 1000:1000 -> "Permission denied", ABORT G-GEN.0,
+#                        WM_PROJECT_DIR=[], cgns_utils=MISSING, rc 97
+#
+# (b) *** THE ESCAPING IS PART OF THE REPAIR, NOT COSMETIC. ***
+#     This heredoc is UNQUOTED (`<<CMDEOF`), so every `$` is expanded BY THE
+#     HOST SHELL as the file is written.  An unescaped `${WM_PROJECT_DIR:-}`
+#     would have been expanded on the host -- to the EMPTY STRING -- and the
+#     assertion would have been written into cmd.sh as `[ -z "" ]`, i.e. it
+#     would have ABORTED EVERY RUN WHILE APPEARING TO TEST THE ENVIRONMENT.
+#     That is the same failure shape as the defect being repaired: an
+#     instrument reporting about something it is not testing.  Every `$` that
+#     must survive to the container is backslash-escaped, exactly as this
+#     file's existing `\$(id -u)` and `\$(seq 1 $NC)` already are.
+#     VERIFIED BY EXTRACTION, NOT BY READING: the heredoc was executed in
+#     isolation with dummy registered values and the emitted cmd.sh was read
+#     back -- it carries the LITERAL `${WM_PROJECT_DIR:-}`, `$(command -v
+#     cgns_utils || echo MISSING)` and `$(id)`, while `$LEVEL` correctly
+#     expanded on the host to `cd /mnt/mesh_build_L3`.  Nothing under
+#     /home/ubuntu/certonomous-runs was created to check this.
+#
+# THE ASYMMETRY WITH A3GC, WHICH IS THE POINT WORTH KEEPING
+#   A3GC's generator carried the SAME CLASS of defect -- a mishandled
+#   environment load in a container prologue -- and the two rungs fail in
+#   OPPOSITE ways:
+#     D8G  wrapped nothing, so the abort propagates: :299 `test "$GRC" -eq 0`
+#          fires `ABORT G-GEN.5 generation rc=1` and THE RUNG STOPS.
+#     A3GC wrapped the source in `>/dev/null 2>&1 || true`, so the same class
+#          of failure was SWALLOWED and the rung went on to run SEVEN DEAD
+#          STEPS, reporting `cgns_utils: command not found` -- a missing
+#          binary -- instead of a dead environment.
+#   That is the difference between a rung that stopped and a rung that ran
+#   seven dead steps, and it is entirely attributable to the `|| true`.
+#   D8G's loudness is the reason this defect is a repair and not an incident.
+#
+# NOT DONE
+#   D8G's run root /home/ubuntu/certonomous-runs/CURRICULUM-D8G-a6-grid-triple
+#   is NOT created by this diff and still reads ABSENT.  Generation under it is
+#   the supervisor's call and is not taken here.
+#
+
+--- d8g_genmesh.sh	2026-09-11 17:40:03.973900134 +0000
++++ d8g_genmesh_candidate.sh	2026-09-11 18:32:22.571314779 +0000
+@@ -228,9 +228,55 @@
+                   "coords_sha_free": True}, sort_keys=True))
+ PYEOF
+ 
++# --------------------------------------------------------------------------
++# THE PROLOGUE ORDER IS LOAD-BEARING AND WAS MEASURED, NOT REASONED.
++#
++# This file previously opened cmd.sh with
++#     set -e
++#     source /home/dafoamuser/dafoam/loadDAFoam.sh
++# and THAT ORDER ABORTS.  Measured on D8G's OWN pinned image
++# (sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35),
++# at D8G's OWN --user 0:0, under D8G's OWN nesting
++# (bash -lc "timeout -k 60 3600 bash cmd.sh"):
++#     OpenFOAM-v2506/etc/config.sh/setup: line 207:
++#     pop_var_context: head of shell_variables not a function context
++#   -> the shell exits rc=1 AT LINE 2 and `cd` -- and every line after it --
++#      NEVER RUNS.  Control, `set -e` removed: line 3 runs, rc 0.
++# The abort is inside OpenFOAM's own etc/bashrc, is independent of uid, and
++# happens under both `bash -c` and `bash -lc`.
++#
++# *** D8G FAILS LOUDLY, AND THAT IS THE ONE MERCY HERE.  Line :299 below tests
++#     `test "$GRC" -eq 0` and aborts G-GEN.5 with the rc.  The sister defect in
++#     A3GC's generator wrapped the same source in `>/dev/null 2>&1 || true`, so
++#     A3GC went on to run SEVEN dead steps and reported a missing binary
++#     instead of a dead environment.  Same class, opposite failure mode: THIS
++#     rung stops; THAT rung continued. ***
++#
++# `set -e` is therefore armed AFTER the source, and the source is checked by a
++# POSITIVE CAPABILITY ASSERTION rather than by its rc -- because its rc is not
++# a test: WITHOUT `set -e` this source returns rc 0 EVEN WHEN THE ENVIRONMENT
++# DID NOT LOAD (measured: rc 0, WM_PROJECT_DIR empty, cgns_utils absent).  A
++# silent success and a silent failure carry the same rc.  The assertion demands
++# the environment SHOW a variable and a binary that exist only after a
++# successful load (CLAUDE.md rule 3 -- plant the zero -- applied to an
++# environment rather than a field).
++#
++# NOTE THE ESCAPING.  This heredoc is UNQUOTED (<<CMDEOF), so every `$`
++# below that must survive to the CONTAINER is backslash-escaped, exactly as the
++# existing `\$(id -u)` and `\$(seq 1 $NC)` are.  An unescaped ${WM_PROJECT_DIR}
++# here would be expanded by the HOST shell -- to the empty string -- and the
++# assertion would then test nothing at all.
++# --------------------------------------------------------------------------
+ cat > "$BUILD/cmd.sh" <<CMDEOF
+-set -e
+ source /home/dafoamuser/dafoam/loadDAFoam.sh
++if [ -z "\${WM_PROJECT_DIR:-}" ] || ! command -v cgns_utils >/dev/null 2>&1; then
++  printf 'ABORT G-GEN.0 loadDAFoam.sh did not populate the environment.\n' >&2
++  printf '  WM_PROJECT_DIR = [%s]\n' "\${WM_PROJECT_DIR:-}" >&2
++  printf '  cgns_utils     = %s\n' "\$(command -v cgns_utils || echo MISSING)" >&2
++  printf '  id             = %s\n' "\$(id)" >&2
++  exit 97
++fi
++set -e
+ cd /mnt/mesh_build_$LEVEL
+ echo D8G_GENMESH_UID: \$(id -u)
+ tar -xvf CRM_surfMesh.cgns.tar.gz

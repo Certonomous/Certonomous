@@ -1270,3 +1270,86 @@ thing to run after this freeze. A failure there is a **finding about the coarse 
 fixed-design triple**, not a nuisance.
 
 **SUBMISSIONS PARKED.**
+
+
+---
+
+## AMENDMENT 4 — 2026-09-11 — **PRE-COMPUTE. THE MESH GENERATOR ABORTS ON ITS OWN FIRST CONTAINER LINE, FOR EVERY LEVEL.**
+
+**Lines whose number changed above this section: 0.**
+
+### THE DEFECT, CONFIRMED BY OBSERVATION AND NOT BY REPRODUCTION
+
+`d8g_genmesh.sh:231-233` emits a `cmd.sh` beginning `set -e`, then
+`source /home/dafoamuser/dafoam/loadDAFoam.sh`. **In this item's own pinned image
+`dafoam-idwarp-rot@sha256:2927768a…`, at this item's own `--user 0:0`, and at its own nesting
+(`bash -lc "timeout -k 60 3600 bash cmd.sh"`), that source ABORTS THE SHELL: rc = 1, and LINE 3 IS
+NEVER REACHED.** The abort is inside OpenFOAM's own
+`OpenFOAM-v2506/etc/config.sh/setup:207` — *"pop_var_context: head of shell_variables not a function
+context"*. Control with `set -e` removed: line 3 reached, rc 0. **So mesh generation dies on its own
+first line at every level, before the tarball is even extracted.**
+
+**The bug is `set -e` interacting with OpenFOAM's own sourcing, and it is uid-independent** — this
+item runs `--user 0:0` and has no uid defect. That is what distinguishes it from A3GC AMENDMENT 5,
+whose generator died of a directory-traversal failure the same line class had *silenced*.
+
+**AND THE ASYMMETRY IS WORTH THE RECORD: D8G FAILS LOUDLY.** `:299` tests `GRC -eq 0` and aborts
+`G-GEN.5 generation rc=1`. A3GC's `|| true` made the identical class of failure **silent**, so it
+presented as a missing binary seven steps downstream. **That is the difference between a rung that
+stops and a rung that runs seven dead steps** — and it is the argument for the repair A3GC took, not
+merely for this one.
+
+### THE REPAIR — ONE REMOVED LINE, EIGHT ADDED, NOTHING ELSE
+
+`set -e` is no longer armed *above* the source. In its place the generated `cmd.sh` makes a
+**POSITIVE CAPABILITY ASSERTION** — `CLAUDE.md` rule 3 applied to an environment rather than a field
+— requiring `WM_PROJECT_DIR` to be non-empty and `cgns_utils` to resolve, and **exiting 97 naming
+`WM_PROJECT_DIR`, `cgns_utils` and `id`** if it cannot. **`set -e` is armed AFTER the assertion**,
+where it can do its job. This is the same repair shape as A3GC AMENDMENT 5(a), and for the same
+reason: **the source's rc is not a test — without `set -e` it returns 0 even when the environment did
+not load, so a silent success and a silent failure carry the same rc.**
+
+### A LIVE TRAP FOUND WHILE WRITING IT, WHICH IS THE SAME SHAPE AS THE DEFECT
+
+**The heredoc is UNQUOTED** — `cat > cmd.sh <<CMDEOF`. An unescaped `${WM_PROJECT_DIR:-}` would
+therefore have been expanded **by the host** to the empty string and written into `cmd.sh` as
+`[ -z "" ]`: **an assertion that aborts every run while appearing to test the environment.** That is
+precisely the failure class being repaired — an instrument reporting about something it is not
+testing. The escaping was **verified by executing the heredoc in isolation and reading the emitted
+file back**: it carries the literal `${WM_PROJECT_DIR:-}` while `$LEVEL` correctly expands host-side.
+Nothing under `certonomous-runs` was created to check it.
+
+### A FAILED CHECK, RECORDED BECAUSE IT FAILED IN THE DANGEROUS DIRECTION
+
+A first grep-based scope check over the registered keys reported the frozen file and the candidate as
+**different**. The cause: the new comment block **quotes** `3600`, `G-GEN.5` and the image digest
+while *explaining* them, and **the checker matched the repair's own prose and called it a change to
+the thing the prose was about.** The check that actually answers the question is the
+**executable-line diff**, and it shows exactly **one removed line (`set -e`), eight added, the
+`source` line neither removed nor moved, and nothing else across 411 lines** — re-verified
+independently by the supervisor. **The failed check is recorded as well as the good one, because it
+failed in the direction that would have reported a false difference** and, in the other direction,
+would have hidden a real one.
+
+### WHAT THIS AMENDMENT DOES AND DOES NOT DO
+
+**CHANGES HOW THE GENERATED `cmd.sh` GUARDS ITS ENVIRONMENT. CHANGES NOTHING ABOUT WHAT IS MEASURED
+OR WHAT WOULD PASS.** No gate, band, threshold, cap, tolerance, cost or label is touched: §4's
+`G-MESH`, `G-MESH-STRICT`, `G-SYS`, `G-BODY`, `G-TE`, `G-PRIMAL`, `G-PLAT`, `G-TRIPLE` and `G-FD`, the
+registered cell counts 5,568 / 44,544 / 356,352, §6.3's corrected 403.259 core-min and §6.4's ceiling
+all stand **exactly as registered**. The comparator `d8g_grade.py`
+`12688063e20cbb6fa79cf08d0996d4e1` is **NOT TOUCHED**.
+
+**LEGAL PRE-COMPUTE:** rule 2 closes gates after FIRST COMPUTE and **no D8G level has been solved and
+no D8G mesh has been generated.** The run root
+`/home/ubuntu/certonomous-runs/CURRICULUM-D8G-a6-grid-triple` was re-checked **ABSENT**, with the
+reader shown able to return EXISTS for directories that are there.
+
+### RE-FREEZE
+
+| instrument | frozen `075f6edf6` | **re-frozen, this amendment** |
+|---|---|---|
+| `d8g_genmesh.sh` | `5b9db5102a4ffe04abffec6f7648d0c1` | **`2b22d01e265ba8362a12644c32bbd409`** |
+| every other instrument | unchanged | unchanged |
+
+**SUBMISSIONS PARKED.**
