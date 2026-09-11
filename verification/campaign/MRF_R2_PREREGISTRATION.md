@@ -1061,3 +1061,96 @@ would make the run reproducible is the part nobody kept. That goes to `MESH_STAN
 Derived **$0.048** at $0.0513/core-h — **DERIVED, NOT MEASURED**; the box cannot read its own
 billing. Not in the 7,115 core-min registered for the relaunch, and named separately here
 rather than absorbed into it.
+
+---
+
+## ADDENDUM 1, SECTION A1.11 — A1.10's FINDING NAMED THE WRONG CULPRIT. CORRECTED HERE, NOT EDITED THERE.
+
+**2026-09-11. Alters no gate, no threshold, no cap, no label.** Section A1.10 stands above
+exactly as committed at `84975a54`; **it is struck on one point by this section and is not
+rewritten.** A record that said something wrong is kept and corrected, never quietly replaced.
+
+### What A1.10 got right and must keep
+
+**`scotch` is not reproducible across invocations on this box.** Four partitions of one
+154,715-cell mesh from one identical `decomposeParDict` — 77900/76815, 77011/77704,
+77505/77210, 76965/77750. That is measured, it stands, and it is still **ours, not an
+OpenFOAM defect**. `writeInterval` is still proved inert bit-for-bit. The clean control,
+the planted control on the comparison, and the divisibility constraint all stand.
+
+### WHAT A1.10 GOT WRONG
+
+A1.10 framed the transferable finding around a **run-to-run reproducibility floor** and
+offered non-reproducible partitions as the candidate root cause. **The free measurement was
+then taken, read as a point sample, and reported a floor of 8.274582e-03 — 2.33× the
+coarse→medium signal — which fired the registered stopping branch and an order to stop all
+three levels.** An adversarial check on that number, run **before it travelled**, falsified it.
+
+**The single-row difference was not a partition floor. It was the within-run oscillation of
+an oscillating quantity, sampled once in each run at a different phase.** Measured on
+`total_z` (column 3, resolved from the header by the frozen reader — **naming the quantity is
+the discipline**, and the first independent reproduction of these numbers was attempted on
+`viscous_z` and did not collapse):
+
+| averaging window | graded-4000 vs ET8000 coarse, relative | vs criterion 5.095632e-04 |
+|---:|---:|---|
+| 1 (the point sample that fired branch 2) | 8.274582e-03 | over by 16.5× |
+| 50 | 8.583261e-03 | over by 17.2× |
+| 200 | 4.419758e-03 | over by 8.8× |
+| 500 | 1.742257e-03 | over by 3.5× |
+| **1000** | **2.907564e-04** | **PASS** |
+
+Within-run relative sd of the graded coarse level: **1.018967e-02** over the last 50
+iterations, 8.598699e-03 over the last 1000. **Between-run separation (1000-iteration means)
+÷ within-run sd = 0.034.** The two partitions are a small fraction of one standard deviation
+apart: **not two answers, two phases of one oscillation. DIFFERENT `scotch` PARTITIONS DO
+CONVERGE TO THE SAME ANSWER.**
+
+**Consequence, registered and honoured: BRANCH 1 FIRES, NOT BRANCH 2.** Measured on the
+quantity the criterion names, at a window that averages the oscillation out, the floor
+**passes**. The family continues. Honouring a pre-registration means honouring it when it
+says the convenient thing as well as the inconvenient one; reading branch 2 onto a quantity
+that passes its own criterion would have been a reinterpretation, and **stopping on a floor
+that is not a floor would have committed the exact defect repaired in `roache_triple.py`
+this same day — correct-ish behaviour carrying a FALSE STATED REASON.**
+
+### THE REAL DEFECT — REFERRED TO VERIFICATION, NOT FIXED HERE
+
+**The frozen grader takes ONE INSTANTANEOUS SAMPLE at `endTime` of a quantity whose relative
+sd is ~1.0e-02, to resolve a level-to-level signal of 3.554590e-03.**
+
+| graded 4000 level | rel sd, last 50 iterations | multiple of the 3.554590e-03 signal |
+|---|---:|---:|
+| coarse | 1.019e-02 | **2.87×** |
+| medium | 1.010e-02 | **2.84×** |
+| fine | 7.035e-03 | **1.98×** |
+
+**THE GRADED STATISTIC'S OWN NOISE IS 2.87× THE SIGNAL, AND NO ITERATION COUNT FIXES IT.**
+This is worse than the partition story it replaces, because partitions are one family's
+configuration choice while point-sampling a fluctuating quantity at `endTime` is present in
+**every** family that does it.
+
+This is a defect in the **grading statistic** on a **frozen, post-compute** path. It is
+therefore a `VERIFICATION_CHARTER.md` §2d.1 question and it belongs to **verification**, not
+to cfd. **The grading path is not touched by this addendum.** Referral drafted at
+`verification/runs/navier_class/MRF/R2/REFERRAL_GRADING_STATISTIC_NOISE.md`.
+
+**DIAGNOSTIC ONLY — NOT A REGRADE AND NOT PROPOSED AS A VERDICT.** Rebuilt from
+1000-iteration means the triple is coarse 4.236737618 / medium 4.225278355 / fine
+4.441224291 — **not even monotone**, where the point-sampled triple was. That shows what the
+frozen choice costs. It regrades nothing: the grading path is frozen and takes the value at
+`endTime`, and **MRF_R2's verdict at 4000 remains `NOT A RESULT`, unchanged.**
+
+### The transferable finding, in its corrected form
+
+***A Roache triple is meaningless unless the level-to-level differences exceed the noise in
+the GRADED STATISTIC — and this lab has never measured that noise for any family.*** The
+noise here is **within-run oscillation, not partition scatter**. It is the same defect as the
+DrivAer successor's registered requirement for *a plateau statistic that can see amplitude,
+not a two-sample increment* — **two families, same defect, found independently within the
+hour.** Candidate root cause for MRF grading the same way twice with a band-`PASS` value
+underneath both times: **candidate, not conclusion.**
+
+**§9's independent deliverable is unclaimed and is now the reason to finish the 8000 family:**
+whether drift persists at 8000 is a finding about the steady MRF formulation, independent of
+the triple. **There is still no 16000.**
