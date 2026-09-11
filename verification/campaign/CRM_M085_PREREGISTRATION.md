@@ -457,3 +457,98 @@ COST HONESTY AT FREEZE: the dry run's first iteration took 13.41 s serial agains
 
 **AFTER THIS FREEZE THE GATES ARE CLOSED.** Changes land only as dated addenda that cannot alter a
 gate, threshold, cap, band or label.
+
+---
+
+## ADDENDUM 1 — 2026-09-11 — **STAGE A PARKED `NOT A RESULT`. THE LADDER IS EXHAUSTED AND THE REASON IS MEASURED.**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, band or label is altered.
+**Gate P and Gate G were never evaluated.** No credential, no validated force, no drag claim.
+
+### A1.1 VERDICT — `NOT A RESULT`
+
+Stage A is parked under the pre-registered exhaustion rule. **The ladder was declared short BEFORE it was
+climbed** — three rungs, no rung 3 — and it is being honoured rather than extended.
+
+### A1.2 THE MECHANISM, MEASURED END TO END
+
+**seed → local collapse → spread → global freeze → SIGFPE.** Each link measured, not inferred:
+- **The seed is 9,158 cells — 1.4 % of the mesh — on measurably bad geometry.** At t=10 the collapsed
+  set is enriched **10.16×** in `nonOrtho>70` and **11.28×** in `skew>4`, median cell angle 38.53°
+  against a global 21.58°. Five planted controls passed before any count was believed, and the
+  high-aspect-ratio confound runs the *other* way (**0.00×**), so these are not boundary-layer cells.
+- **The enrichment DECAYS as the collapse spreads — 10.16× → 5.35× → 0.14×** — the signature of a
+  diffusive operator smearing a seed until the spatial correlation is destroyed. **The first graded
+  write at `writeInterval 100` is already post-spread and cannot see the seed**; a separate short
+  diagnostic at `writeInterval 5`, in a sibling directory and never the graded tree, recovered it.
+- **The blow-up starts COLD.** At t=5 the **floor** clamp fires alone — 1,381 cells at 100 K, **zero at
+  the ceiling**, T max only 530.98. The ceiling engages only by t=10. **Anyone tuning an upper
+  temperature bound would be treating the symptom that appears second.**
+- **The raw flow time-scale maximum is BIT-CONSTANT at 3.490203e-01 s for all 323 iterations.** Nothing
+  else moved it: everything that collapsed was put there by `fvc::smooth`.
+- **The terminal SIGFPE is a symptom, not a cause** — `PBiCGStab::scalarSolve` on a dot product over an
+  already non-finite field (and `Foam::divide` in the diagnostic: a different frame, the same class).
+
+### A1.3 🔴 THE DOSE-RESPONSE — `fvc::smooth` IS BOTH THE AMPLIFIER AND THE STABILISER
+
+| smoothing | `rDeltaTSmoothingCoeff` | LTS collapse rate | early clamps | died |
+|---|---|---|---|---|
+| most | 0.01 | **+0.3927 dec/iter** | — | stopped it 33 |
+| baseline | 0.1 | **+0.0870 dec/iter** | 1,381 lo / 0 hi | it 324 |
+| **none** | 1 (disabled) | **ZERO — smoothed ≡ raw** | **18,600 lo / 9,729 hi** | **it 6** |
+
+**Turn the smoothing UP and the LTS collapse accelerates 4.5×. Turn it OFF and the collapse stops
+entirely while the temperature field blows up about 13× faster. THERE IS NO SETTING OF THIS OPERATOR
+THAT SAVES THE CASE — both directions fail, for different reasons.** That is a stronger ground for the
+park than a single disable would have been.
+
+**Direction confirmed at source by the supervisor, because the whole reading depends on it:**
+`fvcSmooth.C:50` sets `maxRatio = 1 + coeff` and smooths wherever a neighbour ratio exceeds it, **so a
+SMALLER coefficient means MORE smoothing**; `setRDeltaT.H:63` guards `if (rDeltaTSmoothingCoeff < 1.0)`,
+so **1 disables it**. **The supervisor's instruction "reduce `rDeltaTSmoothingCoeff`" meant reduce the
+smoothing and in fact increased it — the lane disclosed the inversion rather than presenting the
+high-dose arm as intent, and the accident is why a three-point dose-response exists at all.**
+
+### A1.4 THE RUNGS, EACH WITH THE WINDOW IT WAS JUDGED ON
+
+| rung | change | window | rate (dec/iter) | verdict |
+|---|---|---|---|---|
+| R1 | baseline, coeff 0.1, nnoc 2 | it 10→74 | +0.0870 | reference; SIGFPE at it 324 |
+| 1 | `nNonOrthogonalCorrectors` 2→6 | it 10→74 | +0.1567 | **NO BENEFIT**, 1.08×, at 2.4× cost/step |
+| 2a | coeff 0.1→0.01 (more smoothing) | it 10→26 | +0.3927 | **4.5× WORSE** |
+| 2b | coeff→1 (smoothing OFF) | it 1→6 | **0.0000** | collapse stops; case dies at it 6 |
+
+**🔴 EVERY VERDICT HERE IS MEANINGLESS WITHOUT ITS WINDOW, AND THAT IS NOT A FORMALITY.** Two rules were
+established the hard way on this case:
+1. **"Rung N survived M iterations" is NOT a measurement of rung N.** The seed diagnostic and R1 are the
+   **same configuration** and died at **iteration 20 and iteration 324 — a 16× spread** — near
+   bit-identical to it 10 and then separating. MPI reduction-order non-determinism amplified by an
+   exponentially diverging field. **Survival count cannot discriminate rungs at all.**
+2. **A metric is only as good as the window it is evaluated on.** Rung 1 was first reported as "65×
+   healthier" from **two samples of a non-monotone trace**; over matched windows it is 1.08× — no
+   benefit. **The rate metric was adopted precisely because survival count failed, and was then
+   misapplied the same way one level down.** A reader who lifts a verdict from this table without its
+   window will repeat exactly that error.
+
+### A1.5 WHAT THE CASE IS WAITING ON — AND WHAT IT IS NOT
+
+**It waits on a CONFORMING GRID, not on a numerics rung.** This mesh runs **max non-orthogonality
+89.7134° against a gate of 70** and **max skewness 14.0593 against a gate of 4**, declared as a
+non-conformance at the freeze and **run anyway, knowingly. The non-conformance collected.**
+
+**And `COMMITTEE_GRID_NUMERICS.md` §4's "Relaxation buys iterations, not stability" is now MEASURED on
+this hex family rather than inherited from the tet families.** Three rungs, none of which helped.
+
+**What this is NOT:** not the `rhoSimpleFoam` thermo defect — a different stack and a different failure.
+And **the registered solver choice was vindicated rather than undermined: `rhoPimpleFoam` with
+`transonic yes` reached 324 iterations on the grid where `rhoSimpleFoam` reached 2.**
+
+### A1.6 COST — MEASURED
+
+R1 61.53 + rung 1 37.90 + seed diagnostic 9.40 + 2a 19.80 + 2b 3.53 = **132.2 core-min, $0.113 DERIVED,
+NOT MEASURED** at $0.0513/core-h. **A fraction of the ~846 core-min a full 5000-step run would have
+cost, and it bought a mechanism rather than a failed solve.** Rung 1's 37.90 has **no `rc` on disk**:
+its wrapper was killed by a `pgrep -f` pattern that matched the killing shell, so **an absent `rc` there
+means the wrapper died before writing one — not that the run is live and not that it crashed.** The
+safe procedure, demonstrated on 2a and recorded for reuse: **`pgrep -x <solver>` filtered by
+`/proc/PID/cwd`, killing only solver ranks and never the wrapper, which recorded `rc=143` correctly.**
