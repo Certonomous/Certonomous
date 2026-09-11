@@ -157,3 +157,80 @@ instrument, outranking every plausible value beside it.
 Nothing here licences A2, re-opens A1's or B1's gates, or says anything about near-wall
 resolution, y+, or fitness for a solve. `minMedialAxisAngle 130` is a **probe, not a
 proposed production value**.
+---
+
+## ADDENDUM 1 — 2026-09-11 — §2's MECHANISM DESCRIPTION IS WRONG. PROSE ONLY.
+
+**I quoted a commented-out block.** §2 describes the criterion as *"the angle between
+each endpoint's vector to its nearest wall point"* and cites the comment *"Both end
+points of edge have very different nearest wall point."* **That comment sits above a
+DISABLED block.**
+
+Read at HEAD of the installed source,
+`/usr/lib/openfoam/openfoam2606/src/mesh/snappyHexMesh/externalDisplacementMeshMover/medialAxisMeshMover.C`:
+
+- **`:100–112` are entirely commented out**, including `//if ((v0 & v1) < minCos)`.
+  That is the nearest-wall-point form, and it does not execute.
+- **`:114–120` is the LIVE test**, and its own comment reads *"Detect based on
+  extrusion vector differing for both endpoints — the idea is that e.g. a sawtooth wall
+  can still be extruded successfully as long as it is done all to the same direction."*
+
+      if ((pointWallDist[e[0]].data() & pointWallDist[e[1]].data()) < minCos)
+
+**`.data()` is the EXTRUSION VECTOR, not the vector to the nearest wall point.** The real
+criterion is whether two endpoints of an edge want to extrude in **different directions**.
+
+### What does NOT change — checked clause by clause
+
+| item | changed? |
+|---|---|
+| the parameter changed (`minMedialAxisAngle 90 → 130`) | **no** |
+| the direction of relief | **no** — verified below |
+| §7 gate rows, and their order | **no** |
+| **R** threshold (≥ 6 confirm, 1–5 partial, 0 refute) | **no** |
+| **C** ≥ 3.00, **G** ≥ 50.057 % | **no** |
+| **P** limb (≥ 3 → NOT A RESULT) | **no** |
+| majority-class baseline R = 0 of 12 | **no** |
+| §6 degeneracy limb | **no** |
+| noise floor 1.00 | **no** |
+| §9 cost point 3.0, cap 15 | **no** |
+| §8 exhaustion clause | **no** |
+| the 12-candidate group | **no** |
+
+**This addendum alters no gate, threshold, cap, label, R, P or baseline.** It corrects
+prose describing a mechanism. Had it touched any row above it would be illegal, because
+first compute has occurred — B2 launched before this was written.
+
+### The direction still holds, and here is the arithmetic
+
+`:161` — `minMedialAxisAngleCos = cos(degToRad(minMedialAxisAngle))`.
+`cos(90°) = +0.0000`; `cos(130°) = −0.6428`. The live test marks a point when
+`(d₀ · d₁) < minCos`. Raising the angle **lowers** `minCos`, making the test **harder**
+to satisfy, so **fewer** edges are marked and the reduction is **relieved**. The probe is
+pointed the right way. **Both forms compare a dot product against the same `minCos`, so
+the direction survives the correction; the physical meaning does not.**
+
+### What the correct mechanism predicts — an OBSERVATION, not a gate
+
+Extrusion-vector disagreement is what a **thin protruding part with opposing faces**
+produces: a mirror shell, a brake disc, a wheel-support plate. Two points across such a
+part extrude nearly **opposite**, so `d₀ · d₁ ≈ −1`, which is **below −0.6428 as well as
+below 0** — **they stay marked as medial-axis at 130° exactly as they were at 90°.**
+
+That is a better physical story for this particular group than the one §2 gave, and it
+**predicts R = 0**. It is recorded as an observation and **changes no row of §7**: the
+gate was frozen before compute and is not being re-pointed now that a sharper expectation
+exists. If R = 0, that outcome was already §7's last row and §8's exhaustion clause
+already governs it.
+
+It does sharpen §8 clause 3: the follow-on diagnostic should read **snappy's own
+per-point extrusion vectors** on the blocked patches, which is a more specific instrument
+than "per-patch extrusion decision" as written.
+
+### The lesson
+
+**A comment describes the code somebody meant to leave there.** When reading a solver for
+semantics, confirm the line quoted is the line that **executes** — a dead block keeps its
+rationale, and that rationale reads exactly like a live one's. Same family as a banner
+that was never evidence and a status artifact that outlived its run: **an artifact
+describing a state that is no longer real.**
