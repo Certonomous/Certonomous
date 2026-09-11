@@ -43464,6 +43464,66 @@ frozen `5c6869f7` before firing — **not pre-empted.** **Next:** route (d) L2 �
 `main()` fix then the L2 solve · DrivAer H3 gap MEASUREMENT · `COST_CALIBRATION.md` all three MRF
 levels when fine lands. **On Sanaa's desk:** the 128 GiB instance for SUBOFF's admissible triple.
 **Blocked:** SUBOFF on RAM · `M6C1` · §A1.3 · DrivAer A2 on A1's GATE FAIL.
+
+<!-- BOARD-BLOCK-ID: 176-CRM-P1-GATE-FAIL-AND-A-plot3dToFoam-DEFECT -->
+### Block 176 — CRM P1 `GATE FAIL`, and it locates an OpenFOAM defect, 2026-09-11T23:45Z
+
+**VERDICT — CRM wing-alone P1 (boundary patch split, L2): `GATE FAIL`. Reported, NOT adjusted.**
+Commit `1168e9ac8`, 18 s wall, **0.300 core-min**, inner rc 1.
+| | predicted | achieved | |
+|---|---|---|---|
+| wing | 11,136 | **11,908** | +772 |
+| farfield | 11,136 | **11,196** | +60 |
+| symmetry | 14,144 | **13,312** | −832 |
+| total | 36,416 | **36,416** | **EXACT** |
+**`772 + 60 = 832`, the symmetry deficit exactly — every surplus face is one that failed the
+symmetry test.** **A gate that fails with its books balanced localises the defect: this is a
+CLASSIFICATION error, not a lost-face error.** Geometric assertion failed hard: max wing |r|
+**38.3271** against ≤ 4.3; min farfield |r| **40.9425** against ≥ 80.
+
+🔴 **THE DIAGNOSIS INDICTS THE INSTRUMENT, NOT THE MESH — AND IT STRIKES MY OWN ENDORSEMENT.** I
+praised the `r > 40` split against assertions of wing ≤ 4.3 / farfield ≥ 80 as a deliberate dead
+zone. **MEASURED: symmetry-plane faces span |r| 0.003 to 84.248.** The root plane is a **CUT
+through the volume mesh from the body out to the far field**, so it occupies the **entire** radius
+range and **13,312 symmetry faces live inside my "dead zone".** ***"Sound reasoning about the wrong
+topology."*** **A radius band cannot discriminate wing from farfield for any face that escapes the
+y-test — it lands wherever its radius happens to fall. MY ENDORSEMENT IS STRUCK**, and the lane
+volunteered the correction against its own instrument rather than let the praise stand.
+**The prediction was also wrong arithmetically: 136 assumed perimeter edges against a true 128, so
+13,312 is exactly 128 × 104. §10.3's caveat — *"arithmetic from the surface cell count, NOT a
+measurement"* — has now been paid out in full, as written.**
+🔴 **THE THIRD CAUSE IS THE ONE THAT WOULD HAVE BEATEN US: 1,104 faces at `1e-9 ≤ max|y| < 1e-1`,
+spanning |r| 0.013–83.181, with offsets to `6.920e-02` mesh-units = 0.48 m PHYSICAL.** **Widening
+`Y_SYMM_TOL` to swallow them would have made ALL THREE COUNTS AGREE while silently assigning
+genuinely off-plane faces to a symmetry patch.** **THE ADJUST-DON'T-INVESTIGATE TRAP WITH THE
+NUMBERS ON ITS SIDE — the version that is nearly impossible to resist, because the fix looks like
+it works.** **0.48 m is not a tolerance question.** Nothing was loosened; the registered constants
+stand exactly as committed at `8afa7202d`, registration `51e5cd32f` untouched.
+
+🔴 **THE FINDING IS AN OpenFOAM DEFECT, NOT A CRM ONE, AND IT IS THE KIND SANAA WANTS SURFACED AS A
+RUN RATHER THAN WORKED AROUND.** ***"Patch assignment must come from the structured block topology,
+not be reverse-engineered from coordinates."*** The Plot3D source **has** the answer — **26 blocks,
+i/j/k, `k=0` the body and `k=N` the far field, unambiguous and with NO geometric threshold at
+all.** **`plot3dToFoam` discards it into a single `defaultFaces` patch**, and the split was then
+attempted downstream from geometry. ***"The right repair at the wrong stage"*** — and no band
+tuning fixes it.
+
+**P2 APPROVED: build the patches AT CONVERSION, from the block structure. ONE BINDING CONDITION.**
+🔴 **P2's PREDICTED COUNTS COME FROM THE PLOT3D BLOCK DIMENSIONS, COMPUTED BEFORE IT RUNS. THEY DO
+NOT COME FROM P1's ACHIEVED 11,908 / 11,196 / 13,312.** **P1's output is now a KNOWN ANSWER, and
+registering it as P2's prediction would be FITTING THE PREDICTION TO THE RESULT — the one thing
+pre-registration exists to prevent, arriving disguised as "we learned the right numbers."** Derive
+independently from the i/j/k extents of the 26 blocks. **If they then agree, that is CONFIRMATION
+FROM A SECOND SOURCE and worth a great deal; if copied across, it is worth nothing and the result
+would be refused.**
+**P1's gate stays `GATE FAIL` — not retro-fixed, not superseded, not re-graded.** P2 is a new rung
+with a new instrument; an addendum may name it as the replacement path but **may not alter a gate,
+threshold, count or label.** **The new instrument reads STRUCTURED INDICES, not coordinates, so its
+failure modes are entirely different and NONE of tonight's three lessons transfer automatically —
+it gets check 1 before its output is believed.**
+🟢 **Autonomy working as intended: selftest arm 4 (`main()` end to end, symmetry counted 14,144,
+dead branch proven live) was the authorisation condition I set, it passed, and the lane ran
+without asking again.**
 ## verification
 
 **Section last written:** 2026-09-11T23:24:18Z by verification-supervisor (V-182).
