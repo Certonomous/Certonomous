@@ -25,9 +25,11 @@ SCOPE OF THAT GUARD, STATED HONESTLY: it is a SUM identity, not a per-patch one.
 It catches a reader that drops whole patches -- measured: DrivAer r1_fine returned
 13,734 of 379,519 faces with 48 of 52 patches silently zero -- because dropped
 patches change the total.  It would NOT catch a COMPENSATING error in which two
-patches exchanged counts.  A per-patch identity (rendered[p] == nFaces[p] for
-every p) is strictly stronger and is the known better guard; until it is built,
-this guard is the sum and is described as the sum.
+patches exchanged counts.  UPGRADED 2026-09-11: the guard is NOW a PER-PATCH identity
+(rendered[p] == nFaces[p] for every p) as well as a sum, so the compensating
+error IS caught.  --selftest drives that limb with a SWAP control and also
+asserts that the SUM is blind to the same swap, so the stronger limb is shown
+to be doing work the weaker one cannot.
 
 MEASURED, NOT ASSUMED.  The ratio was established by measurement before this
 assertion's form was fixed (probe on F25-DUCT3D fine, 2026-09-11):
@@ -213,13 +215,28 @@ def rendered_face_count(foam, patches, decimate=False):
     # two are indistinguishable from the verdict line.  It was safe only because
     # the selftest fixture has few patches -- an accident of the fixture, not a
     # property of the control.  NO PATH KEEPS THE DEFECTIVE FORM.
+    total, per = 0, {}
     r = OpenFOAMReader(FileName=foam)
     r.MeshRegions = ["patch/" + n for n in patches]
     r.UpdatePipeline()
     if not decimate:
         total = r.GetDataInformation().GetNumberOfCells()
-        return total, {"__sum_over_all_patches_one_reader__": total}
-    total, per = 0, {}
+        # PER-PATCH BREAKDOWN FROM THE SAME (GOOD) READER OBJECT.
+        # MEASURED 2026-09-11: re-setting MeshRegions on ONE reader gives correct
+        # per-patch counts -- DrivAer r1_fine returned 52 of 52 patches matching
+        # and a total of 379,519 == 379,519.  The defect was constructing 52
+        # SEPARATE readers, not querying 52 regions.  ParaView 5.11 removed
+        # GetCompositeDataInformation, so this is the available route.
+        # THIS UPGRADES THE GUARD FROM A SUM IDENTITY TO A PER-PATCH IDENTITY,
+        # which is strictly stronger: a SUM cannot see a COMPENSATING error in
+        # which two patches exchange counts; a per-patch identity can.
+        for n in patches:
+            r.MeshRegions = ["patch/" + n]
+            r.UpdatePipeline()
+            per[n] = r.GetDataInformation().GetNumberOfCells()
+        r.MeshRegions = ["patch/" + n for n in patches]
+        r.UpdatePipeline()
+        return total, per
     for name in [None]:
         src = r
         if decimate:
@@ -248,6 +265,30 @@ def rendered_face_count(foam, patches, decimate=False):
         per["__decimated_all_patches__"] = n
         total += n
     return total, per
+
+
+def assert_per_patch_identity(boundary, patches, per_patch, where):
+    """REFUSE unless rendered[p] == nFaces[p] for EVERY p.
+
+    Strictly stronger than the sum identity: the sum cannot see a COMPENSATING
+    error in which two patches exchange counts.  Measured achievable 2026-09-11
+    (DrivAer r1_fine, 52 of 52).
+    """
+    bad = []
+    for p in patches:
+        exp = boundary[p][0]
+        got = per_patch.get(p)
+        if got != exp:
+            bad.append((p, got, exp))
+    if bad:
+        sys.stderr.write(
+            "REFUSED (%s): per-patch identity failed for %d of %d patches. "
+            "rendered != nFaces from the case's own boundary file:\n" %
+            (where, len(bad), len(patches)))
+        for p, got, exp in bad[:12]:
+            sys.stderr.write("    %-32s rendered=%s nFaces=%s\n" % (p, got, exp))
+        return False
+    return True
 
 
 def assert_surface_is_the_mesh(expected, measured, per_patch, where):
@@ -374,6 +415,41 @@ def do_selftest(case, out):
     verdicts["guard_refuses_wrong_case"] = not assert_surface_is_the_mesh(
         expected + 1, measured, per, "WRONG-CASE control (expected+1)")
 
+    # PER-PATCH IDENTITY, driven both ways.
+    verdicts["per_patch_identity_passes"] = assert_per_patch_identity(
+        b, patches, per, "positive control")
+    # COMPENSATING-ERROR control: swap two patches' counts.  The SUM is unchanged,
+    # so the sum identity CANNOT see this -- that is exactly the gap the
+    # per-patch identity closes, and it is DRIVEN rather than asserted.
+    # THE PAIR MUST HAVE DIFFERENT COUNTS OR THE SWAP IS A NO-OP.
+    # MEASURED 2026-09-11: taking patches[0], patches[1] on F25 picked inlet and
+    # outlet, BOTH 4096 faces -- swapping equal counts changes nothing, so the
+    # control tested nothing.  A control whose fixture makes it a no-op is the
+    # same defect as vtkDecimatePro silently passing quads through.  The pair is
+    # now SEARCHED FOR and the search failing is a FAIL, never a skip.
+    pair = None
+    for i in range(len(patches)):
+        for j in range(i + 1, len(patches)):
+            if per.get(patches[i]) != per.get(patches[j]):
+                pair = (patches[i], patches[j])
+                break
+        if pair:
+            break
+    if pair:
+        p0, p1 = pair
+        swapped = dict(per)
+        swapped[p0], swapped[p1] = per[p1], per[p0]
+        verdicts["sum_is_blind_to_swap"] = (
+            sum(swapped.values()) == sum(per.values()))
+        verdicts["per_patch_refuses_swap"] = not assert_per_patch_identity(
+            b, patches, swapped, "SWAP control (%s<->%s, %d<->%d)"
+            % (p0, p1, per[p0], per[p1]))
+    else:
+        verdicts["sum_is_blind_to_swap"] = False
+        verdicts["per_patch_refuses_swap"] = False
+        print("  NO PATCH PAIR WITH DIFFERING COUNTS -- the swap control could not "
+              "be driven, so these verdicts are FAIL, not skipped.")
+
     dmeasured, dper = rendered_face_count(foam, patches, decimate=True)
     # The control must actually BE a control: if decimation did not change the
     # count, the "refusal" below would be testing nothing.  Twice on 2026-09-11
@@ -479,6 +555,8 @@ def main(argv):
 
     measured, per = rendered_face_count(foam, patches)
     if not assert_surface_is_the_mesh(expected, measured, per, "render"):
+        return 2
+    if not assert_per_patch_identity(b, patches, per, "render"):
         return 2
 
     from paraview.simple import (OpenFOAMReader, CreateRenderView, Show, Render,
