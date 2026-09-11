@@ -1,0 +1,4 @@
+  volume blocks: 9  shapes [(161, 257, 33), (257, 17, 33), (161, 17, 33), (257, 161, 33), (17, 257, 33), (17, 17, 33), (17, 161, 33), (17, 17, 33), (257, 17, 33)]
+  points 3363129   cells (before interface merge) 3194880
+  smallest |dx| along i over all blocks: 0.000000e+00
+  WROTE /work/ROUTE_PROBE/ROUTE_PROBE_vol.xyz

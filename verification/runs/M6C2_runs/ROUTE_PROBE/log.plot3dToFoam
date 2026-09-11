@@ -1,0 +1,112 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : plot3dToFoam -case /home/ubuntu/Certonomous/verification/runs/M6C2_runs/ROUTE_PROBE/foam -noBlank /home/ubuntu/Certonomous/verification/runs/M6C2_runs/ROUTE_PROBE/ROUTE_PROBE_vol.xyz
+Date   : Sep 11 2026
+Time   : 16:54:05
+Host   : ip-172-31-43-247
+PID    : 2180892
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/M6C2_runs/ROUTE_PROBE/foam
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Reading 9 blocks
+block 0 nx:161 ny:257 nz:33
+block 1 nx:257 ny:17 nz:33
+block 2 nx:161 ny:17 nz:33
+block 3 nx:257 ny:161 nz:33
+block 4 nx:17 ny:257 nz:33
+block 5 nx:17 ny:17 nz:33
+block 6 nx:17 ny:161 nz:33
+block 7 nx:17 ny:17 nz:33
+block 8 nx:257 ny:17 nz:33
+Reading block points
+block 0:
+Reading 1365441 x coordinates...
+Reading 1365441 y coordinates...
+Reading 1365441 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 1:
+Reading 144177 x coordinates...
+Reading 144177 y coordinates...
+Reading 144177 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 2:
+Reading 90321 x coordinates...
+Reading 90321 y coordinates...
+Reading 90321 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 3:
+Reading 1365441 x coordinates...
+Reading 1365441 y coordinates...
+Reading 1365441 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 4:
+Reading 144177 x coordinates...
+Reading 144177 y coordinates...
+Reading 144177 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 5:
+Reading 9537 x coordinates...
+Reading 9537 y coordinates...
+Reading 9537 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 6:
+Reading 90321 x coordinates...
+Reading 90321 y coordinates...
+Reading 90321 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 7:
+Reading 9537 x coordinates...
+Reading 9537 y coordinates...
+Reading 9537 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 8:
+Reading 144177 x coordinates...
+Reading 144177 y coordinates...
+Reading 144177 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+Merged points within 1e-15 distance. Merged from 3363129 down to 3303729 points.
+Creating cells
+Creating boundary patches
+--> FOAM Warning : 
+    From Foam::polyMesh::polyMesh(const Foam::IOobject&, Foam::pointField&&, const Foam::cellShapeList&, const Foam::faceListList&, const Foam::wordList&, const Foam::wordList&, const Foam::word&, const Foam::word&, const Foam::wordList&, bool)
+    in file meshes/polyMesh/polyMeshFromShapeMesh.C at line 635
+    Found 217088 undefined faces in mesh; adding to default patch defaultFaces
+Writing polyMesh
+End
+
