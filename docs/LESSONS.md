@@ -26571,3 +26571,44 @@ rule 13; `FILING_CHARTER.md` (run outputs live under `verification/runs/`, never
 beside the prose); the `gitignored is not filed` pattern — in both cases a thing
 that is really on disk is invisible to the instrument that is supposed to
 guarantee it.
+
+## L-547 — A CONTROLLED ZERO PROVES THE READER WORKED, NOT THAT THE MECHANISM IS ABSENT: M6's far-field sheet read ZERO over-gate faces under four non-empty sibling controls, and was simply UNRESOLVED at that level
+
+**2026-09-11, cfd.** Route (c)'s L1 volume mesh read **zero severely non-orthogonal
+faces** against a gate of 70, at max 66.4228. **The zero was properly controlled** —
+`checkMesh` declined to write a `nonOrthoFaces` set while, in the same run through the
+same mechanism, writing `cellDeterminant` (39,956), `lowWeightFaces` (2), `shortEdges`
+(294) and `skewFaces` (2). Four non-empty sibling sets proved the set-writer could see
+faces, so the absent set was an absence of faces and not a blind reader. **That is
+standing rule 3 satisfied, exactly as written.**
+
+**The conclusion drawn from it was still false.** L1's zero was read as showing the
+far-field over-gate sheet the route probe had produced (80.3435°, 11,571 faces, 100 %
+beyond r ≥ 2 m) was *"specific to A3's surface, not intrinsic to marching a wing
+O-mesh."* **L2 — the same family, the same body, a ×1.5 march refinement — measured
+74.6431 with 1,019 over-gate faces, 99.41 % of them beyond r ≥ 2 m.** The supervisor had
+boarded *"the far-field sheet is simply GONE."* It was never gone.
+
+**The rule.** **A planted or sibling control establishes that the instrument CAN SEE. It
+establishes nothing about what exists at a resolution you have not run.** Rule 3 makes a
+zero mean *"the reader is not blind"*; it was never able to make a zero mean *"there is
+nothing there."* **A mechanism absent at one level and present at the next was not absent
+— it was below the resolution of the level it was read on.**
+
+**The discriminating question, asked of every controlled zero before it becomes a
+conclusion:** *is this zero evidence about the world, or only about the reader?* If the
+quantity is one that refinement could resolve — a face count, a cell count, a
+count-above-threshold — **a single level's zero is a reader check and NOT a finding**,
+and any claim that the mechanism is absent is a claim about the family that only the
+family can settle. **Say `PENDING` for the family, not absent.**
+
+**What it cost.** A route-level conclusion boarded in capitals, carried for four hours,
+and refuted by the next level of its own ladder. It was catchable only by building L2,
+and the route was terminated on L2's measurement.
+
+**Related.** Standing rule 3 (planted-zero control) — this lesson does not weaken it and
+depends on it: the L1 zero was trustworthy *as a reader check* precisely because the
+control was there. Standing rule 5 (one level settles nothing; a triple or nothing).
+L-144 (a manifest internally consistent and externally false). The `a zero needs a live
+planted control` pattern — of which this is the sequel: **having planted the control, ask
+next what your resolution cannot see.**

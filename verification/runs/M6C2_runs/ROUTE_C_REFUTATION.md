@@ -91,3 +91,36 @@ Cost calibration row `C-20260911T184518.275220Z-a187f375`.
 
 **Route (c) spend ≈ 109 core-min of the 300 registered; derived $0.093 — DERIVED, NOT
 MEASURED.** L3 unbuilt: `MP/L3/` does not exist.
+
+---
+
+## ADDENDUM 1 — 2026-09-11. **THE `SUBOFF_A1` PRECEDENT, ADDED AFTER VERIFICATION — AND IT SHARPENS THE §3.1/§8.1 POINT RATHER THAN REPLACING IT.**
+
+The body of this file rests on F1 and deliberately omitted a SUBOFF precedent, because
+the SUBOFF rung this lane checked — **`R1b`** — does not support it:
+`SUBOFF_R1b_RESULTS.md:265` says its `NOT A RESULT` *"stands on rule 5 clause 1 alone"*,
+a non-converged level, not a mesh-admission failure. **That check was aimed at the wrong
+rung.** The precedent is **`SUBOFF_A1`**, verified here directly:
+
+- `SUBOFF_A1_PREREGISTRATION.md:388` — *"**`PASS` iff M-a, M-b, M-c and M-d all hold at
+  L1, L2 and L3. Any limb failing at any level ⇒ `GATE FAIL`, and no solver is launched.**"*
+- `:1000` — **L1, 3,268,613 cells, min cell determinant `8.6227045e-04`**, below M-d's
+  registered floor of `1.0e-03`. **A mesh-admission failure at L1 ended the family with no
+  solver launched, regardless of what L3 would have shown.**
+
+**That is the closer structural parallel to route (c) than F1, and it is added here.**
+
+**🔴 BUT IT DOES NOT RETIRE §5's SECOND PRECISION — IT EXPLAINS IT.** A1 could stop on
+*"any limb failing at any level"* because **A1 REGISTERED that rule in its own
+pre-registration.** It is a **per-registration limb, not a lab-wide clause.**
+**`M6C1_PREREGISTRATION.md` registers no such limb**, so route (c)'s conclusion still
+cannot be quoted from an any-level rule — **it follows from `MESH_STANDARD` §3.1 (hard
+gate 70, no validated force above it) and §8.1 (a ladder must be SHOWN ADMISSIBLE), which
+is how the body of this file states it.** A1 shows what the lab does when the rule *is*
+registered; it does not supply the rule where it is not.
+
+**The lesson underneath both corrections is the same in both directions: a precedent
+checked costs a minute, and a precedent taken on trust propagates.** This lane checked a
+supervisor's citation and found the wrong rung; the supervisor checked this lane's
+correction and found the right one. **No gate, threshold, cap, band or label is altered.**
+**Lines whose number changed above this section: 0.**
