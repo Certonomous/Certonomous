@@ -1,0 +1,18 @@
+{
+  "tool": "render_openfoam_3d_paraview.py",
+  "case": "/home/ubuntu/Certonomous/verification/runs/navier_class/PRD/us1.00_L3",
+  "patches": [
+    "walls"
+  ],
+  "expected_faces_from_boundary": 61440,
+  "rendered_faces_measured": 61440,
+  "per_patch": {
+    "walls": 61440
+  },
+  "guard": "rendered surface cells == sum(nFaces) over rendered patches; equality MEASURED, not assumed",
+  "graded_tree_census_before": "5c90227f8f465f7328f664ed8940b344",
+  "graded_tree_census_after": "5c90227f8f465f7328f664ed8940b344",
+  "graded_tree_untouched": true,
+  "image": "/home/ubuntu/Certonomous/docs/campaigns/navier_class/PRD/demo/PRD_E1_us1.00_L3_surface.png",
+  "utc": "2026-09-11T16:59:24Z"
+}

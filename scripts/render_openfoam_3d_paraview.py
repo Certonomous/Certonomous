@@ -255,6 +255,56 @@ def measure_ink(path):
     return float(len(packed) - counts.max()) / float(len(packed))
 
 
+def assert_three_dimensional(case):
+    """REFUSE any case that is not genuinely 3-D.  Returns (ok, detail).
+
+    WHY THIS IS A STRUCTURAL GUARD AND NOT AN INK THRESHOLD.  On 2026-09-11 an
+    axisymmetric WEDGE case (SUP_BOOSTER E2) was ordered onto a 3-D render list
+    and rendered.  Its wall patch carries 165 faces and the resulting sliver
+    passed --min-ink 0.0020 at 0.0026 -- by 30 %.  A guard a wedge clears by 30 %
+    will not catch the next one, so the ink floor is NOT the instrument for this.
+
+    TWO READINGS, AND DISAGREEMENT IS ITSELF A REFUSAL:
+      (1) constant/polyMesh/boundary must contain NO patch of type 'wedge' or
+          'empty'.  Those two types ARE the axisymmetric/2-D signature.
+      (2) where a checkMesh log is present, its
+          'Mesh has N geometric (non-empty/wedge) directions' line must read 3.
+    If the two disagree the case is REFUSED rather than either reading being
+    preferred -- a disagreement means one of them is wrong and we do not know
+    which.  NOTE the trap this encodes: checkMesh prints a 'solution
+    (non-empty) directions' line four lines away that reads 3 for a wedge, so a
+    reader matching the wrong line certifies a wedge as 3-D.  The GEOMETRIC line
+    is the test (SUBOFF_A1_PREREGISTRATION.md 5.1 M-c).
+    """
+    b = parse_boundary(case)
+    bad = [(n, t) for n, (nf, t) in b.items() if t in ("wedge", "empty")]
+
+    geom = None
+    import glob as _glob
+    for log in sorted(_glob.glob(os.path.join(case, "log.checkMesh*"))):
+        for line in open(log, errors="replace"):
+            m = re.search(r"Mesh has (\d+) geometric \(non-empty/wedge\) directions", line)
+            if m:
+                geom = int(m.group(1))
+                break
+        if geom is not None:
+            break
+
+    from_boundary_3d = not bad
+    if geom is not None and (geom == 3) != from_boundary_3d:
+        return False, ("READINGS DISAGREE: boundary file says %s, checkMesh says "
+                       "%d geometric directions. Refusing rather than preferring "
+                       "either." % ("3-D" if from_boundary_3d else "not 3-D", geom))
+    if bad:
+        return False, ("case is NOT 3-D: patches %s carry axisymmetric/2-D types. "
+                       "checkMesh geometric directions = %s."
+                       % (bad, geom if geom is not None else "not logged"))
+    if geom is not None and geom != 3:
+        return False, "checkMesh reports %d geometric directions, not 3." % geom
+    return True, "3-D confirmed (no wedge/empty patch%s)" % (
+        "; checkMesh geometric directions = 3" if geom == 3 else "")
+
+
 # ----------------------------------------------------------------------------
 def do_selftest(case, out):
     """Drive every verdict.  Describing a guard is not driving it."""
@@ -304,6 +354,22 @@ def do_selftest(case, out):
     after = census(case)
     verdicts["graded_tree_untouched"] = (before == after)
 
+    # DIMENSIONALITY GUARD, driven both ways.  Positive: this case must pass.
+    # Negative: a REAL wedge case must be REFUSED -- described is not driven.
+    ok_pos, d_pos = assert_three_dimensional(case)
+    verdicts["dim_guard_passes_on_3d"] = ok_pos
+    wedge = os.environ.get(
+        "RENDER3D_WEDGE_FIXTURE",
+        "verification/runs/navier_class/SUP_BOOSTER/graded_e2/fine")
+    if os.path.isfile(os.path.join(wedge, "constant", "polyMesh", "boundary")):
+        ok_neg, d_neg = assert_three_dimensional(wedge)
+        verdicts["dim_guard_refuses_wedge"] = (not ok_neg)
+        print("  wedge fixture %s -> %s" % (wedge, d_neg))
+    else:
+        verdicts["dim_guard_refuses_wedge"] = False
+        print("  WEDGE FIXTURE ABSENT at %s -- the negative control could not be "
+              "driven, so this verdict is FAIL, not skipped." % wedge)
+
     print("\n=== SELFTEST VERDICTS ===")
     for k, v in verdicts.items():
         print("  %-34s %s" % (k, "PASS" if v else "FAIL"))
@@ -348,6 +414,14 @@ def main(argv):
 
     if a.selftest:
         return do_selftest(case, out)
+
+    ok, detail = assert_three_dimensional(case)
+    if not ok:
+        sys.stderr.write("REFUSED: %s\n  This renderer is for 3-D cases. A wedge "
+                         "or 2-D case must never be presented as 3-D geometry.\n"
+                         % detail)
+        return 2
+    print("dimensionality: %s" % detail)
 
     b = parse_boundary(case)
     if a.patches:

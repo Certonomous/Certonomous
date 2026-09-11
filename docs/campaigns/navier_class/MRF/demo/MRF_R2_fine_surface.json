@@ -1,0 +1,22 @@
+{
+  "tool": "render_openfoam_3d_paraview.py",
+  "case": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/fine",
+  "patches": [
+    "impeller",
+    "baffles",
+    "shaft"
+  ],
+  "expected_faces_from_boundary": 74804,
+  "rendered_faces_measured": 74804,
+  "per_patch": {
+    "impeller": 51348,
+    "baffles": 16008,
+    "shaft": 7448
+  },
+  "guard": "rendered surface cells == sum(nFaces) over rendered patches; equality MEASURED, not assumed",
+  "graded_tree_census_before": "34950b72e2fe55a2ab13e8053fd83e80",
+  "graded_tree_census_after": "34950b72e2fe55a2ab13e8053fd83e80",
+  "graded_tree_untouched": true,
+  "image": "/home/ubuntu/Certonomous/docs/campaigns/navier_class/MRF/demo/MRF_R2_fine_surface.png",
+  "utc": "2026-09-11T17:04:09Z"
+}
