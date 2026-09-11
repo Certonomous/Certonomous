@@ -1101,3 +1101,54 @@ reading the case's own boundary file rather than trusting the registration, and 
 exactly the class of error §12.5 exists to prevent — a change to the experiment that feels
 like a detail.**
 
+
+## 12.8 RESULT — THE PREDICTION IS CONFIRMED. THE BAD CELL RETURNED.
+
+**Reported per §12.4's requirement that the result is recorded whether or not it holds.**
+`L1_SHIFT` finished 2026-09-11T17:25:22Z, rc = 0, 1052 s × 4 ranks = **70.13 core-min**.
+
+| mesh | cells | **min cell determinant** | nonOrtho max | skew max | checkMesh |
+|---|---|---|---|---|---|
+| **L1** (8 ranks, baseline) | 3,268,613 | **8.62270450e-04** | 64.952882 | 2.9132534 | `Failed 2 mesh checks` |
+| **`L1_DECOMP4`** (4 ranks) | 3,268,643 | **8.62262070e-04** | 64.952882 | 2.9132534 | `Failed 2 mesh checks` |
+| **`L1_SHIFT`** (half-cell x, y) | **3,254,606** | **8.62260850e-04** | 64.952877 | 2.9132534 | `Failed 2 mesh checks` |
+
+Artifacts: `verification/runs/navier_class/SUBOFF_A1/L1{,_DECOMP4,_SHIFT}/log.checkMesh.FULLFLAG`
+and each level's `STATUS.mesh`.
+
+**🔴 THE SHIFT WAS A FAR LARGER PERTURBATION THAN THE DECOMPOSITION AND MOVED THE ANSWER
+EVEN LESS.** The decomposition changed **30 cells (+0.0009 %)**; the shift changed
+**14,007 cells (−0.4285 %)** — **467× the perturbation**. The minimum determinant's spread
+across all three meshes is **1.113e-05 relative (0.0011 %)**: they agree to **five significant
+figures**. **All three carry exactly ONE cell** below the floor, all three print `Failed 2 mesh
+checks`, max skewness is **identical to eight digits in all three**, and max non-orthogonality
+agrees to seven. All three sit **13.8 % below** M-d's `1.0e-03`.
+
+> **THE ESCAPING CELL IS INVARIANT TO PARTITIONING *AND* TO ALIGNMENT.**
+
+**§12.4's registered consequence therefore applies, unsoftened: the RESOLUTION is the problem,
+not the draw. ~3.27 M cells is not an unlucky draw of a workable resolution — it is a
+resolution at which this geometry and this mesh class reproducibly produce a degenerate cell
+under every perturbation tried.** L2 at 9.12 M is clean, so the admissible window lies
+somewhere above 3.27 M and the registered coarse level is below it.
+
+**§12.5's ONE-SHIFT LIMIT BINDS AND IS HONOURED. No second shift was built and none is
+proposed**, nor any other knob — the invariance across two orthogonal perturbations makes a
+third lever less likely to inform, not more.
+
+**CONSEQUENCE FOR THE FAMILY, STATED FOR THE SUPERVISOR'S RULING AND NOT RULED HERE:**
+L3 (25.45 M) is `BLOCKED` on RAM — purchasable. **L1 (3.27 M) is inadmissible on M-d and now
+invariant to two perturbations — NOT purchasable.** L2 (9.12 M) is admissible. **One admissible
+level is not a triple, and the downward triple seats the inadmissible L1 in the middle of the
+family.** Bounding arithmetic only, offered as input rather than conclusion: between 3.27 M and
+the ~13 M a 24 GiB peak allows, the widest ratio available across two intervals is
+`(13/3.27)^(1/3) ≈ 1.58`, i.e. `r ≈ 1.26` each — **below Celik's 1.3** — and that is before
+requiring the coarsest level to clear M-d, which 3.27 M does not.
+
+**COST CALIBRATION (rule 12):** `L1_SHIFT` **70.13 core-min actual against ~77 estimated =
+0.91× predicted**; the estimate was slightly conservative because 4 ranks on a less-loaded box
+beat the scaling from L1's 8-rank build. **SUBOFF mesh building to date: 442.80 core-min**
+(77.07 + 228.53 + 67.07 + 70.13) against §8's L1 sub-cap of 2,000. A full calibration row is
+owed at family closure.
+
+*§12.8 ends. No gate, threshold, cap or label is altered. No verdict is issued here.*
