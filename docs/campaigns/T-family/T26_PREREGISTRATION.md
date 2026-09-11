@@ -1513,3 +1513,65 @@ be honoured only as a dated addendum.
 *Frozen by a heat-transfer lane, 2026-09-11, on the supervisor's rulings of the
 same day. Zero solver compute. Nothing sent, filed or uploaded (`CLAUDE.md`
 rule 7).*
+
+---
+
+## 16. ADDENDUM 1 TO THE FROZEN DOCUMENT — 2026-09-11T17:14:25Z. THE §12 ITEM-4 READ OF THE `G-MESHSIM` BLOCK, TAKEN AFTER THE FREEZE AND RECORDED AS SUCH
+
+**THIS IS A DATED ADDENDUM UNDER `CLAUDE.md` RULE 2. IT ALTERS NO GATE, NO
+THRESHOLD, NO BAND, NO FLOOR, NO CAP AND NO LABEL.** It records a check that
+happened, and one disclosure about a frozen reader that is **disclosed and NOT
+repaired**, because the file is frozen (rule 6).
+
+### 16.1 WHY THIS ADDENDUM EXISTS AT ALL
+
+§15.4 of the freeze stated that `read_level0_edge()`, `meshsim_verdict()` and
+`control_level0_edge_reader()` **were written after the supervisor's §12 item-4
+diff read and had NOT been read by the supervisor as a diff.** The freeze pinned
+them by sha256 rather than absorbing them silently. **A freeze that quietly
+absorbs an unread instrument is the K2d shape: bytes pinned, nobody having
+looked.** The read has now been taken, and it is recorded here, dated, rather
+than by pretending the freeze covered it.
+
+### 16.2 THE READ, AND WHAT IT FOUND GOOD — supervisor, 2026-09-11T17:14:25Z
+
+- `read_level0_edge()` **calls the existing `strip_foam_comments` rather than
+  reimplementing one.** Calling a shared instrument instead of rewriting it is
+  what K2d's comparator got right, and it is preserved here.
+- **`return v if v > 0.0 else None` — a zero edge is not a value.**
+- **An absent file returns `None` and never `0.0`** — the `cost_channel` defect
+  class, avoided explicitly and then **mutation-tested on a copy with
+  `__pycache__` cleared**, which is the only way that test means anything.
+- **`float()` sits inside a `try` returning `None`**, so the K2d
+  trailing-period class degrades to a **refusal** rather than an uncaught crash
+  at exit 1 — the `read_checkmesh` lesson applied to a reader written the same
+  day it was learned.
+
+### 16.3 THE DISCLOSURE — DISCLOSED, NEVER EDITED
+
+> **`read_level0_edge()` returns on the FIRST matching `value` line and does not
+> refuse on a second.**
+
+The risk is low: `constant/polyMesh/level0Edge` carries exactly one `value`
+entry, and every mesh read by this rung is written by `snappyHexMesh`. **But the
+house habit everywhere else in this comparator is to REFUSE ON AMBIGUITY rather
+than take the first thing found** — `resolve_unique()` exists for precisely that
+— and this one reader does not. **A later reader should see that the divergence
+is known and was recorded, not that nobody noticed.**
+
+**It is NOT repaired.** The file is frozen and its sha256 is pinned at §15.3;
+editing it would break the pin and the rule-6 prohibition on editing frozen
+files. If a case ever presents a second `value` line, this addendum is the
+record that the behaviour was known in advance.
+
+### 16.4 WHAT THIS ADDENDUM DOES NOT DO
+
+It does not authorise a launch; it does not alter `G-MESHSIM`'s window
+`[1.4250, 1.5750]`, its reader, its refusal on a missing level, or any other
+gate; it does not change a single byte of any instrument; and it does not touch
+§§0–15, whose line numbers are unchanged — **lines whose number changed above
+this section: 0**.
+
+*Recorded by a heat-transfer lane, 2026-09-11, on the supervisor's post-freeze
+item-4 read. Zero solver compute. Nothing sent, filed or uploaded
+(`CLAUDE.md` rule 7).*
