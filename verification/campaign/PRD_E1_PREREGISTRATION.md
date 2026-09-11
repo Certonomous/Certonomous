@@ -686,3 +686,108 @@ launches until then. Costs are as recorded (§9): full ladder ≈ 1245 core-min
 (serial) ≈ $1.07 DERIVED, under the §9 CAP.
 
 *— heat-transfer `lab-lane`, FREEZE 2026-09-09. FROZEN per rule 2; no graded compute.*
+
+---
+
+## AMENDMENT 1 — 2026-09-11 — THE "DOES NOT EXIST" CONDITION IS NOW FALSE, AND THE `roache_triple.py` PIN IS SUPERSEDED
+
+**Dated amendment appended at the foot of a frozen file. Version: FROZEN v1.0 → v1.1.**
+Drafted by a cfd `lab-lane` at the cfd-supervisor's direction (the case lives in cfd's
+`verification/runs/navier_class/` territory; the registration was authored by a
+heat-transfer lane, and that authorship is noted rather than quietly assumed away).
+
+### P1.0 — The frozen-file assertion, PROVED by hash
+
+**`lines whose number changed above this section: 0`.** The 688 lines above are
+byte-identical to the committed blob, and the proof is a hash, not an assurance:
+
+| what | value |
+|---|---|
+| registration blob (git sha1) at HEAD | `65dc864325e665a4cfdb7c34bf5af5aa59765f5c` |
+| `git show HEAD:<path> \| sha256sum` | `792c3917194b1a23068e14dba1a344d11306f725966344c40e5bd8831ff4e375` |
+| `head -n 688 <this file> \| sha256sum` **after this amendment** | `792c3917194b1a23068e14dba1a344d11306f725966344c40e5bd8831ff4e375` |
+
+Equal, so nothing above moved. `diff` of the two is empty. Re-runnable by anyone.
+
+### P1.1 — THE CONDITION AS ORIGINALLY CHECKED, AND THAT IT IS NOW FALSE
+
+**As registered, quoted rather than paraphrased:**
+- `:7` — "compute — the graded run home `verification/runs/navier_class/PRD/` did not exist"
+- `:459` — "**`verification/runs/navier_class/PRD/` does not exist (verified 2026-09-09)**"
+- `:562` — "does not exist (verified 2026-09-09 21:28 UTC)** — so the pre-registration is still"
+- `:629` — "graded run home **`verification/runs/navier_class/PRD/` did not exist at freeze**"
+
+**That was true when it was checked and it is FALSE NOW.** Measured on disk 2026-09-11:
+the directory exists and holds **75 `log.*` files and 15 `DONE.*` markers** — the full
+5 × 3 ladder, `us0.25/0.50/1.00/2.00/4.00` × `L1/L2/L3` — with the earliest run artifact
+timestamped **2026-09-09 22:47**, about an hour after the 21:28 UTC check. **The
+pre-registration is therefore POST-COMPUTE**, and its own repeated claim to be pre-compute
+is now false on its face. Recorded here rather than edited above: the original lines are
+struck by this amendment, never rewritten.
+
+**The gates closed at first compute.** Nothing below alters a gate, threshold, cap or label.
+
+### P1.2 — PRD_E1 IS POST-COMPUTE BUT **UN-GRADED**, and that is what makes the re-pin clean
+
+Checked, not assumed: there is **no verdict artifact anywhere** under
+`verification/runs/navier_class/PRD/` — no `VERDICT*`, no `*GRADED*`, no `rc.autograde`.
+The ladder has **run** and has not been **graded**. So the pin below is corrected **before**
+anything grades under it, and **no result is retro-attributed to a blob that did not
+produce it.** Had a verdict existed, this amendment would have had to say which blob
+actually produced it, and it would not have been a one-line re-pin.
+
+### P1.3 — THE RE-PIN
+
+`FREEZE.1` pins `scripts/roache_triple.py` at blob
+`78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8`. **That pin is superseded.** The file was
+repaired by verification at commit **`a7b3846d8`** (verified by this lane to be an
+ancestor of HEAD, not taken on relay), and its blob is now:
+
+```
+scripts/roache_triple.py   23afaee32f770f9f38a827e38ac963b9368b7707
+```
+
+**Verified by this lane against the file itself** — `git hash-object` on the worktree copy
+and `git rev-parse HEAD:` both return that sha, and they agree. It was **not** transcribed
+from the message that relayed it: two comparator pins relayed on this same day were
+superseded ones, which is precisely the failure this check exists to catch. **Always hash
+against the LATEST amendment's pin and verify no later amendment supersedes it.**
+
+### P1.4 — THE §2d.1 CONDITIONS, CHECKED RATHER THAN CITED
+
+The repair is a post-compute change on a grading path, so it stands or falls on
+`VERIFICATION_CHARTER.md` §2d.1 (verified to exist at `:1914` by this lane, rather than
+accepted on relay). All four, against the repair commit's own record:
+
+1. **A demonstrable error, not a preference.** `:629-632` stated *"the three values are not
+   monotone"* as the `else` of a two-way branch over a **six-state** vocabulary, never
+   consulting `row["monotone"]` computed in the same function at `:599`. DIVERGENT,
+   STAGNANT and NO_ORDER are always monotone, so **three of six states carried a false
+   stated reason 100 % of the time**; OSCILLATORY and EXACT were right by accident. The
+   superseded blob `78e56a3b` was itself a partial repair that fixed one state of six.
+2. **Established by an instrument independent of the hypothesis** — the load-bearing
+   condition. A sweep of **44,570 ladders** through `grade_ladder` measuring
+   verdict-neutrality, **carrying its own planted control** (a hand-moved `verdict` field
+   *is* detected, so the sweep was shown able to see a change before its "no change" was
+   believed). A sweep that grades nothing cannot have been selected to move a verdict in a
+   wanted direction.
+3. **Disclosed, instrument named, movement quantified** — this section; and the movement is
+   **the `why` text only. THE VERDICT DOES NOT CHANGE AND MUST NOT BE PRESENTED AS
+   CHANGING.**
+4. **Pre-repair values recorded beside the published ones** — they are identical, because
+   the repair is verdict-neutral. What moved is the printed *reason*: previously a false
+   "not monotone" sentence in three states, and **no refusal line at all** for monotone
+   DIVERGENT / STAGNANT / NO_ORDER.
+
+### P1.5 — WHAT THIS AMENDMENT DOES AND DOES NOT DO
+
+**Does:** records that the pre-compute condition is now false and when it became false;
+re-pins one grading-path member to the blob that will actually grade; records the §2d.1
+basis with all four conditions checked.
+**Does not:** alter any gate, threshold, cap, band or label; alter any other `FREEZE.1`
+pin (`build_prd.py` `4ec9e9c4…`, `mark_done_prd.py` `be40d0f3…`, `autograde_prd.py`
+`b9b841f5…` are untouched and unverified by this amendment); alter the `FREEZE.2` SELF-member
+arrangement for `analyse_prd.py`; or discharge **check 4**, which remains the supervisor's,
+personal and undelegable. **A lane's amendment is not an authorisation to grade.**
+
+*Amendment 1 ends. Nothing above line 688 was edited; P1.0 proves it by hash.*
