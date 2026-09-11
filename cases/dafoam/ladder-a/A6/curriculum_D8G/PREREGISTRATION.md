@@ -1400,3 +1400,63 @@ solved.**
 **RE-FREEZE:** `d8g_genmesh.sh` `2b22d01e265ba8362a12644c32bbd409` → **`0d18d20d9bea13d1ef794892a1d4edd5`**.
 
 **SUBMISSIONS PARKED.**
+
+
+---
+
+## ADDENDUM 1 — 2026-09-11 — **THE LAST TOKEN IS FILLED BY DERIVATION, AND DERIVING IT CAUGHT TWO DEFECTS THE HARD-CODED TABLE WOULD HAVE SHIPPED.**
+
+**Lines whose number changed above this section: 0.**
+
+`d8g_run_arm.sh:805` carried `LAUNCH_BUDGET_S=__D8G_UNFROZEN__WITNESS_BUDGET`, **the last
+executable token in the item**, and the launcher was frozen-and-deliberately-unrunnable until it was
+filled. The file's own design note says the value is *"MEASURED by the first arm's
+`D4S_MPIRUN_EPOCH` line"* — **a bootstrap that could not close, because the first arm cannot run to
+measure it.**
+
+**IT IS DERIVED, NOT GUESSED:** `LAUNCH_BUDGET_S = floor((TMO - 1) / 2)`, the largest integer
+strictly below `TMO/2`, where `TMO = CAP × 60 / RANKS` already descends from the registered cap and
+rank count. **No second number exists to drift**, and a literal is never written. The first arm then
+converts this derived bound into a measured one.
+
+**ALTERS NO gate, band, threshold, cap or label.** The launch-witness deadline decides when a launch
+is declared dead; **no gate reads it.** The comparator `d8g_grade.py`
+`12688063e20cbb6fa79cf08d0996d4e1` is untouched.
+
+### FINDING 1 — TWO OF THE SIX CEILINGS IN CIRCULATION WOULD HAVE ABORTED AT LAUNCH
+
+The per-arm ceilings quoted in this item's working notes are reproducible from `TMO` **as `TMO/2`
+rounded** — but `LA.3` is **strict**, `0 < b < t/2`, and **a rounded half is not below its own half**:
+
+| arm | `TMO` | `TMO/2` | derived | previously quoted | `LA.3` on the quoted value |
+|---|---|---|---|---|---|
+| L1-P | 705 | 352.5 | **352** | 352 | PASS |
+| **L2-P** | 786 | 393.0 | **392** | 393 | **ABORT** |
+| L3-P | 1439 | 719.5 | **719** | 719 | PASS |
+| **A2-P** | 1829 | 914.5 | **914** | 915 | **ABORT** |
+| F2-P | 3053 | 1526.5 | **1526** | 1526 | PASS |
+| F2-S | 3213 | 1606.5 | **1606** | 1606 | PASS |
+
+**Hard-coding that table would have aborted L2-P and A2-P at the launch itself**, after staging and
+every image and row check had passed — a failure nobody had predicted, prevented only because the
+value is derived rather than transcribed.
+
+### FINDING 2 — THE DESIGN NOTE AND THE CODE DISAGREE ABOUT WHAT THE WITNESS IS
+
+The note names `D4S_MPIRUN_EPOCH`. The code waits for `LAUNCH_WITNESS_RE = ^ExecutionTime = `
+(`:588`) — **the first solver iteration** — with `^Time = ` registered as the `decomposePar` decoy.
+**`D4S_MPIRUN_EPOCH` is deliberately built to match none of the log readers, so it CANNOT be the
+witness.** The budget therefore has to cover container start **+** the TensorFlow import **+**
+`DASolver` construction **+** `decomposePar` **+** one iteration.
+
+**MEASURED TONIGHT ON A3GC L3, and it makes the headroom thinner than it looks:** first
+`ExecutionTime` arrived at **~270–290 s** at box load 26–32 and **~370 s** at load 37–70, with the
+TensorFlow import alone ~60–70 s and **mesh-independent**. D8G's L1 mesh is 18× smaller so its read
+is near-instant, but **L1-P's derived ceiling is 352 s and CANNOT BE WIDENED** — 352 *is* the `LA.3`
+ceiling at a 46.977 core-min cap. **A launch-witness timeout on L1-P is a foreseeable outcome and is
+recorded here in advance as infrastructure, not as a physics failure.**
+
+**RE-FREEZE:** `d8g_run_arm.sh` `05b7f8b1446968b64bc74d2f0f531fcb` →
+**`51ff683dda23aa0143d1a2fe5047c780`**. **Zero `__D8G_UNFROZEN__` tokens remain.**
+
+**SUBMISSIONS PARKED.**

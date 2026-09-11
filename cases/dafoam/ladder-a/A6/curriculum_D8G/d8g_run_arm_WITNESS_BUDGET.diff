@@ -1,0 +1,123 @@
+=====================================================================
+CLASSIFYING DIFF -- d8g_run_arm_candidate.sh : THE WITNESS BUDGET
+for: dafoam-supervisor, to be read AS A DIFF.  date: 2026-09-11
+THE FROZEN d8g_run_arm.sh IS NOT TOUCHED -- md5 05b7f8b1446968b64bc74d2f0f531fcb
+on disk and at HEAD.  NOT COMMITTED.  SUBMISSIONS PARKED.
+
+CLASSIFICATION: INFRASTRUCTURE DEADLINE ONLY.  The launch-witness budget decides
+when a launch is declared DEAD.  No gate, band, threshold, cap or label is
+touched and no gate reads it.  LA.3, the strict-minority guard, is left exactly
+as frozen and now re-checks a derived value.
+
+WHAT CHANGED: one token becomes a derivation.
+  LAUNCH_BUDGET_S=__D8G_UNFROZEN__WITNESS_BUDGET
+  -> LAUNCH_BUDGET_S=$(python3 ... floor((TMO-1)/2) ...) + a D4S_ echo of it
+TMO is already derived at the cap assertion from the registered cap and rank
+count, so the budget now descends from that same single number.  A literal would
+create a second number that can drift from the first.
+THE FORM: floor((TMO-1)/2) is the largest integer STRICTLY below TMO/2 for both
+parities.  Largest is a SAFETY choice: this clock decides when a launch is
+called dead, so every second removed from it is added to the chance of killing a
+HEALTHY run merely slow to reach its first iteration.  A genuinely dead
+container is caught by the container-state reader, not by this clock.
+
+FINDING 1 -- TWO OF THE SIX QUOTED CEILINGS WOULD HAVE ABORTED.
+The brief quoted 352 / 393 / 719 / 915 / 1526 / 1606 s.  They ARE reproducible
+from TMO -- they are TMO/2 rounded -- but LA.3 is STRICT (0 < b < t/2) and a
+rounded half is not below its own half.  Measured against the guard:
+  arm    TMO    TMO/2   derived  LA.3(derived)  quoted  LA.3(quoted)
+  L1-P    705   352.5     352    PASS             352   PASS
+  L2-P    786   393.0     392    PASS             393   *** ABORT ***
+  L3-P   1439   719.5     719    PASS             719   PASS
+  A2-P   1829   914.5     914    PASS             915   *** ABORT ***
+  F2-P   3053  1526.5    1526    PASS            1526   PASS
+  F2-S   3213  1606.5    1606    PASS            1606   PASS
+  (the -S arms share their -P caps; all PASS on the derived value)
+*** HARD-CODING THE QUOTED TABLE WOULD HAVE ABORTED L2-P AND A2-P AT LA.3 THE
+FIRST TIME THEY RAN -- after staging, after the image and row checks, at the
+launch itself.  The ruling to derive rather than hard-code prevented a failure
+nobody had predicted. ***
+
+FINDING 2 -- THE WITNESS IS NOT THE MPIRUN LINE, AND THE HEADROOM IS THIN.
+The design note at line 4 says the budget is "MEASURED by the first arm's
+D4S_MPIRUN_EPOCH line".  The witness the CODE waits for is
+  LAUNCH_WITNESS_RE = ^ExecutionTime =        (line 588)
+-- THE FIRST SOLVER ITERATION -- with ^Time = as the decomposePar DECOY and
+^Running Primal Solver as corroborator.  D4S_MPIRUN_EPOCH is deliberately built
+to match none of the log readers (lines 470-477), so it cannot be the witness.
+The budget must cover container start + TensorFlow import + DASolver
+construction + decomposePar + ONE ITERATION.
+  MEASURED TONIGHT, A3GC L3, 99,840 cells, 4 ranks, this box:
+    launch 22:15:33Z -> first ExecutionTime ~22:19-22:20Z = ~270-290 s at load
+    26-32; the earlier attempt at load 37-70 took ~370 s to the same point.
+    The four TensorFlow banners landed ~60-70 s in, and THAT COST IS
+    MESH-INDEPENDENT.
+  D8G L1 is 5,568 cells -- 18x smaller -- so its mesh read and decomposePar are
+  near-instant, but the import is not.  Against L1-P's derived 352 s the
+  headroom is real but THINNER THAN IT LOOKS, and it CANNOT be widened: 352 is
+  the ceiling LA.3 permits at a 46.977 core-min cap.  If an arm ever fails LA
+  with a healthy container, read this paragraph first.
+
+VALIDATION: d8g_launch_assert_selftest.sh -- 41 pass, 0 fail.  Its own scope
+note is kept rather than paraphrased away: "docker is a stub; this is not
+evidence the assertion has ever watched a real DAFoam container."
+
+WHAT IS *NOT* CLAIMED: this fills a deadline with a DERIVED bound.  It is NOT
+the measurement the design asks for.  The first arm's own D4S_MPIRUN_EPOCH and
+first-ExecutionTime delta converts it into a measured value, by the supervisor's
+addendum -- not by this lane and not by this file.
+=====================================================================
+
+--- d8g_run_arm.sh	2026-09-11 17:44:28.050433831 +0000
++++ d8g_run_arm_candidate.sh	2026-09-11 23:02:30.754983012 +0000
+@@ -802,7 +802,49 @@
+ # construction plus a 4 s solver ClockTime.  D8G's coarse and medium levels are
+ # SMALLER than D8R's mesh and its fine level larger; the budget must be sized
+ # PER LEVEL from that scaling and written into the cap table, not guessed here.
+-LAUNCH_BUDGET_S=__D8G_UNFROZEN__WITNESS_BUDGET
++# ---------------------------------------------------------------------------
++# THE WITNESS BUDGET IS DERIVED FROM THE DEADLINE, NEVER WRITTEN AS A LITERAL.
++#
++# The registered design requires LAUNCH_BUDGET_S to be a STRICT MINORITY of the
++# in-container deadline TMO, and LA.3 below enforces exactly that (0 < b < t/2).
++# TMO is itself derived at the cap assertion from the registered core-minute cap
++# and the registered rank count, so deriving the budget FROM TMO keeps one
++# number in this file where a literal would create a second that can drift.
++# A hard-coded 352 is correct only while L1-P's cap is 46.977 core-min at 4
++# ranks; move either and the literal is silently wrong, which is the same defect
++# class as a memory ceiling describing the wrong machine.
++#
++# THE FORM: floor((TMO-1)/2) is the LARGEST INTEGER STRICTLY BELOW TMO/2, for
++# both parities of TMO.  Largest is the right choice, and it is a safety choice
++# rather than a permissive one: this budget decides when a launch is declared
++# DEAD, so every second removed from it is added to the chance of killing a
++# HEALTHY run that was merely slow to reach its first iteration.  There is no
++# benefit to a smaller value -- a dead container is detected by the container
++# state reader, not by this clock.
++#
++# *** AND THE WITNESS IS NOT THE MPIRUN LINE.  LAUNCH_WITNESS_RE is
++# `^ExecutionTime = ` -- THE FIRST SOLVER ITERATION -- so this budget must cover
++# container start + the TensorFlow import + DASolver construction + decomposePar
++# + one iteration, not merely the moment mpirun was reached.  MEASURED TONIGHT
++# on A3GC L3 (99,840 cells, 4 ranks, this box): launch 22:15:33Z, first
++# `ExecutionTime` line ~22:19-22:20Z -- about 270-290 s at load 26-32, and
++# ~370 s on the earlier attempt at load 37-70.  D8G L1 is 5,568 cells, so its
++# mesh read and decomposePar are near-instant, but THE TENSORFLOW IMPORT IS
++# MESH-INDEPENDENT and was ~60-70 s of that.  Against L1-P's derived budget of
++# 352 s the headroom is real but THINNER THAN IT LOOKS, and it cannot be widened
++# -- 352 IS the ceiling.  If a future level ever fails LA with a healthy
++# container, this is the paragraph to read first. ***
++# ---------------------------------------------------------------------------
++LAUNCH_BUDGET_S=$(python3 -c "
++import math, sys
++t = $TMO
++b = int(math.floor((t - 1) / 2))
++if not (0 < b < 0.5 * t):
++    sys.stderr.write('derived budget %r is not a strict minority of deadline %r\n' % (b, t))
++    sys.exit(1)
++print(b)
++") || { echo "ABORT LA.3a could not derive the launch-witness budget from TMO=$TMO"; exit 65; }
++echo "D4S_LAUNCH_BUDGET_DERIVED arm=$ARM tmo_s=$TMO budget_s=$LAUNCH_BUDGET_S rule=floor((TMO-1)/2) strict_minority=yes"
+ python3 -c "
+ import sys
+ b, t = $LAUNCH_BUDGET_S, $TMO
