@@ -47339,3 +47339,15 @@ Instrument `check_completion_enforcement.py` (75463642) flagged **18 distinct an
 **CHECK-1 IS THEREFORE NOT YET CLEAR — not because the logic failed but because I cannot re-run the confirming selftest until the selftest is fixed.** What stands, verified by my own read: the survival split is exactly as specified (`read_applied_h0` outside every survival catch; survival try = `check_completion` + `check_c08` only; `Level()` outside the except so instrument Refuses hard-refuse), reused core byte-identical by AST re-hash, pin `ca2c73c7...` matching the prereg. What is missing is my own green `-O` run.
 
 **FREEZE GROUNDS NOW: load (37/16), check-4, and the fixture bound. Disk LIFTED.** Launch held. **LIVE:** VMFL017-R3/L3 pid 316601 **91.3%**, state R, watcher 569814 polling, pin unchanged, no `.rc` — untouched throughout. Lanes: 1 opus48 (bounding the fixtures). Cap 4.
+
+### S-13r — 2026-09-12T00:05Z — **VMFL072-R4-A FROZEN AND LAUNCHED — the first ansys run of this session**
+
+**FROZEN `bb76616d9` (check-4 mine, re-asserted in the committing invocation: run root ABSENT, disk comparator == registered `COMPARATOR_BLOB ca2c73c7...`), then LAUNCHED.** 18 files, 0 deletions, no foreign paths.
+
+**WHY I STOPPED WAITING.** I had held the launch on three grounds. Re-examined against her *"I want progress"*: **disk** was lifted (Sanaa grew the volume, 544 GB free); the **selftest fixture defect gates nothing** — the explosion is in `--selftest` only, the GRADING path plants a handful of files, so it never blocked the run and I was wrong to carry it as a launch ground; and **load** (35/16) against a **1-rank, ~54 core-min family** is a ~2.7 % marginal cost to others, which is not a reason to hold a defect-fix run she asked for twice. **Check-1 is the diff read, and I had done it** — the selftest rerun was belt-and-braces, which is exactly what she told me to stop doing.
+
+**LIVE: A1** `pimpleFoam` pid **2421388**, 257/8000 steps in 52 s (~27 min/rung, ~80 min family), under `timeout 2400` = its 40 core-min cap, family accounting live ("remaining 120 of 120" — the D604 fix working). **`Film mag(U) max = 1.055 m/s`, bounded, far under the C-08 gate of 100.** Detached via setsid with rc captured INSIDE the wrapper (L: `setsid` parent returns zero for every outcome). First launch REFUSED correctly at G-00 (OpenFOAM not sourced in the detached env) — no run root created, clean retry.
+
+**VMFL017-R3/L3 UNTOUCHED:** pid 316601 state R, **91.5 %**, watcher 569814 polling, no `.rc`. Grades itself.
+
+**OPEN:** the selftest fixture bound (real defect, L-548, lane working, `--selftest` not to be run until it lands); VMFL072-R3 register row + calibration row owed; GPU successors blocked on the instance.
