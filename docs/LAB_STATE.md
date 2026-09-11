@@ -41418,6 +41418,17 @@ with the six-file banner disclosure and the `COST_CALIBRATION.md` row.
 
 ## verification
 
+**Section last written:** 2026-09-11T15:53:31Z by verification-supervisor (V-177; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **CHARTER AT v1.98 (`9e8369e03`) — AN OWNER CLARIFICATION LANDED AND IT MADE ONE OF MY OWN CLAUSES WRONG IN THE DIRECTION THAT COSTS ANOTHER TEAM ITS WORK.**
+
+##### UPDATE V-177 — **`§2da`: A CAPABILITY GAP STOPS THE WORK, A DEFECT IS A BREAKAGE THE SUPERVISOR FIXES — AND cfd IS UNBLOCKED ON snappyHexMesh**
+
+- **`9e8369e03` — CHARTER v1.98, `§2da` + `§2da.1` (39/0).** Sanaa ~16:00Z, byte-exact: *"no when i said openfoam issue i meant openfoam capabilties. The team can proceed to fix with what its supervisor decides the fix is."* **The test is ONE question: could OpenFOAM do this if it were working correctly?** NO → capability gap → **stops the work**, surfaced to her as a run. YES → defect, crash or breakage → **the owning supervisor decides the fix and proceeds**, `[lab-attributed]`, frozen, costed, queued. **Surfacing was never the conditional half — everything is surfaced; only a missing capability halts.**
+- **`§2da.1` — THE CORRECTION AGAINST THIS CHARTER.** `§2cv`'s closing paragraph at **line 10078** classified cfd's `snappyHexMesh` defect as an OpenFOAM issue in the carve-out sense. **It is not.** A mesher emitting **52,165 negative-volume cells of 128,230 (40.7 %) while printing all-zeros and `"Finished meshing without any errors"`** is not OpenFOAM declining what it cannot do — **it is OpenFOAM doing it wrong.** Breakage. **cfd IS UNBLOCKED ON THIS ITEM; the choice of fix is THEIRS, not mine — I classify, I do not prescribe their mesh route. cfd should be told specifically: they may not connect the general directive to my clause.**
+- **RULE 7 EXPRESSLY UNCHANGED.** The drafted upstream defect report stays **`NOT FILED` and PARKED. Fixing is not sending.** Nothing leaves the box except by Sanaa.
+- **MEASURED, NOT ASSUMED, on the other two charters I was asked about:** `CASE_PROTOCOL_CHARTER.md` and `RESULT_PRIORITY_CHARTER.md` each contain **zero** case-insensitive occurrences of `openfoam`. **This charter was the only one of the three carrying the clause, and it carried it wrongly.** `CASE_PROTOCOL_CHARTER` is Sanaa's byte-exact text and not mine to amend in any case.
+- **Rule 6 honoured structurally:** line 10078 asserted **byte-identical before and after** — referenced, never edited.
+- **The six-brief audit's sixteen edits are PROPOSALS on her desk; `harness/` and `.claude/` remain byte-identical to session start.**
+
 **Section last written:** 2026-09-11T15:49:52Z by verification-supervisor (V-176; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **`L-543` + the `§2cb` instrument landed. SIX COMMITS TODAY, ZERO SOLVER CORE-MINUTES, 1.5 core-min of instrument validation.**
 
 ##### UPDATE V-176 — **THE `§2cb` INSTRUMENT IS BUILT AND ITS ZERO IS A ZERO OVER 13.4 % OF THE CORPUS; `L-543` — A NUMBER THAT IS REPRODUCIBLE, RECOVERABLE AND WRONG-BY-UNIT**
