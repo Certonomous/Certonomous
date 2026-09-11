@@ -1682,3 +1682,70 @@ delivered near-wall height, not on the requested one.**
 *Recorded by a heat-transfer lane, 2026-09-11T17:19:34Z, on the supervisor's ruling. Zero solver
 compute; `T26_runs/` does not exist. Nothing sent, filed or uploaded
 (`CLAUDE.md` rule 7).*
+
+---
+
+## 18. ADDENDUM 3 TO THE FROZEN DOCUMENT — 2026-09-11T17:23:39Z. **THE WEAKEST JOINTS IN §17'S PREDICTION, NAMED BEFORE THE NUMBER LANDS**
+
+**DATED ADDENDUM UNDER `CLAUDE.md` RULE 2. ALTERS NO GATE, THRESHOLD, BAND,
+FLOOR, CAP OR LABEL, AND CHANGES NO BYTE OF ANY INSTRUMENT.** It is a separate
+section rather than an edit to §17 because §17 is committed and this document is
+frozen — **a committed record is extended, never rewritten** (rule 6).
+
+**Why it exists:** §17 registered a counter-intuitive prediction with four named
+falsifiers. **A prediction that names its own weakest joint is worth more than
+one that presents a uniform face**, and §17 presented a uniform face. Two joints
+are weak, and they are weak for different reasons.
+
+### 18.1 WEAK JOINT 1 — THE PEAK'S LOCATION IS DETERMINED BY THREE POINTS, AND T26's L3 SITS ESSENTIALLY AT IT
+
+The peak of the coverage–Δ₀ curve is constrained by **exactly three
+measurements**, so its location depends on a modelling choice nothing in the
+data settles. Fitting the same three points two defensible ways:
+
+| fit | peak Δ₀ | peak coverage |
+|---|---:|---:|
+| parabola in Δ₀ | **5.7409 mm** | 52.926 % |
+| parabola in ln Δ₀ | **5.2964 mm** | 53.028 % |
+
+**The functional form alone moves the peak by 0.44 mm — and T26's L3 sits at
+5.333 mm, INSIDE that spread.** Under the log fit L3 is just past the peak;
+under the linear fit it is just short of it. Either way the curve is **flat to
+first order there**, and the fitted peak is **0.408 mm from L3's Δ₀, which is
+15.3 % of the L2 → L3 step.**
+
+> **REGISTERED: the L2 → L3 limb is the LEAST DETERMINED limb of §17's
+> prediction.** §17's bands for those two levels — 43–47 % and 50–55 % — do not
+> overlap and the margin is real, but **the gap between them is comparable to
+> the spread the peak's location introduces**, and a reader should know that
+> before the number lands rather than discover it afterwards. §17's
+> "flat within 2 points" falsifier covers this only partially.
+
+### 18.2 WEAK JOINT 2 — L1's BAND IS A DIRECTION, NOT A FIT, AND NO CURVE SUPPORTS IT
+
+**This one is not in §17 at all and is disclosed here.** T26's L1 sits at
+**Δ₀ = 12.000 mm, coarser than anything measured** — the coarsest measured point
+is 8.3984 mm — so its band is an **extrapolation beyond the data**.
+
+**And the fitted curve cannot carry it: evaluated at 12.000 mm the parabola
+returns 5.48 % coverage**, which is not credible and is stated here precisely so
+nobody later quotes it. **§17's 36–44 % band for L1 therefore rests on
+DIRECTION ALONE** — *coarser than 8.3984 mm implies below 44.374 %, on the
+rising limb* — **and on no fitted curve whatever.** The band's lower edge, 36 %,
+is a judgement about how far the rising limb can plausibly fall, not a
+measurement and not an extrapolation of one.
+
+### 18.3 WHAT IS **NOT** WEAKENED
+
+The **direction** claim — coverage rises across the T26 ladder, L1 < L2 < L3 —
+does not depend on the peak's location, because **all three T26 base cells lie
+on the coarse side of every peak estimate** (12.000, 8.000 and 5.333 mm against
+peaks at 5.30–5.74 mm). Only the **magnitude** of the L2 → L3 rise is at risk.
+And **§17's falsifiers stand unchanged**: a strictly decreasing sequence, L3
+below 45 %, L1 above L2, or flat within 2 points. **No falsifier is widened,
+softened or withdrawn by this addendum** — that is the whole point of naming a
+weakness rather than adjusting a band to cover it.
+
+*Recorded by a heat-transfer lane, 2026-09-11T17:23:39Z, on the supervisor's instruction to name
+the prediction's weakest joint. Zero solver compute; `T26_runs/` does not exist.
+Nothing sent, filed or uploaded (`CLAUDE.md` rule 7).*
