@@ -73,3 +73,46 @@ Cap back-check arithmetic · witness-budget placeholder · the manifest's litera
 backslash-n · two stale instrument pins · unstaged model dicts. **Every abort fired
 before a core-second of computation.** All five repairs executed together in this
 run.
+
+---
+
+## CORRECTION 1 — 2026-09-11, same night. **THE WITNESS FIGURE ABOVE IS WRONG. MEASURED: 215 s, NOT ~65–70 s.**
+
+The section "ADDENDUM 1's WITNESS BOUND IS NOW MEASURED" reports the witness at
+**"roughly 65–70 s from container start"** with **"~5× headroom"**. **BOTH FIGURES ARE WRONG.**
+
+**The measured value, recorded by the launch assert itself:**
+
+```
+D8G_LAUNCH_ASSERTED arm=L1-P launched: true
+  reason=[witness=^ExecutionTime =  seen after 215s at log line 762]
+  waited_s=215 budget_s=352 solver_call_seen=yes
+```
+
+**HOW THE ERROR WAS MADE:** `ClockTime = 14 s` was read off the first `ExecutionTime` line and
+treated as time-since-container-start. **It is OpenFOAM's own clock, whose zero is the start of the
+solver's time loop** — long after container start, the TensorFlow import and `decomposePar`. **A
+timeline was inferred from a clock whose zero had not been established.** This is the same class as
+every instrument defect recorded tonight, committed here in prose and relayed upward before it was
+caught.
+
+**THE CORRECTED READING, and it is materially tighter:**
+**215 s against the 352 s derived budget — 61 % consumed, 137 s of margin, 1.64× headroom**, not 5×.
+The budget **holds at L1, but not comfortably.** ADDENDUM 1 warned the headroom was *"real and
+thinner than it looks"* against a mesh-independent TensorFlow import; **that warning was correct and
+the bad arithmetic nearly buried it.**
+
+**Breakdown:** `D4S_MPIRUN_EPOCH` 23:43:02Z against container start 23:42:36Z = **+26 s to mpirun**;
+the remaining ~189 s is import, `DASolver` construction, `decomposePar` and the first iteration.
+**The mesh-independent share dominates.**
+
+**THE CONSEQUENCE FOR L3, QUANTIFIED BEFORE IT LAUNCHES:** **L3 is 64× L1 in cells against a witness
+budget of 719 s — only 2.04× L1's.** If the mesh-dependent part of those 189 s scales at all,
+**L3-P is the arm at risk, not L1-P.** That is now a measured concern rather than a hunch.
+
+**The overhead split is unchanged and better anchored:** `waited_s=215` of 241 s total wall is
+pre-first-iteration, so **overhead ≈ 14.3 core-min GROSS** against the **16.5 core-min** zero-solve
+baseline — two independent measurements agreeing within **~13 %**.
+
+**The verdict is untouched.** `NOT A RESULT` on iterative convergence stands on nuTilda 4.074e-04
+against the 1.0e-4 floor; no convergence number changes.
