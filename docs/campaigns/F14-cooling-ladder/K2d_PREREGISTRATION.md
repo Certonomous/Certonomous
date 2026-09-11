@@ -811,7 +811,7 @@ T4e's fine leg holds a core for ~40 more hours and T26 will want capacity.
 | item | value |
 |---|---|
 | `GRADING_PATH_FREEZE_COMMIT` | recorded in THIS freeze commit's message |
-| `build_k2d.py` | `36a2f3e3ad2133f7b7a7af77d657fea9047edc25` |
+| `build_k2d.py` | ~~`36a2f3e3ad2133f7b7a7af77d657fea9047edc25`~~ STRUCK -> **`0be84519c033e5b663e63043bc01bfa0a91319d5`** (re-pinned under the granted VERIFICATION_CHARTER section 2d.1 repair; see Addendum 2) |
 | `analyse_k2d.py` | `f61ab074425f2664929abb15cce6e0f403cb5b9f` |
 | `mark_done_k2d.py` | `0a095552afc051b3ce3795cb471deb145da53db2` |
 | `scripts/roache_triple.py` | `78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8` |
@@ -1100,3 +1100,42 @@ cannot contain its own hash.
 *Nothing was sent, filed, uploaded, registered, posted or commented outside this
 box (rule 7). Solver compute spent against this document to date: **0.067
 core-min, measured.***
+
+---
+
+## Addendum 2 — 2026-09-11, re-pin of `build_k2d.py` under a granted section 2d.1 repair
+
+**Lines whose number changed above this section: 0.** The section 9 row for
+`build_k2d.py` was STRUCK IN PLACE on one line and its replacement written
+beside it; no line above this section moved, and no gate, band, threshold,
+floor, cap or label is altered by this addendum.
+
+**Ruled by heat-transfer-supervisor, personally, against the charter read at
+source.** The section 2d.1 four-condition test is discharged in Addendum 1 and
+is not restated here. This addendum records only the mechanical consequence:
+the grading path's `build_k2d.py` entry moves from `36a2f3e3` to `0be84519`.
+
+**TWO defects were repaired, and the second is the one that matters.**
+
+1. `wallDist { method meshWave; }` was absent; `kOmegaSST` cannot start without
+   it. Found by **OpenFOAM's own dictionary reader** at launch — pid 1890509,
+   `rc=1`, `SOLVER_NONZERO_EXIT`, wall 1 s, **0.067 core-min MEASURED**.
+2. With that supplied the solver parsed and then aborted on
+   `Different dimensions for '(a + b)': [1 -1 -2 0 0 0 0] != [0 2 -2 0 0 0 0]`.
+   **In `buoyantBoussinesqSimpleFoam`, `p_rgh` and `p` are KINEMATIC** (m^2/s^2),
+   not pressures in Pa, and **`alphat` is a kinematic diffusivity** whose wall
+   function is the incompressible `alphatJayatillekeWallFunction`, not
+   `compressible::alphatWallFunction`. All four were read from a committed case
+   of the same solver, `K2b_runs/K2bP_coarse/0.orig/`, not from recall.
+
+**Defect 2 was caught by an arm added because of defect 1, before it reached the
+box.** The builder's original eight selftest arms could not have found either:
+**they test the builder's outputs against the builder's own intentions, and both
+sides of that comparison share the omission.** Only the solver's own reader sits
+outside that loop. The selftest now carries **16 arms, all green, and requires
+the solver to reach a `Time =` step.**
+
+**Nothing moved and no pre-repair values exist** — no field, no time directory
+and no graded row were produced before the repair. The contrast section 2d.1
+forbids, *"the numbers looked wrong, so the band was widened"*, is absent: no
+number existed and no band was touched.
