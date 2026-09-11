@@ -521,3 +521,90 @@ above: §4.3's prediction bands, §4.2's Roache order, §4.4's falsifier, §5's 
 tolerances are untouched. **The item remains primal-only and claims no gradient, so no FD table is owed**
 (`DAFOAM_CHARTER.md` §1) — restated here because this amendment adds a gate and a later reader must not
 infer that the adjoint scope moved. **SUBMISSIONS PARKED.**
+
+
+---
+
+## AMENDMENT 2 — 2026-09-11 — **PRE-COMPUTE. A registered gate I wrote is UNMEASURABLE AS WRITTEN — struck and REPLACED BY A STRONGER ONE. Plus three corrections, one of them to my own launch instruction.**
+
+*lines whose number changed above this section: 0.* Appended; nothing above is rewritten or struck.
+
+**Registered by the dafoam-supervisor.** **Pre-compute:** no A3GC level has been solved; the only compute
+against this item is a **FEASIBILITY mesh probe whose outputs are declared never gradeable**. Gates may
+therefore still be altered (`CLAUDE.md` rule 2). **§3 check-1 discharged by me personally on the
+comparator**: I ran `a3gc_grade_selftest.sh.DRAFT` myself — **61 passed / 0 failed, exit 0** — and then
+**mutated `peak_to_peak()` back into an adjacent-sample delta** (the DrivAer defect reinstated) and re-ran:
+**57 passed / 4 failed**, failing exactly `B9c` and `B9d`, the two tests that assert the gated statistic is
+the excursion and not the increment. **A suite that passes proves nothing until it is seen to fail, and I
+saw it fail.** The file was restored byte-identical (md5 `e9930092f00b08c4a3db6063ad0c7fc0`).
+
+### (a) §3.1 LIMB 5 — **STRUCK AS A GATE.** It cannot be satisfied by any recipe, and that is a fact about the limb, not about the meshes.
+
+§3.1 limb 5 registered *"TE thickness at root/mid/tip agrees across the three levels to 1 %"*, and §2.4
+tabulates values — but **records no measurement recipe**, and none could be reconstructed.
+
+**MEASURED, on the real c2/c1/c0 surfaces:** root spread **0.0243 %** (passes); **mid and tip spread
+100.0000 %**. The cause is structural, not numerical: **every window-based TE statistic is point-density
+dependent, and these levels differ 4× in point count by construction.** The aft window holds **n=1 point on
+L3**, giving a thickness of exactly **0.0**, against n=5 on L2 and n=9 on L1. **And the limb fails even
+between the two FINEST levels, where no zero is involved:** tip thickness **L2 2.974395e-03 vs L1
+2.917384e-03** — a **1.9 % spread against a 1 % tolerance.** Five aft-window widths, four chord-fraction
+interpolations, iso-section extraction and chord normalisation were tried; none reproduces §2.4's figures
+across all three levels. ⚠ **And §2.4's own tip figure (~7.14e-04) is not reproduced by any recipe tried
+(~2.9e-03) — so §2.4's numbers came from a recipe that is not recorded and cannot be recovered.**
+
+> **I am striking a gate, which is what "widening a gate to fit the answer" also looks like, so the
+> distinction is stated plainly: this limb is struck because it is UNMEASURABLE AS WRITTEN, demonstrated
+> by measurement, and NOT because it failed. Nothing about the three levels is in question.** Limb 5 is
+> **demoted to a reported diagnostic**, printed per level, never gating.
+
+**AND IT IS REPLACED BY A STRICTLY STRONGER LIMB, so body identity is better guarded than before, not
+worse.** Registered as **§3.1 limb 5′ — `G-NEST`:**
+
+> **Every point of the coarser surface must be present BIT-EXACTLY in the finer surface**, level by level.
+> Measured on the real surfaces: **0 misses of 6,765 c2 points in c1, and 0 misses of 26,001 c1 points in
+> c0.** An exact factor-2 coarsening **must** satisfy this — it selects alternate points, it does not move
+> them. **A single 1e-6 nudge to one coordinate breaks it.** Not satisfied → **refuse (exit 2)**.
+
+**This is a statement no md5 can express** (§3.1's warning about hash comparisons is unaffected and stands),
+and it is sharper than any thickness tolerance. **The body-identity purpose of §2.4 is fully retained:**
+limb 4 alone already rejects the excluded `c3` at **max|Δ| = 1.06e-04 against the 8.06e-06 tolerance —
+13×** — and `G-NEST` would reject it independently.
+
+### (b) §3.6 LIMB 1 — the `Primal min residual` banner IS NOT EMITTED ON THIS FAMILY'S PATH
+
+Measured: the string occurs **zero times** in `cases/dafoam/ladder-a/logs_A3/run_model_run3.log`, the
+validated primal of this very case. It is emitted by the pyDAFoam driver, not by the runScript path this
+family uses (it **does** appear in the `A3-onera-m6-transonic` run-tree logs). **This is `N-D44`'s shape
+again: the obvious artifact does not exist on this case and a gate built on it measures nothing.**
+
+**Registered:** the **per-equation `initRes` route of §3.6 limb 2 is the BINDING route**. The banner is read
+**where present** and reported; **its ABSENCE is reported loudly and is NEVER a refusal**, because absence
+is a property of the driver path, not of the solution. **No gate in this item reads `finalRes` — unchanged.**
+
+### (c) THE BINDING LEVEL-TO-LEVEL DIFFERENCE IS PINNED — it was ambiguous and the comparator should not choose
+
+`AMENDMENT 1(a)` requires the iterative error to be ten times smaller than *"that functional's
+level-to-level difference"* without saying **which** of the two differences binds a given level.
+**Registered: the binding difference is `min(|f_L3 − f_L2|, |f_L2 − f_L1|)`** — the conservative reading,
+because the smaller difference is the one iterative noise can swamp and the one Richardson extrapolation
+rests on. **This is now the registration's choice, not the comparator's.**
+
+### (d) `autoPatch 60`, NOT 45 — CORRECTING MY OWN LAUNCH INSTRUCTION
+
+I instructed the mesh lane to use `autoPatch 45`, transplanted from the **A6** recipe. **That was my error
+and it is corrected here from this case's own record.** `cases/dafoam/ladder-a/logs_A3/logMeshGeneration.txt:207`
+reads `Exec : autoPatch 60 -overwrite`, and `:233`/`:235`/`:237` record it assigning **auto0 = 6,240 /
+auto1 = 8,704 / auto2 = 6,240** — exactly the decomposition
+`/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/system/createPatchDict` maps to `wing` (auto0),
+`sym` (auto1) and `inout` (auto2), and exactly §3.2's registered shipped patch list. **Whether 45
+reproduces that on the M6 is NOT MEASURED and is not assumed.** **Registered: `autoPatch 60`**, with the
+post-check refusing on any patch table other than the registered one.
+
+### WHAT THIS AMENDMENT DOES AND DOES NOT DO
+
+**STRIKES** §3.1 limb 5 as a gate (demoted to diagnostic) and **ADDS** the stronger `G-NEST`.
+**CORRECTS** §3.6 limb 1 to reporting-only and `autoPatch` to 60. **PINS** the binding difference.
+**ALTERS NO** prediction band, cap, cost, tolerance or label: §4.3's bands, §4.2's Roache order, §4.4's
+falsifier, §4.5's P1–P4 and §5's cost stand exactly as registered. **The item remains primal-only and owes
+no FD table.** **SUBMISSIONS PARKED.**
