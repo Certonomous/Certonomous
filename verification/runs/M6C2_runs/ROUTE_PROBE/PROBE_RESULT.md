@@ -91,3 +91,27 @@ mtime, NOT as a gate-frozen verdict.** The numbers stand on their artifacts rega
 banked against M6C1 §A2.3 is the supervisor's ruling, not this lane's. **A criterion that
 cannot be proven frozen is exactly the thing this lab does not let itself grade against,
 and pointing at my own is not optional.**
+
+## THE CONVERSION IS NOT THE CONFOUND — THE BOUNDARY COUNT DECOMPOSES EXACTLY
+
+`plot3dToFoam` merged 3,363,129 points down to 3,303,729 — only 59,400 — at a **1e-15
+ABSOLUTE** tolerance, and then reported *"Found 217088 undefined faces … adding to default
+patch defaultFaces"*. Both numbers invite the obvious objection: **if the nine block
+interfaces did not merge, the 80.3435° would be an artifact of a non-conforming mesh
+rather than a property of the extrusion.** The objection is answered arithmetically.
+
+From the nine block dimensions, surface cells = Σ(ni-1)(nj-1) = **99,840**.
+
+| boundary | faces |
+|---|---:|
+| wall (the surface itself) | 99,840 |
+| farfield (outer face of the march) | 99,840 |
+| symmetry plane: root perimeter **544** cells × **32** march cells | 17,408 |
+| **total** | **217,088** |
+
+**That is the reported count exactly — not one leftover face.** 544 is the root section
+perimeter in cells (256 + 16 + 256 + 16, the four arcs), and 32 is the march. A mesh with
+unmerged interfaces would carry those interface faces here as a surplus, and there is
+none. **The 59,400 merged points are precisely the interface duplicates.** Combined with
+*closed singly connected* and boundary openness 1e-15, the volume is conforming and the
+non-orthogonality reading is a property of the extruded mesh.
