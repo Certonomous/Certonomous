@@ -32291,6 +32291,48 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 153-VERDICT-SUBOFF-MESH-FAMILY-BLOCKED-AT-BOTH-ENDS-MY-PREDICTION-CONFIRMED-AND-I-AM-NARROWING-MY-OWN-REGISTERED-CONSEQUENCE-AGAINST-THE-DRAMATIC-READING -->
+
+**Section last written:** 2026-09-11T17:28:46Z by the cfd-supervisor (Opus 5) — **stamp read from `date -u` in the committing invocation.** PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted.
+
+### ⚖️ VERDICT — **`SUBOFF_A1` MESH FAMILY: `BLOCKED`. BOTH ENDS, BOTH MEASURED.**
+**L1 (3,268,613) inadmissible on M-d** — geometric, **now invariant to PARTITIONING and to ALIGNMENT**, 13.8 % below the `1.0e-03` floor. **L3 (25.45 M) unbuildable** — 41.7 GiB predicted against a 30 GiB box. **L2 (9,121,237) admissible and clean.** **One level is not a triple.** My option (a), the downward triple, **is dead**: `L1_SHIFT` removed the last hope L1 was recoverable.
+
+### 🟢 **MY PREDICTION CONFIRMED — AND THE STRENGTH OF IT IS THE RESULT, NOT THE FACT OF IT**
+On record ahead of the data: *the bad cell RETURNS.* It did. **But the test delivered more than it was designed to:**
+| mesh | cells | min determinant |
+|---|---:|---:|
+| L1 baseline | 3,268,613 | **8.62270450e-04** |
+| `L1_DECOMP4` | 3,268,643 (**+30**) | **8.62262070e-04** |
+| `L1_SHIFT` | 3,254,606 (**−14,007**) | **8.62260850e-04** |
+***THE SHIFT PERTURBED 467× MORE MESH AND MOVED THE ANSWER LESS.*** Spread **1.113e-05 relative — five significant figures**; **exactly one bad cell in every case**; `Failed 2 mesh checks` in every case; **max skewness 2.9132534 identical to eight digits across all three.** ***A pathological cell that does not move under two orthogonal perturbations of the discretisation is not an artifact of the discretisation.***
+- 🟢 **§12.5's ONE-SHIFT LIMIT HELD, AND THE LANE MET THE TEMPTATION EXACTLY WHERE IT PREDICTED IT WOULD.** Its own words this afternoon, before the result: *"a second shift would feel like finishing the same experiment rather than starting a search. It would be a search."* **It refused a second shift, `nSmoothScale` and `expansionRatio`, adding the argument I would otherwise have had to make: invariance across two orthogonal perturbations makes a third knob LESS likely to inform, not more.**
+
+### 🔴 **I AM NARROWING MY OWN REGISTERED CONSEQUENCE, AND THE NARROWING GOES AGAINST THE MORE DRAMATIC READING**
+§12.4 says, registered before the data: *"SUBOFF then has no admissible family on this geometry at this mesh class."* **The measurement supports the first half and NOT the second.**
+- **ESTABLISHED: no admissible family AT OR BELOW 3.27 M cells, and no admissible triple within THIS BOX's RAM ceiling.** Verified by me: `(13/3.27)^(1/3) = 1.5842` over two intervals gives **r = 1.2586, below Celik's 1.3** — **and the coarsest must EXCEED 3.27 M, narrowing it further.**
+- 🔴 **NOT ESTABLISHED: that the mesh class fails generally. L2 at 9.12 M IS CLEAN, which PROVES the class produces admissible meshes on this geometry.** ***A consequence written before the data is binding on its CONDITION, not on the breadth of language it happened to use.*** The narrower claim is the one that goes on the record.
+
+### 🟢 **THE OPTION NOBODY HAD COSTED — AND IT CHANGES WHAT IS ON SANAA'S DESK**
+**Everyone, me included, reasoned DOWNWARD from L1. The family can go UP, and it is clean.** Computed in the committing invocation:
+| level | Mcell | predicted snappy peak |
+|---|---:|---:|
+| L2 | 9.121 | 17.7 GiB |
+| L3 | 25.453 | 41.8 GiB |
+| **L4** | **71.029** | **98.4 GiB** |
+**Ratios 1.407873 and 1.407873 — EQUAL and above Celik's 1.3. All three sit ABOVE L1's degenerate resolution, and L2 is already built and measured clean.**
+- 🟢 ***SUBOFF's ADMISSIBLE TRIPLE EXISTS. IT SIMPLY DOES NOT FIT ON THIS MACHINE.*** A **~128 GiB instance** clears all three; this box's 30 GiB clears only L2.
+- 🔴 **THIRD CORRECTION TO MY OWN DESK ITEM, AND THE MOST USEFUL ONE: a bigger box does not FIX L1 — IT MAKES L1 UNNECESSARY.** The item changes from *"SUBOFF is broken"* to **a costed purchase decision with a specific number**, which is a far more useful thing to put in front of her. **An instance change is reserved to Sanaa; neither the lane nor I decides it.**
+
+### 🟢 RENDERS COMPLETE — FOUR DELIVERED, EACH GUARDED, EACH PROVEN READ-ONLY
+**PRD_E1** (Sanaa's named case), **MRF_R2 fine**, **DrivAer r1_fine** (252,487 faces over 47 body patches, correctly oriented), **F25_DUCT3D**. Every sidecar carries `census_before == census_after`, byte-identical. **The renderer the lab did not have, built today, caught THREE mis-pictures: a wedge presented as 3-D, a car drawn from 3.6 % of its faces, and — after the guard PASSED — a picture of the wind tunnel, then the car upside down.**
+- ⚖️ **THE LESSON THE LANE WROTE AGAINST ITS OWN TOOL, AND IT IS THE ONE I AM CARRYING UPWARD:** ***"A guard that cannot fail is useless; a guard that can fail is still not sufficient."*** **The wind-tunnel box and the upside-down car passed face count, ink, census, dimensionality and rc = 0 — and both were wrong. The guards stop FALSE pictures; they do not produce GOOD ones. Every render is looked at before it is shown.**
+
+### 🟡 OWED AT CLOSURE
+Rule-12 calibration: **`L1_SHIFT` 70.13 core-min actual against ~77 estimated — 0.91×**, attributed (4 ranks on a less-loaded box beat the 8-rank scaling). **SUBOFF mesh total 442.80 core-min** against §8's 2,000 sub-cap. **Ledger unblocked — land via `--allocate-id`, never hand-typed, `--rows` file carrying the row and nothing else.**
+
+**On Sanaa's desk:** **SUBOFF's admissible triple needs ~128 GiB — a costed purchase, not a broken case**; PRD, MRF, DrivAer and F25 renders done. **Blocked:** M6 L3 on its fitted cap (L2 marching); CRM on a source outside DPW5; SUBOFF family as above; E2's §2d.1 referral. ⚠ **CHIEF'S DESK: shared index stale by 187 paths.** **Live:** ET8000 three levels; M6 L2. Two lanes free.
+
 <!-- BOARD-BLOCK-ID: 152-I-STAMPED-MY-OWN-BOARD-WITH-TIMES-UP-TO-31-MIN-IN-THE-FUTURE-WHILE-RULING-ALL-DAY-THAT-TIMESTAMPS-DECIDE-THINGS-PLUS-A-GUARD-IS-NOT-A-LEGIBILITY-CHECK -->
 
 **Section last written:** 2026-09-11T17:25:42Z by the cfd-supervisor (Opus 5) — **this stamp read from `date -u` INSIDE the committing invocation, which is the repair.** PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted.
