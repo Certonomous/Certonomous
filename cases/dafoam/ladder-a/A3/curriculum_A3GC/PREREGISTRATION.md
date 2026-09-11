@@ -1096,3 +1096,87 @@ to return EXISTS for three directories that are there. The failed attempt is pre
 | `a3gc_grade_selftest.sh` | `3a709fa46edfe996a7cd5d1de2100bab` | unchanged |
 
 **SUBMISSIONS PARKED.**
+
+
+---
+
+## AMENDMENT 6 — 2026-09-11 — **TWO INSTRUMENTS, EACH CORRECT ALONE, WERE JOINTLY IMPOSSIBLE: STAGE 1 GUARANTEED THE CONDITION STAGE 2 REFUSES ON, SO A3GC COULD NEVER HAVE REACHED A SOLVE AT ANY LEVEL.**
+
+**Lines whose number changed above this section: 0.**
+
+### THE DEFECT
+
+`a3gc_genmesh.sh:264` copies `0.orig` into **every** case directory it builds
+(`HOST cp -r "$TEMPLATE/0.orig" "$WD/"`). `a3gc_run.sh:329` then globs `"$WD"/[0-9]*`, takes the
+`basename`, and **refuses anything that is not exactly `0`** as *"a non-zero time directory … this
+case has been run before."* `0.orig` begins with a digit, so it matches the glob; its basename is not
+`0`, so it refuses. **Stage 1 therefore GUARANTEES the condition stage 2 refuses on, at every level.**
+Measured: `--stage prepare` on the freshly generated, never-solved `A3GC-L3` exits 2 on `G-COLD`.
+
+**Each file is correct on its own** — shipping `0.orig` beside a case is ordinary OpenFOAM practice,
+and refusing a stale time directory is exactly what §3.3 asks for. **The defect exists only in their
+composition, which is why neither file's own review could have caught it** and why it appeared at the
+first attempt to run the two in sequence.
+
+**AND THE SAME FILE BOTH REQUIRES AND REFUSES IT:** `a3gc_run.sh:326` refuses a template that has
+**no** `0.orig`, then `:329` refuses the work directory for **having** one.
+
+### THE RULING: THIS IS NOT A GATE CHANGE, AND THE DISTINCTION IS LOAD-BEARING
+
+**§3.3 registers, verbatim: "No TIME DIRECTORY other than `0` exists."** `0.orig` **is not a time
+directory.** It is OpenFOAM's standard pristine initial-condition template, it is never a time
+directory in any OpenFOAM case, and this item's own runner depends on it being present. **The glob
+`[0-9]*` with a `basename != 0` test is simply a WRONG TEST for "is a time directory".** So the gate's
+registered *meaning* is untouched; what is repaired is an implementation that **misclassifies a
+non-time directory as a time directory**. That is the same class as AMENDMENT 4's repair — an
+instrument failing to do what its own registration says.
+
+**DISCLOSED PLAINLY, BECAUSE IT WOULD BE CONVENIENT TO LEAVE UNSAID: A3GC'S FIRST COMPUTE HAS NOW
+OCCURRED.** The L3 mesh at `/home/ubuntu/certonomous-runs/A3GC-L3` is an artifact `G-MESH` and
+`G-SYS` read, so by the test this item has applied throughout — *rule 2 closes gates once compute has
+produced an artifact a gate of this item reads* — **A3GC's gates are CLOSED.** A gate change is
+therefore no longer available, which is exactly why this amendment states the repair/gate-change
+distinction rather than relying on it quietly. **If this were a gate change it would be refused and
+the rung would stand `BLOCKED` instead.**
+
+**Belt and braces, against `VERIFICATION_CHARTER.md` §2d.1's four conditions:** (1) it repairs a
+**demonstrable error** — two frozen instruments that are jointly impossible — not a preference;
+(2) it was established by **something that grades nothing**: `--stage prepare` exiting 2, a producer
+step that renders no verdict, on a case with no result in any direction, so it **cannot have been
+selected to move a verdict**; (3) this record discloses it, names the instrument and quantifies what
+moved; (4) no pre-repair value exists to record beside a published one, because **nothing has been
+graded**.
+
+### THE REPAIR REFUSES *MORE* THAN THE ORIGINAL, NOT LESS
+
+The name is **classified**, not pattern-matched: `0` is the cold start; a well-formed OpenFOAM time
+name that is not `0` gets the original refusal, unchanged and word for word; **anything that begins
+with a digit but is NOT a valid time name is now REFUSED EXPLICITLY** where the frozen code would
+have refused it with a misleading message. The exemption is the **single literal string `0.orig`** —
+not a prefix rule, not a suffix rule. **`0.orig.bak` REFUSES.** Widening a guard's exemption to a
+pattern is how a guard dies, and it is not done here.
+
+**THE LANE DID NOT DELETE `0.orig` TO GET PAST THE GUARD, AND THAT RESTRAINT IS THE POINT.** Deleting
+it would have produced a green stage 2 and destroyed the case's initial-condition template — the
+tidy, wrong move that converts a real finding into a silent corruption.
+
+### SECOND FINDING: `prepare` IS NOT ATOMIC
+
+Before refusing, `prepare` had already moved both stage-1 logs into `meshgen/` and written
+`controlDict`, `decomposeParDict` and the runScript. **A step that refuses should leave nothing
+behind, and this one does not.** Measured mitigations: the log move is **idempotent**, and **no cold
+`0` was created**, so the refusal is re-runnable without corruption. Recorded rather than repaired —
+the partial side effects are harmless here and repairing them is a larger change than this amendment
+should carry.
+
+### WHAT THIS AMENDMENT DOES AND DOES NOT DO
+
+**REPAIRS the classification of one directory name in `G-COLD`'s implementation.** **ALTERS NO** gate,
+band, threshold, cap, tolerance, cost or label: §3.3's three assertions stand verbatim, and the
+warm-start protection they exist for is **strictly stronger** after this change than before.
+`a3gc_run.sh` is the **producing** path and is **not** part of the frozen grading path; the frozen
+`a3gc_grade.py` `73dbe368934956700da87e5a1f44ea0c`, `a3gc_grade_selftest.sh`
+`3a709fa46edfe996a7cd5d1de2100bab` and `a3gc_genmesh.sh` `9fa240d9643308f5e9a4988614b58884` are
+**NOT TOUCHED**. **The six `G-COMPLETE` clauses remain UNVERIFIED against a real solve.**
+
+**SUBMISSIONS PARKED.**

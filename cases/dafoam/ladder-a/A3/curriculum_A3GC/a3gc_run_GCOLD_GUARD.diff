@@ -1,0 +1,136 @@
+# a3gc_run_GCOLD_GUARD.diff
+#
+#   *** STAGE 2 CANNOT RUN, AND THE CAUSE IS A GUARD THAT MISREADS ITS OWN
+#   INPUT.  THE L3 SOLVE WAS NOT LAUNCHED. ***
+#
+#   `a3gc_run.sh --level L3 --stage prepare` on the freshly generated, CORRECT
+#   99,840-cell L3 exits 2:
+#       REFUSE [PREPARE]
+#         Sec.3.3 G-COLD: a non-zero time directory
+#         already exists: /home/ubuntu/certonomous-runs/A3GC-L3/0.orig.
+#   `0.orig` IS NOT A TIME DIRECTORY.  It is OpenFOAM's standard pristine
+#   initial-conditions template.  The guard at :329 globs `"$WD"/[0-9]*`, and
+#   `[0-9]*` IS A SHELL GLOB, NOT A NUMERIC TEST -- it matches any name whose
+#   FIRST CHARACTER is a digit.  `basename` is then compared to `0`, `0.orig`
+#   is not `0`, and the level is refused.
+#
+#   *** THIS IS NOT AN ACCIDENT OF THIS ONE CASE.  IT IS STRUCTURAL BETWEEN THE
+#   TWO FILES, AND IT BLOCKS EVERY LEVEL. ***  The FROZEN a3gc_genmesh.sh copies
+#   `0.orig` into every case directory it builds (`HOST cp -r
+#   "$TEMPLATE/0.orig" "$WD/"`, guarded by `[ -d "$TEMPLATE/0.orig" ]`), and the
+#   shipped M6 template HAS one -- verified on disk.  So stage 1 GUARANTEES the
+#   condition on which stage 2 refuses.  A3GC could never have reached a solve
+#   at ANY level, and the defect was invisible until stage 1 first succeeded --
+#   which, until the container repair an hour ago, it never had.  ONE DEFECT WAS
+#   HIDING THE NEXT.
+#
+#   NOTE WHICH FILE IS REPAIRED AND WHY.  `a3gc_genmesh.sh` is FROZEN and its
+#   behaviour is correct: shipping `0.orig` beside a case is ordinary OpenFOAM
+#   practice.  `a3gc_run.sh` is **DRAFT, NOT FROZEN** and its guard is the thing
+#   that is wrong.  The repair goes in the draft producer; the frozen generator
+#   is not touched and does not need an amendment.
+#
+#   THE FROZEN GRADING PATH IS NOT TOUCHED: a3gc_grade.py re-hashes to
+#   73dbe368934956700da87e5a1f44ea0c and a3gc_grade_selftest.sh to
+#   3a709fa46edfe996a7cd5d1de2100bab.
+#   Candidate: a3gc_run_candidate.sh, md5 1a6093deb504e82bb52d075a5acfb032.
+#
+#   *** I DID NOT DELETE `0.orig` TO GET PAST THE GUARD, AND THAT WAS THE WHOLE
+#   TEMPTATION HERE.  Deleting it would have "worked", launched the solve the
+#   supervisor asked for, destroyed a stage-1 artifact, and left a guard that
+#   refuses every future level still sitting in the file. A guard that refuses
+#   is a finding, not an obstacle. ***
+#
+# THE HUNK, AND WHAT IT DOES NOT DO
+#
+# (a) THE GUARD NOW CLASSIFIES THE NAME INSTEAD OF PATTERN-MATCHING ITS FIRST
+#     CHARACTER.  `G-COLD`'s intent is UNCHANGED and is NOT WEAKENED: a real
+#     time directory other than `0` still REFUSES, in the case directory and in
+#     every `processor*` directory, and the runner still does not "clean up and
+#     proceed".  Only the misclassification of `0.orig` changes.
+#
+# (b) *** THE REPAIR REFUSES WHAT IT CANNOT CLASSIFY, SO IT CANNOT BECOME A
+#     HOLE.  This is the part that matters for a gate. ***  A name that starts
+#     with a digit but is neither a valid OpenFOAM time name nor exactly
+#     `0.orig` is REFUSED, not ignored.  The narrow exemption is for the single
+#     literal string `0.orig` and nothing else -- not a suffix rule, not a
+#     prefix rule.  `0.orig.bak` refuses.  Widening a guard's exemption to a
+#     PATTERN is how a guard quietly stops guarding; this one is widened to a
+#     STRING.
+#
+# (c) THE EXEMPTION IS SAFE ON ITS MERITS, NOT ONLY BY FIAT: this runner NEVER
+#     READS `$WD/0.orig`.  Its cold start is built from `"$TEMPLATE/0.orig"`
+#     (:337, `cp -a "$TEMPLATE/0.orig" "$WD/0"`), so the copy stage 1 leaves in
+#     the case directory is inert with respect to everything `prepare` does.
+#     Exempting it cannot change what the run is started from.
+#
+# PLANTED CONTROLS -- the repaired classifier was shown able to REFUSE, not
+# merely able to pass, before it was believed (CLAUDE.md rule 3).  Thirteen
+# names, EXACTLY TWO accepted:
+#     0          -> ACCEPT (the cold start)
+#     0.orig     -> ACCEPT (the IC template)
+#     100  2000  0.5  6000  000  0.0   -> REFUSE (time dir)
+#     1e-05  0.orig.bak  0abc  0.  .5  -> REFUSE (unclassifiable)
+#   `1e-05` is worth naming: OpenFOAM can write scientific-notation time names,
+#   and the repaired guard refuses it -- by the "cannot classify" branch rather
+#   than the "time dir" branch, but it REFUSES, which is the outcome that
+#   matters.  The old guard also refused it.  No name that the old guard
+#   refused is accepted by the new one EXCEPT `0.orig`, which is the defect.
+#
+# WHAT IS STILL UNVERIFIED, SAID PLAINLY
+#   This diff has NOT been exercised end to end: `prepare` has not been re-run
+#   with the candidate, because the candidate is not the path the supervisor
+#   has approved and re-freezing is not a lane's act.  What IS exercised is the
+#   classifier, in isolation, on the thirteen names above.  The six G-COMPLETE
+#   clauses (controlDict endTime 6000, the rc path, exactly ONE log candidate,
+#   writeInterval 2000, printInterval 100, 0/T touched LAST) are therefore
+#   ALSO unverified -- prepare never reached the code that writes them.
+#
+
+--- a3gc_run.sh	2026-09-11 17:35:20.436059481 +0000
++++ a3gc_run_candidate.sh	2026-09-11 18:42:11.739093387 +0000
+@@ -326,12 +326,42 @@
+     [ -d "$TEMPLATE/0.orig" ] || refuse "PREPARE" "template has no 0.orig: $TEMPLATE"
+     # Sec.3.3: a guard refuses a case where a time dir already exists.  The
+     # runner does not "clean up and proceed" on a graded case -- it refuses.
++    # *** THE GLOB IS NOT A TIME-DIRECTORY TEST, AND THAT IS A DEFECT THIS
++    #     GUARD HAD.  `[0-9]*` is a SHELL GLOB: it matches any name STARTING
++    #     with a digit, so it matches `0.orig` -- which is not a time directory
++    #     at all, but OpenFOAM's standard pristine initial-conditions template.
++    #     The FROZEN a3gc_genmesh.sh copies `0.orig` into every case directory
++    #     it builds (its `HOST cp -r "$TEMPLATE/0.orig" "$WD/"`), and the shipped
++    #     M6 template always has one, SO THE FROZEN STAGE-1 GENERATOR GUARANTEED
++    #     THIS GUARD REFUSED EVERY LEVEL AT STAGE 2.  Measured: prepare on the
++    #     freshly generated, correct 99,840-cell L3 exited 2 with
++    #     "a non-zero time directory already exists: .../0.orig".
++    #     G-COLD'S INTENT IS UNCHANGED AND IS NOT WEAKENED: a real time
++    #     directory other than `0` still REFUSES, in the case dir and in every
++    #     processor* dir.  What changes is that the guard now CLASSIFIES the
++    #     name instead of pattern-matching its first character -- and anything
++    #     it CANNOT classify REFUSES rather than being ignored, so this repair
++    #     cannot become a hole. ***
+     for d in "$WD"/[0-9]* "$WD"/processor*/[0-9]*; do
+       [ -e "$d" ] || continue
+       b="$(basename "$d")"
+-      [ "$b" = "0" ] || refuse "PREPARE" "Sec.3.3 G-COLD: a non-zero time directory
++      case "$b" in
++        0) ;;                                  # the cold start itself: expected
++        *[!0-9.]* | *.*.* | .* | *.)           # not a valid OpenFOAM time name
++          if [ "$b" = "0.orig" ]; then
++            :   # OpenFOAM's pristine IC template, written by stage 1.  NOT a
++                # time directory, and never read by this runner -- the cold `0`
++                # is built from "$TEMPLATE/0.orig", never from "$WD/0.orig".
++          else
++            refuse "PREPARE" "Sec.3.3 G-COLD: $d starts with a digit but is not a
++  valid OpenFOAM time name and is not the known 0.orig template.  The guard
++  REFUSES what it cannot classify rather than ignoring it."
++          fi
++          ;;
++        *) refuse "PREPARE" "Sec.3.3 G-COLD: a non-zero time directory
+   already exists: $d.  This case has been run before.  A guard that finds this
+-  REFUSES the level; it does not clean up and proceed."
++  REFUSES the level; it does not clean up and proceed." ;;
++      esac
+     done
+     rm -rf "$WD/0"
+     cp -a "$TEMPLATE/0.orig" "$WD/0"
