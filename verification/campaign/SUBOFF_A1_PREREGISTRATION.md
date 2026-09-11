@@ -972,3 +972,91 @@ parallel middle body); truncated base **full** thickness **1.310895 mm = 0.35592
 368.2999 mm chord**, `1.841 mm` of chord removed. **§3.4's registered 1.311 mm / 0.356 %
 is CONFIRMED to 4 significant figures from the rendered equations.**
 
+
+---
+
+# §12. AMENDMENT — 2026-09-11 — `L1_SHIFT`: A SINGLE-VARIABLE TEST OF ALIGNMENT INVARIANCE, REGISTERED BEFORE IT RUNS
+
+**Written by a cfd `lab-lane`. The document is still a DRAFT and still UNFROZEN; the banner at
+the head stands. Nothing above this section was renumbered, reworded or deleted:
+`lines whose number changed above this section: 0`.**
+
+**🔴 THE BANNER ABOVE IS STALE AND IS DISCLOSED, NOT EDITED.** It asserts `NO COMPUTE HAS RUN
+UNDER THIS DOCUMENT`. **That is no longer true: 372.67 core-min of mesh building has run** —
+L1 77.07, L2 228.53, `L1_DECOMP4` 67.07, each from its own `STATUS.mesh`. **The `DRAFT` /
+`UNFROZEN` status remains correct** (no solver has been invoked, and §11.0 restates the rule-2
+condition as the absence of a *solver result*). It is the compute claim inside the banner that
+is false, and it is corrected here rather than silently overwritten.
+
+**WHY THIS IS REGISTERED AT ALL, with no solver involved:** the cfd-supervisor's ruling that
+**for a mesh-admission gate, first compute IS the mesh build.** Gate M grades meshes. So a new
+mesh built to inform Gate M is compute under this document and gets its prediction and
+falsifier written down *before* it runs.
+
+## 12.1 WHAT IS ALREADY MEASURED
+
+| level | cells | min cell determinant | verdict against M-d's floor of `1.0e-03` |
+|---|---|---|---|
+| **L1** (8 ranks) | 3,268,613 | **8.6227045e-04** | **BELOW — 1 cell** |
+| **`L1_DECOMP4`** (4 ranks) | 3,268,643 | **8.6226207e-04** | **BELOW — 1 cell** |
+| **L2** | 9,121,237 | **1.5198839e-03** | above |
+
+`L1_DECOMP4` changed the decomposition only — quality controls diffed byte-identical — and
+**the mesh genuinely moved**: 30 more cells, 32 fewer layer cells, 85 more faces, 24 more
+points, unbalance 0.28860325 vs 0.31631918. **The worst cell did not move**: the determinant
+agrees to **five significant figures** (relative difference **9.719e-06**), and max
+non-orthogonality (**64.952882**) and max skewness (**2.9132534**) are identical to all eight
+digits. **The escaping cell is therefore invariant to PARTITIONING.**
+
+## 12.2 🔴 THE OPEN QUESTION — TWO DIFFERENT INVARIANCES
+
+**Invariance to partitioning is not invariance to alignment**, and conflating them is the same
+error §11.7's P2 was written to avoid at the level of refinement. L2 is clean at a finer
+resolution, so the geometry admits a clean mesh *somewhere*. What is NOT established is
+whether:
+
+- **(A)** ~3.27 M cells is simply a bad **resolution** for this geometry; or
+- **(B)** this particular discrete **alignment** of the surface against the octree at 3.27 M
+  cells is a bad draw.
+
+## 12.3 THE REGISTERED TEST
+
+> **`L1_SHIFT`: the same nominal refinement as L1, with the background `blockMesh` origin
+> shifted by HALF A BASE CELL (39.35 mm, base cell 78.70 mm) in each of x, y and z. The
+> surface then intersects the octree at different places at UNCHANGED resolution. ONE
+> variable. The generated `meshQualityControls` block is diffed against L1's and the build is
+> ABANDONED if it differs. No build script is edited: the case is generated unchanged and only
+> that one case's `blockMeshDict` origin is moved. `minDeterminant` is not touched in either
+> direction, in either block.**
+
+## 12.4 PREDICTION AND FALSIFIER, BOTH BEFORE THE DATA
+
+| | |
+|---|---|
+| **PREDICTION (cfd-supervisor's, recorded ahead of the result)** | **The bad cell RETURNS at ≈ 8.6e-04.** Basis: a degeneracy invariant to partitioning to five significant figures reads as the surface and the octree meeting badly at a feature that does not move when the background grid does. |
+| **FALSIFIED BY** | the minimum cell determinant at `L1_SHIFT` coming out **≥ 1.0e-03**, i.e. the bad cell gone. |
+| **IF FALSIFIED (cell GONE)** | the failure is an **alignment accident**, not a property of the resolution. L1 is recoverable, `L1_SHIFT` replaces it, and the downward triple **{~1.17 M, `L1_SHIFT`, L2}** becomes live with equal delivered ratios of **1.4079**. |
+| **IF CONFIRMED (cell RETURNS)** | the **resolution** is the problem, not the draw. **SUBOFF then has no admissible family on this geometry at this mesh class** — a real finding about the case and about `snappyHexMesh`, not a failure of method. |
+
+**Both outcomes are decisive and neither requires moving a threshold.**
+
+## 12.5 🔴 THE LIMIT, REGISTERED BEFORE THE RESULT SO IT CANNOT BE RELAXED AFTER
+
+> **ONE SHIFT. If `L1_SHIFT` also fails, there is NO second shift and no third.**
+
+**Shifting the origin until one cell clears a threshold is fitting a mesh to a gate — the
+mirror image of fitting a gate to a mesh, and no better.** The same reasoning already retired
+the option of tuning `nSmoothScale` / `errorReduction` until the cell cleared. **One shift is a
+test; a series of shifts is a SEARCH, and a search for a passing mesh is not verification.**
+
+This limb is registered **before** the data precisely because a second shift would feel like a
+continuation of the same experiment rather than a new one, **which is how a search disguises
+itself as a test.**
+
+## 12.6 COST
+
+**~77 core-min estimated**, scaled from L1's measured 77.07 (578 s × 8 ranks) at the same cell
+count. Against §8's L1 sub-cap of **2,000 core-min**, with **372.67** spent on mesh building to
+date. `cost_basis`: **DERIVED from this case's own measured L1 build, not from a rate card.**
+
+*§12 ends. No gate, threshold, cap or label above is altered. No verdict is issued here.*
