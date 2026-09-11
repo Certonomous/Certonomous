@@ -1152,3 +1152,74 @@ beat the scaling from L1's 8-rank build. **SUBOFF mesh building to date: 442.80 
 owed at family closure.
 
 *§12.8 ends. No gate, threshold, cap or label is altered. No verdict is issued here.*
+
+## 12.9 THE CONSEQUENCE, NARROWED AGAINST ITS OWN EVIDENCE — AND THE FAMILY THAT DOES EXIST
+
+**Written after §12.8's result, and it makes the claim SMALLER than §12.4's registered wording.**
+
+### 12.9.1 🔴 §12.4 OVERSHOT ITS OWN EVIDENCE
+
+§12.4's registered consequence reads *"SUBOFF then has no admissible family on this geometry
+at this mesh class."* **What §12.8 measured supports the first half and not the second.**
+
+| | |
+|---|---|
+| **ESTABLISHED** | **no admissible family at or below 3.27 M cells** (degeneracy invariant to partitioning and alignment), **and no admissible triple within this box's RAM ceiling** |
+| **🔴 NOT ESTABLISHED** | **that the mesh class fails generally** — because **L2 at 9.12 M is clean**, which *proves* the class produces admissible meshes on this geometry |
+
+**A consequence written before the data binds on its CONDITION, not on the breadth of language
+it happened to use.** The condition was *"the bad cell returns"*; it returned. The sentence
+attached to it claimed more than the return of one cell can carry, and the narrower claim is
+what goes on record. **Recorded against the more dramatic reading.**
+
+### 12.9.2 🟢 THE FAMILY GOES **UP**, AND IT IS CLEAN
+
+Everyone reasoned **downward from L1**. The admissible family is **above** it. Continuing the
+delivered growth factor 2.790553 from the two levels actually built:
+
+| level | Mcell | predicted snappy peak | delivered ratio |
+|---|---:|---:|---:|
+| **L2** (built, measured clean) | **9.121** | **17.71 GiB** *(measured)* | — |
+| **L3** | 25.453 | 41.7 GiB | **1.407873** |
+| **L4** | **71.029** | **98.3 GiB** | **1.407873** |
+
+**Equal ratios of 1.407873, both above Celik's 1.3, and all three levels sit ABOVE L1's
+degenerate resolution — with the coarsest of them already built and already measured clean.**
+
+> **SUBOFF'S ADMISSIBLE TRIPLE EXISTS. IT DOES NOT FIT ON THIS MACHINE.**
+
+**What each box size buys**, from the same fit `peak[GiB] = 2.799 × (Mcell)^0.835`:
+
+| RAM | largest buildable level | verdict for the {L2, L3, L4} triple |
+|---:|---:|---|
+| **30 GiB** (this box) | 19.7 M | **L2 only** |
+| 64 GiB | 42.5 M | L2 + L3 |
+| 96 GiB | 69.1 M | **MARGINAL — 2.8 % short of L4's 71.0 M** |
+| **128 GiB** | **97.5 M** | **ALL THREE, with margin** |
+
+**🔴 THE HONEST CONFIDENCE ON THAT NUMBER.** The fit is a **two-point extrapolation** from
+builds at 3.27 M and 9.12 M. **L4 at 71.0 M is nearly an order of magnitude beyond the data**,
+so `98.3 GiB` is **ESTIMATED, NOT MEASURED**, and the 96 GiB row is inside the extrapolation's
+own error. **128 GiB is the size that survives being wrong about the fit; 96 GiB is a bet on
+it.** L3 at 25.5 M is a much shorter extrapolation and correspondingly firmer.
+
+### 12.9.3 WHAT THIS CHANGES ON SANAA'S DESK
+
+**The correction is that a bigger box does not fix L1 — it makes L1 UNNECESSARY.** The item is
+therefore not *"SUBOFF is broken"* but a costed decision:
+
+- **On this box:** one admissible level. No triple. The case cannot be graded.
+- **On a ~128 GiB instance:** a triple of **equal delivered ratio 1.407873**, every level above
+  the degenerate resolution, **the coarsest already built and measured clean** — so the
+  purchase buys two builds, not three.
+- **Solve cost of that triple**, at §8's own T26 anchor of 1703 core-min/Mcell:
+  L2 15,535 + L3 43,353 + L4 **120,963** = **179,851 core-min**, **$153.78 DERIVED, NOT
+  MEASURED** at the owner-stated $0.0513/core-h. **That is 5.6× the registered 32,000 cap** and
+  it is stated here so the decision is costed rather than discovered afterwards. **The cap is
+  not a stop under Sanaa's 3-D exemption (§11.8), but a 5.6× breach is a number she should see
+  before, not after.**
+
+**No gate, threshold, cap or label is altered by this section, and no verdict is issued in it.
+The instance decision is Sanaa's alone; the family ruling is the cfd-supervisor's.**
+
+*§12.9 ends.*
