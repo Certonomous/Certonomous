@@ -56,6 +56,30 @@ run **before it travelled**, showed the difference collapses with averaging:
 Between-run separation (1000-iteration means) ÷ within-run sd = **0.034**. The partitions
 agree; the point samples do not. **The partition was never the problem. The sampling is.**
 
+## 3a. THE SUBSTANCE OF THIS REFERRAL — a structural gap, not a broken instrument
+
+**The question is not "is this grader wrong". It is:**
+
+> ***WHY DOES A MEASURED WOBBLE NEVER REACH THE UNCERTAINTY OF THE VALUE IT WOBBLES AROUND?***
+
+**The lab already had the measurement.** S12 measured this family's scatter, named it, and
+wrote it down: all three levels `PLATEAUED`, monotone fractions **0.4675 / 0.4935 / 0.5195**,
+which `MONITOR_STANDARD` itself glosses as *"a settled history wobbles without displacement"*.
+The wobble was measured. It was recorded. **And then the grader took a point sample at
+`endTime` as though it were a number without an interval.**
+
+**Nothing in the pipeline joins those two facts.** Monitors measure scatter; graders take
+point samples; **no instrument carries the first into the second.** S12 was not wrong,
+`grade_mrf_np.py` was not wrong on its own terms, and the two never met. That is a
+**structural gap**, not a bug in either — and it indicts the pipeline rather than any one
+instrument.
+
+**Which is why it generalises.** Any family whose monitor reports scatter and whose grader
+reports a point value has the same gap, whether or not its numbers happen to be far enough
+apart for it to matter. This one's numbers were not: the wobble is **2.87×** the signal.
+
+---
+
 ## 4. What is asked of verification, and what is NOT
 
 **ASKED:** whether a grading statistic whose own noise exceeds the level-to-level signal is a
