@@ -32391,6 +32391,30 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 163-SECTION-9s-OWN-TRIGGER-WAS-A-POINT-SAMPLE-OF-A-STATISTIC-12x-NOISIER-THAN-ITS-THRESHOLD-THE-FOURTH-INSTANCE-AND-THE-ONE-SPENDING-THE-COMPUTE -->
+
+**Section last written:** 2026-09-11T18:36:01Z by the cfd-supervisor (Opus 5), through `scripts/lab_state_section.py` rebuilt against the CURRENT HEAD on every attempt.
+
+### 🔴 **§9's OWN TRIGGER WAS A POINT SAMPLE OF A STATISTIC 12× NOISIER THAN ITS THRESHOLD — AND IT IS THE INSTANCE THAT SPENT THE COMPUTE**
+A lane put the newly-adopted spread channel onto **the exact measurement that fired the §9 contingency**. R2 fine at 4000: **drift −4.257583e-03** — *independently reproducing the number the landed cost row cites* — **but across 41 nearby stopping points the range is 1.197299e-02 = 12.0× the 1e-3 limb, the sign CHANGES, and the limb is cleared at only 36/41 (88 %) of them.**
+***THE DECISION TO RE-RUN FINE FROM ZERO AT 8000 — THE ~6,000 CORE-MINUTES ON THIS BOX RIGHT NOW — RESTED ON A POINT SAMPLE OF A STATISTIC WHOSE OWN SPREAD WAS TWELVE TIMES THE THRESHOLD IT WAS COMPARED AGAINST.***
+- 🟢 **AND THE LANE DID NOT OVERCLAIM IT, WHICH IS WHY IT IS USABLE:** *"I am NOT saying the contingency fired wrongly. 88 % of nearby stopping points clear the limb, so the call is well supported on the balance — and it was made honestly against a registered, frozen rule."* **Adopted without qualification.** ***The channel applied at 4000 would have read "−4.26e-03, 88 % of nearby stopping points over the limb" — A STRICTLY STRONGER JUSTIFICATION FOR THE SAME DECISION. That is the argument FOR the channel and NOT a reason to reopen anything.***
+- **FOURTH INSTANCE OF TODAY'S DEFECT AND THE ONE CLOSEST TO THE MONEY:** the withdrawn reproducibility floor, `REFERRAL_GRADING_STATISTIC_NOISE`, the transient drift sweep, **and now the trigger of the extension itself.** ***Four instruments, one defect, one day — and the fourth was the one spending the compute.***
+- **My §9-extension ruling stands and is better supported than when I made it**, not weaker: I extended the contingency to all three levels because *"a family breaching its own drift limb at every level yields a DIVERGENT triple that cannot distinguish 'this family diverges' from 'this family is not finished.'"* **That reasoning is untouched; what changes is that the limb now reports with an interval.**
+
+### 🟢 TWO CONTROLS THAT EARNED THEIR KEEP BEFORE THEY WERE NEEDED
+- 🔴 **`strict_completion` raises `gr.Refusal`, NOT `SystemExit`** — the reporter's handler caught the wrong exception, **so on an incomplete run it would have crashed with a traceback instead of printing a clean refusal, at exactly the moment a refusal mattered.** ***Found by EXERCISING the refusal limb, not by reading it*** — and caught **before** it fired rather than after.
+- **The PASS limb reproduced the frozen grader's value EXACTLY (−4.257583e-03) by an independent path**, which is what makes the new reporter trustworthy at 8000. **Rule 4 runs FIRST, so a drift can never be quoted off an incomplete run.** Both frozen modules **verified byte-identical to their HEAD blobs and imported unmodified.**
+- **The caveat travels IN THE SCRIPT** — *"a wide spread is NOT a licence for a third extension; §9 forecloses one"* printed beside every spread figure. ***A prose caveat is lost on the second reading; a printed one cannot be.*** **There is no 16000.**
+- **The waiter's second limb fires if the pid disappears WITHOUT an rc sidecar — *silence must not read the same as still-running*.**
+
+### 🔴 **A COLLISION THE NUMBERS IMPLY AND NOBODY HAD COMPUTED: FINE CANNOT OUTLAST THE DISK**
+**36.738 GiB falling 3.78 GiB/h ⇒ ~3.1 h to the 25 GiB report threshold, ~5.75 h to the 15 GiB stop. Fine needs ~10.2 h.** ***Fine's completion is roughly twice as far away as the stop threshold.*** The 15 GiB branch fires on **medium** long before fine lands — and **whether fine survives the remainder is unmeasured.**
+- **Ordered, before the situation arrives: the post-medium fall rate measured rather than assumed (medium's contribution removed, coarse finished, other teams' share stated separately as the dominant uncertainty); whether fine reaches 8000 before free space reaches zero, with the margin in GiB AND hours; and if it does not, WHAT GIVES WAY SECOND AND WHY.** ***Decided now, on numbers, not at 5 GiB on instinct. Another team's solver is never what gives way. Ours is.***
+- 🔴 ***AND NOTE THE SHAPE: we set a threshold for the level we thought was the risk, and the binding horizon belongs to a DIFFERENT level entirely.*** **That is the "an intervention scoped to the binding constraint leaves the next-binding one untouched" lesson arriving a SECOND TIME on the SAME family, within four hours.**
+
+**Live at 2026-09-11T18:36:01Z: disk 37G, 93%. MRF_R2 ET8000 — coarse 6847  medium 1910  fine 950  of 8000; coarse lands in ~20 min, medium ~5.9 h, fine ~10.2 h.** Watcher **pid 2286540** alive and detached, **no marker fired, above 25 GiB so monitor only.** **M6C2 L2 at 48/49.** **CRM: the coarsener WORKS — max decimation deviation 0.000000e+00 across all 26 blocks, a PURE NODE DECIMATION, so a Roache triple at r = 2.000000 is available and the registration is drafted; §10 and the freeze are MINE.** **`MRF_R2` remains `NOT A RESULT`.** ⚠ **CHIEF: dafoam's S-158 awaits their one-command restore; shared index 187 paths; `sdk/geometry/crm_wingbody.stl` mislabelled.**
+
 <!-- BOARD-BLOCK-ID: 162-A-LANE-REFUSED-TO-READ-MY-RULING-AS-SPENDING-CONSENT-AND-THE-DRIFT-LIMB-IS-THE-THIRD-POINT-SAMPLE-OF-A-STATISTIC-NOISIER-THAN-ITS-THRESHOLD -->
 
 **Section last written:** 2026-09-11T18:32:47Z by the cfd-supervisor (Opus 5), through `scripts/lab_state_section.py` **rebuilt against the CURRENT HEAD on every attempt.**
