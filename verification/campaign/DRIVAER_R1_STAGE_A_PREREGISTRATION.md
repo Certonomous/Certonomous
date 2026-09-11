@@ -491,3 +491,58 @@ gate, threshold, cap, band or label. Originals are struck, never rewritten.
 under-resolution — and **refused, because the measurement was already in hand when the threshold
 moved, and a threshold chosen with the number visible is not a threshold.** The proposal, its
 reasoning and its refusal are all on the record.
+
+---
+
+## ADDENDUM 1 — 2026-09-11 — **M3 REPORTS INSTEAD OF STOPPING. THE CAP NUMBER DOES NOT MOVE.**
+
+**lines whose number changed above this section: 0.** **NO gate, NO threshold, NO cap, NO band and NO
+label is altered. §11's per-level cap of 12,000 core-minutes stands EXACTLY as frozen and is not
+raised, lowered or re-scoped by one digit.** Gates A1, A2, A3 and monitors M1, M2, M4, M5 are
+untouched. **What changes is one thing only: the ACTION M3 takes when the cap is crossed.**
+
+### A1.1 THE OWNER'S DIRECTIVE
+
+**Sanaa, 2026-09-10, byte-exact:**
+
+    for all these 3D cases that still need to run, i dont want to see any budget gates ( time or money)
+
+**Stage A is a 3D case inside that scope.** §10's M3 currently reads *"a level exceeds its per-level cap
+(§11) → **STOP the run** — an overrun does not get a new budget."* **Under her directive the STOP is
+suspended: M3 REPORTS the crossing and the run continues.** This is the same disposition CRM M0.85
+and MRF_R2 carry as `budget_gate: NONE`, applied here by addendum because Stage A was frozen without
+it.
+
+### A1.2 WHAT IS SUSPENDED AND WHAT IS NOT — THE DISTINCTION MATTERS
+
+**Rule 2 forbids a dated addendum from altering a cap. It does not, and this one does not.** The
+distinction is between **the cap's VALUE** — frozen, unchanged, 12,000 core-minutes — and **the STOP
+ACTION attached to it**, which is what the owner's directive suspends for 3D runs until she ends the
+push. **A cap that reports is still a cap: the number is still registered, still measured against,
+and still reported in the calibration row.** What it no longer does is kill a 3D demo run.
+
+**Nothing here excuses the spend.** The run remains costed under rule 12, the crossing is recorded
+when it happens, and the estimate-versus-actual comparison is owed to `docs/COST_CALIBRATION.md`
+exactly as before. **An overrun still does not get a new budget — it gets reported.**
+
+### A1.3 WHY THIS WAS LANDED MID-RUN, WITH THE MEASUREMENT THAT FORCED IT
+
+At iteration 889 of 3,000 the projection stood at **10,703 core-min against the 12,000 cap — 89 %** —
+with the measured wall rate having risen **5.4×**, from 6.74 s/iter in block 0 to 36.40 s/iter in
+block 800, against a **breakeven of 37.8 s/iter. The last full block measured 96 % of the rate that
+breaches the cap.** On that trajectory **M3 would have killed the run near iteration 2,700**, which
+is precisely the outcome the owner's directive forbids: **a 3D demo run destroyed by its own budget
+guard.**
+
+**🔴 AND THE CAUSE WAS CONTENTION FROM THIS LAB'S OWN CONCURRENT RUN, WHICH EXPOSES A PROPERTY OF THE
+METRIC ITSELF.** Core-minutes are `wall × ranks`, so **a run's core-minute budget is spent by other
+processes on the box.** At the time of writing **334 core-min — 24 % of Stage A's spend — was
+contention rather than work** (CPU-based 1,032 against wall-based 1,367). Worse, the priorities were
+inverted: **Stage A's eight ranks sat at `ni=5` while MRF_R2's ten ranks, which have NO cap at all,
+sat at `ni=0`.** **The capped run was yielding to the uncapped one and paying for it out of a budget
+that could not be raised.** Corrected operationally by renicing all ten MRF_R2 ranks to 5 — no run
+restarted, nothing stopped, no registration touched.
+
+**The general lesson, which belongs to the lab and not to this case: a cap denominated in
+core-minutes is partly a cap on how busy the rest of the box is, so a CAPPED run and an UNCAPPED run
+must never compete at equal priority.**
