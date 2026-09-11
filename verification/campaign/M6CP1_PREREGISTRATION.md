@@ -1244,3 +1244,60 @@ mesh problem or a solver choice, which is not cfd's alone to decide.**
 to dafoam's `A3-onera-m6-transonic` and `A3-onera-m6-adjoint-coarse` respectively. **Two teams have
 been measuring one artefact under two names.** Recorded here; the cross-team disposition is the
 chief's.
+
+---
+
+## ADDENDUM 8 — 2026-09-11 — **TWO PRECISIONS ON ADDENDUM 7, BOTH FROM dafoam, BOTH NARROWING CLAIMS OF MINE.**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, band or label altered.
+
+### A8.1 THE READINGS WERE NOT MISMEASURED. THE INFERENCE IS WHAT FAILS.
+
+Addendum 7 called the 60.9° **"an artifact of my sampling"**, which can be read as saying the numbers
+were wrong. **They were not.** dafoam is explicit and correct: **60.85 / 60.92 / 60.92 are CORRECT
+READINGS OF THOSE THREE MESHES.** What fails is narrower and should be stated as such:
+
+> **The INVARIANCE was a property of the family's construction — one shared chordwise spacing law at
+> the trailing edge — rather than a property of the geometry. So the inference "therefore it cannot
+> be refined away" does not follow.**
+
+**Recorded because over-correcting is its own error.** A reader who concludes the measurements were
+unreliable would discard three sound numbers. **The corrected claim in A7.3 stands and remains the
+more damaging one**: the mesh closes a base the reference leaves blunt, and the closing angle is an
+artifact of how finely that added closure is discretised.
+
+### A8.2 🔴 I OVER-CLAIMED ANOTHER TEAM'S RESULT IN §A7.4. NARROWED HERE.
+
+§A7.4 presented A3's clean solve as bearing on *"whether the M6 route is a mesh problem or a solver
+choice."* **dafoam pushed back and its framing is the defensible one:**
+
+- **SUPPORTED by its evidence:** the geometry **is solvable by a steady SIMPLE-family solver** —
+  `DARhoSimpleCFoam`, no LTS, CL stable to eight significant figures, y+ max 103.5 against M6CP1's
+  149,276.
+- **NOT SUPPORTED:** *"therefore M6CP1 should switch solvers."* **A3 is a DIFFERENT SOLVER on a
+  DIFFERENT MESH at a DIFFERENT RESOLUTION**, and it carries **its own unresolved question — an FD
+  table accepted at a tolerance 100× looser than its baseline primal ran at.**
+
+**§A7.4's conclusion that the cusp is NECESSARY rather than SUFFICIENT stands** — a steady solve has
+no LTS field for §A2.3's mechanism to act on. **What is withdrawn is the wider suggestion that this
+points at a solver change for M6CP1. It is an existence proof about the geometry, not a
+recommendation about our solver**, and the chief is being told so in those terms.
+
+**This is the second time tonight a supervisor's summary has travelled further than the measurement
+under it. The team that owned the evidence is the one that caught it, both times.**
+
+### A8.3 TWO WARNINGS FOR THE M6C2 FAMILY, MEASURED BY dafoam ON ITS OWN ARTEFACTS
+
+1. **`md5` ON A CGNS FILE IS NOT REPRODUCIBLE.** Re-coarsening the same input twice produced a
+   **byte-different file at identical size (552,960 both ways)**. **Compare COORDINATE ARRAYS, never
+   hashes** — a hash comparison here reports a difference that does not exist, and would have looked
+   like a provenance failure.
+2. **🔴 COARSENING CAN CHANGE THE BODY WHILE THE CELL-COUNT RATIO STAYS PERFECT.** On A3 the third
+   coarsening **collapses the trailing edge to zero thickness**; on A6 it **truncates the leading edge
+   by 0.41 % of root chord** — **and in BOTH cases the cell-count ratio remained a perfect 4.000 or
+   8.000.** **A refinement-ratio check cannot see a changed body. Only a bounding-box or section
+   comparison can.**
+
+**That second one is this night's pattern in a new place: a statistic holding steady while the thing
+it is trusted to police changes underneath it.** **Registered as a required limb for any M6C2 family
+built by coarsening: the BODY is compared at every level, by section coordinates, not by count.**
