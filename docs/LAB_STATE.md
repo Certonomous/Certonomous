@@ -46797,3 +46797,17 @@ Instrument `check_completion_enforcement.py` (75463642) flagged **18 distinct an
 **LAUNCH_RECORD LINE CLOSED OUT.** §2d.1 declined, fix parked in successors, drafts landed (`b8b5ae0fc`). The lane then **corrected itself unprompted**: a search it had called "cut off" had in fact completed, and it retracted the weaker claim to put R2's finding on measured ground — `find /home/ubuntu -maxdepth 6 -name 'LAUNCH_RECORD.txt' -path '*GPU001-R2*'` returns **zero hits**, and no VMFLGPU001-R2 directory exists within five levels outside the two repo paths. Bounded by `maxdepth`, so not proof of absence at arbitrary depth, and it said so. **VMFLGPU001-R2 stays FROZEN-CLOSED; fix goes to `VMFLGPU001-R3`.** All four GPU successors remain **unlaunchable** — the instance is unreachable and starting one is hers.
 
 **LANES.** 1 opus48 live (VMFL072-R4-A freeze, launch held). Opus finished. 0 haiku. Cap 4.
+
+### S-13n — 2026-09-11T22:20Z — **VMFL072-R4-A: OBSERVER CONFIRMED PLANTED-ZERO-BLIND FROM DISK; COMPARATOR BUILD AUTHORISED; FREEZE AND LAUNCH BOTH STILL GATED**
+
+**STATE.** No freeze (the comparator does not exist yet, so nothing can pin its sha). No launch (load 44/16). One opus48 lane building `compare_vmfl072_r4a.py` + `launch_vmfl072_r4a.sh`, zero compute.
+
+**CHECK-1/CHECK-3 DONE PERSONALLY — I read R3-L3's log myself, did not take the lane's word.** At the SIGFPE: `Film h min/max = (1e-05 ...)` — min_h pinned at the floor, **not zero** — while `Film mag(U) max` runs **4.35 -> 11.03 -> 4.22e13** across the last three steps. So an observer keyed to `min_h->0` is **blind on the crash step**; `max_magU` is the tell. **Endorsed: survival gate keys on a bounded max_magU; min_h is context only.** The lane caught this before the instrument was built — the right place.
+
+**A PHYSICS TENSION I MADE THE LANE REGISTER AS A NAMED ALTERNATIVE (answer-blind).** Raising h0 is NOT unambiguously protective: the floor `h=max(h,h0)` stabilises but the friction `Cw=3mu/((h+h0)rho)` FALLS with larger h0 = less velocity damping = more runaway. **Survival may be NON-MONOTONE in h0.** A1=5e-6 is below the window and is now a directional control on monotonicity, NOT a "crash-side control" that presumes its result. Abandonment reworded to "no h0 IN THE (1e-5,2.09e-5] WINDOW survives in-band" — three points cannot prove "no h0 survives," and the band ceiling + crash floor bracket is what makes three sufficient.
+
+**D604 FOLDED INTO THE RUN, NOT SPENT AS SEPARATE PLUMBING.** Confirmed at HEAD (`TOTAL_CORE_MIN=0` resets the cap per invocation, six launchers). The R4-A driver iterates A1/A2/A3 in one invocation and must accumulate the family 120 core-min cap ACROSS rungs there — folds the fix in where it bites. D605/D606/D607 parked (plumbing, behind this run per Sanaa).
+
+**GATED BEFORE GO:** comparator built, selftest green under `python3 -O` + a mutation control that goes red without the max_magU gate (lane's evidence, not my check); then MY check-1 diff read against R3's comparator (~80% reuse, must be byte-faithful in the shared core); then freeze pinning the comparator sha with run root absent (check-4); then launch by hand when load drops.
+
+**LIVE.** VMFL017-R3/L3 pid 316601 **90.5%**, watcher 569814 polling, pin unchanged, no `.rc`; ETA ~2026-09-12T10:57Z (contention-slowed, corrected against my own 04:30Z). Lanes: 1 opus48. Cap 4.
