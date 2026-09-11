@@ -1,0 +1,5 @@
+vol2p3d_rc=0
+plot3dToFoam_rc=0
+checkMesh_rc=0
+locate_rc=1
+done=17:08:03Z

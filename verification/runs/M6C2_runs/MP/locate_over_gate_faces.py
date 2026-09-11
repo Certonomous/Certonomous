@@ -42,8 +42,16 @@ if __name__ == "__main__":
 
     pts, faces = load(meshdir)
     t = pathlib.Path(setfile).read_text()
-    m = re.search(r"^\s*(\d+)\s*\n\(", t, re.M); ns = int(m.group(1))
-    idx = np.fromstring(t[m.end():t.rindex(")")], sep=" ", dtype=float).astype(int)
+    # OpenFOAM writes a set EITHER as "N\n(\n a b c \n)" OR compactly as "N(a b c)".
+    # A reader that knows only one form crashes on the other; small sets use the compact
+    # form, so the crash would land exactly on the near-clean meshes that matter most.
+    m = re.search(r"(?<![\w.])(\d+)\s*\(", t[t.index("//", t.index("object")):])
+    if m is None:
+        print("REFUSED (4): could not find a set body in", setfile); sys.exit(4)
+    base = t.index("//", t.index("object"))
+    ns = int(m.group(1))
+    body = t[base + m.end(): t.index(")", base + m.end())]
+    idx = np.fromstring(body, sep=" ", dtype=float).astype(int)
     assert idx.size == ns, f"set header {ns}, parsed {idx.size}"
     print(f"\nnonOrthoFaces in set: {ns}")
     if ns == 0:
@@ -57,5 +65,12 @@ if __name__ == "__main__":
     near = int((r < R_BODY).sum()); far = ns - near
     print(f"\n  within r < {R_BODY} m of the body : {near:7d}  ({100*near/ns:6.2f} %)")
     print(f"  beyond r >= {R_BODY} m (far field) : {far:7d}  ({100*far/ns:6.2f} %)")
-    print(f"\nPREDICTION READING (MP/L1_PREDICTION.md): "
-          f"{'HOLDS -- far-field march, cap vindicated' if far/ns >= 0.90 else 'FAILS -- a body- or cap-local defect of its own'}")
+    # L1_PREDICTION.md's rows are about NON-ORTHOGONALITY ONLY. Printing its reading for
+    # any other set would attach a registered prediction to a quantity it never named --
+    # this tool did exactly that once, on skewFaces, and the line had to be retracted.
+    if pathlib.Path(setfile).name == "nonOrthoFaces":
+        print(f"\nPREDICTION READING (MP/L1_PREDICTION.md): "
+              f"{'HOLDS -- far-field march, cap vindicated' if far/ns >= 0.90 else 'FAILS -- a body- or cap-local defect of its own'}")
+    else:
+        print(f"\nNO PREDICTION READING: MP/L1_PREDICTION.md fixes outcomes for "
+              f"nonOrthoFaces, not for '{pathlib.Path(setfile).name}'. Location only.")
