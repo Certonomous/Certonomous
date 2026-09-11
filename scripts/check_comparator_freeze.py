@@ -67,6 +67,20 @@ rather than the registration true.  That ruling guarantees the file stays
 outside the two original roots, so the coverage hole could not be closed from
 the campaign side; it had to be closed here, in the instrument.
 
+SOLVER OUTPUT TREES ARE PRUNED FROM THE WALK -- see PRUNE_RE.  processor*/,
+VTK/, postProcessing/ and numeric time directories are solver output, not
+source, and the walk descended into all of them: 95,889 of the 109,686
+directories under the three roots, 87 per cent of the walk, for a check whose
+own charter clause 2cf.1 exists to schedule IO of that size.  The prune is
+verdict-neutral BY MEASUREMENT, not by assumption: the number of files matching
+GRADER_RE anywhere below one of those names is ZERO -- 0 of 266 tracked (git
+ls-files) and 0 of 272 on disk (a full unpruned walk) -- and read_markers()
+reads only the directory a grader sits IN, so no marker below a pruned name was
+ever reachable either.  The population is identical either way, 272 files; only
+the IO is removed.  A pinned path inside a pruned tree is still judged, by the
+`extras` fallback at the foot of walk_population, which visits any pinned
+directory the walk did not reach.
+
 A grader whose tree carries no completion marker is reported NO-MARKERS -- an
 explicit, counted row, not an invisible skip.  Silence and "out of evidence
 reach" look identical in a table that omits the row; only one of them is true.
@@ -220,6 +234,16 @@ worse than none:
   * a sha witness recorded in a file that no longer exists at HEAD.
   * a comparator that was never committed at all -- reported separately as
     UNCOMMITTED, which is a different and worse condition than late.
+  * whether the comparator was ever EXECUTED on the run whose verdict cites
+    it.  A freeze verifies BYTES; it never verifies that anything CALLS them.
+    A file can be frozen by sha, selftest-green and clean on every row this
+    check prints, and still have been run by nobody.  L-544 (commit 4f6384125)
+    measured three such instruments in three campaigns -- K2d's
+    analyse_k2d.py, whose main() is a stub; T4e's trajectory_t4e.py, which was
+    never scheduled; D629's check_instrument_detects_plant.py, which has zero
+    call sites -- and this check would report all three PERFECTLY FROZEN.  A
+    green here is a statement about the FILE, not about the verdict that cites
+    it; the executable call site is read by a human, elsewhere.
 
 Exit: 0 clean, 3 at least one LATE or UNCOMMITTED or MODIFIED, 2 refusal
 (including --strict-markers meeting an undated marker).
@@ -241,6 +265,21 @@ GRADER_RE = re.compile(r"^(analyse_|grade_|score_).*\.py$")
 # docs/campaigns added under VERIFICATION_CHARTER.md 2q; 2d.9.2 forbids moving
 # the comparator that lives there, so the root has to come to the file.
 POPULATION_ROOTS = ("verification", "cases", "docs/campaigns")
+
+# Directory names pruned from the population walk -- see POPULATION above.
+# These are SOLVER OUTPUT trees: decomposed-case copies, the VTK and
+# postProcessing writers, and numeric time directories.  Measured before the
+# prune was added, on this repository: files matching GRADER_RE below one of
+# these names -- ZERO, both tracked (0 of 266, git ls-files) and on disk (0 of
+# 272, full unpruned walk); that zero is plant-controlled, the same census run
+# on a tree carrying planted graders under processor0/, VTK/, postProcessing/
+# and two numeric time dirs counts 5.  The prune therefore drops no candidate
+# and can move no verdict.  "0.orig" and "constant" do not match and are walked.
+PRUNE_DIRS = (".git", "__pycache__")
+PRUNE_RE = re.compile(
+    r"^(processors?[0-9]+(_[0-9]+-[0-9]+)?"   # processor0, processors16_0-15
+    r"|VTK|postProcessing"
+    r"|[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?)$")  # numeric time directories
 
 # a substitution point in an f-string, %-format or str.format literal
 HOLE = "\x00"
@@ -631,7 +670,8 @@ def walk_population(repo, strict_markers=False, roots=POPULATION_ROOTS,
         if not os.path.isdir(base):
             continue
         for dp, dn, fn in os.walk(base):
-            dn[:] = [d for d in dn if d not in (".git", "__pycache__")]
+            dn[:] = [d for d in dn
+                     if d not in PRUNE_DIRS and not PRUNE_RE.match(d)]
             rel = os.path.relpath(dp, repo)
             take(check_tree(repo, dp, strict_markers=strict_markers,
                             extra=pending.pop(rel, ())))
