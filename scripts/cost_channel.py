@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """cost_channel.py -- STANDING RULE 3, ARMED ON HEAT-TRANSFER'S COST CHANNEL.
 
-    python3 verification/runs/T-family/cost_channel.py --selftest
-    python3 verification/runs/T-family/cost_channel.py --no-regression
-    python3 -O verification/runs/T-family/cost_channel.py --selftest
+    python3 scripts/cost_channel.py --selftest
+    python3 scripts/cost_channel.py --no-regression
+    python3 -O scripts/cost_channel.py --selftest
 
 WHY THIS FILE EXISTS
 --------------------
@@ -138,8 +138,14 @@ import os
 import re
 import sys
 
+# REPAIRED 2026-09-11: this constant was written for the file's ORIGINAL path
+# verification/runs/T-family/cost_channel.py, where three ".." reach the repo
+# root.  The file was added at scripts/ (417ed0963) and the constant was not
+# changed with it, so REPO resolved to '/home' and EVERY fixture path it built
+# was wrong -- the planted control could not be armed by anyone, which blocked
+# T26's freeze precondition and K2f's comparator.  One "..", from scripts/.
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                    "..", "..", ".."))
+                                    ".."))
 TREES = ["verification/runs/T-family",
          "verification/runs/F14-cooling-ladder",
          "verification/runs/THERMAL_K0_runs"]
