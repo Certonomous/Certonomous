@@ -494,3 +494,170 @@ axis patch in `constant/polyMesh/boundary` — **the correct signature for this 
 **claim** and not the comparator: **T4e may not be described as a 3D case in any caption, board line,
 report or demo.** No refusal is owed on these runs and no verdict is withdrawn — §2bo.3 says so in
 terms, naming T4e.
+
+---
+
+## ADDENDUM A2 — 2026-09-11, **POST-COMPUTE, PRE-OUTCOME PREDICTION.** Document **v1.1 → v1.2**.
+
+**`lines whose number changed above this section: 0`.** Appended at the foot under `CLAUDE.md` rule 6.
+**It alters NO gate, threshold, cap, band, floor, reference, prediction, label or registered branch**
+(`CLAUDE.md` rule 2: gates closed at first compute, 2026-09-10T15:44:03Z). Nothing in §0–§12 or in
+Amendment A1 is edited, struck or renumbered. **The registered D1 / D2 / D3 branches of §3a, §3b and
+§11 are untouched**, and §3a's hard cap `endTime 160000` is untouched.
+
+> **THIS ADDENDUM CHANGES NOTHING ABOUT WHETHER THE LEG RUNS. `T4e_IJ_f` RUNS TO `endTime`.**
+> D3 is a registered outcome, completing is what the owner asked for, and **a predicted D3 that is
+> allowed to run and is then confirmed is worth more than a D3 asserted and stopped early to save
+> compute.** No D1 trigger is armed, no marker is written, no `controlDict` is touched.
+> Nothing here has been sent, filed or uploaded (`CLAUDE.md` rule 7).
+
+### A2.0 — WHY A PREDICTION IS RECORDED NOW RATHER THAN AFTER
+
+**A prediction made before the number exists is a test of this lab's understanding; the same sentence
+written afterwards is a rationalisation of whatever arrived.** At this writing `T4e_IJ_f` is at
+iteration ~64,500 of 160,000 and none of the quantities predicted below exists yet.
+
+### A2.1 — THE MEASUREMENT THIS RESTS ON, AND HOW IT WAS TAKEN
+
+The **frozen** `trajectory_t4e.py` (worktree blob `512b36911812004746e032267a5b66980e7b930d`, which
+reproduces the §12 pin `512b3691`; `HEAD:` returns the same blob) was run **read-only, without
+`--commit`**, against a **mirror** of the case in a scratch directory — never against the live case,
+because the frozen reader `analyse_t4.sample_profile:117-119` **writes** `system/t4sample` into the
+case it grades and then runs `postProcess` into `postProcessing/`. The mirror was proved faithful by
+sha256 on four field checkpoints and `constant/polyMesh/owner`, under a planted control.
+
+**An mtime + size census of the live `system/` and `constant/`, taken at 16:24:26Z before the work
+and 17:24:22Z after it, is IDENTICAL on all 17 entries**, and the census comparator was proved able to
+see a planted single-byte change. `stopAt endTime` is unchanged; no `D1_CONFIRMED_TERMINATE` marker
+exists; no `system/t4sample` and no `postProcessing/` exist in the live case.
+
+**The classifier does NOT confirm D1 at 64,000.** All three registered conditions fail:
+`rho_fit` 0.8414710 against ≥ 0.95; `max/min` 75.16424 against ≤ 5; detrended `sign_changes` 2
+against ≥ 4. Only cond1's second limb passes (`trend/ptp` 0.42940 against ≤ 0.50) and cond2's mean
+limb (0.1182410 against ≥ 1e-3). The iteration gate and the W = 15 window requirement both opened at
+exactly 64,000. **The measured C6.3 series, 15 points, window [8000, 64000]:**
+
+| iter | C6.3 | iter | C6.3 | iter | C6.3 |
+|---:|---:|---:|---:|---:|---:|
+| 8000 | 1.140860e+00 | 28000 | 4.815198e-02 | 48000 | 2.470830e-02 |
+| 12000 | 1.994201e-01 | 32000 | 7.237710e-02 | 52000 | 1.898578e-02 |
+| 16000 | 1.846361e-02 | 36000 | 5.754263e-02 | 56000 | 1.682133e-02 |
+| 20000 | 1.934310e-02 | 40000 | 4.910431e-02 | 60000 | 1.584375e-02 |
+| 24000 | 3.988422e-02 | 44000 | 3.693016e-02 | **64000** | **1.517823e-02** |
+
+The tail is **monotone decreasing over nine consecutive checkpoints** and its decay ratio is
+**rising** — 0.669, 0.768, 0.886, 0.942, **0.958** — i.e. the decay is *decelerating*.
+
+> **THIS IS AN EXTRAPOLATION OF NINE POINTS AND NOTHING MORE.** It is not a measurement of anything
+> beyond 64,000, it is not a gate, and no verdict rests on it. It is recorded so that it can be
+> scored against what actually arrives.
+
+### A2.2 — PREDICTION P-A2-1: the fine leg reaches the 160,000 hard cap WITHOUT clearing C6.3
+
+**Predicted C6.3 at iteration 160,000: point `5.42e-03`, band `[2.57e-03, 1.52e-02]`.**
+
+- **Point** — decay ratio frozen at the last measured value 0.95799 over the remaining 24
+  checkpoints: `1.517823e-02 × 0.95799^24 = 5.419e-03` = **27.1× the 2e-4 tolerance**.
+- **Band lower** — ratio frozen at the mean of the last three (0.92863): `2.567e-03` = **12.8× tol**.
+- **Band upper** — the decay stalls completely from here (ratio → 1): `1.518e-02`, i.e. no further
+  descent. This limb is included **because the measured ratio is rising toward 1**, so a plateau is
+  the physically indicated upper end and excluding it would make the band dishonestly narrow.
+- Clearing 2e-4 at the last measured ratio would need **403,542 further iterations against the
+  96,000 the cap allows.**
+
+**NAMED FALSIFIERS, checkable against the artifact:**
+1. **C6.3 at 160,000 ≤ 2.0e-04** falsifies the prediction outright.
+2. **C6.3 at 160,000 outside `[2.57e-03, 1.52e-02]`** falsifies the *band*, even where the
+   "does not clear" claim survives.
+
+> **WHICH LIMB IS LOAD-BEARING, said plainly so a later reader does not mis-weigh this.** The band
+> `[2.57e-03, 1.52e-02]` spans 12.8x to 76x tol and **its upper limb is essentially the present
+> value** — a complete stall. It is deliberately that wide, because excluding the plateau would have
+> been drawing the band to be met. The consequence is that **a result landing inside this band is
+> WEAK confirmation and must not be reported as a strong one.** **The prediction's teeth are
+> falsifier 3, the mid-flight ratio test** — it is sharp, it rests on evidence that will exist long
+> before the cap, and it can fire while the leg is still running. That is the limb to watch.
+
+3. **Mid-flight, before the cap:** the prediction requires the decay ratio to stay above **0.835** on
+   average over the remaining 24 checkpoints — `(2e-4 / 1.517823e-2)^(1/24) = 0.8350` is exactly the
+   ratio that would reach tol at 160,000. **A sustained per-checkpoint ratio ≤ 0.835 over any three
+   consecutive checkpoints falsifies this prediction before the leg ends.** The last three measured
+   are 0.886, 0.942, 0.958 — all above it.
+
+### A2.3 — PREDICTION P-A2-2: the registered outcome is D3, not D1 and not D2
+
+§3a registers: *"if D1 is never robustly confirmed by 160,000, the outcome is **D2** (if C6.3 cleared
+2e-4 → grade the full triple) or **D3** (decaying-not-cleared → continuation rung)."* The trajectory
+is decaying and is predicted not to clear, so **D3**. **Falsified by** C6.3 clearing 2e-4 (→ D2), or
+by a genuine limit cycle developing after 64,000 such that the registered classifier's three
+conditions all hold on some later W = 15 window (→ D1).
+
+### A2.4 — PREDICTION P-A2-3: the triple returns `NOT A RESULT` on gate (1)
+
+**Mechanism verified in the frozen comparator, not assumed:** `analyse_t4e.py:560` appends
+`"C6.3 field change %s > %g"` to that level's `gate1` list whenever `c6_3` is false, and `:335`
+returns `"NOT A RESULT", state, p, None, "gate (1): " + …` before any band is read. `FIELD_TOL` is
+read at `:88` from the registered JSON. So a fine level above tol produces `NOT A RESULT` at gate (1),
+ahead of the triple — `CLAUDE.md` rule 5 clause (1) by authority, and this line by mechanism.
+
+**The sharper reading, and it is the reason this prediction is worth recording.** The coarse and
+medium levels **cleared** C6.3 — 1.396e-06 and 3.390e-06 against 2e-4 — while the fine level sits at
+1.518e-02, **4,478× worse than the medium.** **The coarser levels converge and the fine level does
+not.** That is the same shape `K2f_PREREGISTRATION.md` §0.2–§0.3 measured on the rack row, where the
+coarse mesh converged six decades and the refined levels limit-cycled. §0.3's reasoning applies here
+in terms: *where convergence STATE differs across the ladder the triple is invalid in principle,
+because the inter-level differences then measure a mixture of discretisation error and convergence
+state.* **Rule 5 clause (1) and §0.3 reach the same verdict by different routes — one by authority,
+one by mechanism — and their agreement is itself the finding.**
+
+**NAMED FALSIFIERS:**
+1. **The fine level clearing 2e-4 at 160,000** — then gate (1) does not fire on C6.3 and the triple
+   is consulted. This is the same falsifier as P-A2-1 and is the principal one.
+2. **A gate-(1) failure on a DIFFERENT control** — C1, C1b, C2, C3, C6.1 or C6.2 — would make
+   `NOT A RESULT` correct for a reason this prediction did not name, which falsifies the prediction's
+   *stated ground* even though its verdict survives. **T4d's coarse level already failed gate (1) on
+   C2** (`U_c/U_bulk` 1.1793 outside ±3 % of 1.2245), so this limb is live, not hypothetical.
+3. **NOT a falsifier, stated so it is not mistaken for one:** the fine level *plateauing* above tol.
+   A plateau above the registered tolerance is still not iteratively converged by C6.3's own
+   threshold, so gate (1) still fires. That outcome confirms rather than refutes.
+
+### A2.5 — TWO MEASUREMENTS RECORDED IN THEIR OWN RIGHT
+
+**(a) A full-ladder bit-exact reproduction across two separately launched runs.** At matched times,
+`T4d_IJ_*` and `T4e_IJ_*` are **byte-identical on `T`, `U` and `p_rgh` at all three levels** —
+coarse at 30,000, medium at 60,000, fine at 64,000 — on meshes that are themselves byte-identical
+(`owner`, `faces`, `points`, `neighbour`, `boundary` all matching). The fine C6.3 agrees to every
+printed digit: `T4d_RESULTS.md:139` records `0.015178230567379214` and this leg's measured value at
+64,000 is `0.015178230567379214`. **A first comparison of the c and m levels appeared to DIFFER; that
+was an artifact of a lexical rather than numeric sort over the time directories and is corrected
+here rather than left on the record.** The consequence for this rung: **every bit of new information
+in the fine leg lies beyond iteration 64,000.**
+
+**(b) The price of a clean provenance chain, measured.** The fine leg spent
+**`ExecutionTime` 90,831.08 s to reach iteration 64,000 = 1,513.85 core-min = 25.231 core-h**,
+**$1.294 DERIVED** at $0.0513/core-h (derived, never measured — the box cannot read its own billing,
+`COMPUTE_BUDGET_CHARTER.md` §5), re-deriving from scratch a result T4d already held. That is the
+cost of a launch guard that refuses a case where `0` or a time directory already exists, and of an
+age guard whose referent is the case's own `0/T`. **It is not waste and is not booked as waste: it is
+a cost this lab chose in exchange for a provenance chain with no restart in it, and it is now
+MEASURED rather than asserted.**
+
+> **A SUPERSEDED FIGURE, recorded as an ERROR and not as an alternative.** A figure of ~1,206
+> core-min / ~$1.03 was carried in discussion before this reading. **It is wrong and it is not an
+> alternative estimate.** Its defect is named so the class is recognisable: it applied the leg's
+> CURRENT rate of ~1.13 core-s/iteration to the whole history, when **the leg's own average over
+> 63,999 iterations is 90,831.08 / 63,999 = 1.4193 core-s/iteration.** That is estimating a quantity
+> that was available to be read. **The only figure of record is 1,513.85 core-min / $1.294 derived,
+> read from `log.solve`.**
+
+### A2.6 — WHAT THIS ADDENDUM DOES NOT DO
+
+It moves no gate, threshold, band, cap or label; it withdraws no verdict; it demotes nothing; it does
+not alter the registered D1/D2/D3 branches or the 160,000 hard cap; it does not authorise or forbid a
+launch, a stop, an arming or a send; and it patches none of the three instrument gaps recorded in
+A1.1–A1.3, which remain live and are carried to the successor. **The rung's state remains `PENDING`**
+and this addendum assigns no verdict.
+
+*Written by a heat-transfer `lab-lane`, 2026-09-11, on the supervisor's ruling. Zero solver
+core-minutes; the only compute spent is ~5.4 core-min of read-only `postProcess` on a scratch mirror.
+Nothing sent, filed or uploaded (`CLAUDE.md` rule 7).*
