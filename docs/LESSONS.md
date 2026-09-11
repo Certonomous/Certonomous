@@ -26414,3 +26414,80 @@ physics).
 **The rule.** (1) **State the UNIT beside every count** — lines, matches, entries, files, bytes — because on this box the unit is a property of the flags, not of the word "count". (2) **State the SHA of the bytes you counted**, since a shared record changes under a long audit. (3) Prefer `grep -oE … | wc -l` or `grep -cE` over `grep -co`, whose meaning differs from the GNU tool every agent's priors were formed on. (4) **A census by identifier measures the identifier, not the property** — fire the reader against a control, and check whether any id in your population is somebody else's **plant**.
 
 **Provenance:** measured 2026-09-11 by the verification team and its audit lane, the control built by the supervisor; `docs/TEAM_BRIEF_REFERENCE_AUDIT.md` Addendum 1 (`177e31b63`) carries the full unit table. Sibling to the existing ugrep lessons (ignore-file skipping; `grep … | tail -1` racing) — **same tool, third distinct way it is not the tool you think it is.** Extends `VERIFICATION_CHARTER` §2bn: a proxy is not the property, and here the proxy was the *unit*.
+
+---
+
+## L-544 — A FREEZE VERIFIES BYTES, NEVER THAT ANYTHING CALLS THEM. THREE INSTRUMENTS IN THREE CAMPAIGNS WERE FROZEN BY SHA, SELF-TESTED GREEN, AND HAD NO EXECUTABLE CALL SITE — AND EVERY FREEZE CHECK THE LAB OWNS REPORTS ALL THREE PERFECTLY FROZEN
+
+**Measured 2026-09-11, found three different ways in three campaigns on the same day.**
+
+**The general form.** `CLAUDE.md` rule 2 fixes the grading path by sha before any run, and
+`scripts/check_comparator_freeze.py` enforces it. That machinery answers one question — *are these
+the bytes that were registered?* — and it is silent on a second question nobody was asking: *does
+anything ever run them?* **A frozen file is a verified ARTIFACT. The freeze says nothing about
+whether it is a live INSTRUMENT.** A registration can name an instrument, pin its blob, list its
+planted-control arms, and pass every integrity check in the lab while that instrument has never
+executed once against a real artifact.
+
+**THE THREE INSTANCES, each with its file and line, each measured rather than relayed.**
+
+1. **`verification/runs/T-family/T4e_runs/trajectory_t4e.py`** (heat-transfer, T4e). Frozen by sha in
+   `docs/campaigns/T-family/T4e_PREREGISTRATION.md` §12, blob `512b3691`; **seven planted-control
+   arms green under `python3` and `python3 -O`** (ARM A fires, ARM B/S/S2 do not, two gate arms, a
+   determinism arm), reproducing the registration's §4 numbers to four figures. **It had never been
+   run against the live fine leg it was written to steer.** Two-arm call-site census with an aimed
+   control (see below): **zero executable invocations** anywhere — eight tracked files mention the
+   name and all eight are prose or data; `autograde_t4e.sh:23` names it **only inside a comment
+   reproducing the freeze table**, which is a citation, not a call site; `crontab -l` 0 of 4 lines.
+   Cost: up to ~750 core-min of the §9 early-terminate saving the instrument existed to capture.
+2. **`verification/runs/F14-cooling-ladder/K2d_runs/analyse_k2d.py:613-619`** (heat-transfer, K2d),
+   **verified at source for this lesson rather than taken from the report that named it.**
+   **31 selftest arms green**, and `main(argv)` has exactly two branches: `--selftest` → `selftest()`,
+   and **everything else** → print the docstring, print
+   `REFUSE: no K2d case directory exists yet`, return `EXIT_REFUSE`. **It takes no case-directory
+   argument at all — zero `add_argument` calls in the file.** A frozen, digest-verified comparator
+   with no grading path.
+3. **`scripts/check_instrument_detects_plant.py`** (verification). Declared the **canonical** stage-2
+   instrument check by `VERIFICATION_CHARTER.md` §2bx, and measured at **zero executable call sites
+   anywhere on the box** — repo tracked and untracked, out-of-repo run trees, `harness-state`,
+   `notes`, `/etc/systemd/system`, cron — its only three references prose, **one of them the charter
+   clause that made it canonical 91 minutes earlier** (`D629`, §2cw).
+
+**THE THREE FAIL DIFFERENTLY AND THAT DISTINCTION IS THE USEFUL PART, because it says which ones are
+dangerous.** K2d's stub is **honest**: invoke it and it refuses in words, so anyone who ran it would
+know within a second. T4e's instrument is **perfectly invocable and simply was never invoked** — it
+would have worked, and nothing anywhere said it had not run. The canonical checker is the third
+shape: **blessed by a charter clause, which reads to every subsequent agent as evidence that it is in
+use.** **The silent ones are the expensive ones**, and a freeze check cannot tell any of the three
+apart, because all three are byte-identical to what was registered.
+
+**THE CHEAP TEST, and it is one line of evidence per instrument.** **An instrument is not frozen
+until something has proved it can be INVOKED ON A REAL ARTIFACT and produce either an answer or a
+NAMED REFUSAL.** A selftest on synthetic fixtures does not discharge it — all three instances above
+are green on synthetic fixtures, and that is precisely why they went unnoticed. **A registration that
+names an instrument states WHERE it is invoked from, by path: a queue entry, a watcher, a launcher
+line, or a cron entry** — and the check is a census for an actual invocation, not for a mention of
+the name. **A mention in a comment reproducing the freeze table is the exact shape that reads as a
+call site to a grep and is not one.**
+
+**HOW THE CENSUS MUST BE RUN, because this lesson nearly published a blind zero of its own.** `L-542`
+requires both filter arms plus a control aimed at the class each filter misses, and **this author
+picked a bad control token twice before getting it right**: `T4E_RATE_WATCH` and
+`like_for_like_marginal_ratio` were both chosen as "untracked" and **both turned out to be tracked**,
+so each returned a non-zero on the tracked arm and proved nothing about its blindness — `L-542`'s
+tautology, committed inside the lesson that cites `L-542`. The working control was **planted**: a
+unique token written into an untracked file inside the repo tree — `git grep` (tracked-only) → **0**,
+`find | xargs grep` (disk) → **1**, control then removed. **Only after that does the two-arm zero for
+`trajectory_t4e.py` mean anything.** *Choosing a control token is itself a measurement and it can
+fail silently; verify the token lives in the class you think it does before you trust what it proves.*
+
+**What this lesson does NOT propose.** No change to `scripts/check_comparator_freeze.py`. That file
+is the verification team's and the machinery question is theirs to design; the pattern is routed to
+them. This lesson records the class, its three instances and the cheap test, and nothing more.
+
+**Provenance:** T4e instance disclosed in `docs/campaigns/T-family/T4e_PREREGISTRATION.md`
+**Amendment A1.3** (2026-09-11, commit `2c1e81b3`) and on the docket the same day; K2d instance
+verified at source at `analyse_k2d.py:613-619`; the canonical-checker instance is verification's
+`D629` / `VERIFICATION_CHARTER.md` §2cw and `L-542`. Family: `L-542` (a positive control is only as
+good as the blindness it was chosen to expose), and the lab-wide shape that a token from a tool is
+not the property it stands for.
