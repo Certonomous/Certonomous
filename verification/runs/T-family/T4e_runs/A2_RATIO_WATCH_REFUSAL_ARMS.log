@@ -1,0 +1,4 @@
+2026-09-11T17:39:23Z REFUSED: mirror '/home/ubuntu/Certonomous/verification/runs/T-family/T4e_runs/T4e_IJ_f/T4e_IJ_f' is inside the LIVE case tree -- this watch may never read through the frozen reader against a running case
+2026-09-11T17:39:24Z REFUSED: mirror '/home/ubuntu/Certonomous/verification/runs/T-family/T4e_runs/T4e_IJ_f/T4e_IJ_f' is inside the LIVE case tree -- this watch may never read through the frozen reader against a running case
+2026-09-11T17:39:24Z REFUSED: mirror '/home/ubuntu/Certonomous/verification/runs/T-family/T4e_runs/T4e_IJ_f' is inside the LIVE case tree -- this watch may never read through the frozen reader against a running case
+2026-09-11T17:39:24Z REFUSED: mirror basename must be T4e_IJ_f (the frozen reader keys on it); got 'mirror'

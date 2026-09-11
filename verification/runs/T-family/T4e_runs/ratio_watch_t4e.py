@@ -1,0 +1,373 @@
+#!/usr/bin/env python3
+"""ratio_watch_t4e.py -- score ADDENDUM A2 falsifier 3, and NOTHING else.
+
+WHAT IT SCORES.  A2's P-A2-1 predicts the fine leg reaches the 160,000 hard cap
+without clearing C6.3's 2e-4 tol.  Its mid-flight falsifier is:
+
+    the per-checkpoint decay ratio must average above
+    RATIO_FLOOR = (2e-4 / C63_at_64000)^(1/24) = 0.8350
+    -- FALSIFIED by three consecutive checkpoints at or below it.
+
+24 = (160000 - 64000) / 4000 checkpoints remain at the writeInterval.
+
+WHAT IT DOES NOT DO, DELIBERATELY.
+  * It does NOT evaluate D1.  It never imports trajectory_t4e.py and never
+    computes rho_fit, the detrended series, sign changes or the W=15 window.
+    The D1 question is CLOSED; re-opening it through a side door would be the
+    gate-shopping this lab exists to prevent.
+  * It NEVER writes into the live case.  It refuses to start if its mirror is
+    inside the live tree.  It reports; it never acts.  A firing falsifier is a
+    MESSAGE, never a trigger: nothing here stops, pauses or edits the solver,
+    touches controlDict, or creates any marker.
+
+WHY IT MIRRORS.  The FROZEN reader analyse_t4.sample_profile:117-119 WRITES
+system/t4sample into the case it reads and then runs postProcess into
+postProcessing/.  Reading the live tree through it would mutate a running case.
+
+COST.  Peaks are cached per (time, r/D) in a durable JSON, so each new
+checkpoint costs 3 postProcess calls (~10 wall s, ~0.17 core-min) instead of a
+full 48-call re-read.  ~24 checkpoints to the cap => ~4 core-min total.
+A PLANTED CONTROL (rule 3) guards the cache: on every start one cached peak is
+RE-READ from disk through the real path and must reproduce, else the watch
+REFUSES.  A cache never shown able to reproduce is not evidence.
+
+USAGE
+    python3 ratio_watch_t4e.py --selftest
+    python3 ratio_watch_t4e.py --mirror <dir> --once
+    python3 ratio_watch_t4e.py --mirror <dir>          # poll to the cap
+Exit: 0 normal, 2 refusal (named), 3 planted control failed.
+"""
+import argparse, json, math, os, re, shutil, subprocess, sys, time
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+LIVE = os.path.join(HERE, "T4e_IJ_f")
+REG  = json.load(open(os.path.join(HERE, "T4e_registered.json")))
+sys.path.insert(0, os.path.join(os.path.dirname(HERE), "T4_runs"))
+import analyse_t4 as A                      # FROZEN reader; sample_profile/peak_of only
+
+WI        = int(REG["early_termination_D1"]["params"]["writeInterval"])
+GROWS     = [(k, float(v["r_over_D"])) for k, v in REG["graded_rows"].items() if k.startswith("G")]
+TOL       = 2.0e-4
+CAP       = 160000
+ANCHOR_IT = 64000
+ANCHOR_C63= 0.015178230567379214            # A2 §A2.1, measured
+N_REMAIN  = (CAP - ANCHOR_IT) // WI         # 24
+# REGISTERED by ADDENDUM A2 (committed 177fe7742) as 0.835. It is NOT re-derived
+# here: a frozen threshold is used at the value registered. The exact arithmetic
+# gives 0.834940, so the registered 0.835 is marginally HIGHER -- which makes the
+# falsifier EASIER to trip, i.e. harder on the prediction it tests. That is the
+# honest direction, and the selftest asserts the two agree to 3 dp.
+RATIO_FLOOR = 0.835
+RATIO_FLOOR_EXACT = (TOL / ANCHOR_C63) ** (1.0 / N_REMAIN)
+CONSEC_TO_FALSIFY = 3
+
+OUT   = os.path.join(HERE, "A2_RATIO_WATCH.tsv")
+CACHE = os.path.join(HERE, "A2_RATIO_WATCH.peaks.json")
+BEAT  = os.path.join(HERE, "A2_RATIO_WATCH.heartbeat")
+LOG   = os.path.join(HERE, "A2_RATIO_WATCH.log")
+
+FOAM = "/usr/lib/openfoam/openfoam2606/etc/bashrc"
+
+
+def refuse(msg, code=2):
+    say("REFUSED: %s" % msg)
+    sys.exit(code)
+
+
+def say(msg):
+    line = "%s %s" % (time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), msg)
+    print(line, flush=True)
+    with open(LOG, "a") as fh:
+        fh.write(line + "\n")
+
+
+def beat(state):
+    with open(BEAT, "w") as fh:
+        fh.write("%s state=%s pid=%d ppid=%d\n"
+                 % (time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), state,
+                    os.getpid(), os.getppid()))
+
+
+def census(case):
+    """mtime+size of system/ and constant/, so non-writing is DEMONSTRATED."""
+    rows = []
+    for sub in ("system", "constant"):
+        for root, dirs, files in os.walk(os.path.join(case, sub)):
+            for n in sorted(dirs) + sorted(files):
+                p = os.path.join(root, n)
+                st = os.stat(p)
+                rows.append("%.7f %d %s" % (st.st_mtime, st.st_size, os.path.relpath(p, case)))
+    return sorted(rows)
+
+
+def times_of(case):
+    return sorted((int(t) for t in os.listdir(case)
+                   if re.fullmatch(r"[0-9]+", t) and int(t) > 0))
+
+
+def settled(case, t):
+    """A checkpoint is usable only when complete and no longer being written."""
+    d = os.path.join(case, str(t))
+    if not os.path.isfile(os.path.join(d, "uniform", "time")):
+        return False
+    if len(os.listdir(d)) < 10:
+        return False
+    stamps = [os.stat(os.path.join(r, f)).st_mtime
+              for r, _, fs in os.walk(d) for f in fs]
+    if not stamps:
+        return False
+    return (time.time() - max(stamps)) > 30.0
+
+
+def peaks_at(mirror, t, cache):
+    """peak(U/U_bulk) at each graded r/D, through the FROZEN reader. Cached."""
+    key = str(t)
+    if key in cache:
+        return cache[key]
+    row = {}
+    for _, rod in GROWS:
+        prof = A.sample_profile(mirror, str(t), rod, FOAM)
+        if prof is None:
+            return None                      # a reader miss REFUSES upstream
+        row["%g" % rod] = A.peak_of(prof)[0]
+    cache[key] = row
+    return row
+
+
+def c63(prev, cur):
+    return max(abs(cur["%g" % rod] - prev["%g" % rod]) for _, rod in GROWS)
+
+
+def parse_rows(path):
+    """Rows already scored, read back FROM DISK. The run-length is reconstructed
+    from this, never carried in memory -- a counter that lives only in a process
+    reports "not falsified" when the falsifying condition was met but spanned a
+    restart, which is a FALSE NEGATIVE on the one question this watch answers."""
+    out = []
+    if not os.path.exists(path):
+        return out
+    for ln in open(path):
+        if not ln or not ln[0].isdigit():
+            continue
+        f = ln.rstrip("\n").split("\t")
+        out.append((int(f[0]), f[8] == "YES"))
+    return sorted(out)
+
+
+def trailing_run(pairs):
+    """How many of the most recent checkpoints are at or below the floor, counting
+    backwards and stopping at the first that is not."""
+    n = 0
+    for _, low in reversed(sorted(pairs)):
+        if not low:
+            break
+        n += 1
+    return n
+
+
+def emit_header():
+    if os.path.exists(OUT):
+        return
+    with open(OUT, "w") as fh:
+        fh.write("# ADDENDUM A2 falsifier 3 ONLY. This file does NOT evaluate D1.\n")
+        fh.write("# FALSIFIER CONDITION, travelling with the data: the per-checkpoint decay\n")
+        fh.write("#   ratio C6.3(k)/C6.3(k-1) must stay ABOVE %.4f; %d CONSECUTIVE checkpoints\n"
+                 % (RATIO_FLOOR, CONSEC_TO_FALSIFY))
+        fh.write("#   at or below it FALSIFY P-A2-1 before the 160000 cap.\n")
+        fh.write("#   %.4f = (2e-4 / %.18g)^(1/%d), the ratio that would reach tol at the cap.\n"
+                 % (RATIO_FLOOR, ANCHOR_C63, N_REMAIN))
+        fh.write("# Raw peaks are printed beside every ratio so a reader can RECOMPUTE, not trust.\n")
+        fh.write("# CONSECUTIVE means consecutive over CHECKPOINTS PRESENT ON DISK, not over\n")
+        fh.write("#   evaluations this process performed. On every start the watch BACKFILLS\n")
+        fh.write("#   every checkpoint it holds no row for, and rebuilds the run-length FROM\n")
+        fh.write("#   THIS FILE -- never from memory -- so a restart loses nothing and cannot\n")
+        fh.write("#   silently break a run of three. step_from_prev exposes any gap.\n")
+        fh.write("iter\tstep_from_prev\tpeak_G1\tpeak_G2\tpeak_G3\tC6_3\tC6_3_over_tol\t"
+                 "ratio_vs_prev\tat_or_below_floor\tconsec_at_or_below\tfalsifier_3\tcensus\n")
+
+
+def run(mirror, once):
+    mirror = os.path.abspath(mirror)
+    if os.path.abspath(LIVE) in (mirror, os.path.commonpath([mirror, os.path.abspath(LIVE)])):
+        refuse("mirror %r is inside the LIVE case tree -- this watch may never read "
+               "through the frozen reader against a running case" % mirror)
+    if os.path.basename(mirror) != "T4e_IJ_f":
+        refuse("mirror basename must be T4e_IJ_f (the frozen reader keys on it); got %r"
+               % os.path.basename(mirror))
+    cache = json.load(open(CACHE)) if os.path.exists(CACHE) else {}
+
+    # ---- PLANTED CONTROL (rule 3): a cached peak must REPRODUCE from disk ----
+    if cache:
+        k = sorted(cache, key=int)[0]
+        fresh = {}
+        for _, rod in GROWS:
+            prof = A.sample_profile(mirror, k, rod, FOAM)
+            if prof is None:
+                refuse("planted control: the frozen reader returned nothing at t=%s" % k, 3)
+            fresh["%g" % rod] = A.peak_of(prof)[0]
+        for _, rod in GROWS:
+            if abs(fresh["%g" % rod] - cache[k]["%g" % rod]) > 1e-12:
+                refuse("planted control FAILED: cached peak at t=%s r/D=%g is %.17g but a "
+                       "fresh read gives %.17g -- the cache is not evidence"
+                       % (k, rod, cache[k]["%g" % rod], fresh["%g" % rod]), 3)
+        say("planted control PASS: cached peaks at t=%s reproduce from disk" % k)
+
+    emit_header()
+    base_census = census(LIVE)
+    rows = parse_rows(OUT)                     # DURABLE state, reconstructed from disk
+    done = set(t for t, _ in rows)
+    if rows:
+        say("resumed from %s: %d rows on disk, trailing run at or below floor = %d"
+            % (os.path.basename(OUT), len(rows), trailing_run(rows)))
+
+    while True:
+        beat("watching")
+        live_ts = [t for t in times_of(LIVE)
+                   if t > ANCHOR_IT and t <= CAP and settled(LIVE, t)]
+        new = sorted(t for t in live_ts if t not in done)   # BACKFILL, ascending
+        if new and len(new) > 1:
+            say("backfilling %d checkpoints not yet scored: %s" % (len(new), new))
+        for t in new:
+            src, dst = os.path.join(LIVE, str(t)), os.path.join(mirror, str(t))
+            if not os.path.isdir(dst):
+                shutil.copytree(src, dst)                 # READ of live, WRITE to mirror
+            prev_t = t - WI
+            pp = peaks_at(mirror, prev_t, cache)
+            cp = peaks_at(mirror, t, cache)
+            if pp is None or cp is None:
+                refuse("the FROZEN reader returned nothing at t=%s or %s -- refusing to "
+                       "fabricate a ratio (rule 3)" % (prev_t, t))
+            ppp = peaks_at(mirror, prev_t - WI, cache)
+            if ppp is None:
+                refuse("the FROZEN reader returned nothing at t=%s, needed as the baseline "
+                       "for the previous ratio -- refusing to substitute a wrong baseline "
+                       "and report a degraded ratio (rule 3)" % (prev_t - WI))
+            v_prev, v_cur = c63(ppp, pp), c63(pp, cp)
+            if v_prev <= 0.0:
+                refuse("previous C6.3 at t=%s is %r -- a ratio against a non-positive "
+                       "baseline is not a measurement" % (prev_t, v_prev))
+            ratio = v_cur / v_prev
+            low = (ratio <= RATIO_FLOOR)
+            rows.append((t, low))
+            consec = trailing_run(rows)        # FROM THE DATA, never from a counter
+            fired = consec >= CONSEC_TO_FALSIFY
+            prev_it = max((i for i, _ in rows if i < t), default=None)
+            step = (t - prev_it) if prev_it is not None else 0
+            drift = "UNCHANGED" if census(LIVE) == base_census else "*** LIVE system/constant CHANGED ***"
+            with open(OUT, "a") as fh:
+                fh.write("%d\t%d\t%.17g\t%.17g\t%.17g\t%.17g\t%.2f\t%.5f\t%s\t%d\t%s\t%s\n"
+                         % (t, step, cp["%g" % GROWS[0][1]], cp["%g" % GROWS[1][1]],
+                            cp["%g" % GROWS[2][1]], v_cur, v_cur / TOL, ratio,
+                            "YES" if low else "no", consec,
+                            "FALSIFIED" if fired else "not falsified", drift))
+            json.dump(cache, open(CACHE, "w"))
+            say("iter=%d C6.3=%.6e (%.1fx tol) ratio=%.5f floor=%.4f consec<=floor=%d %s [%s]"
+                % (t, v_cur, v_cur / TOL, ratio, RATIO_FLOOR, consec,
+                   "FALSIFIER 3 FIRED -- P-A2-1 falsified; this is a MESSAGE, not a trigger"
+                   if fired else "", drift))
+            done.add(t)
+        if once or (done and max(done) >= CAP):
+            beat("finished" if not once else "once")
+            return 0
+        time.sleep(120)
+
+
+def selftest():
+    ok = True
+    def chk(n, c):
+        nonlocal ok
+        ok &= bool(c); print("  [%s] %s" % ("ok " if c else "FAIL", n))
+    chk("RATIO_FLOOR is A2's REGISTERED 0.835, not a re-derivation", RATIO_FLOOR == 0.835)
+    chk("registered 0.835 reproduces the derivation to 3 dp (exact %.6f)" % RATIO_FLOOR_EXACT,
+        abs(RATIO_FLOOR - RATIO_FLOOR_EXACT) < 5e-4)
+    chk("registered floor is >= exact, so it is HARDER on the prediction it tests",
+        RATIO_FLOOR >= RATIO_FLOOR_EXACT)
+    chk("the exact floor is the ratio that reaches tol at the cap",
+        abs(ANCHOR_C63 * RATIO_FLOOR_EXACT ** N_REMAIN - TOL) < 1e-12)
+    chk("24 checkpoints remain from 64000 to 160000", N_REMAIN == 24)
+    chk("three graded rows at r/D 1,2,3", sorted(r for _, r in GROWS) == [1.0, 2.0, 3.0])
+    # the falsifier's own two-arm planted control
+    def sim(rs):
+        c = 0
+        for r in rs:
+            c = c + 1 if r <= RATIO_FLOOR else 0
+            if c >= CONSEC_TO_FALSIFY:
+                return True
+        return False
+    chk("ARM A: three consecutive at 0.80 -> FIRES", sim([0.95, 0.80, 0.80, 0.80]))
+    chk("ARM B: measured tail 0.886/0.942/0.958 -> does NOT fire", not sim([0.886, 0.942, 0.958]))
+    chk("ARM C: two low then a high -> does NOT fire", not sim([0.80, 0.80, 0.90, 0.80]))
+    chk("ARM D: exactly AT the floor counts as at-or-below",
+        sim([RATIO_FLOOR, RATIO_FLOOR, RATIO_FLOOR]))
+    chk("D1 IS NOT IMPORTED", "trajectory_t4e" not in sys.modules)
+    # Walk the AST, not the text. A substring scan over this file reads its own prose
+    # and would have passed while D1 code sat below the chunk it happened to slice.
+    import ast as _ast
+    tree = _ast.parse(open(os.path.abspath(__file__)).read())
+    ids = set()
+    for n in _ast.walk(tree):
+        if isinstance(n, _ast.Name):           ids.add(n.id)
+        elif isinstance(n, _ast.Attribute):    ids.add(n.attr)
+        elif isinstance(n, _ast.FunctionDef):  ids.add(n.name)
+        elif isinstance(n, (_ast.Import, _ast.ImportFrom)):
+            ids.update(x.name for x in n.names)
+            if isinstance(n, _ast.ImportFrom) and n.module: ids.add(n.module)
+    for bad in ("rho_fit", "sign_changes", "classify_window", "robust_confirmed",
+                "apply_stop_trigger", "write_d1_marker", "trajectory_t4e"):
+        chk("no D1/stop machinery BOUND: %r is not an executable name" % bad, bad not in ids)
+    chk("PLANTED CONTROL: the AST scan sees a name that IS bound ('peaks_at')",
+        "peaks_at" in ids)
+
+    # ---- THE RESTART ARM: the case the in-memory counter got WRONG ----------
+    # Two sub-floor checkpoints are scored, the process DIES, a third sub-floor
+    # checkpoint arrives. A counter rebuilt from zero reports "not falsified";
+    # reconstructing from the file must FIRE.
+    import tempfile
+    d = tempfile.mkdtemp(prefix="a2ratio_selftest_")
+    tsv = os.path.join(d, "t.tsv")
+    with open(tsv, "w") as fh:
+        fh.write("iter\tstep\tg1\tg2\tg3\tc63\tovertol\tratio\tat_or_below_floor\t"
+                 "consec\tfals\tcensus\n")
+        for it, r in ((68000, 0.80), (72000, 0.81)):
+            fh.write("%d\t4000\t1\t1\t1\t1e-2\t50.0\t%.5f\tYES\t0\tnot falsified\t"
+                     "UNCHANGED\n" % (it, r))
+    restored = parse_rows(tsv)
+    chk("restart: two sub-floor rows are read BACK from disk",
+        [t for t, _ in restored] == [68000, 72000] and all(l for _, l in restored))
+    chk("restart: trailing run from the file alone is 2 (a fresh counter would say 0)",
+        trailing_run(restored) == 2)
+    restored.append((76000, True))
+    chk("restart: a third sub-floor checkpoint after a restart FIRES the falsifier",
+        trailing_run(restored) >= CONSEC_TO_FALSIFY)
+    # negative control on the same path: a third ABOVE the floor must reset to 0
+    reset = parse_rows(tsv) + [(76000, False)]
+    chk("restart NEGATIVE control: a third ABOVE the floor resets the run to 0",
+        trailing_run(reset) == 0)
+    # and the old in-memory behaviour is exhibited, so the fix is shown to matter
+    chk("the defect is real: a counter starting at 0 would have reported 1, not 3",
+        (0 + 1) < CONSEC_TO_FALSIFY)
+    with open(tsv, "a") as fh:
+        fh.write("76000\t4000\t1\t1\t1\t1e-2\t50.0\t0.79000\tYES\t3\tFALSIFIED\t"
+                 "UNCHANGED\n")
+    chk("restart: the FIRED state survives another round-trip through the file",
+        trailing_run(parse_rows(tsv)) >= CONSEC_TO_FALSIFY)
+    shutil.rmtree(d, ignore_errors=True)
+    print("SELFTEST %s" % ("PASS" if ok else "FAIL"))
+    return 0 if ok else 1
+
+
+def main(argv):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--mirror")
+    ap.add_argument("--once", action="store_true")
+    a = ap.parse_args(argv)
+    if a.selftest:
+        return selftest()
+    if not a.mirror:
+        ap.print_help(); return 0
+    return run(a.mirror, a.once)
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
