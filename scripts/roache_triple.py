@@ -620,16 +620,16 @@ def grade_ladder(quantity, levels, dim, band, plant_control,
     # ---- (b) the triple itself ---------------------------------------------
     if finest["state"] in NOT_A_RESULT_STATES:
         row["verdict"] = "NOT A RESULT"
+        # ONE source for the reason: format_row calls the SAME function, so
+        # the JSON reason and the printed reason cannot drift apart again.
         row["why"] = (f"finest triple {finest['levels']} is "
                       f"{finest['state']} at dim = {dim}"
                       + (f", observed order {finest['order']:.4f}"
                          if "order" in finest else "")
                       + "; the value, every triple and every order are printed "
                         "beside it, and NO GCI is quoted because "
-                      + (f"|p| < P_MIN = {P_MIN}: e21 ~ e32 and the fitted "
-                         "order is rounding residual"
-                         if finest["state"] == "DEGENERATE" else
-                         "the three values are not monotone"))
+                      + gci_refusal_reason(finest["state"], row["monotone"],
+                                           dim, finest.get("order")))
         return _seal(row, bv)
 
     # ---- (c) CONVERGING: band, with the GCI printed -------------------------
@@ -697,12 +697,12 @@ def format_row(row):
     lines.append(f"    planted-zero control: {'PASSED' if pc['passed'] else 'FAILED'}"
                  f"  planted {pc['planted']}  reader {pc['reader']}  "
                  f"saw {pc.get('reader_delta')}")
-    if not row["monotone"]:
-        lines.append("    GCI NOT QUOTED: the three values are not monotone "
-                     "(CLAUDE.md rule 5).")
-    elif row["states"][-1] == "DEGENERATE":
-        lines.append(f"    GCI NOT QUOTED: DEGENERATE triple, |p| < P_MIN = {P_MIN} "
-                     "-- e21 ~ e32, the fitted order is rounding residual.")
+    if row["states"][-1] in NOT_A_RESULT_STATES:
+        # EVERY NOT A RESULT state now says why no GCI is quoted: before this
+        # repair monotone DIVERGENT/STAGNANT/NO_ORDER printed NO line at all.
+        why_no_gci = gci_refusal_reason(row["states"][-1], row["monotone"],
+                                        row["dim"], row["orders"][-1])
+        lines.append(f"    GCI NOT QUOTED: {why_no_gci}  (CLAUDE.md rule 5).")
     lines.append(f"    band verdict (computed first, unconditionally): "
                  f"{row['band_verdict']}")
     lines.append(f"    VERDICT: {row['verdict']} -- {row['why']}")
@@ -712,6 +712,96 @@ def format_row(row):
 def exit_code_for(verdict):
     return {"PASS": EXIT_OK, "GATE REACHED": EXIT_OK, "GATE FAIL": EXIT_FAIL,
             "NOT A RESULT": EXIT_NOT_A_RESULT}.get(verdict, EXIT_FAIL)
+
+
+# ---------------------------------------------------------------------------
+# the ONE place the reason a GCI is withheld is written
+# ---------------------------------------------------------------------------
+def gci_refusal_reason(state, mono, dim, order=None):
+    """Why NO GCI is quoted beside a NOT A RESULT triple, for ONE state.
+
+    BOTH callers use this and there is no second copy.  ``grade_ladder``
+    builds the machine-readable ``row["why"]`` that lands verbatim in
+    delivered JSON verdicts; ``format_row`` builds the printed "GCI NOT
+    QUOTED" line.  They WERE two independent branches and they drifted: the
+    display consulted ``row["monotone"]`` and was right, the JSON did not and
+    appended "the three values are not monotone" to EVERY non-DEGENERATE
+    state -- so a monotone DIVERGENT or STAGNANT row asserted non-monotonicity
+    while its own ``monotone`` field, in the same delivered artifact, said
+    ``true``.  The safety behaviour was never wrong (``_seal`` withholds the
+    GCI structurally); only the stated reason was false, which is why it
+    survived.  Repaired under VERIFICATION_CHARTER.md section 2d.1.
+
+    ``mono`` is ``row["monotone"]`` and is CONSULTED, never inferred from the
+    state.  ``dim`` travels with the order, as everywhere else in this module.
+    ``order`` is the observed order, or None where no order was fitted.
+
+    REFUSES rather than inventing a reason for a state it has not been taught.
+    A state added to ``NOT_A_RESULT_STATES`` without a ground added here makes
+    this function refuse, loudly, instead of falling through to a reassuring
+    sentence -- a fall-through to the reassuring answer is exactly the defect
+    being repaired (docs/FAIL_OPEN_GATE_AUDIT.md, the two-branch/six-state
+    finding).
+    """
+    if state not in NOT_A_RESULT_STATES:
+        refuse(f"gci_refusal_reason was asked for state {state!r}, which is "
+               "not a NOT A RESULT state; no GCI is withheld there and there "
+               "is no refusal to state")
+    p = "" if order is None else f" (p = {order:.4f} at dim = {dim})"
+
+    if state == "DEGENERATE":
+        # WORDING PRESERVED BYTE-FOR-BYTE from the pre-repair branch.  It is
+        # a statement about |p| alone, so it is true under either
+        # monotonicity, and delivered records quote it.
+        return (f"|p| < P_MIN = {P_MIN}: e21 ~ e32 and the fitted "
+                "order is rounding residual")
+
+    if state in ("EXACT", "OSCILLATORY"):
+        # Both classifiers return these two BEFORE any order is fitted --
+        # EXACT on e21 == 0, OSCILLATORY on e32/e21 < 0 -- and monotone()
+        # rejects both, so mono is False here by construction.  A row that
+        # says otherwise contradicts itself and is refused, never printed.
+        if mono:
+            refuse(f"state {state} with monotone = True is a contradiction: "
+                   "the classifiers return it only on e21 = 0 or on e21 and "
+                   "e32 of opposite sign, and monotone() rejects both")
+        if state == "EXACT":
+            return ("the three values are not monotone: e21 = 0 exactly, so "
+                    "the two finest levels are identical and there is no "
+                    "discretisation difference left to extrapolate")
+        return ("the three values are not monotone: e21 and e32 have "
+                "opposite signs, so the sequence reverses direction under "
+                "refinement")
+
+    if not mono:
+        # Not reachable from either classifier (measured: 2,000,000 random
+        # unequal triples plus an exhaustive grid, zero instances of a
+        # non-monotone DIVERGENT, STAGNANT or NO_ORDER).  Kept because if it
+        # ever became reachable the non-monotonicity is the STRONGER ground
+        # and is read straight off the field, not inferred.
+        return "the three values are not monotone"
+
+    if state == "DIVERGENT":
+        # p <= 0 is the only route to DIVERGENT that is reachable (measured:
+        # zero DIVERGENT triples with p > 0 in 2,000,000 samples), and
+        # |e21| >= |e32| is what p <= 0 means.
+        return (f"the triple IS monotone but DIVERGENT{p}: the errors GROW "
+                "under refinement, so no asymptotic range is demonstrated "
+                "and Richardson extrapolation has no basis")
+
+    if state == "STAGNANT":
+        return (f"the triple IS monotone but STAGNANT{p}: the observed order "
+                f"is below STAGNANT_FLOOR = {STAGNANT_FLOOR}, so the errors "
+                "fall too slowly to evidence an asymptotic range and a GCI "
+                "built on this order would understate the uncertainty")
+
+    if state == "NO_ORDER":
+        return ("the triple is monotone but NO ORDER could be fitted: the "
+                "unequal-ratio fixed point for p did not converge in 200 "
+                "steps, so there is no order to build a GCI on")
+
+    refuse(f"no ground is defined for NOT A RESULT state {state!r}; a verdict "
+           "may not carry an invented reason")
 
 
 # ---------------------------------------------------------------------------
@@ -1054,6 +1144,109 @@ def selftest():
                 leaked.append(tr)
         check("no GCI is ever emitted on a non-monotone or non-converging triple",
               not leaked, f"leaked {leaked}")
+
+        # -- (vi-c) THE STATED REASON MAY NOT CONTRADICT THE ROW --------------
+        # A verdict may not tell its reader a fact about the triple that the
+        # SAME row denies.  "the three values are not monotone" is allowed in
+        # row["why"] ONLY where row["monotone"] is False.  Driven through
+        # grade_ladder on real ladders, so it exercises the delivered path,
+        # and it asserts COVERAGE: a NOT A RESULT state no fixture reaches is
+        # reported UNCOVERED rather than passed over in silence.
+        print("(vi-c) the stated reason is consistent with row['monotone'], "
+              "and EVERY NOT A RESULT state states a ground")
+
+        def _claims_nonmono(text):
+            return "not monotone" in text
+
+        def _contradicts(text, mono):
+            """THE predicate.  Used by every check below AND by the planted
+            control, so the control tests the code the checks actually use."""
+            return _claims_nonmono(text) and bool(mono)
+
+        reason_fixtures = (
+            ("DIVERGENT",         (1.00, 1.02, 1.05),      (2500, 6400, 16384)),
+            ("STAGNANT",          (1.0, 1.03375, 1.06375), (2500, 6400, 16384)),
+            ("OSCILLATORY",       (1.00, 1.10, 1.05),      (2500, 6400, 16384)),
+            ("EXACT",             (1.10, 1.04, 1.04),      (2500, 6400, 16384)),
+            ("DEGENERATE equal",  (1.2, 1.1, 1.0),         (2500, 6400, 16384)),
+            ("DEGENERATE uneq",   (1.0, 1.1, 1.2),         (2500, 6000, 16384)),
+            ("NO_ORDER",          (-12.0, 13.0, 20.0),     (2500, 4225, 60000)),
+        )
+        reached = {}
+        for label, tr, cells in reason_fixtures:
+            levels = [dict(name=n, cells=c, value=v) for n, c, v in
+                      zip(("c", "m", "f"), cells, tr)]
+            row = grade_ladder(label, levels, 2, (-100.0, 100.0), pc,
+                               iterative_states=ok_state)
+            st, mono, why = row["states"][-1], row["monotone"], row["why"]
+            reached[st] = label
+            check(f"[{label} -> {st}] 'not monotone' is claimed ONLY where "
+                  "monotone is False",
+                  not _contradicts(why, mono),
+                  f"monotone = {mono}, ground = "
+                  f"{why.split('because ')[-1][:58]!r}")
+            check(f"[{label} -> {st}] a genuinely non-monotone triple DOES "
+                  "say so",
+                  mono or _claims_nonmono(why),
+                  f"monotone = {mono}, ground = "
+                  f"{why.split('because ')[-1][:58]!r}")
+            check(f"[{label} -> {st}] the ground is stated, not empty",
+                  len(why.split("because ")[-1].strip()) > 20, why[-46:])
+            # the DISPLAY hole: before the repair, monotone DIVERGENT /
+            # STAGNANT / NO_ORDER printed NO refusal line at all.
+            printed = format_row(row)
+            gci_lines = [ln for ln in printed.splitlines()
+                         if "GCI NOT QUOTED" in ln]
+            check(f"[{label} -> {st}] format_row emits EXACTLY ONE "
+                  "'GCI NOT QUOTED' line",
+                  len(gci_lines) == 1, f"{len(gci_lines)} lines emitted")
+            check(f"[{label} -> {st}] the printed ground and the JSON ground "
+                  "are the SAME sentence",
+                  bool(gci_lines) and
+                  gci_lines[0].split("GCI NOT QUOTED: ")[-1]
+                  .replace("  (CLAUDE.md rule 5).", "")
+                  == why.split("because ")[-1],
+                  "one function, two callers")
+            check(f"[{label} -> {st}] still NOT A RESULT with no GCI "
+                  "(the repair moves no verdict)",
+                  row["verdict"] == "NOT A RESULT" and "GCI_pct" not in row,
+                  f"verdict {row['verdict']}")
+
+        # COVERAGE.  An unexercised state is NOT a checked one, and is named.
+        uncovered = [s for s in NOT_A_RESULT_STATES if s not in reached]
+        check("COVERAGE: every NOT_A_RESULT state is reached by a driven "
+              "fixture",
+              not uncovered,
+              f"covered {sorted(reached)}"
+              + (f"; UNCOVERED {uncovered}" if uncovered else ""))
+        for st in uncovered:
+            check(f"[{st}] UNCOVERED by fixture -- not passed quietly", False,
+                  "no fixture reaches this state; the limb does not vouch "
+                  "for it")
+
+        # The state that is NOT taught must REFUSE, not invent a ground.
+        for bogus in ("CONVERGING", "MADE_UP_STATE"):
+            try:
+                gci_refusal_reason(bogus, True, 2, 1.0)
+                check(f"gci_refusal_reason REFUSES state {bogus!r}", False,
+                      "it returned a reason instead")
+            except Refusal as exc:
+                check(f"gci_refusal_reason REFUSES state {bogus!r}", True,
+                      str(exc)[:58])
+
+        # PLANTED CONTROL (rule 3, applied to the check itself): the predicate
+        # is replayed on a HAND-MADE contradiction of exactly the shape this
+        # limb exists to catch -- the pre-repair sentence beside monotone
+        # true.  If it does not fire here the limb is blind and its passes
+        # above are worthless.
+        _planted = ("finest triple ('c', 'm', 'f') is DIVERGENT at dim = 2, "
+                    "observed order -5.2311; ... NO GCI is quoted because "
+                    "the three values are not monotone")
+        check("PLANTED CONTROL: the predicate FIRES on the pre-repair "
+              "sentence beside monotone = True, and stays silent at False",
+              _contradicts(_planted, True) and
+              not _contradicts(_planted, False),
+              "a limb never shown able to fail is not a limb")
 
         # -- (vii) four levels: BOTH triples reported -------------------------
         print("(vii) a four-level ladder reports BOTH triples "
