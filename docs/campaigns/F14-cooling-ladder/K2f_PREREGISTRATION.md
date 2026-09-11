@@ -1154,3 +1154,240 @@ sentence), so nothing measured is invalidated.
 > told — that is what makes it shared — so the digest is checked at GRADE time
 > and not only at freeze time.**
 
+
+---
+
+## 20. POST-COMPUTE ADDENDUM 1 — 2026-09-11T23:1xZ. **THE REGISTERED GATE QUANTITY HAS NO SIGNAL ON THIS MODULE. RUNG `BLOCKED`. NO L3.**
+
+**FIRST COMPUTE HAS OCCURRED, SO THIS IS AN ADDENDUM AND NOT AN AMENDMENT.**
+Under standing rule 2 it **cannot alter a gate, a threshold, a cap or a label,
+and it alters none.** §4's meaning of `CYCLING`, §5's rows and evaluation order,
+§5.3's band, **§6.1's and §6.2's thresholds and controls**, §9's completion
+clauses, §10's cost model, §10.3's `endTime`, §11's ranks and guards, §12.2's
+staging and §13's predictions are **untouched and closed**. Nothing here
+rehabilitates a row, and the one-way property of §5.2 is not disturbed: **no row
+is moved in any direction, because no row was ever graded.**
+
+**Lines whose number changed above this section: 0.** Version: registration
+frozen `e42894dfc`, unchanged; this addendum appends only.
+
+**COMPUTE SPENT AGAINST THIS DOCUMENT: 77.267 core-minutes** — `K2f_L1`
+**13.267** and `K2f_L2` **64.000**, both measured from the launcher's own
+`STATUS` files. `$0.0661` **derived, never measured**. Ledger rows
+`docs/COST_CALIBRATION.md`, landed at `d7abcf08d` and `1bd0a499b`.
+
+---
+
+### 20.1 WHAT WAS RUN, AND WHAT THE FROZEN PATH RETURNED
+
+**Two levels were built and run to `endTime` 3000 under §12.2's staging.**
+Both are **DONE** on the frozen rule-4 instrument — all six clauses, exit 0,
+age guard armed and binding at each level. `K2f_L1` 58,368 cells,
+`K2f_L2` 196,992 cells built exactly on target, **`N(L2)/N(L1)` = 3.37500,
+inside `G-MESHSIM`'s [3.2063, 3.5438]**.
+
+**The frozen comparator REFUSED at exit 2 on both drives, at the same limb:**
+
+> §6.2 PLANTED-CYCLE CONTROL, POSITIVE ARM, `K2f_L1::T_in,max` — a sinusoid at
+> 2× the registered spread threshold classified `DRIFTING`, not `CYCLING`.
+
+**NO GRADED ROW EXISTS AT EITHER LEVEL. `G1`, `G2`, `G3` and `G4` were never
+evaluated, `G-CYCLE` produced no state, and `S-ONSET` was not reported** —
+§4.1 conditions it on a classification the comparator declined to make. **No
+verdict may be read from any exit code** (§9.5).
+
+**The freeze held and was checked at grade time, not only at freeze time.** All
+five blobs §15 pins — including the shared `roache_triple` instrument re-pinned
+at §19.8 — reproduced against `e42894dfc`, verified independently before each
+drive and again by the comparator's own `verify_freeze` (`FROZEN AND VERIFIED`).
+
+**Every admission limb that was reached PASSED at both levels**: `G-CHECKMESH`
+0 failed checks with the full flag set; `G-MINCELL` worst feature 0.075 m
+against the 5.0 mm floor; `G-3D` three geometric directions, zero `empty` and
+zero `wedge` patches; `A-INPUT` all six registered series present, non-empty,
+**cadence 50 on every one** as §19.4 requires; the §9.1 planted zero read back
+at `1.234e-03` through the production reader. **The refusal is not an admission
+failure. It is the detector declining to certify itself.**
+
+### 20.2 THE FINDING — AND IT IS ABOUT THE CASE, NOT THE INSTRUMENT
+
+> ### `θ_max` = **4.876e-05** at 58,368 cells and **4.678e-05** at 196,992 cells — **essentially unchanged across a 3.375× refinement**, on a registered rack ΔT of **12 K**.
+
+`T_in,max` spanned **6.0922e-04 K** over the whole of L1 and **6.9584e-04 K**
+over the whole of L2 — a factor **1.14**. **Rack inlet air is supply air, to
+within 7e-04 K, at both resolutions run.** The temperature field itself is
+healthy and is exactly what §2 registers: **289.000 → 301.000 K across the
+domain at L1**, the full 12 K. **This is not a dead case and not a failed
+solve.**
+
+**`G1`, `G2` and `G3` are all functions of `T_in,i`.**
+
+> **REGISTERED AS THE RUNG'S FINDING: the quantity three of the four graded rows
+> are built on carries no signal on K2a's rack-row module at either resolution
+> run.** There is essentially **no hot-air recirculation** to measure. **This is
+> a statement about the case at `N` = 4 with K2a's defaults, and about nothing
+> else** — it is not a claim about other configurations, about containment, about
+> real data centres, or about the `kOmegaSST` model, all of which §14 already
+> places out of this rung's reach.
+
+**`U_ha` IS THE CONTRAST AND IT DOES HAVE SIGNAL**: run-range **3.5299e-02 m/s**
+at L1 and **9.1216e-02 m/s** at L2. **But its trend fraction at L2 is 0.9212 —
+`U_ha` HAS NOT PLATEAUED at `endTime` 3000.** **§10.3 anticipated precisely this
+outcome and registered its meaning in advance**: a level still trending at the
+end is *"the one outcome where 3,000 may be too short"*, and the registered
+consequence is `NOT A RESULT` with the trend fraction printed, **the ground for
+a longer-`endTime` successor being a new registration and a new cost, never an
+extension of this one.** That clause is left standing and is not invoked to
+rescue anything.
+
+**`K2f_L2` LIMIT-CYCLES, reproducing K2d's L2 measurement.** Ux initial residual
+floors at **1.756e-04** with **10 sign changes** over the final 400 iterations
+(min 1.384e-04, max 3.164e-04); `p_rgh` 398. `K2f_L1` by contrast converged
+**9.2 decades to 6.7145e-10** on Ux. **This is recorded as a residual
+measurement and NOTHING is graded on it.**
+
+### 20.3 `P-K2f-1` IS **NOT SCORED**, AND THE REASON IS THE POINT
+
+§0.2's reading and §20.2's residual measurement both point the same way, and
+**that is not enough.**
+
+> **`P-K2f-1` is written against the `G-CYCLE` STATE, which the comparator
+> refused to produce. Scoring it from residuals would score it on a quantity it
+> was not written against.** K2d §17.6 refused exactly this for `P-K2d-1`,
+> `P-K2d-2` and `P-K2d-3`, and the same refusal is applied here to this
+> document's own prediction. **It is carried UNSCORED.**
+
+### 20.4 THE OTHER PREDICTIONS, SCORED — INCLUDING THIS DOCUMENT'S OWN, WHICH LOSES
+
+**`P-K2f-3` (§13) — LOSES.** L1's measured rate extrapolated at §10.1's
+`N^1.568` predicts **89.35** core-min for L2; L2 measured **58.518** core-min
+contention-free. **Ratio 0.655, outside the registered ±25 % band.**
+
+**K2f's own L1→L2 pair measures `N^1.2937`, not the registered `N^1.568`.** L1
+ran at 0.265333 core-s/iteration (219,980 cell-iter/core-s), L2 at 1.280000
+(153,900): a cost ratio of **4.8241** where the registered model predicts
+**6.7349**.
+
+**THE ATTRIBUTION NAMES WHAT IT HAS NOT ESTABLISHED.** K2d's L1 anchor was
+187,598 cell-iter/core-s where K2f's L1 measured 219,980 **on an identical
+58,368-cell mesh while doing more work** (six function objects K2d had none of),
+so part of the disagreement may be the **anchor** rather than the **law**. **With
+two K2f points and no third cell count the two cannot be separated**, and this
+addendum does not pretend otherwise — **§13 already states that a genuinely
+independent test of the exponent needs a FOURTH cell count and is not registered
+here.** **Contention is excluded by DIRECTION at both levels**: measured
+`ClockTime`/`ExecutionTime` 1.0211 at L1 and 1.09368 at L2, and removing it makes
+each under-run **larger**, so contention cannot explain a low actual.
+
+**Three pre-launch predictions were committed at `7ea53622a` BEFORE `K2f_L2` was
+built or launched, and ALL THREE LOSE**: cost (58.518 against a 67.0–111.7
+band), run-range (6.9584e-04 K against a ≥ 1.0e-02 K criterion), and the
+control arm (below). They grade nothing; they are recorded because a prediction
+that can be lost is worth more than a model chosen to pass.
+
+### 20.5 **§6.2's CONTROL HAS A CEILING AS WELL AS A FLOOR** — A FINDING, NOT A REPAIR
+
+**§6.2 IS CLOSED. NOTHING HERE CHANGES IT, and it should not be changed: it
+worked.** It refused, three times, rather than certify a detector it had not
+been shown could fire. **This section records WHY it could not fire, measured.**
+
+The registered plant is sized at 2× a threshold taken as **0.02 % of the
+RUN-RANGE**. **Whether that plant is detectable depends on the base series'
+WINDOW behaviour, and the registration relates the two nowhere.** Driving the
+frozen control on each level's own base:
+
+| level / quantity | limb that failed | measured |
+|---|---|---|
+| L1 `T_in,max` | trend — **FLOOR** | window drift / planted p2p **2.17**, `trend_frac` **0.7648** |
+| L1 `U_ha` | — **PASSES** | drift / planted p2p 0.0003, `trend_frac` 0.0000 |
+| L2 `T_in,max` | sign changes — **CEILING** | window spread / planted p2p **139.3**, `sign_changes` **1** |
+| L2 `U_ha` | trend — **FLOOR** | drift / planted p2p **15.4**, `trend_frac` **0.9212** |
+
+**FLOOR:** at L1 the base has **not plateaued** — the monitor still creeps
+1.3e-07 K per 50 iterations at iteration 3000 — so the registered detection
+threshold of **1.2235e-07 K sits BELOW the solver's own residual drift of
+1.060e-06 K** over the window. **The detector is asked to resolve a cycle an
+order of magnitude under the numerical floor of the quantity it watches.**
+Driven at f = 3, 4, 4.5, 5, 5.5, 6, 7, 8, the arm recovers `CYCLING` between
+f = 6 (`trend_frac` 0.3030) and f = 7 (0.2087) — **the base's own drift must fall
+to ≈ 0.66 × the planted peak-to-peak.**
+
+**CEILING:** at L2 the trend is **gone** (`trend_frac` 0.0048) and the arm still
+fails, on `sign_changes` = 1 against §6.1's required 3. The base's own window
+excursion is **139.3× the planted peak-to-peak**, so **the plant cannot influence
+the first-difference sign pattern at all.** Driven at f = 2, 10, 50, 100, 200,
+400, 800, the arm recovers `CYCLING` only at **f ≈ 200 — a hundred times the
+registered plant** — crossing at `planted_p2p / window_spread ≈ 0.72`, with
+`trend_frac` never leaving ~0.005.
+
+**THAT THREE OF FOUR ARMS FAIL BY TWO OPPOSITE MECHANISMS, WHILE `U_ha` AT L1
+PASSES, IS WHAT SHOWS THE CONTROL IS NOT SIMPLY BROKEN.** It is correctly
+reporting that **these particular series cannot support a 2× plant** — one
+because the base is too drifty, the other because the base's own excursion is
+too large. **Both readings are a property of the data, not of the code.**
+
+**The prediction that the arm would pass at L2 LOST WITH ITS MECHANISM
+CONFIRMED**, and that is recorded rather than smoothed: it was predicted to pass
+*because* L2 would limit-cycle and `trend_frac` would collapse. **L2 does
+limit-cycle and `trend_frac` did collapse, 0.7648 → 0.0048, exactly as
+predicted** — and the arm failed anyway, on a limb the prediction never
+considered.
+
+### 20.6 **RUNG STATUS: `BLOCKED`. NO L3 IS LAUNCHED AND NONE IS STAGED.**
+
+> **`K2f` is `BLOCKED`.** Every graded row is ungraded; **none is `PASS`, `GATE
+> FAIL` or `NOT A RESULT`, because none was ever evaluated.**
+
+**THE GROUND IS DIFFERENT FROM K2d's, AND THE DISTINCTION IS THE RUNG'S MAIN
+PRODUCT.** K2d was retired for a **defective frozen grading path** — a
+comparator whose `main()` graded nothing and a gate whose inputs were never
+written. **K2f's grading path is NOT defective. It ran, it verified its own
+freeze, it passed every admission limb it reached, and it refused honestly three
+times on data that could not support its control.** **What is absent is signal
+in the case, not competence in the instrument.**
+
+**WHY L3 IS NOT LAUNCHED, decided on the registered facts and not on cost:**
+
+1. **The comparator refuses on the L1 arm and never reaches L2 — so it can never
+   reach L3.** A third level would be graded by a control that cannot fire.
+2. **The quantity three graded rows rest on has no signal** at 58,368 or 196,992
+   cells (§20.2). A third value of a flat quantity is not a triple.
+3. **§0.3's reason stands independently**: a ladder whose levels differ in
+   convergence state cannot carry a discretisation triple, and L1 converged 9.2
+   decades while L2 limit-cycles.
+4. **The cost of L3 is no longer estimable within this registration.** §10.1's
+   `N^1.765` rests on the same K2d fit that lost at §20.4; re-derived from L2's
+   measured rate, L3 is **308.74 core-min** at K2f's measured exponent and
+   **547.75** at the registered one — **a 1.77× spread on the ladder's most
+   expensive item.** **Neither figure is authorised here**, and **an overrun
+   stops a run rather than receiving a new budget** (rule 12).
+
+**Spending ~550 core-min on a level that cannot be graded is what K2d did.**
+**§12.2's `STAGE-1` cost stop did NOT fire** — the re-derived ladder came to
+956.68 core-min against the 1,890 bracket top — **so this stop is NOT a budget
+stop and must not be recorded as one.** It is the same class §12.2 names: **a
+validity stop, which would stand at an unlimited budget.**
+
+### 20.7 WHAT THIS ADDENDUM DOES NOT DO, AND WHAT IT LEAVES ON THE DESK
+
+**It registers no gate, moves no threshold, retires no standard and rehabilitates
+no row.** **Retiring or narrowing a gate threshold, a standard or a charter
+clause is reserved to Sanaa and is neither a lane's call nor a supervisor's.**
+
+**Left open, and NOT decided here:**
+
+1. **Whether `T_in,max` is the right monitored quantity for this module at all**,
+   given §20.2. A successor resting on `U_ha`, which does have signal, would be
+   **a new rung, a new registration and a new cost.**
+2. **Whether §6.2's plant should be related to the window rather than the
+   run-range** lab-wide. §20.5 is a measurement; the repair is **not K2f's to
+   make** — §19.4 already routed the neighbouring cadence assertion to the
+   verification team as lab property, and this belongs with it.
+3. **Whether the transient successor is built** (§14). Unchanged: new rung, new
+   registration, new cost, and nothing in this document authorises it.
+4. **Whether `endTime` 3000 is adequate for `U_ha`** (§20.2, §10.3). §10.3 fixes
+   the answer's form in advance and it is left standing.
+
+*Nothing was sent, filed, uploaded, registered, posted or commented outside this
+box (rule 7). No gate, threshold, cap or label is altered by this addendum. No
+L3 exists, none is staged, and `K2f_L3` has never been built.*
