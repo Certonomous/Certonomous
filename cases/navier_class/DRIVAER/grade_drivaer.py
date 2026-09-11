@@ -46,7 +46,7 @@ USAGE
         --reference drivaer_reference_notchback.json [--report out.json]
   python3 grade_drivaer.py --selftest [--smoke <dir>]
 """
-import argparse, glob, gzip, json, math, os, re, shutil, sys, tempfile
+import argparse, collections, glob, gzip, json, math, os, re, shutil, sys, tempfile
 
 _REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 sys.path.insert(0, os.path.join(_REPO, "scripts"))
@@ -381,21 +381,96 @@ def body_mean_pressure(case, time, pv=None):
     vals = [pv[c] for c in cells]
     return sum(vals) / len(vals), len(vals)
 
+def superseded_expected_delta(plant, n, multiplicity):   # noqa: ARG001
+    """THE SUPERSEDED FORMULA, KEPT AS A PERMANENT EXECUTABLE EXHIBIT (ADDENDUM A2).
+
+    `multiplicity` is accepted and DELIBERATELY IGNORED -- that omission IS the defect.
+    Driven by --selftest in both directions so the defect is demonstrated rather than
+    described, exactly as Addendum A1 kept the two-sample plateau test in its suite."""
+    return plant / n
+
+
 def planted_zero_control(case, time):
+    """RULE 3 on the p-field reader.  REPAIRED 2026-09-11 under VERIFICATION_CHARTER
+    section 2d.1; the disclosure is ADDENDUM A2 of DRIVAER_R1_STAGE_A_PREREGISTRATION.md.
+
+    TWO DEFECTS, BOTH IN THIS FUNCTION AND NEITHER IN body_mean_pressure:
+
+    (1) ARITHMETIC.  `cells` holds the owner cell of EVERY vehicle wall FACE, so a cell
+        owning k vehicle faces appears k times, and body_mean_pressure divides by the
+        FACE-OWNER COUNT.  The superseded `expected = PLANT_KPRESS / n` assumed the
+        planted cell appears ONCE.  Measured on r1_fine: 252,487 face-owner entries over
+        241,227 distinct cells; cells[0] is cell 1702645 with multiplicity 3; the reader
+        returned EXACTLY 3.000000x expected and the 2 % tolerance REFUSED a reader that
+        could see the plant perfectly well.  A false refusal, not a blind reader.
+
+    (2) MESH DEPENDENCE, WHICH IS THE DEEPER DEFECT.  Whether (1) fired at all depended
+        on which cell happened to own the first face of the first non-domain patch.  On a
+        mesh whose cells[0] had multiplicity 1 this control would have PASSED SILENTLY
+        with the same arithmetic error standing.  A control whose outcome turns on a mesh
+        accident is not a control.  --selftest drives BOTH meshes and measures it.
+
+    THE REPAIR, in two parts.  `expected` accounts for the planted cell's multiplicity;
+    and the control is planted TWICE IN SEPARATE PASSES -- once into a multiplicity-1
+    cell and once into a multiplicity->1 cell -- with BOTH arms required to read back.
+    Where a mesh offers no multiplicity->1 cell the second arm reports UNAVAILABLE and is
+    NEVER skipped in silence.  The multiplicity histogram is emitted so the next reader
+    sees the structure rather than inferring it.
+
+    body_mean_pressure IS DELIBERATELY NOT CHANGED, and that was a decision, not an
+    oversight.  A face-weighted surface mean is a defensible statistic; the function is
+    called ONLY from inside this control and FEEDS NO GATE; so re-weighting it would
+    alter a measured value after compute for no gain.  Considered and declined."""
     cells, patches = body_owner_cells(case)
     pv = parse_internal_scalar(os.path.join(case, str(time), "p"))
     if pv is None:
         refuse(f"{case}/{time}/p uniform -- cannot run the planted control")
     base, n = body_mean_pressure(case, time, pv=pv)
-    pv2 = list(pv); pv2[cells[0]] += PLANT_KPRESS
-    seen, _ = body_mean_pressure(case, time, pv=pv2)
-    delta = seen - base; expected = PLANT_KPRESS / n
-    ok = abs(delta - expected) < 0.02 * expected
-    return dict(passed=bool(ok), planted=PLANT_KPRESS, reader="body_mean_pressure",
+
+    mult = collections.Counter(cells)
+    hist = dict(sorted(collections.Counter(mult.values()).items()))
+
+    def _arm(target):
+        """Plant PLANT_KPRESS into ONE cell, IN ITS OWN PASS, and read it back."""
+        m = mult[target]
+        pv2 = list(pv); pv2[target] += PLANT_KPRESS
+        seen, _ = body_mean_pressure(case, time, pv=pv2)
+        delta = seen - base
+        expected = m * PLANT_KPRESS / n
+        return dict(cell=target, multiplicity=m, seen_mean_p=seen, reader_delta=delta,
+                    expected_delta=expected,
+                    passed=bool(abs(delta - expected) < 0.02 * expected))
+
+    one  = next((c for c in cells if mult[c] == 1), None)
+    many = next((c for c in cells if mult[c] >  1), None)
+    if one is None:
+        refuse(f"{case}: every vehicle owner cell has multiplicity > 1, so the "
+               f"multiplicity-1 arm of the planted control CANNOT BE ARMED. An unarmed "
+               f"arm is a REFUSAL, never a pass.")
+    arm_single = _arm(one)
+    if many is not None:
+        arm_multi = _arm(many)
+    else:
+        arm_multi = dict(passed=None, multiplicity=None, state=(
+            "UNAVAILABLE -- this mesh has no cell owning more than one vehicle face, so "
+            "the multiplicity arm has nothing to plant into. REPORTED ABSENT, never "
+            "silently skipped."))
+    passed = bool(arm_single["passed"] and arm_multi["passed"] is not False)
+
+    return dict(passed=passed, planted=PLANT_KPRESS, reader="body_mean_pressure",
                 n_vehicle_patches=len(patches),
                 artifact=os.path.join(case, str(time), "p"), patches=patches,
-                base_mean_p=base, seen_mean_p=seen, reader_delta=delta,
-                expected_delta=expected, n_body_cells=n)
+                base_mean_p=base, n_body_cells=n,
+                n_distinct_owner_cells=len(mult), multiplicity_histogram=hist,
+                arm_multiplicity_1=arm_single, arm_multiplicity_gt1=arm_multi,
+                # keys the superseded dict carried, kept so no downstream reader breaks
+                seen_mean_p=arm_single["seen_mean_p"],
+                reader_delta=arm_single["reader_delta"],
+                expected_delta=arm_single["expected_delta"],
+                repair=("VERIFICATION_CHARTER 2d.1 / ADDENDUM A2, 2026-09-11: expected "
+                        "accounts for the planted cell's multiplicity in the face-owner "
+                        "list, and the control is planted TWICE in separate passes so "
+                        "its outcome no longer depends on a mesh accident."))
 
 
 # =======================================================================================
@@ -1024,6 +1099,110 @@ def run_selftest(args):
           f"the band IN FORCE for this run) at its midpoint")
     assert "ONE BLIP DOMINATES IT" in r["unsatisfiability_note"]
     print("  [PASS] unsatisfiability note carries the drift-vs-single-outlier distinction")
+
+    # ---------------------------------------------------------------------------------
+    # ARMING PROOF 5 (ADDENDUM A2) -- the p-field planted control, driven on a REAL
+    # polyMesh with a KNOWN multiplicity structure.  This proof exists because the
+    # superseded suite handed grade_ladder a hardcoded ctrl_ok with passed=True and
+    # NEVER DROVE planted_zero_control AT ALL: a selftest ASSERTING A CONTROL PASSES
+    # WITHOUT RUNNING IT, which is why the defect survived four ARMING PROOFs.
+    # ---------------------------------------------------------------------------------
+    print("== ARMING PROOF 5: p-field planted control on meshes of KNOWN multiplicity ==")
+
+    def _synth_case(root, vehicle_owners):
+        """Write the minimal polyMesh for which body_owner_cells returns EXACTLY
+        `vehicle_owners`, plus a non-uniform p field."""
+        ncells = max(vehicle_owners) + 11
+        pm = os.path.join(root, "constant", "polyMesh"); os.makedirs(pm)
+        n_int = 10
+        patches = [("bodyshell", len(vehicle_owners))] + [(p, 1) for p in DOMAIN_PATCHES]
+        owners = list(range(n_int)) + list(vehicle_owners) + [0] * len(DOMAIN_PATCHES)
+        out = ["FoamFile{version 2.0; format ascii; class polyBoundaryMesh; object boundary;}",
+               "", str(len(patches)), "("]
+        sf = n_int
+        for nm, nf in patches:
+            out += [f"    {nm}", "    {", "        type wall;", f"        nFaces {nf};",
+                    f"        startFace {sf};", "    }"]
+            sf += nf
+        out += [")"]
+        open(os.path.join(pm, "boundary"), "w").write("\n".join(out) + "\n")
+        open(os.path.join(pm, "owner"), "w").write(
+            "FoamFile{version 2.0; format ascii; class labelList; object owner;}\n"
+            f"\n{len(owners)}\n(\n" + " ".join(str(x) for x in owners) + "\n)\n")
+        os.makedirs(os.path.join(root, "1"))
+        open(os.path.join(root, "1", "p"), "w").write(
+            "FoamFile{version 2.0; format ascii; class volScalarField; object p;}\n"
+            f"internalField   nonuniform List<scalar>\n{ncells}\n(\n"
+            + " ".join(f"{-3.0 + 0.17 * i:.6f}" for i in range(ncells)) + "\n)\n;\n")
+        return root
+
+    def _old_criterion(arm, n):
+        """The SUPERSEDED test applied to one arm: expected ignores multiplicity."""
+        exp_old = superseded_expected_delta(PLANT_KPRESS, n, arm["multiplicity"])
+        return abs(arm["reader_delta"] - exp_old) < 0.02 * exp_old
+
+    tmpm = tempfile.mkdtemp(prefix="drivaer_plantmesh_")
+    try:
+        # MESH A -- cells[0] has multiplicity 3.  r1_fine's structure in miniature.
+        a = _synth_case(os.path.join(tmpm, "A"), [7, 7, 7, 3, 5, 9])
+        ca = planted_zero_control(a, 1)
+        assert ca["passed"], ca
+        assert ca["arm_multiplicity_1"]["multiplicity"] == 1, ca
+        assert ca["arm_multiplicity_gt1"]["multiplicity"] == 3, ca
+        assert ca["n_body_cells"] == 6 and ca["n_distinct_owner_cells"] == 4, ca
+        assert ca["multiplicity_histogram"] == {1: 3, 3: 1}, ca["multiplicity_histogram"]
+        print(f"  [PASS] MESH A (cells[0] multiplicity 3): REPAIRED control PASSES, both "
+              f"arms fired -- m=1 delta {ca['arm_multiplicity_1']['reader_delta']:.6e} vs "
+              f"expected {ca['arm_multiplicity_1']['expected_delta']:.6e}; m=3 delta "
+              f"{ca['arm_multiplicity_gt1']['reader_delta']:.6e} vs expected "
+              f"{ca['arm_multiplicity_gt1']['expected_delta']:.6e}")
+
+        # THE DEFECT DEMONSTRATED, not described: the superseded formula REFUSES MESH A.
+        old_a = _old_criterion(ca["arm_multiplicity_gt1"], ca["n_body_cells"])
+        assert not old_a, "the superseded formula should REFUSE a multiplicity-3 plant"
+        ratio = (ca["arm_multiplicity_gt1"]["reader_delta"]
+                 / superseded_expected_delta(PLANT_KPRESS, ca["n_body_cells"], 3))
+        print(f"  [DEFECT DEMONSTRATED] the SUPERSEDED expected=PLANT/n on MESH A's "
+              f"multiplicity-3 cell: REFUSES, reader/expected = {ratio:.6f} against a 2 % "
+              f"tolerance -- the same false refusal measured on r1_fine at 3.000000x")
+
+        # MESH B -- the SAME arithmetic error, but cells[0] has multiplicity 1, so the
+        # superseded control PASSES SILENTLY.  This is the mesh dependence, MEASURED.
+        b = _synth_case(os.path.join(tmpm, "B"), [3, 7, 7, 7, 5, 9])
+        cb = planted_zero_control(b, 1)
+        assert cb["passed"], cb
+        assert cb["arm_multiplicity_1"]["cell"] == 3, cb
+        assert _old_criterion(cb["arm_multiplicity_1"], cb["n_body_cells"]), \
+            "on MESH B the superseded formula must PASS -- that is the trap"
+        assert not _old_criterion(cb["arm_multiplicity_gt1"], cb["n_body_cells"]), \
+            "the multiplicity arm must still catch it on MESH B"
+        print("  [MESH DEPENDENCE MEASURED] MESH B carries the IDENTICAL arithmetic error "
+              "but cells[0] has multiplicity 1, so the SUPERSEDED control PASSES SILENTLY. "
+              "The repaired control's SECOND ARM still refuses the old formula there, and "
+              "that is what removes the dependence on a mesh accident.")
+
+        # MESH C -- no multiplicity->1 cell anywhere: the arm must REPORT ABSENT.
+        c = _synth_case(os.path.join(tmpm, "C"), [3, 5, 7, 9])
+        cc = planted_zero_control(c, 1)
+        assert cc["passed"], cc
+        assert cc["arm_multiplicity_gt1"]["passed"] is None, cc
+        assert "UNAVAILABLE" in cc["arm_multiplicity_gt1"]["state"], cc
+        assert cc["multiplicity_histogram"] == {1: 4}, cc["multiplicity_histogram"]
+        print("  [PASS] MESH C (no cell owns more than one vehicle face): the multiplicity "
+              "arm reports UNAVAILABLE and is NOT silently skipped")
+
+        # MESH D -- every vehicle owner cell has multiplicity > 1: the PRIMARY arm cannot
+        # be armed, and an unarmed arm is a REFUSAL, never a pass.
+        d = _synth_case(os.path.join(tmpm, "D"), [3, 3, 7, 7])
+        try:
+            planted_zero_control(d, 1)
+            raise AssertionError("MESH D should have REFUSED: no multiplicity-1 cell")
+        except SystemExit as e:
+            assert e.code == EXIT_REFUSE, e.code
+            print(f"  [PASS] MESH D (no multiplicity-1 cell): REFUSED (exit {e.code}), not "
+                  f"passed -- an unarmed arm is a refusal")
+    finally:
+        shutil.rmtree(tmpm, ignore_errors=True)
 
     if args.smoke:
         ts = time_dirs(args.smoke)

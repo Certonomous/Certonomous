@@ -688,3 +688,191 @@ fraction to 0.1 %, **reinstating the `max(2, …)` clamp**, and lowering
 passes. The fifth and sixth exist because that clamp was a real defect in the first
 draft of this repair, caught in a diff read, and a test now stops it returning. **A criterion
 shown able to say only one of the two words is not shown to work.**
+
+---
+
+## ADDENDUM A2 — 2026-09-11 — **THE p-FIELD PLANTED CONTROL REFUSED A READER THAT COULD SEE ITS OWN PLANT, AND THE DEEPER DEFECT IS THAT WHETHER IT REFUSED AT ALL DEPENDED ON A MESH ACCIDENT**
+
+**Version 1.1 → 1.2. Lines whose number changed above this section: 0.**
+
+**SCOPE: `planted_zero_control` ONLY.** No gate, no threshold, no cap, no band and no label
+is altered. Gates A1, A2 and A3, the completion rule §7, the declared non-conformance §5.1,
+the reference constants §9 and monitors M1–M5 are **frozen and untouched**. `PLANT_KPRESS`
+**does not change**. What changes is the arithmetic of the control's own expectation, and the
+number of places it plants.
+
+### A2.1 WHAT HAPPENED — the grader REFUSED, and no verdict was produced
+
+Run at 2026-09-11 on the completed `r1_fine` with the Addendum A1 comparator
+(sha256 `1b51dc1d4438f66a…`), the registered Stage A invocation exited **2** with:
+
+> `REFUSE (exit 2): p-field planted-zero control did not behave`
+> `base_mean_p −149.6886460146719, seen_mean_p −149.6885866056726,`
+> `reader_delta 5.940899927736609e-05, expected_delta 1.98029997584034e-05, n_body_cells 252487`
+
+**`reader_delta / expected_delta = 3.000000` exactly.** The reader was not blind. It saw the
+plant three times over, and a two-percent tolerance called that a failure.
+
+### A2.2 THE TWO DEFECTS — the second is the one that matters
+
+**(1) ARITHMETIC.** `body_owner_cells` (lines 147–166) extends one flat list with
+`own[sF:sF+nF]` for every vehicle wall patch, so **a cell owning k vehicle faces appears k
+times**, and `body_mean_pressure` (lines 373–382) divides by `len(cells)` — the **face-owner
+count**, not the distinct-cell count. The superseded `expected = PLANT_KPRESS / n` at line 392
+assumed the planted cell appears **once**. Measured on `r1_fine`:
+
+| quantity | measured |
+|---|---|
+| face-owner entries `n` | **252,487** |
+| distinct owner cells | **241,227** |
+| `cells[0]` | cell **1702645** |
+| multiplicity of `cells[0]` | **3** |
+| multiplicity histogram | **{1: 231554, 2: 8189, 3: 1429, 4: 12, 5: 40, 6: 1, 7: 2}** |
+
+11,260 cells own two or more vehicle faces; one owns seven. **A false refusal, not a blind
+reader**, and rule 3 exists to refuse a reader that *cannot* see a non-zero.
+
+**(2) MESH DEPENDENCE — THE DEEPER DEFECT.** Whether (1) fired at all depended on whether the
+owner of the first face of the first non-domain patch happened to own more than one vehicle
+face. **On a mesh whose `cells[0]` had multiplicity 1, this control would have PASSED SILENTLY
+with the identical arithmetic error standing.** A control whose outcome turns on a mesh
+accident is not a control. This is demonstrated in the suite (A2.6, MESH B), not argued.
+
+**AND THE REASON IT SURVIVED FOUR ARMING PROOFS:** `--selftest` handed `grade_ladder` a
+**hardcoded `ctrl_ok` dict with `passed=True`** and **never drove `planted_zero_control` at
+all**. A selftest that ASSERTS A CONTROL PASSES WITHOUT RUNNING IT is the `ref.get("Cl")`
+defect one level down — it removes the test, its refusal and its evidence together, and says
+nothing.
+
+### A2.3 THE REPAIR — and what was deliberately NOT repaired
+
+- `expected = m * PLANT_KPRESS / n`, where `m` is the planted cell's multiplicity in `cells`.
+- **The control plants TWICE, in SEPARATE passes**: once into a multiplicity-1 cell and once
+  into a multiplicity->1 cell. **Both arms must read back.**
+- **No multiplicity->1 cell on the mesh → the arm reports `UNAVAILABLE`**, never skipped in
+  silence. **No multiplicity-1 cell → REFUSE (exit 2)**: an unarmed arm is a refusal.
+- The multiplicity histogram, the distinct-cell count and both arms are emitted, so the next
+  reader sees the structure rather than inferring it.
+
+> **`body_mean_pressure` IS DELIBERATELY NOT CHANGED — considered and declined.** A
+> face-weighted surface mean is a defensible statistic; the function is called **only** from
+> inside this control and **feeds no gate**; so re-weighting it to a cell-weighted mean would
+> alter a measured value after compute for no gain. The decline and its reasoning are written
+> into the function's own docstring, not left for a reader to reconstruct.
+
+**KNOWN, RECORDED, NOT OPTIMISED:** `_arm` calls `body_mean_pressure`, which re-parses
+`boundary` and `owner` from disk on each call — **four full parses per control** on a 5 M-cell
+mesh. Performance only, no correctness consequence. It is left alone precisely because
+touching the reader is what was declined above.
+
+**A SEMANTIC CHANGE TO THREE BACKWARD-COMPATIBLE KEYS, DISCLOSED RATHER THAN LEFT TO BE
+DISCOVERED:** `seen_mean_p`, `reader_delta` and `expected_delta` are retained so no downstream
+reader breaks, but they now carry the **multiplicity-1 arm** rather than the `cells[0]` arm.
+**This is safe only because no Stage A value has ever been published, which was VERIFIED and
+not assumed** — see A2.5.
+
+### A2.4 §2d.1's FOUR CONDITIONS, checked one at a time
+
+1. **DEMONSTRABLE ERROR, not a preference** — `delta/expected = 3.000000` exactly. Arithmetic.
+2. **ESTABLISHED BY AN INSTRUMENT INDEPENDENT OF THE HYPOTHESIS, ONE THAT GRADES NOTHING** —
+   **the error was established BY THE CONTROL ITSELF**, which grades nothing and refused
+   rather than reporting. That is condition (2)'s archetype rather than a stretch of it.
+3. **THE RECORD DISCLOSES IT, NAMES THE INSTRUMENT, QUANTIFIES WHAT MOVED** — this addendum.
+4. **PRE-REPAIR VALUES BESIDE THE PUBLISHED ONES** — see A2.5.
+
+> ### A PROVENANCE CAVEAT, WRITTEN ON THE FACE AND NOT BURIED
+>
+> **§2d.1 states four conditions and NAMES NO GRANTING AUTHORITY.** Addendum A1's plateau
+> repair carried verification's explicit grant — *"Granted narrowly by verification under
+> §2d.1"*. **THIS repair carries the cfd-supervisor's own check-1 over his own family.** That
+> is within the clause as written, and the check was done personally on the diff rather than
+> on a description of it — but **it is weaker provenance than A1 had, and it is recorded as
+> weaker.** A clause that permits a repair without naming who may grant it will eventually be
+> read as self-granting, and the one occasion that matters is the occasion on which the
+> repairer is also the interested party. Referred to the chief as a gap in §2d.1 itself.
+
+### A2.5 NOTHING WAS WITHDRAWN, BECAUSE NOTHING WAS EVER ISSUED — verified, not assumed
+
+**NO STAGE A VALUE HAS EVER BEEN PUBLISHED.** The grader exited 2 before evaluating any gate
+and wrote no report. Checked on disk and in git rather than inferred:
+
+- `verification/runs/navier_class/DRIVAER/r1_fine/STAGE_A_REPORT.json` — **does not exist**;
+- `verification/campaign/DRIVAER_R1_STAGE_A_RESULTS.md` — **never committed to any ref**
+  (`git log --all` over that path returns nothing).
+
+So condition (4) is satisfied trivially, and **a reader must not be left to imagine that
+values were withdrawn.** There were none.
+
+### A2.6 SHOWN ABLE TO SAY BOTH WORDS — ARMING PROOF 5, on real `polyMesh`es
+
+`--selftest` (no arguments, synthetic meshes only) now **drives the real function**, which the
+superseded suite never did. Green, rc 0, with all four prior ARMING PROOFs still passing:
+
+| mesh | structure | result |
+|---|---|---|
+| **A** | `cells[0]` multiplicity 3 — `r1_fine` in miniature | repaired control **PASSES**, both arms fired: m=1 delta 8.333333e-01 == expected; m=3 delta 2.500000e+00 == expected |
+| **A**, superseded formula | `expected = PLANT/n` on the m=3 cell | **REFUSES**, reader/expected = **3.000000** — the same false refusal measured on `r1_fine` |
+| **B** | identical error, `cells[0]` multiplicity **1** | **the superseded control PASSES SILENTLY** — the mesh dependence MEASURED; the repaired second arm still refuses the old formula there |
+| **C** | no cell owns more than one vehicle face | the multiplicity arm reports **`UNAVAILABLE`**, not skipped |
+| **D** | no multiplicity-1 cell | **REFUSED (exit 2)**, not passed — an unarmed arm is a refusal |
+
+**MESH B is the mesh that earns this repair.** `superseded_expected_delta(plant, n, multiplicity)`
+is kept at module level as a **permanent executable exhibit** — it accepts `multiplicity` and
+deliberately ignores it, which *is* the defect — and is driven in both directions, the pattern
+A1 used for the two-sample plateau test.
+
+**CATASTROPHIC CANCELLATION CHECKED RATHER THAN ASSUMED** (supervisor's check-1, independently):
+`delta = seen - base` recovers ~5.9e-05 from two sums over ~252k values. Reconstructed at
+p-magnitudes of ±60, the relative error is **1.5e-13 (m=1) and 3.6e-14 (m=3) against a 2 %
+tolerance** — eleven orders of margin, because the two summations are identical up to the first
+planted index. **A measured non-concern, not an assumed one.**
+
+### A2.7 THE PIN, re-recorded — §8's row is NOT silently broken
+
+| | sha256 |
+|---|---|
+| §8 original | `0eddb5588c3371140d6e7b75ee763c05048b0f83f8d1917fe3297d9c68908c72` |
+| A1.6 (plateau repair) | `1b51dc1d4438f66a852b104c22f5756c6ca38282e02891fe4f4469e6fe9be44d` |
+| **A2 (this repair)** | **`6106cf6db9ac7dd7d767e140de7ba2e389829d02c30f5d251fcec0c6b83c26d7`** |
+
+§8 and A1.6 are **not edited**; this addendum supersedes the comparator hash and nothing else.
+
+### A2.8 THE PREDICTION, REGISTERED BEFORE THE REPAIRED GRADER IS RUN
+
+**Registered 2026-09-11T16:07Z, before `planted_zero_control` has been run against `r1_fine`
+in its repaired form.** It is stated in two halves, because **one half is not blind and calling
+it a prediction would be self-flattery**:
+
+> **NOT BLIND — arithmetic from data already in hand.** The m>1 arm lands on cell **1702645**,
+> multiplicity 3, `reader_delta` **5.940899927736609e-05** against a repaired `expected` of
+> 3 × 5.0 / 252487 = **5.940899927521021e-05**. That `reader_delta` was **printed by the
+> original refusal**, before this repair existed. It is not a prediction and is not offered
+> as one.
+>
+> **GENUINELY BLIND — not computed by anyone.** The **multiplicity-1 arm** returns
+> `reader_delta` == **1.98029997584034e-05** within 2 %, and the control returns
+> **`passed = True`** overall, with histogram **{1: 231554, 2: 8189, 3: 1429, 4: 12, 5: 40,
+> 6: 1, 7: 2}**, `n_body_cells` **252,487**, `n_distinct_owner_cells` **241,227**.
+>
+> **DOWNSTREAM, and against our own interest:** with the control no longer refusing, **Gate A1
+> returns GATE FAIL** — iterative `NOT_CONVERGED` (worst final Initial residual
+> **1.476127633e-02** on Uy against `RES_TOL` 1e-4, **148× over**), Cd `NOT_PLATEAUED`
+> (excursion **6.31302e-02** against tol 5.0e-03), Cl `NOT_PLATEAUED` (excursion **11.2706**).
+> Gates A2 and A3 return **PASS** on their diagnostic bands (Cd **0.29795528411** in
+> [0.15, 0.60]; Cl **0.0078616272713** in [−0.50, +0.50]), each carrying the §3
+> forbidden-reading notice. **An in-band Stage A Cd is NOT agreement with `Cd_ref`.**
+
+**This repair's evidentiary content in place of a freeze is this timestamped split**, plus the
+fact that the repair can only *stop a false refusal*; it cannot turn a GATE FAIL into a PASS,
+because it touches nothing any gate reads.
+
+### A2.9 A SECOND DEFECT, RECORDED AND DELIBERATELY NOT REPAIRED — monitor M5
+
+**§10's M5 reads *"> 3600 wall s with no new write"* without saying WHICH write.**
+`system/controlDict` pins `writeInterval 1000` on a 3000-iteration run, so **field writes are
+about 12,468 s apart at the start** — read on fields, **M5 would have fired three times on a
+correctly configured, healthy run**. Read on the per-iteration `coefficient.dat` row it never
+fires at all. **A monitor that fires on a healthy run is the mirror of a limb that cannot
+fail**, and Addendum A1 was the limb that could not fail. **M5 IS A REGISTERED MONITOR AND IS
+NOT TOUCHED HERE** — this is a disclosure, with its measurement, for the successor to register
+unambiguously.
