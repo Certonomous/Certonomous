@@ -1103,6 +1103,127 @@ core-min, measured.***
 
 ---
 
+## 16. ADDENDUM 3 — 2026-09-11. The MEASURED 3D rate, the §7.2 re-derivation, and **A PREDICTION ABOUT L3 REGISTERED BEFORE L3 RUNS**
+
+**Gates closed. This addendum records MEASUREMENTS and one PREDICTION. It
+alters no gate, band, threshold, floor, cap or label.** Nothing above is
+edited; **lines whose number changed above this section: 0.**
+
+**WRITTEN AND COMMITTED BEFORE `K2d_L3` IS LAUNCHED.** That is the whole
+evidentiary content of §16.3: a prediction stated afterwards is worthless.
+
+### 16.1 THE MEASURED 3D RATE — the bracket survived contact, the point estimate would not have
+
+Derived from **L1's own artifacts**, not from any relayed figure:
+58,368 cells × 3,000 iterations ÷ (235 s × 4 ranks) — which reproduces
+`STATUS.K2d_L1`'s `core_min = 15.667` exactly.
+
+| | |
+|---|---|
+| **measured 3D rate** | **1.863e5 cell-iter/core-s** |
+| basis it replaces | **4.8e5**, K2b's pilot rate, **measured in 2D** |
+| **derate** | **2.577×** |
+
+**§7.1 named this gap in advance and refused a point estimate because of it:**
+*"Basis B's rate was measured in 2D; it has never been measured in 3D on this
+box, which is exactly why §7.2 exists."* It had not been, and 2D was optimistic
+by two and a half times. **A bracket carried honestly survived the measurement;
+a point estimate would not have.**
+
+### 16.2 THE §7.2 RE-DERIVATION — the stop does NOT trigger
+
+| level | cells (BUILT) | core-min at the measured rate |
+|---|---:|---:|
+| L1 | 58,368 | **15.667 — MEASURED** |
+| L2 | 196,992 | 52.9 |
+| L3 | 664,848 | 178.5 |
+| **ladder** | | **247.0**, **$0.211 derived** (never measured) |
+
+**247.0 against the 1,650 cap. §7.2's stop does not fire, no cap is exceeded,
+and no overrun exists to name.**
+
+### 16.3 ⚠ WHY THE LADDER IS CHEAP, AND THE PREDICTION THAT FOLLOWS FROM IT
+
+**THE 247 core-min IS A SYMPTOM, NOT A SAVING, AND IT MUST NOT BE READ AS
+EFFICIENCY.**
+
+**§7.1's cost basis implied iterations RISING with mesh — 16,038 / 24,048 /
+38,400. The frozen `build_k2d.py` writes `endTime 3000` FLAT at every level**
+(`build_k2d.py:387`). The ladder is cheap because **L3 is under-iterated by up
+to 12.8× against its own registered cost basis**, not because the solver is
+fast. *A cost that comes in at 15 % of estimate because the work was not done
+is not a saving.*
+
+**A flat `endTime` is not automatically wrong.** A Roache triple requires each
+level to be converged **to its own steady state**; it does not require equal
+iteration counts. If all three plateau by 3,000, the triple is valid and 3,000
+was merely generous at L1.
+
+**It is wrong only if the finer levels have not plateaued — and then it is
+badly wrong, not marginally.** The inter-level differences would measure
+**convergence state rather than discretisation error**, and the observed order
+would be meaningless.
+
+> ### REGISTERED PREDICTION `P-K2d-3`, stated before `K2d_L3` runs
+>
+> **The registration's own cost basis expected iterations to rise with mesh;
+> the frozen builder holds them flat. Its authors therefore implicitly
+> predicted that 3,000 iterations would be insufficient at the finest level.**
+>
+> **`P-K2d-3` predicts: `K2d_L3` reads `DRIFTING` or `CYCLING` under
+> `G-CYCLE` on at least one of the two monitored quantities, and is the level
+> most likely of the three to do so.**
+>
+> **If it HOLDS**, the rung is **`NOT A RESULT`** under standing rule 5 clause
+> (1), and that is **a measurement about the method, not a failed run** — the
+> registered ground for a successor with a per-level `endTime`, under its own
+> pre-registration and its own cost.
+> **If it LOSES**, all three levels plateaued at 3,000 and the flat `endTime`
+> was simply generous at L1.
+>
+> **`P-K2d-3` grades nothing and moves no verdict.** It is scored HIT or LOSS
+> and reported either way.
+
+**NOTHING IS CHANGED TO AVOID THIS.** Lengthening L3's `endTime` now would
+alter the grading path after first compute, which standing rule 2 forbids and
+which `build_k2d.py`'s pin would in any case refuse. **`G-CYCLE` was registered
+before compute precisely for this condition, is evaluated per level ahead of
+any triple, and will catch it.** The system is being allowed to work.
+
+### 16.4 A COMPLETED RUN THAT WAS *NOT DONE*, AND THE INSTRUMENT CAUGHT IT
+
+`K2d_L1` finished with **`rc = 0`, 3,000 iterations and an `End` line** — and
+`mark_done_k2d.py` **REFUSED it**: *"no time directory beyond 0"*. A **parallel**
+run leaves its fields in `processor*/3000/`, so the case root holds no time
+directory and rule 4's clauses 3 and 4 cannot pass. The launcher did not
+reconstruct.
+
+**This is the clause the strict completion rule exists for**, and the failure
+mode is the dangerous one: everything that is easy to look at said the run was
+fine.
+
+Repaired by `reconstructPar -latestTime`; **L1 is now DONE on all six clauses
+including the age guard**, its fields genuinely postdating `0/T`. The launcher
+now reconstructs before writing `STATUS`. `launch_k2d.sh` is **not** a pinned
+file and reconstruction is post-processing, not a grading-path change.
+
+### 16.5 Cost calibration (rule 12), for the levels that have run
+
+| level | predicted (§7.1 POINT) | actual | ratio | attribution |
+|---|---:|---:|---:|---|
+| L1 | 33 core-min | **15.667 measured** | **0.475×** | not efficiency — §7.1 assumed 16,038 iterations and the builder ran 3,000 (§16.3) |
+
+A full ladder row lands in `docs/COST_CALIBRATION.md` at rung completion, per
+rule 12, with the same attribution stated rather than absorbed into the ratio.
+
+---
+
+*Nothing was sent, filed, uploaded, registered, posted or commented outside this
+box (rule 7). Solver compute against this document to date: **15.734 core-min,
+measured** (0.067 failed launch + 15.667 L1); `K2d_L2` in flight.*
+
+---
+
 ## Addendum 2 — 2026-09-11, re-pin of `build_k2d.py` under a granted section 2d.1 repair
 
 **Lines whose number changed above this section: 0.** The section 9 row for
