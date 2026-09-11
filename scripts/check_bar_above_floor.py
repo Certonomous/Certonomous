@@ -65,11 +65,35 @@ USAGE
 
 EXIT CODES
 ----------
-    0   no finding
+    0   no finding, across a NAMED, NON-EMPTY population of meshes
     2   REFUSAL: a registered bar is not above its instrument's measured floor,
         or its provenance is missing
-    3   usage / unreadable input / a named table absent from the module — a
-        refusal too, because a check that could not be made is not a pass
+    3   usage / unreadable input / a named table absent or EMPTY — a refusal
+        too, because a check that read nothing is not a pass
+
+REPAIR 1.1 — THIS FILE SHIPPED AT v1.0 CARRYING L-529'S OWN DEFECT
+------------------------------------------------------------------
+v1.0 printed "VERDICT: no finding — every registered bar clears its own
+instrument's measured floor" on an EMPTY table, and exited 0. On the JSON limb
+(`{"meshes": {}}`) and on BOTH module sub-limbs (an empty floor dict, read
+per-mesh or as a global bar) — the global one announcing "one scalar over 0
+mesh(es)" and calling it clean. That sentence was emitted from the ABSENCE of a
+reading, which is exactly L-529: "a check that never renders a verdict is
+indistinguishable, from the outside, from a check that passed". The instrument
+written to discharge L-530 shipped reproducing L-529 inside itself.
+
+It was found by the SUPERVISOR'S OWN DRIVE at check-1, not by this file's
+selftest — the selftest had nine fixtures and not one of them was empty, so the
+hole sat in the blind spot of the very apparatus built to prove the check
+fires. Recorded here rather than quietly fixed, because which instrument caught
+it is the useful part.
+
+Repaired two ways, belt and braces: an empty screenable population now REFUSES
+(exit 3) on both limbs, and the clean verdict cannot be printed without stating
+the population count it screened. A second, benign defect went with it: a
+registered bar of 0.0 or less reached `math.log10` and died ValueError (rc=1),
+losing the per-mesh findings it had ALREADY computed — a crash that swallows
+findings is not the refusal discipline the rest of this file keeps.
 """
 
 import argparse
@@ -81,7 +105,7 @@ import subprocess
 import sys
 import tempfile
 
-VERSION = "1.0"
+VERSION = "1.1"
 
 # The registered rule's multiple: a bar must clear its measured floor by at
 # least this factor before it is measuring the field rather than the reader.
@@ -144,7 +168,14 @@ def derived_bar(floor, bar_min):
     return max(float(bar_min), d)
 
 
-def _same_decade(a, b):
+def _log_equal(a, b):
+    """EXACT equality of two POSITIVE numbers, compared in log10 within 1e-9.
+
+    NOT a same-decade test, despite what an earlier name here suggested: two
+    bars one decade apart FAIL this. The tolerance absorbs float representation
+    only. Both arguments must be > 0; every caller guards that first, because a
+    bar of zero used to reach this function and die ValueError.
+    """
     return abs(math.log10(a) - math.log10(b)) <= 1e-9
 
 
@@ -289,9 +320,16 @@ def table_from_json(path):
 # ---------------------------------------------------------------------------
 
 def evaluate(table, spread_decades=DEFAULT_SPREAD_DECADES, check_disk=True):
-    """Return (findings, cannot_see). An empty findings list is a clean read."""
+    """Return (findings, cannot_see, n_screened).
+
+    `n_screened` is the number of meshes that actually carried a bar and were
+    therefore READ. An empty findings list means a clean read ONLY when
+    `n_screened` is non-zero: absent that count, "no finding" is emitted from
+    the absence of a reading, which is L-529 and not a pass.
+    """
     findings = []
     cannot_see = []
+    n_screened = 0
     bar_min = table.get("bar_min")
     meshes = table["meshes"]
 
@@ -311,6 +349,16 @@ def evaluate(table, spread_decades=DEFAULT_SPREAD_DECADES, check_disk=True):
             continue
 
         bar = float(bar)
+        n_screened += 1
+
+        if bar <= 0.0:
+            finding("BAR_NOT_POSITIVE", tag,
+                    "the registered bar is %r. A bar of zero or less admits "
+                    "every row there is and screens nothing, so it is not a "
+                    "bar; it is also not comparable against a measured floor "
+                    "on any log scale. Refused here rather than allowed to "
+                    "reach the floor arithmetic." % bar, bar=bar)
+            continue
 
         if floor is None:
             finding("NO_FLOOR_MEASURED", tag,
@@ -347,7 +395,7 @@ def evaluate(table, spread_decades=DEFAULT_SPREAD_DECADES, check_disk=True):
                     derived=derived_bar(floor, bar_min))
         elif bar_min is not None:
             d = derived_bar(floor, bar_min)
-            if not _same_decade(bar, d):
+            if not _log_equal(bar, d):
                 finding("BAR_DRIFTED_FROM_RULE", tag,
                         "the registered bar is %.4g but the rule "
                         "max(%.4g, smallest decade >= %gx floor) derives %.4g "
@@ -392,7 +440,7 @@ def evaluate(table, spread_decades=DEFAULT_SPREAD_DECADES, check_disk=True):
             row = meshes[tag]
             if row.get("bar") is None or row.get("floor") is None:
                 continue
-            if float(row["floor"]) <= 0.0:
+            if float(row["floor"]) <= 0.0 or float(row["bar"]) <= 0.0:
                 continue
             groups.setdefault(float(row["bar"]), []).append(tag)
         for bar, tags in sorted(groups.items()):
@@ -405,7 +453,7 @@ def evaluate(table, spread_decades=DEFAULT_SPREAD_DECADES, check_disk=True):
             # A shared bar that the rule derives for EVERY member is forced by
             # the registration's own minimum, not chosen. That is the legitimate
             # case and it is exempt.
-            if all(_same_decade(bar, derived_bar(float(meshes[t]["floor"]),
+            if all(_log_equal(bar, derived_bar(float(meshes[t]["floor"]),
                                                  bar_min)) for t in tags):
                 continue
             finding("GLOBAL_BAR_OVER_HETEROGENEOUS_FLOORS", ",".join(tags),
@@ -419,7 +467,7 @@ def evaluate(table, spread_decades=DEFAULT_SPREAD_DECADES, check_disk=True):
                     % (bar, len(tags), spread, min(fl), max(fl)),
                     bar=bar, spread_decades=spread)
 
-    return findings, cannot_see
+    return findings, cannot_see, n_screened
 
 
 CANNOT_SEE_STRUCTURAL = (
@@ -438,7 +486,7 @@ CANNOT_SEE_STRUCTURAL = (
 )
 
 
-def report(table, findings, cannot_see):
+def report(table, findings, cannot_see, n_screened):
     print("check_bar_above_floor v%s" % VERSION)
     print("  registration source : %s" % table["source"])
     print("  bar table           : %s" % table.get("bar_source", "?"))
@@ -447,6 +495,7 @@ def report(table, findings, cannot_see):
              else "%.4g" % table["bar_min"]))
     print("  rule                : bar = max(BAR_MIN, smallest decade >= %gx "
           "measured floor)" % FLOOR_MULTIPLE)
+    print("  meshes SCREENED     : %d" % n_screened)
     print("")
     print("  %-18s %14s %14s %12s  %s"
           % ("mesh", "measured floor", "registered bar", "bar/floor",
@@ -464,9 +513,13 @@ def report(table, findings, cannot_see):
                  ratio, art))
 
     if not findings:
-        print("\nVERDICT: no finding — every registered bar clears its own "
-              "instrument's measured floor by the registered rule, and every "
-              "floor names an artifact on disk.")
+        # The count is load-bearing, not decoration: a clean verdict that
+        # cannot be printed without naming its population is much harder to
+        # emit from an empty read (L-529, and v1.0 emitted exactly that).
+        print("\nVERDICT: no finding across %d mesh(es) SCREENED — each of "
+              "those %d registered bars clears its own instrument's measured "
+              "floor by the registered rule, and each of their floors names an "
+              "artifact on disk." % (n_screened, n_screened))
     else:
         print("\n%d FINDING(S):" % len(findings))
         for f in findings:
@@ -557,6 +610,34 @@ def selftest():
         j_plant_dn = os.path.join(td, "plant_floor_div1000.json")
         open(j_plant_dn, "w").write(json.dumps(plant_dn))
 
+        # THE v1.0 HOLE, on every limb it existed on. Not one of v1.0's nine
+        # fixtures was empty, which is why the selftest missed what the
+        # supervisor's own drive caught at check-1.
+        j_empty = os.path.join(td, "empty_meshes.json")
+        open(j_empty, "w").write(json.dumps({"bar_min": 1e-4, "meshes": {}}))
+        j_nobars = os.path.join(td, "floors_but_no_bars.json")
+        open(j_nobars, "w").write(json.dumps(
+            {"bar_min": 1e-4,
+             "meshes": {"CBFS13700": {"floor": 9.6193e-03}}}))
+        m_empty = os.path.join(td, "empty_tables.py")
+        open(m_empty, "w").write(
+            "CONTINUITY_MAX = 1e-4\n"
+            "CONTINUITY_FLOOR = {}\n"
+            "CONTINUITY_BAR = {}\n"
+            "CONTINUITY_FLOOR_ARTIFACT = {}\n")
+
+        # A bar of zero, and a negative bar: v1.0 died ValueError (rc=1) in
+        # the group exemption, losing findings it had already computed.
+        j_zerobar = os.path.join(td, "zero_bar.json")
+        open(j_zerobar, "w").write(json.dumps(
+            {"bar_min": 1e-4,
+             "meshes": {"AR_1_Ret_360": {"floor": 8.6010e-18, "bar": 0.0},
+                        "CBFS13700": {"floor": 9.6193e-03, "bar": 0.0}}}))
+        j_negbar = os.path.join(td, "negative_bar.json")
+        open(j_negbar, "w").write(json.dumps(
+            {"bar_min": 1e-4,
+             "meshes": {"CBFS13700": {"floor": 9.6193e-03, "bar": -1.0}}}))
+
         # A bar with no measured floor, and a floor whose artifact is gone.
         j_nofloor = os.path.join(td, "no_floor.json")
         open(j_nofloor, "w").write(json.dumps(
@@ -593,6 +674,24 @@ def selftest():
              ["--json", j_nofloor], 2, ["NO_FLOOR_MEASURED"], []),
             ("a floor whose named artifact is GONE",
              ["--json", j_gone], 2, ["FLOOR_ARTIFACT_NOT_ON_DISK"], []),
+            ("EMPTY JSON table — v1.0 called this CLEAN",
+             ["--json", j_empty], 3, [], ["VERDICT: no finding"]),
+            ("EMPTY module tables, per-mesh limb — v1.0 called this CLEAN",
+             ["--module", m_empty, "--floor-dict", "CONTINUITY_FLOOR",
+              "--bar-dict", "CONTINUITY_BAR",
+              "--artifact-dict", "CONTINUITY_FLOOR_ARTIFACT",
+              "--bar-min-name", "CONTINUITY_MAX"], 3, [],
+             ["VERDICT: no finding"]),
+            ("EMPTY module tables, GLOBAL limb — v1.0 said 0 mesh(es), clean",
+             ["--module", m_empty, "--floor-dict", "CONTINUITY_FLOOR",
+              "--global-bar", "CONTINUITY_MAX"], 3, [],
+             ["VERDICT: no finding"]),
+            ("floors present but NOT ONE registered bar",
+             ["--json", j_nobars], 3, [], ["VERDICT: no finding"]),
+            ("a bar of 0.0 — v1.0 crashed rc=1 and lost its findings",
+             ["--json", j_zerobar], 2, ["BAR_NOT_POSITIVE"], []),
+            ("a NEGATIVE bar",
+             ["--json", j_negbar], 2, ["BAR_NOT_POSITIVE"], []),
             ("a module that names no floor table at all",
              ["--module", REAL_MODULE, "--floor-dict", "NO_SUCH_TABLE",
               "--bar-dict", REAL_BAR_DICT], 3, [], []),
@@ -600,6 +699,7 @@ def selftest():
 
         fired = 0
         clean = 0
+        unread = 0
         failures = []
         for name, argv, expect_rc, must, must_not in cases:
             proc = _run(argv)
@@ -621,13 +721,18 @@ def selftest():
                 fired += 1
             elif expect_rc == 0:
                 clean += 1
+            elif expect_rc == 3:
+                unread += 1
 
     n_bad = sum(1 for c in cases if c[2] == 2)
     n_good = sum(1 for c in cases if c[2] == 0)
+    n_unread = sum(1 for c in cases if c[2] == 3)
     print("\n  refusals driven and observed : %d of %d refusing fixtures"
           % (fired, n_bad))
     print("  clean passes observed        : %d of %d clean fixtures"
           % (clean, n_good))
+    print("  read-nothing refusals (rc=3) : %d of %d unreadable fixtures"
+          % (unread, n_unread))
     print("  BOTH DIRECTIONS were driven on the REAL registered numbers out of")
     print("  %s" % REAL_MODULE)
 
@@ -728,10 +833,23 @@ def main():
         print(json.dumps(table, indent=2, sort_keys=True))
         return 0
 
-    findings, cannot_see = evaluate(
+    findings, cannot_see, n_screened = evaluate(
         table, spread_decades=args.spread_decades,
         check_disk=not args.no_artifact_disk_check)
-    report(table, findings, cannot_see)
+
+    # A CHECK THAT READ NOTHING IS NOT A PASS. This guard covers both limbs:
+    # a JSON `{"meshes": {}}`, a module whose named floor/bar dicts are empty,
+    # an empty floor dict read as a GLOBAL bar, and a table carrying floors but
+    # no bars at all. v1.0 called every one of those clean.
+    if n_screened == 0:
+        unreadable(
+            "the bar table at %s named %d mesh(es) and NOT ONE of them carried "
+            "a registered bar, so nothing was screened. A check that read "
+            "nothing is not a pass — a clean verdict here would be the absence "
+            "of a reading wearing the costume of a reading (L-529)."
+            % (table["source"], len(table["meshes"])))
+
+    report(table, findings, cannot_see, n_screened)
 
     if findings:
         refuse("%d registered bar finding(s). A bar below its own instrument's "
