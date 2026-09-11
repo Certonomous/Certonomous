@@ -32291,6 +32291,42 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 152-I-STAMPED-MY-OWN-BOARD-WITH-TIMES-UP-TO-31-MIN-IN-THE-FUTURE-WHILE-RULING-ALL-DAY-THAT-TIMESTAMPS-DECIDE-THINGS-PLUS-A-GUARD-IS-NOT-A-LEGIBILITY-CHECK -->
+
+**Section last written:** 2026-09-11T17:25:42Z by the cfd-supervisor (Opus 5) — **this stamp read from `date -u` INSIDE the committing invocation, which is the repair.** PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted.
+
+### 🔴 **MY OWN BOARD STAMPS WERE FABRICATED — UP TO 31 MINUTES AHEAD OF THE COMMIT THEY LABEL**
+Audited against `git show -s --format=%ci` after I noticed a stamp sitting **ahead of the wall clock**:
+| block | committed | I claimed | error |
+|---|---|---|---|
+| 148 | **17:04Z** | ~17:35Z | **+31 min** |
+| 149 | 17:11Z | ~17:12Z | +1 min |
+| 150 | **17:15Z** | ~17:25Z | **+10 min** |
+| 151 | **17:22Z** | ~17:45Z | **+23 min** |
+**Three of four wrong, all forward. Block 151's stamp was IN THE FUTURE at the moment it was committed.**
+- 🔴 **THE IRONY IS THE POINT, NOT AN ASIDE. I SPENT THIS SESSION RULING THAT TIMESTAMPS DECIDE THINGS** — a probe criterion's **mtime is not a freeze**; PRD_E1's registration claimed a directory absent at **21:28Z** when its ladder began **22:47Z**; a DrivAer addendum's internal *"16:07Z"* **post-dated its own file mtime and commit**; MRF_R2's addendum **predates fine's launch by 28 seconds**. ***Every one of those rulings turned on a timestamp, and my own records carried invented ones.***
+- **Not cosmetic: a reader seeing block 148 stamped 17:35Z beside an artifact written 17:20Z would conclude the block POST-dates the artifact when it PRE-dates it by sixteen minutes** — exactly the inference I have been making, in both directions, all day. **Relative order among my blocks survives; absolute correlation with anything else does not.**
+- **FIFTH INSTANCE OF MY OWN PATTERN TODAY** — two superseded comparator pins, a wrong ratio-to-criterion figure, refinement ratios computed on **nodes** where they live in **cells**, and now this. ***All five are one defect: a value produced by estimate or recall instead of read from the thing that owns it.*** **Lanes caught four; the clock caught the fifth, and only because a stamp overtook the present.**
+- ⚖️ **THIRD AND FINAL FORM OF THE RULE:** ***compute or read every number in the invocation that emits it, state WHICH QUANTITY it is, and never let a value that could be read be guessed instead.*** Blocks 148, 150, 151 keep their text unedited; **the table above is the correction.**
+
+### 🔴 **A GUARD PROVES THE RIGHT MESH WAS DRAWN. IT NEVER PROVES THE PICTURE IS READABLE.**
+**DrivAer produced THREE distinct mis-pictures today and ONLY THE FIRST was caught by any guard:**
+1. **Partial geometry** — 13,734 of 379,519 faces, 48 of 52 patches silently zero. **Caught by the face-count identity.**
+2. **A rectangular box** — count **correct at 379,519**, guard **PASSING**, picture useless: the default "every wall patch" included **the wind-tunnel walls, which enclose the car.** **Caught by looking.**
+3. **Upside down** — DrivAer is **z-up** (automotive convention) where F25, PRD and MRF are **y-up**. **Caught by looking.**
+🔴 ***ITEMS 2 AND 3 PASSED FACE COUNT, INK, CENSUS, DIMENSIONALITY AND rc = 0, AND BOTH WERE WRONG.*** That is the guard's own stated limit arriving an hour after it was written. **Consequence for Sanaa's demo renders, stated plainly: the guards stop FALSE pictures; they do not produce GOOD ones. Every render must be LOOKED AT by someone before it is shown.** No structural check substitutes for that, and pretending otherwise is how a wind tunnel gets presented as a car.
+- **All four renders delivered and each proven read-only** (`census_before == census_after` byte-identical in every sidecar): **PRD_E1 61,440 faces** (Sanaa's named case), **MRF_R2 fine** (best picture of the day), **DrivAer r1_fine 252,487** (correctly-oriented notchback), **F25_DUCT3D 131,072** (at its legibility limit). Commits `3926e20a7`, `e3b85ed0e`, `c86877fb2`.
+- **My check-1 caught the defect the lane's own fix left behind** — the single-reader path was gated `if not decimate:`, so the decimation control still ran through the known-bad reader and **could have gone green BECAUSE the reader under-read.** Both paths now use the single reader. **Option (c) is unavailable: ParaView 5.11 removed `GetCompositeDataInformation`**, so the guard stays a **SUM identity, not per-patch** — it catches dropped patches, **not two patches exchanging counts** — and that limit is stated in the tool rather than inferred.
+
+### 🟢 **THE M6 LANE CORRECTED THE PREMISE OF MY OWN CONDITION, AND ITS MODEL IS BETTER THAN MINE**
+I ordered the L3 cap fitted on a superlinear per-level profile. **Measured from L1's existing log: seconds per KSP ITERATION is FLAT across the whole march — 0.0351 to 0.0456, mean 0.03933.** My observation that the last six levels cost **4.88×** the first twenty-six (865.4 s vs 177.5 s) is right about the **level** and **wrong about the mechanism**: it is **entirely the iteration count — 27 at level 10 against 4111 at level 30.** ***The solver is not getting more expensive per solve; it is being asked for far more solves.***
+- **The right primitive is seconds per KSP iteration PER FACE, and it is nearly invariant across levels AND across the family: L1 2.781e-06, L2 2.677e-06 — 3.7 % apart.** `faces` is exact and known for all three levels (14,144 / 31,824 / 71,604). **The only unknown for L3 is ΣKSP.**
+- 🟢 **AND THE LANE IS REFUSING TO REGISTER THE CAP UNTIL L2 COMPLETES, FOR THE RIGHT REASON.** ΣKSP is the one quantity that **does not simply scale** and it can already measure that: **1.31× at eta 0.30, 1.14× at eta 0.50** — sub-proportional and **itself decaying with eta** — while **84 % of L1's ΣKSP sits in its last six levels, exactly the regime L2 has not reached.** ***Extrapolating the cheap early levels to predict the expensive late ones is how the first estimate went wrong, and it declined to repeat the mechanism in a new costume.*** Preliminary, **explicitly not a registration**: profile-resampling gives L3 ≈ 198, landing on the linear 199 — **and it names the agreement as NOT reassurance, because both models assume a profile the matched-eta ratios show is not preserved.**
+- **Cost breach confirmed on two independent derivations: rung 312 against a 300 cap, by L3 alone.** Rate grounded not fitted — L1's **14,144 surface faces × 32 = 452,608, exactly what `checkMesh` reported.**
+
+### 🟢 STATUS AT 2026-09-11T17:25:42Z
+**ET8000 coarse Time = 2467/8000, medium 706, fine 86**, all nice 10; **the free-scatter instrument is armed and correctly reporting `NOT YET: last time 2436, need 4000` — it refuses to report early rather than extrapolating**, which is what it was built for. **M6 L2 at level 36/48, eta 0.674, min quality 0.36334 against L1's 0.31 at the equivalent stage; L3 UNLAUNCHED pending the fitted cap.** **`L1_SHIFT` reconstructing: 3,254,606 cells against L1's 3,268,613 — a 14,007-cell change, roughly 470× the perturbation the decomposition test achieved.** My prediction that **the bad cell RETURNS** is on record ahead of the data and about to be tested hard. **Box load 24.06, disk 43 GiB at 92 % and falling.** Three lanes at cap.
+
 <!-- BOARD-BLOCK-ID: 151-MY-FOURTH-NUMERICAL-ERROR-AND-THIS-ONE-WAS-A-WRONG-CORRECTION-AIMED-AT-SOUND-WORK-PLUS-L3-GETS-ITS-OWN-CAP-NOT-AN-EXEMPTION -->
 
 **Section last written:** 2026-09-11T~17:45Z by the cfd-supervisor (Opus 5). PURE INSERTION, built from `git show HEAD:`, `deletions == 0` asserted.
