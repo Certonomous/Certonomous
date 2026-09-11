@@ -822,3 +822,135 @@ was measured, not imagined.
 *Nothing was sent, filed, uploaded, registered, posted or commented outside this
 box (rule 7). **This document is a DRAFT, is NOT FROZEN, authorises no compute,
 and no run tree exists.** Solver compute spent against it: **zero.***
+
+---
+
+## 18. PRE-FREEZE AMENDMENT 1 — 2026-09-11. **MY COST BRACKET WAS NOT BRANCH-INVARIANT, AND `C-DECOMP` AT L3 WAS UNREGISTERABLE**
+
+**This document is NOT FROZEN, so this is a legal pre-compute amendment under
+standing rule 2, which requires the condition and how it was checked.**
+
+**CONDITION:** *"No case directory exists under
+`verification/runs/F14-cooling-ladder/K2f_runs/` — no `K2f_L1`, `K2f_L2` or
+`K2f_L3` — no `STATUS.*`, no `log.solve`, no time directory and no field."*
+**HOW CHECKED:** by `test -d` on disk at **2026-09-11T15:58:08Z**, immediately
+before this amendment was written — never by asking git, never by reading a
+document. **`K2f_runs/` DOES NOT EXIST. Zero solver core-minutes have been
+spent against this document; no gate is being changed after an answer was
+seen.**
+
+**Base version amended:** commit `0fda4ce13`, blob
+`1c054623fc48a63a039d91fbd463c96bc32ba016`.
+
+### 18.1 HOW IT WAS FOUND — by checking a subtraction I was invited to check
+
+The supervisor computed the cost of the branch where `P-K2f-1` HOLDS by
+subtracting §10.2's L3 rows from §10.2's ladder total, and **asked for the
+arithmetic to be checked rather than accepted.**
+
+**The subtraction is VALID and the supervisor's figure is right.** Per column:
+1122.4 − 897.2 = **225.2** contention-free; 1884.7 − 1592.5 = **292.2**
+contended. Exact bracket for that branch: **225.2 – 292.3 core-min**,
+**$0.19 – $0.25 derived** (never measured). The supervisor's "223–297" is that
+figure to within rounding.
+
+**But checking it exposed that the single bracket cannot be subtracted that way
+in general, because §10.2's total silently assumed ONE branch.**
+
+### 18.2 THE DEFECT, STATED PLAINLY
+
+§10.2's ladder row summed `L1 + L2 + L3 + C-DECOMP`, **with `C-DECOMP` priced at
+L2**. That is only correct when **L2 is the first level to cycle.** §4.2 runs
+`C-DECOMP` at *whichever level first reads `CYCLING` or `DRIFTING`*, and §11's
+table registers **no `alt_ranks` for L3** (the cell reads `—`).
+
+**So if L1 and L2 converge and L3 cycles, `C-DECOMP` is UNREGISTERABLE as
+drafted, and the branch cost exceeds the bracket I registered.** Computed on
+§10.1's model:
+
+| branch | levels run | `C-DECOMP` at | **contention-free** | **contended** |
+|---|---|---|---:|---:|
+| **B1** — L1 `CONVERGED`, L2 cycles (**`P-K2f-1` HOLDS; the expected branch**) | L1, L2 | L2 | **225.2** | **292.3** |
+| **B2** — L1, L2 `CONVERGED`, L3 cycles | L1, L2, L3 | **L3** | **1,914.8** | **3,339.0** |
+| **B3** — all three `CONVERGED`, triple graded | L1, L2, L3 | none | **1,017.6** | **1,746.5** |
+| **B4** — L1 itself cycles (`P-K2f-1` LOSES) | L1 | L1 | **31.1** | **31.2** |
+
+**B2 exceeds §10.2's registered 1,890 bracket top by 1.01× contention-free and
+by 1.77× contended.** A cost bracket that is right for three branches and wrong
+for the fourth is the same shape of defect as K2d's flat `endTime`: a number
+carried forward without asking whether the case it was computed for is the case
+that will occur.
+
+### 18.3 THE REPAIR — and it TIGHTENS the registration rather than loosening it
+
+**1. §11's table gains `alt_ranks` for L3: `4`.** Registered because K2d ran L3
+at 4 ranks, so it is a demonstrated configuration on this geometry rather than
+a guess. **§11's registered ranks for L3 remain 8 and its hang guard remains
+20,187 s, both unchanged.** The `C-DECOMP` re-run at L3 carries its own guard,
+computed identically at 3× POINT on **4** ranks: 3 × 897.2 ÷ 4 × 60 =
+**40,374 s**.
+
+**2. §10.2's single bracket is REPLACED BY §18.2's PER-BRANCH TABLE**, and the
+branch is named in every cost statement. **No figure in §10.1's rate model,
+§10.3's `endTime` justification, or §11's registered ranks and guards is
+altered by this amendment.**
+
+**3. B2 CARRIES A REGISTERED STOP, and it is a stop rather than a new budget.**
+
+> **If L1 and L2 read `CONVERGED` and L3 reads `CYCLING` or `DRIFTING`,
+> `C-DECOMP` at L3 IS NOT LAUNCHED automatically.** The rung stops, reports
+> **`NOT A RESULT` on every graded row**, and reports `S-ONSET` **with the field
+> `decomp_control: NOT RUN` printed against L3's state.**
+>
+> **In that branch `S-ONSET` MAY NOT be cited as establishing that the cycle is
+> a property of the case rather than of the parallel path.** The gap is labelled
+> in the output, not left for a reader to infer. Launching `C-DECOMP` at L3
+> requires the supervisor's re-cost against B2's figures — **an overrun stops
+> the run; it does not get a new budget** (rule 12).
+
+**This is the honest form.** The alternative — quietly pricing `C-DECOMP` at L2
+and running it at L3 anyway — would have spent 897–1,593 unregistered
+core-minutes, which is a larger overrun than the one that retired K2d.
+
+### 18.4 `nice` — A REGISTERED DECISION WITH ITS REASON, NOT AN INHERITED HABIT
+
+An **uncommitted** one-line change in the retired `launch_k2d.sh` adds
+`nice -n "${NICE:-0}"` to its `setsid` line. It is another agent's unfinished
+work, it was **inspected and not reverted** (rule 10), and **nothing here
+inherits it.** The supervisor asked that K2f state its own choice and why.
+
+> **REGISTERED: `launch_k2f.sh` does NOT `nice` the solver.**
+>
+> **The reason is that this lab's cost unit makes `nice` actively
+> cost-distorting.** Core-minutes are **wall seconds × ranks ÷ 60**. `nice` does
+> not reduce the work done or the wall time of the niced process — it makes that
+> process yield, **increasing its own wall time** while its ranks stay
+> allocated. A niced K2f would therefore bill **more core-minutes for
+> identically the same computation**, and the rung's estimate-versus-actual
+> calibration would record a misprediction that was really a scheduling choice.
+> K2d already shows the magnitude available to this effect: L3's contention
+> factor of **1.775** was measured with no `nice` at all.
+>
+> **What is registered instead, because contention should be MEASURED and not
+> silently managed:** every level records **both `ClockTime` and
+> `ExecutionTime`**, and §10's cost rows carry the contention factor
+> `ClockTime`/`ExecutionTime` **as a separate column**, never folded into the
+> rate. That is what let this rung's model reproduce L2's measured cost to
+> 0.1 % (§10.1).
+>
+> **Contention management belongs in a scheduler, not in a per-rung launcher,
+> and it is not a lane's decision to make lab-wide.** This clause binds K2f and
+> claims nothing about any other rung.
+
+### 18.5 WHAT THIS AMENDMENT DOES NOT DO
+
+**It changes no gate, no band, no threshold, no floor and no label.** §4's
+meaning of `CYCLING`, §5's evaluation order and one-way property, §5.3's order
+band, §6's `G-CYCLE` thresholds, §9's completion clauses and §10.3's `endTime`
+are untouched. The `alt_ranks` cell it fills was empty, and every cost figure it
+adds is **new**, not a relaxation of an existing one. **B2's stop is a
+constraint this document did not previously carry**, and B2's cost is disclosed
+rather than discovered after launching the expensive level — **which is exactly
+what K2d's §7.2 was for and exactly what its §16.2 re-derivation failed to
+do.**
+
