@@ -1047,12 +1047,27 @@ def verify_freeze():
         refuse("the registration %s is absent; there is no frozen gate to grade "
                "against" % reg)
     text = open(reg, errors="replace").read()
-    pinned = {}
-    for name in ("build_k2f.py", "analyse_k2f.py", "mark_done_k2f.py",
-                 "launch_k2f.sh"):
+    # EVERY FILE s.15 PINS, NOT JUST THIS RUNG'S OWN FOUR.
+    # s.15 also pins `scripts/roache_triple.py`, and the first form of this limb
+    # did not check it.  MEASURED, 2026-09-11: the draft pinned
+    # 78e56a3b... while the file on disk was 23afaee3... -- the verification team
+    # had repaired the shared instrument the same hour.  **The freeze block would
+    # have pinned a blob that is not the file that runs**, which is precisely the
+    # thing s.15 exists to make impossible, and the comparator would not have
+    # noticed because it was only checking its own directory.
+    # A shared instrument moves under a rung without the rung being told; that is
+    # what makes it shared, and it is why the digest must be checked at GRADE
+    # time and not only at freeze time.
+    PINS = {"build_k2f.py": HERE, "analyse_k2f.py": HERE,
+            "mark_done_k2f.py": HERE, "launch_k2f.sh": HERE,
+            "scripts/roache_triple.py": REPO}
+    pinned, where = {}, {}
+    for name, base in PINS.items():
         m = re.search(r"\|\s*`%s`\s*\|\s*([^|]+?)\s*\|" % re.escape(name), text)
         if m:
-            pinned[name] = m.group(1).strip().strip("`")
+            pinned[name] = m.group(1).strip().strip("`").split("`")[0].strip()
+            where[name] = os.path.join(base, os.path.basename(name)
+                                       if base is HERE else name)
     # A PIN IS A 40-HEX BLOB AND NOTHING ELSE.  The first form of this test asked
     # whether the cell read exactly "pending" -- and s.15's `launch_k2f.sh` row
     # reads "*pending -- **pinned in this rung**, unlike K2d where it was not*",
@@ -1076,7 +1091,7 @@ def verify_freeze():
                          "freeze block that names a file without pinning it pins "
                          "nothing." % want[:60])
             continue
-        path = os.path.join(HERE, name)
+        path = where[name]
         if not os.path.isfile(path):
             bad[name] = "pinned to %s but the file is absent" % want
             continue
@@ -1392,22 +1407,48 @@ def wiring_audit(path=None):
     and never verifies that anything CALLS them -- three instruments in one week
     were perfectly frozen with no executable call site.
 
-    Returns (ok, unreachable[], reached[]).
+    STATED LIMITATION, AND IT IS STATED BECAUSE AN UNANNOTATED ONE IS WORSE THAN
+    AN ANNOTATED ONE -- THIS INSTRUMENT'S WHOLE CLAIM IS THAT IT KNOWS WHAT IS
+    REACHABLE.  This audit resolves call targets **by name, within one module**.
+    It does not do type inference and cannot follow a call through an alias, a
+    dict of handlers, a decorator or `getattr`.
+
+    THE DEFECT THAT WAS IN ITS FIRST FORM, FOUND BY THE HEAT-TRANSFER SUPERVISOR
+    IN THEIR SECTION 3 DIFF READ AND REPAIRED HERE.  The first form resolved
+    `ast.Attribute` calls as `f.attr`, so ANY method call whose attribute name
+    happened to match a registered gate function marked that gate REACHABLE
+    WITHOUT IT EVER BEING CALLED -- a `self.grade()` or a `x.built_cell_count()`
+    anywhere in the file would have silenced the audit for that gate.  **For an
+    audit whose entire purpose is to catch gates that nothing calls, a
+    false-REACHABLE is the dangerous direction: it is precisely the failure mode
+    the audit exists to prevent, reintroduced one level down.**  The risk was low
+    in this flat module-level file, and NOTHING ENFORCED THAT it stay flat.
+
+    Repaired in both directions:
+      * only `ast.Name` calls resolve, so reachability now errs toward
+        FALSE-UNREACHABLE -- the direction that fails loudly rather than
+        quietly.  A gate reached only through an attribute is reported as
+        unreachable and must be called by bare name or added deliberately;
+      * and a COLLISION ARM asserts that no `GATE_FUNCTIONS` name appears as an
+        attribute anywhere in the file, so the assumption the first form made
+        silently is now a checked precondition rather than a hope.
+
+    Returns (ok, unreachable[], reached[], collisions[]).
     """
     path = path or os.path.abspath(__file__)
     tree = ast.parse(open(path).read(), filename=path)
-    calls, defined = {}, set()
+    calls, defined, attrs = {}, set(), set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute):
+            attrs.add(node.attr)
     for node in ast.walk(tree):
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             defined.add(node.name)
             names = set()
             for sub in ast.walk(node):
-                if isinstance(sub, ast.Call):
-                    f = sub.func
-                    if isinstance(f, ast.Name):
-                        names.add(f.id)
-                    elif isinstance(f, ast.Attribute):
-                        names.add(f.attr)
+                # ONLY a bare-name call resolves.  See the limitation above.
+                if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Name):
+                    names.add(sub.func.id)
             calls[node.name] = names
     reached, stack = set(), ["main"]
     while stack:
@@ -1417,7 +1458,9 @@ def wiring_audit(path=None):
         reached.add(cur)
         stack.extend(n for n in calls.get(cur, ()) if n in defined)
     unreachable = sorted(f for f in GATE_FUNCTIONS if f not in reached)
-    return (not unreachable), unreachable, sorted(reached & set(GATE_FUNCTIONS))
+    collisions = sorted(set(GATE_FUNCTIONS) & attrs)
+    return ((not unreachable) and not collisions), unreachable, \
+        sorted(reached & set(GATE_FUNCTIONS)), collisions
 
 
 # ---------------------------------------------------------------------------
@@ -1590,11 +1633,16 @@ def selftest():
 
     print("-- THE WIRING AUDIT: a freeze verifies BYTES, never that anything "
           "CALLS them --")
-    ok, unreachable, reached = wiring_audit()
-    arm("every registered gate function is reachable from main() "
-        "(%d of %d)" % (len(reached), len(GATE_FUNCTIONS)), ok, True)
+    ok, unreachable, reached, collisions = wiring_audit()
+    arm("every registered gate function is reachable from main() BY BARE NAME, "
+        "and no gate name collides with an attribute (%d of %d)"
+        % (len(reached), len(GATE_FUNCTIONS)), ok, True)
     if unreachable:
         print("        UNREACHABLE FROM main(): %s" % ", ".join(unreachable))
+    if collisions:
+        print("        NAME COLLISION -- a gate name is also used as an "
+              "attribute, which the first form of this audit would have read as "
+              "REACHABLE without a call: %s" % ", ".join(collisions))
     print("        K2d's four orphans -- read_checkmesh, read_patch_census, "
           "gate_mincell, built_cell_count -- would have failed this arm.")
 

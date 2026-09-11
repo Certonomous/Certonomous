@@ -750,16 +750,16 @@ because a prediction we can lose is worth more than a model chosen to pass.**
 
 ---
 
-## 15. FREEZE BLOCK — **EMPTY. TO BE FILLED AT FREEZE.**
+## 15. FREEZE BLOCK — **FILLED AT FREEZE, 2026-09-11.**
 
 | item | value |
 |---|---|
-| `GRADING_PATH_FREEZE_COMMIT` | *to be recorded in the freeze commit's message* |
-| `build_k2f.py` | *pending* |
-| `analyse_k2f.py` | *pending* |
-| `mark_done_k2f.py` | *pending* |
-| `launch_k2f.sh` | *pending — **pinned in this rung**, unlike K2d where it was not* |
-| `scripts/roache_triple.py` | `78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8` |
+| `GRADING_PATH_FREEZE_COMMIT` | *recorded in the freeze commit's message* |
+| `build_k2f.py` | `c850883be4e7827de0a0384589b10bf38d472f7e` |
+| `analyse_k2f.py` | `c7ccd5f406334b42a6fa32f58d3b83466ec6f235` |
+| `mark_done_k2f.py` | `40a1daaae59b10ecd4446747c88588d887adbf45` |
+| `launch_k2f.sh` | `97a768d982ff63ebeba081f3c0da74a7b65ec401` — **pinned in this rung**, unlike K2d where it was not |
+| `scripts/roache_triple.py` | `23afaee32f770f9f38a827e38ac963b9368b7707` — **re-pinned §19.8**; the draft's pin was the PRE-repair blob |
 | referent PDF sha256 | `4de4798ed5eed60feda123c7a2398674a6a9177f44906175847d90f5227d7b77` |
 
 **`launch_k2f.sh` IS PINNED, and K2d's was not.** K2d's launcher was the file
@@ -953,4 +953,204 @@ constraint this document did not previously carry**, and B2's cost is disclosed
 rather than discovered after launching the expensive level — **which is exactly
 what K2d's §7.2 was for and exactly what its §16.2 re-derivation failed to
 do.**
+
+
+---
+
+## 19. PRE-FREEZE AMENDMENT 2 — 2026-09-11T16:46:16Z. **FOUR CORRECTIONS FOUND BY BUILDING AND RUNNING THE INSTRUMENTS**
+
+**This document is NOT YET FROZEN, so this is a legal pre-compute amendment under
+standing rule 2, which requires the condition and how it was checked.**
+
+**CONDITION:** *"No case directory exists under
+`verification/runs/F14-cooling-ladder/K2f_runs/` — no `K2f_L1`, `K2f_L2` or
+`K2f_L3` — no `STATUS.*`, no `log.solve`, no time directory and no field."*
+**HOW CHECKED:** by `test -d` on each of the three names and `ls` for
+`STATUS.*` and `log.solve`, **on disk**, at **2026-09-11T16:46:16Z**, immediately before this
+section was written and **after all of this session's throwaway compute** — never
+by asking git, never by reading a document. **All three are ABSENT. Zero solver
+core-minutes have been spent against this document; no gate is being changed
+after an answer was seen.**
+
+**How found:** the §3.1 and §7 pre-freeze obligations were driven, and driving
+them required writing `_functions_block()` and `analyse_k2f.py` and pointing
+them at a real OpenFOAM case. **Every correction below was found by execution,
+not by re-reading.**
+
+### 19.1 §3 — `T_in,max` AND `θ_i` ARE **DERIVED**, NOT WRITTEN BY FUNCTION OBJECTS
+
+§3 lists four monitored quantities as "Written by in-pass `functions` entries".
+**Two of the four are not, and do not need to be.** Struck and replaced:
+
+> **`T_in,i`** and **`U_ha`** are WRITTEN by in-pass `functions` entries —
+> `surfaceFieldValue` / `weightedAreaAverage` / `weightField phi` on
+> `rack<i>_in` for the first, and `mag` → `magU` → `volFieldValue` /
+> `volAverage` over `haZone` for the second.
+>
+> **`T_in,max`** and **`θ_i`** are **DERIVED BY THE COMPARATOR** from those
+> producers:
+> - `T_in,max` = max over i of `T_in,i`. **This is a maximum over four PATCH
+>   AVERAGES and is NOT what a function object's `max` operation returns**,
+>   which is a maximum over FACES — a different quantity, reading the hottest
+>   face rather than the hottest rack.
+> - `θ_i` = (`T_in,i` − `T_sup`)/`ΔT_rack,i`, an affine map whose two
+>   constants are registered at §2 from K2a's defaults.
+>
+> **`A-INPUT` (§3.1) asserts the PRODUCERS, and the derivations are algebra on
+> them.** `U_ha` needs two function objects and not one: `volFieldValue`
+> cannot take a magnitude on the fly, and **the volume average of a vector is
+> not the volume average of its magnitude** — on a recirculating hot aisle the
+> first can sit near zero while the second is the registered number.
+
+**Why this is an amendment and not a detail:** *a registration that misdescribes
+how its own gate inputs come to exist is how K2d died.*
+
+### 19.2 §3.1 — THE ARM'S CADENCE, BECAUSE AS REGISTERED THE ARM COULD NOT FIRE
+
+§3.1 registers the throwaway at **"~20 iterations"** while §3 registers a
+**50-iteration** function-object cadence. **A 20-iteration run writes NO SAMPLE
+AT ALL**, so the arm as registered could not fire. Added:
+
+> **The `A-INPUT` throwaway runs its function objects at a cadence small enough
+> that samples land inside its iteration count** — driven at **cadence 2 over 20
+> iterations, 10 samples per series**. The **function-object declarations are
+> identical to the ladder's**; only `executeInterval`/`writeInterval` differ.
+>
+> **The reason the cadence must differ is the arm's whole point:** an arm
+> asserting on an **empty** producer cannot distinguish *"the `functions` block
+> is absent"* from *"the block is present and not yet due"*, and those are
+> exactly the two cases the arm exists to separate. The arm must run where the
+> distinction is **observable**.
+>
+> **The ladder's registered cadence is UNCHANGED at 50** (§3, §6.1), and the
+> comparator **REFUSES** a graded series written at any other cadence — see
+> §19.4.
+
+### 19.3 §5.1 — G4's COLD-AISLE CONTROL VOLUME, **REGISTERED**, WITH ITS ARITHMETIC
+
+§5.1 registers G4 as "volume-averaged `T` over the cold aisle" and **nowhere
+defines the volume**, while §3 fixes `U_ha`'s to the metre. A gate whose control
+volume is undefined cannot be graded. **Registered here as the exact parallel of
+the `HA_BOX` §3 already carries, derived from K2a's approved module geometry:**
+
+> **`CA_BOX` = (0.60, 0.00, 0.00) → (3.00, 1.20, 2.00) m**, cellZone `caZone`.
+>
+> | axis | `HA_BOX` (registered, §3) | `CA_BOX` (registered here) | rule applied |
+> |---|---|---|---|
+> | **x** | 0.60 → 3.00 | **0.60 → 3.00**, *identical* | the rack row's first-to-last face: `L_end` = 0.60 to `L_end` + `N·W_r` = 0.60 + 4 × 0.60 = 3.00. Span **2.40 m** |
+> | **y** | 2.30 → 3.50, full `W_ha` | **0.00 → 1.20**, full `W_ca` | the aisle's own width. `W_ca` = `W_ha` = **1.20 m** (K2a defaults, §2) |
+> | **z** | 0.00 → 2.00 | **0.00 → 2.00**, *identical* | floor to rack top `H_r` = 2.00 m |
+>
+> **Volume: 2.40 × 1.20 × 2.00 = 5.760 m³ — identical to `HA_BOX`'s 5.760 m³
+> by construction**, because `W_ca` = `W_ha` and the x and z extents are the
+> same rule. The two boxes are exact mirrors across the rack row.
+>
+> **Both boxes land on block boundaries exactly**, so `boxToCell` selects whole
+> cells and no partial cell is included: y = 0.00, 1.20, 2.30, 3.50 are all
+> block edges of the registered `Y` decomposition, as are x = 0.60, 3.00 and
+> z = 0.00, 2.00. At L1 each zone is **32 × 16 × 24 = 12,288 cells**, and the
+> builder's `topoSet` **measured** `haZone` at **12,288 cells, 5.7600000000
+> m³** on the throwaway — the arithmetic is checked against the mesher, not
+> asserted.
+>
+> **Why floor-to-`H_r` and not floor-to-ceiling:** the parallel with the
+> registered `HA_BOX` is the reason of record, and the physical reason agrees —
+> the 0.70 m above rack top is ceiling-return space, and averaging it in would
+> report a volume the racks do not draw from.
+
+**Until this section was written, no G4 verdict was a registered measurement, and
+the comparator printed that on every run. It now IS registered; the comparator's
+print stands until a reader confirms this section, and it costs nothing.**
+
+### 19.4 §6.1 — THE PRODUCER'S CADENCE IS ASSERTED AGAINST THE CLASSIFIER'S
+
+Found by execution. `scripts/check_convergence.py::classify_monitor` sizes its
+window as `window_iterations // sample_interval_iterations + 1` = 400 ÷ 50 + 1
+= **9 samples, READ FROM THE THRESHOLD FILE**, and **never reads the time column
+of the series it was handed**. A series written at any other cadence is windowed
+over the wrong span and **returns a STATE rather than an error.**
+
+> **REGISTERED:** the comparator asserts that every graded series' **measured**
+> sample cadence equals §6.1's registered **50**, and **REFUSES (exit 2)**
+> otherwise. It also asserts that the thresholds `classify_monitor` actually
+> used equal this document's registered numbers, and **refuses on drift** — a
+> threshold file that has moved away from the registration is a refusal, never a
+> silent regrade.
+
+**This is not K2f-specific and nothing else in the lab has it.** Routed to the
+verification team as lab property; it binds K2f here and claims nothing about
+any other rung.
+
+### 19.5 §15's cross-check constant — **2.0576 %, not 2.0575 %**
+
+The published T23G2R Q4 row reads **order 0.9917, GCI 2.0576 %** at
+`verification/runs/T-family/T23G2R_runs/T23G2R_COMPARATOR_STDOUT.txt:125`.
+`analyse_k2f.py --xcheck` reproduces both exactly and runs inside
+`--selftest`, so the citation sits in an executable check (standing rule 6).
+
+### 19.6 WHAT THIS AMENDMENT DOES NOT DO
+
+**It changes no gate, no band, no threshold, no floor and no label.** §4's
+meaning of `CYCLING`, §5.2's evaluation order and one-way property, §5.3's
+order band (0.5, 3.5), §6.1's 0.02 % / 400 / 50 / 9 thresholds, §9's completion
+clauses, §10.3's `endTime` 3000, §11's ranks and guards and §12.2's L2 stop are
+**untouched**. §19.3 fills a control volume that was **empty**, and §19.1, §19.2
+and §19.4 make the document describe what its own instruments do. **§19.4 is a
+constraint this document did not previously carry.**
+
+### 19.7 **THE PRE-COMPUTE CONDITION, RESTATED AS WHAT WAS ACTUALLY CHECKED — because as written it is now FALSE**
+
+**The header condition of this document (§0, and §18's opening) reads
+`K2f_runs/` **DOES NOT EXIST**. THAT IS NOW FALSE.** The directory exists and
+holds `build_k2f.py`, `analyse_k2f.py`, `mark_done_k2f.py`,
+`launch_k2f.sh` and three demonstration files. **Struck and replaced by what
+was checked:**
+
+> **CONDITION AS CHECKED:** `verification/runs/F14-cooling-ladder/K2f_runs/`
+> **exists and contains instruments and demonstrations only** — it carries
+> **zero level directories (`K2f_L1`, `K2f_L2`, `K2f_L3`), zero
+> `STATUS.*`, zero `DONE.*` and zero `log.solve`.**
+>
+> **COMMAND RUN, VERBATIM, at 2026-09-11T16:48:24Z:**
+> ```
+> find K2f_runs/ -maxdepth 2 \( -name "K2f_L[123]" -o -name "STATUS.*" \
+>      -o -name "DONE.*" -o -name "log.solve" \) | wc -l
+> ```
+> **Result: `0`.** Zero solver core-minutes have been spent against this
+> document.
+
+**WHY THIS IS AN AMENDMENT AND NOT A QUIBBLE.** The substance was true and
+reported truthfully throughout; only the *text* went stale the moment instruments
+were written into the directory. But **a pre-compute condition is the entire
+evidentiary content of standing rule 2** — it is what proves the gate could not
+have been chosen to fit the answer — and **a condition a later reader can falsify
+with one `test -d` destroys that proof even though nothing dishonest
+happened.** An amendment resting on a condition that is false as written is
+**DEFECTIVE EVEN WHERE ITS SUBSTANCE HOLDS**, and this is the K2d failure class
+exactly: **K2d died of a registration whose text described a state of the disk
+that the disk did not have.** §18's amendment, written when the directory really
+was absent, was sound when written and is re-grounded here.
+
+### 19.8 `scripts/roache_triple.py` — **RE-PINNED**, because the pinned blob was NOT the file that would run
+
+**Found by checking the pin rather than trusting it, immediately before freeze.**
+§15 pinned `78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8`; the file on disk is
+`23afaee32f770f9f38a827e38ac963b9368b7707` — the verification team repaired the
+shared instrument at commit `a7b3846d8` **this same hour**, after this rung's
+cross-check was taken. The repair is **verdict-neutral** (`why` text only; a
+state it has not been taught now REFUSES instead of reaching for a reassuring
+sentence), so nothing measured is invalidated.
+
+> **§15 is re-pinned to `23afaee32f770f9f38a827e38ac963b9368b7707`, the file
+> that will actually run.** The cross-check was **re-driven against the repaired
+> file** and still reproduces the published T23G2R Q4 row exactly — **order
+> 0.9917, GCI 2.0576 %**.
+>
+> **AND THE COMPARATOR NOW CHECKS IT.** `verify_freeze()` originally hashed
+> only this rung's own four files, so §15's claim that the comparator "verifies
+> each frozen file IS the file that ran" was **not true of the shared
+> instrument**. It now covers every file §15 pins and **REFUSES (exit 2)** on any
+> mismatch. **A shared instrument moves under a rung without the rung being
+> told — that is what makes it shared — so the digest is checked at GRADE time
+> and not only at freeze time.**
 
