@@ -42896,6 +42896,147 @@ rule-4 limbs then **my** comparator read against the registered prediction; MRF 
 with the six-file banner disclosure and the `COST_CALIBRATION.md` row.
 **On Sanaa's desk:** nothing. **Blocked:** M6 mesh line; CRM_M085_R2 pending the probe.
 
+
+<!-- BOARD-BLOCK-ID: 170-MRF-R2-MEDIUM-PASS-EXTREMUM-CLAIM-RETRACTED-DISK-BINDS-EVERY-3D-CASE -->
+### Block 170 — 2026-09-11T22:36:16Z (stamp read by `date -u` inside the committing invocation)
+
+**VERDICT — MRF_R2 ET8000 medium: rule-4 `PASS`, all six clauses.** `rc=0` · `End` present ·
+`exec_count 8000 == round(8000/1.0)` · `last_time 8000.0 == endTime` · fields `U p phi k omega
+nut` at 8000 · **age guard PASS**. Graded through `grade_mrf_np.strict_completion` **imported,
+`main()` never called**. **The refusal limb was shown able to fire first** (run against fine at
+4,406/8,000: refused, no `rc` sidecar). Rule-3 plant PASS on **R2's own** `moment.dat`, read
+back in the resolved `total_z` column. **Independently reproduced to the digit by a second
+lane** — an accidental replication caused by my own double-dispatch, but a real one.
+
+**MEASUREMENT, NOT A GATE VERDICT — §9 fires on FINE alone.** `Np(8000)=4.281132`; relative
+drift **`+1.310541e-03`**, over the 1e-3 limb by 1.31x; S12 **silent → PLATEAUED** only because
+monotone `0.5128 < 0.90` — wobbling, not travelling. Stopping-point spread over 41 truncations
+(7400..8000): **`5.736344e-03` = 5.7x the limb, sign-changing, cleared at 15/41 (37%)** vs
+coarse's 28/41. **Medium is the WORSE-behaved level on this channel despite being the finer
+mesh.** Four readings across two levels and two stopping points, **four over the limb**.
+**Levels disagree in SIGN** (coarse `-2.591013e-03`, medium `+1.310541e-03`): the graded
+statistic is not behaving as a mesh-convergent quantity — it wanders about zero at 2-5x its own
+threshold. **THERE IS NO 16000**, and a statistic wandering in sign is the weakest possible
+argument for one. Medium's 0.70x shrink does **not** reproduce coarse's 1.61x refutation of
+§9's decay basis **and is not evidence of settling** — the decrease is inside the noise of where
+you stopped. No significance claim: adjacent truncations share ~99% of their S12 window.
+
+**RETRACTED — the extremum generalisation.** I elevated "the frozen endpoint lands on an
+extremum of its own locality" from coarse (rank 1/41). **Medium ranks 20/41, dead middle.** One
+level yes, one no; **two levels is not a basis for either**, and the claim is struck. **What
+survives, unchanged and never dependent on it:** the spread is an **uncertainty channel, never a
+re-selection channel**, and a still-travelling statistic is **not a licence for more compute**.
+Second single-instance generalisation of mine withdrawn today; a lane caught this one inbound.
+
+**RULE 12, medium — the 13.7% stays NAMED AND UNEXPLAINED.** Predicted ~528 core-min (§11's 264
+@4000 doubled), **actual 721.90** (21,657 wall s x 2 ranks), ratio **1.37**. Contention 1.293
+(`ExecutionTime` 16,746.6 s vs 21,657 s wall). **Per-iteration cost ROSE 1.8613 → 2.1162 s/iter,
++13.7%** — **not folded into contention**; a third category, cause not measured, same shape as
+T4e. Coarse was a different animal: 2.11x with contention 2.188 explaining nearly all of it at
+flat per-iteration work. Dollars at $0.0513/core-h are **derived, not measured**.
+**`COST_CALIBRATION.md` row HELD until fine lands** — rule 12 is owed at *process* completion,
+all three levels. §11's ~777 core-min ET8000 line was written when §9 covered **fine alone**
+while the run covers three levels: **no like-for-like denominator exists**, and the row will say
+so rather than publish a ratio against a denominator known to be wrong.
+
+**DISK IS THE BINDING CONSTRAINT ON EVERY 3D CASE. 18.507 GiB free and falling.**
+**M6 route (d) is fully staged and DOES NOT LAUNCH:** pre-registration **COMMITTED `dc7f4cfd`
+before any compute**, staging complete at `verification/runs/M6C2_runs/ROUTE_D_STAGING/`
+(`blockMeshDict` 66x32x64 with `symmetryPlane` at exactly y=0 for the STL's open root,
+`snappyHexMeshDict` 9 regions `addLayers false`, `surfaceFeatureExtractDict`, `meshQualityDict`,
+`launch_route_d.sh`, `grade_route_d.py`). **Its own §10 froze a 20 GiB launch floor; the
+launcher refuses on its own and the floor was NOT overridden** — a floor that bends when the
+result is wanted was never a floor.
+🔴 **THE 15 GiB STOP AUTHORITY IS SPENT AND CANNOT FIRE.** The watcher's stop path is
+`if fb < T_STOP and not stopped and rcs["medium"] is None` — **medium landed, `rc=0`, so the
+condition can never be true again.** The watcher is alive and logging with a **dead stop limb**.
+I had twice stated this authority was armed; **it is not**, and an authority everyone believes is
+armed is strictly worse than none because it suppresses the escalation that would happen. **Not
+re-armed, deliberately:** cfd has nothing left to stop — coarse and medium are done, fine writes
+~0.001 GiB/h (stopping it buys ~17 min). **The remaining drain is other teams'. ESCALATED TO THE
+CHIEF as a cross-team call; no agent stops another team's solver.**
+
+**Two instruments, one misconception.** Both completion waiters (`MEDIUM_RANKS_GONE_NO_RC` and
+`End_WITHOUT_RC`) fired on this *normal* completion, both keyed on the **solver ranks**, and the
+**launcher — which writes `rc` after `reconstructPar`** — outlives them by ~40 s. **Normal
+completion passes through precisely the state both crash tests match: a guard that manufactures a
+finding on every successful run.** Rule adopted: **a completion detector keys on the process that
+WRITES THE COMPLETION ARTIFACT, never on the processes that do the work.** Both triaged, neither
+escalated as a crash — a crash is a finding *until triage says otherwise*, and triage said
+otherwise. Fix approved; **diff to be read by me** (§3 check 1: it gates *when* a number is taken).
+
+**To `MESH_STANDARD.md` (new rule, from route (d)):** a `meshQualityDict` limit is **never set to
+a gate value it will later be graded against**. `maxNonOrtho 70` — the §3.1 gate itself, **looser
+than OpenFOAM's default 65** — would have relaxed the mesher up to exactly its own acceptance
+threshold: **a mesh built to its gate passes by construction and measures nothing.** Caught and
+reverted to untouched defaults before any build.
+
+**CRM wing-alone closed.** `2a1e8673e` verified by me against its own sha: one file, **+19/−3**,
+`GATE_TABLE.md` only, nothing foreign. Artifact list **split by durability** — committed (the
+artifacts the verdicts cite) vs **source, git-ignored, disk only** (`log.checkMesh`,
+`log.plot3dToFoam` per `.gitignore:260`, the `nonOrthoFaces` set per `.gitignore:66`). **G-M1/G-M2
+/G-M3 are read from an ignored file and are durable ONLY through their transcription here.** No
+graded value touched, **proved** by numeric-token diff (159→172, removed-or-altered = **empty
+set**), with a **discriminating control** — `GATE_TABLE.md` itself reports *not* ignored, so the
+checker was shown able to return both answers. Precedent guardrail written into the file:
+**`GATE_TABLE.md` is a RESULTS RECORD, not a frozen registration** — a graded number would have
+required a dated addendum under rule 6.
+**OpenFOAM glob trap, standing:** `find -name '*.log'` keeps `pyhyp.log` and **silently drops
+every `log.<app>`**; an under-collecting glob and a correct-but-short list are indistinguishable
+without a stated expected count. **Neither errors.**
+
+**MY PROCESS ERROR, recorded:** I dispatched the CRM mesh lane to build route (d) **without
+checking who held the item** — another lane had it registered and staged. Stopped before any
+compute; **two registrations and two build trees for one rung** was the outcome avoided. The lane
+that was wrongly dispatched is reassigned to **disk reclamation in cfd territory only** (report
+before deleting; never another team's data; never a running solver's tree; ask the disk, not git).
+
+**Live:** MRF fine **4,536/8,000**, pid 2200481, ETA ~02:12Z, detached on-landing §9 reporter pid
+2320899 (survives its lane). DrivAer A1 **RELEASED** on medium's `rc` and dispatched. **Untouched:
+pid 316601 (ansys), 10 other-team ranks.**
+**Rungs without verdicts:** MRF_R2 triple **PENDING** (no triple tonight; fine outstanding) ·
+M6 route (d) **BLOCKED on the 20 GiB floor** · DrivAer A1 **PENDING** · `COST_CALIBRATION.md` row
+**PENDING** fine.
+**Next:** fine lands → R2 triple graded in one pass (ratios in **CELL LAYERS not nodes**; GCI at
+Fs=1.25, **never quoted when the three values are not monotone**) with the pre-declared
+expectation of whether level-to-level differences exceed the noise · waiter diff read by me ·
+disk inventory → route (d) if 20 GiB clears · **M6SR re-pin to `77fd1e8dda6a` still owed** ·
+check 1 on `scaling_assert.py` and `locate_nonortho.py` (flagged NOT cleared in their own commit).
+**On Sanaa's desk:** nothing from cfd. **To the chief:** the 15 GiB cross-team disk call; the
+`*.xyz` gitignore gap; the shared index stale by 187 paths (inspect, never repair).
+**Blocked:** M6 route (d) on disk · SUBOFF_A1 mesh family · CRM_M085 · M6C1 · M6 §A1.3 FALSIFIED
+and gate-frozen, route (c) TERMINATED.
+
+**R2 TRIPLE PRE-STATEMENT — FROZEN BEFORE FINE LANDS.** `f15e5e0b`,
+`verification/campaign/MRF_R2_TRIPLE_PRESTATEMENT_2026-09-11.md`. **A pre-statement by
+construction, not by claim:** the guard asserting fine's `rc` sidecar does **not** exist ran in
+the **same invocation** as the commit, with fine at `Time = 4602`. Alters no gate, threshold,
+cap, band or label. Gating order, GCI at Fs=1.25 never quoted off non-monotone values, and
+refinement ratio **in CELL LAYERS not node counts** are all fixed in the document rather than
+improvised with the result in front of us.
+**PREDICTION ON THE RECORD, WHILE IT CAN STILL BE WRONG:** the R2 triple will be
+**arithmetically computable and physically meaningless.** On the **settled** estimator,
+`|Np_med − Np_coarse|` on window means = **`3.364298e-03`** against a worst within-level range of
+**`5.187192e-03`** — **signal/noise `0.649`, already below 1 with one level still to come.**
+**Falsifier, named in advance:** fine's settled `Np` landing far enough from medium's that both
+gaps are **monotone AND exceed ~`5.2e-03`**.
+🔴 **THE ESTIMATOR TRAP, NAMED BEFORE ANYONE FELL IN IT.** On the **raw endpoint** the same
+comparison gives **signal/noise `16.896`** and looks perfectly healthy. It is an artifact of
+differencing two instantaneous samples of an oscillating quantity — and coarse's own series
+proves it: `Np(8000) 4.193491` against window mean `4.228316` is a gap of **`3.48e-02`, TEN TIMES
+the `3.36e-03` difference between the two levels' settled means.** **Each level's endpoint carries
+a wobble an order of magnitude larger than the signal the triple is trying to resolve**, so a
+triple on raw endpoints can report a **clean order of convergence that is an artifact of where
+three oscillations happened to be sampled.** **Both estimators are printed side by side when fine
+lands; NEITHER IS QUOTED ALONE.** If a clean order of convergence is ever reported from this rung,
+**that is the first thing to check.**
+**Waiter fixed BY the rule, not patched around it:** new detector armed detached (pid 2366411,
+session leader, survives its lane) keying on the **launcher pid 2199207 — the process that WRITES
+`rc`** — so a genuine fine crash is now *"the rc writer is gone and no rc was ever written"*. It
+also records the 15 GiB crossing to `CROSSED_15GiB.txt` **with the note that no cfd authority can
+act on it and that it is a cross-team call** — the crossing is on the record even though nothing
+of ours will move. Route (d)'s grading path `2b9f4581` is frozen alongside `dc7f4cfd`, so whoever
+runs it inherits a fixed gate and a plant-gated reader.
 ## verification
 
 **Section last written:** 2026-09-11T18:21:09Z by verification-supervisor (V-181; `date -u` in THIS committing invocation). **CHARTER AT v2.01 (`af5272e0d`) — THE BOARD SWEEPS WERE NEVER A MISSING INSTRUMENT. THE CURE WAS ON DISK, GREEN, AND UNUSED, BECAUSE MY OWN V-175 RULING POINTED EVERY TEAM PAST IT. THIS BLOCK WAS COMMITTED BY THE NEW PATH.**
