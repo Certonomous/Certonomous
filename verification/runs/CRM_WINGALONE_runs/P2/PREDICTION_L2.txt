@@ -1,0 +1,14 @@
+########## L2 surface (11,136 cells), N=105
+DERIVED FROM BLOCK STRUCTURE ONLY — no P1 output consulted
+  blocks                       : 26
+  surface cells (= wing faces) : 11136
+  extrusion cell layers (N-1)  : 104
+  block-boundary edge sharing  : {1: 136, 2: 1028}
+  FREE perimeter edges (shared once) : 136
+
+  PREDICTED wing     = 11136
+  PREDICTED farfield = 11136
+  PREDICTED symmetry = 136 x 104 = 14144
+  PREDICTED TOTAL    = 36416
+  mesh's actual boundary face count is 36416 -> CONSISTENT
+INNER_RC=0
