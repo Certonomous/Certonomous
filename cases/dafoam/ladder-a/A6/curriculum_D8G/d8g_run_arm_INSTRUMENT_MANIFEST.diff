@@ -1,0 +1,119 @@
+=====================================================================
+CLASSIFYING DIFF -- d8g_run_arm_candidate.sh : STAGED-INSTRUMENT MANIFEST
+for: dafoam-supervisor, to be read AS A DIFF.  date: 2026-09-11
+FROZEN d8g_run_arm.sh NOT TOUCHED -- md5 32d0911ed3749fef4a4cb36db62b46d8 on
+disk and at HEAD (ccf2110a6).  NOT COMMITTED.  SUBMISSIONS PARKED.
+
+CLASSIFICATION: ONE CHARACTER.  printf '%s\n' -> printf '%b\n' at the MD5_OUT=
+line (384).  No gate, cap, band, threshold, label or registered value touched.
+NOTHING IS INSERTED ABOVE IT: lines 275, 588 and 838 -- every line number cited
+by any record or addendum -- are byte-identical.  Verified.  The explanation is
+an AMENDMENT 3 block appended at the FOOT, per the convention, carrying
+"lines whose number changed above this section: 0".
+
+THE DEFECT, FOUND ON THE SECOND REAL LAUNCH ATTEMPT (23:18:28Z):
+  The cap repair PASSED --
+    D4_CAP_ASSERT arm=L1-P ... exact_wall_s=704.655000 enforced_wall_s=705
+      drift_s=0.345000 enforced_core_min=47.000000
+  -- and the arm then died at the staged-instrument md5 check.
+
+  INSTRUMENT_MD5S (line 275) separates its three rows with a LITERAL
+  BACKSLASH-n: two characters inside a double-quoted bash string.  Bash does not
+  interpret it; `printf %s` does not interpret it.  md5sum therefore received
+  ONE filename containing the entire manifest.
+
+  *** THE CHECK COULD NEVER PASS, WHATEVER WAS STAGED.  PROVEN, not inferred:
+  with all three instruments present and every md5 MATCHING --
+      printf '%s\n'  ->  rc 1, 0 OK lines, "No such file or directory"
+      printf '%b\n'  ->  rc 0, 3 OK lines
+  and the guard demands 3.  Only ever abort. ***
+
+  THIS IS THE MIRROR OF TONIGHT'S DOMINANT PATTERN.  Seven checks so far could
+  not FAIL.  This one could not PASS.  It fails SAFE -- refusing a correct
+  staging rather than admitting a wrong one -- which is why it cost zero
+  core-min, as the cap defect did.
+
+  AND THE SAME ITEM CONTAINS THE CORRECT IDIOM.  d8g_chain_driver.sh (frozen,
+  8c993186d6ff88d52f285907eba9b334, unchanged) builds the identical check at its
+  line 195 as
+      { echo "$MD5_RUNSCRIPT  ..."; echo "$MD5_OF  ..."; } | md5sum -c -
+  -- one echo per row, real newlines, and it works.  Two spellings of one check
+  in one item; the launcher got the broken one.
+
+WHY %b AND NOT REAL NEWLINES: rewriting the manifest as a multi-line string
+would insert two lines at 275 and shift 760 lines of a file that records cite by
+number.  %b changes one character and shifts nothing.  It is safe here because
+the manifest holds only hex digests, spaces, slashes and the @BASE@ token --
+no other backslash sequence -- and @BASE@ is replaced by sed AFTER printf runs,
+so no path content is ever exposed to escape interpretation.
+
+PLANTED CONTROL, four ways, against a directory holding the three real
+instruments:
+  1. all three present and correct      -> rc 0, 3 OK lines   PASS
+  2. d8g_of.py TAMPERED (one byte)      -> rc 1, 2 OK lines   ABORT ("FAILED")
+  3. d8g_decomposeParDict MISSING       -> rc 1, 2 OK lines   ABORT
+  4. restored                           -> rc 0, 3 OK lines   PASS
+  The reader is shown swinging BOTH ways on the same fixture, so the pass in (1)
+  is not a reader that says OK to everything.
+
+A SECOND, SEPARATE FINDING -- STAGING HAS NOT HAPPENED AND IS NOT THE ARM'S JOB:
+  d8g_runScript.py, d8g_of.py and d8g_decomposeParDict are ABSENT from the run
+  root.  Their sources are here and their md5s MATCH the manifest exactly
+  (28c7819487a025a5f6554d38062a2b66 / f17b4a26fc5dcbbb44e9c820ba16df6c /
+  1dbd9ead3f40a29f483444dc5fa1288b).  Staging is d8g_chain_driver.sh:193, which
+  also resolves the launcher at :87 -- SO THE CHAIN DRIVER, NOT THE ARM, IS THE
+  INTENDED ENTRY POINT.  Even with this repair the arm cannot pass the check
+  until the chain driver has staged them, and whether L1-P is launched via the
+  chain driver is the supervisor's call, not this lane's.
+  (Note also d8g_chain_driver.sh:79 still says "d8g_run_arm.sh itself still
+  carries two unfrozen tokens" -- stale prose, now zero.  Reported, not edited.)
+
+WHAT IS *NOT* CLAIMED: no arm has solved, converged or graded.  This is evidence
+that a correct staging is no longer refused and a wrong one still is.
+=====================================================================
+
+--- d8g_run_arm.sh	2026-09-11 23:16:44.652783968 +0000
++++ d8g_run_arm_candidate.sh	2026-09-11 23:21:22.653046474 +0000
+@@ -381,7 +381,7 @@
+ # ---- staged-instrument identity, re-asserted before EVERY launch ---------
+ # THE COUNT IS ASSERTED, NOT JUST THE EXIT CODE: `md5sum -c` on an EMPTY list
+ # exits 0, which would be a passing check that checked nothing.
+-MD5_OUT=$(printf '%s\n' "$INSTRUMENT_MD5S" | sed "s#@BASE@#$BASE#g" | md5sum -c - 2>&1) \
++MD5_OUT=$(printf '%b\n' "$INSTRUMENT_MD5S" | sed "s#@BASE@#$BASE#g" | md5sum -c - 2>&1) \
+   || { echo "ABORT staged-instrument md5: $MD5_OUT"; exit 4; }
+ MD5_OK=$(printf '%s\n' "$MD5_OUT" | grep -c ': OK$')
+ test "$MD5_OK" -eq 3 || { echo "ABORT staged-instrument md5 manifest returned $MD5_OK OK lines, not 3: $MD5_OUT"; exit 4; }
+@@ -1014,3 +1014,33 @@
+ test -s "$LOG" && touch "$LOG.ok.${STAMP}"   # L-252 provenance sentinel
+ echo "STAMP=$STAMP RC=$rc CORE_MIN=$CORE_MIN"
+ exit $rc
++
++# =============================================================================
++# AMENDMENT 3 -- 2026-09-11 -- THE STAGED-INSTRUMENT MANIFEST SEPARATOR
++# lines whose number changed above this section: 0
++#
++# ONE CHARACTER CHANGED, AT THE `MD5_OUT=` LINE: printf '%s\n' -> printf '%b\n'.
++# Nothing is inserted above it, so every line number cited by any record --
++# INSTRUMENT_MD5S at 275, LAUNCH_WITNESS_RE at 588, LAUNCH_BUDGET_S at 838 --
++# is unchanged.  That is why the fix is %b rather than rewriting the manifest
++# with real newlines, which would have shifted 760 lines of cited file.
++#
++# THE DEFECT: INSTRUMENT_MD5S separates its three rows with a LITERAL
++# BACKSLASH-n -- two characters inside a double-quoted bash string.  Bash does
++# not interpret it and `printf %s` does not interpret it, so md5sum received ONE
++# filename containing the whole manifest and the check COULD NEVER PASS,
++# whatever was staged.  MEASURED with all three instruments present and every
++# md5 MATCHING:
++#     printf '%s\n'  ->  rc 1, 0 OK lines, "No such file or directory"
++#     printf '%b\n'  ->  rc 0, 3 OK lines
++# and the guard demands 3, so it could only ever abort.
++#
++# THE MIRROR OF TONIGHT'S PATTERN: not a check that cannot FAIL, but a check
++# that cannot PASS.  It fails SAFE -- refusing a correct staging rather than
++# admitting a wrong one -- which is why it cost zero core-min.
++#
++# WHY %b IS SAFE HERE: the manifest holds only hex digests, spaces, slashes and
++# the @BASE@ token -- no other backslash sequence -- and @BASE@ is replaced by
++# sed AFTER printf runs, so no path content is ever exposed to escape
++# interpretation.  DO NOT "SIMPLIFY" IT BACK TO %s: that is the defect.
++# =============================================================================

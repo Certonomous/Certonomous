@@ -381,7 +381,7 @@ test "$(stat -c '%a' "$BASE")" = "777" || { echo "ABORT L-251 run root mode $(st
 # ---- staged-instrument identity, re-asserted before EVERY launch ---------
 # THE COUNT IS ASSERTED, NOT JUST THE EXIT CODE: `md5sum -c` on an EMPTY list
 # exits 0, which would be a passing check that checked nothing.
-MD5_OUT=$(printf '%s\n' "$INSTRUMENT_MD5S" | sed "s#@BASE@#$BASE#g" | md5sum -c - 2>&1) \
+MD5_OUT=$(printf '%b\n' "$INSTRUMENT_MD5S" | sed "s#@BASE@#$BASE#g" | md5sum -c - 2>&1) \
   || { echo "ABORT staged-instrument md5: $MD5_OUT"; exit 4; }
 MD5_OK=$(printf '%s\n' "$MD5_OUT" | grep -c ': OK$')
 test "$MD5_OK" -eq 3 || { echo "ABORT staged-instrument md5 manifest returned $MD5_OK OK lines, not 3: $MD5_OUT"; exit 4; }
@@ -1014,3 +1014,33 @@ LEDGER="$BASE/ledger.txt"
 test -s "$LOG" && touch "$LOG.ok.${STAMP}"   # L-252 provenance sentinel
 echo "STAMP=$STAMP RC=$rc CORE_MIN=$CORE_MIN"
 exit $rc
+
+# =============================================================================
+# AMENDMENT 3 -- 2026-09-11 -- THE STAGED-INSTRUMENT MANIFEST SEPARATOR
+# lines whose number changed above this section: 0
+#
+# ONE CHARACTER CHANGED, AT THE `MD5_OUT=` LINE: printf '%s\n' -> printf '%b\n'.
+# Nothing is inserted above it, so every line number cited by any record --
+# INSTRUMENT_MD5S at 275, LAUNCH_WITNESS_RE at 588, LAUNCH_BUDGET_S at 838 --
+# is unchanged.  That is why the fix is %b rather than rewriting the manifest
+# with real newlines, which would have shifted 760 lines of cited file.
+#
+# THE DEFECT: INSTRUMENT_MD5S separates its three rows with a LITERAL
+# BACKSLASH-n -- two characters inside a double-quoted bash string.  Bash does
+# not interpret it and `printf %s` does not interpret it, so md5sum received ONE
+# filename containing the whole manifest and the check COULD NEVER PASS,
+# whatever was staged.  MEASURED with all three instruments present and every
+# md5 MATCHING:
+#     printf '%s\n'  ->  rc 1, 0 OK lines, "No such file or directory"
+#     printf '%b\n'  ->  rc 0, 3 OK lines
+# and the guard demands 3, so it could only ever abort.
+#
+# THE MIRROR OF TONIGHT'S PATTERN: not a check that cannot FAIL, but a check
+# that cannot PASS.  It fails SAFE -- refusing a correct staging rather than
+# admitting a wrong one -- which is why it cost zero core-min.
+#
+# WHY %b IS SAFE HERE: the manifest holds only hex digests, spaces, slashes and
+# the @BASE@ token -- no other backslash sequence -- and @BASE@ is replaced by
+# sed AFTER printf runs, so no path content is ever exposed to escape
+# interpretation.  DO NOT "SIMPLIFY" IT BACK TO %s: that is the defect.
+# =============================================================================

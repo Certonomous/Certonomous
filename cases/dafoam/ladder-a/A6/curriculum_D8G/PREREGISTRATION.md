@@ -1534,3 +1534,69 @@ quantum 0.5`, rc=65). **The guard remains strict against exactly what it exists 
 **`32d0911ed3749fef4a4cb36db62b46d8`**.
 
 **SUBMISSIONS PARKED.**
+
+
+---
+
+## ADDENDUM 3 — 2026-09-11 — **THE STAGED-INSTRUMENT MANIFEST CHECK COULD NEVER PASS. IT IS THE MIRROR OF EVERY OTHER DEFECT TONIGHT.**
+
+**Lines whose number changed above this section: 0.**
+
+### THE DEFECT
+
+`INSTRUMENT_MD5S` (`d8g_run_arm.sh:275`) separates its three rows with a **literal backslash-n** —
+two characters inside a double-quoted bash string. Bash does not interpret it and `printf '%s\n'`
+does not either, so **`md5sum -c` received ONE filename containing the entire manifest.** The guard
+requires 3 `OK` lines and could therefore **only ever abort.**
+
+**PROVEN, NOT INFERRED**, with all three instruments present and every md5 matching:
+
+| spelling | rc | `OK` lines |
+|---|---|---|
+| `printf '%s\n'` (frozen) | 1 | **0** |
+| `printf '%b\n'` | 0 | **3** |
+
+### THIS IS THE MIRROR OF THE PATTERN, AND THAT IS THE POINT
+
+**Seven checks this session could not FAIL. This one could not PASS.** It fails **safe** — refusing a
+correct staging rather than admitting a wrong one — which is why it cost **0 core-min**, exactly as
+the cap-assertion defect of ADDENDUM 2 did. Both aborted before a container, a ledger row, or a
+single core-second.
+
+**AND THE SAME ITEM ALREADY CONTAINS THE CORRECT IDIOM.** `d8g_chain_driver.sh:195` builds the
+identical check as `{ echo …; echo …; } | md5sum -c -` — one `echo` per row, real newlines — and it
+works. **Two spellings of one check in one item; the launcher inherited the broken one.**
+
+### THE REPAIR — ONE CHARACTER
+
+`%s` → `%b` at `:384`. **`%b` over the embedded escapes is deliberate rather than rewriting the
+manifest multi-line**, which would shift 760 lines of a file this document's addenda cite by number.
+It is safe because the manifest holds only hex digests, spaces, slashes and `@BASE@`, and `@BASE@` is
+substituted by `sed` **after** `printf`, so no path content ever meets escape interpretation.
+
+**LINE PRESERVATION VERIFIED, NOT ASSERTED:** lines **275, 588 and 838** are byte-identical to the
+committed blob; only **384** differs.
+
+**PLANTED FOUR WAYS on one fixture, so the pass is not a reader that says OK to everything:**
+all three correct → **rc 0, 3 OK, PASS**; `d8g_of.py` tampered by one byte → **rc 1, 2 OK, ABORT**;
+`d8g_decomposeParDict` removed → **rc 1, 2 OK, ABORT**; restored → **rc 0, 3 OK, PASS**.
+
+### RULING — THE CHAIN DRIVER IS THE ENTRY POINT, NOT THE ARM
+
+The three instruments are **absent from the run root**, and staging is **not the arm's job**:
+`d8g_chain_driver.sh:193` stages them and `:87` resolves the launcher. **Even with this repair the
+arm cannot pass its own manifest check until the chain driver has staged**, so **L1-P is launched
+through `d8g_chain_driver.sh`**, which is the designed path. Launching the arm directly would require
+hand-staging — the same "not built by the frozen path" defect that already cost one mesh
+regeneration on this item.
+
+*(Noted, not edited: `d8g_chain_driver.sh:79` still reads "d8g_run_arm.sh itself still carries two
+unfrozen tokens." That prose is stale — the count is zero — and it changes no behaviour.)*
+
+**ALTERS NO** gate, band, threshold, cap or label. `d8g_grade.py` `12688063e20cbb6fa79cf08d0996d4e1`
+untouched.
+
+**RE-FREEZE:** `d8g_run_arm.sh` `32d0911ed3749fef4a4cb36db62b46d8` →
+**`7ce53b9242ac6e850cc330712d93d5b0`**.
+
+**SUBMISSIONS PARKED.**
