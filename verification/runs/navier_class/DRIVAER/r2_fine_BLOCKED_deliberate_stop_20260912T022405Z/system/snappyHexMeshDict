@@ -1,0 +1,274 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      snappyHexMeshDict;
+}
+
+castellatedMesh true;
+snap            true;
+addLayers       true;
+
+geometry
+{
+    car
+    {
+        type triSurfaceMesh;
+        file "drivaer_466.stl";
+        regions
+        {
+            "BodyA-Pillar" { name BodyA_Pillar; }
+            "BodyDoorhandles" { name BodyDoorhandles; }
+            "BodyFasciafront1" { name BodyFasciafront1; }
+            "BodyFasciafront2" { name BodyFasciafront2; }
+            "BodyFender" { name BodyFender; }
+            "BodyHeadlamps" { name BodyHeadlamps; }
+            "BodyHood" { name BodyHood; }
+            "BodyRear" { name BodyRear; }
+            "BodyRearAccess" { name BodyRearAccess; }
+            "BodyRocker" { name BodyRocker; }
+            "BodyRoof" { name BodyRoof; }
+            "BodySide" { name BodySide; }
+            "BodyWindowfront" { name BodyWindowfront; }
+            "BodyWindowfrontframe" { name BodyWindowfrontframe; }
+            "BodyWindowSide" { name BodyWindowSide; }
+            "BodyWindowsideframe" { name BodyWindowsideframe; }
+            "BrakeDiscfront" { name BrakeDiscfront; }
+            "BrakeDiscrear" { name BrakeDiscrear; }
+            "ClosedGrillLowerInsert" { name ClosedGrillLowerInsert; }
+            "ClosedGrillUpperInsert" { name ClosedGrillUpperInsert; }
+            "CTRL_SURFACE_Outlet" { name CTRL_SURFACE_Outlet; }
+            "CTRL_SURFACE_Wheelhouse_LHS" { name CTRL_SURFACE_Wheelhouse_LHS; }
+            "CTRL_SURFACE_Wheelshouse_RHS" { name CTRL_SURFACE_Wheelshouse_RHS; }
+            "EngineUndershield" { name EngineUndershield; }
+            "ExhaustSystem1" { name ExhaustSystem1; }
+            "ExhaustSystem2" { name ExhaustSystem2; }
+            "ExhaustSystem3" { name ExhaustSystem3; }
+            "Mirrors1" { name Mirrors1; }
+            "Mirrors2" { name Mirrors2; }
+            "NotchbackB-Pillar" { name NotchbackB_Pillar; }
+            "NotchbackBodyside" { name NotchbackBodyside; }
+            "NotchbackC-Pillar" { name NotchbackC_Pillar; }
+            "NotchbackRoof" { name NotchbackRoof; }
+            "NotchbackTrunk" { name NotchbackTrunk; }
+            "NotchbackWindowrear" { name NotchbackWindowrear; }
+            "NotchbackWindowrearframe" { name NotchbackWindowrearframe; }
+            "NotchbackWindowside" { name NotchbackWindowside; }
+            "NotchbackWindowsideframe" { name NotchbackWindowsideframe; }
+            "OCDADetailedUnderbody" { name OCDADetailedUnderbody; }
+            "Powertrain" { name Powertrain; }
+            "Rimsfront" { name Rimsfront; }
+            "Rimsrear" { name Rimsrear; }
+            "TirePlinthfront" { name TirePlinthfront; }
+            "TirePlinthrear" { name TirePlinthrear; }
+            "Tiresfront" { name Tiresfront; }
+            "Tiresrear" { name Tiresrear; }
+            "WheelSupportfront1" { name WheelSupportfront1; }
+            "WheelSupportfront2" { name WheelSupportfront2; }
+            "WheelSupportrear" { name WheelSupportrear; }
+        };
+    }
+    box1
+    {
+        type searchableBox;
+        min (-3.0 -3.0 -0.319);
+        max (15.0 3.0 3.0);
+    }
+    box2
+    {
+        type searchableBox;
+        min (-1.8 -2.0 -0.319);
+        max (8.0 2.0 2.2);
+    }
+    box3
+    {
+        type searchableBox;
+        min (-1.2 -1.4 -0.319);
+        max (5.5 1.4 1.6);
+    }
+};
+
+castellatedMeshControls
+{
+    maxLocalCells       6000000;
+    maxGlobalCells      40000000;
+    minRefinementCells  10;
+    maxLoadUnbalance    0.10;
+    nCellsBetweenLevels 3;
+
+    features
+    (
+        { file "drivaer_466.eMesh"; level 4; }
+    );
+
+    refinementSurfaces
+    {
+        car
+        {
+            level (4 4);
+            patchInfo { type wall; }
+            regions
+            {
+                BodyA_Pillar { level (4 4); }
+                BodyDoorhandles { level (5 5); }
+                BodyFasciafront1 { level (4 4); }
+                BodyFasciafront2 { level (4 4); }
+                BodyFender { level (4 4); }
+                BodyHeadlamps { level (5 5); }
+                BodyHood { level (4 4); }
+                BodyRear { level (4 4); }
+                BodyRearAccess { level (4 4); }
+                BodyRocker { level (5 5); }
+                BodyRoof { level (4 4); }
+                BodySide { level (4 4); }
+                BodyWindowfront { level (4 4); }
+                BodyWindowfrontframe { level (4 4); }
+                BodyWindowSide { level (4 4); }
+                BodyWindowsideframe { level (4 4); }
+                BrakeDiscfront { level (4 4); }
+                BrakeDiscrear { level (4 4); }
+                ClosedGrillLowerInsert { level (5 5); }
+                ClosedGrillUpperInsert { level (5 5); }
+                CTRL_SURFACE_Outlet { level (4 4); }
+                CTRL_SURFACE_Wheelhouse_LHS { level (4 4); }
+                CTRL_SURFACE_Wheelshouse_RHS { level (4 4); }
+                EngineUndershield { level (4 4); }
+                ExhaustSystem1 { level (5 5); }
+                ExhaustSystem2 { level (5 5); }
+                ExhaustSystem3 { level (5 5); }
+                Mirrors1 { level (5 5); }
+                Mirrors2 { level (5 5); }
+                NotchbackB_Pillar { level (4 4); }
+                NotchbackBodyside { level (4 4); }
+                NotchbackC_Pillar { level (4 4); }
+                NotchbackRoof { level (4 4); }
+                NotchbackTrunk { level (4 4); }
+                NotchbackWindowrear { level (4 4); }
+                NotchbackWindowrearframe { level (4 4); }
+                NotchbackWindowside { level (4 4); }
+                NotchbackWindowsideframe { level (4 4); }
+                OCDADetailedUnderbody { level (4 4); }
+                Powertrain { level (4 4); }
+                Rimsfront { level (4 4); }
+                Rimsrear { level (4 4); }
+                TirePlinthfront { level (5 5); }
+                TirePlinthrear { level (5 5); }
+                Tiresfront { level (4 4); }
+                Tiresrear { level (4 4); }
+                WheelSupportfront1 { level (4 4); }
+                WheelSupportfront2 { level (4 4); }
+                WheelSupportrear { level (4 4); }
+            }
+        }
+    }
+
+    resolveFeatureAngle 30;
+
+    refinementRegions
+    {
+        box1 { mode inside; levels ((1E15 1)); }
+        box2 { mode inside; levels ((1E15 2)); }
+        box3 { mode inside; levels ((1E15 3)); }
+    }
+
+    locationInMesh (-10.0 5.0 5.0);
+    allowFreeStandingZoneFaces true;
+}
+
+snapControls
+{
+    nSmoothPatch    3;
+    tolerance       2.0;
+    nSolveIter      50;
+    nRelaxIter      6;
+    nFeatureSnapIter 12;
+    implicitFeatureSnap false;
+    explicitFeatureSnap true;
+    multiRegionFeatureSnap false;
+}
+
+addLayersControls
+{
+    relativeSizes       true;
+    finalLayerThickness 0.5;
+    expansionRatio      1.25;
+    minThickness        0.02;
+
+    layers
+    {
+        BodyA_Pillar { nSurfaceLayers 5; }
+        BodyDoorhandles { nSurfaceLayers 5; }
+        BodyFasciafront1 { nSurfaceLayers 5; }
+        BodyFasciafront2 { nSurfaceLayers 5; }
+        BodyFender { nSurfaceLayers 5; }
+        BodyHeadlamps { nSurfaceLayers 5; }
+        BodyHood { nSurfaceLayers 5; }
+        BodyRear { nSurfaceLayers 5; }
+        BodyRearAccess { nSurfaceLayers 5; }
+        BodyRocker { nSurfaceLayers 5; }
+        BodyRoof { nSurfaceLayers 5; }
+        BodySide { nSurfaceLayers 5; }
+        BodyWindowfront { nSurfaceLayers 5; }
+        BodyWindowfrontframe { nSurfaceLayers 5; }
+        BodyWindowSide { nSurfaceLayers 5; }
+        BodyWindowsideframe { nSurfaceLayers 5; }
+        BrakeDiscfront { nSurfaceLayers 5; }
+        BrakeDiscrear { nSurfaceLayers 5; }
+        ClosedGrillLowerInsert { nSurfaceLayers 5; }
+        ClosedGrillUpperInsert { nSurfaceLayers 5; }
+        CTRL_SURFACE_Outlet { nSurfaceLayers 5; }
+        CTRL_SURFACE_Wheelhouse_LHS { nSurfaceLayers 5; }
+        CTRL_SURFACE_Wheelshouse_RHS { nSurfaceLayers 5; }
+        EngineUndershield { nSurfaceLayers 5; }
+        ExhaustSystem1 { nSurfaceLayers 5; }
+        ExhaustSystem2 { nSurfaceLayers 5; }
+        ExhaustSystem3 { nSurfaceLayers 5; }
+        Mirrors1 { nSurfaceLayers 5; }
+        Mirrors2 { nSurfaceLayers 5; }
+        NotchbackB_Pillar { nSurfaceLayers 5; }
+        NotchbackBodyside { nSurfaceLayers 5; }
+        NotchbackC_Pillar { nSurfaceLayers 5; }
+        NotchbackRoof { nSurfaceLayers 5; }
+        NotchbackTrunk { nSurfaceLayers 5; }
+        NotchbackWindowrear { nSurfaceLayers 5; }
+        NotchbackWindowrearframe { nSurfaceLayers 5; }
+        NotchbackWindowside { nSurfaceLayers 5; }
+        NotchbackWindowsideframe { nSurfaceLayers 5; }
+        OCDADetailedUnderbody { nSurfaceLayers 5; }
+        Powertrain { nSurfaceLayers 5; }
+        Rimsfront { nSurfaceLayers 5; }
+        Rimsrear { nSurfaceLayers 5; }
+        TirePlinthfront { nSurfaceLayers 5; }
+        TirePlinthrear { nSurfaceLayers 5; }
+        Tiresfront { nSurfaceLayers 5; }
+        Tiresrear { nSurfaceLayers 5; }
+        WheelSupportfront1 { nSurfaceLayers 5; }
+        WheelSupportfront2 { nSurfaceLayers 5; }
+        WheelSupportrear { nSurfaceLayers 5; }
+        floorNoSlip { nSurfaceLayers 5; }
+    }
+
+    nGrow               0;
+    featureAngle        130;
+    slipFeatureAngle    30;
+    nRelaxIter          5;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals      3;
+    nSmoothThickness    10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedialAxisAngle  90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter          50;
+    nRelaxedIter        20;
+}
+
+meshQualityControls
+{
+    #include "meshQualityDict"
+}
+
+writeFlags ( );
+mergeTolerance 1e-6;

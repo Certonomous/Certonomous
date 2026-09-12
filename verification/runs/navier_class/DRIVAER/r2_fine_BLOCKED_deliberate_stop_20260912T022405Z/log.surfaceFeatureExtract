@@ -1,0 +1,76 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : surfaceFeatureExtract
+Date   : Sep 12 2026
+Time   : 01:28:54
+Host   : ip-172-31-43-247
+PID    : 2625333
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_fine
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+
+Note: Feature line extraction only valid on closed manifold surfaces
+
+Reading surfaceFeatureExtractDict
+
+Surfaces     : drivaer_466.stl
+Output       : drivaer_466
+Load options : offset
+Write options: writeObj=no writeVTK=off
+
+Statistics:
+Triangles    : 753238 in 49 region(s)
+Vertices     : 376533
+Bounding Box : (-0.79280198 -1.00196 -0.31963301) (3.77965 1.00196 1.22588)
+
+Constructing feature set from included angle 150
+Selecting edges based purely on geometric tests: no
+
+Initial Feature set:
+    points : 966
+    edges  : 33411
+    of which
+        region edges   : 9568
+        external edges : 16457
+        internal edges : 7386
+
+Final Feature set:
+    points : 34039
+    of which
+        convex             : 248
+        concave            : 152
+        mixed              : 566
+        non-feature        : 33073
+    edges  : 33411
+    of which
+        external edges     : 20366
+        internal edges     : 12647
+        flat edges         : 398
+        open edges         : 0
+        multiply connected : 0
+
+Writing extendedFeatureEdgeMesh to "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_fine/constant/extendedFeatureEdgeMesh/drivaer_466.extendedFeatureEdgeMesh"
+
+Writing featureEdgeMesh to "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_fine/constant/triSurface/drivaer_466.eMesh"
+ExecutionTime = 3.18 s  ClockTime = 8 s
+
+End
+
