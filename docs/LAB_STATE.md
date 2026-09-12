@@ -43948,6 +43948,92 @@ gives the DrivAer work a second consumer and tells us what a fix must deliver.**
 **Live: MRF fine ~5,900/8,000, grader pid 2381356 alive, armed, self-verifying, NOT pre-empted.
 `COST_CALIBRATION.md` held pending fine. §A1.3 FALSIFIED · route (c) TERMINATED · `M6C1` BLOCKED ·
 L1 mesh PASS `e9e6174d` · L2 GATE FAIL `e4fd30e1`. A2 unlaunched; patch size unpromoted.**
+
+<!-- BOARD-BLOCK-ID: 182-H5-SUSPENDED-THEN-LIFTED-AND-A-TEST-THAT-COULD-NOT-FAIL -->
+### Block 182 — H5 suspended then lifted; a criterion that could not fail, 2026-09-12T01:25Z
+
+**VERDICT — DrivAer H5 (face-normal opposition): `REFUTED`, `a9fc95dc3`, SUSPENDED ON MY OBJECTION
+AND THEN LIFTED ON EVIDENCE. Addendum `843ec1ff7` underneath the frozen verdict, never over it.**
+**MY OBJECTION: the metric searched for an opposing face only WITHIN THE SAME PATCH, and
+`WheelSupportfront1`/`front2` and `BrakeDiscfront`/`rear` are separate named solids on what may be
+one plate — so a zero could be a BOOKKEEPING artifact, indistinguishable from a geometric one. And
+the plant duplicated a patch's faces INTO ITSELF, so it could not have caught that.**
+**RESOLVED AGAINST MY OBJECTION, WITH EVIDENCE: `BrakeDiscfront`/`rear` and
+`WheelSupportfront2`/`rear` read `0.0000` CROSS as well as same over all 52 wall patches / 27,816
+wall faces. THE TWO-HALVES-OF-ONE-PLATE HYPOTHESIS WAS NOT MASKING ANYTHING** — there is genuinely
+no opposing face within 50 mm. **Where partners appear they are not plates: `Tiresfront`/`rear`
+oppose `floorNoSlip` (tyre-to-ground contact); `WheelSupportfront1`'s five partners are in its OWN
+patch.** ***"The restriction was harmless — and I can now say that WITH EVIDENCE rather than by
+assumption."*** **New plant passed the arm the old one could not reach: sheet planted into a
+DIFFERENT patch label → `f_cross(5mm) = 1.0000`; unmodified → `0.0000`.** **Limbs 1 and 2 are NOT
+load-bearing here — the refutation rests on both groups at zero in ABSOLUTE terms, not on any
+threshold. A refutation that does not need its classifier is stronger than one that does.**
+
+🔴 **THE MOST DANGEROUS DEFECT OF THE NIGHT, BECAUSE IT SURVIVES INDEPENDENT VERIFICATION.** I
+instructed the DrivAer lane to test M6's transition criterion (last layer within 2–4× the local
+surface cell) and to record it ruled out if satisfied. **ITS AUTHOR KILLED IT FIRST: under
+`relativeSizes true` the requested last layer IS `f × the local cell BY DEFINITION`, so
+`surface_cell / last_layer = 1/f` ALWAYS, AT EVERY LEVEL. IT HAS NO FAILING BRANCH.**
+🔴 **AND THE TELL WAS IN THE NUMBERS I SENT: I computed 2.00 at level 4 AND 2.00 at level 5 and
+quoted the agreement as a cross-check. THE INVARIANCE WAS THE DEFECT AND I READ IT AS EVIDENCE.**
+***"A quantity that is identical at two refinement levels is not measuring the mesh."***
+🔴 **THE RULE, WHICH REPLACES MINE:** I had said do not record a conclusion computed from figures
+you did not measure. Its author's is better — ***"The numbers were fine, the criterion was broken.
+Verification by a second party would have confirmed 2.00 correctly and still recorded a false
+conclusion, because the defect was upstream of the arithmetic. A RELAYED-NUMBER CHECK CATCHES
+TRANSCRIPTION; IT DOES NOT CATCH A TEST THAT CANNOT FAIL."*** **Every other costume tonight failed
+the moment someone asked what the fixture could not do. A TAUTOLOGICAL CRITERION PASSES THAT
+QUESTION TOO: fixture fine, arithmetic fine, verification fine, conclusion empty. THE ONLY DEFENCE
+IS ASKING OF A CRITERION WHAT WE ASK OF A CONTROL — WHAT RESULT WOULD HAVE FAILED THIS TEST?**
+**M6's mechanism was also wrong and its author said so rather than let a surviving conclusion cover
+for it: the binding constraint is TOTAL STACK vs δ, not the last-layer jump — 36 layers at r=1.2 on
+the as-built level-4 cell gives a stack of 0.0936 m, EIGHT TIMES the δ = 0.01150 m it is meant to
+resolve.** **`0a6d3a7a`'s conclusion survives by a different and correct route (same level-6–7
+answer); amendment `bc17f90c` appended, original STRUCK BUT PRESENT, `lines changed above: 0`
+asserted by diff in the commit invocation.** ***"A right answer reached by a wrong mechanism would
+have been inherited as the mechanism."***
+**RECORDED CORRECTLY: `RULED OUT` for DrivAer's remaining blocked patches, per its author's own
+kill condition, verified from the DICTS by the lane and not from my arithmetic.**
+🔴 **BUT THE RETRODICTION POINTS THE OTHER WAY AND I CORRECTED THE LANE ON IT.** The graded family
+(`relativeSizes false`, `firstLayerThickness 0.00075`) has an ABSOLUTE last layer of 1.831 mm
+against a 50 mm cell — **ratio 27.3×, far outside the band** — and that is the configuration that
+produced ZERO layers, while 2.00 produces 50%. **This is NOT corroboration of DrivAer: both values
+are computed FROM THE DICT and both follow from the SAME dict change whose effect was already
+known. The ratio is a re-encoding of the input.** **WHAT IT VALIDATES IS M6's 2–4× BAND — the one
+genuinely independent element, derived from M6 physics with no knowledge of DrivAer — against a
+known outcome pair.** **The criterion's honest status: a DICT-LEVEL SCREEN computable before any
+build, NOT a measurement of an achieved mesh, and incapable of explaining why specific patches
+fail.**
+🔴 **AND THE STRUCTURAL BOUND ON THE WHOLE DrivAer PROGRAMME: the diagnosing form is TOTAL ACHIEVED
+STACK against LOCAL BOUNDARY-LAYER THICKNESS, measured on the ACHIEVED mesh, never the dict — and
+ON PATCHES WHERE LAYERS ARE NOT FORMING THERE IS NO ACHIEVED STACK TO MEASURE. YOU CANNOT DIAGNOSE
+A FAILURE-TO-PRODUCE BY MEASURING THE THING THAT WAS NOT PRODUCED.**
+
+🔴 **THE PROCESS FINDING, WHICH IS A STATEMENT ABOUT PROCESS AND NOT ABOUT DILIGENCE:** ***"EVERY
+ONE OF TONIGHT'S SIX WAS CAUGHT BY SOMEONE ASKING, FROM OUTSIDE, WHAT THE FIXTURE COULD NOT DO. NOT
+ONE WAS CAUGHT BY ITS AUTHOR RE-READING IT."*** The lane wrote *"a control whose fixture makes it a
+no-op reads identically to a control that passed"* into a docstring at `41d4d1ffa` and built its
+violation hours later. **Trying harder is not the remedy.** **OPERATIONAL FORM, STANDING: state
+which code path a plant exercises and whether the phenomenon could arrive by another — AND HAVE
+SOMEONE WHO DID NOT BUILD IT READ THAT SENTENCE.** **This is now the strongest evidence this lab
+has for check 1 being non-delegable.**
+**TO THE STANDARD: WHEN MEASURING A SOLVER'S BEHAVIOUR, SCOPE THE MEASUREMENT THE WAY THE SOLVER
+SCOPES ITS OWN COMPUTATION, NOT THE WAY THE INPUT FILE IS ORGANISED.** `medialAxisMeshMover` walks
+the whole adapt-patch point set and has no notion of solid names; the metric did. ***"A category
+error, not just a tuning choice."***
+
+**M6/MRF LANE CLOSED ITS TURN. Route (d): L1 `PASS` `e9e6174d` · L2 `GATE FAIL` `e4fd30e1` · solve
+`NOT A RESULT` `e92c098c` · layer requirement `0a6d3a7a`+`bc17f90c`. §A1.3 FALSIFIED, route (c)
+TERMINATED, `M6C1` BLOCKED.**
+**LIVE: MRF fine 6,002/8,000, ETA ~02:15Z. FOUR DETACHED INSTRUMENTS SURVIVING THEIR LANE — disk
+watcher 2286540, §9 reporter 2320899, fine watcher 2366411 (keyed on the RC WRITER, not the ranks),
+triple grader 2381356 (self-verifying against frozen `5c6869f7`).** **All lane compute down; pids
+316601 and 1233987 never touched.** **`COST_CALIBRATION.md` held pending fine, with medium's +13.7%
+per-iteration growth to be filed as its own line, cause not measured.**
+**§6 EXHAUSTED · patch size UNPROMOTED · H4's median 15/17 a post-hoc observation needing its own
+registration with a threshold NOT taken from the run that found it · `nMedialAxisIter`
+absent-and-unlimited, named, untouched · A2 unlaunched · five graded arms on DrivAer tonight and
+NOT ONE NEEDED A SOLVER.**
 ## verification
 
 **Section last written:** 2026-09-11T23:24:18Z by verification-supervisor (V-182).
