@@ -648,3 +648,115 @@ a desk task, so **no estimate-versus-actual calibration row is owed for §12**.
 *Appended by a cfd `lab-lane`, 2026-09-12. Registers no band, alters no gate, threshold,
 cap or label. Numbers `PENDING` the supervisor's non-delegable read of the instrument
 diff. No agent's message is Sanaa's consent. Submissions parked.*
+
+## 12.8 REVISION, 2026-09-12 — **§12.0's `PENDING` STAMP IS STRUCK; TWO REQUIRED ADDITIONS MADE; THE SIGN CLAIM IS NARROWED FROM 11 OF 11 TO 10 OF 11**
+
+Appended, not inserted: **lines whose number changed above this section: 0.**
+**A READER WHO STOPS AT §12.0 WILL READ A STATUS THAT NO LONGER HOLDS.** §12.0 said every
+number in §12 was `PENDING` the cfd-supervisor's non-delegable read of the instrument.
+**That read is done — check 1 discharged, all 202 lines read as code — and the `PENDING`
+is LIFTED, subject to the two additions below, which are now made.** §12.0 is **struck by
+this section, not rewritten** (rule 6).
+
+### 12.8.A THE TWO PLANTED CONTROLS WERE ASYMMETRIC, AND THE WEAKER ONE GUARDED THE NUMBER THAT FLATTERS US
+
+Revision 1 planted into **our** array and checked only that the array moved, while the
+**reference** control planted into the conclusion's statistic. **Ours is the side
+reporting 7 of 11 inside the error bar and RMS 1.12 half-widths — the side that looks
+good had the looser control.** Raised by the cfd-supervisor; the criticism is correct and
+this record says so rather than absorbing it.
+
+**Both controls now run BOTH limbs and fail if either limb fails:**
+
+| control | limb 1 — raw array | limb 2 — the conclusion's statistic |
+|---|---|---|
+| **ours** | every `k` moves by exactly `PLANT`; worst error **2.39e-18** | `mean_signed_rel_pct` of OURS-vs-LDA must move by the predicted `100·mean(PLANT/k_LDA)`. Predicted **13.304301928 %**, observed **13.304301928 %** |
+| **reference** | every Zone-1 ordinate moves by exactly `PLANT`; worst error **1.08e-18** | same statistic for Zone-1-vs-LDA. Predicted **13.304301928 %**, observed **13.304301928 %** |
+
+**All four limbs PASSED.** As the supervisor put it: the point is not that it was expected
+to fail, but that **the record now shows it could have.**
+
+### 12.8.B DIGITISATION UNCERTAINTY — ANSWERED TWO WAYS, AND IT NARROWS THE CLAIM
+
+Revision 1 treated the digitised Zone-1 ordinates as **exact** and banded only the LDA
+points. A one-sided sign at 11 of 11 is **precisely what a small systematic digitisation
+offset would manufacture**, so it is answered here rather than left to a hostile reader.
+
+**LIMB 1 — ANALYTIC, and it is the stronger of the two.** Both the LDA markers and the
+Zone-1 polyline are recovered from the **same PDF content stream** and mapped through the
+**same affine calibration** `k(x) = XV0 + (x − X0)·s` (`digitise_reid2025_fig16.py`, `xs`).
+Therefore:
+
+* **Offset error** — if `X0` is wrong by `d`, every recovered `k` shifts by `−d·s`, **both
+  curves alike**, and the **difference (Zone1 − LDA) is EXACTLY unchanged**. A calibration
+  offset cannot create, destroy or flip a single sign.
+* **Scale error** — if `s` is wrong by `(1+e)`, the difference is multiplied by a
+  **positive** factor. That changes magnitude, never sign.
+
+**The one-sided sign result is therefore invariant under ANY affine axis calibration
+error, by construction.** This is an argument about the reader's algebra, labelled
+`ANALYTIC, not a measurement` in the output.
+
+**LIMB 2 — EMPIRICAL, from the digitiser's own known truth.** Every LDA bar in this figure
+has a true half-width of **exactly 15.0 %** of its centre, so the recovered
+`half_width_pct` has a **known truth** and its departure from 15.0 **measures** the
+digitiser's reading error:
+
+| | |
+|---|---:|
+| bars checked | 11 |
+| worst departure from 15.0 | **0.17 percentage points** |
+| mean departure | 0.051 pp |
+| ⇒ worst relative reading error on `k` | **1.133 %** |
+| ⇒ band on a **difference** (both ordinates, summed not in quadrature — the conservative direction) | **2.267 %** |
+
+**Transfer caveat, stated not buried:** this band is measured on the LDA **markers** and
+transferred to the Zone-1 **polyline**, which the known-truth check cannot reach. **The
+transfer is an assumption.** All of the departure is also attributed to the **ordinate**,
+though some certainly belongs to the cap positions — again the conservative direction.
+
+### 12.8.C THE RESULT: THE CLAIM SURVIVES, AND IS NARROWED
+
+| curve vs the 11 LDA points | positive | negative | **signs surviving the 2.267 % band** |
+|---|---:|---:|---:|
+| **Reid 2025 Zone 1** | **11** | 0 | **10 of 11** |
+| **ours, fine** | 4 | 7 | 9 of 11 |
+
+**THE ONE EXCEPTION, NAMED.** At `2z/W = +0.526` — the profile's peak — Zone 1's excess
+over the experiment is **0.94 % of the LDA value**, which is **below** the 2.267 % band.
+That is the same point already reported in §12.2 as Zone 1's only one inside the
+experiment's error bar (+0.06 half-widths).
+
+> **THE CLAIM IS THEREFORE RESTATED, AND IT IS NARROWER THAN §12.2's:
+> the paper's own Zone-1 curve lies ABOVE the Wu & Patterson experiment at 11 of 11
+> points, and at 10 of those 11 the excess exceeds a conservative digitisation band.
+> At the 11th — the peak — the excess is inside that band and the sign there is NOT
+> claimed.** §12.2's "every one of the eleven points" is correct as a raw sign count and
+> is **struck as a robustness claim** by this line.
+
+**The finding survives**, and on the supervisor's own criterion it is now the one to lead
+with: a **one-sided bias at 10 of 11 points, immune to affine calibration error by
+construction**, is scale-free in a way the RMS ratios are not. Our own curve, by
+contrast, is genuinely **two-sided** (4 positive, 7 negative) — which is what "straddles
+the data" was asserting in §12.2 and is now demonstrated rather than asserted.
+
+**NOTHING IN §12.3's FOUR LIMITS IS WEAKENED BY THIS.** R2 `ET8000` remains
+`NOT A RESULT`; nothing here says our solve is better than theirs; the tail-sensitivity
+disclosure stands; and **no band is registered.**
+
+### 12.8.D INSTRUMENT
+
+`cases/navier_class/MRF/tke_vs_wu_patterson.py`, revision 2026-09-12. **No result,
+statistic or caveat of revision 1 was removed** — the revision only adds limbs and
+uncertainty analysis. Output regenerated at
+`verification/runs/navier_class/MRF/R2/PAPER_PARITY/TKE_VS_WU_PATTERSON.json`, which now
+carries `calibration_invariance`, `digitisation_band`, `sign_robustness_paper_Zone1` and
+`sign_robustness_ours` **inside the JSON**, so they travel with the number rather than
+living only in this prose.
+
+**The revised diff has been sent to the cfd-supervisor. The numbers in §12.8 are
+themselves `PENDING` that second read**, by the same rule that produced §12.0 — a lane
+does not get to exempt its own repair from the check that caught it.
+
+*Appended by a cfd `lab-lane`, 2026-09-12. Registers no band, alters no gate, threshold,
+cap or label. No agent's message is Sanaa's consent. Submissions parked.*

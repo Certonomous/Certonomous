@@ -7,20 +7,236 @@
   "ours": {
    "passed": true,
    "planted": 0.001234,
-   "n_values": 101,
-   "worst_abs_error": 2.3852447794681098e-18,
-   "reader": "read_ours(k_over_Utip2)",
-   "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/PAPER_PARITY/PAPER_PARITY_RESULTS.json"
+   "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/PAPER_PARITY/PAPER_PARITY_RESULTS.json",
+   "limbs": [
+    {
+     "limb": "raw array",
+     "passed": true,
+     "n_values": 101,
+     "worst_abs_error": 2.3852447794681098e-18,
+     "reader": "read_ours(k_over_Utip2)"
+    },
+    {
+     "limb": "the conclusion's statistic",
+     "passed": true,
+     "statistic": "mean_signed_rel_pct of OUR curve vs the LDA points",
+     "expected_move_pct": 13.304301928405335,
+     "observed_move_pct": 13.304301928405334,
+     "reader": "read_ours -> deviations"
+    }
+   ]
   },
   "reference": {
    "passed": true,
    "planted": 0.001234,
-   "statistic": "mean_signed_rel_pct of the Zone-1 curve vs the LDA points",
-   "expected_move_pct": 13.304301928405335,
-   "observed_move_pct": 13.304301928405351,
-   "reader": "read_reference -> deviations",
-   "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/PAPER_PARITY/REID2025_FIG16_DIGITISED.json"
+   "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/PAPER_PARITY/REID2025_FIG16_DIGITISED.json",
+   "limbs": [
+    {
+     "limb": "raw array",
+     "passed": true,
+     "n_values": 44,
+     "worst_abs_error": 1.0842021724855044e-18,
+     "reader": "read_reference(paper_MRF_Zone1_curve)"
+    },
+    {
+     "limb": "the conclusion's statistic",
+     "passed": true,
+     "statistic": "mean_signed_rel_pct of the Zone-1 curve vs the LDA points",
+     "expected_move_pct": 13.304301928405335,
+     "observed_move_pct": 13.304301928405351,
+     "reader": "read_reference -> deviations"
+    }
+   ]
   }
+ },
+ "calibration_invariance": {
+  "kind": "ANALYTIC, not a measurement",
+  "offset_error": "difference EXACTLY unchanged; cannot alter any sign",
+  "scale_error": "difference scaled by a POSITIVE factor; cannot alter any sign",
+  "conclusion": "the one-sided sign result is invariant under any affine axis calibration error, because both curves pass through the identical transform read from the identical content stream",
+  "residual": "per-point reading noise only -- measured empirically below"
+ },
+ "digitisation_band": {
+  "kind": "EMPIRICAL, from the digitiser's known-truth 15 % bars",
+  "n_bars": 11,
+  "worst_abs_dev_pct_points": 0.16999999999999993,
+  "mean_abs_dev_pct_points": 0.05090909090909095,
+  "worst_relative_reading_error": 0.011333333333333329,
+  "applied_to_a_difference": 0.022666666666666658,
+  "applied_to_a_difference_why": "the difference (Zone1 - LDA) carries a reading error on BOTH ordinates, summed rather than added in quadrature -- the conservative direction",
+  "transfer_caveat": "this band is measured on the LDA MARKERS and transferred to the Zone-1 POLYLINE, which the known-truth check cannot reach. The transfer is an assumption, stated, not a measurement."
+ },
+ "sign_robustness_paper_Zone1": {
+  "n_evaluated": 11,
+  "n_positive": 11,
+  "n_negative": 0,
+  "n_signs_surviving_band": 10,
+  "band_used": 0.022666666666666658,
+  "per_point": [
+   {
+    "two_z_over_W": -2.0528,
+    "excess_as_frac_of_lda": 2.0905763304405007,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": -1.5487,
+    "excess_as_frac_of_lda": 1.9878421565598217,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": -1.0362,
+    "excess_as_frac_of_lda": 0.16641906026620135,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": -0.4908,
+    "excess_as_frac_of_lda": 0.3345498218930944,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": -0.2088,
+    "excess_as_frac_of_lda": 0.18323017470397288,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": 0.0012,
+    "excess_as_frac_of_lda": 0.33186305987576753,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": 0.2006,
+    "excess_as_frac_of_lda": 0.41150837616171737,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": 0.5258,
+    "excess_as_frac_of_lda": 0.009390520983469888,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": false,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": 1.1003,
+    "excess_as_frac_of_lda": 0.18833512651964768,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": 1.6042,
+    "excess_as_frac_of_lda": 0.6174823031046206,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": 2.1169,
+    "excess_as_frac_of_lda": 0.9854206789470598,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   }
+  ]
+ },
+ "sign_robustness_ours": {
+  "n_evaluated": 11,
+  "n_positive": 4,
+  "n_negative": 7,
+  "n_signs_surviving_band": 9,
+  "band_used": 0.022666666666666658,
+  "per_point": [
+   {
+    "two_z_over_W": -2.0528,
+    "excess_as_frac_of_lda": 0.2772089746218774,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": -1.5487,
+    "excess_as_frac_of_lda": 0.14118605336791334,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": -1.0362,
+    "excess_as_frac_of_lda": 0.125654115094346,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "-"
+   },
+   {
+    "two_z_over_W": -0.4908,
+    "excess_as_frac_of_lda": 0.14747492846363483,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "-"
+   },
+   {
+    "two_z_over_W": -0.2088,
+    "excess_as_frac_of_lda": 0.19934186111919983,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "-"
+   },
+   {
+    "two_z_over_W": 0.0012,
+    "excess_as_frac_of_lda": 0.017698734385964754,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": false,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": 0.2006,
+    "excess_as_frac_of_lda": 0.06857632589861627,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "-"
+   },
+   {
+    "two_z_over_W": 0.5258,
+    "excess_as_frac_of_lda": 0.26899873030393867,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "-"
+   },
+   {
+    "two_z_over_W": 1.1003,
+    "excess_as_frac_of_lda": 0.04324119465926658,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "+"
+   },
+   {
+    "two_z_over_W": 1.6042,
+    "excess_as_frac_of_lda": 0.2414438603971742,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": true,
+    "sign": "-"
+   },
+   {
+    "two_z_over_W": 2.1169,
+    "excess_as_frac_of_lda": 0.006074185292611892,
+    "band": 0.022666666666666658,
+    "sign_survives_digitisation": false,
+    "sign": "-"
+   }
+  ]
  },
  "ours_vs_LDA": {
   "n_points": 11,
