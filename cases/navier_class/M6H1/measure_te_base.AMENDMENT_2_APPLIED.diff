@@ -1,0 +1,182 @@
+--- a/cases/navier_class/M6H1/measure_te_base.py
++++ b/cases/navier_class/M6H1/measure_te_base.py
+@@ -274,6 +274,135 @@
+         shutil.rmtree(d, ignore_errors=True)
+ 
+ 
++def measure_base_cells(path, base_solid='wing_base'):
++    """H-G2's count, DERIVED FROM THE MESH.  Returns (min_cells, max_cells, n_stations)
++    or (None, None, 0) if the surface does not present it.
++
++    🔴 WHY THIS IS DERIVED AND NO LONGER TAKEN FROM argv.
++    §7 registers H-G2 as ">= 8 CELLS ACROSS THE TE BASE at every spanwise station".  This
++    reader used to take a single scalar "volume cell size" from the command line and divide
++    the base thickness by it.  THAT WORKS ONLY FOR AN ISOTROPIC CELL.  The M6H1 route is a
++    hyperbolic C/O mesh whose cell at the base is about 1.654e-6 m NORMAL TO THE WALL and
++    about base/n ALONG the base, so "the volume cell size" is not one number:
++
++        fed s0 = 1.654e-6      ->  1.1366e-3 / 1.654e-6  =  687 cells  ->  PASSES by 86x
++        fed the base spacing   ->  1.1366e-3 / 5.68e-4   =    2 cells  ->  FAILS by 4x
++
++    SAME MESH, SAME GATE, TWO ANSWERS THREE ORDERS APART, decided by an argument the
++    registration cannot constrain.  **AN INSTRUMENT THAT TAKES ITS MEASURED QUANTITY FROM
++    ITS CALLER HAS A FREE PARAMETER UNLESS THE REGISTRATION FIXES THE CALLER, AND A
++    REGISTRATION CANNOT FIX A COMMAND LINE.**  Annotating the choice would have left it
++    exactly where it was; the choice is removed instead.
++
++    RULED (cfd-supervisor, 2026-09-12, pre-compute): the cell size is **the spacing ALONG
++    the base in the WRAP direction**, so the count is **the number of cells laid across the
++    blunt base**.  §1.3's argument for abandoning the octree is REPRESENTABILITY — "a snappy
++    cell is isotropic and at the old route's level 4 the TE base was 0.04 cells wide, i.e.
++    NOT REPRESENTABLE AT ALL" — and representability is about SPANNING the base, not about
++    how thin the cells are normal to it.  A cell that spans the entire base in the wrap
++    direction does not resolve the base; it resolves the boundary layer.
++
++    HOW IT IS DERIVED.  The base solid is a strip of quads laid across the blunt base and
++    swept along the span, so at each constant-y station its vertices form a line of n+1
++    distinct thickness coordinates.  The count is n.  This is the SURFACE spacing, and a
++    hyperbolic extrusion carries the surface distribution into the volume unchanged in that
++    direction, so the surface count IS the volume count across the base.
++    """
++    s = load_stl(path)
++    base = s.get(base_solid, [])
++    if len(base) < 4:
++        return None, None, 0
++    groups = {}
++    for v in base:
++        groups.setdefault(round(v[1], 9), set()).add(round(v[2], 12))
++    counts = [len(z) - 1 for z in groups.values() if len(z) >= 2]
++    if len(counts) < N_STATIONS:
++        return None, None, len(counts)
++    return min(counts), max(counts), len(counts)
++
++
++def _rebuild_base(src, dst, k, base_solid='wing_base'):
++    """Write a copy of the STL whose base solid is laid with EXACTLY k cells across it,
++    over the same span stations and the same thickness extent.  Everything else is copied
++    byte for byte.  This is the plant for H-G2's derived count."""
++    s = load_stl(src)
++    base = s.get(base_solid, [])
++    if len(base) < 4:
++        raise ValueError("no base solid to rebuild in %s" % src)
++    ys = sorted({round(v[1], 9) for v in base})
++    ext = {}
++    for v in base:
++        y = round(v[1], 9)
++        lo, hi = ext.get(y, (v[2], v[2]))
++        ext[y] = (min(lo, v[2]), max(hi, v[2]))
++    xs = {}
++    for v in base:
++        xs.setdefault(round(v[1], 9), []).append(v[0])
++    out, skipping = [], False
++    with open(src) as fi:
++        for line in fi:
++            st = line.strip()
++            if st.startswith('solid'):
++                nm = st.split(None, 1)[1] if len(st.split(None, 1)) > 1 else ''
++                skipping = (nm == base_solid)
++                if skipping:
++                    continue
++            if st.startswith('endsolid') and skipping:
++                skipping = False
++                continue
++            if not skipping:
++                out.append(line.rstrip('\n'))
++    out.append("solid %s" % base_solid)
++    for j in range(len(ys) - 1):
++        y0, y1 = ys[j], ys[j + 1]
++        x0 = sum(xs[y0]) / len(xs[y0])
++        x1 = sum(xs[y1]) / len(xs[y1])
++        (a0, b0), (a1, b1) = ext[y0], ext[y1]
++        for i in range(k):
++            z00 = a0 + (b0 - a0) * i / float(k); z01 = a0 + (b0 - a0) * (i + 1) / float(k)
++            z10 = a1 + (b1 - a1) * i / float(k); z11 = a1 + (b1 - a1) * (i + 1) / float(k)
++            for tri in (((x0, y0, z00), (x0, y0, z01), (x1, y1, z11)),
++                        ((x0, y0, z00), (x1, y1, z11), (x1, y1, z10))):
++                out.append("facet normal 0 0 0\n outer loop")
++                for v in tri:
++                    out.append("    vertex %.9g %.9g %.9g" % v)
++                out.append(" endloop\nendfacet")
++    out.append("endsolid %s" % base_solid)
++    open(dst, 'w').write("\n".join(out) + "\n")
++
++
++def planted_control_basecells(src):
++    """Plant into the INPUT: rebuild the base at a KNOWN cell count in a copy on disk and
++    re-run the real reader.  Two plants at different counts, so the arm cannot be satisfied
++    by a reader that returns a constant.  DISCRIMINATION: a plant that changes only the
++    base's CELL COUNT must NOT move the base THICKNESS the first clause grades."""
++    out = []
++    n0 = measure_base_cells(src)[0]
++    t0, _ = measure(src)
++    if n0 is None or t0 is None:
++        return False, ["DECLINE: H-G2's count cannot be derived from %s -- the base solid "
++                       "does not present constant-y stations. Declined, not defaulted." % src]
++    d = tempfile.mkdtemp(prefix='m6h1_g2_')
++    try:
++        ok = True
++        for k in (3, 11):
++            q = os.path.join(d, 'plant_%d.stl' % k)
++            _rebuild_base(src, q, k)
++            got = measure_base_cells(q)[0]
++            tk, _ = measure(q)
++            seen = (got == k)
++            disc = (tk is not None and len(tk) == len(t0)
++                    and all(abs(a['dz'] - b['dz']) <= 1e-12 for a, b in zip(t0, tk)))
++            ok = ok and seen and disc
++            out.append("PLANT H-G2 count=%d : reader derived %s (predicted %d) : %s ; "
++                       "DISCRIMINATION base thickness unmoved: %s"
++                       % (k, got, k, 'ok' if seen else 'REFUSE',
++                          'ok' if disc else 'REFUSE'))
++        return ok, out
++    finally:
++        shutil.rmtree(d, ignore_errors=True)
++
++
+ def selftest():
+     """Arm 2 is the one that matters: the control MUST be able to FAIL.
+     A control that passes when the plant is withheld proves nothing."""
+@@ -395,19 +524,31 @@
+               "instrument used to print)")
+     g0 = g0_all
+ 
++    # ---- H-G2, DERIVED FROM THE MESH.  No argv, no default, no fallback. ----
++    ok_g2c, msg_g2c = planted_control_basecells(path)
++    print("\nPLANTED CONTROL for H-G2's derived count")
++    for m in msg_g2c:
++        print("  " + m)
++    if not ok_g2c:
++        print("\nDECLINE (exit 2): H-G2's count could not be established on this surface, or "
++              "its controls did not hold. THE COUNT IS NOT TAKEN FROM THE COMMAND LINE and "
++              "there is nothing to fall back to -- an instrument that accepts its measured "
++              "quantity from its caller has a free parameter the registration cannot fix.")
++        return 2
++    nmin, nmax, nst = measure_base_cells(path)
++    print("\nH-G2 (>= %d cells across the TE base at every spanwise station), count DERIVED "
++          "from the surface's own base strip over %d stations:" % (H_G2_MIN_CELLS, nst))
++    print("   cells across the base: min %d, max %d" % (nmin, nmax))
++    g2 = nmin >= H_G2_MIN_CELLS
++    print("H-G2: %s" % ("PASS" if g2 else "GATE FAIL — every M6H1 §5 claim FORBIDDEN"))
++    print("  (H-G2's second clause, 'non-decreasing under refinement', is a statement about "
++          "THREE levels and is NOT dischargeable from one surface. It is not claimed here.)")
+     if len(sys.argv) > 2:
+-        cell = float(sys.argv[2])
+-        print("\nH-G2 (>= %d cells across the base) at a volume cell of %.4e m:"
+-              % (H_G2_MIN_CELLS, cell))
+-        g2 = True
+-        for r in rows:
+-            n = r['dz'] / cell
+-            g2 &= n >= H_G2_MIN_CELLS
+-            print("   y/b %5.3f : %7.2f cells %s"
+-                  % (r['y'] / 1.1963, n, "" if n >= H_G2_MIN_CELLS else "  *** BELOW GATE ***"))
+-        print("H-G2: %s" % ("PASS" if g2 else "GATE FAIL — every M6H1 §5 claim FORBIDDEN"))
+-        return 0 if (g0 and g2) else 1
+-    return 0 if g0 else 1
++        print("\n  NOTE: argv[2] = %r was IGNORED. This instrument used to accept a volume "
++              "cell size there and divide the base thickness by it, which gives answers "
++              "three orders apart on an anisotropic cell depending on which size is fed. "
++              "The argument is no longer read." % sys.argv[2])
++    return 0 if (g0 and g2) else 1
+ 
+ 
+ if __name__ == '__main__':
