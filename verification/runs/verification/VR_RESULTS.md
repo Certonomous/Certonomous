@@ -821,3 +821,213 @@ condition's substance broader, never narrower.*
 | verdict | **`GATE FAIL` — UNCHANGED, and re-derived rather than inherited** |
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
+
+---
+
+# VR6 — **`GATE FAIL`.** 198 `_launch` BLOCKS — THE ARTIFACT PROVING A FROZEN PRE-REGISTRATION WAS ACTUALLY EXECUTED — EXIST ONLY AS UNTRACKED FILES
+
+**FILED 2026-09-12 by a verification lane.** Drive captured at `HEAD 5a05eda7`,
+`2026-09-12T01:00:13Z`, host `ip-172-31-43-247`, rc **1**.
+**Solver compute: 0 core-min.** Static, read-only analysis; **two** index-free git reads
+per queue record and no others.
+
+> **VERDICT: `GATE FAIL`.** **198 untracked `_launch` blocks.** A `_launch` block (pid, sid,
+> utc, status_file, started_epoch) is `VERIFICATION_CHARTER` §9's evidence that a frozen
+> pre-registration was **executed**. 198 of them exist **only as files in one box's working
+> tree**: one `rm` from gone, invisible to anybody reading the repository at HEAD, and
+> unreconstructable by any later audit.
+>
+> **This is a finding about the EVIDENCE RECORD, not about the runs.** No verdict is
+> withdrawn by this item. **The remedy is to COMMIT the records, never to delete them** —
+> and the staged deletions of the pre-launch copies are **renames the shared index recorded
+> as deletions**, not fossils.
+
+## 1. THE CORPUS, AS MEASURED
+
+`[MEASURED BY THIS LANE, 2026-09-12T01:00:13Z, HEAD 5a05eda7]`
+Artefact: `verification/runs/verification/VR6_UNTRACKED_LAUNCH_RECORD/vr6_stdout_2026-09-12.txt`
+
+| team | on disk | tracked at HEAD | untracked | untracked **and** carrying `_launch` |
+|---|---|---|---|---|
+| ansys-verification | 75 | 20 | 55 | **37** |
+| cfd | 57 | 48 | 9 | **9** |
+| closure | 87 | 2 | 85 | **85** |
+| dafoam | 80 | 60 | 20 | **19** |
+| heat-transfer | 119 | 76 | 43 | **42** |
+| verification | 6 | 0 | 6 | **6** |
+| **TOTAL** | **424** | **206** | **218** | **198** |
+
+- **45 tracked-but-DIFFERING on disk — REPORTED, NEVER GATED.** An uncommitted edit is
+  somebody's unfinished work and is inspected, never reverted (standing rule 10). It is not
+  in the gate and did not move the verdict.
+- **20 untracked WITHOUT a `_launch` block** — never-run drafts. **Queue depth, not lost
+  evidence**, and deliberately excluded from the gated figure. 218 − 20 = 198.
+- **closure is the extreme: 87 on disk, 2 tracked.** 85 of its 87 current queue records
+  carry execution evidence with no committed trace.
+
+## 2. RULE 2 FREEZE CHECK — THE FROZEN FILE **IS** THE FILE THAT RAN
+
+Re-asserted **in the launching invocation**, not before it and not from recall:
+
+| artefact | blob |
+|---|---|
+| `verification/campaign/VR6_PREREGISTRATION.md` at the registered freeze `2a61b7bab90de4ae89508e7a23f43c2b6a547002` | `82fac0c5c0aa28385a7e134c9b0292eb8df728d4` |
+| …the same file **at HEAD** | `82fac0c5c0aa28385a7e134c9b0292eb8df728d4` |
+| …the same file **on disk** | `82fac0c5c0aa28385a7e134c9b0292eb8df728d4` |
+| `verification/credibility/vr6_untracked_launch_record.py` **at HEAD** | `496e84e8079b344c99115dcfa8bea026f5974bfd` |
+| …the driver **on disk** | `496e84e8079b344c99115dcfa8bea026f5974bfd` |
+
+**Three-way identity on the pre-registration and two-way on the driver.** The freeze sha
+recorded in the queue entry is the one the gate was graded under.
+`__pycache__` under `verification/credibility/` was removed before the drive and
+`PYTHONDONTWRITEBYTECODE=1` set, against the stale-bytecode inversion.
+
+## 3. THE FOUR CONTROLS — ALL BEHAVED, ALL IN THIS INVOCATION (rule 3)
+
+| limb | required | measured |
+|---|---|---|
+| **P1 +** `scripts/queue_runner.py` | `TRACKED_IDENTICAL` | **`TRACKED_IDENTICAL`**, HEAD blob `9a89c10f8e8c` — *the reader can see a non-zero* |
+| **P2 −** freshly planted path | `UNTRACKED` | **`UNTRACKED`** — *the reader can see a zero* |
+| **P3 −** bytes **byte-identical** to tracked blob `9a89c10f8e8c`, planted at an untracked path | `UNTRACKED` | **`UNTRACKED`** — *the reader keys on PATH-at-HEAD, not on content* |
+| **P4 +/−** two planted records, one with a `_launch` block and one without | one classification each way | **`WITH`=present, `WITHOUT`=absent**, both through the real corpus reader |
+
+**P3 is the limb that matters.** A reader that answered *"do these bytes exist somewhere in
+history"* rather than *"does this PATH resolve to a blob at HEAD"* passes P1 and P2 and
+fails P3. **A zero from a reader not shown able to see a non-zero is not evidence**, and all
+four answers were produced in the same invocation as the counts above.
+
+**Instruments, and why nothing else was used:** exactly `git rev-parse HEAD:<path>` against
+`git hash-object <path>`, with tracked content read by `git show HEAD:<path>` and never
+`git show :<path>`. `status`, `diff`, `ls-files` and `add` are refused **in code** by a
+raising allowlist. All four consult the **shared index**, which on this box misreports here
+and misreports **stably**.
+
+## 4. THE LAUNCH LOG — THE SECOND 2026-08-30 CAUSE IS GONE, AND 116 ROWS STILL HAVE NO COMMITTED TRACE
+
+`verification/queue/LAUNCH_LOG.tsv` reads **`TRACKED_DIFFERS`, 437 launch rows on disk.**
+
+**This CHANGED since 2026-08-30**, when it was `UNTRACKED` and was a **second, independent
+cause** of the `GATE FAIL`. It was first added to the tree at **`0047fcaa0`, 2026-09-03**.
+**The `GATE FAIL` is now driven SOLELY by the 198 untracked `_launch` blocks.**
+
+**And "tracked" is not "preserved".** `[MEASURED BY THIS LANE, index-free]`
+`git show HEAD:verification/queue/LAUNCH_LOG.tsv | wc -l` = **321 rows**; the file on disk
+carries **437**. **116 launch rows exist on disk with no committed trace.** That is not in
+this item's registered gate and does not move the verdict — it is stated so that "the launch
+log is tracked now" is not read as "the launch log is safe now".
+
+## 5. ⚠ THE LIMITATION — **VR6 WALKS THE DISK, SO IT IS STRUCTURALLY BLIND TO RECORDS TRACKED AT HEAD AND DELETED FROM THE WORKTREE. THERE ARE 177 OF THEM, AND ONE OF THEM IS VR6's OWN.**
+
+This is stated here, in the record, rather than left for a later reader to discover.
+
+`[MEASURED BY THIS LANE, independently of the driver, via `git ls-tree -r HEAD` — which does
+not consult the index — with the driver's own archived-record exclusion applied]`
+
+| | count |
+|---|---|
+| current (non-archived) queue records **tracked at HEAD** | **383** |
+| …of those, **absent from the worktree** | **177** |
+| closure · heat-transfer · ansys-verification · dafoam · verification · cfd | **86 · 28 · 27 · 25 · 6 · 5** |
+| 383 − 177 | **206 — exactly VR6's `tracked` column. The arithmetic closes.** |
+
+**VR6 therefore UNDERCOUNTS THE CORPUS BY 177.** Its `disk` column is not the corpus; it is
+the corpus minus everything already deleted from this working tree.
+
+**AND VR6 IS INVISIBLE TO ITSELF.** All six of verification's 177-members are the team's own
+pre-launch queue records, `VR1`–`VR6`, including
+`verification/queue/verification/VR6_UNTRACKED_LAUNCH_RECORD.json` — tracked at HEAD, absent
+from disk, **renamed into `launched/` by the runner**. The only form of its own record VR6
+can see is the untracked `launched/` copy, which it counts among the 198.
+
+**WHAT THIS DOES AND DOES NOT DO TO THE VERDICT — and the answer is measured, not asserted.**
+Restoring all 177 would move the table to **601 on disk / 383 tracked / 218 untracked**.
+**The untracked figure is IDENTICAL in both worlds**, because every one of the 177 is tracked
+by construction. **A deletion cannot manufacture a single untracked `_launch` block**, so the
+gated quantity — and therefore the `GATE FAIL` — is **immune to this blindness**. What the
+blindness costs is the *denominator*: the 218 looks like 51 % of the corpus and is 36 % of it.
+
+**The growth is launches, not deletions.** 41 untracked at the 2026-08-30 smoke drive → 52 at
+the 2026-08-30 queue drive → **218** tonight, across 13 days in which the queue runner wrote
+`launched/` records that were never committed. Deletions move records **out of** the disk
+column; they cannot move records **into** the untracked column.
+
+## 6. THE PRIOR DRIVES, AND WHICH ONE IS THE VERDICT — **THERE WERE TWO ON 2026-08-30, NOT ONE**
+
+| drive | when | corpus (disk/tracked/untracked/untr+`_launch`) | `LAUNCH_LOG.tsv` | rc | artefact |
+|---|---|---|---|---|---|
+| **pre-enqueue SMOKE drive** | 2026-08-30, before enqueue | **210 / 169 / 41 / 41** | `UNTRACKED`, 133 rows | 1 | `verification/campaign/VR6_PREREGISTRATION.md` §8; `_smoke` field of the queue record |
+| **QUEUE drive — first compute under the frozen registration** | **2026-08-30T23:14:32Z** | **213 / 161 / 52 / 52** (7 differing, 0 without `_launch`) | `UNTRACKED`, 145 rows | **1** | `verification/credibility/launcher.queue.out`; `verification/credibility/STATUS.VR6_UNTRACKED_LAUNCH_RECORD` |
+| **verdict drive** | 2026-09-12, earlier this session | 424 / 206 / 218 / **198** | `TRACKED_DIFFERS`, 437 rows | 1 | **no durable capture was written** — see §8 |
+| **THIS CAPTURE DRIVE — the cited one** | **2026-09-12T01:00:13Z** | **424 / 206 / 218 / 198** | `TRACKED_DIFFERS`, 437 rows | **1** | `verification/runs/verification/VR6_UNTRACKED_LAUNCH_RECORD/` |
+
+**A correction to how this has been described, made here rather than allowed to stand:** the
+2026-08-30 activity was **not one smoke drive**. There was a pre-enqueue smoke drive **and** a
+queue-driven execution under the frozen registration 40 minutes later, which returned
+`GATE FAIL` at rc 1 over 52 untracked `_launch` blocks and an untracked launch log — **and
+that verdict was never recorded in this file until now.** It is on the record above.
+
+**The two 2026-09-12 drives agree on every count**, figure for figure, including the per-team
+table. The capture drive is cited throughout this section because **its artefact is on disk**.
+
+## 7. RULE 12 CALIBRATION — ESTIMATE VERSUS ACTUAL
+
+| | figure |
+|---|---|
+| registered estimate (`VR6_PREREGISTRATION.md:112`) | **0.05 core-min** |
+| registered cap (`:111`) | **0.5 core-min** |
+| verdict drive (reported, no durable capture) | 4.67 s wall × 1 rank = **0.0778 core-min** |
+| **capture drive (MEASURED, artefact on disk)** | **4.463 s wall × 1 rank = 0.074384 core-min** |
+| ratio, capture drive / estimate | **1.49×** |
+| both drives together, against the cap | 0.1522 core-min = **30 % of cap. No overrun, no stop.** |
+| derived dollars | **≈ $1.3 × 10⁻⁴, DERIVED at $0.0513/core-h, NOT MEASURED** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER` §5) |
+
+**ATTRIBUTION: MISPREDICTION OF CORPUS SIZE. NOT contention, NOT waste — and that is
+measured, not assumed.** The registered estimate was set from the **busy-box** drive of
+2026-08-30: 2.687 s over the 210-record corpus of that day = **12.79 ms/record**. Tonight: 4.463 s over 424 records
+= **10.53 ms/record** (the verdict drive, 11.01 ms/record). **The per-record rate IMPROVED by
+18 %** — and improved *while the box was at load 56.92 / 58.96 / 51.26 on 16 cores, 3.6×
+oversubscribed.* **The corpus DOUBLED, 210 → 424 records in 13 days.** Re-pricing the
+registered estimate at the **unchanged busy rate** and tonight's population gives
+424 × 12.79 ms = **0.0904 core-min**, against which the measured drive is **0.82× — under.**
+
+**So contention is separated rather than absorbed, per rule 12.** Contention is present and
+is not denied: a 1-rank job dominated by subprocess spawn is exactly what a 3.6× oversubscribed
+box taxes. But its effect here is **bounded above by zero** — the per-record rate did not rise,
+it fell — so **none of the 1.49× miss can be hiding in it.** The estimator was right about the
+rate and wrong about the population. **Zero waste: both drives returned the full measurement.**
+
+## 8. WHAT COULD NOT BE VERIFIED, STATED PLAINLY
+
+1. **The verdict drive earlier this session left no capture on any durable path.** Its figures
+   reached this lane as relayed numbers, and **a number whose artefact is gone is not a
+   result**. This lane therefore re-drove the frozen driver and wrote the capture to
+   `verification/runs/verification/VR6_UNTRACKED_LAUNCH_RECORD/`, reproducing **every** relayed
+   figure exactly — the totals, all six per-team rows, the 45, the 20, the 437 and the
+   `TRACKED_DIFFERS`. The record cites **the drive whose artefact exists.** The 4.67 s wall of
+   the earlier drive is **reported, not measured here**, and is labelled as such in §7.
+2. **Whether any of the 198 untracked `_launch` blocks has already been lost** is not knowable
+   from this instrument: it counts what is on disk now. A record deleted before tonight is
+   outside both its `disk` column and this count.
+3. **The 177 deleted-from-worktree records were not read.** Their tracked content at HEAD is
+   intact and was not inspected here; only their presence and absence were counted.
+4. **Nothing was committed, added, deleted or reverted by this item.** The shared index stages
+   the pre-launch copies as deletions while their `launched/` destinations were never added, so
+   committing the index as it stands would **remove the only tracked trace and add nothing.**
+   **A `GATE FAIL` here is not licence to `git add` and not licence to remove anything** — the
+   index is the chief's call.
+
+## 9. ARTEFACT INDEX
+
+| artefact | what it holds |
+|---|---|
+| `verification/runs/verification/VR6_UNTRACKED_LAUNCH_RECORD/vr6_stdout_2026-09-12.txt` | the cited drive: controls, per-team table, the full roll call of all 198 untracked `_launch` blocks, the verdict line |
+| `verification/runs/verification/VR6_UNTRACKED_LAUNCH_RECORD/RUN_RC.txt` | `RC=1` |
+| `verification/runs/verification/VR6_UNTRACKED_LAUNCH_RECORD/vr6_time_2026-09-12.txt` | 4.463 s wall, 0.074384 core-min |
+| `verification/runs/verification/VR6_UNTRACKED_LAUNCH_RECORD/vr6_stderr_2026-09-12.txt` | empty (0 bytes) |
+| `verification/credibility/vr6_untracked_launch_record.py` | the frozen driver, blob `496e84e8` |
+| `verification/campaign/VR6_PREREGISTRATION.md` | the frozen gate, blob `82fac0c5` at freeze `2a61b7ba` |
+| `verification/credibility/launcher.queue.out` | the 2026-08-30T23:14Z queue drive, recorded here for the first time |
+| `verification/queue/verification/launched/VR6_UNTRACKED_LAUNCH_RECORD.json` | the item's own `_launch` block — **untracked, and one of the 198 it counts** |
+
+**Gates, thresholds, bands, caps or labels created, moved or retired by this record: 0.
+Frozen bytes touched: 0. Nothing re-graded. Nothing sent (standing rule 7).**

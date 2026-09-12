@@ -1,0 +1,220 @@
+VR6 -- untracked launch record (frozen: verification/campaign/VR6_PREREGISTRATION.md)
+  repo=/home/ubuntu/Certonomous
+  INSTRUMENTS: `git rev-parse HEAD:<path>` vs `git hash-object <path>` ONLY. No status, no diff, no ls-files -- the shared index misreports on this box and does so stably.
+CONTROLS (rule 3 -- the reader must return BOTH answers in this invocation):
+  control P1 +: scripts/queue_runner.py -> TRACKED_IDENTICAL, HEAD blob 9a89c10f8e8c  (reader CAN see a non-zero)
+  control P2 -: freshly planted path -> UNTRACKED  (reader CAN see a zero)
+  control P3 -: bytes IDENTICAL to the tracked blob 9a89c10f8e8c planted at an untracked path -> UNTRACKED  (reader keys on PATH-at-HEAD, not on content)
+  control P4 +/-: planted records -> WITH=_launch present, WITHOUT=absent  (both answers from the real corpus reader)
+QUEUE RECORDS, per team (on disk / tracked at HEAD / untracked / untracked AND carrying a _launch block):
+    team                     disk  tracked  untracked untr+_launch
+    ansys-verification         75       20         55           37
+    cfd                        57       48          9            9
+    closure                    87        2         85           85
+    dafoam                     80       60         20           19
+    heat-transfer             119       76         43           42
+    verification                6        0          6            6
+    TOTAL                     424      206        218          198
+    tracked at HEAD but DIFFERING on disk: 45  (reported, NEVER GATED -- an uncommitted edit is somebody's unfinished work, not a defect)
+    untracked WITHOUT a _launch block: 20  (never-run drafts; these are queue depth, not lost evidence)
+LAUNCH LOG verification/queue/LAUNCH_LOG.tsv: TRACKED_DIFFERS, 437 launch rows
+EVERY UNTRACKED _launch BLOCK -- execution evidence with no committed trace:
+    ansys-verification     VMFL003-M3                         2026-09-07T21:37:53Z  verification/queue/ansys-verification/launched/VMFL003-M3.json
+    ansys-verification     VMFL007-R3                         2026-09-07T21:27:02Z  verification/queue/ansys-verification/launched/VMFL007-R3.json
+    ansys-verification     VMFL010-R2                         2026-09-07T21:31:22Z  verification/queue/ansys-verification/launched/VMFL010-R2.json
+    ansys-verification     VMFL011-R4                         2026-09-07T21:36:48Z  verification/queue/ansys-verification/launched/VMFL011-R4.json
+    ansys-verification     VMFL017-R3                         2026-09-07T21:35:43Z  verification/queue/ansys-verification/launched/VMFL017-R3.json
+    ansys-verification     VMFL022-R2                         2026-09-07T21:33:32Z  verification/queue/ansys-verification/launched/VMFL022-R2.json
+    ansys-verification     VMFL033-R2                         2026-08-31T16:31:56Z  verification/queue/ansys-verification/launched/VMFL033-R2.json
+    ansys-verification     VMFL034-R2-S1                      2026-09-04T22:03:34Z  verification/queue/ansys-verification/launched/VMFL034-R2-S1.json
+    ansys-verification     VMFL034-R2-S2                      2026-09-04T22:04:39Z  verification/queue/ansys-verification/launched/VMFL034-R2-S2.json
+    ansys-verification     VMFL034-R2-S3                      2026-09-04T22:05:44Z  verification/queue/ansys-verification/launched/VMFL034-R2-S3.json
+    ansys-verification     VMFL034-R3                         2026-09-07T21:30:17Z  verification/queue/ansys-verification/launched/VMFL034-R3.json
+    ansys-verification     VMFL038                            2026-08-31T15:43:48Z  verification/queue/ansys-verification/launched/VMFL038.json
+    ansys-verification     VMFL046-R2                         2026-09-04T15:35:21Z  verification/queue/ansys-verification/launched/VMFL046-R2.json
+    ansys-verification     VMFL046-R3-L1                      2026-09-04T22:25:50Z  verification/queue/ansys-verification/launched/VMFL046-R3-L1.json
+    ansys-verification     VMFL046-R3-L2                      2026-09-04T22:26:55Z  verification/queue/ansys-verification/launched/VMFL046-R3-L2.json
+    ansys-verification     VMFL046-R3-L3                      2026-09-04T22:28:00Z  verification/queue/ansys-verification/launched/VMFL046-R3-L3.json
+    ansys-verification     VMFL046-R4-L1                      2026-09-06T02:00:34Z  verification/queue/ansys-verification/launched/VMFL046-R4-L1.json
+    ansys-verification     VMFL046-R4-L2                      2026-09-06T02:01:40Z  verification/queue/ansys-verification/launched/VMFL046-R4-L2.json
+    ansys-verification     VMFL046-R4-L3                      2026-09-06T02:02:45Z  verification/queue/ansys-verification/launched/VMFL046-R4-L3.json
+    ansys-verification     VMFL046-R5-L1                      2026-09-06T23:37:03Z  verification/queue/ansys-verification/launched/VMFL046-R5-L1.json
+    ansys-verification     VMFL046-R5-L2                      2026-09-06T23:38:08Z  verification/queue/ansys-verification/launched/VMFL046-R5-L2.json
+    ansys-verification     VMFL046-R5-L3                      2026-09-06T23:39:13Z  verification/queue/ansys-verification/launched/VMFL046-R5-L3.json
+    ansys-verification     VMFL046-R6                         2026-09-07T21:28:07Z  verification/queue/ansys-verification/launched/VMFL046-R6.json
+    ansys-verification     VMFL046-R8                         2026-09-09T18:31:31Z  verification/queue/ansys-verification/launched/VMFL046-R8.json
+    ansys-verification     VMFL051-R2                         2026-09-07T21:32:27Z  verification/queue/ansys-verification/launched/VMFL051-R2.json
+    ansys-verification     VMFL051-R3                         2026-09-10T16:18:35Z  verification/queue/ansys-verification/launched/VMFL051-R3.json
+    ansys-verification     VMFL054-R3                         2026-09-07T21:29:12Z  verification/queue/ansys-verification/launched/VMFL054-R3.json
+    ansys-verification     VMFL054                            2026-09-02T21:43:57Z  verification/queue/ansys-verification/launched/VMFL054.json
+    ansys-verification     VMFL063-R2                         2026-09-07T21:34:38Z  verification/queue/ansys-verification/launched/VMFL063-R2.json
+    ansys-verification     VMFL063-R3                         2026-09-09T21:26:58Z  verification/queue/ansys-verification/launched/VMFL063-R3.json
+    ansys-verification     VMFL063                            2026-08-28T17:41:40Z  verification/queue/ansys-verification/launched/VMFL063.json
+    ansys-verification     VMFL069-R2                         2026-08-30T23:51:22Z  verification/queue/ansys-verification/launched/VMFL069-R2.json
+    ansys-verification     VMFL072-R2-B2                      2026-09-04T18:30:12Z  verification/queue/ansys-verification/launched/VMFL072-R2-B2.json
+    ansys-verification     VMFL072-R2-C1                      2026-09-04T18:31:17Z  verification/queue/ansys-verification/launched/VMFL072-R2-C1.json
+    ansys-verification     VMFL072-R2-L1                      2026-09-04T18:26:56Z  verification/queue/ansys-verification/launched/VMFL072-R2-L1.json
+    ansys-verification     VMFL072-R2-L2                      2026-09-04T18:28:02Z  verification/queue/ansys-verification/launched/VMFL072-R2-L2.json
+    ansys-verification     VMFL072-R2-L3                      2026-09-04T18:29:07Z  verification/queue/ansys-verification/launched/VMFL072-R2-L3.json
+    cfd                    DMR-R3-POSITIVITY-SUCCESSOR        2026-09-07T16:25:32Z  verification/queue/cfd/launched/DMR-R3-POSITIVITY-SUCCESSOR.json
+    cfd                    F27-NUMERICS-SUCCESSOR             2026-09-07T16:16:52Z  verification/queue/cfd/launched/F27-NUMERICS-SUCCESSOR.json
+    cfd                    F28G_L1_dp1000_U20                 2026-09-03T21:58:00Z  verification/queue/cfd/launched/F28G_L1_dp1000_U20.json
+    cfd                    M6-OWN-FINE-TRIPLE                 2026-09-08T23:14:42Z  verification/queue/cfd/launched/M6-OWN-FINE-TRIPLE.json
+    cfd                    RUNG2-CRM-M0                       2026-09-06T09:09:28Z  verification/queue/cfd/launched/RUNG2-CRM-M0.json
+    cfd                    RUNG2-CRM-M1                       2026-09-06T17:09:20Z  verification/queue/cfd/launched/RUNG2-CRM-M1.json
+    cfd                    RUNG2-CRM-M2                       2026-09-08T22:27:59Z  verification/queue/cfd/launched/RUNG2-CRM-M2.json
+    cfd                    SUBOFF-R1b-TRIPLE                  2026-09-10T05:35:55Z  verification/queue/cfd/launched/SUBOFF-R1B-TRIPLE.json
+    cfd                    SUP_BOOSTER-E2                     2026-09-10T04:54:46Z  verification/queue/cfd/launched/SUP-BOOSTER-E2-TRIPLE.json
+    closure                G2_grid_triple_duct                2026-08-28T16:26:38Z  verification/queue/closure/launched/G2_grid_triple_duct.json
+    closure                M1_kOmegaSST_null__AR_10_Ret_180   2026-08-30T22:52:50Z  verification/queue/closure/launched/M1_kOmegaSST_null__AR_10_Ret_180.json
+    closure                M1_kOmegaSST_null__AR_14_Ret_180   2026-08-30T22:53:55Z  verification/queue/closure/launched/M1_kOmegaSST_null__AR_14_Ret_180.json
+    closure                M1_kOmegaSST_null__AR_1_Ret_180    2026-08-27T23:50:16Z  verification/queue/closure/launched/M1_kOmegaSST_null__AR_1_Ret_180.json
+    closure                M1_kOmegaSST_null__AR_1_Ret_360    2026-08-30T22:55:00Z  verification/queue/closure/launched/M1_kOmegaSST_null__AR_1_Ret_360.json
+    closure                M1_kOmegaSST_null__AR_3_Ret_180    2026-08-30T22:56:05Z  verification/queue/closure/launched/M1_kOmegaSST_null__AR_3_Ret_180.json
+    closure                M1_kOmegaSST_null__AR_3_Ret_360    2026-08-30T22:57:10Z  verification/queue/closure/launched/M1_kOmegaSST_null__AR_3_Ret_360.json
+    closure                M1_kOmegaSST_null__AR_5_Ret_180    2026-08-30T22:58:15Z  verification/queue/closure/launched/M1_kOmegaSST_null__AR_5_Ret_180.json
+    closure                M1_kOmegaSST_null__AR_7_Ret_180    2026-08-30T22:59:20Z  verification/queue/closure/launched/M1_kOmegaSST_null__AR_7_Ret_180.json
+    closure                M1_kOmegaSST_null__CBFS            2026-08-30T23:00:25Z  verification/queue/closure/launched/M1_kOmegaSST_null__CBFS.json
+    closure                M1_kOmegaSST_null__PH_Breuer       2026-08-30T23:01:30Z  verification/queue/closure/launched/M1_kOmegaSST_null__PH_Breuer.json
+    closure                M1_kOmegaSST_null__alpha_05_10071_2024 2026-08-30T23:02:35Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_05_10071_2024.json
+    closure                M1_kOmegaSST_null__alpha_05_10071_3036 2026-08-30T23:03:40Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_05_10071_3036.json
+    closure                M1_kOmegaSST_null__alpha_05_10071_4048 2026-08-30T23:05:51Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_05_10071_4048.json
+    closure                M1_kOmegaSST_null__alpha_05_4071_2024 2026-08-30T23:09:06Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_05_4071_2024.json
+    closure                M1_kOmegaSST_null__alpha_05_4071_3036 2026-08-30T23:12:21Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_05_4071_3036.json
+    closure                M1_kOmegaSST_null__alpha_05_4071_4048 2026-08-30T23:15:36Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_05_4071_4048.json
+    closure                M1_kOmegaSST_null__alpha_05_7071_2024 2026-08-30T23:16:41Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_05_7071_2024.json
+    closure                M1_kOmegaSST_null__alpha_05_7071_3036 2026-08-30T23:17:46Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_05_7071_3036.json
+    closure                M1_kOmegaSST_null__alpha_05_7071_4048 2026-08-30T23:18:51Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_05_7071_4048.json
+    closure                M1_kOmegaSST_null__alpha_075       2026-08-30T23:19:56Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_075.json
+    closure                M1_kOmegaSST_null__alpha_10_12000_2024 2026-08-30T23:21:01Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_10_12000_2024.json
+    closure                M1_kOmegaSST_null__alpha_10_12000_3036 2026-08-30T23:22:06Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_10_12000_3036.json
+    closure                M1_kOmegaSST_null__alpha_10_12000_4048 2026-08-30T23:23:11Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_10_12000_4048.json
+    closure                M1_kOmegaSST_null__alpha_10_6000_2024 2026-08-30T23:24:16Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_10_6000_2024.json
+    closure                M1_kOmegaSST_null__alpha_10_6000_3036 2026-08-30T23:25:21Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_10_6000_3036.json
+    closure                M1_kOmegaSST_null__alpha_10_6000_4048 2026-08-30T23:26:26Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_10_6000_4048.json
+    closure                M1_kOmegaSST_null__alpha_10_9000_2024 2026-08-30T23:27:31Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_10_9000_2024.json
+    closure                M1_kOmegaSST_null__alpha_10_9000_3036 2026-08-30T23:28:37Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_10_9000_3036.json
+    closure                M1_kOmegaSST_null__alpha_10_9000_4048 2026-08-30T23:29:42Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_10_9000_4048.json
+    closure                M1_kOmegaSST_null__alpha_125       2026-08-30T23:30:47Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_125.json
+    closure                M1_kOmegaSST_null__alpha_15_10929_2024 2026-08-30T23:31:52Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_15_10929_2024.json
+    closure                M1_kOmegaSST_null__alpha_15_10929_3036 2026-08-30T23:32:57Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_15_10929_3036.json
+    closure                M1_kOmegaSST_null__alpha_15_10929_4048 2026-08-30T23:34:02Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_15_10929_4048.json
+    closure                M1_kOmegaSST_null__alpha_15_13929_2024 2026-08-30T23:35:07Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_15_13929_2024.json
+    closure                M1_kOmegaSST_null__alpha_15_13929_3036 2026-08-30T23:36:12Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_15_13929_3036.json
+    closure                M1_kOmegaSST_null__alpha_15_13929_4048 2026-08-30T23:37:17Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_15_13929_4048.json
+    closure                M1_kOmegaSST_null__alpha_15_7929_2024 2026-08-30T23:38:22Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_15_7929_2024.json
+    closure                M1_kOmegaSST_null__alpha_15_7929_3036 2026-08-30T23:40:32Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_15_7929_3036.json
+    closure                M1_kOmegaSST_null__alpha_15_7929_4048 2026-08-30T23:41:37Z  verification/queue/closure/launched/M1_kOmegaSST_null__alpha_15_7929_4048.json
+    closure                M1_kOmega__AR_10_Ret_180           2026-08-30T23:42:42Z  verification/queue/closure/launched/M1_kOmega__AR_10_Ret_180.json
+    closure                M1_kOmega__AR_14_Ret_180           2026-08-30T23:43:47Z  verification/queue/closure/launched/M1_kOmega__AR_14_Ret_180.json
+    closure                M1_kOmega__AR_1_Ret_180            2026-08-28T01:55:59Z  verification/queue/closure/launched/M1_kOmega__AR_1_Ret_180.json
+    closure                M1_kOmega__AR_1_Ret_360            2026-08-30T23:44:52Z  verification/queue/closure/launched/M1_kOmega__AR_1_Ret_360.json
+    closure                M1_kOmega__AR_3_Ret_180            2026-08-30T23:45:57Z  verification/queue/closure/launched/M1_kOmega__AR_3_Ret_180.json
+    closure                M1_kOmega__AR_3_Ret_360            2026-08-30T23:47:02Z  verification/queue/closure/launched/M1_kOmega__AR_3_Ret_360.json
+    closure                M1_kOmega__AR_5_Ret_180            2026-08-30T23:48:07Z  verification/queue/closure/launched/M1_kOmega__AR_5_Ret_180.json
+    closure                M1_kOmega__AR_7_Ret_180            2026-08-30T23:49:12Z  verification/queue/closure/launched/M1_kOmega__AR_7_Ret_180.json
+    closure                M1_kOmega__CBFS                    2026-08-30T23:54:37Z  verification/queue/closure/launched/M1_kOmega__CBFS.json
+    closure                M1_kOmega__PH_Breuer               2026-08-30T23:56:47Z  verification/queue/closure/launched/M1_kOmega__PH_Breuer.json
+    closure                M1_kOmega__alpha_05_10071_2024     2026-08-30T23:58:36Z  verification/queue/closure/launched/M1_kOmega__alpha_05_10071_2024.json
+    closure                M1_kOmega__alpha_05_10071_3036     2026-08-31T00:07:17Z  verification/queue/closure/launched/M1_kOmega__alpha_05_10071_3036.json
+    closure                M1_kOmega__alpha_05_10071_4048     2026-08-31T00:13:47Z  verification/queue/closure/launched/M1_kOmega__alpha_05_10071_4048.json
+    closure                M1_kOmega__alpha_05_4071_2024      2026-08-31T00:14:52Z  verification/queue/closure/launched/M1_kOmega__alpha_05_4071_2024.json
+    closure                M1_kOmega__alpha_05_4071_3036      2026-08-31T00:15:57Z  verification/queue/closure/launched/M1_kOmega__alpha_05_4071_3036.json
+    closure                M1_kOmega__alpha_05_4071_4048      2026-08-31T00:17:02Z  verification/queue/closure/launched/M1_kOmega__alpha_05_4071_4048.json
+    closure                M1_kOmega__alpha_05_7071_2024      2026-08-31T00:18:07Z  verification/queue/closure/launched/M1_kOmega__alpha_05_7071_2024.json
+    closure                M1_kOmega__alpha_05_7071_3036      2026-08-31T00:21:22Z  verification/queue/closure/launched/M1_kOmega__alpha_05_7071_3036.json
+    closure                M1_kOmega__alpha_05_7071_4048      2026-08-31T00:22:27Z  verification/queue/closure/launched/M1_kOmega__alpha_05_7071_4048.json
+    closure                M1_kOmega__alpha_075               2026-08-31T00:24:37Z  verification/queue/closure/launched/M1_kOmega__alpha_075.json
+    closure                M1_kOmega__alpha_10_12000_2024     2026-08-31T00:25:42Z  verification/queue/closure/launched/M1_kOmega__alpha_10_12000_2024.json
+    closure                M1_kOmega__alpha_10_12000_3036     2026-08-31T00:26:47Z  verification/queue/closure/launched/M1_kOmega__alpha_10_12000_3036.json
+    closure                M1_kOmega__alpha_10_12000_4048     2026-08-31T00:27:52Z  verification/queue/closure/launched/M1_kOmega__alpha_10_12000_4048.json
+    closure                M1_kOmega__alpha_10_6000_2024      2026-08-31T00:28:57Z  verification/queue/closure/launched/M1_kOmega__alpha_10_6000_2024.json
+    closure                M1_kOmega__alpha_10_6000_3036      2026-08-31T00:30:02Z  verification/queue/closure/launched/M1_kOmega__alpha_10_6000_3036.json
+    closure                M1_kOmega__alpha_10_6000_4048      2026-08-31T00:31:07Z  verification/queue/closure/launched/M1_kOmega__alpha_10_6000_4048.json
+    closure                M1_kOmega__alpha_10_9000_2024      2026-08-31T00:32:12Z  verification/queue/closure/launched/M1_kOmega__alpha_10_9000_2024.json
+    closure                M1_kOmega__alpha_10_9000_3036      2026-08-31T00:33:17Z  verification/queue/closure/launched/M1_kOmega__alpha_10_9000_3036.json
+    closure                M1_kOmega__alpha_10_9000_4048      2026-08-31T00:34:22Z  verification/queue/closure/launched/M1_kOmega__alpha_10_9000_4048.json
+    closure                M1_kOmega__alpha_125               2026-08-31T00:35:27Z  verification/queue/closure/launched/M1_kOmega__alpha_125.json
+    closure                M1_kOmega__alpha_15_10929_2024     2026-08-31T00:36:32Z  verification/queue/closure/launched/M1_kOmega__alpha_15_10929_2024.json
+    closure                M1_kOmega__alpha_15_10929_3036     2026-08-31T00:37:37Z  verification/queue/closure/launched/M1_kOmega__alpha_15_10929_3036.json
+    closure                M1_kOmega__alpha_15_10929_4048     2026-08-31T00:38:42Z  verification/queue/closure/launched/M1_kOmega__alpha_15_10929_4048.json
+    closure                M1_kOmega__alpha_15_13929_2024     2026-08-31T00:39:47Z  verification/queue/closure/launched/M1_kOmega__alpha_15_13929_2024.json
+    closure                M1_kOmega__alpha_15_13929_3036     2026-08-31T00:40:52Z  verification/queue/closure/launched/M1_kOmega__alpha_15_13929_3036.json
+    closure                M1_kOmega__alpha_15_13929_4048     2026-08-31T00:41:57Z  verification/queue/closure/launched/M1_kOmega__alpha_15_13929_4048.json
+    closure                M1_kOmega__alpha_15_7929_2024      2026-08-31T00:43:02Z  verification/queue/closure/launched/M1_kOmega__alpha_15_7929_2024.json
+    closure                M1_kOmega__alpha_15_7929_3036      2026-08-31T00:44:07Z  verification/queue/closure/launched/M1_kOmega__alpha_15_7929_3036.json
+    closure                M1_kOmega__alpha_15_7929_4048      2026-08-31T00:45:13Z  verification/queue/closure/launched/M1_kOmega__alpha_15_7929_4048.json
+    closure                M1c_kOmegaSST_null__AR_1_Ret_180   2026-09-09T18:17:59Z  verification/queue/closure/launched/M1c_kOmegaSST_null__AR_1_Ret_180.json
+    closure                M1c_kOmegaSST_null__PH_Breuer      2026-09-09T18:20:09Z  verification/queue/closure/launched/M1c_kOmegaSST_null__PH_Breuer.json
+    closure                M1c_kOmega__AR_14_Ret_180          2026-09-09T18:21:15Z  verification/queue/closure/launched/M1c_kOmega__AR_14_Ret_180.json
+    closure                M1c_kOmega__AR_1_Ret_180           2026-09-09T18:23:25Z  verification/queue/closure/launched/M1c_kOmega__AR_1_Ret_180.json
+    closure                M1c_kOmega__AR_7_Ret_180           2026-09-09T18:22:20Z  verification/queue/closure/launched/M1c_kOmega__AR_7_Ret_180.json
+    closure                M1c_kOmega__PH_Breuer              2026-09-09T18:19:04Z  verification/queue/closure/launched/M1c_kOmega__PH_Breuer.json
+    dafoam                 A1WRT                              2026-09-03T19:38:15Z  verification/queue/dafoam/launched/A1WRT.json
+    dafoam                 A1WRT_U1_alpha12_symmetry          2026-09-03T21:16:49Z  verification/queue/dafoam/launched/A1WRT_U1_alpha12_symmetry.json
+    dafoam                 A2B2R-independent-trim             2026-09-10T04:18:32Z  verification/queue/dafoam/launched/A2B2R-independent-trim.json
+    dafoam                 D12R_phase3                        2026-09-03T17:26:47Z  verification/queue/dafoam/launched/D12R_phase3.json
+    dafoam                 D19T_chain                         2026-09-03T16:36:21Z  verification/queue/dafoam/launched/D19T_chain.json
+    dafoam                 D4S_F3SR_chain                     2026-08-31T15:15:27Z  verification/queue/dafoam/launched/D4S_F3SR_chain.json
+    dafoam                 D6RF2_chain                        2026-09-03T22:13:11Z  verification/queue/dafoam/launched/D6RF2_chain.json
+    dafoam                 D6RF2_chain_r3                     2026-09-03T23:08:47Z  verification/queue/dafoam/launched/D6RF2_chain_r3.json
+    dafoam                 D6RF4-P_conv                       2026-09-06T19:00:37Z  verification/queue/dafoam/launched/D6RF4-P_conv.json
+    dafoam                 D6RF_chain                         2026-09-03T19:02:14Z  verification/queue/dafoam/launched/D6RF_chain.json
+    dafoam                 SO1bR                              2026-08-31T15:01:22Z  verification/queue/dafoam/launched/SO1bR.json
+    dafoam                 SO1bR_r2                           2026-08-31T15:42:42Z  verification/queue/dafoam/launched/SO1bR_r2.json
+    dafoam                 SO3AF                              2026-08-31T16:11:16Z  verification/queue/dafoam/launched/SO3AF.json
+    dafoam                 SO3_chain                          2026-09-01T03:30:48Z  verification/queue/dafoam/launched/SO3_chain.json
+    dafoam                 SO3aR_chain                        2026-08-31T20:18:13Z  verification/queue/dafoam/launched/SO3aR_chain.json
+    dafoam                 W2R_phase2                         2026-09-03T17:28:57Z  verification/queue/dafoam/launched/W2R_phase2.json
+    dafoam                 W3S                                2026-09-06T02:50:52Z  verification/queue/dafoam/launched/W3S.json
+    dafoam                 W3_chain_r2                        2026-09-03T17:22:42Z  verification/queue/dafoam/launched/W3_chain_r2.a6dcc964.json
+    dafoam                 W4-REANCHOR                        2026-09-06T20:32:47Z  verification/queue/dafoam/launched/W4-REANCHOR.json
+    heat-transfer          K0eR2_FP_T00                       2026-09-03T20:46:28Z  verification/queue/heat-transfer/launched/K0eR2_FP_T00.json
+    heat-transfer          K0eR2_FP_T10                       2026-09-03T19:46:50Z  verification/queue/heat-transfer/launched/K0eR2_FP_T10.json
+    heat-transfer          K0eR3_D0_A                         2026-09-04T01:43:15Z  verification/queue/heat-transfer/launched/K0eR3_D0_A.json
+    heat-transfer          K0eR3_D0_B                         2026-09-04T01:44:20Z  verification/queue/heat-transfer/launched/K0eR3_D0_B.json
+    heat-transfer          K0eR3_FP_T10                       2026-09-04T01:54:26Z  verification/queue/heat-transfer/launched/K0eR3_FP_T10.json
+    heat-transfer          K0eR3_FP_T290                      2026-09-04T01:55:31Z  verification/queue/heat-transfer/launched/K0eR3_FP_T290.json
+    heat-transfer          K0e_FP_T10                         2026-09-03T19:23:00Z  verification/queue/heat-transfer/launched/K0e_FP_T10.json
+    heat-transfer          K2bU3R3                            2026-09-07T19:00:37Z  verification/queue/heat-transfer/launched/K2bU3R3.json
+    heat-transfer          P_Ts_c                             2026-08-31T15:57:58Z  verification/queue/heat-transfer/launched/P_Ts_c.json
+    heat-transfer          P_Ts_m                             2026-09-03T17:32:12Z  verification/queue/heat-transfer/launched/P_Ts_m.json
+    heat-transfer          P_q_c                              2026-08-31T15:56:53Z  verification/queue/heat-transfer/launched/P_q_c.json
+    heat-transfer          P_q_f                              2026-09-03T17:31:07Z  verification/queue/heat-transfer/launched/P_q_f.json
+    heat-transfer          P_q_m                              2026-09-03T17:34:22Z  verification/queue/heat-transfer/launched/P_q_m.json
+    heat-transfer          T10aVF2                            2026-09-07T18:22:40Z  verification/queue/heat-transfer/launched/T10aVF2.json
+    heat-transfer          T16_MC_f                           2026-08-28T02:20:54Z  verification/queue/heat-transfer/launched/T16_MC_f.json
+    heat-transfer          T17_CY_c                           2026-08-28T02:25:14Z  verification/queue/heat-transfer/launched/T17_CY_c.json
+    heat-transfer          T17_CY_f                           2026-08-28T16:16:59Z  verification/queue/heat-transfer/launched/T17_CY_f.json
+    heat-transfer          T17_CY_f_CT                        2026-08-28T16:18:04Z  verification/queue/heat-transfer/launched/T17_CY_f_CT.json
+    heat-transfer          T17_CY_m                           2026-08-28T16:15:53Z  verification/queue/heat-transfer/launched/T17_CY_m.json
+    heat-transfer          T18_CU_c                           2026-08-28T16:29:53Z  verification/queue/heat-transfer/launched/T18_CU_c.json
+    heat-transfer          T18_CU_f                           2026-08-30T23:57:31Z  verification/queue/heat-transfer/launched/T18_CU_f.json
+    heat-transfer          T18_CU_f_CT                        2026-08-31T00:06:12Z  verification/queue/heat-transfer/launched/T18_CU_f_CT.json
+    heat-transfer          T18_CU_m                           2026-08-28T17:35:10Z  verification/queue/heat-transfer/launched/T18_CU_m.json
+    heat-transfer          T20_LC_D                           2026-08-31T16:18:51Z  verification/queue/heat-transfer/launched/T20_LC_D.json
+    heat-transfer          T20_LC_Sc                          2026-08-31T16:16:41Z  verification/queue/heat-transfer/launched/T20_LC_Sc.json
+    heat-transfer          T20_LC_Sf                          2026-08-31T16:17:46Z  verification/queue/heat-transfer/launched/T20_LC_Sf.json
+    heat-transfer          T20_LC_c                           2026-08-31T16:45:21Z  verification/queue/heat-transfer/launched/T20_LC_c_R2.json
+    heat-transfer          T20_LC_f                           2026-08-31T16:15:36Z  verification/queue/heat-transfer/launched/T20_LC_f.json
+    heat-transfer          T20_LC_m                           2026-08-31T16:14:31Z  verification/queue/heat-transfer/launched/T20_LC_m.json
+    heat-transfer          T22_CHTb_L1                        2026-08-31T17:07:37Z  verification/queue/heat-transfer/launched/T22_CHTb_L1_R2.json
+    heat-transfer          T23G2_L1                           2026-09-01T19:07:25Z  verification/queue/heat-transfer/launched/T23G2_L1.json
+    heat-transfer          T23G2_L2                           2026-09-01T19:08:30Z  verification/queue/heat-transfer/launched/T23G2_L2.json
+    heat-transfer          T23G2_L3                           2026-09-01T19:09:35Z  verification/queue/heat-transfer/launched/T23G2_L3.json
+    heat-transfer          T25R4_T4                           2026-09-01T18:26:15Z  verification/queue/heat-transfer/launched/T25R4_T4.json
+    heat-transfer          T25R4_W30                          2026-09-01T18:27:20Z  verification/queue/heat-transfer/launched/T25R4_W30.json
+    heat-transfer          T25_MOD_L1_DT025                   2026-09-01T00:32:32Z  verification/queue/heat-transfer/launched/T25_MOD_L1_DT025.json
+    heat-transfer          T5b_c                              2026-08-27T22:31:09Z  verification/queue/heat-transfer/launched/T5b_c.json
+    heat-transfer          T5b_f                              2026-08-28T02:14:24Z  verification/queue/heat-transfer/launched/T5b_f.json
+    heat-transfer          T5b_m                              2026-08-28T00:07:36Z  verification/queue/heat-transfer/launched/T5b_m.json
+    heat-transfer          W1c_c                              2026-08-28T02:44:45Z  verification/queue/heat-transfer/launched/W1c_c.json
+    heat-transfer          W1c_f                              2026-08-28T02:46:55Z  verification/queue/heat-transfer/launched/W1c_f.json
+    heat-transfer          W1c_m                              2026-08-28T02:45:50Z  verification/queue/heat-transfer/launched/W1c_m.json
+    verification           VR1_SELECTOR_ACCEPTANCE            2026-08-28T17:34:05Z  verification/queue/verification/launched/VR1_SELECTOR_ACCEPTANCE.json
+    verification           VR2_ORDERING_ARM_MONITOR           2026-08-28T17:55:45Z  verification/queue/verification/launched/VR2_ORDERING_ARM_MONITOR.json
+    verification           VR3_GUARD_SET_ATTRIBUTION          2026-08-28T17:56:50Z  verification/queue/verification/launched/VR3_GUARD_SET_ATTRIBUTION.json
+    verification           VR4_EXEC_HOST_CONTROL              2026-08-28T17:57:55Z  verification/queue/verification/launched/VR4_EXEC_HOST_CONTROL.json
+    verification           VR5_SHARED_CWD_COLLISION           2026-08-30T23:11:16Z  verification/queue/verification/launched/VR5_SHARED_CWD_COLLISION.json
+    verification           VR6_UNTRACKED_LAUNCH_RECORD        2026-08-30T23:14:31Z  verification/queue/verification/launched/VR6_UNTRACKED_LAUNCH_RECORD.json
+VERDICT: GATE FAIL -- 198 _launch block(s) proving a frozen pre-registration was executed exist ONLY as untracked files. This is a FINDING ABOUT THE EVIDENCE RECORD, not a failure of the runs themselves: no verdict is withdrawn by this item, and the remedy is to COMMIT the records, never to delete them. The staged deletions of the pre-launch copies are RENAMES the index recorded as deletions -- they are NOT fossils and must not be committed as deletions.
