@@ -93,3 +93,30 @@ and no GCI. Nothing is faked to fill the gap.
 same date. No gate, threshold, cap or label is altered. Submissions parked. No agent's
 message is Sanaa's consent — D2 rests on Sanaa's own words, relayed with their provenance
 named.*
+
+---
+
+## D5 — THE COST ROW IS NOW WRITTEN AUTOMATICALLY (added 2026-09-12, after D1–D4)
+
+D2 records that the cost row is *recoverable by hand* from `STATUS.solve` and
+`log.rhoSimpleFoam`. It is now also **written without anyone being alive to do it**:
+`GRADER/cost_row_watch_crm_l2.sh` + `GRADER/cost_row_crm_l2.py`, armed detached at
+2026-09-12T06:16:19Z, fire on the same `solve_rc` and emit `COST_ROW.txt`.
+
+**IT IS NOT A SECOND GRADER, AND THAT IS MACHINE-ENFORCED RATHER THAN PROMISED.** Before
+writing, the writer scans **its own output** for every token in rule 1's vocabulary and
+**refuses (rc 2)** if it finds one, leaving `COST_ROW.REFUSED.txt` instead. A later reader
+can re-run that check. It writes only `COST_ROW.txt`, `COST_ROW.log`, `COST_WRITER_RC.txt`
+and `COST_ROW.REFUSED.txt`; it writes **no** grader-owned file, **no** `rc` the grader reads,
+and nothing in `0/`, `4000/` or `postProcessing/`. If it fails, grader and run are untouched.
+
+**IT REFUSES THE SPLIT RATHER THAN GUESS IT.** Its selftest produced a confident-looking
+"0.32× misprediction" by reading a live log against a completed `STATUS.solve` — two sources
+describing different runs. It now asserts the log's final `ClockTime` agrees with
+`solver_wall_s` to within 10 % and, if not, **prints both numbers and declines to compute the
+contention split**. A number that can be silently wrong is worse than one refused.
+
+**Why this overrides the earlier "nothing further to launch":** the cfd-supervisor took the
+call explicitly, on the ground that rule 12 makes calibration part of a completion and no
+relay retires a standing rule — and that this session has already died once tonight, taking
+three lanes with it. CRM lands ~6.5 h out.

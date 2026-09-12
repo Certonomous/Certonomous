@@ -4,3 +4,5 @@ e02a0771237b50593bb3d61040ca3f04d9887e4d6e8778ed15470fe96e327efb  /home/ubuntu/C
 # sources:
 04bda8b9d99a1f2efacccef541530e4195c89690d24fa7ee85f829ebe4b21e4e  /home/ubuntu/Certonomous/cases/CRM_wingalone/autograde_crm_l2.sh
 e02a0771237b50593bb3d61040ca3f04d9887e4d6e8778ed15470fe96e327efb  /home/ubuntu/Certonomous/cases/CRM_wingalone/grade_crm_l2.py
+0730dc3717cf7d103bc56e2fd461cdfab927050421300b294101bd0526e8e525  /home/ubuntu/Certonomous/verification/runs/CRM_WINGALONE_runs/SOLVE_L2/GRADER/cost_row_watch_crm_l2.sh
+47fb0e16989241f4f75bd4a5d046381be3cfac5d6e673dcbb6e95910fad5750a  /home/ubuntu/Certonomous/verification/runs/CRM_WINGALONE_runs/SOLVE_L2/GRADER/cost_row_crm_l2.py
