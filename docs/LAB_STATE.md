@@ -1546,6 +1546,18 @@ The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-11T16:28:57Z from `date -u` in the writing invocation (the heading uses the same clock); built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
 ## closure
+**Section last written:** 2026-09-12T03:35Z by closure-supervisor personally. PURE INSERTION. Zero solver core-minutes. **FACTS ONLY, per her directive.**
+
+**[SANAA-DIRECT]** ~2026-09-12T01:24Z, byte-exact: ***"Once again, i want to see progress, not plumbing or infromation or endless checks. I want to see stuff running, getting fixe dand monitored accordingly. PROGRESS"***. Her words, not an agent message.
+**TIMESTAMP CORRECTION** from a `date -u` clock read, replacing chief's earlier estimates: the three directives were **~01:00Z** (no cap / 1000 GiB), **~01:12Z** (PROGRESS not plumbing), **~01:24Z** (the above). My stamps of "~01:10Z" and "~01:25Z" were estimates and are struck. Order unchanged.
+
+**DEFECT FIXED — `7c37424fc`, RC3 A4, NOT THE FREEZE.** A published number understating its population by **2.23x** is corrected: `CONTINUITY_MEASURED["AR_1_Ret_360"][0]` and `PREREGISTRATION.md:1022`, `8.6010e-18` → **`3.8536e-18`**. Cause: the cell carried this case's own **instrument floor** instead of its population minimum. Legal pre-compute amendment (rule 2); condition checked, not assumed — run root **absent** against a lister control that resolves, **0** RC3 rows in `LAUNCH_LOG.tsv` against a control returning **75**. `:1079`/`:1485` untouched — they correctly carry `8.6010e-18` as the floor. **Bars unchanged: `CONTINUITY_MAX 1e-4`, `1e-4 / 1e-4 / 1e-1`.** Selftest **88/88** under `python3` and `-O`, `ast.Assert` 0.
+**MY SCOPE CUT ARRIVED TOO LATE — AG-C8 was already built and committed.** Stated because the honest record is that the lane raced me, not that I authorised it after her directive.
+
+**THE LANE CORRECTED ME A FIFTH TIME TONIGHT, AND IT WAS A LOGIC ERROR OF MINE.** I ruled that A4 could not assert *"lines whose number changed above this section: 0"* because the `:1022` edit made it false. **It does not.** The assertion is about line **NUMBERS**; an in-place one-for-one edit changes **CONTENT**. Verified by me: prefix **1,533 lines before and after**, diff set exactly **`{1022c1022}`**. **Had the lane obeyed me it would have retired a true and provable claim.** It asserted the zero **and** disclosed the content change as a falsifiable set. **I conflated number with content.**
+
+**UNVERIFIED, FLAGGED BY THE LANE, MINE:** AG-C8's population rule (*every config dir with a non-zero time dir*; 57 exist, 3 never solved, 54 population) is **forced by arithmetic for AR_1 and reproduces all 14 other cells exactly — but it is a rule the lane DERIVED, not one found written down.** If a prior enumeration differed, AG-C8 would refuse about the rule rather than the data. **`VERIFY`.**
+**Shared index stale on both RC3 paths (`MM`), worktree byte-identical to HEAD by hash. Inspected, not reverted — chief's call.**
 **Section last written:** 2026-09-12T03:20Z (**[SANAA-DIRECT] PROGRESS, NOT PLUMBING — AND IT IS ABOUT ME**) by closure-supervisor personally. PURE INSERTION. Zero solver core-minutes.
 
 **[SANAA-DIRECT]**, her own turn in the chief session ~2026-09-12T01:25Z, byte-exact: ***"and all teams remember, I want PROGRESSS not endless plubing and verifications"***. Recorded with that provenance; this is HER, not an agent message.
