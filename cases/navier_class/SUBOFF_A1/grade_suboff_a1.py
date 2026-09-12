@@ -47,6 +47,12 @@ if not __debug__:
     sys.stderr.write("REFUSED: must not run under python3 -O.\n"); sys.exit(2)
 import os, re, json, math, time, argparse, datetime
 
+# Repository root, derived from THIS file's location (cases/navier_class/SUBOFF_A1/),
+# never from cwd -- the grader is run detached by the queue runner from the case
+# directory, and a cwd-derived root would silently resolve to the run tree.
+REPO_ROOT_FOR_READER = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__)))))
+
 PLANT_CD    = 1.234e-03
 PLANT_YPLUS = 987.654
 PLANT_DECOY_CD = 5.678e-03
@@ -165,27 +171,57 @@ def check_completion(case, end_time, ranks):
     r["rc"] = int(open(rcp).read().strip()) if os.path.isfile(rcp) else None
     r["clause_rc_zero"] = (r["rc"] == 0)
 
-    log = os.path.join(case, "log.simpleFoam")
-    r["log"] = log if os.path.isfile(log) else None
-    end_line, n_exec, last_time = False, 0, None
-    if r["log"]:
-        with open(log, errors="replace") as f:
-            for line in f:
-                if line.startswith("End"):
-                    end_line = True
-                elif line.startswith("ExecutionTime"):
-                    n_exec += 1
-                elif line.startswith("Time = "):
-                    try:
-                        last_time = float(line.split("=", 1)[1].strip())
-                    except ValueError:
-                        pass
-    r["clause_end_line"] = end_line
-    r["n_ExecutionTime"] = n_exec
-    r["last_Time"] = last_time
-    r["clause_last_eq_endTime"] = (last_time is not None and
-                                   abs(last_time - end_time) < 1e-9)
-    r["clause_exec_count"] = (n_exec == round(end_time / 1))
+    # AMENDMENT 2026-09-12 -- THE STEP COUNT IS READ ACROSS EVERY LOG SEGMENT AND IS
+    # KEYED ON THE PHYSICS, NOT ON ONE FILE'S LINE COUNT.
+    #
+    # The block this replaces opened ONE file, `log.simpleFoam`, and counted
+    # `ExecutionTime` LINES.  A killed-and-resumed run does not have one file, and
+    # -- the part the obvious repair gets wrong -- CONCATENATING THE SEGMENTS DOES
+    # NOT FIX IT.  MEASURED ON THIS CASE'S OWN SOLVE_L2, live at 21:52Z:
+    #
+    #     segment 1, killed by the 21:32Z reboot   Time = 1 .. 63
+    #     resume from the t = 60 checkpoint        Time = 61 .. 3000
+    #     duplicate steps in the appended log      Time = 61, 62, 63   (read back
+    #                                              from the live log, not predicted)
+    #     naive line sum                           3,002
+    #     required                                 3,000
+    #     distinct physics steps reached           3,000
+    #
+    # Iterations 61-63 were RUN TWICE, because the checkpoint they resume from is
+    # t = 60.  A line count credits them twice.  The overlap's size varies with
+    # every kill and is invisible from the log, so no fixed correction is possible;
+    # the count has to be taken on the physics.
+    #
+    # WHAT IS REQUIRED DOES NOT CHANGE.  WHERE IT IS READ FROM DOES.  Standing rule
+    # 4 is not weakened -- the age guard, the endTime match, the End line and the
+    # field list all still stand below, untouched -- and one hole is closed on the
+    # way: the old count was satisfied by 3,000 lines that skipped a step, and is
+    # now satisfied only by the distinct steps being exactly {1 .. endTime}.
+    #
+    # Sanaa's ruling, 2026-08-26 and again 2026-09-12: BOOKKEEPING NEVER VOIDS
+    # PHYSICS.  An ExecutionTime line count is bookkeeping.
+    sys.path.insert(0, os.path.join(REPO_ROOT_FOR_READER, "scripts"))
+    import solver_log_set as _sls
+    _scan = _sls.scan(case, "simpleFoam", end_time=end_time, delta_t=1.0)
+    r["log"] = (os.path.join(case, "log.simpleFoam")
+                if os.path.isfile(os.path.join(case, "log.simpleFoam")) else None)
+    r["log_segments"] = _scan["segments"]
+    r["n_log_segments"] = _scan["n_segments"]
+    r["resumed"] = _scan["resumed"]
+    r["n_steps_distinct"] = _scan["n_steps"]
+    # REPORTED, NEVER GATED.  Printed so a reader SEES the double-count rather than
+    # being protected from it -- an unexplained discrepancy that no record shows is
+    # worse than one shown and named.
+    r["n_ExecutionTime_lines_raw_BOOKKEEPING"] = _scan["n_exec_lines_raw"]
+    r["line_count_overcounts_by"] = _scan["line_count_overcounts_by"]
+    r["clause_end_line"] = _scan["end_line"]
+    r["n_ExecutionTime"] = _scan["n_steps"]
+    r["last_Time"] = _scan["last_time"]
+    r["clause_last_eq_endTime"] = _scan["clause_last_eq_endTime"]
+    r["clause_exec_count"] = _scan["clause_exec_count"]
+    r["missing_steps"] = _scan.get("missing_steps")
+    r["n_missing_steps"] = _scan.get("n_missing_steps")
+    r["step_count_method"] = _scan["counting"]
 
     td = os.path.join(case, str(end_time))
     r["endTime_dir"] = td if os.path.isdir(td) else None
