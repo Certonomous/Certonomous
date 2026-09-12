@@ -389,3 +389,85 @@ The calibration row is filed separately in `docs/COST_CALIBRATION.md`.
 **SUBMISSIONS PARKED.** Nothing here is sent, filed or registered anywhere outside this box.
 
 *— cfd `lab-lane`, 2026-09-12.*
+
+---
+
+# ADDENDUM 1 — 2026-09-12 — THE ABSENT VISIBILITY PAIR IS EXECUTED RATHER THAN EXPLAINED
+
+**Dated addendum appended at the foot. Version: v1.0 → v1.1.**
+**`lines whose number changed above this section: 0`** — the 391 lines above are
+byte-identical to the blob committed at `5b494e4bd`, and the proof is a hash, not an
+assurance: `head -n 391 <this file> | sha256sum` =
+`ec4bc8a7ea8b75640b55e53d26519a4d88ea2df507b6fd867fdd9110deeda9e2`, equal to
+`git show 5b494e4bd:verification/campaign/PRD_E1_FINE_GRID_RESULTS.md | sha256sum`.
+Re-runnable by anyone.
+
+**This addendum alters NO gate, threshold, band, cap or label.** `G-ERGUN` stays ±3 %,
+`G-ASYMP` stays ±1.5 %, `Fs` stays 1.25, the five Ergun targets are untouched, and **the
+registered verdict stays 0 of 5 PASS, `credential = false`.** It executes one registered
+control that §6 recorded as **absent**, and it records what that execution showed.
+
+**Why.** §6 of this record stated that `visibility_pair = null` at every `U_s` because no
+INERT (`D = f = 0`) case exists in the run tree — **one registered control of three ran
+for the graded ladder** — and priced the closure at one coarse solve, about 2 core-min.
+The cfd-supervisor accepted the record and directed that the control be run rather than
+explained, on the ground that an explanation is only good until someone cheap can just
+run it. **That is right, and the reasoning in §6 is not retracted:** the pair guards
+against trusting a *zero* from a reader never shown able to see a non-zero, and the gated
+quantity is a large non-zero whose plant control positively demonstrated sensitivity.
+This is a registered control being **executed**, not a broken result being repaired.
+
+## A.1 — THE PREDICTION, WRITTEN AND COMMITTED BEFORE THE SOLVER STARTS
+
+**Committed before any compute for this control. The run directory
+`verification/runs/navier_class/PRD/us4.00_L1_INERT/` does not exist at the moment of
+this commit — that is the condition, and it is checked, not asserted.**
+
+**The case.** `build_prd.py --emit --level L1 --us 4.0 --inert` — the **frozen builder**,
+whose `fv_options(active=False)` sets `d = f = (0, 0, 0)`; identical geometry, mesh,
+boundary conditions, turbulence model, solver settings and `endTime` 3000 to the graded
+`us4.00_L1`, differing **only** in the two porosity coefficients. Launched by the frozen
+`run_prd.sh` (blob `356ab36e…`, worktree == `HEAD:`), serial, 1 rank. `U_s = 4.00` chosen
+because it is the point where the porous term contributes most — 94 % inertial — so it is
+the widest separation the pair can be asked to resolve.
+
+**The registered criterion is NOT chosen now. It is frozen.** `analyse_prd.py` carries
+`INERT_DP_MAX_PA = 1.0` and `visibility_pair()` passes only when
+`|Δp_inert| < 1.0 Pa` **and** `Δp_active > 1.0 Pa`, both read through the same
+`read_dp_pa` in the same grading invocation. That constant was committed at the freeze,
+before any PRD compute, and this addendum does not touch it.
+
+**My physical prediction, which is new and is therefore stated so it can lose.** The
+inert duct still has wall friction and a developing boundary layer between the two
+measurement planes, so **the falsifier is not "exactly zero".** Between `x = 0.200 m` and
+`x = 0.300 m` — one hydraulic diameter of smooth square duct at
+`Re_Dh = U·D_h/ν = 4 × 0.1 / 1.5e-5 = 26,667` — the fully-developed Blasius estimate is
+
+  `Δp = f_D · (L/D_h) · ½ρU² = 0.316·Re^(−1/4) × 1.0 × 0.5 × 1.2 × 16 = 0.02473 × 9.6 = 0.237 Pa`,
+
+about 10 % lower for a square section than the circular correlation, and **higher** than
+fully-developed here because at 2–3 `D_h` from a uniform inlet the boundary layer is thin,
+the wall shear is above its asymptote, and the accelerating core adds a profile-change
+term. **Predicted `Δp_inert` ∈ [0.15, 0.90] Pa, positive** (pressure falling downstream),
+centred near 0.25 Pa.
+
+**WHAT RESULT WOULD HAVE FAILED THIS TEST — each branch, and what it would mean:**
+
+| observed | frozen pair | meaning |
+|---|---|---|
+| `|Δp_inert| ≥ 1.0 Pa` | **FAILS** | the sink is not actually inert — `fvOptions` not disabled, or the cellZone still resisting — or the reader is on the wrong case |
+| `Δp_inert` within two orders of 11171 Pa | **FAILS** | catastrophic: the reader is reading the ACTIVE case's artifacts |
+| `Δp_inert < 0` beyond solver noise | **FAILS** the physics | pressure rising across the core: a sign error in `dp_pa`, or the two plane faceZones swapped |
+| `Δp_active ≤ 1.0 Pa` | **FAILS** | the active arm cannot see a non-zero, which is the whole licence the pair provides |
+| `Δp_inert` **exactly** 0.000000 with both plane samples non-zero | frozen arithmetic **passes** | **and I would report it as a FAILURE anyway.** A real duct with wall friction cannot produce an exact zero; an exact zero would mean the two plane samples are the same value or the same file. `read_dp_pa` refuses only when **both** planes read 0.0, so this branch slips past the frozen guard and is caught here by the prediction instead |
+| `Δp_inert` outside [0.15, 0.90] Pa but under 1.0 Pa | frozen pair **passes** | **my physics estimate loses and is reported as a miss**, separately, and the control's pass is not allowed to hide it |
+
+**Cost, pre-registered (rule 12).** POINT **2.9 core-min** (anchored on the measured
+2.833 core-min of the ACTIVE `us4.00_L1`, same mesh, same iteration count, one rank);
+**CAP 10 core-min**, wall timeout 900 s. An overrun **stops the run**. Under the $25
+pre-authorisation; **$0.0025 DERIVED, NEVER MEASURED** at $0.0513/core-h. Box at launch:
+load average 55.41 on 16 vCPU, driven by heat-transfer's `splitMeshRegions` and dafoam's
+8-rank A3GC — **neither of them ours and neither touched**; one serial 18,432-cell solve
+is small enough to proceed and is held to one rank.
+
+*A.2 — the result — is appended after the run, in its own commit.*
