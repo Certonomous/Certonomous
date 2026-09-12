@@ -193,3 +193,33 @@ with its ratio and the item still grades.
   ADDENDUM 7 for this repair arm. Both are on record; which one G10 would have used for
   R1 is undetermined because R1 never reached G10. The calibration above uses **35**, the
   figure registered for *this* arm. Against 15.659 the gross ratio would be 14.02×.
+
+---
+
+## 7. DATED CORRECTION — 2026-09-12 — **"SEVENTEEN" IN §2 IS STRUCK. IT IS ONE FAILURE PRINTED SEVENTEEN TIMES.**
+
+Appended, never rewritten; §2's table above stands as originally written and this section
+corrects it. Full record: `PREREGISTRATION.md` **ADDENDUM 10**.
+
+§2 reports the pre-fix arm as printing `Primal solution failed!` **17 times**. That figure
+is a raw `grep -c` and it counts Python traceback frames, not failures. Measured:
+
+| item | `did not satisfy the prescribed tolerance` | raw grep | genuine failures |
+|---|---|---|---|
+| D8G pre-fix | **1** | 17 | **1** |
+| **D8G R1** | **0** | **0** | **0** |
+
+The seventeen hits sit in lines 2471–2738 of a 2751-line log — the tail — and most are
+`raise AnalysisError(...)` / `openmdao.core.analysis_error.AnalysisError: ...`. The
+1-vs-17 difference is whether the error propagated through OpenMDAO, **not** how many
+times the primal failed.
+
+**THE CONTRAST SURVIVES AND IS UNCHANGED AS THE FINDING: one genuine failure to ZERO**, and
+R1's zero is a true zero on **both** strings. **No verdict changes** — this row is still
+`NOT A RESULT`, on the comparator's ledger refusal, for the reasons in §1.
+
+**Also corrected, and it strengthens rather than weakens the mechanism claim:** `nIters: 1`
+is not the discriminator — A3GC-AR1 has `nIters: 3` and still missed. What separates the
+four items with no overlap is **how far the linear solve is driven inside each outer step**:
+12.3× / 23.8× / 25.1× for the three that failed, **1119.7×** for the one that cleared.
+See ADDENDUM 10 §10.2.

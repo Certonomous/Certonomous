@@ -2026,3 +2026,75 @@ and this lane's use of "bit-for-bit" in `A3GC_AR1_GRADING_RECORD.md` §7 was too
 **corrected here.** *The cost attribution in that record is unaffected: it rests on
 identical cell count, rank count and iteration count, which are unchanged, and not on
 identical residuals.* Not chased tonight; it changes no verdict.
+
+---
+
+## ADDENDUM 10 — 2026-09-12 — **I COUNTED TRACEBACK FRAMES AS FAILURES. "SEVENTEEN" IS ONE FAILURE PRINTED SEVENTEEN TIMES, AND I AM STRIKING IT FROM MY OWN RECORD.**
+
+**`lines whose number changed above this section: 0`** — measured against the committed
+blob at HEAD before this text was appended (2,028 lines). CLAUDE.md rule 6.
+
+**ALTERS NO gate, band, threshold, cap or label.** `d8g_grade.py` **NOT TOUCHED**,
+`12688063e20cbb6fa79cf08d0996d4e1`. This addendum corrects **a count in my own prose** and
+sharpens a mechanism claim. No verdict changes: D8G R1 remains **`NOT A RESULT`** and
+A3GC-AR1 remains **`NOT A RESULT`**. **SUBMISSIONS PARKED.**
+
+### 10.1 The error, and where it is
+
+**ADDENDUM 9 §10.7 and `D8G_R1_GRADING_RECORD.md` §2 both say the pre-fix arm printed
+`Primal solution failed!` SEVENTEEN TIMES.** That is a raw `grep -c`, and it counts Python
+traceback frames. **STRUCK.** The measured position:
+
+| item | `did not satisfy the prescribed tolerance` | raw grep `Primal solution failed` | genuine failures |
+|---|---|---|---|
+| D8G pre-fix (`L1-P_20260911T234236Z_2435242.log`) | **1** | 17 | **1** |
+| D6RF11 (`F_probe_20260912T053430Z_2891321.log`) | **1** | 17 | **1** |
+| A3GC-AR1 (`primal.log`) | **1** | 1 | **1** |
+| **D8G R1** (`L1-P-R1_20260912T044934Z.log`) | **0** | **0** | **0** |
+
+D8G pre-fix's seventeen hits sit in lines **2471–2738 of a 2751-line log** — the tail — and
+most are traceback frames: `raise AnalysisError("Primal solution failed!")` and
+`openmdao.core.analysis_error.AnalysisError: ...`. **Every stalled item has exactly ONE
+genuine tolerance failure.** The 1-vs-17 difference is whether the `AnalysisError`
+propagated up through OpenMDAO and printed a stack, **not how many times the primal
+failed**.
+
+**THE CONTRAST SURVIVES AND IS STILL THE FINDING** — one genuine failure to **zero**, and
+D8G R1's zero is a true zero on **both** strings, not an absence of one. But *"seventeen to
+zero"* is not an honest way to say *"one to zero"*, and a reader who checks the raw grep
+would find the number and not the traceback. Corrected here rather than left to be found.
+
+### 10.2 `nIters: 1` IS NOT THE DISCRIMINATOR. THE REDUCTION FACTOR IS.
+
+A cross-item reading circulated in which `nuTilda nIters: 1` was the signature of the
+stall. **It breaks on A3GC-AR1, which has `nIters: 3` and still missed its gate.**
+Measured, from the four logs' own last printed steps:
+
+| item | `nIters` | initRes / finalRes **within the outer step** | initRes / floor | outcome |
+|---|---|---|---|---|
+| D8G pre-fix (loose) | 1 | **12.3×** | 4.074× | failed |
+| D6RF11 (loose) | 1 | **23.8×** | 1.139× | failed |
+| A3GC-AR1 | **3** | **25.1×** | 1.009× | failed |
+| **D8G R1 (tight)** | 3 | **1119.7×** | **0.787×** | **CLEARED** |
+
+**Three failures in a 12–25× band; one clearance at 1120×; no overlap.** `nIters`
+correlates but does not discriminate. **How far the linear solve is driven within each
+outer step does.** The mechanism is therefore **one measurable quantity**, not a count of
+knobs — and A3GC-AR1 belongs in this table **on evidence** (it has one genuine tolerance
+failure, exactly like the others) rather than by resemblance.
+
+### 10.3 Attribution, corrected against this lane's own interest
+
+**Knobs 7–8 are NOT this lane's find.** ADDENDUM 7 (`c852c6319`, the dafoam-supervisor,
+04:31Z) established that the registered "package of six" was missing the knob that causes
+the D8G plateau, **before this lane touched D8G**. What this lane contributed is the
+**measurement on both sides** — 13 pressure sub-iterations per outer step against the loose
+rule's 1, and the reduction-factor discriminator of §10.2. The catch is the supervisor's;
+the measurement is the lane's. Recorded this way because a record that flatters its author
+is worth less than one that can be checked.
+
+### 10.4 The floor does not move
+
+`primalMinResTol 1e-08 × primalMinResTolDiff` is the accept floor **as a product**
+(N-D43), and it is **not touched** — not in D8G, not in A3GC, and not in any successor.
+Nothing in this addendum moves a threshold.
