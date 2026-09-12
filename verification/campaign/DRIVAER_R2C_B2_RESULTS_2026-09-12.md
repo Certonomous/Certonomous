@@ -215,3 +215,117 @@ zero that emits nothing.** This is an **INFRASTRUCTURE** field, not a physics-cr
 *Graded by a cfd `lab-lane`, 2026-09-12, by hand from the frozen instrument because no watcher
 was staged. No gate, threshold, cap or label altered. Submissions parked. No agent's message is
 Sanaa's consent.*
+
+---
+
+## 9. ADDENDUM — 2026-09-12 — 🔴 **A LONGER STEADY RUN WILL NOT FIX THIS, AND THE MEASUREMENT SAYS SO. THE `Cd` IS BLOCKED ON TWO INDEPENDENT THINGS AND A LONGER RUN TOUCHES NEITHER.**
+
+**`lines whose number changed above this section: 0`.** No gate, threshold, cap or label is
+altered; §§1–8 stand byte-identical. This section adds a measurement and a refusal.
+
+**WHY IT EXISTS.** The cfd-supervisor ruled that a longer-`endTime` arm be registered, reasoning
+that DrivAer's excursion is *stable across seven windows*, so *"more iterations would be measuring
+something real"* — as against MRF, whose window-**relative** tell would have flipped by arithmetic.
+**The distinction between the two cases is correct. The conclusion drawn from it is not, and the
+data that refutes it is in the runs already on disk.**
+
+### 9.1 THE EXCURSION DOES NOT DECAY WITH ITERATION COUNT — MEASURED, NOT ASSUMED
+
+The trailing-200 excursion recomputed as a function of **where you stop**:
+
+| stop at | control excursion_rel | blended excursion_rel |
+|---:|---|---|
+| 600 | 1.758305e-02 | 2.005943e-02 |
+| 800 | 1.743562e-02 | 1.874917e-02 |
+| 1000 | 1.709690e-02 | 2.069095e-02 |
+| 1200 | 1.633832e-02 | 2.136006e-02 |
+| 1400 | 1.560577e-02 | 2.080095e-02 |
+| 1600 | 1.709288e-02 | 1.845633e-02 |
+| 1800 | 1.609583e-02 | 1.961564e-02 |
+| 2000 | 1.647588e-02 | 2.028951e-02 |
+
+Power-law fit over those eight stopping points: **control `excursion ~ N^(-0.069)`**, **blended
+`excursion ~ N^(+0.000)`**. The control's nominal extrapolation to the 0.005 tolerance is
+**N ≈ 5.1 × 10¹⁰ iterations**, which is not a forecast but a demonstration that the fit carries no
+decay. **The blended arm does not decay at all.**
+
+### 9.2 THE AMPLITUDE IS STATIONARY — A TRANSIENT SHRINKS, THIS DOES NOT
+
+Mean removed over iterations 1000–2000, four consecutive 250-iteration blocks:
+
+| block | control rms | blended rms |
+|---|---|---|
+| 1000–1249 | 1.810956e-03 | 1.985652e-03 |
+| 1250–1499 | 1.801677e-03 | 2.000793e-03 |
+| 1500–1749 | 1.767461e-03 | 1.945197e-03 |
+| 1750–1999 | 1.772603e-03 | 2.010776e-03 |
+
+**Constant to ~2 % across a thousand iterations.** A decaying transient does not do this.
+
+### 9.3 🔴 IT IS A **COHERENT PERIODIC OSCILLATION**, AND THAT IS A NAMED STOP RULE
+
+Autocorrelation of the mean-removed `Cd` over iterations 1000–2000:
+
+| | control | blended |
+|---|---|---|
+| first sign reversal | lag 8 | lag 8 |
+| **fundamental period T** | **33 iterations** | **30 iterations** |
+| r(T) | **+0.959** | **+0.936** |
+| r(T/2) | **−0.845** | **−0.940** |
+| r(2T) | **+0.970** | **+0.965** |
+
+**Strongly positive at T and 2T, strongly negative at T/2, in BOTH arms, at nearly the same
+period.** That is the textbook signature of a sustained limit cycle, not numerical noise and not a
+settling transient.
+
+**Sanaa's run instruction, item 12, names this exact case and routes it:** *"coherent oscillation
+in the graded quantity → mark 'physics voting unsteady' > unsteady"*. **The physics is voting
+unsteady. A steady solver cannot converge an unsteady flow; a longer steady run reproduces the same
+limit cycle at the same amplitude, and lands on the same `NOT_PLATEAUED`.**
+
+**A CORRECTION TO THIS LANE'S OWN PRELIMINARY READING, MADE BEFORE IT COULD TRAVEL.** A first pass
+took the strongest autocorrelation peak in 20–400 and read periods of **198 (control) and 60
+(blended)** — and nearly reported "the wall treatment changed the shedding period" as a finding.
+**Those were harmonics.** The fundamentals are 33 and 30, i.e. **the two arms oscillate at
+essentially the same period**, and the swap did *not* change it. The would-be finding was an
+artefact of picking a maximum over a range instead of locating the first peak after the first sign
+reversal. Recorded because it was wrong in the interesting direction.
+
+### 9.4 THE REFUSAL, AND WHAT IS PROPOSED INSTEAD
+
+**A longer-`endTime` STEADY arm is NOT registered, and this lane declines to draft one**, because
+its own pre-registered criterion would be **unsatisfiable by construction**: §9.1–§9.3 measure the
+quantity it would have to reduce, and that quantity is flat. Registering a run whose gate cannot be
+met by the mechanism the run supplies is the mirror image of MRF's defect — **MRF would have
+flipped a verdict without improving the solution; this would fail a verdict no matter how much the
+solution ran.** Both are "do not extend", for opposite reasons, and §9.1's decay fit is what
+separates them. *The multi-window check that rules out a windowing artefact (§3) is the same
+evidence that rules out a cure by lengthening: stability across windows means the excursion is a
+real, sustained feature — and a real sustained feature is still there at 6000 iterations.*
+
+**PROPOSED INSTEAD, AS A NEW REGISTRATION, NOT DRAFTED HERE AND NOT FROZEN:** a **transient (URANS)
+arm** with time-averaged `Cd` over an integer number of shedding periods, graded on the **average**
+rather than the instantaneous endpoint. Sanaa's checkpoint item 3 already governs its form —
+*"Every transient writes fields at an interval that gives at most 30 minutes of loss;
+time-averaging accumulators are checkpointed with the fields."* **The decision is the
+cfd-supervisor's; the measurement above is this lane's contribution to it.**
+
+### 9.5 🔴 WHAT THE `Cd` IS BLOCKED ON — **TWO INDEPENDENT THINGS, AND ONLY ONE IS EVEN ADDRESSABLE BY RUNNING**
+
+| # | blocker | fixable by running longer? | fixable by going unsteady? |
+|---|---|---|---|
+| 1 | **Mixed wall treatment (Y1).** 16.3 % of boundary faces carry no usable layer (`Rimsfront`/`Rimsrear` 0.000 layers); layered-group y⁺ median 481.565 against unlayered 1940.998. A `Cd` integrated over both groups at once is a mixed-wall-treatment `Cd`. | **NO** | **NO** |
+| 2 | **Unconverged solution.** `NOT_PLATEAUED`, excursion 3.30×/4.06× tolerance, and §9.3 says it is a limit cycle. | **NO** (§9.1–§9.3) | **plausibly — untested** |
+
+**BLOCKER 1 IS UNTOUCHED BY EVERYTHING DISCUSSED HERE AND IS NOW ALSO KNOWN NOT TO BE RESCUABLE BY
+BLENDING** — that was the hypothesis B2 tested, and B2 read `INACTIVE` (§2) for the measured reason
+that the whole body sits above the y⁺ ≈ 30 crossover (§5). **It is a MESH problem and it takes a
+mesh fix.** Even a perfectly converged unsteady `Cd` on this mesh would still be uncitable.
+
+**Neither blocker is softened by these two runs having completed, and the completion is still worth
+having: they are the first DrivAer solves this lab has finished, they PASS rule 4 on all six
+clauses, and they closed the wall-treatment question with a predicted null whose mechanism was
+measured.**
+
+*Appended by a cfd `lab-lane`, 2026-09-12. No gate, threshold, cap or label altered. Submissions
+parked. No agent's message is Sanaa's consent.*
