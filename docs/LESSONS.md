@@ -26908,3 +26908,57 @@ trades a blind spot for its mirror and feels safer) — this lesson is what happ
 when you swap readers **between the control and the claim**; L-543 (rows vs matches:
 one letter changes the unit); the `a zero needs a live planted control` pattern; the
 `grep is ugrep` pattern.
+
+## L-554 — A rung's verdict is not its campaign's state, and a record being TRUE is not the same as it being CURRENT: I boarded M1 as BLOCKED from an accurate record that THREE successor registrations had already superseded, and cited the defect at a line that is a COMMENT explaining its repair
+
+**2026-09-12, closure.** I read
+`cases/RANS_LES_closure_models/M1_multimodel_sweep/M1_GRADE_RESULT_2026-09-09.md`,
+which records M1 as **`BLOCKED`**. The record is **accurate**. Every sentence in it
+was true when written and is still true about **M1**. I reported upward that **the
+M1 campaign** was blocked on an instrument artifact.
+
+**It was not.** Three successor registrations already existed on disk beside it —
+`M1b_multimodel_sweep_regrade` (**`NOT A RESULT`**),
+`M1c_multimodel_sweep_completion`, and `M1d_multimodel_sweep_g1fix` (**`GATE FAIL`**,
+G0-governed, **G1 PASS**) — and **the defect I named had been repaired on
+2026-09-09**, the same day the record I was quoting was written. I had read a true
+sentence about a rung and reported it as the state of a ladder.
+
+**AND I CITED THE DEFECT AT A LINE I HAD NOT READ.** I wrote that `grade_m1b.py:357`
+carried it. **:357 is a COMMENT LINE** — one line inside the block that *explains the
+repair*, discussing why an absolute `1e-15` tolerance false-refused a sighted reader
+and why `PLANT*1e-9` replaced it. **The live code is at :364, and it is the repair.**
+Re-read on disk just now, both hold. I had cited the *explanation of the fix* as
+*evidence of the bug*, which is the most confident-looking way to be wrong: a file, a
+line number, and a real defect discussed at exactly that spot.
+
+**THE COMMON MECHANISM, AND IT IS ONE THING.** A **record** and a **line number** are
+both **pointers into a world that moves**. Dereferencing either one at read time is
+the whole job, and in both cases I substituted a memory of what was there. It is the
+same error class as a **stale FREEZE-AHEAD count** corrected hours earlier in this
+same session: **a count that was right once is not a count.** Truth-at-a-time is not
+truth-now, and a record that is honest about its own date does nothing to stop a
+reader from quoting it as current — **the record cannot know it has been
+superseded.**
+
+**The rule, two checks, both cheap, both mechanical.**
+1. **BEFORE QUOTING A GRADE RECORD, CHECK FOR SUCCESSOR REGISTRATIONS.** One `ls` of
+   the sibling case directories answers it — successors here were literally adjacent,
+   named `M1b`/`M1c`/`M1d`, and visible in a single listing. **The rung's verdict is
+   the rung's; the campaign's state is the LATEST registration's**, and those are
+   different objects that a dated record quietly conflates.
+2. **BEFORE CITING A DEFECT BY LINE NUMBER, READ THE LINE.** Not the file, not the
+   function — **the line**, at the moment of citation. Line numbers are the most
+   volatile pointer in the repository and the most authoritative-sounding.
+
+**The generalisation worth carrying.** **A stale citation is worse than a missing
+one**, because it survives scrutiny: the reader who checks finds a real file, a real
+line, and a real discussion of the defect, and concludes the claim was verified. A
+citation is a promise that the thing is there **now**.
+
+**Related.** L-544 (a freeze verifies bytes, never that anything calls them — the
+same gap between a true record and a current world); L-546 (a number whose artifact
+is gone is not a result — here the artifact was present and the verdict was
+obsolete, the mirror case); the `clock audit before rate judgments` pattern; standing
+rule 6 (frozen files are never edited; departures are dated amendments **appended**,
+precisely so that a line citation into a frozen file stays valid).
