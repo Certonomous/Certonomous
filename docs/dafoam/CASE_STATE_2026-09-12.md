@@ -86,3 +86,33 @@ from Sanaa.** No agent's word substitutes for the permission system.
   with three defects (log10 crashes instead of refusing; no planted control on the
   new dense reader; demoted G-RES limb must print RECORDED-NOT-GATED). Recorded in
   `7b7478288`, pick up whenever.
+
+
+---
+
+# UPDATE 04:10Z — four runs live, one armed. Read this block first.
+
+| case | state | next action |
+|---|---|---|
+| **A3GC-AR1** (M6, 399,360 cells, np=4) | **RUNNING, CONVERGED.** Time 1700/6000, p = **3.7287e-07** against a 1e-06 gate — reproduces the validated anchor's 3.744179e-07. 74 core-min. Frozen `3d416043b`. | let it reach endTime 6000 (rule 4), grade with `a3gc_grade.py` md5 `73dbe368…` UNCHANGED, then render |
+| **D6R2** (A2 wing, **3D transonic MULTIPOINT OPT** — the one Sanaa named) | **RUNNING CLEAN.** Time 800, 120.7 core-min, **0 primal failures**. Frozen `17eb2a260` at 03:33:00Z vs arm age datum 03:36:01Z. Lands ~12:00Z. | grade on the frozen path; `d6r2_verdict_bounds.sh` appends the two charter limbs into the comparator's own block |
+| **D6RF11** (A2 FD probe under the R3 config) | **FROZEN `e21e748b2` (grader in the SAME commit), ARMED, HOLDING** on AR1's pid 2766682 being gone — a process, not a clock. Zero core-min burned. | fires automatically when AR1 clears |
+| **A3GC L2** | running, Time 900/6000, p flat ~1.0e-03 vs a 1e-06 floor | let it land; predicted to miss its floor |
+| **A3GC L1 stage 1** | running, pyHyp extrude, 128.7 core-min, log block-buffered (`LOG-FROZEN-BUT-CPU-BUSY-NOT-A-STALL`) | let it finish |
+| **SO3** (A1 NACA0012 multipoint) | **COMPLETE, PASS, DEMO SHEET BUILT.** 2D. | **nothing. Do not re-run it.** |
+
+## The two findings that outrank the runs
+
+1. **A3GC's stall was the wall-normal growth ratio.** 16 layers force r = 2.0880 and the primal freezes at 2.29e-05; the **same surface** at 64 layers (r = 1.1674) converges to 3.73e-07. Identical `fvSolution`, and **identical checkMesh metrics to every printed digit** — max AR 222.3549, max non-orth 61.1581, max skewness 1.4408. **`checkMesh` is structurally blind to this**: it never reports expansion ratio.
+2. **The 3D adjoint ladder has ONE blocker** (`docs/dafoam/ADJOINT_BLOCKER_ONE_ROOT_CAUSE_2026-09-12.md`, `ff2821356`): the primal plateaus **1.32× above its own accept floor**, so no FD sample can be taken, so **no 3D gradient here is a result**. Fix measured by D6RF10-R3. **D6RF11 is the run that would produce this territory's first 3D FD row.**
+
+## Standing refusals — do not quietly undo these
+
+- **Never loosen `primalMinResTolDiff`.** It clears the floor by moving the floor. Refused four times here.
+- **Never build an A3GC family on the `c3` surface.** §2.4: it collapses the TE to zero thickness — a different body.
+- **Never adopt a run into a family frozen after it started** (rule 2).
+- **D6R2 and D6RF11 are PATCHED ROW ONLY** and their gradients are **unverified** — not verdicts *about DAFoam* (charter two-row rule + FD bright line).
+
+## Blocked on Sanaa
+
+**D6RF10 R2** — one diff raising a cap 96→300 core-min and adding an opt-in re-fire root. Two agents refused under two different classifier reasons. Work preserved modified-and-unstaged at `cases/dafoam/ladder-a/A2/curriculum_D6RF10/{PREREGISTRATION.md, d6rf10_run_arm.sh, d6rf10_autograde.sh}`. **D8G** — same shape, denied twice.
