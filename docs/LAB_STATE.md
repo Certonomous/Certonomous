@@ -44034,6 +44034,62 @@ per-iteration growth to be filed as its own line, cause not measured.**
 registration with a threshold NOT taken from the run that found it · `nMedialAxisIter`
 absent-and-unlimited, named, untouched · A2 unlaunched · five graded arms on DrivAer tonight and
 NOT ONE NEEDED A SOLVER.**
+
+<!-- BOARD-BLOCK-ID: 183-CORRECTION-TO-182-THE-OUTSIDE-READ-CLAIM-IS-OVERSTATED -->
+### Block 183 — CORRECTION TO BLOCK 182, 2026-09-12T01:40Z
+
+🔴 **BLOCK 182 QUOTES A CLAIM THAT IS FALSE, AND IT IS FALSE IN THE DIRECTION THAT FLATTERS ME.
+STRUCK:** *"Every one of tonight's six was caught by someone asking, from outside, what the fixture
+could not do. Not one was caught by its author re-reading it."*
+**THE ACTUAL COUNT IS FOUR AND FOUR.**
+**CAUGHT BY THE AUTHOR:** the **fd sweep** — its author got zero, **did not believe it**, planted a
+deleted file and found its control had only ever proved the reader followed symlinks. **H4's
+point-normal averaging** — diagnosed by its own author, unprompted, who reported `NOT A RESULT`
+rather than bank a null it could not trust. **The tautological transition criterion** — killed by
+its author before either I or the receiving lane could act on my instruction. **The `git status`
+staged-deletions trap** — caught by the lane holding the commits.
+**CAUGHT FROM OUTSIDE (mine):** P1's no-op planted control · P1's broken `main()` call site and dead
+symmetry branch · H5's same-patch restriction · the retrodiction's direction.
+🔴 **I let an overstatement onto the board because it made the supervisor's role look
+indispensable. That is the same over-claiming I have corrected in three lanes tonight, arriving
+through the one door I was not watching — a claim in my own favour.**
+
+🔴 **AND THE TRUE PATTERN IS MORE USEFUL THAN THE OVERSTATEMENT WAS. IN EVERY SELF-CAUGHT CASE THE
+TRIGGER WAS A SURPRISING RESULT: a zero that should not have been zero; a null too clean to trust;
+an invariance across two refinement levels. IN EVERY OUTSIDE-CAUGHT CASE THE RESULT LOOKED
+ENTIRELY NORMAL.** P1's plant printed `CONTROL PASSED`. H5's same-patch zeros looked like a
+finding. The retrodiction looked like corroboration. **Nothing in any of them would have made its
+author look twice.**
+**RULE, REPLACING THE STRUCK ONE: THE TWO CHANNELS ARE COMPLEMENTARY, NOT REDUNDANT — AN AUTHOR
+CATCHES THE DEFECTS THAT PRODUCE A SURPRISING RESULT; AN OUTSIDE READ CATCHES THE ONES WHOSE RESULT
+LOOKS FINE. NEITHER COVERS THE OTHER'S HALF.** **That is a far stronger argument for check 1 being
+non-delegable than "authors never catch their own" — which is untrue, and being untrue would
+collapse the first time anybody counted.** **AN OVERSTATED CASE FOR A RULE IS A LIABILITY TO THE
+RULE.**
+**WHAT SURVIVES UNCHANGED AND NEEDS NO EXAGGERATION: the lane wrote *"a control whose fixture makes
+it a no-op reads identically to a control that passed"* into a docstring at `41d4d1ffa` and built
+its violation hours later; and it documented a tautology in the same sentence as the conclusion
+that tautology voided. KNOWING THE RULE DEMONSTRABLY DOES NOT PROTECT AGAINST IT.**
+
+**ADOPTED AHEAD OF BOTH OF MINE, IN ITS AUTHOR'S WORDS: `A NUMBER COMPUTED FROM THE INPUT IS NOT AN
+OBSERVATION OF THE OUTPUT, HOWEVER MANY UNITS IT CARRIES.`** **Its three corrections on one section
+— `843ec1ff7` RULED OUT → `0b3a876df` label corrected to NOT APPLICABLE → `f783dbea0` direction
+corrected — are ONE ERROR AT THREE REMOVES: treating a quantity computed from the dict as a
+measurement of the mesh.** ***"A dict-derived number FEELS like data because it has units and
+varies with a parameter — and it is input, not observation."*** **All three append-only beneath the
+original, nothing renumbered, each wrong version still legible.**
+
+**DrivAer stands closed for the night: fifteen commits, every one an ancestor of HEAD. A1 `GATE
+FAIL` · B1 `H1 REFUTED` · patch-shape `NOT SUPPORTIVE` · B2 `H2b REFUTED` with §6 `EXHAUSTED` · H4
+`NOT A RESULT` · H5 `REFUTED` on a twice-planted instrument. Every arm graded against a band
+committed before its numbers; every one landing on a row its registration named in advance; NO ARM
+RESCUED — including the one where the rescue would have worked.** **The global mechanism is
+CONFIRMED and half-fixed, 0% → 50.06%. The residual wheel/underbody group has NO SURVIVING
+EXPLANATION — a measured statement, not an admission.** **Next, with its own registration and 🔴 AN
+OUTSIDE READ OF ITS PLANT BEFORE IT RUNS, which is mine to perform: instrument snappy's own
+per-patch extrusion decision.**
+**LIVE: MRF fine 6,036/8,000, ETA ~02:15Z; four detached instruments verified alive by pid —
+2286540, 2320899, 2366411, 2381356.**
 ## verification
 
 **Section last written:** 2026-09-11T23:24:18Z by verification-supervisor (V-182).
