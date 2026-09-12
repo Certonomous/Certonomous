@@ -432,45 +432,12 @@ MPI_LAUNCHERS = frozenset({"mpirun", "mpiexec", "orterun", "srun"})
 
 
 # ------------------------------------------------------------------ OpenFOAM dict reading
-def _strip_foam_comments(text: str) -> str:
-    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
-    return re.sub(r"//[^\n]*", " ", text)
-
-
-def foam_top_level_entries(path: Path) -> dict[str, str]:
-    """`key value;` statements at BRACE DEPTH ZERO of an OpenFOAM dictionary.
-
-    Depth matters and is the whole reason this is not a regex.  A controlDict's `functions`
-    block routinely carries its own `writeInterval 1;` for a functionObject, and a reader
-    that took the first match anywhere in the file would grade the checkpoint policy against
-    a functionObject's write frequency -- a number that has nothing to do with restartability.
-    First occurrence at depth 0 wins (OpenFOAM's own later-wins rule differs; a dictionary
-    carrying the key twice at top level is malformed for this purpose and the stricter
-    reading is the safe one here)."""
-    try:
-        raw = _strip_foam_comments(path.read_text(errors="replace"))
-    except OSError:
-        return {}
-    out: dict[str, str] = {}
-    depth = 0
-    buf: list[str] = []
-    for ch in raw:
-        if ch == "{":
-            depth += 1
-            buf = []
-        elif ch == "}":
-            depth = depth - 1 if depth > 0 else 0
-            buf = []
-        elif ch == ";":
-            if depth == 0:
-                stmt = " ".join("".join(buf).split())
-                parts = stmt.split(None, 1)
-                if len(parts) == 2 and re.match(r"^[A-Za-z_][A-Za-z0-9_.]*$", parts[0]):
-                    out.setdefault(parts[0], parts[1].strip())
-            buf = []
-        else:
-            buf.append(ch)
-    return out
+# MOVED to queue_entry_check.py 2026-09-12 and RE-EXPORTED here, not duplicated: the declared
+# resume path (RESUME-STARTFROM) needs the same brace-depth-aware reader, queue_runner already
+# imports queue_entry_check, and the reverse import would be a cycle. One reader, one set of
+# controls; every call site and control in this file is unchanged by the move.
+_strip_foam_comments = qec._strip_foam_comments
+foam_top_level_entries = qec.foam_top_level_entries
 
 
 def _num(v, want_int: bool = False):
@@ -1225,14 +1192,31 @@ GATE_REGISTRY = (
     ("E HYGIENE disk+swap (items 17-18)", "hygiene_gate"),
     ("E LOAD, solver-attributed (item 18)", "solver_load_gate"),
     ("F DETACHMENT (item 9)", "detachment_verify"),
+    ("G RESUME, the declared resume path (chief 2026-09-12)", "check_resume"),
 )
 
 
-def gate_coverage_check(source: str | None = None) -> list[str]:
-    """Every registered gate must be CALLED in tick(). Returns the gaps; empty is the pass."""
+def gate_coverage_check(source: str | None = None,
+                        validator_checks: dict | None = None) -> list[str]:
+    """Every registered gate must actually RUN. Returns the gaps; empty is the pass.
+
+    A gate is wired in ONE of exactly two ways, and both are checked here rather than
+    assumed: it is CALLED BY NAME in tick(), or it is MOUNTED IN THE VALIDATOR'S CHECK TABLE
+    (queue_entry_check.CHECKS) that tick() runs. The second limb requires BOTH halves -- the
+    function present in the table AND `qec.validate(` present in tick's source -- because a
+    check table nobody runs is exactly the unwired gate this rule exists to catch."""
     src = source if source is not None else inspect.getsource(tick)
-    return [f"{label}: {fn}() is registered in GATE_REGISTRY but tick() never calls it"
-            for label, fn in GATE_REGISTRY if (fn + "(") not in src]
+    checks = qec.CHECKS if validator_checks is None else validator_checks
+    mounted = {getattr(fn, "__name__", "") for fn in checks.values()}
+    gaps: list[str] = []
+    for label, fn in GATE_REGISTRY:
+        if (fn + "(") in src:
+            continue
+        if fn in mounted and "qec.validate(" in src:
+            continue
+        gaps.append(f"{label}: {fn}() is registered in GATE_REGISTRY but tick() never calls "
+                    f"it and it is not mounted in the validator's CHECKS table")
+    return gaps
 
 
 # --------------------------------------------------------------- root precondition
@@ -1482,8 +1466,13 @@ def launch(entry: dict, path: Path, root: Path, log: Log, archive: bool = True) 
         archive_previous_records(launched_dir, case_id, dst.name, log, cwd=cwd)
     shutil.move(str(path), str(dst))
     meta = dict(entry)
+    # `resumed_from` sits BESIDE THE PID, always present and never omitted: a record that
+    # said nothing on a fresh launch would be indistinguishable from a record written by a
+    # runner that predates the declared resume path (chief's decision 2026-09-12).
+    resumed_from = qec.declared_resume(entry)
     meta["_launch"] = dict(utc=utc(), pid=pid, sid=sid, status_file=str(status),
-                           wrapper_out=str(out), started_epoch=time.time())
+                           wrapper_out=str(out), started_epoch=time.time(),
+                           resumed_from=resumed_from)
     # L-342 (Sanaa, 2026-08-26): a bookkeeping failure invalidates the bookkeeping,
     # never the physics artefacts. The completion record therefore names which of
     # its fields a grader may refuse on and which it may only REPORT on.
@@ -1530,7 +1519,9 @@ def launch(entry: dict, path: Path, root: Path, log: Log, archive: bool = True) 
             entry["cost_core_min_estimate"], entry["prereg_commit"], status)) + "\n")
     log(f"LAUNCHED team={entry['team']} case={case_id} pid={pid} sid={sid} "
         f"ranks={entry['ranks']} est={entry['cost_core_min_estimate']} core-min "
-        f"prereg={entry['prereg_commit'][:8]} STATUS={status}")
+        f"prereg={entry['prereg_commit'][:8]} "
+        f"resumed_from={resumed_from if resumed_from is not None else 'none'} "
+        f"STATUS={status}")
     # Logged on EVERY launch, PINNED and UNPINNED alike. A clause that is quiet when a
     # run is uncovered is indistinguishable from one that is quiet when it passes --
     # the same reason the GPU clause logs INERT. `grep -c 'GRADER-FREEZE .*: UNPINNED'
@@ -3289,6 +3280,139 @@ def selftest() -> int:
           "-- the check can distinguish a wired gate from an unwired one",
           len(gaps_planted) == 1 and "a_gate_nobody_calls" in gaps_planted[0],
           f"gaps={gaps_planted}")
+
+    # ============================================== THE DECLARED RESUME PATH (chief 2026-09-12)
+    # THE DEFECT THIS CLOSES, stated so the controls are read against it: AGE-GUARD refused any
+    # cwd holding a time directory -- INCLUDING `0` -- while gate A requires the cwd to BE the
+    # case directory, so a checkpoint resume could never launch through the queue at all.
+    FOAM_BANNER = "// ************************************************************************* //"
+
+    def _field(d: Path, name: str, complete: bool = True) -> None:
+        d.mkdir(parents=True, exist_ok=True)
+        body = ("FoamFile { version 2.0; format ascii; class volScalarField; object "
+                + name + "; }\ninternalField   uniform 0;\n")
+        (d / name).write_text(body + (FOAM_BANNER + "\n" if complete else ""))
+
+    def _resume_case(name: str, times=("0", "500"), fields=("U", "p"),
+                     start_from="latestTime", incomplete=None, decomposed=0,
+                     drop_zero=False) -> Path:
+        d = tmp / ("resume_case_" + name)
+        (d / "system").mkdir(parents=True, exist_ok=True)
+        (d / "system" / "controlDict").write_text(
+            "FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }\n"
+            "application     simpleFoam;\n"
+            f"startFrom       {start_from};\n"
+            "writeControl    timeStep;\nwriteInterval   50;\npurgeWrite      2;\n")
+        holders = ([d / f"processor{i}" for i in range(decomposed)] if decomposed else [d])
+        for h in holders:
+            for t in times:
+                if t == "0" and drop_zero:
+                    continue
+                for f in fields:
+                    _field(h / t, f, complete=(incomplete is None or f != incomplete
+                                               or t != times[-1]))
+        return d
+
+    def _resume_entry(case: Path, **kw) -> dict:
+        e = dict(good)
+        e["cwd"] = str(case)
+        e["case_id"] = "SELFTEST_RESUME"
+        e.pop("solver_class", None)
+        e["solver_class"] = "openfoam-steady"
+        e.setdefault("resume_from", "500")
+        e.setdefault("resume_fields", ["U", "p"])
+        e.update(kw)
+        return e
+
+    ok_case = _resume_case("OK")
+    ok_entry = _resume_entry(ok_case)
+    check("RESUME POSITIVE: a declared resume from the COMPLETE latest time directory, with "
+          "0/ present and `startFrom latestTime`, passes RESUME and passes AGE-GUARD -- the "
+          "two limbs a checkpoint resume used to be unable to satisfy at once",
+          qec.check_resume(ok_entry, REPO, None) == []
+          and qec.check_age_guard(ok_entry, REPO, None) == [],
+          f"resume={qec.check_resume(ok_entry, REPO, None)} "
+          f"age={qec.check_age_guard(ok_entry, REPO, None)}")
+    dec_case = _resume_case("DECOMP", decomposed=4)
+    dec_entry = _resume_entry(dec_case)
+    check("RESUME POSITIVE (decomposed): the same declaration against four processor* "
+          "directories whose latest time agrees and whose fields are complete -> PASS",
+          qec.check_resume(dec_entry, REPO, None) == [],
+          f"{qec.check_resume(dec_entry, REPO, None)[:1]}")
+    fresh_entry = dict(ok_entry)
+    fresh_entry.pop("resume_from")
+    fresh_entry.pop("resume_fields")
+    age_fresh = qec.check_age_guard(fresh_entry, REPO, None)
+    check("RESUME NEGATIVE (no declaration): the SAME directory with NO `resume_from` is still "
+          "refused by AGE-GUARD on its time directories, `0` included -- the fresh-launch "
+          "behaviour is unchanged and the resume path is a DECLARATION, not a loosening",
+          len(age_fresh) == 1 and age_fresh[0].startswith("AGE-GUARD:")
+          and "'0'" in age_fresh[0] and "resume_from" in age_fresh[0],
+          f"{(age_fresh or [''])[0][:110]}")
+    for name, entry, word in (
+            ("declared time is not the latest", _resume_entry(ok_case, resume_from="0"),
+             "RESUME-LATEST"),
+            ("a field missing its OpenFOAM end banner",
+             _resume_entry(_resume_case("TRUNC", incomplete="p")), "RESUME-FIELDS"),
+            ("a registered field absent from the checkpoint",
+             _resume_entry(ok_case, resume_fields=["U", "p", "nut"]), "RESUME-FIELDS"),
+            ("startFrom is not latestTime",
+             _resume_entry(_resume_case("STARTTIME", start_from="startTime")),
+             "RESUME-STARTFROM"),
+            ("0/ is gone, so rule 4's age datum is gone",
+             _resume_entry(_resume_case("NOZERO", drop_zero=True)), "RESUME-ZERO"),
+            ("no `resume_fields` registered at all",
+             _resume_entry(ok_case, resume_fields=None), "RESUME:")):
+        got = qec.check_resume(entry, REPO, None)
+        check(f"RESUME NEGATIVE ({name}) -> refuses under {word}",
+              bool(got) and any(g.startswith(word) for g in got),
+              f"{(got or ['NO REFUSAL AT ALL'])[0][:100]}")
+    mal = _resume_entry(ok_case, resume_from="   ")
+    check("RESUME fails closed on a MALFORMED declaration: a blank `resume_from` is refused by "
+          "RESUME *and* leaves AGE-GUARD fully armed -- a bad declaration can never be the "
+          "thing that switches the age guard off",
+          bool(qec.check_resume(mal, REPO, None)) and bool(qec.check_age_guard(mal, REPO, None)),
+          f"resume={bool(qec.check_resume(mal, REPO, None))} "
+          f"age={bool(qec.check_age_guard(mal, REPO, None))}")
+    # END TO END: the valid resume LAUNCHES and its launch record carries resumed_from
+    e2e_ok = _resume_entry(_resume_case("E2E_OK"), case_id="SELFTEST_RESUME_E2E")
+    (root / "cfd" / "SELFTEST_RESUME_E2E.json").write_text(json.dumps(e2e_ok))
+    rr_ok = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
+    rec_r = (json.loads((root / "cfd" / "launched" / "SELFTEST_RESUME_E2E.json").read_text())
+             if (root / "cfd" / "launched" / "SELFTEST_RESUME_E2E.json").exists() else {})
+    launch_line = [ln for ln in (tmp / "runner.log").read_text().splitlines()
+                   if "LAUNCHED team=cfd case=SELFTEST_RESUME_E2E" in ln]
+    check("RESUME END TO END: a valid declared resume LAUNCHES through tick(), and the launch "
+          "record carries `resumed_from=500` BESIDE THE PID, with the same word in the "
+          "LAUNCHED log line",
+          rr_ok == "LAUNCHED" and rec_r.get("_launch", {}).get("resumed_from") == "500"
+          and bool(launch_line) and "resumed_from=500" in launch_line[-1],
+          f"tick={rr_ok} record={rec_r.get('_launch', {}).get('resumed_from')!r}")
+    fresh_line = [ln for ln in (tmp / "runner.log").read_text().splitlines()
+                  if "LAUNCHED team=cfd case=SELFTEST_OK " in ln]
+    check("RESUME: a FRESH launch records `resumed_from=none` rather than saying nothing -- "
+          "silence would be indistinguishable from a runner that predates the resume path",
+          bool(fresh_line) and "resumed_from=none" in fresh_line[-1],
+          f"line={(fresh_line or [''])[-1][-60:]!r}")
+    e2e_bad = _resume_entry(_resume_case("E2E_BAD"), case_id="SELFTEST_RESUME_E2E_BAD",
+                            resume_from="0")
+    (root / "cfd" / "SELFTEST_RESUME_E2E_BAD.json").write_text(json.dumps(e2e_bad))
+    rr_bad = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
+    bad_txt = ((root / "cfd" / "refused" / "SELFTEST_RESUME_E2E_BAD.REFUSED.txt").read_text()
+               if (root / "cfd" / "refused" / "SELFTEST_RESUME_E2E_BAD.REFUSED.txt").exists()
+               else "")
+    check("RESUME END TO END (negative): a declaration that does not match the disk is REFUSED "
+          "and moved to refused/, the reason naming RESUME-LATEST",
+          rr_bad == "REFUSED-ONLY" and "RESUME-LATEST" in bad_txt, f"tick={rr_bad}")
+    # RULE 14 for a gate mounted in the VALIDATOR rather than called in tick()
+    gaps_unmounted = gate_coverage_check(
+        validator_checks={k: v for k, v in qec.CHECKS.items() if k != "RESUME"})
+    check("RULE 14 (validator-mounted gate): with RESUME removed from the validator's CHECKS "
+          "table the coverage check REPORTS it by name, even though nothing else changed -- a "
+          "check table that does not hold the gate is the same defect as a tick that does not "
+          "call it",
+          len(gaps_unmounted) == 1 and "check_resume" in gaps_unmounted[0],
+          f"gaps={gaps_unmounted}")
 
     shutil.rmtree(tmp)  # scratch root only, created by mkdtemp above
     n_fail = sum(1 for _, ok, _ in checks if not ok)

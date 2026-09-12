@@ -324,6 +324,237 @@ def check_prereg_at_commit(entry: dict, root: Path, entry_path=None) -> list[str
     return []
 
 
+# ===================================================== THE DECLARED RESUME PATH
+# Chief's decision 2026-09-12 [lab-attributed, Sanaa may overrule], on a defect found by
+# reading this file against the new gate A: AGE-GUARD refuses any cwd holding a time
+# directory -- INCLUDING `0` -- while gate A requires the cwd to BE the case directory. A
+# checkpoint resume was therefore UNLAUNCHABLE through the queue: K2f_L3 from t = 500 and
+# DrivAer r2_coarse from t = 1000 could never have passed validation, and Sanaa's item 1
+# (every run checkpoints, every kill resumes) had no route into the runner at all.
+#
+# THE FIX IS NOT A LOOSENING. The age guard exists because standing rule 4 proves a result
+# by showing every field at endTime is NEWER than the case's own 0/T, and a stray prior
+# answer makes that unprovable. A resume is the ONE case where a prior answer is the POINT --
+# so it must be DECLARED, and the declaration must be checked against the disk rather than
+# believed. An entry carrying `resume_from` is asking for a specific, named prior state; an
+# entry without it gets exactly the behaviour it got before, including refusal on `0`.
+#
+# The four limbs, each refusing under its own word: the declared time must BE the latest
+# state on disk (RESUME-LATEST); that state must hold a COMPLETE field set, every registered
+# field present AND closed by OpenFOAM's own end-of-file banner (RESUME-FIELDS); `0/` must
+# exist, because it is rule 4's age datum and a resume that has lost it cannot be graded
+# (RESUME-ZERO); and the controlDict must actually say `startFrom latestTime`, or the solver
+# would silently start from 0 and overwrite the state the entry claimed to resume
+# (RESUME-STARTFROM).
+FOAM_END_BANNER = re.compile(r"^//\s*\*+\s*//\s*$")
+PROCESSOR_DIR = re.compile(r"^processor\d+$")
+
+
+def _strip_foam_comments(text: str) -> str:
+    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+    return re.sub(r"//[^\n]*", " ", text)
+
+
+def foam_top_level_entries(path: Path) -> dict[str, str]:
+    """`key value;` statements at BRACE DEPTH ZERO of an OpenFOAM dictionary.
+
+    Depth matters and is the whole reason this is not a regex. A controlDict's `functions`
+    block routinely carries its own `writeInterval 1;` for a functionObject, and a reader
+    that took the first match anywhere in the file would grade the checkpoint policy against
+    a functionObject's write frequency -- a number that has nothing to do with restartability.
+    First occurrence at depth 0 wins.
+
+    Lives HERE, not in queue_runner, because both instruments need it and queue_runner
+    already imports this module; the reverse import would be a cycle. queue_runner re-exports
+    the name so its own call sites and controls are unchanged."""
+    try:
+        raw = _strip_foam_comments(path.read_text(errors="replace"))
+    except OSError:
+        return {}
+    out: dict[str, str] = {}
+    depth = 0
+    buf: list[str] = []
+    for ch in raw:
+        if ch == "{":
+            depth += 1
+            buf = []
+        elif ch == "}":
+            depth = depth - 1 if depth > 0 else 0
+            buf = []
+        elif ch == ";":
+            if depth == 0:
+                stmt = " ".join("".join(buf).split())
+                parts = stmt.split(None, 1)
+                if len(parts) == 2 and re.match(r"^[A-Za-z_][A-Za-z0-9_.]*$", parts[0]):
+                    out.setdefault(parts[0], parts[1].strip())
+            buf = []
+        else:
+            buf.append(ch)
+    return out
+
+
+def declared_resume(entry: dict) -> str | None:
+    """The declared resume time, or None when the entry does not declare one.
+
+    A MALFORMED declaration returns None ON PURPOSE, so the age guard keeps its full
+    fresh-launch behaviour while check_resume refuses the shape separately. The failure
+    direction of a bad `resume_from` must never be 'the age guard stopped looking'."""
+    v = entry.get("resume_from")
+    if isinstance(v, str) and v.strip():
+        return v.strip()
+    return None
+
+
+def time_dir_names(path: Path) -> list[str]:
+    """Time directories under `path`, ordered by VALUE, not by name: '100' sorts after '99'."""
+    try:
+        names = [c.name for c in path.iterdir() if c.is_dir() and TIME_DIR.match(c.name)]
+    except OSError:
+        return []
+    return sorted(names, key=lambda n: float(n))
+
+
+def processor_dirs(cwd: Path) -> list[Path]:
+    try:
+        return sorted((c for c in cwd.iterdir() if c.is_dir() and PROCESSOR_DIR.match(c.name)),
+                      key=lambda p: int(p.name[9:]))
+    except OSError:
+        return []
+
+
+def _closed_by_foam_banner(p: Path) -> tuple[bool, str]:
+    """True only if the file's LAST non-empty line is OpenFOAM's own closing banner.
+
+    That banner is written after the data, so its presence is evidence the writer finished
+    -- which is exactly the question a resume asks of a checkpoint that may have been
+    interrupted mid-write. A `.gz` field is streamed to its end: a truncated gzip member
+    raises and is reported as incomplete, which is the same finding by a different route."""
+    try:
+        if p.name.endswith(".gz"):
+            import gzip
+            tail = b""
+            with gzip.open(p, "rb") as fh:
+                while True:
+                    chunk = fh.read(1 << 20)
+                    if not chunk:
+                        break
+                    tail = (tail + chunk)[-512:]
+        else:
+            size = p.stat().st_size
+            with open(p, "rb") as fh:
+                fh.seek(max(0, size - 512))
+                tail = fh.read()
+    except (OSError, EOFError, ValueError) as exc:
+        return False, f"unreadable or truncated ({type(exc).__name__}: {exc})"
+    except Exception as exc:                                      # noqa: BLE001 -- gzip.BadGzipFile
+        return False, f"unreadable or truncated ({type(exc).__name__}: {exc})"
+    lines = [ln.strip() for ln in tail.decode("utf-8", "replace").splitlines() if ln.strip()]
+    if not lines:
+        return False, "the file has no non-empty line at its end"
+    if FOAM_END_BANNER.match(lines[-1]):
+        return True, "closed by the OpenFOAM end banner"
+    return False, f"last non-empty line is {lines[-1][:60]!r}, not the OpenFOAM end banner"
+
+
+def _fields_complete(tdir: Path, fields: list[str]) -> list[str]:
+    """Per-field findings for one time directory; empty means complete."""
+    bad: list[str] = []
+    for f in fields:
+        plain = tdir / f
+        gz = tdir / (f + ".gz")
+        target = plain if plain.is_file() else (gz if gz.is_file() else None)
+        if target is None:
+            bad.append(f"{tdir}/{f} is absent (neither {f} nor {f}.gz)")
+            continue
+        ok, why = _closed_by_foam_banner(target)
+        if not ok:
+            bad.append(f"{target} is present but INCOMPLETE: {why}")
+    return bad
+
+
+def check_resume(entry: dict, root: Path, entry_path=None) -> list[str]:
+    """10. THE DECLARED RESUME PATH. Silent for an entry that declares no `resume_from`;
+    that entry keeps the unchanged fresh-launch behaviour, AGE-GUARD included."""
+    if "resume_from" not in entry:
+        return []
+    cwd = entry.get("cwd")
+    if not isinstance(cwd, str) or not cwd.startswith("/"):
+        return []                                     # already refused by SCHEMA
+    rf = declared_resume(entry)
+    if rf is None:
+        return [f"RESUME: 'resume_from' is present but is not a non-empty string "
+                f"(read {entry.get('resume_from')!r}). It names a time DIRECTORY and must be "
+                f"spelled exactly as that directory is named on disk."]
+    fields = entry.get("resume_fields")
+    if (not isinstance(fields, list) or not fields
+            or not all(isinstance(f, str) and f.strip() for f in fields)):
+        return [f"RESUME: a declared resume must also register `resume_fields`, a non-empty "
+                f"list of the field file names the checkpoint must hold (read {fields!r}). "
+                f"Without a registered list, 'a complete field set' has no referent and the "
+                f"completeness limb could only ever pass."]
+    fields = [f.strip() for f in fields]
+    target = Path(cwd)
+    if not target.is_dir():
+        return [f"RESUME: cwd {cwd} does not exist, so the declared resume state "
+                f"{rf!r} cannot be shown to be there. (EXEC refuses the absence separately.)"]
+    fail: list[str] = []
+    procs = processor_dirs(target)
+    if procs:
+        latest_per_proc = {p.name: (time_dir_names(p)[-1] if time_dir_names(p) else None)
+                           for p in procs}
+        missing = [n for n, t in latest_per_proc.items() if t is None]
+        if missing:
+            return [f"RESUME-LATEST: {len(missing)} processor director{'ies' if len(missing) > 1 else 'y'} "
+                    f"({', '.join(missing[:4])}) hold no time directory at all, so there is no "
+                    f"decomposed state to resume from."]
+        disagree = sorted({t for t in latest_per_proc.values()})
+        if len(disagree) > 1:
+            fail.append(f"RESUME-LATEST: the processor directories disagree on their latest "
+                        f"time ({disagree}); a decomposed resume needs one state, not several.")
+        latest = max(latest_per_proc.values(), key=lambda n: float(n))
+        where = f"{len(procs)} processor director{'ies' if len(procs) > 1 else 'y'}"
+        check_dirs = [p / rf for p in procs]
+    else:
+        names = time_dir_names(target)
+        if not names:
+            return [f"RESUME-LATEST: cwd {cwd} holds no time directory at all, so the declared "
+                    f"resume state {rf!r} is not there. A resume declares a state that EXISTS; "
+                    f"a fresh launch declares no `resume_from`."]
+        latest = names[-1]
+        where = "the case directory"
+        check_dirs = [target / rf]
+    if latest != rf:
+        fail.append(f"RESUME-LATEST: the latest time in {where} is {latest!r}, not the declared "
+                    f"{rf!r}. The solver will restart from the LATEST state (startFrom "
+                    f"latestTime), so a declaration naming anything else would describe a run "
+                    f"that is not the run that happens.")
+    for d in check_dirs:
+        if not d.is_dir():
+            fail.append(f"RESUME-FIELDS: {d} does not exist.")
+            continue
+        fail.extend(f"RESUME-FIELDS: {b}" for b in _fields_complete(d, fields))
+    zero_in_cwd = (target / "0").is_dir()
+    zero_in_procs = bool(procs) and all((p / "0").is_dir() for p in procs)
+    if not (zero_in_cwd or zero_in_procs):
+        fail.append(f"RESUME-ZERO: neither {target / '0'} nor a `0` in every processor "
+                    f"directory exists. `0/T` is standing rule 4's AGE DATUM -- it dates the "
+                    f"run allowed to produce the answer -- so a resume that has lost it "
+                    f"produces fields that can never be graded under the completion rule.")
+    cd = target / "system" / "controlDict"
+    if not cd.is_file():
+        fail.append(f"RESUME-STARTFROM: {cd} does not exist, so the entry's claim to resume "
+                    f"cannot be checked against what the solver will actually do.")
+    else:
+        sf = (foam_top_level_entries(cd).get("startFrom") or "").strip()
+        if sf != "latestTime":
+            fail.append(f"RESUME-STARTFROM: {cd} carries `startFrom {sf or '<absent>'}`, not "
+                        f"`latestTime`. The entry declares a resume from {rf!r} while the "
+                        f"controlDict would start the solver somewhere else -- and a "
+                        f"`startFrom startTime` here would OVERWRITE the very state being "
+                        f"resumed.")
+    return fail
+
+
 def check_age_guard(entry: dict, root: Path, entry_path=None) -> list[str]:
     """4. Standing rule 4's age guard, applied BEFORE the launch, not after.
 
@@ -353,6 +584,16 @@ def check_age_guard(entry: dict, root: Path, entry_path=None) -> list[str]:
         # R-AGE-CWD ruling clause 1. Absence is EXEC's finding, never this
         # clause's. Not a silent pass: check_cwd_launchable refuses it below.
         return []
+    # THE DECLARED RESUME PATH (chief's decision 2026-09-12, lab-attributed). An entry that
+    # DECLARES `resume_from` is asking to launch into a named prior state, which is what a
+    # checkpoint resume IS; the state is then verified against the disk by check_resume
+    # (RESUME-LATEST / RESUME-FIELDS / RESUME-ZERO / RESUME-STARTFROM), which refuses if the
+    # declaration is not true. This clause steps aside ONLY for a well-formed declaration --
+    # declared_resume() returns None for a malformed one, so a bad `resume_from` cannot
+    # switch the age guard off. Nothing is loosened for an entry that declares nothing: it
+    # still refuses on any time directory, `0` included.
+    if declared_resume(entry) is not None:
+        return []
     dirty: list[str] = []
     try:
         for child in sorted(target.iterdir()):
@@ -364,7 +605,9 @@ def check_age_guard(entry: dict, root: Path, entry_path=None) -> list[str]:
         return [
             f"AGE-GUARD: cwd {cwd} already contains time director"
             f"{'ies' if len(dirty) > 1 else 'y'} {dirty}. Standing rule 4: a "
-            f"run is never launched into a tree that already holds an answer."
+            f"run is never launched into a tree that already holds an answer. "
+            f"A deliberate checkpoint resume declares `resume_from` (and "
+            f"`resume_fields`), and is then verified against the disk by RESUME."
         ]
     return []
 
@@ -861,6 +1104,7 @@ CHECKS: dict[str, object] = {
     "RANKS": check_ranks,
     "TEAM-BINDING": check_team_binding,
     "GRADER-FREEZE": check_grader_freeze,
+    "RESUME": check_resume,
 }
 
 
