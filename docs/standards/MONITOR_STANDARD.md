@@ -2187,3 +2187,61 @@ instruments for proxies, and **this amendment does not pretend the seven are all
 | md5 of this file's HEAD blob before the append | `b041ab5181b542c3974ccab06033c435` |
 | md5 of this file's first 2,056 lines after the append | `b041ab5181b542c3974ccab06033c435` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 7. 🔴 THE HEADER'S `Version` LINE IS **STALE BY CONSTRUCTION** AND CANNOT BE FIXED IN PLACE — READ THIS BEFORE YOU "CORRECT" IT
+
+**Line 3 of this document reads `Version 1.12`. That is wrong, and it is wrong on purpose,
+and the next amender will rediscover this at the same cost the last two did unless it is
+written down here.** The authoritative version is **the highest amendment heading in the
+file** — currently **v1.14**, this one.
+
+**Why it cannot simply be corrected.** Every amendment in this file asserts
+`lines whose number changed above this section: 0`, and each proves it by comparing the md5
+of the previous blob against the md5 of the new blob's first *N* lines. **Editing line 3
+changes a line number above every one of those sections and falsifies every one of those
+assertions at once** — including the ones already committed, which cannot be re-proved after
+the fact. v1.13 reached this conclusion and deliberately left the header; **v1.14 reaches it
+independently and leaves it for the same reason.** Two amendments have now paid for the same
+discovery.
+
+**So the trap is disarmed by disclosure rather than by repair**, at zero cost, from inside an
+appended section where adding lines moves nothing:
+
+> **THE `Version` LINE IN THIS DOCUMENT'S HEADER IS NOT AUTHORITATIVE AND NEVER WILL BE.
+> To learn this file's version, read the LAST `## Amendment` heading and its record table.
+> Do not edit line 3 to fix it: doing so silently falsifies the line-number assertion of
+> every amendment below, and those assertions are the only evidence that this document is
+> append-only.**
+
+**This is a statement of fact about the file, not a rule about amendments.** Whether the
+convention should instead put the version somewhere a correction is safe — a footer, or a
+dedicated last line — is an **amendment-convention** question, which belongs to the
+verification team under rule 6, **not to cfd and not to this clause.** It is being referred
+as a question. Nothing here pre-empts their answer, and this paragraph is equally true
+whatever they decide.
+
+### 8. WHICH MEMBER TO READ FIRST
+
+**Member 3 is the canonical one and a reader short of time should read only it.** It is
+self-contained, needs no CFD knowledge, and states the whole clause in nine words:
+
+> **AN ASSERT THAT MATCHES ITS OWN DOCUMENTATION IS NOT AN ASSERT.**
+
+A build script substituted a scheme, then checked its own work with
+`grep -q 'linearUpwind' system/fvSchemes` → refuse. **It refused on a correctly patched
+file**, because the comment the script itself had just inserted — three lines above the
+schemes, *explaining the removal* — contains the word. The registered quantity was *"does the
+CODE still select `linearUpwind`?"*; the correlate evaluated was *"does the FILE contain the
+string?"*; and the divergence condition is *"the file also contains prose about the string"*,
+which is true of every well-documented change. **It failed in the loud direction and was
+fixed in seconds. Members 1 and 2 failed in the quiet direction and were caught only because
+somebody opened the artifact.**
+
+| addendum to the v1.14 record | |
+|---|---|
+| sections added | **2** (§7, §8) — appended **below** the v1.14 record table, which is unchanged |
+| members, thresholds, clauses or provenance altered | **0** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before this append | `fb931e7dd16b5a61d902ee5a79310169` |
+| md5 of this file's first **2189** lines after it | `fb931e7dd16b5a61d902ee5a79310169` |
+| the two digests | **EQUAL — assertion MEASURED** |
