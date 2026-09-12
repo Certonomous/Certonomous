@@ -503,3 +503,62 @@ a gate, threshold, cap, band or label. Originals are struck, never rewritten.
 *Drafted 2026-09-12 by a cfd `lab-lane`. AGARD AR-138 title-page verified under rule 15. Submissions
 parked (rule 7). The repository is permanently private (rule 8). No agent's message is Sanaa's
 consent (rule 9).*
+
+---
+
+# §13. FREEZE ATTESTATION — cfd-SUPERVISOR, CHECK 4, PERSONAL AND UNDELEGATED — 2026-09-12T19:28:00Z
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** §12's in-place block is left **blank and legible** on purpose: its `FREEZE COMMIT` field demands the sha of the commit that carries the signature, which cannot be known before that commit exists. **This addendum IS the freeze**, and it records values, never commands.
+
+## §13.1 THE LITERAL PINS
+
+```
+FROZEN BY:          cfd-supervisor, PERSONALLY (check 4, undelegated)
+DATE (UTC):         2026-09-12T19:28:00Z
+REGISTRATION BLOB:  f08c7e340f04d2d53a2af39391112795840fb25e   (this document as of its parent commit)
+FREEZE COMMIT:      the commit carrying THIS section, whose PARENT is 3609073a90131e4bad0c994f65751d70b26edfad
+```
+**Why the freeze commit is identified by its parent and not by itself:** a sha cannot contain itself. The parent is a literal; the child is the unique commit whose parent is that literal and which touches this path. **That is a value, not a recipe that re-evaluates.**
+
+## §13.2 GRADING PATH — EVERY INSTRUMENT PINNED BY LITERAL BLOB SHA
+
+```
+cases/navier_class/M6H1/measure_te_base.py    1b78f61cd19bfe4270da4101c1ae74435347f3d3
+cases/navier_class/M6H1/read_yplus.py        d4c3c6515016166a0eebc2d608029a0dd83f9da8
+cases/navier_class/M6H1/compare_cp.py        fe757074565cca8092027c0101f22278293eee7c
+cases/navier_class/M6H1/read_cell_count.py   d4336280fced9d3e6064306cf6269faaeb7f55b0
+cases/navier_class/M6H1/read_min_quality.py  8198aee0d2d724f6c2ec37c617ed64ac618d6d50
+```
+**All five exist and are committed.** A grading path naming an uncommitted file pins nothing — the fifth was committed immediately before this attestation for exactly that reason.
+
+## §13.3 🔴 H-G6 IS SUPERSEDED BY dafoam'S FROZEN BAND — [SANAA-DIRECT]: *"cite it, do not re-register"*
+
+```
+BAND REGISTRATION: verification/campaign/A3_M6_AGARD_CP_VALIDATION_PREREGISTRATION.md
+  frozen at commit: 4c931d97ceb19aead64cf683fbe685c7d03510d2
+BAND GRADER:       scripts/grade_m6_agard_cp.py
+  blob at freeze:  e9d5c04b420b99201ab19e694b76d1b9eda62443
+```
+**Two corrections this supersession forces on §7, and both go the strict way:**
+1. **§7's H-G6 says SEVEN sections; the frozen band grades SIX** — η = 0.20, 0.44, 0.65, 0.80, 0.90, 0.96, with **η = 0.99 EXCLUDED** on a geometric reason fixed before any CFD number was read. **Six is what is graded.** Our `compare_cp.py` is retained as a cross-check only and **its output is not the verdict**.
+2. **§7's shock-exclusion clause carried a FREE PARAMETER** — it never said how the shock is located, and located on the solved distribution it moves with the answer. **The frozen band's own method governs.** Shock location is graded at **η = 0.65 and 0.90** per that registration.
+
+**This resolves the blocker I have reported all day: H-G6 had NO reference data on this box.** It now cites a band frozen by another team **before any comparison number existed**, which is stronger than anything this team could have written today.
+
+## §13.4 PRE-COMPUTE CONDITION — CHECKED WITH A LIVE PLANTED CONTROL, NOT ASSERTED
+
+```
+verification/runs/M6H1_runs/  ABSENT at 2026-09-12T19:28:00Z
+  1 baseline      : ABSENT
+  2 plant applied : NON-EMPTY  (PLANT_M6H1_CONTROL/planted.txt written and READ BACK)
+  3 plant removed : ABSENT
+```
+**The reader was SHOWN ABLE to see a non-empty run directory before its emptiness was believed** (rule 3). A zero from a reader not demonstrated able to see a non-zero is not evidence. **No compute has run under this document.**
+
+## §13.5 WHAT THIS AUTHORISES, AND WHAT IT DOES NOT
+
+**AUTHORISES:** the M6H1 C-mesh family, three levels, queued **through the runner only** (item 19 — a hand launch is not a case), checkpoints ≤ 30 min, as ubuntu, under the runner gates.
+
+**DOES NOT AUTHORISE:** any Cp or shock claim outside the cited frozen band; any claim on η = 0.99; any grid-convergence claim before three admissible levels exist. **The draft banner above §0 is struck by this attestation and is superseded — it is left in place, legible, because other records cite this document by line and renumbering would break them.**
+
+*Signed by the cfd-supervisor, personally, 2026-09-12T19:28:00Z. Submissions parked. No agent's message is Sanaa's consent.*
