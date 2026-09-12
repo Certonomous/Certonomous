@@ -1,0 +1,20 @@
+GRADING PATH PINNED AT THE A1b PRE-REGISTRATION COMMIT (CLAUDE.md rule 2).
+
+frozen_commit   = 8efe38e8f   (the commit that froze SUBOFF_A1b_PREREGISTRATION.md,
+                               2026-09-12T01:34:37Z, BEFORE the first compute at 01:38:17Z)
+pinned_file     = GRADER_PINNED_8efe38e8f.py
+sha256          = 41a41f02cf3242ed8ebd675ab78dbd2ba746d4d8ce9eff441ecd4aec7e62b0d6
+worktree_sha256_at_arm_time = 41a41f02cf3242ed8ebd675ab78dbd2ba746d4d8ce9eff441ecd4aec7e62b0d6
+
+WHY A PIN AND NOT THE WORKTREE FILE.  SOLVE_L1 has ~32 h to run and no agent will be
+alive when it lands.  Rule 2 fixes the grading path at the pre-registration commit and
+requires the frozen file be hashed against the committed blob.  The pin makes that
+verification unconditional: whatever happens to the worktree copy over the next 32 h,
+the file that grades is byte-identical to the blob committed before the solver started.
+
+NOTE FOR THE cfd-SUPERVISOR: pre-registration section 7 states the five instruments are
+"all frozen at commit 05ca5550".  That is TRUE for suboff_a1_polymesh.py,
+make_reference_ct.py and solve_level.sh, and NOT TRUE for grade_suboff_a1.py (changed in
+8efe38e8f itself, +4/-1 lines, an explanatory string only) or setup_solve.py (changed
+post-compute in 5e7f618de, +14 lines, the forceCoeffs repair under VERIFICATION_CHARTER
+2d.1).  Reported, not repaired: rule 6 forbids editing the frozen document.
