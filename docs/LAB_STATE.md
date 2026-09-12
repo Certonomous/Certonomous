@@ -44681,6 +44681,58 @@ not 02:25Z. NOT TOUCHED.** Other teams' solvers never touched: 316601 (3d 12h), 
 I have confirmed the commit exists. Neither freeze sha has reached me yet.**
 ## verification
 
+**Section last written:** 2026-09-12T01:14:22Z by verification-supervisor (V-186; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **OWNER DIRECTIVE BOARDED: NO CAP STOPS ANY RUN. THE STOP CLAUSE IS ON HER DESK AND IS NOT EDITED BY ME.**
+
+##### UPDATE V-186 — **`[SANAA-DIRECT]` NO CAP ON ANY RUN. AND THE CONSEQUENCE NOBODY HAS NAMED IS THAT IT REMOVES A BIAS FROM THE CALIBRATION LEDGER RATHER THAN ONLY REMOVING A GUARD.**
+
+**HER WORDS, VERBATIM, her own session turn in the chief session ~2026-09-12T01:10Z. `[SANAA-DIRECT]` — NOT an agent message, and no agent message could carry this (standing rule 9):**
+
+> *"dont forget i dont want any cap on any run, and that i bumped the volume to 1000 gib"*
+
+**Volume confirmed by me at this write: `df` reads 968G total, 502G free.**
+
+##### **WHAT I DO NOT DO, STATED FIRST BECAUSE IT IS THE PART AN AGENT COULD GET WRONG**
+
+**I DO NOT EDIT `CLAUDE.md` RULE 12 OR `COMPUTE_BUDGET_CHARTER` §6.** Rule 12 reads *"An overrun **stops the run**; it does not get a new budget."* **Her ruling supersedes that clause in force from now** — an owner ruling governs over a clause an agent wrote — **but the CONSTITUTION AND THE CHARTER ARE NOT AMENDED BY ANY AGENT AT ANY LEVEL.** The clause is recorded here as **SUPERSEDED-IN-FORCE, TEXT UNCHANGED**, and goes **ON SANAA'S DESK** for a dated amendment when she next writes one. **That is the whole of my action on the text.**
+
+##### **CONCUR WITH THE CHIEF'S READING, WITH ONE SHARPENING AND ONE REFUSAL**
+
+- **CONCUR:** no cap stops any run, lab-wide; every run is still **costed in its pre-registration and compared at completion**; **a cap becomes a CALIBRATION FIGURE, never a kill.** Rule 12's calibration duty is untouched and I will keep auditing it.
+- **SHARPENING — "on spend" is doing all the work in that sentence, and the classification is the whole task.** A timer is not automatically a spend cap. **The question is what the guard MEASURES.** A guard firing on *"no new iteration in N minutes"* measures **liveness**; one firing on *"wall seconds exceeded"* with no progress test measures **spend**. A guard that kills a **diverged** solve, an NaN or a stalled iteration count is stopping a process that **has stopped being a run** — that is not a cap on a run, and I am not treating it as one.
+- **REFUSAL — I DO NOT RESOLVE THE AMBIGUOUS ONES.** Where a lever genuinely cannot be classified, it is marked **AMBIGUOUS and goes to HER.** Reading a disputed lever as in-scope because a broad directive could cover it is exactly the permission laundering rule 9 forbids, and it would be laundering in the permissive direction. **The sweep is instructed to refuse rather than guess.**
+- **UNCHANGED AND RESTATED:** the chief's **memory-headroom rule of conduct stands** — a resource-admission gate that refuses to LAUNCH on RSS-versus-`free` is physics of the box, not a spend cap, and her directive does not touch it. **SUBMISSIONS PARKED. Nothing leaves the box.**
+
+##### **THE V&V CONSEQUENCE THAT IS MINE TO RAISE: HER RULING MAKES THE CALIBRATION LEDGER *MORE* HONEST, NOT LESS**
+
+**A cap that KILLS a run CENSORS its own measurement.** When a run is terminated at its cap, the "actual" recorded against it **is the cap** — not what the run would have cost. Every such row's actual/predicted ratio is therefore a **RIGHT-CENSORED LOWER BOUND, not a measurement**, and a ledger that mixes censored and uncensored rows and averages them **understates the lab's true misprediction, systematically and in the flattering direction.**
+
+**So removing the kill removes a bias.** From now on every completion yields an **uncensored** actual, which is the figure rule 12's calibration duty actually asks for. **This is a gain for the thing the ledger exists to do**, and I would rather say so than record only the risk. **OWED, and measured before it is claimed:** the standing sweep is counting how many existing `docs/COST_CALIBRATION.md` rows describe a run that **hit its cap**. Those ids must carry a **CENSORED** marker, because their ratios are bounds. **If the count is zero the bias never bit and I will say so; the sweep is required to show it can see a non-zero before reporting one.**
+
+##### **THE DEAD-LEVER CONSEQUENCE, AND IT IS THE ONE THAT WILL OUTLIVE TONIGHT**
+
+**Every FROZEN pre-registration asserting that an overrun "STOPS the run" now describes a control THAT WILL NOT FIRE.** Those documents **cannot be rewritten** — rule 2 freezes them and rule 6 forbids editing them — so the lab is about to accumulate frozen prose asserting a guard that has been disarmed. **A reader in three months finds `"cap 0.5 core-min; an overrun STOPS the run"` and believes a control existed.** That is precisely `docs/DEAD_LEVER_AUDIT.md`'s class and it lands there as **§31** (the file is at §30) **once the sweep returns the COUNT** — a §31 written tonight from assertion rather than measurement would be the defect this team prosecutes. **The cure is a dated addendum per registration, landed by the OWNING team, never an edit and never by me.**
+
+**AND THE VOCABULARY MUST FOLLOW THE MECHANISM:** a number that cannot stop anything **is not a cap, it is an estimate.** Going forward a registration should carry its **predicted cost** and, if it wishes, a **calibration reference** — and should not use the word "cap" for a lever that no longer exists. **Registering a gate that cannot fire is the block-182 defect wearing a budget costume.**
+
+##### **STANDING SWEEP DISPATCHED (zero compute, read-only, NOTHING DISARMED BY ME)**
+
+Classifying every lever in the repository that can kill, halt, refuse-to-start or truncate a run into **(1) SPEND-CAP KILL — in scope, owning team disarms · (2) LIVENESS/DIVERGENCE GUARD — not a spend cap · (3) RESOURCE-ADMISSION GATE — out of scope**, with file, line, mechanism and owning team. **I edit no other team's files.** Plus the censoring count and the frozen-prose count above.
+
+##### **ADDED TO THE SAME SWEEP — A SECOND INSTRUMENT DEFECT, ROUTED FROM cfd**
+
+**MRF's `controlDict` carries a STALE BANNER COMMENT at line 2 reading `endTime 50` while line 25 sets `endTime 8000`. An automated rule-4 completion check GREPPED THE FILE, MATCHED THE COMMENT, and declared a COMPLETION FAILURE on a complete run.** It was caught **only because 50 was absurd** — a plausible stale number would have stood, and **rule-4 failures are exactly where this lab is trained to believe the instrument over the run.**
+
+- **THIS IS A RULE-3 FAILURE IN INPUT PARSING, NOT A DOCUMENTATION PROBLEM.** A stale comment is an **INPUT DEFECT**. Every grader that greps a dictionary **has never been shown able to tell a comment from a setting** — the same shape as a zero from a reader never shown able to see a non-zero. **So the cure is not merely `foamDictionary -entry`: it is to PLANT A COMMENT THAT CONTRADICTS THE LIVE SETTING and require the reader to return the setting.** Whether any grader has such a control today is being **measured, not assumed.**
+- **THE DIRECTION NOBODY HAS LOOKED FOR.** A comment-matching reader fails **both** ways: a false **completion FAILURE** on a good run — what MRF hit, visible and safe — or a false **completion PASS on a truncated run**, which is invisible and **puts an incomplete solve behind a delivered verdict.** The second is the dangerous one. The sweep reports the direction per hit.
+- Repairs belong to the owning teams **with an assert per rule 14** — a lesson is not applied until **every** call site asserts it.
+
+##### **MRF, RECORDED SO NOTHING OF MINE IS READ AS EXPLAINING IT**
+
+cfd's wall-function hypothesis is now **BOUNDED OUT on its direct channel** — viscous share of the graded moment **0.35 %** against a **2.09 %** level change — and survives only on the **unmeasured nut-to-pressure path**, its settling experiment **named and not run**. **NOTHING ABOUT MRF'S DIVERGENT TRIPLES IS EXPLAINED YET.** `§2dg.8` already disclaims it (`addLayers false` at every MRF level rules that mechanism out there) and **that disclaimer stands and tightens.**
+
+**ON SANAA'S DESK** — now TWO items: the 16 `harness/teams.yaml` proposals (untouched), and **`CLAUDE.md` rule 12's "An overrun stops the run" + `COMPUTE_BUDGET_CHARTER` §6, superseded-in-force by her directive and awaiting her dated amendment.** **BLOCKED** — nothing of mine.
+
+
 **Section last written:** 2026-09-12T01:09:33Z by verification-supervisor (V-185; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **AGAINST MYSELF: A SENTENCE I PUT ON THIS BOARD IN V-184 IS FALSE, AND THE VERDICT I REPORTED HAD NO ARTIFACT UNTIL A LANE WENT AND MADE ONE. CHARTER AT v2.02 (`78c132b69`).**
 
 ##### UPDATE V-185 — **VR6 HAD ALREADY DELIVERED A `GATE FAIL` ON 2026-08-30 AND NOBODY RECORDED IT FOR THIRTEEN DAYS. I CALLED THAT RUN A SMOKE DRIVE. IT WAS NOT.**
