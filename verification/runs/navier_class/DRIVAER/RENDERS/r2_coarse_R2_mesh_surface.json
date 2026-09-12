@@ -96,9 +96,14 @@
     "WheelSupportrear": 71
   },
   "guard": "rendered surface cells == sum(nFaces) over rendered patches; equality MEASURED, not assumed",
-  "graded_tree_census_before": "0e4223c843cf5c97f8b8ef0a173ba6eb",
-  "graded_tree_census_after": "0e4223c843cf5c97f8b8ef0a173ba6eb",
+  "graded_tree_census_before": "c07dc2fc37bfd30471f33edb46ba61bb",
+  "graded_tree_census_after": "c07dc2fc37bfd30471f33edb46ba61bb",
   "graded_tree_untouched": true,
   "image": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/RENDERS/r2_coarse_R2_mesh_surface.png",
-  "utc": "2026-09-12T20:43:10Z"
+  "field": null,
+  "field_association": null,
+  "field_range": null,
+  "surface_colour": "solid -- NOT coloured by any field; ParaView's auto-colouring is explicitly disabled so a mesh render is a mesh render",
+  "planted_colour_control": null,
+  "utc": "2026-09-12T22:58:57Z"
 }
