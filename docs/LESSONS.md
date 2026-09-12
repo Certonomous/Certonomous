@@ -26799,3 +26799,57 @@ written, caught only by `git log -1` afterwards) — same class, different mecha
 and the same detector; standing rule 10 (**commit per item, and say in the message
 what you left**, which is impossible if the message is not the message); L-223 (the
 post-commit verify is not optional).
+
+## L-552 — An exit code is a READING, and a reading needs a CONTROL: `| tail -20` reported **rc=0** for a script that returned **2**, and a mistyped flag returned the **same 2** as a genuine NOT-DEMONSTRATED finding
+
+**2026-09-12, closure.** Two incidents in one session, both mine, both in the act of
+believing an exit code I had not driven.
+
+**(i) THE PIPELINE ATE THE CODE.** I ran `python3 <script>.py | tail -20` and then
+read `rc=$?` — and recorded **0**. `$?` after a pipeline is the status of the **LAST**
+command, which was `tail`, and `tail` succeeds at printing twenty lines of anything.
+**The script's true exit code was 2.** Recording that 0 would have written a **PASS
+into the record where the instrument had returned a finding** — the exact inversion
+the instrument exists to prevent, produced by a formatting convenience.
+
+**(ii) THE TYPO WORE THE FINDING'S UNIFORM.** I invoked the instrument with
+`--roots` where it defines `--search-root`. `argparse` rejected the unknown flag and
+exited **2** — and **2 was the code the instrument itself used for a genuine
+NOT-DEMONSTRATED finding.** For as long as it took to notice, a **typo was
+indistinguishable from a result**, and it was indistinguishable in the direction
+that reads as a real negative finding about the world.
+
+**AND THE REPAIR FOUND THE COLLISION IN THE WORSE DIRECTION.** Auditing the exit
+codes turned up `--list` and `--help` returning **0** — the **DEMONSTRATED** code —
+from **purely informational output**. A caller scripting `--list` and branching on
+`rc=0` would have **banked a pass from a help screen**. The dangerous collision was
+never the one that hurt; it was the one nobody had run.
+
+**The rule, in two clauses.**
+1. **NO TWO STATES A CALLER MUST DISTINGUISH MAY SHARE AN EXIT CODE.** Usage error,
+   informational output, demonstrated, not-demonstrated, and internal crash are five
+   states, and they need five codes. `argparse`'s hard-wired **2** is a fact about
+   the library, so **do not spend 2 on a finding**; and informational paths must not
+   return the success code.
+2. **PUBLISH THE MAPPING AS A TABLE IN THE MODULE DOCSTRING, AND DRIVE EVERY CODE
+   BEFORE BELIEVING ANY OF THEM** — including **a deliberately bad invocation**. An
+   exit code you have never observed the instrument emit is a design intention, not
+   a behaviour.
+
+**The deeper point, and it is standing rule 3 in a new place.** This lab already
+knows that a **zero from a reader not shown able to see a non-zero is not
+evidence**. An exit code is precisely such a reader: a one-integer summary of a
+whole run. **Driving every code is the planted control for the exit-code channel** —
+it is what shows the 0 you got is a 0 the instrument was capable of not giving you.
+Until then, `rc=0` means only that something exited.
+
+**Mechanical corollaries.** Read `${PIPESTATUS[0]}`, or `set -o pipefail`, or do not
+pipe the command whose status you need — and never write `cmd | tail` then `$?` into
+a record. `setsid timeout cmd` has the same shape one level out (the **`setsid`
+parent returns zero for every outcome**): capture rc **inside** the detached wrapper.
+
+**Related.** Standing rule 3 (planted-zero control — of which this is the exit-code
+transposition); the `setsid parent returns zero` pattern; L-543 (`grep -c` vs
+`grep -co`: one character silently changes the unit of a number that survives every
+check except re-measurement); the `a red with an innocent explanation` pattern, in
+mirror image — here it was a **green** with an innocent explanation.
