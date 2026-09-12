@@ -103,3 +103,67 @@ best**, and the pair's distinctness is the finding rather than the noise.
 **unpromoted** correlation. The §6 enumeration stays **EXHAUSTED**. The H4 median result
 stays a **post-hoc observation**, not a result — if tested it gets its own registration
 with a threshold **not** taken from the run that discovered it. A2 unlaunched.
+---
+
+## RESULT — 2026-09-12 — **REFUTED**. Measured after the freeze at `6d74171b8`.
+*Lines whose number changed above this section: 0.*
+
+### PLANT CONTROL: **PASS**, and it is what makes this a refutation rather than another H4
+
+    POSITIVE (duplicated, offset 2 mm, normals flipped)  f_face_opp(5mm) = 1.0000  >= 0.90  PASS
+    NEGATIVE (same patch unmodified)                     f_face_opp(5mm) = 0.0000  <= 0.05  PASS
+
+**The reader can see an opposition and does not invent one.** H4's zero was uninterpretable
+because its reader was never shown able to see a non-zero. This one was. **So here, a zero
+is evidence.**
+
+### The table
+
+| group | T ≤ 25 mm | T = 42–84 mm |
+|---|---|---|
+| **CONTROL**, all five | **0.0000** | **0.0000** |
+| **BLOCKED**, all twelve | **0.0000** | 7 of 12 still 0.0000 |
+
+Every blocked patch reads **exactly 0.0000 at 5, 10 and 25 mm**. Seven of the twelve —
+including **both brake discs**, `ExhaustSystem1`, `Mirrors2`, `CTRL_SURFACE_Outlet` and
+both rim patches — read **0.0000 at every T up to 84 mm**.
+
+### Verdict: the registered refutation condition fires
+
+> *"Blocked patches near zero at every T → **REFUTED**; the blocked patches are not
+> thin-opposed parts and the whole thin-plate story is wrong."*
+
+**H5 REFUTED.** And the ordering clause does **not** void it: limb 3 voids a condition when
+the instrument could not have come out otherwise, and the plant proves this one could.
+
+The classifier limbs are not load-bearing here and are reported for completeness: M = 12/17,
+degenerate, at **every** T, never beating the 12/17 baseline. But the refutation rests on the
+**absolute values** — both groups are zero — not on any threshold, so limbs 1 and 2 are not
+the reason and are not being used as one.
+
+### 🔴 What this kills
+
+**The thin-opposing-face story is dead for the patches it was invented to explain.**
+`BrakeDiscfront` and `BrakeDiscrear` — the archetypal thin plates — carry **no opposing face
+at any distance up to 84 mm**. A brake disc that is not a thin opposed plate *in this mesh*
+is not being blocked by being one.
+
+### One exception and one observation, neither promoted
+
+- **`WheelSupportrear` reaches 0.9155 at T = 84 mm** — 92 % of its faces have an opposing
+  face within the requested stack thickness. It is **one patch of twelve**, the other eleven
+  do not follow it, and 84 mm is the layer-stack scale rather than a plate thickness. It
+  explains nothing about the group and is recorded, not promoted.
+- **Why might a brake disc have no opposing face?** Because the mesh may carry only **one
+  side** of it: `BrakeDiscfront` has **14 faces** at a 50 mm cell. That would put these
+  patches in the same family as `TirePlinthfront`/`rear`, which have **zero** faces — not
+  thin parts that resist layers, but **parts too coarsely resolved to be closed surfaces at
+  all**. **This is an observation, NOT a fourth hypothesis.** It is not promoted, it is not
+  tested here, and if it is ever tested it gets its own registration with a falsifier.
+
+### Standing
+
+`CTRL_SURFACE_Outlet` and `Mirrors2` — the pair named in advance after three appearances —
+read 0.0000 at every T, like the other five that do. **This instrument does not separate
+them either**, so their distinctness remains unexplained and the requirement registered
+above is unmet. §6 stays **EXHAUSTED**. Patch size stays **unpromoted**. A2 unlaunched.
