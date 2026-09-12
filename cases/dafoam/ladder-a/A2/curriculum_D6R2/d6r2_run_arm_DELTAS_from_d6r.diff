@@ -1,0 +1,192 @@
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_run_arm.sh	2026-08-27 23:02:34.379281479 +0000
++++ d6r2_run_arm.sh	2026-09-12 03:26:22.708951439 +0000
+@@ -4,7 +4,7 @@
+ # DERIVED from curriculum_D5/d5_run_arm.sh (itself the D4-SHIPPED Addendum-2
+ # launcher d4s_run_arm.sh @ 8b91be2b plus D5's registered deltas) with ONLY the
+ # registered deltas of D6R PREREGISTRATION.md section 7, recorded in
+-# d6r_run_arm_DELTAS_from_d6.diff.  Everything else is the family's bytes.
++# d6r2_run_arm_DELTAS_from_d6.diff.  Everything else is the family's bytes.
+ #
+ # CAP DISCIPLINE (the failure this file exists not to repeat).  A peer lane
+ # registered a 3.0 core-min cap and its launcher enforced 6.0 by copy-forward
+@@ -26,10 +26,10 @@
+ # `curriculum_D4/d4_run_arm.sh` hardcodes BASE at the PATCHED item's run root
+ # and runs an UNGUARDED `sudo -n rm -rf "$WORK"` for every arm except F.
+ # THE REPAIR IS NOT "CHANGE THE CONSTANT".  The WRONG CONSTANT MUST REFUSE, and
+-# the guard below is DRIVEN in d6r_groot5_selftest.sh and shown to abort.
++# the guard below is DRIVEN in d6r2_groot5_selftest.sh and shown to abort.
+ # ===========================================================================
+-ITEM=D6R
+-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
++ITEM=D6R2
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6R2-a2-wing-multipoint-transonic
+ BASE="${BASE:-$REGISTERED_BASE}"
+ 
+ # ---- G-ROOT.1 -- BASE must be THIS item's registered root, normalised, so a
+@@ -74,6 +74,8 @@
+ /home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3S-a2-wing-cdmin
+ /home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density
+ /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint
++/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
++/home/ubuntu/certonomous-runs/CURRICULUM-D6RACC2-a2-wing-multipoint
+ /home/ubuntu/certonomous-runs/CURRICULUM-D7-a3-m6-cdmin
+ /home/ubuntu/certonomous-runs/CURRICULUM-D7F-a3-m6-fd
+ /home/ubuntu/certonomous-runs/CURRICULUM-D7FR-a3-m6-fd
+@@ -125,7 +127,7 @@
+ # For containerised MPI the conditioning variable is CONCURRENT CONTAINERS, not
+ # loadavg -- `uptime` will lie.  Censused before and after every arm.
+ container_census() {
+-  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d6r_" | tr '\n' ',' | sed 's/,$//'
++  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d6r2_" | tr '\n' ',' | sed 's/,$//'
+ }
+ 
+ # ---- D6R REGISTERED CAP TABLE (PREREGISTRATION.md section 4) ---------------
+@@ -175,10 +177,10 @@
+ IMG_SHIPPED_DIGEST=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc
+ 
+ # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md section 7) ---------------
+-MD5_RUNSCRIPT=93edb4a231e13a7af065368f61a468ef
+-MD5_FD=7491c3a73c232fb6744990fd8109fd63
+-MD5_EXTRACT6=1743dd4232a7f06785f71be2f285f08d
+-MD5_REFOFF=ad67bbeb0c7b502262ebf5d4e8fa21cd
++MD5_RUNSCRIPT=0abba50ab8baeefa3f59a3f1fc8f5336
++MD5_FD=34d0cb87e47244bb460e6ff58e318302
++MD5_EXTRACT6=07b89f6e7275868b55c2a32ff0d65b51
++MD5_REFOFF=f4ea77e96fc577b24671dc17903c5b32
+ MD5_EXTRACT4=ee7d3c99fd716da23779cb651961918e
+ # D4's PATCHED optimiser history, staged READ-ONLY into REF_off/ as OptView.hst
+ # (D4's extractor reads that name); its md5 is asserted at staging and the
+@@ -187,21 +189,21 @@
+ D4_HST_SRC=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O/OptView.hst
+ 
+ ARM="${1:-}"; IMG="${2:-}"
+-test -n "$ARM" || { echo "ABORT usage: d6r_run_arm.sh <O_mp|ACC_mp|F_mp|REF_off> <image>"; exit 64; }
+-test -n "$IMG" || { echo "ABORT usage: d6r_run_arm.sh <O_mp|ACC_mp|F_mp|REF_off> <image>"; exit 64; }
++test -n "$ARM" || { echo "ABORT usage: d6r2_run_arm.sh <O_mp|ACC_mp|F_mp|REF_off> <image>"; exit 64; }
++test -n "$IMG" || { echo "ABORT usage: d6r2_run_arm.sh <O_mp|ACC_mp|F_mp|REF_off> <image>"; exit 64; }
+ 
+ # ---- G-ROOT.5 -- A LIVE ARM IS NEVER RE-STAGED.  Two live readings, taken
+ # ---- BEFORE any destructive act: (a) a RUNNING container carrying this
+ # ---- item's prefix and this arm; (b) a driver pidfile in the run root naming
+ # ---- a LIVE pid that is not an ancestor of this process, or whose cwd is the
+ # ---- run root.  A stale pidfile (dead pid) does not block.
+-LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d6r_${ARM}_" 2>/dev/null | grep "^d6r_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d6r2_${ARM}_" 2>/dev/null | grep "^d6r2_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+ if [ -n "$LIVE_SAME_ARM" ]; then
+   echo "ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [$LIVE_SAME_ARM]"
+   echo "  Re-staging would remove the live arm directory under it.  REFUSED."
+   exit 3
+ fi
+-PIDFILE="$BASE/d6r_driver.pid"
++PIDFILE="$BASE/d6r2_driver.pid"
+ if [ -f "$PIDFILE" ]; then
+   DPID=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+   if [ -n "$DPID" ] && kill -0 "$DPID" 2>/dev/null; then
+@@ -273,10 +275,10 @@
+ test "$(stat -c '%a' "$BASE")" = "777" || { echo "ABORT L-251 run root mode $(stat -c '%a' "$BASE")"; exit 4; }
+ 
+ # ---- staged-instrument identity, re-asserted before EVERY launch ---------
+-echo "$MD5_RUNSCRIPT  $BASE/d6r_opt_runScript.py"    | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
+-echo "$MD5_FD  $BASE/d6r_fd_endpoint.py"             | md5sum -c - || { echo "ABORT fd md5"; exit 4; }
+-echo "$MD5_EXTRACT6  $BASE/d6r_extract_endpoint.py"  | md5sum -c - || { echo "ABORT extract6 md5"; exit 4; }
+-echo "$MD5_REFOFF  $BASE/d6r_ref_off.py"             | md5sum -c - || { echo "ABORT ref_off md5"; exit 4; }
++echo "$MD5_RUNSCRIPT  $BASE/d6r2_opt_runScript.py"    | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
++echo "$MD5_FD  $BASE/d6r2_fd_endpoint.py"             | md5sum -c - || { echo "ABORT fd md5"; exit 4; }
++echo "$MD5_EXTRACT6  $BASE/d6r2_extract_endpoint.py"  | md5sum -c - || { echo "ABORT extract6 md5"; exit 4; }
++echo "$MD5_REFOFF  $BASE/d6r2_ref_off.py"             | md5sum -c - || { echo "ABORT ref_off md5"; exit 4; }
+ echo "$MD5_EXTRACT4  $BASE/d4_extract_endpoint.py"  | md5sum -c - || { echo "ABORT extract4 md5"; exit 4; }
+ 
+ # ---- image identity by DIGEST, resolved from the local store -------------
+@@ -298,7 +300,7 @@
+ echo "D4_IMAGE_OK row=$ROW image=$IMG digest=$GOT_DIGEST"
+ 
+ STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
+-NAME="d6r_${ARM}_${STAMP}"
++NAME="d6r2_${ARM}_${STAMP}"
+ WORK="$BASE/$ARM"
+ LOG="$BASE/${ARM}_${STAMP}.log"
+ 
+@@ -314,11 +316,11 @@
+     cp -a "$BASE/base" "$WORK/$mp" || { echo "ABORT stage $mp copy"; exit 4; }
+     test -n "$(ls -d "$WORK/$mp"/processor* 2>/dev/null)" && { echo "ABORT G-COLD $mp processor* present"; exit 5; }
+   done
+-  cp -a "$BASE/d6r_opt_runScript.py" "$BASE/d6r_fd_endpoint.py" "$BASE/d6r_extract_endpoint.py" "$BASE/d6r_ref_off.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
++  cp -a "$BASE/d6r2_opt_runScript.py" "$BASE/d6r2_fd_endpoint.py" "$BASE/d6r2_extract_endpoint.py" "$BASE/d6r2_ref_off.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+   # COLD START, verified BEFORE the launch (D2 G8), and the AGE GUARD's datum:
+   # 0/ is touched LAST at stage time, so every artifact the run produces must
+   # be strictly newer than 0/U or it did not come from this run.
+-  for bad in "$WORK/reports" "$WORK/OptView.hst" "$WORK/opt_IPOPT.txt" "$WORK/dRdWColoring_4.bin" "$WORK/d6r_fd_endpoint.json" "$WORK/d6r_ref_off.json"; do
++  for bad in "$WORK/reports" "$WORK/OptView.hst" "$WORK/opt_IPOPT.txt" "$WORK/dRdWColoring_4.bin" "$WORK/d6r2_fd_endpoint.json" "$WORK/d6r2_ref_off.json"; do
+     test -e "$bad" && { echo "ABORT G-COLD $bad exists"; exit 5; }
+   done
+   test -n "$(ls -d "$WORK"/processor* 2>/dev/null)" && { echo "ABORT G-COLD processor* present"; exit 5; }
+@@ -339,22 +341,22 @@
+   WORK="$BASE/O_mp"
+   test -d "$WORK" || { echo "ABORT arm $ARM expects an existing $WORK from arm O_mp"; exit 5; }
+   test -f "$WORK/OptView.hst" || { echo "ABORT arm F_mp: no OptView.hst to read an endpoint from"; exit 5; }
+-  cp -a "$BASE/d6r_fd_endpoint.py" "$BASE/d6r_extract_endpoint.py" "$WORK/" || { echo "ABORT stage F instruments"; exit 4; }
+-  rm -f "$WORK/d6r_fd_endpoint.json" "$WORK/d6r_fd_endpoint.jsonl" "$WORK/d6r_endpoint_dvs.json" "$WORK/d6r_major_history.json"
++  cp -a "$BASE/d6r2_fd_endpoint.py" "$BASE/d6r2_extract_endpoint.py" "$WORK/" || { echo "ABORT stage F instruments"; exit 4; }
++  rm -f "$WORK/d6r2_fd_endpoint.json" "$WORK/d6r2_fd_endpoint.jsonl" "$WORK/d6r2_endpoint_dvs.json" "$WORK/d6r2_major_history.json"
+ fi
+ 
+ case "$ARM" in
+-  O_mp)    CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6r_opt_runScript.py -task run_driver -optimizer IPOPT" ;;
+-  ACC_mp)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6r_opt_runScript.py -task compute_totals" ;;
+-  F_mp)    CMD="python d6r_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6r_fd_endpoint.py" ;;
+-  REF_off) CMD="python d4_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6r_ref_off.py" ;;
++  O_mp)    CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6r2_opt_runScript.py -task run_driver -optimizer IPOPT" ;;
++  ACC_mp)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6r2_opt_runScript.py -task compute_totals" ;;
++  F_mp)    CMD="python d6r2_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6r2_fd_endpoint.py" ;;
++  REF_off) CMD="python d4_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6r2_ref_off.py" ;;
+ esac
+ 
+ # ---- the arm command goes to a FILE the container executes under its OWN
+ # ---- `timeout` at the registered cap wall (TMO), so the deadline is INSIDE
+ # ---- the container and survives every host shell.  `-k 60` escalates TERM to
+ # ---- KILL; the kernel exit code (124/137) is then the record.
+-CMDFILE="$WORK/d6r_cmd.sh"
++CMDFILE="$WORK/d6r2_cmd.sh"
+ printf '%s\n' "$CMD" > "$CMDFILE" || { echo "ABORT cmd file"; exit 4; }
+ echo "D4S_CMDFILE arm=$ARM md5=$(md5sum "$CMDFILE" | cut -d' ' -f1) deadline_in_container_s=$TMO"
+ CPUSAMPLE="$BASE/${ARM}_${STAMP}.cpu.jsonl"
+@@ -398,21 +400,21 @@
+ T0=$(date -u +%s)
+ # rc CAPTURE is CLOSED (docker inspect, no --rm); the CAP lives INSIDE the
+ # container (`timeout -k 60 $TMO` below) and survives shell death; the host
+-# bookkeeping runs in d6r_chain_driver.sh, a setsid nohup session.
++# bookkeeping runs in d6r2_chain_driver.sh, a setsid nohup session.
+ sudo -n docker run -d --name "$NAME" \
+     --user 0:0 --cpus=$RANKS --cpuset-cpus=$CPUSET --memory=$MEM --memory-swap=$MEM --oom-score-adj=500 \
+     -v "$BASE":/mnt -w "/mnt/$(basename "$WORK")" "$IMG" bash -lc \
+     "source /home/dafoamuser/dafoam/loadDAFoam.sh && \
+      echo D4S_CONTAINER_UID: \$(id -u) && \
+      python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4S_IDWARP_IMPORTED_FROM:\",p); print(\"D4S_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
+-     echo D4S_DEADLINE_IN_CONTAINER_S: $TMO && \
+-     timeout -k 60 $TMO bash /mnt/$(basename "$WORK")/d6r_cmd.sh" > /dev/null 2>&1 \
++     echo D4S_DEADLINE_IN_CONTAINER_S: NONE_NO_CAP_RULING_6f3abf8a3 && \
++     bash /mnt/$(basename "$WORK")/d6r2_cmd.sh" > /dev/null 2>&1 \
+   || { echo "ABORT could not start container"; exit 4; }
+ 
+ # The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25).  A crossing is
+ # written to the ledger and CONTINUES; CEILING = 4 x CAP is a hard stop.
+ CEILING=$(python3 -c "print('%.1f' % (4.0*$CAP))")
+-echo "D4S_RUNAWAY_GUARD arm=$ARM cap_core_min=$CAP ceiling_core_min=$CEILING mode=report_then_stop_at_ceiling"
++echo "D4S_RUNAWAY_GUARD arm=$ARM cap_core_min=$CAP ceiling_core_min=$CEILING mode=report_only_NO_CAP_RULING_6f3abf8a3"
+ CAP_REPORTED=no; CEILING_HIT=no
+ while true; do
+   RUNNING=$(sudo -n docker inspect --format '{{.State.Running}}' "$NAME" 2>/dev/null)
+@@ -423,11 +425,9 @@
+     CAP_REPORTED=yes
+     echo "D4S_CAP_CROSSED arm=$ARM core_min=$CM cap=$CAP ceiling=$CEILING action=REPORTED_RUN_CONTINUES supervisor_decides" | tee -a "$BASE/ledger.txt"
+   fi
+-  if [ "$(python3 -c "print(1 if $CM > $CEILING else 0)")" = "1" ]; then
++  if [ "$CEILING_HIT" = "no" ] && [ "$(python3 -c "print(1 if $CM > $CEILING else 0)")" = "1" ]; then
+     CEILING_HIT=yes
+-    echo "D4S_CEILING_HIT arm=$ARM core_min=$CM ceiling=$CEILING action=HARD_STOP" | tee -a "$BASE/ledger.txt"
+-    sudo -n docker stop -t 30 "$NAME" >/dev/null 2>&1
+-    break
++    echo "D4S_CEILING_CROSSED arm=$ARM core_min=$CM ceiling=$CEILING action=REPORTED_RUN_CONTINUES_NO_CAP_RULING_6f3abf8a3" | tee -a "$BASE/ledger.txt"
+   fi
+   sleep 10
+ done
