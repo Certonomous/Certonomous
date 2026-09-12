@@ -598,3 +598,35 @@ claim instead of inheriting it**, per rule 15:
 - It does **not** launch anything. Nothing here started a solver; the two queue entries
   prepared alongside it sit in `verification/queue/cfd/held/`, which the daemon does not poll.
 - It does **not** send, file, upload or register anything outside this box (rule 7).
+
+---
+
+# §11. ADDENDUM 2 — 2026-09-12T19:17:53Z — **THE §9 FREEZE BLOCK, COMPLETED BY THE cfd-SUPERVISOR PERSONALLY, AND COMPLETED LATE.**
+
+**Version 1.1 → 1.2. Appended at the foot under rule 6. `lines whose number changed above this section: 0`** — §9's block is left **blank and legible exactly as written**, deliberately not edited in place, so a reader can see it was completed retrospectively rather than at the moment it should have been. **No gate, threshold, cap or label is altered.** L1 remains **NOT ADMITTED** (§2). `CT` remains **`NOT A RESULT` by construction** (§0, Gate D). `minDeterminant 1.0e-03` is untouched.
+
+## §11.1 THE LITERAL VALUES — RECORDED AS VALUES, NEVER AS COMMANDS
+
+```
+FROZEN AT COMMIT:                 8efe38e8f5bcf7c82cf34e68344bd02b457419aa
+  committed:                      2026-09-12T01:34:37+00:00
+DOCUMENT BLOB SHA AT THAT COMMIT: 5ffb6537a4a3696d6ffc4c12603300c5c003d542
+DOCUMENT BLOB SHA AT HEAD NOW:    85495975ee92c6b8cfd4668f343b14611d8e5445
+BY:                               cfd-supervisor, PERSONALLY (check 4, undelegated)
+```
+
+**The two blob shas DIFFER and that is correct:** §10 was appended today under rule 6, which adds at the foot and renumbers nothing. **A freeze pins the GATES, and the gates live above §10.** Both are recorded so a future reader verifies rather than re-derives. **No field here stores a command** — a record holding `git rev-parse HEAD:<path>` re-evaluates to whatever HEAD holds and self-satisfies at every commit.
+
+## §11.2 🔴 THE PRE-COMPUTE CONDITION — I CANNOT TICK IT AS AN OBSERVATION, AND I WILL NOT
+
+§9 asks me to check by `ls` that `SOLVE_L1/` and `SOLVE_L2/` carry no time directory, no `log.simpleFoam`, no `solve_rc` and no `postProcessing/`. **That condition is FALSE TODAY and the box stays unticked.** `SOLVE_L1/` ran 369 iterations before the 17:36:41Z reboot and carries all four artifacts; `SOLVE_L2/` carries a `0/` from its decomposition. **A checkbox is an observation, and the observation now returns the opposite answer.**
+
+**What the record supports, as record and not as my observation:** commit `8efe38e8f5bcf7c82cf34e68344bd02b457419aa` is dated **2026-09-12T01:34:37+00:00**, and first compute under this document is logged at **2026-09-12T01:38:17Z**. **The freeze precedes it, so rule 2's substance — gate, threshold, cap and label committed before the solver started — holds, by the commit's own timestamp rather than by anyone's assertion.**
+
+**What I cannot attest, named rather than papered over:** that anyone verified those directories were empty *at that moment*. **The block was left blank when it should have been filled and no contemporaneous check exists; completing it now cannot manufacture one.** Every commit in this repository carries one Ubuntu identity, so **a commit subject can never evidence a personal check** — which is precisely why this block exists, and why signing it late is recorded rather than hidden.
+
+## §11.3 WHAT THIS SIGNATURE AUTHORISES
+
+`SOLVE_L2` and a fresh `SOLVE_L1_R2` may be queued under this document, **through the runner only** (item 19: a hand launch is not a case), subject to the runner gates and the kill-and-resume proof, **neither of which this signature supplies.** It authorises **no claim about experiment**: §6's reference tier and §0's Gate D construction are untouched, and **no band may cite a source this box does not hold — Roddy 1990 and Huang 1992 exist here only as `.url` stubs.**
+
+*Signed by the cfd-supervisor, personally, 2026-09-12T19:17:53Z. Submissions parked. No agent's message is Sanaa's consent.*
