@@ -1154,3 +1154,59 @@ underneath both times: **candidate, not conclusion.**
 **§9's independent deliverable is unclaimed and is now the reason to finish the 8000 family:**
 whether drift persists at 8000 is a finding about the steady MRF formulation, independent of
 the triple. **There is still no 16000.**
+
+---
+
+## ADDENDUM 1, SECTION A1.12 — 2026-09-12 — §A1.5's `append_record.py` BLOCKER IS STALE, AND SAYING SO IS THE WHOLE POINT OF THIS SECTION
+
+**Dated addendum appended at the foot of a frozen file (rule 6). Version bump recorded.**
+**`lines whose number changed above this section: 0`** — the 1156 lines above are
+byte-identical to the blob at HEAD before this section, `sha256 =
+dc7dd256accd7fba12082de73ce8d8a586bdfbf6405b9af33e07156697eee661`, blob
+`9677e03b55ce17c3472149fae4a36160729a99ec` on both disk and `HEAD:`. Proved by hash in the
+commit's own shell invocation, not asserted. **This section alters NO gate, threshold,
+band, cap, label or physical figure.** The registered ET8000 estimate stays **7,115
+core-min charged / 5,428 core-min contention-free floor**, per level 381.7 / 1,272.1 /
+5,460.8, and the `budget_gate: NONE` exemption of §A1.5 is untouched.
+
+### A1.12.1 — The claim, quoted rather than paraphrased
+
+§A1.5 (line ~784) closes with:
+
+> *"Note that this case's previous calibration row is already **BLOCKED** on a pre-existing
+> malformed id in that ledger … that blocker is not cleared by this addendum and the 8000
+> row will meet the same refusal until it is repaired by its owner."*
+
+**That was true when it was written and it is FALSE NOW.** It is struck by this section,
+never rewritten.
+
+### A1.12.2 — Measured, not relayed
+
+| what | measured |
+|---|---|
+| repair commit `bc5588bc7` (2026-09-11T16:20:06Z, verification) | verified an **ancestor of HEAD** by `git merge-base --is-ancestor`, not taken from a message |
+| the exclusion in `scripts/append_record.py` | present at `:792`, `^\|[ \t]*C-20260910T230023\.521144Z-mrfr1a1[ \t]*\|` |
+| the malformed id still in the ledger at HEAD | yes, 2 occurrences — **it was excluded, not deleted**, which is the correct repair |
+| a whole-record `--dry-run` against `HEAD:docs/COST_CALIBRATION.md` | **`VERDICT: OK`, exit 0** |
+| a real row actually landed through the same tool | **yes** — the PRD-E1 calibration row, commit `b2b9bc4b0`, 1 insertion / 0 deletions, id `C-20260912T004636.072692Z-65b43847` |
+
+The last line is the one that matters: **the refusal is not merely predicted to be gone,
+a row has been driven through the production path since the repair.** A dry-run that
+never writes is not proof that a write succeeds.
+
+### A1.12.3 — What this does and does not license
+
+**Does:** it removes the stated reason the ET8000 rule-12 calibration row would be
+withheld. **The 8000 row is NOT blocked and is owed on the same terms §A1.5 already set**
+— actual core-minutes from the logs against the registered 7,115, ratio stated, gap
+attributed, contention named separately and never absorbed into the ratio, waste named
+separately, landing in `docs/COST_CALIBRATION.md`.
+
+**Does not:** it does not settle the *cause* the repair commit itself names — that
+**nine exclusions have cleared nine blocks and not one has addressed the cause**, i.e.
+that hand-landed ids keep re-poisoning a lab-wide register. That is verification's
+register and verification's finding; this section only records that the tenth block never
+materialised for this case. **A parked note that outlives its blocker reads identically to
+owed work**, which is precisely why it is struck here rather than left standing.
+
+*A1.12 ends. Nothing above line 1156 was edited; the hash above proves it.*
