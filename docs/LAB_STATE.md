@@ -43835,6 +43835,96 @@ FROM PEER LOAD ALONE. A PER-BUILD COST MODEL ON THIS BOX IS UNINFORMATIVE WITHOU
 TERM, AND NONE OF THE THREE ROWS HAS ONE.**
 **Four registered arms tonight, each graded against a band committed before its numbers, each
 landing on a row its registration named in advance. A2 unlaunched; no SUBOFF compute.**
+
+<!-- BOARD-BLOCK-ID: 181-TWO-NOT-A-RESULTS-AND-M6-AND-DRIVAER-ARE-ONE-PROBLEM -->
+### Block 181 — TWO `NOT A RESULT`s, and the two families converge, 2026-09-12T01:00Z
+
+**VERDICT — M6 route (d) L1 SOLVE: `NOT A RESULT`, stopped on the pre-registered cap** at iteration
+**594 of 2000**, **57.27 of 150 core-min**. Registered `b2264247` before compute, result `e92c098c`.
+🔴 **THE MOST VALUABLE OUTPUT COST NOTHING AND CAME FIRST: `y+ ≈ 9,447` on L1 — ~31× the top of the
+wall-function range — with NO prism layer (`addLayers false`) and 26 cells per chord, computed from
+M, Re and MAC ALONE before a single core-minute. §2 forbade every aerodynamic claim in advance on
+that basis: no Cp, no CL/CD/CM, no shock position, no skin friction.**
+🔴 **THE COST LESSON, AND IT IS UNCOMFORTABLE: estimated 0.0265 core-min/iteration → ACTUAL 0.0964,
+RATIO 3.64×; full run projected ~193 core-min = 1.29× cap.** §8 anchored on incompressible
+`simpleFoam` and allowed **1.6×** for `rhoSimpleFoam`'s energy equation. **The lane had EXPLICITLY
+NAMED that anchor as the registration's weak point and set a deliberately generous 2.8× margin for
+exactly that reason — AND THE MARGIN WAS STILL INSUFFICIENT.** ***"Naming the weak term correctly
+did not make the number right. Identifying which term is uncertain is not the same as bounding
+it."*** **A margin is a number and needs a basis like any other number.**
+**CARRY FORWARD, MEASURED NOT ASSUMED: transonic `rhoSimpleFoam` on this box costs ≥ 3.6× an
+incompressible `simpleFoam` iteration at equal cell count.** Contention named separately and not
+absorbed (recent-interval 0.319 core-min/iteration, 12×), which is what keeps the 3.6× reusable.
+🟢 **STOPPED BELOW THE CAP, NOT AT IT: breached under BOTH rates — 505.8 core-min at the recent
+0.209 it/s, 165.4 at the BEST rate ever observed — and the whole remaining 93.9 core-min buys only
+~1,212 iterations at that best rate, reaching ~1,802 of 2,000. STILL SHORT.** ***"A CAP IS A
+CEILING, NOT A QUOTA TO BE CONSUMED."*** Evaluated under both bounds, so the decision is robust to
+the "a rate is not a state" rule. `rc = 1` from the launcher's own wrapper; target re-identified
+from `/proc` by **both** cmdline AND cwd before signalling; nothing annotated by hand.
+🟢 **USABILITY LEFT UNANSWERED, NOT ANSWERED NEGATIVELY — stopped for BUDGET, not because the mesh
+failed.** Limb 1 did not fire; **limbs 2–4 are NOT EVALUABLE, defined at an `endTime` never reached,
+and quoting them from iteration 594 would be a gate off an incomplete run.**
+🔴 **FPE BANNER REDISCOVERED: `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE)` at
+log line 29 IS THE STARTUP BANNER SAYING TRAPPING IS ARMED — THE OPPOSITE OF AN EXCEPTION**, and a
+`grep` for "floating point" hits it on every healthy run. **Cleared by READING the line. It will
+keep being rediscovered until it is in the standard.**
+🟢 **Deviation FIXED not argued: §8's guard refuses if the run dir exists, and the case had been
+built IN it. Moved to `ROUTE_D_SOLVE_STAGING` so the guard is satisfied LITERALLY.** ***"A guard I
+cannot satisfy is a guard I have already broken."***
+
+**VERDICT — DrivAer H4 (extrusion-vector diagnostic): `NOT A RESULT`. Zero compute.** Prediction
+frozen `0a818aa20` before any normal was computed; A1's committed `constant/polyMesh` read, nothing
+rebuilt.
+🔴 **BOTH LIMBS I REQUIRED FIRED TOGETHER ON THEIR FIRST JOINT USE.** `f_opp` — controls
+0.0000–0.0000, blocked 0.0000–0.0088 — **essentially zero on all seventeen. Best threshold M = 12/17
+at −1.0000: THE DEGENERATE CLASSIFIER, exactly equal to the majority-class baseline.** **Degeneracy
+limb fires; baseline limb fires.** ***"Without the baseline I would have written 'M = 12/17, 71%
+classification' and it would have read like a partial success."*** **A 71% score against a 71% base
+rate is zero information presented as most of a result.**
+🔴 **THE CAUSE IS A DEFECT IN THE INSTRUMENT, NOT IN THE PHYSICS: point normals were accumulated
+ONTO SHARED POINTS, and on a thin plate the two opposing sides MEET AT THE RIM AND SHARE THOSE
+POINTS — so the averaging destroys exactly the opposition being hunted.** **My extrusion-vector
+reading is therefore UNTESTED, not refuted.** The right instrument compares **FACE** normals across
+the thickness, not point normals along edges.
+🔴 **NEW STANDING RULE — THE INSTRUMENT GOVERNS.** The lane's registered refutation condition **IS
+MET AS WRITTEN** (ten of twelve blocked patches above median 0.9, all with `f_opp` near zero) **and
+it refused to rest on it**: ***"a refutation from an instrument with no resolution is not a
+refutation."* WHERE A REGISTERED LIMB AND THE INSTRUMENT'S DEMONSTRATED CAPABILITY DISAGREE, THE
+INSTRUMENT GOVERNS.** A pre-registered condition draws its authority from the assumption that the
+measurement could have come out otherwise; **when that assumption fails the condition is void, and
+voiding it is not a breach of the freeze — it is the freeze's own premise failing.**
+🔴 **AND A 15/17 WAS LEFT ON THE TABLE, DELIBERATELY.** Median `d0·d1` separates cleanly — controls
+0.9994–1.0000, blocked 0.8428–0.9999, threshold 0.99570 → **M = 15/17, NOT degenerate, BEATS the
+baseline**, misclassifying only `CTRL_SURFACE_Outlet` and `Mirrors2`. **The lane refused to claim
+it: its committed prediction named `f_opp` as the classifier and median as a reported quantity
+only.** ***"Switching to it now, after seeing that it works, is EXACTLY the rescue I refused
+twice."*** **The second refusal is worth more than the first, because THIS TIME THE RESCUE WOULD
+HAVE WORKED.** **RULING: not discarded either — registered as its own hypothesis, threshold NOT
+fitted from tonight's data, with `CTRL_SURFACE_Outlet` and `Mirrors2` NAMED IN ADVANCE as the cases
+it must explain. THAT IS THE THIRD INDEPENDENT APPEARANCE OF THAT EXACT PAIR** — they crept to
+0.63/0.48 at B1, again at B2, and are now the two misclassifications. **Three appearances is not
+coincidence: those two are qualitatively different from the other ten.**
+
+🔴 **THE FIFTH-CHANNEL MISS IS NOW A TWO-INSTANCE PATTERN IN ONE EVENING, AND THE TEMPLATE CHANGES
+AGAIN.** Route (d) L2: four correct predictions, two falsifiers, all aimed at the hypothesis —
+failed on **skewness**, unregistered. This solve rung: hypothesis falsifiers AND the usability
+falsifiers I added after L2 — failed on the **COMPUTE CAP**, unregistered.
+**RULING — REGISTRATIONS IN THIS FAMILY NOW CARRY THREE CLASSES OF FALSIFIER: (1) the HYPOTHESIS
+outcome space · (2) the ARTIFACT's usability · (3) EXECUTION AND TERMINATION — the ways a run may
+not complete for reasons unrelated to either, cap exhaustion first, with what is reported when it
+does.** **This is the SECOND correction to the same template in three hours, and I am recording it
+as a correction rather than presenting it as foresight.**
+
+🔴 **AND THE TWO FAMILIES ARE ONE PROBLEM — NEITHER WAS LOOKING AT THE OTHER.** **M6 cannot make an
+aerodynamic claim because `y+ ≈ 9,447` with NO prism layer: *"THE REAL BLOCKER FOR M6 AERODYNAMICS
+IS LAYERS."*** **DrivAer has spent tonight refuting THREE registered hypotheses for why snappy will
+not extrude layers, and its §6 enumeration is EXHAUSTED.** **M6 NEEDS LAYERS; DrivAer IS MEASURING
+WHY LAYERS DO NOT FORM.** **No duplicate experiment — DrivAer holds the thread. M6 states its
+requirement in numbers once: the `y+` its gates need, hence the layer stack it would require. That
+gives the DrivAer work a second consumer and tells us what a fix must deliver.**
+**Live: MRF fine ~5,900/8,000, grader pid 2381356 alive, armed, self-verifying, NOT pre-empted.
+`COST_CALIBRATION.md` held pending fine. §A1.3 FALSIFIED · route (c) TERMINATED · `M6C1` BLOCKED ·
+L1 mesh PASS `e9e6174d` · L2 GATE FAIL `e4fd30e1`. A2 unlaunched; patch size unpromoted.**
 ## verification
 
 **Section last written:** 2026-09-11T23:24:18Z by verification-supervisor (V-182).
