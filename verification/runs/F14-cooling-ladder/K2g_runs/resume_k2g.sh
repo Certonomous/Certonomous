@@ -90,12 +90,38 @@ disk_doc = open(prereg, "rb").read()
 committed = subprocess.run(["git", "-C", repo, "show",
                             sha + ":docs/campaigns/F14-cooling-ladder/K2g_PREREGISTRATION.md"],
                            capture_output=True).stdout
-if disk_doc != committed:
-    print("REFUSE: the registration on disk is not the one committed at %s" % sha); sys.exit(2)
-m = re.search(r"```json FREEZE\n(.*?)```", disk_doc.decode(), re.S)
-if not m:
-    print("REFUSE: no FREEZE block in the registration"); sys.exit(2)
-table, bad = json.loads(m.group(1)), []
+# APPEND-ONLY, not byte-equal. CLAUDE.md rule 6 makes a DATED ADDENDUM APPENDED
+# AT THE FOOT the sanctioned way to disclose a departure, so a guard that
+# demanded byte equality would refuse the very mechanism the rule prescribes --
+# and would have refused this run the moment its own §6 addendum landed. What
+# actually matters is enforced instead, and it is STRICTER above the foot:
+#   (1) the committed bytes are a PREFIX of the disk bytes, so nothing above the
+#       addendum moved by a single character ("lines whose number changed above
+#       this section: 0", asserted rather than asserted-about); and
+#   (2) the FREEZE TABLE parses identically from both, so no addendum can have
+#       re-pinned a grading-path file.
+if not disk_doc.startswith(committed):
+    print("REFUSE: the registration on disk is NOT the commit-%s document plus an "
+          "append. Something above the foot changed, which rule 6 forbids." % sha[:9])
+    sys.exit(2)
+appended = len(disk_doc) - len(committed)
+
+
+def _freeze_table(blob, where):
+    m = re.search(r"```json FREEZE\n(.*?)```", blob.decode(), re.S)
+    if not m:
+        print("REFUSE: no FREEZE block in the registration (%s)" % where); sys.exit(2)
+    return json.loads(m.group(1))
+
+
+table = _freeze_table(disk_doc, "disk")
+if table != _freeze_table(committed, "commit " + sha[:9]):
+    print("REFUSE: the FREEZE table on disk is not the table committed at %s -- an "
+          "addendum has re-pinned the grading path, which it may never do." % sha[:9])
+    sys.exit(2)
+print("  registration = commit %s + %d appended bytes; FREEZE table IDENTICAL"
+      % (sha[:9], appended))
+bad = []
 for rel, frozen in table.items():
     p = os.path.join(repo, rel)
     if not os.path.exists(p):

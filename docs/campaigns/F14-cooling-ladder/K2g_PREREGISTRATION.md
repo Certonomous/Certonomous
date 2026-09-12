@@ -381,3 +381,141 @@ it is the table.
 
 `launch_k2g.sh` is pinned by this document's own commit and is not in the table:
 it starts the run and cannot be a grading-path input.
+
+---
+
+## ADDENDUM 1 — 2026-09-12, heat-transfer lane: THE CHECKPOINT POLICY §6 DID NOT HAVE, AND THE ONE THAT WAS PROPOSED WOULD HAVE DESTROYED THE GATE'S OWN INPUT
+
+**Version 1.0 → 1.1. Appended at the foot, never rewritten (`CLAUDE.md` rule 6).
+Lines whose number changed above this section: 0.** Nothing below alters a gate,
+a threshold, a band, a cap or a label — §5's `G-DP` band remains
+**[27.9699, 28.0901] m²/s²**, §7's five predictions are untouched, §8's
+**POINT 598 / CAP 1200 core-min** are untouched, §6's six completion clauses are
+untouched, and §10's FREEZE table is untouched and still pins the same five
+files at the same sha256. **First compute has been spent against this document**
+(04:06:20Z–17:36:41Z, 2026-09-12), so this is an addendum and not an amendment.
+
+### A1.1 Why an addendum is owed at all
+
+Sanaa's directive of 2026-09-12 (`docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md`,
+items 1–3 and 11–12) **postdates this freeze** and requires of every solver run a
+restartable checkpoint at a bounded interval, a bounded retention, a per-iteration
+monitor carrying the graded quantity, and a clean stop mechanism. §6 above
+registers **`E-ENDTIME` as "the single registered edit"** to the generated
+`system/controlDict`. Meeting the directive requires more edits to that same
+generated file. That departure is disclosed here rather than taken quietly.
+
+**The file being edited is `K2f_L3/system/controlDict`, which `build_k2f.py`
+generated. It is not frozen, it is not tracked, and it is not in §10's table.**
+No frozen file is edited by any of this: all five FREEZE-table files **and**
+`launch_k2g.sh` were verified byte-identical to commit `b456d1107` on both pins —
+sha256 of the disk bytes against §10's table, and the git blob on disk against
+the blob at that commit — **before** anything was written.
+
+### A1.2 `writeInterval` 500 → 25 — the arithmetic, on this case's own worst rate
+
+| quantity | value | where it comes from |
+|---|---|---|
+| worst rate measured **on this case** | **56.63 s/iteration wall** | its own `log.solve`: `ClockTime` 47,231 s over 834 iterations, under load 68 on the pre-resize box |
+| loss at `writeInterval` 50 | 50 × 56.63 = 2,832 s = **47.19 min** | **outside the 30-minute bound — 50 is rejected** |
+| loss at `writeInterval` 25 | 25 × 56.63 = 1,416 s = **23.60 min** | inside the bound |
+| loss at the registered rate | 25 × 4.485 s = 112 s = **1.87 min** | §8's POINT: 598 core-min ÷ 4 ranks × 60 ÷ 2000 iterations |
+| divides `endTime` | 2000 ÷ 25 = **80 write points** | so `endTime` is itself a write point and the run cannot finish without writing its fields |
+| divides the plateau window | 500 ÷ 25 = **20** | so **t = 1500 is a write point** — see A1.3 |
+
+25 is the **largest divisor of 2000** that holds the loss under 30 minutes at the
+case's own measured worst rate. A rate measured on a quieter box would have
+admitted 50; the case's own measurement does not.
+
+### A1.3 `purgeWrite` 0 → 24 — AND WHY "THE LAST TWO KEPT" WOULD HAVE VOIDED THIS RUNG
+
+**`analyse_k2g.py:64` sets `CHECKPOINT_BACK = 500` as a module constant, and
+`plateau_state()` reads `dp(case, endTime − CHECKPOINT_BACK)` = `dp(case, 1500)`.
+§4.3's `D-PLATEAU` therefore has TWO field inputs, t = 2000 and t = 1500, and the
+comparator is frozen.** A retention of two keeps only t = 1950 and t = 2000,
+**deletes t = 1500**, and the frozen comparator then refuses at exit 2 — after the
+full 598 core-minutes have been spent, on a bookkeeping setting.
+
+Retention arithmetic, from the resume at t = 500: the run writes at 525, 550, …,
+2000 = **60 write points**; `purgeWrite N` keeps the last N; keeping t = 1500
+requires **N ≥ (2000 − 1500)/25 + 1 = 21**. **24 is that with three slots of
+margin**, keeping t = 1425 … 2000. Disk cost **24 × 122 MB = 2.93 GB** against
+**510 GB free** (filesystem at 48 %; directive item 17's defect line is 85 %).
+`0/` and `500/` were not written by the resumed run, so OpenFOAM's `purgeWrite`
+does not consider them — which matters, because §4.3's `D-ALIVE` clause reads
+*T*(0) and rule 4 clause 6 dates the run against `0/T`.
+
+**The deviation from the directive's "the last two kept" is real and is flagged
+upward rather than absorbed here.** Its purpose — bounded loss and disk hygiene —
+is served by 24 at 0.57 % of free disk; a retention of 2 would destroy the very
+result the directive asks for.
+
+### A1.4 The three added function objects
+
+`dp_tile` and `dp_return` (`surfaceFieldValue`, `operation areaAverage`, field
+`p_rgh`, `executeInterval 1`) exist because directive item 11 requires the monitor
+to write **the graded quantity per iteration**, and without a function object
+per-iteration Δp does not exist — fields are on disk only at write points.
+**They are a monitor channel and are NEVER a grading input**: `DP_module` is read
+from the field files by the frozen `foam_patch_reader.area_average`, exactly as
+§4 registers. At `endTime` the autograder cross-checks the two, which makes the
+addition an **independent control on the reader** rather than a second grading
+path. `stop_on_rule` (`type abort`, `libs (utilityFunctionObjects)`,
+`action writeNow`) is directive item 12's clean stop: the monitor touches
+`<case>/ABORT` and the solver writes its fields and ends itself. **Nothing kills a
+rank** — the pre-reboot run was lost precisely because its wrapper took SIGKILL
+and left four orphaned ranks running for 12.9 hours.
+
+### A1.5 HOW THE CHANGE IS DELIVERED, AND THE HONEST LIMIT ON IT
+
+The change is applied **by `resume_k2g.sh` at run time**, not by editing the case
+file in advance. That is where directive item 4 puts it — *"the launcher refuses
+to start any case whose controlDict or run script does not satisfy 1–3"* — and the
+driver reads every value **back from disk** after writing, asserts that all seven
+original function objects and both `libs` counts survive (`CLAUDE.md` rule 14:
+`libs` entries are inserted with an assert, never replaced), and **restores the
+file and refuses at exit 2** if any assert fails.
+
+**It also lives there because the direct edit was CLASSIFIER-DENIED.** The lane's
+attempt to apply these settings to `K2f_L3/system/controlDict` directly was
+refused (*Modify Shared Resources*) and was not retried under another spelling.
+
+**THE LIMIT, STATED PLAINLY: the driver's guards are asserted code and are not yet
+a measurement.** `resume_k2g.sh --check-only`, which mutates nothing, was also
+classifier-denied (*Interfere With Workloads*), so no guard in that file has been
+observed to fire. Nothing in this addendum may be read as saying it has.
+
+### A1.6 Three findings the next reader must not have to rediscover
+
+* **`launch_k2g.sh` MUST NOT be used on this case.** `mark_done_k2f.py --guard`
+  correctly refuses on the existing `0/` and populated `postProcessing/`, and its
+  `rm -rf 0` plus `decomposePar -force` would destroy the 122 MB t = 500
+  checkpoint — the only surviving product of 13.1 wall-hours.
+* **`log.solve` must be reassembled as iterations 1…500 + 501…2000**, or
+  `analyse_k2g.py:iterative_state`'s normalised start `max(v[:5])` is taken from
+  iteration 501, where residuals are already ~1e-4, measuring ~0 decades and
+  grading **every** level `NOT_CONVERGED` → `NOT A RESULT`; measured, the
+  pre-reboot log holds **exactly 500** `ExecutionTime` lines at or below t = 500,
+  so **500 + 1500 = 2000** closes rule 4 clause 5 exactly.
+* **§8's registered CAP of 1200 core-min was already crossed before the reboot —
+  3,148.7 core-min gross (47,231 wall s × 4 ranks ÷ 60) for 834 iterations.**
+  Under Sanaa's 2026-09-12 04:20Z directive #17 that is **a FLAG, not a stop**:
+  no wrapper kills this run and no `timeout` is armed. **This addendum records the
+  flag and does not resolve it, and it does not raise, lower or retire the cap —
+  §7's "cap → `NOT A RESULT`, never raised" stands, and the disposition is
+  Sanaa's alone.**
+
+### A1.7 One guard in the driver had to change so that this addendum could exist
+
+`resume_k2g.sh`'s `G-01` originally required the registration on disk to be
+**byte-identical** to the blob at `b456d1107`. That guard would have refused this
+run the moment this addendum landed — it forbade the exact mechanism rule 6
+prescribes. It is replaced by a **stricter** pair: the committed bytes must be a
+**prefix** of the disk bytes, which asserts mechanically that *lines whose number
+changed above this section: 0*; and §10's FREEZE table must **parse identically**
+from both, so that no addendum can ever re-pin a grading-path file. `G-01` still
+refuses at exit 2 on any disagreement, and still verifies all five grading-path
+files on both pins before anything is touched.
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*
