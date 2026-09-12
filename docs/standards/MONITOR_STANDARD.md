@@ -2391,3 +2391,67 @@ face.** The figure **ten** must not be quoted as ten measured instances.
 | md5 of this file's HEAD blob before this append | `6eb5186cb5e54432c2bd43c75d0765e9` |
 | md5 of this file's first **2301** lines after it | `6eb5186cb5e54432c2bd43c75d0765e9` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 11. MEMBERS 11 AND 12 — ONE FROM OUTSIDE OUR CODE ENTIRELY, ONE FROM THE SUPERVISOR WHO RAISED THIS CLAUSE
+
+#### 🔴 MEMBER 11 — **A DATASET THAT LOOKS LIKE IT ANSWERS A QUESTION IT WAS NEVER DESIGNED TO ASK.** A DIFFERENT SHAPE, AND FLAGGED AS ONE.
+
+**Every other member is an INSTRUMENT that reports something it cannot see. This one is not in
+our code at all — the proxy is in the structure of somebody else's experiment**, and we would
+have imported it as evidence. It is carried with that distinction intact rather than folded
+into the count.
+
+| | |
+|---|---|
+| quantity the reader **WANTS** | *how do the derivatives vary with **Reynolds number**?* |
+| correlate the table **OFFERS** | **four speeds** — 4.5, 5.0, 6.0, 6.5 knots — in Roddy 1990 Table 3's Yawing and Pitching rows, which **look like a Reynolds study** |
+| divergence condition | **ω is FIXED at 2.220 rad/s.** Varying U therefore varies the nondimensional yaw rate `r' = ω·L/U` — **which is exactly how a rotary derivative's slope is extracted.** Reynolds is **confounded with `r'` by construction**, and **the disqualifying fact sits in the adjacent column** |
+| the wrong answer | four speeds nearly reported as a usable Reynolds sweep, **which would have turned an unbounded gap into a FABRICATED BOUND** |
+| the irony that keeps a reader alert | **Roddy states a 10–15 million Reynolds sensitivity threshold on page 3, and then measures every static derivative at a single speed inside it** |
+| what caught it | **reading the column beside the one the lane wanted** |
+| provenance | the SUBOFF lane's own measurement from Roddy Table 3, pp. 17–18, **as page images**; cited in SUBOFF A1e ADDENDUM 4 at `546eb84ed`. **NOT verified by this drafting lane** |
+
+> **THE TEST: before treating a published table as a sweep in some variable, find the column
+> that was HELD FIXED. If holding it fixed is what makes the table's own quantity meaningful,
+> the variable you wanted is confounded by design, not by accident.**
+
+#### 🔴 MEMBER 12 — **AN FPE STACK SHOWS WHERE A BAD NUMBER WAS CONSUMED, NOT WHERE IT WAS PRODUCED**
+
+**Contributed by the cfd supervisor against their own relay**, and entered under their name at
+their request rather than anonymously.
+
+| | |
+|---|---|
+| quantity the rule **NAMES** | *what CAUSED this crash?* |
+| correlate **EVALUATED** | *does the stack trace match a crash whose cause is already known?* — same library, same frame, same iteration |
+| divergence condition | **the stack is the LAST frame, not the first.** Matching two stacks matches two **consumers**, and on a shared thermophysical library **two consumers agree almost regardless of cause** |
+| the wrong answer | this lane's M6I FPE diagnosis relayed to the CRM lane as the same fault. **It was a different fault**: CRM's line before the crash read `Solving for h: solution singularity` — with `sensibleEnthalpy` the energy variable is **`h`**, its `relaxationFactors` named only **`e`**, so **the h equation ran unrelaxed** and the thermo merely faulted on the garbage the inversion produced. **One word changed and the same case ran clean from the same uniform freestream with NO RAMP** |
+| provenance | the CRM lane's **controlled before-and-after** — one variable changed, iterations 1, 2 and 3 clean, the startup-transient explanation **excluded by evidence rather than by argument**. **NOT verified by this drafting lane** |
+
+**This member is the one that should worry a reader most about the whole list**, because a
+stack trace is the artifact everybody trusts. **Reading the artifact is not sufficient if you
+read the wrong end of it** — §4's rule needs the companion clause that **an artifact recording
+a FAILURE records where it surfaced, and the cause is upstream of that by an unknown distance.**
+
+#### RECOUNT — AGAIN AGAINST THIS DRAFT
+
+| | |
+|---|---|
+| **members now** | **12** |
+| measured by the drafting lane | **4** — §3 members 1, 2, 3 and §9's member 8 |
+| **relayed and NOT verified here** | **8** — §3 members 4–7, §10's members 9–10, §11's members 11–12 |
+| of which **extend or re-shape** the subclass rather than instantiating it | **2** — member 10 (usability) and **member 11 (a dataset, not an instrument)** |
+
+**The split is now 4 measured of 12** — it opened at 3 of 7, then 4 of 10. **Two thirds of this
+amendment's evidence is second-hand and every relayed row says so on its own line.** *The
+figure twelve must never be quoted as twelve measured instances.* The clause itself rests on
+the four that were measured; the other eight corroborate and are labelled as corroboration.
+
+| addendum to the v1.14 record | |
+|---|---|
+| sections added | **1** (§11) — appended below §10; §§1–10 and all record tables unchanged |
+| thresholds, clauses or provenance of existing members altered | **0** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before this append | `e6cc98045c77f391a2334b3532386a38` |
+| md5 of this file's first **2393** lines after it | `e6cc98045c77f391a2334b3532386a38` |
+| the two digests | **EQUAL — assertion MEASURED** |
