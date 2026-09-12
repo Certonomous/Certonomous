@@ -527,3 +527,59 @@ by `d6r2c_kr_compare.py` **unchanged**, at the md5 frozen at `7f685867d`.
   21-second run is quoted as a result.
 - **It does not widen a band or relax a tolerance.** `X0_MATCH_TOL` stays `1.0e-12`; the repaired
   comparison meets it at **0.000e+00**.
+
+---
+
+# ADDENDUM 2 — 2026-09-12, a LABEL ERROR IN THIS DOCUMENT'S OWN TITLE
+
+**Version 1.2.** **Lines whose number changed above this section: 0.** Appended, never inserted.
+**Alters no gate, threshold, cap or label-of-verdict** (rule 2). It corrects a **descriptive word**,
+and the distinction matters: nothing about the physics, the case, the mesh or any gate changes.
+
+## A2.1 The error
+
+This document is titled *"the 3D transonic MULTIPOINT optimisation"* and its run root is
+`CURRICULUM-D6R2C-a2-wing-multipoint-**transonic**-restartable`. **The case is not transonic.**
+From this registration's own frozen inputs (section 1: `U0 = 100.0 m/s`, `T0 = 300 K`, air):
+
+```
+a     = sqrt(1.4 x 287 x 300) = 347.1887 m/s
+M_inf = 100 / 347.1887        = 0.288028
+```
+
+**M∞ = 0.288 — subsonic, by a wide margin.** Transonic conventionally begins near M ≈ 0.7.
+A peer lane independently measured the **maximum LOCAL Mach at 0.380** (`16e4d5f34`), which is the
+stronger statement and is **cited here rather than re-derived**: there is no shock anywhere in this
+flow, so there is nothing transonic to show and nothing for a render to display as one.
+
+## A2.2 Where the word came from, and why that is the interesting part
+
+**Inherited.** `curriculum_D6R2/PREREGISTRATION.md` carries it, and this item copied its title
+wholesale when it copied its case. **No one checked it against the two numbers that define it, both
+of which were sitting in section 1 of the document carrying the word.** The arithmetic is one line.
+That is the whole failure mode: *a descriptive label propagated by copy for as long as nobody
+divided one frozen number by another.*
+
+## A2.3 What changes, and what deliberately does not
+
+- **The word "transonic" is STRUCK as a description of this case.** The correct description is
+  **compressible subsonic** — `DARhoSimpleFoam` is a compressible solver and remains correct and
+  registered; it is the *flow regime* label that was wrong, not the solver choice.
+- **The run root keeps its name.** `CURRICULUM-D6R2C-a2-wing-multipoint-transonic-restartable`
+  already holds `KR_REF` and `KR_KILL` artefacts that this item's records cite by path. **Renaming a
+  directory to fix a word would break every existing citation to buy nothing**, and Sanaa ruled
+  directly on the equivalent question for D6R2: *"its fine we can keep the compressible subsonic"*.
+  **The name is therefore a known misnomer, disclosed here, and a reader who finds "transonic" in a
+  path should read this section rather than infer a flow regime from a directory name.**
+- **No gate, threshold, cap, tolerance or verdict label is touched.** G1–G5, KR-G1–KR-G4, the
+  section 5a tolerances and every cap in section 8 stand exactly as frozen at `7f685867d`.
+- **No physics changes.** `U0`, `T0`, `p0`, the solver, the mesh, the weights, the targets and the
+  constraints are untouched. **The case was always subsonic; only the word was ever wrong.**
+
+## A2.4 The consequence for the deliverable, stated so it is not discovered late
+
+Sanaa's D6R2 item 10 asks for sections and figures to the figure standard. **No shock figure can be
+produced and none should be promised**, at any Mach contour level, because the maximum local Mach in
+this flow is 0.380. A demo that advertises a transonic wing optimisation and shows this case would
+be advertising something the artefacts cannot support. The optimisation itself is unaffected and the
+drag reduction it measures is real.
