@@ -28013,3 +28013,87 @@ the disease showing its face, not a cosmetic annoyance.
 ranks it had read off `ps` sorted by RSS, believing they were its own; they were the SUBOFF
 lane's only solve, thirteen minutes old. That one was stopped by a cwd check. This one was not.
 The lab had the lesson and had not yet made the safe path the easy path — hence the script.
+
+---
+
+## L-573 — A PROHIBITION WRITTEN AS A LIST OF COMMANDS IS READ AS A LIST OF COMMANDS: `git mv` STAGES, AND RULE 10 DOES NOT NAME IT
+
+**2026-09-12, cfd SUBOFF fully-appended geometry lane. Cost: nothing, because it was caught in
+the same minute and the shared index was repaired before any commit. What it nearly cost is the
+lesson.**
+
+Renaming a pre-registration on a supervisor's ruling, the lane ran
+
+```
+git mv verification/campaign/SUBOFF_A1f_....md verification/campaign/SUBOFF_A1g_....md
+```
+
+**`git mv` STAGES.** The rename was correct; the instrument wrote into the **shared index**,
+which CLAUDE.md rule 10 forbids outright.
+
+**WHAT THE SHARED INDEX TURNED OUT TO BE HOLDING**, measured immediately afterwards rather than
+assumed:
+
+```
+M    cases/PPTC_VP1304/mesh/MESH_PIPELINE_RECORD.md
+M    docs/standards/MONITOR_STANDARD.md
+R100 ...SUBOFF_A1f_APPENDED... -> ...SUBOFF_A1g_APPENDED...     <- the lane's own
+```
+
+**Two other lanes' unfinished work was staged there, one of them an edit to a lab STANDARD.** A
+bare `git commit` at that moment would have shipped a PPTC mesh record and a `MONITOR_STANDARD`
+edit under a SUBOFF commit message. That is not a hypothetical: it is the **measured content of
+the index at the moment it was written into**.
+
+**WHY IT HAPPENED, AND THIS IS THE TRANSFERABLE PART.** Rule 10's governing sentence is *"Never
+touch the shared index"* — the principle is present and correct. But the rule then enumerates:
+`git commit` (bare), `git add -A`, `git add .`, `git add -A <path>`, `git commit -a`,
+`git reset --hard`, `git stash`, `git checkout --`, `git clean`. **`git mv` is not on that list,
+and a rename does not look like a commit.** A prohibition presented as a list of commands is
+read as a list of commands, and the reader's eye checks membership rather than mechanism.
+
+**This is L-221/L-222's shape applied to a RULING rather than to a `libs` entry: a lesson is not
+applied until every call site asserts it — and the call site that failed here was one nobody had
+thought to check.**
+
+### THE SET, NOT THE EXAMPLES
+
+The question to ask is never *"is this command on the list?"* but **"does this command write the
+index?"**. The index-writers a lane is likely to reach for:
+
+| command | writes the index | how this lab knows |
+|---|---|---|
+| `git mv <a> <b>` | **yes** | **MEASURED 2026-09-12**, this lesson |
+| `git restore --staged <path>` | **yes** — that is its whole purpose | **MEASURED 2026-09-12**, used deliberately as the minimal repair below |
+| `git rm <path>` (and `--cached`) | yes | documented behaviour, **not tested by this lane** |
+| `git apply --index` / `--cached` | yes | documented behaviour, **not tested by this lane** |
+| `git checkout <tree-ish> -- <path>` | yes | documented behaviour, **not tested by this lane** |
+| `git checkout <path>` with an ambiguous name and no `--` | can be parsed as a **branch** checkout, which rewrites the whole index | documented behaviour, **not tested by this lane** |
+| `git stash pop` that conflicts | yes — leaves conflicted entries staged | documented behaviour, **not tested by this lane** |
+
+**The two rows marked MEASURED are the only two this lane observed. The rest are stated as
+documented behaviour and are labelled as untested, because a list of hazards asserted without
+evidence is the same failure this lesson is about, one level up.**
+
+### THE REPAIR, AND WHY THE ASSERTION IS THE POINT
+
+1. **Measure** what the index holds — never assume it holds only your own work.
+2. `git restore --staged` on **your own paths only**. Nothing global, nothing `--hard`, no
+   `reset`, no `checkout`.
+3. **Capture the peers' staged entries BEFORE and compare them AFTER.** The assertion is not
+   *"I was careful"*; it is **"their bytes are unchanged"**, printed, with the comparison
+   failing loudly if not.
+4. Commit by the **private-index protocol**, as it should have been from the start, with the
+   post-commit `git diff HEAD~1 HEAD --stat` showing only your paths.
+
+**The working tree keeps the rename throughout. Nothing is reverted** — rule 10's "inspected,
+never reverted" applies to your own accident as much as to a stranger's.
+
+### A NOTE THE SAME NIGHT PUT BESIDE THIS ONE
+
+L-572 established that **`ps` tells you WHAT, never WHOSE**, after a kill pattern killed another
+team's graded run twice. This lesson is the same mistake in the other resource: **the index, like
+the process table, is SHARED, and a command that addresses it by convenience rather than by
+explicit ownership will reach somebody else's work.** `/proc/<pid>/cwd` for processes;
+`GIT_INDEX_FILE` and an explicit pathspec for the index. In both cases the safe form is *name
+what is yours*, and in both cases the unsafe form is shorter to type.
