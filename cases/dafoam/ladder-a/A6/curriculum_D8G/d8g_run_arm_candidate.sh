@@ -52,6 +52,17 @@
 # d8g_run_arm.sh.SUPERSEDED-20260910T2141Z.DRAFT, WHICH THE dafoam-supervisor EXECUTED
 # THROUGH d8g_launch_assert_selftest.sh (41 pass / 0 fail; the mutation control 31 pass /
 # 10 fail).  THEY ARE NOT RE-AUTHORED HERE.
+# *** THAT IDENTITY CLAIM IS STRUCK AS OF 2026-09-12 AND IS NO LONGER TRUE.  The
+# *** block was CHANGED by the witness-budget repair (ADDENDUM 6): `return 89` and
+# *** its wedged branch are gone, replaced by an escalation that returns nothing
+# *** and kills nothing.  The block is therefore NO LONGER byte-identical to the
+# *** superseded launcher's and NO LONGER hashes to 7f73817a294c07e65b0ee0a3ab00ea75.
+# *** ITS NEW HASH IS 4bfaeb736f321d56ea9f21f9fc2f342a (10812 bytes).  The 41/0 figure above
+# *** describes the OLD block and is kept only as the history of that block; the
+# *** repaired block's own evidence is 56 pass / 0 fail, in
+# *** d8g_launch_assert_selftest_evidence_20260912.txt.  A stale identity claim
+# *** carrying a hash is worse than none, so it is struck here rather than quietly
+# *** left to be read as current.
 # RE-VERIFIED 2026-09-11, AT THE FREEZE RENAME, BECAUSE THE CLAIM CITED A FILENAME THAT HAD
 # MOVED: both blocks are 9,481 bytes and hash to 7f73817a294c07e65b0ee0a3ab00ea75.  The
 # claim was true; only its citation was stale.  (The first attempt at that comparison
