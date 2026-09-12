@@ -102,11 +102,29 @@ def main():
                          "the geometry manifest -- never assumed")
     ap.add_argument("--fin-base-root-mm", type=float, required=True)
     ap.add_argument("--nproc", type=int, default=16)
+    ap.add_argument("--full-width", action="store_true",
+                    help="Build the FULL body instead of the z >= 0 half.  ONE "
+                         "SWITCH, and it must stay one switch: mirroring about "
+                         "z = 0 is nearly free while a mesh is being generated "
+                         "and expensive once a family exists.  DEFAULT IS HALF, "
+                         "because Sanaa's registered sweep is ALPHA -- velocity "
+                         "in the x-y plane, SYMMETRIC about z = 0 -- so a half "
+                         "model is exact for everything she asked for and full "
+                         "width would double every point of it for data she did "
+                         "not ask for.  USE THIS FOR DRIFT.  A drift case on a "
+                         "half model does not crash and does not warn: the "
+                         "symmetryPlane forces the plane-normal velocity to "
+                         "zero, so it returns a converged, plausible, "
+                         "SYMMETRISED field that is not the flow anyone asked "
+                         "for, and it would clear the completion rule, the "
+                         "planted controls and the age guard on its way to a "
+                         "band.")
     a = ap.parse_args()
 
     if os.path.exists(os.path.join(a.case, "constant", "polyMesh")):
         sys.stderr.write("REFUSED: constant/polyMesh already exists in the case. "
                          "A builder never overwrites a built mesh.\n"); sys.exit(2)
+    fins_in_domain = FIN_ALL if a.full_width else FIN_STLS
     need = ("hull.stl", "sail.stl") + tuple(f + ".stl" for f in FIN_ALL)
     for s in need:
         if not os.path.isfile(os.path.join(a.geom, s)):
@@ -118,8 +136,10 @@ def main():
     d0, l_hull, l_sail, l_fin, l_ste, l_fte, l_jct, nlay = LEVELS[a.level]
 
     nx = int(round((a.xmax - a.xmin) / d0)); ny = int(round(2 * a.rfar / d0))
-    nz = int(round(a.rfar / d0))
-    xmax = a.xmin + nx * d0; ymax = ny * d0 / 2.0; zmax = nz * d0
+    nz = int(round((2 if a.full_width else 1) * a.rfar / d0))
+    xmax = a.xmin + nx * d0; ymax = ny * d0 / 2.0
+    zmax = nz * d0 / (2.0 if a.full_width else 1.0)
+    zmin = -zmax if a.full_width else 0.0
     ymin = -ymax
     d_ste = d0 / 2 ** l_ste
     d_fte = d0 / 2 ** l_fte
@@ -141,22 +161,36 @@ def main():
     }
 
     os.makedirs(os.path.join(a.case, "constant", "triSurface"), exist_ok=True)
-    for s in ("hull.stl", "sail.stl") + tuple(f + ".stl" for f in FIN_STLS):
+    for s in ("hull.stl", "sail.stl") + tuple(f + ".stl" for f in fins_in_domain):
         shutil.copy(os.path.join(a.geom, s),
                     os.path.join(a.case, "constant", "triSurface", s))
 
-    v = [(a.xmin, ymin, 0), (xmax, ymin, 0), (xmax, ymax, 0), (a.xmin, ymax, 0),
+    v = [(a.xmin, ymin, zmin), (xmax, ymin, zmin), (xmax, ymax, zmin),
+         (a.xmin, ymax, zmin),
          (a.xmin, ymin, zmax), (xmax, ymin, zmax), (xmax, ymax, zmax),
          (a.xmin, ymax, zmax)]
+    # THE z = zmin FACE.  On a HALF model it is the symmetry plane and is named
+    # `symm`.  On a FULL model there is no symmetry plane, and the face is folded
+    # into `farfield` rather than kept as a patch still called `symm` -- a patch
+    # named for a symmetry that is not there is the same class of trap as a
+    # configuration named by a bare number, and a downstream boundary-condition
+    # file keyed on `symm` MUST fail loudly rather than quietly apply a
+    # symmetry-shaped condition to an ordinary far-field face.
+    if a.full_width:
+        faces = ("    farfield { type patch; faces ((0 1 5 4) (3 7 6 2) "
+                 "(4 5 6 7) (0 3 2 1)); }\n")
+    else:
+        faces = ("    farfield { type patch; faces ((0 1 5 4) (3 7 6 2) "
+                 "(4 5 6 7)); }\n"
+                 "    symm     { type symmetryPlane; faces ((0 3 2 1)); }\n")
     w(os.path.join(a.case, "system", "blockMeshDict"), "dictionary", "blockMeshDict",
       "scale 1;\nvertices\n(\n" +
       "".join(f"    ({p[0]:.9g} {p[1]:.9g} {p[2]:.9g})\n" for p in v) +
       f");\nblocks\n(\n    hex (0 1 2 3 4 5 6 7) ({nx} {ny} {nz}) simpleGrading (1 1 1)\n);\n"
       "edges ();\nboundary\n(\n"
       "    inlet    { type patch; faces ((0 4 7 3)); }\n"
-      "    outlet   { type patch; faces ((1 2 6 5)); }\n"
-      "    farfield { type patch; faces ((0 1 5 4) (3 7 6 2) (4 5 6 7)); }\n"
-      "    symm     { type symmetryPlane; faces ((0 3 2 1)); }\n"
+      "    outlet   { type patch; faces ((1 2 6 5)); }\n" +
+      faces +
       ");\nmergePatchPairs ();\n")
 
     # ---- refinement regions ----------------------------------------------------
@@ -195,15 +229,15 @@ def main():
     # RM1/RM2/RM3 measure whether that is true rather than assuming it.
 
     fin_geom = "".join(
-        f"    {f}.stl {{ type triSurfaceMesh; name {f}; }}\n" for f in FIN_STLS)
+        f"    {f}.stl {{ type triSurfaceMesh; name {f}; }}\n" for f in fins_in_domain)
     fin_surf = "".join(
         f"        {f} {{ level ({l_fin} {l_fin + 1}); "
-        f"patchInfo {{ type wall; inGroups (wall); }} }}\n" for f in FIN_STLS)
+        f"patchInfo {{ type wall; inGroups (wall); }} }}\n" for f in fins_in_domain)
     fin_regions = "".join(
         f"        {f} {{ mode distance; levels ((0.004 {l_fin}) "
-        f"(0.020 {l_fin - 1}) (0.080 {l_fin - 2})); }}\n" for f in FIN_STLS)
+        f"(0.020 {l_fin - 1}) (0.080 {l_fin - 2})); }}\n" for f in fins_in_domain)
     fin_layers = "".join(f"            {f} {{ nSurfaceLayers {nlay}; }}\n"
-                         for f in FIN_STLS)
+                         for f in fins_in_domain)
 
     # one TE box per in-domain fin, thin along THAT fin's thickness direction
     fte_boxes = {
@@ -330,18 +364,20 @@ writeFlags (noRefinement);
         "configuration_named_by_geometry":
             "hull WITH sail AND four identical stern appendages at the BASELINE "
             "axial position; NO ring wing, NO ring-wing struts",
+        "width": "FULL" if a.full_width else "HALF (z >= 0)",
         "half_model": {
-            "symmetry_plane": "z = 0 (x-y plane)",
+            "symmetry_plane": ("z = 0 (x-y plane)" if not a.full_width
+                               else "NONE -- full width built"),
             "valid_for_the_whole_alpha_sweep_because":
                 "the body is mirror-symmetric about z = 0 and the pitch free "
                 "stream lies in that plane at every alpha",
-            "fins_in_domain": list(FIN_STLS),
+            "fins_in_domain": list(fins_in_domain),
             "fin_not_in_domain": "fin270_horizontal (mirror of fin090 through z=0)",
             "force_accounting": "total = 2 x half-model, hull and fin patches alike",
         },
         "level": a.level, "base_cell_m": d0,
         "background": {"nx": nx, "ny": ny, "nz": nz, "cells": nx * ny * nz,
-                       "bbox": [[a.xmin, ymin, 0.0], [xmax, ymax, zmax]]},
+                       "bbox": [[a.xmin, ymin, zmin], [xmax, ymax, zmax]]},
         "octree_levels": {"hull": l_hull, "sail": [l_sail, l_sail + 1],
                           "fin": [l_fin, l_fin + 1], "sailTeBox": l_ste,
                           "finTeBox": l_fte, "nLayers": nlay},
@@ -368,7 +404,8 @@ writeFlags (noRefinement);
     with open(os.path.join(a.case, "BUILD_MANIFEST.json"), "w") as f:
         json.dump(man, f, indent=2)
 
-    print(f"{a.level}: background {nx}x{ny}x{nz} = {nx*ny*nz} cells, base {d0*1000:.2f} mm")
+    print(f"{a.level}: WIDTH = {'FULL' if a.full_width else 'HALF (z >= 0)'}; "
+          f"background {nx}x{ny}x{nz} = {nx*ny*nz} cells, base {d0*1000:.2f} mm")
     print(f"  hull surface {d0/2**l_hull*1000:.3f} mm  sail {d0/2**l_sail*1000:.3f} mm  "
           f"fin {d_fin*1000:.3f} mm")
     print(f"  PREDICTED cells across the APPENDAGE ROOT : "

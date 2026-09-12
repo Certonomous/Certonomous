@@ -1294,3 +1294,146 @@ independently:** its message states that *"EVERY STATIC DERIVATIVE FOR ALL SIX C
 WAS MEASURED AT ONE SPEED, 6.5 knots"*. That is the same 6.5 knots this document registers in
 §A2.2 from Roddy report page 3, reached by a different lane through a different question, and
 it strengthens the matched-condition registration here.
+
+---
+---
+
+# ADDENDUM 5 — 2026-09-12 — **THIS ACT IS RENAMED `A1g`**; THE z = 0 SYMMETRY IS **MEASURED**, NOT ARGUED; AND THE WIDTH IS FIXED WITH ITS SWITCH
+
+**Appended at the foot. Lines whose number changed above this section: 0.**
+**AMENDMENT CONDITION (rule 2), CHECKED:** `SOLVE_A*` absent, no queue entry, no solver run.
+
+## A5.1 THE RUNG-ID RULING — **THIS ACT BECOMES `A1g`; THE DRIFT SWEEP KEEPS `A1f`**
+
+Ruled by the cfd-supervisor on Addendum 4. The ground is **evidentiary, not seniority**: the
+supervisor's undelegable check 4 was discharged on
+`verification/campaign/SUBOFF_A1f_MATCHED_RE_DRIFT_SWEEP_PREREGISTRATION.md` at commit
+**`e7db97605e9d8ce4db1e16bc0dec989ef31e9205`** — existence, ancestry of HEAD, single-file
+touch, and §0 read in the committed blob. **That verification is already on the record under
+the name `A1f`, so the name is load-bearing for a check that has been performed and reported
+upward.** This act is not yet cited in any discharged check and is therefore the cheaper one to
+move. **This file is renamed `SUBOFF_A1g_APPENDED_VERTICAL_PLANE_PREREGISTRATION.md`.**
+
+**AND `A1f` STAYS SPENT EVEN THOUGH IT IS NOW BLOCKED.** The drift sweep cannot run: its mesh
+is a half model and drift is antisymmetric about `z = 0`. **A parked case does not release its
+identifier.** Recycling an id whose freeze has been verified is how a collision becomes a
+corruption rather than an inconvenience.
+
+## A5.2 🔴 THE DOMAIN TRAP, AND WHY IT DOES NOT BITE THIS ACT
+
+A `symmetryPlane` forces the plane-normal velocity to zero. A **drift** case on a half model
+therefore **does not crash and does not warn** — it returns a converged, plausible,
+**symmetrised** field that is not the flow anyone asked for, and it would clear the completion
+rule, the planted controls and the age guard on its way to a band. **Every one of those
+instruments is indifferent to whether the flow it certified was representable on the domain it
+ran in.**
+
+**Sanaa's registered sweep is ALPHA** — velocity in the x–y plane, **symmetric** about `z = 0`.
+**A half model is therefore EXACT for everything she asked for**, not an approximation, and
+full width would double every point of a seven-point sweep for data she did not register.
+
+## A5.3 THE SYMMETRY IS **MEASURED FROM THE STL VERTICES**, WITH A PLANTED CONTROL — AND THE MAPPING IS THE OPPOSITE OF THE ONE I WAS SENT
+
+**Rule-3 plant, armed before any surface was read:** a deliberately symmetric vertex set returns
+`True` and a deliberately asymmetric one returns `False`. A symmetry checker not shown able to
+see an **asymmetry** cannot certify a symmetry.
+
+| surface | z range (m) | straddles z = 0 | invariant under z → −z |
+|---|---|---|---|
+| `hull` | −0.254000 … +0.254000 | yes | **yes** |
+| `sail` | −0.033337 … +0.033337 | yes | **yes** |
+| `fin000_upper_rudder` | −0.025670 … +0.025670 | yes | **yes** |
+| `fin180_lower_rudder` | −0.025670 … +0.025670 | yes | **yes** |
+| `ringwing1` | −0.133219 … +0.133219 | yes | **yes** |
+| `fin090_horizontal` | **+0.030480 … +0.254000** | no | no — mirror **pair** |
+| `fin270_horizontal` | **−0.254000 … −0.030480** | no | no — mirror **pair** |
+| `strut045`, `strut135` | +0.013614 … +0.088424 | no | no — mirror **pairs** |
+| `strut225`, `strut315` | −0.088424 … −0.013614 | no | no — mirror **pairs** |
+
+**Mirror-pair test, exact on the quantised vertex sets:** `mirror(fin090) == fin270` **True**;
+`mirror(strut045) == strut315` **True**; `mirror(strut135) == strut225` **True**.
+
+> **A CORRECTION TO THE INSTRUCTION THIS LANE WAS SENT, MADE BY MEASUREMENT.** The brief said
+> *"the planes at 90 and 270 lie IN the symmetry plane and must be bisected by it, and the
+> planes at 0 and 180 must sit symmetrically either side."* **In this family's frame it is the
+> other way round.** The hull builder uses `y = R cosθ`, `z = R sinθ` with `θ = 0` at **top
+> dead centre**, which is where the sail is; so the appendages at **0° and 180°** lie in the
+> `z = 0` plane and are bisected by it, and those at **90° and 270°** stand either side of it.
+> The measurement above settles it without reference to either convention: what matters is that
+> **the assembled body is exactly mirror-symmetric about `z = 0`**, and it is. The conclusion —
+> a half model is valid for α — is unchanged; only the reason given for it was inverted.
+
+**Half-domain inventory, from the same measurement:** `hull`, `sail`, `fin000`, `fin180` each
+half; `fin090`, `strut045`, `strut135` whole; `fin270`, `strut225`, `strut315` outside, as
+mirrors. Total body forces are `2 ×` the half-model forces, exactly as §4.1 registered.
+
+## A5.4 THE WIDTH, AND ITS SWITCH
+
+**BUILT: HALF (`z ≥ 0`).** `build_appended_mesh.py --full-width` is the one switch, and it
+switches the **patch type with the width and never separately**: on a half model the `z = zmin`
+face is a `symmetryPlane` named `symm`; on a full model **there is no `symm` patch at all** —
+the face is folded into `farfield`, so a downstream boundary-condition file keyed on `symm`
+**fails loudly** instead of quietly applying a symmetry-shaped condition to an ordinary
+far-field face. The switch also copies `fin270` into the case. **Verified by building both:**
+half = `140×76×38` background, `z ∈ [0, 2.9906]`, 5 surfaces; full = `140×76×76`,
+`z ∈ [−2.9906, 2.9906]`, 6 surfaces, no `symm`.
+
+**Why the switch exists and is not exercised:** Roddy's `Config 2` is the **horizontal** plane
+of the same fully appended body — `Y_v'`, `N_v'`, drift — and that half of his data is
+unreachable on a half model. Mirroring is nearly free while a mesh is being generated and
+expensive once a family exists.
+
+## A5.5 THE FAMILY'S BAND-TRAP LIST GAINS AN EIGHTH FACE
+
+Ruled by the cfd-supervisor. A band is checked against all eight before it is frozen:
+**CENTRE · REFERENCE · WIDTH CONVENTION · END OF RANGE · CONFIGURATION · NORMALISATION ·
+CONDITION · ESTIMATOR.** The eighth is §7.2's: Sanaa registered *"linear fit over |α| ≤ 8"*,
+Roddy report page 4 says *"slopes **at the origin**"*, and on a body with appendages those
+diverge exactly where the response stops being linear. **Which one gates was fixed before a
+number existed** — which is rule 2 applied to a *statistic* rather than to a threshold.
+
+## A5.6 THE THREE GAPS, STATED AS GAPS
+
+1. **The prime system's FUNCTIONAL FORM is INHERITED, not read.** `Z' = Z/(½ρU²L_ref²)` and
+   `M' = M/(½ρU²L_ref³)` come from Gertler & Hagen, not from Roddy's "Reference 6", **which is
+   not on this box.** An inherited functional form reads as established until someone asks
+   where it came from.
+2. **The dollar figure is derived at a STALE RATE.** §10's ≈ $31.90 uses c7a.4xlarge at
+   $0.0513/core-h for a host that now reports **96 cores and 739 GiB**. `cost_basis`:
+   **reported-by-owner, at a rate belonging to a different instance type.**
+3. **The meshing calibration row is OWED at completion**, into `docs/COST_CALIBRATION.md` under
+   CLAUDE.md rule 12. The L1 build had consumed **383 core-min** when this was written and had
+   not finished.
+
+### A5.7 A RULE-10 SLIP BY THIS LANE, RECORDED BECAUSE IT NEARLY COST TWO OTHER LANES THEIR WORK
+
+Executing §A5.1's rename, this lane ran **`git mv`**. `git mv` **stages into the SHARED INDEX**,
+which CLAUDE.md rule 10 forbids outright. The rename itself was correct; the instrument was not.
+
+**What the shared index turned out to be holding at that moment, measured immediately
+afterwards:**
+
+```
+M   cases/PPTC_VP1304/mesh/MESH_PIPELINE_RECORD.md
+M   docs/standards/MONITOR_STANDARD.md
+R100 ...SUBOFF_A1f_APPENDED... -> ...SUBOFF_A1g_APPENDED...     <- mine
+```
+
+**Two other lanes' unfinished work was staged there.** A bare `git commit` at that moment would
+have committed a PPTC mesh record and an edit to a lab **standard** under a SUBOFF commit
+message. **That is not a hypothetical: it is the measured content of the index this lane wrote
+into.** Rule 10's prohibition on the bare commit and its prohibition on touching the shared
+index are the same prohibition seen from two sides, and this lane has now seen the second side.
+
+**Repair, minimal and asserted rather than assumed.** `git restore --staged` was run on **this
+lane's two paths only**. The peers' two staged entries were captured **before** and compared
+**after**: byte-identical, and the comparison is the assertion, not the intention. The working
+tree keeps the rename; the shared index no longer carries it; the commit is made by the
+private-index protocol as it should have been from the start.
+
+**The transferable part:** rule 10 names `git commit`, `git add -A`, `git add .`, `git reset
+--hard`, `git stash`, `git checkout --` and `git clean`. **It does not name `git mv`, and
+`git mv` stages.** A prohibition given as a list of commands is read as a list of commands; the
+rule is about the *index*, and every command that writes to it is covered whether or not it is
+listed. **L-221/L-222 again: a lesson is not applied until every call site asserts it, and the
+call site that failed here was a rename that did not look like a commit.**
