@@ -27757,3 +27757,50 @@ which instance 1's shell violated one hour after the driver quoting it was writt
 
 **Sources.** `verification/campaign/M6H1_PREREGISTRATION.md` §16.5;
 `cases/navier_class/M6H1/make_m6h1_surface.py` docstring, the `MEASURED COST` block.
+
+## L-569 — A COURANT-LIMITED TIME STEP DOES NOT SCALE WITH CELL COUNT: THE LIMIT IS SET BY THE SMALLEST CELL, NOT THE MEAN
+
+**The error, in one line.** *Scaling a Courant-limited time step by a cell-COUNT
+ratio is the wrong law on a locally refined mesh: the Courant limit is set by
+the SMALLEST cell, not the mean, so a cube-root-of-cell-count factor understates
+the refinement the time step actually sees.*
+
+**Measured, on K2h_L3.** The pre-registration's §8 predicted `deltaT` **0.0475 s**
+by taking K2b's **measured** 0.0804 s at 137,000 cells and dividing by the
+linear refinement ratio `(664848/137000)^(1/3)` = **1.69**. The measured value on
+the target mesh is **0.0059102 s**. **The miss is 8.04x and the true ratio is
+13.6x** — the L3 mesh's finest cells are roughly **8x smaller** than a uniform
+1.69x refinement implies, because the refinement is **local**, not uniform.
+
+**Why it was not visible as a drift, and why that matters.** `deltaT` was
+**identical to NINE significant figures across all 2,238 steps** of both log
+segments, pinned at the Courant ceiling (`Courant Number max: 1.99989` against
+`maxCo 2.0`; `maxDeltaT 0.25` never binding). **A quantity that constant is not
+a thing you catch by watching it — it is either predicted correctly before the
+run or it is wrong for the whole run.**
+
+**What it cost.** The step count went from a registered **2,358** to a measured
+**18,950**, and the run crosses its registered cap of 1,260 core-min at 1.22x
+uncontended, 1.80x if the box loads. **Nothing was stopped** (directive #17) and
+**no gate moved** — a smaller `deltaT` is MORE temporal resolution of the
+averaging window, not less. **The misprediction makes the physics better
+resolved and the bill larger, and those are opposite directions.**
+
+**The rule.** **Scale by the smallest cell's dimension, or measure `deltaT` on the
+target mesh before costing the run.** On any locally refined mesh, prefer the
+measurement: one short smoke run on the target mesh gives the Courant-limited
+step directly and costs a fraction of the error it prevents.
+
+**And the honest other half, because a half-told calibration is worse than
+none.** §8's *other* estimated term went the opposite way: its `x2.5`
+PIMPLE-over-SIMPLE cost factor predicted 2.82 s/step against a measured
+**1.1516** — **conservative by 2.45x**, partly offsetting the `deltaT` error. A
+calibration that reports only the term that hurt is not a calibration.
+
+**Related.** Rule 12 (every run costed before compute; an estimate is not a
+measurement); L-342 (a cost fact is INFRASTRUCTURE — it voids the cost claim and
+never the physics).
+
+**Sources.** `docs/campaigns/F14-cooling-ladder/K2h_PREREGISTRATION.md` §8 and
+ADDENDUM 2 (§AD2.1, §AD2.2);
+`verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/log.solve`, both segments.
