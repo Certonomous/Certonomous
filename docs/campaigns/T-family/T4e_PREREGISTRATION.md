@@ -661,3 +661,122 @@ and this addendum assigns no verdict.
 *Written by a heat-transfer `lab-lane`, 2026-09-11, on the supervisor's ruling. Zero solver
 core-minutes; the only compute spent is ~5.4 core-min of read-only `postProcess` on a scratch mirror.
 Nothing sent, filed or uploaded (`CLAUDE.md` rule 7).*
+
+---
+
+## ADDENDUM A3 — 2026-09-12, **POST-COMPUTE. GRADING-PATH DRIFT DISCLOSURE.** Document **v1.2 → v1.3**.
+
+**`lines whose number changed above this section: 0`.** Appended at the foot under `CLAUDE.md` rule 6;
+**checked, not asserted** — after writing, this file was diffed against its `HEAD` blob and the change
+is **insertions only, in a single hunk at the end of the file, zero deletions**. **It alters NO gate,
+threshold, cap, band, floor, reference, prediction, label, registered branch or verdict** (`CLAUDE.md`
+rule 2: gates closed at first compute, 2026-09-10T15:44:03Z). Nothing in §0–§12, A1 or A2 is edited,
+struck or renumbered, and **no frozen instrument is patched, reverted or touched by this addendum**.
+**The rung stays `PENDING`**; no triple, order or GCI is quoted here.
+
+### A3.1 — ONE §12 PIN HAS DRIFTED. It is recorded BEFORE the triple is graded, not after.
+
+Re-hash of the §12 freeze table at this reading, `git hash-object` on the worktree and
+`git rev-parse HEAD:<path>` on `HEAD`, the two agreeing on every row:
+
+| §12 pin | pinned blob | worktree == HEAD | state |
+|---|---|---|---|
+| `build_t4e.py` | `6e77d62f` | `6e77d62f` | HOLDS |
+| `analyse_t4e.py` | `740575a7` | `740575a7` | HOLDS |
+| `mark_done_t4e.py` | `e4e44396` | `e4e44396` | HOLDS |
+| `launch_t4e.sh` | `441ccdfb` | `441ccdfb` | HOLDS |
+| `T4e_registered.json` | `a11380c6` | `a11380c6` | HOLDS |
+| `trajectory_t4e.py` | `512b3691` | `512b3691` | HOLDS |
+| `T4_runs/analyse_t4.py` | `6f362447` | `6f362447` | HOLDS |
+| `T4_runs/build_t4.py` | `ff032f3e` | `ff032f3e` | HOLDS |
+| **`scripts/roache_triple.py`** | **`78e56a3b`** | **`23afaee3`** | **DRIFTED** |
+
+Eight of nine hold. `scripts/roache_triple.py` moved
+`78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8` → `23afaee32f770f9f38a827e38ac963b9368b7707` in commit
+**`a7b3846d89c516d90e9cb863702fc3cb877f431a`**, authored by the **verification** team,
+**2026-09-11 16:43:37 +0000** (*"REPAIR roache_triple under the §2db/§2d.1 grant -- ONE function now
+writes the reason a GCI is withheld…"*), **203 insertions, 10 deletions**. That commit **postdates
+T4e's first compute** (2026-09-10T15:44:03Z) by **25.0 hours**, so it lands inside the window in which
+`CLAUDE.md` rule 2 has the grading path fixed.
+
+**A1's re-hash was true when it was written and is false at `HEAD`, and the clock says why.** A1's
+"every one matches" was committed in `2c1e81b3f416fa048078de3c4c6d6cdf331fc0b6` at
+**2026-09-11 15:46:09 +0000** — **57 minutes BEFORE** the drift commit. A1 is not corrected or struck;
+it is **superseded as to that one row from 16:43:37 onward**, and this addendum is the record of it.
+
+**The drifted file is NOT reverted and NOT repaired here.** It is another team's instrument and other
+work now rests on it; `CLAUDE.md` rule 10 says an unexpected change is **inspected, never reverted**.
+
+### A3.2 — MEASURED: the drift is INERT for T4e. Both surfaces re-derived at this reading.
+
+**Surface 1 — the runtime import.** `analyse_t4e.py:64` is the **only** runtime import from that
+module: `from roache_triple import STAGNANT_FLOOR, P_MIN`. Nothing else is imported at run time
+(`grade_ladder`, `format_row`, `_seal`, `gci_unequal`, `triple_from_cells` are never referenced).
+Both constants are **byte-identical across the two blobs**, at **line 170** (`STAGNANT_FLOOR = 0.5`)
+and **line 171** (`P_MIN = 0.05`), comments included. `analyse_t4e.py:77` **REFUSES (exit 2)** if
+those two values disagree with `T4e_registered.json`'s `roache_floors`, so a future move of either
+constant cannot pass silently into a T4e grade.
+
+**Surface 2 — the selftest cross-check.** The selftest additionally does `import roache_triple as RT`
+at `analyse_t4e.py:647` and cross-checks its own `classify()` against **`RT.gci_equal`** on eight
+synthetic triples at `:651`–`:653`. That is the module's **only** other use anywhere in the grading
+path. `gci_equal` occupies **lines 239–275 in BOTH blobs** and is **byte-identical**: **1,525 bytes**
+each, md5 `316f8844db022b4e00c79765802edbe0` on both.
+
+**How far the identity runs.** The two blobs are **byte-identical through line 619**; the first
+differing byte is at line 620. The list of top-level statements is identical apart from a single
+added `def`, so **import-time behaviour is unchanged** — importing the new blob executes the same
+statements and binds the same names plus one.
+
+**What actually changed, stated exactly, because an incomplete account is not evidence.** The new
+blob adds **one** top-level function, `gci_refusal_reason` (new-blob lines 720–809), and rewrites two
+call sites to use it — the `NOT A RESULT` branch inside **`grade_ladder`** (old lines ~620–635) and
+the "GCI NOT QUOTED" block inside **`format_row`** (old lines ~697–708); **all 10 deletions sit in
+those two call sites**. The remaining growth is in `selftest` and `main`. **None of
+`gci_refusal_reason`, `grade_ladder` or `format_row` is on T4e's import surface** — T4e imports two
+floats and calls one function, and that function did not move a byte. **The drift is therefore inert
+for this rung**, and this is a measurement, not an inference from the commit subject.
+
+### A3.3 — WHAT IS **NOT** FIXED: this rung has NO runtime freeze verification. Standing exposure.
+
+§12 registers **no** runtime freeze check in `analyse_t4e.py` and says so in its own words: the
+comparator "carries **no** `EXPECTED_SELF_BLOB` / `GRADING_PATH_FREEZE_COMMIT` constant (it prints its
+sha256 for external comparison, **print-only**)". There is likewise **no blob check on the three
+frozen imports** at execution. Consequently **`CLAUDE.md` rule 2's hash check for T4e is EXTERNAL AND
+MANUAL**: nothing in the grading path refuses, or even notices, a drifted import — the pin is only
+ever checked when a human or a lane chooses to check it.
+
+**That is exactly why this drift went unrecorded for 10.3 hours** (16:43:37Z on 2026-09-11 to
+02:59:57Z on 2026-09-12), and it would have gone unnoticed indefinitely had the fine leg landed and
+been graded first. **This addendum does NOT repair it.** Adding a runtime freeze check to
+`analyse_t4e.py` would patch a frozen instrument after first compute, which rule 2 forbids and
+`scripts/check_comparator_freeze.py` enforces — the same reasoning A1.4 gave for A1.1–A1.3. It is
+recorded here as a **standing exposure of this rung**, carried to the successor registration, where
+the check belongs **inside** the comparator: pin the imports by blob at execution and **refuse** on
+mismatch, rather than printing a sha for somebody to compare by hand.
+
+### A3.4 — RE-VERIFICATION AFTER THE APPEND (the registration is not read by its own grader)
+
+Appending to a pre-registration is only safe if nothing on the grading path parses it. **Checked, not
+assumed.** All eight files of the §12 grading path were searched for any read of this document:
+`analyse_t4e.py`, `mark_done_t4e.py`, `launch_t4e.sh`, `trajectory_t4e.py`, `build_t4e.py`,
+`T4_runs/analyse_t4.py`, `T4_runs/build_t4.py` and `scripts/roache_triple.py`. **The string
+`PREREGISTRATION` does not appear in any of them.** Every occurrence of `.md` in those files is
+docstring or comment prose (e.g. `CLAUDE.md rule 5`, `MESH_STANDARD.md section 10.5`), and **no
+`open()` / read call in any of them takes a `.md` path** — `analyse_t4e.py`'s only registration read
+is `json.load(open(.../T4e_registered.json))` at `:66`. **No file on T4e's grading path reads
+`T4e_PREREGISTRATION.md` at run time**, so this append cannot perturb a grade; **no selftest re-drive
+was required and none was run.**
+
+### A3.5 — WHAT THIS ADDENDUM DOES NOT DO
+
+It moves no gate, threshold, band, cap, floor or label; it withdraws no verdict and assigns none; it
+does not alter the registered D1/D2/D3 branches or the 160,000 hard cap; it does not edit, revert or
+re-pin `scripts/roache_triple.py`, and it does **not** amend the §12 table — the pin stays `78e56a3b`,
+and this section is the disclosure that the file at `HEAD` is no longer that blob and why that is
+inert. It does not patch the instrument gaps in A1.1–A1.3, which remain live. It authorises no launch,
+no stop and no send (`CLAUDE.md` rule 7: SUBMISSIONS REMAIN PARKED).
+
+*Written by a heat-transfer `lab-lane`, 2026-09-12. **Zero solver core-minutes; zero compute beyond
+reading files** — no solver, selftest or `postProcess` was run for this addendum, and no running case
+was touched. Nothing sent, filed or uploaded (`CLAUDE.md` rule 7).*
