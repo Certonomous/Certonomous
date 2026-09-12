@@ -1,0 +1,13 @@
+PLANARITY PROBE — classify by FACE NORMAL, not by coordinate or index
+  faces with |n_y| > 0.99 (root-plane candidates) : 14297
+  block-topology PREDICTED symmetry faces          : 14144
+  agreement: NO — +153
+  MAX |y| over those faces                         : 8.514650e+01 mesh-units
+  = 594.013313 m physical (1 mesh-unit = 6.976368 m)
+  VERDICT: symmetry plane is *** NOT PLANAR *** — OpenFOAM symmetryPlane requires a uniform patch normal
+
+PLANT — tilt one root-plane face's normal and require it to be dropped
+  |n_y| before 1.000000 -> after tilt 0.000042 -> restored 1.000000
+  classifier dropped the tilted face: True
+  residue after restore: NONE
+  CONTROL PASSED -> the count and max|y| above are evidence.
