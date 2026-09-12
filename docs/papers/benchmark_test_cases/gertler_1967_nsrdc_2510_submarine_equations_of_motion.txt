@@ -1,0 +1,2532 @@
+                       STANDARD EQUATIONS OF MOTION FOR SUBMARINE
+                                      SIMULATION
+
+
+
+
+                                                   by
+                                             Morton Gertl*r
+                                             Graul "ad
+                                                    R. lhgen
+                                                   Ai
+
+
+                         -tt
+
+
+
+
+                                                                         B5100.901 al
+                   JUNE 196.7                                            Taak 0102
+
+
+
+
+    -- "   ....-                         .    -.    :   -   --   •       -              -
+
+
+
+
+I
+                                S'   -                               )
+                                              SUBMARuNE
+           STANDARD EQUATI'NS or MOTION r(.
+                         SIMULATION
+
+
+
+
+                                by
+                           Morton Ocrtlv'
+                               and
+                          Grani A. lagen
+
+
+
+
+   S
+
+
+
+
+                                              SR 00901 0!
+       3UNE 1967                              Task OIOZ
+
+
+
+
+I.--
+
+
+                                idr
+"4                                        -                                                                                                            -   -•
+
+
+
+
+                                              TABLE OF CONTENTS
+                                                                                                                                         Page
+
+     ABSTRACT ..................................                                                     .....         ........                 1
+     ADMINISTRATIVE INFORMATION ............                                                .             .         .......                 I
+     INTRODUCTION ..................                           ...............                                        .......               1
+     HISTORY .........................                         ..                ....                         ..          .....             2
+     STANDARD EQUATIONS OF MOTION .........................                                                                                 4
+            AXIAL 1 FORCE .                   ..................                                 ...... * .........                        6
+           L.ATERAL FORCE ....................                               & .....                           ........             ..      7
+           NORMAL.e FORCE                ............................ *.#                                                                  6
+           ROLLING MOMENT ..................                                                                                        ..      9
+                                                                                                                                            9...........
+           PITCING MOMENT ... * ..                                                                                 .....                 * 10
+
+           YAWING MOME..NT .................                             ..........
+                                                                              o                                                 *          11
+           KINEMATIC RELATIONS . ..........                                         o
+                                                                                   ...............                                        12
+     IDENTITY AND SDURCE OF INPUT DATA ......................                                                                             13
+     T14E HYDRODYNAMIC COEFFICIENTS ........................                                                                              15
+     APPLICA71ON AND RANGE OF VALIDITY ......................                                                                             20
+     CONCLUDING REMARKS ......................................                                                                            25
+     ACICNO WLED)GMENTS ...................                                .......                   .   .......          ......          26
+     REFERENCES .........................                                    .................                                            27
+
+
+
+
+                                                          30
+
+
+                                                                                                •-                                                o4
+
+
+
+
+                                         .      ...                                     .
+                 041
+
+
+
+
+                                                                               NOTATION
+
+
+                       Symtbol     Dimenmsionless Form                                           Defliition
+
+
+                                                           .                       Buoyancy force, positive u.ward
+                                                                                                             1
+
+
+
+                         Ca                                                        Center of buoyanlcy of submarine
+
+                         Cc                                                        Center o( na&4 of submarint,
+
+
+
+
+                         I           I         w                                   Moment of irtiza of submarine about y axis
+
+
+                                               u-                                  Moment o     inertia of subrarine about    zads
+                                                    iota
+
+
+                                     Sxyt •Product                                          of inertia about xy axis
+
+
+                         Iys         I yz                                                                   yz auto
+                                                                                   Product of in•ertia abot y4;ýr
+
+
+      *   "-£3                                     "•--
+                                                   w'                              Product of inertla about zx ax&*
+
+                                                          K                        Hydrody-namic rnomet r.oonenot about x
+                                                   lK          u                   axis {roning momecs)
+
+
+                                     SK,              .---,                         ollia   moewat when body angle (w, 8) and
+                                                                                   co   l   BarLace sa.les are zero
+
+
+
+                         K•          K         ,                    UCoeffictent               used to repre•enting Ke as a
+
+
+                         KP          KP              4,-       'U                  Fivet
+                                                                                   K     or4dr coaffideuc
+                                                                                     e Afunctioa   otp        used ia repreentin~g
+
+
+                        K            K         u                                   Coefficiest used to representiu     K as a futaUon
+
+
+                        K            Kpi                       K ljj               Secod• order coeffictoel u"d tm represenalfta
+                                         fIn                                       K as a fuazttoa ot p
+
+                         K           K              .NS                            Ctwefitiont used is repr*sescie.    K as a fUaCtion%
+                             M
+                             PP'         PQ           lb                           of the product pq
+
+                                                                                    ti
+
+
+
+
+N •
+    --                                               K07                   Coefficient wed in reupr.eenting K as a
+                 iKqr                            I                         function of the product qr
+
+
+         SI                                       Kr                       First order coefficient used in repreeatia•g
+         -                   Kr                   7                        K afa function o( r
+
+    K,                       K;' z Kf                                      Coefficient used in representing K as a
+                         r        TZ-rfuinction                                     (-( f
+
+    K                        K'                                            First order coefficient used in representing
+                                             TOM                           K..  a function ol v
+                                        K•.                                Coefficient used in representing K as a
+                                                                           function V~ £'
+
+    K                        K                   a           Iecond                order caeffictiet used in representin
+         vfvf                      v IX                                    K &a a function of v
+
+
+    Kvq                          vq'             yqFL                      Coefficient    vq in representing K as & fLnction
+                                                                                       used
+                                                                           of the product
+
+
+          w                  K"              a                             Coeffic.ent used in representing K as a fuaction
+                                                 K Toe                     of the product vw
+
+    K                        K          , . Kup                            Coefficleat used ti representiag K as & f£vctioe
+         WP                                 4:t,
+                                            iwp                            of the product wp
+
+                                                     K~r
+    K wr                     K               sCoefficient                              Used in repraewettag V. of a function    ..
+                                 wr              k                         of the product wr
+    K                                                                      First ordor cotfeictest utsd tn reprse*tning
+                                   6r                                      K asa a function of
+
+
+                             S-2            3Overall                                   iemth oftsuartias
+
+    -v       -                                                                    oif a %bmarim,i Akc   tus wator is       -
+
+
+
+                   L4                                                      H-/4rodyaamic mommet comaossa
+                                                                           (pttcbii esoanat)                    about 7 axnis
+                                                                                   4
+
+
+
+                        U.   U,                                            Pitcjktr4 mowve abetu body &041e0 (4t.      B) &ad
+                                                                           coftrol sur(Rct   Anlee Art•z   ro
+
+                             mS'                                           5cosi
+                                                                            e       order Celficia. t 'Aged in represea"nim
+         p                                               U                 mPi st a Nu-ctioa adP. First order coefficiast to
+
+
+
+                                                  U
+         q                   lUi        '        vc- o t                          oOder coffiCtVet"
+                                                                           rirt ansafunction
+                                                                           M                 0 (4-1
+                                                                                                    Ueed Ws *tsr..sna4in
+
+                                                     U
+                             Id.                                           Firsticrder? ceInceu used~i% A .e
+                                                                                                           & 6I
+
+
+         I                                                            li
+                                                                           intactions of
+
+
+
+
+i                                                                                                                                    "
+                                             qjq ' 3
+                                            -I-.d                                3           Second order coe;!icient         used in representlit
+                                                                                             M as a function of q
+
+                   M
+                            q                                                            A   Coefficient used in representing M6           as a
+                                                                      jU         u           function q
+
+                                                                  Mr                         Coefficient used in representing M as a
+                        rP                                      fr"C?                        function of the product rp
+
+
+                   M                        Mrr
+                                             r                                               Second order coe!ficient used in representing
+                                                                                             M as a function of r. Firat order coceficient
+                                                                                             Is zero
+                   M                        M                   '-                           Coefficient used in representing M as a
+                        VP                       VP             110•                         function of the product vp
+        SInM
+                   M vr                     M yr *                     yr                    Coefficient  used in representing M as a
+                                                                W04-                         function of the product  vr
+
+
+                    i                       M~         -                   v                 Second order coefficient used in r,-oreventing
+                        -vv                                     f7'                          M as a function of v
+
+
+                                            HFirst                                                    order coefficient used in xepre3entin~j
+                                                                                              iMas a function         tf w.
+
+                   M                        M                    M                           First order coefficient  used in rCpresentlng
+                                                                tw                           MW &  as a unction of ('...1)
+
+
+
+                   M.                       mi.                                              Coefficient used in represenairq M as a function
+
+
+                                            M      wFirst              Mjj U                        order coefficient
+                                                                                             as a imction of w; equalused in representlng M
+                                                                                                                      to zero for symmcetrical
+                                                                                             function
+
+                                                                 M •_•               q       Coefficient uaed in reprecseattng MI, as a function
+                        lw~q                M1,&'                                            ofw
+
+                                                            ,*             1                 Second order coefficient uied in represeuting
+                                                 w aU                                          as a function of w
+
+
+                                            M                          Mw !W                 Firat order coefficient used in representing
+                   S-           !"I,                                     .                      l    MI a- i~sfunctioel o (v?-l)
+
+                   U                                       •,                                Second urder coefficient used in representing
+                            "                      ,                                           as a function of w; oqual to e*rw for eylm-
+                                                                                             metrical      ounction
+
+                                            U 6b
+                                            M                          3b                    Fitt   order .cc.t'.cient used in represe**tin
+                                                                                             M' as a funcuou eA
+
+                   Mhi                      M                                                First order coefficieut used in represeutiag
+                    S60                          8',                       .Z-               M as   functtoc of 8
+
+
+                   M                        1A                                               First order co-efficirt used in repre*e•ting
+
+                                                                                                 iv
+
+
+
+
+:1* '          _        _
+                                       ,a-to
+                                        _                   _
+                                                                                             U                ,.... 1                                i
+
+
+                        A                                                                        "
+                                             N'
+                                             •axis •                           (yawing morns,,1
+
+
+     i01
+       No                   No'     9OT-1
+                                                                       Yawfng
+                                                                       Co                         n)
+                                                                              moment when body anelesp(sn
+                                                                       c.-ntrol surface angles are zero
+                                                                                                                         and
+
+
+SN                          Np,                  N,                    First order coefficient used in re-p•resenting N
+           P                                           U                     tsefunction of p
+
+       N.                   N          u                               Coefficient used in representing N a            &function
+                                                                                                                       a
+
+
+
+
+           S....                                                       ofthepioductqr
+
+       N                           N
+                            N '. ----                                  First order coefficcent used in representinNa           N
+       N                    N                                             a function oe
+                                                                       Coefficeas                        N
+       -N                       rriq
+                                r            p                         Nr
+                                                                       First
+                                                                          as order
+                                                                             a function
+                                                                                      of (r.-) used in representing
+                                                                                   coefficient                                 N
+
+                                             N.
+
+       N.                   *.4 ,                                      Coefficient used in representing N as a function
+        r                     r                                        of f
+
+                                                      NrITr
+       Nrfr                 Nr           '             NrlrI           Second order coefficient used in represealine
+                                                                       N as a function of r
+
+       N                    N                     =           6        Coefficient used in representing Nb as A
+           Ir   •                rl b6r               j4U              function ofT
+
+
+       N                    Nv'           N                            First order co-fficlent us..d in representing N
+                        v                +Vas                             a functioe   v
+
+       N                    N          W          !I                   First order coefficlent used in represeutinS X,
+                                                                       a?a a funtiionof (it- 1)
+
+                            N                                          Coefficient used in rsproovating N &a a
+                                              V                       ~function0 ofl
+
+       N                    N       'u       -Coefficient                              used in repr-eseduna N as a fumCto1
+           Svqvq                                  • *of                   the produ~ct v
+
+
+                            N            ' •                           Coeffictenvd ud          in repr..e9cifg N As a
+                                                      r                functioa of
+
+
+       N                    N            'v            I               SecoMd order coeffwcien         u.d is reW resending
+                                                   t 4
+                                                 ViviN                 Nasa functim 4 W
+
+       S•                                         0           Iirst             ordr coýffict* usedIAn    to 1res.ti
+                    q                                                  NNv      avV
+                                                                                 a afioe      of (vt- I I
+
+
+
+
+                                                                                       , lo-,
+                                  *NN            uNV          Coofficient used in representing N as A function
+               v                    vw                  W3'   of the product vw
+
+
+              Nw                  Nw                          Coefficient used in representing N as a function
+               Wp                     WP                      of the product wp
+
+
+          N                       N              z      Nwr   Coefficient used in representing N as a function
+                   r                  wrI                     of the product wr
+
+
+               N                                 'N!-         First order coefficient used in representing N
+                                                              as A function
+                                                                            of 6r
+                       NN6r                             N
+                                  N6?,
+                                    6r-ip =                   First order coefficient used in representing
+                                                              N6r as a function of (Yj-1)
+
+
+          p                   p             -t                Angular velocity component about y axis
+                                                 U
+                                                 P            rsrlative to fluid (roll)
+
+
+                               I'           7JT               An ulL: acceleration component about x axis
+                                                              relative to fluid
+
+
+
+                                                 U            Angular velocity component about y axis relative
+                                                              to fluid (pitch)
+
+
+                                                              Anular Acceler 'tion component about y uxis
+                                                              relative to fluid
+          r                    r                              Angular velocity component about z axis
+                                                              reLative to fluid (yaw)
+
+                                                              Angular acceleration component about z axis
+                                                              relative to fluid
+
+
+                                   U" U                       Linear velocity of origin of body axes relative
+                                                              to fluid
+
+          "."                                                 Component of U in direction of the x axis
+
+                                            "1T               Time rate of chlange of u in direction of the
+
+                                                              x &ads
+
+
+          u                   u        *Conm-and                        speed: steady value of ahead spoed
+                                  C              U            component u for a given propeller rpm v hen
+                                                              body antles (a. 6) and control surface sagles
+                                                              are uevo, Sign chat&es with propeller rever~.l
+
+
+                              V. a-                           COov.xenaofU i      direction of the y axi
+                                            U
+
+
+                              V I-                            Timew rate of change of v In Airection of the
+                                            U2                Y
+
+
+
+
+.'.   N                 •
+      mq.
+                           uW                 U                        Con-1poncnt of U in direction of the A axis
+
+
+
+
+-•W
+                           - UI
+                           W.
+                                      -"-Time
+                                          [i
+
+
+                                               w
+                                                                           .
+                                                                       Z.axis
+                                                                                rate of change of w, in direction of the
+
+
+                                                                       V eight, including wa ter in free flooding space$
+
+
+
+                      x'   X                                           Lonritkidinal body &:do; also the coordinate of a
+                                                          Spoint              relative to the origin of bcd- ;,xea
+
+
+                           XxB'-                                       The x coordinate of CB
+
+
+                            xGC
+                           XG                                          The
+                                                                       '   x coordinate of CG
+
+
+                           xo'                                         A .-•z dinate of the displaccment of cW       Telative
+                                              o"                       to the origin of a set of fx-,d axes
+
+                                               X                       Hydrodynamic foice component along x axis
+                                                         ~o~t'ti~(longituidinal. or axial. fqrce)
+
+                           X                                           Second order coefficient used in representing
+                qq             qq                                      X as a function of q. First order coefficient
+                                                                       is zero
+
+            X              X                                           Coefficient ueed in repreoenting X as a function
+                rT             rp                                      of the product rp
+
+                                                  Xr
+            X              x rr                     iT                 S-ecornd order coefficient used in representling
+                                                                       X as a tunction of r. First orde- cocfficieat is
+
+
+
+            X.             X ,                                         Coefficient used in representing X as a function
+
+
+
+            X              X                                           Secoad Order coefflcient used in ropreasozing
+                Uu               u                       1U            X as a functioln of u to the uomn-potled case.
+                                                                       Ftrst order coefficieni is -erO
+
+
+                                      ' In -                           Cee~ficient .-sed is repreoeatia       X as a fuactios
+                vyr            vr       +0V                            of th, product vi
+
+
+            X              X         'w             '-                   coedor          COrClent used In rOur•M.OSGi  X
+                                                                       as a function oa V.    -krst ordor -oeffiCent to saero
+
+
+            X                                 ,P
+                                              .vn                      First order coofWideni %*a.d is vsrep~eiiug 3L,
+                                                                       as a fuctioe 09 ftt-I)
+
+
+            Xv             X          -                                Coe.fficies uti      In tieproeatitt   X as a function
+
+
+
+
+                                                                            v401
+
+
+
+
+                                          .               S....                                                                 1-
+                              , XW                           Second order coeificient used in representing
+X
+Xw            Xvw'                                           X as a function of w.          First order coefficient ti
+                                                             zero
+
+X             X               I                              First -der coefficient used in representing                       i
+                                                             asa a fur... gion,of (17-1)j
+X bsb         X                        X                     Second order coefficient used in representing X
+                  6b~b                  0,00                 as a function of 6b.       First order coefficient
+                                                             is zero
+
+Y
+    6r~r
+              X 6rdr                            "U
+                                                             Second order cotffictent used in representing
+                                                             X as a function of 6r. First order coefficient is
+                                                             zero
+
+X r           X           •f                                 First order coefficient used in representing
+                  8r6                      WrXWrf                   am a function of (q7-1)
+
+                         S~X6482                                                      SSecond
+                                                                       order coefficient used in representing X
+    11s           686•e                TPU                   as a function of %.       First order coefficient is
+                                                             zero
+
+X             X                       =First                        order coefficient used in representing
+                  65691                  •                   X 5lUZ as a function of (17-1)
+
+
+Yy                                                           Lateral body axis; also the coordinate of a
+                         4,                                  point relative to the origin of body axes
+
+
+                          SY               B1                The y coordinate of CB
+                              YC;
+"             IG              7-                             The y coordinate of CC
+
+                    •Y            o                          A coordla~te of the displacement of CC reiative
+              yo                                             to ihe origin of a set o( fites axes
+
+                                  Y                          Hydrodynarmic force component &long y axis
+                                                              .(lateral
+                                                                     force)
+
+
+              Y,e                                            Lateral force when body angle* (mi. 0) and control
+                                  PVLUI                      surface angles are vero
+
+ Y                           P                               First order coeffi-cient used in represetnting
+          P       P       jo(3U                              T as afuaction of P
+                                  Y,
+Y.            Y., A                                          Coefficient used lo reprecenting Y -s a function
+
+
+Yp            YP                  •         1                        nrder coefficient used in representinf
+                                       *        "Y             as a function of p
+
+
+                                                                viii
+
+
+
+
+                                                     o                                 \
+                                                         •                                                               ZZ,
+                                                                   y
+                        yy                                 a r 2 .Coefficient                       used in repre~sevting Y as a function
+                                               Mq
+                                               pq                                      of the pro-.2uct pq
+
+
+
+            yqry                                           .r1jt                       Coefficient used in representing Y as a function
+                                     qt        q               VOLof                     the p ro-duc t qr
+
+            y                              y                   yi                      First order coefficient used in reprementing Y
+                                     r                     ip04 Uas                       afunction of r
+
+            y                              y           *                               First ord~r coefficient used in representing
+                            rnrly                              *04aU                   Yr as a function of (17-1)
+
+                                    Y.     y                                           Coeff cient used in ropreser~ting Y as & function
+
+
+            y                              y            Y8rrl 8r                       Coefficient used in reprnsenting Y,     asma
+                                               Ir6r'~ v ol                             functionofr6
+
+
+            y                                      ,           Y                       First orider coefficient used in representing
+                                                                            ivFu         as afunction of v
+
+            y                              y                                           First order coefficient usmed in representing
+                                     V~7       Vlj             4,,                        am a function of (11-1)
+
+            Y.                             Y.                                          Coefficient used in representing Y as a
+                v                              v                                       function of ~
+
+
+            Yvq                            y               a                           Coefficient used In representing Y as a function
+                                                                                       of th~e product vtq
+
+                        y                  Yr                                          Coefficient used in representing Y,, as a function
+
+
+-   -                                      y       1                                   Second order co~ficient used in representing
+                                                                       Tw              y as a function of v
+
+
+                                    yvivinTV YY ,
+                                             I1vlY                            I v117   First order coefficient used in representing
+                                                                                        v I, Iasaa function DtiO-I1)
+
+                            y              y                                           Coefficient used Is repus eawling Y as a
+                                                                                       lunctioa of the9 product v
+
+            y                              Y               *        w                  Cooehicient uzed is reprcsouting YVas a
+                'AP                            wp                  bC-tl3              function of the prodtmct wp
+
+
+            Y                              y                                           Coefficietzt used lit ropresevntin- YVas a
+                            w.r                                                        funaction of the prod-utt -ar
+
+            y                              y                      6-f                  Firilt order co-efficeiet used I reprmentiag
+        *           r                          6"              *PQU                    Yasfunctioof 67
+
+
+            y                                                                          F'Jrgt Order COefficitelt use4d it representing      0.
+
+
+                                                                                         is
+
+
+
+
+                                                                                                    01
+            1
+
+                                         * -N-Morm.l                                            body axis; also the coordinate of a
+                                                                                      point rale'tive to the origin of body axes
+
+                                                 V-                                   The s coordinate of CB
+
+                                         ~~ %tG 3                                     The a coordinate of CC
+
+
+                                         It0                 0                        A coordinate of the displacemnent of CG
+                         0                   0                                        relative to the or'.gin of a set of fixed &,to
+
+        SZ'                                                  Z
+*                                                            Z                        Hydrodynnamic forct component along r
+                                                                                      &xis (normal force)
+
+
+                     Z'                  Zoo         w             -                  Normnal force when body angles (a.             - and
+                                                                                      control surface angles are zero
+                                                              Z
+                     Z                   Z                                            Second ordier coefficient u-  ., representing
+                          pp Zp                                  04.                  Z as a function of p. First o•der coefficient
+                                                                                      is zero
+
+                     Z                   Z 'Zq                                        Firt order coefficient used it. representing
+                          q               q   JOL3U                                   Z at. a (unction of q
+
+                     7                   Z                       0-M                  First order coefficient used in representing
+                          917                                *q¶           U          Zq as a function o    (1-l1)
+
+                                                             Z.
+                                         Z                                            Coefficient used to representtn3 Z as a
+                          q                  q           I                            function of 4
+                e7
+
+                     Z                   7                                            Coefficient used in representing Z                 is a
+                          lqI~A          ZIqt•s'                       ?ot U          function oa q
+
+
+                                    r    Zr                  *                        Coefficient used in r,-tpresenting Z as a
+                          rp              rp                 *pL                      ffnction of the product ap
+
+                                Z        Z                       Zrr
+                     Z                   7.              -                            Second order coefficient used in representing
+                          rr                  yr                                      7. as a functtoq of r. First owdir coefficient
+                                                                                      ti sero
+
+                     7.                  ZFirst                                               order coefficiant      -.ved in rep-esenting
+                                                                       V                sa
+                                                                                         a*U fu.-Ctionoad
+
+                      Z7                                      .2                      First order coefficient used in representing
+                                                                                      7 .
+                                                 Y           OIL                       - •a •fuactiot o" (1.-I)
+
+
+                     7.                              " 1           !                  Cosfftclet used in representin         .Z as   a
+                                                                                      fu action of W2
+
+                                    7.   7               ~             1'             First or-dty coefficiez! use-d ilk r~ep'ssentit
+                          l                              I             .lU            . a da tunctoaof 'i'; e val to Coro for oym-
+                                                                                      mrtrical kn
+                                                                                               fwctiod
+
+                     Zw tqi                  wlqi            •                        Coe~flcient ules   lI. retpreseuet• 7..    a a
+
+                                                                                      [Uato     oq
+
+
+
+
+    -V---                                                                      7.or
+
+
+
+                         tT
+Z WIWI           Z WIWI " 041Z         aw'u          Second
+                                                       as
+                                                            order coefficient used in reprosenting
+                                                             a function of w
+
+
+Zwjw7            Z wwlw                    2    wi   First order coefficient used in represeuting
+                                                     Zw I w I iatsafunction of (.1)-)
+
+
+                 zW '                                Second order coefficient used in representing
+                                       PIT•          Z as a function s w; equal to zero for sym-
+                                                     metrical function
+
+
+                 Z        '            Z" .          First order coefficient used in representing Z
+     6b              6b                t ý'Z-        as a function of 6b
+
+
+Z.               Z60              a     Z            First order coefficient used in representing
+                                      SWpQU'         Z as a function of 66
+
+
+Z                Z            '        M             First order coefficient used in representing
+                                      0TP1*YU        Z6 as a function of (17-)
+
+SAngle                                                        of avs)•ck
+
+                                                     Angle of drift
+
+6
+    b                                                Deflection of bowplane or sailplane
+
+Ar                                                   Deflection of rudder
+
+69                                                   Deflection of aternpiane
+
+                                                     SThe ratio
+
+e                                                    Angle of pitch                                                I
+                                                     Angle of yaw
+
+                                                     Angle of roll
+
+&i, bt, CI                                           Sets of consantU meed in the representatioa of
+                                                     propeller thruet in the axial equatiou
+                                                        xi
+
+
+
+
+                                                                             Pr
+             •       ..                                                                                   i   ,4
+
+
+
+
+                                                                           | itnis •   | i •it   it   t                1
+                                          ABSTRACT
+
+             '%Standard equations of motion are presented for use in submarine
+         simulation studies being conducted for the U. S. Navy. The equations are
+         general enough to simulate the, trajectories and responses of submarines
+         in Bix degrees of freedom resulting f-rom various types of normal
+         maneuvers as well as for extreme maneqvers such as those associated
+         with emergency recoveries from sternplane jam and flooding casualties.
+         Information is also presented pertaining to the hydrodynamic coefficient&
+         and other input data needed to perform simulation studies of specific
+         submarine designs with the Standard Equations of Motion.
+
+
+                           ADMINISTRATIVE INFORMATION
+
+             The development of the NSRDC Standard Equations of Motion for
+         Submarines and associated experimental techniques to provide the
+         necessary hydrodynamic coefficients was sponsored primarily by the
+         General Hydrornechanici Research Program (Sub Project SR 009 01 01
+         Task 0102). Additional support was provided by the Submarine Safety
+         Program (Sub Project S4611010 Tasks 11077 and 11083).
+
+
+                                      IN TRODUCTION
+
+              The Naval Ship Research and Development Center was requested to
+         * ovide the Naval Ship Engineering Center with a report on the general
+         equations of motion currently being used for submarine simulation stud-
+         ies.    The primary purpoue of the report to to establish standards, pro-
+         "vide guidance, and establish a firm basis for contract negotiations. The
+         report would thus serve to facilitate the Navy's dealings with contractor$
+         engaged in the manufacturt of equipment such as training simulators and
+         automnatic control systems for submarines. Particular interest was
+         expressed in having equations which would fnlly describe the hydrody-
+         narrfc aspects of a submarine experiencing a casualty while in a-head
+         motion, with provis.ons for inserting detailed r.presentationa of the
+         casualties and recovery systems.
+
+              The Stability anrd Control Division of the Hvdromechanics Laboratory
+         hau been conducting submarine motion simulation studiev io- a number
+         of years in connection with its various assigned rerponaobt'ities. Such
+         studies have been utilited with considerable success to solve a wide
+         variety of problems pertaining to the design and operation of submarines
+         from the sta-ndpoint of stability ;-nd control. Most recently, these
+         atudies have included: emergency recovery from aternplane Jams, loaa
+         supportability, and vertical ascents after emergi.ncy blowing (5oth with
+         and without forward propulsion). Tbepe simulation studies have been
+         made. possible as the result of a progreseive in-house development of
+
+         I References are listed on pag. Z7.
+
+
+
+
+"i
+
+     _       ',._            -       •-   *     _ ,
+                                               -,--                              -
+
+
+                                 ~        .,                                          I
+       six-degree-of -freedom motion equations and a coordinated development of
+       advanced experimental and analytical techniques to provide the necessary
+       coefficients.
+
+             The equations of motion as they now rxist at NSRDC are general
+       enough to simulate trajectories of oubmarines for all of the various types
+       of normal maneuvers and emergency situationa th&t have been of concern
+       up to the present time. Furthermore, it is believed that they will
+       adequately cotier most of the situations that may be reasonably anticipated
+       for the future. These equations, which form the subject of this report,
+       have been used continuously for the past three years with little change,
+       and are considered to be standard at NSRDIC. In the interest of consistency,
+       it is proposed herein that these equations be adopted and serve as the
+       U.S. Navy Standard until notice is given by NSRDC that they chould be
+       changed. It shovdd be emphasized, however, that these equations have
+       been validated only with the types of coefficients being generated by the
+       1Hydromechanics Laboratory. Therefore, prospective users are
+       advised to first contact NSRDC to determine whether the required
+       hydrodynamic coefficients are available.
+
+             It is the intention eventually to issue a complete and comprehensive
+       report on the NSRDC Standard Equationi of Motion for Submarines which
+       would be tantamount to a textbook. This would include a discussion of the
+       physi.-s involved and the various meann for d&terminlng the ntmer:cai
+       va tues of each of the individual hydrodynarmic coefficients required for
+       *the equations. In addition, it is planned to discuss the various computer
+        techiiiques used for simulation and to present those cornpu~er programs
+        which have reached an advanced state of development. Such a treatise,
+        however, is considered to be much beyond the scope of what is required
+       to satisfy the immediate needs stated in the request.
+
+             To accomplish the specific objectives mentioned at the outset, this
+       repot t presents a brief history of the development of the equations of
+       motion -t NSRDC; defines 1lie nomenclature, axe systenis, and sign             .-
+       convert-ons used for the equations; presents the NSRDC Standard
+       Equations of Motion for conducting submarine simulation studies; outlines
+       tCe niethods and sources for obtaining the hydrodynamic coefficients and       *
+
+       other input data required for simulation; and briefly discusses the
+       appli': ation and range of validity of the Standard Equations.
+
+                                     HISTORY
+
+            The equations of motion now in use at NSRDC are the direct result
+       of a continuing program .)f in-house research carried out by the Stability
+       and Control Division of the Hydromechanics Laboratory.      This prgrsrm
+       was officially started in June 1956 when it became evident that a rapid
+       technological expansion was taking place in the area of oubmarine
+       stability and control. The decision was made at that time to develop
+       general equations of motion for six degrees of freedom w-hlch could bo
+       used in conjunction with coefficients obtained fronm model experiments
+'S.-   to predict and study the behaavior of submarines and associated systems
+                                                                                           I
+          in a variety of maneuvers. Concurrently, studies were undertaken to
+          develop suitable techniques to determine experimentally all of the hydro-
+          dynamic coefficients required for these equations for any arbitrary sub-
+          merged body-appendage configuration. The Planar-Motion-Mechanism
+          System, which was constructed and placed into regular service in 1957,
+          was one outgrowth of theae studies,    This system is still the standard
+          method used at NSRDC to determine numerically most of the required
+          coefficients. It was realized at the outset that many years of research
+          would be required to develop, implement, and validate a completely
+          general set of equations that could be used to study all situations involved
+          in the motions of submerged bodiem. In view of the presaing needs, how-
+          ever, it was decided to approach the ultimate objective by progressive
+          stages.
+
+                The first effort was directed toward the development of equations to
+          permit simulation of normal types of maneuvers involving six degrees of
+          freedom, such as those required by submarines to fulfill effectively their
+          various missions. The existing linearized equations of motion were Airst
+          used as a basis to study moderate or small-scale muaneuvers. These
+          were later'extended to include various nonlinear and cot.plhng terms. By
+          1960, it -vas felt that the state of the art had progressed to the point where
+          so :.e standardization would be desirable. Arcordingly, the Stabf'ity and
+          Control Division of the Hyd,'omechanics Laboratory adopted a "atandard"
+          set of six-degre -of-freedom equations for submarit.es in normal types
+          of mane-'vers. The term standard was applied in the sense that the
+          equations were to be used for their designated purpose in all studies
+          made by the 1,abor6,tory, and were to have official status until a suf-
+          ficient advance, was made in the state of the art to justify a change. If
+          such tuened out to be the case, it was intended that the rcvisions would
+          be made officiaily and a new set of standard equations would be issued.
+V'             Together wit l- the adoption of standard equations, a continuing program
+          'vas hiitlated to correlate fail-sca.1e trial measurements with computer
+          pledictions involving these equations. On baein of correlation studies
+          made subsequently. it appeared that these standard equations together
+          with coefficiernts determined with the •Planar-Motion-Mechanism Sybtem
+          wv-ul, tor most part, :eld.    ac4.,rate predictions of the submarine
+          trajectories for a variety v. normal or definitive maneuvers tha. could
+          be used to evaluate the hand.i.g qualities of submarines.
+
+               During 196Z, in anticipation of a progrem airected toward the
+          developmer.t of conteol proceoures and aLxiliary devicee to improve
+          the emerg,-ncy reco--ery capabilities of stbma-ines, the research program
+          was reoriented to establ -h prediction terhcdques for studying the behavior
+          of sILbmarines in a variety of possiblt, emergency situations. The revised
+          reserrch program inc.laded !undamental theoretical and exper' .,ental
+          studies such as: cxpandiag the standard equations of notion v,ý include
+          terms (s.,ch as those %nsociated with "backing" on propellers and blowing
+          of brllast tankfs) which were not required for simulation of normal
+          meneuverv; extetnding the range of validity of hydrodynamic coeiicients
+          to provide accurate representato.on. in extreme situations (auch as those
+          involving angles of attack up to 90 degrees); and estabi•shing correlation
+                                                3
+
+
+
+
+     ti    t    #
+between predicted trajectories and those obtained on full-scale submarines
+during "emergency recovery trials".
+     About December 1963, the Bureau of Ships requested the Laboratory
+to consider undertaking a program of model test# and simulation studies
+to determine the ability of each of twenty-two different submarine types to
+recover from sternplane jam emergencies. By this time, considerable
+progress pertinent to the sternplane jam problem had been made on the
+development of the equations of motion. Therefore, the Laboratory
+agreed to accept full responsibility for carrying out the proposed program,
+provided the simulation studies could be carried out with equations that
+constituted the "state of the art" as of February 1964.
+     In July 1964, at the request of the Bureau, the Laboratory extended
+its program to inclihde load supportability studies on the various submarine
+types. This study was well within the scope of existing equations and
+consequently no further development was required. However, in Septem-
+ber 19b64, when the problem of roll associated with free rise of submarines
+after blowing was introduced, it became necessary to develop new model-
+test techniques and to conduct further analytical studies to extend the
+equations to permit detailed simulation studies of the problem. Meanwhile,
+as the result of research studies on the Rotating Arm Facility, further
+refinements were made in certain coupling terms associated with "oquat-
+ting" behavior while turning, and these were incorporated into the equations.
+Thus, the equations contained In this report  represent the state of the art
+which has existed since about March 1965.
+
+
+               STANDARD EQUATIONS OF MOTION
+     The NSRDC Standard Equalons of Motion for Submarine Simulation,
+briefly designated herein as the Standard Equations, are presented in
+their entirety in thip section to provide a meants of ready referencc. The
+Standard Equations are sufficiently comprehensive to define the trajecto-
+ries and responses, in six degrees of freedom, of a submarine undergoing
+even extreme maneuvers such as an emergency recovery from a hard-dive
+sternplane jam, including the buoyant ascent after blowing of ballast.          *
+Ordinarily, the Standard Equations are used for ahead motion; however,
+by pertinent changes in the coefficients they can be used for separate
+studies of astern motions.
+     A complete notation for the various terms in the equations is given in
+the front of the report. This notation is generally in accordance with the
+Standard Nomenclature given in References Z and 3. The Standard
+Equations are referred to a right-hand orthogonal system of moving axes,
+fixed in the body, with its origin located at the center of mass CG of the
+body. The xz plane is the principal plane of symmetry (vertical center-
+plane for submarines); the x axis is parallel to the baseline of the body.
+The positive directions of the axes are specified a, follows: x-forward,
+y-starboard, and z-downward. The remaining sign conveootion follow
+from the right-hand-screw rule. The positive directions of the axes,                    ,A
+angles, linear velocity components, angular velocity componerts, forces.,           '
+and moments are shown by arrows in the sketch of Figure 1.
+
+
+
+
+                                     4                    -    s,.".
+     J   -R       -.
+
+
+
+
+                                                            2                                                                    0
+
+
+
+                                   V
+                                                                                                                                 a
+                                                                                                                                 4,
+                                                                                                                                 U
+                                                                                                                                 '4
+                                                                                                                 I               0
+                                                                                                           'I,
+                                                                                                                                a
+
+                                                                                                          ''I                     -4,4.
+                                                                                                                                U-46
+                                                                                                                            -4
+                                                                                                                                o
+                                                                                                                                4,
+
+
+                                                                                                                             U
+                                                                                                                                4,
+
+
+
+
+                                                                                                                            -
+
+
+
+                                                                -                                    S
+                                                                                                                            i-I
+
+                                                                                                                             0
+     -                                                                                                                       U
+
+                                                                                                                             0
+                                                                                                                            ".4
+                                                                                                                             4,
+                                                                                                                            U
+                                                                                                                             4,
+                                                                                                                             '4
+
+
+
+
+                                                                                                                            4,
+
+
+
+                                       I                                                                                    4,U0
+
+
+
+
+                                                                                                                            £1
+
+                                                                                                                             0
+                                                                                                                            A
+
+                                                                                                                            A
+                                                                                                                            U
+                                                                                                                            4,
+                                                                                                                            C
+
+
+
+
+                                                                                  I-i
+
+
+TK                                                                           7,
+              *                                                          /
+
+                                                                    //                  5
+
+
+
+     4                                             /                                            _______
+
+
+                                               /
+
+
+
+                             ___                       .4                                       4-
+
+
+
+
+                       -4-                 -                        -                       -                        ____
+
+
+
+'4
+I    ~         Cql&tlifLs are presented iii
+              ~The
+                                               the iO1XOwii1g order. &%W
+                                            ramn~tvlft pitchinlg M*~t  and
+    l.at~eral force, ~wrunIe £Orce, rOUUS~ kInematiC reIstiO5S are given,
+    Y&Vwing moment.    in additiOu certain
+                                                                                       force,
+
+
+
+
+    AjaAL FoRCTE
+
+
+                                                                    )+       S,(j   +q~)I
+                                     + T2) + yG (pq            -
+
+               m   var + wq - xG (q!
+
+
+
+                   +4-             LqqIq! rr r+x             rp I        '
+
+
+
+
+                                           +yr          V +x,,      Wx
+                              2          U2d~
+                          +    sX~             VI
+                                            + C,
+
+
+
+                                          6w        *      6I 6. 6.'bo         + 1 6b 6b' 6bS
+                          +       126l
+
+
+
+
+                                                    ++     w        x.              2~US
+                      +       )2
+                      +j      60o 2 60 11
+
+
+
+
+       I6
+got..,__                                                                                              T4   'W
+
+
+
+
+     LATERAL FOR~CE
+
+
+
+
+                  14    LIYt           +   fPp+ Y               PZIPI +y        I q+ Yqqr]
+
+
+
+
+           +-fL ~T Iur + Y                      up +Y                  ulrl~r    Y1
+                                                                                -l?~.Y 1(VI +)
+                                                                                            2    ~I
+
+
+                                               + vT +' Y          II    (v + W2)1~
+
+           +2 Ip                   V + y              +'   6rwj'
+            T+ £Lvw+Y                          6rt'         r
+
+
+                                   6
+           + (W   -B)       cos        sin t
+
+
+
+
+              +         y         r (ti 1)                 ~-.+                              ~
+
+            IP u
+                                                                                     6u
+
+
+
+
+                                                                  7
+                                                                                                                  A-
+
+
+
+
+NjORMAL FOIRCE-
+                                                                               Y       r
+    wuq + VP           -     G(P2 +q') + C OZG
+
+
+                  + [r.t         q4                2       + Z1 2       r~ + Z rpi     Tp
+
+
+
+
+                                                                             z
+                                                                         till~s+      I        V   + %a)V   kI'
+                                                                         +q1%wq
+      +-          e3             uq 4     Z                  aqO
+
+                                  U22 +ww                   +
+
+                           L[Z                w                 Wwiw
+
+
+                                                                             + W2),1
+           + p [7jWt Ulwl + z WWI JW
+
+                2 2 z vvI v 2 + Z a' u 2 6S                              Z 6b'       U2.6b]*
+
+                                      0
+       + (W - B) coo                      cOs*
+
+
+                                                                                                   q
+       +           t3 ZqyI Uq(-1
+
+
+            z          LL                         ww7
+
+
+
+
+                                                            8
+
+
+
+
+           'ia.                                        _            _         _A,
+
+
+
+
+                                          avow-.
+                                                                                Ma-
+
+
+
+
+ROLLING MOMENT
+
+
+   i,           -         ) qr -i+     pq)I       + (r2     ~     + (pt   q*)
+
+
+
++ mn                "-         q+p)- z. (v - wjp + r)1
+
+
+
+
+    +2                   'K-      p +,,~+Ki +K        qr+         q+
+
+
+
+
+       +-   P            131LK'   u: + 1Kv' uv + Kv ,IjI v (v3 + w2)f
+
+
+                +tsK              'vw + K   '    2~ 6rI
+
+
+
+
+        + (yG.W -YBB)o                          co*(GW          BBc58n
+
+
+            pa(7-1
+               K
+
+
+
+
+                                                     9
+    PITCHING MOMENT
+
+
+      qvc(I x          z) rp -(pj+qr)Ix                 + (P 2    r')IE     + (qp    r) I
+
+
+     In '   LG (u-r             + wq)     -   xG   w     uq + v-p) j
+
+
+                +.k         ts[m.,+M                 -P7+MI      r     +m      Irp + M j    qlql
+
+
+                        I LýM I                    vr     +m         1V
+                            p   4        wM                          'v]
+
+                       +-4 '        'i        + M j 165 u IqI s + MvIýl I(v 2 + w4), Iqj
+
+
+               +~.0                      u2 +M       Iu
+                                                      uW +       W~IWI, W I(V,2 +W2)1 I
+
+
+               +-L- 11[Mji                    uluwi + M'         1W (v 2+W2)1j
+
+
+V              +- E 1im                  tv    + M       u 2 68 + M         u 2 6b
+
+
+                ~(xG W              x B Blcos           cus 0    (zG W       zB B)      6
+                                                                                     *inl
+
+
+
+
+                        +EL'M 'uq1+-M                  i .t I,' w l(v2+ W2)f + M8 1
+
+
+
+
+                                                           10
+
+
+
+
+                      t4.
+YAWING MOMENT
+
+I z ;+(I v.I1 ) pq (+rp)!y             + (q 2    p   )I x    + (rq-p)I
+
+
++ m Lx G (v-wp + ur) -              u - yr + wq) j'
+                                   {G
+
+        +lL t[NIr+           Nj    p + N~ Pq+Nqrr+ N jylrlrI
+
+
+             I 'N~lv + Nwr
+                     z       L w
+                                       +N
+                                             W
+                                                 wp + N
+                                                      N q'vq
+                                                                                             I
+                  N2
+                  'NP up + Nr ur +Nj                 -6u IrI6r + N~r                +w2)i]
+                                                                                    +"
+
+
+                 L
+             + N' u      2
+                             + Nv uv + Nv IV,, V I(V2 + W2)1 Ij
+
+
+         P 13            vw + N 6 u26r]
+
+        + (xG W - x B B) cosO sin# +( G                     -B     B) si   (
+
+
+           +L0     07fur (f7-1)
+
+
+
+                 [N,,N 'uv+N 1 viil
+                                 7          jN'$+ ?              + N 8ril ar U2i(
+  j    KINEM AIIC RELATIONS
+
+
+
+
+                        o ''u   gine+vcos Gaino +Wco   eScoo
+-- •
+
+
+                          =+p      @in9
+
+
+
+
+                            r +
+                                          e     +
+                                                +sin
+
+
+  I                         cose Cos#
+
+
+
+
+                    '                                          i
+
+
+
+
+        II
+
+
+                                                               d$.
+
+
+
+
+        i
+                               IDENTITY AND SOURCE OF INPUT DATA
+
+          As mentioned in the Introduction, it is beyond the scope of this report
+     to go into t detailed treatment on the use of computer techniques to performI
+     simulation studies involving the Standard Equations. The purpose of this
+     section is merely to identify the kinds of input data required to perform
+     such studies and to indicate where such data can be obtained. In addition,
+     an attempt is made to indicate some of the cub-routines that are also
+     needed to perform various types of simulation studies. In particular, those
+     sub-routines required for the sternplane jam phase of the Submarine
+     Safety Program are listed. A somewhat more detailed account of the
+     nature of the hydrodynamic coefficients and the processes for obtaining
+     them is relegated to the next section.
+
+          The NSRDC Standard Equations of Motion given in the preceding
+     section are written in a form utilizing nondimens.onal coefficients, and
+     are applicable in a general sens', to the rigid body motions of submarine&
+     and other submerged 'vehicles. Certain input data "e required, however,
+     to obtain a mathematical model which can be used to realistically
+     simulate the motions of a specific submarine design. A complete set -)f
+     input data for this purpose consists of the numerical values of all of the
+     hydrodynamic coefficients, inertial properties, and pertinent geometric
+     characteristics for the given submarine that enter into the various terms
+     of :he equations. Fortunately, as the result of the concentrated effort on
+     the Submarine Saety Program,as well as contract design studiea made
+     prior to construction, complete sets of inp. data for about 25 different
+     exlsting submarine designs are on hand at N._DC. The data, for most
+7w   part, -arry the classification of "CONFIDENTIAL'. However upon request,
+     they .  n be furnished to outside agencies and contractors having the
+     proper security clearance and "need to know".
+
+          Similar data can be obtained for new submarine designs by address-
+     ing a request to the Commanding Officer and Director of the Naval Ship
+     Research and Development Center. Tis         request should be accompanied
+     Vk. an outLine of program obje'tives, lines plans, and other pertinent data.
+      An estimate of time and cost will be provided, after which funds must be
+     deposited at NSRDC before work can proceed. If the information is needed
+     on a short term basis, this should be clearly stated by the requesting
+     agency so that a-uffitient lead time, particularly to allow fcr mode! con-
+     struction and scheduling of test facilities, can De alowed. Furthermore,
+     in contractual dealings, an eariy committnent to supply the data should
+     be obtained from NSRDG before final negotiations are made. This is
+     especially stressed for tho.•e contracts in which time is of the essence,
+     or where the contractor may tunderstand that having prior possession of
+     the information is a condition precedent to performance.
+
+         The primary mathematical model, eonsisting of the Standard
+     Equatioes =nd input data pertinent to a specific stbmarine, can be readily
+     programmed on either an analog or digital comater. To perform a
+     complete motion simulation study, bowwc~r, the computer program must
+
+                                                  '3
+
+
+
+
+              "   •   ......   ,   .      * _-~        _
+      also inclede certain supplementary mathematical models or sub-routines.
+      For example, to conduct * complete simulation study of the motions in
+      six degrees of freedom of a submarine involved in emergency recovery
+      from a alernplane jam cacuaity requires at least the sub-routines which
+      include the following representatiins:
+
+         1.   Time history of sternplane movement in degrees including various
+              prescribed sternplane "jams"
+
+         2.   Time history of sailplane movement in degrees starting from time
+              the order is given
+
+         3.   Time history of rudder movement in degrees starting from time
+              the order is given with provision for various modes of motion
+              such as swinging the rudder sharply over to a hardover position
+              (either right or left), or fishtailing
+
+         4.   Time history of change in propeller rpm from "full ahead" to
+              "back emergency" starting from the time the order is given and
+              including appropriate time allowances for communication, human
+              reaction and manipulation of controls, and primc -mover response
+
+         5.   Time 1-tstory of weight of ballast wat-r discarged or taken on due
+              to blowiug or venting, respectively each of the main ballast
+              tanks. The time is measured fron, the instant the order is given
+              and i 7udcs the effects of system lags. as well as pressure
+              change- due to changes in air-bank pressure and submarine
+              depth on rate o' water discharge.
+
+          The first three of these sub-routines convert time histories of
+      control surface movement to tirne histories of hydrodynamic forces and
+      moments exerted on the submarine hull when they are applied to the
+      ternis in the primary mathentatical model containing 5., 6,, and 6b.
+      The time history of propeller rprn is converted to external hvdrodynamic
+      forces and moments by means of the termse containing (11-1) and u.
+      These terms reflect the Incremental changea in forces and momet-a due
+      to either over or under propulsion (including backing on the propellers
+      while the tubmarine is proceeding ahead). For the moderate changes
+      in ahead speed involved in most normal maneuver;, all of the (17-I)
+      terms usually can be neglected. The sub-routine for blowing or Venting
+      of ballast tanks is already in the form of forces and moments. It can be
+      tied in directly with the primary mathematical model by replacing the
+      con•aart weght terms, such as W-B. with the appropriate time histories
+      of weight cha,.geg.
+
+         It is apparent that the primary mathematical model, in conjunction
+      with the foregoing typ'.s of sub-routines, can be used to simul:ate the
+      submarine undergoing a host of other normal submerged maneuvers as
+      well. These maneu~vers, however, are essentially of the open loop type.
+      To perform :losed loop studies, such as depthkeeping or coursekeeping
+      under the inllvence of various environmental conditiona, other oub-routines
+
+                                             14
+
+                                                                           ___                 4
+
+'-.                                      -        -   --                           _   _   _
+           including either marnual operators or automatic control systems niust be
+           added. A typical simulation study of this type it the problem of main-
+Staining           periscope depth while operating under a hoavy sea (say State 5).
+           A sub-routine to represent the effects of an ahead, random sea on the
+           submarine has been developed and used by NSRDC on a number of oc-
+           casions in the past. This sub-routine, sometimes called the sea-state
+           analog, is in the form of forcing functions which are generally applied in
+           an analog computer simulation by means of a white-noise generator, the
+           output of which, in some cases, has been prerecorded on magnetic tal.e.
+           The major components of the sea-state analog are as follows:
+
+               1.   The surface configuration of the representative random, seaway
+               2.   The effects of the seaway on the depth (pressure) sensor which
+                    are functions of depth
+               3.   The oscillatory forces and moments acting on the submarine hull
+                     ,hich are functions of depth
+               4.   The suction forces acting on the submarine which are functions of
+                    depth
+
+               The Standard Equations have been programmed at NSRDC both on the
+           analog computers of the Systems Simulation Facility of the Hydrome-
+           chanics Laboratory and the digital computer (IBM 7090) of the Applied
+           Mathematics Laboratory. These programs, however, have not yet been
+           adequately documented for general public•.tion. Similarly, computer
+           programs exist for a variety of sub-routines. Since these sub-routines
+           usually must be tailored to a particular problem, or in some cases to a
+           particular computer, uo concerted effort has been made to systematize
+           and document them for general publication. Nevertheless, the input data
+           required to construct the sub-routines for existing submarines which have
+           been studied ace available at NSRDC and can be futnished to those entitled
+           to receive them. Other sources for such input data, particularly those
+           for sub-routines dealing with hardware items such as propulsion machinery,
+           ballast blowing systems, control linkages, and automatic control systems
+           are: the Naval Ship Engineering Center (NAVSEC), the submarine con-
+           Ptruction shipyards, and the equipment mnanufacturers.
+
+
+                              THE HYDRODYNAMIC COEFFICIENTS
+
+               The hydrodynamic •:oefficients constitu|te the heart of tht prim-ary
+           mathematical model used in simriulation studies of rigid-body motions of
+           submarines. In fact, the form selected for the equations of motions is
+           influenced to a large extent by the kiod& of hydrodynamic coefficients
+           employed. With this quA)ification in mind, this section of the report
+           presents further informnation as to the nature of the hydrodynamic coaf-
+           ficients used at T7RDC a- well as some insight into how they are obtained.
+           It is hoped that this will serve to asaure that the hydroAynamic coefficients
+           being used for a parti<'l.ar study are compatible with the Standard Equations.
+
+
+                                                15
+
+
+
+
+                                      II
+    Unless mentioned otherwise, the hydrodynamic coefficients apply to the
+    deeply submerged case, free of free-surface, bottom, and wall effects.
+
+         The hydrodynamic forces and moments which enter into the Standard
+    Equations as coefficients are usually classified into three general cate-
+    gories: static, rotary, and acceleration. The static coefficients are due
+    to the c-naponents of l near velocity of the body relative to the fluid; the
+    rotary coefficients are due to components of angular velocity; and the
+    acceleration coefficients are due to either linear or angular acceleration
+    components. Within limited ranges, the coefficients are linear with
+    respect to the appropriate variables, and thus may be utilized as static,
+    rotary, andc'celeration derivatives in linearized equations of motion.
+
+         For six degrees of freedom, the coefficients in each of the three
+    categories which appear in the Standard Equations are quite nurnerous.
+    The problem thus becomes one of determining the numerical values of
+    the individual coef'.cients with sufficient accuracy to support the objectives
+    of the particular simulation study involved, Ideally, it would be desirable
+    to acquire the required numerical values for a given submarine configura-
+    tion by means of hydrodynamic theory. Unfortunately, those coefficients
+    which are primarily due to viscous flow, such as the static i.nd rotary
+    coeft-cients, cannot be obtained reliably using only existing theory. Theor,
+    "has been used with reasonable success to compute acceleration coefficien
+    for simple forms without appendages, such as bodies of revolution, whi
+    are imenable to tri-atment on basis of potential flow considerations.
+    ever, for actual submarine configurations which include appendages         ch
+                                                                                   e4
+    as ccntrol surfaces, decks, bridge fairwaters, and propellers, th        se of
+    theory to determine the values for coefficients even of this type        the
+    accuracy required for certain simulation studies becomes             aom
+                                                                           t
+    questionable. Accordingly, the present state of the art is to      y almost
+    entirely on expertmeatal means for determining the numeri         values of
+    the hydrodyn'; mic coefficients for specific design problem
+
+         Thle primary methodology used at NSRDC to obtain         e required hydro-
+    dynamic coefficients is the Fylanar-Mtion-Mechani            ystenma. This
+     syst m was conceived and developed in the Stabili           Control Division
+    of the Hydromechanics Laboratory. It incorpora           in one device a means
+    for experimentally determining all of the types         ydrodynamic coef-
+    ficiL'rts in each of the three categories that ar    equired in equations of
+    motion for a submerged body in six degrees         freedom. A complete
+    dzscription of the system includig        its     oncepts, principles of
+    operation, apparatus, instrumentation,        d'typical test results, in given
+    in References 5 and 6. Planar-Motion- lechanism System, Mark I, as
+    it is presently constituted, can be use to obtain the numerical values of
+    Jall of the coefficients except certai   ourling terms and thobe nnn-
+*    linearities associated with high va)4cm of nondimensional angular velocity
+     component, such as r', which arý asaociated with maneuvers involving
+I    relatively gfght turns. Where      ch values are required, the data obtained
+     from Planar-Motion-Mechanit        tests are supplemented by the results of
+     Rotating-Arm tests and/or p-timates based on theory. The Rotating Arm
+     Facility ind the instrume •ion and techniques used to conduct submarine
+t                             /1
+9                                                                                  _
+             model tests thereon are descri -ed in Reftrences 7 and 6, respectively.
+             Further details on the experirr -ntal and estimation techniques which
+             relate to the kinds and quality f coefficierts to be used specifically with
+             the Standard Equations are presented in the following paragraphs.
+
+                   The Standard Equations ar written in terms of the complete sub-
+             marine configuration. Accord.ngly, for quantitative studies pertaining
+             to specific submarine designs, the standard practice at NSRDC is to con-
+/            duct all of the required tests v- th models that are fully equipped with all
+             significant appendages including bridge fairwater, deck, bowplanes or
+             sailplaraes. sternplanes, rudders and propellers. These tests effectively
+             cover a matrix containing a range of motion variables (referred to the hull
+             center of gravity) that generall.- exceeds that which could be encountered
+             by the prototype submarine, ar & ranges of control surface angles and pro-
+             peller rpm's which are at leas' equal to the capacity of the specified sub-
+             marine. The resulting characerization of hydrodynamic forces and
+             moments thus embraces interaction efiects involved in the various rodes
+             of rigid body motion between: control surfaces and hull, propeller and
+             hull, and propeller and stern control surfaces. Also included are down-
+             wash effects of forward appendages, such as bridge fairwater, sailplanes,
+             and deck, acting on the stern control surfaces.
+
+                  Since the foregoing process yields hydrodynamic coefficients which
+             pertain to the complete configuration, there is no need to iiclude separate
+             terms in the equations in an attempt to account for local angles of attack
+             in way of control surfaces. The latter procedure has been suggested by
+             some other investigators as a means for obtaining a better representation
+             of control-surface stall, particularly where large local anglea of att Ick
+             occur when the control surfaces are deflected. On the other hand, the
+             procedure for testing the complete'configuration embraces the effects on
+             control coefficients due to changes in local angles of attack resulting
+             from the various modes of motion. Since true flow angles of attack are
+             inherent in this process, the resulting control coefficients should provide
+             a more accurate representation. In fact, if the two procedures are com-
+             bined, and numerical valuee are assigned to the various coefficients, there
+             is always a possibility of creating a redundancy in the equations. It is
+             strongly recommended, therefore, if a complete set of hydrodynamic
+             coefficients, based primarily on experiment is furnished by NSRDC, that
+             the numerical values of all coefficients be used directly without alteration.
+
+                   In addition to their being completely equipped and self-propelled, as
+             a matter of standard practice, the models used at NSRDC for tests involv-
+             ing specific submarine designs are large (usually about Z0 feet in length).
+             Such large models used in conjunction with the large, rigid towing tank
+             facill,'ies of the Hydromechanics Laboratory permit the determination
+             of hydrodynamic coefficients which are corriparatively free of scale
+             effects and other cirtraneous experimental problems. The advantages of
+             large models and large facilities are particularly prevalent when obtain-
+             ing data at high angles of attack on the hull and/or control surfaces. It is
+             essential, in both caspe,    that the Reynoldp number UL be high enough to
+
+
+
+                                                 17
+
+
+     -'[h.                v
+
+
+
+
+         -                                                       \
+    OA**                .*'
+        avoid the effects of transitional flow over the hull and appendages of the
+        model. The effects of transitional flow at large hull angles of attack are
+        manifested as cross-flow drag coefficients that are much higher thaL&' they
+        should be for the corresponding full-scale subrmarine.   The effect of
+        transitional flow on the control surfaces is primarily manifested as prema-
+       ture stall (breakdown in forces) on the model control surfaces. This results
+       in control coefficients at the larger control deflections which are lower
+       than they should be for the corresponding full-scale subutarine. With the
+       large models, a sufficiently high Reynolds number can be obtained at a
+       moderate speed, say about 6 knots for a 20-foot model, to avoid scale
+       effects in most cases. With the large facilities, i.e. facilities having cross-
+       sectional dimensions that are large compared with the corresponding
+       dimension of the model, these Reynolds numbers can be obtained without
+       encountering blockage or free-surface effects which require corrections
+       to  the data. Other advantages in the use6 of large models include: minimi-
+       zation  of tow-strut interference effects, reduction of propeller scale
+       effects, ease of model alignment, accuracy of model ballasting, and ability
+       to house standard instrumentation, propulsion motors, and control actuators
+       within the model. All of these factors contribute to the accuracy and repeat-
+
+
+                                                                                           F
+       ability of the end results.
+
+           It should be noted that the use of small models (5 feet long or less)
+       does not in itself preclude the ability to obtain hydrodynamic force and
+       moment data which, for the deep submergence case, are essentially
+       free of transitional flaw effects. For example, in water of the same
+       temperature, the same Reynolds number can be obtained with a 5-foot
+       model at a speed of 24 knots as that mentioned as adequate for the 20-s
+       foo, model at 6 knots. Unfortunately, most of the laboratories which
+       employ small models have relatively small facilities especially if they
+       have the speed capability. Therefore, the blockage effects constitute the
+       limiting problem, particularly when conducting tests at large hull angles
+       of attack.
+
+            Where fairly complete data are available for a specific submarine
+       deeýgn as the result of an extensive series of tests with the Planar-Motion-
+       Mechanism System, the decision frequently is made to forego supple-
+       mentary Rotating-Arm tests to obtain the missing nonlinearities mentioned
+       previously. This is because estimation techniques, based on empirical
+       data derived from prior Rotating-Arm tests with comparable submerged
+       bodies, have been developed by NSRDC. Indications to date are that these
+       estimation techniques are sufficie'itly accurate for the purpose of making
+       nearly all of the various kinds of simulation studies required for moot
+       modern types of military submarines. Therefore, in these cases, it is
+       felt that any possible further refinement would not justify the costs of the
+       supplom~n*'.ry 4 er~e with the Rotating-Arm Facility. Also, as mentioned
+       previously, there are a few coupling coefficients that are not being
+       presently obtained by either of the two experimental techniques. These
+       are estimated on basis of theory using the relationships given in Reference
+       8.
+
+
+
+                                              18
+
+
+
+     nmW.•u=N
+       •     •          .   .:   .   ... --                                 ..-       --
+
+
+
+
+'.               .
+     The hydrodynarmic cata required for simulation studies of a specific
+submarine design are usually trarsmitted by NSRDC to the users in a
+standardized tabular form. The table contains a complete listing of
+the numerical values for each of the coefficients shown in the Standard
+Equations. The numerical values of the coefficients are derived as
+follows:
+
+     The hydrodynamic force and moment data obtained by the afore-
+mentioned experimental and analytical techniques are first reduced to
+nondimensional form in accordance with the normalization formulas
+given in the Notation. These data can then be plotted or tabulated as
+functions of each of the appropriate nondimensional kinematic variables.
+In general, a least square fit can then be applied to the data representing
+each of the functional relationships to obtain the desired nondimensional
+coefficients. Certain functional relationships are known to be linear from
+considerations of theory, such as those associated with the acceleration or
+"added mass" coefficients. In such cases, only a straightline fit is made,
+and the resulting numerical values can be used interchangeabl7 as coef-
+ficients in the Standard Equations or as stability derivatives in linearized
+equations of motion. For nonlinear functional relationships, least square
+fits to polynomials are used. The current practice, in nearly all cases,
+is to carry such fits only up to the second order coefficients. This is
+done primarily to facilitate computer representation, particularly where
+analog computer techniques are to be employed. The use of a second
+order representation, however, has at least some foundation in theory
+for certain quantities such 3s those arising from cross-flow drag. It
+should be emphasized that the numerical values of first order coei'Icients
+associated with second order fits are not necessarily equal to those
+customarily used for corresponding stability and ccntrol derivatives in
+linearized equations of motion. However, the standard notation used -o
+describe the various first order coefficients, including.*he acceleration
+coefficients previously mentioned, is the same as that used for the cor-
+responding stability and control derivatives.a To apoid misunderstanding,
+therefore, all of the values contained in the standardized tables provided
+by NSRDC are to be taken as coefficients of the Standard Equations to be
+used for simulation studies, uless mentioned4,therwise. Any table which
+ contains numerical values being provided fo' use in stability and control
+analyses involving linearized equations ofnotion, will be clearly marked
+as a table of stability and control derivapves.
+
+    It may be noted in the Standard F.4(uations that some of the coefficients
+involve absolute v:lues of certain )nematic variables. This is done to
+assure the proper signs in the c Qtiuter representations and, in some
+cases, to obtain a better repredentation when a function happens to be
+asymmetrical, such as the variation of M' with w' with respect to rise
+and dive.                  /
+
+     Although the standardized tables list all of the coefficients shown in the
+Standard Equations, some of the coefficients may be assigned a value of
+ zero. This is becaose, for some subnarine types, the values are actually
+ zero or smalU enough to be neglected. Furthermore, for certain submarine
+types, it rnay not be necessary to represent the coefficients that vary with
+if when studying only normal .vpet of marneuvers.
+                                     19
+                In addition to the hydrodynamic coefficients shown explicitly  in the
+                                                           case, NSRDC provides
+           Standard Equations for the deep submergence
+           other hydrodynamic data for ume in submarine simulation st-dies.
+           Typical data in this respect are the coefficients or forcing -unctions
+           associated with proximity to: the free surface (either in still water or
+           waves), the ocean bottom, or otht: boundaries. These data are obtained
+           by model experiment, by theory, or by a combination of Ioth.
+
+               An example of such supplementary data are the hydrodynamic forc•.ig
+          functions used to construct the sea-state analog which was mentioned
+          earlier as one of the sub-routines used for depthkeeping studies. These
+          forcing functions are compounded on the basis of the forces and moments
+          acting on th submerged body moving under trains of regular waves of
+          progressively varied frequencies and amplitudes. When a body moves at
+          constant speed beneath a regular train of waves of a given period and
+          amplitude, two general types of forces arise: oscillatory forces having a
+          frequency equivalent to the encounte- frequency, and a constant force
+          called a suction force which always tends to pull the submarine toward
+          the surface. The oscillatory forces and moments are determined ex-
+          perimentally, in sorne cases. This is done by" conducting special tests
+          in wh:ch the model is restrained to the towing carriage at each of several
+          depths near the surface and towed over a range of constant speeds for each
+         -Of sL ',.(ral uniform wave conditions. The resulting forces and moments
+          and the wave conf:guration Are recorded as time histories. The phase angle
+          between the forces and moments and wave, referred to the hull center of
+          gravity, is also determined. Oscillatory forces and moments whic,-h, in
+          many cases, are sufficiently accurate for depthkeeping studies can be
+          determined by the method of Reference 9. The suction forces are dif-
+          ficult to determine experimentally. Therefore, the usual practice is
+          to c(;mpute them by me ins of theory. 10
+
+                Once the oscillatory and suction forces have been determined for a
+           rangv of cases involving regular waves, they are compounded into spectra
+           for the case of a representative random sea, say a State 5 sea, by a technique
+           developed by the Hydromechanics Laboratory. It should be mentioned that
+           alto•ough the suction forces generated by this technique are random, they
+           alvýays remain directed toward the surface. The data for the seaway con-
+           figuration, the forcing functions, and response of the depth sensor to the
+           seaway are presented in spectral form, including functiont to ac:ount
+           for attenuation with increase in depth. In some cases, the data have been
+           recorded on magnetic tapes for runs of .0-minute duration which can bIe
+           used directly in an analog computer simulation.
+
+
+                             APPLICATION AND RANGE OF VALIDITY
+
+              The N•SRDC Standard Equations of Motion can be used in conjunction
+          with the aforementioned hydrodynamic coefficients and sub-routines to
+          perform a wide variety of submarine simulation studies. Several of these
+          applications have been mentioned eai-lier in a somewhat different context.
+
+                                              Zo
+
+
+
+    -]
+
+:        -...
+         The purpose of this section it to present a more complete listing of the
+         various applications and discuss their ranges of validity.
+
+             Simulation techniques, such as those discussed in this report, have
+         progressed to the point where they have become the primary tools for
+         studying rigid-body motions and related phenomena pertaining to sub-
+         marines. Aa mentioned in the Introduction, such techniques already
+         have baen applied to solve a wide variety of problems pertaining to the
+         design and operation of submarines. In addition, they have been used
+         effectively with training simulators to achieve improved Fleet readiness,
+         with large savings in personnel-training costs. Undoubtedly, there are
+         numerous other applications which will become apparent as time goes by.
+         The following is a compilation, not aecessarily all inclusive, of the various
+         categories of simulation studies that have been carried out using the
+         Standard Equations. Unless mentioned otherwise, all of the maneuvers
+         involved in these studies perlin  to the submerged condition in ahead
+         motion.
+
+               1.      Definitive maneuvers (open loop) to evaluate inherent handling
+                       qualities
+                              a.        Meanders (vertical plane)
+                              b.        Vertical overshoots
+                              c.        Horizontal steady turns
+                              d.        Horizontal overshoots
+                              e.        Horizontal spirals
+                              If.       Acceleration and deceleration in straightline motion
+
+               2.      Normal maneuvers (operational or tactical)
+                          a. Depthkeeping and coursekeeping at various speeds, in-
+                             cluding hovering, using manual or automatic control
+                                            I.  Deeply submerged with environmental disturbances
+                                                such as density gradients and cross-currents
+                                           2. Near-surface under various sea states
+                                           3. Near-bottom including large-scale bottom
+                                                irregularities
+                              b.        Limit dives using manual, semi-automatic, or automatic
+                                        control
+                              c.        Transient horizontal turns using manual, osmi-automatic,
+                                        or automatic control
+
+                              d.        Spiral descents
+                              e.        Mission profiles of various types including target
+                                        tracking, weapons delivery, and a variety of evasive
+                                        maneuvers
+               3.      Emergency Maneuvers
+                              a.        Recovery from sternplane jam casualties using various
+                                        combinations of recovery mea'sures
+
+
+                                                               21
+
+
+!
+
+
+
+
+                        . •             ~~,'t•.           •.
+
+    S.   .                     '• . .       ..        . .
+             ' "• "•      '         }
+     b.   Recovery from flooding casualties using various combinations
+          of recovery measures
+     c.   Buoyant ascents to develop safe procedures for exercising
+          emergency ballast blow systems
+
+     d.   Maneuvers to determine load supportability an a function of
+          speed
+
+     The main strength of the simulation techniques described herein
+lies in their ability to predict or represent, with reasonable accuracy,
+the behavior of a given submarine in a variety of modes of motion.
+Furthermore, if maximum benefit is to be derived, these techniques
+should perform this function either in advance of construction, or with-
+out involvement of the full-acale submarine where it already exlsts. To
+arrive at this state of the art, it is apparent that an active and vigilant
+correlaton program to verify the accuracy and validity of predictions
+must be maintained.
+
+     The Hydromechanics Laboratory devotes a large part of its efforts
+to the business of prediction, namely providing solutions to problems
+b..;re the fact, and therefore, has recognized the need for a strong
+correlation program. Such a program has been maintained on a continu-
+ing basis by the Stability and Control Division over the past ten years.
+The overall objective of this program is to determine the accuracy with
+which the stability and concrol characteristics of submarines, surface
+ships, and other marine vehicles can be predicted by various alternative
+model and analytical techniques. In the more recent years, a large seg-       [
+ nent of the program has been devoted to establishing correlation between
+computer predictions based on techniques of the type described hereiu,
+and measurements taken on full-scale trials of submarines.
+
+      To provide meaningful correlation data for submarine@, the need
+for desigrdng and carrying out carefully conducted special types of
+full-scale trials cannot be overemphasized. In addition, to assure success,
+these special trials should be carried out as a complete package and not          "N
+intermingled with operational maneuvers or other runs being performed
+for entirely different objectives. It is beyond the scope of this report to
+go into detail as to the manner in which these trials are conducted. Suf-
+fice it to say that the subject submarine must be highly instrumented with
+accurate sensors and recording equipment which may either supplement
+or be used in lieu of some of the ship's own instrumentation. Sufficient
+instrumentation coverage must be provided not only to measure the direct
+kinematic quantities involved, but also some of the more subtle quantities,
+which may affect later comparisons. Furthermore, in conducting such
+trials, strict attention must 1e paid to contr,'llng initial or reference
+conditions including such prec-.utionary measures as periodically taling
+"stop trirr-e".
+
+    For a number of years, the Stability and Control Division has been
+conducting full-scale trials primarily to evaluate and establish numerical
+
+                                    Z2                                                 .
+
+
+                 ,,       ~.W*,;.
+
+                                                           /      ..                       =
+             wI
+            measures of handling qualities of submarines. In general, these trials
+            consist of definitive maneuvers of the types listed previously. The
+            definitive maneuvers are programmed maneuvers carried out under
+            controlled conditions in which measurements of all signifia.ant motion
+            variables are taken with accurate instrumentation. Consequently, they
+            are ideal for providing correlation data which are representative not
+            only of definitive maneuvers, but most normal operational maneuvers as
+            well. Included in the handling quality trials are some depthkeeping and
+            coursekeeping runs at periscope depth under various sea states. The
+            data from these tests can, at best, be used as a statistical tie-in with
+            the co.nputer predictions. Since the foregoing types of trials are usually
+            carried out on the first of each new class of submarines, correlation
+            data representative of normal maneuvers have been acquired on most of
+            the different types of submarines that have been put into service from the
+            AGSS 569 on.
+
+                 Corre-ation da.a related to the various modes of motion associated
+            with emcr-•'    .y recovery maneuvers have been considerably less abundant.
+            This is because the emergency recovery maneuvers which were incl.ded
+            in the handling-quality trials were conducted primarily to cemonstrate the
+            subn-Arine's capability of recovering from sternplanc jams of varying
+            degrees. Consequently, accurate measurements were not taken of the
+            var:ous events and other quantities pertinent to the correlation problem.
+            Accordingly, about 2 years ago, it became necessary to design and
+            initiate a series of special trials specifically directed toward providing
+            the desired correlation data. These trials were conducted under the
+            sponsorship of the Submarine Safety Program. They were of two types:
+            one, to provide data on the behavior of representative submarines in
+            sternplane jam recovery maneuvers; and the other, to provide data on
+            behavior during buoyant ascents following blovring of the main ballast
+            tanks. Obviously, in both types, the program was confined to maneuvers
+            that could be carried out without endangering the submarine, as pre-
+            determined on the basis of computer predictions. Up to the present time,
+            correlation trials of both the sternplane jam and emergency blow variety
+            have been conducted on about six different submarines, although not
+            necessarily the same ones in each case.
+
+                 It will be several yearo before all of the data accumulated from the
+            special trials of the various submarine types can be thoroughly analyzed
+            and issued in a formal report containing a comprehensive treaaent of
+*           the correlation problem for all of tit modes of motion involved. In the
+            interim, it is planned to issue separate reports for individual submarines
+            which Will compare measured trajectories with computed trajectories.
+            based on the Standard Equations, for both normal and emergency maneuvers,
+            These reports should serve to provide an indication of the current status
+            of the prediction techniques. Some reports of this type have been issued
+            for the cases of normal vertical-plane maneuvers, n'-mal horizontal-
+            plane maneuvers, and buoyant ascents associated with emergency blows.
+            In addition. ccmparisona of measured and predicted trajectories were
+            made, preparatory to conducting simulation studies to determine safe
+            operating limits and emergency recovery capabilities, for about ten dif-
+            ferent submarine types. These comparisons included representative
+                                               23                                         .
+
+
+
+
+                                         f          41.
+    ~, ~
+    T.-•~     ~   ~~~~:
+                   " -•...      ......
+                               A•--                                                           •''--
+7
+
+    nor rnl maneuvers such as vertical ov'ershoots, horizontal turns, and
+    dece'K.ration runs as well as some moderate sternplane jam emergency
+    recevery maneuvers.
+
+         On the basis of the correlation studies and preliminary comparisons
+     mahd to date, it appears that t]'e Standard Equations together with coef-
+    ficients of the type described herein will, for most part, yield accurate
+    predictions of all pertinent trajectories associated with a variety of
+    normal definitive or operational maneuvers in submerged ahead motion.
+    In fact, the agreement in the majority of the cases Investigated was well
+    within the ability of the full-scale submarine to repeat the same maneuver.
+    For emergency recovery maneuvers, generally good agreement has been
+    found between measured and computed trajectories for moderate stern-
+    plane jam recoveries and buoyant ascents after bal"Ast blows. Some un-
+    usual effects and discrepancies have been discovered while conducting
+    emergency recovery maneuvers on a few of the submarines. Most of the
+    discrepancies have been traceable to a variety of factoru other than the
+    hydrodynami: coefficients. However, certain unusual effects such as
+    gross differences in behavior between the use of right and left rudder
+    as a recovery measure, have not yet been adequately explained. In sum-
+    mary, within the range of the correl.Ltion studies made to date and in
+    spite of the few discrepancies noted, there appears to be no valid reason
+    to criange the Standard Equations as they now exist.
+
+          The complete range of validity of the Standard Equations cannot be
+    established solely on the basis of correlation studies of the types described
+    herein. At best, these studies are limited to maneuvers that can be under-
+    t.-kn by the submarine with a reasonable margin of safety. For example,
+    i4-rrnal maneuvere for high-speed submarines are not carried out to their
+    itUll potentiality. Also, the emergency recovery maneuvers are generally
+    c.ý'rried out at much less extreme conditions than those that could be en-
+    cot.,uered in real casualties. Consequently, it is necessary to use a
+    somewhat different basis to assess the validity of the Standard Equations
+    beyu 'f the range covered by the correlation trials.
+
+         Bas:'cally, the range of validity of the Standard Equations could
+    extend to all modes of motion encountered by a submarine during sub-
+    merged fli-gt at zero or any ahead speed. This would embrace various
+    normal an, er.,ergency situations involving angles of attack or drift up to
+    90 degrees. TL achieve this range, however, would require a complete
+    characterization of the hydrodynamic forces and moments acting on a
+    submarine model whch covers a broad matrix of kinematic variables and
+    cormbinations thereof, including various control-surface deflections. The
+    characterizations curre.itly being made, particularly those being used for
+    the Submarine Saftty Program, are fairly extensive and include angles of
+    attack and drift up to 90 degr-e-s. The results of such characterisations
+    are, for most part, incorporatt d in the hydrodynamic coefficients in the
+    Standard Equations. However, a simplified representation is still being
+    used for the control coefficients aoociated with the deflection of stern-
+    planes, bowplanes or sailplanes, ant. rudde;. Although simplified, the
+    representation for the control coefficienm appe...rs to give approximately
+
+    .Z4
+             ISI
+
+              F-
+
+
+
+
+           TI              _K
+                        the same results ge are obtained by a more rophisticated representation.
+                        even for fairly extreme maLneuvers.
+
+                             SThe simplified representation could become inadequate only if the
+                         effective angle of attach at a rontrol surface becomes large, causing a
+                         condition of stall in which the lift no longer increases with the deflection
+                         angle. In normal submerged maneuvers, including steep dires and tight
+                         turns, the effective angles of attack at the control surfaces of a submarine
+                        tend to be substantially smaller than the nominal angles, and consequently
+                         stall will not be experienced. There are, however, some unusual con-
+                        ditions, such as may occur in certain flooding casualtiev, which could
+                        produce effective angles at the diving planes large enough to cause at-mll.
+                        If the condition is transient, and the large angle o0 attack is only of short
+                        duration, there may be little effect on the trajectories by using the more
+                        sophisticated representatioa. However, in studies of lead supportability,
+                        large angles of attack can be obtained on the sternplanes, parz,•cularly
+                        where the load is concentrated at the stern. Since therz- studies involve
+                        a steady-state maneuver, the use of the simplified representation for
+                        sternplanes could be erroneous for the type of loading mentioned. Rather
+                        than encumber the Standard Equation to treat these few special cases, a
+                        separate sub-routine to represent diving plane stall has been developed
+                        and is available at NSRDC. The sub-routine represents the leveling off
+                        of lift, which is an approximate characteristic of control-surface stall,
+                        but allows the drag to increase %rith deflection angle.
+
+                             In addition to the unusual, and as yet unexplained, effects which have
+                        been observed on full-scale submarines, there are several other factors
+                        which may be pertinent to the range of validity of the Standard E&-uations.
+                        Included among these are the effects of vortex shedding on rolling
+                        behavior, and effects due to the submarine moving close to the free
+                        surface while carrying large pitch, roll, or yaw angles of orientation.
+                        A research program to investigate these factors and which could possibly
+                    *   lead to future refinements and extensions of the Standard Equations, is
+                        being maintained at NSRDC.
+
+
+                                                    CONCLUDING REMARKS
+
+                             The Standard Equations presented in this report have been used
+                        successfully by NSRDC for the past Zi years to conduct simulation
+                        studies of specific submarines engaged in submerged maneuvers ranging
+                        from normal maneuvers to extreme maneuvers such as those encountered
+                        in emergency recovery from sternplane Jam and flooding casualtes.
+                        During this period, several hundred of such studies involving about 25
+                        different submarine designs have been carried out and the results of man7
+                        of these studies are contained in the classified literature. A companion
+-                       program of correlation studies is also being carried out to determine the
+                        extent to which computer predictions, involving the use of the Standard
+                        Equrdions, agree with measured trajectories ob*ained from full-scale
+                        trials of submarines undergoing various types of maneuvers. Those
+    *       •           comparisons made to date      ruve generally shown good agreement between
+                *                                          25
+
+
+
+
+        4                     **4•.-i                                       -,2
+      predicted and measured trajectories of representative fmaneuvers of
+      both the normal and emergency types. It can be exrected, therefore,
+      that the NSRDC Equations used in conjunction with the specified hydro-
+      dynamic coet'lcients and sub-routines will provide simulations of
+      tr,.fctories that are well within the accuracy required for the purposes
+      of those kinds oi'rstudies conducted up to the present time.
+
+           Although the NSRDC Standard Equations have reached a fairly
+      advanced stage of development, they still must be considered only as
+      repiesentative of the state of the art, and subject to change if so
+      dictated by future research. An active research program is being
+      rm.Aintained at NSRDC to examine some of the remainIng problem areas
+      and to continue the development, if required. However, in interest of
+      consistency, a policy has been established not to change the Standard
+      Equations unless it can be demonstrated thai sigaificant improyements
+      in predictions can be obtained. Such a change must be officially made
+      by NSR:)C, and all parties concerned will be properly notified.
+
+           In view of the foregoing, it is recommended that the NSRDC Standard
+      Equations and associated methodology be adopted as a U.S. Navy-wide
+      ttandard for simulation of specific submarine designs, and that they be
+      given official status in dealing with contractors and other outside
+      activities.
+
+
+                               ACKNO WLEDGMENTS
+            The development of the NSRDC Standard Equations of Motion for Sub-                  -..
+      marines and the associated experimental, analytical, and computer tech-
+      niques required t o implement them it the result of a strong team effort
+      on the part of the members of the Stability and Control Division of the
+      Hydroniechanics L.•.h<ratory. Those members or former members of
+      the Division dese-ving special mention are: Miss Eliabeth M. Dempsey
+      who cor tributed to the refinement of the equations and developmerat of
+      techniques for estimating nonlinear coefficients; Mr. F, H. Irmlay for
+      identifying and systematizing cross-relationships for estimating couplings;
+      Mr. Ali-x Goodman, co-inventor of the Planar-Motion-Mechaniom System.
+      who con~tributed strongly to the development of experimental techniques
+      for detcrmining the hydrodynamrc coefficients; Mr. P.C. Clawson who
+      devise9 and carried out full-scale ,riale to provide correlation data per-
+      taining to normal and emergency recovery maneuvers which were needed
+      to validite the primary mathematical models; and Mr-. P. E. Markstrom
+      ernd Mr. G. L. Santore who have been condticting correlation studleo to
+      validatr tiie v:•rious ma.hematical models.
+
+           The authors zlso wish to acknowledge the active interest au   -•pport
+      contributed by per-conn el of NAVSEC and other actlvitoea of tbh Naval
+      Ships Systems Command. In this respect, the support provided by
+      Mr. A. J. Giddings and Mr. W. L. Louis of NAVSEC in connection with
+      Oe Subm'arine Safety Program. aided considerably in accel'rating the
+      development of the equations.
+
+*Z6
+       -26                                                                                  -         Cf
+
+
+
+
+                                                    l    ---
+                                                   44
+
+
+                     nt                                          -                  ,   -
+                                                                     L=4
+
+                                                         -amo.
+4t
+
+
+
+
+                                                   REFER~ENCES
+                       1. Naval Ship EngiLneering Center letter SS/9290. Serial 6136B-312
+                                                                                          of
+                          I May 1967 to Naval Ship Research and Development Center.
+
+                       2. "Nomenclature for Treating the Motion -'f a Submerged Body
+                                                                                      Through
+                          a Fluid", The Society of Naval Architects ind Marine Engineers
+                          Technical and Research iBulletin No. 1-5 (April 1950).
+                       3. Imlay. Frederick H., "A Nomenclature for Stability and Control"
+
+                          David Taylor Model Basin Report 1319.
+                       4. "Planar-Motion-Mechanism System,"
+                                                            U.S. Patent No. 3.052, IZ0.
+                          4 September  196Z, co-inventors M. Gertler and A. Goodman.
+                       5. Gertler, Morton, "The DTMB Planar-Motion-Mechanism System,
+                          Proceedings of Syrnpcsiumn on Towing Tank Facilities, Instrumentation
+                          and Measuring Techniques, Zagreb, Yugoslavia (September 1959)
+                          (Copies of paper available at NSRDC).
+                       6. Goodman, Alex. "Experhnental Techniques and Methods of
+                                                                                   Analysis
+                          used in Submerged Body Research, " Proceedings of the Third
+                          Symposium on Naval HIdrodynainics, Office of Naval Research
+                          (1960).
+                       7. BrowneUl, W.H., "Two New Hydromechanice Research Facilities
+                                                                                         at
+                         David Taylor Miodel Basin" David Taylor Model Basin Report
+                                                                                       1690
+       'Ii               (December 1962).
+
+                      8. Inlay, Frederick H.. "The CGmnplete Expressions for Added
+                                                                                    Mass of
+                         Body Moving in an Ideal Fluid," David Taylor Model Basin Report
+                         "1528 (July 1961).
+                      9. Cumrnmins, W. E., "HydrodynarT'.ic Forces and Moments Acting
+                                                                                      on a
+                         Slender Body of Revolution Movning Under a Regular Train of Waves,.
+                         "Uavid Taylor Model Basin Report 910 (Deccmber 1954).
+
+                      10. 'Fortran Program for Computing Suction Forces on Submerged
+                          Bodie, of Revolution Under Regular Wavee Based on Theory of
+                          W. E. Cummins", NSRDC Designation XUFS (July 1962).
+
+
+
+
+                                                                   Z7I
+
+
+     S ..    I   ..               ..
+                                                                                             - .m--                             -.                                    1
+
+                               UNCLASSIFIED
+                                  security Cusijicfimation
+                                                                                         DOCi'!MT CONTROL DATA                                     I090
+                                  fsoowietv #lI4         fd       oIt .t       6.*1 e        *"   rC             a,   44 mmod        wo     b   smouEod s,   a*      4i 1I
+                                                                                                                                                                        e    t   #@Poo 10   beflto led)
+                       IOAIGNA TIN 6 ACTIVIýY (C..pofm*                         oc44hot)                                                           10. mg9POAT SCURIV               C &ASSIItC5. Isom
+
+                               Naval Ship Recearch and Development Center
+
+
+,;,h                       aItPOer TITLE
+
+
+                             Standard Equations of k.lotlon for Submarine Simulation
+                  4        DIESCAIPIVIC No-Is                 "       of    PW a"gd m9et"              "   deto)
+                             Research and Development (Formal)
+                  % AUTMON(S) (LM r Pnae. S-f                       .      e. I.fti4.)
+
+
+                             Gertler, Morton and Hagen, Grant R.
+
+
+
+                                                                                                                      1
+                  4        Ott
+                            "•AP•ToATI
+                                    •O•TOTAL                                                                                         No. ov, P.A.$.          Ji...      No ofUmp0
+
+_440.                          c~ma•o              •~             o                                                    4.   O34444TA70'S REPoRTv M*uMS1)
+        snJune                           1967                                                                                     39                                 10
+                       0    •.o€J9C       NO.       SR 009 01 01                                                             2510
+
+                       C                                                                                               96. VHI       APOWT       WWI()                               ~       'e.dao"
+                                                                                                                                                                                               AAs,ooe~m
+
+
+
+
+                           A VA ILABILI1Y/LIMITA31041 NOYICES
+
+
+
+
+                           $.P,     LEWIdE[TAP•         NO-$S                                                          1     100116O00111   OLLINANY ACCTINITY
+
+
+
+
+            4     t)       A3$TR•CY
+
+
+                                 Standard equations of motion are presented for use in submarine
+                            simulation studies being conducted for the U.S. Navy. The equations v-e
+                            general enough to simulate the trajectories and rerponses of submarines
+                            in six degrees of freedom resulting from various types of normal maneuvers
+                            ac well as for extreme maneuvers such an those associated with emergency
+                            recoveries from sternplrne jam and flooding casualties. Information te
+                            Llso presented pertaining to the hydrodynamic coefficients and other input
+                            data needed to perform simulation studies of specific 5ubmarini designs
+                            with the S:andard Equations of Motion.
+
+
+
+
+                ~~D                         1473T~L
+                               S- ..--                                                   .                 . .
+
+
+                                                                                                                                                                             '                             !
+
+                           1                I                                                                                        9
+                                               not V WN"166                                                    A             LIMES                      LINKt C
+
+
+
+         Stainda. d Equations of 14otion
+         Submarine Simulation
+         Hydradyiu mic Coefficients
+         Analog Computers
+         Digita Computers
+         Definitive Maneuvers
+         Emergency Maneuvers
+
+
+
+
+       I.ORIGINATING ACTtVITY-         atow the seen and oddmra              Swoosd by socsirlty cdmssifiemtlom. soling stamlad statements
+     of t Ie contralcto. subcoatrctor. Umutee. Depatmem of Do.               each as:
+     ther.    ).eatwt      eta tumatoe(e.eet                uhe)lain             (0)    Qatd      wrqaters my ohana copies of tkis
+                            the         tp~t*tep~d.                                          bee DMCIT
+     2o REPORT SECIJVET CLABBIMAT1O)t E                              vr  ~atsrte (2) "Fervelp mnisotscumsaan
+     04t sec-tetty cstaittlfl~ittel of the report. Lassic~st whetbherbyDCisnta~eiW
+                                                                                                                   d cintaeeaston of hi.
+      -Reetti-std Deaga is tulare-d. Nat~et is to be to accodtu                              b   O     . nAath"~~d
+     &ACV .111 Agplo"046t 11eCz.'u ren'1Zwaloe.                                  (3) "UL.I ovesarmief agencies asay obetai vcopla of
+                                                                                      this "~s directly Isom DDC. Othe wasliflad ODC
+      Mh GW(R2P' Auoatick dowagrdiMG is specified its DOD D*-                         *ears sQW1 rettseet thmaglis
+     Ie~ctive 5200.10 erd Amvn~d Fercs3s lmdsolvial MamiaL £Eter
+     tke group ounber Also. wisest aIlcablo. show that optional
+      markingl havir beom wed for Gnrup 3 *ad Grosip 4 me atdhur.                (4) "'U. L. m~iitary agencies may *M~ain copies, of thia
+                             ,god                                                     repart~         foeoc,
+                                                                                                      t~ly         otba Woauifle vwser
+     3. RIPOUT TffLJL tatev ther conytete topvit title in all                         Vbmi vFoues tbriwesh
+     c~wiW letters. TItles in all cooe. ashould be wmiclofld,
+     If a triatantatfstl tat* coea-i to selected without classifies-
+     t,.oN show tidle classificatbon Ia all capital@ $1spainesthacis             (5) -AVl dieft"Lbtai    of this rqpor is cooaotle& Qual.
+     it-tawdiately followinge the titles.                                             IifW4 00C utors shall request thtso"It
+
+
+                  o_~.t1Unl.
+               a'C4..          gwoveso, ouin*as.         amal      or fiait                    the respett baa be". fwWWLshe to the Offlce of Tcalcacl
+     C., Vista k'sc~ilufts*dties whes a specific ,lptptling Period is                   g.,tice,, Dqeremavt of Csinerce' for sale to Oth public. isdi.
+*    t05?4                                                                              CIA*. twon fact and sale th pelc*. if *:Nowft   .
+    S. AUTTPIX(Sk fAmer the siaesi(s) of outhoss(s) as showss eo                        IL PPUW1&MrA*Y WYTK2 Us* (or abldl*Snmd e~spla-
+    of smthe opolt. gain?, lean fdnas (trot ftmm. tudde itiftial.                        W7-t
+    V wahistry. Abou t valk & branch of worlee. The sme of
+    ow t. 'ifc~op aspliar as 2^o3~olaq fite
+                                       .J     m. ta,"  out"                             12. UPOWIMMN        XMITARY ACIIVTY't Raw thewe.
+                                                                                                                                      itma
+     &. lt!PONT ')ATL_            Eater tAn dam*a(of :    rapatt &Ola.
+                                                                   do!-                 t    ,)th
+                                                                                            OW      mew proand dr~a    I
+                                                                                                                     Wea~   ah spondme (po
+
+        -h acut. wa date of root attlesa                                                13. A521tRACITi Cater an ajsheect giving * as  WW nmdfactreal
+                          ~
+                       TOAL  O itima
+                                 l'A3f~ymo.                                             5rimsy    44 dis daceatrt IndicatiUS of the 159544 *tonU lh"41A
+     7:vtTOTLo MY10M (
+                    %KýWIflowassoal
+                                   AIMTi
+                                      al
+                            q~tmies ptcoiarv.
+                                                                     Coast t
+                                                               oflto~pocdun.L.
+                                                              L.. aste Ilso
+                                                                                        tia"
+                                                                                        it     @fem a.e
+                                                                                           t. it sddletim
+                                                                                                         "?0"iss avi~e in as bsdit telo !9ccbel
+                                                                                                             pe. space     ed ad000
+                                                                                                                                 cmatimae~ess shoet MAU~
+                                                                                                                                                            ~Is0-
+     maivtes of p".s C644*e1eitt   imforuntaa.                                          he
+                        7& mr~iA OfRWYVZMCMWr *AtotA sw~w f                                  t is Jieltp do~kahla that th. abstreci of cLavolfted rpstots
+           y.e cgced MR  the otP01i.                                                    be socimqAtfle.     Each 04aepbis    atte abstrac shuit me" with
+     U CnTTWCT
+          M             OR GRAN! M A1IM. If sois"Wetvt. 3aet                            an Lednla. 0t die oullitary sacrt7 closeasIcattlof      . the WA.
+    tbý- qWl itt .61. imosr of tow cwwtlect a* g e  ader uA.c
+                                                   u#w                                  Woeanstan is the Pososena,A Papi ums Ieane   MVft). (2). (C). so (U)
+    the .99s       WAS0wrtittee                                                              Two" to    so limitation O&an
+                                                                                                                        theeGO at tue suatMs4. Hoew.
+    91s. k. & &S. PIOjEWV P1.30          "Wate the owespiat*                            OWNat the emuad length is hem, 150 to 125 Words.
+    sailitary dapmatmem t4rdIIfcattse. sch as pesiori usse,                                  KYV4S Ewed                  eekhlcl      7    savgl        a.
+    siihesjer4 Wa'W swan..       bawaro. task in ob" s ict                              MetrOM,9                    at     nie       clt            vsis&     sn
+                                                                                        sotshe"t puma"e listhal     otqz     a as"e Andaft be usand as
+     go OU10lNAWý31'        REPOWT WmeR(S             ritess, the amti                  heq2 msba (ofo cabblogja t.        sP.art. aey atod asst he
+    .'VIAt "Port matabor by 16ftcb thes decsm     wilt hae tdatmled                     9tiocied As tStol m sestity, cLaeslticatlaq to ")Mj~d. Wed-aI
+      OXd cosoeatlt %1tite ariginetl,& scuw~tt.    Iwo setLer usalt                     fno". wsech em 09.4mat model dsstesunea beds name. maito,17
+     be -ftsese In Iths ropaet.                                                         Pta*ct C*& Aeta*         sarphec location, @m he used $a It"
+      91 OT1#" RE-PO91T PIMEWSYS)            "4Ike aPw i kenIm                          =    1 bat will be fol lows by amldo ets        f ote        Cast-
+      assymigs Val, etker topo" atAisahrs (@*1" 6, $,aseaes~itimar                      sai     b    ei~saeatM ofsA.rt".          a." mo4isss to "do"n.a
+
+     to. AVAILAIKLITfT/tLm-ATMo                   NOTICK2 toter saytim
+     Itato ae ea far~hor               g~..o    C$1the nowni. *a-- that            Z-
+                                                                                                           UNCLASSIFIED
+                                                                                                                         secu~rity C).SBJc.LIO
+
+
+
+
+    *I~~5*~           -                                          --.          --                                                           1/   *
+

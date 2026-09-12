@@ -1,0 +1,1955 @@
+           I   David Taylor Research Center
+               Bethesda, MD 20084-5000
+
+
+
+
+IN              DTRC/SHD-1298-02         December 1989
+                Ship Hydromechanics Department
+                Departmental Report
+
+
+
+
+               EXPERIMENTS OF THE
+               DARPA SUBOFF PROGRAM
+
+
+                by
+
+                Thomas T. Huang
+               Han-Lieh Liu
+               Nancy C. Groves
+                                                                 DTIC
+                                                                   ELECTE
+
+
+                                                                              0
+     <S
+                                                                      81990
+                                                                     0MARO
+
+
+     u.J
+                                                             S B
+     z
+
+
+
+     X                                                   Approved for public release;
+                                                         Distribution is unlimited.
+
+     U
+     cc
+                               S.   I   T                 CN
+
+
+
+
+  CODE 011            DIRECTOR OF TECHNOLOGY, PLANS AND ASSESSMENT
+
+              12      SHIP SYSTEMS INTEGRATION DEPARTMENT
+              14      SHIP ELECTROMAGNETIC SIGNATURES DEPARTMENT
+              15      SHIP HYDROMECHANICS DEPARTMENT
+
+              16      AVIATION DEPARTMENT
+
+              17      SHIP STRUCTURES AND PROTECTION DEPARTMENT
+              18      COMPUTATION, MATHEMATICS & LOGISTICS DEPARTMENT
+
+              19      SHIP ACOUSTICS DEPARTMENT
+
+             27       PROPULSION AND AUXILIARY SYSTEMS DEPARTMENT
+             28       SHIP MATERIALS ENGINEERING DEPARTMENT
+
+
+
+
+                           DTRC ISSUES THREE TYPES OF REPORTS:
+    1. DTRC reports, a formal series, contain information of permanent technical value.
+    They carry a consecutive numerical identification regardless of their classification or the
+    originating department.
+    2. Departmental reports, a semiformal series, contain information of a preliminary,
+    temporary, or proprietary nature or of limited interest or significance. They carry a
+    departmental alphanumerical identification.
+    3. Technical memoranda, an informal series, contain technical documentation of
+    limited use and interest. They are primarily working papers intended for internal use. They
+    carry an identifying number which indicates their type and the numerical code of the
+                deparlriicnt. Aiiy uistr'bu ,iufi uutsicie DTR" mus. be appioveo oy tne head ot
+    the originating department on a case-by-case basis.
+
+
+NDW-DTNSRDC 5602151   (Rev 2-88)
+          UNCLAS S IF IED
+SECURITY CLASSIFICATION OF THIS PAGE
+
+
+                                                             REPORT DOCUMENTATION PAGE
+ Ia. REPORT SECURITY CLASSIFICATION                                                               1b. RESTRICTIVE MARKINGS
+
+                Unclassified
+2a. SECURITY CLASSIFICATION AUTHORITY                                                             3. DISTRIBUTION /AVAILABILITY OF REPORT
+
+2b.DECLASSIFICATIONJDOWNGRADINGSCHEDULE                                                              Approved for public release;
+                                                                                                     distribution is unlimited.
+
+4. PERFORMING ORGANIZATION REPORT NUMBER(S)                                                       5.MONITORING ORGANIZATION REPORT NUMBER(S)
+
+
+                DTRC/SHD-1298-02
+ 6a NAME OF PERFORMING ORGANIZATION                                  6b. OFFICE SYMBOL            7a. NAME OF MONITORING ORGANIZATION
+                                                                          (if apicaDle)
+           David Taylor
+           Research Center                                               Code 1542
+ Sc.ADRESS         (City, State, and Zip Code)                                                     7b. ADDRESS        (City, Stale, and Zip Code)
+
+
+            Bethesda, MD                    20084-5000
+a NAME OF FUNDING / SPONSORING                                       8b. OFFICE SYMBOL            9.PROCUREMENT INSTRUMENT IDENTIFICATION NUMBER
+     ORGANIZATION                                                       (i awiicaoie)
+                                     DARPA                      I
+ 8c. ADDRESS        (City, State, and Zip Code)                                                   10. SOURCE OF FUNDING
+
+        STP       Support Office                                                                   PROGRAM                PROJECT NO.               TASK NO.           WORK UNIT
+        1515 Wilson Blvd., Suite 705                                                               ELEMENT NO.                                                         ACCESSION NO.
+        Arlington, VA    22209                                                                      63569N                                          S1974030            DN509067
+ 11.TITLE        (Include Secunty Classification)
+
+                                           EXPERIMENTS OF THE DARPA SUBOFF PROGRAM
+ 12. FERSONAL AUTHOR(S)
+                                     Thomas T.               Huang,                Han-Lieh Liu,                         Nancy C.             Groves
+ 13a. TYPE OF REPORT                              130. TIME COVERED                               14.DATE OF REPORT         (Yea, Month, Day)           15. PAGE COUNT
+    Departmental                                    FROM         T         TO                              1989, December7 7
+ 16. SUPPLEMENTARY
+ NOTATION
+
+
+
+ 17                  COSATI CODES                                    .A:,UBJECT TERMS              (Continue on reverse if necessary and identify by block number)
+
+        FIELD          GROUP                SUB-GROUP                    DARPA SUBOFF,            pressure coefficient,                    mean velocity,             L't,   ) ,i   A
+                                                                         flow measurements,                shear stress,              wake profile,                Reynolds stress)
+
+ 19, ABERACT        (Continue on reverse if necessary and identify by block number)          ##      A",                              ,i                       e        .,
+
+
+
+  "~xperimental measurements of the flow field of an axisymmetric body,
+ bridge tairwater, four identical symmetric stern appendages, and two ring
+ wings with ring wing support struts will be made in the David Taylor Research
+ Center (DTRC) Anechoic Flow Facility (AFF) and deep-water towing basins (TMB)
+ and Tracor Hydronautics Ship Model Basin (HSMB).  The experimental data will
+ be used to assess the current Computational Fluid Dynamics capability for the
+ Defense Advanced Research Projects Agency (DARPA) SUBOFF Project.
+ Experimental facilities and techniques are presented, and the contents of the
+ experiments are outlined. This information together with the geometric
+ characteristics of DARPA SUBOFF models is intended for use by both the model
+ test engineers and the CFD engineers...
+
+
+ 20 DISTRIBUTION / AVAILABILITY OF ABSTRACT                                                       21. A "TRACT    SFCI IRITY
+       UNCLASSIFIEDANIIIT m              , - R                       r          ,T,,   S            LAS :PICATION                Unclassified
+                                 -                                                                                               4
+ ':a.   NAte.
+          iV  -hL ,C'4L              P;
+                                      NUIVIDUAL                                                   22b. TELEPHONE        (Include , a Code)             22c. OFFICE SYMBOL
+                                        Thomas T. Huang                                                    301-227-1325                                        Code 1542
+DO FORM 1473,          84 MAR                              83 APR edton may We sac until
+                                                                                      exhaustd                                       SECURITY CLASSIFICATION OF THIS PAGE
+                                                                 Allothr ediios ar. obsole                                                 UNCLASSIFIED
+                                                     CONTENTS
+                                                                                                                page
+N O M EN CLA TUR E ..................................................................... . . ............ iv
+A B STR A C T ......................................................................... . . ............... 1
+ADMINISTRATIVE INFORMATION ............................................................... I
+IN TR OD U CT IO N .......................................................................................... 1
+EXPERIMENTAL FACILITIES AND TECHNIQUES ..........................................                                 4
+        WIND TUNNEL PRESSURE MEASURING SYSTEM .................................. 6
+        WIND TUNNEL WALL SHEAR STRESS MEASURING SYSTEM ................. 6
+        WIND TUNNEL VELOCITY MEASURING SYSTEM ................................. 7
+CO NTENTS O F EXPERIM ENTS ....................................................................... 8
+DTRC AFF EXPERIMENT OUTLINE ................................................................. 9
+        DTRC AFF EXPERIMENT DETAILS ....................................................... 9
+        TMB       T EST     PLA N ............................................................................ 17
+        H SM B TEST PLA N ........................................................................ 19
+ACKNOWLEDGEMENTS ........................................................................... 20
+                                                                                                              37
+A P P E N D IX ........................................................................................... ....
+RE FE R E N CE S ............................................................................................ 4 1
+
+
+                                                       FIGURES
+1.    Schematic of Anechoic Flow Facility (AFF)........................                    .................... 21
+2.    Anechoic Flow Facility test section ................................22
+3.    Model mounted in DTRC Towing Tank (TMB) ............................................. 24
+4.    Strut used for resistance tests at DTRC Towing Tank ........................ 26
+
+
+                                                    TABLES
+1.    C ryptic     T est   N otation ............................................................................. 28
+2.    Radial     Locations for Measurements ............................................................. 29
+3.    Summary of Expcrin'i i, in DTRC AFF (Model No. 5471) ................................ 30
+4.    Summary of Experiments in DTRC TMB (Modei No. 54701                               ...........................35   For
+
+5.    Summary of Experiments in the Tracor Hydronautics Ship Model Basin                                                -1
+       (HSMB) (Model 5470)              ....................... .     ...................                         36          0
+                                                                                                                        Ion
+
+                                                                                                           By
+                                                                                                       I Distrtbutlon/
+                                                                                                       I   Availability Codes
+                                                                                                                 Av     -and/or
+                                                             iiioal
+                           NOMENCLATURE
+
+
+Aun    cosine coefficient for axial velocity component
+Avn    cosine coefficient for radial velocity component
+Awn    cosine coefficient for tangential velocity component
+Bun    sine coefficient for axial velocity component
+Bvn    sine coefficient for radial velocity component
+Bwn    sine coefficient for tangential velocity component
+Cp     pressure coefficient -       P-Pref
+                                 1/2 p U 2 ref
+
+       wall shear stress coefficient -=        w
+C,
+                                       1/2 p U 2 ref
+h      non-uniform grid spacing
+J      probe number used in the time-varying harmonic study
+K      integer
+L      model length, turbulence length scale
+N      harmonics number
+Pref   pressure at x/L = 0.85 and r/Rmax = 2.7, 0 = 0 degrees
+r      ratio of lengths of any two radial distances
+          in defining the boundary layer thickness
+Rmax   maximum body radius
+RX     turbulence Reynolds number
+S      the power spectral density amplitude
+t      time
+T      period in time-varying harmonics
+U0     Free stream velocity
+Uref   reference velocity at x/L = 0.875 and r/Rmax = 2.7, 0 -0 degrees
+ux     mean axial velocity component, positive downstream
+ux     turbulence velocity in the axial direction
+Vr     mean radial velocity component, positive outward from center
+vr     turbulence velocity in the radial direction
+W9,,   mean tangential velocity component, positive counter-clockwise
+          when viewing the model from stern to bow
+w'o    turbulence velocity in the 0 direction
+x      axial coordinates, pcsitive downstream
+
+
+
+                                      iv
+                   NOMENCLATURE                (continued)
+
+
+(X      angle of attack for the model, pitch
+        angle of attack for the model, drift
+*y      angle of attack for the model sternplane
+8r      local boundary layer thickness
+C       turbulence energy dissipation
+T"1     Kolmogorov length scale
+0       angle defined in the polar coordinates
+X       microscale turbulence
+V       eddy viscosity
+p       density
+"T      turbulence time scale
+'rw     wall shear stress
+K2the       power spectral density phase angle
+                                              ABSTRACT
+
+                        Experimental measurements of the flow field of an axisymmetric
+                 body, bridge fairwater, four identical symmetric stem appendages, and
+                 two I mg A iags with ring wing support struts will be made in the David
+                 Taylor Research Center (DTRC) Anechoic Flow Facility (AFF) and
+                 deep-water towing basins (TMB) and Tracor Hydronautics Ship Model
+                 Basin (HSMB).      The experimental data will be used to assess the
+                 current Computational Fluid Dynamics capability for the Defense
+                 Advanced Research Projects Agency (DARPA) SUBOFF Project.
+                 Experimental facilities and techniques are presented, and the contents of
+                 the experiments are outlined. This information together with the
+                 geometric characteristics of DARPA SUBOFF models is intended for
+                 use by both the model test engineers and the CFD engineers.
+
+                               ADMINISTRATIVE INFORMATION
+
+       This work was funded under DARPA, Task Area S1974-030, Program Element 63569N, with
+internal DTRC Work Unit Numbers 1-1542-123, 1-1542-126 and 1-1542-127.
+
+                                          INTRODUCTION
+
+       The Submarine Technology Program (STP) Office of the Defense Advanced Research Project
+Agency (DARPA) has funded a concerted and coordinated Computational Fluid Dynamics (CFD) Progi am
+to assist in the development of advanced underwater bodies. The flow over an entire appended body
+during level flight is characterized by thick boundary layers, vortical flow structures generated by
+hull/appendage junctures, and turbulent wakes. The spatial and time-varying harmonics of the flow into
+the propulsor significantly affect propulsor noise. Flow separation will occur during various maneuvers,
+especially during severe maneuvers when the vortices shed from the fairwater and hull (cross-flow open
+separation) will interact with the stem, stern appendages, and propulsor to generate out-of-plane forces
+and moments.
+
+       Limited experimental data for CFD validation purposes have been obtained during the past 15
+years. They are (1) thick stem boundary layer data for various axisymmetric configurations [1-61, (2)
+appendage/flat-plate juncture flow data [7,8], and (3) flow data for a curved body, which simulates
+qualitatively the flow features of a turning body [9). Experimental data for the flow field over an entire
+appended body are seriously lacking and the validation of CFD numerical methods for submarine design
+applications cannot be adequately accomplished. The DARPA SUBOFF project will provide a forum for
+the CFD community to compare the numerical predictions of the flow field over an axisymmetric hull
+model with and without various typical appendage components with experimental data. The CFD
+predictions of flow fields of typical configurations will be made without the prior knowledge of the actual
+experimental data. Experimental and computational comparisons can then be made to demonstrate the
+current CFD capability on design problems relevant to STP problem areas. The ultimate goal of the
+SUBOFF project is to acquire a fully-matured CFD capability that is user-friendly, cost effective and fully
+verified by comparison with detailed experimental data.
+
+       The role of CFD in conventional ship design and model evaluation has been summarized by
+Morgan and Lin [10]. The current capabilities and future directions in CFD as applied to aerospace
+engineering [11] have been assessed periodically by a committee under the auspices of the National
+Research Council of the United States. The state-of-the-art of both the experimental and CFD techniques
+as related to ship hull and propulsor design and performance prediction has been addressed by Morgan and
+Lin [121. The influence of CFD on aerospace experimental facilities [13] has been reported by a committee
+of the National Research Council. Various CFD techniques have been developed and applied to solve
+certain aspects of submarine hydrodynamic problems in the past. A partial list of the relatively mature
+current CFD techniques, which are cost-effective and reliable follows:
+
+
+(1) Software for the design of conventional propulsors by lifting line theory and lifting surface theory.
+
+(2) Software for the prediction of propulsor performance (mean thrust, torque and efficiency) by inverse
+    lifting surface theory and a surface panel method with viscous correction.
+
+(3) Software for the prediction of the difference of radial distribution of circumferentially-averaged inflow
+    into the propulsor between the model and full scale using a viscous-inviscid interactive boundary-
+    layer theory.
+
+(4) Software for the prediction of the propeller/hull interaction (thrust deduction) by a surface panel
+    method.
+
+(5) Software for the prediction of the laminar boundary-layer over the bow using laminar boundary-layer
+    theory and prediciton of transition from laminar to turbulent flow on the forebody using an empirical
+    spatial amplication factor in conjunction with linear boundary-layer instability theory.
+
+(6) Software for the prediction of turbulent boundary layers over the forebody and most of the parallel
+    middle body using turbulent boundary-layer computational techniques.
+
+
+       As the flow approaches the stern, the boundary layer thickness quickly increases, viscous-inviscid
+flow interaction becomes pronounced, turbulence reacts to the change in mean flow, and conventional thin
+boundary-layer turbulence modeling is no longer directly applicable. Since the stern control surfaces are
+
+
+
+                                                      2
+generally immersed in this thick boundary layer, the numerical capability to predict the control
+effectiveness of the stern control surfaces and their adverse effect on the flow into the propulsor is rather
+limited. In addition, a large fairwater can generate a turbulent junction vortex around the nose of the
+fairwater/hull intersection and a pair of vortices which trail downstream into the propulsor. The low
+frequency unsteadiness around the fairwater and the vortex-induced spatial nonuniformity of the flow into
+the propulsor are of major concern. The CFD capability to predict the flow nonuniformity at the propulsor
+location, due to the fairwater and stern control surfaces, is seriously lacking. This nonuniformity is the
+major source of propulsor noise. The CFD capability to predict the propulsor noise arising from the small
+spatial variation and low-frequency unsteadiness of the propulsor inflow is also not well developed.
+Furthermore, in order to develop a highly maneuverable submarine, a time-dependent CFD capability to
+predict the out-of-plane forces and moments due to the interaction of vortices shed from the fairwater, hull,
+stern appendages and propulsor during various maneuvers must also be developed.
+
+       Eight simple representative configurations were selected for the experimental SUBOFF program.
+They include:
+
+(1) a bare axisymmetric body,
+
+(2) an axisymmetric body with fairwater,
+
+(3) Pn axisymmetric body with four identical stern appendages,
+
+(4) an axisymmetric body with fairwater at zero drift and varying angle of attack,
+
+(5) an axisymmetric body with fairwater at zero angle of attack and varying drift,
+
+(6)-(7) an axisymmetric body with two different stern ring wings, and
+
+(8) an axisymmetric body with both fairwater and four stern appendages.
+
+The flow velocities, forces, moments and pressure distributions on the axisymmetric body and forces,
+moments and pressure distributions on one of the stern appendages at steady body angles of attack and
+drift will provide the validation of current CFD capability for STP. The proposed first phase of SUBOFF
+is designed to accelerate the maturity of current CFD capability for submarine applications. The geometric
+characteristics of the eight SUBOFF configurations are detailed in Reference 14.
+
+       The following sections present the experimental facilities and techniques to be used and the content
+of the experiments to be performed.
+
+
+
+
+                                                      3
+                      EXPERIMENTAL FACILITIES AND TECHNIQUES
+
+        A portion of the experimental investigation of the eight DARPA SUBOFF model configurations
+will bc conducted in the DTRC AFF with Model No. 5471. As shown in Fig. 1, the wind tunnel has a
+closed jet test section that is 8 ft (2.4 m) square and 13.75 ft (4.19 m) long. The corners have 1-9" x 1-
+9" (0.534 x 0.534 m) fillets which are carried through the contraction. Allowance for boundary layer
+growth along the tunnel is made by tapering the comer fillets, starting from 1-9" x 1-9" (0.534 x 0.534
+m) at the test section entrance to 1'-8" x 1-8" (0.509 x 0.509 m) at the test section exit. The test section i',
+followed by a large acoustically-lined chamber 23.5 ft (7.16 m) square, normal to the flow, and 21 ft
+(6.40 m) long. The forebody and most of the parallel middle body will be located in the closed-jet test
+section, and the afterbody will be protruding into the open-jet anechoic chamber shown in Fig. 2a. The
+model arrangement, shown in Fig. 2b, will reduce the tunnel blockage effect on the stern flow to a
+minimum. The major purpose of the SUBOFF experiments is to obtain high-quality data on the
+axisymmetric and three-dimensional stern flows of the eight model configurations.
+
+       Two NACA-0015 struts are required to support the model. The t lo supporting struts have a 6"
+(15 cm) chord. Most of thc experimental data will be fcr flow on the upper surface of the model where
+strut effects should be minimal. The location of the two struts is shown in Fig. 2b. All the experiments
+will be conducted at a Reynolds number, based on model length, of 1.2x107. It should be noted that the
+full-scale Reynolds number of interest is 108 to 109. The CFD capability verified at a Reynolds number of
+1.2x107 must readily be extended to Reynolds numbers of 108 to 109 in order to meet the DARPA STP
+objectives. The installation and pretest analyses of the blockage of the model in the wind tunnel will be
+presented in a separate report.
+
+       The DTRC AFF will be used to obtain stem flows of:
+(1) the bare axisymmetric body at zero angle of attack and drift,
+(2) the axisymmetric body with a conventional fairwater at zero body angle of attack and drift,
+(3) the axisymmetric body with four identical stem appendages at zero body angle of attack and drift,
+(4) the axisymmetric body with a fairwater at a body angle of attack (2' bow up) and zero angle of drift,
+(5) the axisymmetric body with a fairwater at a body angle of drift (20 to starboard) and zero angle of
+    attack,
+(6) the axisymmetric body at zero body angle of attack and drift with ring wing 1,
+(7) the axisymmetric body at zero body angle of attack and drift with ring wing 2, and
+(8) the axisymmetric body with a fairwater and four identical stern appendages at zero body angle of attack
+    and drift.
+
+
+
+
+                                                      4
+        The maximum body angle of attack or drift in the DTRC AFF will be limited tc two degrees. In
+order to measure the flows at larger angles of attack and drift (up to 18 degrees), as might be expected
+during severe maneuvers, larger wind tunnels and towing tanks must be used to avoid the adverse
+blockage effect. The DTRC deep water model basin (TMB) and Tracor Hydronautics Ship Model Basin
+(S11MB) were selected to obtain the force/moment and pressure distributions on the axisymmetric body
+Model No. 5470 and the force/moment and pressure distributions on one of the appendages at various,
+angles of attack and drift.
+
+       The TMB will be used to measure the forces and moments of the axisymmetric body, with and
+without the bridge fairwater and stern appendages, the stern appendages alone, and the two ring wings.
+This model basin is 51 ft (15.54 m) widc and 22 ft (6.70 m) deep. The depth of submergence of thc
+model is 9 ft (2.74 m). Experiments will be performed for a range of body angles of attack ,-8 to +I I)
+and body angles of drift (-4 to +180). Two vertical struts, aF shown in Figs. 3a and 3b, will be used to
+tow the model. The longitudinal spacing between the centerlines of the struts is 6 ft (1.83 m). Each strut
+will be attached to the model through a set of three 4-inch block gages which measure the longitudinal,
+transverse and normal forces on the model. A gimbal between the three gages and the towing strut make it
+possible to determine the yawing and pitching moments. A five strain gage instrumented stock attached to
+one of the stern appendages will be used to measure the normal force, longitudinal force coefficients.
+spanwise center of pressure, and stock torque developed by the control surface.
+
+        Incremental resistance due to the appendages must be determined by an "appendage stripping" test
+in the TMB. The techniques to measure the pressure, wall shear stress and velocity measuring systems are
+briefly described below. The total resistance will be measured by a standard block gage for
+
+  (i) the axisymmetric body
+ (ii) the axisymmetric body with bridge fairwater
+(iii)   the axisymmetric body with four identical stern appendages,
+(iv) the axisymmetric body with the two ring wings, and
+ (v) the axisymmetric body with the bridge fairwater and the four identical stem appendages.
+
+A single strut, as shown in Fig. 4, will be used 'otow the model. The bridge fairwater will be mounted
+upside down to avoid the interference effect of the towing s='ut on the drag. The depth of submergence of
+the model centerline is 11 ft (3.35 m) fo, the resistance measurements. The effect of turbulence
+stimulators on the appendages will also be measured.
+
+
+
+
+                                                       5
+       The HSMB is 24 ft (7.32 m ) wide, 12.76 ft (3.89 m) deep and 420 ft (128 m) long. The depth
+of submergence of the model is 6 ft (1.83 m). Two ogive struts (3-inch (0.82 m) chord and 1/8 inch (3.4
+cm) thicknes) will be used to support the model. The longitudinal spacing between the centerlines of the
+struts is 6 ft (1.83 m). A few additional force/moment measurements and appendage stripping tests will
+also be made for speeds up to 16 i/s (3.05 m/s).
+
+WIND TUNNEL PRESSURE MEASURING SYSTEM
+
+         The DARPA AFF Model No. 5471 will be used to "grovide surface pressure distributions at the
+junctures of the fairwater/hull and the appendage/hull. The pressure measuring system for the DARPA
+ SUBOFF model is a mechanical pressure scanning system that connects all the model surface pressure
+ taps, pitot-static tube taps, calibration pressure taps and free-stream static taps to silicone diaphragm
+differential pressure transducers. The five transducers are connected to signal conditioners and amplifiers
+ inside the model, and the resulting signals connect to computer A/D converters. Pressure taps can bc
+ scanned at rates up to 10 per second. Connected to taps on the measurement side of each transducer are
+ the reference pressure, calibration pressure and pitot tube static and total pressures A high accuracy,
+ temperature controlled pressure transducer located in the model is used as a standard and is connected to
+ the five scanning pressure transducers for in situ calibration. Calibration pressure is externally controlled
+ by a variable volume chamber in the control room. The system is designed to accurately measure presSure
+ coefficients by comparing the differential pressure of each pressure tap on a transducer to the pitot tube
+ dynamic pressure measured by the same transducer. This reduces bias type errors. Temperat ire drift
+ errors are reduced by calibrating the transducers immediately before each run using the temperature
+controlled standard. The Model No. 5471 reference pressure will be the static pressure measured by the
+ pitot probes in the anechoic test section chamber of the AFF.
+
+WIND TUNNEL WALL SHEAR STRESS MEASURING SYSTEM
+
+        For measuring surface shear stress on the model, differential pressures will be measured with the
+pressure measui-ing system using obstacle blocks located on the downstream side of the pressure taps.
+The surface pressures wii! be measured with and without the obstacle blocks and the resultiing pressure
+differences will be correlated to previous calibrations of the blocks using Preston tubes as a standard for
+shear stress measurement. The particular block shape that has been chosen is easy to apply adjacent tc the
+pressure tap holes and produces a pressure rise that is comparable to the pressure rise produced by Preston
+tubes. The pressure rise in the range of 30-46% of the dynamic pressure will be easy to measure with the
+given pressure measuring system. The calibration procedures and uncertainty analyses of the pressure and
+wall shear stress measuring systems will be presented in a separate report.
+
+
+                                                      6
+WIND TUNNEL VELOCITY MEASURING SYSTEM
+
+       Velocity measurements in the boundary layer and wake will be made by using standard hot-film
+techniques. Single element, x-film and three-element probes will be used. The single-element probe will
+be used for thin boundary layers, the x-film probes for Reynolds stress in confined locations or when the
+flow is two-dimensional, and the three-element probes for the wake and thick stern boundary layer. For
+accurate and efficient measurement of the flow field of the DARPA submarine model configurations, a
+special hot-film velocity measuring system is being developed.
+
+      The measurement system will consist of three major subsystems: The hot-film probes and
+anemometers, the traverser, and the data acquisition system. The three subsystems will interact to provide
+accurate, efficient and easily documented data on the character of the flow. The shear number of
+measurements required for this experiment dictated a computer-controlled approach for acquiring, reducing
+and archiving the data.
+
+        The hot-film probes and anemometers have been carefully selected to match the particular types of
+measurements required for this experiment. Measurement in the thin boundary layers will require the use
+of single element probes aligned with the mean flow. Frequency response and voltage range will be
+optimized for the velocity range so that turbulence quantities can be measured accurately. For Reynolds
+stress measurements in regions where the flow is two-dimensional or in confined regions where the mean
+flow direction is known, x-film probes can be employed. For regions which are fully three-dimensional
+and do not have steep spatial velocity gradients, three-element probes of a new design having smaller
+measurement volume can be used. These will provide all three components of velocity and two
+components of Reynolds stress. At some locations, x-film and three-element probes will both be used to
+help determine uncertainty levels. Calibration of the various types of probes will be performed with the
+utmost care. All measurements will be compensated for temperature variations via a separate thermister
+thermometer. The calibration procedures, data reduction techniques and uncertainty analysis will be
+described in detail in a separate report.
+
+       The traverser system has been designed specifically for the particular measurements needed for this
+experiment. The axisymmetry of the model dictated a rotating movement for measurements at constant
+radius in the wake and stern boundary layers. Measurements of the thin boundary layer require a probe
+mount, which is supported locally and can move along a radial line. All such traversing will be computer
+controlled for efficiency in operations and in data recording. The circumferential distributions of axial,
+radial and tangential mean velocities at several radial locations at the propulsor plane are referred to by
+
+
+
+
+                                                    7
+naval architects as the wake survev. The angular position in this report is defined positive clockwise with
+respect to the upright (12 o'clock) position, viewing from the bow to the stem.
+
+        Data acquisition and reduction for hot-film measurements are computationally intensive and require
+an appropriately powerful computer for efficient and accurate operations. This is especially true for
+measurements using multiple three-element probes. Three-element probes require solution of three
+simultaneous calibration equations for each velocity realization, and multiple probes necessitate handling
+calibration equations and parameters for each probe separately. In addition, high speed data acquisition is
+required in order to obtain adequate frequency response, ,.specially for multiple probes. The MASSCOMP
+MC5450 Scientific Laboratory System computer selected for this experiment meets all of these
+requirements and in addition runs the Unix operating system which allows access to numerous software
+utilities for efficient handling of the volumes of data to be acquired.
+
+                                    CONTENTS OF EXPERIMENTS
+
+        Experiments will be conducted mainly in the DTRC AFF and TMB. Additional experiments will
+be performed in the HSMB. The Reynolds number of 1.2xI0 7 , based on body length, will be kept for all
+the experiments. The experimental scope of the SUBOFF project is extremely large. Therefore, a cryptic
+notation has been adopted to identify the various tests. This brief notation identifies the test facility, the
+model configuration and the type and location of the data collected. The cryptic notation code is
+
+
+                                             A-B-C-D-E-F
+
+        A detailed explanation of the code is given in Table 1. As an example, the notation
+
+
+                              AFF-3-VP-0.978-r/Ra, = 0.60 - -180'         < 0 < +180'
+
+
+would designate a test in the DTRC AFF (A = AFF); a model configuration of the axisymmetric body
+with four identical stem appendages at zero angle of attack and zero drift (B = 3); velocity profile data
+(C = VP); a normalized axial position x/L = 0.978 (D = 0.978); a normalized radial position
+r/Rmax = 0.60 (E = r/Rma x = 0.60); and a 3600 measurement (F = -180' < 0 < + 1800).
+
+       A brief outline of the tests involved will be described first. A detailed test plan will follow next.
+
+
+
+
+            •   ,, i      n              i      I
+DTRC AFF EXPERIMENT OUTLINE
+
+        The AFF experimental program involves the measurement of the flow quantities along the body
+(DTRC Model No. 5471).         They are the three components of mean velocities and their turbulence
+intensities; two Reynolds stresses; boundary layer surveys along the upper meridian at five locations; static
+wall pressures along four meridians of the body; shear stresses at selected meridians/locations; and static
+pressure distributions in the near wake. In the wake survey experiments, both spatial and time varying
+harmonics will be studied.
+
+        Eight model configurations are tested. They are:
+I. axisymmetric body at zero angle of attack and zero drift (designated as AFF-1-        )
+2.   axisymmetric body with fairwater (designated as AFF-2-        ),
+3. axisymmetric body with four identical stem appendages (designated as AFF-3-           ),
+4. axisymmetric body with fairwater at angle of attack and zero drift (designated as AFF-4-        ),
+5. axisymmetric body with fairwater at drift and zero angle of attack (designated as AFF-5-        ),
+6. axisymmetric body with ring wing 1 (designated as AFF-6-             ),
+7. axisymmetric body with ring wing 2 (designated as AFF-7-             ), and
+8.   axisymmetric body with fairwater and four identical stem appendages at zero angle of attack
+        and zero drift   (designated as AFF-8- ).
+
+
+
+DTRC AFF EXPERIMENT DETAILS
+
+        Detailed locations of the velocity and flow-field measuremet-its are given below for each test
+condition. The circumferential angle, 0, is measured from the plane of the fairwater centerline, positive to
+port, zero at the fairwater and centered about the model longitudinal axis. A total number of about 15-20
+measurement points across the s~em boundary layer are required to define a velocity profile. Because the
+velocity profiles of turbulent flow close to the hull change rapidly, it is necessary to use a nonuniform
+measurement grid. One nonuniform grid is chosen in which the ratio of lengths of any two adjacent
+measurement intervals is constant; that is ri = ri-1 + hi where hi = Khi 1 . The radial distance to the ith
+measurement point is given by
+
+                ri = r. + hi   (K i-1A)/(K-1)   i = 1, 2, 3... J
+
+
+where ro is the local hull radius. In all the boundary layer measurements, the first grid point from the hull
+is 0.01 5r and K = 1.2, where 6r is the local boundary layer thickness. The radial locations of the
+axisymmetric boundary-layer measurement points are listed in Table 2.
+
+
+                                                        9
+       The radial locations of the 3-D boundary-layer measurements of flows with various appendage
+components are selected in a similar manner, but with coarser grids.
+1. Axisymmetric body (AFF-1-       )
+
+(a) In this configuration, only boundary layer and wake profiles need to be measured. Boundary layer
+measurements will be made at 0 = 00, ±450 and ±90' at the following axial locations
+
+
+                       (AFF- 1-V-0.741)
+                       (AFF- 1-V-0.78 1)
+                       (AFF-1-V-0.805)                        0 = 00, ±450
+                       (AFF- 1-V-0.840)
+                       (AFF-1-V-0.857)
+
+                       (AFF- I-V-0.904)
+                       (AFF- -V-0.927)                        0 = 00, +450, ±900
+                       (AFF- 1-V-0.956)
+                       (AFF- 1-V-0.978)
+
+
+Standard wake survey measurements will be made at the following axial locations:
+(AFF-I-V-0.904)                r/Rmax = 0.45, 0.50, 0.60, 0.72, 0.92, 1.20
+
+(AFF- 1-V-0.978)
+(AFF-1-V-1.040)                r/Rmax = 0.25, 0.30, 0.35, 0.40, 0.50,
+(AFF-1-V-1.096)                           0.60, 0.72, 0.92, 1.20, 2.00
+
+(AFF- 1-V-1.200)
+
+Measurements include axial, radial and tangential mean (ux/Uref, Vr/Uref and wO/Uref) and turbulence
+( Ux2 /Uref,   v'-r2 /Uref and   w'o 2 /Uref 2 ) velocities, and axial-radial and axial-tangential Reynolds
+stresses ( -U'xv'r /Uref 2 and -U'xw'O /Uref2) across the planes designated.
+
+(b) static wall pressure and shear stresses
+
+      (i) the pressure at the locations of the pressure taps given in Reference 14, designated by HUI to
+HU21 for the upper meridian. Three additional pressure taps at lower, port and starboard meridians
+located at hull pressure tap stations 2, 5, 8, 11, 14 and 17 (AFF-l-P-).
+
+
+                                                     10
+       (ii) the pressure on the hull around the fairwater/hull intersection region, designated in Reference
+14 by FHI to FH76 (AFF-1-P:FH)
+
+       (iii) the pressure on the hull around the stern appendage/hull intersection region, designated in
+Reference 14 by AH to AH41 (AFF- 1-P:AH)
+
+       (iv) the wall shear stresses at the pressure tap locations given in Reference 14, designated by HU8
+to HU21 for upper meridian and three other meridians at stations 8, 11, 14 and 17 (AFF-1-S-).
+
+(c) static pressures in the upper meridian at the five velocity measurement planes (grid spacing same as la)
+designated as
+
+       (i)    AFF-1-PP-0.840
+
+       (ii)   AFF-1-PP-0.904
+       (iii) AFF- 1-PP-0.978
+       (iv) AFF-1-PP-1.040
+       (v)    AFF-1-PP-1.096
+
+2. Body with fairwater    (AFF-2-)
+
+(a) The asymmetry in the flow due to the fairwater requires an additional radial measurement in the wake
+of the fairwater at r/Rmax = 1.6. The standard wake survey at constant radius, 0 F-(0, 360) degree will be
+made at the following axial locations and r/Rmax values. Mean flow and turbulence velocities will be
+measured.
+
+AFF-2-V-0.904          r/Rmax = 0.45, 0.50, 0.60, 0.72, 0.92, 1.2, 1.6, 2.0
+
+AFF-2-V-0.978
+
+AFF-2-V-1.040          r/Rmax = 0.25, 0.30, 0.35, 0.40, 0.50,
+
+AFF-2-V-1.096                    0.60, 0.72, 0.92, 1.2, 1.6, 2.0
+
+AFF-2-V- 1.200
+
+For all of the above, A0 will be 2.0 degrees except within 101 < 20 degrees when AO will be 1.0 degree.
+Measurements of the fairwater wake and the hull boundary layer interaction will be made at (AFF-2-V-
+0.840) -45' < 0 < +45' with standard nonuniform rrids of r/Rmax.
+
+
+                                                     11
+(b)   static pressure around the fairwater/hull intersection region with the bridge fairwater at an upright
+position (pressure tap locations FH1 to FH76 of Reference 14) designated as (AFF-2-P:FH-)
+
+(c) static pressure at the pressure tap locations of FW1 to FW30 of the bridge fairwater as specified in
+Reference 14, designated as AFF-2-P:FW
+
+(d) static pressures on the axisymmetric body with fairwater (AFF-2-P-)
+
+(e) wall shear stresses on the axisymmetric body with fairwater (AFF-2-S-)
+
+(f) static pressure across the entire cross-section plane at thc three velocity measurement planes
+
+        (i)     AFF-2-PP-0.904
+
+        (ii)    AFF-2-PP-0.978
+
+         (iii) AFF-2-PP- 1.096
+
+3. Body with stern appendages (AFF-3-)
+
+For this configuration, only the four aft-most measurement planes (0.978, 1.040, 1.096 and 1.200) will
+require measurement.      Here, the profiles at constant radius will be the same as for the fairwater
+configuration (2).
+
+(a) three components of mean and turbulence velocities, and axial-radial and axial-tangential Reynolds
+stresses across the four planes designated as
+
+         (i)    AFF-3-V-0.978
+
+         (ii)   AFF-3-V-1.040
+
+         (iii) AFF-3-V-1.096
+
+         (iv) AFF-3-V-1.200
+
+Measurement locations r/Rmax will be similar to the case of (2).
+
+(b) static pressure around the appendage/hull intersection region (pressure tap locations AH I to AH41 of
+Reference 14) designated as
+
+         (i) AFF-3-P:AH
+
+
+                                                      12
+(c) static pressure at the pressure tap locations of SA 1 to SA33 of the stem appendage as specified in
+Reference 14 designated as AFF-3-P:SA
+
+(d) static pressure across the entire cross-section plane at the three velocity measurement planes
+
+       (i)   AFF-3-1PP-0.978
+
+       (ii) AFF-3-PP- 1.040
+
+        (iii) AFF- 3-PP- 1.096
+
+(e) repeat (3a) at AP plane for two additional appendage locations, one upstream and one downstream of
+the baseline location
+
+        (i) AFF-3-V:AU-0.978 four stem appendages upstream of the baseline location
+
+        (ii) AFF-3-V:AD-0.978 four stern appendages downstream of the baseline location
+
+4. Body with fairwater and at angle of attack of 2 degrees (AFF-4- )
+
+(a) boundary layer measurements will be made at 0 = 0' at the axial locations
+
+         (i) AFF-4-VP-0.840
+
+        (ii) AFF-4-VP-0.904
+
+        (iii) AFF-4-VP-0.978
+
+and the standard wake survey will be made at the axial locations
+
+         (i) AFF-4-V-0.904
+
+        (ii) AFF-4-V-0.978
+
+        (iii) AFF-4-V- 1.096
+
+Axial, radial and tangential mean and turbulence velocities, and axial-radial and axial-tangential Reynolds
+stresses will be measured. Here, the fairwater will be set at an upright position with 2' bow up and at a
+port side position with 20 to the port. Measurement locations r/Rmax will be similar to the case of (2).
+
+
+
+
+                                                      13
+(b) static pressure around the fairwater/hull intersection region (pressure tap locations FHl to FH76 of
+Reference 14) designated as AFF-4-P:FH.
+
+(c) static pressure at the pressure tap locations of FW1 to FW30 of the bridge fairwater designated as
+AFF-4-P:FW
+
+5. Body with fairwater and at angle of drift of 2 degrees (AFF-5-)
+
+(a) for this configuration, the boundary layer velocity profiles will be made at 0 = 00, ±45' at the same
+boundary layer axial locations as in (4), i.e.,
+
+         (i) AFF-5-VP-0.840
+
+        (ii) AFF-5-VP-0.904
+
+        (iii) AFF-5-VP-0.978.
+
+The standard wake survey will also be made at the same wake survey axial locations as in (4), i.e.
+
+         (i) AFF-5-V-0.904
+        (ii) AFF-5-V-0.978
+        (iii) AFF-5-V- 1.096.
+
+Axial, radial and tangential mean and turbulence intensities, and axial-radial and axial-tangential Reynolds
+stresses will be measured. Here the fairwater will be set at a port side position with body angle of drift at
+±2' . Measurement locations r/Rmax will be similar to the case of (2).
+
+(b) static pressure around the appendage/hull intersection region (pressure tap locations FHI to FH76)
+designated as AFF-5-P:FH
+
+(c) static pressure at the pressure locations of FW1 to FW30 of the bridge fairwater designated as
+AFF-5-P:FW
+
+6. Body with ring wing 1 (AFF-6-)
+
+(a) boundary layer profile along a line 0 = 0 degrees will consist of:
+AFF-6-V-0.978           r/Rmax = 0.22, 0.246, 0.286, 0.325, 0.52, 0.53, 0.54, 0.55, 0.56, 0.58,
+                           0.60, 0.702, 0.830, 0.979, 1.167, 1.385, 1.652, 1.969, 2.0 and 2.25
+
+
+
+                                                      14
+AFF-6-V-0.997          r/Rmax = 0.22, 0.25, 0.30, 0.35, 0.37, 0.38, 0.39, 0.40, 0.41, 0.42, 0.44,
+                          0.46, 0.48, 0.50, 0.52, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.60,           0.62,
+                          0.65, 0.70, 0.75, 0.80, 0.90, 1.00, 1.25, 1.50, 1.75,        2.0,   2.25,   2.50
+
+(b) mean axial and radial velocities, three components of turbulence intensities, and axial-radial Reynolds
+stress at the AP (x = 13.977 ft = 4.260 m, x/L = 0.978) and exit (x = 14.249 ft = 4.343 m, x/L = 0.997),
+and three planes downstream of the ring wing (x/L = 1.040, 1.096 and 1.20) (AFF-6-V-)
+
+         (i) AFF-6-V-0.978     r/Rmax = 0.22, 0.25, 0.30, 0.35, 0.38
+
+        (ii) AFF-6-V-0.997     r/Rmax = 0.22, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60
+
+       (iii) AFF-6-V-1.040
+
+       (iv) AFF-6-V-1.096      r/Rmax =0.22, 0.25, 0.30, 0.35, 0.40, 0.A5, 0.50, 0.60, 0.72
+
+        (v) AFF-6-V-1.200
+
+(c) static pressure along the inner and outer surfaces of ring wing 1 (pressure tap locations WIUl to
+WIU19 on the upper meridian of the duct, three additional pressure taps at lower, port and starboard
+meridians at wing pressure tap stations 4, 6, 8, 13, 15, and 17) and static pressure on the upper meridian
+of the hull (HU18, HU19, HU20 and HU21) AFF-6-P-S1
+
+7. Body with ring wing 2 (AFF-7-        )
+
+(a) boundary layer profiles along a line 0 = 0 degrees will be same as 6 except where interference of probe
+and model prevent the measurement.
+
+(b) The standard wake surveys at constant radius will be at the following locations:
+
+         (i) AFF-7-V-0.978     r/Rmax = 0.22, 0.25, 0.30, 0.35, 0.38
+
+        (ii) AFF-7-V-0.996     r/Rmax       0.22, 0.25, 0.30, 0.38, 0.45, 0.50, 0.60
+
+       (iii) AFF-7-V-1.040
+
+       (iv) AFF-7-V-1.096      r/Rmax - 0.22, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60, 0.72
+
+        (v) AFF-7-V-1.200
+
+
+
+
+                                                      15
+(c) static pressure along the inner and outer surfaces of ring wing 2 on the upper meridian of the duct, three
+additional pressure taps at lower, port and starboard meridians at wing pressure tap stations 4, 6, 8, 13, 14
+and 17 and static pressure on the upper meridian of the hull (HU18, HU19 and HU21) AFF-7-P:S2 and
+AFF-7-P.
+
+8. Axisymmetric body with fairwater and the four symmetric stem appendages at zero angle of attack and
+zero drift (AFF-8- )
+
+(a) axial, radial and tangential mean and turbulence velocities, and axial-radial and axial-tangential
+Reynolds stresses across the three planes designated as
+
+       (i) AFF-8-V-0.978
+
+       (ii) AFF-8-V-1.040
+       (iii) AFF-8-V-1.096
+
+r/Rmax measurement locations will be similar to the case of (2). Here the fairwater will be set at an
+upright posidon and the baseline appendage configuration will be used.
+
+(b) static pressure across the entire cross-section plane at the three velocity measurement planes
+       (i) AFF-8-PP-0.978
+       (ii) AFF-8-PP-1.040
+       (iii) AFF-8-PP- 1.096
+
+9. Time-varying wake harmonic measurements: The rationale and background of time-varying wake
+harmonic and wake spectra are discussed in the Appendix. The measurement plane will be at x/L = 0.978
+for r/Rmax = 0.30, 0.40 and 0.50. Model configurations are the bare hull, bare hull with fairwater, bare
+hull with baseline stem appendage, bare hull with ring wing 1, bare hull with ring wing 2, and fully
+appended model.
+
+10. The spatial variation (wake harmonics) of mean velocities (ux, vr, we) at the AP (r/Rmax = 0.978) will
+be analyzed for all model configurations tested (refer to RUN I.D. from AFF-1-V-0.978 to AFF-8-V-
+0.978). The measurements of ux(O), Vr(O), wO(O) at a given r/Rmax will be used to determine the values
+of the wake harmonic amplitudes Aun, Avn, Awn, Bun, Bvn, Bwn for n = 1, 2,... N. The experimental
+accuracy of determining the wake harmonic amplitudes at high harmonics will be assessed.
+       A summary of all test conditions for AFF tests is presented in Table 3.
+
+
+
+                                                     16
+TMB TEST PLAN
+
+        In the following, specifications are provided for measuring the body normal and longitudinal
+forces, pitching and yawing moments and stock torque and spanwise center of pressure of the stern
+appendage of the five model configurations to be tested in the DTRC deep-water towing basin (TMB):
+
+1. Axisymmetric body (DTRC Model No. 5470)
+
+(a) longitudinal and lateral force coefficients and yaw moment coefficient for body angle of drift from
+-4 to + 180
+
+        TMB-1I-F-a = 0; ]       .
+
+
+2. Axisymmetric body with bridge fairwater
+
+(a) longitudinal and normal force coefficients and pitching moment coefficient for body angle of attack
+from -8 to +180
+
+        TMB-2-F-ot = ...; 3 =0 (a = 00, + 20 must be included)
+
+(b) longitudinal and normal force coefficients and pitching moment coefficient for body angle of drift from
+-4 to + 180 (fairwater attached to bottom of model).
+
+        TMB-2-F-c = 0; P3 = ... (3 = 00, +20 must be included)
+
+3. Axisymmetric body with four identical stem appendages
+
+(a) longitudinal and lateral force coefficients and yaw moment coefficient for body angle of drift from
+-4 to +180
+
+        TMB-3-F-c = 0; 13=... ;,=0
+
+4. Axisymmetric body with both bridge fairwater and four identical stem appendages
+
+(a) longitudinal and lateral force coefficients, yaw moment coefficient and lift, drag and stock torque for:
+
+        (i) the lower rudder (opposite to the fairwater)
+
+        TMB-8-F-ct = 0; 31 .
+
+
+
+
+                                                       17
+         (ii) the upper rudder (behind the fairwater)
+
+         TMB-8-F-o. = 0; 32-...
+
+for the body angle of drift from -4 to +180 (fairwater attached to starboard side of model)
+
+(b) longitudinal and normal force coefficients and pitching moment coefficient and lift/drag and stock
+torque for the starboard stemplane for body angle of attack from -8 to +180 (fairwater attached to bottom of
+model)
+
+         TMB-8-F-o= ... ;     3=0; y = 0
+
+(c) longitudinal and normal force coefficients and pitching moment coefficient and lift/drag and stock
+torque for the starboard sternplane for stem plane angle of incidence y from -15 to + 150 for body angle of
+attack from -8 to +180 (fairwater attached to bottom of model)
+
+                       ; 3 = 0; y= ...
+         TMB-8-F-ct = ...            (y = 50 must be included)
+
+(d) longitudinal force coefficients for forward speeds from 2 to 8 knots at zero angle of attack and drift
+
+         TMB-8-F-oc = 3 = -y=0; Uo = ... knots
+
+5. Axisymmetric body with ring wing 1
+
+(a) longitudinal and lateral force coefficients and yaw moment coefficient for body angle of drift from
+-40 to + 180
+
+
+         TMB-6-F-ox = 0; 13=
+
+6. Resistance measurement at zero angle of attack and drift will be measured and designated as
+
+         TMB-1-R-H              axisymmetric body DTRC Model No. 5470
+         TMB-2-R-FWH            axisymmetric body with fairwater
+         TMB-3-R-SAH            axisymmetric body with four identical stem appendages
+         TMB-6-R-SH1H           axisymmetric body with ring wing 1
+
+         TMB-7-R-SH2H           axisymmetric body with ring wing 2
+         TMB-8-R-FWSAH          axisymmetric body with both fairwater and stern apendages
+
+A summary of all test conditions is presented in Table 4.
+
+
+                                                        18
+HSMB TEST PLAN
+
+           A series of resistance stripping tests and planar motion mechanism static tests are scheduled for
+Model 5470 in a deeply submerged condition. This series of tests examines various model conditions as
+follows:
+
+(A) Resistance Stripping Tests
+
+           axisymmetric body (1ISMB-l-R)
+
+           axisymmetric body with fairwater (HSMB-2-R)
+
+           axisymmetric body with four identical stern appendages (HSMB-3-R)
+
+           axisymmetric body with ring wing 1 (HSMB-6-R)
+
+           axisymmetric body with ring wing 2 (HSMB-7-R)
+
+           axisymmetric body with fairwater and four stern appendages (HSMB-8-R)
+
+(B) PMM Statics Tests
+
+(1) vertical plane statics:       -20' <_x _<20'
+
+           (a) axisymmetric body (HSMB-1-F-a)
+
+           (b) axisymmetric body with ring wing 1 (HSMB-6-F-ct)
+
+(2) horizontal plane statics:     -20' < 3 < 20'
+
+           (a) axisymmetric body with fairwater (HSMB-2-F-3)
+
+           (b) axisymmetric body with ring wing I (HSMB-6-F-P)
+
+where a is the angle of attack and 3 is the angle of drift. The test speed used in the program is in the range
+of 5 - 10 ftlsec for the stripping tests and the PMM statics are conducted for Reynolds number 1.2x10 7
+based on the model length.
+
+           A summary of all HSMB tests is presented in Table 5.
+
+
+
+
+                                                        19
+                                     ACKNOWLEDGEMENTS
+
+       The authors would like to thank Mr. Gary Jones of the DARPA Submarine Technology Office for
+his support of this project. We also thank Dr. L. Patrick Purtell, Dr. Jerome P. Feldman, Mr. William C.
+Day, Dr. Ming S. Chang and Mr. Scott Gowing for their contribution to and participation in this proje:.
+
+
+
+
+                                                   20
+oZ                                          -
+
+
+
+
+              K                     4   0
+
+
+
+
+     >                 0
+
+
+
+         :0   0        z
+
+
+
+                  -A   Do                   L
+
+
+
+
+                           21   -
+r
+
+
+
+
+    22
+                      co
+
+
+
+
+wU   0                                                        z
+
+
+
+
+                      00
+
+
+
+
+               z                                     14
+
+
+                                  LLI-
+
+
+
+
+                                              L(NJ
+
+
+
+
+                                  9-6
+
+
+
+
+                0)0
+
+
+
+
+                                        ui-
+
+
+               -J                                         >
+               *             _)
+
+
+
+
+         0.0
+
+
+
+
+                           23l
+                                ______
+                                   _____E-1617-'                    :YAW TURNTABLE)
+
+
+   3-TON
+   SHOWN
+
+
+
+
+                                                        E-1617-1 (PITCH AND HEAVE APPARATUS)
+
+
+
+
+                                                                               MOLE   SUBMERGENCE,
+
+
+
+
+                                                                                DEPTH IN TESTS: 9'
+
+
+
+
+TOWING CARRIAGE    -WATER              LINEMA.ODLWK.
+
+
+
+
+                  Fig. 3.    Model mounted in DTRC Towing Tank (TMB)
+                       3a.   Planer motion mechanism at DTRC Towing Tank (TMB)
+
+
+                                                   24
+          N
+                                                                 C
+
+
+
+
+                                I            IL
+
+              II                    DI
+
+
+
+
+     I~
+
+
+
+
+                           jj                                            -
+
+
+
+
+                   ~T!
+
+
+
+
+                    I    i u~            j                   I       (
+
+
+
+
+0t
+
+                                                        It
+
+                                                  25t
+                 4-22.25
+
+
+
+
+                 *     -+          +        I7+
+                                                  --    9.25
+             +        +        4
+
+
+
+
+       REPTH
+
+
+
+                                                               L.
+                       7j4.'                                      N TETS
+
+
+
+ 20                                          40
+Fig. 4a1tu           sdfrrssac                     et     tDR   oigTn
+
+
+
+  TE 31GN.
+SEE              N                     26
+           22.25                -
+
+
+
+
+                                    33.38
+
+
+
+
+4.620
+
+
+
+
+        5.45          -13.000
+
+
+
+
+               2718
+                                  Table 1.      Cryptic Test Notation
+The cryptic test notation A - B - C - D - E - F designates the following conditions:
+A      designates test facility as follows:
+       AFF for DTRC Anechoic Flow Facility
+       TMB for DTRC deep-water towing basin
+       HSMB for Tracor Hydronautics Ship Model Basin
+
+B      designates model configuration as follows:
+       1 for axisymmetric body at zero angle of attack and zero drift
+       2 for axisymmetric body with fairwater at zero angle of attack and zero drift
+       3 for axisymmetric body with four identical stem appendages at zero angle of attack and zero drift
+       4 for axisymmetric body with fairwater at angle of attack and zero drift
+       5 for axisymmetric body with fairwater at drift and zero angle of attack
+       6 for axisymmetric body with ring wing 1 at zero angle of attack and zero drift
+       7 for axisymmetric body with ring wing 2 at zero angle of attack and zero drift
+       8 for axisymmetric body with fairwater and four identical stem appendages at zero angle of attack
+          and zero drift
+
+C      designates type of data collected as follows:
+       V   for velocity profile/wake data including 3-component mean velocity data (ux/Uref, vr/Uref, w0WUref),
+           turbulence fluctuation data ( ux' 2 /Uref, ( v-r' 2 /Uref, (NwO'2 /Uref), and
+           turbulence intensity data ( -ux'vr' /Uref 2 , -ux'we' /Uref)
+       P for static wall pressure data for axisymmetric hull
+       P:FH for static wall pressure data for fairwater/hull intersection region
+       P:AH for static wall pressure data for stem appendage/hull intersection region
+       P:FW for static wall pressure data for fairwater
+       S for shear stress coefficients
+       PP for profiles of static pressure coefficients
+       F for force moment coefficient
+       R for resistance measurements
+       FV for flow visualization
+
+D      designates a body location or condition indicator as follows:
+       for AFF facility, this indicates axial position as a fraction of total body length on axisymmetric
+           body, x/L
+       for TMB facility, this indicates body angle of attack.
+
+E      designates a body location or condition indicator as follows:
+       for AFF facility, this indicates radial position as a fraction of maximum hull radius of the
+           axisymmetric body, r/Rmax
+       for TMB facility, this indicates body angle of drift
+
+F      designates the angular position on the axisymmetric body defined positive clockwise with respect
+           to the 0 degree (12 o'clock) position, viewing from bow toward stern
+
+
+
+
+                                                       28
+Table 2.     Radial Locations for Measurements
+
+  i    (ri-ro)/8r                  i    (ri-ro)/6r
+
+
+
+  1        0.01                    11      0.32
+  2        0.022                   12      0.40
+  3        0.036                   13      0.49
+  4        0.05                    14      0.59
+  5        0.07                    15      0.72
+  6        0.10                    16      0.87
+  7        0.13                    17      1.06
+  8        0.17                    18      1.28
+ 9         0.21                    19      1.55
+ 10        0.26                    20      1.87
+
+
+
+
+                       29
+       -M.                   I
+
+
+
+
+                                 x
+
+
+
+
+                                                      .1   -
+
+
+
+ IAN         .<                                   ~
+
+
+
+
+                  9a                  4.Z
+
+                                     (-n-
+
+
+
+
+IA
+
+
+        o              -ij
+
+
+
+
+                                            300
+               zA
+               0(
+z
+0
+u
+
+
+
+
+           0                                                                                       LL4
+
+
+
+
+           -                          -       6
+
+
+                     o~~~                                                     o22
+      Cu
+     F-l                 -m          C14
+                                                                                         <uC   ~         <,
+Z     E         xO\ m        ~       6        Lt(Ax
+                                              CDm
+                     E               cr4      Lr
+
+0.              EE
+
+
+                                          E       E
+
+                                                                    12        12
+
+
+
+
+                Co       >
+
+                               Ca)
+                              <-              rd)
+                                                                                                         <-
+
+
+
+
+                               tn                               .   -    -I                        Mn-
+
+
+
+
+               oC                                     '                                            w 0    '0
+
+
+
+
+                                                                         IZ                        >
+
+
+                                     C!4
+                                      I                    CI                      14e
+
+
+
+
+                                                          31
+                         >            ~                       >"                   >     "I   "n
+                         Cri   71~J                                     71'
+
+
+
+
+                         00                                                              >
+
+
+
+
+                                                                   14   1
+                                                                   00                          -0
+
+
+
+
+                         =                .~-'>
+-e                                 -o                                              V-L
+
+
+             -TI-
+
+
+
+
+                                                  CPl
+
+
+
+
+                   71                             71                    7'                          0P
+                                          r~                                00r0
+
+
+
+
+                                          >            o~r>
+
+
+
+                                                               .
+                         -Uq
+
+
+                                                                            00
+
+
+
+             2)2
+
+
+             00
+
+
+
+
+                        mom
+                        00
+         o                     0
+
+
+
+
+     o                         +
+
+
+
+
+                                               32
+             z
+             0
+
+
+
+
+             z
+             0
+
+
+
+             Lf
+                                                                rl       6   (-       r,              0
+                    _   _L0 _    _    _0_0          _c_ _   _   _    _   _   _    _    _     _    _           _.4_           _   _   _   __t-_F1
+
+
+
+
+                  0 16oo                     §                                                                                                     2     0C                   01
+
+                                C,~                             -6,                         gIt                                                    0
+
+
+                           M&'O O                     060oto                                                                                                  C.
+                                     &       ofc)                                  00 r,                                                           "          "    1
+                                                                                                                     C4LC)                                                    m
+                     '4 cq)              m..           06'", .1                   ,~                                 C           o        6D                        E   cC5
+     I-C'4                                                                                            I         60                                 C
+                                                                                                                                                   -.         Urc       Cc'        .
+
+
+
+                                           m          E6
+                                E                                                                         E      E                   E                                             S
+
+
+                                0-                                                                                                                      1
+
+to                                                                                                                                                                            I
+
+
+
+
+                                          ~                 H                          >>
+
+                                          ~                                                                    zIt
+                                <         ~ -;                                                                                                     I-.-~33
+?   I   t       Ij    -                90              90                   Io
+                                                                           909          9t
+
+
+
+
+            o   o    000
+                                       ON    C)        00
+                                                                               .   -    0
+
+
+
+
+                      ~          '0         '0               '0       '0
+                      NJ
+                      J     NJNJ       N 00 NJ         '0                  '                        ~V)
+                                                  '0   -    '~             0~      05
+                                                  O~              0                >
+
+
+
+                                                                                             ITI
+                                      aqJ
+
+
+
+
+                                                                                               00         0
+
+
+
+
+                                                                                                          ~rr1
+                           -~                                                                             z
+                            ooiH
+
+
+
+                                                                                                          0
+
+                                                                                                          z
+                           034
+         7
+         0
+
+
+
+
+                                                                                                                                                                    U.LL.   LL. .L
+               o         LL                                  LzL.L                                                             LL
+
+
+                                                                                                        C)      C                                               C   W                C
+
+         C)
+         0)
+t-       2                                                                  )CCCCCC
+
+
+
+         0
+                                                                                                                                       00
+
+                   (J0                       0
+                                                                                                                                              0
+
+
+          -                          0       0               0,         0r-
+                                                                        0I                  i                                 et        ;,-            0
+
+         CH                                                                                                                             v-        iI
+
+          Z7              ;-         C-                      C;                        CV                               00
+                   0                 cc 00
+                                                        00
+                                                             0
+                                                             0
+                                                                        0
+                                                                        0              0I
+
+
+                                                                                  0L                -                   vi~
+
+                         VI          VVI                V         I     ViI0
+         C)                                                  Cn
+                       E- vVI        VI           iVI
+                                                                                  vi   a)           >                                                  v
+
+ C00                                                         0          0                                               0                                  0
+     x                                                                                                                                 0VI
+                                                                                                         C.'?
+
+                                     0       0_                         0
+
+
+
+
+                   H      C)C)                                              C
+
+
+
+
+                                 0       0                       0          0                   -                       o          -
+
+                                                                                                    to                                                     -z
+
+
+
+
+                          w)             C                    C)            wC7
+
+
+
+
+                                ~~       *                   a.       ~ a.             a                            i          .~
+
+
+
+
+                                                                                       35
+'                   '    -'                           '    '         -
+
+
+
+
+                   it          It
+
+
+
+
+     IA   IA       A     IAI
+IA        I        AIA                    I                II
+
+
+
+                                                      -                    Z
+                    0     0
+
+
+
+               o                                                                     ""
+
+
+
+
+                                    ell              (f    i
+
+
+
+
+     In                                                         In         0
+                                                                               oil
+
+
+
+
+                                                                           0
+                                                          36z
+
+
+
+
+>         >        >     >          >     >          >     >    >    >
+                                          In   171                   IJn
+       APPENDIX
+
+
+    WAKE HARMONICS
+
+SPATIAL AND TIME-VARYING
+
+
+
+
+           37
+                       APPENDIX        WAKE HARMONICS -                  SPATIAL AND TIME-VARYING
+
+
+        Spatial wake harmonics of mean velocities (U., Vr, wO) will be studied at the after perpendicular
+(AP).
+        The wake harmonics are represented by
+                                                            [Au.                   N      [         1
+                          Vr      =+                          Avn        cos nO + I           B n   sin nO
+                          W0)          w0         n=1         Awn                 n=1         Bwn
+where the cosine coefficients of the nth harmonic are determined by
+
+
+                                            Avn         0                     cos nO dO
+                                                                     wo
+                                            Awn
+and the sine coefficients by
+                                            Bun          1~          u
+                                            Bvn     =-               Vr       sin nO dO
+                                            Bwn                      wO
+
+        The measurements of ux(O), Vr (0) and we(O) at a given r/Rmax will be used to determine the
+values of the wake harmonic amplitudes Aun, Am Awn, Bun, Bvn, Bwn for n = 1, 2, ...N. The
+experimental accuracy in determining the wake harmonic amplitudes at high harmonics must be assessed.
+        Time-varying characteristics of the first five (J = 5) wake harmonics at the AP plane will be
+studied. For the same experimental conditions as those for the spatial harmonics, experiments will be
+conducted using one set of J = 5 equally circumferentially-spaced one-component hot-film probes. The
+angle between the adjacent probes is AO = 360J = 72 degrees. Another set of 5 equally spaced probes at
+an angle AO/4 = 18 degrees from the first set of probes will also be used.
+        At a given radius, a set of 'a' group single probes located circumferentially at Oj = jAO = 00, 720,
+1440, 2160 and 2880, and another set of 'b' group single probes located at 1/4 AO -tjA0 = 180, 900, 1620,
+234' and 3060 will be used to measure the axial velocity fluctuations
+
+                 U'   (a,b)j (t) = Ux ft, (1/4 AO) +j AO] - U' [(1/4 AO) +j AG]
+
+where the time-average velocities are to be taken for a period T much longer than the time scale of energy
+containing eddies of the turbulence, L, e.g.,
+
+                                                                          T
+
+                               RI(/4AO) +jA0        = lim T1_
+                                                              f0 Uxft,(1/4AO)+jA]dt
+                      u
+
+
+                                                        T>>L
+
+
+
+
+                                                                38
+                      APPENDIX         WAKE HARMONICS -                        SPATIAL AND TIME-VARYING
+
+
+The hot-film signals of ux will be collected and stored in a digital computer at a rate of 20 KHz for a period
+of ""me T equal to about 60 seconds. The rms ve'vlity fluctuations are
+
+
+                             [U2 (a,b)j] =        Jim          T         [Ut2(ab)j(t)2 dt =        (ab)j
+                                                             T~ f
+                                                  T>>L
+
+The length microscale of the turbulence X's are computed using the relation
+                                                               2
+                                             X =[ u' 2 /(u'/Ot) ] u'
+
+This relation assumes an isotropic field of turbulence and the assumption of space-time equivalence
+(Taylor's hypothesis). The turbulence Reynolds number is defined as Rx = [ u' 2 ]11/2 X/v, where v is the
+kinematic viscosity of the fluid. The axial velocity fluctuations u' include the measurements of both 'a'
+and 'b' groups. The smallest scales of the turbulence are the Kolmogorov length and time scales, 11 and t,
+respectively. These scales may be established by
+
+                = (v3 /s) 1/4 _=    1/(15)1/4 X/RX1 /4                   and        t = (v/E) 1/2 = 1/(15)1/2 ?,u72
+
+where the turbulence energy dissipation rate F, may be estimated by F_= 15v ( u' 2 / 2 ). The correlation
+coefficient is defined by
+     P(a,b)j (t' 0)    =           U(a,b) [t, (1/4 AO) + j AO] U'(a,b) [t+t', (1/4 AG) + j AO + 0']
+
+                                   (ab)t,
+                                    /     (1 /4 AG) + A]1/u2 {U 2(ab)[t,+t (1/4 AG) + j AO + 0']}1/2
+
+
+The axial length scales of energy containing eddies may be estimated by
+                                                               T    >L
+                                                  =
+                                        X
+
+                                       1X(a,b)j    -     x               P(ab)j (t', 0' = 0) dt'
+
+
+and the circumferential transverse length scales of energy containing eddies may be estimated by
+                                                                    2i
+
+                                            0
+                                            1 (a,b)j    = rj             P(a,b)j (t',   0') dO'
+
+
+where the radius r is measured from the body axis. The present measurements will not include the
+measurements of P(a,b)j (t' = 0, 0') and hence not include the estimates of I 0(a,b)j. The individual
+power spectral density of the axial component of the turbulence of the 'a' and 'b' groups measured by J
+single probes may defined by
+
+
+                                                                         39
+                    APPENDIX       WAKE HARMONICS -                      SPATIAL AND TIME-VARYING
+
+
+
+                           S(a,b)j (f) =          lim             J     U'(a,b)t) e-i2fdt dt 2
+
+
+
+The averaged turbulence of the 'a' and 'b' groups measured by J single probes are defined by
+
+                                   J-1                                                                 J-1
+               U'a/J=5(t) = 1/J     I         [U'aj(t)]                       U'b/J=5(t) = 1/J          I     IU'bj(t)]
+                                   j =0                                                                j =0
+The amplitude and the phase of the J(=5)th time varying wake harmonics are defined as
+                                                   2                                2 } 1/2
+                       u'J=5(t) = 1/2 {[u'a/J=5(t)] + [U'b/J=5(t)]
+
+                        'j=5 = tan- 1 [u'b/J=5(t)/U'a/J=5(t)
+
+and the averaged rms velocity fluctuations of the Jth time varying wake harmonics are
+                                                                         T
+
+                                          2                     i 1__= [uj=5(t)]2 dt
+
+                                                     T'>-> ,.
+
+
+
+The power spectral density of the Jth harmonic amplitude and phase are defined as
+
+
+                                  SAJ=5 (f) = lim                       u j5 (t) ei2lTft dt
+                                                                       T-o
+                                                                                                   2
+
+
+                                                          T--
+
+
+                                  f20J=5 (f) =iim                        (0J=5(t) e- i2 rtft dt2
+
+                                                          T--
+
+
+The spectra of SAJ=5(f) and 920J=5(f) will be determined for r/Rmax = 0.30, 0.40 and 0.50. The
+nondimensional spectral density is defined as S(a,b)j(f) Uref/[Rmax G(a,b)j] SA/J=5 (f) Uref/[Rmax 02 (a,b)j]
+SAJ= 5 (f) Uref/[Rmax 92(J=5)] and the nondimensional frequency is defined as fmax/Uref, where f is the
+frequency of Hz, Rmax is the maximum hull radius and Uref is the reference velocity.
+
+
+
+
+                                                                  40
+                                            REFERENCES
+
+
+
+
+1. Huang, T.T., H.T. Wang, N. Santelli, and N.C. Groves, "Propeller/Stem/Boundary-Layer Interaction
+on Axisymmetric Bodies: Theory and Experiment," DI NSRDC Report 76-0113, December 1976.
+
+2. Huang, T.T., N. Santelli, and G.S. Belt, "Stem Boundary-Layer Flow on Axisymmetric Bodies,"
+Proceedings of the Twelfth Symposium on Naval Hydrodynamics, 5-9 June 1978, National Academy of
+Sciences, Washington, DC, pp. 127-157, June 1978.
+
+3. Huang, T.T., N.C. Groves, and G.S. Belt, "Boundary Layer Flow on an Axisymmetric Body with an
+Inflected Stern," DTNSRDC Report 80/064, June 1980.
+
+4. Groves, N.C., G.S. Belt and T.T. Huang, "Stem Boundary Layer Flow on a Three-Dimensional
+Body of 3:1 Elliptical Cross Section," DTNSRDC Report 82/022, April 1982.
+
+5. Huang, T.T.and N.C. Groves, "Stern Boundary Layer Flow on a Three-Dimensional Body of 2:1
+Elliptical Cross Section," DTNSRDC Report 84/022, October 1984.
+
+6. Huang, T.T.and N.C. Groves, "Effective Wake: Theory and Experiment," Proceedings of the 13th
+Symposium on Naval Hydrodynamics, Tokyo, Japan, 6-10 October 1980, Shipbuilding Research
+Association of Japan, pp. 651-673, October 1980.
+
+7. Dickinson, S.C., "An Experimental Investigation of Appendage-Flat Plate Junction Flow, Vol. I:
+Description, and Vol. II: Elliptical Nose Appendage Data Base, DTNSRDC Report 86/051 and 86/052,
+December 1986.
+
+8. Davenport, W.J. and R.L. Simpson, "The Turbulence Structure Near an Appendage-Body Junction,"
+paper presented at the 17th Symposium on Naval Hydrodynamics, The Hague, The Netherlands, August
+29 - September 2, 1988.
+
+9. Chang, M.S. and L.P. Purtell, "Three-Dimensional Flow Separation and the Effect of Appendages,"
+proceedings of the 16th Symposium on Naval Hydrodynamics, University of California, Berkeley,
+California, July 13-18, 1986, National Academy Press, pp. 352-370, July 1986.
+
+10. Morgan, W.B. and W.C. Lin, "Computational Fluid Dynamics, Ship Design and Model Evaluation,"
+paper presented at the 4th International Congress of the International Association of East Mediterranean,
+Vama, pp. 32.1-32.8 , May 1987.
+
+
+                                                    41
+11. Current Capabilities and Future Directions in Computational Fluid Dynamics," prepared by
+Committee to Assess Current Capabilities and Future Directions in Computational Fluid Dynamics,
+Aeronautics and Space Engineering Board, Commission on Engineering and Technical Systems, National
+Research Council, ix+98PP, National Academy Press, Washington, DC (1986).
+
+12. Morgan, W.B. and W.C. Lin, "Computational Fluid Dynamics and Experiments," paper presented at
+the International Symposium celebrating the 75th Anniversary of the Hamburg Ship Model Basin,
+September 29, 1988, and will be published in Schifftechnik.
+
+13. "The Influence of Computational Fluid Dynamics on Experimental Aerospace Facilities -   A Fifteen
+Year Projection," National Academy Press, Washington, DC xvi+109PP. (1983).
+
+14. Groves, N.C., T.T. Huang and M.S. Chang, "Geometric Characteristics of DARPA SUBOFF
+Models (DTRC Model Nos. 5470 and 5471)," Report DTRC/SHD- 1298-01, March 1989. ,,X'-)
+                                                                                    _/
+
+
+
+
+                                                   42
+
