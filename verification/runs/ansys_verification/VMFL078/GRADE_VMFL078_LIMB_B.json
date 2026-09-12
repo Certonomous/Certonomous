@@ -1,0 +1,201 @@
+{
+ "case": "VMFL078",
+ "limb": "B",
+ "verdict": "GATE FAIL",
+ "failed_gates": [
+  "B2"
+ ],
+ "graded_level": "L3",
+ "probe_file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL078/L3/postProcessing/centrelineProbe/0/U",
+ "frozen_reader_blob": "c749c87d0f465a829a8485556b0c358c55125850",
+ "rms_delta_mps": 0.01712722934495434,
+ "U_RMS95_mps": 0.017917,
+ "B1": true,
+ "n_inside": 9,
+ "n_points": 18,
+ "B2_min_inside": 16,
+ "B2": false,
+ "u_min_ours_mps": -0.275120551015,
+ "y_min_ours_m": 0.1238,
+ "u_min_ref_mps": -0.2687,
+ "u_min_U95": 0.0156,
+ "y_min_ref_m": 0.0985,
+ "y_min_U95": 0.0336,
+ "B3": true,
+ "worst_point": {
+  "probe_index": 9,
+  "y": 0.04955,
+  "u_ours": -0.189036786177,
+  "u_ref": -0.219074,
+  "delta": 0.03003721382299998,
+  "U95": 0.026956,
+  "inside": false
+ },
+ "points": [
+  {
+   "probe_index": 9,
+   "y": 0.04955,
+   "u_ours": -0.189036786177,
+   "u_ref": -0.219074,
+   "delta": 0.03003721382299998,
+   "U95": 0.026956,
+   "inside": false
+  },
+  {
+   "probe_index": 19,
+   "y": 0.09905,
+   "u_ours": -0.265440516248,
+   "u_ref": -0.268669,
+   "delta": 0.0032284837519999665,
+   "U95": 0.01558,
+   "inside": true
+  },
+  {
+   "probe_index": 29,
+   "y": 0.14855,
+   "u_ours": -0.268054349717,
+   "u_ref": -0.247146,
+   "delta": -0.02090834971699998,
+   "U95": 0.017144,
+   "inside": false
+  },
+  {
+   "probe_index": 39,
+   "y": 0.19805,
+   "u_ours": -0.217053564904,
+   "u_ref": -0.201566,
+   "delta": -0.015487564903999995,
+   "U95": 0.021337,
+   "inside": true
+  },
+  {
+   "probe_index": 49,
+   "y": 0.24755,
+   "u_ours": -0.150396800333,
+   "u_ref": -0.151656,
+   "delta": 0.0012591996669999994,
+   "U95": 0.020292,
+   "inside": true
+  },
+  {
+   "probe_index": 60,
+   "y": 0.302,
+   "u_ours": -0.0899870701751,
+   "u_ref": -0.105835,
+   "delta": 0.015847929824899992,
+   "U95": 0.018298,
+   "inside": true
+  },
+  {
+   "probe_index": 70,
+   "y": 0.3515,
+   "u_ours": -0.0520346781615,
+   "u_ref": -0.07223,
+   "delta": 0.0201953218385,
+   "U95": 0.015797,
+   "inside": false
+  },
+  {
+   "probe_index": 80,
+   "y": 0.401,
+   "u_ours": -0.0260298176717,
+   "u_ref": -0.049907,
+   "delta": 0.0238771823283,
+   "U95": 0.015731,
+   "inside": false
+  },
+  {
+   "probe_index": 90,
+   "y": 0.4505,
+   "u_ours": -0.00713482645216,
+   "u_ref": -0.0318,
+   "delta": 0.02466517354784,
+   "U95": 0.015849,
+   "inside": false
+  },
+  {
+   "probe_index": 100,
+   "y": 0.5,
+   "u_ours": 0.00793067192808,
+   "u_ref": -0.014191,
+   "delta": 0.02212167192808,
+   "U95": 0.015675,
+   "inside": false
+  },
+  {
+   "probe_index": 110,
+   "y": 0.5495,
+   "u_ours": 0.0212110708653,
+   "u_ref": -0.000797,
+   "delta": 0.0220080708653,
+   "U95": 0.015691,
+   "inside": false
+  },
+  {
+   "probe_index": 120,
+   "y": 0.599,
+   "u_ours": 0.0339867704071,
+   "u_ref": 0.017061,
+   "delta": 0.0169257704071,
+   "U95": 0.015696,
+   "inside": false
+  },
+  {
+   "probe_index": 130,
+   "y": 0.6485,
+   "u_ours": 0.0470703386197,
+   "u_ref": 0.029707,
+   "delta": 0.017363338619700002,
+   "U95": 0.016547,
+   "inside": false
+  },
+  {
+   "probe_index": 140,
+   "y": 0.698,
+   "u_ours": 0.0610961305592,
+   "u_ref": 0.048313,
+   "delta": 0.012783130559199996,
+   "U95": 0.015585,
+   "inside": true
+  },
+  {
+   "probe_index": 151,
+   "y": 0.75245,
+   "u_ours": 0.0783930890896,
+   "u_ref": 0.070635,
+   "delta": 0.00775808908959999,
+   "U95": 0.015744,
+   "inside": true
+  },
+  {
+   "probe_index": 161,
+   "y": 0.80195,
+   "u_ours": 0.0968503747463,
+   "u_ref": 0.095123,
+   "delta": 0.0017273747462999978,
+   "U95": 0.018303,
+   "inside": true
+  },
+  {
+   "probe_index": 171,
+   "y": 0.85145,
+   "u_ours": 0.119730672141,
+   "u_ref": 0.124209,
+   "delta": -0.004478327859,
+   "U95": 0.015896,
+   "inside": true
+  },
+  {
+   "probe_index": 181,
+   "y": 0.90095,
+   "u_ours": 0.156697672397,
+   "u_ref": 0.16326,
+   "delta": -0.00656232760299999,
+   "U95": 0.021784,
+   "inside": true
+  }
+ ],
+ "planted_zero_control": "PASSED",
+ "reference": "Jifei Wang and Decheng Wan, Parallel Simulation of 3D Lid-driven Cubic Cavity Flows by Finite Element Method, Proc. 21st (2011) ISOPE, Maui, Hawaii, June 19-24 2011 -- as cited BY THE MANUAL for VMFL078",
+ "figure": "VM2026R1 Figure .78.2, printed p.224 / PDF p.238"
+}
