@@ -75,21 +75,74 @@ say "  G-02 OK: 4 ranks x 9 fields at t=$IC_TIME"
 # --- G-03 controlDict shape (Sanaa items 1-4) ---------------------------------
 CD="$CASE/system/controlDict"
 say "G-03 controlDict"
-grep -qx "endTime $END_TIME;"   "$CD" || refuse "endTime is not $END_TIME"
-grep -qx "writeInterval 5;"     "$CD" || refuse "writeInterval is not 5"
-grep -qx "purgeWrite 16;"       "$CD" || refuse "purgeWrite is not 16"
-grep -q  "restartOnRestart false" "$CD" || refuse "fieldAverage does not declare restartOnRestart false -- Sanaa item 3"
-grep -q  "type            abort;" "$CD" || refuse "no abort function object -- item 12 has no clean stop"
-grep -rqE 'restartOnRestart\s+(yes|true|on|1)\s*;' "$CASE/system" \
-  && refuse "a restartOnRestart TRUE is declared in system/ -- it would DISCARD the averaging accumulator on restart"
-say "  G-03 OK"
+# ---------------------------------------------------------------------------
+# DEFECT REPAIRED 2026-09-12T19:48Z, AND IT WAS THIS GUARD'S FAULT, NOT THE
+# CASE'S.  The previous version tested `grep -qx "endTime 112;"` -- a WHOLE-LINE
+# match -- against a controlDict whose registered values carry trailing `//`
+# comments explaining them.  The file was CORRECT and byte-identical to its
+# committed blob; the guard could not match it, and refused a good case at
+# exit 2.  That is the mirror image of the failure this lab hunts: not a guard
+# that cannot fire, but one that fires on the wrong thing, and it would have
+# refused every future level of this family for the same reason.
+#
+# The repair reads the VALUE instead of the line: comments are stripped FIRST
+# (so a commented-out `// endTime 112;` can never satisfy the test), only
+# column-0 top-level keys are matched (so the function objects' own
+# `writeInterval 1;` cannot be mistaken for the run's), and an ABSENT key
+# REFUSES rather than passing -- an unevaluated policy is not a satisfied one.
+# ---------------------------------------------------------------------------
+cd_value() {   # $1 = top-level key; prints its value, or nothing if absent
+  sed -e 's://.*::' "$CD" \
+    | sed -n "s/^$1[[:space:]]\+\([^;[:space:]]\+\)[[:space:]]*;.*/\1/p" | head -1
+}
+assert_cd() {  # $1 = key, $2 = registered value
+  local got; got="$(cd_value "$1")"
+  [ -n "$got" ] || refuse "G-03: controlDict carries no top-level \`$1\`. An unevaluated policy is not a satisfied one (Sanaa item 4)."
+  [ "$got" = "$2" ] || refuse "G-03: controlDict \`$1\` is '$got', but K2h_PREREGISTRATION.md registers '$2'."
+  say "    $1 = $got"
+}
+# Every value below is TRANSCRIBED from the registration, not chosen here.
+assert_cd application    buoyantBoussinesqPimpleFoam   # section 4
+assert_cd startFrom      startTime                     # section 4: the clock starts at 0 ...
+assert_cd startTime      0                             # ... with the 803 fields as the INITIAL CONDITION
+assert_cd endTime        "$END_TIME"                   # section 5 E-ENDTIME
+assert_cd deltaT         0.005                         # section 4
+assert_cd adjustTimeStep yes                           # section 8's mean-deltaT projection assumes it
+assert_cd maxCo          2.0                           # section 4, K2b's measured setting
+assert_cd writeControl   adjustableRunTime             # section 9
+assert_cd writeInterval  5                             # section 9: ~5.0 min wall worst-case loss
+assert_cd purgeWrite     16                            # section 9: retains t=42..112
+# --- the two function-object limbs, matched on CONTENT and not on whitespace --
+grep -qE '^[[:space:]]*restartOnRestart[[:space:]]+false[[:space:]]*;' "$CD" \
+  || refuse "G-03: fieldAverage does not declare \`restartOnRestart false\` -- Sanaa item 3. A restart would DISCARD the averaging accumulator and poison the graded number SILENTLY rather than stopping the run."
+grep -qE '^[[:space:]]*timeStart[[:space:]]+42[[:space:]]*;' "$CD" \
+  || refuse "G-03: fieldAverage does not start averaging at the registered 42 s (section 5 S-SETTLE)."
+grep -qE '^[[:space:]]*type[[:space:]]+abort[[:space:]]*;' "$CD" \
+  || refuse "G-03: no \`abort\` function object -- Sanaa item 12 would have no clean stop and a stop would have to kill a rank."
+grep -rqE 'restartOnRestart[[:space:]]+(yes|true|on|1)[[:space:]]*;' "$CASE/system" \
+  && refuse "G-03: a restartOnRestart TRUE is declared in system/ -- it would DISCARD the averaging accumulator on restart"
+say "  G-03 OK: every registered controlDict value read back BY VALUE from disk"
 
 # --- G-04/05 memory and cores -------------------------------------------------
 AVAIL_GB=$(awk '/MemAvailable/ {printf "%.1f", $2/1048576}' /proc/meminfo)
 awk -v a="$AVAIL_GB" -v n="$MEM_NEED_GB" 'BEGIN{exit !(a >= n + 2)}' \
   || refuse "memory: ${AVAIL_GB} GB available is not ${MEM_NEED_GB} GB + 2 GB headroom"
 LIVE=$(pgrep -c -f '[F]oam -parallel' 2>/dev/null || echo 0)
-[ $((RANKS + LIVE)) -le "$(nproc)" ] || refuse "core guard: $RANKS + $LIVE > $(nproc)"
+# A FULL BOX IS A TRANSIENT CONDITION, NOT A DEFECT IN THIS CASE, and the wording
+# matters because a refusal here reads as a finding about the entry. It is not:
+# nothing about the registration, the case or the policy is wrong when the box is
+# busy. queue_runner.py's own gate C HOLDS for exactly this reason and schedules
+# the entry into the next wave rather than consuming a frozen registration over a
+# resource condition. This launcher cannot hold -- it is one-shot -- so it refuses
+# to START, which is the safe direction, and says plainly which kind of refusal
+# it is so nobody triages a busy box as a broken case.
+if [ $((RANKS + LIVE)) -gt "$(nproc)" ]; then
+  refuse "G-05 CORE GUARD, TRANSIENT BOX CONDITION AND NOT A DEFECT IN THIS CASE:
+        $RANKS requested ranks + $LIVE live solver ranks > $(nproc) cores.
+        NOTHING IS WRONG WITH THE ENTRY, THE REGISTRATION OR THE CASE. The correct
+        response is to RETRY IN THE NEXT WAVE, exactly as queue_runner.py gate C
+        does by HOLDING. Do not move this entry to refused/ on this line."
+fi
 say "G-04/05 OK: ${AVAIL_GB} GB available, $LIVE live solver ranks, $(nproc) cores"
 
 if [ "$CHECK_ONLY" = "1" ]; then
