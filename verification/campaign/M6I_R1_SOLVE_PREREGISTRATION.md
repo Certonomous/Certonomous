@@ -1416,3 +1416,79 @@ about the grids that survives the parenthetical being wrong about their absolute
 **And the un-ramped run reproduces the ramped one to four decimal places in y⁺** (2.5455 vs
 2.5459), which is independent corroboration of A7.2's finding that the two paths reach the
 same solution everywhere except the tip station.
+
+---
+
+# ADDENDUM 10 — 2026-09-12. **L2 UNDER RUNG 4: C1 PASS, C2 FAIL. AND THE EVALUATOR'S OWN LABEL OVERSTATES WHAT L2 CAN SHOW.**
+
+**v1.9 → v1.10. Lines whose number changed above this section: 0.** No band, threshold, cap
+or label moves.
+
+## A10.1 — THE NUMBERS, C2 FIRST
+
+`M6I-R1-L2-TVD`, pid 78552, **`rc = 0`, last time 5000 == `endTime`, `End` line present.**
+
+**C2 — IT STILL HAS A SHOCK: 🔴 FAIL, on both stations.**
+
+| station | `cfd_cp_rise_at_shock` | S1 limb | `x_shock_cfd` | S2 limb | |
+|---|---|---|---|---|---|
+| η = 0.65 | **0.1031** | ≥ 0.212 | **0.8851** | < 0.85 | **NOT shock-bearing** |
+| η = 0.90 | **0.0582** | ≥ 0.320 | **0.9233** | < 0.85 | **NOT shock-bearing** |
+
+**C1 — IT RAN: PASS.** LC-1 peak `CellsPercent` **0.00 %** over 9,600 reported lines; LC-2
+worst `bounding nuTilda` **0.0391** against a 1e6 threshold; final Ux initial residual
+**1.28e-07**; planted control seen (RMS moved 0.0892 against a required 0.0617).
+
+**Verdict: `GATE FAIL`.** All 12 Cp rows outside the registered RMS ≤ 0.050 band.
+
+## A10.2 — 🔴 THE EVALUATOR PRINTS "SURVIVED BY SMEARING" AND L2 CANNOT ESTABLISH THAT
+
+`evaluate_m6i_level.sh` emits that label mechanically whenever C1 holds and C2 fails, and
+**A8.2 registered the label in exactly those terms.** Applied to L2 it **overstates**, and
+this addendum says so rather than letting a registered phrase do work the data does not
+support.
+
+**Two readings fit L2's numbers and they are not distinguishable from L2 alone:**
+
+- **(a) the limiter smeared a shock the run would otherwise have captured** — the phrase's
+  meaning;
+- **(b) 122,880 cells still cannot carry the M6 shock at all**, exactly as 15,360 could not,
+  and there was never a shock for the limiter to smear.
+
+🔴 **The comparison that would separate them does not exist: L2's own `linearUpwind` run
+DIVERGED and produced no Cp.** There is no "before" to measure a smearing against. **A label
+asserting (a) is therefore an inference and not a measurement, and it is recorded as one.**
+
+**The evidence available leans to (b), and it is a trend rather than a proof:** against L3,
+L2's upper-surface Cp RMS roughly **halves** at every station (0.2801→0.1506, 0.3639→0.2085,
+0.4000→0.2453, 0.4265→0.2667, 0.4325→0.2785, 0.4111→0.2670), the lower surface likewise
+(~0.17–0.19 → ~0.089–0.109), the shock rise **rises** 0.0875→0.1031 at η = 0.65, and the
+shock location **moves forward** 0.9531→0.8851 c, toward the experiment's 0.4752. **Everything
+is moving the right way with refinement and nothing has arrived.**
+
+## A10.3 — 🔴 BUT THAT TREND IS CONFOUNDED, AND THE RUN THAT DECONFOUNDS IT IS ALREADY REGISTERED
+
+**L3 was solved under `linearUpwind`; L2 under rung 4's bounded TVD.** The L3 → L2 improvement
+therefore **mixes an 8× refinement with a change of convection scheme**, and neither term can
+be read off it. **No observed order, no refinement claim and no scheme credit may be taken
+from that pair**, and none is taken here.
+
+**A8.1 registered the deconfounding run before this result existed:** *"if L1 or L2 completes
+under rung 4, L3 is re-run under rung 4 as well so that any family is one configuration."*
+**L2 has now completed under rung 4, so the condition is met and `M6I-R1-L3-TVD` is released
+from `held/` to the queue.** Its case was built and validated while L2 was still running, and
+its prediction was registered then: **L3_TVD's Cp matches the un-ramped L3's to
+`max|ΔCp| ≤ 0.02` at η = 0.20–0.90 and its C2 limb FAILS as L3's did — because a limiter
+cannot create a shock the grid could never carry.** A larger difference would mean the
+convection scheme moves Cp on a **shock-free** solution, which would weaken the rung-4 reading
+and is registered as a way for it to fail.
+
+**With L3_TVD in hand the L3 → L2 comparison becomes single-variable**, and reading (a) versus
+reading (b) above becomes answerable rather than arguable.
+
+## A10.4 — COST
+
+L2 under rung 4: **`endTime` 5000 reached.** Its predecessor's diverged attempt cost 10.60
+core-minutes and is named as waste, unchanged. The rule-12 row for this level is owed when
+the family closes and will carry the rung-4 actual against the registration's 85.3 estimate
+and 256 cap.

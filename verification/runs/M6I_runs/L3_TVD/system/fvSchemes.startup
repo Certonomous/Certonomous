@@ -1,0 +1,31 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }
+// STARTUP RAMP ONLY -- the first 200 iterations.  Sanaa's CRM instruction section 6
+// prescribes a robust-startup ramp for pressure-based compressible with the transonic
+// option.  Every convective term is first-order upwind here; the registered second-order
+// fvSchemes is restored byte-identically for the remaining iterations, and the graded
+// answer is produced by THOSE schemes, never by these.
+ddtSchemes      { default steadyState; }
+gradSchemes
+{
+    default         Gauss linear;
+    limitedGrad     cellLimited Gauss linear 1;
+    grad(U)         $limitedGrad;
+    grad(nuTilda)   $limitedGrad;
+    grad(e)         $limitedGrad;
+}
+divSchemes
+{
+    default         none;
+    div(phi,U)      bounded Gauss upwind;
+    div(phi,e)      bounded Gauss upwind;
+    div(phi,K)      bounded Gauss upwind;
+    div(phi,Ekp)    bounded Gauss upwind;
+    div(phi,nuTilda) bounded Gauss upwind;
+    div(phid,p)     Gauss upwind;
+    div((phi|interpolate(rho)),p) bounded Gauss upwind;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
+laplacianSchemes { default Gauss linear limited corrected 0.33; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default limited corrected 0.33; }
+wallDist        { method meshWave; }

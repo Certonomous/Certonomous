@@ -1,0 +1,35 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }
+ddtSchemes      { default steadyState; }
+gradSchemes
+{
+    default         Gauss linear;
+    limitedGrad     cellLimited Gauss linear 1;
+    grad(U)         $limitedGrad;
+    grad(nuTilda)   $limitedGrad;
+    grad(e)         $limitedGrad;
+}
+divSchemes
+{
+    // RUNG 4, ADDENDUM 8: every convective term moves from the UNBOUNDED second-order
+    // `linearUpwind` to the BOUNDED TVD `limitedLinear(V) 1` -- second order where the
+    // solution is smooth, first order ONLY at the discontinuity.  This is the one
+    // registered change, and it is the remedy the evidence names rather than the one the
+    // pre-declaration happened to list first: L3_NORAMP proved the schemes stable at 87.7
+    // deg WITHOUT a shock, and L1/L2 died only once a shock formed.
+    default         none;
+    div(phi,U)      bounded Gauss limitedLinearV 1;
+    div(phi,e)      bounded Gauss limitedLinear 1;
+    div(phi,K)      bounded Gauss limitedLinear 1;
+    div(phi,Ekp)    bounded Gauss limitedLinear 1;
+    div(phi,nuTilda) bounded Gauss limitedLinear 1;
+    div(phid,p)     Gauss upwind;
+    div((phi|interpolate(rho)),p) bounded Gauss upwind;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
+// max non-orthogonality on this family is 86.5-87.7 deg on EVERY level (R0_RESULTS
+// section 3).  'limited corrected 0.33' is the registered remedy and it is applied
+// identically on all three levels so the family stays similar.
+laplacianSchemes { default Gauss linear limited corrected 0.33; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default limited corrected 0.33; }
+wallDist        { method meshWave; }
