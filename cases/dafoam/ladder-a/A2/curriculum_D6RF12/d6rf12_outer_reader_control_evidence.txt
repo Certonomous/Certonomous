@@ -1,0 +1,20 @@
+D6RF12 FIRST-MATCH READER -- PLANTED CONTROL, MUTATION-TESTED, RUN BEFORE THE FREEZE
+Date 2026-09-12.  The fixture is the shape that actually fooled d6rf11_grade.py:
+ONE large true outer residual followed by TWELVE small corrector lines.
+
+--- the real reader must return the LARGE one ---
+{
+ "n_lines_in_planted_block": 13,
+ "planted_corrector_tail": 1.234e-11,
+ "planted_true_outer": 0.009876,
+ "reader_returned": 0.009876,
+ "reader_returned_the_last_corrector": false,
+ "reader_returned_the_outer": true,
+ "state": "EXERCISED-PASS"
+}
+
+--- MUTATION: swap in a LAST-match reader; the control MUST refuse ---
+REFUSE PLANT-OUTER {"n_lines_in_planted_block": 13, "planted_corrector_tail": 1.234e-11, "planted_true_outer": 0.009876, "reader_returned": 1.234e-11, "reader_returned_the_last_corrector": true, "reader_returned_the_outer": false, "state": "EXERCISED-FAIL"}
+mutated last-match reader -> REFUSED, exit 2
+The control is shown able to CATCH the defect it exists to catch,
+not merely to pass on a reader that is already correct.

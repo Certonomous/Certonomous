@@ -1,0 +1,61 @@
+D6RF12 G3-FDSTEP -- THE THREE-DIRECTION CONTROL, RUN BEFORE THE FREEZE
+Date: 2026-09-12.  CLAUDE.md rule 3: a gate is not trusted until it has been shown
+able to return BOTH verdicts, on THIS family's own on-disk artifacts.
+
+NEGATIVE fixture is D6RF11's REAL, UNMODIFIED output -- not a synthetic stand-in:
+  /home/ubuntu/certonomous-runs/CURRICULUM-D6RF11-a2-wing-fd-simplec-probe/F_probe/d6rf3_fd_endpoint.jsonl
+  /home/ubuntu/certonomous-runs/CURRICULUM-D6RF11-a2-wing-fd-simplec-probe/F_probe_20260912T053430Z_2891321.log
+
+{
+ "negative_fd_step_without_marker": {
+  "kinds": {
+   "endpoint_dvs": 1,
+   "fd_step": 1
+  },
+  "limb_fd_step_rows": true,
+  "limb_producer_completed": false,
+  "min_required": 1,
+  "n_fd_step_rows": 1,
+  "n_malformed": 0,
+  "n_rows_total": 2,
+  "terminal_marker": "D6RF3_FD_ENDPOINT_WRITTEN",
+  "terminal_marker_present": false,
+  "verdict": "FAIL"
+ },
+ "negative_real_d6rf11": {
+  "kinds": {
+   "endpoint_dvs": 1
+  },
+  "limb_fd_step_rows": false,
+  "limb_producer_completed": false,
+  "min_required": 1,
+  "n_fd_step_rows": 0,
+  "n_malformed": 0,
+  "n_rows_total": 1,
+  "terminal_marker": "D6RF3_FD_ENDPOINT_WRITTEN",
+  "terminal_marker_present": false,
+  "verdict": "FAIL"
+ },
+ "positive_planted_fd_step": {
+  "kinds": {
+   "endpoint_dvs": 1,
+   "fd_step": 1
+  },
+  "limb_fd_step_rows": true,
+  "limb_producer_completed": true,
+  "min_required": 1,
+  "n_fd_step_rows": 1,
+  "n_malformed": 0,
+  "n_rows_total": 2,
+  "terminal_marker": "D6RF3_FD_ENDPOINT_WRITTEN",
+  "terminal_marker_present": true,
+  "verdict": "PASS"
+ },
+ "state": "EXERCISED-PASS"
+}
+
+READ THE FIRST BLOCK AGAINST THE OLD GATE: on this SAME real file
+d6rf11_grade.py:111-113 returns PASS and prints 'FD sample rows = 1',
+because it counts len(rows) of ANY kind.  G3-FDSTEP returns FAIL:
+kinds {endpoint_dvs: 1}, n_fd_step_rows 0, terminal marker absent.
+The defect is demonstrated ON THE ARTIFACT, not in the abstract.
