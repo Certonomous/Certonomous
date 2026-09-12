@@ -1,0 +1,18 @@
+D8G ADDENDUM 9 -- PLANTED CONTROL ON THE LEDGER ROW GRAMMAR
+Run 2026-09-12 against the FROZEN d8g_grade.py, md5 12688063e20cbb6fa79cf08d0996d4e1,
+by importing LEDGER_RE from the frozen file itself -- no reimplementation of the pattern.
+
+CLAUDE.md rule 3: the reader is driven in BOTH directions, so neither answer is a blind
+zero. It is shown able to return PARSES and shown able to return UNPARSEABLE.
+
+  NEW canonical row (LAUNCH_D8G_R2_L1P.sh)   -> PARSES
+       ARM=L1-P  cap_core_min=46.977  rc=0  core_min=219.533
+       DIGEST == IMG_DIGEST['PATCHED']  : True
+       cpuset == CPUSET_REGISTERED      : True
+  R1 row as it stands                        -> UNPARSEABLE -> refuse()
+  R1 row with ONLY the arm id fixed          -> UNPARSEABLE -> refuse()
+
+THE THIRD LINE IS THE POINT, AND IT IS MEASURED RATHER THAN ARGUED:
+correcting ARM=L1-P-R1 to ARM=L1-P and changing nothing else leaves the row EXACTLY as
+unparseable as it was. The arm id is a real defect (ADDENDUM 9 sec 9.2) and it is NOT the
+one that refused D8G R1. The binding defect is the row grammar (sec 9.3).

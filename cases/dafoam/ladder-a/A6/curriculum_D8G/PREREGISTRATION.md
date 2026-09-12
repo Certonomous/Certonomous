@@ -1877,3 +1877,152 @@ removed — the `timeout` wrapper** — rather than a re-derivation of it.
 UNTESTED-transfer registration of ADDENDUM 7 §7.3 stand **exactly** as frozen.
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## ADDENDUM 9 — 2026-09-12 — **THE ARM ID WAS NOT THE BINDING DEFECT. `LAUNCH_D8G_R1.sh` WRITES A LEDGER ROW THE FROZEN COMPARATOR CANNOT PARSE AT ALL, AND TWO OF ITS "JUSTIFIED DEPARTURES" ARE GRADE-FATAL.**
+
+**`lines whose number changed above this section: 0`** — measured against the committed
+blob at HEAD before this text was appended (1,879 lines; this addendum is appended at the
+foot and touches nothing above it). CLAUDE.md rule 6.
+
+**ALTERS NO gate, band, threshold, cap or label.** `d8g_grade.py` is **NOT TOUCHED** and
+remains `12688063e20cbb6fa79cf08d0996d4e1`. ADDENDUM 7 §7.3's UNTESTED-transfer
+registration and every prediction stand exactly as frozen. This addendum records
+**defects in the launcher and in an arm id**, and nothing else. **SUBMISSIONS PARKED.**
+
+### 9.1 What happened
+
+D8G R1 (`L1-P-R1`) completed `rc=0` and was graded 2026-09-12. `d8g_grade.py`, unchanged,
+**refused**: `{"REFUSE": "ledger", "detail": {"note": "PRESENT-BUT-GARBAGE row: refused,
+never skipped", "row_unparseable": "ARM=L1-P-R1 ROW=D8G-R1 rc=0 ..."}}` → `NOT A RESULT`.
+Record: `D8G_R1_GRADING_RECORD.md`, commit `cdc9bbe24`.
+
+The supervisor discharged check 4 on ADDENDUM 7 and identified the cause as the **arm id**:
+`L1-P-R1` is not one of the ten ids fixed at `d8g_grade.py:212`, and that is true and is
+the supervisor's own disclosed check-4 miss. **It is not the binding defect.** This lane
+was directed to re-run under `L1-P` and instead checked, before spending compute, whether
+that would clear the refusal. **It would not.** Four defects sit between
+`LAUNCH_D8G_R1.sh` and a graded row, and the arm id is only the first.
+
+### 9.2 DEFECT 1 — the arm id (real, disclosed, NOT binding)
+
+`ARMS_REQUIRED` (`d8g_grade.py:212`) is
+`["L1-P","L2-P","L3-P","A2-P","F2-P","L1-S","L2-S","L3-S","A2-S","F2-S"]`. There is no
+`L1-P-R1`. §7 of ADDENDUM 7 registered the arm by that name (`:1752`, `:1808`) while
+asserting the comparator untouched (`:1341`, `:1397`, `:1424`, `:1531`, `:1596`).
+
+### 9.3 DEFECT 2 — **THE BINDING ONE: the ledger row grammar. Changing the arm id alone would have left the row exactly as unparseable.**
+
+`LEDGER_RE` (`d8g_grade.py:367`) requires, contiguously and in this order:
+
+```
+ARM= ROW= IMG= DIGEST= rc= wall_s= ranks= core_min= cap_core_min=
+enforced_wall_s= enforced_core_min= memory= inspect(exit,oomkilled)=[..] ... cpuset=
+```
+
+`LAUNCH_D8G_R1.sh`'s hand-rolled watcher writes **seven fields**:
+
+```
+ARM= ROW= rc= inspect(exit,oom)=[..] wall_s= ranks= core_min= stamp= log=
+```
+
+* **MISSING:** `IMG`, `DIGEST`, `cap_core_min`, `enforced_wall_s`, `enforced_core_min`,
+  `memory`, `cpuset`.
+* **WRONG KEY:** `inspect(exit,oom)` where the grammar requires `inspect(exit,oomkilled)`.
+* **WRONG ORDER:** `rc` is followed by `inspect(...)`, but the grammar requires
+  `rc wall_s ranks core_min` contiguous.
+
+The registered launcher `d8g_run_arm.sh:1010` emits the **full canonical row** and always
+did. `LAUNCH_D8G_R1.sh` was written to strip the in-container deadline (correctly, under
+Sanaa's NO-CAP order) and **replaced the ledger write with an incompatible stub while
+doing so**. That is the defect that actually refused this row.
+
+### 9.4 DEFECT 3 — `--cpus=4` is not grade-neutral, and the launcher's own header says it is
+
+`LAUNCH_D8G_R1.sh`'s documented "departure 2" replaces `--cpuset-cpus=$CPUSET` with
+`--cpus=4`, reasoning that "neither form can kill anything". True, and irrelevant:
+**G12 gates on `cpuset == CPUSET_REGISTERED = "0,1,12,15"`** (`d8g_grade.py:333`, :1412ff),
+and `cpuset` is a **`FIELDS_PHYSICS`** member (`:341`). A share limit writes no cpuset and
+matches no registered set, so a well-formed row from this launcher would still take
+`G12 GATE FAIL`. *Measured 2026-09-12 06:20Z: the registered set `0,1,12,15` is **free of
+pinned siblings** — the two pinned live containers both sit on `2,3,4,14` — so the header's
+stated reason for the departure does not apply against the current pins.*
+
+### 9.5 DEFECT 4 — no `DIGEST` is recorded, and G9 gates the toolchain on it
+
+**G9** requires ledger `DIGEST == IMG_DIGEST[row]` **and** the container's printed
+`D4S_IDWARP_SO_MD5` **and** the artefact md5 (`:1369`). `LAUNCH_D8G_R1.sh` prints the
+idwarp md5 into the log but **writes no `DIGEST` into the ledger**. *Measured on this box
+2026-09-12: `dafoam-idwarp-rot:v1` digests to
+`sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35`, which is
+`IMG_DIGEST["PATCHED"]` **exactly**, and R1's `d8g_P.json` recorded
+`libidwarp_so_md5 85f59e87253e0a71a813f64ca6e4c425` = `SO_MD5["PATCHED"]` exactly. The
+identity is right; only its recording is missing.*
+
+### 9.6 **AND EVEN WITH ALL FOUR FIXED, ONE ARM OF TEN STILL REFUSES. THIS IS REGISTERED HERE SO NO ONE SPENDS COMPUTE EXPECTING OTHERWISE.**
+
+`g_completion()` walks **all ten** `ARMS_REQUIRED`. An arm with no ledger row falls to
+`inspect_file_fallback()`, which requires **exactly one** `<ARM>_*.inspect.txt`; with zero
+candidates it **refuses at G1** (`arm_absent_from_ledger`). `grade()` therefore cannot
+return an item verdict until all ten arms exist.
+
+**So a corrected single-arm re-run of `L1-P` cannot produce a graded verdict for D8G
+tonight.** What it *can* do is **bank one of the ten arms, correctly recorded**, which the
+existing `L1-P-R1` cannot serve as. That is the honest reason to run it, and the only one.
+
+### 9.7 What the physics still says — carried forward verbatim, and it is NOT voided
+
+Bookkeeping never voids physics. The measurement from `L1-P-R1`, unchanged and still a
+**measurement and not a verdict**:
+
+`nuTilda initRes` finished at **7.873598471886472e-05 = 0.787× its 1.0e-04 accept floor**,
+with **zero** `Primal solution failed!` — against the pre-fix arm's **rising** plateau
+3.924e-04 → 3.991e-04 → **4.074e-04 = 4.07×** with **seventeen** `Primal solution failed!`.
+Mechanism measured on both sides: **13 pressure sub-iterations per outer step under the
+tight inner-solve rule against 1 under the loose rule**, at the first and last outer step
+alike. ADDENDUM 7 §7.3 registered the transfer to the CRM wing-body as **UNTESTED**; it
+cleared. **The D6RF10-R3 package is not case-specific.** Bounds unchanged: patched row
+only, gradient unverified, coarsest level (5,568 cells), `yPlus` mean 141.7.
+
+### 9.8 What is registered for the corrected re-run
+
+`LAUNCH_D8G_R2_L1P.sh`, committed with this addendum and **NOT YET RUN**:
+
+* **Arm id `L1-P`**, exactly as `ARMS_REQUIRED` knows it. Fresh root; neither existing root
+  is touched, moved or overwritten — both hold graded evidence.
+* **The canonical ledger row** of `d8g_run_arm.sh:1010`, field for field.
+  `enforced_wall_s` and `enforced_core_min` are written as **`0`**, the honest value under
+  NO-CAP: *no deadline was enforced.* Nothing gates either field (they are parsed at `:371`
+  and `:408` and read nowhere else). `cap_core_min` carries the registered
+  `CAPS["L1-P"] = 46.977` — **the cap as a NUMBER is not withdrawn, only its stop
+  behaviour**, exactly as ADDENDUM 7 and 8 already framed it.
+* **`--cpuset-cpus=0,1,12,15`**, the registered set G12 reads.
+* **`DIGEST` captured from the image at launch**, never hardcoded.
+* **The same fix, unchanged** — the D6RF10-R3 package plus knobs 7–8. It works; it is not
+  tuned to chase a nicer number.
+* **NO CAP of any kind**: no `timeout -k`, no `cap_core_min`→`TMO`, no `rc=124/137` path,
+  no `LAUNCH_BUDGET_S`, no `la_kill()`, no `exit 88`.
+* **Memory containment KEPT**: `--memory 6g --memory-swap 6g --oom-score-adj=500`. A
+  ceiling that cannot bind a healthy run is a seatbelt, not a cap (ADDENDUM 8).
+
+### 9.9 One open question, logged and deliberately not chased
+
+AR1 (A3GC) was described as a bit-for-bit repeat of its anchor, yet its `nuTilda` plateau
+sits **above** 1e-06 where the anchor's sits below. Now measured rather than reported:
+
+| | anchor `run_model_run3.log` | A3GC-AR1 |
+|---|---|---|
+| `nuTilda` initRes at 6000 | **8.985777021801817e-07** | **1.008859568e-06** |
+| last five samples | 9.009 / 8.923 / 8.953 / 8.903 / 8.986 e-07 | 1.00882 / 1.00947 / 1.01365 / 1.01194 / 1.00886 e-06 |
+| `p` initRes at 6000 | 3.744179143218389e-07 | 3.714456484e-07 |
+| `U0` initRes at 6000 | 1.045733025903036e-07 | 1.080498815e-07 |
+
+Both plateaus are **tight** — anchor spread ≈ 1.2 %, AR1 ≈ 0.5 % — so neither is a noisy
+sample that happened to land where it did. **`nuTilda` shifted by 12.3 %**, `U0` by 3.3 %,
+`p` by 0.8 %: **every equation moved, `nuTilda` most, and that shift is what carried it
+over the 1e-06 line.** The run is therefore **not** bit-for-bit reproducing the anchor,
+and this lane's use of "bit-for-bit" in `A3GC_AR1_GRADING_RECORD.md` §7 was too strong —
+**corrected here.** *The cost attribution in that record is unaffected: it rests on
+identical cell count, rank count and iteration count, which are unchanged, and not on
+identical residuals.* Not chased tonight; it changes no verdict.
