@@ -37,5 +37,56 @@
   "_mesh_identity": "constant/polyMesh is a SYMLINK resolving to verification/runs/navier_class/DRIVAER/r2_coarse/constant/polyMesh -- the SAME FILES the dead arms used and, for the coarse pair, the same files BOTH the blended and non-blended arms read. B2's 'identical mesh, one line apart' is true BY CONSTRUCTION rather than by copy-equality. Staging cost for all three arms: 276 KB.",
   "_staged": "FRESH case directory. 0.orig/, system/, constant/{transportProperties,turbulenceProperties} copied and the mesh symlinked; NO 0/, NO processor*, NO logs, NO postProcessing carried over. controlDict delta is exactly two lines by `diff`: writeInterval 1000 -> 250, purgeWrite 0 -> 2. startFrom, endTime 2000 and deltaT 1 UNTOUCHED, so rule 4's ExecutionTime count == 2000 is unaffected -- the very clause that makes a resume ungradeable. residualControl stays ABSENT as the controlDict's own comment requires. The dead tree is NOT deleted: it holds THE_ONE_CHANGE.diff, the mesh logs and the killed run's log, and it is evidence.",
   "DO_NOT_RESUME": "DO NOT CONVERT THIS TO A RESUME. The runner now carries a G RESUME gate with `resume_from`/`resume_fields`, so a resume is technically available -- and it is STILL UNGRADEABLE HERE, which is a property of the frozen comparator, not of the runner. grade_drivaer.py:241-244 computes n_exec = count of 'ExecutionTime' lines, sets want = round(endTime/deltaT) = 2000, and on mismatch calls refuse() = sys.exit(2). It REFUSES; it does not degrade. A resume from t=1000 executes 1000 iterations: a fresh log gives 1000 != 2000, an appended log gives 2414 != 2000. NO RESUME PATH SATISFIES IT. It is also falsifier F2 of the governing registration, whose gates CLOSED at the first snappyHexMesh of r2_coarse, so the clause cannot be amended. Giving up ~127 core-min buys a gradeable result instead of a refused one. Ruled by cfd-supervisor 2026-09-12. A run nobody can grade is not a result -- do not 'fix' this back to a resume.",
-  "enqueued_by": "cfd lab-lane, 2026-09-12, wave 2, on cfd-supervisor's direction. Rule 2 checked by the lane BEFORE placing rather than after: prereg blob at the freeze == at HEAD, and the grader was PRESENT at the freeze with the frozen sha256. All validator clauses dry-run clean against this exact file by importing scripts/queue_entry_check.py. Sanaa item 19: the runner is the only launcher. No agent's message is Sanaa's consent."
+  "enqueued_by": "cfd lab-lane, 2026-09-12, wave 2, on cfd-supervisor's direction. Rule 2 checked by the lane BEFORE placing rather than after: prereg blob at the freeze == at HEAD, and the grader was PRESENT at the freeze with the frozen sha256. All validator clauses dry-run clean against this exact file by importing scripts/queue_entry_check.py. Sanaa item 19: the runner is the only launcher. No agent's message is Sanaa's consent.",
+  "_launch": {
+    "utc": "2026-09-12T19:15:40Z",
+    "pid": 98746,
+    "sid": 98746,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_coarse_R2/STATUS.queue.DRIVAER-R2-COARSE-RERUN",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_coarse_R2/launcher.queue.out",
+    "started_epoch": 1789240540.447149,
+    "resumed_from": null
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.DRIVAER-R2-COARSE-RERUN (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_grading_freeze": {
+    "verdict": "PINNED",
+    "detail": "1 comparator(s) named by 'grading_freeze' hash EXACTLY as commit 1f2d9a86 froze them.",
+    "field": "grading_freeze",
+    "paths": [
+      {
+        "path": "cases/navier_class/DRIVAER/grade_drivaer.py",
+        "frozen_sha": "df1e6d1bdc654c0020b4cc50f77662f0064435d5",
+        "disk_sha": "df1e6d1bdc654c0020b4cc50f77662f0064435d5",
+        "state": "PINNED"
+      }
+    ],
+    "prereg_commit": "1f2d9a86eaecceab1ea9e61caf98cca6958ff38c",
+    "refusal_eligible": false,
+    "source": "ENTRY",
+    "schema": "grading_freeze/2",
+    "kind": "PREDICTION",
+    "predicts": "GRADING_WILL_PROCEED",
+    "actual": null,
+    "case_id": "DRIVAER-R2-COARSE-RERUN",
+    "walked_commit": "39f25434d30159c638fc646f1a3ed0852d9801f7",
+    "recorded_utc": "2026-09-12T19:15:40Z"
+  }
 }
