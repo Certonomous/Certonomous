@@ -1,0 +1,22 @@
+PATCH REUSE MANIFEST -- SOLVE_L2R, staged 2026-09-12T18:59:29Z
+Source: verification/runs/CRM_WINGALONE_runs/SOLVE_L2 (the run killed by the 17:36:41Z reboot)
+WHAT IS REUSED IS THE MESH, NOT THE CASE. No remesh, no createPatch, no decomposePar.
+system/createPatchDict was REMOVED from this case so nothing can re-patch by accident.
+
+polyMesh sha256, source == destination, all five files, top level and all six processors:
+  constant/polyMesh/points     f45cd1cfe4d1f603b34980ed5b8cdd344816139b5e5b67213aceaca7f4e0fe81
+  constant/polyMesh/faces      4a59cd907df18ecc52f9302de63ce20c8c9953e62be5c58827a68c3d472f090f
+  constant/polyMesh/owner      770eba1e49305641b1a660101af266adde16a2a430dbdab8fc86d8d5d0e1202a
+  constant/polyMesh/neighbour  ebde0ad89409805f5ae28f658e552f5e82d0aa65f4d1632e8bad93eac00d7807
+  constant/polyMesh/boundary   93ae294615873e0d12f728fca65f04aea6099ea01f53ce291ae235e0b6f0752d
+  processor0/constant/polyMesh/boundary 84962469eebfe0e091543f9b4c074148dbf6d9fc13558cfd58b461dc64dea713
+  processor1/constant/polyMesh/boundary 4d6a8008920672fb3efc74a6c7ec9c347a3ea4c8c199fee0c389f08adb086927
+  processor2/constant/polyMesh/boundary 67d6e7ef084b21b6f60c9fd21b12fa76bc11886090d4d38499b1ebc4a1979f64
+  processor3/constant/polyMesh/boundary cd3b05a9137b515c6f824b71b46bb8de416acb17c8f8ab850796e662ab437328
+  processor4/constant/polyMesh/boundary 4bd1f24ea71b3b388308ee8b3c1b44b606277e24f173cf6ad4161cc0a6cc923a
+  processor5/constant/polyMesh/boundary 153fc9f13ba226221cdf70eac8a1b6211569021c6cb99f850b588d913caa4efe
+
+Patches (ADDENDUM 2 A2.4 registered counts, hit EXACTLY by arm P1C):
+  wing 11136   farfield 11136   symmetry 14144
+Decomposition: 6 ranks, COPIED not regenerated -- so the partition is bit-identical to
+the one that ran, and scotch's non-determinism cannot introduce a difference here.

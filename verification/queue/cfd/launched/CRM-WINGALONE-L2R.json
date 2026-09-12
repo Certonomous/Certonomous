@@ -113,5 +113,56 @@
   "grading_freeze_blob_sha": {
     "cases/CRM_wingalone/grade_crm_l2.py": "4a9ea0cba37a9c79b9a644454755251b3a3e82e1"
   },
-  "\ud83d\udd34_grading_freeze_RULE_2_GAP_DISCLOSED_NOT_PAPERED_OVER": "THE GRADING PATH IS NOT FIXED AT THE PRE-REGISTRATION COMMIT, AND THAT IS A REAL RULE-2 GAP ON THIS RUNG. The runner flagged it at attempt 1 as 'GRADER-FREEZE: ABSENT-AT-FREEZE' and the flag is CORRECT. MEASURED, not inferred: `git show 122398334...:cases/CRM_wingalone/grade_crm_l2.py | sha256sum` returns e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 -- THE SHA256 OF THE EMPTY STRING, i.e. the path did not exist at that commit. Chronology from git: the registration was frozen 2026-09-12 03:23:42Z (122398334); the grader was first committed 2026-09-12 06:08:06Z (0c8d9edd2, 'CRM wing-alone L2 HAD NO GRADING WATCHER -- armed one, on the REGISTERED gates only'). THE INSTRUMENT POST-DATES THE FREEZE BY 2 HOURS 44 MINUTES. THE FIELD WAS NOT REPOINTED TO MAKE THE FLAG GO GREEN. It previously named the SOLVE_L2/GRADER working copy, which is also absent at the freeze AND is not committed; it now names the canonical COMMITTED artifact, which is at least pinnable (blob 4a9ea0cb at HEAD, sha256 e02a0771..., byte-identical to the copy in this case's GRADER/). The flag will still read ABSENT-AT-FREEZE and IT SHOULD. WHAT IS AND IS NOT COMPROMISED: the GATES are frozen -- section 7's limbs, thresholds, cap and label sit in the 03:23:42Z blob and no instrument can move them. What is not frozen is the CODE THAT READS THEM. The one ambiguity that surfaced in that code (section 7 G-S2's 'max |dCd| over the last 500 iterations', which admits peak-to-peak, max single-step and end-to-end readings) was ruled by the cfd-supervisor AHEAD OF THE GATE FIRING and in the STRICTEST direction -- peak-to-peak is >= both others by construction, so a strictest reading of an ambiguous frozen text can only turn a PASS into a GATE FAIL, never the reverse (SOLVE_L2/DEPARTURES.md D3, which also records that grade_crm_l2.py prints all three measures beside the verdict). From this entry forward the grader is sha256-PINNED, so it cannot move again without a refusal. ESCALATED TO cfd-supervisor as a rung-level rule-2 finding: it is not this lane's to rule on, it does not stop the solve producing fields, and it is recorded here so that no reader of the eventual verdict has to discover it themselves."
+  "\ud83d\udd34_grading_freeze_RULE_2_GAP_DISCLOSED_NOT_PAPERED_OVER": "THE GRADING PATH IS NOT FIXED AT THE PRE-REGISTRATION COMMIT, AND THAT IS A REAL RULE-2 GAP ON THIS RUNG. The runner flagged it at attempt 1 as 'GRADER-FREEZE: ABSENT-AT-FREEZE' and the flag is CORRECT. MEASURED, not inferred: `git show 122398334...:cases/CRM_wingalone/grade_crm_l2.py | sha256sum` returns e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 -- THE SHA256 OF THE EMPTY STRING, i.e. the path did not exist at that commit. Chronology from git: the registration was frozen 2026-09-12 03:23:42Z (122398334); the grader was first committed 2026-09-12 06:08:06Z (0c8d9edd2, 'CRM wing-alone L2 HAD NO GRADING WATCHER -- armed one, on the REGISTERED gates only'). THE INSTRUMENT POST-DATES THE FREEZE BY 2 HOURS 44 MINUTES. THE FIELD WAS NOT REPOINTED TO MAKE THE FLAG GO GREEN. It previously named the SOLVE_L2/GRADER working copy, which is also absent at the freeze AND is not committed; it now names the canonical COMMITTED artifact, which is at least pinnable (blob 4a9ea0cb at HEAD, sha256 e02a0771..., byte-identical to the copy in this case's GRADER/). The flag will still read ABSENT-AT-FREEZE and IT SHOULD. WHAT IS AND IS NOT COMPROMISED: the GATES are frozen -- section 7's limbs, thresholds, cap and label sit in the 03:23:42Z blob and no instrument can move them. What is not frozen is the CODE THAT READS THEM. The one ambiguity that surfaced in that code (section 7 G-S2's 'max |dCd| over the last 500 iterations', which admits peak-to-peak, max single-step and end-to-end readings) was ruled by the cfd-supervisor AHEAD OF THE GATE FIRING and in the STRICTEST direction -- peak-to-peak is >= both others by construction, so a strictest reading of an ambiguous frozen text can only turn a PASS into a GATE FAIL, never the reverse (SOLVE_L2/DEPARTURES.md D3, which also records that grade_crm_l2.py prints all three measures beside the verdict). From this entry forward the grader is sha256-PINNED, so it cannot move again without a refusal. ESCALATED TO cfd-supervisor as a rung-level rule-2 finding: it is not this lane's to rule on, it does not stop the solve producing fields, and it is recorded here so that no reader of the eventual verdict has to discover it themselves.",
+  "_launch": {
+    "utc": "2026-09-12T19:06:27Z",
+    "pid": 92327,
+    "sid": 92327,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/CRM_WINGALONE_runs/SOLVE_L2R/STATUS.queue.CRM-WINGALONE-L2R",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/CRM_WINGALONE_runs/SOLVE_L2R/launcher.queue.out",
+    "started_epoch": 1789239987.1823778,
+    "resumed_from": null
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.CRM-WINGALONE-L2R (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_grading_freeze": {
+    "verdict": "ABSENT-AT-FREEZE",
+    "detail": "1 of 1 comparator(s) named by 'grading_freeze' do NOT match freeze 12239833.",
+    "field": "grading_freeze",
+    "paths": [
+      {
+        "path": "cases/CRM_wingalone/grade_crm_l2.py",
+        "frozen_sha": null,
+        "disk_sha": "4a9ea0cba37a9c79b9a644454755251b3a3e82e1",
+        "state": "ABSENT-AT-FREEZE"
+      }
+    ],
+    "prereg_commit": "122398334e1a8d7cbce0b449ccbb7f5242f3b2f8",
+    "refusal_eligible": true,
+    "source": "ENTRY",
+    "schema": "grading_freeze/2",
+    "kind": "PREDICTION",
+    "predicts": "GRADING_WILL_REFUSE",
+    "actual": null,
+    "case_id": "CRM-WINGALONE-L2R",
+    "walked_commit": "1f793cd6473bb88c9c17ae454bf9c1d73e1c2dbb",
+    "recorded_utc": "2026-09-12T19:06:27Z"
+  }
 }

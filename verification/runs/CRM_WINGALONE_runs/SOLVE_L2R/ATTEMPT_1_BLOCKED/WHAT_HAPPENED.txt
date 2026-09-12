@@ -1,0 +1,17 @@
+ATTEMPT 1 -- 2026-09-12T19:03:45Z -- BLOCKED rc=81 BY THE LAUNCH SCRIPT'S OWN S5 GUARD.
+NO SOLVER RAN. NO COMPUTE WAS SPENT. The guard failed SAFE.
+
+Cause, and it was this lane's own bug: the S5 loop globbed "$CASE"/[0-9]* and tested only
+`!= "0"`. That glob matches any name STARTING with a digit, so it matched `0.orig` -- the
+initial-condition template this lane had just created minutes earlier to satisfy the queue
+validator's AGE-GUARD. `0.orig` is not a time directory and is not an answer.
+
+These four files are the record of that attempt. They are MOVED HERE rather than deleted,
+for two reasons: an artifact is inspected, never reverted; and a stale `solve_rc` sitting in
+the case root is the trigger the autograder watches, so leaving one there would arm a grader
+against a run that never happened.
+
+The repair is in cases/CRM_wingalone/launch_crm_l2r.sh: the loop now matches a time
+directory properly -- digits with an optional decimal part and nothing else. It is made
+CORRECT, not loosened: at that point in the script `0/` does not exist either, so any real
+time directory is still refused.
