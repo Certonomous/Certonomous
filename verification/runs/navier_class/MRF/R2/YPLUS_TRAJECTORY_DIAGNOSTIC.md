@@ -163,3 +163,95 @@ Fine is where the hypothesis is decided, because a two-point trajectory is a lin
 $0.0513/core-h. No solve was run; both levels were already complete.
 
 *— cfd `lab-lane`, 2026-09-12. DIAGNOSTIC. No gate moved. No verdict issued.*
+
+---
+
+## 6 — 2026-09-12, ADDED AFTER SUPERVISOR REVIEW: THE DEBT, NAMED WITH THE MEASUREMENT THAT WOULD SETTLE IT
+
+**Still diagnostic. Still no gate, threshold, band or label moved. Still no verdict.**
+
+The cfd-supervisor **independently re-derived** every decisive figure in §4 from the
+artifacts — `patches (impeller shaft)` from the case's own `controlDict`; viscous shares
+0.3451 % and 0.1345 %; Np change +2.0899 %; annihilation ÷ observed = **0.165** — and
+**accepted that the direct channel is bounded out.** They also ran a cross-check this file
+did not claim: the prestatement's own 4.193491 → 4.281132 is **+2.0899 %, agreeing with the
+`moment.dat` route to four decimal places**, so the quantity measured here is the quantity
+the gate grades, by two independent paths.
+
+### 6.1 — The rule this episode produced [lab-attributed, cfd-supervisor, 2026-09-12]
+
+> **WHEN A HYPOTHESIS SURVIVES ONLY ON A CHANNEL THAT WAS NOT MEASURED, THE RECORD STATES
+> THE DEBT AND NAMES THE MEASUREMENT THAT WOULD SETTLE IT** — otherwise "not refuted"
+> launders into "supported".
+
+A hypothesis that survives by relocating to an unmeasured channel is **weaker than it was,
+not equal**, even though nothing refuted it: the surviving version is the version nobody has
+tested. **The caveat this lane attaches, and asks be kept with the rule:** the rule is worth
+only what the debt-naming costs. A debt recorded as "more work needed" launders exactly the
+way "not refuted" does. It is real here **only because a specific measurement against a
+specific threshold is named below.**
+
+### 6.2 — THE DEBT
+
+**The surviving path:** `nutkWallFunction` sets `nut` at the wall → feeds `k` and `ω` →
+sets the turbulence field → sets the blade **pressure** distribution, which is **99.7 % of
+the graded moment.** Nothing in this file measures it.
+
+**THE MEASUREMENT THAT WOULD SETTLE IT.** Solve **one** level — same mesh, same `endTime`,
+same ranks, same everything else — with **`nutUSpaldingWallFunction`** (all-y+) substituted
+for `nutkWallFunction`, and test whether `Np` moves by **more than 0.345 %**, the measured
+size of the entire direct channel.
+
+- **Moves by more than 0.345 %** → the wall treatment reaches the **pressure** field, the
+  indirect path is real and measured, and the hypothesis is alive on a channel that can
+  carry the observed 2.09 %.
+- **Does not** → the hypothesis is **dead on both channels** and MRF's divergence needs a
+  different explanation entirely.
+
+The threshold **0.345 %** is not invented for this experiment: it is the measured viscous
+share at coarse, i.e. the largest effect the direct channel could possibly have. It must be
+**frozen in a pre-registration BEFORE the solve**, with its own cost, under rule 2.
+
+This substitution is **not a bespoke rescue** for the hypothesis: `SUBOFF_A1_PREREGISTRATION.md`
+§1.2 already adopted the identical change, for the identical stated reason, on a different
+family.
+
+### 6.3 — NOT STARTED, AND DELIBERATELY SO
+
+**No solve was launched for this.** The cfd-supervisor's instruction is explicit: MRF's
+triple lands first, the box is saturated (load ~60 on 16 vCPU), and the experiment needs its
+own registration with the threshold frozen before compute. **Recorded as owed, not begun.**
+
+### 6.4 — A DEFECT IN THIS LANE'S OWN WATCHER, RECORDED BESIDE THE DIAGNOSTIC IT ALMOST DERAILED
+
+At **01:09:22Z** this lane's landing-watcher reported a **FATAL SIGNATURE** on fine. It was
+a **FALSE ALARM CAUSED BY THE WATCHER'S OWN FILTER**, and it is recorded here because the
+general form is the same defect this file's §5 neighbours already carry.
+
+Triaged rather than inferred: the solver was **healthy** — `mpirun` 2200471 and all six
+ranks alive, launcher 2199207 alive, iteration advancing 6,777 → 6,780 across a 30 s
+observation, residuals normal, no `rc`. **The only match in the entire log, at line 29:**
+
+```
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+```
+
+That is OpenFOAM's **startup banner announcing the guard is ENABLED**, not the guard firing.
+The filter was `FOAM FATAL|Floating point exception|signal`. A corrected filter —
+`^FOAM FATAL`, `sigFpe::sigHandler`, `sigSegv::sigHandler`,
+`mpirun noticed that process rank`, `Foam::error::printStack` — returns **zero** matches on
+the same file.
+
+**THE GENERAL FORM, which is the same one the A1.7 `controlDict` banner exhibits:**
+
+> **A grep-based check reads whatever text matches, and TEXT THAT DESCRIBES A CONDITION IS
+> NOT THE CONDITION.** A config comment reading `endTime 50` over a real `endTime 8000`, and
+> a log banner reading "Floating point exception" over a run with no exception, are **the
+> same bug in two file classes.**
+
+The `controlDict` case is the more dangerous of the two: it fails toward a **FALSE FAILURE
+on a healthy run**, and rule-4 failures are precisely where a reader is trained to believe
+the instrument over the run. This one failed toward a false alarm that cost two minutes of
+triage. **Both are docketed.**
+
+*— cfd `lab-lane`, 2026-09-12, §6 added after supervisor review. No gate moved. No verdict issued.*
