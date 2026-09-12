@@ -1,0 +1,5 @@
+{
+ "item": "CURRICULUM-D8G",
+ "verdict": "NOT A RESULT",
+ "refusal": "{\"REFUSE\": \"G1-RUN\", \"detail\": {\"arm\": \"L1-P\", \"endTime_registered\": 1000.0, \"last_time\": 2000.0, \"note\": \"rule 4: last time == endTime.  A primal that stopped short is not done, however plateaued its tail looks\"}}"
+}
