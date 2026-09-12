@@ -328,6 +328,127 @@ def measure_ink(path):
     return float(len(packed) - counts.max()) / float(len(packed))
 
 
+# OpenFOAM dimension vector order: [kg m s K mol A cd]
+_UNIT_NAMES = {
+    (1, -1, -2, 0, 0, 0, 0): "Pa",
+    (0, 2, -2, 0, 0, 0, 0): "m^2/s^2  (KINEMATIC -- not Pa)",
+    (0, 1, -1, 0, 0, 0, 0): "m/s",
+    (0, 0, 0, 1, 0, 0, 0): "K",
+    (1, -3, 0, 0, 0, 0, 0): "kg/m^3",
+    (0, 2, -1, 0, 0, 0, 0): "m^2/s",
+    (0, 0, -1, 0, 0, 0, 0): "1/s",
+    (0, 3, -1, 0, 0, 0, 0): "m^3/s",
+    (0, 0, 0, 0, 0, 0, 0): "dimensionless",
+}
+
+
+def read_field_units(case, time, field):
+    """Derive the unit string from the FIELD FILE'S OWN `dimensions` header.
+
+    NEVER inferred from the field name.  `p` is PASCALS in a compressible solve
+    (`[1 -1 -2 ...]`, e.g. M6I) and KINEMATIC m^2/s^2 in an incompressible one
+    (`[0 2 -2 ...]`, e.g. DrivAer) -- TWO DIFFERENT PHYSICAL QUANTITIES UNDER ONE
+    ONE-LETTER NAME.  A scalar bar that says "p" over a number and lets the reader
+    supply the unit is a mislabelling that survives review because both look right.
+
+    Returns (label, dimensions-list) and, if it cannot read the header, the honest
+    string "units unread" -- an honest blank beats a confident wrong.
+    """
+    import re as _re
+    path = os.path.join(case, str(time), field)
+    if not os.path.exists(path):
+        for t in os.listdir(case):                      # time may be formatted "2000" vs "2000.0"
+            cand = os.path.join(case, t, field)
+            if os.path.exists(cand):
+                try:
+                    if abs(float(t) - float(time)) < 1e-9:
+                        path = cand
+                        break
+                except ValueError:
+                    continue
+    if not os.path.exists(path):
+        return "units unread", None
+    try:
+        with open(path, "rb") as fh:
+            head = fh.read(4096)
+        m = _re.search(rb"dimensions\s*\[([0-9eE\s.+-]+)\]", head)
+        if not m:
+            return "units unread", None
+        dims = [int(float(x)) for x in m.group(1).split()]
+        while len(dims) < 7:
+            dims.append(0)
+        key = tuple(dims[:7])
+        if key in _UNIT_NAMES:
+            return _UNIT_NAMES[key], dims[:7]
+        sym = ["kg", "m", "s", "K", "mol", "A", "cd"]
+        parts = ["%s^%d" % (sym[i], d) for i, d in enumerate(key) if d]
+        return (" ".join(parts) if parts else "dimensionless"), dims[:7]
+    except Exception:
+        return "units unread", None
+
+
+def read_magUInf(case):
+    """The case's OWN registered free-stream speed, if it has one. Used only to record
+    q = 0.5 U^2 beside a KINEMATIC pressure so a reader can form Cp without hunting the
+    case. Returns None when absent -- never guessed, never defaulted."""
+    import re as _re
+    for rel in ("system/forceCoeffs", "system/controlDict"):
+        f = os.path.join(case, rel)
+        if not os.path.exists(f):
+            continue
+        try:
+            m = _re.search(r"magUInf\s+([0-9.eE+-]+)\s*;", open(f, errors="replace").read())
+            if m:
+                return float(m.group(1)), rel
+        except Exception:
+            pass
+    return None, None
+
+
+def resolve_time(reader, want):
+    """--time WAS A DECLARED ARGUMENT THAT WAS NEVER READ, and that is not cosmetic.
+
+    MEASURED 2026-09-12 on DrivAer r2c_medium_blended_R2, whose time directories are
+    0 / 1750 / 2000: the renderer loaded 1750.  Its `p` range [-3776.5985, 809.0353]
+    matches 1750/p EXACTLY and 2000/p reads [-3777.3351, 809.5600].  A field render
+    captioned "latest" was a picture of an EARLIER iteration -- the same class of defect
+    as --min-ink being declared and never read, in the same file.
+
+    Returns the chosen time.  REFUSES on an unavailable request and on a request that
+    would render time 0 while a solution exists.
+    """
+    ts = list(getattr(reader, "TimestepValues", []) or [])
+    if not ts:
+        return None, []
+    if str(want).lower() in ("latest", "last", ""):
+        t = max(ts)
+    else:
+        try:
+            t = float(want)
+        except ValueError:
+            refuse_time("--time %r is neither a number nor 'latest'. Available: %s"
+                        % (want, ts))
+        if not any(abs(t - x) < 1e-9 for x in ts):
+            refuse_time("--time %s is not an available time. Available: %s. A render of "
+                        "a time the case does not hold is not a substitute for one it "
+                        "does." % (want, ts))
+        t = [x for x in ts if abs(t - x) < 1e-9][0]
+    if t == 0.0 and any(x > 0 for x in ts):
+        refuse_time("the chosen time is 0 while a solution exists at %s. A render of the "
+                    "INITIAL CONDITION is a picture of the boundary conditions, not of a "
+                    "result, and it looks exactly like a converged one."
+                    % [x for x in ts if x > 0])
+    return t, ts
+
+
+class _TimeRefusal(Exception):
+    pass
+
+
+def refuse_time(msg):
+    raise _TimeRefusal(msg)
+
+
 COLOUR_PLANT_FLOOR = 0.10   # body-pixel fraction the collapsed-map plant must move.
 # Measured separation on M6I L3: varying fields 96.17 % / 96.58 %, a CONSTANT field
 # 0.00 %.  0.10 sits an order of magnitude below the passing cases and far above the
@@ -441,7 +562,7 @@ def assert_three_dimensional(case):
 # ----------------------------------------------------------------------------
 def do_selftest(case, out):
     """Drive every verdict.  Describing a guard is not driving it."""
-    stage = os.path.join(out, "_selftest_stage")
+    stage = os.path.join(out, "_selftest_stage_%d" % os.getpid())
     verdicts = {}
 
     # --- census, both directions (rule 3 applied to the census itself) -------
@@ -617,7 +738,15 @@ def main(argv):
 
     expected = sum(b[p][0] for p in patches)
     before = census(case)
-    stage = os.path.join(out, "_stage")
+    # THE STAGE NAME IS PER-PROCESS.  It was a FIXED "_stage" under --out, so two
+    # renders sharing an output directory -- which is exactly what concurrent lanes do,
+    # every team writing into its campaign's RENDERS/ -- staged into the SAME path and
+    # corrupted each other.  MEASURED 2026-09-12: a DrivAer render and an M6I render
+    # into one --out produced "per-patch identity failed for 43 of 44 patches".
+    # THE GUARD CAUGHT IT, which is the only reason it is a nuisance and not a wrong
+    # picture; but a tool that needs its guard to survive normal concurrent use is
+    # relying on the guard for correctness instead of for verification.
+    stage = os.path.join(out, "_stage_%d" % os.getpid())
     foam = stage_readonly(case, stage)
 
     measured, per = rendered_face_count(foam, patches)
@@ -636,6 +765,17 @@ def main(argv):
     reader = OpenFOAMReader(FileName=foam)
     reader.MeshRegions = ["patch/" + p for p in patches]
     reader.UpdatePipeline()
+    # --- HONOUR --time. It was declared and never read; see resolve_time(). ---
+    try:
+        chosen_time, all_times = resolve_time(reader, a.time)
+    except _TimeRefusal as e:
+        sys.stderr.write("REFUSED: %s\n" % e)
+        return 2
+    if chosen_time is not None:
+        reader.UpdatePipeline(chosen_time)
+        view.ViewTime = chosen_time
+        sys.stderr.write("time %g loaded (available: %s)\n"
+                         % (chosen_time, all_times))
     src = reader
     if a.clip:
         v = [float(x) for x in a.clip.split(",")]
@@ -654,6 +794,8 @@ def main(argv):
     d.LineWidth = 0.5
     field_assoc = None
     field_range = None
+    field_units = None
+    field_dims = None
     colour_control = None
     if not a.field:
         # ================================================================================
@@ -726,18 +868,21 @@ def main(argv):
             )
             return 2
 
+        field_units, field_dims = read_field_units(case, chosen_time, a.field)
         ColorBy(d, (field_assoc, a.field))
         d.RescaleTransferFunctionToDataRange(True)
         # A colour a reader cannot decode is decoration. The bar carries the units.
         try:
             bar = GetScalarBar(GetColorTransferFunction(a.field), view)
             bar.Title = a.field
-            bar.ComponentTitle = ""
+            # THE UNIT COMES FROM THE FIELD FILE'S OWN `dimensions` HEADER, never from
+            # the field's name.  "units unread" is printed rather than a guess.
+            bar.ComponentTitle = field_units
             d.SetScalarBarVisibility(view, True)
         except Exception as e:                      # never fail the render on the bar
             sys.stderr.write("note: scalar bar unavailable (%s)\n" % e)
-        sys.stderr.write("field %r coloured by %s association, range [%g, %g]\n"
-                         % (a.field, field_assoc, lo, hi))
+        sys.stderr.write("field %r coloured by %s association, range [%g, %g] %s\n"
+                         % (a.field, field_assoc, lo, hi, field_units))
 
     # Isometric three-quarter view, then fit.  A long thin body viewed down a
     # principal axis fills a sliver of the frame and its grid reads as moire;
@@ -807,6 +952,19 @@ def main(argv):
                          % (ink, a.min_ink))
         return 2
 
+    q_ref, q_note = None, "not applicable: no --field, or the field is not a kinematic pressure"
+    if a.field and field_dims == [0, 2, -2, 0, 0, 0, 0]:
+        U, src_f = read_magUInf(case)
+        if U:
+            q_ref = 0.5 * U * U
+            q_note = ("q = 0.5*magUInf^2 with magUInf %g read from %s; for this KINEMATIC "
+                      "pressure Cp = p/q, so the bar's numbers divide by this to give Cp"
+                      % (U, src_f))
+        else:
+            q_note = ("this field is a KINEMATIC pressure but the case carries no magUInf "
+                      "in system/forceCoeffs or system/controlDict, so q is NOT recorded "
+                      "and is NOT guessed")
+
     after = census(case)
     if before != after:
         sys.stderr.write("REFUSED: the graded tree at %s CHANGED during rendering. "
@@ -829,11 +987,21 @@ def main(argv):
         "field": a.field,
         "field_association": field_assoc,
         "field_range": field_range,
+        "field_units": field_units,
+        "field_units_source": ("the field file's own `dimensions` header at the loaded "
+                               "time -- NEVER inferred from the field name; `p` is Pa in "
+                               "a compressible solve and kinematic m^2/s^2 in an "
+                               "incompressible one"),
+        "field_dimensions_kg_m_s_K_mol_A_cd": field_dims,
+        "time_loaded": chosen_time,
+        "times_available": all_times,
         "surface_colour": ("solid -- NOT coloured by any field; ParaView's auto-colouring "
                            "is explicitly disabled so a mesh render is a mesh render"
                            if not a.field else
                            "coloured by the field named above, with a scalar bar"),
         "planted_colour_control": colour_control,
+        "q_ref_half_U2": q_ref,
+        "q_ref_note": q_note,
         "utc": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
     with open(os.path.join(out, "%s_surface.json" % prefix), "w") as fh:
