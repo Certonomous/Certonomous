@@ -27484,3 +27484,60 @@ able to fail is not evidence that it passed.
 
 **Sources.** `verification/campaign/SUBOFF_A1c_PREREGISTRATION.md` §0;
 `docs/papers/benchmark_test_cases/{roddy_1990_dtrc_shd1298_08_darpa_suboff_captive_model,huang_1989_dtrc_shd1298_02_darpa_suboff_experiments,liu_1998_crdknswc_hd1298_11_darpa_suboff_data_summary,gertler_1967_nsrdc_2510_submarine_equations_of_motion}.pdf`.
+
+---
+
+## L-564 — A reference length stated for one purpose is not the axis for another, and reusing it produced a 65 % "truncated stern" that did not exist
+
+**2026-09-12, cfd, SUBOFF A1d.** The bare-hull geometry gate compares the lab's
+analytic hull against Roddy 1990 Table 2's 25 tabulated station offsets. Roddy
+p. 3 states the forces are *"nondimensionalized using the length between
+perpendiculars of 13.9792 feet"*. That length was reused for the **station axis**
+(`LBP/20 = 0.69896 ft/station`).
+
+**The gate failed, and the failure was articulate.** 8 of 25 stations out of
+tolerance, the error growing **monotonically toward the tail** — 0.69 %, 1.43 %,
+2.64 %, 4.31 %, 9.99 %, **65.09 %** — and a **non-zero radius at the closing
+station** where the reference has exactly 0.00000. That is the signature of a
+**truncated stern**, and it is textbook.
+
+**It was also plausible for a reason that made it worse: this geometry family
+really does have a truncated base.** `SUBOFF_A1b_PREREGISTRATION.md` §2.2 records
+`L0c` failing Gate M-b-1 at *"6 cells across the truncated base"*. **The false
+signature pointed at a defect the lab already had, in the right place.**
+
+**It was an artifact of the axis and nothing else.** The station axis runs
+0 – 20.4167 over the **overall** length, not the LBP: `14.291667 / 20.4167 =
+0.6999989`, i.e. **0.70 ft exactly**. At the correct unit the same geometry and
+the same table agree to **0.081 %** at all 25 stations.
+
+**The general form.** A document often carries several characteristic lengths for
+several purposes — a **force** normalisation, a **station** axis, an overall
+length, a wetted length. *They are not interchangeable, and a paper stating one
+prominently does not license using it for the others.* Derive each axis from the
+quantity it actually indexes, and **refuse** a value that does not match what the
+table requires.
+
+**What kept it honest was the ORDER of the controls.** The planted control
+(rule 3) had already fired — a +5 % perturbation at station 10.0 was caught —
+**before** the real comparison ran. So the checker was *known able to see a real
+error*, and that is precisely what made a FAIL worth **investigating** rather than
+either dismissing as a bug or filing as a finding. A checker trusted without a
+plant makes its own output unfalsifiable in **both** directions: you cannot
+believe its PASS, and you cannot safely disbelieve its FAIL either.
+
+**Every property that makes a wrong result get believed was present:** large,
+monotonic, physically interpretable, and consistent with a known defect.
+
+**The fix in the instrument, not just in the head.**
+`check_barehull_geometry.py` now **derives** ft-per-station from the geometry
+module and **refuses (exit 2)** if it is not 0.70, so a future geometry edit
+cannot silently move the axis the reference table is read against.
+
+**Related.** Rule 3 (planted zero — here a planted *offset*, same principle);
+L-563 (the same night: assert the thing you need, not a proxy for it); rule 15.
+
+**Sources.** `cases/navier_class/SUBOFF_A1d/check_barehull_geometry.py`;
+`verification/campaign/SUBOFF_A1d_BAREHULL_PREREGISTRATION.md` §11.3;
+`docs/papers/benchmark_test_cases/roddy_1990_dtrc_shd1298_08_darpa_suboff_captive_model.pdf`
+Table 2 (report p. 16) and p. 3.

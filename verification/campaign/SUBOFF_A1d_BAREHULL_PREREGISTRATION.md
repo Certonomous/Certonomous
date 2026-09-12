@@ -246,3 +246,100 @@ Pre-compute condition: verification/runs/navier_class/SUBOFF_A1d/ does not exist
                        no A1d mesh exists; no queue entry references A1d. Checked by: ______
 Signed:                ____________________
 ```
+
+---
+
+# §11. ADDENDUM 1 — 2026-09-12 — **GATE X5 BUILT AND RUN, AND IT PASSES; PLUS A FALSE FAILURE THAT LOOKED EXACTLY LIKE A REAL DEFECT**
+
+**Pre-compute, and the condition is unchanged and re-checked:** no A1d run directory, no
+A1d mesh, no queue entry. **Nothing here moves a gate, a threshold, a cap or a label.**
+
+## 11.1 THE INSTRUMENT
+
+`cases/navier_class/SUBOFF_A1d/check_barehull_geometry.py` implements §8's **X5**: the
+built geometry must reproduce Roddy Table 2's 25 stations to **0.5 %**, and the mesh is
+**rejected before it is solved** if it does not.
+
+Roddy Table 2 is transcribed into the script from the **rendered page at 150 dpi**, never
+from the OCR text layer — which in this very report was already caught **silently dropping
+an entire table row** (Table 3, Configuration 3's static-stability line; A1d §2).
+
+**Three controls, because a checker that has not been shown able to fail is not evidence
+that it passed (rule 3):**
+1. **Transcription self-proof.** For a body of revolution `A/A_max ≡ (B/B_max)²`. All 25
+   rows satisfy it to the tabulated 5 dp. This validates the visual transcription, confirms
+   the tabulated body **is** a body of revolution — which is the identity A1d's entire
+   plane-equivalence argument rests on — and would catch a transposed digit. It needs no
+   external input at all.
+2. **Planted control.** `--selftest` injects a **+5 % perturbation at station 10.0** and
+   **refuses (exit 2) if the checker fails to see it.**
+3. **Derived axis.** The station unit is taken from the geometry module and refused if it
+   is not 0.70 ft — §11.3.
+
+## 11.2 THE RESULT — **GATE X5 PASS**
+
+```
+[ok] transcription self-consistent: A/Amax == (B/Bmax)^2 at all 25 stations
+[ok] station axis DERIVED from geometry: 0.6999989 ft/station
+[ok] planted control fired: +5% at station 10.0 was caught
+GATE X5 PASS — all 25 stations within 0.50 %.       worst deviation 0.081 %
+```
+
+> **The lab's analytic hull reproduces Roddy 1990's independently published offsets to
+> better than 0.1 % at every one of 25 stations.** Two separately retrieved, separately
+> title-page-verified sources — Groves 1989's analytic definition as implemented in
+> `build_suboff_a1_geometry.py :: hull_R_ft`, and Roddy 1990 Table 2 — **agree.** That is
+> the two-source corroboration §6 required, and it is **passed before any mesh exists.**
+> Corroborating detail: the module's `L_AFT_PERP = 13.979167 ft` matches Roddy's stated
+> nondimensionalising length of **13.9792 ft**.
+
+## 11.3 🔴 THE FALSE FAILURE, RECORDED BECAUSE IT WAS CONVINCING
+
+**The first run of this gate FAILED, and the failure was wrong — it was mine, not the
+geometry's.**
+
+Roddy p. 3 states forces are *"nondimensionalized using the length between perpendiculars
+of 13.9792 feet"*. This lane reused that length for the **station axis** (`LBP/20 = 0.69896
+ft/station`). The gate then reported **8 of 25 stations failing**, with the error growing
+monotonically toward the tail — 0.69 %, 1.43 %, 2.64 %, 4.31 %, 9.99 %, **65.09 %** — and a
+**non-zero radius at the closing station** where Roddy has 0.00000.
+
+**That signature reads unmistakably as a truncated stern.** Worse, it is *plausible*: A1b
+§2.2 records that this geometry family really does have a truncated base (`L0c` fails Gate
+M-b-1 at 6 cells across it). **A defect this lab already has, in the place the signature
+pointed to.** It would have been filed as a confirmed geometry finding by anyone who did
+not check the axis.
+
+**It was an artifact of the wrong station unit and nothing else.** The station axis runs
+0 – 20.4167 over the **overall** length, not the LBP: `14.291667 / 20.4167 = 0.6999989`,
+i.e. **0.70 ft exactly**. At the correct unit the same geometry and the same table agree to
+0.081 %.
+
+> **The general form, and it is not specific to SUBOFF: a reference length stated for one
+> purpose is not the axis for another.** Roddy's LBP is the **force** normalisation; the
+> **station** axis is the overall length. Reusing the first for the second produced a
+> failure that was large, monotonic, physically interpretable and consistent with a known
+> defect — **every property that makes a wrong result get believed.**
+>
+> **What kept it honest was the order of the controls.** The planted control had already
+> fired, so the checker was known able to see a real error; that is exactly what made the
+> FAIL worth *investigating* rather than either dismissing or filing. A checker trusted
+> without a plant would have made this finding unfalsifiable in both directions.
+
+The script now **derives** the station unit from the geometry module and **refuses** if it
+is not 0.70 ft, so a future geometry edit cannot silently move the axis this table is read
+against. The trap is recorded as **L-564**.
+
+## 11.4 WHAT REMAINS BEFORE THE FREEZE BLOCK CAN BE SIGNED
+
+Per `MESH_STANDARD` §8.1 and the cfd-supervisor's ruling — **build first, freeze after** —
+§10 stays blank until the 3-D half-model mesh exists and is presented with its gates.
+
+**The mesh has NOT been built, and launching it now is forbidden — not by preference but by
+Sanaa's own hygiene rules, measured on the box rather than relayed:**
+**load average 17.91 against `nproc` 16.** Her run instruction item 18: *"Load above core
+count is a defect… stops new launches until cleared"*; item 8's core guard: *"solver ranks
+plus fleet processes never exceed 16"*; item 19: *"The runner is the only thing that
+launches. Nothing launched by hand counts as a case."* RAM is not the constraint —
+110 GiB of 123 GiB available. **The build is prepared and queued behind the ceiling, which
+costs nothing, since the mesh must exist before the freeze can be signed anyway.**
