@@ -2,24 +2,40 @@
   "_DRAFT": "NOT QUEUED. NOT LAUNCHED. Outside the runner glob verification/queue/<team>/*.json by design. Enqueuing = the cfd-supervisor copying this into verification/queue/cfd/ after check 4.",
   "team": "cfd",
   "case_id": "CRM-WINGALONE-L2R",
-  "prereg_commit": "HEAD blob of verification/campaign/CRM_WINGALONE_FLOW_PREREGISTRATION.md (459 lines, ADDENDUM 1 + ADDENDUM 2 signed). UNCHANGED and NOT re-frozen by this relaunch. The worktree copy is 236 lines and is STALE -- every registered value in this entry was read from `git show HEAD:<path>`, never from the worktree.",
+  "prereg_blob_sha": "4fa6dbf43c845ffabab1c4cd75b2a41aa797405e",
+  "prereg_blob_sha_verification": "VERIFIED TWO INDEPENDENT WAYS BY THE DRAFTING LANE, not accepted from the supervisor's message. (1) `git rev-parse HEAD:verification/campaign/CRM_WINGALONE_FLOW_PREREGISTRATION.md` -> 4fa6dbf43c845ffabab1c4cd75b2a41aa797405e. (2) `git show HEAD:<path> | git hash-object --stdin` -> the same 40 hex. Both at HEAD = 7f685867dabf01013550b4fb96f5b66b41513cea. THE CHECK IS: `git cat-file blob 4fa6dbf4... | sha256sum` against the file that ran. A pin the placer cannot recompute is not a pin.",
+  "prereg_blob_content": "459 lines, TWO signed addenda -- ADDENDUM 1 (ARM P1B, symmetry tolerance) at line 273 and ADDENDUM 2 (ARM P1C, instrument quantity correction) at line 388, each carrying its own `lines whose number changed above this section: 0`. CORRECTION TO THE CHECK-4 RECORD THAT SIGNED THIS ENTRY: it reads 'three addenda'. THERE ARE TWO. Three independent counts agree -- every heading at any level containing ADDENDUM (2 hits), `grep -c '^## ADDENDUM'` (2), and the count of rule-6 `lines whose number changed` assertions (2). The blob sha and the 459-line figure in that record are CORRECT and verified above; only the addendum count is off by one. Recorded because a check-4 signature is evidence and a miscount inside it travels.",
+  "prereg_path_note": "\ud83d\udd34 THE WORKTREE COPY IS 236 LINES AND IS STALE -- 223 lines SHORT of HEAD, i.e. it PREDATES BOTH SIGNED ADDENDA. Staging it from the worktree would DESTROY them. Every registered value in this entry was read from `git show HEAD:<path>`, never from the worktree file. THE REGISTRATION IS NOT RE-FROZEN BY THIS RELAUNCH.",
   "prereg_path": "verification/campaign/CRM_WINGALONE_FLOW_PREREGISTRATION.md",
   "grading_freeze": [
     "verification/runs/CRM_WINGALONE_runs/SOLVE_L2/GRADER/grade_crm_l2.py"
   ],
-  "grading_freeze_note": "grader sha256 e02a0771237b50593bb3d61040ca3f04d9887e4d6e8778ed15470fe96e327efb, armed 2026-09-12T06:05:41Z per SOLVE_L2/AUTOGRADE.log. Carried BYTE-IDENTICAL to the relaunch. Recompute before any verdict is believed; a mismatch is a REFUSAL, not a warning.",
+  "grading_freeze_sha256": {
+    "verification/runs/CRM_WINGALONE_runs/SOLVE_L2/GRADER/grade_crm_l2.py": "e02a0771237b50593bb3d61040ca3f04d9887e4d6e8778ed15470fe96e327efb"
+  },
+  "grading_freeze_sha256_verification": "RECOMPUTED ON DISK BY THE DRAFTING LANE at the time this entry was signed: `sha256sum` returns e02a0771237b50593bb3d61040ca3f04d9887e4d6e8778ed15470fe96e327efb, identical to the value SOLVE_L2/AUTOGRADE.log recorded when the grader was armed at 2026-09-12T06:05:41Z. Carried BYTE-IDENTICAL to the relaunch. Recompute before any verdict is believed; a mismatch is a REFUSAL (exit 2), not a warning.",
   "cwd": "/home/ubuntu/Certonomous/verification/runs/CRM_WINGALONE_runs",
+  "case_dir": "verification/runs/CRM_WINGALONE_runs/SOLVE_L2R",
+  "case_dir_must_not_exist_at_launch": "VERIFIED ABSENT by the drafting lane: `ls -d .../SOLVE_L2R` -> no such directory. A FRESH DIRECTORY IS MANDATORY AND THIS WAS A GAP IN THE ENTRY AS FIRST DRAFTED. Rule 4's guard REFUSES a case where `0` or a time dir already exists, and SOLVE_L2/processor0/ holds `0` and `constant`. The relaunch therefore CANNOT run in place in SOLVE_L2.",
+  "mesh_reuse_mechanic": "THE FRESH DIRECTORY AND THE MESH REUSE ARE NOT IN TENSION, AND THE DISTINCTION IS THE POINT: what is reused is the MESH, not the CASE. SOLVE_L2R takes a COPY of SOLVE_L2/constant/polyMesh (the three repaired patches: wing 11,136 / farfield 11,136 / symmetry 14,144) and of each processor*/constant/polyMesh (the 6-rank decomposition written 03:40, which POST-DATES the 03:27 patch write), plus FRESH `0/` fields. NO remesh, NO createPatch, NO decomposePar. Every copied polyMesh file is sha256-pinned BOTH SIDES before the solver starts, so the mesh that solves is PROVABLY the mesh P1C graded -- the same discipline write_patches_p1c.py applied when it copied from L2/foam, and for the same reason. SOLVE_L2 itself is UNTOUCHED: it holds the dead run's log, DEPARTURES.md and the armed graders, it is evidence, and an unexpected artifact is INSPECTED, NEVER DELETED.",
   "ranks": 6,
   "run_as": "ubuntu",
   "run_as_note": "Sanaa item 6: as ubuntu, NEVER root. The predecessor SOLVE_L2 complied -- census verified every output ubuntu:ubuntu, and `find -user root -newermt 2026-09-12` returns 0 files under verification/runs/. Host run, no container.",
   "memory_floor_gb": 6.0,
   "memory_basis": "DERIVED, NOT MEASURED. 1,158,144 cells. Nearest measured basis on this box is the DrivAer registration's incompressible figures: 0.45 GiB at 186,709 cells and 1.64 GiB at 983,106 cells = 1.67 GiB/Mcell at the larger (less overhead-dominated) point. rhoSimpleFoam carries a compressible field set (T, alphat, rho, he) that the incompressible basis does not: ~1.35x uplift -> ~2.3 GiB/Mcell -> ~2.7 GiB expected. Floor declared at 6.0 GiB, a >2x margin, because the number is derived. Box currently reports 116 GiB free (RESIZE_CENSUS_2026-09-12.md). The predecessor launched at available_GiB_at_launch=13 (SOLVE_L2/STATUS.solve) and did not OOM.",
-
   "_mesh_repair_state": {
     "verdict": "APPLIED AND VERIFIED ON DISK BEFORE THIS ENTRY WAS WRITTEN",
     "what": "The symmetry-plane tolerance repair (Y_SYMM_TOL 1e-9 -> 1.0e-3) registered by ADDENDUM 1, and the wing-assertion quantity correction (|r| from origin -> sqrt(y^2+z^2) from the body axis) registered by ADDENDUM 2.",
-    "counts_registered_by_S2": {"wing": 11136, "farfield": 11136, "symmetry": 14144},
-    "counts_achieved_by_arm_P1C": {"wing": 11136, "farfield": 11136, "symmetry": 14144},
+    "counts_registered_by_S2": {
+      "wing": 11136,
+      "farfield": 11136,
+      "symmetry": 14144
+    },
+    "counts_achieved_by_arm_P1C": {
+      "wing": 11136,
+      "farfield": 11136,
+      "symmetry": 14144
+    },
     "match": "EXACT on all three, per verification/runs/CRM_WINGALONE_runs/P1C/log.p1c_L2",
     "geometric_assertions": "max wing face-centre distance from the BODY AXIS = 3.7809 (gate <= 4.3) PASS; min farfield |r| from ORIGIN = 80.4423 (gate >= 80.0) PASS",
     "planted_control_rule_3": "BOTH ARMS PASS. Positive arm: face 3808 plant applied, class farfield -> wing, detected True. Negative arm: plant withheld, class unchanged, detected False. A control that cannot fail is not one; this one was shown able to fail.",
@@ -30,7 +46,6 @@
     "declared_non_conformance": "system/createPatchDict as WRITTEN by write_patches_p1c.py declares `type symmetryPlane`; log.createPatch shows the dict that actually RAN declared `type symmetry`, and the resulting patch is `type symmetry`. The two are not the same OpenFOAM boundary type: symmetryPlane enforces a single plane normal, symmetry is the general form. BOTH are symmetry conditions and `symmetry` is the WEAKER assumption, so this is the safe direction -- but it is a departure between a script in the repository and the run that happened, and it is DISCLOSED HERE rather than absorbed. It changes no gate. The relaunch reuses the mesh AS BUILT and does not re-run createPatch, so the type is carried forward unchanged and the graded mesh is bit-identical to the one P1C graded.",
     "consequence_for_this_entry": "NO REMESH, NO RE-DECOMPOSE, NO createPatch. The relaunch REUSES SOLVE_L2's existing repaired and decomposed mesh. That is the whole reason a from-zero relaunch is cheap here: the ~4,545 core-min lost at the reboot bought 1,012 iterations, but the mesh work survives untouched."
   },
-
   "_checkpoint_spec": {
     "directive": "Sanaa items 1-4: restartable checkpoint at a fixed 30-minute wall interval; last two kept, older purged; writeInterval on iteration count set so it never exceeds 30 minutes at the measured rate; the launcher REFUSES to start a case whose controlDict does not satisfy this.",
     "predecessor_defect": "SOLVE_L2/system/controlDict has `writeInterval 4000` (== endTime) and `purgeWrite 0`. Its FIRST field write was to have been at the finish. When the box rebooted at 17:36:41Z the run held 1,012 iterations and NO field checkpoint -- processor*/0 only. 100% of the iterations were lost. This is the exact defect Sanaa's rule targets.",
@@ -46,7 +61,6 @@
     "rule_4_impact": "NONE. Intermediate writes change which times are written, not `endTime`, not `deltaT`, and not the ExecutionTime count. purgeWrite 2 at writeInterval 100 retains t=3900 and t=4000; the endTime fields -- the ones rule 4 and the age guard read -- always survive.",
     "kill_and_resume_proof_owed": "Sanaa item 5 requires ONE kill-and-resume test per solver class before the fleet launches anything, with the resumed result matching an unkilled reference to solver tolerance. Solver class here = steady compressible OpenFOAM (rhoSimpleFoam). THIS LANE HAS NOT PERFORMED IT and does not claim it. It is a PRECONDITION on this entry, not a property of it."
   },
-
   "_monitor_spec": {
     "directive_substance": "Sanaa: the L2 stall signature (18 it / 6 h) is a MESH DEFECT signature -> stop and fix, NEVER wait.",
     "signature_re_derived_from_disk": "CONFIRMED, and her figure is exact. verification/runs/CRM_WINGALONE_runs/SOLVE_L2/AUTOGRADE.log: iteration 985 at 2026-09-12T09:08:34Z, iteration 1003 at 2026-09-12T16:03:04Z. That is 18 iterations in 6.908 hours = 2.61 iterations/hour.",
@@ -57,17 +71,14 @@
     "per_iteration_monitor": "Sanaa item 11: residuals per equation, the graded quantity (Cd), cost per iteration, wall time vs cap. The forceCoeffs function object already writes Cd every iteration (controlDict writeInterval 1 on that FO); the residual and cost columns are the monitor's to add.",
     "no_kill_primitive_on_cap": "There is none and there must not be. DEPARTURES.md D2 records the sweep: every occurrence of kill/timeout/cap/budget in launch_crm_l2.sh, GRADER/autograde_crm_l2.sh and GRADER/grade_crm_l2.py is inside a comment. Sanaa's 2026-09-12 NO-CAP ruling stands: the cap is a rule-12 prediction scored at completion, never a kill. The monitor STOP above is a MESH-DEFECT stop, not a clock or spend stop, and that distinction is the whole reason it is admissible."
   },
-
   "cost_core_min_estimate": 720,
   "cost_cap_core_min": 1500,
   "cost_basis": "Registered estimate 720 core-min at 4 ranks (HEAD blob, section 8 O5 cost table). THIS RUN IS 6 RANKS, a declared departure already on the record at SOLVE_L2/DEPARTURES.md D1 -- recorded, not absorbed, because rank count is not free. Predecessor actuals to 1,012 iterations: ExecutionTime 15,702.35 s x 6 ranks / 60 = 1,570 core-min CPU-held; ClockTime 45,452 s x 6 / 60 = 4,545 core-min GROSS. The gap is CONTENTION (exe/clk = 0.3455 at load ~49 on 16 cores), named separately per COMPUTE_BUDGET_CHARTER section 6 and NEVER folded into the ratio. Full 4,000 iterations at the CPU rate project ~6,210 core-min CPU-held; on the now-uncontended box gross should approach that rather than 3x it. $5.31 DERIVED at $0.0513/core-h owner-stated -- DERIVED, NOT MEASURED; this box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5). THE CAP IS A PREDICTION SCORED AT COMPLETION, NOT A KILL (Sanaa 2026-09-12 NO-CAP ruling; DEPARTURES.md D2). The rule-12 estimate-vs-actual row is OWED to docs/COST_CALIBRATION.md at completion and the writer is already armed detached (GRADER/cost_row_crm_l2.py, DEPARTURES.md D5).",
-
   "_what_this_run_can_and_cannot_certify": {
     "can": "The frozen section-7 gates that fire on ONE mesh: iterative convergence, force plateau (G-S2, ruled peak-to-peak ahead of the gate firing per DEPARTURES.md D3), y+ and residual floor.",
     "cannot": "ANY grid-convergence claim. GATE_TABLE.md grades L1 GATE FAIL (G-M4, min layer quality -0.05046) and L3 GATE FAIL (G-M1, 79.3672 deg against a 70 deg ceiling). EXACTLY ONE level is mesh-admissible and this run is on it. Section 6 declared this BEFORE compute: 'A p and a GCI need three admissible meshes. This family has one.' Any grid-convergence row for CRM wing-alone is NOT A RESULT, and grade_crm_l2.py computes no observed order and no GCI.",
     "band_against_tunnel_data": "BLOCKED. See verification/campaign/CRM_DPW_REFERENCE_AVAILABILITY_2026-09-12.md. No external CL/CD/CM reference for the CRM at M=0.85, CL=0.5 exists on this box for EITHER configuration, so the CL/CD/CM band Sanaa requires before grading CANNOT be registered yet. THIS DOES NOT BLOCK THE SOLVE -- the section-7 verification gates are independent of it -- but the run lands WITHOUT a validation verdict and the certificate slot must say so."
   },
-
   "_preconditions_before_this_may_be_enqueued": [
     "cfd-supervisor check 4, PERSONAL: the pre-registration is committed and unchanged (HEAD blob 459 lines, sha of the two signed addenda intact) -- and it is NOT re-frozen.",
     "The runner-guard lane's checkpoint / memory / core / no-root gates are live in scripts/queue_runner.py (Sanaa items 1-9). This entry is written to satisfy them; it does not assert they exist.",

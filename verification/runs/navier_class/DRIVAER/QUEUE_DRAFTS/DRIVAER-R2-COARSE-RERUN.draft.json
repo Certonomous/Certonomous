@@ -1,7 +1,6 @@
 {
   "_DRAFT": "NOT QUEUED. NOT LAUNCHED. Outside the runner glob by design.",
-
-  "_🔴_THIS_ENTRY_CONTRADICTS_THE_BRIEF_THAT_COMMISSIONED_IT_AND_HERE_IS_THE_EVIDENCE": {
+  "_\ud83d\udd34_THIS_ENTRY_CONTRADICTS_THE_BRIEF_THAT_COMMISSIONED_IT_AND_HERE_IS_THE_EVIDENCE": {
     "the_brief_said": "r2_coarse resumes from its t=1000 checkpoint (startFrom latestTime); 415 iterations lost.",
     "the_415_is_CORRECT_and_re_derived_from_disk": "last `Time =` in log.simpleFoam is 1415; processor{0,1,2,3}/1000 each hold 7 entries (U k nut omega p phi + uniform/) and are COMPLETE. 1415 - 1000 = 415. Confirmed independently of the census.",
     "but_the_RESUME_CANNOT_BE_GRADED": "The frozen grader cases/navier_class/DRIVAER/grade_drivaer.py:241-244 reads `n_exec = len(re.findall(r'ExecutionTime\\s*=', logtxt))`, sets `want = round(endTime/deltaT)` = 2000, and on mismatch calls `refuse()` -- which is `sys.exit(2)`. It REFUSES; it does not degrade.",
@@ -11,13 +10,22 @@
     "what_it_actually_costs_to_do_it_right": "254 core-min for the full 2000 iterations. The 'saving' being given up is ~127 core-min = $0.11 DERIVED. That is the entire price of a gradeable result instead of a refused one.",
     "the_old_tree_is_NOT_DELETED": "verification/runs/navier_class/DRIVAER/r2_coarse stays exactly as it is. It is evidence (it holds THE_ONE_CHANGE.diff, the mesh logs, R2_MEASURED.json and the 1000-iteration checkpoint) and an unexpected artifact is INSPECTED, NEVER REVERTED. The re-run needs a FRESH case directory in any case: rule 4's guard refuses a case where `0` or a time dir already exists."
   },
-
   "team": "cfd",
   "case_id": "DRIVAER-R2-COARSE-RERUN",
   "prereg_path": "verification/campaign/DRIVAER_R2_LAYERED_PREREGISTRATION.md",
-  "prereg_commit": "UNCHANGED and NOT re-frozen. Gates closed since the first snappyHexMesh of r2_coarse. This entry alters no gate, threshold, band, label or cap.",
-  "grading_freeze": ["cases/navier_class/DRIVAER/grade_drivaer.py"],
-  "grading_freeze_note": "sha256 6106cf6db9ac7dd7d767e140de7ba2e389829d02c30f5d251fcec0c6b83c26d7 per the R2c registration's literal-hash table. Recompute before any verdict is believed; a mismatch is a REFUSAL.",
+  "prereg_blob_sha": "292eee594dd181dc75f2b38da00b4a6c1cea2857",
+  "prereg_pin_verification": "VERIFIED BY THE DRAFTING LANE, TWO INDEPENDENT WAYS, NOT ACCEPTED FROM ANY MESSAGE. (1) `git rev-parse HEAD:verification/campaign/DRIVAER_R2_LAYERED_PREREGISTRATION.md` -> 292eee594dd181dc75f2b38da00b4a6c1cea2857. (2) `git show HEAD:<path> | git hash-object --stdin` -> the same 40 hex. Worktree file is byte-identical to HEAD (`diff` clean). At HEAD = 7f685867dabf01013550b4fb96f5b66b41513cea. NO FREEZE COMMIT IS PINNED FOR THIS REGISTRATION BECAUSE ITS GATES CLOSED BY EVENT, NOT BY A FREEZE COMMIT: DRIVAER_R2_LAYERED_PREREGISTRATION.md:20 reads 'after the first snappyHexMesh of r2_coarse starts, every gate, threshold, band, label and cap below is CLOSED', and that mesh is built. The blob sha above is what a placer hashes against; the closing EVENT is evidenced by the mesh logs in the run tree, not by a sha. STATED PLAINLY RATHER THAN A FREEZE COMMIT BEING INVENTED TO FILL THE FIELD.",
+  "prereg_unchanged_note": "UNCHANGED and NOT re-frozen. Gates closed since the first snappyHexMesh of r2_coarse. This entry alters no gate, threshold, band, label or cap.",
+  "grading_freeze": [
+    "cases/navier_class/DRIVAER/grade_drivaer.py"
+  ],
+  "grading_freeze_sha256": {
+    "cases/navier_class/DRIVAER/grade_drivaer.py": "6106cf6db9ac7dd7d767e140de7ba2e389829d02c30f5d251fcec0c6b83c26d7"
+  },
+  "grading_freeze_blob_sha": {
+    "cases/navier_class/DRIVAER/grade_drivaer.py": "df1e6d1bdc654c0020b4cc50f77662f0064435d5"
+  },
+  "grading_freeze_verification": "RECOMPUTED ON DISK: `sha256sum cases/navier_class/DRIVAER/grade_drivaer.py` -> 6106cf6db9ac7dd7d767e140de7ba2e389829d02c30f5d251fcec0c6b83c26d7, IDENTICAL to the literal-hash table in the R2c registration section 8. Blob at HEAD = df1e6d1bdc654c0020b4cc50f77662f0064435d5, and at the freeze commit 76e2030c1e414e3e22ec56abb04271e2bdf2ecc1 the SAME blob -- THE GRADING PATH HAS NOT MOVED SINCE THE FREEZE, which is the thing rule 2 actually requires and which a sha copied out of a document does not by itself establish. Recompute before any verdict is believed; a mismatch is a REFUSAL (exit 2), never a warning -- grade_drivaer.py:91-92 `refuse()` is `sys.exit(2)`.",
   "cwd": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER",
   "case_dir": "verification/runs/navier_class/DRIVAER/r2_coarse_R2 (FRESH -- must not exist at launch; rule 4's guard refuses a case where 0 or a time dir already exists)",
   "ranks": 4,
