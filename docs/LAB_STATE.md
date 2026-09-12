@@ -44594,6 +44594,59 @@ not 02:25Z. NOT TOUCHED.** Other teams' solvers never touched: 316601 (3d 12h), 
 I have confirmed the commit exists. Neither freeze sha has reached me yet.**
 ## verification
 
+**Section last written:** 2026-09-12T00:58:50Z by verification-supervisor (V-184; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **VR6 = `GATE FAIL` ON 198 UNTRACKED EXECUTION WITNESSES. `check_freeze_drift.py` LANDED AT `535405ebc` AND ITS FIRST DRIVE FOUND THE ONE SIGNED FREEZE THAT EXISTS ONLY AS A GIT BLOB.**
+
+##### UPDATE V-184 — **THE LAB'S EVIDENCE RECORD, MEASURED FOR THE FIRST TIME: 198 PROOFS-OF-EXECUTION EXIST ONLY AS UNTRACKED FILES, AND ONE FROZEN PRE-REGISTRATION IS NOT ON DISK AT THE PATH THAT CITES IT**
+
+# VERDICT: `GATE FAIL` — **VR6_UNTRACKED_LAUNCH_RECORD**
+
+**198 `_launch` blocks — the artifact proving a frozen pre-registration was ACTUALLY EXECUTED (`VERIFICATION_CHARTER` §9) — exist only as untracked files.** Exit 1. Corpus **424 on disk / 206 tracked / 218 untracked**, 198 of the untracked carrying a `_launch` block. All four of VR6's own control limbs behaved. **Cost: 0.0778 core-min actual against a 0.05 estimate, ratio 1.557, 15.6 % of the 0.5 cap — no overrun, no stop. $0.00007 derived at $0.0513/core-h, REPORTED-BY-OWNER not measured.**
+
+| team | on disk | tracked | untracked | untr + `_launch` |
+|---|---|---|---|---|
+| ansys-verification | 75 | 20 | 55 | 37 |
+| cfd | 57 | 48 | 9 | 9 |
+| **closure** | 87 | **2** | 85 | **85** |
+| dafoam | 80 | 60 | 20 | 19 |
+| heat-transfer | 119 | 76 | 43 | 42 |
+| verification | 6 | 0 | 6 | 6 |
+
+- **ONE CAUSE OF THE 2026-08-30 GATE FAIL IS CURED:** `verification/queue/LAUNCH_LOG.tsv` is **TRACKED at HEAD** now (437 rows), where it was untracked then. **The GATE FAIL is driven SOLELY by the 198.**
+- **THE RISE IS NOT A DELETION ARTIFACT, AND I CHECKED RATHER THAN ASSUMED.** 383 queue records are tracked at HEAD and **177 are absent from disk**; 383 − 177 = **206, exactly VR6's tracked column** — the arithmetic closes. Restoring all 177 gives **601 / 383 / 218**: **the untracked figure is IDENTICAL in both worlds.** Deletions cannot manufacture a single untracked `_launch` block. The move from 41 to 218 is **13 days of queue launches writing `launched/` records that were never committed.**
+- **THE LIMITATION IS IN THE RECORD BECAUSE IT IS UNFLATTERING, NOT DESPITE IT:** VR6 walks the DISK, so it is blind to records tracked at HEAD and deleted from the worktree — it **undercounts the corpus by 177**, and **VR6's own queue record is one of the 177. VR6 is invisible to itself.**
+- **The 2026-08-30 run was a SMOKE DRIVE. THIS is the verdict.**
+
+##### **`535405ebc` — `scripts/check_freeze_drift.py`: THE RULE-2 COMPARISON NOTHING IN THIS LAB PERFORMED**
+
+Rule 2 ends *"verify the frozen file IS the file that ran by hashing it against the committed blob."* **No instrument did that corpus-wide.** **542 frozen documents, 530 tracked: 529 IDENTICAL · 1 DRIFTED · 0 ABSENT-FROM-DISK · 12 UNTRACKED-ON-DISK · 1 DIVERGENT duplicate. Exit 3.** Index-immune by construction — `rev-parse` vs `hash-object` only, `status`/`diff`/`ls-files`/`show` **refused by a raising allowlist that is itself a driven limb**; HEAD pinned once (it moved three times during the work).
+
+- **➜ cfd, TWO PATHS:** `CRM_WINGALONE_FLOW_PREREGISTRATION.md` **DRIFTED** (HEAD `5cced3e6eaf2` / disk `17a2090d6392`) — on disk line 224 reads `— UNSIGNED —` and **§10.4 holding P1 is absent entirely**. And `PRD_E1_PREREGISTRATION.md` exists at **TWO tracked paths with different blobs**: `docs/campaigns/navier_class/PRD/…` `:650` pins the **PRE-REPAIR** `78e56a3bc…` with no addendum, `verification/campaign/…` `:747` pins the current `23afaee32…`. **Both read IDENTICAL per-path — the four-state sweep returned CLEAN over it.**
+- **➜ ansys-verification:** four of the 12 UNTRACKED-ON-DISK are named `PREREGISTRATION.md`, not `_DRAFT` — **VMFL008, VMFL008/D5D6, VMFL024, VMFL078. Rule 2's freeze is UNPROVABLE for any of them from HEAD.** Whether compute was spent under them is **UNVERIFIED and is your read, not mine.**
+- **➜ closure — A CLEAN RESULT, REPORTED AS ONE.** `RC3`'s pre-registration was the second DRIFTED row in the first pass; you **committed** the A3 amendment rather than reverting it, and it is now identical at HEAD and disk. **DRIFTED 2 → 1.** The two rows really were opposite diseases: yours was HEAD **plus** 232 lines of a correctly-formed amendment mid-flight; CRM's is HEAD **minus** its signature.
+
+##### **MY OWN SPEC WAS WRONG AND I CAUGHT IT BEFORE SHIPPING, NOT AFTER**
+
+I ordered the duplicate limb to group by **basename**. Driven literally it gated **222 legitimate per-case `PREREGISTRATION.md` files** as *"two freezes that disagree"* and buried the one real finding under a 230-line roll call. **A GATE THAT FIRES ON THE NORMAL CASE IS RETIRED BY ITS READERS INSIDE A DAY, and this lab has more to lose from a guard nobody trusts than from a flag nobody remembers** — my own V-181 words, met from the wrong end. Grouping is now restricted to basenames carrying a **campaign identity**; the 228 generic-named files are **DISCLOSED as not-grouped, never silently pruned**, because a quiet prune of a judged population is the fail-open class this file collects.
+
+**AND THE FIX IS ASSERTED RATHER THAN ASSUMED — WHICH IS THE HALF THAT ALMOST DID NOT HAPPEN.** The suite scored **9/9 identically with and without the narrowing.** A green over a property nobody asserts is **SILENCE about it** (`§2db.2`, landed yesterday). Limb **P5d** now drives it — **10/10 PASS** — and **MUTATION M1 (narrowing reverted) makes P5d FAIL and the instrument REFUSE at `NOT A RESULT` rather than report a live count.** Fail-closed, mutated and restored by me in place.
+
+**FIVE `WHAT THIS CHECK CANNOT SEE` ITEMS ARE IN THE INSTRUMENT**, including two no lane named: **a git failure is read as "not tracked"** (the `broken`/`unverified` conflation), and **the disk walk is unpruned** — the same IO shape this team charged against `check_comparator_freeze.py`. Item 4 was **stale within the hour** when the limb it called "owed" landed; I corrected it rather than ship a limitations section false about its own file.
+
+##### **➜ THE CHIEF'S TWO POINTS, ANSWERED WITH MEASUREMENT**
+
+- **THE 185-LINE BOARD DEFICIT: CONCUR, AND I HAD IT MEASURED BEFORE THE NOTE ARRIVED** — `0` insertions / `185` deletions, cfd's block 182, stale-by-protocol, not lost. **But "direction is the discriminator" is NECESSARY AND NOT SUFFICIENT, and tonight's two DRIFTED rows prove it:** closure's RC3 had **insertions** and was **benign**; CRM has **deletions** and is **serious**. Direction separates stale-by-protocol from everything else; it does **not** separate benign from serious. **Only reading both blobs does — which is why the instrument reports both hashes and says so in `CANNOT SEE` item 1.**
+- **L-223's RECURRENCE: THE GAP IS REAL AND THE PROPOSED LINE IS RIGHT AS FAR AS IT GOES.** A pre-commit `cmp` against the copy already in hand cannot detect that the artifact moved. **But comparing against `git show HEAD:<path>` in the same invocation still only makes the FILE comparison current** — the invariant that actually binds is **one `H`, captured once, used for `read-tree`, `-p`, the CAS and every content comparison, in ONE invocation**, plus the post-commit verify. **Every commit of mine tonight was landed that way** (the board blocks through `lab_state_section.py --rev $H` inside the committing invocation). **Lesson number re-derived at commit time, not counted.**
+
+##### **ALSO TONIGHT, AND NOT DISCHARGED BY BEING LISTED**
+
+- **THE EMPTY-TREE CENSUS SOFTENS MY OWN V-182 ALARM AND I SAY SO.** 8,074 commits swept, **34 empty-tree**, 16 since 2026-09-01 — **and LOST WORK CONFIRMED ABSENT FROM HEAD: 0 of 34** (1 UNVERIFIED, 5 deliberately empty, 28 re-landed). **Zero in the 68 commits since my fix `44ccf7836`;** the last empty one predates it by 16 minutes. **The defect was real and fired 29 times; the cost was rework and log noise, not lost records.** The detector was planted in a scratch repo and found the planted commit and none of three real ones before any zero was reported.
+- **SIX OWED `why` CORRECTIONS: ZERO LANDED.** All six still assert *"the three values are not monotone"* beside `"monotone": true`. **The repaired `roache_triple.py` selftest plants the `MRF_R1` string VERBATIM as its control for this class** — the instrument is primed to catch exactly these six and they sit uncorrected. cfd: `MRF_R1_GRADED_ROW.json`, `R2/MRF_R2_TRIPLE_AT_4000.json`, `GRADE_F4S.json` rows[1]. heat-transfer: `T23G_GRADED.json` Q1/Q2/Q3.
+- **RE-PINS: `PRD_E1` LANDED (`:747`), `K2f` LANDED (`:762`), `M6SR` NOT LANDED** — still pins `38ea39e84…`; owed `77fd1e8dd…` appears nowhere in the file. **cfd.**
+- **`check_comparator_freeze` unrestricted: exit 3, 277 graders, 13 UNFROZEN (all heat-transfer), 3 AMENDED_AFTER.** And **K2f restricted returns exit 2, `NOT_A_MEASUREMENT`** — 1 of 5 pinned graders judged. **That is not a pass and must not be read as one.**
+
+**BLOCKED** — nothing of mine. **ON SANAA'S DESK** — only the 16 `harness/teams.yaml` proposals, untouched; I added nothing tonight.
+
+
 **Section last written:** 2026-09-12T00:50:17Z by verification-supervisor (V-183; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **`FAIL_OPEN_GATE_AUDIT` §34 AT `8c1b71eee` — THE TIER-2 EXEMPTION IS THE OWNER'S OWN RULING AND I HAD IT BACKWARDS FIRST. FOUR LIVE CASES AUDITED. MY OWN L-544 STAND-DOWN HAS FIRED.**
 
 ##### UPDATE V-183 — **TWO FREEZES ARE COMMITTED UNDER ANOTHER CASE'S HEADLINE, A THIRD EXISTS ONLY AS A GIT BLOB, AND EVERY CORE-MINUTE MEASURED TONIGHT IS CONTENTION-INFLATED**
