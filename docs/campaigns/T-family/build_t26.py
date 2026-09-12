@@ -571,6 +571,36 @@ def surface_area(t):
                                                t[:, 2] - t[:, 0]), axis=1).sum())
 
 
+def surface_parts(tris, tol=9):
+    """Connected components of a triangle soup, by shared (rounded) vertex.
+
+    THIS IS THE CHECK THE PROBE OF 2026-09-11 PAID 16 CORE-MINUTES TO DISCOVER.
+    `cellZoneInside inside` needs a searchable volume, and a geometry entry that
+    bundles FIVE disconnected closed bodies cannot supply one.  The probe wrote
+    hub+duct+strutA/B/C into ONE `triSurfaceMesh` named `motor` with the
+    cellZones in its `regions{}` sub-dict; snappyHexMesh reported "Found 2
+    closed, named surfaces" against THREE geometry entries supplied, fell back
+    to the seed WALK for everything on `motor`, and the walk leaked."""
+    np = _np()
+    parent = list(range(len(tris)))
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    key = {}
+    for i, t in enumerate(tris):
+        for v in t:
+            k = (round(float(v[0]), tol), round(float(v[1]), tol), round(float(v[2]), tol))
+            j = key.setdefault(k, i)
+            ra, rb = find(j), find(i)
+            if ra != rb:
+                parent[rb] = ra
+    return len(set(find(i) for i in range(len(tris))))
+
+
 def split_components(tris, want):
     """The five registered components, by CONTIGUOUS FILE ORDER, then ASSERTED.
 
@@ -995,22 +1025,37 @@ def write_sfe_dict(path, surfaces, included_angle):
 
 def write_snappy_dict(path, level, lev, layers, d1, seeds, regions,
                       layer_block, feature_level, resolve_feature_angle,
-                      n_cells_between_levels):
-    """The multi-region dict, in the form section 21.12 REGISTERS:
-    `locationsInMesh` + `refinementSurfaces` with `cellZone` / `faceZone` /
-    `cellZoneInside inside`, one seed per registered region."""
+                      n_cells_between_levels, seed_order=None):
+    """The multi-region dict.  ONE GEOMETRY ENTRY PER CLOSED BODY.
+
+    THE DISTINCTION THE TOPOLOGY PROBE PAID FOR, stated so it is not undone:
+    a `regions{}` sub-dict is fine for PATCH NAMING and is NOT fine for
+    CELLZONE ASSIGNMENT.  "Inside surface X" is ONE volume; it cannot resolve to
+    three different cellZones, and a geometry entry holding five disconnected
+    bodies cannot be inside-tested at all.  `fluid_env` therefore keeps its
+    three regions -- they only name inlet / outlet / wall patches -- while its
+    cellZone sits at the TOP level; every other zone-carrying surface is its own
+    single-body entry.
+
+    section 21.12's registered method is unchanged: `locationsInMesh` plus
+    `refinementSurfaces` with `cellZone` / `faceZone` / `cellZoneInside inside`.
+    What changed is how the surfaces are PRESENTED to it."""
     zone = {"duct": "duct", "hub": "housing", "strutA": "housing",
-            "strutB": "housing", "strutC": "housing"}
-    slev = {"duct": lev["duct"], "hub": lev["hub"], "strutA": lev["strut"],
-            "strutB": lev["strut"], "strutC": lev["strut"]}
+            "strutB": "housing", "strutC": "housing", "core": "core"}
+    slev = {"duct": lev["duct"], "hub": lev["hub"], "core": lev["hub"],
+            "strutA": lev["strut"], "strutB": lev["strut"], "strutC": lev["strut"]}
+    # `core` IS LISTED FIRST BECAUSE IT IS NESTED INSIDE `hub` AND THE INSIDE-
+    # TEST PRECEDENCE IS FIRST-WINS.  That precedence is MEASURED, not assumed:
+    # probe D of 2026-09-11 listed `hub`->housing before `core`->core and
+    # `core` came out at ZERO CELLS in all three seed orders, with housing
+    # holding the core's volume.  Innermost first is the rule this produces.
+    bodies = ("core", "duct", "hub", "strutA", "strutB", "strutC")
     with open(path, "w") as fh:
         w = fh.write
         w(_FOAM_HDR % "snappyHexMeshDict")
         w("castellatedMesh true;\nsnap true;\naddLayers true;\n\ngeometry\n{\n")
-        w("    motor_in_duct.stl { type triSurfaceMesh; name motor;\n"
-          "        regions { hub {name hub;} duct {name duct;} "
-          "strutA {name strutA;} strutB {name strutB;} strutC {name strutC;} } }\n")
-        w("    core.stl { type triSurfaceMesh; name core; }\n")
+        for nm in bodies:
+            w("    %s.stl { type triSurfaceMesh; name %s; }\n" % (nm, nm))
         w("    fluid_env.stl { type triSurfaceMesh; name env;\n"
           "        regions { env_wall {name env_wall;} env_inlet {name inlet;} "
           "env_outlet {name outlet;} } }\n}\n\n")
@@ -1019,38 +1064,28 @@ def write_snappy_dict(path, level, lev, layers, d1, seeds, regions,
           "    minRefinementCells 10;\n    nCellsBetweenLevels %d;\n"
           % n_cells_between_levels)
         w("    features (\n")
-        for s, fl in (("motor_in_duct", feature_level["motor"]),
-                      ("core", feature_level["core"]),
-                      ("fluid_env", feature_level["env"])):
-            w('        { file "%s.eMesh"; level %d; }\n' % (s, fl))
+        for nm in bodies:
+            w('        { file "%s.eMesh"; level %d; }\n' % (nm, slev[nm]))
+        w('        { file "fluid_env.eMesh"; level %d; }\n' % lev["duct"])
         w("    );\n")
         w("    refinementSurfaces\n    {\n")
-        w("        motor { level (0 0);\n            regions\n            {\n")
-        for nm in ("duct", "hub", "strutA", "strutB", "strutC"):
-            w("                %s { level (%d %d); faceZone %s_fz; "
-              "faceType internal; cellZone %s; cellZoneInside inside; "
-              "patchInfo { type wall; } }\n"
+        for nm in bodies:
+            w("        %-7s { level (%d %d); faceZone %s_fz; faceType internal; "
+              "cellZone %s; cellZoneInside inside; patchInfo { type wall; } }\n"
               % (nm, slev[nm], slev[nm], nm, zone[nm]))
-        w("            } }\n")
-        w("        core { level (%d %d); faceZone core_fz; faceType internal; "
-          "cellZone core; cellZoneInside inside; patchInfo { type wall; } }\n"
-          % (lev["hub"], lev["hub"]))
-        w("        env { level (%d %d); faceZone env_fz; cellZone fluid; "
+        w("        env     { level (%d %d); faceZone env_fz; cellZone fluid; "
           "cellZoneInside inside;\n            regions\n            {\n"
           % (lev["duct"], lev["duct"]))
-        w("                env_wall { level (%d %d); patchInfo { type wall; } }\n"
-          % (lev["duct"], lev["duct"]))
-        w("                inlet  { level (%d %d); patchInfo { type patch; } }\n"
-          % (lev["duct"], lev["duct"]))
-        w("                outlet { level (%d %d); patchInfo { type patch; } }\n"
-          % (lev["duct"], lev["duct"]))
+        for rn, pt in (("env_wall", "wall"), ("inlet", "patch"), ("outlet", "patch")):
+            w("                %-8s { level (%d %d); patchInfo { type %s; } }\n"
+              % (rn, lev["duct"], lev["duct"], pt))
         w("            } }\n    }\n")
         w("    resolveFeatureAngle %g;\n    refinementRegions {}\n"
           % resolve_feature_angle)
         w("    locationsInMesh\n    (\n")
-        for rg in regions:
-            p = seeds[rg]
-            w("        ((%.9g %.9g %.9g) %s)\n" % (p[0], p[1], p[2], rg))
+        for rg in (seed_order or regions):
+            p_ = seeds[rg]
+            w("        ((%.9g %.9g %.9g) %s)\n" % (p_[0], p_[1], p_[2], rg))
         w("    );\n    allowFreeStandingZoneFaces true;\n}\n\n")
         w("snapControls { nSmoothPatch 5; tolerance 1.0; nSolveIter 100; "
           "nRelaxIter 8; nFeatureSnapIter 15; implicitFeatureSnap false; "
@@ -1267,6 +1302,20 @@ def check_regions(mesh_dir, registered=None):
             % (len(got), sorted(got), len(want), sorted(want),
                ("; MISSING %s" % missing) if missing else "",
                ("; UNREGISTERED %s" % extra) if extra else ""))
+    # THE CONNECTIVITY GATE.  A registered region that exists and is internally
+    # disconnected is not a region: no conduction crosses a fragment boundary,
+    # and the count above cannot see it.
+    disc = read_region_disconnect(os.path.join(mesh_dir, "log.checkMesh"))
+    if disc:
+        broken = dict((k, v) for k, v in disc.items() if k in want and v > 1)
+        if broken:
+            raise Refused(
+                "REGION(S) INTERNALLY DISCONNECTED: %s (region -> number of "
+                "face-disconnected components, from `checkMesh -allRegions`). "
+                "A region in fragments carries no conduction between them, and "
+                "a region-COUNT check passes it. section 3.1 registers "
+                "`housing` and `duct` as a conjugate path; fragments are not a "
+                "path." % broken)
     return got
 
 
@@ -1316,6 +1365,44 @@ def read_checkmesh_summary(path):
             int(re.search(r"Mesh has (\d+) geometric \(non-empty/wedge\) directions", txt).group(1))
             if re.search(r"Mesh has (\d+) geometric \(non-empty/wedge\) directions", txt) else None),
     }
+
+
+def read_closed_named_surfaces(path):
+    """snappyHexMesh's OWN count of usable closed named surfaces.
+
+    Reads back the line "Found N closed, named surfaces."  A build in which N
+    is short of the number of zone-carrying surfaces has SILENTLY fallen back
+    to the seed walk for the remainder -- which is the defect the topology
+    probe found, and OpenFOAM announced it in plain text while the build
+    returned rc = 0."""
+    if not os.path.isfile(path):
+        return None
+    m = re.findall(r"Found (\d+) closed, named surfaces",
+                   open(path, "r", errors="replace").read())
+    return int(m[-1]) if m else 0
+
+
+def read_region_disconnect(path):
+    """Per-region disconnected-component count, from `checkMesh -allRegions`.
+
+    A REGION-COUNT CHECK CANNOT SEE THIS.  The probe produced a `duct` region
+    that EXISTED and was 206 fragments; counting region directories returns
+    four and passes.  checkMesh prints "Number of regions: N" per region and
+    that N is the thing to gate."""
+    if not os.path.isfile(path):
+        return None
+    txt = open(path, "r", errors="replace").read()
+    out, cur = {}, None
+    for line in txt.splitlines():
+        m = re.search(r"Create mesh for region\s+(\S+)", line)
+        if m:
+            cur = m.group(1)
+            out.setdefault(cur, 1)
+            continue
+        m = re.search(r"Number of regions:\s*(\d+)", line)
+        if m and cur:
+            out[cur] = int(m.group(1))
+    return out
 
 
 def read_layer_coverage(path):
@@ -1409,7 +1496,8 @@ CERT_VERSION = 1
 CERT_REQUIRED = ("schema", "version", "level", "written_utc", "registration",
                  "surface", "dicts", "synthesised_surfaces",
                  "registered_level_parameters", "background", "built",
-                 "checkMesh", "layer_coverage", "inputs_sha256")
+                 "checkMesh", "layer_coverage", "closed_named_surfaces",
+                 "region_components", "inputs_sha256")
 
 
 def _inputs_digest(doc):
@@ -1510,6 +1598,12 @@ def certify(level, mesh_dir, out_path=None, registration=None, repo_root=None):
             l0v = float(m.group(1))
     plan = json.loads(open(os.path.join(mesh_dir, "MESH_PLAN.json"),
                            errors="replace").read())
+    if plan.get("throwaway_levels"):
+        raise Refused("this mesh was built with THROWAWAY surface levels (%s) "
+                      "and no birth certificate may be written from it. "
+                      "section 3.6's certificate carries 'every registered "
+                      "level parameter'; a level the registration does not "
+                      "register is not one." % plan["throwaway_levels"])
     doc = {
         "schema": CERT_SCHEMA, "version": CERT_VERSION, "level": level,
         "written_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -1538,6 +1632,10 @@ def certify(level, mesh_dir, out_path=None, registration=None, repo_root=None):
                               if os.path.isfile(os.path.join(mesh_dir, "MESH_RC.txt"))
                               else None)},
         "checkMesh": read_checkmesh_summary(os.path.join(mesh_dir, "log.checkMesh")),
+        "closed_named_surfaces": read_closed_named_surfaces(
+            os.path.join(mesh_dir, "log.snappy")),
+        "region_components": read_region_disconnect(
+            os.path.join(mesh_dir, "log.checkMesh")),
         "layer_coverage": read_layer_coverage(os.path.join(mesh_dir, "log.snappy")),
     }
     doc["inputs_sha256"] = _inputs_digest(doc)
@@ -1692,11 +1790,35 @@ def build_surfaces(stl_path, out_dir, registration=None, verbose=True):
     write_ascii_stl(os.path.join(out_dir, "core.stl"), [("core", core_tris)])
     write_ascii_stl(os.path.join(out_dir, "fluid_env.stl"),
                     [(k, env[k]) for k in ("env_wall", "env_inlet", "env_outlet")])
-    # The named-solid copy snappy keys its `regions` off.  Written FROM the
-    # registered binary, in the registered order.
-    write_ascii_stl(os.path.join(out_dir, "motor_named.stl"),
-                    [(k, comps[k]["tris"]) for k in
-                     ("hub", "duct", "strutA", "strutB", "strutC")])
+    # ONE FILE PER CLOSED BODY -- the repair the topology probe forced.  Each
+    # zone-carrying surface is its own `triSurfaceMesh` with its cellZone at the
+    # TOP level, so every one of them is a single closed body that
+    # `cellZoneInside inside` can actually test.  Bundling them cost this rung
+    # a mesh in which `duct` held 86 % of the cells.
+    for nm in ("hub", "duct", "strutA", "strutB", "strutC"):
+        write_ascii_stl(os.path.join(out_dir, "%s.stl" % nm), [(nm, comps[nm]["tris"])])
+
+    # THE CONTROL, DRIVEN ON EVERY BUILD: each zone-carrying surface is ONE part.
+    bodies = {"core.stl": core_tris, "fluid_env.stl": env_all}
+    for nm in ("hub", "duct", "strutA", "strutB", "strutC"):
+        bodies["%s.stl" % nm] = comps[nm]["tris"]
+    multi = []
+    for fn, tt in sorted(bodies.items()):
+        k = surface_parts(tt)
+        if k != 1:
+            multi.append("%s has %d disconnected parts" % (fn, k))
+    if multi:
+        raise Refused(
+            "A ZONE-CARRYING SURFACE IS NOT A SINGLE CLOSED BODY: %s. "
+            "`cellZoneInside inside` needs a searchable volume; a multi-part "
+            "entry is not one, snappyHexMesh silently falls back to the seed "
+            "walk, and the walk leaks through any surface too coarse to seal. "
+            "MEASURED 2026-09-11: with five bodies in one entry, snappy found "
+            "2 closed named surfaces out of 3 supplied, `duct` took 172,001 of "
+            "199,684 cells, and splitMeshRegions returned 206 unnamed domains."
+            % "; ".join(multi))
+    say("  every zone-carrying surface is ONE closed body (%d checked): "
+        "cellZoneInside has a searchable volume for each" % len(bodies))
 
     return dict(sha256=got_sha, registered_sha256=want_sha, path=stl_path,
                 components=dict((k, dict(facets=len(v["tris"]), vol=v["vol"],
@@ -1709,7 +1831,8 @@ def build_surfaces(stl_path, out_dir, registration=None, verbose=True):
                 env_volume=env_vol, env_rings=rings, domain_x=[x_in, x_out],
                 bbox=[tris.reshape(-1, 3).min(0).tolist(),
                       tris.reshape(-1, 3).max(0).tolist()],
-                comps_obj=comps, core_tris_obj=core_tris)
+                comps_obj=comps, core_tris_obj=core_tris,
+                env_tris_obj=env_all)
 
 
 def derive_seeds(surf, regions, verbose=True):
@@ -1753,6 +1876,35 @@ def derive_seeds(surf, regions, verbose=True):
                       "reaches, so an unseeded region is a region that will not "
                       "exist" % missing)
     P = [seeds[r] for r in regions]
+
+    # ------------------------------------------------------------------
+    # THE MESHING ENVELOPE.  Binding condition from the supervisor after the
+    # topology probe: a seed outside the envelope REFUSES, loudly, at build
+    # time.  The probe's `duct` seed sat at r = 0.127500 while `fluid_env` is a
+    # prism at circumradius 0.125000, and derive_seeds passed it because it
+    # only ever asked "is this seed inside the body it names".
+    #
+    # THE ENVELOPE IS THE UNION OF THE REGISTERED REGIONS, NOT `fluid_env`.
+    # Stated because the narrow reading is tempting and wrong: the duct solid
+    # legitimately lies OUTSIDE `fluid_env` -- section 21.12 registers
+    # `fluid_env` at 0.125000 as the fluid/duct INTERFACE, and an interface is
+    # not a bound on the mesh.  Checking seeds against `fluid_env` would refuse
+    # a correct `duct` seed.  What is refused here is a seed outside EVERY
+    # registered region, which is a seed in the scaffolding.
+    if surf.get("env_tris_obj") is not None:
+        in_env = (ray_inside(surf["env_tris_obj"], P)
+                  | ray_inside(comps["duct"]["tris"], P))
+        stray = [regions[i] for i in range(len(P)) if not in_env[i]]
+        if stray:
+            raise Refused(
+                "SEED(S) OUTSIDE THE MESHING ENVELOPE: %s. A seed in the "
+                "scaffolding names a region that snappyHexMesh will grow "
+                "through the whole background box. MEASURED 2026-09-11: the "
+                "probe's `duct` zone took 172,001 of 199,684 cells and "
+                "splitMeshRegions returned 206 unnamed domains." % stray)
+        say("    every seed lies inside the envelope (fluid_env u duct), which "
+            "is the UNION of the registered regions and not `fluid_env` alone")
+
     in_hub = inside_gon_body(P, prof, az, step)
     in_core = inside_gon_body(P, cprof, az, step)
     in_duct = ray_inside(comps["duct"]["tris"], P)
@@ -1779,11 +1931,18 @@ def derive_seeds(surf, regions, verbose=True):
 #: angle is discussed in the report that accompanies this instrument.
 RESOLVE_FEATURE_ANGLE = 30.0
 N_CELLS_BETWEEN_LEVELS = 3
-INCLUDED_ANGLE = 30.0
+INCLUDED_ANGLE = 150.0   # section 3.3 registers 30; MEASURED to extract ZERO edges
+                         # on this surface (L1ABS/log.sfe: "points : 0, edges : 0").
+                         # surfaceFeatures.C:199 sets minCos = cos(180 - angle),
+                         # so 30 selects only normals differing by MORE than 150
+                         # deg and a 90 deg strut box edge (n.n = 0) is not one.
+                         # RULED by the heat-transfer supervisor 2026-09-11;
+                         # travels to the same addendum as the two controls below.
 
 
 def mesh(level, go=False, mesh_root=None, registration=None, stl=None,
-         foam_bashrc=None, verbose=True):
+         foam_bashrc=None, verbose=True, seed_order=None,
+         throwaway_levels=None, expect_cells=None):
     """Stage and (optionally) LAUNCH the mesh build for one registered level.
 
     WITHOUT --go nothing is executed: the surfaces are synthesised, every
@@ -1797,7 +1956,30 @@ def mesh(level, go=False, mesh_root=None, registration=None, stl=None,
         raise Refused("%r is not a registered level; the REGISTERED-LADDER "
                       "lines carry %s" % (level, sorted(ladder)))
     row = ladder[level]
-    lev = reg_surface_levels(text)[level]
+    lev = dict(reg_surface_levels(text)[level])
+    if throwaway_levels:
+        # A THROWAWAY OVERRIDE, AND IT REGISTERS NOTHING.  It exists so a
+        # hypothesis about the REGISTERED levels can be tested without
+        # registering a replacement for them.  Three fences, all driven:
+        #   * it REFUSES to touch the registered mesh root;
+        #   * the deviation is stamped into MESH_PLAN.json, so it cannot be
+        #     mistaken later for a registered build;
+        #   * `certify()` REFUSES outright on a plan carrying it, so no birth
+        #     certificate can ever be written from an overridden level.
+        if mesh_root is None or reg_mesh_root(text).rstrip("/") in \
+                os.path.abspath(mesh_root).rstrip("/"):
+            raise Refused("--throwaway-levels may not be used under the "
+                          "REGISTERED mesh root %s. A level the registration "
+                          "does not register never writes where graded meshes "
+                          "live." % reg_mesh_root(text))
+        for kv in throwaway_levels.split(","):
+            k, _, v = kv.partition("=")
+            if k.strip() not in lev:
+                raise Refused("--throwaway-levels names %r, which is not one of "
+                              "the registered surfaces %s" % (k, sorted(lev)))
+            lev[k.strip()] = int(v)
+        say("  *** THROWAWAY LEVEL OVERRIDE: %s -- REGISTERS NOTHING, and no "
+            "birth certificate can be written from this build ***" % lev)
     layers, d1 = reg_layers(text), reg_delta1(text)
     regions = reg_regions(text)
     root = mesh_root or reg_mesh_root(text)
@@ -1824,15 +2006,46 @@ def mesh(level, go=False, mesh_root=None, registration=None, stl=None,
 
     st = os.statvfs(os.path.dirname(root.rstrip("/")) or "/")
     free_gb = st.f_bavail * st.f_frsize / 1024.0 ** 3
-    est_gb = row["cells"] * 2.2e-6      # measured on the ABS dev family, ~2.2 kB/cell
-    say("  DISK: %.1f GiB free at %s; this level is estimated at %.2f GiB "
-        "(%.0f cells x 2.2 kB/cell, the rate measured on the mesh-development "
-        "family)" % (free_gb, root, est_gb, row["cells"]))
-    if free_gb < 4.0 * est_gb + 2.0:
-        raise Refused("only %.1f GiB free for an estimated %.2f GiB level; the "
-                      "build is REFUSED before it starts rather than dying "
-                      "half-written. Disk is stated before it is consumed."
-                      % (free_gb, est_gb))
+    # THE GUARD READS THE LEVELS ACTUALLY IN USE, NOT THE REGISTERED ONES.
+    # It used to price `row["cells"]` unconditionally, so under a throwaway
+    # override it printed "0.89 GiB (402,409 cells)" while the build produced
+    # ~1.07 M -- an instrument holding a registered value where a read belongs,
+    # which is the defect class this rung has now produced eight times. Seven
+    # were repaired; this is the eighth and it is repaired here rather than
+    # left standing as a disclosure, because a log that reads authoritatively
+    # is worse than one that reads uncertainly.
+    # THE GUARD READS THE LEVELS ACTUALLY IN USE, AND WHEN IT CANNOT DERIVE A
+    # COUNT IT REFUSES TO INVENT ONE.
+    #
+    # It used to price `row["cells"]` unconditionally, so under a throwaway
+    # override it printed "0.89 GiB (402,409 cells)" while the build produced
+    # ~1.07 M -- an instrument holding a registered value where a read belongs.
+    #
+    # THE FIRST REPAIR WAS WORSE THAN THE DEFECT AND IS RECORDED RATHER THAN
+    # QUIETLY REPLACED: scaling the registered count by 4^(level rise) on the
+    # most-raised surface gave a 16x bump and a 14.16 GiB "bound" against a
+    # true build of ~1.07 M cells = 2.35 GiB. That guard would have REFUSED the
+    # very launch that exposed the defect, at 13.2 GiB free. A fabricated
+    # bound that blocks correct work is not a safer guard, it is a louder one.
+    #
+    # So: with an override in force the cell count is genuinely unknown to this
+    # instrument, and the caller must STATE it. No number is invented, and no
+    # correct build is refused by a number nobody measured.
+    if throwaway_levels and not expect_cells:
+        raise Refused(
+            "--throwaway-levels changes the surface levels, so the registered "
+            "cell count %d no longer describes this build and this instrument "
+            "will not price it from a value it knows to be wrong. Pass "
+            "--expect-cells N with a stated basis. (Refusing to invent the "
+            "number is the point: the previous repair invented a 16x bound "
+            "that would have refused a build needing 2.35 GiB at 13.2 GiB "
+            "free.)" % row["cells"])
+    cells_est = int(expect_cells) if expect_cells else row["cells"]
+    est_gb = cells_est * 2.2e-6         # ~2.2 kB/cell, measured on the ABS family
+    say("  DISK: %.1f GiB free at %s; %.2f GiB for %d cells at 2.2 kB/cell "
+        "(the rate measured on the mesh-development family)%s"
+        % (free_gb, root, est_gb, cells_est,
+           " -- count STATED by the caller, not registered" if expect_cells else ""))
 
     tri = os.path.join(mdir, "constant", "triSurface")
     sysd = os.path.join(mdir, "system")
@@ -1855,19 +2068,15 @@ def mesh(level, go=False, mesh_root=None, registration=None, stl=None,
 
     write_block_mesh_dict(os.path.join(sysd, "blockMeshDict"), lo, hi, nx)
     write_sfe_dict(os.path.join(sysd, "surfaceFeatureExtractDict"),
-                   ("motor_in_duct.stl", "core.stl", "fluid_env.stl"),
-                   INCLUDED_ANGLE)
+                   ("duct.stl", "hub.stl", "strutA.stl", "strutB.stl",
+                    "strutC.stl", "core.stl", "fluid_env.stl"), INCLUDED_ANGLE)
     write_snappy_dict(os.path.join(sysd, "snappyHexMeshDict"), level, lev,
                       layers, d1, seeds, regions,
-                      layer_controls(layers, d1),
-                      {"motor": lev["strut"], "core": lev["hub"], "env": lev["duct"]},
-                      RESOLVE_FEATURE_ANGLE, N_CELLS_BETWEEN_LEVELS)
+                      layer_controls(layers, d1), None,
+                      RESOLVE_FEATURE_ANGLE, N_CELLS_BETWEEN_LEVELS,
+                      seed_order=seed_order)
     write_control_dict(os.path.join(sysd, "controlDict"), row["endTime"])
     write_fv_stubs(sysd)
-    # snappy keys `regions` off the NAMED-SOLID copy; the registered binary is
-    # kept beside it, unmodified, as the provenance of everything here.
-    os.replace(os.path.join(tri, "motor_named.stl"),
-               os.path.join(tri, "motor_in_duct.stl"))
 
     plan = {
         "level": level, "mesh_dir": mdir,
@@ -1877,6 +2086,10 @@ def mesh(level, go=False, mesh_root=None, registration=None, stl=None,
                        "block_um": block, "clearance_m": clear,
                        "delta0_mm": row["delta0_mm"]},
         "seeds": dict((k, list(v)) for k, v in seeds.items()),
+        "seed_order": list(seed_order or regions),
+        "throwaway_levels": throwaway_levels,
+        "expect_cells": int(expect_cells) if expect_cells else None,
+        "surface_levels_used": lev,
         "surface_measurements": dict(
             (k, surf[k]) for k in ("core_volume_revolve", "core_volume_mc",
                                    "core_volume_mc_se", "core_inset_m",
@@ -2085,6 +2298,10 @@ def mesh_selftest(verbose=True):
                  "-> REFUSE",
                  lambda: _seed_mutant(surf, text), True, fails, "wrong regions",
                  verbose=verbose)
+            _arm("MUTATION: a seed pushed OUTSIDE the meshing envelope (the "
+                 "probe's own failure) -> REFUSE",
+                 lambda: _envelope_mutant(surf, text), True, fails,
+                 "OUTSIDE THE MESHING ENVELOPE", verbose=verbose)
         else:
             fails.append("surface (STL absent at %s)" % stl)
             say("  [BAD] the registered surface is not at %s" % stl)
@@ -2094,7 +2311,7 @@ def mesh_selftest(verbose=True):
         want = reg_regions(text)
         mdir = os.path.join(tmp, "mesh")
 
-        def _fabricate(regions, cells=1000):
+        def _fabricate(regions, cells=1000, frag=1, closed=7):
             _sh.rmtree(mdir, ignore_errors=True)
             for r in regions:
                 d = os.path.join(mdir, "constant", r, "polyMesh")
@@ -2105,11 +2322,16 @@ def mesh_selftest(verbose=True):
             for n in ("blockMeshDict", "snappyHexMeshDict",
                       "surfaceFeatureExtractDict"):
                 open(os.path.join(mdir, "system", n), "w").write("// %s\n" % n)
-            open(os.path.join(mdir, "log.checkMesh"), "w").write(
-                "CHECKMESH COMMAND LINE: checkMesh -allRegions -allGeometry "
-                "-allTopology\nMesh has 3 geometric (non-empty/wedge) "
-                "directions (1 1 1)\nMesh OK.\n")
-            open(os.path.join(mdir, "log.snappy"), "w").write("End\n")
+            cm = ["CHECKMESH COMMAND LINE: checkMesh -allRegions -allGeometry "
+                  "-allTopology",
+                  "Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)"]
+            for r in regions:
+                cm += ["Create mesh for region %s" % r,
+                       "    Number of regions: %d" % (frag if r == "duct" else 1)]
+            cm.append("Mesh OK.")
+            open(os.path.join(mdir, "log.checkMesh"), "w").write("\n".join(cm) + "\n")
+            open(os.path.join(mdir, "log.snappy"), "w").write(
+                "Found %d closed, named surfaces. Assigning cells\nEnd\n" % closed)
             open(os.path.join(mdir, "MESH_PLAN.json"), "w").write(json.dumps({
                 "surface": {"path": "cases/demo-surfaces/motor_in_duct.stl",
                             "sha256": reg_stl_sha256(text),
@@ -2132,6 +2354,42 @@ def mesh_selftest(verbose=True):
         _arm("MUTATION: an UNREGISTERED fifth region -> REFUSE",
              lambda: check_regions(mdir, want), True, fails, "UNREGISTERED",
              verbose=verbose)
+
+        say("-- the connectivity gate: a region that EXISTS but is in fragments --")
+        _fabricate(want, frag=1)
+        _arm("CONTROL: every registered region reports ONE component -> ACCEPTED",
+             lambda: check_regions(mdir, want), False, fails, verbose=verbose)
+        _fabricate(want, frag=32)
+        _arm("MUTATION: `duct` reports 32 disconnected components -> REFUSE "
+             "(the region COUNT is still four, and still passes)",
+             lambda: check_regions(mdir, want), True, fails,
+             "INTERNALLY DISCONNECTED", verbose=verbose)
+        _fabricate(want, frag=206)
+        _arm("MUTATION: the PROBE's own 206 fragments -> REFUSE",
+             lambda: check_regions(mdir, want), True, fails,
+             "INTERNALLY DISCONNECTED", verbose=verbose)
+        _fabricate(want, frag=1)
+
+        say("-- snappyHexMesh's OWN closed-named-surface count, read back --")
+        _arm("CONTROL: a log reporting 7 closed named surfaces reads 7",
+             lambda: (_ for _ in ()).throw(Refused("x")) if
+             read_closed_named_surfaces(os.path.join(mdir, "log.snappy")) != 7
+             else None, False, fails, verbose=verbose)
+        _fabricate(want, closed=2)
+        got2 = read_closed_named_surfaces(os.path.join(mdir, "log.snappy"))
+        _arm("CONTROL: the PROBE's own log line (2 of 3 supplied) reads back as "
+             "%s, so the silent walk-fallback is DETECTABLE" % got2,
+             lambda: None, (got2 != 2), fails, verbose=verbose)
+        _fabricate(want)
+
+        say("-- single-closed-body control on zone-carrying surfaces --")
+        one = revolve([[0.0, 0.0], [0.01, 0.005], [0.02, 0.0]], [0.0, 2.094, 4.189])
+        _arm("CONTROL: a single closed body counts 1 part",
+             lambda: None, surface_parts(one) != 1, fails, verbose=verbose)
+        two = _np().vstack([one, one + _np().array([1.0, 0.0, 0.0])])
+        _arm("MUTATION: two disjoint closed bodies in ONE entry count %d parts "
+             "-- the shape of the probe's `motor` file" % surface_parts(two),
+             lambda: None, surface_parts(two) != 2, fails, verbose=verbose)
 
         # ---- 5. THE BIRTH CERTIFICATE (binding condition 1) ----------------
         say("-- the birth certificate: PRODUCED and READ --")
@@ -2233,6 +2491,19 @@ def mesh_selftest(verbose=True):
     return EXIT_OK if not fails else 1
 
 
+def _envelope_mutant(surf, text):
+    """Drive the envelope refusal by shrinking the duct body out from under its
+    own seed, so the seed ends up in the scaffolding exactly as the probe's did."""
+    s2 = dict(surf)
+    c2 = dict(surf["comps_obj"])
+    d2 = dict(c2["duct"])
+    d2["tris"] = d2["tris"] * 0.5           # duct shrinks; the seed stays put
+    c2["duct"] = d2
+    s2["comps_obj"] = c2
+    s2["env_tris_obj"] = surf["env_tris_obj"] * 0.5
+    return derive_seeds(s2, reg_regions(text), verbose=False)
+
+
 def _seed_mutant(surf, text):
     """Drive derive_seeds' refusal by making `housing`'s seed land in `core`."""
     s = dict(surf)
@@ -2272,8 +2543,13 @@ def main(argv):
             return EXIT_OK
         if "--mesh" in argv:
             level = opt("--level", "L1")
+            so = opt("--seed-order")
+            tw = opt("--throwaway-levels")
+            ec = opt("--expect-cells")
             mesh(level, go=("--go" in argv), mesh_root=opt("--mesh-root"),
-                 stl=opt("--stl"), foam_bashrc=opt("--foam-bashrc"))
+                 stl=opt("--stl"), foam_bashrc=opt("--foam-bashrc"),
+                 seed_order=so.split(",") if so else None,
+                 throwaway_levels=tw, expect_cells=ec)
             return EXIT_OK
     except Refused as exc:
         print("REFUSE: %s" % exc)
