@@ -752,3 +752,115 @@ certificate. The grading path is fixed at this commit; the frozen comparator fil
 verified to be the file that ran by hashing it against the committed blob
 (`scripts/check_comparator_freeze.py`). **Amendments after first compute are dated addenda
 that cannot alter a gate, threshold, cap or label.**
+
+---
+
+## AMENDMENT 1 — 2026-09-12, before first compute. THE SHAFT DIAMETER IS 0.040 m, MEASURED, AND 0.075 m IS EXCLUDED BY THE REPORT'S OWN PHOTOGRAPHS
+
+*lines whose number changed above this section: 0*
+
+**Version 1.1.** This amendment **alters no gate, threshold, cap or label.** It corrects one
+registered modelling dimension, §2.2(b). The bands of §4, the gate of §4.8, the prediction of
+§5, the cost and cap of §9 and every verdict label are untouched.
+
+**Legality.** CLAUDE.md rule 2: before first compute, amendments are legal and must state the
+condition and how it was checked. **The condition is that no compute has occurred for this
+act, and it was checked by the absence of the run directory
+`verification/runs/PPTC_VP1304/`, which does not exist on disk at the time of this
+amendment.** No solver has been launched, no queue entry has been placed, and no mesh has
+been built.
+
+**Authority for making it.** Sanaa, 2026-09-12 ~22:55Z, byte-exact: *"pptc shaft diameter:
+find out."* She ruled on who answers the question, not on the answer. This is that answer,
+with its evidence.
+
+### A1.1 What §2.2(b) says, and what is wrong with it
+
+Registered: *"the dynamometer shaft downstream as a cylinder of diameter 0.075 m extending
+to the outlet"*, on the stated basis of *"Report 3752 section 5 and photographs page 4.2 to
+4.3"*.
+
+**That basis carries no shaft dimension.** Report 3752 §5 gives the arrangement — dynamometer
+H39 from Kempf & Remmers arranged behind the propeller model, shaft inclination 0° — and
+names the photographs, but states no shaft diameter anywhere. Neither does the smp'11 setup
+sheet, the case description, the open-water presentation, the evaluation, Report 3754, or
+either participant paper (Sikirica *et al.* 2019 and Lungu 2020 both model a shaft and
+neither dimensions it). **The search is recorded so that the absence is established rather
+than assumed.** 0.075 m is exactly dh, the hub diameter, which is the most probable origin
+of the figure.
+
+### A1.2 The measurement that settles it
+
+**(i) The CAD — first-party, numeric, and the only document that states the dimension.**
+The admitted geometry (`case2-1_PPTC_geo_no_gap.stp`, sha256
+`d08aaf690b22e5f418f8a20473d502046f815ce8b3fc67378fd36f6d55543d2d`, from the SVA Potsdam
+PPTC page and no third party) contains a shaft cylinder at **r = 20.000 mm exactly —
+diameter 0.040 m** — running from x ≈ −200 mm to the CAD's aft termination at x = −356.0 mm,
+behind a **tapering aft fairing** that carries the body from the hub (r ≈ 33 mm) down to it.
+Measured in `GEOMETRY_ADMISSION_RECORD.md` §3.
+
+**(ii) Report 3752 page 3.2, the drawing "VP1304 in open water configuration".** Shows the
+nose cap, the hub with five blades, a tapering aft fairing and a slender shaft — the CAD's
+configuration exactly, and not a bare cylinder of hub diameter.
+
+**(iii) Report 3752 page 4.2, the photographs, measured in pixels against a known length.**
+The hub diameter is known (0.075 m), so the photograph carries its own scale. Segmenting the
+body from the blue cloth and the shadow and taking the largest contiguous vertical run per
+image column:
+
+| photograph | hub, px | shaft, px | shaft / hub |
+|---|---|---|---|
+| "Dummy hub configuration" (upper) | 107 | 31 | **0.29** |
+| "VP1304 with caps" (lower) | 124 | 27 | **0.22** |
+
+The CAD predicts 40 / 75 = **0.53**; the registered 0.075 m predicts **1.00**, i.e. a shaft
+as thick as the hub. The photographs measure 0.22–0.29. **Both readings are biased LOW by
+perspective — the shaft recedes from the camera, and the measured section narrows by 16%
+along its own visible length, which fixes the direction of that bias — so they cannot
+discriminate 0.040 m from something thinner. They exclude 0.075 m decisively: the registered
+value is out by a factor of about 3.5 on a quantity the photograph resolves to a few
+percent.**
+
+### A1.3 The correction
+
+> **§2.2(b) is amended, with the original struck and not rewritten:**
+>
+> ~~"the dynamometer shaft downstream as a cylinder of diameter 0.075 m extending to the
+> outlet"~~
+>
+> **The hub is modelled with its cap upstream and, downstream, the CAD's own aft fairing
+> followed by the dynamometer shaft as a cylinder of diameter 0.040 m extended to the
+> outlet, rotating with the propeller. Shaft inclination 0°.**
+
+The fairing is retained because the CAD has it and because the smp'11 setup sheet states
+that "the downstream end of the propeller hub is designed to avoid a pressure build-up" — a
+description the fairing matches and a bare cylinder contradicts. The extension runs from the
+CAD's termination at x = −356 mm to the outlet at x = −1500 mm at constant 0.040 m diameter.
+
+### A1.4 Why this mattered enough to block the mesh — the sizing, registered before it was run
+
+The method was fixed in `cases/PPTC_VP1304/shaft_sizing_estimate.py` before the arithmetic
+was run: ITTC-1957 friction line on the shaft's own Reynolds number, wall stress resolved
+into tangential and axial components, torque ∝ r³ and drag ∝ r, identical wetted length for
+both candidates so only the radius differs. **It is an ESTIMATE, order of magnitude, not a
+measurement**, and it decides nothing — it only sizes the question.
+
+| | 0.040 m (CAD) | 0.075 m (as registered) | difference |
+|---|---|---|---|
+| shaft torque | 0.0546 N m | 0.4099 N m | **7.5×** |
+| contribution to 10KQ | +0.32% of measured | +2.43% | **+2.11%** = **26% of the gate half-width** |
+| contribution to KT | −2.66% of measured | −5.68% | **−3.02%** = **40% of the gate half-width** |
+
+**The two candidates are not interchangeable.** Against a KT band half-width of 7.55% and a
+10KQ half-width of 8.10%, choosing the wrong shaft moves the answer by a quarter to two
+fifths of the band — and the KT figure is a **lower** bound, because the base-pressure change
+behind the hub and the deleted fairing are form effects a friction line cannot reach and they
+act in the direction of making a bare cylinder differ more. Building the family on the
+unsourced dimension would have put a systematic error of this size under a gate, invisibly.
+
+### A1.5 Status
+
+**Resolved and closed.** `GEOMETRY_ADMISSION_RECORD.md` §4, which recorded this as BLOCKED
+and escalated, is superseded by this amendment. The certificate records the amended choice,
+this evidence, and the fact that the originally registered 0.075 m had no source in the
+document it cited.
