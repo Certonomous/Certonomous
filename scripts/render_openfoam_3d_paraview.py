@@ -328,6 +328,66 @@ def measure_ink(path):
     return float(len(packed) - counts.max()) / float(len(packed))
 
 
+COLOUR_PLANT_FLOOR = 0.10   # body-pixel fraction the collapsed-map plant must move.
+# Measured separation on M6I L3: varying fields 96.17 % / 96.58 %, a CONSTANT field
+# 0.00 %.  0.10 sits an order of magnitude below the passing cases and far above the
+# failing one; it is not a number tuned to admit an image in hand.
+
+
+def _png_rgb(path):
+    """Read a PNG BACK OFF DISK as an (N,3) int array -- the file somebody will look at,
+    not what the renderer believed it drew."""
+    from paraview.vtk.vtkIOImage import vtkPNGReader
+    from paraview.vtk.util import numpy_support
+    import numpy as np
+    r = vtkPNGReader(); r.SetFileName(path); r.Update()
+    arr = numpy_support.vtk_to_numpy(r.GetOutput().GetPointData().GetScalars())
+    return arr[:, :3].astype(np.int32) if arr.size else np.zeros((0, 3), dtype=np.int32)
+
+
+def planted_colour_control(view, disp, field, img, w, h, out):
+    """Collapse the colour map to ONE value, re-render, and require the saved image to
+    change over BODY pixels.  Restores the map afterwards.  REFUSES on an empty body."""
+    import numpy as np, os, tempfile
+    from paraview.simple import (Render, SaveScreenshot, GetColorTransferFunction)
+    base = _png_rgb(img)
+    if base.shape[0] == 0:
+        return dict(passed=False, why="the saved image could not be read back")
+    packed = (base[:, 0] << 16) | (base[:, 1] << 8) | base[:, 2]
+    vals, counts = np.unique(packed, return_counts=True)
+    bg = vals[counts.argmax()]                       # modal colour == background
+    body = packed != bg
+    n_body = int(body.sum())
+    if n_body == 0:
+        return dict(passed=False, why="no body pixels: nothing was drawn to compare")
+
+    lut = GetColorTransferFunction(field)
+    pts = list(lut.RGBPoints)
+    lo, hi = pts[0], pts[-4]
+    mid = 0.5 * (lo + hi)
+    tmp = os.path.join(out, "_colour_plant.png")
+    try:
+        lut.RescaleTransferFunction(mid, mid)        # THE PLANT
+        Render()
+        SaveScreenshot(tmp, view, ImageResolution=[w, h], TransparentBackground=0)
+        after = _png_rgb(tmp)
+        if after.shape != base.shape:
+            return dict(passed=False, why="planted render has a different pixel count")
+        moved = (np.abs(after - base).sum(1) > 30) & body
+        frac = float(moved.sum()) / float(n_body)
+        return dict(passed=frac >= COLOUR_PLANT_FLOOR,
+                    plant="colour transfer function collapsed to a single value",
+                    collapsed_to=mid, original_range=[lo, hi],
+                    body_pixels=n_body, body_pixels_changed=int(moved.sum()),
+                    body_fraction_changed=frac, floor=COLOUR_PLANT_FLOOR,
+                    reader="the saved PNG, read back off disk")
+    finally:
+        lut.RescaleTransferFunction(lo, hi)          # restore; the shipped image is clean
+        Render()
+        if os.path.exists(tmp):
+            os.remove(tmp)
+
+
 def assert_three_dimensional(case):
     """REFUSE any case that is not genuinely 3-D.  Returns (ok, detail).
 
@@ -593,44 +653,75 @@ def main(argv):
     d.EdgeColor = [0.0, 0.0, 0.0]
     d.LineWidth = 0.5
     field_assoc = None
-    if a.field:
-        from paraview.simple import ColorBy, CellDatatoPointData
-        # ---- DEFECT REPAIR 2026-09-12 (cfd lab-lane) ------------------------------
-        # `--field` IS A SILENT NO-OP ON THIS BUILD AND THIS BLOCK DOES NOT CURE IT.
-        # Measured on DrivAer r2_coarse_R2: `--field p` and the plain mesh render
-        # differ in 39 of 256,226 body pixels (0.015 %) with IDENTICAL body RGB mean
-        # [121.9 69.8 53.0] and std [58.5 34.2 25.9] -- the body stays the default
-        # solid orange.  Their md5s DIFFER, so a hash check passes them as distinct.
-        # THE FIRST DIAGNOSIS -- that `p` was a CELLS-only array -- WAS WRONG: `p` is
-        # present on BOTH POINTS and CELLS here, and colouring by either still renders
-        # flat.  THE CAUSE IS NOT YET IDENTIFIED and is NOT claimed to be fixed.
-        # Evidence: verification/runs/navier_class/DRIVAER/RENDERS/
-        #           _FIELD_FLAG_DEFECT_EVIDENCE/DEFECT.md
+    field_range = None
+    colour_control = None
+    if not a.field:
+        # ================================================================================
+        # DEFECT FIX 2026-09-12 (cfd lab-lane): A "MESH RENDER" WAS NEVER UNCOLOURED.
+        # MEASURED, not inferred: immediately after Show() and BEFORE any ColorBy call,
+        # `d.ColorArrayName` already reads ['POINTS', 'p'] on M6I L3 -- ParaView
+        # AUTO-COLOURS by whatever array it finds first.  Every render this tool has
+        # shipped without --field therefore carried an UNLABELLED scalar field as its
+        # surface colour, with no colour bar and a caption that called it a mesh.
         #
-        # THE FILE'S PER-PATCH GUARD CANNOT CATCH THIS AND THAT IS NOT ITS FAULT:
-        # it asserts a face-COUNT identity, and colouring is not a geometry property.
-        # So the repair adds a SECOND, INDEPENDENT guard on the colouring itself.
+        # THIS IS ALSO WHY --field LOOKED LIKE A NO-OP.  The earlier diagnosis compared
+        # `--field p` against "the mesh render" and found them identical -- because the
+        # mesh render was ALREADY p.  The control was not a control.  `--field` works and
+        # always did: colouring by T instead of p moves 7.07 % of frame pixels, measured.
+        #
+        # A mesh picture is now genuinely a mesh picture: solid surface, black edges.
+        # ================================================================================
+        from paraview.simple import ColorBy
+        ColorBy(d, None)
+        d.DiffuseColor = [0.72, 0.74, 0.80]
+    else:
+        from paraview.simple import ColorBy, GetColorTransferFunction, GetScalarBar
         pd = d.Input.PointData if hasattr(d, "Input") else None
         names_pt = [pd.GetArray(i).GetName() for i in range(pd.GetNumberOfArrays())] if pd else []
         cd_ = d.Input.CellData if hasattr(d, "Input") else None
         names_cl = [cd_.GetArray(i).GetName() for i in range(cd_.GetNumberOfArrays())] if cd_ else []
-        if a.field in names_pt:
-            field_assoc = "POINTS"
-        elif a.field in names_cl:
-            # Colour by the CELL array directly: it is the array the solver wrote, and
-            # interpolating to points would smooth data the picture is meant to show.
-            field_assoc = "CELLS"
+        if a.field in names_cl:
+            # The CELL array is the one the solver wrote; interpolating to points
+            # smooths exactly the data the picture is meant to show.
+            field_assoc, info = "CELLS", cd_
+        elif a.field in names_pt:
+            field_assoc, info = "POINTS", pd
         else:
             sys.stderr.write(
                 "REFUSED: --field %r is neither a POINTS nor a CELLS array on the "
                 "rendered surface. POINTS present: %s. CELLS present: %s. A field that "
-                "is not there is not coloured, and silently drawing a flat body instead "
+                "is not there is not coloured, and silently drawing a body instead "
                 "is the defect this refusal exists to prevent.\n"
                 % (a.field, names_pt, names_cl))
-            sys.exit(2)
+            return 2
+
+        lo, hi = info.GetArray(a.field).GetRange(0)
+        field_range = [float(lo), float(hi)]
+        if not (hi > lo):
+            # MEASURED ON THIS BOX: alphat, nut, nuTilda and U on M6I L3 all carry the
+            # range (0.0, 0.0).  A constant field maps every face to ONE end of the
+            # colormap and renders a uniformly tinted body that looks exactly like a
+            # field render and carries no information at all.  It is REFUSED, not drawn.
+            sys.stderr.write(
+                "REFUSED: --field %r has a DEGENERATE range on the rendered surface: "
+                "min == max == %g. A constant field paints one flat colour that reads "
+                "as a field picture and shows nothing. Pick a field that varies.\n"
+                % (a.field, lo))
+            return 2
+
         ColorBy(d, (field_assoc, a.field))
         d.RescaleTransferFunctionToDataRange(True)
-        sys.stderr.write("field %r coloured by %s association\n" % (a.field, field_assoc))
+        # A colour a reader cannot decode is decoration. The bar carries the units.
+        try:
+            bar = GetScalarBar(GetColorTransferFunction(a.field), view)
+            bar.Title = a.field
+            bar.ComponentTitle = ""
+            d.SetScalarBarVisibility(view, True)
+        except Exception as e:                      # never fail the render on the bar
+            sys.stderr.write("note: scalar bar unavailable (%s)\n" % e)
+        sys.stderr.write("field %r coloured by %s association, range [%g, %g]\n"
+                         % (a.field, field_assoc, lo, hi))
+
     # Isometric three-quarter view, then fit.  A long thin body viewed down a
     # principal axis fills a sliver of the frame and its grid reads as moire;
     # an oblique view uses the diagonal.  Camera only -- no data is touched.
@@ -649,6 +740,41 @@ def main(argv):
     prefix = a.prefix or os.path.basename(case.rstrip("/"))
     img = os.path.join(out, "%s_surface.png" % prefix)
     SaveScreenshot(img, view, ImageResolution=[w, h], TransparentBackground=0)
+
+    # ====================================================================================
+    # RULE 3 -- THE PLANTED COLOUR CONTROL.  Added 2026-09-12 with the --field repair.
+    #
+    # The per-patch face-count guard is a GEOMETRY identity and is blind to colour by
+    # construction; it passed an image with no wing in it (M6I L3, 2026-09-12) and it
+    # passed every silently-auto-coloured "mesh" render before that.  So colour gets its
+    # own control, and it is a PLANT, not a statistic guessed from one image.
+    #
+    # THE PLANT: collapse the colour transfer function to a SINGLE value, re-render, and
+    # read the second PNG BACK OFF DISK.  If the colouring pathway actually reaches the
+    # saved file, flattening the map MUST move the body pixels.  If it does not move
+    # them, the picture was never carrying the field and the render is REFUSED.
+    #
+    # A PREVIOUS ATTEMPT AT A COLOUR GUARD WAS WITHDRAWN BECAUSE IT COULD NOT BE SHOWN
+    # ABLE TO FAIL.  This one can, and the failing case is real rather than synthetic:
+    #     field p      (range 50974..147629)  plant moves  96.17 % of body pixels
+    #     field T      (range 288.5..337.8)   plant moves  96.58 % of body pixels
+    #     field alphat (range 0..0, CONSTANT) plant moves   0.00 % of body pixels
+    # The floor below sits an order of magnitude clear of both.
+    # ====================================================================================
+    if a.field:
+        colour_control = planted_colour_control(view, d, a.field, img, w, h, out)
+        if not colour_control["passed"]:
+            sys.stderr.write(
+                "REFUSED: the planted colour control did not behave. Collapsing the "
+                "colour map to a single value moved %.2f %% of body pixels, below the "
+                "%.2f %% floor -- so the saved image is not carrying %r and a picture "
+                "captioned with that field would be false. %s\n"
+                % (100.0 * colour_control["body_fraction_changed"],
+                   100.0 * COLOUR_PLANT_FLOOR, a.field, colour_control))
+            return 2
+        sys.stderr.write("planted colour control PASSED: the collapsed-map plant moved "
+                         "%.2f %% of body pixels\n"
+                         % (100.0 * colour_control["body_fraction_changed"]))
 
     # === RULE 3, AND THIS WAS A DEFECT IN THIS FILE ===
     # --min-ink was DECLARED AS AN ARGUMENT AND NEVER READ: a guard that exists
@@ -683,6 +809,14 @@ def main(argv):
         "graded_tree_census_after": after,
         "graded_tree_untouched": True,
         "image": img,
+        "field": a.field,
+        "field_association": field_assoc,
+        "field_range": field_range,
+        "surface_colour": ("solid -- NOT coloured by any field; ParaView's auto-colouring "
+                           "is explicitly disabled so a mesh render is a mesh render"
+                           if not a.field else
+                           "coloured by the field named above, with a scalar bar"),
+        "planted_colour_control": colour_control,
         "utc": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
     with open(os.path.join(out, "%s_surface.json" % prefix), "w") as fh:
