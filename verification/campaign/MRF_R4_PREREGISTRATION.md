@@ -1,13 +1,13 @@
 # MRF_R4 — THE BLADE-THICKNESS RUNG: our tank rebuilt at `t/D = 0.0155`, graded against an EXPERIMENT at our own ratios
 
 <!-- ===================== STRIKABLE DRAFT BANNER — BEGIN ===================== -->
-> **STATUS: FREEZE-READY DRAFT. NOT FROZEN. NOT LAUNCHED. NOT A GATE YET.**
-> No sha binds this document and no run directory exists under it. **The FREEZE is
-> the cfd-supervisor's check 4 and may not be delegated** (`SUPERVISION_CHARTER.md`
-> §3; CLAUDE.md rule 2), and **`MESH_STANDARD` §8.1 forbids the freeze until the
-> graded level is BUILT and shown `checkMesh`-admissible** (§7 below). Until then
-> every gate, threshold, cap and label here is amendable and carries no
-> evidentiary weight. **This banner is one block and is struck whole at the freeze.**
+> ~~**STATUS: FREEZE-READY DRAFT. NOT FROZEN. NOT LAUNCHED. NOT A GATE YET.**~~
+> 🔴 **STRUCK AT THE FREEZE, 2026-09-12T20:41:26Z, BY THE cfd-SUPERVISOR PERSONALLY.**
+> **THIS DOCUMENT IS FROZEN. §11 is the freeze attestation and GOVERNS.** The banner is
+> struck in place rather than deleted, per its own instruction that it *"is struck whole
+> at the freeze"* — and left legible so a reader can see what it said. **A lane found it
+> still standing in the blob I had frozen and REQUESTED the strike rather than taking it,
+> because striking it asserts something about a supervisor's own check 4. Correct.**
 <!-- ====================== STRIKABLE DRAFT BANNER — END ====================== -->
 
 - **Case family:** `navier_class` / `MRF`. **Rung R4**, and it is sequenced
