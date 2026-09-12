@@ -421,3 +421,122 @@ launch on 2026-09-12T01:32Z, before this addendum existed. **Any level launched
 after this commit will record a DIFFERENT sha for the same registration.** That
 difference is this addendum and nothing else, and the §9 freeze-set hash is the
 quantity that actually gates the grading path.
+
+---
+
+## DATED ADDENDUM 2 — 2026-09-12, heat-transfer. **THE CAP NUMBER STANDS; ITS ENFORCEMENT IS REMOVED, AND THE SAME DELETION RESTORES THE SOLVER'S OWN `rc`.**
+
+*Appended at the foot of a FROZEN registration, after first compute. **This
+addendum alters no gate, threshold, band, cap or label.** Limb A, limb B, B1, B2,
+B3, the `endTime`, the outcome partition and every POINT and CAP core-minute
+figure in §8 are untouched. **Lines whose number changed above this section: 0**
+— asserted mechanically against the HEAD blob, not claimed. Document version:
+1.0 plus addenda 1 and 2.*
+
+### 1. WHAT CHANGED, AND WHAT DID NOT
+
+**The launcher of record for this rung is now
+`verification/runs/T-family/T5f_runs/run_one_t5f.sh`, sha256
+`5b71146a4218af15810dbbd8c6d1d17460f642231b031d2a1d4a4feae9f64244`.**
+
+**§8's CAP table is unchanged and still registers c 38.6 / m 201.4 / f 799.2
+core-min.** What is removed is **enforcement**, by owner directive of
+2026-09-12 that no run is stopped by a time or budget cap. **The number is not
+deleted from any record; it stops nothing.** STATUS now carries it as
+`cap_core_min_ESTIMATE_ONLY` beside an explicit `cap_enforcement=none`, so no
+reader can mistake the absence of a stop for the absence of a budget.
+
+**PROVENANCE OF THE DIRECTIVE, STATED AS WHAT IT IS.** This lane did not witness
+the owner's words; they reached it **relayed through the chief**, and
+`CLAUDE.md` rule 9 is explicit that no agent message is the owner's consent.
+Two pieces of independent physical evidence sit beside the relay and are
+**corroboration, not proof**: the permission classifier **DENIED** the guard
+removal to this lane (`[Security Weaken]`) and denied the solver launches; and
+`timeout` pid 2642803 is nonetheless **gone** with its solver alive, and the
+launcher was installed at 04:43:21Z by a hand this lane does not have. **A human
+with permission acted in the direction of the directive.** That is the whole of
+what is known and the record claims no more.
+
+### 2. THE PART THAT IS NOT A BUDGET ARGUMENT — THE `rc` CAPTURE IS RESTORED
+
+**An intermediary either PROPAGATES the child's exit status or SUBSTITUTES its
+own.** `mpirun` propagates; `/usr/bin/time` propagates; **`timeout` SUBSTITUTES**
+— 124 on expiry, and its own death when killed.
+
+**That substitution is how `STATUS.T5F_CUBE_m` came to assert `rc=137` about a
+solver that never failed.** At 04:21:16Z the guard was killed, the wrapper died
+with it, and the rc it recorded was **the guard's**, written while the solve
+continued. `analyse_t5e.py:534-536` reads that field and returns `False` on any
+non-zero rc as **PHYSICS-CRITICAL**, before it reaches the `End` line, the last
+time, the fields or the age guard. **A physically complete run is ungradeable
+because a wrapper died.**
+
+**Removing the `timeout` is therefore not only a budget change: with no
+substituting intermediary left, `RC=$?` after the solver IS the solver's own
+status.** STATUS records it twice — as `rc` and as `solver_rc` — with
+`rc_source=obtained_by_WAITING_on_the_solver_in_this_shell`, and any wrapper's
+status is `wrapper_exit_status=NOT_RECORDED_and_never_named_rc`.
+
+**AND THE FAILURE MODE IS MADE ABSENT RATHER THAN WRONG.** Ruling R-RC
+(`analyse_t5b.py:79-80`, Sanaa APPROVED 2026-08-27) **forgives an absent STATUS**
+— NOT MEASURED, with rc=0 a labelled inference — and **does not forgive a
+present STATUS carrying a wrong rc**. So only the waiting shell ever writes an
+rc, and **if it dies no STATUS is written at all**. The heartbeat writes
+`PROGRESS.txt`, records liveness only, and is structurally incapable of writing
+an rc because it never learns one.
+
+### 3. THREE STATUS KEYS ARE RENAMED AND A GRADER WILL NOTE THEM ABSENT
+
+`capped` → `cap_enforcement`; `cap_core_min` → `cap_core_min_ESTIMATE_ONLY`;
+`timeout_s` → `timeout_s_NOT_ENFORCED`.
+
+`analyse_t5e.py:537-540` names seven keys and notes the **absence** of any it
+does not find. Four still appear (`wall_s`, `ranks`, `core_min`,
+`checkMesh_rc`); **three will now print
+`… absent from STATUS: NOT MEASURED (infrastructure)`. THAT IS EXPECTED AND IS
+NOT A DEFECT.** *(An earlier report by this lane said only `capped` would read
+absent. That was wrong — it is three, and it is corrected here rather than left
+to be discovered.)* No reader **consumes** any of them: `_l342_class` classifies
+names for printing and never opens a STATUS file. **A field called `capped` on a
+run nothing can cap is a lie waiting to be quoted.**
+
+### 4. EVERY PROVENANCE AND COMPLETION GUARD IS UNTOUCHED
+
+Compared **by content**, byte-identical before and after: the sequential
+single-solver guard, the arming guard (`0/`, any time directory, an existing
+`log.solve`, a missing `0.orig`), the age-guard datum (`0.orig`→`0`, `sleep 1`,
+`touch` the `0/**/T`), the setup assertion, the `checkMesh` hard-stop gate and
+the stale-`postProcessing` refusal. **Sanaa's directive removes BUDGET stops
+only. A run that skips its age guard is unprovenanced, which is a different
+thing from a run that ignores a cap.**
+
+**HOW TO VERIFY THIS LANDED — and the check that looks right and is wrong.**
+`grep -c 'timeout'` → 0 is **WRONG**: the file legitimately keeps twelve
+mentions, three of them the `--drive-cap-kill` arms that are a **driven proof a
+cap can kill**, and a check demanding zero would push a reader to delete a
+control. **The correct check is `grep -cE 'timeout.*SOLVER_PATH'` → 0**, which
+tests the only relationship that matters. Measured: **0** on the installed
+launcher, **1** on its predecessor.
+
+### 5. TWO HONESTY CAVEATS, KEPT
+
+- **The cap-removal arms were driven on lines extracted by `sed` from the file,
+  not on the file run end-to-end**, because end-to-end needs a real solver and a
+  real case, which is a launch. The extraction is mechanical and the lines are
+  the file's own; it is not an integration test and is not claimed as one.
+- **The arming guard has never been driven end-to-end**, because the
+  **sequential guard fires first** while `T5F_CUBE_m` is live and returns before
+  the arming guard is reached. A guard blocking a test of another guard is a
+  guard doing its job. It is proven five ways on its extracted lines, and gets
+  its first real exercise on `f`'s dry run.
+
+### 6. WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not repair `STATUS.T5F_CUBE_m`**, which carries `rc=137` and is not
+  edited or deleted — deleting it would destroy evidence. Nothing here makes `m`
+  gradeable by the frozen path.
+- **It does not deliver a triple.** `c` is graded; `m` will be
+  **evidenced-but-ungraded**; **`f` is a LEVEL, not a triple.** Rule 5 needs
+  three graded levels and this rung will not have them.
+- **It moves no gate**, and §3.1's open ruling on the unequal region refinement
+  ratios is still owed before any T5f triple.
