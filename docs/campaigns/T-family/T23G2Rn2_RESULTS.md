@@ -354,9 +354,15 @@ built from it is now measured correct to within its own band.
 > derived**, against the registered POINT `$1.00` and CAP `$1.47`. Under the
 > `$25`/run pre-authorisation.
 
-**OWED:** the rule-12 row for T23G2Rn2 in `docs/COST_CALIBRATION.md` is **not yet
-landed** — `grep 'T23G2Rn2' docs/COST_CALIBRATION.md` returns nothing as of this
-record. The numbers it needs are the table above.
+> ~~**OWED:** the rule-12 row for T23G2Rn2 in `docs/COST_CALIBRATION.md` is **not
+> yet landed** — `grep 'T23G2Rn2' docs/COST_CALIBRATION.md` returns nothing as of
+> this record. The numbers it needs are the table above.~~
+>
+> **STRUCK 2026-09-12 — THIS WAS FALSE. The row was already landed on 2026-09-10.**
+> See **§14**. The row is `C-20260910T160352.997613Z-3be0aa0e` (commit `b6e95ecc`),
+> and every figure in the table above agrees with it to the digit. **Nothing is
+> owed and no second row is to be landed** — this ledger is append-only and a
+> duplicate is exactly what its id discipline exists to refuse.
 
 ---
 
@@ -410,9 +416,15 @@ solve, and only the forward half of that is available.
   The triples are `CONVERGING` and the GCIs were computed by the frozen
   comparator, but the rung's verdict is `NOT A RESULT`; the GCIs are reported
   here because the comparator reported them, not because they are awarded.
-- **No `Q3` band conclusion.** The `0.0211 K` exceedance is an observation. It is
-  not a `GATE FAIL` this rung is entitled to declare, because `G-RATIO` voided
-  the cell first.
+- ~~**No `Q3` band conclusion.** The `0.0211 K` exceedance is an observation. It
+  is not a `GATE FAIL` this rung is entitled to declare, because `G-RATIO` voided
+  the cell first.~~ **STRUCK 2026-09-12 — SUPERSEDED BY A SUPERVISOR'S RULING
+  ALREADY ON THE RECORD.** The heat-transfer supervisor ruled on 2026-09-10, in
+  `docs/COST_CALIBRATION.md` row `C-20260910T160352.997613Z-3be0aa0e`, that
+  **`Q3` = 56.0211 K against the registered [46.0, 56.0] K is `GATE FAIL` AND IT
+  STANDS**, expressly declining to let either the 51×-larger GCI or the in-band
+  Richardson value `55.157948` rescue it. See §14.2. This lane does not re-open a
+  supervisor's ruling.
 - **No settled `H-MESH` / `H-IFACE` discrimination.** `A2.1`'s spread of `0.0059`
   is a second point against `H-IFACE`, on a rung that is `NOT A RESULT`.
 - **No Richardson extrapolate claim.** The extrapolates the comparator printed
@@ -432,13 +444,18 @@ arithmetic path**, not on a measured shortfall. Two candidate routes, neither of
 which this record chooses — the choice is the supervisor's, and either needs its
 own frozen registration before any compute:
 
-1. **An iterative-change reader with resolution below the plateau.** The finest
+1. ~~**An iterative-change reader with resolution below the plateau.** The finest
    iterative change is `0.000000e+00` because the quantity is written at a
    precision at which consecutive plateau samples are bit-identical. A reader
    that resolves the sub-print-precision iterative change would give `G-RATIO` a
-   real denominator, and the gate's `>= 10` bar could then be met or missed on the
-   ladder's own merits. It must carry a planted control of its own: a reader of a
-   *smaller* zero needs a *smaller* plant.
+   real denominator…~~ **STRUCK 2026-09-12 — THIS WAS A GUESS, AND THE MEASURED
+   CAUSE IS DIFFERENT.** It is not a print-precision limit. See §14.3: the
+   supervisor measured the mechanism at source on 2026-09-10 — the `h` linear
+   solver runs at `No Iterations 0` because its `tolerance 1e-09` collides with
+   `G-CONV`'s own `1e-9` criterion on `h`, so `h` is never updated and `T` is
+   **bit-identical between writes**. A finer reader would read the same zero. The
+   repair is to separate the solver tolerance from the gate criterion, and that
+   is a registration change, not a reader change.
 2. **A registered zero-branch disposition for `G-RATIO`.** The gate currently has
    no licensed answer for an exactly-zero denominator, so the comparator refuses.
    A successor could register, prediction-first, what an exact zero means — but
@@ -455,3 +472,113 @@ first compute on `2026-09-09T19:15:25Z`.
 graded on 2026-09-10 by the detached autograder `autograde_t23g2rn2.sh` (pid
 767940) and this file transcribes that grading. No verdict was re-derived, no gate
 was re-evaluated, and the comparator was not re-run.*
+
+---
+
+## ⚠ 14. CORRECTION, 2026-09-12 — THREE THINGS THIS RECORD GOT WRONG ON THE DAY IT WAS WRITTEN, AND THE SUPERVISOR'S RULINGS THAT ALREADY SETTLED TWO OF THEM
+
+*Appended the same day the record was written, on discovering that a
+`COST_CALIBRATION` row for this rung had existed since 2026-09-10 and carried
+material this record contradicted. Nothing above §14 was deleted; the three
+affected passages are struck in place and point here. **No verdict changes: the
+rung is `NOT A RESULT` and every measured figure in §1–§11 stands unaltered and
+agrees with the supervisor's row to the digit.***
+
+### 14.1 THE RULE-12 ROW WAS NEVER OWED — IT WAS LANDED TWO DAYS BEFORE THIS RECORD
+
+**`docs/COST_CALIBRATION.md` row `C-20260910T160352.997613Z-3be0aa0e`**, dated
+2026-09-10, team heat-transfer, landed at commit **`b6e95ecc`**. §10's `OWED`
+paragraph is struck.
+
+Every figure §10 computed independently agrees with that row exactly: actual
+**1399.6167 core-min** (`50.8167 / 261.5000 / 1087.3000`), POINT `1172.03`, CAP
+`1718.97`, ratio **1.194** against POINT and **0.814** against CAP, per-level
+`1.2993 / 1.1530 / 1.1999`, campaign uplift **×1.7912** against T23G2R inside the
+registered `[1.5, 2.2]×` band, contention ruled out by measurement, waste
+**0.00 core-min**. The agreement is the useful part: two independent passes over
+the same `STATUS` files produced the same numbers.
+
+**How the error was made, stated plainly because the mechanism will repeat.** The
+check that produced `OWED` was `grep 'T23G2Rn2' docs/COST_CALIBRATION.md`. It
+**did** match — twice — but the command's output exceeded the display limit, was
+truncated to a preview, and the preview showed only the first match (the
+predecessor T23G2Rn row at `:490`, which mentions `T23G2Rn2` in its own prose).
+The second match, the actual row at `:513`, was never on screen. **A truncated
+preview was read as a complete result.** Two independent guards would each have
+caught it: reading the match *count* rather than the first page, and asking the
+committed blob (`git show HEAD:docs/COST_CALIBRATION.md`) rather than the
+worktree copy, which this ledger's own header says diverges from HEAD by design.
+
+**Consequence: no second row is to be landed.** The ledger is append-only and its
+id discipline exists precisely to make a duplicate refusable.
+
+### 14.2 THE `Q3` BAND — THE SUPERVISOR RULED IT `GATE FAIL` AND IT STANDS
+
+§12 said this rung was not entitled to a `Q3` band conclusion. That was already
+superseded. The supervisor's ruling, made in the row above on 2026-09-10 and
+quoted from it:
+
+> *"`Q3` = 56.0211 K against the registered [46.0, 56.0] K is `GATE FAIL` AND IT
+> STANDS."*
+
+The ruling expressly considers and rejects both escapes this record raised: the
+miss of `0.0211 K` = `0.0377 %` is ~51× smaller than the row's own GCI
+(`1.9260 % = 1.07897` absolute), and the Richardson value `55.157948` **is**
+inside the band — and neither rescues it, because
+`T23G2_PREREGISTRATION.md:460-465` freezes *"Grade the FINE value. The Richardson
+extrapolate is REPORTED beside the fine value and is NEVER GATED ON"*. Reaching
+for the in-band extrapolate after seeing the answer is choosing the graded value
+to fit it. The band's width relative to this ladder's GCI is a design question
+for a successor's pre-registration, **not a licence to move a frozen threshold**.
+
+§12's struck bullet is replaced by this ruling. The **rung** verdict is unchanged
+and remains `NOT A RESULT`.
+
+### 14.3 THE EXACT-ZERO DENOMINATOR IS STRUCTURAL, AND THE MEASURED CAUSE IS NOT THE ONE §13 GUESSED
+
+§13 guessed that the `0.000000e+00` iterative change was a print-precision
+artefact. It is not, and the real mechanism — measured at source by the
+supervisor and recorded in the same row — is both simpler and worse:
+
+`T23G2Rn2_L*/system/fluid/fvSolution` sets `"(U|h|k|omega)"` `tolerance 1e-09`,
+and **`G-CONV`'s criterion for `h` is also `1e-9`** (Sanaa's tightened criterion;
+the rest of `G-CONV` is `1e-8`). The final step of every level shows `h`, `k` and
+`omega` at **`No Iterations 0`** with initial == final residual
+**`9.48179125592e-10` (L1) / `9.78783688541e-10` (L2) / `9.98660613323e-10`
+(L3)** — **94.8 %, 97.9 % and 99.87 % of the criterion, tightening with
+refinement.** The solver declines to iterate because the initial residual is
+already under its tolerance; `h` is therefore never updated; `T` is
+**bit-identical between writes**; and `G-RATIO`'s denominator is exactly `0.0`.
+
+A finer reader would read the same zero, so §13's route 1 is struck. Two further
+consequences the supervisor drew, recorded here because they bear on any
+successor:
+
+- **The collapse is of one limb, not the gate.** `G-CONV`'s `p_rgh` limb keeps a
+  full decade of margin (solver tolerance `1e-9` against a `1e-8` gate) and is
+  genuinely `maxIter`-bound, so its residual is physical.
+- **A gate criterion set EQUAL to the linear-solver tolerance certifies the
+  solver's own stopping decision** and cannot distinguish *converged* from
+  *declined to iterate*. At L3's 0.13 % margin the limb is **nearly-vacuous
+  rather than safely vacuous**, and a fourth level would plausibly not pass it.
+
+**Therefore §13's remaining route is the operative one, and it is a registration
+change**: a successor must separate the solver tolerance from the gate criterion,
+or register a different iterative-error instrument, **before freezing**. That is
+not a lane's call and none was made here.
+
+### 14.4 ONE CALIBRATION ITEM §10 MISSED ENTIRELY
+
+The supervisor's row names, separately and without laundering it into the ratio,
+**784.50 core-min of post-plateau compute = 56.3 % of the campaign's
+`ExecutionTime`**: all six graded quantities go bit-constant at 12–13 significant
+digits well before `endTime` on every level (L1 at iteration 3,000 of 8,000; L2
+at 6,000 of 16,000; L3 at 12,400 of 28,000). **This is not waste** — `endTime`
+was frozen pre-compute and running to it is compliance — but it is the largest
+calibration item the rung produced, and §10 did not surface it. The lesson the
+row draws: register `endTime` against a **measured** plateau iteration from a
+pilot.
+
+*Correction appended by a heat-transfer `lab-lane`, 2026-09-12. Zero solver
+core-minutes; no artifact re-read produced a different number, and no gate,
+threshold, band, cap or label was touched.*
