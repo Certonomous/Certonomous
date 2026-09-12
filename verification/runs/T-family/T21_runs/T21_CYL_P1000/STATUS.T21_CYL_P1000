@@ -1,0 +1,22 @@
+case=T21_CYL_P1000
+rc=0
+wall_s=24
+ranks=1
+core_min=0.4000
+point_core_min=2.0593
+set_cap_core_min=20.0
+cap_exceeded=no
+cap_enforcement=none  # Sanaa 2026-09-12 ~01:00Z: no cap on any run. Terminus is endTime=3000, no residualControl (S6.1).
+checkmesh_rc=0
+solver=chtMultiRegionSimpleFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/chtMultiRegionSimpleFoam
+endTime_registered=3000
+note=clean
+loadavg_at_launch=69.65 76.82 75.69
+load1_at_launch=69.65
+procs_running_at_launch=32/973
+nproc=16
+calibration_admissible=no  # S7.4 [REGISTERED]: load1 < 0.5*nproc = 8.0
+mem_available_gib_at_launch=11.50
+started_utc=2026-09-12T01:56:53Z
+ended_utc=2026-09-12T01:57:17Z

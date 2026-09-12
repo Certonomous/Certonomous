@@ -1,0 +1,8 @@
+case=T21_CYL_m
+pass=wallHeatFlux (post-hoc postProcess, S5.2a -- NOT an inline function object)
+region=housing
+rc=1
+log=log.postProcess.wallHeatFlux
+dat_expected=postProcessing/wallHeatFlux/<t>/wallHeatFlux.dat
+utc=2026-09-12T01:55:39Z
+note=a NON-ZERO rc here is a FINDING, not a silent skip; the solve's rc is unaffected

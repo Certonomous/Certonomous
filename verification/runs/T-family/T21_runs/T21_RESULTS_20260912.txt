@@ -1,0 +1,243 @@
+T21 RESULTS RECORD -- steady 1-D cylindrical conduction through the motor
+housing wall, flow OFF, EXACT tier.  2026-09-12, heat-transfer.
+
+RUNG VERDICT:  BLOCKED
+  Assigned by the heat-transfer supervisor, 2026-09-12.  Compute COMPLETE and
+  SOUND; the REGISTERED GRADING PATH IS DEFECTIVE IN FOUR PLACES; no row was
+  graded, no GCI and no observed order was produced.  BLOCKED is the fixed
+  vocabulary's word for this state (CLAUDE.md rule 1) and it is not a softened
+  GATE FAIL: no gate was ever evaluated, because the comparator refused before
+  reaching one.
+
+REGISTRATION:  docs/campaigns/T-family/T21_PREREGISTRATION.md
+  FROZEN at 89a7bdbb7 (2026-09-03 22:59:57).
+  AMENDMENT 3 (2026-09-12, PRE-COMPUTE) pins the grading path by sha256 of disk
+  bytes; committed at f5d40693a3edfb2bec01d240598c96cb0ed6ce07 BEFORE the first
+  solver started.  NO GATE, THRESHOLD, BAND, CAP OR LABEL was altered.
+  The five pins were re-verified AFTER the solves: disk == COMMITTED BLOB ==
+  Amendment 3 for build_t21.py, launch_t21.sh, mark_done_t21.py, analyse_t21.py
+  and exact_t21.py.  Every citation below is therefore quotable against bytes
+  that exist in history.
+
+=============================================================================
+1.  THE RUN SET -- SIX CASES, ALL COMPLETE
+=============================================================================
+
+case           rc  wall_s  core_min   POINT    act/pt  load1@launch  mem_avail
+T21_CYL_c       0     1     0.0167   0.3006    0.056x     75.73      11.26 GiB
+T21_CYL_m       0     5     0.0833   0.6523    0.128x     74.23      10.70 GiB
+T21_CYL_f       0    25     0.4167   2.0593    0.202x     73.13      11.28 GiB
+T21_CYL_W1      0    25     0.4167   2.0593    0.202x     71.43      11.32 GiB
+T21_CYL_P1000   0    24     0.4000   2.0593    0.194x     69.65      11.50 GiB
+T21_CYL_S10     0    23     0.3833   2.0593    0.186x     68.16      11.81 GiB
+TOTAL               103     1.7167   9.1901    0.187x
+
+  note=clean and checkmesh_rc=0 on all six.  ranks 1 on all six, as registered.
+  Artifacts: <case>/STATUS.<case>, <case>/START.<case>, DONE.<case> (six).
+  Sequence log: T21_SEQUENTIAL_LAUNCH_20260912.log.
+
+RULE 4 COMPLETION:  6/6.  mark_done_t21.py, all six conjuncts, AGE GUARD
+INCLUDED -- every field at endTime 3000 newer than the case's own 0/housing/T,
+which launch_t21.sh touches LAST.  Gate (1) in analyse_t21.py: True.
+
+NO CAP KILLED ANYTHING.  Sanaa, 2026-09-12 ~01:00Z: "dont forget i dont want any
+cap on any run".  launch_t21.sh runs the solver with no cap-derived timeout; the
+terminus is endTime 3000 with no residualControl (S6.1).  cap_exceeded=no on all
+six; the CAP of 20.0 core-min is unchanged and was never approached.
+
+=============================================================================
+2.  COST -- A COST ROW, NOT A CALIBRATION ROW.  REGISTERED IN ADVANCE.
+=============================================================================
+
+S7.4 registers, ONE-WAY AND BEFORE THE FACT, that t_overhead may be calibrated
+only from a run whose launch load average shows the box was not saturated:
+load1 < 0.5 x nproc = 8.0 on this box.
+
+  EVERY LAUNCH WAS 8.5x TO 9.5x OVER THAT THRESHOLD (load1 68.16 to 75.73
+  against 8.0).  EVERY ROW ABOVE IS A COST AND NONE IS ADMISSIBLE AS A
+  CALIBRATION ROW.  launch_t21.sh wrote calibration_admissible=no into both
+  START.<case> and STATUS.<case> AT THE POINT OF MEASUREMENT, so the
+  contamination is disclosed where it happened rather than reconstructed later.
+  THE CALIBRATION ROW IS OWED AND UNPAID.
+
+actual/predicted = 1.7167 / 9.1901 = 0.187x over the set, and 0.056x at the
+coarse level.  The direction is the opposite of the one anyone guards against.
+
+  THE REUSABLE LESSON, and the registration flagged both terms itself:
+  S8.4's model is cost_core_s = startup + N_iter x (t_overhead + rate x N_cells)
+  with startup 5.0 core-s [ASSUMED] and t_overhead 2.0e-03 core-s/iteration
+  [ASSUMED].  AT THESE CELL COUNTS BOTH ARE OVERSTATED BY ABOUT AN ORDER OF
+  MAGNITUDE: T21_CYL_c ran 3000 iterations on 640 cells in 1 wall second with a
+  final ExecutionTime of 0.92 s, against a predicted 18.03 core-s.  A rung
+  predicting cost for a sub-1000-cell chtMultiRegionSimpleFoam case should not
+  inherit these two constants.
+  USD, DERIVED NOT MEASURED (COMPUTE_BUDGET_CHARTER S5 -- the box cannot read
+  its own billing), at the owner-stated $0.0513/core-h: 1.7167/60 x 0.0513 =
+  $0.00147 against a predicted $0.00786.
+
+=============================================================================
+3.  WHAT THE RUNG DID ESTABLISH -- the compute is BANKED, not lost
+=============================================================================
+
+3.1 THE SOLVES ARE PHYSICAL.  On T21_CYL_c the housing's coupled patch
+    (housing_to_core) carries refValue 288.140034363 K against the 288 K
+    housing_outer sink, in 3000/housing/T.
+    THIS IS QUOTED AS EVIDENCE THE FIELDS ARE PHYSICAL AND IS EXPRESSLY NOT Q1.
+    The face value of a mixed BC is not refValue, and no graded quantity was
+    computed by hand anywhere in this record.
+
+3.2 THE WEDGE FACTOR DISCRIMINATES -- the anti-degeneracy evidence, produced
+    before the solves.  P_sector = P_full x theta/(2 pi) is computed ONCE, from
+    a theta READ BACK from each generated blockMeshDict (trap T-4), and lands in
+    constant/core/fvOptions as the total sector power in W:
+      T21_CYL_c / _m / _f   1.3888888886940107   (100 W, 5 deg)
+      T21_CYL_W1            0.27777777782343877  (100 W, 1 deg)
+      T21_CYL_P1000        13.888888886940107    (1000 W, 5 deg)
+      T21_CYL_S10           1.5277777775634118   (110 W, 5 deg, +10% planted arm)
+    FOUR DISTINCT VALUES.  A source applied with a constant factor, or with a
+    mis-scaled one, cannot pass all four.
+    analyse_t21.py verified the round trip EXACTLY at all three triple levels,
+    including the selected-cell volume against the analytic chord volume:
+      Su == P_sector(theta=5.000000 deg), 480 / 1920 / 7680 cells selected,
+      selected volume 5.91706e-06 == chord volume 5.91706e-06.
+
+3.3 THE MESHES ARE VERIFIED.  Two "Mesh OK" per case from
+    checkMesh -allRegions -allTopology -allGeometry, zero "***" failures, cell
+    counts EXACTLY as registered at S8.1: 480/160=640, 1920/640=2560, and
+    7680/2560=10240 for f, W1, P1000 and S10.
+
+3.4 A COMPLETE ROACHE TRIPLE EXISTS ON DISK.  c/m/f at r = 2 uniform in both
+    mesh directions, all three rule-4 complete.  A SUCCESSOR REGISTRATION CAN
+    GRADE THESE FIELDS WITHOUT RE-SOLVING ANYTHING.
+
+=============================================================================
+4.  THE FOUR DEFECTS IN THE REGISTERED GRADING PATH
+=============================================================================
+
+All four are in the grading path, none is in the solves, and NONE WAS REPAIRED:
+first compute has happened, so the pins are closed.
+
+DEFECT 1 -- Q1'S PATCH READER RETURNS A FALSE NUMBER, NOT A REFUSAL.
+  Q1 = areaAvg(T, housing_to_core) - areaAvg(T, housing_outer) reads
+  -288.0 K AT ALL THREE TRIPLE LEVELS, IDENTICALLY.
+  MECHANISM, read off the file: analyse_t21.py's _uniform_or_list tries
+      re.search(r"uniform\s+([-\d.eE+]+)", block)
+  FIRST.  On a compressible::turbulentTemperatureRadCoupledMixed block the first
+  token matching "uniform <number>" is REFGRADIENT UNIFORM 0.  ("refValue
+  nonuniform List<scalar>" does not match: "nonuniform" contains "uniform" but is
+  followed by "List", not a number.)  It returns [0.0] and never reaches the
+  `value` entry sitting in the same block.  The keys actually present on that
+  block, read from 3000/housing/T: type, refValue, refGradient, valueFraction,
+  source, VALUE, logInterval, writePrecision, updateHeader, writeToFile,
+  useUserTime, kappaMethod.  The number it needs is there and it walks past it.
+
+  *** THIS IS RULE 3 INVERTED.  Rule 3 guards against a false ZERO.  This is a
+  *** false NUMBER -- confident, plausible, physically meaningless, and produced
+  *** with no refusal.
+
+  *** IT WAS CAUGHT BY RULE 5, NOT BY RULE 3, AND THAT IS THE FINDING.
+  -288.0 K at all three levels is an EXACT triple, and rule 5 returns NOT A
+  RESULT for an EXACT triple whatever the value says.  THAT IS THE GATE SAVING
+  THE READER, NOT THE READER WORKING.  Had the coupled patch's refGradient
+  differed by level, three plausible DISTINCT numbers would have walked into a
+  Roache triple and been graded.
+  S5.4's planted-zero control PASSED and is structurally incapable of catching
+  this: it plants 1.234e-03 into a patch shape the reader can already parse and
+  was never driven against a coupled block.  RULE 3 AND RULE 5 COVER DIFFERENT
+  FAILURE MODES AND THIS LAB HAD NOT NOTICED THAT THEY DO.
+
+DEFECT 2 -- Q2 NEEDS A PREPROCESSING PASS THE REGISTRATION NEVER NAMES.
+  q2_dt_cells reads per-cell radii from <time>/<region>/C, which only
+  `postProcess -func writeCellCentres` writes.  The string writeCellCentres does
+  not occur anywhere in T21_PREREGISTRATION.md, so the launcher does not run it
+  and the file does not exist.  Q2 returns None at every level, and
+  analyse_t21.py refuses: "could not read Q1/Q2 on T21_CYL_c -- a missing number
+  is not a zero".  A REFUSAL, correctly, and no verdict was issued.
+  NOT REPAIRED BY DECISION: writeCellCentres would add only <time>/<region>/C
+  and cannot disturb the age guard or rule 4, but repairing one of four defects
+  after first compute to make one quantity readable -- on a path the other three
+  still block from producing a rung verdict -- buys a single number and spends
+  an unambiguous record that this grading path was never driven.
+
+DEFECT 3 -- S5.2a's BALANCE INSTRUMENT CANNOT RUN ON A SOLID-ONLY REGION.
+  <case>/log.postProcess.wallHeatFlux ends in
+    "--> FOAM FATAL ERROR: Unable to find compressible turbulence model in the
+     database.  From virtual bool Foam::wallHeatFluxModels::wall::execute()
+     in file wallHeatFlux/wallHeatFluxModels/wall/wallHeatFlux_wall.cxx line 278"
+  rc=1 on all six, recorded in <case>/POSTPROCESS.<case>.  The object
+  constructs, selects the wall model, reports "processing all (3) wall patches",
+  reaches Time = 3000, and only then fatals: a region with no fluid has no
+  compressible turbulence model to look up.
+  IT DOES NOT PRODUCE A FALSE ZERO, and that was checked rather than assumed:
+  the .dat it created is TWO LINES, both comments, no data row, and
+  read_wallheatflux_integral accepts only a line whose second field equals the
+  patch name -- so it returns None and q3_balance returns None.
+
+DEFECT 4 -- THE FLUX PATH IS UNSCOPED WHERE postProcess WRITES REGION-SCOPED.
+  read_wallheatflux_integral looks in
+      <case>/postProcessing/wallHeatFlux/<t>/wallHeatFlux.dat
+  while postProcess on a named region writes
+      <case>/postProcessing/housing/wallHeatFlux/<t>/wallHeatFlux.dat
+  So even with a working flux model the comparator would find no directory and
+  return None.  INDEPENDENT OF DEFECT 3: fixing the flux route alone would not
+  make Q3 readable.
+
+CONSEQUENCE:  Q1 unusable, Q2 unreadable, Q3 and the V(b) planted arm
+unreadable.  NO ROW WAS GRADED AND NO VERDICT WAS ASSIGNED TO ANY ROW.  The
+rung-level disposition BLOCKED is the supervisor's, not the comparator's.
+
+=============================================================================
+5.  THE SPECIES, AND THE COUNTERMEASURE ADOPTED
+=============================================================================
+
+All four defects are one species: AN INSTRUMENT REGISTERED ON REASONING AND
+NEVER DRIVEN ONCE AGAINST THE CASE SHAPE IT WOULD BE APPLIED TO.  Every one
+would have died in seconds against a real T21 case.
+
+The timeline is the mechanism, not an excuse: this registration FROZE at
+89a7bdbb7 on 2026-09-03 and says at S11, in terms, that it does not write the
+builder, the comparator or the launcher.  analyse_t21.py was written on
+2026-09-07, four days later, against a registration that says it has no
+comparator -- and nothing ever ran it against the thing it was for.
+
+Three further instances the heat-transfer team hit independently the same night:
+  * T5f S4 registers analyse_t5e.py as limb A; it hardcodes CASE_OF to
+    T5_CUBE_* while T5f's own cases are T5F_CUBE_*.
+  * T10aVF2's main() demands a per-case ratio globally, while S3.1 assigns S2 a
+    role needing no control patch -- nine of twenty cases have no control patch.
+  * T21, here, four times over.
+
+COUNTERMEASURE ADOPTED FOR THIS FAMILY BY THE HEAT-TRANSFER SUPERVISOR:
+BEFORE A REGISTRATION FREEZES AN INSTRUMENT, THAT INSTRUMENT IS DRIVEN ONCE
+AGAINST THE REAL CASE SHAPE -- not against its selftest fixtures.  The test is
+not that it is right; the test is that IT CAN OPEN AND RUN.
+Referred to verification, together with the rule-3/rule-5 coverage finding of
+DEFECT 1.  SUBMISSIONS PARKED (CLAUDE.md rule 7): nothing here is sent anywhere.
+
+=============================================================================
+6.  DISPOSITION
+=============================================================================
+
+A SUCCESSOR REGISTRATION, NOT A REPAIR.  No pinned file was edited, before or
+after first compute.  A successor can pin a grading path THAT HAS BEEN DRIVEN
+against these exact six cases before it freezes, and then grade the fields
+already on disk WITHOUT RE-SOLVING ANYTHING.  The rung that produced the
+countermeasure becomes the first rung built under it.
+
+OPEN AND UNPAID:
+  * the S7.3 calibration row -- owed, and unpayable from these runs (S7.4).
+  * a cosmetic defect in launch_t21.sh, disclosed and deliberately NOT fixed:
+    procs_running is written as e.g. "36/974" because field 4 of /proc/loadavg
+    is running/total, not running alone.  The value is wider than its label, not
+    wrong; it is an infrastructure disclosure field that decides nothing; and a
+    PINNED FILE IS NOT EDITED TO TIDY A LABEL.  An addendum, if at all.
+
+ARTIFACTS: verification/runs/T-family/T21_runs/ -- the six case trees, six
+STATUS/START/DONE/POSTPROCESS sets, T21_SEQUENTIAL_LAUNCH_20260912.log,
+T21_PIPELINE_REHEARSAL_20260912.txt, T21_INSTRUMENT_DIFFS_20260912.txt.
+
+CALIBRATION LEDGER ROW (rule 12, Sanaa 2026-08-23): appended to
+docs/COST_CALIBRATION.md as C-20260912T020545.737549Z-a35b6f6c, via the canonical
+scripts/append_record.py --allocate-id.  It records the 0.187x comparison AND
+records that it is NOT ADMISSIBLE as a calibration figure under S7.4.  The
+S7.3 calibration row remains OWED AND UNPAID.

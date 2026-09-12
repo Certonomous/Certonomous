@@ -1,0 +1,15 @@
+case=T21_CYL_S10
+start_utc=2026-09-12T01:57:23Z
+loadavg_at_launch=68.16 75.77 75.37
+load1_at_launch=68.16
+procs_running_at_launch=38/975
+nproc=16
+calibration_threshold=8.0  # S7.4 [REGISTERED] 0.5*nproc, one-way, registered in advance
+calibration_admissible=no
+mem_available_gib_at_launch=11.81
+ranks=1
+point_core_min=2.0593
+set_cap_core_min=20.0
+cap_enforcement=none  # Sanaa 2026-09-12 ~01:00Z, no cap on any run
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/chtMultiRegionSimpleFoam
+checkmesh_rc=0

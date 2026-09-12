@@ -1,0 +1,43 @@
+=== T21_CYL_c  launch_utc=2026-09-12T01:55:17Z
+    mem_total_gib=30  mem_available_gib=11
+    loadavg=76.57 80.10 76.51 36/991 2676828  nproc=16
+DISCLOSED AT THE POINT OF MEASUREMENT (S7.4): load1=75.73 >= 8.0. This row is A COST AND NOT A CALIBRATION ROW. The rung still runs and still grades; the calibration row is owed and unpaid.
+T21_CYL_c finished: rc=0 wall=1s core_min=0.0167 note=clean  ->  /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_c/STATUS.T21_CYL_c
+postProcess wallHeatFlux: rc=1 -> /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_c/POSTPROCESS.T21_CYL_c
+    launcher_exit=0
+=== T21_CYL_m  launch_utc=2026-09-12T01:55:26Z
+    mem_total_gib=30  mem_available_gib=10
+    loadavg=74.95 79.63 76.40 33/973 2678093  nproc=16
+DISCLOSED AT THE POINT OF MEASUREMENT (S7.4): load1=74.23 >= 8.0. This row is A COST AND NOT A CALIBRATION ROW. The rung still runs and still grades; the calibration row is owed and unpaid.
+T21_CYL_m finished: rc=0 wall=5s core_min=0.0833 note=clean  ->  /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_m/STATUS.T21_CYL_m
+postProcess wallHeatFlux: rc=1 -> /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_m/POSTPROCESS.T21_CYL_m
+    launcher_exit=0
+=== T21_CYL_f  launch_utc=2026-09-12T01:55:39Z
+    mem_total_gib=30  mem_available_gib=10
+    loadavg=73.57 79.18 76.29 33/979 2679487  nproc=16
+DISCLOSED AT THE POINT OF MEASUREMENT (S7.4): load1=73.13 >= 8.0. This row is A COST AND NOT A CALIBRATION ROW. The rung still runs and still grades; the calibration row is owed and unpaid.
+T21_CYL_f finished: rc=0 wall=25s core_min=0.4167 note=clean  ->  /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_f/STATUS.T21_CYL_f
+postProcess wallHeatFlux: rc=1 -> /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_f/POSTPROCESS.T21_CYL_f
+    launcher_exit=0
+=== T21_CYL_W1  launch_utc=2026-09-12T01:56:12Z
+    mem_total_gib=30  mem_available_gib=11
+    loadavg=71.90 78.16 76.05 39/982 2683924  nproc=16
+DISCLOSED AT THE POINT OF MEASUREMENT (S7.4): load1=71.43 >= 8.0. This row is A COST AND NOT A CALIBRATION ROW. The rung still runs and still grades; the calibration row is owed and unpaid.
+T21_CYL_W1 finished: rc=0 wall=25s core_min=0.4167 note=clean  ->  /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_W1/STATUS.T21_CYL_W1
+postProcess wallHeatFlux: rc=1 -> /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_W1/POSTPROCESS.T21_CYL_W1
+    launcher_exit=0
+=== T21_CYL_P1000  launch_utc=2026-09-12T01:56:45Z
+    mem_total_gib=30  mem_available_gib=11
+    loadavg=70.59 77.24 75.81 35/972 2687719  nproc=16
+DISCLOSED AT THE POINT OF MEASUREMENT (S7.4): load1=69.65 >= 8.0. This row is A COST AND NOT A CALIBRATION ROW. The rung still runs and still grades; the calibration row is owed and unpaid.
+T21_CYL_P1000 finished: rc=0 wall=24s core_min=0.4000 note=clean  ->  /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_P1000/STATUS.T21_CYL_P1000
+postProcess wallHeatFlux: rc=1 -> /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_P1000/POSTPROCESS.T21_CYL_P1000
+    launcher_exit=0
+=== T21_CYL_S10  launch_utc=2026-09-12T01:57:17Z
+    mem_total_gib=30  mem_available_gib=11
+    loadavg=68.26 75.92 75.42 33/972 2690338  nproc=16
+DISCLOSED AT THE POINT OF MEASUREMENT (S7.4): load1=68.16 >= 8.0. This row is A COST AND NOT A CALIBRATION ROW. The rung still runs and still grades; the calibration row is owed and unpaid.
+T21_CYL_S10 finished: rc=0 wall=23s core_min=0.3833 note=clean  ->  /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_S10/STATUS.T21_CYL_S10
+postProcess wallHeatFlux: rc=1 -> /home/ubuntu/Certonomous/verification/runs/T-family/T21_runs/T21_CYL_S10/POSTPROCESS.T21_CYL_S10
+    launcher_exit=0
+=== SEQUENCE ENDED 2026-09-12T01:57:48Z
