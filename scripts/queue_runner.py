@@ -615,6 +615,24 @@ def _checkpoint_optimisation(entry: dict, cwd: Path) -> tuple[str, str]:
                     f"{Path(dvec).name!r}")
 
 
+def _no_control_dict_reason(cwd: Path, cd: Path) -> str:
+    """WHICH sub-limb of "there is no controlDict" actually failed, named exactly.
+
+    "cwd does not exist", "cwd is not an OpenFOAM case directory" and "the case has no
+    system/controlDict" are three different findings with three different fixes, and the most
+    common of them by far -- a cwd pointing at the case's PARENT -- is the one a compound
+    message hides."""
+    if not cwd.exists():
+        return f"the entry's cwd {cwd} does not exist"
+    if not cwd.is_dir():
+        return f"the entry's cwd {cwd} exists but is not a directory"
+    if not (cwd / "system").is_dir():
+        return (f"the entry's cwd {cwd} has no system/ subdirectory, so it is not an OpenFOAM "
+                f"case directory -- the commonest cause is a cwd pointing at the case's PARENT "
+                f"rather than at the case")
+    return f"{cd} does not exist, although {cwd / 'system'} does"
+
+
 def checkpoint_gate(entry: dict) -> tuple[str, str]:
     """GATE A -- her items 1-4. Returns ("PASS"|"REFUSE", detail naming the FILE and the LIMB)."""
     cwd = Path(str(entry.get("cwd") or "/nonexistent"))
@@ -629,12 +647,32 @@ def checkpoint_gate(entry: dict) -> tuple[str, str]:
         return _checkpoint_optimisation(entry, cwd)
     if cd.is_file():
         return _checkpoint_openfoam(entry, cwd, cd, declared)
+    # EACH REFUSAL NAMES ONLY THE LIMB THAT FAILED (chief's decision 2026-09-12, on a real
+    # cost: the catch-all here named BOTH halves of a compound condition -- "the controlDict
+    # does not exist AND the entry declares no solver_class" -- when only the first had
+    # actually failed. heat-transfer then spent its time chasing a `solver_class` that was
+    # present and correct, while the real cause was that the entry's cwd was the case's
+    # PARENT and not the case directory. A refusal that asserts an untested fact sends the
+    # reader to the wrong file, which is worse than a refusal that says less.)
+    if declared in ("openfoam-steady", "openfoam-transient"):
+        return "REFUSE", (
+            f"gate A: the entry declares solver_class={declared!r}, so the controlDict limb is "
+            f"the one that applies -- and {_no_control_dict_reason(cwd, cd)}. THE DECLARATION "
+            f"IS NOT THE PROBLEM and was not tested here; the case file the limb needs is not "
+            f"where the entry's `cwd` points.")
+    if declared:
+        return "REFUSE", (
+            f"gate A: solver_class={declared!r} is not one of openfoam-steady / "
+            f"openfoam-transient / optimisation / utility, so no limb of the checkpoint policy "
+            f"could be selected. Nothing on disk was tested and nothing on disk is implicated "
+            f"by this refusal.")
     return "REFUSE", (
-        f"gate A: {cd} does not exist and the entry declares no `solver_class`, so neither the "
-        f"controlDict limb nor the optimisation limb can be evaluated. Her item 4 refuses a case "
-        f"whose policy does not SATISFY items 1-3, and an unevaluated policy is not a satisfied "
-        f"one. Declare `solver_class` as one of openfoam-steady / openfoam-transient / "
-        f"optimisation / utility.")
+        f"gate A: the entry declares no `solver_class`, so the class had to be inferred from "
+        f"the case, and {_no_control_dict_reason(cwd, cd)} -- leaving nothing to infer from. "
+        f"Both facts were checked and both are stated; fix either one. Her item 4 refuses a "
+        f"case whose policy does not SATISFY items 1-3, and an unevaluated policy is not a "
+        f"satisfied one. Declare `solver_class` as one of openfoam-steady / "
+        f"openfoam-transient / optimisation / utility.")
 
 
 # ----------------------------------------------------------------------- GATE B: MEMORY
@@ -2980,6 +3018,32 @@ def selftest() -> int:
     check("GATE A NEGATIVE (undeclared): no system/controlDict and no `solver_class` -> REFUSE; "
           "an unevaluated policy is not a satisfied one",
           van == "REFUSE" and "solver_class" in man, f"{van}: {man[:80]}")
+    # EACH REFUSAL NAMES ONLY THE LIMB THAT FAILED. The compound message cost heat-transfer a
+    # hunt for a `solver_class` that was present; the real cause was a cwd pointing at the
+    # case's PARENT. These three controls are the discrimination, not the wording.
+    parent_dir = tmp / "gate_case_PARENT"
+    (parent_dir / "the_case" / "system").mkdir(parents=True, exist_ok=True)
+    vpar, mpar = checkpoint_gate(_entry_at(parent_dir, solver_class="openfoam-steady"))
+    check("GATE A refusal discrimination (cwd is the case's PARENT): the message names the "
+          "MISSING system/ subdirectory and says in terms that the DECLARATION is not the "
+          "problem -- the word `solver_class` never appears as a thing to fix",
+          vpar == "REFUSE" and "no system/ subdirectory" in mpar
+          and "DECLARATION IS NOT THE PROBLEM" in mpar
+          and "declares no `solver_class`" not in mpar, f"{vpar}: {mpar[:120]}")
+    have_sys = tmp / "gate_case_SYSONLY"
+    (have_sys / "system").mkdir(parents=True, exist_ok=True)
+    vsys, msys = checkpoint_gate(_entry_at(have_sys, solver_class="openfoam-steady"))
+    vgone, mgone = checkpoint_gate(_entry_at(tmp / "gate_case_ABSENT_CWD",
+                                             solver_class="openfoam-steady"))
+    vbad, mbad = checkpoint_gate(_entry_at(have_sys, solver_class="openfoam-steadyish"))
+    check("GATE A refusal discrimination (the other three): system/ present but no "
+          "controlDict, an absent cwd, and an UNRECOGNISED solver_class each produce a "
+          "DIFFERENT message naming only what was tested -- and the unrecognised-class "
+          "refusal implicates nothing on disk",
+          "although" in msys and "does not exist" in mgone and "no system/" not in mgone
+          and "not one of" in mbad and "nothing on disk is implicated" in mbad
+          and len({msys, mgone, mbad, mpar}) == 4,
+          f"sys={vsys} gone={vgone} badclass={vbad}")
     # optimisation limb: the marker must be COUPLED to the run script
     opt_dir = tmp / "gate_case_OPT"
     opt_dir.mkdir(exist_ok=True)
