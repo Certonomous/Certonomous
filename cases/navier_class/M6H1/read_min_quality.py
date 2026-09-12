@@ -101,6 +101,15 @@ FIRST_MARCHED_LVL = 2          # pyHyp prints grid level 1 as the surface; march
 CHAIN = ['surfMesh.cgns', 'pyhyp.log', 'log.plot3dToFoam', 'log.checkMesh']
 RC_FILE = 'pyhyp_rc.txt'       # written by the lab's own launcher; 'PYHYP_RC=0' required
 # --- THE PLANTED CONSTANT --------------------------------------------------------------------
+# --- REPORTED, NOT GATED.  Measured reference band, from logs ON THIS BOX, by path. ---
+# §7's H-G1 clause is `Min Quality > 0`, and A MESH SITTING AT 1e-4 EVERYWHERE SATISFIES IT.
+# A PASS at 1e-4 and a PASS at 0.40 are not the same mesh and the gate's vocabulary cannot
+# tell them apart, so the VALUE is printed beside every verdict.  THE TRIGGER IS NOT MOVED:
+# this is a reported quantity, never a clause, and it can turn no verdict either way.
+REFERENCE_BAND = (
+    ("verification/runs/CRM_WINGALONE_runs/L2/pyhyp.log", 104, 0.00743, 0.40356, 0.42552),
+    ("verification/runs/CRM_WINGALONE_runs/L3/pyhyp.log", 208, 0.07911, 0.45133, 0.47018),
+)   # path, layers, min, median, max -- measured 2026-09-12 from those files, not recalled
 PLANT_POS = +1.234e-02         # the same digits, signed to be a PASSING value -- used by
                                # PLANT A on a log where EVERY layer already fails and there is
                                # therefore no passing layer to plant a new failure into.
@@ -503,8 +512,26 @@ def main(log_path, case_dir=None):
 
     passed, bad = grade(layers)
     qs = [q for (_, q, _) in layers]
+    finite = sorted(q for q in qs if q == q)          # NaN != NaN
     print("\n  marched layers: %d   min over all layers: %.5f at grid level %d"
           % (len(layers), min(qs), layers[qs.index(min(qs))][0]))
+    if finite:
+        med = finite[len(finite) // 2]
+        print("\n  MIN QUALITY DISTRIBUTION -- REPORTED, NOT GATED. §7's clause is '> 0', and a "
+              "mesh\n  sitting just above zero everywhere satisfies it. The value is printed so a "
+              "PASS at\n  1e-4 cannot be read as the same object as a PASS at 0.4.")
+        print("    this march : min %.5f   median %.5f   max %.5f   (%d finite of %d layers)"
+              % (finite[0], med, finite[-1], len(finite), len(qs)))
+        print("    measured reference band, from logs on this box:")
+        for path, n, lo, md, hi in REFERENCE_BAND:
+            print("      %-52s layers %3d  min %.5f  median %.5f  max %.5f"
+                  % (path, n, lo, md, hi))
+        ratio = (md / med) if med > 0 else None
+        worst_ref = min(r[2] for r in REFERENCE_BAND)
+        if finite[0] > 0 and finite[0] < worst_ref:
+            print("    🔴 THIS MARCH'S MINIMUM IS %.0fx BELOW THE WORST OF THAT BAND. It passes the "
+                  "registered clause and it is a MARGINAL MESH; both facts are true and both are "
+                  "reported." % (worst_ref / finite[0]))
     if bad:
         print("  layers at or below the floor:")
         for (l, q, ln) in bad:
