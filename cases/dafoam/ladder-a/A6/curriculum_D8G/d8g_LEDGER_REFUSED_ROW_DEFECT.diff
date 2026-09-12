@@ -1,0 +1,283 @@
+D8G -- DEFECT D8G-LEDGER-1: THE LAUNCHER WRITES A LEDGER ROW THE FROZEN GRADER
+CANNOT PARSE, AND THE GRADER THEREFORE REFUSES *EVERY* GRADE OF THIS ITEM,
+FOREVER, ON EVERY FUTURE ARM.
+
+*** NOT APPLIED.  NOTHING IN THIS FILE HAS BEEN WRITTEN TO ANY INSTRUMENT. ***
+*** Both instruments below are FROZEN (PREREGISTRATION.md 075f6edf6) and first
+*** compute HAS occurred.  CLAUDE.md rule 6 and rule 2 put this on the
+*** supervisor's desk, not this lane's.  Handed over as a diff, unapplied.
+
+FOUND 2026-09-12 by the dafoam lab-lane, from disk artifacts only.
+
+-------------------------------------------------------------------------------
+THE OBSERVATION
+-------------------------------------------------------------------------------
+  /home/ubuntu/certonomous-runs/CURRICULUM-D8G-a6-grid-triple/
+      D8G_grade_20260911T234701Z.json   ->  {"verdict": "NOT A RESULT",
+                                             "refusal": REFUSE ledger,
+                                             row_unparseable ...}
+  The verdict in that JSON is a LEDGER REFUSAL.  IT IS NOT A CONVERGENCE
+  READING.  The frozen comparator has NEVER successfully read L1-P.  The
+  `NOT A RESULT` recorded in D8G_L1P_RESULTS.md (nuTilda 4.074e-04 against the
+  registered 1.0e-4 floor) was reached by a lane reading the log BY HAND.
+  The verdict is almost certainly right; IT IS NOT INSTRUMENT-BACKED.
+
+-------------------------------------------------------------------------------
+THE MECHANISM, AT TWO NAMED LINES
+-------------------------------------------------------------------------------
+  PRODUCER:  cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_run_arm.sh:922
+    On a refused launch (LA.4) the launcher appends to ledger.txt a row that
+    BEGINS `ARM=` and then carries `launched: false ... launch_rc=88 ...`.
+    It has NO `rc=`, NO `wall_s=`, NO `ranks=`, NO `core_min=`.
+
+  READER:    cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_grade.py:366 (LEDGER_RE)
+             cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_grade.py:393-398
+    read_ledger() claims EVERY line beginning `ARM=` and requires LEDGER_RE,
+    whose fourth group is `rc=(?P<rc>-?\d+)`.  The refused-launch row cannot
+    match.  The reader then does the RIGHT thing for garbage -- it REFUSES
+    rather than skips -- and the whole item is dead.
+
+  THE READER IS NOT THE BUG.  Refusing a row it cannot parse is correct and is
+  the behaviour CLAUDE.md rule 4 and FILING rule 5 want.  THE BUG IS THAT TWO
+  FROZEN INSTRUMENTS DISAGREE ABOUT THE SHAPE OF A RECORD ONE OF THEM WRITES
+  ON PURPOSE -- the same class as every D8G defect of 2026-09-11: a producer
+  and a consumer frozen without one end-to-end execution between them.
+
+  SECOND, INDEPENDENT BLOCKER -- IT SURVIVES ANY FIX TO THE FIRST.
+    d8g_grade.py:416 refuses on `duplicate_arm_row`.  ledger.txt now holds TWO
+    rows keyed ARM=L1-P: the refused-launch row (stamp 20260911T233045Z) and
+    the successful row (stamp 20260911T234236Z, rc=1, 16.067 core-min).  Teach
+    the parser to read the first and it refuses on the second.
+
+  BLAST RADIUS: ledger.txt is ONE FILE FOR THE WHOLE ITEM and the refused row
+  is its third line.  L2-P, L3-P, A2-P, F2-P and all four SHIPPED arms will
+  each run to completion and then be refused at the ledger.  THE ITEM CANNOT
+  BE GRADED AT ALL IN ITS PRESENT STATE.  This is what blocks the next level --
+  not its launch, its grading.
+
+-------------------------------------------------------------------------------
+SWEEP FOR THE SAME SHAPE IN EVERY D8G INSTRUMENT -- RESULT
+-------------------------------------------------------------------------------
+  Every line written into ledger.txt by d8g_run_arm.sh was checked against
+  d8g_grade.py's readers:
+    :911  D8G_LAUNCH_CONTRADICTION ...   -> not `ARM=`-prefixed, skipped: SAFE
+    :922  ARM=... launched: false ...    -> `ARM=`-prefixed, UNPARSEABLE: DEFECT
+    :923  D8G_LAUNCH_REFUSED ...         -> not `ARM=`-prefixed, skipped: SAFE
+    :924  D8G_LAUNCH_READER_STDERR ...   -> not `ARM=`-prefixed, skipped: SAFE
+    :930  D8G_LAUNCH_ASSERTED ...        -> not `ARM=`-prefixed, skipped: SAFE
+    :1010 ARM=... rc=... core_min=...    -> `ARM=`-prefixed, PARSES: SAFE
+    :1011 D8G_ARM_CONTEXT ...            -> not `ARM=`-prefixed, skipped: SAFE
+  :922 is the ONLY instance.  It is also the only ledger line in the file that
+  is `ARM=`-prefixed and is NOT a completed-arm record.
+
+  THE THREE CONTAINER-INVOCATION DEFECTS OF 2026-09-11 WERE ALSO SWEPT FOR, IN
+  EVERY D8G INSTRUMENT.  ALL THREE ARE ABSENT HERE:
+   (1) `source loadDAFoam.sh` aborting under `set -e` at OpenFOAM's own
+       etc/config.sh/setup:207 --
+       d8g_genmesh.sh:271 sources BEFORE `set -e` (armed at :279) and follows
+       with a POSITIVE CAPABILITY ASSERTION (:272-278: WM_PROJECT_DIR non-empty
+       AND `command -v cgns_utils`), exit 97 otherwise.  REPAIRED at AMENDMENT 4
+       and the repair is present in the frozen file.
+       d8g_run_arm.sh:814 sources inside `bash -lc "... && ... && ..."` with NO
+       `set -e` anywhere in the container command, so the :207 abort cannot
+       fire; the chain is `&&`-joined so a failed source stops it; and :816 is
+       itself a positive capability assertion (`import idwarp`, prints the .so
+       md5).  MEASURED LIVE: ledger.txt carries
+       `D4S_IDWARP_SO_MD5: 85f59e87253e0a71a813f64ca6e4c425` -- non-empty, so
+       the environment demonstrably loaded on the run that happened.
+   (2) `mpirun` invoked as the container command with no environment load --
+       ABSENT.  d8g_run_arm.sh:479-481 put mpirun in a CMDFILE; :819 runs that
+       cmdfile via `timeout -k 60 $TMO bash ...` INSIDE the shell that already
+       sourced loadDAFoam.sh and already asserted idwarp.  mpirun is never the
+       container command.
+   (3) `|| true` silencing the step that makes every later step possible --
+       ABSENT.  Only four `|| true` in the whole instrument set:
+         d8g_genmesh.sh:326,327  on the two `checkMesh` runs.  CORRECT AND
+           NECESSARY: strict checkMesh is REGISTERED to fail exactly two checks
+           (PREREGISTRATION.md section 4.2), so a non-zero rc is the expected
+           outcome.  AND IT IS NOT SILENT: both logs are retained, copied to
+           mesh_logs_<L>/ at :392, and PARSED at :418-423, where a missing cell
+           count is a REFUSAL.  A checkMesh that did not run would be caught.
+         d8g_chain_driver.sh:73, d8g_run_arm.sh:97  on `grep -c` of the freeze
+           token.  CORRECT: grep returns 1 on zero matches, which is the PASS
+           case for that guard.
+  A REPAIR IS NOT COMPLETE UNTIL THE SAME SHAPE HAS BEEN LOOKED FOR EVERYWHERE
+  IT COULD LIVE.  It was.  This is the one instance, and it is a
+  producer/consumer record-shape mismatch rather than a container-invocation
+  one -- the same FAMILY of defect, a different member of it.
+
+-------------------------------------------------------------------------------
+REPAIR A -- PRODUCER SIDE.  MINIMAL.  DOES NOT UNBLOCK THE EXISTING LEDGER.
+-------------------------------------------------------------------------------
+--- a/cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_run_arm.sh
++++ b/cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_run_arm.sh
+@@ -919,7 +919,11 @@
+   EXITCODE=$(sudo -n docker inspect --format '{{.State.ExitCode}} {{.State.OOMKilled}}' "$CID" 2>>"$LA_TMP/la.stderr")
+   kill $SAMPLER 2>/dev/null; wait $SAMPLER 2>/dev/null
+   {
+-    echo "ARM=$ARM ROW=$ROW IMG=$IMG DIGEST=$GOT_DIGEST launched: false reason=[$LA_REASON] launch_rc=$LA_RC waited_s=$LA_WAITED_S budget_s=$LAUNCH_BUDGET_S mtime_witness=$LA_MTIME precapture=$(basename "$LAUNCH_PRE") precapture_rows=$PRE_ROWS cid=$CID container_kill=$KILLED inspect(exit,oomkilled)=[$EXITCODE] decomposePar_decoy_seen=$LA_DECOY_SEEN solver_call_seen=$LA_CORROBORATED log=$(basename "$LOG") stamp=$STAMP"
++    # THE `ARM=` PREFIX IS RESERVED FOR COMPLETED-ARM RECORDS.  d8g_grade.py's
++    # read_ledger() claims every `ARM=`-prefixed line and requires LEDGER_RE
++    # (`rc=`, `wall_s=`, `ranks=`, `core_min=`), none of which a refused launch
++    # has.  Writing this row with that prefix makes the grader REFUSE THE WHOLE
++    # ITEM FOREVER.  `REFUSED_ARM=` is skipped by read_ledger, like every other
++    # D8G_* diagnostic line this block writes.  The row's CONTENT is unchanged.
++    echo "REFUSED_ARM=$ARM ROW=$ROW IMG=$IMG DIGEST=$GOT_DIGEST launched: false reason=[$LA_REASON] launch_rc=$LA_RC waited_s=$LA_WAITED_S budget_s=$LAUNCH_BUDGET_S mtime_witness=$LA_MTIME precapture=$(basename "$LAUNCH_PRE") precapture_rows=$PRE_ROWS cid=$CID container_kill=$KILLED inspect(exit,oomkilled)=[$EXITCODE] decomposePar_decoy_seen=$LA_DECOY_SEEN solver_call_seen=$LA_CORROBORATED log=$(basename "$LOG") stamp=$STAMP"
+     echo "D8G_LAUNCH_REFUSED arm=$ARM rc=$LA_RC -- THE SOLVER'S FIRST ARTIFACT NEVER APPEARED.  This row is NOT A RESULT and no grading may read it."
+     echo "D8G_LAUNCH_READER_STDERR arm=$ARM: $(tr '\n' ' ' < "$LA_TMP/la.stderr" | head -c 600)"
+   } | tee -a "$BASE/ledger.txt"
+
+  WHAT REPAIR A DOES:  every FUTURE refused launch stops poisoning the ledger.
+  WHAT REPAIR A DOES NOT DO:  it does not touch the row ALREADY in ledger.txt.
+  D8G stays ungradeable with Repair A alone.
+  HAZARD OF REPAIR A:  none identified.  It removes a line from the grader's
+  view that the grader's own comment (:923, already in the file) says "no
+  grading may read".  It cannot manufacture a favourable verdict: it deletes no
+  refusal that was reading physics, because this refusal never read any.
+
+-------------------------------------------------------------------------------
+REPAIR B -- READER SIDE.  UNBLOCKS THE EXISTING LEDGER.  CARRIES A REAL HAZARD.
+-------------------------------------------------------------------------------
+--- a/cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_grade.py
++++ b/cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_grade.py
+@@ -386,6 +386,13 @@
+
++# A REFUSED LAUNCH IS A STRUCTURED, SELF-DECLARING RECORD, NOT GARBAGE.
++# d8g_run_arm.sh's LA.4 block writes it ON PURPOSE and states in the line
++# beside it that "no grading may read it".  It is matched EXACTLY -- the
++# `launched: false` token AND a `launch_rc=` field -- so a genuinely malformed
++# row still falls through to the refusal below.  It is COUNTED, NAMED IN THE
++# OUTPUT, AND NEVER TREATED AS AN ARM.
++REFUSED_LAUNCH_RE = re.compile(r"^ARM=(?P<ARM>\S+)\s+ROW=\S+\s+IMG=\S+\s+DIGEST=\S+\s+"
++                               r"launched:\s+false\s+reason=\[.*\]\s+launch_rc=(?P<launch_rc>-?\d+)\s")
++
+ def read_ledger(path):
+     if not os.path.isfile(path):
+         refuse("ledger", {"absent": path})
+     rows = {}
++    refused_launches = []
+     for line in open(path, errors="replace"):
+         if not line.startswith("ARM="):
+             continue
++        rl = REFUSED_LAUNCH_RE.match(line)
++        if rl:
++            refused_launches.append({"ARM": rl.group("ARM"),
++                                     "launch_rc": int(rl.group("launch_rc")),
++                                     "raw": line.strip()[:300]})
++            continue
+         m = LEDGER_RE.search(line)
+         if not m:
+             refuse("ledger", {"row_unparseable": line.strip()[:300],
+                               "note": "PRESENT-BUT-GARBAGE row: refused, never skipped"})
+
+  ... and, at the foot of read_ledger(), BEFORE `return rows`:
+
++    # A REFUSED LAUNCH IS NOT ERASED BY A LATER SUCCESS.  Every arm that has
++    # one is reported in the output with its launch_rc, and an arm that has a
++    # refused launch AND NO COMPLETED ROW is a REFUSAL, not a silent absence.
++    for rl in refused_launches:
++        if rl["ARM"] not in rows:
++            refuse("ledger", {"refused_launch_and_no_completed_row": rl["ARM"],
++                              "launch_rc": rl["launch_rc"], "raw": rl["raw"],
++                              "note": "the solver's first artifact never appeared and nothing "
++                                      "else was recorded for this arm"})
++    if refused_launches:
++        rows["__refused_launches__"] = refused_launches
+     return rows
+
+  HAZARD OF REPAIR B, STATED PLAINLY AND NOT MINIMISED:
+    It lets grading proceed past a failed launch.  That is exactly the thing the
+    current refusal prevents.  The mitigations above (exact-match regex; an arm
+    with ONLY a refused launch still refuses; every refusal carried into the
+    output) are mitigations, NOT a proof.  A `__refused_launches__` key injected
+    into `rows` is also visible to every downstream consumer of read_ledger()'s
+    return value and MUST be audited against each of them before this is
+    applied -- THIS LANE HAS NOT DONE THAT AUDIT and says so.
+    REPAIR B IS A CHANGE TO A GRADED PATH AFTER FIRST COMPUTE.  Under
+    VERIFICATION_CHARTER section 2d.1 that needs the four-condition repair
+    exception, argued by the supervisor, or it does not happen.
+
+-------------------------------------------------------------------------------
+REPAIR C -- NOT A CODE CHANGE.  NAMED FOR COMPLETENESS, NOT RECOMMENDED.
+-------------------------------------------------------------------------------
+  Editing or truncating ledger.txt to delete the offending line.
+  THIS LANE DOES NOT RECOMMEND IT AND HAS NOT DONE IT.  ledger.txt is the
+  item's append-only evidence file; removing a row because an instrument cannot
+  read it is destroying the record of a real event (a 248 s container that
+  never reached its first iteration) to make a downstream tool happy.  Recorded
+  here so that the option is on the supervisor's desk explicitly REJECTED
+  rather than quietly unavailable.
+
+-------------------------------------------------------------------------------
+WHAT THIS LANE DID NOT VERIFY
+-------------------------------------------------------------------------------
+  * Neither repair has been executed, driven through d8g_grade_selftest.sh, or
+    tested against a planted fixture.  They are code-read only.
+  * The downstream consumers of read_ledger()'s return dict were NOT audited
+    for Repair B's `__refused_launches__` key.
+  * Whether the supervisor considers L1-P's NOT A RESULT verdict to stand at
+    all while the frozen comparator has never read it is NOT this lane's call.
+
+SUBMISSIONS PARKED.  NOT FILED ANYWHERE.  NOTHING LEAVES THE BOX.
+
+===============================================================================
+SECOND DEFECT FOUND DURING THE SAME SWEEP -- D8G-CPUSET-1
+THE G-CPUSET GATE RETURNS ok=true AGAINST EXACTLY THE NEIGHBOUR MOST ABLE TO
+STEAL D8G's CORES.  NO DIFF OFFERED; THE FIX IS NOT THIS LANE'S TO CHOOSE.
+===============================================================================
+*** NOT APPLIED.  NOTHING CHANGED.  Reported, not repaired. ***
+
+  INSTRUMENT: cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_cpuset_overlap.py,
+              driven by d8g_chain_driver.sh:334-349 (G-CPUSET).
+
+  MEASURED LIVE 2026-09-12T00:44Z, read-only, by this lane:
+    live neighbour  hopeful_engelbart   HostConfig.CpusetCpus = ""  (EMPTY)
+                                        HostConfig.NanoCpus   = 8e9 (--cpus=8)
+    d8g_cpuset_overlap.py 0,1,12,15 d8g_  ->  {"overlaps": [], "ok": true}
+
+  THE GATE COMPARES *DECLARED* CPUSETS.  A container that declares NO cpuset
+  declares no overlap -- and is therefore scheduled by the kernel on ANY core,
+  0, 1, 12 and 15 included.  THE ONE NEIGHBOUR SHAPE THAT CAN TAKE ALL FOUR OF
+  D8G's CORES IS THE ONE SHAPE THIS GATE CANNOT SEE.  Its ok is not evidence;
+  it is a zero from a reader not shown able to see a non-zero (CLAUDE.md rule 3,
+  applied to a scheduler rather than to a field).
+
+  IT HAS ALREADY FIRED FALSELY ON A GRADED ARM.  ledger.txt / L1P_chain2.out:
+    D8G_CPUSET arm=L1-P waited=0 {"live":[{"name":"tender_wu","cpuset":""}],
+                                  "overlaps": [], "ok": true}
+    ARM=L1-P ... delivered_cores_mean=[0.3150 n=14 max_nr_throttled=1]
+  The gate passed with waited=0 and the arm then received 0.3150 of its 4
+  requested cores -- 7.9% -- with the box at load1 = 37.45.  THE GATE SAID THE
+  CPUSET WAS CLEAR AND THE ARM WAS ALMOST ENTIRELY STARVED.
+
+  THE SISTER INSTRUMENT GETS THIS RIGHT, WHICH IS WHY IT IS WORTH SAYING.
+  d8g_aggregate_memory.py carries its own limitation in its own output:
+    "uncapped_note": "the aggregate was taken against 1 UNBOUNDED neighbour(s):
+     tender_wu.  Their claim is counted at CURRENT USAGE and is a LOWER BOUND;
+     this reading cannot bound what they may grow to."
+  G-CPUSET has no equivalent clause.  ONE OF THE TWO GATES DISCLOSES THE HOLE
+  IN ITS OWN READING AND THE OTHER DOES NOT.
+
+  WHAT THIS COSTS, CONCRETELY, AT L2-P:  L2-P's launch-witness budget is
+  392 s (derived floor((786-1)/2), TMO = round(52.416 x 60 / 4)).  This lane's
+  forecast for L2-P's time-to-first-ExecutionTime is ~391 s on an UNCONTENDED
+  box (L2_CONVERGENCE_PREDICTION_REGISTERED_BEFORE_RUN.txt section 5).  Under
+  L1-P-grade contention that forecast is meaningless and an rc=88 launch
+  refusal is likely.  A GATE THAT SAYS ok WHILE THE CORES ARE GONE WILL LET
+  L2-P LAUNCH INTO EXACTLY THAT.
+
+  WHY NO DIFF IS OFFERED.  The obvious repair -- treat an unpinned live
+  container as overlapping everything -- would have BLOCKED L1-P for up to
+  AGG_BOUND_S = 14,400 s, and would block L2-P now.  That is a change in how
+  much compute the item is allowed to attempt, which is an operational ruling
+  and not a code opinion.  A weaker repair -- emit an `unpinned_note` alongside
+  ok, matching d8g_aggregate_memory.py's disclosure -- changes no behaviour and
+  makes the hole visible in every future ledger.  BOTH ARE THE SUPERVISOR'S
+  CALL.  This lane reports the reading and stops.
+
+  WHAT THIS LANE DID NOT VERIFY: that the kernel actually scheduled
+  hopeful_engelbart onto cores 0, 1, 12 or 15.  The inference is from the
+  ABSENCE of a cpuset plus --cpus=8 on a 16-core box at load1 57.85; it is not
+  a per-core measurement, and it is stated as an inference, not a measurement.
+
+SUBMISSIONS PARKED.  NOT FILED ANYWHERE.  NOTHING LEAVES THE BOX.
