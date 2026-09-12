@@ -26853,3 +26853,58 @@ transposition); the `setsid parent returns zero` pattern; L-543 (`grep -c` vs
 `grep -co`: one character silently changes the unit of a number that survives every
 check except re-measurement); the `a red with an innocent explanation` pattern, in
 mirror image — here it was a **green** with an innocent explanation.
+
+## L-553 — A calibration must calibrate THE READER YOU ACTUALLY USED: I licensed a zero from `grep -ci` (ROWS, one file) with a control run through `git grep -rl` (FILES, three trees), called them "the same query", and published it — and the reader I actually used cannot see `CBFS13700` either
+
+**2026-09-12, closure.** I claimed a zero: `grep -ci ktest
+verification/queue/LAUNCH_LOG.tsv` returns **0**. To license it I wrote that **"the
+same query"** returned **65** and **140** for two registered cases — a proper-looking
+positive control, two non-zeros from a reader that had just returned a zero.
+
+**They were not the same query, and not even the same unit.** The 65 and the 140
+came from **`git grep -rl` over THREE TREES** — a count of **FILES**. The zero came
+from **`grep -ci` over ONE FILE** — a count of **ROWS**. Two different readers, two
+different corpora, two different units. **I calibrated one reader and believed the
+other**, and the sentence that joined them ("the same query") was the entire defect,
+in three words.
+
+**AND THE READER I ACTUALLY USED IS GENUINELY HALF BLIND.** Re-measured on disk
+against `verification/queue/LAUNCH_LOG.tsv`:
+
+| pattern | `grep -ci` on that file |
+|---|---|
+| `AR_10_Ret_180` (registered) | **2** |
+| `CBFS13700` (registered) | **0** |
+| `ktest` (the claim) | **0** |
+
+**A registered case returns zero from that file** — not because it never ran, but
+because the launch log records **campaign-level identifiers, not case-level ones**.
+The proper control, run through the actual reader, would have returned a zero for a
+case known to exist and **stopped the claim on the spot.** The control I ran was
+picked, without my noticing, from the one of my two readers that could pass it.
+
+**The rule.** **A reader that cannot see one registered case in a file is not
+entitled to its zero on an unregistered one in that same file.** And the operative
+form: **the control must run through the SAME READER, the SAME PATTERN SHAPE and the
+SAME ARTIFACT as the claim it licenses** — same command, same flags, same corpus,
+same unit. A control that differs in any of those is a control of a different
+instrument, and it will tend to differ in exactly the direction that lets it pass,
+because that is the version you reached for.
+
+**This is standing rule 3 transposed from a comparator onto a grep**, and the
+transposition is the part I missed. The lab plants a perturbation in a *field* and
+refuses if the reader cannot see it; nobody thinks of a shell one-liner as an
+instrument requiring the same ceremony. **It is one, the moment its output becomes a
+number in a record** — and mine became a number on the board before it was caught.
+
+**What it cost.** A calibration claim published to the board that **did not
+calibrate the reader it claimed to**. Struck on discovery. The zero it licensed is
+now **NOT A RESULT** rather than false — the file simply does not carry case-level
+identifiers, so it is the wrong artifact for the question.
+
+**Related.** Standing rule 3; L-542 (`grep -r` (ugrep, skips gitignored) and `git
+ls-files` (tracked only) are blind in **opposite** directions, so swapping readers
+trades a blind spot for its mirror and feels safer) — this lesson is what happens
+when you swap readers **between the control and the claim**; L-543 (rows vs matches:
+one letter changes the unit); the `a zero needs a live planted control` pattern; the
+`grep is ugrep` pattern.
