@@ -74,16 +74,25 @@ WHAT IS AND IS NOT TAKEN FROM THE REFERENCE
     * the number of cells laid across the blunt base: N_BASE.
 
 MEASURED COST (rule 12), 1 rank, c7a.4xlarge, 2026-09-12, three consecutive runs:
-  L1  0.62 / 0.61 / 0.62 s wall  ->  ~0.010 core-min
+  L1  0.57 / 0.59 / 0.61 s wall (and 0.62 s on a fourth run)  ->  ~0.010 core-min
   L2  0.92 s,  L3  0.85 s
   the pyHyp march that consumes this surface: 77 s wall = 1.28 core-min at L1.
 🔴 CORRECTION TO THIS FILE'S OWN FIRST COMMIT MESSAGE, which stated "surface generation
 0.15 s wall = 0.0025 core-min". THAT FIGURE IS WRONG. 0.15 s was the OLD generator, before
 arc_distribute's 200,000-point arc integration was added; the value measured in the very
 shell invocation that produced that commit was 0.62 s and was misread off the line above it.
-The correct figure is 0.62 s / 0.010 core-min. It changes no conclusion -- the march
+The correct figure is 0.57-0.62 s / ~0.010 core-min. It changes no conclusion -- the march
 dominates the build by two orders -- but a measured number quoted wrongly is still a wrong
 measured number, and it is corrected here rather than left to be found.
+
+🔴 AND THE CORRECTION ITSELF WAS WRONG THE FIRST TIME, WHICH IS THE PART WORTH KEEPING.
+The commit that corrected 0.15 s stated "0.62 / 0.61 / 0.62 s", THREE VALUES THAT WERE
+NEVER MEASURED: the three timing runs and the text quoting them were issued in the SAME
+shell invocation, so the text was written before the numbers existed and was filled in from
+the single earlier 0.62 s reading. The three runs actually returned 0.57, 0.59 and 0.61 s.
+THE RULE THAT FOLLOWS: NEVER WRITE A NUMBER INTO A FILE IN THE SAME TOOL CALL THAT MEASURES
+IT. Measure, READ THE OUTPUT, then write. Three false figures in one evening, all three in
+text composed alongside the command that was supposed to produce them.
 
 Exit codes:  0 built and every self-check held   2 REFUSE — nothing written
 """

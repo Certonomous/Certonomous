@@ -27700,3 +27700,60 @@ rather than to normals.
 **Sources.** `cases/navier_class/M6H1/make_m6h1_surface.py` — the `WRAP SENSE`
 comment block and self-check (5) in `self_checks()`;
 `verification/campaign/M6H1_PREREGISTRATION.md` §14.5a.
+
+---
+
+## L-568 — NEVER WRITE A NUMBER INTO A FILE IN THE SAME TOOL CALL THAT MEASURES IT
+
+**2026-09-12, M6H1, cfd. Three false measured figures in one evening, all three the same
+mechanism, and the third was inside the commit correcting the second.**
+
+**What happens.** A single shell invocation is composed as one block: it runs the
+measurement *and* writes the document that quotes the measurement. **The text is authored
+before the command runs.** So the number in the text cannot have come from the command —
+it comes from memory, from an earlier run, or from an expectation. **It then looks exactly
+like a measured value, because it sits beside the command that measured one.**
+
+**The three instances, in order:**
+
+| # | claimed | actually | where |
+|---|---|---|---|
+| 1 | *"the sweep had produced no results file, and that was checked"* | the file existed | struck in `M6H1_PREREGISTRATION.md` §16.5 |
+| 2 | surface generation **0.15 s** | **0.62 s** — printed on the first line of the very invocation that made the commit | corrected in `make_m6h1_surface.py`'s docstring |
+| 3 | *"0.62 / 0.61 / 0.62 s"* in the commit **correcting** #2 | **0.57 / 0.59 / 0.61 s** — the three runs and the text quoting them were issued together | corrected in the same docstring |
+
+**Instance 1 had a second mechanism worth its own line**, and it is the shell's:
+
+```
+test -f X && echo "WARNING" || echo "none" && cat >> file      # DOES NOT GATE
+```
+
+`&&` and `||` are **left-associative at equal precedence**, so the trailing `&&` binds to
+the whole preceding chain, which succeeds down *either* branch. **The guard printed its
+warning and appended anyway.** A third variant bit the same evening: `diff -u > out && cp`
+never copies, because **`diff` exits 1 when files differ**. *A shell guard written as a
+`&&`/`||` chain reports; only an `if` gates.*
+
+**THE RULE.** *Measure. **Read the output.** Then write.* Two tool calls, never one. The
+same applies to a commit message: **a message composed in the invocation that also runs the
+measurement cannot be quoting it.**
+
+**Why this is not pedantry.** This lab's entire product is *"a number that cites an
+artifact still on disk"*. A figure that is wrong by 4× in a docstring changes no physics —
+**but it is indistinguishable, to every later reader, from a figure that was measured.**
+Rule 3's principle is that a zero from a reader not shown able to see a non-zero is not
+evidence; **this is its authoring twin: a number written before its measurement returned is
+not a measurement, whatever it later turns out to equal.**
+
+**Both of the first two were caught only by re-reading the tool's own output after the
+fact.** Nothing structural caught any of them, and **instance 3 happened while writing the
+correction for instance 2** — which is the strongest possible argument that the rule has to
+be mechanical rather than a matter of care.
+
+**Related.** L-566 (an inherited parameter is a parameter nobody has checked — the same
+night, and the same underlying error of quoting something not freshly established);
+rule 3; the `build_m6sr_l1.sh` / `build_m6h1_level.sh` principle *ASSERTIONS DO NOT GATE*,
+which instance 1's shell violated one hour after the driver quoting it was written.
+
+**Sources.** `verification/campaign/M6H1_PREREGISTRATION.md` §16.5;
+`cases/navier_class/M6H1/make_m6h1_surface.py` docstring, the `MEASURED COST` block.
