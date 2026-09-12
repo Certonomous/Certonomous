@@ -1,0 +1,67 @@
+                                            Pre-tests I, V = 0 m/s
+
+
+Tmeasured = Tgap + Tbearing
+Qmeasured = Qgap + Qhub + Qbearing
+
+
+
+
+                                     PPTC                        1
+                                              Pre-tests II
+
+
+Tmeasured = Tgap + Tbearing + Thub
+Qmeasured = Qgap + Qbearing + Qhub
+
+
+
+                           V > 0 m/s
+
+
+
+
+                                       PPTC              2
+                                              Open water test
+
+
+Tmeasured = Tgap + Tbearing + Thub + Tblade
+Qmeasured = Qgap + Qbearing + Qhub + Qblade
+
+
+
+                           V > 0 m/s
+
+
+
+
+                                       PPTC                 3
+                    Open water test (blades and hub)
+                              Pre test I
+
+Tpropeller = Tmeasured - Tgap - Tbearing
+Qpropeller = Qmeasured - Qgap - Qhub - Qbearing
+
+
+
+                            V > 0 m/s
+
+
+
+
+                                           PPTC    4
+                           Open water test (blades only)
+                            Pre test II
+
+Tblades = Tmeasured - Tgap - Tbearing - Thub
+Qblades = Qmeasured - Qgap - Qbearing - Qhub
+
+
+
+                            V > 0 m/s
+
+
+
+
+                                        PPTC           5
+

@@ -1,0 +1,1096 @@
+         Potsdam Propeller Test Case (PPTC)
+                 Open Water Tests
+                     Case 2.1
+
+
+                    Ulf Barkmann
+
+
+
+             Potsdam Model Basin (SVA)
+
+
+
+
+The Second International Symposium on Marine Propulsors 2011 – smp‘11
+                       Towing tank test
+
+• Tests were conducted in
+  the towing tank of the SVA
+• Dynamometer mounted
+  behind the propeller
+
+
+
+
+PPTC                                      smp‘11   2
+                              Test arrangement
+
+• The open water tests were carried out
+  according to the ITTC recommended
+  procedures:
+
+ • Streamlined cap longer then 1.5 Df
+
+ • Cone with 20° opening angle
+
+ • Immersion of the dynamometer
+   center line: 1.5 D
+
+ • Prior tests with cap and hub without
+   blades
+
+ • Hub of the same weight and shape
+   as the propeller hub with blades
+
+
+
+
+  PPTC                                           smp‘11   3
+                                Open water characteristics
+                     2.2
+                                        Measured open water characteristics - PPTC
+                     2.0                corrected with gap force and idle torque
+                                        (represents the characteristics of the propeller blades)
+                                                                  ______ n = 10 s -1
+                     1.8                                          ______ n = 15 s -1
+
+
+
+                     1.6                Lines correspond to polynomials
+                                        Signs correspond to measured values
+                                 10KQ
+                     1.4
+KT , 10KQ , ηO [-]
+
+
+
+
+                     1.2
+
+                     1.0
+                           KT
+                     0.8
+                                                                                                   ηO
+                     0.6
+
+                     0.4
+
+                     0.2
+
+
+The0.0
+       characteristic
+       0.0   0.2      0.4 0.6   0.8       1.0 1.2                                         1.4           1.6   1.8
+with n = 15 s    -1                 J [-]
+
+is selected for the comparison with the calculation
+PPTC                                                                                 smp‘11                    4
+                                  Participants
+       14 groups, 13 solvers, 19 calculations
+       Group                           Solver         Acronym
+       Berg-Propulsion                 OpenFOAM       Berg-OpenFOAM
+       Cradle                          SC/Tetra       Cradle-SC/Tetra
+       CSSRC                           ANSYS Fluent   CSSRC-Fluent
+       HSVA                            PPB            HSVA-PPB
+                                       QCM            HSVA-QCM
+       INSEAN                          PFC            INSEAN-PFC
+       MARIC                           ANSYS Fluent   MARIC-Fluent
+       SSPA                            ANSYS Fluent   SSPA-Fluent
+       SVA                             Vortex         SVA-Vortex
+       TUHH                            FreSCO+        TUHH-FreSCO
+       University of Genua             Panel          UniGenua-Panel
+                                       OpenFOAM       UniGenua-OpenFOAM
+                                       StarCCM+       UniGenua-StarCCM(kw)
+                                       StarCCM+       UniGenua-StarCCM(ke)
+       University of Triest            ANSYS CFX      UniTriest-CFX
+       VicusDT                         StarCCM+       VicusDT-StarCCM
+       VOITH                           Comet          VOITH-Comet
+                                       OpenFOAM       VOITH-OpenFOAM
+       VTT                             FinFlo         VTT-FinFlo
+
+
+
+PPTC                                                  smp‘11                 5
+                                             All characteristics
+                     1.6
+
+
+                     1.4
+                                             10KQ
+
+                     1.2
+
+
+                     1.0
+KT , 10KQ , ηO [-]
+
+
+
+
+                     0.8
+                                                          η0
+                     0.6
+
+
+                     0.4
+
+                                                          KT
+                     0.2
+
+
+                     0.0
+                           0.6   0.7   0.8          0.9         1.0    1.1   1.2      1.3   1.4
+                                                               J [-]
+
+
+
+
+PPTC                                                                         smp‘11          6
+                            Berg-Propulsion OpenFOAM
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       7
+                                              Cradle SC/Tetra
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       8
+                                        CSSRC ANSYS Fluent
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       9
+                                                    HSVA PPB
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       10
+                                                HSVA QCM
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       11
+                                              INSEAN PFC
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       12
+                                    MARIC ANSYS Fluent
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       13
+                                        SSPA ANSYS Fluent
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       14
+                                                    SVA Vortex
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       15
+                                              TUHH FreSCO+
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       16
+                                  University of Genua Panel
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       17
+       University of Genua OpenFOAM
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       18
+       University of Genua StarCCM+ (kω)
+
+                             1.6
+                             1.5                                    PPTC - smp'11 Workshop
+                             1.4                                    open water characteristics
+                                                                    _ _ _ _ measurement
+                             1.3                                    ______ calculation
+
+                             1.2
+                             1.1
+        KT , 10KQ , ηO [-]
+
+
+                             1.0
+                             0.9
+                             0.8
+                                                                                             hO
+                             0.7
+                             0.6
+                                                                                             10KQ
+                             0.5
+                             0.4
+                             0.3
+                             0.2
+                                                                                             KT
+                             0.1
+                             0.0
+                                   0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                 J [-]
+
+
+
+PPTC                                                                                       smp‘11       19
+       University of Genua StarCCM+ (kε)
+
+                             1.6
+                             1.5                                    PPTC - smp'11 Workshop
+                             1.4                                    open water characteristics
+                                                                    _ _ _ _ measurement
+                             1.3                                    ______ calculation
+
+                             1.2
+                             1.1
+        KT , 10KQ , ηO [-]
+
+
+                             1.0
+                             0.9
+                             0.8
+                                                                                             hO
+                             0.7
+                             0.6
+                                                                                             10KQ
+                             0.5
+                             0.4
+                             0.3
+                             0.2
+                                                                                             KT
+                             0.1
+                             0.0
+                                   0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                 J [-]
+
+
+
+PPTC                                                                                       smp‘11       20
+          University of Triest ANSYS CFX
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       21
+                                        VicusDT StarCCM+
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       22
+                                              VOITH Comet
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       23
+                                        VOITH OpenFOAM
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       24
+                                                VTT FinFlo
+
+                            1.6
+                            1.5                                    PPTC - smp'11 Workshop
+                            1.4                                    open water characteristics
+                                                                   _ _ _ _ measurement
+                            1.3                                    ______ calculation
+
+                            1.2
+                            1.1
+       KT , 10KQ , ηO [-]
+
+
+                            1.0
+                            0.9
+                            0.8
+                                                                                            hO
+                            0.7
+                            0.6
+                                                                                            10KQ
+                            0.5
+                            0.4
+                            0.3
+                            0.2
+                                                                                            KT
+                            0.1
+                            0.0
+                                  0.5   0.6   0.7   0.8   0.9    1.0    1.1   1.2   1.3   1.4    1.5
+                                                                J [-]
+
+
+
+PPTC                                                                                      smp‘11       25
+                                                                      ΔKT , Δ10KQ ,Δ ηO [-]
+
+
+
+
+                                  -0.140
+                                           -0.120
+                                                    -0.100
+                                                             -0.080
+                                                                      -0.060
+                                                                               -0.040
+                                                                                        -0.020
+                                                                                                                                                          0.140
+
+
+
+
+                                                                                                 0.000
+                                                                                                         0.020
+                                                                                                                 0.040
+                                                                                                                         0.060
+                                                                                                                                 0.080
+                                                                                                                                         0.100
+                                                                                                                                                 0.120
+               Berg-OpenFOAM
+                 Cradle-SCTetra
+                  CSSRC-Fluent
+                      HSVA-PPB
+                    HSVA-QCM
+                   INSEAN-PFC
+                  MARIC-Fluent
+                    SSPA-Fluent
+
+
+
+
+          J = 0.6
+                     SVA-Vortex
+                 TUHH-Fresco+
+              UniGenua -PANEL
+          UniGenua-OpenFOAM
+         UniGenua -StarCCM(kw)
+         UniGenua -StarCCM(ke)
+                 UniTriest_CFX                                        ΔKT , Δ10KQ ,Δ ηO [-]
+              VicusDT-StarCCM
+                  VOITH-Comet
+            VOITH-OpenFOAM
+
+
+
+
+                                  -0.140
+                                           -0.120
+                                                    -0.100
+                                                             -0.080
+                                                                      -0.060
+                                                                               -0.040
+                                                                                        -0.020
+                                                                                                                                                          0.140
+
+
+
+
+                                                                                                 0.000
+                                                                                                         0.020
+                                                                                                                 0.040
+                                                                                                                         0.060
+                                                                                                                                 0.080
+                                                                                                                                         0.100
+                                                                                                                                                 0.120
+
+
+
+
+                     VTT-FinFlo
+
+               Berg-OpenFOAM
+                 Cradle-SCTetra
+                  CSSRC-Fluent
+                      HSVA-PPB
+                    HSVA-QCM
+                   INSEAN-PFC
+                                                                                                                                                         KT
+
+
+
+
+                  MARIC-Fluent
+                    SSPA-Fluent
+
+
+
+
+          J = 1.0
+                     SVA-Vortex
+                 TUHH-Fresco+
+              UniGenua -PANEL
+                                                                                                                                                         10KQ
+
+
+
+
+          UniGenua-OpenFOAM
+         UniGenua -StarCCM(kw)
+         UniGenua -StarCCM(ke)
+                 UniTriest_CFX
+              VicusDT-StarCCM                                         ΔKT , Δ10KQ ,Δ ηO [-]
+                  VOITH-Comet
+            VOITH-OpenFOAM
+                     VTT-FinFlo
+                                  -0.140
+                                           -0.120
+                                                    -0.100
+                                                             -0.080
+                                                                      -0.060
+                                                                               -0.040
+                                                                                        -0.020
+                                                                                                                                                         ηO 0.140
+
+
+
+
+                                                                                                 0.000
+                                                                                                         0.020
+                                                                                                                 0.040
+                                                                                                                         0.060
+                                                                                                                                 0.080
+                                                                                                                                         0.100
+                                                                                                                                                 0.120
+
+
+
+
+               Berg-OpenFOAM
+                 Cradle-SCTetra
+                  CSSRC-Fluent
+                      HSVA-PPB
+                    HSVA-QCM
+smp‘11
+                   INSEAN-PFC
+                  MARIC-Fluent
+                    SSPA-Fluent
+                     SVA-Vortex
+          J = 1.4
+
+
+
+
+                 TUHH-Fresco+
+              UniGenua -PANEL
+          UniGenua-OpenFOAM
+                                                                                                                                                                    Comparison - differences to the measurements
+
+
+
+
+         UniGenua -StarCCM(kw)
+         UniGenua -StarCCM(ke)
+                 UniTriest_CFX
+              VicusDT-StarCCM
+26
+
+
+
+
+                  VOITH-Comet
+            VOITH-OpenFOAM
+                     VTT-FinFlo
+                          Comparison - differences to the measurements
+                        0.02
+
+                        0.00
+ΔKT , Δ10KQ ,Δ ηO [-]
+
+
+
+
+                        -0.02
+                                      SMP'11 - Open water test
+                        -0.04         Mean of calculated coefficients
+                                                  ΔKT
+                        -0.06                     Δ10KQ
+                                                  Δη0
+                        -0.08
+                                0.6           0.7         0.8           0.9    1.0         1.1          1.2         1.3         1.4
+                        0.06                                                  J [-]
+                                                                                SMP'11 - Open water test
+                        0.05                                                    Standard deviation of calculated coefficients
+ΔKT , Δ10KQ ,Δ ηO [-]
+
+
+
+
+                        0.04                                                         σ(ΔKT)          σ(Δ10KQ)          σ(Δη0)
+
+                        0.03
+                        0.02
+                        0.01
+                        0.00
+                               0.6           0.7          0.8           0.9    1.0        1.1          1.2         1.3          1.4
+                                                                              J [-]
+
+
+
+
+                                                                                                     smp‘11                      27
+                                        Comparison - boundaries
+
+                      1.6
+                                                   SMP'11 - Open water test
+                                                   Comparison of calculation methods
+                      1.4                                     σ boundaries
+                                                              mean of calculated coefficients
+                                           10KQ
+                      1.2                                     measured coefficients
+
+
+                      1.0
+ KT , 10KQ , ηO [-]
+
+
+
+
+                      0.8
+                                                        ηO
+
+                      0.6
+
+                      0.4
+
+                                                                             KT
+                      0.2
+
+                      0.0
+                            0.6   0.7    0.8      0.9         1.0         1.1         1.2       1.3   1.4
+                                                             J [-]
+
+
+
+PPTC                                                                                 smp‘11           28
+                                        Comparison - methods
+
+                      1.6
+                                                            SMP'11 - Open water test
+                                                            Comparison of calculation methods
+                      1.4                                              mean coefficients of viscous methods
+                                          10KQ                         mean coefficients of potential methods
+                      1.2                                              measured coefficients
+
+
+                      1.0
+ KT , 10KQ , ηO [-]
+
+
+
+
+                      0.8
+                                                       ηO
+
+                      0.6
+
+                      0.4
+
+                                                                              KT
+                      0.2
+
+                      0.0
+                            0.6   0.7   0.8      0.9           1.0         1.1         1.2         1.3          1.4
+                                                              J [-]
+
+
+
+PPTC                                                                                 smp‘11                     29
+                                        Comparison - methods
+
+                      1.6
+                                                       SMP'11 - Open water test
+                                                       Comparison of calculation methods: standard deviation
+                      1.4                                         boundaries viscous methods
+                                          10KQ                     boundaries potential methods
+                      1.2                                         measurement
+
+
+                      1.0
+ KT , 10KQ , ηO [-]
+
+
+
+
+                      0.8
+                                                       ηO
+
+                      0.6
+
+                      0.4
+
+                                                                             KT
+                      0.2
+
+                      0.0
+                            0.6   0.7   0.8      0.9          1.0         1.1         1.2         1.3          1.4
+                                                             J [-]
+
+
+
+PPTC                                                                                 smp‘11                    30
+                   Potsdam Propeller Test Case
+
+                           Acknowledgements
+The PPTC working group wishes to acknowledge the support for the Propeller
+Performance Workshop given by the organisation team of the smp'11.
+
+Special thanks also to the participants; without whom the workshop could not
+have taken place.
+
+
+
+
+PPTC                                                     smp‘11                31
+

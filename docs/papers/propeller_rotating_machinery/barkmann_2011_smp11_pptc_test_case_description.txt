@@ -1,0 +1,254 @@
+                                                                Second International Symposium on Marine Propulsors
+                                                                              smp’11, Hamburg, Germany, June 2011
+                                                                                     Workshop: Propeller performance
+
+
+                              Potsdam Propeller Test Case (PPTC)
+                                                Test Case Description
+
+                               Ulf Barkmann1, Hans-Jürgen Heinke1, Lars Lübke1
+
+                                            1
+                                             SVA, Potsdam Model Basin, Germany
+
+
+
+     1 AIM OF WORKSHOP                                                 3 EXPERIMENTAL INVESTIGATIONS
+The purpose of the workshop is in-force the development                  3.1 Open Water Performance
+of numerical methods for calculation of the performance                    3.1.1 Test Conditions
+of marine propulsors in cavitating and non-cavitating             The propeller is investigated in a pull configuration in the
+flows. The high demand for improving the accuracy and             towing tank of the SVA. For the open water tests the
+the quality of the numerical methods should be assess by          dynamometer H39 from Kempf & Remmers has been
+providing high qualitative and intensive experimental             used. During the tests the propeller shaft is submerged by
+validation data. The SVA Potsdam GmbH supported the               1.5 D.
+smp organisation committee in monitoring the
+performance and accuracy of available numerical methods           Measurements with a dummy hub were conducted, in
+by offering test and validation data for a controllable pitch     order to get data of the idle torque, the force in the gap
+propeller SVA-VP1304. The test results are published in           between the hub and the aft fairing and the resistance of
+course of the propeller workshop of the Second                    the hub cap.
+International Symposium on Marine Propulsors 2011                 The open water tests were carried out at two different
+(smp’11). The geometry and results of the propeller are           numbers of revolutions to evaluate the dependency on the
+presented under the name PPTC, an acronym for                     Reynolds number. However for the evaluation of the
+“Potsdam Propeller Test Case”.                                    computational results solely the tests with n = 15 s-1 are
+The experimental results were          unknown      for   the     taken into account. The details of experimental setup and
+participants of the workshop.                                     test conditions are given in table 2 and 3.
+
+The experimental investigation includes open water test,                   3.1.2 Requested Computations
+velocity field measurements and cavitation tests. Different       It was requested to calculate the open water characteristics
+operation conditions were investigated. A detailed                of the propeller for the advanced coefficients J = 0.6, 0.8,
+description of the open water tests conducted at the              1.0, 1.2 and 1.4. The computations should be conducted
+towing tank of the SVA is presented in the SVA report             according to the operation conditions given in Table 4.
+3752 [1], which can be down loaded from the website               The thrust and torque of the propeller should be made
+(sva-potsdam.de).                                                 dimensionless employing the rate of revolution n, the
+     2 GEOMETRY OF THE POTSDAM PROPELLER                          propeller diameter D and the density of water  as
+     TEST CASE                                                    follows:
+The propeller is a controllable pitch propeller. This affects                                               VA
+the propeller blade design near the hub and results in a 0.3      Advance coefficient                  J
+mm gap between hub and the root of the propeller blade
+                                                                                                            n D
+near the leading and trailing edge.
+The hub cap and aft fairing where designed according to                                                            T
+                                                                  Thrust coefficient                   KT 
+the 22nd ITTC (1999) proceedings. The gap between aft                                                            n2  D4
+fairing and hub has a width of 3 mm. Also a dummy hub,
+having the same dimensions and mass as the propeller
+hub, was manufactured.                                                                                              Q
+                                                                  Torque coefficient                   KQ 
+The main data of the propeller is given in Table 1. The                                                          n2  D5
+propeller geometry can be down loaded from the website
+(sva-potsdam.de).
+                                             J KT              The axial velocities are defined positive in flow direction,
+Open water efficiency                0                      the radial velocities for increasing radii and the tangential
+                                            2 K Q             velocities in direction of rotation.
+                                                                      3.3 Cavitation
+with VA being the advance speed, T the thrust and Q the
+                                                                        3.3.1 Test Conditions
+propeller torque
+                                                               The cavitation tests were conducted in the cavitation
+         3.1.3 Open Water Test Results                         tunnel K 15 A (Kempf & Remmers) of the SVA Potsdam.
+The measured values in the open water tests were               For the tests a test section with the length of 2600 mm and
+corrected with the values of the idle torque and the gap       a cross section of 600 x 600 mm was used. The
+force.                                                         dynamometer J25 from Kempf & Remmers was arranged
+The measured and corrected open water characteristics for      in front of the propeller model. The shaft inclination was
+the five requested advance coefficients are given in Table     zero degrees.
+4 for the number of revolutions n = 15 s-1.                    The propeller characteristic in the cavitation tunnel had
+       3.2 Velocity Field                                      been measured at the numbers of revolutions n = 15, 20
+         3.2.1 Test Conditions                                 and 25 s-1. Cavitation buckets were measured with the
+The velocity field was measured by means of LDV in the         number of revolutions n = 25 s-1. Two blades had been
+cavitation tunnel K 15 A (Kempf & Remmers) of the SVA          selected for the cavitation tests.
+Potsdam, utilising a test section with the length of           The cavitation behaviour of the propeller was observed in
+2600 mm and a cross section of 600x600 mm. The                 three working points, corresponding to the test conditions
+dynamometer J25 from Kempf & Remmers was arranged              required for test case 2.3.1-2.3.3. Test results are
+in front of the propeller model. The shaft inclination was     summarized in SVA report [3].
+zero degrees.
+                                                                        3.3.2 Requested Computations
+A 2D-LDV measuring system from TSI was used for the            It was requested to calculate the propeller cavitation for
+velocity measurements.                                         three working point, given in Table 10.
+Angular based measurements of the transient flow field
+behind the rotating propeller operating in homogeneous         The calculation shall be conducted according to the thrust
+inflow were carried out. Special attention was laid upon       identity.
+resolving the tip vortex. The velocity field around the        For the three working points it was requested to visualize
+model propeller VP1304 was measured in seven planes            the cavity surface for vapor fractions of 20, 50 and 80%.
+x/D = -0.2, 0.094, 0.10, 0.11, 0.13, 0.16 and 0.20, with       For case 2.3.1 and case 2.3.2 it was requested to look
+respect to the propeller plane as shown in Table 5.            upon the suction side, while for case 2.3.3 on the pressure
+One revolution of the propeller was resolved within 1440       side of the propeller.
+angle classes, giving an angular resolution of 0.25°. The      In order to quantify the thrust deduction it was
+resolution in radial direction is shown in Table 6.            additionally requested to provide the thrust coefficient of
+All measurements were conducted for the same working           the propeller in cavitating condition.
+point, given in Table 7. The test conditions are given in      It was also requested to provide the pressure distribution,
+Table 8.                                                       made dimensionless with the section advance speed, on
+The LDV measurements were carried out along a line of          the propeller radii r/R = 0.7, 0.97 and 1.00 with and
+constant angular position  = 225°. The data is than           without cavitation.
+related to the zero degree position, being defined as the 12   The data is made dimensionless as follows:
+o’clock position.
+                                                               Cavitation number with respect to n:
+The tests were conducted with a non-cavitating propeller.
+                                                                                  p  pv 
+Test results are summarized in in SVA report [2].                       n 
+         3.2.2 Requested Computations                                          0.5    nD 2
+It was requested to calculate the velocity field around the
+propeller for the working point and test conditions given      Pressure coefficient:
+in Table 4 and 5. The calculations should be conducted                                      p  p0 
+                                                                               0.5    V 2  2    n  r 2 
+according to the thrust identity.                                       cP 
+Four different evaluations were requested. The velocity
+distribution should be provided on three different radii       with DP being the propeller diameter, T the propeller
+each for two planes located 0.1 and 0.2 propeller              thrust, Q the propeller torque, p the tunnel pressure, pv the
+diameters behind the propeller plane, see Table 9.             vapour pressure, p0 the static pressure and r the radius.
+The velocity components for Case 2.2.1 -2.2.3 shall be
+made dimensionless by means of the inflow velocity, as
+follows 1-(Vx/VA), Vt/VA and Vr/VA.
+REFERENCES                                          [3]Heinke, H.-J., Potsdam Propeller Test Case
+[1]Barkmann, U., Potsdam Propeller Test Case           (PPTC), Cavitation Tests with the Model
+   (PPTC) - Open Water Tests with the Model            Propeller VP1304, Report 3753, Schiffbau-
+   Propeller VP1304, Report 3752, Schiffbau-           Versuchsanstalt Potsdam, April 2011
+   Versuchsanstalt Potsdam, April 2011
+[2]Mach, K., Potsdam Propeller Test Case (PPTC),
+   LDV with the Model Propeller VP1304, Report
+   3754, Schiffbau-Versuchsanstalt Potsdam, April
+   2011 (unpublished)
+  TABLES
+
+
+
+         Table 1: Main data of model propeller VP1304
+
+                                                                  VP1304
+
+  Diameter                                 D        [m]           0.250
+  Pitch ratio r/R = 0.7                    P0.7/D   [–]           1.635
+  Area ratio                               AE/A0    [–]           0.77896
+  Chord length r/R = 0.7                   c0.7     [m]           0.10417
+  Skew                                     θEXT     [°]           18.837
+  Hub ratio                                dh/D     [–]            0.300
+  Number of blades                         Z        [–]            5
+  Sense of rotation                                 [–]            right
+  Type                                              [–]            controllable pitch propeller
+
+
+         Table 2: Details of model tests
+
+PPTC
+
+Towing tank
+Dimensions of towing tank                                 280 x 9 x 4.5 m
+
+
+Propeller:                                                VP1304
+Propeller type                                            controllable pitch propeller
+Material of model propeller                               brass
+Diameter of the propeller                                 0.25 m
+Sense of rotation                                         right (looking on pressure side)
+
+
+Arrangement:
+Shaft inclination                                         0°
+Dynamometer shaft                                         behind the propeller
+
+
+Measuring equipment:                                      dynamometer H39
+                                                          nmax = 60 s-1
+                                                          Tmax = 1 kN
+                                                          Qmax = 50 Nm
+     Table 3: Operation conditions
+
+ Water density           (tW = 17.5 °C)                                     [kg/m³]                998.67
+ Kinematic viscosity (tW = 17.5 °C)                                         [m²/s]               1.070E-06
+
+ Number of revolutions                                      n                 [1/s]                 15.00
+
+
+
+     Table 4: Measured open water characteristics (by polynomials)
+
+
+               J                      KT                        10KQ                              ηO
+
+           0.60                     0.6288                      1.3964                           0.4300
+           0.80                     0.5100                      1.1780                           0.5512
+           1.00                     0.3994                      0.9749                           0.6520
+           1.20                     0.2949                      0.7760                           0.7258
+           1.40                     0.1878                      0.5588                           0.7487
+
+
+     Table 5: LDV Measuring planes
+
+  x-position       x/D    [–]        -0.200   0.094         0.100          0.110         0.130      0.160         0.200
+
+  x-position       x      [mm]       -50.0    23.5           25.0          27.5           32.5         40.0        50.0
+
+
+     Table 6: LDV Positions of the measuring points
+
+            measuring plane                     start radius                end radius                        distance
+                                                      r/R                         r/R                  r/R              [mm]
+  in front of the propeller x/D = -0.20               0.40                     1.10                    0.050             6.250
+                                                      0.40                     0.70                    0.050             6.250
+                                                      0.70                     0.90                    0.025             3.125
+          behind the propeller
+                                                      0.90                     0.95                    0.010             1.250
+x/D = 0.094, 0.10, 0.11, 0.13, 0.16, 0.20
+                                                      0.95                     1.05                    0.002             0.250
+                                                      1.05                     1.10                    0.025             3.125
+
+
+     Table 7: Working point for the LDV measurements
+
+  Inflow speed                                                         VA               [m/s]                 7.204
+  Number of revolutions                                                n                [s-1]                    23
+  Advance coefficient                                                  J                [–]                   1.253
+  Thrust coefficient                                                   KT               [–]                   0.250
+  Torque coefficient                                                   10KQ             [–]                   0.725
+
+  Water density (for tw = 24.7°C)                                                      [kg/m3]               997.1
+  Kinematic viscosity of water (for tw = 24.7°C)                                       [m²/s]                0.903E-6
+       Table 8: Test conditions for the LDV measurements
+
+     Water density (for tw = 24.7°C)                                            [kg/m3]               997.1
+     Kinematic viscosity of water (for tw = 24.7°C)                             [m²/s]              0.903E-6
+
+
+       Table 9: Requested Computations
+
+                                      r/R [-]                    x/D [-]                    [°]
+          Case 2.2.1                   0.70                      0.1, 0.2               -50° - 22°
+          Case 2.2.2                   0.97                      0.1, 0.2               -50° - 22°
+          Case 2.2.3                   1.00                      0.1, 0.2               -50° - 22°
+          Case 2.2.4               0.40 - 1.10                   0.1, 0.2
+
+
+       Table 10: Working points for the cavitation tests
+
+                                                                            Case 2.3.1 Case 2.3.2 Case 2.3.3
+Advanced coefficient                              J        [-]                  1.019          1.269            1.408
+Cavitation number based on n                      n       [-]                  2.024    1.424    2.000
+Thrust coefficient (non-cavitating!)              KT       [-]                  0.387    0.245    0.167
+Number of revolutions                             n        [1/s]               24.987   24.986   25.014
+Water density (for tw = 23.2°C)                           [kg/m3]             997.44   997.44   997.37
+Kinematic viscosity water (for                            [m²/s]           9.337∙10 9.337∙10 9.272∙10-7
+                                                                                    -7       -7
+
+tw = 23.2°C)
+Vapour pressure (for tw = 23.2°C)                 pv       [Pa]                 2818           2818              2869
+Air content                                       /s     [%]                   53.5           53.5            58.50
+

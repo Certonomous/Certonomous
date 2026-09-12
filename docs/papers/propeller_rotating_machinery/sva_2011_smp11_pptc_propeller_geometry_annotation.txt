@@ -1,0 +1,61 @@
+Propeller geometry: PPTC (VP1304)
+
+                                               P2
+
+
+
+
+          P1
+                                                                                P3
+
+
+                                                                               P4
+
+
+
+
+      The representation of the leading and trailing edge geometry of the propeller depends
+       largly on the tolerance of the facetted geometry
+      In the following the leading and trailing edge geometry is shown at different positions
+      The pictures were taken from ANSYS ICEM. Other programs may have a different
+       geometry definition, but in general the same behaviour should be observed in case the
+       tolerance of the geometrical reprersentation is changed.
+   1. Leading edge
+
+
+
+
+Leading edge at position P1
+
+
+
+
+Leading edge at position P2
+   2. Trailing edge
+
+
+
+
+Trailing edge at position P3
+
+
+
+
+Trailing edge at position P4
+   3. Tolerance of facetted geometry
+
+
+
+
+Trailing edge at position P3, facetted geometry with tolerance 0.001mm
+
+
+
+
+Trailing edge at position P3, facetted geometry with tolerance 0.01mm
+
+
+
+
+Trailing edge at position P3, facetted geometry with tolerance 0.1mm
+
