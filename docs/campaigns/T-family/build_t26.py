@@ -1025,7 +1025,7 @@ def write_sfe_dict(path, surfaces, included_angle):
 
 def write_snappy_dict(path, level, lev, layers, d1, seeds, regions,
                       layer_block, feature_level, resolve_feature_angle,
-                      n_cells_between_levels, seed_order=None):
+                      n_cells_between_levels, seed_order=None, env_level=None):
     """The multi-region dict.  ONE GEOMETRY ENTRY PER CLOSED BODY.
 
     THE DISTINCTION THE TOPOLOGY PROBE PAID FOR, stated so it is not undone:
@@ -1066,7 +1066,22 @@ def write_snappy_dict(path, level, lev, layers, d1, seeds, regions,
         w("    features (\n")
         for nm in bodies:
             w('        { file "%s.eMesh"; level %d; }\n' % (nm, slev[nm]))
-        w('        { file "fluid_env.eMesh"; level %d; }\n' % lev["duct"])
+        # THE ENVELOPE IS SCAFFOLDING, NOT A NAMED FEATURE.  `fluid_env` is a
+        # SYNTHESISED prism spanning the whole domain; GEO-8 says nothing about
+        # it and the registration registers NO level for it -- `lev["duct"]`
+        # here was an unflagged choice by this builder.  It is invisible while
+        # the duct is level 1, because env is then level 1 too and looks
+        # deliberate.  MEASURED 2026-09-12: raising the duct to 4 to clear GEO-8
+        # dragged 1.075 m of prism up with it -- 2,978,695 cells in the env
+        # refinement band against 46,542 at level 1, and the duct SOLID occupies
+        # 18.6 % of that length.  The fluid/duct interface does NOT depend on
+        # this: duct.stl carries its own inner bore at r = 0.125000 over
+        # x in [0, 0.200] (1,152 vertices measured exactly at that radius) and
+        # `duct`'s own refinementSurfaces entry resolves it.
+        # Pinned to the REGISTERED duct-bore level, NEVER the level in use, so a
+        # throwaway or successor override cannot drag the envelope up again.
+        EL = lev["duct"] if env_level is None else int(env_level)
+        w('        { file "fluid_env.eMesh"; level %d; }\n' % EL)
         w("    );\n")
         w("    refinementSurfaces\n    {\n")
         for nm in bodies:
@@ -1075,10 +1090,10 @@ def write_snappy_dict(path, level, lev, layers, d1, seeds, regions,
               % (nm, slev[nm], slev[nm], nm, zone[nm]))
         w("        env     { level (%d %d); faceZone env_fz; cellZone fluid; "
           "cellZoneInside inside;\n            regions\n            {\n"
-          % (lev["duct"], lev["duct"]))
+          % (EL, EL))
         for rn, pt in (("env_wall", "wall"), ("inlet", "patch"), ("outlet", "patch")):
             w("                %-8s { level (%d %d); patchInfo { type %s; } }\n"
-              % (rn, lev["duct"], lev["duct"], pt))
+              % (rn, EL, EL, pt))
         w("            } }\n    }\n")
         w("    resolveFeatureAngle %g;\n    refinementRegions {}\n"
           % resolve_feature_angle)
@@ -2074,7 +2089,8 @@ def mesh(level, go=False, mesh_root=None, registration=None, stl=None,
                       layers, d1, seeds, regions,
                       layer_controls(layers, d1), None,
                       RESOLVE_FEATURE_ANGLE, N_CELLS_BETWEEN_LEVELS,
-                      seed_order=seed_order)
+                      seed_order=seed_order,
+                      env_level=reg_surface_levels(text)[level]["duct"])
     write_control_dict(os.path.join(sysd, "controlDict"), row["endTime"])
     write_fv_stubs(sysd)
 
