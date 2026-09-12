@@ -167,3 +167,84 @@ is not being blocked by being one.
 read 0.0000 at every T, like the other five that do. **This instrument does not separate
 them either**, so their distinctness remains unexplained and the requirement registered
 above is unmet. §6 stays **EXHAUSTED**. Patch size stays **unpromoted**. A2 unlaunched.
+---
+
+## ADDENDUM — 2026-09-12 — CROSS-PATCH CHECK. **The refutation STANDS, now on a
+qualified instrument.** *Lines whose number changed above this section: 0.*
+
+### The defect in the instrument above, raised by the cfd-supervisor
+
+The metric searched for an opposing face **only within the same patch**. If a plate's two
+sides are authored as two named solids, `f_face_opp` reads zero for a **bookkeeping**
+reason, not a geometric one — and `WheelSupportfront1`/`front2` and
+`BrakeDiscfront`/`rear` are exactly that shape. **The plant above could not have caught
+it**: it duplicated one patch's faces *into itself*, exercising only the same-patch path.
+A control structurally incapable of failing in the direction that matters.
+
+The physics argument is the stronger half: `medialAxisMeshMover` walks the **whole**
+adapt-patch point set and has no notion of the STL's solid names. The same-patch
+restriction imported the STL's bookkeeping into a measurement of the **solver's**
+behaviour.
+
+**Governing rule, named before the numbers: if same-patch and cross-patch differ, the
+CROSS-PATCH number governs.**
+
+### New plant — exercises the arm the old one could not
+
+Opposing sheet planted into a **DIFFERENT patch label**:
+
+    POSITIVE  f_cross(5 mm) = 1.0000  >= 0.90  PASS
+    NEGATIVE  f_cross(5 mm) = 0.0000  <= 0.05  PASS
+
+### Result at T = 50 mm, over all **52 wall patches / 27,816 wall faces**
+
+| patch | same | **CROSS** | cross partner |
+|---|---|---|---|
+| floorNoSlip *(control)* | 0.0000 | 0.0082 | Tiresfront, Tiresrear |
+| other four controls | 0.0000 | **0.0000** | — |
+| **BrakeDiscfront, BrakeDiscrear** | 0.0000 | **0.0000** | — |
+| CTRL_SURFACE_Outlet, ExhaustSystem1 | 0.0000 | **0.0000** | — |
+| Rimsfront, Rimsrear | 0.0000 | **0.0000** | — |
+| **WheelSupportfront2, WheelSupportrear** | 0.0000 | **0.0000** | — |
+| Mirrors2 | 0.0000 | 0.0154 | Mirrors1 ×1 |
+| WheelSupportfront1 | 0.0723 | 0.0723 | **own patch ×5**, underbody ×1 |
+| Tiresfront | 0.0075 | 0.0469 | **floorNoSlip ×19** |
+| Tiresrear | 0.0101 | 0.0319 | **floorNoSlip ×13** |
+
+**Same-patch and cross-patch agree. The restriction was harmless — established by
+measurement, not assumed.**
+
+**And the specific worry is directly answered:** `BrakeDiscfront`/`rear` and
+`WheelSupportfront2`/`rear` read **0.0000 cross** as well as same. The two-halves-of-one-
+plate hypothesis is **not** what was masking this; there is genuinely no opposing face
+within 50 mm. Where partners do appear they are not thin plates: `Tiresfront`/`rear`
+oppose **`floorNoSlip`** — the tyre-to-ground contact, not a plate.
+
+**H5 REFUTED stands.** The thin-opposing-face story is dead for the patches it was
+invented to explain, and the instrument is now shown able to see the phenomenon by both
+routes.
+
+---
+
+## RULED OUT — the M6 last-layer-to-surface-cell criterion
+
+Criterion from the M6 family (`0a6d3a7a`): the last layer must land within **2–4×** the
+local surface cell. **Verified here from the DrivAer dicts directly, not from relayed
+figures.**
+
+**A1 / B1 / B2 config** — `relativeSizes true`, `finalLayerThickness 0.5`, `expansionRatio
+1.25`, `nSurfaceLayers 5`, `level (4 4)`, base cell 0.8 m:
+
+> The last layer **is** `0.5 × cell` by the definition of `finalLayerThickness`, so
+> `surface_cell / last_layer = 1 / 0.5 = **2.00**` — **identical at every level** because
+> the spec is relative. Level 4: 50.0/25.0. Level 5: 25.0/12.5.
+
+**2.00 is INSIDE the 2–4× band, at its bottom edge → THE CRITERION IS RULED OUT for
+DrivAer.** Recorded as ruled out, per its author's own kill condition.
+
+**But it retrodicts the original defect, and that is worth keeping.** The *graded* family
+(`r1_coarse`, `relativeSizes false`, `firstLayerThickness 0.00075`) has a last layer of
+`0.75 × 1.25⁴ = 1.831 mm` — absolute, level-independent — against a 50 mm cell:
+**ratio 27.3×, far outside the band.** So the criterion correctly flags the configuration
+that produced **zero** layers and correctly clears the one that produces 50 %. It does not
+explain the remaining blocked patches, which is what it was handed over to do.
