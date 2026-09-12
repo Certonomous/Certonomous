@@ -325,3 +325,99 @@ it.**
 - **It does not repair `analyse_t5e.py`.**
 - **Nothing here is sent, filed, uploaded, registered, posted or commented
   outside this box** (rule 7).
+
+---
+
+## DATED ADDENDUM 1 — 2026-09-12, heat-transfer supervisor
+
+*Appended at the foot of a FROZEN registration, after first compute. **This
+addendum alters no gate, threshold, band, cap or label.** Limb A, limb B, B1,
+B2, B3, the `endTime`, the POINT and CAP core-minutes and the outcome partition
+are all untouched. It records one drafting defect in §7 and the supervisor's
+reading of it. **Lines whose number changed above this section: 0** — asserted
+mechanically against the HEAD blob, not claimed. Document version: 1.0 plus this
+addendum.*
+
+### 1. THE DEFECT — §7's COMPLETION CLAUSE CANNOT BE SATISFIED BY A CORRECT RUN
+
+§7 line 233 restates `CLAUDE.md` rule 4's completion field list as requiring
+`T U p_rgh alphat nut k omega phi` present **"in both regions"**.
+
+`chtMultiRegionSimpleFoam` writes `T` and `p` for a solid region and nothing
+else. There is no `U`, `p_rgh`, `alphat`, `nut`, `k`, `omega` or `phi` in a
+solid — those fields do not exist in the solid solver's field set and no mesh,
+no `endTime` and no setup can bring them into being.
+
+**Read literally, therefore, NO T5f level can EVER be complete, at any
+refinement, at any `endTime`, forever.** A completion criterion that a correct
+run cannot satisfy is not a strict rule; it is a broken one. This is a drafting
+error in this document, not a defect in the solver, the case or rule 4.
+
+### 2. THE READING, AND THE DIRECTION IT LEANS — STATED, NOT HIDDEN
+
+**The clause is read as: the registered fields present in every region for which
+the solver writes them — the full list in the fluid region, `T` and `p` in the
+solid region.**
+
+Two pieces of evidence, both by path:
+
+1. **The enforcing instrument applies the list per CASE, not per region.**
+   `verification/runs/T-family/T3_runs/mark_done_t3.py` carries
+   `NEEDED = ("T", "U", "p_rgh", "alphat", "phi")` and
+   `NEEDED_TURBULENT = ("nut", "k", "omega")` and applies them to the case, with
+   no per-region loop. `CLAUDE.md` rule 4 names its list for "the thermal
+   family" and cites that instrument as what aligns the rule.
+2. **The T5b precedent, graded on exactly this field content.**
+   `verification/runs/T-family/T5b_runs/T5_CUBE_c/5000/epoxy` contains exactly
+   `T` and `p`. That level carries `rc=0`, `capped=0`, `note=clean` in
+   `T5b_runs/STATUS.T5_CUBE_c` and was graded. Its §8 wall figures are this
+   registration's own cost basis.
+
+**THE SUPERVISOR IS LEANING PERMISSIVE AND SAYS SO.** This reading is made
+**after** `T5F_CUBE_c`'s fields are on disk and known, which is precisely the
+situation rule 2 exists to be suspicious of. The countervailing facts are put
+here so a future reader can disagree on the full record:
+
+- a **stricter** reading — the literal "both regions" — makes **every level of
+  this rung permanently `NOT DONE`**, and with it every T5 conjugate rung ever
+  run or yet to run;
+- the reading is **not** derived from T5f data: both supporting artifacts
+  (`mark_done_t3.py`, T5b's `5000/epoxy`) predate this rung's freeze;
+- nothing about this reading changes which numbers limb A or limb B compute, or
+  what they are compared against.
+
+### 3. WHAT THIS CHANGES FOR `T5F_CUBE_c`, AND WHAT IT DOES NOT
+
+On this reading `T5F_CUBE_c` is **complete** under rule 4: `rc=0`; one `End`
+line; last `Time = 5000` == `endTime 5000`; `ExecutionTime` count 5000 ==
+`round(5000/1)`; the air region carrying `T U p_rgh alphat nut k omega phi`; the
+epoxy region carrying `T p`; and the age guard passing — `0/air/T` 01:12:40Z and
+`0/epoxy/T` 01:12:42Z against every field in `5000/` at 01:30:14Z.
+
+**Completion is infrastructure and is not a verdict.** This addendum grades
+nothing. No limb-A or limb-B number, no `y+` clause and no triple is decided
+here, and §3.1's open ruling on the unequal region refinement ratios is
+untouched and still owed before any T5f triple.
+
+### 4. THE FREEZE SET IS UNTOUCHED, AND THE PARSERS WERE RE-DRIVEN
+
+`t5f_convergence_gate.py` still hashes to
+`9c4049b69d64ee7d5462340ab5e26dee66633aabb0a44672749da031dec31fb3`, its §9
+value, and it parses nothing out of this document — its constants are frozen in
+its own source.
+
+This document **is** parsed, by `run_one_t5f.sh` (the §8 CAP row per level, the
+§3.3 rank and solver line, and the three case names) and by
+`assert_t5f_setup.py`. Both were driven against the file **before and after**
+this addendum and their output is byte-identical; the evidence is recorded in
+the commit that lands this addendum. Nothing appended here matches the CAP-row
+pattern, the §3.3 line pattern, or introduces a fourth case name.
+
+**One consequence disclosed rather than discovered later:** `run_one_t5f.sh`
+records `registration_sha256` in each STATUS at launch. `T5F_CUBE_c` and the
+set-aside 00:57Z launch both carry `b16bd4b30293206f64edf6c1d0284d2e114a6b798a4469dd3201a2028f441aed`,
+the pre-addendum bytes, and `T5F_CUBE_m` captured that same value at its own
+launch on 2026-09-12T01:32Z, before this addendum existed. **Any level launched
+after this commit will record a DIFFERENT sha for the same registration.** That
+difference is this addendum and nothing else, and the §9 freeze-set hash is the
+quantity that actually gates the grading path.
