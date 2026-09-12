@@ -204,7 +204,14 @@ for L in $LEVELS_TO_RUN; do
   sed -e "s/__ENDTIME__/$ENDTIME/g" "$OUT/system/controlDict.template" > "$OUT/system/controlDict" || { echo "ABORT: sed controlDict for $L"; exit 2; }
   grep -qE "^endTime[[:space:]]+$ENDTIME;" "$OUT/system/controlDict" || { echo "ABORT: controlDict endTime is not the registered $ENDTIME at $L"; exit 2; }
   grep -qF 'interpolationScheme cellPoint' "$OUT/system/controlDict" || { echo "ABORT: the cellPoint order-pollution fix is MISSING from the controlDict that would run at $L"; exit 2; }
-  NLOC="$(grep -cE '^            \(0\.5 ' "$OUT/system/controlDict")"
+  # AMENDED 2026-09-12 (before first compute; see PREREGISTRATION.md foot). The prior
+  # form counted EVERY line in the whole controlDict beginning with 12 spaces and
+  # "(0.5 ", which also matched two lines inside the UNRELATED probe block further down
+  # (each holding five triples on one line) -- so it reported 203 for a centrelineProbe
+  # block that carries exactly the registered 201. The guard measured something other
+  # than what it claimed to measure. Scoped to the centrelineProbe function object.
+  # The registered abscissa count is UNCHANGED at 201.
+  NLOC="$(awk '/^    centrelineProbe/{f=1} f && /^    [a-zA-Z]/ && !/centrelineProbe/{f=0} f' "$OUT/system/controlDict" | grep -cE '^            \(0\.5 ')"
   [ "$NLOC" = "201" ] || { echo "ABORT: controlDict at $L carries $NLOC centreline probe locations, registered 201"; exit 2; }
 
   printf 'FoamFile { version 2.0; format ascii; class dictionary; object decomposeParDict; }\nnumberOfSubdomains %d;\nmethod          scotch;\n' "$RANKS" \

@@ -490,3 +490,35 @@ frozen. `grade_vmfl078.py --verify-frozen` does the same check independently.
 exists and its sha can be filled into `prereg_commit`.
 
 **Nothing has been committed and nothing has been launched by the lane that wrote this.**
+
+---
+
+## DATED AMENDMENT — 2026-09-12 — LAUNCHER GUARD REPAIR, BEFORE FIRST COMPUTE
+
+**lines whose number changed above this section: 0**
+
+`run_vmfl078.sh`'s abscissa guard derived `NLOC` with
+`grep -cE '^            \(0\.5 '` over the **whole** generated `controlDict`. That also
+matches two lines inside an unrelated `probeLocations` block further down the file (each
+carrying five triples on a single line), so it reported **203** for a `centrelineProbe`
+block that carries **exactly the registered 201**. The guard refused a correct case, and
+the freeze as committed at `ef395b803` was therefore **unrunnable**. The count is now
+scoped to the `centrelineProbe` function object.
+
+**THE CONDITION, AND HOW IT WAS CHECKED (CLAUDE.md rule 2).** Amendments are legal only
+before first compute. Verified in the same shell invocation that made this edit:
+`verification/runs/ansys_verification/VMFL078` contained **zero `log.*` files and zero
+non-zero time directories** — `L1/` held only `0`, `constant`, `system`. No solver ran,
+no probe data exists, and therefore **no answer could have informed this change.**
+
+**NO GATE, THRESHOLD, CAP, LABEL OR LEVEL IS ALTERED.** The registered abscissa count is
+**201 before and 201 after**; `N_PROBE = 201`, `Y_LO/Y_HI = 0.005/0.995`, the band, the
+ceiling and every other frozen constant are untouched. This repair makes the frozen gate
+**reachable**; it does not move it.
+
+**WHAT THIS NEARLY COST, RECORDED BECAUSE THE OBVIOUS FIX WAS THE WRONG ONE.** The guard's
+message named the *controlDict* as the offender, and the obvious response was to delete two
+probes from the template. The template was **correct**: counted inside its own block it
+carries exactly 201. Deleting two probes would have silently corrupted a correct
+registration to satisfy a miscounting guard. *When a guard and the data disagree, the guard
+is on trial first.*
