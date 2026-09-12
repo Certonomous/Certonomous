@@ -1,0 +1,12 @@
+quantity,value,units,pre_registered_meaning,status
+final window 60-80 s peak-to-peak,0.6058,K,<= 0.1 K means DAMPS,measured
+preceding window 40-60 s peak-to-peak,1.4414,K,reference for the ratio,measured
+ratio final / preceding,0.420,-,<= 0.5 means DAMPS,measured
+final window mean,293.5306,K,reported,measured
+samples in the final window,100,-,aliasing floor 10 per period,measured
+samples in the preceding window,100,-,aliasing floor 10 per period,measured
+SURVIVES threshold,p2p >= 0.3 and ratio >= 0.8,-,pre-registered,frozen
+DAMPS threshold,p2p <= 0.1 or ratio <= 0.5,-,pre-registered,frozen
+planted-zero control,armed; plant recovered,-,"detection floor 1.234e-03 K, 81x below the 0.1 K DAMPS floor",measured
+outcome,DAMPS,-,the discriminator's answer,graded
+VERDICT,GATE REACHED,-,discriminator gate; the value-in-band verdict word does not apply,graded
