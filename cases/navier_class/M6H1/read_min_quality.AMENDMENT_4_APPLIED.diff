@@ -1,0 +1,100 @@
+--- a/cases/navier_class/M6H1/read_min_quality.py
++++ b/cases/navier_class/M6H1/read_min_quality.py
+@@ -106,10 +106,24 @@
+ # A PASS at 1e-4 and a PASS at 0.40 are not the same mesh and the gate's vocabulary cannot
+ # tell them apart, so the VALUE is printed beside every verdict.  THE TRIGGER IS NOT MOVED:
+ # this is a reported quantity, never a clause, and it can turn no verdict either way.
++# 🔴 AND THE BAND IS NOT LIKE FOR LIKE.  MEASURED, from the logs' own first-layer deltaS:
++#     CRM_WINGALONE L2   first deltaS 1.06e-04 m   (genMesh.py: s0 = 2.0e-4)
++#     CRM_WINGALONE L3   first deltaS 5.30e-05 m
++#     M6H1               first deltaS 1.11e-06 m   (§4: s0 = 1.6540e-6, a y+ = 1 target)
++# CRM's FIRST CELL IS ABOUT NINETY-FIVE TIMES THICKER.  Against a comparable surface
++# spacing, a y+ = 1 mesh has a wall cell two orders more slender, and pyHyp's quality
++# measure falls accordingly.  A y+ = 1 mesh CANNOT be expected to match a wall-function
++# mesh's Min Quality, and a "62x below the band" line that ignores that is comparing two
++# different kinds of object.
++# THE FIRST VERSION OF THIS REPORTING DID EXACTLY THAT.  It printed the band without its
++# s0 and concluded MARGINAL MESH -- a conclusion whose basis had not been checked.  That is
++# L-566 in the form of an INHERITED REFERENCE: a comparison taken from a working case is
++# evidence about THAT case.  The band is retained because it is the only measured data on
++# this box, and it is now printed WITH the quantity that makes it incomparable.
+ REFERENCE_BAND = (
+-    ("verification/runs/CRM_WINGALONE_runs/L2/pyhyp.log", 104, 0.00743, 0.40356, 0.42552),
+-    ("verification/runs/CRM_WINGALONE_runs/L3/pyhyp.log", 208, 0.07911, 0.45133, 0.47018),
+-)   # path, layers, min, median, max -- measured 2026-09-12 from those files, not recalled
++    ("verification/runs/CRM_WINGALONE_runs/L2/pyhyp.log", 104, 0.00743, 0.40356, 0.42552, 1.06e-4),
++    ("verification/runs/CRM_WINGALONE_runs/L3/pyhyp.log", 208, 0.07911, 0.45133, 0.47018, 5.30e-5),
++)   # path, layers, min, median, max, FIRST-LAYER deltaS -- measured 2026-09-12, not recalled
+ PLANT_POS = +1.234e-02         # the same digits, signed to be a PASSING value -- used by
+                                # PLANT A on a log where EVERY layer already fails and there is
+                                # therefore no passing layer to plant a new failure into.
+@@ -162,6 +176,25 @@
+ 
+ 
+ # ------------------------------------------------------------------ the reader
++def first_delta_s(path, ncols, idx_ds):
++    """The first marched layer's deltaS, read from the log this instrument already reads.
++    It is the closest thing to s0 that the log itself carries, and it is what makes the
++    reference band comparable or not."""
++    with open(path) as f:
++        for line in f:
++            s = line.strip()
++            if not s or s.startswith('#'):
++                continue
++            t = s.split()
++            if len(t) != ncols or not re.fullmatch(r'\d+', t[0]):
++                continue
++            try:
++                return float(t[idx_ds])
++            except ValueError:
++                return None
++    return None
++
++
+ def read_log(path):
+     """Read the pyHyp march table FROM DISK.
+     Returns (layers, ncols, iq, notes) where layers is [(grid_lvl, min_quality), ...]
+@@ -515,6 +548,7 @@
+     finite = sorted(q for q in qs if q == q)          # NaN != NaN
+     print("\n  marched layers: %d   min over all layers: %.5f at grid level %d"
+           % (len(layers), min(qs), layers[qs.index(min(qs))][0]))
++    ds_here = first_delta_s(log_path, ncols, iq + 2)   # deltaS is two columns right of Min Quality
+     if finite:
+         med = finite[len(finite) // 2]
+         print("\n  MIN QUALITY DISTRIBUTION -- REPORTED, NOT GATED. §7's clause is '> 0', and a "
+@@ -522,16 +556,28 @@
+               "PASS at\n  1e-4 cannot be read as the same object as a PASS at 0.4.")
+         print("    this march : min %.5f   median %.5f   max %.5f   (%d finite of %d layers)"
+               % (finite[0], med, finite[-1], len(finite), len(qs)))
++        print("    this march's FIRST-LAYER deltaS: %s"
++              % (("%.2e m" % ds_here) if ds_here else "NOT READABLE"))
+         print("    measured reference band, from logs on this box:")
+-        for path, n, lo, md, hi in REFERENCE_BAND:
+-            print("      %-52s layers %3d  min %.5f  median %.5f  max %.5f"
+-                  % (path, n, lo, md, hi))
+-        ratio = (md / med) if med > 0 else None
++        for path, n, lo, md, hi, ds in REFERENCE_BAND:
++            print("      %-52s layers %3d  min %.5f  median %.5f  max %.5f  first deltaS %.2e"
++                  % (path, n, lo, md, hi, ds))
+         worst_ref = min(r[2] for r in REFERENCE_BAND)
++        ds_ref = min(r[5] for r in REFERENCE_BAND)
+         if finite[0] > 0 and finite[0] < worst_ref:
+-            print("    🔴 THIS MARCH'S MINIMUM IS %.0fx BELOW THE WORST OF THAT BAND. It passes the "
+-                  "registered clause and it is a MARGINAL MESH; both facts are true and both are "
+-                  "reported." % (worst_ref / finite[0]))
++            print("    THIS MARCH'S MINIMUM IS %.0fx BELOW THE WORST OF THAT BAND."
++                  % (worst_ref / finite[0]))
++            if ds_here and ds_here > 0:
++                print("    🔴 BUT THE BAND IS NOT LIKE FOR LIKE AND THE COMPARISON IS NOT A VERDICT: "
++                      "this march's\n       first layer is %.2e m against the band's thinnest %.2e "
++                      "m, a factor of %.0f. A y+ = 1\n       mesh has a wall cell that much more "
++                      "slender and pyHyp's quality measure falls with it.\n       THE RATIO ABOVE "
++                      "IS REPORTED SO IT CAN BE JUDGED, NOT SO IT CAN BE CONCLUDED FROM."
++                      % (ds_here, ds_ref, ds_ref / ds_here))
++            else:
++                print("    (this march's first-layer deltaS could not be read, so the band's "
++                      "comparability is UNKNOWN and the ratio above must not be read as a "
++                      "quality judgement)")
+     if bad:
+         print("  layers at or below the floor:")
+         for (l, q, ln) in bad:
