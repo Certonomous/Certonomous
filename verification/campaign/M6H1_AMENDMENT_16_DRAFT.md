@@ -86,3 +86,61 @@ existed rather than by anyone's reading of a matrix they had already seen.**
 *Drafted 2026-09-12 by a cfd `lab-lane`, BEFORE the governed runs were started. Submissions parked
 (rule 7). The repository is permanently private (rule 8). No agent's message is Sanaa's consent
 (rule 9).*
+
+---
+
+## §16.4 ADDENDUM 1 — A FIFTH AXIS, 2026-09-12. **THE TRIGGER IS NOT ALTERED.**
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** §16.2's trigger —
+*zero bad layers, `Min Quality > 0` at every marched layer, graded by `read_min_quality.py` and by
+nothing else* — **is unchanged. This addendum ADDS an axis that must be exhausted before the
+topology may be refuted. It cannot make refutation easier.**
+
+**Written and committed BEFORE the runs on this axis reported.**
+
+### WHY
+
+§16.1 recorded that the failure is not the far field. **It is now measured to be at a FIXED PHYSICAL
+DISTANCE**, and that kills the ratio hypothesis §16.2 axis 4 was written for:
+
+| N | derived r | first bad layer | **distance from the wall** |
+|---:|---:|---:|---:|
+| 97 | 1.1602 | 62 | **0.0892 m** |
+| 129 | 1.1150 | 81 | **0.0870 m** |
+| 161 | 1.0892 | 100 | **0.0874 m** |
+| 193 | 1.0727 | 118 | **0.0837 m** |
+
+**Four layer counts, four growth ratios, ONE physical location.** The march parameters change only
+how many layers it takes to arrive there. **There is no `r_max`**, and axis 4 is answered: more
+layers does not fix it.
+
+**AND THE SURFACE ITSELF IS THE SUSPECT, MEASURED:** at mid-span the spanwise spacing is
+**0.01943 m** and the wrap spacing at the leading edge is **2.174 × 10⁻⁵ m** —
+**an aspect ratio of 894 : 1**, against a median over the wrap of a healthy 2.7 : 1. Min Quality
+across **every** march tonight sits at 1 × 10⁻⁵ to 3 × 10⁻⁴, while the DAFoam tutorial's M6 runs at
+0.03 to 0.33. **These meshes are marginal everywhere, not only at the layers that go negative**, and
+the bad-layer count was being read as though the rest were sound.
+
+**The provenance is this lane's own over-correction.** The nose was genuinely under-resolved by
+cosine clustering *in x* (§14.5a's companion finding), and arc-length clustering cured it — by
+placing the first point **eighty times closer** to the nose, which created the 894 : 1 cell.
+
+### THE AXIS
+
+5. **SURFACE CELL ANISOTROPY.** The arc-length distribution is right; **full cosine on it is too
+   much.** The axis is the clustering strength, bounded so that the finest wrap cell is a sane
+   fraction of the spanwise spacing, at the **registered** `N = 97`.
+
+### AND THE CONSEQUENCE FOR EVERYTHING ALREADY MEASURED, STATED BEFORE THE RESULT IS KNOWN
+
+**Every conclusion in tonight's matrix was gathered on a surface carrying an 894 : 1 leading-edge
+cell** — the `nb` cliff between 8 and 10, `cMax`'s sharp optimum at 1.0, smoothing being worse, the
+`N` sweep, the `marchDist` sweep. **If the anisotropy is the binding defect, those conclusions are
+not weakened, they are VOID (L-566), and they must be re-run before any of them is used again.**
+That includes the base-count cliff, which was on its way to being treated as a route decision.
+
+**This is L-566's own trap, entered on the same night the lesson was written.** It is recorded here
+rather than discovered later.
+
+*Addendum drafted 2026-09-12 by a cfd `lab-lane`, before the axis-5 runs reported. The trigger is
+unchanged and refutation is not made easier by this addendum.*
