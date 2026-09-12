@@ -11,7 +11,7 @@ FoamFile
 // document; every value below is registered there and is transcribed, not chosen.
 
 application buoyantBoussinesqPimpleFoam;   // section 4: the transient sibling
-startFrom startTime;                       // 0/ is armed at launch from the 803 fields
+startFrom latestTime;                    // RESUME 2026-09-12: was `startFrom startTime;` for the initial launch
 startTime 0;
 stopAt endTime;
 endTime 112;                               // section 5 E-ENDTIME: 42 s settle + 70 s window

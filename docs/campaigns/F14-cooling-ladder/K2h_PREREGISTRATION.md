@@ -535,3 +535,49 @@ post-stop bytes, never against a pre-stop assertion.
 
 *Nothing in this rung is sent, filed, uploaded, registered, posted or commented
 outside this box (rule 7).*
+
+---
+
+## ERRATUM TO ADDENDUM 1 — 2026-09-12, same day, POST-LAUNCH OF THE RESUME
+
+**Version 1.2 → 1.2a. Appended at the foot; lines whose number changed above
+this section: 0.** Addendum 1 is **struck nowhere and rewritten nowhere**
+(rule 2, rule 6); this erratum is how its three wrong numbers are corrected.
+
+**ADDENDUM 1 CARRIES THE FIGURE "≈ 7.6 s" IN THREE PLACES — LINES 468, 491 AND
+501 — AND IT IS WRONG IN ALL THREE.** It is the stale figure the addendum was
+written to remove, and it survived in the sentences the correction did not
+touch. **The measured figures are:** the solver's last logged step was
+**`Time = 10.7388`**; the last step to reach disk was the **complete t = 10
+checkpoint**; `log.solve` holds **1817 `Time =` lines against 1816
+`ExecutionTime` lines**, the missing one being the in-flight step that died
+mid-write and never reached disk. Read "≈ 7.6 s" as **10.7388 s logged, 10 s
+checkpointed** wherever it appears above. **No gate, threshold, band, cap or
+label is touched by this correction, and the direction is in the run's favour:
+more computed time survives, not less.**
+
+**AND TWO THINGS ADDENDUM 1 SAID THAT THE DISK CONTRADICTS, RECORDED RATHER
+THAN QUIETLY DROPPED:**
+
+1. **`system/controlDict` IS GIT-TRACKED.** The staged entry called it "the
+   GENERATED (untracked, non-frozen) `controlDict`" and Addendum 1 repeated
+   that description. **`git ls-files` lists it.** The one-line `startFrom`
+   re-point is therefore a change to a tracked file and is committed with this
+   erratum rather than left dirty in a shared tree. **No physics is touched:**
+   `runTimeModifiable false` means the running solver never re-read the file,
+   so the whole t = 0 → 10.74 segment ran under the original
+   `startFrom startTime`, exactly as registered, and only the resume reads
+   `latestTime`.
+2. **`log.solve` IS APPENDED TO ON RESUME, AND THAT BREAKS ONE PIECE OF
+   COMPLETION ARITHMETIC.** `resume_k2h.sh` redirects with `>>`, so the
+   resumed segment concatenates onto the 4.10 MB first segment;
+   `NSTEP=$(grep -c '^ExecutionTime = ' log.solve)` then counts **both** runs
+   while `ExecutionTime` restarts near zero in the second. **Standing rule 4's
+   clause-5 step count cannot be read off the concatenated log** and must be
+   evaluated by splitting it at the second `Build :` banner. **This is an
+   INFRASTRUCTURE field under this entry's own `_field_classes` rule (L-342):
+   it voids the COST claim's arithmetic if unsplit, and it can never void the
+   physics.** Recorded here so the grader cannot meet it as a surprise.
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*
