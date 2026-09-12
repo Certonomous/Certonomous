@@ -106,6 +106,36 @@ assert len(SCENARIOS) == len(U0S) == len(WEIGHTS) == 3, "the scenario set is thr
 assert abs(sum(WEIGHTS) - 1.0) < 1e-12, "registered weights must sum to exactly 1.0"
 assert abs(U0S[1] - 8.40) < 1e-12, "the centre scenario must be the case's own 8.4 m/s"
 
+# =============================================================================
+# MPA5-4  ADDENDUM 1, 2026-09-12.  PER-SCENARIO `run_directory` ISOLATION.
+#
+# THE DEFECT THIS REPAIRS, MEASURED ON THIS ITEM'S OWN FIRST ARM.  MP_A5's arm B
+# died at 56 s with
+#     pyDAFoam Error: /mnt/0.0001 already exists, moving failed!
+#     pyDAFoam.py:1543 in renameSolution(self.nSolvePrimals)
+# Three `DASolver` instances shared ONE case directory, each carrying its OWN
+# `solution_counter`, and each renamed its converged solution to the SAME
+# `0.0001`.  point0 renamed and succeeded; point1 collided and raised.
+#
+# THIS IS NOT A NEW DEFECT AND NOT AN UPSTREAM ONE.  It is the exact SO-3aR
+# failure, recorded verbatim at so3_runScript.py:253-277, and THE CURE IS THE
+# LAB'S OWN: A2's D6R already carried it
+# (d6r_opt_runScript.py:59 RUN_DIRS, :120 per-point gridFile, :138
+# run_directory), SO3 ported it to A1 and ran clean.  MP_A5 was derived from
+# D9successor, which is SINGLE-point and therefore never needed it, so the
+# isolation was never carried in.  Cause class BOOKKEEPING/INSTRUMENT.
+# It is exactly the integration risk this item's PREREGISTRATION section 6 item 1
+# registered before compute.
+#
+# THE KEYS ARE DERIVED FROM `SCENARIOS`, NEVER SPELLED OUT.  A hand-written map
+# is one more call site of the scenario label, and a scenario added above with no
+# row here would silently fall back to the shared directory -- which is exactly
+# the failure being repaired.
+# =============================================================================
+RUN_DIRS = {sc: "mp%d" % i for i, sc in enumerate(SCENARIOS)}
+assert len(set(RUN_DIRS.values())) == len(SCENARIOS), "RUN_DIRS must be injective over SCENARIOS"
+assert all(sc in RUN_DIRS for sc in SCENARIOS), "RUN_DIRS must be total over SCENARIOS"
+
 # MPA5-2  the normalisers.  Absent -> all 1.0 (arm B, which MEASURES them).
 if args.normFile:
     with open(args.normFile) as _f:
@@ -195,11 +225,16 @@ def make_da_options(u0):
     }
 
 
-meshOptions = {
-    "gridFile": os.getcwd(),
-    "fileType": "OpenFOAM",
-    "symmetryPlanes": [],
-}
+# MPA5-4  `gridFile` is now PER SCENARIO.  D6R's shape
+# (d6r_opt_runScript.py:117-124): each point owns a full case copy and reads its
+# mesh out of that copy, so no two IDWarp instances and no two DASolvers address
+# the same directory.
+def mesh_options_for(point):
+    return {
+        "gridFile": os.path.join(os.getcwd(), RUN_DIRS[point]),
+        "fileType": "OpenFOAM",
+        "symmetryPlanes": [],
+    }
 
 
 # =============================================================================
@@ -207,10 +242,21 @@ meshOptions = {
 # =============================================================================
 class Top(Multipoint):
     def setup(self):
-        # MPA5-1  one builder per scenario.
+        # MPA5-1  one builder per scenario -- one DASolver per operating point --
+        # MPA5-4  EACH IN ITS OWN `run_directory`.  They differ in `daOptions`
+        # only through the inlet speed and the state normalisation, which are
+        # boundary/scaling properties and not mesh properties; they do NOT share
+        # a directory, because each DASolver carries its own `solution_counter`
+        # and renames into `run_directory`.  Sharing one is what killed this
+        # item's own first arm B, and SO-3aR's second arm before it.
         self.builders = []
-        for u0 in U0S:
-            b = DAFoamBuilder(make_da_options(u0), meshOptions, scenario="aerodynamic")
+        for i, sc in enumerate(SCENARIOS):
+            b = DAFoamBuilder(
+                make_da_options(U0S[i]),
+                mesh_options_for(sc),
+                scenario="aerodynamic",
+                run_directory=RUN_DIRS[sc],
+            )
             b.initialize(self.comm)
             self.builders.append(b)
 
@@ -359,6 +405,7 @@ rec = {
     "optimizer": args.optimizer,
     "sched_affinity": sorted(os.sched_getaffinity(0)),
     "scenarios": SCENARIOS,
+    "run_dirs": RUN_DIRS,          # MPA5-4, addendum 1
     "U0s": U0S,
     "weights": WEIGHTS,
     "nu": NU,

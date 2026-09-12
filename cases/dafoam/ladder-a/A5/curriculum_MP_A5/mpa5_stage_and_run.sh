@@ -117,9 +117,71 @@ IMGID=$(sudo -n docker images --no-trunc --format '{{.ID}}' "$IMG" 2>/dev/null |
 [ -n "$IMGID" ] || { echo "ABORT: cannot resolve image ID for $IMG"; exit 1; }
 echo "IMAGE $IMG ID=$IMGID" | tee -a "$LEDGER"
 
+# MPA5-L5  ADDENDUM 1 -- the per-scenario directory names are READ OUT OF THE RUN
+# SCRIPT'S OWN `RUN_DIRS`, never spelled here.  A name written twice is a name
+# that can drift; SO3 asserts the same invariant with so3_collision_leg.py.
+RUN_DIR_NAMES=$(python3 -c "
+import re, sys
+src = open('$RUNPY').read()
+m = re.search(r'^SCENARIOS\s*=\s*(\[[^\]]*\])', src, re.M)
+assert m, 'cannot find SCENARIOS in the run script'
+scen = eval(m.group(1))
+m2 = re.search(r'^RUN_DIRS\s*=\s*(\{[^}]*\})', src, re.M)
+assert m2, 'cannot find RUN_DIRS in the run script'
+rd = eval(m2.group(1), {'SCENARIOS': scen, 'enumerate': enumerate})
+assert set(rd) == set(scen), 'RUN_DIRS is not total over SCENARIOS'
+assert len(set(rd.values())) == len(scen), 'RUN_DIRS is not injective'
+print(' '.join(rd[s] for s in scen))
+") || { echo "ABORT: cannot derive RUN_DIRS from $RUNPY"; exit 1; }
+[ -n "$RUN_DIR_NAMES" ] || { echo "ABORT: RUN_DIRS derived empty"; exit 1; }
+echo "RUN_DIRS_DERIVED_FROM_RUNSCRIPT=[$RUN_DIR_NAMES] (per-scenario isolation, addendum 1)" | tee -a "$LEDGER"
+
+# MPA5-L6  prove the cold-start guard can refuse BEFORE staging anything.
+prove_time_dir_guard
+
 # ---------------------------------------------------------------------------
-# stage_arm <name> -- destroy and re-copy the arm tree, apply the P2 primal
-# setting, PROVE COLD START.
+# MPA5-L6  ADDENDUM 1 -- THE TIME-DIRECTORY PREDICATE, AND A CONTROL THAT PROVES
+# IT CAN REFUSE.  A guard never shown able to fail is not evidence, exactly as a
+# zero from a reader never shown able to see a non-zero is not evidence
+# (CLAUDE.md rule 3).  `stale_time_dirs` names every DECIMAL-named time directory
+# (`0.0001`, `1000`) other than the `0` template; `0.orig` is an input and is not
+# a time directory.  The control below plants a `0.0001` and requires the
+# predicate to NAME it, and plants a clean tree and requires silence.
+# ---------------------------------------------------------------------------
+stale_time_dirs() {
+  local d="$1"
+  ls -1 "$d" 2>/dev/null | while read -r e; do
+    [ -d "$d/$e" ] || continue
+    case "$e" in 0) continue ;; esac
+    printf '%s\n' "$e" | grep -qE '^[0-9]+(\.[0-9]+)?$' && printf '%s ' "$e"
+  done
+}
+
+prove_time_dir_guard() {
+  local t
+  t=$(mktemp -d) || { echo "ABORT: cannot make a scratch dir for the guard control"; exit 1; }
+  mkdir -p "$t/clean/0" "$t/clean/0.orig" "$t/clean/constant"
+  local neg
+  neg=$(stale_time_dirs "$t/clean")
+  [ -z "$neg" ] || { echo "ABORT: GUARD CONTROL NEGATIVE LEG FAILED -- a clean tree was reported stale: [$neg]"; rm -rf "$t"; exit 1; }
+  mkdir -p "$t/dirty/0" "$t/dirty/0.orig" "$t/dirty/0.0001" "$t/dirty/1000"
+  local pos
+  pos=$(stale_time_dirs "$t/dirty")
+  case "$pos" in
+    *0.0001*) : ;;
+    *) echo "ABORT: GUARD CONTROL POSITIVE LEG FAILED -- a planted 0.0001 was NOT seen; the predicate read [$pos]"; rm -rf "$t"; exit 1 ;;
+  esac
+  case "$pos" in
+    *1000*) : ;;
+    *) echo "ABORT: GUARD CONTROL POSITIVE LEG FAILED -- a planted 1000 was NOT seen; the predicate read [$pos]"; rm -rf "$t"; exit 1 ;;
+  esac
+  rm -rf "$t"
+  echo "GUARD_CONTROL_PASSED: planted 0.0001 and 1000 were both NAMED [$pos]; a clean tree read silent. The cold-start guard is shown able to refuse." | tee -a "$LEDGER"
+}
+
+# ---------------------------------------------------------------------------
+# stage_arm <name> -- destroy and re-copy the arm tree AND the three
+# per-scenario case copies, apply the P2 primal setting, PROVE COLD START.
 # ---------------------------------------------------------------------------
 stage_arm() {
   local name="$1"
@@ -130,25 +192,42 @@ stage_arm() {
     || { echo "ABORT: cannot stage case tree from $SRC"; exit 1; }
   cp "$RUNPY" "$arm"/runScript.py || { echo "ABORT: cannot stage run script"; exit 1; }
 
-  # MPA5-L3  the P2 primal setting, APPLIED AND READ BACK.
-  sed -i 's/^\(\s*nNonOrthogonalCorrectors\s*\)0;/\12;/' "$arm/system/fvSolution" \
-    || { echo "ABORT: cannot apply the P2 setting in $name"; exit 1; }
-  local nnoc
-  nnoc=$(awk '/^SIMPLE/{f=1} f&&/nNonOrthogonalCorrectors/{print $2; exit}' "$arm/system/fvSolution" | tr -d ';')
-  [ "$nnoc" = "2" ] || { echo "ABORT: P2 setting did not land in $name (SIMPLE nNonOrthogonalCorrectors reads '$nnoc', expected 2)"; exit 1; }
-  echo "P2_APPLIED stage=$name SIMPLE/nNonOrthogonalCorrectors=$nnoc (A5P2 RESULTS.md: p initRes 2.056815e-04 -> 1.448577e-08)" | tee -a "$LEDGER"
-
-  # COLD-START PROOF, before any container starts.
-  [ -e "$arm/mpa5_out.json" ] && { echo "ABORT: answer file present before launch in $name"; exit 1; }
-  for t in $(ls -1 "$arm" 2>/dev/null | grep -E '^[0-9]+(\.[0-9]+)?$' | grep -v '^0$'); do
-    echo "ABORT: time directory $t present before launch in $name"; exit 1
+  # MPA5-L5  ADDENDUM 1 -- THE PER-SCENARIO CASE COPIES.  One full case tree per
+  # operating point at mp0/ mp1/ mp2/, so no two DASolvers and no two IDWarp
+  # instances address the same directory.  The names MUST equal the values of
+  # `RUN_DIRS` in mpa5_run_script.py, and that equality is ASSERTED below against
+  # the run script's own text rather than trusted.
+  for mp in $RUN_DIR_NAMES; do
+    cp -a "$SRC"/0 "$SRC"/0.orig "$SRC"/constant "$SRC"/system "$SRC"/FFD "$arm/$mp"/ 2>/dev/null \
+      || { mkdir -p "$arm/$mp" && cp -a "$SRC"/0 "$SRC"/0.orig "$SRC"/constant "$SRC"/system "$SRC"/FFD "$arm/$mp"/ ; } \
+      || { echo "ABORT: cannot stage per-scenario case copy $mp in $name"; exit 1; }
   done
-  [ -e "$arm/0/U.gz" ] && { echo "ABORT: 0/U.gz present before launch in $name"; exit 1; }
-  [ -f "$arm/0/U" ] || { echo "ABORT: 0/U absent after staging $name"; exit 1; }
+
+  # MPA5-L3  the P2 primal setting, APPLIED AND READ BACK -- in the arm root AND
+  # in every per-scenario copy, because each DASolver reads its OWN system/.
+  for d in "$arm" $(for mp in $RUN_DIR_NAMES; do echo "$arm/$mp"; done); do
+    sed -i 's/^\(\s*nNonOrthogonalCorrectors\s*\)0;/\12;/' "$d/system/fvSolution" \
+      || { echo "ABORT: cannot apply the P2 setting in $d"; exit 1; }
+    local nnoc
+    nnoc=$(awk '/^SIMPLE/{f=1} f&&/nNonOrthogonalCorrectors/{print $2; exit}' "$d/system/fvSolution" | tr -d ';')
+    [ "$nnoc" = "2" ] || { echo "ABORT: P2 setting did not land in $d (SIMPLE nNonOrthogonalCorrectors reads '$nnoc', expected 2)"; exit 1; }
+  done
+  echo "P2_APPLIED stage=$name in the arm root and in $RUN_DIR_NAMES, SIMPLE/nNonOrthogonalCorrectors=2 (A5P2 RESULTS.md: p initRes 2.056815e-04 -> 1.448577e-08)" | tee -a "$LEDGER"
+
+  # COLD-START PROOF, before any container starts.  Checked in the arm root AND
+  # in every per-scenario copy.
+  [ -e "$arm/mpa5_out.json" ] && { echo "ABORT: answer file present before launch in $name"; exit 1; }
+  for d in "$arm" $(for mp in $RUN_DIR_NAMES; do echo "$arm/$mp"; done); do
+    local stale
+    stale=$(stale_time_dirs "$d")
+    [ -z "$stale" ] || { echo "ABORT: time directory/ies [$stale] present before launch in $d"; exit 1; }
+    [ -e "$d/0/U.gz" ] && { echo "ABORT: 0/U.gz present before launch in $d"; exit 1; }
+    [ -f "$d/0/U" ]   || { echo "ABORT: 0/U absent after staging $d"; exit 1; }
+  done
   chmod -R 777 "$arm"
   # the AGE DATUM: 0/U is touched last at staging and so dates the run allowed to
   # produce this arm's answer.  Every answer file must be NEWER than it.
-  echo "COLDSTART_PROVED stage=$name answer-file absent, no time dir, no 0/U.gz, age_datum=$(stat -c %Y "$arm/0/U")" | tee -a "$LEDGER"
+  echo "COLDSTART_PROVED stage=$name answer-file absent, no time dir in the arm root or in any of [$RUN_DIR_NAMES], no 0/U.gz, age_datum=$(stat -c %Y "$arm/0/U")" | tee -a "$LEDGER"
 }
 
 # ---------------------------------------------------------------------------
@@ -273,3 +352,30 @@ fi
 echo "TOTAL_SPENT_CORE_MIN=$SPENT_CORE_MIN (REPORTED; no cap)" | tee -a "$LEDGER"
 echo "STAMP=$STAMP" | tee -a "$LEDGER"
 echo "TO GRADE: python3 $GRADER --root $BASE --stamp $STAMP --cpuset $CPUSET" | tee -a "$LEDGER"
+
+# ---------------------------------------------------------------------------
+# MPA5-L7  ADDENDUM 1 -- THE CHAIN'S rc REFLECTS ITS ARMS.
+#
+# THE DEFECT THIS REPAIRS, MEASURED ON THIS ITEM'S OWN FIRST LAUNCH: arm B exited
+# rc=1, the chain correctly refused to proceed to O (`NORMALISERS_ABSENT`), and
+# then the chain exited 0 and wrote `MPA5_CHAIN_RC: 0`.  Anything keying on
+# CHAIN_RC.txt would have read SUCCESS on a failed chain.  A wrapper that reports
+# success for a failed run is worse than one that reports nothing.
+#
+# rc is the FIRST non-zero arm rc, or 0 only if EVERY declared arm ran and every
+# one returned 0.  An arm that never ran (because a predecessor failed) makes the
+# chain non-zero -- an unrun arm is not a passed arm.  Exit status is still NOT
+# the verdict; the verdict is the comparator's.
+# ---------------------------------------------------------------------------
+CHAIN_RC=0
+for a in B O E; do
+  v=$(eval "echo \${${a}_RC:-MISSING}")
+  echo "ARM_RC_ROLLUP arm=$a rc=$v" | tee -a "$LEDGER"
+  if [ "$v" = "MISSING" ]; then
+    [ "$CHAIN_RC" = "0" ] && CHAIN_RC=70   # 70 == a declared arm never ran
+  elif [ "$v" != "0" ]; then
+    [ "$CHAIN_RC" = "0" ] && CHAIN_RC=$v
+  fi
+done
+echo "CHAIN_RC_ROLLUP=$CHAIN_RC (0 only if all of B,O,E ran and all returned 0; 70 == a declared arm never ran)" | tee -a "$LEDGER"
+exit "$CHAIN_RC"

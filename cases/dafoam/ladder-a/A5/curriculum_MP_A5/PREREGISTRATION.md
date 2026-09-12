@@ -277,3 +277,83 @@ sibling is reniced, re-pinned or disturbed.**
 ---
 
 *`MP_A5` v1.0, 2026-09-12. Frozen with its grading path in one commit.*
+
+---
+
+## ADDENDUM 1 — 2026-09-12, after arm B of the first launch failed at 56 s
+
+**Lines whose number changed above this section: 0.** No gate, threshold, band, label, prediction,
+weight, scenario or grading-path file is altered by this addendum. `mpa5_grade.py` is **byte-identical**
+to its frozen state, md5 `2624c493f11fce8a18ed786c8004c340`. This is a **staging/launcher repair**
+under `CLAUDE.md` rule 2's repair clause, disclosed here rather than made silently.
+
+### A1.1 What happened, measured
+
+Arm `B` of the launch stamped `20260912T062033Z_2937429` exited `rc=1` at 56 s (0.9333 core-min) with
+
+```
+pyDAFoam Error: /mnt/0.0001 already exists, moving failed!
+  pyDAFoam.py:1543 in renameSolution(self.nSolvePrimals)
+```
+
+**The physics before the crash was healthy:** `p` initRes had reached `9.596471842383963e-07` in 44
+steps — the 1e-07 decade, tracking registered prediction **P-4**. The case is not the problem.
+
+### A1.2 Root cause — and a correction to the first triage
+
+**This is exactly the integration risk §6 item 1 of this document registered before compute.** Three
+`DASolver` instances shared **one** case directory; each carries its own `solution_counter`; each
+renamed its converged solution to the same `0.0001`. `point0` renamed and succeeded, `point1`
+collided and raised. It is the verbatim SO-3aR failure recorded at `so3_runScript.py:253-277`.
+
+**A first triage attributed this to stale time directories copied in from the source tree and to a
+cold-start guard that failed to see them. The disk refutes both halves, and the record says so:**
+
+* `ls -d /home/ubuntu/certonomous-runs/W5-regrade/a5pl_stock/[0-9]*` returns **only `0` and
+  `0.orig`**. There are no stale time directories in the source tree and none were copied.
+* `B/0.0001` and `B/1000` are **root-owned** with mtimes **06:21:10** and **06:21:25**, i.e. written
+  by the container **during** the run — 24 and 39 seconds **after** the guard printed
+  `COLDSTART_PROVED` at staging (`B/0` mtime 06:20:46). **The guard's assertion was true when it was
+  made.** The predicate `^[0-9]+(\.[0-9]+)?$` already matched decimal names; it had nothing to see.
+
+Cause class **BOOKKEEPING/INSTRUMENT**, not upstream and not physics. `MP_A5` was derived from
+`D9successor`, which is **single-point** and therefore never needed the isolation, so the isolation
+was never carried in. A2's `D6R` has carried the cure since it was written; `SO3` ported it to A1.
+
+### A1.3 The three repairs
+
+1. **`MPA5-4` / `MPA5-L5` — per-scenario `run_directory` isolation, the actual root cause.** One
+   full case tree per operating point at `mp0/ mp1/ mp2/`; each builder gets
+   `run_directory=RUN_DIRS[sc]` and `gridFile=os.path.join(os.getcwd(), RUN_DIRS[sc])`, so no two
+   `DASolver`s and no two IDWarp instances address one directory. `RUN_DIRS` is **derived from
+   `SCENARIOS`, never spelled out** — a hand-written map is one more call site of the scenario label,
+   and a scenario added with no row would fall back to the shared directory, which is the failure
+   being repaired. The run script asserts the map is total and injective; the launcher **reads the
+   names out of the run script's own text** and refuses if they do not derive. The P2 primal setting
+   is now applied and read back in the arm root **and in every per-scenario copy**, because each
+   `DASolver` reads its own `system/`.
+2. **`MPA5-L6` — the cold-start guard is now shown able to refuse.** The guard was truthful, but a
+   guard never shown able to fail is not evidence, exactly as a zero from a reader never shown able
+   to see a non-zero is not evidence (`CLAUDE.md` rule 3). `prove_time_dir_guard` runs **before any
+   staging**: it plants `0.0001` and `1000` in a scratch tree and **requires the predicate to name
+   both**, and requires a clean tree to read silent. Driven standalone before relaunch:
+   `GUARD_CONTROL_PASSED: planted 0.0001 and 1000 were both NAMED [0.0001 1000 ]; a clean tree read
+   silent.` The cold-start check now covers the arm root **and** all three per-scenario copies.
+3. **`MPA5-L7` — the chain's rc reflects its arms.** On the first launch, arm B exited `rc=1`, the
+   chain correctly refused to proceed (`NORMALISERS_ABSENT`), and then **exited 0 and wrote
+   `MPA5_CHAIN_RC: 0`** — anything keying on `CHAIN_RC.txt` would have read success on a failed
+   chain. The chain now exits the first non-zero arm rc, and **`70` if a declared arm never ran**:
+   an unrun arm is not a passed arm. Exit status is still **not** the verdict; the verdict is the
+   comparator's.
+
+### A1.4 Unchanged
+
+**No cap of any kind.** Memory containment kept (`--memory=3g --memory-swap=3g --oom-score-adj=500`).
+np=1 on its own cpuset; no sibling reniced, re-pinned or touched. The failed run root is **kept as
+evidence and never deleted**; the relaunch uses a fresh timestamped root.
+
+**Cost carried from the failed launch: 0.9333 core-min**, reported, added to this item's actual at
+completion and attributed to the instrument defect above, **named as waste and never absorbed into
+the actual/predicted ratio** (`COMPUTE_BUDGET_CHARTER.md` §6).
+
+*`MP_A5` v1.1, 2026-09-12.*
