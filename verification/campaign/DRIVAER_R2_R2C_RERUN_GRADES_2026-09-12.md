@@ -297,3 +297,62 @@ Calibration rows: `r2_coarse_R2` and `r2c_coarse_blended_R2` were already landed
 
 *Filed by a cfd `lab-lane`, 2026-09-12. Alters no gate, threshold, cap or label.
 No agent's message is Sanaa's consent. Submissions parked.*
+
+---
+
+# ADDENDUM 1 — 2026-09-12 — **A DEFECT IN THE CONTROL ARM, FOUND WHILE GRADING THE TREATMENT, PROMOTED OUT OF THE y⁺ DISCUSSION TO A LINE OF ITS OWN**
+
+Appended, not inserted: **lines whose number changed above this section: 0.**
+Alters no gate, threshold, band, cap or label. Requested in writing by the
+cfd-supervisor after reading §5's Y2 discussion, on the ground that a finding about
+the **control** must not sit buried inside a paragraph about the **treatment**.
+
+## A1.1 THE FINDING
+
+**The solved layered-group y⁺ MINIMUM on the medium mesh is 1.92.**
+
+Part of the layered patch group therefore sits **inside the viscous sublayer**
+(y⁺ < 5), not in the log layer.
+
+* **`nutUSpaldingWallFunction` (the blended/treatment arm) tolerates this.** Spalding's
+  law is continuous from the viscous sublayer through the buffer layer to the log layer;
+  a first cell at y⁺ 1.92 is inside its valid range.
+* **`nutkWallFunction` (the CONTROL arm) does not.** It is a **high-Re log-layer** wall
+  function and assumes the first cell centre sits in the log layer. At y⁺ 1.92 that
+  assumption is false and the wall function is being evaluated outside the range it is
+  derived for.
+
+## A1.2 WHAT THAT MEANS FOR THE COMPARISON, SAID WITHOUT SOFTENING
+
+**THE TWO ARMS ARE NOT WALL-TREATMENT-ADMISSIBLE ON THE SAME FOOTING.** The R2c
+registration's design — *"the value of this arm is that ONE thing moved"* — assumed a
+control that is valid everywhere the treatment is valid, so that any difference could
+be attributed to the treatment. On the layered group's low-y⁺ tail that assumption does
+not hold: **the control is the arm operating outside its own range of validity, and the
+treatment is the arm operating inside it.**
+
+This does **not** retract Gate B2's `INACTIVE` verdict and must not be read as doing so.
+B2 was measured on the **coarse** mesh, whose layered minimum is **34.235** and whose
+unlayered minimum is **56.062** — the whole coarse body is above the y⁺ ≈ 30 crossover,
+which is precisely why B2 read INACTIVE and why its mechanism was called measured. **The
+1.92 is a MEDIUM-mesh figure and B2 was never evaluated there.** The two statements are
+about different meshes and both stand.
+
+## A1.3 WHAT IS AND IS NOT ESTABLISHED
+
+| | |
+|---|---|
+| **Established, measured** | The medium blended arm's solved layered y⁺ minimum is **1.92**; its area-weighted layered average is **203.94** and unlayered **261.74**. Artifact: `verification/runs/navier_class/DRIVAER/YPLUS_PROBE/r2c_medium_blended_R2/postProcessing/yPlus/0/yPlus.dat`, 52 of 52 patches non-zero. |
+| **Established, by definition not by measurement** | `nutkWallFunction` is a high-Re log-layer form and `nutUSpaldingWallFunction` is continuous through the sublayer. This is what the two models are, not something this run measured. |
+| **NOT established, and not claimed** | **How much** the control's Cd is wrong because of it. **No non-blended medium solve exists on this box**, so the size of the effect on the medium level has never been measured, and no number is offered for it. The coarse-level B2 figure (0.87 drag counts) is a **coarse** figure at y⁺ ≥ 34 and does **not** transfer to a mesh with a y⁺ 1.92 tail. |
+| **What would establish it** | A non-blended solve on the **medium** mesh — the B2 experiment repeated at the level where the two wall functions do not coincide. **Not run, not registered, not queued by this lane.** |
+
+## A1.4 WHY THIS IS RECORDED AGAINST US
+
+Nothing in this addendum improves any verdict in this file. It identifies a weakness in
+the **control** of an experiment this team designed, found while grading the arm the
+control was built to test, and it makes the R2c comparison **less** clean than §5 reads
+on its own. It is recorded for that reason.
+
+*Appended by a cfd `lab-lane`, 2026-09-12, at the cfd-supervisor's written request.
+No agent's message is Sanaa's consent. Submissions parked.*
