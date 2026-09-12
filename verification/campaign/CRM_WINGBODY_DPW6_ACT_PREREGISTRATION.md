@@ -552,3 +552,78 @@ f3621128c354805996b04a74020365fc7470e1ff991fc0c0a0ac3d78cc52192b  rivers_2019_cr
 Comparator and converter, graded at the commit that freezes this file:
 `cases/CRM_wingbody/tools/ugrid_to_gmsh.py`, `…/convert_level.py`,
 `…/selftest_ugrid_to_gmsh.py`.
+
+---
+
+# ADDENDUM 1 — 2026-09-12, RATE PROBES. Version 1.1.
+
+**lines whose number changed above this section: 0**
+
+**This addendum alters no gate, no threshold, no cap and no label.** It records a measurement
+taken after first compute and registers three diagnostic probes that grade nothing. Every gate
+and band in §5, every prediction in §6, and the cost cap in §9 stand exactly as frozen at
+`6165680b`.
+
+## A1.1 MEASURED BASELINE RATE — the §9 estimate is superseded by measurement
+
+Tiny (20,657,615 cells), 32 ranks, SA, α = 2.75°, from uniform freestream:
+
+| | |
+|---|---|
+| ExecutionTime, iteration 1 | 267.81 s |
+| ExecutionTime, iteration 2 | 548.50 s |
+| **measured rate** | **280.7 s/iteration = 149.7 core-min/iteration** |
+
+Against the §9 nominal of 10–20 s/iteration. **Reported GROSS, not cleaned:** host load average
+was 76.8 on 96 cores with 35 foreign solver ranks live, so contention inflates the wall figure.
+
+**Consequences, stated rather than absorbed.** The 300-iteration smoke is ~22 wall-hours and
+~44,900 core-minutes, which is **above its own registered cap of 9,600** — that run is therefore
+`NOT A RESULT` if executed as registered, and the cap is not raised (§7). Tiny to the 6,000
+iteration cap is ~19 days, not the 17–33 hours on which the grid level was ruled.
+
+## A1.2 THE CAUSE IS A STALLED LINEAR SOLVER, NOT THE CELL COUNT
+
+Momentum, enthalpy and nuTilda each converge in **one** linear iteration. GAMG runs to its
+**1000-iteration ceiling on both pressure solves of every SIMPLE step** and reduces the initial
+residual only **7.60×10⁻⁴ → 5.49×10⁻⁴**, a factor of 1.4 against the `relTol 0.01` it never
+reaches. The pressure solve is the entire cost. This is the registered stop signature of Sanaa's
+run instructions item 12, *"plateau with a stalled linear solver → stop, mesh fix > if doesnt
+work > model fix"*, on a mesh whose max aspect ratio is 4437 and max non-orthogonality 89.46 —
+the known hard case for GAMG agglomeration.
+
+## A1.3 THREE RATE PROBES — DIAGNOSTICS, NOT RUNS OF THE ACT
+
+Each probe is **30 iterations**: enough to clear startup and read a steady per-iteration cost.
+
+> **A PROBE IS NOT A SMOKE AND ITS OUTPUT IS NOT A RESULT.** It reports one number, the measured
+> per-iteration cost. **No force, coefficient or field from a rate probe is graded, quoted as a
+> result, or compared to any band.** The registered smoke of §8.2 and its predictions are
+> untouched and still to be run.
+
+**One registered change per probe** (Sanaa, item 13), so these are three runs, not one:
+
+| probe | the single change | why |
+|---|---|---|
+| **P3** | `maxIter 50` on the pressure solve | 1000 iterations are bought and ~nothing delivered; SIMPLE needs progress, not a converged inner solve. Cheapest to test and the most diagnostic: if cost falls proportionally the solve really is all in the linear solver; if it does not, the fault is elsewhere and P1/P2 are better aimed. **Run first.** |
+| **P1** | tuned agglomeration — `faceAreaPair`, `nCellsInCoarsestLevel 2000`, `nPreSweeps 0` | at aspect ratio 4437 GAMG builds a poor coarse hierarchy |
+| **P2** | `PBiCGStab` + `DIC` for p | does not agglomerate at all; often correct on wall-resolved prism layers |
+
+**Checkpointing under the measured rate:** `writeInterval` 6 iterations, `purgeWrite 2` —
+1800 s / 280.7 s = 6.4 is now the binding bound, replacing the "every 200 until the rate is
+known" fallback of §7. Safe in both directions: if a probe lowers the rate, 6 iterations remains
+well inside 30 minutes.
+
+## A1.4 COMPARATOR PIN — why graded entries cite a later commit than the freeze
+
+The runner recorded `ABSENT-AT-FREEZE` for 2 of 5 comparators on the smoke entry. **Checked by
+content, the runner is right and the entry was wrong:** `cases/CRM_wingbody/tools/planted_force_check.py`
+and `cases/CRM_wingbody/system/forces` are genuinely absent at `6165680b` (`git cat-file -e`
+fails on both); they were written after the freeze. The other three are present with sha256
+identical to disk.
+
+**The registration document is byte-identical at `6165680b` and at every later commit** (sha256
+prefix `425fb3a6012a1c36` at both). Graded entries therefore cite a commit at which **all five
+comparators exist**, carrying the same registration bytes, and the certificate records that the
+gate was frozen at `6165680b` and that the document has not moved since. No gate, threshold, cap
+or label is affected by the change of cited sha.
