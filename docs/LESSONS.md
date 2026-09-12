@@ -28097,3 +28097,93 @@ the process table, is SHARED, and a command that addresses it by convenience rat
 explicit ownership will reach somebody else's work.** `/proc/<pid>/cwd` for processes;
 `GIT_INDEX_FILE` and an explicit pathspec for the index. In both cases the safe form is *name
 what is yours*, and in both cases the unsafe form is shorter to type.
+
+---
+
+## L-574 — When an `mpirun` job dies, **STDERR tells you WHO killed it and the exit code does not.** The measured map.
+
+**2026-09-12, cfd, M6I.** Two graded 983,040-cell runs stopped at iterations 844 and 851 with
+`rc = 1`, no message, no signal string, and healthy physics through the final iteration. The
+cause was invisible for two attempts. **It was never in the case**: another lane ran
+`pkill -f "rhoSimpleFoam -parallel"` to stop its own diagnostics, and `-f` matches the **full
+command line of every process on the box** — including `mpirun -np 4 rhoSimpleFoam -parallel`,
+which contains the string.
+
+### THE MAP. Every row MEASURED on this box, this OpenMPI, on throwaway `sleep` ranks signalled BY PID.
+
+| what happened | **rc** | **stderr** |
+|---|---|---|
+| job exits cleanly | **0** | empty |
+| **the application itself exits non-zero** (tested with 7) | **= the app's code** | **non-empty** (275 B) |
+| **CHILD ranks** signalled `SIGTERM` | **143** | **non-empty** (530 B) |
+| **CHILD ranks** signalled `SIGKILL` | **137** | **non-empty** (525 B) |
+| **`mpirun` ITSELF** signalled `SIGTERM` | **1** | **EMPTY** |
+| **`mpirun` ITSELF** signalled `SIGINT` | **1** | **EMPTY** |
+| **`mpirun` ITSELF** signalled `SIGKILL` | **137** | **EMPTY** |
+
+### THE RULE, AND IT IS NOT THE OBVIOUS ONE
+
+> **STDERR IS THE DISCRIMINATOR, NOT THE EXIT CODE.**
+> **stderr non-empty → the job failed, or its RANKS were signalled; mpirun saw it and said so.**
+> **stderr EMPTY and rc is not 0 → THE PARENT WAS SIGNALLED FROM OUTSIDE. Nothing inside your
+> case is wrong. Go and find who.**
+
+**A two-row version of this table was requested. Seven rows were measured instead, and the
+extra five corrected it twice:**
+
+1. **`rc = 137` is AMBIGUOUS.** It appears for `SIGKILL` to the **children** *and* to the
+   **parent** — and **only stderr separates them**, 525 bytes against zero.
+2. **`rc = 1` does not identify `SIGTERM`.** `SIGINT` to the parent gives the same `1` with the
+   same empty stderr. It identifies **"a catchable signal reached the parent"**, no more.
+
+**Publishing the two-point version as a general diagnostic would have been wrong on both
+counts.** A lookup table is used by strangers on cases its author never saw; **measure the rows
+you publish.**
+
+### THE PRECONDITION THAT MAKES THE MAP USABLE AT ALL
+
+**Give the solver its OWN stderr file.** `mpirun ... > log 2>&1` merges stderr into a stdout
+that N ranks write concurrently, where a dying rank's message is interleaved or lost — and
+**"rc = 1 with no message" then becomes indistinguishable from "rc = 1 with a message you
+cannot find".** Split them: `mpirun ... > log 2> log.stderr`. **A zero-byte stderr file is only
+a finding if stderr had somewhere of its own to go.**
+
+**And capture the box AT the moment of failure** — `free`, `df`, loadavg, live process counts,
+a `dmesg` or `/var/log/kern.log` read — because a post-mortem an hour later measures a
+different machine. On this box `dmesg` needs privilege and **`/var/log/kern.log` does not**;
+read the latter, and **show the reader can see a non-zero** (it returns real OOM lines from
+earlier the same day) before reporting that it found none.
+
+### THE COROLLARY FOR WHOEVER HOLDS THE KNIFE
+
+Both offending commands **exited 144** — the pattern matched the shell running them — and that
+was read as a quirk of the shell rather than as what it is:
+
+> **A SELF-MATCH IS A LOWER BOUND ON BLAST RADIUS.** `exit 144` does not say *"your shell
+> died"*; it says ***"this pattern matches processes you did not enumerate, and here is one."***
+> **Abandon the pattern; do not widen the exclusion** — excluding your own shell makes the
+> instrument quiet without making it safe.
+
+Identify targets by **`/proc/<pid>/cwd`** and **`/proc/<pid>/cmdline`**, re-read **at the moment
+of signalling**, and signal an **explicit pid list**.
+**`ps` tells you what, never whose — and so does `pkill -f`.**
+
+### A SECOND TRAP, HIT WHILE WRITING THIS LESSON, AND CAUGHT BY A GUARD
+
+The first attempt to append this text used an **unquoted heredoc**, so its backticks were
+**command-substituted**: `SIGKILL`, `SIGINT` and `kern.log` were executed as commands and their
+output was spliced into the file, producing a bogus second `## L-` heading. **This is "backticks
+kill the commit" in a new costume** — the trap is not specific to `git commit -m`, it is
+**anything unquoted**. What caught it was a pre-commit assertion that the working tree held
+**exactly one** new `## L-` heading and **zero** deleted lines; it refused, nothing was
+committed, and the 97 corrupted lines were removed **only after** proving by `git hash-object`
+that truncation reproduced HEAD's blob byte-for-byte, so no peer's uncommitted work could be
+discarded with them. **Use a quoted heredoc (`<<'EOF'`) for any text containing backticks.**
+
+**Related.** L-571 (an instrument whose referent was not what its author believed);
+`docs/standards/MONITOR_STANDARD.md` v1.14 §12 member 13; "pkill kills its own shell" — the same
+trap from the victim's side, which is why the attacker's side went unwritten for so long.
+
+**Sources.** `verification/campaign/M6I_R1_SOLVE_PREREGISTRATION.md` §A14.4 (the control,
+recorded **before** the actor was known) and §A14.5 (the confirmation);
+`verification/runs/M6I_runs/L1/FAILURE_CONTEXT.1.txt` (rc 1, zero-byte stderr, 660 GB free).
