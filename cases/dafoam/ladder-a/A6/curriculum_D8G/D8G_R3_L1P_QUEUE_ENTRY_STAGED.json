@@ -1,7 +1,7 @@
 {
   "team": "dafoam",
   "case_id": "D8G-R3-L1-P",
-  "prereg_commit": "REPLACE_WITH_ADDENDUM_11_COMMIT_SHA",
+  "prereg_commit": "12dbb427802f1f5abf20251371ee29ce5bd9e7e6",
   "prereg_path": "cases/dafoam/ladder-a/A6/curriculum_D8G/PREREGISTRATION.md",
   "launch_cmd": [
     "bash",
@@ -32,8 +32,9 @@
   "evidence_guard_repaired_in_addendum_11": "d8g_run_arm.sh carried `sudo -n rm -rf \"$WORK\" 2>/dev/null` with WORK=\"$BASE/$ARM\" (:415) -- IT DELETED THE ARM'S PREVIOUS RUN TREE, AS ROOT, SILENTLY, AT EVERY LAUNCH. On a re-launch against the same BASE that destroyed the completed arm and said nothing. It is now a refusal (exit 6) naming the directory. The two defects are ONE defect: the rm needed sudo only because the container ran as root and left output the host could not delete, so it existed to clean up after the uid defect and disappears with it.",
   "wrapper_guards_driven_both_ways": "The wrapper's five guards were driven against the real launcher AND against a planted-defect copy before this entry was written: real launcher passes all five; a copy with `--user 0:0` planted back as an EXECUTABLE line is refused. Every guard anchors on ^[^#]* and tests what bash would run -- because a whole-file grep for a defect's name fires on the COMMENT recording that defect being fixed, which was measured happening twice on MP_A5R tonight.",
   "blocking_defects": [
-    "BLOCKER 1 -- ADDENDUM 11 is written but not yet committed; prereg_commit is a deliberate non-sha placeholder so this entry CANNOT validate if copied into the queue.",
+    "CLEARED -- ADDENDUM 11 committed at 12dbb427802f1f5abf20251371ee29ce5bd9e7e6 and prereg_commit now pins it.",
     "BLOCKER 2 -- supervisor's check 4 on ADDENDUM 11 is owed.",
     "REPORTED, NOT REPAIRED -- a gap in D8G's own freeze chain: ADDENDUM 1 re-froze d8g_run_arm.sh at 51ff683dda23aa0143d1a2fe5047c780, but the file on disk before ADDENDUM 11 hashed 7ce53b9242ac6e850cc330712d93d5b0. The launcher moved between the two without a re-freeze row naming the new value. ADDENDUM 11 records the before hash it MEASURED as well as the after, so the chain is continuous from here even though it is broken behind. WHICH commit moved it, and whether that change was registered, is NOT established by this lane and is not claimed."
-  ]
+  ],
+  "prereg_commit_note": "ADDENDUM 11, the commit whose tree holds the repaired launcher AND prereg_path. Verified: md5 of d8g_run_arm.sh on disk == `git cat-file -p 12dbb4278:<path> | md5sum` == c0fdb80ab60327f32531323b74097107, which is also the pin d8g_l1p_r3_queue_launch.sh carries. STILL NOT ENQUEUED: check 4 on ADDENDUM 11 is owed."
 }

@@ -267,3 +267,118 @@ No cap of any kind. Memory containment kept — and now correctly sized. np = 1 
 `MemAvailable ≥ 14 GiB` precondition passes.** Every `MP_A5` run root is kept as evidence.
 
 *`MP_A5R` v1.1, 2026-09-12.*
+
+---
+
+## ADDENDUM 3 — 2026-09-12 — **THE ARM-`O` COST BASIS IS A MEAN BEING USED AS A RATE, AND THE HOT START I JUST ADDED DOES NOT SKIP THE FIXED COST. A CORRECTED MODEL IS REGISTERED AS A PREDICTION TO BE TESTED — NO NUMBER IN §4 IS MOVED.**
+
+**Lines whose number changed above this section: 0.** **NO GATE, THRESHOLD, BAND, WEIGHT, SCENARIO,
+PREDICTION, LABEL, CAP OR REGISTERED COST ESTIMATE IS ALTERED.** §4's `≈ 1,140 core-min` and its
+`NO CAP OF ANY KIND` stand exactly as frozen. `mpa5r_grade.py` remains byte-identical to its original
+freeze, `895f2146ab203e41b2767aa9a3ed248a`. **This item is still NOT LAUNCHED.**
+
+**What this addendum does is register a BETTER COST MODEL AS A PREDICTION TO BE TESTED against the
+actual.** It is deliberately *not* a substitution: moving a frozen estimate because a better model
+now says it is wrong is laundering, and a crossed cap is still reported and still grades
+`NOT A RESULT`. Origin: a peer lane measured this on a live D6R2C run and the correction reached this
+item before it spent anything.
+
+### A3.1 The defect — a per-evaluation MEAN used as a per-evaluation RATE
+
+Addendum 1 §A1.6 replaced §4's scaled arm-`O` figure with what it called a measured basis:
+
+> *"59.2667 core-min bought 33 function evaluations at `endTime 1000` ≈ **1.80 core-min per
+> evaluation**, so ≈ **9.0 per evaluation at `endTime 5000`**."*
+
+**`1.80` is a MEAN, not a marginal rate.** Those 59.2667 core-minutes contain the run's **one-time
+setup** — most importantly the adjoint Jacobian **coloring** — amortised across 33 evaluations. The
+true shape is
+
+> **total = F + n·m**, not **n × mean**
+
+and `mean = F/n + m` is correct at exactly `n = 33` and wrong everywhere else. Used as a rate it
+**under-predicts below 33 evaluations and over-predicts above them**, and the error is largest where
+`n` is smallest — precisely the short arms.
+
+**A second error compounds it, and it is this item's own.** §A1.6 scaled `1.80 → 9.0` by the ×5 of
+`endTime 1000 → 5000`. **The coloring cost does not scale with `endTime`** — it is a Jacobian
+*structure* computation, not an iteration count — so that ×5 was applied to the fixed term as well as
+the marginal one.
+
+### A3.2 The fixed term is **per multipoint condition**, and this item has three
+
+The peer's measurement: the coloring runs **once per condition**, ~400 s each; at three conditions
+that is ~1,200 s of solver time ≈ **80 core-min at 4 ranks** *before a single optimiser major
+exists*, with total setup **F ≈ 180 core-min**.
+
+**`MP_A5R` has three scenarios, so it pays three colorings**, exactly as the peer's item does.
+
+**What this lane can and cannot say about `F` for THIS item, kept separate:**
+
+* **Cannot:** `F` is **not measured for `MP_A5R`.** The peer's ≈ 180 core-min was measured at **4
+  ranks** on a different geometry; this item runs **np = 1**. Core-minutes are wall × ranks, so a
+  figure is not transportable across rank counts without knowing how the coloring parallelises, and
+  this lane has not measured that. **No `F` for this item is registered, and none is invented.**
+* **Can, and it is a useful structural point:** **arm `B` does not pay the coloring at all.** Arm `B`
+  is `-task=run_model` — a primal with **no adjoint** — so its ≈ 5.7 core-min is **not** an anchor
+  for `F` and must not be read as one. **Only arm `O` pays it.** Anyone calibrating `F` from arm `B`
+  will get zero and think the setup is free.
+
+### A3.3 **THE HOT START DOES NOT SKIP THE FIXED COST — and I verified this in the source rather than relaying it**
+
+This is the clause that prices Addendum 2's restart work, so it was checked rather than believed.
+Read from the **installed** `pyoptsparse` in the pinned image
+(`.../site-packages/pyoptsparse/pyOpt_optimizer.py`, the hot-start branch at `:232`):
+
+```
+if self.hotStart.pointExists(self.callCounter):
+    data = self.hotStart.read(self.callCounter)
+    ...
+    funcs     = data["funcs"]
+    funcsSens = data["funcsSens"]
+```
+
+**On a replayed point the objective and its sensitivities are read out of the history file and the
+model is never called.** DAFoam therefore does not run during replay, **so the colorings cannot be
+built during replay** — they are rebuilt from scratch at the **first real evaluation** after the
+replay ends.
+
+> **A resume recovers the marginal cost of the majors it replays and NOTHING of the setup. The fixed
+> term is re-paid on every resume.**
+
+**This does not weaken Addendum 2's hot start. It prices it**, and the price is asymmetric:
+
+| kill point | what a resume recovers |
+|---|---|
+| **late** | most of it — the peer's worked case: D6R2 dying at major 12 of 25 would have recovered ≈ 341 of ≈ 891 core-min |
+| **early** | almost nothing, **and full setup is paid again** |
+
+**Registered plainly so no later reader takes "restartable" to mean "resumes for free".** It does
+not. It means the majors already bought are not bought twice; the setup always is.
+
+### A3.4 The corrected model, REGISTERED AS A PREDICTION TO BE TESTED
+
+> **`arm O total ≈ F + n·m`**, with `F` the setup **counted once per scenario** (three here) and
+> **not** scaled by `endTime`, and `m` the marginal cost per function evaluation, which **is** scaled
+> by `endTime`.
+
+**It is a prediction, not a replacement.** §4's registered `≈ 1,140 core-min` is what this item is
+graded against; the calibration row at completion will report **actual / predicted against that
+frozen figure**, and *separately* report how the corrected model would have done. If the corrected
+model is better, that is evidence for the model and a misprediction to name — **never a reason to
+have moved the frozen number afterwards.**
+
+**Direction, stated in advance so it cannot be chosen later:** because `mean`-as-rate over-predicts
+above 33 evaluations, and arm `O` runs 30 SLSQP majors and so plausibly more than 33 evaluations,
+**§4's figure may well be HIGH rather than low on the marginal term while being LOW on the setup
+term.** Which way the two errors net out is **not predicted here**, because this lane has no `F` for
+this item and would be guessing. **Saying "I do not know which way it nets" is the honest form of
+this prediction, and it is registered in that form.**
+
+### A3.5 What is unchanged
+
+No cap of any kind. Memory containment at 12g, `--memory-swap` equal, `--oom-score-adj=500`. The
+`MemAvailable ≥ 14 GiB` start precondition. np = 1. Every gate and band. **The item is NOT launched
+and enqueues only when the DAFoam-optimisation class's kill-and-resume proof returns `PASS`.**
+
+*`MP_A5R` Addendum 3, 2026-09-12. A model registered, not a number moved.*
