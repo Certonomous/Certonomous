@@ -27592,3 +27592,111 @@ shown able to fail); L-221/L-222.
 (`load_a1_geometry`, and the docstring's "WHY THIS REUSES THE A1 GEOMETRY MODULE
 RATHER THAN COPYING IT"); `cases/navier_class/SUBOFF_A1d/check_barehull_geometry.py`;
 `verification/campaign/SUBOFF_A1d_BAREHULL_PREREGISTRATION.md` §12.1.
+
+---
+
+## L-566 — AN INHERITED PARAMETER IS A PARAMETER NOBODY HAS CHECKED
+
+**2026-09-12, M6H1, cfd.** A pyHyp hyperbolic march produced a mesh that was
+**entirely NaN** — and pyHyp **exited 0** and wrote an 83,642,151-byte volume mesh
+while doing it. Three causes were found. **The third cost more than the other two
+together, and it was not a bug anybody wrote: it was a number copied in.**
+
+**What was inherited.** The march options were taken from the DAFoam ONERA M6
+tutorial, which this box already runs. Among them, `cMax = 0.1` — the bound on how
+fast the marching front may expand per layer.
+
+**Why it did not transfer.** The tutorial marches from `s0 = 1.0e-4`. M6H1's
+registration fixes `s0 = 1.6540e-6` — **sixty times finer at the wall**, because
+M6H1 is a y⁺ = 1 family. With that `s0` and the derived ratio of 1.16, **sixty
+layers are spent inside 0.077 m on a wing of half-metre chord.** A `cMax` tuned to
+the coarse case holds the front inside that near-field for far more layers than it
+needs, and the front finally folds in the wake behind a 0.0014-chord blunt trailing
+edge, at layer 61.
+
+**Measured, one parameter at a time, everything else as registered:**
+
+| `cMax` | outcome |
+|---|---|
+| **0.1** — inherited | 96 layers, first bad at 61, **37 bad layers** |
+| 1.0 | 96 layers, first bad at 62, **2 bad layers**, both marginal (−0.024, −0.010) |
+| 3.0 | 96 layers, **13 bad layers** |
+
+**THE EXPENSIVE PART WAS NOT THE MESH. IT WAS EVERY CONCLUSION DRAWN WHILE THE
+PARAMETER WAS STILL WRONG.** A base-topology sweep — 8 variants, hours of marching —
+was run at the inherited `cMax` and appeared to show that pyHyp marches cleanly
+**only** with 2 cells across the trailing-edge base, while the case's own H-G2 gate
+requires **≥ 8**. That looked like a genuine conflict between the mesh generator and
+the gate, and it was on its way to the supervisor **as a route decision** — C-type
+with a wake cut versus O-type closed through the base. **It rested entirely on a
+parameter now known not to transfer**, and the supervisor's own words on being
+handed the correction were *"I would have taken it."*
+
+**The rule.** *A parameter copied from a working case is evidence about THAT case.*
+It carries no warrant in a new one, and the danger is that it **looks checked**:
+it came from something that runs, so nobody re-derives it. **Every inherited
+parameter needs the question "what is this scaled against, and has that changed?"**
+Here the answer was `s0`, and `s0` had moved by sixty times.
+
+**The operational form.** When a sweep isolates a cause, **re-run every earlier
+sweep that was performed before the fix.** Conclusions gathered against a broken
+parameter are not weakened by the fix — they are **void**, and they are the most
+dangerous kind of finding because they are quantitative, reproducible and wrong.
+
+**Related.** L-567 (same night, same march — a self-consistency check cannot see
+a global sign flip); rule 3 (a reader not shown able to see a non-zero); the
+standing habit of changing one thing at a time, which is what made the isolation
+possible at all.
+
+**Sources.** `cases/navier_class/M6H1/make_m6h1_surface.py` (the wrap-sense and
+arc-length comments carry the other two causes);
+`verification/campaign/M6H1_PREREGISTRATION.md` §14.5;
+the DAFoam tutorial options at
+`/home/ubuntu/certonomous-runs/A3-onera-m6-sweep-n8_10920/genWingMesh.py`.
+
+---
+
+## L-567 — "NORMALS ARE CONSISTENT" IS NOT "NORMALS ARE OUTWARD"
+
+**2026-09-12, M6H1, cfd.** A structured O-grid surface was built for a hyperbolic
+extrusion with its wrap ordered **trailing edge → leading edge over the upper
+side**. pyHyp read it, printed
+
+> ` Normals are consistent!`
+
+and then marched **into the wing**: Min Quality **−1.00000** at grid level 2, Min
+Volume **−0.109 × 10⁻⁸**, NaN from level 4 — **and rc = 0.**
+
+**The arithmetic, because it is not obvious by eye.** The panel normal is
+`(wrap tangent) × (span tangent)`. With the span tangent `+y`, that evaluates to
+`(0, 0, t_x)` — **the normal's thickness component IS the wrap's chordwise
+component.** So the upper side must run **leading edge → trailing edge** for the
+normal to point `+z`. Order it the other way and every normal on the surface flips
+— **consistently.**
+
+**Why the check passed.** pyHyp's test asks whether the normals agree **with each
+other**. They did. **A self-consistency check cannot detect a global sign flip,
+because a global flip preserves consistency exactly.** The quantity the check
+measures tracks the quantity you care about everywhere except in the one mode that
+matters.
+
+**The general shape, which is the reason this is a lesson and not a note.** This is
+the same failure as a proxy that agrees with the real quantity across the whole
+range except at the point of interest, and the same as a control whose plant cannot
+distinguish the path it was meant to exercise from a neighbouring one.
+**A check that is invariant under the error it is supposed to catch is not a check.**
+
+**The repair, and it is the general one.** Test against something **outside** the
+object being tested. The generator now asserts, for every panel, that
+`n · (p − section centroid) > 0` — outwardness measured against the section's own
+geometry rather than against the other normals — so the sense cannot silently flip
+again. **Fixing the order without adding the assertion would have left the next
+lane exactly where this one started.**
+
+**Related.** L-566 (same march, same night — an inherited parameter is a
+parameter nobody has checked); rule 3, which is this lesson applied to readers
+rather than to normals.
+
+**Sources.** `cases/navier_class/M6H1/make_m6h1_surface.py` — the `WRAP SENSE`
+comment block and self-check (5) in `self_checks()`;
+`verification/campaign/M6H1_PREREGISTRATION.md` §14.5a.
