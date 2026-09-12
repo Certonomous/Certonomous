@@ -670,3 +670,209 @@ Both attempts are preserved whole and undeleted at
 `verification/runs/M6I_runs/L3/ATTEMPT1_FPE/` and `ATTEMPT2_FPE/`. **Two dead smoke runs
 cost 0.26 core-minutes. The same two stack traces on L1 would have cost 1,092.** Holding L2
 and L1 in `held/` is what that number bought.
+
+---
+
+# ADDENDUM 3 — 2026-09-12, WRITTEN WHILE L2 AND L1 ARE STILL RUNNING AND BEFORE EITHER HAS PRODUCED A Cp
+
+**v1.2 → v1.3. Lines whose number changed above this section: 0.** No gate, threshold, cap
+or label above moves. Two of the three items below **tighten** what may be claimed; the
+third is a correction of something this lane stated and got wrong.
+
+**Timing, stated so it can be checked rather than believed.** At the moment of writing, L1
+is at ramp iteration ~10 of 200 and L2 at stage-2 iteration ~500 of 4,800. **Neither has
+written a `cp_extracted.json`, neither has been graded, and no Cp, shock location or
+observed order exists for either level.** `verification/runs/M6I_runs/{L1,L2}/RC.txt` do
+not exist. §7's Roache clause is therefore being tightened **before** the numbers it governs
+can exist, which is the entire point of doing it now.
+
+## A3.1 — 🔴 WHEN THE THREE LEVELS ARE NOT THREE DISCRETISATIONS OF ONE SOLUTION
+
+§7 registered that quality varies across the family and that the triple may come out
+non-`CONVERGING`. **L3's result exposes a deeper failure mode that §7 does not cover**, and
+it is registered here before L2's or L1's numbers exist.
+
+L3 produced **no shock at all**: the grader's own `cfd_cp_rise_at_shock` was **0.087** at
+η = 0.65 against the experiment's **0.424**, and **0.053** at η = 0.90 against **0.640** —
+so D1 honestly selected the **trailing-edge recovery** at x/c **0.953** and **0.923** as the
+largest Cp rise available. If L3 carries no shock, L2 a weak one and L1 a resolved one,
+**the three levels are not three discretisations of the same solution — they are
+qualitatively different flows.** Richardson extrapolation across a qualitative change has
+no asymptotic range to extrapolate in, and a monotone set of three numbers would still not
+mean what an observed order implies. Rule 5 forbids a GCI on non-monotone values; **this is
+the stronger case, where even monotone values would not license one.**
+
+### THE ADMISSIBILITY CONDITION, FIXED NOW
+
+A level is **shock-bearing** at a station when **both** limbs hold, and both are keyed to the
+experiment or to geometry so that **no CFD value can move either**:
+
+- **S1 — strength.** `cfd_cp_rise_at_shock` ≥ **0.50 ×** the experimental `exp_cp_rise_at_shock`
+  at that station. Numerically, from the reference and nothing else:
+  **≥ 0.212 at η = 0.65** and **≥ 0.320 at η = 0.90**.
+- **S2 — location.** `x_shock_cfd` < **0.85 c**. The trailing-edge recovery on this geometry
+  sits aft of x/c ≈ 0.90; a "shock" located there is the trailing edge, not a shock.
+
+**A level is shock-bearing only if S1 and S2 hold at BOTH η = 0.65 and η = 0.90.**
+
+### WHAT FOLLOWS, FIXED NOW
+
+1. **All three levels shock-bearing** → the three-level Roache triple is computed and rule 5
+   governs it in the ordinary way.
+2. **Fewer than three shock-bearing** → **NO THREE-LEVEL OBSERVED ORDER AND NO GCI IS
+   COMPUTED, QUOTED OR IMPLIED.** The comparison between the shock-bearing levels is
+   reported as a **two-level difference with no order claimed**, labelled on its face
+   *"TWO LEVELS, NO ASYMPTOTIC RANGE DEMONSTRATED"*. A three-level order is then obtainable
+   only by adding a **successor level** — a fourth grid finer than L1, or an intermediate —
+   and that is a new registration, not a re-reading of this one.
+3. **No level shock-bearing** → the family says nothing about shock location at all, and the
+   Q2 rows are reported as `GATE FAIL` per level with the absence of a shock named as the
+   reason.
+
+### 🔴 THE HONESTY LIMB THIS RULE NEEDS, AND IT IS AGAINST THIS LANE
+
+**L3's two numbers were already in hand when this rule was written.** 0.087 and 0.053 fail
+S1 by a factor of 2.4 and 6.0, and 0.953 and 0.923 fail S2. **So for L3 this rule is
+post-hoc and carries no evidentiary weight, and this document says so rather than letting
+the freeze date imply otherwise.** Its weight is over **L2 and L1, whose values do not yet
+exist** — which is exactly where it will decide whether a three-level order may be quoted.
+The thresholds were chosen from the **experiment's** rises and from the geometry of the
+trailing edge, not from any CFD number, so there was nothing about L3 available to tune them
+to beyond the fact — already obvious from `cp_rise 0.087` — that L3 has no shock.
+
+## A3.2 — 🔴 CORRECTION: THE TEMPERATURE BOUND IS BELT-AND-BRACES ON L3 AND LOAD-BEARING ON L2
+
+ADDENDUM 2 and the L2/L1 queue entries state that the `limitTemperature` bound "did almost
+no work" and is a safety net rather than the mechanism. **That is true of L3 and it is FALSE
+of L2**, and this lane asserted it of the family on one level's evidence — the same error
+shape as A2.1, one level standing in for the program.
+
+Counted from each level's own stage-2 log:
+
+| level | stage-2 iterations with a **lower**-bound clip | largest single event | `UnlimitedTmin` when clipping |
+|---|---|---|---|
+| **L3** | **0 of 2,800** | — | 214.8 K (never reached the floor) |
+| **L2** | **88 of the first 226** | **37 cells** | pinned at **100 K** |
+
+**On L2 the bound fires on roughly 39 % of iterations and the unlimited minimum sits ON the
+floor.** Without it L2 would have met `sqrt(T)` with T ≤ 0 — the A2.2 fault — and would have
+died exactly as attempts 1 and 2 did. **The ramp is still the mechanism that survives the
+cold start; the bound is what is keeping L2 alive after it.** Both statements are now on the
+record with the numbers that separate them.
+
+**This makes IC-5 a live gate on L2 rather than a formality**, and IC-5 is unchanged: zero
+clipping events over the last 600 iterations, or the level is **`NOT A RESULT`**, and
+`endTime` is never extended to outrun it. A level held inside physics by a limiter for its
+whole run has not converged to a solution of the registered equations.
+
+## A3.3 — A REGISTERED PREDICTION HAS ALREADY FAILED, ON L2
+
+A2.5 prediction 2 registered that `pressureControl: p max` would stay **below 5 × 10⁵ Pa**
+throughout the ramp. Measured peaks over the 200-iteration ramp:
+
+| level | ramp peak `p max` | × freestream | prediction 2 |
+|---|---|---|---|
+| L3 | 310,008 Pa | 3.06 | **PASS** |
+| L1 | 306,703 Pa (first 10 iterations; ramp incomplete at writing) | 3.03 | pending |
+| **L2** | **556,924 Pa** | **5.50** | 🔴 **FAIL** |
+
+L2 exceeded the registered bound by 11 % and **did not crash**, which is a second reason the
+temperature bound is load-bearing there. The prediction is recorded as failed rather than
+widened.
+
+## A3.4 — A FALSE POSITIVE FROM THIS LANE'S OWN MONITOR, RECORDED BECAUSE IT NEARLY BECAME A REPORT
+
+A background monitor watching L2 and L1 reported **`FPE-DETECTED`** three times while both
+runs were healthy and advancing. The cause: it matched the string `Floating point exception`
+against the solver log, and **line 29 of every healthy OpenFOAM log reads
+`trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).`** The monitor was
+matching the banner that says the trap is **armed**, not a trap that **fired**.
+
+Checked before anything was reported upward: `rc.stage1` = 0, no `RC.txt`, and
+`Time = 426` still advancing with eight live `rhoSimpleFoam` processes. The filter is
+corrected to `exited on signal|sigFpe::sigHandler|FOAM FATAL`. **A watcher keyed on a string
+that appears in every healthy log is a watcher that cries wolf, and one that had been
+believed would have parked two live runs.**
+
+---
+
+# ADDENDUM 4 — 2026-09-12, L2's VERDICT AND A COST FINDING ON L1 WHILE IT RUNS
+
+**v1.3 → v1.4. Lines whose number changed above this section: 0.** No gate, threshold, cap
+or label moves.
+
+## A4.1 — 🔴 L2: **`NOT A RESULT`.** IT DIVERGED, AND A3.2 SAW IT COMING ONE PARAGRAPH EARLY.
+
+`M6I-R1-L2`, pid 48134, launched 22:19:03Z, **rc = 136**, SIGFPE at global iteration **668**
+(stage-2 iteration 468). The 200-iteration ramp completed cleanly, `rc.stage1 = 0`.
+
+**It is a DIVERGENCE, not a startup fault, and the clip counter is the instrument that
+shows it.** Lower-bound temperature clips per stage-2 iteration:
+
+| stage-2 iteration | 1 | 51 | 101 | 151 | 201 | 251 | 301 | **351** | **401** | **451** |
+|---|---|---|---|---|---|---|---|---|---|---|
+| cells clipped | 0 | 4 | 18 | 1 | 1 | 0 | 0 | **1,083** | **35,355** | **42,936** |
+
+**42,936 of 122,880 cells — 35 % of the domain — pinned at the 100 K floor.** Force
+coefficients reached **10⁴²** and the momentum residuals returned to **0.873**, i.e. the
+initial-iteration value. The solution left physics between stage-2 iterations 301 and 351,
+after **three hundred healthy iterations**, and the temperature bound held it up for another
+hundred before the fault. **This is Sanaa's "residual growth or a field outside bounds →
+stop", and it stopped itself.**
+
+**Verdict: `NOT A RESULT`** — IC-1 fails (SIGFPE), IC-2 fails (final residuals ≈ 0.87),
+IC-5 fails comprehensively. **No Cp was extracted and none will be**: `rc.extract_cp` does
+not exist, `cp_extracted.json` does not exist, and the grader was never run on this level.
+**No number from L2 is quoted anywhere, because there is none.**
+
+**A3.2 is vindicated within the hour.** It recorded — before this crash — that the
+temperature bound was "load-bearing on L2", firing on 39 % of its iterations with
+`UnlimitedTmin` pinned at the floor, and that IC-5 was therefore "a live gate on L2 rather
+than a formality". A level held inside physics by a limiter had not converged to a solution
+of the registered equations, and 120 iterations later it stopped pretending to.
+
+**NO REPAIR IS REGISTERED FOR L2 YET, DELIBERATELY.** This is L2's **first** stop and its
+cause differs from L3's (a cold-start fault at iteration 2 versus a mid-run divergence at
+iteration 550+). **L1 is running at this moment on identical settings and is the evidence
+that says whether this cause is shared.** Guessing L2's remedy now would spend one of its
+two stops on a guess while the measurement that names the remedy is still being taken.
+The candidates are named here so the later choice cannot be presented as fresh: tighter
+momentum and energy relaxation; or a limited (TVD) convection scheme in place of
+`linearUpwind` on the registered second-order pass.
+
+**Cost:** L2 ran 668 iterations at 4 ranks before stopping. **Waste, named separately and
+never absorbed.** Against its 85.3 core-minute estimate and 256 core-minute cap.
+
+## A4.2 — 🔴 L1's ITERATION RATE IS 2.7× THE PROJECTION, AND BOTH CONSEQUENCES ARE REGISTERED NOW
+
+Measured from L1's own ramp log, **195.49 s of `ExecutionTime` over 35 iterations at 4
+ranks = 5.585 s/iteration**, against §6's registered **projection of 2.05 s/iteration**.
+**The projection is out by 2.7×** and it was labelled a projection, not a measurement,
+precisely so this could be said plainly. (Measured while L2 was running concurrently on the
+same box; L2 has since stopped, so the figure may improve and will be re-measured.)
+
+**Consequence 1 — cost.** 8,000 iterations at 5.585 s is **12.4 h wall and 2,979
+core-minutes**, against a registered estimate of **1,092.3** and a registered cap of
+**3,277**. **Inside the cap, by 9 %.** If the rate degrades further the cap is crossed, and
+what follows is already fixed and is not being decided now: **the row grades `NOT A RESULT`
+on cost, the cap is never raised, and NOTHING IS KILLED** (Sanaa's directive #17 with her
+item 7). `launch_m6i_v2.sh` contains no clock check and no spend check.
+
+**Consequence 2 — the checkpoint bound, which has narrowed and still holds.** At 5.585
+s/iteration, `writeInterval 200` is **1,117 s = 18.6 minutes** against Sanaa's 30-minute
+bound. It holds **by 1.6×**, where L3's measured rate held it by **330×**. The margin is now
+real rather than enormous, and it is recorded here rather than left as an inference from
+L3's number. **No change is made**: 18.6 < 30.
+
+## A4.3 — WHERE THE FAMILY STANDS
+
+| level | state | verdict |
+|---|---|---|
+| **L3** 15,360 cells | complete, rc = 0, 3,000/3,000, converged, graded | **`GATE FAIL`** — and it is a verdict about a 15,360-cell grid carrying **no shock at all**, not about the M6 or about the method |
+| **L2** 122,880 cells | stopped, rc = 136, diverged at iteration 668 | **`NOT A RESULT`** — no Cp extracted, none quoted |
+| **L1** 983,040 cells | running | **`PENDING`** |
+
+Under **A3.1** this already matters: L3 is **not shock-bearing** (S1 fails by 2.4× and 6.0×,
+S2 fails at x/c 0.953 and 0.923) and L2 produced nothing. **Fewer than three shock-bearing
+levels, so NO THREE-LEVEL OBSERVED ORDER AND NO GCI MAY BE COMPUTED, QUOTED OR IMPLIED** for
+this family as it stands. That rule was registered while L2 and L1 held no Cp at all.
