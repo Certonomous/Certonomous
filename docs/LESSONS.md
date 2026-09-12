@@ -27165,3 +27165,59 @@ corrected by the next reader, and `kill -9` has no next reader.**
 `pkill matches its own shell` pattern; the fleet rule that another team's process is never
 touched in either direction; standing rule 10 (an unexpected change is **inspected, never
 reverted** — the same instinct applied to the working tree).
+
+## L-558 — An instrument registered on REASONING and never DRIVEN against the real case shape (2026-09-12, heat-transfer)
+
+**Five instances in one night, in three independent rungs, found only AFTER compute.**
+
+-  §4 registers  as limb A; it hardcodes  to the
+  predecessor's  while T5f's own cases are . Exit 2.
+-   demands a per-case ratio; **9 of its 20 registered cases have
+  no control patch at all**, so  is . Exit 2.
+-  §5.2a registers  on a **solid-only region**, where there is no
+  compressible turbulence model to look up ().
+- 's comparator reads an unscoped  path where
+   writes a **region-scoped** one.
+- 's  needs , written only by  — a
+  preprocessing pass **the registration never names** (zero occurrences).
+
+**THE COMMON ROOT: in every case the instrument was argued for, not run.** Selftest
+fixtures were built to the shape the author imagined, so they passed. **The
+countermeasure is cheap and it is not "test more": DRIVE THE REGISTERED INSTRUMENT
+ONCE AGAINST THE REAL CASE SHAPE BEFORE THE FREEZE — not its fixtures.** You are not
+testing that it is right, only that it can **open and run**. All five would have died
+in seconds.
+
+### The sharpest instance inverts rule 3, and rule 5 is what caught it
+
+ searches  **first**. On a
+ block the first token matching that is
+****, so it returns  and walks past the  entry
+sitting in the same block.  read **−288.0 K at every level**.
+
+***That is not a false zero. It is a false NUMBER — confident, plausible, physically
+meaningless, delivered with no refusal.*** Rule 3 is written against the zero; this
+is worse, because nothing refuses.
+
+**It was caught by RULE 5, not rule 3.** Three identical values make an 
+triple, and rule 5 returns  for  whatever the value says.
+***That is the gate saving the reader, not the reader working.*** Had 
+differed by level, three plausible distinct numbers would have entered a Roache
+triple and been graded.
+
+**And §5.4's planted-zero control PASSED**, because it plants  into a
+patch shape the reader can already parse. ***A planted-zero control proves a reader
+can see a non-zero IN THE SHAPE IT WAS PLANTED IN, and says nothing about a shape it
+was never planted into.*** Rule 5's triple classification and rule 3's planted zero
+cover **different** failure modes; plant into every patch **type** a reader will meet.
+
+### The same species, turned inward, on an id
+
+A lane minting a  id by rule 11's max-existing+1 pulled the
+digits out of a **timestamped** id and produced  — **a date, and
+tomorrow's**. That ledger carries **two id conventions**. ***Rule 11's max+1 assumes
+ONE id series; over a mixed series it does not produce a stale number, it produces a
+plausible-looking nonsense one*** — and a stale id collides detectably while a
+nonsense id sails through. Caught on the id print before  ran.
+** owns that format. Drive the tool that owns
+the format; do not reason about it.**
