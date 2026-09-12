@@ -346,3 +346,76 @@ Estimated ≈5.3 M facets on the blades and ≈0.24 M elsewhere; written **binar
 taken **per level per patch**, because the blades carry KQ and the graded blade loading while
 the hub, cap and shaft carry only thrust and are geometrically trivial. A patch may be
 disclosed MARGINAL where a blade may not.
+
+---
+
+## CORRECTION 1 — ADDENDUM B, 2026-09-12. THE GATE IS PER-PATCH, AND THAT KILLED A SECOND TESSELLATION BEFORE ITS RESULT TOO
+
+*lines whose number changed above this section: 0*
+
+Addendum A fixed the blades and left the rest on one number. Making the gate **per-patch**, as
+the resolution itself now is, immediately showed that the replacement launched under A would
+fail on two other patches.
+
+### B.1 Per-patch surface cells — one source of truth
+
+The surface cell a patch achieves is `background / 2^level`, with the background from
+`make_blockmesh.py` and the level from `make_snappy.py`. The gate **imports** those levels
+rather than restating them, so it cannot drift away from the dictionary it gates.
+
+| patch | level | coarse | medium | **fine** |
+|---|---|---|---|---|
+| `blades` | 5 | 0.6250 | 0.4167 | **0.2778 mm** |
+| `hub` | 4 | 1.2500 | 0.8333 | **0.5556 mm** |
+| `cap` | 4 | 1.2500 | 0.8333 | **0.5556 mm** |
+| `shaft` | 3 | 2.5000 | 1.6667 | **1.1111 mm** |
+| `shaftExtension` | 2 | 5.0000 | 3.3333 | **2.2222 mm** |
+
+### B.2 The second prediction, and the second kill
+
+The tessellation launched under addendum A used a radial field giving **0.20 mm on the blades
+and 1.00 mm inboard**. Against the table above:
+
+| patch | facets it would produce | fine cell | verdict at fine |
+|---|---|---|---|
+| `blades` | 0.20 mm | 0.2778 | PASS |
+| `hub` | 1.00 mm | 0.5556 | **TESSELLATION-LIMITED** |
+| `cap` | 1.00 mm | 0.5556 | **TESSELLATION-LIMITED** |
+| `shaft` | 1.00 mm | 1.1111 | PASS |
+| `shaftExtension` | 3.07 mm | 2.2222 | **TESSELLATION-LIMITED** |
+
+**Killed on the prediction, again, before its STL existed.** Two of the five patches would have
+been limited at the level the headline gate sits on.
+
+The `shaftExtension` failure is the worst of the three because **we generate that surface
+ourselves.** At `n_ax = 160` its facets are 7.8 × 1.05 mm slivers of equivalent size 3.07 mm
+against a 2.22 mm cell — an entirely self-inflicted defect, in a surface where nothing but our
+own choice of divisions set the resolution.
+
+### B.3 The fix, chosen by physics and not by tessellation convenience
+
+There were two ways to make `hub` and `cap` pass: coarsen their refinement to level 3, or
+tessellate them finer. **Level 4 is kept.** 0.556 mm at the fine level is a reasonable
+resolution for a 75 mm hub carrying the blade roots, and choosing a coarser *mesh* to fit a
+coarse *tessellation* would be backwards — the tessellation is an input we control, the
+resolution requirement is physics.
+
+- radial size field **`size(r) = 0.3 − 0.1·tanh((r − 38)/2)`** → **0.40 mm inboard**,
+  **0.20 mm on the blades**, `MeshSizeMax` 0.4, `MeshSizeMin` 0.08 with curvature refinement
+  still active at the leading and trailing edges;
+- `shaftExtension` axial divisions **160 → 800**, giving 1.55 × 1.05 mm facets of equivalent
+  size ≈ 1.37 mm against its 2.22 mm cell. The default is now set **by the gate, not by eye**,
+  and the reason is written at the function that owns it.
+
+Estimated ≈4.65 M facets on the blades and ≈1.18 M on the inner bodies.
+
+### B.4 The gate authorises the mesh; the probe only authorised the tessellation
+
+The radial size field was verified on a **probe disc**. A disc is flat: the real blade surfaces
+are curved, twisted and thin at the edges, and curvature interacts with a size field in ways a
+flat probe cannot show.
+
+> **REGISTERED: the family is authorised by `check_tessellation_adequacy.py` run against the
+> PRODUCED STL, per level and per patch — not by the probe, and not by this prediction.** The
+> probe justified launching a long job; the gate authorises meshing on its output. Those are
+> different decisions and a good prediction must not be allowed to stand in for the second.

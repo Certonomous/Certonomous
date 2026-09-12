@@ -82,12 +82,18 @@ def classify(tris: np.ndarray) -> np.ndarray:
     return out
 
 
-def shaft_extension(n_ax: int = 160, n_th: int = 120) -> np.ndarray:
+def shaft_extension(n_ax: int = 800, n_th: int = 120) -> np.ndarray:
     """Closed cylinder r = R_SHAFT from the CAD's termination to the outlet, with an end cap.
 
     Generated, not CAD.  Registered as a flow boundary and EXCLUDED from both graded
     integrations (amendment 2): it is our domain's artefact, not part of the physical model
     the dynamometer measured.
+
+    The default divisions are set by the ADEQUACY GATE and not by eye.  At n_ax = 160 the
+    facets were 7.8 x 1.05 mm slivers of equivalent size 3.07 mm, against this patch's finest
+    surface cell of 2.22 mm -- tessellation-limited on a surface we generate ourselves, which
+    would have been an entirely self-inflicted defect.  n_ax = 800 gives 1.55 x 1.05 mm,
+    equivalent size about 1.37 mm, comfortably inside it.
     """
     xs = np.linspace(X_CAD_END, X_EXT_END, n_ax + 1)
     th = np.linspace(0.0, 2.0 * math.pi, n_th + 1)

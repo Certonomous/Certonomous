@@ -38,6 +38,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tools'))
 from stl_metrics import read_stl                      # noqa: E402
 sys.path.insert(0, os.path.dirname(__file__))
 from make_stl import classify, PATCHES                # noqa: E402
+from make_snappy import LEVELS                        # noqa: E402
+
+# Near-field background cell at family ratio 1.0, millimetres, from make_blockmesh.py.
+# ONE SOURCE OF TRUTH: the surface cell each patch achieves is background / 2^level, and the
+# levels come from make_snappy.py rather than being retyped here, so the gate cannot drift
+# away from the dictionary it is gating.
+BACKGROUND_MM = 20.0
+FAMILY = (('coarse', 1.00), ('medium', 1.50), ('fine', 2.25))
+
+
+def surface_cell(patch: str, ratio: float) -> float:
+    return (BACKGROUND_MM / ratio) / 2 ** LEVELS[patch][1]
 
 PASS_PCT = 5.0
 MARGINAL_PCT = 20.0
@@ -60,14 +72,7 @@ def area_weighted_pct(a: np.ndarray, h: np.ndarray, q: float) -> float:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('--stl', required=True, help='tessellated CAD, in the CAD units (mm)')
-    ap.add_argument('--levels', default='coarse=0.625,medium=0.417,fine=0.278',
-                    help='surface cell size per family level, mm')
     a = ap.parse_args()
-
-    levels = []
-    for tok in a.levels.split(','):
-        k, v = tok.split('=')
-        levels.append((k.strip(), float(v)))
 
     tris = read_stl(a.stl)
     lab = classify(tris)
@@ -86,26 +91,32 @@ def main() -> int:
               f'{area_weighted_pct(ar[m], h[m], 0.90):8.3f} '
               f'{area_weighted_pct(ar[m], h[m], 0.99):8.3f} {h[m].max():8.3f}')
 
-    print(f'\n% of patch AREA on facets LARGER than the level surface cell '
-          f'(PASS <= {PASS_PCT:g}%, MARGINAL <= {MARGINAL_PCT:g}%)\n')
-    hdr = f"{'level':>8} {'cell mm':>9} " + ''.join(f'{p:>12}' for p in groups)
-    print(hdr)
+    print(f'\n% of patch AREA on facets LARGER than THAT PATCH\'S OWN surface cell '
+          f'(PASS <= {PASS_PCT:g}%, MARGINAL <= {MARGINAL_PCT:g}%)')
+    print('  The cell differs per patch because the refinement level does: the blades carry KQ')
+    print('  and the graded loading, the hub, cap and shaft carry only thrust and are smooth')
+    print('  bodies of revolution. Resolution follows the geometry.\n')
     worst = 0.0
     verdicts = {}
-    for name, s in levels:
-        row = f'{name:>8} {s:9.3f} '
-        lv = 0.0
+    bad = []
+    for name, ratio in FAMILY:
+        print(f'  {name} (family ratio {ratio:g}, background {BACKGROUND_MM/ratio:.2f} mm)')
+        lv = 'PASS'
         for p, (aa, hh) in groups.items():
-            frac = 100.0 * aa[hh > s].sum() / aa.sum()
-            lv = max(lv, frac)
-            row += f'{frac:11.1f}%'
-        verdicts[name] = ('PASS' if lv <= PASS_PCT else
-                          'MARGINAL' if lv <= MARGINAL_PCT else 'TESSELLATION-LIMITED')
-        worst = max(worst, lv)
-        print(row + f'   -> {verdicts[name]}')
+            cell = surface_cell(p, ratio)
+            frac = 100.0 * aa[hh > cell].sum() / aa.sum()
+            worst = max(worst, frac)
+            v = ('PASS' if frac <= PASS_PCT else
+                 'MARGINAL' if frac <= MARGINAL_PCT else 'TESSELLATION-LIMITED')
+            if v == 'TESSELLATION-LIMITED':
+                lv = v
+                bad.append(f'{name}/{p}')
+            elif v == 'MARGINAL' and lv == 'PASS':
+                lv = v
+            print(f'    {p:>16} cell {cell:7.4f} mm   {frac:6.1f}% of area oversized   {v}')
+        verdicts[name] = lv
+        print(f'    -> {name}: {lv}\n')
 
-    print()
-    bad = [k for k, v in verdicts.items() if v == 'TESSELLATION-LIMITED']
     if bad:
         print(f'REFUSE: {", ".join(bad)} snap to a geometry coarser than their own cells. '
               f'Worst patch share {worst:.1f}%.')
