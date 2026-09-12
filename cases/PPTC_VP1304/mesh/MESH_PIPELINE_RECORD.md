@@ -419,3 +419,84 @@ flat probe cannot show.
 > PRODUCED STL, per level and per patch — not by the probe, and not by this prediction.** The
 > probe justified launching a long job; the gate authorises meshing on its output. Those are
 > different decisions and a good prediction must not be allowed to stand in for the second.
+
+---
+
+## CORRECTION 1 — ADDENDUM C, 2026-09-12. "STALLED" WAS THE WRONG WORD, AND THE SPLIT THAT WOULD HAVE FIXED IT IS ALREADY HAPPENING
+
+*lines whose number changed above this section: 0*
+
+### C.1 A mechanism I reported four times and never measured
+
+Addenda A and B, and four reports, describe tessellation runs as **"STALLED"**. That is wrong.
+
+The one uniform run that **completed** — `tq_no_gap`, uniform 0.8 mm, curvature off, 368 s —
+carries **7 `MeshAdapt` lines on surfaces 6, 10, 14, 25 and 29**: the *exact same five
+surfaces* every "stalled" run sits on. **`MeshAdapt` is not a hang.** It is gmsh's fallback
+path when Frontal-Delaunay fails on a surface, and its cost grows steeply with element count.
+Those runs were **slow, not stuck**, and a rate was reported as a failure mode.
+
+**The kills themselves remain justified** — every one was ordered by an *adequacy prediction*
+showing the tessellation could not deliver a level the headline gate sits on, and those
+predictions were independently measured and stand. But two claims were conflated: *"it cannot
+deliver"* and *"it is hung"*, and **only the first was ever measured.** Recorded because a
+wrong mechanism in the record is worse than no mechanism.
+
+### C.2 Why per-patch tessellation jobs would not help
+
+A proposal to tessellate each patch in its own concurrent gmsh invocation rests on gmsh
+parallelising across surfaces and then **blocking on the single hardest one**. Two measurements
+answer it.
+
+**(i) It is already happening.** The running log shows surfaces **6, 10, 14, 25 and 29 in
+`MeshAdapt` at the same instant**, in one process under `-nt 16`. The wall time is already the
+cost of the worst single surface, which is precisely what the split was meant to buy.
+
+**(ii) The input is not decomposed, whatever the output is.** STEP topology, measured:
+
+| entity | count |
+|---|---|
+| `MANIFOLD_SOLID_BREP` | **1** |
+| `ADVANCED_FACE` | 35 |
+| `EDGE_CURVE` | **81** |
+
+One solid whose faces share 81 edges. And the patches are **neither distinct solids nor
+distinct faces**: they are a **post-tessellation classification of triangles** by normal and
+radius (§2.1). There is no `blades` face-set in the STEP to hand to a separate job. A per-face
+split into 35 jobs would need all 81 shared edges verified for identical discretisation — and
+that verification is the entire risk, for a gain (i) says is already banked.
+
+### C.3 The configuration now running, and what it gives up
+
+Curvature refinement is the measured discriminator across every attempt on this CAD:
+
+| size control | curvature | outcome |
+|---|---|---|
+| uniform 3.0 mm | OFF | completed 11 s / 41 s |
+| uniform 0.8 mm | OFF | **completed 197 s / 368 s** |
+| radial field (probe) | OFF | completed ~3 min, 5.2 M facets |
+| curvature 12, 0.4–2.0 mm | ON | completed, ~27 min |
+| curvature 16, 0.15–1.5 | ON | killed |
+| curvature 12, 0.12–0.30 | ON | killed |
+| field + curvature 12 | ON | killed (twice) |
+
+**3 of 3 curvature-off runs completed; 4 of 5 curvature-on runs were killed.** The production
+run therefore uses the radial field with **curvature OFF** — 0.40 mm inboard, 0.20 mm on the
+blades — which satisfies **every patch at every level** of the per-patch gate.
+
+**WHAT IS GIVEN UP, DISCLOSED:** the leading and trailing edges no longer receive sub-0.2 mm
+facets. The adequacy gate is still satisfied, because that gate compares facet size against
+*surface cell* size. But SVA's own annotation
+(`sva_2011_smp11_pptc_propeller_geometry_annotation.pdf`) warns that leading- and trailing-edge
+representation depends on the tessellation tolerance, and a 0.20 mm facet on a leading edge of
+order 0.3 mm radius resolves that curve with a handful of facets.
+
+Pre-registration §6.3 requires the LE radius resolved by **at least 8 cells across in the
+MESH**, which snappyHexMesh reaches through **feature-edge refinement** from
+`surfaceFeatureExtract`, not through facet size. That requirement is therefore not lost — but
+it now rests on the extracted feature edge rather than on the surface tessellation.
+
+> **REGISTERED: the leading- and trailing-edge facet count on the PRODUCED STL is MEASURED and
+> recorded before the family is built, not asserted.** If the extracted feature edges do not
+> reproduce the LE to the resolution §6.3 requires, that is disclosed on the certificate with
+> the number.
