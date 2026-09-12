@@ -829,3 +829,167 @@ the fields by any agent.
 
 *Nothing in this rung is sent, filed, uploaded, registered, posted or commented
 outside this box (rule 7).*
+
+---
+
+## ADDENDUM 5 — 2026-09-12 ~22:45Z, FIVE HOURS BEFORE IT HAPPENS: §9 ASSERTS SOMETHING ABOUT OpenFOAM THAT IS FALSE, AND AS CONFIGURED THIS RUN CANNOT SATISFY ITS OWN `D-COMPLETE`
+
+**Version 1.5 → 1.6. Dated post-freeze addendum. Appended at the foot; lines
+whose number changed above this section: 0.** **NO GATE, THRESHOLD, BAND, CAP OR
+LABEL IS ALTERED BY THIS ADDENDUM, and none may be: rule 2 forbids it and the
+question of whether any repair is permitted here is ESCALATED, not taken.**
+
+**THIS IS REGISTERED AS A FALSIFIABLE PREDICTION, ~5 HOURS AND ~90 SIMULATED
+SECONDS BEFORE THE EVENT, with the run live at t ≈ 22 of 112.** A defect written
+down after the run ends is hindsight; the same defect written down while the
+outcome is still in the future is evidence. **If the prediction below is wrong,
+this addendum is the thing that loses.**
+
+### AD5.1 THE PREDICTION
+
+> **`K2h_L3` will never write a `112` time directory. Its LAST WRITTEN TIME will
+> be `110` and its LAST LOGGED TIME will be `111.9976`, short of `endTime` 112 by
+> ≈ 0.0024 s.**
+
+**Two clauses therefore fail, not one:**
+
+- **§6's `D-COMPLETE` — "last written time == `endTime` 112" — FAILS; it will be
+  110.**
+- **Standing rule 4 clause 3 — "last time == `endTime`" — FAILS; it will be
+  111.9976.**
+- **And §9's own launcher assertion — "asserts a time directory at 112 exists
+  before grading, refusing otherwise" — WILL REFUSE.**
+
+### AD5.2 §9's CLAIM, AND WHY IT IS FALSE — READ OUT OF THE TOOLCHAIN, NOT OUT OF THE DOCUMENT
+
+**§9 says:** *"`endTime` 112 is not a multiple of 5, so `E-ENDTIME` also
+registers `writeInterval 5` with `endTime` 112 reached by `adjustableRunTime`,
+**which writes at `endTime` regardless**."*
+
+**`adjustableRunTime` DOES NOT WRITE AT `endTime`.** Verified **at the installed
+source on this box**, `/usr/lib/openfoam/openfoam2606/src/OpenFOAM/db/Time/Time.C`:
+
+- `case wcAdjustableRunTime` sets `writeTime_` **only** when
+  `writeIndex > writeTimeIndex_`, with
+  `writeIndex = label(((value - startTime) + 0.5*deltaT)/writeInterval)`.
+  **There is no `endTime` special case in that branch.**
+- The `stopAt_` block below it forces `writeTime_ = true` for **`saWriteNow`
+  ONLY** (and `saNoWriteNow`/`saNextWrite` move `endTime_` without forcing a
+  write). **`saEndTime` — this run's setting — does not appear in that block at
+  all.**
+- `Time::adjustDeltaT` targets **`(writeTimeIndex_ + 1)*writeInterval_`** — i.e.
+  **t = 115** after the t = 110 write. **It never targets `endTime`**, so `deltaT`
+  is never adjusted to land on 112.
+
+**AND IT WAS PROVED BY EXPERIMENT, WITH A POSITIVE CONTROL — because a probe not
+shown able to SEE a write cannot testify to its absence (L-570).** `icoFoam` on
+the cavity, same `Time` code: `endTime 0.5 / writeInterval 0.2` → dirs
+`0, 0.2, 0.4`, **no write at 0.5**; **control** `endTime 0.4 / writeInterval 0.2`
+→ dirs `0, 0.2, 0.4`, **the write IS there when `endTime` is a multiple.**
+
+**THE ARITHMETIC ON THIS RUN**, at its measured `deltaT` 0.005910165485: from the
+t = 110 write, `run()` stops after **338 steps at t = 111.99763**;
+`writeTimeIndex_` after the t = 110 write is **22**; `writeIndex` at the final
+step is **22**; **`22 > 22` is FALSE, so no write.**
+
+### AD5.3 WHAT IS *NOT* WRONG — AND THIS IS THE LOAD-BEARING DISTINCTION
+
+**THE PHYSICS IS NOT WRONG AND THE NUMBER IS NOT LOST.** The `fieldAverage`
+accumulator will be written into the **t = 110** directory carrying the mean over
+**42 → 110 = 68 s of the registered 70 s window, 97 % of it**. `D-STATIONARY`'s
+two halves are computed from the **DENSE per-time-step** `dp_tile`/`dp_return`
+series, which runs to **111.998 regardless of what is checkpointed**, so **that
+gate is unaffected**. **What fails is a completion clause about WHERE THE ANSWER
+SITS ON DISK, not the answer.**
+
+**AND A CORRECTION TO §AD2.4 IN THE SAME BREATH:** its note that `purgeWrite 16`
+retains "t = 45 through t = 112" is **wrong in exactly the same way**. The
+retained set is the last 16 writes **ending at 110**, i.e. **t = 35 through
+t = 110**. The conclusion that `D-STATIONARY`'s inputs survive still holds — for
+the dense-series reason above, not for the retention reason given.
+
+### AD5.4 THE REGISTRATION IS INTERNALLY UNSATISFIABLE, AND THAT IS THE HONEST FRAMING
+
+**§5's `E-ENDTIME` 112 and §9's `writeInterval 5` CANNOT BOTH BE MET BY THIS
+SOLVER.** `112` is not a multiple of `5`, and this version writes only on
+`writeInterval` boundaries. **No level could ever satisfy `D-COMPLETE` under
+this pair — not this run, not a rerun, not a successor with the same two
+values.** **The defect was present AT FREEZE and is a property of the document,
+not of the solve.**
+
+*This team has met this shape before and the precedent is on its own record:*
+T5f's §7 line 233 demanded a field list "in BOTH regions" when a cht SOLID writes
+`T p` only, so **no level could EVER be DONE, forever**; it was ruled permissive
+by dated addendum **and the addendum said that it leaned permissive**.
+
+### AD5.5 THE OPTIONS, COSTED — AND THE CHOICE IS ESCALATED, NOT TAKEN HERE
+
+**(a) LET IT FINISH AND GRADE HONESTLY.** `D-COMPLETE` fails clause 3, the
+verdict is **`NOT A RESULT`** for a **true** reason, after ≈ 1,700 core-min.
+**This is the only action available without an authorised change, and it is what
+happens by default if nothing is ruled.**
+
+**(b) LET IT FINISH, THEN RESUME 110 → 112 WITH A `writeInterval` THAT DIVIDES.**
+≈ 338 steps, ≈ 7 wall-min, **≈ 28 core-min**. It yields the **FULL registered
+42 → 112 window**, i.e. **more faithful to §5, not less**, and the graded VALUE
+does not depend on `writeInterval`. **But it changes a registered value after
+first compute; `G-03` asserts `writeInterval 5` and would refuse; and the
+retention arithmetic behind `purgeWrite 16` is an input to `D-STATIONARY`.**
+
+**(c) ACCEPT (a) AND RE-REGISTER A SUCCESSOR** whose `writeInterval` divides
+`endTime` (5 with 110 or 115; or 4, 2, 7, 8, 14, 16, 28, 56 with 112). **Clean,
+and it costs a whole new run.**
+
+**WHY THIS IS NOT DECIDED LOCALLY.** `D-COMPLETE` is a **gate clause** and rule 4
+clause 3 is a **standing lab instrument**, not this rung's property. Ruling either
+one permissive, or changing a registered run-control value to make a gate
+satisfiable, **widens what the gate accepts** — and widening a gate is above a
+family supervisor. **Escalated to the chief and through the chief to Sanaa.
+Nothing is stopped, nothing is changed, and the run continues while it is
+decided.**
+
+**THE FOUR-CONDITION REPAIR EXCEPTION (`VERIFICATION_CHARTER` §2d.1) IS CITED,
+NOT CLAIMED.** It is written for a change on the GRADING PATH after a first
+graded solve, which is not this. Whoever rules should nonetheless weigh that
+**condition (2), the load-bearing one, is satisfied unusually well here: the
+error was established by OpenFOAM's own source and by an `icoFoam` probe
+carrying its own positive control — instruments that GRADE NOTHING and cannot
+have been selected to move a verdict in a wanted direction, because they do not
+know which direction that is.**
+
+### AD5.6 WHOSE MISS THIS WAS
+
+**§9's third sub-claim was walked past at ~22:00Z while its other two were
+re-checked and reported as HOLDING.** The two that were checked were
+**arithmetic** — a checkpoint interval and a retention count. The one that was
+missed was **a claim about what the toolchain does**. ***The rule this earns,
+and it is the same rule the accumulator-path defect earned an hour later: a claim
+about what the toolchain does is read OUT OF THE TOOLCHAIN, never out of the
+document that asserts it.*** **Found ~4.5 h before completion rather than after
+it, which is the only good part.**
+
+### AD5.7 SANAA'S DIRECTIVE E, RECEIVED WHILE THIS ADDENDUM WAS BEING WRITTEN
+
+Her words, as relayed: **"in general if we are very close to the gate its fine"**
+(§E of `docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md`) — a
+near-miss **never blocks a launch or a continuation**; the run reports
+**"GATE FAIL by \<margin\>, proceeding on directive E" with the number**, and
+**the verdict word is NOT rewritten by any agent.**
+
+**WHAT E SETTLES HERE, AND WHAT IT POINTEDLY DOES NOT.** It settles the
+**continuation** question outright: **nothing stops, and the run finishes.**
+Option (a) is therefore the default and it is now the default *by her word*, not
+merely by the absence of a ruling.
+
+**IT DOES NOT CONVERT `NOT A RESULT` INTO A PASS, AND IT MUST NOT BE READ THAT
+WAY.** E is about a **value near a band**; `D-COMPLETE` is not a band with a
+margin — it is a **binary clause about which time directory exists on disk**.
+"110 against 112" is **97 % of a window**, not 97 % of a threshold, and
+**E's own last clause — the verdict word is not rewritten by an agent — is
+exactly the clause that forbids using it here.** **The escalation in §AD5.5
+stands undiminished: whether `D-COMPLETE` may be ruled permissive, or a
+registered run-control value changed to make it satisfiable, remains Sanaa's
+and is not taken by this lab on the strength of E.**
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*

@@ -689,6 +689,86 @@ def cost(segs):
 
 
 # ---------------------------------------------------------------------------
+def diagnostics_beside_a_refusal(case):
+    """The physics numbers, computed and printed BESIDE a NOT A RESULT.
+
+    CLAUDE.md rule 5's own spelling for a non-result is "`NOT A RESULT`, value,
+    both triples and orders PRINTED BESIDE IT".  A comparator that returns a bare
+    NOT A RESULT after a four-figure core-minute spend has thrown away everything
+    the run computed.  So the value, the plant and the stationarity are evaluated
+    at the latest time that actually exists and reported here.
+
+    THIS BLOCK CANNOT CHANGE THE VERDICT, and that is enforced structurally: it is
+    only ever called AFTER `out["verdict"]` has been set, it never writes to
+    `out["verdict"]`, and every limb is individually wrapped so that a diagnostic
+    that fails degrades to its own error string instead of propagating.
+
+    It is NOT an annotation that softens the verdict.  The verdict stands exactly
+    as the gate set it; these are the numbers a reader needs in order to act on
+    it -- to see whether the run was physically healthy while failing a
+    completion clause, which is a different situation from a run that diverged.
+    """
+    d = {"WHAT_THIS_IS": (
+        "NOT THE GRADED VALUE. The verdict printed above stands unchanged and "
+        "nothing in this block can alter it. These are the physics numbers at "
+        "the latest time that EXISTS on disk, so that a NOT A RESULT is not "
+        "also an empty record. Rule 5 requires the value to be printed beside a "
+        "non-result rather than withheld.")}
+    try:
+        procs = sorted(glob.glob(os.path.join(case, "processor*")))
+        common = None
+        for p_ in procs:
+            ts = set()
+            for x in os.listdir(p_):
+                try:
+                    ts.add(float(x))
+                except ValueError:
+                    pass
+            common = ts if common is None else (common & ts)
+        if not common:
+            d["error"] = "the four ranks share no written time"
+            return d
+        t = max(common)
+        d["latest_common_written_time"] = t
+        d["endTime_registered"] = ENDTIME
+        d["shortfall_s"] = ENDTIME - t
+    except Exception as e:                              # noqa: BLE001
+        d["error"] = "%s: %s" % (type(e).__name__, e)
+        return d
+
+    for label, field in (("time_averaged", MEAN_FIELD), ("instantaneous", "p_rgh")):
+        try:
+            v, det = dpbar(case, field, t)
+            d[label] = {"field": field, "DP_module": v, "detail": det}
+        except Exception as e:                          # noqa: BLE001
+            d[label] = {"field": field, "unavailable": "%s: %s"
+                        % (type(e).__name__, e)}
+
+    try:
+        pc = planted_zero(case, PATCH_LO, MEAN_FIELD, t)
+        d["planted_zero_%s" % PATCH_LO] = pc
+    except Exception as e:                              # noqa: BLE001
+        try:
+            d["planted_zero_%s" % PATCH_LO] = planted_zero(case, PATCH_LO, "p_rgh", t)
+            d["planted_zero_note"] = ("planted into p_rgh because %s is not "
+                                      "present at t=%s (%s)"
+                                      % (MEAN_FIELD, t, type(e).__name__))
+        except Exception as e2:                         # noqa: BLE001
+            d["planted_zero_%s" % PATCH_LO] = {"unavailable": str(e2)}
+
+    try:
+        st, sd = d_stationary(case)
+        d["D_STATIONARY_from_the_dense_series"] = {"state": st, "detail": sd,
+            "note": ("the dense dp_tile/dp_return series is written EVERY TIME "
+                     "STEP and is independent of what was checkpointed, so this "
+                     "limb survives a missing time directory")}
+    except Exception as e:                              # noqa: BLE001
+        d["D_STATIONARY_from_the_dense_series"] = {"unavailable": "%s: %s"
+                                                   % (type(e).__name__, e)}
+    d["WHAT_DP_IS"] = WHAT_DP_IS
+    return d
+
+
 def main():
     out = {"level": "K2h_L3", "case": CASE, "registration": REGISTRATION,
            "triple": "NONE -- K2h_L1 and K2h_L2 DO NOT EXIST; section 3 forbids "
@@ -708,6 +788,9 @@ def main():
         if comp != "COMPLETE":
             out["verdict"] = "NOT A RESULT"
             out["verdict_reason"] = ("D-COMPLETE failed: " + "; ".join(why))
+            # Computed AFTER the verdict is set, and it cannot reach back into it.
+            out["diagnostics_not_the_graded_value"] = \
+                diagnostics_beside_a_refusal(CASE)
             return _emit(out, EXIT_NAR)
         if acc != "AGREE":
             out["verdict"] = "NOT A RESULT"
