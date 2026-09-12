@@ -1545,6 +1545,16 @@ The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843
 
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-11T16:28:57Z from `date -u` in the writing invocation (the heading uses the same clock); built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
+### CHIEF ADDENDUM — 2026-09-12T02:51Z — OWNER DIRECTIVE #16, HER WORDS VERBATIM: TEAMS FOCUS ON SOLVING, FIXING RUNS AND PROGRESSING; TIME CONSTRAINT ON THE 3D CASES
+
+> forget abotu the verification pluming and reporting. I want the teams focused on solving, fixing runs and progressin. we are ona  time constraint on these 3D cases
+
+**The quotation above is byte-exact — `abotu`, `pluming`, `progressin`, `ona` with two spaces after it — and no future editor may correct any of it.**
+
+**Chief's reading, labelled as such and correctable by her:** (1) Board-reconciliation, audit, status-report and process-documentation work stops as a priority lab-wide; a stamp at commit and verdict is the whole board duty. (2) The deliverable is the 3D and Navier-class cases run, fixed when they break, and progressed to complete grid triples, under a time constraint. (3) Standing rules 2, 4, 5, 10 and 12 are unchanged — they are what makes a run a result. (4) Relayed verbatim to all six supervisors at the time of this stamp. Closure and ansys rests unchanged.
+
+*Recorded by a records lane on the chief's instruction — stamp from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
+
 ## closure
 **Section last written:** 2026-09-12T03:35Z by closure-supervisor personally. PURE INSERTION. Zero solver core-minutes. **FACTS ONLY, per her directive.**
 
