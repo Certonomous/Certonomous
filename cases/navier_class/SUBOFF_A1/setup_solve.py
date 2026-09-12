@@ -251,7 +251,21 @@ functions
         magUInf         {u:.10g};   // is a ratio, so rhoInf cancels exactly.
         lRef            {L_M:.10g};
         Aref            {aref:.10g}; // MEASURED half-model wetted area of this level
+        // REPAIR 2026-09-12, VERIFICATION_CHARTER 2d.1.  `dragDir` and `liftDir` are
+        // MANDATORY here and were absent, so simpleFoam ABORTED AT ITERATION ZERO with
+        // "Entry 'liftDir' not found".  MECHANISM, read from the v2606 source and not
+        // guessed: forceCoeffs calls setCoordinateSystem(dict, "liftDir", "dragDir"), and
+        // forces.C:67-78 takes the `CofR` branch whenever CofR is present, where
+        // dict.get<vector>(e3Name) is a HARD read.  forceCoeffs.H's own Usage block says
+        // CofR carries "implicit directions e1=(1 0 0) and e3=(0 0 1)" -- that describes
+        // the e3Name.empty() branch, WHICH forceCoeffs NEVER TAKES.  The documentation is
+        // wrong for this function object.
+        // `dragDir (1 0 0)` IS the default e1, so Cd -- and therefore CT -- is
+        // DEFINITIONALLY UNCHANGED by this repair.  z = 0 is the symmetry plane, so
+        // liftDir is set in +y (sail-normal); no gate reads it.
         CofR            (0 0 0);
+        dragDir         (1 0 0);
+        liftDir         (0 1 0);
     }}
     yPlus
     {{

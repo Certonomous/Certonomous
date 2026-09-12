@@ -1,0 +1,31 @@
+OPENFOAM v2606 forceCoeffs -- THE HEADER DOCUMENTS DEFAULTS THE CODE DOES NOT IMPLEMENT.
+Recorded where it happened, as a paragraph.  NOT A DEFECT REPORT AND NOT FILED ANYWHERE:
+SUBMISSIONS ARE PARKED (CLAUDE.md rule 7) and sending is Sanaa's decision alone.
+
+WHAT IT COST US: SUBOFF_A1b SOLVE_L1 aborted at ITERATION ZERO, 2026-09-12T01:38Z, 72 s
+wall = 4.80 core-min, with "FOAM FATAL IO ERROR: Entry 'liftDir' not found in dictionary
+.../functions/forceCoeffs".  The dictionary had been written FROM THE HEADER'S OWN
+DOCUMENTATION.
+
+THE MECHANISM, read from the source and independently re-read by the cfd-supervisor:
+  forceCoeffs/forceCoeffs.C:293  calls setCoordinateSystem(dict, "liftDir", "dragDir").
+                                 BOTH NAMES ARE NON-EMPTY, ALWAYS.
+  forces/forces.C:67-78          the CofR branch evaluates
+                                   e3Name.empty() ? vector(0,0,1) : dict.get<vector>(e3Name)
+                                 Since e3Name is "liftDir" and never empty, THE TERNARY
+                                 ALWAYS TAKES dict.get<vector>, A HARD READ THAT THROWS.
+                                 THE IMPLICIT-DEFAULT ARM IS UNREACHABLE FROM forceCoeffs.
+
+TWO PLACES THE HEADER SAYS OTHERWISE:
+  forceCoeffs.H:112-113  "// Define the centre of rotation / with implicit directions
+                         e1=(1 0 0) and e3=(0 0 1)", sitting directly above "CofR (0 0 0);"
+  forceCoeffs.H:213-218  A DEFAULTS TABLE: "dragDir | Drag direction | e1 | (1 0 0)" and
+                         "liftDir | Lift direction | e3 | (0 0 1)" -- default values for
+                         entries the code reads with get<vector>, which HAS NO DEFAULT.
+
+So the header advertises defaults TWICE and the CofR branch implements neither.  A user
+following either reading gets a fatal abort.  A DEFAULTS TABLE IS THE LAST PLACE A READER
+EXPECTS TO BE WRONG.  Following the upstream documentation is what produced the crash.
+
+THE FIX IN THIS CASE: supply CofR, dragDir and liftDir explicitly.  dragDir (1 0 0) IS the
+documented e1 default, so Cd -- and therefore CT -- is DEFINITIONALLY UNCHANGED.
