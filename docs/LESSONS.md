@@ -27804,3 +27804,65 @@ never the physics).
 **Sources.** `docs/campaigns/F14-cooling-ladder/K2h_PREREGISTRATION.md` §8 and
 ADDENDUM 2 (§AD2.1, §AD2.2);
 `verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/log.solve`, both segments.
+
+## L-570 — A GUARD THAT CANNOT SAY NO IS NOT A GUARD: DRIVE EVERY GUARD TO ITS FAILING SIDE BEFORE YOU BELIEVE ITS PASS
+
+**The rule, in one line.** *A guard is not verified by watching it pass. It is
+verified by making the condition it is written to catch, and seeing it REFUSE.
+Until that has been done, a passing guard and an inert guard are indistinguishable
+from the outside — and the inert one is worse than none, because it is quoted.*
+
+**THREE INSTANCES IN ONE NIGHT, IN THREE DIFFERENT TEAMS' CODE, AND NONE WAS
+FOUND BY READING THE PASS.**
+
+1. **An `or True` that made a guard unconditional.**
+   `K2h_runs/cost_row_k2h.py` reported the stall rule as
+   `"none (...)" if c <= STALL_S or True else ""`. **The `or True` made it print
+   "none" whatever the data said.** It would have written a measured-looking
+   *no stall* into a ledger cell **on a run that had stalled**, with nothing
+   anywhere to contradict it. Found by its own author, sweeping rather than
+   asserting.
+2. **A threshold guessed BELOW the artifact it was written to catch.** The cfd
+   team's attempt-2 hue guard on `render_openfoam_3d_paraview.py` was removed
+   because the threshold they chose **sat below the known-flat render**, so it
+   **passed the exact artifact it existed to refuse**. Their own `DEFECT.md`
+   records that calibrating it needed a **known-good coloured render as a
+   positive control, which did not exist.**
+3. **A clause state spelled as a verdict word.**
+   `K2h_runs/analyse_k2h.py:337` read
+   `age_guard = "PASS" if not stale else "FAIL"`. Beyond the bare `FAIL` that
+   rule 1 already flags, **the bare `PASS` was reachable by grep as THE
+   verdict — on a run whose `D-COMPLETE` was failing.** A false PASS that no
+   test would ever fail, because nothing was computing it wrongly; the word was
+   simply in the wrong namespace.
+
+**THE REMEDY IS A NEGATIVE CONTROL, AND IT IS CHEAP.** Rule 3's planted zero is
+already this idea for readers: *a zero from a reader not shown able to see a
+non-zero is not evidence*. **Generalise it to every guard.** Three instruments
+built the same night show the cost is minutes:
+- the render script renders **every** field figure **twice** — once by the real
+  field, once by a Calculator array **constant by construction and asserted
+  constant** — and refuses unless the positive out-spreads the negative by 8x
+  (measured 27.5x and 46.4x, **calibration table written into the file**);
+- the grader's refusal path was fired by **deliberately breaking the freeze** in
+  a test harness, so exit 2 is **shown** able to happen, not assumed;
+- the cumulative cap writer was proved able to fire by **lowering the cap below
+  the current spend**, writing a correct file into scratch, then deleting it.
+
+**AND THE TELL THAT CATCHES THE WHOLE CLASS:** *if you cannot name the input
+that makes this guard refuse, and you have not run it, the guard is
+undemonstrated.* **"I tested it, it's fine" from the author is evidence, not a
+verification** (`SUPERVISION_CHARTER` §3).
+
+**Related.** Rule 3 (the planted zero — this lesson is its generalisation);
+L-221/L-222 (a lesson is not applied until EVERY call site asserts it); rule 1's
+open conflict about ledger cells reading a bare `FAIL`.
+
+**Sources.** `verification/runs/F14-cooling-ladder/K2h_runs/cost_row_k2h.py`
+(the `or True` and its replacement, which prints the MARGIN rather than the
+conclusion: largest single-step wall jump 3.0 s and 2.0 s against 3600 s);
+`verification/runs/F14-cooling-ladder/K2h_runs/render_k2h_l3.py` (the
+positive/negative control pair and its calibration table);
+`verification/runs/F14-cooling-ladder/K2h_runs/analyse_k2h.py` (line 337 as
+repaired, and the driven refusal path); the cfd team's `DEFECT.md` for the
+removed hue guard.
