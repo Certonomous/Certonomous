@@ -1,0 +1,132 @@
+C0 extraction: 196 lines from /tmp/claude-1000/-home-ubuntu-Certonomous/12d33c60-73f7-4b09-bb60-4ed1c1e79e77/scratchpad/stcheck/d8g_run_arm.sh
+C0 OK  block defines la_state la_logs la_assert_launch la_kill la_capture_pre la_mtime_witness
+
+fixtures: f_setup=20L  f_solved=21L (= f_setup + 1 planted line)  f_decoy=12L  f_crash=6L
+
+P1  POSITIVE -- the witness is present.  The assertion must PASS.
+  PASS  P1 rc  (expected=0 got=0)
+  PASS  P1 reason names the witness  (expected=yes got=yes)
+  PASS  P1 corroborator (Running Primal Solver) seen  (expected=yes got=yes)
+
+N1  NEGATIVE -- container alive PAST the calibration figure, witness never
+    appears, and then the container's OWN in-container deadline ends it.
+    THE FIGURE MUST ESCALATE AND KILL NOTHING.  The refusal must come from
+    the container EXITING (88) -- which is not cap-derived, is evaluated
+    before the figure on every tick, and is not weakened by this repair.
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=2 calib_s=2 over=1x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=4 calib_s=2 over=2x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+  PASS  N1 rc comes from the CONTAINER EXITING, not from the clock  (expected=88 got=88)
+  PASS  N1 reason  (expected=yes got=yes)
+  PASS  N1 the calibration figure DID escalate (so this is not vacuous)  (expected=yes got=yes)
+  PASS  N1 the escalation is ON DISK where a supervisor reads it  (expected=yes got=yes)
+  PASS  N1 the escalation states that it killed nothing  (expected=yes got=yes)
+  PASS  N1 the escalation issues NO verdict  (expected=yes got=yes)
+  PASS  N1 *** THE CLOCK ITSELF KILLED NOTHING ***  (expected=0 got=0)
+  PASS  N1 L-540 kill still available on the refusal path  (expected=1 got=1)
+  PASS  N1 kill verified by read-back  (expected=killed got=killed)
+
+N1b POSITIVE, AND IT IS THE WHOLE POINT OF THIS REPAIR.  A HEALTHY solver
+    that is merely SLOW: it passes the calibration figure with nothing in
+    its log, escalates, and THEN reaches its first iteration.  The old
+    cap-derived instrument returned 89 here and KILLED IT.  This is the
+    exact row D8G L2-P was forecast to produce (its cap-derived budget is
+    392 s against a MEASURED-and-scaled startup of ~400 s).
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=2 calib_s=2 over=1x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=4 calib_s=2 over=2x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+  PASS  N1b *** A SLOW HEALTHY SOLVER IS LAUNCHED, NOT REFUSED ***  (expected=0 got=0)
+  PASS  N1b reason names the witness  (expected=yes got=yes)
+  PASS  N1b it HAD passed the figure first (so the control is not vacuous)  (expected=yes got=yes)
+  PASS  N1b it was waited BEYOND the figure  (expected=yes got=yes)
+  PASS  N1b NOTHING was killed while it was slow  (expected=0 got=0)
+
+P2  PLANTED-MUTATION CONTROL -- N1's fixture + exactly one witness line.
+  PASS  P2 rc (the ONE planted line flips the refusal to 0)  (expected=0 got=0)
+  PASS  P2 a witness on the first read escalates NOTHING  (expected=0 got=0)
+
+N2  NEGATIVE -- container exited before any witness (python raised).
+  PASS  N2 rc (never started, exited)  (expected=88 got=88)
+  PASS  N2 reason  (expected=yes got=yes)
+  PASS  N2 rc is DISTINCT from the reader-failure rc  (expected=distinct got=distinct)
+  PASS  N2 an immediate exit escalates NOTHING  (expected=0 got=0)
+  PASS  N2 rc 89 IS RETIRED -- no path in the block returns it  (expected=0 got=0)
+
+N3  DECOY -- decomposePar ran to End, printed 'Time = 0', and nothing solved.
+    This is the case that refutes '^Time = ' as a witness.
+  PASS  N3 rc (decomposePar is NOT a launch)  (expected=88 got=88)
+  PASS  N3 the decoy WAS seen (so the decoy fixture is not vacuous)  (expected=yes got=yes)
+  PASS  N3 no solver call was seen  (expected=no got=no)
+  PASS  N3 fixture DOES match the forbidden ^Time = pattern  (expected=1 got=1)
+  PASS  N3 fixture does NOT match the registered witness  (expected=0 got=0)
+
+N4  READER FAILURE -- 'docker logs' itself fails.  MUST be 'could not look',
+    NOT 'looked and saw nothing' and NOT success.
+  PASS  N4 rc (witness reader unreadable)  (expected=90 got=90)
+  PASS  N4 reason distinguishes could-not-look  (expected=yes got=yes)
+  PASS  N4 the client's stderr is CARRIED, not discarded  (expected=yes got=yes)
+
+N5  READER FAILURE -- 'docker inspect' fails (daemon unreachable).  The
+    repaired defect: 2>/dev/null made this read as the empty string and
+    then as 'not running', i.e. as a finished container.
+  PASS  N5 rc (state reader unreadable)  (expected=90 got=90)
+  PASS  N5 reason names the failing reader  (expected=yes got=yes)
+  PASS  N5 la_state returns UNREADABLE, not false  (expected=UNREADABLE got=UNREADABLE)
+  PASS  N5 la_state returns false when it CAN look  (expected=false got=false)
+
+N6  A KILL THAT DID NOT KILL is reported as a failed kill, never as killed.
+  PASS  N6 unverified kill is reported failed  (expected=yes got=yes)
+
+=================== PART TWO: FAKE SOLVER, EXECUTED ===================
+
+FS1  fake solver STARTS AND WRITES.  Expect launched: true, mtime advanced.
+  PASS  FS1 before-launch capture is non-empty and ON DISK (5 staged files)  (expected=5 got=5)
+  PASS  FS1 launch rc  (expected=0 got=0)
+  PASS  FS1 mtime witness (strict, vs the recorded capture)  (expected=advanced got=advanced)
+  PASS  FS1 evidence names the file the solver wrote  (expected=yes got=yes)
+
+FS2  fake solver STARTS BUT NEVER WRITES, against a REAL process and a REAL
+     tree.  It must ESCALATE while alive and be refused only when the
+     container's own deadline ends it (88).  NOT killed by the figure.
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=4 calib_s=3 over=1x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=6 calib_s=3 over=2x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=9 calib_s=3 over=3x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=13 calib_s=3 over=4x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=15 calib_s=3 over=5x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=18 calib_s=3 over=6x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=21 calib_s=3 over=7x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=24 calib_s=3 over=8x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+D8G_LAUNCH_ESCALATION arm=unknown elapsed_s=27 calib_s=3 over=9x container=Running witness=none decoy_seen=yes solver_call_seen=yes verdict=NONE killed=nothing
+  PASS  FS2 launch rc (the CONTAINER ended it, not the clock)  (expected=88 got=88)
+  PASS  FS2 reason  (expected=yes got=yes)
+  PASS  FS2 the figure escalated against a live process  (expected=yes got=yes)
+  PASS  FS2 the clock killed nothing  (expected=0 got=0)
+  PASS  FS2 mtime witness sees NOTHING written  (expected=unchanged_since_capture got=unchanged_since_capture)
+  PASS  FS2 L-540 kill invoked  (expected=1 got=1)
+  PASS  FS2 kill verified: the process is really gone  (expected=killed got=killed)
+
+FS3  NO SOLVER AT ALL -- staged files present, mtimes NOW, nothing runs.
+     This is the case cfd's stage-4 witness CONFIRMED.  It must REFUSE.
+  PASS  FS3 log witness REFUSES (no solver ran)  (expected=88 got=88)
+  PASS  FS3 reason  (expected=yes got=yes)
+  PASS  FS3 mtime witness REFUSES on staged-only files  (expected=unchanged_since_capture got=unchanged_since_capture)
+  PASS  FS3 the REJECTED form (mtime >= t_launch - 5s slack) WOULD have confirmed  (expected=5 got=5)
+     ^ 5 staged files satisfy the slack form and 0 satisfy the strict form.
+
+FS4  READER FAILURE against a LIVE fake solver that IS writing.
+     Must be 'could not look' (90), distinguishable from FS2 and FS3.
+  PASS  FS4 launch rc (could not look)  (expected=90 got=90)
+  PASS  FS4 reason distinguishes reader failure  (expected=yes got=yes)
+  PASS  FS4 reader-failure is an rc; an escalation is NOT  (expected=yes got=yes)
+  PASS  FS4 rc differs from FS3 (no solver at all)  (expected=different got=different)
+
+================= D8G LAUNCH-ASSERT SELFTEST =================
+pass=56 fail=0
+RESULT: PASS -- the assertion was shown to ACCEPT a real witness and to
+REFUSE, with a distinct reason, in three independent ways: exited (88),
+decomposePar-decoy (88) and reader-failure (90) -- and, since 2026-09-12,
+to ESCALATE RATHER THAN REFUSE when only the calibration figure has been
+exceeded, INCLUDING the case (N1b) where a slow-but-healthy solver then
+reaches its first iteration and must be launched: true.  rc 89 is retired
+and no path returns it.  The kill in
+the refusal path was observed, and a kill that did not kill was reported
+as a failure.  SCOPE: docker is a stub; this is not evidence the
+assertion has ever watched a real DAFoam container.

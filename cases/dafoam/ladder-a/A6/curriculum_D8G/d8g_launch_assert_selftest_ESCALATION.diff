@@ -1,0 +1,191 @@
+=====================================================================
+CLASSIFYING DIFF -- d8g_launch_assert_selftest_candidate.sh
+for: dafoam-supervisor.  date: 2026-09-12.  SUPERVISOR CHECK-1 REQUIRED.
+FROZEN d8g_launch_assert_selftest.sh NOT TOUCHED; it still passes
+against the frozen d8g_run_arm.sh.  NOT COMMITTED.  SUBMISSIONS PARKED.
+
+CLASSIFICATION: MEASUREMENT-SCRIPT CHANGE.  This is the instrument that
+proves the launch assertion behaves, so it is handed over as a diff and
+not as a summary.
+
+WHY IT HAD TO CHANGE: the old selftest asserted rc 89 in five places.
+rc 89 is retired.  A stub that stays alive forever would also HANG the
+new code, which no longer stops waiting -- so the stub gains three
+tick-driven knobs (FD_FLIP_AFTER, FD_LOG_AFTER, FD_LOG2) that let a
+fixture do what a real container does: exit on its own deadline, or
+produce its first iteration LATE.  Defaults are empty; every pre-existing
+case is byte-identical in behaviour.
+
+THE ONE CHECK THAT MATTERS IS NEW, NOT REWRITTEN: N1b.  A healthy solver
+that is merely slow must be LAUNCHED.  There was no such case before,
+because under the old contract there could not be one.
+=====================================================================
+
+--- d8g_launch_assert_selftest.sh	2026-09-11 17:42:08.142382954 +0000
++++ d8g_launch_assert_selftest_candidate.sh	2026-09-12 01:40:20.460154185 +0000
+@@ -63,6 +63,15 @@
+ FD_INSPECT_RC=0  # non-zero => the state reader itself fails
+ FD_KILL_RC=0     # non-zero => the kill client fails
+ FD_KILL_STOPS=yes # does the kill actually stop it?
++# TICK-DRIVEN BEHAVIOUR, ADDED 2026-09-12.  The wedged-refusal (89) it used to
++# be possible to test with a permanently-alive stub IS GONE: the calibration
++# figure escalates and keeps waiting, so a stub that never changes would hang
++# the selftest forever.  These three let a fixture do what a real container
++# does -- exit on its own deadline, or produce its first iteration LATE.
++FD_TICKS=0        # how many `logs` reads have been served
++FD_FLIP_AFTER=""  # after this many reads, .State.Running reports false
++FD_LOG_AFTER=""   # after this many reads, serve FD_LOG2 instead of FD_LOG
++FD_LOG2=""        # the late log (e.g. the one that finally has the witness)
+ # THE KILL TALLY LIVES IN A FILE, NOT A VARIABLE.  `la_kill` is invoked inside
+ # a command substitution, i.e. a SUBSHELL: an incremented variable dies with
+ # it and the tally read back as 0 -- a false zero in the very control that
+@@ -77,7 +86,11 @@
+         return "$FD_INSPECT_RC"
+       fi
+       case "$*" in
+-        *State.Running*) echo "$FD_STATE" ;;
++        *State.Running*)
++          if [ -n "$FD_FLIP_AFTER" ] && [ "$FD_TICKS" -ge "$FD_FLIP_AFTER" ]
++            then echo false
++            else echo "$FD_STATE"
++          fi ;;
+         *) echo "0 false" ;;
+       esac
+       return 0 ;;
+@@ -86,6 +99,10 @@
+         echo "Error response from daemon: No such container: ${*: -1}" >&2
+         return "$FD_LOGS_RC"
+       fi
++      FD_TICKS=$((FD_TICKS+1))
++      if [ -n "$FD_LOG_AFTER" ] && [ "$FD_TICKS" -gt "$FD_LOG_AFTER" ] && [ -n "$FD_LOG2" ]; then
++        cat "$FD_LOG2"; return 0
++      fi
+       cat "$FD_LOG"
+       return 0 ;;
+     kill)
+@@ -152,6 +169,8 @@
+ say ""
+ 
+ reset_stub() { FD_STATE=true; FD_LOGS_RC=0; FD_INSPECT_RC=0; FD_KILL_RC=0; FD_KILL_STOPS=yes
++  FD_TICKS=0; FD_FLIP_AFTER=""; FD_LOG_AFTER=""; FD_LOG2=""
++  LA_ESC_LAST=0; LA_ESC_COUNT=0
+   FD_KILLFILE="$TMP/kills.$RANDOM"; : > "$FD_KILLFILE"; }
+ kills_seen() { wc -l < "$FD_KILLFILE" | tr -d ' '; }
+ 
+@@ -165,21 +184,52 @@
+ 
+ # ===========================================================================
+ say ""
+-say "N1  NEGATIVE -- container alive, witness never appears.  MUST REFUSE 89 AND KILL."
++say "N1  NEGATIVE -- container alive PAST the calibration figure, witness never"
++say "    appears, and then the container's OWN in-container deadline ends it."
++say "    THE FIGURE MUST ESCALATE AND KILL NOTHING.  The refusal must come from"
++say "    the container EXITING (88) -- which is not cap-derived, is evaluated"
++say "    before the figure on every tick, and is not weakened by this repair."
+ reset_stub; FD_LOG="$TMP/f_setup.log"; FD_STATE=true
++FD_FLIP_AFTER=6                       # the container's own deadline, 6 reads in
++LA_ESCALATION_FILE="$TMP/esc_n1.txt"; : > "$LA_ESCALATION_FILE"
+ la_assert_launch cid_n1 2 "$TMP"; RC=$?
+-check "N1 rc (wedged)" 89 "$RC"
+-case "$LA_REASON" in *never_started_wedged*) check "N1 reason" yes yes ;; *) check "N1 reason" yes "no [$LA_REASON]" ;; esac
++FD_FLIP_AFTER=""                      # the stub behaves normally again for la_kill
++check "N1 rc comes from the CONTAINER EXITING, not from the clock" 88 "$RC"
++case "$LA_REASON" in *never_started_container_exited*) check "N1 reason" yes yes ;; *) check "N1 reason" yes "no [$LA_REASON]" ;; esac
++check "N1 the calibration figure DID escalate (so this is not vacuous)" yes "$([ "${LA_ESC_COUNT:-0}" -ge 1 ] && echo yes || echo no)"
++check "N1 the escalation is ON DISK where a supervisor reads it" yes "$(grep -q D8G_LAUNCH_ESCALATION "$LA_ESCALATION_FILE" && echo yes || echo no)"
++check "N1 the escalation states that it killed nothing" yes "$(grep -q 'killed=nothing' "$LA_ESCALATION_FILE" && echo yes || echo no)"
++check "N1 the escalation issues NO verdict" yes "$(grep -q 'verdict=NONE' "$LA_ESCALATION_FILE" && echo yes || echo no)"
++check "N1 *** THE CLOCK ITSELF KILLED NOTHING ***" 0 "$(kills_seen)"
+ KRES=$(la_kill cid_n1 "$TMP/la.stderr")
+-check "N1 L-540 docker kill invoked (counted on disk, not in a subshell)" 1 "$(kills_seen)"
++check "N1 L-540 kill still available on the refusal path" 1 "$(kills_seen)"
+ check "N1 kill verified by read-back" killed "$KRES"
+ 
++# ===========================================================================
++say ""
++say "N1b POSITIVE, AND IT IS THE WHOLE POINT OF THIS REPAIR.  A HEALTHY solver"
++say "    that is merely SLOW: it passes the calibration figure with nothing in"
++say "    its log, escalates, and THEN reaches its first iteration.  The old"
++say "    cap-derived instrument returned 89 here and KILLED IT.  This is the"
++say "    exact row D8G L2-P was forecast to produce (its cap-derived budget is"
++say "    392 s against a MEASURED-and-scaled startup of ~400 s)."
++reset_stub; FD_LOG="$TMP/f_setup.log"; FD_STATE=true
++FD_LOG_AFTER=5; FD_LOG2="$TMP/f_solved.log"    # the witness arrives LATE
++LA_ESCALATION_FILE="$TMP/esc_n1b.txt"; : > "$LA_ESCALATION_FILE"
++la_assert_launch cid_n1b 2 "$TMP"; RC=$?
++check "N1b *** A SLOW HEALTHY SOLVER IS LAUNCHED, NOT REFUSED ***" 0 "$RC"
++case "$LA_REASON" in *"ExecutionTime"*) check "N1b reason names the witness" yes yes ;; *) check "N1b reason" yes "no [$LA_REASON]" ;; esac
++check "N1b it HAD passed the figure first (so the control is not vacuous)" yes "$([ "${LA_ESC_COUNT:-0}" -ge 1 ] && echo yes || echo no)"
++check "N1b it was waited BEYOND the figure" yes "$([ "$LA_WAITED_S" -ge 2 ] && echo yes || echo no)"
++check "N1b NOTHING was killed while it was slow" 0 "$(kills_seen)"
++
+ # P2  THE MUTATION CONTROL.  Same fixture as N1 PLUS the one planted line.
+ say ""
+ say "P2  PLANTED-MUTATION CONTROL -- N1's fixture + exactly one witness line."
+ reset_stub; FD_LOG="$TMP/f_solved.log"; FD_STATE=true
+ la_assert_launch cid_p2 2 "$TMP"; RC=$?
+-check "P2 rc (the ONE planted line flips 89 -> 0)" 0 "$RC"
++check "P2 rc (the ONE planted line flips the refusal to 0)" 0 "$RC"
++check "P2 a witness on the first read escalates NOTHING" 0 "${LA_ESC_COUNT:-0}"
+ 
+ # ===========================================================================
+ say ""
+@@ -188,7 +238,9 @@
+ la_assert_launch cid_n2 4 "$TMP"; RC=$?
+ check "N2 rc (never started, exited)" 88 "$RC"
+ case "$LA_REASON" in *never_started_container_exited*) check "N2 reason" yes yes ;; *) check "N2 reason" yes "no [$LA_REASON]" ;; esac
+-check "N2 rc is DISTINCT from the wedged rc" distinct "$([ 88 -ne 89 ] && echo distinct || echo same)"
++check "N2 rc is DISTINCT from the reader-failure rc" distinct "$([ 88 -ne 90 ] && echo distinct || echo same)"
++check "N2 an immediate exit escalates NOTHING" 0 "${LA_ESC_COUNT:-0}"
++check "N2 rc 89 IS RETIRED -- no path in the block returns it" 0 "$(grep -c '^[^#]*return 89' "$TMP/block.sh")"
+ 
+ # ===========================================================================
+ say ""
+@@ -318,13 +370,20 @@
+ 
+ # --- FS2  the fake solver STARTS BUT NEVER WRITES ---------------------------
+ say ""
+-say "FS2  fake solver STARTS BUT NEVER WRITES.  Expect launched: false (89) + kill."
++say "FS2  fake solver STARTS BUT NEVER WRITES, against a REAL process and a REAL"
++say "     tree.  It must ESCALATE while alive and be refused only when the"
++say "     container's own deadline ends it (88).  NOT killed by the figure."
+ reset_stub; stage_tree "$W"
+ PRE="$TMP/pre2.tsv"; ROWS=$(la_capture_pre "$W" "$PRE")
+ start_fake_solver "$W" silent
++FD_FLIP_AFTER=8
++LA_ESCALATION_FILE="$TMP/esc_fs2.txt"; : > "$LA_ESCALATION_FILE"
+ la_assert_launch cid_fs2 3 "$TMP"; RC=$?
+-check "FS2 launch rc (wedged)" 89 "$RC"
+-case "$LA_REASON" in *never_started_wedged*) check "FS2 reason" yes yes ;; *) check "FS2 reason" yes "no [$LA_REASON]" ;; esac
++FD_FLIP_AFTER=""
++check "FS2 launch rc (the CONTAINER ended it, not the clock)" 88 "$RC"
++case "$LA_REASON" in *never_started_container_exited*) check "FS2 reason" yes yes ;; *) check "FS2 reason" yes "no [$LA_REASON]" ;; esac
++check "FS2 the figure escalated against a live process" yes "$([ "${LA_ESC_COUNT:-0}" -ge 1 ] && echo yes || echo no)"
++check "FS2 the clock killed nothing" 0 "$(kills_seen)"
+ if la_mtime_witness "$W" "$PRE"; then MW=advanced; else MW=unchanged_since_capture; fi
+ check "FS2 mtime witness sees NOTHING written" unchanged_since_capture "$MW"
+ KRES=$(la_kill cid_fs2 "$TMP/e_fs2")
+@@ -364,7 +423,7 @@
+ la_assert_launch cid_fs4 8 "$TMP"; RC=$?
+ check "FS4 launch rc (could not look)" 90 "$RC"
+ case "$LA_REASON" in *witness_reader_unreadable*) check "FS4 reason distinguishes reader failure" yes yes ;; *) check "FS4 reason" yes "no [$LA_REASON]" ;; esac
+-check "FS4 rc differs from FS2 (started, never wrote)" different "$([ "$RC" -ne 89 ] && echo different || echo same)"
++check "FS4 reader-failure is an rc; an escalation is NOT" yes "$([ "$RC" -eq 90 ] && [ "${LA_ESC_COUNT:-0}" -eq 0 ] && echo yes || echo no)"
+ check "FS4 rc differs from FS3 (no solver at all)"     different "$([ "$RC" -ne 88 ] && echo different || echo same)"
+ stop_fake_solver
+ DOCKER=fake_docker
+@@ -375,8 +434,12 @@
+ say "pass=$PASS fail=$FAIL"
+ if [ "$FAIL" -eq 0 ] && [ "$PASS" -ge 40 ]; then
+   say "RESULT: PASS -- the assertion was shown to ACCEPT a real witness and to"
+-  say "REFUSE, with a distinct reason, in four independent ways: wedged (89),"
+-  say "exited (88), decomposePar-decoy (88), reader-failure (90).  The kill in"
++  say "REFUSE, with a distinct reason, in three independent ways: exited (88),"
++  say "decomposePar-decoy (88) and reader-failure (90) -- and, since 2026-09-12,"
++  say "to ESCALATE RATHER THAN REFUSE when only the calibration figure has been"
++  say "exceeded, INCLUDING the case (N1b) where a slow-but-healthy solver then"
++  say "reaches its first iteration and must be launched: true.  rc 89 is retired"
++  say "and no path returns it.  The kill in"
+   say "the refusal path was observed, and a kill that did not kill was reported"
+   say "as a failure.  SCOPE: docker is a stub; this is not evidence the"
+   say "assertion has ever watched a real DAFoam container."

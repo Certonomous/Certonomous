@@ -1,0 +1,269 @@
+=====================================================================
+CLASSIFYING DIFF -- d8g_run_arm_candidate.sh : THE WITNESS BUDGET
+for: dafoam-supervisor.  date: 2026-09-12.  SUPERVISOR CHECK-1 REQUIRED.
+FROZEN d8g_run_arm.sh NOT TOUCHED -- 7ce53b9242ac6e850cc330712d93d5b0.
+NOT COMMITTED.  NOT RUN ON.  SUBMISSIONS PARKED.
+
+CLASSIFICATION: INSTRUMENT REPAIR.  IT CHANGES NO REGISTERED VALUE.
+  No gate, band, threshold, cap or label is touched.  The in-container
+  deadline TMO is untouched and still descends from the registered cap
+  and rank count.  d8g_grade.py is untouched and contains no reference
+  to LAUNCH_BUDGET_S or to rc 89.  ADDENDUM 1 states the licence in
+  terms: "the launch-witness deadline decides when a launch is declared
+  dead; no gate reads it."
+
+WHAT IT DOES, IN ONE LINE: the launch-witness budget stops being a
+cap-derived REFUSAL and becomes a measured-startup CALIBRATION FIGURE
+that ESCALATES.  rc=88 and rc=90 are untouched and remain refusals.
+
+WHY NOW: Sanaa 2026-09-12T01:10Z, "i dont want any cap on any run".
+The old value was floor((TMO-1)/2) -- derived from the cap.  With no
+cap there is nothing left to derive it from.
+
+AND IT WAS ABOUT TO DESTROY A LIVE RUN.  L2-P's cap-derived budget is
+392 s.  MEASURED tonight (WITNESS_CALIBRATION_20260912/): the
+MESH-INDEPENDENT import alone is 255.930 s at box load1 69-97.  The old
+instrument would have returned 89 and KILLED a working solver.  That
+outcome was written down in advance, before this lane existed, in
+L2_CONVERGENCE_PREDICTION_REGISTERED_BEFORE_RUN.txt section 5.
+
+THE MEASUREMENT REFUTED THE SCALING BOTH EARLIER NOTES ASSUMED:
+    decomposePar  L1   5,568 cells   7.074 s  (first call, cold)
+    decomposePar  L2  44,544 cells   1.337 s  (8x THE CELLS, FASTER)
+    import dafoam+mpi4py+TensorFlow, mesh-independent:  255.930 s
+Linear-in-cells scaling predicted ~400 s of mesh-dependent startup for
+L2.  MEASURED, the mesh-dependent share is SECONDS.  The driver is the
+load-sensitive import.  Constants below carry the measurement, not the
+extrapolation, and PER_CELL_S is declared a LOWER BOUND in the code.
+
+PLANTED CONTROL -- THE SELFTEST, RUN ON THESE EXACT BYTES:
+  d8g_launch_assert_selftest_candidate.sh evaluated against
+  d8g_run_arm_candidate.sh  md5 d7ac583b9c03bb9de639ed3761ed29ca
+  RESULT pass=56 fail=0.  The load-bearing checks:
+    N1   container alive past the figure -> ESCALATES, kills nothing,
+         and is refused only when the CONTAINER exits (88).
+    N1b  *** A SLOW HEALTHY SOLVER IS LAUNCHED, NOT REFUSED ***  It
+         passes the figure with an empty log, escalates, then reaches
+         its first iteration -> rc 0.  The old code returned 89 here.
+         This is the exact row L2-P was forecast to produce.
+    N2   rc 89 is retired: `grep -c 'return 89'` on the extracted block
+         is 0, asserted inside the selftest, not claimed in prose.
+    FS2  against a REAL process and a REAL tree: escalates 1x..9x while
+         alive, kills nothing, refused at 88 when the container ends.
+    FS4  a reader failure is still an rc (90) and escalates nothing.
+  THE SELFTEST HARD-WIRES ITS TARGET TO $HERE/d8g_run_arm.sh, so these
+  bytes were tested by placing the CANDIDATE at that name in a scratch
+  directory; the md5 above is of the file that was actually eval'd.
+
+WHAT IS *NOT* CLAIMED: docker is a stub in every check above.  No arm
+has been launched on these bytes.  This is not evidence the repaired
+assertion has watched a real DAFoam container.
+=====================================================================
+
+--- d8g_run_arm.sh	2026-09-11 23:23:15.536897079 +0000
++++ d8g_run_arm_candidate.sh	2026-09-12 01:45:51.657083870 +0000
+@@ -659,7 +659,8 @@
+ # Returns:
+ #   0  witness seen                       -> launched: true
+ #  88  container exited before any witness -> launched: false, never started
+-#  89  bounded wait elapsed, still alive, no witness -> launched: false, wedged
++#  89  RETIRED 2026-09-12 -- the calibration figure ESCALATES, IT DOES NOT
++#      REFUSE.  This function no longer returns 89 on any path.  See LA.3b.
+ #  90  the witness reader itself failed    -> launched: false, could not look
+ # 88/89/90 are DISJOINT from every exit code this family's solver produces
+ # (0, 1, 77 units refusal, 124/137 from the in-container timeout, 125 docker),
+@@ -678,6 +679,8 @@
+   # forbids -- "I could not look" reported as "I looked and saw nothing".
+   # Each reader's failures are counted and cleared BY THAT READER ALONE.
+   local unread_logs=0 unread_state=0
++  local mult=0
++  LA_ESC_LAST=0; LA_ESC_COUNT=0
+   : > "$errf"
+   t0=$(date -u +%s)
+   LA_REASON=""; LA_WITNESS_LINE=""; LA_WAITED_S=0; LA_CORROBORATED=no; LA_DECOY_SEEN=no
+@@ -727,9 +730,28 @@
+       true) unread_state=0 ;;
+     esac
+ 
+-    if [ "$el" -ge "$budget" ]; then
+-      LA_REASON="never_started_wedged: ${budget}s elapsed, container still Running, no ${LAUNCH_WITNESS_RE} line; decomposePar_decoy_seen=$LA_DECOY_SEEN solver_call_seen=$LA_CORROBORATED"
+-      return 89
++    # --- LA.3b  THE CALIBRATION FIGURE ESCALATES; IT ENDS NOTHING. ----------
++    # This clock used to `return 89` here and then KILL a container that was
++    # alive and working.  Its value was floor((TMO-1)/2) -- DERIVED FROM THE
++    # CAP -- and with no cap there is no cap-derived deadline to derive it
++    # from.  It is now a MEASURED-startup expectation: passing it is news, not
++    # a verdict.  Nothing is killed by this clock and no rc is produced by it.
++    #
++    # THE WAIT IS STILL BOUNDED, AND NOT BY A SPEND JUDGEMENT: the container
++    # carries its own in-container deadline, so a genuinely wedged container
++    # exits and the `false` branch above returns 88.  That branch is evaluated
++    # BEFORE this one on every tick and is untouched -- a dead container is
++    # still a dead container.  rc=90 (the reader itself failed) is likewise
++    # untouched: "I could not look" was never a spend judgement.
++    if [ "$budget" -gt 0 ] && [ "$el" -ge "$budget" ]; then
++      mult=$(( el / budget ))
++      if [ "$mult" -gt "$LA_ESC_LAST" ]; then
++        LA_ESC_LAST=$mult
++        LA_ESC_COUNT=$((LA_ESC_COUNT+1))
++        printf 'D8G_LAUNCH_ESCALATION arm=%s elapsed_s=%s calib_s=%s over=%sx container=Running witness=none decoy_seen=%s solver_call_seen=%s verdict=NONE killed=nothing\n' \
++          "${ARM:-unknown}" "$el" "$budget" "$mult" "$LA_DECOY_SEEN" "$LA_CORROBORATED" \
++          | tee -a "${LA_ESCALATION_FILE:-/dev/null}"
++      fi
+     fi
+     sleep "$LAUNCH_WITNESS_POLL_S"
+   done
+@@ -839,57 +861,113 @@
+ # SMALLER than D8R's mesh and its fine level larger; the budget must be sized
+ # PER LEVEL from that scaling and written into the cap table, not guessed here.
+ # ---------------------------------------------------------------------------
+-# THE WITNESS BUDGET IS DERIVED FROM THE DEADLINE, NEVER WRITTEN AS A LITERAL.
++# THE WITNESS BUDGET IS RE-DERIVED FROM **MEASURED STARTUP COST**, AND IT NO
++# LONGER REFUSES.  (2026-09-12.  Sanaa, 2026-09-12T01:10Z: "i dont want any cap
++# on any run".)
++#
++# WHAT IT WAS.  floor((TMO-1)/2) -- A CAP-DERIVED NUMBER.  TMO descends from the
++# registered core-minute cap and rank count, so with no cap there is no
++# cap-derived budget left to derive.  The form also had to go on its own merits:
++#
++# WHAT IT WAS ABOUT TO DO.  L2-P's cap-derived budget is floor((786-1)/2) = 392
++# s.  MEASURED on D8G L1-P (the only arm of this item that has ever reached an
++# iteration): container StartedAt 2026-09-11T23:42:58.298Z, `L1-P/reports/`
++# created 23:46:05.713Z, first `^ExecutionTime = ` at +215 s.  That splits as
++# 187.4 s MESH-INDEPENDENT (container start + the TensorFlow/DAFoam import,
++# which does not know how many cells there are) and 27.6 s mesh-dependent at
++# 5,568 cells.  L2 is 44,544 cells.  The old instrument would therefore have
++# returned 89 and KILLED A LIVE, WORKING SOLVER -- exactly the outcome written
++# down in advance in L2_CONVERGENCE_PREDICTION_REGISTERED_BEFORE_RUN.txt sec. 5.
++#
++# WHAT IT IS NOW.  A CALIBRATION FIGURE:
++#     LAUNCH_BUDGET_S = ceil( SAFETY * (FIXED_S + PER_CELL_S * cells) )
++# FIXED_S and PER_CELL_S are MEASURED on this box and named below so the next
++# arm can correct them against its own log rather than inherit a guess.
++# Passing the figure produces a D8G_LAUNCH_ESCALATION line (LA.3b) and nothing
++# else: no verdict, no kill, no rc.
++#
++# AND THE MEASUREMENT REFUTED THE SCALING EVERY EARLIER NOTE ASSUMED.  Both
++# ADDENDUM 1 and L2_CONVERGENCE_PREDICTION...txt sec.5 scaled the mesh-dependent
++# share LINEARLY IN CELLS, giving ~400 s for L2.  MEASURED 2026-09-12 in
++# WITNESS_CALIBRATION_20260912/ on this box, same image, same dicts:
++#     decomposePar  L1  5,568 cells  7.074 s   (first call, cold)
++#     decomposePar  L2 44,544 cells  1.337 s   (EIGHT TIMES THE CELLS, FASTER)
++#     import dafoam + mpi4py + TensorFlow, MESH-INDEPENDENT:  255.930 s
++#                                           at box load1 69 -> 97, 2 cores
++# THE MESH IS NOT THE DRIVER AT THESE SIZES -- THE LOAD-SENSITIVE IMPORT IS,
++# and it alone measured 255.9 s, i.e. 1.19x L1-Ps ENTIRE 215 s startup, on an
++# operation that does not know how many cells there are.  So FIXED_S carries the
++# worst import this box has been MEASURED to produce and PER_CELL_S carries the
++# measured decomposePar rate, not a linear extrapolation of a total.
++#
++# PER_CELL_S IS A LOWER BOUND AND IS DECLARED AS ONE: it is decomposePars rate,
++# and DASolver construction (mesh read, RAS model, first iteration) is mesh-
++# dependent too and was NOT separately measured.  THAT UNDERESTIMATE IS SAFE
++# HERE AND ONLY HERE, because the figure no longer refuses: an underestimate
++# costs one extra escalation line and kills nothing.  Under the old cap-derived
++# form the same underestimate would have killed the run.
++#
++# *** rc=88 AND rc=90 SURVIVE UNCHANGED AS REAL REFUSALS.  rc=88 (container
++# exited with no witness) is evaluated BEFORE this clock on every tick and is
++# not cap-derived.  rc=90 (the witness reader itself failed) is "I could not
++# look".  Removing the cap removes NEITHER, and neither is weakened here. ***
+ #
+-# The registered design requires LAUNCH_BUDGET_S to be a STRICT MINORITY of the
+-# in-container deadline TMO, and LA.3 below enforces exactly that (0 < b < t/2).
+-# TMO is itself derived at the cap assertion from the registered core-minute cap
+-# and the registered rank count, so deriving the budget FROM TMO keeps one
+-# number in this file where a literal would create a second that can drift.
+-# A hard-coded 352 is correct only while L1-P's cap is 46.977 core-min at 4
+-# ranks; move either and the literal is silently wrong, which is the same defect
+-# class as a memory ceiling describing the wrong machine.
+-#
+-# THE FORM: floor((TMO-1)/2) is the LARGEST INTEGER STRICTLY BELOW TMO/2, for
+-# both parities of TMO.  Largest is the right choice, and it is a safety choice
+-# rather than a permissive one: this budget decides when a launch is declared
+-# DEAD, so every second removed from it is added to the chance of killing a
+-# HEALTHY run that was merely slow to reach its first iteration.  There is no
+-# benefit to a smaller value -- a dead container is detected by the container
+-# state reader, not by this clock.
+-#
+-# *** AND THE WITNESS IS NOT THE MPIRUN LINE.  LAUNCH_WITNESS_RE is
+-# `^ExecutionTime = ` -- THE FIRST SOLVER ITERATION -- so this budget must cover
+-# container start + the TensorFlow import + DASolver construction + decomposePar
+-# + one iteration, not merely the moment mpirun was reached.  MEASURED TONIGHT
+-# on A3GC L3 (99,840 cells, 4 ranks, this box): launch 22:15:33Z, first
+-# `ExecutionTime` line ~22:19-22:20Z -- about 270-290 s at load 26-32, and
+-# ~370 s on the earlier attempt at load 37-70.  D8G L1 is 5,568 cells, so its
+-# mesh read and decomposePar are near-instant, but THE TENSORFLOW IMPORT IS
+-# MESH-INDEPENDENT and was ~60-70 s of that.  Against L1-P's derived budget of
+-# 352 s the headroom is real but THINNER THAN IT LOOKS, and it cannot be widened
+-# -- 352 IS the ceiling.  If a future level ever fails LA with a healthy
+-# container, this is the paragraph to read first. ***
++# NO GATE READS THIS NUMBER.  ADDENDUM 1 says so in terms -- "the launch-witness
++# deadline decides when a launch is declared dead; no gate reads it" -- and
++# `d8g_grade.py` contains no reference to it or to rc 89.  No gate, band,
++# threshold, cap or label is altered by this block.
+ # ---------------------------------------------------------------------------
++: "${LA_STARTUP_FIXED_S:=255.93}"      # s.  MEASURED 2026-09-12, mesh-independent
++                                       # import of dafoam+mpi4py+TensorFlow at
++                                       # box load1 69->97.  The comparable figure
++                                       # at load1 37 was 187.4 s (D8G L1-P,
++                                       # container start -> reports/ created), so
++                                       # this constant is LOAD-sensitive and the
++                                       # WORST MEASURED value is the one carried.
++: "${LA_STARTUP_PER_CELL_S:=0.00003}"  # s/cell.  MEASURED 2026-09-12: decomposePar
++                                       # 1.337 s at 44,544 cells.  A LOWER BOUND
++                                       # (see above); safe only because the figure
++                                       # escalates instead of refusing.
++: "${LA_STARTUP_SAFETY:=2.0}"          # the figure is an EXPECTATION, so the
++                                       # first escalation fires at 2x expected.
++: "${LA_STARTUP_CELLS:=$REC_CELLS}"    # from the level's own mesh record (:437)
+ LAUNCH_BUDGET_S=$(python3 -c "
+ import math, sys
+-t = $TMO
+-b = int(math.floor((t - 1) / 2))
+-if not (0 < b < 0.5 * t):
+-    sys.stderr.write('derived budget %r is not a strict minority of deadline %r\n' % (b, t))
++fixed, per, safety, cells = $LA_STARTUP_FIXED_S, $LA_STARTUP_PER_CELL_S, $LA_STARTUP_SAFETY, $LA_STARTUP_CELLS
++if not (fixed > 0 and per > 0 and safety >= 1.0 and cells > 0):
++    sys.stderr.write('calibration inputs are not all positive: %r\n' % ((fixed, per, safety, cells),))
+     sys.exit(1)
++b = int(math.ceil(safety * (fixed + per * cells)))
++if b <= 0:
++    sys.stderr.write('calibrated figure %r is not positive\n' % b); sys.exit(1)
+ print(b)
+-") || { echo "ABORT LA.3a could not derive the launch-witness budget from TMO=$TMO"; exit 65; }
+-echo "D4S_LAUNCH_BUDGET_DERIVED arm=$ARM tmo_s=$TMO budget_s=$LAUNCH_BUDGET_S rule=floor((TMO-1)/2) strict_minority=yes"
++") || { echo "ABORT LA.3a could not calibrate the launch-witness figure from cells=$REC_CELLS"; exit 65; }
++echo "D4S_LAUNCH_BUDGET_DERIVED arm=$ARM tmo_s=$TMO budget_s=$LAUNCH_BUDGET_S rule=ceil(${LA_STARTUP_SAFETY}*(${LA_STARTUP_FIXED_S}+${LA_STARTUP_PER_CELL_S}*${LA_STARTUP_CELLS})) basis=measured_D8G_L1P escalates=yes refuses=no"
++# LA.3 -- THE ASSERTION THAT MATCHES THE NEW CONTRACT.  The old assertion was
++# `0 < b < TMO/2`, a STRICT MINORITY of the cap-derived deadline.  That property
++# existed so a dead-launch VERDICT arrived well before the deadline.  This
++# figure produces no verdict, so the property has no object.  What must still
++# hold is that it is positive (a non-positive figure would escalate on tick one
++# and turn the escalation channel into noise) and that it is not silently
++# smaller than the MESH-INDEPENDENT startup already measured -- a figure below
++# that floor is known-wrong before it is used.
+ python3 -c "
+ import sys
+-b, t = $LAUNCH_BUDGET_S, $TMO
+-if not (0 < b < 0.5*t):
+-    sys.stderr.write('ABORT LA budget %r is not a strict minority of the deadline %r\n' % (b, t)); sys.exit(1)
+-" || { echo "ABORT LA.3 launch-witness budget vs deadline"; exit 65; }
++b, fixed = $LAUNCH_BUDGET_S, $LA_STARTUP_FIXED_S
++if b <= 0:
++    sys.stderr.write('ABORT LA figure %r is not positive\n' % b); sys.exit(1)
++if b < fixed:
++    sys.stderr.write('ABORT LA figure %r is below the MEASURED mesh-independent startup %r; it would escalate before the import could possibly finish\n' % (b, fixed)); sys.exit(1)
++" || { echo "ABORT LA.3 launch-witness calibration figure"; exit 65; }
+ 
+ LA_TMP="$BASE/.la_${ARM}_${STAMP}"; mkdir -p "$LA_TMP"
++# LA.3b's escalations land in ONE file per item, appended, never rotated, so a
++# supervisor reads every arm's escalations in one place without opening a log.
++LA_ESCALATION_FILE="$BASE/LAUNCH_ESCALATIONS.txt"; export LA_ESCALATION_FILE
+ la_assert_launch "$CID" "$LAUNCH_BUDGET_S" "$LA_TMP"; LA_RC=$?
++if [ "${LA_ESC_COUNT:-0}" -gt 0 ]; then
++  echo "D8G_LAUNCH_ESCALATED arm=$ARM escalations=$LA_ESC_COUNT max_over=${LA_ESC_LAST}x calib_s=$LAUNCH_BUDGET_S waited_s=$LA_WAITED_S launch_rc=$LA_RC file=$(basename "$LA_ESCALATION_FILE") -- THE CALIBRATION FIGURE WAS EXCEEDED AND NOTHING WAS KILLED FOR IT." | tee -a "$BASE/ledger.txt"
++fi
+ 
+ # THE mtime WITNESS, EVALUATED AGAINST THE RECORDED CAPTURE (LA.1b).
+ # It is CORROBORATING, NOT GATING, and the reason is specific to this harness:

@@ -1695,3 +1695,14 @@ overhead**, with no solve mixed in, and it recurs on all ten arms.
 reached. **The +50 s is not clearance of the 352 s question.**
 
 **SUBMISSIONS PARKED.**
+
+
+---
+
+## ADDENDUM 6 — 2026-09-12 — **THE LAUNCH-WITNESS BUDGET WAS CAP-DERIVED; WITH NO CAP IT BECOMES A MEASURED CALIBRATION FIGURE THAT ESCALATES INSTEAD OF REFUSING.**
+
+**Lines whose number changed above this section: 0.**
+
+`LAUNCH_BUDGET_S` ceases to be `floor((TMO-1)/2)` (cap-derived) and becomes `ceil(2.0 × (255.93 + 3.0e-5 × cells))` — **MEASURED**, `WITNESS_CALIBRATION_20260912/`: mesh-independent `dafoam`+TensorFlow import **255.930 s** at box load1 69→97, `decomposePar` **1.337 s at 44,544 cells** (L2 is *faster* than L1's cold 7.074 s at 5,568, refuting the linear-in-cells scaling ADDENDUM 1 and `L2_CONVERGENCE_PREDICTION_REGISTERED_BEFORE_RUN.txt` §5 both assumed) — and **exceeding it now writes a `D8G_LAUNCH_ESCALATION` line and keeps waiting rather than returning 89**, because Sanaa ruled 2026-09-12T01:10Z *"i dont want any cap on any run"* and the old form was arithmetically certain to kill a live L2-P (392 s budget against a 255.9 s mesh-independent import alone); **`rc=88` (container exited, evaluated before this clock) and `rc=90` (reader unreadable) are untouched and remain real refusals, `rc=89` is retired, the in-container deadline `TMO` and every gate, band, threshold, cap and label stand exactly as frozen, and no gate reads this number (ADDENDUM 1: *"no gate reads it"*; `d8g_grade.py` is untouched at `12688063e20cbb6fa79cf08d0996d4e1`).**
+
+**SUBMISSIONS PARKED.**
