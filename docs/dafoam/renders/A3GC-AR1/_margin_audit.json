@@ -1,0 +1,56 @@
+{
+ "01_AR1_wing_surface_planform.png": {
+  "px": [
+   780,
+   828
+  ],
+  "margin_pct": 6.8,
+  "ink_pct": 51.1,
+  "bytes": 30884
+ },
+ "02_AR1_wing_surface_mesh_oblique.png": {
+  "px": [
+   711,
+   1060
+  ],
+  "margin_pct": 6.5,
+  "ink_pct": 38.8,
+  "bytes": 468993
+ },
+ "03_AR1_wing_leadingedge_mesh.png": {
+  "px": [
+   739,
+   831
+  ],
+  "margin_pct": 7.0,
+  "ink_pct": 44.1,
+  "bytes": 445974
+ },
+ "04_AR1_boundary_layer_mesh_eta065.png": {
+  "px": [
+   1600,
+   1100
+  ],
+  "margin_pct": 0.0,
+  "ink_pct": 98.5,
+  "bytes": 1883494
+ },
+ "05_AR1_boundary_layer_zoom_LE.png": {
+  "px": [
+   1600,
+   1100
+  ],
+  "margin_pct": 0.0,
+  "ink_pct": 61.2,
+  "bytes": 922529
+ },
+ "06_AR1_domain_extent.png": {
+  "px": [
+   1146,
+   1096
+  ],
+  "margin_pct": 4.9,
+  "ink_pct": 1.0,
+  "bytes": 20450
+ }
+}

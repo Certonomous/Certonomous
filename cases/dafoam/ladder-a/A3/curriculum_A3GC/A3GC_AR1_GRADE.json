@@ -1,0 +1,90 @@
+{
+ "limbs": {
+  "G-COMPLETE": "NOT A RESULT",
+  "G-RES Sec.5 gate 2": "NOT A RESULT",
+  "Sec.5 gate 3 band CD": "PASS",
+  "Sec.5 gate 3 band CL": "PASS"
+ },
+ "band": {
+  "CD": {
+   "value": 0.02300300328,
+   "anchor": 0.0229956,
+   "lo": 0.022535688,
+   "hi": 0.023455512,
+   "inside": true,
+   "dev_pct": 0.032194332828882295
+  },
+  "CL": {
+   "value": 0.3131159742,
+   "anchor": 0.3131159,
+   "lo": 0.306853582,
+   "hi": 0.319378218,
+   "inside": true,
+   "dev_pct": 2.3697295467141e-05
+  }
+ },
+ "overall": "NOT A RESULT",
+ "report": {
+  "G-COMPLETE": {
+   "AR1": {
+    "controlDict": {
+     "endTime": 6000.0,
+     "deltaT": 1.0,
+     "writeInterval": 2000.0
+    },
+    "rc": 0,
+    "rc_source": "/home/ubuntu/certonomous-runs/A3GC-AR1/primal.log.rc",
+    "clauses": {
+     "1 rc == 0": {
+      "pass": true,
+      "detail": "rc = 0   (from /home/ubuntu/certonomous-runs/A3GC-AR1/primal.log.rc)"
+     },
+     "2 `End` line present": {
+      "pass": true,
+      "detail": "End line FOUND in primal.log"
+     },
+     "3 last time == endTime": {
+      "pass": true,
+      "detail": "last printed Time = 6000, controlDict endTime = 6000"
+     },
+     "5 ExecutionTime count": {
+      "pass": false,
+      "detail": "61 ExecutionTime lines vs 62 `Time = ` lines"
+     },
+     "4 fields at endTime": {
+      "pass": true,
+      "detail": "all 6 field(s) from `0` present at endTime: T U alphat nuTilda nut p"
+     },
+     "6 AGE GUARD": {
+      "pass": true,
+      "detail": "all 36 endTime field(s) NEWER than /home/ubuntu/certonomous-runs/A3GC-AR1/processor0/0/T.gz"
+     }
+    },
+    "cadence_predicted": 61,
+    "pass": false
+   }
+  },
+  "G-TOL": {
+   "/home/ubuntu/certonomous-runs/A3GC-AR1/primal.log": {
+    "tol": 1e-08,
+    "diff": 100.0,
+    "floor": 1e-06
+   }
+  },
+  "G-RES": {
+   "/home/ubuntu/certonomous-runs/A3GC-AR1/primal.log": {
+    "last_initRes": {
+     "U0": 1.080498815e-07,
+     "U1": 6.981759878e-08,
+     "U2": 8.981686824e-08,
+     "he": 2.711193706e-07,
+     "p": 3.714456484e-07,
+     "nuTilda": 1.008859568e-06
+    },
+    "primal_min_residual": 1.008859568e-06,
+    "worst_initRes": 1.008859568e-06,
+    "precondition_met": false
+   }
+  }
+ }
+}
