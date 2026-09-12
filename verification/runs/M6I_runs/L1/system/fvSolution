@@ -3,6 +3,13 @@ solvers
 {
     p
     {
+        // ADDENDUM 14 section A14.4: THE PBiCGStab/DILU CHANGE REGISTERED IN A14.3 IS
+        // WITHDRAWN PRE-COMPUTE AND GAMG IS RESTORED.  A planted control identified the
+        // stop as EXTERNAL -- a SIGTERM to mpirun itself -- so a linear-solver change
+        // would have been a confound, and it would also have broken this level's
+        // configuration identity with L2 and L3_TVD, which the family comparison needs.
+        // No compute ran under A14.3: L1 holds no time directory past 800 and no second
+        // resume log exists.
         solver          GAMG;
         smoother        GaussSeidel;
         tolerance       1e-9;

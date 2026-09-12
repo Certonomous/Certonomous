@@ -1740,3 +1740,202 @@ cost consequence is unchanged and is **not** re-decided here: if the cap of 3,27
 is crossed the row grades **`NOT A RESULT` on cost**, the cap is **never raised**, and
 **nothing is killed** (directive #17). `launch_m6i_v3.sh` adds no timeout, clock check or
 spend check — the v2→v3 diff is instrumentation only.
+
+---
+
+# ADDENDUM 14 — 2026-09-12. **THE RESUME STOPPED THE SAME SILENT WAY AT 851. THE INSTRUMENTATION PAID FOR ITSELF, THE CAUSE IS STILL UNDETERMINED, AND ONE CHANGE TESTS THE ONLY LEAD.**
+
+**v1.13 → v1.14. Lines whose number changed above this section: 0.** No band, threshold, cap
+or label moves.
+
+## A14.1 — WHAT v3's INSTRUMENTATION BOUGHT, WHICH v2 COULD NOT HAVE TOLD ME
+
+`M6I-R1-L1-TVD-RESUME`, pid 126494, launched 23:29:05Z with the runner logging
+**`resumed_from=800`**. **It resumed correctly** — the solver's first line is `Time = 801`,
+not `Time = 1` — so **844 iterations of prior compute were preserved and Sanaa's resume ruling
+was honoured.** It then **stopped at `Time = 851` with `rc = 1`**, the same silent way.
+
+**`FAILURE_CONTEXT.1.txt` captured, at the moment of failure:**
+
+| | |
+|---|---|
+| 🔴 **solver STDERR** | **EMPTY — 0 bytes.** stderr is line-buffered, so this is strong evidence **nothing was ever written to it**: mpirun diagnosed nothing, and no rank aborted with a message |
+| MemAvailable | **660 GB** free of 739, **swap 0 used** |
+| disk | 53 %, 460 G free |
+| loadavg(1) / cores | **76.68 / 96** — heavy, **not oversubscribed** |
+| solvers alive | 32 `rhoSimpleFoam` + 14 `simpleFoam` (mine were 4 of them) |
+| `dmesg` | **`read kernel buffer failed: Operation not permitted`** — the OOM gap **persists and is recorded as a gap** |
+| physics at the stop | `LimitedCells` **0** at both bounds, `UnlimitedTmin` 199.98 K / `UnlimitedTmax` 340.10 K, worst ν̃ **0.0214**, Cl 0.2505, Cd 0.0317 — **healthy** |
+
+**Nothing external killed it:** no other `RC.txt` anywhere was written in the window, and the
+runner logged `EMPTY: no entries in any team queue; nothing launched` at 23:30, 23:31 and
+23:32 — **it took no action at all while L1 died.**
+
+## A14.2 — 🔴 THE CAUSE IS STILL UNDETERMINED, AND ONE THING I MUST SAY ABOUT MY OWN EVIDENCE
+
+**The only pattern in two deaths is weak, and the observation behind it is unreliable.**
+
+| | last **visible** line | wall | iterations |
+|---|---|---|---|
+| attempt A | GAMG p-solve **1 of 3**, `Time = 844` | 1,564 s | 644 |
+| attempt B | GAMG p-solve **2 of 3**, `Time = 851` | 150 s | 51 |
+
+Both land inside the **pressure-solve sequence**. With roughly 14 log lines per iteration of
+which 3 are GAMG p-solves, **landing there twice by chance has a probability near 5 %** —
+suggestive, not conclusive.
+
+🔴 **And the observation is weaker than that number implies, for a reason that must be stated
+rather than left for a reader to discover: STDOUT TO A FILE IS BLOCK-BUFFERED.** An abrupt
+death discards the last unflushed block, so **"the last visible line" is a LOWER BOUND on
+where the process died, not the death point.** The pattern may be an artifact of where the
+buffer happened to cut. **stderr, which is line-buffered, is empty — and that is the one
+strong fact I have.**
+
+**So the cause remains UNDETERMINED.** Still excluded by measurement: SIGFPE, resource
+exhaustion, an external killer, a box event, disk, and both hazards relayed from other lanes
+(§A13.2). Still neither confirmed nor excluded: **the OOM killer**, because `dmesg` is closed
+to this lane.
+
+## A14.3 — THE ONE REGISTERED CHANGE: L1's PRESSURE SOLVER, AND IT MOVES NO PHYSICS
+
+*"Never the same action twice on the same state"* (her item 13) bars simply resuming again.
+The change tests the only lead the evidence offers:
+
+> **L1's `p` linear solver: `GAMG/GaussSeidel` → `PBiCGStab/DILU`.** L1 only.
+
+**`DILU` and not `DIC`**, deliberately: `transonic yes` puts `fvm::div(phid, p)` into the
+pressure equation, which makes the matrix **asymmetric**, and `DIC` is a symmetric-matrix
+preconditioner — the wrong lever, chosen by reading the equation rather than by habit.
+
+**🔴 THIS CHANGES NO PHYSICS AND THE CLAIM IS CHECKABLE.** A linear solver solves the **same
+discrete system**; at `tolerance 1e-9`, far tighter than every registered convergence gate,
+the converged solution it reaches **is** the solution GAMG was reaching. Asserted rather than
+claimed: after the edit, `fvSchemes` is **byte-identical to L2's rung-4 file**, `transonic yes`
+stands, `fields { p 0.3; rho 0.05; }` and `equations { p 1; U 0.7; e 0.7; nuTilda 0.7; }`
+stand, and **no `GAMG` remains anywhere in `L1/system/fvSolution`**. Schemes, model, mesh,
+condition, budget, bands and caps are untouched.
+
+**If this stops the same way a third time, the lead is dead and so is this rung.** Registered
+now: the next and final step for L1 is **not another numerics change** but a run at **2 ranks
+instead of 4** — a decomposition change that tests the MPI layer rather than the mathematics —
+and if that also stops, **L1 is PARKED with its action history and a lesson filed**, per her
+item 13, and the family is reported on L3 and L2 alone under §A11.4's first branch.
+
+**Checkpoint state is unchanged and re-verified:** all four rank trees hold `0 200 600 800`,
+and **800 is complete in all four by field name.** The failed resume wrote no new time
+directory (it died at 851; the next write was due at 1000), so **nothing was lost and nothing
+was deleted.**
+
+## A14.4 — 🔴 A PLANTED CONTROL IDENTIFIED THE MECHANISM, SO **§A14.3's CHANGE IS WITHDRAWN PRE-COMPUTE**
+
+**Pre-compute condition, checked and not asserted** (rule 2): **no compute ran under §A14.3.**
+`L1/processor0` holds `0 200 600 800` and nothing later, and `log.rhoSimpleFoam.resume.2`
+**does not exist.** An amendment before first compute is legal; this is one.
+
+### The control, and it discriminates
+
+The hypothesis on the table was an **external signal**. It makes a testable prediction, so it
+was tested — on **throwaway processes owned by this lane, signalled BY PID only**, never by
+name, because 32 `rhoSimpleFoam` processes belonging to another lane were alive:
+
+| arm | what was signalled | **rc** | **stderr** |
+|---|---|---|---|
+| **A** | **the CHILD ranks**, `SIGTERM` by pid | **143** | **530 bytes** — mpirun prints *"Primary job terminated normally, but 1 process returned a non-zero exit code"* |
+| **B** | **`mpirun` ITSELF**, `SIGTERM` by pid | **1** | **0 bytes** |
+| — | **L1, OBSERVED, twice** | **1** | **0 bytes** |
+
+🔴 **ARM B REPRODUCES L1's SIGNATURE EXACTLY AND ARM A DOES NOT.** The stop was **not** the
+solver, and **not** a signal to the solver ranks — **it was a signal delivered to the `mpirun`
+process itself.**
+
+**And that sharpens the mechanism rather than merely confirming a suspicion.** A killer
+matching `rhoSimpleFoam` by **exact name** (`pkill -x`) hits only the children and would have
+produced **arm A's rc 143 with 530 bytes of stderr**. The observed signature requires the
+**parent** to be hit — and the parent's command line is
+`mpirun -np 4 rhoSimpleFoam -parallel`, **which contains the string `rhoSimpleFoam`.** A
+pattern kill using **`-f` (full command line)** therefore catches `mpirun` itself, while `-x`
+would not. **This lab already owns that lesson from the other direction** — *"pkill kills its
+own shell: the pattern matches the invoking command line"* — and this is the same defect
+pointed outward.
+
+**REPORTED AS A NAMED HYPOTHESIS WITH ITS PENDING CHECK, NOT AS A CAUSE.** The control
+establishes **what class of event produces this signature**; it does **not** establish that
+any particular lane did it. The identification of the actor is with the cfd supervisor, who
+has put the question to the lane concerned. **No attribution is made here and none will be
+made on this evidence alone.**
+
+### 🔴 AND OOM IS NOW EXCLUDED BY THIS LANE'S OWN READ, NOT BY RELAY
+
+§A13.2 and §A14.1 recorded OOM as *"neither confirmed nor excluded"* because `dmesg` is closed
+to this lane. **`/var/log/kern.log` is readable, and this lane read it rather than accepting
+the exclusion second-hand.** The **only** OOM events on this box on 2026-09-12 are at
+**07:01:03Z** and **07:29:40Z**, both `task=python` inside **docker cgroups**
+(`CONSTRAINT_MEMCG`), **sixteen hours before these runs and unrelated to them.** Events in
+either failure window (23:15–23:35): **zero**. Corroborated from the other side by
+`FAILURE_CONTEXT.1.txt`: **660 GB available of 739, swap untouched.**
+**OOM: EXCLUDED BY MEASUREMENT.** The §A13.2 gap is closed, and closed by a reader that was
+shown able to see a non-zero — the same file returns four OOM lines for earlier today.
+
+### What follows
+
+**§A14.3's `GAMG → PBiCGStab/DILU` change is WITHDRAWN and GAMG is restored**, for two
+reasons, either of which would suffice:
+
+1. **It would be a confound.** With the stop identified as external, a numerics change that
+   coincided with the run finally completing would take credit that belongs elsewhere.
+2. 🔴 **It would have broken the family's configuration identity.** L1's `fvSolution` is now
+   **identical to L2's** (comments aside, verified by `diff`), and L3_TVD's too. **The
+   L3→L2→L1 comparison is only single-variable while that holds**, and §A11.3 spent a run
+   buying exactly that property.
+
+**§A14.3's escalation ladder is withdrawn with it** — a 2-rank run tests the MPI layer, and
+the MPI layer is not what failed. **The registered next step is simply to resume from 800
+again**, which is **not** "the same action twice on the same state": the state now includes a
+control that names the failure class, and the actor is being run down rather than guessed at.
+**If it stops a third time with arm B's signature, that is confirmation of an external cause,
+not a solver finding, and L1 is parked pending the actor's identification.**
+
+## A14.5 — 🔴 THE ACTOR IS IDENTIFIED AND HAS OWNED IT. THE CONTROL'S PREDICTION WAS CONFIRMED BEFORE THE CONFESSION EXISTED.
+
+The cfd supervisor put the question to the lane concerned, which answered verbatim and without
+hedge. **Both deaths were:**
+
+```
+pkill -f "rhoSimpleFoam -parallel"
+```
+
+issued by the CRM lane to stop **its own** 32-rank hand-invoked diagnostics. Its second one was
+issued at **23:31:15Z** against this lane's death at **23:31:39Z**.
+
+🔴 **§A14.4's control predicted this mechanism from first principles, before the admission
+existed.** It recorded, from arm A versus arm B alone, that the signature required the
+**parent** to be hit, that `mpirun -np 4 rhoSimpleFoam -parallel` **contains the string
+`rhoSimpleFoam`**, and therefore that **a pattern kill using `-f` catches `mpirun` itself where
+`-x` would not.** That is exactly the command that was run. **The prediction is confirmed, and
+it was a prediction and not a reading of a confession.**
+
+**`pkill -f` matches the full command line of every process on the box.** The pattern carried
+no cwd, no pid and no session: it said *"kill anything on this machine whose command line looks
+like mine"* — **and a graded M6 run looked like its because it is the same solver.**
+
+**NOTHING PHYSICAL IS LOST AND NO NUMBER IS SUSPECT.** Both stops were external `SIGTERM`s
+delivered to healthy solutions — §A14.1's own capture shows `LimitedCells` 0, ν̃ max 0.0214 and
+Cl 0.2505 at the final iteration. **The 800 checkpoint stands, every graded L3/L2 number
+stands, and no result in this document is contaminated. What was lost is wall time, twice.**
+
+**The hazard is stopped at source**, reported by that lane: name matching abandoned entirely,
+every process now identified by `/proc/<pid>/cwd` and `/proc/<pid>/cmdline` **re-read at the
+moment of signalling**, an explicit pid list derived from cwd, and the cwd-scoped stopper being
+written as a script so the next lane cannot reach for `pkill` out of habit. It also declined to
+restart anything of its own and **explicitly refused to touch this case directory.**
+
+**So the resume proceeds with GAMG restored and no numerics change**, exactly as §A14.4
+registered **before** the actor was known — which is the point: **the withdrawal was made on
+the control's evidence, not on the confession's.**
+
+**One physics correction carried so it does not propagate:** that lane's own SIGFPE was **not**
+this document's transonic startup transient. Its line was `Solving for h: solution
+singularity` — under `sensibleEnthalpy` the energy variable is **`h`** and its
+`relaxationFactors` named only **`e`**, so that matrix had no diagonal boost. **Same stack,
+different disease** (`MONITOR_STANDARD` v1.14 member 12). **Nothing in this document rests on
+that relay.**
