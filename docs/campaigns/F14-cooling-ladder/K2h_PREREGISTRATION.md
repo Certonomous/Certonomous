@@ -993,3 +993,49 @@ and is not taken by this lab on the strength of E.**
 
 *Nothing in this rung is sent, filed, uploaded, registered, posted or commented
 outside this box (rule 7).*
+
+---
+
+## ADDENDUM 6 — 2026-09-12 ~23:05Z: §AD2.3's CAP QUESTION IS RESOLVED AND WITHDRAWN FROM SANAA'S DESK — CAP RECORDED, NEVER ENFORCED
+
+**Version 1.6 → 1.7. Dated post-freeze addendum. Appended at the foot; lines
+whose number changed above this section: 0. No gate, threshold, band, cap or
+label is altered — the cap stands at 1,260 core-min exactly as §8 froze it.**
+
+**§AD2.3 escalated whether a cap crossing forces `NOT A RESULT`. IT IS RESOLVED
+AND IT IS NOT A DESK ITEM.** The resolution, routed through the chief:
+**Sanaa's directive #17 of 2026-09-12 04:20Z is explicit and standing — no run
+is stopped by a time or budget cap, by any team. THE CAP IS RECORDED AS CROSSED
+AND THE RUN CONTINUES TO 112 s.** The crossing is a **reported fact**, never a
+verdict and never a kill. **§AD2.3's escalation is withdrawn; the tension it
+named is settled by her own words, not by a new permission.**
+
+**VERIFIED MECHANICALLY RATHER THAN ASSERTED — every instrument that could
+plausibly enforce a cap was read:**
+
+- **No `timeout` wraps the solver.** `ps` on pid 24659 shows bare
+  `mpirun -np 4 buoyantBoussinesqPimpleFoam -parallel`, and the detached
+  wrapper records `timeout_s=0_NO_KILLING_CAP_SANAA_20260912_17`.
+- **`autograde_k2h.sh`** "sends no signal, arms no timeout and enforces no cap";
+  its only `kill` is **`kill -0`**, a liveness probe that sends nothing.
+- **`monitor_k2g.py`'s cap limb writes `CAP_FLAG.txt` and changes nothing else.**
+  Its stop channel is touching `ABORT`, which belongs to the **registered stop
+  rules R1–R3** — physics rules, not the cap — and **R4 is suspended by
+  Amendment 1**.
+- **`cap_flag_cumulative.py`** contains no kill, no signal and no exit path.
+- **`analyse_k2h.py`** carries `cap_crossed` only inside `cost{}` and
+  `cap_note`; **it feeds no verdict**, and the file's only six writes to
+  `out["verdict"]` reference the cap nowhere.
+
+**THE GRADER THEREFORE NEEDS NO CHANGE**, which is the point of having written
+it to report the crossing beside the physics rather than through it: at grade
+time `cap_crossed: true` will be **printed with its ratio and attributed**, and
+the verdict will be whatever `D-COMPLETE`, `D-STATIONARY` and `G-DPBAR` make it.
+
+***THIS RESOLVES §AD2.3 ONLY. §AD5.5 IS UNTOUCHED AND STILL OPEN*** — whether
+`D-COMPLETE` may be ruled permissive, or a registered run-control value changed
+so that it becomes satisfiable, **remains escalated.** The two were separate
+questions and only one has been answered.
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*
