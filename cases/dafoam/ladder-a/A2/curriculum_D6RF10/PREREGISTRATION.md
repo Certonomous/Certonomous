@@ -529,3 +529,140 @@ accept-floor md5 `c6e63098` unmoved); (3) `scripts/check_ladder_preflight.py` (�
 **If R4 is ever wanted later** it must FIRST get its own pre-flight EXERCISE resolving the S-144 GAMG-readback confound (**L-516** — no repeat of a known mistake) AND a runtime-param registration in the §2bb manifest `LADDER_PREFLIGHT.json` (**L-517** — no unregistered rung in the loop), before being returned to the loop. This amendment does not authorise that return.
 
 Nothing here freezes, launches or enqueues a graded run. SUBMISSIONS PARKED.
+
+---
+
+## DATED ADDENDUM 2 — 2026-09-12, R2 RE-FIRE: THE CAP IS **REMOVED AS A STOP AND RETAINED AS A REPORTED FIGURE**, AND THE PREDICTION IS REGISTERED BEFORE THE RUN
+
+> 🔴 **THIS HEADING REPLACES AN EARLIER DRAFT OF THIS SAME ADDENDUM THAT READ "THE CLOCK
+> KILL IS REMOVED, THE CAP IS RAISED".** That draft was written, was never committed, and
+> is struck here in place rather than silently overwritten. **Under Sanaa's 2026-09-12
+> directive #17 a cap RAISE is not a smaller change than a cap REMOVAL — it is the wrong
+> change**, because it leaves a kill in the file and merely moves it further out. The
+> ruling applied below is REMOVAL. **`rung_cap R2` is restored to its frozen `96`** and
+> `CUMULATIVE_HARD_STOP_CORE_MIN` to its frozen `1275`; neither number kills anything any
+> more, and both are still printed into the ledger.
+
+**Version 1.3. Lines whose number changed above this section: 0.** This addendum is APPENDED. It strikes nothing above by rewriting it; every superseded statement is superseded in place by this block (CLAUDE.md rule 6). It **alters no gate, no threshold, no band, no floor, no label and no grading path**, and the frozen instruments are unmoved on disk at this writing: grader `d6rf10_grade.py` md5 `0cb9d89a11347bc943acf3b38e1766d2`, driver `d6rf10_run_leg.py` md5 `4136c1e45ba641b74ce09117e7009ff8`, accept-floor control `d6rf10_accept_floor_control.py` md5 `c6e63098e7afd542ea379a03eccfaf12`. Ruled by the dafoam-supervisor, **[lab-attributed]**; drafted and applied by a dafoam lane.
+
+### 1. What died, and what it was
+
+The graded R2 candidate leg (`ledger.txt`: `rung=R2 leg=R2 rc=124 wall_s=1357`, log `R2_20260910T024650Z_953457.log`) was **SIGKILLed by `timeout` against the §2bb deadline `1350 s`**, at `Time` ≈ 292–299 of its registered `endTime` 300 (`D6RF10_GRADE_RECORD.md` §4). The frozen grader correctly returned `NOT A RESULT`, `reason: CONFIG_NOT_AS_REGISTERED`, `final_time: 0` — the registered config **was** installed (`config_install_marker`: `endTime 300, nNonOrth 12, relax_p 0.30, sites 4`); what was absent was a completed final outer iteration for the corrector count to be read back from. **The cause was the clock, not the physics and not either D6RF9 confound.**
+
+### 2. The change, named for what it is: **EVERY STOP ACTION IS DELETED; EVERY FIGURE IS KEPT**
+
+The §2bb deadline is not an independent constant. `d6rf10_run_arm.sh` computes `DEADLINE = round(CAP*60/RANKS) - FRAME_ALLOWANCE_S` (RANKS 4, FRAME 90). R2's `1350 s` **is** its registered 96 core-min cap expressed in wall seconds, less the frame allowance.
+
+| | before | after |
+|---|---|---|
+| R2 `rung_cap` | 96 core-min | **96 core-min — UNCHANGED, and now REPORTED ONLY** |
+| `CUMULATIVE_HARD_STOP_CORE_MIN` | 1275 | **1275 — UNCHANGED, and now REPORTED ONLY** |
+| in-container `timeout -k 60 $DEADLINE` | SIGKILLs the solve | **DELETED. The container runs to its own completion.** |
+| `D6RF10_CUMULATIVE_HARD_STOP … action=STOP_LADDER` + `break 2` | stops the ladder | **DELETED. Replaced by `D6RF10_CUMULATIVE_REPORT … action=REPORT_ONLY_NOT_A_STOP`, with no `break`, no `exit` and no verdict assignment.** |
+| `$DEADLINE` | killed the run | **still computed, still printed in `D6RF10_RUNG_BEGIN`, binds nothing** |
+
+🔴 **AND THE RAISE WAS NEVER NEEDED. THIS IS THE MEASUREMENT THAT SETTLES IT, AND IT WAS NOT KNOWN WHEN THE EARLIER DRAFT PROPOSED 300:**
+
+| quantity | value |
+|---|---|
+| R2 registered cap | 96 core-min = **1440 wall s** at RANKS 4 |
+| minus `FRAME_ALLOWANCE_S` 90 | **1350 s** ← the deadline that SIGKILLed it |
+| R2 at the kill | wall 1357 s = **90.467 core-min** |
+| R2's clean need (~1400 s) | **93.333 core-min** |
+
+**93.333 < 96. The run fits inside its own registered cap and was killed anyway.** The 90-second frame allowance was *subtracted out of the solver's budget* instead of being reserved beside it — 6 core-min of a 96 core-min cap, and R2 needed 3.3 of them. **The defect was never the size of the cap; it was that a wall deadline derived from a core-minute cap killed a run that was still under that cap.** Raising 96 to 300 would have masked that defect behind a bigger number and left it in the file for the next rung to hit.
+
+**Authority.** Sanaa's **2026-09-12 directive #17** (no run stopped by a time or budget cap, any team; strip the guards), her 2026-09-11 NO-CAP ruling (`6f3abf8a3`), and her 2026-09-10 16:50Z words for 3D cases — *"i dont want to see any budget gates ( time or money)"* — all **postdate** the 2026-09-09 freeze. Under CLAUDE.md rule 2 this lands as a **dated addendum**, not a rewrite, and it is recorded here rather than asserted in a commit message.
+
+### 3. §2bb MANIFEST DISAGREEMENT — DISCLOSED, NOT EDITED
+
+`LADDER_PREFLIGHT.json` pins R2 `deadline_s: 1350.0`. **That figure is NOT edited, and this paragraph is the disclosure.**
+
+The nature of the disagreement is narrower than the earlier draft's, and better: the launcher's `rung_cap R2` still returns `96` and `DEADLINE` is still computed as `1350`, so **the manifest's number is still arithmetically correct**. What changed is that **`deadline_s` no longer has an enforcing limb anywhere in the launcher** — nothing consumes it as a kill. A reader auditing the manifest against the launcher will find the numbers agree and the *action* absent, and this addendum is the authority for that absence. R1 `600 s` and R3 `16900 s` are likewise unchanged and likewise no longer enforced.
+
+### 4. RUNG-SCOPED RE-FIRE — THE GUARD WIDENING, STATED PLAINLY
+
+The launcher could not re-fire one rung: `G-ROOT.1` pinned `BASE` to the single registered root, `G-ROOT.3` refuses a root that exists, and the loop was `for RUNG in R1 R2 R3`. An opt-in `D6RF10_RERUN_RUNG` now scopes `REGISTERED_BASE` to a fresh `…​.RERUN-<RUNG>-<UTC timestamp>` sibling and the loop to that one whitelisted rung. **Unset, the launcher is byte-identical in behaviour to the frozen fire.**
+
+**What this widens, admitted rather than minimised:** `G-ROOT.1`'s *predicate* is untouched (`BASE` must still equal `REGISTERED_BASE`) but its *intent* moves from "exactly one root for this item, ever" to "**one fresh timestamped root per explicit rung-scoped re-fire, never the graded root**". The protective purpose — never re-run into graded evidence — is preserved intact. `G-ROOT.2`/`.2b`/`.3`/`.4` keep their predicates and their force; no `rm` is added and nothing is deleted; the md5 fixpoint, the age datum, the cap-identity assert and **both planted controls** survive unchanged. *(The earlier draft of this sentence also listed "the `timeout`" among the survivors. It does not survive — §2 deletes it — and the list is corrected here rather than left standing.)*
+
+**THE GRADED ROOT `/home/ubuntu/certonomous-runs/CURRICULUM-D6RF10-a2-wing-convergence-probe/` REMAINS THE AUTHORITY FOR R1 AND R3**, is not moved, renamed or written to, and every path cited by `D6RF10_GRADE_RECORD.md` stays valid. **The re-fire root carries R2 and only R2.** The rejected alternative was to raise the cap and re-fire the whole ladder from an archived root: it was refused because it re-spends 628 core-min re-running an R3 that already landed **and** strands the artifacts behind two committed verdicts by moving a root a committed record cites by path.
+
+`d6rf10_autograde.sh` takes a matching `D6RF10_RUN_ROOT` env default (one line) so the **frozen** grading invocation — `--log <log> --rung R2`, no `--skip-freeze` — runs itself against the re-fire root. Its `GRADER_MD5` refusal limb (exit 2 on drift) is untouched.
+
+### 5. REGISTERED PREDICTION — WRITTEN BEFORE THE SOLVER STARTS
+
+**R2 will land `GATE FAIL`, at roughly 1.7x the `1.0e-05` accept floor on `p_first_uncorrected`. It will not PASS.**
+
+The evidence this prediction is staked on, all already on disk:
+- R2's last printed block (`Time = 200`) reads `p_first_uncorrected initRes = 1.781574265e-05` — **1.78x the floor, WORSE than R1's failing 1.681x**.
+- R2's own control leg (`nNonOrth 3`, `endTime 1000`) plateaued at `1.681172924e-05`, **byte-identical** to the R1 control leg measured 2.5 h earlier.
+- R3 (SIMPLEC, `relax_p 0.70`) is the arm that moved the binding field, to `6.3233727e-06`. R2's lever is `nNonOrth` alone.
+
+**Falsifiable, and it costs something if it is wrong:** a measured R2 `p_first_uncorrected` below `1.0e-05` refutes this prediction outright, and a value below `1.681236312e-05` (R1's) refutes the narrower claim that deeper correctors do not move the floor on this case.
+
+**Why the run is still bought.** Registered prediction **P2** — the load-bearing rung, outcome registered as GENUINELY UNCERTAIN — has been **UNMEASURED for three campaigns** (D6RF7 never tried it; D6RF9 confound (i); D6RF10 a short deadline). A measured negative on the deep-corrector lever **closes P2** and is a real result; a fourth campaign of silence is not. This addendum does not pre-judge the grade: the frozen grader, unchanged, declares it.
+
+### 6. COST, PRE-REGISTERED BEFORE THE RUN (rule 12)
+
+`RANKS = 4` is **not a free parameter** — the case is staged with a scotch/4 decomposition and `processor0..3`. Predicted from the 2026-09-10 measured legs scaled by a contention multiplier of **1.60x** (box load 39.92 at 2026-09-12T03:17Z vs 24.99 during the graded R3, `D6RF10_GRADE_RECORD.md` §9):
+
+| quantity | predicted |
+|---|---|
+| candidate leg wall | 1400 x 1.60 = **2240 s** (pessimistic 3500 s) |
+| control leg wall | 161 x 1.60 = **258 s** |
+| **ledger-basis core-min** | (2240 + 258) x 4 / 60 = **166.5 core-min** |
+| end-to-end wall | ~2520 s (~42 min), incl. ~50 MB staging + ~11 s setup container |
+| **cost** | 2.775 core-h x $0.0513/core-h = **$0.142 — DERIVED, NOT MEASURED** (owner-stated rate; the box cannot read its own billing, `COMPUTE_BUDGET_CHARTER.md` §5) |
+| cap | **96 core-min, REPORTED, NOT ENFORCED.** No ceiling is authorised because no ceiling stops anything (directive #17). The 166.5 core-min prediction **exceeds the reported 96** at the ledger basis, and that is stated here in advance rather than discovered in the ledger: the excess is contention, the 1.60x multiplier is in the row above it, and **nothing kills the run when it crosses.** The crossing will print `D6RF10_CUMULATIVE_REPORT`. |
+
+The rule-12 **estimate-versus-actual** comparison against these figures is owed at completion, as a row in `docs/COST_CALIBRATION.md`, with waste named separately and never absorbed into the ratio.
+
+### 7. WHAT IS NOT AUTHORISED HERE
+
+The grader, the `1.0e-05` accept floor and its `primalMinResTol x primalMinResTolDiff` provenance, the AMENDMENT A2 plateau criterion, the per-field leg rule, every band and every label. All frozen, all unchanged. R1 stays `GATE FAIL`; R3 stays binding-field `PASS` / rung `GATE FAIL`; `N-D43` stays escalated and unruled; no acceptance rule is widened under any outcome (T25). The two-row DAFoam bright line is unmoved: this is a primal-convergence measurement, **not** a DAFoam verdict.
+
+### 8. 🔴 RESTART AND CHECKPOINTS (Sanaa items 1–3) — AND A DEFECT FOUND WHILE ANSWERING IT
+
+**Asked directly: does R2 have any restartable write to resume from? NO, AND IT COULD NOT HAVE HAD ONE.** Measured on disk, not inferred:
+
+- The staged `system/controlDict` carries **`writeControl timeStep`** with **`writeInterval 1000`**, against R2's **`endTime 300`**. 300 is not a multiple of 1000.
+- **No numbered time directory exists anywhere under the R2 work root.** The only `1000` directories present belong to the *control* leg (`CTRL_ENDTIME 1000`), which completed `rc=0`.
+
+**So the re-fire starts FROM SCRATCH, and no resume is invented.** That is the honest answer to her item 1.
+
+**The defect this exposes is larger than the killed run and is recorded, not quietly patched:** with `writeInterval 1000` and `endTime 300`, **a fully successful R2 would also have written nothing.** The rung as frozen could not produce a field at its own `endTime`. It was gradeable only because the frozen grader reads the *log*, not the fields.
+
+**The repair, registered here before the run:** `install_config` now also sets `writeInterval` and `purgeWrite 2`, each **read back from the file after writing** — the same discipline every other swap in that function already used. A new marker `D6RF10_CHECKPOINT_INSTALLED` carries them. **The grader-bound `D6RF10_CONFIG_INSTALLED` line is byte-untouched**, deliberately, so no frozen parser meets a new field.
+
+| rung | endTime | `writeInterval` | divides exactly? | interval in wall time |
+|---|---|---|---|---|
+| R1 | 2500 | **125** | 20 writes, one AT endTime | rate UNMEASURED → her fallback "every 200 iterations", taken tighter |
+| **R2** | **300** | **100** | **3 writes, one AT endTime** | **MEASURED: 1357 s / ~299 steps = 4.54 s/step → 100 steps ≈ 454 s = 7.6 min** |
+| R3 | 2000 | **200** | 10 writes, one AT endTime | rate UNMEASURED → her fallback exactly |
+| control | 1000 | **100** | 10 writes, one AT endTime | leg measured 161 s → ≈16 s |
+
+**Every value divides its rung's `endTime` exactly, so a write now also lands AT `endTime`** — which the frozen configuration did not do. **`purgeWrite 2` keeps the last two and purges older**, her item 1 verbatim. R2's 7.6-minute cadence is far inside her 30-minute bound; **R2's entire clean run (~23 min) is shorter than one 30-minute interval**, so the bound could not have been violated in any case, and the cadence is chosen to give a real resume point rather than to satisfy a bound that was never at risk.
+
+**Not done, and named:** her item 5 kill-and-resume proof is **one test per solver class before the fleet launches anything**. It is not this rung's to perform and **this addendum does not claim it**. If no such proof exists for the DAFoam-primal class when the runner reaches this entry, the resume path here is *configured but unproven*, and that is the honest state.
+
+### 9. AS UBUNTU, NEVER ROOT (Sanaa launch item 6)
+
+`run_container` ran `--user 0:0`. It now runs **`-u 1000:1000 --group-add 1002 -e MPLCONFIGDIR=/tmp`**, and `sudo -n docker` becomes plain `docker` (verified on this box: `ubuntu` is in group `docker`).
+
+uid 1000 and gid 1000 are both `ubuntu`, so artifacts land `ubuntu:ubuntu`; **gid 1002 is the *image's* `dafoamuser` group, carried as a supplementary group for one purpose only** — traversing the `0750` `/home/dafoamuser` to source `loadDAFoam.sh`. **Measured on this box 2026-09-12 by a peer lane: `-u 1000:1000` alone dies `Permission denied` sourcing `loadDAFoam.sh`; with `--group-add 1002` it reaches `LOADED_OK`.** Corroborated by a live peer container on the same image (`User=1000:1000`, `GroupAdd=["1002"]`). **This spelling is taken from the peer lane's measurement, not invented here.**
+
+`mpirun --allow-run-as-root` is left in the emitted cmd files: as a non-root user it is inert, and removing it would change a line the frozen driver path emits for no gain.
+
+### 10. QUEUE POSITION AND DECLARED RESOURCES (directive item 19)
+
+**The runner is the only launcher. Nothing in this addendum launches anything**, and no agent's message is Sanaa's consent. The entry is placed **behind `D6R2` and `MP_A5R`**; the runner's core gate sequences it.
+
+| declared | value | basis |
+|---|---|---|
+| `ranks` | **4** | **NOT a free parameter.** `RANKS=4` is fixed in the launcher, the case is staged with a `scotch`/4 decomposition and `processor0..3`, and §3 registers it. |
+| `memory_footprint_gb` | **20** | the launcher's own `MEM=20g` cgroup limit, the figure the container is actually given |
+| `solver_class` | DAFoam primal (`DARhoSimpleFoam`), containerised | |
+| re-fire scope | `D6RF10_RERUN_RUNG=R2` → a fresh `…​.RERUN-R2-<UTC>` sibling root | the graded root remains the authority for R1 and R3 and is never written to |
+
+Nothing here is sent, filed, uploaded, registered or posted. **SUBMISSIONS PARKED.**

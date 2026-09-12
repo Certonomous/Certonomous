@@ -14,7 +14,7 @@
 # frozen grader after verifying its md5, and REFUSES (exit 2) if the md5 drifted.
 # =============================================================================
 set -u
-RUN_ROOT=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF10-a2-wing-convergence-probe
+RUN_ROOT="${D6RF10_RUN_ROOT:-/home/ubuntu/certonomous-runs/CURRICULUM-D6RF10-a2-wing-convergence-probe}"   # 2026-09-12: env default ONLY, so the frozen-grader invocation can be pointed at a rung-scoped re-fire root. Unset => byte-identical to before. The GRADER_MD5 refusal limb below is UNTOUCHED.
 LEDGER="$RUN_ROOT/ledger.txt"
 GRADER=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF10/d6rf10_grade.py
 GRADER_MD5=0cb9d89a11347bc943acf3b38e1766d2   # DRAFT: the D6RF10 grader is a name-only adaptation of D6RF9's; its md5 differs from 6e76ed57. The dafoam-supervisor pins the D6RF10 grader md5 here at freeze; the md5-drift limb below REFUSES (exit 2) while this is the placeholder, so the autograder never grades with an unpinned instrument.
