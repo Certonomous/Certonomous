@@ -49,11 +49,16 @@ COPY OF THE LOG TO DISK, **by line index**, and re-runs THE REAL READER (`read_l
 `grade`) on that file.  Nothing is simulated in memory.  If an arm's expectation is not
 met the instrument **REFUSES (exit 2)** and grades nothing.
 
-  PLANT A -- SENSITIVITY, AGAINST A PREDICTED VALUE AND A PREDICTED LAYER.  Overwrite the
-    Min Quality cell of ONE NAMED LAYER with PLANT_NEG = -1.234e-03 (the lab's planted
-    constant, sign-flipped so it is a failing value).  The reader must (a) return the
-    failing verdict, (b) name THAT layer, and (c) report THAT value to 1e-9.  A control
-    that merely checks "the verdict changed" passes on any bug that perturbs the answer.
+  PLANT A -- SENSITIVITY, AGAINST A PREDICTED VALUE AND A PREDICTED LAYER, IN WHICHEVER
+    DIRECTION THE LOG ALLOWS.  Overwrite the Min Quality cell of ONE NAMED LAYER and require
+    the failing-layer count to move by EXACTLY ONE in the predicted direction:
+      * a PASSING layer exists -> plant PLANT_NEG into it; the count must rise by one and
+        the reader must name THAT layer at THAT value to 1e-9;
+      * every layer already fails -> plant PLANT_POS into a failing one; the count must fall
+        by one and that layer must be ABSENT from the failing list.
+    The second branch exists because the first cannot run on an all-failing log -- which is
+    the log on which the verdict matters most.  A control that merely checks "the verdict
+    changed" passes on any bug that perturbs the answer.
   PLANT A' -- THE WITHHELD ARM.  The same copy written WITHOUT the plant must return the
     passing verdict and report no negative layer.  A reader that always fails is not a
     reader.
@@ -96,6 +101,9 @@ FIRST_MARCHED_LVL = 2          # pyHyp prints grid level 1 as the surface; march
 CHAIN = ['surfMesh.cgns', 'pyhyp.log', 'log.plot3dToFoam', 'log.checkMesh']
 RC_FILE = 'pyhyp_rc.txt'       # written by the lab's own launcher; 'PYHYP_RC=0' required
 # --- THE PLANTED CONSTANT --------------------------------------------------------------------
+PLANT_POS = +1.234e-02         # the same digits, signed to be a PASSING value -- used by
+                               # PLANT A on a log where EVERY layer already fails and there is
+                               # therefore no passing layer to plant a new failure into.
 PLANT_NEG = -1.234e-02         # the lab's planted digits, signed to be a FAILING value, and
                                # chosen to ROUND-TRIP EXACTLY through the Min Quality column's
                                # own 5-decimal width: '%.5f' % PLANT_NEG == '-0.01234'.
@@ -345,11 +353,24 @@ def planted_controls(log_path):
     # failing-layer count goes up by exactly one, and planting on top of an existing failure
     # leaves it unchanged. That collision made ARM 4 -- the strictness arm, whose whole point
     # is a log with a failing layer -- fail for a reason that had nothing to do with the reader.
+    # PLANT A RUNS IN WHICHEVER DIRECTION THE LOG ALLOWS.  It used to plant only a FAILING
+    # value, which needs a PASSING layer to plant into -- so on a log where EVERY layer
+    # fails it had nothing to plant into and the instrument REFUSED.  That is the log on
+    # which "NOT A RESULT" is most obviously correct, so the guard had a blind spot at
+    # exactly the worst moment: it failed silent precisely when it mattered.
+    # MEASURED LIVE on M6H1's own first pyHyp march, every layer NaN.
+    # The repair is symmetric and loses nothing -- both directions are plant-into-the-input,
+    # re-run-the-real-reader-from-disk, against a PREDICTED change of exactly one layer:
+    #     a passing layer exists -> plant a FAILING value into it, assert +1 failing
+    #     none exists            -> plant a PASSING value into a failing layer, assert -1
     passing = [l for (l, q, _) in layers0 if q > MIN_QUALITY_FLOOR]
-    if not passing:
-        return False, ["REFUSE: every layer in this log already fails, so there is no layer to "
-                       "plant a NEW failure into and PLANT A cannot establish sensitivity."]
-    target = passing[len(passing) // 2]       # a mid-march PASSING layer, named in advance
+    failing = [l for (l, q, _) in layers0 if not (q > MIN_QUALITY_FLOOR)]
+    if passing:
+        target, plant_val, direction, delta = passing[len(passing) // 2], PLANT_NEG, 'FAILING', +1
+    elif failing:
+        target, plant_val, direction, delta = failing[len(failing) // 2], PLANT_POS, 'PASSING', -1
+    else:
+        return False, ["REFUSE: the log has no marched layer at all, so no plant is possible."]
     d = tempfile.mkdtemp(prefix='m6h1_minq_')
     try:
         # ---- PLANT A' : the withheld arm, written to disk with NO plant
@@ -364,16 +385,22 @@ def planted_controls(log_path):
 
         # ---- PLANT A : sensitivity, against a PREDICTED layer and a PREDICTED value
         pa = os.path.join(d, 'plantA.log')
-        ln = plant_into_log(log_path, pa, target, iq, PLANT_NEG, ncols)
+        ln = plant_into_log(log_path, pa, target, iq, plant_val, ncols)
         la, _, _, _ = read_log(pa)
         okA, badA = grade(la)
-        cond_A = ((not okA) and len(badA) == len(bad0) + 1
-                  and any(l == target and abs(q - PLANT_NEG) < 1e-9 for (l, q, _) in badA))
-        msg.append("PLANT A  sensitivity: planted %.6f into the Min Quality cell of grid level "
-                   "%d (log line %d); reader reports %d failing layers and %s -> %s"
-                   % (PLANT_NEG, target, ln, len(badA),
-                      ("names level %d at %.6f" % (target, PLANT_NEG)) if cond_A
-                      else "DOES NOT name that layer at that value", 'ok' if cond_A else 'REFUSE'))
+        if delta > 0:
+            named = any(l == target and abs(q - plant_val) < 1e-9 for (l, q, _) in badA)
+        else:
+            named = all(l != target for (l, q, _) in badA)
+        cond_A = (len(badA) == len(bad0) + delta) and named
+        msg.append("PLANT A  sensitivity: planted %.6f -- a %s value -- into the Min Quality "
+                   "cell of grid level %d (log line %d); reader reports %d failing layers "
+                   "against %d before (predicted %+d) and %s -> %s"
+                   % (plant_val, direction, target, ln, len(badA), len(bad0), delta,
+                      ("the layer is %s the failing list as predicted"
+                       % ("named in" if delta > 0 else "absent from")) if named
+                      else "THE LAYER IS NOT WHERE IT WAS PREDICTED TO BE",
+                      'ok' if cond_A else 'REFUSE'))
 
         # ---- PLANT B : adjacent column (Min Volume) -- must NOT be seen
         pb = os.path.join(d, 'plantB.log')
@@ -560,6 +587,10 @@ def selftest():
         z = os.path.join(d, 'zero.log'); _synth(z, [(l, 0.30 if l != 7 else 0.0)
                                                     for l in range(2, 12)])
         res.append(("ARM 4  a layer at EXACTLY 0.00000 grades NOT A RESULT", main(z) == 1))
+        # ARM 4b -- an ALL-FAILING log must still GRADE, not refuse for want of a plant target
+        af = os.path.join(d, 'allfail.log'); _synth(af, [(l, -0.02) for l in range(2, 12)])
+        res.append(("ARM 4b a log where EVERY layer fails still grades NOT A RESULT "
+                    "(the reverse plant)", main(af) == 1))
         # ARM 5 -- a log with no header must REFUSE, not fall back to a fixed column index
         nh = os.path.join(d, 'nohdr.log')
         open(nh, 'w').write("\n".join(l for l in open(g).read().splitlines()

@@ -17,6 +17,15 @@ DISCRIMINATION CONTROL.  The plant touches only z; spanwise bands are assigned o
 So the reported `chord` column must be UNCHANGED by the plant.  If chord moves, the
 plant leaked into a path it was not meant to exercise and the control REFUSES.
 
+ALL THREE OF §7's H-G0 CLAUSES ARE GRADED HERE, and until 2026-09-12 only the first was.
+§7 registers: base thickness within +/-10 % of 0.1410 % of LOCAL chord at every one of >= 9
+spanwise stations; **max t/c within +/-2 % of 9.79 %**; **semispan within +/-0.5 % of
+1.1963 m**.  This instrument implemented the base clause alone and then printed
+"H-G0 (surface fidelity ...): PASS", i.e. IT CLAIMED A GATE IT HAD NOT EVALUATED.  The
+contrast that convicts it: `read_cell_count.py` announces its own missing clause on stdout,
+so a reader knows H-G1 is not discharged by it; this one announced nothing.  Each added
+clause carries its own plant, and each plant is the other's discrimination control.
+
 Exit codes:  0 PASS   1 GATE FAIL (reported, never adjusted)   2 REFUSE (control failed)
 """
 import sys, os, re, math, shutil, tempfile
@@ -27,6 +36,17 @@ REF_T_TE_FRAC  = 2 * REF_ZL_AT_TE   # 0.0014104 of local chord
 H_G0_TOL       = 0.10            # +/- 10 % of the reference base thickness
 H_G2_MIN_CELLS = 8               # >= 8 cells across the base, every station
 N_STATIONS     = 9
+REF_TC_MAX     = 2 * 0.0489296   # §1.3: max z/l 0.0489296 -> t/c = 9.79 %
+H_G0_TC_TOL    = 0.02            # §7 H-G0 clause 2: max t/c within +/- 2 % of 9.79 %
+REF_SEMISPAN   = 1.1963          # §1.2 / AR-138 B1 §2.1.8, in metres
+H_G0_SPAN_TOL  = 0.005           # §7 H-G0 clause 3: semispan within +/- 0.5 %
+PLANT_TC       = 1.5             # the t/c plant factor, applied to the SURFACE solids' z
+PLANT_SPAN     = 1.25            # the semispan plant factor, applied to y
+MIN_PTS_PER_SLICE = 8            # a constant-y group with fewer points is not a section
+MIN_SLICE_CHORD_FRAC = 0.2       # ... nor is one whose x extent is a fraction of the largest
+PLANT_RTOL     = 1.0e-7          # the plants rewrite vertices with '%.9g', so an assertion
+                                 # tighter than that round-trip cannot hold -- the same
+                                 # class of defect as read_min_quality.py's PLANT A
 # ------------------------------------------------------------------------------------
 
 VRE = re.compile(r'^\s*vertex\s+(\S+)\s+(\S+)\s+(\S+)')
@@ -136,6 +156,124 @@ def planted_control(src, factor=3.0, solid='wing_base'):
     return (seen and chord_ok), out
 
 
+def measure_tc_and_span(path, surf_solids=('wing_upper', 'wing_lower'),
+                        base_solid='wing_base'):
+    """§7's H-G0 clauses 2 and 3, measured from the SAME STL the base clause is measured
+    from.  Returns (tc_max, semispan, n_bands) or (None, None, None).
+
+    THESE TWO CLAUSES WERE REGISTERED IN §7 AND HAD NO INSTRUMENT.  This reader printed
+    "H-G0 (surface fidelity ...): PASS" while evaluating ONE of the three registered
+    clauses -- i.e. it claimed a gate it had not evaluated.  `read_cell_count.py` announces
+    its own gap on stdout; this one did not, which is worse, because a reader of the output
+    had no way to know.
+    """
+    s = load_stl(path)
+    pts = [v for n in surf_solids for v in s.get(n, [])] + list(s.get(base_solid, []))
+    if len(pts) < 3:
+        return None, None, None
+    ys = [v[1] for v in pts]
+    span = max(ys) - min(ys)
+    if span <= 0:
+        return None, None, None
+    # 🔴 t/c IS MEASURED ON EXACT CONSTANT-y SLICES, NOT ON BANDS, AND THAT IS NOT
+    # FUSSINESS.  A band of finite width on a wing swept 30 deg at the leading edge and
+    # 15.8 deg at the trailing edge has max(x) - min(x) LARGER than the local chord, by
+    # roughly the band width times tan(sweep).  That inflates the chord, so it deflates
+    # t/c.  MEASURED with 9 bands on a surface whose true t/c is 9.784 %: the banded
+    # estimate returned 9.3928 %, 4.02 % low -- i.e. TWICE the +/-2 % gate, so a
+    # geometrically exact M6 surface would have been failed by the instrument rather than
+    # by the geometry.
+    # A surface built from a structured grid has exact repeated y values, so grouping
+    # vertices by y recovers true sections and the bias is identically zero.
+    groups = {}
+    for v in pts:
+        groups.setdefault(round(v[1], 9), []).append(v)
+    usable = [g for g in groups.values() if len(g) >= MIN_PTS_PER_SLICE]
+    # 🔴 DECLINE RATHER THAN DEGRADE.  If the surface does not present repeated constant-y
+    # sections -- an unstructured or multiblock STL will not -- then a "slice" is three
+    # scattered points, its chord is near zero, and t/c comes out enormous.  MEASURED on the
+    # DAFoam tutorial's 9-block M6 surface: t/c 4,586,152.  A number like that is not a
+    # failed gate, it is a reader outside its domain, and it must say so rather than emit it.
+    if len(usable) < N_STATIONS:
+        return None, span, len(usable)
+    chords = [(max(v[0] for v in g) - min(v[0] for v in g), g) for g in usable]
+    cmax = max(c for c, _ in chords) if chords else 0.0
+    if cmax <= 0:
+        return None, span, 0
+    # A group of coplanar-in-y points whose x extent is a small fraction of the largest
+    # section is a FRAGMENT, not a section -- a tip-cap block, a patch seam.  Dividing a
+    # thickness by a fragment's x extent is what produced t/c = 4.6e8 % on the DAFoam
+    # tutorial's 9-block surface.  Fragments are dropped, and if too few real sections
+    # survive the reader DECLINES instead of emitting a number from the ones that did.
+    real = [(c, g) for c, g in chords if c >= MIN_SLICE_CHORD_FRAC * cmax]
+    if len(real) < N_STATIONS:
+        return None, span, len(real)
+    tc = max((max(v[2] for v in g) - min(v[2] for v in g)) / c for c, g in real)
+    return tc, span, len(real)
+
+
+def planted_control_tc_span(src):
+    """Plant into the INPUT for the two clauses this reader used to leave ungraded.
+
+    TWO PLANTS, EACH WITH THE OTHER AS ITS DISCRIMINATION CONTROL:
+      * scale the SURFACE solids' z by PLANT_TC -> t/c must move by that factor and the
+        SEMISPAN must not move at all;
+      * scale every solid's y by PLANT_SPAN -> the semispan must move by that factor and
+        t/c must not move (y is not in the t/c ratio).
+    A plant that moved both would not discriminate between the two clauses, and a reader
+    that responded to neither would have been reporting a gate it cannot see.
+    """
+    out = []
+    tc0, sp0, nb0 = measure_tc_and_span(src)
+    if tc0 is None or sp0 is None:
+        return False, ["DECLINE: this surface does not present repeated constant-y sections "
+                       "(%s usable slices of at least %d points, %d needed), so H-G0's "
+                       "max-t/c clause cannot be measured on it without a sweep-biased "
+                       "chord. Declined rather than degraded."
+                       % (nb0, MIN_PTS_PER_SLICE, N_STATIONS)]
+    d = tempfile.mkdtemp(prefix='m6h1_tcspan_')
+    try:
+        def rewrite(dst, zf, yf, solids):
+            cur = None
+            with open(src) as fi, open(dst, 'w') as fo:
+                for line in fi:
+                    st = line.strip()
+                    if st.startswith('solid'):
+                        parts = st.split(None, 1)
+                        cur = parts[1] if len(parts) > 1 else 'unnamed'
+                    m = VRE.match(line.rstrip('\n'))
+                    if m and (solids is None or cur in solids):
+                        x, y, z = (float(m.group(i)) for i in (1, 2, 3))
+                        fo.write("    vertex %.9g %.9g %.9g\n" % (x, y * yf, z * zf))
+                        continue
+                    fo.write(line)
+
+        a = os.path.join(d, 'plant_tc.stl')
+        rewrite(a, PLANT_TC, 1.0, ('wing_upper', 'wing_lower'))
+        tc1, sp1, _ = measure_tc_and_span(a)
+        tc_seen = tc1 is not None and abs(tc1 - tc0 * PLANT_TC) <= PLANT_RTOL * tc0 * PLANT_TC
+        tc_disc = sp1 is not None and abs(sp1 - sp0) <= PLANT_RTOL * sp0
+        out.append("PLANT t/c : scaled the SURFACE solids' z by %.2f -> t/c %.6f became "
+                   "%.6f (predicted %.6f) : %s ; DISCRIMINATION semispan unmoved: %s"
+                   % (PLANT_TC, tc0, tc1 if tc1 is not None else float('nan'),
+                      tc0 * PLANT_TC, 'ok' if tc_seen else 'REFUSE',
+                      'ok' if tc_disc else 'REFUSE'))
+
+        b = os.path.join(d, 'plant_span.stl')
+        rewrite(b, 1.0, PLANT_SPAN, None)
+        tc2, sp2, _ = measure_tc_and_span(b)
+        sp_seen = sp2 is not None and abs(sp2 - sp0 * PLANT_SPAN) <= PLANT_RTOL * sp0 * PLANT_SPAN
+        sp_disc = tc2 is not None and abs(tc2 - tc0) <= PLANT_RTOL * tc0
+        out.append("PLANT span: scaled EVERY solid's y by %.2f -> semispan %.6f became "
+                   "%.6f (predicted %.6f) : %s ; DISCRIMINATION t/c unmoved: %s"
+                   % (PLANT_SPAN, sp0, sp2 if sp2 is not None else float('nan'),
+                      sp0 * PLANT_SPAN, 'ok' if sp_seen else 'REFUSE',
+                      'ok' if sp_disc else 'REFUSE'))
+        return (tc_seen and tc_disc and sp_seen and sp_disc), out
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
 def selftest():
     """Arm 2 is the one that matters: the control MUST be able to FAIL.
     A control that passes when the plant is withheld proves nothing."""
@@ -202,9 +340,12 @@ def main(path):
     print("PLANTED CONTROL — planted into the INPUT, real reader re-run FROM DISK")
     for m in msg:
         print("  " + m)
-    if not ok_ctrl:
-        print("\nREFUSE (exit 2): the control did not establish that this reader can see a "
-              "non-zero. No number below would be evidence.")
+    ok_ctrl2, msg2 = planted_control_tc_span(path)
+    for m in msg2:
+        print("  " + m)
+    if not (ok_ctrl and ok_ctrl2):
+        print("\nREFUSE (exit 2): the controls did not establish that this reader can see a "
+              "known non-zero in EVERY clause it grades. No number below would be evidence.")
         return 2
 
     rows, err = measure(path)
@@ -226,8 +367,33 @@ def main(path):
             print("  %-9.5f %6.3f %6d %14.6e %11s %11s %9s"
                   % (r['y'], r['y'] / 1.1963, r['n'], r['dz'], "n/a", "n/a", "n/a"))
 
-    print("\nH-G0 (surface fidelity, +/- %.0f %% of the reference base): %s"
-          % (100 * H_G0_TOL, "PASS" if g0 else "GATE FAIL — reported, NOT adjusted"))
+    # ---- §7 H-G0 clauses 2 and 3, which this instrument used to leave ungraded ----
+    tc, span, nb = measure_tc_and_span(path)
+    if tc is None or span is None:
+        print("\nDECLINE (exit 2): H-G0's max-t/c and semispan clauses could not be measured "
+              "on this surface, and a gate with three registered clauses is not discharged "
+              "by grading one of them.")
+        return 2
+    dtc = abs(tc - REF_TC_MAX) / REF_TC_MAX
+    dsp = abs(span - REF_SEMISPAN) / REF_SEMISPAN
+    g0_tc = dtc <= H_G0_TC_TOL
+    g0_sp = dsp <= H_G0_SPAN_TOL
+    print("\n  clause 2  max t/c   %8.4f %%  against %8.4f %%   (%6.2f %% off, gate +/-%.0f %%)  %s"
+          % (100 * tc, 100 * REF_TC_MAX, 100 * dtc, 100 * H_G0_TC_TOL,
+             'PASS' if g0_tc else 'GATE FAIL'))
+    print("  clause 3  semispan  %8.6f m  against %8.4f m  (%6.3f %% off, gate +/-%.1f %%)  %s"
+          % (span, REF_SEMISPAN, 100 * dsp, 100 * H_G0_SPAN_TOL,
+             'PASS' if g0_sp else 'GATE FAIL'))
+
+    g0_all = g0 and g0_tc and g0_sp
+    print("\nH-G0, ALL THREE REGISTERED CLAUSES (base +/-%.0f %%, max t/c +/-%.0f %%, semispan "
+          "+/-%.1f %%): %s"
+          % (100 * H_G0_TOL, 100 * H_G0_TC_TOL, 100 * H_G0_SPAN_TOL,
+             "PASS" if g0_all else "GATE FAIL — reported, NOT adjusted"))
+    if g0 and not g0_all:
+        print("  (the base clause alone would have said PASS -- which is what this "
+              "instrument used to print)")
+    g0 = g0_all
 
     if len(sys.argv) > 2:
         cell = float(sys.argv[2])
