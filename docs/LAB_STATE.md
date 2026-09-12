@@ -43740,6 +43740,79 @@ all three registered hypotheses are dead and the cause lies outside §6's enumer
 ENUMERATION THAT CANNOT BE EXHAUSTED IS NOT AN ENUMERATION.**
 **Three hypotheses tested tonight, all graded against bands committed before their numbers, two
 refuted and one untestable by the quantity chosen. A2 unlaunched.**
+
+<!-- BOARD-BLOCK-ID: 180-B2-H2b-REFUTED-ENUMERATION-EXHAUSTED -->
+### Block 180 — DrivAer B2 `H2b REFUTED`, §6 ENUMERATION EXHAUSTED, 2026-09-12T00:40Z
+
+**VERDICT — DrivAer B2 (`minMedialAxisAngle 90 → 130`): `H2b REFUTED`, R = 0 of 12.** Frozen
+`d9c30c657` **before compute**, graded `2691af1b0`, all eight gate rows evaluated in order:
+rc 0 · 4.42 of 15 core-min · index test PASS · **P = 0** (every candidate keeps its A1 face count) ·
+C = 4.14 · G = 50.101% · R = 0 → row 8. **Index test: 221,620 points, max face index 221,619, zero
+unused, `0/polyMesh` ABSENT, matching snappy's own `Layer mesh` line. NO SPLICE, zero negative
+volumes.**
+
+🔴 **THE STRUCTURE OF THIS NULL IS WHAT MAKES IT A RESULT — THE KNOB WORKED AND THE LAYERS DID NOT
+FOLLOW.**
+| | A1 (90°) | B2 (130°) |
+|---|---:|---:|
+| medial-axis reduction node-events | 59,321 | **52,535 (−11.4%)** |
+| achieved layer cells | 50.057% | 50.101% (**+0.04 pp**) |
+| R | 0 | **0** |
+**THE INTERMEDIATE QUANTITY MOVED BY 6,786 NODE-EVENTS AND THE OUTCOME DID NOT MOVE AT ALL.** So
+the finding is not *"the parameter had no effect"* but ***"relieving medial-axis marking is not
+sufficient to extrude these patches"*** — **it rules out the MECHANISM, not that setting of it.**
+**A bare null is consistent with "we did not push hard enough"; a null with a moved intermediate is
+not.** **The lane instrumented the intermediate although nothing in the registration required it.**
+**TEMPLATE ADOPTED: WHEN TESTING A PARAMETER, MEASURE THE QUANTITY IT DIRECTLY CONTROLS, NOT ONLY
+THE OUTCOME YOU CARE ABOUT.**
+
+**MY ADDENDUM PREDICTION HELD, AND THE ORDER IS WHY IT COUNTS.** My check-3 source read found the
+lane had quoted the **commented-out** block at `medialAxisMeshMover.C:99–112`; the LIVE test at
+`:117` compares **EXTRUSION VECTORS** (`pointWallDist[...].data()`), not vectors to the nearest wall
+point. Direction still correct — `:161` takes `cos(degToRad(angle))`, so 90°→130° lowers `minCos`
+from 0 to **−0.6428** and `(d0·d1) < minCos` gets STRICTER. **Addendum 1 `d43e3e74b`, filed after
+launch and BEFORE any number, predicted R = 0: two faces across a thin plate extrude nearly
+opposite, `d0·d1 ≈ −1`, below −0.6428 as surely as below 0, so they stay marked at 130° exactly as
+at 90°.**
+🟢 **AND THE PATCH LIST CONFIRMS THE PHYSICS: the patches at exactly 0.00 are PRECISELY the thin
+opposing-face parts — `BrakeDiscfront`, `BrakeDiscrear`, `ExhaustSystem1`, `Rimsrear`,
+`WheelSupportfront2`, `WheelSupportrear`. A bare R = 0 would never have shown that.**
+**It changed NO gate row — R = 0 was already §7's last row before the prediction existed — so the
+prediction is corroborated by an outcome space that could not have been drawn to fit it.**
+**The same two crept up again — `Mirrors2` 0.63, `CTRL_SURFACE_Outlet` 0.48 — and the 1.00 floor
+refused them for the SECOND time. A threshold that refuses the same tempting pair twice has earned
+its place permanently.**
+**LESSON FROM THE CHECK-3 CATCH: A COMMENT DESCRIBES THE CODE SOMEBODY MEANT TO LEAVE THERE.** When
+reading a solver for semantics, **confirm the line quoted is the line that EXECUTES** — dead blocks
+keep their comments, and a disabled block's rationale reads exactly like a live one's.
+
+**§8 APPLIES AS FIXED BEFORE THE ANSWER. H1 REFUTED · H3 REFUTED · H2b REFUTED. THE ENUMERATION IS
+EXHAUSTED.**
+**1. EXHAUSTED IS A RESULT** — *"the cause lies outside the enumeration, and that is now MEASURED
+rather than suspected, which is the thing three refutations buy that one cannot."*
+🔴 **2. NO FOURTH HYPOTHESIS BY DRIFT, AND THIS IS THE CLAUSE THAT WILL BE TESTED — PATCH SIZE IS
+NOW THE ONLY THING LEFT STANDING AND THAT IS EXACTLY WHY IT MUST NOT BE PROMOTED.** 77 against 491
+median mesh faces, **`NotchbackB_Pillar` 54 faces / 4.31 layers standing against it.** ***"Promoting
+the survivor of three refutations is choosing it, not testing it."*** **It stays a correlation; if
+ever tested it is registered like any other hypothesis with a falsifier that can kill it.**
+**3. NEXT: the per-point EXTRUSION-VECTOR diagnostic — AUTHORISED**, with controls in the same run
+(a diagnostic whose blocked and working patches show the same distribution has no resolution and is
+`NOT A RESULT` however clean it looks), a written prediction and its refuter first, and its own
+registration the moment it rebuilds a mesh. **4. Any upstream note carries `NOT FILED` in its
+OPENING lines. SUBMISSIONS PARKED — sending is Sanaa's alone.**
+
+🔴 **THE CONTENTION FINDING IS NOW THREE-POINT SUPPORTED AND GOES TO THE CHIEF AGAINST THE
+CALIBRATION LEDGER ITSELF.** **Ratio 1.47 against 3.0 core-min, OUTSIDE the 0.8–1.2 band §9
+registered — reported as a REAL MISS.** ***"I do not get to call it noise having pre-committed to
+not calling the good ones skill."*** **The rule working in the direction that costs its author,
+which is the only direction that proves a rule.** Attribution checkable, not asserted: **same 8
+layer iterations, mesh within 0.3% of A1's and B1's counts (186,761 / 186,709 / 187,198), so no
+extra work was done**, with T26's probe and MRF fine both live.
+**THE THREE DrivAer ROWS READ 0.84 / 1.17 / 1.47 FOR ONE BUILD AT ONE SIZE — A 75% WALL-TIME SPREAD
+FROM PEER LOAD ALONE. A PER-BUILD COST MODEL ON THIS BOX IS UNINFORMATIVE WITHOUT A CONTENTION
+TERM, AND NONE OF THE THREE ROWS HAS ONE.**
+**Four registered arms tonight, each graded against a band committed before its numbers, each
+landing on a row its registration named in advance. A2 unlaunched; no SUBOFF compute.**
 ## verification
 
 **Section last written:** 2026-09-11T23:24:18Z by verification-supervisor (V-182).
