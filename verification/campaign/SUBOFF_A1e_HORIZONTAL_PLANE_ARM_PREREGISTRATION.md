@@ -400,3 +400,84 @@ three are quoted from the source's own page into every registration alongside th
 This lane adds a fourth on the evidence above: **and the Reynolds number the source ran
 at, with the source's own statement of whether its coefficients are Reynolds-sensitive
 there.**
+
+---
+
+## DATED ADDENDUM 4 — 2026-09-12, same day, by the author: **RODDY MEASURED EVERY STATIC DERIVATIVE AT ONE SPEED, SO THE REYNOLDS GAP CANNOT BE BOUNDED FROM HIS DATA — AND "FULLY APPENDED" NAMES TWO DIFFERENT BODIES IN THE TWO REPORTS**
+
+*lines whose number changed above this section: 0*
+
+### A. THE RULING THIS ADDENDUM SERVES
+
+The cfd-supervisor ruled (2026-09-12) that **this arm is REPORTED, NOT GRADED on Reynolds
+grounds**: the ±4 % band is Roddy's *measurement* uncertainty and contains no allowance
+for Reynolds sensitivity, so grading across a 17.6 % Re gap would bury a systematic
+offset of unknown size underneath a gate. He directed one check first — **did Roddy run
+more than one speed?** — because a bounded sensitivity would turn the gap into a
+correction.
+
+### B. THE ANSWER IS NO, AND IT IS STRUCTURAL RATHER THAN ACCIDENTAL
+
+**Roddy Table 3, "Schedule of the stability and control experiments", report pages 17–18,
+read as page images.** For **every** configuration 1–6 the `Static Stability` row carries
+a single entry in the "Model Speeds (knots)" column: **6.5**.
+
+`Y_v'` and `N_v'` are static derivatives, taken from ±18° of drift at **6.5 knots only**.
+**No second speed exists for them anywhere in the report.**
+
+**AND THE MULTI-SPEED ROWS THAT DO EXIST ARE NOT A REYNOLDS STUDY.** The `Yawing` and
+`Pitching` rows carry **4.5, 5.0, 6.0, 6.5 knots — at Omega FIXED at 2.220 rad/s.**
+Varying `U` at fixed `omega` varies the **nondimensional yaw rate `r' = omega·L/U`**,
+which is precisely how a rotary derivative's slope is extracted. **Reynolds number is
+confounded with `r'` by construction**, so those four speeds cannot isolate a Reynolds
+effect even in principle. The fixed `Omega` column is what gives it away, and it sits
+beside the speeds.
+
+**Roddy therefore bounds the Reynolds sensitivity of nothing.** The gap is not an
+unbounded unknown because we failed to find a bound — **the experiment was not designed
+to produce one.** Worth recording: Roddy *states* a 10-to-15-million sensitivity
+threshold on page 3 and then measures every static derivative at a single speed inside
+it.
+
+**The REPORTED, NOT GRADED ruling therefore stands on a checked ground.**
+
+### C. INDEPENDENT CONFIRMATION OF OUR CONFIGURATION, FROM A SECOND TABLE
+
+Table 3's header is printed **"CONFIGURATION 4 – HORIZONTAL PLANE, HULL AND SAIL ONLY"**.
+§2 identified Config 4 from Table 4's column heading; this confirms it from a **different
+table in the same report**, so the identification does not rest on one heading.
+
+### D. **"FULLY APPENDED" NAMES TWO DIFFERENT BODIES — THE EIGHTH FACE**
+
+Table 3's headers, as printed:
+
+> **"CONFIGURATION 1 – VERTICAL PLANE, FULLY APPENDED WITH RING WING NO. 1"**
+> **"CONFIGURATION 2 – HORIZONTAL PLANE, FULLY APPENDED WITH RING WING NO. 1"**
+
+**Roddy's "fully appended" INCLUDES RING WING NO. 1.** Liu & Huang 1998, page 6 item 8,
+define theirs as "axisymmetric body with fairwater and four identical stern appendages" —
+**no ring wing** — and their Table 14 prints that body as "Config 8, Fully Appended".
+
+Roddy's own Config 5 is "HULL AND CONTROL SURFACES ONLY" and Config 6 is "HULL AND RING
+WING NO.1 ONLY", so the ring wing is a **separate appendage** in his scheme and Config 1
+carries it **in addition to** the sternplanes.
+
+**Consequence, and it is not this arm's but it is this family's:** a body built to
+Liu & Huang's fully-appended definition (hull + sail + four sternplanes) and graded
+against Roddy's Config 1 vertical-plane `Z_w'` and `M_w'` would compare a body **without**
+a ring wing against measurements of a body **with** one. **The phrase "fully appended"
+is what carries the error**, and it reads as a specification. Which body is intended is a
+**registration decision**, not a modelling detail, and it determines which table may be
+cited.
+
+### E. THE MATCHED-Re SIBLING, AND ONE THING IT MAY NOT BE
+
+Registered as a **new case**, not a change to anything frozen: the same mesh and chain at
+**U = 3.343886 m/s**, landing Re_LBP on Roddy's **1.4248e7**. One solve on an already
+built mesh, and it converts this reported-not-graded arm into a gradeable one.
+
+**IT IS NOT A MEMBER OF A1b's FAMILY AND MAY NOT CONTRIBUTE TO ITS `CT` TRIPLE.** Matching
+Re_LBP to Roddy moves Re_LOA off A1b's registered 1.2e7. It is a **separate single-level
+solve for the A1e comparison only**, and that is stated here so no later reader folds it
+into the grid family it is not part of. A1b's Re_L = 1.2e7 is correct for its own gate and
+stays.
