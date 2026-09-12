@@ -1,0 +1,41 @@
+A3GC L2 -- CONVERGENCE PREDICTION, REGISTERED BEFORE THE RUN
+dafoam-supervisor, 2026-09-11. NOT A GATE. Registers nothing, moves no band.
+Written while L2's mesh was still generating and before any L2 solve existed.
+
+L0 DIAGNOSIS (the non-convergence ladder, step 0: diagnose before dialling)
+--------------------------------------------------------------------------
+A3GC L3 plateaued at p initRes 2.290e-05 against its registered 1e-6 floor.
+The archived transonic run on THIS GEOMETRY reached p initRes 3.733961e-07.
+
+MEASURED DIFFERENCES between the two setups:
+  system/fvSolution  ... IDENTICAL
+  system/fvSchemes   ... IDENTICAL
+  useWallFunction    ... present in both
+  transonicPCOption  ... archived only -- an ADJOINT preconditioner option.
+                         A3GC computes no adjoint (Sec.0), so its absence is
+                         correct and is NOT a candidate cause.
+  CELLS              ... archived 399,360   vs   A3GC L3 99,840
+
+So: same numerics, same schemes, same geometry, same solver settings, a 4x
+coarser mesh, and 61x worse convergence. THERE IS NO NUMERICS DIAL TO TURN
+BECAUSE EVERY DIAL IS ALREADY IDENTICAL TO THE SETUP THAT CONVERGED.
+
+PREDICTION
+----------
+A3GC L2 is 798,720 cells -- FINER than the archived 399,360 that reached
+3.73e-07. If mesh resolution is the driver of L3's plateau, then L2's limiting
+per-equation initRes should reach AT LEAST the archived level and therefore
+CLEAR A3GC's registered 1e-6 accept floor.
+
+FALSIFIED IF: L2's limiting initRes stays at or near L3's 2.29e-05, i.e. fails
+to improve by at least one order. That would mean mesh resolution is NOT the
+driver and the plateau needs a different explanation -- and it would make the
+A3GC ladder's coarse level a genuine dead end rather than a resolution artefact.
+
+WEAK EVIDENCE, STATED: this is a one-variable inference from two points on
+different meshes. It is a forecast, not a model, and it is NOT a reason to
+doubt a measurement that disagrees with it.
+
+NOT A GATE. Sec.3.6's floor and Sec.4.2's Roache limbs stand exactly as frozen.
+A3GC L3 remains NOT A RESULT on its own merits regardless of what L2 does.
+SUBMISSIONS PARKED.
