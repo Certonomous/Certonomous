@@ -821,3 +821,389 @@ uncommitted file pins nothing."*
 
 *Drafted 2026-09-12 by a cfd `lab-lane`. Submissions parked (rule 7). The repository is permanently
 private (rule 8). No agent's message is Sanaa's consent (rule 9).*
+
+---
+
+# §15. PRE-COMPUTE AMENDMENT — H-G2's CELL SIZE WAS COMING FROM THE COMMAND LINE — 2026-09-12
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** Read and approved by
+the cfd-supervisor before appending. **THIS SECTION SIGNS NOTHING.**
+
+**Rule 2 condition, and how it was checked.** Amendments before first compute are legal and must
+state the condition and how it was checked. **THE CONDITION: no compute has run under M6H1.
+HOW CHECKED: `verification/runs/M6H1_runs/` does not exist**, established by a reader **first shown
+able to see a populated directory** — `verification/runs/CRM_WINGALONE_runs`, 31 entries — before its
+absence was believed (rule 3), and confirmed a second way from the shell. **Every mesh built while
+measuring this was built in scratch, deliberately, so that this condition would still hold.**
+
+**THE THRESHOLD DOES NOT MOVE.** H-G2 remains **≥ 8 cells across the TE base at every spanwise
+station**. What changes is **which quantity the instrument computes**, and **where it gets it from**.
+
+---
+
+## §15.1 THE DEFECT: H-G2's CELL SIZE WAS COMING FROM THE COMMAND LINE
+
+§7 registers H-G2 as *"≥ 8 cells across the TE base at every spanwise station, and non-decreasing
+under refinement"*. `measure_te_base.py` took a **single scalar volume cell size from `argv[2]`** and
+divided the base thickness by it.
+
+**That works only for an ISOTROPIC cell.** §7.1's failing example is route (d)'s **octree** at
+*"0.04 cells across the base"* — and for a snappy cell the wall-normal size and the along-base size
+are **the same number**, so the two readings coincide and **the registration never had to choose a
+direction.**
+
+**THE M6H1 ROUTE BREAKS THAT COINCIDENCE.** Its cell at the trailing-edge base is about
+**1.654 × 10⁻⁶ m normal to the wall** and about **base ÷ n along the base**:
+
+| fed to the instrument | arithmetic | verdict |
+|---|---|---|
+| `s0 = 1.654e-6` (the wall-normal size) | 1.1366e-3 / 1.654e-6 = **687 cells** | **PASSES by 86×** |
+| the spacing along the base, at 2 cells | 1.1366e-3 / 5.68e-4 = **2 cells** | **FAILS by 4×** |
+
+> 🔴 **SAME MESH. SAME GATE. TWO ANSWERS THREE ORDERS OF MAGNITUDE APART, DECIDED ENTIRELY BY AN
+> ARGUMENT THE REGISTRATION CANNOT CONSTRAIN.**
+
+**This is the same class as §14.2's `r` and as the shock-exclusion clause §13.3 struck: a gate with a
+free parameter is not frozen however precise the number in it is.** It is arguably the most
+consequential instance yet, because it decides whether the registered topology is admissible at all.
+
+---
+
+## §15.2 THE RULING — THE STRICT READING, AND WHO MADE IT
+
+**RULED BY THE cfd-SUPERVISOR, pre-compute: H-G2's cell size is THE SPACING ALONG THE BASE IN THE
+WRAP DIRECTION, so the count is THE NUMBER OF CELLS LAID ACROSS THE BLUNT BASE.**
+
+**Why that is right and not merely strict.** §1.3's entire argument for abandoning the octree is
+**representability** — *"a snappy cell is isotropic and at the old route's level 4 the TE base was
+0.04 cells wide, i.e. not representable at all."* **Representability is about SPANNING the base, not
+about how thin the cells are normal to it.** A cell 1.654 × 10⁻⁶ m thick that spans the *entire* base
+in the wrap direction does not resolve the base — **it resolves the boundary layer.** Feeding `s0`
+measures a different geometric feature and answers a question nobody asked.
+
+**WHY THE LANE DID NOT DECIDE IT, RECORDED BECAUSE IT IS THE GENERAL TEST.** The two readings run in
+opposite directions, and **the lenient one makes the lane's own problem go away**: reading `s0` makes
+H-G2 trivially passable and dissolves the route difficulty the lane had been struggling with. A lane
+in that position is not the one to choose. **The contrast with §14.4a is the distinction that
+matters: that correction was found while implementing a clause that had never had an instrument —
+there was no failing verdict to escape. This one has one, so it does not get the same benefit of the
+doubt, and it was referred rather than taken.**
+
+---
+
+## §15.3 🔴 THE FIX IS NOT A BETTER ARGUMENT — IT IS NO ARGUMENT
+
+**Naming the right reading in the registration would have left the free parameter exactly where it
+was and merely documented it.** So the choice is removed instead:
+
+- **The count is DERIVED FROM THE MESH** — from the base solid's own constant-y stations, counting
+  the distinct thickness coordinates laid across the base. A hyperbolic extrusion carries the surface
+  distribution into the volume unchanged in that direction, so **the surface count IS the volume
+  count across the base.**
+- **The `argv` path is REMOVED.** If a cell size is still passed, the instrument states on stdout
+  that it was **IGNORED**, and why.
+- **If the count cannot be derived, the instrument DECLINES.** There is nothing to fall back to.
+
+> **AN INSTRUMENT THAT TAKES ITS MEASURED QUANTITY FROM ITS CALLER HAS A FREE PARAMETER UNLESS THE
+> REGISTRATION FIXES THE CALLER — AND A REGISTRATION CANNOT FIX A COMMAND LINE.**
+
+**This is the same repair as pinning a blob sha instead of a `git rev-parse` recipe, and the same as
+enumerating masked orifices instead of running a locator at grading time: remove the thing that can
+be chosen; do not annotate it.**
+
+### §15.3a THE CONTROL
+
+**Two plants into the input, at DIFFERENT counts**, so the arm cannot be satisfied by a reader that
+returns a constant: the base solid is **rebuilt on disk at exactly 3 cells and at exactly 11 cells**
+and the real reader is re-run on each. **DISCRIMINATION: a plant that changes only the base's CELL
+COUNT must not move the base THICKNESS that clause 1 grades.**
+
+**Measured on the H-L1 surface:** derived **3** (predicted 3) ok; derived **11** (predicted 11) ok;
+base thickness unmoved in both. On the delivered surface the derived count is **10 at every one of
+65 stations.**
+
+### §15.3b WHAT THE INSTRUMENT WILL NOT CLAIM
+
+**H-G2's second clause — *"non-decreasing under refinement"* — is a statement about THREE levels and
+is NOT dischargeable from one surface.** The instrument now says so on stdout rather than letting a
+single-level `PASS` read as the whole gate. **That is the same failure `measure_te_base.py` was
+convicted of for H-G0 one amendment earlier**, and it is not repeated here by omission.
+
+---
+
+## §15.4 WHAT THE SUPERVISOR MUST RE-PIN
+
+```
+cases/navier_class/M6H1/measure_te_base.py   0c6c97a8ce3b5f52826a9c1fae41f7870f0f876a  (STALE — H-G2 read argv)
+                                          -> 09058a8a4989860fef8944c8a23a58637738ac00
+```
+
+**This is the second re-pin of this file tonight**, and both were pre-compute. §14.6's list is
+otherwise unchanged and the build path is still unpinned.
+
+*Drafted 2026-09-12 by a cfd `lab-lane`. Submissions parked (rule 7). The repository is permanently
+private (rule 8). No agent's message is Sanaa's consent (rule 9).*
+
+---
+
+# §16. THE TOPOLOGY FALSIFIER — WRITTEN AND COMMITTED BEFORE THE EVIDENCE IT GOVERNS EXISTED
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** Its text was
+committed at `ad1e27388361804870b383fa23336c2963f6881d` **before the runs it governs were started**;
+that ordering is its entire evidentiary content and the commit is the proof of it. Addenda 1 and 2
+below were likewise committed before their own runs reported, and **neither alters the trigger.**
+
+**Rule 2 condition, and how it was checked.** **THE CONDITION: no compute has run under M6H1.
+HOW CHECKED: `verification/runs/M6H1_runs/` does not exist**, established by a reader **first shown
+able to see a populated directory** — `verification/runs/CRM_WINGALONE_runs`, 31 entries — before its
+absence was believed (rule 3). Every mesh in evidence was built in scratch so that this holds.
+
+**AUTHORITY FOR THE DESTINATION, RELAYED AND LABELLED AS RELAYED.** The cfd-supervisor reports
+Sanaa's words as *"onera M6 can get the c mesh and snappy hex or whatever it needs."* **This lane has
+not seen that turn.** Rule 9: a relayed instruction is not consent, and nothing here treats it as
+one — **it is recorded as the supervisor's stated basis for owning the route decision, and the route
+decision is the supervisor's either way.**
+
+---
+
+## §16.1 WHAT IS ALREADY MEASURED, SO THE RULE IS NOT WRITTEN IN IGNORANCE
+
+Single 201 × 65 block, O-topology closed through the blunt base, arc-length wrap, outward normals,
+`s0 = 1.6540e-6` and `marchDist = 16.152` as registered throughout.
+
+- **No configuration tested reaches ZERO bad layers.** The floor is **ONE bad layer of 96**, and
+  H-G1 is strict: `Min Quality > 0` at **every** layer. **One bad layer is `NOT A RESULT`, exactly
+  like ninety-six.** "Nearly clean" is not a verdict in this lab's vocabulary.
+- Base cells at `N = 97`, `cMax = 1.0`: `nb = 2` → 2 bad; `4` → 31; `6` → 2; `8` → 32;
+  **`10`, `12`, `16` → 96 bad, failing from LAYER 2.** A **cliff between 8 and 10**.
+- `cMax` is a **sharp** optimum at 1.0 (0.1 → 37, 0.5 → 36, 2.0 → 35, 3.0 → 13 bad).
+- **More smoothing is worse.** `volBlend` 5e-3 with `volSmoothIter` 500 → 37 bad.
+- **The failure is NOT the far field.** Marching to 0.10 m instead of 16.152 m — **160× shorter** —
+  still fails, at layer 81. Shrinking the domain moves the onset later in layer index and nothing
+  else.
+- The table is ordered by the **derived growth ratio**, not by distance: best at **r ≈ 1.115**.
+
+---
+
+## §16.2 🔴 THE DECISION RULE
+
+> **If no configuration across ALL FOUR axes below reaches ZERO bad layers — `Min Quality > 0` at
+> every marched layer, graded by `read_min_quality.py` and by nothing else — then the O-topology
+> closed through the blunt base is REFUTED for this geometry at these registered numbers, and the
+> route becomes C-type with a wake cut.**
+
+**THE FOUR AXES, and each is run at the working `cMax = 1.0` with `s0` and `marchDist` registered:**
+
+1. **`nb = 9` — §4's OWN PREDICTED VALUE, AND IT HAS NEVER BEEN TESTED.** The sweep ran 2, 4, 6, 8,
+   10, 12, 16; **9 sits exactly on the cliff edge and is the number the registration names.** It was
+   unbuildable until this evening because a lane-imposed equal-sides constraint excluded every odd
+   count — *a constraint of this lane's was excluding the registration's own number.*
+2. **The spanwise distribution.** Uniform throughout so far, **never tested against clustering.**
+3. **`splay`, and the explicit-BC path instead of `unattachedEdgesAreSymmetry`.**
+4. 🔴 **THE NORMAL COUNT `N`, AND THIS AXIS IS THIS LANE'S ADDITION TO THE SUPERVISOR'S RULE.**
+   Every result above was gathered at `N = 97`. Per §14.2, `r` is **derived** from `s0`, `N` and
+   `marchDist`, so at fixed `s0` and `marchDist` **the ratio is a function of `N` alone**:
+   `N = 97 → r = 1.1602`; **`N = 129 → r = 1.1150`**; `N = 161 → r = 1.0895`.
+   **The best march measured all evening sits at r ≈ 1.115, which is H-L2's registered normal count
+   and NOT H-L1's.** A falsifier that refuted the topology on `N = 97` evidence alone **could fire
+   for the wrong reason** — the defect would be H-L1's place in the family, not the topology — and
+   **a falsifier that can fire for the wrong reason is worse than no falsifier.** The axis is
+   therefore inside the rule.
+
+**IF IT CLEARS ON ANY AXIS:** the topology stands and what changes is a **number in §4**, by
+amendment, pre-compute.
+
+**IF IT CLEARS ONLY BY CHANGING `N` AT H-L1:** that is **not** a free pass. It would mean the three
+registered levels differ in **march stability** and not only in resolution — a **third** consequence
+of holding `s0` fixed while `N` rises, on top of §14.2a's non-similarity — and **H-G7 inherits it.**
+It is recorded here so that outcome cannot later be reported as a clean rescue.
+
+**IF IT CLEARS ON NONE:** the route changes, and **it changed by a rule written before the numbers
+existed rather than by anyone's reading of a matrix they had already seen.**
+
+---
+
+## §16.3 WHAT THIS SECTION DOES NOT DO
+
+- **It does not choose the route.** That is the supervisor's, and under rule 9 a relayed quotation
+  from Sanaa is not consent for anything.
+- **It does not authorise a C-topology build.** It states what result would require one.
+- **It signs nothing.** §12 and §13 are the supervisor's, personally and undelegated.
+
+*Drafted 2026-09-12 by a cfd `lab-lane`, BEFORE the governed runs were started. Submissions parked
+(rule 7). The repository is permanently private (rule 8). No agent's message is Sanaa's consent
+(rule 9).*
+
+---
+
+## §16.4 ADDENDUM 1 — A FIFTH AXIS, 2026-09-12. **THE TRIGGER IS NOT ALTERED.**
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** §16.2's trigger —
+*zero bad layers, `Min Quality > 0` at every marched layer, graded by `read_min_quality.py` and by
+nothing else* — **is unchanged. This addendum ADDS an axis that must be exhausted before the
+topology may be refuted. It cannot make refutation easier.**
+
+**Written and committed BEFORE the runs on this axis reported.**
+
+### WHY
+
+§16.1 recorded that the failure is not the far field. **It is now measured to be at a FIXED PHYSICAL
+DISTANCE**, and that kills the ratio hypothesis §16.2 axis 4 was written for:
+
+| N | derived r | first bad layer | **distance from the wall** |
+|---:|---:|---:|---:|
+| 97 | 1.1602 | 62 | **0.0892 m** |
+| 129 | 1.1150 | 81 | **0.0870 m** |
+| 161 | 1.0892 | 100 | **0.0874 m** |
+| 193 | 1.0727 | 118 | **0.0837 m** |
+
+**Four layer counts, four growth ratios, ONE physical location.** The march parameters change only
+how many layers it takes to arrive there. **There is no `r_max`**, and axis 4 is answered: more
+layers does not fix it.
+
+**AND THE SURFACE ITSELF IS THE SUSPECT, MEASURED:** at mid-span the spanwise spacing is
+**0.01943 m** and the wrap spacing at the leading edge is **2.174 × 10⁻⁵ m** —
+**an aspect ratio of 894 : 1**, against a median over the wrap of a healthy 2.7 : 1. Min Quality
+across **every** march tonight sits at 1 × 10⁻⁵ to 3 × 10⁻⁴, while the DAFoam tutorial's M6 runs at
+0.03 to 0.33. **These meshes are marginal everywhere, not only at the layers that go negative**, and
+the bad-layer count was being read as though the rest were sound.
+
+**The provenance is this lane's own over-correction.** The nose was genuinely under-resolved by
+cosine clustering *in x* (§14.5a's companion finding), and arc-length clustering cured it — by
+placing the first point **eighty times closer** to the nose, which created the 894 : 1 cell.
+
+### THE AXIS
+
+5. **SURFACE CELL ANISOTROPY.** The arc-length distribution is right; **full cosine on it is too
+   much.** The axis is the clustering strength, bounded so that the finest wrap cell is a sane
+   fraction of the spanwise spacing, at the **registered** `N = 97`.
+
+### AND THE CONSEQUENCE FOR EVERYTHING ALREADY MEASURED, STATED BEFORE THE RESULT IS KNOWN
+
+**Every conclusion in tonight's matrix was gathered on a surface carrying an 894 : 1 leading-edge
+cell** — the `nb` cliff between 8 and 10, `cMax`'s sharp optimum at 1.0, smoothing being worse, the
+`N` sweep, the `marchDist` sweep. **If the anisotropy is the binding defect, those conclusions are
+not weakened, they are VOID (L-566), and they must be re-run before any of them is used again.**
+That includes the base-count cliff, which was on its way to being treated as a route decision.
+
+**This is L-566's own trap, entered on the same night the lesson was written.** It is recorded here
+rather than discovered later.
+
+*Addendum drafted 2026-09-12 by a cfd `lab-lane`, before the axis-5 runs reported. The trigger is
+unchanged and refutation is not made easier by this addendum.*
+
+---
+
+## §16.5 ADDENDUM 2 — 🔴 A CORRECTION TO ADDENDUM 1's OWN COMMIT MESSAGE, 2026-09-12
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** The trigger is
+still unchanged.
+
+**ADDENDUM 1's COMMIT MESSAGE CONTAINS A FALSE STATEMENT AND THIS SECTION EXISTS TO CORRECT IT.**
+It said, of the axis-5 clustering sweep:
+
+> ~~*"Committed before the axis-5 runs reported; the clustering sweep had produced no results file at
+> the moment this was written, and that was checked rather than assumed."*~~ **STRUCK — FALSE.**
+
+**WHAT WAS ACTUALLY TRUE AT THAT MOMENT.** The results file existed and held exactly one line:
+`RC_a00_nb06=0`.
+
+**WHY THE ADDENDUM'S SUBSTANCE IS NEVERTHELESS UNAFFECTED, stated so a reader can check it rather
+than take it.** That line is a **process exit code**, and §14.5 of this registration is the measured
+proof that a pyHyp exit code carries **no information whatever** about mesh quality: *pyHyp exited 0,
+wrote 83,642,151 bytes, and produced a mesh that was entirely NaN.* Every march tonight, valid and
+invalid alike, exited 0. **No `pyhyp.log` had been read and no bad-layer count was known.** The
+addendum's fifth axis and its "conclusions are void, not weakened" statement were therefore written
+without knowledge of any outcome — **but that is an argument about substance, and the sentence in
+the commit message was false as written, so it is struck rather than explained away.**
+
+### 🔴 HOW A GUARD FAILED TO GUARD, WHICH IS THE PART WORTH KEEPING
+
+The check was written in one shell line as
+
+```
+test -f RESULTS && echo "WARNING results already exist" || echo "no results yet" && cat >> file
+```
+
+**It printed the warning and appended anyway.** `&&` and `||` are left-associative and of equal
+precedence, so the final `&& cat` binds to the *whole preceding chain*, which succeeds down either
+branch. **The guard reported; it did not gate.**
+
+**That is precisely the principle quoted in this case's own build driver one hour earlier** —
+*"ASSERTIONS DO NOT GATE. Every check is `... || { echo ABORT; exit N; }`. A guard set that is
+entirely assert-based is one interpreter flag from absent."* — **violated in the very next shell
+invocation, in the file that quotes it.** A guard whose failure branch is an `echo` is a comment.
+
+**The form that would have worked:** `test -f RESULTS && { echo ABORT; exit 1; }`.
+
+*Correction filed 2026-09-12 by the cfd `lab-lane` that made the error, on noticing it in its own
+command output. The trigger in §16.2 is unchanged by this section.*
+
+---
+
+# §17. PRE-COMPUTE AMENDMENT — THE DELIVERED BASE COUNT IS **8**, NOT §4's PREDICTED 9 — 2026-09-12
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.**
+**Rule 2 condition, and how it was checked.** **THE CONDITION: no compute has run under M6H1.
+HOW CHECKED: `verification/runs/M6H1_runs/` does not exist**, established by a reader **first shown
+able to see a populated directory** — `verification/runs/CRM_WINGALONE_runs`, 31 entries — before its
+absence was believed (rule 3). **No threshold moves: H-G2 is still ≥ 8.**
+
+## §17.1 THE MEASUREMENT
+
+Base cells laid across the blunt trailing edge, on the corrected surface, at the **registered**
+`N = 97`, `s0 = 1.6540e-6`, `marchDist = 16.152`, `cMax = 1.0`:
+
+| cells across the base | march result |
+|---:|---|
+| **8** | **96 layers, ZERO bad, min quality 9.0 × 10⁻⁵** |
+| 9 | 36 bad layers, first at 62 |
+| 10 | 95 bad layers, first at 3 |
+| 12, 16 | 96 bad, failing from layer 2 |
+
+## §17.2 🔴 §4 PREDICTS 9 AND 9 DOES NOT MARCH
+
+**§4's "cells across TE base" column is a PREDICTION. H-G2's `≥ 8` is the GATE.** 8 satisfies the
+gate, and **the choice was forced by marchability rather than selected by gate-shopping**: 9 gives
+36 bad layers and 8 gives zero. **A prediction being wrong is a finding; it is not a violation.**
+
+**And the cliff is one cell wide.** An earlier sweep appeared to place it between 8 and 10 — **that
+sweep was run on a surface carrying an 894 : 1 leading-edge cell and is VOID (L-566), not weakened.**
+Re-run on the corrected surface, **the boundary sits between 8 and 9.** A successor cannot
+reconstruct that from the numbers alone and it is recorded for them.
+
+## §17.3 WHAT THE DELIVERED LEVEL IS, AND WHAT IS STILL UNGRADED
+
+`cases/navier_class/M6H1/make_m6h1_surface.py` at **`N_BASE = 8`, `CLUSTER_ALPHA = 0.0`**, one block
+201 × 65 = **12,800 surface cells, exactly §4's prediction**. Graded on the **committed generator's
+own output**, by the frozen instruments:
+
+- **H-G0 PASS**, all three clauses — max t/c 9.7854 % against 9.7859 %, semispan 1.196300 m exact.
+- **H-G2 PASS** — count **derived** from the base strip over 65 stations: 8 and 8.
+- **H-G1, pyHyp clause, PASS** — 96 layers, zero bad, min 0.00009, median 0.00105.
+
+**THE COMMITTED FILE WAS NOT ASSUMED TO REPRODUCE THE VALIDATED SURFACE.** It was checked and **it
+did not, byte for byte**: 10 of 39,199 coordinates differ by up to **1.0 × 10⁻¹³ m**, last-digit
+noise from an algebraically equivalent expression. **In a march this delicate that is not obviously
+nothing, so the committed file's own output was RE-MARCHED** — 96 layers, zero bad, min 0.00009.
+**The artifact in the commit is the artifact that was graded.**
+
+🔴 **STILL UNGRADED, AND THEREFORE NOT CLAIMED: H-G1's OTHER HALF.** `checkMesh` has never been run
+on this mesh, so non-orthogonality, skewness, negative volumes and **the achieved cell count against
+§4's 1,241,600** are all unmeasured. **A mesh that marches is not yet a mesh OpenFOAM can solve on.**
+
+## §17.4 MEASURED COST (rule 12), 1 rank
+
+| step | wall | core-min |
+|---|---:|---:|
+| surface generation | 0.57–0.62 s | ~0.010 |
+| pyHyp march, H-L1 | 77 s | 1.28 |
+| **total, to a graded march** | **≈ 78 s** | **≈ 1.29** |
+
+**§9 registers ≈ 25 core-min for the H-L1 mesh build — about twenty times more.** **The
+`docs/COST_CALIBRATION.md` row is NOT filed**: the conversion chain is unwritten, so this is **not a
+completed process**, and an estimate-versus-actual row on a half-finished build is exactly the kind
+of number that gets quoted later.
+
+*Drafted 2026-09-12 by a cfd `lab-lane`. Submissions parked (rule 7). No agent's message is Sanaa's
+consent (rule 9).*
