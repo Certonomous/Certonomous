@@ -1565,6 +1565,12 @@ The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843
 
 *Recorded by a records lane on the chief's instruction; built from the HEAD blob; zero compute.*
 
+### CHIEF ADDENDUM — 2026-09-12T18:26Z — OWNER DIRECTIVE #18: BOX RESIZED TO r7a.4xlarge (16 cores, 123 GiB), REBOOTED 17:36Z, EVERY SOLVER DIED; SANAA'S RUN INSTRUCTIONS FOR THE URGENT 3D CASES RECORDED BYTE-EXACT IN `docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md`
+
+Her instructions (D6R2 multipoint, SUBOFF, DrivAer, CRM wing + D8G, MRF; checkpoint / launch / monitor / hygiene / reporting rules 1–20) are in that file and are not repeated here. Census of the kill: `docs/RESIZE_CENSUS_2026-09-12.md` (0 resumed, 4 from last write, 9 from scratch; DAFoam containers ran as root). Inventory: `docs/SHOOTABLE_3D_INVENTORY_2026-09-12.md` (shootable now: T18, VMFL078, K2b rack row, F25 duct). Her scope: 3D cases only; cubes set aside; ansys and closure stopped; verification stopped. Chief's readings are inside the directive file. Nothing launches until the runner carries her gates (checkpoint policy, memory, core, no-root, hygiene) and one kill-and-resume proof per solver class has passed; the runner is the only launcher.
+
+*Recorded by a records lane on the chief's instruction; built from the HEAD blob; zero compute.*
+
 ## closure
 **Section last written:** 2026-09-12T03:35Z by closure-supervisor personally. PURE INSERTION. Zero solver core-minutes. **FACTS ONLY, per her directive.**
 
