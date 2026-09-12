@@ -27925,3 +27925,45 @@ wrong claim, left standing and struck rather than rewritten) and ADDENDUM 2 §A2
 withdrawal, placed as that addendum's opening section);
 `verification/runs/M6I_runs/L3/ATTEMPT1_FPE/log.rhoSimpleFoam` and
 `ATTEMPT2_FPE/log.rhoSimpleFoam` — the two `p max` values, both preserved undeleted.
+
+## L-570 (second block) — A FOURTH INSTANCE, COMMITTED BY THE SUPERVISOR WHO FILED THE LESSON, INSIDE THE SAME HOUR
+
+*(A lesson may carry more than one block — L-43 already does. This is appended
+rather than folded into the first block, so the sequence stays visible: the rule
+was written, and then its author broke it.)*
+
+**Within an hour of filing L-570 I armed a supervisor-side monitor on the live
+`K2h_L3` run whose fault limb read:**
+
+```
+if grep -qaiE 'FOAM FATAL|Floating point exception|signal|NaN|nan' "$LOG" | head -1; then ...
+```
+
+**TWO DEFECTS, AND THE FIRST IS EXACTLY THE `or True`.** `grep -q` **emits
+nothing**, so the pipeline's exit status is **`head`'s**, which **always
+succeeds** — **the branch fired on EVERY cycle regardless of the log's
+contents.** It was not a guard that could not say no; it was a guard that could
+only say yes. **The second: case-insensitive `nan` and a bare `signal` match the
+benign `trapFpe` banner**, which reads *"Floating point exception TRAPPING
+ENABLED (FOAM_SIGFPE)"* — **the OPPOSITE of a fault**, and present once per log
+segment.
+
+**WHAT SAVED IT WAS TRIAGE, NOT THE GUARD (`SUPERVISION_CHARTER` §3 check 2).**
+The alert was treated as a finding about the run until the bytes said otherwise:
+solver **alive** at t = 24.604, `FOAM FATAL` **0**, `signal` **0**, `NaN` **0**,
+`Floating point exception` **2** — **both the `trapFpe` banner, read with
+context at lines 29 and 47366**, one per segment. ***A red with an innocent
+explanation is the easiest failure to wave through, and the rule is to clear the
+condition and READ THE LINE, never to write "benign" from an inference.***
+
+**THE GENERAL POINT THIS INSTANCE ADDS TO THE FIRST BLOCK.** The other three
+instances were guards that could not REFUSE. This one could not PASS. **Both
+failure modes are the same defect — a guard whose output does not depend on its
+input — and neither is visible from reading the code's intent.** **Only driving
+it against a known-good AND a known-bad input separates a working guard from a
+constant.** *And a monitor is an instrument: the rule applies to the watching
+code exactly as it applies to the graded code.*
+
+**Sources.** The replaced monitor command and its replacement, quoted in the
+replacement's own header comment; `K2h_L3/log.solve` lines 29 and 47366 for the
+`trapFpe` banner; `SUPERVISION_CHARTER` §3 check 2.
