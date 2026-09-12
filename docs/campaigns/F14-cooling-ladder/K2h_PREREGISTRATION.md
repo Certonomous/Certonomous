@@ -310,3 +310,101 @@ family; **it is not used on a mixed triple, which §3 forbids outright.**
 `analyse_k2h.py` and the launcher are written against this document after the
 freeze and are pinned by the commit that adds them, in the manner of K2g's
 `launch_k2g.sh`.
+
+---
+
+## AMENDMENT 1 — 2026-09-12, PRE-COMPUTE: R4 SUSPENDED FOR TRANSIENT LEVELS, BECAUSE IT WOULD STOP THIS RUN FOR DOING EXACTLY WHAT IT IS FOR
+
+**Version 1.0 → 1.1. This is a PRE-COMPUTE AMENDMENT under `CLAUDE.md` rule 2,
+first bullet — not a post-freeze addendum.** Appended at the foot so that **lines
+whose number changed above this section: 0**.
+
+**THE CONDITION, AND HOW IT WAS CHECKED.** No compute has been spent against this
+document. Checked by listing
+`verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3`, which contains **only
+`system/`** (four dictionaries). **ABSENT, each named and each verified absent:**
+`K2h_L3/0`, `K2h_L3/log.solve`, `K2h_L3/processor0`, `K2h_L3/postProcessing`,
+`K2h_L3/PIDS.solver` and `K2h_runs/STATUS.K2h_L3`. No solver has started, so
+amendments are legal and gates are still open.
+
+**NOTHING BELOW ALTERS A GATE, A THRESHOLD, A BAND OR A LABEL.** §5's
+`S-SETTLE` 0–42 s and `S-WINDOW` 42–112 s stand; §6's `G-DPBAR` band
+[27.9699, 28.0901] m²/s² stands; §6's `D-STATIONARY` 5.0e-03 m²/s² and
+`D-COMPLETE` stand; §7's five predictions stand; §8's POINT 420 / cap 1260 stand.
+Only the **run-control stop rules** change.
+
+### A1.1 The defect being repaired, stated as physics
+
+Monitor rule **R4 fires on coherent oscillation in the graded quantity and stops
+the run.** On K2g's steady L3 that was correct and it is why this rung exists. **On
+a transient level it would be a FALSE STOP: a coherently oscillating `DP_module`
+is the signal this rung is built to measure, not a fault.** R4 would very likely
+fire inside the settling period and end the run before `S-WINDOW` opened.
+
+> **R4 IS SUSPENDED FOR TRANSIENT LEVELS ONLY. IT REMAINS IN FULL FORCE FOR
+> STEADY LEVELS.** Nothing here retires the rule that produced tonight's finding;
+> a steady solve whose graded quantity oscillates coherently is still being
+> measured by the wrong instrument and still stops.
+
+### A1.2 What stops this run instead — replaced, not removed
+
+A level with no stop rule is worse than one with a wrong rule. **Armed for
+`K2h_L3`, all three detectable by `monitor_k2g.py` as written:**
+
+| rule | condition | detectable? |
+|---|---|---|
+| **R1** residual growth | mean(last 100)/min(last 400) > 2.0 on `Ux`, `T` or `p_rgh` | **YES** — per-step initial residuals, and a diverging transient rises exactly as a diverging steady solve does |
+| **R2** field out of bounds | any non-finite (NaN/inf) residual, or \|`DP_module`\| > 1000 m²/s² | **YES** |
+| **R3** dead linear solver | `DP_module` drift < 1e-5 over 500 steps **while** the `p_rgh` solver is at its iteration cap in ≥ 90 of the last 100 | **YES** — and on a transient it means the oscillation died *while* the pressure solve stalled, which is a fault and not settling |
+
+**DESIRABLE AND NOT DETECTABLE by the monitor as written, named rather than
+implied:** the `fieldAverage` accumulator failing to advance, and the window
+average failing to stabilise. **The monitor reads the `dp_tile`/`dp_return`
+function-object output and does not read the `fieldAverage` fields at all**, so
+neither can be a run-time stop without editing the instrument, and the instrument
+is not edited to make a rule true. **Both are covered at GRADE time instead, and
+the coverage already exists:** §6's `D-STATIONARY` compares the two halves of
+`S-WINDOW` and returns **`NOT A RESULT`** if they differ by more than 5.0e-03
+m²/s², and §6's `D-COMPLETE` requires the `fieldAverage` means present at
+`endTime`. The cost of that placement is honest and is stated: a non-stabilising
+average is caught **after** the spend rather than during it.
+
+### A1.3 How the suspension is delivered — additively, with the absence visible
+
+`monitor_k2g.py` takes a new **optional 5th argument**, a comma-separated list of
+rule ids to suspend, **defaulting to suspending nothing**. Every existing call
+site, `resume_k2g.sh` included, keeps every rule with no change, and **nothing
+about the K2g run this instrument already stopped is altered** — its
+`ACTION_HISTORY.K2f_L3.tsv`, `STOP_RULE_FIRED.R4.txt` and `MONITOR.K2f_L3.tsv`
+are on disk and untouched. `stage_and_run_k2h.sh` passes `R4`. The monitor writes
+**`RULES_SUSPENDED.txt`** beside the case, so a reader sees the absence on disk
+rather than inferring from silence that every rule was armed and none fired.
+**The instrument is extended, never edited to say something different.**
+
+### A1.4 Amending §3 with the sharper reason, in the words the measurement earns
+
+§3's clause stands unchanged. **Its ground is strengthened, and §2's measurement
+is what strengthens it:**
+
+> **The Δp amplitude grows 3.11e-04 → 3.70e-03 → 2.80e-02 m²/s², roughly an
+> order of magnitude per level. THE UNSTEADINESS IS BEING RESOLVED BY
+> REFINEMENT, NOT CREATED BY IT** — a physics result about this module, and the
+> honest headline of this rung.
+>
+> Therefore: **`K2f_L2`'s steady value is already a time-slice of a
+> non-stationary state, so a mixed triple's MIDDLE point is not a converged
+> fixed point either** — not only its finest. That is a stronger reason for the
+> all-transient family than §3's original one and it replaces it as the
+> governing reason.
+
+**AND THE LIMIT, CARRIED WITH EQUAL WEIGHT BECAUSE SOMEONE WILL OTHERWISE QUOTE
+THE SIX Δp SAMPLES AS EVIDENCE OF STEADINESS:** `K2f_L1` and `K2f_L2` carry no Δp
+monitor. Their only Δp series is **six checkpoints 500 iterations apart**, against
+an oscillation whose period is **~85 iterations**. That sampling **aliases the
+signal completely.** The checkpoint table in §2(b) therefore cannot demonstrate
+steadiness at either level and must never be cited as if it could; **only the
+un-aliased per-iteration residual series in §2(a) can speak**, and it finds L1
+dead flat at 5.05e-11 and L2 limit-cycling at a 1e-4 floor.
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*

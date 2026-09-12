@@ -154,7 +154,10 @@ chmod +x "$CASE/.k2h_inner.sh"
 setsid bash "$CASE/.k2h_inner.sh" "$CASE" "$RANKS" "$HERE" </dev/null > "$CASE/.k2h_outer.out" 2>&1 &
 echo $! > "$CASE/PIDS.solver"
 setsid python3 "$REPO/verification/runs/F14-cooling-ladder/K2g_runs/monitor_k2g.py" \
-  "$CASE" "$RANKS" "$POINT_CORE_MIN" "$CAP_CORE_MIN" </dev/null > "$CASE/.monitor_outer.out" 2>&1 &
+  "$CASE" "$RANKS" "$POINT_CORE_MIN" "$CAP_CORE_MIN" R4 </dev/null > "$CASE/.monitor_outer.out" 2>&1 &
+# ^ R4 is SUSPENDED for this TRANSIENT level, registered in K2h_PREREGISTRATION.md
+#   AMENDMENT 1 (pre-compute, rule 2). R1, R2 and R3 stay ARMED. The monitor writes
+#   RULES_SUSPENDED.txt beside the case so the absence is visible on disk.
 echo $! > "$CASE/PIDS.monitor"
 say "LAUNCHED solver_sid=$(cat "$CASE/PIDS.solver") monitor_sid=$(cat "$CASE/PIDS.monitor") ranks=$RANKS"
 say "  NO killing timeout. Stops come only from the registered rules, through ABORT."

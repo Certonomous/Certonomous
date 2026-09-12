@@ -135,11 +135,30 @@ def _fire(case, rule, detail):
 
 
 def main(argv):
-    if len(argv) != 4:
+    # The optional 5th argument is a comma-separated list of rule ids to SUSPEND.
+    # It is ADDITIVE and defaults to suspending NOTHING, so every existing call
+    # site -- resume_k2g.sh's included -- keeps every rule with no change, and
+    # nothing about the K2g run this instrument already stopped is altered: its
+    # ACTION_HISTORY, STOP_RULE_FIRED.R4.txt and MONITOR tsv are on disk and are
+    # untouched. A suspension must be REGISTERED in a pre-registration before the
+    # solver starts; it is not an operator convenience, and the monitor records
+    # the suspension beside the run so a reader sees which rules were NOT armed.
+    if len(argv) not in (4, 5):
         print(__doc__)
         return 2
     case, ranks = os.path.abspath(argv[0]), int(argv[1])
     point, cap = float(argv[2]), float(argv[3])
+    suspended = set()
+    if len(argv) == 5:
+        suspended = {a.strip().upper() for a in argv[4].split(",") if a.strip()}
+    if suspended:
+        with open(os.path.join(case, "RULES_SUSPENDED.txt"), "w") as fh:
+            fh.write("%s\nRULES NOT ARMED FOR THIS RUN: %s\n\nA suspended rule "
+                     "cannot fire and cannot stop this run. This file exists so a "
+                     "reader of the run sees the absence, rather than inferring "
+                     "from silence that every rule was armed and none fired.\n"
+                     % (time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                        ", ".join(sorted(suspended))))
     log = os.path.join(case, "log.solve")
     tsv = os.path.join(case, "MONITOR.K2f_L3.tsv")
 
@@ -290,7 +309,7 @@ def main(argv):
                           "mesh -> numerics -> model. Do not relax the solver."
                           % (drift, R3_WINDOW, stalled))
 
-            if "R4" not in fired and len(dp_hist) >= R4_WINDOW:
+            if "R4" not in fired and "R4" not in suspended and len(dp_hist) >= R4_WINDOW:
                 win = [d for _i, d in dp_hist[-R4_WINDOW:]]
                 inc = [b - a for a, b in zip(win, win[1:])]
                 flips = sum(1 for a, b in zip(inc, inc[1:]) if a * b < 0)
