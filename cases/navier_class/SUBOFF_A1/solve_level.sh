@@ -31,6 +31,29 @@
 # ones no rank-derived memory bound covers, so they are exactly the ones worth measuring.
 set -u
 CASE="$1"; RANKS="$2"; MIN_AVAIL_GIB="$3"
+# AMENDMENT 2026-09-12 -- RESUME MODE.  OPTIONAL 4th ARGUMENT; ABSENT => BYTE-IDENTICAL
+# BEHAVIOUR TO EVERY RUN THIS SCRIPT HAS EVER DRIVEN.  Authorised by the cfd-supervisor
+# on Sanaa's ruling of 2026-08-26, "BOOKKEEPING NEVER VOIDS PHYSICS": a 96-core reboot was
+# about to throw away 45 iterations of good physics because a shell redirect character
+# meant the ExecutionTime LINE COUNT would not reach endTime.  The physics was never in
+# question; the COUNTING was.  This repairs the counting.  NO GATE, THRESHOLD, CAP OR
+# LABEL IS MOVED -- Gate C still requires `ExecutionTime count == round(endTime/deltaT)`
+# and this change is what lets a resumed run SATISFY it honestly rather than be excused
+# from it.
+#   RESUME=1  =>  the solver log is APPENDED to (`>>`) instead of truncated (`>`), so the
+#                 ExecutionTime lines of the original and the resumed segment accumulate
+#                 in one file and the registered count test reads what was ACTUALLY run;
+#             =>  monitor stop S5's solver-artifact limb is satisfied DELIBERATELY rather
+#                 than disabled: a resume REQUIRES log.simpleFoam and postProcessing/ to
+#                 exist, so their presence is the precondition, not the violation.  S5's
+#                 PURPOSE -- never launch into a tree holding an answer you did not
+#                 produce -- is preserved by the checkpoint assertions below, which refuse
+#                 unless a COMPLETE checkpoint exists in EVERY processor tree.
+#   THIS GENERALISES.  Every resumed OpenFOAM case in this lab inherits the same defect
+#   (DrivAer medium and K2h are the known others).  The pattern here -- append the log,
+#   make S5 resume-aware, assert the checkpoint across ALL ranks -- is the repair, not a
+#   SUBOFF-local patch.
+RESUME="${4:-0}"
 S="$CASE/STATUS.solve"
 
 avail=$(free -g | awk '/^Mem:/{print $7}')
@@ -41,16 +64,42 @@ if [ "$avail" -lt "$MIN_AVAIL_GIB" ]; then
   echo "80" > "$CASE/solve_rc"; exit 80
 fi
 
-for e in "$CASE"/[0-9]* ; do
-  b=$(basename "$e")
-  if [ "$b" != "0" ] && [ -e "$e" ]; then
-    { echo "VERDICT=BLOCKED"; echo "reason=S5_time_dir_present"; echo "entry=$b"; } > "$S"
+if [ "$RESUME" != "1" ]; then
+  for e in "$CASE"/[0-9]* ; do
+    b=$(basename "$e")
+    if [ "$b" != "0" ] && [ -e "$e" ]; then
+      { echo "VERDICT=BLOCKED"; echo "reason=S5_time_dir_present"; echo "entry=$b"; } > "$S"
+      echo "81" > "$CASE/solve_rc"; exit 81
+    fi
+  done
+  if [ -e "$CASE/log.simpleFoam" ] || [ -e "$CASE/postProcessing" ]; then
+    { echo "VERDICT=BLOCKED"; echo "reason=S5_solver_artifact_present"; } > "$S"
     echo "81" > "$CASE/solve_rc"; exit 81
   fi
-done
-if [ -e "$CASE/log.simpleFoam" ] || [ -e "$CASE/postProcessing" ]; then
-  { echo "VERDICT=BLOCKED"; echo "reason=S5_solver_artifact_present"; } > "$S"
-  echo "81" > "$CASE/solve_rc"; exit 81
+else
+  # RESUME PRECONDITIONS.  STRICTER THAN S5, NOT LOOSER.  A resume that cannot name a
+  # COMPLETE checkpoint in EVERY rank's tree is refused -- a checkpoint present in one
+  # tree and partial in another is not a checkpoint, and resuming from one would produce
+  # a silently wrong field set rather than an error.
+  if ! grep -qE '^[[:space:]]*startFrom[[:space:]]+latestTime[[:space:]]*;' "$CASE/system/controlDict"; then
+    { echo "VERDICT=BLOCKED"; echo "reason=RESUME_startFrom_not_latestTime"; } > "$S"
+    echo "82" > "$CASE/solve_rc"; exit 82
+  fi
+  LATEST=""
+  for t in $(ls -d "$CASE"/processor0/[0-9]* 2>/dev/null | xargs -n1 basename 2>/dev/null | sort -n); do
+    [ "$t" = "0" ] && continue
+    ok=1
+    for r in $(seq 0 $((RANKS-1))); do
+      n=$(ls "$CASE/processor$r/$t" 2>/dev/null | wc -l)
+      [ "$n" -ge 6 ] || ok=0
+    done
+    [ "$ok" = "1" ] && LATEST="$t"
+  done
+  if [ -z "$LATEST" ]; then
+    { echo "VERDICT=BLOCKED"; echo "reason=RESUME_no_complete_checkpoint_in_all_ranks"; } > "$S"
+    echo "83" > "$CASE/solve_rc"; exit 83
+  fi
+  { echo "resume=1"; echo "resume_from_verified=$LATEST"; } >> "$S"
 fi
 
 set +u
@@ -67,23 +116,55 @@ cd "$CASE" || { echo "90" > "$CASE/solve_rc"; exit 90; }
 # The age guard (rule 4) dates the run from 0/ -- touch it LAST before the solver,
 # so every field at endTime must be strictly newer than it.
 touch 0/U 0/p 0/k 0/omega 0/nut
+# AMENDMENT 2026-09-12b -- STATUS.solve IS PRESERVED ACROSS A RESUME, NOT TRUNCATED.
+# `> "$S"` destroys the previous segment's cost record.  That record is the ONLY
+# artifact carrying the killed segment's decomposePar and simpleFoam core-minutes, and
+# rule 12's calibration row is owed for BOTH segments.  On a resume the existing file is
+# moved aside to STATUS.solve.segment<N> before the new one is opened; nothing is lost
+# and no reader's key names change.
+if [ "$RESUME" = "1" ] && [ -f "$S" ]; then
+  n=1; while [ -e "$S.segment$n" ]; do n=$((n+1)); done
+  mv "$S" "$S.segment$n"
+fi
 { echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"; echo "ranks=$RANKS";
-  echo "available_GiB_at_launch=$avail"; } > "$S"
+  echo "available_GiB_at_launch=$avail";
+  echo "resume=$RESUME"; } > "$S"
+[ "$RESUME" = "1" ] && echo "resume_from_verified=$LATEST" >> "$S"
 T0=$(date +%s)
 
+# AMENDMENT 2026-09-12b -- decomposePar IS SKIPPED ON A RESUME, AND THIS IS THE WHOLE
+# POINT OF THE RESUME.  `decomposePar -force` DELETES every existing processor*/
+# directory and rebuilds them from 0/.  Run on a resume it would destroy the very
+# checkpoint the resume exists to continue from -- the run would silently start at
+# iteration 0 with a log that says "resume", which is the exact outcome Sanaa's ruling
+# forbids, and it would be UNDETECTABLE after the fact because the evidence is what gets
+# deleted.  MEASURED ON THIS CASE: SOLVE_L2/processor{0,1,2,3}/60 hold 8 files each,
+# 21:29Z; a `-force` decomposition removes all four trees.
+# The serial-phase cost keys are still written, with SKIPPED values, so no reader that
+# expects them reads a missing key as a zero.
 TD0=$(date +%s)
-/usr/bin/time -v -o time.decomposePar.solve decomposePar -force > log.decomposePar.solve 2>&1; RC=$?
-TD1=$(date +%s)
-DPEAK=$(grep "Maximum resident set size" time.decomposePar.solve | grep -oE "[0-9]+$")
-{ echo "decomposePar_rc=$RC";
-  echo "decomposePar_wall_s=$((TD1-TD0))";
-  echo "decomposePar_ranks=1   # SERIAL -- the log says nProcs : 1";
-  echo "decomposePar_core_min=$(echo "($TD1-$TD0)*1/60" | bc -l)";
-  echo "decomposePar_peak_rss_kB=${DPEAK:-UNMEASURED}"; } >> "$S"
-if [ "$RC" -ne 0 ]; then echo "$RC" > solve_rc; exit "$RC"; fi
+if [ "$RESUME" = "1" ]; then
+  TD1=$TD0; RC=0
+  { echo "decomposePar_rc=0";
+    echo "decomposePar_wall_s=0";
+    echo "decomposePar_ranks=1";
+    echo "decomposePar_core_min=0   # SKIPPED ON RESUME -- see AMENDMENT 2026-09-12b";
+    echo "decomposePar_SKIPPED_RESUME=1";
+    echo "decomposePar_peak_rss_kB=SKIPPED_RESUME"; } >> "$S"
+else
+  /usr/bin/time -v -o time.decomposePar.solve decomposePar -force > log.decomposePar.solve 2>&1; RC=$?
+  TD1=$(date +%s)
+  DPEAK=$(grep "Maximum resident set size" time.decomposePar.solve | grep -oE "[0-9]+$")
+  { echo "decomposePar_rc=$RC";
+    echo "decomposePar_wall_s=$((TD1-TD0))";
+    echo "decomposePar_ranks=1   # SERIAL -- the log says nProcs : 1";
+    echo "decomposePar_core_min=$(echo "($TD1-$TD0)*1/60" | bc -l)";
+    echo "decomposePar_peak_rss_kB=${DPEAK:-UNMEASURED}"; } >> "$S"
+  if [ "$RC" -ne 0 ]; then echo "$RC" > solve_rc; exit "$RC"; fi
+fi
 
 TS0=$(date +%s)
-/usr/bin/time -v -o time.simpleFoam.solve mpirun -np "$RANKS" simpleFoam -parallel > log.simpleFoam 2>&1; RC=$?
+/usr/bin/time -v -o time.simpleFoam.solve mpirun -np "$RANKS" simpleFoam -parallel >> log.simpleFoam 2>&1; RC=$?
 TS1=$(date +%s); T1=$TS1
 SPEAK=$(grep "Maximum resident set size" time.simpleFoam.solve | grep -oE "[0-9]+$")
 { echo "simpleFoam_rc=$RC";
