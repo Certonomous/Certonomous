@@ -3096,3 +3096,179 @@ compute.
 | that the failure threshold scales with cell size | **NO — still UNTESTED**, exactly as the triage's SECOND ADDENDUM corrected. R4-A tested `h0` at fixed grid, not grid at fixed `h0`; R4-B (512×128) was cancelled when no rung survived. |
 | that the comparator's answer-reading path is validated | **NO.** Both registered plants were unreachable behind the refusal. Zero live plant firings across R3 and R4-A. |
 | that R3's remedy worked in any degree | **NO.** `h0` 1e-7 → 1e-5 produced the same `rc=136` at the same level with a byte-identical trace. The freeze predicted this clause as its own risk at `§6.10` and the prediction held. |
+
+
+## Row #80 — VMFL072-R5 — Liquid Water Flow Over a Flat Plate Under Gravity, `kinematicSingleLayer` under `reactingParcelFoam` (inert), single grid 256×64 (VM2026R1 printed pp. 211–212, Roy & Jain 1989) — **`NOT A RESULT`**
+
+Graded **2026-09-12T02:51:11Z** (`GRADING_VMFL072_R5.rc`: `grade_rc=3`,
+`comparator_blob=322aad89…`); row written 2026-09-12 UTC by an `ansys-verification`
+lane (`ansys-lane-opus`).
+
+Frozen pre-registration `cases/ansys_verification/VMFL072-R5/PREREGISTRATION.md`, freeze
+commit **`3e06a6678de8f32dcf89c99e2f54efaff80f6001`** (2026-09-12T02:13:51Z), prereg blob
+**`1da5f43150679e6bd2fa874ec28bc24b4bcd5d51`** — `git hash-object` on disk **==** the blob
+at the freeze commit **==** the blob at HEAD, re-hashed by this lane. **The freeze
+history is stated, not tidied:** the original freeze was **`855b2b61ab5ef2aa52158eca34f26a84c8d0bc42`**
+(02:02:34Z) carrying prereg blob **`d863f09d9047e54e4ea0b63739e41a30ef1e0645`**; it was
+amended **before any compute** under rule 2 — the amendment's §C states the condition and
+how it was checked (run root `verification/runs/ansys_verification/VMFL072-R5` **absent**,
+re-asserted in the committing invocation). **The freeze preceded compute by 80 s**:
+`3e06a667` at 02:13:51Z, launch 02:15:11Z (`LAUNCH_RECORD.txt`).
+
+Comparator **`compare_vmfl072_r5.py`**, grading-path blob
+**`322aad89a5c3aad9369f22e25e8ad9df3c354899`** — disk **==** pin **==** HEAD, re-hashed by
+this lane. Transitive dependency pinned inside it: R4-A's comparator
+`cases/ansys_verification/VMFL072-R4-A/compare_vmfl072_r4a.py`, blob
+**`ca2c73c70ce72a9aa12cf436a482ba83246158f1`** (`LAUNCH_RECORD.txt` records the pin and
+the match).
+
+### THE VERDICT
+
+**`NOT A RESULT`.** The frozen comparator **refused, exit 3**, at completion clause
+**`C-04`**, and the whole of its verdict line is its own registered text
+(`GRADING_VMFL072_R5.log`):
+
+> `DOES NOT SURVIVE  (max|Uf|=8.312e-01)  C-04: missing film field wallFilmRegion/Tf at endTime`
+
+**The answer path never executed.** `FilmRun` — the object that loads the film geometry and
+reduces `deltaf` to `δ_mon` — is constructed *after* the survival check and was never
+reached. **No lab value, no interval, no GCI, and none may be quoted.**
+
+### THE REFERENCE AND THE GATE THAT WAS NEVER REACHED
+
+| | |
+|---|---|
+| manual reference | **0.555 mm** film thickness, Roy & Jain 1989, VM2026R1 **printed pp. 211–212**, Table .72.1 (title-page verified under rule 15) |
+| registered band (Limb-A) | **`[0.543234, 0.566766]` mm** (**±2.12 %**), `PREREGISTRATION.md:163`, `:327–328` |
+| registered ceiling label | **`GATE REACHED`** — `:328`, `:339–340`. **NEVER `PASS`.** R5 is **single-grid by registration** (`:275–278`): *"A Roache triple L1/L2/L3 (128×32 / 256×64 / 512×128 film) is **R5-B**, a separate freeze"*. A `PASS` from one grid would be uninterpretable under rule 5, and the freeze says so in advance. |
+| was the band evaluated? | **NO. NEVER REACHED.** The refusal is upstream of every reduction. |
+
+### THE THREE FACTS THAT MATTER MOST
+
+**(a) THIS IS THE FIRST VMFL072 RUN IN THE R2 → R3 → R4-A CHAIN THAT DID NOT SIGFPE.**
+Six crashes across three freezes ended at a byte-identical `calcReciprocalD` trace
+(Rows #78, #79). R5 did not. Every non-field limb of rule 4 holds, measured from
+`RC.txt` and the run tree:
+
+| rule-4 limb | registered | measured | |
+|---|---|---|---|
+| `rc` | 0 | **0** (`RC.txt`: `rc = 0`, `state = FINISHED`) | ✅ |
+| `End` line | present | **present** | ✅ |
+| last time == `endTime` | 8.0 | **8.0** | ✅ |
+| `ExecutionTime` count | 8 000 (`endTime` 8.0 ÷ `deltaT` 1e-3) | **8 000** (`RC.txt`: `ExecutionTime_lines = 8000`) | ✅ |
+| written time dirs | 160 | **160** (161 on disk incl. `0`) | ✅ |
+| **fields at `endTime`** | `deltaf Uf Tf` + primary | **`Tf` ABSENT** | ❌ **C-04** |
+
+**The film shell integrated 8 000 steps to completion and stayed bounded** —
+`max|Uf| = 8.312e-01` m/s against a gate that exists to catch the runaway that killed
+A2/A3 at 1e+11 and 1e+14 m/s. The physics fix worked. **The grade still fails, and it
+fails on bookkeeping, not on the solve.**
+
+**(b) THE REFUSAL IS A MISSING *INERT* FIELD, AND IT IS A SPECIFICATION ERROR FROZEN
+BEFORE COMPUTE.** `kinematicSingleLayer` **never writes `Tf` at any of the 160 time
+directories.** This lane read the tree: `8/wallFilmRegion/` contains `Uf alpha deltaf muf
+phi rhof sigmaf` and no `Tf`; `Tf` exists only at `0/wallFilmRegion/Tf` and
+`0.orig/wallFilmRegion/Tf`, i.e. as initial data the model never writes back. **The
+kinematic model with `filmThermoModel constant` carries no energy equation**, so there is
+no `Tf` for it to advance or write.
+
+**The pre-registration contradicts itself on this field, and the contradiction is the
+finding.** `§4` at `:247–248` states *"`Tf` is **inert** — carried only because the region
+model constructs the field"*. `§5` at `:289` then registers *"fields `deltaf Uf Tf` (film)
+… present at [`endTime`]"* as a **required** completion limb. **A field the freeze itself
+calls inert was registered as a survival requirement.** That is a prediction-first
+specification error — **and it was frozen before compute, so it is binding.** The
+comparator did exactly what it was frozen to do; the gate is not moved, not reinterpreted,
+and not waived by this row.
+
+**(c) THE RULE-3 PLANTED CONTROL DID NOT FIRE — AND HAS NEVER FIRED LIVE IN THIS FAMILY.**
+The plant sits downstream of the survival check and was never reached. **Across R2, R3,
+R4-A and now R5 — every refusal has been a completion refusal that never reached the
+reader.** So after four runs, **the answer-reading path of this case family's comparators
+has still never been exercised on live data**, and this row carries **no
+instrument-validation evidence for it**. The debt named in Rows #78 and #79 is **not
+discharged here; it grows.** The first VMFL072 run that survives completion must fire its
+plant before its number is believed.
+
+### ⚠ A FALSE LINE IN THE FROZEN COMPARATOR'S OUTPUT — disclosed, NOT edited (rule 6)
+
+`compare_vmfl072_r5.py:718` appends **canned** text to every non-survival escalation
+block, and `GRADING_VMFL072_R5.log` therefore carries it verbatim:
+
+> `(rc=136 here = the SAME crash as the five-crash chain.)`
+
+**THAT SENTENCE IS FALSE FOR THIS RUN. `rc = 0`. There was no crash and no SIGFPE.** The
+line is emitted unconditionally from the `except` branch and was written on the assumption
+that a non-survival could only be the SIGFPE. **The frozen file is NOT edited** — rule 6.
+The defect is disclosed here, at the top of the record rather than in a closing paragraph,
+so that no reader of that log is misled: **the only true statement in that block about
+this run's exit code is `rc = 0`, from `RC.txt`.**
+
+### THE ESCALATION FIRED — ON A CLAUSE IT WAS NOT WRITTEN FOR
+
+`§7` (`:436`, `:448–451`) registers in advance: if R5 does **not** survive, *"the
+`kinematicSingleLayer` approach is **ABANDONED for VMFL072** and the successor is the
+**VOF re-formulation (`interFoam`)**, anchored to VMFL069-R2's completed L1/L2/L3
+`interFoam` triple"*. The comparator emitted exactly that block.
+
+**But the condition it fired on is a missing inert field, not the crash the clause was
+written for.** `§7`'s antecedent is *"C-08a completion fail **OR** C-08b breach"* — and
+`C-04` is inside `check_completion`, so the clause fired **as frozen and as written**.
+Whether an abandonment triggered by a field-presence bookkeeping clause, on a run that
+**did not crash and stayed bounded**, actually **binds** the family is
+**THE SUPERVISOR'S OPEN RULING. THIS ROW DOES NOT DECIDE IT** and takes no position on
+whether `kinematicSingleLayer` is abandoned. What this row settles is only what was
+measured.
+
+### Cost (rule 12) — MEASURED core-minutes, DERIVED dollars
+
+All figures from `verification/runs/ansys_verification/VMFL072-R5/RC.txt`. Serial, 1 rank
+⇒ core-min = wall-s ÷ 60 exactly.
+
+| quantity | value | basis |
+|---|---|---|
+| wall | 880.336790436 s | `wall_s` |
+| **core-min** | **14.6722** | **MEASURED**, `core_min` |
+| solver CPU | 335.15 CPU-s (5.5858 core-min) | `ExecutionTime_cpu_s` |
+| solver wall | 874 s | `ClockTime_wall_s` |
+| contention factor | **2.6077** | `ClockTime/ExecutionTime`, **per-run, this log** |
+| load at grade | 59.72 61.49 63.29 on 16 vCPU | `loadavg_at_grade` |
+
+**$0.01254 — DERIVED, NOT MEASURED** (14.6722 core-min = 0.2445 core-h × $0.0513/core-h,
+c7a.4xlarge, **owner-stated / reported-by-owner**: the box cannot read its own billing,
+`COMPUTE_BUDGET_CHARTER.md` §5). **No cap fired and none exists** — the freeze records
+every §6 figure as a calibration prediction, never a cap-stop (owner no-cap directive
+2026-09-12). **This spend bought no answer.** The rule-12 estimate-vs-actual row lands in
+`docs/COST_CALIBRATION.md` alongside this row and argues the ratio, which is **two errors
+partly cancelling and not an estimate to be proud of.**
+
+### Provenance — every number above cites an artifact still on disk
+
+| object | path |
+|---|---|
+| frozen pre-registration | `cases/ansys_verification/VMFL072-R5/PREREGISTRATION.md`, blob `1da5f43150679e6bd2fa874ec28bc24b4bcd5d51`, freeze commit **`3e06a6678de8f32dcf89c99e2f54efaff80f6001`** (original freeze `855b2b61ab5ef2aa52158eca34f26a84c8d0bc42`, blob `d863f09d9047e54e4ea0b63739e41a30ef1e0645`, amended pre-compute) |
+| grading path (the file that ran) | `cases/ansys_verification/VMFL072-R5/compare_vmfl072_r5.py`, blob **`322aad89a5c3aad9369f22e25e8ad9df3c354899`**, disk == pin == HEAD |
+| transitive dependency | `cases/ansys_verification/VMFL072-R4-A/compare_vmfl072_r4a.py`, blob **`ca2c73c70ce72a9aa12cf436a482ba83246158f1`** |
+| **artifact path (run root)** | **`verification/runs/ansys_verification/VMFL072-R5/`** |
+| verdict record | `.../VMFL072-R5/GRADING_VMFL072_R5.log`, `.../GRADING_VMFL072_R5.rc` (`grade_rc=3`) |
+| completion + cost record | `.../VMFL072-R5/RC.txt` |
+| launch record (freeze pins, `endTime`, solver binary) | `.../VMFL072-R5/LAUNCH_RECORD.txt` |
+| contention at launch | `.../VMFL072-R5/CONTENTION.txt` |
+| bounded-observer trace | `.../VMFL072-R5/film_observer.tsv` — **see the refusal table below: its film-thickness columns are NOT a graded value and are deliberately not quoted as one** |
+| field tree showing the absence | `.../VMFL072-R5/8/wallFilmRegion/` (no `Tf`); `.../0/wallFilmRegion/Tf` |
+| calibration row (rule 12) | `docs/COST_CALIBRATION.md`, appended alongside this row |
+| predecessors | Row **#78** (VMFL072-R4-A), Row **#79** (VMFL072-R3) |
+
+### What this row refuses to claim
+
+| | |
+|---|---|
+| a film thickness, a band evaluation, an interval | **NO.** `FilmRun` was never constructed. `δ_mon` **does not exist**. The gate was **NEVER REACHED**. |
+| that the observer's film-thickness numbers are the answer | **NO — and they are deliberately not quoted here.** `film_observer.tsv`'s own header marks the thickness columns **CONTEXT ONLY**; they are a raw per-step min/max over the film patch, **not** the frozen `δ_mon` reduction, which never ran. Quoting them in this row would manufacture a value the instrument never produced. |
+| a Roache triple, an order of accuracy, or a GCI | **NO — by registration, not by accident.** `§5` fixes R5 as **single-grid** and defers the triple to **R5-B**, a separate freeze. |
+| `PASS` | **NO — structurally unavailable.** The registered ceiling is `GATE REACHED`; the comparator's `verdict()` is one-way and emits no `PASS`. |
+| that the comparator's answer-reading path is validated | **NO.** Zero live plant firings across R2 / R3 / R4-A / R5. |
+| that the run failed physically | **NO — and this is the row's most important negative.** `rc = 0`, `End`, last time == `endTime` 8.0, 8 000 `ExecutionTime` lines, 160 written dirs, `max|Uf| = 8.312e-01` bounded. **The solve completed. The grade failed on a field-presence clause.** |
+| that the comparator's log line about `rc=136` is true here | **NO.** Canned text at `compare_vmfl072_r5.py:718`; `rc = 0`. Disclosed above, frozen file unedited (rule 6). |
+| that `kinematicSingleLayer` is abandoned | **NOT DECIDED BY THIS ROW.** `§7`'s escalation fired as frozen, on a field-presence clause rather than the crash it was written for. **Whether it binds is the supervisor's open ruling.** |
+| that the ±2.12 % band was found wrong, right, or anything | **NO.** It was never evaluated. |
