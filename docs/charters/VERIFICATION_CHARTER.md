@@ -10674,3 +10674,40 @@ Beside every observed order, a graded record carries **BOTH ratios: the bulk (ce
 **Claimed:** that `r` is a single number in Roache's formula and a non-similar family does not have one; that a cell-count ratio is volume-weighted and bulk-dominated; that state, order and GCI have different preconditions; that (B) is less visible than (A).
 
 **Not claimed:** that any flagged family failed to converge — **non-similarity makes the ORDER uninterpretable, not the SOLUTION wrong.** That a numeric similarity tolerance is known. That any delivered verdict in this lab is wrong; the standing sweep is a roll call and **no verdict is moved by me**. That MRF's negative orders are explained — `addLayers false` **rules this mechanism out there**, and the `y⁺` hypothesis is under test by cfd and is **not** resolved by this amendment.
+
+---
+
+## Amendment — v2.03, 2026-09-12 — **§2dh A GREP ON A LOG OR A DICTIONARY IS NOT A READING. PARSE, OR ASSERT THE MATCH IS NOT A COMMENT OR A BANNER**
+
+*lines whose number changed above this section: 0*
+
+**Raised by cfd from two incidents on one night. [lab-attributed].**
+
+### §2dh.1 The clause
+
+**A reader that greps a log or a dictionary has matched TEXT THAT MENTIONS the thing, not the thing.** Before such a reader's output is believed it must either **parse** (`foamDictionary -entry <name> -value`, or a parser that strips comments) **or assert that the match is not a comment, a banner or any other description of the setting.**
+
+### §2dh.2 The two incidents, because one alone would have looked like a typo
+
+- **A DICTIONARY COMMENT.** MRF's `controlDict` carries a stale banner at line 2 reading `endTime 50` while line 25 sets `endTime 8000`. A rule-4 completion check grepped the file, **matched the comment**, and declared a **COMPLETION FAILURE on a complete run.**
+- **A LOG BANNER.** A naive crash filter matched the **`trapFpe` banner that announces the guard is ARMED** — text whose presence means the run is *protected* — and raised a **false crash alarm on a healthy MRF fine.**
+
+**The shape is identical: in each case the reader matched a string that DESCRIBES the condition and read it as the condition obtaining.** A stale comment and an arming banner are the same defect wearing different clothes, and that is why this is a clause and not two bug reports.
+
+### §2dh.3 The direction nobody has looked for
+
+**Both incidents failed toward a FALSE ALARM — visible, annoying, and safe.** They were caught because `50` was absurd and because a healthy run is obviously healthy. **The same defect fails the other way and is then invisible: a completion check that matches a comment can PASS a truncated run, and a crash filter keyed on the wrong string can MISS a crash.** A false alarm is a defect that announces itself; a false clear puts an incomplete or crashed solve behind a delivered verdict. **Sweeping for these is sweeping for the second kind.**
+
+### §2dh.4 The control, which is rule 3 applied to input
+
+**It is not enough to switch to a parser.** The reader must be **shown able to tell the difference**: plant a **comment or banner that CONTRADICTS the live value** and require the reader to return the live value. A reader never shown able to distinguish a description from the thing described is, for this purpose, exactly the reader of rule 3 never shown able to see a non-zero.
+
+### §2dh.5 A warning in a brief is not a control
+
+The crash-filter hazard **was known** — it lived in two lane briefs and not the third, and the third raised the false alarm. **A hazard recorded in prose that a human must remember is not a control; it is a hope.** This is rule 14's shape: a lesson is not applied until **every** call site asserts it. **The repair is an assert at each reader, by its owning team — not a paragraph added to a brief.**
+
+### §2dh.6 What is and is not claimed
+
+**Claimed:** both incidents occurred and share one mechanism; the false-clear direction exists and has not been swept for.
+
+**Not claimed:** that any delivered verdict in this lab rests on a false clear — **that is unmeasured, which is precisely why it is named.** No verdict is moved by this amendment.
