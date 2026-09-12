@@ -1,0 +1,128 @@
+[
+ {
+  "target": 0.05,
+  "probe_index": 9,
+  "y": 0.04955,
+  "u_ref_mps": -0.219074,
+  "U95_mps": 0.026956
+ },
+ {
+  "target": 0.1,
+  "probe_index": 19,
+  "y": 0.09905,
+  "u_ref_mps": -0.268669,
+  "U95_mps": 0.01558
+ },
+ {
+  "target": 0.15,
+  "probe_index": 29,
+  "y": 0.14855,
+  "u_ref_mps": -0.247146,
+  "U95_mps": 0.017144
+ },
+ {
+  "target": 0.2,
+  "probe_index": 39,
+  "y": 0.19805,
+  "u_ref_mps": -0.201566,
+  "U95_mps": 0.021337
+ },
+ {
+  "target": 0.25,
+  "probe_index": 49,
+  "y": 0.24755,
+  "u_ref_mps": -0.151656,
+  "U95_mps": 0.020292
+ },
+ {
+  "target": 0.3,
+  "probe_index": 60,
+  "y": 0.302,
+  "u_ref_mps": -0.105835,
+  "U95_mps": 0.018298
+ },
+ {
+  "target": 0.35,
+  "probe_index": 70,
+  "y": 0.3515,
+  "u_ref_mps": -0.07223,
+  "U95_mps": 0.015797
+ },
+ {
+  "target": 0.4,
+  "probe_index": 80,
+  "y": 0.401,
+  "u_ref_mps": -0.049907,
+  "U95_mps": 0.015731
+ },
+ {
+  "target": 0.45,
+  "probe_index": 90,
+  "y": 0.4505,
+  "u_ref_mps": -0.0318,
+  "U95_mps": 0.015849
+ },
+ {
+  "target": 0.5,
+  "probe_index": 100,
+  "y": 0.5,
+  "u_ref_mps": -0.014191,
+  "U95_mps": 0.015675
+ },
+ {
+  "target": 0.55,
+  "probe_index": 110,
+  "y": 0.5495,
+  "u_ref_mps": -0.000797,
+  "U95_mps": 0.015691
+ },
+ {
+  "target": 0.6,
+  "probe_index": 120,
+  "y": 0.599,
+  "u_ref_mps": 0.017061,
+  "U95_mps": 0.015696
+ },
+ {
+  "target": 0.65,
+  "probe_index": 130,
+  "y": 0.6485,
+  "u_ref_mps": 0.029707,
+  "U95_mps": 0.016547
+ },
+ {
+  "target": 0.7,
+  "probe_index": 140,
+  "y": 0.698,
+  "u_ref_mps": 0.048313,
+  "U95_mps": 0.015585
+ },
+ {
+  "target": 0.75,
+  "probe_index": 151,
+  "y": 0.75245,
+  "u_ref_mps": 0.070635,
+  "U95_mps": 0.015744
+ },
+ {
+  "target": 0.8,
+  "probe_index": 161,
+  "y": 0.80195,
+  "u_ref_mps": 0.095123,
+  "U95_mps": 0.018303
+ },
+ {
+  "target": 0.85,
+  "probe_index": 171,
+  "y": 0.85145,
+  "u_ref_mps": 0.124209,
+  "U95_mps": 0.015896
+ },
+ {
+  "target": 0.9,
+  "probe_index": 181,
+  "y": 0.90095,
+  "u_ref_mps": 0.16326,
+  "U95_mps": 0.021784
+ }
+]
