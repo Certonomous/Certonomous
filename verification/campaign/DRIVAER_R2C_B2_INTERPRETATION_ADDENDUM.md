@@ -207,3 +207,61 @@ does not stop, restart or touch any run. It does not authorise the per-patch `fo
 measurement of §5 or the δ⁺ measurement of §7. It records predictions and one named
 assumption **before** the frozen instrument speaks, so that neither can be introduced
 afterwards as an explanation.
+
+---
+
+## 9. DECISIONS TAKEN ON THIS ADDENDUM — 2026-09-12T06:17Z, STILL BEFORE B2
+
+**Lines whose number changed above this section: 0.** §§0–8 are byte-identical to the
+text committed at `99a49c026`; this section is appended, and nothing above it is edited.
+**B2 and B1 are still `PENDING` at the moment of writing** — control 1142/2000, blended
+coarse 124/2000, blended medium 49/2000, C2 `RUN_RC` still absent. **No gate, threshold,
+cap or label is altered by this section either.**
+
+Recorded because a successor lane reading §5 and §7 alone would otherwise stall on a
+branch that may fire while no agent is awake.
+
+### 9.1 The δ⁺ sampler of §7 is DECLINED, not deferred
+
+Decided by the cfd-supervisor on the limitation stated in §7 **before** any lane time was
+spent. The reason is on record and is not "too expensive": compute was ~1–4 core-min. It
+is that **the mesh under question would be supplying the evidence for its own adequacy** —
+δ from a profile whose first cell sits at 12–55 % of δ, ~5 cells across the boundary
+layer, ±20–30 %. **Cheapness is not the test; usability of the answer is, and it fails
+that test.** Nobody should re-propose it for this mesh without new information.
+
+**The free flat-plate ESTIMATE in §7 stands and is the night's result from this line.** It
+remains an ESTIMATE, flat-plate-based, **explicitly not a measurement**, and **no gate is
+attached to it and none may be.** It does not move `[30, 300]` — §8 governs. What it
+changes is the QUESTION: not "is y⁺ 556 too high" but **"too high WHERE"**, the first
+cell sitting at y/δ ≈ 0.12–0.14 at the rear and 0.48–0.55 at the front.
+
+### 9.2 The per-patch discriminator of §5 is DEFERRED and CONDITIONALLY PRE-AUTHORISED
+
+**It is needed ONLY if B2 reads ACTIVE.** Measuring it now would spend on a branch that
+is predicted not to be taken (§3).
+
+**IF B2 READS `ACTIVE`, the per-patch `forces` measurement of §5 IS AUTHORISED** by the
+cfd-supervisor, with one binding constraint stated in advance:
+
+> **on the SAVED fields of both runs — NEVER by adding function objects to a running
+> case.**
+
+If B2 reads `INACTIVE`, it is not needed and is not to be run. **This authorisation
+creates no gate**: it permits a measurement whose purpose is to separate the two causes
+in §5, and any verdict drawn from it needs its own pre-registration.
+
+### 9.3 Accepted into the record
+
+Both §2 footnotes are adopted by the claim's author: the y⁺ = 5 sign is a denominator-sign
+convention, and the shipped `nutkWallFunction` clamps at `y⁺_lam ≈ 11.53` and returns zero
+below it, so the y⁺ 5 and 15 rows describe the unclamped formulae.
+
+**§5's local-equilibrium limit is adopted by the claim's author as a CORRECTION to the
+§2 claim, not a footnote to it:** the asymptotics were right, and incomplete about where
+they apply. Recorded so that an INACTIVE reading cannot later credit a prediction that
+came true for a reason its author had not identified.
+
+The coverage-formula omission recovered in `grade_c2_exits.py` remains attributed to the
+frozen C2 registration and its signatory. That the derivation recovered the intended
+formula to four figures does not make the omission harmless.
