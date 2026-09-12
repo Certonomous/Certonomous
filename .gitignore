@@ -319,3 +319,25 @@ verification/runs/F14-cooling-ladder/K0cT_runs/*/log.buoyantBoussinesqSimpleFoam
 # or an extraction of one, whatever future copy lands where.
 VM2026R1_Fluids/
 cases/ansys_verification/**/archive_extract/
+
+# --- DrivAer geometry and feature-edge data (added 2026-09-12) -------------------
+# MEASURED, not assumed: the r2 build path COPIES the reference STL where the r1
+# path SYMLINKED it (93-byte links).  Four full 142,346,740 B copies sit under
+# verification/runs/navier_class/DRIVAER/ -- 569,386,960 B = 543 MB -- plus
+# ~13 copies of the 5,035,650 B extendedFeatureEdgeMesh.  NONE were ignored and
+# NONE were tracked, so a single `git add -A <path>` (rule 10; L-12: 1,187 files,
+# 25M insertions, twice) would have swept ~608 MB into a repo that is pushed.
+# The copies are BYTE-IDENTICAL to the canonical geometry outside git at
+# /home/ubuntu/certonomous-runs/navier_class/DRIVAER/drivaerml_r7a5c094/run_466/
+# drivaer_466.stl -- sha256 9fd0eec1f436e336044c3abebe552e106acd273f63d96d9780c14
+# 41cc4c1a3b2, which is ALSO the sha registered in drivaer_reference_notchback.json,
+# so canonical, copy and registration agree three ways.  A duplicate of a file that
+# already has a canonical home is not evidence; the case dictionaries that
+# regenerate everything downstream ARE tracked.
+# SCOPED TO THIS CAMPAIGN ON PURPOSE.  A lab-wide **/constant/triSurface/ rule
+# would cover 40 files that are deliberately TRACKED today (R4_runs' ahmed_25,
+# F8_runs' blade) in another team's territory.  The lab-wide exposure of this
+# shape measures 1,732.4 MB across 53 unignored files >1 MB and is REPORTED for
+# a ruling, not silently swept by this entry.
+verification/runs/navier_class/DRIVAER/**/constant/triSurface/
+verification/runs/navier_class/DRIVAER/**/constant/extendedFeatureEdgeMesh/

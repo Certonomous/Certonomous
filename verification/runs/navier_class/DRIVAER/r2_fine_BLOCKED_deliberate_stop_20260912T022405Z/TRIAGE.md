@@ -109,3 +109,56 @@ should be **9.5 GiB, not 8.49**, because `r2_medium` measured the 1.508 layer-me
 factor as under-predicting by **1.12x** (predicted 1.7 GiB, measured 1.897 GiB). The
 run directory guard will refuse while this stopped attempt exists; satisfy it by
 **moving**, never by disabling.
+
+---
+
+## ADDENDUM 1 — 2026-09-12, cfd. Two rulings of the cfd-supervisor's, and a measurement neither of us predicted.
+
+*Appended at the foot; no line above this section changed number.*
+
+### A1.1 The STL in this tree is a DUPLICATE, not evidence — and it needs a pointer
+
+`constant/triSurface/drivaer_466.stl`, 142,346,740 B, hashes
+**`9fd0eec1f436e336044c3abebe552e106acd273f63d96d9780c1441cc4c1a3b2`**. That is
+byte-for-byte the canonical geometry outside git at
+`/home/ubuntu/certonomous-runs/navier_class/DRIVAER/drivaerml_r7a5c094/run_466/drivaer_466.stl`,
+**and it is also the sha registered in `drivaer_reference_notchback.json`** — canonical,
+copy and registration agree three ways. So there is no finding in the bytes, and the
+tree needs a **POINTER to the canonical file, not 144 MB of duplicate.** The canonical
+path above is that pointer; nothing in this directory should ever be treated as the
+geometry of record.
+
+**What we did not predict, and it is the useful part: the r1 family already did this
+right and the r2 family regressed.** `r1_coarse`, `r1_medium`, `r1_fine`, all four
+LAYERFIX trees and all four DIAG trees carry the STL as a **93-byte symlink** to the
+canonical file. Every `r2` level carries a **full 142,346,740 B copy** — four of them,
+**569,386,960 B = 543 MB** — plus ~13 copies of the 5,035,650 B
+`extendedFeatureEdgeMesh`. **None of it was gitignored and none of it was tracked**, so
+one careless `git add -A <path>` would have swept ~608 MB into a repository that is
+pushed (rule 10; L-12: 1,187 files, 25M insertions, twice). A `.gitignore` entry scoped
+to `verification/runs/navier_class/DRIVAER/**/constant/{triSurface,extendedFeatureEdgeMesh}/`
+now closes that, shadowing **zero** tracked files. **The r2 build path should symlink the
+STL as the r1 path does; it copies it, and that is a defect in the build path, not in
+this tree.** The lab-wide exposure of the same shape measures **1,732.4 MB across 53
+unignored files over 1 MB** and is REPORTED for a ruling rather than swept — a lab-wide
+rule would shadow 40 files that are deliberately tracked today in another team's
+territory (`R4_runs`' `ahmed_25`, `F8_runs`' `blade`).
+
+### A1.2 The waste question, ruled — §5 of this note is SUPERSEDED on its label, not on its reasoning
+
+§5 above argues that the 54.17 core-min is **not** waste in `COMPUTE_BUDGET_CHARTER` §6
+terms because nothing was discarded through error. **The cfd-supervisor has ruled
+otherwise and the ruling stands: it is named WASTE.** The accounting question is narrow —
+*did this spend yield a graded artifact?* It did not; the mesh never completed and
+nothing was graded.
+
+**§5's reasoning is not struck, because it is also true and it goes in the record beside
+the label: the spend BOUGHT something.** It purchased the 164-sample `HEADROOM_SERIES.tsv`
+and, through it, the two separately-isolated factors — layer cost 1.81× and contention
+3.25×, each measured with the other divided out — that produced the 231.5 core-min
+projection for the full snappy step, which is the only honest calibration figure this
+process has. Information is not nothing.
+
+**Both statements live in the record and NEITHER enters the ratio.** A waste category
+that quietly absorbs *"but we learned something"* stops being able to count anything.
+The `docs/COST_CALIBRATION.md` row carries the same resolution.
