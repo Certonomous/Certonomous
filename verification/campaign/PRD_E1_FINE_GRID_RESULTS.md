@@ -471,3 +471,133 @@ load average 55.41 on 16 vCPU, driven by heat-transfer's `splitMeshRegions` and 
 is small enough to proceed and is held to one rank.
 
 *A.2 — the result — is appended after the run, in its own commit.*
+
+## A.2 — THE RESULT: THE PAIR PASSES, AND THE PHYSICS PREDICTION WINS TOO
+
+**`lines whose number changed above this section: 0`** — lines 1–473 are byte-identical
+to the blob committed at `6c26de967`, `sha256 =
+c2e81f91d7aee3927703d797589e32660e8a2031ea558434c3d762db002c0865` on both sides. The
+prediction in A.1 was committed **before** the solver started and is not edited here.
+
+### A.2.1 — Rule-4 completion of the inert run, limb by limb
+
+Case `us4.00_L1_INERT`, 18,432 cells, serial 1 rank, `started_utc 2026-09-12T00:50:36Z`,
+`ended_utc 2026-09-12T00:52:27Z`.
+
+| limb | value |
+|---|---|
+| rc | **0** (`note=clean`, `capped=no`) |
+| `End` line | 1 |
+| last `Time` | 3000 == `endTime` 3000 |
+| `deltaT` | 1 → `ExecutionTime` count **3000** == `round(endTime/deltaT)` |
+| fields at `3000` | **U p k omega nut phi** — the registered incompressible set |
+| age guard vs `0/U` | oldest field `1789174347` > `0/U` `1789174238` → **OK** |
+| frozen `mark_done_prd.py` | **DONE**, rc 0 |
+| `blockMesh` / `topoSet` / `checkMesh` rc | 0 / 0 / 0 |
+
+**COMPLETE on every limb.**
+
+### A.2.2 — The measured pair
+
+Read through the frozen `analyse_prd.read_dp_pa` — the same reader, the same ×ρ Pa
+conversion, in the same grading invocation as the active arm:
+
+| arm | Δp [Pa] | plane samples (kinematic) |
+|---|---|---|
+| **INERT** `us4.00_L1_INERT` (`d = f = 0`) | **0.335506535** | `p_in` 0.743542838, `p_out` 0.463954059 |
+| **ACTIVE** `us4.00_L1` | **11158.478737476** | `p_in` 9299.449650000, `p_out` 0.717368770 |
+| ACTIVE at the fine level `us4.00_L3` | 11171.091991 | (the value `visibility_pair` is given in `gate_prd_e1.json`) |
+
+> **`visibility_pair` → `passed = True`.** `|Δp_inert| = 0.3355 Pa < INERT_DP_MAX_PA = 1.0`
+> **and** `Δp_active = 11171.09 Pa > 1.0`. **The registered control set of §6 is now
+> fully executed: all three controls of the registration's §6 have fired and passed.**
+
+The separation is a factor of **33,293**. The same reader, on the same day, through the
+same code path, reported a number four and a half decades apart on two cases that differ
+**only** in two coefficients. That is precisely the licence the pair exists to grant: the
+reader has been shown able to see both a near-zero and a large non-zero.
+
+### A.2.3 — The physics prediction is scored, and it wins — but it could have lost
+
+A.1 predicted `Δp_inert ∈ [0.15, 0.90] Pa`, positive, centred near 0.25. **Measured
+0.3355 Pa: inside the band, positive, and 1.41× the Blasius fully-developed floor of
+0.237 Pa** — the right direction and about the right magnitude for a thin developing
+boundary layer 2–3 `D_h` from a uniform inlet, which is the mechanism A.1 named in
+advance.
+
+**This is scored separately from the control's pass, exactly as registered, because the
+two could have disagreed.** Had the inert Δp landed at, say, 0.05 Pa it would have been
+comfortably under the frozen 1.0 Pa limit — the control would still have passed — and my
+physical estimate would have lost. Reporting only "the pair passed" would have hidden
+that. None of the six failing branches in A.1 fired.
+
+### A.2.4 — A GUARD WITH A HOLE IN THE SHAPE OF THE THING IT GUARDS AGAINST
+
+**This finding stands independently of tonight's number and outlives this rung.**
+
+A.1's fifth branch registered it before the run and the run did not exercise it, so it is
+recorded on its own merits. The frozen `read_dp_pa` refuses a reader-wired-to-nothing
+like this:
+
+```
+    if p_in == 0.0 and p_out == 0.0:
+        refuse("... both plane samples read a PERFECT 0.0. A zero from a reader "
+               "not shown able to see a non-zero is not evidence (rule 3).")
+```
+
+It refuses only when **both** planes read exactly zero. But the gated quantity is the
+**difference**, and `visibility_pair` is handed that difference. **A case whose two
+planes read equal non-zero values yields `Δp = 0.000000` exactly, passes the perfect-zero
+guard (neither plane is zero), and passes `visibility_pair` (0.0 < 1.0).** The one
+configuration that would prove a reader cannot resolve a difference is the one
+configuration that slips through the guard built to catch exactly that.
+
+**It was caught here by a physical prediction, not by the guard** — and that is the
+carryable lesson: **an arithmetic guard on a computed difference cannot substitute for
+knowing what the physical answer must look like.** A real duct with wall friction cannot
+produce an exact zero, and only the physics says so.
+
+**The frozen reader is NOT edited.** It is frozen, and the repair is this disclosure plus
+a docket item, not a change. Referred to verification and to the supervisor. **Nothing in
+this record depends on the hole**, because the measured inert Δp is 0.3355 Pa and not
+zero.
+
+### A.2.5 — The grade re-run, and what did NOT move
+
+The frozen `autograde_prd.py --grade` was re-run with the inert case present.
+`verification/runs/navier_class/PRD/gate_prd_e1.json` now carries
+`visibility_pair` for `U_s = 4.00`. **Every verdict and every `dp_by_level` value is
+byte-identical to the previous grade**, checked field by field rather than assumed:
+
+> **The registered result is UNCHANGED: 0 of 5 `U_s` PASS, all five `NOT A RESULT`,
+> `credential = false`.** The three fine-grid `G-ERGUN` PASS rows of §4 are unchanged.
+> **This addendum moved no gate, threshold, band, cap or label, and it moved no verdict.**
+
+`visibility_pair` remains `null` at `U_s` = 0.25, 0.50, 1.00 and 2.00 — one inert case was
+built, at 4.00, and the other four points are honestly still without one. **What the
+single inert case does and does not license:** it licenses the *reader*, which is shared
+across all five `U_s` and all three levels, and that is the object the control is about.
+It does **not** claim a per-`U_s` inert measurement that was not made.
+
+### A.2.6 — Cost of this addendum (rule 12)
+
+| item | core-min | note |
+|---|---|---|
+| inert solve `us4.00_L1_INERT` | **1.850** MEASURED | `wall_s` 111 × 1 rank ÷ 60, from its own `STATUS` sidecar; `capped=no` against the 900 s timeout and the 15.000 core-min cap the launcher recorded |
+| re-grade (`autograde_prd.py --grade`) | **0.333** MEASURED | 20 wall s × 1 rank; the y+ logs already existed, so no `postProcess` re-ran |
+| **total** | **2.183** | = 0.0364 core-h = **$0.0019 DERIVED, NEVER MEASURED** at $0.0513/core-h |
+
+**Against the A.1 POINT of 2.9 core-min: ratio 0.638 — 36 % UNDER, and that is a MISS,
+reported as one.** The anchor was the ACTIVE `us4.00_L1`'s measured 2.833 core-min on the
+identical mesh and iteration count. The inert case ran **1.53× faster** for the same work,
+and the cause is named rather than left as slop: **with `d = f = 0` the momentum equation
+loses a large implicit diagonal source, and the linear systems the same 3000 SIMPLE
+iterations produce are easier** — the porous sink is not free, and the active case was
+paying for it. Anchoring an inert run on an active run of the same size over-prices it by
+about half again. Box load at launch was 55.41 on 16 vCPU, i.e. **contention pushed the
+actual UP**, so removing it would make the under-run **larger**, not smaller — contention
+is ruled out by direction and is not the explanation. **No cap approached, no overrun, no
+stop. Waste 0.000 core-min**, named separately per `COMPUTE_BUDGET_CHARTER.md` §6: the run
+that produced the control is the run that was needed.
+
+*Addendum 1 ends. Nothing above line 473 was edited; A.2's opening proves it by hash.*

@@ -220,7 +220,12 @@
       "asymp_rel": null,
       "why": "levels L1,L2,L1,L2 are not iteratively converged or not plateaued; no grid claim can be made from this triple",
       "plant_control_passed": true,
-      "visibility_pair": null,
+      "visibility_pair": {
+        "passed": true,
+        "inert": 0.3355065348,
+        "active": 11171.0919910488,
+        "reader": "Delta-p visibility pair"
+      },
       "yplus_gate": {
         "passed": true,
         "max_yplus": 18.597776,
@@ -260,5 +265,5 @@
   "n_us": 5,
   "l4_required_for": [],
   "credential": false,
-  "graded_utc": "2026-09-12T00:39:06Z"
+  "graded_utc": "2026-09-12T00:53:24Z"
 }
