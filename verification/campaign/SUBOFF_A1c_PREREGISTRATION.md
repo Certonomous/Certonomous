@@ -205,10 +205,10 @@ sweep but **excluded from the fit** and reported separately as the linearity che
 | # | Quantity | Registered band | Tier | Source of the band |
 |---|---|---|---|---|
 | **B1** | `Z_w'` — **BARE HULL**, if a bare-hull arm is run | `[−0.006186, −0.005710]` (= −0.005948 ± 4%) | **MEASURED** | Roddy Table 4 Config 3 `Y_v'`, via axisymmetric plane-equivalence; width from Roddy App. C |
-| **B2** | `M_w'` — **BARE HULL** | **`PENDING`** — value `+0.012795 ± 4%` held unfrozen | **`PENDING`** pending the supervisor's ruling on §7.1 | Roddy Table 4 Config 3 `N_v'`; width from Roddy App. C |
+| **B2** | `M_w'` — **BARE HULL**, if a bare-hull arm is run | `[+0.012283, +0.013307]` (= +0.012795 ± 4%) | **MEASURED** — sign signed off, §7.1 / §7.1a | Roddy Table 4 Config 3 `N_v'`; width from Roddy App. C |
 | **B3** | `Z_w'` — **HULL + SAIL, our geometry** | `[−0.008847, −0.005710]` | 🔴 **LAB-CONSTRUCTED BRACKET — NOT A RODDY BAND** | §3.3 |
-| **B4** | `M_w'` — **HULL + SAIL** | **`PENDING`** — bracket `[+0.012283, +0.013734]` held unfrozen | **`PENDING`** pending §7.1 | §3.3 |
-| **B5** | `x_np/L` — **HULL + SAIL** | **`PENDING`** — bracket `[1.43, 2.34]` held unfrozen | **`PENDING`** pending §7.1 | propagated from B3/B4 |
+| **B4** | `M_w'` — **HULL + SAIL** | `[+0.012283, +0.013734]` | 🔴 **LAB-CONSTRUCTED BRACKET — NOT A RODDY BAND** | §3.3 |
+| **B5** | `x_np/L` — **HULL + SAIL** | `[1.43, 2.34]` | 🔴 **LAB-CONSTRUCTED BRACKET** | propagated from B3/B4 |
 | **B6** | `Cp(x/L)` at α = 0 | — | **`PENDING`** | §3.1 — data files not held |
 | **B7** | Sweep antisymmetry: `Z(+α) = −Z(−α)`, `M(+α) = −M(−α)` to within 2% of the α = 8 value | `≤ 2%` | **CODE-VERIFIED** (internal consistency, no experiment) | §5 |
 
@@ -358,6 +358,19 @@ or in any costing.**
 > **Without it, every gradeable row in A1c is a bracket this lab constructed for itself.**
 > This is a campaign-scope call and is referred, not taken.
 
+**RULED, 2026-09-12: the bare-hull arm is AUTHORISED and runs FIRST, ahead of hull+sail.**
+Drafted as `SUBOFF_A1d_BAREHULL_PREREGISTRATION.md`. **A1c does not launch until A1d has
+been graded**, because A1d tests the method (mesh → solver → `forceCoeffs` → rotation →
+antisymmetry → fit) against measurement, and A1c depends on that machinery while being
+unable to check it independently.
+
+> 🔴 **A correction A1d makes to the premise of this ruling, surfaced rather than absorbed:
+> the lab's existing bare-hull meshes CANNOT be reused.** `SUBOFF/r1b_{coarse,medium,fine}`
+> are **axisymmetric WEDGE** meshes (`axis frontWedge backWedge`), valid only at α = 0 — the
+> wedge assumes the solution is axisymmetric, which an incidence sweep is not. **A1d needs a
+> new 3-D half-model mesh**, estimated at ≈ 1.8–2.3 M cells and ≈ 31,200 core-min for eight
+> solves. "Simpler geometry" is true; "free" is not. See `A1d` §3 and §7.
+
 ---
 
 ## 7. WHAT A1c DOES NOT CLAIM, AND WHAT THIS LANE COULD NOT VERIFY
@@ -410,6 +423,26 @@ Roddy's own data.**
 > sentence, and Figure 1 could not independently confirm it.** If the cfd-supervisor accepts
 > that chain, B2/B4/B5 freeze by dated addendum at the values held above. If not, they stay
 > `PENDING` — **and one defensible derivative beats three with an unverified sign.**
+
+### 7.1a THE RULING — **cfd-SUPERVISOR SIGNED §7.1, 2026-09-12.** B2/B4/B5 RETURN FROM `PENDING`
+
+The cfd-supervisor signed the §7.1 chain. **The ground of the signature is recorded here in
+their terms, because a ruling whose reasoning is not written down cannot be audited later:**
+
+> The sign is settled by the **discriminator**, not by this lane's derivation. The derivation
+> from verified axes is sound but is one chain of reasoning; what makes it safe is that the
+> competing mapping predicts `M_w' = −0.012795` while **every `M_w'` Roddy measured is
+> positive** — the wrong sign is excluded **by measured data owing nothing to that chain**.
+> That is a falsification, not a confirmation, and it is the only form that can settle a
+> convention. The Munk-moment and neutral-point corroborations **agree and neither is
+> load-bearing**.
+
+**B2 is MEASURED tier. B4 and B5 return to `LAB-CONSTRUCTED BRACKET`** — the *sign* is now
+settled, but B4/B5 remain brackets for the reason they always were: **Roddy never measured a
+hull+sail body in the vertical plane** (§1). Signing the sign does not create a measurement.
+
+**A1d carries this forward.** `SUBOFF_A1d_BAREHULL_PREREGISTRATION.md` grades D1/D2/D3 at
+MEASURED tier on the bare hull, using exactly the B1/B2 values and this signed sign.
 
 ### 7.2 Sources named by Sanaa or by the bibliography that were **NOT** retrieved
 

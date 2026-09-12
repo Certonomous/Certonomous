@@ -1,0 +1,248 @@
+# SUBOFF **A1d** — THE BARE-HULL α SWEEP — **THE ONLY ROUTE TO A MEASURED-TIER SUBOFF FORCE RESULT** — PRE-REGISTRATION
+
+**STATUS: DRAFT. NOT FROZEN. NOT LAUNCHED.** §10 is blank and is the cfd-supervisor's
+personally, undelegated (check 4).
+
+**Author:** cfd `lab-lane`, 2026-09-12.
+**Authorised by:** cfd-supervisor's ruling on `SUBOFF_A1c_PREREGISTRATION.md` §6.2 — the
+bare-hull arm runs **FIRST, ahead of hull+sail**, because it validates the whole method
+(mesh → solver → `forceCoeffs` → α sweep → antisymmetry → derivative fit) **against
+measurement** before the larger sum is spent on the configuration that can only be graded
+against ourselves.
+
+**Pre-compute condition (rule 2), checked not assumed:** the run directories named in §6 —
+`verification/runs/navier_class/SUBOFF_A1d/` — **do not exist**, no mesh for this arm exists
+(§3), and no queue entry references A1d.
+
+---
+
+## 1. WHY A1d EXISTS, IN ONE PARAGRAPH
+
+A1c can grade `Z_w'` and `M_w'` for **hull + sail** only against a **bracket this lab
+constructed for itself**, because Roddy 1990 never measured a hull+sail body in the vertical
+plane (A1c §1). A1d grades the **bare hull**, where Roddy *did* measure, where axisymmetry
+makes the plane-equivalence **exact rather than approximate**, and where the band therefore
+carries a **measured 4 % width from the source**. **A1d is the only run in the SUBOFF
+campaign that can reach MEASURED tier.**
+
+---
+
+## 2. 🔴 THE REFERENCE — VERIFIED TO BE A STATIC SWEEP, NOT A DERIVED NUMBER
+
+A first reading of Roddy's Table 3 through the OCR text layer appeared to show
+**Configuration 3 with no static-stability row** — which would have meant `Y_v'` was derived
+rather than measured, and would have destroyed A1d's MEASURED tier before it began. **This
+lane rendered the page rather than trusting that reading.**
+
+Roddy **Table 3**, report p. 17 (PDF p. 25 of the filed file), rendered at 150 dpi and read:
+
+> **CONFIGURATION 3 — HORIZONTAL PLANE, BARE HULL**
+> | Type of Test | Angles of Drift (deg) | Rudder Angles | Model Speeds (knots) | Omega |
+> |---|---|---|---|---|
+> | **Static Stability** | **±18** | NA | **6.5** | — |
+> | Swaying | 0 | NA | 0.0 | 1.112 & 2.220 |
+> | Yawing | 0 | NA | 0.0 | 1.112 & 2.220 |
+> | Yawing | 0 | NA | 4.5, 5.0, 6.0, 6.5 | 2.220 |
+
+**The static sweep exists: ±18° of drift at 6.5 knots.** The OCR had dropped the row. So
+`Y_v' = −0.005948` and `N_v' = −0.012795` are **measured static-sweep derivatives**, read as
+the slope at zero body angle, exactly as for Configs 1 and 4. **MEASURED tier holds.**
+
+> **And a consequence that is pure gain: Roddy's measured range is ±18°, so our sweep at
+> ±12° sits INSIDE it. A1d extrapolates nothing.**
+
+**Plane-equivalence, and why it is exact here.** The bare hull is a body of revolution. Its
+vertical and horizontal planes are related by a rigid rotation about the x axis, so
+`|Z_w'| = |Y_v'|` and `|M_w'| = |N_v'|` are **identities, not approximations** — unlike
+A1c's hull+sail case, where the sail breaks the equivalence and forced a bracket. Signs
+follow the convention verified in A1c §7.1 and signed by the cfd-supervisor: `Z_w' = Y_v'`,
+`M_w' = −N_v'`.
+
+---
+
+## 3. 🔴 THE EXISTING BARE-HULL MESHES **CANNOT BE USED**, AND THIS IS THE COST THE RULING DID NOT YET HAVE
+
+The ruling reasoned that the bare hull is "a simpler geometry". **It is — but the lab's
+existing bare-hull meshes are not reusable for a sweep, and the arm is not free.**
+
+`verification/runs/navier_class/SUBOFF/r1b_{coarse,medium,fine}/constant/polyMesh/boundary`
+carry the patches **`inlet outlet farfield hull axis frontWedge backWedge`**. That is an
+**axisymmetric WEDGE mesh** — a single slice about the axis. The wedge formulation *assumes
+the solution is axisymmetric about that axis*. **At α ≠ 0 the flow is not axisymmetric, and
+the wedge is invalid by construction.** These meshes can represent exactly one point of the
+sweep, α = 0, and they cannot represent the other six.
+
+> **A1d therefore requires a NEW 3-D half-model mesh of the bare hull. It does not inherit
+> one. Any plan that assumed reuse is wrong, and I would rather say so before the cost is
+> approved than after.**
+
+**A second fact about the foundation, stated plainly:** `SUBOFF_R1b_RESULTS.md` records the
+bare-hull α = 0 rung's verdict of record as **`NOT A RESULT`** on a `DIVERGENT` triple.
+**A1d is not building on a passing result.** That is an argument *for* A1d, not against it —
+the bare hull has never been carried to a defensible force number on this box — but it
+forbids any claim that A1d merely extends a working case.
+
+---
+
+## 4. THE BANDS, WRITTEN FIRST
+
+Definitions fixed before any solve, identical to A1c so the two arms are comparable:
+`Z_w'`, `M_w'` by least-squares linear fit over the **five points |α| ≤ 8**;
+α = ±12 carried but **excluded from the fit** and reported as the linearity check;
+`x_np/L ≡ −M_w'/Z_w'`; nondimensionalisation on `L`.
+
+| # | Quantity | Registered band | Tier | Source |
+|---|---|---|---|---|
+| **D1** | `Z_w'` | `[−0.006186, −0.005710]` (−0.005948 ± 4 %) | 🟢 **MEASURED** | Roddy Table 4 Config 3 `Y_v'`; width from Roddy App. C p.105 |
+| **D2** | `M_w'` | `[+0.012283, +0.013307]` (+0.012795 ± 4 %) | 🟢 **MEASURED** | Roddy Table 4 Config 3 `N_v'`, sign per A1c §7.1 as signed |
+| **D3** | `x_np/L` | `[1.99, 2.33]` | 🟢 **MEASURED (propagated)** | conservative envelope of D1/D2 corners |
+| **D4** | Antisymmetry `\|Z(+α) + Z(−α)\| / \|Z(α=8)\|` | **`≤ 0.5 %`** | **CODE-VERIFIED** | §5 — tighter than A1c's 2 %, and §5 says why |
+| **D5** | Linearity: `Z(±12)` deviation from the |α| ≤ 8 fit | **reported, not gated** | reported | the fit is a slope at zero; ±12 is a disclosure, not a gate |
+
+**D3 is the conservative (fully-correlated-adverse) envelope**, `0.012283/0.006186 = 1.986`
+to `0.013307/0.005710 = 2.330`, **not** an RSS: `Z_w'` and `M_w'` come from the *same*
+experiment and their errors are not independent, so the narrower RSS interval would
+understate the band. **Widening on purpose, and saying so, is the honest direction.**
+
+**The verdict rule (rule 1 vocabulary, and no other):** each of D1/D2/D3 is **`PASS`** inside
+its band or **`GATE FAIL`** outside it — **unless** the completion rule (rule 4) or D4 fails,
+in which case the row is **`NOT A RESULT`** whatever the value, per the A1c/A1b ordering.
+
+---
+
+## 5. WHY D4 IS TIGHTER HERE — THE BARE HULL HAS A FALSIFIER THE HULL+SAIL CANNOT HAVE
+
+On hull+sail the antisymmetry check is soft, because the **sail is dorsal**: the geometry is
+genuinely not symmetric top-to-bottom, so `Z(+α) ≠ −Z(−α)` is *physically expected* and the
+check can only be loose (A1c's B7 at 2 %).
+
+**The bare hull is a body of revolution.** Top-to-bottom symmetry is exact, so
+`Z(+α) = −Z(−α)` and `M(+α) = −M(−α)` are **exact statements about the continuous problem**,
+and any departure is **entirely numerical** — mesh asymmetry, an incorrect rotation of
+`liftDir`/`dragDir`, a sign error in the moment, or incomplete convergence.
+
+> **This makes A1d a far better test of the METHOD than A1c can be, which is exactly the
+> ruling's reasoning.** D4 at 0.5 % is a direct, experiment-free probe of the rotation
+> convention and the force post-processing — the machinery A1c then depends on and cannot
+> independently check. **If D4 fails on the bare hull, no hull+sail number is trustworthy,
+> and we will have learned it on the cheap arm.**
+
+**One further control, cheap and decisive, and it is registered here:** rerun the α = +8
+point as a **yaw** case at β = +8 on the same mesh. For a body of revolution the two are the
+same computation in a rotated frame, so `Y(β=8)` must equal `Z(α=8)` to the same 0.5 %.
+**This catches a class of error that no pitch-only sweep can see** — a coordinate or
+`liftDir` convention that is self-consistently wrong across all seven pitch points.
+
+---
+
+## 6. THE RUNS
+
+Carried from A1b §3 / A1c §5 so the arms are comparable: `simpleFoam`, `kOmegaSST`,
+`nutUSpaldingWallFunction` on `hull`, **half model with a `symmetryPlane`**,
+`Re_L = 1.2e7`, `U = 2.7547576 m/s`, `endTime 3000`, `deltaT 1`, 4 ranks, **no
+`residualControl`** (an early residual exit satisfies neither `last == endTime` nor the
+`ExecutionTime`-count clause), `0/T` age-guarded, checkpointed at 30 min wall with the last
+two kept per Sanaa's run instruction, launched **as `ubuntu`, never root**, detached under
+the runner (nothing hand-launched counts as a case).
+
+**Sweep: α = −12, −8, −4, 0, +4, +8, +12** — seven points — plus the **one β = +8 control**
+of §5. Eight solves per level. Mesh identical across all eight; only `0/U` and the
+`forceCoeffs` directions change.
+
+**Patches expected:** `inlet outlet farfield symm hull` — **five, with no `sail`**. A mesh
+presenting a `sail` patch is the wrong geometry and the launcher must refuse it.
+
+**Geometry, from two held and title-page-verified sources rather than one:** Groves 1989
+(`groves_1989_dtrc_shd1298_darpa_suboff_geometry.pdf`, the analytic hull definition — the
+bare hull regenerates exactly from its equations) **cross-checked against Roddy's own
+Table 2**, "Nondimensional offsets and cross sectional areas for the hull" (report p. 16,
+PDF p. 24, rendered and read), which tabulates `B/B_x` and `A/A_x` at 25 stations from 0.0
+to 20.4167. **Registered check: the built geometry must reproduce Roddy Table 2's `A/A_x` at
+all 25 stations to within 0.5 %.** Two independent sources agreeing is worth more than one
+source trusted.
+
+---
+
+## 7. COST — REGISTERED, DERIVED, AND **NOT A KILL**
+
+**The mesh does not exist, so the cell count is an ESTIMATE and is labelled one.** At A1's
+L1 the wall faces are `hull` 116,686 and `sail` 83,291 — **the sail carries 42 % of the wall
+faces** despite being a small appendage, because of the fairwater/hull junction refinement.
+Removing it, the bare hull at L1-equivalent resolution is estimated at **0.55–0.70 × 3,268,613
+≈ 1.8–2.3 M cells**.
+
+| | Basis | Per point | × 8 solves | Derived $ |
+|---|---|---|---|---|
+| **A1d L1** | 0.62 × A1 L1's 6,280 core-min | ≈ **3,900 core-min** | ≈ **31,200 core-min** | ≈ **$26.68** |
+
+`cost_basis`: **$0.0513/core-h is OWNER-STATED** (Sanaa 2026-08-21/22), **not measured** —
+the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER` §5). The **cell count is an
+estimate, not a measurement**, and the per-point rate inherits A1b §6's anchor on the
+**worse, later** measured rate under a 2.4× intra-night swing. **Both are predictions to be
+scored at completion under rule 12**, with the actual cell count replacing the estimate and
+contention attributed on its own line, landing as a row in `docs/COST_CALIBRATION.md`.
+
+> **Registered and stopping nothing** (Sanaa, directive #17; and "Cost estimate registered
+> too but doesnt stop the run"). **The overrun rule is that a crossed estimate is REPORTED
+> and the row is graded on its merits — the run is not killed by a wrapper.**
+
+**Note for the record, not as an authorisation:** ≈ $26.68 is close to the $25 figure in
+Sanaa's 2026-08-21 blanket. **A blanket is not a per-item read (rule 9)** — this is cited as
+context, and the cost stands or falls on the cfd-supervisor's §10 signature, not on the
+blanket.
+
+---
+
+## 8. FALSIFIERS — EACH THE COMPLEMENT OF ITS PREDICTION
+
+**EXECUTION.** X1: any level fails rule 4 (rc = 0, `End` line, `last == endTime`, fields
+present, `ExecutionTime` count, every field newer than the case's own `0/T`) → that point is
+**`NOT A RESULT`**; a sweep missing any of the five |α| ≤ 8 points cannot produce a
+derivative and the whole arm is **`NOT A RESULT`**.
+
+**ARTIFACT.** X2: `forceCoeffs` output absent, or the `hull` integration not reproducing the
+total to 1e-9 relative → **`NOT A RESULT`** (the A1c §4 discipline, applied here to a single
+patch).
+
+**METHOD.** X3: **D4 > 0.5 %** → **`NOT A RESULT`**, and the arm reports *which* of mesh
+asymmetry / rotation convention / moment sign / convergence it was, before any derivative is
+quoted. X4: the β = +8 control disagrees with α = +8 by > 0.5 % → same.
+
+**GEOMETRY.** X5: built `A/A_x` departs from Roddy Table 2 by > 0.5 % at any of the 25
+stations → the mesh is rejected **before** it is solved.
+
+**HYPOTHESIS.** X6: `Z_w'` outside `[−0.006186, −0.005710]` → **`GATE FAIL` on D1**.
+X7: `M_w'` outside `[+0.012283, +0.013307]` → **`GATE FAIL` on D2**. **A `GATE FAIL` here is
+a real and publishable outcome** — it would say our RANS setup does not reproduce a measured
+submarine stability derivative, which is worth more than a `PASS` obtained by widening a band.
+
+---
+
+## 9. WHAT A1d DOES NOT CLAIM
+
+- It does **not** validate the **hull+sail** configuration. A1d's `PASS` would license the
+  *method*, not A1c's geometry; A1c's rows stay lab-constructed brackets regardless.
+- It does **not** resolve the **α = 0 surface-pressure anchor**, which remains `PENDING` for
+  both arms: the Cp values live in data files not on this box (A1c §3.1).
+- It does **not** claim Reynolds parity. **Roddy's static sweeps ran at 6.5 knots,
+  `Re_L ≈ 14 million`; ours is `1.2e7`.** Roddy states coefficients vary with Re *"up to a
+  Reynolds number … of about 10 to 15 million"* — **our 12 million is inside that band, not
+  above it**, so the mismatch is not negligible by his own criterion. **Disclosed,
+  un-quantified, and it applies to D1/D2/D3 as a systematic on top of the 4 % band.**
+- It does **not** grade a grid triple. A1d as written is a **single-level** arm; no GCI is
+  quotable and none will be emitted (rule 5).
+- It does **not** freeze itself, launch anything, or send anything outside this box (rule 7).
+
+---
+
+## 10. FREEZE BLOCK — cfd-SUPERVISOR, CHECK 4, UNDELEGATED
+
+**INTENTIONALLY BLANK.**
+
+```
+Frozen at commit:      ____________________
+Date/time (UTC):       ____________________
+Pre-compute condition: verification/runs/navier_class/SUBOFF_A1d/ does not exist;
+                       no A1d mesh exists; no queue entry references A1d. Checked by: ______
+Signed:                ____________________
+```
