@@ -1,0 +1,40 @@
+{
+  "_DRAFT": "NOT QUEUED. NOT LAUNCHED. Outside the runner glob by design.",
+  "_BLOCKED_ON": "Its registration is a DRAFT and is NOT FROZEN. verification/campaign/MRF_R3_RERUN_REGISTRATION_DRAFT.md carries no sha and no gate. Rule 2: the freeze must be COMMITTED BEFORE the solver starts, and that freeze is the cfd-supervisor's check 4. THIS ENTRY IS NOT PLACEABLE UNTIL THEN.",
+  "team": "cfd",
+  "case_id": "MRF-R3-C1",
+  "prereg_path": "verification/campaign/MRF_R3_RERUN_REGISTRATION_DRAFT.md",
+  "prereg_commit": "NONE. Unfrozen draft. This field is the reason the entry cannot be placed.",
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R3",
+  "ranks": 6,
+  "run_as": "ubuntu",
+  "memory_floor_gb": 2.0,
+  "memory_basis": "DERIVED, NOT MEASURED. Stage 1 is the COARSE level only, 154,715 cells, at the DrivAer measured 1.67 GiB/Mcell -> ~0.26 GiB. Floor 2.0 GiB. Medium (~1.0 GiB) and fine (~4.0 GiB) are SEPARATE entries behind gate G-F1 and are not requested here.",
+  "_stage": "STAGE 1 ONLY: coarse run A and coarse run B, from 0, under the pinned hierarchical decomposition. These two runs ARE gate G-F1. Medium and fine are NOT enqueued by this entry and must not be.",
+  "_the_three_changes": {
+    "1_deterministic_decomposition": "method scotch -> method hierarchical with explicit n (nx ny nz). scotch is NON-DETERMINISTIC and is the suspected noise source.",
+    "2_identical_rank_count": "numberOfSubdomains 6 at ALL THREE levels. R2 ran 2 / 2 / 6 -- an uncontrolled arm across exactly the three levels being compared, and the level that differed in rank count is the level that failed.",
+    "3_absolute_window_convergence_criterion": "C1: W = 2000 iterations FIXED, independent of endTime; any bounding event in the final W -> NOT_CONVERGED. Replaces R2's q = n//4 window-relative cascade tell, WHICH FLIPS AT 9,000 ITERATIONS ON THE EVENTS ALREADY ON DISK WITHOUT THE SOLUTION IMPROVING. C1 cannot be satisfied by lengthening: the run must actually execute W further iterations WITHOUT A NEW EVENT."
+  },
+  "_gate_G_F1": {
+    "statement": "F = relative Np difference between coarse run A and coarse run B, both from 0 under the pinned decomposition. PROCEED only if F < 0.25 x 3.364298e-03 = 8.41e-04.",
+    "on_failure": "THE FAMILY STOPS AT NOT A RESULT AND ~5,132 FURTHER core-min ARE NOT SPENT.",
+    "why_it_exists": "R2's measured signal/noise on the binding difference was 0.445 -- the coarse-to-medium settled difference (3.364298e-03) was SMALLER than the worst within-level stopping-point range (7.554827e-03). MRF_R2_TRIPLE_PRESTATEMENT_2026-09-11.md predicted that BEFORE fine landed and the record marks it UPHELD. G-F1 tests whether pinning the partition fixes it, BEFORE the family is paid for.",
+    "threshold_provenance": "Derived from R2's already-published 3.364298e-03 and from nothing else. F DOES NOT YET EXIST. That is the entire evidentiary content of registering it now."
+  },
+  "endTime": 8000,
+  "endTime_note": "UNCHANGED, and that is registered with its reason. R2 showed 8000 already suffices for the plateau limb -- all three levels PLATEAUED. Neither limb of R2's NOT A RESULT is reachable by more iterations. R3 spends on CONTROLLING THE NOISE, not on lengthening.",
+  "_checkpoint_spec": {
+    "writeInterval": 250,
+    "purgeWrite": 2,
+    "rate_basis": "MEASURED. fine ran 8000 iterations in ClockTime 41,103 s at 6 ranks = 5.14 s/it (TRIPLE_R2_RECORD.txt header). Coarse is ~16x smaller, so 250 iterations is far inside 30 minutes at every level. 250 chosen as the common value across levels so the checkpoint cadence is not another variable that co-varies with the level.",
+    "kill_and_resume_proof_owed": "Sanaa item 5, solver class = steady incompressible OpenFOAM (simpleFoam). NOT PERFORMED by this lane. A precondition, not a property."
+  },
+  "cost_core_min_estimate": 526,
+  "cost_basis": "526 core-min for BOTH coarse runs (2 x ~263). DERIVED by cell-count scaling (154,715 / 2,418,780) from fine's MEASURED 0.5138 core-min/iteration (core_min 4110.30, wall_s 41103, ranks 6, rc=0). $0.45 DERIVED at $0.0513/core-h owner-stated -- DERIVED, NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5). Full family if G-F1 passes: ~5,658 core-min. 91% OF THE SPEND SITS BEHIND A GATE THAT CAN REFUSE IT. No cap kills this run (Sanaa 2026-09-12); the figures are rule-12 predictions scored at completion.",
+  "_carried_unchanged_from_R2_and_NOT_re_registered": "Band [4.0, 6.0], Np_ref = 5.0, the Np formula, S12's plateau limb, the NaN/FPE tells, rule-4 completion, the age guard, and the rule-3 planted control (1.234e-03 into total_z, read back through the same frozen reader, REFUSAL on failure). The band keeps its ORIGINAL freeze date: re-registering it now, with Np = 4.381719292039071 on disk since 04:37 today, would destroy the only thing a band's freeze is for. Its anchor remains un-title-verified and carries the disavowal (R2 section A1.13, BLOCKED on acquisition).",
+  "_what_is_unverified": [
+    "That pinning the decomposition collapses the noise. UNMEASURED -- G-F1 exists to find out and MAY FAIL.",
+    "That `hierarchical` partitions the MRF rotating zone acceptably. The rotating-zone interface must not be split in a way that degrades it. UNVERIFIED by this lane; a precondition on the freeze, not a property claimed here."
+  ]
+}

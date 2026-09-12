@@ -1,0 +1,126 @@
+{
+  "_DRAFT": "NOT QUEUED. NOT LAUNCHED. Outside the runner glob by design.",
+  "_READ_THIS_BEFORE_PLACING": {
+    "headline": "THIS ENTRY IS PREPARED AS ASKED AND ITS DEFECT IS STATED ON ITS FACE. A reader placing it must see what they are buying.",
+    "defect_1_the_convergence_reader_is_WINDOW_RELATIVE": {
+      "what": "The tell that made fine NOT_CONVERGED is the bounding CASCADE in measure_states_mrf.divergence_tells. Its window is a FRACTION of the declared iteration count: q = max(n_iters//4, 1); early = #{i <= q}; late = #{i > n_iters - q}; cascade = late > early.",
+      "sole_cause": "VERIFIED by this lane by re-running the frozen function against fine/log.simpleFoam: nan = 0, fpe = 0, plateau_state = PLATEAUED on all three levels. `diverged = bool(nan or fpe or cascade)`, so CASCADE IS THE ONLY CAUSE of fine's NOT_CONVERGED.",
+      "events_on_disk": [
+        1,
+        2,
+        74,
+        4356,
+        4848,
+        6335,
+        6340,
+        6641,
+        6642,
+        7817
+      ],
+      "flip_table_holding_the_events_FIXED": [
+        {
+          "n_iters": 8000,
+          "q": 2000,
+          "early": 3,
+          "late": 5,
+          "cascade": true,
+          "state": "NOT_CONVERGED"
+        },
+        {
+          "n_iters": 9000,
+          "q": 2250,
+          "early": 3,
+          "late": 1,
+          "cascade": false,
+          "state": "CONVERGED"
+        },
+        {
+          "n_iters": 10000,
+          "q": 2500,
+          "early": 3,
+          "late": 1,
+          "cascade": false,
+          "state": "CONVERGED"
+        },
+        {
+          "n_iters": 12000,
+          "q": 3000,
+          "early": 3,
+          "late": 0,
+          "cascade": false,
+          "state": "CONVERGED"
+        }
+      ],
+      "consequence": "THE VERDICT FLIPS AT 9,000 -- A 1,000-ITERATION EXTENSION -- WITHOUT THE SOLUTION IMPROVING BY ONE CELL. The five late events are not cured; the trailing window slides past them and they are re-classified as middle. Buying a CONVERGED this way is the post-hoc match this lab's doctrine refuses.",
+      "correction_to_the_brief": "The brief that commissioned this entry gave the flip point as 10,000. Re-derived from disk it is 9,000. The direction of the finding is unchanged and the arithmetic is otherwise exactly as briefed.",
+      "what_is_NOT_defective": "S12's drift limb does NOT share this defect. measure_states_mrf.s12 uses w = min(max(n//4, 20), 2000); the cap of 2000 binds for every n >= 8000, so S12's window is ALREADY ABSOLUTE at these iteration counts. Only divergence_tells is window-relative. Stated so the defect is not overstated."
+    },
+    "defect_2_section_9_FORECLOSES_THIS_IN_ADVANCE": {
+      "quote": "If 8000 also leaves |drift| >= 1e-3, that is a finding about the steady MRF formulation, NOT A LICENCE FOR A THIRD EXTENSION, and R2's fine level reports at the core-minutes spent.",
+      "source": "verification/campaign/MRF_R2_PREREGISTRATION.md section 9, written BEFORE any R2 compute",
+      "also": "Section 9 bars restarts in favour of RE-RUNS FROM ZERO, so that rule-4 clauses 3 and 4 hold cleanly against a single pinned endTime. A continuation from 8000 is a RESTART and is barred on that ground independently of the cascade question."
+    },
+    "defect_4_A_CONTINUATION_CANNOT_SATISFY_RULE_4_CLAUSE_5_AT_ALL": {
+      "what": "CLAUDE.md rule 4 requires `ExecutionTime count == round(endTime/deltaT)`. The MRF grader enforces it and PRINTS it: TRIPLE_R2_RECORD.txt reads `rule-4 coarse PASS (rc=0 last_time=8000.0 exec=8000 age_guard=PASS)` for every level -- exec == endTime, exactly.",
+      "arithmetic": "A continuation from 8000 to 12000 executes 4,000 iterations. A fresh log gives exec = 4000 != 12000 -> FAILS. Appending to the existing log gives exec = 8000 + 4000 = 12000, which would PASS the count -- but only by concatenating two different solver invocations into one log, which is precisely the bookkeeping the clause exists to prevent, and the age guard would then be dated by a `0/` that is four thousand iterations stale.",
+      "and_the_registration_already_knew": "MRF_R2_PREREGISTRATION.md section 9 states the reason in its own words when it mandates re-runs from zero: 'It is a re-run from zero, never a restart from 4000, SO THAT RULE 4 CLAUSES 3 AND 4 HOLD CLEANLY AGAINST THE SINGLE PINNED endTime.' The authors foresaw this exact failure and wrote the bar for it BEFORE any R2 compute.",
+      "severity": "This is MECHANICAL, not a judgement call. It is the fourth independent reason this entry should not be placed, and the only one that cannot be argued with at all."
+    },
+    "defect_3_THE_ONE_THAT_SHOULD_ACTUALLY_DECIDE_IT": {
+      "what": "The triple is DIVERGENT on BOTH registered estimators, and that is INDEPENDENT of the convergence question entirely.",
+      "verified_from": "verification/runs/navier_class/MRF/R2/TRIPLE_R2_RECORD.txt -- a verbatim copy of the incumbent grader's output, grader hash verified disk == frozen blob b3758cc5427b12bec76f8c23b2188276401a1db8 before fine landed",
+      "settled_estimator": {
+        "coarse": 4.22831554,
+        "medium": 4.23167983,
+        "fine": 4.43548645,
+        "e21": 0.003364298,
+        "e32": 0.2038066,
+        "ratio_e32_e21": 60.579239,
+        "order_p": 8.84567,
+        "state": "DIVERGENT"
+      },
+      "raw_estimator": {
+        "coarse": 4.1934907,
+        "medium": 4.28113222,
+        "fine": 4.38171929,
+        "e21": 0.08764152,
+        "e32": 0.1005871,
+        "ratio_e32_e21": 1.14771,
+        "order_p": 0.248048,
+        "state": "DIVERGENT"
+      },
+      "triple_character": "settled = DIVERGENT, raw = DIVERGENT. BOTH.",
+      "rule_5_clause_2": "A DIVERGENT triple is NOT A RESULT whatever the value. The gate can only turn a PASS or GATE FAIL INTO NOT A RESULT, never the reverse. So the rung is NOT A RESULT on this limb ALONE, with the convergence limb set entirely aside.",
+      "and_the_signal_is_below_the_noise": {
+        "d21_settled": 0.003364298,
+        "worst_within_level_stopping_point_range": 0.007554827,
+        "signal_over_noise_d21": 0.445,
+        "meaning": "THE COARSE-TO-MEDIUM DIFFERENCE IS SMALLER THAN EACH LEVEL'S OWN VARIATION ACROSS NEARBY STOPPING POINTS. The record's own words: 'A triple whose level-to-level differences are smaller than each level's own variation across nearby stopping points is ARITHMETICALLY COMPUTABLE AND PHYSICALLY MEANINGLESS.'",
+        "and_it_was_PRE_STATED": "verification/campaign/MRF_R2_TRIPLE_PRESTATEMENT_2026-09-11.md registered this prediction BEFORE fine landed -- that the triple would be computable but meaningless -- and the record marks it UPHELD. This is not a post-hoc excuse; it is a registered prediction that came true."
+      }
+    },
+    "the_bottom_line_for_a_reader_in_one_minute": "Placing this entry buys a BETTER-CONVERGED INPUT TO AN UNCHANGED `NOT A RESULT`. The convergence limb would flip for a reason that is not physics; the triple limb would not move at all, because a refinement trend is not an iteration count. The core-minutes below purchase no verdict change. AND defect 4 means it could not even be GRADED: a continuation cannot satisfy rule 4 clause 5 without concatenating two solver invocations into one log.",
+    "the_honest_limit_of_that_claim": "It is true for RUNNING LONGER. It is NOT proven for a re-run under a CONTROLLED DECOMPOSITION -- see the companion entry MRF-R3-RERUN-CONTROLLED-DECOMP.draft.json. The three levels ran on 2 / 2 / 6 ranks under the NON-DETERMINISTIC `scotch` partitioner, an uncontrolled arm across exactly the three levels being compared, and the measured run-to-run reproducibility floor (8.274582e-03 relative, FREE_SCATTER_AT_4000.txt) came from a FRESH SCOTCH PARTITION. Whether pinning the decomposition collapses that noise is UNMEASURED. Saying 'MRF can never be a result' would over-claim; saying 'MRF cannot be rescued by more iterations' is what the evidence supports."
+  },
+  "team": "cfd",
+  "case_id": "MRF-R2-CONT12000",
+  "prereg_path": "verification/campaign/MRF_R2_PREREGISTRATION.md",
+  "prereg_commit": "PROBLEM, NOT AN OVERSIGHT: there is no admissible pre-registration for this run. MRF_R2_PREREGISTRATION.md section 9 forecloses a third extension and bars restarts. This entry would therefore need its OWN new registration, frozen before it starts -- at which point it is no longer a continuation of R2 and inherits none of R2's freeze. THIS FIELD CANNOT BE HONESTLY FILLED AND IS LEFT UNFILLED ON PURPOSE.",
+  "grading_freeze": [
+    "verification/runs/navier_class/MRF/R2/grade_triple_r2.py"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/fine",
+  "ranks": 6,
+  "run_as": "ubuntu",
+  "memory_floor_gb": 8.0,
+  "memory_basis": "DERIVED, NOT MEASURED. 2,418,780 cells, incompressible simpleFoam. At the DrivAer measured basis of 1.67 GiB/Mcell -> ~4.0 GiB. Floor at 8.0 GiB, 2x margin, because the figure is derived.",
+  "_controlDict_delta": {
+    "startFrom": "startTime -> latestTime  (THIS IS THE RESTART section 9 BARS)",
+    "endTime": "8000 -> 12000",
+    "writeInterval": "-> 250   (fine ran 8000 iterations in ClockTime 41103 s at 6 ranks = 5.14 s/it; 250 it = 21.4 min, inside the 30-minute rule)",
+    "purgeWrite": "-> 2"
+  },
+  "cost_core_min_estimate": 2055,
+  "cost_basis": "MEASURED BASIS. fine's completed 8000-iteration run: rc=0, core_min = 4110.30, wall_s = 41103, ranks = 6 (TRIPLE_R2_RECORD.txt header). That is 0.5138 core-min/iteration. 4,000 further iterations -> 2,055 core-min. $1.76 DERIVED at $0.0513/core-h owner-stated -- DERIVED, NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5). NO CAP KILLS THIS RUN (Sanaa 2026-09-12); the figure is a rule-12 prediction scored at completion. 2,055 core-min is the price of the unchanged NOT A RESULT described above.",
+  "_recommendation_from_the_drafting_lane": "DO NOT PLACE. Prepared in full because the choice is Sanaa's and she must be able to make it in one minute with the defect visible -- not because the lane endorses it."
+}

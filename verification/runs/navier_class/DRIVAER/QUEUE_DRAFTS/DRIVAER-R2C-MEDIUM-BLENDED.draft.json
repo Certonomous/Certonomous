@@ -1,0 +1,48 @@
+{
+  "_DRAFT": "NOT QUEUED. NOT LAUNCHED. Outside the runner glob by design.",
+  "team": "cfd",
+  "case_id": "DRIVAER-R2C-MEDIUM-BLENDED",
+  "prereg_path": "verification/campaign/DRIVAER_R2C_BLENDED_WALL_TREATMENT_PREREGISTRATION.md",
+  "prereg_commit": "76e2030c1",
+  "prereg_integrity_VERIFIED_BY_THIS_LANE": "sha256 of the worktree file = 6dc537a116bf62ba... ; sha256 of `git show HEAD:<path>` = 6dc537a116bf62ba... ; IDENTICAL, 154 lines both sides. UNCHANGED. IT MUST NOT BE RE-FROZEN. Gates B1, B2 and B3 stand exactly as written.",
+  "🔴_INDEX_HAZARD": "The SHARED GIT INDEX carries a STAGED DELETION of this very registration file. A bare `git commit` by anyone destroys it. Reported here because a queue entry whose registration can vanish from HEAD is not safely placeable. Not reverted by this lane -- an unexpected index state is INSPECTED, NEVER REVERTED, and the index is the chief's call.",
+  "grading_freeze": ["cases/navier_class/DRIVAER/grade_drivaer.py"],
+  "grading_freeze_note": "sha256 6106cf6db9ac7dd7d767e140de7ba2e389829d02c30f5d251fcec0c6b83c26d7, from the registration's own literal-hash table (section 8). Recompute before any verdict is believed; a mismatch is a REFUSAL.",
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER",
+  "case_dir": "verification/runs/navier_class/DRIVAER/r2c_medium_blended_R2 (FRESH -- rule 4's guard refuses a case where 0 or a time dir already exists; the dead tree is evidence and is NOT deleted)",
+  "ranks": 4,
+  "run_as": "ubuntu",
+  "memory_floor_gb": 4.0,
+  "memory_basis": "1.64 GiB, the R2c registration's own figure for 983,106 cells. 983106 cells.",
+  "_the_one_change_UNCHANGED": "0.orig/nut, the \".*\" block (every vehicle patch, the 47 the forceCoeffs FO integrates): nutkWallFunction -> nutUSpaldingWallFunction. ONE LINE. Everything else byte-identical, proven by diff into THE_ONE_CHANGE.diff in the run root. floorNoSlip KEEPS nutkWallFunction (not a vehicle patch, contributes no Cd). k keeps kqRWallFunction, omega keeps omegaWallFunction (already blended). nut was the only non-blended limb.",
+  "_why_from_scratch": "This arm had NO CHECKPOINT. writeInterval 1000 never fired; processor*/0 only. Re-derived from disk: last `Time =` in log.simpleFoam is 117. (The brief that commissioned this entry gave a different figure; the disk value is 117 and is what is used.) There is nothing to resume from, so the rule-4 exec-count problem that blocks the r2_coarse RESUME does not arise here -- a from-zero run produces exactly 2000 ExecutionTime lines.",
+  "_controlDict_delta": {
+    "startFrom": "startTime (UNCHANGED)",
+    "endTime": "2000 (UNCHANGED -- pinned byte-identical by the registration's section 1 'deliberately not changed' list)",
+    "writeInterval": "1000 -> 250",
+    "purgeWrite": "0 -> 2",
+    "everything_else": "UNTOUCHED. Schemes, relaxation, every other BC, decomposition, the forceCoeffs constants and patch list: byte-identical. The registration's value is that ONE thing moved."
+  },
+  "_is_the_checkpoint_delta_a_departure": "NO GATE MOVES. The registration's pinned-unchanged list (section 1) names schemes, relaxation, every other BC, decomposition, endTime 2000 and the forceCoeffs constants -- it does NOT name writeInterval or purgeWrite, and neither enters any gate. Intermediate field writes change WHICH times are written, not endTime, not deltaT and not the ExecutionTime count, so rule 4 is untouched; purgeWrite 2 at writeInterval 250 retains t=1750 and t=2000, and the endTime fields the age guard reads always survive. It is RECORDED here rather than absorbed, because a change to a case under a frozen registration is disclosed even when it is inert.",
+  "_checkpoint_spec": {
+    "rate_basis": "MEASURED: 6.073 s/iteration/rank of CPU (registration section 6 cost table). 250 iterations = 25.3 minutes, inside Sanaa's 30-minute rule.",
+    "common_cadence": "250 across all three DrivAer arms, so checkpoint frequency does not co-vary with the mesh level. This matters: gate B1 COMPARES coarse against medium.",
+    "kill_and_resume_proof_owed": "Sanaa item 5, steady incompressible OpenFOAM. NOT PERFORMED by this lane."
+  },
+  "_monitor_spec": {
+    "stall_rule": "STOP if fewer than 30 iterations advance in any rolling 60-minute window. Sanaa: a stall signature is a MESH DEFECT signature -> stop and fix, NEVER wait.",
+    "healthy_rate_for_contrast": "6.073 s/it -> 592 iterations/hour.",
+    "per_iteration": "residuals per equation, Cd, cost per iteration, wall vs the registered estimate.",
+    "no_kill_on_cap": "None. Sanaa 2026-09-12 NO-CAP ruling."
+  },
+  "_gates_B1_B2_B3_STAND_AS_WRITTEN": {
+    "B1_primary": "|Cd_coarse - Cd_medium| / mean(Cd) <= 0.10. The 0.10 is the frozen grader's OWN CD_BAND_REL, not a number invented for the gate. ASYMMETRIC AND REGISTERED AS SUCH: passing is evidence of y+ insensitivity; failing is evidence of y+ sensitivity OR of grid error larger than assumed, and two levels cannot separate them.",
+    "B2_the_clean_discriminator": "blending is ACTIVE iff |Cd_blended - Cd_nonblended| / Cd_nonblended exceeds 2x the non-blended run's own trailing-200 plateau excursion, both read by the same coefficient.dat reader, computed at endTime 2000. SAME MESH, one line apart -- B1 confounds wall model with grid, B2 does not.",
+    "🔴_B2_MUST_NOT_BE_SKIPPED": "B1 ALONE CAN BE PASSED BY A NULL. Two meshes agreeing because the wall treatment never engaged reads as success. The registration says it in its own words: 'If B2 shows no change, blending does nothing at y+ 481.6 and B1's agreement -- if it agrees -- means nothing. B2 is the limb that stops a null result being read as a pass.' B2 REQUIRES the non-blended run of the SAME mesh as its comparator, so the non-blended arm is a HARD DEPENDENCY of this entry, not an optional extra.",
+    "B3_reported_not_primary": "|Cd - 0.2758368| <= 0.10 x 0.2758368 on each level. DrivAerML is a CODE reference, rank 2, NOT experiment; a pass carries the disavowal.",
+    "this_arm_layered_yplus": 232.027
+  },
+  "_🔴_CARRY_ACROSS_SO_NOBODY_RE_DERIVES_IT": "AN INACTIVE B2 READING IS EXPECTED AND WOULD BE CORRECT PHYSICS, NOT A FAILED SWAP. The blended and log-law wall functions are numerically the SAME above y+ ~ 30 and differ only BELOW it: nut/nu agrees to 0.440 % at y+ 232.0 (medium layered) and 0.148 % at y+ 481.6 (coarse layered), because Spalding's law asymptotes to the log law at high y+. DrivAer's problem is y+ TOO HIGH, not too low. This prediction is REGISTERED AT verification/campaign/DRIVAER_R2C_B2_INTERPRETATION_ADDENDUM.md (commits 99a49c026, 2ac8a35f6) -- filed BEFORE the arms ran -- together with the local-equilibrium caveat that qualifies it: the two wall functions take DIFFERENT INPUTS (nutkWallFunction forms y+ from k as y+ = C_mu^0.25 sqrt(k) y / nu, nutUSpaldingWallFunction solves for u_tau from U), so in a massively separated rear-end flow where local equilibrium fails they can disagree regardless of how high y+ is. The asymptotic arithmetic is the prediction; the caveat is the named way it could be wrong. WHAT THIS COSTS THE ARM, STATED IN ADVANCE: if B2 reads INACTIVE, B1's agreement carries NO evidence of y+ insensitivity.",
+  "cost_core_min_estimate": 810,
+  "cost_basis": "MEASURED BASIS. 2000 iterations x 6.073 s/it/rank x 4 ranks / 60 = 810 core-min CPU-held, the registration's own section 6 figure. $0.69 DERIVED at $0.0513/core-h owner-stated -- DERIVED, NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5). The registration ALREADY registered contention-inflated gross projections separately (2,891 and 6,661 core-min for the two arms) and names contention as a separate line, never folded into the ratio. The DEAD attempt spent ~2759 core-min GROSS to reach 117 iterations. Rule-12 estimate-vs-actual row OWED to docs/COST_CALIBRATION.md at completion. No cap kills this run (Sanaa 2026-09-12)."
+}

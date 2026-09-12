@@ -1210,3 +1210,176 @@ materialised for this case. **A parked note that outlives its blocker reads iden
 owed work**, which is precisely why it is struck here rather than left standing.
 
 *A1.12 ends. Nothing above line 1156 was edited; the hash above proves it.*
+
+---
+
+## ADDENDUM 1, SECTION A1.13 — 2026-09-12 — RULE-15 TITLE-PAGE VERIFICATION OF THE `Np` ANCHOR WAS **ATTEMPTED AND FAILED FOR WANT OF THE SOURCE**. THE DISAVOWAL STANDS. NO GATE MOVES.
+
+**`lines whose number changed above this section: 0`** — every line above is byte-identical
+to the blob this section was appended to. No gate, threshold, cap, band or label is altered
+by this section; it changes one thing only, and that is the *status of a verification
+attempt*, which was already recorded as owed.
+
+### A1.13.1 WHY THIS SECTION EXISTS
+
+Sanaa's 2026-09-12 run instruction for the impeller reads, byte-exact from
+`docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md`:
+
+> *"Register the power-number band as 'inside the published range 4.0–6.0' plus the Rushton
+> correlation value as the ANCHOR"*
+
+**That band is ALREADY REGISTERED and frozen, and this section does not re-register it.**
+§5 of this document registers, before any R2 compute:
+
+```
+PASS band:  Np ∈ [4.0, 6.0]        reference Np_ref = 5.0
+```
+
+Re-registering a frozen band would be rule-2 laundering of the worst kind — the band would
+then carry a 2026-09-12 date and an answer (`Np = 4.381719292039071`) that has been on disk
+since 04:37 the same morning. **The band keeps its original freeze and its original date.**
+What Sanaa's instruction genuinely reaches that was still open is the **anchor's provenance**,
+which this document itself flagged as owed.
+
+### A1.13.2 THE OPEN ITEM, QUOTED FROM THIS DOCUMENT'S OWN §5
+
+This document already states the gap in its own words:
+
+> *"REFERENCE TIER: bounded-agreement ... correlation value, NOT yet title-verified"*
+> (Rushton / Costich / Everett 1950; Zhou & Kresta)
+
+and requires that the row *"carries the disavowal: 'reference is a manifest correlation
+value, not yet [title-verified]'"*. Rule 15 forbids verifying a paper by file type, filename
+or hash: **only the title page counts.**
+
+### A1.13.3 THE ATTEMPT, AND ITS RESULT — `BLOCKED`
+
+The lane searched the entire paper store for the anchor's source:
+
+| what was searched | result |
+|---|---|
+| `docs/papers/**` for `rushton`, `kresta`, `impeller`, `mixing`, `stirred` (filename) | **0 files** |
+| `docs/papers/` topic directories, enumerated in full | no mixing / stirred-tank / rotating-machinery topic exists |
+
+**Rushton, Costich & Everett (1950) is NOT ON THIS BOX.** Neither is Zhou & Kresta. There is
+no PDF and no `.txt` sidecar for either, so **there is no title page to read**, and rule 15
+admits no substitute for one. `Np_ref = 5.0` and the range `4.0–6.0` therefore remain what
+§5 already called them: **a manifest correlation value whose source this lab has not seen.**
+
+**VERDICT ON THE VERIFICATION ITEM: `BLOCKED`** — blocked on acquisition of the source, not
+on any solve, any gate or any compute.
+
+**THE DISAVOWAL IS NOT LIFTED.** Every display, register row and report quoting `Np_ref = 5.0`
+or the `[4.0, 6.0]` range continues to carry it, verbatim as §5 requires. A band whose anchor
+is unverified is still a legitimate *pre-registered* band — its evidentiary content is that it
+was fixed before the answer was seen, which is intact — but it is **not** a validated one, and
+nothing here promotes it up the reference tier.
+
+### A1.13.4 WHAT WOULD CLOSE IT, NAMED SO NOBODY RE-DERIVES IT
+
+Acquisition of **either**:
+
+- Rushton, Costich & Everett, *"Power Characteristics of Mixing Impellers, Part II"*,
+  Chem. Eng. Prog. 46 (1950) — the primary correlation source; **or**
+- Zhou & Kresta, *"Impact of tank geometry on the maximum turbulence energy dissipation
+  rate for impellers"*, AIChE J. 42 (1996) — the modern restatement of the turbulent plateau,
+
+filed to `docs/papers/<topic>/author_year_identifier.pdf` **with its matching `.txt`
+sidecar** per `FILING_CHARTER`, then **title-page verified** (rule 15) and recorded in a
+further dated section. **SUBMISSIONS AND ACQUISITIONS ARE PARKED** — nothing is fetched,
+requested or contacted from this box on any agent's initiative (rule 7).
+
+---
+
+## ADDENDUM 1, SECTION A1.14 — 2026-09-12 — THE `fine` LEVEL'S `NOT_CONVERGED` COMES FROM A **WINDOW-RELATIVE** TELL THAT LENGTHENING THE RUN ALONE WOULD FLIP. DISCLOSED, NOT REPAIRED.
+
+**`lines whose number changed above this section: 0`.** No gate, threshold, cap, band or
+label is altered. §9's registered decision, its `endTime`, and the `NOT A RESULT` verdict of
+2026-09-12T04:37Z stand exactly as they are. **This section makes a defect legible; it
+rehabilitates nothing.**
+
+### A1.14.1 THE MEASUREMENT, RE-DERIVED FROM THE LOG ON DISK
+
+`MRF_R2_GRADED_ROW_ET8000.json` grades the ET8000 family `NOT A RESULT` on two independent
+limbs: `fine` is `NOT_CONVERGED`, and the triple is `DIVERGENT`. This section concerns the
+**first limb only**.
+
+`fine`'s `iterative_state` is computed as `diverged = bool(nan or fpe or cascade)`.
+Re-measured by this lane directly from
+`verification/runs/navier_class/MRF/R2/ET8000/fine/log.simpleFoam`, through the frozen
+`measure_states_mrf.divergence_tells` itself:
+
+| tell | value |
+|---|---|
+| `nan` | **0** |
+| `fpe` | **0** |
+| bounding events (iteration numbers) | `[1, 2, 74, 4356, 4848, 6335, 6340, 6641, 6642, 7817]` |
+| `plateau_state` (all three levels) | **`PLATEAUED`** |
+
+**`cascade` is therefore the SOLE cause of `fine`'s `NOT_CONVERGED`.** No NaN, no
+floating-point exception, and the level is plateaued.
+
+### A1.14.2 THE TELL'S WINDOW IS RELATIVE TO `endTime`, AND THAT IS THE DEFECT
+
+`measure_states_mrf.divergence_tells` computes, verbatim:
+
+```
+q     = max(n_iters // 4, 1)
+early = #{ i : i <= q }
+late  = #{ i : i >  n_iters - q }
+cascade = late > early
+```
+
+Both window edges are **fractions of `n_iters`**. Holding the events on disk fixed and
+varying only the declared `n_iters`:
+
+| `n_iters` | `q` | `early` | `late` | `cascade` | resulting `iterative_state` |
+|---:|---:|---:|---:|---|---|
+| **8000** | 2000 | 3 | **5** | **True** | **`NOT_CONVERGED`** |
+| 9000 | 2250 | 3 | 1 | False | `CONVERGED` |
+| 10000 | 2500 | 3 | 1 | False | `CONVERGED` |
+| 12000 | 3000 | 3 | **0** | False | `CONVERGED` |
+
+**The verdict flips at `n_iters` = 9,000 — a 1,000-iteration extension — WITHOUT THE
+SOLUTION IMPROVING BY ONE CELL.** The five late events are not cured; they are
+*re-classified as middle* because the trailing window slid past them.
+
+### A1.14.3 WHAT IS **NOT** AFFECTED, STATED SO THE DEFECT IS NOT OVERSTATED
+
+**S12's drift limb does NOT share this defect, and saying so is part of reading it
+honestly.** `measure_states_mrf.s12` uses `w = min(max(n // 4, 20), 2000)`. The **cap of
+2000 binds for every `n ≥ 8000`**, so S12's window is already **absolute** at the iteration
+counts in play and cannot be widened by lengthening the run. Only `divergence_tells` is
+window-relative.
+
+**The second limb is untouched and is not an iteration question at all.** The triple is
+`DIVERGENT` with observed order **−0.2970723057121996** on values
+`4.193490698945692 / 4.2811322191608125 / 4.381719292039071` — the level-to-level
+differences **GROW** under refinement (`|e21| = 0.1006 > |e32| = 0.0876`). **A refinement
+trend is not an iteration count, and no `endTime` changes it.**
+
+### A1.14.4 THE CONSEQUENCE, AND WHAT THIS SECTION REFUSES TO DO
+
+§9 of this document already forecloses the cheap move, in terms written **before any R2
+compute**:
+
+> *"If 8000 also leaves |drift| ≥ 1e-3, that is a finding about the steady MRF formulation,
+> **not a licence for a third extension**, and R2's fine level reports at the core-minutes
+> spent."*
+
+and it bars restarts in favour of re-runs from `0`. A1.14 **adds a second, independent
+reason** for the same foreclosure: an extension would flip the first limb **for a reason
+that is not physics**. Reading a `CONVERGED` out of a slid window would be exactly the
+post-hoc match this lab's doctrine refuses.
+
+**Nothing is repaired here.** The tell is inside a grading path fixed at this document's
+freeze, and rule 6 says a defect in a frozen instrument is **disclosed, not edited**. A
+corrected criterion — one that **cannot** be satisfied by lengthening — belongs to a **new
+registration on a re-run from `0`**, not to this one. That registration is drafted
+separately, is **not frozen**, and nothing under it has launched.
+
+*Sections A1.13 and A1.14 appended by a cfd `lab-lane`, 2026-09-12, at the cfd-supervisor's
+direction. Two numbers in A1.14 were re-derived from disk rather than accepted from the
+brief that supplied them, and one differs (the flip point is 9,000, not 10,000). No gate,
+threshold, cap, band or label is altered. Submissions parked. No agent's message is Sanaa's
+consent.*

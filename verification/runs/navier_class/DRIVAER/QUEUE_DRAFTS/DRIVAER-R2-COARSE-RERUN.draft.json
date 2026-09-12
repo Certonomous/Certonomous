@@ -1,0 +1,49 @@
+{
+  "_DRAFT": "NOT QUEUED. NOT LAUNCHED. Outside the runner glob by design.",
+
+  "_🔴_THIS_ENTRY_CONTRADICTS_THE_BRIEF_THAT_COMMISSIONED_IT_AND_HERE_IS_THE_EVIDENCE": {
+    "the_brief_said": "r2_coarse resumes from its t=1000 checkpoint (startFrom latestTime); 415 iterations lost.",
+    "the_415_is_CORRECT_and_re_derived_from_disk": "last `Time =` in log.simpleFoam is 1415; processor{0,1,2,3}/1000 each hold 7 entries (U k nut omega p phi + uniform/) and are COMPLETE. 1415 - 1000 = 415. Confirmed independently of the census.",
+    "but_the_RESUME_CANNOT_BE_GRADED": "The frozen grader cases/navier_class/DRIVAER/grade_drivaer.py:241-244 reads `n_exec = len(re.findall(r'ExecutionTime\\s*=', logtxt))`, sets `want = round(endTime/deltaT)` = 2000, and on mismatch calls `refuse()` -- which is `sys.exit(2)`. It REFUSES; it does not degrade.",
+    "arithmetic_either_way": "A resume from t=1000 to endTime 2000 executes 1000 iterations. If the launcher writes a fresh log, n_exec = 1000 != 2000 -> REFUSE. If it appends to the existing log (which already holds 1414 ExecutionTime lines), n_exec = 2414 != 2000 -> REFUSE. THERE IS NO RESUME PATH THAT SATISFIES THE CLAUSE.",
+    "and_the_clause_CANNOT_BE_AMENDED": "It is CLAUDE.md rule 4 clause 5, and it is ALSO falsifier F2 of the governing registration, which reads `ExecutionTime count != 2000 ... -> NOT A RESULT`. DRIVAER_R2_LAYERED_PREREGISTRATION.md:20: 'after the first snappyHexMesh of r2_coarse starts, every gate, threshold, band, label and cap below is CLOSED.' The mesh is built. GATES ARE CLOSED. Amending F2 would alter a gate after first compute -- rule 2 forbids it.",
+    "therefore": "RE-RUN FROM ZERO. The 415-iteration saving is not a saving: it buys 127 core-min and produces a run the frozen grader REFUSES to grade. The whole 1,415 iterations are unusable for GRADING -- not because they are wrong, but because the completion clause is written against a from-zero run.",
+    "what_it_actually_costs_to_do_it_right": "254 core-min for the full 2000 iterations. The 'saving' being given up is ~127 core-min = $0.11 DERIVED. That is the entire price of a gradeable result instead of a refused one.",
+    "the_old_tree_is_NOT_DELETED": "verification/runs/navier_class/DRIVAER/r2_coarse stays exactly as it is. It is evidence (it holds THE_ONE_CHANGE.diff, the mesh logs, R2_MEASURED.json and the 1000-iteration checkpoint) and an unexpected artifact is INSPECTED, NEVER REVERTED. The re-run needs a FRESH case directory in any case: rule 4's guard refuses a case where `0` or a time dir already exists."
+  },
+
+  "team": "cfd",
+  "case_id": "DRIVAER-R2-COARSE-RERUN",
+  "prereg_path": "verification/campaign/DRIVAER_R2_LAYERED_PREREGISTRATION.md",
+  "prereg_commit": "UNCHANGED and NOT re-frozen. Gates closed since the first snappyHexMesh of r2_coarse. This entry alters no gate, threshold, band, label or cap.",
+  "grading_freeze": ["cases/navier_class/DRIVAER/grade_drivaer.py"],
+  "grading_freeze_note": "sha256 6106cf6db9ac7dd7d767e140de7ba2e389829d02c30f5d251fcec0c6b83c26d7 per the R2c registration's literal-hash table. Recompute before any verdict is believed; a mismatch is a REFUSAL.",
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER",
+  "case_dir": "verification/runs/navier_class/DRIVAER/r2_coarse_R2 (FRESH -- must not exist at launch; rule 4's guard refuses a case where 0 or a time dir already exists)",
+  "ranks": 4,
+  "run_as": "ubuntu",
+  "memory_floor_gb": 2.0,
+  "memory_basis": "0.45 GiB across 4 ranks, MEASURED on r2_coarse itself (DRIVAER_R2B_COARSE_SOLVE_PREREGISTRATION.md:96). 186,709 cells. Floor 2.0 GiB, >4x margin.",
+  "_controlDict_delta": {
+    "startFrom": "startTime (UNCHANGED -- from zero, by the finding above)",
+    "endTime": "2000 (UNCHANGED)",
+    "deltaT": "1 (UNCHANGED)",
+    "writeInterval": "1000 -> 250",
+    "purgeWrite": "0 -> 2",
+    "residualControl": "ABSENT, and it STAYS ABSENT. The controlDict's own comment says why: 'NO residualControl, DELIBERATELY: the run must reach endTime so that last == endTime and the ExecutionTime count == round(endTime/deltaT).' Adding one would break the same clause from the other direction."
+  },
+  "_checkpoint_spec": {
+    "rate_basis": "MEASURED: 1.904 s/iteration/rank of CPU from r2_coarse's own log.simpleFoam over 816 iterations (DRIVAER_R2B_COARSE_SOLVE_PREREGISTRATION.md:87). 250 iterations = 7.9 minutes, comfortably inside Sanaa's 30-minute rule.",
+    "why_250_and_not_larger": "250 is the COMMON cadence across all three DrivAer arms. The medium arm runs at 6.073 s/it, where 250 iterations = 25.3 min -- the binding case. A common cadence keeps checkpoint frequency from becoming another variable that co-varies with the mesh level, which matters because gate B1 COMPARES coarse against medium.",
+    "predecessor_defect_this_fixes": "writeInterval 1000 with purgeWrite 0. At the 17:36:41Z reboot the run held 1,415 iterations and exactly ONE checkpoint (t=1000). Under the new spec it would have held t=1250 and t=1000.",
+    "kill_and_resume_proof_owed": "Sanaa item 5, solver class = steady incompressible OpenFOAM (simpleFoam). NOT PERFORMED by this lane. A precondition, not a property. NOTE: for THIS case the proof is doubly required, because the finding above shows a resume is not merely untested here -- it is ungradeable. The proof must therefore be run on a case whose registration admits a resume, or its result read only as evidence that the MECHANISM works."
+  },
+  "_monitor_spec": {
+    "stall_rule": "STOP if fewer than 30 iterations advance in any rolling 60-minute window, from the `Time =` lines of log.simpleFoam. Sanaa: a stall signature is a MESH DEFECT signature -> stop and fix, NEVER wait.",
+    "healthy_rate_for_contrast": "1.904 s/it -> 1,890 iterations/hour. The 30 it/h threshold is 1.6% of healthy and will not fire on ordinary slowdown.",
+    "per_iteration": "residuals per equation, Cd (the graded quantity), cost per iteration, wall vs the registered estimate.",
+    "no_kill_on_cap": "None. Sanaa 2026-09-12 NO-CAP ruling. The stall stop is a MESH-DEFECT stop, not a clock or spend stop."
+  },
+  "cost_core_min_estimate": 254,
+  "cost_basis": "MEASURED BASIS. 2000 iterations x 1.904 s/it/rank x 4 ranks / 60 = 254 core-min CPU-held, the registration's own figure. $0.22 DERIVED at $0.0513/core-h owner-stated -- DERIVED, NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5). For contrast the DEAD run spent ClockTime 57,835 s x 4 / 60 = 3,856 core-min GROSS to reach 1,415 iterations -- a 15x gap that is CONTENTION (the box ran at MemAvailable 1.42 GiB and load ~49), named separately per COMPUTE_BUDGET_CHARTER section 6 and never folded into the ratio. On the uncontended r7a.4xlarge the gross figure should approach the CPU-held one. Rule-12 estimate-vs-actual row OWED to docs/COST_CALIBRATION.md at completion. No cap kills this run."
+}
