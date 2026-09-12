@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""check_clause_demonstrated.py - the executable check shipping with L-529.
+"""check_clause_demonstrated.py v1.1 - the executable check shipping with L-529.
 
 THE PROPOSITION UNDER TEST
 --------------------------
@@ -92,13 +92,54 @@ USAGE
                                  [--registry FILE] [--min-real N] [--emit-json]
     check_clause_demonstrated.py --selftest
 
-EXIT CODES
-----------
-    0   DEMONSTRATED - a named non-fixture artifact satisfies the clause
-    2   NOT-DEMONSTRATED - a finding: enough real artifacts were read, none does
-    3   HALF-DEMONSTRATED / COULD-NOT-RUN - clause not found, artifact root
-        absent, empty or too-small real population, fixtures only, usage error.
-        Never 0. A check that read nothing is not a pass.
+EXIT CODES - NO TWO STATES A CALLER MUST DISTINGUISH SHARE A CODE
+-----------------------------------------------------------------
+v1.0 shipped a COLLISION and it bit a reader twice in twenty minutes: argparse
+exits 2 on a usage error, and v1.0 exited 2 for a genuine NOT-DEMONSTRATED
+finding. A mistyped flag therefore returned the same code as "this clause is
+unreachable by its real producer" - a false FINDING manufactured out of operator
+error, which is the worst direction for the error to run in. It is the family
+L-529 names, inverted: a RED that is an artifact of the harness, not a reading.
+
+    code  meaning                                   is it a verdict?
+    ----  ----------------------------------------  ----------------
+     0    DEMONSTRATED - a NAMED non-fixture         YES, and 0 is
+          artifact satisfies the clause              ONLY ever this
+     1    INTERNAL ERROR - an uncaught exception,    no
+          reported explicitly rather than as a
+          bare traceback (a crash that swallows
+          findings is not refusal discipline)
+     2    NOT-DEMONSTRATED - a FINDING: enough       YES
+          real artifacts were read, none satisfies
+     3    HALF-DEMONSTRATED / COULD-NOT-RUN -        no (and never 0)
+          clause not located, artifact root absent,
+          empty / too-small / fixtures-only real
+          population. A check that read nothing is
+          not a pass.
+     4    USAGE - a bad or missing flag, --help,     no
+          --list. argparse's own exits are REMAPPED
+          here, so no operator typo can ever be
+          mistaken for a finding, and no
+          informational limb can ever return 0.
+
+The one documented exception: `--selftest` itself exits 0 when green and 2 when
+not. A caller running `--selftest` is not asking for a verdict about a clause,
+so the two states are never confusable in practice - but it is stated here
+rather than left to be discovered.
+
+Every one of the five is DRIVEN AND OBSERVED in `--selftest`, code 1 included
+(via `--selftest-internal-error`, which exists solely so the code-1 handler is
+shown to fire rather than assumed to).
+
+EXCLUSION ON THE AUTHORITY OF A COMMITTED RECORD, NOT A NAME HEURISTIC
+----------------------------------------------------------------------
+A fourth bucket, EXCLUDED-BY-RECORD, holds artifacts a committed repository
+record declares are not target extractions. The citation is checked at run time:
+the record is read, the cited line range is read, and the declared quote must be
+FOUND THERE and the case name must be named there. If the citation does not
+verify, the exclusion is NOT applied and the artifact falls back to UNCLASSIFIED
+- the conservative bucket - with the failure printed. An exclusion that cannot
+show its record does not get to exclude anything.
 """
 
 import argparse
@@ -110,7 +151,7 @@ import subprocess
 import sys
 import tempfile
 
-VERSION = "1.0"
+VERSION = "1.1"
 
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _CLOSURE = os.path.join(_REPO, "cases", "RANS_LES_closure_models")
@@ -126,20 +167,33 @@ FIXTURE_MARKERS = ("selftest", "grading_scratch", "scratch", "fixture",
 DEFAULT_MIN_REAL = 10
 
 
+RC_DEMONSTRATED = 0
+RC_INTERNAL = 1
+RC_NOT_DEMONSTRATED = 2
+RC_COULD_NOT_RUN = 3
+RC_USAGE = 4
+
+
 def _fail(code, msg):
     sys.stderr.write("REFUSED: %s\n" % msg)
     sys.exit(code)
 
 
+def usage(msg):
+    """A usage error is NOT a finding, and must never share 2 with one."""
+    sys.stderr.write("USAGE ERROR (this is not a verdict): %s\n" % msg)
+    sys.exit(RC_USAGE)
+
+
 def refuse(msg):
     """A finding. The clause is not demonstrated by any real artifact."""
-    _fail(2, msg)
+    _fail(RC_NOT_DEMONSTRATED, msg)
 
 
 def unreadable(msg):
     """A check that could not be made is not a pass (L-529)."""
     sys.stderr.write("REFUSED (check could not be made): %s\n" % msg)
-    sys.exit(3)
+    sys.exit(RC_COULD_NOT_RUN)
 
 
 # ===========================================================================
@@ -166,6 +220,23 @@ _FROZEN_POPULATION = {
     "real_roots": ["/home/ubuntu/closure-data/r4/frozen",
                    "/home/ubuntu/closure-data/r5c/frozen"],
     "registry": {"path": _REGISTRY_JSON, "key": "inventory", "field": "case"},
+    # LAYER 1b - exclusion on the authority of a COMMITTED RECORD, cited by
+    # path and line, and VERIFIED at run time. Not a name heuristic: the quote
+    # must be found in the cited range and the case must be named there.
+    "excluded_by_record": [
+        {"cases": ["ktest", "ktest2", "ktest3", "ktestA", "ktestB"],
+         "under": "/home/ubuntu/closure-data/r4",
+         "record": os.path.join(_CLOSURE, "R4_sparta_build", "RESULTS.md"),
+         "lines": [70, 78],
+         "quotes": ["this lane's own convergence diagnostics",
+                    "Neither feeds any number in this file."],
+         "corroboration": (
+             "cases/RANS_LES_closure_models/MATRIX_CONTRIBUTION.md:1336 - "
+             "'NOT a grid family - k-transport tests on one mesh'; and "
+             "R4_sparta_build/RESULTS.md:181-184 records each one's outcome as "
+             "NOT CONVERGED, :1008 enumerates all five as 'the five "
+             "convergence diagnostics of sec. 2.3'")},
+    ],
 }
 
 CLAUSES = {
@@ -209,6 +280,22 @@ CLAUSES = {
         },
         "population": _FROZEN_POPULATION,
     },
+}
+
+# A registered clause whose locator names a key the grader does not carry. It
+# exists so that "the clause could not be LOCATED" stays a DRIVEN rc=3 case
+# after an unregistered KEY became rc=4: the two are different failures and the
+# selftest must exercise both.
+CLAUSES["SELFTEST_CLAUSE_NOT_IN_GRADER"] = {
+    "what": "a locator that cannot be satisfied (selftest control)",
+    "grader": _R5D_GRADER,
+    "function": "completion_rule4",
+    "registered_line": None,
+    "locate": {"kind": "subscript_assign", "target": "info",
+               "key": "no_such_clause_key"},
+    "producer": "(none - this clause exists only to be NOT FOUND)",
+    "predicate": CLAUSES["R5D_RULE4_CLAUSE5"]["predicate"],
+    "population": _FROZEN_POPULATION,
 }
 
 
@@ -366,7 +453,40 @@ def load_registry(reg):
     return names
 
 
-def discover(pop, search_roots=None, registry_path=None):
+def verify_exclusion_record(rule, record_override=None):
+    """Read the cited record and CHECK the citation. Returns (ok, note).
+
+    The exclusion is only as good as the record it names, so the record is read
+    rather than trusted: the cited line range must exist, every declared quote
+    must be found INSIDE it, and every case the rule excludes must be named
+    there. A citation that does not verify excludes nothing (the artifact falls
+    back to UNCLASSIFIED, the conservative bucket) and says so.
+    """
+    path = record_override or rule["record"]
+    if not os.path.exists(path):
+        return False, "cited record %s is not on disk" % path
+    lines = open(path, errors="replace").read().splitlines()
+    lo, hi = rule["lines"]
+    if len(lines) < hi:
+        return False, ("cited record %s has %d lines, fewer than the cited "
+                       "range %d-%d" % (path, len(lines), lo, hi))
+    window = "\n".join(lines[lo - 1:hi])
+    for q in rule["quotes"]:
+        if q not in window:
+            return False, ("cited quote %r is NOT present at %s:%d-%d, so the "
+                           "citation does not verify and excludes nothing"
+                           % (q, path, lo, hi))
+    missing = [c for c in rule["cases"] if c not in window]
+    if missing:
+        return False, ("%s:%d-%d does not name %s, so the record cannot be "
+                       "said to cover %s"
+                       % (path, lo, hi, ", ".join(missing), missing[0]))
+    return True, ("verified at %s:%d-%d - %r"
+                  % (os.path.relpath(path, _REPO), lo, hi, rule["quotes"][0]))
+
+
+def discover(pop, search_roots=None, registry_path=None,
+             exclusion_record=None):
     """Find every candidate artifact and CLASSIFY it by the declared rule.
 
     Returns (artifacts, roots_present, roots_absent, registry_names).
@@ -399,6 +519,16 @@ def discover(pop, search_roots=None, registry_path=None):
                 found.append(os.path.join(dirpath, pop["artifact_name"]))
     found.sort()
 
+    # LAYER 1b - verify every record-based exclusion ONCE, before any artifact
+    # is classified by it. A rule whose citation fails excludes nothing.
+    excl = []
+    excl_notes = []
+    for rule in (pop.get("excluded_by_record") or []):
+        ok, note = verify_exclusion_record(rule, exclusion_record)
+        excl_notes.append((rule, ok, note))
+        if ok:
+            excl.append(rule)
+
     arts = []
     for path in found:
         case_dir = os.path.dirname(os.path.abspath(path))
@@ -408,6 +538,20 @@ def discover(pop, search_roots=None, registry_path=None):
             arts.append(Artifact(path, case, "FIXTURE",
                                  "declared fixture marker %r matched path "
                                  "component %r" % (mark, comp)))
+            continue
+        hit = None
+        for rule in excl:
+            root = os.path.abspath(rule["under"])
+            if case in rule["cases"] and (case_dir == os.path.join(root, case)):
+                hit = rule
+                break
+        if hit is not None:
+            arts.append(Artifact(
+                path, case, "EXCLUDED-BY-RECORD",
+                "committed record %s:%d-%d declares it a lane convergence "
+                "diagnostic, not a target extraction (%r)"
+                % (os.path.relpath(hit["record"], _REPO), hit["lines"][0],
+                   hit["lines"][1], hit["quotes"][0])))
             continue
         under = [r for r in real_roots
                  if case_dir == r or case_dir.startswith(r + os.sep)]
@@ -424,7 +568,7 @@ def discover(pop, search_roots=None, registry_path=None):
         arts.append(Artifact(path, case, "REAL",
                              "under declared REAL root %s and named by the "
                              "committed registry" % under[0]))
-    return arts, present, absent, names
+    return arts, present, absent, names, excl_notes
 
 
 # ===========================================================================
@@ -495,7 +639,7 @@ def evaluate(arts, predicate):
 #  repair carried by check_bar_above_floor.py v1.1 - copied as discipline.
 # ===========================================================================
 def demonstrated_sentence(n_screened, n_real, n_fixture, n_unclassified,
-                          witness, detail):
+                          n_excluded, witness, detail):
     if n_screened <= 0:
         unreadable("a DEMONSTRATED verdict was requested over a population of "
                    "0 artifacts SCREENED. A check that read nothing is not a "
@@ -507,37 +651,40 @@ def demonstrated_sentence(n_screened, n_real, n_fixture, n_unclassified,
         unreadable("a DEMONSTRATED verdict was requested with no named witness "
                    "artifact. A verdict without its artifact is not a reading.")
     return ("VERDICT: DEMONSTRATED - %d artifact(s) SCREENED (%d REAL, %d "
-            "FIXTURE excluded, %d UNCLASSIFIED), and the REAL artifact\n"
+            "FIXTURE, %d EXCLUDED-BY-RECORD, %d UNCLASSIFIED), and the REAL "
+            "artifact\n"
             "  %s\n"
             "satisfies the clause (%s). The clause is reachable by its real "
-            "producer." % (n_screened, n_real, n_fixture, n_unclassified,
-                           witness, detail))
+            "producer." % (n_screened, n_real, n_fixture, n_excluded,
+                           n_unclassified, witness, detail))
 
 
 def not_demonstrated_sentence(n_screened, n_real, n_fixture, n_unclassified,
-                              min_real):
+                              n_excluded, min_real):
     if n_screened <= 0 or n_real <= 0:
         unreadable("a NOT-DEMONSTRATED verdict was requested over %d REAL of "
                    "%d screened. Not-demonstrated is a claim ABOUT a "
                    "population and cannot be made without one."
                    % (n_real, n_screened))
     return ("VERDICT: NOT-DEMONSTRATED - %d artifact(s) SCREENED (%d REAL, %d "
-            "FIXTURE excluded, %d UNCLASSIFIED), and NONE of the %d REAL "
-            "artifacts satisfies the clause.\n"
+            "FIXTURE, %d EXCLUDED-BY-RECORD, %d UNCLASSIFIED), and NONE of the "
+            "%d REAL artifacts satisfies the clause.\n"
             "  The REAL population exceeds the declared minimum of %d, so this "
             "is a FINDING about the clause and not a gap in the read: on this "
             "evidence the clause's green is unreachable by its real producer."
-            % (n_screened, n_real, n_fixture, n_unclassified, n_real, min_real))
+            % (n_screened, n_real, n_fixture, n_excluded, n_unclassified,
+               n_real, min_real))
 
 
 def report(spec, key, clause_line, clause_src, pred_desc, arts, present,
-           absent, names, min_real, emit_json):
+           absent, names, excl_notes, min_real, emit_json):
     real = [a for a in arts if a.bucket == "REAL"]
     fixt = [a for a in arts if a.bucket == "FIXTURE"]
     uncl = [a for a in arts if a.bucket == "UNCLASSIFIED"]
+    excl = [a for a in arts if a.bucket == "EXCLUDED-BY-RECORD"]
     unreadable_arts = [a for a in arts if a.satisfied is None]
     real_sat = [a for a in real if a.satisfied]
-    other_sat = [a for a in (fixt + uncl) if a.satisfied]
+    other_sat = [a for a in (fixt + uncl + excl) if a.satisfied]
 
     print("check_clause_demonstrated v%s" % VERSION)
     print("  clause key          : %s" % key)
@@ -554,6 +701,14 @@ def report(spec, key, clause_line, clause_src, pred_desc, arts, present,
           "of %s" % ", ".join(repr(m) for m in FIXTURE_MARKERS))
     print("  DECLARED REAL RULE    (layer 2): under a declared REAL root AND "
           "named by the committed registry")
+    for rule, ok, note in excl_notes:
+        print("  DECLARED RECORD EXCLUSION (layer 1b): %s -> %s"
+              % ("/".join([rule["under"]] + [""])[:-1] + "/{%s}"
+                 % ",".join(rule["cases"]),
+                 "APPLIED, citation %s" % note if ok
+                 else "NOT APPLIED (citation did NOT verify: %s) - these "
+                      "artifacts fall back to UNCLASSIFIED" % note))
+        print("    corroboration   : %s" % rule["corroboration"])
     print("    REAL roots        : %s"
           % ", ".join(spec["population"].get("real_roots", [])) or "(none)")
     print("    registry          : %s (%d case(s) named)"
@@ -569,6 +724,7 @@ def report(spec, key, clause_line, clause_src, pred_desc, arts, present,
     print("  artifacts SCREENED  : %d" % len(arts))
     print("    REAL              : %d" % len(real))
     print("    FIXTURE excluded  : %d" % len(fixt))
+    print("    EXCLUDED-BY-RECORD: %d" % len(excl))
     print("    UNCLASSIFIED      : %d" % len(uncl))
     print("    UNREADABLE        : %d" % len(unreadable_arts))
     print("    declared min REAL : %d" % min_real)
@@ -578,6 +734,12 @@ def report(spec, key, clause_line, clause_src, pred_desc, arts, present,
         print("  EXCLUDED AS FIXTURE, each with the rule that excluded it:")
         for a in fixt:
             print("    [%s] %s  (%s)"
+                  % ("satisfies" if a.satisfied else "fails ", a.path, a.why))
+        print("")
+    if excl:
+        print("  EXCLUDED BY A COMMITTED RECORD (never counted as real):")
+        for a in excl:
+            print("    [%s] %s\n          %s"
                   % ("satisfies" if a.satisfied else "fails ", a.path, a.why))
         print("")
     if uncl:
@@ -612,7 +774,7 @@ def report(spec, key, clause_line, clause_src, pred_desc, arts, present,
                 print("      ... and %d more" % (len(vals) - 8))
         print("")
 
-    rc = 0
+    rc = RC_DEMONSTRATED
     if len(arts) == 0:
         unreadable("the declared search produced 0 candidate artifacts named "
                    "%r under %s. A check that read nothing is not a pass."
@@ -620,22 +782,24 @@ def report(spec, key, clause_line, clause_src, pred_desc, arts, present,
     if len(real) == 0:
         if other_sat:
             print("VERDICT: HALF-DEMONSTRATED - %d artifact(s) SCREENED (0 "
-                  "REAL, %d FIXTURE, %d UNCLASSIFIED). The clause IS satisfied "
-                  "here, but only by artifacts the declared rule refuses to "
-                  "call real. Fixtures alone cannot demonstrate a clause."
-                  % (len(arts), len(fixt), len(uncl)))
+                  "REAL, %d FIXTURE, %d EXCLUDED-BY-RECORD, %d UNCLASSIFIED). "
+                  "The clause IS satisfied here, but only by artifacts the "
+                  "declared rule refuses to call real. Fixtures alone cannot "
+                  "demonstrate a clause."
+                  % (len(arts), len(fixt), len(excl), len(uncl)))
         else:
             print("VERDICT: HALF-DEMONSTRATED / COULD-NOT-RUN - %d artifact(s) "
-                  "SCREENED but 0 are REAL (%d FIXTURE, %d UNCLASSIFIED). The "
-                  "clause was LOCATED and the population was READ, but it "
-                  "contains nothing the declared rule calls a real producer "
-                  "artifact." % (len(arts), len(fixt), len(uncl)))
-        rc = 3
+                  "SCREENED but 0 are REAL (%d FIXTURE, %d EXCLUDED-BY-RECORD, "
+                  "%d UNCLASSIFIED). The clause was LOCATED and the population "
+                  "was READ, but it contains nothing the declared rule calls a "
+                  "real producer artifact."
+                  % (len(arts), len(fixt), len(excl), len(uncl)))
+        rc = RC_COULD_NOT_RUN
     elif real_sat:
         w = real_sat[0]
         print(demonstrated_sentence(len(arts), len(real), len(fixt), len(uncl),
-                                    w.path, w.detail))
-        rc = 0
+                                    len(excl), w.path, w.detail))
+        rc = RC_DEMONSTRATED
     elif len(real) < min_real:
         print("VERDICT: HALF-DEMONSTRATED / COULD-NOT-RUN - %d artifact(s) "
               "SCREENED, %d REAL, and none satisfies the clause - but %d is "
@@ -643,11 +807,11 @@ def report(spec, key, clause_line, clause_src, pred_desc, arts, present,
               "artifact satisfies it' cannot be separated from 'not enough "
               "real artifacts were read'."
               % (len(arts), len(real), len(real), min_real))
-        rc = 3
+        rc = RC_COULD_NOT_RUN
     else:
         print(not_demonstrated_sentence(len(arts), len(real), len(fixt),
-                                        len(uncl), min_real))
-        rc = 2
+                                        len(uncl), len(excl), min_real))
+        rc = RC_NOT_DEMONSTRATED
 
     if other_sat and real_sat == []:
         print("")
@@ -666,25 +830,27 @@ def report(spec, key, clause_line, clause_src, pred_desc, arts, present,
             "clause_line": clause_line, "registered_line":
                 spec.get("registered_line"),
             "screened": len(arts), "real": len(real), "fixture": len(fixt),
-            "unclassified": len(uncl), "unreadable": len(unreadable_arts),
+            "unclassified": len(uncl), "excluded_by_record": len(excl),
+            "unreadable": len(unreadable_arts),
             "real_satisfying": [a.path for a in real_sat],
             "other_satisfying": [[a.bucket, a.path] for a in other_sat],
         }, indent=1, sort_keys=True))
     return rc
 
 
-def run_clause(key, search_roots, registry_path, min_real, emit_json):
+def run_clause(key, search_roots, registry_path, min_real, emit_json,
+               exclusion_record=None):
     if key not in CLAUSES:
-        unreadable("no clause registered under %r. Registered: %s"
-                   % (key, ", ".join(sorted(CLAUSES))))
+        usage("no clause registered under %r. Registered: %s"
+              % (key, ", ".join(sorted(CLAUSES))))
     spec = CLAUSES[key]
     clause_line, clause_src = locate_clause(spec)
     predicate, pred_desc = build_predicate(spec)
-    arts, present, absent, names = discover(spec["population"], search_roots,
-                                            registry_path)
+    arts, present, absent, names, excl_notes = discover(
+        spec["population"], search_roots, registry_path, exclusion_record)
     evaluate(arts, predicate)
     return report(spec, key, clause_line, clause_src, pred_desc, arts, present,
-                  absent, names, min_real, emit_json)
+                  absent, names, excl_notes, min_real, emit_json)
 
 
 # ===========================================================================
@@ -777,6 +943,17 @@ def selftest():
         reg_f = os.path.join(td, "regF", "frozen_inventory.json")
         _write_registry(reg_f, ["case_%d" % i for i in range(3)])
 
+        # ---- CITATION PLANT: a record copy with the cited quote removed.
+        #      The layer-1b exclusion must REFUSE to apply, and the five
+        #      ktest* trees must fall back to UNCLASSIFIED, not to REAL.
+        rec_src = os.path.join(_CLOSURE, "R4_sparta_build", "RESULTS.md")
+        bad_rec = os.path.join(td, "RESULTS_quote_removed.md")
+        if os.path.exists(rec_src):
+            open(bad_rec, "w").write(
+                open(rec_src, errors="replace").read().replace(
+                    "this lane's own convergence diagnostics",
+                    "this lane's own REDACTED"))
+
         # ---- TOO FEW REAL: below the declared minimum
         few = os.path.join(td, "few")
         _copy_case(donor, os.path.join(few, donor_case))
@@ -809,9 +986,9 @@ def selftest():
              ["--clause", NEG, "--search-root", absent_root, "--registry", reg_a],
              3, ["none of the declared search roots exist"],
              ["VERDICT: DEMONSTRATED"]),
-            ("READ NOTHING 3 - clause not present in the grader",
-             ["--clause", "NO_SUCH_CLAUSE"], 3, ["no clause registered"],
-             ["VERDICT: DEMONSTRATED"]),
+            ("READ NOTHING 3 - clause locator finds nothing in the grader",
+             ["--clause", "SELFTEST_CLAUSE_NOT_IN_GRADER"], 3,
+             ["could not be LOCATED"], ["VERDICT: DEMONSTRATED"]),
             ("READ NOTHING 4 - committed registry names no cases",
              ["--clause", NEG, "--search-root", plant_a, "--registry", empty_reg],
              3, ["carries no 'inventory' rows"], ["VERDICT: DEMONSTRATED"]),
@@ -822,11 +999,40 @@ def selftest():
              ["--clause", NEG, "--search-root", few, "--registry", reg_few],
              3, ["HALF-DEMONSTRATED", "below the declared minimum"],
              ["VERDICT: NOT-DEMONSTRATED"]),
+            ("CITATION VERIFIES - layer-1b exclusion APPLIED on the real "
+             "record",
+             ["--clause", NEG], 2,
+             ["DECLARED RECORD EXCLUSION (layer 1b)", "APPLIED, citation "
+              "verified at", "EXCLUDED BY A COMMITTED RECORD", "ktest3"],
+             ["NOT APPLIED (citation did NOT verify"]),
+            ("CITATION PLANT   - cited quote removed, exclusion must NOT apply",
+             ["--clause", NEG, "--exclusion-record", bad_rec], 2,
+             ["NOT APPLIED (citation did NOT verify",
+              "fall back to UNCLASSIFIED", "EXCLUDED-BY-RECORD: 0"],
+             ["EXCLUDED BY A COMMITTED RECORD"]),
+            ("EXIT CODE 4    - a mistyped flag is NOT a finding",
+             ["--clause", NEG, "--roots", "/tmp"], 4,
+             ["USAGE ERROR (this is not a verdict)"],
+             ["VERDICT:"]),
+            ("EXIT CODE 4    - --help is informational, never 0",
+             ["--help"], 4, [], ["VERDICT:"]),
+            ("EXIT CODE 4    - --list is informational, never 0",
+             ["--list"], 4, ["registered clauses"], ["VERDICT:"]),
+            ("EXIT CODE 4    - no --clause named at all",
+             [], 4, ["NOT a finding"], ["VERDICT:"]),
+            ("EXIT CODE 4    - an unregistered clause key is operator error",
+             ["--clause", "NO_SUCH_CLAUSE"], 4, ["no clause registered"],
+             ["VERDICT:"]),
+            ("EXIT CODE 1    - an uncaught error is reported, not a verdict",
+             ["--selftest-internal-error"], 1,
+             ["INTERNAL ERROR (this is not a verdict)"], ["VERDICT:"]),
         ]
 
         npass = 0
         refusals = 0
         readnothing = 0
+        usagecodes = 0
+        internalcodes = 0
         for name, argv, want, must, mustnot in cases:
             proc = _run(argv)
             out = proc.stdout + proc.stderr
@@ -838,6 +1044,10 @@ def selftest():
                 refusals += 1
             if want == 3:
                 readnothing += 1
+            if want == 4:
+                usagecodes += 1
+            if want == 1:
+                internalcodes += 1
             print("  [%s] %s" % ("PASS" if ok else "FAIL", name))
             print("         rc=%d (want %d)" % (proc.returncode, want))
             if miss:
@@ -854,6 +1064,11 @@ def selftest():
     print("  selftest: %d/%d PASS" % (npass, len(cases)))
     print("  refusals DRIVEN AND OBSERVED (rc=2): %d" % refusals)
     print("  read-nothing cases DRIVEN AND OBSERVED (rc=3): %d" % readnothing)
+    print("  usage cases DRIVEN AND OBSERVED  (rc=4): %d" % usagecodes)
+    print("  internal-error case DRIVEN AND OBSERVED (rc=1): %d"
+          % internalcodes)
+    print("  DEMONSTRATED cases DRIVEN AND OBSERVED  (rc=0): %d"
+          % sum(1 for c in cases if c[2] == 0))
     print("  python3 -O: %s" % opt)
     if npass != len(cases):
         sys.stderr.write("REFUSED: selftest %d/%d - this instrument has NOT "
@@ -867,17 +1082,43 @@ def selftest():
     return 0
 
 
+class _Parser(argparse.ArgumentParser):
+    """argparse exits 2 on a usage error and 0 on --help. Both collide with a
+    VERDICT code, so both are remapped to RC_USAGE. This is the v1.0 defect: a
+    mistyped flag returned the same 2 as a genuine NOT-DEMONSTRATED finding,
+    manufacturing an alarming result out of operator error.
+    """
+
+    def error(self, message):
+        usage("%s\n(run --list to see the registered clause keys)" % message)
+
+    def exit(self, status=0, message=None):
+        if message:
+            sys.stderr.write(message)
+        sys.exit(RC_USAGE if status == 0 else status)
+
+
 def main():
-    ap = argparse.ArgumentParser(add_help=True, description=__doc__.split("\n")[0])
+    ap = _Parser(add_help=True, description=__doc__.split("\n")[0])
     ap.add_argument("--clause")
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--search-root", action="append", default=None)
     ap.add_argument("--registry", default=None)
+    ap.add_argument("--exclusion-record", default=None,
+                    help="override the record cited by the layer-1b exclusion "
+                         "rule; used by --selftest to drive a citation that "
+                         "does NOT verify")
     ap.add_argument("--min-real", type=int, default=DEFAULT_MIN_REAL)
     ap.add_argument("--emit-json", action="store_true")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--selftest-internal-error", action="store_true",
+                    help="raise deliberately, so the exit-code-1 handler is "
+                         "SHOWN to fire rather than assumed to")
     args = ap.parse_args()
 
+    if args.selftest_internal_error:
+        raise RuntimeError("deliberate internal error, driven by --selftest to "
+                           "prove the exit-code-1 handler fires")
     if args.selftest:
         return selftest()
     if args.list:
@@ -887,13 +1128,29 @@ def main():
             print("  %-24s %s:%s" % ("", os.path.relpath(CLAUSES[k]["grader"],
                                                          _REPO),
                                      CLAUSES[k].get("registered_line", "?")))
-        return 0
+        # Informational, not a verdict: 0 is reserved for DEMONSTRATED.
+        return RC_USAGE
     if not args.clause:
-        unreadable("no --clause named. Nothing was screened, and a check that "
-                   "read nothing is not a pass. Try --list.")
+        usage("no --clause named, so nothing was even asked for. This is an "
+              "operator error and NOT a finding. Try --list.")
     return run_clause(args.clause, args.search_root, args.registry,
-                      args.min_real, args.emit_json)
+                      args.min_real, args.emit_json, args.exclusion_record)
+
+
+def _guarded_main():
+    """A crash that swallows findings is not the refusal discipline this file
+    keeps, so an uncaught exception is REPORTED and given its own code."""
+    try:
+        return main()
+    except SystemExit:
+        raise
+    except BaseException as exc:          # noqa: BLE001 - deliberate
+        import traceback
+        sys.stderr.write("INTERNAL ERROR (this is not a verdict): %s: %s\n"
+                         % (type(exc).__name__, exc))
+        traceback.print_exc(file=sys.stderr)
+        sys.exit(RC_INTERNAL)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_guarded_main())
