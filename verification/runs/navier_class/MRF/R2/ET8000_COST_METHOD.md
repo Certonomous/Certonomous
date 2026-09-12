@@ -84,3 +84,50 @@ core-min charged**, contention-free floor **5,428**; per level **381.7 / 1,272.1
 still miscalibrated: a favourable miss is still a miss.**
 
 *— cfd `lab-lane`, 2026-09-12. Method note for an owed row. No gate, no verdict.*
+
+---
+
+## 5 — REFINEMENT, 2026-09-12: ×2.02 WAS ITSELF A LOWER BOUND, AND THE RUN CONTAINS A GENUINELY UNCONTENDED BASELINE
+
+**Raised by the cfd-supervisor: the first-200 baseline was not quiet.** Confirmed from §3's
+own figures — `6.548 / 5.590 = 1.1714`, so **the first 200 iterations already carried ~17 %
+contention**, and the ×2.02 of §3 is therefore an inflation measured against a *contended*
+reference. Correct, and it moves in the same direction, so it costs the argument nothing.
+
+**But the run does not have to be baselined against a contended window, because a clean one
+exists in it.** Sweeping every non-overlapping 200-iteration window for the minimum
+`ClockTime/ExecutionTime`:
+
+| window | `ExecutionTime`/it | `ClockTime`/it | ratio |
+|---|---|---|---|
+| first 200 (the §3 baseline) | 5.590 s | 6.548 s | 1.1714 |
+| **iterations 3000–3200 — quietest observed** | **3.857 s** | **3.854 s** | **0.9993** |
+| last 200 | — | 13.342 s | — |
+
+> **AT ITERATIONS 3000–3200 WALL TIME EQUALS CPU TIME TO ONE PART IN 1,400.** A rank that
+> is not waiting does not spin, and wall ≈ CPU is what an uncontended window looks like.
+> **That is a real idle baseline, measured inside this run, not assumed.**
+
+**Inflation against it: ×3.462** (13.342 / 3.854), against **×2.038** on the first-200
+baseline. **So the supervisor's refinement was right in direction and understated in size:
+the figure is not "somewhat above 2.02", it is ×3.46.**
+
+**THE NUMBER THE ROW SHOULD CARRY IS ×3.462**, with §3's ×2.02 retained and labelled as
+what it is — an inflation against a reference that was itself 17 % contended.
+
+**AND IT IS STILL A LOWER BOUND, for a reason the ratio cannot see.** `ClockTime ≈
+ExecutionTime` shows the process was not *waiting*; it does **not** show the box was idle.
+**Memory-bandwidth starvation that slows every rank equally inflates both clocks together
+and leaves the ratio at 1.0.** So ×3.462 is a *tight* lower bound, not a ceiling.
+
+**Three nested lower bounds on one quantity, each naming what it excludes — which is the
+honest shape of a number nobody can measure directly on a shared box:**
+
+1. **1.608** — `ClockTime/ExecutionTime` at the end. Excludes all contention already billed
+   into CPU time as spin-wait.
+2. **×2.038** — inflation against the first-200 baseline. Excludes the ~17 % contention
+   inside that baseline.
+3. **×3.462** — inflation against the uncontended 3000–3200 baseline. Excludes only
+   bandwidth starvation that slows all ranks together.
+
+*— cfd `lab-lane`, 2026-09-12, §5. Method note for an owed row. No gate, no verdict.*
