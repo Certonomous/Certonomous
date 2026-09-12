@@ -221,3 +221,74 @@ requires a **superseding registration**, which is the cfd-supervisor's and Sanaa
 not this lane's. That such a registration would *tighten* the gate, and that our own
 `N_v'` does not yet exist so no gate could be fitted to it, are both arguments for it —
 and neither is this lane's to accept on its own behalf.
+
+---
+
+## DATED ADDENDUM 2 — 2026-09-12, same day, by the author: **THE RETRIEVAL QUESTION IS ANSWERED AND THE ANSWER IS NO. `N_v'` STAYS REPORTED, NOT GRADED. Two findings from the same page: the experiment was TRIPPED, and the `Config 1` collision is now verified from a table image.**
+
+*lines whose number changed above this section: 0*
+
+### A. THE RETRIEVAL QUESTION — NO SUCH UNCERTAINTY EXISTS IN THE PROGRAMME'S SUMMARY
+
+The cfd-supervisor set the test that would legitimately grade `N_v'`: does any source
+state an uncertainty **for a body that is not fully appended**, or state one **in absolute
+terms**? Liu & Huang 1998, the summary of the whole programme's data, was the place to
+look. **It does not.**
+
+Its entire uncertainty content is the **AFF wind-tunnel measurement chain**, not forces:
+
+- §A "AFF Velocity Uncertainty Analysis" — hot-film bias and precision, from Blanton,
+  Forlini & Purtell (Ref. 6). **Table 5 "Velocity Bias Uncertainty" and Table 6 "Velocity
+  Precision Uncertainty" are columned `u/Uref %`, `v/Uref %`, `w/Uref %`** — velocity
+  components, nothing else.
+- §B "AFF Pressure Uncertainty" — pressure and shear-stress measurement error, from
+  Gowing (Ref. 7).
+
+**There is no uncertainty statement anywhere in it for a force, a moment, or a stability
+derivative** — therefore none for a non-fully-appended body and none in absolute terms.
+**Table 14, the tow-tank results, carries no uncertainty or repeatability column at all.**
+Refs. 6 and 7 are separate reports, not held on this box, and both concern velocity and
+pressure rather than force, so neither would answer this question if retrieved.
+
+**Consequence: `N_v'` REMAINS REPORTED, NOT GRADED**, with its value and interval printed
+beside every result. `Y_v'` carries the arm. The act is honest and slightly smaller.
+
+### B. THE EXPERIMENT WAS TRIPPED, AND THIS STRENGTHENS THE COMPARISON
+
+Liu & Huang 1998, **report page 23, footnote to Table 14**, read as a page image:
+
+> "Hull, bridge fairwater and four identical stern appendages all have tripwires
+> installed at 5 percent of chord length."
+>
+> "Ringed wings have no turbulence stimulators applied to them"
+
+**The hull and the bridge fairwater — both of our patches — carried tripwires at 5 % of
+chord.** Transition was deliberately forced, so the measured body was **fully turbulent
+by design**. Our solve is fully-turbulent k-ω SST with no transition model, which on an
+untripped model would be a modelling mismatch to disclose. **Here it is the matched
+choice**, and it is recorded as a point in the comparison's favour rather than left as an
+unexamined assumption. This changes no gate.
+
+### C. NO TOW-TANK RESISTANCE REFERENCE EXISTS FOR OUR GEOMETRY EITHER
+
+Table 14's configurations are **8 Fully Appended, 3 Stern Appendages, 1 Bare Hull,
+6 Ringed Wing #1, 7 Ringed Wing #2**. **There is no hull-and-fairwater-only row.** So the
+hull+sail body has no measured tow-tank resistance in the programme summary, which is
+consistent with `SUBOFF_A1b_PREREGISTRATION.md` holding its `CT` gate at **NOT A RESULT
+by construction** and the tier at CODE-VERIFIED with the disavowal "NOT
+experiment-validated". Recorded so that no later reader mistakes Table 14 for a
+`CT` reference for this mesh.
+
+### D. THE `Config 1` COLLISION, NOW VERIFIED FROM A TABLE IMAGE
+
+§2 recorded the `Config 3` collision. **Table 14 supplies a sharper one on `Config 1`
+itself**, printed in its own "Config. No." column:
+
+- **Liu & Huang 1998, Table 14, page 23: `Config 1 = Bare Hull`.**
+- **Roddy 1990, Table 4, page 19: `Config 1 = Fully Appended`.**
+
+**The same integer names the emptiest and the fullest body in the programme, in two
+official reports on that programme, both read here as page images.** §2's naming rule —
+cite the configuration by which appendages are present, never by a bare number — is not a
+precaution. It is the minimum required to avoid comparing a bare hull against a fully
+appended one while citing correctly.
