@@ -1,0 +1,56 @@
+M6C2 ROUTE (d) L1 SOLVE -- RESULT
+registered b2264247 BEFORE compute; stopped 2026-09-12T00:03:42Z
+
+VERDICT: NOT A RESULT -- the run did not complete (pre-registration section 4).
+STOPPED ON THE PRE-REGISTERED COMPUTE CAP, at iteration 594 of endTime 2000.
+
+  rc = 1, written by the launcher's own wrapper -- THE TREE MARKED ITSELF.
+  57.27 core-min spent of a registered CAP of 150 (859 wall s x 4 ranks).
+  all 4 ranks confirmed gone; no rank left running.
+
+WHY IT WAS STOPPED BELOW THE CAP RATHER THAN AT IT:
+  Completion within the cap was IMPOSSIBLE, and the conclusion does not depend on
+  which rate you call current -- it holds under both:
+    recent rate 0.209 it/s  -> projected TOTAL 505.8 core-min   (cap 150: BREACHED)
+    best rate seen 0.86 it/s -> projected TOTAL 165.4 core-min   (cap 150: BREACHED)
+  The full remaining 93.9 core-min of headroom buys only ~1,212 further iterations at
+  the BEST rate ever observed, reaching ~1,802 of 2,000 -- still short of endTime.
+  Spending the remaining headroom could not have produced a result, so it would have
+  been waste. Rule 12: an overrun stops the run, and waste is reported, not absorbed.
+  A CAP IS A CEILING, NOT A QUOTA TO BE CONSUMED.
+
+THE USABILITY QUESTION IS UNANSWERED, NOT ANSWERED NEGATIVELY.
+  The run was stopped for BUDGET, not because the mesh failed. Of the four registered
+  usability limbs:
+    limb 1 divergence/non-completion: DID NOT FIRE on divergence -- no NaN, no FPE.
+      (A grep for 'floating point' DOES hit log line 29, 'trapFpe: Floating point
+       exception trapping enabled (FOAM_SIGFPE)'. THAT IS THE STARTUP BANNER SAYING
+       TRAPPING IS ARMED -- the OPPOSITE of an exception. Cleared by reading the line,
+       not by reasoning it away. It is the same trap already documented inside
+       measure_states_mrf.divergence_tells.)
+    limbs 2, 3, 4 (boundedness, residual fall, force absurdity): NOT EVALUABLE.
+      They are defined at endTime and endTime was never reached. Reporting them from
+      iteration 594 would be quoting a gate off an incomplete run.
+
+COST (rule 12) -- THE MISPREDICTION IS IN THE TERM THE REGISTRATION ALREADY NAMED AS WEAK:
+  estimated  0.0265 core-min/iteration (53 core-min / 2000 iters)
+  ACTUAL     0.0964 core-min/iteration (57.27 / 594)  ->  RATIO 3.64x
+  projected full 2000 iterations at the achieved average: ~193 core-min = 1.29x the cap.
+  Section 8 anchored on MRF R2 coarse (simpleFoam, incompressible) and allowed 1.6x
+  for rhoSimpleFoam 'adding the energy equation'. THE MEASURED SOLVER-SWAP FACTOR IS
+  AT LEAST 3.64x. The registration explicitly named this anchor as its weak point and
+  set a deliberately generous 2.8x cap margin for exactly that reason -- AND THE
+  MARGIN WAS STILL INSUFFICIENT. Naming the weak term correctly did not make the
+  number right. Contention on top: the recent-interval rate implies 0.319
+  core-min/iteration, 12x the estimate, and that term is named SEPARATELY and is not
+  absorbed into the 3.64x.
+  CARRY FORWARD: transonic rhoSimpleFoam on this box costs >= 3.6x an incompressible
+  simpleFoam iteration at equal cell count. That is now measured, not assumed.
+
+WHAT IS NOT CLAIMED. Section 2 forbade every aerodynamic claim IN ADVANCE, on a
+  y+ of ~9,447 with no prism layer and 26 cells/chord, and nothing here changes that.
+  No Cp, no CL/CD/CM, no shock position, no skin friction. The registration's
+  pre-computed y+ remains the most useful thing this rung produced.
+
+M6 section A1.3 stays FALSIFIED; route (c) TERMINATED; M6C1 BLOCKED; route (d) L1 mesh
+  PASS (e9e6174d) and L2 GATE FAIL (e4fd30e1) both unchanged.
