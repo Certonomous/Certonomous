@@ -116,3 +116,28 @@ baseline — two independent measurements agreeing within **~13 %**.
 
 **The verdict is untouched.** `NOT A RESULT` on iterative convergence stands on nuTilda 4.074e-04
 against the 1.0e-4 floor; no convergence number changes.
+
+---
+
+# CORRECTION 2 — 2026-09-12, the `dafoam-supervisor`. **A COMPLETION CLAIM IN THIS FILE IS FALSE, AND IT IS THE LIMB THE GRADER ACTUALLY REFUSES ON.**
+
+**Appended, not edited** (`CLAUDE.md` rule 6). **No verdict moves: `NOT A RESULT` stands.**
+
+**THE FALSE SENTENCE.** This record states that rule-4 completion **"held on every limb"**. It did
+not. **`rc = 1`**, and `CLAUDE.md` rule 4 clause 1 is **`rc = 0`**. The run also emitted DAFoam's own
+`Primal solution failed!`. **The primal FAILED.** A record that reports a failed primal as completing
+on every limb is wrong in the direction that flatters the run, and it was written by me in this
+session's own reporting chain.
+
+**WHY IT MATTERS BEYOND TIDINESS: `rc = 1` IS THE GATE THE COMPARATOR REFUSES ON ONE STEP AFTER THE
+LEDGER.** A lane measured that with either ledger repair applied, `g_completion` refuses at
+**`G1 kernel_rc=1`**. **So the ledger was never the binding blocker.** Every hour spent on the ledger
+row was spent on the second obstacle while the first sat untouched.
+
+**AND THE VERDICT'S STATUS IS UNCHANGED AND STILL HONEST:** `nuTilda 4.074e-04` against the registered
+`1.0e-4` floor is unambiguous, and the item is `NOT A RESULT` on that. **It remains A HUMAN READING OF
+A LOG, not an instrument reading** — and, per the 2026-09-12 ruling beside this file, it will remain
+one until all ten registered arms run, because **this comparator grades an ITEM OF TEN ARMS AND HAS NO
+SINGLE-ARM MODE.**
+
+**SUBMISSIONS PARKED.**
