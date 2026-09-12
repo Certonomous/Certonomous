@@ -67,6 +67,13 @@ usage() {
 usage: run_one_t5f.sh --level c|m|f --cap-core-min N [--no-detach]
        run_one_t5f.sh --drive-cap-kill     (driven proof that the cap KILLS)
        run_one_t5f.sh --show-caps          (print the registered caps + arithmetic)
+       run_one_t5f.sh --level L --cap-core-min N --dry-run
+                  EVERY launch precondition -- cap agreement, the sequential
+                  guard, the solver path, the arming guard, the setup assertion
+                  and the checkMesh gate -- then STOP. Nothing is armed and no
+                  solver starts. USE THIS to drive the refusal paths: a test
+                  argv that can reach the launch is how this lane started a
+                  solver under a hold on 2026-09-12 (see the FINDING directory).
   --cap-core-min  the caller's statement of the REGISTERED cap.  It must equal
                   the row for this level in section 8 of the frozen
                   registration.  Wall seconds are derived HERE as
@@ -76,7 +83,7 @@ U
     exit 2
 }
 
-LEVEL=""; CAP_CORE_MIN=""; DETACH=1; DRIVE_KILL=0; SHOW_CAPS=0
+LEVEL=""; CAP_CORE_MIN=""; DETACH=1; DRIVE_KILL=0; SHOW_CAPS=0; DRY_RUN=0
 SOLVER_OVERRIDE=""
 FOAM_BASHRC="/usr/lib/openfoam/openfoam2606/etc/bashrc"
 while [ $# -gt 0 ]; do
@@ -86,6 +93,7 @@ while [ $# -gt 0 ]; do
         --foam-bashrc)  FOAM_BASHRC="${2:-}"; shift 2 ;;
         --solver)       SOLVER_OVERRIDE="${2:-}"; shift 2 ;;
         --no-detach)    DETACH=0; shift ;;
+        --dry-run)      DRY_RUN=1; DETACH=0; shift ;;
         --drive-cap-kill) DRIVE_KILL=1; shift ;;
         --show-caps)    SHOW_CAPS=1; shift ;;
         *) usage ;;
@@ -201,10 +209,27 @@ STATUS="$SELF_DIR/STATUS.$CASE"
 echo "CAP AGREES $CASE $CAP_CORE_MIN core-min at $RANKS rank(s) -> timeout ${TIMEOUT_S} s  [parsed from $REG]"
 
 # --- THE SEQUENTIAL RULING, ENFORCED --------------------------------------
-OTHER="$(pgrep -a -f "$SELF_DIR/T5F_CUBE_" 2>/dev/null | grep -v "^$$ " | grep "$SOLVER" || true)"
-[ -z "$OTHER" ] || { echo "REFUSE: a T5f solver is ALREADY RUNNING. The heat-transfer supervisor ruled the three levels run SEQUENTIALLY, one rank at a time. Wait for it to finish." >&2; echo "$OTHER" >&2; exit 2; }
+# MEASURED 2026-09-12: `pgrep -f "$SELF_DIR/T5F_CUBE_"` matches ANY shell whose
+# command line merely mentions the path -- an inspecting `ps`/`find` one-liner
+# self-matched during development (the pkill-matches-its-own-shell trap in pgrep
+# form). A guard that fires on a bystander is a guard nobody will trust. So this
+# walks /proc and requires the NUL-separated argv itself to be the solver: argv[0]
+# basename == the registered solver AND some later argv == "-case" with a
+# T5F_CUBE_* path. A shell can mention the string; it cannot BE that argv.
+OTHER=""
+for pd in /proc/[0-9]*; do
+    pid="${pd#/proc/}"
+    [ "$pid" = "$$" ] && continue
+    [ -r "$pd/cmdline" ] || continue
+    argv0="$(tr '\0' '\n' < "$pd/cmdline" 2>/dev/null | head -1)"
+    [ "$(basename -- "${argv0:-x}" 2>/dev/null)" = "$SOLVER" ] || continue
+    tr '\0' '\n' < "$pd/cmdline" 2>/dev/null | grep -qx -- "-case" || continue
+    tr '\0' '\n' < "$pd/cmdline" 2>/dev/null | grep -q "^$SELF_DIR/T5F_CUBE_" || continue
+    OTHER="$OTHER pid=$pid"
+done
+[ -z "$OTHER" ] || { echo "REFUSE: a T5f solver is ALREADY RUNNING ($OTHER). The heat-transfer supervisor ruled the three levels run SEQUENTIALLY, one rank at a time. Wait for it to finish." >&2; exit 2; }
 
-if [ "$DETACH" = "1" ] && [ "${T5F_DETACHED:-}" != "1" ]; then
+if [ "$DRY_RUN" != "1" ] && [ "$DETACH" = "1" ] && [ "${T5F_DETACHED:-}" != "1" ]; then
     T5F_DETACHED=1 exec setsid "$0" --level "$LEVEL" --cap-core-min "$CAP_CORE_MIN" \
         --foam-bashrc "$FOAM_BASHRC" ${SOLVER_OVERRIDE:+--solver "$SOLVER_OVERRIDE"} \
         --no-detach </dev/null >>"$CASE_DIR/log.launch" 2>&1 &
@@ -272,6 +297,13 @@ python3 "$SELF_DIR/build_t5f.py" --drive-checkmesh "$CASE_DIR/log.checkMesh.laun
 GATE_RC=$?
 set -e
 [ "$GATE_RC" = "0" ] || { echo "REFUSE: a checkMesh limb other than the cell determinant FAILED at launch. Registration S6 makes that a HARD STOP and a FINDING for the supervisor; it is not worked around. See $CASE_DIR/SETUP_ASSERTION.txt" >&2; exit 2; }
+
+if [ "$DRY_RUN" = "1" ]; then
+    echo "DRY RUN: every launch precondition PASSES for $CASE."
+    echo "DRY RUN: nothing is armed (no 0/ created), no solver started, no STATUS written."
+    echo "DRY RUN: an authorised launch would run $SOLVER_PATH under timeout ${TIMEOUT_S} s."
+    exit 0
+fi
 
 cp -r "$CASE_DIR/0.orig" "$CASE_DIR/0" || { echo "REFUSE: could not create 0/" >&2; exit 2; }
 AGE_DATUM="$(find "$CASE_DIR/0" -name T -type f | head -1)"

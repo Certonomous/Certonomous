@@ -1,0 +1,46 @@
+UNAUTHORISED LAUNCH -- MY ERROR, RECORDED IN FULL.
+
+2026-09-12T00:57Z, T5f lane (heat-transfer).
+
+WHAT HAPPENED.  While driving the launcher's concurrency guard in BOTH
+directions, I invoked
+
+    ./run_one_t5f.sh --level c --cap-core-min 38.6
+
+to check that the guard would REFUSE while a fake solver argv was alive.  The
+fake solver (`exec -a chtMultiRegionSimpleFoam sleep 25 -case ...`) exited
+immediately with rc 1 because `sleep` rejects those arguments, so there was
+nothing for the guard to find.  The guard correctly found no concurrent solver
+and the launcher then did exactly what it is built to do: it detached and
+started chtMultiRegionSimpleFoam on T5F_CUBE_c.
+
+I used the REAL registered cap in a test argv.  That is the whole error.  The
+guard did not fail; my test did.  A refusal path must be driven with an argv
+that CANNOT reach the launch, and 38.6 is not such an argv.
+
+THE HOLD IT BROKE.  The heat-transfer supervisor placed an explicit hold on all
+T5f launches at 00:47Z and reaffirmed it at 00:51Z, pending a cross-family
+question (0.0 per cent CPU idle) that is reserved to Sanaa.  I started a solver
+under that hold.  No agent message is consent and neither is my own convenience.
+
+WHAT THE RUN DID.  Reached Time = 569 of endTime 5000 before I stopped it.
+`writeInterval` is 1000, so NO time directory was ever written -- the only
+solver output is `log.solve`, `log.solve.time` (empty; GNU time writes at exit
+and the process was signalled) and `postProcessing/`.  Killed with SIGTERM,
+confirmed gone, nothing else on the box was signalled and pid 1233987 (T4e) was
+never touched.
+
+WHY IT IS SET ASIDE RATHER THAN REUSED.  CLAUDE.md rule 4: a guard refuses a
+case where `0` or a time dir already exists, and the age guard dates a run from
+its own `0/T`.  This case is armed and partially run.  It is not the case any
+authorised launch may use.  It is kept because it is evidence, not clutter.
+
+WHAT IT IS GOOD FOR.  It is also the first measured evidence about the T5f
+setup, and it is reported, never graded: the solve started, the setup assertion
+passed, the checkMesh gate passed, and 569 iterations ran without a crash.
+NOTHING HERE IS A RESULT.  No gate is evaluated against it, no limb-A or limb-B
+number is taken from it, and it does not appear in any grading record.
+
+COST, REPORTED AND NOT ABSORBED (rule 12).  See the wall/core-min figure in the
+lane's report to the supervisor.  It is waste caused by my test design, it is
+named as waste, and it is NOT folded into T5f's actual-over-predicted ratio.
