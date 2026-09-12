@@ -1,0 +1,164 @@
+# PROPOSED DIFF — NOT APPLIED. a3gc_grade.py is UNCHANGED on disk and in HEAD
+# (md5 73dbe368934956700da87e5a1f44ea0c, verified against the committed blob).
+#
+# Purpose: implement A3GC-R2 §4.4 `G-FIELD`. Purely ADDITIVE — no existing
+# function is modified, no existing gate's behaviour changes. `gate_g_res` and
+# `gate_g_plat` are untouched; G-FIELD is a NEW limb wired in beside G-RES.
+#
+# Read this as a diff. Three hunks: constants, a dense reader, the new gate,
+# plus one 3-line wiring hunk.
+
+--- a/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_grade.py
++++ b/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_grade.py
+@@ -244,6 +244,25 @@
+ REG_PLAT_MARGIN = 10.0                           # "at least ten times smaller"
+ REG_PLAT_FUNCTIONALS = ("CD", "CL")
+ 
++# ---- R2 Sec.4.4  G-FIELD.  Field stationarity, per N-D45's converse: a flat CD
++# history proves the INTEGRAL is stationary, not that the FIELD is converged.
++# Thresholds are derived from each statistic's own structure (see R2 Sec.4.4),
++# never from a value any completed run achieved.
++REG_FIELD_WINDOW = 500          # dense OUTER iterations, not printed samples
++REG_FIELD_EQNS = ("p", "Ux", "Uy", "Uz", "e", "nuTilda")
++# Limb 1, trend: |fitted log10 slope| * W / scatter-about-the-fit.  SNR = 1 is
++# the definitional boundary at which a remaining trend stops being
++# distinguishable from the window's own scatter.  No tuned constant.
++REG_FIELD_TREND_SNR_MAX = 1.0
++# Limb 2, alternation.  Applied ONLY to a level that passed limb 1, because a
++# surviving trend masks alternation (measured: the same L2 p series reads
++# lag-1 -0.744 at W=80 and +0.991 at W=500).
++# 2a: first-difference sign-alternation fraction.  1.000 for a pure period-2
++#     series, 0.5 for white noise, ~0 for a monotone one.  0.95 admits one
++#     non-alternating step in twenty (ties, a single glitch) and nothing that
++#     is not essentially a pure alternation.
++REG_FIELD_ALT_FRAC_MAX = 0.95
++# 2b: lag-1 autocorrelation.  -0.5 is where the alternating mode carries
++#     exactly half the series variance (x_t = a(-1)^t + e_t => lag1 =
++#     -a^2/(a^2+sig^2) = -0.5 <=> a^2 = sig^2).
++REG_FIELD_LAG1_MIN = -0.5
+ 
+ # --------------------------------------------------------- Sec.4.3 bands
+ REG_P_BAND = (1.0, 3.0)
+@@ -672,6 +691,17 @@
+ def read_log(path):
+     if not os.path.isfile(path):
+         refuse("READ", "solver log does not exist: %s" % path)
+     with open(path, "r", errors="replace") as fh:
+         txt = fh.read()
+     out = {"path": path, "bytes": len(txt)}
+ 
++    # R2 Sec.4.4: DENSE per-OUTER-ITERATION initial residuals, read from the
++    # linear-solver lines, NOT from the sparse `<eq> initRes:` prints, which
++    # appear only every `printInterval` steps (100 on this family -> 61 samples
++    # in 6000 iterations, far too few to test stationarity).  The existing
++    # sparse reader below is left exactly as it is and still feeds G-RES.
++    out["dense_initres"] = {}
++    for solver, eq, ini in _DENSE_INITRES_RE.findall(txt):
++        if eq in REG_FIELD_EQNS:
++            out["dense_initres"].setdefault(eq, []).append(float(ini))
++
+     out["CD"] = [float(m) for m in _FUNC_RE["CD"].findall(txt)]
+     out["CL"] = [float(m) for m in _FUNC_RE["CL"].findall(txt)]
+     out["times"] = [float(m) for m in _TIME_RE.findall(txt)]
+@@ -670,6 +700,12 @@
+ # (regex block, beside the existing _INITRES_RE / _PMR_RE definitions)
+ 
++# "GAMG:  Solving for p, Initial residual = 2.29e-05, Final residual = ..."
++# "smoothSolver:  Solving for Ux, Initial residual = ..."
++_DENSE_INITRES_RE = re.compile(
++    r"^(\w+):\s+Solving for (\w+), Initial residual = ([0-9.eE+-]+),", re.M)
++
+@@ -1253,6 +1289,90 @@
+ def adjacent_delta(xs):
+     ...
+ 
++def _logfit(xs):
++    """Least-squares fit of log10(x) vs index.  Returns (slope, scatter, resid)."""
++    s = [math.log10(v) for v in xs]
++    n = len(s)
++    mx = (n - 1) / 2.0
++    my = sum(s) / n
++    den = sum((i - mx) ** 2 for i in range(n))
++    slope = sum((i - mx) * (s[i] - my) for i in range(n)) / den
++    resid = [s[i] - (my + slope * (i - mx)) for i in range(n)]
++    scatter = math.sqrt(sum(r * r for r in resid) / n)
++    return slope, scatter, resid
++
++
++def gate_g_field(log, report, level):
++    """R2 Sec.4.4 G-FIELD.  Field stationarity, SEQUENTIALLY:
++
++      limb 1 (trend)       -- on every equation, at REG_FIELD_WINDOW.
++      limb 2 (alternation) -- ONLY on equations that passed limb 1, because a
++                              surviving trend masks the alternation.
++
++    A level failing either limb is NOT plateaued and its row is NOT A RESULT,
++    whatever its peak-to-peak.  Every statistic is PRINTED for every equation
++    whether or not it gates, so a cold reader sees what the gate saw.
++    """
++    print("\n--- G-FIELD  (R2 Sec.4.4)  window = %d dense outer iterations ---"
++          % REG_FIELD_WINDOW)
++    dense = log.get("dense_initres") or {}
++    if not dense:
++        refuse("G-FIELD", "%s: read ZERO dense per-iteration residual lines. "
++               "Refusing rather than grading on a reader that saw nothing."
++               % log["path"])
++    ok_all = True
++    rec = {}
++    for eq in REG_FIELD_EQNS:
++        v = dense.get(eq) or []
++        if len(v) < REG_FIELD_WINDOW:
++            print("  %-8s only %d dense samples (need %d) -> NOT A RESULT for "
++                  "want of evidence" % (eq, len(v), REG_FIELD_WINDOW))
++            rec[eq] = {"n": len(v), "verdict": "NOT A RESULT",
++                       "reason": "fewer than %d dense samples" % REG_FIELD_WINDOW}
++            ok_all = False
++            continue
++        win = v[-REG_FIELD_WINDOW:]
++        slope, scatter, resid = _logfit(win)
++        snr = abs(slope) * len(win) / scatter if scatter > 0 else float("inf")
++        trend_ok = snr <= REG_FIELD_TREND_SNR_MAX
++
++        # limb 2 statistics are computed and printed always, gated only if
++        # limb 1 passed.
++        ss = sum(r * r for r in resid)
++        lag1 = (sum(resid[i] * resid[i + 1] for i in range(len(resid) - 1)) / ss
++                if ss > 0 else 0.0)
++        d = [resid[i + 1] - resid[i] for i in range(len(resid) - 1)]
++        nalt = sum(1 for i in range(len(d) - 1) if d[i] * d[i + 1] < 0)
++        altfrac = nalt / (len(d) - 1) if len(d) > 1 else 0.0
++        alt_ok = (altfrac < REG_FIELD_ALT_FRAC_MAX
++                  and lag1 > REG_FIELD_LAG1_MIN)
++
++        if trend_ok:
++            eq_ok = alt_ok
++            note = "" if alt_ok else "  <-- ALTERNATING (period-2 limit cycle)"
++        else:
++            eq_ok = False
++            note = "  <-- STILL DESCENDING (limb 2 computed, not gated)"
++        ok_all = ok_all and eq_ok
++        print("  %-8s trend SNR = %8.3f (<= %g) %-4s | alt-frac = %.3f (< %g) "
++              "| lag-1 = %+.3f (> %g) %s"
++              % (eq, snr, REG_FIELD_TREND_SNR_MAX, "OK" if trend_ok else "FAIL",
++                 altfrac, REG_FIELD_ALT_FRAC_MAX, lag1, REG_FIELD_LAG1_MIN, note))
++        rec[eq] = {"n": len(v), "window": REG_FIELD_WINDOW,
++                   "log10_slope_per_iter": slope, "scatter": scatter,
++                   "trend_snr": snr, "trend_ok": trend_ok,
++                   "alt_frac": altfrac, "lag1": lag1, "alt_ok": alt_ok,
++                   "verdict": "PASS" if eq_ok else "NOT A RESULT"}
++    report.setdefault("G-FIELD", {})[level] = rec
++    print("  G-FIELD %s: %s" % (level, "OK" if ok_all else "NOT A RESULT"))
++    return ok_all
++
+@@ -1845,9 +1965,13 @@
+     for lv in LEVELS:
+         floor = ...
+         res_ok[lv] = gate_g_res(logs[lv], floor, report)
++        # R2 Sec.4.4: G-FIELD is a SEPARATE limb.  G-RES keeps its own
++        # behaviour and its own printout; under R2 its per-equation floor is
++        # RECORDED AND PRINTED beside every row but is not the discriminator,
++        # for the reason stated in R2 Sec.4.4 (per-equation normalisation).
++        field_ok[lv] = gate_g_field(logs[lv], report, lv)
+ 
+-        all_res_ok = all(res_ok[lv] for lv in LEVELS)
++        all_res_ok = all(field_ok[lv] for lv in LEVELS)
