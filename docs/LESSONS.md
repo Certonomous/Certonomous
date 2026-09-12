@@ -27541,3 +27541,54 @@ L-563 (the same night: assert the thing you need, not a proxy for it); rule 15.
 `verification/campaign/SUBOFF_A1d_BAREHULL_PREREGISTRATION.md` §11.3;
 `docs/papers/benchmark_test_cases/roddy_1990_dtrc_shd1298_08_darpa_suboff_captive_model.pdf`
 Table 2 (report p. 16) and p. 3.
+
+---
+
+## L-565 — A gate validates a FUNCTION, not a formula: the call site must IMPORT the validated object, never a copy of it
+
+**2026-09-12, cfd, SUBOFF A1d.** Gate X5 validated the lab's analytic SUBOFF hull
+against Roddy 1990 Table 2 — **0.081 % worst across 25 stations**. The gate did
+that by importing `build_suboff_a1_geometry.hull_R_ft` and evaluating **that
+object**.
+
+The bare-hull arm then needed the same hull without the sail. **The obvious move
+is to copy the hull function into the new arm's builder and delete the sail
+parts.** It is obvious, it is what most refactors do, and **it silently voids the
+gate**: a copied-and-edited function is a **different object**, and X5's PASS
+applies to the one it evaluated, not to its descendant. The two agree **on the
+day of the copy and never again** — the next edit to either side is invisible to
+the gate and to the reader.
+
+`build_barehull_case.py` therefore **imports `build_hull_stl` and calls it
+directly.** The STL actually written is produced by **the same function object the
+gate measured.**
+
+**The general rule.** *A validation attaches to an artifact, not to an idea.*
+When a gate, a certificate or a band is established against a specific function,
+file or mesh, every downstream consumer **references that artifact** — it does not
+reproduce it. A reproduction inherits the *appearance* of the validation and none
+of its force, and the divergence is undetectable by inspection because the copy
+**looked right when it was made.**
+
+**This is rule 14's shape** (`libs` entries are inserted with an assert, never
+replaced; *a lesson is not applied until every call site asserts it*), reaching a
+different kind of artifact: **rule 14 is about not losing an entry, this is about
+not forking a validated object.** Same failure, same fix — the call site must
+assert, or in this case *reference*, the validated thing.
+
+**Corollary for anyone tempted by "but I need a variant."** Build the variant by
+**parameterising or composing the validated artifact**, not by cloning it. A1d
+needed hull-without-sail: it got that by calling `build_hull_stl` and simply **not
+calling `build_sail_stl`**, plus refusing (exit 2) if a `sail.stl` or a `sail`
+patch appears. **No hull geometry was rewritten to remove a sail.**
+
+**Standing for this family, set by the cfd-supervisor 2026-09-12:** *every future
+SUBOFF arm imports; none copies.*
+
+**Related.** Rule 14; L-564 (the same gate, the same night — a control must be
+shown able to fail); L-221/L-222.
+
+**Sources.** `cases/navier_class/SUBOFF_A1d/build_barehull_case.py`
+(`load_a1_geometry`, and the docstring's "WHY THIS REUSES THE A1 GEOMETRY MODULE
+RATHER THAN COPYING IT"); `cases/navier_class/SUBOFF_A1d/check_barehull_geometry.py`;
+`verification/campaign/SUBOFF_A1d_BAREHULL_PREREGISTRATION.md` §12.1.
