@@ -1,0 +1,204 @@
+{
+  "_what_this_file_is": "THREE STAGED QUEUE ENTRIES for the A3GC-R2 family, PREPARED AND NOT ENQUEUED. This file is NOT a queue entry itself and is NOT in verification/queue/. Each element of 'entries' is a complete entry that becomes queueable ONLY after the blocking_defects it carries are cleared by the dafoam-supervisor. prereg_commit and launch_cmd are deliberate non-existent placeholders in every one of them: FAIL CLOSED, so no element can launch anything if copied into the queue by accident.",
+  "_launch_order": "DRAFT Sec.6.3: R2-L3 (~81 core-min) first -- it re-establishes the anchor under the corrected runScript and MEASURES Sec.5's GAMG scaling assumption at the cheapest level. Then R2-L2 (~326), then R2-L1 (~1,303) subject to the Sec.9 memory guard. A WAVE, never three at once.",
+  "_total_registered_estimate_core_min": 1709.6,
+  "_lane": "dafoam lab-lane, 2026-09-12, on dafoam-supervisor's brief under Sanaa's directive item 5a. NOTHING LAUNCHED. SUBMISSIONS PARKED.",
+  "entries": [
+    {
+      "team": "dafoam",
+      "case_id": "A3GC-R2-L3",
+      "prereg_commit": "REPLACE_WITH_A3GC_R2_FREEZE_SHA",
+      "prereg_path": "cases/dafoam/ladder-a/A3/curriculum_A3GC/A3GC_R2_PREREGISTRATION.md",
+      "launch_cmd": [
+        "bash",
+        "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A3/curriculum_A3GC/__A3GC_R2_LAUNCH_INSTRUMENT_NOT_YET_FROZEN__",
+        "--level",
+        "R2-L3",
+        "--root",
+        "/home/ubuntu/certonomous-runs",
+        "--stage",
+        "all"
+      ],
+      "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A3/curriculum_A3GC",
+      "ranks": 8,
+      "cost_core_min_estimate": 81.4,
+      "cost_basis": "DERIVED, NOT MEASURED, transcribed from A3GC_R2_PREREGISTRATION.md.DRAFT Sec.5's rate table. The rate is the ONLY measured r=1.1674 rate on this geometry: the 399,360-cell anchor ran 6000 iterations at np=4 with ExecutionTime 1221.21 s = 81.41 core-min, i.e. 3.398e-08 core-min per cell-outer-iteration. This level is the rate's own basis. TWO NAMED ASSUMPTIONS (Sec.5): (i) GAMG iteration count does not grow materially from 399,360 to 6,389,760 cells -- multigrid is designed for that, but it is an assumption and R2-L3 and R2-L2 measure it before R2-L1 launches; (ii) the real risk at the fine level is memory, not cost. Dollars DERIVED at the owner-stated $0.0513/core-h; this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md Sec.5).",
+      "memory_floor_gb": 16.0,
+      "enqueued_by": "dafoam lab-lane, on dafoam-supervisor's brief 2026-09-12 (Sanaa directive item 5a). STAGED, NOT ENQUEUED -- not in verification/queue/dafoam/, and this lane launched nothing. SUPERVISION_CHARTER Sec.3 check 4 is NOT discharged: the pre-registration is a .DRAFT with three open questions, one of which this lane closed and two of which are reserved to the supervisor.",
+      "_schema_note": "Fields above are queue_entry_check.REQUIRED_FIELDS. Below is annotation the validator ignores, EXCEPT memory_footprint_gb, which Sanaa's item 7 requires and the validator does not know.",
+      "memory_footprint_gb": 8.0,
+      "memory_footprint_basis": "8.0 GiB CONTAINER CEILING, --memory-swap held EQUAL so container swap is DISABLED (Sanaa item 18). A BOUND, NOT A MEASUREMENT, and labelled so: the lab holds no RSS reading for DARhoSimpleCFoam on this family at any level. Generosity is free on a 123 GiB box with 120 GiB available, and the first R2 level to run replaces the bound with a measurement in the calibration row.",
+      "memory_floor_gb_basis": "16.0 GiB MemAvailable required to START = ceiling + 8 GiB host headroom. A REFUSAL TO START, NEVER A CAP: it does not signal, throttle or shorten anything running. Below it the level is BLOCKED, not squeezed -- the DRAFT Sec.5's own word. At staging the box reads 120 GiB available of 123.",
+      "registered_level": {
+        "surface": "c2",
+        "surface_quad_faces": 6240,
+        "wall_normal_cells": 64,
+        "volume_cells": 399360,
+        "growth_ratio_r": 1.1674,
+        "s0": 0.0001,
+        "marchDist": 12.0,
+        "pyHyp_N": 65,
+        "why": "DRAFT Sec.1.1. N, s0 and marchDist are byte-identical across all three levels, so ONE growth ratio and ONE first-cell height across the family and y+ is preserved. That is the entire repair: A3GC varied N alone while s0 and marchDist were pinned, forcing r = 2.0880 (L3) / 1.4006 (L2) / 1.1674 (anchor) -- levels that are not geometrically similar."
+      },
+      "mesh_state": {
+        "exists": "YES, in THREE places, each probed read-only 2026-09-12 with a3gc_grade.py probe and each returning EXACTLY cells 399360 / wing nFaces 6240: /home/ubuntu/certonomous-runs/A3GC-AR1, /A3GC-AR1C, /A3-onera-m6-transonic.",
+        "caveat": "DRAFT Sec.6.2 rules R2-L3 is a FRESH RUN regardless -- the anchor's CD carries the undriven-patchV defect (Sec.4.1) and may not be quoted; only its RESIDUAL evidence is admissible, and as evidence about the CAUSE, never as a level. Whether the MESH may be reused is the open ruling above."
+      },
+      "checkpoint_policy": {
+        "writeInterval": 500,
+        "purgeWrite": 2,
+        "endTime": 6000,
+        "satisfies_sanaa_item_1": "YES. 500 iterations at the Sec.5 rate is ~13 min of wall at the FINE level and less at the coarser ones, so no checkpoint interval anywhere in the family exceeds her 30 minutes. purgeWrite 2 keeps the last two and purges older, which is her clause verbatim, and endTime survives because it IS the last. 500 divides 6000 (12 writes), required by the runner's own G-COMPLETE clause 4.",
+        "departure_registered_before_compute": "a3gc_run.sh:91 currently carries WRITE_INTERVAL=2000, which at the fine level is ~54 min of wall and WOULD VIOLATE her 30-minute rule; and :326 carries purgeWrite 0 with the comment 'never purge: endTime must survive to be graded'. purgeWrite 2 keeps endTime, so the grader's requirement and her hygiene clause are compatible and the comment is over-broad. BOTH CHANGES ARE REGISTERED HERE BEFORE ANY R2 COMPUTE and must be READ BACK off each level's controlDict at launch, never assumed.",
+        "uniform_across_the_family": "500 on ALL THREE levels, including the ones fast enough not to need it. A family whose levels differ in controlDict is one more uncontrolled variable, which is the exact class of defect R2 exists to repair."
+      },
+      "sanaa_launch_preconditions": {
+        "item_6_ubuntu_never_root": "REGISTERED as -u 1000:1000 --group-add 1002 -e MPLCONFIGDIR=/tmp. MEASURED on this box 2026-09-12: `-u 1000:1000` ALONE dies 'Permission denied' sourcing loadDAFoam.sh (the image's dafoamuser is uid 1002 and /home/dafoamuser is drwxr-x---, mode 750 on BOTH dafoam images checked); with `--group-add 1002` the same uid reaches LOADED_OK and id reads uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),1002(dafoamuser). uid 1000 AND gid 1000 are both ubuntu, so artifacts land ubuntu:ubuntu. CORROBORATED BY A LIVE PEER RUN on the same image: container d6r2c_KR_REF_20260912T184838Z_79250 carries User=1000:1000, GroupAdd=[\"1002\"], sources the identical loadDAFoam.sh and is solving; its own first log line reads 'D6R2C_CONTAINER_UID: 1000 ubuntu GID: 1000 GROUPS: 1000 1002'. CORRECTION RECORDED: this lane first proposed -u 1000:1002, which also works but moves the PRIMARY group to a gid with no host user behind it; --group-add buys the same traversal without that. The better spelling is the peer lane's, not this one's. This SUPERSEDES a3gc_genmesh.sh:66-67's -u 1002:1000 for every R2 instrument. NOT YET PRESENT IN ANY R2 INSTRUMENT -- see blocking_defects.",
+        "item_7_memory_declared": "SATISFIED on this entry face; bases above.",
+        "item_8_core_guard": "ranks=8. The three levels are a WAVE, not three concurrent runs: DRAFT Sec.6.3 orders them L3 -> L2 -> L1, and queue_runner launches at most one entry per tick. 8 + fleet <= 16.",
+        "item_5_kill_and_resume_proof": "OWED AND NOT RUN for the steady-OpenFOAM-in-a-container class. R2-L3 at ~81 core-min is the cheapest place in this family to run it. Note: the peer lane's d6r2c_KR_REF run in flight at staging is the DAFoam-OPTIMISATION class, NOT this one -- it does not discharge R2's. Not claimed, not assumed.",
+        "item_9_detached": "The runner's setsid nohup wrapper, rc captured inside it.",
+        "item_10_registration_frozen": "NOT YET -- .DRAFT, two of three Sec.8 questions open."
+      },
+      "mandatory_residual_reader": "G-RESREAD, DRAFT Sec.10 (appended 2026-09-12). Any arm of this family that runs with non-orthogonal correctors ON must read residuals FIRST-MATCH-PER-EQUATION-PER-BLOCK. a3gc_grade.py:700-701 overwrites in a loop and returns the LAST match; with correctors on that is the last corrector's residual off an almost-solved field, and it was demonstrated 2026-09-12 to read back a planted 1.234e-09 as though it passed. REUSE a3gc_grade_l2r.py, md5 b188e7e1b0034a53267dc9b818138b8c, freeze 5eaa652fa, clause at :699-729, with its three-direction control -- DO NOT REWRITE IT. R2 registers nNonOrthogonalCorrectors 0, where FIRST == LAST and the clause costs nothing today; it is registered anyway because DRAFT Sec.7 registers that corrector count as an explicit LEVER any failing level may pull, and a guard installed after the lever is pulled is a guard installed after the accident.",
+      "cap_and_directive_17": "NO cap_core_min_registered. Sanaa's item 10 asks for a 3x cap; her directive #17 (2026-09-12) says no run is stopped by a cap. queue_runner.cap_watch will write ESTIMATE_OVERRUN.txt at 1.10 x the estimate; that flag REPORTS and never terminates, which is the only behaviour compatible with #17. Per the chief's reading #1, a genuine conflict goes supervisor -> chief -> Sanaa and nothing is killed on a cap meanwhile. Note the DRAFT Sec.5 still carries the line 'An overrun stops the run'; that predates #17 and is FLAGGED FOR THE SUPERVISOR, not edited by this lane.",
+      "blocking_defects": [
+        "BLOCKER 1 -- THE PRE-REGISTRATION IS NOT FROZEN. A3GC_R2_PREREGISTRATION.md.DRAFT, and Sec.8 questions 1 (is a3gc_grade_R2_GFIELD.diff applied, or does Sec.4.4 revert to A3GC Sec.3.6) and 3 (does R2 supersede A3GC) are reserved to the supervisor. Question 2 (the Sec.5 memory guard) is CLOSED by the 2026-09-12 revision, Sec.9. prereg_commit is a deliberate non-sha placeholder: FAIL CLOSED.",
+        "BLOCKER 2 -- THERE IS NO LAUNCH INSTRUMENT. a3gc_run.sh is itself a DRAFT and its --level accepts only L3|L2|L1|AR1; no R2 level id exists in it, and its RANKS/WANT_CELLS/WANT_WING tables have no R2 rows. launch_cmd above names a deliberately non-existent path so this entry cannot launch anything if copied.",
+        "BLOCKER 3 -- R2-L2's MESH EXISTS NOWHERE and a3gc_genmesh.sh has no table entry for c1 x 64 layers (its tables are L3/L2/L1/AR1; none is 1,597,440 cells). That instrument change is the supervisor's, and it lands on a file whose A3GC AMENDMENT 5 md5 pin is ALREADY STALE -- pin 9fa240d9643308f5e9a4988614b58884, disk and HEAD 2a1f45c06aa8912f5eb84d929fa54df1 since commit 8b16844fa (2026-09-12T05:27:25Z). a3gc_L1_wrapper.sh re-verifies that pin and exits 90 today. Must be repaired in the same act.",
+        "BLOCKER 4 -- Sanaa item 5's kill-and-resume proof for the steady-OpenFOAM class is owed and not run.",
+        "OPEN RULING -- whether R2 may consume PRE-FREEZE meshes. Sec.6.2 rules no pre-existing LEVEL is adopted; a mesh is a stage-1 input, not a graded run, but the reasoning is close enough that the supervisor must rule explicitly, per level. If the ruling is no, R2-L3 and R2-L1 regenerate and Sec.5's cost table gains stage-1 time it does not carry."
+      ]
+    },
+    {
+      "team": "dafoam",
+      "case_id": "A3GC-R2-L2",
+      "prereg_commit": "REPLACE_WITH_A3GC_R2_FREEZE_SHA",
+      "prereg_path": "cases/dafoam/ladder-a/A3/curriculum_A3GC/A3GC_R2_PREREGISTRATION.md",
+      "launch_cmd": [
+        "bash",
+        "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A3/curriculum_A3GC/__A3GC_R2_LAUNCH_INSTRUMENT_NOT_YET_FROZEN__",
+        "--level",
+        "R2-L2",
+        "--root",
+        "/home/ubuntu/certonomous-runs",
+        "--stage",
+        "all"
+      ],
+      "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A3/curriculum_A3GC",
+      "ranks": 8,
+      "cost_core_min_estimate": 325.6,
+      "cost_basis": "DERIVED, NOT MEASURED, transcribed from A3GC_R2_PREREGISTRATION.md.DRAFT Sec.5's rate table. The rate is the ONLY measured r=1.1674 rate on this geometry: the 399,360-cell anchor ran 6000 iterations at np=4 with ExecutionTime 1221.21 s = 81.41 core-min, i.e. 3.398e-08 core-min per cell-outer-iteration. Scaled by cells at that fixed rate: 1597440 cells x 6000 iterations. TWO NAMED ASSUMPTIONS (Sec.5): (i) GAMG iteration count does not grow materially from 399,360 to 6,389,760 cells -- multigrid is designed for that, but it is an assumption and R2-L3 and R2-L2 measure it before R2-L1 launches; (ii) the real risk at the fine level is memory, not cost. Dollars DERIVED at the owner-stated $0.0513/core-h; this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md Sec.5).",
+      "memory_floor_gb": 24.0,
+      "enqueued_by": "dafoam lab-lane, on dafoam-supervisor's brief 2026-09-12 (Sanaa directive item 5a). STAGED, NOT ENQUEUED -- not in verification/queue/dafoam/, and this lane launched nothing. SUPERVISION_CHARTER Sec.3 check 4 is NOT discharged: the pre-registration is a .DRAFT with three open questions, one of which this lane closed and two of which are reserved to the supervisor.",
+      "_schema_note": "Fields above are queue_entry_check.REQUIRED_FIELDS. Below is annotation the validator ignores, EXCEPT memory_footprint_gb, which Sanaa's item 7 requires and the validator does not know.",
+      "memory_footprint_gb": 16.0,
+      "memory_footprint_basis": "16.0 GiB CONTAINER CEILING, --memory-swap held EQUAL so container swap is DISABLED (Sanaa item 18). A BOUND, NOT A MEASUREMENT, and labelled so: the lab holds no RSS reading for DARhoSimpleCFoam on this family at any level. Generosity is free on a 123 GiB box with 120 GiB available, and the first R2 level to run replaces the bound with a measurement in the calibration row.",
+      "memory_floor_gb_basis": "24.0 GiB MemAvailable required to START = ceiling + 8 GiB host headroom. A REFUSAL TO START, NEVER A CAP: it does not signal, throttle or shorten anything running. Below it the level is BLOCKED, not squeezed -- the DRAFT Sec.5's own word. At staging the box reads 120 GiB available of 123.",
+      "registered_level": {
+        "surface": "c1",
+        "surface_quad_faces": 24960,
+        "wall_normal_cells": 64,
+        "volume_cells": 1597440,
+        "growth_ratio_r": 1.1674,
+        "s0": 0.0001,
+        "marchDist": 12.0,
+        "pyHyp_N": 65,
+        "why": "DRAFT Sec.1.1. N, s0 and marchDist are byte-identical across all three levels, so ONE growth ratio and ONE first-cell height across the family and y+ is preserved. That is the entire repair: A3GC varied N alone while s0 and marchDist were pinned, forcing r = 2.0880 (L3) / 1.4006 (L2) / 1.1674 (anchor) -- levels that are not geometrically similar."
+      },
+      "mesh_state": {
+        "exists": "NO -- NOWHERE ON THE BOX. This is the only R2 level with no mesh and no generator table entry. A3GC-L2 is the same SURFACE (c1, 24,960 faces) with HALF the layers: probed 2026-09-12 at cells 798720 / wing 24960, against R2-L2's registered 1,597,440 / 24,960. Cell count is the discriminator; wing face count alone would not tell the two apart."
+      },
+      "checkpoint_policy": {
+        "writeInterval": 500,
+        "purgeWrite": 2,
+        "endTime": 6000,
+        "satisfies_sanaa_item_1": "YES. 500 iterations at the Sec.5 rate is ~13 min of wall at the FINE level and less at the coarser ones, so no checkpoint interval anywhere in the family exceeds her 30 minutes. purgeWrite 2 keeps the last two and purges older, which is her clause verbatim, and endTime survives because it IS the last. 500 divides 6000 (12 writes), required by the runner's own G-COMPLETE clause 4.",
+        "departure_registered_before_compute": "a3gc_run.sh:91 currently carries WRITE_INTERVAL=2000, which at the fine level is ~54 min of wall and WOULD VIOLATE her 30-minute rule; and :326 carries purgeWrite 0 with the comment 'never purge: endTime must survive to be graded'. purgeWrite 2 keeps endTime, so the grader's requirement and her hygiene clause are compatible and the comment is over-broad. BOTH CHANGES ARE REGISTERED HERE BEFORE ANY R2 COMPUTE and must be READ BACK off each level's controlDict at launch, never assumed.",
+        "uniform_across_the_family": "500 on ALL THREE levels, including the ones fast enough not to need it. A family whose levels differ in controlDict is one more uncontrolled variable, which is the exact class of defect R2 exists to repair."
+      },
+      "sanaa_launch_preconditions": {
+        "item_6_ubuntu_never_root": "REGISTERED as -u 1000:1000 --group-add 1002 -e MPLCONFIGDIR=/tmp. MEASURED on this box 2026-09-12: `-u 1000:1000` ALONE dies 'Permission denied' sourcing loadDAFoam.sh (the image's dafoamuser is uid 1002 and /home/dafoamuser is drwxr-x---, mode 750 on BOTH dafoam images checked); with `--group-add 1002` the same uid reaches LOADED_OK and id reads uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),1002(dafoamuser). uid 1000 AND gid 1000 are both ubuntu, so artifacts land ubuntu:ubuntu. CORROBORATED BY A LIVE PEER RUN on the same image: container d6r2c_KR_REF_20260912T184838Z_79250 carries User=1000:1000, GroupAdd=[\"1002\"], sources the identical loadDAFoam.sh and is solving; its own first log line reads 'D6R2C_CONTAINER_UID: 1000 ubuntu GID: 1000 GROUPS: 1000 1002'. CORRECTION RECORDED: this lane first proposed -u 1000:1002, which also works but moves the PRIMARY group to a gid with no host user behind it; --group-add buys the same traversal without that. The better spelling is the peer lane's, not this one's. This SUPERSEDES a3gc_genmesh.sh:66-67's -u 1002:1000 for every R2 instrument. NOT YET PRESENT IN ANY R2 INSTRUMENT -- see blocking_defects.",
+        "item_7_memory_declared": "SATISFIED on this entry face; bases above.",
+        "item_8_core_guard": "ranks=8. The three levels are a WAVE, not three concurrent runs: DRAFT Sec.6.3 orders them L3 -> L2 -> L1, and queue_runner launches at most one entry per tick. 8 + fleet <= 16.",
+        "item_5_kill_and_resume_proof": "OWED AND NOT RUN for the steady-OpenFOAM-in-a-container class. R2-L3 at ~81 core-min is the cheapest place in this family to run it. Note: the peer lane's d6r2c_KR_REF run in flight at staging is the DAFoam-OPTIMISATION class, NOT this one -- it does not discharge R2's. Not claimed, not assumed.",
+        "item_9_detached": "The runner's setsid nohup wrapper, rc captured inside it.",
+        "item_10_registration_frozen": "NOT YET -- .DRAFT, two of three Sec.8 questions open."
+      },
+      "mandatory_residual_reader": "G-RESREAD, DRAFT Sec.10 (appended 2026-09-12). Any arm of this family that runs with non-orthogonal correctors ON must read residuals FIRST-MATCH-PER-EQUATION-PER-BLOCK. a3gc_grade.py:700-701 overwrites in a loop and returns the LAST match; with correctors on that is the last corrector's residual off an almost-solved field, and it was demonstrated 2026-09-12 to read back a planted 1.234e-09 as though it passed. REUSE a3gc_grade_l2r.py, md5 b188e7e1b0034a53267dc9b818138b8c, freeze 5eaa652fa, clause at :699-729, with its three-direction control -- DO NOT REWRITE IT. R2 registers nNonOrthogonalCorrectors 0, where FIRST == LAST and the clause costs nothing today; it is registered anyway because DRAFT Sec.7 registers that corrector count as an explicit LEVER any failing level may pull, and a guard installed after the lever is pulled is a guard installed after the accident.",
+      "cap_and_directive_17": "NO cap_core_min_registered. Sanaa's item 10 asks for a 3x cap; her directive #17 (2026-09-12) says no run is stopped by a cap. queue_runner.cap_watch will write ESTIMATE_OVERRUN.txt at 1.10 x the estimate; that flag REPORTS and never terminates, which is the only behaviour compatible with #17. Per the chief's reading #1, a genuine conflict goes supervisor -> chief -> Sanaa and nothing is killed on a cap meanwhile. Note the DRAFT Sec.5 still carries the line 'An overrun stops the run'; that predates #17 and is FLAGGED FOR THE SUPERVISOR, not edited by this lane.",
+      "blocking_defects": [
+        "BLOCKER 1 -- THE PRE-REGISTRATION IS NOT FROZEN. A3GC_R2_PREREGISTRATION.md.DRAFT, and Sec.8 questions 1 (is a3gc_grade_R2_GFIELD.diff applied, or does Sec.4.4 revert to A3GC Sec.3.6) and 3 (does R2 supersede A3GC) are reserved to the supervisor. Question 2 (the Sec.5 memory guard) is CLOSED by the 2026-09-12 revision, Sec.9. prereg_commit is a deliberate non-sha placeholder: FAIL CLOSED.",
+        "BLOCKER 2 -- THERE IS NO LAUNCH INSTRUMENT. a3gc_run.sh is itself a DRAFT and its --level accepts only L3|L2|L1|AR1; no R2 level id exists in it, and its RANKS/WANT_CELLS/WANT_WING tables have no R2 rows. launch_cmd above names a deliberately non-existent path so this entry cannot launch anything if copied.",
+        "BLOCKER 3 -- R2-L2's MESH EXISTS NOWHERE and a3gc_genmesh.sh has no table entry for c1 x 64 layers (its tables are L3/L2/L1/AR1; none is 1,597,440 cells). That instrument change is the supervisor's, and it lands on a file whose A3GC AMENDMENT 5 md5 pin is ALREADY STALE -- pin 9fa240d9643308f5e9a4988614b58884, disk and HEAD 2a1f45c06aa8912f5eb84d929fa54df1 since commit 8b16844fa (2026-09-12T05:27:25Z). a3gc_L1_wrapper.sh re-verifies that pin and exits 90 today. Must be repaired in the same act.",
+        "BLOCKER 4 -- Sanaa item 5's kill-and-resume proof for the steady-OpenFOAM class is owed and not run.",
+        "OPEN RULING -- whether R2 may consume PRE-FREEZE meshes. Sec.6.2 rules no pre-existing LEVEL is adopted; a mesh is a stage-1 input, not a graded run, but the reasoning is close enough that the supervisor must rule explicitly, per level. If the ruling is no, R2-L3 and R2-L1 regenerate and Sec.5's cost table gains stage-1 time it does not carry."
+      ]
+    },
+    {
+      "team": "dafoam",
+      "case_id": "A3GC-R2-L1",
+      "prereg_commit": "REPLACE_WITH_A3GC_R2_FREEZE_SHA",
+      "prereg_path": "cases/dafoam/ladder-a/A3/curriculum_A3GC/A3GC_R2_PREREGISTRATION.md",
+      "launch_cmd": [
+        "bash",
+        "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A3/curriculum_A3GC/__A3GC_R2_LAUNCH_INSTRUMENT_NOT_YET_FROZEN__",
+        "--level",
+        "R2-L1",
+        "--root",
+        "/home/ubuntu/certonomous-runs",
+        "--stage",
+        "all"
+      ],
+      "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A3/curriculum_A3GC",
+      "ranks": 8,
+      "cost_core_min_estimate": 1302.6,
+      "cost_basis": "DERIVED, NOT MEASURED, transcribed from A3GC_R2_PREREGISTRATION.md.DRAFT Sec.5's rate table. The rate is the ONLY measured r=1.1674 rate on this geometry: the 399,360-cell anchor ran 6000 iterations at np=4 with ExecutionTime 1221.21 s = 81.41 core-min, i.e. 3.398e-08 core-min per cell-outer-iteration. Scaled by cells at that fixed rate: 6389760 cells x 6000 iterations. TWO NAMED ASSUMPTIONS (Sec.5): (i) GAMG iteration count does not grow materially from 399,360 to 6,389,760 cells -- multigrid is designed for that, but it is an assumption and R2-L3 and R2-L2 measure it before R2-L1 launches; (ii) the real risk at the fine level is memory, not cost. Dollars DERIVED at the owner-stated $0.0513/core-h; this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md Sec.5).",
+      "memory_floor_gb": 48.0,
+      "enqueued_by": "dafoam lab-lane, on dafoam-supervisor's brief 2026-09-12 (Sanaa directive item 5a). STAGED, NOT ENQUEUED -- not in verification/queue/dafoam/, and this lane launched nothing. SUPERVISION_CHARTER Sec.3 check 4 is NOT discharged: the pre-registration is a .DRAFT with three open questions, one of which this lane closed and two of which are reserved to the supervisor.",
+      "_schema_note": "Fields above are queue_entry_check.REQUIRED_FIELDS. Below is annotation the validator ignores, EXCEPT memory_footprint_gb, which Sanaa's item 7 requires and the validator does not know.",
+      "memory_footprint_gb": 40.0,
+      "memory_footprint_basis": "40.0 GiB CONTAINER CEILING, --memory-swap held EQUAL so container swap is DISABLED (Sanaa item 18). A BOUND, NOT A MEASUREMENT, and labelled so: the lab holds no RSS reading for DARhoSimpleCFoam on this family at any level. Generosity is free on a 123 GiB box with 120 GiB available, and the first R2 level to run replaces the bound with a measurement in the calibration row.",
+      "memory_floor_gb_basis": "48.0 GiB MemAvailable required to START = ceiling + 8 GiB host headroom. A REFUSAL TO START, NEVER A CAP: it does not signal, throttle or shorten anything running. Below it the level is BLOCKED, not squeezed -- the DRAFT Sec.5's own word. At staging the box reads 120 GiB available of 123.",
+      "registered_level": {
+        "surface": "c0",
+        "surface_quad_faces": 99840,
+        "wall_normal_cells": 64,
+        "volume_cells": 6389760,
+        "growth_ratio_r": 1.1674,
+        "s0": 0.0001,
+        "marchDist": 12.0,
+        "pyHyp_N": 65,
+        "why": "DRAFT Sec.1.1. N, s0 and marchDist are byte-identical across all three levels, so ONE growth ratio and ONE first-cell height across the family and y+ is preserved. That is the entire repair: A3GC varied N alone while s0 and marchDist were pinned, forcing r = 2.0880 (L3) / 1.4006 (L2) / 1.1674 (anchor) -- levels that are not geometrically similar."
+      },
+      "mesh_state": {
+        "exists": "ONE STEP AWAY, AND IT IS THE SAME MESH AS A3GC-L1. A3GC's L1 is COARSEN_PASSES 0, N_LAYERS 65 -> 6,389,760 cells (a3gc_genmesh.sh:79-81); R2-L1 is c0 x 64 wall-normal cells -> 6,389,760. Identical parameters, therefore identical mesh. /home/ubuntu/certonomous-runs/A3GC-L1 holds the preserved pyHyp output volumeMesh.xyz at 437,206,919 bytes and NO constant/polyMesh; only plot3dToFoam onward is owed, which is case A3GC-L1-REENTRY (staged separately). Finishing it delivers R2's fine level and the ~896 core-min of pyHyp already spent is not repaid."
+      },
+      "checkpoint_policy": {
+        "writeInterval": 500,
+        "purgeWrite": 2,
+        "endTime": 6000,
+        "satisfies_sanaa_item_1": "YES. 500 iterations at the Sec.5 rate is ~13 min of wall at the FINE level and less at the coarser ones, so no checkpoint interval anywhere in the family exceeds her 30 minutes. purgeWrite 2 keeps the last two and purges older, which is her clause verbatim, and endTime survives because it IS the last. 500 divides 6000 (12 writes), required by the runner's own G-COMPLETE clause 4.",
+        "departure_registered_before_compute": "a3gc_run.sh:91 currently carries WRITE_INTERVAL=2000, which at the fine level is ~54 min of wall and WOULD VIOLATE her 30-minute rule; and :326 carries purgeWrite 0 with the comment 'never purge: endTime must survive to be graded'. purgeWrite 2 keeps endTime, so the grader's requirement and her hygiene clause are compatible and the comment is over-broad. BOTH CHANGES ARE REGISTERED HERE BEFORE ANY R2 COMPUTE and must be READ BACK off each level's controlDict at launch, never assumed.",
+        "uniform_across_the_family": "500 on ALL THREE levels, including the ones fast enough not to need it. A family whose levels differ in controlDict is one more uncontrolled variable, which is the exact class of defect R2 exists to repair."
+      },
+      "sanaa_launch_preconditions": {
+        "item_6_ubuntu_never_root": "REGISTERED as -u 1000:1000 --group-add 1002 -e MPLCONFIGDIR=/tmp. MEASURED on this box 2026-09-12: `-u 1000:1000` ALONE dies 'Permission denied' sourcing loadDAFoam.sh (the image's dafoamuser is uid 1002 and /home/dafoamuser is drwxr-x---, mode 750 on BOTH dafoam images checked); with `--group-add 1002` the same uid reaches LOADED_OK and id reads uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),1002(dafoamuser). uid 1000 AND gid 1000 are both ubuntu, so artifacts land ubuntu:ubuntu. CORROBORATED BY A LIVE PEER RUN on the same image: container d6r2c_KR_REF_20260912T184838Z_79250 carries User=1000:1000, GroupAdd=[\"1002\"], sources the identical loadDAFoam.sh and is solving; its own first log line reads 'D6R2C_CONTAINER_UID: 1000 ubuntu GID: 1000 GROUPS: 1000 1002'. CORRECTION RECORDED: this lane first proposed -u 1000:1002, which also works but moves the PRIMARY group to a gid with no host user behind it; --group-add buys the same traversal without that. The better spelling is the peer lane's, not this one's. This SUPERSEDES a3gc_genmesh.sh:66-67's -u 1002:1000 for every R2 instrument. NOT YET PRESENT IN ANY R2 INSTRUMENT -- see blocking_defects.",
+        "item_7_memory_declared": "SATISFIED on this entry face; bases above.",
+        "item_8_core_guard": "ranks=8. The three levels are a WAVE, not three concurrent runs: DRAFT Sec.6.3 orders them L3 -> L2 -> L1, and queue_runner launches at most one entry per tick. 8 + fleet <= 16.",
+        "item_5_kill_and_resume_proof": "OWED AND NOT RUN for the steady-OpenFOAM-in-a-container class. R2-L3 at ~81 core-min is the cheapest place in this family to run it. Note: the peer lane's d6r2c_KR_REF run in flight at staging is the DAFoam-OPTIMISATION class, NOT this one -- it does not discharge R2's. Not claimed, not assumed.",
+        "item_9_detached": "The runner's setsid nohup wrapper, rc captured inside it.",
+        "item_10_registration_frozen": "NOT YET -- .DRAFT, two of three Sec.8 questions open."
+      },
+      "mandatory_residual_reader": "G-RESREAD, DRAFT Sec.10 (appended 2026-09-12). Any arm of this family that runs with non-orthogonal correctors ON must read residuals FIRST-MATCH-PER-EQUATION-PER-BLOCK. a3gc_grade.py:700-701 overwrites in a loop and returns the LAST match; with correctors on that is the last corrector's residual off an almost-solved field, and it was demonstrated 2026-09-12 to read back a planted 1.234e-09 as though it passed. REUSE a3gc_grade_l2r.py, md5 b188e7e1b0034a53267dc9b818138b8c, freeze 5eaa652fa, clause at :699-729, with its three-direction control -- DO NOT REWRITE IT. R2 registers nNonOrthogonalCorrectors 0, where FIRST == LAST and the clause costs nothing today; it is registered anyway because DRAFT Sec.7 registers that corrector count as an explicit LEVER any failing level may pull, and a guard installed after the lever is pulled is a guard installed after the accident.",
+      "cap_and_directive_17": "NO cap_core_min_registered. Sanaa's item 10 asks for a 3x cap; her directive #17 (2026-09-12) says no run is stopped by a cap. queue_runner.cap_watch will write ESTIMATE_OVERRUN.txt at 1.10 x the estimate; that flag REPORTS and never terminates, which is the only behaviour compatible with #17. Per the chief's reading #1, a genuine conflict goes supervisor -> chief -> Sanaa and nothing is killed on a cap meanwhile. Note the DRAFT Sec.5 still carries the line 'An overrun stops the run'; that predates #17 and is FLAGGED FOR THE SUPERVISOR, not edited by this lane.",
+      "blocking_defects": [
+        "BLOCKER 1 -- THE PRE-REGISTRATION IS NOT FROZEN. A3GC_R2_PREREGISTRATION.md.DRAFT, and Sec.8 questions 1 (is a3gc_grade_R2_GFIELD.diff applied, or does Sec.4.4 revert to A3GC Sec.3.6) and 3 (does R2 supersede A3GC) are reserved to the supervisor. Question 2 (the Sec.5 memory guard) is CLOSED by the 2026-09-12 revision, Sec.9. prereg_commit is a deliberate non-sha placeholder: FAIL CLOSED.",
+        "BLOCKER 2 -- THERE IS NO LAUNCH INSTRUMENT. a3gc_run.sh is itself a DRAFT and its --level accepts only L3|L2|L1|AR1; no R2 level id exists in it, and its RANKS/WANT_CELLS/WANT_WING tables have no R2 rows. launch_cmd above names a deliberately non-existent path so this entry cannot launch anything if copied.",
+        "BLOCKER 3 -- R2-L2's MESH EXISTS NOWHERE and a3gc_genmesh.sh has no table entry for c1 x 64 layers (its tables are L3/L2/L1/AR1; none is 1,597,440 cells). That instrument change is the supervisor's, and it lands on a file whose A3GC AMENDMENT 5 md5 pin is ALREADY STALE -- pin 9fa240d9643308f5e9a4988614b58884, disk and HEAD 2a1f45c06aa8912f5eb84d929fa54df1 since commit 8b16844fa (2026-09-12T05:27:25Z). a3gc_L1_wrapper.sh re-verifies that pin and exits 90 today. Must be repaired in the same act.",
+        "BLOCKER 4 -- Sanaa item 5's kill-and-resume proof for the steady-OpenFOAM class is owed and not run.",
+        "OPEN RULING -- whether R2 may consume PRE-FREEZE meshes. Sec.6.2 rules no pre-existing LEVEL is adopted; a mesh is a stage-1 input, not a graded run, but the reasoning is close enough that the supervisor must rule explicitly, per level. If the ruling is no, R2-L3 and R2-L1 regenerate and Sec.5's cost table gains stage-1 time it does not carry."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+# `A3GC-L1-REENTRY` — DRAFT, **NOT FROZEN**. Finishing the interrupted `plot3dToFoam`, and nothing else.
+
+Drafted 2026-09-12 by a dafoam `lab-lane` on the dafoam-supervisor's brief, under Sanaa's
+`docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md`. **Nothing here has authority until the
+supervisor freezes it by sha** (CLAUDE.md rule 2). **This lane ran no compute against it.**
+**SUBMISSIONS PARKED.**
+
+**Scope, and it is deliberately tiny: convert the preserved pyHyp volume mesh into an OpenFOAM
+`polyMesh` and measure it against A3GC's already-registered counts. NO SOLVE. NO GRADE. NO
+FUNCTIONAL.** This item produces a mesh or a refusal, and nothing that can be quoted as a result.
+
+---
+
+## 1. WHAT IS PRESERVED AND WHAT IS NOT
+
+`docs/RESIZE_CENSUS_2026-09-12.md` row 13. At the 17:36Z reboot, A3GC-L1 stage 1 was inside
+`plot3dToFoam`. On disk in `/home/ubuntu/certonomous-runs/A3GC-L1`:
+
+| artefact | state |
+|---|---|
+| `volumeMesh.xyz` | **437,206,919 bytes, complete**, written 08:20 — the pyHyp hyperbolic extrusion finished |
+| `logMeshGeneration.txt` | ends mid-conversion at `Creating cells` / `Creating boundary patches`, after `Merged points within 1e-15 distance. Merged from 6624345 down to 6507345 points.` |
+| `constant/polyMesh` | **does not exist** — the conversion never landed |
+| any time directory | **none**. Nothing has been solved in this tree. |
+| `system/` | present, including `createPatchDict` |
+
+**The expensive half survived.** The census records the pyHyp part complete at 08:20; the whole
+stage-1 watcher column reads 53,775 s wall / **896.2 core-min at `--cpus 1`**, of which everything
+up to 08:20 is preserved and must not be repaid.
+
+## 2. WHY A SEPARATE INSTRUMENT, AND NOT `a3gc_genmesh.sh --levels L1`
+
+Two independent reasons, either decisive alone:
+
+1. **The pinned generator refuses re-entry by design.** `a3gc_genmesh.sh:237-243` refuses when the
+   level's run root exists — *"A graded run root is evidence and is never written into, and a mesh
+   regenerated on top of an old one cannot be dated"* — and it has **no stage selector**, so
+   entering it would redo pyHyp.
+2. **The generator's own pin is broken at HEAD, so the L1 wrapper would refuse anyway.**
+   `a3gc_L1_wrapper.sh` re-verifies `a3gc_genmesh.sh` against A3GC AMENDMENT 5's md5
+   `9fa240d9643308f5e9a4988614b58884` and `exit 90`s on mismatch. Commit **`8b16844fa`**
+   (2026-09-12T05:27:25Z, "AR1 level tables"), which landed **~4 h after** the 01:36Z L1 launch,
+   moved the file to md5 **`2a1f45c06aa8912f5eb84d929fa54df1`** — which is what is on disk and at
+   HEAD now.
+
+> **Finding reported upward, not repaired here.** The AMENDMENT 5 pin no longer matches the file it
+> pins. The L1 stage-1 run was legal when it started (the file matched then); it is the *pin record*
+> that is now stale, exactly as `MP_A5R`'s §0 md5 table is. Repairing an amendment's pin is not a
+> lane's act. **Until it is repaired, `a3gc_L1_wrapper.sh` cannot launch anything**, which is a
+> fail-closed behaviour and therefore safe, but it is not a state anyone chose.
+
+**The guard this item does not violate.** Writing into an existing tree is what the generator's guard
+forbids, and the guard's two purposes are (a) never overwrite a graded root and (b) never produce a
+mesh that cannot be dated. **Neither applies**: nothing in A3GC-L1 has been graded, there is no
+`polyMesh` to overwrite and no time directory, and the instrument **asserts all three** at start-up
+rather than claiming them in prose (`a3gc_l1_plot3d_reentry.sh`, PRECONDITION 3).
+
+## 3. THE MEMORY QUESTION — **THE UNMEASURED RISK, AND THE ARITHMETIC THAT MAKES IT MOOT**
+
+**The brief asked whether the container ceiling suffices for `plot3dToFoam` at 6,389,760 cells. The
+honest answer is that the peak was never measured, and that the arithmetic says it no longer
+matters.**
+
+**What is measured.** The interrupted run ran under `bin/docker`'s injected
+`--cpus 1 --memory 4g --memory-swap 8g` (a PATH shim, because the generator was md5-pinned). Its
+watcher, `A3GC_L1_STAGE1_WATCH.txt`, recorded the process at **0.3 %–4.5 % CPU** for the five hours
+from 12:01 to the 17:11 last tick, labelling it `LOG-FROZEN-BUT-CPU-BUSY-NOT-A-STALL`. Meanwhile the
+census records the host itself at `available=0 GiB` repeatedly from 13:41 to 17:25
+(`SOLVE_L2.gatedlaunch.log`) and `MemAvailable=1.42 GiB` at 10:11.
+
+**A process at ~1 % CPU for five hours is not computing. It is waiting on memory.** With
+`--memory-swap 8g` against `--memory 4g` the cgroup was *explicitly given* 4 GiB of swap to thrash
+in, on a host that had nothing left to give. **This lane did not measure the peak RSS and does not
+claim the 4 GiB ceiling was the binding constraint** — the reboot, not an OOM kill, is what ended the
+run, and `docker inspect` was never read for it. What is claimed is narrower and is supported: the
+CPU trace is the signature of memory starvation, not of a slow conversion.
+
+**The arithmetic, and it is why this is now moot.**
+
+| quantity | value |
+|---|---|
+| box now | r7a.4xlarge, 16 cores, **123 GiB**, MemAvailable **120 GiB**, swap 15 GiB **0 used** |
+| old ceiling | `--memory 4g` (+4 GiB swap) |
+| registered ceiling here | **`--memory 48g`, `--memory-swap 48g` (container swap DISABLED)** |
+| estimated conversion peak | **~16–25 GiB** — 6,389,760 hex cells / 6,507,345 merged points, at the ~1.5–3 GiB per million cells that OpenFOAM `polyMesh` construction is commonly observed to need. **THIS IS AN ESTIMATE, NOT A MEASUREMENT**, and it is labelled so everywhere it appears. |
+| headroom | 48 GiB is ~2–3× the upper estimate, and leaves **72 GiB** of the box for everything else |
+
+**12× the old ceiling costs nothing on this box.** Even at the pessimistic end of the estimate the
+step fits with room to spare, and if the estimate is badly wrong the container — not the host OOM
+killer — absorbs it.
+
+**The estimate is replaced by a measurement by this very run.** The instrument prints
+`CONTAINER_PEAK_MEM_BYTES` from the container's own `/sys/fs/cgroup/memory.peak` at the end of every
+step. That reading, not this paragraph, is what the calibration row will carry. **If `memory.peak` is
+unreadable the instrument prints `UNREADABLE` rather than a zero** — a zero from a reader not shown
+able to see a non-zero is not evidence.
+
+## 4. SANAA'S LAUNCH PRECONDITIONS
+
+| item | state |
+|---|---|
+| **6 — ubuntu, never root** | **SATISFIED, and by a measured spelling.** `-u 1000:1000 --group-add 1002`. **uid 1000 and gid 1000 are both `ubuntu`**, so artifacts land `ubuntu:ubuntu`; 1002 is the *image's* `dafoamuser` group carried as a **supplementary** group for one purpose, traversing the 0750 `/home/dafoamuser`. Measured on this box 2026-09-12: `-u 1000:1000` **alone** dies `Permission denied` sourcing `loadDAFoam.sh`; with `--group-add 1002` it reaches `LOADED_OK`. **Corroborated by a live peer run on the same image** — container `d6r2c_KR_REF_20260912T184838Z_79250`, `User=1000:1000`, `GroupAdd=["1002"]`, log line `D6R2C_CONTAINER_UID: 1000 ubuntu GID: 1000 GROUPS: 1000 1002`. **Better than `a3gc_genmesh.sh`'s own `-u 1002:1000`**, which runs as a uid that does not exist on the host. *(Correction recorded: this lane first proposed `-u 1000:1002`, which also works but moves the primary group to a gid with no host user.)* |
+| **7 — memory declared** | `memory_footprint_gb` **48.0** (ceiling), basis §3. |
+| **8 — rank count** | **1.** No `mpirun`; `plot3dToFoam`, `autoPatch`, `createPatch`, `renumberMesh` and `checkMesh` are all serial. One core out of sixteen. |
+| **1–3 — checkpoints** | **NOT APPLICABLE, AND THAT IS THE HONEST ANSWER, NOT AN EXEMPTION.** This is mesh generation: there is no `controlDict` iteration loop, no `writeInterval`, no field to checkpoint and no optimiser history. The *cheap* restartable unit is the whole step, and the reason it is cheap is that the expensive predecessor stage is already on disk (§1). If this step is interrupted again, re-entry is the same command against the same preserved input. **If the launcher enforces items 1–3 by rule rather than by class, this entry must be HELD and the class exemption ruled on — it must not be waved through.** |
+| **9 — detached, parented to init** | The runner's own `setsid nohup` wrapper, with rc captured inside it. The instrument logs its `PPID`. |
+| **10 — registration frozen** | **NOT YET. This file is a DRAFT.** No graded quantity exists for this item, so the "reference and band" clause has no referent; what is registered instead is the **exit condition**: cells == 6,389,760 **and** wing `nFaces` == 99,840 **and** checkMesh reporting 3 geometric directions, each a refusal on failure. Those three are **A3GC's own already-frozen numbers** (PREREG §2.5, §3.2; `a3gc_genmesh.sh:80-81`), transcribed, not invented here. |
+| **17/18 — box hygiene** | Read at drafting: load far under 16 after the reboot; MemAvailable 120 GiB; swap 0 used. Neither defect present. Not a substitute for the runner's reading at launch. |
+
+## 5. COST
+
+| | |
+|---|---|
+| registered estimate | **60 core-min** (1 rank × 60 min wall) |
+| basis | **DERIVED, NOT MEASURED.** No un-starved conversion of this mesh exists to measure. The A3GC-L2 conversion at 798,720 cells is the only sibling and its conversion time is not separable from its generation log. 60 min is a deliberately loose bound for a serial conversion of 6.5M points on an unstarved box; **the real expectation is minutes, and saying so here rather than registering minutes is how an estimate stays falsifiable in the direction that matters.** |
+| dollars | $0.051 **derived, not measured**, at the owner-stated $0.0513/core-h. The box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5). |
+| cap | **NONE** (Sanaa directive #17). `queue_runner.cap_watch` will write `ESTIMATE_OVERRUN.txt` at 1.10 × 60 = 66 core-min. That flag **reports and never terminates**. |
+| calibration | Estimate-versus-actual owed at completion, in core-minutes from the ledger, plus the measured `CONTAINER_PEAK_MEM_BYTES`, to `docs/COST_CALIBRATION.md` (CLAUDE.md rule 12). |
+
+## 6. THE PLANTED CONTROL, AND IT IS ALREADY DEMONSTRATED
+
+The exit condition rests entirely on `a3gc_grade.py probe`. A probe that returned nothing, or a
+zero, would let a broken conversion through. **Driven on a real non-zero before this draft was
+written**, against the sibling level's completed mesh:
+
+```
+python3 a3gc_grade.py probe --case /home/ubuntu/certonomous-runs/A3GC-L2 \
+                            --cgns /home/ubuntu/certonomous-runs/A3GC-L2/surfaceMesh.cgns
+  -> "cells": 798720,  "patches": {"wing": {"type": "wall", "nFaces": 24960}}
+```
+
+798,720 and 24,960 are **exactly** A3GC's registered L2 counts (`a3gc_genmesh.sh:80-81`). The reader
+is shown able to see the right non-zero on a tree it did not produce, before it is trusted to
+refuse on L1. Read-only; nothing in A3GC-L2 was written.
+
+## 7. WHAT THIS ITEM MAY NOT DO
+
+* It may not solve. Producing a `polyMesh` is the whole scope.
+* It may not delete, truncate or move `volumeMesh.xyz`, `logMeshGeneration.txt` or anything else in
+  the tree. The interrupted log is **copied**, never moved, to `logMeshGeneration.preReentry.txt`.
+* It may not relax either registered count, or accept a checkMesh without the 3-direction line.
+* It may not be launched by hand. **Item 19: the runner is the only thing that launches.**
+* It may not be sent anywhere. **SUBMISSIONS PARKED.**
+
+*`A3GC-L1-REENTRY` DRAFT v0.1, 2026-09-12. Not frozen. Not launched.*

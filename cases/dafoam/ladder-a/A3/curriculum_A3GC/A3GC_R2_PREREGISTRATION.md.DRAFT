@@ -1,0 +1,531 @@
+# DRAFT — NOT FROZEN. NO R2 COMPUTE MAY RUN BEFORE THE SUPERVISOR FREEZES AND COMMITS THIS FILE.
+
+Drafted by a dafoam lane, revised 2026-09-12. Gates, thresholds, caps and labels are **proposals**;
+nothing here is frozen and nothing has authority until the supervisor freezes it by sha (CLAUDE.md
+rule 2). Standing rule 5's outcome words appear only as **prospective gate definitions**; this document
+grades nothing and reports no verdict on any run. **SUBMISSIONS PARKED.**
+
+**`A3GC-R2` — ONERA M6 PRIMAL grid-convergence triple on a GEOMETRICALLY SIMILAR family.**
+
+---
+
+## 0. THE DEFECT R2 REPAIRS
+
+A3GC's registered family is not geometrically similar. `genWingMesh.py` differs between its levels in
+`N` alone while `s0 = 1.0e-4` and `marchDist = 12.0` are pinned by A3GC §2.6, which **forces** the
+wall-normal growth ratio to be a dependent variable rather than a controlled one:
+
+| A3GC level | pyHyp `N` | wall-normal cells | **growth ratio r** | last-layer thickness |
+|---|---|---|---|---|
+| L3 | 17 | 16 | **2.0880** | 6.25 |
+| L2 | 33 | 32 | **1.4006** | 3.43 |
+| L1 | 65 | 64 | **1.1674** | 1.72 |
+
+r solves from the generator's own three parameters: 16 cells reaching 12.0 from `s0` 1e-4 *requires*
+r = 2.0880. A3GC §2.5's "r = 2 exactly in all three directions" is true of the **cell counts** and
+false of the **wall-normal cell sizes**. An observed order computed across meshes whose near-wall
+stretching varies by 1.79x is not a single-order quantity. A3GC §2.6 disclosed `s0` as the
+non-systematic dimension and named the rejected alternative; it did not quantify this consequence.
+
+### 0.1 The controlled experiment that isolates the variable — ALREADY ON DISK
+
+| | validated anchor | A3GC L3 |
+|---|---|---|
+| surface | **c2, 6,240 faces** | **c2, 6,240 faces** — the same |
+| pyHyp `N` / layers | 65 / 64 | 17 / 16 |
+| **growth ratio r** | **1.1674** | **2.0880** |
+| cells | 399,360 | 99,840 |
+| `fvSolution`, `fvSchemes` | \| **byte-identical** (`diff` empty) \| |
+| `nNonOrthogonalCorrectors` | 0 | 0 |
+| solver / np / endTime / `primalMinResTol` | `DARhoSimpleCFoam` / 4 / 6000 / 1e-8 | identical |
+| **p initial residual at last step** | **3.744179143218389e-07** | **2.290019532e-05** |
+| every equation below 1e-06? | **YES** (U0 1.046e-07, U1 6.889e-08, U2 8.712e-08, he 2.635e-07, p 3.744e-07, nuTilda 8.986e-07) | **NO** |
+| `Primal solution failed` | **0 occurrences** | present |
+
+Sources: `/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/run_model_run3.log` (`End` present,
+last `Time = 6000`) and `/home/ubuntu/certonomous-runs/A3GC-L3/primal.log`.
+
+**Same body, same surface, same settings, same solver, same rank count, same iteration budget. The
+only variable is the wall-normal distribution, and through it r.** The anchor's p reaches **61x
+below** L3's plateau. This is a single-variable controlled experiment sitting in the tree, and it is
+stronger evidence than any inference drawn from the residual histories alone.
+
+### 0.2 The same defect seen from the other side
+
+A sibling lane's measurement in `A3GC_P_STALL_MESH_CONDITIONING_EVIDENCE.md` (max aspect ratio 222.4
+at L3 → 792.4 at L2, non-orthogonality 61.2° → 72.07°, projected L1 AR ≈ 3,170 and >75°) is the same
+defect viewed through aspect ratio: **holding `s0` fixed while Δx and Δz halve grows near-wall aspect
+ratio by the refinement ratio by construction.** That lane's numbers and this one's r arithmetic are
+two readings of one cause, and R2 fixes both at once by holding the wall-normal distribution constant.
+
+### 0.3 Why this cannot be an amendment to A3GC
+
+- **A3GC §2.5** registers the three levels' `N`, surfaces and cell counts, "ratio is the exact integer 8".
+- **A3GC §3.1 `G-SYS`** is an *executable refusal* whose clause 1 is "cell-count ratio 8.000 ± 0.001".
+
+R2's cell-count ratio is **4.000**, so A3GC's own instrument would refuse it. R2 is a **separate item
+with its own pre-registration**. A3GC is untouched here and its committed grading is not reopened.
+
+---
+
+## 1. THE FAMILY
+
+**Hold the wall-normal distribution fixed; refine the SURFACE only.** Every level then shares one
+growth ratio, one first-cell height and therefore **one y+ distribution** — the wall-function validity
+A3GC §2.6 was protecting, obtained by refusing to vary `N` rather than by varying it.
+
+### 1.1 Registered levels
+
+pyHyp `N = 65` (**64 wall-normal cells**), `s0 = 1.0e-4`, `marchDist = 12.0` on every level.
+**r = 1.1674 on every level.**
+
+| level | surface | surface quad faces | wall-normal cells | **volume cells** | cell ratio |
+|---|---|---|---|---|---|
+| **R2-L3** coarse | `c2` | 6,240 | 64 | **399,360** | — |
+| **R2-L2** medium | `c1` | 24,960 | 64 | **1,597,440** | **4.000** |
+| **R2-L1** fine | `c0` | 99,840 | 64 | **6,389,760** | **4.000** |
+
+Surface face ratio exactly 4 at each step; cell ratio exactly 4.000. Effective three-dimensional
+refinement ratio **4^(1/3) = 1.5874**, above Roache's recommended minimum of 1.3.
+
+**R2-L3 is dimensionally the validated anchor** — the one configuration measured to converge on this
+geometry (§0.1). R2 is therefore the only candidate family with a member *proven* to converge at its
+own growth ratio.
+
+### 1.2 Surfaces — c0/c1/c2 ONLY, and why c3 is excluded
+
+A3GC §2.4 measured body identity on the coordinate arrays and excluded `c3` **before any solve**:
+`c3` collapses the trailing edge to **0.0 thickness at root and tip** against 6.888e-04 on c0/c1/c2,
+with bbox y ±0.039320 against ±0.039426. §2.4's words: *"It is not the same discrete body as
+c0/c1/c2 ... c3 is excluded here BEFORE any solve, not discovered afterwards."*
+
+**A refinement family must refine the discretisation, not change the body. R2 uses c0/c1/c2 only.**
+
+> **Lane error, recorded rather than quietly dropped.** An earlier revision of this draft built the
+> family on `c3` (1,560 faces) after reading A3GC §2.3, which establishes `c3` is *buildable* and that
+> the chain is exactly 4.000 through it. Buildable and same-body are different questions and §2.4
+> answers the second. The earlier family was wrong and is withdrawn.
+
+### 1.3 What this family does NOT do
+
+Refinement is in the two surface directions only. **The wall-normal discretisation error does not
+reduce across the triple**; it is a constant bias Richardson extrapolation cannot remove. The observed
+order `p` is a **surface-and-outer-field order** and every appearance of it in the result record
+carries that qualifier — the same qualifier A3GC §4.3 applies to its own `p`. Here the bias is at
+least the *smallest* the family can carry, since the constant wall-normal distribution is the one
+measured to converge (§0.1), rather than the coarsest level's r = 2.0880.
+
+---
+
+## 2. CONVERGENCE IS NOT ACCURACY
+
+R2 measures whether the discrete solution **converges** under surface refinement at fixed near-wall
+resolution. It does not claim its levels are accurate and no reader may quote an R2 value as an
+accuracy result. For scale, registered in advance: A3GC L3 at 99,840 cells gives
+**CD = 0.029779800534915524** against the anchor's **CD = 0.0229956**, i.e. **+29.5%**.
+
+---
+
+## 3. THE HONEST RISK, REGISTERED IN ADVANCE
+
+A transonic wing carrying a shock may not sit in the asymptotic range at these resolutions; the
+shock's discrete position can move by a whole cell between levels, breaking the smooth error expansion
+Richardson extrapolation assumes. **A non-`CONVERGING` triple, graded `NOT A RESULT` under standing
+rule 5, is a registered possible outcome of R2 and is not a failure of the item.** No addendum may
+later recast such an outcome as anything else.
+
+---
+
+## 4. GATES
+
+### 4.1 Functionals
+
+**CD** and **CL** from the primal's force integration on `wing`, `directionMode`
+`parallelToFlow` / `normalToFlow`, `scale = 1/(0.5*U0^2*A0*rho0)`, `A0 = 0.7575`, `rho0 = 1.0`.
+Flow conditions re-asserted per level, never carried across: `U0 = 291.6`, `p0 = 101325.0`,
+`T0 = 300.0`, `nuTilda0 = 4.5e-5`, `aoa0 = 3.06` (M∞ = 0.83997); `DARhoSimpleCFoam`;
+Spalart-Allmaras with wall functions.
+
+`patchV` **must be driven**. An undriven `patchV` leaves the force frame at AoA 0 while the flow is at
+`aoa0`, omitting an induced projection measured at 120% of the reported CD. The applied angle is
+asserted back out of the solver's own written U field at launch.
+
+**Consequence for R2-L3:** the anchor run's CD carries that defect and **its CD may not be quoted**.
+Its *residual* evidence (§0.1) is unaffected — the frame enters force projection, not the flow solve.
+R2-L3 is a fresh run under §6.2 regardless.
+
+### 4.2 Roache gating — standing rule 5, in order, not negotiable
+
+1. Any level not iteratively converged (§4.4) or not plateaued → `NOT A RESULT`; no value quoted.
+2. Triple `DIVERGENT`, `STAGNANT`, `OSCILLATORY` or `EXACT` → `NOT A RESULT`, with the value, both
+   triples and both orders printed beside it.
+3. `CONVERGING` → `PASS` inside the §4.5 band, else `GATE FAIL`, GCI printed.
+
+**GCI at Fs = 1.25. A GCI is NEVER quoted when the three values are not monotone.** The gate can only
+turn a PASS or GATE FAIL **into** `NOT A RESULT`, never the reverse.
+
+### 4.3 `G-PLAT` — functional stationarity
+
+Over the final **W = 500** outer iterations, for each F in {CD, CL}: peak-to-peak(F) ≤ **1/10** of
+|F(this level) − F(next finer level)|, the binding difference the Richardson fit must resolve. A level
+whose iteration noise is not an order of magnitude below the signal cannot support an extrapolation.
+The ratio 1/10 is inherited unchanged from A3GC and is implemented by `gate_g_plat` today.
+
+### 4.4 `G-FIELD` — field stationarity, and the principle the clause is built on
+
+**The principle, stated so a cold reader sees the gate was chosen from structure and not from a
+result.** OpenFOAM's per-equation *initial* residual is normalised per equation. Equations therefore
+plateau at different absolute values for arithmetic reasons, not physical ones. Measured on A3GC L3:
+Ux 3.010e-07, Uy 5.245e-07, Uz 3.001e-07 and e 7.957e-07 are **all already below 1e-06**, while p sits
+at 2.290e-05 — **p leads by how it is scaled, not by what it is doing.** A single bare floor applied
+across all equations therefore indicts whichever equation is normalised largest. R2 does not use one
+as its discriminator.
+
+> **This is a genuine loosening of A3GC §3.6**, which made "every per-equation initial residual ≤ 1e-06"
+> a *necessary* condition. R2 demotes it to recorded-and-printed and gates on stationarity instead.
+> R2 is a NEW registration, not an amendment, so nothing is retroactively relaxed. Permitted by the
+> supervisor on the stated principle, not because the old gate failed.
+
+Carried in converse form per `N-D45`, in the same sentence as the claim: **a flat CD history proves
+the INTEGRAL is stationary, not that the FIELD is converged** — a surface integral is blind to
+compensating field motion — so `G-PLAT` is paired with, never substituted for, a field test.
+
+Over the final **W = 500 dense outer iterations**, read from the per-iteration linear-solver lines and
+**not** from the sparse `printInterval` prints (100 on this family = 61 samples in 6000 iterations, far
+too few to test stationarity), for **every** equation (`p`, `Ux`, `Uy`, `Uz`, `e`, `nuTilda`),
+**applied sequentially**:
+
+**Limb 1 — trend.** Fit log10(residual) against iteration index. Require
+
+> **SNR = |slope| × W / scatter-about-the-fit ≤ 1.0.**
+
+**Derivation:** SNR = 1 is the boundary at which the total fitted descent across the window equals the
+window's own scatter — below it, a remaining trend is not distinguishable from noise. It is a
+definitional boundary with no tuned constant. **This replaces the undefended relative-peak-to-peak
+bound of 0.25 in the previous revision, which had no derivation and is withdrawn.**
+
+**Limb 2 — alternation, on the DETRENDED series, and only where limb 1 passed.** A period-2 series
+with a 3% split passes any peak-to-peak bound while sitting in a limit cycle. Require **both**:
+
+> **first-difference sign-alternation fraction < 0.95**, and **lag-1 autocorrelation > −0.5.**
+
+**Derivations.** The alternation fraction is 1.000 for a pure period-2 series, 0.5 for white noise and
+~0 for a monotone one; 0.95 admits one non-alternating step in twenty — ties, a single glitch — and
+nothing that is not essentially a pure alternation. For lag-1, with x_t = a(−1)^t + e_t,
+lag1 = −a²/(a²+σ²), so **lag1 = −0.5 is exactly where the alternating mode carries half the series
+variance** (a² = σ²). Neither number is taken from any completed run.
+
+**Why sequential, and why detrended — measured, not asserted.** A surviving trend masks alternation in
+lag-1: the same A3GC L2 p series reads lag-1 **−0.744 at W = 80** and **+0.991 at W = 500**. A gate
+applied to a still-descending series flips sign with the window, which is not a gate. Limb 1 removes
+exactly that population, and limb 2 runs on the residuals about the fit.
+
+> **Defect in the earlier form of this clause, recorded.** A previous revision gated lag-1 < −0.5 on
+> "the plateau window". At the registered W = 500 that limb reads **+0.991** on A3GC L2 and would
+> never have fired — it would have failed to fire on the very data it was designed from. The
+> sequential structure above is the repair.
+
+**Recorded and printed beside every row, but not the discriminator:** the DAFoam `Primal min residual`
+line, every per-equation initial residual at the last written time, and the §4.6 product floor with
+whether each is above or below it. The `G-RES` printout carries the literal label
+`RECORDED, NOT GATED (R2 Sec.4.4)` so no reader can mistake it for a gate that failed to bite.
+
+**Planted control (standing rule 3).** The dense reader is new and now decides every level's verdict.
+Refusing on "I read zero lines" is not a planted control — it cannot show the reader able to see a
+non-zero. A known synthetic series is planted into a copy of a real log, read back through the dense
+reader, and the gate must reach the known answer **in both directions**: a planted pure period-2 must
+fail limb 2, and a planted monotone descent must fail limb 1 and **not** be reported as alternating.
+The grader refuses if either direction cannot be demonstrated. A control that only ever shows red is
+as useless as one that only ever shows green.
+
+### 4.5 Registered predictions and bands — fixed before any R2 compute
+
+| quantity | prediction | band for `PASS` |
+|---|---|---|
+| observed order `p` on CD | 1.6 | **1.0 ≤ p ≤ 3.0**; outside → not `CONVERGING` → `NOT A RESULT` |
+| observed order `p` on CL | 1.8 | **1.0 ≤ p ≤ 3.0**, same rule |
+| GCI(fine) on CD, Fs = 1.25 | ≤ 2.0 % | **≤ 3.0 %** |
+| GCI(fine) on CL, Fs = 1.25 | ≤ 1.5 % | **≤ 2.5 %** |
+| Richardson-extrapolated CD / CL | reported with band, **not gated** | — |
+
+`p` is a **surface-and-outer-field order** per §1.3.
+
+**Registered convergence prediction — REPORTED, NOT GATED.** Every R2 level carries r = 1.1674, the
+ratio measured to converge on this geometry (§0.1). **Prediction: every R2 level's p initial residual
+descends below 1e-06, and none plateaus near A3GC L3's 2.290019532e-05.** Recorded as a prediction and
+explicitly not a gate, so it cannot act as a threshold fitted to a completed run.
+
+### 4.6 `G-TOL` and the standing guards
+
+`primalMinResTol = 1.0e-08`, `primalMinResTolDiff = 100` on all three levels, read from the runScript
+each level actually uses and recorded per level; accept floor is the **PRODUCT** (`N-D43`) = **1e-06**.
+`G-TOL` refuses if any level's DAOption dump prints anything else. No number carried across items.
+
+`G-MESH`, `G-COLD`, `G-PLANT`, the strict completion rule and the age guard (CLAUDE.md rule 4) apply
+unchanged. Decomposition disclosed with every number.
+
+**`G-SYS` for R2** — systematic by COORDINATES, never by md5:
+1. cell-count ratio **4.000 ± 0.001** at each step;
+2. surface face-count ratio **exactly 4** at each step;
+3. pyHyp `N`, `s0` and `marchDist` **byte-identical** across the three `genWingMesh.py` files, so the
+   growth ratio is identical **by construction, not by measurement**;
+4. bounding boxes agree to 1e-5 of root chord;
+5. TE thickness at root/mid/tip agrees to 1%, and **no level may have TE thickness 0.0** (§1.2).
+
+Clause 3 is the clause A3GC lacked and is the entire reason R2 exists.
+
+---
+
+## 5. COST — FROM THE ONLY MEASURED r = 1.1674 RATE
+
+**Measured rates**, core-minutes per cell-outer-iteration, whole-run:
+
+| configuration | r | basis | rate |
+|---|---|---|---|
+| anchor, 399,360 c, np=4, 6000 it, `ExecutionTime 1221.21 s` = **81.41 core-min** | 1.1674 | whole run | **3.398e-08** |
+| A3GC L3, 99,840 c, np=4, 6000 it, `ExecutionTime 439.6 s` = 29.31 core-min | 2.0880 | whole run | 4.893e-08 = **1.44x** |
+| A3GC L2, 798,720 c, np=8, 782 it = 455.2 core-min | 1.4006 | **transient only** | 7.288e-07 |
+
+**The well-stretched mesh is 1.44x CHEAPER per cell-iteration than the badly-stretched one**, because
+its pressure GAMG converges in far fewer iterations per outer step (2.00 on L3's converged tail against
+16.11 on L2's transient). Cost is not linear in cells; it scales as cells × outer-iterations ×
+GAMG-iterations, and those three normalise to within 8% across the two whole-run measurements.
+
+**R2 at the anchor's own measured rate, 6000 iterations per level:**
+
+| level | cells | core-min | wall @np=8 |
+|---|---|---|---|
+| R2-L3 | 399,360 | **81.4** | 0.2 h |
+| R2-L2 | 1,597,440 | **325.6** | 0.7 h |
+| R2-L1 | 6,389,760 | **1,302.6** | 2.7 h |
+| **total** | | **1,710 core-min = 28.5 core-h** | **~3.6 h sequential** |
+
+**$1.46 derived, not measured** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md`
+§5); $0.0513/core-h is owner-stated. Far inside the pre-authorised band.
+**An overrun stops the run; it does not get a new budget.**
+
+**Two assumptions, named rather than buried.** (i) The rate assumes the GAMG iteration count does not
+grow materially from 399,360 to 6,389,760 cells. Multigrid is designed for that, but it is an
+assumption, not a measurement, and R2-L3 and R2-L2 will have measured it before R2-L1 launches.
+(ii) **The real risk at 6.39M cells is memory, not cost.** A3GC §0 already flags "the finest level here
+is ~6.4M cells". R2-L1 is a **primal only**, no adjoint, so the A6 adjoint precedent does not apply —
+but a headroom guard is registered as a launch precondition and a level that cannot fit is `BLOCKED`,
+not squeezed.
+
+### 5.1 The rejected alternative, costed and named
+
+The **N = 33 (32 layers, r = 1.4006)** family on the same surfaces — 199,680 / 798,720 / 3,194,880 —
+costs 855 core-min at the anchor rate, 1,231 at L3's rate, and **18,336 core-min (306 core-h)** if it
+behaves like A3GC L2's transient throughout.
+
+**It is rejected, and the honest reason is credibility rather than cost.** r = 1.4006 has **no level
+measured to converge on this geometry**; r = 1.1674 has one (§0.1). The claim that N=33 "stalls at
+every level" is *not* established — A3GC L2 is still descending, with a measured trend SNR of 8.14 at
+W = 500, and has not been shown to stall. What is established is the asymmetry, and it decides the
+choice independently of the stall question. The ~855 extra core-minutes buy a proven growth ratio.
+
+### 5.2 Calibration
+
+Estimate-versus-actual is owed at each level's completion, in core-minutes from logs, with dollars
+labelled derived, and lands as rows in `docs/COST_CALIBRATION.md` (CLAUDE.md rule 12).
+
+---
+
+## 6. EXECUTION
+
+### 6.1 Grading path
+
+`a3gc_grade.py`, md5 **`73dbe368934956700da87e5a1f44ea0c`**, verified by this lane against
+`git show HEAD:...`. §4.4 is **not implementable by the unchanged grader** — it needs the dense
+reader, the trend and alternation statistics, and the two-way planted control. The proposed delta is
+`a3gc_grade_R2_GFIELD.diff` (revision r2), **written but NOT APPLIED**; the grader is byte-unchanged.
+It is for the supervisor to read as a diff personally (`SUPERVISION_CHARTER.md` §3, not delegable).
+Either that diff is reviewed and applied before freeze, or §4.4 reverts to A3GC §3.6's wording — which
+costs the alternation guard that tonight's measurement showed is essential rather than ornamental.
+
+### 6.2 R2-L3 is a FRESH RUN. The anchor is not adopted, and neither is the running L2.
+
+The 399,360-cell anchor run and the A3GC L2 primal running now (pids 2467075 / 2467121) are both
+**dimensionally** related to R2 levels. **Neither is adopted.** Both began under a different
+registration — L2 at 00:35Z under A3GC's — and adopting a completed or running level into a family
+frozen afterwards is precisely what rule 2 exists to prevent. **That the anchor is already measured
+makes the temptation worse, not better.** Every R2 level is a fresh run after the freeze, under this
+registration's own runScript with `patchV` driven (§4.1). The anchor's residual evidence remains
+admissible as **evidence about the cause** (§0.1); it is not a level.
+
+**The running L2 is not to be stopped, restarted or touched, and this document does not ask for it.**
+
+### 6.3 Order of work
+
+R2-L3 (399,360 cells, ~81 core-min) first — it re-establishes the anchor under the corrected runScript
+and measures the GAMG scaling assumption of §5 at the cheapest level. Then R2-L2 (~326 core-min), then
+R2-L1 (~1,303 core-min) subject to the §5 memory guard. **None may be launched before this file is
+frozen and committed** (CLAUDE.md rule 2).
+
+---
+
+## 7. REGISTERED OPEN QUESTION — THE NUMERICS LEVER
+
+R2 fixes **self-similarity**, a structural defect in the triple. Whether any single level converges is
+a **separate** question and this clause records it so it is not lost. It is not an alternative to R2.
+
+A2's D6RF10 measured, in the dafoam team's own territory:
+
+| rung | configuration | result |
+|---|---|---|
+| R1 | `DARhoSimpleFoam`, **nNonOrth 3**, relax_p 0.30, endTime 2500 | 1.681e-05 = **1.681x above floor**, `GATE FAIL` |
+| R3 | **SIMPLEC + nNonOrth 12 + relax_p 0.70** | binding field **PASS** with a measured plateau |
+
+**A3GC runs SIMPLEC with `nNonOrthogonalCorrectors 0` and p relaxation 1.0**, i.e. one of the three
+components of A2's winning configuration and neither of the other two — and it applies `nNonOrth 0` to
+a mesh whose maximum non-orthogonality is **72.07°** (A3GC L2, `meshgen/logCheckMesh.txt`), against
+A2's R1 which `GATE FAIL`ed at nNonOrth 3. A2 also measured "just run longer" and found it
+**insufficient**; A3GC's endTime 6000 is that same lever.
+
+**Registered levers, with that provenance: `nNonOrthogonalCorrectors` and the p relaxation factor.**
+Note the countervailing evidence already in hand: the §0.1 anchor converges to p = 3.744e-07 with
+`nNonOrth 0` on this same geometry, so `nNonOrth 0` is demonstrably *sufficient* at r = 1.1674. That
+argues the numerics lever is a **remedy for a badly-stretched mesh** rather than a defect in the
+settings — which is why R2 changes the mesh and holds the settings byte-identical to the validated
+tutorial. Any R2 level that fails §4.4 despite r = 1.1674 re-opens this clause.
+
+---
+
+## 8. WHAT THIS DRAFT DOES NOT DECIDE
+
+- Whether the §6.1 diff is applied or §4.4 reverts to A3GC §3.6's wording.
+- The §5 memory guard's threshold for R2-L1.
+- Whether R2 supersedes A3GC or runs beside it. A3GC's committed grading is untouched here.
+
+---
+
+# REVISION 2026-09-12 (post-resize) — still a DRAFT, still NOT FROZEN
+
+Appended by a dafoam `lab-lane` on the dafoam-supervisor's brief, under Sanaa's
+`docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md`. **Nothing above is rewritten; §0–§8 stand
+verbatim.** This revision (a) closes one of §8's three open questions with arithmetic, (b) adds one
+**mandatory** carry-forward the supervisor's brief directs, (c) records Sanaa's launch preconditions
+per level, and (d) reports a measured mesh inventory that changes what R2 costs. **It sets no gate,
+moves no threshold and grades nothing. No R2 compute has run.**
+
+## 9. §8 QUESTION 2 CLOSED — THE §5 MEMORY GUARD FOR `R2-L1`
+
+§5 registered the guard as owed and named it "the real risk at 6.39M cells is memory, not cost".
+The box has since changed under it.
+
+| | old box (when §5 was drafted) | now |
+|---|---|---|
+| instance | 30 GiB total | **r7a.4xlarge, 16 cores, 123 GiB** |
+| MemAvailable | `available=0 GiB` repeatedly 13:41–17:25 (`SOLVE_L2.gatedlaunch.log`); 1.42 GiB at 10:11 | **120 GiB**, swap 15 GiB **0 used** |
+
+**Registered guard for `R2-L1`, and it is a refusal to START, never a cap:**
+
+| | value |
+|---|---|
+| container ceiling | **`--memory 40g --memory-swap 40g`** — swap DISABLED (Sanaa item 18) |
+| `MemAvailable` required to start | **48 GiB** (ceiling + 8 GiB host headroom) |
+| below it | the level does **not start**; it is `BLOCKED`, not squeezed — **§5's own word, unchanged** |
+
+**Basis, and its confidence stated honestly.** The primal at 6,389,760 cells is `DARhoSimpleCFoam`
+at np = 8, decomposed, so per-rank footprint is ~1/8 of the whole. The measured sibling is A3GC-L2 at
+798,720 cells on the same solver, and the lab holds no RSS reading for it. **40 GiB is therefore a
+bound, not a measurement, and is labelled so.** It is ~8× the total this family's 1.6M-cell level
+could plausibly need, on a box with 120 GiB free, which makes generosity free. **The first R2 level
+to run measures the real figure and the calibration row carries it.**
+
+**Why this is not a cap.** It never signals, throttles or shortens a running solver. It refuses to
+start when starting would take memory a live sibling relies on — the identical structure as
+`MP_A5R` ADDENDUM 1 §A1.5, and it is compatible with Sanaa's directive #17 for the same reason.
+
+> §8's other two questions are **NOT** closed here and are not a lane's to close: whether the §6.1
+> `a3gc_grade_R2_GFIELD.diff` is applied (the supervisor's personal diff read,
+> `SUPERVISION_CHARTER.md` §3 check 1, not delegable), and whether R2 supersedes A3GC.
+
+## 10. §4.7 — `G-RESREAD`: **THE RESIDUAL READER IS MANDATED, NOT LEFT TO THE GRADER**
+
+**Binding on every R2 arm, and on any A3GC arm that runs with non-orthogonal correctors on.**
+
+`a3gc_grade.py:700-701` assigns per-equation initial residuals **in a loop that overwrites**, so it
+returns the **LAST** match in the last `Time =` block. `DAUtility::primalResidualControl` is called
+**inside** `while (simple.correctNonOrthogonal())` (`pEqnSimple.H:41,52`) and prints one
+`<eq> initRes:` line **per corrector**. With correctors on, the last line is the final corrector's
+initial residual — measured off an almost-solved field — which says nothing about whether the
+**outer** iteration converged. **Demonstrated 2026-09-12: that reader read back a planted
+`1.234e-09` as though it had passed.**
+
+**The required reader is FIRST MATCH PER EQUATION PER BLOCK**, and it already exists, already frozen,
+already controlled:
+
+| | |
+|---|---|
+| file | `cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_grade_l2r.py` |
+| md5 | **`b188e7e1b0034a53267dc9b818138b8c`** |
+| freeze | **`5eaa652fa`** |
+| the clause | `:699-729`, `for eq, val in _INITRES_RE.findall(tail): if eq not in last: last[eq] = float(val)` |
+| its control | three-direction, on L2's **own** artifacts, with the two fixtures `A3GC_L2R_FIXTURE_{single,multi}corrector.log` beside it |
+
+**REUSE IT. DO NOT REWRITE IT.** A second implementation of a clause this specific is a second thing
+to get wrong, and the existing one carries a control a rewrite would have to re-earn.
+
+**Why FIRST is right by construction and not by luck** (the reader's own reasoning, carried here so
+the registration states it rather than pointing at it): FIRST is the outer iteration's initial
+residual **before any corrector has acted**, which is exactly what "has this outer iteration
+converged" means. The maximum would *usually* coincide, because the first corrector normally carries
+the largest residual — but "usually" is a property of the arithmetic on a given day, not of the
+definition. **And the direction is one-way: this reader returns the residual before the correctors
+reduced it, so it reads the HARDER number. THIS CLAUSE CAN ONLY LOWER A VERDICT, NEVER RAISE ONE.**
+
+**It binds R2 even though R2 registers `nNonOrthogonalCorrectors 0`** (§7: settings held
+byte-identical to the validated tutorial). With zero correctors each equation prints once per block
+and FIRST ≡ LAST, so the clause costs nothing and changes no number **today**. It is registered
+anyway, because §7 registers `nNonOrthogonalCorrectors` as an explicit **lever** that any level
+failing §4.4 may pull — and the moment that lever is pulled, the `LAST` reader silently starts
+returning a number that cannot fail. **A guard installed after the lever is pulled is a guard
+installed after the accident.**
+
+## 11. SANAA'S LAUNCH PRECONDITIONS FOR R2
+
+| item | state |
+|---|---|
+| **6 — ubuntu, never root** | **SATISFIED BY A MEASURED SPELLING: `-u 1000:1000 --group-add 1002 -e MPLCONFIGDIR=/tmp`.** **uid 1000 and gid 1000 are both `ubuntu`**, so every artifact lands `ubuntu:ubuntu`; 1002 is the *image's* `dafoamuser` group carried as a **supplementary** group for one purpose only — traversing the 0750 `/home/dafoamuser`. Measured on this box 2026-09-12: `-u 1000:1000` **alone** dies `Permission denied` sourcing `loadDAFoam.sh`; with `--group-add 1002` it reaches `LOADED_OK` and `id` reads `uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),1002(dafoamuser)`. **Corroborated by a live peer run on the same image** — container `d6r2c_KR_REF_20260912T184838Z_79250`, `User=1000:1000`, `GroupAdd=["1002"]`, solving. **This supersedes `a3gc_genmesh.sh:66-67`'s `-u 1002:1000` for every R2 instrument**, because 1002 is a uid that does not exist on the host and leaves artifacts owned by a numeric stranger. *(Correction recorded: this lane first proposed `-u 1000:1002`; it works, but moves the primary group to a gid with no host user. The better spelling is the peer lane's.)* |
+| **7 — memory declared** | Per level: R2-L3 **8 GiB**, R2-L2 **16 GiB**, R2-L1 **40 GiB** ceilings, floors +8 GiB. R2-L3's is bounded by the anchor, which ran at 399,360 cells np=4 on a 30 GiB box beside other work. **Bounds, not measurements**, labelled so; the first level to run replaces them. |
+| **8 — core guard** | np = **8** per level (the rate table's basis). 8 solver ranks + fleet ≤ 16. **The three levels are a WAVE, not three concurrent runs** — §6.3 already orders them L3 → L2 → L1, and the runner launches at most one entry per tick. |
+| **1–3 — checkpoints** | **REGISTERED, AND IT IS A CHANGE THE FAMILY NEEDS.** `endTime 6000` at the anchor's measured rate is 81.4 core-min at np=4 ≈ 20 min wall at np=8 for L3, but ≈ **2.7 h for L1** (§5). L1 therefore **must** checkpoint: `writeInterval` **500** iterations, which at the §5 rate is ≈ 13 min of wall at L1 and never exceeds Sanaa's 30 minutes; `purgeWrite 2`, keeping the last two and purging older, exactly as her item 1 requires. **L3 and L2 carry the same 500 for family identity** — a family whose levels differ in `controlDict` is one more uncontrolled variable, which is the entire defect R2 exists to repair. **This is a departure from the anchor's `writeInterval`, is registered here BEFORE any R2 compute, and must be read back off each level's `controlDict` at launch, not assumed.** |
+| **5 — kill-and-resume proof** | **OWED AND NOT RUN.** R2's class is steady OpenFOAM (`DARhoSimpleCFoam` in a container). R2-L3 at ≈ 81 core-min is the cheapest place to run it. Not claimed, not assumed. |
+| **9 — detached** | The runner's `setsid nohup` wrapper with rc captured inside it. |
+| **10 — frozen before launch** | **NOT YET. THIS FILE IS A DRAFT.** §4.5's bands and §5's costs are drafted; §8 questions 1 and 3 are open; the freeze is the supervisor's act. |
+| **17/18 — box hygiene** | Read at drafting: load far under 16 after the 17:36Z reboot; MemAvailable 120 GiB; swap 0 used. Not a substitute for the runner's reading at launch. |
+
+## 12. MESH INVENTORY — **MEASURED, AND IT CHANGES WHAT R2 COSTS**
+
+Probed read-only with `a3gc_grade.py probe` on 2026-09-12, against trees this lane did not produce:
+
+| R2 level | registered cells / wing faces | already on disk? | where |
+|---|---|---|---|
+| **R2-L3** (c2 × 64) | 399,360 / 6,240 | **YES — in three places, all probing EXACTLY 399360 / 6240** | `A3GC-AR1`, `A3GC-AR1C`, `A3-onera-m6-transonic` |
+| **R2-L2** (c1 × 64) | 1,597,440 / 24,960 | **NO — nowhere on the box** | (A3GC-L2 is c1 × **32** = 798,720 / 24,960 — same surface, half the layers) |
+| **R2-L1** (c0 × 64) | 6,389,760 / 99,840 | **ONE STEP AWAY** | `A3GC-L1`: pyHyp output preserved (437,206,919 B); only `plot3dToFoam` onward is owed |
+
+**R2-L1 and A3GC-L1 are the SAME MESH.** A3GC's `L1` is `COARSEN_PASSES 0`, `N_LAYERS 65` →
+6,389,760 cells (`a3gc_genmesh.sh:79-81`), and R2-L1 is c0 × 64 wall-normal cells → 6,389,760. The
+parameters are identical, so the mesh is. **The interrupted conversion in
+`A3GC_L1_REENTRY_PREREGISTRATION.md.DRAFT`, once finished, delivers R2's fine level and the ~896
+core-min of pyHyp already spent on it is not repaid.**
+
+> **A REGISTRATION QUESTION THIS LANE DOES NOT DECIDE, AND FLAGS RATHER THAN ASSUMES.** §6.2 rules
+> that no pre-existing *level* is adopted into R2. A **mesh** is an input generated in stage 1, not a
+> graded run, and the three probes above are coordinate-level counts rather than provenance — but
+> §6.2's reasoning ("adopting a completed level into a family frozen afterwards is precisely what
+> rule 2 exists to prevent") is close enough that **the supervisor must rule explicitly on whether
+> R2 may consume pre-freeze meshes**, per level. If the ruling is no, R2-L3 and R2-L1 regenerate from
+> the family script and §5's cost table gains stage-1 time it does not currently carry. **Reading
+> §6.2 either way without saying so would be the lane deciding a registration question.**
+
+**Consequence for the queue, either way: only `R2-L2` needs a mesh that exists nowhere**, and no
+generator table entry for `c1 × 64 layers` exists — `a3gc_genmesh.sh`'s tables carry L3/L2/L1/AR1 and
+none of them is it. **That instrument change is the supervisor's**, and it lands on a file whose
+AMENDMENT 5 md5 pin is *already* stale (pin `9fa240d9…`, disk and HEAD `2a1f45c0…` since commit
+`8b16844fa`), which must be repaired in the same act or `a3gc_L1_wrapper.sh` keeps refusing at
+`exit 90`.
+
+*Revision appended 2026-09-12. Still a DRAFT. Nothing frozen, nothing launched, nothing graded.*
