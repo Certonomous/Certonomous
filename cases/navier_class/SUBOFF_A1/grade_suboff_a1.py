@@ -449,7 +449,10 @@ def main():
         "CT_ref": ref["CT_ref"], "band": band,
         "inside_band_IF_A_TRIPLE_EXISTED": inside,
         "WHY_NOT_A_RESULT":
-            "CLAUDE.md rule 5.  Gate D2 grades the FINEST LEVEL OF A **CONVERGING "
+            "CLAUDE.md rule 5.  TWO LEVELS CANNOT GIVE AN OBSERVED ORDER, so under "
+            "SUBOFF_A1b there is no triple by construction and no GCI, observed order or "
+            "Richardson extrapolation is computed anywhere.  Under SUBOFF A1 the reason "
+            "was different and equally final: Gate D2 grades the FINEST LEVEL OF A **CONVERGING "
             "ROACHE TRIPLE**.  SUBOFF A1 has no triple: Gate M has FAILED at L1 on "
             "the minimum-determinant limb (8.6227045e-04 against a floor of 1.0e-03, "
             "one cell in 3,268,613, invariant to partitioning AND to alignment -- "
