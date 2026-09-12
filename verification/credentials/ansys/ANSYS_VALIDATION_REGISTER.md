@@ -2705,3 +2705,162 @@ must never be cited as agreement.**
 | that the solver improved between R2 and R3 | **NO.** One lever moved — the spatial reduction. Physics, mesh, solver and gate are unchanged. |
 | that Fluent/CFX agreement supports this row | **NO.** Context only; they gate nothing. |
 
+
+
+## Row #78 — VMFL072-R4-A — Liquid Water Flow Over a Flat Plate Under Gravity, precursor-`h0` survival ladder at fixed 256×64 (VM2026R1 p. 211–212, Table .72.1) — **`NOT A RESULT`**
+
+Graded **2026-09-11T23:58:08Z** (row written 2026-09-12 UTC, `date -u` in the writing
+invocation) by an `ansys-verification` lane (`ansys-lane-opus`) against the **frozen**
+pre-registration `cases/ansys_verification/VMFL072-R4-A/PREREGISTRATION.md`, freeze
+commit **`bb76616d9e7fa430b5e2d0659e7a20f6cd3cdc06`**, prereg blob
+**`1202781e62a9f9fae7c1e62f3c0b76a934dc74fd`** — `git hash-object` on disk **==** the
+blob at the freeze commit **==** the blob at HEAD, re-hashed by this lane.
+
+Comparator **`compare_vmfl072_r4a.py`**, grading-path blob
+**`ca2c73c70ce72a9aa12cf436a482ba83246158f1`** — disk **==** pin **==** HEAD, and the
+detached autograde watcher re-asserted `disk == pin` **in the same shell invocation that
+ran the grade** (`AUTOGRADE_WATCH_STATE.txt`, `2026-09-11T23:58:05Z`; rule 2, L-223: the
+frozen file *is* the file that ran). `grade_rc = 0`
+(`AUTOGRADE_VMFL072_R4A.rc`: `grade_rc=0 utc=2026-09-11T23:58:08Z
+comparator_blob=ca2c73c7…`). **The freeze preceded compute by 44 s**: freeze commit
+`bb76616d` committed `2026-09-11T23:27:50Z`, launch `2026-09-11T23:28:34Z`
+(`LAUNCH_RECORD.txt`).
+
+### THE VERDICT, AND THE FROZEN LINE THAT AUTHORISES IT
+
+**`NOT A RESULT`.** All three rungs crashed on a floating-point exception before their
+`endTime`; **no rung produced an answer, so no band, gate or tolerance was ever
+evaluated.** The label is not a judgement made after the fact — it is the label the
+pre-registration attaches to exactly this outcome, frozen before launch:
+
+> `PREREGISTRATION.md:138` — *"…a crashing rung is **`NOT A RESULT`** on the answer and
+> a positive datum on the mechanism."*
+>
+> `PREREGISTRATION.md:210` — *"A rung that fails **either** conjunct is **`NOT A
+> RESULT`** on the answer and is recorded as *does-not-survive* with its observer trace
+> (the `max_magU` runaway is the tell; `min_h` is context)."*
+
+**`ABANDONED` IS NOT A VERDICT AND IS NOT USED AS ONE.** The family consequence
+registered at `PREREGISTRATION.md:222–226` — *"If **neither A2 nor A3** both **survives**
+… the constant-precursor approach is **ABANDONED for VMFL072** and the successor moves to
+`kinematicSingleLayer` or a VOF re-formulation"* — **fired**, and it is recorded below as
+a **consequence**. The verdict token stays inside the fixed vocabulary.
+
+### THE THREE RUNGS — measured, every figure from a named artifact
+
+Single grid 256×64 (16 384 fa-faces) at every rung, `deltaT = 1.25e-03`,
+`endTime = 10` s ⇒ **8 000 registered steps per rung**. Serial, 1 rank each.
+`H_IN = 7.1084204656e-04`, `U_IN = 0.537381243` (`<rung>/LEVEL_APPLIED.txt`).
+
+| rung | `h0` | window position | survives? | `max_magU` at crash | solver `rc` | last `Time` | steps run | of 8 000 |
+|---|---|---|---|---|---|---|---|---|
+| **A1** | 5.00e-06 | **below** window (directional control) | **NO** | **2.579e+02** m/s | **136** (SIGFPE) | **1.03625** s | **829** | 10.36 % |
+| **A2** | 1.50e-05 | **in-window pivot** | **NO** | **4.857e+11** m/s | **136** (SIGFPE) | **3.445** s | **2 756** | 34.45 % |
+| **A3** | 2.00e-05 | **in-window, upper edge** | **NO** | **9.924e+14** m/s | **136** (SIGFPE) | **4.77** s | **3 816** | 47.70 % |
+
+`rc = 136 = 128 + 8` is SIGFPE, and it is a genuine arithmetic fault, not a cap kill:
+each `<rung>/log.wrapper` reads `Floating point exception` from `timeout … pimpleFoam`,
+each `log.pimpleFoam` ends in an OpenFOAM stack trace through
+`Foam::velocityFilmShellFvPatchVectorField::updateCoeffs()`, and every
+`<rung>/RC.txt` records `cap_sec=2400` **unreached** (`rc=136`, not `124`).
+Step counts are arithmetically consistent with the last `Time` at the registered
+`deltaT` in all three rungs (829 × 1.25e-03 = 1.03625; 2 756 × 1.25e-03 = 3.445;
+3 816 × 1.25e-03 = 4.77) — the logs are internally coherent.
+
+### ⚠ NO LIVE PLANTED CONTROL FIRED ON THIS RUN — STATED AT THE TOP OF THE EVIDENCE, NOT BURIED
+
+**CLAUDE.md rule 3 requires a reader shown able to see a non-zero. On this run, neither
+registered plant could be exercised**, and the comparator said so rather than skipping
+silently (`GRADING_VMFL072_R4A.log`):
+
+| control | what it tests | status this run | why |
+|---|---|---|---|
+| **P1** | the surviving-rung reader | **INAPPLICABLE — did not fire** | *"no surviving rung to plant into (every rung crashed)"* — there is no surviving-rung field to perturb |
+| **P2** | cross-rung confusion | **INAPPLICABLE — did not fire** | *"< 2 surviving rungs — cross-rung control inapplicable this run (needs two survivors to test rung confusion)"* |
+
+**What this costs the row, said plainly.** The **survival** determination rests on
+`rc = 136` and on `max_magU` read from the solver logs — evidence that is *positive* (a
+fault and a runaway magnitude, not a zero), so the specific defect rule 3 exists to catch
+(a reader that returns a null because it cannot see anything) is **not** the failure mode
+in play here. But **the answer-reading path of this comparator was never exercised on
+live data by this run**, and this row therefore carries **no instrument-validation
+evidence for that path**. A future row that does produce a surviving rung must fire P1
+before its number is believed; **this row does not discharge that obligation for it.**
+
+### THE MECHANISM FINDING — an ordering over three points, offered as triage and NOT as proof
+
+Raising `h0` **delayed** the fault and made the terminal runaway **more violent**, both
+monotonically across the three rungs:
+
+| `h0` | time to crash | `max_magU` at crash |
+|---|---|---|
+| 5.00e-06 | 1.03625 s | 2.579e+02 |
+| 1.50e-05 | 3.445 s | 4.857e+11 |
+| 2.00e-05 | 4.77 s | 9.924e+14 |
+
+This is **consistent with** the registered friction limb `Cw = 3µ/((h + h0)ρ)` falling as
+`h0` rises — a weaker wall drag lets the film accelerate longer before the fault, and
+further before it faults.
+
+> **THIS IS A TRIAGE READING, AND THE ROW REFUSES TO CALL IT A PROVEN MECHANISM.** It is
+> a **monotone ordering over three points**, on one grid, with no third variable held
+> under independent control and no alternative explanation excluded. Two monotone
+> sequences of length three are weak evidence by construction. It is recorded because it
+> is the most useful thing the run produced and because it is a falsifiable prediction for
+> the successor — not because it is established.
+
+### FAMILY CONSEQUENCE (registered in advance, fired as frozen)
+
+Neither in-window rung (**A2**, **A3**) survived. Per `PREREGISTRATION.md:222–226` and
+`:269`, the **constant-precursor approach is ABANDONED for VMFL072**; the successor moves
+to **`kinematicSingleLayer` or a VOF re-formulation**. **R4-B (the 512×128 scaling test)
+does not run** — its entry condition was an in-window survivor whose `h0` would be
+carried forward, and there is none.
+
+### Cost (rule 12) — MEASURED core-minutes, DERIVED dollars
+
+All figures from
+`verification/runs/ansys_verification/VMFL072-R4-A/LAUNCH_RECORD.txt` (serial, 1 rank ⇒
+core-min = wall-s ÷ 60 exactly):
+
+| rung | wall s | core-min (measured) | running total | per-rung cap |
+|---|---|---|---|---|
+| A1 | 191 | **3.1833** | 3.1833 | 40 |
+| A2 | 633 | **10.5500** | 13.7333 | 40 |
+| A3 | 898 | **14.9667** | 28.7000 | 40 |
+| **family** | 1 722 | **28.7000** | — | **120 (family cap)** |
+
+**28.7 core-min of a 120 core-min family cap (23.9 %); no per-rung cap breached
+(worst rung 14.9667 of 40, 37.4 %); no overrun, no `rc=124`.**
+**$0.02454 — DERIVED, NOT MEASURED** (28.7 core-min = 0.47833 core-h ×
+$0.0513/core-h, c7a.4xlarge, owner-stated / reported-by-owner: the box cannot read its
+own billing, `COMPUTE_BUDGET_CHARTER.md` §5). Load at launch **36.18** on 16 vCPU
+(≈2.26× oversubscribed) — recorded because the pre-registration's §8 requires the
+execution load to be stated beside any wall-derived figure. **This spend bought no
+answer; the rule-12 estimate-vs-actual row in `docs/COST_CALIBRATION.md` rules on whether
+it is waste and argues the ruling.**
+
+### Provenance — every number above cites an artifact still on disk
+
+| object | path |
+|---|---|
+| frozen pre-registration | `cases/ansys_verification/VMFL072-R4-A/PREREGISTRATION.md`, blob `1202781e62a9f9fae7c1e62f3c0b76a934dc74fd`, freeze commit **`bb76616d9e7fa430b5e2d0659e7a20f6cd3cdc06`** |
+| grading path (the file that ran) | `cases/ansys_verification/VMFL072-R4-A/compare_vmfl072_r4a.py`, blob **`ca2c73c70ce72a9aa12cf436a482ba83246158f1`**, disk == pin == HEAD |
+| **artifact path (run root)** | **`verification/runs/ansys_verification/VMFL072-R4-A/`** |
+| verdict record | `.../VMFL072-R4-A/GRADING_VMFL072_R4A.log` |
+| autograder record | `.../VMFL072-R4-A/AUTOGRADE_VMFL072_R4A.rc`, `.../AUTOGRADE_WATCH_STATE.txt` |
+| launch + cost record | `.../VMFL072-R4-A/LAUNCH_RECORD.txt` (guards `G-00`…`G-05` passed) |
+| per-rung solver evidence | `.../VMFL072-R4-A/{A1,A2,A3}/log.pimpleFoam`, `.../log.wrapper`, `.../RC.txt`, `.../LEVEL_APPLIED.txt` |
+| calibration row (rule 12) | `docs/COST_CALIBRATION.md`, appended alongside this row |
+| manual | VM2026R1 **p. 211–212, Table .72.1**, title-page verified under rule 15 — **page citation carried from Row #58 (VMFL072-R2); the R4-A pre-registration itself does not restate a page number**, it cites the reference value 0.555 mm at `:214` |
+
+### What this row refuses to claim
+
+| | |
+|---|---|
+| that any answer was measured | **NO.** No rung completed; no `δ_mon` exists; no band was evaluated. |
+| an order of accuracy, a GCI, or grid convergence | **NO.** Single grid (256×64) by registration; that was to be R4-B, which now does not run. |
+| that the comparator's answer-reading path is validated | **NO.** P1 and P2 were both **inapplicable** — no live plant fired on this run. |
+| that the `Cw` mechanism is established | **NO.** A monotone ordering over three points, stated as triage. |
+| that "no `h0` survives anywhere" | **NO.** Three rungs bracket the registered window (`PREREGISTRATION.md:140–152`); they do not exhaust the real line. What is established is that the **registered pivot rungs** did not survive, which is precisely the condition the frozen abandonment criterion names. |
+| that the cost bought a result | **NO.** 28.7 core-min produced no answer. See the calibration row. |
