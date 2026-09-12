@@ -218,11 +218,14 @@ fi
 # ==========================================================================
 write_status() {   # rc wall capped checkmesh_rc note
     tmp="$STATUS.tmp.$$"
-    printf 'case=%s\nlevel=%s\nrc=%s\nwall_s=%s\nranks=%s\ncore_min=%s\ncap_core_min=%s\ntimeout_s=%s\ncapped=%s\ncheckMesh_rc=%s\nsolver=%s\nsolver_path=%s\nregistration=%s\nregistration_sha256=%s\nnote=%s\n' \
+    rss="absent"
+    [ -f "$CASE_DIR/log.solve.time" ] && rss="$(awk -F': ' '/Maximum resident set size/{print $2}' "$CASE_DIR/log.solve.time")"
+    printf 'case=%s\nlevel=%s\nrc=%s\nwall_s=%s\nranks=%s\ncore_min=%s\ncap_core_min=%s\ntimeout_s=%s\ncapped=%s\ncheckMesh_rc=%s\nsolver=%s\nsolver_path=%s\nregistration=%s\nregistration_sha256=%s\npeak_rss_kb=%s\nload_at_start=%s\nload_at_end=%s\nprocs_running_at_start=%s\nnproc=%s\nnote=%s\n' \
         "$CASE" "$LEVEL" "$1" "$2" "$RANKS" \
         "$(awk -v w="$2" -v r="$RANKS" 'BEGIN{printf "%.3f", w*r/60.0}')" \
         "$CAP_CORE_MIN" "$TIMEOUT_S" "$3" "$4" "$SOLVER" "${SOLVER_PATH:-unresolved}" \
-        "docs/campaigns/T-family/T5f_PREREGISTRATION.md" "$REG_SHA" "$5" > "$tmp"
+        "docs/campaigns/T-family/T5f_PREREGISTRATION.md" "$REG_SHA" "$rss" \
+        "$LOAD_START" "$(cut -d' ' -f1-3 /proc/loadavg)" "$PR_START" "$(nproc)" "$5" > "$tmp"
     mv -f "$tmp" "$STATUS"
 }
 
@@ -278,10 +281,31 @@ touch "$AGE_DATUM"
 
 # --- THE SOLVER, UNDER AN ENFORCED CAP ------------------------------------
 # rc is captured HERE, inside the detached child, on the line after the solver.
+# THE PEAK-RSS RECORD.  Measured 2026-09-12: NO artifact anywhere under
+# verification/runs/T-family records a peak RSS for chtMultiRegionSimpleFoam, so
+# every memory figure this lab has quoted for the T5 ladder is an estimate.  The
+# only E4 `log.solve.time` records are simpleFoam at 4,050 cells.  `/usr/bin/time
+# -v` costs nothing and ends that: `log.solve.time` carries `Maximum resident set
+# size (kbytes)` for the solver, so the NEXT rung scales from a measurement.
+# GNU time propagates the child's exit status, so RC is still the SOLVER's; if it
+# is absent the solver runs bare and STATUS says `rss_record=absent`.
+# Rule 12: contention is attributed separately and never absorbed into the
+# actual/predicted ratio, so the box's state at launch is part of the record.
+LOAD_START="$(cut -d' ' -f1-3 /proc/loadavg)"
+PR_START="$(awk '/^procs_running/{print $2}' /proc/stat)"
+TIME_BIN=""
+[ -x /usr/bin/time ] && TIME_BIN=/usr/bin/time
 set +e
 T0=$(date +%s)
-timeout --kill-after=120 --signal=TERM "$TIMEOUT_S" "$SOLVER_PATH" -case "$CASE_DIR" > "$CASE_DIR/log.solve" 2>&1
-RC=$?
+if [ -n "$TIME_BIN" ]; then
+    timeout --kill-after=120 --signal=TERM "$TIMEOUT_S" \
+        "$TIME_BIN" -v -o "$CASE_DIR/log.solve.time" \
+        "$SOLVER_PATH" -case "$CASE_DIR" > "$CASE_DIR/log.solve" 2>&1
+    RC=$?
+else
+    timeout --kill-after=120 --signal=TERM "$TIMEOUT_S" "$SOLVER_PATH" -case "$CASE_DIR" > "$CASE_DIR/log.solve" 2>&1
+    RC=$?
+fi
 T1=$(date +%s)
 set -e
 WALL=$((T1 - T0))
