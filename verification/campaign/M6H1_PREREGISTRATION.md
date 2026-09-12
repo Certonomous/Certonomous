@@ -1385,3 +1385,246 @@ taken.**
 
 *Appended 2026-09-12 by a cfd `lab-lane`. The route decision is the supervisor's and is not
 taken here.*
+
+---
+
+# §18. PRE-COMPUTE AMENDMENT — 🔴 **WHERE THE FAILING FACES ACTUALLY ARE. §17.5c's MECHANISM IS REFUTED BY LOCATION, AND THE TWO FAILING GATES HAVE TWO UNRELATED CAUSES** — 2026-09-12
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** Nothing above
+is edited, struck or renumbered. **THIS SECTION SIGNS NOTHING**, moves no gate, threshold,
+cap, band or label, and takes no route decision.
+
+**Rule 2 condition, and how it was checked.** Amendments before first compute are legal and
+must state the condition and how it was checked. **THE CONDITION: no compute has run under
+M6H1. HOW CHECKED: `verification/runs/M6H1_runs/` does not exist**, established with a live
+planted control by a reader **first shown able to see a populated directory** —
+`verification/runs/CRM_WINGALONE_runs`, 32 entries — then baseline ABSENT, then a plant
+written under `M6H1_runs/` and **READ BACK** (`PRESENT`, content `planted`), then the plant
+removed, then ABSENT again, then confirmed a second way with `find` (0 hits). Re-checked
+ABSENT after every measurement below. **Every mesh in evidence was built in scratch so that
+this condition would still hold.**
+
+---
+
+## §18.1 THE SAME FOUR RUNS, GRADED A SECOND TIME BY A SECOND LANE, AND THE AGGREGATE NUMBERS AGREE EXACTLY
+
+§17.6 and §17.7 report the `CLUSTER_ALPHA` sweep. **A second lane graded the same four
+meshes independently with the same frozen instruments and reproduces every number**:
+skewness 15.3696 / 13.8954 / 12.9554 / 12.0496; non-orthogonality 89.2744 / 88.9882 /
+88.6375 / 88.9950; 1,228,800 cells and 1.03 % deviation on all four; 96 marched layers and
+**zero bad layers on all four**. **The disagreement recorded below is not about the numbers.
+It is about what they are numbers OF.**
+
+**H-G0 AND H-G2 WERE ALSO GRADED ON ALL FOUR SURFACES, WHICH THE SWEEP ITSELF DID NOT DO.**
+All four PASS H-G0 on all three clauses (max t/c 9.7838–9.7854 % against 9.7859 %; semispan
+1.196300 m exact) and all four PASS H-G2 with the derived count **8 at every one of 65
+stations**. **So the four candidates differ in exactly one registered-adjacent quantity and
+in nothing a gate above H-G1 can see.**
+
+**AND A FACT §17's TABLE DOES NOT CONTAIN:** `CLUSTER_ALPHA` 0.3, 0.5 and 0.7 **all march
+clean at `nb = 8`**, not only at the `nb = 6` of the earlier sweep. §17.1's marchability
+table is extended by that, and **nothing in it is contradicted.**
+
+---
+
+## §18.2 🔴 THE SKEW FACES ARE **ALL** AT THE TIP, AND THE BLUNT BASE RUNS THE FULL SPAN
+
+Face centroids computed from `constant/polyMesh/points` and `faces`, over the face indices
+in `constant/polyMesh/sets/skewFaces` — the set `checkMesh` itself wrote. **Semispan is
+1.1963 m.**
+
+| run | skew faces | **min y** | median y | max y | **at/outboard of y = 1.1963** | **at y < 1.0** |
+|---|---:|---:|---:|---:|---:|---:|
+| `a00` | 8,420 | **1.1924** | 1.1963 | 1.2253 | 89.1 % | **0** |
+| `a03` | 8,171 | **1.1907** | 1.1963 | 1.2441 | 88.9 % | **0** |
+| `a05` | 8,008 | **1.1891** | 1.1963 | 1.2448 | 88.9 % | **0** |
+| `a07` | 7,832 | **1.1683** | 1.1963 | 1.2559 | 89.0 % | **0** |
+
+> 🔴 **EVERY SKEW FACE ON EVERY CANDIDATE LIES WITHIN 2.3 % OF THE SEMISPAN OR OUTBOARD OF
+> IT. NOT ONE LIES INBOARD OF y = 1.0 m — that is 0 of 32,431 faces across four meshes.**
+
+**AND THAT SETTLES WHERE THE GRADED NUMBER IS.** `checkMesh` writes into `skewFaces` every
+face above skewness 4. The reported maxima are 15.37 / 13.90 / 12.96 / 12.05, all above 4,
+**so the face that sets each graded maximum is necessarily a member of that set, and every
+member of that set is at the tip.** This is not an inference from a correlation; it is set
+membership plus a coordinate.
+
+### §18.2a 🔴 THEREFORE §17.5c's MECHANISM IS REFUTED, AND THE REFUTER IS §17.5e's OWN SENTENCE
+
+§17.5c attributes the skewness to **the cell-size jump across the blunt-base corner**, and
+§17.5e item 3 states the decisive property of that feature in its own words:
+
+> *"the blunt base runs the **FULL SPAN**, so there is no localised region to cluster
+> toward."*
+
+**A defect distributed over all 65 spanwise stations cannot produce a failing-face
+population that appears at one.** If the base corner set the maximum, faces above skewness 4
+would be found at inboard stations. **Zero are.**
+
+**WHY §17.5d's PREDICTION NEVERTHELESS HELD, STATED SO THE RECORD IS NOT MADE TO LOOK
+SILLIER THAN IT IS.** The fit — skewness ≈ 9.4 + 0.10 × jump — held out of sample to 4.5 %
+and 6.6 %, and that is a real result. **But both the base-corner jump and the tip cells'
+wrap spacing are monotone functions of the same single parameter `CLUSTER_ALPHA`**, so a fit
+against either one fits equally well, and **the fit could not discriminate between them.**
+**The location can, and does.** *A predictive fit over a one-parameter family identifies the
+parameter, not the mechanism* — which is the same class of error as reading a gate whose
+free parameter the registration cannot constrain (§15.1), arriving from the other side.
+
+### §18.2b WHAT THE FEATURE ACTUALLY IS, AND IT IS ALREADY IN THIS DOCUMENT
+
+**§14.3, in this registration, registers the tip as a departure:** §4 specifies ONE
+structured block, a single block cannot close a rounded tip, the surface therefore ends on
+an open edge, and pyHyp's `unattachedEdgesAreSymmetry` turns that into **a flat tip.** The
+89 % of skew faces at or outboard of y = 1.1963 m are that closure.
+
+> 🔴 **AND §14.3 ASSERTS, IN BOLD, "H-G0 DOES NOT GRADE THE TIP … A FLAT TIP PASSES EVERY
+> GATE IN THIS REGISTRATION SILENTLY." THAT SENTENCE IS FALSE AND IS CORRECTED HERE.**
+> **H-G1's `checkMesh` clause does not pass it silently. H-G1's `checkMesh` clause is
+> failing ON it, on all four candidates, and has been the whole time.**
+
+**THAT CORRECTION RUNS AGAINST US AND IS RECORDED FOR THAT REASON.** §14.3 was a voluntary
+disclosure of an ungated departure; it turns out the departure was not ungated but
+**governing**, which means the disclosure understated the problem in the direction that
+flattered the route. **A disclosure that was wrong in our favour is worse than one never
+made**, and the cfd-supervisor, who signed §13 believing that sentence, records it as
+theirs. **§14.3's η = 0.99 mitigation is unaffected in scope and does NOT reach this: it
+excludes one spanwise station from an *aerodynamic* band. H-G1 grades the whole mesh, and
+no station exclusion applies to it.**
+
+---
+
+## §18.3 🔴 THE NON-ORTHOGONALITY IS A SECOND, UNRELATED CAUSE — ONE MARCHING LAYER AT A FIXED DISTANCE
+
+The same computation over `constant/polyMesh/sets/nonOrthoFaces`, with each face centroid's
+distance to the nearest surface point of that candidate's own generated surface:
+
+| run | non-ortho faces | **wall distance, min → max** | at the tip | population change |
+|---|---:|---|---:|---:|
+| `a00` | 1,951 | **9.32e-03 → 9.75e-03 m** | 0 % | — |
+| `a03` | 1,618 | **9.36e-03 → 9.69e-03 m** | 0 % | −17 % |
+| `a05` | 1,095 | 9.3e-03 → 9.7e-03 m | 0 % | −44 % |
+| `a07` | **623** | 9.3e-03 → 9.7e-03 m | 0 % | **−68 %** |
+
+> **EVERY SEVERELY NON-ORTHOGONAL FACE, ON EVERY CANDIDATE, SITS IN A BAND 4 % WIDE AT
+> ≈ 9.4 mm FROM THE WALL — ONE LAYER OF THE MARCH, ROUGHLY LAYER 46 OF 96. NONE IS AT THE
+> TIP.** On `a00`, 91 % of them sit at wrap indices 0–4 and 181–195, the blunt-base and
+> aft-lower region — **so the base corner is real and it is the NON-ORTHOGONALITY's
+> neighbourhood, not the skewness's.**
+
+**AND THE LEVER THAT LOOKS LIKE IT IS WORKING IS NOT TOUCHING THE GRADED QUANTITY.**
+`CLUSTER_ALPHA` removes **68 %** of the non-orthogonal population between `a00` and `a07`
+and migrates what remains outboard (median y 0.74 → 1.19 m). **The graded maximum moves
+0.7 %:** 89.2744 → 88.9882 → 88.6375 → 88.9950, and **not monotonically.** §7 gates the
+maximum. *A parameter that empties a population without moving its extremum has not
+improved the thing the gate reads*, and a count falling by two thirds is exactly the shape
+of evidence that would otherwise have been quoted as progress.
+
+**≈ 9.4 mm is close to §2's computed boundary-layer thickness δ = 9.2193e-03 m at the MAC.
+THAT IS NOTED AS A COINCIDENCE AND IS NOT CLAIMED AS A MECHANISM** — nothing here tests it,
+and §16.4 has already recorded one failure at a fixed physical distance (0.087 m) whose
+cause was the surface and not the physics.
+
+---
+
+## §18.4 🔴 A DEFECT IN §16.2's FALSIFIER: **IT ONLY WATCHES THE HALF THAT SAYS YES**
+
+§16.2's trigger is *"zero bad layers — `Min Quality > 0` at every marched layer, graded by
+`read_min_quality.py` and by nothing else."*
+
+**ALL FOUR CANDIDATES CLEARED IT.** 96 of 96 layers, zero bad, on every one. **So the
+O-topology closed through the blunt base is formally NOT REFUTED** — while H-G1's other
+half returns `NOT A RESULT` on every one of the same four meshes.
+
+> 🔴 **H-G1 IS A TWO-INSTRUMENT GATE AND §16.2's FALSIFIER IS WRITTEN AGAINST ONE OF THEM.
+> IT IS STRUCTURALLY INCAPABLE OF FIRING ON THE FAILURE THAT IS ACTUALLY OCCURRING.**
+
+**A falsifier that cannot see one of its gate's two instruments is not a falsifier**, and
+this is §17's own two-instruments-disagreeing finding one level up: there the disagreement
+between `pyHyp` and `checkMesh` was the information; here a *test written to adjudicate the
+route* was wired to only one side of that disagreement and therefore reports a pass through
+a failure.
+
+**THIS SECTION DOES NOT REPAIR §16.2 AND MUST NOT BE READ AS DOING SO.** §16.2's trigger is
+**unchanged**, and refutation is not made easier — a lane does not rewrite a falsifier while
+sitting on the evidence that embarrasses it, which is §15.2's rule applied to its author.
+**It is recorded as a DEFECT IN §16, not as a pass**, so that the O-topology's formal
+survival of §16.2 is never quoted as evidence that the topology is sound.
+
+---
+
+## §18.5 REPRODUCIBILITY, BECAUSE THE ARTIFACTS ARE IN SCRATCH AND ARE NOT CITABLE (L-186)
+
+Every mesh above was built in scratch to preserve the pre-compute condition, so **no path
+to it is written here and none may be.** What is written instead is enough to rebuild it
+exactly. Each surface is the output of the committed generator
+`cases/navier_class/M6H1/make_m6h1_surface.py`, blob
+**`ba5bdfd3466347e0125730164c3a0bfe9c54baf8`**, at level `L1`, with **exactly one line
+changed** — `CLUSTER_ALPHA` — verified as a one-line diff in each case:
+
+```
+CLUSTER_ALPHA = 0.0   sha256(m6h1_surface_L1.xyz) 6c9ac0e588d7018e12da424673ef37c5e456b2515483f66549175e2fb9baef6c
+CLUSTER_ALPHA = 0.3   sha256(m6h1_surface_L1.xyz) 16e1bb9521fc7b0913c949a9ceddcb218bf258c724c32a88ef2d1a8f83c6fb40
+CLUSTER_ALPHA = 0.5   sha256(m6h1_surface_L1.xyz) d64c2fe92ff958c00f7baf66a7e90abbadeb530cabe7d64d20b82f0560b74030
+CLUSTER_ALPHA = 0.7   sha256(m6h1_surface_L1.xyz) b693df3ffc6494c4a26c223ee98852c8d1fc5c709002e4881571a59de3bc0dd5
+```
+
+March: `N = 97`, `s0 = 1.6540e-6`, `marchDist = 16.152`, `cMax = 1.0`, all other pyHyp
+options as the committed driver writes them. Then `plot3dToFoam -noBlank`, then
+`checkMesh -allGeometry -allTopology` in a case staged with `controlDict`, **`fvSchemes` and
+`fvSolution`** — `checkMesh` builds an fvMesh and an `rc = 1` from an under-staged case
+directory is a staging defect, not a mesh defect.
+
+**THE INPUTS WERE VERIFIED, NOT ASSUMED.** The four surfaces that were marched were checked
+byte-for-byte against independent regenerations from the committed generator: **sha256
+identical, all four.** A grading of a mesh whose surface was not verified grades an unknown.
+
+**MEASURED COST (rule 12), 1 rank, from each candidate's own step record:** march 56 / 72 /
+70 s, `plot3dToFoam` 6–7 s, `checkMesh` 12–13 s; totals 84 / 75 / 92 / 89 s. **Sweep total
+340 s = 5.67 core-min.** `checkMesh` in-loop costs **21 %** on top of the march. **No
+`docs/COST_CALIBRATION.md` row is filed**, for §17.4's reason unchanged: no level is
+delivered, so no process has completed.
+
+---
+
+## §18.6 WHAT THE SUPERVISOR MUST RE-PIN — **THE LIST IS THREE FILES, NOT TWO**
+
+§14.6 and §15.4 record re-pins. **`read_min_quality.py` has moved twice more since**, and
+§13.2's pinned value is now three re-pins stale:
+
+```
+cases/navier_class/M6H1/read_min_quality.py   8198aee0d2d724f6c2ec37c617ed64ac618d6d50  (§13.2, STALE)
+                                           -> a282e5d07c698c0d8f1ed50e60636afe5c3eb155  (§14.6, ALSO STALE)
+                                           -> da47e7ce5877f15217d1da5242e88face51ac5e8  (current at HEAD)
+```
+
+**Verified at the time of writing: the working-tree blob of each of `measure_te_base.py`
+(`09058a8a…`), `read_cell_count.py` (`d4336280…`), `read_min_quality.py` (`da47e7ce…`) and
+`make_m6h1_surface.py` (`ba5bdfd3…`) matches HEAD exactly**, so every number in this section
+came from an instrument that is what the repository says it is. **The re-pin itself is the
+supervisor's and is not performed here.** The build path remains unpinned by §13.
+
+---
+
+## §18.7 WHAT THIS AMENDMENT DOES NOT DO
+
+- **It does not choose a route, and it does not propose a further `CLUSTER_ALPHA` value.**
+  The sweep was bounded, it failed, and §17.7's *"clustering is exhausted"* stands. **A
+  bounded sweep that fails is evidence; trying more values is how a fit starts.**
+- **It does not repair §16.2**, does not alter its trigger, and does not make refutation
+  easier. §16.2's pass on the pyHyp half stands on the record **beside** §18.4's statement
+  that the pass is uninformative.
+- **It does not re-freeze and it signs nothing.** §12 and §13 are the cfd-supervisor's,
+  personally and undelegated.
+- **It does not claim the tip cap is sufficient.** The tip cap is a mechanism that explains
+  the skewness completely and the non-orthogonality **not at all**; §18.3's band at 9.4 mm
+  is untouched by it. **Necessary is not sufficient, and a second cause is on the record
+  before any fix is attempted.**
+- **It does not re-open §17.5e's levers.** They remain three, all open, none taken — though
+  levers 2 and 3 were argued against a base that runs the full span, and §18.2 shows the
+  skewness is not distributed that way.
+
+*Drafted 2026-09-12 by a cfd `lab-lane`, on the cfd-supervisor's direction, before an
+instance stop for a 96-core upgrade. No march was started for this section; it grades meshes
+that already existed. `verification/runs/M6H1_runs/` is ABSENT and the pre-compute condition
+holds. Submissions parked (rule 7). The repository is permanently private (rule 8). No
+agent's message is Sanaa's consent (rule 9).*
