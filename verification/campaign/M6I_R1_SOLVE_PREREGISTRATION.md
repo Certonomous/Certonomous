@@ -876,3 +876,269 @@ Under **A3.1** this already matters: L3 is **not shock-bearing** (S1 fails by 2.
 S2 fails at x/c 0.953 and 0.923) and L2 produced nothing. **Fewer than three shock-bearing
 levels, so NO THREE-LEVEL OBSERVED ORDER AND NO GCI MAY BE COMPUTED, QUOTED OR IMPLIED** for
 this family as it stands. That rule was registered while L2 and L1 held no Cp at all.
+
+---
+
+# ADDENDUM 5 — 2026-09-12, **A BOUND ADDED TO SURVIVE A TRANSIENT BLINDED A STOP RULE.** Registered while L1 sits at stage-2 iteration 6.
+
+**v1.4 → v1.5. Lines whose number changed above this section: 0.** No band, threshold, cap
+or label above moves. Everything below **adds a way to fail** and removes none.
+
+**Timing, checkable rather than believed.** L1 completed its 200-iteration ramp with
+`rc.stage1 = 0` and is at **stage-2 iteration 6** of 7,800. Its worst temperature clip so
+far is **7 cells of 983,040 at the ceiling (0.0007 %)** and **365 at the floor (0.037 %)**,
+with **zero** `bounding nuTilda` events and a Ux initial residual of **2.62e-04**. **The
+threshold registered in §A5.2 is more than fifty times above anything L1 has yet produced,
+and L1 has 7,794 iterations left in which to cross it.**
+
+## A5.1 — 🔴 WHAT ACTUALLY KILLED L2, AND WHY IT TOOK 668 ITERATIONS TO SHOW
+
+ADDENDUM 4 read L2's failure off the **lower**-bound clip counter and called it a
+divergence. That was right and it was not the half that matters. Measured by this lane from
+L2's own log:
+
+| quantity | value at/near the end |
+|---|---|
+| `bounding nuTilda` events | 2, the last **`min -1.302e+36  max 3.078e+43`** |
+| `pressureControl: p max` (pre-clip) | **265,998,746 Pa — 2,625 × freestream** |
+| `limitTemperature` **upper** clip, peak | **122,535 cells of 122,880 — 99.72 % of the domain** |
+| last reported limit line | `Type=Upper, LimitedCells=120197, CellsPercent=97.82, Tmax=1500, UnlimitedTmax=1500` |
+| Ux initial residual at iteration 668 | 0.873 — the **first-iteration** value |
+
+**The Spalart–Allmaras working variable reached 10⁴³.** This is a **turbulence-variable
+divergence**, and it is a **different failure from L3's cold-start fault** — the ramp worked
+on L2, cleanly, and the run then destroyed itself 300 iterations into the registered
+second-order pass.
+
+### 🔴 AND HERE IS THE PART THAT IS NOT ABOUT M6 AT ALL
+
+Sanaa's stop rule (item 12) is **"residual growth or a field outside bounds → stop"**.
+**With `limitTemperature` active, the temperature field was NEVER outside bounds.** It was
+held *at* the bound — 97.8 % of it — while the solution destroyed itself. **The
+field-out-of-bounds trigger could not fire**, and the run burned **668 iterations** until an
+FPE finally stopped it by accident rather than by design.
+
+**A BOUND ADDED TO SURVIVE A STARTUP TRANSIENT SILENTLY CONVERTED A DIVERGENCE DETECTOR INTO
+A DIVERGENCE CONCEALER.** Every bounding `fvOption` — `limitTemperature`, `limitVelocity`,
+`limitPressure`, and OpenFOAM's own built-in `bounding` of `k`, `omega` and `nuTilda` — has
+this property. **This lane added the bound and this lane is recording the cost of it.**
+
+**The repair is a MONITOR, NOT A REMOVAL.** Removing the bound would restore the stop rule
+by restoring the crash, which is worse. A limiter doing no work is a safety net; a limiter
+pinning a tenth of the domain **is the divergence**, observable a hundred iterations before
+the fault.
+
+## A5.2 — 🔴 **LC-1**, A NEW STOP RULE AND GRADING LIMB. IT ONLY EVER TIGHTENS.
+
+**LC-1 — bound-concealed divergence.** If either `limitTemperature` bound reports
+**`CellsPercent` > 2.0** on **20 consecutive reported iterations**, the level is
+**`NOT A RESULT`**, labelled **`BOUND-CONCEALED DIVERGENCE`**, and the run is **stopped**
+under Sanaa's item 12 — a **stop rule**, which she instructs, and **not** a cap, which never
+kills anything.
+
+**Why 2.0 %, and the honest limb.** L3's peak was **0 %** over 2,800 iterations; L1's peak
+so far is **0.037 %**; L2 crossed 2 % on its way to **99.72 %** and did so **well before**
+the FPE. **2.0 % is ~54× above the worst any healthy level here has produced and is crossed
+early on the death trajectory.** 🔴 **L2's numbers were in hand when this threshold was
+chosen, so for L2 it is post-hoc and carries no evidentiary weight — and L2 is already
+`NOT A RESULT` on IC-1, IC-2 and IC-5, so LC-1 cannot change its verdict either way. Its
+weight is over L1**, which is 54× below it with 7,794 iterations still to run.
+
+**LC-2 — the turbulence variable is watched directly, not through the thermo.** Any
+`bounding nuTilda` line in a level's stage-2 log with `max > 1e6` (freestream ν̃ is
+5.99e-05, so this is 10¹¹ × freestream) makes the level **`NOT A RESULT`**. L2 reached
+3.08e43; L1 has **zero** such lines.
+
+**Monitoring, so the rule is readable while a run is live and not only at its post-mortem:**
+`scripts/monitor_m6i_bounds.sh` reports, per level, the per-iteration
+`Type=Upper`/`Type=Lower` `CellsPercent`, the count of consecutive iterations above 2.0 %,
+and any `bounding nuTilda` line. It **reads logs and writes a report; it launches nothing
+and kills nothing.**
+
+**And it is said to the fleet, because it is not M6-shaped:** *anyone who adds
+`limitTemperature`, `limitVelocity` or any bounding `fvOption` to get past a transient has,
+in the same act, blinded the field-out-of-bounds stop rule that would have caught what comes
+next.* Heat-transfer and dafoam both run bounded solvers.
+
+## A5.3 — 🔴 IF ONLY L1 SURVIVES, THERE IS NO FAMILY, AND WHAT IS REPORTED IS FIXED NOW
+
+A3.1 covered *fewer than three shock-bearing levels*. The live case is sharper: **L3 is
+`GATE FAIL` and not shock-bearing; L2 is `NOT A RESULT` and produced no Cp at all; L1 may
+converge.** That is **one level**, not a family.
+
+**Registered now, before L1 has a Cp:** if L1 is the only level with a result, it is reported
+as a **DISCLOSED SINGLE-LEVEL VALIDATION COMPARISON** — which is exactly how `4c931d97c`
+frames its own primal, *"single grid, band taken from the reference"*. Then:
+
+- **NO observed order, NO GCI, NO family band, and NO Roache triple** is computed, quoted or
+  implied. Rule 5 is not invoked; there is nothing for it to gate.
+- **Every row, figure and certificate slot carries `ONE LEVEL — NO GRID FAMILY` on its
+  face**, beside the disclosures `4c931d97c` §9 already requires.
+- The available verdicts are **`PASS` / `GATE FAIL` / `NOT A RESULT`** against the 14 frozen
+  bands, per station, on that one grid. **A `PASS` here is a pass on one grid and says so.**
+- A family verdict becomes available only by adding a **successor level** under a **new
+  registration** — never by re-reading this one.
+
+**A triple will not be assembled from a level with no shock, a level with no result, and a
+level with a shock.** That sentence is registered before the third of those exists.
+
+## A5.4 — L2's ONE REGISTERED CHANGE, AND THE RUNG IT SITS ON
+
+L2's stop is its **first**, and its cause (turbulence-variable divergence at iteration 550+)
+is **not** L3's (cold-start thermo fault at iteration 2). **The ramp is not reached for
+again — it worked.** Ladder position: **numerics**, rung 1 of 2 before the model rung.
+
+**THE ONE CHANGE: L2's SIMPLE relaxation set is tightened to the conservative transonic
+set** — `fields { p 0.15; rho 0.02; }`, `equations { p 1; U 0.4; e 0.4; nuTilda 0.3; }` —
+from p 0.3 / U 0.7 / e 0.7 / ν̃ 0.7. One named package, one purpose: damp the growth that
+reached ν̃ = 10⁴³. `equations.p 1` is untouched (A2.1's lesson).
+
+**Pre-declared rung 2, so it cannot later be presented as fresh:** `div(phi,nuTilda)` and
+`div(phi,U)` moved to a limited TVD scheme (`limitedLinear 1`) on the second-order pass, and
+the ramp lengthened from 200 to 1,000 iterations. **Rung 3 is the model rung:** SA-neg
+(`SpalartAllmarasNeg`), whose entire purpose is tolerating the negative ν̃ excursion L2
+produced — `min -1.302e+36`.
+
+### 🔴 THE COST OF THIS CHANGE, WHICH IS A REAL ONE AND IS NOT HIDDEN
+
+§3 and the build script promise **one script, all levels identically configured, so the
+family stays similar**. **This change breaks that: L2 would run a relaxation set L1 and L3
+did not.** The defence, and its limit, stated plainly: **under-relaxation affects the path
+to the steady state and not the steady state itself** — the converged solution satisfies the
+same discrete equations either way — **so a converged L2 is the same discretisation
+regardless.** That argument holds **only if L2 converges**, and it is void if L2 is again
+`NOT A RESULT`. **L1 IS NOT TOUCHED. IT IS RUNNING AND ITS DICTIONARIES ARE NOT EDITED
+WHILE IT RUNS**, which is also this team's standing rule about live files.
+
+**Hypothesis, registered as a hypothesis and NOT asserted:** L2 at 122,880 cells may sit in
+the worst available regime — **fine enough to begin forming a shock and too coarse to
+resolve it** — so the shock oscillates and drives ν̃ unstable, while L3 (no shock at all) and
+L1 (a resolved shock) are both stable. **It is consistent with all three observations and is
+not tested by any of them.** The test that would settle it is an intermediate level between
+L2 and L1, which is not registered and is not being run.
+
+---
+
+# ADDENDUM 6 — 2026-09-12. **ALL THREE LEVELS ARE DOWN. THE RAMP IS A SUPPRESSANT, NOT A CURE, AND HERE IS THE EXPERIMENT THAT DECIDES IT.**
+
+**v1.5 → v1.6. Lines whose number changed above this section: 0.** No band, threshold, cap
+or label above moves.
+
+## A6.1 — L1: **`NOT A RESULT`**. AND THE THREE LEVELS TOGETHER NAME ONE MECHANISM.
+
+`M6I-R1-L1`, pid 50082, launched 22:20:08Z, **rc = 136**, SIGFPE at global iteration **296**.
+Preserved whole and undeleted at `verification/runs/M6I_runs/L1/ATTEMPT1_DIVERGED/`.
+
+**Read the STAGE, not the iteration:**
+
+| level | stage 1 (first-order ramp, 200 it) | stage 2 (REGISTERED second-order) | outcome |
+|---|---|---|---|
+| **L1** 983,040 cells | **clean, `rc.stage1 = 0`** | 96 iterations, 200 → 296 | **SIGFPE** |
+| **L2** 122,880 cells | **clean, `rc.stage1 = 0`** | 468 iterations, 200 → 668 | **SIGFPE** |
+| **L3** 15,360 cells | clean | **2,800 iterations, completed** | rc = 0 — **and it is the level whose flow never formed a shock** |
+
+🔴 **NEITHER L1 NOR L2 EVER DIED IN STAGE 1. BOTH DIED IN STAGE 2, WHICH IS WHERE THE
+REGISTERED SECOND-ORDER SCHEMES COME BACK.** ADDENDUM 2 credited the ramp as the causal fix
+for the crash, and it was — **but a fix that holds only while it is applied is a suppressant,
+not a cure.** The instability reappears the moment the ramp lifts.
+
+Measured on L1, and the trajectory is the same shape as L2's:
+`limitTemperature` upper-bound `CellsPercent` over stage 2 ran **0 → 0.21 → 3.71 → 13.85 →
+39.67 → 57.68 → 84.72 → 95.78 → 100.00**; `bounding nuTilda` reached
+**`min -2.909e+08  max 3.635e+44`**; `pressureControl: p max` reached **2.33e+09 Pa**
+— 23,000 × freestream.
+
+**`LC-1` and `LC-2`, registered in ADDENDUM 5 while L1 sat at stage-2 iteration 6 with
+0.037 % clipped and zero `nuTilda` bounding events, both fired on L1 before it faulted.**
+LC-2 was breached at `max 3.635e+44` against its 1e6 threshold. **The instrument registered
+twenty minutes earlier caught the thing it was registered for.**
+
+## A6.2 — 🔴 THE MODEL RUNG IS CLOSED BEFORE IT IS REACHED, AND THAT IS A MEASUREMENT
+
+ADDENDUM 5 §A5.4 pre-declared **SA-neg (`SpalartAllmarasNeg`)** as the model rung, because
+ν̃ going negative (`min -2.909e+08` on L1, `-1.302e+36` on L2) is exactly what SA-neg exists
+to tolerate. **It is not available.** Enumerated from the installed tree
+`/usr/lib/openfoam/openfoam2606/src/TurbulenceModels`, the shipped Spalart–Allmaras variants
+are **`SpalartAllmaras`, `SpalartAllmarasBase`, `SpalartAllmarasDES`, `SpalartAllmarasDDES`,
+`SpalartAllmarasIDDES`** — **there is no negative variant, and a search for
+`SpalartAllmarasNeg` across the whole turbulence-model source returns nothing.**
+
+The shipped model's only protection against a negative ν̃ is OpenFOAM's own
+`bounding nuTilda` clip — **which is the §A5.1 concealment defect one level deeper:** a clip
+that keeps the variable nominally in range while the solution destroys itself. **The rung
+that is written in the pre-declaration is not on this box**, and implementing SA-neg is a
+solver-development task, not a run.
+
+## A6.3 — 🔴 THE DISCRIMINATING EXPERIMENT: `M6I-R1-L3-NORAMP`. BOTH OUTCOMES NAMED BEFORE IT RUNS.
+
+**Two readings of the same three results are on the table and they disagree.** Registering
+which is which **before** the run is the whole value of it.
+
+- **READING A (the cfd supervisor's).** `div(phi,U) bounded Gauss linearUpwind limitedGrad`
+  on a grid at 87.7° maximum non-orthogonality, under `laplacian ... limited corrected 0.33`,
+  is unstable **as such**: the limiter under-applies the non-orthogonal correction on exactly
+  the faces whose gradients `linearUpwind` then reconstructs. **Shock or no shock.**
+- **READING B (this lane's).** The instability needs **a shock**. An unbounded second-order
+  upwind scheme overshoots across a captured shock; the overshoot drives T and ν̃ negative.
+  L3 never formed a shock (`cfd_cp_rise_at_shock` 0.087 against 0.424) and L3 is the level
+  that survived 2,800 second-order iterations with **zero** clips and **zero** ν̃ boundings.
+
+**THE EXPERIMENT.** `verification/runs/M6I_runs/L3_NORAMP` — L3's mesh, dictionaries, `0.orig`
+and `fvOptions`, copied, with **`fvSchemes.startup` and `fvSolution.startup` made identical
+to the registered ones** (the fvSolution byte-identical; the fvSchemes identical below a
+truthful banner). The launcher is **not modified**: its two stages simply carry one
+configuration split at a checkpoint, which changes no arithmetic. **The result is the
+registered second-order schemes and the registered relaxation, from iteration 1, with no
+ramp.** 3,000 iterations, 4 ranks, **6.4 core-minutes estimated, cap 19.2**.
+
+**THE PREDICTIONS, FIXED NOW:**
+
+| outcome | what it convicts |
+|---|---|
+| **L3_NORAMP DIES** — SIGFPE, or LC-2 (`bounding nuTilda` max > 1e6), or LC-1 (>2 % clipped for 20 consecutive reported iterations) | **READING A.** The registered schemes are unstable on this grid *as such*, the ramp's role is proven to be suppression, and **that is a result about the imported grid and is reported as one, not engineered around** (Sanaa 2026-09-10: OpenFOAM issues are surfaced as runs, not worked around). |
+| **L3_NORAMP COMPLETES** rc = 0 to 3,000 with zero ν̃ boundings and peak `CellsPercent` < 2 % | **READING B.** The instability requires a shock, L3 has none, and the story is about what L1 and L2's grids do once a shock forms. |
+
+**🔴 THIS LANE'S PREDICTION, REGISTERED AGAINST ITS OWN SUPERVISOR'S: READING B.
+L3_NORAMP COMPLETES.** If it dies, this lane was wrong and the supervisor was right, and the
+record will say so in those words.
+
+**A second limb, free with the same run:** if it completes, its Cp at the six stations must
+match the ramped L3's to **max|ΔCp| ≤ 0.01** at every station — because a converged solution
+of the same discrete equations cannot depend on the path taken to it. **A larger difference
+would mean the ramped L3 was not converged**, and would put L3's `GATE FAIL` itself in
+question. That is a way for the completed level to lose its verdict, registered before the
+comparison exists.
+
+## A6.4 — WHAT IS **NOT** DONE, NAMED SO IT CANNOT BE SLID IN LATER
+
+🔴 **THE RAMP IS NOT EXTENDED TO COVER THE WHOLE RUN.** A solution obtained on first-order
+convection **is a first-order solution**, first-order **smears a shock**, and a smeared shock
+is precisely what 2 of the 14 bands measure. **Grading a first-order solution against the
+frozen bands without saying so is the worst outcome available here**, and it is barred by
+this section rather than left to judgement.
+
+**No change is made to any level's numerics under this addendum.** L3_NORAMP changes nothing:
+it *removes* the ramp in order to measure what the ramp was doing. The one registered
+numerics change follows the experiment, not this addendum, and §A5.4's pre-declared
+candidates stand: a TVD-limited convection scheme for the whole run, or a longer ramp — **and
+§A5.4's ordering may be revised on this experiment's evidence, which is a choice that will be
+registered with its reason rather than made quietly.**
+
+## A6.5 — THE FAMILY, STATED PLAINLY
+
+**One completed level. No triple. No prospect of one without the numerics rung.**
+
+| level | verdict |
+|---|---|
+| L3 | **`GATE FAIL`** — converged, admissible, planted control seen; a verdict about a 15,360-cell grid carrying **no shock at all** |
+| L2 | **`NOT A RESULT`** — diverged, no Cp extracted, none quoted |
+| L1 | **`NOT A RESULT`** — diverged, no Cp extracted, none quoted |
+
+**§A5.3's single-level disclosure is therefore LIVE, not contingent**, and it applies to L3:
+reported as a **DISCLOSED SINGLE-LEVEL VALIDATION COMPARISON**, `ONE LEVEL — NO GRID FAMILY`
+on the face of every row, **no observed order, no GCI, no family band, no Roache triple.**
+
+**Cost so far:** L3 5.4 core-min (completed) + 0.26 (two FPE smokes) + **L2 10.60** +
+**L1 41.67** on the two diverged levels = **57.9 core-minutes**, against a family estimate of
+1,184 and a family cap of 3,551. **Waste is named, not absorbed: 52.5 core-minutes bought
+three stack traces and one mechanism.**

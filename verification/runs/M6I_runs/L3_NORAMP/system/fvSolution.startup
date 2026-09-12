@@ -1,0 +1,42 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-9;
+        relTol          0.01;
+        nCellsInCoarsestLevel 100;
+    }
+    "(U|e|nuTilda)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0.01;
+    }
+}
+SIMPLE
+{
+    nNonOrthogonalCorrectors 2;
+    pMinFactor      0.2;
+    pMaxFactor      2.0;
+    transonic       yes;
+    // `consistent` IS ABSENT, and this is SIMPLE, not SIMPLEC.  ADDENDUM 1 called
+    // `consistent` a dead lever in rhoSimpleFoam ON THE STRENGTH OF pEqn.H ALONE.
+    // THAT WAS WRONG: rhoSimpleFoam.C:78 reads `if (simple.consistent())` and includes a
+    // SEPARATE FILE, pcEqn.H, which carries 10 occurrences of rAtU.  The lever selects an
+    // entirely different pressure equation and is fully live.  Attempt 1 therefore ran
+    // correct SIMPLEC and still crashed; SIMPLEC is not the fix and is not the fault.
+    // ADDENDUM 2, 2026-09-12.
+    // NO residualControl BY REGISTRATION: rule 4 reads last time == endTime.
+}
+relaxationFactors
+{
+    // equations.p 1 is the DIAGONAL-DOMINANCE relaxation pEqn.H:35 asks for by name.
+    // It is not a no-op at 1.0: fvMatrix::relax sets D = max(|D|, sumMagOffDiag) BEFORE
+    // dividing by alpha.  Deleting it is what made attempt 2 worse than attempt 1.
+    fields    { p 0.3; rho 0.05; }
+    equations { p 1; U 0.7; e 0.7; nuTilda 0.7; }
+}

@@ -1,0 +1,6 @@
+FoamFile { version 2.0; format ascii; class dictionary; object decomposeParDict; }
+// hierarchical, NOT scotch: scotch is non-deterministic across runs and the graded
+// quantity is read off a surface field.  4 ranks on every level, registered.
+numberOfSubdomains 4;
+method          hierarchical;
+coeffs          { n (2 2 1); }
