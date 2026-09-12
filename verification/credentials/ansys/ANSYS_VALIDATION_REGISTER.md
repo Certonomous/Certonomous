@@ -2864,3 +2864,235 @@ it is waste and argues the ruling.**
 | that the `Cw` mechanism is established | **NO.** A monotone ordering over three points, stated as triage. |
 | that "no `h0` survives anywhere" | **NO.** Three rungs bracket the registered window (`PREREGISTRATION.md:140–152`); they do not exhaust the real line. What is established is that the **registered pivot rungs** did not survive, which is precisely the condition the frozen abandonment criterion names. |
 | that the cost bought a result | **NO.** 28.7 core-min produced no answer. See the calibration row. |
+
+
+## Row #79 — VMFL072-R3 — Liquid Water Flow Over a Flat Plate Under Gravity, precursor-film remedy `h0` 1e-7 → 1e-5 on the L1/L2/L3 + B2 + C1 ladder (VM2026R1 p. 211–212, Table .72.1) — **`NOT A RESULT`**
+
+Graded **2026-09-10T16:44:43Z** by the detached autograde watcher with no agent alive
+(`AUTOGRADE_WATCH_STATE_VMFL072_R3.txt`: *"the verdict is on disk with no live fleet; a
+future session/supervisor records it in the register and commits"*). **Row written
+2026-09-12 UTC** — the run is a back-fill of the one completed-and-graded run in this
+territory that had no register row, and the two-day gap between grade and row is stated
+rather than hidden.
+
+Frozen pre-registration `cases/ansys_verification/VMFL072-R3/PREREGISTRATION.md`,
+freeze commit **`305e496286135e809a12c2b3381427f4a3187cd2`** (*"ansys VMFL072-R3 FREEZE:
+precursor-film remedy for the R2 dewetting SIGFPE"*, 2026-09-07T04:19:46Z), prereg blob
+**`dc80a66c44d4ba2a9dea4a3173239038ad4913b5`**.
+
+Comparator **`compare_vmfl072_r3.py`**, grading-path blob
+**`2fcc0ced1bb99192f25c80b323af161cf25b90ac`**. **Four-way identity, re-hashed by this
+lane today (2026-09-12): disk == pin == blob at the freeze commit `305e4962` == blob at
+HEAD.** The watcher asserted two of those legs in its own running shell at grade time
+(`freeze guard A OK: disk == pin`; `freeze guard B OK: pin == blob committed at HEAD
+66ce879e`) — rule 2, L-223: the frozen file *is* the file that ran. The prereg blob
+likewise matches at the freeze commit and at HEAD.
+
+### THE VERDICT, AND THE FROZEN LINE OF *THIS* FREEZE THAT AUTHORISES IT
+
+**`NOT A RESULT`.** The frozen comparator **REFUSED (exit 2)** on the strict-completion
+clause, and the entire content of `GRADING_VMFL072_R3.log` is its own registered text:
+
+> `REFUSED (exit 2): C-01 L3: solver rc = 136`
+> `NO number is produced and none may be quoted. VERDICT: NOT A RESULT.`
+
+The authorising clause is **this** freeze's `§6.10`, at `PREREGISTRATION.md:602–610`,
+and it is quoted here rather than carried across from Row #78, which is a **different
+freeze with a different label scheme**:
+
+> `§6.10 Strict completion (CLAUDE.md rule 4) — UNCHANGED`
+> *"The comparator refuses on any of: **C-01** `rc = 0` captured inside the detached
+> wrapper (**this is the clause R2's L3 tripped: `rc = 136`**); …"*
+
+**READ THAT PARENTHESIS AGAIN.** The frozen pre-registration **names, in advance, the
+exact clause and the exact exit code that then recurred** — `C-01`, `rc = 136`. R3 was
+built to cure that failure, registered the failure it was curing, and **failed it again
+at the same level**. The prediction the freeze made about its own risk was correct, and
+it is on the record because it was written before the run.
+
+A refusal is `NOT A RESULT` by the comparator's own registered contract, recorded in
+`AUTOGRADE_VMFL072_R3.rc`: *"rc 2 = REFUSED (Refuse — incomplete run, unreadable
+artifact, a planted control unseen) = **NOT A RESULT**"*.
+
+### THE LADDER — five levels, four clean, one dead
+
+| level | grid | fa-faces | `H_IN` | `U_IN` | `deltaT` | steps done | `rc` | outcome |
+|---|---|---|---|---|---|---|---|---|
+| L1 | 64×16×1 | 1 024 | 7.1084204656e-04 | 0.537381243 | 5.0e-03 | 2 000 / 2 000 | **0** | **CLEAN** |
+| L2 | 128×32×1 | 4 096 | 7.1084204656e-04 | 0.537381243 | 2.5e-03 | 4 000 / 4 000 | **0** | **CLEAN** |
+| **L3** | **256×64×1** | **16 384** | 7.1084204656e-04 | 0.537381243 | 1.25e-03 | **886 / 8 000 (11.1 %)** | **136** | **SIGFPE at `Time = 1.10875`** |
+| B2 | 256×64×1 | 16 384 | 3.8276110199e-04 | 0.997993736 | 7.8125e-04 | 12 800 / 12 800 | **0** | **CLEAN** |
+| C1 | 128×32×1 | 4 096 | 5.4680157427e-04 | 0.698595615 | 2.5e-03 | 4 000 / 4 000 | **0** | **CLEAN** |
+
+`rc = 136 = 128 + 8` is SIGFPE. It is **not** a cap-stop: `L3/RC.txt` records
+`cap_sec=3900` against a solve that died at ~166 s elapsed, and `L3/log.wrapper` reads
+`Floating point exception` from `timeout … pimpleFoam`. Step counts are from the levels'
+own `ExecutionTime` line counts; grid figures are from each level's `LEVEL_APPLIED.txt`
+and are corroborated by `L3/log.makeFaMesh` (`Number of faces: 16384`).
+
+### ⚠ THE STACK TRACE — FIVE CRASHES, THREE FREEZES, AND THE TRACES ARE **BYTE-IDENTICAL**
+
+The supervisor asked whether R3-L3 crashed at the same locus as VMFL072-R4-A's three
+rungs (Row #78). **It did — and the answer is stronger than "the same function."** This
+lane extracted every `#`-prefixed frame from each `log.pimpleFoam`, diffed them and
+hashed them:
+
+| run | freeze | level/rung | frames | md5 of the extracted trace |
+|---|---|---|---|---|
+| **VMFL072-R2** | R2's freeze | L3 | 17 | `db7e4dd672c2663ef45ff6d7b2306065` |
+| **VMFL072-R3** | `305e4962` | L3 | 17 | `db7e4dd672c2663ef45ff6d7b2306065` |
+| **VMFL072-R4-A** | `bb76616d` | A1 | 17 | `db7e4dd672c2663ef45ff6d7b2306065` |
+| **VMFL072-R4-A** | `bb76616d` | A2 | 17 | `db7e4dd672c2663ef45ff6d7b2306065` |
+| **VMFL072-R4-A** | `bb76616d` | A3 | 17 | `db7e4dd672c2663ef45ff6d7b2306065` |
+
+**All seventeen frames agree exactly, in all five crashes, across three separate
+freezes** — `diff` reports no difference on any pair. This is a **characterised recurring
+defect of OpenFOAM's finite-area film shell at this operating point**, not a per-case
+nuisance.
+
+**AND THE TRACE SAYS SOMETHING MORE PRECISE THAN "`updateCoeffs()`".** The supervisor's
+brief, and `CRASH_TRIAGE_L3_2026-09-10.md`'s own unwind listing, both stop at
+`PBiCGStab::solve` / `updateCoeffs()`. Those are frames **#7/#8 and #12** — the film
+frames that *reached* the fault, not the fault site. **The SIGFPE is raised at frame
+`#3`:**
+
+```
+#1  Foam::sigFpe::sigHandler(int)                                          libOpenFOAM.so
+#3  Foam::DILUPreconditioner::calcReciprocalD(Field<double>&, lduMatrix const&)  ← FAULTS HERE
+#4  Foam::DILUPreconditioner::DILUPreconditioner(...)                      libOpenFOAM.so
+#6  Foam::lduMatrix::preconditioner::New(...)                              libOpenFOAM.so
+#7  Foam::PBiCGStab::scalarSolve(...)                                      libOpenFOAM.so
+#10 Foam::regionModels::areaSurfaceFilmModels::kinematicThinFilm::evolveRegion()
+#12 Foam::velocityFilmShellFvPatchVectorField::updateCoeffs()              libregionFaModels.so
+```
+
+`calcReciprocalD` computes the **reciprocal of the matrix diagonal**. A floating-point
+fault there is a **division by a zero (or denormal) diagonal coefficient in the film
+region's `lduMatrix`, during preconditioner construction — before a single iteration of
+the solve is taken.** That is a materially sharper characterisation than "the film solve
+blew up," and it is the same in all five crashes.
+
+**Corroborating detail, identical in all five:** the last thing each log records before
+the trace is the film's own equation set solving **successfully** — `Uf_filmx`,
+`Uf_filmy`, `Uf_filmz`, then `hf_film` converging to a final residual of order 1e-11 in
+4–5 iterations. **The crash is not a diverging solve.** It is a healthy-looking film
+height solve followed immediately by a singular matrix handed to the next preconditioner.
+
+> **WHAT THIS ESTABLISHES, AND WHAT IT DOES NOT.** Byte-identical traces establish the
+> **same code path and the same faulting arithmetic operation**, five times, across three
+> freezes — that much is measured. They do **not**, on their own, prove a single common
+> root cause: identical symbol names are what one expects from the same binary reaching
+> the same path, and a shared path can in principle be reached by different causes. And a
+> zero diagonal is the natural reading of a `calcReciprocalD` fault, but **no artifact
+> here reads the diagonal back**, so the dewetted-cell mechanism is **narrowed, not
+> proven.** This row deliberately stops where `CRASH_TRIAGE_L3_2026-09-10.md`'s own
+> SECOND ADDENDUM stopped, for the same reason it stopped there.
+
+### WHAT DISTINGUISHES THE FOUR CLEAN LEVELS — and the question R4-A then answered
+
+**B2 ran the SAME 256×64 mesh as L3 and completed `rc=0` over 12 800 steps.** The mesh is
+therefore **not intrinsically fatal**, which is the one thing this ladder settles on its
+own. It settles no more than that, because **B2 differs from L3 in three variables at
+once** — `H_IN` 3.8276e-04 vs 7.1084e-04, `U_IN` 0.997994 vs 0.537381, `deltaT`
+7.8125e-04 vs 1.25e-03. This row asserts nothing beyond what that confounding allows, and
+it is **not** a new finding: `CRASH_TRIAGE_L3_2026-09-10.md`'s dated addendum of
+2026-09-11T16:20Z reached it first and recorded that *"No single-variable control exists
+at fixed grid, and building one is the first thing R4 owes."*
+
+**That debt has since been paid, and the answer was negative.** VMFL072-R4-A (**Row
+#78**) ran exactly that control: L3's mesh and L3's operating point (`H_IN`
+7.1084204656e-04, `U_IN` 0.537381243 — **identical to L3's**, verified by this lane
+against both runs' `LEVEL_APPLIED.txt`), sweeping **only** `h0` across 5e-06 / 1.5e-05 /
+2e-05. **All three crashed, with this same byte-identical trace.** So the open question
+this ladder left — *is the precursor thickness the culprit at fixed grid?* — now has a
+measured answer: **at L3's operating point, no value of `h0` in the registered window
+rescues it.** That is why the constant-precursor approach was abandoned on R4-A's own
+frozen terms.
+
+### ⚠ NO LIVE PLANTED CONTROL FIRED (rule 3) — the third VMFL072 row in a row
+
+The pre-registration registers two plants at `§6.8` and requires the comparator to refuse
+unless **both** fire. **Neither fired on this run, and no plant output exists in the
+grading artifact.** The reason is structural, not an omission: the comparator's `main()`
+wraps grading in a `try/except Refuse`, so the `C-01` completion refusal on L3 aborted
+the run before any grading line — plant reports included — was emitted. The whole of
+`GRADING_VMFL072_R3.log` is the two-line refusal quoted above.
+
+**The standing debt, named because it now spans the family:** between VMFL072-R3 and
+VMFL072-R4-A — **five crashes, two rows, zero live plant firings** — **the answer-reading
+path of this case family's comparators has never been exercised on live data.** Neither
+row carries instrument-validation evidence for it, and neither discharges that obligation
+for the other. The first VMFL072 run that produces a surviving, gradeable level must fire
+its plants before its number is believed.
+
+### Cost (rule 12) — MEASURED, with its basis stated because this launcher recorded no `wall_s`
+
+**R3's launcher wrote no `wall_s`/`core_min` fields** (unlike R4-A's consolidated
+`LAUNCH_RECORD.txt`), so the figures are reconstructed from recorded timestamps and from
+the solvers' own clocks. All three bases are given, because they differ and a reader is
+entitled to know which one a number came from:
+
+| level | launcher-end → wrapper-finish | core-min (elapsed) | solver `ClockTime` | solver `ExecutionTime` (CPU) | cap |
+|---|---|---|---|---|---|
+| L1 | 27 s | **0.4500** | 26 s | 22.82 s | 1.5 |
+| L2 | 179 s | **2.9833** | 179 s | 174.16 s | 9 |
+| L3 | 166 s | **2.7667** | 145 s | 142.51 s | 65 |
+| B2 | 1 727 s | **28.7833** | 1 726 s | 1 717.02 s | 100 |
+| C1 | 160 s | **2.6667** | 160 s | 157.76 s | 9 |
+| **family** | **2 259 s** | **37.6500** | 2 236 s (37.2667) | 2 214.27 s (36.9045) | **184.5** |
+
+Serial, 1 rank per level ⇒ core-min = wall-s ÷ 60 exactly. **The row's headline figure is
+37.6500 core-min**, the elapsed basis, because it is what the box actually occupied;
+the solver-only bases are 1.0–2.0 % lower and the difference is the per-level
+`blockMesh`/`makeFaMesh` setup. **No cap breached** — worst level B2 at 28.78 of 100
+(28.8 %); L3 died at 2.77 of a 65 cap, so **the cap is irrelevant to this failure and
+must not be blamed for it.** **$0.03219 — DERIVED, NOT MEASURED** (37.65 core-min =
+0.62750 core-h × $0.0513/core-h, c7a.4xlarge, owner-stated — the box cannot read its own
+billing, `COMPUTE_BUDGET_CHARTER.md` §5). **Load at launch is NOT on record** for this
+run; R3's launcher recorded none, and this row does not guess one.
+
+Against the pre-registration's own filed estimate of **92 core-min** (`§8.2`), the ratio
+is **0.409**; against its method total of 56.7 it is **0.664**. The rule-12 calibration
+row in `docs/COST_CALIBRATION.md` decomposes that and rules separately on waste.
+
+### A launch-blockage episode that cost ZERO compute, recorded so it is not mistaken for waste
+
+`verification/queue/LAUNCH_LOG.tsv` carries **two** sets of VMFL072-R3 rows: 2026-09-07
+T21:38–21:43Z and 2026-09-10T16:06–16:11Z. **Only the second ran.** The first was the
+three-day launch blockage resolved at commit `a0c06d595` (*"VMFL072-R3 UNBLOCKED after
+three days: the cwd refusal was a decoy — the real blocker was the queue daemon having NO
+OpenFOAM on PATH"*). **The solver never started on 2026-09-07, so that episode burned
+0.0000 core-minutes**, and this lane confirmed it against disk: no artifact anywhere under
+the R3 run tree carries a 2026-09-07 mtime. It was lost **calendar** time, not lost
+compute.
+
+### Provenance — every number above cites an artifact still on disk
+
+| object | path |
+|---|---|
+| frozen pre-registration | `cases/ansys_verification/VMFL072-R3/PREREGISTRATION.md`, blob `dc80a66c44d4ba2a9dea4a3173239038ad4913b5`, freeze commit **`305e496286135e809a12c2b3381427f4a3187cd2`** |
+| grading path (the file that ran) | `cases/ansys_verification/VMFL072-R3/compare_vmfl072_r3.py`, blob **`2fcc0ced1bb99192f25c80b323af161cf25b90ac`**, disk == pin == freeze == HEAD |
+| **artifact path (run root)** | **`verification/runs/ansys_verification/VMFL072-R3/`** |
+| verdict record | `.../VMFL072-R3/GRADING_VMFL072_R3.log` |
+| autograder records | `.../VMFL072-R3/AUTOGRADE_VMFL072_R3.rc` (`grade_rc=2`, `head=66ce879e…`), `.../AUTOGRADE_WATCH_STATE_VMFL072_R3.txt` |
+| per-level evidence | `.../VMFL072-R3/{L1,L2,L3,B2,C1}/{LAUNCH_RECORD.txt,RC.txt,LEVEL_APPLIED.txt,log.pimpleFoam,log.wrapper,log.makeFaMesh}` |
+| supervisor's crash triage (cited, not superseded) | `cases/ansys_verification/VMFL072-R3/CRASH_TRIAGE_L3_2026-09-10.md`, committed at `c4b6fec4`, incl. its SECOND ADDENDUM and its 2026-09-11T16:20Z grid-label correction |
+| dimensionality note | `cases/ansys_verification/VMFL072-R3/DIMENSIONALITY_NOTE_2026-09-10.md` |
+| the R4-A control that answered this row's open question | Row **#78**; `verification/runs/ansys_verification/VMFL072-R4-A/`, freeze `bb76616d`, comparator `ca2c73c7` |
+| the third byte-identical trace | `verification/runs/ansys_verification/VMFL072-R2/L3/log.pimpleFoam`, `.../RC.txt` (`rc=136`, finished 2026-09-04T18:43:29Z) |
+| launch-blockage record | `verification/queue/LAUNCH_LOG.tsv`; unblock commit `a0c06d595` |
+| calibration row (rule 12) | `docs/COST_CALIBRATION.md`, appended alongside this row |
+| manual | VM2026R1 **p. 211–212, Table .72.1**, title-page verified under rule 15 — **page citation carried from Row #58 (VMFL072-R2)**; R3's own pre-registration cites the reference 0.555 mm at `:431` and does not restate a page number |
+
+### What this row refuses to claim
+
+| | |
+|---|---|
+| that any gradeable number was produced | **NO.** The comparator refused at `C-01` before grading anything. *"NO number is produced and none may be quoted."* |
+| that L1/L2/B2/C1 completing means their numbers are usable | **NO.** The refusal aborts the whole grade; **no level was graded**, including the four clean ones. |
+| a Roache triple, an order, or a GCI | **NO — and by registration, not by accident.** `§7` declares in advance that this case **declares no grid triple**; rule 5 limb (1) fires in full, limb (2) is absent because no triple exists to classify. |
+| that the five identical traces prove one root cause | **NO.** They prove the same code path and the same faulting operation, five times. Identical symbols are expected from one binary on one path; a shared path can be reached by different causes. |
+| that the zero-diagonal reading is the established mechanism | **NO.** `calcReciprocalD` identifies the faulting **operation**. No artifact reads the diagonal back. Narrowed, not proven. |
+| that the failure threshold scales with cell size | **NO — still UNTESTED**, exactly as the triage's SECOND ADDENDUM corrected. R4-A tested `h0` at fixed grid, not grid at fixed `h0`; R4-B (512×128) was cancelled when no rung survived. |
+| that the comparator's answer-reading path is validated | **NO.** Both registered plants were unreachable behind the refusal. Zero live plant firings across R3 and R4-A. |
+| that R3's remedy worked in any degree | **NO.** `h0` 1e-7 → 1e-5 produced the same `rc=136` at the same level with a byte-identical trace. The freeze predicted this clause as its own risk at `§6.10` and the prediction held. |
