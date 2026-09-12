@@ -26743,3 +26743,59 @@ sentence costs when ignored); L-223 and `c46309f5` (nine files lost to a stale
 `read-tree`, the same failure one level up); L-538; the `git status reads stale
 under concurrency` pattern — in both cases the instrument answers about a world
 that has moved.
+
+## L-551 — A commit-message file assembled by APPEND is silently a DIFFERENT message when an earlier abort skipped its creation: `3597f6e62` carries a one-line trailing note where a ~40-line record should be, and `commit-tree -F` was perfectly happy
+
+**2026-09-12, closure.** Commit `3597f6e62` was meant to carry a **~40-line** record —
+what was measured, what it refuted, which assertions had been driven. **What it
+carries is a single line that was only ever intended as a trailing note.** The
+record does not exist anywhere in git.
+
+**THE MECHANISM, AND IT IS ORDER, NOT SYNTAX.** The script built its message with a
+heredoc that **CREATED** the file:
+
+```
+cat > msg <<'MSG'   ...   MSG          # creates
+...
+echo "<one-line note>" >> msg          # appends
+```
+
+The creating heredoc sat **AFTER** assertions in the same `set -e` script. The
+script **aborted twice** on those assertions, so the heredoc never ran and the file
+was never written. On the third, successful run, the `>>` **created the file fresh**
+— because `>>` creates when the target is absent — containing **only the one-line
+note**. Every later step then worked perfectly on a file that was complete, valid,
+non-empty, and **not the message**.
+
+**IT FAILS SILENTLY, AND THAT IS THE POINT.** `git commit-tree -F` accepts a
+one-line file without complaint; it has no opinion about what the message *should*
+have been. There is no error, no warning, no diff, and no exit code anywhere in the
+chain that differs from the correct run. **The only instrument that detects it is
+reading the log back afterwards** — which is how it was found, hours later.
+
+**`>>` IS THE TRAP.** A redirect that creates on absence turns "add to the message"
+into "be the message" the moment the creation step is skipped. The same append
+against a file guaranteed to exist is harmless; the hazard is entirely in the
+conditional path that was supposed to have created it.
+
+**The rule, in two parts, and the second is the load-bearing one.**
+1. **Build the message file BEFORE any assertion that can abort.** It costs nothing,
+   depends on nothing, and removes the ordering hazard outright. Where the subject
+   needs a value derived later (a lesson number, a sha), derive that value first and
+   still write the file before the first `exit`.
+2. **Assert the message IMMEDIATELY BEFORE `commit-tree`**: non-empty, **and
+   carrying its intended subject** (`head -1 | grep -q '^<expected prefix>'`), and a
+   plausible length. Non-empty alone would have passed here — the file *was*
+   non-empty. **The subject assert is what fails on this bug.**
+
+**The general form.** A partially-built artifact that reaches a consumer which
+cannot distinguish "complete" from "one fragment" is a silent corruption channel,
+and **re-running the script is exactly what fills it** — each abort leaves the world
+a little further from the state the next run assumes. Build artifacts whole, or
+verify them whole at the point of use.
+
+**Related.** The `backticks kill the commit` pattern (a message silently never
+written, caught only by `git log -1` afterwards) — same class, different mechanism,
+and the same detector; standing rule 10 (**commit per item, and say in the message
+what you left**, which is impossible if the message is not the message); L-223 (the
+post-commit verify is not optional).
