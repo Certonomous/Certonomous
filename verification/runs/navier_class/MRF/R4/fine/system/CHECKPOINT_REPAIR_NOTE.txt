@@ -1,0 +1,34 @@
+CHECKPOINT REPAIR, 2026-09-12, cfd lab-lane. One line, and the reason it was needed.
+
+WHAT GATE A CAUGHT, verbatim:
+  "gate A limb (i): .../R4/fine/system/controlDict writeInterval 300 exceeds 232.7
+   (registered iteration_rate_s=7.735 wall s per writeInterval unit -> 1800 s /
+   7.735 = 232.7 units). A kill would lose more than the 30 minutes of wall time
+   her item 1 fixes as the bound."
+
+WHY IT WAS THERE, AND IT IS MY ERROR, NOT THE GATE'S.
+The mesh build started 19:51:05Z and copied the system template at that instant.
+I changed the TEMPLATE's writeInterval from 300 to 160 at 19:54:17Z -- THREE
+MINUTES AFTER THE BUILD HAD ALREADY COPIED IT. The built case therefore kept 300.
+Worse, the queue entry I then wrote claimed the policy was "APPLIED to
+cases/navier_class/MRF/R4/system/controlDict and READ BACK FROM DISK", which was
+TRUE OF THE TEMPLATE AND FALSE OF THE CASE THE ENTRY POINTS AT. I read back the
+wrong file and believed the claim.
+
+TWO CLAUSES, BOTH NOW SATISFIED IN THE CASE ITSELF:
+  (i)  160 <= 1800 / 7.735 = 232.7 -- a kill loses 20.6 min against a 30 min bound.
+  (ii) 8000 / 160 = 50 writes EXACTLY, so the last write lands ON endTime and rule
+       4's "fields present at endTime" clause is satisfiable. 300 gives 26.67
+       writes and would have failed that clause AFTER a twelve-hour solve -- a
+       defect I had already identified in writing and then failed to apply here.
+
+purgeWrite 2 was already present and is unchanged; it keeps 7840/ and 8000/.
+The as-built dictionary is preserved as system/controlDict.PRE_CHECKPOINT_2026-09-12
+and the two-line change as system/CHECKPOINT_DIFF.txt. Nothing else in the case
+was touched: constant/polyMesh/points sha256 is unchanged at
+907d898a3c0aafb0eee402065802cb13bb5a744e504f7c5b4bfda6415c6462b4, the value
+MRF_R4_PREREGISTRATION.md section 11 and MESH_BIRTH_CERTIFICATE.json both pin.
+
+THE LESSON, WHICH IS NOT ABOUT CHECKPOINTS: a template and the case built from it
+are two files, and a read-back that names the template proves nothing about the
+case. The gate read the case. I read the template.

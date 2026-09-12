@@ -1,0 +1,4 @@
+29c29
+< writeInterval   300;
+---
+> writeInterval   160;
