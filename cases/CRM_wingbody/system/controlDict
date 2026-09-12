@@ -1,0 +1,19 @@
+FoamFile{version 2.0;format ascii;class dictionary;location "system";object controlDict;}
+application     rhoSimpleFoam;
+startFrom       latestTime;
+startTime       0;
+stopAt          endTime;
+endTime         300;                 // SMOKE: her section 7.2, 300 iterations
+deltaT          1;
+writeControl    timeStep;
+writeInterval   200;                 // checkpoint every 200 iterations until the rate is
+                                     // measured (her checkpoint rule item 1); revised to
+                                     // <=30 min once the measured rate exists
+purgeWrite      2;                   // last two checkpoints kept
+writeFormat     binary;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+functions { #include "forces" }

@@ -1,0 +1,21 @@
+FoamFile{version 2.0;format ascii;class dictionary;location "constant";object thermophysicalProperties;}
+// CRM-WB D8G. Registered freestream: T_inf = 310 K, M = 0.85, Re = 5.0e6 on cref.
+// R = 287.058 J/(kg K) is imposed through molWeight: R_univ/M_w = 8314.47/28.9647 = 287.06.
+// mu is the Sutherland value AT T_inf = 310 K; As is chosen so that Sutherland reproduces it
+// exactly: mu = As*sqrt(T)/(1+Ts/T)  =>  As = mu*(1+Ts/T)/sqrt(T).
+thermoType
+{
+    type            hePsiThermo;
+    mixture         pureMixture;
+    transport       sutherland;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+mixture
+{
+    specie      { molWeight   28.964425; }
+    thermodynamics { Cp 1004.703; Hf 0; }
+    transport   { As 1.458000e-06; Ts 110.4; }
+}

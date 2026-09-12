@@ -1,0 +1,9 @@
+FoamFile{version 2.0;format ascii;class volScalarField;location "0";object nut;}
+dimensions [0 2 -1 0 0 0 0];
+internalField uniform 0;
+boundaryField
+{
+    "(wing|body)" { type nutLowReWallFunction; value uniform 0; }  // y+ ~ 1: resolves to nut=0 at the wall
+    symmetry      { type symmetry; }
+    farfield      { type calculated; value uniform 0; }
+}

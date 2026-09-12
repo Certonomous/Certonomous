@@ -1,0 +1,6 @@
+FoamFile{version 2.0;format ascii;class dictionary;location "system";object decomposeParDict;}
+// 32 ranks: the lane's allocation from Sanaa's core table. Her section 7 ladder of 8/16/32
+// assumed 2/6/16 M cells; the committee grids are 20.7/26.3/33.7 M, so all three levels run
+// at 32 ranks (pre-registration section 8). Tiny at 32 ranks is 0.65 M cells/rank.
+numberOfSubdomains 32;
+method          scotch;

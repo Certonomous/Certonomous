@@ -1,0 +1,35 @@
+// CRM-WB D8G forces / force coefficients.
+// REGISTERED VALUES (pre-registration §4), converted by exactly 0.0254 from the DPW-6
+// committee page: Aref = HALF-MODEL Sref = 191.8447776 m^2, lRef = cref = 7.00532 m,
+// CofR = (33.67786 11.90625 4.51993) m. Patches are EXACTLY the wing and the fuselage.
+forceCoeffs
+{
+    type            forceCoeffs;
+    libs            (forces);
+    writeControl    timeStep;
+    writeInterval   1;
+    log             yes;
+
+    patches         (wing body);
+    rho             rho;            // compressible: density is a field, not rhoInf
+
+    CofR            (33.67786 11.90625 4.51993);
+    dragDir         (0.998848386485 0 0.047978128521);
+    liftDir         (-0.047978128521 0 0.998848386485);
+    pitchAxis       (0 1 0);
+
+    magUInf         300.0189024;
+    lRef            7.00532;
+    Aref            191.8447776;
+}
+forces
+{
+    type            forces;
+    libs            (forces);
+    writeControl    timeStep;
+    writeInterval   1;
+    log             yes;
+    patches         (wing body);
+    rho             rho;
+    CofR            (33.67786 11.90625 4.51993);
+}

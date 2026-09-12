@@ -1,0 +1,25 @@
+FoamFile{version 2.0;format ascii;class dictionary;location "system";object fvSolution;}
+solvers
+{
+    // Linear-solver tolerances are strictly tighter than the stationarity gate
+    // (CL 2e-4, CD 2e-5) -- the T23G2Rn2 rule, pre-registration section 7.
+    p       { solver GAMG; tolerance 1e-10; relTol 0.01; smoother GaussSeidel; }
+    "(U|e|h|nuTilda)" { solver PBiCGStab; preconditioner DILU; tolerance 1e-11; relTol 0.01; }
+    rho     { solver diagonal; }
+}
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+    consistent      yes;
+    transonic       yes;                 // her section 6: pressure-based with the transonic option
+    pMinFactor      0.1;
+    pMaxFactor      2.0;
+    rhoMin          0.005;
+    rhoMax          1.0;
+    residualControl { p 1e-6; U 1e-6; e 1e-6; nuTilda 1e-6; }
+}
+relaxationFactors
+{
+    fields  { p 0.3; rho 0.05; }
+    equations { U 0.5; e 0.5; nuTilda 0.5; }
+}
