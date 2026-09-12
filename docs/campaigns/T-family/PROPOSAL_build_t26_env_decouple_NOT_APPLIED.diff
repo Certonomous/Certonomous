@@ -1,0 +1,117 @@
+PROPOSAL -- NOT APPLIED, NOT COMMITTED AS CODE. 2026-09-12, T26 lane.
+Supersedes this lane's earlier conclusion that an AXIAL SPLIT of `env_wall` was
+required.  The supervisor's hypothesis was tested against the geometry and is
+correct; the axial split is NOT needed and is withdrawn.
+
+THE MEASUREMENT THAT SETTLES IT -- read from the staged STLs, not inferred:
+
+  duct.stl        768 triangles   x [0.000000, 0.200000]   r [0.125000, 0.130000]
+                  1152 vertices EXACTLY at r = 0.125000
+                  1152 vertices EXACTLY at r = 0.130000
+  fluid_env.stl   768 triangles   x [-0.175000, 0.900000]  r [0.000000, 0.125000]
+                  2112 vertices EXACTLY at r = 0.125000  (192 at r = 0, cap centres)
+
+The duct IS a closed annular shell and its INNER BORE AT r = 0.125000 IS PRESENT
+AS GEOMETRY over the whole span x in [0, 0.200].  `refinementSurfaces` already
+gives `duct` `level (4 4)`, so that interface is refined to 1.1250 mm BY THE
+DUCT ENTRY.  Over that span `fluid_env`'s wall is COINCIDENT with it -- same
+radius, same 96-gon, and the builder already REFUSES unless the duct bore and
+the hub share one phase.  `env` at level 4 therefore adds NOTHING where the two
+coincide, and refines the other 81.4 % of a 1.075 m prism -- the 0.6 m
+downstream tail and the 0.125 m upstream run -- for nothing.
+
+  env refinement band, ~4 cells deep, over 0.9425 m2:
+      level 1 (9.0000 mm)      46,542 cells
+      level 4 (1.1250 mm)   2,978,695 cells      <-- what actually ran
+
+THE COUPLING.  `write_snappy_dict` has no `env` level of its own: it writes
+`lev["duct"]` at :1069 for the feature and at :1076-1081 for the surface and its
+three named regions.  `reg_surface_levels` returns only {duct, hub, strut} --
+THE REGISTRATION REGISTERS NO ENVELOPE LEVEL AT ALL, and `lev["duct"]` was an
+un-flagged choice by the builder.  It is invisible while duct is level 1,
+because then env is level 1 too and looks deliberate.  It only bites when
+somebody raises the duct to clear GEO-8, which is exactly what happened.
+
+--- a/docs/campaigns/T-family/build_t26.py
++++ b/docs/campaigns/T-family/build_t26.py
+@@ -1026,7 +1026,7 @@
+ def write_snappy_dict(path, level, lev, layers, d1, seeds, regions,
+                       layer_block, feature_level, resolve_feature_angle,
+-                      n_cells_between_levels, seed_order=None):
++                      n_cells_between_levels, seed_order=None, env_level=None):
+@@ -1066,7 +1066,11 @@
++    # THE ENVELOPE IS SCAFFOLDING, NOT A NAMED FEATURE.  `fluid_env` is a
++    # synthesised prism; GEO-8 says nothing about it, and the registration
++    # registers no level for it.  It is pinned to the REGISTERED duct-bore
++    # level and NEVER to the level actually in use, so raising the duct to
++    # clear GEO-8 cannot drag 1.075 m of prism up with it.  The fluid/duct
++    # interface stays resolved because `duct`'s own entry carries it.
++    EL = lev["duct"] if env_level is None else int(env_level)
+     w('        { file "fluid_env.eMesh"; level %d; }\n' % lev["duct"])
++    w('        { file "fluid_env.eMesh"; level %d; }\n' % EL)
+@@ -1076,9 +1080,9 @@
+-        w("        env     { level (%d %d); faceZone env_fz; cellZone fluid; "
+-          "cellZoneInside inside;\n            regions\n            {\n"
+-          % (lev["duct"], lev["duct"]))
++        w("        env     { level (%d %d); faceZone env_fz; cellZone fluid; "
++          "cellZoneInside inside;\n            regions\n            {\n"
++          % (EL, EL))
+         for rn, pt in (("env_wall", "wall"), ("inlet", "patch"), ("outlet", "patch")):
+             w("                %-8s { level (%d %d); patchInfo { type %s; } }\n"
+-              % (rn, lev["duct"], lev["duct"], pt))
++              % (rn, EL, EL, pt))
+@@ -2073,7 +2077,8 @@
+     write_snappy_dict(os.path.join(sysd, "snappyHexMeshDict"), level, lev,
+                       layers, d1, seeds, regions,
+                       layer_controls(layers, d1), None,
+                       RESOLVE_FEATURE_ANGLE, N_CELLS_BETWEEN_LEVELS,
+-                      seed_order=seed_order)
++                      seed_order=seed_order,
++                      env_level=reg_surface_levels(text)[level]["duct"])
+
+(The two `fluid_env.eMesh` lines above are one replacement, shown as
+remove-then-add; the applied file carries only the `EL` form.)
+
+WHERE THIS IS WRONG, NAMED BY ITS AUTHOR.
+
+1. IT IS SILENT WHEN IT CHANGES NOTHING, WHICH IS THE DANGEROUS DIRECTION.  On
+   the REGISTERED ladder duct is level 1, so `EL == lev["duct"] == 1` and the
+   dict is byte-identical to today's.  The diff can therefore be applied,
+   selftested and reviewed WITHOUT EVER EXERCISING THE BRANCH IT EXISTS FOR.
+   It must be driven with a throwaway duct override, and the control is the
+   emitted dict: `env { level (1 1) }` while `duct { level (4 4) }`.  A test
+   that only runs the registered ladder proves nothing here.
+
+2. IT PINS TO THE REGISTERED LEVEL, NOT TO A CHOSEN ONE.  That is deliberate --
+   an argv must not set an unregistered quantity -- but it means the envelope's
+   resolution is decided by a row that was written to describe the DUCT BORE.
+   If a successor registration ever raises the registered duct level for a real
+   reason, the envelope silently rises with it again and this defect returns in
+   the same shape.  The durable fix is a REGISTERED envelope level; this diff
+   does not create one, because inventing a registered quantity in an
+   instrument is the defect T26 section 21.7 already recorded.
+
+3. IT DOES NOT PROVE THE INTERFACE STAYS RESOLVED -- it argues it, from
+   coincident geometry.  The argument rests on `duct`'s inner bore and
+   `env_wall` being the same 96-gon at the same radius and phase, which is
+   MEASURED above and phase-asserted by the builder. But snappy resolves
+   COINCIDENT surfaces by its own rules, and if it were ever to drop the
+   interface, a downstream `checkMesh` region-count or connectivity refusal is
+   what would catch it -- not this diff.  THE FIRST BUILD AFTER THIS CHANGE MUST
+   HAVE ITS `duct` AND `fluid` CELL COUNTS AND ITS FACE-ZONE COUNT READ, not
+   assumed.
+
+4. IT LOWERS THE INLET AND OUTLET CAP RESOLUTION TOO.  `EL` applies to
+   `env_wall`, `inlet` and `outlet` alike.  On the registered ladder that is
+   status quo; under a raised duct it means the inlet and outlet planes are
+   meshed at 9.000 mm rather than 1.125 mm.  That is almost certainly right --
+   they are far-field boundaries, not named features -- but it is a change in
+   the inlet plane's resolution and it is stated rather than buried.
+
+COST: none.  It removes work.
+
+WITHDRAWN BY THIS DOCUMENT: this lane's earlier statement that `env_wall` must
+be split axially in the surface synthesiser.  That was reasoned from the
+assumption that `fluid_env` was the only carrier of the fluid/duct interface.
+The duct STL carries it, the assumption was wrong, and no synthesiser change is
+needed.

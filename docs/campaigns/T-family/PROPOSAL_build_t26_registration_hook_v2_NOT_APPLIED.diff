@@ -1,0 +1,136 @@
+PROPOSAL v2 -- NOT APPLIED, NOT COMMITTED AS CODE. 2026-09-12, T26 lane.
+Supersedes PROPOSAL_build_t26_registration_hook_NOT_APPLIED.diff, whose failure
+mode 2 was WRONG and is corrected below.
+
+=============================================================================
+CORRECTION TO v2's OWN PREDECESSOR, FIRST, BECAUSE IT CHANGES THE DESIGN
+=============================================================================
+v1 said the certificate "does not pin the registration by sha256" and that
+closing that would change the CERTIFICATE SCHEMA.  BOTH HALVES ARE WRONG.
+`certify()` at build_t26.py:1625-1626 ALREADY writes
+
+    "registration": {"path": os.path.relpath(registration or REGISTRATION),
+                     "sha256": sha256_of(registration or REGISTRATION)},
+
+and "registration" is already in CERT_REQUIRED.  THE FIELD EXISTS AND IS
+POPULATED.  What does NOT happen is that `read_certificate()` never COMPARES it
+to the live file: it checks `inputs_sha256`, the level, and the SURFACE sha
+against the live registration, and walks straight past the registration sha it
+is holding.  So THE SCHEMA DOES NOT CHANGE AT ALL -- the schema change I offered
+to name in one line does not exist, and the fix is a comparison, not a field.
+
+=============================================================================
+WHAT v2 PROPOSES -- FOUR CHANGES, AND THEY ARE NOT SEPARABLE
+=============================================================================
+A one-flag hook is NOT sufficient: threading a path into readers that ignore it
+produces a build whose ladder comes from one document and whose levels table
+comes from another.  That is worse than no hook.
+
+--- (1) THREAD THE PATH, AND FAIL CLOSED ON UNREADABLE AS WELL AS MISSING ---
+
+@@ build_t26.py:290  _reg_text
+     p = path or REGISTRATION
+     if not os.path.isfile(p):
+         raise Refused("no registration at %s ..." % p)
+-    return open(p, "r", errors="replace").read()
++    try:
++        return open(p, "r", errors="replace").read()
++    except OSError as exc:
++        # FAILS CLOSED.  `errors="replace"` hides DECODING failure, not IO
++        # failure: a permission error or a directory here raises OSError and
++        # would otherwise escape as a raw traceback rather than a Refused.
++        raise Refused("the registration at %s exists but cannot be READ (%s: "
++                      "%s); a registered quantity is never defaulted"
++                      % (p, type(exc).__name__, exc))
+
+@@ build_t26.py:2514  main(), the --mesh branch
+             mesh(level, go=("--go" in argv), mesh_root=opt("--mesh-root"),
+-                 stl=opt("--stl"), foam_bashrc=opt("--foam-bashrc"),
++                 stl=opt("--stl"), foam_bashrc=opt("--foam-bashrc"),
++                 registration=(os.path.abspath(opt("--registration"))
++                               if opt("--registration") else None),
+                  seed_order=so.split(",") if so else None,
+                  throwaway_levels=tw, expect_cells=ec)
+
+--- (2) STOP reg_surface_levels READING A SECOND DOCUMENT -------------------
+
+@@ build_t26.py:398  reg_surface_levels
+-def reg_surface_levels(text=None):
++def reg_surface_levels(text=None, registration=None):
+     ...
+-    ladder = read_registered_ladder(REGISTRATION)
++    # THE LADDER MUST COME FROM THE SAME DOCUMENT AS THE LEVELS TABLE.  This
++    # read the MODULE CONSTANT while the table came from `text`, so a successor
++    # registration's `4 (1.1250 mm)` would have been validated against T26's
++    # Delta_0.  Invisible while there is one registration; wrong the moment
++    # there are two, which is exactly what a --registration hook creates.
++    ladder = read_registered_ladder(registration or REGISTRATION)
+  (and both call sites pass it: mesh() at :1958 and the write_snappy_dict call
+   at :2077, which this lane's own 02c96cd48 added.)
+
+--- (3) VERIFY THE REGISTRATION sha THE CERTIFICATE ALREADY CARRIES ---------
+
+@@ build_t26.py:1564  read_certificate, beside the existing surface-sha check
++    # THE PIN THAT WAS WRITTEN AND NEVER CHECKED.  certify() records the
++    # registration's sha256; nothing compared it.  A certificate could cite a
++    # registration that has been appended to or replaced since the build, and
++    # every other check would still pass.
++    live = sha256_of(registration or REGISTRATION)
++    said = (doc.get("registration") or {}).get("sha256")
++    if said != live:
++        raise Refused("the certificate at %s was built against registration "
++                      "sha256 %s; the live registration is %s. A build is not "
++                      "certified against a document that has changed under it."
++                      % (path, said, live))
+  NO SCHEMA CHANGE: `registration.sha256` is already written and already required.
+
+--- (4) READ THE LEVEL VOCABULARY FROM THE REGISTRATION ---------------------
+  analyse_t26.py and build_t26.py each hold LEVELS = ("L1","L2","L3").
+  `read_registered_ladder` refuses a registration lacking all three rows, so
+  T26b_PREREGISTRATION.md -- which registers ONE level deliberately -- is
+  STRUCTURALLY UNREADABLE.  The change is to take the level set FROM the ladder
+  rows found, and refuse only on ZERO rows or a duplicate row, both of which
+  that function already detects.  NOT WRITTEN AS A DIFF HERE: it is a change to
+  a GRADING instrument in another lane's file, it alters what every existing
+  T26 caller validates against, and it should be a supervisor-routed change
+  rather than one appended to a builder proposal.
+
+--- (5) THE COMPANION THE REGISTRATION NEEDS TO BE BINDING -------------------
+  T26b section 3.5 registers an ENVELOPE LEVEL.  Nothing reads it: 02c96cd48
+  pins `env` to the REGISTERED DUCT-BORE row as a fallback, which is correct
+  behaviour but means the registered envelope value is INERT.  A `reg_env_level()`
+  reader, defaulting to the duct-bore row when a registration does not carry an
+  envelope row, makes it binding.  NOT WRITTEN HERE for the same reason as (4):
+  it should be read as its own diff, not smuggled in beside a CLI flag.
+
+=============================================================================
+WHERE v2 IS WRONG, NAMED BY ITS AUTHOR
+=============================================================================
+1. CHANGE (3) MAKES EVERY EXISTING T26 CERTIFICATE UNREADABLE THE MOMENT ANYONE
+   APPENDS A DATED ADDENDUM TO T26_PREREGISTRATION.md.  That is the POINT -- a
+   build is not certified against a document that moved -- but it is a
+   behaviour change that will fire on correct historical work, and the first
+   thing it does is invalidate certificates nobody intended to invalidate.  It
+   needs a decision about whether an addendum should re-pin or re-certify, and
+   that decision is the supervisor's, not this diff's.
+
+2. CHANGE (2) IS SILENT TODAY.  With one registration, `registration or
+   REGISTRATION` resolves to the same file and the behaviour is identical -- the
+   same could-not-fire shape this lane found in its own env diff. IT MUST BE
+   DRIVEN with two documents whose Delta_0 DIFFER, and the control is that
+   reg_surface_levels REFUSES on the mismatch rather than silently validating
+   against the wrong Delta_0.  A test with one document proves nothing.
+
+3. CHANGE (1) STILL FAILS OPEN ON A WRONG-BUT-VALID PATH.  A mistyped path to a
+   real, parseable registration builds happily and certifies against it.  (3)
+   reduces the blast radius -- the certificate then at least pins WHICH document
+   -- but nothing here refuses a build that cites a real registration for the
+   wrong rung.  The honest guard for that is the rung name, and this diff does
+   not add one.
+
+4. (4) AND (5) ARE NAMED AND NOT WRITTEN.  A proposal that quietly grew to touch
+   a grading instrument would be the wrong shape to hand over, and T26b cannot
+   build until they exist -- so T26b stays PENDING on its instruments and that
+   is recorded in its section 11 rather than worked around.
+
+COST: none at runtime.
