@@ -1,0 +1,25 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }
+// CLASS DEFAULT, carried unchanged from cases/ansys_verification/VMFL054-R3/case/system/
+// fvSchemes -- the same flow class (steady laminar lid-driven cavity, simpleFoam/SIMPLEC)
+// on which this lab already measured a CONVERGING Roache triple (p = 1.195,
+// GCI_fine = 0.0356 %).  NOT tuned for VMFL078.
+//
+// div(phi,U) is UNLIMITED central differencing on purpose: a limiter is nonlinear in the
+// solution and destroys the clean asymptotic order a Roache triple is built to measure.
+// The disclosed price is stated a priori in PREREGISTRATION.md sec.5: the cell Reynolds
+// number U*dx/nu is 31.25 / 15.63 / 7.81 at L1 / L2 / L3, above the CD monotonicity
+// limit of 2 at every level, so wiggles are EXPECTED at L1 and are DISCRETISATION ERROR
+// that refinement removes -- which is precisely the quantity the triple measures.
+// THE SCHEME IS FROZEN ACROSS ALL THREE LEVELS.  Changing it mid-family voids the triple;
+// a change is a successor registration (VMFL078-R2), never a repair.
+ddtSchemes      { default steadyState; }
+gradSchemes     { default Gauss linear; }
+divSchemes
+{
+    default         none;
+    div(phi,U)      bounded Gauss linear;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+laplacianSchemes { default Gauss linear corrected; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default corrected; }

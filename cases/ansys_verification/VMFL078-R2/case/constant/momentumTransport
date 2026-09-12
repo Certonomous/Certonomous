@@ -1,0 +1,4 @@
+FoamFile { version 2.0; format ascii; class dictionary; object momentumTransport; }
+// VM2026R1 p.224: "The flow is steady."  Physics/Models: "Laminar Flow, driven by a
+// moving wall".  No turbulence closure: laminar is the manual's own model, not a choice.
+simulationType  laminar;

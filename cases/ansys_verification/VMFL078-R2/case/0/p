@@ -1,0 +1,15 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object p; }
+// Kinematic pressure (rho = 1 kg/m3).  Closed cavity: no fixed-pressure patch anywhere,
+// so the level is pinned by pRefCell/pRefValue in system/fvSolution and every wall is
+// zeroGradient.  Identical in kind to VMFL078; only the patch list differs.
+dimensions      [0 2 -2 0 0 0 0];
+internalField   uniform 0;
+boundaryField
+{
+    lid          { type zeroGradient; }
+    floor        { type zeroGradient; }
+    sideXmin     { type zeroGradient; }
+    sideXmax     { type zeroGradient; }
+    wallZmin     { type zeroGradient; }
+    wallZmax     { type zeroGradient; }
+}

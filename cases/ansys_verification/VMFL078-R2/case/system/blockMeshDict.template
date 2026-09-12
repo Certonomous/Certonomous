@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// VMFL078-R2 -- 3-D lid-driven CUBIC cavity, Re = 1000.  VM2026R1 p.223-224.
+//
+// THE WHOLE CUBE.  x,y,z in [0,1].  The lid (y = 1) moves +x at 1 m/s; the other
+// five faces are stationary no-slip walls.  There is NO symmetry plane anywhere in
+// this case -- that is the entire point of R2 (see 0/U and the pre-registration sec.2).
+// The cube's mid-span plane is z = 0.5 and its quarter-span planes are z = 0.25 and
+// z = 0.75; all three are sampled, and none of them is a boundary.
+//
+// __N__ is substituted per level by run_vmfl078_r2.sh.  The r = 2 family is
+// F1 32x32x32, F2 64x64x64, F3 128x128x128: the 1:1:1 count ratio matches the 1:1:1
+// edge-length ratio EXACTLY, so every cell is a CUBE of side 1/N at every level and
+// refinement halves all three cell dimensions systematically -- the condition a Roache
+// triple requires.  Uniform grading (1 1 1), no stretching.
+//
+// N is divisible by 4 at every level, so z = 0.25, 0.5 and 0.75 fall on CELL FACES at
+// every level: the three sampling planes sit at the same place on every mesh, which is
+// what keeps the triple free of the VMFL054 locator pollution.
+scale 1;
+
+vertices
+(
+    (0.0 0.0 0.0)   // 0
+    (1.0 0.0 0.0)   // 1
+    (1.0 1.0 0.0)   // 2
+    (0.0 1.0 0.0)   // 3
+    (0.0 0.0 1.0)   // 4
+    (1.0 0.0 1.0)   // 5
+    (1.0 1.0 1.0)   // 6
+    (0.0 1.0 1.0)   // 7
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (__N__ __N__ __N__) simpleGrading (1 1 1)
+);
+
+edges ();
+
+boundary
+(
+    lid      { type wall; faces ( (3 7 6 2) ); }   // y = 1, moving +x
+    floor    { type wall; faces ( (0 1 5 4) ); }   // y = 0, stationary
+    sideXmin { type wall; faces ( (0 4 7 3) ); }   // x = 0, stationary
+    sideXmax { type wall; faces ( (1 2 6 5) ); }   // x = 1, stationary
+    wallZmin { type wall; faces ( (0 3 2 1) ); }   // z = 0, stationary end wall
+    wallZmax { type wall; faces ( (4 5 6 7) ); }   // z = 1, stationary end wall
+);
+
+mergePatchPairs ();

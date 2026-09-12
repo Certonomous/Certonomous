@@ -1,0 +1,6 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// VM2026R1 p.223: "Density: 1 kg/m3", "Viscosity: 0.001 kg/m-s".
+// nu = mu/rho = 0.001/1 = 0.001 m2/s.  Re = U*L/nu = 1*1/0.001 = 1000, the manual's
+// stated Reynolds number, on the cavity side length L = 1 m and lid speed U = 1 m/s.
+transportModel  Newtonian;
+nu              0.001;

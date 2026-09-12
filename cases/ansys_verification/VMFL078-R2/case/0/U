@@ -1,0 +1,27 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// VMFL078-R2: 3-D lid-driven cubic cavity, Re = 1000.  VM2026R1 p.223-224 (PDF p.237-238).
+//
+// THE ONE CHANGE FROM VMFL078: THE SYMMETRY PLANE IS GONE.  VMFL078 modelled the
+// manual's HALF domain (x,y in [0,1], z in [0,0.5], symmetryPlane at z = 0.5 = the
+// cube's mid-span).  R2 models THE WHOLE CUBE, z in [0,1], with a REAL no-slip end
+// wall at BOTH z = 0 and z = 1.  Nothing else changes: same fluid, same lid, same
+// schemes, same solver settings, byte-identical fvSchemes/fvSolution/transportProperties.
+//
+// WHY.  VMFL078 limb B graded GATE FAIL (9 of 18 points inside the digitised band).
+// The symmetry plane is the ONE modelling assumption in that case which no desk check
+// could close: a symmetryPlane patch ENFORCES du/dz = 0 there, so a solution computed
+// with it cannot testify that the true solution is symmetric.  The full cube removes
+// the assumption and lets the flow decide.  See VMFL078_R2_PREREGISTRATION.md sec.2.
+//
+// rho = 1 kg/m3, mu = 0.001 kg/m-s => nu = 0.001 m2/s => Re = U*L/nu = 1*1/0.001 = 1000.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (0 0 0);
+boundaryField
+{
+    lid          { type fixedValue; value uniform (1 0 0); }   // y = 1, moves +x at 1 m/s
+    floor        { type noSlip; }                              // y = 0
+    sideXmin     { type noSlip; }                              // x = 0
+    sideXmax     { type noSlip; }                              // x = 1
+    wallZmin     { type noSlip; }                              // z = 0, end wall
+    wallZmax     { type noSlip; }                              // z = 1, end wall (was symmetryPlane at z=0.5 in VMFL078)
+}
