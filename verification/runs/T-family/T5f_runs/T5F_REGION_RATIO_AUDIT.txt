@@ -1,0 +1,151 @@
+T5f REGION-RATIO AUDIT -- independent diagnostic, zero solver compute
+instrument: scripts/roache_triple.py (CALLED, not reimplemented)
+meshes read: /home/ubuntu/Certonomous/verification/runs/T-family/T5b_runs/T5_CUBE_{c,m,f}
+dim = 3 (build_t5.py:6-8, R applied to EVERY direction)
+
+==========================================================================
+ITEM 1 -- PER-REGION CELL COUNTS BY TWO INDEPENDENT ROUTES
+==========================================================================
+  T5_CUBE_c  blocks=74  air=52684  epoxy=869   (recipe model: air=52684 epoxy=869) checkMesh cells: lines=[52684, 869]
+  T5_CUBE_m  blocks=74  air=212942  epoxy=3272   (recipe model: air=212942 epoxy=3272) checkMesh cells: lines=[212942, 3272]
+  T5_CUBE_f  blocks=74  air=882024  epoxy=14507   (recipe model: air=882024 epoxy=14507) checkMesh cells: lines=[882024, 14507]
+
+  measured refinement ratios, r = (N_finer/N_coarser)**(1/dim), via roache_triple.refinement_ratio:
+    air    r32 = 1.592921 (registered 1.5929, |d| = 2.08e-05)   r21 = 1.605978 (registered 1.6060, |d| = 2.16e-05)   r31 = 2.558196
+    epoxy  r32 = 1.555719 (registered 1.5557, |d| = 1.91e-05)   r21 = 1.642813 (registered 1.6428, |d| = 1.29e-05)   r31 = 2.555755
+
+  REGISTRATION CLAIM CHECKS
+    end-to-end agreement air vs epoxy : +0.0955 %  (registration says 0.095 %)
+    per-step divergence epoxy vs air  : r32 -2.3354 % , r21 +2.2936 %  (registration says -2.34 % then +2.29 %)
+    'equal and opposite' residual      : -0.0419 % (sum of the two steps; exactly 0 would be exactly equal and opposite)
+
+==========================================================================
+ITEM 1b -- THE COUPLED INTERFACE, MEASURED RATHER THAN ASSUMED
+==========================================================================
+  T5_CUBE_c  coupled faces cube_front+cube_rear+cube_top+cube_side_n =   469 (air side == epoxy side, conformal)   epoxy shell normal divisions = 2   air first layer = 0.000128 m
+  T5_CUBE_m  coupled faces cube_front+cube_rear+cube_top+cube_side_n =  1144 (air side == epoxy side, conformal)   epoxy shell normal divisions = 3   air first layer = 8e-05 m
+  T5_CUBE_f  coupled faces cube_front+cube_rear+cube_top+cube_side_n =  3078 (air side == epoxy side, conformal)   epoxy shell normal divisions = 5   air first layer = 5e-05 m
+
+  TANGENTIAL (in-surface) interface refinement, dim = 2, ONE mesh shared by both regions:
+      r32 = 1.561804   r21 = 1.640292   -- there is NO air-vs-epoxy ambiguity here
+
+  WALL-NORMAL refinement AT THE INTERFACE -- the direction the conjugate flux is actually differenced in:
+      air side   (first layer 0.000128/8e-05/5e-05 m) : r32 = 1.600000  r21 = 1.600000
+      epoxy side (shell divisions 2/3/5)      : r32 = 1.500000  r21 = 1.666667
+      divergence epoxy vs air, wall-normal     : r32 -6.2500 % , r21 +4.1667 %
+      COMPARE the registration's REGION-MEAN figures : r32 -2.3354 % , r21 +2.2936 %
+
+==========================================================================
+ITEM 2 -- IS INTEGER ROUNDING THE WHOLE EXPLANATION?
+==========================================================================
+  counterfactual: the same recipe with EXACT (fractional) divisions,
+  base * R**lvl with R = 1.6000 and NO rounding.
+    air    EXACT-division ratios: r32 = 1.6000000000  r21 = 1.6000000000   (nominal R = 1.6000; |d| = 0.00e+00, 2.22e-16)
+    epoxy  EXACT-division ratios: r32 = 1.6000000000  r21 = 1.6000000000   (nominal R = 1.6000; |d| = 2.22e-16, 2.22e-16)
+
+  residual left unexplained by the rounding model
+  (recipe-with-rounding vs the mesh actually on disk, per region/level):
+      level c air    model    52684   disk    52684   residual +0 cells
+      level c epoxy  model      869   disk      869   residual +0 cells
+      level m air    model   212942   disk   212942   residual +0 cells
+      level m epoxy  model     3272   disk     3272   residual +0 cells
+      level f air    model   882024   disk   882024   residual +0 cells
+      level f epoxy  model    14507   disk    14507   residual +0 cells
+    MAX |residual| = 0 cells
+
+  PER-SLAB ratios inside the recipe (the spread the between-region
+  framing hides): n_lvl = round(base * 1.6**lvl)
+      base  1 -> 1/2/3           r32 = 2.0000  r21 = 1.5000
+      base  2 -> 2/3/5           r32 = 1.5000  r21 = 1.6667
+      base  5 -> 5/8/13          r32 = 1.6000  r21 = 1.6250
+      base  9 -> 9/14/23         r32 = 1.5556  r21 = 1.6429
+      base 16 -> 16/26/41        r32 = 1.6250  r21 = 1.5769
+      base 20 -> 20/32/51        r32 = 1.6000  r21 = 1.5938
+      base 24 -> 24/38/61        r32 = 1.5833  r21 = 1.6053
+      base 32 -> 32/51/82        r32 = 1.5938  r21 = 1.6078
+    PER-SLAB RATIO RANGE ACROSS THE WHOLE LADDER: 1.5000 .. 2.0000 (spread 31.25 % of nominal)
+
+==========================================================================
+ITEM 3 -- BOUNDING SENSITIVITY: AIR RATIOS vs EPOXY RATIOS
+==========================================================================
+  synthetic monotone triples, built as a true power law on the AIR
+  h-ladder, then graded under EACH region's measured ratios.
+  (amp only scales the triple: GCI_pct scales with it, p does not.)
+
+  p_true   p_air     p_epoxy   dp        GCI_air%    GCI_epoxy%  dGCI(abs)  dGCI(rel%)
+  0.50     -         -          states: air=STAGNANT epoxy=CONVERGING
+  0.75     0.75000   0.96528    +0.21528 0.12488     0.08666       -0.03822   -30.6040
+  1.00     1.00000   1.21772    +0.21772 0.12488     0.09114       -0.03374   -27.0185
+  1.25     1.25000   1.47064    +0.22064 0.12488     0.09383       -0.03104   -24.8581
+  1.50     1.50000   1.72404    +0.22404 0.12488     0.09552       -0.02935   -23.5064
+  1.75     1.75000   1.97791    +0.22791 0.12488     0.09658       -0.02830   -22.6611
+  2.00     2.00000   2.23225    +0.23225 0.12488     0.09721       -0.02767   -22.1563
+  2.50     2.50000   2.74230    +0.24230 0.12488     0.09764       -0.02724   -21.8101
+  3.00     3.00000   3.25410    +0.25410 0.12488     0.09737       -0.02751   -22.0275
+  4.00     4.00000   4.28258    +0.28258 0.12488     0.09563       -0.02924   -23.4192
+
+  ACROSS THE WHOLE SWEEP (80 triples, p_true 0.50..4.00, amp 0.02..5.00):
+    |p_epoxy - p_air|          : min 0.213333  max 0.282581
+    |GCI relative difference|  : min 21.8101 %  max 37.0985 %
+    -> the RELATIVE GCI spread is scale-free: it does not depend on
+       the triple's amplitude, only on p_true.
+
+  BAND-EDGE CROSSING: for a pre-registered GCI ceiling B, how many
+  of the swept triples change verdict when the ratio choice changes?
+    B =   0.10 %  ->   9 of 80 triples cross   (worst: p_true=0.75 GCI 0.12488% vs 0.08666%)
+    B =   0.25 %  ->   0 of 80 triples cross
+    B =   0.50 %  ->  10 of 80 triples cross   (worst: p_true=0.50 GCI 0.62189% vs 0.39118%)
+    B =   1.00 %  ->   9 of 80 triples cross   (worst: p_true=0.75 GCI 1.23762% vs 0.85886%)
+    B =   2.00 %  ->   9 of 80 triples cross   (worst: p_true=0.75 GCI 2.45098% vs 1.70088%)
+    B =   5.00 %  ->  10 of 80 triples cross   (worst: p_true=0.50 GCI 5.95238% vs 3.74414%)
+    B =  10.00 %  ->   0 of 80 triples cross
+
+    A crossing is possible at EVERY ceiling: the spread is relative,
+    so for any B there exist triples whose GCI sits inside the spread
+    of B.  The operative number is therefore the RELATIVE HALF-WIDTH,
+    printed above -- a GCI within that fraction of a band edge is
+    decided by the ratio choice, not by the mesh.
+
+==========================================================================
+ITEM 3b -- CAN THE RATIO CHOICE ALONE CROSS A RULE-5 STATE BOUNDARY?
+==========================================================================
+  triple BUILT on the air   h-ladder: 217 of 1801 swept p_true values are classified DIFFERENTLY by the two ratio sets
+      p_true in [-0.0150, -0.0140]  air -> DIVERGENT     epoxy -> DEGENERATE 
+      p_true in [+0.0880, +0.0890]  air -> STAGNANT      epoxy -> DEGENERATE 
+      p_true in [+0.2880, +0.5000]  air -> STAGNANT      epoxy -> CONVERGING 
+  triple BUILT on the epoxy h-ladder: 218 of 1801 swept p_true values are classified DIFFERENTLY by the two ratio sets
+      p_true in [+0.1960, +0.1970]  air -> DIVERGENT     epoxy -> DEGENERATE 
+      p_true in [+0.2990, +0.3010]  air -> STAGNANT      epoxy -> DEGENERATE 
+      p_true in [+0.5010, +0.7130]  air -> STAGNANT      epoxy -> CONVERGING 
+
+  A state flip is STRICTLY WORSE than a band crossing: under rule 5
+  DIVERGENT / STAGNANT / DEGENERATE are NOT A RESULT whatever the
+  value, and CONVERGING is gradeable.  The ratio choice therefore
+  decides whether the row has a verdict at all.
+
+==========================================================================
+ITEM 3c -- THE SAME SWEEP UNDER THE *INTERFACE* WALL-NORMAL RATIOS
+==========================================================================
+  air side (1.60000, 1.60000) vs epoxy side (1.50000, 1.66667).
+    |p_epoxy - p_air|         : min 0.526349  max 0.794865
+    |GCI relative difference| : min 44.1390 %  max 61.5654 %
+    (region-mean ratios gave  : |dp| 0.213333..0.282581 , |dGCI| 21.81..37.10 %)
+    rule-5 STATE flips over p_true in [-0.60, +1.20]:
+      p_true in [-0.0540, -0.0510]  air -> DIVERGENT    epoxy -> DEGENERATE 
+      p_true in [+0.0510, +0.0540]  air -> STAGNANT     epoxy -> DEGENERATE 
+      p_true in [+0.0550, +0.5000]  air -> STAGNANT     epoxy -> CONVERGING 
+
+==========================================================================
+ITEM 5 -- THE REFUTATION CONDITION, AND WHETHER IT HOLDS
+==========================================================================
+  The draft ruling is WRONG if the air-vs-epoxy bounding spread is
+  either (a) so small it is theatre, or (b) so large that 'report
+  both and NOT A RESULT on disagreement' degenerates into NOT A
+  RESULT for every row -- a rule that admits nothing is a ban wearing
+  a permission's clothes.
+    (a) spread is NOT negligible : min |dGCI|/GCI over the sweep = 21.81 %, min |dp| = 0.2133
+    (b) spread does NOT swallow everything: 75 of 80 swept triples are
+        CONVERGING under BOTH ratio sets, so a row can still earn a
+        verdict; the rule bites only near a boundary.
+
+  json written: verification/runs/T-family/T5f_runs/T5F_REGION_RATIO_SENSITIVITY.json
