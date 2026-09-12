@@ -27168,56 +27168,67 @@ reverted** — the same instinct applied to the working tree).
 
 ## L-558 — An instrument registered on REASONING and never DRIVEN against the real case shape (2026-09-12, heat-transfer)
 
-**Five instances in one night, in three independent rungs, found only AFTER compute.**
+**Five instances in one night, in three independent rungs, every one found only AFTER compute.**
 
--  §4 registers  as limb A; it hardcodes  to the
-  predecessor's  while T5f's own cases are . Exit 2.
--   demands a per-case ratio; **9 of its 20 registered cases have
-  no control patch at all**, so  is . Exit 2.
--  §5.2a registers  on a **solid-only region**, where there is no
-  compressible turbulence model to look up ().
-- 's comparator reads an unscoped  path where
-   writes a **region-scoped** one.
-- 's  needs , written only by  — a
-  preprocessing pass **the registration never names** (zero occurrences).
+- `T5f` §4 registers `analyse_t5e.py` as limb A; it hardcodes `CASE_OF` to the
+  predecessor's `T5_CUBE_*` while T5f's own cases are `T5F_CUBE_*`. Exit 2.
+- `T10aVF2`'s `main()` demands a per-case ratio; **9 of its 20 registered cases have
+  no control patch at all**, so `B_ctrl` is `None`. Exit 2.
+- `T21` §5.2a registers `wallHeatFlux` on a **solid-only region**, where there is no
+  compressible turbulence model to look up (`wallHeatFlux_wall.cxx:278`).
+- `T21`'s comparator reads an unscoped `postProcessing/wallHeatFlux/` path where
+  `postProcess -region` writes a **region-scoped** one.
+- `T21`'s `Q2` needs a per-region cell-centre field written only by
+  `writeCellCentres` — a preprocessing pass **the registration never names**.
 
-**THE COMMON ROOT: in every case the instrument was argued for, not run.** Selftest
-fixtures were built to the shape the author imagined, so they passed. **The
-countermeasure is cheap and it is not "test more": DRIVE THE REGISTERED INSTRUMENT
-ONCE AGAINST THE REAL CASE SHAPE BEFORE THE FREEZE — not its fixtures.** You are not
-testing that it is right, only that it can **open and run**. All five would have died
-in seconds.
+**THE COMMON ROOT: in every case the instrument was argued for, not run.** Its
+selftest fixtures were built to the shape its author imagined, so they passed.
+**The countermeasure is cheap and it is NOT "test more": DRIVE THE REGISTERED
+INSTRUMENT ONCE AGAINST THE REAL CASE SHAPE BEFORE THE FREEZE — not against its
+fixtures.** You are not testing that it is right, only that it can **open and run**.
+All five would have died in seconds.
 
-### The sharpest instance inverts rule 3, and rule 5 is what caught it
+### The sharpest instance INVERTS rule 3, and RULE 5 is what caught it
 
- searches  **first**. On a
- block the first token matching that is
-****, so it returns  and walks past the  entry
-sitting in the same block.  read **−288.0 K at every level**.
+`analyse_t21.py:_uniform_or_list` searches for a `uniform <number>` pattern
+**first**. On a `turbulentTemperatureRadCoupledMixed` block the first token matching
+that is **`refGradient uniform 0`**, so it returns `0.0` and walks straight past the
+`value` entry sitting in the same block. `Q1` read **−288.0 K at every level**.
 
 ***That is not a false zero. It is a false NUMBER — confident, plausible, physically
-meaningless, delivered with no refusal.*** Rule 3 is written against the zero; this
-is worse, because nothing refuses.
+meaningless, and delivered with no refusal.*** Rule 3 is written against the zero;
+this is worse, because nothing refuses.
 
-**It was caught by RULE 5, not rule 3.** Three identical values make an 
-triple, and rule 5 returns  for  whatever the value says.
-***That is the gate saving the reader, not the reader working.*** Had 
+**It was caught by RULE 5, not by rule 3.** Three identical values make an `EXACT`
+triple, and rule 5 returns `NOT A RESULT` for `EXACT` whatever the value says.
+***That is the gate saving the reader, not the reader working.*** Had `refGradient`
 differed by level, three plausible distinct numbers would have entered a Roache
 triple and been graded.
 
-**And §5.4's planted-zero control PASSED**, because it plants  into a
+**And §5.4's planted-zero control PASSED**, because it plants its perturbation into a
 patch shape the reader can already parse. ***A planted-zero control proves a reader
 can see a non-zero IN THE SHAPE IT WAS PLANTED IN, and says nothing about a shape it
 was never planted into.*** Rule 5's triple classification and rule 3's planted zero
-cover **different** failure modes; plant into every patch **type** a reader will meet.
+cover **different** failure modes. **Plant into every patch TYPE a reader will meet.**
 
-### The same species, turned inward, on an id
+### The same species turned inward, on an id
 
-A lane minting a  id by rule 11's max-existing+1 pulled the
-digits out of a **timestamped** id and produced  — **a date, and
-tomorrow's**. That ledger carries **two id conventions**. ***Rule 11's max+1 assumes
-ONE id series; over a mixed series it does not produce a stale number, it produces a
-plausible-looking nonsense one*** — and a stale id collides detectably while a
-nonsense id sails through. Caught on the id print before  ran.
-** owns that format. Drive the tool that owns
-the format; do not reason about it.**
+A lane minting a `docs/COST_CALIBRATION.md` id by rule 11's max-existing+1 pulled the
+digits out of a **timestamped** id and produced `C-20260913` — a date, and tomorrow's.
+That ledger carries **two id conventions**. ***Rule 11's max+1 assumes ONE id series;
+over a mixed series it does not produce a stale number, it produces a plausible-looking
+nonsense one*** — and a stale id collides detectably while a nonsense id sails through.
+Caught on the id print before the commit ran. **`scripts/append_record.py
+--allocate-id` owns that format: drive the tool that owns the format, never reason
+about it.**
+
+### And the sixth instance is this lesson's own first draft
+
+The block above was first committed through an **unquoted heredoc**, so the shell
+command-substituted every backticked identifier in it and landed a lesson with its
+entire technical content deleted — `T5f`, `CASE_OF`, `refGradient`, all of it, gone,
+while the prose around them read perfectly. **The supervisor's own memory carries a
+note titled "backticks kill the commit".** ***Reasoning about the shell instead of
+using the form that cannot substitute is the same defect as reasoning about an
+instrument instead of driving it*** — and it corrupted the very lesson that says so.
+Repaired forward by a second commit; the first is left in history as the evidence.
