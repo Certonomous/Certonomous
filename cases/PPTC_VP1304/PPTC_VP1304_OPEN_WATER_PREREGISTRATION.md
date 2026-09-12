@@ -975,3 +975,88 @@ downstream". The headers and §5 remain authoritative, as recorded in
 `GEOMETRY_ADMISSION_RECORD.md` §2, and that sentence is used for nothing here either — the
 torque-correction sentence quoted in A2.1(i) above is a different sentence on the same page
 and is corroborated independently by (ii) and (iii).
+
+---
+
+## AMENDMENT 3 — 2026-09-12, before first compute. THE THRUST SIDE, ESTABLISHED RATHER THAN INHERITED, AND THE COMPLETE TERM-BY-TERM MAPPING
+
+*lines whose number changed above this section: 0*
+
+**Version 1.3.** **No registered quantity changes.** The thrust patch list of Amendment 2 is
+confirmed exactly as it stands. What changes is its **basis**: Amendment 2 carried the thrust
+list forward as "unchanged", and "unchanged" meant *unchanged from the same sentence of §3.2
+that Amendment 2 had just shown to be Sanaa's gloss rather than the annex's words.* **A gloss
+that failed on one half of a pair is not evidence for the other half.** This amendment
+establishes the thrust half from the sources, and it happens to confirm it.
+
+**Legality.** Before first compute; **`verification/runs/PPTC_VP1304/` does not exist.**
+Alters no gate, threshold, cap or label.
+
+### A3.1 The thrust chain, read the same way the torque chain was read
+
+SVA's correction sheets, in full:
+
+| sheet | thrust | torque |
+|---|---|---|
+| Pre-test I (V = 0) | T_meas = T_gap + T_bearing | Q_meas = Q_gap + Q_hub + Q_bearing |
+| Pre-test II (dummy hub, V > 0) | T_meas = T_gap + T_bearing + **T_hub** | Q_meas = Q_gap + Q_bearing + Q_hub |
+| Open water test | T_meas = T_gap + T_bearing + T_hub + **T_blade** | Q_meas = Q_gap + Q_bearing + Q_hub + Q_blade |
+| **Sheet 4, "blades and hub" — PAGE 2.11, OUR COMPARATOR** | **T = T_meas − T_gap − T_bearing = T_blade + T_hub** | **Q = Q_meas − Q_gap − Q_hub − Q_bearing = Q_blade** |
+| Sheet 5, "blades only" — page 2.13 | T = T_meas − T_gap − T_bearing − T_hub = T_blade | Q = Q_meas − Q_gap − Q_bearing − Q_hub = Q_blade |
+
+**The asymmetry is now explained rather than observed.** `Q_hub` is subtracted in *both*
+configurations, so the two torque columns are identical — which is exactly why 10KQ matches
+digit-for-digit at all fourteen J. `T_hub` is subtracted in *only one*, so the two thrust
+columns differ by precisely `T_hub` — which is exactly why KT differs by 0.0125 at
+J = 1.2021 (0.2797 against 0.2922), the sign being negative because the bladeless assembly
+produces drag, so removing it raises KT. **One algebra predicts both the identity and the
+difference, and both are observed.**
+
+**What `T_hub` contains.** Report 3752 §6: tests 11F0392 and 11F0393 "show the resistance and
+torque of the hub without blades", using a dummy hub "having the same shape and mass as the
+real propeller hub". Report 3752 page 4.2's photograph "Dummy hub configuration" shows that
+assembly: nose cap, hub body, aft fairing and the wetted shaft, mounted on the dynamometer at
+the same 1.5 D submergence. **`T_hub` is therefore the axial drag of the entire bladeless
+rotating assembly including its wetted shaft — and page 2.11 RETAINS it.**
+
+> **Therefore page 2.11's KT represents blades PLUS the whole hub assembly including the
+> wetted shaft. Sanaa's gloss is correct on thrust, and it is now established from the
+> sources instead of inherited from a sentence that failed on torque.**
+
+### A3.2 The complete term-by-term mapping
+
+Every term in SVA's algebra, against what our CFD produces:
+
+| experiment term | in page 2.11 KT? | in page 2.11 10KQ? | does our CFD produce it? |
+|---|---|---|---|
+| `T_blade` / `Q_blade` | **yes** | **yes** | yes — patch `blades` |
+| `T_hub` / `Q_hub` (bladeless assembly: cap, hub, fairing, wetted shaft) | **YES** | **no, subtracted** | yes — patches `hub`, `cap`, `shaft` |
+| `T_gap` / `Q_gap` (flow in the gap between hub and dynamometer shaft, pre-test I at V = 0) | no, subtracted | no, subtracted | **no** — that gap is not in our geometry; the CPP root gap is closed per §2.2(a) and the hub/shaft gap is not modelled |
+| `T_bearing` / `Q_bearing` (dynamometer bearings) | no, subtracted | no, subtracted | **no** — mechanical, not fluid |
+
+**Every term the comparator retains, our integration produces; every term the comparator
+subtracts, our geometry does not produce.** The two correspond without any residual
+correction on either side, which is the condition for the comparison to be clean. The
+Amendment 2 patch lists follow from this table and are unchanged by it:
+
+> **KT: `blades` + `hub` + `cap` + `shaft`.  KQ: `blades` only.
+> `shaftExtension`: excluded from both.**
+
+`shaftExtension` remains excluded because `T_hub` was measured on the model's *wetted* shaft
+at the rig's fixed submergence, not on the 1.144 m of additional rotating wall our outlet
+placement requires. The CAD's own aft termination at x = −356 mm is SVA's representation of
+the model, and it is taken as the wetted extent.
+
+### A3.3 FOR THE CERTIFICATE — excluded from the integration is NOT excluded from the physics
+
+A reader who sees "KQ over blades only" and "`shaftExtension` excluded from both" could
+reasonably conclude the shaft need not have been meshed at all. **It does, and it is.**
+
+> The hub, cap, shaft and shaft extension are **fully modelled** — meshed, with prism layers,
+> as rotating no-slip walls — and they shape the flow the blades work in: the hub blockage at
+> the blade roots, the aft fairing's pressure recovery, and the wake the shaft trails
+> downstream. They are **excluded from the graded surface integrals only**, because the
+> measurement we grade against had their contribution removed by the idle-torque correction
+> (torque) or bounded to the physical model (the shaft extension). **Modelled, not
+> integrated.** Removing them from the mesh would change the answer on the blades; removing
+> them from the integral is what makes the answer comparable.

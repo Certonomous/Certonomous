@@ -56,13 +56,18 @@ PREREG = 'cases/PPTC_VP1304/PPTC_VP1304_OPEN_WATER_PREREGISTRATION.md'
 #
 # This pin was exercised: run against v1.1 while still pinned to v1.0, the comparator
 # refused with exit 2 and printed both hashes. C1 is not decorative.
-PREREG_SHA256 = '3d47ca0ee2bb896ec945044b15652b5541d3065b28a497ba15d8a39f267d4d01'
-PREREG_BLOB = 'd6fff25e6218d4753050cafa90569796e14c29c1'
+PREREG_SHA256 = '3524f8ad7b0bce1a365f500ac62dbc998763bb666adedaeb4e8727363720bd5b'
+PREREG_BLOB = '845974fab273e2c02b4e13ee3cc22727943ebad2'
 PREREG_COMMIT = '09396b48990da3ce8e91714cd1a35f3fbc07e4de'
-PREREG_VERSION = '1.2 (amendments 1 and 2)'
+PREREG_VERSION = '1.3 (amendments 1, 2 and 3)'
 #   v1.2  AMENDMENT 2, 2026-09-12, also before first compute: the comparator's
 #         torque is BLADE TORQUE ONLY, so the two integration sets below differ.
 #         Alters no gate, threshold, cap or label.
+#   v1.3  AMENDMENT 3, 2026-09-12, before first compute: the THRUST patch list is
+#         established from SVA's correction algebra instead of inherited from the
+#         same gloss amendment 2 disproved on torque. It CONFIRMS the list below
+#         unchanged. Every term SVA retains, these patches produce; every term SVA
+#         subtracts, our geometry does not produce. No registered quantity changed.
 
 RHO = 998.99          # kg/m3,  Report 3752 page 2.11 header
 NU = 1.124e-6         # m2/s,   Report 3752 page 2.11 header
