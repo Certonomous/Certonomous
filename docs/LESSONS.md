@@ -27031,3 +27031,79 @@ place are the ones that fail on inputs the solver would happily accept.
 L-544 (a freeze verifies bytes, never that anything calls them); L-529 (an owed
 executable check must be driven in **both** directions on real numbers); L-221/L-222 (a
 lesson is not applied until every call site asserts it).
+
+## L-556 — A QUANTITY MUST NAME WHAT IT IS A RATE *OF*: "seconds per iteration" had three referents on this box — my poll clock, the solver's CPU clock, the solver's WALL clock — all spelled the same, and choosing the wrong one flipped a cost ratio from 0.58 to 1.58 while the estimate of *work* was fine at 0.61
+
+**The three referents, and how close together they live.** OpenFOAM prints both on one
+line: `ExecutionTime = X s  ClockTime = Y s`. **`ExecutionTime` is CPU time.
+`ClockTime` is wall time.** A third "rate" is available to any agent for free: the wall
+difference between two of its own poll points. All three are quoted as "s/it" and
+**none of them announces which it is.**
+
+**What happened, in three steps, each a correction of the last.**
+1. I read **10 s/it** off a three-minute difference between two of **my own polls**. That
+   is not a measurement of the solver — it contains my tool-call latency and everything
+   else the box did in between, on a sample of two.
+2. I corrected to the solver's own log and took **`ExecutionTime`**: 1.741 s/it. The
+   diagnosis was right; **the replacement series was wrong for the purpose.**
+3. My supervisor caught it. The purpose — an ETA, a watcher ceiling, a **cost** — is a
+   **wall-time** question. Measured on my own process, 416 paired samples:
+
+   | window | `ExecutionTime` | `ClockTime` | `ClockTime`/`ExecutionTime` |
+   |---|---|---|---|
+   | first 60 | 0.809 | 1.153 | 1.42× |
+   | n−200…n−100 | 0.839 | 1.424 | 1.70× |
+   | **last 100** | **1.991** | **5.374** | **2.70×** |
+
+**Why it matters more for cost than for the ETA.** Rule 12 defines the unit as
+**core-minutes = wall s × ranks ÷ 60**. Costing from `ExecutionTime`
+**UNDER-REPORTS THE SPEND**, and it under-reports it *worst exactly when the box is
+busiest*. On this run the projection moved from **232 core-min (ratio 0.58, an
+under-spend)** to **633 core-min (ratio 1.58, an over-spend)** — the sign of the verdict
+flipped, and 0.58 was the figure I had nearly banked.
+
+**And the split is the whole argument for standing rule 12's contention clause.**
+Decomposed: **work 242 core-min** against a 400 core-min prediction — **ratio 0.61, the
+estimator was fine** — plus a **CONTENTION line of 391 core-min**. Merging them would
+have reported "our estimator was 1.58× out" when the estimate of computational work was
+0.61×. **Two different facts about the estimator, and merging them destroys both**,
+precisely as the charter says.
+
+**The bonus instrument, free and better than what it replaces.** The ratio
+**`ClockTime` / `ExecutionTime` IS a contention measurement**, and it beats a load
+average because it is measured **on your own process**, in your own case, over your own
+window — not on a box-wide number that says nothing about your share.
+
+**The rules.**
+1. **NAME THE REFERENT BEFORE QUOTING THE RATE.** Wall, CPU, or your own poll loop —
+   say which, in the sentence carrying the number.
+2. **KEEP BOTH SERIES; THEY ANSWER DIFFERENT QUESTIONS.** `ClockTime` → ETAs, watcher
+   ceilings, and **core-minutes for the calibration row**. `ExecutionTime` → how much
+   computational work an iteration costs, which is what you compare *across meshes*,
+   largely independent of who else is on the box.
+3. **NEVER TIME A SOLVER FROM YOUR OWN POLL POINTS.** The solver keeps its own clock.
+   Read that one. A sample of two is noise even when it lands near the truth.
+4. **A CEILING DERIVED FROM CPU TIME IS UNDER-SIZED BY THE CONTENTION FACTOR** — and
+   under-sized worst when the box is busiest, which is when a watcher giving up costs
+   most. Derive every wall-clock ceiling from the wall-clock series.
+
+**The shape, and why this is L-555's sibling rather than its repeat.** L-555 rule 1 says
+**an assertion must name the state it rejects**. The measurement analogue is
+**a quantity must name what it is a rate *of***. In both cases **THE LABEL WAS RIGHT AND
+THE REFERENT WAS WRONG** — the same failure as a `grep` that matches text *mentioning* a
+condition rather than text *asserting* it (L-553's reader-vs-reader defect). Rejecting
+the worst available referent and taking the next one to hand is not the same as choosing
+the right one.
+
+**How far a referent error travels.** The supervisor's own 10 s/it figure, from a
+20-second poll window on **two** iterations, had already reached the chief, two board
+blocks and another lane's cost derivation before it was corrected. It happened to land
+near the true wall figure of 11.7 s/it — **luck, not method: a sample of two could as
+easily have read 4 or 20.** A number that is right by accident propagates exactly as fast
+as one that is right by measurement, and is indistinguishable downstream.
+
+**Related.** L-555 (an assertion must name the state it rejects; both of that night's
+dead checks were found by something refusing to run); L-553 (a calibration must calibrate
+the reader you actually used); standing rule 12 (core-minutes are wall × ranks, and waste
+and contention are reported separately, never absorbed into the ratio); the
+`clock audit before rate judgments` pattern.
