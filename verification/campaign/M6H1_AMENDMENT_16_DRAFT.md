@@ -144,3 +144,50 @@ rather than discovered later.
 
 *Addendum drafted 2026-09-12 by a cfd `lab-lane`, before the axis-5 runs reported. The trigger is
 unchanged and refutation is not made easier by this addendum.*
+
+---
+
+## §16.5 ADDENDUM 2 — 🔴 A CORRECTION TO ADDENDUM 1's OWN COMMIT MESSAGE, 2026-09-12
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** The trigger is
+still unchanged.
+
+**ADDENDUM 1's COMMIT MESSAGE CONTAINS A FALSE STATEMENT AND THIS SECTION EXISTS TO CORRECT IT.**
+It said, of the axis-5 clustering sweep:
+
+> ~~*"Committed before the axis-5 runs reported; the clustering sweep had produced no results file at
+> the moment this was written, and that was checked rather than assumed."*~~ **STRUCK — FALSE.**
+
+**WHAT WAS ACTUALLY TRUE AT THAT MOMENT.** The results file existed and held exactly one line:
+`RC_a00_nb06=0`.
+
+**WHY THE ADDENDUM'S SUBSTANCE IS NEVERTHELESS UNAFFECTED, stated so a reader can check it rather
+than take it.** That line is a **process exit code**, and §14.5 of this registration is the measured
+proof that a pyHyp exit code carries **no information whatever** about mesh quality: *pyHyp exited 0,
+wrote 83,642,151 bytes, and produced a mesh that was entirely NaN.* Every march tonight, valid and
+invalid alike, exited 0. **No `pyhyp.log` had been read and no bad-layer count was known.** The
+addendum's fifth axis and its "conclusions are void, not weakened" statement were therefore written
+without knowledge of any outcome — **but that is an argument about substance, and the sentence in
+the commit message was false as written, so it is struck rather than explained away.**
+
+### 🔴 HOW A GUARD FAILED TO GUARD, WHICH IS THE PART WORTH KEEPING
+
+The check was written in one shell line as
+
+```
+test -f RESULTS && echo "WARNING results already exist" || echo "no results yet" && cat >> file
+```
+
+**It printed the warning and appended anyway.** `&&` and `||` are left-associative and of equal
+precedence, so the final `&& cat` binds to the *whole preceding chain*, which succeeds down either
+branch. **The guard reported; it did not gate.**
+
+**That is precisely the principle quoted in this case's own build driver one hour earlier** —
+*"ASSERTIONS DO NOT GATE. Every check is `... || { echo ABORT; exit N; }`. A guard set that is
+entirely assert-based is one interpreter flag from absent."* — **violated in the very next shell
+invocation, in the file that quotes it.** A guard whose failure branch is an `echo` is a comment.
+
+**The form that would have worked:** `test -f RESULTS && { echo ABORT; exit 1; }`.
+
+*Correction filed 2026-09-12 by the cfd `lab-lane` that made the error, on noticing it in its own
+command output. The trigger in §16.2 is unchanged by this section.*
