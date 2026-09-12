@@ -1,0 +1,10 @@
+level=medium
+cap_core_min=90
+predicted_peak_GiB=1.7
+free_g_available_at_launch_GiB=14
+ceiling_GiB=10
+wall_s=2337
+core_min=38.95
+rc=0
+finished_utc=2026-09-12T01:47:44Z
+eMesh REGENERATED AND BYTE-IDENTICAL to r1_medium

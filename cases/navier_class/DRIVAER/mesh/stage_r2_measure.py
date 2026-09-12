@@ -181,13 +181,31 @@ def read_mesh_indices(pm: Path) -> dict:
                         sep=" ", dtype=np.float64).reshape(-1, 3)
 
     fb = _ascii_list_body(pm / "faces")
+    # OpenFOAM writes a face of <= 10 vertices as `N(v1 v2 ... vN)` on ONE line,
+    # but a face of MORE than 10 as a multi-line block:
+    #     11
+    #     (
+    #     331933
+    #     ...
+    #     )
+    # MEASURED on r2_medium: 3,060,269 faces, of which exactly TWO (an 11-gon and
+    # a 12-gon) take the second form -- and r2_coarse has NONE, which is why this
+    # reader worked at coarse and raised at medium.  The same "true by luck of
+    # level" shape as the dict asymmetry earlier tonight.  It RAISED rather than
+    # silently returning a short count, which is the behaviour that made the
+    # defect visible at all.
+    # Normalise the multi-line form into the single-line form first, so one code
+    # path handles both.  The consistency assert below is what proves it worked.
+    fb = re.sub(rb"(?m)^[ \t]*(\d+)[ \t]*\r?\n[ \t]*\(", rb"\1(", fb)
     counts = np.array([int(x) for x in re.findall(rb"(?m)^\s*(\d+)\(", fb)], dtype=np.int64)
     stripped, nsub = re.subn(rb"(?m)^\s*\d+\(", b" ", fb)
     idx = np.fromstring(stripped.replace(b")", b" "), sep=" ", dtype=np.int64)
-    if nsub != len(counts) or idx.size != counts.sum():
+    n_faces_hdr = hdr_o.get("nFaces")
+    if nsub != len(counts) or idx.size != counts.sum() or (
+            n_faces_hdr is not None and len(counts) != n_faces_hdr):
         raise SystemExit(f"REFUSE: faces file did not parse consistently "
                          f"({nsub} headers, {len(counts)} counts, {idx.size} indices, "
-                         f"{counts.sum()} expected)")
+                         f"{counts.sum()} expected, owner note says nFaces={n_faces_hdr})")
     used = np.zeros(len(pts), dtype=bool)
     inrange = idx[(idx >= 0) & (idx < len(pts))]
     used[inrange] = True

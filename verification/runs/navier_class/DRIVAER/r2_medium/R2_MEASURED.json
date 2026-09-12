@@ -1,0 +1,1062 @@
+{
+ "case": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_medium",
+ "level": "r2_medium",
+ "M1_zero_polyMesh_absent": true,
+ "index_test": {
+  "n_points_file": 1100653,
+  "n_points_header": 1100653,
+  "n_faces_file": 3060269,
+  "n_faces_header": 3060269,
+  "n_cells_header": 983106,
+  "n_internal_faces_header": 2959169,
+  "max_face_vertex_index": 1100652,
+  "min_face_vertex_index": 0,
+  "n_out_of_range_indices": 0,
+  "n_unused_points": 0,
+  "snappy_layer_mesh_line": {
+   "cells": 983106,
+   "faces": 3060269,
+   "points": 1100653
+  },
+  "passed": true
+ },
+ "build_all_steps_ok": true,
+ "build_nonzero_rc_steps": [],
+ "gate_M1": "PASS",
+ "checkMesh_full": {
+  "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_medium/log.checkMeshFull",
+  "failed_checks": 3,
+  "failed_lines": [
+   "***Max skewness = 5.450006, 2 highly skew faces detected which may impair the quality of the results",
+   "***Cells with small determinant (< 0.001) found, number of cells: 103",
+   "***Concave cells (using face planes) found, number of cells: 47188"
+  ],
+  "max_non_ortho": 64.914456,
+  "avg_non_ortho": 9.0454046,
+  "max_skewness": 5.450006,
+  "n_negative_volume_cells": 0,
+  "n_illegal_faces": 0,
+  "n_low_determinant": 103,
+  "n_concave_cells": 47188,
+  "n_skew_faces": 2,
+  "n_severely_non_ortho": 0,
+  "min_determinant": 6.0715322e-18
+ },
+ "gate_M2": "PASS",
+ "gate_M2c_conforming": false,
+ "layers": {
+  "snapped_cells": 748658,
+  "layer_cells": 983106,
+  "cells_gained": 234448,
+  "extruded_faces": 64470,
+  "extrude_candidate_faces": 80974,
+  "nSurfaceLayers_requested": 5,
+  "max_possible_layer_cells": 404870,
+  "coverage_pct": 57.90698248820609,
+  "layer_iterations": null
+ },
+ "gate_M3": "GATE FAIL (MIDDLE band)",
+ "achieved_layer_table": {
+  "floorNoSlip": {
+   "faces": 16379,
+   "target_layers": 5.0,
+   "mesh_layers": 4.85,
+   "overall_m": 0.252,
+   "pct": 81.3
+  },
+  "BodyA_Pillar": {
+   "faces": 418,
+   "target_layers": 5.0,
+   "mesh_layers": 0.541,
+   "overall_m": 0.00236,
+   "pct": 8.56
+  },
+  "BodyDoorhandles": {
+   "faces": 527,
+   "target_layers": 5.0,
+   "mesh_layers": 0.531,
+   "overall_m": 0.00197,
+   "pct": 10.1
+  },
+  "BodyFasciafront1": {
+   "faces": 3065,
+   "target_layers": 5.0,
+   "mesh_layers": 1.84,
+   "overall_m": 0.012,
+   "pct": 46.6
+  },
+  "BodyFasciafront2": {
+   "faces": 195,
+   "target_layers": 5.0,
+   "mesh_layers": 1.38,
+   "overall_m": 0.0141,
+   "pct": 33.6
+  },
+  "BodyFender": {
+   "faces": 1586,
+   "target_layers": 5.0,
+   "mesh_layers": 3.0,
+   "overall_m": 0.028,
+   "pct": 70.5
+  },
+  "BodyHeadlamps": {
+   "faces": 806,
+   "target_layers": 5.0,
+   "mesh_layers": 1.52,
+   "overall_m": 0.00822,
+   "pct": 39.1
+  },
+  "BodyHood": {
+   "faces": 2028,
+   "target_layers": 5.0,
+   "mesh_layers": 4.22,
+   "overall_m": 0.0381,
+   "pct": 90.7
+  },
+  "BodyRear": {
+   "faces": 2341,
+   "target_layers": 5.0,
+   "mesh_layers": 2.69,
+   "overall_m": 0.0261,
+   "pct": 63.4
+  },
+  "BodyRearAccess": {
+   "faces": 414,
+   "target_layers": 5.0,
+   "mesh_layers": 4.7,
+   "overall_m": 0.0409,
+   "pct": 97.4
+  },
+  "BodyRocker": {
+   "faces": 2810,
+   "target_layers": 5.0,
+   "mesh_layers": 3.94,
+   "overall_m": 0.0186,
+   "pct": 88.4
+  },
+  "BodyRoof": {
+   "faces": 587,
+   "target_layers": 5.0,
+   "mesh_layers": 4.31,
+   "overall_m": 0.038,
+   "pct": 90.5
+  },
+  "BodySide": {
+   "faces": 5668,
+   "target_layers": 5.0,
+   "mesh_layers": 4.16,
+   "overall_m": 0.0303,
+   "pct": 87.2
+  },
+  "BodyWindowfront": {
+   "faces": 1486,
+   "target_layers": 5.0,
+   "mesh_layers": 3.42,
+   "overall_m": 0.0314,
+   "pct": 74.8
+  },
+  "BodyWindowfrontframe": {
+   "faces": 131,
+   "target_layers": 5.0,
+   "mesh_layers": 0.511,
+   "overall_m": 0.00455,
+   "pct": 10.8
+  },
+  "BodyWindowSide": {
+   "faces": 678,
+   "target_layers": 5.0,
+   "mesh_layers": 2.42,
+   "overall_m": 0.0223,
+   "pct": 55.4
+  },
+  "BodyWindowsideframe": {
+   "faces": 251,
+   "target_layers": 5.0,
+   "mesh_layers": 1.22,
+   "overall_m": 0.00676,
+   "pct": 19.8
+  },
+  "BrakeDiscfront": {
+   "faces": 359,
+   "target_layers": 5.0,
+   "mesh_layers": 0.306,
+   "overall_m": 0.00115,
+   "pct": 3.49
+  },
+  "BrakeDiscrear": {
+   "faces": 371,
+   "target_layers": 5.0,
+   "mesh_layers": 0.186,
+   "overall_m": 0.000483,
+   "pct": 1.56
+  },
+  "ClosedGrillLowerInsert": {
+   "faces": 445,
+   "target_layers": 5.0,
+   "mesh_layers": 1.74,
+   "overall_m": 0.00966,
+   "pct": 47.7
+  },
+  "ClosedGrillUpperInsert": {
+   "faces": 694,
+   "target_layers": 5.0,
+   "mesh_layers": 1.93,
+   "overall_m": 0.0103,
+   "pct": 50.4
+  },
+  "CTRL_SURFACE_Outlet": {
+   "faces": 235,
+   "target_layers": 5.0,
+   "mesh_layers": 1.31,
+   "overall_m": 0.0051,
+   "pct": 16.2
+  },
+  "CTRL_SURFACE_Wheelhouse_LHS": {
+   "faces": 66,
+   "target_layers": 5.0,
+   "mesh_layers": 3.45,
+   "overall_m": 0.0192,
+   "pct": 45.6
+  },
+  "CTRL_SURFACE_Wheelshouse_RHS": {
+   "faces": 66,
+   "target_layers": 5.0,
+   "mesh_layers": 3.45,
+   "overall_m": 0.0192,
+   "pct": 45.7
+  },
+  "EngineUndershield": {
+   "faces": 750,
+   "target_layers": 5.0,
+   "mesh_layers": 3.58,
+   "overall_m": 0.0178,
+   "pct": 42.3
+  },
+  "ExhaustSystem1": {
+   "faces": 30,
+   "target_layers": 5.0,
+   "mesh_layers": 0.567,
+   "overall_m": 0.00138,
+   "pct": 6.56
+  },
+  "ExhaustSystem2": {
+   "faces": 3019,
+   "target_layers": 5.0,
+   "mesh_layers": 1.3,
+   "overall_m": 0.00504,
+   "pct": 24.1
+  },
+  "ExhaustSystem3": {
+   "faces": 413,
+   "target_layers": 5.0,
+   "mesh_layers": 0.441,
+   "overall_m": 0.0011,
+   "pct": 5.33
+  },
+  "Mirrors1": {
+   "faces": 1177,
+   "target_layers": 5.0,
+   "mesh_layers": 0.951,
+   "overall_m": 0.00502,
+   "pct": 24.1
+  },
+  "Mirrors2": {
+   "faces": 241,
+   "target_layers": 5.0,
+   "mesh_layers": 1.49,
+   "overall_m": 0.00664,
+   "pct": 31.7
+  },
+  "NotchbackB_Pillar": {
+   "faces": 216,
+   "target_layers": 5.0,
+   "mesh_layers": 1.75,
+   "overall_m": 0.0211,
+   "pct": 50.1
+  },
+  "NotchbackBodyside": {
+   "faces": 698,
+   "target_layers": 5.0,
+   "mesh_layers": 2.82,
+   "overall_m": 0.0268,
+   "pct": 74.1
+  },
+  "NotchbackC_Pillar": {
+   "faces": 1015,
+   "target_layers": 5.0,
+   "mesh_layers": 3.71,
+   "overall_m": 0.0352,
+   "pct": 83.9
+  },
+  "NotchbackRoof": {
+   "faces": 1940,
+   "target_layers": 5.0,
+   "mesh_layers": 4.67,
+   "overall_m": 0.0402,
+   "pct": 95.7
+  },
+  "NotchbackTrunk": {
+   "faces": 1172,
+   "target_layers": 5.0,
+   "mesh_layers": 4.01,
+   "overall_m": 0.0366,
+   "pct": 87.0
+  },
+  "NotchbackWindowrear": {
+   "faces": 1048,
+   "target_layers": 5.0,
+   "mesh_layers": 4.44,
+   "overall_m": 0.0395,
+   "pct": 94.1
+  },
+  "NotchbackWindowrearframe": {
+   "faces": 35,
+   "target_layers": 5.0,
+   "mesh_layers": 1.29,
+   "overall_m": 0.0113,
+   "pct": 27.0
+  },
+  "NotchbackWindowside": {
+   "faces": 1183,
+   "target_layers": 5.0,
+   "mesh_layers": 3.11,
+   "overall_m": 0.0305,
+   "pct": 72.6
+  },
+  "NotchbackWindowsideframe": {
+   "faces": 556,
+   "target_layers": 5.0,
+   "mesh_layers": 2.26,
+   "overall_m": 0.0218,
+   "pct": 51.8
+  },
+  "OCDADetailedUnderbody": {
+   "faces": 17195,
+   "target_layers": 5.0,
+   "mesh_layers": 2.1,
+   "overall_m": 0.0115,
+   "pct": 29.8
+  },
+  "Powertrain": {
+   "faces": 1282,
+   "target_layers": 5.0,
+   "mesh_layers": 0.643,
+   "overall_m": 0.00362,
+   "pct": 10.3
+  },
+  "Rimsfront": {
+   "faces": 1182,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0516,
+   "overall_m": 0.000285,
+   "pct": 0.812
+  },
+  "Rimsrear": {
+   "faces": 1183,
+   "target_layers": 5.0,
+   "mesh_layers": 0.232,
+   "overall_m": 0.00104,
+   "pct": 2.66
+  },
+  "TirePlinthfront": {
+   "faces": 0,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "TirePlinthrear": {
+   "faces": 0,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "Tiresfront": {
+   "faces": 2045,
+   "target_layers": 5.0,
+   "mesh_layers": 0.837,
+   "overall_m": 0.00468,
+   "pct": 11.2
+  },
+  "Tiresrear": {
+   "faces": 2043,
+   "target_layers": 5.0,
+   "mesh_layers": 0.758,
+   "overall_m": 0.00469,
+   "pct": 11.2
+  },
+  "WheelSupportfront1": {
+   "faces": 493,
+   "target_layers": 5.0,
+   "mesh_layers": 0.00609,
+   "overall_m": 1.39e-05,
+   "pct": 0.044
+  },
+  "WheelSupportfront2": {
+   "faces": 182,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0989,
+   "overall_m": 0.000329,
+   "pct": 0.935
+  },
+  "WheelSupportrear": {
+   "faces": 270,
+   "target_layers": 5.0,
+   "mesh_layers": 0.267,
+   "overall_m": 0.000913,
+   "pct": 2.23
+  }
+ },
+ "yplus": {
+  "u_tau_m_s": 1.3656923782082888,
+  "Cf_flat_plate": 0.0024665062227784804,
+  "yplus_per_metre": 90623.25004699992,
+  "basis": "u_tau from U_inf=38.889, Re_L=7.19e6, L=2.79 m ALONE (INPUT); wall distance from the BUILT mesh (OBSERVATION)",
+  "per_patch": {
+   "BodyA_Pillar": {
+    "nFaces": 418,
+    "area_m2": 0.20171137036362574,
+    "mean_first_cell_centre_m": 0.005723665456740574,
+    "median_first_cell_centre_m": 0.004685943888439413,
+    "yplus_area_weighted_median": 473.54039833741723,
+    "yplus_min": 39.64246802607212,
+    "yplus_max": 1555.0928862713602,
+    "achieved_layers": 0.541,
+    "achieved_overall_m": 0.00236,
+    "layered": false
+   },
+   "BodyDoorhandles": {
+    "nFaces": 527,
+    "area_m2": 0.08968293279308306,
+    "mean_first_cell_centre_m": 0.003752094819635437,
+    "median_first_cell_centre_m": 0.002930630960582794,
+    "yplus_area_weighted_median": 255.39241877218703,
+    "yplus_min": 36.0399365905777,
+    "yplus_max": 954.4350661734107,
+    "achieved_layers": 0.531,
+    "achieved_overall_m": 0.00197,
+    "layered": false
+   },
+   "BodyFasciafront1": {
+    "nFaces": 3065,
+    "area_m2": 0.9896930427518025,
+    "mean_first_cell_centre_m": 0.003525870845660327,
+    "median_first_cell_centre_m": 0.0024838776618029018,
+    "yplus_area_weighted_median": 289.3491618223255,
+    "yplus_min": 30.90471842760746,
+    "yplus_max": 1721.6746063961064,
+    "achieved_layers": 1.84,
+    "achieved_overall_m": 0.012,
+    "layered": true
+   },
+   "BodyFasciafront2": {
+    "nFaces": 195,
+    "area_m2": 0.14196035978589971,
+    "mean_first_cell_centre_m": 0.005323778346882814,
+    "median_first_cell_centre_m": 0.004334346789821172,
+    "yplus_area_weighted_median": 389.1490541298722,
+    "yplus_min": 103.08945788525271,
+    "yplus_max": 1620.8852482893117,
+    "achieved_layers": 1.38,
+    "achieved_overall_m": 0.0141,
+    "layered": true
+   },
+   "BodyFender": {
+    "nFaces": 1586,
+    "area_m2": 0.9895052306824288,
+    "mean_first_cell_centre_m": 0.004062951797561736,
+    "median_first_cell_centre_m": 0.0031000964764683974,
+    "yplus_area_weighted_median": 285.8677279243766,
+    "yplus_min": 71.10089301426868,
+    "yplus_max": 1723.993077217477,
+    "achieved_layers": 3.0,
+    "achieved_overall_m": 0.028,
+    "layered": true
+   },
+   "BodyHeadlamps": {
+    "nFaces": 806,
+    "area_m2": 0.1472051059801753,
+    "mean_first_cell_centre_m": 0.0027960146068457736,
+    "median_first_cell_centre_m": 0.0023125504219455558,
+    "yplus_area_weighted_median": 204.62177516940983,
+    "yplus_min": 65.58349851447973,
+    "yplus_max": 733.3255110912753,
+    "achieved_layers": 1.52,
+    "achieved_overall_m": 0.00822,
+    "layered": true
+   },
+   "BodyHood": {
+    "nFaces": 2028,
+    "area_m2": 1.278338329758993,
+    "mean_first_cell_centre_m": 0.003293946630588444,
+    "median_first_cell_centre_m": 0.0025614354183337304,
+    "yplus_area_weighted_median": 232.12341073570104,
+    "yplus_min": 184.7171980413905,
+    "yplus_max": 1483.0346843802724,
+    "achieved_layers": 4.22,
+    "achieved_overall_m": 0.0381,
+    "layered": true
+   },
+   "BodyRear": {
+    "nFaces": 2341,
+    "area_m2": 1.4174552528882227,
+    "mean_first_cell_centre_m": 0.004458235661519779,
+    "median_first_cell_centre_m": 0.003486484223395929,
+    "yplus_area_weighted_median": 328.2048541256726,
+    "yplus_min": 38.03309621834477,
+    "yplus_max": 1898.5242661582968,
+    "achieved_layers": 2.69,
+    "achieved_overall_m": 0.0261,
+    "layered": true
+   },
+   "BodyRearAccess": {
+    "nFaces": 414,
+    "area_m2": 0.2603758520823836,
+    "mean_first_cell_centre_m": 0.0027940993797916976,
+    "median_first_cell_centre_m": 0.0025622677645710922,
+    "yplus_area_weighted_median": 232.17828212458906,
+    "yplus_min": 224.91137383056522,
+    "yplus_max": 877.7416742038826,
+    "achieved_layers": 4.7,
+    "achieved_overall_m": 0.0409,
+    "layered": true
+   },
+   "BodyRocker": {
+    "nFaces": 2810,
+    "area_m2": 0.47110963945382,
+    "mean_first_cell_centre_m": 0.0016950226878847201,
+    "median_first_cell_centre_m": 0.0012829120471996435,
+    "yplus_area_weighted_median": 116.22791303628368,
+    "yplus_min": 22.342340665377495,
+    "yplus_max": 771.8802124560883,
+    "achieved_layers": 3.94,
+    "achieved_overall_m": 0.0186,
+    "layered": true
+   },
+   "BodyRoof": {
+    "nFaces": 587,
+    "area_m2": 0.3733452540238258,
+    "mean_first_cell_centre_m": 0.0031489730165361576,
+    "median_first_cell_centre_m": 0.002561795347691199,
+    "yplus_area_weighted_median": 232.15503570641405,
+    "yplus_min": 152.45192836363879,
+    "yplus_max": 1365.3110783870372,
+    "achieved_layers": 4.31,
+    "achieved_overall_m": 0.038,
+    "layered": true
+   },
+   "BodySide": {
+    "nFaces": 5668,
+    "area_m2": 2.6404557063726055,
+    "mean_first_cell_centre_m": 0.0025181062483524666,
+    "median_first_cell_centre_m": 0.002554067405061678,
+    "yplus_area_weighted_median": 232.02716008022728,
+    "yplus_min": 71.30205913507788,
+    "yplus_max": 1259.1956561178058,
+    "achieved_layers": 4.16,
+    "achieved_overall_m": 0.0303,
+    "layered": true
+   },
+   "BodyWindowSide": {
+    "nFaces": 678,
+    "area_m2": 0.3800869091712764,
+    "mean_first_cell_centre_m": 0.0037304844550105926,
+    "median_first_cell_centre_m": 0.003347804378907064,
+    "yplus_area_weighted_median": 336.9871234075449,
+    "yplus_min": 43.32757119065138,
+    "yplus_max": 1082.4583771988707,
+    "achieved_layers": 2.42,
+    "achieved_overall_m": 0.0223,
+    "layered": true
+   },
+   "BodyWindowfront": {
+    "nFaces": 1486,
+    "area_m2": 1.1076371732308297,
+    "mean_first_cell_centre_m": 0.0040786154519108445,
+    "median_first_cell_centre_m": 0.0025615528835818704,
+    "yplus_area_weighted_median": 232.13976409519282,
+    "yplus_min": 92.17045325170254,
+    "yplus_max": 2011.350766892442,
+    "achieved_layers": 3.42,
+    "achieved_overall_m": 0.0314,
+    "layered": true
+   },
+   "BodyWindowfrontframe": {
+    "nFaces": 131,
+    "area_m2": 0.10461219813112733,
+    "mean_first_cell_centre_m": 0.006757491987098467,
+    "median_first_cell_centre_m": 0.006490059445788258,
+    "yplus_area_weighted_median": 518.0150994240729,
+    "yplus_min": 33.89495608923842,
+    "yplus_max": 1322.29736456319,
+    "achieved_layers": 0.511,
+    "achieved_overall_m": 0.00455,
+    "layered": false
+   },
+   "BodyWindowsideframe": {
+    "nFaces": 251,
+    "area_m2": 0.07413186895948583,
+    "mean_first_cell_centre_m": 0.004390999443891084,
+    "median_first_cell_centre_m": 0.0030427654002871496,
+    "yplus_area_weighted_median": 375.41069835947474,
+    "yplus_min": 51.862247631973766,
+    "yplus_max": 1581.1230587214145,
+    "achieved_layers": 1.22,
+    "achieved_overall_m": 0.00676,
+    "layered": true
+   },
+   "BrakeDiscfront": {
+    "nFaces": 359,
+    "area_m2": 0.2336901826920646,
+    "mean_first_cell_centre_m": 0.008518224031083979,
+    "median_first_cell_centre_m": 0.00942922561819774,
+    "yplus_area_weighted_median": 840.2804590900734,
+    "yplus_min": 66.05978023426675,
+    "yplus_max": 1484.3832789448006,
+    "achieved_layers": 0.306,
+    "achieved_overall_m": 0.00115,
+    "layered": false
+   },
+   "BrakeDiscrear": {
+    "nFaces": 371,
+    "area_m2": 0.23080465410149015,
+    "mean_first_cell_centre_m": 0.008767608399440099,
+    "median_first_cell_centre_m": 0.00937007519346619,
+    "yplus_area_weighted_median": 829.7661185463706,
+    "yplus_min": 58.852523038838285,
+    "yplus_max": 1668.9791147518324,
+    "achieved_layers": 0.186,
+    "achieved_overall_m": 0.000483,
+    "layered": false
+   },
+   "CTRL_SURFACE_Outlet": {
+    "nFaces": 235,
+    "area_m2": 0.10541624305004565,
+    "mean_first_cell_centre_m": 0.00310327176512298,
+    "median_first_cell_centre_m": 0.0019029138905352738,
+    "yplus_area_weighted_median": 187.69574694381168,
+    "yplus_min": 30.743036274920655,
+    "yplus_max": 1488.8301320367218,
+    "achieved_layers": 1.31,
+    "achieved_overall_m": 0.0051,
+    "layered": true
+   },
+   "CTRL_SURFACE_Wheelhouse_LHS": {
+    "nFaces": 66,
+    "area_m2": 0.04165810780397617,
+    "mean_first_cell_centre_m": 0.0019861119087477967,
+    "median_first_cell_centre_m": 0.0018242771590301532,
+    "yplus_area_weighted_median": 165.23067226949647,
+    "yplus_min": 116.3754724534902,
+    "yplus_max": 446.0814813799822,
+    "achieved_layers": 3.45,
+    "achieved_overall_m": 0.0192,
+    "layered": true
+   },
+   "CTRL_SURFACE_Wheelshouse_RHS": {
+    "nFaces": 66,
+    "area_m2": 0.04184942994628243,
+    "mean_first_cell_centre_m": 0.00199004659933926,
+    "median_first_cell_centre_m": 0.0018244576616858897,
+    "yplus_area_weighted_median": 165.24075092095754,
+    "yplus_min": 116.38900208283054,
+    "yplus_max": 448.33954246017544,
+    "achieved_layers": 3.45,
+    "achieved_overall_m": 0.0192,
+    "layered": true
+   },
+   "ClosedGrillLowerInsert": {
+    "nFaces": 445,
+    "area_m2": 0.07168011033259167,
+    "mean_first_cell_centre_m": 0.002533343913793477,
+    "median_first_cell_centre_m": 0.002145546527352909,
+    "yplus_area_weighted_median": 194.42685935264473,
+    "yplus_min": 45.02822788532964,
+    "yplus_max": 761.5445004266088,
+    "achieved_layers": 1.74,
+    "achieved_overall_m": 0.00966,
+    "layered": true
+   },
+   "ClosedGrillUpperInsert": {
+    "nFaces": 694,
+    "area_m2": 0.11679342712578551,
+    "mean_first_cell_centre_m": 0.0027740719904113275,
+    "median_first_cell_centre_m": 0.0021271875909310385,
+    "yplus_area_weighted_median": 192.91268159830736,
+    "yplus_min": 53.740707302553574,
+    "yplus_max": 823.5710401897023,
+    "achieved_layers": 1.93,
+    "achieved_overall_m": 0.0103,
+    "layered": true
+   },
+   "EngineUndershield": {
+    "nFaces": 750,
+    "area_m2": 0.4663049310885403,
+    "mean_first_cell_centre_m": 0.0020749355891897204,
+    "median_first_cell_centre_m": 0.0015441774403105151,
+    "yplus_area_weighted_median": 139.55925834264303,
+    "yplus_min": 78.36718334306546,
+    "yplus_max": 1419.5950431399863,
+    "achieved_layers": 3.58,
+    "achieved_overall_m": 0.0178,
+    "layered": true
+   },
+   "ExhaustSystem1": {
+    "nFaces": 30,
+    "area_m2": 0.004950604119751532,
+    "mean_first_cell_centre_m": 0.003938971739303818,
+    "median_first_cell_centre_m": 0.003424355024573733,
+    "yplus_area_weighted_median": 296.1299322609985,
+    "yplus_min": 30.656931256949374,
+    "yplus_max": 767.5853898963085,
+    "achieved_layers": 0.567,
+    "achieved_overall_m": 0.00138,
+    "layered": false
+   },
+   "ExhaustSystem2": {
+    "nFaces": 3019,
+    "area_m2": 0.48045364654759376,
+    "mean_first_cell_centre_m": 0.0030386240678240374,
+    "median_first_cell_centre_m": 0.0022135555214531674,
+    "yplus_area_weighted_median": 206.78052952677288,
+    "yplus_min": 32.076087169814436,
+    "yplus_max": 939.1277956815142,
+    "achieved_layers": 1.3,
+    "achieved_overall_m": 0.00504,
+    "layered": true
+   },
+   "ExhaustSystem3": {
+    "nFaces": 413,
+    "area_m2": 0.06721351620353586,
+    "mean_first_cell_centre_m": 0.004377939246660843,
+    "median_first_cell_centre_m": 0.004058440163977458,
+    "yplus_area_weighted_median": 323.6174003293161,
+    "yplus_min": 34.00359787962833,
+    "yplus_max": 986.3120121110511,
+    "achieved_layers": 0.441,
+    "achieved_overall_m": 0.0011,
+    "layered": false
+   },
+   "Mirrors1": {
+    "nFaces": 1177,
+    "area_m2": 0.17845126169653525,
+    "mean_first_cell_centre_m": 0.003762824204571251,
+    "median_first_cell_centre_m": 0.002831286800157908,
+    "yplus_area_weighted_median": 239.27929849231535,
+    "yplus_min": 36.27161895626965,
+    "yplus_max": 944.6671319821171,
+    "achieved_layers": 0.951,
+    "achieved_overall_m": 0.00502,
+    "layered": false
+   },
+   "Mirrors2": {
+    "nFaces": 241,
+    "area_m2": 0.037355432203545647,
+    "mean_first_cell_centre_m": 0.0021344285981979238,
+    "median_first_cell_centre_m": 0.0018959231963275739,
+    "yplus_area_weighted_median": 174.97342917348922,
+    "yplus_min": 53.08865181485728,
+    "yplus_max": 692.6829322336939,
+    "achieved_layers": 1.49,
+    "achieved_overall_m": 0.00664,
+    "layered": true
+   },
+   "NotchbackB_Pillar": {
+    "nFaces": 216,
+    "area_m2": 0.13052270696767987,
+    "mean_first_cell_centre_m": 0.0057683124107244695,
+    "median_first_cell_centre_m": 0.005217055130252481,
+    "yplus_area_weighted_median": 472.5401416292447,
+    "yplus_min": 125.84830958539558,
+    "yplus_max": 1543.414772463395,
+    "achieved_layers": 1.75,
+    "achieved_overall_m": 0.0211,
+    "layered": true
+   },
+   "NotchbackBodyside": {
+    "nFaces": 698,
+    "area_m2": 0.37499509934666153,
+    "mean_first_cell_centre_m": 0.0038913919691561066,
+    "median_first_cell_centre_m": 0.0031772136325375305,
+    "yplus_area_weighted_median": 330.03540690218256,
+    "yplus_min": 115.29972513764255,
+    "yplus_max": 1139.7316256275888,
+    "achieved_layers": 2.82,
+    "achieved_overall_m": 0.0268,
+    "layered": true
+   },
+   "NotchbackC_Pillar": {
+    "nFaces": 1015,
+    "area_m2": 0.6724832689223539,
+    "mean_first_cell_centre_m": 0.0036976229379993156,
+    "median_first_cell_centre_m": 0.0025684675417029044,
+    "yplus_area_weighted_median": 232.71877716645605,
+    "yplus_min": 114.15242087281852,
+    "yplus_max": 1468.4829546119854,
+    "achieved_layers": 3.71,
+    "achieved_overall_m": 0.0352,
+    "layered": true
+   },
+   "NotchbackRoof": {
+    "nFaces": 1940,
+    "area_m2": 1.212831576179464,
+    "mean_first_cell_centre_m": 0.0028813880651121183,
+    "median_first_cell_centre_m": 0.0025610876262541194,
+    "yplus_area_weighted_median": 232.09343939771367,
+    "yplus_min": 199.40566854447067,
+    "yplus_max": 1521.6482531616045,
+    "achieved_layers": 4.67,
+    "achieved_overall_m": 0.0402,
+    "layered": true
+   },
+   "NotchbackTrunk": {
+    "nFaces": 1172,
+    "area_m2": 0.7303185404020475,
+    "mean_first_cell_centre_m": 0.0034118133525702396,
+    "median_first_cell_centre_m": 0.002560791366298363,
+    "yplus_area_weighted_median": 232.06852624305353,
+    "yplus_min": 159.12047018746517,
+    "yplus_max": 1411.246733264163,
+    "achieved_layers": 4.01,
+    "achieved_overall_m": 0.0366,
+    "layered": true
+   },
+   "NotchbackWindowrear": {
+    "nFaces": 1048,
+    "area_m2": 0.7195603392132692,
+    "mean_first_cell_centre_m": 0.003091404839097706,
+    "median_first_cell_centre_m": 0.0025615505565663365,
+    "yplus_area_weighted_median": 232.13567410260237,
+    "yplus_min": 195.78797795329297,
+    "yplus_max": 1292.109258389547,
+    "achieved_layers": 4.44,
+    "achieved_overall_m": 0.0395,
+    "layered": true
+   },
+   "NotchbackWindowrearframe": {
+    "nFaces": 35,
+    "area_m2": 0.009810220452774713,
+    "mean_first_cell_centre_m": 0.008861354018090645,
+    "median_first_cell_centre_m": 0.01081725908920815,
+    "yplus_area_weighted_median": 498.71337443122366,
+    "yplus_min": 229.47157734661388,
+    "yplus_max": 1508.8473220949218,
+    "achieved_layers": 1.29,
+    "achieved_overall_m": 0.0113,
+    "layered": true
+   },
+   "NotchbackWindowside": {
+    "nFaces": 1183,
+    "area_m2": 0.7778215290635495,
+    "mean_first_cell_centre_m": 0.004182580926276317,
+    "median_first_cell_centre_m": 0.0033815088329745145,
+    "yplus_area_weighted_median": 302.6088106020369,
+    "yplus_min": 103.42345767838049,
+    "yplus_max": 1971.6065396886656,
+    "achieved_layers": 3.11,
+    "achieved_overall_m": 0.0305,
+    "layered": true
+   },
+   "NotchbackWindowsideframe": {
+    "nFaces": 556,
+    "area_m2": 0.3057052486682994,
+    "mean_first_cell_centre_m": 0.005256561033904852,
+    "median_first_cell_centre_m": 0.004356791094021665,
+    "yplus_area_weighted_median": 393.83172233608224,
+    "yplus_min": 104.28874591705602,
+    "yplus_max": 1896.8821345901902,
+    "achieved_layers": 2.26,
+    "achieved_overall_m": 0.0218,
+    "layered": true
+   },
+   "OCDADetailedUnderbody": {
+    "nFaces": 17195,
+    "area_m2": 10.07980570429291,
+    "mean_first_cell_centre_m": 0.0035542019542929007,
+    "median_first_cell_centre_m": 0.0023453507195272867,
+    "yplus_area_weighted_median": 215.80149897716686,
+    "yplus_min": 26.726804032832437,
+    "yplus_max": 2225.774110781042,
+    "achieved_layers": 2.1,
+    "achieved_overall_m": 0.0115,
+    "layered": true
+   },
+   "Powertrain": {
+    "nFaces": 1282,
+    "area_m2": 0.6823017655144077,
+    "mean_first_cell_centre_m": 0.0069619564791673656,
+    "median_first_cell_centre_m": 0.006009290235525484,
+    "yplus_area_weighted_median": 556.5558274503106,
+    "yplus_min": 35.58835072310088,
+    "yplus_max": 2113.1587291367928,
+    "achieved_layers": 0.643,
+    "achieved_overall_m": 0.00362,
+    "layered": false
+   },
+   "Rimsfront": {
+    "nFaces": 1182,
+    "area_m2": 0.7936195104241164,
+    "mean_first_cell_centre_m": 0.008669904129869229,
+    "median_first_cell_centre_m": 0.008254543539777998,
+    "yplus_area_weighted_median": 675.1495049837665,
+    "yplus_min": 77.49244364676576,
+    "yplus_max": 1924.314762202927,
+    "achieved_layers": 0.0516,
+    "achieved_overall_m": 0.000285,
+    "layered": false
+   },
+   "Rimsrear": {
+    "nFaces": 1183,
+    "area_m2": 0.7930841191933411,
+    "mean_first_cell_centre_m": 0.007776938983321497,
+    "median_first_cell_centre_m": 0.007363564306616127,
+    "yplus_area_weighted_median": 615.0927116812012,
+    "yplus_min": 62.103923159897995,
+    "yplus_max": 1609.977862749566,
+    "achieved_layers": 0.232,
+    "achieved_overall_m": 0.00104,
+    "layered": false
+   },
+   "Tiresfront": {
+    "nFaces": 2045,
+    "area_m2": 1.2961700223675299,
+    "mean_first_cell_centre_m": 0.0058548014997535265,
+    "median_first_cell_centre_m": 0.00378572492437427,
+    "yplus_area_weighted_median": 345.0861134509364,
+    "yplus_min": 45.7311521394192,
+    "yplus_max": 2024.593746074225,
+    "achieved_layers": 0.837,
+    "achieved_overall_m": 0.00468,
+    "layered": false
+   },
+   "Tiresrear": {
+    "nFaces": 2043,
+    "area_m2": 1.2958102323551421,
+    "mean_first_cell_centre_m": 0.006634636958219867,
+    "median_first_cell_centre_m": 0.004725539097160329,
+    "yplus_area_weighted_median": 412.6422068657622,
+    "yplus_min": 54.36085532053213,
+    "yplus_max": 1746.390340437132,
+    "achieved_layers": 0.758,
+    "achieved_overall_m": 0.00469,
+    "layered": false
+   },
+   "WheelSupportfront1": {
+    "nFaces": 493,
+    "area_m2": 0.2668353122060005,
+    "mean_first_cell_centre_m": 0.013670687737327283,
+    "median_first_cell_centre_m": 0.014271222878364728,
+    "yplus_area_weighted_median": 1202.7438570490162,
+    "yplus_min": 128.92089686814518,
+    "yplus_max": 1909.7055768896266,
+    "achieved_layers": 0.00609,
+    "achieved_overall_m": 1.39e-05,
+    "layered": false
+   },
+   "WheelSupportfront2": {
+    "nFaces": 182,
+    "area_m2": 0.11277134613879918,
+    "mean_first_cell_centre_m": 0.01086347306045999,
+    "median_first_cell_centre_m": 0.011767185177503622,
+    "yplus_area_weighted_median": 846.4334837663527,
+    "yplus_min": 62.47173836656264,
+    "yplus_max": 1769.5163710864176,
+    "achieved_layers": 0.0989,
+    "achieved_overall_m": 0.000329,
+    "layered": false
+   },
+   "WheelSupportrear": {
+    "nFaces": 270,
+    "area_m2": 0.16646829379541697,
+    "mean_first_cell_centre_m": 0.00982918331469896,
+    "median_first_cell_centre_m": 0.01145078249731162,
+    "yplus_area_weighted_median": 847.626456317774,
+    "yplus_min": 67.45040884164857,
+    "yplus_max": 1831.4074191615393,
+    "achieved_layers": 0.267,
+    "achieved_overall_m": 0.000913,
+    "layered": false
+   }
+  },
+  "layered_group": {
+   "n_patches": 31,
+   "n_faces": 52489,
+   "area_m2": 26.64666528674912,
+   "yplus_area_weighted_median": 232.02716008022728,
+   "yplus_min": 22.342340665377495,
+   "yplus_max": 2225.774110781042
+  },
+  "unlayered_group": {
+   "n_patches": 16,
+   "n_faces": 12106,
+   "area_m2": 6.518177322095967,
+   "yplus_area_weighted_median": 556.5558274503106,
+   "yplus_min": 30.656931256949374,
+   "yplus_max": 2113.1587291367928
+  }
+ },
+ "gate_Y1": "WALL-FUNCTION ADMISSIBLE",
+ "planted_controls": [
+  {
+   "plant": "P3 mesh index reader",
+   "passed": true,
+   "baseline": {
+    "n_out_of_range_indices": 0,
+    "n_unused_points": 0,
+    "max_face_vertex_index": 1100652
+   },
+   "planted_bad_index": 1100658,
+   "read_back": {
+    "n_out_of_range_indices": 1,
+    "n_unused_points_after_appended_point": 1,
+    "max_face_vertex_index": 1100658,
+    "n_cells_header_after_count_plant": 999999999
+   }
+  },
+  {
+   "plant": "P2 layer-table SCOPE (two-sided)",
+   "passed": true,
+   "probe_patch": "BodyHood",
+   "baseline_achieved_overall_m": 0.0381,
+   "requested_table_planted_x7_achieved_unchanged": true,
+   "achieved_table_planted_x7_achieved_moved": true,
+   "other_patches_unmoved": true,
+   "artifacts": [
+    "/tmp/r2plant_P2_kns3_anv/log.req_planted",
+    "/tmp/r2plant_P2_kns3_anv/log.ach_planted"
+   ]
+  },
+  {
+   "plant": "P1 checkMesh reader",
+   "passed": true,
+   "baseline": {
+    "failed_checks": 3,
+    "n_negative_volume_cells": 0
+   },
+   "planted": {
+    "failed_checks": 7,
+    "n_negative_volume_cells": 13
+   },
+   "read_back": {
+    "failed_checks": 7,
+    "n_negative_volume_cells": 13
+   },
+   "artifact": "/tmp/r2plant_P1_4w7qt2cs/log.planted"
+  },
+  {
+   "plant": "P4 wall-distance / y+ reader",
+   "passed": true,
+   "probe_patch": "BodyA_Pillar",
+   "probe_face": 2995674,
+   "owner_cell": 230144,
+   "baseline_wall_distance_m": 0.0076148956653909515,
+   "planted_displacement_m": 0.00137,
+   "expected_wall_distance_m": 0.008984895665390952,
+   "read_back_error_m": 3.6293364147343965e-13,
+   "n_cell_centres_that_moved": 1,
+   "partition_unchanged": true
+  }
+ ],
+ "all_plants_passed": true
+}
