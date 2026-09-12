@@ -1,0 +1,292 @@
+{
+  "rung": "DRIVAER_R1_STAGE_A",
+  "mesh_conformance": {
+    "coarse": {
+      "case": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_coarse_R2",
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_coarse_R2/log.checkMeshFull",
+      "measured": {
+        "max_skewness": 4.7820293,
+        "max_non_ortho": 64.889342
+      },
+      "failed_mesh_checks_full_flags": 3,
+      "conforms": false,
+      "breaches": [
+        {
+          "metric": "max_skewness",
+          "measured": 4.7820293,
+          "threshold": 4.0,
+          "standard": "docs/standards/MESH_STANDARD.md",
+          "exceedance_factor": 1.195507325,
+          "n_faces_affected": 1
+        }
+      ]
+    }
+  },
+  "declared_non_conformance": {
+    "claim_cap": "CLAIM CAP -- THIS RESULT IS NOT A CREDENTIAL. The mesh does not meet docs/standards/MESH_STANDARD.md. This number MUST NOT be recorded as a credential, MUST NOT be entered in a matrix as HOLDS or GATE REACHED, and may appear only as a STATED-LIMITATION row carrying the measured exceedance below. Citing it without this cap is the failure the non-conformance ruling exists to prevent.",
+    "credential_eligible": false,
+    "matrix_status": "STATED LIMITATION -- not HOLDS, not GATE REACHED, not a credential",
+    "standard": "docs/standards/MESH_STANDARD.md",
+    "non_conforming_levels": [
+      "coarse"
+    ],
+    "breaches": {
+      "coarse": [
+        {
+          "metric": "max_skewness",
+          "measured": 4.7820293,
+          "threshold": 4.0,
+          "standard": "docs/standards/MESH_STANDARD.md",
+          "exceedance_factor": 1.195507325,
+          "n_faces_affected": 1
+        }
+      ]
+    },
+    "measured": {
+      "coarse": {
+        "max_skewness": 4.7820293,
+        "max_non_ortho": 64.889342
+      }
+    }
+  },
+  "credential_eligible": false,
+  "stage_a_scope": "DIAGNOSTIC BAND, NOT A VALIDATION GATE. An in-band value is NOT agreement with the DrivAerML reference Cd_ref=0.2758368 and MUST NOT be cited as agreement. Stage A has no wall layers, y+ is roughly an order of magnitude above the wall-function range, and no grid gate (Gate G) is registered for it.",
+  "gate_G_registered": false,
+  "gate_G_absent_because": "y+ ~ 2342/1171/585 without wall layers and varying 4x across levels; a Roache order from that measures the wall model changing, not the grid",
+  "levels": [
+    "coarse"
+  ],
+  "gates": [
+    {
+      "gate": "A1 completion and instrument",
+      "verdict": "GATE FAIL",
+      "failures": [
+        "coarse: iterative state NOT_CONVERGED",
+        "coarse: Cd not plateaued",
+        "coarse: Cl not plateaued"
+      ],
+      "checked": [
+        "rule-4 completion on every level (rc sidecar, End line, last==endTime, field set, ExecutionTime count, age guard)",
+        "forceCoeffs magUInf/lRef/Aref/rhoInf asserted on disk against the pinned reference",
+        "planted control on the p-field reader",
+        "planted control on the Cd gate reader",
+        "planted control on the Cl gate reader",
+        "iterative convergence READ from each log",
+        "Cd and Cl plateau"
+      ],
+      "planted_controls": {
+        "field": {
+          "passed": true,
+          "planted": 5.0,
+          "reader": "body_mean_pressure",
+          "n_vehicle_patches": 47,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_coarse_R2/2000/p",
+          "patches": [
+            "BodyA_Pillar",
+            "BodyDoorhandles",
+            "BodyFasciafront1",
+            "BodyFasciafront2",
+            "BodyFender",
+            "BodyHeadlamps",
+            "BodyHood",
+            "BodyRear",
+            "BodyRearAccess",
+            "BodyRocker",
+            "BodyRoof",
+            "BodySide",
+            "BodyWindowfront",
+            "BodyWindowfrontframe",
+            "BodyWindowSide",
+            "BodyWindowsideframe",
+            "BrakeDiscfront",
+            "BrakeDiscrear",
+            "ClosedGrillLowerInsert",
+            "ClosedGrillUpperInsert",
+            "CTRL_SURFACE_Outlet",
+            "CTRL_SURFACE_Wheelhouse_LHS",
+            "CTRL_SURFACE_Wheelshouse_RHS",
+            "EngineUndershield",
+            "ExhaustSystem1",
+            "ExhaustSystem2",
+            "ExhaustSystem3",
+            "Mirrors1",
+            "Mirrors2",
+            "NotchbackB_Pillar",
+            "NotchbackBodyside",
+            "NotchbackC_Pillar",
+            "NotchbackRoof",
+            "NotchbackTrunk",
+            "NotchbackWindowrear",
+            "NotchbackWindowrearframe",
+            "NotchbackWindowside",
+            "NotchbackWindowsideframe",
+            "OCDADetailedUnderbody",
+            "Powertrain",
+            "Rimsfront",
+            "Rimsrear",
+            "Tiresfront",
+            "Tiresrear",
+            "WheelSupportfront1",
+            "WheelSupportfront2",
+            "WheelSupportrear"
+          ],
+          "base_mean_p": -144.68802131686496,
+          "n_body_cells": 17860,
+          "n_distinct_owner_cells": 17314,
+          "multiplicity_histogram": {
+            "1": 16860,
+            "2": 381,
+            "3": 63,
+            "4": 6,
+            "6": 3,
+            "7": 1
+          },
+          "arm_multiplicity_1": {
+            "cell": 27879,
+            "multiplicity": 1,
+            "seen_mean_p": -144.6877413616578,
+            "reader_delta": 0.0002799552071621747,
+            "expected_delta": 0.0002799552071668533,
+            "passed": true
+          },
+          "arm_multiplicity_gt1": {
+            "cell": 35468,
+            "multiplicity": 3,
+            "seen_mean_p": -144.68718145124348,
+            "reader_delta": 0.0008398656214865241,
+            "expected_delta": 0.0008398656215005599,
+            "passed": true
+          },
+          "seen_mean_p": -144.6877413616578,
+          "reader_delta": 0.0002799552071621747,
+          "expected_delta": 0.0002799552071668533,
+          "repair": "VERIFICATION_CHARTER 2d.1 / ADDENDUM A2, 2026-09-11: expected accounts for the planted cell's multiplicity in the face-owner list, and the control is planted TWICE in separate passes so its outcome no longer depends on a mesh accident."
+        },
+        "Cd": {
+          "passed": true,
+          "planted": 0.05,
+          "reader": "read_coeff(Cd,coefficient.dat)",
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_coarse_R2/postProcessing/forceCoeffs1/0/coefficient.dat",
+          "coefficient": "Cd",
+          "before": 0.3552503164,
+          "after": 0.4052503164,
+          "reader_delta": 0.04999999999999999
+        },
+        "Cl": {
+          "passed": true,
+          "planted": 0.05,
+          "reader": "read_coeff(Cl,coefficient.dat)",
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_coarse_R2/postProcessing/forceCoeffs1/0/coefficient.dat",
+          "coefficient": "Cl",
+          "before": 0.0050798381249,
+          "after": 0.0550798381249,
+          "reader_delta": 0.05
+        }
+      }
+    },
+    {
+      "gate": "A2 Cd gross-error diagnostic band",
+      "value": 0.3552503164,
+      "band": [
+        0.15,
+        0.6
+      ],
+      "verdict": "PASS",
+      "interpretation": "DIAGNOSTIC BAND, NOT A VALIDATION GATE. An in-band value is NOT agreement with the DrivAerML reference Cd_ref=0.2758368 and MUST NOT be cited as agreement. Stage A has no wall layers, y+ is roughly an order of magnitude above the wall-function range, and no grid gate (Gate G) is registered for it."
+    },
+    {
+      "gate": "A3 Cl gross-error diagnostic band",
+      "value": 0.0050798381249,
+      "band": [
+        -0.5,
+        0.5
+      ],
+      "verdict": "PASS",
+      "interpretation": "DIAGNOSTIC BAND, NOT A VALIDATION GATE. An in-band value is NOT agreement with the DrivAerML reference Cd_ref=0.2758368 and MUST NOT be cited as agreement. Stage A has no wall layers, y+ is roughly an order of magnitude above the wall-function range, and no grid gate (Gate G) is registered for it."
+    }
+  ],
+  "per_level": {
+    "coarse": {
+      "case": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_coarse_R2",
+      "nCells": 592877,
+      "endTime": 2000.0,
+      "last": "2000",
+      "Cd": 0.3552503164,
+      "Cl": 0.0050798381249,
+      "Cd_prev": 0.35509808889,
+      "Cl_prev": 0.003144270423,
+      "coefficient_dat": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_coarse_R2/postProcessing/forceCoeffs1/0/coefficient.dat",
+      "cd_plateaued": false,
+      "cl_plateaued": false,
+      "plateau_Cd": {
+        "quantity": "Cd",
+        "state": "NOT_PLATEAUED",
+        "excursion_rel": 0.01647587931775867,
+        "tol": 0.005,
+        "window": 200,
+        "n_samples": 2000,
+        "window_frac_of_endTime": 0.1,
+        "end_time": 2000.0,
+        "window_mean": 0.35791090395060005,
+        "window_min": 0.35444062615,
+        "window_max": 0.36033752301,
+        "armed": true,
+        "armed_by": "200-sample window from endTime 2000.0 (10%); 2000 rows available",
+        "statistic": "(max-min)/|mean| over the trailing window",
+        "resolves_finer_than_V1_RELATIVE_band_by": 20.0,
+        "resolves_finer_than_A2_ABSOLUTE_band_by": 120.0,
+        "band_kinds": "Gate V1 +/-0.10 RELATIVE (grade_ladder path, NOT executed by Stage A); Gate A2 (0.15, 0.6) ABSOLUTE (the band in force for Stage A)",
+        "unsatisfiability_note": "if a CONVERGED run's excursion over this window exceeds the tolerance, the criterion is UNSATISFIABLE and that is a finding to report, not a fail to record. DIAGNOSIS REQUIRED BEFORE THAT CALL: (max-min) over 300 samples is set by the tails, so ONE BLIP DOMINATES IT. Separate genuine drift from a single outlier -- only genuine drift means 'run longer'. Conservative by design: the statistic cannot favour the run."
+      },
+      "plateau_Cl": {
+        "quantity": "Cl",
+        "state": "NOT_PLATEAUED",
+        "excursion_rel": 1.7388209045999998,
+        "tol": 0.005,
+        "window": 200,
+        "n_samples": 2000,
+        "window_frac_of_endTime": 0.1,
+        "end_time": 2000.0,
+        "window_mean": 0.009692493265312449,
+        "window_min": 0.00034589565358,
+        "window_max": 0.017199405561,
+        "armed": true,
+        "armed_by": "200-sample window from endTime 2000.0 (10%); 2000 rows available",
+        "statistic": "(max-min)/|mean| over the trailing window",
+        "resolves_finer_than_V1_RELATIVE_band_by": 20.0,
+        "resolves_finer_than_A2_ABSOLUTE_band_by": 120.0,
+        "band_kinds": "Gate V1 +/-0.10 RELATIVE (grade_ladder path, NOT executed by Stage A); Gate A2 (0.15, 0.6) ABSOLUTE (the band in force for Stage A)",
+        "unsatisfiability_note": "if a CONVERGED run's excursion over this window exceeds the tolerance, the criterion is UNSATISFIABLE and that is a finding to report, not a fail to record. DIAGNOSIS REQUIRED BEFORE THAT CALL: (max-min) over 300 samples is set by the tails, so ONE BLIP DOMINATES IT. Separate genuine drift from a single outlier -- only genuine drift means 'run longer'. Conservative by design: the statistic cannot favour the run."
+      },
+      "iterative_state": "NOT_CONVERGED",
+      "iterative_detail": {
+        "final_initial_residuals": {
+          "p": 0.001168026935,
+          "Ux": 0.0001973752513,
+          "Uy": 0.004651850606,
+          "Uz": 0.001271963093,
+          "k": 0.0003197968087,
+          "omega": 0.0003488125633
+        },
+        "res_tol": 0.0001,
+        "worst": 0.004651850606
+      },
+      "forceCoeffs_constants": {
+        "magUInf": 38.889,
+        "lRef": 2.79,
+        "Aref": 2.298,
+        "rhoInf": 1.0
+      }
+    }
+  },
+  "reference": {
+    "magUInf": 38.889,
+    "lRef": 2.79,
+    "Aref": 2.298,
+    "rhoInf": 1.0,
+    "Cd": 0.2758368,
+    "Cl": -0.05357145
+  },
+  "reference_Cd_NOT_GATED_AGAINST": 0.2758368,
+  "reference_Cl_NOT_GATED_AGAINST": -0.05357145
+}

@@ -1,0 +1,491 @@
+{
+ "case": "verification/runs/navier_class/DRIVAER/r2_coarse",
+ "level": "r2_coarse",
+ "M1_zero_polyMesh_absent": true,
+ "index_test": {
+  "n_points_file": 221464,
+  "n_points_header": 221464,
+  "n_faces_file": 592877,
+  "n_faces_header": 592877,
+  "n_cells_header": 186709,
+  "n_internal_faces_header": 564186,
+  "max_face_vertex_index": 221463,
+  "min_face_vertex_index": 0,
+  "n_out_of_range_indices": 0,
+  "n_unused_points": 0,
+  "snappy_layer_mesh_line": {
+   "cells": 186709,
+   "faces": 592877,
+   "points": 221464
+  },
+  "passed": true
+ },
+ "build_all_steps_ok": true,
+ "build_nonzero_rc_steps": [],
+ "gate_M1": "PASS",
+ "checkMesh_full": {
+  "artifact": "verification/runs/navier_class/DRIVAER/r2_coarse/log.checkMeshFull",
+  "failed_checks": 3,
+  "failed_lines": [
+   "***Max skewness = 4.7820293, 1 highly skew faces detected which may impair the quality of the results",
+   "***Cells with small determinant (< 0.001) found, number of cells: 40",
+   "***Concave cells (using face planes) found, number of cells: 14723"
+  ],
+  "max_non_ortho": 64.889342,
+  "avg_non_ortho": 11.296007,
+  "max_skewness": 4.7820293,
+  "n_negative_volume_cells": 0,
+  "n_illegal_faces": 0,
+  "n_low_determinant": 40,
+  "n_concave_cells": 14723,
+  "n_skew_faces": 1,
+  "n_severely_non_ortho": 0,
+  "min_determinant": 0.0
+ },
+ "gate_M2": "PASS",
+ "gate_M2c_conforming": false,
+ "layers": {
+  "snapped_cells": 128230,
+  "layer_cells": 186709,
+  "cells_gained": 58479,
+  "extruded_faces": 16887,
+  "extrude_candidate_faces": 23365,
+  "nSurfaceLayers_requested": 5,
+  "max_possible_layer_cells": 116825,
+  "coverage_pct": 50.05692274769955,
+  "layer_iterations": null
+ },
+ "gate_M3": "GATE FAIL (MIDDLE band)",
+ "achieved_layer_table": {
+  "floorNoSlip": {
+   "faces": 5505,
+   "target_layers": 5.0,
+   "mesh_layers": 4.62,
+   "overall_m": 0.353,
+   "pct": 65.6
+  },
+  "BodyA_Pillar": {
+   "faces": 163,
+   "target_layers": 5.0,
+   "mesh_layers": 0.399,
+   "overall_m": 0.0047,
+   "pct": 8.04
+  },
+  "BodyDoorhandles": {
+   "faces": 125,
+   "target_layers": 5.0,
+   "mesh_layers": 0.16,
+   "overall_m": 0.00085,
+   "pct": 2.54
+  },
+  "BodyFasciafront1": {
+   "faces": 1076,
+   "target_layers": 5.0,
+   "mesh_layers": 1.65,
+   "overall_m": 0.0177,
+   "pct": 41.5
+  },
+  "BodyFasciafront2": {
+   "faces": 51,
+   "target_layers": 5.0,
+   "mesh_layers": 0.255,
+   "overall_m": 0.00306,
+   "pct": 3.75
+  },
+  "BodyFender": {
+   "faces": 468,
+   "target_layers": 5.0,
+   "mesh_layers": 2.42,
+   "overall_m": 0.0462,
+   "pct": 64.1
+  },
+  "BodyHeadlamps": {
+   "faces": 210,
+   "target_layers": 5.0,
+   "mesh_layers": 2.03,
+   "overall_m": 0.0224,
+   "pct": 53.2
+  },
+  "BodyHood": {
+   "faces": 515,
+   "target_layers": 5.0,
+   "mesh_layers": 4.14,
+   "overall_m": 0.0752,
+   "pct": 91.5
+  },
+  "BodyRear": {
+   "faces": 644,
+   "target_layers": 5.0,
+   "mesh_layers": 1.37,
+   "overall_m": 0.0256,
+   "pct": 35.8
+  },
+  "BodyRearAccess": {
+   "faces": 108,
+   "target_layers": 5.0,
+   "mesh_layers": 2.46,
+   "overall_m": 0.0593,
+   "pct": 70.5
+  },
+  "BodyRocker": {
+   "faces": 733,
+   "target_layers": 5.0,
+   "mesh_layers": 3.37,
+   "overall_m": 0.028,
+   "pct": 66.6
+  },
+  "BodyRoof": {
+   "faces": 150,
+   "target_layers": 5.0,
+   "mesh_layers": 3.81,
+   "overall_m": 0.0711,
+   "pct": 84.6
+  },
+  "BodySide": {
+   "faces": 1698,
+   "target_layers": 5.0,
+   "mesh_layers": 3.48,
+   "overall_m": 0.0463,
+   "pct": 75.8
+  },
+  "BodyWindowfront": {
+   "faces": 366,
+   "target_layers": 5.0,
+   "mesh_layers": 2.84,
+   "overall_m": 0.0562,
+   "pct": 67.1
+  },
+  "BodyWindowfrontframe": {
+   "faces": 53,
+   "target_layers": 5.0,
+   "mesh_layers": 0.434,
+   "overall_m": 0.00864,
+   "pct": 13.0
+  },
+  "BodyWindowSide": {
+   "faces": 223,
+   "target_layers": 5.0,
+   "mesh_layers": 2.49,
+   "overall_m": 0.0366,
+   "pct": 49.5
+  },
+  "BodyWindowsideframe": {
+   "faces": 77,
+   "target_layers": 5.0,
+   "mesh_layers": 1.51,
+   "overall_m": 0.0185,
+   "pct": 26.3
+  },
+  "BrakeDiscfront": {
+   "faces": 14,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "BrakeDiscrear": {
+   "faces": 45,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "ClosedGrillLowerInsert": {
+   "faces": 90,
+   "target_layers": 5.0,
+   "mesh_layers": 2.97,
+   "overall_m": 0.0285,
+   "pct": 67.7
+  },
+  "ClosedGrillUpperInsert": {
+   "faces": 152,
+   "target_layers": 5.0,
+   "mesh_layers": 1.71,
+   "overall_m": 0.0182,
+   "pct": 43.4
+  },
+  "CTRL_SURFACE_Outlet": {
+   "faces": 50,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "CTRL_SURFACE_Wheelhouse_LHS": {
+   "faces": 15,
+   "target_layers": 5.0,
+   "mesh_layers": 2.33,
+   "overall_m": 0.0317,
+   "pct": 37.7
+  },
+  "CTRL_SURFACE_Wheelshouse_RHS": {
+   "faces": 15,
+   "target_layers": 5.0,
+   "mesh_layers": 2.47,
+   "overall_m": 0.0326,
+   "pct": 38.8
+  },
+  "EngineUndershield": {
+   "faces": 196,
+   "target_layers": 5.0,
+   "mesh_layers": 2.55,
+   "overall_m": 0.0263,
+   "pct": 31.7
+  },
+  "ExhaustSystem1": {
+   "faces": 6,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "ExhaustSystem2": {
+   "faces": 809,
+   "target_layers": 5.0,
+   "mesh_layers": 0.604,
+   "overall_m": 0.00428,
+   "pct": 10.4
+  },
+  "ExhaustSystem3": {
+   "faces": 88,
+   "target_layers": 5.0,
+   "mesh_layers": 0.341,
+   "overall_m": 0.00224,
+   "pct": 5.76
+  },
+  "Mirrors1": {
+   "faces": 273,
+   "target_layers": 5.0,
+   "mesh_layers": 0.714,
+   "overall_m": 0.00653,
+   "pct": 15.8
+  },
+  "Mirrors2": {
+   "faces": 65,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "NotchbackB_Pillar": {
+   "faces": 54,
+   "target_layers": 5.0,
+   "mesh_layers": 4.31,
+   "overall_m": 0.0775,
+   "pct": 92.2
+  },
+  "NotchbackBodyside": {
+   "faces": 246,
+   "target_layers": 5.0,
+   "mesh_layers": 3.18,
+   "overall_m": 0.0463,
+   "pct": 81.3
+  },
+  "NotchbackC_Pillar": {
+   "faces": 273,
+   "target_layers": 5.0,
+   "mesh_layers": 2.26,
+   "overall_m": 0.0486,
+   "pct": 57.9
+  },
+  "NotchbackRoof": {
+   "faces": 491,
+   "target_layers": 5.0,
+   "mesh_layers": 4.45,
+   "overall_m": 0.08,
+   "pct": 95.2
+  },
+  "NotchbackTrunk": {
+   "faces": 294,
+   "target_layers": 5.0,
+   "mesh_layers": 2.94,
+   "overall_m": 0.0615,
+   "pct": 73.2
+  },
+  "NotchbackWindowrear": {
+   "faces": 278,
+   "target_layers": 5.0,
+   "mesh_layers": 4.34,
+   "overall_m": 0.0802,
+   "pct": 95.4
+  },
+  "NotchbackWindowrearframe": {
+   "faces": 7,
+   "target_layers": 5.0,
+   "mesh_layers": 3.0,
+   "overall_m": 0.0564,
+   "pct": 67.2
+  },
+  "NotchbackWindowside": {
+   "faces": 301,
+   "target_layers": 5.0,
+   "mesh_layers": 3.66,
+   "overall_m": 0.0707,
+   "pct": 84.1
+  },
+  "NotchbackWindowsideframe": {
+   "faces": 156,
+   "target_layers": 5.0,
+   "mesh_layers": 2.81,
+   "overall_m": 0.0536,
+   "pct": 65.3
+  },
+  "OCDADetailedUnderbody": {
+   "faces": 5221,
+   "target_layers": 5.0,
+   "mesh_layers": 1.19,
+   "overall_m": 0.0106,
+   "pct": 16.2
+  },
+  "Powertrain": {
+   "faces": 361,
+   "target_layers": 5.0,
+   "mesh_layers": 0.283,
+   "overall_m": 0.00238,
+   "pct": 5.73
+  },
+  "Rimsfront": {
+   "faces": 179,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "Rimsrear": {
+   "faces": 200,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "TirePlinthfront": {
+   "faces": 0,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "TirePlinthrear": {
+   "faces": 0,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "Tiresfront": {
+   "faces": 533,
+   "target_layers": 5.0,
+   "mesh_layers": 0.107,
+   "overall_m": 0.000777,
+   "pct": 0.956
+  },
+  "Tiresrear": {
+   "faces": 596,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0268,
+   "overall_m": 6.54e-05,
+   "pct": 0.15
+  },
+  "WheelSupportfront1": {
+   "faces": 83,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0241,
+   "overall_m": 0.000207,
+   "pct": 0.246
+  },
+  "WheelSupportfront2": {
+   "faces": 38,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "WheelSupportrear": {
+   "faces": 71,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  }
+ },
+ "window": {
+  "n": 1000,
+  "mean_Cd": 0.35280124651356,
+  "sd_Cd": 0.0019857617553122224,
+  "mean_Cl": 0.013308863894001198,
+  "block_means_Cd": [
+   0.35272260926964005,
+   0.35298463307204003,
+   0.35272184288827996,
+   0.35277590082428
+  ],
+  "block_span_pct": 0.0744867503607233,
+  "half_drift_pct": -0.029690743894816057
+ },
+ "gate_S2": "STATIONARY",
+ "gate_S3": "IN BAND",
+ "planted_controls": [
+  {
+   "plant": "P3 mesh index reader",
+   "passed": true,
+   "baseline": {
+    "n_out_of_range_indices": 0,
+    "n_unused_points": 0,
+    "max_face_vertex_index": 221463
+   },
+   "planted_bad_index": 221469,
+   "read_back": {
+    "n_out_of_range_indices": 1,
+    "n_unused_points_after_appended_point": 1,
+    "max_face_vertex_index": 221469,
+    "n_cells_header_after_count_plant": 999999999
+   }
+  },
+  {
+   "plant": "P2 layer-table SCOPE (two-sided)",
+   "passed": true,
+   "probe_patch": "BodyHood",
+   "baseline_achieved_overall_m": 0.0752,
+   "requested_table_planted_x7_achieved_unchanged": true,
+   "achieved_table_planted_x7_achieved_moved": true,
+   "other_patches_unmoved": true,
+   "artifacts": [
+    "/tmp/r2plant_P2_srjypt6s/log.req_planted",
+    "/tmp/r2plant_P2_srjypt6s/log.ach_planted"
+   ]
+  },
+  {
+   "plant": "P1 checkMesh reader",
+   "passed": true,
+   "baseline": {
+    "failed_checks": 3,
+    "n_negative_volume_cells": 0
+   },
+   "planted": {
+    "failed_checks": 7,
+    "n_negative_volume_cells": 13
+   },
+   "read_back": {
+    "failed_checks": 7,
+    "n_negative_volume_cells": 13
+   },
+   "artifact": "/tmp/r2plant_P1_80i4yp66/log.planted"
+  },
+  {
+   "plant": "P5 Cd window reader",
+   "passed": true,
+   "window": [
+    1000.0,
+    2000.0
+   ],
+   "planted_offset_second_half": 0.01,
+   "baseline_mean_Cd": 0.35280124651356,
+   "read_back_mean_Cd": 0.35780124651356,
+   "expected_mean_shift": 0.005,
+   "observed_mean_shift": 0.0050000000000000044,
+   "baseline_half_drift_pct": -0.029690743894816057,
+   "read_back_half_drift_pct": 2.765571887146832
+  }
+ ],
+ "all_plants_passed": true
+}
