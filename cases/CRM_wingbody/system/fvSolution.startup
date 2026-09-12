@@ -1,0 +1,26 @@
+FoamFile{version 2.0;format ascii;class dictionary;location "system";object fvSolution;}
+// CRM-WB D8G -- STAGE 1 OF THE REGISTERED STARTUP RAMP. Heavy relaxation only; the ALGORITHM
+// is unchanged (consistent yes, transonic yes) because changing it is a different registered
+// change and M6I measured what happens when it is altered casually.
+solvers
+{
+    p       { solver GAMG; tolerance 1e-10; relTol 0.01; smoother GaussSeidel; maxIter 50; }
+    "(U|e|h|nuTilda)" { solver PBiCGStab; preconditioner DILU; tolerance 1e-11; relTol 0.01; }
+    rho     { solver diagonal; }
+}
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+    consistent      yes;
+    transonic       yes;
+    pMinFactor      0.5;
+    pMaxFactor      1.5;
+    rhoMin          0.02;
+    rhoMax          0.12;
+    residualControl { p 1e-6; U 1e-6; e 1e-6; nuTilda 1e-6; }
+}
+relaxationFactors
+{
+    fields  { p 0.1; rho 0.01; }
+    equations { U 0.3; e 0.3; h 0.3; nuTilda 0.3; }
+}

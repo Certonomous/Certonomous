@@ -1,0 +1,13 @@
+FoamFile{version 2.0;format ascii;class dictionary;location "constant";object fvOptions;}
+// A SAFETY NET, NOT THE MECHANISM. On M6I the equivalent limiter reported zero limited cells
+// on 5,968 of 5,997 iterations and did no work at all: THE RAMP IS THE MECHANISM. This exists
+// so that a transient excursion bounds rather than faults the thermo in libm, and the number
+// of cells it limits is REPORTED so its contribution can never be silently assumed.
+limitT
+{
+    type            limitTemperature;
+    active          yes;
+    selectionMode   all;
+    min             100;
+    max             1000;
+}

@@ -1,0 +1,24 @@
+FoamFile{version 2.0;format ascii;class dictionary;location "system";object fvSchemes;}
+// CRM-WB D8G -- STAGE 1 OF THE REGISTERED STARTUP RAMP (Sanaa section C.6).
+// Every convective term first-order upwind. THIS PRODUCES NO GRADED ANSWER: stage 2 restores
+// the registered second-order schemes byte-identically and the graded answer comes from those.
+// NOTE div(phid,p) is Gauss upwind WITHOUT `bounded` here too -- ADDENDUM 2: `bounded`
+// subtracts Sp(div(phi),p) and leaves the transonic pressure equation inert.
+ddtSchemes      { default steadyState; }
+gradSchemes     { default cellLimited Gauss linear 1; grad(U) cellLimited Gauss linear 1; }
+divSchemes
+{
+    default         none;
+    div(phi,U)      bounded Gauss upwind;
+    div(phi,e)      bounded Gauss upwind;
+    div(phi,h)      bounded Gauss upwind;
+    div(phi,K)      bounded Gauss upwind;
+    div(phi,Ekp)    bounded Gauss upwind;
+    div(phi,nuTilda) bounded Gauss upwind;
+    div(phid,p)     Gauss upwind;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
+laplacianSchemes { default Gauss linear limited corrected 0.33; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default limited corrected 0.33; }
+wallDist        { method meshWave; }

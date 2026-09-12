@@ -699,3 +699,107 @@ because an agglomeration measured against an inert equation is not a measurement
 timings and in the momentum, enthalpy and turbulence residuals. Only the PRESSURE COMPONENT of
 the forces, and the spread of p over the domain, give it away.** Both are now permanent
 acceptance checks on every level of this family, ahead of any timing.
+
+---
+
+# ADDENDUM 3 — 2026-09-12, THE STARTUP RAMP AND ITS SUCCESSOR RUNGS. Version 1.3.
+
+**lines whose number changed above this section: 0**
+
+**Alters no gate, threshold, cap or label.**
+
+## A3.1 PROBE P4 — THE PREDICTION HELD; THE ACCEPTANCE TEST IS UNRUN
+
+The A2.3 prediction was: *p departs from freestream within the first few iterations and the
+PRESSURE component of Cd becomes non-zero and of the right order.*
+
+| channel | P3 (`bounded`) | P4 (`bounded` removed) |
+|---|---|---|
+| Cd **pressure** | 4.71×10⁻¹⁶ | **0.474386** |
+| Cl **pressure** | −3.06×10⁻¹⁵ | **1.151377** |
+| p initial residual | **rose** 7.15e‑04 → 8.23e‑04 over 15 iterations | **fell 0.999993 → 4.17×10⁻⁷ in one iteration** |
+
+**The prediction passed on the force channel. One token — `bounded` — was the whole of it.**
+
+🔴 **THE A2.3 ACCEPTANCE TEST IS NOT SATISFIED AND IS NOT CLAIMED.** It requires
+`max(p) − min(p) > 1 %` of p∞ **read off a written checkpoint**; P4 died at iteration 2, before
+`writeInterval 6` wrote anything. **P4 is `NOT A RESULT`** and no number from it is graded.
+
+## A3.2 WHY P4 DIED — THE INERT EQUATION WAS MASKING THE REGISTERED TRANSIENT
+
+```
+pressureControl: p max 11727427.7398 Pa      p min -7487.10566461 Pa
+first pressure solve:  Initial residual 0.999993  ->  FINAL RESIDUAL 1.611   (it DIVERGED)
+```
+
+**11.7 MPa against a freestream of 4007.394649 Pa — 2,926× — with a negative minimum.**
+Correcting the scheme did not create a fault; it **revealed** the one §C.6 already prescribes
+the remedy for. The transient could not occur while the pressure equation did nothing.
+
+For scale, the M6I lane's equivalent excursion was 417,018 Pa, **4.1×** freestream, and a ramp
+cured it. **Ours is two orders worse**, so the ramp is registered as the next change *and its
+successor is registered now rather than improvised if it does not hold.*
+
+## A3.3 THE REGISTERED CHANGE — THE §C.6 STARTUP RAMP
+
+`verification/runs/CRM_WB_D8G_runs/launch_crm_wb_v2.sh`, built on the M6I two-stage pattern
+rather than invented:
+
+- **Stage 1**, 200 iterations, `fvSchemes.startup` (every convective term first-order) and
+  `fvSolution.startup` (p 0.1, rho 0.01, U/e/h/nuTilda 0.3, p bounded to ±50 %).
+  **Produces no graded answer.**
+- **Stage 2**, the **registered** schemes and solution restored and **asserted md5-identical on
+  both sides** before it begins. **The graded answer comes only from the registered schemes.**
+- `system/controlDict.registered` kept pristine and asserted md5-identical at the end, so a
+  crash between stages cannot leave a truncated budget committed. `endTime` moves **only**
+  between stages, by `sed` on one line — never by `foamDictionary`, which inlines every
+  `#include` and froze a stale forces dictionary into this case once already.
+- `constant/fvOptions` carries `limitTemperature` [100, 1000] K as a **SAFETY NET, EXPLICITLY
+  NOT CREDITED WITH THE FIX**: on M6I the equivalent limiter did nothing on 5,968 of 5,997
+  iterations. **THE RAMP IS THE MECHANISM.** The count of limited cells is reported so its
+  contribution can never be silently assumed.
+- The algorithm is **unchanged**: `consistent yes` and `transonic yes` are **not touched**, and
+  no `equations p` entry is added or removed. M6I measured what happens when those are altered
+  casually — pressure went from 417,018 Pa to 22,368,256 Pa.
+
+## A3.4 🔴 NAMED SUCCESSOR RUNG, REGISTERED **BEFORE** IT IS NEEDED: `potentialFoam` INITIALISATION
+
+**Firing condition, declared now:** *if stage 1 of the ramp still produces a pressure excursion
+of the same order — `p max` above ~10× p∞ — the initial field is the problem and this rung
+fires.*
+
+**Mechanism:** the violence comes from solving a pressure equation on a uniform freestream **with
+a wing-body sitting in it**. That initial field is not merely inaccurate, it is *inconsistent
+with the geometry*, and the first solve must invent the entire flow at once. `potentialFoam`
+produces a divergence-free velocity field that already goes **around** the aircraft, so the first
+RANS pressure solve starts from something the geometry admits. Standard registered practice for
+transonic external aero, and cheap on 20.7 M cells against the ladder it protects.
+`potentialFoam` is present in this installation.
+
+## A3.5 🔴 THE DISCRIMINATOR — WHICH FAILURE HAPPENED, DECIDED IN ADVANCE
+
+| observation | diagnosis | rung |
+|---|---|---|
+| stage 1 excursion **of the same order** (p max ≳ 10 p∞) | the **initial field** is inconsistent with the geometry | **A3.4 `potentialFoam`** |
+| stage 1 **bounded**, excursion **returns when stage 2 restores the registered schemes** | **scheme-plus-shock interaction** — the M6I failure, a *different* rung | second-order/shock rung, registered when reached |
+| stage 1 and stage 2 both bounded, death later at a **fixed-period CL oscillation** | buffet-like unsteadiness | §7 stop rule: mark, time-average, disclose |
+
+**Pre-declared from the M6 lane's ladder rather than rediscovered:** M6I's L1 and L2 both died in
+**stage 2**, after the ramp lifted, when a shock formed. **If this act survives startup, a second
+death after iteration 200 is the shock and not the startup**, and it is the middle row above.
+
+## A3.6 THE MONITORING RULE THIS EPISODE ESTABLISHES — THREE GREEN CHANNELS, ONE TELLING CHANNEL
+
+An inert pressure solve looks like a converging run in **three** channels an experienced reader
+trusts:
+
+1. **timings** — 21.41 s/iteration, perfectly steady;
+2. **momentum, enthalpy and turbulence residuals** — Ux fell to 1.7×10⁻⁷, which reads as
+   convergence and is a **frozen** field;
+3. 🔴 **continuity errors — 9.3×10⁻⁹, beautifully small, BECAUSE A UNIFORM FIELD SATISFIES
+   CONTINUITY PERFECTLY.** This is the check a careful person reaches for when residuals look
+   suspicious, and **it is trivially satisfied by precisely the failure mode it would be used to
+   exclude.**
+
+**Only the PRESSURE COMPONENT of the forces and the SPREAD of p over the domain give it away.**
+Both are permanent acceptance checks on every level of this family, **read before any timing**.

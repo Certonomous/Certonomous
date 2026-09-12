@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+# CRM WING-BODY (D8G) GRADED LAUNCHER v2 -- usage: launch_crm_wb_v2.sh <RUNDIR> <RANKS> [ENDTIME]
+#
+# WRITTEN AS A NEW FILE, NOT AN EDIT OF v1, on the M6 lane's standing rule: bash reads a script
+# incrementally by byte offset while it runs, so editing a live launcher can resume the
+# interpreter mid-token. v1 stays on disk as the record of the probes.
+#
+# WHAT v2 ADDS: the TWO-STAGE ROBUST STARTUP RAMP that Sanaa's section C.6 registered for this
+# solver class and that this act has never had.
+#   STAGE 1  first N iterations on system/fvSchemes.startup (every convective term first-order)
+#            and system/fvSolution.startup (heavy relaxation). PRODUCES NO GRADED ANSWER.
+#   STAGE 2  the REGISTERED schemes and solution restored BYTE-IDENTICALLY, md5 asserted on both
+#            sides, from the stage-1 checkpoint to endTime. THE GRADED ANSWER COMES FROM THESE.
+#
+# WHY IT IS NEEDED, measured not assumed (ADDENDUM 2/3): with `bounded` wrongly on div(phid,p)
+# the transonic pressure equation was INERT and the startup transient could not occur. With the
+# scheme corrected the first pressure solve DIVERGED -- initial residual 0.999993, FINAL 1.611 --
+# and drove p to 11,727,427 Pa against a freestream of 4,007 Pa, 2,926x, with a negative minimum.
+#
+# endTime is moved ONLY between stages. A pristine system/controlDict.registered is kept and the
+# final state is asserted md5-identical to it, so a crash between stages cannot leave a truncated
+# budget committed. Every rc is captured INSIDE this wrapper from the process itself.
+# NO CAP KILLS THIS RUN: no timeout, no clock check, no spend check anywhere below (directive #17).
+set -u
+RUNDIR="${1:?usage: launch_crm_wb_v2.sh <RUNDIR> <RANKS> [ENDTIME]}"
+RANKS="${2:?ranks}"
+ENDTIME_ARG="${3:-}"
+STARTUP_ITERS="${STARTUP_ITERS:-200}"
+cd "$RUNDIR" || exit 3
+exec >> LAUNCH.log 2>&1
+echo "=== CRM-WB launch v2  $(date -u +%FT%TZ)  rundir=$RUNDIR ranks=$RANKS"
+fail() { echo "REFUSE: $*"; echo "REFUSED" > RC.txt; exit 2; }
+
+[ "$(id -u)" -eq 0 ] && fail "running as root"
+[ -d constant/polyMesh ] || fail "no polyMesh"
+[ -d processor0 ]        || fail "not decomposed"
+[ -d 0.orig ]            || fail "no 0.orig"
+[ -f system/fvSchemes.startup ]  || fail "no system/fvSchemes.startup -- v2 requires the ramp"
+[ -f system/fvSolution.startup ] || fail "no system/fvSolution.startup"
+[ -f constant/fvOptions ]        || fail "no constant/fvOptions"
+grep -q 'limitTemperature' constant/fvOptions || fail "constant/fvOptions carries no limitTemperature"
+grep -q defaultFaces constant/polyMesh/boundary 2>/dev/null && \
+  fail "defaultFaces present -- level failed the registered acceptance test"
+
+# ---- resume detection: never restart from zero when a checkpoint exists -------------------
+RESUME=no
+LATEST=$(find processor0 -maxdepth 1 -type d -regextype posix-extended \
+         -regex '.*/[0-9]+(\.[0-9]+)?$' -printf '%f\n' 2>/dev/null | sort -g | tail -1)
+if [ -n "${LATEST:-}" ] && [ "$LATEST" != "0" ]; then
+  RESUME=yes; echo "RESUME: processor0 holds a checkpoint at t=$LATEST"
+else
+  [ -e RC.txt ] && fail "RC.txt exists and there is no checkpoint to resume from"
+  EXTRA=$(find . -maxdepth 1 -type d -regextype posix-extended -regex '\./[0-9]+(\.[0-9]+)?' \
+          ! -name 0 -printf '%f ' 2>/dev/null)
+  [ -n "$EXTRA" ] && fail "time directories already present ($EXTRA); age-guard precondition broken"
+fi
+
+# ---- environment. `set +u` is REQUIRED: the OpenFOAM bashrc reads unset variables and under
+# ---- `set -u` aborts the shell with status 1, silently if its stderr is discarded.
+set +u; source /usr/lib/openfoam/openfoam2606/etc/bashrc > log.env 2>&1; ENV_RC=$?; set -u
+{ [ "$ENV_RC" -ne 0 ] || ! command -v rhoSimpleFoam >/dev/null 2>&1; } && { cat log.env; fail "OpenFOAM env did not load (rc=$ENV_RC)"; }
+
+# ---- assert the registered dictionaries; NEVER rewrite them with foamDictionary, which
+# ---- inlines every #include and froze a stale forces dict into this case once already.
+grep -qE '^application +rhoSimpleFoam;' system/controlDict || fail "application is not rhoSimpleFoam"
+grep -qE '^purgeWrite +2;'              system/controlDict || fail "purgeWrite is not 2"
+grep -q  '#include'                     system/controlDict || fail "controlDict lost its #include"
+grep -qE 'RASModel +SpalartAllmaras;'   constant/turbulenceProperties || fail "model is not SpalartAllmaras"
+grep -qE 'transonic +yes;'              system/fvSolution || fail "transonic is not yes"
+grep -qE 'div\(phid,p\) +Gauss upwind;' system/fvSchemes  || fail "div(phid,p) is not the corrected unbounded form"
+for K in rhoInf Aref lRef CofR magUInf; do
+  foamDictionary -entry "functions/forceCoeffs/$K" system/controlDict >/dev/null 2>&1 \
+    || fail "forceCoeffs missing the registered entry $K"
+done
+
+if [ -n "$ENDTIME_ARG" ] && [ "$RESUME" = "no" ]; then
+  sed -i -E "s/^([[:space:]]*endTime[[:space:]]+)[0-9.eE+-]+;/\1${ENDTIME_ARG};/" system/controlDict
+fi
+ET=$(grep -oE '^[[:space:]]*endTime[[:space:]]+[0-9]+;' system/controlDict | grep -oE '[0-9]+')
+[ -n "$ET" ] || fail "could not read endTime"
+[ -f system/controlDict.registered ] || cp system/controlDict system/controlDict.registered
+CD_MD5=$(md5sum < system/controlDict.registered)
+SCH_MD5=$(md5sum < system/fvSchemes)
+SOL_MD5=$(md5sum < system/fvSolution)
+cp system/fvSchemes  system/fvSchemes.registered
+cp system/fvSolution system/fvSolution.registered
+echo "registered endTime=$ET  ramp=$STARTUP_ITERS iterations"
+
+set_endtime () {
+  sed -i -E "s/^([[:space:]]*endTime[[:space:]]+)[0-9]+;/\1${1};/" system/controlDict
+  grep -qE "^[[:space:]]*endTime[[:space:]]+${1};" system/controlDict || fail "endTime -> $1 did not read back"
+  echo "endTime set to $1 (read back OK)"
+}
+run_solver () {
+  echo "--- mpirun -np $RANKS rhoSimpleFoam -parallel  ($1)"
+  mpirun -np "$RANKS" rhoSimpleFoam -parallel >> log.rhoSimpleFoam 2>&1
+  echo "$?"
+}
+
+RC=0
+if [ "$RESUME" = "no" ] && [ "$STARTUP_ITERS" -gt 0 ]; then
+  echo "=== STAGE 1: ramp, $STARTUP_ITERS iterations, first-order, heavy relaxation ==="
+  cp system/fvSchemes.startup  system/fvSchemes
+  cp system/fvSolution.startup system/fvSolution
+  set_endtime "$STARTUP_ITERS"
+  RC=$(run_solver "stage 1")
+  echo "STAGE 1 rc=$RC"
+  [ "$RC" -ne 0 ] && { echo "RC=$RC" > RC.txt; echo "stage 1 failed -- stage 2 NOT entered"; exit "$RC"; }
+fi
+
+echo "=== STAGE 2: REGISTERED schemes restored, graded answer produced here ==="
+cp system/fvSchemes.registered  system/fvSchemes
+cp system/fvSolution.registered system/fvSolution
+[ "$(md5sum < system/fvSchemes)"  = "$SCH_MD5" ] || fail "fvSchemes restore is not byte-identical"
+[ "$(md5sum < system/fvSolution)" = "$SOL_MD5" ] || fail "fvSolution restore is not byte-identical"
+cp system/controlDict.registered system/controlDict
+[ "$(md5sum < system/controlDict)" = "$CD_MD5" ] || fail "controlDict restore is not byte-identical"
+echo "registered dictionaries restored, all three md5-identical"
+RC=$(run_solver "stage 2")
+echo "RC=$RC" > RC.txt
+echo "=== END $(date -u +%FT%TZ) rc=$RC"
+exit "$RC"
