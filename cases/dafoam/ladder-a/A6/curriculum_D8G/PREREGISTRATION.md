@@ -2098,3 +2098,107 @@ is worth less than one that can be checked.
 `primalMinResTol 1e-08 × primalMinResTolDiff` is the accept floor **as a product**
 (N-D43), and it is **not touched** — not in D8G, not in A3GC, and not in any successor.
 Nothing in this addendum moves a threshold.
+
+---
+
+## ADDENDUM 11 — 2026-09-12 — **THE LAUNCHER RAN ITS CONTAINERS AS ROOT AND SILENTLY `rm -rf`'d THE ARM'S PREVIOUS RUN TREE TO MAKE ROOM. BOTH ARE REPAIRED BEFORE THE L1 RERUN. NO GATE MOVES.**
+
+**Lines whose number changed above this section: 0.** No gate, band, threshold, cap, tolerance,
+cost, prediction, level, arm or label is altered. `d8g_grade.py` and every md5 in `INSTRUMENT_MD5S`
+(`d8g_runScript.py`, `d8g_of.py`, `d8g_decomposeParDict`) are **NOT TOUCHED**. **Nothing is launched
+by this amendment.** **SUBMISSIONS PARKED.**
+
+**Scope, set by the dafoam-supervisor on Sanaa's 2026-09-12 priority shift —
+_"for dafoam the priority are the other 3D optimization runs, only the CFD focuses on this M6 fix
+with the C mesh. Everybody hurries up."_ — and recorded so the next reader does not look for
+something that was deliberately not done:**
+
+> **The D8G L1 rerun is the ADJOINT PRIMAL ONLY.** The CRM CL/CD/CM comparison against NTF/Ames with
+> the DPW scatter is **cfd's registered run now, not this team's**. This L1 exists to feed the
+> adjoint, so it carries **no DPW band and no tunnel reference**, and none is registered here.
+> **The BLOCKED comparison verdict stands and is NOT reopened by this amendment.**
+
+### A11.1 `D8G-R3-UID` — the containers ran as root
+
+`d8g_run_arm.sh` carried `--user 0:0` on its `docker run` and `--allow-run-as-root` on all three
+`mpirun` command lines (`P`, `A`, `F`). Sanaa's 2026-09-12 item 6: **"As ubuntu. Never root.
+Container jobs included."**
+
+This is not an abstract violation. `docs/RESIZE_CENSUS_2026-09-12.md` §(a) attributes **642
+root-owned files written today in this curriculum** to that line, and the completed `R2/L1-P` tree
+shows it directly: `processor0-3/`, `d8g_P.json`, `d8g_P.jsonl` and `reports/` are all `root:root`
+while the staged instruments beside them are `ubuntu:ubuntu`.
+
+**The repair is measured, and the obvious spelling is wrong.** `-u 1000:1000` **alone** dies
+`Permission denied` sourcing `loadDAFoam.sh`, because the image's `dafoamuser` is uid 1002 and
+`/home/dafoamuser` is `drwxr-x---` — uid 1000 cannot *traverse* it. The working spelling is
+
+```
+-u 1000:1000 --group-add 1002
+```
+
+**uid 1000 and gid 1000 are both `ubuntu`**, so artifacts land `ubuntu:ubuntu`; 1002 is carried as a
+**supplementary** group for traversal alone. **Corroborated against a live peer run on this exact
+image** rather than a probe alone: `d6r2c_KR_REF_20260912T184838Z_79250`, whose own ledger line reads
+`uid=1000:1000+1002`, sourcing the identical `loadDAFoam.sh` and solving.
+
+### A11.2 `D8G-R3-EVIDENCE` — **the launcher deleted the previous run tree, as root, silently**
+
+The line was `sudo -n rm -rf "$WORK" 2>/dev/null`, and `WORK="$BASE/$ARM"` (`:415`).
+
+**On any re-launch against the same `BASE`, that removed the completed arm** — logs, `processor*`
+trees, `d8g_P.json`, the ledger datum — **and `2>/dev/null` meant it never said so.** CLAUDE.md rule
+4 is the opposite: a guard **refuses** a case whose run directory already exists, because a failed or
+stopped run root is **evidence**, never written into and still less removed.
+
+**It is now a refusal** (`exit 6`) naming the directory and telling the reader to move it aside by
+hand. The registered relaunch pattern is a **fresh timestamped `BASE`** — ADDENDUM 7 already required
+"a fresh root" — against which `$WORK` does not exist and the guard is silent.
+
+**The two defects are one defect.** The `rm -rf` needed `sudo` *only because* the container ran as
+root and left output the host could not delete. **It existed to clean up after §A11.1, and it
+disappears with it.** The same is true of the `sudo -n chown -R ubuntu:ubuntu` further down, which is
+kept as a plain `chown` — a successful no-op now, still useful for normalising anything a previous
+root-era run left behind.
+
+### A11.3 Nineteen escalations, not the two that were looked for
+
+The `sudo -n` prefix was removed from **every** `docker` call in the file, nineteen in total.
+`id ubuntu` carries **113(docker)**, `/var/run/docker.sock` is **660 root:docker**, and — the point
+that matters — **plain `docker ps` as this unprivileged user returns `rc=0` and lists the live peer
+container.** That is a positive control: a `docker ps` returning nothing would have shown only that
+the reader was blind.
+
+**Recorded because it is how the count was found, not as a flourish:** an assertion written to
+confirm "no executable `sudo` remains" **failed**, printing ten calls the sweep had not enumerated —
+including the `chown`. The list was written from reading; the assertion was written to disbelieve the
+reading, and it was right to.
+
+### A11.4 RE-FREEZE
+
+| instrument | previous | **this amendment** |
+|---|---|---|
+| `d8g_run_arm.sh` | `51ff683dda23aa0143d1a2fe5047c780` (ADDENDUM 1) → `7ce53b9242ac6e850cc330712d93d5b0` (on disk at this amendment) | **`c0fdb80ab60327f32531323b74097107`** |
+| `d8g_grade.py`, `d8g_runScript.py`, `d8g_of.py`, `d8g_decomposeParDict` | | **unchanged — NOT TOUCHED** |
+
+> **A discrepancy in the record, reported rather than smoothed over.** ADDENDUM 1's re-freeze names
+> `51ff683d…`, but the file on disk at this amendment hashed **`7ce53b92…`** — so the launcher moved
+> between ADDENDUM 1 and now without a re-freeze row naming the new value, the same class of gap this
+> lane found in `MP_A5R` §0 and in `A3GC` AMENDMENT 5 **on the same day**. This amendment records the
+> **before** hash it actually measured on disk as well as the after, so the chain is continuous from
+> here even though it is broken behind. **Which commit moved it, and whether that change was
+> registered, is NOT established by this lane and is not claimed.**
+
+The change is checked `bash -n` clean and is filed as a diff at `d8g_run_arm_R3_UID_APPLIED.diff`.
+**It has not been executed.**
+
+### A11.5 What is NOT repaired here
+
+* **`LAUNCH_BUDGET_S` and the cap machinery** — untouched; ADDENDUM 6 governs and directive #17
+  stands.
+* **The `F`/`A` arms** — the uid repair applies to them too because it is one `docker run`, but this
+  amendment registers **no** adjoint or FD arm. Only `L1-P`.
+* **Anything in `R1`/`R2`'s completed trees.** They are evidence, including the root-owned files;
+  nothing is chowned, moved or cleaned.
+
+*D8G PREREGISTRATION — ADDENDUM 11, 2026-09-12. Launcher re-frozen. No gate moved. Nothing launched.*

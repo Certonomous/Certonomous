@@ -1,0 +1,184 @@
+--- d8a/d8g_run_arm.sh	2026-09-12 19:30:41.602781412 +0000
++++ d8b/d8g_run_arm.sh	2026-09-12 19:30:41.630815028 +0000
+@@ -201,7 +201,7 @@
+ # For containerised MPI the conditioning variable is CONCURRENT CONTAINERS, not
+ # loadavg -- `uptime` will lie.  Censused before and after every arm.
+ container_census() {
+-  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d8g_" | tr '\n' ',' | sed 's/,$//'
++  docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d8g_" | tr '\n' ',' | sed 's/,$//'
+ }
+ 
+ # ---- REGISTERED CAP TABLE.  EVERY NUMBER IS DERIVED IN PLACE FROM
+@@ -288,7 +288,7 @@
+ # ---- this arm; (b) a driver pidfile naming a LIVE pid that is not an ancestor
+ # ---- of this process, or whose cwd is the run root.  A stale pidfile does not
+ # ---- block.
+-LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d8g_${ARM}_" 2>/dev/null | grep "^d8g_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++LIVE_SAME_ARM=$(docker ps --format '{{.Names}}' --filter "name=^d8g_${ARM}_" 2>/dev/null | grep "^d8g_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+ if [ -n "$LIVE_SAME_ARM" ]; then
+   echo "ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [$LIVE_SAME_ARM]"
+   echo "  Re-staging would remove the live arm directory under it.  REFUSED."
+@@ -388,7 +388,7 @@
+ echo "D4S_INSTRUMENT_MD5_PASS arm=$ARM checked=3"
+ 
+ # ---- image identity by DIGEST, resolved from the local store -------------
+-GOT_DIGEST=$(sudo -n docker image inspect --format '{{index .RepoDigests 0}}' "$IMG" 2>/dev/null | sed 's/.*@//')
++GOT_DIGEST=$(docker image inspect --format '{{index .RepoDigests 0}}' "$IMG" 2>/dev/null | sed 's/.*@//')
+ test -n "$GOT_DIGEST" || { echo "ABORT cannot read digest of $IMG"; exit 4; }
+ case "$IMG" in
+   dafoam-idwarp-rot:v1)       WANT=$IMG_PATCHED_DIGEST; ROW=PATCHED ;;
+@@ -444,7 +444,27 @@
+         test -f "$BASE/$AARM/d8g_A.json" || { echo "ABORT arm $ARM expects $AARM/d8g_A.json (the same row's L2 adjoint)"; exit 5; }
+         grep -aq "^ARM=$AARM .* rc=0 " "$BASE/ledger.txt" 2>/dev/null || { echo "ABORT arm $ARM: $AARM has no rc=0 ledger row"; exit 5; } ;;
+ esac
+-sudo -n rm -rf "$WORK" 2>/dev/null
++# D8G-R3-EVIDENCE  2026-09-12.  THIS LINE WAS `sudo -n rm -rf "$WORK" 2>/dev/null`.
++# IT DELETED THE ARM'S PREVIOUS RUN TREE, AS ROOT, SILENTLY, AT EVERY LAUNCH.
++#
++# WORK="$BASE/$ARM" (:415), so a re-launch against the same BASE destroyed the completed
++# arm -- logs, processor trees, d8g_P.json, the ledger datum -- and `2>/dev/null` meant
++# it never said so.  CLAUDE.md rule 4: a guard REFUSES a case whose run directory exists.
++# A failed or stopped run root is EVIDENCE, never written into and still less removed.
++# `sudo` was here only because the container ran as root and left root-owned output the
++# host could not delete -- THIS LINE EXISTED TO CLEAN UP AFTER THE DEFECT REPAIRED
++# BELOW, and it disappears with it.
++#
++# FOR WHOEVER RELAUNCHES: the registered pattern is a FRESH TIMESTAMPED BASE (ADDENDUM 7
++# already required "a fresh root"), against which $WORK does not exist and this is
++# silent.  If an aborted arm leaves $WORK, MOVE IT ASIDE BY HAND -- a decision a person
++# takes while looking at what is in it.
++if [ -e "$WORK" ]; then
++  echo "ABORT [EVIDENCE] $WORK already exists.  A run root is evidence and is never"
++  echo "                 deleted to make room.  Use a fresh timestamped BASE, or move"
++  echo "                 this tree aside by hand after looking at it."
++  exit 6
++fi
+ cp -a "$LBASE" "$WORK" || { echo "ABORT stage copy from $LBASE"; exit 4; }
+ rm -f "$WORK/runScript.py" "$WORK/logMeshGeneration.txt" "$WORK/volumeMesh.xyz" "$WORK/surfMesh.cgns" "$WORK/CRM_surfMesh.cgns.tar.gz" "$WORK/genWingMesh.py" "$WORK/preProcessing.sh" "$WORK/Allclean.sh" 2>/dev/null
+ cp -a "$BASE/d8g_runScript.py" "$BASE/d8g_of.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+@@ -476,9 +496,9 @@
+ # BASELINE design; F = the L2 central-FD sweep beside it, including the
+ # section-4 trivial baseline step.  NO OPTIMISER RUNS IN THIS ITEM.
+ case "$MODE" in
+-  P) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d8g_of.py -mode P -level $LEVEL" ;;
+-  A) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d8g_of.py -mode A -level $LEVEL" ;;
+-  F) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d8g_of.py -mode F -level $LEVEL" ;;
++  P) CMD="mpirun -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d8g_of.py -mode P -level $LEVEL" ;;
++  A) CMD="mpirun -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d8g_of.py -mode A -level $LEVEL" ;;
++  F) CMD="mpirun -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d8g_of.py -mode F -level $LEVEL" ;;
+ esac
+ 
+ # ---- the arm command goes to a FILE the container executes under its OWN
+@@ -522,7 +542,7 @@
+ # NOT_MEASURED, never as a passing placement gate.
+ (
+   for _ in $(seq 1 100000); do
+-    cid=$(sudo -n docker ps -q --filter "name=^${NAME}$" 2>/dev/null | head -1)
++    cid=$(docker ps -q --filter "name=^${NAME}$" 2>/dev/null | head -1)
+     if [ -n "$cid" ]; then break; fi
+     sleep 1
+   done
+@@ -533,7 +553,7 @@
+   done
+   if [ -z "$cg" ]; then echo '{"delivered_cores":null,"note":"cgroup path not found"}' >> "$CPUSAMPLE"; exit 0; fi
+   prev=""; prevt=""
+-  while sudo -n docker ps -q --filter "name=^${NAME}$" 2>/dev/null | grep -q .; do
++  while docker ps -q --filter "name=^${NAME}$" 2>/dev/null | grep -q .; do
+     now=$(date +%s.%N)
+     if [ "$(basename "$cg")" = "cpu.stat" ]; then
+       u=$(awk '/^usage_usec/{print $2}' "$cg" 2>/dev/null)
+@@ -620,7 +640,7 @@
+ # dependency is injected through a variable so the selftest can substitute a
+ # fixture; NOTHING here is hard-coded to the docker client.
+ # ---------------------------------------------------------------------------
+-: "${DOCKER:=sudo -n docker}"                       # injectable client
++: "${DOCKER:=docker}"                       # injectable client
+ : "${LAUNCH_WITNESS_RE:=^ExecutionTime = }"         # LA.0, registered
+ : "${LAUNCH_WITNESS_FORBIDDEN_RE:=^Time = }"        # the decomposePar decoy
+ : "${LAUNCH_CORROBORATOR_RE:=^Running Primal Solver}"
+@@ -808,8 +828,18 @@
+ # the rest of the arm.  Names are reusable; ids are not.  Every reader below
+ # addresses the ID.
+ CIDFILE="$BASE/${ARM}_${STAMP}.cid"
+-CID=$(sudo -n docker run -d --name "$NAME" \
+-    --user 0:0 --cpus=$RANKS --cpuset-cpus=$CPUSET --memory=$MEM --memory-swap=$MEM --oom-score-adj=500 \
++# D8G-R3-UID  2026-09-12.  WAS `docker run ... --user 0:0`.  TWO PRIVILEGE
++# DEFECTS ON ONE LINE.  (a) Sanaa 2026-09-12 item 6: "As ubuntu.  Never root.
++# Container jobs included."  The 2026-09-12 census attributes 642 root-owned files in
++# THIS curriculum to this line.  uid 1000 AND gid 1000 are both `ubuntu`; 1002 is the
++# IMAGE's dafoamuser group, SUPPLEMENTARY, solely to traverse the 0750 /home/dafoamuser
++# -- MEASURED: `-u 1000:1000` alone dies "Permission denied" sourcing loadDAFoam.sh.
++# CORROBORATED BY A LIVE PEER RUN on this same image: d6r2c_KR_REF, uid=1000:1000+1002.
++# (b) `id ubuntu` carries 113(docker), the socket is 660 root:docker, so the CLIENT
++# never needed root either -- MEASURED: plain `docker ps` as ubuntu returns rc=0 and
++# lists the live peer container.  The container's user is set by `--user`, not the client.
++CID=$(docker run -d --name "$NAME" \
++    -u 1000:1000 --group-add 1002 --cpus=$RANKS --cpuset-cpus=$CPUSET --memory=$MEM --memory-swap=$MEM --oom-score-adj=500 \
+     -v "$BASE":/mnt -w "/mnt/$ARM" "$IMG" bash -lc \
+     "source /home/dafoamuser/dafoam/loadDAFoam.sh && \
+      echo D4S_CONTAINER_UID: \$(id -u) && \
+@@ -915,15 +945,15 @@
+ # ===========================================================================
+ if [ "$LA_RC" -ne 0 ]; then
+   KILLED=$(la_kill "$CID" "$LA_TMP/la.stderr")
+-  sudo -n docker logs "$CID" > "$LOG" 2>&1
+-  EXITCODE=$(sudo -n docker inspect --format '{{.State.ExitCode}} {{.State.OOMKilled}}' "$CID" 2>>"$LA_TMP/la.stderr")
++  docker logs "$CID" > "$LOG" 2>&1
++  EXITCODE=$(docker inspect --format '{{.State.ExitCode}} {{.State.OOMKilled}}' "$CID" 2>>"$LA_TMP/la.stderr")
+   kill $SAMPLER 2>/dev/null; wait $SAMPLER 2>/dev/null
+   {
+     echo "ARM=$ARM ROW=$ROW IMG=$IMG DIGEST=$GOT_DIGEST launched: false reason=[$LA_REASON] launch_rc=$LA_RC waited_s=$LA_WAITED_S budget_s=$LAUNCH_BUDGET_S mtime_witness=$LA_MTIME precapture=$(basename "$LAUNCH_PRE") precapture_rows=$PRE_ROWS cid=$CID container_kill=$KILLED inspect(exit,oomkilled)=[$EXITCODE] decomposePar_decoy_seen=$LA_DECOY_SEEN solver_call_seen=$LA_CORROBORATED log=$(basename "$LOG") stamp=$STAMP"
+     echo "D8G_LAUNCH_REFUSED arm=$ARM rc=$LA_RC -- THE SOLVER'S FIRST ARTIFACT NEVER APPEARED.  This row is NOT A RESULT and no grading may read it."
+     echo "D8G_LAUNCH_READER_STDERR arm=$ARM: $(tr '\n' ' ' < "$LA_TMP/la.stderr" | head -c 600)"
+   } | tee -a "$BASE/ledger.txt"
+-  sudo -n docker rm "$CID" >/dev/null 2>&1
++  docker rm "$CID" >/dev/null 2>&1
+   exit "$LA_RC"
+ fi
+ echo "D8G_LAUNCH_ASSERTED arm=$ARM launched: true reason=[$LA_REASON] waited_s=$LA_WAITED_S budget_s=$LAUNCH_BUDGET_S mtime_witness=$LA_MTIME precapture=$(basename "$LAUNCH_PRE") precapture_rows=$PRE_ROWS cid=$CID solver_call_seen=$LA_CORROBORATED" | tee -a "$BASE/ledger.txt"
+@@ -949,7 +979,7 @@
+ echo "D4S_RUNAWAY_GUARD arm=$ARM cap_core_min=$CAP ceiling_core_min=$CEILING mode=report_then_stop_at_ceiling cap_is_a_stop=no_section_6.4"
+ CAP_REPORTED=no; CEILING_HIT=no; UNREADABLE_TICKS=0
+ while true; do
+-  RUNNING=$(sudo -n docker inspect --format '{{.State.Running}}' "$CID" 2>>"$LA_TMP/la.stderr")
++  RUNNING=$(docker inspect --format '{{.State.Running}}' "$CID" 2>>"$LA_TMP/la.stderr")
+   RIRC=$?
+   NOW=$(date -u +%s); EL=$((NOW-T0))
+   CM=$(python3 -c "print(round($EL*$RANKS/60.0,3))")
+@@ -970,14 +1000,14 @@
+   if [ "$(python3 -c "print(1 if $CM > $CEILING else 0)")" = "1" ]; then
+     CEILING_HIT=yes
+     echo "D4S_CEILING_HIT arm=$ARM core_min=$CM ceiling=$CEILING action=HARD_STOP" | tee -a "$BASE/ledger.txt"
+-    sudo -n docker stop -t 30 "$CID" >/dev/null 2>>"$LA_TMP/la.stderr"
++    docker stop -t 30 "$CID" >/dev/null 2>>"$LA_TMP/la.stderr"
+     break
+   fi
+   sleep 10
+ done
+-sudo -n docker logs "$CID" > "$LOG" 2>&1
++docker logs "$CID" > "$LOG" 2>&1
+ # THE KERNEL'S VERDICT, read BEFORE the container is removed.
+-rc=$(sudo -n docker inspect --format '{{.State.ExitCode}}' "$CID" 2>>"$LA_TMP/la.stderr")
++rc=$(docker inspect --format '{{.State.ExitCode}}' "$CID" 2>>"$LA_TMP/la.stderr")
+ test -n "$rc" || rc=125
+ T1=$(date -u +%s)
+ WALL=$((T1-T0))
+@@ -998,10 +1028,14 @@
+ " 2>/dev/null)
+ 
+ # ---- the KERNEL's verdict, read BEFORE the container is removed (8.2) ----
+-INSPECT=$(sudo -n docker inspect --format '{{.State.ExitCode}} {{.State.OOMKilled}}' "$CID" 2>>"$LA_TMP/la.stderr")
+-echo "$(sudo -n docker inspect --format '{{.State.ExitCode}} {{.State.OOMKilled}} {{.State.StartedAt}} {{.State.FinishedAt}} {{.HostConfig.CpusetCpus}} {{.HostConfig.Memory}}' "$CID" 2>>"$LA_TMP/la.stderr") $GOT_DIGEST" > "$BASE/${ARM}_${STAMP}.inspect.txt"   # the surviving kernel record (the grader's L-342 fallback)
+-sudo -n docker rm "$CID" >/dev/null 2>&1
+-sudo -n chown -R ubuntu:ubuntu "$LOG" "$WORK" 2>/dev/null
++INSPECT=$(docker inspect --format '{{.State.ExitCode}} {{.State.OOMKilled}}' "$CID" 2>>"$LA_TMP/la.stderr")
++echo "$(docker inspect --format '{{.State.ExitCode}} {{.State.OOMKilled}} {{.State.StartedAt}} {{.State.FinishedAt}} {{.HostConfig.CpusetCpus}} {{.HostConfig.Memory}}' "$CID" 2>>"$LA_TMP/la.stderr") $GOT_DIGEST" > "$BASE/${ARM}_${STAMP}.inspect.txt"   # the surviving kernel record (the grader's L-342 fallback)
++docker rm "$CID" >/dev/null 2>&1
++# D8G-R3-UID: was `sudo -n chown`.  It existed ONLY to undo the root ownership the
++# container created.  The container is now ubuntu, so this is a successful no-op and
++# needs no privilege.  Kept rather than deleted: it still normalises anything a
++# PREVIOUS root-era run left in a reused tree.
++chown -R ubuntu:ubuntu "$LOG" "$WORK" 2>/dev/null
+ 
+ CORE_MIN=$(python3 -c "print(round($WALL*$RANKS/60.0,3))")
+ MEMAVAIL_POST=$(python3 -c "print('%.2f' % ($(awk '/MemAvailable/{print $2}' /proc/meminfo)/1048576.0))")

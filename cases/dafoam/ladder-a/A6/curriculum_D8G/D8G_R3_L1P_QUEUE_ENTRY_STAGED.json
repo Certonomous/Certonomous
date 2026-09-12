@@ -1,0 +1,39 @@
+{
+  "team": "dafoam",
+  "case_id": "D8G-R3-L1-P",
+  "prereg_commit": "REPLACE_WITH_ADDENDUM_11_COMMIT_SHA",
+  "prereg_path": "cases/dafoam/ladder-a/A6/curriculum_D8G/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A6/curriculum_D8G/d8g_l1p_r3_queue_launch.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A6/curriculum_D8G",
+  "ranks": 4,
+  "cost_core_min_estimate": 98.7,
+  "cost_basis": "MEASURED, and this one genuinely is. The R2 L1-P arm COMPLETED rc=0 on 2026-09-12 at 06:52:14 with STATUS.L1-P reading `rc=0 wall_s=1480 core_min=98.667 inspect(exit,oomkilled)=[0 false]`. Same level, same arm, same ranks, same image. The rerun differs from it ONLY in the container's uid and the removal of the client privilege escalation, neither of which touches solver work. Dollars $0.084 DERIVED at the owner-stated $0.0513/core-h; the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md Sec.5).",
+  "memory_floor_gb": 14.0,
+  "enqueued_by": "dafoam lab-lane, on dafoam-supervisor's brief 2026-09-12 under Sanaa's priority shift. STAGED, NOT ENQUEUED -- not in verification/queue/dafoam/, and this lane launched nothing. SUPERVISION_CHARTER Sec.3 check 4 on ADDENDUM 11 is NOT discharged.",
+  "_schema_note": "Above = queue_entry_check.REQUIRED_FIELDS. Below is annotation the validator ignores, except memory_footprint_gb (Sanaa item 7, which the validator does not know).",
+  "memory_footprint_gb": 6.0,
+  "memory_footprint_basis": "6.0 GiB container ceiling, --memory-swap held equal so container swap is DISABLED (Sanaa item 18). This is the arm's OWN registered figure, d8g_run_arm.sh:232 `L1-P|L1-S|L2-P|L2-S) echo 6g` against Sec.5's predicted ~0.09 GiB for L1 -- transcribed, not invented here. It is corroborated by the completed R2 run, which finished rc=0 with OOMKilled=false under that exact ceiling.",
+  "memory_floor_gb_basis": "14.0 GiB MemAvailable to start = the 6 GiB ceiling plus host headroom. At staging the box reads 120 GiB available of 123.",
+  "scope_adjoint_primal_only": "THE ADJOINT PRIMAL ONLY. The CRM CL/CD/CM comparison against NTF/Ames with the DPW scatter as tolerance is CFD'S REGISTERED RUN NOW, not this team's. This L1 exists to feed the adjoint, so it carries NO DPW BAND and NO TUNNEL REFERENCE and none is registered. THE BLOCKED COMPARISON VERDICT STANDS AND IS NOT REOPENED. Nothing produced by this entry may be quoted as a validation result against tunnel data.",
+  "why_a_rerun_at_all": "The R2 L1-P arm already COMPLETED rc=0. It is rerun for ONE reason: it ran as ROOT. docker inspect on that curriculum reads User=0:0, and its output tree shows it directly -- processor0-3/, d8g_P.json, d8g_P.jsonl and reports/ are all root:root while the staged instruments beside them are ubuntu:ubuntu. The 2026-09-12 census attributes 642 root-owned files in this curriculum to that line. Sanaa item 6: 'As ubuntu. Never root. Container jobs included.' THE R2 TREE IS NOT DELETED, NOT CHOWNED AND NOT CLEANED -- it is evidence, root ownership included.",
+  "sanaa_launch_preconditions": {
+    "item_6_ubuntu_never_root": "SATISFIED AS OF ADDENDUM 11. `-u 1000:1000 --group-add 1002`, no --allow-run-as-root on any of the three mpirun command lines, and the sudo escalation removed from all nineteen docker calls. uid 1000 AND gid 1000 are both ubuntu; 1002 is the image's dafoamuser group, supplementary, solely to traverse the 0750 /home/dafoamuser. MEASURED: `-u 1000:1000` alone dies Permission denied sourcing loadDAFoam.sh. CORROBORATED by the live peer run d6r2c_KR_REF on this same image, whose ledger reads uid=1000:1000+1002.",
+    "item_7_memory_declared": "SATISFIED: memory_footprint_gb 6.0, memory_floor_gb 14.0, bases above.",
+    "item_8_core_guard": "ranks=4, the arm's own registered figure (d8g_run_arm.sh:241, every arm np=4, scotch). 4 solver ranks + fleet <= 16. NOTE FOR THE WAVE SCHEDULER: the peer's d6r2c_KR_REF holds 4 ranks on cpuset 2,3,4,5 while it runs.",
+    "items_1_3_checkpoints": "A STEADY PRIMAL OF ~25 MINUTES OF WALL (R2 measured wall_s=1480 at 4 ranks), SO IT FINISHES INSIDE SANAA'S 30-MINUTE CHECKPOINT WINDOW AND LOSES NOTHING A CHECKPOINT WOULD HAVE SAVED. THAT IS AN ARGUMENT FROM A MEASURED WALL TIME, NOT AN EXEMPTION: if the runner enforces items 1-3 by rule rather than by measured duration, HOLD this entry and rule on it rather than admitting it through an exception nobody granted. The margin is 5 minutes and it is thin -- a slower box would cross it.",
+    "item_5_kill_and_resume_proof": "The steady-OpenFOAM-in-a-container class proof is owed and is NOT this arm's to claim. The peer's d6r2c_KR_REF is the DAFoam-OPTIMISATION class, a different one.",
+    "item_9_detached": "The runner's setsid nohup wrapper with rc captured inside it; the arm launcher runs the container with `docker run -d` and polls it.",
+    "item_10_registration_frozen": "PARTIAL. D8G's gates, arms and levels were frozen long before this and NONE moves; ADDENDUM 11 is confined to launch preconditions and re-freezes only d8g_run_arm.sh. prereg_commit below is a deliberate non-sha placeholder until ADDENDUM 11 is committed.",
+    "item_19_runner_only": "launch_cmd points at d8g_l1p_r3_queue_launch.sh, which supplies a FRESH TIMESTAMPED BASE and execs the pinned arm launcher. Running it by hand does not make a case."
+  },
+  "evidence_guard_repaired_in_addendum_11": "d8g_run_arm.sh carried `sudo -n rm -rf \"$WORK\" 2>/dev/null` with WORK=\"$BASE/$ARM\" (:415) -- IT DELETED THE ARM'S PREVIOUS RUN TREE, AS ROOT, SILENTLY, AT EVERY LAUNCH. On a re-launch against the same BASE that destroyed the completed arm and said nothing. It is now a refusal (exit 6) naming the directory. The two defects are ONE defect: the rm needed sudo only because the container ran as root and left output the host could not delete, so it existed to clean up after the uid defect and disappears with it.",
+  "wrapper_guards_driven_both_ways": "The wrapper's five guards were driven against the real launcher AND against a planted-defect copy before this entry was written: real launcher passes all five; a copy with `--user 0:0` planted back as an EXECUTABLE line is refused. Every guard anchors on ^[^#]* and tests what bash would run -- because a whole-file grep for a defect's name fires on the COMMENT recording that defect being fixed, which was measured happening twice on MP_A5R tonight.",
+  "blocking_defects": [
+    "BLOCKER 1 -- ADDENDUM 11 is written but not yet committed; prereg_commit is a deliberate non-sha placeholder so this entry CANNOT validate if copied into the queue.",
+    "BLOCKER 2 -- supervisor's check 4 on ADDENDUM 11 is owed.",
+    "REPORTED, NOT REPAIRED -- a gap in D8G's own freeze chain: ADDENDUM 1 re-froze d8g_run_arm.sh at 51ff683dda23aa0143d1a2fe5047c780, but the file on disk before ADDENDUM 11 hashed 7ce53b9242ac6e850cc330712d93d5b0. The launcher moved between the two without a re-freeze row naming the new value. ADDENDUM 11 records the before hash it MEASURED as well as the after, so the chain is continuous from here even though it is broken behind. WHICH commit moved it, and whether that change was registered, is NOT established by this lane and is not claimed."
+  ]
+}
