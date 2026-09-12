@@ -356,3 +356,69 @@ on its own. It is recorded for that reason.
 
 *Appended by a cfd `lab-lane`, 2026-09-12, at the cfd-supervisor's written request.
 No agent's message is Sanaa's consent. Submissions parked.*
+
+---
+
+# ADDENDUM 2 — 2026-09-12 — **A MEASURED DISCRETISATION ERROR AGAINST AN EXACTLY KNOWN VALUE: `Cp_max` = 1.0706 WHERE THE ANALYTIC MAXIMUM IS 1.0**
+
+Appended, not inserted: **lines whose number changed above this section: 0.**
+**This is a DIAGNOSTIC BOUND, NOT A GATE AND NOT A BAND.** No threshold for it is registered
+anywhere in this family, none is created here, and it **changes no verdict** — it
+**strengthens** the `NOT A RESULT` already standing on the `Cd`.
+
+## A2.1 WHY THIS ONE NUMBER IS WORTH A SECTION
+
+For **incompressible** flow the stagnation point is the **maximum** of `Cp` and its value is
+**exactly 1.0** — not a correlation, not a reference measurement, an **analytic identity**.
+It is therefore one of the very few places on this body where the exact answer is known
+without a reference dataset, and the distance from it is a **measured discretisation error
+on this mesh, at this wall treatment, at this level.**
+
+## A2.2 THE MEASUREMENT, AND ITS DERIVATION IN FULL
+
+Read with the **frozen grader's own** body-owner-cell reader
+(`cases/navier_class/DRIVAER/grade_drivaer.py`, sha256 `6106cf6d…83c26d7`, **re-hashed
+against the committed blob at read time — MATCH**), because `p` is `zeroGradient` on every
+vehicle patch and the surface value is therefore the owner cell's:
+
+* **64,595 vehicle faces → 63,612 distinct owner cells, over all 47 vehicle patches.**
+* `q = ½·magUInf² = ½ × 38.889² = **756.1772 m²/s²**`, with `magUInf` read from the case's
+  own `system/forceCoeffs`.
+* **`p` is KINEMATIC here — m²/s², `dimensions [0 2 -2 0 0 0 0]` from the field file's own
+  header. It is NOT pascals.**
+
+| time | surface `p` (m²/s²) | surface `Cp` | overshoot above the analytic `Cp` = 1.0 |
+|---|---|---|---:|
+| **2000 (`endTime`, the graded time)** | [−3777.3351, +809.5600] | **[−4.9953, +1.0706]** | **+7.060 %** |
+| 1750 | [−3776.5985, +809.0353] | [−4.9943, +1.0699] | +6.990 % |
+
+**THE OVERSHOOT IS STATIONARY ACROSS 250 ITERATIONS — 6.990 % → 7.060 %.** It is therefore a
+property of the **discretisation**, not a transient the run would have shed with more
+iterations. That matters: it cannot be argued away as incomplete convergence.
+
+## A2.3 WHAT IT BOUNDS, AND WHAT IT DOES NOT
+
+**`Cd` is a pressure integral over this same surface.** A **7 % error at the one point where
+the exact answer is known** is therefore a **scale for the pressure error everywhere the
+exact answer is not known** — which is everywhere else on the body.
+
+**Said precisely, because the loose version would be an overclaim:**
+* It **is** a measured local error at one analytically-known point, on this mesh, at this
+  wall treatment, at `endTime`.
+* It is **NOT** an error bar on `Cd`. A pointwise overshoot at the stagnation cell does not
+  integrate to a 7 % force error, and nothing here computes what it does integrate to.
+* It **does not** change the `Cd` verdict, which is already **`NOT A RESULT`** (§6). Rule 5
+  runs one way and a diagnostic cannot lift it; this **supports** the verdict.
+* **No band, no gate, no threshold.** Registering one now, after seeing the number, is
+  precisely what rule 2 forbids.
+
+## A2.4 AND THE OTHER END OF THE RANGE CORROBORATES A CAP REGISTERED BEFORE THIS EXISTED
+
+`Cp_min = −4.9953` — a **−5 q suction spike**. It sits on the **unlayered wheel and arch
+group**: the same 16 patches, 19.65 % of wetted area, that **Gate Y2 capped as
+mixed-wall-treatment long before this image or this number existed**. An independently
+measured extremum landing on exactly the patch group a pre-registered claim cap already
+names is **corroboration of that cap**, not a new finding — and it is reported that way.
+
+*Appended by a cfd `lab-lane`, 2026-09-12. Alters no gate, threshold, cap or label; registers
+none. No agent's message is Sanaa's consent. Submissions parked.*
