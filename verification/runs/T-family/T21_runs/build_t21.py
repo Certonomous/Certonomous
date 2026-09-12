@@ -40,7 +40,24 @@ THE FOUR REGISTERED TRAPS, EACH HANDLED IN ONE PLACE:
   T-7 (S6, age guard) 0/ is created from 0.orig/ by the LAUNCHER, which touches
       0/housing/T last.  This builder writes 0.orig/, never 0/.
 
+  T-8 (S6 conjunct 6, the MESH-STAGE BYPRODUCT) splitMeshRegions writes its
+      cellToRegion TOPOLOGY MAP into a directory named `0/`.  That map is not a
+      field and not an answer -- it is part of the mesh -- but the age guard
+      tests for the NAME `0`, and correctly so: the guard's strength is that it
+      is crude and cannot be argued with.  So THE MESH STAGE RELOCATES ITS OWN
+      BYPRODUCT, here, in code, as the named step --postsplit, before the
+      physics stage ever runs.  The guard at physics():450 is UNCHANGED and
+      still refuses any `0/` it is shown.  --postsplit RELOCATES (os.rename to
+      constant/splitMeshRegions_byproduct/), NEVER DELETES, and REFUSES outright
+      if `0/` holds one single file that is not a cellToRegion map -- so a real
+      field planted in `0/` stops the mesh stage AND is then refused again by
+      the unchanged guard.  Both refusals are exercised in --selftest.
+
 Exit 0 built, 2 refusal.  Zero bare `assert` (L-332).  No .pyc beside pins.
+
+Phases, in order:  --case <c>  (mesh dicts)  ->  blockMesh, splitMeshRegions
+                   --postsplit <c>  (T-8, relocate the byproduct)
+                   --physics <c>  (physics dicts into the split tree)
 """
 import math
 import os
@@ -75,6 +92,11 @@ MAT = {  # rho, cp, k  -- S1 line 1
     "housing": (2700.0, 900.0, 167.0),
 }
 FIELDS = ("T", "p")   # S6 conjunct 4: solid regions carry exactly T and p
+
+# T-8: where the MESH stage puts splitMeshRegions' cellToRegion topology map.
+# Under constant/ because it is mesh, not an answer.  NEVER deleted.
+SPLIT_BYPRODUCT_DIR = os.path.join("constant", "splitMeshRegions_byproduct")
+SPLIT_BYPRODUCT_OBJECT = "cellToRegion"
 
 # ---- PHYSICS-DICT HALF (S3 heat source, S5.1 boundary, S6.2 g, S10 omissions) ----
 T_OUTER = 288.0        # K, housing_outer fixedValue sink (S5.1)
@@ -434,6 +456,94 @@ def write_physics(dst, spec, p_sector, region_patches):
     return 0
 
 
+def _is_split_byproduct(path):
+    """True only for a file whose FoamFile header declares `object cellToRegion;`
+    -- splitMeshRegions' topology map.  Read from the file, never inferred from
+    its name (rule 15's habit applied to a case tree: a name can be false)."""
+    try:
+        head = open(path, errors="replace").read(4096)
+    except OSError:
+        return False
+    return re.search(r"^\s*object\s+cellToRegion\s*;", head, re.M) is not None
+
+
+def postsplit(case):
+    """--postsplit phase (T-8), THE LAST STEP OF THE MESH STAGE.
+
+    splitMeshRegions -cellZones -overwrite writes its cellToRegion map into a
+    directory named `0/`.  This step relocates that byproduct to
+    constant/splitMeshRegions_byproduct/ so that the physics stage's age guard
+    -- which tests the NAME `0` and is deliberately not being softened -- is
+    shown a genuinely clean tree.
+
+    IT REFUSES, AND MOVES NOTHING, IF `0/` HOLDS ANYTHING ELSE.  One file that
+    is not a cellToRegion map is enough.  That is what keeps this a repair of
+    the mesh stage rather than a hole in the guard: a planted field stops here,
+    and then stops again at physics().
+    """
+    cases_intact_or_refuse()
+    if case not in CASES:
+        refuse("unknown case %r; registered set is %s" % (case, CASES_BASELINE))
+    dst = os.path.join(HERE, case)
+    if not os.path.isdir(dst):
+        refuse("%s does not exist -- run --case first" % dst)
+    for r in ("core", "housing"):
+        if not os.path.isfile(os.path.join(dst, "constant", r, "polyMesh", "boundary")):
+            refuse("%s: region %r not split -- --postsplit runs AFTER blockMesh "
+                   "+ splitMeshRegions" % (dst, r))
+    # never relocate anything in a tree that already holds an answer
+    for n in os.listdir(dst):
+        if n != "0" and n != "0.orig" and n.replace(".", "", 1).isdigit():
+            refuse("%s already holds time directory %r -- the mesh stage is over; "
+                   "nothing is moved in a tree that holds an answer" % (dst, n))
+    zero = os.path.join(dst, "0")
+    dest = os.path.join(dst, SPLIT_BYPRODUCT_DIR)
+    if not os.path.exists(zero):
+        print("postsplit %s: no 0/ present -- nothing to relocate (byproduct dir "
+              "exists: %s)" % (case, os.path.isdir(dest)))
+        return 0
+    if not os.path.isdir(zero):
+        refuse("%s/0 is not a directory -- unrecognised; nothing moved" % dst)
+    # PROVE every single file under 0/ is a cellToRegion map.  Any other file,
+    # and the whole step refuses: it may be an answer, and this code does not
+    # get to decide that it is not.
+    found, offenders = [], []
+    for root, _dirs, files in os.walk(zero):
+        for f in sorted(files):
+            p = os.path.join(root, f)
+            rel = os.path.relpath(p, zero)
+            if f == SPLIT_BYPRODUCT_OBJECT and _is_split_byproduct(p):
+                found.append(rel)
+            else:
+                offenders.append(rel)
+    if offenders:
+        refuse("%s/0 holds %d file(s) that are NOT splitMeshRegions cellToRegion "
+               "maps: %s -- these may be ANSWERS.  Nothing was moved and nothing "
+               "was deleted; the age guard stands and physics() will refuse this "
+               "tree." % (dst, len(offenders), ", ".join(offenders[:8])))
+    if not found:
+        refuse("%s/0 holds no cellToRegion map at all -- unrecognised; nothing moved" % dst)
+    if os.path.exists(dest):
+        refuse("%s already exists -- nothing is ever overwritten or deleted here" % dest)
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    os.rename(zero, dest)                       # RELOCATE.  Never delete.
+    if os.path.exists(zero):
+        refuse("0/ still present after the relocation -- refusing rather than "
+               "reporting a move that did not happen")
+    open(os.path.join(dest, "PROVENANCE.txt"), "w").write(
+        "splitMeshRegions BYPRODUCT, relocated here by build_t21.py --postsplit\n"
+        "(T-8).  Case: %s.  Contents when moved: %s.\n\n"
+        "This is the cellToRegion TOPOLOGY MAP splitMeshRegions writes into a\n"
+        "directory named 0/.  It is mesh, not a field and not an answer.  It was\n"
+        "MOVED, not deleted, and every file in it was read and found to declare\n"
+        "`object cellToRegion;` before the move.  The physics-stage age guard\n"
+        "(CLAUDE.md rule 4) is UNCHANGED and still refuses any 0/ it is shown.\n"
+        % (case, ", ".join(found)))
+    print("postsplit %s: relocated %d cellToRegion map(s) (%s) to %s; 0/ is gone, "
+          "nothing deleted" % (case, len(found), ", ".join(found), SPLIT_BYPRODUCT_DIR))
+    return 0
+
+
 def physics(case):
     """--physics phase: write the physics dicts into a split tree."""
     cases_intact_or_refuse()
@@ -469,10 +579,13 @@ def physics(case):
 def main(argv):
     if "--selftest" in argv:
         return selftest()
+    if "--postsplit" in argv:
+        return postsplit(argv[argv.index("--postsplit") + 1])
     if "--physics" in argv:
         return physics(argv[argv.index("--physics") + 1])
     if "--case" not in argv:
-        refuse("usage: build_t21.py --case <name> | --physics <name> | --selftest")
+        refuse("usage: build_t21.py --case <name> | --postsplit <name> "
+               "| --physics <name> | --selftest")
     return build(argv[argv.index("--case") + 1])[0]
 
 
@@ -569,6 +682,86 @@ def selftest():
             chk(False, "write_physics should refuse an unsplit region")
         except SystemExit as e:
             chk(e.code == 2, "write_physics REFUSES an unsplit region (exit %s)" % e.code)
+
+        # ---- T-8: THE MESH-STAGE BYPRODUCT RELOCATION, AND THE PROOF THAT
+        # ---- THE AGE GUARD STILL FIRES AFTER IT.
+        #
+        # This block is the demonstration the guard repair is not allowed to be
+        # believed without: the guard is NOT weakened, and a real field planted
+        # in 0/ is refused TWICE -- once by the relocation step, which will not
+        # touch it, and once by the unchanged physics() guard.
+        print("  -- T-8 mesh-stage byproduct relocation + AGE-GUARD DEMONSTRATION --")
+        MAP = ("FoamFile\n{\n    version 2.0;\n    format ascii;\n"
+               "    class volScalarField;\n    location \"0\";\n"
+               "    object cellToRegion;\n}\ndimensions [0 0 0 0 0 0 0];\n"
+               "internalField uniform 0;\n")
+        FIELD_T = ("FoamFile\n{\n    version 2.0;\n    format ascii;\n"
+                   "    class volScalarField;\n    object T;\n}\n"
+                   "dimensions [0 0 0 1 0 0 0];\ninternalField uniform 288;\n")
+
+        def make_split_tree():
+            """the post-splitMeshRegions shape: region polyMesh/boundary files,
+            and a 0/ holding ONLY cellToRegion maps."""
+            for r in ("core", "housing"):
+                bd = os.path.join(cdst, "constant", r, "polyMesh")
+                os.makedirs(bd, exist_ok=True)
+                if not os.path.isfile(os.path.join(bd, "boundary")):
+                    open(os.path.join(bd, "boundary"), "w").write("0()\n")
+            shutil.rmtree(os.path.join(cdst, "0"), ignore_errors=True)
+            shutil.rmtree(os.path.join(cdst, SPLIT_BYPRODUCT_DIR), ignore_errors=True)
+            for rel in ("cellToRegion", "core/cellToRegion", "housing/cellToRegion"):
+                p = os.path.join(cdst, "0", rel)
+                os.makedirs(os.path.dirname(p), exist_ok=True)
+                open(p, "w").write(MAP)
+
+        # (1) BEFORE the relocation the UNCHANGED guard already refuses -- this
+        #     is the block the mesh stage exists to clear, and it is real.
+        make_split_tree()
+        try:
+            physics("T21_CYL_c"); chk(False, "physics should refuse a tree holding 0/")
+        except SystemExit as e:
+            chk(e.code == 2, "UNCHANGED guard REFUSES the split tree's 0/ (exit %s)" % e.code)
+
+        # (2) the mesh stage relocates its own byproduct; 0/ is gone, nothing deleted
+        chk(postsplit("T21_CYL_c") == 0, "--postsplit relocates the cellToRegion byproduct")
+        chk(not os.path.exists(os.path.join(cdst, "0")), "0/ no longer exists after --postsplit")
+        for rel in ("cellToRegion", "core/cellToRegion", "housing/cellToRegion"):
+            chk(os.path.isfile(os.path.join(cdst, SPLIT_BYPRODUCT_DIR, rel)),
+                "byproduct PRESERVED at %s/%s (moved, never deleted)" % (SPLIT_BYPRODUCT_DIR, rel))
+        chk(postsplit("T21_CYL_c") == 0, "--postsplit is idempotent: no 0/, nothing to do")
+
+        # (3) PLANT A REAL FIELD IN 0/.  The relocation step must REFUSE it and
+        #     must not move or delete it.
+        shutil.rmtree(os.path.join(cdst, SPLIT_BYPRODUCT_DIR), ignore_errors=True)
+        make_split_tree()
+        planted = os.path.join(cdst, "0", "housing", "T")
+        open(planted, "w").write(FIELD_T)
+        try:
+            postsplit("T21_CYL_c"); chk(False, "--postsplit should refuse a planted field")
+        except SystemExit as e:
+            chk(e.code == 2, "PLANTED 0/housing/T: --postsplit REFUSES (exit %s)" % e.code)
+        chk(os.path.isfile(planted), "planted 0/housing/T STILL ON DISK -- nothing deleted")
+        chk(os.path.isdir(os.path.join(cdst, "0")), "0/ still present -- nothing moved")
+
+        # (4) AND THE GUARD ITSELF STILL FIRES.  This is the clause the repair
+        #     is worthless without.
+        try:
+            physics("T21_CYL_c"); chk(False, "the age guard FAILED TO FIRE on a planted field")
+        except SystemExit as e:
+            chk(e.code == 2, "PLANTED 0/housing/T: THE AGE GUARD STILL FIRES (exit %s)" % e.code)
+
+        # (5) and it fires on a numeric time directory too
+        shutil.rmtree(os.path.join(cdst, "0"), ignore_errors=True)
+        os.makedirs(os.path.join(cdst, "3000"), exist_ok=True)
+        open(os.path.join(cdst, "3000", "T"), "w").write(FIELD_T)
+        try:
+            physics("T21_CYL_c"); chk(False, "the age guard FAILED TO FIRE on time dir 3000")
+        except SystemExit as e:
+            chk(e.code == 2, "PLANTED time directory 3000: THE AGE GUARD STILL FIRES (exit %s)" % e.code)
+        try:
+            postsplit("T21_CYL_c"); chk(False, "--postsplit should refuse a tree holding 3000/")
+        except SystemExit as e:
+            chk(e.code == 2, "PLANTED time directory 3000: --postsplit REFUSES (exit %s)" % e.code)
     finally:
         HERE = real
         shutil.rmtree(tmp, ignore_errors=True)

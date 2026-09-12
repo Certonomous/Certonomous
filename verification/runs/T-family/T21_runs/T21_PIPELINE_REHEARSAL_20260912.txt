@@ -1,0 +1,74 @@
+T21 FULL MESH-PIPELINE REHEARSAL -- 2026-09-12, heat-transfer lab-lane.
+Tree: T21_PIPELINE_REHEARSAL_20260912/  (a rehearsal root, NOT a registered
+case tree; it holds its own copies of build_t21.py and exact_t21.py and no
+registered case directory was touched by any step below).
+
+WHY: build_t21.py --physics REFUSED its own registered build sequence, because
+splitMeshRegions writes its cellToRegion TOPOLOGY MAP into a directory named
+`0/` and the age guard (CLAUDE.md rule 4) tests the NAME `0`.  The supervisor
+ruled the guard CORRECT and NOT to be weakened; the defect is on the other side,
+so the MESH STAGE now relocates its own byproduct, in code, as the named step
+--postsplit (trap T-8 in build_t21.py).  This rehearsal is the proof, on real
+splitMeshRegions output rather than on synthetic fixtures.
+
+THE PIPELINE, END TO END, ON A REAL TREE
+  build_t21.py --case T21_CYL_c        rc=0   core 24 + housing 8 radial, 20
+                                              axial; theta 5.0000 deg read back;
+                                              P_sector 1.388888889 W
+  blockMesh                            rc=0
+  splitMeshRegions -cellZones -overwrite
+                                       rc=0   0/ appears, holding exactly
+                                              cellToRegion, core/cellToRegion,
+                                              housing/cellToRegion
+  build_t21.py --postsplit T21_CYL_c   rc=0   3 cellToRegion maps RELOCATED to
+                                              constant/splitMeshRegions_byproduct/
+                                              0/ gone.  NOTHING DELETED.
+  build_t21.py --physics T21_CYL_c     rc=0   THE STEP THAT WAS BLOCKED.  source
+                                              motorLoss h=1.388888889 W on core;
+                                              housing_outer fixedValue 288.0 K;
+                                              core<->housing coupled; radiation
+                                              none; g (0 0 0)
+  checkMesh -allRegions -allTopology -allGeometry
+                                       rc=0   TWO "Mesh OK": core 480 cells,
+                                              housing 160 cells.  Registered
+                                              (S8.1): 480 / 160 / 640.
+
+A COLLATERAL FINDING ABOUT THE 2026-09-12 EVIDENCE IN T21_CYL_c
+  T21_CYL_c/log.checkMesh.core and log.checkMesh.housing are NOT evidence of a
+  good mesh.  Both end in a FOAM FATAL ERROR -- "failed lookup of housing
+  (objectRegistry T21_CYL_c)" at objectRegistryTemplates.C:627 -- because a
+  single-region checkMesh cannot resolve the mappedWall interface's neighbour
+  region.  And T21_CYL_c/log.checkMesh.allregions contains ONE "Create mesh"
+  and ONE "Mesh OK": with constant/regionProperties absent (it is written by
+  --physics, which was refusing), -allRegions fell back to the BASE mesh and
+  checked the split regions not at all.
+  RESOLVED HERE, not argued away: with regionProperties present, checkMesh
+  -allRegions loads both regions, resolves the mapped patches and returns TWO
+  "Mesh OK" with the registered cell counts (above).  The mesh is good; the
+  earlier per-region evidence for it was not.
+
+THE GUARD STILL FIRES -- THE DEMONSTRATION THE REPAIR IS WORTHLESS WITHOUT
+  A REAL volScalarField T (copied byte-for-byte from 0.orig/housing/T, header
+  `object T;`) was PLANTED at 0/housing/T in this rehearsal tree.  Three
+  independent instruments refused it:
+    build_t21.py --postsplit    rc=2  "0 holds 1 file(s) that are NOT
+                                       splitMeshRegions cellToRegion maps:
+                                       housing/T ... Nothing was moved and
+                                       nothing was deleted"
+    build_t21.py --physics      rc=2  "already holds '0' -- physics is never
+                                       written over an answer"   <-- THE GUARD,
+                                       UNCHANGED, STILL FIRING
+    launch_t21.sh --case-dir    rc=2  "already has a 0/ directory -- the age
+                                       guard could not be evaluated"; no STATUS
+                                       and no START written
+  The planted file is STILL ON DISK at
+  T21_PIPELINE_REHEARSAL_20260912/T21_CYL_c/0/housing/T (597 B) and is left
+  there as preserved evidence.  That is why this rehearsal tree now refuses
+  --physics: it is holding the plant, deliberately.
+  The same clauses are exercised as re-runnable code in
+  `build_t21.py --selftest` (SELFTEST PASSED) and, for the completion rule's six
+  conjuncts, in `mark_done_t21.py --selftest` (SELFTEST PASSED).
+
+COST: mesh generation and mesh checking only.  NO SOLVER WAS RUN ANYWHERE.  T21
+still has ZERO COMPUTE: no STATUS file, no log.solve and no time directory
+beyond `0` exists under T21_runs.

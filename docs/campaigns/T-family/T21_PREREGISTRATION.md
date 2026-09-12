@@ -1535,3 +1535,171 @@ whole point, and it is the ordering the T5 `S_m` arm did not get.
 - It **does not assert any verdict.** No term of `CLAUDE.md` rule 1's vocabulary
   is claimed anywhere in this document, and the feasibility probe's `FEASIBLE`
   finding is **not** a `PASS`.
+
+---
+
+## AMENDMENT 3 — 2026-09-12 — **PRE-COMPUTE. THE GRADING PATH IS PINNED BY sha256. §11 SAID THIS DOCUMENT DOES NOT WRITE THE INSTRUMENTS; THEY NOW EXIST, AND `CLAUDE.md` RULE 2's "THE GRADING PATH IS FIXED AT THE PRE-REGISTRATION COMMIT" IS NOT SATISFIED UNTIL THEY ARE NAMED HERE.**
+
+> **VERSION: v1.2** (v1.0 freeze at Amendment 2; v1.1 = Amendment 2's STATUS
+> supersession; **v1.2 = this amendment**).
+> **Lines whose number changed above this section: 0.** This amendment is
+> appended at the foot. Nothing above line 1537 of the file as it stood at
+> `89a7bdbb7` — or at any line number any other record cites — is edited,
+> moved, renumbered or struck. `CLAUDE.md` rule 6.
+>
+> **IT CHANGES NO GATE, NO THRESHOLD, NO BAND, NO CAP AND NO LABEL.** Q1, Q2
+> and Q3 keep their §1 bands to the digit; POINT stays **9.1901 core-min**; CAP
+> stays **20.0 core-min, hard**; `endTime` stays **3000** with **no
+> `residualControl`**; the §8.1 run set stays the same six cases; the §7.4
+> calibration-admissibility threshold stays `< 0.5 × nproc` = **8.0**. If a
+> reader finds anything below that widens, narrows or re-labels a registered
+> quantity, **this amendment is the defect and the frozen text wins.**
+
+### A3.0 THE LEGALITY CONDITION, AND HOW IT WAS CHECKED
+
+`CLAUDE.md` rule 2: *"Before first compute, amendments are legal **and must
+state the condition and how it was checked** (name the run directory that does
+not exist)."*
+
+**THE CONDITION: T21 HAS HAD ZERO COMPUTE.** No solver has ever started on any
+T21 case. Checked on disk at **2026-09-12T01:4xZ**, five ways, under
+`verification/runs/T-family/T21_runs/`:
+
+| # | check | result | what it would have caught |
+|---|---|---|---|
+| 1 | `find . -name 'STATUS.*' \| wc -l` | **0** | any run that exited, cleanly or not |
+| 2 | `find . -name 'log.solve' \| wc -l` | **0** | any solver that opened its log, including one still running |
+| 3 | time directories `> 0` anywhere | **none** | any run that wrote a field |
+| 4 | `postProcessing/` holding solve output | **none** — the one `postProcessing/` tree on disk holds four `checkMesh` `*.vtp` mapped-patch files and nothing else | a post-hoc pass over an answer |
+| 5 | **the registered run directories that DO NOT EXIST** | **`T21_CYL_m`, `T21_CYL_f`, `T21_CYL_W1`, `T21_CYL_P1000`, `T21_CYL_S10` — five of the six registered §8.1 cases have never been created at all.** The sixth, `T21_CYL_c`, exists and holds a **mesh only**: `constant/`, `system/`, `0.orig/`, four mesh logs, and **no `0/`, no time directory, no `log.solve`, no `STATUS`** | the whole condition, stated the way rule 2 asks for it |
+
+**The two directories named `0` that do exist are not answers and are not
+compute.** `T21_CYL_c.MESH_REHEARSAL_20260906_PRESERVED/0` and
+`T21_PIPELINE_REHEARSAL_20260912/T21_CYL_c/0` are, respectively, the 2026-09-06
+mesh rehearsal's `splitMeshRegions` byproduct and the 2026-09-12 planted-field
+guard demonstration (§A3.2). Neither is a registered case tree; neither holds a
+solver field; neither was produced by a solver.
+
+**So the pre-compute window is open, and this is the amendment rule 2 itself
+provides. After the first solver starts it closes, and the pins below become
+unalterable.**
+
+### A3.1 THE DEFECT THIS REPAIRS, STATED AGAINST THE CLOCK
+
+| what | when | evidence |
+|---|---|---|
+| this registration FROZEN | `89a7bdbb7`, **2026-09-03 22:59:57** | Amendment 2; `git log -1 --format=%ad --date=iso-strict 89a7bdbb7` |
+| `build_t21.py` first committed | `a2be96b79`, **2026-09-07 04:52:16** | `git log -- verification/runs/T-family/T21_runs` |
+| `analyse_t21.py`, `launch_t21.sh`, `mark_done_t21.py` | **after that again**, and uncommitted at the time of writing | `git status --porcelain` |
+
+**Four days separate the freeze from the first line of the builder, and §11 of
+this document says so in terms:** *"It does not write the builder, the
+comparator or the launcher … the code is a separate act under a separate
+review."* That was the right call about authorship. Its consequence is that
+**rule 2's third clause — "the grading path is fixed at the pre-registration
+commit; verify the frozen file IS the file that ran by hashing it against the
+committed blob" — has nothing to hash.** Grading a T21 row against an unpinned
+instrument would violate rule 2 no matter how good the instrument is, because
+the freeze's entire evidentiary content is that the path could not have been
+chosen to fit the answer.
+
+**This amendment supplies the missing hashes. It does not revisit §11's
+decision** — the instruments were still written, reviewed and read as diffs by
+the supervisor as a separate act; what lands here is only their identity.
+
+### A3.2 THE PINS — sha256 OF THE DISK BYTES
+
+**sha256 of the file's bytes on disk, not a git blob SHA-1** (L-450: a blob hash
+covers a prefixed, mode-sensitive encoding and is not the file's own digest).
+Re-derive with `sha256sum <path>` from the repository root; the figures below
+are re-derived and re-asserted in the committing invocation itself.
+
+| instrument | path (repo-relative) | lines | **sha256** |
+|---|---|---:|---|
+| builder | `verification/runs/T-family/T21_runs/build_t21.py` | 773 | `2615b02f643fdee3ef5c3d25a0752f240ba5a14ed5a17f1550cbaca6196e0d6b` |
+| launcher | `verification/runs/T-family/T21_runs/launch_t21.sh` | 271 | `88213a884cbc5e7761618684ebfb3f9b23ab5d21469ff2bac11b797e3ce4cef0` |
+| completion instrument | `verification/runs/T-family/T21_runs/mark_done_t21.py` | 305 | `756b014deb4e32ee27c05f9e41a28ff7bb8d0a880589ee3e7db9116e7e41aa4d` |
+| comparator | `verification/runs/T-family/T21_runs/analyse_t21.py` | 1199 | `e335e3d35cd50a3bbd9db1edcbaa1100b59d4a0f525fd307c3adb4a4898c325b` |
+| reference | `verification/runs/T-family/T21_runs/exact_t21.py` | 167 | `579364d1ba6be2036ea8cfcc07bdcf56a65bae942cab3396e397a5fe59bb9c5e` |
+
+**`exact_t21.py` is pinned although it is not itself a grader.** `analyse_t21.py`
+and `build_t21.py` both import it, and `X.p_sector` is the single place the
+wedge power factor is computed (trap T-4). An unpinned reference reached through
+a pinned comparator is an unpinned grading path with extra steps.
+
+**THE PINS ARE IDENTITY, NOT AUTHORITY.** A file matching its hash is the file
+that was reviewed; it is not thereby correct. A hash mismatch at grading time is
+`NOT A RESULT` for the affected rows — never a re-pin, never a fresh hash
+written over this table. Any later change to a pinned instrument lands as its
+own dated addendum naming the old and new digests.
+
+### A3.3 WHAT THE INSTRUMENTS DO THAT §6 AND §7.4 REGISTERED, AND NOTHING MORE
+
+Stated so the pins are readable as a contract rather than as five opaque digests.
+
+- **`build_t21.py --postsplit` (trap T-8) is a MESH-STAGE step, and the age
+  guard is UNCHANGED.** `splitMeshRegions` writes its `cellToRegion` topology
+  map into a directory named `0/`; the §6-conjunct-6 guard tests the NAME `0`,
+  and **it is not being softened** — the whole strength of "does `0` exist" is
+  that it is crude and cannot be argued with, and softening it into "does `0`
+  contain things somebody considers answers" would open that door for every
+  rung in the lab. So the mesh stage relocates its own byproduct instead, in
+  code, to `constant/splitMeshRegions_byproduct/`. It **relocates and never
+  deletes**, and it **refuses outright** if `0/` holds one single file that does
+  not declare `object cellToRegion;`.
+- **The guard was shown to still fire, on a real tree, before this was
+  believed.** A real `volScalarField T` planted at `0/housing/T` was refused
+  three times independently — by `--postsplit` (exit 2, nothing moved, nothing
+  deleted), by the unchanged `physics()` guard (exit 2), and by
+  `launch_t21.sh` (exit 2, **no `STATUS` and no `START` written**). Record:
+  `verification/runs/T-family/T21_runs/T21_PIPELINE_REHEARSAL_20260912.txt`;
+  re-runnable as `build_t21.py --selftest` and `mark_done_t21.py --selftest`.
+- **`launch_t21.sh`** writes `START.<case>` **before** the solver (§7.4:
+  `start_utc`, all three `/proc/loadavg` windows, `procs_running`, `nproc`,
+  available memory, and the registered `calibration_admissible` verdict
+  computed at the point of measurement); arms `0/` from `0.orig/` with
+  **`0/housing/T` touched LAST** (§6 conjunct 6); and **captures `rc` inside the
+  detached wrapper**, on the line after the solver returns — never around a
+  `setsid`, which exits 0 for every outcome. `STATUS.<case>` and `START.<case>`
+  are written **inside** the case directory because the comparator reads
+  `os.path.join(case_dir, "STATUS."+basename)` at `analyse_t21.py:370`.
+- **`mark_done_t21.py`** evaluates §6's six conjuncts all-or-nothing and refuses
+  rather than degrades. `checkmesh_rc`, the post-hoc `postProcess` pass and the
+  §7.4 contention disclosure are **INFRASTRUCTURE**: reported beside each case,
+  never decisive (Sanaa's universal rule 2026-08-26 — bookkeeping never voids
+  physics).
+
+### A3.4 **NO `timeout` KILLS A T21 RUN — AND THE CAP IS UNCHANGED**
+
+**Sanaa, 2026-09-12 ~01:00Z, her own words relayed by the chief:** *"dont forget
+i dont want any cap on any run, and that i bumped the volume to 1000 gib"*.
+
+**REGISTERED CONSEQUENCE, and it is a change to the INSTRUMENT, not to the
+CAP:** `launch_t21.sh` runs the solver with **no cap-derived `timeout`**, so no
+T21 run is killed by a clock. **§7.2's CAP of 20.0 core-min over the run set is
+NOT altered, NOT widened and NOT retired.** It stays exactly what §7.2 calls it
+— *a runaway guard, a prediction, and a calibration input* — and the launcher
+records it in every `STATUS` file as `point_core_min`, `set_cap_core_min` and
+`cap_exceeded`, as **disclosure at the point of measurement**.
+
+**Why that is safe on this rung specifically, rather than in general:** every
+T21 case has a **natural terminus** — `endTime` 3000, `deltaT` 1, and **no
+`residualControl`** (§6.1) — so the run ends because the registered iteration
+count is exhausted, not because a timer intervened. A rung whose terminus was a
+wall-clock timer would need a different answer, and this amendment does not give
+one.
+
+**What is NOT claimed:** this does not retire `CLAUDE.md` rule 12's "an overrun
+stops the run" for the lab, and no agent could. It records the owner's
+instruction for this rung's launcher and leaves the rule where it is. Retiring a
+standard is reserved to Sanaa.
+
+### A3.5 WHAT THIS AMENDMENT DOES **NOT** DO
+
+- It **does not authorise a solve beyond what Amendment 2 already authorised**
+  (the §8.1 run set within the §7.2 cap). It adds nothing to that authority.
+- It **does not weaken, rewrite or reinterpret the age guard.** §6 conjunct 6
+  stands word for word.
+- It **does not grade anything**, asserts no verdict from rule 1's vocabulary,
+  and reports no measured physical quantity.
+- It **files nothing anywhere.** `CLAUDE.md` rule 7 — submissions are parked.

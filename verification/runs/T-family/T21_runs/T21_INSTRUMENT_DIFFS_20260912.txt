@@ -1,0 +1,436 @@
+T21 INSTRUMENT DIFFS -- 2026-09-12, for the heat-transfer supervisor's
+SUPERVISION_CHARTER.md section 3 check-1 (measurement-script diffs read AS DIFFS,
+personally, never delegated).  T21_PREREGISTRATION.md section 11 demands exactly this.
+
+FOUR ITEMS:
+  1. build_t21.py          MODIFIED  (tracked at a2be96b79)  -- diff below
+  2. launch_t21.sh         NEW                               -- full file
+  3. mark_done_t21.py      NEW                               -- full file
+  4. T21_PREREGISTRATION.md  AMENDMENT 3 appended at the foot -- diff below
+
+NOT in this diff and NOT edited by this lane: analyse_t21.py (untracked at
+e335e3d3..., written 2026-09-07 by a previous lane, pinned unchanged by
+Amendment 3), exact_t21.py, and every byte of the frozen registration above
+line 1537.
+
+==============================================================================
+1. build_t21.py -- git diff HEAD
+==============================================================================
+diff --git a/verification/runs/T-family/T21_runs/build_t21.py b/verification/runs/T-family/T21_runs/build_t21.py
+index fd6ac8d2e..2c06a9954 100644
+--- a/verification/runs/T-family/T21_runs/build_t21.py
++++ b/verification/runs/T-family/T21_runs/build_t21.py
+@@ -40,7 +40,24 @@ THE FOUR REGISTERED TRAPS, EACH HANDLED IN ONE PLACE:
+   T-7 (S6, age guard) 0/ is created from 0.orig/ by the LAUNCHER, which touches
+       0/housing/T last.  This builder writes 0.orig/, never 0/.
+ 
++  T-8 (S6 conjunct 6, the MESH-STAGE BYPRODUCT) splitMeshRegions writes its
++      cellToRegion TOPOLOGY MAP into a directory named `0/`.  That map is not a
++      field and not an answer -- it is part of the mesh -- but the age guard
++      tests for the NAME `0`, and correctly so: the guard's strength is that it
++      is crude and cannot be argued with.  So THE MESH STAGE RELOCATES ITS OWN
++      BYPRODUCT, here, in code, as the named step --postsplit, before the
++      physics stage ever runs.  The guard at physics():450 is UNCHANGED and
++      still refuses any `0/` it is shown.  --postsplit RELOCATES (os.rename to
++      constant/splitMeshRegions_byproduct/), NEVER DELETES, and REFUSES outright
++      if `0/` holds one single file that is not a cellToRegion map -- so a real
++      field planted in `0/` stops the mesh stage AND is then refused again by
++      the unchanged guard.  Both refusals are exercised in --selftest.
++
+ Exit 0 built, 2 refusal.  Zero bare `assert` (L-332).  No .pyc beside pins.
++
++Phases, in order:  --case <c>  (mesh dicts)  ->  blockMesh, splitMeshRegions
++                   --postsplit <c>  (T-8, relocate the byproduct)
++                   --physics <c>  (physics dicts into the split tree)
+ """
+ import math
+ import os
+@@ -76,6 +93,11 @@ MAT = {  # rho, cp, k  -- S1 line 1
+ }
+ FIELDS = ("T", "p")   # S6 conjunct 4: solid regions carry exactly T and p
+ 
++# T-8: where the MESH stage puts splitMeshRegions' cellToRegion topology map.
++# Under constant/ because it is mesh, not an answer.  NEVER deleted.
++SPLIT_BYPRODUCT_DIR = os.path.join("constant", "splitMeshRegions_byproduct")
++SPLIT_BYPRODUCT_OBJECT = "cellToRegion"
++
+ # ---- PHYSICS-DICT HALF (S3 heat source, S5.1 boundary, S6.2 g, S10 omissions) ----
+ T_OUTER = 288.0        # K, housing_outer fixedValue sink (S5.1)
+ T_INIT = 288.0         # K, uniform initial field (== the sink, a benign start)
+@@ -434,6 +456,94 @@ def write_physics(dst, spec, p_sector, region_patches):
+     return 0
+ 
+ 
++def _is_split_byproduct(path):
++    """True only for a file whose FoamFile header declares `object cellToRegion;`
++    -- splitMeshRegions' topology map.  Read from the file, never inferred from
++    its name (rule 15's habit applied to a case tree: a name can be false)."""
++    try:
++        head = open(path, errors="replace").read(4096)
++    except OSError:
++        return False
++    return re.search(r"^\s*object\s+cellToRegion\s*;", head, re.M) is not None
++
++
++def postsplit(case):
++    """--postsplit phase (T-8), THE LAST STEP OF THE MESH STAGE.
++
++    splitMeshRegions -cellZones -overwrite writes its cellToRegion map into a
++    directory named `0/`.  This step relocates that byproduct to
++    constant/splitMeshRegions_byproduct/ so that the physics stage's age guard
++    -- which tests the NAME `0` and is deliberately not being softened -- is
++    shown a genuinely clean tree.
++
++    IT REFUSES, AND MOVES NOTHING, IF `0/` HOLDS ANYTHING ELSE.  One file that
++    is not a cellToRegion map is enough.  That is what keeps this a repair of
++    the mesh stage rather than a hole in the guard: a planted field stops here,
++    and then stops again at physics().
++    """
++    cases_intact_or_refuse()
++    if case not in CASES:
++        refuse("unknown case %r; registered set is %s" % (case, CASES_BASELINE))
++    dst = os.path.join(HERE, case)
++    if not os.path.isdir(dst):
++        refuse("%s does not exist -- run --case first" % dst)
++    for r in ("core", "housing"):
++        if not os.path.isfile(os.path.join(dst, "constant", r, "polyMesh", "boundary")):
++            refuse("%s: region %r not split -- --postsplit runs AFTER blockMesh "
++                   "+ splitMeshRegions" % (dst, r))
++    # never relocate anything in a tree that already holds an answer
++    for n in os.listdir(dst):
++        if n != "0" and n != "0.orig" and n.replace(".", "", 1).isdigit():
++            refuse("%s already holds time directory %r -- the mesh stage is over; "
++                   "nothing is moved in a tree that holds an answer" % (dst, n))
++    zero = os.path.join(dst, "0")
++    dest = os.path.join(dst, SPLIT_BYPRODUCT_DIR)
++    if not os.path.exists(zero):
++        print("postsplit %s: no 0/ present -- nothing to relocate (byproduct dir "
++              "exists: %s)" % (case, os.path.isdir(dest)))
++        return 0
++    if not os.path.isdir(zero):
++        refuse("%s/0 is not a directory -- unrecognised; nothing moved" % dst)
++    # PROVE every single file under 0/ is a cellToRegion map.  Any other file,
++    # and the whole step refuses: it may be an answer, and this code does not
++    # get to decide that it is not.
++    found, offenders = [], []
++    for root, _dirs, files in os.walk(zero):
++        for f in sorted(files):
++            p = os.path.join(root, f)
++            rel = os.path.relpath(p, zero)
++            if f == SPLIT_BYPRODUCT_OBJECT and _is_split_byproduct(p):
++                found.append(rel)
++            else:
++                offenders.append(rel)
++    if offenders:
++        refuse("%s/0 holds %d file(s) that are NOT splitMeshRegions cellToRegion "
++               "maps: %s -- these may be ANSWERS.  Nothing was moved and nothing "
++               "was deleted; the age guard stands and physics() will refuse this "
++               "tree." % (dst, len(offenders), ", ".join(offenders[:8])))
++    if not found:
++        refuse("%s/0 holds no cellToRegion map at all -- unrecognised; nothing moved" % dst)
++    if os.path.exists(dest):
++        refuse("%s already exists -- nothing is ever overwritten or deleted here" % dest)
++    os.makedirs(os.path.dirname(dest), exist_ok=True)
++    os.rename(zero, dest)                       # RELOCATE.  Never delete.
++    if os.path.exists(zero):
++        refuse("0/ still present after the relocation -- refusing rather than "
++               "reporting a move that did not happen")
++    open(os.path.join(dest, "PROVENANCE.txt"), "w").write(
++        "splitMeshRegions BYPRODUCT, relocated here by build_t21.py --postsplit\n"
++        "(T-8).  Case: %s.  Contents when moved: %s.\n\n"
++        "This is the cellToRegion TOPOLOGY MAP splitMeshRegions writes into a\n"
++        "directory named 0/.  It is mesh, not a field and not an answer.  It was\n"
++        "MOVED, not deleted, and every file in it was read and found to declare\n"
++        "`object cellToRegion;` before the move.  The physics-stage age guard\n"
++        "(CLAUDE.md rule 4) is UNCHANGED and still refuses any 0/ it is shown.\n"
++        % (case, ", ".join(found)))
++    print("postsplit %s: relocated %d cellToRegion map(s) (%s) to %s; 0/ is gone, "
++          "nothing deleted" % (case, len(found), ", ".join(found), SPLIT_BYPRODUCT_DIR))
++    return 0
++
++
+ def physics(case):
+     """--physics phase: write the physics dicts into a split tree."""
+     cases_intact_or_refuse()
+@@ -469,10 +579,13 @@ def physics(case):
+ def main(argv):
+     if "--selftest" in argv:
+         return selftest()
++    if "--postsplit" in argv:
++        return postsplit(argv[argv.index("--postsplit") + 1])
+     if "--physics" in argv:
+         return physics(argv[argv.index("--physics") + 1])
+     if "--case" not in argv:
+-        refuse("usage: build_t21.py --case <name> | --physics <name> | --selftest")
++        refuse("usage: build_t21.py --case <name> | --postsplit <name> "
++               "| --physics <name> | --selftest")
+     return build(argv[argv.index("--case") + 1])[0]
+ 
+ 
+@@ -569,6 +682,86 @@ def selftest():
+             chk(False, "write_physics should refuse an unsplit region")
+         except SystemExit as e:
+             chk(e.code == 2, "write_physics REFUSES an unsplit region (exit %s)" % e.code)
++
++        # ---- T-8: THE MESH-STAGE BYPRODUCT RELOCATION, AND THE PROOF THAT
++        # ---- THE AGE GUARD STILL FIRES AFTER IT.
++        #
++        # This block is the demonstration the guard repair is not allowed to be
++        # believed without: the guard is NOT weakened, and a real field planted
++        # in 0/ is refused TWICE -- once by the relocation step, which will not
++        # touch it, and once by the unchanged physics() guard.
++        print("  -- T-8 mesh-stage byproduct relocation + AGE-GUARD DEMONSTRATION --")
++        MAP = ("FoamFile\n{\n    version 2.0;\n    format ascii;\n"
++               "    class volScalarField;\n    location \"0\";\n"
++               "    object cellToRegion;\n}\ndimensions [0 0 0 0 0 0 0];\n"
++               "internalField uniform 0;\n")
++        FIELD_T = ("FoamFile\n{\n    version 2.0;\n    format ascii;\n"
++                   "    class volScalarField;\n    object T;\n}\n"
++                   "dimensions [0 0 0 1 0 0 0];\ninternalField uniform 288;\n")
++
++        def make_split_tree():
++            """the post-splitMeshRegions shape: region polyMesh/boundary files,
++            and a 0/ holding ONLY cellToRegion maps."""
++            for r in ("core", "housing"):
++                bd = os.path.join(cdst, "constant", r, "polyMesh")
++                os.makedirs(bd, exist_ok=True)
++                if not os.path.isfile(os.path.join(bd, "boundary")):
++                    open(os.path.join(bd, "boundary"), "w").write("0()\n")
++            shutil.rmtree(os.path.join(cdst, "0"), ignore_errors=True)
++            shutil.rmtree(os.path.join(cdst, SPLIT_BYPRODUCT_DIR), ignore_errors=True)
++            for rel in ("cellToRegion", "core/cellToRegion", "housing/cellToRegion"):
++                p = os.path.join(cdst, "0", rel)
++                os.makedirs(os.path.dirname(p), exist_ok=True)
++                open(p, "w").write(MAP)
++
++        # (1) BEFORE the relocation the UNCHANGED guard already refuses -- this
++        #     is the block the mesh stage exists to clear, and it is real.
++        make_split_tree()
++        try:
++            physics("T21_CYL_c"); chk(False, "physics should refuse a tree holding 0/")
++        except SystemExit as e:
++            chk(e.code == 2, "UNCHANGED guard REFUSES the split tree's 0/ (exit %s)" % e.code)
++
++        # (2) the mesh stage relocates its own byproduct; 0/ is gone, nothing deleted
++        chk(postsplit("T21_CYL_c") == 0, "--postsplit relocates the cellToRegion byproduct")
++        chk(not os.path.exists(os.path.join(cdst, "0")), "0/ no longer exists after --postsplit")
++        for rel in ("cellToRegion", "core/cellToRegion", "housing/cellToRegion"):
++            chk(os.path.isfile(os.path.join(cdst, SPLIT_BYPRODUCT_DIR, rel)),
++                "byproduct PRESERVED at %s/%s (moved, never deleted)" % (SPLIT_BYPRODUCT_DIR, rel))
++        chk(postsplit("T21_CYL_c") == 0, "--postsplit is idempotent: no 0/, nothing to do")
++
++        # (3) PLANT A REAL FIELD IN 0/.  The relocation step must REFUSE it and
++        #     must not move or delete it.
++        shutil.rmtree(os.path.join(cdst, SPLIT_BYPRODUCT_DIR), ignore_errors=True)
++        make_split_tree()
++        planted = os.path.join(cdst, "0", "housing", "T")
++        open(planted, "w").write(FIELD_T)
++        try:
++            postsplit("T21_CYL_c"); chk(False, "--postsplit should refuse a planted field")
++        except SystemExit as e:
++            chk(e.code == 2, "PLANTED 0/housing/T: --postsplit REFUSES (exit %s)" % e.code)
++        chk(os.path.isfile(planted), "planted 0/housing/T STILL ON DISK -- nothing deleted")
++        chk(os.path.isdir(os.path.join(cdst, "0")), "0/ still present -- nothing moved")
++
++        # (4) AND THE GUARD ITSELF STILL FIRES.  This is the clause the repair
++        #     is worthless without.
++        try:
++            physics("T21_CYL_c"); chk(False, "the age guard FAILED TO FIRE on a planted field")
++        except SystemExit as e:
++            chk(e.code == 2, "PLANTED 0/housing/T: THE AGE GUARD STILL FIRES (exit %s)" % e.code)
++
++        # (5) and it fires on a numeric time directory too
++        shutil.rmtree(os.path.join(cdst, "0"), ignore_errors=True)
++        os.makedirs(os.path.join(cdst, "3000"), exist_ok=True)
++        open(os.path.join(cdst, "3000", "T"), "w").write(FIELD_T)
++        try:
++            physics("T21_CYL_c"); chk(False, "the age guard FAILED TO FIRE on time dir 3000")
++        except SystemExit as e:
++            chk(e.code == 2, "PLANTED time directory 3000: THE AGE GUARD STILL FIRES (exit %s)" % e.code)
++        try:
++            postsplit("T21_CYL_c"); chk(False, "--postsplit should refuse a tree holding 3000/")
++        except SystemExit as e:
++            chk(e.code == 2, "PLANTED time directory 3000: --postsplit REFUSES (exit %s)" % e.code)
+     finally:
+         HERE = real
+         shutil.rmtree(tmp, ignore_errors=True)
+
+==============================================================================
+4. T21_PREREGISTRATION.md -- git diff HEAD (append-only at the foot)
+==============================================================================
+diff --git a/docs/campaigns/T-family/T21_PREREGISTRATION.md b/docs/campaigns/T-family/T21_PREREGISTRATION.md
+index 258bbe43e..314b41879 100644
+--- a/docs/campaigns/T-family/T21_PREREGISTRATION.md
++++ b/docs/campaigns/T-family/T21_PREREGISTRATION.md
+@@ -1535,3 +1535,171 @@ whole point, and it is the ordering the T5 `S_m` arm did not get.
+ - It **does not assert any verdict.** No term of `CLAUDE.md` rule 1's vocabulary
+   is claimed anywhere in this document, and the feasibility probe's `FEASIBLE`
+   finding is **not** a `PASS`.
++
++---
++
++## AMENDMENT 3 — 2026-09-12 — **PRE-COMPUTE. THE GRADING PATH IS PINNED BY sha256. §11 SAID THIS DOCUMENT DOES NOT WRITE THE INSTRUMENTS; THEY NOW EXIST, AND `CLAUDE.md` RULE 2's "THE GRADING PATH IS FIXED AT THE PRE-REGISTRATION COMMIT" IS NOT SATISFIED UNTIL THEY ARE NAMED HERE.**
++
++> **VERSION: v1.2** (v1.0 freeze at Amendment 2; v1.1 = Amendment 2's STATUS
++> supersession; **v1.2 = this amendment**).
++> **Lines whose number changed above this section: 0.** This amendment is
++> appended at the foot. Nothing above line 1537 of the file as it stood at
++> `89a7bdbb7` — or at any line number any other record cites — is edited,
++> moved, renumbered or struck. `CLAUDE.md` rule 6.
++>
++> **IT CHANGES NO GATE, NO THRESHOLD, NO BAND, NO CAP AND NO LABEL.** Q1, Q2
++> and Q3 keep their §1 bands to the digit; POINT stays **9.1901 core-min**; CAP
++> stays **20.0 core-min, hard**; `endTime` stays **3000** with **no
++> `residualControl`**; the §8.1 run set stays the same six cases; the §7.4
++> calibration-admissibility threshold stays `< 0.5 × nproc` = **8.0**. If a
++> reader finds anything below that widens, narrows or re-labels a registered
++> quantity, **this amendment is the defect and the frozen text wins.**
++
++### A3.0 THE LEGALITY CONDITION, AND HOW IT WAS CHECKED
++
++`CLAUDE.md` rule 2: *"Before first compute, amendments are legal **and must
++state the condition and how it was checked** (name the run directory that does
++not exist)."*
++
++**THE CONDITION: T21 HAS HAD ZERO COMPUTE.** No solver has ever started on any
++T21 case. Checked on disk at **2026-09-12T01:4xZ**, five ways, under
++`verification/runs/T-family/T21_runs/`:
++
++| # | check | result | what it would have caught |
++|---|---|---|---|
++| 1 | `find . -name 'STATUS.*' \| wc -l` | **0** | any run that exited, cleanly or not |
++| 2 | `find . -name 'log.solve' \| wc -l` | **0** | any solver that opened its log, including one still running |
++| 3 | time directories `> 0` anywhere | **none** | any run that wrote a field |
++| 4 | `postProcessing/` holding solve output | **none** — the one `postProcessing/` tree on disk holds four `checkMesh` `*.vtp` mapped-patch files and nothing else | a post-hoc pass over an answer |
++| 5 | **the registered run directories that DO NOT EXIST** | **`T21_CYL_m`, `T21_CYL_f`, `T21_CYL_W1`, `T21_CYL_P1000`, `T21_CYL_S10` — five of the six registered §8.1 cases have never been created at all.** The sixth, `T21_CYL_c`, exists and holds a **mesh only**: `constant/`, `system/`, `0.orig/`, four mesh logs, and **no `0/`, no time directory, no `log.solve`, no `STATUS`** | the whole condition, stated the way rule 2 asks for it |
++
++**The two directories named `0` that do exist are not answers and are not
++compute.** `T21_CYL_c.MESH_REHEARSAL_20260906_PRESERVED/0` and
++`T21_PIPELINE_REHEARSAL_20260912/T21_CYL_c/0` are, respectively, the 2026-09-06
++mesh rehearsal's `splitMeshRegions` byproduct and the 2026-09-12 planted-field
++guard demonstration (§A3.2). Neither is a registered case tree; neither holds a
++solver field; neither was produced by a solver.
++
++**So the pre-compute window is open, and this is the amendment rule 2 itself
++provides. After the first solver starts it closes, and the pins below become
++unalterable.**
++
++### A3.1 THE DEFECT THIS REPAIRS, STATED AGAINST THE CLOCK
++
++| what | when | evidence |
++|---|---|---|
++| this registration FROZEN | `89a7bdbb7`, **2026-09-03 22:59:57** | Amendment 2; `git log -1 --format=%ad --date=iso-strict 89a7bdbb7` |
++| `build_t21.py` first committed | `a2be96b79`, **2026-09-07 04:52:16** | `git log -- verification/runs/T-family/T21_runs` |
++| `analyse_t21.py`, `launch_t21.sh`, `mark_done_t21.py` | **after that again**, and uncommitted at the time of writing | `git status --porcelain` |
++
++**Four days separate the freeze from the first line of the builder, and §11 of
++this document says so in terms:** *"It does not write the builder, the
++comparator or the launcher … the code is a separate act under a separate
++review."* That was the right call about authorship. Its consequence is that
++**rule 2's third clause — "the grading path is fixed at the pre-registration
++commit; verify the frozen file IS the file that ran by hashing it against the
++committed blob" — has nothing to hash.** Grading a T21 row against an unpinned
++instrument would violate rule 2 no matter how good the instrument is, because
++the freeze's entire evidentiary content is that the path could not have been
++chosen to fit the answer.
++
++**This amendment supplies the missing hashes. It does not revisit §11's
++decision** — the instruments were still written, reviewed and read as diffs by
++the supervisor as a separate act; what lands here is only their identity.
++
++### A3.2 THE PINS — sha256 OF THE DISK BYTES
++
++**sha256 of the file's bytes on disk, not a git blob SHA-1** (L-450: a blob hash
++covers a prefixed, mode-sensitive encoding and is not the file's own digest).
++Re-derive with `sha256sum <path>` from the repository root; the figures below
++are re-derived and re-asserted in the committing invocation itself.
++
++| instrument | path (repo-relative) | lines | **sha256** |
++|---|---|---:|---|
++| builder | `verification/runs/T-family/T21_runs/build_t21.py` | 773 | `2615b02f643fdee3ef5c3d25a0752f240ba5a14ed5a17f1550cbaca6196e0d6b` |
++| launcher | `verification/runs/T-family/T21_runs/launch_t21.sh` | 271 | `88213a884cbc5e7761618684ebfb3f9b23ab5d21469ff2bac11b797e3ce4cef0` |
++| completion instrument | `verification/runs/T-family/T21_runs/mark_done_t21.py` | 305 | `756b014deb4e32ee27c05f9e41a28ff7bb8d0a880589ee3e7db9116e7e41aa4d` |
++| comparator | `verification/runs/T-family/T21_runs/analyse_t21.py` | 1199 | `e335e3d35cd50a3bbd9db1edcbaa1100b59d4a0f525fd307c3adb4a4898c325b` |
++| reference | `verification/runs/T-family/T21_runs/exact_t21.py` | 167 | `579364d1ba6be2036ea8cfcc07bdcf56a65bae942cab3396e397a5fe59bb9c5e` |
++
++**`exact_t21.py` is pinned although it is not itself a grader.** `analyse_t21.py`
++and `build_t21.py` both import it, and `X.p_sector` is the single place the
++wedge power factor is computed (trap T-4). An unpinned reference reached through
++a pinned comparator is an unpinned grading path with extra steps.
++
++**THE PINS ARE IDENTITY, NOT AUTHORITY.** A file matching its hash is the file
++that was reviewed; it is not thereby correct. A hash mismatch at grading time is
++`NOT A RESULT` for the affected rows — never a re-pin, never a fresh hash
++written over this table. Any later change to a pinned instrument lands as its
++own dated addendum naming the old and new digests.
++
++### A3.3 WHAT THE INSTRUMENTS DO THAT §6 AND §7.4 REGISTERED, AND NOTHING MORE
++
++Stated so the pins are readable as a contract rather than as five opaque digests.
++
++- **`build_t21.py --postsplit` (trap T-8) is a MESH-STAGE step, and the age
++  guard is UNCHANGED.** `splitMeshRegions` writes its `cellToRegion` topology
++  map into a directory named `0/`; the §6-conjunct-6 guard tests the NAME `0`,
++  and **it is not being softened** — the whole strength of "does `0` exist" is
++  that it is crude and cannot be argued with, and softening it into "does `0`
++  contain things somebody considers answers" would open that door for every
++  rung in the lab. So the mesh stage relocates its own byproduct instead, in
++  code, to `constant/splitMeshRegions_byproduct/`. It **relocates and never
++  deletes**, and it **refuses outright** if `0/` holds one single file that does
++  not declare `object cellToRegion;`.
++- **The guard was shown to still fire, on a real tree, before this was
++  believed.** A real `volScalarField T` planted at `0/housing/T` was refused
++  three times independently — by `--postsplit` (exit 2, nothing moved, nothing
++  deleted), by the unchanged `physics()` guard (exit 2), and by
++  `launch_t21.sh` (exit 2, **no `STATUS` and no `START` written**). Record:
++  `verification/runs/T-family/T21_runs/T21_PIPELINE_REHEARSAL_20260912.txt`;
++  re-runnable as `build_t21.py --selftest` and `mark_done_t21.py --selftest`.
++- **`launch_t21.sh`** writes `START.<case>` **before** the solver (§7.4:
++  `start_utc`, all three `/proc/loadavg` windows, `procs_running`, `nproc`,
++  available memory, and the registered `calibration_admissible` verdict
++  computed at the point of measurement); arms `0/` from `0.orig/` with
++  **`0/housing/T` touched LAST** (§6 conjunct 6); and **captures `rc` inside the
++  detached wrapper**, on the line after the solver returns — never around a
++  `setsid`, which exits 0 for every outcome. `STATUS.<case>` and `START.<case>`
++  are written **inside** the case directory because the comparator reads
++  `os.path.join(case_dir, "STATUS."+basename)` at `analyse_t21.py:370`.
++- **`mark_done_t21.py`** evaluates §6's six conjuncts all-or-nothing and refuses
++  rather than degrades. `checkmesh_rc`, the post-hoc `postProcess` pass and the
++  §7.4 contention disclosure are **INFRASTRUCTURE**: reported beside each case,
++  never decisive (Sanaa's universal rule 2026-08-26 — bookkeeping never voids
++  physics).
++
++### A3.4 **NO `timeout` KILLS A T21 RUN — AND THE CAP IS UNCHANGED**
++
++**Sanaa, 2026-09-12 ~01:00Z, her own words relayed by the chief:** *"dont forget
++i dont want any cap on any run, and that i bumped the volume to 1000 gib"*.
++
++**REGISTERED CONSEQUENCE, and it is a change to the INSTRUMENT, not to the
++CAP:** `launch_t21.sh` runs the solver with **no cap-derived `timeout`**, so no
++T21 run is killed by a clock. **§7.2's CAP of 20.0 core-min over the run set is
++NOT altered, NOT widened and NOT retired.** It stays exactly what §7.2 calls it
++— *a runaway guard, a prediction, and a calibration input* — and the launcher
++records it in every `STATUS` file as `point_core_min`, `set_cap_core_min` and
++`cap_exceeded`, as **disclosure at the point of measurement**.
++
++**Why that is safe on this rung specifically, rather than in general:** every
++T21 case has a **natural terminus** — `endTime` 3000, `deltaT` 1, and **no
++`residualControl`** (§6.1) — so the run ends because the registered iteration
++count is exhausted, not because a timer intervened. A rung whose terminus was a
++wall-clock timer would need a different answer, and this amendment does not give
++one.
++
++**What is NOT claimed:** this does not retire `CLAUDE.md` rule 12's "an overrun
++stops the run" for the lab, and no agent could. It records the owner's
++instruction for this rung's launcher and leaves the rule where it is. Retiring a
++standard is reserved to Sanaa.
++
++### A3.5 WHAT THIS AMENDMENT DOES **NOT** DO
++
++- It **does not authorise a solve beyond what Amendment 2 already authorised**
++  (the §8.1 run set within the §7.2 cap). It adds nothing to that authority.
++- It **does not weaken, rewrite or reinterpret the age guard.** §6 conjunct 6
++  stands word for word.
++- It **does not grade anything**, asserts no verdict from rule 1's vocabulary,
++  and reports no measured physical quantity.
++- It **files nothing anywhere.** `CLAUDE.md` rule 7 — submissions are parked.
