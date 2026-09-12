@@ -85,13 +85,21 @@ else
     { echo "VERDICT=BLOCKED"; echo "reason=RESUME_startFrom_not_latestTime"; } > "$S"
     echo "82" > "$CASE/solve_rc"; exit 82
   fi
-  LATEST=""
+  # AMENDMENT 2026-09-12c -- COMPLETENESS IS CHECKED BY FIELD NAME, NOT BY FILE COUNT.
+  # `ls | wc -l >= 6` is a PROXY: six junk files pass it, and a checkpoint missing
+  # `phi` while carrying two stray sidecars passes it too.  Rule 4 names the fields;
+  # so does this loop.  RESUME_FIELDS is the registered resume set from the queue
+  # entry (U p k omega nut phi) -- the same list, written once, checked per rank.
+  RESUME_FIELDS="U p k omega nut phi"
+  LATEST=""; NEWEST=""
   for t in $(ls -d "$CASE"/processor0/[0-9]* 2>/dev/null | xargs -n1 basename 2>/dev/null | sort -n); do
     [ "$t" = "0" ] && continue
+    NEWEST="$t"
     ok=1
     for r in $(seq 0 $((RANKS-1))); do
-      n=$(ls "$CASE/processor$r/$t" 2>/dev/null | wc -l)
-      [ "$n" -ge 6 ] || ok=0
+      for f in $RESUME_FIELDS; do
+        [ -s "$CASE/processor$r/$t/$f" ] || ok=0
+      done
     done
     [ "$ok" = "1" ] && LATEST="$t"
   done
@@ -99,7 +107,26 @@ else
     { echo "VERDICT=BLOCKED"; echo "reason=RESUME_no_complete_checkpoint_in_all_ranks"; } > "$S"
     echo "83" > "$CASE/solve_rc"; exit 83
   fi
-  { echo "resume=1"; echo "resume_from_verified=$LATEST"; } >> "$S"
+  # AMENDMENT 2026-09-12c -- THE VERIFIED CHECKPOINT MUST BE THE ONE THAT ACTS.
+  # This loop verifies the LATEST COMPLETE checkpoint, but `startFrom latestTime`
+  # makes OPENFOAM CHOOSE INDEPENDENTLY: it takes the NEWEST time directory on
+  # disk, complete or not.  If a PARTIAL newer checkpoint existed -- a write
+  # interrupted by the next kill -- this script would record a verified 60 while
+  # the solver silently started from a half-written 75, and STATUS.solve would
+  # carry a number the run did not use.  Verification that does not bind the
+  # action is the same defect as counting log lines instead of physics steps:
+  # a figure that is true about the wrong thing.  So: REFUSE when the newest
+  # time directory is not the complete one.  The repair for that refusal is to
+  # move the partial directory aside by hand, which PRESERVES it; this script
+  # never deletes a time directory.
+  if [ "$NEWEST" != "$LATEST" ]; then
+    { echo "VERDICT=BLOCKED"; echo "reason=RESUME_newest_time_dir_is_not_the_complete_one";
+      echo "newest=$NEWEST"; echo "latest_complete=$LATEST";
+      echo "note=startFrom latestTime would start the solver from $NEWEST, which is INCOMPLETE. Move $NEWEST aside by hand -- never delete it -- and relaunch."; } > "$S"
+    echo "84" > "$CASE/solve_rc"; exit 84
+  fi
+  { echo "resume=1"; echo "resume_from_verified=$LATEST";
+    echo "resume_newest_time_dir=$NEWEST   # EQUAL to resume_from_verified, checked, so latestTime acts on the verified checkpoint"; } >> "$S"
 fi
 
 set +u
@@ -164,7 +191,19 @@ else
 fi
 
 TS0=$(date +%s)
-/usr/bin/time -v -o time.simpleFoam.solve mpirun -np "$RANKS" simpleFoam -parallel >> log.simpleFoam 2>&1; RC=$?
+# AMENDMENT 2026-09-12c -- THE REDIRECT IS NOW GUARDED ON RESUME, AS THE COMMENT
+# ABOVE ALWAYS CLAIMED IT WAS.  It was written unconditionally (`>>` on every run).
+# In practice a fresh run could not accumulate logs, because S5 refuses to start when
+# log.simpleFoam already exists -- but that safety came from a DIFFERENT GUARD than
+# the one the comment names, and an instrument whose comment names the wrong
+# guarantor is one the next reader trusts for the wrong reason.  Loosen S5 for any
+# reason later and fresh runs would have silently appended.  Now the branch is real:
+# a fresh run TRUNCATES and a resume APPENDS, and neither depends on S5 holding.
+if [ "$RESUME" = "1" ]; then
+  /usr/bin/time -v -o time.simpleFoam.solve mpirun -np "$RANKS" simpleFoam -parallel >> log.simpleFoam 2>&1; RC=$?
+else
+  /usr/bin/time -v -o time.simpleFoam.solve mpirun -np "$RANKS" simpleFoam -parallel > log.simpleFoam 2>&1; RC=$?
+fi
 TS1=$(date +%s); T1=$TS1
 SPEAK=$(grep "Maximum resident set size" time.simpleFoam.solve | grep -oE "[0-9]+$")
 { echo "simpleFoam_rc=$RC";
