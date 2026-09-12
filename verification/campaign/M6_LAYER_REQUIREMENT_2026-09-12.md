@@ -88,3 +88,81 @@ evidence about another. **If DrivAer's last-layer-to-surface-cell ratio is alrea
 *Derived 2026-09-12 from AR-138 B1 and the route (d) L1 mesh. No claim about M6
 aerodynamics is made or implied: route (d) L1 remains an admission mesh, L2 is
 `GATE FAIL`, and §A1.3 stays `FALSIFIED`. Submissions parked.*
+
+---
+
+# AMENDMENT 1 — 2026-09-12. **§3's MECHANISM IS WRONG. ITS CONCLUSION IS RIGHT, REACHED BY A DIFFERENT ROUTE.**
+
+**lines whose number changed above this section: 0**
+
+**Nothing above is edited.** §3 stands as written, including the part now known to be
+wrong, because a right answer reached by a wrong mechanism must stay visible beside its
+correction or the error is invisible to the next reader.
+
+## A1.1 WHAT IS WRONG
+
+§3 named **the last-layer-to-surface-cell jump** as the constraint forcing level 6. **It is
+not the binding constraint, and as a transferable test it is VACUOUS wherever
+`relativeSizes true` is used.**
+
+Under `relativeSizes true`, the requested last layer **is** `finalLayerThickness × local
+surface cell`, by definition. So `surface_cell / last_layer = 1 / finalLayerThickness`
+**always, at every refinement level**:
+
+| `finalLayerThickness` | surface_cell / last_layer |
+|---:|---:|
+| 0.3 | 3.33 |
+| 0.5 | **2.00** |
+| 0.7 | 1.43 |
+
+**The ratio is the dictionary restated, not the mesh measured. A criterion with no failing
+branch is not a test.** The tell is that it returns the *same* number at two different
+refinement levels.
+
+## A1.2 WHAT ACTUALLY BINDS — **TOTAL STACK THICKNESS AGAINST δ**
+
+On M6's as-built level-4 cell (0.03125 m) with `relativeSizes true`, r = 1.2, f = 0.5,
+against **δ = 0.01150 m**:
+
+| layers | first layer | **y⁺** | total stack | **vs δ** |
+|---:|---:|---:|---:|---:|
+| 18 | 7.043e-04 | 212.9 | 0.0902 m | **7.8×** |
+| 24 | 2.359e-04 | 71.3 | 0.0926 m | 8.0× |
+| 30 | 7.899e-05 | 23.9 | 0.0934 m | 8.1× |
+| 36 | 2.645e-05 | **8.0** | 0.0936 m | **8.1×** |
+
+**Enough layers to approach y⁺ ≈ 1 build a stack eight times thicker than the boundary
+layer they are meant to resolve.** That — not a transition jump — is what makes the
+as-built surface cell unusable.
+
+## A1.3 THE CONCLUSION IS UNCHANGED
+
+Derived the correct way: first layer 3.308e-06 m for y⁺ = 1; stack must total
+δ = 0.01150 m; **36 layers at r = 1.2**, last layer 1.954e-03 m; under f = 0.5 that demands
+a **surface cell of 3.908e-03 m — level 6 to 7.**
+
+**Identical to §3's answer.** **Layers alone still cannot fix M6, and the surface
+refinement must still rise two levels first.** Only the reason changes.
+
+## A1.4 THE CORRECTED OFFER TO THE DrivAer THREAD — AND A WITHDRAWAL
+
+**§5's criterion is WITHDRAWN as a test for DrivAer.** It is **NOT APPLICABLE** there, which
+is **not** the same record as **RULED OUT** — "ruled out" would claim something was learned
+about DrivAer, and nothing was.
+
+**What replaces it:** **total ACHIEVED stack thickness versus the LOCAL boundary-layer
+thickness**, measured on the **achieved** mesh — the layers that actually extruded — and
+**never from the dictionary**, because the dictionary states a *request* and DrivAer's
+entire problem is that the request is not being met. **On a case where layers are not
+forming there may be no achieved stack to measure at all**, and that is the honest reason
+this criterion cannot be tested the way §5 assumed.
+
+## A1.5 THE LESSON, WHICH IS NOT THE ARITHMETIC
+
+A second party verifying §5 would have computed **2.00 correctly and recorded a false
+conclusion**, because the defect sat **upstream of the arithmetic**. **A relayed-number
+check catches transcription; it does not catch a test that cannot fail.** The question to
+ask of any offered criterion is not "is the number right" but **"what measurement would
+make this fail, and can that measurement exist on the target case?"**
+
+*Document version 1.1. Submissions parked.*
