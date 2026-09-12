@@ -161,6 +161,16 @@ to 20.4167. **Registered check: the built geometry must reproduce Roddy Table 2'
 all 25 stations to within 0.5 %.** Two independent sources agreeing is worth more than one
 source trusted.
 
+> 🔴 **AND THE TABLE'S INTERNAL IDENTITY DOES A SECOND JOB THAT MUST BE NAMED, BECAUSE IT IS
+> LOAD-BEARING FOR THIS WHOLE ARM.** `A/A_max ≡ (B/B_max)²` holding at all 25 rows is not
+> only a transcription check. **It is an independent confirmation, from the reference itself,
+> that the tabulated body IS a body of revolution** — and *that* identity is what makes the
+> vertical/horizontal plane-equivalence in §2 **exact rather than approximate**, which is the
+> entire reason D1/D2 can be MEASURED-tier bands instead of the brackets A1c was forced into.
+> **If that identity failed, A1d would not merely have a transcription problem; it would have
+> no reference at all.** The check is therefore registered as a **gate on the reference**, not
+> merely a gate on the typing, and it is evaluated before any comparison is attempted.
+
 ---
 
 ## 7. COST — REGISTERED, DERIVED, AND **NOT A KILL**
@@ -343,3 +353,65 @@ plus fleet processes never exceed 16"*; item 19: *"The runner is the only thing 
 launches. Nothing launched by hand counts as a case."* RAM is not the constraint —
 110 GiB of 123 GiB available. **The build is prepared and queued behind the ceiling, which
 costs nothing, since the mesh must exist before the freeze can be signed anyway.**
+
+---
+
+# §12. ADDENDUM 2 — 2026-09-12 — **THE BUILD IS PREPARED AND HELD. IT IS NOT PLACED, AND THE REASON IS SANAA'S RULE, NOT A PREFERENCE.**
+
+**Still pre-compute.** `verification/runs/navier_class/SUBOFF_A1d/` does not exist, no mesh
+exists, and the queue entry sits in `held/`, which the daemon does not poll.
+
+## 12.1 WHAT WAS BUILT (INSTRUMENTS, NOT MESHES)
+
+| Artifact | What it is |
+|---|---|
+| `cases/navier_class/SUBOFF_A1d/check_barehull_geometry.py` | GATE X5. §11. |
+| `cases/navier_class/SUBOFF_A1d/build_barehull_case.py` | Emits the bare-hull case — hull STL, `blockMeshDict`, `snappyHexMeshDict`, manifest. **Runs nothing.** |
+| `cases/navier_class/SUBOFF_A1d/build_barehull.sh` | What the runner launches: X5 → emit → `blockMesh` → `snappyHexMesh` → `checkMesh`, rc captured **inside** the wrapper. |
+| `verification/queue/cfd/held/SUBOFF-A1D-MESH-BUILD.DRAFT.json` | The queue entry. **HELD.** |
+
+**The geometry function is REUSED, NOT COPIED.** `build_barehull_case.py` imports
+`build_suboff_a1_geometry.build_hull_stl` and calls it directly. **That is the exact
+function GATE X5 validated to 0.081 %.** A copied-and-edited hull function would be a
+*different* function and X5's PASS would not apply to what was actually built — rule 14's
+shape: a lesson is not applied until the call site asserts it.
+
+**Emitter verified by running it** (file writes only, no meshing): 214,560 hull triangles,
+closed nose and tail (both **refused** if not), background block 140 × 76 × 38 = 404,320
+cells, and the four block patches `inlet outlet farfield symm` — `hull` arrives from
+snappy, giving the required five.
+
+**X5 runs FIRST in the wrapper, before any geometry or mesh is built**, with `--selftest`
+so the planted control is armed before the real comparison. **A geometry gate that can only
+be evaluated after a build is a gate evaluated under pressure to pass.**
+
+**Post-build refusals, so the wrong geometry cannot pass quietly:** a `sail` patch → refuse;
+patch count ≠ 5 → refuse; any step without an `End` line → refuse; `id -u` = 0 → refuse
+(item 6, and a peer team had a root launcher `rm -rf` a run tree earlier today). `checkMesh`
+failing its checks is written to `STATUS.build` as `CHECKMESH=FAILED_CHECKS` — **a finding,
+never a silent pass.**
+
+## 12.2 🔴 WHY IT IS NOT PLACED
+
+**Measured on the box, not relayed: load average 18.92 against `nproc` 16 at 20:10Z — and
+17.91 at 20:05Z, so it is RISING, not clearing.**
+
+- Item 18: *"Load above core count is a defect… stops new launches until cleared."*
+- Item 8, core guard: *"solver ranks plus fleet processes never exceed 16."*
+- Item 19: *"The runner is the only thing that launches. Nothing launched by hand counts as
+  a case."*
+
+**RAM is not the constraint and does not override this** — 110 of 123 GiB available. The
+constraint is cores. The entry is declared at **1 rank, serial `snappyHexMesh`**, the
+smallest footprint available, and **it still waits.**
+
+## 12.3 WHAT THIS ENTRY IS NOT
+
+It carries **no frozen pre-registration commit, deliberately.** `MESH_STANDARD` §8.1 forbids
+a freeze before the graded mesh exists, so the order is **build first, freeze after**. This
+entry **builds the mesh the freeze will be written against**. It grades nothing, produces no
+verdict, writes no field, and **licenses no solve**. The A1d *solve* entries do not exist and
+**cannot be placed until §10 is signed.**
+
+**Building a mesh is not admitting it.** Mesh admission and §10 are the cfd-supervisor's
+check 4, personally and undelegated.
