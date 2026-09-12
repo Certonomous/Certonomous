@@ -27249,3 +27249,137 @@ goes to an explicit pid, with `/proc/<pid>/cwd` AND `/proc/<pid>/cmdline` re-con
 in the SAME invocation as the kill** — a pid can be reused between the check and the
 signal. A read-only referent error is corrected by the next reader; `kill -9` has no
 next reader.
+## L-560 — An instrument registered on REASONING and never DRIVEN against the real case shape (2026-09-12, heat-transfer)
+
+**Five instances in one night, in three independent rungs, every one found only AFTER compute.**
+
+- `T5f` §4 registers `analyse_t5e.py` as limb A; it hardcodes `CASE_OF` to the
+  predecessor's `T5_CUBE_*` while T5f's own cases are `T5F_CUBE_*`. Exit 2.
+- `T10aVF2`'s `main()` demands a per-case ratio; **9 of its 20 registered cases have
+  no control patch at all**, so `B_ctrl` is `None`. Exit 2.
+- `T21` §5.2a registers `wallHeatFlux` on a **solid-only region**, where there is no
+  compressible turbulence model to look up (`wallHeatFlux_wall.cxx:278`).
+- `T21`'s comparator reads an unscoped `postProcessing/wallHeatFlux/` path where
+  `postProcess -region` writes a **region-scoped** one.
+- `T21`'s `Q2` needs a per-region cell-centre field written only by
+  `writeCellCentres` — a preprocessing pass **the registration never names**.
+
+**THE COMMON ROOT: in every case the instrument was argued for, not run.** Its
+selftest fixtures were built to the shape its author imagined, so they passed.
+**The countermeasure is cheap and it is NOT "test more": DRIVE THE REGISTERED
+INSTRUMENT ONCE AGAINST THE REAL CASE SHAPE BEFORE THE FREEZE — not against its
+fixtures.** You are not testing that it is right, only that it can **open and run**.
+All five would have died in seconds.
+
+### The sharpest instance INVERTS rule 3, and RULE 5 is what caught it
+
+`analyse_t21.py:_uniform_or_list` searches for a `uniform <number>` pattern
+**first**. On a `turbulentTemperatureRadCoupledMixed` block the first token matching
+that is **`refGradient uniform 0`**, so it returns `0.0` and walks straight past the
+`value` entry sitting in the same block. `Q1` read **−288.0 K at every level**.
+
+***That is not a false zero. It is a false NUMBER — confident, plausible, physically
+meaningless, and delivered with no refusal.*** Rule 3 is written against the zero;
+this is worse, because nothing refuses.
+
+**It was caught by RULE 5, not by rule 3.** Three identical values make an `EXACT`
+triple, and rule 5 returns `NOT A RESULT` for `EXACT` whatever the value says.
+***That is the gate saving the reader, not the reader working.*** Had `refGradient`
+differed by level, three plausible distinct numbers would have entered a Roache
+triple and been graded.
+
+**And §5.4's planted-zero control PASSED**, because it plants its perturbation into a
+patch shape the reader can already parse. ***A planted-zero control proves a reader
+can see a non-zero IN THE SHAPE IT WAS PLANTED IN, and says nothing about a shape it
+was never planted into.*** Rule 5's triple classification and rule 3's planted zero
+cover **different** failure modes. **Plant into every patch TYPE a reader will meet.**
+
+### The same species turned inward, on an id
+
+A lane minting a `docs/COST_CALIBRATION.md` id by rule 11's max-existing+1 pulled the
+digits out of a **timestamped** id and produced `C-20260913` — a date, and tomorrow's.
+That ledger carries **two id conventions**. ***Rule 11's max+1 assumes ONE id series;
+over a mixed series it does not produce a stale number, it produces a plausible-looking
+nonsense one*** — and a stale id collides detectably while a nonsense id sails through.
+Caught on the id print before the commit ran. **`scripts/append_record.py
+--allocate-id` owns that format: drive the tool that owns the format, never reason
+about it.**
+
+### And the sixth instance is this lesson's own first draft
+
+The block above was first committed through an **unquoted heredoc**, so the shell
+command-substituted every backticked identifier in it and landed a lesson with its
+entire technical content deleted — `T5f`, `CASE_OF`, `refGradient`, all of it, gone,
+while the prose around them read perfectly. **The supervisor's own memory carries a
+note titled "backticks kill the commit".** ***Reasoning about the shell instead of
+using the form that cannot substitute is the same defect as reasoning about an
+instrument instead of driving it*** — and it corrupted the very lesson that says so.
+Repaired forward by a second commit; the first is left in history as the evidence.
+
+## L-559 — `pkill -f` is banned on this box: the pattern that finds the target also finds the shell that typed it
+
+A cfd lane issued `pkill -f "decomposePar"` inside a compound command on a box running
+five teams' solvers. **It never executed** — the lane's own shell matched the preceding
+loop's pattern and killed itself first (exit 144) — and every other team's process was
+verified alive afterwards. **That is luck wearing the costume of a safety mechanism, and
+no safety argument may be banked on it.** The same night, a different lane read four
+`simpleFoam` ranks off `ps` sorted by RSS and was one step from signalling the only
+SUBOFF solve this lab has ever had (L-557). Two lanes, two referent errors, one shape:
+**`ps` and `pkill` tell you WHAT, never WHOSE.**
+
+**RULE: `pkill`/`killall` with a pattern are not used in this repository. Every signal
+goes to an explicit pid, with `/proc/<pid>/cwd` AND `/proc/<pid>/cmdline` re-confirmed
+in the SAME invocation as the kill** — a pid can be reused between the check and the
+signal. A read-only referent error is corrected by the next reader; `kill -9` has no
+next reader.
+
+## L-558 — A STARVED SOLVER AND A STALLED SOLVER ARE IDENTICAL IN THE LOG AND OPPOSITE AT THE DEVICE
+
+*2026-09-12, dafoam. Measured, not argued.*
+
+One peer agent's repository `ugrep` read **122.6 GB in 26 minutes** and held the whole
+root volume — a 1000 GB gp3 pinned at its **125 MB/s default baseline**, `%util` 93-96,
+`r_await` 28-35 ms. During it the box read **0.8 % user / 73.7 % iowait**, four DAFoam
+ranks sat in **`D` state** reading 2 MB in 15 s, and the solver printed **zero `Time =`
+lines for twelve minutes**.
+
+**That is exactly the signature the standing ladder calls a mesh defect** ("plateau with a
+stalled linear solver -> stop, mesh fix"; "18 it/6 h is a mesh defect signature -> stop and
+fix, never wait"). **Applying it would have re-cut a perfectly good mesh — and then re-cut
+it again, because the cause was another agent's search.**
+
+**THE FALSIFICATION, and it is stronger than the test that was registered.** The lane
+registered "if it has not moved once that grep exits, THAT is when a stall becomes a
+finding." **It moved BEFORE the grep exited** — container CPU **5.16 % -> 397.73 %**, ranks
+**`D` -> `R`**, while the grep was still running and **nothing was touched**. A mesh defect
+does not heal itself while the mesh is untouched. A starved solver does. The recovery was
+the page cache warming, not the contention ending.
+
+**THE DISCRIMINATOR — read three things the log cannot tell you, BEFORE calling a stall a
+defect:**
+1. **Rank process state.** `D` (uninterruptible I/O wait) = starved. `R`/`S` = actually
+   computing or actually stuck.
+2. **Per-process read throughput**, `/proc/<pid>/io`, a rank against everything else on the
+   box. A rank at 2 MB/15 s while a non-solver reads 123 MB/s is starvation and nothing else.
+3. **The device.** `%util` near 100 with `r_await` in tens of ms is a queue, not a computation.
+
+A genuine defect shows the ranks **burning CPU or spinning in the linear solver with the
+device idle.** Those two pictures must never be graded the same way.
+
+**AND THE COROLLARY THAT COST US THREE SEPARATE FALSE FINDINGS TONIGHT: on this box `load1`
+is an I/O-WAIT GAUGE, NOT A CPU GAUGE.** Linux counts `D` state as load, so one grep
+produced **load 17.18 with 1 of 476 threads runnable and zero computation**. A launch guard
+written to "load above core count" measures **the wrong quantity entirely** — not late, but
+never. Use busy% from a `/proc/stat` delta. The earlier framing "load1 lags" is WRONG and
+must not survive: a lane reading it concludes that WAITING fixes the problem, and waiting
+does not fix a grep.
+
+Same cause, third symptom: a transient **60 kB** swap spill with **120 GiB free** latched a
+"swap above zero is a defect" guard permanently — swapped pages stay out until touched, so
+the rule never clears itself. Clear the CONDITION (`swapoff -a; swapon -a`), never the guard.
+
+**Consequences:** repository-wide greps exclude `verification/` and run trees or run under
+`ionice` (`-I` still reads every file to classify it); launch guards need an I/O
+precondition, since nothing counting ranks against cores can see a saturated volume; and a
+core-min figure booked as "CPU contention" may be I/O wait — **the two have different
+remedies, and a wave scheduler fixes only the first.**
