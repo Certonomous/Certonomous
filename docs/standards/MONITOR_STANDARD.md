@@ -2529,3 +2529,75 @@ instances.**
 | md5 of this file's HEAD blob before this append | `758df4a780a8cd7a3703b4cf738db7f9` |
 | md5 of this file's first **2457** lines after it | `758df4a780a8cd7a3703b4cf738db7f9` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 13. THE REUSABLE FORM — **AN `mpirun` EXIT/STDERR LOOKUP A STRANGER CAN APPLY KNOWING NOTHING ABOUT TONIGHT**
+
+Member 13's incident is over; **this table is not about it.** Every lane in this lab runs
+`mpirun`, and its silent failure is the most opaque mode on this box. **Every row was MEASURED
+on this box, this OpenMPI, on throwaway `sleep` ranks owned by the measuring lane and signalled
+BY PID — never by name.**
+
+| what happened | **rc** | **stderr** |
+|---|---|---|
+| job exits cleanly | **0** | empty |
+| **the application itself exits non-zero** (tested with 7) | **= the app's code** | **non-empty** (275 B) |
+| **CHILD ranks** signalled `SIGTERM` | **143** | **non-empty** (530 B) |
+| **CHILD ranks** signalled `SIGKILL` | **137** | **non-empty** (525 B) |
+| **`mpirun` ITSELF** signalled `SIGTERM` | **1** | **EMPTY** |
+| **`mpirun` ITSELF** signalled `SIGINT` | **1** | **EMPTY** |
+| **`mpirun` ITSELF** signalled `SIGKILL` | **137** | **EMPTY** |
+
+> ## **STDERR IS THE DISCRIMINATOR, NOT THE EXIT CODE.**
+> **non-empty →** the job failed, or its **ranks** were signalled; `mpirun` saw it and said so.
+> **EMPTY and rc ≠ 0 →** **the PARENT was signalled from outside. Nothing inside the case is
+> wrong. Go and find who.**
+
+#### 🔴 WHY THIS BELONGS IN *THIS* CLAUSE AND NOT ONLY IN A LESSON
+
+**A two-row version of this table was requested — `rc 143` means children, `rc 1` means
+parent. Seven rows were measured instead, and the extra five falsified it twice:**
+
+1. **`rc = 137` is AMBIGUOUS**: `SIGKILL` to the **children** and to the **parent** both give
+   it, and **only stderr separates them** — 525 bytes against zero.
+2. **`rc = 1` does not identify `SIGTERM`**: `SIGINT` gives the same `1` and the same empty
+   stderr. It identifies **"a catchable signal reached the parent"**, no more.
+
+**The exit code is a PROXY for the cause, and the two-row table is this clause's own defect
+committed in the act of documenting it.** Had it shipped at two rows, it would have told a
+future lane that `rc 137` meant its ranks were killed — **in exactly the case where the parent
+was killed instead, which is the case worth knowing about.**
+
+> **§2's third requirement, restated where it will be met: MEASURE THE ROWS YOU PUBLISH.** A
+> lookup table is applied by strangers to cases its author never saw, so an unmeasured row is a
+> proxy with no divergence condition named — **and it fails first on the unusual case, which is
+> the only reason anyone opens a lookup table.**
+
+#### THE PRECONDITION, WITHOUT WHICH THE TABLE CANNOT BE USED
+
+**Give the solver its own stderr file.** `mpirun ... > log 2>&1` merges stderr into a stdout
+that N ranks write concurrently; a dying rank's message is interleaved or lost, and
+**"rc = 1 with no message" becomes indistinguishable from "rc = 1 with a message you cannot
+find".** Split them: `mpirun ... > log 2> log.stderr`.
+**A ZERO-BYTE STDERR FILE IS ONLY A FINDING IF STDERR HAD SOMEWHERE OF ITS OWN TO GO** — which
+makes this a **monitor-design requirement**, not a debugging tip, and therefore this file's
+business.
+
+**Capture the box AT the moment of failure** — `free`, `df`, loadavg, live process counts, and
+a kernel-log read — because a post-mortem an hour later measures a different machine. On this
+box **`dmesg` requires privilege and `/var/log/kern.log` does not**; read the latter, and
+**demonstrate the reader can see a non-zero** before reporting that it found none (rule 3
+applied to a log read, not only to a comparator).
+
+**Measured at** `M6I_R1_SOLVE_PREREGISTRATION.md` §A14.4; the seven-row extension and its two
+corrections at **`docs/LESSONS.md` L-574**.
+
+| addendum to the v1.14 record | |
+|---|---|
+| sections added | **1** (§13) — appended below §12; §§1–12 and all record tables unchanged |
+| members added | **0** — §13 is the reusable form of member 13's diagnostic, not a new member |
+| thresholds, clauses or provenance altered | **0** |
+| member count and provenance split | **unchanged at 13, of which 4 measured by the drafting lane** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before this append | `a61aa9ec5594323fe35eb290b990d9d4` |
+| md5 of this file's first **2531** lines after it | `a61aa9ec5594323fe35eb290b990d9d4` |
+| the two digests | **EQUAL — assertion MEASURED** |
