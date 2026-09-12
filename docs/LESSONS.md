@@ -28187,3 +28187,65 @@ trap from the victim's side, which is why the attacker's side went unwritten for
 **Sources.** `verification/campaign/M6I_R1_SOLVE_PREREGISTRATION.md` §A14.4 (the control,
 recorded **before** the actor was known) and §A14.5 (the confirmation);
 `verification/runs/M6I_runs/L1/FAILURE_CONTEXT.1.txt` (rc 1, zero-byte stderr, 660 GB free).
+
+---
+
+## L-574 AMENDMENT 1 — 2026-09-12, cfd. The heredoc trap is **repo-wide, and here is the count**; the naive fix "always quote" is **wrong**, and the measurement says why.
+
+The parent lesson recorded the trap from one instance. **It was then measured across the
+repository**, because a generalisation stated from one instance is the thing this lab's own
+`MONITOR_STANDARD` §2 forbids publishing.
+
+### THE SWEEP — heredoc **bodies parsed**, not line-grepped. 3,032 `.sh` and `.py` files.
+
+| | count |
+|---|---|
+| **QUOTED** heredocs (`<<'EOF'`) — structurally immune | **454** |
+| **UNQUOTED** heredocs | **148** |
+| …whose body has `$VAR` but **no** backtick or `$(` | **48** — 🔴 **INTENDED TEMPLATING, CORRECT USAGE** |
+| …whose body **contains a literal backtick or `$(`** | **86** — the exposed population |
+| of those 86, in **`.sh`** files (real shell heredocs) | **61**, across **50 files** |
+| of those 86, in **`.py`** files | **25** — 🔴 **mostly FALSE POSITIVES** |
+
+### 🔴 THE FIX IS NOT "ALWAYS QUOTE", AND THE 48 ARE THE PROOF
+
+**An unquoted heredoc is not a defect. It is how a script templates `$VARIABLES` into a
+dictionary**, and **48 heredocs in this repo do exactly that and are right.** This lane's own
+`build_m6i_solve_chain.sh` holds **9** of them, deliberately, to write `$Ux`, `$p_inf` and
+`$As_SUTH` into OpenFOAM dictionaries — **quoting those would break the build.**
+
+> **THE RULE IS CONDITIONAL, NOT ABSOLUTE:**
+> **quote the heredoc (`<<'EOF'`) when the body is PROSE; leave it unquoted when the body is a
+> TEMPLATE — and in a template, a literal backtick or `$(` is a bug either way.**
+
+"Always quote" would have been a memorable rule, a simple rule, and **wrong for a third of the
+unquoted heredocs in this repository.** The sweep is what distinguishes them; the anecdote
+could not have.
+
+### WHAT THE 61 IS AND IS NOT
+
+🔴 **It is an EXPOSURE UPPER BOUND, not a defect count, and nobody has triaged it.** Stated so
+that no reader quotes it as 61 bugs:
+
+- **Not triaged.** A backtick inside a heredoc that is itself inside a single-quoted outer
+  string would not fire. None of the 61 has been opened.
+- **The 25 `.py` hits are mostly false positives** and are excluded from the headline: Python
+  has no heredocs, so a `<<TAG` match there is a bit-shift or text inside a string literal.
+  **`scripts/queue_runner.py:2697` is in that class** and is almost certainly harmless.
+- **No file has been changed.** This amendment fixes nothing; it sizes the thing.
+
+**What the number is good for is one thing only: it is NOT SMALL.** A trap that appears 61
+times in 50 shell scripts is a **repo-wide pattern**, not a one-off — and the largest
+concentrations are in long-lived drivers (`d8g_run_arm.sh` at 156 backticks in one body,
+`run_m6sr_b5.sh` at 164), **which are exactly the files a future lane will copy from.**
+
+### WHY A HEREDOC IS WHERE THIS TRAP LIVES
+
+The lab's known form is *"backticks kill the commit"*, scoped to `git commit -m`. **The trap is
+not specific to `git commit -m`. It is anything unquoted** — and **a heredoc is the place a
+writer feels safest, because it looks like a file rather than like a command line.** That
+feeling is the vulnerability: nobody proof-reads a document for shell metacharacters.
+
+**Sources.** The sweep is reproducible from this amendment's own description; parent lesson
+L-574; `docs/standards/MONITOR_STANDARD.md` v1.14 §13 for the companion "measure the rows you
+publish" clause, of which this amendment is an application to its own parent.
