@@ -1310,3 +1310,46 @@ surface to be resolved.
 O-topology **cleared** on the pyHyp half — is not reopened by this section.
 
 *Appended 2026-09-12 by a cfd `lab-lane`, with `a05` and `a07` unfinished and named as such.*
+
+---
+
+## §17.6 ADDENDUM — THE RESULT OF §17.5d's PREDICTION. **IT HELD, AND CLUSTERING IS EXHAUSTED.**
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** The
+prediction in §17.5d was committed at **`da195b349c0ff72f153c21bc6235366b1f774992`**, with
+`a05` and `a07` still marching. This section records what they returned.
+
+| run | `CLUSTER_ALPHA` | base-corner jump | **skewness predicted** | **skewness measured** | non-ortho | max aspect |
+|---|---:|---:|---:|---:|---:|---:|
+| `a00` | 0.0 | 59.5 : 1 | *(fitting point)* | **15.3696** | 89.2744 | 1592 |
+| `a03` | 0.3 | 42.1 : 1 | *(fitting point)* | **13.8954** | 88.9882 | 6734 |
+| `a05` | 0.5 | 30.5 : 1 | **12.4** | **12.9554** | 88.6375 | 3833 |
+| `a07` | 0.7 | 18.9 : 1 | **11.3** | **UNFINISHED — instance stopped** | — | — |
+
+**`a05` IS THE ONLY OUT-OF-SAMPLE POINT AND THE PREDICTION HELD TO 4.5 %** — 12.4 predicted
+against 12.9554 measured. The mechanism in §17.5c is therefore supported: **skewness tracks
+the cell-size jump across the blunt-base corner**, and `CLUSTER_ALPHA` moves it.
+
+### 🔴 AND THE CONCLUSION THE PREDICTION WAS WRITTEN TO TEST: **CLUSTERING IS EXHAUSTED.**
+
+Skewness falls **15.37 → 13.90 → 12.96** across the whole usable range of `CLUSTER_ALPHA`,
+**monotonically and far too slowly**. H-G1's gate is **≤ 4**. Extrapolating the same fit to
+`CLUSTER_ALPHA` = 1.0 gives ≈ 9.5 — **and 1.0 does not march at all** (§14.5a). **No value
+of this parameter reaches the gate.**
+
+### AND A SECOND TRADE, MEASURED AND NOT PREDICTED
+
+**Clustering makes the maximum cell aspect ratio WORSE while improving skewness:**
+1592 at `a00`, **6734** at `a03`, 3833 at `a05`, against CRM_WINGALONE's 153–189. So the
+parameter does not merely fail to reach the skewness gate — **it degrades the other
+quantity `checkMesh` raises as an error while doing it.**
+
+### WHAT THIS LEAVES
+
+**H-G1's checkMesh clause is `NOT A RESULT` at every `CLUSTER_ALPHA` tested**, and the
+levers in §17.5e are untouched by this section: they remain **three, all open, none taken**,
+with the supervisor's objection to spanwise clustering standing. **The route decision is
+the supervisor's and is not taken here.**
+
+*Appended 2026-09-12 by a cfd `lab-lane`, ahead of an instance stop for a 96-core upgrade.
+`a07` is named unfinished rather than estimated. No new march was started.*
