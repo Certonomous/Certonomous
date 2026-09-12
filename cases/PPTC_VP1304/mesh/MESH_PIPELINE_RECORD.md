@@ -188,3 +188,88 @@ Coarse level (ratio 1.0): 19,032 background cells; near-field cell at the blade 
 `cases/PPTC_VP1304/tools/{stl_metrics,compare_sections}.py`. The registered import scale of
 exactly 1e-3 (mm → m, §2.3) is applied when the OpenFOAM input STL is written, and the scaled
 extent is printed and checked: max radius 0.124990 m against R = 0.125 m.
+
+---
+
+## CORRECTION 1 — 2026-09-12, before the family is built. §1's TESSELLATION IS REJECTED, AND I REPORTED IT ADEQUATE USING THE WRONG STATISTIC
+
+*lines whose number changed above this section: 0*
+
+§1 above calls the curvature-12 / min-0.40 / **max-2.0 mm** tessellation "complete, USED" and
+"a measured choice and not a compromise", citing "edge length, blade region: median
+0.539 mm". **That median is COUNT-WEIGHTED. The AREA-weighted median facet size on the blades
+is 2.995 mm** — a factor of 5.6, in the direction that made a badly coarse tessellation look
+adequate. §1's verdict is struck. The tessellation is **REJECTED**.
+
+### C1.1 The measurement
+
+`check_tessellation_adequacy.py`, run against that tessellation:
+
+| patch | area-weighted p50 | p90 | p99 | max |
+|---|---|---|---|---|
+| `blades` | **2.995 mm** | 4.153 | 4.714 | 5.444 |
+| `hub` | 3.872 | 4.200 | 4.593 | 4.890 |
+| `cap` | 3.977 | 4.016 | 4.350 | 4.621 |
+| `shaft` | 4.000 | 4.069 | 4.352 | 4.781 |
+
+Percentage of each patch's **area** carried by facets larger than that level's surface cell:
+
+| level | surface cell | blades | hub | cap | shaft | verdict |
+|---|---|---|---|---|---|---|
+| coarse | 0.625 mm | 96.3% | 99.9% | 100.0% | 100.0% | **TESSELLATION-LIMITED** |
+| medium | 0.417 mm | 98.3% | 99.9% | 100.0% | 100.0% | **TESSELLATION-LIMITED** |
+| fine | 0.278 mm | 99.3% | 100.0% | 100.0% | 100.0% | **TESSELLATION-LIMITED** |
+
+**Not marginal at the fine level — inadequate at the coarse one.** The check exits 2.
+
+### C1.2 Why the error happened, and it is the error this act had already registered a prediction about
+
+Curvature-driven refinement puts thousands of tiny facets along the leading and trailing
+edges. They are **numerous** and carry **almost no area**. The flat panels in the middle of a
+blade are **few** and carry nearly all of it. A count-weighted median therefore reports the
+edges and says nothing about the panels — and `MeshSizeMax = 2.0 mm`, which governs those
+panels, was never the number being looked at. **MeshSizeMax is the binding constraint;
+curvature refinement never governs a flat panel.**
+
+This is precisely `docs/NUMERICS_KNOWLEDGE.md` **N-X5**: *a cell-count share OVERSTATES the
+area- or volume-weighted share of any population concentrated in refined regions.* This act
+registered seven predictions about that mechanism in
+`CONCAVE_CELL_PREDICTION_REGISTRATION.md`, including §4's instruction that *"the AREA share …
+is what is reported"* and that *"the cell share is reported too, and explicitly labelled a
+locator"* — and then, in the next report, a count-weighted statistic was offered as evidence
+of geometric adequacy. **Registering a lesson is not the same as having learned it.**
+
+### C1.3 What survives
+
+The three checks run on that tessellation were real and they still hold:
+
+- total surface area reproduces an independent uniform-0.8 mm tessellation to **0.10%**;
+- the AE/A0 split check passes at **1.0536**, with the excess attributed by radial band;
+- healing invariance passes all five registered thresholds.
+
+**None of them is sensitive to facet size.** A coarse tessellation of a smooth body gets the
+integrated area right while representing that body with panels. Those checks were valid for
+what they measured and were then generalised to a property they do not test. The word
+"validated" in §1 was doing work it had not earned.
+
+### C1.4 The replacement, and the check that now gates it
+
+A tessellation is running with **`MeshSizeMax` cut from 2.0 mm to 0.30 mm**, min 0.12 mm,
+curvature 12, healing on, 16 threads, **binary** output (at this resolution an ASCII STL would
+exceed a gigabyte). It is sized by the **finest surface cell the family will achieve**, not by
+curvature.
+
+> **REGISTERED, BEFORE THE FAMILY IS BUILT: no level is meshed until
+> `check_tessellation_adequacy.py` returns PASS or MARGINAL for it. A level it calls
+> TESSELLATION-LIMITED is either not built or is disclosed as limited above a stated surface
+> cell size, on the certificate, with the percentage.** Thresholds: PASS ≤ 5% of patch area on
+> oversized facets, MARGINAL ≤ 20%, TESSELLATION-LIMITED above that. The check **refuses with
+> exit 2**; it does not warn.
+
+### C1.5 Why this mattered more than a quality gate would have
+
+A family whose refinement stops buying geometric fidelity does not fail loudly. Residuals fall,
+forces go stationary, `checkMesh` reports a clean mesh, and the Roache triple can even look
+CONVERGING — converging on the tessellation's geometry rather than the propeller's. **There is
+no residual signature for this failure.** It is caught by measuring the input, before the
+solve, or it is not caught.
