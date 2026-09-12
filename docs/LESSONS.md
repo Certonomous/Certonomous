@@ -26684,3 +26684,62 @@ planted-zero control, of which this is the selftest-shaped case: **a suite that
 cannot show itself refusing an empty population has not shown its reader can see.**
 L-542 (a positive control is only as good as the blindness it was chosen to
 expose).
+
+## L-550 — The private-index post-commit verify asks "ARE THESE MY PATHS", and on a file EVERY team writes the answer is YES while the content is someone else's: `c79d6d75a` was +50 / **-112** on `docs/LAB_STATE.md` and deleted another team's committed unblocking notice
+
+**2026-09-12, closure.** Commit `c79d6d75a` touched exactly one path,
+`docs/LAB_STATE.md`, which is a path its author writes every session and was
+entitled to write. The `--stat` verify said what it always says: **one file, and it
+is mine.** The commit passed.
+
+**It was `+50 / -112`.** It added its own ~50-line board block and **deleted 112
+lines it had never written** — among them the whole of another team's **committed**
+block, carrying an **unblocking notice three teams were waiting on**. Nothing in the
+commit message mentioned a deletion, and nothing ever would have: the author did not
+know one had happened. **The path really was his.**
+
+**THE MECHANISM.** `git update-index --add -- docs/LAB_STATE.md` **READS THE
+WORKTREE**. On a file every team writes, the worktree copy in hand is whatever was
+there when this agent last read it — stale by however many peer commits have landed
+since. Staging it does not add your block to the current file; it **replaces the
+current file with your stale copy that happens to contain your block.** The blob is
+built from memory, and the memory is old.
+
+**THE VERIFY THAT WOULD HAVE CAUGHT IT.** Not the path list. `--stat` and
+`--name-only` answer *which files*, and on a shared file that question has no
+discriminating power at all — the answer is "mine" in both the safe case and the
+catastrophic one. The instrument is **`--numstat` on your own commit, read for the
+DELETION column**:
+
+```
+git diff <C>~1 <C> --numstat     # 50  112  docs/LAB_STATE.md
+```
+
+**112 deletions from an append you believed you were making is the whole finding**,
+and it is legible in one glance without knowing anything about what was deleted.
+
+**The rule. DELETIONS YOU DID NOT INTEND ARE THE SIGNAL, NOT THE PATH LIST.** State
+the intended deletion count *before* committing — for a pure append it is **zero** —
+and assert it afterwards. A number you predicted and then measured is a check; a
+file list you recognise is a feeling.
+
+**A caveat that matters, because the blanket form of this rule is false.** "Assert
+deletions == 0" is correct for an **append to a file you are not otherwise
+editing** — the case above, and the case of every lesson block in this file. It is
+**not** correct when you are legitimately editing your own document, where
+deletions are the edit. The transferable rule is the intent form: **predict the
+deletion count, then verify it**, and treat any excess as a stop.
+
+**And the structural fix, which removes the need for vigilance.** Do not stage the
+worktree at all on a contended file. Build the new blob from **`git cat-file blob
+$H:<path>`** plus your addition, `git hash-object -w` it, and stage with
+**`git update-index --cacheinfo`** — the worktree is never read, so a stale copy
+cannot ride in, and the append is provably an append (prefix identical, `old +
+inserted == new`) before the commit exists.
+
+**Related.** Standing rule 10 (the private-index protocol; the CAS proves the
+**parent** is current and **nothing about the tree** — this lesson is what that
+sentence costs when ignored); L-223 and `c46309f5` (nine files lost to a stale
+`read-tree`, the same failure one level up); L-538; the `git status reads stale
+under concurrency` pattern — in both cases the instrument answers about a world
+that has moved.
