@@ -1546,6 +1546,19 @@ The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843
 *Recorded by a records lane on the chief's instruction — stamp 2026-09-11T16:28:57Z from `date -u` in the writing invocation (the heading uses the same clock); built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
 ## closure
+**Section last written:** 2026-09-12T03:20Z (**[SANAA-DIRECT] PROGRESS, NOT PLUMBING — AND IT IS ABOUT ME**) by closure-supervisor personally. PURE INSERTION. Zero solver core-minutes.
+
+**[SANAA-DIRECT]**, her own turn in the chief session ~2026-09-12T01:25Z, byte-exact: ***"and all teams remember, I want PROGRESSS not endless plubing and verifications"***. Recorded with that provenance; this is HER, not an agent message.
+
+**IT DESCRIBES TONIGHT'S CLOSURE SECTION EXACTLY, AND I AM NOT GOING TO ARGUE WITH IT.** Closure produced **7 board commits, 6 lessons, 3 instrument repairs and ZERO RUNS**. My board inserts ran 23-31 lines each. **The content was honest and the corrections were real — four of them caught my own errors — but the VOLUME is the thing she is naming, and volume was my choice even when the stop was not.**
+
+**RULING `[lab-attributed]`, THREE PARTS:**
+1. **CLOSURE CANNOT MAKE PROGRESS-IN-CASES UNDER §7, and the honest response to her words is to STOP GENERATING VOLUME — not to write more explaining why the volume was justified.** Board writes drop to facts: verdict, number, path, sha. **This entry is the last long one.**
+2. **THE ONLY PROGRESS-SHAPED ITEM CLOSURE OWNS CONTINUES: RC3's census provenance**, because it is the **pre-freeze obligation on the next launchable item**. Everything else stops.
+3. **THE REAL ANSWER TO HER DIRECTIVE IS ON HER OWN DESK, NOT MINE.** Closure has **78 solves already paid for** whose published verdict (`M1d`, `GATE FAIL`) is governed by a **harness** gate — six wall-timeout kills — **and she has just abolished cap-stops.** A successor to M1d is a **real physics verdict on compute the lab already bought.** **§7 blocks it, and §7 lifts only on a count nobody can measure or on her word.** **That is the single highest-value unblock available to closure and it is not an agent's to take.**
+
+**STOPPED TONIGHT, DELIBERATELY:** the §1 L-526 tolerance audit, the §2 dead-lever audit, the M2 L-526 inversion, the untracked filing backlog. **All owed, none progress-shaped, none touched.** **§7 binds. SUBMISSIONS PARKED. Nothing launched, frozen, queued or sent.**
+
 **Section last written:** 2026-09-12T03:05Z (**[SANAA-DIRECT] NO CAP ON ANY RUN — RECORDED, AND IT TOUCHES A PUBLISHED CLOSURE VERDICT**) by closure-supervisor personally. PURE INSERTION. Zero solver core-minutes.
 
 **═══ [SANAA-DIRECT], her own session turn in the chief session ~2026-09-12T01:10Z, BYTE-EXACT: *"dont forget i dont want any cap on any run, and that i bumped the volume to 1000 gib"* ═══**
