@@ -26,7 +26,18 @@ transonic wing. **Results saved:** VTK at time 6000 (69 MB), `postProcessing/
 wingPatchSample/6000`, `cp_comparison.json`, and **nine renders already made**
 in `renders_A3_demo/` — Cp upper/lower/planform/LE, Mach spanwise slices,
 sonic surface, Cp stations vs experiment, shock position vs experiment.
-**Next action: none to make it showable. It is showable.**
+**CORRECTION (same session, found by a lane after I wrote the line above):** the
+raw FIELDS are **gone** — later `check_totals` runs at np=2 overwrote the validated
+np=4 `Time = 6000` state, and the processor dirs now hold only `0` and `629`.
+`system/controlDict` now reads `endTime 1500`. What survives is the VTK, the wing
+patch sample, `cp_comparison.json`, the nine renders, and `run_model_run3.log`
+intact (CD 0.0229956, CL 0.3131159, p 3.744179e-07, all six equations below 1e-06,
+`End`, last `Time = 6000`). **So: FILMABLE today, but NOT restartable and NOT
+re-postprocessable.** My earlier line "none to make it showable" was right about
+showing and wrong about the case being live.
+**Next action: rerun it — c2 surface, N=65, 399,360 cells, np=4, 81.4 core-min,
+settings UNTOUCHED (it converged with `nNonOrth 0` and relax_p 1.0; changing them
+would discard the one controlled experiment we have).**
 
 ## RUNNING
 
