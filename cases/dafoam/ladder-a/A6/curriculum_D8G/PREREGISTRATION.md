@@ -1815,3 +1815,65 @@ successor once. G-COLD (no time dir, no `processor*`, no `d8g_P.json`) and the r
 stated plainly rather than described as something smaller. **`d8g_grade.py` is untouched.**
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## ADDENDUM 8 — 2026-09-12 — **A KILL IS NOT A CEILING. ADDENDUM 7 §7.4 STRIPPED THE MEMORY CONTAINMENT AND THAT WAS AN OVER-REACH; IT IS RESTORED.**
+
+**Lines whose number changed above this section: 0.**
+
+### 8.1 The over-reach, stated plainly
+
+ADDENDUM 7 §7.4 listed `--memory` / `--memory-swap` / `--oom-score-adj=500` among the things
+"stripped" under Sanaa's NO-CAP ruling. **That was wrong, and §7.4's list is struck on those three
+entries by this addendum.** Her order is *"NO RUN GETS STOPPED BC OF A TIME OR BUDGET CAP."*
+**A memory ceiling is neither a time cap nor a budget cap.** It is OOM containment on a shared box.
+
+**The three are RESTORED:** `--memory=6g --memory-swap=6g --oom-score-adj=500`.
+
+### 8.2 Why the two are different, so this file cannot teach the wrong lesson
+
+A **stop** ends a run that is healthy and progressing, because a clock or a budget said so. That is
+what Sanaa forbade, and every one of those remains removed: the in-container `timeout -k 60 $TMO`,
+`cap_core_min`→`TMO`, the `rc=124`/`rc=137` path, `LAUNCH_BUDGET_S`, `la_kill()` and the `exit 88`
+refusal branch.
+
+A **ceiling** only ever binds a run that has already failed — a runaway allocation. D8G L1-P is
+**5,568 cells** with a **predicted ~0.09 GiB RSS** (section 5); the registered ceiling is **6 GiB**,
+about **67x the need**. It is arithmetically incapable of stopping a healthy run. **A limit that
+cannot bind a healthy run is a seatbelt, not a cap.**
+
+`--oom-score-adj=500` is the part whose removal was most clearly backwards: it marks D8G as the
+**preferred** OOM victim, so dropping it does not protect D8G — **it points the kernel at somebody
+else's run instead.** At the time of writing the box has **~11 GiB available** and four live
+containers — **A3GC-AR1** (converged, p 3.7e-07, priority-1), **D6R2** (the multipoint Sanaa named),
+**A3GC L2**, **A3GC L1**. An uncontained runaway here could have taken all four down. **Removing
+containment would not have honoured the NO-CAP order; it would have risked four other teams' runs
+under cover of it.**
+
+### 8.3 A second defect, found only because the launcher was rebuilt against the registered line
+
+The ADDENDUM 7 launcher ran the container as `bash -lc "bash d8g_cmd.sh"` and **omitted
+`source /home/dafoamuser/dafoam/loadDAFoam.sh`**, which `d8g_run_arm.sh:814` carries. **Without it
+the DAFoam environment is never loaded and the arm dies on import** — it would have burned a launch
+and produced a failure that looked like the repair failing. It also dropped the **idwarp identity
+probe** (`:816`), whose `D4S_IDWARP_SO_MD5` line is what `d8g_of.py` records as
+`identity:{libidwarp_so_md5}` in `d8g_P.json`; without it the grading path loses an identity field.
+**Both are restored.** The launch line is now the registered `:811` command **with exactly one thing
+removed — the `timeout` wrapper** — rather than a re-derivation of it.
+
+### 8.4 Two departures from `:811` that remain, each justified on its own
+
+1. **`docker` replaces `sudo -n docker`.** `ubuntu` is in the `docker` group, so the client reaches
+   the same daemon with the same rights; the host `sudo` was **surplus privilege with zero
+   behavioural effect**, and every sibling dafoam launch on this box runs plain `docker`.
+2. **`--cpus=4` replaces `--cpuset-cpus=$CPUSET`.** A share limit rather than a pin: D8G still cannot
+   exceed four cores' worth, and it cannot land on top of a sibling's pinned cores. Neither form can
+   kill anything.
+3. **`--user 0:0` is KEPT** — the registered form (`:812`), and what produced the graded evidence.
+   Changing it mid-item would change provenance and risk the container being unable to write `/mnt`.
+
+**ALTERS NO** gate, band, threshold or label. `d8g_grade.py` untouched. The prediction and the
+UNTESTED-transfer registration of ADDENDUM 7 §7.3 stand **exactly** as frozen.
+
+**SUBMISSIONS PARKED.**
