@@ -908,7 +908,7 @@ def swap_offenders(proc_root: str = "/proc") -> list[dict]:
                 or base in MPI_LAUNCHERS):
             continue
         try:
-            status = (d / "status").read_text(errors="replace")
+            status = (d / "status").read_text(errors="replace")  # noqa: E501
         except OSError:
             continue
         m = re.search(r"^VmSwap:\s*(\d+)\s*kB", status, flags=re.M)
@@ -944,7 +944,157 @@ def probe_hygiene(paths: list[str] | None = None, proc_root: str = "/proc") -> d
     except OSError:
         load1 = -1.0
     return dict(load1=load1, disks=disks, swap=swap_offenders(proc_root),
+                solver_cpu=probe_solver_cpu(proc_root=proc_root),
                 ncpu=os.cpu_count() or 1)
+
+
+def _solver_pids(proc_root: str = "/proc") -> list[tuple[int, str]]:
+    """(pid, basename) of every process this runner attributes to SOLVER work: an OpenFOAM
+    executable, one of the named mesh utilities, an MPI launcher, a container runtime running
+    a job, or a python optimisation driver.  One list, used by both the CPU limb and the swap
+    limb, so the two cannot drift apart on what counts as a solver."""
+    out: list[tuple[int, str]] = []
+    proc = Path(proc_root)
+    if not proc.is_dir():
+        return out
+    for d in sorted(proc.iterdir(), key=lambda p: p.name):
+        if not d.name.isdigit():
+            continue
+        try:
+            cmd = (d / "cmdline").read_bytes().decode("utf-8", "replace").replace("\x00", " ").strip()
+        except OSError:
+            continue
+        if not cmd:
+            continue
+        base = cmd.split(" ")[0].rsplit("/", 1)[-1]
+        keep = (SOLVER_BASENAME_RE.search(base) or base in SOLVER_EXTRA_BASENAMES
+                or base in MPI_LAUNCHERS
+                or (base in CONTAINER_RUNTIMES and re.search(r"\b(run|exec)\b", cmd)))
+        if not keep and (base in ("python", "python3") or re.match(r"^python3\.\d+$", base)):
+            ops = [t.rsplit("/", 1)[-1] for t in cmd.split(" ")[1:] if t.endswith(".py")]
+            keep = any(re.match(r"^(runScript.*|.*dafoam.*|.*mphys.*)\.py$", o) for o in ops)
+        if keep:
+            out.append((int(d.name), base))
+    return out
+
+
+def _cpu_ticks(pid: int, proc_root: str = "/proc") -> int | None:
+    """utime + stime for one pid, in clock ticks, or None if it cannot be read."""
+    try:
+        stat = (Path(proc_root) / str(pid) / "stat").read_text(errors="replace")
+    except OSError:
+        return None
+    tail = stat.rsplit(")", 1)
+    if len(tail) != 2:
+        return None
+    f = tail[1].split()
+    if len(f) < 14:
+        return None
+    try:
+        return int(f[11]) + int(f[12])          # utime, stime (fields 14 and 15 of stat)
+    except ValueError:
+        return None
+
+
+def probe_solver_cpu(window_s: float = 0.5, proc_root: str = "/proc") -> dict:
+    """SOLVER-ATTRIBUTED CPU, in cores: sum over solver processes of (utime+stime) consumed
+    during a short sampling window, divided by the window.
+
+    WHY THIS EXISTS AND WHAT IT REPLACED (chief's decision 2026-09-12, lab-attributed, Sanaa
+    may overrule).  Her item 18 reads "Load above core count is a defect".  The first
+    implementation took that literally and gated on the SYSTEM loadavg(1) -- and measured on
+    this box, with NO solver running at all, loadavg(1) sat between 14 and 24 against nproc
+    16.  The agent fleet's own load is not solver oversubscription, so the literal limb would
+    have held every launch for ever while the box was in fact idle of solver work.  The
+    defect her item names is OVERSUBSCRIPTION, so the limb now measures what can actually
+    oversubscribe: the solvers.  THE SYSTEM LOADAVG IS STILL READ AND STILL LOGGED -- it is
+    kept as a READING beside the verdict and gates nothing, which is the opposite of deleting
+    it and the opposite of letting it gate.
+
+    Returns {"cores": float, "detail": str, "window_s": float}.  FAILS CLOSED: a window that
+    could not be sampled returns cores = -1.0 and the gate HOLDS under a distinct reason,
+    because a reader that measured nothing must not be read as a box using no CPU (standing
+    rule 3).
+
+    HONEST LIMIT, stated because it bounds the gate: a solver inside a CONTAINER burns its CPU
+    in processes under the runtime's shim, which this reader does not walk.  Such a job is
+    seen at its launching `docker run` process only, and its CPU will read near zero.  Gate C
+    still counts that job at its `--cpus`, so a container job is bounded by rank accounting
+    even where this limb under-reads it."""
+    pids = _solver_pids(proc_root)
+    if not Path(proc_root).is_dir():
+        return dict(cores=-1.0, detail="PROBE-FAILED: no /proc to read", window_s=0.0)
+    if not pids:
+        return dict(cores=0.0, detail="no solver process on the box", window_s=0.0)
+    try:
+        hz = float(os.sysconf("SC_CLK_TCK"))
+    except (ValueError, OSError):
+        return dict(cores=-1.0, detail="PROBE-FAILED: SC_CLK_TCK unreadable", window_s=0.0)
+    if hz <= 0:
+        return dict(cores=-1.0, detail="PROBE-FAILED: SC_CLK_TCK is not positive", window_s=0.0)
+    first = {pid: _cpu_ticks(pid, proc_root) for pid, _b in pids}
+    t0 = time.time()
+    time.sleep(max(0.05, float(window_s)))
+    elapsed = time.time() - t0
+    if elapsed <= 0:
+        return dict(cores=-1.0, detail="PROBE-FAILED: the sampling window was not positive",
+                    window_s=0.0)
+    total = 0.0
+    parts: list[str] = []
+    read_any = False
+    for pid, base in pids:
+        a = first.get(pid)
+        b = _cpu_ticks(pid, proc_root)
+        if a is None or b is None or b < a:
+            continue                    # started or exited inside the window; not counted
+        read_any = True
+        cores = (b - a) / hz / elapsed
+        total += cores
+        if cores >= 0.01:
+            parts.append(f"{base}({pid}) {cores:.2f}")
+    if not read_any:
+        return dict(cores=-1.0, window_s=elapsed,
+                    detail=(f"PROBE-FAILED: {len(pids)} solver process(es) were seen but none "
+                            f"could be sampled across the window"))
+    return dict(cores=total, window_s=elapsed,
+                detail=", ".join(parts) if parts else
+                f"{len(pids)} solver process(es), all below 0.01 core")
+
+
+def solver_load_gate(entry: dict, reading: dict, ncpu: int,
+                     reserve: int = FLEET_CORE_RESERVE) -> tuple[str, str]:
+    """GATE E's LOAD LIMB -- her item 18, read as SOLVER-ATTRIBUTED load (chief's decision
+    2026-09-12, lab-attributed, Sanaa may overrule).
+
+        sum of solver %CPU/100  +  the entry's ranks  +  the 2-core fleet reserve  <=  nproc
+
+    HOLD, never REFUSE: an oversubscribed box is transient.  Distinct from gate C, which
+    counts REGISTERED ranks of live launches; this counts CPU ACTUALLY BEING BURNED, so a
+    launched-but-idle solver does not block a wave and a runaway that exceeds its rank count
+    does.  Both must pass.  FAILS CLOSED on an unsampled reading."""
+    cpu = reading.get("solver_cpu")
+    if not isinstance(cpu, dict) or "cores" not in cpu:
+        return "HOLD", ("LOAD-PROBE-FAILED: the box reading carries no `solver_cpu` measurement, "
+                        "so solver-attributed load was not evaluated. A missing reading is not "
+                        "an idle box (standing rule 3). HELD.")
+    cores = float(cpu.get("cores", -1.0))
+    if cores < 0.0:
+        return "HOLD", (f"LOAD-PROBE-FAILED: {cpu.get('detail', 'no detail')}. A window that "
+                        f"could not be sampled is never read as zero solver CPU. HELD.")
+    want = int(entry.get("ranks", 0))
+    need = cores + float(reserve) + want
+    load1 = float(reading.get("load1", -1.0))
+    sys_note = (f"system loadavg(1) {load1:.2f} is REPORTED, not gated -- the agent fleet's own "
+                f"load is not solver oversubscription" if load1 >= 0 else
+                "system loadavg(1) could not be read; it gates nothing either way")
+    if need > float(ncpu):
+        return "HOLD", (f"LOAD: solver-attributed {cores:.2f} core(s) + {int(reserve)} fleet "
+                        f"reserve + {want} entry rank(s) = {need:.2f} > nproc {int(ncpu)}. Her "
+                        f"item 18 -- load above core count stops NEW launches until cleared; "
+                        f"running work is untouched and the entry keeps its place. "
+                        f"[{cpu.get('detail', '')}] {sys_note}")
+    return "PASS", (f"solver-attributed {cores:.2f} + {int(reserve)} reserve + {want} entry = "
+                    f"{need:.2f} <= nproc {int(ncpu)} [{cpu.get('detail', '')}]; {sys_note}")
 
 
 def hygiene_gate(reading: dict, ncpu: int) -> tuple[str, str]:
@@ -963,14 +1113,17 @@ def hygiene_gate(reading: dict, ncpu: int) -> tuple[str, str]:
                         f"the {DISK_CEILING_PCT:.0f} % ceiling. Her item 17: disk above 85 % is a "
                         f"defect -- archive graded run trees and purge decompositions and "
                         f"intermediate times, then launches resume. No entry is refused.")
+    # THE SYSTEM LOADAVG IS A READING HERE, NOT A LIMB (chief's decision 2026-09-12,
+    # lab-attributed, Sanaa may overrule). Her item 18's load defect is OVERSUBSCRIPTION, and
+    # on this box the agent fleet alone carried loadavg(1) 14-24 against nproc 16 with no
+    # solver running -- a literal limb would have held every launch for ever on a box idle of
+    # solver work. The gating now happens in solver_load_gate() on SOLVER-ATTRIBUTED CPU, and
+    # this number is still measured and still printed beside every verdict so the fleet's
+    # load stays visible rather than being deleted from the record.
     load1 = float(reading.get("load1", -1.0))
-    if load1 < 0:
-        return "HOLD", ("HYGIENE-PROBE-FAILED: loadavg could not be read, so her item 18's load "
-                        "ceiling was not evaluated. HELD rather than assumed clear.")
-    if load1 > float(ncpu):
-        return "HOLD", (f"LOAD: loadavg(1) {load1:.2f} > nproc {int(ncpu)}. Her item 18: load "
-                        f"above core count is a defect and stops NEW launches until cleared. "
-                        f"Running work is untouched.")
+    load_note = (f"system loadavg(1) {load1:.2f} (reported, not gated; the solver-attributed "
+                 f"limb is solver_load_gate)" if load1 >= 0 else
+                 "system loadavg(1) unreadable (reported, not gated)")
     sw = list(reading.get("swap") or [])
     if sw:
         names = ", ".join(f"{s['name']}(pid {s['pid']}, VmSwap {s['vmswap_kb']} kB)" for s in sw[:4])
@@ -979,8 +1132,7 @@ def hygiene_gate(reading: dict, ncpu: int) -> tuple[str, str]:
                         f"until cleared.")
     worst = max(disks, key=lambda d: float(d["percent"]))
     return "PASS", (f"disk worst {worst['path']} {float(worst['percent']):.1f} % <= "
-                    f"{DISK_CEILING_PCT:.0f} %, loadavg(1) {load1:.2f} <= nproc {int(ncpu)}, "
-                    f"0 solver processes swapping")
+                    f"{DISK_CEILING_PCT:.0f} %, 0 solver processes swapping; {load_note}")
 
 
 # ------------------------------------------------------------------ GATE F: DETACHMENT
@@ -1070,7 +1222,8 @@ GATE_REGISTRY = (
     ("B MEMORY (item 7)", "memory_gate"),
     ("C CORE (item 8)", "core_gate"),
     ("D NO-ROOT (item 6)", "root_gate"),
-    ("E HYGIENE (items 17-18)", "hygiene_gate"),
+    ("E HYGIENE disk+swap (items 17-18)", "hygiene_gate"),
+    ("E LOAD, solver-attributed (item 18)", "solver_load_gate"),
     ("F DETACHMENT (item 9)", "detachment_verify"),
 )
 
@@ -1727,6 +1880,15 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
                     f"{ranks_reading.get('detail', '?')}]")
                 continue
             gate_notes.append(f"C={c_msg}")
+            # GATE E's LOAD LIMB, per entry because the arithmetic includes the entry's own
+            # ranks. Distinct from gate C: that counts REGISTERED ranks of live launches, this
+            # counts CPU actually being burned. Both must pass. The box reading was taken once
+            # at the top of the tick.
+            l_verdict, l_msg = solver_load_gate(entry, hyg_reading, ncpu)
+            if l_verdict != "PASS":
+                log(f"HELD {path.name}: gate E load -- {l_msg}")
+                continue
+            gate_notes.append(f"E-load={l_msg}")
             # GATE B (her item 7, memory guard). Its REGISTRATION limb refuses (a permanent
             # property of the entry); its FIT limb holds (a transient property of the box).
             b_verdict, b_msg = memory_gate(entry, mem)
@@ -1797,7 +1959,8 @@ def selftest() -> int:
     globals()["probe_solver_ranks"] = lambda: dict(
         ranks=0, detail="INJECTED selftest reading: no live solver rank")
     globals()["probe_hygiene"] = lambda: dict(
-        load1=0.5, disks=[dict(path="/INJECTED", percent=10.0)], swap=[], ncpu=16)
+        load1=0.5, disks=[dict(path="/INJECTED", percent=10.0)], swap=[], ncpu=16,
+        solver_cpu=dict(cores=0.0, detail="INJECTED: no solver CPU", window_s=0.5))
     # Gate F polls /proc for a readable PPID; 0.2 s keeps the ~20 launches below cheap. The
     # dedicated gate F control passes its own deadline.
     globals()["DETACH_DEADLINE_S"] = 0.2
@@ -2958,29 +3121,82 @@ def selftest() -> int:
           "euid 0" in euid_raised and euid_ok == "", f"root_refused={bool(euid_raised)}")
 
     # ---- GATE E (her items 17-18): box hygiene
-    clean = dict(load1=1.0, disks=[dict(path="/", percent=48.0)], swap=[], ncpu=16)
+    clean = dict(load1=1.0, disks=[dict(path="/", percent=48.0)], swap=[], ncpu=16,
+                 solver_cpu=dict(cores=0.1, detail="INJECTED", window_s=0.5))
     ve, me = hygiene_gate(clean, 16)
     check("GATE E POSITIVE: 48 % disk, loadavg 1.0 on 16 cores, nothing swapping -> PASS",
           ve == "PASS" and "48.0 %" in me, f"{ve}: {me[:70]}")
     for name, reading, word in (
             ("disk 92 %", dict(clean, disks=[dict(path="/", percent=92.0)]), "DISK"),
-            ("loadavg 20 > 16", dict(clean, load1=20.0), "LOAD"),
             ("a solver swapping", dict(clean, swap=[dict(pid=7, name="simpleFoam",
                                                          vmswap_kb=4096)]), "SWAP"),
             ("no filesystem read at all", dict(clean, disks=[]), "HYGIENE-PROBE-FAILED")):
         vex, mex = hygiene_gate(reading, 16)
         check(f"GATE E NEGATIVE ({name}) -> HOLD, logged as {word}",
               vex == "HOLD" and word in mex, f"{vex}: {mex[:70]}")
+    # THE LOAD LIMB, AS THE CHIEF RULED IT (2026-09-12, lab-attributed): the SYSTEM loadavg
+    # no longer gates, and SOLVER-ATTRIBUTED CPU does. The first control is the one that
+    # flips against the previous implementation, and it flips because the fleet's own load on
+    # this very box (14-24 against nproc 16, no solver running) would otherwise have held
+    # every launch for ever.
+    vlf, mlf = hygiene_gate(dict(clean, load1=24.0), 16)
+    check("GATE E: a SYSTEM loadavg of 24.0 on 16 cores no longer holds anything -- it is "
+          "REPORTED beside the verdict and gates nothing. Under the previous implementation "
+          "this same reading was a HOLD",
+          vlf == "PASS" and "24.00" in mlf and "reported, not gated" in mlf, f"{vlf}: {mlf[-70:]}")
+    l_entry = _entry_at(_foam_case("E_LOAD"), ranks=4)
+    vl, ml = solver_load_gate(l_entry, dict(clean, load1=24.0, solver_cpu=dict(
+        cores=0.30, detail="INJECTED: simpleFoam(1) 0.30", window_s=0.5)), 16)
+    check("GATE E LOAD POSITIVE: 0.30 solver-attributed core + 2 fleet reserve + 4 entry ranks "
+          "= 6.30 <= nproc 16 -> PASS, with the system loadavg 24.00 printed as a reading",
+          vl == "PASS" and "6.30 <= nproc 16" in ml and "REPORTED, not gated" in ml,
+          f"{vl}: {ml[:80]}")
+    vln, mln = solver_load_gate(l_entry, dict(clean, load1=2.0, solver_cpu=dict(
+        cores=13.5, detail="INJECTED: 4 solvers hot", window_s=0.5)), 16)
+    check("GATE E LOAD NEGATIVE: 13.50 solver-attributed cores + 2 reserve + 4 entry ranks = "
+          "19.50 > nproc 16 -> HOLD (never REFUSE), even though the SYSTEM loadavg reads a "
+          "quiet 2.0. The limb turns on solver CPU alone",
+          vln == "HOLD" and "19.50 > nproc 16" in mln and "keeps its place" in mln,
+          f"{vln}: {mln[:80]}")
+    vlp, mlp = solver_load_gate(l_entry, dict(clean, solver_cpu=dict(
+        cores=-1.0, detail="PROBE-FAILED: window unsampled", window_s=0.0)), 16)
+    vlm, mlm = solver_load_gate(l_entry, dict(load1=1.0, disks=[], swap=[]), 16)
+    check("GATE E LOAD FAILS CLOSED: an unsampled window (cores -1) and a reading carrying no "
+          "`solver_cpu` at all are BOTH HELD under LOAD-PROBE-FAILED -- a reader that measured "
+          "nothing is never an idle box",
+          vlp == "HOLD" and "LOAD-PROBE-FAILED" in vlp + mlp and vlm == "HOLD"
+          and "LOAD-PROBE-FAILED" in mlm, f"unsampled={vlp} missing={vlm}")
+    l_e2e = _entry_at(_foam_case("E_LOAD_E2E"), case_id="SELFTEST_GATE_E_LOAD_E2E", ranks=4,
+                      solver_class="openfoam-steady")
+    (root / "cfd" / "SELFTEST_GATE_E_LOAD_E2E.json").write_text(json.dumps(l_e2e))
+    n_before_l = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
+    rl_hot = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
+                  hygiene_probe=lambda: dict(clean, load1=2.0, solver_cpu=dict(
+                      cores=13.5, detail="INJECTED: 4 solvers hot", window_s=0.5)))
+    still_l = (root / "cfd" / "SELFTEST_GATE_E_LOAD_E2E.json").exists()
+    rl_idle = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
+                   hygiene_probe=lambda: dict(clean, load1=24.0, solver_cpu=dict(
+                       cores=0.3, detail="INJECTED: idle solvers", window_s=0.5)))
+    n_after_l = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
+    check("GATE E LOAD END TO END: 13.5 solver cores injected -> the 4-rank entry is HELD and "
+          "stays queued; 0.3 solver cores with a SYSTEM loadavg of 24.0 -> the same entry "
+          "LAUNCHES. The tick flips on solver-attributed CPU, not on loadavg",
+          rl_hot == "HELD" and still_l and rl_idle == "LAUNCHED" and n_after_l - n_before_l == 1,
+          f"hot={rl_hot} idle={rl_idle} rows={n_after_l - n_before_l}")
+
     e_e2e = _entry_at(_foam_case("E_E2E"), case_id="SELFTEST_GATE_E_E2E",
                       solver_class="openfoam-steady")
     (root / "cfd" / "SELFTEST_GATE_E_E2E.json").write_text(json.dumps(e_e2e))
     n_before_e = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
+    _cpu_idle = dict(cores=0.1, detail="INJECTED", window_s=0.5)
     re_dirty = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
                     hygiene_probe=lambda: dict(load1=1.0, ncpu=16, swap=[],
+                                               solver_cpu=_cpu_idle,
                                                disks=[dict(path="/INJECTED", percent=92.0)]))
     still_e = (root / "cfd" / "SELFTEST_GATE_E_E2E.json").exists()
     re_clean = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
                     hygiene_probe=lambda: dict(load1=1.0, ncpu=16, swap=[],
+                                               solver_cpu=_cpu_idle,
                                                disks=[dict(path="/INJECTED", percent=10.0)]))
     n_after_e = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
     check("GATE E END TO END: a 92 % disk reading HOLDS the whole tick (entry stays queued, no "
@@ -2996,17 +3212,22 @@ def selftest() -> int:
     live_h = probe_hygiene()
     live_r = probe_solver_ranks()
     check("G-REAL: the REAL probes read this box -- at least one filesystem with a percentage "
-          "in (0, 100), a loadavg >= 0, and a rank count >= 0. The injected readings above are "
+          "in (0, 100), a loadavg >= 0, a rank count >= 0 and a SAMPLED solver-CPU reading. The injected readings above are "
           "not covering a reader that cannot read",
           bool(live_h.get("disks")) and
           all(0.0 < float(d["percent"]) < 100.0 for d in live_h["disks"]) and
-          float(live_h.get("load1", -1)) >= 0.0 and int(live_r.get("ranks", -1)) >= 0,
+          float(live_h.get("load1", -1)) >= 0.0 and int(live_r.get("ranks", -1)) >= 0 and
+          isinstance(live_h.get("solver_cpu"), dict) and
+          float(live_h["solver_cpu"].get("cores", -1)) >= 0.0,
           f"disks={[(d['path'], round(float(d['percent']), 1)) for d in live_h.get('disks', [])]} "
-          f"load1={live_h.get('load1')} ranks={live_r.get('ranks')} [{live_r.get('detail', '')[:40]}]")
+          f"load1={live_h.get('load1')} ranks={live_r.get('ranks')} "
+          f"solver_cores={live_h.get('solver_cpu', {}).get('cores')} "
+          f"[{live_h.get('solver_cpu', {}).get('detail', '')[:40]}]")
     globals()["probe_solver_ranks"] = lambda: dict(
         ranks=0, detail="INJECTED selftest reading: no live solver rank")
     globals()["probe_hygiene"] = lambda: dict(
-        load1=0.5, disks=[dict(path="/INJECTED", percent=10.0)], swap=[], ncpu=16)
+        load1=0.5, disks=[dict(path="/INJECTED", percent=10.0)], swap=[], ncpu=16,
+        solver_cpu=dict(cores=0.0, detail="INJECTED: no solver CPU", window_s=0.5))
 
     # ---- GATE F (her item 9): detachment, VERIFIED and not merely argued
     globals()["DETACH_DEADLINE_S"] = 4.0
@@ -3123,6 +3344,12 @@ def main(argv: list[str]) -> int:
         + subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"],
                          capture_output=True, text=True).stdout.strip()
         + f" exit_logging={'+'.join(handled)}+exception+normal")
+    # THE ARMED LINE. gate_coverage_check() ran above and refused if any registered gate was
+    # unwired, so by the time this prints, the named gates are known to be CALLED in tick().
+    # It is printed on EVERY start, so "the gates are armed" and "this runner predates them"
+    # are answerable from runner.log alone rather than from the code a reader happens to have.
+    log("GATE_REGISTRY ARMED (" + str(len(GATE_REGISTRY)) + " gates, 0 coverage gaps): "
+        + "; ".join(label for label, _fn in GATE_REGISTRY))
     rr: dict = {}
     # THE ONE EXIT PATH. Every way out of the loop below logs `EXIT reason=... pid=...`
     # before the process ends: a handled signal (by name), an escaping exception (class
