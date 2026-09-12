@@ -1,0 +1,74 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| MRF_R1 fvSolution -- steady simpleFoam, kOmegaSST, closed domain (pRefCell). |
+| NO residualControl (prereg sec.5): the graded run must reach the pinned hard |
+| endTime so last==endTime and ExecutionTime-count==endTime hold. Convergence  |
+| is judged by the rule-5 plateau of Np, not by an early residual exit.        |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    Phi
+    {
+        solver          GAMG;
+        smoother        DIC;
+        tolerance       1e-06;
+        relTol          0.01;
+    }
+
+    p
+    {
+        solver          GAMG;
+        tolerance       1e-07;
+        relTol          0.05;
+        smoother        GaussSeidel;
+        nCellsInCoarsestLevel 50;
+    }
+
+    "(U|k|omega)"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        nSweeps         2;
+        tolerance       1e-08;
+        relTol          0.1;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+    consistent      yes;
+    pRefCell        0;
+    pRefValue       0;
+    // NO residualControl -- endTime is the hard stop (prereg sec.5)
+}
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors 5;
+    // closed all-wall domain: the potential field Phi is singular, so it needs
+    // an explicit reference (potentialFoam findRefCell looks for PhiRefCell).
+    PhiRefCell       0;
+    PhiRefValue      0;
+    pRefCell         0;
+    pRefValue        0;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U               0.9;
+        ".*"            0.7;
+    }
+}
+
+// ************************************************************************* //

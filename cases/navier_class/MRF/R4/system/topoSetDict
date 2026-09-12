@@ -1,0 +1,36 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| MRF_R1 topoSet -- the rotating impeller cellZone. A cylinder of radius       |
+| ~0.6 D (=0.060) spanning the disc turbine (blades z 0.090..0.110, disc at    |
+| z=0.100), per prereg sec.4. The enclosed-cell count is read back from the    |
+| topoSet log and must equal the cellZone size (F8 sec.14(3) discipline).      |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+actions
+(
+    {
+        name    impeller;
+        type    cellSet;
+        action  new;
+        source  cylinderToCell;
+        point1  (0 0 0.080);
+        point2  (0 0 0.120);
+        radius  0.060;
+    }
+    {
+        name    impeller;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     impeller;
+    }
+);
+
+// ************************************************************************* //

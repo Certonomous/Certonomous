@@ -225,6 +225,14 @@ def fig_globals():
             ax.text(i + 3.6, v, f"{v:.1f}", ha="center", va="bottom", fontsize=6.5)
         if key == "Np":
             ax.axhspan(5.3, 5.6, color="#e67e22", alpha=0.18)
+            ax.axhspan(5.29, 5.53, color="#2e8b57", alpha=0.14)
+            ax.text(0.02, 0.965,
+                    "our fine Np 4.38 is 17.3 to 21.8 % below Reid's band 5.3-5.6\n"
+                    "and 2.6 % below Beshay's measurement at our own ratios, 4.50\n"
+                    "both are true and they are different tanks",
+                    transform=ax.transAxes, va="top", ha="left", fontsize=6.4,
+                    bbox=dict(fc="w", ec="#8b0000", alpha=.92))
+            ax.set_ylim(0, 8.2)
         ax.legend(loc="lower right")
     cap(fig, "Our intensity uses tip speed; grey values are printed labels on their figure.")
     fig.savefig(f"{F}/fig06_global_parameters.png"); plt.close(fig)

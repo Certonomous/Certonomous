@@ -35,3 +35,12 @@ EOF
              && postProcess -time 8000 -func writeCellVolumes > log.writeCellVolumes 2>&1 )
   echo "$L: $(ls "$W"/8000 | tr '\n' ' ')"
 done
+
+# --- appended 2026-09-12: grad(U) for the turbulence-production figure (Reid Fig. 19).
+# turbulenceFields(G) REFUSES under bare postProcess -- it cannot find a registered
+# momentum transport model -- so G is built from grad(U) instead, as
+#   G = 2 * nut * (S:S),  S = symm(grad U),
+# and that definition is printed on the figure rather than implied.
+for L in coarse medium fine; do
+  ( cd "$WRK/$L" && postProcess -time 8000 -func 'grad(U)' > log.gradU 2>&1 && echo "$L grad(U) ok" )
+done

@@ -1,0 +1,55 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| MRF_R1 controlDict. THIS COPY IS THE EXERCISE-SMOKE config: endTime 50, a    |
+| few iterations only (NOT the graded run). The graded triple pins endTime as  |
+| a HARD stop (prereg sec.5: 4000 iters, NO residualControl early-exit) so     |
+| last==endTime and ExecutionTime-count==endTime are reachable; the launcher   |
+| sets endTime per level. deltaT=1 (unit-step steady simpleFoam).              |
+|                                                                              |
+| The impellerForces function object writes postProcessing/impellerForces/<t>/ |
+| moment.dat; grade_mrf_np.py reads total_z (shaft axis) from its header.      |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         8000;
+deltaT          1;
+
+writeControl    timeStep;
+writeInterval   160;
+purgeWrite      2;
+writeFormat     ascii;
+writePrecision  8;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    impellerForces
+    {
+        type            forces;
+        libs            (forces);
+        writeControl    timeStep;
+        writeInterval   1;
+        log             true;
+
+        patches         (impeller shaft);   // rotating impeller assembly
+        rho             rhoInf;             // incompressible: force via constant rho
+        rhoInf          998;                // kg/m^3 (water, prereg sec.4)
+        CofR            (0 0 0);            // shaft axis is z through origin; Mz is z-shift invariant
+    }
+}
+
+// ************************************************************************* //
