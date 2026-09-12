@@ -7065,3 +7065,91 @@ ours. And it is **falsifiable by one cheap solve**: rebuild our geometry at
 `t/D = 0.0155` holding everything else, predicted `Np` **5.2–5.4**, registered in
 `cases/navier_class/MRF/R3/MRF_R3_ZONE_SENSITIVITY_DRAFT.md` §5 — **not frozen,
 not launched.**
+
+---
+
+## N-X5. On any mesh with LOCAL REFINEMENT, a CELL-COUNT share and an AREA or VOLUME share diverge systematically — and the direction is predictable: a count proxy OVERSTATES the weighted share of anything concentrated in refinement. Measured at a factor of **12.7** on SUBOFF A1 L1
+
+**The case.** `checkMesh -allGeometry -allTopology` on the SUBOFF A1 L1 mesh
+(3,268,613 cells, snappyHexMesh, local refinement + 6 prism layers, surfaces
+`hull` and `sail`) reported **65,027 concave cells — 1.989 % of the mesh**, of
+which **4,677 lie inside the prism layer** on the graded surface. Against the
+layer population (116,686 hull faces × 6 layers ≈ 700 k cells) that is a
+**0.67 % cell share**, and the question asked of it was whether a 2 %-of-mesh
+quality defect sitting on the wall could move an integrated force.
+
+**Why the cell share was the wrong number.** Forces are not integrated over
+cells. They are pressure and wall shear integrated over **FACES, WEIGHTED BY
+AREA**. Measured on the same mesh:
+
+| quantity | value |
+|---|---|
+| hull faces whose owner cell is concave | **379 of 116,686 = 0.325 % of faces** |
+| their summed area / hull wetted area | **0.0526 %** |
+| mean area of those faces ÷ hull mean face area | **0.162×** |
+| cell share (0.67 %) ÷ area share (0.0526 %) | **12.7×** |
+
+**The mechanism, and it is general.** Concave cells are produced by
+snappyHexMesh castellation **at refinement-level transitions**. Discriminator:
+the **volume ratio across an internal face** — an octree level jump is **8×**
+(isotropic halving in 3D) while prism-layer gradation is the `expansionRatio`,
+here **1.2× per layer**. Two orders apart, so any threshold between them
+separates them with no judgement call:
+
+| threshold | whole mesh | concave set | enrichment |
+|---|---|---|---|
+| 2× | 802,895 (24.56 %) | 63,443 (**97.56 %**) | 4.0× |
+| 4× | 520,776 (15.93 %) | 61,855 (**95.12 %**) | **6.0×** |
+| 6× | 508,412 (15.55 %) | 60,354 (**92.81 %**) | 6.0× |
+
+**95.12 % of concave cells sit on a refinement jump against a 15.93 % mesh
+baseline**, stable across every threshold between the two physical scales.
+Only 3,172 of 65,027 (4.88 %) are not on one. **Converse: only 11.88 % of cells
+on a jump are concave** — a transition is NECESSARY BUT NOT SUFFICIENT.
+
+So: refinement transitions are where the **small** cells are, and small cells
+carry small **area** and small **volume**. That is the whole of it, and it fixes
+the sign:
+
+> **A cell-count share OVERSTATES the area- or volume-weighted share of any
+> population concentrated in refined regions, and UNDERSTATES it for any
+> population concentrated in coarse ones.** The divergence is not noise and it
+> is not case-specific; it follows from refined regions holding *more* cells of
+> *smaller* size.
+
+**What to do.** When a mesh-quality statistic is going to be weighed against a
+graded quantity, **compute the share in the quantity's own measure** — area for
+a surface integral, volume for a volume integral — and treat the count as a
+locator, never as a magnitude. Both a supervisor and a lane reasoned from the
+count here and **neither anticipated a factor of thirteen**, in the direction
+that made the exposure look *worse* than it was.
+
+**The reader control, and it is the reason the small number is believable.** A
+share computed by a reader that might be misreading the mesh is not evidence. The
+area reader was required to reproduce the case's **registered** hull wetted area
+first: computed **2.984102613 m²** against the manifest's
+**2.984102612561708 m²**, relative error **1.49e-16**. This is the
+**planted-zero doctrine applied to an area reader** — the reader was shown able
+to reproduce a known NON-ZERO to machine precision, so its small answer is a
+**measurement and not a silence**.
+
+**Fleet scope.** This is a property of snappyHexMesh with local refinement, not
+of SUBOFF. **Every mesh in this lab carrying local refinement has this
+population**, in proportion to its transition count. The finding restates as
+"local refinement generates concave cells at level transitions, at roughly 12 %
+of transition cells", not as a defect of any one geometry.
+
+**Caveat, stated because it bounded the method.** `constant/polyMesh/cellLevel`
+**does not survive `reconstructParMesh`** and existed nowhere under this case, so
+refinement level could not be READ. Inferring it from `log8(Vmax/V)` conflates
+octree jumps with prism-layer gradation and was **tried and discarded**; the
+volume-ratio-across-a-face test above is the clean substitute and is what the
+numbers come from.
+
+**Evidence.** `verification/runs/navier_class/SUBOFF_A1/L1/log.checkMesh.FULLFLAG`
+and `constant/polyMesh/sets/concaveCells`; thresholds and conclusions frozen
+before measurement in
+`verification/campaign/SUBOFF_A1b_CONCAVE_FORCE_SHARE_PREREGISTRATION.md`
+(commit `bc73dc0cae2063477d9d54ee5512b93a68be3249`). Measured 2026-09-12 by the
+cfd SUBOFF lane on the cfd-supervisor's ruling that **cell share is a proxy and
+force share is the graded quantity**.
