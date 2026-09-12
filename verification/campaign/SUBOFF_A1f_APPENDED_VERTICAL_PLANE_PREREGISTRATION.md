@@ -1187,3 +1187,68 @@ byte-identity regression (§3.6), its 29-check corroboration (§3.7), the family
 NOT BUILT here.** The definition is recorded first, with its four scan defects resolved and its
 digits checked to micrometres, because that is the irreversible half of the work; the generator
 is mechanical once the definition is right, and it is blocked on one named image-read (§A2.4.2).
+
+---
+---
+
+# ADDENDUM 3 — 2026-09-12 — **§A2.4.2's `PENDING` IS DISCHARGED, AND THE WORKING READING WAS WRONG**
+
+**Appended at the foot. Lines whose number changed above this section: 0.**
+**AMENDMENT CONDITION (rule 2), CHECKED:** `SOLVE_A*` absent, no queue entry, no solver run.
+
+**Groves 1989, Figure 9, report page 22** (PDF p.29), *"Typical cross section showing ring wing
+strut arrangement"*, read as a rendered page image — **which §A2.4.2 registered as the one item
+blocking any ring-wing geometry, and which this lane had not read when it wrote that section.**
+
+**THE FOUR STRUTS ARE AT 45°, 135°, 225° AND 315° — STAGGERED BETWEEN THE STERN-APPENDAGE
+AZIMUTHS, NOT ALIGNED WITH THEM.**
+
+> **§A2.4.2's WORKING READING WAS `0/90/180/270` AND IT WAS WRONG.** The alternative it named
+> is the correct one. The `PENDING` was the thing that saved it: had the working reading been
+> frozen, the ring-wing assembly would have been built with all four struts sitting **in** the
+> four stern-appendage wakes instead of clear of them, which §A2.4.2 stated in advance is a
+> **physical** difference and not a cosmetic one. **This is what a `PENDING` on a specific,
+> named image-read is for, and it is recorded as a near miss rather than as a tidy result.**
+
+**THREE INDEPENDENT LINES OF EVIDENCE, ALL ON THAT ONE PAGE:**
+
+1. **The drawing.** The hull circle sits at the centre, the ring wing as an annulus around it,
+   and the four members labelled `STRUT` are drawn on the **diagonals**, plainly not on the
+   axes.
+2. **The tap names are cardinal directions, which fixes the absolute rotation.** The pressure
+   taps are drawn **on** the axes and are labelled `W1U1`, `W1L1`, `W1P1`, `W1S1` —
+   **U**pper, **L**ower, **P**ort, **S**tarboard. So the taps lie at 0° (top dead centre),
+   180°, 270° and 90° — **the same four azimuths as the stern appendages** — and the struts
+   lie between them.
+3. **Table 5's own sentence then reads correctly for the first time:** the four struts sit
+   *"at a 45° increment from the wing surface pressure tap locations"*. With the taps fixed at
+   the cardinal directions by their own names, that sentence **is** the 45/135/225/315 answer.
+   Table 5's other phrase — the defined strut attaching *"along the upper surface (i.e., the
+   surface with the fairwater)"* — is now read as naming the **half-space** its equations are
+   written in, not an azimuth, because the figure is direct evidence about azimuth and the
+   sentence is not.
+
+### A3.1 A CONSEQUENCE THAT MATTERS FOR THE MESH, AND IT IS FAVOURABLE
+
+**The half model of §4.1 REMAINS EXACT with the ring wing and struts fitted.** Struts at
+45/135/225/315 are mirror-symmetric about `z = 0` — 45° ↔ 315° and 135° ↔ 225° — and a ring
+wing is a surface of revolution, so the whole `Config 1` body keeps the mirror symmetry the
+half model rests on, at every α of the pitch sweep. The half domain will contain the struts at
+**45° and 135°**, with 315° and 225° as their mirrors, and the force doubling of §4.1 applies
+to them unchanged.
+
+**A second consequence, recorded because it will be asked:** the struts being clear of the
+appendage wakes also means the ring wing's inflow is less disturbed than it would otherwise be
+— but it does **not** restore the §A1.3 argument. The ring wing still sits downstream of the
+sail and of four appendages, so its increment on the appended body is still not plane-independent
+and is still not estimable from Roddy's horizontal-plane data. **It is measured by the pair, as
+§A2.1 rules, and it is not estimated.**
+
+### A3.2 STATUS OF THE RING-WING DEFINITION AFTER THIS ADDENDUM
+
+Every constant needed to emit ring wing 1 and its four struts is now read from a page image and
+checked: the wing's LE/TE points, camber, camber slope, both thickness branches, the surface and
+placement transforms (§A2.3), the strut generator and its two intersections (§A2.4), and now the
+strut azimuths. **The block on emission is lifted.** What is still **not** done, and is reported
+as not done: no generator code exists, no ring-wing or strut STL exists, no `Config 1` mesh
+exists, and no solve of anything exists.
