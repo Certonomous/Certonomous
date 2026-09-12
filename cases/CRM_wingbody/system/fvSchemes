@@ -14,7 +14,8 @@ divSchemes
     div(phi,K)      bounded Gauss linearUpwind limited;
     div(phi,Ekp)    bounded Gauss linearUpwind limited;
     div(phi,nuTilda) bounded Gauss linearUpwind limited;
-    div(phid,p)     bounded Gauss upwind;
+    div(phid,p)     Gauss upwind;   // NOT `bounded`: see ADDENDUM 2 -- `bounded` subtracts
+                                    // Sp(div(phi),p) and leaves the transonic pressure equation inert.
     div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
 }
 laplacianSchemes { default Gauss linear limited corrected 0.33; }

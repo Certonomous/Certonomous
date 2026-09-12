@@ -627,3 +627,75 @@ prefix `425fb3a6012a1c36` at both). Graded entries therefore cite a commit at wh
 comparators exist**, carrying the same registration bytes, and the certificate records that the
 gate was frozen at `6165680b` and that the document has not moved since. No gate, threshold, cap
 or label is affected by the change of cited sha.
+
+---
+
+# ADDENDUM 2 — 2026-09-12, THE PRESSURE EQUATION WAS INERT. Version 1.2.
+
+**lines whose number changed above this section: 0**
+
+**Alters no gate, no threshold, no cap and no label.** It records a negative finding and
+registers one further diagnostic probe.
+
+## A2.1 🔴 RATE PROBE P3 IS `NOT A RESULT`, AND SO IS THE BASELINE IT WAS COMPARED WITH
+
+P3 measured a steady **21.41 s/iteration** (12 iterations, from differences; min 20.60, max
+22.40) against the baseline's 280.7 s — a factor of 13.1. **The speedup is real and the run was
+not solving.**
+
+Evidence, from the probe's own written checkpoint and force output:
+
+| check | value | meaning |
+|---|---|---|
+| p over 5,133,588 cells at iteration 12 | min **4007.394649000** Pa, max **4007.394649000** Pa, spread 6.8×10⁻¹⁰ Pa (rel 1.7×10⁻¹³) | the pressure field is **exactly freestream everywhere** |
+| Cd pressure component | **4.71×10⁻¹⁶** | no pressure drag exists |
+| Cl pressure component | **−3.06×10⁻¹⁵** | no pressure lift exists |
+| `Cd(f)` pressure and `CmRoll` pressure | both **0.60792** | the identical value is the p·ΣSf signature of a **uniform** pressure on the half-model's open symmetry cut — not aerodynamics |
+| p initial residual, iterations 1→15 | 7.15e‑04 → 8.23e‑04, **rising** | the pressure equation never converges and is getting worse |
+| Ux initial residual | falls to 1.7×10⁻⁷ | the velocity field is **frozen**, not converged |
+| exit | **rc = 136 (SIGFPE) at iteration 15** | it did not reach its registered 30 |
+
+**Therefore the 50-vs-1000 `maxIter` equivalence proves nothing.** Per-solve reduction was
+×1.31/×1.01/×1.38/×1.01 at 1000 and ×1.30/×1.01/×1.41/×1.00 at 50: **fifty equals a thousand
+because both achieve essentially nothing on an inert equation.** `maxIter 50` is **NOT**
+registered as a settled choice; any setting justified on this evidence would be justified by a
+measurement of nothing. The `maxIter` ladder is re-run only against a pressure solve shown to be
+live.
+
+**And 21.41 s/iteration MUST NOT be multiplied by 6,000 to cost a converged run.** The cost of
+an iteration that does nothing is 21.41 s. **The cost of a converging iteration on this grid
+remains UNKNOWN** and will be higher. The §9 estimate stands; the A1.1 baseline stands as the
+cost of a non-solving iteration; **no wall-clock figure for Tiny is registered.**
+
+## A2.2 THE CAUSE IS A SCHEME ENTRY IN THIS LAB'S OWN DICTIONARY, NOT GAMG
+
+`system/fvSchemes` carried `div(phid,p)  bounded Gauss upwind;`. **`bounded` subtracts an
+`Sp(div(phi), p)` term.** `div(phid,p)` appears only in the **transonic** pressure equation —
+the branch `transonic yes` selects — and that subtraction removes the convective contribution
+the equation is built on, leaving an equation whose solution is the uniform field. OpenFOAM's
+own transonic `rhoSimpleFoam` tutorial (`squareBend`) writes it **without** `bounded`; this is
+the only `div` entry in the case where `bounded` is wrong, and it was applied mechanically
+across all of them.
+
+**This is a defect in the lab's dictionary, not in the solver or the grid.** A2.1's earlier
+framing — "the blocker is a stalled linear solver" — was half right: the linear solver does not
+converge, but the reason is upstream of it.
+
+## A2.3 PROBE P4 — one registered change
+
+`div(phid,p)  Gauss upwind;`, `bounded` removed. Nothing else differs. 30 iterations.
+`maxIter 50` is carried **only** to keep the diagnostic affordable and is explicitly not
+registered by doing so.
+
+**ACCEPTANCE TEST FOR P4, AND IT IS NOT A TIMING:** a pressure field must **develop** —
+`max(p) − min(p)` over the domain must exceed **1 %** of p∞, and the **pressure** components of
+Cd and Cl must be non-negligible. A probe that is fast and leaves p uniform is `NOT A RESULT`,
+exactly as P3 was. **`P1` (tuned agglomeration) and `P2` (PBiCGStab/DIC) stay queued behind P4**,
+because an agglomeration measured against an inert equation is not a measurement.
+
+## A2.4 WHAT THIS NEAR-MISS ESTABLISHES FOR THE ACT
+
+**A pressure solve that is not reducing its residual looks exactly like a converging run in the
+timings and in the momentum, enthalpy and turbulence residuals. Only the PRESSURE COMPONENT of
+the forces, and the spread of p over the domain, give it away.** Both are now permanent
+acceptance checks on every level of this family, ahead of any timing.
