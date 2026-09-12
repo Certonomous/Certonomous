@@ -1207,3 +1207,106 @@ of number that gets quoted later.
 
 *Drafted 2026-09-12 by a cfd `lab-lane`. Submissions parked (rule 7). No agent's message is Sanaa's
 consent (rule 9).*
+
+---
+
+## §17.5 ADDENDUM — THE checkMesh DIAGNOSIS, AND A PREDICTION WRITTEN BEFORE ITS TEST RETURNED
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** Written
+2026-09-12 with `a00` and `a03` measured and **`a05` and `a07` still marching**. The
+prediction in §17.5d was committed **before those two returned**.
+
+### §17.5a MEASURED AGAINST THE LAB'S OWN ACCEPTED HYPERBOLIC MESHES
+
+| mesh | non-orthogonality | skewness | max aspect | checkMesh |
+|---|---:|---:|---:|---|
+| CRM_WINGALONE L1 | 56.71 | 2.54 | 153 | Failed 2 |
+| CRM_WINGALONE L2 | 68.26 | 3.22 | 169 | Failed 2 |
+| CRM_WINGALONE L3 | **79.37** | 3.10 | 189 | Failed 2 |
+| **M6H1 a00, nb = 8** | **89.27** | **15.37** | **1592** | **Failed 6** |
+
+**§7.1 already names CRM L3 at 79.3672 > 70 as H-G1's measured failing example**, so our
+89.27 is over the gate **and in family**. 🔴 **SKEWNESS IS THE OUTLIER — 15.37 against
+CRM's worst of 3.22, five times — and max aspect ratio, 1592 against 189.** The 41 %
+small-determinant cells, the 1,034 bad decomposition tets and the 1,158 concave cells all
+follow from those two.
+
+### §17.5b 🔴 THE INSTRUMENT'S OWN VERDICT IS NOT THE GATE WE IMPOSE ON ITS OUTPUTS
+
+**`checkMesh` itself prints `Non-orthogonality check OK`.** It raises the 1,951 severely
+non-orthogonal faces as a **warning**; its three actual **errors** are aspect ratio,
+skewness and tet decomposition. **It is §7's gate that fails at 89.27, not `checkMesh`.**
+
+This lane had been reading the two gate numbers and **not the log's own verdict**. *An
+instrument's own verdict and the gate we impose on its outputs are different objects, and
+reading only the second loses what the first is telling you.* **It is the same lesson as
+§17's two-instruments-disagreeing finding, from the other direction:** there, two
+instruments on one gate disagreed and the disagreement was the information; here, one
+instrument's verdict and the gate disagreed and the same is true.
+
+### §17.5c THE MECHANISM, REACHED TWICE INDEPENDENTLY
+
+Hyperbolic skewness comes from the **marching direction departing from the face normal at
+sharp convex corners.** The blunt base has **two**, each turning ≈ 97° over one node.
+Separately, the surface arithmetic points at the same feature — and **the leading edge
+measures a healthy 2.9 : 1 at `CLUSTER_ALPHA = 0`, so it is not the leading edge.**
+
+**MEASURED: the cell-size JUMP ACROSS THE BASE CORNER**, mid-span, `nb = 8`:
+
+| `CLUSTER_ALPHA` | side panel at the TE | base cell | **jump** | LE cell aspect |
+|---:|---:|---:|---:|---:|
+| 0.0 | 6.60e-03 m | 1.110e-04 m | **59.5 : 1** | 2.9 : 1 |
+| 0.3 | 4.67e-03 | 1.110e-04 | 42.1 : 1 | 4.2 : 1 |
+| 0.5 | 3.39e-03 | 1.110e-04 | 30.5 : 1 | 5.7 : 1 |
+| 0.7 | 2.10e-03 | 1.110e-04 | **18.9 : 1** | 9.2 : 1 |
+| 1.0 | 1.70e-04 | 1.110e-04 | 1.5 : 1 | **114 : 1**, and does not march |
+
+**`CLUSTER_ALPHA` trades the base-corner jump against the leading-edge aspect ratio,
+monotonically, and neither end is good.**
+
+### §17.5d 🔴 THE PREDICTION, COMMITTED BEFORE `a05` AND `a07` RETURNED
+
+**An earlier prediction of this lane's is ALREADY REFUTED and is struck here rather than
+quietly dropped:** ~~*"clustering moves the leading edge and leaves the base untouched, so
+I expect skewness near 15"*~~. It was wrong. `CLUSTER_ALPHA` does not move the base cell,
+but it **does** move the **jump across the base corner**, which is the mechanism — and
+`a03` measured **skewness 13.90**, down from `a00`'s 15.37, exactly as the jump fell from
+59.5 to 42.1.
+
+**THE CORRECTED PREDICTION, on two points and therefore crude:** skewness ≈ 9.4 + 0.10 ×
+jump.
+
+- **`a05` (jump 30.5) → skewness ≈ 12.4**
+- **`a07` (jump 18.9) → skewness ≈ 11.3**
+- **and extrapolating to `CLUSTER_ALPHA` = 1.0 (jump 1.5) → ≈ 9.5**
+
+🔴 **SO NO VALUE OF `CLUSTER_ALPHA` REACHES H-G1's SKEWNESS GATE OF 4** — and 1.0 does not
+march at all. **If `a05` and `a07` land near those numbers, clustering is exhausted as a
+lever.** If they land at 4 or below, this mechanism is wrong and the record will say so.
+
+### §17.5e THE LEVERS, ALL THREE OPEN AND NONE TAKEN
+
+The base aspect ratio is `(semispan / (nspan−1)) / (0.001410 × chord / nb)`, and **both
+denominators are registered in §4.**
+
+1. **H-G2's threshold.** 🔴 **RULED OUT by the cfd-supervisor and not proposed by this
+   lane**: it is the gate, and it is the lever whose mover benefits.
+2. **§4's spanwise count.** CRM-territory aspect needs **≈ 385 spanwise points at H-L1 —
+   76,800 surface cells against §4's 12,800, six times the registered surface.** That is
+   not an amendment, it is a different family, and it breaks §9's cost model and H-G7 with
+   it.
+3. **Spanwise clustering.** 🔴 **The cfd-supervisor's objection, recorded because this lane
+   believes it is correct: the blunt base runs the FULL SPAN, so there is no localised
+   region to cluster toward.** Fine spanwise spacing at the base means fine spanwise
+   spacing everywhere — **which is lever 2 by another name.**
+
+**If that objection holds, all three levers are closed**, and the topology question returns
+— **this time on a measured aspect-ratio conflict between two registered numbers rather
+than on the void evidence that nearly carried it the first time.** A C-grid with a wake cut
+**does not wrap cells across the base at all**; the base becomes a boundary rather than a
+surface to be resolved.
+
+**NOTHING HERE IS DECIDED.** The route is the supervisor's, and §16's falsifier — which the
+O-topology **cleared** on the pyHyp half — is not reopened by this section.
+
+*Appended 2026-09-12 by a cfd `lab-lane`, with `a05` and `a07` unfinished and named as such.*
