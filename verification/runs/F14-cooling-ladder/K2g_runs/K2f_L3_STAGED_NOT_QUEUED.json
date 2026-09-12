@@ -1,0 +1,188 @@
+{
+  "_STAGED_NOT_QUEUED": "THIS FILE IS NOT IN THE QUEUE AND HAS NOT BEEN SUBMITTED. It sits under the case directory, which queue_runner.py does not see: the daemon globs verification/queue/<team>/*.json only, and the glob is not an rglob. THE MOVE INTO THAT DIRECTORY IS THE LAUNCH. The daemon is live now (pid 1713, started at the 17:36:41Z boot) and ticks every 60 s, so within one minute of the copy it runs launch_cmd with no human in the loop. Sanaa's 2026-09-12 directive item 19: the runner is the only thing that launches, and nothing launched by hand counts as a case. The single command that queues this entry for wave 2 is: cp /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3_STAGED_NOT_QUEUED.json /home/ubuntu/Certonomous/verification/queue/heat-transfer/K2f_L3.json",
+
+  "team": "heat-transfer",
+  "case_id": "K2f_L3",
+  "prereg_commit": "b456d1107b9b14cf501b83a4963552492d1604e7",
+  "prereg_path": "docs/campaigns/F14-cooling-ladder/K2g_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/resume_k2g.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs",
+  "ranks": 4,
+  "cost_core_min_estimate": 598,
+  "cap_core_min_registered": 1200.0,
+  "memory_floor_gb": 2.5,
+  "enqueued_by": "heat-transfer lab-lane, PREPARED AND NOT ENQUEUED. SUPERVISION_CHARTER §3 check-4 (pre-registration committed before compute) is the supervisor's own and is NOT discharged by this file: the registration is committed at b456d1107 and this lane verified that mechanically (see _grading_freeze), but the mechanical check is a second guard, never the personal one. The move into verification/queue/heat-transfer/ is the supervisor's act.",
+
+  "_resume_not_restart": {
+    "verified_on_disk_2026-09-12T18:30Z": "NOT taken from the census. processor0/500, processor1/500, processor2/500 and processor3/500 each hold 10 entries (T U p_rgh alphat nut k omega p phi + uniform/), 30-31 MB each, 122 MB in total, written 06:08Z and INTACT ACROSS THE 17:36:41Z REBOOT. Each uniform/time carries index 500. system/controlDict carries `startFrom latestTime;` verbatim, with `endTime 2000;` (E-ENDTIME already applied) and `deltaT 1;`.",
+    "therefore": "the run resumes at t=500 and computes 1500 iterations, not 2000. Every number in this entry is sized on 1500.",
+    "what_happened": "Started 04:06:20Z from t=0. Reached iteration 835. The wrapper took SIGKILL at 04:21:26Z (STATUS.K2f_L3 rc=137, execution_time_s=182.6, .run_outer.out records `Killed  timeout ... mpirun`), but the four ranks were ORPHANED and ran on for another 12.9 hours, still writing the inherited log.solve fd, until the reboot. log.solve's last complete iteration is 834 at ExecutionTime 11728.96 s / ClockTime 47231 s. No OOM record survives: dmesg since the 17:36:41Z boot is clean and the pre-reboot ring buffer is gone, so NO CAUSE IS CLAIMED for the SIGKILL.",
+    "launch_k2g_sh_is_NOT_used_and_why": "The frozen first-launch path would (a) be REFUSED by its own `mark_done_k2f.py --guard` clause 7, because K2f_L3 now has a 0/ and a populated postProcessing/, and (b) if it got past, `rm -rf 0 && cp -r 0.orig 0` followed by `decomposePar -force` would DESTROY processor*/500 -- the only surviving product of 13.1 wall-hours. The frozen file is NOT EDITED and NOT CALLED. resume_k2g.sh is a new file beside it."
+  },
+
+  "_checkpoint_policy": {
+    "directive_items": "1-3 (a restartable checkpoint at a fixed interval; the last checkpoints kept and older ones purged; never more than 30 minutes of loss at the measured rate)",
+    "writeInterval": 25,
+    "writeInterval_divides_endTime": "2000 / 25 = 80 -- endTime is itself a write point, so the run cannot finish without writing its fields. It also divides 500, so t=1500 is a write point.",
+    "worst_case_loss_min": 23.6,
+    "worst_case_basis": "THIS CASE'S OWN MEASURED WORST RATE: ClockTime 47231 s over 834 iterations = 56.63 s/iteration wall, from its own log.solve, under load 68 on the pre-resize box. 25 x 56.63 = 1416 s = 23.60 min, inside the 30-minute bound. At the REGISTERED rate (598 core-min / 4 ranks = 8970 wall s / 2000 it = 4.49 s/it) the same interval loses 1.87 min.",
+    "writeInterval_50_OVERRULED": "50 is the largest divisor of 2000 under 30 minutes at a 36 s/it rate, but at THIS CASE'S measured 56.63 s/it it loses 47.19 min and breaks the 30-minute bound. 25 is the largest divisor of 2000 that holds against the case's own worst measurement.",
+    "purgeWrite": 24,
+    "purgeWrite_2_OVERRULED_AND_WHY_IT_MATTERS": "purgeWrite 2 would keep only t=1950 and t=2000 and WOULD DESTROY t=1500. analyse_k2g.py sets CHECKPOINT_BACK = 500 as a module constant (line 64) and plateau_state() reads dp(case, endTime - CHECKPOINT_BACK) = dp(case, 1500). With t=1500 purged the FROZEN comparator cannot evaluate D-PLATEAU, refuses at exit 2, and the whole spend grades NOT A RESULT on a bookkeeping setting. Retention arithmetic: with writeInterval 25 the run writes at 525, 550, ... 2000 (60 writes); purgeWrite N keeps the last N, so keeping t=1500 needs N >= (2000-1500)/25 + 1 = 21. 24 is that with three slots of margin, keeping t=1425..2000. Cost: 24 x 122 MB = 2.93 GB against 510 GB free (disk 48% used; directive item 17's defect line is 85%). THE GATE INPUT BEATS THE DISK HYGIENE, AND THE DEVIATION FROM 'THE LAST TWO' IS STATED HERE RATHER THAN TAKEN QUIETLY.",
+    "purge_never_touches": "0/ and 500/ were not written by the resumed run, so OpenFOAM's purgeWrite does not consider them. 0/ is needed by D-PLATEAU's D-ALIVE clause (rms(T(endTime) - T(0)) >= 0.10 K) and by rule 4 clause 6, the age guard."
+  },
+
+  "_memory_guard": {
+    "directive_item": 7,
+    "memory_floor_gb": 2.5,
+    "figure": "1.76 GiB expected, declared at 2.5 GB.",
+    "derivation": "664,848 cells x 2.4 kB/cell = 1,595,635 kB = 1.522 GiB, plus a ~60 MB per-rank baseline x 4 ranks = 0.23 GiB.",
+    "source_of_the_rate": "MEASURED, and measured inside this same F14 campaign: docs/campaigns/F14-cooling-ladder/K0d_REREGISTRATION.md:516-517 records 487-507 MB RSS at 209,920 cells = ~2.4 kB/cell for this solver class, and docs/campaigns/T-family/THERMAL_SATURATION_QUEUE_2026-08-25b.md:85-86 confirms 2.386 kB/cell independently. THE PER-CELL RATE IS MEASURED; THE PRODUCT IS DERIVED FROM IT AND IS NOT A MEASUREMENT OF THIS CASE.",
+    "why_not_this_case_s_own_RSS": "HONEST GAP: no resident-set figure survives this case's previous run. There is no log.solve.time and no *rss* record anywhere under K2f_runs, K2g_runs or K2d_runs (searched), the launcher does not wrap the solver in /usr/bin/time, and OpenFOAM logs no RSS. K2g_PREREGISTRATION.md §8 says the same for the K2d_L3 run on this mesh: 'no resident-set figure survives the run and none is claimed'. So the case's own run yields a BOUND, not a figure: it ran 834 iterations at 4 ranks on the 30 GB pre-resize box alongside the whole fleet, which bounds its footprint below 30 GB and no tighter.",
+    "against_free_RAM_now": "MemAvailable 120 GiB measured 2026-09-12T18:29Z (free -g: 123 total, 97 free, 120 available). 2.5 GB against 120 GiB is a 48x margin. Swap used 0."
+  },
+
+  "_core_guard": {
+    "directive_item": 8,
+    "ranks": 4,
+    "measured_2026-09-12T18:31Z": "ZERO solver ranks alive on the box (no *Foam process of any kind in ps) and ZERO entries in all six team queues (cfd, heat-transfer, ansys-verification, closure, dafoam, verification all empty; runner.log reads EMPTY on every tick from 18:28Z to 18:31Z). nproc = 16.",
+    "other_load": "load average 10.58 comes from short-lived dafoam docker import probes and the two standing python servers, not from solver ranks. 4 + 0 live ranks = 4 of 16, leaving 12 for the rest of wave 2.",
+    "box_is_not_full": "The box is EMPTY. This entry does not have to wait for a wave; it is held back by the supervisor's check, not by capacity."
+  },
+
+  "_monitor_and_autograder": {
+    "directive_items": "9 and 11",
+    "detached": "resume_k2g.sh starts BOTH under setsid, so both are parented to init and survive the fleet dying, a supervisor ending and an ssh close.",
+    "rc_capture": "rc is captured INSIDE .resume_inner.sh, on the line after mpirun, never around the setsid line -- `setsid cmd` returns 0 for every outcome, so a wrapper that measures its exit from outside measures nothing. This is also why the dead agent's watcher is not used: a watcher armed inside an agent dies with the agent.",
+    "monitor": "monitor_k2g.py writes one row per iteration to <case>/MONITOR.K2f_L3.tsv: iteration, wall s, s/iteration, core-min, core-min/iteration, % of POINT 598, % of CAP 1200, the FIRST initial residual of Ux Uy Uz T p_rgh k omega (first pressure corrector, which is what D-CONV grades), DP_module with both its halves, and the p_rgh linear-solver iteration count.",
+    "graded_quantity_per_iteration": "DP_module = areaAvg(p_rgh, tile) - areaAvg(p_rgh, return) comes from two surfaceFieldValue function objects (dp_tile, dp_return, operation areaAverage, executeInterval 1) that resume_k2g.sh adds to the GENERATED controlDict. THEY ARE A MONITOR CHANNEL AND NEVER A GRADING INPUT: the graded value is read from the field files by the frozen foam_patch_reader.area_average. autograde_k2g.sh cross-checks the two at endTime and must find them equal, which turns the addition into an INDEPENDENT CONTROL ON THE READER rather than a second path to the same number. Without a function object, per-iteration DP_module does not exist -- fields are only on disk at write points.",
+    "outputs_beside_the_case": "MONITOR.K2f_L3.tsv, ACTION_HISTORY.K2f_L3.tsv, STOP_RULE_FIRED.*.txt, CAP_FLAG.txt, MONITOR_DONE.txt all under the case directory; RESUME_RECORD.K2f_L3.md, STATUS.K2f_L3, autograde.K2f_L3.out and K2g_GATE.json under K2g_runs. NOTHING IN THE SCRATCHPAD (L-186).",
+    "autograder": "autograde_k2g.sh runs in the same detached session immediately after rc is captured: mark_done_k2f.py (rule 4, six clauses, frozen and unedited), then the reader control, then analyse_k2g.py --grade --json K2g_GATE.json (frozen). It grades nothing itself and prints what the frozen instruments print."
+  },
+
+  "_stop_rules": {
+    "directive_item": 12,
+    "mechanism": "A stop TOUCHES <case>/ABORT. The stop_on_rule function object (type abort, libs (utilityFunctionObjects), action writeNow) then makes the solver WRITE ITS FIELDS and end itself at the end of the current iteration. NO SIGNAL IS SENT TO ANY RANK. That is deliberate: the pre-reboot run was lost because its wrapper took SIGKILL and left four orphaned ranks running for 12.9 hours.",
+    "R1_residual_growth": "mean(last 100)/min(last 400) > 2.0 on any of Ux, T, p_rgh -> STOP. The threshold is analyse_k2g.py's own RES_RISE_MAX, so the monitor stops on exactly the condition the comparator would later refuse on.",
+    "R2_field_out_of_bounds": "any non-finite residual, or |DP_module| > 1000 m2/s2 (36x the two measured levels, 27.189 and 27.730) -> STOP.",
+    "R3_plateau_with_a_stalled_linear_solver": "DP_module moving less than 1e-5 over 500 iterations WHILE the p_rgh solver is at its iteration cap in >= 90 of the last 100 iterations -> STOP AND CLIMB THE LADDER: mesh -> numerics -> model. Do not relax the solver; a plateau with the pressure solver at its cap is the wall-layer/mesh signature.",
+    "R4_coherent_oscillation": ">= 6 sign changes of the DP_module increment over 300 iterations with peak-to-peak above 1e-2 m2/s2 -> STOP, PHYSICS VOTING UNSTEADY. A steady SIMPLE solve is the wrong instrument for that state.",
+    "one_change_per_run": "Directive item 13. Every fired rule is appended to ACTION_HISTORY.K2f_L3.tsv and a rule that has fired once in this run NEVER fires again. Two stops on the same cause climb the ladder; the ladder exhausted parks the rung with its action history and a lesson.",
+    "this_run_is_ONE_registered_change": "the change is: RESUME FROM t=500 WITH THE CHECKPOINT POLICY REPAIRED. The prior state was an orphaned-rank kill with a 500-iteration checkpoint interval. This action has not been taken before on this state."
+  },
+
+  "_cost": {
+    "directive_item": 10,
+    "POINT_core_min": 598,
+    "cap_core_min_registered": 1200,
+    "transcribed_not_chosen": "Both are TRANSCRIBED from K2g_PREREGISTRATION.md §8: POINT = 17.944 core-s/iteration (measured on K2d_L3, the only run ever made at 664,848 cells on this box with this solver) x 2000 iterations / 60. CAP = the measured-contention projection 1076 plus 12%.",
+    "already_spent_before_the_reboot": "3148.7 core-min GROSS (ClockTime 47231 s x 4 ranks / 60) for 834 iterations, or 781.9 core-min on the ExecutionTime/CPU basis (11728.96 s x 4 / 60). The gross row is 13x the 3600 wall-s stall threshold, so gross and cleaned differ by 4x and the difference is contention: CPU efficiency measured 24.8%.",
+    "THE_CAP_IS_ALREADY_CROSSED": "FLAG, RAISED HERE RATHER THAN DISCOVERED AT GRADE TIME. The registered 1200 core-min cap was passed before the reboot: 3148.7 core-min gross is 2.6x it, and 781.9 core-min CPU-basis projects to ~1875 for the full 2000 iterations, still above it. K2g §7 P-K2g-5 and §8 say an overrun is NOT A RESULT and the cap is never raised; Sanaa's 2026-09-12 04:20Z directive #17 says no run is stopped by a time or budget cap. The two are reconciled the way the chief reads them: THE RUN IS NOT KILLED, the cap is carried as a flag (CAP_FLAG.txt), and the VERDICT consequence is real and is not this lane's to resolve. RETIRING OR RAISING A CAP IS RESERVED TO SANAA.",
+    "no_killing_timeout": "The registered row's 18000 s guard is NOT armed as a timeout. Under directive #17 a cap is a flag, not a stop, so resume_k2g.sh runs mpirun without `timeout` and the monitor writes CAP_FLAG.txt on crossing and changes nothing else.",
+    "cost_basis_dollars": "598 core-min = 9.967 core-h x $0.0513/core-h = $0.511 at POINT; the cap is $1.026. DERIVED at an owner-stated rate, REPORTED-BY-OWNER AND NEVER MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER §5). Under $25.",
+    "calibration_owed": "rule 12's estimate-versus-actual row lands in docs/COST_CALIBRATION.md at completion, stating the ratio actual/predicted with contention and waste named separately. The pre-reboot 3148.7 core-min is WASTE and is named as waste; it is not folded into any ratio."
+  },
+
+  "_departures_from_the_registration_STATED_NOT_HIDDEN": {
+    "rule_2_status": "First compute HAS been spent against this registration (04:06-17:36Z), so gates are closed and nothing below alters a gate, a threshold, a cap or a label. NO FROZEN FILE IS EDITED: all five FREEZE-table files and launch_k2g.sh are byte-identical to b456d1107 and were verified so before anything was touched.",
+    "D1_controlDict_second_edit": "§6 calls E-ENDTIME 'the single registered edit' to the GENERATED controlDict. The resume makes three more to that same generated file: writeInterval 500->25, purgeWrite 0->24, and three added function objects. All are compelled by Sanaa's 2026-09-12 directive items 1-3 and 11, which postdate the freeze. The generated controlDict is not a frozen file and is not in the FREEZE table. AN ADDENDUM TO §6 IS OWED AND IS THE SUPERVISOR'S TO WRITE; this lane records the departure and does not append to the frozen document.",
+    "D2_log_solve_reassembly": "log.solve is rebuilt as [pre-reboot iterations 1..500] + [resumed iterations 501..2000]. THIS IS DISCLOSED BECAUSE IT LOOKS LIKE THE THING THIS LAB DISTRUSTS. It is required twice over: rule 4 clause 5 counts ExecutionTime lines and needs exactly 2000 (measured: the pre-reboot log carries exactly 500 at or below t=500, so 500 + 1500 = 2000 CLOSES EXACTLY); and analyse_k2g.py:iterative_state takes the normalised start from max(v[:5]), so a resume-only log beginning at iteration 501 -- where residuals are already ~1e-4 -- would measure ~0 decades and grade every level NOT_CONVERGED -> NOT A RESULT. Pre-reboot iterations 501..835 are DISCARDED, because the resume recomputes them from the t=500 checkpoint, so they are not part of the graded answer. The untouched original is kept forever as log.solve.prereboot_full with its sha256 in RESUME_RECORD.K2f_L3.md, and every count is asserted by the driver, which REFUSES rather than proceeds if one is off by a line.",
+    "D3_postProcessing_moved_aside": "mark_done_k2f.py's own clause-7 note: on a restart OpenFOAM writes a SECOND function-object file beside the first and both match a glob, which is a wrong number rather than a crash. The six pre-reboot files are MOVED to postProcessing.prereboot_<ts>/ with the path recorded, NEVER DELETED. Verified separately that neither analyse_k2g.py nor foam_patch_reader.py reads postProcessing at all, so this is hygiene, not a grading input.",
+    "D4_age_guard_shape": "The queue validator's AGE-GUARD reads `cwd`. cwd is set to K2g_runs -- which holds no 0/ and no numeric time directory -- and not to K2f_L3, which holds both BY DESIGN, because a resume is a launch into a tree that already holds a checkpoint. THAT IS STATED, NOT SLIPPED PAST: rule 4's own age guard (every field at endTime newer than the case's own 0/T) still binds and is still checked by the unedited mark_done_k2f.py at grade time. 0/T is dated 2026-09-12 04:05Z and the resumed run writes t=2000 later, so the referent is intact and resume_k2g.sh does NOT re-touch it."
+  },
+
+  "_renders_plan": {
+    "trigger": "RENDER NOTHING NOW. Renders fire only when BOTH hold: (1) rule 4 complete on the unedited mark_done_k2f.py -- rc 0, an End line, last time == endTime 2000, T U p_rgh alphat nut k omega phi present at 2000, 2000 ExecutionTime lines, and every endTime field newer than the case's own 0/T; and (2) a graded verdict printed by the frozen analyse_k2g.py into K2g_GATE.json, from the fixed vocabulary. Sanaa's 2026-09-11 directive: a case is rendered once it is done AND checked. A NOT A RESULT is still a verdict and still triggers the render, with the verdict on the plate.",
+    "what": "The module geometry/STL and the mesh at the finest level (L3, 664,848 cells), ParaView offscreen (pvbatch, no display), plus the Δp convergence trace from MONITOR.K2f_L3.tsv.",
+    "where": "docs/campaigns/F14-cooling-ladder/demo/figures_K2f_L3/, each file named with the case id, the level and the record sha (K2f_L3_L3_<verdict-record-sha>_*.png), beside the existing figures_K2bU3R3/.",
+    "renderer": "REUSE docs/campaigns/F14-cooling-ladder/demo/render_K2bU3R3_paraview/render_k2bU3R3.py -- same campaign, same solver family, already committed and proven. It is re-pointed at the case directory, not rewritten, and make_k2bU3R3_tables.py is reused the same way for the numbers plate. NO NEW RENDERER."
+  },
+
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.K2f_L3 (rc captured INSIDE the detached wrapper, never around the setsid line)",
+      "the case's own log.solve End line, the endTime 2000 fields, and the 0/T age guard",
+      "the t=1500 and t=2000 time directories, which are D-PLATEAU's two inputs",
+      "the five FREEZE-table files on the grading path"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_FLAG.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "MONITOR.K2f_L3.tsv rows",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+
+  "grading_freeze": [
+    "verification/runs/F14-cooling-ladder/K2g_runs/analyse_k2g.py",
+    "verification/runs/F14-cooling-ladder/K2g_runs/foam_patch_reader.py",
+    "verification/runs/F14-cooling-ladder/K2f_runs/build_k2f.py",
+    "verification/runs/F14-cooling-ladder/K2f_runs/mark_done_k2f.py",
+    "scripts/roache_triple.py"
+  ],
+  "grading_freeze_note": "All five files on the grading path are PINNED TWO WAYS and BOTH WERE CHECKED BEFORE THIS FILE WAS WRITTEN: sha256 of the disk bytes equals the registration's own FREEZE table (§10), and the git blob on disk equals the blob at b456d1107. The registration document itself is byte-identical to its committed form, so the FREEZE table that was read is the table that was frozen. resume_k2g.sh re-runs this same verification as its G-01 guard and REFUSES at exit 2 on any disagreement -- verify_freeze() doing its job early rather than at grade time. launch_k2g.sh is not on the grading path (it starts a run and so cannot be a grading input) but is pinned by the commit and was verified byte-identical too.",
+
+  "_grading_freeze": {
+    "actual": null,
+    "case_id": "K2f_L3",
+    "detail": "5 grading-path files hash EXACTLY as commit b456d1107 froze them, on BOTH pins. The registration on disk is byte-identical to the committed document, so the FREEZE table read is the table frozen.",
+    "field": "grading_freeze",
+    "kind": "PREDICTION",
+    "paths": [
+      {
+        "path": "verification/runs/F14-cooling-ladder/K2g_runs/analyse_k2g.py",
+        "disk_sha": "a94e113dc99cc6ff5c822e5457745cbf8b59505d",
+        "frozen_sha": "a94e113dc99cc6ff5c822e5457745cbf8b59505d",
+        "sha256": "f8383461bfbd9ca02886e263da26c2540c88a5417090501b243ce69f510815c3",
+        "state": "PINNED"
+      },
+      {
+        "path": "verification/runs/F14-cooling-ladder/K2g_runs/foam_patch_reader.py",
+        "disk_sha": "0641a4f80c0c6e8d25ab9913629ef490a8a6ff32",
+        "frozen_sha": "0641a4f80c0c6e8d25ab9913629ef490a8a6ff32",
+        "sha256": "f3ee1fcf6d971724613a899d90b8cc654bf5d341794ae00a042193e678d06e03",
+        "state": "PINNED"
+      },
+      {
+        "path": "verification/runs/F14-cooling-ladder/K2f_runs/build_k2f.py",
+        "disk_sha": "c850883be4e7827de0a0384589b10bf38d472f7e",
+        "frozen_sha": "c850883be4e7827de0a0384589b10bf38d472f7e",
+        "sha256": "9c369c68d155faed3f86ca0fb2bed9a6f65d32535e238e687529ce19e29f6583",
+        "state": "PINNED"
+      },
+      {
+        "path": "verification/runs/F14-cooling-ladder/K2f_runs/mark_done_k2f.py",
+        "disk_sha": "40a1daaae59b10ecd4446747c88588d887adbf45",
+        "frozen_sha": "40a1daaae59b10ecd4446747c88588d887adbf45",
+        "sha256": "5c3674b3ffd4ce3f23ec0028fb5bb44ad63b0701e5139fa873105f270ca9bc89",
+        "state": "PINNED"
+      },
+      {
+        "path": "scripts/roache_triple.py",
+        "disk_sha": "23afaee32f770f9f38a827e38ac963b9368b7707",
+        "frozen_sha": "23afaee32f770f9f38a827e38ac963b9368b7707",
+        "sha256": "fcae041ffb22c48735cbd6b045507818802f504eda503adf612ae2a581aa79d8",
+        "state": "PINNED"
+      }
+    ],
+    "predicts": "GRADING_WILL_PROCEED",
+    "prereg_commit": "b456d1107b9b14cf501b83a4963552492d1604e7",
+    "recorded_utc": "2026-09-12T18:40:00Z",
+    "refusal_eligible": false,
+    "schema": "grading_freeze/2",
+    "source": "ENTRY",
+    "verdict": "PINNED"
+  },
+
+  "cost_basis": "K2g L3, the fine level of the rack-row triple, RESUMED from t=500. POINT 598 core-min and CAP 1200 core-min are TRANSCRIBED from K2g_PREREGISTRATION.md §8, not chosen here: 17.944 core-s/iteration measured on K2d_L3 x 2000 iterations / 60, and the cap is the measured-contention projection 1076 plus 12%. $0.511 at POINT and $1.026 at cap, DERIVED at $0.0513/core-h owner-stated, REPORTED-BY-OWNER AND NEVER MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER §5). FLAG ON THE RECORD: the registered cap was already crossed before the reboot -- 3148.7 core-min gross (47231 wall s x 4 ranks / 60) for 834 iterations, 781.9 core-min on the ExecutionTime basis. Per Sanaa's 2026-09-12 04:20Z directive #17 a cap is a flag and not a stop, so no wrapper kills this run; per K2g §7 and §8 a crossed cap is a VERDICT consequence and the cap is never raised. Raising or retiring it is reserved to Sanaa. The 3148.7 core-min is named as WASTE and is not folded into any actual/predicted ratio (COMPUTE_BUDGET_CHARTER §6)."
+}
