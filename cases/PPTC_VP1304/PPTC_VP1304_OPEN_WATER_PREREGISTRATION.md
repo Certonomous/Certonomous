@@ -864,3 +864,114 @@ unsourced dimension would have put a systematic error of this size under a gate,
 and escalated, is superseded by this amendment. The certificate records the amended choice,
 this evidence, and the fact that the originally registered 0.075 m had no source in the
 document it cited.
+
+---
+
+## AMENDMENT 2 — 2026-09-12, before first compute. THE COMPARATOR'S TORQUE IS BLADE TORQUE ONLY, AND THE INTEGRATION PATCH LISTS ARE REGISTERED HERE
+
+*lines whose number changed above this section: 0*
+
+**Version 1.2.** This amendment **alters no gate, threshold, cap or label.** Every measured
+value in §3.1, every band in §4.5, the gate of §4.8, the prediction of §5 and the cost and cap
+of §9 are untouched. What it fixes is **which surfaces our CFD integrates** to produce the
+numbers those bands are applied to — a methodology definition, not a gate.
+
+**Legality.** Before first compute, per CLAUDE.md rule 2. **Condition checked:
+`verification/runs/PPTC_VP1304/` does not exist on disk**; no solver has been launched, no
+queue entry placed, no mesh built.
+
+### A2.1 What §3.2 got wrong
+
+§3.2 registered: *"T is the axial force in the thrust direction and Q the torque about the
+shaft axis, both on blades + hub + cap + shaft."* The thrust half is right. **The torque half
+is wrong, and the report says so in three independent places.**
+
+**(i) Report 3752 annex A2.1, verbatim:**
+
+> "The measured torque will be corrected for the effect frictional values of torque, taken
+> with the shaft rotating at the same speed with an **axis symmetric mass mounted at the
+> position of the rotor**."
+
+An axisymmetric mass in place of the rotor is a bladeless body. Running it at the same speed
+and subtracting measures and removes **every rotating friction torque that is not the
+blades** — shaft, bearings, seals and the hub-shaped body alike.
+
+**(ii) SVA's own correction algebra**, published as
+`sva_2011_smp11_open_water_correction_explanation.pdf` (sheets 4 and 5):
+
+| configuration | thrust | torque |
+|---|---|---|
+| "Open water test (blades and hub)" — **our comparator, page 2.11** | T − T_gap − T_bearing | **Q − Q_gap − Q_hub − Q_bearing** |
+| "Open water test (blades only)" — page 2.13 | T − T_gap − T_bearing − T_hub | **Q − Q_gap − Q_bearing − Q_hub** |
+
+**The two torque expressions are identical.** `Q_hub` is subtracted in both — and Report 3752
+§6 says `Q_hub` came from tests 11F0392/11F0393, "the resistance and torque of the hub without
+blades", i.e. the whole bladeless rotating assembly.
+
+**(iii) The empirical check that closes it.** 10KQ is **identical digit-for-digit between
+pages 2.11 and 2.13 at every one of the fourteen tabulated J** (0.7676 at J = 1.2021, and so
+on). Two tables with different torque content could not do that. §3's observation that the
+hub-resistance correction "acts on thrust only" is confirmed, and now has its algebraic
+reason rather than only its empirical one.
+
+> **CONCLUSION: the measured 10KQ we gate against is BLADE TORQUE ONLY. The measured KT we
+> gate against is blades + the hub assembly.**
+
+### A2.2 The correction — integration patch lists, registered
+
+> **THRUST integration (KT): `blades` + `hub` + `cap` + `shaft`.**
+> Matches the comparator, whose thrust retains the hub assembly's resistance (page 2.11,
+> "corrected with idle torque and gap force"). Unchanged from §3.2.
+>
+> **TORQUE integration (KQ): `blades` ONLY.**
+> Matches the comparator, whose torque has every non-blade rotating friction subtracted.
+> **This is the change.**
+>
+> **`shaftExtension` is EXCLUDED from BOTH graded integrations.**
+> The extension from the CAD's termination at x = −356 mm to the outlet at x = −1500 mm is an
+> artefact of our domain, not part of the physical model the dynamometer measured. It is
+> present as a rotating no-slip **flow boundary** and contributes to neither graded number.
+
+Five patches are therefore tagged, not four: `blades`, `hub`, `cap`, `shaft` (the CAD's own
+fairing and shaft, x ≥ −356 mm) and `shaftExtension` (x < −356 mm). §6.5's birth certificate
+and §8.1's patch check both use this five-patch list, and the planted perturbation of §8.2
+confirms the reader sees exactly this set.
+
+### A2.3 Why it matters — sized by the already-registered method
+
+The friction-line method registered in `cases/PPTC_VP1304/shaft_sizing_estimate.py` (fixed
+before its own arithmetic was run), applied unchanged to each non-blade rotating surface at
+J = 1.2021. **ESTIMATE, order of magnitude, not a measurement.**
+
+| surface | contribution to 10KQ | as % of measured |
+|---|---|---|
+| hub cylinder | 0.00180 | 0.23% |
+| nose cap | 0.00023 | 0.03% |
+| aft fairing | 0.00130 | 0.17% |
+| CAD shaft (x −200…−356) | 0.00042 | 0.05% |
+| **model non-blade subtotal** | **0.00376** | **0.49%** |
+| **`shaftExtension` (artificial, x −356…−1500)** | **0.00205** | **0.27%** |
+| **total if both were wrongly left in** | **0.00581** | **0.76%** |
+
+**+0.76% is only 9% of the 10KQ band half-width, so this could not by itself flip the gate.
+It is 19% of the top of the prediction window in §5, and it carries the SAME SIGN.** §5
+predicts CFD 10KQ above measured by 1 to 4% because fully turbulent RANS misses laminar
+regions on the model blades. An uncorrected non-blade torque of +0.76% would push 10KQ up for
+a reason that has nothing to do with transition, and would be indistinguishable from the
+predicted physics after the fact. **That is why this is fixed before the solve and not
+explained afterwards.** The `shaftExtension` term is the worst of it in principle, because it
+scales with a length we chose rather than one the experiment had: at 1.144 m it is three
+times the shaft length the CAD actually contains.
+
+### A2.4 What is NOT claimed here
+
+The friction-line estimate is not offered as a correction to be subtracted from a result. It
+sizes the error that the patch-list change **avoids**. Nothing is subtracted from any computed
+force at any point: the correct patches are integrated, and that is the whole of the fix.
+
+Also disclosed, again: annex A2.1's sentence "The configuration is with the shaft in upstream
+direction" contradicts §5 and the eleven test-table headers reading "Propeller shaft
+downstream". The headers and §5 remain authoritative, as recorded in
+`GEOMETRY_ADMISSION_RECORD.md` §2, and that sentence is used for nothing here either — the
+torque-correction sentence quoted in A2.1(i) above is a different sentence on the same page
+and is corroborated independently by (ii) and (iii).

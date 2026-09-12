@@ -56,10 +56,13 @@ PREREG = 'cases/PPTC_VP1304/PPTC_VP1304_OPEN_WATER_PREREGISTRATION.md'
 #
 # This pin was exercised: run against v1.1 while still pinned to v1.0, the comparator
 # refused with exit 2 and printed both hashes. C1 is not decorative.
-PREREG_SHA256 = 'bde5b913becb2c0250bd34725747855b93205448283ff285b49948f34155e869'
-PREREG_BLOB = '5a27ffc0c2b42af9dae06aff1c9bd2542aa835f9'
+PREREG_SHA256 = '3d47ca0ee2bb896ec945044b15652b5541d3065b28a497ba15d8a39f267d4d01'
+PREREG_BLOB = 'd6fff25e6218d4753050cafa90569796e14c29c1'
 PREREG_COMMIT = '09396b48990da3ce8e91714cd1a35f3fbc07e4de'
-PREREG_VERSION = '1.1 (amendment 1)'
+PREREG_VERSION = '1.2 (amendments 1 and 2)'
+#   v1.2  AMENDMENT 2, 2026-09-12, also before first compute: the comparator's
+#         torque is BLADE TORQUE ONLY, so the two integration sets below differ.
+#         Alters no gate, threshold, cap or label.
 
 RHO = 998.99          # kg/m3,  Report 3752 page 2.11 header
 NU = 1.124e-6         # m2/s,   Report 3752 page 2.11 header
@@ -77,6 +80,31 @@ SECTOR_MULTIPLIER = 360.0 / PASSAGE_DEG      # 5.0
 # and thrust on the body acts toward +x.  Torque is about the same axis.
 AXIS = 0              # x
 THRUST_SIGN = +1.0
+
+# AMENDMENT 2: THE TWO INTEGRATION SETS ARE NOT THE SAME SET, and that is not an oversight.
+# Report 3752 annex A2.1: "The measured torque will be corrected for the effect frictional
+# values of torque, taken with the shaft rotating at the same speed with an axis symmetric
+# mass mounted at the position of the rotor."  An axisymmetric bladeless body run at speed and
+# subtracted removes EVERY rotating friction torque that is not the blades.  SVA's own
+# correction sheets 4 and 5 subtract Q_hub in BOTH the "blades and hub" and the "blades only"
+# configuration, and 10KQ is identical digit-for-digit between pages 2.11 and 2.13 at all
+# fourteen tabulated J -- which two tables with different torque content could not be.
+#
+#   THRUST (KT): blades + hub + cap + shaft   -- page 2.11 retains the hub assembly's drag
+#   TORQUE (KQ): blades ONLY                  -- every non-blade rotating friction subtracted
+#   shaftExtension (x < -356 mm): EXCLUDED FROM BOTH.  It is our domain's artefact, not part
+#     of the physical model the dynamometer measured, and at 1.144 m it is three times the
+#     shaft length the CAD contains.
+#
+# Leaving the non-blade torque in would bias 10KQ by about +0.76 % -- only 9 % of the band
+# half-width, but 19 % of the top of the prediction window in section 5 AND CARRYING THE SAME
+# SIGN, so it would be indistinguishable after the fact from the transition physics that
+# prediction is about.
+FORCES_THRUST = 'forcesThrust'   # functionObject over blades hub cap shaft
+FORCES_TORQUE = 'forcesTorque'   # functionObject over blades only
+PATCHES_THRUST = ('blades', 'hub', 'cap', 'shaft')
+PATCHES_TORQUE = ('blades',)
+PATCHES_EXCLUDED = ('shaftExtension',)
 
 # Report 3752 page 2.11, "corrected with idle torque and gap force".  THE COMPARATOR.
 MEASURED = {
@@ -371,7 +399,6 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('--case')
     ap.add_argument('--J', type=float)
-    ap.add_argument('--forces-name', default='forcesBody')
     ap.add_argument('--window', type=int, default=500)
     ap.add_argument('--repo-root', default=os.getcwd())
     ap.add_argument('--selftest', action='store_true')
@@ -391,10 +418,14 @@ def main() -> int:
         if not a.case or a.J is None:
             raise Refusal('--case and --J are required unless --selftest is given')
 
-        print('C3  PLANT      planting a known perturbation and reading it back')
-        check_plant(a.case, a.forces_name, a.window)
+        print('C3  PLANT      planting a known perturbation into EACH reader and reading it back')
+        print(f'    thrust set {FORCES_THRUST} over {PATCHES_THRUST}')
+        check_plant(a.case, FORCES_THRUST, a.window)
+        print(f'    torque set {FORCES_TORQUE} over {PATCHES_TORQUE}')
+        check_plant(a.case, FORCES_TORQUE, a.window)
 
-        k, fx, mx, tlast = read_axial_and_torque(a.case, a.forces_name, a.window)
+        k, fx, _, tlast = read_axial_and_torque(a.case, FORCES_THRUST, a.window)
+        _, _, mx, _ = read_axial_and_torque(a.case, FORCES_TORQUE, a.window)
         thrust = THRUST_SIGN * fx * SECTOR_MULTIPLIER
         torque = abs(mx) * SECTOR_MULTIPLIER
         kt_v = kt(thrust)
@@ -404,6 +435,8 @@ def main() -> int:
 
         print(f'\nlast time {tlast}, averaged over the last {k} samples, '
               f'sector multiplier {SECTOR_MULTIPLIER:g} applied once')
+        print(f'  KT integrated over {PATCHES_THRUST}; KQ over {PATCHES_TORQUE}; '
+              f'{PATCHES_EXCLUDED} excluded from both (amendment 2)')
         print(f'  thrust {thrust:12.4f} N      torque {torque:10.4f} N m      '
               f'Re {reynolds(a.J):.3e}')
         print(f'  KT {kt_v:9.4f}   10KQ {tenkq:9.4f}   eta_O {eta:8.4f}')
