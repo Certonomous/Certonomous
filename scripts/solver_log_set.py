@@ -70,6 +70,15 @@ is not evidence).  `--selftest` builds temporary fixtures, never a real run tree
   * SPLIT vs APPENDED must give the SAME answer on the same physics.
   * A single unresumed log still gives the historical answer, so no completed run
     changes meaning under this module.
+  * STALE `End`, IN BOTH LAYOUTS.  A run that finished, had its endTime raised, was
+    resumed and then KILLED must NOT be credited with an `End`.  Split layout: the
+    stale End lands in an earlier file and the last-segment rule catches it.
+    APPENDED layout: there is only one file, so the stale End sits mid-file in the
+    LAST segment and the last-segment rule cannot see it -- which is why `End` is
+    credited only when it FOLLOWS the final `Time =` line.  Both are tested,
+    because the appended layout is the one the SUBOFF driver now uses.
+  * REAL `End` STILL CREDITED -- the control on the control, so the fixture above
+    cannot pass by making `End` uncreditable.
 
 `--mutation-control` neuters the distinct-set logic in a temporary COPY of this
 file and requires the suite to go RED; a control that cannot fail is not a control.
@@ -140,7 +149,28 @@ def scan(case: str | os.PathLike,
         body = p.read_text(errors="replace")
         found = [float(x) for x in TIME_RE.findall(body)]
         n_ex = len(EXEC_RE.findall(body))
-        seg_end = bool(END_RE.search(body))
+        # AMENDMENT 2026-09-12 -- `End` MUST FOLLOW THE FINAL `Time =` LINE.
+        #
+        # `END_RE.search(body)` alone credits a STALE End sitting mid-file, and the
+        # APPENDED layout -- the one the SUBOFF driver now uses, where a resume
+        # appends into the original file -- puts exactly that case in the LAST
+        # segment, where the last-segment rule cannot catch it.  Shape: a run
+        # finishes at endTime and writes End; endTime is later raised; the resume
+        # appends and is then KILLED with no trailing End.  A body search returns
+        # True for a run that was killed.
+        #
+        # This does not bite SOLVE_L2 tonight -- segment 1 was killed by the reboot
+        # and wrote no End -- and the other clauses would refuse anyway.  But rule
+        # 4's strength is that its six clauses are INDEPENDENT, and a body search
+        # degrades one of them to always-true in the layout now standardised on.
+        # A clause that cannot fail is not a clause.
+        m_end = None
+        for m_end in END_RE.finditer(body):
+            pass
+        last_time_pos = -1
+        for m_t in TIME_RE.finditer(body):
+            last_time_pos = m_t.start()
+        seg_end = bool(m_end) and (m_end.start() > last_time_pos)
         n_exec_raw += n_ex
         steps.update(found)
         per_segment.append({
@@ -215,6 +245,14 @@ def _selftest() -> int:
         # --- 1. the SOLVE_L2 shape, with its real numbers ------------------
         c = Path(td) / "L2"
         c.mkdir()
+        # THE FIXTURE MODELS THE SHAPE, NOT THE ARTIFACT, AND THE TWO DIFFER BY ONE
+        # LINE.  The docstring quotes the REAL SOLVE_L2 log: 62 ExecutionTime lines,
+        # because the kill took the 63rd before it was flushed, giving a real raw sum
+        # of 3,002.  This fixture writes 63 CLEAN steps, so its raw sum is 3,003.
+        # Both numbers are right about their own object; the fixture is deliberately
+        # the tidier one so the control does not depend on exactly where a kill
+        # happened to land.  The property under test is identical either way: the raw
+        # line sum EXCEEDS the distinct step count by the size of the resume overlap.
         _write_log(c / "log.simpleFoam", range(1, 64))            # 63 steps, killed
         _write_log(c / "log.simpleFoam.resume1",
                    range(61, 3001), end=True, banner=True)        # resume from t=60
@@ -299,11 +337,50 @@ def _selftest() -> int:
               "an End line from a segment that was later continued was credited "
               "to the resumed run")
 
+        # --- 7. APPENDED layout: a stale End MID-FILE is not credited ------
+        # The hole the split-layout fixture (6) cannot reach: here the stale End
+        # lands in the LAST segment, because there is only one file.
+        c7 = Path(td) / "STALEEND_APPENDED"
+        c7.mkdir()
+        one7 = c7 / "log.simpleFoam"
+        _write_log(one7, range(1, 101), end=True)      # finished at 100, wrote End
+        with one7.open("a") as f:                      # endTime raised; resume appends
+            for t in range(101, 151):
+                f.write(f"Time = {t:g}\n\nExecutionTime = {t:.2f} s  ClockTime = {t:.0f} s\n\n")
+            # KILLED: no trailing End
+        r7 = scan(c7, "simpleFoam", end_time=200, delta_t=1.0)
+        check("APPENDED stale End is NOT credited", r7["end_line"] is False,
+              "an End line sitting mid-file was credited to a run that was killed; "
+              "rule 4's End clause has been degraded to always-true in the appended "
+              "layout")
+        check("APPENDED stale End: other clauses still refuse",
+              r7["clause_exec_count"] is False and r7["n_missing_steps"] == 50,
+              f"n_missing={r7.get('n_missing_steps')}")
+        check("APPENDED stale End: last_time is the resume's",
+              r7["last_time"] == 150.0, str(r7["last_time"]))
+
+        # --- 8. a REAL End, after the final Time line, IS credited ---------
+        # The control on the control: fixture 7 must not pass by making `End` never
+        # creditable.  Same appended shape, finished properly.
+        c8 = Path(td) / "REALEND_APPENDED"
+        c8.mkdir()
+        one8 = c8 / "log.simpleFoam"
+        _write_log(one8, range(1, 101), end=True)
+        with one8.open("a") as f:
+            for t in range(101, 201):
+                f.write(f"Time = {t:g}\n\nExecutionTime = {t:.2f} s  ClockTime = {t:.0f} s\n\n")
+            f.write("End\n")
+        r8 = scan(c8, "simpleFoam", end_time=200, delta_t=1.0)
+        check("APPENDED real End IS credited", r8["end_line"] is True,
+              "the End rule is now so strict it cannot pass a completed run")
+        check("APPENDED real End: clause passes", r8["clause_exec_count"] is True, "")
+
     if fails:
         sys.stderr.write("SELFTEST RED:\n" + "\n".join("  " + f for f in fails) + "\n")
         return 1
-    sys.stdout.write("SELFTEST GREEN: 6 fixtures, planted hole seen and named, "
-                     "split == appended, unresumed unchanged, stale End not credited.\n")
+    sys.stdout.write("SELFTEST GREEN: 8 fixtures, planted hole seen and named, "
+                     "split == appended, unresumed unchanged, stale End not credited in "
+                     "EITHER layout, real End still credited.\n")
     return 0
 
 
