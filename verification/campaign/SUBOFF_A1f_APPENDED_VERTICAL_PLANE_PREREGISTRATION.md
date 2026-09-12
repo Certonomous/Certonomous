@@ -785,3 +785,212 @@ label above may be altered; departures land as dated addenda that strike the ori
 legibly and never rewrite it.
 
 **Nothing is sent, filed, uploaded or submitted anywhere (CLAUDE.md rule 7).**
+
+---
+---
+
+# ADDENDUM 1 — 2026-09-12 — **THE §7.1 GATE IS STRUCK**, CHECK (C) IS ANSWERED **NO**, AND TWO LOAD-BEARING CONSTANTS WERE WRONG
+
+**Appended at the foot. Lines whose number changed above this section: 0.** Nothing above is
+edited, struck in place or renumbered. §7.1's band table is **struck by this addendum**, which
+is how a departure lands; the original text stays legible above so that what was proposed, and
+why it was withdrawn, can both be read.
+
+**AMENDMENT CONDITION (rule 2), STATED AND CHECKED, NOT ASSUMED.** Amendments before first
+compute are legal. The condition is that no compute has occurred under this document. Checked
+at the time of writing: the solve directories this document registers —
+`verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/SOLVE_A*` — **do not exist**, no
+entry for this act exists in `verification/queue/cfd/`, and no solver has been started by it.
+Only a mesh has been built, which §4.4 requires *before* the freeze and which grades nothing.
+
+---
+
+## A1.1 THE DIRECTION, AND WHY THIS LANE ACCEPTS IT
+
+The cfd-supervisor directed, on reading §1 and §2.1 of this document, that this lane must not
+register a band against Roddy's `Configuration 1` for a body that has no ring wing, under any
+circumstances; and that a check — **(C)** below — be run and reported before any route is
+chosen.
+
+**This lane had, in fact, done to itself exactly what §2 exists to prevent.** §2.1 established
+that "fully appended" names two different bodies, applied that finding to a peer lane's arm,
+and then **registered a band in §7.1 against the very column whose body §1 had just shown we
+are not building**. The naming collision moved the target through a different door. That is
+recorded here as this lane's own error, not as a correction received.
+
+**§7.1's GATE IS STRUCK.** No `±4 %` gate on `Z_w'` or `M_w'` against Roddy `Config 1` is
+registered by this document for the hull + sail + four-stern-appendage body. §7's five band
+traps, §7.2's estimator ruling and §6.1's sign ruling are **methodology and stand**; what is
+struck is the application of the band to a body that does not match the column.
+
+---
+
+## A1.2 🔴 CHECK (C), RUN AND ANSWERED: **NO DOCUMENT ON THIS BOX PUBLISHES VERTICAL-PLANE α-DERIVATIVES FOR A BODY WITHOUT A RING WING**
+
+The question: does **any** source in the programme publish `Z_w'` / `M_w'`, or the
+angle-of-attack curves they come from, for a configuration carrying **no** ring wing? If one
+does, the gap evaporates. **It does not.** Six independent pieces of evidence, every one read
+from a rendered page image:
+
+1. **Roddy Table 3, "Schedule of the stability and control experiments", report pages 17–18.**
+   This is the schedule of what was actually run. `CONFIGURATION 1` is headed **VERTICAL
+   PLANE**; Configurations **2, 3, 4, 5 and 6 are every one of them headed HORIZONTAL PLANE.**
+   No vertical-plane experiment was run on any body other than Configuration 1.
+2. **Roddy LIST OF TABLES, report page vi.** The report contains **exactly four tables**:
+   1 geometry, 2 hull offsets, 3 the schedule, 4 the derivatives. **There is no appendix table
+   of further derivatives.** Table 4 (report p.19) is the only derivative table in the
+   document, and its "Vertical Plane" half has **one column**.
+3. **Roddy LIST OF FIGURES, report pages iv–vi.** Every figure whose caption carries "angle of
+   attack", "sternplane angle", "normal force" or "pitching moment" as a primary variable —
+   figures 7 through 21 — names **Configuration I**. No other configuration appears in a
+   vertical-plane figure.
+4. **The two apparent exceptions are not exceptions, and they are the interesting rows.**
+   Figure **65**, *"Effect of angle of DRIFT on the out-of-plane normal force and pitching
+   moment for Configuration 2"*, and figure **68**, the same for **Configuration 4 (HULL AND
+   SAIL ONLY)**. These do carry `Z` and `M` for a hull-and-sail body — but as the **out-of-plane
+   response to DRIFT β**, i.e. the cross-derivatives `∂Z/∂β` and `∂M/∂β`. **They are not
+   `Z_w'` and `M_w'` and cannot be fitted into them**, because β and α are different
+   independent variables.
+5. **Liu & Huang 1998, report page 6, PMM list**, read as an image: *"Vertical plane statics -
+   angle of attack variation, −20° < α < 20°: **Configuration 1, Configuration 6**"*. Even the
+   second vertical-plane configuration **carries a ring wing in BOTH naming schemes in play** —
+   Roddy's Config 6 is `HULL AND RING WING NO.1 ONLY` and Liu & Huang's own AFF list item 6 is
+   `axisymmetric body with ring wing 1`. **Both vertical-plane bodies in the entire programme
+   have a ring wing.**
+6. **Nothing else on the box carries values.** Liu & Huang 1998 is a data **catalogue** whose
+   tables are directories, test numbers, file structures and a tap inventory (A1c §3.1);
+   Huang 1989 SHD-1298-02 is a **test plan** written in the future tense. A filesystem sweep
+   for further SUBOFF documents returns only two `.url` stubs in an off-repository reference
+   pack.
+
+> **ANSWER TO (C): NO.** The vertical-plane derivative set Sanaa named exists for ring-wing
+> bodies only. **Route (B) therefore cannot become a graded arm by finding a better table, and
+> this is an evidence-based refusal that a better download cannot overturn.**
+
+---
+
+## A1.3 I NARROW MY OWN §1.1 CLAIM — THE SUPERVISOR'S OBJECTION IS PARTLY RIGHT
+
+§1.1 argued that a ring wing is axisymmetric about the hull axis, so its increment is
+plane-independent **by geometry**, and that the horizontal-plane bound therefore transfers to
+the vertical plane. **That argument is sound for the ISOLATED ring wing on the BARE HULL and is
+NOT sound for its increment on the APPENDED body**, and the distinction was not drawn.
+
+- **Where it holds:** Roddy's `Config 6` is hull + ring wing 1 and nothing else. That body is
+  genuinely axisymmetric, so a cross-flow at α sees exactly what a cross-flow at β sees, and
+  `|Z_w'| = |Y_v'|` for it — the same argument A1c §2.2 uses for the bare hull.
+- **Where it fails:** on the fully appended body the ring wing sits **downstream of the sail
+  and of four appendages at four clock positions**. Its inflow is their wake and is **not**
+  axisymmetric. **The ring wing's increment on the appended body is therefore not
+  plane-independent, and Roddy publishes no vertical-plane increment for anything, so there is
+  nothing to check a transfer against.**
+
+**The measured horizontal-plane figures of §1.1 stand as measurements** — ring wing alone:
+`+0.000005` in `Y_v'` (0.08 %), `−0.000144` in `N_v'` (1.13 %); appendage superposition
+reproducing `Config 2` to 1.02 % and 3.58 %. **What is withdrawn is using them as a bound on a
+vertical-plane gap.** They are reported as what they are: evidence that appendage superposition
+holds on this body to about the level of Roddy's own stated uncertainty, in the drift plane.
+
+---
+
+## A1.4 🔴 TWO LOAD-BEARING CONSTANTS IN §6.2 WERE WRONG, AND BOTH WOULD HAVE CORRUPTED EVERY GRADED NUMBER SILENTLY
+
+§6.2 registered the normalisation as `PENDING` on one named image-verification and inherited
+`L = 14.291667 ft = 4.356100 m`, the **overall length**. That verification has now been done,
+and **the inherited value was wrong**. Roddy, report page 3 (PDF p.11), read as a page image,
+verbatim:
+
+> "The hydrodynamic force and moment measurements were nondimensionalized using **the length
+> between perpendiculars of 13.9792 feet (4.261 m)**. The notation used in this report is given
+> in Reference 6."
+
+and, on the same page:
+
+> "The values of the derivatives determined from the data in the appendix are given in Table 4.
+> These derivatives are referred to the axes which have their **origin 6.6042 feet (2.013 m)
+> aft of the forward perpendicular (nose) on the hull centerline.** The location of the
+> reference point did not correspond with the longitudinal location of the center of buoyancy
+> for any of the configurations evaluated."
+
+**CORRECTION 1 — THE REFERENCE LENGTH IS THE LBP, NOT THE LOA.**
+`L_ref = 13.9792 ft`. Groves' own aft perpendicular is at `x = 13.979167 ft`, so the two agree
+and the 0.3125 ft afterbody cap lies **beyond** the reference length. Registered:
+**`L_ref = 13.979167 ft = 4.260851 m`**.
+**Magnitude of the error avoided, computed:** using the overall length would inflate `M'` by
+`(4.356100 / 4.260851)³ = 1.0690` — a **6.90 % error** — and `Z'` by `1.0453`, a **4.53 %
+error**. **Both exceed the ±4 % band.** A correct solve would have been graded `GATE FAIL`
+with confidence, and nothing downstream would have caught it.
+
+**CORRECTION 2 — THE MOMENT REFERENCE POINT IS NOT THE MID-LENGTH AND NOT THE CENTRE OF
+BUOYANCY.**
+Registered: **`CofR = (2.013 m, 0, 0)`** in the case frame (nose at `x = 0`), i.e.
+`6.6042 ft = 0.47243 L_ref` aft of the nose. Roddy says explicitly that it does **not**
+coincide with the LCB of any configuration, so the LCB must not be substituted for it. A wrong
+moment origin shifts `M` by `Δx · Z`, which at the outer sweep points is a first-order error on
+the graded quantity.
+
+**CORRECTION 3 — THE MATCHED CONDITION.** Roddy, same page: *"The static stability experiments
+were conducted at a model speed of 6.5 knots which corresponds to a Reynolds number (based on
+the length between perpendiculars) of about 14 million."* Registered condition:
+`U = 6.5 kn = 3.343333 m/s`, `ν = 1.0 × 10⁻⁶ m²/s`, `L_ref = 4.260851 m`, giving
+**`Re_LBP = 1.4245 × 10⁷`** — which reproduces Roddy's "about 14 million". **This differs from
+the SUBOFF_A1 family's registered `Re_L = 1.2 × 10⁷` on the overall length**, and the
+difference is a change of both reference length and speed, not a rescaling of one.
+
+**The functional form of the prime system remains inherited**, not read: `Z' = Z/(½ρU²L_ref²)`,
+`M' = M/(½ρU²L_ref³)`, `w' = w/U = sin α`, from Gertler & Hagen, which is what Roddy's
+"Reference 6" notation and his Reference 4 reduction procedure point to. **Reference 6 itself
+was not retrieved.** That much of §6.2's `PENDING` is **not** discharged and is carried
+forward, narrowed to the form alone: the two constants that would have done the damage are now
+read from the page.
+
+---
+
+## A1.5 THE ROUTES, AND THIS LANE'S READING — **THE DECISION IS THE SUPERVISOR'S AND IS NOT TAKEN HERE**
+
+**A fact that changes the cost calculus and was not in the supervisor's framing:
+Roddy's `Configuration 1` is a strict SUPERSET of the body already built.**
+`Config 1 = (hull + sail + four stern appendages) + ring wing no. 1 + four support struts`.
+So route (A) is an **increment on this build, not a replacement for it**: every STL, the
+byte-identity regression, the corroboration suite, the mesh family script and the root metrics
+carry forward unchanged, and the ring wing enters as two further closed solids.
+
+**Its geometry source is on the box and is dimensioned to the same standard as the appendages
+already built** — Groves 1989 **Table 4** (ring wings, report pp.15–16), **Table 5** (struts,
+report pp.19–20, including `Strut leading edge attaches to: at x = 13.589, R = 0.14726`),
+**Figure 7** (placement), and **Appendices D and E** (the generating FORTRAN). Their existence
+and location are verified; **their contents have not been read by this lane and nothing here
+depends on them.** Route (A) is therefore not blocked on retrieval.
+
+**AND RUNNING BOTH BODIES PRODUCES, BY SUBTRACTION, THE ONE NUMBER RODDY NEVER PUBLISHED.**
+The supervisor is right that the vertical-plane ring-wing increment cannot be estimated from
+Roddy's data. **It can be MEASURED by us**, because the two bodies differ by exactly the ring
+wing and struts. That converts the §1 gap from an unquantifiable disclosure into a measured
+result of our own, and it is the strongest scientific argument for doing both.
+
+**Against route (A), stated because it is real and cuts against this lane's own preference:**
+the ring wings were **not tripped** — Liu & Huang p.23, second footnote, *"Ringed wings have no
+turbulence stimulators applied to them"* — so §9's fully-turbulent justification, which is
+**matched** on hull, sail and appendages, is **not** justified on the ring wing. Route (A) buys
+a matched geometry at the price of an unmatched transition treatment on the added surface.
+Route (A)'s body is also a research configuration, not the body the CFD community validates
+against, so no external result would be comparable to it.
+
+**For route (B), also stated plainly:** its body **is** the community-standard validation
+configuration, and it is the one body in this programme for which **this box holds a matched,
+tripwire-matched, measured reference that the hull+sail body does not have** — Liu & Huang
+Table 14, report p.23, the row printed `8  Fully Appended`, six speeds with a residual
+resistance coefficient of 0.00065 (§9). **That is a resistance reference, not a `Z`/`M` one,
+and no band on it is registered here** — it would be a new gate, needs its own submergence and
+Reynolds-matching analysis, and is named only so the supervisor's decision is taken with it in
+view.
+
+> **THIS LANE'S READING, submitted and not acted on:** route **(A)**, built as an increment on
+> what already exists, with route (B)'s body retained as the second arm — because it is the
+> only route to Sanaa's sweep with a matched measured-tier band, because it costs the existing
+> build nothing, and because the two arms together measure the ring-wing increment that no
+> document publishes. **If the supervisor takes route (B) instead, this document's §8 sweep
+> runs unchanged and Z, M, the split, the derivatives and the neutral point are REPORTED, NOT
+> GRADED, with the absence of a comparator disclosed rather than manufactured.**
+>
+> **Neither is chosen by this lane. Nothing is queued. No solver is started.**
