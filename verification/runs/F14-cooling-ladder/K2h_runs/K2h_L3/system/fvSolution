@@ -1,0 +1,33 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class dictionary;
+    location "system";
+    object fvSolution;
+}
+// Linear solvers and tolerances TRANSCRIBED UNCHANGED from K2f_L3/system/fvSolution.
+// The SIMPLE block and its relaxation factors are replaced by PIMPLE, because a
+// transient solve converges each step rather than relaxing towards a fixed point;
+// the PIMPLE settings are K2b's MEASURED-GOOD values on this identical module
+// (K2b_runs/K2bU3R3_D59/system/fvSolution), not values invented here.
+solvers
+{
+    p_rgh { solver GAMG; tolerance 1e-8; relTol 0.01;
+        smoother GaussSeidel; }
+    p_rghFinal { solver GAMG; tolerance 1e-8; relTol 0;
+        smoother GaussSeidel; }
+    "(U|T|k|omega)" { solver PBiCGStab; preconditioner DILU;
+        tolerance 1e-9; relTol 0.01; }
+    "(U|T|k|omega)Final" { solver PBiCGStab; preconditioner DILU;
+        tolerance 1e-9; relTol 0; }
+}
+PIMPLE
+{
+    momentumPredictor   yes;
+    nOuterCorrectors    2;
+    nCorrectors         2;
+    nNonOrthogonalCorrectors 0;
+    pRefCell            0;
+    pRefValue           0;
+}

@@ -1,0 +1,6 @@
+FoamFile { version 2.0; format ascii; class dictionary; object decomposeParDict; }
+// 4 ranks, matching K2f_L3's decomposition EXACTLY -- the 803 fields are copied
+// in already decomposed, so this number is not a choice here: a different value
+// would make those processor directories unreadable. The launcher asserts it.
+numberOfSubdomains 4;
+method scotch;

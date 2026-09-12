@@ -1,0 +1,104 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class dictionary;
+    location "system";
+    object controlDict;
+}
+// K2h L3 -- the rack-row module TRANSIENT, per K2h_PREREGISTRATION.md frozen at
+// db523d06a.  Nothing here may be changed without a dated addendum to that
+// document; every value below is registered there and is transcribed, not chosen.
+
+application buoyantBoussinesqPimpleFoam;   // section 4: the transient sibling
+startFrom startTime;                       // 0/ is armed at launch from the 803 fields
+startTime 0;
+stopAt endTime;
+endTime 112;                               // section 5 E-ENDTIME: 42 s settle + 70 s window
+deltaT 0.005;
+adjustTimeStep yes;
+maxCo 2.0;                                 // K2b's measured setting on this module
+maxDeltaT 0.25;
+
+writeControl adjustableRunTime;            // section 9
+writeInterval 5;                           // 5 s simulated ~ 5.0 min wall at the projection
+purgeWrite 16;                             // retains t=42..112, D-STATIONARY's two halves, +1 margin
+writeFormat ascii;
+writePrecision 10;
+runTimeModifiable false;
+
+functions
+{
+    // ---- THE GRADED QUANTITY, TIME-AVERAGED (section 6, G-DPBAR) -----------
+    // timeStart 42 == S-SETTLE.  restartOnRestart FALSE is OpenFOAM's default and
+    // is declared EXPLICITLY so no reader has to infer it: with writeControl
+    // writeTime the running means are written into EVERY time directory, so a
+    // restart RESUMES the average instead of discarding it.  That is Sanaa's
+    // 2026-09-12 item 3, and a `restartOnRestart true` anywhere in system/ also
+    // refuses the launch at queue_runner.py gate A limb (iv).
+    dpAverage
+    {
+        type            fieldAverage;
+        libs            (fieldFunctionObjects);
+        restartOnRestart false;
+        restartOnOutput  false;
+        timeStart       42;
+        executeControl  timeStep;
+        executeInterval 1;
+        writeControl    writeTime;
+        fields
+        (
+            p_rgh { mean on; prime2Mean off; base time; }
+            T     { mean on; prime2Mean off; base time; }
+            U     { mean on; prime2Mean off; base time; }
+        );
+    }
+
+    // ---- PER-STEP MONITOR CHANNEL (Sanaa's item 11) ------------------------
+    // dp_tile/dp_return are DIAGNOSTIC ONLY and are NEVER a grading input: the
+    // graded DPbar is read from the fieldAverage output by the FROZEN
+    // foam_patch_reader.area_average, pinned at section 11's sha256.
+    dp_tile
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            tile;
+        operation       areaAverage;
+        fields          (p_rgh);
+        writeFields     false;
+        executeControl  timeStep;
+        executeInterval 1;
+        writeControl    timeStep;
+        writeInterval   1;
+        log             false;
+    }
+    dp_return
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            return;
+        operation       areaAverage;
+        fields          (p_rgh);
+        writeFields     false;
+        executeControl  timeStep;
+        executeInterval 1;
+        writeControl    timeStep;
+        writeInterval   1;
+        log             false;
+    }
+
+    // ---- THE CLEAN STOP (Sanaa's item 12) ---------------------------------
+    // The monitor TOUCHES <case>/ABORT; the solver writes its fields and ends
+    // itself at the end of the current step.  NOTHING KILLS A RANK -- K2g's
+    // predecessor was lost because its wrapper took SIGKILL and left four
+    // orphaned ranks running for 12.9 hours.
+    stop_on_rule
+    {
+        type            abort;
+        libs            (utilityFunctionObjects);
+        file            "<case>/ABORT";
+        action          writeNow;
+    }
+}

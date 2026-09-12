@@ -1,0 +1,29 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class dictionary;
+    location "system";
+    object fvSchemes;
+}
+// TRANSCRIBED FROM K2f_L3/system/fvSchemes WITH EXACTLY ONE LINE CHANGED.
+// K2h_PREREGISTRATION.md section 4: the ONLY thing that changes between K2g and
+// K2h is the time treatment, because that is the one thing that must change. Every
+// div, laplacian, grad, interpolation and snGrad scheme below is byte-identical to
+// the steady level's, so the spatial discretisation whose order the family is
+// meant to observe is UNALTERED.
+ddtSchemes { default Euler; }            // <-- the one change; was: steadyState
+gradSchemes { default Gauss linear; }
+divSchemes
+{
+    default none;
+    div(phi,U) bounded Gauss linearUpwind grad(U);
+    div(phi,T) bounded Gauss limitedLinear 1;
+    div(phi,k) bounded Gauss upwind;
+    div(phi,omega) bounded Gauss upwind;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+laplacianSchemes { default Gauss linear corrected; }
+interpolationSchemes { default linear; }
+snGradSchemes { default corrected; }
+wallDist { method meshWave; }
