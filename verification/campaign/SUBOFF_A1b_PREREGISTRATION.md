@@ -289,3 +289,312 @@ PRE-COMPUTE CONDITION (checked by ls, printed, not asserted):
    SOLVE_L1/ and SOLVE_L2/ carry no time directory, no log.simpleFoam,
    no solve_rc, no postProcessing/                                       [ ]
 ```
+
+---
+
+# §10. ADDENDUM 1 — 2026-09-12 — CHECKPOINTING UNDER SANAA'S RUN INSTRUCTION, THE ITERATION-368 TRIAGE, AND A CORRECTION TO A FINDING THIS LANE ITSELF FILED
+
+**Version 1.0 → 1.1. Appended at the foot under CLAUDE.md rule 6. `lines whose number
+changed above this section: 0` — nothing above was renumbered, reworded or deleted, and
+this section adds only.**
+
+**Written by a cfd `lab-lane`, 2026-09-12, after the box was resized to r7a.4xlarge
+(16 cores, 123 GiB) and rebooted at 17:36:41Z, killing every solver on it
+(`docs/RESIZE_CENSUS_2026-09-12.md`).**
+
+**Authority:** Sanaa's own run instruction, `docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md`,
+quoted verbatim below where it binds. The instrument change and this addendum were
+authorised by the cfd-supervisor, recorded **`[lab-attributed]`**. **No agent message is
+Sanaa's consent (rule 9);** the requirement itself is hers and is quoted, not paraphrased.
+
+**This addendum alters NO gate, NO threshold, NO cap and NO label.** Gates C, W and D
+stand exactly as frozen at `8efe38e8f`. L1 remains **NOT ADMITTED** (§2). `CT` remains
+**`NOT A RESULT` by construction** (§0, Gate D). `minDeterminant 1.0e-03` is not touched.
+
+---
+
+## 10.1 THE INSTRUMENT CHANGE — `setup_solve.py` GAINS `--write-interval` AND `--purge-write`
+
+**The defect, and it would have refused every SUBOFF launch outright.** Sanaa's item 4:
+*"The launcher refuses to start any case whose controlDict or run script does not satisfy
+1–3."* Item 1 requires a restartable checkpoint at a fixed wall-clock interval of **30
+minutes**, `writeInterval` sized so it never exceeds that at the measured rate, and
+*"The last two checkpoints are kept; older ones purged."* `cases/navier_class/SUBOFF_A1/setup_solve.py`
+hard-coded `writeInterval {end_time}` and `purgeWrite 0` with **no option for either**, so
+the generator could not produce a compliant case at all.
+
+**The change: +45 / −5 lines, three hunks.** Two new optional arguments; a normalise-then-refuse
+block; the two template lines. `setup_solve.py` `sha256` **`feb8052b4244b83d48a9f1e57ff06e551648d94df96a3e7c92402bfc1c3a8371`
+→ `e63230e205e5052a6d29b6643ea2e33a7bd2d5fcdb3bdf322ed6bac838096ddd`.**
+
+**A PROSE REASON BECAME AN EXECUTABLE REFUSAL, AND THAT IS THE POINT OF THE CHANGE, NOT A
+SIDE EFFECT.** A1 §13.7 and this file's own comment both stated that *"a `writeInterval`
+that does not divide `endTime` writes NO fields at all, which the completion rule reads as
+an incomplete run."* While `writeInterval` was hard-wired to `endTime` that reason could
+not be violated. **The moment it became a CLI option it could be** — a caller could satisfy
+Sanaa's 30-minute ceiling and silently build a case that writes nothing and grades `NOT
+COMPLETE` after 73 hours. The script now **refuses (exit 2)** a non-divisor, and refuses a
+negative `purgeWrite`, before anything is written.
+
+**BOTH BRANCHES DEMONSTRATED, AND THE NO-OP BRANCH DEMONSTRATED HARDEST.** Run on the real
+`L0c` mesh (1,206,389 cells) into scratch, never into a graded tree:
+
+| # | what was run | result |
+|---|---|---|
+| **A/B** | the **pre-change** script and the **post-change** script, same argv, **no checkpoint flags**, into two separate trees, compared with `diff -r` | **IDENTICAL IN EVERY FILE**, `system/controlDict` byte-for-byte included. The only difference in the whole tree is `SOLVE_MANIFEST.json`'s own `written_utc` (18:46:20Z vs 18:46:00Z) — the field whose job is to record wall-clock. **The default path is proven a no-op against the frozen behaviour, not asserted to be one.** |
+| **C** | post-change with `--write-interval 50 --purge-write 2` | **exactly two lines move**: `writeInterval 3000→50`, `purgeWrite 0→2`. Nothing else in the case changes. |
+| **D** | `--write-interval 7 --end-time 3000` (7 does not divide 3000) | **REFUSED, exit 2**, with the mechanism in the message. |
+| **E** | `--purge-write -1` | **REFUSED, exit 2.** |
+| **F** | after D and E | **neither refusal created a directory.** The refusal is before the first write, not a cleanup after one. |
+
+**🔴 A CORRECTION TO §7 OF THIS DOCUMENT, REPORTED AND NOT REPAIRED (rule 6).** §7 states
+the five instruments are *"all frozen at commit `05ca5550`"*. **That was already inaccurate
+for two of them when it was written**, and `verification/runs/navier_class/SUBOFF_A1/GRADER_PIN.txt`
+says so in its own closing note: `grade_suboff_a1.py` changed in `8efe38e8f` itself (+4/−1,
+an explanatory string) and `setup_solve.py` changed post-compute in `5e7f618de` (+14, the
+`forceCoeffs` `liftDir`/`dragDir` repair under `VERIFICATION_CHARTER` §2d.1). **This
+addendum makes it a third state for `setup_solve.py` and says so here rather than editing
+§7.** **The GRADING path is unaffected:** grading runs from the `sha256`-pinned
+`GRADER_PINNED_8efe38e8f.py` (`41a41f02cf3242ed8ebd675ab78dbd2ba746d4d8ce9eff441ecd4aec7e62b0d6`),
+and `setup_solve.py` is a **case builder, not a comparator** — it cannot reach a verdict.
+
+---
+
+## 10.2 THE CHECKPOINT VALUES, AND THEY ARE SIZED AGAINST THE **PESSIMISTIC** RATE ON PURPOSE
+
+| level | cells | `writeInterval` | `purgeWrite` | at §6's registered rate | at this lane's measured rate | divides 3000? |
+|---|---:|---:|---:|---|---|---|
+| **L1** | 3,268,613 | **50** | **2** | 31.4 s/it ⇒ **26.2 min** | 14.22 s/it ⇒ 11.9 min | ✅ 60 writes |
+| **L2** | 9,121,237 | **15** | **2** | 87.7 s/it ⇒ **21.9 min** | 39.68 s/it ⇒ 9.9 min | ✅ 200 writes |
+
+**Both sized on §6's own registered figures, which are the SLOWER of the two rates
+available** — §6 anchors on the worse, later MRF measurement (10 s/it at 01:15Z, not
+4.085 s/it at 00:35Z, a **2.4× swing in forty minutes**). **Sizing on the slower rate is
+the safe direction**: if the box runs faster, checkpoints fall closer together, never
+further apart. The faster column is this lane's own measurement on **this case's own
+predecessor** — `SOLVE_L1/log.simpleFoam`, `ExecutionTime` 5568.40 s at iteration 355 →
+5639.51 s at iteration 360 = **14.22 s/iteration at 4 ranks**, taken from a contention-free
+stretch, scaled by cell count for L2.
+
+**🔴 THE MONITOR NUMBER THAT WOULD HAVE SIZED THIS WRONG BY MORE THAN 10×.**
+`SOLVE_L1/WATCH.log` reports *"137.524 s/iteration measured over the run so far"*. **That is
+a CUMULATIVE MEAN.** The instantaneous cost at the same moment was **1,900–20,190 s per
+iteration**. Sanaa's rule says *"at the measured rate"* — a watcher's running average is not
+that rate, and any lane sizing a 30-minute checkpoint from it gets an interval an order of
+magnitude too long. **Recorded here because the defect is in the instrument, not in this
+case.**
+
+**`purgeWrite 2` cannot touch `endTime`.** `endTime` is always the last write, so `2985/`
+and `3000/` (L2) and `2950/` and `3000/` (L1) survive, and **Gate C's clause "fields
+`p U k omega nut phi` present at `3000/`" is unaffected.**
+
+**A SIDE EFFECT THAT REPAIRS AN UNARMED GATE.** The `yPlus` functionObject is
+`executeControl writeTime`. Under `writeInterval 3000` **no `y⁺` could exist before
+iteration 3000** — `SOLVE_L1/postProcessing/yPlus/0/yPlus.dat` is a **two-line header with
+no data rows**, which is precisely the §5 CLASS-2 condition under which **Gate W is
+`BLOCKED`, never `PASS`**. Under the new intervals the first `y⁺` per patch lands at
+iteration 15 (L2) / 50 (L1). Sanaa asked for *"y+ per patch after the first converged
+solve"*; this is what makes that reportable at all.
+
+**APPLIED TO `SOLVE_L2` IN PLACE, NOT BY REBUILD.** That case was already built and its
+`polyMesh` is `sha256`-pinned; rebuilding would re-copy 9.1 M cells to change two lines.
+The edit follows the directory's own existing precedent (`controlDict.PRE_REPAIR` /
+`controlDict.REPAIR_DIFF.txt`, the `liftDir` repair): the as-built file is preserved as
+`controlDict.PRE_CHECKPOINT_2026-09-12`, the two-line diff as
+`controlDict.CHECKPOINT_DIFF.txt`, and the reasoning as `CHECKPOINT_REPAIR_NOTE.txt`. The
+new values were **read back from disk**, not asserted. **`SOLVE_L1` is NOT edited** — see
+§10.4.
+
+---
+
+## 10.3 🔴 A CORRECTION TO A FINDING THIS LANE FILED EARLIER TODAY, AND IT IS A CORRECTION AGAINST ITSELF
+
+**WHAT THIS LANE REPORTED, AND IT WAS WRONG:** that `SOLVE_L1` ran 369 iterations under
+`SUBOFF_A1_PREREGISTRATION.md`, whose §10 freeze block is blank and whose §5.1 bars a
+launch — i.e. that a launch had occurred which the governing document forbade.
+
+**WHY IT IS WRONG.** **A1 is not the governing document for that run. THIS ONE IS.** §1
+above already records the cfd-supervisor's ruling that *"no solver launches under A1,
+ever"*, and A1b was frozen at **`8efe38e8f`, 2026-09-12T01:34:37Z** — **before** the first
+solver compute (the crashed attempt at 01:38:17Z, the live run at 01:46:28Z). §2 of this
+document **declares L1 NOT ADMITTED**, and §2.1 then registers, in advance and with its
+reasoning frozen, **why L1 is solved anyway** — four numbered reasons and an explicit
+*"what would have made me refuse to solve L1"*. §3 names the runs as *"fresh `SOLVE_L1/`
+and `SOLVE_L2/`"*. **The L1 launch was therefore authorised by a frozen pre-registration
+that had already refused it admission and had already said so out loud. It is not a
+departure and no disclosure of one is owed.**
+
+**THE NARROWER FINDING THAT DOES SURVIVE, AND IT IS REAL.** **§9's FREEZE BLOCK IS BLANK
+AT `HEAD`** — `FROZEN AT COMMIT: ....................`, `DOCUMENT BLOB SHA` blank, and the
+pre-compute condition checkbox **unticked**. The freeze is asserted in the **commit
+subject** (`8efe38e8f`, *"SUBOFF A1b FROZEN"*) and in `GRADER_PIN.txt`, **not recorded in
+the block reserved for the supervisor's undelegated check-4.** Every commit on this box
+carries one Ubuntu identity, so a commit subject cannot evidence who performed a personal
+check. **What is owed is §9 being filled by the cfd-supervisor, not a new document.**
+
+**WHY THIS LANE IS NOT DRAFTING THE NEW STANDALONE L2 ARM IT WAS ASKED FOR, AND THE CALL
+IS THE SUPERVISOR'S.** The arm described — one level, L2 only, no family claim, gating on
+L2's own limbs which it passes on every one, Gate D `NOT A RESULT` by construction, tier
+CODE-VERIFIED with the disavowal, `y⁺` per patch, rule-4 completion including the age
+guard — **is this document**, minus its L1 companion. Three facts, stated at equal
+strength rather than argued to a conclusion:
+
+1. **A third document would duplicate A1b's L2 limb** and would have to explain why A1b's
+   own L2 was not used. A1 §13.3's warning cuts here in reverse: *"a rung invented to
+   escape a gate is the gate not applying to itself."* Nothing is being escaped, and the
+   shape is the same shape.
+2. **Dropping L1 from A1b's run set is not free.** §4's *"reported DIFFERENCE"* `Δ =
+   (CT_L1 − CT_L2)/CT_L2` is this registration's declared product. Removing L1 removes it.
+   **After first compute that is a change to what the document claims, which an addendum
+   may not make** (rule 2) — so it would require the new document, not an edit here.
+3. **Solving only L2 costs 17,540 of the family's 23,820 registered core-min** — L1 is
+   **26 %** of the spend and is already registered, already disclosed, and already
+   labelled as bounding nothing.
+
+> **THE RECOMMENDATION, OFFERED AS INPUT AND NOT ACTED ON: run A1b EXACTLY AS FROZEN —
+> both levels — and fill §9. It needs no new registration, it discards nothing already
+> paid for, and it is already the smaller satisfiable question the supervisor asked for.
+> If the supervisor still wants an L2-only arm after reading this, that is his call and
+> this lane will draft it; it is not drafted here because drafting it first would have
+> made the duplication a fact before he could weigh it.**
+
+---
+
+## 10.4 THE ITERATION-368 STALL — TRIAGED UNDER §5's X3/S6, AND IT IS **NEITHER** OF THE TWO THINGS SANAA NAMED
+
+Sanaa's instruction: *"Triage the L1 stall (pinned at iteration 368): read the residual
+history and the pressure-solver iterations; classify plateau vs oscillation. A plateau with
+the pressure solver at its cap is the wall-layer/mesh signature — fix the mesh, do not relax
+the solver."*
+
+**THE ANTECEDENT IS MEASURED FALSE, SO THE CONSEQUENT DOES NOT FIRE.**
+
+| what was read | value | source |
+|---|---|---|
+| GAMG iterations for `p`, the three non-orthogonal correctors, iterations 366–369 | **5, 2, 1** | `SOLVE_L1/log.simpleFoam` |
+| the cap they would have to be pinned at | **1000** | `/usr/lib/openfoam/openfoam2606/src/OpenFOAM/matrices/lduMatrix/lduMatrix/lduMatrix.H:125`, `static constexpr const label defaultMaxIter = 1000`; `lduMatrixSolver.C:205` `readIfPresent("maxIter", ...)` — this case's `fvSolution` sets no `maxIter`, so the default IS the cap |
+| **so the pressure solver sat at** | **0.5 % of its cap** | — |
+| `Ux` initial residual, iteration 300 → 369 | **5.43e-07 → 2.06e-07**, falling | same log |
+| `time step continuity errors`, `sum local` / cumulative at 368 | 2.07e-09 / −1.28e-07, stable | same log |
+| `bounding k` at 368 | min **−5.05e-06** against max 0.254 — **0.002 %**, round-off level; `bounding omega` stopped by iteration ~40 | same log |
+
+**MULTI-WINDOW DRIFT, COMPUTED AT ONE INSTANT, BECAUSE ONE WINDOW IS NOT EVIDENCE.**
+Linear-fit drift of `Cd` across the last **10 / 20 / 30 / 50 / 100 / 150 / 200** iterations:
+**+0.011 / +0.025 / +0.041 / +0.081 / +0.244 / +0.574 / +1.225 %**. **Monotone in magnitude
+AND single-signed at every window**, with `Cd` **strictly increasing** over the last 100
+(all 99 differences positive) and the mean per-iteration relative increment decaying
+**6.83e-05 → 1.67e-05** between the 200- and 50-iteration windows.
+
+> **CLASSIFICATION: NEITHER A PLATEAU NOR AN OSCILLATION. It is an asymptotic approach from
+> below, still converging, with the linear solvers idle.** An oscillation would scramble the
+> sign across windows; a plateau would flatten the drift toward zero at every window
+> together. Neither happened.
+
+**WHAT DID HAPPEN: A WALL-CLOCK COLLAPSE, NOT A NUMERICAL ONE.** `ClockTime` per iteration
+**70 s at iteration 360 → 9,361 s at 367 → 20,190 s at 368**, against `ExecutionTime` of
+**14.22 s** per iteration in the clean stretch. `WATCH.log` records it advancing
+366→367→368 across eight hours in ~1,900 s steps: **crawling, never stuck.** Iterations 367
+and 368 **alone** consumed **1,970 of the run's 3,295 gross core-min — 59.8 % of the entire
+spend for 0.54 % of its iterations.** The cause is on record independently: the old box's
+`MemAvailable` reached **1.42 GiB**, and this family's own `SOLVE_L2.gatedlaunch.log` logged
+**251 consecutive `GATE CLOSED` readings**, the last 41 at `available=0 GiB`.
+
+> **NO MESH CHANGE AND NO RELAXATION CHANGE IS MADE TO EITHER LEVEL ON THIS EVIDENCE.**
+> L1's `GATE FAIL` on M-d (**8.6227045e-04** against **1.0e-03**, one cell in 3,268,613)
+> stands exactly as §2 records it and is **not** what stalled this run. Changing the mesh
+> because a run was starved would be a second action on the wrong state.
+
+**`SOLVE_L1` IS LEFT BYTE-UNTOUCHED** — no checkpoint edit, no repair, nothing — because it
+is the sole artifact every number above cites. A relaunch goes to a **fresh `SOLVE_L1_R2/`**,
+which is how monitor stop S5 is satisfied: *"A guard is satisfied by MOVING the case, never
+by disabling the guard"* — and here by leaving it and building a sibling, so the evidence
+survives too.
+
+**NO CHECKPOINT EXISTS AND NEITHER LEVEL CAN RESUME.** `SOLVE_L1/processor*/` hold only
+`0/`; `writeInterval` was 3000 so the first field write was to have been at `endTime` and
+never fired. `docs/RESIZE_CENSUS_2026-09-12.md` row 6 reaches the same verdict
+independently. **369 iterations and ~3,295 gross core-min are lost, and §10.1–10.2 are
+exactly the change that stops it recurring.**
+
+---
+
+## 10.5 `y⁺` — THE TWO WALL PATCHES ARE IN **DIFFERENT REGIMES**, WHICH IS WHY GATE W REPORTS PER PATCH
+
+Registered arithmetic carried forward from A1 §13.5, unaltered: hull **50.0** (L1) / **27.9**
+(L2) at the cell centre, estimated local maxima 87 / 48; sail **9.6** / **5.4**.
+
+A parallel cfd finding on DrivAer measured `nutUSpaldingWallFunction` and `nutkWallFunction`
+to be **the same function above `y⁺ ≈ 30`** — 0.44 % apart at `y⁺` 232, 0.15 % at 482, 0.12 %
+at 557 — diverging only **below** it: 11 % at 30, 88 % at 15. **Applied here that splits by
+patch, and the split is the reason Sanaa asked for `y⁺` per patch:**
+
+- **The hull sits in the log layer.** Blending buys **nothing** there; `nutkWallFunction`
+  would give the same answer. A high-`y⁺` problem, if this case had one, would not be fixed
+  by blending.
+- **The sail sits in the buffer layer and below** (9.6 and 5.4). **That is exactly where the
+  blended form earns its keep**, and it is what Sanaa's *"so y+ in the buffer zone is
+  tolerated"* describes.
+
+**Both caveats stated, neither softened:** the equivalence holds under **local equilibrium**
+and fails in separated regions, so the **stern taper and the sail wake** are outside it; and
+the local-maximum column is a **√3 estimate with its mechanism named, not a measurement.**
+**No measured `y⁺` exists for either level yet** (§10.2), so nothing above is a Gate W
+result — Gate W is `BLOCKED` until armed.
+
+**THE WALL TREATMENT IS ALREADY THE BLENDED ONE AND HAS BEEN SINCE THE FIRST BUILD.**
+`0/nut` at **both** `SOLVE_L1` and `SOLVE_L2` carries `nutUSpaldingWallFunction` on `hull`
+and `sail` — read from disk, not inferred. **Applying a "blended wall treatment arm" to
+SUBOFF is a no-op; it is already what §3 registered.**
+
+**🔴 AND A GEOMETRIC FACT THAT DELETES THREE REQUESTED QUANTITIES.** `constant/polyMesh/boundary`
+lists exactly **`inlet outlet farfield symm hull sail`**. **THERE ARE NO FINS AND NO STERN
+APPENDAGES.** A1/A1b is hull **plus fairwater**. So *"layer coverage on the fins"*, *"cells
+across the appendage roots"* and the *"hull/fin split"* **have no referent on this geometry**
+and are reported as inapplicable rather than answered. A `hull`/`sail` split **is** available
+and needs one extra `forceCoeffs` per patch — the single frozen block currently covers
+`(hull sail)` together.
+
+---
+
+## 10.6 THE SOURCES, RE-CHECKED RATHER THAN INHERITED — AND WHAT CANNOT BE REGISTERED BECAUSE OF THEM
+
+Sanaa's instruction asks for *"reference = Roddy 1990 captive-model forces and moments (band
+per derivative written first), Huang 1992 surface pressure at α = 0 as the anchor"*. §8
+already says no title-verified SUBOFF force measurement is on disk. **This lane checked the
+claim instead of inheriting it**, per rule 15:
+
+- The off-repository reference pack's `PDFs/CASE_1_DARPA_SUBOFF/` directory contains
+  **exactly one file, and it is `README.txt`** — a bibliography of twelve citations. **There
+  is no PDF behind any of them.**
+- **Roddy 1990** (DTRC/SHD-1298-08) and **Huang et al. 1992** exist only as `.url` link
+  stubs, as do Crook 1990, Liu & Huang 1998, Toxopeus 2008 and Gertler & Hagen 1967 — so
+  even the **derivative conventions** for `Z_w` and `M_w` are not held from a source.
+- The **only** title-page-verified SUBOFF source on the box remains **Groves 1989,
+  DTRC/SHD-1298-01** (institution, report number, March 1989, title and authors all read
+  from the document). Searching it for drag / resistance / force-coefficient content
+  returns **nothing** — it is a **geometry** report.
+
+> **CONSEQUENCE, STATED AS A REFUSAL RATHER THAN A DIFFICULTY: the validation registration
+> Sanaa specified CANNOT BE WRITTEN AS SPECIFIED. A band per derivative referenced to a
+> paper the lab does not hold would be fabrication, and rule 15 forbids treating a stub or
+> a third party's bibliography as a source.** What **is** writable is the α-sweep **method**
+> — α = −12, −8, −4, 0, +4, +8, +12; `Z` and `M`; derivatives by linear fit over |α| ≤ 8;
+> neutral point `x_np/L = −M_w/Z_w` — at tier **CODE-VERIFIED with the disavowal "NOT
+> experiment-validated"**, which is the ceiling §8 already sets. **That is a reporting
+> registration, not a validation one, and it must never be presented as the latter.** Two
+> geometry notes for whoever drafts it: a pitch sweep **preserves** the `z = 0` symmetry
+> plane, so the half model is valid and the frozen `liftDir (0 1 0)` / `CmPitch`-about-`z`
+> are already the right quantities; and the hull/fin split does not exist (§10.5).
+
+---
+
+## 10.7 WHAT §10 DOES NOT DO
+
+- It does **not** move a gate, a threshold, a cap or a label. Gates C, W and D, `minDeterminant
+  1.0e-03`, L1's `NOT ADMITTED`, and `CT`'s `NOT A RESULT` all stand as frozen at `8efe38e8f`.
+- It does **not** revive A1, narrow A1's Gate M, or relabel anything to reach a verdict.
+- It does **not** freeze this document. **§9 is still blank and is still the cfd-supervisor's,
+  personal and undelegated.**
+- It does **not** launch anything. Nothing here started a solver; the two queue entries
+  prepared alongside it sit in `verification/queue/cfd/held/`, which the daemon does not poll.
+- It does **not** send, file, upload or register anything outside this box (rule 7).

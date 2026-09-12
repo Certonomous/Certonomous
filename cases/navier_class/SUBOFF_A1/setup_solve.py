@@ -79,9 +79,44 @@ def main():
                     help="SIMPLE iterations.  deltaT=1, so endTime IS the iteration "
                          "count and rule 4's ExecutionTime-count clause reads "
                          "round(endTime/deltaT) == endTime.")
+    ap.add_argument("--write-interval", type=int, default=None,
+                    help="CHECKPOINT INTERVAL IN ITERATIONS.  Default None => endTime, "
+                         "i.e. the pre-2026-09-12 behaviour of ONE write at endTime, "
+                         "byte-identical.  Sanaa's 2026-09-12 run instruction item 1 "
+                         "requires this be set so a checkpoint never exceeds 30 MINUTES "
+                         "of iterations at the measured rate.  MUST DIVIDE endTime "
+                         "EXACTLY -- refused below if it does not.")
+    ap.add_argument("--purge-write", type=int, default=0,
+                    help="OpenFOAM purgeWrite: keep only the last N time directories, "
+                         "0 = keep all.  Default 0 is the pre-2026-09-12 behaviour.  "
+                         "Sanaa's item 1 requires 2 ('the last two checkpoints are kept; "
+                         "older ones purged').  Any N >= 1 keeps endTime, which is always "
+                         "the last write, so rule 4's 'fields present at endTime' clause "
+                         "is unaffected.")
     ap.add_argument("--ct-reference", required=True)
     ap.add_argument("--scratch", required=True)
     a = ap.parse_args()
+
+    # ---- CHECKPOINT ARGUMENTS: NORMALISE, THEN REFUSE ------------------------
+    # The divisibility rule was PROSE in SUBOFF_A1_PREREGISTRATION.md 13.7 and in this
+    # file's own comment below ("A writeInterval that does not divide endTime writes NO
+    # fields at all, which the completion rule would read as an incomplete run").  A
+    # reason that lives only in a comment is not a guard: the moment writeInterval became
+    # a CLI option, a caller could satisfy Sanaa's 30-minute ceiling and silently produce
+    # a case that writes nothing and grades NOT COMPLETE.  It is executable now.
+    if a.write_interval is None:
+        a.write_interval = a.end_time
+    if a.write_interval < 1 or a.end_time % a.write_interval != 0:
+        sys.stderr.write(
+            f"REFUSED: --write-interval {a.write_interval} does not divide --end-time "
+            f"{a.end_time} exactly.  OpenFOAM writes fields only at exact multiples of "
+            f"writeInterval, so endTime would carry NO fields and rule 4's completion "
+            f"rule would read the run as incomplete.  Choose a divisor of "
+            f"{a.end_time}.\n")
+        sys.exit(2)
+    if a.purge_write < 0:
+        sys.stderr.write(f"REFUSED: --purge-write {a.purge_write} is negative.\n")
+        sys.exit(2)
 
     # ---- REFUSALS, BEFORE ANYTHING IS WRITTEN ------------------------------
     src_pm = os.path.join(a.mesh_dir, "constant", "polyMesh")
@@ -216,9 +251,12 @@ def main():
     ])
 
     # ---- system/ -------------------------------------------------------------
-    # writeInterval == endTime: ONE write, at endTime.  A writeInterval that does not
-    # divide endTime writes NO fields at all, which the completion rule would read as
-    # an incomplete run.
+    # writeInterval is a CHECKPOINT interval (Sanaa 2026-09-12 run instruction item 1:
+    # "writeInterval on iteration count is set so it never exceeds 30 minutes at the
+    # measured rate").  It DEFAULTS to endTime, which reproduces the original ONE-write
+    # behaviour byte-for-byte when the option is omitted.  The requirement that it divide
+    # endTime -- otherwise endTime carries NO fields and rule 4 reads the run as
+    # incomplete -- is now REFUSED ON above, not merely written here.
     w(os.path.join(a.case, "system", "controlDict"), "dictionary", "controlDict",
       f"""application     simpleFoam;
 startFrom       startTime;
@@ -227,8 +265,8 @@ stopAt          endTime;
 endTime         {a.end_time};
 deltaT          1;
 writeControl    timeStep;
-writeInterval   {a.end_time};
-purgeWrite      0;
+writeInterval   {a.write_interval};
+purgeWrite      {a.purge_write};
 writeFormat     binary;
 writePrecision  8;
 writeCompression off;
