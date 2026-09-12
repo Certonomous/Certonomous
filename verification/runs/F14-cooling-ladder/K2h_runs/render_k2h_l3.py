@@ -83,7 +83,45 @@ OUT = os.path.join(REPO, "verification", "runs", "F14-cooling-ladder",
                    "K2h_runs", "RENDERS")
 
 MESH_CASE, MESH_END = "K2f_L1", "3000"
-FIELD_CASE, FIELD_END = "K2h_L3", "112"
+FIELD_CASE = "K2h_L3"
+
+#: The field time is READ FROM DISK, never hardcoded to the registered endTime.
+#:
+#: MEASURED 2026-09-12: this case will NEVER WRITE A t=112 DIRECTORY.  With
+#: `writeControl adjustableRunTime` and `writeInterval 5`, `Time::operator++`
+#: sets `writeTime_` only when `label(((value-startTime)+0.5*deltaT)/writeInterval)`
+#: EXCEEDS the previous write index; at the final step that index is 22, the same
+#: as after the t=110 write, so no write fires.  `Time::adjustDeltaT` targets
+#: `(writeTimeIndex_+1)*writeInterval` = 115, not endTime, so deltaT is never
+#: steered onto 112 either.  Confirmed by three icoFoam probes on this box,
+#: including a control at an endTime that IS a multiple, which DID write.
+#:
+#: A renderer that hardcoded 112 would simply fail at the end of a five-hour run.
+#: One that silently substituted another time would caption a figure with a time
+#: it is not showing.  This reads the latest time the case actually carries and
+#: STAMPS IT, so the picture says which instant it is.
+FIELD_END = None                    # resolved by `resolve_field_time()`
+
+
+def resolve_field_time(case_dir):
+    """The latest time directory the case actually carries, as its own name.
+
+    The NAME matters, not the value: OpenFOAM's directory name is the graded
+    artifact's address, and `foam_patch_reader._tname` resolves against it.
+    """
+    ts = []
+    for x in os.listdir(case_dir):
+        try:
+            ts.append((float(x), x))
+        except ValueError:
+            pass
+    if not ts:
+        C.refuse("%s carries no reconstructed time directory. `reconstructPar "
+                 "-latestTime` runs only when the solver exits rc=0, so this "
+                 "means the run did not complete cleanly. Refusing rather than "
+                 "rendering the decomposed case as though it were the result"
+                 % case_dir)
+    return max(ts)[1]
 
 #: The positive must out-spread the deliberately-flat negative by this factor.
 #:
@@ -106,7 +144,9 @@ CONTROL_MARGIN = 8.0
 
 #: Section 5's window, quoted on every field figure so the picture says what
 #: interval it is the mean of.
-WINDOW = "mean over simulated 42 to 112 s (S-WINDOW)"
+#: Filled from the resolved field time.  The caption states the interval the
+#: mean ACTUALLY covers, never the registered one, because those differ here.
+WINDOW = None
 
 
 def _repoint(case, end, stamp, geom):
@@ -282,7 +322,9 @@ def fig_mean_field(reader, path, field, label, preset, verdict_stamp, geom):
     C.caption(v, verdict_stamp, FIELD_CASE, position=(0.012, 0.048), size=11)
     C.caption(v, geom + f" ; y-z plane at x = 1.5 m ; cold aisle left, rack row "
                         f"centre, hot aisle right ; {field} in {lo:.6g} to "
-                        f"{hi:.6g} ; {WINDOW}",
+                        f"{hi:.6g} ; mean over simulated 42 to {float(FIELD_END):g} s "
+                        f"; S-WINDOW registered 42 to 112 ; last WRITE at "
+                        f"{FIELD_END}",
               FIELD_CASE, position=(0.012, 0.018), size=9, check_stamp=False)
     Render(v)
     n = C.save_screenshot(v, path, size=(1600, 1000))
@@ -331,14 +373,20 @@ def main(argv) -> int:
         root = None
 
     # ---- (b) THE FIELDS, time-averaged, from K2h_L3 itself -------------------
-    stamp = (f"{FIELD_CASE} ; 664848 cells ; t = 112 ; time-averaged over "
-             f"42 to 112 s ; {verdict}")
+    field_end = resolve_field_time(C.facts(FIELD_CASE)["case_dir"])
+    globals()["FIELD_END"] = field_end
+    C.announce(f"  field time resolved FROM DISK: t = {field_end} "
+               f"(registered endTime 112; see the note on FIELD_END for why "
+               f"they differ)")
+    win_hi = float(field_end)
+    stamp = (f"{FIELD_CASE} ; 664848 cells ; t = {field_end} ; time-averaged "
+             f"over 42 to {win_hi:g} s ; {verdict}")
     geom = ("Room 3.6 x 3.5 x 2.7 m ; 4 racks ; FINE level, TRANSIENT "
             "buoyantBoussinesqPimpleFoam")
     try:
         _repoint(FIELD_CASE, FIELD_END, stamp, geom)
         reader, root, n = C.open_case(
-            FIELD_CASE, ["TMean", "p_rghMean", "UMean"], [FIELD_END])
+            FIELD_CASE, ["TMean", "p_rghMean", "UMean"], [field_end])
         C.announce(f"  field source {FIELD_CASE}: {n:,} cells at t = {FIELD_END}")
         total += fig_mean_field(
             reader, os.path.join(OUT, "K2h_L3_p_rghMean_field.png"),
