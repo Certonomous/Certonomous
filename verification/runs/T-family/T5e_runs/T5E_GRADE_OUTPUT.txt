@@ -1,0 +1,193 @@
+T5e comparator -- registration docs/campaigns/T-family/T5e_PREREGISTRATION.md
+grading path frozen by commit e6730df82fbe7e7cfaa2705b4e637480c6f9cb1e; registration sha256 8a5df140dc42014f2d57c505408f14b405a4171d1e688079065347f382f32413
+re-grades: existing artifacts under /home/ubuntu/Certonomous/verification/runs/T-family/T5b_runs. NO SOLVER COMPUTE.
+frozen predecessor verified: analyse_t5b.py sha256 778f560edbd1cc1e...
+frozen predecessor verified: analyse_t5c.py sha256 50b484f0541cea52...
+CLAUSE (1) INSTRUMENT READ FROM ITS OWN REGISTRATION: T5_PREREGISTRATION.md lines 469-472, sha256 aeaf1987ad6ddae9..., tolerance 1e-06 x range, checkpoints endTime-1000 and endTime. NOTHING NEW IS REGISTERED HERE.
+THRESHOLD CARRY-OVER ASSERTED against analyse_t5b.py and analyse_t5c.py: 29 names identical. `only the ORDER changes` is a CHECK here, not a claim.
+L-342 classes: T=PHYSICS-CRITICAL; checkpoint_pair=GATE INPUT (never infrastructure); initial_residual=REPORTED, NEVER GATED; yPlus_field=GATE INPUT (never infrastructure); core_min=INFRASTRUCTURE; ExecutionTime_line_count=INFRASTRUCTURE
+
+  level c  T5_CUBE_c   cells   52684  completion: COMPLETE
+      S6.1  PRODUCER: `type yPlus;` present in system/controlDict
+      S6.1  ARTIFACT: 5000/air/yPlus carries the producer's FoamFile header (class volScalarField, object yPlus), 45804 bytes
+      S6.1  READER + arm Y-5: read_patch_field and patch_areas agree with the mesh's own boundary nFaces on all 6 registered walls
+      S6.1  WRITE PATH: scratch resolves outside the case tree; the run tree is never written
+      clause (1): NOT CONVERGED -- NOT CONVERGED by T5 S5.5: air/T max|delta| 0.316753 over 4000->5000 vs tol 4.446298e-05 (= 1e-06 x range 44.462978) -- over by 7124x; epoxy/T max|delta| 0.005941 over 4000->5000 vs tol 3.520030e-05 (= 1e-06 x range 35.200303) -- over by 169x; air/U max|delta| 0.086000 over 4000->5000 vs tol 8.052911e-06 (= 1e-06 x range 8.052911) -- over by 10679x
+      y+ gate  : MET -- all 6 registered walls inside R_max 5.0 (Y-SUBLAYER) and R_area within 2.0x the level target 2.60 (Y-LADDER, bound 5.2000)
+
+  level m  T5_CUBE_m   cells  212942  completion: COMPLETE
+      S6.1  PRODUCER: `type yPlus;` present in system/controlDict
+      S6.1  ARTIFACT: 5000/air/yPlus carries the producer's FoamFile header (class volScalarField, object yPlus), 116840 bytes
+      S6.1  READER + arm Y-5: read_patch_field and patch_areas agree with the mesh's own boundary nFaces on all 6 registered walls
+      S6.1  WRITE PATH: scratch resolves outside the case tree; the run tree is never written
+      clause (1): NOT CONVERGED -- NOT CONVERGED by T5 S5.5: air/T max|delta| 29.603596 over 4000->5000 vs tol 4.868511e-05 (= 1e-06 x range 48.685111) -- over by 608063x; epoxy/T max|delta| 8.844401 over 4000->5000 vs tol 3.647746e-05 (= 1e-06 x range 36.477463) -- over by 242462x; air/U max|delta| 6.404539 over 4000->5000 vs tol 9.767831e-06 (= 1e-06 x range 9.767831) -- over by 655677x
+      y+ gate  : MET -- all 6 registered walls inside R_max 5.0 (Y-SUBLAYER) and R_area within 2.0x the level target 1.60 (Y-LADDER, bound 3.2000)
+
+  level f  T5_CUBE_f   cells  882024  completion: COMPLETE
+      S6.1  PRODUCER: `type yPlus;` present in system/controlDict
+      S6.1  ARTIFACT: 5000/air/yPlus carries the producer's FoamFile header (class volScalarField, object yPlus), 301182 bytes
+      S6.1  READER + arm Y-5: read_patch_field and patch_areas agree with the mesh's own boundary nFaces on all 6 registered walls
+      S6.1  WRITE PATH: scratch resolves outside the case tree; the run tree is never written
+      clause (1): NOT CONVERGED -- NOT CONVERGED by T5 S5.5: air/T max|delta| 26.448420 over 4000->5000 vs tol 4.810208e-05 (= 1e-06 x range 48.102080) -- over by 549839x; epoxy/T max|delta| 9.486081 over 4000->5000 vs tol 3.814173e-05 (= 1e-06 x range 38.141730) -- over by 248706x; air/U max|delta| 5.264298 over 4000->5000 vs tol 1.005225e-05 (= 1e-06 x range 10.052251) -- over by 523693x
+      y+ gate  : MET -- all 6 registered walls inside R_max 5.0 (Y-SUBLAYER) and R_area within 2.0x the level target 1.00 (Y-LADDER, bound 2.0000)
+
+MEASURED refinement ratios r21 = 1.605978 (MEDIUM->FINE) and r32 = 1.592921 (COARSE->MEDIUM)
+
+BIRTH REQUIREMENT ON THE CLAUSE-(1) READER (rule 3) -- planted into
+a scratch COPY of T5_CUBE_f/5000/air/T at level f, read back FROM DISK through the real reader.
+  C-1 SIGNAL -- a single-cell spike is seen AT the planted cell
+      POSITIVE (must be SEEN) : ok   max|delta| read back from disk is 987.600000 (required >= 888.840000 = 0.9 x the 987.6000 spike) and its argmax is cell 3674, which IS the planted cell 3674 -- the predicate ASKS WHERE the maximum is (VERIFICATION_CHARTER S2d.11.1 item A)
+      NEGATIVE (must NOT fire): ok   two reads of identical bytes differ by 0.0 (must be exactly 0.0); a reader noisy on unchanged bytes cannot be credited with any move
+      strengthening          : ok   the planted cell 3674 reads back 1281.250531900 against base+spike 1281.250531900 (relative 0.000e+00, bound 1e-12)
+      strengthening          : ok   every one of the other 882023 cells is unchanged (max |delta| 0.0), so the move is about the plant and nothing else
+      strengthening          : ok   the base argmax was cell 51237 with max|delta| 26.448420; the plant MOVED both, so neither limb passed vacuously
+  C-2 EXACTNESS -- a constant offset moves the DELTA exactly and the RANGE reader is EXACTLY blind to it (L-340)
+      POSITIVE (must be SEEN) : ok   max|delta| read back is 26.447185800000 against the closed form 26.447185800000 (relative 0.000e+00, bound 1e-09) -- a difference reader is affine in a constant offset, so the answer is EXACT, not approximate
+      NEGATIVE (must NOT fire): ok   the RANGE reader moved by 0.0 (must be exactly 0.0): a constant offset cannot move a range. The delta reader and the range reader are DIFFERENT SHAPES, which is why one plant cannot certify both (L-340)
+      strengthening          : ok   every one of the 882024 planted cells reads back as base+plant, worst relative 0.000e+00 (bound 1e-12)
+  C-3 THE ZERO -- an exact 0.0 from bytes that ARE the other checkpoint, then a non-zero from the SAME file
+      POSITIVE (must be SEEN) : ok   the SAME file, with one cell moved by 987.6000, reads back max|delta| 987.600000000 at cell 3674 -- so the 0.0 above is a zero from a reader SHOWN able to see a non-zero on these bytes, which is the whole of rule 3
+      NEGATIVE (must NOT fire): ok   a copy whose 5000 bytes ARE the 4000 values reads back max|delta| = 0.0, which must be exactly 0.0 -- this is the ZERO the criterion would report for a converged level
+      strengthening          : ok   zero limb 0.0 and non-zero limb 987.600000 were measured on the same path, the same file and the same reader
+  ALL THREE ARMS PRINTED BOTH LIMBS AND PASSED. The clause-(1) reader is credited.
+
+BIRTH REQUIREMENT ON THE y+ READER (T5c S6, VERIFICATION_CHARTER
+S2d.11.2 condition 1) -- planted on wall cube_front at level f, in a scratch copy of the producer's own field.
+  Y-1 OFFSET -- R_area sees a real signal
+      POSITIVE (must be SEEN) : ok   R_area moved 1.234000000000e-03 against the closed-form 1.234000000000e-03 (relative 5.535e-14, bound 1e-09)
+      NEGATIVE (must NOT fire): ok   two reads of identical bytes differ by 0.0 (must be exactly 0.0)
+      strengthening          : ok   every one of the 648 planted faces reads back as base+plant, worst relative 0.000e+00 (bound 1e-12)
+  Y-2 SPIKE SPECIFICITY -- R_area is NOT the old statistic
+      POSITIVE (must be SEEN) : ok   R_max moved 985.857583 against the required >= 888.840000
+      NEGATIVE (must NOT fire): ok   R_area moved 2.113926434e+00 against the blindness bound 2.116040360e+00 -- the area average is NEARLY BLIND to the point peak the old gate was dominated by
+      strengthening          : ok   the argmax of the planted field is face 304, the face the spike was planted into (304)
+      strengthening          : ok   face 304 reads back 988.167624938 against base+spike 988.167624938 (relative 0.000e+00)
+      strengthening          : ok   every one of the other 647 faces is unchanged (max |delta| 0.0)
+  Y-3 AREA WEIGHTING IS REAL -- not a face count in disguise
+      POSITIVE (must be SEEN) : ok   R_area moved 1.716869569481e-04 against the AREA prediction 1.716869569481e-04 (relative 2.390e-13); decile k=65 of 648 faces holds 0.139130 of the patch area against 0.100309 of its face count
+      NEGATIVE (must NOT fire): ok   R_area did NOT move by the FACE-COUNT prediction 1.237808641975e-04 (differs by 38.7023 %, required > 1 %)
+  Y-4 QUANTILE SENSITIVITY -- R_q95 is a quantile
+      POSITIVE (must be SEEN) : ok   R_q95 moved 1.234000000000e-03 against the plant 1.234000000000e-03 (relative 3.462e-14); the tail is 43 of 648 faces
+      NEGATIVE (must NOT fire): ok   the area-weighted MEDIAN moved by 0.0 (must be exactly 0.0)
+      strengthening          : ok   the 95 % crossing face (index 603, order position 605 of 648) reads back as base+plant, relative 0.000e+00
+      strengthening          : ok   the median face (index 299, order position 290) is unchanged
+  Y-5 SCHEMA / TUPLE INTEGRITY
+      POSITIVE (must be SEEN) : ok   before any plant, read_patch_field's parsed face count was asserted equal to the mesh's own boundary nFaces for all 6 registered walls at this level (assert_section_6_1 row READER)
+      NEGATIVE (must NOT fire): ok   the REFUSAL is armed on both a ZERO count and a count disagreeing with the mesh; it did not fire here, which is the required outcome for the negative limb
+  ALL FIVE ARMS PRINTED BOTH LIMBS AND PASSED.
+
+CLAUSE (1) -- T5 S7.5 step 1, RESTORED. Instrument: the T5 S5.5
+CHECKPOINT DELTA between 4000 and 5000, NEVER a residual (L-141).
+  tolerance = 1e-06 x that field's range, READ FROM the frozen T5 registration, not typed here
+  domain = internalField (S5.5 says `any CELL value`); vector reading = per-component; range at = endTime (INTERPRETATION 20)
+  lv  region f     cells    max|delta|         range           tol      over by  clause (1)
+  c   air    T     52684      0.316753     44.462978  4.446298e-05        7124x  NOT CONVERGED
+  c   epoxy  T       869      0.005941     35.200303  3.520030e-05         169x  NOT CONVERGED
+  c   air    U     52684      0.086000      8.052911  8.052911e-06       10679x  NOT CONVERGED
+  c   -> LEVEL STATE: NOT CONVERGED
+  m   air    T    212942     29.603596     48.685111  4.868511e-05      608063x  NOT CONVERGED
+  m   epoxy  T      3272      8.844401     36.477463  3.647746e-05      242462x  NOT CONVERGED
+  m   air    U    212942      6.404539      9.767831  9.767831e-06      655677x  NOT CONVERGED
+  m   -> LEVEL STATE: NOT CONVERGED
+  f   air    T    882024     26.448420     48.102080  4.810208e-05      549839x  NOT CONVERGED
+  f   epoxy  T     14507      9.486081     38.141730  3.814173e-05      248706x  NOT CONVERGED
+  f   air    U    882024      5.264298     10.052251  1.005225e-05      523693x  NOT CONVERGED
+  f   -> LEVEL STATE: NOT CONVERGED
+
+  REPORTED companion readings (INTERPRETATION 20) -- NEVER GATED:
+    c air/T  union-range reading: range over BOTH checkpoints 44.463152 (gated endTime range 44.462978) -> tol 4.446315e-05, over by 7124x
+    c epoxy/T  union-range reading: range over BOTH checkpoints 35.200940 (gated endTime range 35.200303) -> tol 3.520094e-05, over by 169x
+    c air/U  magnitude reading: max|dU| 0.086011 against magnitude range 5.788335 (gated per-component reading gave 0.086000 against 8.052911)
+    m air/T  union-range reading: range over BOTH checkpoints 49.199212 (gated endTime range 48.685111) -> tol 4.919921e-05, over by 601709x
+    m epoxy/T  union-range reading: range over BOTH checkpoints 36.479969 (gated endTime range 36.477463) -> tol 3.647997e-05, over by 242445x
+    m air/U  magnitude reading: max|dU| 7.070887 against magnitude range 6.504226 (gated per-component reading gave 6.404539 against 9.767831)
+    f air/T  union-range reading: range over BOTH checkpoints 48.893233 (gated endTime range 48.102080) -> tol 4.889323e-05, over by 540942x
+    f epoxy/T  union-range reading: range over BOTH checkpoints 39.152656 (gated endTime range 38.141730) -> tol 3.915266e-05, over by 242284x
+    f air/U  magnitude reading: max|dU| 6.300148 against magnitude range 6.735418 (gated per-component reading gave 5.264298 against 10.052251)
+  Neither companion reading changes any level's state on this ladder; both are printed so the interpretation is auditable.
+
+RESIDUAL EVIDENCE -- **REPORTED, NEVER GATED** (REPORTED, NEVER GATED: L-141 -- in T1c a genuinely unconverged case sat at residual 4e-05, and T5 S5.5 writes no residualControl)
+  T5 S5.5 writes no residualControl and names the reason: in T1c a
+  genuinely unconverged case sat at residual 4e-05 (L-141). Nothing
+  below feeds any gate; clause (1) is decided ONLY by the checkpoint
+  delta above. These lines corroborate; they never grade.
+  lv  field        n        first         last     tail min     tail max    log10 slope
+  c   p_rgh     5000   1.0000e+00   3.2102e-03   1.1937e-03   4.5164e-03 +0.555 dec/1000
+  c   k         5000   1.0000e+00   1.1014e-04   3.3215e-05   3.9647e-04 +0.733 dec/1000
+  c   omega     5000   1.6037e-02   4.1184e-06   2.9467e-06   3.4104e-04 +0.208 dec/1000
+  m   p_rgh     5000   1.0000e+00   1.9082e-01   1.6795e-01   2.8341e-01 -0.074 dec/1000
+  m   k         5000   1.0000e+00   8.0320e-09   7.9859e-09   8.0328e-09 -0.000 dec/1000
+  m   omega     5000   2.2026e-02   3.3430e-11   3.3298e-11   3.3610e-11 +0.001 dec/1000
+  f   p_rgh     5000   1.0000e+00   2.2966e-01   2.1784e-01   2.6412e-01 +0.055 dec/1000
+  f   k         5000   1.0000e+00   5.6887e-03   4.0603e-07   9.8849e-01 -2.525 dec/1000
+  f   omega     5000   2.6937e-02   9.4736e-04   8.1035e-17   3.3333e-01 +5.040 dec/1000
+
+BOTH STATISTICS, EVERY WALL, EVERY LEVEL (VERIFICATION_CHARTER S2d.11.2 condition 4)
+  bound at each level = YPLUS_TARGET[lv] x YPLUS_TARGET_TOL = c 5.20, m 3.20, f 2.00
+  wall         lv       R_area   margin       R_max   margin       R_q95     fc_mean
+  cube_front   c      1.855816   0.3569    3.804350   0.7316    3.338873    1.960511
+  cube_front   m      1.204621   0.3764    2.960969   0.9253    2.572906    1.275376
+  cube_front   f      0.789653   0.3948    2.310042   1.1550    1.755332    0.842657
+  cube_front   ->  R_max observed order p(c->m) 0.538 p(m->f) 0.524  MONOTONE decreasing
+  cube_front   ->  R_area observed order p(c->m) 0.928 p(m->f) 0.891  MONOTONE decreasing
+  cube_top     c      1.008933   0.1940    2.421597   0.4657    2.242340    1.080196
+  cube_top     m      0.837829   0.2618    1.903111   0.5947    1.638640    0.903759
+  cube_top     f      0.475295   0.2376    1.270784   0.6354    0.873560    0.494818
+  cube_top     ->  R_max observed order p(c->m) 0.518 p(m->f) 0.852  MONOTONE decreasing
+  cube_top     ->  R_area observed order p(c->m) 0.399 p(m->f) 1.197  MONOTONE decreasing
+  cube_rear    c      1.085299   0.2087    1.674171   0.3220    1.528536    1.040418
+  cube_rear    m      0.819033   0.2559    1.443517   0.4511    1.240971    0.819048
+  cube_rear    f      0.601466   0.3007    1.086522   0.5433    0.883707    0.575548
+  cube_rear    ->  R_max observed order p(c->m) 0.318 p(m->f) 0.600  MONOTONE decreasing
+  cube_rear    ->  R_area observed order p(c->m) 0.605 p(m->f) 0.652  MONOTONE decreasing
+  cube_side_n  c      1.058766   0.2036    2.404998   0.4625    1.982022    1.083115
+  cube_side_n  m      0.763856   0.2387    1.732352   0.5414    1.307866    0.765639
+  cube_side_n  f      0.500146   0.2501    1.295987   0.6480    0.853374    0.498776
+  cube_side_n  ->  R_max observed order p(c->m) 0.705 p(m->f) 0.613  MONOTONE decreasing
+  cube_side_n  ->  R_area observed order p(c->m) 0.701 p(m->f) 0.894  MONOTONE decreasing
+  floor        c      0.984704   0.1894    3.446919   0.6629    1.113584    1.116233
+  floor        m      0.516194   0.1613    2.389444   0.7467    0.858050    0.747319
+  floor        f      0.324945   0.1625    1.606724   0.8034    0.531461    0.481444
+  floor        ->  R_max observed order p(c->m) 0.787 p(m->f) 0.838  MONOTONE decreasing
+  floor        ->  R_area observed order p(c->m) 1.387 p(m->f) 0.977  MONOTONE decreasing
+  roof         c      0.992396   0.1908    1.171433   0.2253    1.074563    1.058913
+  roof         m      0.547004   0.1709    1.212626   0.3789    0.668621    0.564051
+  roof         f      0.315967   0.1580    0.634874   0.3174    0.412338    0.334545
+  roof         ->  R_max observed order p(c->m) -0.074 p(m->f) 1.366  *** NON-MONOTONE UNDER REFINEMENT ***
+  roof         ->  R_area observed order p(c->m) 1.279 p(m->f) 1.158  MONOTONE decreasing
+  NON-MONOTONE UNDER REFINEMENT: roof/R_max
+
+ROWS -- each carries the pre-repair and superseded states beside it
+  G1a  NOT A RESULT           registered criterion (1): level(s) c,m,f NOT CONVERGED. NOT CONVERGED by T5 S5.5: air/T max|delta| 0.316753 over 4000->5000 vs tol 4.446298e-05 (= 1e-06 x range 44.462978) -- over by 7124x; epoxy/T max|delta| 0.005941 over 4000->5000 vs tol 3.520030e-05 (= 1e-06 x range 35.200303) -- over by 169x; air/U max|delta| 0.086000 over 4000->5000 vs tol 8.052911e-06 (= 1e-06 x range 8.052911) -- over by 10679x
+       fired at clause (1) T5 S5.5 convergence
+       PRE-REPAIR STATE: NOT A RESULT (T5b y+ ladder clause on cube_front MAX = 2.310042 against bound 2.0)
+       SUPERSEDES T5c_RESULTS.md: G2a was published GATE FAIL with GCI 4.3550 %, withdrawn 2026-09-10; every other T5c row was published NOT A RESULT
+       values printed, not graded: c 76.1538  m 74.1784  f 76.9543
+  G2a  NOT A RESULT           registered criterion (1): level(s) c,m,f NOT CONVERGED. NOT CONVERGED by T5 S5.5: air/T max|delta| 0.316753 over 4000->5000 vs tol 4.446298e-05 (= 1e-06 x range 44.462978) -- over by 7124x; epoxy/T max|delta| 0.005941 over 4000->5000 vs tol 3.520030e-05 (= 1e-06 x range 35.200303) -- over by 169x; air/U max|delta| 0.086000 over 4000->5000 vs tol 8.052911e-06 (= 1e-06 x range 8.052911) -- over by 10679x
+       fired at clause (1) T5 S5.5 convergence
+       PRE-REPAIR STATE: NOT A RESULT (T5b y+ ladder clause on cube_front MAX = 2.310042 against bound 2.0)
+       SUPERSEDES T5c_RESULTS.md: G2a was published GATE FAIL with GCI 4.3550 %, withdrawn 2026-09-10; every other T5c row was published NOT A RESULT
+       values printed, not graded: c 32.5684  m 37.3924  f 39.4023
+  G3a  NOT A RESULT           registered criterion (1): level(s) c,m,f NOT CONVERGED. NOT CONVERGED by T5 S5.5: air/T max|delta| 0.316753 over 4000->5000 vs tol 4.446298e-05 (= 1e-06 x range 44.462978) -- over by 7124x; epoxy/T max|delta| 0.005941 over 4000->5000 vs tol 3.520030e-05 (= 1e-06 x range 35.200303) -- over by 169x; air/U max|delta| 0.086000 over 4000->5000 vs tol 8.052911e-06 (= 1e-06 x range 8.052911) -- over by 10679x
+       fired at clause (1) T5 S5.5 convergence
+       PRE-REPAIR STATE: NOT A RESULT (T5b y+ ladder clause on cube_front MAX = 2.310042 against bound 2.0)
+       SUPERSEDES T5c_RESULTS.md: G2a was published GATE FAIL with GCI 4.3550 %, withdrawn 2026-09-10; every other T5c row was published NOT A RESULT
+       values printed, not graded: c 51.6026  m 46.8184  f 65.8707
+  G5a  NOT A RESULT           registered criterion (1): level(s) c,m,f NOT CONVERGED. NOT CONVERGED by T5 S5.5: air/T max|delta| 0.316753 over 4000->5000 vs tol 4.446298e-05 (= 1e-06 x range 44.462978) -- over by 7124x; epoxy/T max|delta| 0.005941 over 4000->5000 vs tol 3.520030e-05 (= 1e-06 x range 35.200303) -- over by 169x; air/U max|delta| 0.086000 over 4000->5000 vs tol 8.052911e-06 (= 1e-06 x range 8.052911) -- over by 10679x
+       fired at clause (1) T5 S5.5 convergence
+       PRE-REPAIR STATE: NOT A RESULT (T5b y+ ladder clause on cube_front MAX = 2.310042 against bound 2.0)
+       SUPERSEDES T5c_RESULTS.md: G2a was published GATE FAIL with GCI 4.3550 %, withdrawn 2026-09-10; every other T5c row was published NOT A RESULT
+       values printed, not graded: c 57.1901  m 56.7784  f 55.9394
+  G5b  NOT A RESULT           registered criterion (1): level(s) c,m,f NOT CONVERGED. NOT CONVERGED by T5 S5.5: air/T max|delta| 0.316753 over 4000->5000 vs tol 4.446298e-05 (= 1e-06 x range 44.462978) -- over by 7124x; epoxy/T max|delta| 0.005941 over 4000->5000 vs tol 3.520030e-05 (= 1e-06 x range 35.200303) -- over by 169x; air/U max|delta| 0.086000 over 4000->5000 vs tol 8.052911e-06 (= 1e-06 x range 8.052911) -- over by 10679x
+       fired at clause (1) T5 S5.5 convergence
+       PRE-REPAIR STATE: NOT A RESULT (T5b y+ ladder clause on cube_front MAX = 2.310042 against bound 2.0)
+       SUPERSEDES T5c_RESULTS.md: G2a was published GATE FAIL with GCI 4.3550 %, withdrawn 2026-09-10; every other T5c row was published NOT A RESULT
+       values printed, not graded: c 61.4504  m 60.5274  f 59.45
+  G5c  NOT A RESULT           registered criterion (1): level(s) c,m,f NOT CONVERGED. NOT CONVERGED by T5 S5.5: air/T max|delta| 0.316753 over 4000->5000 vs tol 4.446298e-05 (= 1e-06 x range 44.462978) -- over by 7124x; epoxy/T max|delta| 0.005941 over 4000->5000 vs tol 3.520030e-05 (= 1e-06 x range 35.200303) -- over by 169x; air/U max|delta| 0.086000 over 4000->5000 vs tol 8.052911e-06 (= 1e-06 x range 8.052911) -- over by 10679x
+       fired at clause (1) T5 S5.5 convergence
+       PRE-REPAIR STATE: NOT A RESULT (T5b y+ ladder clause on cube_front MAX = 2.310042 against bound 2.0)
+       SUPERSEDES T5c_RESULTS.md: G2a was published GATE FAIL with GCI 4.3550 %, withdrawn 2026-09-10; every other T5c row was published NOT A RESULT
+       values printed, not graded: c 59.7657  m 59.4078  f 55.6857
+
+TALLY: 0 of 6 graded rows PASS; 6 NOT A RESULT. The 7 REPORTED rows (G1, G2, G3, G4, R1, R2, R3) are a ROW CLASS, not a verdict, and are EXCLUDED from this census (ruling D534).
+NO GCI IS QUOTABLE FROM ANY ROW ABOVE: rule 5 clause (1) fired before any triple was classified.
