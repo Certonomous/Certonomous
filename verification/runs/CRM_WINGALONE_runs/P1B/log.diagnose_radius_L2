@@ -1,0 +1,21 @@
+WING faces: 11136   |r| gate (FROZEN, not moved): 4.3
+faces exceeding the gate: 3374  (30.298 % of the wing patch)
+max |r| = 4.9810   min |r| = 0.0172
+
+EXCEEDING faces, centre extents:
+  x 2.6077 .. 3.2471
+  y 3.1724 .. 3.7666   (wing tip y is 3.7666681523 per section 2)
+  z 0.2310 .. 0.3460
+
+top 8 by |r|:   (x, y, z)  ->  |r|,  and sqrt(x^2+z^2) = distance from the SPAN axis
+  (  3.2470   3.7614   0.3450) -> |r|  4.9810   r_axis  3.2653
+  (  3.2471   3.7614   0.3448) -> |r|  4.9810   r_axis  3.2653
+  (  3.2471   3.7610   0.3448) -> |r|  4.9808   r_axis  3.2654
+  (  3.2471   3.7610   0.3450) -> |r|  4.9808   r_axis  3.2654
+  (  3.2469   3.7611   0.3446) -> |r|  4.9807   r_axis  3.2652
+  (  3.2469   3.7611   0.3452) -> |r|  4.9807   r_axis  3.2652
+  (  3.2464   3.7614   0.3450) -> |r|  4.9805   r_axis  3.2646
+  (  3.2464   3.7614   0.3448) -> |r|  4.9805   r_axis  3.2646
+
+ALL exceeding faces have y >= 3.1724 : True
+max distance from the SPAN AXIS among exceeding faces: 3.2654
