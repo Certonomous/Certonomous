@@ -1,0 +1,17 @@
+d6r2_grade_selftest.py EVIDENCE  2026-09-12T03:48:21Z
+grader md5=8ab6430e9a3fb2c2439c6d2ad48297bc
+selftest md5=d96161e957680f5c1cde53a229c9a3c9
+
+ok   clean control                      want=PASS         got=PASS
+ok   G2 misses the 10% band             want=GATE FAIL    got=GATE FAIL
+ok   G2 exactly at the band             want=PASS         got=PASS
+ok   G2 a hair inside the band          want=GATE FAIL    got=GATE FAIL
+ok   G3 one CL outside 1e-3             want=GATE FAIL    got=GATE FAIL
+ok   G3 one CL just inside 1e-3         want=PASS         got=PASS
+ok   G1 the IPOPT crash D6R suffered    want=NOT A RESULT got=NOT A RESULT
+ok   G1 stopped short of the budget     want=NOT A RESULT got=NOT A RESULT
+ok   G1 rc=124, the clock kill          want=NOT A RESULT got=NOT A RESULT
+ok   G4 no optimiser history            want=NOT A RESULT got=NOT A RESULT
+ok   G4 one point wrote no fields       want=NOT A RESULT got=NOT A RESULT
+ok   planted reader control             want=EXERCISED-PASS got=EXERCISED-PASS
+SELFTEST PASS  failures=0
