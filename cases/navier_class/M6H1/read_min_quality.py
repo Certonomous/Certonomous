@@ -61,8 +61,12 @@ met the instrument **REFUSES (exit 2)** and grades nothing.
     The reader must NOT flag it.  A reader off by one column fails here.
   PLANT C -- DISCRIMINATION, "FIRST NEGATIVE ON THE LINE".  Put PLANT_NEG in the **CPU
     Time** column.  The reader must NOT flag it.  A regex-based reader fails here.
-  PLANT D -- DISCRIMINATION, COMMENT LINES.  Put PLANT_NEG inside the '#' header block.
-    The reader must NOT flag it, and must still find the header.
+  PLANT D -- DISCRIMINATION, COMMENT LINES.  Put PLANT_NEG on the RULE OF DASHES that
+    pyHyp prints above and below its header -- a '#' line carrying no '|' cells, so the
+    header's own column layout is untouched.  The reader must NOT flag it, and must still
+    resolve the header.  (Planting on the '# Grid | CPU | ...' line instead changes that
+    header's cell count, and the reader is CORRECT to refuse such a log as ambiguous; that
+    tests the wrong thing and is why this arm names the dash rule explicitly.)
   PLANT E -- DISCRIMINATION, THE STRICTNESS OF ">".  Set one layer's Min Quality to
     **exactly 0.00000**.  The reader must FAIL that layer.  A reader written with ">=" or
     with a tolerance passes here and is refused.
@@ -92,7 +96,13 @@ FIRST_MARCHED_LVL = 2          # pyHyp prints grid level 1 as the surface; march
 CHAIN = ['surfMesh.cgns', 'pyhyp.log', 'log.plot3dToFoam', 'log.checkMesh']
 RC_FILE = 'pyhyp_rc.txt'       # written by the lab's own launcher; 'PYHYP_RC=0' required
 # --- THE PLANTED CONSTANT --------------------------------------------------------------------
-PLANT_NEG = -1.234e-03         # the lab's planted magnitude, signed to be a FAILING value
+PLANT_NEG = -1.234e-02         # the lab's planted digits, signed to be a FAILING value, and
+                               # chosen to ROUND-TRIP EXACTLY through the Min Quality column's
+                               # own 5-decimal width: '%.5f' % PLANT_NEG == '-0.01234'.
+                               # At -1.234e-03 it did NOT: the cell was written '-0.00123' and
+                               # PLANT A then asserted 1e-9 equality against a value the format
+                               # had already truncated, so the arm could never hold and this
+                               # instrument REFUSED (exit 2) on every input, real or synthetic.
 # ---------------------------------------------------------------------------------------------
 
 HDR_RE = re.compile(r'^\s*#\s*(?:Grid|Lvl)\b')
@@ -264,8 +274,30 @@ def plant_into_log(src, dst, target_lvl, col, value, ncols):
         if int(t[0]) == target_lvl:
             a, b = _cell_slice(line, ncols, col)
             new = ('%.5f' % value) if abs(value) < 1e3 else ('%.4E' % value)
+            if float(new) != value:
+                raise ValueError("the planted value %r does not round-trip through the "
+                                 "column's own format: it would be written %r and read back "
+                                 "%r. A control that plants one number and asserts another "
+                                 "can never hold -- refuse rather than emit an arm that "
+                                 "always fails." % (value, new, float(new)))
             new = new.rjust(b - a)
-            lines[i] = line[:a] + new + line[b:]
+            cand = line[:a] + new + line[b:]
+            # ASSERT THE PLANT LANDED IN THE CELL IT NAMED, AND NOWHERE ELSE.  A negative
+            # value is one character wider than a positive one, so the cell may grow into
+            # its own leading separator; that is fine, and shifting a NEIGHBOUR is not.
+            ct = cand.split()
+            if len(ct) != ncols:
+                raise ValueError("planting into field %d of %r split the row into %d fields, "
+                                 "not %d -- the plant moved a column boundary and is no longer "
+                                 "a single-cell plant" % (col, src, len(ct), ncols))
+            if float(ct[col]) != value:
+                raise ValueError("planted %r into field %d but the row now reads %r there"
+                                 % (value, col, ct[col]))
+            for k in range(ncols):
+                if k != col and ct[k] != t[k]:
+                    raise ValueError("planting into field %d also changed field %d: %r -> %r"
+                                     % (col, k, t[k], ct[k]))
+            lines[i] = cand
             hit = i + 1
             break
     if hit is None:
@@ -276,13 +308,29 @@ def plant_into_log(src, dst, target_lvl, col, value, ncols):
 
 
 def plant_into_comment(src, dst):
+    """Plant the failing value into a comment line that carries NO '|' cells -- the rule of
+    dashes pyHyp prints above and below its header.
+
+    It used to be planted on the '# Grid | CPU | ...' line itself. That line IS the header,
+    so appending to it changed that header's '|'-cell count, resolve_columns() then saw two
+    DIFFERENT headers and raised "the column layout is ambiguous", and the arm recorded a
+    REFUSE. THE READER WAS RIGHT AND THE ARM WAS WRONG: a log whose two headers disagree
+    genuinely cannot be graded. PLANT D's job is to prove the reader ignores a negative
+    number sitting in a COMMENT, and that is what it now tests."""
     lines = open(src).read().splitlines()
+    hit = None
     for i, line in enumerate(lines):
-        if line.lstrip().startswith('#') and 'Grid' in line:
+        s = line.strip()
+        if s.startswith('#') and '|' not in s and set(s) <= set('#-'):
             lines[i] = line + ('   %.5f' % PLANT_NEG)
+            hit = i + 1
             break
+    if hit is None:
+        raise ValueError("no rule-of-dashes comment line to plant into in %s; PLANT D cannot "
+                         "be run and is therefore not silently skipped" % src)
     with open(dst, 'w') as f:
         f.write("\n".join(lines) + "\n")
+    return hit
 
 
 # ------------------------------------------------------------------ controls
@@ -293,7 +341,15 @@ def planted_controls(log_path):
     layers0, ncols, iq, _ = read_log(log_path)
     _, iv, = 0, iq + 1                       # Min Volume is the column after Min Quality
     ok0, bad0 = grade(layers0)
-    target = layers0[len(layers0) // 2][0]   # a mid-march layer, named in advance
+    # The plant target must be a layer that is NOT ALREADY FAILING: PLANT A asserts the
+    # failing-layer count goes up by exactly one, and planting on top of an existing failure
+    # leaves it unchanged. That collision made ARM 4 -- the strictness arm, whose whole point
+    # is a log with a failing layer -- fail for a reason that had nothing to do with the reader.
+    passing = [l for (l, q, _) in layers0 if q > MIN_QUALITY_FLOOR]
+    if not passing:
+        return False, ["REFUSE: every layer in this log already fails, so there is no layer to "
+                       "plant a NEW failure into and PLANT A cannot establish sensitivity."]
+    target = passing[len(passing) // 2]       # a mid-march PASSING layer, named in advance
     d = tempfile.mkdtemp(prefix='m6h1_minq_')
     try:
         # ---- PLANT A' : the withheld arm, written to disk with NO plant
@@ -342,7 +398,7 @@ def planted_controls(log_path):
 
         # ---- PLANT D : inside a comment line -- must NOT be seen, header must still resolve
         pd = os.path.join(d, 'plantD.log')
-        plant_into_comment(log_path, pd)
+        lnD = plant_into_comment(log_path, pd)
         try:
             ld, _, _, _ = read_log(pd)
             okD, badD = grade(ld)
@@ -350,8 +406,9 @@ def planted_controls(log_path):
             how = "%d failing layers, unchanged" % len(badD)
         except ValueError as e:
             cond_D, how = False, "reader raised %s" % e
-        msg.append("PLANT D  discrimination (same value appended to a '#' header line): %s -> %s"
-                   % (how, 'ok' if cond_D else 'REFUSE'))
+        msg.append("PLANT D  discrimination (same value appended to the rule-of-dashes comment "
+                   "at log line %d, which carries no '|' cells so the header is untouched): "
+                   "%s -> %s" % (lnD, how, 'ok' if cond_D else 'REFUSE'))
 
         # ---- PLANT E : exactly 0.0 must FAIL (the clause is '>', not '>=')
         pe = os.path.join(d, 'plantE.log')
