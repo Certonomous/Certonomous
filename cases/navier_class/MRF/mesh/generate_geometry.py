@@ -37,6 +37,23 @@ BAF_T   = 0.004
 BLADE_T = 0.004
 DISC_T  = 0.004
 
+# ---- MRF_R4 thin-feature OVERRIDE (inserted with an assert, never replacing the
+# values above -- CLAUDE.md rule 14). INERT unless MRF_FEATURE_THICKNESS_M is set
+# in the environment, so every existing call site reproduces byte-identical STLs.
+# R4 registers t = 0.00155 m (t/D = 0.0155), the impeller of Beshay et al. 2001
+# Table 1 small rig, against R1/R2's 0.004 m (t/D = 0.0400).
+_T_OVR = os.environ.get("MRF_FEATURE_THICKNESS_M")
+if _T_OVR is not None:
+    _t = float(_T_OVR)
+    assert 0.0005 <= _t <= 0.010, (
+        f"MRF_FEATURE_THICKNESS_M={_t} outside the registered admissible range "
+        "[0.0005, 0.010] m -- refusing rather than meshing a feature this "
+        "generator cannot honestly resolve")
+    BAF_T = BLADE_T = DISC_T = _t
+assert BAF_T == BLADE_T == DISC_T, (
+    "baffle, blade and disc thickness must stay equal: every registered "
+    "geometry in this family sets them together")
+
 NSEG = 64          # circumferential facets for round surfaces
 
 

@@ -207,3 +207,25 @@ either** — rule 12 requires the estimate in the frozen document, built from th
 `ET8000` actuals by whoever freezes it.
 
 *Revision 2 by a cfd `lab-lane`, 2026-09-12. NOT FROZEN. NOT LAUNCHED.*
+
+---
+
+## REVISION 3 NOTE — 2026-09-12, scope of Sanaa's ruling recorded
+
+Her ruling of this evening, relayed: *"we dont need to do the fine mesh conv,
+provided that we dont have exactly the same thickness or exactly same dimensions;
+if we do but we dont record the same values, thats an issue."*
+
+**What it drops:** the three-level re-run-from-zero grid family that §5's
+thickness rung was to sit behind. That family is **not drafted further, not frozen
+and not launched**. The thickness rung is now a **single-grid** run with its own
+document, `verification/campaign/MRF_R4_PREREGISTRATION.md`, which supersedes §5
+of this draft — **§5 is struck and left legible**, as the record of where the rung
+came from.
+
+**What it does NOT drop:** this zone sweep. It is a **sensitivity**, not a
+convergence family, and her ruling is about grid convergence. It stays drafted,
+unfrozen and unlaunched, **behind R4**, and its purpose is unchanged: a parameter
+with no sensitivity behind it is a default (L-561).
+
+*Revision 3 by a cfd `lab-lane`, 2026-09-12.*
