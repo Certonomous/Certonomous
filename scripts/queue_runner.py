@@ -80,6 +80,39 @@ INJECTED in --selftest (`tick(..., gpu_probe=fake)`) exactly as the box reading 
 controls and four planted failures, the mandatory one implementing the clause as a REFUSAL
 so control 1 must fail.
 
+LAUNCH-PRECONDITION GATES (2026-09-12, Sanaa's run instructions -- her items 1-10 and 17-19,
+quoted byte-exact in docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md).  Six gates sit
+between a validated entry and its launch:
+  A CHECKPOINT  the case's own system/controlDict or run script must give a restartable
+                write at <= 30 min wall (writeInterval <= 1800 s / the entry's registered
+                `iteration_rate_s`, or <= 200 iterations when no rate is registered), keep
+                the last two writes (purgeWrite >= 2), declare history + design vector +
+                hot-start for an optimisation -- AND the run script must NAME the registered
+                files -- and, for a transient, keep its averaging accumulator across a
+                restart.  REFUSES, naming the file and the failing limb.
+  B MEMORY      the entry's registered `memory_footprint_gb` must fit MemAvailable minus a
+                4 GiB fleet reserve, and must not be contradicted by a `/usr/bin/time -v`
+                peak sitting in the case's own directory.
+  C CORE        live solver ranks (counted off /proc) + 2 fleet cores + the entry's ranks
+                <= nproc.  HOLDS -- the entry belongs to the next wave.
+  D NO-ROOT     no sudo/doas/pkexec and no root `--user` in the launch line; a container
+                entry must carry a non-root uid.  The runner itself refuses to start at
+                euid 0.
+  E HYGIENE     no new launch while a run filesystem is over 85 %, loadavg(1) exceeds nproc,
+                or any solver process has VmSwap > 0.  A box-level condition: it holds the
+                whole tick.
+  F DETACHMENT  after a launch, every live process carrying that launch's own record path is
+                READ off /proc and must have PPID 1.  This VERIFIES the detachment launch()
+                already performs; it rewrites nothing.
+A PERMANENT property of the entry or of the case on disk REFUSES (consumed into refused/);
+a TRANSIENT property of the box HOLDS (the entry is untouched and retried).  That split is
+the RUNNER_GPU_CLAUSE finding applied to five more gates.  Gates C and E read the box through
+INJECTABLE probes (`ranks_probe`, `hygiene_probe` at the tick() call site), exactly as the
+busy % and the GPU probe do.  GATE_REGISTRY + gate_coverage_check() compare the registry
+against tick()'s OWN SOURCE at every daemon start and REFUSE on a gate that is defined but
+never called (CLAUDE.md rule 14).  `--selftest` drives one positive and at least one negative
+limb per gate, four of them end to end through tick().
+
 USAGE
     python3 scripts/queue_runner.py --daemon            # loop forever, 60 s ticks
     python3 scripts/queue_runner.py --once              # one tick, then exit
@@ -89,7 +122,9 @@ USAGE
 from __future__ import annotations
 
 import argparse
+import inspect
 import json
+import math
 import os
 import re
 import shutil
@@ -354,6 +389,697 @@ def gpu_gate_action(path: Path, message: str, log: Log) -> str:
     """
     log(f"HELD {path.name}: {message}")
     return "HOLD"
+
+
+# ============================================================ SANAA 2026-09-12 GATES
+# THE LAUNCH-PRECONDITION GATES.  Spec: docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md,
+# her items 1-4 (checkpoints), 6 (never root), 7 (memory), 8 (cores), 9 (detachment) and
+# 17-18 (box hygiene), quoted byte-exact in that file.  Her item 4 is the whole section in
+# one line: "The launcher refuses to start any case whose controlDict or run script does
+# not satisfy 1-3."
+#
+# THE ONE STRUCTURAL RULE THAT SHAPES ALL SIX, AND IT IS NOT NEW: a PERMANENT property of
+# the entry file or of the case on disk REFUSES (the entry is consumed into <team>/refused/,
+# because it is INVALID and will be invalid next tick too); a TRANSIENT property of the BOX
+# HOLDS (the entry is left byte-for-byte where it is and retried).  That is the
+# RUNNER_GPU_CLAUSE finding applied to five more gates -- "a resource-busy condition is a
+# WAIT, NEVER A CONSUMPTION" -- and it is load-bearing: consuming a frozen, costed
+# registration because the box was momentarily full is the most expensive failure this
+# runner can have.  So gates D, A and B's REGISTRATION limb refuse; gates C, E and B's FIT
+# limb hold.  Her item 7 says "refused if it does not fit"; this runner reads the operative
+# half of that word (it does not launch) and declines the destructive half.  THAT READING IS
+# THE LANE'S, IS LABELLED HERE, AND IS THE CHIEF'S TO OVERTURN.
+#
+# Every reading of the BOX is INJECTABLE at the tick() call site, exactly as the busy % and
+# the GPU probe already are, and for the same reason: a control that shelled out to the live
+# box would be load-flaky, and a flaky control is one users learn to re-run (L-339).
+FLEET_MEMORY_RESERVE_GB = 4.0      # her item 7, as briefed: MemAvailable minus this
+FLEET_CORE_RESERVE = 2             # her item 8, as briefed: ranks + this + entry <= nproc
+CHECKPOINT_WALL_BOUND_S = 1800.0   # her item 1: 30 minutes
+CHECKPOINT_DEFAULT_MAX_WRITE_INTERVAL = 200   # her item 1's fallback "if the rate is unknown"
+MIN_PURGE_WRITE = 2                # her item 1: "the last two checkpoints are kept"
+DISK_CEILING_PCT = 85.0            # her item 17
+DETACH_DEADLINE_S = 2.0            # how long gate F waits for a PPID it can read
+CONTAINER_RUNTIMES = frozenset({"docker", "podman", "nerdctl", "apptainer", "singularity"})
+MIN_NONROOT_UID = 1000
+# comm(2) truncates to 15 characters -- `buoyantBoussinesqSimpleFoam` reads as
+# `buoyantBoussine` -- so EVERY match below is made on the cmdline's basename, never on
+# comm.  A gate that silently stopped seeing long solver names would under-count ranks and
+# oversubscribe the box, which is the exact defect item 8 exists to prevent.
+SOLVER_BASENAME_RE = re.compile(r"(?:Foam|foam)$")
+SOLVER_EXTRA_BASENAMES = frozenset({"snappyHexMesh", "blockMesh", "refineMesh"})
+MPI_LAUNCHERS = frozenset({"mpirun", "mpiexec", "orterun", "srun"})
+
+
+# ------------------------------------------------------------------ OpenFOAM dict reading
+def _strip_foam_comments(text: str) -> str:
+    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+    return re.sub(r"//[^\n]*", " ", text)
+
+
+def foam_top_level_entries(path: Path) -> dict[str, str]:
+    """`key value;` statements at BRACE DEPTH ZERO of an OpenFOAM dictionary.
+
+    Depth matters and is the whole reason this is not a regex.  A controlDict's `functions`
+    block routinely carries its own `writeInterval 1;` for a functionObject, and a reader
+    that took the first match anywhere in the file would grade the checkpoint policy against
+    a functionObject's write frequency -- a number that has nothing to do with restartability.
+    First occurrence at depth 0 wins (OpenFOAM's own later-wins rule differs; a dictionary
+    carrying the key twice at top level is malformed for this purpose and the stricter
+    reading is the safe one here)."""
+    try:
+        raw = _strip_foam_comments(path.read_text(errors="replace"))
+    except OSError:
+        return {}
+    out: dict[str, str] = {}
+    depth = 0
+    buf: list[str] = []
+    for ch in raw:
+        if ch == "{":
+            depth += 1
+            buf = []
+        elif ch == "}":
+            depth = depth - 1 if depth > 0 else 0
+            buf = []
+        elif ch == ";":
+            if depth == 0:
+                stmt = " ".join("".join(buf).split())
+                parts = stmt.split(None, 1)
+                if len(parts) == 2 and re.match(r"^[A-Za-z_][A-Za-z0-9_.]*$", parts[0]):
+                    out.setdefault(parts[0], parts[1].strip())
+            buf = []
+        else:
+            buf.append(ch)
+    return out
+
+
+def _num(v, want_int: bool = False):
+    try:
+        f = float(str(v).strip())
+    except (TypeError, ValueError):
+        return None
+    if want_int:
+        return int(f) if float(int(f)) == f else None
+    return f
+
+
+# ------------------------------------------------------------------- GATE A: CHECKPOINTS
+def _restart_on_restart_offenders(cwd: Path) -> list[str]:
+    """Her item 3: "time-averaging accumulators are checkpointed with the fields".  A
+    functionObject that declares `restartOnRestart true` THROWS ITS ACCUMULATOR AWAY on
+    every restart, so a killed transient loses the whole averaging window, not 30 minutes
+    of it.  Only a positive declaration is a finding: silence is OpenFOAM's default of
+    `false`, which is the behaviour her item requires."""
+    bad: list[str] = []
+    sysdir = cwd / "system"
+    files = sorted(p for p in sysdir.glob("*") if p.is_file()) if sysdir.is_dir() else []
+    for p in files:
+        try:
+            if p.stat().st_size > 1_048_576:
+                continue
+            t = _strip_foam_comments(p.read_text(errors="replace"))
+        except OSError:
+            continue
+        if re.search(r"\brestartOnRestart\s+(?:yes|true|on|1)\s*;", t):
+            bad.append(p.name)
+    return bad
+
+
+def _checkpoint_openfoam(entry: dict, cwd: Path, cd: Path, declared: str) -> tuple[str, str]:
+    d = foam_top_level_entries(cd)
+    write_control = (d.get("writeControl") or "timeStep").strip()
+    wi = _num(d.get("writeInterval"))
+    pw = _num(d.get("purgeWrite"), want_int=True)
+    rate = _num(entry.get("iteration_rate_s"))
+    limbs: list[str] = []
+
+    if wi is None or wi <= 0:
+        return "REFUSE", (
+            f"gate A limb (i): {cd} carries no usable top-level `writeInterval` "
+            f"(read {d.get('writeInterval')!r}). With no write interval there is no "
+            f"restartable checkpoint at all, and an unevaluated policy is not a satisfied one.")
+    if rate is not None and rate > 0:
+        limit = CHECKPOINT_WALL_BOUND_S / rate
+        basis = (f"registered iteration_rate_s={rate:g} wall s per writeInterval unit -> "
+                 f"{CHECKPOINT_WALL_BOUND_S:.0f} s / {rate:g} = {limit:.1f} units")
+    elif write_control == "timeStep":
+        limit = float(CHECKPOINT_DEFAULT_MAX_WRITE_INTERVAL)
+        basis = ("no `iteration_rate_s` registered, so her item 1's fallback governs: "
+                 "'if the rate is unknown, checkpoint every 200 iterations until it is'")
+    else:
+        return "REFUSE", (
+            f"gate A limb (i): writeControl is {write_control!r} in {cd}, so `writeInterval` "
+            f"counts SIMULATED time, and the entry registers no `iteration_rate_s` (wall "
+            f"seconds per writeInterval unit). The 30-minute loss bound cannot be evaluated "
+            f"at all -- and the 200-iteration fallback is a bound on ITERATIONS and does not "
+            f"transfer to a runTime interval. Register `iteration_rate_s`.")
+    if wi > limit:
+        return "REFUSE", (
+            f"gate A limb (i): {cd} writeInterval {wi:g} exceeds {limit:.1f} ({basis}). A kill "
+            f"would lose more than the {CHECKPOINT_WALL_BOUND_S / 60:.0f} minutes of wall time "
+            f"her item 1 fixes as the bound.")
+    limbs.append(f"(i) writeInterval {wi:g} <= {limit:.1f} [{basis}]")
+
+    waiver = entry.get("purge_waiver")
+    if pw is None:
+        return "REFUSE", (f"gate A limb (ii): {cd} carries no top-level `purgeWrite` "
+                          f"(read {d.get('purgeWrite')!r}); her item 1 requires the last two "
+                          f"checkpoints kept and older ones purged.")
+    if pw >= MIN_PURGE_WRITE:
+        limbs.append(f"(ii) purgeWrite {pw} >= {MIN_PURGE_WRITE}")
+    elif pw == 0 and isinstance(waiver, str) and waiver.strip():
+        limbs.append(f"(ii) purgeWrite 0 (every write kept) WAIVED by the entry's registered "
+                     f"`purge_waiver`: {waiver.strip()[:120]}")
+    else:
+        return "REFUSE", (
+            f"gate A limb (ii): {cd} purgeWrite {pw} keeps fewer than the two checkpoints her "
+            f"item 1 requires. purgeWrite 0 means KEEP EVERYTHING, which satisfies "
+            f"restartability but is the disk defect of her item 17; it is accepted only when "
+            f"the entry carries a non-empty `purge_waiver` string saying why the full series is "
+            f"needed (a grading plateau series, for instance). That waiver is a REGISTERED "
+            f"declaration in the frozen entry, not a runner-side exemption.")
+
+    if declared == "openfoam-transient":
+        transient = True
+    elif declared == "openfoam-steady":
+        transient = False
+    else:
+        schemes = foam_top_level_entries(cwd / "system" / "fvSchemes")
+        raw_sch = ""
+        try:
+            raw_sch = _strip_foam_comments((cwd / "system" / "fvSchemes").read_text(errors="replace"))
+        except OSError:
+            raw_sch = ""
+        transient = "steadyState" not in raw_sch and bool(raw_sch)
+        del schemes
+    if transient:
+        bad = _restart_on_restart_offenders(cwd)
+        if bad:
+            return "REFUSE", (
+                f"gate A limb (iv): this is a TRANSIENT case and {', '.join(bad)} under "
+                f"{cwd / 'system'} declares `restartOnRestart true`, which DISCARDS the "
+                f"time-averaging accumulator on every restart. Her item 3 requires the "
+                f"accumulators checkpointed WITH the fields; a restart that loses the whole "
+                f"averaging window is not a 30-minute loss bound.")
+        limbs.append("(iv) transient: no functionObject under system/ discards its averaging "
+                     "accumulator on restart")
+    else:
+        limbs.append("(iv) steady: the transient loss bound does not apply")
+    return "PASS", "; ".join(limbs)
+
+
+def _checkpoint_optimisation(entry: dict, cwd: Path) -> tuple[str, str]:
+    """Her item 2: "Every optimization writes its history and design vector every iteration
+    and can hot-start from them."
+
+    THE MARKER IN THE ENTRY IS NOT ENOUGH ON ITS OWN and this is the point of the limb: an
+    entry can claim anything.  The registered history and design-vector filenames must also
+    APPEAR IN THE RUN SCRIPT THAT WOULD HAVE TO WRITE THEM.  A claim no artifact carries is
+    not a declaration."""
+    r = entry.get("restart")
+    if not isinstance(r, dict):
+        return "REFUSE", (
+            "gate A limb (iii): this is an OPTIMISATION entry and it carries no `restart` "
+            "object. Her item 2 requires the optimizer to write its history and design vector "
+            "every iteration and to hot-start from them; register "
+            '`restart: {"history": <path>, "design_vector": <path>, "hotstart": true}`.')
+    hist = str(r.get("history") or "").strip()
+    dvec = str(r.get("design_vector") or "").strip()
+    if r.get("hotstart") is not True:
+        return "REFUSE", (f"gate A limb (iii): `restart.hotstart` is {r.get('hotstart')!r} and "
+                          f"must be the boolean true -- a run that cannot hot-start has no "
+                          f"restart policy, whatever it writes.")
+    if not hist or not dvec:
+        return "REFUSE", (f"gate A limb (iii): `restart.history`={hist!r} and "
+                          f"`restart.design_vector`={dvec!r}; both must be non-empty paths.")
+    argv = [str(a) for a in (entry.get("launch_cmd") or [])]
+    kind, tok, _needs, _why = qec.launch_target(argv)
+    script = None
+    # "path-lookup" as well as "file": queue_entry_check reports a bare `run_opt.py` as a
+    # PATH lookup because its absence from the cwd would not prove it unfindable -- a correct
+    # reading for THAT instrument, which must not refuse on it. Here the question is the
+    # opposite one: is there a script in this case's own directory that carries the restart
+    # declaration? `cd '<cwd>' && python3 run_opt.py` resolves there first, so the cwd is
+    # where the coupling is checked, and a bare name that is NOT in the cwd falls through to
+    # the refusal below rather than passing unexamined.
+    if kind in ("file", "path-lookup") and tok:
+        pth = Path(tok)
+        cand = pth if pth.is_absolute() else (cwd / pth)
+        script = cand if cand.is_file() else None
+    if script is None or not script.is_file():
+        return "REFUSE", (
+            f"gate A limb (iii): the run script named by `launch_cmd` could not be resolved to "
+            f"a file on disk (launch_target read it as {kind!r}), so the entry's `restart` claim "
+            f"cannot be coupled to any artifact that would have to honour it. A claim nothing "
+            f"carries is not a declaration (standing rule 3).")
+    try:
+        text = script.read_text(errors="replace")
+    except OSError as exc:
+        return "REFUSE", f"gate A limb (iii): {script} could not be read ({exc})."
+    missing = [n for n in (Path(hist).name, Path(dvec).name) if n and n not in text]
+    if missing:
+        return "REFUSE", (
+            f"gate A limb (iii): the run script {script} never mentions {', '.join(missing)} -- "
+            f"the entry REGISTERS a history/design-vector restart the script does not appear to "
+            f"write. The marker and the artifact must agree before the optimizer starts, not "
+            f"after it is killed.")
+    return "PASS", (f"(iii) optimisation: restart.hotstart true, and {script.name} names both "
+                    f"the registered history {Path(hist).name!r} and design vector "
+                    f"{Path(dvec).name!r}")
+
+
+def checkpoint_gate(entry: dict) -> tuple[str, str]:
+    """GATE A -- her items 1-4. Returns ("PASS"|"REFUSE", detail naming the FILE and the LIMB)."""
+    cwd = Path(str(entry.get("cwd") or "/nonexistent"))
+    declared = str(entry.get("solver_class") or "").strip().lower()
+    cd = cwd / "system" / "controlDict"
+    if declared == "utility":
+        return "PASS", ("the entry DECLARES solver_class=utility -- not a solver run, so the "
+                        "checkpoint policy does not apply. The declaration sits in the frozen "
+                        "entry where it can be graded; silence would not have.")
+    if declared in ("optimisation", "optimization") or (
+            not declared and isinstance(entry.get("restart"), dict)):
+        return _checkpoint_optimisation(entry, cwd)
+    if cd.is_file():
+        return _checkpoint_openfoam(entry, cwd, cd, declared)
+    return "REFUSE", (
+        f"gate A: {cd} does not exist and the entry declares no `solver_class`, so neither the "
+        f"controlDict limb nor the optimisation limb can be evaluated. Her item 4 refuses a case "
+        f"whose policy does not SATISFY items 1-3, and an unevaluated policy is not a satisfied "
+        f"one. Declare `solver_class` as one of openfoam-steady / openfoam-transient / "
+        f"optimisation / utility.")
+
+
+# ----------------------------------------------------------------------- GATE B: MEMORY
+def measured_peak_rss_gb(cwd: Path, max_bytes: int = 262_144) -> float | None:
+    """The largest `Maximum resident set size (kbytes):` in a `/usr/bin/time -v` sidecar
+    sitting in the case's own directory, or None when there is no such sidecar.  None means
+    NO READING, never zero: a reader that found nothing must not be mistaken for a
+    measurement of nothing."""
+    if not cwd.is_dir():
+        return None
+    best: float | None = None
+    try:
+        candidates = sorted(p for p in cwd.glob("*") if p.is_file())
+    except OSError:
+        return None
+    for p in candidates:
+        n = p.name.lower()
+        if "time" not in n and "rss" not in n and "mem" not in n:
+            continue
+        try:
+            if p.stat().st_size > max_bytes:
+                continue
+            t = p.read_text(errors="replace")
+        except OSError:
+            continue
+        for m in re.finditer(r"Maximum resident set size \(kbytes\):\s*(\d+)", t):
+            v = int(m.group(1)) / (1024.0 * 1024.0)
+            best = v if best is None or v > best else best
+    return best
+
+
+def memory_gate(entry: dict, mem_available_gb: float,
+                reserve_gb: float = FLEET_MEMORY_RESERVE_GB,
+                sidecar_peak_gb: float | None = None) -> tuple[str, str]:
+    """GATE B -- her item 7. ("PASS"|"REFUSE"|"HOLD", detail).
+
+    REFUSE is for the ENTRY being wrong (no registered footprint, or a footprint its own run
+    directory already contradicts) -- permanent properties of the file.  HOLD is for the BOX
+    being full -- a transient property, and consuming a frozen registration over one would
+    destroy costed work."""
+    fp = entry.get("memory_footprint_gb")
+    if isinstance(fp, bool) or not isinstance(fp, (int, float)) or fp <= 0:
+        return "REFUSE", (
+            f"gate B: the entry registers no positive `memory_footprint_gb` (read {fp!r}). Her "
+            f"item 7 requires the case's footprint -- from its class table or its previous run's "
+            f"measured peak -- checked against free RAM BEFORE launch. An unregistered footprint "
+            f"cannot be checked against anything.")
+    peak = measured_peak_rss_gb(Path(str(entry.get("cwd") or "/nonexistent"))) \
+        if sidecar_peak_gb is None else float(sidecar_peak_gb)
+    if peak is not None and peak > float(fp):
+        return "REFUSE", (
+            f"gate B: a MEASURED peak of {peak:.2f} GB sits in this case's own directory in a "
+            f"`/usr/bin/time -v` sidecar, ABOVE the registered footprint {float(fp):.2f} GB. The "
+            f"registration is contradicted by evidence in its own run directory; re-register "
+            f"from the measurement rather than launching against a number the disk disproves.")
+    headroom = float(mem_available_gb) - float(reserve_gb)
+    if float(fp) > headroom:
+        return "HOLD", (
+            f"gate B: registered footprint {float(fp):.2f} GB > MemAvailable "
+            f"{float(mem_available_gb):.1f} GB - {float(reserve_gb):.0f} GB fleet reserve = "
+            f"{headroom:.1f} GB. HELD, NOT refused: free memory is a TRANSIENT property of the "
+            f"box, and moving a frozen costed entry into refused/ over one would destroy a "
+            f"registration (the RUNNER_GPU_CLAUSE rule -- a resource condition is a WAIT, never "
+            f"a consumption). The entry keeps its place and is retried next tick.")
+    evidence = (f"; no /usr/bin/time -v sidecar in the cwd to contradict it" if peak is None
+                else f"; measured sidecar peak {peak:.2f} GB is within it")
+    return "PASS", (f"registered footprint {float(fp):.2f} GB fits MemAvailable "
+                    f"{float(mem_available_gb):.1f} - {float(reserve_gb):.0f} = {headroom:.1f} GB"
+                    + evidence)
+
+
+# ------------------------------------------------------------------------ GATE C: CORES
+def probe_solver_ranks(proc_root: str = "/proc") -> dict:
+    """Live SOLVER RANKS on this box, counted off /proc.  One MPI rank is one process, so
+    the rank total is a PROCESS COUNT of solver executables; the mpirun/srun launcher is
+    NOT counted (it is a launcher, and its ranks are counted individually).  Container jobs
+    are counted at their `--cpus`, serial solvers at one.
+
+    Every match is on the CMDLINE BASENAME because comm(2) truncates at 15 characters.
+    Returns {"ranks": int, "detail": str} and is injectable at the tick() call site."""
+    ranks = 0
+    seen: list[str] = []
+    proc = Path(proc_root)
+    if not proc.is_dir():
+        return dict(ranks=0, detail="PROBE-FAILED: no /proc to read")
+    for d in sorted(proc.iterdir(), key=lambda p: p.name):
+        if not d.name.isdigit():
+            continue
+        try:
+            cmd = (d / "cmdline").read_bytes().decode("utf-8", "replace").replace("\x00", " ").strip()
+        except OSError:
+            continue
+        if not cmd:
+            continue
+        base = cmd.split(" ")[0].rsplit("/", 1)[-1]
+        if base in MPI_LAUNCHERS:
+            continue
+        if SOLVER_BASENAME_RE.search(base) or base in SOLVER_EXTRA_BASENAMES:
+            ranks += 1
+            seen.append(f"{base}({d.name})")
+            continue
+        if base in CONTAINER_RUNTIMES and re.search(r"\b(run|exec)\b", cmd):
+            m = re.search(r"--cpus[= ]([0-9.]+)", cmd)
+            n = int(math.ceil(float(m.group(1)))) if m else 1
+            ranks += n
+            seen.append(f"{base}:--cpus={n}({d.name})")
+            continue
+        # An OPTIMISATION DRIVER, and the shape is deliberately narrow: a python interpreter
+        # whose OWN script operand is a runScript/dafoam/mphys file. The first version matched
+        # the three words anywhere in any cmdline, and on this box it counted a passing agent
+        # process as a live solver rank -- a false rank inflates the wave and holds the queue
+        # for a condition that is not there.
+        if base in ("python", "python3") or re.match(r"^python3\.\d+$", base):
+            ops = [t.rsplit("/", 1)[-1] for t in cmd.split(" ")[1:] if t.endswith(".py")]
+            if any(re.match(r"^(runScript.*|.*dafoam.*|.*mphys.*)\.py$", o) for o in ops):
+                ranks += 1
+                seen.append(f"opt-driver({d.name})")
+    return dict(ranks=ranks, detail=", ".join(seen) if seen else "no solver process seen in /proc")
+
+
+def core_gate(entry: dict, live_ranks: int, ncpu: int,
+              reserve: int = FLEET_CORE_RESERVE) -> tuple[str, str]:
+    """GATE C -- her item 8: "solver ranks plus fleet processes never exceed 16 (or nproc).
+    Waves are scheduled, never oversubscribed."  HOLD, never refuse: this is a wave
+    condition, and the entry belongs in the next wave, not in refused/."""
+    want = int(entry.get("ranks", 0))
+    need = int(live_ranks) + int(reserve) + want
+    if need > int(ncpu):
+        return "HOLD", (
+            f"{int(live_ranks)} live solver rank(s) + {int(reserve)} fleet reserve + "
+            f"{want} entry rank(s) = {need} > nproc {int(ncpu)}. The entry WAITS for the next "
+            f"wave; waves are the runner's and are never oversubscribed (her item 8). It is not "
+            f"refused -- a full box is a transient condition, not an invalid entry.")
+    return "PASS", (f"{int(live_ranks)} live + {int(reserve)} reserve + {want} entry = {need} "
+                    f"<= nproc {int(ncpu)}")
+
+
+# ---------------------------------------------------------------------- GATE D: NO ROOT
+def _uid_of(value: str) -> str:
+    return str(value).split(":")[0].strip()
+
+
+def _declared_container_user(argv: list[str]) -> str | None:
+    for i, a in enumerate(argv):
+        if a in ("--user", "-u") and i + 1 < len(argv):
+            return argv[i + 1]
+        if a.startswith("--user="):
+            return a.split("=", 1)[1]
+        if a.startswith("-u") and len(a) > 2 and not a.startswith("-u-"):
+            return a[2:]
+    return None
+
+
+def root_gate(entry: dict) -> tuple[str, str]:
+    """GATE D -- her item 6: "As ubuntu. Never root. Container jobs included."  REFUSE: the
+    launch line is a permanent property of the entry file and will be no less root next tick."""
+    argv = [str(a) for a in (entry.get("launch_cmd") or [])]
+    for a in argv:
+        base = a.rsplit("/", 1)[-1]
+        if base in ("sudo", "doas", "pkexec"):
+            return "REFUSE", (f"gate D: the launch line carries {a!r}. Her item 6 is "
+                              f"'As ubuntu. Never root.' -- no privilege escalation in a queue "
+                              f"entry, container jobs included.")
+    user = _declared_container_user(argv)
+    if user is not None and _uid_of(user) in ("0", "root"):
+        return "REFUSE", (f"gate D: the launch line declares user {user!r}, which is root. "
+                          f"Her item 6: never root, container jobs included.")
+    runtimes = [a.rsplit("/", 1)[-1] for a in argv if a.rsplit("/", 1)[-1] in CONTAINER_RUNTIMES]
+    if runtimes and any(a in ("run", "exec", "create") for a in argv):
+        registered = entry.get("run_uid")
+        reg_ok = (isinstance(registered, int) and not isinstance(registered, bool)
+                  and registered > 0)
+        if user is None:
+            return "REFUSE", (
+                f"gate D: this is a container entry ({runtimes[0]}) and it carries no `-u` / "
+                f"`--user`. A container with no user runs as root INSIDE it by default, which is "
+                f"exactly what her item 6 closes -- 'Container jobs included.' Carry "
+                f"`-u 1000:1000` (ubuntu) or a registered non-root uid.")
+        uid = _uid_of(user)
+        numeric = _num(uid, want_int=True)
+        if numeric is not None and numeric >= MIN_NONROOT_UID:
+            return "PASS", f"container entry runs as uid {user!r} (>= {MIN_NONROOT_UID}), not root"
+        if reg_ok and numeric is not None and numeric == int(registered):
+            return "PASS", (f"container entry runs as uid {user!r}, the entry's REGISTERED "
+                            f"non-root `run_uid` {registered}")
+        return "REFUSE", (
+            f"gate D: container entry declares user {user!r}, which is neither a uid >= "
+            f"{MIN_NONROOT_UID} nor this entry's registered non-root `run_uid` "
+            f"({registered!r}). Her item 6, container jobs included.")
+    return "PASS", ("launch line carries no sudo/doas/pkexec and no root `--user`"
+                    + (f"; container runtime {runtimes[0]} runs as {user!r}" if runtimes else ""))
+
+
+def require_non_root_euid(euid: int) -> None:
+    """The runner itself, her item 6.  A runner running as root launches every case as root
+    no matter what gate D says about the argv, so this is checked at startup and REFUSES."""
+    if int(euid) == 0:
+        refuse("queue_runner is running with euid 0. Her item 6 (2026-09-12) is 'As ubuntu. "
+               "Never root.' A root runner launches every case as root whatever gate D reads "
+               "in the argv, so the runner refuses to start at all rather than gate what it "
+               "has already broken.")
+
+
+# --------------------------------------------------------------------- GATE E: HYGIENE
+def disk_percent(path: str) -> float | None:
+    """df(1) semantics: used / (used + available), so the root-reserved blocks are excluded
+    exactly as `df` excludes them and the number matches what a human reads off the box."""
+    try:
+        st = os.statvfs(path)
+    except OSError:
+        return None
+    used = st.f_blocks - st.f_bfree
+    denom = used + st.f_bavail
+    if denom <= 0:
+        return None
+    return 100.0 * used / denom
+
+
+def swap_offenders(proc_root: str = "/proc") -> list[dict]:
+    """Her item 18: "swap use above zero for solver jobs is a defect".  SOLVER jobs only --
+    a swapping editor or agent is not this gate's business, and counting one would stop the
+    queue for a condition her item does not name."""
+    out: list[dict] = []
+    proc = Path(proc_root)
+    if not proc.is_dir():
+        return out
+    for d in sorted(proc.iterdir(), key=lambda p: p.name):
+        if not d.name.isdigit():
+            continue
+        try:
+            cmd = (d / "cmdline").read_bytes().decode("utf-8", "replace").replace("\x00", " ").strip()
+        except OSError:
+            continue
+        if not cmd:
+            continue
+        base = cmd.split(" ")[0].rsplit("/", 1)[-1]
+        if not (SOLVER_BASENAME_RE.search(base) or base in SOLVER_EXTRA_BASENAMES
+                or base in MPI_LAUNCHERS):
+            continue
+        try:
+            status = (d / "status").read_text(errors="replace")
+        except OSError:
+            continue
+        m = re.search(r"^VmSwap:\s*(\d+)\s*kB", status, flags=re.M)
+        if m and int(m.group(1)) > 0:
+            out.append(dict(pid=int(d.name), name=base, vmswap_kb=int(m.group(1))))
+    return out
+
+
+def probe_hygiene(paths: list[str] | None = None, proc_root: str = "/proc") -> dict:
+    """The box reading gate E judges: disk % on the RUN filesystems, loadavg(1), and any
+    solver process with VmSwap > 0.  Injectable at the tick() call site."""
+    if paths is None:
+        paths = [str(REPO), str(DEFAULT_ROOT), "/home/ubuntu/certonomous-runs", "/"]
+    disks: list[dict] = []
+    seen_dev: set = set()
+    for p in paths:
+        pp = Path(p)
+        if not pp.exists():
+            continue
+        try:
+            dev = os.stat(pp).st_dev
+        except OSError:
+            continue
+        if dev in seen_dev:
+            continue
+        pct = disk_percent(str(pp))
+        if pct is None:
+            continue
+        seen_dev.add(dev)
+        disks.append(dict(path=str(pp), percent=pct))
+    try:
+        load1 = os.getloadavg()[0]
+    except OSError:
+        load1 = -1.0
+    return dict(load1=load1, disks=disks, swap=swap_offenders(proc_root),
+                ncpu=os.cpu_count() or 1)
+
+
+def hygiene_gate(reading: dict, ncpu: int) -> tuple[str, str]:
+    """GATE E -- her items 17-18. ("PASS"|"HOLD", detail).  FAILS CLOSED: a reading with no
+    filesystem in it, or a loadavg that could not be read, is HELD under a DISTINCT reason,
+    never read as a clean box (standing rule 3)."""
+    disks = list(reading.get("disks") or [])
+    if not disks:
+        return "HOLD", ("HYGIENE-PROBE-FAILED: no filesystem reading was obtained, so the 85 % "
+                        "disk ceiling was not evaluated. A probe that read nothing is not a box "
+                        "below the ceiling (standing rule 3). HELD.")
+    over = [d for d in disks if float(d.get("percent", 0.0)) > DISK_CEILING_PCT]
+    if over:
+        worst = max(over, key=lambda d: float(d["percent"]))
+        return "HOLD", (f"DISK: {worst['path']} is {float(worst['percent']):.1f} % full, above "
+                        f"the {DISK_CEILING_PCT:.0f} % ceiling. Her item 17: disk above 85 % is a "
+                        f"defect -- archive graded run trees and purge decompositions and "
+                        f"intermediate times, then launches resume. No entry is refused.")
+    load1 = float(reading.get("load1", -1.0))
+    if load1 < 0:
+        return "HOLD", ("HYGIENE-PROBE-FAILED: loadavg could not be read, so her item 18's load "
+                        "ceiling was not evaluated. HELD rather than assumed clear.")
+    if load1 > float(ncpu):
+        return "HOLD", (f"LOAD: loadavg(1) {load1:.2f} > nproc {int(ncpu)}. Her item 18: load "
+                        f"above core count is a defect and stops NEW launches until cleared. "
+                        f"Running work is untouched.")
+    sw = list(reading.get("swap") or [])
+    if sw:
+        names = ", ".join(f"{s['name']}(pid {s['pid']}, VmSwap {s['vmswap_kb']} kB)" for s in sw[:4])
+        return "HOLD", (f"SWAP: {len(sw)} solver process(es) are swapping -- {names}. Her item 18: "
+                        f"swap use above zero for solver jobs is a defect and stops new launches "
+                        f"until cleared.")
+    worst = max(disks, key=lambda d: float(d["percent"]))
+    return "PASS", (f"disk worst {worst['path']} {float(worst['percent']):.1f} % <= "
+                    f"{DISK_CEILING_PCT:.0f} %, loadavg(1) {load1:.2f} <= nproc {int(ncpu)}, "
+                    f"0 solver processes swapping")
+
+
+# ------------------------------------------------------------------ GATE F: DETACHMENT
+def detachment_verify(needle: str, runner_pid: int, deadline_s: float | None = None,
+                      proc_root: str = "/proc") -> tuple[str, str]:
+    """GATE F -- her item 9: "Detached under the runner: process, monitor and autograder
+    parented to init. The fleet dying, a supervisor ending, or an ssh session closing never
+    touches a solver."
+
+    THIS VERIFIES; IT DOES NOT REWRITE.  launch() already goes through `setsid nohup bash -c`
+    with start_new_session=True, and that is left exactly as it is.  What was missing is a
+    READING: PPID 1 was an argued property, not a measured one.  Verdicts:
+
+      "DETACHED"              every live process carrying this launch's own record path has
+                              PPID 1.
+      "ATTACHED"              one of them is still a child of the RUNNER at the deadline --
+                              the failure her item 9 names, and it would be silent otherwise.
+      "NOT-VERIFIED-EXITED"   nothing carrying that path was alive to read (a trivial argv
+                              finishes in milliseconds). NOT a pass: an unread PPID is not a
+                              verified one, and the word says so.
+      "NOT-VERIFIED-TRANSIENT" seen, but a non-1 PPID that is not the runner's was still
+                              present at the deadline (the intermediate `setsid` had not yet
+                              exited). NOT a pass either.
+
+    HONEST LIMIT, and it is the reason the word "monitor and autograder" does not appear in
+    the verdict: this reads the LAUNCH's own processes. A monitor or autograder started by
+    the case's launch script is a descendant of that detached session and inherits its
+    detachment, but it is not separately named here; if the script daemonises one some other
+    way, this reading does not see it."""
+    limit = DETACH_DEADLINE_S if deadline_s is None else float(deadline_s)
+    t_end = time.time() + limit
+    proc = Path(proc_root)
+    seen_any = False
+    last: list[tuple[int, int]] = []
+    while True:
+        found: list[tuple[int, int]] = []
+        if proc.is_dir():
+            for d in sorted(proc.iterdir(), key=lambda p: p.name):
+                if not d.name.isdigit() or int(d.name) == int(runner_pid):
+                    continue
+                try:
+                    cmd = (d / "cmdline").read_bytes().decode("utf-8", "replace").replace("\x00", " ")
+                    stat = (d / "stat").read_text(errors="replace")
+                except OSError:
+                    continue
+                if needle not in cmd:
+                    continue
+                tail = stat.rsplit(")", 1)
+                if len(tail) != 2:
+                    continue
+                fields = tail[1].split()
+                if len(fields) < 2 or not fields[1].lstrip("-").isdigit():
+                    continue
+                found.append((int(d.name), int(fields[1])))
+        if found:
+            seen_any = True
+            last = found
+            if all(ppid == 1 for _pid, ppid in found):
+                return "DETACHED", (
+                    f"every live process carrying this launch's own record path is parented to "
+                    f"init: " + ", ".join(f"pid {p}(ppid=1)" for p, _ in found))
+        if time.time() >= t_end:
+            break
+        time.sleep(0.05)
+    if not seen_any:
+        return "NOT-VERIFIED-EXITED", (
+            f"no process carrying {needle!r} was alive within {limit:.1f} s, so no PPID could be "
+            f"read. This is NOT a detachment pass: an unread PPID is not a verified one.")
+    if any(ppid == int(runner_pid) for _p, ppid in last):
+        return "ATTACHED", (
+            f"a process of this launch is still a CHILD OF THE RUNNER at the {limit:.1f} s "
+            f"deadline: " + ", ".join(f"pid {p}(ppid={q})" for p, q in last)
+            + ". Her item 9 requires it parented to init; the runner dying would take it down.")
+    return "NOT-VERIFIED-TRANSIENT", (
+        f"seen, but a non-1 PPID was still present at the {limit:.1f} s deadline: "
+        + ", ".join(f"pid {p}(ppid={q})" for p, q in last))
+
+
+# ------------------------------------------------- rule 14: inserted WITH an assert
+# "A lesson is not applied until EVERY call site asserts it" (L-221/L-222, CLAUDE.md rule
+# 14).  A gate that is DEFINED but never CALLED is the silent failure this check exists to
+# stop: the code reads as if the policy were enforced, the log says nothing, and the first
+# evidence is a case that should not have launched.  So the registry below is compared
+# against tick()'s OWN SOURCE at every daemon start, and a gap REFUSES the runner.
+GATE_REGISTRY = (
+    ("A CHECKPOINT (Sanaa 2026-09-12 items 1-4)", "checkpoint_gate"),
+    ("B MEMORY (item 7)", "memory_gate"),
+    ("C CORE (item 8)", "core_gate"),
+    ("D NO-ROOT (item 6)", "root_gate"),
+    ("E HYGIENE (items 17-18)", "hygiene_gate"),
+    ("F DETACHMENT (item 9)", "detachment_verify"),
+)
+
+
+def gate_coverage_check(source: str | None = None) -> list[str]:
+    """Every registered gate must be CALLED in tick(). Returns the gaps; empty is the pass."""
+    src = source if source is not None else inspect.getsource(tick)
+    return [f"{label}: {fn}() is registered in GATE_REGISTRY but tick() never calls it"
+            for label, fn in GATE_REGISTRY if (fn + "(") not in src]
 
 
 # --------------------------------------------------------------- root precondition
@@ -879,7 +1605,7 @@ def legacy_cursor_note(rr_state: dict) -> str | None:
 
 def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
          busy_window: float, rr_state: dict, launch_fn=launch, measure=None,
-         gpu_probe=None) -> str:
+         gpu_probe=None, hygiene_probe=None, ranks_probe=None) -> str:
     """One scheduling pass. Returns one of EMPTY / HELD / LAUNCHED / REFUSED-ONLY.
 
     `measure` is injectable: a callable returning (busy_percent, mem_available_gb).
@@ -887,6 +1613,10 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
     known values so its controls do not depend on the live box's load (2026-08-26:
     control 5b failed on a box at >= 94 % busy and passed on re-run -- the L-339
     class, a test users learn to re-run).
+
+    `hygiene_probe` (gate E) and `ranks_probe` (gate C) are injectable for the same reason
+    and return what probe_hygiene() and probe_solver_ranks() return. The daemon passes
+    nothing and reads /proc and statvfs.
 
     `gpu_probe` is injectable for the same reason and returns what probe_gpu() returns.
     The daemon passes nothing and reads the real device; on this CPU box that reading is
@@ -914,6 +1644,17 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
     # inferred. `rr_state` is process-local (created fresh in main(), never persisted),
     # so a restart already starts clean; this branch exists for an in-process caller
     # holding pre-repair state, and the selftest plants exactly that.
+    # GATE E (Sanaa 2026-09-12 items 17-18) -- a BOX-LEVEL condition, evaluated ONCE per
+    # tick and gating EVERY launch in it. HELD, never refused: disk, load and swap are
+    # transient properties of the box, and the entries are untouched. Logged on the PASS
+    # side too, because a gate that is quiet when it passes is indistinguishable from one
+    # that did not run.
+    hyg_reading = (probe_hygiene if hygiene_probe is None else hygiene_probe)()
+    hyg_verdict, hyg_msg = hygiene_gate(hyg_reading, ncpu)
+    if hyg_verdict != "PASS":
+        log(f"HELD (gate E box hygiene): {hyg_msg}")
+        return "HELD"
+    log(f"GATE-E hygiene PASS -- {hyg_msg}")
     note = legacy_cursor_note(rr_state)
     if note is not None:
         log(note)
@@ -922,6 +1663,7 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
     any_refused = False
     gpu_reading: dict | None = None      # probed at most once per tick, lazily
     gpu_live: list[str] = []
+    ranks_reading: dict | None = None    # gate C, probed at most once per tick, lazily
     for team in order:
         for path in queues[team]:
             entry, fails = qec.load_entry(path)
@@ -943,6 +1685,25 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
                 continue
             ranks = int(entry["ranks"])
             floor = float(entry.get("memory_floor_gb", 0.0))
+            case_id = str(entry["case_id"])
+            gate_notes: list[str] = []
+            # GATE D (her item 6, never root) -- a PERMANENT property of the entry's own
+            # launch line: REFUSED, because it will be no less root next tick.
+            d_verdict, d_msg = root_gate(entry)
+            if d_verdict != "PASS":
+                move_refused(path, [f"GATE D NO-ROOT: {d_msg}"], log)
+                any_refused = True
+                continue
+            gate_notes.append(f"D={d_msg}")
+            # GATE A (her items 1-4, checkpoints) -- a PERMANENT property of the case's own
+            # controlDict or run script: REFUSED. Her item 4 in one line: "The launcher
+            # refuses to start any case whose controlDict or run script does not satisfy 1-3."
+            a_verdict, a_msg = checkpoint_gate(entry)
+            if a_verdict != "PASS":
+                move_refused(path, [f"GATE A CHECKPOINT: {a_msg}"], log)
+                any_refused = True
+                continue
+            gate_notes.append(f"A={a_msg}")
             if busy >= busy_ceiling:
                 log(f"HELD {path.name}: busy {busy:.1f}% >= ceiling {busy_ceiling}%")
                 return "HELD"
@@ -955,6 +1716,28 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
             if mem < floor:
                 log(f"HELD {path.name}: MemAvailable {mem:.1f} GB < registered floor {floor} GB")
                 continue
+            # GATE C (her item 8, core guard) -- rank accounting over the WHOLE box, not the
+            # /proc/stat busy % the ceiling above uses. HOLD: the entry belongs to the next
+            # wave, never to refused/.
+            if ranks_reading is None:
+                ranks_reading = (probe_solver_ranks if ranks_probe is None else ranks_probe)()
+            c_verdict, c_msg = core_gate(entry, int(ranks_reading.get("ranks", 0)), ncpu)
+            if c_verdict != "PASS":
+                log(f"HELD {path.name}: gate C -- {c_msg} [live: "
+                    f"{ranks_reading.get('detail', '?')}]")
+                continue
+            gate_notes.append(f"C={c_msg}")
+            # GATE B (her item 7, memory guard). Its REGISTRATION limb refuses (a permanent
+            # property of the entry); its FIT limb holds (a transient property of the box).
+            b_verdict, b_msg = memory_gate(entry, mem)
+            if b_verdict == "REFUSE":
+                move_refused(path, [f"GATE B MEMORY: {b_msg}"], log)
+                any_refused = True
+                continue
+            if b_verdict != "PASS":
+                log(f"HELD {path.name}: gate B -- {b_msg}")
+                continue
+            gate_notes.append(f"B={b_msg}")
             if str(entry.get("gpu", "")).strip().lower() == GPU_EXCLUSIVE:
                 # THE GPU-EXCLUSIVITY CLAUSE (docs/standards/RUNNER_GPU_CLAUSE.md, 0699cb6b).
                 # It sits immediately above the ONLY launch site in this function, so "no
@@ -973,7 +1756,13 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
                 # INERT and PASS are both LOGGED: a clause that is quiet when absent is
                 # indistinguishable from a clause that is quiet when passing.
                 log(f"GPU-CLAUSE {path.name}: {gpu_verdict} -- {gpu_message}")
+            log(f"GATES {case_id}: " + " | ".join(gate_notes))
             launch_fn(entry, path, root, log)
+            # GATE F (her item 9, detachment). launch() ALREADY detaches; this VERIFIES it
+            # and does not rewrite it. The needle is the launch's own STATUS.queue.<case_id>
+            # path, which appears in the detached wrapper's cmdline and nowhere else.
+            f_verdict, f_msg = detachment_verify(f"STATUS.queue.{case_id}", os.getpid())
+            log(f"GATE-F detachment {case_id}: {f_verdict} -- {f_msg}")
             # The LAST-LAUNCHED TEAM NAME, never an index: see rotation_order().
             rr_state["last_team"] = team
             return "LAUNCHED"
@@ -997,6 +1786,21 @@ def selftest() -> int:
         print(("  ok   " if ok else "  FAIL ") + name + (f"  [{detail}]" if detail else ""))
 
     print("queue_runner.py --selftest (planted controls in a scratch root; nothing real is touched)")
+    # THE TWO NEW BOX READINGS ARE INJECTED FOR EVERY CONTROL BELOW, exactly as the busy %
+    # already is and for the same reason: gates C and E read the LIVE box, and a control
+    # whose verdict depends on what the fleet happens to be doing is one users learn to
+    # re-run (L-339). The dedicated gate C and E controls hand in their own readings through
+    # tick()'s parameters, which take precedence over these globals, and control G-REAL
+    # below drives the REAL probes so the injection is not covering a reader that cannot read.
+    _REAL_PROBE_HYGIENE = probe_hygiene
+    _REAL_PROBE_RANKS = probe_solver_ranks
+    globals()["probe_solver_ranks"] = lambda: dict(
+        ranks=0, detail="INJECTED selftest reading: no live solver rank")
+    globals()["probe_hygiene"] = lambda: dict(
+        load1=0.5, disks=[dict(path="/INJECTED", percent=10.0)], swap=[], ncpu=16)
+    # Gate F polls /proc for a readable PPID; 0.2 s keeps the ~20 launches below cheap. The
+    # dedicated gate F control passes its own deadline.
+    globals()["DETACH_DEADLINE_S"] = 0.2
     n_assert = _count_asserts()
     check("0 ast.Assert nodes in this file", n_assert == 0, f"found {n_assert}")
 
@@ -1029,10 +1833,15 @@ def selftest() -> int:
     # control 2: one valid entry whose argv is `true` -> exactly one launch, STATUS rc=0
     case_dir = tmp / "case_ok"
     case_dir.mkdir()
+    # `solver_class="utility"` and `memory_footprint_gb` are NOT decoration: gates A and B
+    # (Sanaa 2026-09-12) are preconditions for every launch, and a fixture that did not
+    # satisfy them would be REFUSED before it reached the control it exists to drive. An
+    # argv of `true` IS a utility, so the declaration is honest as well as necessary.
     good = dict(team="cfd", case_id="SELFTEST_OK", prereg_commit=head,
                 prereg_path="CLAUDE.md", launch_cmd=["true"], cwd=str(case_dir), ranks=1,
                 cost_core_min_estimate=0.01,
                 cost_basis="derived, not measured: selftest placeholder", memory_floor_gb=0.5,
+                solver_class="utility", memory_footprint_gb=0.5,
                 enqueued_by="queue_runner selftest")
     (root / "cfd" / "SELFTEST_OK.json").write_text(json.dumps(good))
     r = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
@@ -1374,7 +2183,8 @@ def selftest() -> int:
         e = dict(team="cfd", case_id=name, prereg_commit=head, prereg_path="CLAUDE.md",
                  launch_cmd=["true"], cwd=str(cdir), ranks=1, cost_core_min_estimate=0.01,
                  cost_basis="derived, not measured: selftest placeholder",
-                 memory_floor_gb=0.5, enqueued_by="queue_runner selftest")
+                 memory_floor_gb=0.5, solver_class="utility", memory_footprint_gb=0.5,
+                 enqueued_by="queue_runner selftest")
         if exclusive:
             e["gpu"] = "exclusive"
         p = groot / "cfd" / (name + ".json")
@@ -1933,6 +2743,332 @@ def selftest() -> int:
           r_ok == "LAUNCHED" and (d_ok / "STATUS.queue.SELFTEST_R5_ESC_OK").exists(),
           f"tick={r_ok}")
 
+    # ================================================= SANAA 2026-09-12 GATE CONTROLS
+    # One POSITIVE and at least one NEGATIVE limb per gate A-E, plus F and the rule-14
+    # coverage check. Every negative must be shown to REFUSE or HOLD; a gate whose negative
+    # passes is measuring nothing. The refusals are driven BOTH as functions and, for A, C,
+    # D and E, END TO END through tick(), so the routing (refused/ versus left in place) is
+    # exercised and not merely argued.
+    def _foam_case(name: str, write_interval="50", purge="2", steady=True,
+                   restart_on_restart=False, write_control="timeStep") -> Path:
+        """A minimal case whose system/controlDict carries a `functions` block with its OWN
+        `writeInterval 1;`. That sub-dictionary entry is the trap: a depth-blind reader would
+        grade the checkpoint policy against a functionObject's write frequency."""
+        d = tmp / ("gate_case_" + name)
+        (d / "system").mkdir(parents=True, exist_ok=True)
+        (d / "system" / "controlDict").write_text(
+            "FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }\n"
+            "application     simpleFoam;\n"
+            f"writeControl    {write_control};\n"
+            f"writeInterval   {write_interval};\n"
+            f"purgeWrite      {purge};\n"
+            "functions\n{\n    forces\n    {\n        type forces;\n"
+            "        writeControl timeStep;\n        writeInterval 1;\n"
+            "        purgeWrite 0;\n    }\n}\n")
+        (d / "system" / "fvSchemes").write_text(
+            "ddtSchemes { default " + ("steadyState" if steady else "Euler") + "; }\n")
+        if restart_on_restart:
+            (d / "system" / "fieldAverage").write_text(
+                "type fieldAverage;\nrestartOnRestart true;\n")
+        return d
+
+    def _entry_at(case_dir: Path, **kw) -> dict:
+        e = dict(good)
+        e["cwd"] = str(case_dir)
+        e.pop("solver_class", None)
+        e.update(kw)
+        return e
+
+    # ---- GATE A (her items 1-4): checkpoints
+    a_ok = _entry_at(_foam_case("A_OK"))
+    va, ma = checkpoint_gate(a_ok)
+    check("GATE A POSITIVE: writeInterval 50 (<= the 200-iteration fallback) and purgeWrite 2 "
+          "in a steady controlDict -> PASS, and the reader took the TOP-LEVEL writeInterval, "
+          "not the functionObject's 1",
+          va == "PASS" and "writeInterval 50" in ma and "purgeWrite 2" in ma, f"{va}: {ma[:90]}")
+    a_wide = _entry_at(_foam_case("A_WIDE", write_interval="5000"))
+    vaw, maw = checkpoint_gate(a_wide)
+    check("GATE A NEGATIVE (i): writeInterval 5000 with no registered rate -> REFUSE naming the "
+          "FILE and the LIMB. A depth-blind reader would have read the functionObject's 1 and "
+          "PASSED, so this limb also proves the depth rule",
+          vaw == "REFUSE" and "limb (i)" in maw and "system/controlDict" in maw
+          and "5000" in maw, f"{vaw}: {maw[:110]}")
+    check("GATE A POSITIVE (rate): writeInterval 60 at a registered 20 s/unit -> 60 <= 1800/20 "
+          "= 90 -> PASS", *(lambda v, m: (v == "PASS" and "1800 s / 20" in m, f"{v}: {m[:90]}"))(
+              *checkpoint_gate(_entry_at(_foam_case("A_RATE_OK", write_interval="60"),
+                                         iteration_rate_s=20.0))))
+    check("GATE A NEGATIVE (rate): the SAME writeInterval 60 at a registered 40 s/unit -> 60 > "
+          "1800/40 = 45 -> REFUSE. The control flips on the registered rate alone",
+          *(lambda v, m: (v == "REFUSE" and "limb (i)" in m and "45.0" in m, f"{v}: {m[:100]}"))(
+              *checkpoint_gate(_entry_at(_foam_case("A_RATE_BAD", write_interval="60"),
+                                         iteration_rate_s=40.0))))
+    a_purge = _entry_at(_foam_case("A_PURGE", purge="0"))
+    vap, map_ = checkpoint_gate(a_purge)
+    a_waiver = _entry_at(_foam_case("A_WAIVER", purge="0"),
+                         purge_waiver="the grader censuses a 40-checkpoint plateau series")
+    vaw2, maw2 = checkpoint_gate(a_waiver)
+    check("GATE A NEGATIVE (ii): purgeWrite 0 with no registered waiver -> REFUSE; the SAME "
+          "case with a registered `purge_waiver` -> PASS. The control flips on the waiver alone",
+          vap == "REFUSE" and "limb (ii)" in map_ and vaw2 == "PASS" and "WAIVED" in maw2,
+          f"no-waiver={vap} waiver={vaw2}")
+    a_trans = _entry_at(_foam_case("A_TRANS", steady=False, restart_on_restart=True))
+    vat, mat = checkpoint_gate(a_trans)
+    a_trans_ok = _entry_at(_foam_case("A_TRANS_OK", steady=False))
+    vato, mato = checkpoint_gate(a_trans_ok)
+    check("GATE A NEGATIVE (iv): a TRANSIENT case whose functionObject declares "
+          "`restartOnRestart true` discards its averaging accumulator -> REFUSE; the same "
+          "transient case without that line -> PASS",
+          vat == "REFUSE" and "limb (iv)" in vat + mat and vato == "PASS",
+          f"with={vat} without={vato}")
+    a_none = _entry_at(tmp / "gate_case_NOTHING")
+    (tmp / "gate_case_NOTHING").mkdir(exist_ok=True)
+    van, man = checkpoint_gate(a_none)
+    check("GATE A NEGATIVE (undeclared): no system/controlDict and no `solver_class` -> REFUSE; "
+          "an unevaluated policy is not a satisfied one",
+          van == "REFUSE" and "solver_class" in man, f"{van}: {man[:80]}")
+    # optimisation limb: the marker must be COUPLED to the run script
+    opt_dir = tmp / "gate_case_OPT"
+    opt_dir.mkdir(exist_ok=True)
+    (opt_dir / "run_opt.py").write_text(
+        "# writes opt_history.json and design_vector.json every iteration; hot-starts from them\n")
+    opt_ok = _entry_at(opt_dir, solver_class="optimisation",
+                       launch_cmd=["python3", "run_opt.py"],
+                       restart=dict(history="opt_history.json",
+                                    design_vector="design_vector.json", hotstart=True))
+    vo, mo = checkpoint_gate(opt_ok)
+    opt_bad = dict(opt_ok)
+    opt_bad["restart"] = dict(history="a_file_the_script_never_writes.json",
+                              design_vector="design_vector.json", hotstart=True)
+    vob, mob = checkpoint_gate(opt_bad)
+    opt_nohot = dict(opt_ok)
+    opt_nohot["restart"] = dict(history="opt_history.json",
+                                design_vector="design_vector.json", hotstart=False)
+    vonh, monh = checkpoint_gate(opt_nohot)
+    check("GATE A POSITIVE/NEGATIVE (iii, optimisation): the run script naming both registered "
+          "files -> PASS; a registered history the script never mentions -> REFUSE; "
+          "hotstart false -> REFUSE. A claim no artifact carries is not a declaration",
+          vo == "PASS" and vob == "REFUSE" and "never mentions" in mob and vonh == "REFUSE",
+          f"ok={vo} uncoupled={vob} nohot={vonh}")
+    # END TO END: gate A's refusal must route the entry into refused/ with its reason beside it
+    e2e_dir = _foam_case("A_E2E", write_interval="9999")
+    e2e = _entry_at(e2e_dir, case_id="SELFTEST_GATE_A_E2E")
+    (root / "cfd" / "SELFTEST_GATE_A_E2E.json").write_text(json.dumps(e2e))
+    ra = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
+    ref_txt = ((root / "cfd" / "refused" / "SELFTEST_GATE_A_E2E.REFUSED.txt").read_text()
+               if (root / "cfd" / "refused" / "SELFTEST_GATE_A_E2E.REFUSED.txt").exists() else "")
+    check("GATE A END TO END: a non-compliant case driven through tick() is REFUSED, moved to "
+          "refused/, and the reason file names the gate, the controlDict and the limb",
+          ra == "REFUSED-ONLY" and
+          (root / "cfd" / "refused" / "SELFTEST_GATE_A_E2E.json").exists() and
+          "GATE A CHECKPOINT" in ref_txt and "limb (i)" in ref_txt, f"tick={ra}")
+
+    # ---- GATE B (her item 7): memory
+    b_entry = _entry_at(_foam_case("B_OK"), memory_footprint_gb=17.0)
+    vb, mb = memory_gate(b_entry, 100.0)
+    check("GATE B POSITIVE: a registered 17 GB footprint against MemAvailable 100 GB minus the "
+          "4 GB fleet reserve -> PASS", vb == "PASS" and "96.0" in mb, f"{vb}: {mb[:80]}")
+    vbh, mbh = memory_gate(b_entry, 19.0)
+    check("GATE B NEGATIVE (fit): 17 GB against MemAvailable 19 GB - 4 GB reserve = 15 GB -> "
+          "HOLD, and the text says WHY it is held and not consumed into refused/",
+          vbh == "HOLD" and "never a consumption" in mbh, f"{vbh}: {mbh[:80]}")
+    b_missing = dict(b_entry)
+    b_missing.pop("memory_footprint_gb")
+    vbm, mbm = memory_gate(b_missing, 100.0)
+    check("GATE B NEGATIVE (registration): no `memory_footprint_gb` -> REFUSE. An unregistered "
+          "footprint cannot be checked against anything, and that is a property of the FILE",
+          vbm == "REFUSE" and "memory_footprint_gb" in mbm, f"{vbm}: {mbm[:80]}")
+    # the /usr/bin/time -v sidecar is READ, and the reading is shown able to see a non-zero
+    b_side = _foam_case("B_SIDECAR")
+    (b_side / "time_v.txt").write_text(
+        "\tCommand being timed: \"mpirun -np 4 simpleFoam\"\n"
+        "\tMaximum resident set size (kbytes): 20971520\n")
+    vbs, mbs = memory_gate(_entry_at(b_side, memory_footprint_gb=1.0), 100.0)
+    vbs2, mbs2 = memory_gate(_entry_at(b_side, memory_footprint_gb=30.0), 100.0)
+    check("GATE B NEGATIVE (sidecar): a `/usr/bin/time -v` peak of 20.0 GB on disk ABOVE the "
+          "registered 1 GB -> REFUSE; the SAME sidecar under a registered 30 GB -> PASS and "
+          "says the measured peak is within it. The reader is shown able to see both answers",
+          vbs == "REFUSE" and "20.00 GB" in mbs and vbs2 == "PASS" and "20.00 GB" in mbs2,
+          f"under={vbs} over={vbs2}")
+
+    # ---- GATE C (her item 8): cores
+    c_entry = _entry_at(_foam_case("C_OK"), ranks=4)
+    vc, mc = core_gate(c_entry, 0, 16)
+    check("GATE C POSITIVE: 0 live ranks + 2 fleet reserve + 4 entry ranks = 6 <= nproc 16 -> PASS",
+          vc == "PASS" and "= 6 <= nproc 16" in mc, f"{vc}: {mc[:70]}")
+    vch, mch = core_gate(c_entry, 12, 16)
+    check("GATE C NEGATIVE: 12 live + 2 reserve + 4 entry = 18 > nproc 16 -> HOLD (a wave "
+          "condition), never REFUSE",
+          vch == "HOLD" and "18 > nproc 16" in mch and "not refused" in mch, f"{vch}: {mch[:70]}")
+    c_e2e = _entry_at(_foam_case("C_E2E"), case_id="SELFTEST_GATE_C_E2E", ranks=4,
+                      solver_class="openfoam-steady")
+    (root / "cfd" / "SELFTEST_GATE_C_E2E.json").write_text(json.dumps(c_e2e))
+    n_before_c = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
+    rc_busy = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
+                   ranks_probe=lambda: dict(ranks=14, detail="INJECTED: 14 live ranks"))
+    still_c = (root / "cfd" / "SELFTEST_GATE_C_E2E.json").exists()
+    rc_free = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
+                   ranks_probe=lambda: dict(ranks=0, detail="INJECTED: idle box"))
+    n_after_c = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
+    check("GATE C END TO END: with 14 live ranks injected the 4-rank entry is HELD and STAYS "
+          "QUEUED (no LAUNCH_LOG row); with 0 live ranks the same entry LAUNCHES. The control "
+          "flips on the injected rank reading alone",
+          rc_busy == "HELD" and still_c and rc_free == "LAUNCHED" and n_after_c - n_before_c == 1,
+          f"busy={rc_busy} free={rc_free} rows={n_after_c - n_before_c}")
+
+    # ---- GATE D (her item 6): never root
+    vd, md = root_gate(dict(launch_cmd=["bash", "run.sh"]))
+    check("GATE D POSITIVE: a plain `bash run.sh` launch line -> PASS", vd == "PASS", md[:60])
+    for name, argv, want in (
+            ("sudo", ["sudo", "bash", "run.sh"], "REFUSE"),
+            ("--user 0:0", ["docker", "run", "--user", "0:0", "img"], "REFUSE"),
+            ("-u 0", ["docker", "run", "-u", "0", "img"], "REFUSE"),
+            ("container with no -u", ["docker", "run", "img"], "REFUSE"),
+            ("container -u 1000:1000", ["docker", "run", "-u", "1000:1000", "img"], "PASS")):
+        vdx, mdx = root_gate(dict(launch_cmd=argv))
+        check(f"GATE D {'NEGATIVE' if want == 'REFUSE' else 'POSITIVE'} ({name}) -> {want}",
+              vdx == want, f"{vdx}: {mdx[:70]}")
+    vdr, mdr = root_gate(dict(launch_cmd=["docker", "run", "-u", "500", "img"], run_uid=500))
+    vdr2, _mdr2 = root_gate(dict(launch_cmd=["docker", "run", "-u", "500", "img"]))
+    check("GATE D POSITIVE (registered uid): uid 500 is below the 1000 default and PASSES only "
+          "because the entry REGISTERS `run_uid` 500; the identical line without that "
+          "registration is REFUSED",
+          vdr == "PASS" and "REGISTERED" in mdr and vdr2 == "REFUSE",
+          f"registered={vdr} unregistered={vdr2}")
+    d_e2e = _entry_at(_foam_case("D_E2E"), case_id="SELFTEST_GATE_D_E2E",
+                      solver_class="openfoam-steady", launch_cmd=["sudo", "true"])
+    (root / "cfd" / "SELFTEST_GATE_D_E2E.json").write_text(json.dumps(d_e2e))
+    rd = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
+    dtxt = ((root / "cfd" / "refused" / "SELFTEST_GATE_D_E2E.REFUSED.txt").read_text()
+            if (root / "cfd" / "refused" / "SELFTEST_GATE_D_E2E.REFUSED.txt").exists() else "")
+    check("GATE D END TO END: a `sudo` launch line driven through tick() is REFUSED and moved "
+          "to refused/ with the reason naming the gate",
+          rd == "REFUSED-ONLY" and "GATE D NO-ROOT" in dtxt, f"tick={rd}")
+    euid_raised = ""
+    try:
+        require_non_root_euid(0)
+    except Refusal as exc:
+        euid_raised = str(exc)
+    euid_ok = ""
+    try:
+        require_non_root_euid(1000)
+    except Refusal as exc:
+        euid_ok = str(exc)
+    check("GATE D (the runner itself): euid 0 REFUSES the runner at startup, euid 1000 does not "
+          "-- a guard that refused both would not be a guard",
+          "euid 0" in euid_raised and euid_ok == "", f"root_refused={bool(euid_raised)}")
+
+    # ---- GATE E (her items 17-18): box hygiene
+    clean = dict(load1=1.0, disks=[dict(path="/", percent=48.0)], swap=[], ncpu=16)
+    ve, me = hygiene_gate(clean, 16)
+    check("GATE E POSITIVE: 48 % disk, loadavg 1.0 on 16 cores, nothing swapping -> PASS",
+          ve == "PASS" and "48.0 %" in me, f"{ve}: {me[:70]}")
+    for name, reading, word in (
+            ("disk 92 %", dict(clean, disks=[dict(path="/", percent=92.0)]), "DISK"),
+            ("loadavg 20 > 16", dict(clean, load1=20.0), "LOAD"),
+            ("a solver swapping", dict(clean, swap=[dict(pid=7, name="simpleFoam",
+                                                         vmswap_kb=4096)]), "SWAP"),
+            ("no filesystem read at all", dict(clean, disks=[]), "HYGIENE-PROBE-FAILED")):
+        vex, mex = hygiene_gate(reading, 16)
+        check(f"GATE E NEGATIVE ({name}) -> HOLD, logged as {word}",
+              vex == "HOLD" and word in mex, f"{vex}: {mex[:70]}")
+    e_e2e = _entry_at(_foam_case("E_E2E"), case_id="SELFTEST_GATE_E_E2E",
+                      solver_class="openfoam-steady")
+    (root / "cfd" / "SELFTEST_GATE_E_E2E.json").write_text(json.dumps(e_e2e))
+    n_before_e = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
+    re_dirty = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
+                    hygiene_probe=lambda: dict(load1=1.0, ncpu=16, swap=[],
+                                               disks=[dict(path="/INJECTED", percent=92.0)]))
+    still_e = (root / "cfd" / "SELFTEST_GATE_E_E2E.json").exists()
+    re_clean = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
+                    hygiene_probe=lambda: dict(load1=1.0, ncpu=16, swap=[],
+                                               disks=[dict(path="/INJECTED", percent=10.0)]))
+    n_after_e = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
+    check("GATE E END TO END: a 92 % disk reading HOLDS the whole tick (entry stays queued, no "
+          "LAUNCH_LOG row); a 10 % reading launches the same entry. The control flips on the "
+          "injected box reading alone",
+          re_dirty == "HELD" and still_e and re_clean == "LAUNCHED"
+          and n_after_e - n_before_e == 1,
+          f"dirty={re_dirty} clean={re_clean} rows={n_after_e - n_before_e}")
+    # G-REAL: the INJECTED readings above are not covering readers that cannot read. The REAL
+    # probes are driven once, against this box, and must return a shaped reading.
+    globals()["probe_hygiene"] = _REAL_PROBE_HYGIENE
+    globals()["probe_solver_ranks"] = _REAL_PROBE_RANKS
+    live_h = probe_hygiene()
+    live_r = probe_solver_ranks()
+    check("G-REAL: the REAL probes read this box -- at least one filesystem with a percentage "
+          "in (0, 100), a loadavg >= 0, and a rank count >= 0. The injected readings above are "
+          "not covering a reader that cannot read",
+          bool(live_h.get("disks")) and
+          all(0.0 < float(d["percent"]) < 100.0 for d in live_h["disks"]) and
+          float(live_h.get("load1", -1)) >= 0.0 and int(live_r.get("ranks", -1)) >= 0,
+          f"disks={[(d['path'], round(float(d['percent']), 1)) for d in live_h.get('disks', [])]} "
+          f"load1={live_h.get('load1')} ranks={live_r.get('ranks')} [{live_r.get('detail', '')[:40]}]")
+    globals()["probe_solver_ranks"] = lambda: dict(
+        ranks=0, detail="INJECTED selftest reading: no live solver rank")
+    globals()["probe_hygiene"] = lambda: dict(
+        load1=0.5, disks=[dict(path="/INJECTED", percent=10.0)], swap=[], ncpu=16)
+
+    # ---- GATE F (her item 9): detachment, VERIFIED and not merely argued
+    globals()["DETACH_DEADLINE_S"] = 4.0
+    f_dir = tmp / "gate_case_F"
+    f_dir.mkdir(exist_ok=True)
+    f_entry = dict(good)
+    f_entry["case_id"] = "SELFTEST_GATE_F"
+    f_entry["cwd"] = str(f_dir)
+    f_entry["launch_cmd"] = ["sleep", "6"]
+    (root / "cfd" / "SELFTEST_GATE_F.json").write_text(json.dumps(f_entry))
+    rf_tick = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
+    f_log_line = [ln for ln in (tmp / "runner.log").read_text().splitlines()
+                  if "GATE-F detachment SELFTEST_GATE_F:" in ln]
+    check("GATE F POSITIVE: a REAL launch that is still alive is read off /proc and every "
+          "process carrying its own record path has PPID 1 -> DETACHED, logged",
+          rf_tick == "LAUNCHED" and bool(f_log_line) and "DETACHED" in f_log_line[-1]
+          and "ppid=1" in f_log_line[-1],
+          f"tick={rf_tick} line={(f_log_line or [''])[-1][-90:]!r}")
+    # NEGATIVE: a synthetic /proc in which the launch is still a CHILD OF THE RUNNER. The
+    # reading, not the wording, is what the verdict turns on.
+    fake_proc = tmp / "fake_proc"
+    (fake_proc / "4242").mkdir(parents=True, exist_ok=True)
+    (fake_proc / "4242" / "cmdline").write_bytes(
+        b"bash\x00-c\x00cd /x && true > /x/STATUS.queue.SELFTEST_GATE_F\x00")
+    (fake_proc / "4242" / "stat").write_text(
+        f"4242 (bash) S {os.getpid()} 4242 4242 0 -1 4194304 100 0 0 0 1 1 0 0 20 0 1 0 99\n")
+    vf_att, mf_att = detachment_verify("STATUS.queue.SELFTEST_GATE_F", os.getpid(),
+                                       deadline_s=0.3, proc_root=str(fake_proc))
+    (fake_proc / "4242" / "stat").write_text(
+        "4242 (bash) S 1 4242 4242 0 -1 4194304 100 0 0 0 1 1 0 0 20 0 1 0 99\n")
+    vf_det, mf_det = detachment_verify("STATUS.queue.SELFTEST_GATE_F", os.getpid(),
+                                       deadline_s=0.3, proc_root=str(fake_proc))
+    vf_none, mf_none = detachment_verify("STATUS.queue.A_NEEDLE_NOTHING_CARRIES", os.getpid(),
+                                         deadline_s=0.2, proc_root=str(fake_proc))
+    check("GATE F NEGATIVE: the SAME reader against a /proc where the launch's PPID is the "
+          "RUNNER'S -> ATTACHED; flip that one field to 1 -> DETACHED; a needle nothing "
+          "carries -> NOT-VERIFIED-EXITED, which is NOT a pass",
+          vf_att == "ATTACHED" and str(os.getpid()) in mf_att and vf_det == "DETACHED"
+          and vf_none == "NOT-VERIFIED-EXITED" and "not a verified one" in mf_none,
+          f"attached={vf_att} detached={vf_det} absent={vf_none}")
+    globals()["DETACH_DEADLINE_S"] = 0.2
+
+    # ---- RULE 14: the gates are INSERTED WITH AN ASSERT, not merely defined
+    gaps_now = gate_coverage_check()
+    gaps_blind = gate_coverage_check(source="def tick(): return 'EMPTY'")
+    check("RULE 14 coverage: every gate in GATE_REGISTRY is CALLED in tick() (0 gaps), and the "
+          "SAME check against a tick() that calls none of them reports all "
+          f"{len(GATE_REGISTRY)} -- a gate defined but never called reads exactly like an "
+          "enforced one, and this is what refuses the daemon at startup",
+          gaps_now == [] and len(gaps_blind) == len(GATE_REGISTRY),
+          f"gaps_now={gaps_now} blind={len(gaps_blind)}")
+    real_registry = GATE_REGISTRY
+    try:
+        globals()["GATE_REGISTRY"] = real_registry + (("Z PLANTED", "a_gate_nobody_calls"),)
+        gaps_planted = gate_coverage_check()
+    finally:
+        globals()["GATE_REGISTRY"] = real_registry
+    check("RULE 14 mutation: a registered gate that tick() does not call is REPORTED by name "
+          "-- the check can distinguish a wired gate from an unwired one",
+          len(gaps_planted) == 1 and "a_gate_nobody_calls" in gaps_planted[0],
+          f"gaps={gaps_planted}")
+
     shutil.rmtree(tmp)  # scratch root only, created by mkdtemp above
     n_fail = sum(1 for _, ok, _ in checks if not ok)
     if n_fail:
@@ -1960,8 +3096,16 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--core-fraction", type=float, default=0.9)
     ap.add_argument("--interval", type=float, default=60.0)
     a = ap.parse_args(argv)
+    # HER ITEM 6, ABOUT THIS PROCESS ITSELF, before anything else can be decided: a runner
+    # with euid 0 launches every case as root whatever gate D reads in an argv.
+    require_non_root_euid(os.geteuid())
     if a.selftest:
         return selftest()
+    # RULE 14: a gate DEFINED but never CALLED reads exactly like an enforced one. Checked
+    # against tick()'s own source at every start; a gap refuses the runner.
+    gaps = gate_coverage_check()
+    if gaps:
+        refuse("GATE COVERAGE: " + "; ".join(gaps))
     if not (a.daemon or a.once):
         ap.print_help()
         return 1
