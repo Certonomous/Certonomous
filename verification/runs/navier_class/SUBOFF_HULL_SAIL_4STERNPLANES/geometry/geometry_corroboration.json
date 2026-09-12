@@ -1,0 +1,273 @@
+{
+  "tolerance_m": 0.0001,
+  "rows": [
+    {
+      "quantity": "hull overall length",
+      "source": "Liu & Huang 1998 p.2 (image): 14.2917 ft (4.356 m); Groves Table 1",
+      "expected_m": 4.3561001016,
+      "measured_m": 4.356100102,
+      "delta_m": 4.000000330961484e-10,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "hull maximum radius",
+      "source": "Groves Appendix C (image, report p.62): PARAMETER RMAX = 0.833333 ft",
+      "expected_m": 0.254,
+      "measured_m": 0.254000000049686,
+      "delta_m": 4.9685977554503324e-11,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "hull radius at the aft perpendicular x = 13.979167 ft",
+      "source": "Groves Table 1 (image, report p.4): afterbody cap begins at R = rh*Rmax with rh = 0.1175, i.e. 0.0979167 ft",
+      "expected_m": 0.029845,
+      "measured_m": 0.02984499717515753,
+      "delta_m": -2.824842471049749e-09,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "sail leading edge x",
+      "source": "Liu & Huang 1998 p.2 (image): x = 3.0330 ft (0.924 m); Groves p.6: 3.032986",
+      "expected_m": 0.9244541328000001,
+      "measured_m": 0.9244541328,
+      "delta_m": -1.1102230246251565e-16,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "sail cap apex height y = 1.507813 + 0.109375/2 ft",
+      "source": "Groves Table 2 (image, report p.7-8): cap z2 = [z1^2 - (2(y-1.507813))^2]^(1/2), valid to y = z1/2 + 1.507813, with Zmax = 0.109375 ft",
+      "expected_m": 0.47625015240000007,
+      "measured_m": 0.4762501524,
+      "delta_m": -5.551115123125783e-17,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin000_upper_rudder: tip radius (span extent)",
+      "source": "Groves Appendix C (image, report p.62-65): IF(RR.GT.RMAX) RR = RMAX, RMAX = 0.833333 ft",
+      "expected_m": 0.254,
+      "measured_m": 0.254,
+      "delta_m": 0.0,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin000_upper_rudder: trailing edge x at the tip (truncated at 0.98 c)",
+      "source": "Groves Table 3 (image, report p.14): h = 13.146284 ft = BASELINE, minus departure D1",
+      "expected_m": 4.0039393632,
+      "measured_m": 4.003939363,
+      "delta_m": -2.000000165480742e-10,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin000_upper_rudder: leading edge x at the tip",
+      "source": "Groves Table 3 (image, report p.14): x_LE = h - c(y), c(y) = -0.466308 y + 0.88859",
+      "expected_m": 3.8545873632000003,
+      "measured_m": 3.854587363,
+      "delta_m": -2.0000046063728405e-10,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin000_upper_rudder: chord at the tip",
+      "source": "Groves Table 3 (image, report p.14): c(0.833333) = 0.500000 ft exactly",
+      "expected_m": 0.1524,
+      "measured_m": 0.15239999999999992,
+      "delta_m": -8.326672684688674e-17,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin000_upper_rudder: maximum FULL thickness at the tip",
+      "source": "Groves Table 3 (image, report p.14): 2 max(z/c) = 0.20006 at xi = 0.2997",
+      "expected_m": 0.030488780235307142,
+      "measured_m": 0.03048845806,
+      "delta_m": -3.221753071408484e-07,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin000_upper_rudder: azimuth 0 deg placement (max off-plane excursion = max half-thickness at the root)",
+      "source": "Groves report p.6 (image): four identical appendages at 0, 90, 180, 270 deg",
+      "expected_m": 0.025670309015895013,
+      "measured_m": 0.02567003775,
+      "delta_m": -2.712658950139446e-07,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin090_horizontal: tip radius (span extent)",
+      "source": "Groves Appendix C (image, report p.62-65): IF(RR.GT.RMAX) RR = RMAX, RMAX = 0.833333 ft",
+      "expected_m": 0.254,
+      "measured_m": 0.254,
+      "delta_m": 0.0,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin090_horizontal: trailing edge x at the tip (truncated at 0.98 c)",
+      "source": "Groves Table 3 (image, report p.14): h = 13.146284 ft = BASELINE, minus departure D1",
+      "expected_m": 4.0039393632,
+      "measured_m": 4.003939363,
+      "delta_m": -2.000000165480742e-10,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin090_horizontal: leading edge x at the tip",
+      "source": "Groves Table 3 (image, report p.14): x_LE = h - c(y), c(y) = -0.466308 y + 0.88859",
+      "expected_m": 3.8545873632000003,
+      "measured_m": 3.854587363,
+      "delta_m": -2.0000046063728405e-10,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin090_horizontal: chord at the tip",
+      "source": "Groves Table 3 (image, report p.14): c(0.833333) = 0.500000 ft exactly",
+      "expected_m": 0.1524,
+      "measured_m": 0.15239999999999992,
+      "delta_m": -8.326672684688674e-17,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin090_horizontal: maximum FULL thickness at the tip",
+      "source": "Groves Table 3 (image, report p.14): 2 max(z/c) = 0.20006 at xi = 0.2997",
+      "expected_m": 0.030488780235307142,
+      "measured_m": 0.03048845806,
+      "delta_m": -3.221753071408484e-07,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin090_horizontal: azimuth 90 deg placement (max off-plane excursion = max half-thickness at the root)",
+      "source": "Groves report p.6 (image): four identical appendages at 0, 90, 180, 270 deg",
+      "expected_m": 0.025670309015895013,
+      "measured_m": 0.025670037750000003,
+      "delta_m": -2.7126589501047516e-07,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin180_lower_rudder: tip radius (span extent)",
+      "source": "Groves Appendix C (image, report p.62-65): IF(RR.GT.RMAX) RR = RMAX, RMAX = 0.833333 ft",
+      "expected_m": 0.254,
+      "measured_m": 0.254,
+      "delta_m": 0.0,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin180_lower_rudder: trailing edge x at the tip (truncated at 0.98 c)",
+      "source": "Groves Table 3 (image, report p.14): h = 13.146284 ft = BASELINE, minus departure D1",
+      "expected_m": 4.0039393632,
+      "measured_m": 4.003939363,
+      "delta_m": -2.000000165480742e-10,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin180_lower_rudder: leading edge x at the tip",
+      "source": "Groves Table 3 (image, report p.14): x_LE = h - c(y), c(y) = -0.466308 y + 0.88859",
+      "expected_m": 3.8545873632000003,
+      "measured_m": 3.854587363,
+      "delta_m": -2.0000046063728405e-10,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin180_lower_rudder: chord at the tip",
+      "source": "Groves Table 3 (image, report p.14): c(0.833333) = 0.500000 ft exactly",
+      "expected_m": 0.1524,
+      "measured_m": 0.15239999999999992,
+      "delta_m": -8.326672684688674e-17,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin180_lower_rudder: maximum FULL thickness at the tip",
+      "source": "Groves Table 3 (image, report p.14): 2 max(z/c) = 0.20006 at xi = 0.2997",
+      "expected_m": 0.030488780235307142,
+      "measured_m": 0.03048845806,
+      "delta_m": -3.221753071408484e-07,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin180_lower_rudder: azimuth 180 deg placement (max off-plane excursion = max half-thickness at the root)",
+      "source": "Groves report p.6 (image): four identical appendages at 0, 90, 180, 270 deg",
+      "expected_m": 0.025670309015895013,
+      "measured_m": 0.025670037750000003,
+      "delta_m": -2.7126589501047516e-07,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin270_horizontal: tip radius (span extent)",
+      "source": "Groves Appendix C (image, report p.62-65): IF(RR.GT.RMAX) RR = RMAX, RMAX = 0.833333 ft",
+      "expected_m": 0.254,
+      "measured_m": 0.254,
+      "delta_m": 0.0,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin270_horizontal: trailing edge x at the tip (truncated at 0.98 c)",
+      "source": "Groves Table 3 (image, report p.14): h = 13.146284 ft = BASELINE, minus departure D1",
+      "expected_m": 4.0039393632,
+      "measured_m": 4.003939363,
+      "delta_m": -2.000000165480742e-10,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin270_horizontal: leading edge x at the tip",
+      "source": "Groves Table 3 (image, report p.14): x_LE = h - c(y), c(y) = -0.466308 y + 0.88859",
+      "expected_m": 3.8545873632000003,
+      "measured_m": 3.854587363,
+      "delta_m": -2.0000046063728405e-10,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin270_horizontal: chord at the tip",
+      "source": "Groves Table 3 (image, report p.14): c(0.833333) = 0.500000 ft exactly",
+      "expected_m": 0.1524,
+      "measured_m": 0.15239999999999992,
+      "delta_m": -8.326672684688674e-17,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin270_horizontal: maximum FULL thickness at the tip",
+      "source": "Groves Table 3 (image, report p.14): 2 max(z/c) = 0.20006 at xi = 0.2997",
+      "expected_m": 0.030488780235307142,
+      "measured_m": 0.03048845806,
+      "delta_m": -3.221753071408484e-07,
+      "verdict": "MATCH"
+    },
+    {
+      "quantity": "fin270_horizontal: azimuth 270 deg placement (max off-plane excursion = max half-thickness at the root)",
+      "source": "Groves report p.6 (image): four identical appendages at 0, 90, 180, 270 deg",
+      "expected_m": 0.025670309015895013,
+      "measured_m": 0.025670037750000006,
+      "delta_m": -2.712658950070057e-07,
+      "verdict": "MATCH"
+    }
+  ],
+  "fins": {
+    "fin000_upper_rudder": {
+      "azimuth_deg": 0.0,
+      "x_min_m": 3.750358199,
+      "x_max_m": 4.003939363,
+      "span_max_m": 0.254,
+      "span_min_m": 0.03048,
+      "half_thk_max_m": 0.02567003775
+    },
+    "fin090_horizontal": {
+      "azimuth_deg": 90.0,
+      "x_min_m": 3.750358199,
+      "x_max_m": 4.003939363,
+      "span_max_m": 0.254,
+      "span_min_m": 0.03048,
+      "half_thk_max_m": 0.025670037750000003
+    },
+    "fin180_lower_rudder": {
+      "azimuth_deg": 180.0,
+      "x_min_m": 3.750358199,
+      "x_max_m": 4.003939363,
+      "span_max_m": 0.254,
+      "span_min_m": 0.030479999999999997,
+      "half_thk_max_m": 0.025670037750000003
+    },
+    "fin270_horizontal": {
+      "azimuth_deg": 270.0,
+      "x_min_m": 3.750358199,
+      "x_max_m": 4.003939363,
+      "span_max_m": 0.254,
+      "span_min_m": 0.030479999999999997,
+      "half_thk_max_m": 0.025670037750000006
+    }
+  },
+  "n_checks": 29,
+  "n_mismatch": 0
+}

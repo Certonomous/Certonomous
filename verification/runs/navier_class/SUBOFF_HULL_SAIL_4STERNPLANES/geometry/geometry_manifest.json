@@ -1,0 +1,133 @@
+{
+  "configuration_named_by_geometry": "DARPA SUBOFF axisymmetric hull WITH bridge fairwater (sail) at top dead centre AND four identical stern appendages at the BASELINE axial position; NO ring wing, NO ring-wing support struts",
+  "configuration_labels_as_printed_in_each_report": {
+    "roddy_1990_DTRC_SHD_1298_08_table3_p17_p18": "NOT this body.  Roddy's 'FULLY APPENDED' (Configurations 1 and 2) is 'FULLY APPENDED WITH RING WING NO. 1'.",
+    "liu_huang_1998_CRDKNSWC_HD_1298_11_p6_towing_tank_list": "'Config. 8  Hull with sail and four stern appendages' -- THIS BODY",
+    "liu_huang_1998_table14_p23_config_no_column": "'8  Fully Appended' -- THIS BODY",
+    "WARNING": "Roddy Config 1 = fully appended; Liu and Huang Config 1 = bare hull.  Never cite a configuration by a bare number."
+  },
+  "source": "Groves, Huang, Chang 1989, DTRC/SHD-1298-01 (AD-A210 642)",
+  "source_pdf": "docs/papers/benchmark_test_cases/groves_1989_dtrc_shd1298_darpa_suboff_geometry.pdf",
+  "title_page_verified_by": "RENDERED IMAGE of PDF page 1, cfd lab-lane 2026-09-12",
+  "stern_appendage_source_pages_report": {
+    "narrative_four_at_0_90_180_270": 6,
+    "table_3_equations": 14,
+    "figure_5_axial_positions": 11,
+    "figure_6_section_profile": 13,
+    "appendix_C_fortran_listing": "62-65"
+  },
+  "units_emitted": "metres (source is feet, x0.3048)",
+  "hull": {
+    "n_tris": 355840,
+    "sha256": "0560a975d26c34ba044406f93e317e337e215f65df2013a297af73d546af0185",
+    "L_ft": 14.291667,
+    "L_m": 4.3561001016,
+    "Rmax_ft": 0.8333333333333334,
+    "Dmax_m": 0.508
+  },
+  "sail": {
+    "n_tris": 225196,
+    "sha256": "a1a44f6ce01f99b1eb2f9b18c596fdcfde866b7fb355b33f54d3417de7e620bf",
+    "LE_ft": 3.032986,
+    "TE_ft_reference": 4.241319
+  },
+  "stern_appendages": {
+    "count": 4,
+    "azimuths_deg": [
+      0.0,
+      90.0,
+      180.0,
+      270.0
+    ],
+    "h_trailing_edge_ft": 13.146284,
+    "h_trailing_edge_m": 4.0069873632,
+    "h_label_in_source": "BASELINE",
+    "chord_coefficients": {
+      "slope": -0.466308,
+      "intercept": 0.88859
+    },
+    "section_coefficients": [
+      0.2969,
+      -0.126,
+      -0.3516,
+      0.2852,
+      -0.1045
+    ],
+    "self_check_coefficient_sum": -1.3877787807814457e-17,
+    "self_check_tip_chord_ft": 0.5,
+    "self_check_max_t_over_c_full": 0.20005761342439868,
+    "self_check_xi_at_max_thickness": 0.29972000000070026,
+    "tip_radius_ft": 0.8333333333333334,
+    "tip_radius_m": 0.254,
+    "tip_chord_ft": 0.5,
+    "tip_chord_m": 0.1524,
+    "root_radius_at_TE_ft": 0.27127772263827854,
+    "root_radius_at_TE_m": 0.08268544986014731,
+    "root_chord_at_TE_station_ft": 0.7620910277119897,
+    "root_chord_at_TE_station_m": 0.23228534524661446,
+    "exposed_span_ft": 0.5620556106950548,
+    "exposed_span_m": 0.17131455013985272,
+    "exposed_planform_area_one_fin_ft2": 0.35468267166670586,
+    "exposed_planform_area_one_fin_m2": 0.03295109843315885,
+    "exposed_aspect_ratio_one_fin": 0.8906736492913511,
+    "taper_ratio_tip_over_root": 0.6560896032343273,
+    "x_LE_at_tip_ft": 12.646284,
+    "x_LE_at_tip_m": 3.8545873632000003,
+    "x_LE_of_root_intersection_ft": 12.646284,
+    "max_root_intersection_radius_ft": 0.43701949690619596,
+    "stls": {
+      "fin000_upper_rudder": {
+        "azimuth_deg": 0.0,
+        "sha256": "9fb683fa417228bd1158a8b0c0c0742feac0732d42b786737315fd1c1c405480",
+        "n_tris": 155118,
+        "signed_volume_m3": 0.0013005896002905002,
+        "non_manifold_directed_edges": 0
+      },
+      "fin090_horizontal": {
+        "azimuth_deg": 90.0,
+        "sha256": "bb03bf1fe6c3a232088f747687690900c30ecd007188333bbe9c477e9f60dbeb",
+        "n_tris": 155118,
+        "signed_volume_m3": 0.0013005896002905002,
+        "non_manifold_directed_edges": 0
+      },
+      "fin180_lower_rudder": {
+        "azimuth_deg": 180.0,
+        "sha256": "0814884cf4d7a145681efc52a7566b684ba02db0175337e74c524d446604c680",
+        "n_tris": 155118,
+        "signed_volume_m3": 0.0013005896002905002,
+        "non_manifold_directed_edges": 0
+      },
+      "fin270_horizontal": {
+        "azimuth_deg": 270.0,
+        "sha256": "74fb17a174939d633ea967df284d23d41f3f0e1dc7e66a42e56b6646a5220e5a",
+        "n_tris": 155118,
+        "signed_volume_m3": 0.0013005896002905002,
+        "non_manifold_directed_edges": 0
+      }
+    }
+  },
+  "REGISTERED_DEPARTURES": {
+    "D1_fin_TE_truncation": {
+      "reference_TE_half_thickness_ft": -9.096001729602677e-18,
+      "reference_TE_closes_to": "a MATHEMATICAL CUSP (exactly zero)",
+      "truncation_fraction_of_chord": 0.98,
+      "base_FULL_thickness_at_tip_mm": 1.4629943860705052,
+      "base_FULL_thickness_at_root_mm": 2.2298697904346856,
+      "base_over_chord_percent_at_tip": 0.959970069600069
+    },
+    "D2_flat_fin_tip": {
+      "source_states_no_tip_shape": true,
+      "applied": "planar cap normal to the span at R = 0.833333 ft"
+    },
+    "D3_buried_fin_root": {
+      "root_inner_ft": 0.1,
+      "rationale": "snappyHexMesh unions the fin with the hull; the true root is the Table 3 intersection curve, which is reported above but is not used to cut the STL",
+      "verified_inside_hull": true
+    },
+    "D4_sail_TE_truncation_inherited": {
+      "truncation_fraction_of_chord": 0.995,
+      "base_half_thickness_ft": 0.002150417592608238,
+      "note": "inherited unchanged from the SUBOFF_A1 sail builder"
+    }
+  }
+}
