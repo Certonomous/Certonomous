@@ -1,0 +1,264 @@
+{
+  "ladder": "PRD-E1",
+  "fs": 1.25,
+  "band_rel": 0.03,
+  "asymp_band_rel": 0.015,
+  "freeze_pin": "724356ecb6d8da8fe4b777fbcce3a7cb81d28838",
+  "per_us": {
+    "0.25": {
+      "verdict": "NOT A RESULT",
+      "gate_us_verdict": "NOT A RESULT",
+      "ergun_pa": 83.203125,
+      "dp_by_level": {
+        "L1": 83.14489014096,
+        "L2": 83.16574500228,
+        "L3": 83.21207202227998
+      },
+      "order": null,
+      "gci_pct": null,
+      "richardson": null,
+      "asymp_rel": null,
+      "why": "levels L1,L2,L3,L1,L2,L3 are not iteratively converged or not plateaued; no grid claim can be made from this triple",
+      "plant_control_passed": true,
+      "visibility_pair": null,
+      "yplus_gate": {
+        "passed": true,
+        "max_yplus": 3.6429509,
+        "limit": 200.0,
+        "control_passed": true,
+        "per_patch": {
+          "walls": {
+            "min": 0.32763753,
+            "max": 3.6429509,
+            "avg": 2.0864327
+          }
+        },
+        "artifact": "verification/runs/navier_class/PRD/us0.25_L3/log.yPlus"
+      },
+      "checkmesh_gate": {
+        "passed": true,
+        "nonortho_max": 0.0,
+        "nonortho_mean": 0.0,
+        "skewness": 2.1316291e-13,
+        "artifact": "verification/runs/navier_class/PRD/us0.25_L3/log.checkMesh"
+      },
+      "iterative_states": {
+        "L1": "NOT_CONVERGED",
+        "L2": "NOT_CONVERGED",
+        "L3": "NOT_CONVERGED"
+      },
+      "plateau_states": {
+        "L1": "NOT_PLATEAUED",
+        "L2": "NOT_PLATEAUED",
+        "L3": "NOT_PLATEAUED"
+      },
+      "l4_required": false,
+      "gate_notes": []
+    },
+    "0.50": {
+      "verdict": "NOT A RESULT",
+      "gate_us_verdict": "NOT A RESULT",
+      "ergun_pa": 248.4375,
+      "dp_by_level": {
+        "L1": 248.25919837451997,
+        "L2": 248.32071796883997,
+        "L3": 248.40258451512
+      },
+      "order": null,
+      "gci_pct": null,
+      "richardson": null,
+      "asymp_rel": null,
+      "why": "levels L1,L3,L1 are not iteratively converged or not plateaued; no grid claim can be made from this triple",
+      "plant_control_passed": true,
+      "visibility_pair": null,
+      "yplus_gate": {
+        "passed": true,
+        "max_yplus": 5.2030583,
+        "limit": 200.0,
+        "control_passed": true,
+        "per_patch": {
+          "walls": {
+            "min": 0.55179375,
+            "max": 5.2030583,
+            "avg": 3.1358853
+          }
+        },
+        "artifact": "verification/runs/navier_class/PRD/us0.50_L3/log.yPlus"
+      },
+      "checkmesh_gate": {
+        "passed": true,
+        "nonortho_max": 0.0,
+        "nonortho_mean": 0.0,
+        "skewness": 2.1316291e-13,
+        "artifact": "verification/runs/navier_class/PRD/us0.50_L3/log.checkMesh"
+      },
+      "iterative_states": {
+        "L1": "NOT_CONVERGED",
+        "L2": "CONVERGED",
+        "L3": "NOT_CONVERGED"
+      },
+      "plateau_states": {
+        "L1": "NOT_PLATEAUED",
+        "L2": "PLATEAUED",
+        "L3": "PLATEAUED"
+      },
+      "l4_required": false,
+      "gate_notes": []
+    },
+    "1.00": {
+      "verdict": "NOT A RESULT",
+      "gate_us_verdict": "NOT A RESULT",
+      "ergun_pa": 825.0,
+      "dp_by_level": {
+        "L1": 825.25229377464,
+        "L2": 824.5506333936,
+        "L3": 824.796340926
+      },
+      "order": null,
+      "gci_pct": null,
+      "richardson": null,
+      "asymp_rel": null,
+      "why": "levels L1,L1 are not iteratively converged or not plateaued; no grid claim can be made from this triple",
+      "plant_control_passed": true,
+      "visibility_pair": null,
+      "yplus_gate": {
+        "passed": true,
+        "max_yplus": 7.5517844,
+        "limit": 200.0,
+        "control_passed": true,
+        "per_patch": {
+          "walls": {
+            "min": 0.98804821,
+            "max": 7.5517844,
+            "avg": 4.886044
+          }
+        },
+        "artifact": "verification/runs/navier_class/PRD/us1.00_L3/log.yPlus"
+      },
+      "checkmesh_gate": {
+        "passed": true,
+        "nonortho_max": 0.0,
+        "nonortho_mean": 0.0,
+        "skewness": 2.1316291e-13,
+        "artifact": "verification/runs/navier_class/PRD/us1.00_L3/log.checkMesh"
+      },
+      "iterative_states": {
+        "L1": "NOT_CONVERGED",
+        "L2": "CONVERGED",
+        "L3": "CONVERGED"
+      },
+      "plateau_states": {
+        "L1": "NOT_PLATEAUED",
+        "L2": "PLATEAUED",
+        "L3": "PLATEAUED"
+      },
+      "l4_required": false,
+      "gate_notes": []
+    },
+    "2.00": {
+      "verdict": "NOT A RESULT",
+      "gate_us_verdict": "NOT A RESULT",
+      "ergun_pa": 2962.5,
+      "dp_by_level": {
+        "L1": 2958.2125262412005,
+        "L2": 2960.5958075916,
+        "L3": 2961.5691059724
+      },
+      "order": null,
+      "gci_pct": null,
+      "richardson": null,
+      "asymp_rel": null,
+      "why": "levels L1,L2,L1,L2 are not iteratively converged or not plateaued; no grid claim can be made from this triple",
+      "plant_control_passed": true,
+      "visibility_pair": null,
+      "yplus_gate": {
+        "passed": true,
+        "max_yplus": 11.475523,
+        "limit": 200.0,
+        "control_passed": true,
+        "per_patch": {
+          "walls": {
+            "min": 2.1524285,
+            "max": 11.475523,
+            "avg": 8.0614885
+          }
+        },
+        "artifact": "verification/runs/navier_class/PRD/us2.00_L3/log.yPlus"
+      },
+      "checkmesh_gate": {
+        "passed": true,
+        "nonortho_max": 0.0,
+        "nonortho_mean": 0.0,
+        "skewness": 2.1316291e-13,
+        "artifact": "verification/runs/navier_class/PRD/us2.00_L3/log.checkMesh"
+      },
+      "iterative_states": {
+        "L1": "NOT_CONVERGED",
+        "L2": "NOT_CONVERGED",
+        "L3": "CONVERGED"
+      },
+      "plateau_states": {
+        "L1": "NOT_PLATEAUED",
+        "L2": "NOT_PLATEAUED",
+        "L3": "PLATEAUED"
+      },
+      "l4_required": false,
+      "gate_notes": []
+    },
+    "4.00": {
+      "verdict": "NOT A RESULT",
+      "gate_us_verdict": "NOT A RESULT",
+      "ergun_pa": 11175.0,
+      "dp_by_level": {
+        "L1": 11158.478737476,
+        "L2": 11175.582020596801,
+        "L3": 11171.0919910488
+      },
+      "order": null,
+      "gci_pct": null,
+      "richardson": null,
+      "asymp_rel": null,
+      "why": "levels L1,L2,L1,L2 are not iteratively converged or not plateaued; no grid claim can be made from this triple",
+      "plant_control_passed": true,
+      "visibility_pair": null,
+      "yplus_gate": {
+        "passed": true,
+        "max_yplus": 18.597776,
+        "limit": 200.0,
+        "control_passed": true,
+        "per_patch": {
+          "walls": {
+            "min": 4.7456556,
+            "max": 18.597776,
+            "avg": 13.606543
+          }
+        },
+        "artifact": "verification/runs/navier_class/PRD/us4.00_L3/log.yPlus"
+      },
+      "checkmesh_gate": {
+        "passed": true,
+        "nonortho_max": 0.0,
+        "nonortho_mean": 0.0,
+        "skewness": 2.1316291e-13,
+        "artifact": "verification/runs/navier_class/PRD/us4.00_L3/log.checkMesh"
+      },
+      "iterative_states": {
+        "L1": "NOT_CONVERGED",
+        "L2": "NOT_CONVERGED",
+        "L3": "CONVERGED"
+      },
+      "plateau_states": {
+        "L1": "NOT_PLATEAUED",
+        "L2": "NOT_PLATEAUED",
+        "L3": "PLATEAUED"
+      },
+      "l4_required": false,
+      "gate_notes": []
+    }
+  },
+  "n_pass": 0,
+  "n_us": 5,
+  "l4_required_for": [],
+  "credential": false,
+  "graded_utc": "2026-09-12T00:39:06Z"
+}
