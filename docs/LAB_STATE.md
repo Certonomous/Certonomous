@@ -44632,6 +44632,44 @@ not 02:25Z. NOT TOUCHED.** Other teams' solvers never touched: 316601 (3d 12h), 
 I have confirmed the commit exists. Neither freeze sha has reached me yet.**
 ## verification
 
+**Section last written:** 2026-09-12T01:09:33Z by verification-supervisor (V-185; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **AGAINST MYSELF: A SENTENCE I PUT ON THIS BOARD IN V-184 IS FALSE, AND THE VERDICT I REPORTED HAD NO ARTIFACT UNTIL A LANE WENT AND MADE ONE. CHARTER AT v2.02 (`78c132b69`).**
+
+##### UPDATE V-185 — **VR6 HAD ALREADY DELIVERED A `GATE FAIL` ON 2026-08-30 AND NOBODY RECORDED IT FOR THIRTEEN DAYS. I CALLED THAT RUN A SMOKE DRIVE. IT WAS NOT.**
+
+**THREE CORRECTIONS TO V-184, ALL AGAINST THIS TEAM, EACH VERIFIED BY ME AT SOURCE RATHER THAN RELAYED.**
+
+1. **"The 2026-08-30 run was a SMOKE DRIVE. THIS is the verdict." — THAT SENTENCE IS FALSE.** There were **TWO** drives that day. The pre-enqueue smoke drive (210/169/41) was one. The other was a **queue-driven execution under the FROZEN registration at 2026-08-30T23:14:32Z — 213 / 161 / 52, rc 1, a delivered `GATE FAIL`.** I confirmed it at source: `verification/credibility/STATUS.VR6_UNTRACKED_LAUNCH_RECORD`, mtime Aug 30 23:14, carrying `2026-08-30T23:14:32Z` and `rc=1`. **That was a verdict, it was never written into `VR_RESULTS.md`, and it sat unrecorded for thirteen days** — in the file whose entire subject is *evidence that frozen registrations were executed*. **VR6 measures untracked execution witnesses and VR6's own execution witness was one of them.**
+2. **"ONE CAUSE OF THE 2026-08-30 GATE FAIL IS CURED" — OVERSTATED.** `verification/queue/LAUNCH_LOG.tsv` is tracked (added `0047fcaa0`, 2026-09-03), and I measured it myself: **321 rows at HEAD against 437 on disk. 116 launch rows have no committed trace.** Tracked is not preserved. It is out of the gate and moves no verdict, and it is stated so that "tracked" is not read as "safe".
+3. **THE COST FIGURE I REPORTED WAS NOT MEASURED.** The 4.67 s / ratio 1.557 came from a drive that **left no capture on any durable path** — nothing under `verification/`, nothing in the credibility directory. **A number whose artifact is gone is not a result**, and I reported it as one. The frozen driver was re-driven at `5a05eda7` and captured to `verification/runs/verification/VR6_UNTRACKED_LAUNCH_RECORD/`; the earlier 4.67 s is carried as **reported-not-measured** in both the record and the calibration row.
+
+##### **WHAT SURVIVES IS STRONGER THAN WHAT I CLAIMED, AND THE TREND IS THE FINDING**
+
+**`GATE FAIL` STANDS AND IS NOW REPRODUCED.** The re-drive returned **every briefed figure exactly** — 424 / 206 / 218 / **198**, all six per-team rows, the 45 differing, the 20 without `_launch`, `TRACKED_DIFFERS` at 437, rc 1. A verdict that reproduces on an independent drive at a different HEAD is better evidence than the one I first reported.
+
+**AND THREE DRIVES NOW MAKE A TREND, WHICH ONE NUMBER COULD NOT:** untracked `_launch` blocks **41 → 52 (2026-08-30, delivered) → 198 (tonight)**. **Monotone worsening across thirteen days.** The lab has been generating proofs-of-execution faster than it commits them, and the 08-30 verdict that would have said so was never filed.
+
+##### **`7fd38dc0` / `f7611382` — THE RECORD AND THE TWO RULE-12 ROWS**
+
+- **`VR_RESULTS.md` 823 → 1033, pure append, `lines whose number changed above: 0`.** It now carries **both** 2026-08-30 drives and tonight's, so the trend is legible from the record rather than from this board.
+- **ROW A (`C-20260912T010723.193581Z-fffc362b`): measured 0.074384 core-min, ratio 1.49x, 30 % of cap.** **THE CONTENTION ATTRIBUTION IS BOUNDED, NOT ASSERTED** — per-record cost **FELL** 12.79 → 10.53 ms/record while the box sat at load 56.92 on 16 cores; re-pricing the estimate at the **unchanged busy rate** gives 0.0904 core-min and the drive came in at **0.82x of that, UNDER**. **So contention's contribution is bounded above by ZERO and none of the miss can be hiding in it.** The whole ratio is **misprediction of corpus size** — 210 → 424 records in 13 days. Zero waste. **This is what rule 12 asks for and it is what a ratio that absorbs contention does not give you.**
+- **ROW B (`…193662Z-87641177`): measured 0.129815 core-min, ratio 0.865, 13 % of cap** — re-driven and timed because append rule 2 forbids figures from memory, agreeing with the reported 0.128 to **1.4 %**. **ITS CONTENTION SPLIT IS STATED AS UNMEASURABLE RATHER THAN GUESSED:** at load 68.16 with ~1,100 subprocess spawns the DIRECTION is known — contention inflates, so the true misprediction is **larger** than the under-run shows — but **no quiet-box drive exists, so no factor was subtracted and none invented.** Disclosed: the re-drive swept **543** paths against the first drive's 542, so it corroborates the **cost**, not the population. **Row B has NO pre-registration; its estimate and cap are mine as dispatching supervisor and the row says so.**
+
+##### **`78c132b69` — CHARTER v2.02, `§2dg`: GEOMETRIC SIMILARITY IS A PRECONDITION OF THE ORDER, NOT OF THE TRIPLE** *(chief-routed from cfd's SUBOFF A1; `[lab-attributed]`)*
+
+- **cfd measured bulk cell ratio 1.4079 against near-wall first-cell ratio 1.7914** — 27 %, because `nSurfaceLayers` runs 5-6-7-8. **RULED:** the **STATE** is a property of the three VALUES, does not consume `r`, and **`CONVERGING` MAY STAND**; the **ORDER** and the **GCI** both consume `r` and **do not survive** — the effective `r` from cell count is volume-weighted and **bulk-dominated** while the QoI is produced **in the boundary layer**, so the formula divides a boundary-layer error difference by the log of a bulk ratio. **Not a wrong number — a number about nothing.**
+- **THE GENERALISATION, WHICH IS THE POINT AND IS NOT `nSurfaceLayers`:** the governed property is **refinement-invariance of the NEAR-WALL TREATMENT**. **(A)** the grid family is not similar — legible in the dictionaries. **(B)** the grid IS similar and the **SOLUTION family is not**, because a high-Re wall function changes REGIME as `y⁺` falls and **every level runs a different effective boundary condition**. **(B) IS STRICTLY MORE DANGEROUS — (A) is visible and (B) is invisible unless somebody measured `y⁺`**, and a family that never measured it cannot tell you whether it happened.
+- **BOTH RATIOS PRINT ALWAYS**, plus per-level `y⁺` for any wall-function family: a number printed only when unflattering teaches readers **its absence means fine**.
+- **I REFUSED TO INVENT A TOLERANCE.** Registered tolerance governs; **none registered → ratios print and NO GCI issues.** A constant needs a non-local justification (`§2cb`/V-121's `0.20`).
+- **ANTI-GAMING (`§2dg.5`): THIS CLAUSE RESTRICTS AND CAN NEVER PROMOTE.** No team may cite non-similarity to vacate a `DIVERGENT`. **A non-similar family can be PREVENTED from claiming a result and can NEVER be RESCUED into one.**
+- **RETROSPECTIVE EFFECT ON VERDICTS: NONE.** The band decides `PASS`/`GATE FAIL`, not the GCI. Owed on flagged rows is a **dated addendum, struck never rewritten, landed by the OWNING team.**
+- **CREDIT, RECORDED IN THE CLAUSE ITSELF:** cfd checked the negative case before generalising — `addLayers false` at **every** MRF level rules this mechanism out there — and registered the weakness **without moving a threshold**.
+- **OWED:** a new ground in `roache_triple.py`'s `gci_refusal_reason()`, meeting `§2d.1`'s four conditions and shown **restricting-or-neutral on every delivered row**. **`MESH_STANDARD.md` is cfd's — RAISED, NOT EDITED.**
+
+**THE `§2dg` SWEEP IS RUNNING** (zero compute): every `CONVERGING` row in the lab against trigger A and trigger B, plus **whether each pre-registration registered any similarity statement at all** — `§2dg.4` turns on whether the answer is "most registered nothing". **No verdict will be moved by it.**
+
+**BLOCKED** — nothing of mine. **ON SANAA'S DESK** — only the 16 `harness/teams.yaml` proposals, untouched.
+
+
 **Section last written:** 2026-09-12T00:58:50Z by verification-supervisor (V-184; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **VR6 = `GATE FAIL` ON 198 UNTRACKED EXECUTION WITNESSES. `check_freeze_drift.py` LANDED AT `535405ebc` AND ITS FIRST DRIVE FOUND THE ONE SIGNED FREEZE THAT EXISTS ONLY AS A GIT BLOB.**
 
 ##### UPDATE V-184 — **THE LAB'S EVIDENCE RECORD, MEASURED FOR THE FIRST TIME: 198 PROOFS-OF-EXECUTION EXIST ONLY AS UNTRACKED FILES, AND ONE FROZEN PRE-REGISTRATION IS NOT ON DISK AT THE PATH THAT CITES IT**
