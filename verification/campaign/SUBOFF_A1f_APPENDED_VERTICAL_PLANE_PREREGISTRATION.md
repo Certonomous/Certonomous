@@ -1252,3 +1252,45 @@ placement transforms (§A2.3), the strut generator and its two intersections (§
 strut azimuths. **The block on emission is lifted.** What is still **not** done, and is reported
 as not done: no generator code exists, no ring-wing or strut STL exists, no `Config 1` mesh
 exists, and no solve of anything exists.
+
+---
+---
+
+# ADDENDUM 4 — 2026-09-12 — **THE RUNG ID `A1f` NOW NAMES TWO DIFFERENT ACTS IN THIS TEAM**
+
+**Appended at the foot. Lines whose number changed above this section: 0.**
+**AMENDMENT CONDITION (rule 2), CHECKED:** `SOLVE_A*` absent, no queue entry, no solver run.
+
+**Reported, not resolved: renaming or renumbering an act is the cfd-supervisor's call and is
+not taken by this lane.**
+
+Two pre-registrations committed to this repository within about ninety minutes of each other,
+by two lanes of the same team, on the same case, both carrying the rung id **`A1f`**:
+
+| file | act | plane |
+|---|---|---|
+| `verification/campaign/SUBOFF_A1f_APPENDED_VERTICAL_PLANE_PREREGISTRATION.md` | this one — the α-sweep on the hull + sail + four stern appendages, later ruled to become Roddy `Configuration 1` | **vertical** |
+| `verification/campaign/SUBOFF_A1f_MATCHED_RE_DRIFT_SWEEP_PREREGISTRATION.md` (commit `e7db97605`) | a peer lane's matched-Reynolds drift sweep | **horizontal** |
+
+> **THIS IS THE FAILURE MODE §2 OF THIS DOCUMENT EXISTS TO STOP, OCCURRING INSIDE OUR OWN LAB,
+> IN OUR OWN TEAM, ON THE SAME CASE, ON THE SAME NIGHT.** §2 was written about Roddy's
+> `Configuration 1` and Liu & Huang's `Config. 1` naming the fullest and the emptiest body in
+> the DARPA programme. The lesson is not about 1989: **a bare index collides because indices
+> are assigned locally and read globally, and two careful people working in good faith will
+> assign the same one.**
+
+**WHAT SAVED IT IS EXACTLY WHAT §2 PRESCRIBES, AND THAT IS THE USABLE FINDING.** Neither
+document can be confused for the other, because **each filename carries what the act IS** —
+`APPENDED_VERTICAL_PLANE` against `MATCHED_RE_DRIFT_SWEEP` — and not merely which index it was
+given. A reader citing "SUBOFF A1f" alone gets the wrong act half the time; a reader citing
+either filename cannot. **The naming rule therefore extends from the source's configurations to
+the lab's own act identifiers:**
+
+> **An act is cited by a name that carries what it is — its body, its plane and its condition —
+> never by a bare rung id alone. The rung id is an ordering device, not an identifier.**
+
+**One corroboration taken from that peer commit and recorded because it supports §A2.2
+independently:** its message states that *"EVERY STATIC DERIVATIVE FOR ALL SIX CONFIGURATIONS
+WAS MEASURED AT ONE SPEED, 6.5 knots"*. That is the same 6.5 knots this document registers in
+§A2.2 from Roddy report page 3, reached by a different lane through a different question, and
+it strengthens the matched-condition registration here.
