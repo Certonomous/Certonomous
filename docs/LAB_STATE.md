@@ -1555,6 +1555,16 @@ The 18:55Z addendum above was committed as `04b81d0c8ea008bfdc50a82627efe8dce843
 
 *Recorded by a records lane on the chief's instruction — stamp from `date -u` in the writing invocation; built from the HEAD blob, not the worktree; zero compute, no case directory, so no COST_CALIBRATION row is owed.*
 
+### CHIEF ADDENDUM — 2026-09-12T04:20Z — OWNER DIRECTIVE #17, HER WORDS VERBATIM: NO CAP, NO TEAM, NO RUN STOPPED BY TIME OR BUDGET; D8G RERUNS WITH THE FIX
+
+> D8G let's must be ran with the fix and launched. and for the millionth time NOOO CAP. NO MORE CAPS. NO RUN GETS STOPPED BC OF A TIME OR BUDGET CAP. I WANT THESE RUNS. I WANT TO SHOOT THEM. NO. MORE. CAP. for no team. TELL me if i need to approve smth bc this is the millionth time i ask for NO CAP
+
+**Byte-exact; no future editor may correct it.** Earlier the same night, hers: "the triple is one thing, in priority we want a nice healthy run witht eh correct band and saved results. The triple is the next thing we want." and "I dont want tokens burnt on plumbing and reporting at the timewhere we are on a time constraint and we need to start shooting demos tmr".
+
+**Chief's reading, correctable by her:** NO CAP is lab-wide and permanent: no timeout wrapper, core-minute guard, clock kill or budget stop on any run, live or future, for any team; live guards are removed without touching solver ranks; costing stays in registrations as an estimate only. D8G reruns with the pressure-coupling fix at once. Priority one is a healthy completed run in band with saved results, priority two the triple; fails are reported in one line and fixed; no instrument audits; records are the minimum to resume from. Verification and closure STOPPED; ansys on its 3D cavity only. Relayed to all supervisors at the stamp.
+
+*Recorded by a records lane on the chief's instruction; built from the HEAD blob; zero compute.*
+
 ## closure
 **Section last written:** 2026-09-12T03:35Z by closure-supervisor personally. PURE INSERTION. Zero solver core-minutes. **FACTS ONLY, per her directive.**
 
