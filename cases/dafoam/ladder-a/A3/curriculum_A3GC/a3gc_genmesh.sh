@@ -75,10 +75,10 @@ CONTAINER_GID="$(id -g)"      # the HOST's group, so artifacts stay manageable
 #          COARSENING OF THIS SURFACE (Sec.2.3), AND c3 ITSELF IS EXCLUDED
 #          FROM THE FAMILY (Sec.2.4: it collapses the trailing edge to zero
 #          thickness and is not the same discrete body). ***
-declare -A COARSEN_PASSES=( [L3]=2 [L2]=1 [L1]=0 )
-declare -A N_LAYERS=(       [L3]=17 [L2]=33 [L1]=65 )
-declare -A WANT_CELLS=(     [L3]=99840 [L2]=798720 [L1]=6389760 )
-declare -A WANT_WING=(      [L3]=6240  [L2]=24960  [L1]=99840   )
+declare -A COARSEN_PASSES=( [L3]=2 [L2]=1 [L1]=0 [AR1]=2 )
+declare -A N_LAYERS=(       [L3]=17 [L2]=33 [L1]=65 [AR1]=65 )
+declare -A WANT_CELLS=(     [L3]=99840 [L2]=798720 [L1]=6389760 [AR1]=399360 )
+declare -A WANT_WING=(      [L3]=6240  [L2]=24960  [L1]=99840   [AR1]=6240   )
 
 # Sec.2.6: s0 IS HELD FIXED AT 1.0e-4 ON ALL THREE LEVELS.
 #   *** THIS IS DELIBERATE AND DISCLOSED.  DO NOT "FIX" IT TO SCALE WITH r. ***

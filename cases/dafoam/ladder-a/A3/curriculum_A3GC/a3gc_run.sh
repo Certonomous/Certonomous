@@ -18,7 +18,7 @@
 # SUBMISSIONS PARKED.  Nothing here sends anything anywhere.
 #
 # Usage:
-#   a3gc_run.sh --level L3|L2|L1 --root <parent-dir> [--template <case>]
+#   a3gc_run.sh --level L3|L2|L1|AR1 --root <parent-dir> [--template <case>]
 #               [--stage prepare|launch|all] [--dry-run]
 #
 #   prepare  writes system/, the runScript, and the cold `0` -- NO COMPUTE.
@@ -105,10 +105,10 @@ U0="291.6"; P0="101325.0"; T0="300.0"; NUTILDA0="4.5e-5"
 AOA0="3.06"; A0="0.7575"; RHO0="1.0"
 
 # Sec.5: ranks per level
-declare -A RANKS=( [L3]=4 [L2]=8 [L1]=8 )
+declare -A RANKS=( [L3]=4 [L2]=8 [L1]=8 [AR1]=4 )
 # Sec.2.5: the registered exit condition, re-checked here before any solve
-declare -A WANT_CELLS=( [L3]=99840 [L2]=798720 [L1]=6389760 )
-declare -A WANT_WING=(  [L3]=6240  [L2]=24960  [L1]=99840   )
+declare -A WANT_CELLS=( [L3]=99840 [L2]=798720 [L1]=6389760 [AR1]=399360 )
+declare -A WANT_WING=(  [L3]=6240  [L2]=24960  [L1]=99840   [AR1]=6240   )
 
 # Sec.2.2 / DAFOAM_CHARTER Sec.6: the image is pinned BY DIGEST, never by tag.
 IMAGE_DIGEST="sha256:8352629516bb363345fd802ed6092f878bad0a612c05c98d492a14bd94729d46"
@@ -139,9 +139,9 @@ while [ $# -gt 0 ]; do
     *) refuse "ARGS" "unknown argument: $1" ;;
   esac
 done
-[ -n "$LEVEL" ] || refuse "ARGS" "--level is required (L3, L2 or L1)"
+[ -n "$LEVEL" ] || refuse "ARGS" "--level is required (L3, L2, L1 or AR1)"
 [ -n "$ROOT" ]  || refuse "ARGS" "--root is required"
-case "$LEVEL" in L3|L2|L1) ;; *) refuse "ARGS" "--level must be L3, L2 or L1, got '$LEVEL'" ;; esac
+case "$LEVEL" in L3|L2|L1|AR1) ;; *) refuse "ARGS" "--level must be L3, L2, L1 or AR1, got '$LEVEL'" ;; esac
 case "$STAGE" in prepare|launch|all|assertframe) ;; *) refuse "ARGS" "--stage must be prepare, launch, all or assertframe" ;; esac
 
 ROOT="$(cd "$ROOT" 2>/dev/null && pwd || echo "$ROOT")"
