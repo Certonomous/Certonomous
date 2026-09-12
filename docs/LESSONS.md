@@ -27232,3 +27232,20 @@ note titled "backticks kill the commit".** ***Reasoning about the shell instead 
 using the form that cannot substitute is the same defect as reasoning about an
 instrument instead of driving it*** — and it corrupted the very lesson that says so.
 Repaired forward by a second commit; the first is left in history as the evidence.
+
+## L-559 — `pkill -f` is banned on this box: the pattern that finds the target also finds the shell that typed it
+
+A cfd lane issued `pkill -f "decomposePar"` inside a compound command on a box running
+five teams' solvers. **It never executed** — the lane's own shell matched the preceding
+loop's pattern and killed itself first (exit 144) — and every other team's process was
+verified alive afterwards. **That is luck wearing the costume of a safety mechanism, and
+no safety argument may be banked on it.** The same night, a different lane read four
+`simpleFoam` ranks off `ps` sorted by RSS and was one step from signalling the only
+SUBOFF solve this lab has ever had (L-557). Two lanes, two referent errors, one shape:
+**`ps` and `pkill` tell you WHAT, never WHOSE.**
+
+**RULE: `pkill`/`killall` with a pattern are not used in this repository. Every signal
+goes to an explicit pid, with `/proc/<pid>/cwd` AND `/proc/<pid>/cmdline` re-confirmed
+in the SAME invocation as the kill** — a pid can be reused between the check and the
+signal. A read-only referent error is corrected by the next reader; `kill -9` has no
+next reader.
