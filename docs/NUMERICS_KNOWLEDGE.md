@@ -7153,3 +7153,32 @@ before measurement in
 (commit `bc73dc0cae2063477d9d54ee5512b93a68be3249`). Measured 2026-09-12 by the
 cfd SUBOFF lane on the cfd-supervisor's ruling that **cell share is a proxy and
 force share is the graded quantity**.
+
+## N-X5 — DATED ADDENDUM 1, 2026-09-12 (same day, by the author): **THE SCOPE IS BY MESHER, NOT BY CASE LIST — AND TWO CASES I NAMED TO MY SUPERVISOR DO NOT INHERIT THIS AT ALL**
+
+*lines whose number changed above this section: 0*
+
+The entry above scopes the finding correctly — "a property of snappyHexMesh with local
+refinement" — but in relaying it this lane named **DrivAer, MRF, CRM and M6I** as
+inheritors. **Two of those four contain no snappyHexMesh at all**, and the correction is
+recorded rather than quietly dropped because an unverified extension of a verified result
+is the specific error this entry exists to discourage.
+
+**WHO INHERITS IT — the test is the MESHER, not the case:**
+
+- **DrivAer** and **MRF** — snappyHexMesh with local refinement. Inherit.
+- **PPTC VP1304** — snappyHexMesh from an admitted STL, with a refinement box around the
+  blades and a cylinder along the tip-vortex path. Inherits, **and it is the valuable
+  one: it has not been meshed yet**, so it can register the expected population *before*
+  its build rather than discovering it in a `checkMesh` afterwards.
+
+**WHO DOES NOT:**
+
+- **M6I** — NASA TMR structured grid imported through `plot3dToFoam`. No castellation,
+  no refinement-level transition of this kind.
+- **CRM wing-body** — DPW-6 committee grid read through a UGRID converter; Sanaa's
+  instruction builds no in-house mesh for that act.
+
+An imported structured or committee grid has no octree level jump, so the mechanism has
+nothing to act on. **State the scope by mesher.** A case list goes stale the moment a
+case changes its meshing path; the mechanism does not.
