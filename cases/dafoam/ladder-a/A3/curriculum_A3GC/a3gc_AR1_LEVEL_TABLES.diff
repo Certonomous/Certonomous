@@ -1,0 +1,49 @@
+# PROPOSED — NOT APPLIED. Both scripts are byte-unchanged:
+#   a3gc_run.sh      md5 aa27ad0e31445a9e820a67fdca7d3a17
+#   a3gc_genmesh.sh  md5 9fa240d9643308f5e9a4988614b58884
+# Purely ADDITIVE: one new key per table, no existing entry modified or reordered.
+# AR1 = the anchor rerun. c2 surface (6,240 wing faces) x 64 wall-normal cells
+# = 399,360 cells, r = 1.1674. It is NOT a member of the A3GC triple and does
+# not appear in any triple arithmetic; it is a single graded level.
+
+--- a/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_run.sh
++++ b/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_run.sh
+@@ -21,3 +21,3 @@
+-#   a3gc_run.sh --level L3|L2|L1 --root <parent-dir> [--template <case>]
++#   a3gc_run.sh --level L3|L2|L1|AR1 --root <parent-dir> [--template <case>]
+@@ -108,1 +108,1 @@
+-declare -A RANKS=( [L3]=4 [L2]=8 [L1]=8 )
++declare -A RANKS=( [L3]=4 [L2]=8 [L1]=8 [AR1]=4 )
+@@ -110,2 +110,2 @@
+-declare -A WANT_CELLS=( [L3]=99840 [L2]=798720 [L1]=6389760 )
+-declare -A WANT_WING=(  [L3]=6240  [L2]=24960  [L1]=99840   )
++declare -A WANT_CELLS=( [L3]=99840 [L2]=798720 [L1]=6389760 [AR1]=399360 )
++declare -A WANT_WING=(  [L3]=6240  [L2]=24960  [L1]=99840   [AR1]=6240   )
+@@ -142,2 +142,2 @@
+-[ -n "$LEVEL" ] || refuse "ARGS" "--level is required (L3, L2 or L1)"
+-case "$LEVEL" in L3|L2|L1) ;; *) refuse "ARGS" "--level must be L3, L2 or L1, got '$LEVEL'" ;; esac
++[ -n "$LEVEL" ] || refuse "ARGS" "--level is required (L3, L2, L1 or AR1)"
++case "$LEVEL" in L3|L2|L1|AR1) ;; *) refuse "ARGS" "--level must be L3, L2, L1 or AR1, got '$LEVEL'" ;; esac
+
+--- a/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_genmesh.sh
++++ b/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_genmesh.sh
+@@ -78,4 +78,4 @@
+-declare -A COARSEN_PASSES=( [L3]=2 [L2]=1 [L1]=0 )
+-declare -A N_LAYERS=(       [L3]=17 [L2]=33 [L1]=65 )
+-declare -A WANT_CELLS=(     [L3]=99840 [L2]=798720 [L1]=6389760 )
+-declare -A WANT_WING=(      [L3]=6240  [L2]=24960  [L1]=99840   )
++declare -A COARSEN_PASSES=( [L3]=2 [L2]=1 [L1]=0 [AR1]=2 )
++declare -A N_LAYERS=(       [L3]=17 [L2]=33 [L1]=65 [AR1]=65 )
++declare -A WANT_CELLS=(     [L3]=99840 [L2]=798720 [L1]=6389760 [AR1]=399360 )
++declare -A WANT_WING=(      [L3]=6240  [L2]=24960  [L1]=99840   [AR1]=6240   )
+
+# NOTE ON THE ONE COLLISION WORTH SEEING BEFORE THIS RUNS:
+# AR1 and L3 share COARSEN_PASSES=2 and WANT_WING=6240 -- the SAME c2 surface --
+# and differ only in N_LAYERS (65 vs 17) and therefore WANT_CELLS (399,360 vs
+# 99,840).  That is the point of AR1 and it is exactly the controlled experiment.
+# The runner's own PREPARE guard asserts BOTH cells AND wing faces, so the pair
+# still identifies the level uniquely; neither alone does.  Its comment at
+# a3gc_run.sh:272 ("CELL COUNT ALONE DOES NOT IDENTIFY A LEVEL") now holds in
+# the other direction too, and the paired assertion is what makes it safe.
+# WD = "$OUT/A3GC-AR1", a fresh root; G-COLD refuses it if a time dir exists.
+# a3gc_genmesh.sh needs no --levels validation change: LEVELS is a free string.
