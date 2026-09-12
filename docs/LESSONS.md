@@ -27107,3 +27107,61 @@ dead checks were found by something refusing to run); L-553 (a calibration must 
 the reader you actually used); standing rule 12 (core-minutes are wall × ranks, and waste
 and contention are reported separately, never absorbed into the ratio); the
 `clock audit before rate judgments` pattern.
+
+## L-557 — `ps` TELLS YOU **WHAT**, NEVER **WHOSE**: I had a well-reasoned plan to free 5 GiB by killing "my" four `simpleFoam` ranks, and they were ANOTHER LANE'S SUBOFF SOLVE — the only one this lab has ever got running. Mine held 0.44 GiB. Reading `/proc/<pid>/cwd` is the whole difference
+
+**The setup.** The box was at `available` 10–11 GiB with a 5.4 M-cell `snappyHexMesh`
+heading into its layer phase, where the peak occurs. My supervisor's instruction was to
+kill **my own** fine mesh build on a trigger. I thought I had a better trade: `r2_coarse`'s
+solve was already `NOT A RESULT` on its wall-treatment gate, and `ps -eo pid,rss,comm
+--sort=-rss` showed four `simpleFoam` ranks at 1.17–1.30 GiB — **5 GiB**. Kill the level
+that is already ungraded, save the level that is scientifically admissible. Good argument.
+
+**The premise was false.** Those four ranks were **`SUBOFF_A1/SOLVE_L1` — another lane's
+job**, the only SUBOFF solve the lab has ever got running, relaunched thirteen minutes
+earlier after an upstream-defect crash. **My own `r2_coarse` ranks were 0.11 GiB each,
+0.44 GiB total.** The plan would have freed almost nothing, destroyed 500 uncheckpointed
+iterations of my own, handed up a 5 GiB saving that never existed — **and killed another
+agent's work in a way that was undetectable as mine.** That case would simply have died
+and been triaged as a crash.
+
+**What `ps` actually gives you.** `COMMAND` is `simpleFoam`. `RSS` is real. **Neither says
+whose.** On a box where six teams run the same three binaries, the process *name* is a
+label shared by every lane, and sorting by RSS groups by size, not by owner. A lane
+cannot see another lane's jobs as anything but rows.
+
+**The rule.**
+1. **IDENTIFY EVERY PROCESS BY `/proc/<pid>/cwd`, AND BY `/proc/<pid>/cmdline` READ IN
+   FULL — NEVER BY NAME, NEVER BY `ps ... comm`, NEVER BY PATTERN.** The cwd names the
+   case directory, and the case directory names the owner. That is the only field on a
+   shared box that answers *whose*.
+2. **RE-CONFIRM AT THE MOMENT OF THE SIGNAL, NOT ONLY AT THE CHECK.** A pid can be reused
+   between the two. A guard that verified cwd a minute ago and signals now is signalling
+   a pid, not a process. **If the cwd no longer confirms, REFUSE TO SIGNAL and say so.**
+3. **NEVER `pkill`/`pgrep` BY PATTERN.** The pattern matches the invoking command line
+   itself, and it matches any process that merely *mentions* the target. Counting my own
+   guard's instances this same night, a loop grepping its name reported **three** — two
+   of them were my own counting shells.
+4. **A KILL DECISION NAMES PIDS, AND THE RECORD SAYS WHICH CASE DIRECTORY EACH ONE WAS
+   CONFIRMED AGAINST.** "Kill the coarse solve" is not an instruction; it is a wish.
+
+**Why the procedural rule beat the reasoning.** The instruction to identify by cwd came
+from my supervisor and I followed it **while believing I already knew the answer**. That
+is the entire value of a procedural rule: **it fires when your judgement is confident and
+wrong, which is exactly the case where nothing else will stop you.** Had I been asked to
+justify the check first, I would have argued it was unnecessary — I had just read the
+process list.
+
+**The family this belongs to, and why it is the dangerous member.** This is the same shape
+as L-555 (an assertion whose label was right and whose referent was wrong) and L-556 (a
+rate whose label was right and whose referent was wrong). **Those cost rework. This one
+was one step from destroying another agent's run.** The failure mode is identical and the
+blast radius is not: **a referent error inside an instrument produces a wrong number; a
+referent error attached to a signal produces a wrong corpse.** Escalate the identification
+discipline in proportion to what the mistake can reach — **read-only referent errors are
+corrected by the next reader, and `kill -9` has no next reader.**
+
+**Related.** L-555, L-556 (the same label/referent shape, read-only blast radius); the
+`pkill matches its own shell` pattern; the fleet rule that another team's process is never
+touched in either direction; standing rule 10 (an unexpected change is **inspected, never
+reverted** — the same instinct applied to the working tree).
