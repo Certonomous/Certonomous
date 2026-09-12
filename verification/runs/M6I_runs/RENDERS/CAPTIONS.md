@@ -80,3 +80,44 @@ time.
 
 *Filed by a cfd `lab-lane`, 2026-09-12. No solver launched. Alters no gate, threshold, cap
 or label. No agent's message is Sanaa's consent. Submissions parked.*
+
+---
+
+## `M6I_R1_L3_cp_vs_agard.png`
+
+> **ONERA M6 — surface pressure at the six registered AGARD stations, M6I level L3 against
+> AGARD AR-138 TABLE B1-14 TEST 2308 (M = 0.8395, α = 3.06°, Re = 11.72e6).** Solve
+> `M6I-R1-L3-R3`, `rhoSimpleFoam`, SpalartAllmaras, 4 ranks, completed 2026-09-12T22:17:26Z,
+> `rc = 0`, 3,000 iterations, `End` line, outer-iteration residuals ≤ 7.8e-05, planted
+> control seen.
+>
+> 🔴 **THIS FIGURE IS A GATE FAIL AND SHOWS WHY IN ONE GLANCE. NOTHING ON OR NEAR IT MAY BE
+> PRESENTED AS A VALIDATED M6 RESULT.** The experiment (open symbols) reaches −Cp ≈ 1.0–1.2
+> on the upper surface and then drops through a shock; **the CFD (blue) peaks at −Cp ≈ 0.43
+> and has no shock at all.** Measured by the frozen grader: `cfd_cp_rise_at_shock` **0.087**
+> against the experiment's **0.424** at η = 0.65, and **0.053** against **0.640** at η = 0.90
+> — an order of magnitude short of the registered shock-strength limb S1 (≥ 0.212, ≥ 0.320).
+> All 12 Cp rows miss the registered RMS ≤ 0.050 band, by factors of 3.4 to 8.7.
+>
+> **The cause is resolution, and it was disallowed in advance as a mesh-quality excuse.**
+> 15,360 cells give 480 wing faces — **24 points around the section, about 12 per surface.**
+> `M6I_R1_SOLVE_PREREGISTRATION.md` ADDENDUM 1 §A1.4 registered, before any Cp existed, that
+> an inboard miss could **not** be blamed on the family's 87° non-orthogonality, because
+> η = 0.20, 0.44 and 0.65 carry 84, 62 and 116 faces over 70° out of L1's 191,794.
+>
+> **η = 0.96 additionally carries `NOT A RESULT — PATH-DEPENDENT`** (ADDENDUM 7 §A7.2): the
+> ramped and un-ramped runs of this same level differ there by max|ΔCp| **0.0165** against a
+> registered limb of 0.01, while the other five stations agree to better than 0.0022.
+>
+> **Colour carries no identity on its own** — experiment is black open symbols, CFD a blue
+> line, and upper/lower are separated by marker shape and line style as well as hue, so the
+> figure survives greyscale and colour blindness. The dataviz skill's palette validator was
+> run and **is blind in this environment**: a deliberately failing pair one hex step apart
+> produced **zero bytes and exit 0**, exactly as a good palette did, because its entry point
+> reads `document.body` and never executes under node. **A pass from a reader not shown able
+> to see a failure is not evidence** (rule 3), so no validation is claimed and the design is
+> safe by construction instead.
+>
+> Produced by `scripts/plot_m6i_cp.py`. The upper/lower split is **transcribed from the
+> frozen grader** `scripts/grade_m6_agard_cp.py:cfd_curve()`, not re-decided here; the
+> experiment's split is its own Z/L sign, already resolved in the data file.
