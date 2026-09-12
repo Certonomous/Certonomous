@@ -684,3 +684,63 @@ item 7 is for, and **I am not ruling it myself**: whether a cap crossing forces
 
 *Nothing in this rung is sent, filed, uploaded, registered, posted or commented
 outside this box (rule 7).*
+
+---
+
+## ADDENDUM 3 — 2026-09-12 ~22:15Z, BEFORE THE FLAG FIRES: `CAP_FLAG.txt` WILL CARRY A TIME 54.5 MINUTES LATE, AND THE REASON IS THE RESUME
+
+**Version 1.3 → 1.4. Dated post-freeze addendum. Appended at the foot; lines
+whose number changed above this section: 0.** **No gate, threshold, band, cap or
+label is touched. This is an INFRASTRUCTURE record under this entry's own
+`_field_classes` rule (L-342): it can void a cost claim's timestamp and it can
+**never** void physics.
+
+**REGISTERED BEFORE THE FLAG FIRES, WHICH IS THE ONLY REASON IT IS WORTH A
+DOCUMENT.** A discrepancy explained after the fact is an excuse; the same
+discrepancy written down before the fact is a prediction.
+
+### AD3.1 THE DEFECT, MEASURED
+
+`monitor_k2g.py` is live, **pid 24345**, invoked `<case> 4 420 1260 R4` — so it
+holds cap **1260**, POINT **420**, and R4 correctly suspended per Amendment 1.
+Its cap limb computes `fh_cm = (time.time() - t0) * ranks / 60.0`, and **its
+`t0` is the MONITOR's own start: 1789249767 = 2026-09-12T21:49:27Z — THE
+RESUME, NOT THE ORIGINAL LAUNCH.** **Segment 1's 3,269.86 solver wall-seconds =
+217.99 core-min are therefore invisible to it.**
+
+- It will stamp `CAP_FLAG.txt` when **segment 2 alone** reaches 1260 core-min =
+  18,900 wall-s after 21:49:27Z: **2026-09-13T03:04:27Z.**
+- The **true cumulative crossing** is at segment-2 wall 15,630 s:
+  **2026-09-13T02:09:57Z** — the ~02:10Z AD2.2 registered, **and AD2.2 is
+  right.**
+- **The instrument is late by 54.5 wall-minutes = 218 core-min.**
+
+**THIS IS A GAP THE RESUME EXPOSED, NOT A DEFECT THE MONITOR INTRODUCED.** Its
+`t0` is correct for a single-segment run, and **this is the first resumed run it
+has ever monitored.** Its cap limb is otherwise correct and **honours directive
+#17 exactly**: it writes the flag, sends no signal, and says so in the text it
+writes. The three armed rules R1/R2/R3 read per-step residuals and `DP_module`
+and **are untouched by the `t0` question** — this reaches the COST limb only.
+
+### AD3.2 WHAT IS DONE ABOUT IT, AND WHAT IS DELIBERATELY NOT
+
+**THE INSTRUMENT IS NOT EDITED.** It is live, on a live run, and other records
+cite it. **Amendment 1's §A1.3 discipline governs: an instrument is EXTENDED,
+never edited to make a rule true.** `monitor_k2g.py` is not modified, not
+restarted, and the solver (pid 24659) is not touched.
+
+**INSTEAD, ADDITIVELY:** at the true cumulative crossing a second file,
+**`CAP_FLAG.cumulative.txt`**, is written beside the case — **never overwriting
+the instrument's own `CAP_FLAG.txt`** — carrying **both readings, both
+timestamps, the per-segment split, and the cause named**. It states explicitly
+that it is a **second reading beside the instrument's, not the authoritative
+flag**. **Two files with two honest timestamps and the reason on disk beats one
+file carrying a time that is wrong by 54.5 minutes with nothing anywhere saying
+so.**
+
+**NOTHING STOPS.** Directive #17 stands; the crossing remains a flag. The
+question of what a crossing MEANS for the verdict is the one already escalated
+in AD2.3 and is **not** re-decided here.
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*
