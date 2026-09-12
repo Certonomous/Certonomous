@@ -1,12 +1,14 @@
-# PROPOSED DIFF — NOT APPLIED. a3gc_grade.py is UNCHANGED on disk and in HEAD
-# (md5 73dbe368934956700da87e5a1f44ea0c, verified against the committed blob).
+# PROPOSED DIFF r2 — NOT APPLIED. a3gc_grade.py is UNCHANGED on disk and in HEAD
+# (md5 73dbe368934956700da87e5a1f44ea0c, re-verified against the committed blob
+# after writing this file).
 #
-# Purpose: implement A3GC-R2 §4.4 `G-FIELD`. Purely ADDITIVE — no existing
-# function is modified, no existing gate's behaviour changes. `gate_g_res` and
-# `gate_g_plat` are untouched; G-FIELD is a NEW limb wired in beside G-RES.
+# Revision r2 fixes the three defects the supervisor raised on r1:
+#   D1  _logfit crashed on v <= 0 or non-finite instead of refusing.
+#   D2  the new dense reader had no planted control, only "refuse on zero".
+#   D3  the demoted G-RES limb was not labelled at the point of print.
 #
-# Read this as a diff. Three hunks: constants, a dense reader, the new gate,
-# plus one 3-line wiring hunk.
+# Purpose: implement A3GC-R2 §4.4 `G-FIELD`. Purely ADDITIVE apart from the one
+# labelled print in `gate_g_res` (D3) and the 3-line wiring hunk.
 
 --- a/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_grade.py
 +++ b/cases/dafoam/ladder-a/A3/curriculum_A3GC/a3gc_grade.py
@@ -24,13 +26,13 @@
 +# the definitional boundary at which a remaining trend stops being
 +# distinguishable from the window's own scatter.  No tuned constant.
 +REG_FIELD_TREND_SNR_MAX = 1.0
-+# Limb 2, alternation.  Applied ONLY to a level that passed limb 1, because a
-+# surviving trend masks alternation (measured: the same L2 p series reads
-+# lag-1 -0.744 at W=80 and +0.991 at W=500).
++# Limb 2, alternation, on the DETRENDED series and only where limb 1 passed,
++# because a surviving trend masks alternation (measured: the same L2 p series
++# reads lag-1 -0.744 at W=80 and +0.991 at W=500).
 +# 2a: first-difference sign-alternation fraction.  1.000 for a pure period-2
 +#     series, 0.5 for white noise, ~0 for a monotone one.  0.95 admits one
-+#     non-alternating step in twenty (ties, a single glitch) and nothing that
-+#     is not essentially a pure alternation.
++#     non-alternating step in twenty and nothing that is not essentially a
++#     pure alternation.
 +REG_FIELD_ALT_FRAC_MAX = 0.95
 +# 2b: lag-1 autocorrelation.  -0.5 is where the alternating mode carries
 +#     exactly half the series variance (x_t = a(-1)^t + e_t => lag1 =
@@ -39,7 +41,26 @@
  
  # --------------------------------------------------------- Sec.4.3 bands
  REG_P_BAND = (1.0, 3.0)
-@@ -672,6 +691,17 @@
+@@ -310,6 +329,13 @@
+ PLANT = 1.234e-03
+ PLANT_CELLS = 1234567
+ PLANT_FACES = 4321
++# R2 Sec.4.4 / standing rule 3: the dense reader gets its OWN planted control,
++# driven BOTH ways.  A control that only ever shows red is as useless as one
++# that only ever shows green.
++PLANT_DENSE_BASE = 1.234e-05    # planted plateau level, distinct from PLANT
++PLANT_DENSE_AMP = 0.03          # +/-3 % alternation -> alt-frac 1.000
++PLANT_DENSE_DECADES = 2.0       # planted monotone descent, 2 decades over W
+ 
+@@ -670,6 +696,12 @@
+ # (regex block, beside the existing _INITRES_RE / _PMR_RE definitions)
+ 
++# "GAMG:  Solving for p, Initial residual = 2.29e-05, Final residual = ..."
++# "smoothSolver:  Solving for Ux, Initial residual = ..."
++_DENSE_INITRES_RE = re.compile(
++    r"^(\w+):\s+Solving for (\w+), Initial residual = ([0-9.eE+-]+),", re.M)
++
+@@ -675,6 +707,17 @@
  def read_log(path):
      if not os.path.isfile(path):
          refuse("READ", "solver log does not exist: %s" % path)
@@ -59,21 +80,40 @@
 +
      out["CD"] = [float(m) for m in _FUNC_RE["CD"].findall(txt)]
      out["CL"] = [float(m) for m in _FUNC_RE["CL"].findall(txt)]
-     out["times"] = [float(m) for m in _TIME_RE.findall(txt)]
-@@ -670,6 +700,12 @@
- # (regex block, beside the existing _INITRES_RE / _PMR_RE definitions)
- 
-+# "GAMG:  Solving for p, Initial residual = 2.29e-05, Final residual = ..."
-+# "smoothSolver:  Solving for Ux, Initial residual = ..."
-+_DENSE_INITRES_RE = re.compile(
-+    r"^(\w+):\s+Solving for (\w+), Initial residual = ([0-9.eE+-]+),", re.M)
-+
-@@ -1253,6 +1289,90 @@
+
+@@ -931,7 +974,13 @@
+ def gate_g_res(log, accept_floor, report):
+     ...
+-    print("\n--- G-RES  (PREREG Sec.3.6 / N-D44)  [PRECONDITION, NOT DISCRIMINATING] ---")
++    # D3: under R2 this limb is demoted to recorded-and-printed (R2 Sec.4.4).
++    # The label goes on the PRINT, not only in a source comment, so a cold
++    # reader cannot mistake a G-RES FAIL above an overall PASS for a gate that
++    # silently failed to lower the verdict.
++    print("\n--- G-RES  (PREREG Sec.3.6 / N-D44)  "
++          "[RECORDED, NOT GATED (R2 Sec.4.4) -- per-equation normalisation "
++          "makes a common floor indict p for how it is scaled] ---")
+     ...
+@@ -1253,6 +1302,76 @@
  def adjacent_delta(xs):
      ...
  
-+def _logfit(xs):
-+    """Least-squares fit of log10(x) vs index.  Returns (slope, scatter, resid)."""
++def _logfit(xs, eq="?", where="?"):
++    """Least-squares fit of log10(x) vs index.  Returns (slope, scatter, resid).
++
++    D1: REFUSES on a non-positive or non-finite sample.  math.log10 raises
++    ValueError on 0.0 and on a negative, and a traceback is not a refusal --
++    this file's contract is refuse (exit 2) rather than degrade.  A converged
++    solve can legitimately print an initial residual of exactly 0, and a
++    truncated line can yield one, so this is a live path, not a theoretical one.
++    """
++    for i, v in enumerate(xs):
++        if not isinstance(v, float) or v != v or v in (float("inf"), float("-inf")):
++            refuse("G-FIELD", "%s %s: non-finite residual sample at window "
++                   "index %d: %r" % (where, eq, i, v))
++        if v <= 0.0:
++            refuse("G-FIELD", "%s %s: non-positive residual sample at window "
++                   "index %d: %r.  log10 is undefined there; refusing rather "
++                   "than crashing or silently dropping it." % (where, eq, i, v))
 +    s = [math.log10(v) for v in xs]
 +    n = len(s)
 +    mx = (n - 1) / 2.0
@@ -85,23 +125,96 @@
 +    return slope, scatter, resid
 +
 +
++def _field_stats(win, eq="?", where="?"):
++    """The three G-FIELD statistics for one equation's window."""
++    slope, scatter, resid = _logfit(win, eq, where)
++    snr = abs(slope) * len(win) / scatter if scatter > 0 else float("inf")
++    ss = sum(r * r for r in resid)
++    lag1 = (sum(resid[i] * resid[i + 1] for i in range(len(resid) - 1)) / ss
++            if ss > 0 else 0.0)
++    d = [resid[i + 1] - resid[i] for i in range(len(resid) - 1)]
++    nalt = sum(1 for i in range(len(d) - 1) if d[i] * d[i + 1] < 0)
++    altfrac = nalt / (len(d) - 1) if len(d) > 1 else 0.0
++    return snr, lag1, altfrac
++
++
++def plant_dense_field(src_log, scratch):
++    """Standing rule 3 for the NEW dense reader, driven BOTH WAYS.
++
++    Refusing on "I read zero lines" is not a planted control: it cannot show
++    the reader is able to see a non-zero.  This writes a copy of a real log
++    with the p `Solving for p` initial residuals REPLACED by a synthetic series
++    of known character, reads it back through `_DENSE_INITRES_RE`, and asserts
++    the gate reaches the known answer.  Refuses if it cannot.
++
++      case A  pure period-2 at PLANT_DENSE_BASE +/- PLANT_DENSE_AMP
++              -> reader must see PLANT_DENSE_BASE; limb 1 must PASS (no trend)
++                 and limb 2 must FAIL (alt-frac 1.000, lag1 near -1).
++      case B  pure monotone descent of PLANT_DENSE_DECADES over the window
++              -> limb 1 must FAIL, and limb 2 must NOT report alternation.
++
++    Case B is the half that matters most: a control that only ever shows red
++    proves nothing about a green.
++    """
++    W = REG_FIELD_WINDOW
++    cases = {}
++    cases["A"] = [PLANT_DENSE_BASE * (1.0 + (PLANT_DENSE_AMP if i % 2 else -PLANT_DENSE_AMP))
++                  for i in range(W)]
++    cases["B"] = [PLANT_DENSE_BASE * 10.0 ** (-PLANT_DENSE_DECADES * i / (W - 1.0))
++                  for i in range(W)]
++    for name, series in cases.items():
++        path = _write_planted_dense_log(src_log, scratch, series, name)
++        got = (read_log(path).get("dense_initres") or {}).get("p") or []
++        if len(got) < W:
++            refuse("G-PLANT-DENSE", "case %s: planted %d p samples, dense "
++                   "reader read back %d.  The reader is structurally blind to "
++                   "the very lines G-FIELD grades on." % (name, W, len(got)))
++        win = got[-W:]
++        if abs(win[0] - series[0]) > 1e-12 * max(1.0, abs(series[0])):
++            refuse("G-PLANT-DENSE", "case %s: planted %.6e at window index 0, "
++                   "read back %.6e." % (name, series[0], win[0]))
++        snr, lag1, altfrac = _field_stats(win, "p", "PLANT-" + name)
++        if name == "A":
++            if snr > REG_FIELD_TREND_SNR_MAX:
++                refuse("G-PLANT-DENSE", "case A: a planted trend-free "
++                       "alternation read trend SNR %.3f > %g -- limb 1 is "
++                       "firing on something that has no trend."
++                       % (snr, REG_FIELD_TREND_SNR_MAX))
++            if altfrac < REG_FIELD_ALT_FRAC_MAX or lag1 > REG_FIELD_LAG1_MIN:
++                refuse("G-PLANT-DENSE", "case A: a planted PURE period-2 "
++                       "series read alt-frac %.3f and lag-1 %+.3f -- limb 2 "
++                       "CANNOT SEE an alternation it is the whole point of."
++                       % (altfrac, lag1))
++        else:
++            if snr <= REG_FIELD_TREND_SNR_MAX:
++                refuse("G-PLANT-DENSE", "case B: a planted %g-decade monotone "
++                       "descent read trend SNR %.3f <= %g -- limb 1 cannot see "
++                       "a descent." % (PLANT_DENSE_DECADES, snr,
++                                       REG_FIELD_TREND_SNR_MAX))
++            if altfrac >= REG_FIELD_ALT_FRAC_MAX or lag1 <= REG_FIELD_LAG1_MIN:
++                refuse("G-PLANT-DENSE", "case B: a planted MONOTONE descent "
++                       "was reported as alternating (alt-frac %.3f, lag-1 "
++                       "%+.3f) -- limb 2 shows red on a clean input."
++                       % (altfrac, lag1))
++    print("  G-PLANT-DENSE: dense reader sees a planted period-2 (limb 2 red) "
++          "AND a planted monotone descent (limb 1 red, limb 2 green).  Both "
++          "directions demonstrated.")
++    return True
++
++
 +def gate_g_field(log, report, level):
 +    """R2 Sec.4.4 G-FIELD.  Field stationarity, SEQUENTIALLY:
-+
-+      limb 1 (trend)       -- on every equation, at REG_FIELD_WINDOW.
-+      limb 2 (alternation) -- ONLY on equations that passed limb 1, because a
-+                              surviving trend masks the alternation.
-+
-+    A level failing either limb is NOT plateaued and its row is NOT A RESULT,
-+    whatever its peak-to-peak.  Every statistic is PRINTED for every equation
-+    whether or not it gates, so a cold reader sees what the gate saw.
++         limb 1 (trend)       -- every equation, at REG_FIELD_WINDOW.
++         limb 2 (alternation) -- ONLY where limb 1 passed, on the DETRENDED
++                                 series, because a surviving trend masks it.
++    A level failing either limb is NOT plateaued, whatever its peak-to-peak.
++    Every statistic is PRINTED for every equation whether or not it gates.
 +    """
 +    print("\n--- G-FIELD  (R2 Sec.4.4)  window = %d dense outer iterations ---"
 +          % REG_FIELD_WINDOW)
 +    dense = log.get("dense_initres") or {}
 +    if not dense:
-+        refuse("G-FIELD", "%s: read ZERO dense per-iteration residual lines. "
-+               "Refusing rather than grading on a reader that saw nothing."
++        refuse("G-FIELD", "%s: read ZERO dense per-iteration residual lines."
 +               % log["path"])
 +    ok_all = True
 +    rec = {}
@@ -110,26 +223,13 @@
 +        if len(v) < REG_FIELD_WINDOW:
 +            print("  %-8s only %d dense samples (need %d) -> NOT A RESULT for "
 +                  "want of evidence" % (eq, len(v), REG_FIELD_WINDOW))
-+            rec[eq] = {"n": len(v), "verdict": "NOT A RESULT",
-+                       "reason": "fewer than %d dense samples" % REG_FIELD_WINDOW}
++            rec[eq] = {"n": len(v), "verdict": "NOT A RESULT"}
 +            ok_all = False
 +            continue
 +        win = v[-REG_FIELD_WINDOW:]
-+        slope, scatter, resid = _logfit(win)
-+        snr = abs(slope) * len(win) / scatter if scatter > 0 else float("inf")
++        snr, lag1, altfrac = _field_stats(win, eq, level)
 +        trend_ok = snr <= REG_FIELD_TREND_SNR_MAX
-+
-+        # limb 2 statistics are computed and printed always, gated only if
-+        # limb 1 passed.
-+        ss = sum(r * r for r in resid)
-+        lag1 = (sum(resid[i] * resid[i + 1] for i in range(len(resid) - 1)) / ss
-+                if ss > 0 else 0.0)
-+        d = [resid[i + 1] - resid[i] for i in range(len(resid) - 1)]
-+        nalt = sum(1 for i in range(len(d) - 1) if d[i] * d[i + 1] < 0)
-+        altfrac = nalt / (len(d) - 1) if len(d) > 1 else 0.0
-+        alt_ok = (altfrac < REG_FIELD_ALT_FRAC_MAX
-+                  and lag1 > REG_FIELD_LAG1_MIN)
-+
++        alt_ok = (altfrac < REG_FIELD_ALT_FRAC_MAX and lag1 > REG_FIELD_LAG1_MIN)
 +        if trend_ok:
 +            eq_ok = alt_ok
 +            note = "" if alt_ok else "  <-- ALTERNATING (period-2 limit cycle)"
@@ -141,24 +241,22 @@
 +              "| lag-1 = %+.3f (> %g) %s"
 +              % (eq, snr, REG_FIELD_TREND_SNR_MAX, "OK" if trend_ok else "FAIL",
 +                 altfrac, REG_FIELD_ALT_FRAC_MAX, lag1, REG_FIELD_LAG1_MIN, note))
-+        rec[eq] = {"n": len(v), "window": REG_FIELD_WINDOW,
-+                   "log10_slope_per_iter": slope, "scatter": scatter,
-+                   "trend_snr": snr, "trend_ok": trend_ok,
-+                   "alt_frac": altfrac, "lag1": lag1, "alt_ok": alt_ok,
-+                   "verdict": "PASS" if eq_ok else "NOT A RESULT"}
++        rec[eq] = {"n": len(v), "window": REG_FIELD_WINDOW, "trend_snr": snr,
++                   "trend_ok": trend_ok, "alt_frac": altfrac, "lag1": lag1,
++                   "alt_ok": alt_ok, "verdict": "PASS" if eq_ok else "NOT A RESULT"}
 +    report.setdefault("G-FIELD", {})[level] = rec
 +    print("  G-FIELD %s: %s" % (level, "OK" if ok_all else "NOT A RESULT"))
 +    return ok_all
 +
-@@ -1845,9 +1965,13 @@
+@@ -1845,9 +1965,15 @@
      for lv in LEVELS:
          floor = ...
          res_ok[lv] = gate_g_res(logs[lv], floor, report)
 +        # R2 Sec.4.4: G-FIELD is a SEPARATE limb.  G-RES keeps its own
-+        # behaviour and its own printout; under R2 its per-equation floor is
-+        # RECORDED AND PRINTED beside every row but is not the discriminator,
-+        # for the reason stated in R2 Sec.4.4 (per-equation normalisation).
++        # behaviour and prints its own RECORDED-NOT-GATED label (D3).
 +        field_ok[lv] = gate_g_field(logs[lv], report, lv)
  
 -        all_res_ok = all(res_ok[lv] for lv in LEVELS)
-+        all_res_ok = all(field_ok[lv] for lv in LEVELS)
++    # Standing rule 3 on the NEW reader, before any verdict depends on it.
++    plant_dense_field(logs[LEVELS[0]]["path"], scratch)
++    all_res_ok = all(field_ok[lv] for lv in LEVELS)
