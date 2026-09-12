@@ -10609,3 +10609,68 @@ git diff HEAD~1 HEAD --stat                             # post-commit verify, NO
 **The full V-119 per-team-source cutover stays DORMANT.** `docs/lab_state/*.md` are **UNTRACKED and STALE** (2026-08-31, predating the 2026-09-07 L-499 convergence); `merge_lab_state.py` **hard-refuses every real invocation at rc 7**; the merge cron is **not installed**; and cutover requires `MERGE_LAB_STATE_CUTOVER_AUTHORIZED=1` plus `--adopt`, **after the chief sequences it**. **None of that is touched here and none of it is authorised by this clause.** Reading a stale source there has already cost one team a stall.
 
 **This clause changes a write path and nothing else.** No gate, no threshold, no verdict, no cutover. It is the narrow step `§2de` allows, and it is landed because **four teams lost work to a sweep that two existing green instruments would have refused.**
+
+---
+
+## Amendment — v2.02, 2026-09-12 — **§2dg GEOMETRIC SIMILARITY IS A PRECONDITION OF THE OBSERVED ORDER, NOT OF THE TRIPLE. A FAMILY WHOSE NEAR-WALL AND BULK REFINEMENT RATIOS DISAGREE MAY STILL BE `CONVERGING`, AND MAY NOT QUOTE AN ORDER OR A GCI FROM IT**
+
+*lines whose number changed above this section: 0*
+
+**Raised by cfd from its SUBOFF A1 family and routed to me by the chief. [lab-attributed] — decided by this supervisor under `§2`; no owner ruling was sought and none is claimed.**
+
+### §2dg.0 The measurement that forced it
+
+cfd measured a SUBOFF A1 family whose **bulk (cell-count) refinement ratio is 1.4079** while its **near-wall first-cell ratio is 1.7914**, because `nSurfaceLayers` runs 5-6-7-8 down the family and every level gains a layer on top of the surface refinement. **A 27 % disagreement is not a rounding artifact.** cfd registered it as a named weakness and moved no threshold, which is the correct order of operations and is why this clause exists instead of a quiet re-grade.
+
+**cfd also checked before generalising, and that is worth recording as much as the finding:** MRF carries `addLayers false` at **every** level, so this mechanism is **NOT** the explanation for MRF's two negative observed orders (−5.2311, −5.7784). A team that measures the negative case before extending its own claim is doing the thing `§28.11` was written about.
+
+### §2dg.1 The ruling
+
+Roache's observed order `p = ln((f₃−f₂)/(f₂−f₁)) / ln(r)` consumes a **single `r`**, and a single `r` asserts that the whole domain refines together. Three quantities must therefore be kept apart, and this lab has been collapsing them:
+
+1. **The STATE (`CONVERGING`, `DIVERGENT`, `STAGNANT`, `OSCILLATORY`, `EXACT`) is a property of the THREE VALUES** — whether they are monotone and whether the differences shrink. **It does not consume `r` and it survives a non-similar family. `CONVERGING` MAY STAND.**
+2. **The OBSERVED ORDER consumes `r` and does not survive.** When the near-wall and bulk ratios disagree, the effective `r` — `(N_fine/N_coarse)^(1/d)` from total cell count — is a **volume-weighted average dominated by the bulk**, while the quantity of interest (drag, moment, Nusselt) is **largely produced in the boundary layer**. The formula then divides a boundary-layer error difference by the logarithm of a bulk ratio. **That is not a wrong number. It is a number about nothing**, and it must not be reported as a measurement of the discretisation order.
+3. **The GCI consumes both `r` and `p` and does not survive. NO GCI MAY BE QUOTED** from a family that is not refinement-invariant near the wall. Rule 5 already forbids quoting a GCI when the three values are not monotone; this is the same prohibition reached by the other precondition.
+
+### §2dg.2 The generalisation — and it is the part that matters, not `nSurfaceLayers`
+
+The governed property is **REFINEMENT-INVARIANCE OF THE NEAR-WALL TREATMENT**. It breaks in two ways and `nSurfaceLayers` is only the visible one:
+
+- **(A) THE GRID FAMILY IS NOT SIMILAR.** Layer parameters (`nSurfaceLayers`, `expansionRatio`, `firstLayerThickness`, `finalLayerThickness`, `minThickness`) vary by level. **Visible in the dictionaries** to anyone who looks.
+- **(B) THE GRID IS SIMILAR AND THE SOLUTION FAMILY IS NOT.** A high-Re wall function (`nutkWallFunction`, `nutUWallFunction`, `epsilon/omega/kqRWallFunction`) whose validity depends on `y⁺`, in a family where `y⁺` is **never measured per level**. As the grid refines `y⁺` falls, the wall function leaves its valid band, and **each level is running a DIFFERENT EFFECTIVE BOUNDARY CONDITION.** The mesh is geometrically similar; the physics is not.
+
+**(B) IS STRICTLY THE MORE DANGEROUS OF THE TWO, because (A) is legible in a dictionary and (B) is invisible unless somebody measured `y⁺`** — and a family that never measured it cannot tell you whether it happened. This is the live MRF hypothesis and the mechanism `SUBOFF §1.2` already diagnosed for R1b's `DIVERGENT` triple. **Both are instances of one clause, and a clause written only against `nSurfaceLayers` would have missed the one that is harder to see.**
+
+### §2dg.3 What the record must PRINT — always, not only when it is bad
+
+Beside every observed order, a graded record carries **BOTH ratios: the bulk (cell-count) refinement ratio AND the near-wall first-cell ratio**, and for any family using a wall function, **the per-level `y⁺` at the wall (min/max/mean)**.
+
+**ALWAYS, AND THE "ALWAYS" IS THE WHOLE CLAUSE.** A number printed only when it is unflattering teaches every reader that its **absence means it was fine**; a number printed unconditionally makes its **absence a defect on the face of the record**. This lab has already paid for the other arrangement — `§2db.2`: prose inside a delivered verdict is part of the verdict, and a field that reaches a verdict carries a control whether or not a gate reads it.
+
+### §2dg.4 The tolerance — I REFUSE TO INVENT ONE TONIGHT
+
+**No numeric threshold is set by this amendment, and setting one by feel would be the defect this charter exists to prevent.**
+
+- Where a pre-registration **registered** a refinement-similarity tolerance, **that tolerance governs**, and it was frozen before the answer was known, which is the whole of its evidentiary content.
+- Where **none was registered**, the two ratios are **printed** and **no GCI issues**. The absence of a registered tolerance is not a licence to assume similarity; it is the reason the claim cannot be made.
+- A general constant needs a **non-local justification**, exactly as `§2cb`/`V-121` refused to let the `0.20` admissibility constant rest on one campaign's convenience. **Commissioned, not guessed.**
+
+### §2dg.5 THE ANTI-GAMING LIMB — THIS CLAUSE RESTRICTS AND CAN NEVER PROMOTE
+
+**§2dg MAY NOT BE CITED TO TURN A `NOT A RESULT` INTO A RESULT.** A team whose triple came back `DIVERGENT` or `STAGNANT` may **not** argue that the family was non-similar, that the order is therefore uninterpretable, and that the negative verdict should be vacated. **The direction is fixed and it is the same one-way property rule 5 already fixes:** the gate can only turn a `PASS` or `GATE FAIL` **into** `NOT A RESULT`, never the reverse. **A non-similar family can be prevented from claiming a result. It can never be rescued into one.** If a non-similar family's order is uninterpretable, the honest consequence is that the rung has **not been measured** and must be re-run on a similar family — not that its bad news may be discarded.
+
+### §2dg.6 Retrospective effect — NONE on any verdict, and that is deliberate
+
+**NO DELIVERED VERDICT MOVES BY THIS AMENDMENT.** A GCI is not what decides `PASS`/`GATE FAIL` — the pre-registered band is — so withholding one flips nothing. What is owed on an already-delivered row flagged by the standing sweep is a **dated addendum** printing both ratios and, where a GCI was quoted on a non-similar family, **striking that GCI with its ground stated** (rule 6: originals are struck, never rewritten; and I do not edit another team's records). **Where an owning team finds that a struck GCI was load-bearing for a decision, that goes to the chief and, if it would move a verdict, to Sanaa. It is not settled here.**
+
+### §2dg.7 Where the clauses land, and what is NOT mine
+
+- **This charter: §2dg, above.** Mine, landed.
+- **`scripts/roache_triple.py`: a NEW GROUND in `gci_refusal_reason()`** — the single function landed at `a7b3846d8` that already writes the reason a GCI is withheld. **OWED, not landed here.** It must meet `§2d.1`'s four conditions, and its direction is satisfiable *a fortiori* only if it is shown **restricting-or-neutral on every delivered row** — a repair that moved a verdict in the permissive direction would violate `§2dg.5` in code. **Its `why` string carries a control (`§2db.2`) or it does not land.**
+- **`docs/standards/MESH_STANDARD.md`: NOT MINE — RAISED, NOT EDITED.** A grid family's registration should state its refinement ratio for **both** the bulk and the near-wall region rather than a single number. cfd owns that file; `§15.9 item 2` in it is already an open referral this team answered elsewhere, and I am not adding a second.
+
+### §2dg.8 What is and is not claimed
+
+**Claimed:** that `r` is a single number in Roache's formula and a non-similar family does not have one; that a cell-count ratio is volume-weighted and bulk-dominated; that state, order and GCI have different preconditions; that (B) is less visible than (A).
+
+**Not claimed:** that any flagged family failed to converge — **non-similarity makes the ORDER uninterpretable, not the SOLUTION wrong.** That a numeric similarity tolerance is known. That any delivered verdict in this lab is wrong; the standing sweep is a roll call and **no verdict is moved by me**. That MRF's negative orders are explained — `addLayers false` **rules this mechanism out there**, and the `y⁺` hypothesis is under test by cfd and is **not** resolved by this amendment.
