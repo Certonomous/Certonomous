@@ -5125,3 +5125,82 @@ VERDICT: PASS   (0 control failure(s))
 
 **Not claimed:** that any docket, lesson, numerics or cost-calibration row is wrong. **No register row is impeached and no verdict is withdrawn.** The scored path is `-O`-safe and was checked before that sentence was written.
 
+
+## §34 — **THE TIER-2 MESH EXEMPTION IS AUTHORISED BY SANAA IN HER OWN WORDS AND ITS ADMISSION TEST IMPLEMENTS A SUBSET OF THE STANDARD IT CITES. EVERY UNIMPLEMENTED LIMB IS ONE THAT COULD ONLY EVER REFUSE. AND MY OWN FIRST READING OF IT WAS WRONG IN THE DIRECTION THAT FLATTERED MY VIGILANCE**
+
+**Dated 2026-09-12. Measured and ruled by the verification-supervisor personally (`§3` check-1, an instrument read as a diff; check-3, a claim defended against its own evidence). HEAD at this write: `a8f419662`. Solver compute: 0 core-min, $0.00.**
+
+**Origin.** `sdk/chief_engineer/mesh_certificate.py` (+153/−3) and `sdk/chief_engineer/certificate.py` (+135/−0) sit **UNCOMMITTED** in the working tree, introducing a two-tier mesh regime in which the finding `skewness errors` leaves `hard_errors` — the list that decides `verdict`, which decides `certificate_admits()` — for any grid carrying a Tier-2 declaration. They were found by a sweep of uncommitted work near this team's territory, not reported by their author.
+
+### §34.0 WHAT I GOT WRONG FIRST, RECORDED BECAUSE IT IS THE MORE TRANSFERABLE HALF
+
+My first reading, written down before it was checked, was that this is **a gate widening reaching for an authority it does not have** — the permission-laundering shape of rule 9. **That reading is false, and it is false in the direction that made me look careful.** The authority exists, it is the owner's own, and it is broader than the code:
+
+> *"7. Immediate applications, in this order: board migration approved and shared-index deletions frozen until it lands; **skewness quarantine reclassified to reporting**; "reported, not gated" adopted as the standard's default mode; …"*
+> — Sanaa, verbatim, `etc/sessions/2026-09-03T2000Z_sanaa_governance_reform.md:46-48`, read by me at HEAD.
+
+Her sentence is **unscoped** — no Tier-2 qualifier — and `:5-12` of the same capture says a reporting check *"never block[s] a solve from starting, a mesh from being used, or a hand-off from happening."* **The code applies the reclassification ONLY under a valid Tier-2 declaration (`mesh_certificate.py:229`). It is NARROWER than her ruling, not wider.** The suspicion I arrived with was the wrong suspicion, and had I published it without measuring, this team would have accused another of laundering a permission the owner had granted in writing.
+
+### §34.1 THE CODE CITES THE CLAUSE THAT FORBIDS IT AND NOT THE RULING THAT PERMITS IT
+
+`docs/standards/MESH_STANDARD.md` §15 exists **at HEAD**, `[SANAA-RULED]`, v1.10 (`:1575`) / v1.11 (`:1978`); the file is clean against HEAD. The code cites **§15.3(a)** as its authority — at `mesh_certificate.py:94-96`, `:230`, and in `TIER2_REPORTED_NOT_GATED`'s own docstring. **§15.3(a) does not carry it.** What §15.9 item 2 (`:1920-1931`) carries is the opposite, and it still reads this way at HEAD:
+
+> *"**Sanaa's (a) says quality is reported "not gated"** and names skewness in her own parenthesis, **but she did not name this machinery**, and reading her ruling onto a code path she did not mention is the permission laundering rule 9 forbids. **Referred.**"*
+
+So the file cites, as its licence, the clause that expressly **refuses** that licence and refers the point. The real authority is the 20:00Z capture 2½ hours later, which the code gestures at without naming a path. **The referral is inverted rather than honoured:** `mesh_certificate.py:104` quotes §15.9 item 2 by name and applies its warning to the two findings it *declines* to reclassify (`negative-volume cells`, `wrong-oriented face pyramids`), while doing to skewness precisely the thing that item referred.
+
+**This is the `§2db.2` class — prose inside a delivered output is part of the output — applied to the most load-bearing prose there is, a citation to authority.** An auditor who follows this file's own citation is led to the clause that says no.
+
+**A SECOND-ORDER FINDING, AND IT IS THIS TEAM'S OWN:** `docs/charters/VERIFICATION_CHARTER.md:5535` (`§2y.3`) **already records the answer** — *"She has **reclassified the skewness quarantine to REPORTING**"* — with the table row at `:5575` reading *"`§2r.4` obstacle 1 | **DISSOLVED BY HER**"*. **`MESH_STANDARD` §15.9 item 2 still reads "Referred." Two documents of this lab disagree at HEAD about whether an open referral is open**, and the one left stale is the one the code reads. `MESH_STANDARD.md` is not this team's file; the correction is **raised, not made**.
+
+### §34.2 THE FAIL-OPEN: §15.3 IS A CONJUNCTION OF FIVE AND THE CODE IMPLEMENTS PART OF ONE, PLUS ONE
+
+§15.3 (`:1636`) admits a Tier-2 grid *"when **all five** of (0) and (a)–(d) hold."* `tier2_declaration_valid()` (`mesh_certificate.py:132-164`) is handed the declaration and nothing else — sound and faithful to §15.2, and that much is good engineering — but it tests a **subset of (0)**:
+
+| §15.3 limb | implemented | direction if absent |
+|---|---|---|
+| (0)(1) named body / workshop / family / level / source | yes (5 fields) | — |
+| (0)(2) sha-256 of the **distributed file** | field present, **compared to nothing** | **ADMITS** |
+| (0)(2) sha-256 of the **converted `polyMesh`** | **absent** | **ADMITS** |
+| (0)(2) converter **and its version** | any non-empty string passes | **ADMITS** |
+| (0)(3) **other participants ran this same grid** | **absent** | **ADMITS** |
+| (0)(4) **case is a validation against that workshop's own data** | **absent** | **ADMITS** |
+| (b) registered solver-side mitigations (§15.4) | **absent** | **ADMITS** |
+| (c) Roache triple on the same committee family | **absent** | **ADMITS** |
+| (d) literal scope string (§15.5) | **yes**, refuses to issue | — |
+
+**Every unimplemented limb is one that could only ever REFUSE a Tier-2 claim. Not one of them could admit a grid the code currently rejects.** That asymmetry is the definition this file exists to collect: the implemented gate is strictly more permissive than the standard it mechanises, and it is more permissive by exactly the limbs nobody wrote.
+
+### §34.3 NINE STRINGS, NONE OF THEM CHECKED AGAINST ANYTHING
+
+The anti-bypass invariant is real and I verified it holds: the tier is derived from the declaration alone, no measured value reaches the decision, `write_certificate` overwrites a `stats`-smuggled tier, and `certificate_admits` re-checks. **It defends against the wrong adversary.** Its own comment — *"nine provenance facts, none of which a bad mesh can produce for itself"* — is true and beside the point: **the LANE can type all nine in a minute.** `prereg_commit` is never verified to be a real commit object, never checked to be an ancestor, never opened to confirm the declaration is in it; `prereg_path` is never read; `distributed_sha256` is never compared against a file, an archive or the mesh. The predicate is *"nine non-empty strings."*
+
+`certificate_admits`'s re-check calls **that same predicate**, so it catches a `tier` field set without a declaration and is blind to a fabricated one — while its comment claims it can *"re-check the claim rather than take the tier field's word for it."* That sentence overstates what the code does, and is the same defect class as the citation in §34.1.
+
+### §34.4 THE PATH IS DORMANT, WHICH IS WHY THIS IS A PRE-USE FINDING AND NOT A WITHDRAWAL
+
+No live caller passes `tier2_declaration` — not `verification/runs/B52_RUNG6_REPLICATE_runs/run_rung6_replicates.py:167,210`, not `verification/runs/R4_runs/run_c3_replicates.py:153,161`, not `sdk/workflows/backstep_case.py:858,862`. The only caller that does is `sdk/tests/test_mesh_tier2_admission.py`, which is **untracked**. **No mesh in this lab is Tier 2 today, and the `"skewness errors"` literal matches its `_HARD_ERRORS` entry exactly (`:54-55` vs `:107`), so the branch is live code that nothing currently enters.** **No verdict is impeached and none is withdrawn.** The repair is owed before first use, not after.
+
+### §34.5 THE ARTIFACT AND THE BYTES THAT MADE IT ARE NOT BOTH AT HEAD — AND I CORRECTED THIS CLAIM DOWNWARD
+
+343 `birth_certificate.json` exist on disk; **8** carry the new `tier` and `reported_not_gated` fields, all reading `tier-1-in-house` with `reported_not_gated: []`. One sits inside the repository at `verification/runs/ansys_verification/VMFL003_M3/L1_1000x25/constant/birth_certificate.json`, written 2026-09-07 — four days after the uncommitted code.
+
+**The claim reaching me was that this is a TRACKED graded artifact unreproducible from HEAD. I checked it myself and it is NOT tracked** — `git rev-parse HEAD:<that path>` is fatal. **The stronger sentence was available, was in my hand, and is false.** What survives is real and weaker: an **untracked** graded artifact, produced by **uncommitted** code, sitting in a run tree — neither the record nor its producer is at HEAD, and the schema of a certificate a third team has already exercised cannot be reconstructed from the repository.
+
+**This is the same disease as tonight's CRM finding, running the other way.** There, a *frozen pre-registration* exists only as a git blob and the disk holds an unsigned draft; here, a *producer* exists only on disk and the repository holds neither it nor its output. **One clause covers both: an artifact and the bytes that produced it must both be at HEAD, or the record is not reproducible.** `scripts/check_freeze_drift.py` is this team's instrument for the first half.
+
+### §34.6 OWNERSHIP IS CONTESTED IN COMMITTED PROSE — REFERRED, NOT ADJUDICATED
+
+`docs/LAB_STATE.md:38551`, `:38375`, `:38281`, `:38184` (cfd) claim the item — *"`sdk/chief_engineer/mesh_certificate.py` reported-not-gated mode, assigned to me"* — and cfd's **newest** such line, `:36808`, adds *"**not started**"*, written ~7.5 h **after** the files' mtimes. cfd's earlier `:38844` says the opposite: *"that is verification's `sdk/`, not cfd's."* This team's `V-88` (`:45374`) says *"obstacle 3 is the live one and **it is cfd's**."* **Both teams have assigned this file to the other in committed prose and neither has claimed writing the code that exists. Authorship: UNVERIFIED.** Cross-family ownership is the chief's to route and Sanaa's to arbitrate; this section does not settle it, and **the finding stands regardless of who wrote it.**
+
+### §34.7 WHAT IS OWED AND WHAT IS REFUSED
+
+**OWED, before any grid is declared Tier 2:** implement or explicitly register as unimplemented each limb in §34.2's table; verify `prereg_commit` is a real commit whose blob at `prereg_path` contains the declaration; compare `distributed_sha256` against the artifact it names. **Owed separately and by their owners:** `MESH_STANDARD` §15.9 item 2 to be closed against the 20:00Z ruling (cfd's file, raised here); the code's citation corrected from §15.3(a) to `etc/sessions/2026-09-03T2000Z_sanaa_governance_reform.md:46-48`; the file's masthead at `:3` still reads *"Version 1.2, dated 2026-08-11"*, nine section-versions stale.
+
+**REFUSED:** this section does not edit either `sdk/` file. They are **uncommitted work belonging to a team that has not claimed them**, and rule 10 inspects rather than reverts; a repair written by the discoverer, over another team's unfinished change, in the same breath as the finding, is a repair nobody should accept unreviewed — and §33.5 refused exactly this for the same reason.
+
+### §34.8 WHAT IS AND IS NOT CLAIMED
+
+**Claimed:** Sanaa's 20:00Z sentence, read by me at that path; §15.9 item 2 still reading *"Referred."* at HEAD, read by me; the charter's contrary `§2y.3` at `:5535`; the literal match between `_HARD_ERRORS`'s `"skewness errors"` and `TIER2_REPORTED_NOT_GATED`; the dormancy of the branch; that the birth certificate named in §34.5 is **not** tracked at HEAD.
+
+**Not claimed:** that any mesh has been wrongly admitted — none has, the path is dormant. That the authors acted without authority — **they did not; the authority is the owner's own and the code is narrower than it.** That §15.3(0)'s unimplemented limbs are unimplementable. **No verdict is withdrawn and no certificate is impeached by this section.**
