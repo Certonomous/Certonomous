@@ -197,6 +197,14 @@ for mp in mp04 mp05 mp06; do
   test -n "$(ls -d "$WORK/$mp"/processor* 2>/dev/null)" && { echo "ABORT G-COLD $mp processor* present"; exit 5; }
 done
 cp -a "$SRC/d6r2c_opt_runScript.py" "$WORK/" || { echo "ABORT stage instrument"; exit 4; }
+# ADDENDUM 3 (2026-09-12) -- the ARM 0 PRODUCER is staged too.  PREREGISTRATION
+# section 7 registers d6r2c_arm0_gradient_health.py --dump as the arm-0 producer,
+# and the container cannot run a file that was never copied into $WORK.  Its
+# PRODUCER constant is the BARE relative name "d6r2c_opt_runScript.py", resolved
+# against the container's working directory (/mnt/$ARM == $WORK), so the runScript
+# copied on the line above is exactly the file its exec'd header will read -- that
+# requirement is already satisfied by that line and this copy adds nothing to it.
+cp -a "$SRC/d6r2c_arm0_gradient_health.py" "$WORK/" || { echo "ABORT stage arm0 producer"; exit 4; }
 
 HOTARG=""
 if [ "$ARM" = "KR_RES" ]; then
@@ -223,13 +231,47 @@ echo "$AGE_DATUM" > "$WORK/.d6r2c_age_datum"
 echo "D6R2C_G_COLD_PASS arm=$ARM age_datum_epoch=$AGE_DATUM"
 
 # ---- the command.  NO --allow-run-as-root: we are not root. ---------------
+# ===========================================================================
+# ADDENDUM 3 (2026-09-12) -- THE ARM 0 COMMAND NOW INVOKES THE REGISTERED
+# PRODUCER.  THE LAUNCHER WAS THE DEFECTIVE SIDE, NOT THE CHAIN.
+#
+# WHAT WAS WRONG.  PREREGISTRATION.md section 7 registers the arm-0 producer as
+# `d6r2c_arm0_gradient_health.py --dump`, which runs the multipoint model and its
+# adjoint once and WRITES every total derivative of {obj.J, cl04.CL, cl05.CL,
+# cl06.CL} with respect to {twist, shape} -- EIGHT (of, wrt) pairs -- to a JSON
+# file from rank 0.  This launcher instead built the ARM0_4R and ARM0_2R commands
+# as `python d6r2c_opt_runScript.py -task compute_totals`, which computes only
+# that task's TWO default pairs and merely PRINTS them.  Nothing on that path
+# writes a file, so d6r2c_queue_chain.sh:43, which reads
+# $B/ARM0_4R/arm0_totals.json and $B/ARM0_2R/arm0_totals.json, had nothing to read.
+#
+# HOW IT WAS FOUND.  ARM0_4R exited rc=0 (ledger row, stamp 20260912T223315Z_67389,
+# wall_s=2013, core_min=134.2) with NO .json file anywhere in its run directory.
+# The chain's own `||` guard on the --compare step would therefore have aborted at
+# stage=ARM0_COMPARE with exit 12 -- "the gradient did not agree" -- when in fact
+# the gradient had never been written down.  The chain script matches the
+# registration; this file did not.
+#
+# PRE-REPAIR COMMAND TEXT, recorded verbatim so this repair is auditable from this
+# file alone:
+#   ARM0_4R: mpirun -np 4 --bind-to core --report-bindings -x PYTHONPATH -x HOME python d6r2c_opt_runScript.py -task compute_totals
+#   ARM0_2R: mpirun -np 2 --bind-to core --report-bindings -x PYTHONPATH -x HOME python d6r2c_opt_runScript.py -task compute_totals
+#
+# WHAT THIS REPAIR IS, AND WHAT IT IS NOT.  It makes the LAUNCHER CONFORM TO THE
+# FROZEN REGISTRATION and nothing else.  It CHANGES NO GATE, NO THRESHOLD, NO
+# TOLERANCE, NO CAP AND NO LABEL: the arm-0 tolerance stands at its REGISTERED
+# 1.0e-4 relative (ABS_FLOOR 1.0e-12, MAX_SMALL_FRACTION 0.50), the ARM0_4R and
+# ARM0_2R caps stand at 45.0 and 60.0 core-min, the rank counts stand at 4 and 2,
+# and the image digest and runScript md5 pins are untouched.  The comparator is
+# not edited by this addendum; only the command that feeds it.
+# ===========================================================================
 case "$ARM" in
   KR_REF|KR_REF2|KR_KILL|KR_RES|O_mp)
      CMD="mpirun -np $RANKS --bind-to core --report-bindings -x PYTHONPATH -x HOME python d6r2c_opt_runScript.py -task run_driver -optimizer IPOPT -max_iter $MAXIT $HOTARG" ;;
   ARM0_4R)
-     CMD="mpirun -np 4 --bind-to core --report-bindings -x PYTHONPATH -x HOME python d6r2c_opt_runScript.py -task compute_totals" ;;
+     CMD="mpirun -np 4 --bind-to core --report-bindings -x PYTHONPATH -x HOME python d6r2c_arm0_gradient_health.py --dump arm0_totals.json" ;;
   ARM0_2R)
-     CMD="mpirun -np 2 --bind-to core --report-bindings -x PYTHONPATH -x HOME python d6r2c_opt_runScript.py -task compute_totals" ;;
+     CMD="mpirun -np 2 --bind-to core --report-bindings -x PYTHONPATH -x HOME python d6r2c_arm0_gradient_health.py --dump arm0_totals.json" ;;
 esac
 CMDFILE="$WORK/d6r2c_cmd.sh"
 printf '%s\n' "$CMD" > "$CMDFILE" || { echo "ABORT cmd file"; exit 4; }
