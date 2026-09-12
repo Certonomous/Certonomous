@@ -631,3 +631,59 @@ and that is exactly the state this document is evidence about.** The item's own 
 row remains owed at D8G's completion, as `d8g_grade.py:1405` already records.
 
 **SUBMISSIONS PARKED. NOT FILED ANYWHERE. NOTHING LEAVES THE BOX.**
+
+---
+
+## CORRECTION 1 — 2026-09-12, same session. **SECTION 12 WAS WRONG ABOUT THE CALIBRATION LEDGER, AND THE SWEEP THAT MISSED IT WAS A FALSE ZERO FROM AN INVALID FLAG — CAUGHT ONLY BECAUSE A CONTROL WAS PLANTED.**
+
+**The struck claim is left legible rather than deleted.** Section 12 reads:
+
+> ~~"**No `docs/COST_CALIBRATION.md` row is owed for this task** — rule 12 keys calibration
+> to a completed *process* (a rung graded, a case closed); **D8G is neither, and that is
+> exactly the state this document is evidence about.**"~~
+
+**The first clause is TRUE and stands: this task spent 0.000 core-minutes and owes no row.
+THE SECOND CLAUSE IS WRONG AS WRITTEN.** `docs/COST_CALIBRATION.md:541` already carries
+**`C-20260912T004211.716932Z-2017b2c9`**, a dafoam row for **D8G L1-P**, landed 2026-09-12:
+predicted **15.659 core-min** (`PREREGISTRATION.md:499`), actual **16.067 core-min
+MEASURED**, ratio **1.026×**, excess **+0.408 core-min** attributed across contention
+(+0.839), solve-rate misprediction (+0.302) and over-predicted fixed overhead. **That row is
+careful and correct in the thing that matters here** — it says in terms that *"The item D8G
+is NOT complete"* and scores only the §6.3 L1 per-row line, never the 359.748 core-min item
+estimate. **A reader of section 12 would have concluded no D8G calibration exists. One does.**
+
+**⚠ AND IT CARRIES THE SAME OVERSTATEMENT SECTION 4a FLAGS IN `D8G_L1P_RESULTS.md:8`.** The
+row opens *"The arm is COMPLETE and graded `NOT A RESULT`"*. **Measured in section 4a: the
+grader refuses this arm at `G1` on `kernel_rc=1`, so under rule 4 clause 1 the arm is not
+complete**, and *"graded"* is not what happened either — both grade artifacts are refusals.
+The **verdict** `NOT A RESULT` is right and unaffected; the words *complete* and *graded*
+are not. **That is now two documents carrying it, one of them the lab's calibration ledger.**
+Recorded for the supervisor; **this lane did not edit either file.**
+
+### HOW THE MISS HAPPENED, AND IT IS THIS DOCUMENT'S OWN SUBJECT MATTER
+
+The section-6 consumer sweep was re-run over gitignored areas with **`grep -rl --no-ignore`**.
+**`--no-ignore` IS NOT A VALID `ugrep` OPTION.** Every invocation errored, printed nothing,
+and — with stderr sent to `/dev/null` — **returned a confident "none" for all eight
+directories swept.** The correct flag is `--no-ignore-files`.
+
+**It was caught by planting a control** (`grep -c` on the one file known to contain the
+string: **2 hits**) and asking why the recursive reader returned zero on a directory holding
+a file the direct reader could see. **That is CLAUDE.md rule 3 applied to a sweep rather
+than to a field, and it failed live, inside the very document arguing that a zero from a
+reader not shown able to see a non-zero is not evidence.** It is recorded rather than
+tidied.
+
+### WHAT WAS RE-VERIFIED WITH THE VALID FLAG, EACH BEHIND A PASSING CONTROL
+
+| claim | re-verified? |
+|---|---|
+| **§6: nothing outside the case directory reads `D8G_grade_*.json`** | **HOLDS.** `demo-output`, `verification/queue`, `verification/campaign` carry no `D8G_grade` and no `D8G` reference; the control found the string in the case directory as required. |
+| §6: `d8g_chain_driver.sh:365-366` is the only external invoker, and it does not parse the JSON | **HOLDS, unchanged.** |
+| **references to the run root outside the case directory** | **ONE: `docs/COST_CALIBRATION.md`** — and it cites `ledger.txt` and the solver log, **never `D8G_grade_*.json`**. So it is a consumer of the RUN ledger, not of the grader's output, and **repair B's admitted row still reaches no consumer that acts on it.** |
+
+**No measurement in sections 1–11 is changed by this correction.** The §2d.1 analysis, the
+four-condition assessment, the duplicate finding, the fourth-path refutation and the
+planted-zero result all stand exactly as written.
+
+**SUBMISSIONS PARKED.**
