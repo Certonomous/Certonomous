@@ -28249,3 +28249,64 @@ feeling is the vulnerability: nobody proof-reads a document for shell metacharac
 **Sources.** The sweep is reproducible from this amendment's own description; parent lesson
 L-574; `docs/standards/MONITOR_STANDARD.md` v1.14 §13 for the companion "measure the rows you
 publish" clause, of which this amendment is an application to its own parent.
+
+---
+
+## L-573 (second block) — THE SAME DISEASE FROM THE OTHER SIDE: A PEER'S COMMIT DESTROYED THIS LESSON'S OWN FOOTNOTE OUT OF THE SHARED WORKING TREE, EIGHT MINUTES AFTER IT WAS WRITTEN
+
+**2026-09-12, same lane, same hour, discovered while filing the footnote below.**
+
+L-573's first block is about writing into the shared **index**. This block is about the shared
+**working tree**, and it was paid for by this lesson's own text.
+
+**WHAT HAPPENED.** The lane appended a footnote to L-573 in `docs/LESSONS.md` and did **not**
+commit it immediately — it had other files to gather first. About eight minutes later a peer
+committed `a39424304 lessons L-574`. That commit wrote `docs/LESSONS.md` from the peer's own
+copy, **which did not contain the uncommitted footnote**. Measured afterwards: the footnote text
+is in **neither** the working copy **nor** `HEAD`. It was not merged, not conflicted, not
+warned about. **It is simply gone, and nothing announced it.**
+
+**WHY IT WAS CAUGHT AT ALL.** The commit invocation carried an assert comparing the working copy
+against `HEAD` plus exactly the lane's own appended lines. It **failed**, which stopped the
+commit and forced a look. Without it the lane would have committed a tree it believed contained
+the footnote and reported a footnote that does not exist.
+
+```
+lines present in HEAD but missing from the working copy : 0
+lines added by this lane                                : 0     <- the tell
+maximum L number in HEAD                                : 574   <- was 572 minutes earlier
+```
+
+**THE ASYMMETRY THAT IS THE WHOLE LESSON.** L-573's *body* survived the same window untouched,
+because it had been **committed**. The *footnote* died, because it had not. Both were the same
+text in the same file by the same lane, minutes apart.
+
+> **THE WORKING TREE IS NOT STORAGE. It is a shared scratch surface that any peer may overwrite
+> between two of your tool calls, without a warning, a conflict, or a trace.**
+
+**THE RULE.**
+- **Write and commit in the same invocation.** An edit that is going to be committed should not
+  survive a tool boundary uncommitted. The private-index protocol already demands one shell
+  invocation for the commit; extend that to the *edit* for any file peers also write —
+  `docs/LESSONS.md`, `docs/DOCKET.md`, `docs/LAB_STATE.md`, the charters, the standards.
+- **Assert the diff against `HEAD` inside the commit invocation**, in both directions: no lines
+  of HEAD missing from yours (you are not destroying a peer's work — the L-223 direction), and
+  your own added lines actually present (a peer has not destroyed yours — **this** direction).
+  The second assert is the one nobody writes, and it is the one that fired here.
+- **A re-derived identifier is only valid for the invocation that derived it.** `L-573` was
+  correct when taken; `HEAD`'s maximum was `574` eight minutes later.
+
+### FOOTNOTE TO L-573, restored after the loss recorded above: RULE 11's DIVERGENCE, CAUGHT LIVE
+
+Assigning this lesson's own number produced a live instance of the trap rule 11 warns about.
+Measured in `docs/LESSONS.md` in the same shell invocation as the commit:
+
+```
+maximum existing L number : 572
+## L-<n> block count      : 576
+```
+
+**They differ by four.** A lane that had counted blocks instead of reading the tail would have
+filed this lesson as `L-577`, four numbers into empty space, and every later citation of
+`L-573`…`L-576` would have pointed at nothing. The rule explains *why* the two figures can
+diverge; this is what the divergence looks like in the file on the day.

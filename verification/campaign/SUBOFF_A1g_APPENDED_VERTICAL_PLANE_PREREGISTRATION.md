@@ -1437,3 +1437,123 @@ private-index protocol as it should have been from the start.
 rule is about the *index*, and every command that writes to it is covered whether or not it is
 listed. **L-221/L-222 again: a lesson is not applied until every call site asserts it, and the
 call site that failed here was a rename that did not look like a commit.**
+
+---
+---
+
+# ADDENDUM 6 — 2026-09-12 — **TESSELLATION ADEQUACY: GATE FAIL ON THE REGISTERED STATISTIC, AND THE REGISTERED STATISTIC IS THE WRONG ONE**
+
+**Appended at the foot. Lines whose number changed above this section: 0.**
+**AMENDMENT CONDITION (rule 2), CHECKED:** `SOLVE_A*` absent, no queue entry, no solver run.
+
+## A6.1 THE GATE, FIXED BEFORE THE FIRST RUN
+
+`cases/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/tessellation_adequacy.py`:
+
+> **≥ 99.0 % of each graded surface's AREA is carried by facets whose LONGEST EDGE is ≤ the
+> local mesh cell size on that surface.**
+
+**AREA-weighted, never count-weighted**, and both printed. The propeller lane has just paid for
+the other way round: a count-weighted tessellation statistic read ADEQUATE where the
+area-weighted one rejected the same surface at every level. The **rule-3 plant** is built to
+show that gap: a synthetic surface whose failing facets carry 75 % of the area but 25 % of the
+count, pushed through the same function on every invocation, with a refusal if either number
+comes back wrong and a second refusal if a surface that cannot fail returns anything but 0.
+
+## A6.2 THE RESULT ON THE REGISTERED STATISTIC: **GATE FAIL, ALL TEN ROWS**
+
+| surface | scope | cell | facets | max edge | **AREA fail** | count fail | verdict |
+|---|---|---|---|---|---|---|---|
+| each of the four fins | wetted | 1.2297 mm | 94,185 | 30.496 mm | **100.000 %** | 99.996 % | **GATE FAIL** |
+| each of the four fins | in the TE box | 0.1537 mm | 7,554 | 2.896 mm | **100.000 %** | 100.000 % | **GATE FAIL** |
+| `hull` | wetted | 4.9188 mm | 355,840 | 20.368 mm | **97.986 %** | 77.698 % | **GATE FAIL** |
+| `sail` | wetted | 1.2297 mm | 131,865 | 7.099 mm | **98.939 %** | 85.715 % | **GATE FAIL** |
+
+**The area/count gap is exactly what the tool was built to show:** on the hull, 77.7 % by count
+against 98.0 % by area — a count-weighted reading would have understated the failing population
+by twenty points.
+
+## A6.3 A SCOPE DEFECT IN MY OWN INSTRUMENT, FOUND BY LOCATING THE OFFENDERS
+
+The first run reported **100 % of fin area failing at a maximum facet edge of 51.35 mm**, which
+is a factor of 42 and did not look like a tessellation problem — it looked like an instrument
+problem. Located rather than assumed: the worst 1 % of fin area sits at **radius 0.0316 m**,
+which is the **buried root lid at `y₀ = 0.10 ft`** (departure D3), and the worst sail area at
+**radius 0.0111 m**, which is that solid's **bottom lid buried at `y = 0`**. **Both are inside
+the hull and are never meshed** — castellation discards them. The instrument was measuring
+geometry that does not exist in the mesh.
+
+**Restricting to wetted facets is a SCOPE CORRECTION, not a softening: the gate value is
+unchanged and the corrected scope is strictly what the gate was always about.** It moved the
+fins' maximum wetted edge from 51.35 mm to 30.50 mm and **did not change a single verdict.**
+
+## A6.4 🔴 AND THE REMAINING EXTREMES ARE ON **FLAT** SURFACES, WHERE A LONG FACET IS **EXACT**
+
+Located the same way:
+
+- The fins' 30.50 mm edges sit at **`y = 0.2540 m` exactly** — the **flat tip cap**, departure
+  D2. A planar cap triangulated with long edges represents a plane **exactly**.
+- The hull's 20.37 mm edges sit at **radius 0.2540 m, x = 1.08…3.18 m** — the **parallel middle
+  body**. A cylinder is **developable axially**: a 19.2 mm axial facet on it carries **zero**
+  geometric error.
+
+**So the registered statistic condemns surfaces whose geometric error is zero.** Measured
+directly, on the hull, against its own analytic equation:
+
+| **chordal deviation of the triangulation from the true surface** | value | as a fraction of a 4.9188 mm cell |
+|---|---|---|
+| maximum | **646.4 µm** | **13.14 %** |
+| median | **16.9 µm** | **0.343 %** |
+| analytic circumferential sagitta at `R_max`, `R(1 − cos(Δθ/2))`, 256 divisions | **19.1 µm** | **0.389 %** |
+
+**The hull triangulation departs from the true hull by at most an eighth of a cell and typically
+by a three-hundredth of one.**
+
+## A6.5 WHAT IS AND IS NOT CONCLUDED — AND THE GATE IS **NOT** RETRO-SWAPPED
+
+> **THE REGISTERED GATE FAILED AND IT IS REPORTED AS FAILED.** §A6.2 stands as the verdict on
+> the statistic that was registered before the run. **This lane does not now adopt the
+> favourable statistic and call the surface a PASS** — that is gating at the kind end, one
+> addendum after §7's trap 4 forbade it.
+>
+> **The chordal-deviation statistic of §A6.4 is registered SEPARATELY and is DISCLOSED as having
+> been framed AFTER seeing the registered gate's result.** That disclosure caps what it may be
+> used for. **Whether it supersedes the edge/cell gate for this family is the cfd-supervisor's
+> ruling and is not taken here.**
+
+**THE EVIDENCE OFFERED FOR THAT RULING, stated as evidence and not as a conclusion:** an
+edge-length criterion is a **curvature** proxy. On a surface that is developable in one
+direction — a cylinder, a flat tip cap — it measures nothing and rejects everything. The
+propeller lane's finding and this one are **the same disease in opposite directions**: a
+count-weighted statistic **flattered a coarse surface**; an edge-length statistic **condemns a
+faithful one**. In both cases the statistic was not measuring the thing.
+
+## A6.6 THE ONE GENUINE UNDER-TESSELLATION, SEPARATED FROM THE ARTEFACTS
+
+With the flat-surface extremes set aside, the curved fin surface measures:
+
+| | edge length |
+|---|---|
+| median facet | 2.162 mm |
+| facet at **50 % of area** | 2.239 mm |
+| facet at **90 % of area** | 2.386 mm |
+| local cell | **1.2297 mm** |
+
+**Ninety per cent of the wetted fin area is on facets about 1.9× the local cell.** That is a
+real, modest under-tessellation on **the surfaces that carry the graded normal force**, and it
+is not explained away by developability — a fin is curved in both directions.
+
+**THE FIX IS CHEAP AND IT IS OFFERED AS A DECISION, NOT TAKEN:** doubling the fin generator's
+`--fin-n-chord` and `--fin-n-span` (321→641, 121→241) quarters the facet area and puts the
+90th-percentile facet below the cell. **Its cost is that the L1 mesh now building — 527+
+core-min at the time of writing — would be built on superseded fin STLs.** Discarding a running
+mesh is not this lane's call. **The hull and sail are unaffected either way and would stay
+byte-identical.**
+
+## A6.7 THIS TOUCHES THE LIVE PEER SOLVES, AND IS REPORTED FOR THAT REASON
+
+`hull.stl` and `sail.stl` measured here are **byte-identical to the files the SUBOFF_A1
+`SOLVE_L2` and `SOLVE_L1_R3` solves are running on** (§3.6). So §A6.2's `GATE FAIL` on those two
+surfaces, and §A6.4's measurement that their geometric error is nevertheless a fraction of a
+cell, **both apply to runs this lane does not own**. Reported to the cfd-supervisor rather than
+acted on.
