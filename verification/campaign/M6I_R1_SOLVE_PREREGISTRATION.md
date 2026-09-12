@@ -383,3 +383,166 @@ This file, `extract_cp_m6i.py`, `build_m6i_solve_chain.sh` and `launch_m6i.sh` a
 committed together. The grading path is fixed at that commit. **No solver output existed
 when it was made.** Changes after first compute land only as dated addenda that cannot
 alter a gate, threshold, cap or label (rule 2); originals are struck, never rewritten.
+
+---
+
+# ADDENDUM 1 — 2026-09-12, after the L3 smoke run and before any other compute
+
+**v1.0 → v1.1. Lines whose number changed above this section: 0.** Nothing above is
+edited. This addendum alters **no gate, no threshold, no cap and no label** (rule 2): the
+14 bands, the six stations, the verdict rule, the preconditions, the planted control, the
+iteration budgets, the cost estimates and the caps are all exactly as frozen at
+`47537c99`. It records one crash, its proven mechanism, one live numerical change, and two
+measurements that were taken after the freeze and that sharpen predictions rather than
+move gates.
+
+## A1.1 — THE SMOKE RAN AND DIED IN TWO SECONDS. That is what a smoke run is for.
+
+`M6I-R1-L3` launched 2026-09-12T22:01:39Z, pid 33255, 4 ranks, and ended
+`rc = 136` at 22:01:41Z. **Wall 2 s, 4 ranks, 0.13 core-minutes spent** against a 6.4
+core-minute estimate and a 19.2 core-minute cap. Preserved whole, nothing deleted, at
+`verification/runs/M6I_runs/L3/ATTEMPT1_FPE/` (the solve log, the launch record, the
+decomposition, the staged `0/` and all four processor directories).
+
+**Verdict on attempt 1: `NOT A RESULT`.** Signal 8, floating-point exception.
+
+**What it got right before it died, and this is registered because it is evidence:**
+- `decomposePar` rc = 0 into 4 subdomains; the patched mesh loaded; the launcher's
+  dictionary assertions all passed.
+- **Iteration 1 completed and produced a physically-signed answer: `Cl = 0.3710`,
+  `Cd = 0.2401`.** 🔴 **The §8 sign check therefore PASSES: CL is positive, so α is
+  applied with the correct sign.** That was the prediction most expensive to get wrong and
+  it is now settled. (Cl = 0.371 at iteration 1 of a cold start is not a converged
+  coefficient and is not offered as one.)
+- All five equations solved at iteration 1 with initial residuals ≈ 1 and the p GAMG
+  converging in 54 iterations — the linear algebra is sound.
+
+**Where it died:** iteration 2, immediately after `Solving for e`, inside
+`libfluidThermophysicalModels.so` — the temperature-from-energy inversion — on a pressure
+field that had already left the physical range. Iteration 1 printed
+**`pressureControl: p max 417018`**, i.e. **4.12 × freestream, with the limiter firing.**
+
+## A1.2 — 🔴 THE MECHANISM, PROVEN FROM THE INSTALLED SOURCE, AND IT IS A DEAD LEVER
+
+The frozen `fvSolution` carried `consistent yes` (SIMPLEC) and, *because* of it, pressure
+relaxation 1.0. **`consistent` IS SILENTLY IGNORED BY `rhoSimpleFoam`.** Measured, not
+assumed, from the installed tree:
+
+| file | occurrences of `rAtU` or `consistent` |
+|---|---|
+| `applications/solvers/compressible/rhoSimpleFoam/pEqn.H` | **0** |
+| `applications/solvers/incompressible/simpleFoam/pEqn.H` | **8** |
+
+`src/finiteVolume/cfdTools/general/solutionControl/solutionControl.C:51` reads the keyword
+(`consistent_ = solutionDict.getOrDefault("consistent", false)`) and stores it;
+**`rhoSimpleFoam` never queries it.** The keyword is accepted, recorded, and does nothing.
+
+**So attempt 1 ran plain SIMPLE with the pressure under-relaxation set to 1.0** — which is
+not a SIMPLEC setting at all once the SIMPLEC branch does not exist, it is simply an
+unrelaxed pressure. From a uniform cold start at M = 0.8395 with a body suddenly present,
+the first pressure correction is violent; unrelaxed it reached 4.12 × freestream, and the
+energy field built on it inverted to a non-physical temperature at iteration 2.
+
+**This is `CLAUDE.md` rule 14's class: a lever that looks set and is not connected.** It is
+recorded here rather than quietly deleted, because the dangerous half was never the dead
+keyword — it was the *live* setting adopted on the strength of it.
+
+## A1.3 — THE ONE REGISTERED CHANGE (stop rule 13: one change per run)
+
+**`relaxationFactors.fields.p : 1 → 0.3`**, applied identically to L1, L2 and L3 so the
+family stays similar. Read back on all three.
+
+Everything else that moved is **dead-lever removal and changes no arithmetic**: the
+`consistent yes` line, and `relaxationFactors.equations.p 1`, which SIMPLE does not read
+either. **The live change is one line.** Schemes, model, mesh, condition, budgets, bands
+and caps are untouched.
+
+**If the next attempt stops on the same cause, that is two stops on one cause and the
+ladder is climbed (mesh → numerics → model), per her item 13.** The pre-declared next rung
+is numerics: a `potentialFoam` initialisation plus a `limitT` `fvOption` bounding T. It is
+named here so it cannot be presented later as a fresh idea.
+
+## A1.4 — 🔴 WHERE THE BAD FACES ARE. A MAXIMUM WAS THE WRONG STATISTIC.
+
+§3 disclosed maxima of 86–88°. **A maximum is one face.** Counted and located from
+`checkMesh -writeSets`' own output (`postProcessing/constant/{nonOrthoFaces,skewFaces}/`),
+face centres computed from the written geometry:
+
+| level | faces > 70° | **at η > 0.96 (outboard of the last graded station)** | on the graded span η ≤ 0.96 | **in the far field r ≥ 5** |
+|---|---|---|---|---|
+| L1 | 191,794 | **179,224 — 93.45 %** | 12,570 — 6.55 % | **0 — 0.00 %** |
+| L2 | 24,774 | **22,216 — 89.67 %** | 2,558 — 10.33 % | **0 — 0.00 %** |
+| L3 | 3,686 | **2,820 — 76.51 %** | 866 — 23.49 % | **0 — 0.00 %** |
+
+**The median non-orthogonal face sits at η = 1.009 (L1), 1.008 (L2), 1.003 (L3) — beyond
+the wing's own semispan**, out on the rounded tip cap, reaching η = 1.34. That is where the
+generator's O-grid collapses its lines (R0 §6 measured 22,704 merged nodes on L1), and it
+is **not** where Cp is graded.
+
+Per graded station, faces within |Δη| < 0.02, **L1**:
+
+| η | 0.20 | 0.44 | 0.65 | 0.80 | 0.90 | **0.96** |
+|---|---|---|---|---|---|---|
+| faces > 70° | 84 | 62 | **116** | 308 | 2,502 | **12,464** |
+
+**Skewness, the statistic that looked worst and is the thinnest:** L1 has **4** skew faces
+(all at η 0.86–0.95, all at |z| = 0.000 — the sharp trailing edge); **L2 has exactly ONE**,
+at **η = 0.9983**, outboard of the last graded station; **L3 has none at all.** The
+family's "non-monotone skewness" 5.11 / 8.30 / 2.78 is therefore **one tip face on L2
+against four trailing-edge faces on L1** — a single-face statistic, not a bulk quality
+inversion, and it is far weaker evidence against the family than the raw maxima suggested.
+
+**🔴 PREDICTION REGISTERED NOW, BEFORE THE RERUN, AND IT CAN FAIL.** The mesh defect is
+outboard. Therefore: **if the Cp bands miss, they miss at η = 0.96 first and η = 0.90
+second, and a miss at η = 0.20, 0.44 or 0.65 CANNOT be attributed to mesh
+non-orthogonality** — those stations carry 84, 62 and 116 bad faces out of 191,794, none
+of them nearer than r = 0.29 to the root leading edge. **"The mesh is bad" is hereby
+disallowed in advance as an explanation for an inboard miss.**
+
+## A1.5 — `limited corrected 0.33` IS A NUMERICAL CHOICE WHOSE EFFECT IS UNMEASURED
+
+§5 applies `limited corrected 0.33` to the Laplacian and surface-normal gradient. At 87°
+this does not only stabilise: **ψ = 0.33 deliberately under-applies the non-orthogonal
+correction, so the diffusion term is not second-order on exactly the faces that need it
+most.** That bias lands on the boundary layer and therefore on shock position, which is 2
+of the 14 bands. It is registered here as what it is: **a numerical choice with an
+unmeasured effect on a graded quantity.**
+
+**Registered sensitivity arm, before it is run: `M6I-R1-L3-PSI1`.** L3, identical in every
+respect except **`limited corrected 1.0`** on `laplacianSchemes` and `snGradSchemes`.
+Cost: one more L3, **6.4 core-minutes estimated, cap 19.2**. Reported: Cp at the six graded
+stations from both runs, and `max |ΔCp|` and `ΔRMS` per station/surface, plus Δ(shock x/c)
+at η = 0.65 and 0.90. **It is a SENSITIVITY, not a gate**: neither run's Cp is promoted or
+demoted by the other, and the ψ = 0.33 run remains the registered one. **Predicted before
+either is read: `max|ΔCp| ≤ 0.02` at η = 0.20/0.44/0.65 and `> 0.02` at η = 0.96**, on
+A1.4's face distribution. It runs only after a level completes; it does not delay L2 or L1.
+
+## A1.6 — RESIDUALS ARE READ AT THE OUTER ITERATION
+
+`nNonOrthogonalCorrectors 2` gives **three** `GAMG: Solving for p` lines per outer
+iteration (confirmed in attempt 1's own log: 0.999999999, then 5.53e-04, then 2.85e-05).
+**IC-2's pressure residual is the FIRST of the three — the outer iteration's initial
+residual — never the last.** Registered because this team has already mis-read the third
+corrector as the iteration's residual and reported a value ~100× too good.
+
+## A1.7 — THE ROACHE TRIPLE MAY NOT BE ABOUT DISCRETISATION, AND THAT IS REGISTERED NOW
+
+The three levels are exact node subsets at `r = 2.000000`, so they differ by refinement.
+**They also differ by quality, and not monotonically:** the fraction of faces over 70° runs
+**23.49 % → 10.33 % → 6.55 %** (L3 → L2 → L1), falling but plateauing rather than
+vanishing, and the maximum is flat at ≈ 87° across a 64× cell increase (R0 §4). An observed
+order computed from these three levels therefore **mixes refinement with a changing defect
+population, and may say nothing about discretisation at all.** Registered in advance as a
+named reason the triple may come out non-`CONVERGING` — in which case, **rule 5: the row is
+`NOT A RESULT` whatever its value, and no GCI is quoted.** The Cp band grading is per level
+and single-grid regardless, exactly as `4c931d97c` fixes it.
+
+## A1.8 — COST SO FAR
+
+| item | core-min |
+|---|---|
+| L3 attempt 1 (FPE at iteration 2) — **waste, named separately, not absorbed** | **0.13** |
+| solve-chain build, patching and `checkMesh` on three levels (1 rank) | see `COST_SOLVECHAIN.tsv` |
+
+The rule-12 estimate-versus-actual row is owed to `docs/COST_CALIBRATION.md` at each
+level's completion and is not written from a projection.

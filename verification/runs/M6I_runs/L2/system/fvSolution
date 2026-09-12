@@ -23,7 +23,14 @@ SIMPLE
     pMinFactor      0.2;
     pMaxFactor      2.0;
     transonic       yes;
-    consistent      yes;
+    // `consistent` IS REMOVED, AND IT WAS A DEAD LEVER (rule 14).  Proven from the
+    // installed source, not assumed: rhoSimpleFoam's own pEqn.H
+    // (applications/solvers/compressible/rhoSimpleFoam/pEqn.H) contains ZERO
+    // occurrences of `rAtU` or `consistent`, while the INCOMPRESSIBLE simpleFoam
+    // pEqn.H contains 8.  solutionControl.C:51 reads the keyword and stores it;
+    // rhoSimpleFoam never asks for it.  So `consistent yes` did NOTHING -- except
+    // that it was why the pressure relaxation below was set to 1, which is what
+    // actually crashed attempt 1.  ADDENDUM 1, 2026-09-12.
     // NO residualControl BY REGISTRATION.  A residualControl exit stops the solver
     // BEFORE endTime, and rule 4's completion clause reads last time == endTime.
     // Convergence is graded from the residual and coefficient histories instead
@@ -31,6 +38,16 @@ SIMPLE
 }
 relaxationFactors
 {
-    fields    { p 1; rho 0.05; }
-    equations { p 1; U 0.7; e 0.7; nuTilda 0.7; }
+    // THE ONE LIVE CHANGE OF ADDENDUM 1: pressure field relaxation 1 -> 0.3.
+    // Attempt 1 ran plain SIMPLE (the SIMPLEC lever above being dead) with the
+    // pressure UNDER-RELAXED BY 1.0 from a uniform cold start at M 0.8395.  Its
+    // iteration 1 drove `pressureControl: p max 417018` -- 4.1x freestream, the
+    // limiter firing -- and iteration 2 raised SIGFPE inside
+    // libfluidThermophysicalModels immediately after the energy solve, i.e. in the
+    // T-from-e inversion on a pressure field that had left the physical range.
+    // 0.3 is the standard SIMPLE pressure relaxation.  Removing the dead
+    // `consistent` keyword changes no arithmetic; this line is the only thing that
+    // changes what the solver computes.
+    fields    { p 0.3; rho 0.05; }
+    equations { U 0.7; e 0.7; nuTilda 0.7; }
 }
