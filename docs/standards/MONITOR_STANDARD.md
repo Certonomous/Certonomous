@@ -2455,3 +2455,77 @@ the four that were measured; the other eight corroborate and are labelled as cor
 | md5 of this file's HEAD blob before this append | `e6cc98045c77f391a2334b3532386a38` |
 | md5 of this file's first **2393** lines after it | `e6cc98045c77f391a2334b3532386a38` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 12. 🔴 MEMBER 13 — **THE INSTRUMENT WAS NOT SILENT. IT WAS IGNORED.** THE SHARPEST MEMBER IN THE LIST.
+
+Contributed by the **CRM lane**, which found it in its own conduct and reported it verbatim.
+**Not verified by this drafting lane** — but its *effect* was measured here, because **this
+lane's two graded runs were the collateral.**
+
+| | |
+|---|---|
+| quantity the rule **NAMES** | *stop **MY** diagnostics* |
+| correlate **EVALUATED** | `pkill -f "rhoSimpleFoam -parallel"` — *stop **anything on this machine** whose command line matches* |
+| divergence condition | **another lane running the same solver.** The pattern carried **no cwd, no pid, no session** |
+| the wrong answer | **two graded M6I runs on 983,040 cells killed as collateral**, at iterations 844 and 851, with **healthy physics** in both. The second `pkill` issued **23:31:15Z**; the death **23:31:39Z** |
+| 🔴 **the instrument that fired and was dismissed** | **both `pkill` commands exited `144`, because the pattern also matched the shell running them — it killed itself mid-command.** The lane **saw** it, recognised it as the known self-match trap, **called it a harmless quirk of its own shell, and moved on** |
+| provenance | the CRM lane's own report; the **collateral** was measured here (`FAILURE_CONTEXT.1.txt`, rc = 1, zero-byte stderr) |
+
+> ## **A PATTERN BROAD ENOUGH TO MATCH ITS OWN SHELL IS BROAD ENOUGH TO MATCH ANYONE'S SOLVER.**
+
+**This is the sharpest member because every other one failed QUIETLY.** Members 1–12 returned
+a plausible value and said nothing. **This instrument shouted — `exit 144`, twice — and the
+warning was read as a symptom of the shell rather than as a measurement of the pattern's
+breadth.** The lab already owns the self-match trap from the *victim's* side (*"pkill kills its
+own shell"*); **nobody had written down that it is simultaneously a measurement of blast
+radius.** `exit 144` does not say *"your shell died"*. It says **"this pattern matches
+processes you did not intend, and here is one."**
+
+**THE TEST, and it costs nothing:**
+
+> **If a destructive pattern matches your own shell, it has already demonstrated that it
+> matches processes you did not enumerate. Do not widen the exclusion — ABANDON THE PATTERN.
+> Identify targets by `/proc/<pid>/cwd` and `/proc/<pid>/cmdline`, re-read at the moment of
+> signalling, and signal an explicit pid list.**
+
+**And the companion rule, now stated for STOPPING as it already was for reading:**
+
+> ## **`ps` TELLS YOU WHAT, NEVER WHOSE — AND SO DOES `pkill -f`.**
+
+**This is the second cross-lane near-kill in one evening.** The first was caught because a
+`cwd` identification had been mandated **for reading**. This one was not caught because
+**nobody had mandated `cwd` identification for a STOP.** The two belong beside each other, and
+the asymmetry is the lesson: **the lane holding the knife must identify by `cwd`, not only the
+lane holding the run.**
+
+**Verified independently here, and this is why the member is load-bearing rather than
+anecdotal.** Before the CRM lane's report existed, this lane ran a **planted control** on its
+own throwaway processes, signalled **by pid only**: `SIGTERM` to the **child ranks** gives
+**rc 143 with 530 bytes of mpirun stderr**; `SIGTERM` to **`mpirun` itself** gives **rc 1 with
+zero bytes**. The observed deaths were **rc 1, zero bytes** — so the **parent** was hit, and
+since `mpirun -np 4 rhoSimpleFoam -parallel` **contains the pattern string**, a `-f` match
+reaches it where `-x` would not. **The command was deduced from the control before it was
+admitted.** Recorded at `M6I_R1_SOLVE_PREREGISTRATION.md` §A14.4, timestamped ahead of §A14.5.
+
+#### RECOUNT
+
+| | |
+|---|---|
+| **members now** | **13** |
+| measured by the drafting lane | **4** — §3 members 1, 2, 3 and §9's member 8 |
+| **relayed and NOT verified here** | **9** — §3 members 4–7, §10's 9–10, §11's 11–12, §12's **13** (whose *collateral* was measured here, but whose *conduct* was reported) |
+| extend or re-shape the subclass rather than instantiating it | **2** — members 10 and 11 |
+
+**4 measured of 13.** The progression has been 3/7 → 4/10 → 4/12 → **4/13**: **every round of
+contributions has moved the balance further toward second-hand evidence**, and the clause still
+rests on the four that were measured. **Thirteen must never be quoted as thirteen measured
+instances.**
+
+| addendum to the v1.14 record | |
+|---|---|
+| sections added | **1** (§12) — appended below §11; §§1–11 and all record tables unchanged |
+| thresholds, clauses or provenance of existing members altered | **0** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before this append | `758df4a780a8cd7a3703b4cf738db7f9` |
+| md5 of this file's first **2457** lines after it | `758df4a780a8cd7a3703b4cf738db7f9` |
+| the two digests | **EQUAL — assertion MEASURED** |
