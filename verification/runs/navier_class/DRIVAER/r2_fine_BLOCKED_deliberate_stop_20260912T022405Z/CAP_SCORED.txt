@@ -1,0 +1,4 @@
+cap_core_min=300
+actual_core_min=54.17
+actual_over_predicted=0.181
+note=THE CAP IS A PREDICTION SCORED AT COMPLETION (rule 12), NOT A KILL -- addendum 2026-09-12

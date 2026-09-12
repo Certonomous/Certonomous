@@ -1,0 +1,10 @@
+level=fine
+cap_core_min=300
+predicted_peak_GiB=8.49
+free_g_available_at_launch_GiB=15
+ceiling_GiB=11
+wall_s=3250
+core_min=54.17
+rc=143
+finished_utc=2026-09-12T02:22:47Z
+eMesh REGENERATED AND BYTE-IDENTICAL to r1_fine

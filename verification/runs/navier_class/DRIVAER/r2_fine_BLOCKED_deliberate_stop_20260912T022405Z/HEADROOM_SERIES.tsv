@@ -1,0 +1,164 @@
+utc	avail_GiB	snappy_RSS_GiB	stage
+2026-09-12T01:55:27Z	10.97	4.25	Selected for refinement : 4 cells (out of 5413195)
+2026-09-12T01:55:37Z	10.91	4.38	Selected for refinement : 4 cells (out of 5413195)
+2026-09-12T01:55:47Z	11.27	3.13	Selected for refinement : 4 cells (out of 5413195)
+2026-09-12T01:55:57Z	12.14	3.13	Selected for refinement : 4 cells (out of 5413195)
+2026-09-12T01:56:07Z	12.02	3.49	    Number of edges to retest   : 450
+2026-09-12T01:56:17Z	10.93	3.88	    Number of edges to retest   : 450
+2026-09-12T01:56:27Z	11.86	3.88	
+2026-09-12T01:56:38Z	11.98	3.88	
+2026-09-12T01:56:48Z	12.00	3.88	
+2026-09-12T01:56:58Z	10.97	4.54	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T01:57:08Z	11.05	4.20	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T01:57:18Z	11.91	3.54	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T01:57:28Z	11.90	3.83	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T01:57:39Z	11.99	3.63	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T01:57:49Z	11.72	3.78	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T01:57:59Z	11.99	3.63	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T01:58:09Z	11.66	3.96	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T01:58:19Z	11.55	3.81	    Number of edges to retest   : 2124132
+2026-09-12T01:58:29Z	10.93	3.96	    Number of edges to retest   : 2124132
+2026-09-12T01:58:39Z	11.33	3.96	    Number of edges to retest   : 2124132
+2026-09-12T01:58:50Z	11.38	3.96	    Number of edges to retest   : 2124132
+2026-09-12T01:59:00Z	11.27	3.96	    Number of edges to retest   : 2124132
+2026-09-12T01:59:10Z	10.91	3.88	    Number of intersected edges : 697657
+2026-09-12T01:59:20Z	11.05	3.97	
+2026-09-12T01:59:30Z	11.12	3.97	
+2026-09-12T01:59:40Z	11.02	3.97	
+2026-09-12T01:59:50Z	9.90	3.97	
+2026-09-12T02:00:00Z	11.40	4.09	
+2026-09-12T02:00:10Z	11.53	4.07	
+2026-09-12T02:00:21Z	10.55	4.15	
+2026-09-12T02:00:31Z	11.17	4.15	
+2026-09-12T02:00:41Z	11.13	4.15	
+2026-09-12T02:00:51Z	11.09	3.96	
+2026-09-12T02:01:01Z	10.04	5.22	
+2026-09-12T02:01:11Z	11.88	3.86	
+2026-09-12T02:01:21Z	11.11	3.94	
+2026-09-12T02:01:31Z	10.71	4.56	
+2026-09-12T02:01:41Z	12.33	3.42	
+2026-09-12T02:01:52Z	11.70	3.87	    Number of edges to retest   : 1810846
+2026-09-12T02:02:02Z	11.07	4.12	    Number of edges to retest   : 1810846
+2026-09-12T02:02:12Z	11.27	4.19	    Number of edges to retest   : 1810846
+2026-09-12T02:02:22Z	11.39	4.21	    Number of edges to retest   : 1810846
+2026-09-12T02:02:32Z	11.45	4.21	    Number of edges to retest   : 1810846
+2026-09-12T02:02:42Z	10.90	4.21	    Number of edges to retest   : 1810846
+2026-09-12T02:02:52Z	11.17	4.21	    Number of edges to retest   : 1810846
+2026-09-12T02:03:02Z	11.36	4.14	    5 314487
+2026-09-12T02:03:12Z	11.50	4.14	    5 314487
+2026-09-12T02:03:23Z	11.40	4.14	
+2026-09-12T02:03:33Z	11.37	4.14	
+2026-09-12T02:03:43Z	11.19	4.14	
+2026-09-12T02:03:53Z	11.36	4.14	
+2026-09-12T02:04:03Z	11.44	4.14	
+2026-09-12T02:04:13Z	11.74	4.14	
+2026-09-12T02:04:23Z	11.15	4.14	
+2026-09-12T02:04:33Z	11.59	4.15	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:04:43Z	11.13	4.45	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:04:53Z	11.17	4.54	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:05:04Z	12.21	3.68	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:05:14Z	11.23	3.95	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:05:24Z	11.92	3.68	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:05:34Z	12.08	3.81	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:05:44Z	11.49	4.07	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:05:54Z	11.50	3.68	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:06:04Z	11.19	4.15	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:06:14Z	11.27	4.38	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:06:24Z	10.93	4.55	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:06:34Z	11.17	4.59	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:06:44Z	12.12	3.49	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:06:54Z	12.42	3.42	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:07:04Z	11.50	3.69	    Number of edges to retest   : 2440812
+2026-09-12T02:07:15Z	11.33	4.21	    Number of edges to retest   : 2440812
+2026-09-12T02:07:25Z	11.91	3.80	Selected for keeping : 5025611 cells.
+2026-09-12T02:07:35Z	11.68	3.84	
+2026-09-12T02:07:45Z	11.84	3.84	
+2026-09-12T02:07:55Z	11.75	3.84	
+2026-09-12T02:08:05Z	11.79	3.79	
+2026-09-12T02:08:15Z	11.41	3.71	    Number of edges to retest   : 0
+2026-09-12T02:08:25Z	12.08	3.71	    Number of edges to retest   : 0
+2026-09-12T02:08:36Z	12.22	3.71	
+2026-09-12T02:08:46Z	11.92	3.71	
+2026-09-12T02:08:56Z	11.83	3.71	
+2026-09-12T02:09:06Z	11.82	3.71	
+2026-09-12T02:09:16Z	11.97	3.71	
+2026-09-12T02:09:26Z	11.21	3.71	
+2026-09-12T02:09:36Z	12.05	3.25	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:09:46Z	12.68	3.25	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:09:56Z	12.16	3.25	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:10:07Z	11.91	3.25	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:10:17Z	11.94	3.35	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:10:27Z	11.11	3.82	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:10:44Z	10.80	3.90	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:10:54Z	11.64	3.94	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:11:04Z	12.59	3.08	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:11:14Z	12.44	2.77	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:11:24Z	11.86	2.98	    Number of edges to retest   : 1068379
+2026-09-12T02:11:34Z	12.32	3.33	    Number of edges to retest   : 1068379
+2026-09-12T02:11:44Z	12.50	3.46	    Number of edges to retest   : 1068379
+2026-09-12T02:11:54Z	12.00	3.47	
+2026-09-12T02:12:04Z	11.47	3.47	
+2026-09-12T02:12:14Z	11.05	3.47	
+2026-09-12T02:12:25Z	11.26	3.47	
+2026-09-12T02:12:35Z	10.97	3.47	
+2026-09-12T02:12:45Z	10.70	3.59	
+2026-09-12T02:12:55Z	10.22	3.47	
+2026-09-12T02:13:05Z	10.96	3.59	
+2026-09-12T02:13:15Z	10.74	3.64	
+2026-09-12T02:13:25Z	10.77	3.64	
+2026-09-12T02:13:35Z	10.28	3.64	
+2026-09-12T02:13:45Z	10.33	3.64	
+2026-09-12T02:13:55Z	11.31	3.64	
+2026-09-12T02:14:06Z	10.66	3.64	
+2026-09-12T02:14:16Z	10.46	3.47	
+2026-09-12T02:14:26Z	11.24	3.47	
+2026-09-12T02:14:36Z	10.61	3.47	
+2026-09-12T02:14:46Z	10.88	3.47	
+2026-09-12T02:14:56Z	10.66	3.47	
+2026-09-12T02:15:06Z	11.08	3.47	
+2026-09-12T02:15:16Z	10.61	3.47	
+2026-09-12T02:15:26Z	10.90	3.47	
+2026-09-12T02:15:36Z	10.74	3.47	
+2026-09-12T02:15:47Z	10.72	3.47	
+2026-09-12T02:15:57Z	10.85	3.47	
+2026-09-12T02:16:07Z	10.46	3.94	
+2026-09-12T02:16:17Z	10.52	4.30	
+2026-09-12T02:16:27Z	9.47	4.83	
+2026-09-12T02:16:37Z	9.76	4.73	
+2026-09-12T02:16:47Z	10.64	3.88	
+2026-09-12T02:16:57Z	10.13	3.42	
+2026-09-12T02:17:07Z	10.58	3.42	
+2026-09-12T02:17:17Z	10.79	3.65	
+2026-09-12T02:17:27Z	11.22	3.36	
+2026-09-12T02:17:38Z	10.73	3.59	
+2026-09-12T02:17:48Z	10.87	3.36	
+2026-09-12T02:17:58Z	10.17	3.68	
+2026-09-12T02:18:08Z	9.82	4.06	
+2026-09-12T02:18:18Z	10.05	4.06	
+2026-09-12T02:18:28Z	10.31	3.21	
+2026-09-12T02:18:38Z	10.78	3.34	    Number of edges to retest   : 156
+2026-09-12T02:18:48Z	10.56	3.56	    Number of edges to retest   : 156
+2026-09-12T02:18:59Z	9.96	3.82	    Number of edges to retest   : 156
+2026-09-12T02:19:09Z	10.13	3.90	
+2026-09-12T02:19:19Z	9.74	3.90	
+2026-09-12T02:19:29Z	9.66	3.90	
+2026-09-12T02:19:39Z	10.29	3.90	
+2026-09-12T02:19:49Z	9.56	3.90	
+2026-09-12T02:19:59Z	10.39	3.90	
+2026-09-12T02:20:09Z	9.67	3.90	
+2026-09-12T02:20:20Z	9.83	4.15	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:20:30Z	10.25	3.44	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:20:40Z	10.67	3.59	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:20:50Z	10.51	3.44	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:21:00Z	10.15	3.56	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:21:10Z	10.37	3.56	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:21:20Z	10.32	3.76	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:21:30Z	10.02	4.25	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:21:41Z	9.54	4.25	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:21:51Z	10.24	3.78	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:22:01Z	11.43	2.74	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:22:11Z	11.54	2.74	For cellZone none found point (-10 5 5) in global region 0 o
+2026-09-12T02:22:21Z	10.17	3.05	    Number of edges to retest   : 1068407
+2026-09-12T02:22:31Z	10.42	3.43	    Number of edges to retest   : 1068407
+2026-09-12T02:22:41Z	10.58	3.43	
+2026-09-12T02:22:51Z	12.12	0.00	
