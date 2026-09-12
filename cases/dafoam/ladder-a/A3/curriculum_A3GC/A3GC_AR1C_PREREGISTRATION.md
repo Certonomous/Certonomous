@@ -188,3 +188,64 @@ because it blocks the L2 repair, not this one.
 
 Graded only if rc=0, an `End` line, **last time == `endTime` = 6000**, fields present, and the
 `endTime` fields newer than the staged `0`. A run failing any clause is **NOT A RESULT**.
+
+---
+
+# ADDENDUM 1 — 2026-09-12 — A PROVENANCE CITATION I COULD NOT CORROBORATE
+
+**Dated addendum, appended at the foot. Alters NO gate, NO threshold, NO cap and NO label.
+The 1e-06 gate, the prediction, the falsification condition, the 2.0 % flatness band, the
+5-sample burn-in and the grading path are ALL unchanged. Lines whose number changed above this
+section: 0.**
+
+## What is wrong
+
+§4 states that the applied `nuTilda` package is "the D6RF10-R3 `nuTilda` repair", and the commit
+message that froze this document says it "took `nuTilda` from 4.07e-04 to 7.87e-05 at 13
+sub-iterations per outer step". **I took that figure from my brief and did not verify it before
+freezing. It does not survive checking.**
+
+Searched: `cases/dafoam/ladder-a/A2/curriculum_D6RF10/PREREGISTRATION.md`, the same directory's
+`D6RF10_GRADE_RECORD.md`, and a repository-wide grep for the literal figure. **The value
+`7.87e-05` occurs nowhere on disk except in this document's own §4.** No record of a D6RF10 rung
+named as a `nuTilda` linear-solver repair was found.
+
+**What D6RF10 actually records** (`D6RF10_GRADE_RECORD.md:62-65`):
+
+| rung | configuration | outcome |
+|---|---|---|
+| R1 | `nNonOrth 3`, `DARhoSimpleFoam` | **GATE FAIL** (`p_first_uncorrected` 1.681236312e-05) |
+| R2 | `nNonOrth 12`, `DARhoSimpleFoam` | **NOT A RESULT** — SIGKILLed ~4 % short of its deadline |
+| R3 | `DARhoSimpleCFoam` + `nNonOrth 12`, `relax_p` 0.70 | **PASS** (`p_first_uncorrected` 6.3233727e-06) |
+
+Those rungs turn on **solver coupling and corrector depth**, not on a `nuTilda` linear-solver
+package. **So the name "the D6RF10-R3 nuTilda repair" in §4 is not supported by the record, and
+the 4.07e-04 -> 7.87e-05 figure is uncorroborated.**
+
+## What is NOT wrong, and how I know
+
+**The settings themselves are sound and are measured active in this very run.** The change is
+what §4 prints — `relTol 0.001 / tolerance 1e-09 / nSweeps 3` on `nuTilda` alone — and AR1C's own
+first step is the control:
+
+| | initRes | finalRes | nIters |
+|---|---|---|---|
+| probe, AR1's settings | 7.004707703e-06 | 2.755606367e-07 | 3 |
+| **AR1C, this package** | **7.004707703e-06** | **3.743733924e-09** | **9** |
+
+Identical `initRes` to ten digits proves the staged state is genuinely AR1's; `finalRes` **74x
+tighter** proves the package is installed and acting. **The experiment §6 registers is unaffected**
+— it tests a mechanism, and the mechanism is driven by the settings, not by their name.
+
+## The correction
+
+**§4's package is hereby cited as what it verifiably is: a tightened `nuTilda` linear solve,
+adopted by this lane, `relTol 0.001 / tolerance 1e-09 / nSweeps 3`, with `nuTilda` removed from
+the shared regex group. Its provenance is THIS document and the arithmetic in §3 — the 3.98 %
+leftover against the 0.886 % needed — and NOT a prior D6RF10 result.** Any reader who followed
+the D6RF10-R3 citation to look for a precedent should stop: there isn't one, and the case for the
+change stands on §3's headroom measurement alone, which is where it always actually rested.
+
+**Recorded rather than quietly fixed**, because a frozen document is never edited (rule 6) and
+because a provenance I cannot corroborate is exactly the kind of borrowed confidence the lab's
+own rules say to surface instead of carry.
