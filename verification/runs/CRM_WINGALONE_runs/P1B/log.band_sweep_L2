@@ -1,0 +1,29 @@
+P1B — INDEPENDENT band sweep of the CRM wing-alone root plane
+MESH: verification/runs/CRM_WINGALONE_runs/L2/foam/constant/polyMesh
+PATCH defaultFaces: nFaces 36416, startFace 3456224
+
+read 36416 boundary faces, 36418 distinct points
+
+PLANTED CONTROL — planted into the INPUT, real sweep re-run
+  plant: RIGID translation of all 36418 vertices by +1.0e-04 in y
+    band 1e-5 (below DISP): 14144 -> 0   (must EMPTY of root-plane faces)
+    band 1e-3 (above DISP): 14144 -> 14144   (must RECOVER the clean count 14144)
+    restored -> band 1e-5 14144, candidates 14296  (matches clean: True)
+    DISCRIMINATION: |n_y|>0.99 candidate count 14296 -> 14296, unchanged: True
+  -> control PASSED: the sweep is shown able to move when its input moves.
+
+root-plane CANDIDATES by normal (|n_y| > 0.99): 14296
+
+  band          n_faces     max|y| in band
+  1e-09           13312       0.000000e+00
+  1e-08           13312       0.000000e+00   <- flat
+  1e-07           13312       0.000000e+00   <- flat
+  1e-06           13728       4.416540e-07
+  1e-05           14144       9.491133e-06
+  1e-04           14144       9.491133e-06   <- flat
+  1e-03           14144       9.491133e-06   <- flat
+  1e-02           14144       9.491133e-06   <- flat
+  1e-01           14144       9.491133e-06   <- flat
+  1e+00           14144       9.491133e-06   <- flat
+  1e+01           14231       3.766668e+00
+  1e+02           14296       8.514650e+01

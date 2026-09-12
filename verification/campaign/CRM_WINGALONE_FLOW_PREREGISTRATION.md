@@ -267,3 +267,118 @@ be shown able to FAIL**: demonstrate it refusing when the plant is deliberately 
 able to see a non-zero, a durability checker that answers "ignored" to everything, an fd sweep
 whose control proved only that it followed symlinks. **The gap is always between "my control
 passed" and "my control exercised the thing being measured."**
+
+---
+
+## ADDENDUM 1 — 2026-09-12 — **ARM P1B REGISTERED. A NEW SYMMETRY TOLERANCE, ON A PLATEAU RE-DERIVED FROM THE MESH. P1's `GATE FAIL` IS STRUCK BUT STANDS LEGIBLE AND IS NOT REHABILITATED.**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, band or label above
+this line is altered. §2's registered counts **11,136 / 11,136 / 14,144** are untouched; §2's
+geometric assertions **|r| ≤ 4.3** and **|r| ≥ 80** are untouched; §3–§9 are untouched; the §10.2
+signature and the §10.4 check-1 finding are untouched.
+
+**Authorised by the cfd-supervisor's ruling of 2026-09-12, under its four stated conditions.**
+**No compute has run under THIS addendum: the corrected split is NOT re-run until check 4 on this
+commit is discharged.**
+
+### A1.1 🔴 CONDITION 1 — P1's `GATE FAIL` IS STRUCK, PRESENT AND LEGIBLE
+
+~~P1, arm 1, `Y_SYMM_TOL = 1e-9`: symmetry 13,312 against a registered 14,144; wing 11,908 against
+11,136; farfield 11,196 against 11,136; max wing |r| 38.3271 against ≤ 4.3; min farfield |r| 40.9425
+against ≥ 80. **`GATE FAIL`.**~~
+
+**That result is STRUCK, not deleted, and it is NOT described as wrong.** It is a true fact about
+that mesh under the tolerance as frozen. **P1 reported honestly against the instrument it was given;
+the instrument's tolerance was the defect.** The struck text stays because a reader who cannot see
+the original cannot audit the correction.
+
+**P1B DOES NOT INHERIT P1's IDENTITY.** It is a separate arm, separately registered, separately
+graded, in its own directory `verification/runs/CRM_WINGALONE_runs/P1B/`.
+
+### A1.2 CONDITION 3 — THE FALSIFIER, WRITTEN **BEFORE** THE MEASUREMENT
+
+**`verification/runs/CRM_WINGALONE_runs/P1B/PREDICTION_BEFORE_SWEEP.md`, written 2026-09-12T02:05:36Z,
+sha256 `eee81c3bf1932dbc21dad39dea84282bf47acec11aa0c6c91adaea058dd04e56`, BEFORE `band_sweep.py` was
+executed even once.** It names three results, any one of which leaves `Y_SYMM_TOL = 1e-9` exactly
+where it is:
+
+- **A — NO PLATEAU.** A count creeping monotonically with the band has no natural stopping point;
+  every tolerance is then a choice, 1e-9 is as defensible as any, and P1's `GATE FAIL` stands as a
+  real geometric finding that the root plane is not planar.
+- **B — A PLATEAU AT THE WRONG COUNT.** Flat at anything other than 14,144 means the tolerance story
+  and the independent block-topology prediction **disagree**; the action is to investigate, never to
+  move the tolerance.
+- **C — A PLATEAU TOO COARSE TO BE PHYSICAL.** A displacement comparable to a near-wall cell rather
+  than round-off makes a `symmetryPlane` BC ill-posed, and the repair is the mesh, not the tolerance.
+
+### A1.3 THE RE-DERIVATION — FROM THE POLYMESH, NOT FROM P2's TABLE
+
+**A tolerance registered on a cited table is a tolerance registered on somebody's summary.**
+`P1B/band_sweep.py` re-reads `L2/foam/constant/polyMesh` (patch `defaultFaces`, nFaces 36,416,
+startFace 3,456,224) and re-derives the sweep independently. Full output: `P1B/log.band_sweep_L2`.
+
+| band on max\|y\| | root-plane faces | max\|y\| in band |
+|---:|---:|---:|
+| 1e-9 … 1e-7 | **13,312** | 0.000000e+00 |
+| 1e-6 | 13,728 | 4.416540e-07 |
+| **1e-5** | **14,144** | **9.491133e-06** |
+| **1e-4 … 1e0** | **14,144** | **9.491133e-06** |
+| 1e+1 | 14,231 | 3.766668e+00 |
+| 1e+2 | 14,296 | 8.514650e+01 |
+
+**All three pre-written predictions hold, and the plateau is BROADER than P2 reported — SIX decades
+(1e-5 to 1e0), not four.** The plateau max\|y\| reproduces P2's **9.491133e-06** to seven significant
+figures by an independent reader. **A, B and C are each refuted:** the plateau exists and is flat over
+six decades (¬A); it sits at exactly 14,144, the block-topology prediction (¬B); and 9.491133e-06
+mesh-units × 6.976368 m = **6.6214e-05 m = 0.0662 mm**, round-off scale and orders below any near-wall
+cell (¬C).
+
+### A1.4 CONDITION 2 — THE REGISTERED VALUE AND ITS DERIVATION
+
+> **`Y_SYMM_TOL` for arm P1B = `1.0e-3` mesh-units.**
+
+**Derivation, from the gap the sweep measures and not from the count it produces:** the largest
+root-plane displacement is **9.491133e-06** and the smallest non-root-plane \|y\| is **3.766668**
+— a gap spanning a factor of **396,862**. The registered value sits **105.4× above** the last
+root-plane face and **3,767× below** the first contaminant. **Both margins are stated so a reader can
+see the value is not perched near either edge.** *(The gap's geometric centre is 5.979e-03; 1.0e-3 is
+chosen instead because it is the value P2 named, so two independent records agree on one literal, and
+its margins are already three orders on both sides.)*
+
+**What makes this a measurement and not a fit** — the supervisor's ruling, adopted here: **P2 could
+have come out the other way and once did.** Its 0.48 m non-planarity alarm was raised and then
+**withdrawn on evidence**. An instrument that has demonstrably produced an alarming answer and
+retracted it on further evidence is not an instrument bent toward a wanted verdict.
+
+### A1.5 🔴 A DEFECT IN THIS LANE'S OWN PLANT, CAUGHT BY ITS OWN CONTROL, RECORDED BECAUSE IT IS THE LESSON
+
+**`band_sweep.py`'s first planted control REFUSED, and it was right to.** It displaced ONE root-plane
+face's vertices and required exactly that face to leave the tighter band. **On a conformal mesh the
+vertices are SHARED**: the plant moved **six** faces out of the 1e-5 band and **three** out of 1e-3,
+and rotated neighbours enough to move the \|n_y\| candidate count by 3 — so the discrimination control
+fired and the instrument exited 2 rather than reporting a count.
+
+**A plant whose blast radius is not known cannot have a predicted response, so it cannot
+discriminate.** The repair is a **rigid y-translation of all 36,418 vertices**, whose response is
+exactly predictable: bands below the displacement must empty, bands above must recover the clean
+count, and — because a translation rotates nothing — **the candidate count must be bit-unchanged**.
+Measured: 1e-5 band **14,144 → 0**; 1e-3 band **14,144 → 14,144**; candidates **14,296 → 14,296**;
+restored exactly. **The refusal is kept in the record: it is the control working, not a false start.**
+
+### A1.6 WHAT IS AUTHORISED, AND WHAT IS NOT
+
+**Authorised by this addendum, AFTER check 4 on the commit carrying it:** one run of the corrected
+splitter on L2 as arm **P1B**, at `Y_SYMM_TOL = 1.0e-3`, graded against §2's **unchanged**
+11,136 / 11,136 / 14,144 and §2's **unchanged** \|r\| assertions.
+
+**NOT authorised and NOT altered:** §2's counts and radius gates; the solver rung; any flow result;
+any grid-convergence claim. **A P1B pass does not make P1 pass, and does not by itself authorise the
+solve** — §7's gates are untouched and are reached in their registered order.
+
+**PREDICTION FOR P1B, REGISTERED HERE BEFORE IT RUNS:** symmetry **14,144**, wing **11,136**,
+farfield **11,136**, max wing \|r\| **≤ 4.3**, min farfield \|r\| **≥ 80**. **If the counts come right
+and the radius assertions still fail, that is a finding about the classifier's radius band and NOT a
+licence to move it** — the radius gates are frozen and this addendum cannot alter them.
+
+*Arm P1B registered 2026-09-12 by a cfd `lab-lane` under the cfd-supervisor's ruling. Submissions
+parked. No agent's message is Sanaa's consent.*
