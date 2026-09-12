@@ -37,7 +37,11 @@ from stl_metrics import read_stl                      # noqa: E402
 X_CAP_START = 25.0        # hub / nose-cap junction, r = 36.2300
 X_HUB_AFT = -50.0         # hub / aft-fairing junction
 X_CAD_END = -356.0        # the CAD's own aft termination
-X_OUTLET = -1500.0        # 6D downstream of the propeller plane
+X_OUTLET = -1500.0        # 6D downstream of the propeller plane -- the DOMAIN boundary
+# The extension surface is carried 100 mm PAST the outlet so it cuts that plane cleanly.
+# A surface terminating exactly on a boundary plane leaves snappyHexMesh deciding a
+# coincident intersection, which is a silent source of leaked or ragged cells.
+X_EXT_END = -1600.0
 R_SHAFT = 20.0            # measured: r = 20.000 mm exactly -> diameter 0.040 m (amendment 1)
 AXISYM_TOL = 0.15
 # The bodies of revolution never exceed this radius: hub 37.60, cap base 36.23, fairing 33.25
@@ -85,7 +89,7 @@ def shaft_extension(n_ax: int = 160, n_th: int = 120) -> np.ndarray:
     integrations (amendment 2): it is our domain's artefact, not part of the physical model
     the dynamometer measured.
     """
-    xs = np.linspace(X_CAD_END, X_OUTLET, n_ax + 1)
+    xs = np.linspace(X_CAD_END, X_EXT_END, n_ax + 1)
     th = np.linspace(0.0, 2.0 * math.pi, n_th + 1)
     tris = []
     for i in range(n_ax):
@@ -101,9 +105,9 @@ def shaft_extension(n_ax: int = 160, n_th: int = 120) -> np.ndarray:
     # end cap at the outlet so the surface is closed
     for j in range(n_th):
         t0, t1 = th[j], th[j + 1]
-        tris.append([(X_OUTLET, 0.0, 0.0),
-                     (X_OUTLET, R_SHAFT * math.cos(t1), R_SHAFT * math.sin(t1)),
-                     (X_OUTLET, R_SHAFT * math.cos(t0), R_SHAFT * math.sin(t0))])
+        tris.append([(X_EXT_END, 0.0, 0.0),
+                     (X_EXT_END, R_SHAFT * math.cos(t1), R_SHAFT * math.sin(t1)),
+                     (X_EXT_END, R_SHAFT * math.cos(t0), R_SHAFT * math.sin(t0))])
     return np.asarray(tris, dtype=float)
 
 
@@ -132,6 +136,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('--in', dest='src', required=True, help='tessellated admitted CAD (STL)')
     ap.add_argument('--out', required=True)
+    ap.add_argument('--scale', type=float, default=1e-3,
+                    help='registered import scale, mm -> m (pre-registration 2.3). '
+                         'Use 1.0 to keep the CAD units.')
     a = ap.parse_args()
 
     tris = read_stl(a.src)
@@ -173,6 +180,14 @@ def main() -> int:
                   f'(must not exceed {R_REVOLUTION_MAX})')
         return 2
     print('  SPLIT CHECK PASS')
+
+    if a.scale != 1.0:
+        print(f'\n  applying the REGISTERED import scale {a.scale:g} (pre-registration 2.3): '
+              f'CAD millimetres -> metres')
+        groups = {k: v * a.scale for k, v in groups.items()}
+        pts = np.concatenate([v.reshape(-1, 3) for v in groups.values()])
+        print(f'  after scaling: max radius {np.hypot(pts[:,1], pts[:,2]).max():.6f} m '
+              f'(R = 0.125 m), x in [{pts[:,0].min():.4f}, {pts[:,0].max():.4f}] m')
 
     write_multi_solid(a.out, groups)
     print(f'\nwrote {a.out}  ({os.path.getsize(a.out)/1e6:.1f} MB)')
