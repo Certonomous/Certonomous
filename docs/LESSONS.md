@@ -27967,3 +27967,49 @@ code exactly as it applies to the graded code.*
 **Sources.** The replaced monitor command and its replacement, quoted in the
 replacement's own header comment; `K2h_L3/log.solve` lines 29 and 47366 for the
 `trapFpe` banner; `SUPERVISION_CHARTER` §3 check 2.
+
+## L-572 — `ps` tells you WHAT, never WHOSE: a kill pattern killed another team's graded run, twice
+
+**2026-09-12, cfd CRM wing-body lane. Cost: two external kills of M6I-R1-L1-TVD, ~50 minutes of
+another lane's wall time, and one wasted debugging attempt by the victim.**
+
+The CRM lane stopped its own 32-rank diagnostics with
+
+```
+pkill -f "rhoSimpleFoam -parallel"
+```
+
+`launch_m6i_v2.sh` runs `mpirun -np N rhoSimpleFoam -parallel`, so all four of M6I's ranks carry
+that exact command line. The pattern said *kill anything on this box that looks like mine*, and
+another team's graded run looked like mine **because it was the same solver**. Both kills landed:
+~23:18Z and 23:31:39Z, the second matching the victim's death timestamp to the second.
+
+**WHY THE VICTIM COULD NOT DIAGNOSE IT.** An external SIGTERM to `mpirun` leaves *nothing* inside
+the case: rc non-zero, **stderr zero bytes**, no signal string in the log, physically healthy
+fields, no memory pressure. The M6 lane instrumented its solver's stderr to catch the fault and
+got an empty file — which was the correct finding (an empty stderr *proves* the death came from
+outside) but is unreadable as such from inside the case. OOM was excluded only because a
+supervisor could read `/var/log/kern.log`, which the lane could not.
+
+**THE RULE.** A process name, a binary path, a command-line pattern and an RSS ranking are all
+properties of the **workload**. None of them identifies the **owner**. On a shared box the only
+thing that says whose a solver is, is **where it is running**: `/proc/<pid>/cwd`.
+
+- Identify every process by `/proc/<pid>/cwd` and `/proc/<pid>/cmdline`. Never by name, never by
+  a `ps` listing, never by a pattern.
+- **Re-confirm the cwd at the instant of signalling.** A pid can be recycled between the listing
+  and the kill.
+- Scope every signal to an explicit pid list derived from cwd.
+- Use `scripts/stop_my_solver.sh RUNDIR`, which does all three and refuses anything outside the
+  named run directory.
+
+**THE TELL THAT WAS IGNORED.** Both `pkill` invocations exited **144** — the pattern matched the
+shell that ran it, killing itself mid-command (L-pkill-self-match). The lane recognised the
+self-match, called it a harmless quirk, and moved on. It was not a quirk: **a pattern broad
+enough to match its own shell is broad enough to match a stranger's solver.** The self-match is
+the disease showing its face, not a cosmetic annoyance.
+
+**PRIOR NEAR-MISS, SAME NIGHT.** A DrivAer lane was one step from signalling four `simpleFoam`
+ranks it had read off `ps` sorted by RSS, believing they were its own; they were the SUBOFF
+lane's only solve, thirteen minutes old. That one was stopped by a cwd check. This one was not.
+The lab had the lesson and had not yet made the safe path the easy path — hence the script.
