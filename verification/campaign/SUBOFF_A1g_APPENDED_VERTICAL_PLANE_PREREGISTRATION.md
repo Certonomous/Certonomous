@@ -1557,3 +1557,92 @@ byte-identical.**
 surfaces, and §A6.4's measurement that their geometric error is nevertheless a fraction of a
 cell, **both apply to runs this lane does not own**. Reported to the cfd-supervisor rather than
 acted on.
+
+---
+---
+
+# ADDENDUM 7 — 2026-09-12 — **THE TESSELLATION RULING**: THE `GATE FAIL` STANDS, THE NEW STATISTIC GETS ITS OWN NAME, AND THE FINS ARE CORRECTED FOR THE GRADED FAMILY
+
+**Appended at the foot. Lines whose number changed above this section: 0.**
+**AMENDMENT CONDITION (rule 2), CHECKED:** `SOLVE_A*` absent, no queue entry, no solver run.
+
+## A7.1 THE RULING
+
+Ruled by the cfd-supervisor on the precedent this lab set earlier tonight on CRM wing-alone's
+symmetry tolerance (`Y_SYMM_TOL`): **a tolerance may be corrected; the verdict it produced is
+not rewritten; and the new arm carries its own name so no reader can merge them.**
+
+- **`TESS-EDGE`** — §A6.1's registered statistic: ≥ 99 % of AREA on facets whose longest edge
+  ≤ the local cell. **Its `GATE FAIL` of §A6.2 STANDS AS REGISTERED AND IS NOT REWRITTEN.** It
+  reported honestly against the gate it was given. **The gate was wrong.**
+  **Struck as the GOVERNING statistic for this family, and left legible above.**
+- **`TESS-DEV`** — the chordal deviation of the triangulation from the true surface, as a
+  fraction of the local cell. **A SEPARATE, NEWLY NAMED ARM THAT DOES NOT INHERIT `TESS-EDGE`'s
+  IDENTITY**, and it carries §A6.5's disclosure permanently: **it was framed after seeing
+  `TESS-EDGE`'s result.**
+
+## A7.2 🔴 WHAT MAKES `TESS-DEV` A MEASUREMENT AND NOT A FIT — THE OBJECTION ANSWERED
+
+The objection this lane raised against itself before the ruling was *"the favourable number was
+sitting right there"*. Here is the answer, and it is a property of the statistic rather than an
+assurance about the lane:
+
+> **`TESS-DEV` IS NOT UNIFORMLY KINDER. It EXONERATES the hull and it STILL CONDEMNS the fins.**
+
+- **Hull** — max deviation 646 µm = **13.1 %** of a cell, median 17 µm = **0.34 %**, against an
+  analytic circumferential sagitta of **0.39 %**. Acquitted, and the acquittal is checkable
+  against a closed-form sagitta that owes nothing to this instrument.
+- **Fins** — doubly curved, and **not** acquitted: 90 % of the curved wetted fin area sat on
+  facets **1.920 ×** the local cell.
+
+**A statistic that acquitted everything would be a fit. One that acquits a developable cylinder
+and convicts a doubly-curved fin is discriminating on the property it claims to measure.**
+
+**A second, independent demonstration that the instruments respond to the geometry and not to
+the wish:** `TESS-EDGE` itself, re-run on the corrected fins of §A7.4, falls from
+**100.0000 % → 6.3540 %** of fin area failing, **while the hull stays at 97.9863 %** — unchanged
+to five decimal places, because the hull did not change. The statistic moved exactly where the
+geometry moved and nowhere else.
+
+## A7.3 THE PAIR, AND IT GOES TO THE STANDARD
+
+> **The propeller lane's count-weighting FLATTERED a coarse surface; this lane's edge-length
+> CONDEMNS a faithful one. Same disease, opposite directions.**
+>
+> **A proxy does not err in a consistent direction — which is why "use the conservative proxy"
+> is not a defence.**
+
+**Cross-cited:** the count-versus-area gap measured here on the hull — **77.7 % by count against
+98.0 % by area, twenty points** — is the propeller lane's finding **reproduced independently, on
+a different body, by a different instrument, in the same direction.** Two acts, one mechanism.
+
+## A7.4 THE FINS ARE CORRECTED FOR THE GRADED FAMILY; L1 IS KEPT AND DISCLOSED
+
+**The cost decision is the supervisor's and is recorded as theirs: LET L1 FINISH.** The finding
+does not make it worthless, it makes it **limited**, and a limited mesh with a stated limitation
+is a valid artifact.
+
+> **L1 IS REGISTERED `TESSELLATION-LIMITED ON THE FINS`, AT `1.9 ×` THE LOCAL CELL** — 90 % of
+> its curved wetted fin area on 2.3608 mm facets against a 1.2297 mm cell. **No graded normal
+> force may be quoted from L1's fins without that number printed beside it.**
+
+**The graded family gets corrected fins.** Built at
+`verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/geometry_v2_fins2x/`, with
+`--fin-n-chord 641 --fin-n-span 241` (doubled from 321/121):
+
+| | facet at 90 % of curved wetted fin area | ratio to the 1.2297 mm cell |
+|---|---|---|
+| **v1** (in the running L1) | 2.3608 mm | **1.920 ×** |
+| **v2** (fins 2×) | **1.1801 mm** | **0.960 ×** |
+
+**Below the cell, as predicted before it was built.** Fin triangle count 155,118 → 617,438 each.
+
+**And the corrected build keeps every guarantee the first one had, asserted not assumed:**
+`hull.stl` **`0560a975d26c34ba…`** and `sail.stl` **`a1a44f6ce01f99b1…`** — **byte-identical**
+to the SUBOFF_A1 reference, so the graded family still inherits the validated hull; and **all 29
+source-corroboration checks match within 0.1 mm** on the new geometry.
+
+**WHAT REMAINS FAILING ON `TESS-EDGE` AFTER THE CORRECTION IS ENTIRELY DEVELOPABLE SURFACE**, and
+is disclosed rather than removed: the residual 6.354 % of fin area is the **flat tip cap**
+(departure D2), and the TE-box rows are the **flat truncated trailing-edge ribbon** (departure
+D1). Both are planes, and a plane triangulated with long edges is exact.
