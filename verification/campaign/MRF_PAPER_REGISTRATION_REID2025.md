@@ -760,3 +760,105 @@ does not get to exempt its own repair from the check that caught it.
 
 *Appended by a cfd `lab-lane`, 2026-09-12. Registers no band, alters no gate, threshold,
 cap or label. No agent's message is Sanaa's consent. Submissions parked.*
+
+## 12.9 — **THE LAST PLACE THIS RESULT COULD HAVE BEEN WRONG IS CLOSED, AND §12.8's INVARIANCE IS STRONGER THAN §12.8 CLAIMED IT**
+
+Appended, not inserted: **lines whose number changed above this section: 0.**
+Completes §12.8's two limbs at the cfd-supervisor's second-pass direction. Registers no
+band; alters no gate, threshold, cap or label.
+
+### 12.9.A THE RESIDUAL NON-AFFINE TERM IS NOT SMALL — IT IS **ABSENT BY CONSTRUCTION**
+
+§12.8.B argued the sign result is invariant under any **affine** calibration error, and
+left "per-point reading noise" as the residual. **For this extraction method, affine error
+is the ONLY calibration error there is**, and that is a property of the reader, not a
+happy accident:
+
+* Coordinates are taken from `m`, `l` and Bézier path operators **in a vector content
+  stream**. There is no rasterisation step — no pixel grid, no page image, no photograph
+  of a figure.
+* **A non-affine distortion — skew, warp, perspective, lens or scan error — can only enter
+  through a raster stage.** With none present, the class of possible calibration errors is
+  exhausted by offset and scale, and §12.8.B has already shown neither can alter a sign.
+* **The line-width point is the same insight.** A stroke has width, but `m`/`l` give the
+  path **centreline**; width would only bias a reading taken from a rendered image. It is
+  stated rather than left silent precisely so silence is not read as an oversight.
+
+So the correct statement is stronger than §12.8.B's: **the one-sided sign result is
+invariant under the whole class of calibration errors this reader can sustain**, and what
+remains is per-point reading noise alone — which §12.8.B measured at 1.133 % and banded at
+2.267 % on a difference.
+
+### 12.9.B THE CATEGORICAL RISK — SELECTION BY COLOUR — CLOSED FROM THE STREAM
+
+**No uncertainty band in §12.8 touches this, and that is why it had to be closed
+separately.** The Zone-1 polyline is selected by RGB triple. A wrong selection would make
+every downstream number **internally consistent and wrong**, which is the one failure an
+error analysis cannot see.
+
+Instrument: `cases/navier_class/MRF/verify_fig16_polyline_identity.py`, output
+`verification/runs/navier_class/MRF/R2/PAPER_PARITY/FIG16_POLYLINE_IDENTITY.json`.
+
+| question | answer, from the PDF's own content stream |
+|---|---|
+| distinct stroke colours in the figure | **6** |
+| black (`0 0 0`) | set **47** times — axes, ticks, the LDA markers and their error bars. **Never a data curve.** |
+| non-black colours | **5**, and **each is set EXACTLY ONCE** |
+| paths matching `0.87451 0 0` | **exactly 1** (block 46: `m`=2, `l`=44 — one legend key line plus one data polyline of 43 segments) |
+| what the paper's legend calls that colour | **`Zone 1`** |
+
+**THE LEGEND BINDING USES NO ASSUMPTION ABOUT LEGEND ORDER.** Each colour is bound to a
+label **two independent ways**, and the script refuses if they disagree on any colour:
+
+| RGB | key-line y | positional label | sequential label | agree | offset |
+|---|---:|---|---|:--:|---:|
+| `0.87451 0 0` (red) | 19.852 | **Zone 1** | **Zone 1** | ✔ | 2.498244 |
+| `0 0 0.545098` (blue) | 26.500 | Zone 2 | Zone 2 | ✔ | 2.500244 |
+| `0.113725 0.427451 0.113725` (green) | 33.148 | Zone 3 | Zone 3 | ✔ | 2.502244 |
+| `0.647059 0.647059 0.647059` (grey) | 39.801 | Zone 4 | Zone 4 | ✔ | 2.499244 |
+| `1 0.752941 0` (orange) | 46.449 | Zone 5 | Zone 5 | ✔ | 2.501244 |
+
+*Positional* = the text baseline sits a constant offset from its key line; *sequential* =
+the label is emitted immediately before that colour is set. **Offset spread 0.004 against
+a derived tolerance of 0.332 — 5 % of the 6.648 legend row spacing, a margin of 83×.**
+
+**Five coloured curves for five MRF zones, one per zone.** There is no second red path to
+confuse, and no unlabelled coloured curve.
+
+### 12.9.C THE CATEGORICAL PLANT — because a number plant proves nothing about a selection
+
+A perturbation of a **value** cannot test a **choice**. So a **second path carrying the
+identical RGB triple** was spliced into a **copy of the stream**, and the selector was
+required to see it and refuse:
+
+| | |
+|---|---:|
+| paths matching the target, before the plant | **1** |
+| after the plant | **2** |
+| selector refused on the planted ambiguity | **YES, exit 2** |
+
+**A selector never shown able to see a second match is not evidence that there is only
+one.** It was shown. The script also refuses on **zero** matches rather than substituting
+a curve.
+
+### 12.9.D A THRESHOLD OF MINE WAS WRONG, AND IT IS DISCLOSED RATHER THAN QUIETLY FIXED
+
+The positional binding first used a hard-coded tolerance of `1e-6` and **REFUSED**, at a
+measured offset spread of 0.004. **The binding was fine; my threshold was wrong** — PDF
+path coordinates are written to three decimal places, so an exactly constant offset
+cannot read as constant to 1e-6. The tolerance is now **derived from the figure** (5 % of
+the legend row spacing — the distance a label would have to travel to be captured by its
+neighbour) instead of chosen by me, and both the spread and the 83× margin are reported.
+**The instrument refused rather than degrading, which is the behaviour that surfaced it;
+no output of the 1e-6 version was ever believed or recorded.**
+
+### 12.9.E WHAT REMAINS UNBANDED
+
+**Nothing this lane can name.** Affine calibration error — invariant by construction.
+Non-affine — absent by construction. Per-point reading noise — measured and banded at
+2.267 %, and 10 of 11 signs survive it. Categorical mis-selection — closed above with its
+own plant. **If a further route to a wrong answer exists here, it has not been found, and
+that is stated as the limit of this lane's search rather than as a proof of correctness.**
+
+*Appended by a cfd `lab-lane`, 2026-09-12. Registers no band, alters no gate, threshold,
+cap or label. No agent's message is Sanaa's consent. Submissions parked.*

@@ -1,0 +1,90 @@
+{
+ "question": "the Zone-1 polyline is selected by RGB colour -- a CATEGORICAL choice that no uncertainty band can check. Is exactly one path that colour, and is that colour Zone 1?",
+ "answer": {
+  "distinct_stroke_colours": 6,
+  "black_set_times": 47,
+  "black_is": "axes, ticks, the LDA markers and their error bars -- every structural element; it is never a data curve",
+  "coloured_paths": {
+   "0.87451 0 0": 1,
+   "0 0 0.545098": 1,
+   "0.113725 0.427451 0.113725": 1,
+   "0.647059 0.647059 0.647059": 1,
+   "1 0.752941 0": 1
+  },
+  "each_coloured_colour_set_exactly_once": true,
+  "n_paths_matching_target": 1,
+  "target_rgb": "0.87451 0 0",
+  "target_block": {
+   "index": 46,
+   "rgb": "0.87451 0 0",
+   "start": 10061,
+   "n_moveto": 2,
+   "n_lineto": 44
+  },
+  "legend_says": "Zone 1"
+ },
+ "legend_binding": {
+  "method": "each colour bound to a label TWO INDEPENDENT WAYS -- positional (constant text-baseline-to-key-line offset) and sequential (the label emitted immediately before that colour is set). Legend ORDER is never assumed.",
+  "offset_spread": 0.003999999999997783,
+  "legend_row_spacing": 6.647999999999996,
+  "derived_tolerance": 0.3323999999999998,
+  "tolerance_basis": "5 % of the legend row spacing -- the distance a label would have to move to be captured by its neighbour; derived from the figure, not chosen",
+  "margin_factor": 83.10000000004601,
+  "rows": [
+   {
+    "rgb": "0.87451 0 0",
+    "key_line_y": 19.852,
+    "positional_label": "Zone 1",
+    "positional_text_y": 22.350244,
+    "offset": 2.4982439999999997,
+    "sequential_label": "Zone 1",
+    "two_bindings_agree": true
+   },
+   {
+    "rgb": "0 0 0.545098",
+    "key_line_y": 26.5,
+    "positional_label": "Zone 2",
+    "positional_text_y": 29.000244,
+    "offset": 2.5002439999999986,
+    "sequential_label": "Zone 2",
+    "two_bindings_agree": true
+   },
+   {
+    "rgb": "0.113725 0.427451 0.113725",
+    "key_line_y": 33.148,
+    "positional_label": "Zone 3",
+    "positional_text_y": 35.650244,
+    "offset": 2.5022439999999975,
+    "sequential_label": "Zone 3",
+    "two_bindings_agree": true
+   },
+   {
+    "rgb": "0.647059 0.647059 0.647059",
+    "key_line_y": 39.801,
+    "positional_label": "Zone 4",
+    "positional_text_y": 42.300244,
+    "offset": 2.4992439999999974,
+    "sequential_label": "Zone 4",
+    "two_bindings_agree": true
+   },
+   {
+    "rgb": "1 0.752941 0",
+    "key_line_y": 46.449,
+    "positional_label": "Zone 5",
+    "positional_text_y": 48.950244,
+    "offset": 2.501244,
+    "sequential_label": "Zone 5",
+    "two_bindings_agree": true
+   }
+  ]
+ },
+ "planted_control": {
+  "passed": true,
+  "matches_before_plant": 1,
+  "matches_after_plant": 2,
+  "selector_refused_on_the_planted_ambiguity": true,
+  "planted": "one extra stroked path carrying the identical RGB triple",
+  "reader": "colour_blocks -> select"
+ },
+ "residual": "five coloured curves for five MRF zones, one per zone, each colour set once. There is no second red path to confuse and no unlabelled coloured curve."
+}
