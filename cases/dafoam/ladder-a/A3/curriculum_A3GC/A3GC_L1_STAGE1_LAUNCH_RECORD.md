@@ -148,3 +148,110 @@ were read only and never signalled.
 | generator stdout | `/home/ubuntu/certonomous-runs/A3GC-L1-launch/a3gc_L1_stage1.log` |
 | rc | `/home/ubuntu/certonomous-runs/A3GC-L1-launch/a3gc_L1_stage1.rc` |
 | pyHyp log | `/home/ubuntu/certonomous-runs/A3GC-L1/logMeshGeneration.txt` |
+
+---
+
+## ADDENDUM 1 — 2026-09-12T01:47Z — **THE `--cpu-shares 2` WAS THE SUPERVISOR'S INSTRUCTION AND THE CORRECTION IS THE SUPERVISOR'S. IT WAS STARVING THE RUN BY ~40x AND PROTECTING NOBODY.**
+
+**§3 and §7 above are NOT rewritten.** They were true when committed and are left
+standing; `CLAUDE.md` rule 6's shape is applied here by choice, though this is not
+a frozen file. **Lines whose number changed above this section: 0.**
+
+### WHOSE ERROR THIS WAS — said plainly, because leaving it ambiguous teaches the wrong lesson
+
+The `--cpu-shares 2` setting was **the dafoam-supervisor's instruction**, not a lane
+error. The brief read *"SINGLE CORE, `nice -n 19`, container `--memory 4g`"*. The
+lane's answer — that client-side `nice` does **not** propagate into a container,
+because the daemon and not the launching shell forks the workload — was correct,
+and `--cpu-shares 2` was the faithful analogue of what was asked for.
+
+**The conflation was the supervisor's, and he has corrected it himself:**
+
+- **`--cpus=1` is a HARD CFS QUOTA** (`NanoCpus=1000000000`). The container cannot
+  exceed one core of sixteen — 6.25% of the box — whatever its weight. **That was
+  always the protection, and it was in force from the first second.**
+- **`--cpu-shares` only decides who wins BELOW that cap when contended.** Once a
+  hard quota binds, it protects nobody. At 2 against a default 1024 — a 512x weight
+  disadvantage — it bought nothing and cost roughly 40x throughput.
+
+### THE MEASUREMENT THAT SHOWED IT, AND THE CONTROL THAT ISOLATED THE CAUSE
+
+Same box, same 90 s window, load 96.72 — two containers differing only in weight:
+
+| container | `cpu.weight` | CPU received |
+|---|---|---|
+| A3GC **L1** | 1 (`--cpu-shares 2`) | **2.57%** of one core |
+| A3GC **L2** | 100 (docker default) | **426.80%** of one core |
+
+The saturated box was therefore **not** the limit — the weight was. `nr_throttled`
+was **0**, proving L1 was losing the CFS weight contest rather than hitting its own
+cap. Projected against L2's measured 3,376 s dedicated-core stage 1 × 8 cells
+(~7.5 h dedicated floor), the starved rate gave **4.8 to 12 days**. Not a slow run;
+a dead one.
+
+### WHAT WAS CHANGED, AND WHAT WAS DELIBERATELY NOT
+
+`--cpu-shares 2 → 1024` on the supervisor's ruling.
+
+- **Live container `1d5d91c40602`:** `docker update --cpu-shares 1024`. **No restart,
+  no signal, no kill** — the run never stopped. `cpu.weight` verified **1 → 100**.
+- **Durable fix:** `A3GC-L1-launch/bin/docker` **line 34**. The generator launches
+  **each step as a separate container**, so the live update binds only the current
+  step; the shim is what carries the change into `plot3dToFoam`, `autoPatch`,
+  `createPatch`, `renumberMesh` and `checkMesh`. Prior shim preserved verbatim at
+  `A3GC-L1-launch/bin/docker.pre-ruling-20260912T0147Z`.
+- **VERIFIED UNCHANGED after the update:** `cpu.max = 100000 100000` and
+  `memory.max = 4294967296`. The single-core guarantee and the OOM containment both
+  survive the edit.
+- The generator itself remains **unedited** at md5 `9fa240d9643308f5e9a4988614b58884`.
+
+### THE EFFECT, MEASURED ACROSS TWO INDEPENDENT WINDOWS
+
+| window | CPU received |
+|---|---|
+| before | **2.57%** of one core |
+| 109 s after | **102.55%** of one core |
+| 120 s after | **98.69%** of one core |
+
+`102.55%` is the cgroup accounting window beating against the 100 ms quota period —
+it is **at** the cap, not through it. **`nr_throttled` climbed 1 → 2 → 3 with
+`throttled_usec 926`, and that counter rising is the confirmation:** the container
+now saturates **its own hard one-core quota** instead of losing the weight contest.
+Container memory at the time: 544 MiB of 4096 MiB.
+
+### THE MEMORY CEILING WAS **NOT** RAISED — THE RULING'S OWN GATE FAILED
+
+The same ruling raised the container ceiling to `--memory 8g` for the post-extrusion
+steps **conditionally**: *"If MemAvailable has fallen below 12 GiB when you apply it,
+hold at 4g and tell me instead."*
+
+**MEASURED 2026-09-12T01:47:18Z, immediately before applying: MemAvailable
+11,804,412 kB = 11.26 GiB — BELOW the 12 GiB gate.** The gate therefore bound and
+**memory stands at 4 GiB.** This was not the lane's discretion in either direction,
+and half a ruling is not a ruling.
+
+Readings since: 10.21 GiB (01:50Z), 10.48 GiB (01:51Z), 11.17 GiB (01:52Z),
+11.36 GiB (01:55Z) — hovering 10–11 GiB, above the supervisor's 6 GiB floor and
+persistently under the gate.
+
+**Deferred deliberately, on the supervisor's 2026-09-12T01:55Z ruling.** The
+post-extrusion steps are hours away; A3GC L2 will release ~9.6 GiB when it finishes;
+and the chief raised the lab-wide launch bar to 14 GiB at 01:51Z because cfd's
+DrivAer fine mesh build is heading for a ~9.5 GiB peak. Reserving 8g now would take
+headroom from a build that needs it more. **Standing authority: when the extrusion
+completes, if `free -g` shows MemAvailable above 14 GiB, 8g for `plot3dToFoam` /
+`renumberMesh` / `checkMesh` is approved on that reading alone. If not, 4g stands** —
+and a container that dies alone is the contained outcome chosen deliberately.
+
+### STILL TRUE, AND UNCHANGED BY THIS ADDENDUM
+
+No cap kills anything (Sanaa 2026-09-12: *"i dont want any cap on any run"*). The
+watcher escalates to a **file** and never signals, kills or renices. The 6 GiB
+MemAvailable floor stands as physics. A3GC L2 and every other team's process were
+read only, never signalled. §4's stall definition, §6's watcher design and the
+planted control on the shim in §3 all stand exactly as written.
+
+**No further dafoam launch until MemAvailable recovers above 14 GiB.**
+
+Run-side records: `A3GC-L1-launch/A3GC_L1_CPU_STARVATION_FINDING.txt` and
+`A3GC-L1-launch/A3GC_L1_RULING_APPLIED_20260912T0147Z.txt`.
