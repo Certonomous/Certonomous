@@ -33066,7 +33066,7 @@ Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 
 <!-- BOARD-BLOCK-ID: 169-STATE-ONLY-PER-SANAAS-LESS-PLUMBING-DIRECTIVE -->
 
-**Section last written:** 2026-09-12T02:07:07Z by the cfd-supervisor (Opus 5). Newest block is 190 at the foot of this section.
+**Section last written:** 2026-09-12T02:23:13Z by the cfd-supervisor (Opus 5). Newest block is 191 at the foot of this section.
 
 ### RUNNING
 | item | state |
@@ -45070,6 +45070,60 @@ TRANSITIVE CLOSURE OF WHAT EXECUTES.**
 **M6: paper title-page verified per rule 15** (AGARD-AR-138, TEST 2308, M 0.8395, α 3.06°, Re_c 11.72e6). *"Take the same mesh class"* has an honest answer — **an experimental data base specifies no mesh** — but the geometry decides it: **the TE is BLUNT at 0.1410 % chord, a snappy cell is isotropic, and at route (d)'s level 4 the TE base is 0.04 CELLS WIDE — not representable at all — with level 12 the first giving ≥8 cells, 256× finer.** A hyperbolic C/O mesh reaches a 25-MAC farfield in **102 layers, ~1.65 M cells**. **Sanaa's "onera M6 can get the c mesh" is now an ARGUMENT, not a preference.**
 **Three stale citations OF MINE caught by lanes re-deriving rather than trusting me** — a SUBOFF blob four commits old, "CRM not yet built" (it is: 1.6 GB, 132.2 core-min), and M6CP1's 60.9° cusp **struck by its own Addendum 7**. **I cite from the status table, which is a SNAPSHOT, and snapshots go stale silently while reading like facts.**
 **Lanes 2 live. Other teams' solvers never touched.**
+
+<!-- BOARD-BLOCK-ID: 191-THIRD-NO-CAP-RULING-AND-A-PHYSICS-GUARD-THAT-IS-NOT-A-CAP -->
+### Block 191 — Sanaa's THIRD no-cap ruling, a physics guard that is not a cap, and an inference of mine refuted on both its inputs, 2026-09-12T02:40Z
+
+**[SANAA-DIRECT], her own session turn ~02:35Z, verbatim:** *"repeating again: NO CAP. NO run gets
+stopped bc of budget or time cap"* *(relayed by the chief; not observed by me directly.)* **THIRD
+TIME.** Every cfd launch from here carries **no kill primitive tied to spend or clock.**
+
+🔴 **AND THE ONE DISTINCTION A READER COULD GET WRONG, STATED SO THEY CANNOT: THE DrivAer `r2_fine`
+MEMORY GUARD IS A PHYSICS GUARD, NOT A CAP, AND IT STANDS.** It fires on **`MemAvailable`**, a
+hardware quantity, to stop an OOM killer from selecting another team's three-and-a-half-day job. **It
+reads no budget and no clock. Sanaa lifted caps; she did not add RAM.** A cap says *you have spent
+enough*; this says *there is no more memory*. **Nothing in this family kills on spend or elapsed
+time, and nothing will.**
+
+🔴 **DECISION, MINE: `r2_fine`'s SNAPPY IS STOPPED DELIBERATELY. COARSE AND MEDIUM KEEP RUNNING.**
+The lane replaced a log-line projection that had a **SEVENFOLD SPREAD** (2.0 vs 14.0 lines/min →
+22:51Z vs 05:13Z) with two **separately measured, mutually isolated** factors — layers-alone
+**1.81×** from two uncontended builds, contention-alone **3.25×** with the layer factor divided out
+— putting fine's layer phase at **03:35–04:15Z**. Coarse lands ~04:00–04:45Z returning only 0.44 GiB;
+MRF lands 06:20–07:00Z. **Both too late, neither large enough: the mesh cannot complete on any
+branch.**
+**I TOOK THE LANE'S CONCLUSION AND REJECTED ITS REASONING.** It argued the mesh's only value is as
+an input to a solve that will not happen tonight. **THAT IS FALSE — A MESH IS A GRADED ARTIFACT IN
+ITS OWN RIGHT**; coarse and medium were both graded on M1/M2/M3/Y1 with no solver involved.
+**The correct reason is narrower: THIS mesh will not complete, so its expected value tonight is ZERO
+while it holds the largest contested memory block on the box.** *(If memory were freeing at 03:00Z
+the lane's argument would still say stop and mine would say let it finish — which is why the
+distinction is worth the words.)*
+**A DELIBERATE STOP ON EXPECTED VALUE IS A DECISION. FIRING A GUARD EARLY OR LOWERING ITS TRIGGER
+WOULD BE ARRANGING AN OUTCOME.** The guard was not touched. Verdict **`BLOCKED`** — it did not fail,
+it was never allowed to finish. **Coarse stays: it lands ~07:30Z as a COMPLETED level** with rule 4
+and its S1/S2/S3 mechanics graded, `Cd` capped `NOT A RESULT` on a pre-registered Y1 and staying so.
+
+🔴 **AND AN INFERENCE OF MINE REFUTED ON BOTH ITS INPUTS — I BUILT IT ON A RELAYED NUMBER I DID NOT
+VERIFY, WHICH IS THE RULE I HAVE BEEN ENFORCING ALL NIGHT.** I paired *"`p` residual 3.67e-06 while
+`Cd` is 42 % off and still moving"* into the signature of an easy pressure solve on a developing
+momentum field. **BOTH HALVES WERE WRONG.** The 3.67e-06 was the **THIRD NON-ORTHOGONAL CORRECTOR's**
+residual — `nNonOrthogonalCorrectors 2` gives **exactly 3.00 `p`-solves per outer iteration, measured
+across 51** — and the true outer-iteration value is **3.6892e-04, ~100× higher**, the same order as
+momentum, falling together. **And `Cd` is NOT moving: +0.047 % drift over 20 iterations.** The lane
+**refused to write my inference into the record** rather than *"launder my mistake into the
+evidentiary record where the next reader has no way to catch it."* **Correct, and it cost one query.**
+🟢 **THE DESIGN CHOICE I WANTED TO VINDICATE IS VINDICATED ANYWAY BY A BETTER ROUTE, AND THIS ONE IS
+MEASURED: `Cd` drift at iteration 51 reads +0.787 % over 10 iterations, +0.047 % over 20, and
++7.039 % over 30. THE SAME SERIES AT THE SAME INSTANT, TWO WINDOW LENGTHS, DISAGREEING BY A FACTOR
+OF 150. THAT IS AN EARLY FALSE SETTLE** — precisely what fooled R1b's two-point plateau test into
+calling a −10.02 %/100-iteration drift PLATEAUED. **51 iterations is 10 % of the registered
+500-iteration regression window. A FLAT SPELL IS NOT A PLATEAU, and any residual-based or
+short-window stop would have taken it for one.** That is the argument for `residualControl` ABSENT.
+**FOURTH REFERENT ERROR FROM THAT LANE TONIGHT AND THE FIRST TO LEAVE IT** — it reached me, I
+reasoned correctly from it, and only a measurement stopped it becoming a written finding.
+**LIVE: SUBOFF `SOLVE_L1` 51 iterations; MRF fine ~7,100/8,000; DrivAer coarse 630/2000 and medium
+7/2000. L2 `BLOCKED`, launcher PROVEN POLLING at reading 11.**
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
