@@ -1267,3 +1267,102 @@ owns them is the rank that died, twice.
 have been fixed by changing the convection scheme everywhere and calling the family cured.**
 A rule-12 estimate-versus-actual row is owed to `docs/COST_CALIBRATION.md` when the family
 closes, and it will carry the 2.7× iteration-rate misprediction of A4.2 as its main term.
+
+---
+
+# ADDENDUM 8 — 2026-09-12. **RUNG 4: BOUNDED TVD CONVECTION. AND "IT SURVIVED" IS REGISTERED AS *NOT* A PASS.**
+
+**v1.7 → v1.8. Lines whose number changed above this section: 0.** No band, threshold, cap or
+label above moves. This addendum registers **one numerics change** and **one success criterion
+that is harder than survival**.
+
+## A8.1 — THE ONE REGISTERED CHANGE
+
+Applied by `verification/runs/M6I_runs/build_m6i_rung4_tvd.sh` to **L1 and L2**, identically:
+every convective term moves from the **unbounded** second-order `linearUpwind` to the
+**bounded TVD** `limitedLinear(V) 1` —
+
+| term | before | after |
+|---|---|---|
+| `div(phi,U)` | `bounded Gauss linearUpwind limitedGrad` | **`bounded Gauss limitedLinearV 1`** |
+| `div(phi,e)`, `div(phi,K)`, `div(phi,Ekp)` | `bounded Gauss linearUpwind limitedGrad` | **`bounded Gauss limitedLinear 1`** |
+| `div(phi,nuTilda)` | `bounded Gauss upwind` | **`bounded Gauss limitedLinear 1`** |
+| `div(phid,p)` | `Gauss upwind` | **unchanged** |
+
+**Relaxation, turbulence model, mesh, condition, iteration budget, bands and caps are
+untouched, and the 200-iteration first-order ramp is left exactly as registered** — asserted
+by the build script on both levels, which refuses if the ramp file has stopped being
+first-order. **It is NOT extended** (A6.4).
+
+**Why this rung and not A5.4's first-listed one.** A7.1: `L3_NORAMP` proved the registered
+second-order schemes stable at 87.66° **without a shock**, so the instability is not generic
+and tighter relaxation does not address it. **The mechanism is an unbounded second-order
+upwind scheme overshooting across a captured shock.** `limitedLinear 1` is second-order where
+the solution is smooth and limits **only** near the discontinuity. **The reordering within the
+numerics rung is registered here with its reason**, as A6.4 required.
+
+**NOT applied to L3.** L3 has two completed, graded runs under the `linearUpwind` schemes and
+those are the record. **Registered now:** if L1 or L2 completes under rung 4, **L3 is re-run
+under rung 4 as well** (6.4 core-minutes) so that any family is one configuration — and the
+existing L3 rows stay on the record as graded, struck by nothing.
+
+## A8.2 — 🔴 THE SUCCESS CRITERION IS A **CONJUNCTION**, BECAUSE THE CHEAPEST WAY TO SURVIVE A SHOCK IS TO SMEAR IT
+
+**`rc = 0` to `endTime` IS NOT A PASS FOR THIS RUNG.** L3 survived 2,800 second-order
+iterations and L3 has no shock — **those two facts are the same fact.** The ramp set that trap
+once; a limiter can set it again in a better costume, by flattening the gradient until there
+is nothing left to destabilise. **A limiter that buys stability with the graded quantity has
+bought it with the answer.**
+
+**REGISTERED, BEFORE THE RUN — BOTH LIMBS MUST HOLD:**
+
+- **C1 — it ran.** `rc = 0`, last time == `endTime`, `End` line, **zero** `bounding nuTilda`
+  lines (LC-2), LC-1 peak `CellsPercent` < 2.0.
+- **C2 — IT STILL HAS A SHOCK.** A3.1's S1 and S2, unchanged and keyed to the experiment
+  alone: **`cfd_cp_rise_at_shock` ≥ 0.212 at η = 0.65 and ≥ 0.320 at η = 0.90**, with
+  **`x_shock_cfd` < 0.85 c** at both.
+
+**C1 without C2 is NOT a cured family.** It is **`GATE FAIL`, labelled
+`SURVIVED BY SMEARING — THE SAME NEGATIVE RESULT BY ANOTHER ROUTE`**, and it is reported as
+that in those words. **C1 failing is `NOT A RESULT` as before.**
+
+## A8.3 — 🔴 PREDICTIONS WITH NUMBERS THIS LANE CAN MISS
+
+1. **L2 and L1 both reach `endTime` with `rc = 0`, zero ν̃ boundings, LC-1 peak < 2.0 %.**
+2. **L1 is SHOCK-BEARING under C2** — `cfd_cp_rise_at_shock` ≥ 0.212 at η = 0.65 and ≥ 0.320
+   at η = 0.90, `x_shock_cfd` < 0.85 c. **L3 gave 0.087 and 0.053 at x/c 0.953 and 0.923.**
+3. **L1's upper-surface Cp RMS falls below 0.150 at η = 0.20, 0.44 and 0.65**, from L3's
+   **0.2801 / 0.3639 / 0.4000**. A 2.4–2.7× improvement, and a number that can miss.
+4. **L1's minimum upper-surface Cp at η = 0.65 reaches at most −0.90**, from L3's **−0.4354**;
+   the experiment's own minimum there is near −1.1.
+5. **L2 remains the hardest level** — if exactly one of L1 and L2 fails C1, it is **L2**, on
+   the A5.4 hypothesis that 122,880 cells is the worst regime: fine enough to begin forming a
+   shock, too coarse to resolve it.
+
+**Predictions 2, 3 and 4 are the ones that would make M6 a result rather than a story about
+why it is not.** None of them is implied by survival.
+
+## A8.4 — THE η = 0.96 GEOMETRIC LIMB IS **NOT** A NUMERICS PROBLEM AND NO SCHEME WILL FIX IT
+
+Separated from the numerics story deliberately, because it will otherwise be silently expected
+to improve with rung 4 and will not. §4 disclosed it before any run: **the generator's
+semispan-to-root-chord ratio is 1.47602 against the TMR/AGARD nominal 1.48443 — 0.57 %
+apart.** Stations are cut at `y = η × 1.4760179762198`, i.e. as a fraction of the semispan of
+**the geometry that actually ran**.
+
+**So the η = 0.96 row may be comparing a slightly different spanwise station than AGARD
+measured**, and that is a **geometry** fact. It sits **beside** A7.2's
+`NOT A RESULT — PATH-DEPENDENT` label on that row, not inside it, and **rung 4 is not expected
+to move it.** If η = 0.96 remains the outlier after rung 4, that is evidence **for** the
+geometric limb and against a purely numerical explanation — registered now so it counts.
+
+## A8.5 — A SMALL INSTANCE OF L-571, CAUGHT IN THIS ADDENDUM'S OWN BUILD SCRIPT
+
+`build_m6i_rung4_tvd.sh`'s first version asserted the substitution had worked with
+`grep -q 'linearUpwind' system/fvSchemes` → refuse. **It refused on a correctly patched
+file** — because the comment the script itself inserts three lines above the schemes contains
+the word `linearUpwind` while explaining its removal. **An assert that matches its own
+documentation is not an assert.** Fixed by stripping comment lines before the grep, with the
+original and the reason recorded in the script. It is the same shape as **L-571** — a check
+whose referent was not what the author believed — caught this time in seconds and for nothing,
+by the check failing loudly on a good file rather than passing quietly on a bad one.
