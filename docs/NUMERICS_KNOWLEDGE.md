@@ -6988,3 +6988,80 @@ Before this append the checker reported `DIVERGENCE  N-C: missing from index ['N
 | N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3, N-X4 |
 
 FAMILIES 7 TOTAL 144
+
+---
+
+## N-C13 — DATED ADDENDUM 1, 2026-09-12 (same day, by the author): **THE DEFICIT THE ROW LEFT UNEXPLAINED IS NOW QUANTIFIED FROM AN EXPERIMENT AT OUR EXACT TANK RATIOS, AND THE ROW'S "MAGNITUDE UNREGISTERED" CLAUSE IS DISCHARGED — SIGN AND SIZE BOTH**
+
+N-C13 closed with *"It does not say what does explain our 4.382 … no source for
+their quantitative effect is on this box, so the direction is background and the
+magnitude is **unregistered**."* **That clause is now discharged, and the row's
+own scope caveat named exactly where it would be.**
+
+**CLAIM (new).** A retrieved, **title-page-verified** open-access experiment
+supplies both an anchor at our geometry and a thickness correction:
+
+1. **An experiment at our tank, ratio for ratio.** Beshay, Kratěna, Fořt & Brůha,
+   *Power Input of High-Speed Rotary Impellers*, **Acta Polytechnica 41(6) 2001**.
+   Small test rig: `T = 0.300 m`, `H = T`, four baffles `b = 0.1 T`, `D = 100 mm`,
+   `D/T = 1/3`, `l/D = 0.25`, `w/D = 0.2`, `D₁/D = 0.75`, six blades, `h/T = 0.33`,
+   water, strain-gauge torquemeter, `3e4 < Re < 6e4`. **Every ratio is ours and our
+   `Re = 5.0e4` is inside their range.** Measured **`Po = 5.41`** (5.44 at
+   h/T = 0.5); stated scatter, average relative standard deviation **2.3–16 %**.
+   Its impeller is **`t/D = 0.0155`**; **ours is `t/D = 0.0400`** — the single
+   ratio that differs, and the one N-C13 named.
+2. **A thickness correlation, secondary-source.** Its eq. (5) reproduces Bujalski,
+   Nienow, Chatwin & Cooke (1987), *Chem. Eng. Sci.* 42(2) 317–326:
+   **`Po = 2.512 (t/D)^-0.195 (T/T0)^0.063`, `T0 = 1 m`**. **Bujalski 1987 is NOT
+   on this box** and the source we hold **does not state the correlation's range
+   of validity in `t/D`**, so evaluating it at our 0.0400 is an **extrapolation of
+   unknown reach**. Its own accuracy on the rigs in the paper carrying it: **2–3 %**
+   (6.2 predicted vs 6.4 measured; 5.3 vs 5.425).
+3. **The number.** Thickness factor `0.0155 → 0.0400` is **×0.8312 (−16.9 %)`.
+   Anchoring on the **measurement** and correcting only that one dimension:
+   **`5.41 × 0.8312 = Np ≈ 4.50`**. Our ungraded fine-level value is **4.382**,
+   **2.6 % below it**, on the low side — the documented direction of steady-MRF
+   under-prediction, which this case's R1 pre-registration §3 predicted **before
+   any compute**.
+
+**SOURCE.** `docs/papers/stirred_tanks_and_mixing/beshay_2001_acta_polytechnica_impeller_power_input.pdf`
+and its `.txt` sidecar (page 1 rendered and read, rule 15): its Table 1 (impeller
+`t`, `D`, ratios), Table 3 (`Po = 5.41` at `h/T = 0.33`), §2 (rig geometry, Re
+range, torquemeter, scatter), eq. (5) (the Bujalski correlation and its two
+cross-checks). Our side: `cases/navier_class/MRF/mesh/generate_geometry.py:21–38`,
+`verification/runs/navier_class/MRF/R2/ET8000/MRF_R2_GRADED_ROW_ET8000.json`.
+Full working: `verification/campaign/MRF_PAPER_REGISTRATION_REID2025.md` §11.
+
+**GATE.** Three additions to N-C13's gate clauses:
+
+- **A measured torque split decides which mechanisms are even admissible.** From
+  `postProcessing/impellerForces/0/moment.dat` at iteration 8000, the impeller
+  torque is **99.98 % pressure** on the fine level (viscous share 0.0179 %;
+  coarse 0.3451 %, medium 0.1345 %). **The viscous contribution to `Np` is
+  0.00078 against a deficit of ~1.1**, so **no wall-treatment or `y+` explanation
+  can reach the torque directly** — our mean wall `y+` of 25.9 against their 4.1
+  is ruled out as a direct cause and can act only through the pressure field.
+  **Compute this split before entertaining any near-wall explanation of a torque
+  deficit; it is free and it eliminates a whole class of hypotheses.**
+- **When a dimensionless band will not transfer, look for an EXPERIMENT at the
+  matching ratios before concluding the case is defective.** Reid 2025 differs
+  from us in three ratios at once and is CFD-to-CFD; Beshay 2001 differs in
+  **one** and is measured. **A one-dimension-apart experiment outranks a
+  three-dimensions-apart simulation**, whatever the relative prestige of the
+  sources.
+- **A correlation reproduced in a secondary source is registered as secondary,
+  with its missing validity range named.** It may anchor a hypothesis and set a
+  prediction; **it may not be quoted as a validation**, and 2.6 % agreement that
+  sits inside the correlation's own 2–3 % accuracy and the experiment's 2.3–16 %
+  scatter **is agreement, not precision**.
+
+**WHAT THIS ADDENDUM DOES NOT DO.** It **moves no verdict**: `4.382` remains part
+of a row graded **`NOT A RESULT`** (fine level not iteratively converged, triple
+`DIVERGENT` at observed order −0.297), and a number that is not a result cannot be
+vindicated by a correlation. It leaves **one** geometric difference from Reid 2025
+untested — their narrow `D/10` baffles, which the correlation has no term for and
+which drops out of the Beshay comparison because Beshay's baffles are `T/10` like
+ours. And it is **falsifiable by one cheap solve**: rebuild our geometry at
+`t/D = 0.0155` holding everything else, predicted `Np` **5.2–5.4**, registered in
+`cases/navier_class/MRF/R3/MRF_R3_ZONE_SENSITIVITY_DRAFT.md` §5 — **not frozen,
+not launched.**

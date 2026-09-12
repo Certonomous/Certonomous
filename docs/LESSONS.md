@@ -27367,3 +27367,71 @@ the band changed only the honest description of the number); L-144 / rule 15
 `verification/campaign/MRF_PAPER_REGISTRATION_REID2025.md`;
 `docs/papers/CFD_simulation_rushton.txt` §3.3.1 and Fig. 12;
 `verification/runs/navier_class/MRF/R2/PAPER_PARITY/`.
+
+---
+
+## L-562 — "THE GEOMETRY DIFFERS" IS AN EXCUSE UNTIL IT IS A NUMBER: WE HELD NO SOURCE, CALLED THE MAGNITUDE UNREGISTERED, AND STOPPED — AND ONE RETRIEVAL TURNED IT INTO AN EXPERIMENT AT OUR EXACT TANK RATIOS THAT PREDICTS OUR VALUE TO 2.6 % (2026-09-12, cfd)
+
+**The rule.** When a case misses an external band and the explanation offered is
+*"our geometry differs"*, that explanation is **unfalsifiable until it carries a
+sign and a magnitude**. Registering the difference as a ratio table is necessary
+and is not sufficient: a ratio table says *which* dimension differs, never *how
+much `Np` that is worth*. **Either quantify it from a source, or say the box holds
+none and go and get one — do not let the table stand as the answer.**
+
+**What happened, in the order it happened.** An MRF Rushton case came back with
+`Np = 4.382` against a newly registered external band of 5.3–5.6. The zone-size
+mechanism the brief proposed was refuted on sign (L-561). The measured geometry
+table then showed two differences against the reference paper — **baffle width
+3× and blade thickness 4× relative to `D`** — and this lane registered them, wrote
+*"the direction is background and the magnitude is unregistered"*, and stopped
+there. **That is exactly where an honest caveat becomes a comfortable one.** The
+supervisor's written push — *quantify it, or say plainly the box holds no source,
+and do not let "geometry differs" become an unfalsifiable excuse for any gap* —
+was the whole difference. One web search and one retrieval later the box held
+**Beshay et al., Acta Polytechnica 41(6) 2001**, whose small test rig is our tank
+**ratio for ratio** — `T = 0.300 m`, `H = T`, four baffles at `0.1 T`, `D/T = 1/3`,
+`l/D = 0.25`, `w/D = 0.2`, disc `0.75 D`, six blades, `h/T = 0.33`, Re inside our
+range — **measured by strain-gauge torquemeter at `Po = 5.41`**, and differing from
+us in **one** dimension: `t/D = 0.0155` against our `0.0400`. Correcting that one
+dimension gives **`Np ≈ 4.50`**, against our measured **4.382** — **2.6 %**.
+
+**The three transferable rules.**
+
+1. **A one-dimension-apart EXPERIMENT outranks a three-dimensions-apart
+   SIMULATION**, whatever the relative prestige or recency of the two sources. The
+   band we were handed came from a CFD paper differing from us in baffle width,
+   `T/D` and thickness at once, and reporting **no measured power number at all**.
+   The better reference was an unglamorous 2001 open-access rig paper.
+2. **Compute the free decomposition before you theorise.** The impeller torque
+   split was already on disk: **99.98 % pressure, 0.018 % viscous** at the fine
+   level. That one line eliminates every near-wall / `y+` / wall-function
+   explanation of a torque deficit *as a direct cause* — our `y+` is 26 against
+   their 4 and it **cannot** reach the torque except through the pressure field.
+   A decomposition already written by the run costs nothing and kills whole
+   classes of hypothesis.
+3. **"No source on the box" is a task, not a verdict.** It was the true and
+   complete answer for about twenty minutes. It should never have been the
+   stopping point, and the tell that it was becoming one is the phrase **"the
+   magnitude is unregistered"** sitting in a document with no retrieval queued
+   behind it.
+
+**And the honesty that survives the good news.** The correlation used for the
+thickness correction is a **secondary-source reproduction** (Bujalski 1987 is
+still not on the box) whose **range of validity the held source does not state**,
+so our `t/D = 0.0400` is an extrapolation of unknown reach; 2.6 % agreement sits
+**inside** the correlation's own 2–3 % accuracy and the experiment's 2.3–16 %
+scatter, so it is **agreement, not precision**; and **no verdict moves** — the row
+is `NOT A RESULT` on a `DIVERGENT` triple, and a number that is not a result
+cannot be vindicated by a correlation. The whole thing is registered as a
+**falsifiable hypothesis with a prediction written down first**: rebuild at
+`t/D = 0.0155` and `Np` must land in **5.2–5.4**.
+
+**Related.** L-561 (the same case, the same hour: check the *sign* of a proposed
+mechanism before believing it); rule 15 (both papers title-page verified by
+rendering page 1); N-C13 and its Addendum 1.
+
+**Sources.** `docs/papers/stirred_tanks_and_mixing/beshay_2001_acta_polytechnica_impeller_power_input.{pdf,txt}`
+Table 1, Table 3, §2, eq. (5); `verification/campaign/MRF_PAPER_REGISTRATION_REID2025.md` §11;
+`verification/runs/navier_class/MRF/R2/ET8000/*/postProcessing/impellerForces/0/moment.dat`;
+`cases/navier_class/MRF/mesh/generate_geometry.py:21–38`.

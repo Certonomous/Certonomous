@@ -1,0 +1,414 @@
+================================================================================
+SIDECAR PROVENANCE HEADER -- written 2026-09-12 by a cfd lab-lane.
+Everything below the second rule is machine-extracted text, unedited.
+
+PDF ...... docs/papers/stirred_tanks_and_mixing/beshay_2001_acta_polytechnica_impeller_power_input.pdf
+Retrieved  open access, Czech Technical University Publishing House,
+           http://ctn.cvut.cz/ap/ ; https://ojs.cvut.cz/ojs/index.php/ap/article/download/280/112
+Extractor  pdftotext -layout (poppler)
+sha256 ... c874293f2499ce4c1abda540f748398fd53fd01efe60b274bc990ae2c6c4e10e
+bytes .... 179896
+
+TITLE-PAGE VERIFICATION (CLAUDE.md rule 15 / L-144) -- DONE BY RENDERING AND
+READING PAGE 1, not by filename, file type or hash. Page 1 carries, as printed:
+
+  header   "Acta Polytechnica Vol. 41  No. 6/2001"
+  title    "Power Input of High-Speed Rotary Impellers"
+  authors  K. R. Beshay, J. Kratena, I. Fort, O. Bruha
+  keywords impeller power input, Rushton turbine, pitched blade impeller
+  Fig. 1   "Sketch of Rushton turbine impeller (Czech standard CVS 691021)
+            D/T = 1/3, w/D = 0.2, D1/D = 0.75, l/D = 0.25"
+  footer   (c) Czech Technical University Publishing House, http://ctn.cvut.cz/ap/
+
+WHY THIS PAPER WAS RETRIEVED, AND WHAT IT SETTLES
+It was fetched to answer one question the cfd-supervisor put in writing: is the
+power-number deficit of our MRF Rushton case explained, QUANTITATIVELY, by blade
+thickness, from a source the box actually holds? Before this retrieval the box
+held NO such source -- only Reid et al. 2025, which says nothing about blade
+thickness and reports no measured power number at all.
+
+This paper supplies two things, and they are of different evidentiary weight:
+
+  1. MEASURED, and at our exact tank ratios. Its SMALL test rig (Table 1,
+     Table 3, section 2) is T = 0.300 m, H = T, four wall baffles of width
+     b = 0.1 T, impeller D = 100 mm, D/T = 1/3, l/D = 0.25, w/D = 0.2,
+     D1/D = 0.75, six blades, water at 20 C, strain-gauge torquemeter,
+     3e4 < Re < 6e4. EVERY ONE OF THOSE RATIOS IS OURS, and our Re = 5.0e4 is
+     inside their range. Its measured standard-Rushton power number is
+     Po = 5.41 at h/T = 0.33 (our clearance) and 5.44 at h/T = 0.5. Its impeller
+     thickness is t = 1.55 mm on D = 100 mm, i.e. t/D = 0.0155; OURS IS
+     t = 4.00 mm, t/D = 0.0400. Stated scatter: average relative standard
+     deviation in the range 2.3 to 16 %.
+  2. SECONDARY, a correlation it reproduces rather than derives. Its eq. (5)
+     gives the Bujalski, Nienow, Chatwin & Cooke (1987) correlation
+         Po = 2.512 (t/D)^-0.195 (T/T0)^0.063 ,  T0 = 1 m
+     attributed to Chem. Eng. Sci. 42(2), 317-326. BUJALSKI 1987 ITSELF IS NOT
+     ON THIS BOX. The correlation is therefore a SECONDARY-SOURCE reproduction,
+     and the source we hold DOES NOT STATE ITS RANGE OF VALIDITY IN t/D. Our
+     t/D = 0.0400 may lie outside the data it was fitted to; a reader must treat
+     any evaluation at that thickness as an EXTRAPOLATION OF UNKNOWN REACH.
+
+  Cross-check the paper itself reports for the correlation: Po = 6.2 predicted
+  against 6.4 measured on the large rig, and 5.3 predicted against 5.425
+  measured on the small rig -- so roughly 2 to 3 % on its own rigs.
+
+FILING NOTE: filed as docs/papers/<topic>/author_year_identifier.pdf with this
+matching .txt sidecar, per FILING_CHARTER and CLAUDE.md "WHERE THINGS LIVE".
+================================================================================
+
+Acta Polytechnica Vol. 41 No. 6/2001
+
+
+
+
+Power Input of High-Speed Rotary
+Impellers
+K. R. Beshay, J. Kratěna, I. Fořt, O. Brůha
+This paper presents the results of an experimental investigation of the power input of pitched blade impellers and standard Rushton turbine
+impellers in a cylindrical vessel provided with four radial baffles at its wall under a turbulent regime of flow of an agitated liquid. The
+influence of the geometry of the pitched blade impellers (pitch angle, number of blades) and the off-bottom impeller clearance of both
+high-speed impellers tested on the impeller power input is determined in two sizes of the cylindrical vessel (0.3 m and 0.8 m diameter of
+vessel). A strain gauge torquemeter is used in the small vessel and a phase shift mechanical torquemeter is used in the large vessel. All results
+of the experiments correspond to the condition that the Reynolds number modified for the impeller exceeds ten thousand. The results of this
+study show that the significant influence of the separating disk thickness of the turbine impeller corresponds fairly well to the empirical
+equations presented in the literature. Both the influence of the number of impeller blades and the blade pitch angle of the pitched blade
+impeller were expressed quantitatively by means of the power dependence of the recently published correlations: the higher the pitch angle
+and the number of blades, the higher the values of the impeller power input. Finally, it follows from results of this study that the impeller
+off-bottom clearance has a weak influence on the power input of the Rushton turbine impeller, but with decreasing impeller off-bottom
+clearance the power input of the pitched blade impeller increases significantly.
+
+Keywords: impeller power input, Rushton turbine, pitched blade impeller.
+
+
+
+                                                                                           Po = Po (Re, geometry of the system)              (1)
+1 Introduction
+                                                                          where the power number
+    High-speed rotary impellers are generally used for mix-
+                                                                                               P
+ing low-viscosity liquids and dispersions under a turbulent re-                        Po =                                                  (2)
+gime of flow of an agitated batch [1, 2, 3]. Their main advan-                              r n 3D5
+tage is that they can reduce investment costs for complex                 and the Reynolds number (modified for impeller)
+gear boxes because their high speed involves transferring
+the power input from the driving motor to the impeller                                           nD2r
+                                                                                          Re =        .                                      (3)
+predominantly via frequency of revolution at a moderate                                           h
+level of torque. The main types of high-speed rotary impel-
+                                                                              The geometry of the agitated system is characterised
+lers suitable both for blending pure liquids and for mixing
+                                                                          simplexes of geometric similarity, e.g. H/T, D/T, D/T, h/T, nB,
+solid-liquid suspensions, gas-liquid dispersions and liquid-
+                                                                          b/T, a and t/D (see List of Symbols) necessary for scaling up the
+-liquid emulsions are the standard Rushton turbine impeller
+                                                                          impeller power input from the pilot plant to industrial size.
+(Fig. 1) and the pitched blade impeller (see Figs. 2 and 3).
+                                                                          For Reynolds number greater than ten thousand the power
+Their design is very well defined and their manufacture is
+                                                                          number is independent of this criterion and Eq. (1) can be
+rather simple. The power input of the standard Rushton
+                                                                          simplified into the form
+turbine impeller (SRTI) and pitched blade impellers (PBI)
+has in many cases of impellers been studied experimentally,                           Po = Po ( H T , D T , h T , b T , n B, t D)            (4)
+and the results of the experiments have been published in                     Published experimental studies have dealt with a quanti-
+dimensionless form by means of similarity criteria [2] a [3]:             tative description (usually in the power form) of dependence
+                                                                          (4) both for SRTI [3, 4, 5, 6] and PBI [6, 7, 8, 9]. The results of
+                                                                          these studies confirm the strong effect of various simplexes of
+                                            l                             geometric similarity on the impeller power input, e.g., the rel-
+                                                                          ative thickness of the turbine separating disc t/D or the pitch
+                                                                          angle of the PBI. On the other hand, the experimental studies
+                                                 w
+
+
+
+
+                                                                          enable us to neglect the influence of certain simplexes on the
+                                                                          impeller power input, e.g. the vessel diameter/impeller diam-
+                                                                          eter ratio D/T of the SRTI or the relative thickness of the
+                  60°                                                     blades of the PBI.
+                                                                              The aim of this study is to compare the experimentally
+                                                                          investigated power input of the SRTI and PBI determined in
+                                                                          two mixing vessels of different sizes under a turbulent regime
+                                                                          of an agitated liquid and look for the influence of the main
+                                                                          geometric characteristics of the two impellers on the impeller
+                                  D                                       power input. The experimental results will be expressed by
+                                                                          means of the above introduced dimensionless variables, and
+Fig. 1: Sketch of Rushton turbine impeller (Czech standard CVS            the statistically calculated power correlations will be com-
+        691021) D/T = 1/3, w/D = 0.2, D1/D = 0.75, l/D = 0.25             pared with results published in the literature.
+
+18                                                                    © Czech Technical University Publishing House         http://ctn.cvut.cz/ap/
+                                                                                                    Acta Polytechnica Vol. 41 No. 6/2001
+
+
+
+
+                                                w
+                                     w
+
+
+
+
+                                                                                                          w
+                                                                        w
+
+
+
+
+                                                                                          a
+                                                        a
+                     a
+
+
+
+
+                                                                                                                     D
+                                                D/2
+                                                                       D
+
+                                    a)                                  b)                               c)
+Fig. 2: Sketch of pitched blade impellers (Czech standard CVS 691020) D/T = 1/3, w/D = 0.2, a = 45o
+
+
+                                                                             measured by a phase-shift mechanical torquemeter whose
+2 Experimental                                                               output, in the form of an electrical signal, was fed to a data
+    The power input of the SRTI and the PBI was investigated                 acquisition system. The torquemeter was mounted, under
+through measurements in two experimental test rigs having                    the variable-speed driving motor, above the tank. The rota-
+the same geometrical parameters as shown in Fig. 3. The first                tional speed was measured by means of a photoelectric cell
+(larger) test rig, shown in Fig. 4, had a flat-bottom cylindrical            and a notched disc mechanism.
+vessel 0.8 m in diameter, made of Perspex and equipped with                      In the smaller-size test rig shown in Fig. 5, a flat-bottom,
+four equally-spaced baffles mounted on the wall and with                     cylindrical vessel with four baffles at its wall, was again used.
+a width of b = 0.1T. The working fluid used throughout the                   The vessel had a diameter of T = 0.3 m and was filled with
+measurements was water, at a temperature of 20 °C, whose                     water at temperature 20 °C to a height of H = T. A strain
+height H was equal to the vessel diameter T. The torque was                  gauge torquemeter, mounted on the motor shaft, was used to
+                                                                             measure the torque, and the signal was fed to a data acquisi-
+                            n                                                tion system. The rotational speed was measured, as in the case
+                                                                             of the larger-size test rig, by a photoelectric mechanism.
+                     b
+                                                                                 Table 1 shows the geometrical details of the impellers used
+                                                                             in this study. For the large-vessel test rig three impellers were
+                                                                             investigated, namely: a standard Rushton turbine impeller
+                                                                             (SRTI), a 6-blade pitched blade impeller with blade angle
+                                                                             a = 45° (6PBI45) and a 4-blade pitched blade impeller with
+                                                                             a = 45° (4PBI45). For the small-vessel test rig, two types of
+                                                                             impellers were investigated. These were the Rushton turbine
+                                                                             impeller (SRTI) and pitched blade impellers with the follow-
+                                                                             ing geometry: 6 blades and pitch angle a = 45° (6PBI45), 4
+                                                                             blades, a = 45° (4PBI45), 4 blades, a = 30° (4PBI30), 4
+                                                                             blades, a = 20° (4PBI20), 3 blades, a = 45° (3PBI45), 3
+                                                           H
+
+
+
+
+                                                                             blades, a = 35° (4PBI35) and 3 blades, a = 24° (4PBI24). All
+                                                                             had a relative diameter D/T = 0.33.
+                                                                                 All experiments were made at three levels of off-bottom
+                                                                             clearance, namely: h/T = 0.2, 0.35, 0.5 except for the SRTI,
+    h
+
+
+
+
+                                                                             where measurements were made at only two off-bottom clear-
+                                                                             ances: h/T = 0.33 and 0.5. The off-bottom clearance was
+                                                                             measured from the bottom of the vessel to the lower edge of
+                                                                             the impeller using a ruler, with a precision of ± 1 mm. The
+                                D                                            error in measuring the blade angle of the pitched blade
+                                                                             impellers can be considered ± 1°.
+                                T                                                A sufficiently wide range of Reynolds number was ob-
+                                                                             tained by varying the rotational speed of the impeller (n).
+Fig. 3: Geometrical parameters of the agitated vessel. (H/T = 1,             This quantity was kept constant during measurements to
+        b/T = 0.1, D/T = 1/3)                                                within ± 2 rpm. Therefore, the maximum experimental error
+
+© Czech Technical University Publishing House       http://ctn.cvut.cz/ap/                                                                 19
+Acta Polytechnica Vol. 41 No. 6/2001
+
+
+
+
+Fig. 4: Layout of the large size test rig
+
+Table 1: Geometrical specifications of impellers
+
+
+                           Impeller         t [mm]   D [mm]   D/T         l/D        w/D        D1/D        nB      a [deg]
+         Large vessel       STRI             2.50     260     0.33        0.25       0.2        0.75         6         90
+                           6PBI45              –      255     0.32          –        0.2          –          6         45
+                           4PBI45              –      260     0.33          –        0.2          –          4         45
+         Small vessel       SRTI             1.55     100     0.33        0.25       0.2        0.75         6         90
+                           6PBI45              –      100     0.33          –        0.2          –          6         45
+                           4PBI45              –      100     0.33          –        0.2          –          4         45
+                           4PBI30              –      100     0.33          –        0.2          –          4         30
+                           4PBI20              –      100     0.33          –        0.2          –          4         20
+                           3PBI45              –      100     0.33          –        0.2          –          3         45
+                           3PBI35              –      100     0.33          –        0.2          –          3         35
+                           3PBI24              –      100     0.33          –        0.2          –          3         24
+
+encountered in measuring speed reached 2 % for low Rey-              speed (1000 rpm) for one hour, in order to reach the working
+nolds numbers (n = 200 rpm), while this error fell to less than      temperatures of the bearings and motor. The motor was then
+0.25 % for higher Reynolds numbers (n = 1000 rpm).                   set to the lowest speed for the particular impeller and allowed
+    The main factors affecting the accuracy of the impeller          to run for 5 minutes till steady state conditions prevailed. Pas-
+power input measurements were the static and dynamic fric-           sive torque (torque readings without installing the impeller)
+tions. The static friction effect was reduced to its minimal         was then recorded for 3 minutes. Then the speed was in-
+value by using a proper bearing and driving motor. The most          creased by an increment of 40 rpm and the passive torque was
+dominant factor, i.e., the dynamic friction, was closely moni-       recorded again for 3 minutes, and so on until the maximum
+tored during the experiment to ensure that steady state values       allowable rotational speed was reached. The motor was then
+of the torque were recorded. For this purpose, the motor             stopped and the impeller was attached and positioned at an
+was allowed to run before each set of experiments at high            off-bottom clearance level. The motor started once again at
+
+20                                                                © Czech Technical University Publishing House    http://ctn.cvut.cz/ap/
+                                                                                                 Acta Polytechnica Vol. 41 No. 6/2001
+
+
+
+
+Fig. 5: Layout of the small size test rig
+
+the lowest measuring speed and was left for 5 minutes before              the large vessel test rig. The results for the three impellers in-
+recording the torque. Torque data was then collected for                  vestigated are reported in Table 2, at the above mentioned
+5 minutes, and three collections were recorded at each speed              off-bottom clearances. The corresponding results obtained
+and off-bottom clearance to obtain the average power input.               using the small vessel test rig are given in Table 3 for the eight
+The passive torque was measured once again at the end of                  impellers studied.
+each speed range.
+    This experimental technique was repeated for each impel-              Table 3. Average values of Po ( T = 0.3 m)
+ler and at each off-bottom clearance for both test rigs. The av-
+erage power number of each impeller across a speed range                     Impeller                Power Input Measured at
+was then calculated. The average relative standard deviation
+was calculated and found to be in the range 2.3–16 %. This                                       h/T = 0.33                h/T = 0.5
+experimental methodology was adopted to completely elimi-                      SRTI                 5.41                     5.44
+nate the dynamic resistance of the equipment.
+                                                                                             h/T = 0.2        h/T = 0.35      h/T = 0.5
+                                                                              6PBI45           1.84              1.69           1.55
+3 Results and Discussion                                                      4PBI45           1.44              1.28           1.22
+   The mean power number defined as the average power                         4PBI30           0.71              0.64           0.59
+number across the speed range of the impeller (from low
+speed to the speed at which aeration occurs) was measured by                  4PBI20           0.32              0.29           0.28
+                                                                              3PBI45           1.16              1.04           0.97
+Table 2: Average values of Po ( T = 0.8 m)
+                                                                              3PBI35           0.75              0.69           0.65
+    Impeller                Power Input Measured at                           3PBI24           0.39              0.36           0.33
+
+                       h/T = 0.33            h/T = 0.5                        The experimental results for the SRTI obtained by the
+     SRTI                 6.51                 6.32                       large test rig where the Reynolds number was in the range
+                    h/T = 0.2     h/T = 0.35     h/T = 0.5                1.5×105 < Re < 3×105 and those obtained using the small test
+                                                                          rig in the range 3×104 < Re < 6×104 show more or less con-
+    6PBI45            1.63           1.52            –
+                                                                          stant power input over Reynolds number range. Only a 4 %
+    4PBI45            1.48           1.31          1.20                   change of Po is observed in the recorded date, in accordance
+
+© Czech Technical University Publishing House    http://ctn.cvut.cz/ap/                                                                   21
+Acta Polytechnica Vol. 41 No. 6/2001
+
+
+with [3], although a change of 10 % [5] and even larger
+changes [6] have been reported. Another significant result
+                                                                                             4 Conclusions
+obtained from Tables 2 and 3 is that the power input of SRTI                                     The power input of the pitched blade impellers and the
+varies very slightly (almost constant) with off-bottom clear-                                standard Rushton turbine impellers were investigated using
+ance. Only a change of 3 % is observed in Po due to change of                                two cylindrical vessels of different diameters. The effect of
+C/T from 0.33 to 0.5. This agrees well with the literature [3, 9].                           several parameters including the vessel diameter, the off-bot-
+    Now, the power inputs of the present study are compared                                  tom clearance, the number of blades of the pitched blade
+with those obtained from the empirical correlation proposed                                  impellers and the pitch angle were studied. It has been found,
+by Bujalski et al [4], relating the power number to the relative                             for SRTI, that Po remains almost constant over the tested
+blade thickness (t/D) and the vessel diameter, via:                                          Reynolds number range and it also remains constant at off-
+                                                                                             -bottom clearances greater than 1/3.
+                                     - 0.195             0.063
+                         æ t ö                  æT ö                                             A correlation relating the power input of the pitched
+               Po = 2512
+                     .   ç ÷                    ç ÷              ,                  (5)
+                         èDø                    è T0 ø                                       blade impeller to the number of blades, off-bottom clearance
+                                                                                             and the pitch angle was obtained from the measured data
+where T0 = 1 m. Good agreements are obtained, e.g., for the                                  and compared with the corresponding correlation and good
+large test rig Po = 6.2 compared to an averaged value of 6.4                                 agreement was obtained.
+of the present study, and for the small test rig the agreement
+is even better, i.e., Po = 5.3 compared for 5.425 for the
+present work. Similar findings were also reported by Ruther-                                 Acknowledgement
+ford et al [5].                                                                                 This research has been subsidised by Research Project of
+    The effect of the off-bottom clearance was investigated in                               the Ministry of Education of the Czech Republic
+the present work for the pitched blade impellers in both the                                 J04/98: 212200008.
+large and small vessel test rigs. It is clear from the values
+reported in Tables 2 and 3 that Po decreases, as expected, with                              List of Symbols
+increasing h/T, in agreement with previous investigation [7].
+As the pitched blade impellers pump the flow downwards,                                      b       baffle width, m
+it creates a region with large turbulence underneath it. For                                 D       impeller diameter, m
+the smaller bottom clearances, the fluid velocities in the                                   h       off-bottom clearance, m
+region bounded by the vessel bottom and the impeller are                                     H       total liquid depth, m
+higher, and thus higher friction and higher rate of mechani-                                 l       width of Rushton turbine discs, m
+cal energy dissipation are generated, which leads to higher                                  n       rotational speed, rps
+power numbers. For higher off-bottom clearances, lower tur-
+                                                                                             nB      number on blades
+bulence leads to lower power numbers.
+                                                                                             P       power required by the impeller, W
+    The effect on power input of the number of blades of the
+pitched blade impeller at a = 45° and the effect of changing                                 Po      power number
+a at nB = 4 and 3 were also investigated in the present work                                 Re      Reynolds number
+at different off-bottom clearances. The power input data are                                 t       thickness of Rushton turbine disk, m
+depicted in Table 3. These and other data for the pitched                                    T       vessel diameter, m
+blade impeller were used to obtain a correlation in the form:                                w       height of blades, m
+                                     - 0.178                                                 a       pitch angle, °
+                 nB0.682 æç ö÷
+                           h
+       Po = 0996
+             .                                 (sin a )1.995.                       (6)
+                          èDø                                                                m       dynamic viscosity of agitated liquid, Pa×s
+                                                                                             r       density of agitated liquid, kg/m3
+   This formula correlates the power input of the pitched
+blade impeller to the different parameters investigated. The
+average error (difference between the measured values and                                    References
+those obtained from the correlation) was found to be 1.49 %.                                 [1] Holland, F. A.. Chapman, F. S.: Liquid Mixing and Pro-
+This correlation can be compared with a similar general                                          cessing in Stirred Tanks. New York, Reinhold Publ. Corp.,
+correlation found by Medek [7] given in the form:                                                1966
+                         - 0.165          - 0. 365         0.140
+                  æhö              æT ö              æHö                                     [2] Nagata, Sh.: Mixing Principles and Applications. Tokyo,
+                                                                     (sin a)
+                                                                           2. 077
+Po = 1507
+      .   nB0.701 ç ÷              ç ÷               ç ÷                            (7)
+                  è Dø             è Dø              èTø                                         New York, Kodansha Ltd., John Wiley and Sons, 1975
+                                                                                             [3] Strek, F.: Mixing and Mixing Equipment (in Czech).
+which was reduced, according to the present geometry, i.e.,                                      Prague, SNTL, 1997
+T/D = 3 and H/T = 1.0, to the form:
+                                                                                             [4] Bujalski, W., Nienow, A. W., Chatwin, S., Cooke, M.: The
+                                      - 0.165                                                    Dependency on Scale of Power Numbers of Rushton Disk
+                  nB0.701 æç ö÷
+                            h
+       Po = 10092
+             .                                  (sin a )2.077                       (8)          Turbine. Chem. Eng. Sci., 42 (2), 1987, pp. 317–326
+                           èDø
+                                                                                             [5] Rutherford, K., Mahmoudi, S. M. S., Lee, K. C., Yian-
+   A close inspection of Eq. (6) and Eq. (8) reveals that the                                    neskis, M.: The Influence of Rushton Impeller Blade and
+present results correlate well with those of Medek [7]. In fact                                  Disk Thickness on the Mixing Characteristics of Stirred Vessel.
+the two correlations are almost identical since the variation in                                 Trans. Inst. Chem. Engrs., 74 (part A), 1996,
+the constant and the various exponents are negligibly small.                                     pp. 369–378
+
+22                                                                                        © Czech Technical University Publishing House     http://ctn.cvut.cz/ap/
+                                                                                              Acta Polytechnica Vol. 41 No. 6/2001
+
+
+[6] Chapple, D., Afacan, A., Kresta, S. K.: The Effect of Impel-          Mech. Eng. Dept.
+    ler and Tank Geometry on Power Number for a Pitched Blade             Faculty of Engineering
+    Turbine. Trans. Inst. Chem. Engrs, (in press)                         Cairo University
+[7] Medek, J.: Power Characteristics of Agitators with Flat In-           Cairo, Egypt
+    clined Blades. Int. Chem. Eng., 20 (4), 1980, pp. 664–672
+                                                                          Ing. Jiří Kratěna
+[8] Medek, J.: Hydrodynamic Characteristics of Pitched Blade
+                                                                          Doc. Ing. Ivan Fořt, DrSc.
+    Impellers (in Czech). Technika v Chemii, 74, 1991,
+                                                                          phone: +420 2 2435 2713
+    pp. 22–28
+                                                                          fax.: +420 2 2431 0292
+[9] Ibrahim, S., Nienow, A. W.: Power Curves and Flow                     e-mail: fort@fsid.cvut.cz
+    Patterns for a Range of Impellers in Newtonian Fluids:
+    40<Re<5×105. Trans. Inst. Chem. Engrs., 73, 1995,                     Department of Process Engineering
+    pp. 485–491
+                                                                          Doc. Ing. Oldřich Brůha, CSc.
+                                                                          Department of Physics
+Dr. Karam R. Beshay
+phone: 002 02 2408223                                                     Czech Technical University in Prague
+fax: 002 02 5714185                                                       Faculty of Mechanical Enginering
+e-mail: krbeshay@hotmail.com                                              Technická 4, 166 07 Praha 6, Czech Republic.
+
+
+
+
+© Czech Technical University Publishing House    http://ctn.cvut.cz/ap/                                                        23
+

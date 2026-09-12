@@ -379,3 +379,126 @@ calibration row is owed**; the row that IS owed remains the R2 solve's, at
 | digitiser | `cases/navier_class/MRF/digitise_reid2025_fig16.py` |
 | graded row this grades against | `verification/runs/navier_class/MRF/R2/ET8000/MRF_R2_GRADED_ROW_ET8000.json` |
 | zone sensitivity draft (NOT FROZEN) | `cases/navier_class/MRF/R3/MRF_R3_ZONE_SENSITIVITY_DRAFT.md` |
+
+---
+
+## 11. DATED SECTION, 2026-09-12 (same day, later) — **THE `Np` DEFICIT IS QUANTIFIED, FROM AN EXPERIMENT AT OUR EXACT TANK RATIOS, AND OUR 4.38 MAY SIMPLY BE RIGHT FOR OUR TANK**
+
+Appended, not inserted: **lines whose number changed above this section: 0.**
+
+The cfd-supervisor asked, in writing, whether blade thickness explains the deficit
+**quantitatively, from a source the box actually holds**, and instructed that
+*"geometry differs"* must not be allowed to become an unfalsifiable excuse. At the
+time of §3 the answer was **no source**. A retrieval was made and the answer is now
+**yes**, with the evidentiary weight of each part stated separately.
+
+### 11.1 The source, title-page verified
+
+`docs/papers/stirred_tanks_and_mixing/beshay_2001_acta_polytechnica_impeller_power_input.pdf`,
+sidecar `.txt` beside it. **Page 1 rendered and read** (rule 15): *"Power Input of
+High-Speed Rotary Impellers"*, K. R. Beshay, J. Kratěna, I. Fořt, O. Brůha, **Acta
+Polytechnica Vol. 41 No. 6/2001**, Czech Technical University Publishing House,
+open access.
+
+### 11.2 The measurement, and why it matters more than the correlation
+
+Its **small test rig** (its Table 1, Table 3 and §2) is, ratio for ratio, **our
+tank**:
+
+| ratio | Beshay small rig | ours | match |
+|---|---|---|---|
+| T | 0.300 m | 0.300 m | ✔ |
+| H/T | 1.0 | 1.0 | ✔ |
+| baffles | 4 at b = 0.1 T | 4 at T/10 | ✔ |
+| D | 100 mm | 100 mm | ✔ |
+| D/T | 1/3 | 1/3 | ✔ |
+| l/D (blade length) | 0.25 | 0.25 | ✔ |
+| w/D (blade width) | 0.2 | 0.2 | ✔ |
+| D₁/D (disc) | 0.75 | 0.75 | ✔ |
+| blades | 6 | 6 | ✔ |
+| clearance h/T | 0.33 | 0.333 | ✔ |
+| Re | 3×10⁴ – 6×10⁴ | 5.0×10⁴ | ✔ inside |
+| **t/D (thickness)** | **0.0155** (t = 1.55 mm) | **0.0400** (t = 4.00 mm) | ✘ **2.58×** |
+
+**Measured power number, strain-gauge torquemeter: `Po = 5.41` at h/T = 0.33**
+(5.44 at h/T = 0.5). Their stated scatter: average relative standard deviation
+**2.3 % to 16 %**.
+
+**Everything differs by one dimension, and it is the one §3 named.** This is the
+controlled comparison that Reid 2025 could never be, because Reid's tank differs
+in baffle width *and* T/D *and* thickness at once.
+
+### 11.3 The correlation, labelled as secondary and extrapolated
+
+Beshay's eq. (5) reproduces **Bujalski, Nienow, Chatwin & Cooke (1987)**,
+*Chem. Eng. Sci.* **42**(2) 317–326:
+
+    Po = 2.512 (t/D)^(-0.195) (T/T0)^(0.063),   T0 = 1 m
+
+**Bujalski 1987 is NOT on this box.** The correlation is a **secondary-source
+reproduction**, and **the source we hold does not state its range of validity in
+`t/D`**. Our `t/D = 0.0400` may lie beyond the data it was fitted to. Its own
+accuracy, on the rigs in the paper that carries it: **2–3 %** (6.2 vs 6.4; 5.3 vs
+5.425).
+
+| evaluation | result |
+|---|---|
+| at their `t/D = 0.0155`, T = 0.300 | Po = **5.248** vs their measured **5.41** → correlation is 3.1 % low |
+| at our `t/D = 0.0400`, T = 0.300 | Po = **4.362** |
+| **thickness factor 0.0155 → 0.0400** | **×0.8312, i.e. −16.9 %** |
+
+### 11.4 THE ANSWER, WITH ITS SIGN AND ITS MAGNITUDE
+
+Anchor on the **measurement**, correct only for the one dimension that differs:
+
+> **5.41 (measured, our tank ratios) × 0.8312 (thickness factor) = `Np ≈ 4.50`.
+> Our ungraded fine-level value is `4.382` — **2.6 % below that**, and on the low
+> side, which is the documented direction of steady-MRF under-prediction that
+> this case's own R1 pre-registration §3 predicted **before any compute**.**
+
+Against the Reid band the same number is **17.3 % to 21.8 % low**. **The two
+statements are both true and they are about different tanks.**
+
+**CONCLUSION, STATED AS A HYPOTHESIS WITH ITS EVIDENCE AND ITS WEAKNESSES, NOT AS
+A FINDING.** The `Np` deficit against Reid 2025 is **quantitatively consistent
+with blade thickness alone**, and our `4.382` is **plausibly correct for our
+tank**. The honest verdict on the band is therefore the one the supervisor
+anticipated: **the band does not transfer, and this is not a mesh defect or a
+zone defect to be repaired.**
+
+**What is weak in it, said plainly:**
+- The correlation is **secondary-source** and **extrapolated to an unstated reach**.
+- 2.6 % agreement is **inside the correlation's own 2–3 % accuracy and well inside
+  the experiment's 2.3–16 % scatter**, so it is agreement, not precision. It must
+  not be quoted as a validation.
+- **It changes no verdict.** `4.382` remains part of a row graded **`NOT A
+  RESULT`** — fine level not iteratively converged, triple `DIVERGENT` at order
+  −0.297. A number that is not a result cannot be vindicated by a correlation.
+- Baffle width is **not** in this correlation. Ours (`T/10`) matches Beshay's rig,
+  so it drops out of *this* comparison — but it remains untested against Reid's
+  narrow `D/10` baffles, and that is now the **only** unexplained geometric
+  difference between the two papers.
+
+**WHAT WOULD FALSIFY IT, AND IT IS CHEAP.** Rebuild our geometry with
+`BLADE_T = DISC_T = BAF_T = 0.00155 m` (`t/D = 0.0155`, Beshay's own impeller),
+hold everything else including the MRF zone, and re-solve the fine level. The
+correlation and the experiment together predict `Np ≈ 5.2–5.4`. **If it lands
+there, thickness is the mechanism and the case has an experimental anchor at its
+own geometry. If it does not, this section is refuted and the deficit is
+something else.** Registered in
+`cases/navier_class/MRF/R3/MRF_R3_ZONE_SENSITIVITY_DRAFT.md` §5 as the rung that
+now outranks the zone sweep.
+
+### 11.5 A REFERENCE-TIER CONSEQUENCE THAT IS NOT THIS LANE'S TO TAKE
+
+Reid 2025 is a **CFD-to-CFD** reference: it reports no measured power number.
+Beshay 2001 is an **experiment at our exact tank ratios**, in our Re range, with a
+stated uncertainty. If a future rung is graded against `5.41 × (thickness
+correction)` rather than against Reid's band, this case's reference tier could
+move from **bounded-agreement** toward **experiment-validated**. **That call
+belongs to the verification supervisor and to the frozen registry, not here**
+(`MRF_R1_PREREGISTRATION.md` §2 registry note). It is recorded as an available
+upgrade path and nothing more.
+
+*Appended by a cfd `lab-lane`, 2026-09-12, answering the cfd-supervisor's written
+question. Submissions parked. No agent's message is Sanaa's consent.*

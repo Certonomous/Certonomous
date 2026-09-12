@@ -1,5 +1,15 @@
 # MRF_R3 (DRAFT) — MRF ZONE SIZE AS A REGISTERED PARAMETER WITH A MEASURED SENSITIVITY
 
+> **REVISION 2, 2026-09-12 (same day), at the cfd-supervisor's direction.** The
+> premise is restated so it cannot be read as a repair. **This rung is NOT a fix
+> for the `Np` deficit and never was justified as one** — §1 shows the zone is not
+> undersized and the mechanism predicts the wrong sign. **Its stated purpose is
+> the sensitivity itself**: a parameter with no sensitivity behind it is a
+> default, which is L-561's whole point. **And it is no longer the priority rung**
+> — §5, added in this revision, registers the blade-thickness rung that now
+> outranks it, because an experiment at our exact tank ratios has since landed on
+> the box and quantifies the deficit.
+
 > **STATUS: DRAFT. NOT FROZEN. NOT LAUNCHED. NOT A GATE.**
 > No sha binds this document, no run directory exists under it, and no verdict may
 > be read from it. **The freeze is the cfd-supervisor's check 4 and is not this
@@ -15,7 +25,7 @@
 
 ---
 
-## 1. WHY THIS RUNG IS NOT WHAT THE DIRECTIVE ASSUMED, AND WHY IT IS STILL WORTH RUNNING
+## 1. THIS RUNG IS NOT A REPAIR — THE ZONE IS NOT UNDERSIZED, AND THE MECHANISM PREDICTS THE WRONG SIGN
 
 The directive's item 3 says: *"if our zone is near the swept volume (~1.1D), that
 is the paper's mechanism for a >12% low Np: re-register with a zone of 1.3–1.5D."*
@@ -132,7 +142,7 @@ curve for OUR tank, not a value inside somebody else's band.**
 
 ---
 
-## 4. THE LEADING ALTERNATIVE HYPOTHESIS, REGISTERED SO IT IS NOT LOST
+## 4. THE MECHANISM THAT DOES EXPLAIN THE DEFICIT — SUPERSEDED BY §5, KEPT FOR THE RECORD
 
 If `Np` is 20 % low and zone size cannot explain it, the measured geometry
 differences are the leading candidates: **baffle width `0.300 D` against the
@@ -149,3 +159,51 @@ whose whole value is that it changes one thing.
 
 *Drafted by a cfd `lab-lane`, 2026-09-12. NOT FROZEN. NOT LAUNCHED. Submissions
 parked. No agent's message is Sanaa's consent.*
+
+---
+
+## 5. ADDED IN REVISION 2 — **THE BLADE-THICKNESS RUNG, WHICH NOW OUTRANKS THE ZONE SWEEP**
+
+§4 was written when the box held **no** source that could quantify a thickness
+effect. It now holds one, title-page verified:
+`docs/papers/stirred_tanks_and_mixing/beshay_2001_acta_polytechnica_impeller_power_input.pdf`
+— Beshay, Kratěna, Fořt & Brůha, *Power Input of High-Speed Rotary Impellers*,
+Acta Polytechnica **41**(6) 2001. Its **small test rig is our tank, ratio for
+ratio**: T = 0.300 m, H = T, four baffles at `b = 0.1 T`, D = 100 mm, D/T = 1/3,
+l/D = 0.25, w/D = 0.2, D₁/D = 0.75, six blades, h/T = 0.33, water,
+3×10⁴ < Re < 6×10⁴ (our Re = 5.0×10⁴ is inside). **Its measured power number is
+`Po = 5.41`, by strain-gauge torquemeter.** The one ratio that differs is the one
+that matters: **its impeller is `t/D = 0.0155`; ours is `t/D = 0.0400`.**
+
+Correcting the measurement for that single dimension with the Bujalski et al.
+(1987) correlation the same paper reproduces —
+`Po = 2.512 (t/D)^-0.195 (T/T0)^0.063`, a **secondary-source** reproduction whose
+range of validity the source we hold **does not state** — gives a thickness factor
+of **×0.8312** and an **experiment-anchored prediction of `Np ≈ 4.50` for our
+tank**. Our ungraded fine-level value is **4.382**, i.e. **2.6 % low**, on the
+side that steady MRF is documented to err and that this case's own R1
+pre-registration §3 predicted before any compute.
+
+**THE RUNG.** One arm, one change, on the existing fine mesh with the existing MRF
+zone held at 1.200 D × 2.00 W: rebuild the geometry with
+`BLADE_T = DISC_T = BAF_T = 0.00155 m` (`t/D = 0.0155`, Beshay's own impeller) in
+`cases/navier_class/MRF/mesh/generate_geometry.py`, and re-solve the three levels.
+
+**PREDICTION, CARRIED BEFORE THE DATA.** `Np` lands in **5.2 to 5.4**. If it does,
+thickness is the mechanism, our 4.382 was correct for our tank, and the case gains
+an **experimental** anchor at its own geometry. **If it does not, §11.4 of
+`verification/campaign/MRF_PAPER_REGISTRATION_REID2025.md` is refuted** and the
+deficit is something else — which is the point of writing the prediction down
+first.
+
+**WHY IT OUTRANKS THE ZONE SWEEP.** The zone sweep measures a sensitivity we
+should have and cannot currently exonerate. The thickness rung tests a **named,
+quantified, falsifiable mechanism against an experiment at our own tank ratios**,
+and it is the same cost. **It should be frozen and run first**; the zone sweep
+follows, on its own merits, unchanged.
+
+**Still not frozen, still not launched, and this section carries no cost estimate
+either** — rule 12 requires the estimate in the frozen document, built from the R2
+`ET8000` actuals by whoever freezes it.
+
+*Revision 2 by a cfd `lab-lane`, 2026-09-12. NOT FROZEN. NOT LAUNCHED.*
