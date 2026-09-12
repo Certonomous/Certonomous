@@ -13,124 +13,144 @@ W_STEPS=2000 deltaT=1e-2
 CAP_CORE_MIN=900.0 (registered 900.0)
 CAP_S8=400.0 MEMAVAIL_FLOOR_GIB=14.0
 MEM_LIMIT=8g CPUSET_CPUS=1 (both REGISTERED, W2 §4)
-STAMP=20260830T231011Z_1280361
-STARTED_UTC=2026-08-30T23:10:12Z
-STAGE=S0 TASK=mesh rc=0 wall_s=5 ranks=1 core_min=0.0833 memavail_GiB=28.4234
+STAMP=20260903T172242Z_179692
+STARTED_UTC=2026-09-03T17:22:42Z
+STAGE=S0 TASK=mesh rc=0 wall_s=4 ranks=1 core_min=0.0667 memavail_GiB=28.5241
 S0_MANIFEST_ROW cells=2450 check_ok=True polyMesh=8 age_guard=True
 S0_ROW_WRITTEN 1 manifest row(s)
 AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
-STAGE=S1a TASK=shell rc=0 wall_s=20 core_min=0.3333 memavail=28.4631 applied_index=None applied_sign=None applied_mag=None inspect=[0|false]
-STAGE=S1a TASK=shell rc=0 wall_s=20 ranks=1 core_min=0.3333 memavail_GiB=28.4631 inspect=[0|false] log=S1a_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=0.4166 of cap 900.0
+STAGE=S1a TASK=shell rc=0 wall_s=15 core_min=0.25 memavail=28.5196 applied_index=None applied_sign=None applied_mag=None inspect=[0|false]
+STAGE=S1a TASK=shell rc=0 wall_s=15 ranks=1 core_min=0.25 memavail_GiB=28.5196 inspect=[0|false] log=S1a_20260903T172242Z_179692.log
+SPENT_CORE_MIN=0.3167 of cap 900.0
 AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
-STAGE=S1b TASK=run_model rc=0 wall_s=36 core_min=0.6 memavail=28.4731 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
-STAGE=S1b TASK=run_model rc=0 wall_s=36 ranks=1 core_min=0.6 memavail_GiB=28.4731 inspect=[0|false] log=S1b_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=1.0166 of cap 900.0
+STAGE=S1b TASK=run_model rc=0 wall_s=32 core_min=0.5333 memavail=28.4255 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S1b TASK=run_model rc=0 wall_s=32 ranks=1 core_min=0.5333 memavail_GiB=28.4255 inspect=[0|false] log=S1b_20260903T172242Z_179692.log
+SPENT_CORE_MIN=0.85 of cap 900.0
 FIELD_A_CREATED from S1b/10
 AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
-STAGE=S2a TASK=run_model rc=0 wall_s=58 core_min=0.9667 memavail=28.3842 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
-STAGE=S2a TASK=run_model rc=0 wall_s=58 ranks=1 core_min=0.9667 memavail_GiB=28.3842 inspect=[0|false] log=S2a_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=1.9833 of cap 900.0
+STAGE=S2a TASK=run_model rc=0 wall_s=54 core_min=0.9 memavail=28.3025 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S2a TASK=run_model rc=0 wall_s=54 ranks=1 core_min=0.9 memavail_GiB=28.3025 inspect=[0|false] log=S2a_20260903T172242Z_179692.log
+SPENT_CORE_MIN=1.75 of cap 900.0
 FIELD_B_CREATED from /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/S2a/3 (a FINAL-time write, not a per-step write)
 FIELD_B_COMPLETENESS required=11 present=11 reference=FIELD_A
 COMPLETENESS_PLANT_OK the check found U_0 betaFINuTilda fvSource meshPhi nuTilda_0 nut p_0 missing from the intermediate write 0.01 -- it can say NO
 FIELD_B_MANIFEST_WRITTEN files=11
 AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
-STAGE=S2b TASK=run_model rc=0 wall_s=449 core_min=7.4833 memavail=28.4980 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
-STAGE=S2b TASK=run_model rc=0 wall_s=449 ranks=1 core_min=7.4833 memavail_GiB=28.4980 inspect=[0|false] log=S2b_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=9.4666 of cap 900.0
+STAGE=S2b TASK=run_model rc=0 wall_s=401 core_min=6.6833 memavail=28.3084 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S2b TASK=run_model rc=0 wall_s=401 ranks=1 core_min=6.6833 memavail_GiB=28.3084 inspect=[0|false] log=S2b_20260903T172242Z_179692.log
+SPENT_CORE_MIN=8.4333 of cap 900.0
 AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
-STAGE=S3_r1 TASK=run_model rc=0 wall_s=479 core_min=7.9833 memavail=28.5210 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
-STAGE=S3_r1 TASK=run_model rc=0 wall_s=479 ranks=1 core_min=7.9833 memavail_GiB=28.5210 inspect=[0|false] log=S3_r1_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=17.4499 of cap 900.0
+STAGE=S3_r1 TASK=run_model rc=0 wall_s=338 core_min=5.6333 memavail=27.6070 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S3_r1 TASK=run_model rc=0 wall_s=338 ranks=1 core_min=5.6333 memavail_GiB=27.6070 inspect=[0|false] log=S3_r1_20260903T172242Z_179692.log
+SPENT_CORE_MIN=14.0666 of cap 900.0
 AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
-STAGE=S3_r2 TASK=run_model rc=0 wall_s=538 core_min=8.9667 memavail=28.4720 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
-STAGE=S3_r2 TASK=run_model rc=0 wall_s=538 ranks=1 core_min=8.9667 memavail_GiB=28.4720 inspect=[0|false] log=S3_r2_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=26.4166 of cap 900.0
+STAGE=S3_r2 TASK=run_model rc=0 wall_s=348 core_min=5.8 memavail=28.0757 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S3_r2 TASK=run_model rc=0 wall_s=348 ranks=1 core_min=5.8 memavail_GiB=28.0757 inspect=[0|false] log=S3_r2_20260903T172242Z_179692.log
+SPENT_CORE_MIN=19.8666 of cap 900.0
 AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
-STAGE=S3_r3 TASK=run_model rc=0 wall_s=348 core_min=5.8 memavail=28.3847 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
-STAGE=S3_r3 TASK=run_model rc=0 wall_s=348 ranks=1 core_min=5.8 memavail_GiB=28.3847 inspect=[0|false] log=S3_r3_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=32.2166 of cap 900.0
+STAGE=S3_r3 TASK=run_model rc=0 wall_s=460 core_min=7.6667 memavail=28.1580 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S3_r3 TASK=run_model rc=0 wall_s=460 ranks=1 core_min=7.6667 memavail_GiB=28.1580 inspect=[0|false] log=S3_r3_20260903T172242Z_179692.log
+SPENT_CORE_MIN=27.5333 of cap 900.0
 AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
-STAGE=S3b_c0_ap TASK=run_model rc=0 wall_s=356 core_min=5.9333 memavail=28.5632 applied_index=0 applied_sign=plus applied_mag=1e-06 inspect=[0|false]
-STAGE=S3b_c0_ap TASK=run_model rc=0 wall_s=356 ranks=1 core_min=5.9333 memavail_GiB=28.5632 inspect=[0|false] log=S3b_c0_ap_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=38.1499 of cap 900.0
+STAGE=S3b_c0_ap TASK=run_model rc=0 wall_s=514 core_min=8.5667 memavail=28.3251 applied_index=0 applied_sign=plus applied_mag=1e-06 inspect=[0|false]
+STAGE=S3b_c0_ap TASK=run_model rc=0 wall_s=514 ranks=1 core_min=8.5667 memavail_GiB=28.3251 inspect=[0|false] log=S3b_c0_ap_20260903T172242Z_179692.log
+SPENT_CORE_MIN=36.1 of cap 900.0
 AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
-STAGE=S3b_c0_am TASK=run_model rc=0 wall_s=363 core_min=6.05 memavail=28.5882 applied_index=0 applied_sign=minus applied_mag=1e-06 inspect=[0|false]
-STAGE=S3b_c0_am TASK=run_model rc=0 wall_s=363 ranks=1 core_min=6.05 memavail_GiB=28.5882 inspect=[0|false] log=S3b_c0_am_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=44.1999 of cap 900.0
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c0_bp TASK=run_model rc=0 wall_s=362 core_min=6.0333 memavail=22.6490 applied_index=0 applied_sign=plus applied_mag=1e-05 inspect=[0|false]
-STAGE=S3b_c0_bp TASK=run_model rc=0 wall_s=362 ranks=1 core_min=6.0333 memavail_GiB=22.6490 inspect=[0|false] log=S3b_c0_bp_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=50.2332 of cap 900.0
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c0_bm TASK=run_model rc=0 wall_s=380 core_min=6.3333 memavail=22.6092 applied_index=0 applied_sign=minus applied_mag=1e-05 inspect=[0|false]
-STAGE=S3b_c0_bm TASK=run_model rc=0 wall_s=380 ranks=1 core_min=6.3333 memavail_GiB=22.6092 inspect=[0|false] log=S3b_c0_bm_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=56.5665 of cap 900.0
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c1_ap TASK=run_model rc=0 wall_s=400 core_min=6.6667 memavail=16.7215 applied_index=1 applied_sign=plus applied_mag=1e-06 inspect=[0|false]
-STAGE=S3b_c1_ap TASK=run_model rc=0 wall_s=400 ranks=1 core_min=6.6667 memavail_GiB=16.7215 inspect=[0|false] log=S3b_c1_ap_20260830T231011Z_1280361.log
-SPENT_CORE_MIN=63.2332 of cap 900.0
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c1_am BLOCKED memavail_GiB=13.5154 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S3b_c1_am NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c1_bp BLOCKED memavail_GiB=13.5151 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S3b_c1_bp NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c1_bm BLOCKED memavail_GiB=13.5132 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S3b_c1_bm NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c2_ap BLOCKED memavail_GiB=13.5123 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S3b_c2_ap NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c2_am BLOCKED memavail_GiB=13.5206 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S3b_c2_am NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c2_bp BLOCKED memavail_GiB=13.5318 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S3b_c2_bp NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c2_bm BLOCKED memavail_GiB=13.5294 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S3b_c2_bm NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c3_ap BLOCKED memavail_GiB=13.5272 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S3b_c3_ap NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c3_am BLOCKED memavail_GiB=13.5246 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S3b_c3_am NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c3_bp BLOCKED memavail_GiB=13.5273 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S3b_c3_bp NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S3b_c3_bm BLOCKED memavail_GiB=13.5368 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S3b_c3_bm NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S4_n20_r1 BLOCKED memavail_GiB=13.5292 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S4_n20_r1 NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S4_n20_r2 BLOCKED memavail_GiB=13.5197 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S4_n20_r2 NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S4_n40_r1 BLOCKED memavail_GiB=13.5192 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S4_n40_r1 NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S4_n40_r2 BLOCKED memavail_GiB=13.5213 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S4_n40_r2 NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S4_n80_r1 BLOCKED memavail_GiB=13.5216 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S4_n80_r1 NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S4_n80_r2 BLOCKED memavail_GiB=13.5243 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S4_n80_r2 NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S5 BLOCKED memavail_GiB=13.5239 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S5 NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0 GiB + mine=8 GiB = 28.0 GiB vs physical 30.6440 GiB
-STAGE=S7_plant BLOCKED memavail_GiB=13.5167 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S7_plant NONZERO rc
-AGGREGATE_MEMORY_CAP peers=20.0625 GiB + mine=8 GiB = 28.0625 GiB vs physical 30.6440 GiB
-STAGE=S7_clean BLOCKED memavail_GiB=13.5007 below registered floor 14.0 -- NOT LAUNCHED
-STAGE S7_clean NONZERO rc
-PHASE1_COMPLETE spent=63.2332 core-min
+STAGE=S3b_c0_am TASK=run_model rc=0 wall_s=748 core_min=12.4667 memavail=28.0325 applied_index=0 applied_sign=minus applied_mag=1e-06 inspect=[0|false]
+STAGE=S3b_c0_am TASK=run_model rc=0 wall_s=748 ranks=1 core_min=12.4667 memavail_GiB=28.0325 inspect=[0|false] log=S3b_c0_am_20260903T172242Z_179692.log
+SPENT_CORE_MIN=48.5667 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
+STAGE=S3b_c0_bp TASK=run_model rc=0 wall_s=640 core_min=10.6667 memavail=26.9452 applied_index=0 applied_sign=plus applied_mag=1e-05 inspect=[0|false]
+STAGE=S3b_c0_bp TASK=run_model rc=0 wall_s=640 ranks=1 core_min=10.6667 memavail_GiB=26.9452 inspect=[0|false] log=S3b_c0_bp_20260903T172242Z_179692.log
+SPENT_CORE_MIN=59.2334 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0.0 GiB + mine=8 GiB = 8.0 GiB vs physical 30.6440 GiB
+STAGE=S3b_c0_bm TASK=run_model rc=0 wall_s=755 core_min=12.5833 memavail=27.4774 applied_index=0 applied_sign=minus applied_mag=1e-05 inspect=[0|false]
+STAGE=S3b_c0_bm TASK=run_model rc=0 wall_s=755 ranks=1 core_min=12.5833 memavail_GiB=27.4774 inspect=[0|false] log=S3b_c0_bm_20260903T172242Z_179692.log
+SPENT_CORE_MIN=71.8167 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0.0 GiB + mine=8 GiB = 8.0 GiB vs physical 30.6440 GiB
+STAGE=S3b_c1_ap TASK=run_model rc=0 wall_s=753 core_min=12.55 memavail=25.7633 applied_index=1 applied_sign=plus applied_mag=1e-06 inspect=[0|false]
+STAGE=S3b_c1_ap TASK=run_model rc=0 wall_s=753 ranks=1 core_min=12.55 memavail_GiB=25.7633 inspect=[0|false] log=S3b_c1_ap_20260903T172242Z_179692.log
+SPENT_CORE_MIN=84.3667 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
+STAGE=S3b_c1_am TASK=run_model rc=0 wall_s=520 core_min=8.6667 memavail=26.7812 applied_index=1 applied_sign=minus applied_mag=1e-06 inspect=[0|false]
+STAGE=S3b_c1_am TASK=run_model rc=0 wall_s=520 ranks=1 core_min=8.6667 memavail_GiB=26.7812 inspect=[0|false] log=S3b_c1_am_20260903T172242Z_179692.log
+SPENT_CORE_MIN=93.0334 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
+STAGE=S3b_c1_bp TASK=run_model rc=0 wall_s=425 core_min=7.0833 memavail=26.6729 applied_index=1 applied_sign=plus applied_mag=1e-05 inspect=[0|false]
+STAGE=S3b_c1_bp TASK=run_model rc=0 wall_s=425 ranks=1 core_min=7.0833 memavail_GiB=26.6729 inspect=[0|false] log=S3b_c1_bp_20260903T172242Z_179692.log
+SPENT_CORE_MIN=100.1167 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=4.0 GiB + mine=8 GiB = 12.0 GiB vs physical 30.6440 GiB
+STAGE=S3b_c1_bm TASK=run_model rc=0 wall_s=435 core_min=7.25 memavail=26.7834 applied_index=1 applied_sign=minus applied_mag=1e-05 inspect=[0|false]
+STAGE=S3b_c1_bm TASK=run_model rc=0 wall_s=435 ranks=1 core_min=7.25 memavail_GiB=26.7834 inspect=[0|false] log=S3b_c1_bm_20260903T172242Z_179692.log
+SPENT_CORE_MIN=107.3667 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0.5 GiB + mine=8 GiB = 8.5 GiB vs physical 30.6440 GiB
+STAGE=S3b_c2_ap TASK=run_model rc=0 wall_s=588 core_min=9.8 memavail=25.2599 applied_index=2 applied_sign=plus applied_mag=1e-06 inspect=[0|false]
+STAGE=S3b_c2_ap TASK=run_model rc=0 wall_s=588 ranks=1 core_min=9.8 memavail_GiB=25.2599 inspect=[0|false] log=S3b_c2_ap_20260903T172242Z_179692.log
+SPENT_CORE_MIN=117.1667 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
+STAGE=S3b_c2_am TASK=run_model rc=0 wall_s=419 core_min=6.9833 memavail=25.7115 applied_index=2 applied_sign=minus applied_mag=1e-06 inspect=[0|false]
+STAGE=S3b_c2_am TASK=run_model rc=0 wall_s=419 ranks=1 core_min=6.9833 memavail_GiB=25.7115 inspect=[0|false] log=S3b_c2_am_20260903T172242Z_179692.log
+SPENT_CORE_MIN=124.15 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
+STAGE=S3b_c2_bp TASK=run_model rc=0 wall_s=406 core_min=6.7667 memavail=25.2195 applied_index=2 applied_sign=plus applied_mag=1e-05 inspect=[0|false]
+STAGE=S3b_c2_bp TASK=run_model rc=0 wall_s=406 ranks=1 core_min=6.7667 memavail_GiB=25.2195 inspect=[0|false] log=S3b_c2_bp_20260903T172242Z_179692.log
+SPENT_CORE_MIN=130.9167 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
+STAGE=S3b_c2_bm TASK=run_model rc=0 wall_s=594 core_min=9.9 memavail=25.7188 applied_index=2 applied_sign=minus applied_mag=1e-05 inspect=[0|false]
+STAGE=S3b_c2_bm TASK=run_model rc=0 wall_s=594 ranks=1 core_min=9.9 memavail_GiB=25.7188 inspect=[0|false] log=S3b_c2_bm_20260903T172242Z_179692.log
+SPENT_CORE_MIN=140.8167 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
+STAGE=S3b_c3_ap TASK=run_model rc=0 wall_s=535 core_min=8.9167 memavail=25.6402 applied_index=3 applied_sign=plus applied_mag=1e-06 inspect=[0|false]
+STAGE=S3b_c3_ap TASK=run_model rc=0 wall_s=535 ranks=1 core_min=8.9167 memavail_GiB=25.6402 inspect=[0|false] log=S3b_c3_ap_20260903T172242Z_179692.log
+SPENT_CORE_MIN=149.7334 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
+STAGE=S3b_c3_am TASK=run_model rc=0 wall_s=487 core_min=8.1167 memavail=25.5125 applied_index=3 applied_sign=minus applied_mag=1e-06 inspect=[0|false]
+STAGE=S3b_c3_am TASK=run_model rc=0 wall_s=487 ranks=1 core_min=8.1167 memavail_GiB=25.5125 inspect=[0|false] log=S3b_c3_am_20260903T172242Z_179692.log
+SPENT_CORE_MIN=157.8501 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0 GiB + mine=8 GiB = 8 GiB vs physical 30.6440 GiB
+STAGE=S3b_c3_bp TASK=run_model rc=0 wall_s=573 core_min=9.55 memavail=25.6007 applied_index=3 applied_sign=plus applied_mag=1e-05 inspect=[0|false]
+STAGE=S3b_c3_bp TASK=run_model rc=0 wall_s=573 ranks=1 core_min=9.55 memavail_GiB=25.6007 inspect=[0|false] log=S3b_c3_bp_20260903T172242Z_179692.log
+SPENT_CORE_MIN=167.4001 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0.0 GiB + mine=8 GiB = 8.0 GiB vs physical 30.6440 GiB
+STAGE=S3b_c3_bm TASK=run_model rc=0 wall_s=561 core_min=9.35 memavail=25.0779 applied_index=3 applied_sign=minus applied_mag=1e-05 inspect=[0|false]
+STAGE=S3b_c3_bm TASK=run_model rc=0 wall_s=561 ranks=1 core_min=9.35 memavail_GiB=25.0779 inspect=[0|false] log=S3b_c3_bm_20260903T172242Z_179692.log
+SPENT_CORE_MIN=176.7501 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0.0 GiB + mine=8 GiB = 8.0 GiB vs physical 30.6440 GiB
+STAGE=S4_n20_r1 TASK=compute_totals rc=0 wall_s=70 core_min=1.1667 memavail=25.1110 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S4_n20_r1 TASK=compute_totals rc=0 wall_s=70 ranks=1 core_min=1.1667 memavail_GiB=25.1110 inspect=[0|false] log=S4_n20_r1_20260903T172242Z_179692.log
+SPENT_CORE_MIN=177.9168 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0.0 GiB + mine=8 GiB = 8.0 GiB vs physical 30.6440 GiB
+STAGE=S4_n20_r2 TASK=compute_totals rc=0 wall_s=67 core_min=1.1167 memavail=25.5798 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S4_n20_r2 TASK=compute_totals rc=0 wall_s=67 ranks=1 core_min=1.1167 memavail_GiB=25.5798 inspect=[0|false] log=S4_n20_r2_20260903T172242Z_179692.log
+SPENT_CORE_MIN=179.0335 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0.0 GiB + mine=8 GiB = 8.0 GiB vs physical 30.6440 GiB
+STAGE=S4_n40_r1 TASK=compute_totals rc=0 wall_s=114 core_min=1.9 memavail=25.3164 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S4_n40_r1 TASK=compute_totals rc=0 wall_s=114 ranks=1 core_min=1.9 memavail_GiB=25.3164 inspect=[0|false] log=S4_n40_r1_20260903T172242Z_179692.log
+SPENT_CORE_MIN=180.9335 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0.0 GiB + mine=8 GiB = 8.0 GiB vs physical 30.6440 GiB
+STAGE=S4_n40_r2 TASK=compute_totals rc=0 wall_s=111 core_min=1.85 memavail=25.4126 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S4_n40_r2 TASK=compute_totals rc=0 wall_s=111 ranks=1 core_min=1.85 memavail_GiB=25.4126 inspect=[0|false] log=S4_n40_r2_20260903T172242Z_179692.log
+SPENT_CORE_MIN=182.7835 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0.0 GiB + mine=8 GiB = 8.0 GiB vs physical 30.6440 GiB
+STAGE=S4_n80_r1 TASK=compute_totals rc=0 wall_s=211 core_min=3.5167 memavail=25.2341 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S4_n80_r1 TASK=compute_totals rc=0 wall_s=211 ranks=1 core_min=3.5167 memavail_GiB=25.2341 inspect=[0|false] log=S4_n80_r1_20260903T172242Z_179692.log
+SPENT_CORE_MIN=186.3002 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0.0 GiB + mine=8 GiB = 8.0 GiB vs physical 30.6440 GiB
+STAGE=S4_n80_r2 TASK=compute_totals rc=0 wall_s=309 core_min=5.15 memavail=25.1566 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S4_n80_r2 TASK=compute_totals rc=0 wall_s=309 ranks=1 core_min=5.15 memavail_GiB=25.1566 inspect=[0|false] log=S4_n80_r2_20260903T172242Z_179692.log
+SPENT_CORE_MIN=191.4502 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=0.0 GiB + mine=8 GiB = 8.0 GiB vs physical 30.6440 GiB
+STAGE=S5 TASK=compute_totals rc=0 wall_s=4073 core_min=67.8833 memavail=25.2325 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S5 TASK=compute_totals rc=0 wall_s=4073 ranks=1 core_min=67.8833 memavail_GiB=25.2325 inspect=[0|false] log=S5_20260903T172242Z_179692.log
+SPENT_CORE_MIN=259.3335 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=8.0 GiB + mine=8 GiB = 16.0 GiB vs physical 30.6440 GiB
+STAGE=S7_plant TASK=run_model rc=0 wall_s=362 core_min=6.0333 memavail=25.7151 applied_index=0 applied_sign=plus applied_mag=0.001234 inspect=[0|false]
+STAGE=S7_plant TASK=run_model rc=0 wall_s=362 ranks=1 core_min=6.0333 memavail_GiB=25.7151 inspect=[0|false] log=S7_plant_20260903T172242Z_179692.log
+SPENT_CORE_MIN=265.3668 of cap 900.0
+AGGREGATE_MEMORY_CAP peers=8.0 GiB + mine=8 GiB = 16.0 GiB vs physical 30.6440 GiB
+STAGE=S7_clean TASK=run_model rc=0 wall_s=353 core_min=5.8833 memavail=25.6941 applied_index=None applied_sign=zero applied_mag=0.0 inspect=[0|false]
+STAGE=S7_clean TASK=run_model rc=0 wall_s=353 ranks=1 core_min=5.8833 memavail_GiB=25.6941 inspect=[0|false] log=S7_clean_20260903T172242Z_179692.log
+SPENT_CORE_MIN=271.2501 of cap 900.0
+PHASE1_COMPLETE spent=271.2501 core-min
 NEXT: run the FROZEN COMPARATOR in --plan mode to produce step_plan.json, then --phase 2.
   python3 /home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/d12y_grade_w3.py --manifest /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/manifest.jsonl --root /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady --plan

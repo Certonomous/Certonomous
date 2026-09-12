@@ -1,5 +1,5 @@
-D6RF6_STAGE_ROOT begin utc=20260907T160040Z pid=65172 item=D6RF6 arm=P_conv base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF6-a2-wing-convergence-probe launches=NOTHING
-D6RF6_STAGE_ROOT launcher=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF6/d6rf6_run_arm.sh md5=53645700f693b8e3763415a33bde616d (READ, not pinned here -- this file never re-pins the launcher)
+D6RF6_STAGE_ROOT begin utc=20260907T161425Z pid=74188 item=D6RF6 arm=P_conv base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF6-a2-wing-convergence-probe launches=NOTHING
+D6RF6_STAGE_ROOT launcher=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF6/d6rf6_run_arm.sh md5=e511d04cb8d0b782e54ca053845906dd (READ, not pinned here -- this file never re-pins the launcher)
 D6RF6_STAGE_ROOT DERIVED 10 $BASE-side assertion(s) from the launcher's own bytes, at lines [528,529,530,531,532,533,534,536,537,538]; MD5_REF_MESH=0fb1935a9b8781b73ac4ccb136e3ec68
 D6RF6_STAGE_ROOT SOURCE OK d6rf6_opt_runScript.py md5=137539e0a99be27f27fdb69e063b2a87 (MD5_RUNSCRIPT6)
 D6RF6_STAGE_ROOT SOURCE OK d6rf6_fd_endpoint.py md5=6b753ab17c7a598106ede906123d4103 (MD5_FD)
@@ -13,11 +13,11 @@ D6RF6_STAGE_ROOT SOURCE OK d6rf6_fvSchemes_D6RF4_ORIGINAL md5=cf8f745dcc594ce7a9
 D6RF6_STAGE_ROOT SOURCE OK d6rf6_fvSolution md5=67fed3c2ffd2765e51f2563270060648 (MD5_FVSOL)
 D6RF6_STAGE_ROOT SOURCE OK base=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/base mesh=points.gz md5=0fb1935a9b8781b73ac4ccb136e3ec68 FFD/wingFFD.xyz present
 D6RF6_STAGE_ROOT LIVE_READ docker=MEASURED same_arm_containers=[none]
-D6RF6_ROOT_STAGED base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF6-a2-wing-convergence-probe stamp=20260907T160040Z mode=777 instruments=10 base_src=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/base
+D6RF6_ROOT_STAGED base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF6-a2-wing-convergence-probe stamp=20260907T161425Z mode=777 instruments=10 base_src=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/base
 D6RF6_STAGE_ROOT (1/3) OK /home/ubuntu/certonomous-runs/CURRICULUM-D6RF6-a2-wing-convergence-probe exists, mode=777 -- d6rf6_run_arm.sh:515 satisfied
 D6RF6_STAGE_ROOT (2/3) OK all 10 staged instrument md5s match the launcher's own pins at /home/ubuntu/certonomous-runs/CURRICULUM-D6RF6-a2-wing-convergence-probe -- d6rf6_run_arm.sh:528,529,530,531,532,533,534,536,537,538 satisfied
 D6RF6_STAGE_ROOT (3/3) OK /home/ubuntu/certonomous-runs/CURRICULUM-D6RF6-a2-wing-convergence-probe/base/constant/polyMesh/points.gz md5=0fb1935a9b8781b73ac4ccb136e3ec68, FFD/wingFFD.xyz present -- d6rf6_run_arm.sh:632 satisfied
 D6RF6_STAGE_ROOT LEDGER OK exact ITEM=D6RF6 line present, no foreign item, no SHIPPED row -- G-ROOT.3 now passes on EVIDENCE, not on an absent file
 D6RF6_STAGE_ROOT CEILING OK cap=54.00 ceiling=54.00 guard_rc=0 | ITEM_CEILING label=D6RF6/P_conv state=WITHIN_CEILING spent_core_min=0.000 cap_core_min=54.000 proj_core_min=54.000 ceiling_core_min=54.000 rows=0 uncounted_field_lines=0
-D6RF6_STAGE_ROOT COMPLETE base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF6-a2-wing-convergence-probe staged_now=yes instruments=10 mode=777 utc=20260907T160040Z
+D6RF6_STAGE_ROOT COMPLETE base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF6-a2-wing-convergence-probe staged_now=yes instruments=10 mode=777 utc=20260907T161425Z
 D6RF6_STAGE_ROOT THIS FILE LAUNCHED NOTHING.  The re-fire is the dafoam-supervisor's decision.
