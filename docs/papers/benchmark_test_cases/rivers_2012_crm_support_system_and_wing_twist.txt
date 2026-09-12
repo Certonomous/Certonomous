@@ -1,0 +1,910 @@
+     Further Investigation of the Support System Effects and
+      Wing Twist on the NASA Common Research Model
+
+               Melissa B. Rivers1, Craig A. Hunter2 and Richard L. Campbell3
+                   NASA Langley Research Center, Hampton, VA 23681
+
+
+          An experimental investigation of the NASA Common Research Model was
+       conducted in the NASA Langley National Transonic Facility and NASA
+       Ames 11-foot Transonic Wind Tunnel Facility for use in the Drag Prediction
+       Workshop. As data from the experimental investigations was collected, a
+       large difference in moment values was seen between the experiment and
+       computational data from the 4th Drag Prediction Workshop. This difference
+       led to a computational assessment to investigate model support system
+       interference effects on the Common Research Model. The results from this
+       investigation showed that the addition of the support system to the
+       computational cases did increase the pitching moment so that it more closely
+       matched the experimental results, but there was still a large discrepancy in
+       pitching moment. This large discrepancy led to an investigation into the
+       shape of the as-built model, which in turn led to a change in the
+       computational grids and re-running of all the previous support system cases.
+       The results of these cases are the focus of this paper.
+
+
+                                       Nomenclature
+b          = wing span, in.
+c          = wing mean aerodynamic chord, in.
+CD         = drag coefficient
+CL         = lift coefficient
+Cm         = pitching-moment coefficient referenced to 0.25 of the wing mean aerodynamic
+             chord
+Cp         = pressure coefficient
+CFD        = Computational Fluid Dynamics
+CFL        = Courant, Freidrichs, and Lewy
+CRM        = Common Research Model
+DPW        = Drag Prediction Workshop
+M∞         = Freestream Mach number
+NASA       = National Aeronautics and Space Administration
+
+1
+  Research Engineer, Configuration Aerodynamics Branch, Mail Stop 267, Senior Member
+AIAA.
+2
+  Research Engineer, Configuration Aerodynamics Branch, Mail Stop 499.
+3
+   Senior Research Engineer, Configuration Aerodynamics Branch, Mail Stop 499, AIAA
+Associate Fellow.
+
+                                             1
+                     American Institute of Aeronautics and Astronautics
+NTF         = National Transonic Facility
+q∞          = dynamic pressure, psf
+Rec         = Reynolds number based on mean aerodynamic chord
+S           = model reference area, ft2
+TWT         = Transonic Wind Tunnel
+WBT0        = CRM wing/body/tail=0° configuration
+WBT0ss      = CRM wing/body/tail=0° with support system configuration
+WBT0ssa     = CRM wing/body/tail=0° with support system and arc sector configuration
+x/c         = longitudinal distance from wing leading edge nondimensionalized by local wing
+              chord
+α           = angle-of-attack, degrees
+δ           = change in per unit area values
+η           = fraction of wing semi-span
+φ           = radial station, degrees
+Δ           = change in total values
+
+                                        I. Introduction
+
+INtheanAIAA
+       effort to assess the state of the art in computational fluid dynamics (CFD) drag prediction,
+               Applied Aerodynamics Technical Committee has initiated a series of Drag
+Prediction Workshops. The goal of the workshops is to assess state-of-the-art computational
+methods as practical aerodynamic tools for aircraft force and moment prediction of industry
+relevant geometries, with a focus on drag prediction. Furthermore, the Drag Prediction
+Workshop (DPW) is designed to serve as an impartial forum for evaluating the effectiveness of
+existing computational Navier-Stokes solvers and modeling techniques, and is intended to
+promote an open discussion on areas needing additional research and development. In order to
+encourage the widest participation, public-domain subject geometries have been used that are
+industry-relevant, yet simple enough to permit high-fidelity computations. Additionally,
+baseline grids have been provided to reduce the variability of CFD results.
+   The first drag prediction workshop (DPW-I)1,2, held in June of 2001, was directed at the
+calculation of a wing/body commercial transport configuration, known as the DLR-F43,4.
+Previously obtained experimental data were available to compare to for this first workshop.
+Predictions of a cruise polar and drag rise were the focus. The second drag prediction workshop
+(DPW-II)5,6, held in June of 2003, added the challenge of determining the increment of a large
+component, in this case a pylon/nacelle. The DLR-F6 configuration5,7 was used for this study.
+Once again, experimental data were available for comparison. The third drag prediction
+workshop (DPW-III)8,9, held in June of 2006, added the challenge of determining the increment
+due to adding a small component, in this case a wing/body fairing. However for this workshop,
+calculations were conducted “blind” with no experimental data available prior to the workshop.
+Force and moment, surface pressure, model deformation, and surface flow visualization data
+were obtained in a National Transonic Facility (NTF) wind tunnel investigation on the DLR-F6
+configuration in the fall of 200710. The fourth drag prediction workshop (DPW-IV)11,12, held in
+June of 2009, was another set of blind calculations. However for this workshop, the calculations
+were conducted on a new model called the Common Research Model (CRM). The force and
+moment, surface pressure, model deformation, and surface flow visualization data obtained in
+these two wind tunnel investigations13, NASA Langley NTF and NASA Ames 11-Foot
+Transonic Wind Tunnel (TWT) Facility, on the CRM serve as the validation data for the
+                                               2
+                       American Institute of Aeronautics and Astronautics
+calculations presented in the DPW-IV. The previous study addressing model support system
+effects14 and the current study addressing the twist of the wind tunnel model and support system
+effects serve as an addendum to the results obtained for the DPW-IV.
+
+                                        II. Background
+
+A. Facility Description
+   1. National Transonic Facility
+   The NTF15 is a unique national facility (Figure 1) that enables testing of aircraft
+configurations at conditions ranging from subsonic to low supersonic speeds, at Reynolds
+numbers up to full-scale flight values. The NTF is a conventional, closed circuit, continuous-
+flow, fan-driven wind tunnel (Figure 2) capable of operating in either dry air at warm
+temperatures or nitrogen from warm to cryogenic temperatures. Elevated pressure in
+combination with cryogenic temperature enables testing to the highest Reynolds numbers. The
+test section is 8.2 x 8.2 x 25 ft. and has a slotted floor and ceiling. Turbulence is reduced by four
+damping screens in the settling chamber and a contraction ratio of 14.95:1 from the settling
+chamber to the nozzle throat. Fan-noise effects are minimized by acoustic treatment both
+upstream and downstream of the fan. Thermal insulation resides inside the pressure shell to aid
+in maintaining tunnel temperature and thus minimize energy consumption.
+   The NTF has an operating pressure range of approximately 15 to 125 psia, a temperature
+range of -260 to +120°F, and a Mach number range of 0.2 to 1.2. The maximum Reynolds
+number per foot is 146x106 at Mach 1. When the tunnel is operated cryogenically, heat is
+removed by the evaporation of liquid nitrogen, which is sprayed into the tunnel circuit upstream
+of the fan. During this operational mode, venting is necessary to maintain a constant total
+pressure. When air is the test gas, heat is removed from the system by a water-cooled heat
+exchanger at the upstream end of the settling chamber. Further tunnel details and facility
+information are provided in Reference 16.
+   2. Ames 11-Foot Transonic Wind Tunnel Facility
+   The Unitary Plan Wind Tunnel (UPWT) Facility consists of three tunnel legs: the 11-by-11-
+Foot TWT, the 9-by-7-Foot Supersonic Wind Tunnel, and the 8-by-7-Foot Supersonic Wind
+Tunnel (Figure 3). The two supersonic legs share a common 11-stage axial-flow compressor and
+aftercooler drive leg, and they use diversion valves at the ends of a common drive leg. A three-
+stage axial-flow compressor drives the 11-by-11-foot TWT. A common drive motor system can
+be coupled to either the 3-stage or 11-stage compressor. One tunnel can therefore be run while
+test articles are being installed in or removed from the other two.
+   The 11-by-11-foot TWT leg, also known as the Ames 11-ft wind tunnel, is a closed circuit,
+variable pressure, continuous operation wind tunnel (Figure 4). Subsonic Mach number control
+involves setting the compressor drive speed to one of ten setpoints and using variable-camber
+inlet guide vanes for fine Mach number control. Supersonic Mach number control involves
+setting the flexible wall nozzle to achieve the proper area ratio in addition to setting the
+compressor drive speed and the inlet guide vanes. A tandem diffuser system with an annular
+diffuser followed by a wide-angle diffuser is upstream of a 70-ft-diameter aftercooler section in
+the drive leg. Flow-smoothing vanes are located in the tandem diffuser to improve flow
+uniformity entering the heat exchanger and temperature uniformity in the test section. The
+settling chamber upstream of the contraction is 38 feet in diameter. A Turbulence Reduction
+System (TRS) located in the settling chamber includes a 1-in.-cell-diameter, 20-in. long
+
+                                               3
+                       American Institute of Aeronautics and Astronautics
+honeycomb for flow straightening followed by two 0.041-in.-diameter-wire, 6-mesh screens for
+turbulence reduction. The contraction provides a transition from the circular cross section of the
+settling chamber to the square cross section of the test section. The contraction ratio is 9.4:1. The
+test section is 11-by-11-feet in cross-section and 22 feet in length. Slots in all four walls run the
+full length of the test section. The slots contain baffles that provide a 6-percent porosity into the
+plenum chamber. Ejector flaps on all four walls at the exit of the test section can be set remotely
+to control the plenum flow bypassed from the test section. Flow exits the test section and enters a
+transition region back to the circular main diffuser. A Plenum Evacuation System (PES) provides
+an active method of removing air from the test section plenum by using the Make-Up Air
+compressor system (MUA) of the auxiliaries facility. References 17 and 18 provide more
+detailed information about the Ames 11-Foot Transonic Wind Tunnel Facility.
+
+B. Model Description
+   The model used in the current investigation was the NASA Common Research Model (CRM).
+This configuration consists of a contemporary supercritical transonic wing and a fuselage that is
+representative of a wide-body commercial transport aircraft. The CRM is designed for a cruise
+Mach number of 0.85 and a corresponding design lift coefficient of CL=0.5. A sketch of the
+CRM with the reference quantities listed is shown in Figure 5. The aspect ratio is 9.0, the leading
+edge sweep angle is 35º, the wing reference area (S) is 3.01 ft2, the wingspan (b) is 62.47 inches,
+and the mean aerodynamic chord (c) is 7.45 inches. The model moment reference center is
+located 35.8 inches back from the fuselage nose and 1.177 inches below the fuselage centerline.
+The nacelles used for this test were simple, flow through nacelles. Pressure distributions are
+measured on both the left and right wings using 291 pressure orifices located in 9 spanwise wing
+stations (η=0.131, 0.201, 0.283, 0.397, 0.502, 0.603, 0.727, 0.846, and 0.950) and on the left
+nacelle by 6 orifices at 6 radial stations (ϕ=30°, 90°, 150°, 210°, 270°, and 330°). All pressure
+measurements were made using Electronically Scanned Pressure (ESP) modules mounted inside
+the forward portion of the fuselage. Based on quoted accuracies from the ESP module
+manufacturer, surface pressure measurements should be in error no more than +/-0.015 psi. This
+in turn would correspond to a variation of no more than +/-0.0026 in terms of Cp. The model is
+mounted in the wind tunnel using a blade sting arrangement as shown in Figure 6 and Figure 7.
+   Five different configurations were tested in the experimental investigations: the wing/body
+alone, wing/body/pylon/nacelle, wing/body/tail=0° tail incidence, wing/body/tail=+2° tail
+incidence and wing/body/tail=-2° tail incidence. For the current study, though, the focus is on the
+wing/body/tail=0° configuration. In the rest of the paper the wing/body/tail=0° will be denoted
+the WBT0 configuration. Further details on this geometry are given in Ref. 19.
+
+C. Test Conditions
+   1. National Transonic Facility
+   The investigation, conducted over a 6-week period, provided force and moment, surface
+pressure, model deformation, and surface flow visualization data. Testing was conducted at 5,
+19.8 and 30 million Reynolds number. All Reynolds number values presented in this paper are
+based on mean aerodynamic chord. The 5 and 19.8 million Reynolds number data were collected
+to provide a comparison to previously calculated CFD results and all of the Reynolds numbers
+were used to provide an assessment of Reynolds number effects. The 19.8 million Reynolds
+number data were collected at two different q∞ levels – a high and a low q∞ condition. Having
+two q∞ levels at the same Reynolds number provides an aeroelastic step in the data. The data
+                                               4
+                       American Institute of Aeronautics and Astronautics
+were collected at temperatures ranging from -250ºF up to 120ºF. For the comparisons made in
+this paper, only the Rec=5 million data obtained at a temperature of 120ºF are presented.
+   All data presented in this paper were obtained at freestream Mach number of 0.85. Data were
+generally obtained over an angle-of-attack range from -3° to +12° at 5 million Reynolds number
+and from -3° to +6° at 19.8 and 30 million Reynolds numbers. The reduced angle-of-attack range
+at the higher Reynolds number was required such that safe model stress levels would not be
+exceeded. Flow angularity measurements were made and upflow corrections ranging from
+0.092° to 0.173° were applied to the final NTF data. Classical wall corrections accounting for
+model blockage, wake blockage, tunnel buoyancy, and lift interference have been applied
+according to the methods presented below.
+   In order to ensure a consistent and repeatable transition from laminar to turbulent flow and to
+support the goal of the wind tunnel data being used for CFD validation purposes, it was
+important to apply a proven and reliable method to fix transition on the model. Evercoat trip dots
+measuring 0.05 inches in diameter and spaced 0.1 inches apart (center to center) were used for
+the current investigation. For a chord Reynolds number of 5 million, a trip dot height of 0.0035
+inches was used from the SOB (side of body) to the yehudi break, 0.003 inches was used from
+the yehudi break to the midwing and 0.003 inches was used from the midwing to the wing tip.
+These trip dots were installed at 10% chord. Vinyl adhesive trip dots with a height of 0.004
+inches were applied at the nose of the fuselage and left on for the entire test. When the nacelles
+were on the model, trip dots with a height of 0.003 inches were located 0.43 inches back from
+the leading edge on the outer surface and the inner surface. Finally, when the tails were on the
+model, trip dots were located at 10% chord and measured 0.003 inches in height. Further
+information about this investigation can be found in reference 20.
+   Another important set of data obtained in this investigation was model deformation
+measurements. Since an effective correlation of computational and experimental data will be
+directly tied to how well the computational and experimental model geometries match one
+another, it is important to obtain an accurate definition of the model geometry as tested under
+aerodynamic loads. In order to obtain this information a video model deformation measurement
+technique21 has been developed and employed multiple times at the NTF. This system was used
+in the current investigation to obtain wing deflection and twist measurements due to
+aerodynamic loading.
+   2. Ames 11-ft Wind Tunnel
+   The investigation, conducted over a 5-week period, provided force and moment, surface
+pressure, and surface flow visualization data. Testing was conducted at a chord Reynolds number
+of 5 million. The data were collected at temperatures of approximately 100ºF.
+   All data presented in this paper were obtained at a freestream Mach numbers of 0.85. Data
+were generally obtained over an angle-of-attack range from -3° to +12° at 5 million chord
+Reynolds number. Flow angularity measurements were made and upflow corrections ranging
+from 0.013° to 0.067° were applied to the final data. Classical wall corrections accounting for
+tunnel buoyancy and lift interference have been applied according to the method presented
+below.
+   Transition was also fixed on the model when tested at the Ames 11-ft wind tunnel. For this
+investigation, though, only vinyl adhesive trip dots were applied. These trip dots measured 0.05
+inches in diameter and were spaced 0.1 inches apart. For a chord Reynolds number of 5 million,
+a trip dot height of 0.0035 inches was used from the SOB (side of body) to the yehudi break,
+0.003 inches was used from the yehudi break to the midwing and 0.003 inches was used from the
+                                               5
+                       American Institute of Aeronautics and Astronautics
+midwing to the wing tip. These trip dots were installed at 10% chord. Vinyl adhesive trip dots
+with a height of 0.004 inches were also applied at the nose of the fuselage and left on for the
+entire test. When the nacelles were on the model, trip dots with a height of 0.003 inches were
+located 0.43 inches back from the leading edge on the outer surface and the inner surface.
+Finally, when the tails were on the model, trip dots were located at 10% chord and measured
+0.003 inches in height.
+
+D. Wall Correction Methods for NTF and Ames 11-ft Wind Tunnels
+    Both the NTF and the Ames 11-ft wind tunnels use the Transonic Wall Interference
+Correction System (TWICS) to provide blockage and incidence corrections due to the presence
+of the test section boundary. TWICS and its predecessor, the Wall Interference Correction
+System (WICS), were developed at the NASA Ames Research Center by Ulbrich et al.22-29 as a
+modification and extension of the Hackett wall signature method.30-34 TWICS is an enhanced
+version of WICS that handles ventilated boundary conditions, typically seen in transonic wind
+tunnels. This method was chosen to be implemented at the NTF (see Iyer et al.35,36) in an effort to
+standardize the wall interference correction methodology across NASA centers. TWICS is based
+on a linearized potential flow method with a Prandtl-Glauert compressibility model which
+inherently assumes that there is a portion of flow in the test section between the near-field region
+of the test article and the near-field region of the wall that is a linear perturbation of the empty
+test section flow field.
+    The method uses a tared wall pressure signature, which is the difference between the model
+installed condition and the empty test section, a database of normalized perturbation velocities
+using unit singularity solutions computed for a given mathematical representation of the wall
+boundary condition, and geometric information from the test article. Taring of the wall pressure
+signature is performed to remove first order effects of the empty tunnel boundary layer and
+buoyancy, assumed to contain only the solid and wake blockage, and assumed that the additional
+second order change in the test-section-wall boundary layer displacement thickness due to the
+presence of the test article is negligible—an assumption that is violated by flow near a Mach
+number of unity where aspects of the crossflow are more critical. The test article is modeled with
+an appropriately weighted point doublet chain37 to represent the fuselage, wake, and support
+system. Line doublets, typically distributed along the lifting surface quarter-chord, are used to
+simulate the effect of lift. The strengths of the line doublets are determined using the measured
+lift from the balance. The resulting wall signature from these singularities is subtracted from the
+tared wall signature, leaving only the blockage signature. This remaining signature is used to
+determine the strengths of the solid and wake blockage singularities.
+    Although both facilities use TWICS, the implementations are not identical. The differences
+occur in how the wall boundary conditions are formulated and applied. Ulbrich28,29 performed a
+calibration and validation of the baffled, slotted (i.e. porous) wall boundary condition for the
+Ames 11-ft wind tunnel. Walker38 calibrated and validated the longitudinal slotted wall boundary
+condition in the NTF. A discrete wall formulation, where the boundary condition is applied in
+the baffled slot, is used at the Ames 11-ft wind tunnel; whereas, a homogeneous wall
+formulation, which is more of an averaged representation of the effect of the ventilated wall
+boundary, is used at the NTF. Work is in progress to assess the impact of modeling the NTF wall
+boundary condition as discrete. It is anticipated that a change to the discrete formulation of the
+NTF may lead to a decreased incidence correction. Data presented in this paper are corrected
+using the respective implementations of TWICS at each facility.
+                                               6
+                       American Institute of Aeronautics and Astronautics
+E. Wing Twist Investigation
+    While initially comparing the data obtained in the two wind tunnels with the computational
+data obtained from the DPW IV, an unusually large discrepancy in pitching moment was noted,
+while the lift and drag comparisons were as expected (Figure 8). A previous study was
+performed to determine if this discrepancy was caused by the support system while the model
+was mounted in the tunnel. The results of this study showed that adding the support system to
+the computational model did indeed improve the comparison with wind tunnel data but there was
+still a large difference in pitching moment (Figure 9).
+    In an attempt to determine the source of the discrepancy, the twist of the as-built wing was
+examined. When designing a wind tunnel model, a 1-g loading shape is designed and then the 1-
+g (wind-on) loaded shape is determined as well as the 0-g (wind-off) jig (or as-built) shape for
+model fabrication. Therefore, the 1-g design shape and the as-built jig shape typically differ.
+Figure 10 shows that the 1-g design shape and the as-built jig shape are the same, which
+indicates that the wind tunnel model was built to the 1-g shape, not the wind-off shape.
+Therefore, when the model was tested in the wind tunnel, the wings twisted more than that in the
+actual grid geometry used for the computational analyses.
+    In order to ensure the computations were being performed on the same wing shape as the
+experiments from this point on, the model deformation data from the NTF test at the design
+conditions of M∞=0.85 and CL=0.5 was utilized. Since the exact value of CL=0.5 was not
+obtained during the NTF wind tunnel test, the model deformation data was interpolated to a
+value of CL=0.5. The wing twist distribution for each computational grid was adjusted using the
+‘twist’ geometry constraint in the CDISC design method (Reference 39). The required twist
+increment was determined by first interpolating the design twist distribution to the span-wise
+locations where the twist was measured on the loaded (wind-on) model (see Figure 11), then
+subtracting these values from the 1-g design shape, as shown in Figure 12. These values define
+the new wing twist that will be implemented in the new grids. CDISC design stations were
+defined at these locations, as well as at the wing root and tip. The twist increment at the root was
+set to zero and the tip twist increment matched that of the most outboard measurement station
+(η=0.9464). As the root and tip design stations were defined using the grid points along the
+fuselage-wing and wing-wingtip intersections, respectively, these had to be redefined for each of
+the grids.
+    An automated procedure was created to define these design stations, run CDISC to apply the
+twist increments to the airfoil sections at these stations, and then modify the surface and volume
+grids for each case. The increments are applied as a linear shearing about the airfoil trailing edge
+as opposed to a true twist increment (i.e., only the vertical coordinates are changed). As the
+absolute twist values are small and the magnitude of the largest twist increment is about one
+degree (see Figure 11) any error introduced from the use of shearing should be much smaller
+than the measurement accuracy. Also, it should be noted that the same twist increment was
+applied for all cases; no attempt was made to compensate for different static aero-elastic
+deflections for cases at different angles of attack. All of the previous solutions, which were
+computed on the original grid, were recomputed using the new grid. These solutions are
+discussed in the Results and Discussion Section below.
+
+
+
+
+                                               7
+                       American Institute of Aeronautics and Astronautics
+                                III. Computational Approach
+
+A. Grid Generation
+    The GridTool/VGRID software system40 was used to generate unstructured grids for this
+study. VGRID uses an advancing-front method for generating Euler tetrahedral grids, and an
+advancing-layer method for thin-layer tetrahedral viscous grids required for Navier-Stokes
+analysis. In defining the computational domain, boundaries are represented by bi-linear surface
+patches that are constructed in GridTool based on user-specified geometries and an IGES
+definition. Grid characteristics like cell spacing and stretching are also specified in GridTool by
+the placement of volume, node, and linear sources.
+    A surface mesh is generated in VGRID by triangulating each surface patch with a two-
+dimensional version of the advancing-front method. Triangulated surface patches then form the
+initial front for the generation of three-dimensional tetrahedral volume cells by the advancing-
+layer and advancing-front methods. Smooth variation of grid spacing is achieved with an
+exponential growth function, using the GridTool-defined sources as inputs.
+    Three semi-span grids were developed for this study: a grid containing the wing/body/tail=0°
+only (WBT0), a grid containing the wing/body/tail=0° with the support system (WBT0ss), and a
+grid containing the wing/body/tail=0 with the support system and arc sector (WBT0ssa). Surface
+meshes from all three grids are shown in Figure 13 thru Figure 15. Grid sizes ranged from 22.6
+million cells for the WBT0 configuration to 45.9 million cells for the WBT0ssa configuration.
+Boundary layers were resolved using approximately 96 tetrahedral cells (32 nodes), with first
+cell centroid at y+ of 0.25. In all cases, the computational domain extended roughly 10 body
+lengths from the aircraft fuselage in all directions.
+
+B. Flow Solver
+   The NASA Langley unstructured computational fluid dynamics code USM3D 6.041-44 was
+used for Navier-Stokes analysis in this study. Within the tetrahedral cell-centered, finite volume
+flow solver, inviscid flux quantities are computed across each cell face using one of the
+following schemes: Roe’s flux difference splitting (FDS), Advection Upstream Splitting Method
+(AUSM), Flux Vector Splitting (FVS), or Harten, Lax, and van Leer with Contact restoration
+(HLLC). A novel reconstruction process is used for spatial discretization, based on an analytical
+formulation for computing gradients within tetrahedral cells. Solutions are advanced to a steady
+state condition using an implicit backward-Euler time-stepping scheme. For numerical stability,
+limiter options include MinMod and Superbee flux limiters and an Eigen-value limiter.
+Turbulence closure in USM3D 6.0 is given by the one equation Spalart-Allmaras (SA) model,
+the two-equation k-ε turbulence model, or the two-equation Menter SST model. For the present
+study, FDS and Spalart-Allmaras were used. To improve the prediction of skin friction drag, a
+solution limiter was not activated.
+
+C. Boundary Conditions
+   Outer boundaries of the computational domain were treated as characteristic inflow/outflow
+surfaces with freestream conditions specified by Mach number, Reynolds number, flow angle,
+and static temperature. For comparison with wind tunnel data, a freestream Mach number of 0.85
+and a Reynolds number of 5 million based on mean aerodynamic chord were chosen. Solutions
+were run over a range of angles-of-attack from 0° to 5°.
+
+                                               8
+                       American Institute of Aeronautics and Astronautics
+   A reflection boundary condition was used at the symmetry plane of the semi-span geometry.
+All other aircraft and model support system surfaces were treated as no-slip viscous boundaries.
+
+D. Solution Procedure
+   Solutions presented in this paper were obtained by running USM3D on the k cluster at NASA
+Langley Research Center using 96 processors. Cases typically needed 20,000 cycles for full
+convergence, requiring 20 to 50 hours of wall-clock time. During the computation, global CFL
+number ramped from 1 to 50. Convergence was judged by tracking the solution residual and
+integrated aerodynamic performance coefficients until they settled out in a satisfactory fashion.
+Typical convergence histories for all three configurations are shown in Figure 16 -Figure 18.
+
+E. Force and Moment Integration
+    Forces and moments were computed within the flow solver by evaluating pressure and skin
+friction on the surface. Force and moment coefficients given in this paper were computed for the
+aircraft only. Forces and moments on the support system and arc sector components were
+ignored. Because the contribution of forces in the small area where the blade intersected the
+aircraft fuselage were small, no attempt was made to reconcile or correct these forces when
+comparing configurations with and without the support system.
+
+                                  IV. Results and Discussion
+    This study came about as a result of the existence of a larger than expected discrepancy
+between computational and experimental data. After adding the support system, the discrepancy
+still existed, just not to the same degree. This led to an investigation into the wing twist of the
+wind tunnel model, which indicated the wing was not built with the desired “unloaded” twist. As
+discussed above, the computational grids were changed to reflect the desired (loaded) twist and
+then all of the previous CFD cases were recomputed.
+    After all of the CFD cases were completed, the data were plotted against the NTF, Ames
+TWT and DPW IV data to determine what effect the support system had on the lift, drag and
+pitching moment. This plot is shown in Figure 19. The plot results confirm that correcting the
+wing twist and including the support system in the computational analyses does shift the pitching
+moment even more in the direction of the experimental results. The plot also shows that the
+agreement between the NTF and Ames 11-ft data is very good and the spread among the CFD
+results is still significantly larger than the differences between the experimental results.
+    The rest of this study consisted of computing cases at a Mach number of 0.85 and a Reynolds
+number of 5 million based on mean aerodynamic chord using the grids with the new wing shape
+incorporated. The solutions were run over a range of angles-of-attack from 0° to 5°. Summary
+results from the α=0.0°, 2.0° and 4.0° cases are shown in Table 1 below, where the delta
+coefficients are relative to the without support system cases. In this table the subscript ss denotes
+with support system and the subscript ssa denotes with support system and arc sector:
+
+
+
+
+                                               9
+                       American Institute of Aeronautics and Astronautics
+                      Table 1: Summary of CFD Cases, M∞=0.85, Rec=5x106
+
+ CFD Case         α         Cm          CL          CD           ΔCm          ΔCL          ΔCD
+ WBT0             0.0      0.0866     0.1186      0.01813
+ WBT0ss           0.0      0.1217     0.0991      0.01553        0.0351        -0.0195     -0.00260
+ WBT0ssa          0.0      0.1211     0.0990      0.01523        0.0345        -0.0196     -0.00290
+ WBT0             2.0      -0.0097    0.4026      0.02367
+ WBT0ss           2.0      0.0338     0.3783      0.02031        0.0435        -0.0243     -0.00336
+ WBT0ssa          2.0      0.0262     0.3766      0.01997        0.0359        -0.0260     -0.00370
+ WBT0             4.0      -0.0584    0.6579      0.04469
+ WBT0ss           4.0      -0.0182    0.6387      0.03924        0.0402        -0.0192     -0.00545
+ WBT0ssa          4.0      -0.0281    0.6388      0.03847        0.0303        -0.0191     -0.00622
+   The table indicates that the lift is decreased a small amount and the drag is also decreased,
+from 26 counts at α=0° up to 55 counts at α=4° for the WBT0ss configuration and from 29
+counts at α=0° up to 62 counts at α=4° for the WBT0ssa configuration. To further investigate
+these differences, pressure coefficient (Cp) contours were examined.
+   Figure 20 thru Figure 28 show surface pressure coefficient contours for all three
+configurations at α=0°, 2°, and 4°. In general, these figures show that adding the support system
+does change the surface pressures for each of the three angles-of-attack shown and adding by the
+arc sector to the support system, no noticeable change in surface pressure is observed. The rest
+of the paper will focus on the results of the α=2° case on the WBT0ss and WBT0ssa
+configurations.
+   To better understand variations in surface pressure, the change in pressure coefficient (ΔCp) is
+also examined. This is obtained by subtracting the WBT0 configuration’s surface pressure
+coefficient from the WBT0ss and WBT0ssa configuration’s surface pressure coefficient. This
+can be studied in even more detail by breaking ΔCp out into its lift, drag, and pitch contributions.
+Lift and drag quantities are obtained by multiplying ΔCp by a dot product between the local
+surface unit normal vector and a unit vector in the lift- and drag-directions, respectively. Pitch
+quantities are obtained by multiplying ΔCp by a cross product between the local surface unit
+normal vector and the normalized (by reference chord) lever arm to the pitch axis at the aircraft
+moment center. This results in plots of lift, drag, and pitch coefficient per-unit-area (i.e., the
+integrands in traditional pressure-based lift, drag, and pitch integrations), but it is equally
+effective to think of these quantities as the influence of ΔCp in the respective force directions and
+moment rotations. These per-unit-area values are denoted with a δ in the results shown below.
+
+A. With Support System Configuration, WBT0ss
+    Figure 29 presents ΔCp for the WBT0ss configuration at α=2°. This figure shows a significant
+change in loads in the aft fuselage region (where the support system attaches to the fuselage) and
+on the upper surface of the wing.
+    The δCm for the WBT0ss configuration at α=2° is shown in Figure 30. This figure shows that
+there is a significant change in the pitching moment on the upper surface aft fuselage, horizontal
+tail and on the outboard section of the upper surface wing. Figure 31 shows δCL for the WBT0ss
+configuration at α=2°and Figure 32 shows δCD. Here the effects of the support system are also
+apparent – it results in significant local lift per-unit-area changes (both positive and negative) in
+the aft fuselage, upper surface of the wing and the horizontal tail area. The biggest per-unit-area
+change in drag occurs in the area where the support system attaches to the fuselage, on the
+horizontal tail and on the outboard section of the upper surface of the wing. This analysis case is
+near the cruise design point for the CRM, at M∞=0.85 and CL=0.5, with a couple of weak shocks
+                                                   10
+                         American Institute of Aeronautics and Astronautics
+on the upper surface of the wing. However, the sensitivity to the support system can be seen by
+its influence of stronger shock loading along the upper surface of the wing.
+    In terms of net force coefficients, the WBT0ss configuration at α=2° had an increase in
+pitching moment of ΔCm=0.0435, a reduction in lift coefficient of ΔCL=-0.0243 and a reduction
+in drag coefficient of ΔCD=-0.00336 relative to the without support system case.
+
+B. With Support System and Arc Sector Configuration, WBT0ssa
+   Figures 33-36 show ΔCp, δCm, δCL and δCD for the WBT0ssa configuration at α=2°. These
+figures show that the WBT0ssa results are very similar to the WBT0ss results shown in figures
+29-32.
+   In terms of net force coefficients, the WBT0ssa configuration at α=2° showed an increase of
+pitching moment of ΔCm=0.0359, a reduction in lift coefficient of ΔCL=-0.0260 and a reduction
+in drag coefficient of ΔCD=-0.00370 relative to the without support system case.
+
+                                         V. Conclusion
+    A computational assessment has been conducted in an effort to further investigate model
+support system interference effects on the NASA Common Research Model. The configurations
+computed during this investigation were the WBT0, WBT0ss and WBT0ssa at angles-of-attack
+of 0º, 2º and 4º. The configurations were compared at a Mach number of 0.85 and Reynolds
+number of 5 million based on mean aerodynamic chord.
+    Several important points arise from the results discussed in this paper. First and foremost, the
+model was not built to achieve the wind-on design condition. The incorporation of the
+approximate wind-on twist shape into the CFD grids improved correlations with the experiment.
+Secondly, while the agreement between the two experiments is very good, the spread among the
+CFD results is still significantly larger than the differences between the experimental results.
+Thirdly, these computational results suggest that the model support system for the CRM
+configuration tested in the NTF and the Ames 11-ft wind tunnels indeed affects measured
+aerodynamic performance. It has been confirmed that the addition of the support system to the
+computational cases does shift the pitching moment in the direction of the experimental results
+and that adding the arc sector does not shift the pitching moment any further. While a more
+rigorous computational study is needed to further classify support system effects over a wider
+range of flow conditions, the current results reinforce the importance of including the support
+system in computational studies. The corrections or predictions need to at least account for the
+sting but the addition of the arc sector is not necessary.
+    A follow on investigation will look at the wind tunnel wall effects in the computational
+analyses to better understand their influence on the current results.
+
+
+
+
+                                               11
+                       American Institute of Aeronautics and Astronautics
+                                                          References
+    1
+        Levy, D. W., Vassberg, J. C., Wahls, R. A., Zickhur, T., Agrawal, S., Pirzadeh, S., and Hemsch, M. J., “Summary of
+Data from the First AIAA CFD Drag Prediction Workshop,” AIAA Paper 2002-0841, January 2002.
+    2
+        Hemsch, M. J., “Statistical Analysis of CFD Solutions from the Drag Prediction Workshop,” AIAA Paper 2002-0842,
+January 2002.
+    3
+        Redeker, G., Schmidt, N., and Müller, R., “Design and Experimental Verification of a Transonic Wing for a Transport
+Aircraft,” Proceedings of the FDP Symposium on Subsonic/Transonic Configuration Aerodynamics, AGARD CP 285, 1980, pp.
+13.1-13.7.
+    4
+        Redeker, G., “DLR-F4 Wing Body Configuration,” A Selection of Experimental Test Cases for the Validation of CFD
+Codes, AGARD Report AR-303, Vol. 2, 1994, pp. B4-1-21.
+    5
+        Laflin, K. R., Vassberg, J. C., Wahls, R. A., Morrison, J. H., Brodersen, O., Radowitz, M., Tinoco, E. N., and Godard, J.,
+“Summary of Data from the Second AIAA CFD Drag Prediction Workshop,” AIAA Paper 2004-0555, January 2004.
+    6
+        Hemsch, M. J. and Morrison, J. H., “Statistical Analysis of CFD Solutions from the 2nd Drag Prediction Workshop,”
+AIAA Paper 2004-0556, January 2004.
+    7
+        Rossow, C.-C., Godard, J.-L., Hoheisel, H., and Schmitt, V., “Investigations of Propulsion Integration Interference
+Effects on a Transport Aircraft Configuration,” Journal of Aircraft, Vol. 31, No. 5, 1994, pp. 1022-1030.
+    8
+        Vassberg, J. C., Tinoco, E. N., Mani, M., Broderson, O. P., Eisfeld, B., Wahls, R. A., Morrison, J. H., Zickuhr, T., Laflin,
+K. R., and Mavriplis, D. J., “Summary of the Third AIAA CFD Drag Prediction Workshop,” AIAA Paper 2007-0260, January
+2007.
+    9
+        Morrison, J. H. and Hemsch, M. J., “Statistical Analysis of CFD Solutions from the Third AIAA Drag Prediction
+Workshop,” AIAA Paper 2007-0254, January 2007.
+    10
+        Gatlin, G. M., Rivers, M. B., Goodliff, S. L., Rudnik, R., and Sitzmann, M., “Experimental Investigation of the DLR-F6
+Transport Configuration in the National Transonic Facility,” AIAA Paper 2008-6917, August 2008.
+    11
+        Vassberg, J. C., Tinoco, E. N., Mani, M., Rider, B., Zickuhr, T., Levy, D.W., Brodersen, O., Eisfeld, B., Crippa, S.,
+Wahls, R. A., Morrison, J. H., Mavriplis, D.J., and Murayama, M., “Summary of the Fourth AIAA CFD Drag Prediction
+Workshop,” AIAA Paper 2010-4547, June 2010.
+    12
+        Morrison, J. H., “Statistical Analysis of CFD Solutions from the Fourth AIAA Drag Prediction Workshop,” AIAA Paper
+2010-4673, June 2010.
+    13
+        Rivers, M.B. and Dittberner, A., “Experimental Investigations of the NASA Common Research Model in the NASA
+Langley National Transonic Facility and the NASA Ames 11-ft Transonic Wind Tunnel (Invited),” AIAA Paper 2011-1126,
+January 2011.
+    14
+        Rivers, M.B. and Hunter, Craig A., “Support System Effects on the NASA Common Research Model,” AIAA Paper
+2012-707, January 2012.
+    15
+        Gloss, B. B., “Current Status and Some Future Test Directions for the US National Transonic Facility. Wind Tunnels and
+Wind Tunnel Test Techniques,” Royal Aeronautical Society, 1992, pp. 3.1-3.7.
+    16
+        Fuller, D. E., “Guide for Users of the National Transonic Facility,” NASA TM-83124, 1981.
+    17
+        Kmak, F., “Modernization and Activation of the NASA Ames 11-By-11-Foot Transonic Wind Tunnel,” AIAA Paper
+2000-2680, June 2000.
+    18
+        Amaya, M.A. and Murthy, S.V., “Flow Quality Measurements in the NASA Ames Upgraded 11-By-11-Foot Transonic
+Wind Tunnel (invited Paper),” AIAA Paper 2000-2681, June 2000.
+    19
+        J. C. Vassberg, M. A. DeHaan, S. M. Rivers, and R. A. Wahls. “Development of a Common Research Model for Applied
+CFD Validation Studies.” AIAA Paper 2008-6919, 26th AIAA Applied Aerodynamics Conference, Hawaii, HI, August 2008.
+    120
+        Rivers, M.B., and Dittberner, A., “Experimental Investigation of the NASA Common Research Model (Invited),” AIAA
+Paper 2010-4218, June 2010.
+    21
+        Burner, A. W. and Liu, T., “Videogrammetric Model Deformation Measurement Technique,” Journal of Aircraft, Vol.
+38, No. 4, July-August 2001, pp. 745-754.
+    22
+        Ulbrich, N. and Lo, C., “A Wall Interference Assessment/Correction System,” Semi-Annual Report #1, The University of
+Tennessee Space Institute, December 1991.
+    23
+        Ulbrich, N., Lo, C., and Steinle, Jr., F., “Blockage Correction in Three-Dimensional Wind Tunnel Testing Based on the
+Wall Signature Method,” July 6-8 1992, Presented at the AIAA 17th Aerospace Ground Testing Conference, AIAA Paper 92-
+3925.
+    24
+        Ulbrich, N. and Steinle, Jr., F., “Real-Time Wall Interference Calculation in Three-Dimensional Subsonic Wind Tunnel
+Testing,” January 10-13 1994, Presented at the 32nd Aerospace Sciences Meeting and Exhibit, AIAA Paper 94-0771.
+    25
+        Ulbrich, N. and Steinle, Jr., F., “Semispan Model Wall Interference Prediction Based on the Wall Signature Method,”
+January 9-12 1995, Presented at the 33rd Aerospace Sciences Meeting and Exhibit, AIAA Paper 95-0793.
+    26
+        Ulbrich, N. and Boone, A., Real-Time Wall Interference Correction System of the 12FT Pressure Wind Tunnel,” January
+12-15 1998, presented at the 36th Aerospace Sciences Meeting and Exhibit, AIAA Paper 98-0707.
+    27
+        Ulbrich, N., “The Real-Time Wall Interference Correction System of the NASA Ames 12-Foot Pressure Tunnel,” NASA
+CR 1998-208537, 1998.
+
+
+                                                       12
+                               American Institute of Aeronautics and Astronautics
+    28
+        Ulbrich, N. and Boone, A., “Determination of the Wall Boundary Condition of the NASA Ames 11FT Transonic Wind
+Tunnel,” January 8-11 2001, presented at the 39th Aerospace Sciences Meeting and Exhibit, AIAA Paper 2001-1112.
+    29
+        Ulbrich, N. and Boone, A., “Direct Validation of the Wall Interference Correction System of the Ames 11-Foot
+Transonic Wind Tunnel,” May 2003, NASA/TM-2003-212268.
+    30
+        Hackett, J. and Wilsden, D., “Determination of Low Speed Wake Blockage Corrections Via Tunnel Wall Static Pressure
+Measurements,” Wind Tunnel Design and Testing Techniques, March 1976, AGARD-CP-174. Presented to the AGARD Fluid
+Dynamics Panel Symposium on Wind Tunnel Design and Testing Techniques: London, England, 6-8 October 1975.
+    31
+        Hackett, J. and Boles, R., “Wake Blockage Corrections and Ground Effect Testing in Closed Wind Tunnels,” Journal of
+Aircraft, Vol. 13, No. 8, August 1976, pp. 597ñ604.
+    32
+        Hackett, J. and Wilsden, D., “Estimation of Wind Tunnel Blockage from Wall Pressure Signatures: A Review of Recent
+Work at Lockheed-Georgia,” AIAA Paper 78-828, April 1978.
+    33
+        Hackett, J., Wilsden, D., and Lilley, D., “Estimation of Tunnel Blockage from Wall Pressure Signatures: A Review and
+Data Correlation,” NASA CR 15224, March 1979.
+    34
+        Hackett, J., Wilsden, D., and Stevens, W., “A Review of the ‘Wall Pressure Signature’ and Other Tunnel Constraint
+Correction Methods for High Angle-of-Attack Tests,” AGARD R692, February 1981, Presented to the AGARD Fluid Dynamics
+Panel Round Table Discussion on Wind Tunnel Corrections for High Angle-of-Attack Models: Munich, FRG, 8 May 1980.
+    35
+        Iyer, V., Everhart, J., Bir, P., and Ulbrich, N., “Implementation of the WICS Wall Interference Correction System at the
+National Transonic Facility,” June 19-22 2000, presented at the 21st AIAA Aerodynamic Measurement Technology and Ground
+Testing Conference, Denver, CO, AIAA Paper 2000-2383.
+    36
+        Iyer, V. and Everhart, J., “Application of Pressure-Based Wall Correction Methods to Two NASA Langley Wind
+Tunnels,” June 11-14 2001, presented at the 19th AIAA Applied Aerodynamics Conference, Anaheim, CA, AIAA Paper 2001-
+2472.
+    37
+        Ulbrich, N., “The Representation of Wind Tunnel Model Blockage Effects Using Point Doublets,” January 14-17 2002,
+presented at the 40th Aerospace Sciences Meeting and Exhibit, AIAA Paper 2002-0880.
+    38
+        Walker, E., Statistical Calibration and Validation of a Homogeneous Ventilated Wall-Interference Correction Method for
+the National Transonic Facility, Ph.D. thesis, Virginia Polytechnic Institute and State University, October 2005, Available
+electronically at http://scholar.lib.vt.edu/theses/available/etd-10272005-165559/. Also available as NASA/TP 2005-213947,
+2005.
+    39
+        Campbell, Richard L., “Efficient Viscous Design of Realistic Aircraft Configurations,” AIAA-98-2539, June 1998.
+    40
+        Pandya, M., Abdol-Hamid, K., and Frink, N. “Enhancement of USM3D Unstructured Flow Solver for High-speed High-
+Temperature Shear Flows”. AIAA-2009-1329, January 2009.
+    41
+        Pandya, M., Abdol-Hamid, K., Campbell, R., and Frink, N. “Implementation of Flow Tripping Capability in the USM3D
+Unstructured Flow Solver”. AIAA-2006-919, January 2006.
+    42
+        Pandya, M., Frink, N., and Noack, R. “Progress Toward Overset-Grid Moving Body Capability for USM3D
+Unstructured Flow Solver”. AIAA-2005-5118, June 2005.
+    43
+        Pandya, M., Frink, N., Abdol-Hamid, K., and Chung, J. “Recent Enhancements to USM3D Unstructured Flow Solver for
+Unsteady Flows”. AIAA-2004-5201, August 2004.
+    44
+        Pirzadeh, S. “Advanced Unstructured Grid Generation for Complex Aerodynamics Applications”. AIAA-2008-7178,
+August 2008.
+
+
+
+
+                                                      13
+                              American Institute of Aeronautics and Astronautics
+                Figure 1. Aerial view of the National Transonic Facility.
+
+
+
+
+Figure 2. Sketch of the National Transonic Facility tunnel circuit. Linear dimensions are
+                                      given in feet.
+
+
+
+                                            14
+                    American Institute of Aeronautics and Astronautics
+                                     Appendix
+                                       Appendix
+
+
+
+
+Figure 3.
+    FigureUnitary  Plan
+           1. Unitary PlanWind
+                           Wind Tunnel  (UPWT)
+                                Tunnel (UPWT)     at the
+                                              At the NASANASA
+                                                          Ames Ames  Research
+                                                               Research Center. Center.
+       Figure 1. Unitary Plan Wind Tunnel (UPWT) At the NASA Ames Research Center.
+
+
+
+
+                Figure 4. Sketch of the Ames 11-foot Wind Tunnel.
+                   Figure 2. 11-By
+                      Figure       11-Foot
+                             2. 11-By      Transonic
+                                      11-Foot        Wind
+                                              Transonic   Tunnel.
+                                                        Wind Tunnel.
+
+                                           15
+                  American Institute of14Aeronautics and Astronautics
+                                              14
+                  American Institute
+                    American         of Aeronautics
+                               Institute            andand
+                                         of Aeronautics Astronautics
+                                                           Astronautics
+           National Transonic Facility
+           NASA Langley Research Center
+           Test 197-Common Research Model
+
+
+
+
+              National Transonic Facility
+              NASA Langley Research Center         a) Top View
+              Test 197-Common
+Test 197-Common                 Research Model
+                   Research Model                                                         A. Dittberner
+Test Section Arrangement                                                 Ashley.F.Dittberner@nasa.gov
+
+
+
+
+                                                 b) Isometric View
+  Test 197-Common Research Model                                                            A. Dittberner
+Figure        5. Sketch of the Common Research Model with reference
+ Test Section Arrangement
+                                                                         quantities.
+                                                                Ashley.F.Dittberner@nasa.gov
+
+
+
+
+                                                  16
+                          American Institute of Aeronautics and Astronautics
+Figure 6. Photo of the Common Research Model in the National Transonic Facility.
+
+
+
+
+ Figure 7. Photo of the Common Research Model in the Ames 11-ft Wind Tunnel.
+                                        17
+                American Institute of Aeronautics and Astronautics
+                      _                                            _
+
+Figure 8. Comparison of NTF and Ames 11-ft TWT experimental data with DPW IV CFD
+                          data for the WBT0 configuration.
+
+                                          18
+                  American Institute of Aeronautics and Astronautics
+Figure 9. Comparison of NTF and Ames 11-ft TWT experimental data with the DPW IV
+  CFD data for the WBT0 configuration along with the USM3D CFD data for both the
+               WBT0 and WBT0ss configurations, M∞=0.85, Rec=5x106.
+                                          19
+                  American Institute of Aeronautics and Astronautics
+  Figure 10. Comparison of as-built jig shape versus wing-design (1-g load) shape.
+
+
+
+
+Figure 11. Experimental twist increments (NTF Test 197) at loaded (wind-on) model
+                     conditions, M∞=0.85 and Rec=5 million.
+                                         20
+                 American Institute of Aeronautics and Astronautics
+Figure 12. Comparison of wing-design (1-g load) shape with the as-built jig shape and the
+                                   as-tested shape.
+
+
+
+
+          Figure 13. WBT0 configuration surface mesh with new wing shape.
+                                           21
+                   American Institute of Aeronautics and Astronautics
+Figure 14. WBT0ss configuration surface mesh with new wing shape.
+
+
+
+
+Figure 15. WBT0ssa configuration surface mesh with new wing shape.
+
+
+
+
+                                  22
+          American Institute of Aeronautics and Astronautics
+        Figure 16. WBT0 convergence history, M=0.85, α=0.0°, Rec=5 million.
+
+
+
+
+Figure 17. WBT0ss convergence history, M∞=0.85, α=1.0°, Rec=5 million. (Note: spatial
+   accuracy of computations 1st order for first 10000 iterations then set to 2nd order)
+
+                                           23
+                   American Institute of Aeronautics and Astronautics
+Figure 18. WBT0ssa convergence history, M∞=0.85, α=0.0°, Rec= 5 million. (Note: spatial
+   accuracy of computations 1st order for first 10000 iterations then set to 2nd order)
+
+
+
+
+                                           24
+                   American Institute of Aeronautics and Astronautics
+Figure 19. Comparison of NTF and Ames 11-ft TWT experimental data with the DPW IV
+ CFD data for the WBT0 configuration along with the USM3D CFD data for the WBT0,
+   WBT0ss and WBT0ssa configurations using new wing shape, M∞=0.85, Rec=5x106.
+                                          25
+                  American Institute of Aeronautics and Astronautics
+Figure 20. Surface pressure coefficient contours, WBT0 configuration, α=0°.
+
+
+
+
+Figure 21. Surface pressure coefficient contours, WBT0ss configuration, α=0°.
+                                       26
+               American Institute of Aeronautics and Astronautics
+Figure 22. Surface pressure coefficient contours, WBT0ssa configuration, α=0°.
+
+
+
+
+ Figure 23. Surface pressure coefficient contours, WBT0 configuration, α=2°.
+
+
+                                       27
+               American Institute of Aeronautics and Astronautics
+Figure 24. Surface pressure coefficient contours, WBT0ss configuration, α=2°.
+
+
+
+
+Figure 25. Surface pressure coefficient contours, WBT0ssa configuration, α=2°.
+
+
+                                       28
+               American Institute of Aeronautics and Astronautics
+Figure 26. Surface pressure coefficient contours, WBT0 configuration, α=4°.
+
+
+
+
+Figure 27. Surface pressure coefficient contours, WBT0ss configuration, α=4°.
+
+                                      29
+              American Institute of Aeronautics and Astronautics
+Figure 28. Surface pressure coefficient contours, WBT0ssa configuration, α=4°.
+
+
+
+
+           Figure 29. ΔCp contours, WBT0ss configuration at α=2°.
+
+                                       30
+               American Institute of Aeronautics and Astronautics
+Figure 30. δCm contours, WBT0ss configuration at α=2°.
+
+
+
+
+Figure 31. δCL contours, WBT0ss configuration at α=2°.
+
+
+                           31
+   American Institute of Aeronautics and Astronautics
+Figure 32. δCD contours, WBT0ss configuration at α=2°.
+
+
+
+
+Figure 33. ΔCp contours, WBT0ssa configuration at α=2°.
+
+                            32
+    American Institute of Aeronautics and Astronautics
+Figure 34. δCm contours, WBT0ssa configuration at α=2°.
+
+
+
+
+Figure 35. δCL contours, WBT0ssa configuration at α=2°.
+
+
+                            33
+    American Institute of Aeronautics and Astronautics
+Figure 36. δCD contours, WBT0ssa configuration at α=2°.
+
+
+
+
+                            34
+    American Institute of Aeronautics and Astronautics
+

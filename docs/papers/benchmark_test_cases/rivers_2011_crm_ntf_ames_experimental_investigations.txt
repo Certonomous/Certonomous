@@ -1,0 +1,1584 @@
+Experimental Investigations of the NASA Common Research
+Model in the NASA Langley National Transonic Facility and
+    NASA Ames 11-Ft Transonic Wind Tunnel (Invited)
+
+                                               Melissa B. Rivers*
+                                NASA Langley Research Center, Hampton, VA 23681
+
+                                                Ashley Dittberner†
+                                       Jacobs Sverdrup, Hampton, VA 23681
+
+
+             Experimental aerodynamic investigations of the NASA Common Research
+          Model have been conducted in the NASA Langley National Transonic
+          Facility and the NASA Ames 11-ft wind tunnel. Data have been obtained at
+          chord Reynolds numbers of 5 million for five different configurations at both
+          wind tunnels. Force and moment, surface pressure and surface flow
+          visualization data were obtained in both facilities but only the force and
+          moment data are presented herein. Nacelle/pylon, tail effects and tunnel to
+          tunnel variations have been assessed. The data from both wind tunnels show
+          that an addition of a nacelle/pylon gave an increase in drag, decrease in lift
+          and a less nose down pitching moment around the design lift condition of 0.5
+          and that the tail effects also follow the expected trends. Also, all of the data
+          shown fall within the 2-sigma limits for repeatability. The tunnel to tunnel
+          differences are negligible for lift and pitching moment, while the drag shows
+          a difference of less than ten counts for all of the configurations. These
+          differences in drag may be due to the variation in the sting mounting systems
+          at the two tunnels.
+
+
+                                                 Nomenclature
+b           =   wing span, in.
+c           =   wing mean aerodynamic chord, in.
+CD          =   drag coefficient
+CL          =   lift coefficient
+Cm          =   pitching moment coefficient referenced to 0.25 of the wing mean aerodynamic chord
+Cp          =   pressure coefficient
+CFD         =   computational fluid dynamics
+CRM         =   Common Research Model
+DPW         =   Drag Prediction Workshop
+M∞          =   freestream Mach number
+NASA        =   National Aeronautics and Space Administration
+NTF         =   National Transonic Facility
+q∞          =   dynamic pressure, psf
+Rec         =   Reynolds number based on mean aerodynamic chord
+S           =   model reference area, ft2
+
+*
+    Research Engineer, Configuration Aerodynamics Branch, Mail Stop 267, Senior Member AIAA
+†
+    Test Engineer, ROME Group, Mail Stop 267, Senior Member AIAA
+                                                          1
+                                  American Institute of Aeronautics and Astronautics
+TWICS     = Transonic Wall Interference Correction System
+WB        = Wing/Body
+WBPN      = Wing/Body/Pylon/Nacelle
+WBT-2     = Wing/Body/Tail=-2º
+WBT0      = Wing/Body/Tail=0º
+WBT+2     = Wing/Body/Tail=+2º
+WICS      = Wall Interference Correction System
+x/c       = longitudinal distance from wing leading edge nondimensionalized by local wing
+            chord
+α         = angle of attack, deg
+η         = fraction of wing semi-span
+
+                                               I. Introduction
+
+I  n an effort to assess the state of the art in computational fluid dynamics (CFD) drag prediction, the AIAA Applied
+   Aerodynamics Technical Committee has initiated a series of Drag Prediction Workshops. The goal of the
+workshops is to assess state-of-the-art computational methods as practical aerodynamic tools for aircraft force and
+moment prediction of industry relevant geometries, with the focus being on drag prediction. The Drag Prediction
+Workshops (DPW) are designed to serve as an impartial forum for evaluating the effectiveness of existing
+computational Navier-Stokes solvers and modeling techniques. In addition, the DPW forum is intended to promote
+an open discussion on areas needing additional research and development. In order to encourage the widest
+participation, public-domain subject geometries have been used that are industry-relevant, yet simple enough to
+permit high-fidelity computations. Additionally, baseline grids have been provided with the intent of reducing the
+variability of CFD results.
+    The first drag prediction workshop1,2 (DPW-I), held in June of 2001, was directed at the calculation of a
+wing/body commercial transport configuration, known as the DLR-F43,4. Previously obtained experimental data
+were used as a reference for this first workshop. Predictions of a cruise polar and the drag rise were the focus. The
+second drag prediction workshop5,6 (DPW-II), held in June of 2003, added the challenge of determining the
+increment due to adding a large component, in this case a pylon/nacelle. The DLR-F6 configuration5,7 was used for
+this study. Once again, experimental data were available for comparison. The third drag prediction workshop8,9
+(DPW-III), held in June of 2006, added the challenge of determining the increment due to adding a small
+component, in this case a wing/body fairing. However for this workshop, the calculations were conducted “blind”
+with no experimental data available prior to the workshop. Force and moment, surface pressure, model deformation,
+and surface flow visualization data were obtained in an NTF wind tunnel investigation on the DLR-F6 configuration
+in the fall of 200710. The fourth drag prediction workshop (DPW-IV), held in June of 2009, was another set of blind
+calculations. However for this workshop, the calculations were conducted on a brand new model called the Common
+Research Model (CRM). It is these “blind” calculations that draw the connection between the fourth drag prediction
+workshop and the current experimental investigations. The force and moment, surface pressure, model deformation,
+and surface flow visualization data obtained in these two wind tunnel investigations on the CRM and the results
+presented in this paper serve as the validation data for the calculations presented in the DPW-IV.
+
+                                       II. Experimental Approach
+
+A. Facility Description
+    1. National Transonic Facility
+    The NTF11 is a unique national facility (Figure 1) that enables testing of aircraft configurations at conditions
+ranging from subsonic to low supersonic speeds at Reynolds numbers up to full-scale flight values. The NTF is a
+conventional, closed circuit, continuous-flow, fan-driven pressurized wind tunnel (Figure 2) capable of operating in
+either dry air at warm temperatures or nitrogen from warm to cryogenic temperatures. Elevated pressures in
+combination with cryogenic temperatures enable testing to the highest Reynolds numbers. The test section is 8.2 by
+8.2 by 25 ft and has a slotted floor and ceiling. In addition, four damping screens in the settling chamber and a
+contraction ratio of 14.95-to-1 reduce turbulence from the settling chamber to the nozzle throat. Fan-noise effects
+are minimized by acoustic treatment both upstream and downstream of the fan. Thermal insulation resides inside the
+pressure shell to aid in maintaining tunnel temperature and thus minimize energy consumption.
+
+
+                                                        2
+                                American Institute of Aeronautics and Astronautics
+    The NTF has an operating pressure range of approximately 15 to 125 psia, a temperature range of -260 to
++120°F, and a Mach number range of 0.2 to 1.2. The maximum Reynolds number per foot is 146 x 106 at Mach 1.
+When the tunnel is operated cryogenically, heat is removed by the evaporation of liquid nitrogen, which is sprayed
+into the tunnel circuit upstream of the fan. During this operational mode, venting is necessary to maintain a constant
+total pressure. When air is the test gas, heat is removed from the system by a water-cooled heat exchanger at the
+upstream end of the settling chamber. A mixed mode of operation can be used to reach higher Reynolds numbers.
+This mode uses liquid nitrogen to augment the cooling coil without the expense of fully crossing over into nitrogen
+mode. Further tunnel details and facility information are provided in Ref. 12.
+    2. Ames 11-ft Transonic Wind Tunnel
+    The Unitary Plan Wind Tunnel (UPWT) consists of three tunnel legs: the 11-By-11-Foot TWT, the 9- by 7-Foot
+Supersonic Wind Tunnel, and the 8- by 7-Foot Supersonic Wind Tunnel (Figure 3). The two supersonic legs share a
+common 11-stage axial-flow compressor and aftercooler drive leg, and they use diversion valves at the ends of a
+common drive leg. A three-stage axial-flow compressor drives the 11-By-11-Foot TWT. A common drive motor
+system can be coupled to either the 3-stage or 11-stage compressor. One tunnel can therefore be run while test
+articles are being installed in or removed from the other two.
+    The 11-By 11-Foot TWT leg, also known as the Ames 11-ft wind tunnel, is a closed-circuit, variable-pressure,
+continuous operation wind tunnel (Figure 4). Subsonic Mach number control involves setting the compressor drive
+speed to one of ten setpoints and using variable-camber inlet guide vanes for fine Mach number control. Supersonic
+Mach number control involves setting the flexible wall nozzle to achieve the proper area ratio in addition to setting
+the compressor drive speed and the inlet guide vanes. A tandem diffuser system with an annular diffuser followed by
+a wide-angle diffuser is upstream of a 70-ft-diameter aftercooler section in the drive leg. Flow-smoothing vanes are
+located in the tandem diffuser to improve flow uniformity entering the heat exchanger and temperature uniformity in
+the test section. The settling chamber upstream of the contraction is 38 feet in diameter. A Turbulence Reduction
+System (TRS) located in the settling chamber includes a 1-in.-cell-diameter, 20-in. long honeycomb for flow
+straightening followed by two 0.041-in.-diameter-wire, 6-mesh screens for turbulence reduction. The contraction
+provides a transition from the circular cross section of the settling chamber to the square cross section of the test
+section. The contraction ratio is 9.4. The test section is 11-By 11-feet in cross section and 22 feet in length. Slots in
+all four walls run the full length of the test section. The slots contain baffles that provide a 6-percent porosity into
+the plenum chamber. Ejector flaps on all four walls at the exit of the test section can be set remotely to control the
+plenum flow bypassed from the test section. Flow exits the test section and enters a transition region back to the
+circular main diffuser. A Plenum Evacuation System (PES) provides an active method of removing air from the test
+section plenum by using the Make-Up Air compressor system (MUA) of the auxiliaries facility. References 13 and
+14 provide more detailed information about the Ames 11-ft wind tunnel.
+
+B. Model Description
+    The model used in the current investigation was the NASA Common Research Model (CRM). This
+configuration consists of a contemporary supercritical transonic wing and a fuselage that is representative of a wide-
+body commercial transport aircraft. The CRM is designed for a cruise Mach number of M∞ = 0.85 and a
+corresponding design lift coefficient of CL = 0.5. A sketch of the CRM with reference quantities listed is shown in
+Figure 5. The aspect ratio is 9.0, the leading edge sweep angle is 35 deg, the wing reference area (S) is 3.01 ft2, the
+wing span (b) is 62.47 inches, and the mean aerodynamic chord (c) is 7.45 inches. The model moment reference
+center is located 35.8 inches back from the fuselage nose and 2.04 inches below the fuselage centerline. The nacelles
+used for this test were simple, flow through nacelles. Pressure distributions are measured on both the left and right
+wings using 291 pressure orifices located in 9 span-wise wing stations (η = 0.131, 0.201, 0.283, 0.397, 0.502, 0.603,
+0.727, 0.846, and 0.950) and on the left hand nacelle by 6 orifices at 6 radial stations (η = 30o, 90o, 150o, 210o, 270o,
+and 330o). All pressure measurements were made using Electronically Scanned Pressure (PSP) modules mounted
+inside the forward portion of the fuselage. Based on quoted accuracies from the ESP module manufacturer, surface
+pressure measurements should be in error no more than +/- 0.015 psi. This in turn would correspond to a variation
+of no more than +/- 0.0026 in terms of Cp. The pressure measurements from this investigation are not presented
+herein but will be presented in a future publication. The model is mounted in the wind tunnel using a blade sting
+arrangement in both tunnels with the only differences occurring downstream of the model support system, as shown
+in figures 6 and 7. No corrections have been made in either data set for this mounting arrangement.
+    Five different configurations were tested in the current investigation: the wing/body (WB) alone,
+wing/body/pylon/nacelle (WBPN), wing/body/tail=0° (WBT0), wing/body/tail=+2° (WBT+2) and wing/body/tail=-
+2° (WBT-2). Further details on this geometry are given in Ref. 15.
+                                                         3
+                                 American Institute of Aeronautics and Astronautics
+C. Test Conditions
+    1. National Transonic Facility
+    The investigation, conducted over a 6-week period, provided force and moment, surface pressure, model
+deformation, and surface flow visualization data. Testing was conducted at 5, 19.8 and 30 million Reynolds
+number. The 5 and 19.8 million Reynolds number data were collected to provide a comparison to previously
+calculated CFD results and all of the Reynolds numbers were used to provide an assessment of Reynolds number
+effects. The 19.8 million Reynolds number data were collected at two different q∞ levels – a high and a low q∞
+condition. Having two q∞ levels at the same Reynolds number provides an aeroelastic step in the data. All Reynolds
+number values presented in this paper are based on mean aerodynamic chord. The data were collected at
+temperatures ranging from -250ºF up to 120º F. For the comparisons made in this paper, only the Rec = 5 million
+data obtained at a temperature of 120º F are presented.
+    All data presented in this paper were obtained at freestream Mach numbers ranging from 0.7 to 0.87. Data were
+generally obtained over an angle-of-attack range from -3° to +12° at 5 million Reynolds number and from -3° to +6°
+at 19.8 and 30 million Reynolds numbers. The reduced angle-of-attack range at the higher Reynolds number was
+required such that safe model stress levels would not be exceeded. Flow angularity measurements were made and
+upflow corrections ranging from 0.092° to 0.173° were applied to the final NTF data. Classical wall corrections
+accounting for model blockage, wake blockage, tunnel buoyancy, and lift interference have been applied according
+to the methods presented below. Testing on the WBPN, WBT+2 and WBT-2 configurations was conducted at a
+Reynolds number of 5 million only. However, data were obtained at all three Reynolds numbers for both the WB
+and WBT0 configurations.
+    In order to ensure a consistent and repeatable transition from laminar to turbulent flow and to support the goal of
+the wind tunnel data being used for CFD validation purposes, it was important to apply a proven and reliable method
+to fix transition on the model. Evercoat trip dots measuring 0.05 inches in diameter and spaced 0.1 inches apart
+(center to center) were used for the current investigation. For a chord Reynolds number of 5 million, a trip dot height
+of 0.0035 inches was used from the SOB (side of body) to the yehudi break, 0.003 inches was used from the yehudi
+break to the midwing and 0.003 inches was used from the midwing to the wing tip. These trip dots were installed at
+10% chord. Vinyl adhesive trip dots were applied at the nose of the fuselage and left on for the entire test. When the
+nacelles were on the model, trip dots were located 0.43 inches back from the leading edge on the outer surface and
+the inner surface. Finally, when the tails were on the model, trip dots were located at 10% chord and measured
+0.003 inches.
+    Another important set of data obtained in this investigation was model deformation measurements. Since an
+effective correlation of computational and experimental data will be directly tied to how well the computational and
+experimental model geometries match one another, it is important to obtain an accurate definition of the model
+geometry as tested under aerodynamic loads. In order to obtain this information a video model deformation
+measurement technique16 has been developed and employed multiple times at the NTF. This system was used in the
+current investigation to obtain wing deflection and twist measurements due to aerodynamic loading but the data is
+not presented herein.
+    2. Ames 11-ft Wind Tunnel
+    The investigation, conducted over a 5-week period, provided force and moment, surface pressure, and surface
+flow visualization data. Testing was conducted at a chord Reynolds number of 5 million. The data were collected at
+temperatures of approximately 100º F.
+    All data presented in this paper were obtained at freestream Mach numbers ranging from 0.7 to 0.87. Data were
+generally obtained over an angle-of-attack range from -3° to +12° at 5 million chord Reynolds number. Flow
+angularity measurements were made and upflow corrections ranging from 0.013° to 0.067° were applied to the final
+data. Classical wall corrections accounting for tunnel buoyancy and lift interference have been applied according to
+the method presented below.
+    Transition was also fixed on the model when tested at the Ames 11-ft wind tunnel. For this investigation,
+though, only vinyl adhesive trip dots were applied. These trip dots measured 0.05 inches in diameter and were
+spaced 0.1 inches apart. For a chord Reynolds number of 5 million, a trip dot height of 0.0035 inches was used from
+the SOB (side of body) to the yehudi break, 0.003 inches was used from the yehudi break to the midwing and 0.003
+inches was used from the midwing to the wing tip. These trip dots were installed at 10% chord. Vinyl adhesive trip
+dots were also applied at the nose of the fuselage and left on for the entire test. When the nacelles were on the
+model, trip dots were located 0.43 inches back from the leading edge on the outer surface and the inner surface.
+Finally, when the tails were on the model, trip dots were located at 10% chord and measured 0.003 inches.
+
+                                                         4
+                                 American Institute of Aeronautics and Astronautics
+D. Wall Correction Methods for NTF and Ames 11-ft Wind Tunnels
+    Both the NTF and the Ames 11-ft wind tunnels use the Transonic Wall Interference Correction System (TWICS)
+to provide blockage and incidence corrections due to the presence of the test section boundary. TWICS and its
+predecessor, the Wall Interference Correction System (WICS), were developed at the NASA Ames Research Center
+by Ulbrich et al.17-24 as a modification and extension of the Hackett wall signature method.25-29 TWICS is an
+enhanced version of WICS that handles ventilated boundary conditions, typically seen in transonic wind tunnels.
+This method was chosen to be implemented at the NTF, see Iyer et al.,30,31 in an effort to standardize the wall
+interference correction methodology across NASA centers. TWICS is based on a linearized potential flow method
+with a Prandtl-Glauert compressibility model which inherently assumes that there is a portion of flow in the test
+section between the near-field region of the test article and the near-field region of the wall that is a linear
+perturbation of the empty test section flow field.
+    The method uses a tared wall pressure signature, which is the difference between the model installed condition
+and the empty test section, a database of normalized perturbation velocities using unit singularity solutions
+computed for a given mathematical representation of the wall boundary condition, and geometric information from
+the test article. Tareing of the wall pressure signature is performed to remove first order effects of the empty tunnel
+boundary layer and buoyancy, is assumed to contain only the solid and wake blockage, and is also assumed that the
+additional second order change in the test-section-wall boundary layer displacement thickness due to the presence of
+the test article is negligible—an assumption that is violated by flow near a Mach number of unity where aspects of
+the crossflow are more critical. The test article is modeled with an appropriately weighted point doublet chain32 to
+represent the fuselage, wake, and support system. Line doublets, typically distributed along the lifting surface
+quarter‐chord, are used to simulate the effect of lift. The strengths of the line doublets are determined using
+the measured lift from the balance. The resulting wall signature from these singularities is subtracted from
+the tared wall signature, leaving only the blockage signature. This remaining signature is used to determine
+the strengths of the solid and wake blockage singularities.
+    Although both facilities use TWICS, the implementations are not identical. The differences occur in how the
+wall boundary conditions are formulated and applied. Ulbrich23,24 performed a calibration and validation of the
+baffled, slotted (i.e. porous) wall boundary condition for the Ames 11-ft wind tunnel. Walker33 calibrated and
+validated the longitudinal slotted wall boundary condition in the NTF. A discrete wall formulation, where the
+boundary condition is applied in the baffled slot, is used at the Ames 11-ft wind tunnel; whereas, a homogeneous
+wall formulation, which is more of an averaged representation of the effect of the ventilated wall boundary, is used
+at the NTF. Work is in progress to assess the impact of modeling the NTF wall boundary condition as discrete. It is
+anticipated that a change to the discrete formulation of the NTF may lead to a decreased incidence correction. Data
+presented in this paper are corrected using the respective implementations of TWICS at each facility.
+
+                                       III. Results and Discussion
+
+A. Pylon/Nacelle effects
+    Determining the effects of adding a nacelle/pylon to the configuration was one goal of the current investigations.
+Figures 8 - 10 show these effects at Mach 0.7, 0.85 and 0.87, respectively, for both wind tunnels. Figure 8 indicates
+that at Mach 0.7, the addition of a nacelle/pylon increases the drag, lowers the lift and gives a less nose down
+pitching moment at CL = 0.5 for both wind tunnels. The actual values for lift and pitching moment give a negligible
+difference between the wind tunnel tests. For the drag, though, there is approximately a three drag count difference
+for the WB configuration and a five drag count difference for the WBPN configuration between the wind tunnels.
+In figure 9 it is shown that the drag increases, the lift lowers and the pitching moment is less nose down at CL = 0.5
+and Mach = 0.85 with the addition of a nacelle/pylon in both wind tunnels. The slopes are the same for lift, drag and
+pitching moment with negligible differences in the values of lift and pitching moment between the wind tunnels. At
+M=0.85, there is approximately a seven drag count difference for both the WB and WBPN configurations between
+the wind tunnels. Finally, figure 10 shows that for a Mach number of 0.87, the drag increases, the lift decreases and
+the pitching moment is less nose down for a CL = 0.5 with a nacelle/pylon added in both wind tunnels. At M=0.87,
+the data show the same slopes for lift and pitching moment with a negligible difference in the actual values for both
+wind tunnels. The drag curve shows the same slope for both configurations with almost no difference in drag for the
+WB configuration and a ten drag count difference between the wind tunnels for the WBPN configuration.
+
+
+
+                                                         5
+                                 American Institute of Aeronautics and Astronautics
+B. Tail Effects
+     Another goal of these investigations was to determine the tail effects for the CRM model. Three different tail
+settings were tested at both wind tunnels – tail = -2º, tail = +2º and tail = 0º, on the wing/body configuration. All of
+these cases were run at a chord Reynolds number of 5 million. Figures 11 – 13 show the tail effects for Mach = 0.7,
+0.85 and 0.87, respectively. In figure 11 we see that going from a -2º to a +2º tail setting shows a decrease in drag,
+an increase in lift and an increase in nose-down pitching moment, as expected, for the CL = 0.5 and M = 0.7
+condition. The actual values for lift and pitching moment indicate a negligible difference between the wind tunnel
+tests while there is an approximate variation of seven drag counts for the WBT-2 setting and a variation of
+approximately five drag counts for the WBT0 and WBT+2 settings. Figure 12 shows that for the CL = 0.5 and M =
+0.85 condition, there is again a decrease in drag, an increase in lift and an increase in nose down pitching moment
+when going from a -2º to a +2º tail setting for both wind tunnels, with negligible difference between the wind tunnel
+lift and pitching moment actual values. The drag values give a difference of approximately five drag counts for the
+WBT-2 setting and a difference of approximately seven drag counts for the WBT0 and WBT+2 settings. As shown
+in figure 13, at M=0.87 both wind tunnels show that going from a -2º to a +2º tail setting again gives an increase in
+drag, an increase in lift and an increase in nose-down pitching moment with negligible difference in actual values for
+drag, lift and pitching moment.
+
+C. Data Repeatability
+    When data are obtained in any experimental investigation it is important to make an assessment of data accuracy
+or data repeatability. In order to make such an assessment for the current investigation, multiple repeat runs were
+obtained for all five of the configurations in both wind tunnels. To obtain the most reliable assessment of data
+repeatability it is best to have the repeat runs distributed widely throughout the duration of the investigation.
+Unfortunately this process is usually in conflict with an efficient execution of the test plan. Keeping these thoughts
+in mind, the following sets of repeat runs were obtained. Within each series of runs, 3 runs were obtained at M∞ =
+0.7 and 0.85. Each of these 3 runs were always separated by at least one run at a different test condition. This
+resulted in 3 repeat runs for the all of the configurations at all of the conditions listed above. The repeatability data
+resulting from these runs at a M=0.85 only are presented in figures 14 - 23. Delta coefficient data are presented
+versus angle of attack for each configuration at each condition. The delta coefficient data presented represent the
+difference between the coefficient value measured and the average value of the coefficient at that particular angle of
+attack. These delta coefficient, or residual, data show the level of variation in the repeat runs. The solid lines shown
+on each plot indicate the 2-sigma limits based on all the data across the angle-of-attack range. Thus it is shown that
+essentially all the residual data fall within the 2-sigma limits.
+
+                                                IV. Summary
+    A successful investigation of the new NASA Common Research Model has been completed in the National
+Transonic Facility and the Ames 11-ft Wind Tunnel. Data have been obtained at chord Reynolds numbers of 5
+million for the WB, WBPN, WBT0, WBT+2 and WBT-2 configurations. Force and moment, surface pressure and
+surface flow visualization data were obtained but only the force and moment data are presented herein.
+Nacelle/pylon, tail effects and tunnel-to-tunnel effects have been assessed.
+    1)    The addition of a nacelle/pylon gave an increase in drag, decrease in lift and a less nose down pitching
+          moment around the design lift condition of 0.5 at both wind tunnels.
+    2)    The tail effects follow the expected trends at both wind tunnels.
+    3)    The between tunnel comparisons showed a negligible difference in lift and pitching moment values and
+          less than ten drag count difference for any of the configurations in drag.
+    4)    All of the data shown fall within the 2-sigma limits for repeatability.
+
+                                                Acknowledgments
+   The authors would like to gratefully acknowledge the efforts of the NASA team throughout all phases of this
+experimental investigation. NTF and Ames 11-ft staff are recognized for their efforts in effectively obtaining all
+desired experimental data. The supportive discussions with the DPW committee prior to and throughout the wind
+tunnel investigation are also acknowledged.
+
+
+
+
+                                                         6
+                                 American Institute of Aeronautics and Astronautics
+                                                     References
+1.
+    Levy, D. W., Vassberg, J. C., Wahls, R. A., Zickhur, T., Agrawal, S., Pirzadeh, S., and Hemsch, M. J., “Summary of Data
+  from the First AIAA CFD Drag Prediction Workshop,” AIAA Paper 2002-0841, January 2002.
+ 2.
+    Hemsch, M. J., “Statistical Analysis of CFD Solutions from the Drag Prediction Workshop,” AIAA Paper 2002-0842,
+  January 2002.
+ 3.
+    Redeker, G., Schmidt, N., and Muller, R., “Design and Experimental Verification of a Transonic Wing for a Transport
+  Aircraft,” Proceedings of the FDP Symposium on Subsonic/Transonic Configuration Aerodynamics, AGARD CP 285,
+  1980, pp. 13.1-13.7.
+ 4.
+    Redeker, G., “DLR-F4 Wing Body Configuration,” A Selection of Experimental Test Cases for the Validation of CFD
+  Codes, AGARD Report AR-303, Vol. 2, 1994, pp. B4-1-21.
+ 5.
+    Laflin, K. R., Vassberg, J. C., Wahls, R. A., Morrison, J. H., Brodersen, O., Radowitz, M., Tinoco, E. N., and Godard, J.,
+  “Summary of Data from the Second AIAA CFD Drag Prediction Workshop,” AIAA Paper 2004-0555, January 2004.
+ 6.
+    Hemsch, M. J. and Morrison, J. H., “Statistical Analysis of CFD Solutions from the 2nd Drag Prediction Workshop,”
+  AIAA Paper 2004-0556, January 2004.
+ 7.
+    Rossow, C.-C., Godard, J.-L., Hoheisel, H., and Schmitt, V., “Investigations of Propulsion Integration Interference Effects
+  on a Transport Aircraft Configuration,” Journal of Aircraft, Vol. 31, No. 5, 1994, pp. 1022-1030.
+ 8.
+    Vassberg, J. C., Tinoco, E. N., Mani, M., Broderson, O. P., Eisfeld, B., Wahls, R. A., Morrison, J. H., Zickuhr, T., Laflin,
+  K. R., and Mavriplis, D. J., “Summary of the Third AIAA CFD Drag Prediction Workshop,” AIAA Paper 2007-0260,
+  January 2007.
+ 9.
+    Morrison, J. H. and Hemsch, M. J., “Statistical Analysis of CFD Solutions from the Third AIAA Drag Prediction
+  Workshop,” AIAA Paper 2007-0254, January 2007.
+10.
+     Gatlin, G. M., Rivers, M.B., Goodliff, S. L., Rudnik, R., and Sitzmann, M., “Experimental Investigation of the DLR-F6
+  Transport Configuration in the National Transonic Facility (invited),” AIAA Paper 2008-6917, August 2008.
+11.
+     Gloss, B. B., “Current Status and Some Future Test Directions for the US National Transonic Facility. Wind Tunnels and
+  Wind Tunnel Test Techniques,” Royal Aeronautical Society, 1992, pp. 3.1-3.7.
+12.
+     Fuller, D. E., “Guide for Users of the National Transonic Facility,” NASA TM-83124, 1981.
+13.
+     Kmak, F., “Modernization and Activation of the NASA Ames 11-By-11-Foot Transonic Wind Tunnel,” AIAA Paper
+  2000-2680, June 2000.
+14.
+     Amaya, M.A. and Murthy, S.V., “Flow Quality Measurements in the NASA Ames Upgraded 11-By-11-Foot Transonic
+  Wind Tunnel (invited Paper),” AIAA Paper 2000-2681, June 2000.
+15.
+     J. C. Vassberg, M. A. DeHaan, S. M. Rivers, and R. A. Wahls. “Development of a Common Research Model for Applied
+  CFD validation studies.” AIAA Paper 2008-6919, 26th AIAA Applied Aerodynamics Conference, Hawaii, HI, August
+  2008.
+16.
+     Burner, A. W. and Liu, T., “Videogrammetric Model Deformation Measurement Technique,” Journal of Aircraft, Vol.
+  38, No. 4, July-August 2001, pp. 745-754.
+17.
+     Ulbrich, N. and Lo, C., “A Wall Interference Assessment/Correction System,” Semi-Annual Report #1, The University of
+  Tennessee Space Institute, December 1991.
+18.
+     Ulbrich, N., Lo, C., and Steinle, Jr., F., “Blockage Correction in Three-Dimensional Wind Tunnel Testing Based on the
+  Wall Signature Method,” July 6-8 1992, Presented at the AIAA 17th Aerospace Ground Testing Conference, AIAA Paper
+  92-3925.
+19.
+     Ulbrich, N. and Steinle, Jr., F., “Real-Time Wall Interference Calculation in Three-Dimensional Subsonic Wind Tunnel
+  Testing,” January 10-13 1994, Presented at the 32nd Aerospace Sciences Meeting and Exhibit, AIAA Paper 94-0771.
+20.
+     Ulbrich, N. and Steinle, Jr., F., “Semispan Model Wall Interference Prediction Based on the Wall Signature Method,”
+  January 9-12 1995, Presented at the 33rd Aerospace Sciences Meeting and Exhibit, AIAA Paper 95-0793.
+21.
+     Ulbrich, N. and Boone, A., Real-Time Wall Interference Correction System of the 12FT Pressure Wind Tunnel,” January
+  12-15 1998, Presented at the 36th Aerospace Sciences Meeting and Exhibit, AIAA Paper 98-0707.
+22.
+     Ulbrich, N., “The Real-Time Wall Interference Correction System of the NASA Ames 12-Foot Pressure Tunnel,” NASA
+  CR 1998-208537, 1998.
+23.
+     Ulbrich, N. and Boone, A., “Determination of the Wall Boundary Condition of the NASA Ames 11FT Transonic Wind
+  Tunnel,” January 8-11 2001, Presented at the 39th Aerospace Sciences Meeting and Exhibit, AIAA Paper 2001-1112.
+24.
+     Ulbrich, N. and Boone, A., “Direct Validation of the Wall Interference Correction System of the Ames 11-Foot
+  Transonic Wind Tunnel,” May 2003, NASA/TM-2003-212268.
+25.
+     Hackett, J. and Wilsden, D., “Determination of Low Speed Wake Blockage Corrections Via Tunnel Wall Static Pressure
+  Measurements,” Wind Tunnel Design and Testing Techniques, March 1976, AGARD-CP-174. Presented to the AGARD
+  Fluid Dynamics Panel Symposium on Wind Tunnel Design and Testing Techniques: London, England, 6-8 October 1975.
+26.
+     Hackett, J. and Boles, R., “Wake Blockage Corrections and Ground Effect Testing in Closed Wind Tunnels,” Journal of
+  Aircraft, Vol. 13, No. 8, August 1976, pp. 597ñ604.
+27.
+     Hackett, J. and Wilsden, D., “Estimation of Wind Tunnel Blockage from Wall Pressure Signatures: A Review of Recent
+  Work at Lockheed-Georgia,” AIAA Paper 78-828, April 1978.
+
+
+                                                        7
+                                American Institute of Aeronautics and Astronautics
+28.
+    Hackett, J., Wilsden, D., and Lilley, D., “Estimation of Tunnel Blockage from Wall Pressure Signatures: A Review and
+ Data Correlation,” NASA CR 15224, March 1979.
+29.
+    Hackett, J., Wilsden, D., and Stevens, W., “A Review of the ‘Wall Pressure Signature’ and Other Tunnel Constraint
+ Correction Methods for High Angle-of-Attack Tests,” AGARD R692, February 1981, Presented to the AGARD Fluid
+ Dynamics Panel Round Table Discussion on Wind Tunnel Corrections for High Angle-of-Attack Models: Munich, FRG, 8
+ May 1980.
+30.
+     Iyer, V., Everhart, J., Bir, P., and Ulbrich, N., “Implementation of the WICS Wall Interference Correction System at the
+ National Transonic Facility,” June 19-22 2000, Presented at the 21st AIAA Aerodynamic Measurement Technology and
+ Ground Testing Conference, Denver, CO, AIAA Paper 2000-2383.
+31.
+    Iyer, V. and Everhart, J., “Application of Pressure-Based Wall Correction Methods to Two NASA Langley Wind
+ Tunnels,” June 11-14 2001, Presented at the 19th AIAA Applied Aerodynamics Conference, Anaheim, CA, AIAA Paper
+ 2001-2472.
+32.
+    Ulbrich, N., “The Representation of Wind Tunnel Model Blockage Effects Using Point Doublets,” January 14-17 2002,
+ Presented at the 40th Aerospace Sciences Meeting and Exhibit, AIAA Paper 2002-0880.
+33.
+    Walker, E., Statistical Calibration and Validation of a Homogeneous Ventilated Wall-Interference Correction Method for
+ the National Transonic Facility, Ph.D. thesis, Virginia Polytechnic Institute and State University, October 2005, Available
+ electronically at http://scholar.lib.vt.edu/theses/available/etd-10272005-165559/. Also available as NASA/TP 2005-
+ 213947, 2005.
+
+
+
+
+                                                       8
+                               American Institute of Aeronautics and Astronautics
+                         Figure 1. Aerial View of the National Transonic Facility.
+
+
+
+
+Figure 2. Sketch of the National Transonic Facility tunnel circuit. Linear dimensions are given in feet.
+
+
+
+
+                                                   9
+                           American Institute of Aeronautics and Astronautics
+                                  Appendix
+
+
+                                Appendix
+
+
+
+
+Figure
+ Figure1.3. Unitary
+            Unitary Plan
+                    PlanWind
+                         WindTunnel
+                             Tunnel(UPWT)
+                                    (UPWT)At
+                                           Atthe
+                                              theNASA
+                                                  NASAAmes
+                                                       AmesResearch
+                                                            ResearchCenter.
+                                                                     Center.
+
+
+Figure 1. Unitary Plan Wind Tunnel (UPWT) At the NASA Ames Research Center.
+
+
+
+
+               Figure 2. 11-By 11-Foot Transonic Wind Tunnel.
+
+
+
+              Figure 4.
+              Figure 2. Sketch
+                         11-By 11-Foot  Transonic
+                                of the Ames
+                                       14          Wind
+                                             11-Foot WindTunnel.
+                                                            Tunnel.
+               American Institute of Aeronautics and Astronautics
+                                        10
+               American Institute of Aeronautics and Astronautics
+                                      14
+              American Institute of Aeronautics and Astronautics
+          National Transonic Facility
+          NASA Langley Research Center
+          Test 197-Common Research Model
+
+
+
+
+              National Transonic Facility
+              NASA Langley Research Center
+              Test 197-Common Research Model
+                                                  a) Top View
+Test 197-Common Research Model                                                                        A. Dittberner
+Test Section Arrangement                                                             Ashley.F.Dittberner@nasa.gov
+
+
+
+
+                                                b) Isometric View
+ Test 197-Common Research Model                                                                         A. Dittberner
+           Figure 5. Sketch of the Common Research Model with Reference Quantities.
+ Test Section Arrangement                                               Ashley.F.Dittberner@nasa.gov
+
+
+
+
+                                                        11
+                                American Institute of Aeronautics and Astronautics
+Figure 6. Photo of the Common Research Model in the National Transonic Facility.
+
+
+
+
+ Figure 7. Photo of the Common Research Model in the Ames 11-ft Wind Tunnel.
+                                         12
+                 American Institute of Aeronautics and Astronautics
+                                               Facility    Run      Config    M!           Rec,106
+
+                                              LaRC NTF     39.       WB       0.70          5.00
+                                              LaRC NTF     69.      WBPN      0.70          4.99
+                                              Ames 11-ft   118.      WB       0.70          5.00
+                                              Ames 11-ft   107.     WBPN      0.70          5.00
+
+     1.0                                                             .60
+      .8
+      .6                                                             .55
+
+      .4
+CL                                                                CL .50
+      .2
+      0
+                                                                     .45
+     -.2
+     -.4                                                             .40
+           0   .04     .08        .12   .16      .20                   .020 .022 .024 .026 .028 .030
+                             CD                                                      CD
+     1.0                                                             .60
+      .8
+      .6                                                             .55
+
+      .4
+CL                                                                CL .50
+      .2
+      0                                                              .45
+     -.2
+     -.4                                                             .40
+
+     .40                                                               0
+     .32
+     .24                                                            -.02
+     .16
+Cm .08                                                       Cm -.04
+      0
+  -.08                                                              -.06
+  -.16
+  -.24                                                              -.08
+      -4 -2      0     2      4 6       8 10 12                         2.5          3.0         3.5     4.0   4.5
+                           ", deg                                                               ", deg
+
+
+                     Figure 8. Pylon/Nacelle effects, Mach = 0.7, Rec = 5x106.
+
+
+
+
+                                                13
+                        American Institute of Aeronautics and Astronautics
+                                             Facility    Run      Config    M!           Rec,106
+
+                                            LaRC NTF     44.       WB       0.85          4.99
+                                            LaRC NTF     74.      WBPN      0.85          5.00
+                                            Ames 11-ft   126.      WB       0.85          5.00
+                                            Ames 11-ft   108.     WBPN      0.85          5.00
+
+     1.0                                                           .60
+      .8
+      .6                                                           .55
+
+      .4
+CL                                                              CL .50
+      .2
+      0
+                                                                   .45
+     -.2
+     -.4                                                           .40
+           0   .04   .08        .12   .16      .20                   .020 .022 .024 .026 .028 .030
+                           CD                                                      CD
+     1.0                                                           .60
+      .8
+      .6                                                           .55
+
+      .4
+CL                                                              CL .50
+      .2
+      0                                                            .45
+     -.2
+     -.4                                                           .40
+
+     .40                                                            0
+     .32
+     .24                                                          -.02
+     .16
+Cm .08                                                     Cm -.04
+      0
+  -.08                                                            -.06
+  -.16
+  -.24                                                            -.08
+      -4 -2      0   2      4 6       8 10 12                         2.0          2.5         3.0     3.5   4.0
+                         ", deg                                                               ", deg
+
+
+                 Figure 9. Pylon/Nacelle Effects, Mach = 0.85, Rec = 5x106.
+
+
+
+
+                                              14
+                      American Institute of Aeronautics and Astronautics
+                                             Facility    Run      Config    M!           Rec,106
+
+                                            LaRC NTF     47.       WB       0.87          5.00
+                                            LaRC NTF     77.      WBPN      0.87          4.99
+                                            Ames 11-ft   131.      WB       0.87          5.00
+                                            Ames 11-ft   109.     WBPN      0.87          5.00
+
+     1.0                                                           .60
+      .8
+      .6                                                           .55
+
+      .4
+CL                                                              CL .50
+      .2
+      0
+                                                                   .45
+     -.2
+     -.4                                                           .40
+           0   .04   .08        .12   .16      .20                   .024 .026 .028 .030 .032 .034
+                           CD                                                      CD
+     1.0                                                           .60
+      .8
+      .6                                                           .55
+
+      .4
+CL                                                              CL .50
+      .2
+      0                                                            .45
+     -.2
+     -.4                                                           .40
+
+     .40                                                             0
+     .32
+     .24                                                          -.02
+     .16
+Cm .08                                                     Cm -.04
+      0
+  -.08                                                            -.06
+  -.16
+  -.24                                                            -.08
+      -4 -2      0   2      4 6       8 10 12                         2.0          2.5         3.0     3.5   4.0
+                         ", deg                                                               ", deg
+
+
+                 Figure 10. Pylon/Nacelle Effects, Mach = 0.87, Rec = 5x106.
+
+
+
+
+                                              15
+                      American Institute of Aeronautics and Astronautics
+                                                                                                        6
+                                             Facility    Run     Config    Tail !      M"      Rec,10
+
+                                            LaRC NTF     192.    WBT        -2o        0.70     4.99
+                                            LaRC NTF     87.     WBT         0o        0.70     5.00
+                                                                                 o
+                                            LaRC NTF     173.    WBT         +2        0.70     4.99
+                                                                                 o
+                                            Ames 11-ft   85.     WBT        -2         0.70     5.00
+                                            Ames 11-ft   63.     WBT         0o        0.70     5.00
+                                            Ames 11-ft   93.     WBT         +2o       0.70     5.00
+
+
+
+
+     1.0                                                             .60
+      .8
+      .6                                                             .55
+
+      .4
+CL                                                              CL .50
+      .2
+      0
+                                                                     .45
+     -.2
+     -.4                                                             .40
+           0   .04   .08        .12   .16        .20                   .020 .022 .024 .026 .028 .030
+                           CD                                                        CD
+     1.0                                                             .60
+      .8
+      .6                                                             .55
+
+      .4
+CL                                                              CL .50
+      .2
+      0
+                                                                     .45
+     -.2
+     -.4                                                             .40
+
+     .40                                                           .24
+     .32                                                           .20
+     .24                                                           .16
+                                                                   .12
+     .16
+                                                                   .08
+Cm .08                                                          Cm
+                                                                   .04
+      0
+                                                                     0
+  -.08                                                             -.04
+  -.16                                                             -.08
+  -.24                                                             -.12
+      -4 -2      0   2      4 6       8 10 12                          3.0           3.5       4.0          4.5   5.0
+                         #, deg                                                               #, deg
+
+
+                         Figure 11. Tail Effects, Mach = 0.7, Rec = 5x106.
+
+
+
+                                              16
+                      American Institute of Aeronautics and Astronautics
+                                                                                                        6
+                                             Facility    Run     Config    Tail !      M"      Rec,10
+
+                                            LaRC NTF     196.    WBT        -2o        0.85     4.99
+                                            LaRC NTF     92.     WBT         0o        0.85     5.00
+                                                                                 o
+                                            LaRC NTF     176.    WBT         +2        0.85     4.99
+                                                                                 o
+                                            Ames 11-ft   86.     WBT        -2         0.85     5.00
+                                            Ames 11-ft   77.     WBT         0o        0.85     5.00
+                                            Ames 11-ft   94.     WBT         +2o       0.85     5.00
+
+
+
+
+     1.0                                                             .60
+      .8
+      .6                                                             .55
+
+      .4
+CL                                                              CL .50
+      .2
+      0
+                                                                     .45
+     -.2
+     -.4                                                             .40
+           0   .04   .08        .12   .16        .20                   .020 .022 .024 .026 .028 .030 .032
+                           CD                                                          CD
+     1.0                                                             .60
+      .8
+      .6                                                             .55
+
+      .4
+CL                                                              CL .50
+      .2
+      0
+                                                                     .45
+     -.2
+     -.4                                                             .40
+
+     .40                                                           .24
+     .32                                                           .20
+     .24                                                           .16
+                                                                   .12
+     .16
+                                                                   .08
+Cm .08                                                          Cm
+                                                                   .04
+      0
+                                                                     0
+  -.08                                                             -.04
+  -.16                                                             -.08
+  -.24                                                             -.12
+      -4 -2      0   2      4 6       8 10 12                          2.0           2.5       3.0          3.5   4.0
+                         #, deg                                                               #, deg
+
+
+
+                     Figure 12. Tail Effects, Mach = 0.85, Rec = 5x106.
+
+
+                                              17
+                      American Institute of Aeronautics and Astronautics
+                                                                                                        6
+                                             Facility    Run     Config    Tail !      M"      Rec,10
+
+                                            LaRC NTF     198.    WBT        -2o        0.87     4.99
+                                            LaRC NTF     95.     WBT         0o        0.87     5.00
+                                                                                 o
+                                            LaRC NTF     178.    WBT         +2        0.87     4.99
+                                                                                 o
+                                            Ames 11-ft   87.     WBT        -2         0.87     5.00
+                                            Ames 11-ft   82.     WBT         0o        0.87     5.00
+                                            Ames 11-ft   95.     WBT         +2o       0.87     5.00
+
+
+
+
+     1.0                                                             .60
+      .8
+      .6                                                             .55
+
+      .4
+CL                                                              CL .50
+      .2
+      0
+                                                                     .45
+     -.2
+     -.4                                                             .40
+           0   .04   .08        .12   .16        .20                   .028 .030 .032 .034 .036 .038 .040
+                           CD                                                          CD
+     1.0                                                             .60
+      .8
+      .6                                                             .55
+
+      .4
+CL                                                              CL .50
+      .2
+      0
+                                                                     .45
+     -.2
+     -.4                                                             .40
+
+     .40                                                           .24
+     .32                                                           .20
+     .24                                                           .16
+                                                                   .12
+     .16
+                                                                   .08
+Cm .08                                                          Cm
+                                                                   .04
+      0
+                                                                     0
+  -.08                                                             -.04
+  -.16                                                             -.08
+  -.24                                                             -.12
+      -4 -2      0   2      4 6       8 10 12                          2.0           2.5       3.0          3.5   4.0
+                         #, deg                                                               #, deg
+
+
+
+                     Figure 13. Tail Effects, Mach = 0.87, Rec = 5x106.
+
+
+                                              18
+                      American Institute of Aeronautics and Astronautics
+                                                         National Transonic Facility, Test 197
+                                                              Common Research Model
+
+                        Test   Run                                                        Solid lines indicate 2-sigma limits based on the
+                                                                                          residual data.
+                        197    44
+                        197    51
+                        197    53
+
+
+
+
+       .005                                                                                                                                        .8
+
+       .004
+                                                                                                                                                   .7
+       .003
+
+       .002
+                                                                                                                                                   .6
+       .001
+
+!CL       0                                                                                                                                        .5 CL
+
+       -.001
+                                                                                                                                                   .4
+       -.002
+
+       -.003
+                                                                                                                                                   .3
+       -.004
+
+       -.005                                                                                                                                       .2
+
+      .0005                                                                                                                                        .080
+
+                                                                                                                                                   .075
+      .0004
+                                                                                                                                                   .070
+      .0003
+                                                                                                                                                   .065
+      .0002                                                                                                                                        .060
+
+      .0001                                                                                                                                        .055
+
+                                                                                                                                                   .050
+!CD       0                                                                                                                                                CD
+                                                                                                                                                   .045
+      -.0001                                                                                                                                       .040
+
+      -.0002                                                                                                                                       .035
+
+                                                                                                                                                   .030
+      -.0003
+                                                                                                                                                   .025
+      -.0004
+                                                                                                                                                   .020
+      -.0005                                                                                                                                       .015
+               2.0      2.5     3.0     3.5        4.0     4.5      5.0      5.5 2.0      2.5     3.0      3.5      4.0      4.5      5.0    5.5
+                                              ", deg                                                          ", deg
+
+
+
+                                                                                                        6
+                     Figure 14. NTF Data Repeatability, WB Configuration, Mach = 0.85, Rec Created
+                                                                                               = 5x10
+                                                                                                   Fri Dec. 10 16:37:13 2010
+                               Solid line indicates 2-sigma limits based on the residual data.
+
+
+
+
+                                                               19
+                                       American Institute of Aeronautics and Astronautics
+                                                              Common Research Model
+
+                      Test   Run                                                      Solid lines indicate 2-sigma limits based on the
+                                                                                      residual data.
+                       216   126
+                       216   130
+                       216   133
+
+
+
+
+       .005                                                                                                                                    .8
+
+       .004
+                                                                                                                                               .7
+       .003
+
+       .002
+                                                                                                                                               .6
+       .001
+
+!CL       0                                                                                                                                    .5 CL
+
+       -.001
+                                                                                                                                               .4
+       -.002
+
+       -.003
+                                                                                                                                               .3
+       -.004
+
+       -.005                                                                                                                                   .2
+
+      .0005                                                                                                                                    .080
+
+                                                                                                                                               .075
+      .0004
+                                                                                                                                               .070
+      .0003
+                                                                                                                                               .065
+      .0002                                                                                                                                    .060
+
+      .0001                                                                                                                                    .055
+
+                                                                                                                                               .050
+!CD       0                                                                                                                                            CD
+                                                                                                                                               .045
+      -.0001                                                                                                                                   .040
+
+      -.0002                                                                                                                                   .035
+
+                                                                                                                                               .030
+      -.0003
+                                                                                                                                               .025
+      -.0004
+                                                                                                                                               .020
+      -.0005                                                                                                                                   .015
+               2.0    2.5      3.0     3.5        4.0   4.5       5.0     5.5 2.0     2.5     3.0      3.5      4.0      4.5      5.0    5.5
+                                             ", deg                                                       ", deg
+
+
+                Figure 15. Ames 11-ft Data Repeatability, WB Configuration, Mach = 0.85, Rec = 5x106.
+                            Solid line indicates 2-sigma limits based on the residual data. Created Fri Dec 10 16:49:13 2010
+
+
+
+
+                                                              20
+                                      American Institute of Aeronautics and Astronautics
+                                                                 Common Research Model
+
+                          Test   Run                                                     Solid lines indicate 2-sigma limits based on the
+                                                                                         residual data.
+                          197    74
+                          197    79
+                          197    81
+
+
+
+
+       .005                                                                                                                                       .8
+
+       .004
+                                                                                                                                                  .7
+       .003
+
+       .002
+                                                                                                                                                  .6
+       .001
+
+!CL       0                                                                                                                                       .5 CL
+
+       -.001
+                                                                                                                                                  .4
+       -.002
+
+       -.003
+                                                                                                                                                  .3
+       -.004
+
+       -.005                                                                                                                                      .2
+
+      .0005                                                                                                                                       .080
+
+                                                                                                                                                  .075
+      .0004
+                                                                                                                                                  .070
+      .0003
+                                                                                                                                                  .065
+      .0002                                                                                                                                       .060
+
+      .0001                                                                                                                                       .055
+
+                                                                                                                                                  .050
+!CD       0                                                                                                                                               CD
+                                                                                                                                                  .045
+      -.0001                                                                                                                                      .040
+
+      -.0002                                                                                                                                      .035
+
+                                                                                                                                                  .030
+      -.0003
+                                                                                                                                                  .025
+      -.0004
+                                                                                                                                                  .020
+      -.0005                                                                                                                                      .015
+               2.0        2.5     3.0     3.5        4.0   4.5       5.0     5.5 2.0     2.5     3.0      3.5      4.0      4.5      5.0    5.5
+                                                ", deg                                                       ", deg
+
+
+                     Figure 16. NTF Data Repeatability, WBPN Configuration, Mach = 0.85, Rec = 5x106.
+                                 Solid line indicates 2-sigma limits based on the residual data. Created Fri Dec 10 16:40:08 2010
+
+
+
+
+                                                                  21
+                                          American Institute of Aeronautics and Astronautics
+                                                           Common Research Model
+
+                     Test   Run                                                    Solid lines indicate 2-sigma limits based on the
+                                                                                   residual data.
+                     216    108
+                     216    110
+                     216    112
+
+
+
+
+       .005                                                                                                                                 .8
+
+       .004
+                                                                                                                                            .7
+       .003
+
+       .002
+                                                                                                                                            .6
+       .001
+
+!CL       0                                                                                                                                 .5 CL
+
+       -.001
+                                                                                                                                            .4
+       -.002
+
+       -.003
+                                                                                                                                            .3
+       -.004
+
+       -.005                                                                                                                                .2
+
+      .0005                                                                                                                                 .080
+
+                                                                                                                                            .075
+      .0004
+                                                                                                                                            .070
+      .0003
+                                                                                                                                            .065
+      .0002                                                                                                                                 .060
+
+      .0001                                                                                                                                 .055
+
+                                                                                                                                            .050
+!CD       0                                                                                                                                         CD
+                                                                                                                                            .045
+      -.0001                                                                                                                                .040
+
+      -.0002                                                                                                                                .035
+
+                                                                                                                                            .030
+      -.0003
+                                                                                                                                            .025
+      -.0004
+                                                                                                                                            .020
+      -.0005                                                                                                                                .015
+               2.0   2.5     3.0    3.5        4.0   4.5       5.0     5.5 2.0     2.5     3.0      3.5      4.0      4.5      5.0    5.5
+                                          ", deg                                                       ", deg
+
+
+           Figure 17. Ames 11-ft Data Repeatability, WBPN Configuration, Mach = 0.85, Rec = 5x106.
+                         Solid line indicates 2-sigma limits based on the residual data. Created Fri Dec 10 16:50:57 2010
+
+
+
+
+                                                           22
+                                   American Institute of Aeronautics and Astronautics
+                                                              Common Research Model
+
+                      Test   Run                                                      Solid lines indicate 2-sigma limits based on the
+                                                                                      residual data.
+                      197    196
+                      197    200
+                      197    202
+
+
+
+
+       .005                                                                                                                                    .8
+
+       .004
+                                                                                                                                               .7
+       .003
+
+       .002
+                                                                                                                                               .6
+       .001
+
+!CL       0                                                                                                                                    .5 CL
+
+       -.001
+                                                                                                                                               .4
+       -.002
+
+       -.003
+                                                                                                                                               .3
+       -.004
+
+       -.005                                                                                                                                   .2
+
+      .0005                                                                                                                                    .080
+
+                                                                                                                                               .075
+      .0004
+                                                                                                                                               .070
+      .0003
+                                                                                                                                               .065
+      .0002                                                                                                                                    .060
+
+      .0001                                                                                                                                    .055
+
+                                                                                                                                               .050
+!CD       0                                                                                                                                            CD
+                                                                                                                                               .045
+      -.0001                                                                                                                                   .040
+
+      -.0002                                                                                                                                   .035
+
+                                                                                                                                               .030
+      -.0003
+                                                                                                                                               .025
+      -.0004
+                                                                                                                                               .020
+      -.0005                                                                                                                                   .015
+               2.0    2.5     3.0      3.5        4.0   4.5       5.0     5.5 2.0     2.5     3.0      3.5      4.0      4.5      5.0    5.5
+                                             ", deg                                                       ", deg
+
+
+                 Figure 18. NTF Data Repeatability, WBT-2 Configuration, Mach = 0.85, Rec = 5x106.
+                             Solid line indicates 2-sigma limits based on the residual data. Created Fri Dec 10 16:41:41 2010
+
+
+
+
+                                                              23
+                                      American Institute of Aeronautics and Astronautics
+                                                          Common Research Model
+
+                     Test   Run                                                   Solid lines indicate 2-sigma limits based on the
+                                                                                  residual data.
+                     216    86
+                     216    88
+                     216    90
+
+
+
+
+       .005                                                                                                                                .8
+
+       .004
+                                                                                                                                           .7
+       .003
+
+       .002
+                                                                                                                                           .6
+       .001
+
+!CL       0                                                                                                                                .5 CL
+
+       -.001
+                                                                                                                                           .4
+       -.002
+
+       -.003
+                                                                                                                                           .3
+       -.004
+
+       -.005                                                                                                                               .2
+
+      .0005                                                                                                                                .080
+
+                                                                                                                                           .075
+      .0004
+                                                                                                                                           .070
+      .0003
+                                                                                                                                           .065
+      .0002                                                                                                                                .060
+
+      .0001                                                                                                                                .055
+
+                                                                                                                                           .050
+!CD       0                                                                                                                                        CD
+                                                                                                                                           .045
+      -.0001                                                                                                                               .040
+
+      -.0002                                                                                                                               .035
+
+                                                                                                                                           .030
+      -.0003
+                                                                                                                                           .025
+      -.0004
+                                                                                                                                           .020
+      -.0005                                                                                                                               .015
+               2.0   2.5     3.0   3.5        4.0   4.5       5.0     5.5 2.0     2.5     3.0      3.5      4.0      4.5      5.0    5.5
+                                         ", deg                                                       ", deg
+
+
+          Figure 19. Ames 11-ft Data Repeatability, WBT-2 Configuration, Mach = 0.85, Rec = 5x106.
+                        Solid line indicates 2-sigma limits based on the residual data. Created Fri Dec 10 16:54:41 2010
+
+
+
+
+                                                           24
+                                   American Institute of Aeronautics and Astronautics
+                                                                 Common Research Model
+
+                         Test   Run                                                      Solid lines indicate 2-sigma limits based on the
+                                                                                         residual data.
+                          197    92
+                          197    97
+                          197    99
+
+
+
+
+       .005                                                                                                                                       .8
+
+       .004
+                                                                                                                                                  .7
+       .003
+
+       .002
+                                                                                                                                                  .6
+       .001
+
+!CL       0                                                                                                                                       .5 CL
+
+       -.001
+                                                                                                                                                  .4
+       -.002
+
+       -.003
+                                                                                                                                                  .3
+       -.004
+
+       -.005                                                                                                                                      .2
+
+      .0005                                                                                                                                       .080
+
+                                                                                                                                                  .075
+      .0004
+                                                                                                                                                  .070
+      .0003
+                                                                                                                                                  .065
+      .0002                                                                                                                                       .060
+
+      .0001                                                                                                                                       .055
+
+                                                                                                                                                  .050
+!CD       0                                                                                                                                               CD
+                                                                                                                                                  .045
+      -.0001                                                                                                                                      .040
+
+      -.0002                                                                                                                                      .035
+
+                                                                                                                                                  .030
+      -.0003
+                                                                                                                                                  .025
+      -.0004
+                                                                                                                                                  .020
+      -.0005                                                                                                                                      .015
+               2.0        2.5     3.0     3.5        4.0   4.5       5.0     5.5 2.0     2.5     3.0      3.5      4.0      4.5      5.0    5.5
+                                                ", deg                                                       ", deg
+
+
+                     Figure 20. NTF Data Repeatability, WBT0 Configuration, Mach = 0.85, Rec = 5x106.
+                                 Solid line indicates 2-sigma limits based on the residual data. Created Fri Dec 10 16:43:14 2010
+
+
+
+
+                                                                 25
+                                         American Institute of Aeronautics and Astronautics
+                                                          Common Research Model
+
+                     Test   Run                                                   Solid lines indicate 2-sigma limits based on the
+                                                                                  residual data.
+                     216    77
+                     216    80
+                     216    83
+
+
+
+
+       .005                                                                                                                                          .8
+
+       .004
+                                                                                                                                                     .7
+       .003
+
+       .002
+                                                                                                                                                     .6
+       .001
+
+!CL       0                                                                                                                                          .5 CL
+
+       -.001
+                                                                                                                                                     .4
+       -.002
+
+       -.003
+                                                                                                                                                     .3
+       -.004
+
+       -.005                                                                                                                                         .2
+
+      .0005                                                                                                                                          .080
+
+                                                                                                                                                     .075
+      .0004
+                                                                                                                                                     .070
+      .0003
+                                                                                                                                                     .065
+      .0002                                                                                                                                          .060
+
+      .0001                                                                                                                                          .055
+
+                                                                                                                                                     .050
+!CD       0                                                                                                                                                  CD
+                                                                                                                                                     .045
+      -.0001                                                                                                                                         .040
+
+      -.0002                                                                                                                                         .035
+
+                                                                                                                                                     .030
+      -.0003
+                                                                                                                                                     .025
+      -.0004
+                                                                                                                                                     .020
+      -.0005                                                                                                                                         .015
+               2.0   2.5     3.0   3.5        4.0   4.5       5.0     5.5 2.0     2.5     3.0      3.5      4.0       4.5        5.0           5.5
+                                         ", deg                                                       ", deg
+
+           Figure 21. Ames 11-ft Data Repeatability, WBT0 Configuration, Mach = 0.85, Rec = 5x106.
+                        Solid line indicates 2-sigma limits based on the residual data.
+                                                                                                            Created Fri Dec 10 17:25:06 2010
+
+
+
+
+                                                           26
+                                   American Institute of Aeronautics and Astronautics
+                                                              Common Research Model
+
+                      Test   Run                                                      Solid lines indicate 2-sigma limits based on the
+                                                                                      residual data.
+                      197    176
+                      197    180
+                      197    182
+
+
+
+
+       .005                                                                                                                                    .8
+
+       .004
+                                                                                                                                               .7
+       .003
+
+       .002
+                                                                                                                                               .6
+       .001
+
+!CL       0                                                                                                                                    .5 CL
+
+       -.001
+                                                                                                                                               .4
+       -.002
+
+       -.003
+                                                                                                                                               .3
+       -.004
+
+       -.005                                                                                                                                   .2
+
+      .0005                                                                                                                                    .080
+
+                                                                                                                                               .075
+      .0004
+                                                                                                                                               .070
+      .0003
+                                                                                                                                               .065
+      .0002                                                                                                                                    .060
+
+      .0001                                                                                                                                    .055
+
+                                                                                                                                               .050
+!CD       0                                                                                                                                            CD
+                                                                                                                                               .045
+      -.0001                                                                                                                                   .040
+
+      -.0002                                                                                                                                   .035
+
+                                                                                                                                               .030
+      -.0003
+                                                                                                                                               .025
+      -.0004
+                                                                                                                                               .020
+      -.0005                                                                                                                                   .015
+               2.0    2.5      3.0     3.5        4.0   4.5       5.0     5.5 2.0     2.5     3.0      3.5      4.0      4.5      5.0    5.5
+                                             ", deg                                                       ", deg
+
+
+                 Figure 22. NTF Data Repeatability, WBT+2 Configuration, Mach = 0.85, Rec = 5x106.
+                             Solid line indicates 2-sigma limits based on the residual data. Created Fri Dec 10 16:45:52 2010
+
+
+
+
+                                                              27
+                                      American Institute of Aeronautics and Astronautics
+                                                          Common Research Model
+
+                     Test   Run                                                   Solid lines indicate 2-sigma limits based on the
+                                                                                  residual data.
+                     216    94
+                     216    96
+                     216    98
+
+
+
+
+       .005                                                                                                                                .8
+
+       .004
+                                                                                                                                           .7
+       .003
+
+       .002
+                                                                                                                                           .6
+       .001
+
+!CL       0                                                                                                                                .5 CL
+
+       -.001
+                                                                                                                                           .4
+       -.002
+
+       -.003
+                                                                                                                                           .3
+       -.004
+
+       -.005                                                                                                                               .2
+
+      .0005                                                                                                                                .08
+
+      .0004
+                                                                                                                                           .07
+      .0003
+
+      .0002
+                                                                                                                                           .06
+      .0001
+
+!CD       0                                                                                                                                .05 CD
+
+      -.0001
+                                                                                                                                           .04
+      -.0002
+
+      -.0003
+                                                                                                                                           .03
+      -.0004
+
+      -.0005                                                                                                                               .02
+               2.0   2.5     3.0   3.5        4.0   4.5       5.0     5.5 2.0     2.5     3.0      3.5      4.0      4.5      5.0    5.5
+                                         ", deg                                                       ", deg
+
+
+          Figure 23. Ames 11-ft Data Repeatability, WBT+2 Configuration, Mach = 0.85, Rec = 5x106.
+                        Solid line indicates 2-sigma limits based on the residual data. Created Fri Dec 10 16:57:59 2010
+
+
+
+
+                                                           28
+                                   American Institute of Aeronautics and Astronautics
+

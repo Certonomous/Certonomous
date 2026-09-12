@@ -1,0 +1,2015 @@
+           NASA Common Research Model: A History and Future
+                              Plans
+
+                                                   Melissa B. Rivers1
+                                    NASA Langley Research Center, Hampton, VA 23681
+
+
+                 The NASA Common Research Model (CRM) has enabled many formal and informal
+             international cooperative activities and has enabled aeronautical researchers and engineers in
+             industry, government, and academia to work together across organizational and international
+             borders sharing results on relevant problems for the benefit of all. The NASA Common
+             Research Model (CRM) was conceived in 2007 and its aerodynamic design completed in 2008
+             responding to needs broadly expressed both within the US and international aeronautics
+             communities for modern/industry-relevant and open/public geometries coupled with
+             advanced experimental data for applied computational fluid dynamic validation studies. This
+             paper provides a brief history of the development of the CRM, along with a summary of wind
+             tunnel model data that has been obtained over the past 10 years. This paper presents data
+             obtained from the NASA Langley National Transonic Facility, the Ames 11-ft Transonic Wind
+             Tunnel and the European Transonic Windtunnel. Sample comparisons are given between the
+             three wind tunnels for lift, drag and pitching moment. Several CRM-derivatives that have
+             been developed are also summarized in this paper.
+
+
+                                                 I. Nomenclature
+b              = wing span, in.
+c              = wing mean aerodynamic chord, in.
+CD             = drag coefficient
+CL             = lift coefficient
+Cm             = pitching moment coefficient referenced to 0.25 of the wing mean aerodynamic chord
+M∞             = freestream Mach number
+q∞             = dynamic pressure, psf
+Rec            = Reynolds number based on mean aerodynamic chord
+S              = model reference area, ft2
+a              = angle of attack, deg
+h              = fraction of wing semi-span
+L              = leading edge sweep angle
+s              = standard deviation
+q              = wing twist, deg
+
+                                                 II. Introduction
+
+T    he NASA Common Research Model (CRM) has enabled many formal and informal international cooperative
+     activities and has enabled aeronautical researchers and engineers in industry, government, and academia to work
+together across organizational and international borders sharing results on relevant problems for the benefit of all. The
+creation of the CRM was motived by needs broadly expressed both within the US and international aeronautics
+communities for modern/industry-relevant and open/public geometries coupled with advanced experimental data (e.g.
+skin friction and off-body flow field data for example) suitable for applied computational fluid dynamic (CFD)
+validation studies. One specific need was for a contemporary commercial transport geometry expressed by the AIAA
+Applied Aerodynamics Technical Committee-sponsored international Drag Prediction Workshop (DPW) community
+after completing DPW-I, II, and III between 2001-06. In 2007, NASA’s Subsonic Fixed Wing (SFW) Project within
+the Fundamental Aeronautics Program (FAP) took the lead and developed the idea of a modern, industry-relevant yet
+
+      1
+          Senior Research Engineer, Configuration Aerodynamics Branch, Mail Stop 267, AIAA Associate Fellow.
+
+
+                                                             1
+non-proprietary geometry and through its Aerodynamics Technical Working Group (ATWG) led a group of US
+aerodynamics leaders from industry and government to define the goals and characteristics of the transport
+configuration that became known as the NASA CRM. Boeing then took the lead for the detailed aerodynamic design
+of the CRM configuration; the geometry definition was a critical item because it strikes the difficult balance between
+being both modern/industry-relevant (Mach 0.85/supercritical, so people and organizations care) and open/public
+(non-proprietary, so the worldwide community can participate). The detailed aerodynamic design was vetted with the
+SFW ATWG and other experts before freezing the design in 2008 and reported by Vassberg [1,2] et. al. Once the
+aerodynamic design was complete, wind tunnel model hardware was next.
+    NASA’s SFW Project led the hardware design, fabrication, and initial testing of the NASA CRM to meet the broad
+objectives to provide open/public data for CFD validation studies and to provide an anchor for experimental
+measurements and correction methods between facilities. NASA’s initial commitment was to complete two tests that
+would provide data for the international DPW-IV (2009, blind calculations) [3], along with an offer to entertain
+collaboration opportunities with additional organizations for further tests of the CRM to add to the public database.
+The CRM was initially tested in the National Transonic Facility (NTF) at the NASA Langley Research Center in 2010
+to provide a baseline data set for this geometry [4]. This initial test obtained force and moment, surface pressure,
+model deformation, and surface flow visualization data that were used for CFD validation for DPW-IV. The model
+then was tested at the Ames 11-Foot Transonic Wind Tunnel Facility (11-ft) in 2010 [5]. The next stop for the CRM
+was again the NTF in 2013 to provide test to test repeatability information adding to the wind tunnel and to add to the
+growing CRM experimental database. The CRM database continued to provide test cases for DPW-V (2012) [6] and
+DPW-VI (2016) [7]. In 2014, the model made its first international journey under a NASA/DLR collaborative
+agreement and was tested at the European Transonic Windtunnel (ETW) as part of an EU initiative, and added more
+information to the experimental database [8]. And now, the CRM is scheduled to be tested in the NTF in 2019 to
+provide more repeatability data and to once again add further to the CRM experimental database. To facilitate the
+dissemination of the acquired data, a website was set up to provide a place where people from all over the world can
+retrieve information specifically related to their needs [9]. The purpose of this paper is to summarize the data acquired
+to date with the original NASA CRM hardware in preparation for the next entry of the CRM.
+    Many organizations worldwide have embraced the CRM geometry for both computational and experimental
+research. Variations of the original CRM have been fabricated and tested in facilities all over the world. These
+variations will be discussed later in the paper. Further CRM-based collaborations and use of the configuration are
+wide and varied – far beyond the initial expectations in 2007 when the concept was conceived and beyond the scope
+of this paper; a future paper is envisioned to capture and summarize the broader use and benefit of the NASA CRM
+configuration.
+
+                                         III. Design and Fabrication
+
+    This section provides additional detail on aerodynamic design and NASA CRM wind tunnel model hardware
+design and fabrication complementing the more general discussion above. The CRM aerodynamics design consists of
+a contemporary supercritical transonic wing and a fuselage that is representative of a wide-body commercial transport
+aircraft. The CRM was designed for a cruise Mach number of M∞ = 0.85 with a design lift coefficient of CL = 0.5. A
+sketch of the CRM with reference quantities listed is shown in Fig. 1. The aspect ratio is 9.0, the leading-edge sweep
+angle (L) is 35 deg, the wing reference area (S) is 3.01 ft2, the wingspan (b) is 62.46 inches, and the mean aerodynamic
+chord (c) is 7.45 inches. The model moment reference center is located 35.8 inches aft of the fuselage nose and 2.04
+inches below the fuselage centerline. The nacelles are simple, flow-through nacelles. The model was designed to
+measure pressures on both the left and right wings using 291 pressure orifices located in nine spanwise wing stations
+(η = 0.131, 0.201, 0.283, 0.397, 0.502, 0.603, 0.727, 0.846, and 0.950) and on the left-hand nacelle by six orifices at
+six radial stations (η = 30˚, 90˚, 150˚, 210˚, 270˚, and 330˚). Two wing root bending gages and two Kulite pressure
+transducers were also installed in the wings. Five different configurations were designed: the wing/body (WB) alone,
+wing/body/nacelle/pylon (WBNP), wing/body/tail = 0˚ (WBT0), wing/body/tail = +2˚ (WBT+2), and wing/body/tail
+= -2˚ (WBT-2).
+    The fabrication of the CRM model was performed by Microcraft in Tullahoma, TN. The contract was awarded to
+Microcraft in July of 2008 and fabricated out of cryogenically acceptable steel, Vascomax C250. The model hardware
+was delivered to NASA in December 2009. The model was then prepared for its first test in the NTF.
+
+
+
+
+                                                             2
+                                          IV. Experimental Tests
+
+A. National Transonic Facility
+1. First entry, 2010
+    The first test of the CRM was performed at the NTF [10, 11] at the NASA Langley Research Center in January of
+2010. The NTF is a unique national facility that enables testing of aircraft configurations at conditions ranging from
+subsonic to low supersonic speeds at Reynolds numbers up to full-scale flight values. The NTF is a conventional,
+closed circuit, continuous-flow, fan-driven, pressurized wind tunnel (Fig. 2) capable of operating in either dry air at
+warm temperatures or nitrogen from warm to cryogenic temperatures.
+    This investigation, designated NTF 197, provided force and moment, surface pressure, model deformation, surface
+flow visualization, wing bending moment and Kulite data. Testing was conducted at 5, 19.8 and 30 million Reynolds
+number based on the mean aerodynamic chord. To isolate static aeroelastic effects, the 19.8 million Reynolds number
+data were collected at two different q∞ levels. The data were collected at temperatures ranging from -250ºF up to
+120ºF and Mach numbers ranging from 0.7 to 0.87. All Reynolds number values presented in this paper are based on
+mean aerodynamic chord and all data presented in this paper were obtained at the design Mach number of 0.85.
+    Data were generally obtained over an angle-of-attack range from -3° to +12° at 5 million Reynolds number and an
+angle-of-attack range from -3° to +6° at 19.8 and 30 million Reynolds numbers. The reduced angle-of-attack range at
+the higher Reynolds number was required such that critical model stress levels would not be exceeded. Flow angularity
+measurements were made and upflow corrections ranging from 0.092° to 0.173° were applied to the final NTF data.
+Wall corrections accounting for model blockage, wake blockage, tunnel buoyancy, and lift interference were also
+applied. Testing on the WBNP, WBT+2, and WBT-2 configurations was conducted at a Reynolds number of 5 million
+only. However, data were obtained at all three Reynolds numbers for both the WB and WBT0 configurations. The
+model is mounted in the wind tunnel using a blade sting arrangement as shown in Fig. 3.
+    Another important set of data obtained in this investigation was model deformation measurements. Since an
+effective correlation of computational and experimental data will be directly tied to how well the computational and
+experimental model geometries match one another, it is important to obtain an accurate definition of the model
+geometry as tested under aerodynamic loads. In order to obtain this information a video model deformation
+measurement technique [12] has been developed and employed multiple times at the NTF. This system was used in
+this initial investigation to obtain wing deflection and twist measurements due to aerodynamic loading.
+    During this test, continuous pitch sweep runs were conducted to acquire Kulite pressure transducer data and wing
+root bending gage data. The model was pitched at a rate of 0.1 degree/second. The data from the wing root bending
+gages and Kulites were analyzed by Balakrishna and Acheson [13].
+    Further tunnel details and facility information are provided in Ref. [14] and more detailed information on this NTF
+test are provided in Ref. [4].
+
+2. Second NTF entry, 2013
+    The third test of the CRM, designated as NTF 215, was performed in the NTF in July of 2013. The purpose of this
+test was to obtain data to demonstrate improvements in the NTF and to provide long term test to test repeatability.
+Testing was limited to the WB, WBT0, and WBNP configurations during this test. This investigation also provided
+force and moment, surface pressure and model deformation data for comparison to the first entry in the NTF. Testing
+was again conducted at 5, 19.8 and 30 million Reynolds number and at two different q∞ levels – a high and a low q∞
+condition for the Rec = 19.8 million cases to isolate aeroelastic effects. The data were also collected at temperatures
+ranging from -250ºF up to 120ºF and Mach numbers ranging from 0.7 to 0.87. All data presented in this paper for this
+test were obtained at a freestream Mach number of 0.85, the design Mach number. The rest of the test setup was
+identical to the first test of the CRM in the NTF. A limited set of NTF 215 data is presented herein; comparisons and
+observations documenting the results of the improvements will be provided in a future paper.
+
+B. Ames 11-ft Transonic Wind Tunnel
+    The second test of the CRM took place at the Ames 11-ft wind tunnel in March of 2010 and was designated Test
+216. The Ames 11-ft tunnel is a closed circuit, variable-pressure, continuous operation wind tunnel (Fig. 4).
+References [15] and [16] provide more detailed information about the facility. The purpose of this test was twofold:
+first, to provide tunnel to tunnel comparison data at low Reynolds number and second, to leverage a wider range of
+advanced measurement techniques available in a noncryogenic tunnel.
+    This investigation acquired force and moment, surface pressure, and surface flow visualization data for comparison
+to the NTF data, as well as limited pressure sensitive paint (PSP) [17] and Fringe Imaging Skin Friction (FISF)
+technique data [18]. Testing was conducted at a chord Reynolds number of 5 million. The data were collected at
+
+
+                                                            3
+temperatures of approximately 100ºF. Data were obtained at freestream Mach numbers ranging from 0.7 to 0.87 but
+only the 0.85 data are presented in this paper. Data were generally obtained over an angle-of-attack range from -3° to
++12° at 5 million chord Reynolds number. Wall corrections accounting for model blockage, wake blockage, tunnel
+buoyancy, and lift interference were also applied. A picture of the CRM mounted in the 11-ft wind tunnel is shown in
+Fig. 5. More detailed information on this test in the 11-ft tunnel is given in Ref. [5].
+
+C. European Transonic Facility
+    The fourth test of the CRM was conducted in the European Transonic Wind Tunnel (ETW) in February 2014. The
+ETW has a smaller test section and lower maximum pressure, but is otherwise very similar to the NTF as both are
+pressurized cryogenic, closed circuit, continuous-flow, fan-driven wind tunnels (Fig. 6). Further details about the
+ETW and its operation can be found at www.etw.de. The focus of this test was to improve unsteady testing capabilities
+for exploring limits of the flight envelope, specifically unsteady wake interference effects between the wake of an
+aircraft wing and the horizontal tail plane as part of the European ESWIRP project (European Strategic Wind Tunnels
+Improved Research Potential) [19].
+    During this investigation, force and moment, surface pressure, wing deformation and PIV data were obtained.
+Although data were acquired at 12 different Mach numbers ranging from 0.25 to 0.87, the majority of the test focused
+on M∞ = 0.7 and the model design Mach number of 0.85. Only the M∞ = 0.85 data are presented herein. To cover the
+relevant Reynolds numbers of 5, 19.8 and 30 million, the tunnel temperature was varied between 84°F (302K) and -
+249°F (117K) combined with corresponding pressures between 29psia (200 kPa) and 44psia (300 kPa). A photo of
+the model installed in the ETW is shown in Fig. 7. Further details on this investigation are given in Ref. [8].
+
+                                                    V. Results
+
+A. NTF 197
+    Since the first NTF test was the inaugural test of the CRM, the database from this test is extensive. The first goal
+was to assess the nacelle/pylon incremental effects for this configuration. Fig. 8 shows a representative plot of the
+nacelle/pylon effects. This figure indicates that at a Mach number of 0.85, the drag increases, the lift decreases and
+the pitching moment increases at CL = 0.5 when a nacelle/pylon is added to the wing/body configuration, as expected.
+    The next goal of this test was to determine aeroelastic effect on this new geometry. A typical plot of the aeroelastic
+effects is shown in Fig. 9. This figure shows the aeroelastic effects on the WBT0 configuration at M∞ = 0.85 and Rec
+= 19.8 million. An increase in q¥ gives a higher CD value, a lower CL and a higher pitching moment for this
+configuration, which does not follow expected trends. An increase in dynamic pressure is expected to cause a decrease
+in CD instead of an increase. The cause for this anomaly is still being researched.
+    Determining tail effects was also a goal during NTF 197. Three different horizontal tail settings were tested on
+the WB configuration: tail = -2º, tail = 0º and tail = +2º. Fig. 10 shows an example of the tail effects, specifically for
+the M∞ = 0.85 condition. At this condition, there is a decrease in drag, increase in lift and a decrease in pitching
+moment when going from a -2º to a +2º tail setting, as expected.
+    The most significant goal of the initial investigation in the NTF was to establish a database for Reynolds numbers
+from 5 million up to 30 million such that an assessment of Reynolds number effects could be made. Data were obtained
+at 5, 19.8 and 30 million Reynolds number at three different Mach numbers for the WB and WBT0 configurations.
+Figures 11 and 12 show examples of the Reynolds number effects for the WB and WBT0 configurations, respectively,
+at Mach 0.85. The lift coefficients at this Mach number for the WB configuration show an increase in lift with an
+increase in Reynolds number. The WBT0 configuration also shows an increase in lift with an increase in Reynolds
+number except for the low q¥, 19.8 million case. A reduction in drag is noted for both configurations from 5 to 30
+million Reynolds number but the WBT0 19.8 million, low q¥ cases does not fit this trend, since the 19.8 million low
+q¥ data seems to fall right on top of the 30 million data. In addition, as Reynolds number is increased there is a decrease
+in pitching moment for the WB configuration. For the WBT0 configuration, little to no Reynolds number effect is
+seen for the pitching moment except for the low q¥, 19.8 million Reynolds number case, which shows a much smaller
+pitching moment than the other Reynolds numbers. This may be explained by the fact that at the lower q¥ the wing
+does not twist as much which leads to a higher local angle outboard. This means more lift and more nose down for
+the lower q¥ compared to the higher q¥.
+    Another goal of the initial test of the CRM was to evaluate model twist. Figures 13–16 show example twist plots
+from the test. These plots show the aeroelastic twist vs. CL at Mach 0.85 for the 5 positions on the wing measured
+during the test. These four figures are for the WBT0 configuration at Rec = 5 million-low q¥, 19.8 million-low q¥,
+
+
+
+                                                              4
+19.8 million-high q¥, and 30 million-high q¥. The higher Reynolds number data (Figures 14-16) have a distinct break
+close to CL = 0.6, consistent with separation near the tip.
+    During NTF 197, multiple repeat runs were obtained for all five of the configurations tested (WB, WBPN WBT0,
+WBT+2, and WBT-2) to provide an assessment of data repeatability. Sample repeatability data for this test are
+presented in Figs. 17 and 18. Delta coefficient data are presented versus angle of attack for each configuration at each
+condition. The delta coefficient data presented represent the difference between the coefficient value measured and
+the average value of the coefficient at that particular angle of attack. These delta coefficient, or residual, data show
+the level of variation in the repeat runs. The solid lines shown on each plot indicate the 2-sigma limits based on all the
+data across the angle-of-attack range. Thus, it is shown that most all of the residual data fall within the 2-sigma limits,
+which is true for most of the data from this test [4].
+
+B. Ames 11-ft Test 216
+     When the CRM was taken to Ames 11-ft for testing, many of the same goals were in place. Determining the effects
+of adding a nacelle/pylon to the configuration was one goal. Figure 19 shows an example of these effects at M∞ =
+0.85 for both the Ames 11-ft and LaRC NTF tests. This figure shows that the drag increases, the lift lowers and the
+pitching moment increases at CL = 0.5 and M∞ = 0.85 with the addition of a nacelle/pylon in both wind tunnel tests.
+The slopes are the same for lift, drag and pitching moment with negligible differences in the values of pitching moment
+between the wind tunnel tests. At M∞ = 0.85, there is approximately an eight drag count difference and a difference
+of 0.01 in lift for both the WB and WBPN configurations between the wind tunnel tests.
+     Another goal of the Ames 11-ft test was to determine the horizontal tail effects for the CRM model. Three different
+tail settings were tested at both wind tunnels on the WB configuration: tail = -2º, tail = +2º and tail = 0º. All of these
+cases were run at a chord Reynolds number of 5 million. Figure 20 shows the tail effects for a Mach number of 0.85.
+This figure shows that for the CL = 0.5 and M∞ = 0.85 condition, there is again a decrease in drag, an increase in lift
+and a decrease in pitching moment when going from a -2º to a +2º tail setting at Ames 11-ft just like at NTF, with
+negligible difference between the wind tunnel pitching moment actual values. The drag values between the Ames 11-
+ft and NTF tests give a difference of approximately eight drag counts for the WBT-2 setting, a difference of
+approximately six drag counts for the WBT0 and 11 drag counts for the WBT+2 setting. The difference in lift is
+approximately 0.004 for both the WBT+2 and WBT0 settings and approximately 0.006 for the WBT-2 setting.
+     The data repeatability for the Ames 11-ft test was checked in the same manner as at NTF, i.e., within each series
+of runs, three runs were obtained at the given Mach number. Each of these three runs were always separated by at
+least one run at a different test condition. This resulted in three repeat runs for all of the configurations at the conditions
+tested. Sample repeatability data resulting from these runs at M∞ = 0.85 is presented in Fig. 21 which shows that most
+all of the data are within the 2-sigma limits. This is typical of all of the data from this test [5].
+
+C. NTF Test 215
+    One goal of the second test of the CRM in the NTF was to provide long-term repeatability data for the CRM
+database. With this being the case, the main focus while analyzing the data was on test-to-test repeatability. Figures
+22-26 show the test-to-test comparisons for the WB configuration at M∞ = 0.85 and Reynolds number varying from 5
+up to 30 million and WBT0 configurations at M∞ = 0.85 and Reynolds number varying from 5 up to 19.8 million.
+    Delta coefficient data are presented versus angle of attack for each configuration at each condition shown. The
+delta coefficient data presented represent the difference between the coefficient value measured and the average value
+of the coefficient at that particular angle of attack. These delta coefficient, or residual, data show the level of variation
+in the runs between the tests. The solid lines shown on each plot indicate the 2-sigma limits based on all the data across
+the angle-of-attack range. These figures show that most of the data fall within the 2-sigma limits which indicates very
+good repeatability between the tests.
+
+D. ETW test
+    While comparison with the NTF tests was not a primary goal of the test of the CRM in the ETW, the data acquired
+did enable these comparisons. Figure 27 shows the comparison between NTF 197, NTF 215 and ETW at M∞ = 0.85
+and Rec = 5 million. This figure shows that at this condition, the NTF lift data is lower than the ETW data and the NTF
+drag data is ~ three drag counts lower than the ETW data. Finally, the NTF pitching moment is higher than the ETW
+data at the given condition.
+    Figure 28 shows comparisons for the Rec = 19.8 million case at the low q∞ value. At M∞ = 0.85 and design point
+of CL = 0.5, the between-test NTF drag data indicates almost no difference between NTF 197 and NTF 215, but is four
+counts higher than the ETW data. Off of this design point the drag differences vary slightly over the polar. The NTF
+
+
+
+                                                                5
+197 and NTF 215 lift difference is negligible and is lower than ETW. For the pitching moment, the NTF197 data is
+0.001 more nose up than the ETW data but the NTF 215 data is 0.003 higher than the ETW data.
+    The results for the Rec = 19.8 million case at a high q∞ value case are given in Fig. 29. At M∞ = 0.85, the difference
+in drag data between the NTF tests is negligible but is seven drag counts higher than the ETW data. The lift data
+difference between the two NTF tests is negligible but is 0.026 lower than the ETW lift data. The pitching moment
+indicates a change in slope above the design point of CL = 0.5 between the two NTF tests. A better agreement is seen
+between NTF 215 and ETW below the design point of CL = 0.5 and a better agreement between the two NTF tests
+above this design point. The cause of the change in slope between the two NTF test data is unknown.
+    At a flight Reynolds number of Rec = 30 million and M∞ = 0.85, shown in Fig. 30, the NTF drag data is nine counts
+higher than the ETW data, the NTF lift data is lower than ETW and the pitching moment data is higher than ETW.
+More details on the comparison between the ETW and NTF 197 tests is provided in Ref. [8].
+
+                                             VI. CRM Derivatives
+    Variations of the original CRM have been fabricated and tested in facilities all over the world. The Japan
+Aerospace Exploration Agency (JAXA) built and tested an 80% scaled version of the NASA CRM hardware. This
+model (Fig. 31) was tested in the JAXA 2m x 2m transonic wind tunnel in 2012 [20]. The data from this test was
+compared to the data from the first NTF entry. These comparisons showed differences in drag and pitching moment
+due to a lower Reynolds number set point in the JAXA tunnel due to tunnel limitations (data not shown in this paper).
+Further investigation looking into Reynolds number corrections and corrections for model deformation has been
+conducted that provide some possible reasons for the lack of agreement between the two wind tunnels[21].
+    Another derivative of the CRM fabricated by the Office National d’Etudes et de Recherches Aerospactiales
+(ONERA), the French Aeronautics and Space Research Center, is called the Large Reference Model (LRM) and was
+tested in their S1MA wind tunnel. This model was a 220% scaled version of the NASA CRM hardware. This model
+was the first (and only one thus far) to include a vertical tail [22]. A picture of the LRM installed in the S1MA wind
+tunnel is shown in Fig. 32.
+    In 2016 the port wing of the NASA CRM hardware was borrowed by the National Research Council (NRC) in
+Canada for an experimental test program in the NRC 5-Foot Trisonic Wind Tunnel semispan test facility. The existing
+wing was mounted to a newly fabricated half-model fuselage. The configuration of the wind tunnel semispan facility
+required the model be installed inverted as shown in Fig. 33. The week-long test program provided valuable
+information that the NRC will be able to utilize in the development of semispan test capabilities at the NRC 5-Foot
+Trisonic Wind Tunnel. The comparison between the data from this NRC test program and the first NTF test data show
+similar lift and moment characteristics when measured on the semispan configuration (data not shown in this paper).
+Incremental effects of the nacelle/pylon can be assessed with similar accuracy as in a fullspan test but the absolute
+drag coefficients obtained with the semispan setup are significantly biased and require additional analysis to establish
+a methodology to correct [23].
+    Another derivative of the CRM geometry is the Common Research Model-High Lift (CRM-HL). This model was
+developed in an effort to obtain the required high lift performance using active flow control (AFC) on simple-hinged
+flaps while reducing the cruise drag associated with the external mechanisms on slotted flaps of a generic modern
+transport aircraft [24-26]. This 10% scale high-lift configuration of the CRM was designed for testing at the NASA
+Langley Research Center 14- by 22-Foot Subsonic Wind Tunnel in 2018, and is ongoing as of the writing of this
+paper. A depiction of the CRM-HL model is shown in Fig. 34.
+    More recently, a semispan wing based on the CRM geometry was designed for Natural Laminar Flow (NLF) on
+the upper surface and tested in the NTF in 2018, designated CRM-NLF. This new wing was designed to experimentally
+validate a new NLF technology called Crossflow Attenuated Natural Laminar Flow (CATNLF). This technology
+enables significant extents of NLF on wings with sweep and Reynolds number typical of transports by using geometry
+shaping to obtain surface pressures that delay boundary layer transition due to crossflow. A picture of this new wing
+mounted in the NTF is shown in Fig. 35 and more information about the experiment is given in Ref. [27].
+
+                                                    Acknowledgments
+    The author would like to gratefully acknowledge the efforts of the NASA and ETW teams throughout all phases
+of these experimental investigations and the AIAA Drag Prediction Workshop Committee for their support during the
+design and fabrication of the CRM. The LaRC NTF, Ames 11-ft and ETW staff are recognized for their efforts in
+effectively obtaining all desired experimental data. Within NASA, work was funded by various projects over the
+years, including the Subsonic Fixed Wing Project under the Fundamental Aeronautics Program, the Aerosciences
+
+
+
+                                                              6
+Evaluation and Test Capability (AETC) project and the Advanced Air Transport Technology Project within the
+Advanced Air Vehicles Program.
+
+                                                           References
+     [1] Vassberg, J. C., DeHaan, M. A., Rivers, S. M., and Wahls, R. A., “Development of a Common Research Model for Applied
+CFD validation studies.” AIAA Paper 2008-6919, 26th AIAA Applied Aerodynamics Conference, Honolulu, HI, August 2008.
+    [2] Vassberg, J. C., DeHaan, M. A., Rivers, S. M., and Wahls, R. A., “Retrospective on the Common Research Model for
+Computational Fluid Dynamics Validation Studies,”, Journal of Aircraft 2018, Vol. 55, No. 4 (2018), pp. 1325-1337.
+    [3] Vassberg, J. C., et al., “Summary of the Fourth AIAA CFD Drag Prediction Workshop,” AIAA Paper 2010-4547, 28th
+AIAA Applied Aerodynamics Conference, Chicago, IL, 2010.
+    [4] Rivers, Melissa B. and Dittberner, Ashley, “Experimental Investigation of the NASA Common Research Model,” AIAA
+Paper 2010-4218, 28th AIAA Applied Aerodynamics Conference, Chicago, IL, June 2010.
+    [5] Rivers, Melissa B. and Dittberner, Ashley, “Experimental Investigations of the NASA Common Research Model in the
+NASA Langley National Transonic Facility and NASA Ames 11-Ft Transonic Wind Tunnel (Invited),” AIAA Paper 2011-1126,
+49th AIAA Aerospace Sciences Meeting, Orlando, FL, January 2011.
+    [6] Levy, David W., et al., “Summary of Data from the Fifth AIAA CFD Drag Prediction Workshop,”, AIAA Paper 2013-
+0046, 51st AIAA Aerospace Sciences Meeting, Grapevine, TX, January 2013.
+    [7] Tinoco, E. N., et al., “Summary Data from the Sixth AIAA CFD Drag Prediction Workshop: CRM Cases 2 to 5,” AIAA
+Paper 2017-1208, 55th AIAA Aerospace Sciences Meeting, Grapevine, TX, January 2017.
+    [8] Rivers, Melissa B., Quest, Juergen, and Rudnik, Ralf, “Comparison of the NASA Common Research Model European
+Transonic Wind Tunnel Test Data to NASA Test Data,” AIAA Paper 2015-1093, 53rd AIAA Aerospace Sciences Meeting, January
+2015.
+    [9] NASA Common Research Model [online database], NASA, https://commonresearchmodel.larc.nasa.gov/ [retrieved 1
+November 2018].
+    [10] Gloss, B. B., “Current Status and Some Future Test Directions for the US National Transonic Facility. Wind Tunnels and
+Wind Tunnel Test Techniques,” Royal Aeronautical Society , 1992, pp. 3.1-3.7.
+    [11] Wahls, R. A., “The National Transonic Facility: A Research Retrospective (Invited),” AIAA Paper 2001-0754, 39th AIAA
+Aerospace Sciences Meeting and Exhibit, Reno, Nevada, January 2001.
+    [12] Burner, A. W. and Liu, T., “Videogrammetric Model Deformation Measurement Technique,” Journal of Aircraft, Vol. 38,
+No. 4, July-August 2001, pp. 745-754.
+    [13] Balakrishna, S. and Acheson, Michael J., “Analysis of NASA Common Research Model Dynamic Data,” AIAA Paper
+2011-1127, 49th AIAA Aerospace Sciences Meeting, Orlando, FL, January 2011.
+    [14] Fuller, D. E., “Guide for Users of the National Transonic Facility,” NASA TM-83124, 1981.
+    [15] Kmak, F., “Modernization and Activation of the NASA Ames 11-by-11-Foot Transonic Wind Tunnel,” AIAA Paper 2000-
+2680, 21st Aerodynamic Measurement Technology and Ground Testing Conference, June 2000.
+    [16] Amaya, M.A. and Murthy, S.V., “Flow Quality Measurements in the NASA Ames Upgraded 11-by-11-Foot Transonic
+Wind Tunnel (invited Paper),” AIAA Paper 2000-2681, 21st Aerodynamic Measurement Technology and Ground Testing
+Conference. June 2000.
+    [17] Bell, James H., “Pressure-Sensitive Paint Measurements on the NASA Common Research Model in the NASA 11-ft
+Transonic Wind Tunnel,” AIAA Paper 2011-1128, 49th AIAA Aerospace Sciences Meeting, Orlando, FL, January 2011.
+    [18] Zilliac, et. al., “A Comparison of the Measured and Computed Skin Friction Distribution on the Common Research
+Model,” AIAA Paper 2011-1129, 49th AIAA Aerospace Sciences Meeting, Orlando, FL, January 2011.
+    [19] Lutz, Thorsten, et. al., “Going for Experimental and Numberical Unsteady Wake Analyses Combined with Wall
+Interference Assesment by Using the NASA CRM Model in ETW,” AIAA Paper 2013-0871, 51st AIAA Aerospace Sciences
+Meeting, Grapevine, TX, January 2013.
+    [20] Ueno, M., Kohzai, T., Koga, S., Kato, H. Nakakita, K., and Sudani, N., “80% Scaled NASA Common Research Model
+Wind Tunnel Test of JAXA at Relatively Low Reynolds Number,” AIAA Paper 2013-0493, 51st AIAA Aerospace Sciences
+Meeting, Grapevine, TX, January 2013.
+    [21] Kohzai, M., Ueno, M., Koga, S., and Sudani, N., “Wall and Support Interference Corrections of NASA Common Research
+Model Wind Tunnel Tests in JAXA,” AIAA Paper 2013-0963, 51st AIAA Aerospace Sciences Meeting, Grapevine, TX, January
+2013.
+    [22] Cartieri, A., Hue, D., Chanzy, Q., and Atinault, O., “Experimental Investigations on the Common Research Model at
+ONERA-S1MA – Comparison with DPW Numerical Results,” AIAA Paper 2017-0964, 55th AIAA Aerospace Sciences Meeting,
+Grapevine, TX, January 2017.
+    [23] Broughton, Cabot A., Benmeddour, Ali, Mebarki, Youssef, and Rivers, Melissa B., “Experimental Investigations of the
+NASA Common Research Semispan Model in the NRC 5-Foot Trisonic Wind Tunnel,” AIAA Paper 2018-4285, 2018
+Aerodynamic Measurement Technology and Ground Testing Conference, Atlanta, GA, June 2108.
+    [24] Lacy, Doug S. and Sclafani, Anthony J., “Development of the High Lift Common Research Model (HL-CRM): A
+Representative High Lift Configuration for Transonic Transports,” AIAA Paper 2016-0308, 54th AIAA Aerospace Sciences
+Meeting, San Diego, CA January 2016.
+
+
+
+
+                                                                7
+    [25] Hartwich, Peter M., Shmilovich, Arvin, Lacy, Douglas S., Dickey, Eric D., Sclafani, Anthony J., Sundaram, P., and Yadlin,
+Yoram, “Refined AFC-Enabled High-Lift System Integration Study,” NASA/CR-2016-219170, 2016.
+    [26] Lin, John C., Melton, Latunia P., Viken, Sally A., Andino, Marlyn Y., Koklu, Mehti, Hannon, Judith A. and Vatsa, Veer
+N., “High Lift Common Research Model for Wind Tunnel Testing: An Active Flow Control Perspective,” AIAA Paper 2017-0319,
+55th AIAA Aerospace Sciences Meeting, Grapevine, TX, January 2017.
+    [27] Lynde, M., Campbell, R., Rivers, M., Viken, S., Chan, D., Watkins, A. N., and Goodliff, S., “Preliminary Results from an
+Experimental Assessment of a Natural Laminar Flow Design Method,” AIAA SciTech Forum, San Diego, CA, January 2019 (to
+be published).
+
+
+
+
+                                                                  8
+          National Transonic Facility
+          NASA Langley Research Center
+          Test 197-Common Research Model
+
+
+
+
+              National Transonic Facility
+              NASA   LangleyModel
+                             Research Center
+Test 197-Common    Research
+              Test 197-Common Research Model
+Test Section Arrangement
+                                                 a)Top View                                A. Dittberner
+                                                                          Ashley.F.Dittberner@nasa.gov
+
+
+
+
+                                               b) Isometric View
+ Test 197-Common Research Model                                                              A. Dittberner
+ Test Section Arrangement                                                   Ashley.F.Dittberner@nasa.gov
+
+                Fig. 1. Sketch of the Common Research Model with reference quantities.
+
+
+
+
+                                                      9
+Fig. 2. Sketch of the National Transonic Facility tunnel circuit. Linear dimensions are given in feet.
+
+
+
+
+         Fig. 3. Photo of the Common Research Model in the National Transonic Facility.
+
+
+
+
+                                                 10
+             Fig. 4. Sketch of the Ames 11-Foot Transonic Wind Tunnel Facility.
+
+
+
+
+Fig. 5. Photo of the NASA Common Research Model in the Ames 11-Foot Transonic Wind Tunnel
+                                       Facility.
+
+
+                                            11
+       Turning Vanes                                      Two-Stage Compressor (50 MW)         FOD
+
+Gaseous
+Nitrogen
+Blow-Off
+
+
+
+
+                                                                                                     11,4 m
+                                        Flow Direction                        Liquid Nitrogen
+                                                 Test Section with               Injection
+                                                  Aircraft Model
+
+
+
+
+                                          Adjustable     Second Throat     Stainless Steel
+    Stilling Chamber with Screens and
+                                           Nozzel                        Pressure Shell with
+     Honeycomb for Flow Straitening
+                                                                         Internal Insulation
+                                                         62,2 m
+
+
+                       Fig. 6. Sketch of the European Transonic Wind Tunnel.
+
+
+
+
+     Fig. 7. Photo of the NASA Common Research Model in the European Transonic Windtunnel.
+
+
+
+
+                                                    12
+              Common Research Model - NTF Test 197, TWICS applied
+                        Mach 0.85, Rec= 4.99 million
+
+                                                                                          Series Run Config
+
+                                                                                           11.    44. WB
+                                                                                           12.    74. WBPN
+
+
+     1.0                                                            .60
+       .8
+       .6                                                           .55
+
+       .4
+CL                                                              CL .50
+       .2
+       0
+                                                                    .45
+      -.2
+      -.4                                                           .40
+         -4 -2     0   2        4        6    8 10 12                  2.0    2.5   3.0          3.5      4.0
+                                α                                                   α
+     .24                                                           .040
+
+     .20
+                                                                   .035
+     .16
+
+CD .12                                                      CD .030
+
+     .08
+                                                                   .025
+     .04
+       0                                                           .020
+        -.4 -.2    0       .2       .4       .6   .8 1.0                .40   .45   .50          .55      .60
+     .08                                                            -.04
+     .06
+     .04                                                           -.05
+     .02
+Cm     0                                                        Cm -.06
+     -.02
+     -.04                                                          -.07
+     -.06
+     -.08                                                          -.08
+         -.4 -.2   0       .2       .4       .6   .8 1.0               .40    .45   .50          .55      .60
+                                CL                                                  CL
+
+
+
+               Fig. 8. NTF 197, nacelle/pylon effects, M∞ = 0.85, Rec = 5 million.
+
+
+
+
+                                                           13
+                Common Research Model - NTF Test 197, TWICS Applied
+                     WB Tail 0o, Mach 0.85, Rec=19.81 million
+
+                                                                                       Series Run    q∞,psf
+
+                                                                                        8.    212.   1312.
+                                                                                        4.    106.   1983.
+
+
+      1.0                                                        .60
+       .8
+       .6                                                        .55
+
+       .4
+ CL                                                           CL .50
+       .2
+       0
+                                                                 .45
+      -.2
+      -.4                                                        .40
+         -4     -2       0        2        4    6   8               2.0    2.5   3.0         3.5         4.0
+                                  α                                              α
+   .10                                                          .040
+   .09
+   .08
+                                                                .035
+   .07
+   .06
+CD .05                                                    CD .030
+   .04
+   .03
+                                                                .025
+   .02
+   .01
+     0                                                          .020
+      -.4 -.2        0       .2       .4   .6   .8 1.0               .40   .45   .50         .55         .60
+   .32                                                            .08
+   .28                                                           .07
+   .24
+                                                                 .06
+   .20
+   .16                                                           .05
+Cm .12                                                    Cm .04
+   .08                                                           .03
+   .04
+                                                                 .02
+     0
+  -.04                                                           .01
+  -.08                                                             0
+      -.4 -.2        0       .2     .4     .6   .8 1.0              .40    .45   .50         .55         .60
+                                  CL                                             CL
+
+
+
+              Fig. 9. NTF 197, aeroelastic effects, WBT0, M∞ = 0.85, Rec = 19.8 million.
+
+
+
+
+                                                         14
+                           Common Research Model - NTF Test 197
+                               Mach 0.85, Rec= 4.99 million
+                                                                                         Series Run Config Tail
+
+                                                                                          15.    196. WBT -2o
+                                                                                                            o
+                                                                                          13.     92. WBT 0
+                                                                                                             o
+                                                                                          14.    176. WBT +2
+
+
+     1.0                                                           .60
+      .8
+      .6                                                           .55
+
+      .4
+CL                                                              CL .50
+      .2
+      0
+                                                                   .45
+     -.2
+     -.4                                                           .40
+        -4 -2    0     2        4        6    8 10 12                 2.0    2.5   3.0          3.5       4.0
+                                α                                                  α
+   .20                                                            .040
+   .18
+   .16
+                                                                  .035
+   .14
+   .12
+CD .10                                                      CD .030
+   .08
+   .06
+                                                                  .025
+   .04
+   .02
+     0                                                            .020
+      -.4 -.2    0         .2       .4       .6   .8 1.0              .40    .45   .50          .55       .60
+   .40                                                             .20
+     .32                                                           .16
+     .24                                                           .12
+     .16                                                           .08
+Cm .08                                                          Cm .04
+      0                                                              0
+   -.08                                                            -.04
+   -.16                                                            -.08
+   -.24                                                            -.12
+       -.4 -.2   0         .2     .4         .6   .8 1.0               .40   .45   .50          .55       .60
+                                CL                                                 CL
+
+
+
+
+                     Fig. 10. NTF 197, tail effects, M∞ = 0.85, Rec = 5 million.
+
+
+
+
+                                                           15
+                                Common Research Model - NTF Test 197
+                                       WB Tail off, Mach 0.85
+                                                                                                    6
+                                                                                   Series Run Rec,10    q∞,psf
+
+                                                                                    11. 44. 4.99        1383.
+                                                                                    3. 159. 19.76       1983.
+                                                                                    1. 146. 29.92       1986.
+
+
+     1.0                                                           .60
+       .8
+       .6                                                          .55
+
+       .4
+CL                                                              CL .50
+       .2
+       0
+                                                                   .45
+      -.2
+      -.4                                                          .40
+         -4 -2     0   2        4        6    8 10 12                 2.0    2.5   3.0        3.5           4.0
+                                α                                                  α
+   .20                                                            .035
+   .18
+   .16
+                                                                  .030
+   .14
+   .12
+CD .10                                                      CD .025
+   .08
+   .06
+                                                                  .020
+   .04
+   .02
+     0                                                            .015
+      -.4 -.2      0       .2       .4       .6   .8 1.0               .40   .45   .50        .55           .60
+   .02                                                             -.04
+       0                                                          -.05
+     -.02
+                                                                  -.06
+     -.04
+Cm                                                          Cm -.07
+     -.06
+                                                                  -.08
+     -.08
+     -.10                                                         -.09
+     -.12                                                         -.10
+         -.4 -.2   0       .2       .4       .6   .8 1.0              .40    .45   .50        .55           .60
+                                CL                                                 CL
+
+                                                                                    Tue Nov 27 21:05:24 2018
+
+                   Fig. 11. NTF 197, Reynolds number effects, WB, M∞ = 0.85.
+
+
+
+
+                                                           16
+                                Common Research Model - NTF Test 197
+                                       WBT Tail 0o, Mach 0.85
+                                                                                                6
+                                                                               Series Run Rec,10    q∞,psf
+
+                                                                                13.    92. 5.00     1383.
+                                                                                8.    212. 19.87    1312.
+                                                                                4.    106. 19.76    1983.
+                                                                                2.    223. 29.93    1985.
+
+
+      1.0                                                      .60
+       .8
+       .6                                                      .55
+
+       .4
+ CL                                                         CL .50
+       .2
+       0
+                                                               .45
+      -.2
+      -.4                                                      .40
+         -4   -2       0        2        4    6   8               2.0    2.5   3.0        3.5           4.0
+                                α                                              α
+   .10                                                        .040
+   .09
+   .08
+                                                              .035
+   .07
+   .06
+CD .05                                                  CD .030
+   .04
+   .03
+                                                              .025
+   .02
+   .01
+     0                                                        .020
+      -.4 -.2      0       .2       .4   .6   .8 1.0               .40   .45   .50        .55           .60
+   .32                                                          .08
+   .28                                                         .07
+   .24
+                                                               .06
+   .20
+   .16                                                         .05
+Cm .12                                                      Cm .04
+   .08                                                         .03
+   .04
+                                                               .02
+     0
+  -.04                                                         .01
+  -.08                                                           0
+      -.4 -.2      0       .2     .4     .6   .8 1.0              .40    .45   .50        .55           .60
+                                CL                                             CL
+
+
+
+
+                Fig. 12. NTF 197, Reynolds number effects, WBT0, M∞ = 0.85.
+
+
+
+
+                                                       17
+            .6
+
+            .4
+
+            .2
+
+            0
+
+           -.2
+
+           -.4
+
+           -.6
+ θ, deg
+
+
+
+
+           -.8
+
+          -1.0
+
+          -1.2                    η
+
+          -1.4               0.000
+                            0.4286
+                            0.5546
+          -1.6              0.6773
+                            0.7954
+                            0.9150
+          -1.8
+          -2.0
+              -.4 -.3 -.2   -.1       0   .1   .2        .3   .4   .5   .6   .7   .8   .9
+                                                    CL
+
+           Fig. 13. NTF 197, wing twist, WBT0, M∞ = 0.85, Rec = 5 million.
+
+            .6
+
+            .4
+
+            .2
+
+            0
+
+           -.2
+
+           -.4
+
+           -.6
+ θ, deg
+
+
+
+
+           -.8
+
+          -1.0
+
+          -1.2                    η
+
+          -1.4                0.000
+                             0.4286
+                             0.5546
+          -1.6               0.6773
+                             0.7954
+                             0.9150
+          -1.8
+          -2.0
+              -.4 -.3 -.2   -.1       0   .1   .2        .3   .4   .5   .6   .7   .8   .9
+                                                    CL
+
+Fig. 14. NTF 197, wing twist, WBT0, M∞ = 0.85, Rec = 19.8 million, low q∞.
+
+
+                                               18
+             .6
+
+             .4
+
+             .2
+
+              0
+
+            -.2
+
+            -.4
+
+            -.6
+  θ, deg
+
+
+
+
+            -.8
+
+           -1.0
+
+           -1.2                    η
+
+           -1.4               0.000
+                              0.4286
+                              0.5546
+           -1.6               0.6773
+                              0.7954
+                              0.9150
+           -1.8
+           -2.0
+               -.4 -.3 -.2   -.1       0   .1   .2        .3   .4   .5   .6   .7   .8   .9
+                                                     CL
+
+Fig. 15. NTF 197, wing twist, WBT0, M∞ = 0.85, Rec = 19.8 million, high q∞.
+
+             .6
+
+             .4
+
+             .2
+
+             0
+
+            -.2
+
+            -.4
+
+            -.6
+ θ, deg
+
+
+
+
+            -.8
+
+           -1.0
+
+           -1.2                    η
+
+           -1.4               0.000
+                             0.4286
+                             0.5546
+           -1.6              0.6773
+                             0.7954
+                             0.9150
+           -1.8
+           -2.0
+               -.4 -.3 -.2   -.1       0   .1   .2        .3   .4   .5   .6   .7   .8   .9
+                                                     CL
+
+           Fig. 16. NTF 197, wing twist, WBT0, M∞ = 0.85, Rec = 30 million.
+
+
+                                                19
+                                                                                  Preliminary Reduced Data
+                                                                                 NASA Langley Research Center
+                                                                                National Transonic Facility, Test 197
+                                                                                     Common Research Model
+
+                              Test        Run     Mach          Temp (deg F) Q (psf) ReC (million)                     Solid lines indicate 2-sigma limits based on the
+                                                                                                                       residual data.
+                              197         92      0.851            120.2           1386.6           5.0                                          Run Rec,106       q∞,psf
+                              197         97      0.851            120.3           1387.4           5.0
+                              197         99      0.851            121.0           1386.8           5.0                                          92. 5.00         1383.0
+                                                                                                                                                 97. 5.00         1385.2
+                                                                                                                                                 99. 4.99         1384.6
+
+
+
+                .012               .012                                                                                                                                           .73
+                                                                                                                                                                                  .72
+
+                                   .009                                                                                                                                           .68
+                .009                                                                                                                                                              .68
+                                                                                                                                                                                  .64
+                                   .006
+                .006                                                                                                                                                              .63
+                                                                                                                                                                                  .60
+                                   .003
+                                                                                                                                                                                  .56
+                .003         ∆CL     0                                                                                                                                            .58    CL
+                                                                                                                                                                                  .52
+                               -.003
+         'CL      0                                                                                                                                                               .53
+                                                                                                                                                                                  .48 CL
+                               -.006
+                                                                                                                                                                                  .44
+               -.003                                                                                                                                                              .48
+                               -.009                                                                                                                                              .40
+
+               -.006           -.012                                                                                                                                              .36
+                                                                                                                                                                                  .43
+                               .0006                                                                                                                                              .064
+
+               -.009                                                                                                                                                              .38
+                               .0004                                                                                                                                              .056
+
+               -.012                                                                                                                                                              .33
+                               .0002                                                                                                                                              .048
+               .0006                                                                                                                                                              .064
+
+                             ∆CD     0                                                                                                                                            .040   CD
+
+               .0004                                                                                                                                                              .056
+                              -.0002                                                                                                                                              .032
+
+
+               .0002          -.0004                                                                                                                                              .024
+                                                                                                                                                                                  .048
+
+
+                              -.0006                                                                                                                                           .016
+                                    2.0         2.5       3.0       3.5         4.0       4.5       5.0    5.5   2.0     2.5      3.0      3.5       4.0    4.5      5.0    5.5
+        'CD       0                                                                                                                                                               .040 CD
+                                                                          α                                                                      α
+
+
+              -.0002                                                                                                                                                              .032
+
+
+
+              -.0004                                                                                                                                                              .024
+
+
+
+              -.0006                                                                                                                                                              .016
+                       1.5   2.0          2.5    3.0        3.5           4.0     Preliminary
+                                                                                   4.5    5.0 Reduced
+                                                                                                5.5 1.5Data
+                                                                                                         2.0                2.5     3.0      3.5      4.0   4.5      5.0    5.5
+                                                                                 NASA Langley Research Center
+                                                       a (degrees)                                                                        a (degrees)
+                                                                                National Transonic Facility, Test 197
+                                                                                     Common Research Model
+                                                                                                                                   6
+                   Fig. 17. NTF 197 data repeatability, WBT0 configuration,Solid              M∞lines
+                                                                                                    = 0.85,
+                                                                                                        indicate Re  c = 5x10
+                                                                                                                 2-sigma            . on the
+                                                                                                                          limits based
+                             Test     Run      Mach     Temp (deg F) Q (psf) ReC (million)
+                                 Solid    lineConfiguration,
+                                               indicatesTrips2-sigma   limits based on the residual    data.
+Figure 33. Data Repeatability, WBT0 Configuration, Mach = 0.85, Rec = 5x10
+                    Series 13, Mach 0.85, WBT0                 On                           residual data.             Created Tue May 11 08:32:50 2010
+                              197         212     0.850            -250.5             1311.9        19.9
+                              197         215     0.850            -249.6             1311.8        19.7
+
+         Solid line indicates 2-sigma limits based on the residual data.
+                              197         217     0.850            -250.1             1311.3        19.8
+
+
+                                                                                               20
+               .012                                                                                                                                                               .70
+
+
+               .009                                                                                                                                                               .68
+               -.0006                                                                                                                                                                       .015
+                        .5            1.0          1.5            2.0            2.5 Preliminary
+                                                                                           3.0    Reduced
+                                                                                                      3.5 .5 Data 1.0                     1.5        2.0        2.5         3.0       3.5
+                                                                                    NASA Langley Research Center
+                                                            a (degrees)                                                                           a (degrees)
+                                                                                  National Transonic Facility, Test 197
+                                                                                       Common Research Model
+
+                                    Test    Run          Mach      Temp (deg F) Q (psf) ReC (million)                        Solid lines indicate 2-sigma limits based on the
+
+Figure 35. Data Repeatability, WBT0 Configuration, Mach = 0.85, Rec = 19.8x10
+                         Series 4, Mach 0.85, WBT0 Configuration, Trips Off                                                  residual data.             Created Mon May 10 16:06:20 2010
+                                     197    223          0.850          -249.8            1985.4         30.0                                       Run Rec,106          q∞,psf
+                                     197    226          0.850          -249.5            1985.5         29.9                                         223. 29.93        1985.5
+           Solid line indicates 2-sigma limits based on the residual data.
+                                     197    228          0.850          -249.6            1986.0         29.9                                         226. 29.88
+                                                                                                                                                      228. 29.92
+                                                                                                                                                                        1984.6
+                                                                                                                                                                        1984.9
+
+
+
+
+                 .012              .012                                                                                                                                                    .72
+                                                                                                                                                                                            .74
+
+                                   .009                                                                                                                                                    .68
+                 .009                                                                                                                                                                       .69
+                                                                                                                                                                                           .64
+                                   .006
+                 .006                                                                                                                                                                      .60
+                                                                                                                                                                                            .64
+                                   .003
+                                                                                                                                                                                           .56
+                 .003         ∆CL     0                                                                                                                                                     .59 CL
+                                                                                                                                                                                           .52
+                                -.003
+          'CL      0                                                                                                                                                                        .54 CL
+                                                                                                                                                                                           .48
+                                -.006
+                                                                                                                                                                                           .44
+                -.003                                                                                                                                                                       .49
+                                -.009                                                                                                                                                      .40
+
+                -.006           -.012                                                                                                                                                      .36
+                                                                                                                                                                                            .44
+                               .0006                                                                                                                                                       .064
+
+                -.009                                                                                                                                                                       .39
+                               .0004                                                                                                                                                       .056
+                -.012                                                                                                                                                                       .34
+                               .0002                                                                                                                                                       .048
+                .0006                                                                                                                                                                       .064
+
+                             ∆CD      0                                                                                                                                                    .040    CD
+
+                .0004                                                                                                                                                                       .056
+                               -.0002                                                                                                                                                      .032
+
+
+                .0002                                                                                                                                                                       .048
+                               -.0004                                                                                                                                                      .024
+
+
+                               -.0006                                                                                                                                                    .016
+         'CD       0                 1.5     2.0     2.5         3.0     3.5        4.0      4.5    5.0         5.5   1.5   2.0     2.5     3.0      3.5     4.0      4.5    5.0      5.5 .040 CD
+
+                                                                          α                                                                           α
+
+               -.0002                                                                                                                                                                       .032
+
+
+
+               -.0004                                                                                                                                                                       .024
+
+
+
+               -.0006                                                                                                                                                                       .016
+                        1.5         2.0     2.5      3.0          3.5         4.0         4.5      5.0          5.5 1.5     2.0    2.5      3.0      3.5    4.0       4.5     5.0     5.5
+                                                            a (degrees)                                                                           a (degrees)
+
+
+
+                                                                                                                         6
+                    Fig.    18.   NTF      197Configuration,
+                                               data repeatability,     WBT0 configuration, M∞ = 0.85, RecCreated
+                                                                                                           = 30x10        .
+Figure 36. Data Repeatability, WBT0 Configuration, Mach = 0.85, Rec = 30x106
+                     Series 2, Mach 0.85, WBT0               Trips Off                                           Mon May 10 15:43:42 2010
+                                   Solid line indicates 2-sigma limits based on the residual data.
+         Solid line indicates 2-sigma limits based on the residual data.
+                                                      35
+                              American Institute of Aeronautics and Astronautics
+                                                                                                   21
+                   Common Research Model - Test to Test Comparison
+                          Mach 0.85, Rec= 6.40 million
+                                                                                            Facility   Run config
+
+                                                                                          LaRC NTF 44. WB
+                                                                                          LaRC NTF 74. WBPN
+                                                                                          Ames 11 ft 126. WB
+                                                                                          Ames 11 ft 108. WBPN
+
+     1.0                                                           .60
+       .8
+       .6                                                          .55
+
+       .4
+CL                                                              CL .50
+       .2
+       0
+                                                                   .45
+      -.2
+      -.4                                                          .40
+         -4 -2     0   2        4        6    8 10 12                 2.0    2.5    3.0           3.5         4.0
+                           α, deg                                                  α, deg
+     .24                                                          .040
+
+     .20
+                                                                  .035
+     .16
+
+CD .12                                                      CD .030
+
+     .08
+                                                                  .025
+     .04
+       0                                                          .020
+        -.4 -.2    0       .2       .4       .6   .8 1.0               .40   .45    .50           .55         .60
+     .08                                                           -.04
+     .06
+     .04                                                          -.05
+     .02
+Cm     0                                                    Cm -.06
+     -.02
+     -.04                                                         -.07
+     -.06
+     -.08                                                         -.08
+         -.4 -.2   0       .2       .4       .6   .8 1.0              .40    .45    .50           .55         .60
+                                CL                                                  CL
+
+            Fig. 19. NTF 197 and Ames 11-ft, nacelle/pylon effects, M∞ = 0.85, Rec = 5x106.
+
+
+
+
+                                                           22
+                                                                          Facility   Run Config Tail ∠     M∞ Rec,106
+
+                                                                         LaRC NTF 196. WBT       -2o       0.85   4.99
+                                                                         LaRC NTF 92. WBT         0o       0.85   5.00
+                                                                                                     o
+                                                                         LaRC NTF 176. WBT       +2        0.85   4.99
+                                                                         Ames 11 ft 86. WBT      -2o       0.85   5.00
+                                                                                                    o
+                                                                         Ames 11 ft 77. WBT       0        0.85   5.00
+                                                                                                     o
+                                                                         Ames 11 ft 94. WBT      +2        0.85   5.00
+
+
+      1.0                                                       .60
+       .8
+       .6                                                       .55
+
+       .4
+ CL                                                        CL .50
+       .2
+       0
+                                                                .45
+      -.2
+      -.4                                                       .40
+         -4 -2   0    2        4        6    8 10 12               2.0     2.5          3.0          3.5          4.0
+                          α, deg                                                      α, deg
+      .24                                                      .040
+
+      .20
+                                                               .035
+      .16
+
+CD .12                                                    CD .030
+
+      .08
+                                                               .025
+      .04
+     0                                                         .020
+      -.4 -.2     0       .2       .4       .6   .8 1.0            .40     .45          .50          .55          .60
+   .48                                                          .24
+   .40
+   .32                                                          .16
+   .24
+   .16                                                          .08
+Cm .08                                                    Cm
+     0                                                            0
+  -.08
+  -.16                                                         -.08
+  -.24
+  -.32                                                         -.16
+      -.4 -.2     0       .2       .4       .6   .8 1.0            .40     .45          .50          .55          .60
+                               CL                                                       CL
+
+                 Fig. 20. NTF 197 and Ames 11-ft, tail effects, M∞ = 0.85, Rec = 5x106.
+
+
+
+
+                                                          23
+                                                                                                                Run Rec,106         q∞,psf
+                                                                                                                 77. 5.00       1303.9
+                                                                                                                 80. 5.00       1313.6
+                                                                                                                 83. 5.00       1321.3
+
+
+         .005                                                                                                                                      .8
+        .012                                                                                                                                   .72
+         .004
+        .009                                                                                                                                   .68
+                                                                                                                                                   .7
+         .003
+                                                                                                                                               .64
+        .006
+         .002
+                                                                                                                                               .60
+                                                                                                                                                .6
+        .003
+         .001                                                                                                                                  .56
+ ∆CL       0                                                                                                                                              CL
+!CL         0                                                                                                                                   .5 CL
+                                                                                                                                               .52
+       -.003
+        -.001                                                                                                                                  .48
+       -.006                                                                                                                                       .4
+        -.002                                                                                                                                  .44
+
+       -.009                                                                                                                                   .40
+        -.003
+                                                                                                                                                   .3
+       -.012                                                                                                                                   .36
+        -.004
+      .0006                                                                                                                                    .064
+        -.005                                                                                                                                      .2
+
+      .0004
+       .0005                                                                                                                                   .056
+                                                                                                                                                .080
+
+                                                                                                                                                   .075
+        .0004
+      .0002                                                                                                                                    .048
+                                                                                                                                                   .070
+        .0003
+                                                                                                                                                   .065
+ ∆CD       0                                                                                                                                   .040       CD
+        .0002                                                                                                                                      .060
+
+        .0001                                                                                                                                      .055
+      -.0002                                                                                                                                   .032
+                                                                                                                                                   .050
+!CD         0                                                                                                                                             CD
+      -.0004                                                                                                                                    .045
+                                                                                                                                               .024
+       -.0001                                                                                                                                      .040
+      -.0006
+        -.0002                                                                                                                                  .016
+                                                                                                                                                 .035
+             1.5      2.0     2.5     3.0    3.5      4.0    4.5     5.0     5.5    1.5   2.0     2.5    3.0    3.5     4.0   4.5      5.0   5.5
+                                                                                                                                                   .030
+       -.0003                               α, deg                                                             α, deg
+                                                                                                                                                   .025
+       -.0004
+                                                                                                                                                   .020
+       -.0005                                                                                                                                      .015
+                2.0     2.5         3.0     3.5        4.0     4.5         5.0      5.5 2.0     2.5     3.0    3.5      4.0   4.5      5.0   5.5
+                                                  ", deg                                                         ", deg
+
+               Figure 21. Ames 11-ft Data Repeatability, WBT0 Configuration, Mach = 0.85, Rec = 5x106.
+               Fig. 21. Ames    11-ft data repeatability, WBT0 configuration, M∞ = 0.85, Rec = 5x106.
+                            Solid line indicates 2-sigma limits based on the residual data.
+                               Solid line indicates 2-sigma limits based on the residual data.
+
+
+
+
+                                                                    26
+                                            American Institute of Aeronautics and Astronautics
+                                                                                   24
+                                                                                           Final Reduced Data
+                                                                                       NASA Langley Research Center
+                                                                                        National Transonic Facility
+                                                                                         Common Research Model
+
+                                               Test   Run    ReC (million)   Temp     Q (psf)
+                                                                                                                          Test   Run Rec,106 q∞,psf
+                                                197    159      19.76        -181.7    1982
+                                                197   1142      19.68        -180.8    1981
+                                                                                                                      197.0 159. 19.76                1983.
+                                                                                                                      215.0 142. 19.69                1983.
+
+
+0                                .006                                                   .602σ = +/- 0.0040                                                                    .9
+
+                                                                                                                                                                              .8
+8                                .004
+                                                                                                                                                                              .7
+
+6                                                                                       .55
+                                                                                                                                                                              .6
+                                 .002
+
+4                                                                                                                                                                             .5
+
+                        ∆CL          0                                          CL .50                                                                                        .4 CL
+2
+                                                                                                                                                                              .3
+                               -.002
+0                                                                                                                                                                             .2
+                                                                                        .45
+                                                                                                                                                                              .1
+2                              -.004
+                                                                                                                                                                              0
+4                              -.006
+                                                                                        .40                                                                                   -.1
+ -4 -2     0   2        4        6            8 10 12                                       2.0
+                                                                                          2σ = +/- 0.00047
+                                                                                                           2.5            3.0             3.5                     4.0
+                              .0005                                                                                                                                           .08
+                        α                                                                                                  α
+                              .0004
+4                                                                                     .040                                                                                    .07
+
+                              .0003
+
+2                             .0002
+                                                                                                                                                                              .06
+
+
+
+0                             .0001
+                                                                                      .035                                                                                    .05
+
+
+                        ∆CD          0                                                                                                                                        .04 CD
+8
+                              -.0001                                         CD .030                                                                                          .03
+6                             -.0002
+                                                                                                                                                                              .02
+                              -.0003
+4                                                                                     .025                                                                                    .01
+                              -.0004
+2                             -.0005                                                                                                                                          0
+                                         -4    -2      0       2        4        6        8     10      12 -4    -2   0      2     4       6         8       10          12
+0                                                                      .020
+                                                                   α (degrees)                         α (degrees)
+
+ -.4 -.2   0       .2       .4            .6 Fig.
+                                               .8 22.1.0                    .40        .45        .50
+                                                      NTF test to test repeatability, WB, M∞ = 0.85, Rec = 19.8  .55million..60
+                                                  Solid line indicates 2-sigma limits based on the residual data.
+4                                                                       -.04                                                           Created Tue Nov 6 12:17:14 2018
+
+
+
+
+2
+0                                                                                     -.05
+2
+4                                                                             Cm -.06
+                                                                                                      25
+6
+8                                                                                     -.07
+                                                                                             Final Reduced Data
+                                                                                         NASA Langley Research Center
+                                                                                          National Transonic Facility
+                                                                                           Common Research Model
+
+                                                Test   Run    ReC (million)     Temp     Q (psf)
+                                                                                                                        Test   Run Rec,106 q∞,psf
+                                                197     146         29.93       -249.7    1985
+                                                197    1247         29.89       -249.5    1982
+                                                                                                                        197.0 146. 29.93           1986.
+                                                                                                                        215.0 247. 29.87           1984.
+
+                                                                                              2σ = +/- 0.0007
+1.0                             .006                                                        .60                                                                     .9
+
+                                                                                                                                                                    .8
+ .8                             .004
+                                                                                                                                                                    .7
+
+ .6                                                                                         .55
+                                                                                                                                                                    .6
+                                .002
+
+ .4                                                                                                                                                                 .5
+
+                         ∆CL        0                                               CL .50                                                                          .4 CL
+ .2
+                                                                                                                                                                    .3
+
+ 0                              -.002
+                                                                                                                                                                    .2
+                                                                                            .45
+                                                                                                                                                                    .1
+-.2                             -.004
+                                                                                                                                                                    0
+-.4                                                                                         .40
+   -4 -2    0   2        4 -.0066              8 10 12                                         2.0               2.5     3.0          3.5                   4.0 -.1
+                                                                                              2σ = +/- 0.00033
+                               .0005                                                                                                                                .08
+                         α                                                                                               α
+14                             .0004                                                      .040                                                                      .07
+
+                               .0003
+12                                                                                                                                                                  .06
+                               .0002
+
+10                                                                                        .035                                                                      .05
+                               .0001
+
+
+08                   ∆CD            0                                                                                                                               .04 CD
+
+                               -.0001                                             CD .030
+                                                                                                                                                                    .03
+06
+                               -.0002
+                                                                                                                                                                    .02
+04                             -.0003
+                                                                                          .025
+                                                                                                                                                                    .01
+                               -.0004
+02
+                               -.0005                                                                                                                               0
+ 0                                      -4     -2      0        2       .020
+                                                                          8 4 10    612 -4   -2 0    2     4      6   8 10   12
+                                                           α (degrees)                                 α (degrees)
+  -.4 -.2   0       .2         .4            .6 .8 1.0                       .40          .45      .50            .55      .60
+                                               Fig. 23. NTF test to test repeatability, WB, M∞ = 0.85, Rec = 30 million.
+04                                                                       -.04 limits based on the residual data.
+                                                  Solid line indicates 2-sigma                                                    Created Tue Nov 6 12:19:56 2018
+
+
+02
+ 0                                                                                         -.05
+02
+04                                                                                Cm -.06
+06
+                                                                                                          26
+08                                                                                         -.07
+10
+                                                                                             Final Reduced Data
+                                                                                         NASA Langley Research Center
+                                                                                          National Transonic Facility
+                                                                                           Common Research Model
+                                                                                                                             Test        Run Rec,106 q∞,psf
+                                                  Test   Run    ReC (million)    Temp    Q (psf)
+                                                   197    92          5.00       120.0    1383
+                                                   197   1068         5.00       120.4    1384                               197.0 92.           5.00       1383.
+                                                                                                                             215.0 68.           5.00       1384.
+
+
+                                     .006                                            .60           2σ = +/- 0.0030
+                                                                                                                                                                          1.0
+
+
+                                                                                                                                                                          .8
+                                     .004
+
+                                                                                     .55                                                                                  .6
+                                     .002
+
+                                                                                                                                                                          .4
+
+                              ∆CL       0
+                                                                             CL .50                                                                                             CL
+                                                                                                                                                                          .2
+
+                                     -.002
+                                                                                                                                                                          0
+
+
+                                     -.004
+                                                                                     .45
+                                                                                                                                                                          -.2
+
+
+                                     -.006                                                                                                                                -.4
+                                                                                     .40 2σ = +/- 0.00027
+    0   2        4        6         8.0005 10 12                                        2.0              2.5                  3.0                 3.5               4.0.20
+                                    .0004
+                 α                  .0003
+                                                                                                                                 α                                        .16
+                                                                                 .040
+                                    .0002
+
+                                    .0001                                                                                                                                 .12
+
+                              ∆CD       0                                        .035                                                                                           CD
+
+                                    -.0001                                                                                                                                .08
+
+                                    -.0002
+
+                                    -.0003
+                                                                        CD .030                                                                                           .04
+
+                                    -.0004
+
+                                    -.0005                                                                                                                                0
+                                             -4   -2      0       2          4
+                                                                                 .025
+                                                                                   6  8                10       12 -4   -2   0       2       4     6    8      10    12
+                                                                       α (degrees)                                                       α (degrees)
+
+                                                  Fig. 24. NTF test to test repeatability, WBT0, M∞ = 0.85, Rec = 5 million.
+                                                      Solid line indicates 2-sigma limits based on the residualCreated
+                                                                                                                 data.
+                                                                                 .020                                  Tue Nov 6 12:32:36 2018
+
+
+
+2   0       .2       .4        .6            .8 1.0                                   .40                        .45          .50                 .55               .60
+                                                                                  -.04
+
+
+                                                                                  -.05
+                                                                                                               27
+
+
+                                                                         Cm -.06
+                                                                                           Final Reduced Data
+                                                                                       NASA Langley Research Center
+                                                                                        National Transonic Facility
+                                                                                         Common Research Model
+
+                                              Test   Run    ReC (million)     Temp     Q (psf)
+                                                                                                                                Test   Run Rec,106 q∞,psf
+                                               197   212          19.88       -250.6    1311
+                                               197   1263         19.81       -250.1    1310                                197.0 212. 19.87                   1312.
+                                                                                                                            215.0 263. 19.80                   1310.
+
+
+                                 .006
+                                                                                        .602σ = +/- 0.0025                                                                          .9
+
+                                                                                                                                                                                    .8
+                                 .004
+                                                                                        .55                                                                                         .7
+
+                                                                                                                                                                                    .6
+                                 .002
+                                                                                                                                                                                    .5
+
+                          ∆CL       0
+                                                                               CL .50                                                                                               .4 CL
+
+                                                                                                                                                                                    .3
+                                 -.002
+                                                                                        .45                                                                                         .2
+
+                                                                                                                                                                                    .1
+                                 -.004
+                                                                                                                                                                                    0
+                                                                                        .40
+4 -2     0   2        4         6-.006 8 10 12                                             2.0                   2.5            3.0              3.5                    4.0-.1
+                                                                                              2σ = +/- 0.00030
+                                .0005                                                                                                                                               .08
+                      α                                                                                                          α
+                                .0004
+                                                                                       .040                                                                                         .07
+
+                                .0003
+                                                                                                                                                                                    .06
+                                .0002
+
+                                .0001
+                                                                                       .035                                                                                         .05
+
+
+                          ∆CD       0                                                                                                                                               .04 CD
+
+                                -.0001
+                                                                              CD .030                                                                                               .03
+
+                                -.0002
+                                                                                                                                                                                    .02
+                                -.0003
+
+                                -.0004
+                                                                                       .025                                                                                         .01
+
+
+                                -.0005                                                                                                                                              0
+                                         -4   -2     0        2           4       6       8        10       12 -4      -2   0      2     4       6         8       10          12
+                                                                   .020
+                                                                    α (degrees)                    α (degrees)
+
+.4 -.2   0       .2        .4        .6    .8 NTF
+                                      Fig. 25.  1.0test to test repeatability,
+                                                                         .40 WBT0,.45         .50
+                                                                                     M∞ = 0.85,  Rec = 19.8.55            .60q∞.
+                                                                                                               million, low
+                                               Solid line indicates 2-sigma limits based on the residual data.
+                                                                    -.04                                                                     Created Tue Nov 6 12:22:20 2018
+
+
+
+
+                                                                                       -.05
+
+
+                                                                              Cm -.06
+
+                                                                                                           28
+                                                                                       -.07
+                                                                                              Final Reduced Data
+                                                                                          NASA Langley Research Center
+                                                                                           National Transonic Facility
+                                                                                            Common Research Model
+
+                                                 Test   Run    ReC (million)   Temp      Q (psf)
+                                                                                                                         Test        Run Rec,106 q∞,psf
+                                                  197    106      19.76        -181.7     1983
+                                                  197   1281      19.74        -181.3     1980                           197.0 106. 19.76                1983.
+                                                                                                                         215.0 281. 19.72                1982.
+
+
+                                   .006                                                 .60 2σ = +/- 0.0018                                                            .9
+
+                                                                                                                                                                       .8
+                                   .004
+                                                                                                                                                                       .7
+                                                                                        .55
+                                                                                                                                                                       .6
+                                   .002
+                                                                                                                                                                       .5
+
+                            ∆CL        0                                      CL .50                                                                                   .4 CL
+
+                                                                                                                                                                       .3
+                                   -.002
+                                                                                                                                                                       .2
+
+                                                                                        .45                                                                            .1
+                                   -.004
+                                                                                                                                                                       0
+
+                                   -.006
+                                                                                        .40                                                                            -.1
+
+-2    0   2        4        6        8 10 12
+                                  .0005                                                    2.0
+                                                                                            2σ = +/- 0.00018
+                                                                                                             2.5             3.0               3.5               4.0.08
+                   α              .0004
+                                                                                                                             α                                         .07
+
+                                  .0003                                            .040
+                                                                                                                                                                       .06
+                                  .0002
+
+                                                                                                                                                                       .05
+                                  .0001
+
+                            ∆CD        0
+                                                                                   .035                                                                                .04 CD
+
+                                  -.0001
+                                                                                                                                                                       .03
+
+                                  -.0002
+                                                                          CD .030                                                                                      .02
+                                  -.0003
+
+                                                                                                                                                                       .01
+                                  -.0004
+
+                                  -.0005
+                                           -4    -2      0       2        4
+                                                                                   .025
+                                                                                   6   8           10     12 -4     -2   0       2       4     6     8      10    12
+                                                                                                                                                                       0
+
+                                                                     α (degrees)                                                     α (degrees)
+
+                                       Fig. 26. NTF test to test repeatability, WBT0, M∞ = 0.85, Rec = 19.8 million, high q∞.
+                                                                   .020
+                                                 Solid line indicates 2-sigma limits based on the residualCreated
+                                                                                                            data. Tue Nov 6 12:24:48 2018
+
+-.2   0       .2       .4         .6            .8 1.0                                  .40                   .45            .50               .55               .60
+                                                                                    -.04
+
+
+                                                                                    -.05
+                                                                                                         29
+                                                                          Cm -.06
+                Common Research Model - Test to Test Comparison
+                WB Tail = 0
+                                                                                                             6
+                                                                                  Facility         Run Rec,10    q∞,psf
+
+                                                                              NTF Test 197   92. 5.00            1383.2
+                                                                              NTF Test 215   68. 5.00            1383.3
+                                                                            ETW ESWIRP Test 153. 5.00            1264.9
+
+     1.0                                                          .60
+      .8
+      .6                                                          .55
+
+      .4
+CL                                                             CL .50
+      .2
+      0
+                                                                  .45
+     -.2
+     -.4                                                          .40
+        -4 -2     0   2        4        6    8 10 12                 2.0    2.5              3.0         3.5              4.0
+                               α                                                             α
+     .24                                                         .032
+
+     .20                                                         .030
+     .16
+                                                                 .028
+CD .12                                                     CD
+                                                                 .026
+     .08
+
+     .04                                                         .024
+
+       0                                                         .022
+        -.4 -.2   0       .2       .4       .6   .8 1.0               .40   .45              .50         .55              .60
+     .32                                                           .08
+
+     .24
+                                                                  .06
+     .16
+
+Cm .08                                                         Cm .04
+
+      0
+                                                                  .02
+  -.08
+  -.16                                                              0
+      -.4 -.2     0       .2       .4       .6   .8 1.0              .40    .45              .50         .55              .60
+                               CL                                                            CL
+
+           Fig. 27. NTF and ETW test to test comparison, M∞ = 0.85, Rec = 5x106.
+
+
+
+
+                                                          30
+                 Common Research Model - Test to Test Comparison
+                 WB Tail = 0
+                                                                                                                 6
+                                                                                   Facility         Run Rec,10       q∞,psf
+
+                                                                               NTF Test 197  212. 19.87              1311.8
+                                                                               NTF Test 215  263. 19.80              1310.0
+                                                                             ETW ESWIRP Test 226. 19.80              1316.7
+
+     1.0                                                           .60
+       .8
+       .6                                                          .55
+
+       .4
+CL                                                              CL .50
+       .2
+       0
+                                                                   .45
+      -.2
+      -.4                                                          .40
+         -4 -2     0   2        4        6    8 10 12                 2.0    2.5              3.0        3.5              4.0
+                                α                                                             α
+     .12                                                          .032
+
+                                                                  .030
+
+     .08                                                          .028
+
+CD                                                          CD .026
+
+     .04                                                          .024
+
+                                                                  .022
+       0                                                          .020
+        -.4 -.2    0       .2       .4       .6   .8 1.0               .40   .45              .50        .55              .60
+     .32                                                            .08
+
+     .24
+                                                                   .06
+
+     .16
+Cm                                                              Cm .04
+     .08
+
+                                                                   .02
+       0
+
+     -.08                                                            0
+         -.4 -.2   0       .2       .4       .6   .8 1.0              .40    .45              .50        .55              .60
+                                CL                                                            CL
+
+      Fig. 28. NTF and ETW test to test comparison, M∞ = 0.85, Rec = 19.8x106, low q∞.
+
+
+
+
+                                                           31
+                 Common Research Model - Test to Test Comparison
+                 WB Tail = 0
+                                                                                   Facility         Run Rec,106 q∞,psf
+
+                                                                               NTF Test 197  106. 19.76         1983.2
+                                                                               NTF Test 215  281. 19.73         1980.5
+                                                                             ETW ESWIRP Test 213. 19.80         1977.3
+
+     1.0                                                           .60
+       .8
+       .6                                                          .55
+
+       .4
+CL                                                              CL .50
+       .2
+       0
+                                                                   .45
+      -.2
+      -.4                                                          .40
+         -4 -2     0   2        4        6    8 10 12                 2.0    2.5              3.0         3.5            4.0
+                                α                                                             α
+     .12                                                          .032
+
+                                                                  .030
+
+     .08                                                          .028
+
+CD                                                          CD .026
+
+     .04                                                          .024
+
+                                                                  .022
+       0                                                          .020
+        -.4 -.2    0       .2       .4       .6   .8 1.0               .40   .45              .50         .55            .60
+     .32                                                            .08
+
+     .24
+                                                                   .06
+
+     .16
+Cm                                                              Cm .04
+     .08
+
+                                                                   .02
+       0
+
+     -.08                                                            0
+         -.4 -.2   0       .2       .4       .6   .8 1.0              .40    .45              .50         .55            .60
+                                CL                                                            CL
+
+     Fig. 29. NTF and ETW test to test comparison, M∞ = 0.85, Rec = 19.8x106, high q∞.
+
+
+
+
+                                                           32
+                 Common Research Model - Test to Test Comparison
+                 WB Tail = 0
+                                                                                   Facility         Run Rec,106 q∞,psf
+
+                                                                               NTF Test 197  223. 29.93         1985.4
+                                                                             ETW ESWIRP Test 233. 30.02         1995.1
+
+
+     1.0                                                           .60
+       .8
+       .6                                                          .55
+
+       .4
+CL                                                              CL .50
+       .2
+       0
+                                                                   .45
+      -.2
+      -.4                                                          .40
+         -4 -2     0   2        4        6    8 10 12                 2.0    2.5              3.0        3.5         4.0
+                                α                                                             α
+     .12                                                          .032
+
+                                                                  .030
+
+     .08                                                          .028
+
+CD                                                          CD .026
+
+     .04                                                          .024
+
+                                                                  .022
+       0                                                          .020
+        -.4 -.2    0       .2       .4       .6   .8 1.0               .40   .45              .50        .55         .60
+     .32                                                            .08
+
+     .24
+                                                                   .06
+
+     .16
+Cm                                                              Cm .04
+     .08
+
+                                                                   .02
+       0
+
+     -.08                                                            0
+         -.4 -.2   0       .2       .4       .6   .8 1.0              .40    .45              .50        .55         .60
+                                CL                                                            CL
+
+
+            Fig. 30. NTF and ETW test to test comparison, M∞ = 0.85, Rec = 30x106.
+
+
+
+
+                                                           33
+Fig. 31. The 80% scaled CRM model installed in the JAXA 2m x 2m Transonic Wind Tunnel.
+
+
+
+
+ Fig. 32. The ONERA Large Reference Model installed in the ONERA S1MA wind tunnel.
+
+
+
+
+                                         34
+           Fig. 33. CRM semispan model installed inverted in the NRC 5-Foot wind tunnel.
+
+
+
+
+Fig. 34. Photo of the CRM-HL model installed in the 14- by 22-Foot Subsonic Wind Tunnel at the NASA
+                                  Langley Research Center.
+
+
+                                                35
+Fig. 35. Photo of the Common Research Model with Natural Laminar Flow wing in the National
+                                  Transonic Facility.
+
+
+
+
+                                           36
+
