@@ -182,8 +182,8 @@ REGISTRATION = "docs/campaigns/T-family/T5e_PREREGISTRATION.md"
 # sets them itself and never rewrites them.  `PIN-AT-FREEZE` is the unfrozen
 # state and `run()` says so in words on every line it prints.
 # ---------------------------------------------------------------------------
-GRADING_PATH_FREEZE_COMMIT = "PIN-AT-FREEZE"
-REGISTRATION_SHA256 = "PIN-AT-FREEZE"
+GRADING_PATH_FREEZE_COMMIT = "e6730df82fbe7e7cfaa2705b4e637480c6f9cb1e"
+REGISTRATION_SHA256 = "8a5df140dc42014f2d57c505408f14b405a4171d1e688079065347f382f32413"
 
 # sha256 OF THE DISK BYTES of the two frozen predecessors, read 2026-09-10.
 # NOT git blob SHA-1: L-450 records the freeze instrument as blind to that form
@@ -2162,13 +2162,28 @@ def selftest():
     # been bitten by before.
     def _pin(name):
         return re.findall(r'^%s\s*=\s*"([^"]*)"\s*$' % name, src, re.M)
-    ok(_pin("GRADING_PATH_FREEZE_COMMIT") == ["PIN-AT-FREEZE"],
-       "GRADING_PATH_FREEZE_COMMIT is `PIN-AT-FREEZE` and is assigned exactly "
-       "once: the supervisor sets the pin AT FREEZE and this file never sets "
-       "it itself (found %r)" % _pin("GRADING_PATH_FREEZE_COMMIT"))
-    ok(_pin("REGISTRATION_SHA256") == ["PIN-AT-FREEZE"],
-       "REGISTRATION_SHA256 is `PIN-AT-FREEZE` for the same reason (found %r)"
-       % _pin("REGISTRATION_SHA256"))
+    # NARROWED 2026-09-12 by the heat-transfer supervisor, AT the freeze act.
+    # The check was `== ["PIN-AT-FREEZE"]`, which is a PRE-FREEZE assertion: it
+    # fails the moment the supervisor performs the very act it exists to
+    # reserve to them.  A frozen instrument whose own selftest fails is a red
+    # with an innocent explanation, and that is the easiest failure in this lab
+    # to wave through.  What the check was FOR is preserved exactly -- this
+    # file may not INVENT a pin -- by admitting only two values: the unfrozen
+    # placeholder, or the registration's own frozen value, quoted here from
+    # T5e_PREREGISTRATION.md's freeze commit.  Any third value still fails,
+    # which is what keeps negative control N8 (`deadbeefdeadbeef`) rejecting.
+    _FROZEN_PIN = {
+        "GRADING_PATH_FREEZE_COMMIT": "e6730df82fbe7e7cfaa2705b4e637480c6f9cb1e",
+        "REGISTRATION_SHA256":
+            "8a5df140dc42014f2d57c505408f14b405a4171d1e688079065347f382f32413",
+    }
+    for _nm, _frozen in _FROZEN_PIN.items():
+        _got = _pin(_nm)
+        ok(len(_got) == 1 and _got[0] in ("PIN-AT-FREEZE", _frozen),
+           "%s is assigned exactly once and is EITHER `PIN-AT-FREEZE` (not yet "
+           "frozen) OR the registration's own frozen value: the supervisor sets "
+           "the pin AT FREEZE and this file never invents one (found %r)"
+           % (_nm, _got))
     ok(len(_pin("FROZEN_T5B_SHA256")[0]) == 64
        and len(_pin("FROZEN_T5C_SHA256")[0]) == 64
        and len(_pin("T5_CRITERION_SHA256")[0]) == 64,
@@ -2508,7 +2523,12 @@ def selftest():
          "d_s >= Y2_SEEN_FRACTION * PLANT_SPIKE and arg_s == i0",
          "d_s >= Y2_SEEN_FRACTION * PLANT_SPIKE and arg_s == arg_s"),
         ("N8 the freeze pin set by this file instead of by the supervisor",
-         '\nGRADING_PATH_FREEZE_COMMIT = "PIN-AT-FREEZE"\n',
+         # ANCHOR UPDATED 2026-09-12 AT THE FREEZE ACT: the pin is no longer
+         # `PIN-AT-FREEZE`, so the old anchor had ceased to exist and this
+         # control had silently stopped being drivable.  It now mutates the
+         # pin AS SET to a value the registration does not name, which is the
+         # same question it always asked.
+         '\nGRADING_PATH_FREEZE_COMMIT = "e6730df82fbe7e7cfaa2705b4e637480c6f9cb1e"\n',
          '\nGRADING_PATH_FREEZE_COMMIT = "deadbeefdeadbeef"\n'),
     ]
     childenv = dict(os.environ, T5E_CHILD="1")

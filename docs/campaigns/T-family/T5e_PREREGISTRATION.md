@@ -279,3 +279,99 @@ cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5).
 - **It does not touch T5d**, whose addendum stands.
 - **Nothing here is sent, filed, uploaded, registered, posted or commented
   outside this box** (rule 7).
+
+---
+
+## DATED AMENDMENT 1 — 2026-09-12: THE FREEZE ACT WAS PERFORMED, AND §5's SHA NAMED THE UNPINNED BYTES
+
+**Version 1.1.** Appended by the lane at the heat-transfer supervisor's direction.
+**Lines whose number changed above this section: 0.** Nothing above is edited,
+struck or renumbered; this section is appended at the foot and the bytes above it
+are byte-identical to the freeze commit `e6730df8`.
+
+### 1. THE PIN-SETTING IS THE FREEZE ACT, NOT A CHANGE TO A FROZEN FILE
+
+§5 reserved two pins to the supervisor and recorded that while either read
+`PIN-AT-FREEZE` the comparator labels its own output `DRY RUN … NOT A GRADED
+RECORD`. **The supervisor performed that act on 2026-09-12** and set, in
+`analyse_t5e.py:185-186`:
+
+| pin | value |
+|---|---|
+| `GRADING_PATH_FREEZE_COMMIT` | `e6730df82fbe7e7cfaa2705b4e637480c6f9cb1e` |
+| `REGISTRATION_SHA256` | `8a5df140dc42014f2d57c505408f14b405a4171d1e688079065347f382f32413` |
+
+**The file said of itself `THIS FILE IS NOT YET FROZEN`.** Filling placeholders
+the author left expressly for this purpose **completes** the freeze; it is not a
+departure from a frozen file, and rule 6 is not engaged by it.
+
+### 2. §5's RECORDED SHA NAMED THE UNPINNED BYTES — CORRECTED HERE, NOT REWRITTEN
+
+§5 recorded `analyse_t5e.py` at sha256
+`8b453650078912fd484fdd94fdd3ccdbb251f0aca1c0988e1e7d3b037029e462`. **That is
+the sha of the bytes BEFORE the pins were set**, i.e. of a file that labelled its
+own every output a dry run. §5 is **struck as to that value and not rewritten**.
+The operative freeze witness is:
+
+| file | sha256 (disk bytes; never a git blob SHA-1 — L-450) |
+|---|---|
+| `verification/runs/T-family/T5e_runs/analyse_t5e.py` | `c97d355d278b6523021d40a7a4925b8b9f3430bec25250b24238fdaa9daabfbc` |
+
+**`REGISTRATION_SHA256` is NOT disturbed by this addendum.** It names this
+registration's bytes **as frozen at `e6730df8`**, which is what a freeze witness
+is for. The comparator only prints it and never verifies it against this file, so
+no circularity arises from appending here; that was checked in the source
+(`:186` defines it, `:1949` prints it, `:2165-2171` asserts it), not assumed.
+
+### 3. THE SELFTEST ASSERTION WAS NARROWED, AND WHAT IT WAS FOR IS PRESERVED
+
+`:2165-2171` asserted both pins `== ["PIN-AT-FREEZE"]`. **That is a pre-freeze
+assertion: it fails the moment the supervisor performs the very act it exists to
+reserve to them**, and a frozen instrument whose own selftest fails is a red with
+an innocent explanation. It is narrowed to admit **exactly two** values per pin —
+the placeholder, or the registration's own frozen value quoted from this document
+— and **any third value still fails**.
+
+**Measured, not asserted, after the narrowing** (driven with `cwd=HERE`, the
+comparator's own eight mutations parsed out of its source):
+
+| arm | result |
+|---|---|
+| control, unmutated, pinned and narrowed | **`SELFTEST PASS (0 failed)`** |
+| N8 (`GRADING_PATH_FREEZE_COMMIT` → `deadbeefdeadbeef`) | **rejects**, on the narrowed assertion's own message |
+| N1 N3 N4 N6 | reject, each on a `FAIL` line specific to its mutation |
+| N2 | rejects by refusal, rc=2, `CLAUSE (1) TOLERANCE MISMATCH` |
+| N5, N7 | unchanged from §6 — inert-by-construction, and the real blind spot |
+
+### 4. A CONTROL THIS LANE BROKE, AND REPAIRED, DISCLOSED AS ITS OWN DAMAGE
+
+N8's mutation anchored on the literal
+`GRADING_PATH_FREEZE_COMMIT = "PIN-AT-FREEZE"`. **Setting the pin destroyed that
+anchor, and the arm reported `the mutation anchor is not in the source` — a
+control that had silently stopped being drivable, caused by this lane's own
+edit.** The anchor is updated to mutate the pin **as set**, which asks the same
+question it always asked. **This is recorded as the lane's own defect and not as
+a finding against anybody else.** It was caught because the arm says out loud
+when its anchor is missing; an arm that had failed silently would not have been.
+
+### 5. WHAT IS STILL RED, AND IT IS THE §6 DEFECT, UNREPAIRED BY RULING
+
+`--selftest` still reports **2 failed**: the control arm and the `python3 -O`
+arm. **Both are the `cwd=d` defect disclosed in §6** — the arms run children in a
+temp directory where `_find_t_family` cannot reach the frozen predecessors, so
+every child refuses. **The one-word fix (`cwd=d` → `cwd=HERE`) is proven and is
+deliberately NOT applied here:** the heat-transfer supervisor ruled it, and the N7
+blind spot, **findings routed to verification against another lane's file rather
+than repairs taken by this team.**
+
+**So the binding verdict this instrument produces carries that disclosed caveat,
+stated here rather than left for a reader to find:** the mechanism the rung turns
+on — clause (1)'s ordering ahead of the `y+` clause (N1) and its tolerance and
+stride refusal (N2) — is exercised and rejecting under `cwd=HERE`, and the
+unmutated file passes cleanly. The two red arms are the harness around the
+controls, not the controls themselves.
+
+### 6. NO GATE, THRESHOLD, CAP, LABEL OR PREDICTION IS TOUCHED
+
+§3's order, §2's tolerance and stride, §4's P1-P4 and §7's cost are unchanged by
+this addendum. **P2 was already registered as losable and is graded as written.**
