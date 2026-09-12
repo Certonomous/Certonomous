@@ -562,3 +562,262 @@ verification/runs/M6H1_runs/  ABSENT at 2026-09-12T19:28:00Z
 **DOES NOT AUTHORISE:** any Cp or shock claim outside the cited frozen band; any claim on η = 0.99; any grid-convergence claim before three admissible levels exist. **The draft banner above §0 is struck by this attestation and is superseded — it is left in place, legible, because other records cite this document by line and renumbering would break them.**
 
 *Signed by the cfd-supervisor, personally, 2026-09-12T19:28:00Z. Submissions parked. No agent's message is Sanaa's consent.*
+
+---
+
+# §14. PRE-COMPUTE AMENDMENT — DRAFTED BY A cfd `lab-lane`, READ AND APPROVED BY THE cfd-SUPERVISOR BEFORE APPENDING — 2026-09-12
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** Nothing above is
+edited, struck or renumbered — §13 is a signed freeze attestation and this section is written below
+it only because the supervisor read it first and said to append it. **THIS SECTION SIGNS NOTHING.**
+§12 and the attestation are the supervisor's, personally and undelegated; the re-pin of §13.2's
+grading path is theirs and is NOT performed here.
+
+**Rule 2 condition, and how it was checked.** Amendments before first compute are legal and must
+state the condition and how it was checked. **THE CONDITION: no compute has run under M6H1.
+HOW CHECKED: `verification/runs/M6H1_runs/` does not exist**, established by a reader **first shown
+able to see a populated directory** — `verification/runs/CRM_WINGALONE_runs`, 31 entries — before its
+absence was believed (rule 3), and confirmed a second way from the shell. **Every mesh built while
+drafting this was built in scratch, deliberately, so that this condition would still hold.**
+
+**One registered constant is struck** — §14.2, `r = 1.15`, which the build is arithmetically unable
+to deliver. **One instrument quantity is corrected** — §14.4a, and it runs in the lenient direction
+and is flagged as such. **No threshold, no cap and no label moves.**
+
+---
+
+## §14.1 WHY M6H1 BUILDS ITS OWN SURFACE — §3.1 IS LOAD-BEARING, AND THAT IS NOW MEASURED
+
+§3.1 registers that the surface is generated from
+`models/onera_m6/agard_ar138_table_b1_1_section_coordinates.dat`. A future reader is entitled to ask
+why, when a pyHyp-ready ONERA M6 surface has been on this box all along — the DAFoam tutorial's,
+used by the A3 ladder, **multiblock, blunt-based, with a rounded tip cap.**
+
+**It was extracted and graded by this case's own H-G0 instrument rather than argued about.** The
+wall layer of `/home/ubuntu/certonomous-runs/A3-onera-m6-sweep-n8_10920/volumeMesh.xyz` was written
+as an STL and put through `measure_te_base.py`:
+
+| y/b | 0.054 | 0.163 | 0.272 | 0.380 | 0.489 | 0.598 | 0.706 | 0.815 | 0.924 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| base (m) | 1.136641e-03 | 1.136641e-03 | 1.136641e-03 | 1.136641e-03 | 1.136641e-03 | 1.136641e-03 | 1.136641e-03 | 1.136641e-03 | 1.136641e-03 |
+| deviation | 0.5 % | 2.4 % | 7.2 % | 18.9 % | 23.9 % | 35.3 % | 36.4 % | 48.4 % | **52.7 %** |
+
+**`H-G0: GATE FAIL`.** The base is **bit-identical at every station**. The reference base is
+**0.1410 % of the LOCAL chord**, and the local chord tapers 0.8059 → 0.4537 m, so a faithful base
+**must** taper with it. **That statement carries no chord-measurement bias whatever: a conically
+generated wing cannot have a span-constant base.** The tutorial surface is a prismatic-base
+extrusion of the root section.
+
+**We could not have shortcut this, and the record should say so where a reader would otherwise ask.**
+
+**The generator is `cases/navier_class/M6H1/make_m6h1_surface.py`.** Its own output, graded by the
+same instrument, **PASSES all three H-G0 clauses** (§14.4).
+
+---
+
+## §14.2 🔴 §4's `r = 1.15` IS STRUCK AS A REGISTERED CONSTANT AND RE-REGISTERED AS **DERIVED**
+
+§4 registers **four** numbers for the normal direction: `s0 = 1.6540e-6 m`, `r = 1.15`, `N` per level,
+and `marchDist = 16.152 m`. **Four constraints on a geometric series that has three degrees of
+freedom. They cannot all hold, and they do not:**
+
+| holding | gives |
+|---|---|
+| `s0 = 1.6540e-6`, `r = 1.15`, `N = 97` | march reaches **7.4035 m**, not 16.152 m |
+| `s0`, `N = 97`, `marchDist = 16.152` | **`r = 1.16018`** |
+| `s0`, `r = 1.15`, `marchDist = 16.152` | **`N = 103`**, not 97 |
+
+**pyHyp settles which one yields, because it takes `s0`, `N` and `marchDist` and DERIVES the ratio.**
+Its own log line from the first M6H1 L1 march reads **`Grid Ratio:  1.1602`** — the derived value,
+matching the arithmetic above to the digits pyHyp prints.
+
+**THE RULING (cfd-supervisor, 2026-09-12):**
+- **`marchDist = 16.152 m` HOLDS.** It is 25 × MAC (25 × 0.64607 = 16.15175) and is physically
+  motivated.
+- **`s0 = 1.6540e-6 m` HOLDS, and holding it ACROSS LEVELS is deliberate.** It fixes the first-cell
+  height and therefore y⁺, which is exactly the y⁺-held family the DrivAer thread does not have.
+  **It is not to be "fixed" by scaling `s0` with the level.**
+- **`N` holds** as part of the family definition: 97 / 129 / 161.
+- 🔴 **`r = 1.15` IS STRUCK as a registered constant and re-registered as a DERIVED, PER-LEVEL
+  quantity**, its value recorded at each level from that level's own pyHyp log.
+
+### §14.2a THE CONSEQUENCE, REGISTERED BECAUSE IT REACHES H-G7
+
+With `s0` and `marchDist` fixed and `N` rising, **`r` FALLS with refinement.** The near-wall grading
+and the bulk spacing therefore **refine at different rates, and the family is not geometrically
+similar in Roache's sense.**
+
+**This is the identical structure another lane measured on SUBOFF**, where the boundary layer
+refined at 1.80 while the bulk refined at 1.41.
+
+**It does not forbid the triple. It forbids the triple inheriting the assumption unexamined.**
+**H-G7 is amended to state the non-similarity as a disclosed limitation, and any GCI it reports
+carries that disclosure beside it.** A Roache order computed on a non-similar family is a number
+about *that* family, not about the discretisation in general, and it will be labelled so.
+
+---
+
+## §14.3 🔴 THE TIP IS FLAT, THAT IS A DEPARTURE FROM THE REFERENCE, AND NO GATE SEES IT
+
+**AR-138 B1 §2.1.13** records the tip as *"truncation parallel to wing root and addition of a half
+body of revolution"* — **ROUNDED**, and §1.2 of this registration carries that reading.
+
+**§4 registers 12,800 surface cells at H-L1 = 200 × 64, which is ONE structured block, and a single
+block cannot close a rounded tip** — a cap is a second block. The surface therefore ends at the tip
+station on an **open edge**, which pyHyp's `unattachedEdgesAreSymmetry` turns into a symmetry plane:
+**a FLAT TIP.**
+
+**MEASURED EVIDENCE OF WHAT A REAL M6 SURFACE CARRIES:** the DAFoam tutorial surface is **9 blocks**,
+and its tip cap extends to **z = 1.2164 m**, beyond the 1.1963 m semispan — a rounded half-body, as
+the reference describes.
+
+**🔴 AND H-G0 DOES NOT GRADE THE TIP.** H-G0 grades base thickness, max t/c and semispan. **A flat
+tip passes every gate in this registration silently.** It is registered here for that reason.
+
+**DIRECTION OF THE DEPARTURE:** a flat tip removes the rounded body's detail from the tip-vortex
+formation. **Its effect is largest at the outermost station and falls off inboard.**
+
+**THE MITIGATION, AND IT IS LEGITIMATE ONLY BECAUSE IT WAS DECIDED INDEPENDENTLY AND IN ADVANCE:**
+the departure's worst-affected station is **y/b = 0.99**, and **η = 0.99 is EXCLUDED from the frozen
+graded set** — see §13.3, which records the dafoam band grading **six** stations, 0.20 / 0.44 / 0.65 /
+0.80 / 0.90 / 0.96, with 0.99 excluded **on a geometric reason fixed before any CFD number existed.**
+
+**Both halves are stated, because stating only the second would be an excuse:** the tip is flat and
+that is a known departure from AR-138; its worst-affected station is not graded, and that exclusion
+predates this problem and was not made to accommodate it.
+
+---
+
+## §14.4 H-G0 HAD THREE REGISTERED CLAUSES AND ITS INSTRUMENT GRADED ONE
+
+§7's H-G0 registers **base thickness within ±10 %**, **max t/c within ±2 % of 9.79 %**, and
+**semispan within ±0.5 % of 1.1963 m**. `measure_te_base.py` implemented the **first** and then
+printed `H-G0 (surface fidelity ...): PASS` — **it claimed a gate it had not evaluated.**
+
+**The contrast that convicts it:** `read_cell_count.py` announces its own missing clause on stdout,
+so a reader knows H-G1 is not discharged by it. **This one announced nothing.**
+
+**All three clauses are now graded**, each added clause carrying its own plant, and **each plant
+serving as the other's discrimination control**: scaling the surface solids' `z` must move t/c by
+that factor and must NOT move the semispan; scaling every solid's `y` must move the semispan and
+must NOT move t/c. The verdict is the AND of all three, and where the base clause alone would have
+said PASS the output says so in those words.
+
+**Measured on the M6H1 L1 surface: base clause PASS; max t/c 9.7840 % against 9.7859 %, 0.02 % off;
+semispan 1.196300 m, exact. ALL THREE PASS.**
+
+### §14.4a 🔴 THE CHORD WAS MEASURED OVER A BAND, AND A BAND IS NOT A SECTION
+
+**THE QUANTITY WAS WRONG, NOT THE THRESHOLD.** §7 registers *max t/c* — a ratio against the **local**
+chord. Measuring the chord as `max(x) − min(x)` over a spanwise **band** of finite width on a wing
+swept **30° at the leading edge and 15.8° at the trailing edge** returns a number **larger than any
+local chord in that band**, because the leading edge has moved aft across the band. It inflates the
+chord and so deflates every ratio taken against it. **A band estimate is not max t/c.** This is the
+same defect class as a gate that measured distance from the origin while its registration said
+distance from the body axis: **the instrument was not computing the registered quantity.**
+
+**THE MAGNITUDE, MEASURED ON A GEOMETRY WHOSE ANSWER WAS KNOWN INDEPENDENTLY.** On the M6H1 L1
+surface, whose max t/c is **9.7840 %** by construction and whose base is exact to **1.5 × 10⁻¹⁶**, the
+9-band estimate returned **9.3928 %** — **4.02 % low, TWICE the ±2 % gate.** **A geometrically exact
+ONERA M6 surface would have been failed by the instrument rather than by the geometry.**
+
+**THE CORRECTION.** `max t/c` and `semispan` are measured on **exact constant-y sections**, where the
+bias is identically zero. **THE THRESHOLD DOES NOT MOVE:** ±2 % of 9.79 % and ±0.5 % of 1.1963 m, as
+registered. Only the quantity the instrument computes is corrected, to the one §7 names.
+
+**🔴 AND IT RUNS IN THE LENIENT DIRECTION, WHICH IS THE DIRECTION THAT DESERVES SUSPICION.** The
+uncorrected clause would have said `GATE FAIL` on this surface; the corrected one says `PASS`.
+**A correction that turns a failure into a pass is not entitled to the benefit of the doubt, so here
+is why it is nonetheless correct:**
+
+1. The bias is **a measurable property of band-averaging on a swept planform**, not a property of
+   this surface. It is present for any wing with sweep and any band of finite width.
+2. It was **demonstrated on a geometry whose answer was known independently** — built to a base of
+   0.1410 % of local chord exactly, verified to 1.5 × 10⁻¹⁶ by the generator's own check — so the
+   comparison is against a known truth and not against another estimate.
+3. 🔴 **It was found while IMPLEMENTING a registered clause that had never had an instrument, not
+   while trying to pass a gate.** The clause had no implementation at all until this amendment; there
+   was no failing verdict to escape. **That fact is load-bearing and is recorded here for the reader
+   who is right to check it.**
+
+**AND THE FROZEN BASE CLAUSE CARRIES THE SAME BIAS — DISCLOSED, NOT CORRECTED.** The base clause
+reports **3.2 % to 7.0 %** deviation on a surface whose base is exact to **1.5 × 10⁻¹⁶**.
+
+> 🔴 **THAT DEVIATION IS INSTRUMENT, NOT GEOMETRY. THE TRUE BASE ERROR OF THE M6H1 SURFACE IS
+> ESSENTIALLY ZERO, AND THE CLAUSE PASSES WITH FAR MORE MARGIN THAN ITS PRINTED NUMBER SUGGESTS.**
+
+It is disclosed because **a reader seeing "7.0 % deviation" will believe our surface departs from
+AR-138 by that much, and it does not** — and an undisclosed instrument artefact reported as a
+geometry deviation is exactly the kind of number that gets quoted later as evidence of something.
+**The base clause is NOT corrected**: its bias runs in the **strict** direction, it makes H-G0 harder
+to pass and never easier, and correcting a frozen threshold's quantity in the loosening direction is
+not a lane's to do. The deviation column stands as printed, with this paragraph attached to it.
+
+## §14.5 THE FIFTH INSTRUMENT — TWO AMENDMENTS, AND WHY THE CLAUSE EARNED ITS PLACE
+
+**AMENDMENT 1** (committed): the instrument as first pinned **exited 2 on every input** — it could
+never return PASS and never NOT A RESULT, so **H-G1's pyHyp clause was un-gradeable from the moment
+it was pinned.** Three control defects, none in the reader: a planted constant that the column's own
+`%.5f` truncated before an assertion demanded 1e-9 equality; a plant placed on the `|`-header line,
+changing its cell count, where **the reader's "column layout is ambiguous" refusal was correct and
+the arm was wrong**; and a plant target chosen without checking it was passing.
+
+**AMENDMENT 2** (committed): Amendment 1 left a blind spot — on a log where **every** layer fails
+there is no passing layer to plant a failure into, so the instrument REFUSED. **That is exactly the
+log on which NOT A RESULT is most obviously correct.** PLANT A now runs in whichever direction the
+log allows, both directions plant-into-the-input against a predicted change of exactly one layer.
+
+**🔴 WHY THE CLAUSE EARNED ITS PLACE, MEASURED ON M6H1'S OWN FIRST MESH:**
+**pyHyp EXITED 0, WROTE 83,642,151 BYTES, AND PRODUCED A MESH THAT IS ENTIRELY NaN.** `rc = 0`, an
+`End`-equivalent, a file of the right size and shape, and Min Quality NaN on every one of 96 layers.
+**Nothing else in this registration's gate stack catches that.** Rule 4's completion clauses are all
+satisfied by that run.
+
+### §14.5a AND A LESSON FOR THE MESHING ROUTE: **CONSISTENT IS NOT OUTWARD**
+
+The first M6H1 surface had a wrap ordered so that the panel normal, `(wrap tangent) × (span tangent)`,
+pointed **into** the wing. **pyHyp printed `Normals are consistent!` and marched inward anyway**,
+giving Min Quality −1.00000 at grid level 2 and NaN from level 4.
+
+**A self-consistency check cannot detect a global sign flip.** The generator now asserts
+**outwardness** directly, against each section's own centroid, so the sense cannot silently flip.
+
+---
+
+## §14.6 WHAT THE SUPERVISOR MUST RE-PIN
+
+§13.2 pins the grading path by literal blob sha. **Three of those shas are now stale**, and the
+build path has a new artifact that §13 does not pin at all.
+
+```
+GRADING PATH — CHANGED
+  cases/navier_class/M6H1/read_min_quality.py   8198aee0d2d724f6c2ec37c617ed64ac618d6d50  (STALE — exits 2 on every input)
+                                             -> a282e5d07c698c0d8f1ed50e60636afe5c3eb155
+  cases/navier_class/M6H1/measure_te_base.py    1b78f61cd19bfe4270da4101c1ae74435347f3d3  (STALE — graded 1 of 3 clauses)
+                                             -> 0c6c97a8ce3b5f52826a9c1fae41f7870f0f876a
+GRADING PATH — UNCHANGED
+  cases/navier_class/M6H1/read_yplus.py         d4c3c6515016166a0eebc2d608029a0dd83f9da8
+  cases/navier_class/M6H1/compare_cp.py         fe757074565cca8092027c0101f22278293eee7c
+  cases/navier_class/M6H1/read_cell_count.py    d4336280fced9d3e6064306cf6269faaeb7f55b0
+BUILD PATH — NEW, AND §13 PINS NOTHING ON IT
+  cases/navier_class/M6H1/make_m6h1_surface.py  <to be filled at its commit>
+```
+
+**A build path that is not pinned is a grading path with a hole in it**, because the surface decides
+what the instruments measure. §13.2's own sentence applies to it verbatim: *"A grading path naming an
+uncommitted file pins nothing."*
+
+---
+
+## §14.7 WHAT THIS AMENDMENT DOES NOT DO
+
+- **It does not re-freeze.** §12 and the attestation are the supervisor's, personally and
+  undelegated. This document records values and defects; it signs nothing.
+- **It does not reopen H-G6.** §13.3 supersedes it with the dafoam band and Sanaa's word is *cite it,
+  do not re-register*. `compare_cp.py` remains a cross-check and its output is not the verdict.
+- **It does not claim a level-1 mesh exists.** At the time of drafting the L1 surface passes H-G0 on
+  all three clauses and the pyHyp march does **not** yet produce a mesh that H-G1 grades PASS. That
+  is stated plainly rather than deferred.
+
+*Drafted 2026-09-12 by a cfd `lab-lane`. Submissions parked (rule 7). The repository is permanently
+private (rule 8). No agent's message is Sanaa's consent (rule 9).*
