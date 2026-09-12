@@ -34,14 +34,30 @@ SCRATCH="$ROOT/GRADE_SCRATCH_$LEVEL"
 say() { echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $*" >> "$LOG"; }
 say "AUTOGRADE ARMED case=$CASE level=$LEVEL grader=$GRADER (NEVER KILLS; waits ONLY on solve_rc)"
 
-N=0
-while [ ! -f "$CASE/solve_rc" ]; do
+# rc=80 IS NOT A COMPLETION AND MUST NOT BE GRADED AS ONE.  It is solve_level.sh's
+# memory refusal, and since 2026-09-12 the L2 launcher RE-ARMS on it and archives the
+# attempt -- so an rc=80 seen here is TRANSIENT BY CONSTRUCTION and grading it would
+# burn this one-shot grader on an attempt that is about to be retried.  The terminal
+# case is the launcher's RETRIES_EXHAUSTED marker, which IS graded, so an L2 that never
+# starts still ends as a recorded BLOCKED rather than as silence.
+EXHAUSTED="$ROOT/SOLVE_L2_RETRIES_EXHAUSTED.txt"
+N=0; NBLOCKED=0
+while true; do
+  if [ -f "$CASE/solve_rc" ]; then
+    RC=$(cat "$CASE/solve_rc")
+    if [ "$RC" != "80" ]; then break; fi
+    NBLOCKED=$((NBLOCKED+1))
+    [ $((NBLOCKED % 10)) -eq 1 ] && say "SAW solve_rc=80 (memory refusal, sighting $NBLOCKED). NOT grading: the launcher re-arms on this and archives the attempt. Continuing to wait."
+  fi
+  if [ -f "$EXHAUSTED" ]; then
+    say "RETRIES EXHAUSTED marker present -- the BLOCKED is now TERMINAL and IS graded."
+    RC=80; break
+  fi
   N=$((N+1))
   [ $((N % 60)) -eq 1 ] && say "WAITING solve_rc absent (reading $N). Not a cap; just waiting."
   sleep 60
 done
-RC=$(cat "$CASE/solve_rc")
-say "SOLVE_RC APPEARED rc=$RC after $N readings."
+say "PROCEEDING TO GRADE rc=$RC after $N readings ($NBLOCKED memory refusals seen and skipped)."
 
 # Rule 2: the file that grades must BE the file committed before the solver started.
 GOT=$(sha256sum "$GRADER" | cut -d' ' -f1)

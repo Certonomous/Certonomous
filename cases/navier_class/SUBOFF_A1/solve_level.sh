@@ -12,6 +12,23 @@
 #
 # S5 (pre-registration 7): a time directory or a previous solver artifact present
 # at launch => REFUSE.  Never clear the directory.
+#
+# AMENDMENT 2026-09-12 -- EVERY PHASE IS PRICED AT ITS OWN TRUE RANK COUNT.
+# THE DEFECT THIS REPAIRS, MEASURED ON OUR OWN RECORDS: this script used to price its
+# WHOLE T1-T0 window at $RANKS, but `decomposePar` logs `nProcs : 1` and
+# `reconstructPar` is serial too.  On the crashed SOLVE_L1 attempt that reported 4.80
+# core-min against 1.68 honest -- a 2.86x OVERSTATEMENT -- and every SUBOFF row written
+# by this instrument inherited the same bias.  A cost instrument that overstates is not
+# 'conservative': it corrupts the calibration ledger in the direction that makes the
+# lab's estimates look better than they are.
+# Each phase is now timed separately and multiplied by ITS OWN rank count, and
+# `total_core_min` is the SUM of the three, not a window times a rank count.
+# The legacy window figure is still emitted, under a name that says what it is, so no
+# reader can mistake it for the honest total and no old reading silently changes meaning.
+#
+# PEAK RSS IS RECORDED PER PHASE, from /usr/bin/time -v (the kernel's own high-water
+# mark, not a poller that can miss a peak between samples).  The SERIAL phases are the
+# ones no rank-derived memory bound covers, so they are exactly the ones worth measuring.
 set -u
 CASE="$1"; RANKS="$2"; MIN_AVAIL_GIB="$3"
 S="$CASE/STATUS.solve"
@@ -54,24 +71,44 @@ touch 0/U 0/p 0/k 0/omega 0/nut
   echo "available_GiB_at_launch=$avail"; } > "$S"
 T0=$(date +%s)
 
-decomposePar -force > log.decomposePar.solve 2>&1; RC=$?
-echo "decomposePar_rc=$RC" >> "$S"
+TD0=$(date +%s)
+/usr/bin/time -v -o time.decomposePar.solve decomposePar -force > log.decomposePar.solve 2>&1; RC=$?
+TD1=$(date +%s)
+DPEAK=$(grep "Maximum resident set size" time.decomposePar.solve | grep -oE "[0-9]+$")
+{ echo "decomposePar_rc=$RC";
+  echo "decomposePar_wall_s=$((TD1-TD0))";
+  echo "decomposePar_ranks=1   # SERIAL -- the log says nProcs : 1";
+  echo "decomposePar_core_min=$(echo "($TD1-$TD0)*1/60" | bc -l)";
+  echo "decomposePar_peak_rss_kB=${DPEAK:-UNMEASURED}"; } >> "$S"
 if [ "$RC" -ne 0 ]; then echo "$RC" > solve_rc; exit "$RC"; fi
 
-mpirun -np "$RANKS" simpleFoam -parallel > log.simpleFoam 2>&1; RC=$?
-echo "simpleFoam_rc=$RC" >> "$S"
-T1=$(date +%s)
-{ echo "solver_wall_s=$((T1-T0))";
-  echo "solver_core_min=$(echo "($T1-$T0)*$RANKS/60" | bc -l)"; } >> "$S"
+TS0=$(date +%s)
+/usr/bin/time -v -o time.simpleFoam.solve mpirun -np "$RANKS" simpleFoam -parallel > log.simpleFoam 2>&1; RC=$?
+TS1=$(date +%s); T1=$TS1
+SPEAK=$(grep "Maximum resident set size" time.simpleFoam.solve | grep -oE "[0-9]+$")
+{ echo "simpleFoam_rc=$RC";
+  echo "simpleFoam_wall_s=$((TS1-TS0))";
+  echo "simpleFoam_ranks=$RANKS";
+  echo "simpleFoam_core_min=$(echo "($TS1-$TS0)*$RANKS/60" | bc -l)";
+  echo "simpleFoam_peak_rss_kB=${SPEAK:-UNMEASURED}   # largest single rank, not the sum";
+  echo "LEGACY_window_core_min_OVERSTATED=$(echo "($T1-$T0)*$RANKS/60" | bc -l)   # the OLD figure: the whole window priced at RANKS, including the SERIAL decomposePar. Kept only so an old reading is recognisable; it is NOT the cost."; } >> "$S"
 if [ "$RC" -ne 0 ]; then echo "$RC" > solve_rc; exit "$RC"; fi
 
-reconstructPar -latestTime > log.reconstructPar.solve 2>&1; RC=$?
-echo "reconstructPar_rc=$RC" >> "$S"
+TR0=$(date +%s)
+/usr/bin/time -v -o time.reconstructPar.solve reconstructPar -latestTime > log.reconstructPar.solve 2>&1; RC=$?
+TR1=$(date +%s)
+RPEAK=$(grep "Maximum resident set size" time.reconstructPar.solve | grep -oE "[0-9]+$")
+{ echo "reconstructPar_rc=$RC";
+  echo "reconstructPar_wall_s=$((TR1-TR0))";
+  echo "reconstructPar_ranks=1   # SERIAL";
+  echo "reconstructPar_core_min=$(echo "($TR1-$TR0)*1/60" | bc -l)";
+  echo "reconstructPar_peak_rss_kB=${RPEAK:-UNMEASURED}"; } >> "$S"
 if [ "$RC" -ne 0 ]; then echo "$RC" > solve_rc; exit "$RC"; fi
 
 T2=$(date +%s)
 { echo "total_wall_s=$((T2-T0))";
-  echo "total_core_min=$(echo "($T2-$T0)*$RANKS/60" | bc -l)"
+  echo "total_core_min=$(echo "(($TD1-$TD0)*1 + ($TS1-$TS0)*$RANKS + ($TR1-$TR0)*1)/60" | bc -l)   # SUM OF PHASES, each at ITS OWN rank count -- NOT the window times RANKS";
+  echo "LEGACY_total_core_min_OVERSTATED=$(echo "($T2-$T0)*$RANKS/60" | bc -l)   # the OLD arithmetic, kept for recognisability only";
   echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"; } >> "$S"
 echo "0" > solve_rc
 exit 0
