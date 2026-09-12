@@ -793,6 +793,27 @@ def probe_solver_ranks(proc_root: str = "/proc") -> dict:
     return dict(ranks=ranks, detail=", ".join(seen) if seen else "no solver process seen in /proc")
 
 
+def box_ncpu() -> int:
+    """THE RUNNER'S OWN nproc READING -- taken LIVE from the kernel every time it is asked
+    and CACHED NOWHERE.  It is the single source of the core ceiling: probe_hygiene(),
+    tick() and EVERY nproc-dependent selftest control call this and nothing else.
+
+    WHY IT IS A FUNCTION AND NOT A CONSTANT (2026-09-12).  This box was resized from 16 to
+    96 cores while the runner's gate C and gate E END-TO-END controls injected a
+    HARD-CODED "14 live ranks" / "13.5 solver cores" and asserted a HOLD.  On 96 cores
+    14 + 2 + 4 = 20 <= 96, so the gate correctly LAUNCHED and the CONTROL was the thing
+    that was wrong -- the runner then refused to start on a true gate and a false control,
+    and the whole lab stopped scheduling.  A control carrying the box's size as a literal
+    must be hand-edited at every resize, and a control that gets hand-edited to make a
+    verdict come out is no longer a control.  So the controls now DERIVE their injected
+    readings from THIS function, the same reading the gate itself uses, and they are true
+    on a 16-core box and a 96-core box alike without being touched.
+
+    Reading it twice in one tick is deliberate and cheap: a cached value is precisely the
+    defect this function exists to prevent."""
+    return os.cpu_count() or 1
+
+
 def core_gate(entry: dict, live_ranks: int, ncpu: int,
               reserve: int = FLEET_CORE_RESERVE) -> tuple[str, str]:
     """GATE C -- her item 8: "solver ranks plus fleet processes never exceed 16 (or nproc).
@@ -950,7 +971,7 @@ def probe_hygiene(paths: list[str] | None = None, proc_root: str = "/proc") -> d
         load1 = -1.0
     return dict(load1=load1, disks=disks, swap=swap_offenders(proc_root),
                 solver_cpu=probe_solver_cpu(proc_root=proc_root),
-                ncpu=os.cpu_count() or 1)
+                ncpu=box_ncpu())
 
 
 def _solver_pids(proc_root: str = "/proc") -> list[tuple[int, str]]:
@@ -1818,7 +1839,7 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
         return "EMPTY"
     busy, mem = measure_box(busy_window) if measure is None else measure()
     busy, mem = float(busy), float(mem)
-    ncpu = os.cpu_count() or 1
+    ncpu = box_ncpu()          # LIVE, never cached -- see box_ncpu()
     busy_cores = busy / 100.0 * ncpu
     log(f"box busy={busy:.1f}% (~{busy_cores:.1f}/{ncpu} cores) MemAvailable={mem:.1f} GB; "
         f"{total} entr{'y' if total == 1 else 'ies'} queued")
@@ -1988,7 +2009,7 @@ def selftest() -> int:
     globals()["probe_solver_ranks"] = lambda: dict(
         ranks=0, detail="INJECTED selftest reading: no live solver rank")
     globals()["probe_hygiene"] = lambda: dict(
-        load1=0.5, disks=[dict(path="/INJECTED", percent=10.0)], swap=[], ncpu=16,
+        load1=0.5, disks=[dict(path="/INJECTED", percent=10.0)], swap=[], ncpu=box_ncpu(),
         solver_cpu=dict(cores=0.0, detail="INJECTED: no solver CPU", window_s=0.5))
     # Gate F polls /proc for a readable PPID; 0.2 s keeps the ~20 launches below cheap. The
     # dedicated gate F control passes its own deadline.
@@ -3117,21 +3138,50 @@ def selftest() -> int:
     check("GATE C NEGATIVE: 12 live + 2 reserve + 4 entry = 18 > nproc 16 -> HOLD (a wave "
           "condition), never REFUSE",
           vch == "HOLD" and "18 > nproc 16" in mch and "not refused" in mch, f"{vch}: {mch[:70]}")
+    # END TO END.  THE INJECTED READING IS DERIVED FROM THE RUNNER'S OWN LIVE nproc
+    # READING (box_ncpu()), NEVER FROM A LITERAL.  This control used to inject a
+    # hard-coded 14 live ranks and assert a HOLD; when the box went 16 -> 96 cores on
+    # 2026-09-12 that stopped being a HOLD at all (14 + 2 + 4 = 20 <= 96), the gate was
+    # right, the CONTROL was wrong, and the fail-closed wrapper stopped the whole lab
+    # scheduling on a false red.  HOLD arm: nproc - FLEET_CORE_RESERVE live ranks, so
+    # (nproc - 2) + 2 reserve + 4 entry ranks = nproc + 4 > nproc on ANY box -- 14 ranks
+    # on a 16-core box, 94 on this 96-core one, with no edit.  LAUNCH arm: 0 ranks.
+    NCPU_LIVE = box_ncpu()
+    c_hold_ranks = NCPU_LIVE - FLEET_CORE_RESERVE
     c_e2e = _entry_at(_foam_case("C_E2E"), case_id="SELFTEST_GATE_C_E2E", ranks=4,
                       solver_class="openfoam-steady")
     (root / "cfd" / "SELFTEST_GATE_C_E2E.json").write_text(json.dumps(c_e2e))
     n_before_c = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
     rc_busy = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
-                   ranks_probe=lambda: dict(ranks=14, detail="INJECTED: 14 live ranks"))
+                   ranks_probe=lambda: dict(
+                       ranks=c_hold_ranks,
+                       detail=f"INJECTED: nproc({NCPU_LIVE}) - reserve({FLEET_CORE_RESERVE}) "
+                              f"= {c_hold_ranks} live ranks"))
     still_c = (root / "cfd" / "SELFTEST_GATE_C_E2E.json").exists()
     rc_free = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
                    ranks_probe=lambda: dict(ranks=0, detail="INJECTED: idle box"))
     n_after_c = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
-    check("GATE C END TO END: with 14 live ranks injected the 4-rank entry is HELD and STAYS "
-          "QUEUED (no LAUNCH_LOG row); with 0 live ranks the same entry LAUNCHES. The control "
-          "flips on the injected rank reading alone",
+    check(f"GATE C END TO END: with nproc-{FLEET_CORE_RESERVE} = {c_hold_ranks} live ranks "
+          f"injected (DERIVED from this box's live nproc {NCPU_LIVE}, not a literal) the "
+          f"4-rank entry is HELD and STAYS QUEUED (no LAUNCH_LOG row); with 0 live ranks the "
+          f"same entry LAUNCHES. The control flips on the injected rank reading alone",
           rc_busy == "HELD" and still_c and rc_free == "LAUNCHED" and n_after_c - n_before_c == 1,
-          f"busy={rc_busy} free={rc_free} rows={n_after_c - n_before_c}")
+          f"nproc={NCPU_LIVE} busy={rc_busy} free={rc_free} rows={n_after_c - n_before_c}")
+    # PLANT: the HOLD above is produced by the DERIVED reading and not by the mere presence
+    # of an injection. A SMALL CONSTANT rank count -- the kind the old control carried --
+    # launches the identical entry, on 16 cores and on 96 alike.
+    c_plant = _entry_at(_foam_case("C_E2E_PLANT"), case_id="SELFTEST_GATE_C_E2E_PLANT",
+                        ranks=4, solver_class="openfoam-steady")
+    (root / "cfd" / "SELFTEST_GATE_C_E2E_PLANT.json").write_text(json.dumps(c_plant))
+    n_before_cp = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
+    rc_small = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
+                    ranks_probe=lambda: dict(ranks=4, detail="INJECTED: 4 live ranks (a LITERAL)"))
+    n_after_cp = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
+    check("GATE C PLANT (the derivation is what holds): injecting a SMALL LITERAL rank count "
+          "of 4 LAUNCHES the identical 4-rank entry, so the HOLD above comes from the "
+          "nproc-derived reading and not from an injection being present at all",
+          rc_small == "LAUNCHED" and n_after_cp - n_before_cp == 1,
+          f"tick={rc_small} rows={n_after_cp - n_before_cp}")
 
     # ---- GATE D (her item 6): never root
     vd, md = root_gate(dict(launch_cmd=["bash", "run.sh"]))
@@ -3176,7 +3226,7 @@ def selftest() -> int:
           "euid 0" in euid_raised and euid_ok == "", f"root_refused={bool(euid_raised)}")
 
     # ---- GATE E (her items 17-18): box hygiene
-    clean = dict(load1=1.0, disks=[dict(path="/", percent=48.0)], swap=[], ncpu=16,
+    clean = dict(load1=1.0, disks=[dict(path="/", percent=48.0)], swap=[], ncpu=box_ncpu(),
                  solver_cpu=dict(cores=0.1, detail="INJECTED", window_s=0.5))
     ve, me = hygiene_gate(clean, 16)
     check("GATE E POSITIVE: 48 % disk, loadavg 1.0 on 16 cores, nothing swapping -> PASS",
@@ -3221,23 +3271,33 @@ def selftest() -> int:
           "nothing is never an idle box",
           vlp == "HOLD" and "LOAD-PROBE-FAILED" in vlp + mlp and vlm == "HOLD"
           and "LOAD-PROBE-FAILED" in mlm, f"unsampled={vlp} missing={vlm}")
+    # END TO END, on the SAME derivation as gate C's and for the same reason: the injected
+    # HOLD reading is nproc - FLEET_CORE_RESERVE - 1.5 SOLVER cores, so
+    # (nproc - 3.5) + 2 reserve + 4 entry ranks = nproc + 2.5 > nproc on ANY box -- 13.5
+    # cores on a 16-core box, 92.5 on this 96-core one, with no edit. The hard-coded 13.5
+    # was a HOLD only while the box had 16 cores, and asserting it on 96 is what took the
+    # runner down on 2026-09-12.
+    l_hold_cores = float(NCPU_LIVE) - FLEET_CORE_RESERVE - 1.5
     l_e2e = _entry_at(_foam_case("E_LOAD_E2E"), case_id="SELFTEST_GATE_E_LOAD_E2E", ranks=4,
                       solver_class="openfoam-steady")
     (root / "cfd" / "SELFTEST_GATE_E_LOAD_E2E.json").write_text(json.dumps(l_e2e))
     n_before_l = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
     rl_hot = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
                   hygiene_probe=lambda: dict(clean, load1=2.0, solver_cpu=dict(
-                      cores=13.5, detail="INJECTED: 4 solvers hot", window_s=0.5)))
+                      cores=l_hold_cores,
+                      detail=f"INJECTED: nproc({NCPU_LIVE}) - {FLEET_CORE_RESERVE} - 1.5 = "
+                             f"{l_hold_cores:.1f} solver cores hot", window_s=0.5)))
     still_l = (root / "cfd" / "SELFTEST_GATE_E_LOAD_E2E.json").exists()
     rl_idle = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
                    hygiene_probe=lambda: dict(clean, load1=24.0, solver_cpu=dict(
                        cores=0.3, detail="INJECTED: idle solvers", window_s=0.5)))
     n_after_l = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
-    check("GATE E LOAD END TO END: 13.5 solver cores injected -> the 4-rank entry is HELD and "
-          "stays queued; 0.3 solver cores with a SYSTEM loadavg of 24.0 -> the same entry "
-          "LAUNCHES. The tick flips on solver-attributed CPU, not on loadavg",
+    check(f"GATE E LOAD END TO END: {l_hold_cores:.1f} solver cores injected (DERIVED from "
+          f"this box's live nproc {NCPU_LIVE}, not a literal) -> the 4-rank entry is HELD and "
+          f"stays queued; 0.3 solver cores with a SYSTEM loadavg of 24.0 -> the same entry "
+          f"LAUNCHES. The tick flips on solver-attributed CPU, not on loadavg",
           rl_hot == "HELD" and still_l and rl_idle == "LAUNCHED" and n_after_l - n_before_l == 1,
-          f"hot={rl_hot} idle={rl_idle} rows={n_after_l - n_before_l}")
+          f"nproc={NCPU_LIVE} hot={rl_hot} idle={rl_idle} rows={n_after_l - n_before_l}")
 
     e_e2e = _entry_at(_foam_case("E_E2E"), case_id="SELFTEST_GATE_E_E2E",
                       solver_class="openfoam-steady")
@@ -3245,12 +3305,12 @@ def selftest() -> int:
     n_before_e = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
     _cpu_idle = dict(cores=0.1, detail="INJECTED", window_s=0.5)
     re_dirty = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
-                    hygiene_probe=lambda: dict(load1=1.0, ncpu=16, swap=[],
+                    hygiene_probe=lambda: dict(load1=1.0, ncpu=box_ncpu(), swap=[],
                                                solver_cpu=_cpu_idle,
                                                disks=[dict(path="/INJECTED", percent=92.0)]))
     still_e = (root / "cfd" / "SELFTEST_GATE_E_E2E.json").exists()
     re_clean = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet,
-                    hygiene_probe=lambda: dict(load1=1.0, ncpu=16, swap=[],
+                    hygiene_probe=lambda: dict(load1=1.0, ncpu=box_ncpu(), swap=[],
                                                solver_cpu=_cpu_idle,
                                                disks=[dict(path="/INJECTED", percent=10.0)]))
     n_after_e = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
@@ -3278,10 +3338,39 @@ def selftest() -> int:
           f"load1={live_h.get('load1')} ranks={live_r.get('ranks')} "
           f"solver_cores={live_h.get('solver_cpu', {}).get('cores')} "
           f"[{live_h.get('solver_cpu', {}).get('detail', '')[:40]}]")
+    # G-REAL-BOX: the TWO BOX READINGS the gates stand on -- gate C/E's nproc and gate B's
+    # MemAvailable -- are taken LIVE from the kernel at the moment they are asked, and are
+    # not carried from a previous box. This box was resized 16 -> 96 cores and 739 GiB on
+    # 2026-09-12; a stale reading of either number is silent and would mis-schedule every
+    # wave, so both are read here against /proc and compared with the runner's own readers.
+    live_ncpu = box_ncpu()
+    with open("/proc/meminfo") as _mf:
+        _mem_kb = next(int(l.split()[1]) for l in _mf if l.startswith("MemAvailable:"))
+    _mem_direct = _mem_kb / (1024.0 * 1024.0)
+    live_busy, live_mem = measure_box(0.05)
+    live_h2 = probe_hygiene()
+    check("G-REAL-BOX: nproc and MemAvailable are LIVE readings, not values cached from a "
+          "previous box -- box_ncpu() matches os.cpu_count() and the reading probe_hygiene() "
+          "reports, and measure_box() returns a busy % in [0, 100] with a MemAvailable "
+          "within 2 % of an independent read of /proc/meminfo taken in this same check",
+          live_ncpu == (os.cpu_count() or 1) and live_ncpu >= 1 and
+          int(live_h2.get("ncpu", -1)) == live_ncpu and
+          0.0 <= float(live_busy) <= 100.0 and float(live_mem) > 0.0 and
+          abs(float(live_mem) - _mem_direct) <= 0.02 * _mem_direct,
+          f"nproc={live_ncpu} probe_ncpu={live_h2.get('ncpu')} busy={float(live_busy):.1f}% "
+          f"mem_runner={float(live_mem):.1f} GB mem_direct={_mem_direct:.1f} GB")
+    # PLANT for G-REAL-BOX: the MemAvailable comparison above is shown able to FAIL. A
+    # reading 20 % away from the live one does not satisfy the same 2 % condition, so the
+    # pass above is the reader agreeing with /proc and not the condition being vacuous.
+    _mem_wrong = _mem_direct * 1.20
+    check("G-REAL-BOX PLANT: a MemAvailable reading 20 % off the live /proc value FAILS the "
+          "same 2 % condition the control passes -- the comparison discriminates",
+          not (abs(_mem_wrong - _mem_direct) <= 0.02 * _mem_direct),
+          f"planted={_mem_wrong:.1f} GB vs live {_mem_direct:.1f} GB")
     globals()["probe_solver_ranks"] = lambda: dict(
         ranks=0, detail="INJECTED selftest reading: no live solver rank")
     globals()["probe_hygiene"] = lambda: dict(
-        load1=0.5, disks=[dict(path="/INJECTED", percent=10.0)], swap=[], ncpu=16,
+        load1=0.5, disks=[dict(path="/INJECTED", percent=10.0)], swap=[], ncpu=box_ncpu(),
         solver_cpu=dict(cores=0.0, detail="INJECTED: no solver CPU", window_s=0.5))
 
     # ---- GATE F (her item 9): detachment, VERIFIED and not merely argued
