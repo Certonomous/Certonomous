@@ -50,7 +50,10 @@ STAGGER="${4:-0}"
 
 cd "$RUNDIR" || exit 3
 exec > LAUNCH.log 2>&1
-echo "=== MRF_R1 graded launch  $(date -u +%FT%TZ)  rundir=$RUNDIR ranks=$RANKS endTime=$ENDTIME"
+# Rung-neutral label: this launcher is SHARED between MRF rungs, and hardcoding
+# "MRF_R1" mislabelled every R2 artifact it wrote (found on R2 fine, 2026-09-11).
+# The rundir below carries the rung; the banner must not contradict it.
+echo "=== MRF graded launch  $(date -u +%FT%TZ)  rundir=$RUNDIR ranks=$RANKS endTime=$ENDTIME"
 
 fail() { echo "REFUSE: $*"; echo "REFUSED" > RC.txt; exit 2; }
 
