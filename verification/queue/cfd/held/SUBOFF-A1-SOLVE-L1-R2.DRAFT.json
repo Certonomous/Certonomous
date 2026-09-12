@@ -1,0 +1,37 @@
+{
+  "_STATUS": "DRAFT -- NOT PLACEABLE AS IT STANDS. verification/queue/cfd/held/ is NOT polled by the daemon (queue_runner.py globs '*.json' non-recursively at :292, :440, :700). Moving this into verification/queue/cfd/ ARMS A LAUNCH on the next ~65 s tick.",
+  "team": "cfd",
+  "case_id": "SUBOFF-A1-SOLVE-L1-R2",
+  "prereg_path": "verification/campaign/SUBOFF_A1_PREREGISTRATION.md",
+  "prereg_commit": "PENDING_CFD_SUPERVISOR_FREEZE_SEE_PREREG_SECTION_10",
+  "_prereg_commit_NOTE": "Same blocker as the L2 draft, and it is the SAME freeze: section 10's FREEZE BLOCK is blank at HEAD ('FROZEN AT COMMIT: ....................', HEAD line 608) and section 13.3 makes BOTH solve launches turn on it. Left non-hex on purpose so a premature move into the live path is REFUSED by COMMIT-EXISTS rather than launched.",
+  "grading_freeze": [
+    "verification/runs/navier_class/SUBOFF_A1/GRADER_PINNED_8efe38e8f.py"
+  ],
+  "launch_cmd": [
+    "env",
+    "USER=ubuntu",
+    "bash",
+    "/home/ubuntu/Certonomous/cases/navier_class/SUBOFF_A1/solve_level.sh",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1/SOLVE_L1_R2",
+    "4",
+    "8"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1",
+  "ranks": 4,
+  "cost_core_min_estimate": 2844.0,
+  "cap_core_min_registered": 3800.0,
+  "cost_basis": "DERIVED, NOT MEASURED; rate $0.0513/core-h OWNER-STATED, the box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5). RATE ANCHOR MEASURED ON THIS CASE'S OWN KILLED PREDECESSOR: SOLVE_L1/log.simpleFoam, ExecutionTime 5568.40 s at iteration 355 -> 5639.51 s at iteration 360 = 14.22 s/iteration at 4 ranks, taken from a contention-free stretch. 0.948 core-min/iteration x 3000 = 2,844 core-min, wall ~11.85 h at 4 ranks. Pre-registration 13.9 registered 2,619 expected and a 3,800 sub-cap: this measured-rate estimate is 1.086x the expectation and 0.748x the sub-cap. DERIVED USD $2.43 (at the sub-cap $3.25).",
+  "memory_floor_gb": 8.0,
+  "_memory_NOTE": "DERIVED at 2.083 GiB/Mcell (the L2 launcher's own registered figure) x 3.268613 Mcell = 6.81 GiB, rounded up to 8. MEASURED UPPER BOUND, independent of that figure: SOLVE_L1/STATUS.solve records available_GiB_at_launch=11 and the run then completed 369 iterations at 4 ranks without an OOM, so the true footprint is <= 11 GiB. No peak RSS exists (the /usr/bin/time -v instrumentation post-dates that launch); the relaunch measures it into STATUS.solve as simpleFoam_peak_rss_kB. Against 116 GiB free this clears by 14x on the point figure and 10x on the bound.",
+  "_PRECONDITIONS": [
+    "1. FREEZE -- as the L2 draft. cfd-supervisor, personally, section 10.",
+    "2. FRESH CASE DIRECTORY SOLVE_L1_R2 MUST BE BUILT AND DOES NOT YET EXIST. The predecessor SOLVE_L1/ holds 0/, processor0-3/0/, log.simpleFoam and postProcessing/, so solve_level.sh's own monitor-stop S5 guard REFUSES it (exit 81) and the queue AGE-GUARD would refuse it too. Section 13.7: 'A guard is satisfied by MOVING the case, never by disabling the guard.' SOLVE_L1/ IS DELIBERATELY LEFT BYTE-UNTOUCHED rather than moved, because it is the sole artifact the iteration-368 triage cites; a fresh sibling is built instead. Build: python3 cases/navier_class/SUBOFF_A1/setup_solve.py --mesh-dir <...>/SUBOFF_A1/L1 --case <...>/SUBOFF_A1/SOLVE_L1_R2 --level L1 --ranks 4 --end-time 3000 --ct-reference <...>/SUBOFF_A1/CT_REFERENCE.json --scratch <scratch>. The builder pins every polyMesh file by sha256 in source and destination and refuses on mismatch; the expected hashes are in SOLVE_L1/SOLVE_MANIFEST.json.",
+    "3. CHECKPOINT POLICY: writeInterval 60, purgeWrite 2. 60 iterations x 14.22 s = 853 s = 14.2 min per checkpoint against Sanaa's 30-min ceiling, 60 divides 3000 exactly (50 writes), and the margin tolerates the box running 2.1x slower than the anchor. setup_solve.py hard-codes writeInterval == endTime (:230) and purgeWrite 0 (:231) and has no CLI option for either -- see the L2 draft's precondition 3; the same generator change or the same two-line controlDict edit serves both levels, and it needs one dated addendum, not two.",
+    "4. RUNNER GUARDS live (Sanaa item 4).",
+    "5. ubuntu, never root."
+  ],
+  "_WHY_THIS_IS_A_RELAUNCH_AND_NOT_A_RESUME": "No checkpoint exists. SOLVE_L1/processor*/ hold only 0/ (5 files each); writeInterval was 3000, so the first and only field write was to have been at endTime and it never fired. The census reaches the same verdict independently (docs/RESIZE_CENSUS_2026-09-12.md row 6: NEEDS RELAUNCH FROM SCRATCH). 369 iterations and ~3,295 core-min gross are lost, and precondition 3 is exactly the change that stops it happening again.",
+  "_WHY_NO_MESH_FIX_IS_APPLIED_HERE": "TRIAGE OF THE ITERATION-368 STALL FOUND NO MESH SIGNATURE AND NO SOLVER SIGNATURE. Sanaa's rule is 'a plateau with the pressure solver at its cap is the wall-layer/mesh signature -- fix the mesh, do not relax the solver'. THE ANTECEDENT IS FALSE HERE, MEASURED: at iterations 366-369 GAMG solves p in 5, 2 and 1 iterations for the three non-orthogonal correctors, against OpenFOAM v2606's default maxIter of 1000 (src/OpenFOAM/matrices/lduMatrix/lduMatrix/lduMatrix.H:125, 'static constexpr const label defaultMaxIter = 1000', and lduMatrixSolver.C:205 readIfPresent -- SUBOFF's fvSolution sets no maxIter, so the cap IS 1000). The pressure solver is at 0.5% of its cap. Residuals are falling monotonically, not plateaued and not oscillating: Ux initial residual 5.43e-07 -> 2.06e-07 between iterations 300 and 369, and Cd's linear-fit drift over the last 10/20/30/50/100/150/200 iterations is +0.011/+0.025/+0.041/+0.081/+0.244/+0.574/+1.225 %, monotone in magnitude AND single-signed at every window, with Cd strictly increasing over the last 100. The counter pinned at 368 because each iteration took 5.6 HOURS OF WALL CLOCK on a starved box (ClockTime per iteration 70 s at iteration 360, 9,361 s at 367, 20,190 s at 368; MemAvailable 1.42 GiB and 251 consecutive GATE CLOSED readings elsewhere on the same box), not because the solver stopped converging. NEITHER a mesh change NOR a relaxation change is applied to this relaunch. L1's separate, real GATE FAIL on M-d (8.6227045e-04 vs a 1.0e-03 floor) stands untouched and is NOT what stalled this run.",
+  "_OWED_AT_COMPLETION": "Gates S-C / S-W / S-CT, monitor stops S1 and S3 (S3's registered 500-iteration regression was BLOCKED on the killed run by falsifier A3 -- only 368 Cd rows existed), and a rule-12 COST_CALIBRATION.md row for BOTH the killed run and this one, contention on its own line."
+}
