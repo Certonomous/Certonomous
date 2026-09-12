@@ -193,7 +193,9 @@ def read_mesh_indices(pm: Path) -> dict:
     used[inrange] = True
     return {
         "n_points_file": int(len(pts)),
-        "n_points_header": hdr_p.get("nPoints"),
+        # nPoints is carried by the OWNER note, not by the points file header --
+        # measured on LAYERFIX_A1: the points header has no note: at all.
+        "n_points_header": hdr_o.get("nPoints"),
         "n_faces_file": int(len(counts)),
         "n_faces_header": hdr_o.get("nFaces"),
         "n_cells_header": hdr_o.get("nCells"),
@@ -413,7 +415,26 @@ def plant_P3_index(pm: Path, log):
     (q / "faces").write_bytes(raw[:m.start(2)] + str(bad).encode() + raw[m.end(2):])
     got = read_mesh_indices(q)                     # READ BACK FROM DISK
     saw_range = got["n_out_of_range_indices"] >= 1 and got["max_face_vertex_index"] == bad
-    saw_unused = got["n_unused_points"] > base["n_unused_points"]
+
+    # The unused-point limb needs its OWN plant.  Re-pointing a face vertex does
+    # NOT orphan the point it left: every interior point is referenced by several
+    # faces, so the count cannot move.  Measured on LAYERFIX_A1: the index plant
+    # above left n_unused_points at 0.  An unreferenced point is planted by
+    # APPENDING one to a copy of the points file instead.
+    shutil.copy2(pm / "faces", q / "faces")
+    praw = (q / "points").read_bytes()
+    hb = praw.index(b"}")
+    mc = re.search(rb"(\d+)\s*\n\s*\(", praw[hb:])
+    n0 = int(mc.group(1))
+    kk = praw.rindex(b")")
+    (q / "points").write_bytes(
+        praw[:hb + mc.start(1)] + str(n0 + 1).encode() + praw[hb + mc.end(1):kk]
+        + b"(1e6 1e6 1e6)\n" + praw[kk:])
+    got_u = read_mesh_indices(q)                   # READ BACK FROM DISK
+    saw_unused = (got_u["n_points_file"] == base["n_points_file"] + 1
+                  and got_u["n_unused_points"] == 1
+                  and base["n_unused_points"] == 0)
+    shutil.copy2(pm / "points", q / "points")
 
     hraw = (q / "owner").read_bytes()
     h2 = re.sub(rb"nCells:(\d+)", b"nCells:999999999", hraw, count=1)
@@ -428,7 +449,7 @@ def plant_P3_index(pm: Path, log):
                              "max_face_vertex_index": base["max_face_vertex_index"]},
                 "planted_bad_index": int(bad),
                 "read_back": {"n_out_of_range_indices": got["n_out_of_range_indices"],
-                              "n_unused_points": got["n_unused_points"],
+                              "n_unused_points_after_appended_point": got_u["n_unused_points"],
                               "max_face_vertex_index": got["max_face_vertex_index"],
                               "n_cells_header_after_count_plant": got2["n_cells_header"]}})
     shutil.rmtree(d, ignore_errors=True)
@@ -460,14 +481,23 @@ def plant_P4_wall_distance(case: Path, mesh, owner, cellC, wall_rows, log):
             if depth == 0: break
         k += 1
     body = raw[j + 1:k]
-    vecs = re.findall(rb"\([^()]*\)", body)
-    if len(vecs) <= cell:
+    # Splice by SPAN, not by re.replace(count=1): two cell centres can carry the
+    # same text and the first occurrence would then be the wrong cell.
+    spans = [m.span() for m in re.finditer(rb"\([^()]*\)", body)]
+    if len(spans) <= cell:
         raise SystemExit("REFUSE: P4 -- could not address the owner cell in constant/C")
-    v = np.fromstring(vecs[cell].strip(b"()"), sep=" ")
+    a, b = spans[cell]
+    v = np.fromstring(body[a:b].strip(b"()"), sep=" ")
     n = mesh["_P4_normal"]
-    v2 = v + DELTA * n
+    # A BOUNDARY FACE NORMAL POINTS OUT OF THE DOMAIN, so the owner cell centre
+    # sits on the -n side and dot(C_own - Cf, n) is NEGATIVE.  Displacing by +n
+    # would move the centre TOWARD the face and SHRINK the distance by DELTA.
+    # The plant is therefore applied along the sign that is actually outward from
+    # the wall, so the expected read-back is base_d + DELTA at every patch.
+    sgn = 1.0 if float(np.dot(v - mesh["_P4_facecentre"], n)) >= 0 else -1.0
+    v2 = v + sgn * DELTA * n
     newvec = ("(%.12g %.12g %.12g)" % tuple(v2)).encode()
-    body2 = body.replace(vecs[cell], newvec, 1)
+    body2 = body[:a] + newvec + body[b:]
     p.write_bytes(raw[:j + 1] + body2 + raw[k:])
 
     cellC2 = read_cell_centres(p, len(cellC))      # READ BACK FROM DISK
@@ -546,6 +576,11 @@ def measure_level(case: Path, plants: list) -> dict:
     plant_P2_layer_scope(case / "log.snappyHexMesh", plants)
     snappy = read_snappy(case / "log.snappyHexMesh")
 
+    for k in ("n_points_header", "n_faces_header", "n_cells_header"):
+        if mi[k] is None:
+            raise SystemExit(f"REFUSE: {k} absent from constant/polyMesh/owner's note -- "
+                             "the index test cannot be cross-checked and a splice would "
+                             "go undetected")
     idx_ok = (mi["n_out_of_range_indices"] == 0
               and mi["n_unused_points"] == 0
               and mi["n_points_file"] == mi["n_points_header"]
@@ -582,10 +617,21 @@ def measure_level(case: Path, plants: list) -> dict:
     sc, lc = snappy["snapped_cells"], snappy["layer_cells"]
     gained = (lc - sc) if (sc and lc) else None
     wall_adj = snappy["n_extrude_candidates"]
+    # Coverage, by snappy's OWN arithmetic and the identical arithmetic A1 used:
+    # cells gained over (candidate wall faces x nSurfaceLayers).  A1 recorded
+    # 58,479 / 116,825 = 50.057 %, and 116,825 = 23,365 x 5.
+    nlay = 5
+    cov = (100.0 * gained / (wall_adj * nlay)) if (gained is not None and wall_adj) else None
     r["layers"] = {"snapped_cells": sc, "layer_cells": lc, "cells_gained": gained,
                    "extruded_faces": snappy["n_extruded"],
                    "extrude_candidate_faces": wall_adj,
+                   "nSurfaceLayers_requested": nlay,
+                   "max_possible_layer_cells": (wall_adj * nlay) if wall_adj else None,
+                   "coverage_pct": cov,
                    "layer_iterations": snappy["layer_iterations"]}
+    r["gate_M3"] = (None if cov is None else
+                    "PASS" if cov >= 70.0 else
+                    "GATE FAIL (MIDDLE band)" if cov >= 40.0 else "GATE FAIL (LOW band)")
     r["achieved_layer_table"] = snappy["achieved"]
     return r, mi, snappy
 
@@ -667,6 +713,11 @@ def main():
     rec, mi, snappy = measure_level(Path(a.case), plants)
     if a.yplus:
         rec["yplus"] = yplus_level(Path(a.case), mi, snappy, plants)
+        g = rec["yplus"]["layered_group"]
+        y = g["yplus_area_weighted_median"] if g else None
+        rec["gate_Y1"] = (None if y is None else
+                          "WALL-FUNCTION ADMISSIBLE" if 30.0 <= y <= 300.0
+                          else "NOT WALL-FUNCTION ADMISSIBLE")
     if a.coefficients:
         plant_P5_window(Path(a.coefficients), plants, a.window[0], a.window[1])
         rec["window"] = window_stats(read_coefficients(Path(a.coefficients)),

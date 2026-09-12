@@ -32,7 +32,14 @@ cd "$ROOT" || exit 2
 cp -r 0.orig 0
 touch 0/U 0/p 0/k 0/omega 0/nut
 
-CAP_S=$(( CAP_MIN * 60 / NP ))            # core-min cap -> wall-second cap at NP ranks
+# ADDENDUM 2026-09-12 (owner directive "i dont want any cap on any run", relayed
+# by the cfd-supervisor and recorded as RELAYED, NOT DIRECTLY OBSERVED BY THIS
+# LANE): NO SPEND CAP TERMINATES THE SOLVER.  CAP_MIN is retained as a PREDICTION
+# SCORED against the actual at completion under rule 12 -> CAP_SCORED.txt.
+# MEMORY DISCIPLINE IS UNAFFECTED and is enforced above: hardware, not budget.
+# A run still stops for PHYSICS and TRIAGE -- a divergence or a refused mesh is a
+# FINDING and is stopped.  What is disarmed is stopping a HEALTHY run for spend.
+CAP_S=0
 : > RUN_META.txt
 { echo "launched_utc=$(date -u +%FT%TZ)"; echo "cwd=$ROOT"; echo "ranks=$NP"
   echo "cap_core_min=$CAP_MIN"; echo "cap_wall_s=$CAP_S"
@@ -52,7 +59,8 @@ DPD
   rc=$?; echo "decomposePar rc=$rc" >> RUN_META.txt
   [ $rc -ne 0 ] && { write_rc $rc; exit $rc; }
   echo "solver_started_utc=$(date -u +%FT%TZ)" >> RUN_META.txt
-  timeout -k 60 "$CAP_S" nice -n 5 mpirun -np "$NP" simpleFoam -parallel > log.simpleFoam 2>&1
+  # ADDENDUM 2026-09-12: no spend cap is armed on the solver. See the header note.
+  nice -n 5 mpirun -np "$NP" simpleFoam -parallel > log.simpleFoam 2>&1
   rc=$?                                   # <-- captured INSIDE the wrapper
   echo "simpleFoam rc=$rc" >> RUN_META.txt
   if [ $rc -eq 0 ]; then
@@ -64,7 +72,7 @@ DPD
   fi
 else
   echo "solver_started_utc=$(date -u +%FT%TZ)" >> RUN_META.txt
-  timeout -k 60 "$CAP_S" nice -n 5 simpleFoam > log.simpleFoam 2>&1
+  nice -n 5 simpleFoam > log.simpleFoam 2>&1
   rc=$?
   echo "simpleFoam rc=$rc" >> RUN_META.txt
 fi
@@ -72,9 +80,11 @@ E=$(date +%s); W=$((E-S))
 echo "finished_utc=$(date -u +%FT%TZ)" >> RUN_META.txt
 echo "wall_s=$W" >> RUN_META.txt
 awk -v w="$W" -v n="$NP" 'BEGIN{printf "core_min=%.1f\n", w*n/60.0}' >> RUN_META.txt
-if [ "$rc" = "124" ] || [ "$rc" = "137" ]; then
-  echo "CAP EXCEEDED: cap ${CAP_MIN} core-min (${CAP_S} s wall at ${NP} ranks), elapsed ${W} s. RUN STOPPED -- NOT A RESULT. No new budget." \
-      > "$ROOT/CAP_BREACH.txt"
+awk -v w="$W" -v n="$NP" -v c="$CAP_MIN" 'BEGIN{printf "cap_core_min=%s\nactual_core_min=%.1f\nactual_over_predicted=%.3f\nnote=THE CAP IS A PREDICTION SCORED AT COMPLETION (rule 12), NOT A KILL -- addendum 2026-09-12\n", c, w*n/60.0, (w*n/60.0)/c}' \
+    > "$ROOT/CAP_SCORED.txt"
+if [ "$rc" = "137" ] || [ "$rc" = "143" ]; then
+  echo "rc=$rc: KILLED FROM OUTSIDE (OOM, operator, or session end). Falsifier class 3d -- NOT A RESULT, reported with the last written time and the surviving time directories named. This is NOT a cap stop; no spend cap is armed." \
+      > "$ROOT/EXTERNAL_KILL.txt"
 fi
 write_rc $rc
 exit $rc

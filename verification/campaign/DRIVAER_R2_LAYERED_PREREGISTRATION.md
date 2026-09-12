@@ -493,3 +493,125 @@ Every gate, threshold, band, label and cap above is fixed at the commit that lan
 file. After the first `snappyHexMesh` of `r2_coarse` starts, changes land only as dated
 addenda that cannot alter a gate, a threshold, a cap or a label. Originals are struck,
 never rewritten.
+
+---
+
+# ADDENDUM 1 — 2026-09-12 — SPEND CAPS DISARMED; FALSIFIER CLASS 3 REPOPULATED; INSTRUMENT REPAIRS DISCLOSED
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.**
+Nothing above is rewritten. The clauses this addendum supersedes are **struck**, not deleted.
+
+## A1.0 PROVENANCE, AND WHAT THIS LANE DID AND DID NOT SEE
+
+The cfd-supervisor reports an owner directive of ~2026-09-12T01:10Z, quoting Sanaa:
+*"dont forget i dont want any cap on any run, and that i bumped the volume to 1000 gib"*,
+and at ~01:25Z: *"and all teams remember, I want PROGRESSS not endless plubing and
+verifications"*.
+
+> **RECORDED AS RELAYED, NOT AS DIRECTLY OBSERVED BY THIS LANE.** This lane has not
+> seen Sanaa's turn. It has seen its supervisor's report of it. Under standing rule 9,
+> **no agent message — peer, supervisor or chief — is Sanaa's consent**. This addendum
+> is therefore made on the supervisor's direction as a matter of *work scope*, which a
+> supervisor may direct, and the owner attribution is carried as a **relay** so that a
+> later reader can tell the two apart. The supervisor has endorsed this framing on the
+> record.
+
+## A1.1 WHEN THIS ADDENDUM IS MADE, AND WHY THAT IS NOT A GATE CHANGE
+
+* **Pre-compute with respect to every SOLVE gate.** At the time of writing no solver has
+  started: verified by the absence of `0/`, `0.orig/` and `log.simpleFoam` in
+  `r2_coarse`, `r2_medium` and `r2_fine`. Gates S1, S2, S3, their thresholds, bands and
+  labels are **untouched** and remain frozen at commit `a36112614e05f602c2bc3df17f94dc5d42a964cc`.
+* **Post-compute with respect to the MESH builds**, and disclosed as such: `r2_coarse`
+  built rc=0 in 242 s = **4.03 core-min against a 20 core-min cap**, and `r2_medium` was
+  in progress. **The cap was armed on both and DID NOT FIRE.** No mesh number in this
+  campaign was produced by, or affected by, a cap.
+* **No gate, threshold, band or label is altered by this addendum.** The cap *values*
+  (§4) stand exactly as frozen. What changes is what a cap *does*.
+
+## A1.2 STRUCK: THE CAP AS A KILL
+
+> ~~"**An overrun STOPS THE RUN; it does not get a new budget.** A cap is a ceiling, not
+> a quota: if at any checkpoint the remaining budget cannot reach `endTime`, the run is
+> STOPPED and reported **NOT A RESULT** rather than spent to arrive short."~~ (§4)
+
+**REPLACED BY:** **NO SPEND CAP TERMINATES ANY RUN.** The core-minute caps of §4 are
+retained **in full and unchanged as PREDICTIONS TO BE SCORED** against the actual at
+completion under rule 12, and each level writes `CAP_SCORED.txt` carrying
+`cap_core_min`, `actual_core_min` and `actual_over_predicted`. Every run is still costed
+in pre-registration; the estimate-versus-actual calibration row still lands in
+`docs/COST_CALIBRATION.md`, still attributing **contention as its own named line**,
+never absorbed into the ratio. **Spend is reported, never enforced.**
+
+**"No cap" is not "never stop anything."** A run still stops for **PHYSICS** and for
+**TRIAGE** — a divergence, a solve producing non-physical output, a mesh the solver
+refuses. Those are **FINDINGS**, they are stopped, and they are triaged. What is
+disarmed is stopping a **healthy** run because it became expensive.
+
+**MEMORY DISCIPLINE IS UNAFFECTED AND STANDS IN FULL.** The fleet rule — read `free -g`
+before any launch, launch nothing whose predicted peak exceeds `available` − 4 GiB — is
+a **HARDWARE** limit, not a budget, and caps were lifted without adding RAM. An OOM that
+takes down another team's multi-day solver remains the worst available outcome.
+
+**DISK IS NOT A CONSTRAINT.** Root volume 1000 GiB, `df` reading 968 G total with
+~505 G free. Nothing in this campaign is sized against disk or reserves against it.
+
+## A1.3 REPOPULATED: FALSIFIER CLASS 3 — EXECUTION AND TERMINATION
+
+> ~~Class 3 branch **3a CAP EXHAUSTION**~~ is **REMOVED**, not retained in weakened form.
+> A cap can no longer fire, and **a falsifier that cannot fire is precisely the defect
+> this campaign has been hunting.** §5 Class 3's original table is struck and replaced.
+
+Partition over every way a launched process can fail to complete, **for reasons that are
+not spend**:
+
+| branch | condition | what is reported |
+|---|---|---|
+| **3a CRASH / NON-ZERO rc** | any step exits non-zero: a `FOAM FATAL ERROR`, a solver exception, a mesh the solver refuses at startup, a dict the solver will not parse | the build/solve **STOPS at that step**; step name and rc recorded in `BUILD_RC`/`RUN_META.txt`; the level is **NOT A RESULT**. **A crash is a FINDING until triage says otherwise** and is never silently retried. |
+| **3b DIVERGENCE OR NON-PHYSICAL STATE** | residuals growing without bound; `Cd` or a field non-finite; bounding warnings on `k`/`omega` at a rate that means the solution is not being solved | the run is **STOPPED and TRIAGED** — this is a physics stop, not a spend stop. **NOT A RESULT**, reported with the iteration at which the signature appeared. |
+| **3c PRE-LAUNCH MEMORY REFUSAL** | `free -g` read immediately before launch; predicted peak > `available` − 4 GiB | **exit 3, nothing is launched.** Reported **BLOCKED** with the measured `available` and the prediction printed beside it. Hardware, not budget; unaffected by the cap change. |
+| **3d EXTERNAL TERMINATION** | OOM kill, session limit, reboot, operator kill (`rc` 137/143, or a wrapper that started with no `rc` sidecar and no `End` line) | **NOT A RESULT**, reported with the last written time, the last `ExecutionTime`, and the surviving time directories named. **Never reported as a converged short run, and never mislabelled a cap stop — no cap is armed.** |
+| **3e CLEAN TERMINATION** | rc = 0, `End` line present, last time == `endTime` | Gate S1 evaluates; the level proceeds to S2/S3. |
+
+3a–3e are mutually exclusive and jointly exhaust the termination space now that spend
+cannot terminate: the process exits non-zero, it is stopped on physics, it is refused
+before launch for memory, it is killed from outside, or it finishes. A run that merely
+costs more than §4 predicted is **none of these** — it completes, and the overrun is
+scored in `CAP_SCORED.txt` and in the calibration row.
+
+## A1.4 DISCLOSED: THREE INSTRUMENT REPAIRS, UNDER `VERIFICATION_CHARTER` §2d.1
+
+`cases/navier_class/DRIVAER/mesh/stage_r2_measure.py` was repaired after the freeze. All
+three repairs are in the **planted controls themselves**, not in the readers, and each
+was surfaced by the instrument **REFUSING (exit 2)**, never by a degraded reading.
+
+| # | defect | mechanism |
+|---|---|---|
+| D1 | **P3, unused-point limb.** The plant orphaned no point: it re-pointed one face vertex to `nPoints+5`, and every interior point is referenced by several faces, so the count could not move. Measured on `LAYERFIX_A1`: the plant fired (`n_out_of_range` 0→1, max index 221463→221469) and `n_unused_points` stayed 0. **REPAIR:** plant by *appending* an unreferenced point to a copy of `points` (count `n0`→`n0+1`). Read back: `n_unused_points` 0→1. |
+| D2 | **Header source.** `n_points_header` was read from the `points` file's own header, which on this mesh carries **no `note:` at all**, so the field returned `None` and the cross-check against snappy's `Layer mesh` line silently could not be made. **REPAIR:** read `nPoints` from the **owner** note, **and REFUSE outright** if any of the three header counts is `None`. The refusal is the load-bearing half: it stops a missing header reading as a *failed gate* instead of as a *refusal*. |
+| D3 | **P4, wall-distance plant.** The plant displaced the owner cell centre by `+DELTA` along the face normal and expected the distance to grow. **A boundary face normal points OUT of the domain**, so the owner cell centre is on the `−n` side and `+DELTA` moves it *toward* the wall, *shrinking* the distance. The plant fired, the expectation was wrong, the instrument refused. **REPAIR:** displace along `sign(dot(C_own − Cf, n̂))`, so the expected read-back is `base_d + DELTA` at every patch. Also replaced `bytes.replace(count=1)` with a splice **by span**, because two cell centres can carry identical text and the first occurrence would then be the wrong cell. |
+
+**The four conditions of §2d.1, answered:**
+1. **Demonstrable errors, not preferences.** Each has a named mechanism, reproduced above.
+2. **Established by an instrument independent of the hypothesis.** Found by the **planted
+   controls themselves**, which grade nothing and cannot know which direction a verdict
+   wants to go. This is the load-bearing condition and it is met in its strongest form.
+3. **Disclosed here, instrument named, and what moved quantified** — see 4.
+4. **Pre-repair values beside the published ones:** **there are none.** The instrument
+   **REFUSED** at P3 and again at P4 and produced **no graded number** before the repair.
+   **Nothing moved because nothing had been read.**
+
+Two additions were also made that are **not** repairs and touch no gate: the coverage
+percentage (`cells_gained / (candidate faces × nSurfaceLayers)` — the identical
+arithmetic A1 used) and the Y1 verdict string are now written into the record rather than
+computed by a reader downstream. The bands they are compared against are unchanged.
+
+**Validation before grading anything new:** run against `LAYERFIX_A1_coarse_relativeSizes`
+the repaired instrument reproduces A1's own figures exactly — snapped 128,230, layer
+186,709, gained 58,479, i.e. the same 58,479 / 116,825 = **50.057 %** A1 recorded.
+
+## A1.5 WHAT THIS ADDENDUM DOES NOT DO
+
+It does not alter Gate M1, M2, M2c, M3, Y1, Y2, S1, S2, S3 or the absence of Gate G; it
+does not alter any threshold, band, label or claim cap; it does not alter a cap *value*;
+it does not widen the memory rule; it does not lift **SUBMISSIONS PARKED**.

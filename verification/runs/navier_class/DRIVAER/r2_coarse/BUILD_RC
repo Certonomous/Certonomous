@@ -1,0 +1,16 @@
+blockMesh rc=0
+blockMesh 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.43
+blockMesh 	Maximum resident set size (kbytes): 48432
+surfaceFeatureExtract rc=0
+surfaceFeatureExtract 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.82
+surfaceFeatureExtract 	Maximum resident set size (kbytes): 376764
+snappyHexMesh rc=0
+snappyHexMesh 	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:34.48
+snappyHexMesh 	Maximum resident set size (kbytes): 481960
+checkMeshFull rc=0
+checkMeshFull 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:13.25
+checkMeshFull 	Maximum resident set size (kbytes): 296432
+checkMeshPlain rc=0
+checkMeshPlain 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:08.18
+checkMeshPlain 	Maximum resident set size (kbytes): 166000
+ALL_STEPS_OK

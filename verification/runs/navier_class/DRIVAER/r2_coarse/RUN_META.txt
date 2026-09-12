@@ -1,0 +1,10 @@
+level=coarse
+cap_core_min=20
+predicted_peak_GiB=0.6
+free_g_available_at_launch_GiB=16
+ceiling_GiB=12
+wall_s=242
+core_min=4.03
+rc=0
+finished_utc=2026-09-12T01:09:48Z
+eMesh REGENERATED AND BYTE-IDENTICAL to r1_coarse

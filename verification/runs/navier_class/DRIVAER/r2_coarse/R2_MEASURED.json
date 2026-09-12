@@ -1,0 +1,1057 @@
+{
+ "case": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_coarse",
+ "level": "r2_coarse",
+ "M1_zero_polyMesh_absent": true,
+ "index_test": {
+  "n_points_file": 221464,
+  "n_points_header": 221464,
+  "n_faces_file": 592877,
+  "n_faces_header": 592877,
+  "n_cells_header": 186709,
+  "n_internal_faces_header": 564186,
+  "max_face_vertex_index": 221463,
+  "min_face_vertex_index": 0,
+  "n_out_of_range_indices": 0,
+  "n_unused_points": 0,
+  "snappy_layer_mesh_line": {
+   "cells": 186709,
+   "faces": 592877,
+   "points": 221464
+  },
+  "passed": true
+ },
+ "build_all_steps_ok": true,
+ "build_nonzero_rc_steps": [],
+ "gate_M1": "PASS",
+ "checkMesh_full": {
+  "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r2_coarse/log.checkMeshFull",
+  "failed_checks": 3,
+  "failed_lines": [
+   "***Max skewness = 4.7820293, 1 highly skew faces detected which may impair the quality of the results",
+   "***Cells with small determinant (< 0.001) found, number of cells: 40",
+   "***Concave cells (using face planes) found, number of cells: 14723"
+  ],
+  "max_non_ortho": 64.889342,
+  "avg_non_ortho": 11.296007,
+  "max_skewness": 4.7820293,
+  "n_negative_volume_cells": 0,
+  "n_illegal_faces": 0,
+  "n_low_determinant": 40,
+  "n_concave_cells": 14723,
+  "n_skew_faces": 1,
+  "n_severely_non_ortho": 0,
+  "min_determinant": 0.0
+ },
+ "gate_M2": "PASS",
+ "gate_M2c_conforming": false,
+ "layers": {
+  "snapped_cells": 128230,
+  "layer_cells": 186709,
+  "cells_gained": 58479,
+  "extruded_faces": 16887,
+  "extrude_candidate_faces": 23365,
+  "layer_iterations": null
+ },
+ "achieved_layer_table": {
+  "floorNoSlip": {
+   "faces": 5505,
+   "target_layers": 5.0,
+   "mesh_layers": 4.62,
+   "overall_m": 0.353,
+   "pct": 65.6
+  },
+  "BodyA_Pillar": {
+   "faces": 163,
+   "target_layers": 5.0,
+   "mesh_layers": 0.399,
+   "overall_m": 0.0047,
+   "pct": 8.04
+  },
+  "BodyDoorhandles": {
+   "faces": 125,
+   "target_layers": 5.0,
+   "mesh_layers": 0.16,
+   "overall_m": 0.00085,
+   "pct": 2.54
+  },
+  "BodyFasciafront1": {
+   "faces": 1076,
+   "target_layers": 5.0,
+   "mesh_layers": 1.65,
+   "overall_m": 0.0177,
+   "pct": 41.5
+  },
+  "BodyFasciafront2": {
+   "faces": 51,
+   "target_layers": 5.0,
+   "mesh_layers": 0.255,
+   "overall_m": 0.00306,
+   "pct": 3.75
+  },
+  "BodyFender": {
+   "faces": 468,
+   "target_layers": 5.0,
+   "mesh_layers": 2.42,
+   "overall_m": 0.0462,
+   "pct": 64.1
+  },
+  "BodyHeadlamps": {
+   "faces": 210,
+   "target_layers": 5.0,
+   "mesh_layers": 2.03,
+   "overall_m": 0.0224,
+   "pct": 53.2
+  },
+  "BodyHood": {
+   "faces": 515,
+   "target_layers": 5.0,
+   "mesh_layers": 4.14,
+   "overall_m": 0.0752,
+   "pct": 91.5
+  },
+  "BodyRear": {
+   "faces": 644,
+   "target_layers": 5.0,
+   "mesh_layers": 1.37,
+   "overall_m": 0.0256,
+   "pct": 35.8
+  },
+  "BodyRearAccess": {
+   "faces": 108,
+   "target_layers": 5.0,
+   "mesh_layers": 2.46,
+   "overall_m": 0.0593,
+   "pct": 70.5
+  },
+  "BodyRocker": {
+   "faces": 733,
+   "target_layers": 5.0,
+   "mesh_layers": 3.37,
+   "overall_m": 0.028,
+   "pct": 66.6
+  },
+  "BodyRoof": {
+   "faces": 150,
+   "target_layers": 5.0,
+   "mesh_layers": 3.81,
+   "overall_m": 0.0711,
+   "pct": 84.6
+  },
+  "BodySide": {
+   "faces": 1698,
+   "target_layers": 5.0,
+   "mesh_layers": 3.48,
+   "overall_m": 0.0463,
+   "pct": 75.8
+  },
+  "BodyWindowfront": {
+   "faces": 366,
+   "target_layers": 5.0,
+   "mesh_layers": 2.84,
+   "overall_m": 0.0562,
+   "pct": 67.1
+  },
+  "BodyWindowfrontframe": {
+   "faces": 53,
+   "target_layers": 5.0,
+   "mesh_layers": 0.434,
+   "overall_m": 0.00864,
+   "pct": 13.0
+  },
+  "BodyWindowSide": {
+   "faces": 223,
+   "target_layers": 5.0,
+   "mesh_layers": 2.49,
+   "overall_m": 0.0366,
+   "pct": 49.5
+  },
+  "BodyWindowsideframe": {
+   "faces": 77,
+   "target_layers": 5.0,
+   "mesh_layers": 1.51,
+   "overall_m": 0.0185,
+   "pct": 26.3
+  },
+  "BrakeDiscfront": {
+   "faces": 14,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "BrakeDiscrear": {
+   "faces": 45,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "ClosedGrillLowerInsert": {
+   "faces": 90,
+   "target_layers": 5.0,
+   "mesh_layers": 2.97,
+   "overall_m": 0.0285,
+   "pct": 67.7
+  },
+  "ClosedGrillUpperInsert": {
+   "faces": 152,
+   "target_layers": 5.0,
+   "mesh_layers": 1.71,
+   "overall_m": 0.0182,
+   "pct": 43.4
+  },
+  "CTRL_SURFACE_Outlet": {
+   "faces": 50,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "CTRL_SURFACE_Wheelhouse_LHS": {
+   "faces": 15,
+   "target_layers": 5.0,
+   "mesh_layers": 2.33,
+   "overall_m": 0.0317,
+   "pct": 37.7
+  },
+  "CTRL_SURFACE_Wheelshouse_RHS": {
+   "faces": 15,
+   "target_layers": 5.0,
+   "mesh_layers": 2.47,
+   "overall_m": 0.0326,
+   "pct": 38.8
+  },
+  "EngineUndershield": {
+   "faces": 196,
+   "target_layers": 5.0,
+   "mesh_layers": 2.55,
+   "overall_m": 0.0263,
+   "pct": 31.7
+  },
+  "ExhaustSystem1": {
+   "faces": 6,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "ExhaustSystem2": {
+   "faces": 809,
+   "target_layers": 5.0,
+   "mesh_layers": 0.604,
+   "overall_m": 0.00428,
+   "pct": 10.4
+  },
+  "ExhaustSystem3": {
+   "faces": 88,
+   "target_layers": 5.0,
+   "mesh_layers": 0.341,
+   "overall_m": 0.00224,
+   "pct": 5.76
+  },
+  "Mirrors1": {
+   "faces": 273,
+   "target_layers": 5.0,
+   "mesh_layers": 0.714,
+   "overall_m": 0.00653,
+   "pct": 15.8
+  },
+  "Mirrors2": {
+   "faces": 65,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "NotchbackB_Pillar": {
+   "faces": 54,
+   "target_layers": 5.0,
+   "mesh_layers": 4.31,
+   "overall_m": 0.0775,
+   "pct": 92.2
+  },
+  "NotchbackBodyside": {
+   "faces": 246,
+   "target_layers": 5.0,
+   "mesh_layers": 3.18,
+   "overall_m": 0.0463,
+   "pct": 81.3
+  },
+  "NotchbackC_Pillar": {
+   "faces": 273,
+   "target_layers": 5.0,
+   "mesh_layers": 2.26,
+   "overall_m": 0.0486,
+   "pct": 57.9
+  },
+  "NotchbackRoof": {
+   "faces": 491,
+   "target_layers": 5.0,
+   "mesh_layers": 4.45,
+   "overall_m": 0.08,
+   "pct": 95.2
+  },
+  "NotchbackTrunk": {
+   "faces": 294,
+   "target_layers": 5.0,
+   "mesh_layers": 2.94,
+   "overall_m": 0.0615,
+   "pct": 73.2
+  },
+  "NotchbackWindowrear": {
+   "faces": 278,
+   "target_layers": 5.0,
+   "mesh_layers": 4.34,
+   "overall_m": 0.0802,
+   "pct": 95.4
+  },
+  "NotchbackWindowrearframe": {
+   "faces": 7,
+   "target_layers": 5.0,
+   "mesh_layers": 3.0,
+   "overall_m": 0.0564,
+   "pct": 67.2
+  },
+  "NotchbackWindowside": {
+   "faces": 301,
+   "target_layers": 5.0,
+   "mesh_layers": 3.66,
+   "overall_m": 0.0707,
+   "pct": 84.1
+  },
+  "NotchbackWindowsideframe": {
+   "faces": 156,
+   "target_layers": 5.0,
+   "mesh_layers": 2.81,
+   "overall_m": 0.0536,
+   "pct": 65.3
+  },
+  "OCDADetailedUnderbody": {
+   "faces": 5221,
+   "target_layers": 5.0,
+   "mesh_layers": 1.19,
+   "overall_m": 0.0106,
+   "pct": 16.2
+  },
+  "Powertrain": {
+   "faces": 361,
+   "target_layers": 5.0,
+   "mesh_layers": 0.283,
+   "overall_m": 0.00238,
+   "pct": 5.73
+  },
+  "Rimsfront": {
+   "faces": 179,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "Rimsrear": {
+   "faces": 200,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "TirePlinthfront": {
+   "faces": 0,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "TirePlinthrear": {
+   "faces": 0,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "Tiresfront": {
+   "faces": 533,
+   "target_layers": 5.0,
+   "mesh_layers": 0.107,
+   "overall_m": 0.000777,
+   "pct": 0.956
+  },
+  "Tiresrear": {
+   "faces": 596,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0268,
+   "overall_m": 6.54e-05,
+   "pct": 0.15
+  },
+  "WheelSupportfront1": {
+   "faces": 83,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0241,
+   "overall_m": 0.000207,
+   "pct": 0.246
+  },
+  "WheelSupportfront2": {
+   "faces": 38,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  },
+  "WheelSupportrear": {
+   "faces": 71,
+   "target_layers": 5.0,
+   "mesh_layers": 0.0,
+   "overall_m": 0.0,
+   "pct": 0.0
+  }
+ },
+ "yplus": {
+  "u_tau_m_s": 1.3656923782082888,
+  "Cf_flat_plate": 0.0024665062227784804,
+  "yplus_per_metre": 90623.25004699992,
+  "basis": "u_tau from U_inf=38.889, Re_L=7.19e6, L=2.79 m ALONE (INPUT); wall distance from the BUILT mesh (OBSERVATION)",
+  "per_patch": {
+   "BodyA_Pillar": {
+    "nFaces": 163,
+    "area_m2": 0.19704341758221794,
+    "mean_first_cell_centre_m": 0.010147441707560522,
+    "median_first_cell_centre_m": 0.008504949309135812,
+    "yplus_area_weighted_median": 911.5993351924512,
+    "yplus_min": 131.54068011670853,
+    "yplus_max": 3168.546620374422,
+    "achieved_layers": 0.399,
+    "achieved_overall_m": 0.0047,
+    "layered": false
+   },
+   "BodyDoorhandles": {
+    "nFaces": 125,
+    "area_m2": 0.07549775207595458,
+    "mean_first_cell_centre_m": 0.009973017075467461,
+    "median_first_cell_centre_m": 0.011196969707247604,
+    "yplus_area_weighted_median": 817.954708931307,
+    "yplus_min": 90.47118048616052,
+    "yplus_max": 1758.9284066484029,
+    "achieved_layers": 0.16,
+    "achieved_overall_m": 0.00085,
+    "layered": false
+   },
+   "BodyFasciafront1": {
+    "nFaces": 1076,
+    "area_m2": 0.9905736356448938,
+    "mean_first_cell_centre_m": 0.00734759385761718,
+    "median_first_cell_centre_m": 0.00500828518371913,
+    "yplus_area_weighted_median": 495.36187169358186,
+    "yplus_min": 77.21644277781832,
+    "yplus_max": 3303.6759558454814,
+    "achieved_layers": 1.65,
+    "achieved_overall_m": 0.0177,
+    "layered": true
+   },
+   "BodyFasciafront2": {
+    "nFaces": 51,
+    "area_m2": 0.13612162452387905,
+    "mean_first_cell_centre_m": 0.012657361687280528,
+    "median_first_cell_centre_m": 0.008794846500329767,
+    "yplus_area_weighted_median": 797.0175735243666,
+    "yplus_min": 246.25424658906795,
+    "yplus_max": 2332.2746796525444,
+    "achieved_layers": 0.255,
+    "achieved_overall_m": 0.00306,
+    "layered": false
+   },
+   "BodyFender": {
+    "nFaces": 468,
+    "area_m2": 1.00133070919702,
+    "mean_first_cell_centre_m": 0.007793716374219462,
+    "median_first_cell_centre_m": 0.007065011536720232,
+    "yplus_area_weighted_median": 695.5520253083009,
+    "yplus_min": 101.26410522158719,
+    "yplus_max": 2567.611609699873,
+    "achieved_layers": 2.42,
+    "achieved_overall_m": 0.0462,
+    "layered": true
+   },
+   "BodyHeadlamps": {
+    "nFaces": 210,
+    "area_m2": 0.1459508820900291,
+    "mean_first_cell_centre_m": 0.005174356334906778,
+    "median_first_cell_centre_m": 0.00448274960850429,
+    "yplus_area_weighted_median": 401.5329051784822,
+    "yplus_min": 230.61171088690682,
+    "yplus_max": 1094.6945788283922,
+    "achieved_layers": 2.03,
+    "achieved_overall_m": 0.0224,
+    "layered": true
+   },
+   "BodyHood": {
+    "nFaces": 515,
+    "area_m2": 1.2597502446285715,
+    "mean_first_cell_centre_m": 0.006238163061119731,
+    "median_first_cell_centre_m": 0.005125014388610611,
+    "yplus_area_weighted_median": 464.44275897734934,
+    "yplus_min": 297.2573807840278,
+    "yplus_max": 2087.7868478825594,
+    "achieved_layers": 4.14,
+    "achieved_overall_m": 0.0752,
+    "layered": true
+   },
+   "BodyRear": {
+    "nFaces": 644,
+    "area_m2": 1.383417212035694,
+    "mean_first_cell_centre_m": 0.010320475487681582,
+    "median_first_cell_centre_m": 0.0084805564200907,
+    "yplus_area_weighted_median": 826.371292356783,
+    "yplus_min": 121.8597600915843,
+    "yplus_max": 3805.7665609495302,
+    "achieved_layers": 1.37,
+    "achieved_overall_m": 0.0256,
+    "layered": true
+   },
+   "BodyRearAccess": {
+    "nFaces": 108,
+    "area_m2": 0.2574557582104423,
+    "mean_first_cell_centre_m": 0.009588128633402892,
+    "median_first_cell_centre_m": 0.008770836128151584,
+    "yplus_area_weighted_median": 804.0379803509463,
+    "yplus_min": 410.73883563423175,
+    "yplus_max": 2006.65047553876,
+    "achieved_layers": 2.46,
+    "achieved_overall_m": 0.0593,
+    "layered": true
+   },
+   "BodyRocker": {
+    "nFaces": 733,
+    "area_m2": 0.4699224362474148,
+    "mean_first_cell_centre_m": 0.0030817549987548895,
+    "median_first_cell_centre_m": 0.0025627244179105917,
+    "yplus_area_weighted_median": 235.43452302164317,
+    "yplus_min": 34.234619585729774,
+    "yplus_max": 1388.45397133603,
+    "achieved_layers": 3.37,
+    "achieved_overall_m": 0.028,
+    "layered": true
+   },
+   "BodyRoof": {
+    "nFaces": 150,
+    "area_m2": 0.3723221408503428,
+    "mean_first_cell_centre_m": 0.007023624034187292,
+    "median_first_cell_centre_m": 0.005129120770937825,
+    "yplus_area_weighted_median": 464.8017374200791,
+    "yplus_min": 226.0579466153603,
+    "yplus_max": 3079.3012252810695,
+    "achieved_layers": 3.81,
+    "achieved_overall_m": 0.0711,
+    "layered": true
+   },
+   "BodySide": {
+    "nFaces": 1698,
+    "area_m2": 2.637868887598468,
+    "mean_first_cell_centre_m": 0.005288729224333375,
+    "median_first_cell_centre_m": 0.004752404011824763,
+    "yplus_area_weighted_median": 458.2009314047759,
+    "yplus_min": 56.67759930164593,
+    "yplus_max": 2253.569647694532,
+    "achieved_layers": 3.48,
+    "achieved_overall_m": 0.0463,
+    "layered": true
+   },
+   "BodyWindowSide": {
+    "nFaces": 223,
+    "area_m2": 0.38223066783096143,
+    "mean_first_cell_centre_m": 0.0053570735068060584,
+    "median_first_cell_centre_m": 0.0048362741908143415,
+    "yplus_area_weighted_median": 519.6537456554053,
+    "yplus_min": 89.38374446152373,
+    "yplus_max": 1920.380866843663,
+    "achieved_layers": 2.49,
+    "achieved_overall_m": 0.0366,
+    "layered": true
+   },
+   "BodyWindowfront": {
+    "nFaces": 366,
+    "area_m2": 1.0984482290450486,
+    "mean_first_cell_centre_m": 0.008232553325107323,
+    "median_first_cell_centre_m": 0.006985228057706964,
+    "yplus_area_weighted_median": 674.2453809316968,
+    "yplus_min": 235.35853345052433,
+    "yplus_max": 2877.0865063416645,
+    "achieved_layers": 2.84,
+    "achieved_overall_m": 0.0562,
+    "layered": true
+   },
+   "BodyWindowfrontframe": {
+    "nFaces": 53,
+    "area_m2": 0.1087416988750605,
+    "mean_first_cell_centre_m": 0.016112632653855315,
+    "median_first_cell_centre_m": 0.014397862668799256,
+    "yplus_area_weighted_median": 1081.962459637696,
+    "yplus_min": 168.91068954731193,
+    "yplus_max": 3152.064292957915,
+    "achieved_layers": 0.434,
+    "achieved_overall_m": 0.00864,
+    "layered": false
+   },
+   "BodyWindowsideframe": {
+    "nFaces": 77,
+    "area_m2": 0.07745321034581934,
+    "mean_first_cell_centre_m": 0.005333769444315439,
+    "median_first_cell_centre_m": 0.0045646267496593455,
+    "yplus_area_weighted_median": 459.8319028105312,
+    "yplus_min": 108.23580303454763,
+    "yplus_max": 1396.541374762201,
+    "achieved_layers": 1.51,
+    "achieved_overall_m": 0.0185,
+    "layered": true
+   },
+   "BrakeDiscfront": {
+    "nFaces": 14,
+    "area_m2": 0.058372977203148865,
+    "mean_first_cell_centre_m": 0.016504256544320337,
+    "median_first_cell_centre_m": 0.01779472582830813,
+    "yplus_area_weighted_median": 1726.816970867851,
+    "yplus_min": 708.8975723672969,
+    "yplus_max": 2018.8800595655716,
+    "achieved_layers": 0.0,
+    "achieved_overall_m": 0.0,
+    "layered": false
+   },
+   "BrakeDiscrear": {
+    "nFaces": 45,
+    "area_m2": 0.17630284503679455,
+    "mean_first_cell_centre_m": 0.028216059800678758,
+    "median_first_cell_centre_m": 0.02871804931416763,
+    "yplus_area_weighted_median": 2542.7657207774923,
+    "yplus_min": 1686.862196444986,
+    "yplus_max": 3181.7591566061415,
+    "achieved_layers": 0.0,
+    "achieved_overall_m": 0.0,
+    "layered": false
+   },
+   "CTRL_SURFACE_Outlet": {
+    "nFaces": 50,
+    "area_m2": 0.06946512196191876,
+    "mean_first_cell_centre_m": 0.013228639876978516,
+    "median_first_cell_centre_m": 0.012213755980531446,
+    "yplus_area_weighted_median": 1502.3554693426408,
+    "yplus_min": 266.1358259459421,
+    "yplus_max": 1852.446617044917,
+    "achieved_layers": 0.0,
+    "achieved_overall_m": 0.0,
+    "layered": false
+   },
+   "CTRL_SURFACE_Wheelhouse_LHS": {
+    "nFaces": 15,
+    "area_m2": 0.03685355678965463,
+    "mean_first_cell_centre_m": 0.006059180176281163,
+    "median_first_cell_centre_m": 0.0049979982201189795,
+    "yplus_area_weighted_median": 452.93484243630286,
+    "yplus_min": 413.61065698287274,
+    "yplus_max": 1057.259446928635,
+    "achieved_layers": 2.33,
+    "achieved_overall_m": 0.0317,
+    "layered": true
+   },
+   "CTRL_SURFACE_Wheelshouse_RHS": {
+    "nFaces": 15,
+    "area_m2": 0.036892538209772785,
+    "mean_first_cell_centre_m": 0.005607199208399618,
+    "median_first_cell_centre_m": 0.0046229354861821136,
+    "yplus_area_weighted_median": 418.94543851543085,
+    "yplus_min": 316.09528869126325,
+    "yplus_max": 1032.637825485888,
+    "achieved_layers": 2.47,
+    "achieved_overall_m": 0.0326,
+    "layered": true
+   },
+   "ClosedGrillLowerInsert": {
+    "nFaces": 90,
+    "area_m2": 0.05998498482117548,
+    "mean_first_cell_centre_m": 0.003964223699080894,
+    "median_first_cell_centre_m": 0.0030849965732119905,
+    "yplus_area_weighted_median": 274.61568737618705,
+    "yplus_min": 58.96694537185249,
+    "yplus_max": 917.7444924773409,
+    "achieved_layers": 2.97,
+    "achieved_overall_m": 0.0285,
+    "layered": true
+   },
+   "ClosedGrillUpperInsert": {
+    "nFaces": 152,
+    "area_m2": 0.10977409023345745,
+    "mean_first_cell_centre_m": 0.0056651834952391655,
+    "median_first_cell_centre_m": 0.004488601936092714,
+    "yplus_area_weighted_median": 404.39599771760487,
+    "yplus_min": 160.41428467794455,
+    "yplus_max": 1386.4319044848949,
+    "achieved_layers": 1.71,
+    "achieved_overall_m": 0.0182,
+    "layered": true
+   },
+   "EngineUndershield": {
+    "nFaces": 196,
+    "area_m2": 0.4805558720698102,
+    "mean_first_cell_centre_m": 0.006678596395517292,
+    "median_first_cell_centre_m": 0.004002345242389532,
+    "yplus_area_weighted_median": 356.05258082869113,
+    "yplus_min": 151.8748122585519,
+    "yplus_max": 3512.304947406598,
+    "achieved_layers": 2.55,
+    "achieved_overall_m": 0.0263,
+    "layered": true
+   },
+   "ExhaustSystem1": {
+    "nFaces": 6,
+    "area_m2": 0.0038184332873485885,
+    "mean_first_cell_centre_m": 0.005345999595163613,
+    "median_first_cell_centre_m": 0.005777219386362715,
+    "yplus_area_weighted_median": 526.198756217677,
+    "yplus_min": 194.05464243020745,
+    "yplus_max": 736.8916032023375,
+    "achieved_layers": 0.0,
+    "achieved_overall_m": 0.0,
+    "layered": false
+   },
+   "ExhaustSystem2": {
+    "nFaces": 809,
+    "area_m2": 0.467762110104603,
+    "mean_first_cell_centre_m": 0.008850729959706882,
+    "median_first_cell_centre_m": 0.008261422366557896,
+    "yplus_area_weighted_median": 688.2937634718396,
+    "yplus_min": 56.06206759810627,
+    "yplus_max": 2179.0762636982126,
+    "achieved_layers": 0.604,
+    "achieved_overall_m": 0.00428,
+    "layered": false
+   },
+   "ExhaustSystem3": {
+    "nFaces": 88,
+    "area_m2": 0.06221969921011873,
+    "mean_first_cell_centre_m": 0.008878423105029681,
+    "median_first_cell_centre_m": 0.0095403443381127,
+    "yplus_area_weighted_median": 746.675880930504,
+    "yplus_min": 119.77777309089396,
+    "yplus_max": 1649.7837695374321,
+    "achieved_layers": 0.341,
+    "achieved_overall_m": 0.00224,
+    "layered": false
+   },
+   "Mirrors1": {
+    "nFaces": 273,
+    "area_m2": 0.15643888951852314,
+    "mean_first_cell_centre_m": 0.007815810754761027,
+    "median_first_cell_centre_m": 0.0055866749914859305,
+    "yplus_area_weighted_median": 482.44632905200876,
+    "yplus_min": 71.2521800075577,
+    "yplus_max": 1972.4571998390322,
+    "achieved_layers": 0.714,
+    "achieved_overall_m": 0.00653,
+    "layered": false
+   },
+   "Mirrors2": {
+    "nFaces": 65,
+    "area_m2": 0.03807082527436936,
+    "mean_first_cell_centre_m": 0.009919985972600437,
+    "median_first_cell_centre_m": 0.009994124645479984,
+    "yplus_area_weighted_median": 856.5099786755222,
+    "yplus_min": 295.30757926936116,
+    "yplus_max": 1791.001119361833,
+    "achieved_layers": 0.0,
+    "achieved_overall_m": 0.0,
+    "layered": false
+   },
+   "NotchbackB_Pillar": {
+    "nFaces": 54,
+    "area_m2": 0.13184979484528467,
+    "mean_first_cell_centre_m": 0.006231283269012322,
+    "median_first_cell_centre_m": 0.005120608890782561,
+    "yplus_area_weighted_median": 464.1498789566063,
+    "yplus_min": 336.83444529654577,
+    "yplus_max": 1818.804410538782,
+    "achieved_layers": 4.31,
+    "achieved_overall_m": 0.0775,
+    "layered": true
+   },
+   "NotchbackBodyside": {
+    "nFaces": 246,
+    "area_m2": 0.3646978247415775,
+    "mean_first_cell_centre_m": 0.005677149252104195,
+    "median_first_cell_centre_m": 0.004700256029479732,
+    "yplus_area_weighted_median": 462.39738286965826,
+    "yplus_min": 231.03900836853822,
+    "yplus_max": 1848.4504644917274,
+    "achieved_layers": 3.18,
+    "achieved_overall_m": 0.0463,
+    "layered": true
+   },
+   "NotchbackC_Pillar": {
+    "nFaces": 273,
+    "area_m2": 0.643467999761331,
+    "mean_first_cell_centre_m": 0.010599253356056462,
+    "median_first_cell_centre_m": 0.008798638827073008,
+    "yplus_area_weighted_median": 793.060604832873,
+    "yplus_min": 295.6531031493089,
+    "yplus_max": 3178.0081036678353,
+    "achieved_layers": 2.26,
+    "achieved_overall_m": 0.0486,
+    "layered": true
+   },
+   "NotchbackRoof": {
+    "nFaces": 491,
+    "area_m2": 1.2315285728090308,
+    "mean_first_cell_centre_m": 0.006193950163848815,
+    "median_first_cell_centre_m": 0.005124289054556207,
+    "yplus_area_weighted_median": 464.382960165799,
+    "yplus_min": 460.9546407051506,
+    "yplus_max": 2492.045951853471,
+    "achieved_layers": 4.45,
+    "achieved_overall_m": 0.08,
+    "layered": true
+   },
+   "NotchbackTrunk": {
+    "nFaces": 294,
+    "area_m2": 0.7215518881712176,
+    "mean_first_cell_centre_m": 0.008689372591358057,
+    "median_first_cell_centre_m": 0.007744408067612042,
+    "yplus_area_weighted_median": 699.3578126664614,
+    "yplus_min": 302.2840640100471,
+    "yplus_max": 2953.966782073163,
+    "achieved_layers": 2.94,
+    "achieved_overall_m": 0.0615,
+    "layered": true
+   },
+   "NotchbackWindowrear": {
+    "nFaces": 278,
+    "area_m2": 0.7241953250671729,
+    "mean_first_cell_centre_m": 0.0063001096758824645,
+    "median_first_cell_centre_m": 0.005125734757907983,
+    "yplus_area_weighted_median": 464.5067549814694,
+    "yplus_min": 456.40723193835015,
+    "yplus_max": 1917.399643260164,
+    "achieved_layers": 4.34,
+    "achieved_overall_m": 0.0802,
+    "layered": true
+   },
+   "NotchbackWindowrearframe": {
+    "nFaces": 7,
+    "area_m2": 0.0052515639010798166,
+    "mean_first_cell_centre_m": 0.004491602855286153,
+    "median_first_cell_centre_m": 0.004680694871703314,
+    "yplus_area_weighted_median": 590.9499297583574,
+    "yplus_min": 53.266539586795496,
+    "yplus_max": 760.8579637708258,
+    "achieved_layers": 3.0,
+    "achieved_overall_m": 0.0564,
+    "layered": true
+   },
+   "NotchbackWindowside": {
+    "nFaces": 301,
+    "area_m2": 0.7767864742290129,
+    "mean_first_cell_centre_m": 0.007378524737734835,
+    "median_first_cell_centre_m": 0.005695524598782451,
+    "yplus_area_weighted_median": 517.8162887444729,
+    "yplus_min": 355.78936691734333,
+    "yplus_max": 2325.928555352889,
+    "achieved_layers": 3.66,
+    "achieved_overall_m": 0.0707,
+    "layered": true
+   },
+   "NotchbackWindowsideframe": {
+    "nFaces": 156,
+    "area_m2": 0.3075582406514198,
+    "mean_first_cell_centre_m": 0.009248934275500921,
+    "median_first_cell_centre_m": 0.008076961083966858,
+    "yplus_area_weighted_median": 748.3735228195635,
+    "yplus_min": 276.3463372824981,
+    "yplus_max": 2799.8896822888005,
+    "achieved_layers": 2.81,
+    "achieved_overall_m": 0.0536,
+    "layered": true
+   },
+   "OCDADetailedUnderbody": {
+    "nFaces": 5221,
+    "area_m2": 9.251345330877744,
+    "mean_first_cell_centre_m": 0.008124372410961799,
+    "median_first_cell_centre_m": 0.00482076989844652,
+    "yplus_area_weighted_median": 481.5649634731891,
+    "yplus_min": 43.5486334219724,
+    "yplus_max": 3752.0562897526866,
+    "achieved_layers": 1.19,
+    "achieved_overall_m": 0.0106,
+    "layered": true
+   },
+   "Powertrain": {
+    "nFaces": 361,
+    "area_m2": 0.41145888466007874,
+    "mean_first_cell_centre_m": 0.011154391754003219,
+    "median_first_cell_centre_m": 0.009748106051818346,
+    "yplus_area_weighted_median": 1141.7915092179298,
+    "yplus_min": 94.97786499995549,
+    "yplus_max": 3354.627248694502,
+    "achieved_layers": 0.283,
+    "achieved_overall_m": 0.00238,
+    "layered": false
+   },
+   "Rimsfront": {
+    "nFaces": 179,
+    "area_m2": 0.5155709202415247,
+    "mean_first_cell_centre_m": 0.01984656845461278,
+    "median_first_cell_centre_m": 0.021385516529767445,
+    "yplus_area_weighted_median": 1857.2539796961448,
+    "yplus_min": 361.8835340482565,
+    "yplus_max": 2767.2227046443963,
+    "achieved_layers": 0.0,
+    "achieved_overall_m": 0.0,
+    "layered": false
+   },
+   "Rimsrear": {
+    "nFaces": 200,
+    "area_m2": 0.5551722837186288,
+    "mean_first_cell_centre_m": 0.020611265470546904,
+    "median_first_cell_centre_m": 0.022090667570516986,
+    "yplus_area_weighted_median": 1874.0992274747603,
+    "yplus_min": 247.97764297525782,
+    "yplus_max": 3180.484941826145,
+    "achieved_layers": 0.0,
+    "achieved_overall_m": 0.0,
+    "layered": false
+   },
+   "Tiresfront": {
+    "nFaces": 533,
+    "area_m2": 1.2686603346399083,
+    "mean_first_cell_centre_m": 0.02181612160894812,
+    "median_first_cell_centre_m": 0.02311444502077774,
+    "yplus_area_weighted_median": 1984.2848101691798,
+    "yplus_min": 148.42631618416166,
+    "yplus_max": 4282.818783924126,
+    "achieved_layers": 0.107,
+    "achieved_overall_m": 0.000777,
+    "layered": false
+   },
+   "Tiresrear": {
+    "nFaces": 596,
+    "area_m2": 1.2615996740107964,
+    "mean_first_cell_centre_m": 0.020824656351170617,
+    "median_first_cell_centre_m": 0.022388034691699317,
+    "yplus_area_weighted_median": 2008.339872328579,
+    "yplus_min": 58.72020163453908,
+    "yplus_max": 3731.4142022704455,
+    "achieved_layers": 0.0268,
+    "achieved_overall_m": 6.54e-05,
+    "layered": false
+   },
+   "WheelSupportfront1": {
+    "nFaces": 83,
+    "area_m2": 0.14150597468273585,
+    "mean_first_cell_centre_m": 0.025798370863581988,
+    "median_first_cell_centre_m": 0.027114584248498205,
+    "yplus_area_weighted_median": 1940.9975305828714,
+    "yplus_min": 246.95924824698812,
+    "yplus_max": 4717.1652064048285,
+    "achieved_layers": 0.0241,
+    "achieved_overall_m": 0.000207,
+    "layered": false
+   },
+   "WheelSupportfront2": {
+    "nFaces": 38,
+    "area_m2": 0.0714172289887561,
+    "mean_first_cell_centre_m": 0.023578801313692176,
+    "median_first_cell_centre_m": 0.024093393602621378,
+    "yplus_area_weighted_median": 1719.5596461124765,
+    "yplus_min": 383.5441904775823,
+    "yplus_max": 3643.4664838320255,
+    "achieved_layers": 0.0,
+    "achieved_overall_m": 0.0,
+    "layered": false
+   },
+   "WheelSupportrear": {
+    "nFaces": 71,
+    "area_m2": 0.15545583982433836,
+    "mean_first_cell_centre_m": 0.02737997353480029,
+    "median_first_cell_centre_m": 0.029250095681701473,
+    "yplus_area_weighted_median": 2311.0358977485557,
+    "yplus_min": 874.0667392883205,
+    "yplus_max": 5128.807013723166,
+    "achieved_layers": 0.0,
+    "achieved_overall_m": 0.0,
+    "layered": false
+   }
+  },
+  "layered_group": {
+   "n_patches": 27,
+   "n_faces": 14057,
+   "area_m2": 24.959018070903447,
+   "yplus_area_weighted_median": 481.5649634731891,
+   "yplus_min": 34.234619585729774,
+   "yplus_max": 3805.7665609495302
+  },
+  "unlayered_group": {
+   "n_patches": 20,
+   "n_faces": 3803,
+   "area_m2": 5.930696535420704,
+   "yplus_area_weighted_median": 1940.9975305828714,
+   "yplus_min": 56.06206759810627,
+   "yplus_max": 5128.807013723166
+  }
+ },
+ "planted_controls": [
+  {
+   "plant": "P3 mesh index reader",
+   "passed": true,
+   "baseline": {
+    "n_out_of_range_indices": 0,
+    "n_unused_points": 0,
+    "max_face_vertex_index": 221463
+   },
+   "planted_bad_index": 221469,
+   "read_back": {
+    "n_out_of_range_indices": 1,
+    "n_unused_points_after_appended_point": 1,
+    "max_face_vertex_index": 221469,
+    "n_cells_header_after_count_plant": 999999999
+   }
+  },
+  {
+   "plant": "P2 layer-table SCOPE (two-sided)",
+   "passed": true,
+   "probe_patch": "BodyHood",
+   "baseline_achieved_overall_m": 0.0752,
+   "requested_table_planted_x7_achieved_unchanged": true,
+   "achieved_table_planted_x7_achieved_moved": true,
+   "other_patches_unmoved": true,
+   "artifacts": [
+    "/tmp/r2plant_P2_fxxgkh4p/log.req_planted",
+    "/tmp/r2plant_P2_fxxgkh4p/log.ach_planted"
+   ]
+  },
+  {
+   "plant": "P1 checkMesh reader",
+   "passed": true,
+   "baseline": {
+    "failed_checks": 3,
+    "n_negative_volume_cells": 0
+   },
+   "planted": {
+    "failed_checks": 7,
+    "n_negative_volume_cells": 13
+   },
+   "read_back": {
+    "failed_checks": 7,
+    "n_negative_volume_cells": 13
+   },
+   "artifact": "/tmp/r2plant_P1_nwsjbxhz/log.planted"
+  },
+  {
+   "plant": "P4 wall-distance / y+ reader",
+   "passed": true,
+   "probe_patch": "BodyA_Pillar",
+   "probe_face": 575017,
+   "owner_cell": 27879,
+   "baseline_wall_distance_m": 0.025243922397579492,
+   "planted_displacement_m": 0.00137,
+   "expected_wall_distance_m": 0.026613922397579492,
+   "read_back_error_m": 4.400750597266523e-13,
+   "n_cell_centres_that_moved": 1,
+   "partition_unchanged": true
+  }
+ ],
+ "all_plants_passed": true
+}

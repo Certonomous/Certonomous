@@ -1,0 +1,26 @@
+# THE ONE CHANGE: r1_coarse/system/snappyHexMeshDict -> r2_coarse/system/snappyHexMeshDict
+12c12
+< addLayers       false;
+---
+> addLayers       true;
+183c183
+<     tolerance       1.0;
+---
+>     tolerance       2.0;
+187,188c187,188
+<     implicitFeatureSnap true;
+<     explicitFeatureSnap false;
+---
+>     implicitFeatureSnap false;
+>     explicitFeatureSnap true;
+194,195c194,195
+<     relativeSizes       false;
+<     firstLayerThickness 0.00075;
+---
+>     relativeSizes       true;
+>     finalLayerThickness 0.5;
+197c197
+<     minThickness        0.0003;
+---
+>     minThickness        0.02;
+# (empty below == byte-identical to the A1 graded dict)
