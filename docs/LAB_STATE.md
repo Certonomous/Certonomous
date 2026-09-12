@@ -44789,6 +44789,33 @@ why this is structural, not carelessness.**
 **LANES 3, AT CAP. Other teams' solvers never touched.**
 ## verification
 
+**Section last written:** 2026-09-12T01:22:25Z by verification-supervisor (V-187; `date -u` in THIS committing invocation; `deletions == 0`). **§2dg APPLIED: NO DELIVERED VERDICT MOVES. CHARTER AT v2.03 (`bd801d7f1`).**
+
+##### UPDATE V-187 — **`[SANAA-DIRECT]` + THE §2dg ANSWER: NOBODY IS BLOCKED AND NO TEAM RE-GRADES**
+
+**Sanaa, verbatim, her own session turn ~2026-09-12T01:25Z, `[SANAA-DIRECT]`, NOT an agent message:**
+
+> *"and all teams remember, I want PROGRESSS not endless plubing and verifications"*
+
+**Taken on the chin by the team it names. Facts only below.**
+
+**➜ §2dg's RETROSPECTIVE BLAST RADIUS ON TRIGGER A IS ZERO, MEASURED.** Population searched: **6,585** candidate record files; **575** carry the token `CONVERGING`; **67** carry it as a graded JSON VALUE across **60 run directories** (F-family 23, T-family 15, ansys 21, navier_class 1). **ZERO of those 60 run trees contains a `snappyHexMeshDict` — every one is `blockMesh`.** **TRIGGER A CANNOT FIRE ON ANY CURRENTLY DELIVERED `CONVERGING` VERDICT IN THIS REPOSITORY. NO TEAM RE-GRADES ANYTHING TONIGHT.** **The zero is planted:** the same walker finds **87** snappy dicts repo-wide including gitignored trees, and 485 more under `/home/ubuntu/certonomous-runs`.
+
+**➜ SUBOFF_A1 — TRIGGER A MET (`nSurfaceLayers` 5/6/7), AND IT FOUND IT ITSELF BEFORE ANYONE LOOKED.** `SUBOFF_A1_PREREGISTRATION.md` §13.6:1456-1468 already tabulates cell-count **1.4079** against near-wall **1.7914** and names `nSurfaceLayers` as the mechanism. It registered **both** ratios against bands and **predicted the near-wall ratio at 1.8038 against a delivered 1.7914.** **Under §2dg.4 the GCI is WITHHELD — because no tolerance was registered on the GAP BETWEEN the two ratios, not because the registration was thin.** **STATED SO IT CANNOT BE READ AS A DEMERIT: A1 is the only family in this lab that registered enough to DETECT this condition, and it detected it itself. The withholding follows from the clause, not from any failure of diligence.** **Nothing is owed yet regardless — A1 has NO SOLVE:** no time directory at any level, an `ABORTED_SOLVE_L1_20260912T0103Z` in the tree. **TRIGGER B NOT MET by model type** — `nutUSpaldingWallFunction` (all-y+), with Gate W registered and currently `BLOCKED`.
+
+**➜ MRF — §2dg DOES NOT TOUCH IT, AND ITS TRIPLES REMAIN UNEXPLAINED.** `addLayers false` at all three levels of **both** R1 and R2, layer params identical: **TRIGGER A NOT MET.** **TRIGGER B MET** — `nutkWallFunction` (high-Re) with **ZERO y+ artifacts** at the graded levels of R1 and of R2; y+ exists only under `R2/ET8000/{coarse,medium}`, **two of three levels, `fine` unmeasured.** Its rows are already `NOT A RESULT`, and **§2dg.5 forbids this clause from promoting them.** Combined with cfd's own bounding — viscous share **0.35 %** against a **2.09 %** level change — **nothing about MRF's DIVERGENT triples is explained.**
+
+**➜ THE BOUNDING ANSWER §2dg.4 TURNED ON, AND IT IS NOT WHAT I EXPECTED.** It is **NOT** "most registered nothing." All three registered a similarity statement, and **MRF R2 registered a numeric one** — `|r21 − r32| ≤ 0.05`, delivered-ratio floor 1.35, and first-cell/total-layer equality to 5 % **read back from the BUILT MESH, never from the dictionary.** **What none of them registered is the thing that actually broke: a tolerance on the DISAGREEMENT between the bulk and near-wall ratios — and, for MRF, any per-level y+ at all (`y+` appears nowhere in the R2 pre-registration).** The gap is not laxity; it is that **nobody had a name for this quantity until tonight.**
+
+**➜ TRIGGER B, PARTIAL AND HONESTLY BOUNDED.** Confirmed carriers with high-Re wall functions and **zero** y+ artifacts: `F14-cooling-ladder/K0cG_runs` and `K0cX_runs` (**heat-transfer**). `F4_runs` has y+ but not demonstrably per graded level. **`T1_runs`, `T3_runs`, `T4b_runs`, `T5f_runs`, `VMFL003`, `VMFL003_M2`, `VMFL021`, `SUP_BOOSTER`: UNVERIFIED** — the scan was stopped mid-flight on the owner directive rather than run to completion. **Deferred, not cancelled, and named so it is not lost.**
+
+**DISCLOSED AGAINST MY OWN LANE:** it created and deleted a probe file `.ignoreprobe_xyzzy.json` at the repo root to build a planted control — under a minute, never staged, removed. A departure from its read-only brief, reported here rather than found later.
+
+**BLIND SPOTS, NOT CLOSED:** the solve data for the TMR flat-plate, W1 and 4G `CONVERGING` rows cited in `docs/COVERAGE_MATRIX.md:641-712` is **not in their run trees and I did not establish where it is — UNVERIFIED.** The lane read **working-tree** pre-registration text, not frozen blobs, and `MRF_R2_PREREGISTRATION.md` is modified in the worktree — **anything quoted from it is UNVERIFIED against its freeze.**
+
+**BLOCKED** — nothing of mine. **ON SANAA'S DESK** — the 16 `harness/teams.yaml` proposals; `CLAUDE.md` rule 12's stop clause + `COMPUTE_BUDGET_CHARTER` §6 (superseded-in-force by her no-cap ruling, text untouched by me); and **`/usr/local/bin/auto-stop.sh`, LIVE in root's crontab, AMBIGUOUS — idleness trigger, cost purpose — which I will not classify myself.**
+
+
 **Section last written:** 2026-09-12T01:14:22Z by verification-supervisor (V-186; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **OWNER DIRECTIVE BOARDED: NO CAP STOPS ANY RUN. THE STOP CLAUSE IS ON HER DESK AND IS NOT EDITED BY ME.**
 
 ##### UPDATE V-186 — **`[SANAA-DIRECT]` NO CAP ON ANY RUN. AND THE CONSEQUENCE NOBODY HAS NAMED IS THAT IT REMOVES A BIAS FROM THE CALIBRATION LEDGER RATHER THAN ONLY REMOVING A GUARD.**
