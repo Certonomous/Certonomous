@@ -248,3 +248,76 @@ DrivAer.** Recorded as ruled out, per its author's own kill condition.
 **ratio 27.3×, far outside the band.** So the criterion correctly flags the configuration
 that produced **zero** layers and correctly clears the one that produces 50 %. It does not
 explain the remaining blocked patches, which is what it was handed over to do.
+---
+
+## CORRECTION — 2026-09-12 — the M6 criterion section above is **wrong in its label**.
+**`RULED OUT` → `NOT APPLICABLE`.** *Lines whose number changed above this section: 0.*
+
+The section above concludes the M6 last-layer criterion is **RULED OUT** for DrivAer.
+**That claims we learned something about DrivAer. We learned nothing.**
+
+### Why: under `relativeSizes true` the criterion is TAUTOLOGICAL
+
+`finalLayerThickness f` **defines** the last layer as `f × the local surface cell`, so
+
+    surface_cell / last_layer  =  1 / f      — ALWAYS, at every refinement level
+
+f = 0.5 → 2.00. f = 0.3 → 3.33. f = 0.7 → 1.43. **The ratio is a restatement of the dict
+entry. It has no failing branch, so it cannot rule anything out.** Measured across levels:
+
+| level | cell | last layer | ratio |
+|---|---|---|---|
+| 4 | 50.00 mm | 25.000 mm | **2.00** |
+| 5 | 25.00 mm | 12.500 mm | **2.00** |
+| 6 | 12.50 mm | 6.250 mm | **2.00** |
+| 7 | 6.25 mm | 3.125 mm | **2.00** |
+
+### 🔴 The tell was in my own sentence, and I wrote it as a feature
+
+The section above says, in the same breath as its conclusion:
+
+> *"= **2.00** — **identical at every level** because the spec is relative."*
+
+**A quantity identical at four refinement levels is not measuring the mesh.** I recorded
+the exact fact that voids the conclusion and presented it as corroboration. This is not a
+case of missing the defect — **I documented it and drew the wrong conclusion anyway.**
+
+### And the check that would NOT have saved it
+
+The instruction was *"verify it from the dict yourself, do not take my arithmetic"* —
+guarding against a relayed-number error. **I did verify it from the dict, and the
+arithmetic was correct.** An independent second party would have confirmed 2.00 and
+recorded the same falsehood, **because the defect was upstream of the arithmetic.**
+
+> **A relayed-number check catches transcription. It does not catch a test that cannot
+> fail.** The two need different controls, and only the second one requires asking what
+> the test's failing branch would look like.
+
+### What survives, and it is not nothing
+
+Under `relativeSizes **false**` — the ORIGINAL graded family — the ratio is **not**
+tautological, because an absolute `firstLayerThickness` does not scale with the cell:
+
+| level | cell | last layer | ratio | |
+|---|---|---|---|---|
+| 4 | 50.00 mm | 1.831 mm | **27.31** | outside |
+| 5 | 25.00 mm | 1.831 mm | 13.65 | outside |
+| 6 | 12.50 mm | 1.831 mm | 6.83 | outside |
+| 7 | 6.25 mm | 1.831 mm | **3.41** | **inside 2–4** |
+
+**It varies 27.3 → 3.4 and has a real failing branch.** So the criterion *is* applicable
+to the absolute-thickness configuration, and it flags `r1_coarse` — the build that
+produced **zero** layers — at 27.3×, while predicting the breach would clear at level 7.
+That is an independent retrodiction of the A1 finding from another family's physics and
+it is kept.
+
+### Record
+
+- **A1 / B1 / B2 (`relativeSizes true`): NOT APPLICABLE.** No conclusion drawn.
+- **`r1_coarse` (`relativeSizes false`): applicable, and outside the band at 27.3×** —
+  corroborating, not new.
+- The corrected form of the criterion is **total ACHIEVED stack thickness against local
+  boundary-layer thickness, measured on the achieved mesh, never from the dict.** It is
+  **structurally untestable on the blocked patches**: where layers are not forming there
+  is no achieved stack to measure. **You cannot diagnose a failure-to-produce by measuring
+  the thing that was not produced.** Recorded as a limit, not a gap to route around.
