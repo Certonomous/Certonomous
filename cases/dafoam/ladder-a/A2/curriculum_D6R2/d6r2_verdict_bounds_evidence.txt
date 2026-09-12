@@ -1,0 +1,30 @@
+d6r2_verdict_bounds.sh FIXTURE EVIDENCE 2026-09-12T03:56:49Z
+md5=a9b9c959f9d0bc9496a19edd6aed7fa7
+Exercised end-to-end on a fixture autograde block; both limbs appended AFTER the verdict line and a sidecar written. Live instance armed pid 2796729 against the real run root.
+
+VERDICT PASS  G1=PASS G2=PASS G3=PASS G4=PASS
+D6R2_AUTOGRADE_END 2026-09-12T12:00:00Z
+
+================ D6R2 VERDICT BOUNDS -- READ THESE WITH THE NUMBER ================
+GRADIENT UNVERIFIED -- the F_mp/FD family closed rc=1 on this case; the charter
+requires an FD table beside every adjoint and there is none.
+PATCHED ROW ONLY -- no shipped row, so this is not a verdict about DAFoam
+(charter two-row rule).
+
+WHAT THIS RUN MAY THEREFORE CLAIM, and nothing wider:
+  - that the optimiser terminated itself at its registered budget of 25 majors;
+  - that the composite multipoint objective J fell by the measured fraction printed
+    above, against the frozen band Jf <= 0.90 x J0;
+  - that the three lift constraints held at the final design within 1.0e-3.
+  Those are statements about THIS OPTIMISER ON THIS PATCHED BUILD.
+
+WHAT IT MAY NOT CLAIM, and both are foreclosed by measurement, not by caution:
+  - that DAFoam's adjoint gradient is correct -- foreclosed by the FAILED FD family
+    (D6RF3 F_mp, rc=1, /home/ubuntu/certonomous-runs/CURRICULUM-D6RF3-a2-wing-multipoint-fd);
+  - that the design is genuinely optimal, or anything that is a verdict ABOUT DAFoam
+    -- foreclosed by the missing shipped row.
+
+Ruling: dafoam-supervisor, 2026-09-12, [lab-attributed]. Rule-2 departure on the
+grading path (comparator not in the freeze) disclosed by the supervisor at bc3aa7ce2.
+===================================================================================
+D6R2_BOUNDS_WRITTEN 2026-09-12T03:56:37Z into /tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad/bounds_fixture/D6R2_AUTOGRADE.out and /tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad/bounds_fixture/D6R2_VERDICT_BOUNDS.txt
