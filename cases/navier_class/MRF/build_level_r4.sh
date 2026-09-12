@@ -109,6 +109,22 @@ NC=$(grep -m1 'nCells' constant/polyMesh/owner | sed 's/.*nCells: *//;s/ .*//')
 echo "delivered nCells = $NC"
 awk -v n="$NC" 'BEGIN{ if (n+0 >= 40000000) { print "ABORT: delivered count reached maxLocalCells -- refinement may have been SILENTLY TRUNCATED"; exit 1 } else print "cap check OK: delivered " n " << maxLocalCells 40000000" }' || exit 2
 
+# ---- FIX AT SOURCE: a built case must not be born holding a time directory.
+# snappyHexMesh writes cellLevel/pointLevel into a directory literally named `0`.
+# queue_entry_check.check_age_guard REFUSES any entry whose cwd holds a time
+# directory -- its own comment reads "it still refuses on any time directory,
+# `0` included" -- because rule 4 needs every endTime field NEWER than the case's
+# own 0/T. NOTHING IS DELETED: the directory is RENAMED, and launch_graded.sh:101
+# re-stages 0/ from 0.orig immediately before the solve anyway, destroying these
+# two files in the normal path. Asserted on both sides (L-221/L-222).
+if [ -d 0 ]; then
+    [ -d 0.snappyLevels ] && { echo "ABORT: 0.snappyLevels already exists; refusing to overwrite"; exit 2; }
+    mv 0 0.snappyLevels || { echo "ABORT: could not rename 0/ -> 0.snappyLevels/"; exit 2; }
+    [ -d 0 ] && { echo "ABORT: 0/ still present after rename"; exit 2; }
+    [ -d 0.snappyLevels ] || { echo "ABORT: 0.snappyLevels/ absent after rename"; exit 2; }
+    echo "age-guard hygiene: 0/ -> 0.snappyLevels/ (snappy bookkeeping, nothing deleted), read back both sides"
+fi
+
 echo "rc: blockMesh=$(cat rc.blockMesh) sfe=$(cat rc.surfaceFeatureExtract) snappy=$(cat rc.snappyHexMesh) topoSet=$(cat rc.topoSet) checkMesh=$(cat rc.checkMesh)"
 cat WALL_SECONDS.txt
-echo "DONE build_level_r2 $RUNDIR  $(date -u +%FT%TZ)"
+echo "DONE build_level_r4 $RUNDIR  $(date -u +%FT%TZ)"

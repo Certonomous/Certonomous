@@ -1,0 +1,24 @@
+{
+  "written_utc": "2026-09-12T20:38:29.136065+00:00",
+  "directive": "[SANAA-DIRECT] 2026-09-12: mesh from the coarse level (medium if coarse is not converged); fields from the finest completed level",
+  "mesh_level": "fine",
+  "mesh_dir": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R4/fine",
+  "field_level": "fine",
+  "field_dir": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R4/fine",
+  "SAME_LEVEL": true,
+  "note": "MRF_R4 has ONE graded level by ruling, so mesh and fields come from the same level here and no choice was made. Where a family has several, the mesh and the fields are from DIFFERENT levels BY DESIGN and this manifest is the record of which is which -- never assume a picture's mesh carries its own fields.",
+  "levels_present": [
+    "fine"
+  ],
+  "touches_graded_tree": false,
+  "mesh_foam_stub": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R4/RENDER/mesh_fine.foam",
+  "fields_foam_stub": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R4/RENDER/fields_fine.foam",
+  "foamToVTK_rc": 0,
+  "foamToVTK_cmd": "foamToVTK -constant -latestTime -no-boundary -overwrite",
+  "vtk_dir": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R4/RENDER/VTK",
+  "vtk_files": [
+    "work.vtm.series",
+    "work_0",
+    "work_0.vtm"
+  ]
+}
