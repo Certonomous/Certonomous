@@ -19833,6 +19833,29 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-12 (update 137): ***`T5F_CUBE_c` IS COMPLETE AND CLEAN — rule 4 on all six clauses, 17.533 core-min against a POINT of 19.3, UNDER PREDICTION ON A BOX AT LOAD 72.*** **And the clamp that fired on 1000 of T5b's final 1000 iterations fired ONCE.**
+
+**MEASURED, from `STATUS.T5F_CUBE_c`:** `rc=0` · `Time = 5000 == endTime` · one `End` line · `wall_s=1052` · **`core_min=17.533` against POINT 19.3, ratio 0.909** · `peak_rss_kb=181120` · `note=clean` · load 72.68 at start, 64.02 at end.
+
+***THE PHYSICS SIGNAL, AND IT IS DIAGNOSTIC UNTIL THE FROZEN INSTRUMENT SPEAKS — I AM REPORTING WHAT I GREPPED, NOT A VERDICT.*** **`bounding k` appears ONCE in the entire log; `bounding omega` ONCE.** ***T5b fired the clamp on 1000 of its final 1000 iterations.*** **Largest omega in any bounding line: `1.357542e+06`, against T5b's fine level reaching `5.3338e+31` and against limb B's B1 bar of `1.0e+09`.** **The verdict is limb A's and limb B's, driven on the pins I verified against disk (`c97d355d…`, `9c4049b6…`), and it is the lane's to produce — not mine and not from a grep.** *If limb B passes it will be the FIRST TIME IT HAS EVER PASSED ON A REAL CASE, which §4 registers as its own live weakness.*
+
+***AND THE COST NUMBER CUTS AGAINST THE STORY THIS TEAM HAS BEEN TELLING ALL NIGHT, SO IT GOES ON THE BOARD RATHER THAN INTO A FOOTNOTE: `c` came in at 0.909 OF ITS PREDICTION WHILE THE BOX SAT AT LOAD 72.*** **Together with T4e running FASTER at load 55 than at load 25, that is two independent rungs saying contention as indexed by load average is not costing this team what we assumed.** *The block-122 measurement stands — work per iteration flat while seconds rose — but the load-average index keeps failing to predict anything, and a third rung will settle it.*
+
+**`peak_rss_kb=181120` is now a COMPLETE-RUN figure at 3.382 kB/cell** — the lab's first for `chtMultiRegionSimpleFoam` — **projecting the fine level to ~2.89 GiB against available-minus-4.** *The partial-run estimate of 2.84 GiB was low by 1.8 %, which is the useful thing to know about partial-run RSS.*
+
+**T21 — TWO RULINGS, BOTH MINE, BOTH MADE SO A LANE CAN MOVE TONIGHT.** `[lab-attributed]`
+- ***THE AGE GUARD DOES NOT MOVE.*** `build_t21.py:448-451` refuses because `splitMeshRegions` leaves a `0/`. **I read it at source: three files, every one `object cellToRegion` — a MESH TOPOLOGY MAP, not an answer.** **The guard implements rule 4's *"a guard refuses a case where `0` or a time dir already exists"*, one of the three standing instruments this team holds for the whole lab, and ITS ENTIRE STRENGTH IS THAT IT IS CRUDE AND CANNOT BE ARGUED WITH.** ***Softening "does `0` exist" into "does `0` contain things somebody considers answers" opens that door for every team, and I will not do it locally.*** **The defect is on the other side: the builder's MESH stage relocates its own byproduct, in code, reviewed, leaving the guard armed — and the change is not accepted without a demonstration that the guard STILL FIRES on a planted real field.**
+- ***AND A PREVIOUS LANE'S MANUAL `mv` OF THAT DIRECTORY WAS DENIED BY THE PERMISSION CLASSIFIER AS TRIPWIRE REMOVAL. THAT READING WAS FAIR AND THE LANE STOPPED RATHER THAN ROUTING AROUND IT, WHICH IS EXACTLY RIGHT.*** **I am not repeating it and I am not performing it on a lane's behalf — that is permission laundering and the answer is no.** ***The difference between a circumvention and a repair is that the repair is in the code, reviewed, and leaves the guard armed.*** **Surfaced to the owner rather than solved quietly.**
+- ***THE GRADING PATH IS NOT PINNED, AND I VERIFIED IT AT SOURCE: registration frozen `89a7bdbb7` 2026-09-03 22:59:57; `build_t21.py` committed `a2be96b79` 2026-09-07 04:52:16, FOUR DAYS LATER — and `T21_PREREGISTRATION.md:1482` says in terms "T21 has no builder, no launcher and no comparator".*** **So rule 2's *"the grading path is fixed at the pre-registration commit"* is NOT satisfied and a T21 grade today would violate it.** **REMEDY, the one rule 2 itself provides: T21 HAS HAD ZERO COMPUTE, so a PRE-COMPUTE amendment is legal — it pins builder, launcher and comparator by sha256, states the condition and names the run directory that does not exist, changes no gate/threshold/cap/label, and lands before any solver starts.**
+
+**T21 IS THE BEST THING AVAILABLE IN THIS TERRITORY AND IT IS CHEAP: six cases, POINT 9.1901 core-min, ranks 1, and `c`/`m`/`f` refine at r = 2 uniform in BOTH directions — A COMPLETE ROACHE TRIPLE.** **Frozen on Sanaa's own captured GO. Mesh already built and verified at core 480 / housing 160 / 640 exactly as registered.**
+
+**THE 3D SHOOTABLE LIST IS EXHAUSTED AND THAT IS A FINDING FOR HER DESK.** **Its three entries: `K2f` — its own top pick — is closed `BLOCKED`; `T26` is stopped; `T5d`/`T5e` are `BLOCKED` on inherited determinant cells.** ***The thermal 3D front has nothing left to shoot and needs a fourth entry.***
+
+**Section last written:** 2026-09-12T01:34:00Z by heat-transfer-supervisor personally, clock read. Newest block is **update 137**.
+
+
+
 ##### heat-transfer 2026-09-12 (update 136): **T5f's COARSE LEVEL IS SOLVING — `Time = 3479` of 5000, 70 %, the first authorised thermal solve of the session.** **Third owner directive boarded, and the stamps on the previous two CORRECTED from estimates to clock reads.**
 
 **[SANAA-DIRECT] ~2026-09-12T01:24Z, verbatim:** *"Once again, i want to see progress, not plumbing or infromation or endless checks. I want to see stuff running, getting fixe dand monitored accordingly. PROGRESS"*. **Her own session turn, relayed by the chief.**
