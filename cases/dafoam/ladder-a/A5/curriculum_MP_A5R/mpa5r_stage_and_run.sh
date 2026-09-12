@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CURRICULUM MP_A5 -- A5 U-BEND, 3D INCOMPRESSIBLE MULTIPOINT PRESSURE-LOSS
+# CURRICULUM MP_A5R -- A5 U-BEND, 3D INCOMPRESSIBLE MULTIPOINT PRESSURE-LOSS
 # MINIMISATION OVER THREE INLET VELOCITIES.  Ladder A5.
 #
 # DERIVED FROM cases/dafoam/ladder-a/A5/curriculum_D9successor/d9succ_stage_and_run.sh.
@@ -12,10 +12,12 @@
 #        variable, the `timeout` wrapper on `docker run`, and the frozen
 #        projection rule that sized `TMO_OPT`.  Core-minutes are still MEASURED
 #        and written to the ledger -- as a REPORTED figure that stops nothing.
-#        **KEPT DELIBERATELY, and this is not a cap:** `--memory=3g
-#        --memory-swap=3g --oom-score-adj=500`.  That is OOM containment on a
-#        shared 16-core box with four sibling runs live; removing it would let
-#        this item kill a peer's solver.
+#        **KEPT DELIBERATELY, and this is not a cap:** `--memory`,
+#        `--memory-swap` and `--oom-score-adj=500` are on every container.  That
+#        is OOM containment on a shared 16-core box with sibling runs live;
+#        removing it would let this item kill a peer's solver.  The VALUE is
+#        `$REGISTERED_MEMORY` and is set at MP_A5R-2 below -- MP_A5 ran 3g,
+#        inherited from a single-point item, and its arm O was OOM-killed.
 #
 #   MPA5-L2  **THE RUN IS DETACHED AND SURVIVES THE FLEET DYING.**  The script
 #        re-execs itself once under `setsid` with `MPA5R_DETACHED=1`, reparents to
@@ -67,6 +69,40 @@ GRADER="$CASEDIR/mpa5r_grade.py"
 # MP_A5R-L1  the registered primal length.  ONE literal, asserted equal to the
 # figure in the frozen pre-registration, and written into every staged tree.
 REGISTERED_END_TIME=5000
+
+# ---------------------------------------------------------------------------
+# MP_A5R-2  ADDENDUM 1 -- THE CONTAINER MEMORY, SIZED FOR THE PROBLEM IT ACTUALLY
+# CONTAINS.
+#
+# **SIZING A LIMIT FOR THE PROBLEM IT CONTAINS IS NOT WEAKENING THE GUARD.**  The
+# guard is not removed, not made optional, and not overridable by env: `--memory`,
+# `--memory-swap` and `--oom-score-adj` are on every container exactly as before.
+# What changes is the NUMBER, which was wrong.
+#
+# MP_A5 carried `--memory=3g` BYTE-IDENTICAL from D9successor -- a SINGLE-point
+# item, one DASolver -- while running THREE DASolver instances, three IDWarp
+# instances and three meshes in one process.  Its arm O was OOM-killed at 3556 s,
+# `OOMKilled=true`, `ExitCode=137`, after 33 function evaluations.
+#
+# 12g is not a guess: it is SO3's own measured precedent for the SAME construct --
+# three scenarios, `DASimpleFoam`, mphys Multipoint -- which ran to
+# `EXIT: Optimal Solution Found.`  Every arm in
+# /home/ubuntu/certonomous-runs/CURRICULUM-SO3-.../ledger.txt carries `memory=12g`.
+REGISTERED_MEMORY=12g
+
+# ---------------------------------------------------------------------------
+# MP_A5R-3  ADDENDUM 1 -- THE LAUNCH PRECONDITION ON FREE MEMORY.
+#
+# **THIS IS NOT A CAP.**  It never signals, stops, throttles or shortens a
+# RUNNING solver -- this item's or anyone's.  It is a refusal to START when
+# starting would take memory a live sibling is relying on.  A 12g container
+# launched into 3 GiB of MemAvailable does not fail politely; it pushes a peer's
+# solver into the OOM killer, which is the exact harm `--memory` exists to
+# prevent.  On 2026-09-12 the box read 30 GiB total / 27 used / 3 available with
+# 8.3 GiB already in swap, `d6r2_O_mp` alone holding 11.21 GiB.
+#
+# The threshold is a standing condition, not a judgement call at launch time.
+REQUIRED_MEMAVAILABLE_GIB=14
 
 MAXIT_OPT=30          # SLSQP major-iteration limit.  An OPTIMISER CONVERGENCE
                       # SETTING, not a resource cap: it bounds how many majors
@@ -123,7 +159,27 @@ grep -qE "^REGISTERED_END_TIME = ${REGISTERED_END_TIME}$" "$GRADER" \
 echo "ENDTIME_TRIPLE_ASSERTION PASSED: launcher=$REGISTERED_END_TIME, pre-registration literal present, grader constant matches" | tee -a "$LEDGER"
 grep -qF "timeout" "$SELF" && { echo "NOTE: the word 'timeout' appears in this file (comments only -- no timeout wrapper exists on any docker run)"; }
 grep -qE '^\s*timeout ' "$SELF" && { echo "ABORT: an executable 'timeout' wrapper is present in this launcher; NO-CAP is violated"; exit 1; }
-echo "NO-CAP ASSERTION PASSED: no executable timeout wrapper; memory containment RETAINED (--memory=3g --memory-swap=3g --oom-score-adj=500)" | tee -a "$LEDGER"
+echo "NO-CAP ASSERTION PASSED: no executable timeout wrapper; memory containment RETAINED (--memory=$REGISTERED_MEMORY --memory-swap=$REGISTERED_MEMORY --oom-score-adj=500)" | tee -a "$LEDGER"
+
+# MP_A5R-2  the memory figure must agree with the frozen pre-registration, the
+# same three-place discipline endTime already carries.
+grep -qF "REGISTERED memory: ${REGISTERED_MEMORY}" "$PREREG" \
+  || { echo "ABORT: the pre-registration does not carry the literal 'REGISTERED memory: ${REGISTERED_MEMORY}'"; exit 1; }
+
+# MP_A5R-3  THE LAUNCH PRECONDITION.  Refuse to START, never stop anything running.
+MEMAVAIL_GIB=$(awk '/^MemAvailable:/{printf "%.2f", $2/1048576}' /proc/meminfo)
+echo "MEMAVAILABLE_READ=${MEMAVAIL_GIB} GiB, required >= ${REQUIRED_MEMAVAILABLE_GIB} GiB to start a ${REGISTERED_MEMORY} container" | tee -a "$LEDGER"
+python3 -c "
+import sys
+sys.exit(0 if float('$MEMAVAIL_GIB') >= float('$REQUIRED_MEMAVAILABLE_GIB') else 1)
+" || {
+  echo "REFUSING TO START: MemAvailable ${MEMAVAIL_GIB} GiB < ${REQUIRED_MEMAVAILABLE_GIB} GiB required." | tee -a "$LEDGER"
+  echo "  This is NOT a cap and nothing running is touched: it is a refusal to LAUNCH a ${REGISTERED_MEMORY} container into memory a live sibling is relying on." | tee -a "$LEDGER"
+  echo "  Live containers at this refusal:" | tee -a "$LEDGER"
+  sudo -n docker ps --format '    {{.Names}} {{.Status}}' 2>/dev/null | tee -a "$LEDGER"
+  exit 75
+}
+echo "MEMAVAILABLE_PRECONDITION PASSED: ${MEMAVAIL_GIB} GiB available >= ${REQUIRED_MEMAVAILABLE_GIB} GiB required" | tee -a "$LEDGER"
 
 IMGID=$(sudo -n docker images --no-trunc --format '{{.ID}}' "$IMG" 2>/dev/null | head -1)
 [ -n "$IMGID" ] || { echo "ABORT: cannot resolve image ID for $IMG"; exit 1; }
@@ -274,7 +330,7 @@ run_stage() {
 
   t0=$(date +%s)
   sudo -n docker run --name "$cname" --user 0:0 \
-      --cpuset-cpus="$CPUSET" --cpus=1 --memory=3g --memory-swap=3g --oom-score-adj=500 \
+      --cpuset-cpus="$CPUSET" --cpus=1 --memory="$REGISTERED_MEMORY" --memory-swap="$REGISTERED_MEMORY" --oom-score-adj=500 \
       -e PYTHONHASHSEED=0 \
       -v "$arm":/mnt -w /mnt "$IMG" \
       bash -lc "source /home/dafoamuser/dafoam/loadDAFoam.sh && mpirun --allow-run-as-root -np 1 -x PYTHONPATH -x PYTHONHASHSEED python runScript.py $*" \

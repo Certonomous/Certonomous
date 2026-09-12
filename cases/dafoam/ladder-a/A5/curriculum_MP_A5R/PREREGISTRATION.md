@@ -171,3 +171,99 @@ re-pinned or disturbed.
 ---
 
 *`MP_A5R` v1.0, 2026-09-12. Frozen with its grading path in one commit.*
+
+---
+
+## ADDENDUM 1 — 2026-09-12, after `MP_A5`'s arm `O` was OOM-killed
+
+**Lines whose number changed above this section: 0.** No gate, threshold, band, label, prediction,
+weight or scenario is altered. `mpa5r_grade.py` is **byte-identical** to its frozen state, md5
+`895f2146ab203e41b2767aa9a3ed248a`. **This item remains UNLAUNCHED.**
+
+### A1.1 What happened to the predecessor, and why it reaches this item
+
+`MP_A5`'s arm `O` was killed at 3556 s: `ExitCode=137`, **`OOMKilled=true`**, `Memory=3221225472`,
+59.2667 core-min, after **33 function evaluations**. Composed verdict for `MP_A5`: **`NOT A RESULT`**
+— arm `O` fails rule-4 clause C1 and arm `E` never ran, and the registered verdict order puts rule 4
+ahead of the `GATE FAIL` that `G-CONV_B` had already earned.
+
+**This document was frozen from `MP_A5`'s instruments *before* that kill, so it inherited both
+defects**, and at `endTime 5000` would have met them sooner and harder. Both are repaired here,
+before any launch.
+
+### A1.2 `MP_A5R-2` — the container memory was sized for one solver and this runs three
+
+| | value | source |
+|---|---|---|
+| `MP_A5` (and this item as first frozen) | **3g** | carried **byte-identical** from `D9successor` — a **single-point** item, one `DASolver` |
+| **SO3**, the lab's own proven 3-scenario multipoint, same solver, ran to `EXIT: Optimal Solution Found.` | **12g** | every arm in its ledger |
+| **this item, repaired** | **`REGISTERED memory: 12g`** | SO3's **measured** precedent, not a guess |
+
+`MP_A5` runs three `DASolver` instances, three IDWarp instances and three meshes in one process. I
+scaled the problem 3× and left the containment at the single-point number.
+
+**SIZING A LIMIT FOR THE PROBLEM IT ACTUALLY CONTAINS IS NOT WEAKENING THE GUARD, and no later reader
+should mistake this for a relaxation.** `--memory`, `--memory-swap` and `--oom-score-adj=500` remain
+on every container, are not optional and are not overridable by environment. Only the **number**
+changes, and it changes because it was wrong.
+
+### A1.3 `MP_A5R-2` — the recorder was what was *growing*
+
+`recording_options["includes"] = ["*"]`, also carried from the single-point `D9successor`, records
+**every variable at every driver iteration, including full field arrays**:
+
+| item | scenarios | history file |
+|---|---|---|
+| SO3 | 3 | **3.5 MB** |
+| D9successor | 1 | 105 MB |
+| **MP_A5** | 3 | **460 MB — 131× SO3's** |
+
+Changed to `includes = []`. The driver's own desvars, objectives and constraints are still recorded
+by their own flags, which is exactly and only what this item reads back.
+
+**Departure from the shape suggested, recorded rather than done quietly:** SO3 uses
+`prob.add_recorder(...)`, a *problem* recorder. **This item does not adopt that pattern**, because
+this item's **frozen** grading path reads `om.CaseReader(...).list_cases("driver")` for its
+`obj_history` field, and a problem recorder leaves `list_cases("driver")` **empty** — adopting it
+would silently blank a field the frozen comparator reads, and the frozen file may not be edited to
+suit it (rule 6). Dropping `["*"]` fixes the entire defect in one token and leaves every frozen
+reader working.
+
+### A1.4 The transferable half — *when* it died is the diagnosis
+
+It survived **3556 s and 33 evaluations** before dying. **A run that dies immediately tells you the
+limit is wrong; a run that dies at evaluation 33 tells you something is growing** — and the 460 MB
+recorder is what was growing. Had only the limit been raised, the recorder defect would have been
+**masked rather than fixed**, and would have returned at a larger mesh or a longer run. Both are
+repaired.
+
+### A1.5 `MP_A5R-3` — the launch precondition: **`MemAvailable ≥ 14 GiB`**
+
+**THIS IS NOT A CAP.** It never signals, stops, throttles or shortens a running solver — this item's
+or anyone else's. It is a refusal to **START** when starting would take memory a live sibling is
+relying on. A 12g container launched into 3 GiB of `MemAvailable` does not fail politely; it pushes a
+peer's solver into the OOM killer, which is the precise harm `--memory` exists to prevent.
+
+Measured at this addendum: **30 GiB total, 27 used, 2.77 available, 8.3 GiB already in swap**, with
+`d6r2_O_mp` alone holding 11.21 GiB. The launcher reads `/proc/meminfo` at start-up, refuses with
+**exit 75** below the threshold, and records the live container list beside the refusal. Driven
+against the box at this addendum: `MemAvailable reads 2.77 GiB; required 14 → WOULD REFUSE`, which
+is the correct behaviour tonight. The threshold is a standing condition, not a judgement call at
+launch time.
+
+### A1.6 §4's arm-`O` cost estimate is replaced by a **measured** basis
+
+§4 registered ~1,125 core-min for arm `O` as **"SCALED, NOT MEASURED, LOW CONFIDENCE"**, because
+`MP_A5`'s arm O had not completed at the freeze. It now has a measured basis: **59.2667 core-min
+bought 33 function evaluations at `endTime 1000`** ≈ **1.80 core-min per evaluation**, so ≈ **9.0 per
+evaluation at `endTime 5000`**. That is the one good thing the kill bought. It does not change any
+gate; the calibration row will keep misprediction and **infrastructure loss** named separately and
+never folded together.
+
+### A1.7 Unchanged
+
+No cap of any kind. Memory containment kept — and now correctly sized. np = 1 on its own cpuset.
+**This item is NOT launched and may not be launched until check 4 clears this addendum AND the
+`MemAvailable ≥ 14 GiB` precondition passes.** Every `MP_A5` run root is kept as evidence.
+
+*`MP_A5R` v1.1, 2026-09-12.*

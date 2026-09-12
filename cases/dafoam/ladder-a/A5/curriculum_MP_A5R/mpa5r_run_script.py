@@ -442,7 +442,31 @@ def _read_scenario_outputs(prob, rec):
 if args.task == "run_driver":
     try:
         prob.driver.add_recorder(om.SqliteRecorder("mpa5r_hist.sql"))
-        prob.driver.recording_options["includes"] = ["*"]
+        # MP_A5R-2  ADDENDUM 1.  `includes` was `["*"]`, carried byte-identical
+        # from the SINGLE-point D9successor.  `["*"]` records EVERY variable at
+        # every driver iteration, INCLUDING FULL FIELD ARRAYS, and at three
+        # scenarios MP_A5's history reached **460 MB** -- against D9successor's
+        # 105 MB for one scenario and SO3's **3.5 MB** for its own three-scenario
+        # multipoint, i.e. **131x** the proven item's.  It is the thing that was
+        # GROWING when MP_A5's arm O was OOM-killed at evaluation 33 of 33 after
+        # 3556 s: a run that dies instantly tells you the limit is wrong, a run
+        # that dies at evaluation 33 tells you something is accumulating.
+        #
+        # `[]` records NO extra variables; the driver's own desvars, objectives
+        # and constraints are still recorded by their own flags, which is exactly
+        # and only what this item reads back.
+        #
+        # WHY NOT SO3's PROBLEM-RECORDER PATTERN VERBATIM, which was the shape
+        # suggested: SO3 uses `prob.add_recorder(...)` and reads its history its
+        # own way.  THE GRADING PATH OF THIS ITEM IS FROZEN and its reader is
+        # `om.CaseReader(...).list_cases("driver")` (mpa5r_grade.py, the
+        # `obj_history` field).  A problem recorder leaves `list_cases("driver")`
+        # EMPTY, so adopting that pattern would silently blank a field the frozen
+        # comparator reads -- and the frozen file may not be edited to suit it
+        # (rule 6).  Dropping `["*"]` fixes the whole defect, is a one-token
+        # change, and leaves every frozen reader working.  Recorded here rather
+        # than done quietly, because it departs from the shape asked for.
+        prob.driver.recording_options["includes"] = []
     except Exception as e:
         rec["recorder_error"] = repr(e)
     failed = prob.run_driver()
