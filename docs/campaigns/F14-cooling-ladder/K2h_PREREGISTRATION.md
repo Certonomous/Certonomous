@@ -408,3 +408,130 @@ dead flat at 5.05e-11 and L2 limit-cycling at a 1e-4 floor.
 
 *Nothing in this rung is sent, filed, uploaded, registered, posted or commented
 outside this box (rule 7).*
+
+---
+
+## ADDENDUM 1 — 2026-09-12, POST-COMPUTE, PRE-RESUME: `startFrom latestTime` FOR THE RESUME, AND WHY NO GATE MOVES
+
+**Version 1.1 → 1.2. This is a DATED POST-FREEZE ADDENDUM under `CLAUDE.md`
+rule 2, second bullet — NOT a pre-compute amendment, and the difference is the
+whole reason this section exists.** Appended at the foot so that **lines whose
+number changed above this section: 0.**
+
+**THE CONDITION, AND HOW IT WAS CHECKED — AND IT IS THE OPPOSITE OF
+AMENDMENT 1's.** First compute HAS now been spent against this document.
+`verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3` exists and carries
+`0/`, `processor0..3/` each holding time directories `0`, `5` **and `10`**, a
+`log.solve` and a `STATUS.queue.K2h_L3`; the launch is on the record at
+`verification/queue/LAUNCH_LOG.tsv` (`2026-09-12T20:36:38Z heat-transfer
+K2h_L3 pid 145826 4 ranks`). The solver's last logged step is **`Time =
+10.7388` of 112** and it was killed — not by a stop rule, not by a fault, but
+by the **clean stop of the instance for the 16 → 96 core resize** (host booted
+2026-09-12 21:32:17 UTC).
+
+**AND THE FIRST THING THIS ADDENDUM CORRECTS IS ITS OWN INHERITED DESCRIPTION.**
+The staged resume entry recorded, from a reading taken *before* the stop, that
+"processor0..3 each hold exactly time dirs 0 and 5 and AGREE on 5 as latest".
+**That is stale and it is wrong.** The solver ran on past it: **`t = 10` is
+written on all four ranks and it is the latest**, verified here by reading the
+bytes rather than the entry — all **36 field files** (4 ranks ×
+`T U p_rgh alphat nut k omega phi p`) carry OpenFOAM's own end-of-file banner,
+none is truncated, and `processor*/10/uniform/time` reads **`value 10; index
+1692;` on all four ranks, in agreement**. `startFrom latestTime` therefore
+resumes at **t = 10, not t = 5**, and **5 further simulated seconds of computed
+work are preserved** that the entry would have thrown away. The entry's
+`resume_from` field is corrected to `10` in the same commit as this addendum.
+A resume declaration that names the wrong time is a false description of what
+runs, which is why it is corrected on the record and not quietly.
+**GATES ARE THEREFORE CLOSED.** Nothing below alters a gate, a threshold, a
+band, a cap or a label, and the originals are struck nowhere.
+
+**WHAT STANDS, EACH NAMED SO THAT NO READER HAS TO INFER IT:** §5's `S-SETTLE`
+0–42 s and `S-WINDOW` 42–112 s stand; §6's `G-DPBAR` band
+[27.9699, 28.0901] m²/s² stands; §6's `D-STATIONARY` 5.0e-03 m²/s² and
+`D-COMPLETE` stand; §7's five predictions stand, losable exactly as frozen;
+§8's POINT 420 core-min and cap 1260 stand; §11's FREEZE block stands, both
+grading-path files still at their pinned sha256; Amendment 1's R4 suspension
+stands. §3's governing disclosure — that this rung reports ONE level and NO
+triple until all three levels are transient — stands and is not weakened by a
+resume.
+
+### AD1.1 The one substitution, stated exactly
+
+§4 registers the `803` checkpoint copied into `processor*/0` as the initial
+condition, i.e. **the run begins at simulated time 0**, and the generated
+`controlDict` delivered that as `startFrom startTime; startTime 0;`. §4's own
+frozen text carries no `startFrom` line — it registers the *initial condition*,
+and the run-control spelling of it lived in the generated dictionary; what is
+re-pointed is the delivery of §4's intent, not a frozen line of §4. **That is
+correct for the INITIAL launch and wrong for a resume**: re-run as frozen, the
+solver would re-read `processor*/0` and **discard the 7.6 s already computed**,
+restarting from zero. The resume therefore sets, in the GENERATED (untracked,
+non-frozen) `controlDict` only:
+
+> `startFrom latestTime;`
+
+and nothing else. `resume_k2h.sh` makes that one substitution, **reads the file
+back from disk**, and **RE-ASSERTS `endTime 112`, `writeInterval 5` and
+`purgeWrite 16` AFTER the edit**, so a `sed` that matched too much cannot pass
+unnoticed. The frozen document is not edited; the tracked registration is not
+edited; this addendum is the disclosure.
+
+### AD1.2 WHY THIS MOVES NO GATE — arithmetic, not assurance
+
+**`S-SETTLE` and `S-WINDOW` are ABSOLUTE SIMULATED TIMES, not elapsed-time
+offsets.** Averaging starts at simulated t = 42 s and the graded window is
+simulated 42–112 s, whichever wall-clock second the solver happens to be
+running in. Resuming at simulated t = 5 reaches t = 42 and t = 112 at exactly
+the same simulated times a continuous run would. **The graded quantity is
+therefore bit-for-bit the same quantity, computed over the same window.**
+
+**The averaging accumulator cannot be corrupted by this resume, and that is
+checked rather than assumed.** `fieldAverageProperties` does not exist anywhere
+in the case tree: averaging is not DUE until t = 42 and the run reached ≈ 7.6.
+**Nothing partial exists, so nothing partial can be inherited.** `dpAverage`
+declares `restartOnRestart false` explicitly, so a later resume — one taken
+after t = 42, if one is ever needed — RESUMES the running mean instead of
+discarding the window; `resume_k2h.sh` G-02b **REFUSES** if an accumulator
+exists on some ranks and not others, and **ALSO REFUSES** if no accumulator
+exists while the latest time is at or past `timeStart`, because absence is only
+innocent before averaging is due.
+
+**Cost is unchanged and is not re-based.** POINT 420 core-min and cap 1260
+stand as frozen; the ≈ 7.6 s already computed is spent against that same POINT,
+not added to it. An overrun remains a **flag**, never a stop (directive #17),
+and the cap is never raised by any agent.
+
+### AD1.3 RANKS STAY AT 4, AND THE REASON IS THE CHECKPOINT ITSELF
+
+The 96-core allocation table (`docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md`
+§A) places "K2 transient" inside the **20-rank finalization lane** alongside M6
+on the NASA grid (3 levels × 4 = 12) and D6R2 multipoint (4) — **16 of the 20,
+leaving exactly 4.** The allocation and the registration agree without either
+being bent to the other.
+
+**And even if ranks were free, they could not be taken here.** The case is
+decomposed on disk at `numberOfSubdomains 4` and the ONLY complete checkpoint —
+`processor0..3/10` — is written in that decomposition. Raising the rank count
+requires `reconstructPar` followed by `decomposePar` at the new count, which
+**destroys the resume and restarts this run from zero.** Sanaa's 2026-09-12
+21:25Z directive is explicit on that point ("I DON'T want to restart from 0").
+**4 ranks is not a default carried forward; it is the number the surviving
+checkpoint is written in.**
+
+### AD1.4 WHAT THIS ADDENDUM DOES NOT CLAIM
+
+It does not claim the resumed trajectory is bit-identical to an unkilled one —
+a restart from a written checkpoint re-enters the PIMPLE loop from written
+fields and the trajectory of a transient is not guaranteed identical to
+round-off. What is claimed is narrower and is the thing the gate rests on: the
+**graded quantity is a time average over an absolute simulated window that the
+resume does not move**, and the settling period 0–42 s absorbs the restart
+transient by construction, since the restart happens at t = 10, **32 simulated
+seconds before averaging begins.** The completeness of the checkpoint is not
+taken on this addendum's word either: `resume_k2h.sh`'s end-of-banner limb
+**REFUSES** rather than degrades and is evaluated at launch against the
+post-stop bytes, never against a pre-stop assertion.
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*
