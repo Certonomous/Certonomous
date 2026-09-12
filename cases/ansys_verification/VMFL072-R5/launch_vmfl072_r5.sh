@@ -96,7 +96,12 @@ while IFS= read -r rel; do
   [ -n "$rel" ] || continue
   check_blob "$rel" >/dev/null || exit 2
   NINP=$((NINP+1))
-done < <(git -C "$REPO" ls-files "cases/ansys_verification/VMFL072-R5/base")
+# AMENDED 2026-09-12 (before first compute). `git ls-files` reads the SHARED INDEX,
+# which the private-index commit protocol NEVER updates -- so every file frozen that
+# way reads as untracked here and this guard refused a correctly committed freeze
+# (31 files at HEAD, 0 in the index). HEAD is the authority for what is committed;
+# the index is a staging area other agents mutate. Reads the commit now.
+done < <(git -C "$REPO" ls-tree -r HEAD --name-only "cases/ansys_verification/VMFL072-R5/base")
 [ "$NINP" -ge 20 ] || { echo "ABORT: only $NINP case-input files tracked under base/ -- expected the full case tree (>=20)"; exit 2; }
 echo "  case inputs OK: $NINP files under base/, each byte-identical to its HEAD blob"
 
