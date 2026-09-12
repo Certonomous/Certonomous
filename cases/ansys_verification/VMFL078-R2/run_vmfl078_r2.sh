@@ -195,7 +195,20 @@ for L in $LEVELS_TO_RUN; do
     [ "$NLOC" = "201" ] || { echo "ABORT: $P at $L carries $NLOC probe locations, registered 201"; exit 2; }
   done
   # R2's defining guard: no symmetry patch anywhere in the case that would run.
-  grep -qi 'symmetry' "$OUT/system/blockMeshDict" "$OUT/0/U" && { echo "ABORT: a symmetry patch survives in the case at $L -- removing it IS the experiment"; exit 2; }
+  # AMENDED 2026-09-12, BEFORE FIRST COMPUTE (see VMFL078_R2_PREREGISTRATION.md, dated
+  # amendment at the foot).  The prior form grepped the RAW files, so it matched the
+  # word "symmetry" inside the EXPLANATORY COMMENTS of blockMeshDict and 0/U -- which
+  # exist precisely because removing the symmetry plane is the experiment -- and aborted
+  # a correct case.  The guard measured something other than what it claimed to measure.
+  # It now strips // comments first, so it tests PATCH DECLARATIONS and nothing else.
+  # The registered refusal condition is UNCHANGED: no symmetry patch, anywhere.
+  for F in "$OUT/system/blockMeshDict" "$OUT/0/U"; do
+    sed -E 's://.*::' "$F" | grep -qi 'symmetry' && { echo "ABORT: a symmetry patch survives in $F at $L -- removing it IS the experiment"; exit 2; }
+  done
+  # and prove the guard still has teeth: it MUST fire on a declaration it should catch.
+  printf '    zzz { type symmetryPlane; }\n' > "$OUT/system/.guard_probe"
+  sed -E 's://.*::' "$OUT/system/.guard_probe" | grep -qi 'symmetry' || { echo "ABORT: the symmetry guard is DEAD -- it did not fire on a planted symmetryPlane declaration"; exit 2; }
+  rm -f "$OUT/system/.guard_probe"
 
   printf 'FoamFile { version 2.0; format ascii; class dictionary; object decomposeParDict; }\nnumberOfSubdomains %d;\nmethod          scotch;\n' "$RANKS" \
     > "$OUT/system/decomposeParDict" || { echo "ABORT: cannot write decomposeParDict at $L"; exit 2; }

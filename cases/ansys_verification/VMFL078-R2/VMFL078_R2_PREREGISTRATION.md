@@ -433,3 +433,62 @@ driven.
 * **SUBMISSIONS ARE PARKED** (rule 7). Whatever this run finds — including a finding
   about a published figure — goes nowhere outside this box. Sending is Sanaa's
   decision alone.
+
+---
+
+## DATED AMENDMENT — 2026-09-12 — LAUNCHER SYMMETRY-GUARD REPAIR, BEFORE FIRST COMPUTE
+
+**Version 1.0 → 1.1.** *Lines whose number changed above this section: 0.*
+
+**What happened.** The first launch at 06:38:17Z, against freeze
+`dd84534ca435c11afe8db7b0272fe517dedac114`, aborted with
+`launcher_rc=2` at level F1 on this line of `run_vmfl078_r2.sh`:
+
+```
+grep -qi 'symmetry' "$OUT/system/blockMeshDict" "$OUT/0/U" && { echo "ABORT: ..."; exit 2; }
+```
+
+**The guard measured something other than what it claimed to measure.** It grepped the
+raw files, so it matched the word *symmetry* inside the **explanatory comments** of
+`blockMeshDict` and `0/U` — comments that exist precisely *because* removing the
+symmetry plane is this case's experiment — and refused a correct case. This is the same
+class of defect as the VMFL078 abscissa-count guard, amended there on the same grounds.
+
+**The repair.** The guard now strips `//` comments before testing, so it reads **patch
+declarations and nothing else**, and it additionally **proves itself live at every
+level** by planting a `type symmetryPlane;` declaration into a scratch file and refusing
+if the guard fails to fire on it. Measured at repair time: the repaired guard passes the
+real `0/U` and the real `blockMeshDict.template`, and fires on a real
+`symmetryPlane` declaration.
+
+**NOTHING ELSE CHANGES.** No gate, threshold, cap, label, band, abscissa, sampling
+plane, level count, refinement ratio or predicted outcome is touched. The **registered
+refusal condition of §8.6 is unchanged** — *no symmetry patch, anywhere* — and the
+comparator's own implementation of it was never defective: `check_bc_provenance()` reads
+the patch **types** in `constant/polyMesh/boundary` and the `boundaryField` entries of
+`0/U`, never comment prose, and its `--selftest` control
+*"BC provenance REFUSES a mesh that still carries a SYMMETRY patch"* passes unchanged.
+
+**THE CONDITION, AND HOW IT WAS CHECKED (rule 2).** This amendment is made **before
+first compute**, and that is not asserted, it is measured. At the moment of writing,
+under `verification/runs/ansys_verification/VMFL078-R2/`:
+
+| checked | found | required |
+|---|---|---|
+| `RUN_RC.*` files | **0** | 0 |
+| `polyMesh` directories | **0** | 0 — *`blockMesh` never ran*; the guard sits ahead of it |
+| `log.simpleFoam` files | **0** | 0 |
+| `postProcessing` directories | **0** | 0 |
+| numeric time directories under `F1` | **1**, and it is `0/`, holding exactly `U` and `p` — the copied **initial condition**, not an answer | no answer directory |
+
+`LAUNCHER_RC.txt` records `launcher_rc=2`: the launcher refused and stopped. **No
+solver process ever started, no field was written, no probe file exists, and no gate has
+been evaluated.** The aborted `F1/` tree is **not deleted** — it is moved intact to
+`F1_ABORTED_GUARD_FALSE_POSITIVE_2026-09-12T0638Z/` inside the run root so it stays
+inspectable, and because the launcher's own age guard (rule 4) must find `F1/` absent
+before it will launch into it.
+
+**What this amendment costs the freeze.** The gate-bearing content of the freeze —
+§5's four limbs, §3's family, §6's cost prediction and §7's prediction and its four
+enumerated outcomes — is byte-identical to commit `dd84534c`, and a reader can verify
+that by diffing this file against that blob: the only change is this section, appended.
