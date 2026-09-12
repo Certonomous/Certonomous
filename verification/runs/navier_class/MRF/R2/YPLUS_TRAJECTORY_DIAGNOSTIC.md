@@ -255,3 +255,115 @@ the instrument over the run. This one failed toward a false alarm that cost two 
 triage. **Both are docketed.**
 
 *— cfd `lab-lane`, 2026-09-12, §6 added after supervisor review. No gate moved. No verdict issued.*
+
+---
+
+## 7 — 2026-09-12T05:2xZ: **THE THIRD LEVEL LANDED. THE TRAJECTORY IS CLOSED, AND IT CUTS BOTH WAYS AT ONCE.**
+
+**Still diagnostic. No gate, threshold, band or label moved. No verdict issued here** — MRF R2
+ET8000 was graded `NOT A RESULT` on the registered path at `e0277adf4`, and nothing below
+touches that.
+
+§5 recorded fine's y+ as **OWED, and cheap**, because *"a two-point trajectory is a line
+through two points."* It is discharged. `simpleFoam -postProcess -func yPlus -time 8000` on
+the completed fine level, **1 rank, `nice -n 19`, rc 0, 2,700 s wall = 45.0 core-min**. **The
+six fields the frozen grader reads (`U p k omega nut phi` at `8000`) carry byte-identical
+mtimes before and after — checked by `stat` and `diff`, not assumed.**
+
+### 7.1 — Patch averages, three levels
+
+| patch | coarse | medium | **fine** | coarse→fine |
+|---|---:|---:|---:|---:|
+| tankWall | 131.842 | 78.801 | **52.621** | −60.1 % |
+| tankBottom | 105.250 | 65.092 | **42.601** | −59.5 % |
+| tankLid | 43.652 | 35.990 | **22.278** | −49.0 % |
+| baffles | 58.190 | 28.123 | **18.432** | −68.3 % |
+| **shaft** ★ | 25.410 | 21.302 | **11.638** | **−54.2 %** |
+| **impeller** ★ | 37.684 | 25.414 | **17.048** | −54.8 % |
+
+★ = the only two patches entering the graded quantity.
+
+> **THE SHAFT'S PATCH AVERAGE AT `fine` IS 11.638 AGAINST `yPlusLam` ≈ 11.53.** Not its
+> minimum — its **average** — has arrived at the wall function's own linear/log switch.
+
+### 7.2 — Fraction of wall faces below `yPlusLam` = 11.53 — the sharp test, closed
+
+| patch | faces c/m/f | coarse | medium | **fine** | coarse→fine |
+|---|---:|---:|---:|---:|---:|
+| tankWall | 3,168 / 9,752 / 22,808 | 3.31 % | 6.49 % | **14.36 %** | ×4.34 |
+| tankBottom | 920 / 2,313 / 5,876 | 0.76 % | 2.46 % | **4.32 %** | ×5.68 |
+| tankLid | 1,120 / 2,720 / 6,376 | 13.75 % | 10.00 % | **24.95 %** | ×1.81 |
+| baffles | 2,400 / 6,080 / 16,008 | 3.25 % | 15.16 % | **31.98 %** | ×9.84 |
+| **shaft** ★ | 2,236 / 3,024 / 7,448 | 4.34 % | 25.00 % | **65.15 %** | **×15.0** |
+| **impeller** ★ | 7,984 / 21,368 / 51,348 | 0.25 % | 1.14 % | **9.15 %** | **×36.6** |
+
+**Two thirds of the shaft's wall faces are in the viscous branch of a high-Re wall function
+at the finest level.** **§2.2's one counter-current resolves:** `tankLid` fell 13.75 → 10.00
+between coarse and medium and **rises to 24.95 at fine**, so the single patch that went the
+wrong way at two levels goes the hypothesis's way at three.
+
+### 7.3 — The three registered falsifiers, scored on all three levels
+
+- **(L1) PREMISE FALSE — NOT TRIGGERED.** Every patch average falls **monotonically**
+  coarse → medium → fine. Six of six.
+- **(L2) NO REGIME CHANGE — NOT TRIGGERED, and now decisively.** Registered as *"patch-average
+  stays above ~30 at all levels and no level has a material fraction below `yPlusLam`"*. At
+  fine, **four of six patch averages are under 30**, the shaft's average **is** `yPlusLam`, and
+  the shaft carries **65.15 %** of its faces below it.
+- **(L3) MOVEMENT TOO SMALL — NOT TRIGGERED.** Averages move 49–68 %; graded-patch fractions
+  move ×15.0 and ×36.6.
+
+**THE HYPOTHESIS SURVIVES ON THREE LEVELS. It is still NOT CONFIRMED** — surviving is not
+being demonstrated, and §4's bound is the reason.
+
+### 7.4 — **AND THE SAME MEASUREMENT MAKES §4's BOUND TIGHTER, NOT LOOSER. This is the half that argues AGAINST the mechanism, and it is the more surprising half.**
+
+| level | `total_z` | `pressure_z` | `viscous_z` | **viscous share of the graded moment** |
+|---|---:|---:|---:|---:|
+| coarse | −0.166520 | −0.165945 | −0.000575 | **0.345 %** |
+| medium | −0.170000 | −0.169772 | −0.000229 | **0.134 %** |
+| **fine** | **−0.173994** | **−0.173963** | **−0.000031** | **0.018 %** |
+
+> **AS THE WALL MOVES INTO THE VISCOUS BRANCH, THE VISCOUS MOMENT COLLAPSES — 0.345 % →
+> 0.134 % → 0.018 %, a factor of ~19 across the family, MONOTONICALLY, in the opposite
+> direction to the y+ trajectory that is supposed to be driving it.** At `fine` the pressure
+> field is **99.98 %** of the graded moment.
+
+Observed `Np` change is **+2.0899 %** coarse→medium, **+2.3495 %** medium→fine, **+4.4886 %**
+coarse→fine. Annihilating the **entire** viscous moment at its largest (coarse, 0.345 %) moves
+`Np` by **0.077 of the observed coarse→fine change** — against **0.165** when the bound was
+computed on two levels. **The direct channel is bounded out roughly twice as hard at three
+levels as at two.**
+
+### 7.5 — What is now established, and the debt §6.2 named is UNPAID and SHARPER
+
+**Established:** the wall-treatment regime change across this family is **real, monotone, and
+large** — it is not a boundary effect at a few faces, and at `fine` it is the majority state of
+the shaft. Nobody had measured any of it before 2026-09-12.
+
+**NOT established, and now harder to establish:** that it causes the divergence. The channel by
+which a wall function reaches the graded quantity **directly** is ≤ 7.7 % of the effect and
+**shrinking fast**. **The hypothesis now lives entirely on the indirect path** — `nut` at the
+wall → `k`/`ω` → turbulence field → **blade pressure distribution**, which is 99.98 % of the
+graded moment at `fine` — and **nothing in this file or any other measures that path.**
+
+**§6.2's debt therefore stands, unchanged in form and sharpened in stakes:** solve one level
+with **`nutUSpaldingWallFunction`** (all-y+) substituted for `nutkWallFunction`, everything
+else held, and test whether `Np` moves by **more than 0.345 %**. That threshold is **not
+re-derived here and must not be**: it was registered in §6.2 as the viscous share at coarse,
+i.e. the largest the direct channel could ever be across the family, and it stays where it was
+fixed. **A reader should nonetheless know that `fine`'s own direct channel is 19× smaller than
+the threshold**, which makes a movement above it that much more clearly an indirect-path
+result. **It must be frozen in its own pre-registration BEFORE the solve, under rule 2.**
+
+**NOT STARTED. Not begun tonight, deliberately** — the box is at load ~51 with CRM solving on
+the six ranks MRF released, demos are tomorrow, and the experiment needs its own registration
+with the threshold frozen before compute.
+
+**A cost note (rule 12):** this measurement cost **45.0 core-min** (2,700 s wall × 1 rank),
+**$0.038 DERIVED, NEVER MEASURED** at $0.0513/core-h. **It ran ~30× slower than the
+cells-scaled expectation from coarse (9 s) and medium (25 s)** — `nice -n 19` on 2.4 M cells
+serial at load ~51, which is contention, not a defect, and is reported rather than absorbed.
+No solve was run; the level was already complete and was not touched.
+
+*— cfd `lab-lane`, 2026-09-12, §7. DIAGNOSTIC. No gate moved. No verdict issued.*
