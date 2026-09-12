@@ -581,3 +581,106 @@ THAN QUIETLY DROPPED:**
 
 *Nothing in this rung is sent, filed, uploaded, registered, posted or commented
 outside this box (rule 7).*
+
+---
+
+## ADDENDUM 2 — 2026-09-12 ~22:05Z, MID-RUN AND BEFORE THE CROSSING: §8's COST IS WRONG BY 8.04x, THE CAP WILL BE CROSSED AT ~02:10Z, AND THE CAP IS NOT RAISED
+
+**Version 1.2a → 1.3. Dated post-freeze addendum. Appended at the foot; lines
+whose number changed above this section: 0.**
+
+**THIS IS REGISTERED BEFORE THE CROSSING, NOT AFTER IT, AND THAT IS THE POINT.**
+At the moment of writing the run is live at simulated **t = 12.49 of 112** and
+has spent **250.4 core-min**. §8's POINT is 420 and its cap 1260. **The cap is
+NOT raised here and CANNOT be** — rule 2 forbids an addendum to move a cap, and
+raising or retiring one is Sanaa's alone. What is registered is the
+**measurement**, the **predicted crossing time**, and **what a crossing does and
+does not mean** — written down while the answer is still in the future.
+
+### AD2.1 THE MEASUREMENT, AND WHY IT IS NOT A DRIFT
+
+**Measured mean `deltaT` = 0.0059102 s. §8 registered 0.0475 s. The ratio is
+8.04x.** The figure is not a transient and not a sample artefact: `deltaT` is
+**identical to nine significant figures across all 2,238 steps of both log
+segments**, because it is **pinned at the Courant ceiling** — the log reads
+`Courant Number max: 1.99989` against the case's `maxCo 2.0`, and `maxDeltaT
+0.25` never binds. Measured over **54.5 minutes** of running, not over thirty
+seconds.
+
+**THE CAUSE IS A BAD SCALING LAW IN §8, NAMED PLAINLY BECAUSE IT IS THE LAB'S
+OWN ERROR AND NOT THE BOX'S.** §8 took K2b's measured `deltaT` 0.0804 s at
+137,000 cells and divided it by the **LINEAR** refinement ratio
+(664848/137000)^(1/3) = 1.69. **The true ratio is 0.0804 / 0.005910 = 13.6x.**
+The mesh is not uniformly refined: its finest cells are roughly 8x smaller than
+a uniform 1.69x refinement implies, and an explicit Courant limit is set by the
+**smallest** cell, never by the mean. **A per-cell-count scaling of a Courant
+limited time step is the wrong law on a locally refined mesh.**
+
+**AND THE OTHER TERM WAS CONSERVATIVE, WHICH IS RECORDED BECAUSE A HALF-TOLD
+CALIBRATION IS WORSE THAN NONE.** §8's `x2.5` PIMPLE-over-SIMPLE cost factor
+predicted 2.82 s/step; the measured rate is **1.1516 s/step** uncontended. That
+term was conservative by **2.45x** and partly offsets the `deltaT` error.
+
+### AD2.2 THE PROJECTION, AND THE CROSSING TIME, WHICH IS RATE-INDEPENDENT
+
+Steps to t = 112 at the measured `deltaT`: **18,950**, against §8's registered
+**2,358** — the same 8.04x. Remaining at the time of writing: **16,842**.
+
+| rate | remaining wall | total core-min | vs POINT 420 | vs cap 1260 |
+|---|---|---|---|---|
+| 1.1516 s/step (measured, uncontended) | 5.39 h | **1,543** | 3.67x | **1.22x** |
+| 1.7998 s/step (segment-1 rate, if load returns) | 8.42 h | **2,272** | 5.41x | **1.80x** |
+
+**THE CROSSING TIME DOES NOT DEPEND ON THE STEP RATE, and that is worth stating
+because it looks as though it should.** Core-minutes are `wall s x ranks / 60`,
+so the cap converts to a **fixed wall figure**: 1,260 core-min = **18,900
+solver wall-seconds**. **POINT 420 is crossed at ~22:40Z tonight; cap 1260 is
+crossed at approximately 02:10Z on 2026-09-13**, whatever the rate does.
+Completion at t = 112 lands ~03:20Z at the measured rate, ~06:25Z at the
+segment-1 rate.
+
+### AD2.3 WHAT THE CROSSING DOES NOT DO — AND THE ONE QUESTION THAT IS ABOVE ME
+
+**NOTHING STOPS THE RUN.** Sanaa's directive #17 of 2026-09-12 is explicit that
+no run is stopped by a time or budget cap, by any team. §8 already registered
+the cap as **a flag and not a stop**. No `timeout` is armed, no guard is added,
+and the crossing writes `CAP_FLAG.txt` and changes nothing else.
+
+**NO GATE, THRESHOLD, BAND OR LABEL MOVES.** `S-SETTLE` 0–42 s, `S-WINDOW`
+42–112 s, `G-DPBAR` [27.9699, 28.0901] m²/s², `D-STATIONARY` 5.0e-03 and
+`D-COMPLETE` are untouched. **A smaller `deltaT` is MORE temporal resolution of
+the averaging window, not less** — the misprediction makes the physics better
+resolved and the bill larger, and those are opposite directions.
+
+**AND HERE IS THE CONFLICT, STATED RATHER THAN RESOLVED LOCALLY.** Sanaa's
+2026-09-12 run instructions, item 7, read "cap → NOT A RESULT, never raised".
+Her universal rule of 2026-08-26 reads that **bookkeeping never voids physics**,
+and this entry's own `_field_classes` (L-342) places cost among the
+**INFRASTRUCTURE** fields, which "void only the cost claim" and may "never
+produce NOT A RESULT". **Applied literally to this run, item 7 would grade a
+physically complete, in-window, in-band transient `NOT A RESULT` on the strength
+of a scaling-law error in its own cost estimate.** I do not believe that is what
+item 7 is for, and **I am not ruling it myself**: whether a cap crossing forces
+`NOT A RESULT` touches the verdict vocabulary across every team and is
+**escalated to the chief, and through the chief to Sanaa**. Until it is ruled,
+**the run continues, the flag is recorded, and this rung's verdict is `PENDING`.**
+
+### AD2.4 TWO §9 SUB-CLAIMS RE-CHECKED AGAINST THE MEASURED RATE, BECAUSE THEY RESTED ON IT
+
+- **Checkpoint interval.** 5 simulated s = 846 steps x 1.1516 s = **974 s =
+  16.2 min** of wall per write. §9 projected 5.0 min and claimed the 30-minute
+  bound survived a 5x error. **The projection is wrong by 3.25x and the
+  30-minute bound HOLDS.** Not a defect; Sanaa's checkpoint items 1–3 are met.
+- **`purgeWrite 16` retention.** Writes land at 5, 10, …, 110 and then at 112;
+  the last 16 are t = 45 … 110 and 112, so **t = 45 through t = 112 are
+  retained** and `D-STATIONARY`'s two halves survive. Measured write size 31 MB
+  per rank x 4 = **124 MB**, against §9's 122 MB estimate; 16 writes ≈ 2.0 GB
+  against 491 GB free. **Not a defect.**
+- **One correction to the watch plan, from the dictionary rather than from
+  taste:** `fieldAverage` carries `timeStart 42` with `writeControl writeTime`,
+  so `uniform/fieldAverageProperties` **cannot appear at t = 42** — the first
+  write at or past the start is **t = 45**. A four-rank agreement check at t = 42
+  would manufacture a false mismatch by construction; it is made at t = 45.
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*
