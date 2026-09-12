@@ -27866,3 +27866,62 @@ positive/negative control pair and its calibration table);
 `verification/runs/F14-cooling-ladder/K2h_runs/analyse_k2h.py` (line 337 as
 repaired, and the driven refusal path); the cfd team's `DEFECT.md` for the
 removed hue guard.
+
+---
+
+## L-571 — An fvSolution entry whose removal looks like cleanup may be selecting a different algorithm, and `relax()` with no registered factor is a no-op that reads like a safeguard
+
+**2026-09-12, cfd, M6I-R1 on OpenFOAM v2606 `rhoSimpleFoam`.** Two lines were deleted from
+`system/fvSolution` as dead levers. Both were live. The deletion made the failure **54×
+worse**, and only the direction of the miss exposed the mistake.
+
+**What was deleted, and what each one actually did.**
+
+1. `SIMPLE { consistent yes; }`. Judged dead because
+   `applications/solvers/compressible/rhoSimpleFoam/pEqn.H` contains **zero** occurrences of
+   `rAtU` or `consistent`, while the incompressible `simpleFoam/pEqn.H` contains **eight**.
+   **One file was not the program.** `rhoSimpleFoam.C:78` reads
+   `if (simple.consistent()) { #include "pcEqn.H" } else { #include "pEqn.H" }`, and
+   `pcEqn.H` **exists** and carries **ten** `rAtU`. The keyword selects an entirely
+   different pressure equation. **Removing it did not clean up a no-op; it switched the
+   algorithm from SIMPLEC to SIMPLE.**
+
+2. `relaxationFactors { equations { p 1; } }`. Judged dead because SIMPLE relaxes the
+   pressure *field*, not the pressure *equation*. But `pEqn.H:35-36` reads, in the
+   distribution's own words:
+   `// Relax the pressure equation to ensure diagonal-dominance` / `pEqn.relax();`
+   and `fvMatrix::relax()` with no argument **does nothing at all** when no factor is
+   registered for that field. `relax(1.0)` is **not** a no-op either: it sets
+   `D = max(|D|, sumMagOffDiag)` *before* dividing by α. **Deleting the entry silently
+   disabled the diagonal-dominance enforcement** that the transonic pressure equation needs,
+   because `fvm::div(phid, p)` is asymmetric.
+
+**The measurement.** Peak `pressureControl: p max` at iteration 1, against a 101,325 Pa
+freestream: **417,018 Pa** before the edit, **22,368,256 Pa** after it. Both runs then raised
+SIGFPE inside `libm` beneath `libfluidThermophysicalModels`, which is
+`sutherlandTransportI.H:120`, `mu = As*sqrt(T)/(1 + Ts/T)`, meeting a negative temperature.
+
+**Why this is worth a number and not a footnote: the direction of the miss.** A change made
+on a false premise that had improved things *slightly* would have **confirmed** the premise
+and buried it in the record as a success. This one failed loudly enough to expose itself,
+and the premise was then checked against the source rather than tuned around.
+
+**The rule, in its general form.**
+- **Before calling an entry dead, grep the SOLVER, not one of its included files.** A
+  `#include` chosen by an `if` is invisible to a grep of the branch you happened to open.
+- **A `relax()` call with no registered factor is a silent no-op that reads like a
+  safeguard.** Its presence in the source proves nothing about whether it runs.
+- **Never bundle "cleanup" with a functional change in one registered step.** The cleanup
+  here *was* the functional change, and bundling made it invisible in the diff's intent.
+- This is **OpenFOAM-shaped, not case-shaped**: it applies to every SIMPLE-family solver in
+  this lab, dafoam and heat-transfer included.
+
+**Related.** Rule 14 (a `libs` entry is inserted with an assert, never replaced — the same
+family of defect, a lever assumed connected); rule 2 (the repair landed as a dated addendum
+that altered no gate); L-221/L-222.
+
+**Sources.** `verification/campaign/M6I_R1_SOLVE_PREREGISTRATION.md` ADDENDUM 1 §A1.2 (the
+wrong claim, left standing and struck rather than rewritten) and ADDENDUM 2 §A2.1 (the
+withdrawal, placed as that addendum's opening section);
+`verification/runs/M6I_runs/L3/ATTEMPT1_FPE/log.rhoSimpleFoam` and
+`ATTEMPT2_FPE/log.rhoSimpleFoam` — the two `p max` values, both preserved undeleted.
