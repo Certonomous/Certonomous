@@ -1571,6 +1571,12 @@ Her instructions (D6R2 multipoint, SUBOFF, DrivAer, CRM wing + D8G, MRF; checkpo
 
 *Recorded by a records lane on the chief's instruction; built from the HEAD blob; zero compute.*
 
+### CHIEF ADDENDUM — 2026-09-12T21:44Z — OWNER DIRECTIVES #19–#21: HOST RESIZED TO 96 CORES / 739 GiB (booted 2026-09-12 21:32Z); CORE ALLOCATION TABLE; PPTC VP1304 PROPELLER ACT; NASA CRM WING-BODY ACT — ALL BYTE-EXACT IN `docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md`
+
+Sanaa's lane table (CRM wing-body 32, SUBOFF sweep 28, propeller reserve 16 now active, finalization 20 = M6I×3 at 4 + K2h + D6R2 at 4), the full PPTC propeller instruction and the full CRM wing-body instruction are in that file and not repeated here. Her rulings of the same evening (resume all runs from checkpoint; CRM wing-alone stays as graded; DrivAer to medium; M6 on the existing M6I family, in-house C-mesh dropped; MRF Beshay-primary with the thickness test as the one run; D6R2 subsonic compressible; MP_A5 and D6RF10 set aside; ParaView on every completion) are appended byte-exact to `docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md`. Working teams re-formed: cfd, dafoam, heat-transfer. Closure, verification and ansys-verification remain STOPPED on her word. The queue runner was fail-closed at the restart on a 16-core-hard-coded selftest; fix in flight.
+
+*Recorded by a records lane on the chief's instruction; built from the HEAD blob; zero compute.*
+
 ## closure
 **Section last written:** 2026-09-12T03:35Z by closure-supervisor personally. PURE INSERTION. Zero solver core-minutes. **FACTS ONLY, per her directive.**
 
