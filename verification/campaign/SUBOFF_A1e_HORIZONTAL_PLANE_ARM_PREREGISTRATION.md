@@ -153,3 +153,71 @@ applies to any other, and **F = max(Q2, Q3) is unmeasured at the time of writing
 
 Frozen at the commit adding this file. No band, threshold or quantity above may be
 altered afterwards; departures land as dated addenda that strike the original legibly.
+
+---
+
+## DATED ADDENDUM 1 — 2026-09-12, same day, by the author: **THE §4.1 EXTENSION TEST WAS RUN AND IT SPLITS. `Y_v'` IS ADMITTED ON A CHECKED GROUND. `N_v'` FAILS IT AND FALLS TO REPORTED, NOT GRADED, UNDER §4.1's OWN FAILURE BRANCH.**
+
+*lines whose number changed above this section: 0*
+
+### A. THIS TEST WAS NOT PRE-REGISTERED, AND SAYING SO IS THE POINT
+
+The cfd-supervisor proposed a checkable ground for §4.1's extension and asked that the
+test and its two outcomes be registered before it was run. **That was not possible and
+this lane will not pretend otherwise.** The whole of Roddy's Table 4 — including the
+`Config 2 / Fully Appended` column this test needs — was read as a page image at
+~22:2xZ while verifying the `Config 4` band, and both columns were already in hand
+before the test was proposed. **A freeze written after the inputs are known is
+decoration.** This addendum is therefore a **POST-HOC CHECK, LABELLED AS ONE**, and it
+carries none of the evidentiary weight of §4's frozen band.
+
+What it does carry: the rule it applies was stated by someone who had not seen the
+numbers, and the outcome is **against us**, which is the direction that makes a post-hoc
+check worth reading at all.
+
+### B. THE GROUND
+
+A relative uncertainty quoted for one body carries an **absolute** error floor set by the
+rig. Transferring that relative percentage to a body whose derivative is **smaller** in
+magnitude yields an absolute band **narrower** than the floor — conservative, erring
+against us. Transferring it to a **larger** derivative yields a band **wider** than the
+floor — **erring in our favour, which we may not do.**
+
+Roddy's 4-to-5 % is scoped "for fully appended submarines", i.e. to the `Config 2`
+column. The test is `|Config 4|` against `|Config 2|`, same table, same page.
+
+### C. THE RESULT
+
+| quantity | \|Config 4\| (ours) | \|Config 2\| (band's scope) | C4 vs C2 | band at 4 % on C4 | rig floor at 4 % on C2 | verdict |
+|---|---|---|---|---|---|---|
+| `Y_v'` | 0.023008 | 0.027834 | **smaller** | 9.203e-04 | 1.113e-03 | **CONSERVATIVE** — 17.3 % tighter than the floor |
+| `N_v'` | 0.015534 | 0.013648 | **LARGER** | 6.214e-04 | 5.459e-04 | **ERRS IN OUR FAVOUR** — 13.8 % LOOSER than the floor |
+
+The expectation behind the test — that stern planes add side force, so the fully appended
+body's derivatives are larger — **holds for `Y_v'` and FAILS for `N_v'`.** Physically
+unsurprising in hindsight: stern planes sit aft of the reference point, so they add side
+force while *reducing* the destabilising yawing moment of a hull-and-sail body whose sail
+is forward. Hindsight is not a prediction and is not offered as one.
+
+### D. THE CONSEQUENCE, WHICH IS §4.1's OWN FAILURE BRANCH FIRING
+
+- **`Y_v'` REMAINS GATED** at ±4 %, `[−0.023928, −0.022088]`, and the extension of
+  Roddy's scope is now admitted on a **checked** ground rather than an assumed one.
+- **`N_v'` IS REPORTED, NOT GRADED.** §4.1 states: "If the supervisor or Sanaa judges the
+  extension impermissible, this arm has no measured-tier band and must be reported, not
+  graded." For `N_v'` the extension is not merely unproven — it is **measurably in our
+  favour**, and a band that is looser than the rig that produced it is not a gate.
+  ~~`N_v'` −0.015534 gated in [−0.016155, −0.014913]~~ — **struck for `N_v'` only**, and
+  the value with its interval is still reported beside every result.
+
+### E. WHAT IS NOT DONE HERE, BECAUSE THE RULES FORBID IT
+
+A tighter gate for `N_v'` is **available and is not taken by this lane.** Gating `N_v'`
+on the rig's absolute floor rather than the relative percentage gives **±5.4592e-04
+absolute = ±3.51 %**, which is tighter than the frozen ±4 % and defensible on the same
+ground that admits `Y_v'`. **An addendum may not alter a gate, threshold, cap or label**,
+so this lane does not apply it. It is recorded here as the available remedy; adopting it
+requires a **superseding registration**, which is the cfd-supervisor's and Sanaa's call,
+not this lane's. That such a registration would *tighten* the gate, and that our own
+`N_v'` does not yet exist so no gate could be fitted to it, are both arguments for it —
+and neither is this lane's to accept on its own behalf.
