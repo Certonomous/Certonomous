@@ -994,3 +994,196 @@ view.
 > GRADED, with the absence of a comparator disclosed rather than manufactured.**
 >
 > **Neither is chosen by this lane. Nothing is queued. No solver is started.**
+
+---
+---
+
+# ADDENDUM 2 — 2026-09-12 — **ROUTE (A) IS RULED**, AND THE RING WING AND STRUTS ARE DEFINED FROM THE PRIMARY SOURCE, WITH **FOUR SCAN DEFECTS FOUND AND RESOLVED**
+
+**Appended at the foot. Lines whose number changed above this section: 0.**
+
+**AMENDMENT CONDITION (rule 2), STATED AND CHECKED.** No compute has occurred under this
+document: `verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/SOLVE_A*` do not
+exist, no `verification/queue/cfd/` entry references this act, and no solver has been started
+by it. Only mesh building has occurred, which §4.4 requires before the freeze.
+
+---
+
+## A2.1 THE RULING
+
+The cfd-supervisor ruled **route (A), built as an increment, with route (B)'s body kept as the
+second arm**, on the grounds that (i) only (A) delivers Sanaa's registered instruction, since
+Addendum 1's check (C) established that no vertical-plane derivative exists for a non-ring-wing
+body; (ii) `Config 1` is a strict **superset** of the body already built, so (A) costs the
+existing work nothing; and (iii) **the two-body pair MEASURES the vertical-plane ring-wing
+increment that Roddy never published**, because the two bodies differ by exactly the ring wing
+and struts.
+
+**A CAVEAT THAT IS SCOPED, AND THE SCOPING IS THE POINT.** §9 registers a fully-turbulent
+closure as **matched**, on the tripwire footnote. Liu & Huang's **second** footnote on the same
+page reads *"Ringed wings have no turbulence stimulators applied to them"*. That mismatch
+applies **only to comparing the ring-wing arm against Roddy's measured `Config 1`**. It does
+**not** touch the ring-wing increment, because **both of our solves are fully turbulent, so the
+DIFFERENCE between them is internally consistent whatever the transition treatment.** One
+clearly-scoped caveat on one arm, not a defect in both results.
+
+**No band is registered on Liu & Huang Table 14's resistance row.** It would be a new gate and
+needs its own submergence and Reynolds-matching analysis.
+
+---
+
+## A2.2 🔴 A BINDING RULE FOR THIS FAMILY, MADE BY THE cfd-SUPERVISOR ON ADDENDUM 1's FINDING
+
+> **A DERIVATIVE'S BAND IS MEANINGLESS WITHOUT THE REFERENCE LENGTH, REFERENCE AREA AND MOMENT
+> ORIGIN THE SOURCE USED. All three are quoted from the source's own page into every
+> registration, beside the value.**
+
+Discharged here, verbatim from **Roddy 1990, report page 3** (PDF p.11), read as a page image:
+
+> "The hydrodynamic force and moment measurements were nondimensionalized using **the length
+> between perpendiculars of 13.9792 feet (4.261 m)**."
+
+> "These derivatives are referred to the axes which have their **origin 6.6042 feet (2.013 m)
+> aft of the forward perpendicular (nose) on the hull centerline.** The location of the
+> reference point **did not correspond with the longitudinal location of the center of
+> buoyancy** for any of the configurations evaluated."
+
+> "The static stability experiments were conducted at a model speed of **6.5 knots** which
+> corresponds to a Reynolds number (based on the length between perpendiculars) of **about 14
+> million**."
+
+**Registered, and every case is built on these from the start rather than corrected later:**
+`L_ref = 13.979167 ft = 4.260851 m` · `CofR = (2.013, 0, 0) m` · `U = 3.343333 m/s` ·
+`ν = 1.0 × 10⁻⁶ m²/s` · `Re_LBP = 1.4245 × 10⁷`.
+
+---
+
+## A2.3 THE RING WING — Groves 1989 **Table 4, report pages 15–16**, cross-read against **Appendix D, report pages 68–71**
+
+Both read as rendered page images. Appendix D's own header states the section family, which is
+itself a corroboration of the coefficient set:
+
+> "THE DARPA2 WINGS USE THE **NACA 66 (DTNSRDC MOD) THICKNESS DISTRIBUTION** AND THE **NACA
+> a = 0.4 MEANLINE**."
+
+**RING WING 1** (the one in Roddy's `Configuration 1`), from Table 4 and confirmed by
+Appendix D's `DATA` statements:
+
+| | x (ft) | R (ft) |
+|---|---|---|
+| leading edge | **13.46990** | **0.43004** |
+| trailing edge | **14.21661** | **0.35659** |
+
+Derived: chord `C = 0.750314 ft`, setting angle `φ = atan2(R_TE − R_LE, x_TE − x_LE) =
+−5.6178°` (a converging shroud). Radial clearance to the hull: **77.39 mm at the LE, 89.29 mm
+at the TE** — the gap the struts bridge.
+
+**Meanline** (`0 ≤ x ≤ 1`, `D = 0.4 − x`, `E = 1 − x`):
+`y_c = −0.049921 [0.5 D² ln|D| − 0.5 E² ln E + 0.25 E² − 0.25 D²] + 0.029953 [x ln x + 0.227828 − 0.531076 x]`
+**Slope** (Appendix D, needed for the surface construction and **not printed in Table 4**):
+`y_c' = −0.049921 [E ln E − D ln|D|] + 0.02995253 [ln x + 0.4689244]`, and `θ = atan(y_c')`.
+
+**Thickness**, two branches of one curve:
+`y_t = 0.1 Σ_{n=1..17} b_n sin(n ω)`, `ω = arccos(2x − 1)`, for `0 ≤ x < 0.45`;
+`y_t = 0.1 [0.033333 + 1.696969 X + −1.441945 X² − 0.366363 X³ + 0.333049 X⁴]`, `X = 1 − x`,
+for `0.45 ≤ x ≤ 1`.
+
+**Surface and placement** (Appendix D, which also resolves Table 4's duplicated label):
+`x_U = x − y_t sinθ`, `R_U = y_c + y_t cosθ`, `x_L = x + y_t sinθ`, `R_L = y_c − y_t cosθ`;
+then `x_D = x_LE + C(x_* cosφ − R_* sinφ)` and `R_D = R_LE + C(x_* sinφ + R_* cosφ)`, with the
+**pre-rotation** `x_*` used in the `R_D` line — a detail the listing makes explicit
+(`XUU`, `XLL`) and which a careless implementation gets wrong.
+
+### A2.3.1 🔴 FOUR DEFECTS IN THE PRINTED TABLES, FOUND AND RESOLVED — THIS IS WHY THE PAGES ARE READ AS IMAGES AND CROSS-READ AGAINST THE LISTING
+
+| # | what Table 4 / Table 5 prints | what it must be | how it was settled |
+|---|---|---|---|
+| **1** | thickness coefficient **`b₅ = −0.90185`** | **`b₅ = −0.00185`** | Appendix D's `DATA B` array reads `−0.00185`, **and a numerical discriminator settles it independently** — see below |
+| **2** | camber: `… + 0.029953 [x ℓnx + 0.227828 **=** 0.531076x]` | `… **−** 0.531076 x` | Appendix D: `YC(I) = YC(I) + 0.029953*(X*ALOG(X) + 0.227828 - 0.531076*X)` |
+| **3** | placement block prints **`R_DU`** twice; the fourth line has no `R_DL` | the fourth line is **`R_DL`** | Appendix D computes `YL(I)` there |
+| **4** | strut section: `… + 0.28520 ξ**²** …` | **`ξ³`** | the same five coefficients as Groves Table 3's stern appendage, where the exponent is 3; and the coefficients sum to zero only as a quartic in the 4-digit form |
+
+> **THE DISCRIMINATOR FOR DEFECT 1, AND IT OWES NOTHING TO THE LISTING.** The 17-term sine
+> series and the quartic polynomial are **two branches of one curve** and must agree where they
+> meet at `x = 0.45`. **With `b₅ = −0.00185` they agree to `1.34 × 10⁻⁶`. With the printed
+> `b₅ = −0.90185` they disagree by `7.89 × 10⁻²` — fifty-nine thousand times worse.** The
+> correct value is therefore established by an internal consistency test of the table against
+> itself, not merely by preferring one scan to another.
+
+### A2.3.2 SELF-CHECKS ON THE RING-WING DIGITS, ALL **MEASURED**
+
+| check | result | what it confirms |
+|---|---|---|
+| thickness branches agree at `x = 0.45` | **series 0.0499987 vs polynomial 0.0500000**, diff `1.3 × 10⁻⁶` | all 17 `b_n` and all five polynomial coefficients |
+| maximum full thickness | **`t/c = 0.09999`** — a round 10 % | the NACA 66 (DTNSRDC mod) family the listing names |
+| meanline vanishes at both ends | `y_c(0) = +1 × 10⁻⁷`, `y_c(1) = −1 × 10⁻⁷` | the camber constants and the `−0.531076x` correction of defect 2 |
+| maximum camber and its station | **`0.01960 c` at `x/c = 0.3948`** | the **NACA a = 0.4** meanline the listing names — the peak sits at 0.4 |
+
+---
+
+## A2.4 THE RING-WING STRUTS — Groves 1989 **Table 5, report pages 19–20**
+
+Narrative, report page 18 (PDF p.25), read as an image: *"Four separate, identical struts are
+mounted equally-spaced along the hull girth. The struts attach at the same axial position on
+the hull, x = 13.589 Ft (4.142 m)… At the inner surface of each wing, the struts are contoured
+to match each wing."* Table 5's own header adds: *"These equations define a single strut which
+attaches to the DARPA2 axisymmetric hull **along the upper surface (i.e., the surface with the
+fairwater)**."*
+
+```
+x = x₀ + 0.243995 ξ
+y = y₀ − 0.054465 ξ
+z = ± 0.15 (0.29690 √ξ − 0.12600 ξ − 0.35160 ξ² + 0.28520 ξ³ − 0.10450 ξ⁴)
+x₀ = 0.223221 y₀ + 13.556128        R1 ≤ y₀ ≤ R2
+Ring Wing 1:  R1 = 0.14726,  R2 = 0.36886
+0 ≤ ξ = (x − x₀)/0.243995 ≤ 1
+HULL/STRUT INTERSECTION:      [R_HA(x)]² = y² + z²
+RING WING/STRUT INTERSECTION: [R_WL(x)]² = y² + z²
+```
+
+### A2.4.1 SELF-CHECKS ON THE STRUT DIGITS — **THE WHOLE EQUATION SET IS CONFIRMED TO MICROMETRES BY THE REPORT'S OWN QUOTED ATTACHMENT POINTS**
+
+| check | computed | Table 5 prints | Δ |
+|---|---|---|---|
+| `x₀(y₀ = R1 = 0.14726)` | **13.589000** | `Hull at x = 13.589` | **exact** |
+| `x₀(y₀ = R2 = 0.36886)` | **13.638465** | `Ring Wing 1 at x = 13.63845` | 1.5 × 10⁻⁵ ft = **4.6 µm** |
+| hull radius at the LE attachment, from **Table 1's** afterbody equation | **0.147256** | `R = 0.14726` | 4 × 10⁻⁶ ft = **1.2 µm** |
+| **hull/strut TE intersection**, solved through Table 1's hull from the Table 5 generator | **x = 13.83582, R = 0.10546** | `x = 13.83582, R = 0.10547` | x **exact to 5 dp**, R = **3 µm** |
+| section coefficients sum | **−1.39 × 10⁻¹⁷** | — | closed trailing edge |
+| maximum thickness | **`t/c = 0.12299` at `ξ = 0.2997`** | — | the same NACA 4-digit family, 12.3 % thick |
+
+**The fourth row is the strong one.** It computes the strut's trailing-edge attachment by
+intersecting Table 5's generator with **Table 1's hull equation** — two different tables of the
+report, neither of which knows about the other — and lands on the third table's printed answer
+to five decimal places in `x`. A transposed digit anywhere in that chain breaks it.
+
+### A2.4.2 ONE ITEM LEFT OPEN RATHER THAN GUESSED: THE STRUT AZIMUTHS
+
+Table 5 says the defined strut attaches **along the upper surface, the surface with the
+fairwater** — i.e. at top dead centre, azimuth 0° — and that four identical struts are
+**equally spaced**, which gives **0°, 90°, 180°, 270°: the same azimuths as the four stern
+appendages.** But the same paragraph also says the four struts sit *"at a 45° increment from
+the wing surface pressure tap locations"*, which is a statement about the **taps**, not about
+the appendages, and **Figure 9** — *"a typical cross section showing the arrangement of the
+strut to the hull and the ring wing"*, report page 18 — has **not been read by this lane**.
+
+> **REGISTERED AS `PENDING: <Groves Figure 9 not yet read as an image>`.** The working reading
+> is **0/90/180/270**, and it is **not** frozen. The alternative, struts at **45/135/225/315**
+> staggered between the appendages, is the more usual engineering choice and would place the
+> struts **out of** the appendage wakes rather than in them. **The two differ physically** — a
+> strut in an appendage's wake is a different flow — so this is not a cosmetic choice and it is
+> not settled by preference. **No ring-wing geometry is emitted until Figure 9 is read.**
+
+---
+
+## A2.5 WHAT EXISTS AND WHAT DOES NOT, AT THIS COMMIT
+
+**Exists, built and verified:** the hull + sail + four-stern-appendage geometry (§3), its
+byte-identity regression (§3.6), its 29-check corroboration (§3.7), the family mesh script
+(§4) and the L1 mesh build.
+
+**Does NOT exist:** any ring-wing or strut STL, any ring-wing generator code, any mesh of the
+`Config 1` body, and any solve of anything. **The ring wing and struts are DEFINED here and are
+NOT BUILT here.** The definition is recorded first, with its four scan defects resolved and its
+digits checked to micrometres, because that is the irreversible half of the work; the generator
+is mechanical once the definition is right, and it is blocked on one named image-read (§A2.4.2).
