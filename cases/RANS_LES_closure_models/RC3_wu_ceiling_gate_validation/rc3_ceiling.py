@@ -168,11 +168,40 @@ CONTINUITY_BAR = {
 # The MEASURED predecessor readings the failability test (AG-C1) is run
 # against: this module's own formula on the real Wu population, 54 rows.  Each
 # entry is (min, max, n_rows, n_admitted_by_this_bar, n_rejected_by_this_bar).
+#
+# AMENDMENT A4, pre-compute correction.  `AR_1_Ret_360`'s `min` cell read
+# 8.6010e-18 -- byte-identical to its own `CONTINUITY_FLOOR` literal 26 lines
+# above -- where the population minimum is 3.8536e-18, on the frozenk `S_null`
+# row.  The census CONTRADICTED ITSELF and the arithmetic settles it without
+# appeal to what "min" means: `n_rows` = 18 and `n_admitted` = 4 force a
+# population containing `S_null` (3.853587e-18) and `L_null` (4.346180e-18),
+# BOTH of which read below the tabulated min.  No definition can rescue a
+# number its own sibling cells forbid.  The other two cases carry the TRUE
+# population minimum, so this was a copy-paste and not a definition.  Corrected
+# below; AG-C8 now RE-DERIVES every cell from the population, so this class of
+# slip cannot recur silently.  No gate, threshold, cap or label moved: `min` is
+# read by no executable path and the counts were already correct.
 CONTINUITY_MEASURED = {
-    "AR_1_Ret_360": (8.6010e-18, 2.5116e-03, 18, 4, 14),
+    "AR_1_Ret_360": (3.8536e-18, 2.5116e-03, 18, 4, 14),   # A4: min corrected
     "AR_3_Ret_360": (7.6729e-18, 1.6756e-03, 18, 4, 14),
     "CBFS13700":    (5.2451e-03, 3.0663e-01, 18, 13, 5),
 }
+# What the RETIRED global bar (`CONTINUITY_MAX`) admitted over the same 54 rows.
+# Promoted by amendment A4 from a bare literal inside `check_continuity_bars()`
+# to a registered constant, so that AG-C8 can RE-DERIVE it: it is one half of
+# the AG-C4 direction disclosure and a disclosure standing on an unre-derivable
+# literal is a transcription, not a measurement.  THE VALUE DOES NOT MOVE.
+CONTINUITY_ADMITTED_OLD = 8
+# The registered predecessor POPULATION, named so AG-C8 can enumerate it.  The
+# rule, stated so the enumeration cannot be quietly narrowed to fit an answer:
+# every configuration directory under <root>/<case> in BOTH roots that has a
+# non-zero time directory.  Measured: 57 configuration directories exist, of
+# which 3 (`stock`, one per case) never solved and carry only `0`; the
+# remaining 54 -- 18 per case, 6 `aposteriori` + 12 `aposteriori_frozenk` --
+# are the population.  `_g0a/` and `_fields/` are case-level SIBLINGS of the
+# case directories, not configurations, and are therefore never reached.
+WU_POPULATION_ROOTS = ("/home/ubuntu/closure-data/aposteriori/wu2018",
+                       "/home/ubuntu/closure-data/aposteriori_frozenk/wu2018")
 # Named rows the bars must admit and reject.  A bar that admits everything or
 # rejects everything on its own case is not a screen, and AG-C1 refuses it.
 CONTINUITY_AG_ADMIT = {"AR_1_Ret_360": 3.6402e-05, "AR_3_Ret_360": 8.6106e-05,
@@ -400,6 +429,267 @@ def check_floor_provenance():
     return out
 
 
+# ---- AMENDMENT A4: AG-C8, the census RE-DERIVED FROM THE POPULATION.
+#
+# A3's AG-C7 anchored the FLOOR to the artifact it names.  It left the level
+# above it open, and this is that level.  `CONTINUITY_MEASURED` is offered as a
+# MEASUREMENT of 54 real rows on disk -- AG-C1 refuses a bar that is "vacuous or
+# total on its own measured population" out of it, and AG-C4's direction
+# disclosure ("21 of 54 where the retired global bar admitted 8 of 54") is built
+# entirely out of it -- and NOTHING re-derived it.  The anti-gaming block
+# screened a TABLE rather than the DATA the table claims to summarise.
+#
+# THE SEVERITY, STATED HONESTLY AND NOT INFLATED.  A pre-registration is
+# ENTITLED to carry constants measured before compute; that is what a
+# pre-registration IS, and hardcoding is not the defect.  The defect is that a
+# number offered as a MEASUREMENT of a population on disk had no executable path
+# back to that population.  DRIVEN, and it was not hypothetical: re-deriving the
+# census found `AR_1_Ret_360`'s `min` wrong by 2.23x (A4's correction above).
+# The honest limit of that finding is stated too -- the wrong cell was read by
+# NO executable path, and every cell AG-C1 and AG-C4 actually read (all three
+# `n_rows`, `n_admitted`, `n_rejected`, and `CONTINUITY_ADMITTED_OLD`) re-derived
+# EXACTLY.  The direction disclosure was never wrong.
+#
+# THE COST, DISCLOSED RATHER THAN ENGINEERED AWAY.  This reads 54 `U` files and
+# 3 `C` files -- 57 files, ZERO SOLVER COMPUTE -- and it runs before any row is
+# scored, on every pass.  MEASURED, single-threaded at `nice -n 19` on a box
+# under load 60-76 of 16 cores: 5.80 s warm, 16.86 s on a cold or contended
+# draw, four draws spanning 5.80/6.00/12.75/16.86 s.  The figure is
+# load-dependent and is quoted as a range rather than as one flattering draw.
+# Against AG-C7's 0.067 s on the same box in the same process that is ~87x.
+# A cache keyed on artifact mtime+size would buy that back and was DELIBERATELY
+# REJECTED: it adds a stale-cache acceptance path to the one check whose entire
+# point is that no number is trusted without re-derivation.  The cost is the
+# honest price of the guarantee.
+#
+# THE TOLERANCE.  Counts are integers and are compared EXACTLY -- there is no
+# band in which a row count is nearly right.  `min` and `max` are
+# 5-significant-figure transcriptions of re-derived floats, so they carry the
+# same rounding band A3 justified for the floor (at most 0.5e-4 relative, worst
+# case mantissa 1), and the same 1e-4 with one factor of two of headroom.
+CENSUS_PROVENANCE_REL_TOL = 1e-4
+
+
+def wu_population_rows(tag):
+    """Enumerate this case's registered predecessor population FROM DISK.
+
+    The rule is `WU_POPULATION_ROOTS`': every configuration directory under
+    `<root>/<tag>` in BOTH roots that has a non-zero time directory.  A
+    directory that never solved (only `0`) is not a row and is reported as
+    skipped, never silently dropped.  Returns [(name, path-to-U), ...] and the
+    list of skipped names.  ZERO SOLVER COMPUTE: it only lists and reads.
+    """
+    rows = []
+    skipped = []
+    for root in WU_POPULATION_ROOTS:
+        base = os.path.join(root, tag)
+        if not os.path.isdir(base):
+            refuse("CENSUS_ROOT_ABSENT: " + tag + "'s population requires "
+                   + base + ", which is NOT A DIRECTORY.  A census cannot be "
+                   "re-derived from a population that is not on disk")
+        label = os.path.basename(os.path.dirname(root))
+        for cfg in sorted(os.listdir(base)):
+            case = os.path.join(base, cfg)
+            if not os.path.isdir(case):
+                continue
+            name = label + "/" + cfg
+            try:
+                lt = r4_lib.latest_time(case)
+            except SystemExit:
+                raise
+            except BaseException as exc:
+                refuse("CENSUS_TIME_UNREADABLE: " + name + " (" + case + ") "
+                       "is in " + tag + "'s population directory but its time "
+                       "directories could not be read: " + type(exc).__name__
+                       + ": " + str(exc))
+            if lt is None or str(lt) == "0":
+                skipped.append(name)
+                continue
+            u = os.path.join(case, str(lt), "U")
+            if not os.path.exists(u):
+                refuse("CENSUS_U_ABSENT: " + name + " has a non-zero time "
+                       "directory " + str(lt) + " but no U at " + u
+                       + "; it is a population row whose reading cannot be "
+                       "re-derived and it must not be silently dropped")
+            rows.append((name, u))
+    return rows, skipped
+
+
+def rederive_case_census(tag):
+    """RE-DERIVE one case's 5-cell census FROM THE POPULATION ON DISK.
+
+    Applies THIS MODULE'S OWN clause-8 formula -- the identical three lines
+    `score_row()` and `rederive_continuity_floor()` use -- to every row of the
+    population, on the same mesh `load_case` picks, and counts admissions
+    against that case's REGISTERED bar.  ZERO SOLVER COMPUTE.
+
+    Every operand is checked POSITIVE AND FINITE BEFORE it is compared.  A
+    tabulated `nan` once passed every comparison in this file in silence (every
+    comparison against `nan` is False) and was returned; a `nan` reading here
+    would count as REJECTED without a word.  It refuses instead.
+    """
+    if tag not in CONTINUITY_MEASURED:
+        refuse("rederive_case_census: " + repr(tag) + " has no tabulated "
+               "census; there is nothing to re-derive it against")
+    bar = continuity_bar(tag)
+    if not math.isfinite(bar) or bar <= 0.0:
+        refuse("CENSUS_BAR_NON_FINITE: " + tag + "'s bar is " + repr(bar)
+               + "; no row can be admitted or rejected against it")
+    cpath = floor_mesh_centres_path(tag)
+    if not os.path.exists(cpath):
+        refuse("CENSUS_MESH_ABSENT: " + tag + "'s census must be re-derived on "
+               + cpath + ", which is NOT ON DISK")
+    try:
+        C = np.asarray(read_field(cpath), float).reshape(-1, 3)
+    except SystemExit:
+        raise
+    except BaseException as exc:
+        refuse("CENSUS_MESH_UNREADABLE: " + tag + "'s mesh " + cpath
+               + " could not be read: " + type(exc).__name__ + ": " + str(exc))
+    rows, skipped = wu_population_rows(tag)
+    if not rows:
+        refuse("CENSUS_EMPTY: " + tag + "'s population re-derives to ZERO rows. "
+               "An empty population is not a measurement and every count taken "
+               "from it would be a vacuous zero")
+    readings = []
+    for name, upath in rows:
+        try:
+            U = np.asarray(read_field(upath), float).reshape(-1, 3)
+        except SystemExit:
+            raise
+        except BaseException as exc:
+            refuse("CENSUS_ROW_UNREADABLE: " + tag + " row " + name + " ("
+                   + upath + ") could not be read: " + type(exc).__name__
+                   + ": " + str(exc))
+        if U.shape[0] != C.shape[0]:
+            refuse("CENSUS_ROW_SHAPE: " + tag + " row " + name + " carries "
+                   + str(U.shape[0]) + " cells but the mesh " + cpath
+                   + " carries " + str(C.shape[0]) + "; the reading cannot "
+                   "have been measured on this pair")
+        A = structured_gradient(C, U)
+        gscale = float(np.sqrt((A ** 2).sum(axis=(1, 2)).mean()))
+        if not math.isfinite(gscale) or gscale <= 0.0:
+            refuse("CENSUS_GRADIENT_SCALE: " + tag + " row " + name
+                   + " has gradient scale " + repr(gscale) + "; the clause-8 "
+                   "metric is 0/0 on it and no reading can be re-derived")
+        v = float(np.sqrt((np.einsum("nii->n", A) ** 2).mean()) / gscale)
+        if not math.isfinite(v) or v < 0.0:
+            refuse("CENSUS_READING_NON_FINITE: " + tag + " row " + name
+                   + " re-derives " + repr(v) + "; it must be a finite "
+                   "non-negative float BEFORE it is compared to any bar")
+        readings.append((name, v))
+    vals = [v for _, v in readings]
+    n_adm = sum(1 for v in vals if v <= bar)
+    n_old = sum(1 for v in vals if v <= CONTINUITY_MAX)
+    return {"rows": readings, "skipped": skipped, "bar": bar,
+            "min": min(vals), "max": max(vals), "n_rows": len(vals),
+            "n_admitted": n_adm, "n_rejected": len(vals) - n_adm,
+            "n_admitted_retired_global": n_old}
+
+
+def check_case_census(tag):
+    """AG-C8 for ONE case: every tabulated cell against the re-derived one."""
+    tab = CONTINUITY_MEASURED[tag]
+    if len(tab) != 5:
+        refuse("AG-C8: " + tag + "'s tabulated census has " + str(len(tab))
+               + " cells, not the registered 5 (min, max, n_rows, n_admitted, "
+                 "n_rejected)")
+    t_lo, t_hi = float(tab[0]), float(tab[1])
+    t_n, t_adm, t_rej = int(tab[2]), int(tab[3]), int(tab[4])
+    for nm, val in (("min", t_lo), ("max", t_hi)):
+        if not math.isfinite(val) or val <= 0.0:
+            refuse("AG-C8: " + tag + "'s tabulated census " + nm + " is "
+                   + repr(val) + "; it must be a positive finite float BEFORE "
+                   "it is compared to anything")
+    got = rederive_case_census(tag)
+    for nm, tv, gv in (("n_rows", t_n, got["n_rows"]),
+                       ("n_admitted", t_adm, got["n_admitted"]),
+                       ("n_rejected", t_rej, got["n_rejected"])):
+        if tv != gv:
+            refuse("AG-C8 CENSUS_PROVENANCE: " + tag + "'s tabulated " + nm
+                   + " is " + str(tv) + " but RE-DERIVING it from the "
+                   "population on disk (" + str(got["n_rows"]) + " rows, bar "
+                   + repr(got["bar"]) + ") gives " + str(gv) + ".  Counts are "
+                   "compared EXACTLY.  AG-C1's non-vacuity refusal and AG-C4's "
+                   "direction disclosure are both built on this cell and NO ROW "
+                   "MAY BE SCORED while it does not re-derive")
+    for nm, tv, gv in (("min", t_lo, got["min"]), ("max", t_hi, got["max"])):
+        rel = abs(gv - tv) / abs(tv)
+        if rel > CENSUS_PROVENANCE_REL_TOL:
+            refuse("AG-C8 CENSUS_PROVENANCE: " + tag + "'s tabulated census "
+                   + nm + " is " + repr(tv) + " but RE-DERIVING it from the "
+                   "population on disk gives " + repr(gv) + " -- a relative "
+                   "disagreement of " + ("%.3e" % rel) + ", outside the stated "
+                   + repr(CENSUS_PROVENANCE_REL_TOL) + " transcription band")
+    for nm, table in (("ADMIT", CONTINUITY_AG_ADMIT),
+                      ("REJECT", CONTINUITY_AG_REJECT)):
+        if tag not in table:
+            refuse("AG-C8: " + tag + " names no AG-C1 " + nm + " reading")
+        named = float(table[tag])
+        if not math.isfinite(named) or named <= 0.0:
+            refuse("AG-C8: " + tag + "'s AG-C1 " + nm + " reading is "
+                   + repr(named) + "; it must be a positive finite float")
+        hit = None
+        for rname, v in got["rows"]:
+            if abs(v - named) / abs(named) <= CENSUS_PROVENANCE_REL_TOL:
+                hit = rname
+                break
+        if hit is None:
+            refuse("AG-C8 CENSUS_PROVENANCE: " + tag + "'s AG-C1 " + nm
+                   + " reading " + repr(named) + " DOES NOT OCCUR in the "
+                   "re-derived population of " + str(got["n_rows"]) + " rows.  "
+                   "AG-C1 calls it a NAMED REAL READING; a reading that occurs "
+                   "in no row is not real and the bar it pins has no provenance")
+        got["named_" + nm] = hit
+    print("[clause 8 census provenance AG-C8] %-13s %d rows RE-DERIVED FROM "
+          "POPULATION  min %.6e  max %.6e  admits %d rejects %d (bar %.0e)  "
+          "retired-global admits %d  |  admit %s <- %s  reject %s <- %s"
+          % (tag, got["n_rows"], got["min"], got["max"], got["n_admitted"],
+             got["n_rejected"], got["bar"], got["n_admitted_retired_global"],
+             ("%.4e" % float(CONTINUITY_AG_ADMIT[tag])), got["named_ADMIT"],
+             ("%.4e" % float(CONTINUITY_AG_REJECT[tag])), got["named_REJECT"]))
+    return got
+
+
+def check_census_provenance():
+    """AG-C8 (amendment A4): the census RE-DERIVED, before any row is scored.
+
+    Every cell of `CONTINUITY_MEASURED` is re-derived from the 54-row Wu
+    population on disk by this module's own clause-8 formula, and this REFUSES
+    (`sys.exit 2`) on any disagreement -- counts exactly, `min`/`max` inside the
+    stated transcription band.  `CONTINUITY_ADMITTED_OLD`, the other half of
+    AG-C4's direction disclosure, is re-derived against `CONTINUITY_MAX` over
+    the same population.  The AG-C1 named readings are checked to OCCUR in it.
+    Run from `check_continuity_bars()`, the same place AG-C7 runs.
+    """
+    out = {}
+    admitted_old = 0
+    admitted_new = 0
+    total = 0
+    for tag in sorted(CONTINUITY_MEASURED):
+        got = check_case_census(tag)
+        out[tag] = got
+        admitted_old += got["n_admitted_retired_global"]
+        admitted_new += got["n_admitted"]
+        total += got["n_rows"]
+    if admitted_old != CONTINUITY_ADMITTED_OLD:
+        refuse("AG-C8 CENSUS_PROVENANCE: the registered retired-global-bar "
+               "admit count is " + str(CONTINUITY_ADMITTED_OLD) + " but "
+               "RE-DERIVING it from the population on disk against "
+               + repr(CONTINUITY_MAX) + " gives " + str(admitted_old)
+               + ".  This is one half of the AG-C4 DIRECTION DISCLOSURE and a "
+               "disclosure whose baseline does not re-derive is not a "
+               "disclosure")
+    print("[clause 8 census provenance AG-C8] TOTAL %d rows RE-DERIVED: "
+          "per-case bars admit %d, retired global %g admits %d (registered %d)"
+          % (total, admitted_new, CONTINUITY_MAX, admitted_old,
+             CONTINUITY_ADMITTED_OLD))
+    return {"per_case": out, "measured_rows": total,
+            "admitted_per_case_bars": admitted_new,
+            "admitted_retired_global_bar": admitted_old,
+            "census_provenance_rel_tol": CENSUS_PROVENANCE_REL_TOL}
+
+
 def check_continuity_bars():
     """AG-C1 / AG-C2 / AG-C4 / AG-C7: run before any row is scored, every pass.
 
@@ -419,6 +709,11 @@ def check_continuity_bars():
     # re-derived from the artifact it names.  The bar's own drift check below is
     # worthless if the floor it derives from was never checked against anything.
     provenance = check_floor_provenance()
+    # AG-C8, amendment A4.  SECOND, still before any bar is quoted: the whole
+    # 54-row census AG-C1 and AG-C4 read is re-derived from the population on
+    # disk.  AG-C7 anchored the floor to its artifact; this anchors the table to
+    # its data, so the anti-gaming block screens the DATA and not a TABLE.
+    census = check_census_provenance()
     admitted_new = 0
     admitted_old = 0
     total = 0
@@ -451,8 +746,10 @@ def check_continuity_bars():
               % (tag, CONTINUITY_FLOOR[tag], os.path.basename(
                   os.path.dirname(os.path.dirname(art))), prod, ratio, bar,
                  n_adm, n))
-    # what the RETIRED global bar admitted on the same 54 rows, measured
-    admitted_old = 8
+    # what the RETIRED global bar admitted on the same 54 rows, measured.
+    # Amendment A4: the registered constant, RE-DERIVED from the population by
+    # AG-C8 above -- no longer a literal that nothing could check.
+    admitted_old = CONTINUITY_ADMITTED_OLD
     print("[clause 8 AG-C4 DIRECTION DISCLOSURE] the registered per-case bars "
           "admit %d of %d measured predecessor rows; the RETIRED global %g bar "
           "admitted %d of %d.  This is a LOOSENING on CBFS13700 only, of the "
@@ -471,7 +768,9 @@ def check_continuity_bars():
             "measured_rows": total,
             # amendment A3 AG-C7: (tabulated, re-derived-from-artifact, rel)
             "floor_provenance": provenance,
-            "floor_provenance_rel_tol": FLOOR_PROVENANCE_REL_TOL}
+            "floor_provenance_rel_tol": FLOOR_PROVENANCE_REL_TOL,
+            # amendment A4 AG-C8: the census re-derived from the population
+            "census_provenance": census}
 
 
 def producer_continuity(case):
@@ -1328,6 +1627,99 @@ def selftest():
          and continuity_bar("AR_1_Ret_360") == 1e-4
          and continuity_bar("AR_3_Ret_360") == 1e-4
          and continuity_bar("CBFS13700") == 1e-1)
+    # ---- 0b. AMENDMENT A4, AG-C8: the CENSUS re-derived from the POPULATION.
+    # Every probe below is DRIVEN to a REGISTERED refusal (sys.exit 2) and the
+    # UNMUTATED CONTROL is shown to stay SILENT.  A check that cannot be shown
+    # to fire is decoration (L-529).  The mutations are driven on
+    # `AR_1_Ret_360` -- the cheapest case, and the one whose `min` cell A4
+    # corrected -- so the selftest pays for one duct, not the whole population.
+    def _mutate_census(tag, idx, val):
+        keep = CONTINUITY_MEASURED[tag]
+        t = list(keep)
+        t[idx] = val
+        CONTINUITY_MEASURED[tag] = tuple(t)
+        try:
+            return _fires(check_case_census, tag)
+        finally:
+            CONTINUITY_MEASURED[tag] = keep
+
+    def _mutate_named(table, tag, val):
+        keep = table[tag]
+        table[tag] = val
+        try:
+            return _fires(check_case_census, tag)
+        finally:
+            table[tag] = keep
+
+    def _absent_population(tag):
+        keep = WU_POPULATION_ROOTS
+        globals()["WU_POPULATION_ROOTS"] = tuple(
+            os.path.join(r, "no_such_population") for r in keep)
+        try:
+            return _fires(check_case_census, tag)
+        finally:
+            globals()["WU_POPULATION_ROOTS"] = keep
+
+    def _mutate_admitted_old(val):
+        keep = CONTINUITY_ADMITTED_OLD
+        globals()["CONTINUITY_ADMITTED_OLD"] = val
+        try:
+            return _fires(check_census_provenance)
+        finally:
+            globals()["CONTINUITY_ADMITTED_OLD"] = keep
+
+    note("A4 AG-C8 CONTROL: the UNMUTATED census re-derives and stays SILENT "
+         "-- all 54 rows, every cell, no refusal",
+         isinstance(bars.get("census_provenance"), dict)
+         and bars["census_provenance"]["measured_rows"] == 54
+         and bars["census_provenance"]["admitted_per_case_bars"] == 21
+         and bars["census_provenance"]["admitted_retired_global_bar"] == 8
+         and not _fires(check_case_census, "AR_1_Ret_360"))
+    note("A4 AG-C8 a MUTATED n_admitted is REFUSED -- the cell AG-C1's "
+         "non-vacuity refusal is built on, compared EXACTLY",
+         _mutate_census("AR_1_Ret_360", 3, 5)
+         and _mutate_census("AR_1_Ret_360", 3, 3))
+    note("A4 AG-C8 a MUTATED n_rows is REFUSED -- the denominator of the AG-C4 "
+         "direction disclosure", _mutate_census("AR_1_Ret_360", 2, 17))
+    note("A4 AG-C8 a MUTATED n_rejected is REFUSED",
+         _mutate_census("AR_1_Ret_360", 4, 13))
+    note("A4 AG-C8 the SLIP THIS AMENDMENT CORRECTED is refused if reinstated: "
+         "AR_1_Ret_360's min back at its floor literal 8.6010e-18",
+         _mutate_census("AR_1_Ret_360", 0, 8.6010e-18))
+    note("A4 AG-C8 CONTROL: a min perturbation INSIDE the stated transcription "
+         "band is NOT refused -- the tolerance is a band, not a rubber stamp",
+         not _mutate_census("AR_1_Ret_360", 0, 3.8536e-18 * (1.0 + 2e-5)))
+    note("A4 AG-C8 CONTROL: a min perturbation just OUTSIDE the band IS "
+         "refused", _mutate_census("AR_1_Ret_360", 0, 3.8536e-18 * (1.0 + 5e-4)))
+    note("A4 AG-C8 a tabulated min of nan is REFUSED, not passed in silence -- "
+         "every comparison against nan is False and this file has been bitten "
+         "by exactly that shape before",
+         _mutate_census("AR_1_Ret_360", 0, float("nan"))
+         and _mutate_census("AR_1_Ret_360", 1, float("inf")))
+    note("A4 AG-C8 an AG-C1 ADMIT reading that OCCURS IN NO ROW of the "
+         "population is REFUSED -- AG-C1 calls it a named REAL reading",
+         _mutate_named(CONTINUITY_AG_ADMIT, "AR_1_Ret_360", 1.2345e-05))
+    note("A4 AG-C8 an AG-C1 REJECT reading that occurs in no row is REFUSED "
+         "too", _mutate_named(CONTINUITY_AG_REJECT, "AR_1_Ret_360", 9.8765e-04))
+    note("A4 AG-C8 an ABSENT population root is REFUSED, not skipped -- a "
+         "census re-derived from nothing would be a vacuous zero",
+         _absent_population("AR_1_Ret_360"))
+    note("A4 AG-C8 a MUTATED CONTINUITY_ADMITTED_OLD is REFUSED -- the other "
+         "half of the AG-C4 direction disclosure, re-derived against "
+         "CONTINUITY_MAX over the same 54 rows",
+         _mutate_admitted_old(9) and _mutate_admitted_old(7))
+    note("A4 AG-C8 the census, named readings and population are restored "
+         "after every probe above, and the THREE REGISTERED BARS are still "
+         "1e-4 / 1e-4 / 1e-1",
+         CONTINUITY_MEASURED["AR_1_Ret_360"] == (3.8536e-18, 2.5116e-03,
+                                                 18, 4, 14)
+         and CONTINUITY_ADMITTED_OLD == 8
+         and len(WU_POPULATION_ROOTS) == 2
+         and CONTINUITY_MAX == 1e-4
+         and continuity_bar("AR_1_Ret_360") == 1e-4
+         and continuity_bar("AR_3_Ret_360") == 1e-4
+         and continuity_bar("CBFS13700") == 1e-1)
+
     note("no fixture row carries the retired hardcoded 1e-6",
          all(v != 1e-6 for v in FIXTURE_DIV.values()))
 

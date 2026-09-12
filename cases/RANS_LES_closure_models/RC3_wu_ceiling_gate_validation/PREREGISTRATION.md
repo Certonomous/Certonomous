@@ -1019,7 +1019,7 @@ bar of 0.0 admits 0, a `PLANT = 1.234e-03` written into `U` moves the metric by
 
 | case | measured range over its 18 rows | admitted by the registered **global** 1e-4 |
 |---|---|---|
-| `AR_1_Ret_360` | 8.6010e-18 … 2.5116e-03 | **4 of 18** |
+| `AR_1_Ret_360` | 3.8536e-18 … 2.5116e-03 **(low end CORRECTED by amendment A4: read `8.6010e-18`, which is this case's own instrument floor, not its population minimum)** | **4 of 18** |
 | `AR_3_Ret_360` | 7.6729e-18 … 1.6756e-03 | **4 of 18** |
 | `CBFS13700` | 5.2451e-03 … 3.0663e-01 | **0 of 18** |
 | total | | **8 of 54** |
@@ -1526,6 +1526,211 @@ to compare against an estimate.** No `docs/LESSONS.md`, `docs/DOCKET.md` or
 this session and belong to other lanes; the supervisor is asked to land the
 lesson in A3.1 and A3.3 (a wrong-mechanism reproduction, and a severity
 withdrawn on driving) through whoever owns them.
+
+*Appended 2026-09-12 by a closure `lab-lane` at the closure-supervisor's
+dispatch. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
+nothing may run against it. Zero solver compute produced this amendment. Nothing
+sent, filed, uploaded, registered, posted or commented.*
+
+---
+
+## AMENDMENT A4 — 2026-09-12. PRE-FIRST-COMPUTE. The 54-row census RE-DERIVED FROM THE POPULATION (AG-C8), and one transcription slip it found and corrected.
+
+**Document version: DRAFT v1.4** (was DRAFT v1.3 at amendment A3; DRAFT v1.2 at
+amendment A2; DRAFT v1.1 at amendment A1; DRAFT v1.0 as landed at commit
+`4e3c5bc6`).
+
+**lines whose number changed above this section: 0** — and this is asserted in
+its exact sense, not stretched. No line above this section moved: the file stood
+at **1,533 lines / 94,932 bytes** before the append and the one edit above was
+made **in place, one line for one line**, so every line above keeps the number it
+had. The assertion is not a claim — the prefix was compared **line-wise** against
+`git show HEAD:<path>` inside a **single shell invocation**, with a non-constant
+hasher control shown to move in that same invocation, and the digests are
+recorded in the commit that carries this amendment.
+
+**AND ONE LINE'S CONTENT ABOVE THIS SECTION DID CHANGE, DISCLOSED RATHER THAN
+ASSERTED AWAY: line 1022.** A zero-renumbering assertion is about line *numbers*
+and it is true and proved; it would be sleight of hand to let it imply that
+nothing above was edited. Exactly one line above was edited, it is named here,
+and the proof reports the differing line numbers as a **set** — `{1022}` — so the
+claim is falsifiable rather than decorative:
+
+| line | was | is |
+|---|---|---|
+| **1022** | `| `AR_1_Ret_360` | 8.6010e-18 … 2.5116e-03 | **4 of 18** |` | the same row with the low end at `3.8536e-18` and the correction named in the cell |
+
+**THIS AMENDMENT IS NOT THE FREEZE.** It changes no gate, no threshold, no cap
+and no label. **The registered numbers do not move**: `CONTINUITY_MAX` is `1e-4`
+and the three per-case bars are `AR_1_Ret_360` `1e-4`, `AR_3_Ret_360` `1e-4`,
+`CBFS13700` `1e-1` — re-printed from the instrument after the repair and
+unchanged. What A4 adds is one **re-derivation** and a set of **refusals**; it
+removes nothing and loosens nothing.
+
+### A4.0 The rule-2 condition, and how it was checked — freshly, at this amendment
+
+RC3 is DRAFT/UNFROZEN and **no compute has ever been spent against it**, so
+CLAUDE.md rule 2's *"before first compute, amendments are legal — and must state
+the condition and how it was checked"* applies in full. This is a **pre-compute
+amendment**, not a post-compute addendum. Checked **2026-09-12T01:20:24Z** by
+this lane at zero compute. The condition was **not** taken from the supervisor's
+say-so; each row carries the control that FIRED on the positive case, because a
+reader not shown able to see a non-zero is not evidence (standing rule 3):
+
+| condition | measured | control, same invocation |
+|---|---|---|
+| the registered run root `/home/ubuntu/closure-data/rc3/wu2018` | **ABSENT** — and its parent `/home/ubuntu/closure-data/rc3` is absent too | the same `ls -d` on `/home/ubuntu/closure-data/aposteriori/wu2018` **resolves**, so the lister is not blind |
+| `verification/queue/LAUNCH_LOG.tsv` (437 rows) carries an RC3 launch | **0 rows** match `rc3`, case-insensitive | the same `grep -c` for `MRF\|T4\|VMFL` returns **75**, so the reader is not blind |
+
+### A4.1 THE FINDING — the anti-gaming block screened a TABLE, not the DATA the table claims to summarise
+
+A3's **AG-C7** anchored the instrument FLOOR to the artifact it names. It left
+the level above it open. `CONTINUITY_MEASURED` (`rc3_ceiling.py:171`) is offered
+as a MEASUREMENT of the 54 real Wu rows — **AG-C1** refuses a bar that is
+"vacuous or total on its own measured population" out of it, and **AG-C4**'s
+direction disclosure ("21 of 54 where the retired global bar admitted 8 of 54")
+is built entirely out of it — and **nothing re-derived it**. The retired bar's
+own admit count was a bare literal `8` inside `check_continuity_bars()`.
+
+**THE SEVERITY IS STATED AT ITS REAL SIZE AND NOT INFLATED.** A pre-registration
+is *entitled* to carry constants measured before compute; that is what a
+pre-registration IS, and hardcoding is not the defect. The defect is that **a
+number offered as a MEASUREMENT of a population on disk had no executable path
+back to that population.**
+
+### A4.2 IT WAS NOT HYPOTHETICAL — one cell was wrong, and the arithmetic, not the semantics, settles it
+
+Re-deriving the census from the population found `AR_1_Ret_360`'s `min` cell at
+`8.6010e-18` where the population minimum is `3.853587e-18` — **wrong by 2.23×**,
+and byte-identical to that case's own `CONTINUITY_FLOOR` literal 26 lines above
+it (`rc3_ceiling.py:146` vs `:172`), the signature of a copy-paste.
+
+**The census contradicted ITSELF, which settles it without any appeal to what
+"min" means.** `n_rows` = 18 and `n_admitted` = 4 force a population containing
+the frozenk `S_null` (`3.853587e-18`) and `L_null` (`4.346180e-18`) rows, **both
+of which read below the tabulated min**. No definition can rescue a number its
+own sibling cells forbid. Corroborating, in descending strength: the tuple is
+documented at `:170` as `(min, max, …)`; the other two cases carry the TRUE
+population minimum, and a definition does not apply to one case in three.
+
+**THE HONEST LIMIT OF THE FINDING, STATED BY THE LANE THAT FOUND IT.** The wrong
+cell is read by **no executable path** in the module — `lo, hi` are unpacked at
+`:437` and never referenced again; only `[2]`, `[3]` and `[4]` are read. **Every
+cell AG-C1 and AG-C4 actually read re-derived EXACTLY**: all three `n_rows`, all
+three `n_admitted`, all three `n_rejected`, and the retired-global `8`. **A2's
+direction disclosure — 21 of 54 against 8 of 54 — was never wrong**, and this
+amendment does not pretend otherwise. What was wrong was a published measured
+range (§A2.2's table, line 1022), which understated its low end.
+
+**CORRECTED, both places, and nowhere else.** `CONTINUITY_MEASURED["AR_1_Ret_360"][0]`
+→ `3.8536e-18` at the 5-significant-figure precision its sibling cells use, and
+line 1022's published range. §A2.2's floor table (line 1079) and §A3.4's
+provenance table (line 1485) are **left untouched**: both correctly present
+`8.6010e-18` as the FLOOR beside its artifact, which is what it is.
+
+### A4.3 THE REPAIR — AG-C8, the census RE-DERIVED FROM THE POPULATION, at full strictness
+
+Registered as the eighth anti-gaming clause, run from the top of
+`check_continuity_bars()` immediately after AG-C7 — so before any row is scored,
+on every pass:
+
+| id | what it enforces | how it fails |
+|---|---|---|
+| **AG-C8** | every cell of `CONTINUITY_MEASURED` is RE-DERIVED from the 54-row Wu population on disk by this module's own clause-8 formula: `n_rows`, `n_admitted` and `n_rejected` **compared exactly**, `min` and `max` inside the stated transcription band. `CONTINUITY_ADMITTED_OLD` — promoted from a bare literal to a registered constant — is re-derived against `CONTINUITY_MAX` over the same population. Each AG-C1 named reading must **OCCUR** in the population, and the row it occurs on is printed | `sys.exit(2)` |
+
+**THE POPULATION RULE, stated so it cannot be quietly narrowed to fit an
+answer** (`WU_POPULATION_ROOTS`): every configuration directory under
+`<root>/<case>` in **both** roots that has a non-zero time directory. Measured:
+**57** configuration directories exist; **3** (`stock`, one per case) never
+solved and carry only `0`; the remaining **54** — 18 per case, 6 `aposteriori`
++ 12 `aposteriori_frozenk` — are the population. `_g0a/` and `_fields/` are
+case-level **siblings** of the case directories, not configurations, and are
+never reached. A skipped directory is **reported as skipped**, never silently
+dropped, and a directory with a non-zero time but no `U` is **refused**.
+
+**THE RE-DERIVED CENSUS, beside the tabulated one:**
+
+| case | rows | min re-derived | max re-derived | admits / rejects (bar) | retired-global admits |
+|---|---|---|---|---|---|
+| `AR_1_Ret_360` | **18** | `3.853587e-18` | `2.511556e-03` | **4 / 14** (`1e-4`) | **4** |
+| `AR_3_Ret_360` | **18** | `7.672947e-18` | `1.675609e-03` | **4 / 14** (`1e-4`) | **4** |
+| `CBFS13700` | **18** | `5.245139e-03` | `3.066276e-01` | **13 / 5** (`1e-1`) | **0** |
+| **total** | **54** | | | **21** admitted | **8** — matches the registered `CONTINUITY_ADMITTED_OLD` |
+
+Each AG-C1 named reading re-derives to a **named row**: `AR_1_Ret_360` admits
+`3.6402e-05` on `aposteriori/mean` and rejects `1.1425e-04` on
+`aposteriori/truth`; `AR_3_Ret_360` admits `8.6106e-05` on `aposteriori/truth`
+and rejects `1.0146e-04` on `aposteriori/mean`; `CBFS13700` admits `2.9031e-02`
+on `aposteriori/truth` and rejects `3.0663e-01` on `aposteriori_frozenk/L_truth`.
+
+**THE COST, DISCLOSED RATHER THAN ENGINEERED AWAY.** AG-C8 reads **54 `U` files
+and 3 `C` files — 57 files, ZERO SOLVER COMPUTE** — before every scoring pass.
+Measured single-threaded at `nice -n 19` on a box under load **60–76 of 16
+cores**: **5.80 s warm, 16.86 s on a cold or contended draw**, four draws
+spanning `5.80 / 6.00 / 12.75 / 16.86` s. It is quoted as a **range** because it
+is load-dependent, not as the one flattering draw. Against AG-C7's `0.067 s` in
+the same process that is **~87×**. **A cache keyed on artifact mtime+size was
+considered and DELIBERATELY REJECTED**: it would buy that back at the price of
+adding a stale-cache acceptance path to the one check whose entire point is that
+no number is trusted without re-derivation. The cost is the honest price of the
+guarantee, and it is disclosed here instead of being engineered away.
+
+**THE TOLERANCE, `CENSUS_PROVENANCE_REL_TOL = 1e-4`.** Counts are integers and
+are compared **exactly** — there is no band in which a row count is nearly
+right. `min` and `max` are 5-significant-figure transcriptions of re-derived
+floats and carry the same rounding band A3 justified for the floor (at most
+`0.5e-4` relative, worst case mantissa 1); `1e-4` is that band with one factor
+of two of headroom. Driven both ways: a `min` perturbed by `+2e-5` relative is
+**NOT** refused and one perturbed by `+5e-4` relative **IS**.
+
+**EVERY REFUSAL IS DRIVEN AND OBSERVED. A check that cannot be shown to fire is
+decoration.** Registered refusals, each `sys.exit(2)` and none an `assert`
+(`ast.Assert` in the file, counted by independent AST parse: **0**):
+
+| driven probe | result |
+|---|---|
+| **CONTROL — the UNMUTATED census, all 54 rows, every cell** | **SILENT**, no refusal; returns 54 rows, 21 admitted, 8 retired-global |
+| `n_admitted` mutated up (5) and down (3) | **REFUSED** both |
+| `n_rows` mutated (17) | **REFUSED** |
+| `n_rejected` mutated (13) | **REFUSED** |
+| **the slip this amendment corrected, reinstated** (`min` back to `8.6010e-18`) | **REFUSED** |
+| CONTROL — `min` perturbed `+2e-5` relative, inside the band | **NOT refused** |
+| `min` perturbed `+5e-4` relative, outside the band | **REFUSED** |
+| `min` = `nan`, `max` = `inf` | **REFUSED** — not passed in silence |
+| AG-C1 `ADMIT` reading changed to one occurring in **no row** | **REFUSED** |
+| AG-C1 `REJECT` reading changed to one occurring in no row | **REFUSED** |
+| population root pointed at a path that does not exist | **REFUSED** — not skipped |
+| `CONTINUITY_ADMITTED_OLD` mutated (9, then 7) | **REFUSED** both |
+| after every probe: census, named readings, population and the **three bars** | restored; `1e-4 / 1e-4 / 1e-1` |
+
+**THE `nan` ROW IS NOT DECORATION.** This file has been bitten by exactly that
+shape: a tabulated bar of `nan` once passed every comparison in silence — every
+comparison against `nan` is False — and was returned. AG-C8 therefore checks
+every operand **positive and finite BEFORE** it is compared to anything, on both
+the tabulated side and the re-derived side. A `nan` reading would otherwise have
+been counted as *rejected* without a word.
+
+### A4.4 What this amendment did NOT do
+
+It did not freeze, launch, queue or advance RC3; the closure line remains paused
+under `CASE_PROTOCOL_CHARTER` §7 and this is instrument repair inside a draft.
+It moved no gate, no threshold, no cap and no label. It edited no frozen file,
+no charter, and no file outside this case directory. It did not pin a sha.
+
+`rc3_ceiling.py` selftest after the repair: **88/88 PASS**, up from 75/75 at A3,
+green under **both** `python3` and `python3 -O`, `__pycache__` cleared before
+every invocation, `ast.Assert` counted by independent AST parse and **still 0**.
+Selftest wall time rose from **4.77 s to 65.17 s** (70.35 s under `-O`) — the
+same disclosed AG-C8 cost, paid once in `check_continuity_bars()` and again by
+the driven probes; it is stated rather than hidden. The three sibling instruments
+are unchanged and still green (`build_rc3_ladder.py` 29/29, `rc3_fixedpoint.py`
+17/17, `rc3_run.py` 25/25).
+
+**No `docs/COST_CALIBRATION.md` row: zero solver compute, so there is no actual
+to compare against an estimate.** No `docs/LESSONS.md`, `docs/DOCKET.md` or
+`docs/LAB_STATE.md` row was written by this lane — those files are contended
+this session and belong to other lanes; the supervisor is asked to land the
+lesson through whoever owns them.
 
 *Appended 2026-09-12 by a closure `lab-lane` at the closure-supervisor's
 dispatch. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
