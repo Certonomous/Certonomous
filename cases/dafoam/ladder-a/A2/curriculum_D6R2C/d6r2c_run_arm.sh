@@ -117,6 +117,20 @@ MD5_RUNSCRIPT=2f2ae43a627146cf8e0f065b035ada4b
 cap_core_min() {
   case "$1" in
     KR_REF)  echo  420.0 ;;  # 3.00 x 140.0 = 4 majors x 31.258 + findFeasibleDesign
+    # ADDENDUM 2 (2026-09-12) -- KR_REF2, A REPLICATE ARM.  KR_REF2 is a second
+    # COLD run of KR_REF: identical in every registered parameter, with NO kill
+    # and NO hotstart.  IT GRADES NOTHING.  It exists to MEASURE this solver
+    # class's own run-to-run nondeterminism floor in the scaled design vector,
+    # so that the question "is the 2.227e-05 at dvs.shape[76] the resume, or is
+    # it the solver?" is answered by a measurement instead of by an argument
+    # about a tolerance.  Two identical cold runs either diverge by the same
+    # order in the same components -- in which case that divergence is the
+    # solver's floor and the resume introduced nothing -- or they agree to
+    # ~1e-12, in which case the resume machinery is genuinely off.  This arm
+    # cannot know which answer is wanted, which is the point.
+    # IT CHANGES NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.  KR-G3 stands at
+    # its REGISTERED 1.0e-6 whatever this arm returns.
+    KR_REF2) echo  420.0 ;;  # identical to KR_REF's cap -- same work, same ranks
     KR_KILL) echo  234.0 ;;  # 3.00 x  78.0 = 2 majors x 31.258 + findFeasibleDesign
     KR_RES)  echo  420.0 ;;  # 3.00 x 140.0 -- the replayed majors are cached, so this is slack
     O_mp)    echo 2359.5 ;;  # 3.00 x 786.5 = 25 majors x 31.258 + 5 preamble
@@ -129,14 +143,14 @@ cap_core_min() {
 arm_ranks() { case "$1" in ARM0_2R) echo 2 ;; *) echo 4 ;; esac; }
 arm_max_iter() {
   case "$1" in
-    KR_REF|KR_KILL|KR_RES) echo 4 ;;
+    KR_REF|KR_REF2|KR_KILL|KR_RES) echo 4 ;;
     O_mp) echo 25 ;;
     *) echo "" ;;
   esac
 }
 
 ARM="${1:-}"; IMG="${2:-}"
-test -n "$ARM" || { echo "ABORT usage: d6r2c_run_arm.sh <KR_REF|KR_KILL|KR_RES|O_mp|ARM0_4R|ARM0_2R> <image>"; exit 64; }
+test -n "$ARM" || { echo "ABORT usage: d6r2c_run_arm.sh <KR_REF|KR_REF2|KR_KILL|KR_RES|O_mp|ARM0_4R|ARM0_2R> <image>"; exit 64; }
 test -n "$IMG" || { echo "ABORT usage: d6r2c_run_arm.sh <arm> <image>"; exit 64; }
 CAP=$(cap_core_min "$ARM")
 test -n "$CAP" || { echo "ABORT unknown arm $ARM"; exit 64; }
@@ -210,7 +224,7 @@ echo "D6R2C_G_COLD_PASS arm=$ARM age_datum_epoch=$AGE_DATUM"
 
 # ---- the command.  NO --allow-run-as-root: we are not root. ---------------
 case "$ARM" in
-  KR_REF|KR_KILL|KR_RES|O_mp)
+  KR_REF|KR_REF2|KR_KILL|KR_RES|O_mp)
      CMD="mpirun -np $RANKS --bind-to core --report-bindings -x PYTHONPATH -x HOME python d6r2c_opt_runScript.py -task run_driver -optimizer IPOPT -max_iter $MAXIT $HOTARG" ;;
   ARM0_4R)
      CMD="mpirun -np 4 --bind-to core --report-bindings -x PYTHONPATH -x HOME python d6r2c_opt_runScript.py -task compute_totals" ;;
