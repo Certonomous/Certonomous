@@ -559,3 +559,77 @@ diff):
 4. **The open-boundary ambient BCs for the quiescent primary are a modelling choice**
    (the manual specifies zero air flow, not a boundary set); they are registered
    here and are the supervisor's to challenge at check-1.
+
+---
+
+## DATED AMENDMENT — 2026-09-12 — v1.0 → v1.1 — FREEZE LITERALS, AND A STRUCK PROSE CLAUSE THAT DESCRIBED A RIVULET THE MESH DOES NOT CONTAIN
+
+**lines whose number changed above this section: 0**
+
+### A. STRUCK — the "5 mm injection width" clause in §-Film-BCs (the line reading
+`- Film `deltaf`: `inlet` (top x=0 strip, 5 mm injection width per manual)`)
+
+~~`5 mm injection width per manual`~~ — **STRUCK, not rewritten.** It is factually
+wrong against the frozen mesh and, read literally, it describes a **rivulet**: a
+localized strip injection that spreads laterally, whose local film thickness at the
+monitor is NOT the 2D Nusselt value. The template this case was adapted from
+(`rivuletPanel`) is exactly that, so the risk was real and was worth tracing.
+
+**MEASURED, from the film-region `polyMesh/boundary` produced by the answer-blind smoke,
+whose `blockMeshDict` blob `76b8c74e00fddcf8b3e29310fadaca00556145a9` is IDENTICAL on
+disk, at freeze commit `855b2b61a` and at HEAD — so these are the counts R5 will run:**
+
+| film patch | nFaces | meaning |
+|---|---|---|
+| `inlet` | **64** | one row across the **full 0.1 m y-span** — 64 cells, **full width** |
+| `outlet` | 64 | x=0.5 edge, full span |
+| `sides` | 512 | 2 × 256, the y=0 and y=0.1 edges |
+| `wallFilmFaces_top` | 16384 | free surface |
+| `region0_to_wallFilmRegion_wallFilmFaces` | 16384 | mapped wall coupling |
+
+**64 faces is full span. A 5 mm strip would be ~3 faces.** The inlet is inherited, not
+created: `blockMeshDict` `filmWalls` (the whole z=0 plate) → `wallFilmRegion.topoSet`
+`patchToFace patch filmWalls` → `extrudeToRegionMesh` (`nLayers 1`), whose edge patches
+inherit the primary names. `base/system/wallFilmRegion/createPatchDict` (`side1..side4`)
+is **inert leftover** from the tutorial — the frozen launcher never invokes it and no film
+BC references those names.
+
+**WHY THIS IS THE DIFFERENCE THAT MATTERS.** Γ = ρ·H_IN·U_IN = 1000 × 7.1084204656e-04 ×
+0.537381243 = **0.381993 kg/m/s**, matching §157's 0.381995 per width. That per-width Γ is
+0.382 *regardless of inlet width*, because `deltaf`/`Uf` are `fixedValue uniform`. **What
+makes the film spanwise-uniform — and therefore convergent to δ_N = 0.555 mm — is that
+this uniform per-width Γ is applied across ALL 64 faces of the full span.** A 5 mm strip
+would carry the same per-width Γ and feed 5 mm of 100 mm, spreading into a rivulet whose
+δ_mon is not the 2D value. **The full-span inlet is what makes the manual's reference
+valid for this case.**
+
+**NO GATE, THRESHOLD, BAND, CAP, LEVEL OR LABEL IS ALTERED.** The band
+[0.543234, 0.566766] mm, the 0.555 mm reference, the 2.12 % tolerance, the `GATE REACHED`
+ceiling and every frozen constant stand unchanged. The comparator reads δ_mon from the
+field and **never reads this prose**. This corrects a description, not a gate.
+
+### B. FREEZE LITERALS — recorded as VALUES, per the fleet rule of 2026-09-12
+
+A freeze block must record **values**, never a command such as `git rev-parse HEAD:<path>`
+or "verify with `git log -1`" — a command **re-evaluates against whatever HEAD holds and so
+self-satisfies at every commit**, which is the opposite of what rule 2 asks. This
+document's own header previously said only *"the commit containing this line is the
+freeze"*, naming no value. Corrected here:
+
+| artifact | literal blob sha |
+|---|---|
+| freeze commit | `855b2b61ab5ef2aa52158eca34f26a84c8d0bc42` |
+| `PREREGISTRATION.md` (at freeze, before this amendment) | `d863f09d9047e54e4ea0b63739e41a30ef1e0645` |
+| `compare_vmfl072_r5.py` | `322aad89a5c3aad9369f22e25e8ad9df3c354899` |
+| `launch_vmfl072_r5.sh` | `26f119d282f715e8359050ae371dcd3d3f00c0fd` |
+| `stall_observer_vmfl072_r5.sh` | `7bb25c255643987d0787ecc56d6cefed9e3165b1` |
+| `base/` 31-file manifest md5 | `b7afd8ac88f7e1301b7bc47d339f1c15` |
+| `blockMeshDict` (the geometry traced above) | `76b8c74e00fddcf8b3e29310fadaca00556145a9` |
+| TRANSITIVE DEP `compare_vmfl072_r4a.py` (read at grade time, pinned in-code) | `ca2c73c70ce72a9aa12cf436a482ba83246158f1` |
+
+### C. THE CONDITION, AND HOW IT WAS CHECKED (CLAUDE.md rule 2)
+
+Amendments are legal only **before first compute**. Verified in the same shell invocation
+that made this edit: **`verification/runs/ansys_verification/VMFL072-R5` does not exist** —
+zero compute, no solver has run, no film field exists, and therefore **no answer could
+have informed either change above.**
