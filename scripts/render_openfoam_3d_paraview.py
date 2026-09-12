@@ -698,15 +698,32 @@ def main(argv):
         lo, hi = info.GetArray(a.field).GetRange(0)
         field_range = [float(lo), float(hi)]
         if not (hi > lo):
-            # MEASURED ON THIS BOX: alphat, nut, nuTilda and U on M6I L3 all carry the
-            # range (0.0, 0.0).  A constant field maps every face to ONE end of the
-            # colormap and renders a uniformly tinted body that looks exactly like a
-            # field render and carries no information at all.  It is REFUSED, not drawn.
+            # A constant field maps every face to ONE end of the colormap and renders a
+            # uniformly tinted body that looks exactly like a field render and carries no
+            # information at all.  It is REFUSED, not drawn.
+            #
+            # 🔴 THE COMMON CASE IS NOT A DEFECT AND THE MESSAGE MUST SAY SO.  This tool
+            # renders BOUNDARY PATCHES, so every array it sees is that patch's WALL
+            # values, not the volume field.  On a no-slip wall `U` is EXACTLY ZERO by
+            # boundary condition, and `nuTilda`, `nut` and `alphat` are wall-function
+            # zeros -- VERIFIED FROM DISK on M6I L3 (3000/U `noSlip`; 3000/nuTilda
+            # `fixedValue uniform 0`), while the same file's INTERNAL field reads
+            # |U| 1.11-360.13 m/s and nuTilda 5.24e-06-0.0431.  A reader who meets this
+            # refusal for `U` on a wall is meeting correct physics, not a broken tool.
+            wallish = a.field in ("U", "nut", "nuTilda", "alphat", "k", "omega", "epsilon")
             sys.stderr.write(
                 "REFUSED: --field %r has a DEGENERATE range on the rendered surface: "
                 "min == max == %g. A constant field paints one flat colour that reads "
-                "as a field picture and shows nothing. Pick a field that varies.\n"
-                % (a.field, lo))
+                "as a field picture and shows nothing.%s\n"
+                % (a.field, lo,
+                   ("  NOTE: this is almost certainly CORRECT PHYSICS, not a defect. "
+                    "This tool renders BOUNDARY PATCHES, so it sees the patch's WALL "
+                    "values: on a no-slip wall U is exactly zero by boundary condition, "
+                    "and nut/nuTilda/alphat/k/omega are wall-function zeros. The VOLUME "
+                    "field is not zero. Colour by a field with a wall gradient -- p, T or "
+                    "rho -- or render a slice rather than a wall patch."
+                    if wallish else "  Pick a field that varies over this surface."))
+            )
             return 2
 
         ColorBy(d, (field_assoc, a.field))
