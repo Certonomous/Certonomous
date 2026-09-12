@@ -106,7 +106,7 @@ for _p in (HERE, COMMON, R4):
 
 from of_read import (read_field, read_field_expand, sym_to_full,   # noqa: E402
                      anisotropy, realisability_violation, plane_axes,
-                     structured_gradient, structured_shape)
+                     structured_gradient, structured_shape, latest_time_dir)
 import sst_baseline_metrics as SB                                  # noqa: E402
 import r4_lib                                                      # noqa: E402
 import build_rc3_ladder as B                                       # noqa: E402
@@ -213,13 +213,35 @@ def continuity_bar(tag):
         refuse("continuity_bar: " + repr(tag) + " has no registered floor or "
                "bar; a case with no measured instrument floor cannot be "
                "screened on this channel")
+    # AMENDMENT A3, repair 1.  BOTH operands of the two `math.log10` calls below
+    # are guarded as POSITIVE and FINITE *before* either call.  Before A3 only
+    # the FLOOR was guarded, and only against `<= 0.0`; the TABULATED BAR was
+    # not guarded at all and neither was guarded against nan/inf.  DRIVEN, in
+    # process, on a probe tag: tabulated bar 0.0 and -1.0 both raised
+    # `ValueError: math domain error`; floor nan raised `ValueError: cannot
+    # convert float NaN to integer` and floor inf `OverflowError`; and -- the
+    # one that did not raise at all -- a tabulated bar of nan RETURNED nan,
+    # because every comparison against nan is False, so it passed the drift
+    # check, the never-tighter check and the 10x-floor check in silence and
+    # would then have made `div <= nan` False on EVERY row.  None of those four
+    # outcomes is a registered refusal: section 11 registers every refusal as a
+    # `sys.exit(2)`, never an exception and never a silent return.
     floor = float(CONTINUITY_FLOOR[tag])
-    if floor <= 0.0:
-        refuse("continuity_bar: the measured instrument floor for " + tag
-               + " is " + repr(floor) + "; it cannot be zero or negative")
+    if not math.isfinite(floor) or floor <= 0.0:
+        refuse("continuity_bar: FLOOR_NOT_POSITIVE_FINITE -- the measured "
+               "instrument floor for " + tag + " is " + repr(floor)
+               + "; it must be a positive finite float, because the registered "
+               "rule takes its base-10 logarithm and a floor that is zero, "
+               "negative, nan or inf has no decade")
+    tabulated = float(CONTINUITY_BAR[tag])
+    if not math.isfinite(tabulated) or tabulated <= 0.0:
+        refuse("continuity_bar: BAR_NOT_POSITIVE_FINITE -- the tabulated bar "
+               "for " + tag + " is " + repr(tabulated) + "; it must be a "
+               "positive finite float, because the drift check below takes its "
+               "base-10 logarithm.  A nan bar in particular passes every "
+               "comparison in this function and would be returned in silence")
     derived = 10.0 ** math.ceil(math.log10(10.0 * floor))
     bar = max(CONTINUITY_MAX, derived)
-    tabulated = float(CONTINUITY_BAR[tag])
     if abs(math.log10(tabulated) - math.log10(bar)) > 1e-9:
         refuse("continuity_bar: the tabulated bar for " + tag + " is "
                + repr(tabulated) + " but the registered rule derives "
@@ -237,8 +259,149 @@ def continuity_bar(tag):
     return tabulated
 
 
+# ---- AMENDMENT A3, repair 3: the FIRST link of the chain artifact -> floor -> bar.
+#
+# `continuity_bar()` defends the SECOND link: it recomputes the bar from the
+# floor by the registered rule and refuses on drift.  Nothing defended the
+# FIRST.  `CONTINUITY_FLOOR_ARTIFACT` named a real `U` file per case and NO
+# EXECUTABLE PATH EVER READ IT -- driven by AST with a control: neither
+# `check_continuity_bars` nor `continuity_bar` contains a single file-IO call,
+# while the controls `producer_continuity` (exists/open/read) and `score_row`
+# (read_field/read_field_expand) do, so the probe is not blind.  Consequence: a
+# floor mistyped by one decade would pass every guard in this file and the bar
+# would move with it.  The floor is the single load-bearing MEASURED quantity in
+# amendment A2 -- it is the whole justification for CBFS13700's bar standing at
+# 1e-1 rather than 1e-4 -- and `scripts/check_bar_above_floor.py` cannot catch
+# it either, because that check ALSO reads the tabulated floor.  This is L-530's
+# shape (a bar below its instrument's floor) transposed one level up.
+#
+# THE TOLERANCE, stated and justified, not a fudge band.  The re-derivation is
+# DETERMINISTIC: the same three files, the same `structured_gradient` metric
+# `score_row` uses, no solver, no randomness.  The ONLY genuine source of
+# disagreement is that the tabulated constants are 5-significant-figure
+# transcriptions of the re-derived floats, whose rounding band is at most
+# 0.5e-4 relative (worst case, mantissa 1).  MEASURED disagreement at the time
+# A3 was written, all three cases:
+#     AR_1_Ret_360  tabulated 8.6010e-18  re-derived 8.600960e-18  rel 4.63e-06
+#     AR_3_Ret_360  tabulated 1.1100e-17  re-derived 1.109988e-17  rel 1.06e-05
+#     CBFS13700     tabulated 9.6193e-03  re-derived 9.619317e-03  rel 1.75e-06
+# 1e-4 is that transcription band with one factor of two of headroom.  The
+# defect it exists to catch -- a floor mistyped by one decade -- is 9e-1
+# relative, roughly 10,000x outside the band, so the band cannot hide it.
+FLOOR_PROVENANCE_REL_TOL = 1e-4
+
+
+def floor_mesh_centres_path(tag):
+    """The cell-centre file this case's floor must be re-derived on.
+
+    Replicates `_common/sst_baseline_metrics.py:79-85`, the C-path `load_case`
+    picks and therefore the mesh `score_row` scores on, so the re-derivation
+    runs on the SAME mesh and not a lookalike.  `selftest` proves the two are
+    byte-identical rather than assuming it.
+    """
+    if tag not in B.CASES:
+        refuse("floor_mesh_centres_path: " + repr(tag) + " is not a registered "
+               "case; its floor cannot be re-derived from any mesh")
+    src, fam = B.CASES[tag]
+    if fam == "duct":
+        return os.path.join(src, "constant", "C")
+    t = latest_time_dir(src)
+    c = os.path.join(src, t, "C")
+    return c if os.path.exists(c) else os.path.join(src, "0", "C")
+
+
+def rederive_continuity_floor(tag):
+    """RE-DERIVE this case's instrument floor FROM THE ARTIFACT IT NAMES.
+
+    Reads the `U` file `CONTINUITY_FLOOR_ARTIFACT[tag]` names and the cell
+    centres `load_case` would pick, and applies THIS MODULE'S OWN clause-8
+    formula -- the identical three lines `score_row` uses:
+        A = structured_gradient(C, U); divU = einsum("nii->n", A)
+        gscale = sqrt((A**2).sum(axis=(1,2)).mean())
+        floor  = sqrt(mean(divU**2)) / gscale
+    ZERO SOLVER COMPUTE: three `U` files and three `C` files already on disk.
+    REFUSES (sys.exit 2) if either artifact is absent or unreadable, or if the
+    mesh and the field disagree on the cell count -- never returns a number it
+    could not actually measure.
+    """
+    if tag not in CONTINUITY_FLOOR_ARTIFACT:
+        refuse("rederive_continuity_floor: " + repr(tag) + " names no floor "
+               "artifact; a floor with no named artifact cannot be re-derived "
+               "and must not be trusted")
+    art = CONTINUITY_FLOOR_ARTIFACT[tag][0]
+    if not os.path.exists(art):
+        refuse("FLOOR_ARTIFACT_ABSENT: " + tag + "'s instrument floor names "
+               + art + ", which is NOT ON DISK.  A floor whose artifact cannot "
+               "be read is not a measurement and the bar derived from it has "
+               "no provenance")
+    cpath = floor_mesh_centres_path(tag)
+    if not os.path.exists(cpath):
+        refuse("FLOOR_MESH_ABSENT: " + tag + "'s floor must be re-derived on "
+               + cpath + ", which is NOT ON DISK")
+    try:
+        U = np.asarray(read_field(art), float).reshape(-1, 3)
+        C = np.asarray(read_field(cpath), float).reshape(-1, 3)
+    except SystemExit:
+        raise
+    except BaseException as exc:
+        refuse("FLOOR_ARTIFACT_UNREADABLE: " + tag + "'s floor artifact " + art
+               + " or mesh " + cpath + " could not be read: "
+               + type(exc).__name__ + ": " + str(exc))
+    if U.shape[0] != C.shape[0]:
+        refuse("FLOOR_ARTIFACT_SHAPE: " + tag + "'s floor artifact " + art
+               + " carries " + str(U.shape[0]) + " cells but its mesh "
+               + cpath + " carries " + str(C.shape[0])
+               + "; the floor cannot have been measured on this pair")
+    A = structured_gradient(C, U)
+    gscale = float(np.sqrt((A ** 2).sum(axis=(1, 2)).mean()))
+    if not math.isfinite(gscale) or gscale <= 0.0:
+        refuse("FLOOR_GRADIENT_SCALE: " + tag + "'s floor artifact " + art
+               + " has gradient scale " + repr(gscale) + "; the clause-8 metric "
+               "is 0/0 on it and no floor can be re-derived")
+    divU = np.einsum("nii->n", A)
+    v = float(np.sqrt((divU ** 2).mean()) / gscale)
+    if not math.isfinite(v):
+        refuse("FLOOR_REDERIVED_NON_FINITE: " + tag + " re-derives " + repr(v)
+               + " from " + art)
+    return v
+
+
+def check_floor_provenance():
+    """AG-C7 (amendment A3): the chain's FIRST link, defended on every pass.
+
+    Every tabulated `CONTINUITY_FLOOR` is RE-DERIVED from the artifact it names,
+    by this module's own formula, and this REFUSES if any of them disagrees by
+    more than `FLOOR_PROVENANCE_REL_TOL`, or if any named artifact is absent or
+    unreadable.  Run from `check_continuity_bars()`, so it runs before any row
+    is scored, on every pass -- the same place the bar's own drift check runs.
+    """
+    out = {}
+    for tag in sorted(CONTINUITY_FLOOR):
+        tab = float(CONTINUITY_FLOOR[tag])
+        if not math.isfinite(tab) or tab <= 0.0:
+            refuse("AG-C7: " + tag + "'s tabulated floor is " + repr(tab)
+                   + "; it must be a positive finite float")
+        got = rederive_continuity_floor(tag)
+        rel = abs(got - tab) / abs(tab)
+        art = CONTINUITY_FLOOR_ARTIFACT[tag][0]
+        if rel > FLOOR_PROVENANCE_REL_TOL:
+            refuse("AG-C7 FLOOR_PROVENANCE: " + tag + "'s tabulated instrument "
+                   "floor is " + repr(tab) + " but re-deriving it from the "
+                   "artifact it names (" + art + ") with this module's own "
+                   "clause-8 formula gives " + repr(got) + " -- a relative "
+                   "disagreement of " + ("%.3e" % rel) + ", outside the stated "
+                   + repr(FLOOR_PROVENANCE_REL_TOL) + " transcription band.  "
+                   "The bar derived from this floor has no provenance and NO "
+                   "ROW MAY BE SCORED against it")
+        print("[clause 8 floor provenance AG-C7] %-13s tabulated %.4e  "
+              "RE-DERIVED FROM ARTIFACT %.6e  rel %.2e (tol %.0e)  <- %s"
+              % (tag, tab, got, rel, FLOOR_PROVENANCE_REL_TOL, art))
+        out[tag] = (tab, got, rel)
+    return out
+
+
 def check_continuity_bars():
-    """AG-C1 / AG-C2 / AG-C4: run before any row is scored, every pass.
+    """AG-C1 / AG-C2 / AG-C4 / AG-C7: run before any row is scored, every pass.
 
     AG-C2  every bar is >= 10x its case's MEASURED instrument floor and never
            tighter than the registered CONTINUITY_MAX -- enforced by
@@ -252,6 +415,10 @@ def check_continuity_bars():
            global bar did is on the face of the output and cannot be discovered
            afterwards.
     """
+    # AG-C7, amendment A3.  FIRST, before any bar is quoted: every floor is
+    # re-derived from the artifact it names.  The bar's own drift check below is
+    # worthless if the floor it derives from was never checked against anything.
+    provenance = check_floor_provenance()
     admitted_new = 0
     admitted_old = 0
     total = 0
@@ -301,7 +468,10 @@ def check_continuity_bars():
     return {"bars": {t: continuity_bar(t) for t in sorted(CONTINUITY_BAR)},
             "admitted_per_case_bars": admitted_new,
             "admitted_retired_global_bar": admitted_old,
-            "measured_rows": total}
+            "measured_rows": total,
+            # amendment A3 AG-C7: (tabulated, re-derived-from-artifact, rel)
+            "floor_provenance": provenance,
+            "floor_provenance_rel_tol": FLOOR_PROVENANCE_REL_TOL}
 
 
 def producer_continuity(case):
@@ -319,6 +489,38 @@ def producer_continuity(case):
     return float(ms[-1]) if ms else None
 
 
+def grid_readings(C, U):
+    """AMENDMENT A3, repair 2.  The two RAW readings `grid_ratio` is built from.
+
+    Returns `(fine, coarse)`: this module's own clause-8 metric on the field,
+    and on the SAME field with the structured grid decimated 2x.  A reading is
+    `None` if and ONLY IF that grid's gradient scale is zero (or non-finite),
+    which makes the reading 0/0 -- a reading that DOES NOT EXIST, which is not
+    the same thing as a reading OF zero.  Recorded on every row beside the
+    ratio so a measured zero can never be laundered into a silence.
+
+    NO gate power, and it NEVER RAISES: this is a corroboration channel called
+    from `score_row`, and before A3 it could destroy a whole scoring pass.
+    """
+    ns, nf = structured_shape(C)
+    if ns < 8 or nf < 8:
+        return (None, None)
+    Cr = np.asarray(C, float).reshape(ns, nf, 3)[::2, ::2, :].reshape(-1, 3)
+    Ur = np.asarray(U, float).reshape(ns, nf, 3)[::2, ::2, :].reshape(-1, 3)
+    A = structured_gradient(C, U)
+    Ar = structured_gradient(Cr, Ur)
+
+    def m(g):
+        d = np.einsum("nii->n", g)
+        s = float(np.sqrt((g ** 2).sum(axis=(1, 2)).mean()))
+        if not math.isfinite(s) or s <= 0.0:
+            return None                 # 0/0: this grid has no reading at all
+        v = float(np.sqrt((d ** 2).mean()) / s)
+        return v if math.isfinite(v) else None
+
+    return (m(A), m(Ar))
+
+
 def grid_ratio(C, U):
     """The REPORTED, NON-GATING third reading: is the number truncation error?
 
@@ -326,21 +528,42 @@ def grid_ratio(C, U):
     decimated 2x.  A second-order truncation error grows ~4x; a real divergence
     in the field is grid-independent.  Recorded so the attribution is on the
     record at grading time instead of being argued afterwards.  NO gate power.
+
+    AMENDMENT A3, repair 2.  Two defects are repaired here, BOTH DRIVEN:
+      (a) `if not fine: return None` was a TRUTHINESS test on a MEASURED float.
+          Driven on an exactly solenoidal structured field (gradient scale
+          1.414214e+00, so the reading exists): the metric measured 0.000000e+00
+          and the channel reported "could not compute".  A real reading was
+          laundered into a silence.
+      (b) `float(coarse / fine)` raised when the COARSE reading did not exist.
+          Driven on a period-2 alternating field, whose 2x decimation is
+          CONSTANT: fine gradient scale 5.3033e+00, coarse 0.0000e+00, and the
+          channel raised `TypeError: unsupported operand type(s) for /:
+          'NoneType' and 'float'` straight out of `score_row`, discarding every
+          gate finding already computed in that pass.  (Note: a UNIFORM field
+          does NOT trigger this -- it short-circuits at the truthiness test in
+          (a) and returns None.  The trigger is fine-scale non-zero WITH
+          coarse-scale zero.)
+    `None` now means, and only means, that no finite ratio exists; the two raw
+    readings recorded beside it in `score_row` say which of the two it was.
     """
-    ns, nf = structured_shape(C)
-    if ns < 8 or nf < 8:
-        return None
-    Cr = np.asarray(C, float).reshape(ns, nf, 3)[::2, ::2, :].reshape(-1, 3)
-    Ur = np.asarray(U, float).reshape(ns, nf, 3)[::2, ::2, :].reshape(-1, 3)
-    A = structured_gradient(C, U)
-    Ar = structured_gradient(Cr, Ur)
-    def m(a, g):
-        d = np.einsum("nii->n", g)
-        s = float(np.sqrt((g ** 2).sum(axis=(1, 2)).mean()))
-        return float(np.sqrt((d ** 2).mean()) / s) if s > 0 else None
-    fine, coarse = m(U, A), m(Ur, Ar)
-    if not fine:
-        return None
+    return ratio_from_readings(*grid_readings(C, U))
+
+
+def ratio_from_readings(fine, coarse):
+    """AMENDMENT A3, repair 2.  The ONE place the two readings become a ratio.
+
+    `score_row` records the readings and the ratio, and must not re-implement
+    this rule beside it.  Returns `None` when no FINITE ratio exists -- either
+    grid has no reading, or the fine reading is a MEASURED zero denominator --
+    and the readings themselves are on the row either way.  NEVER RAISES.
+    """
+    if fine is None or coarse is None:
+        return None                     # one grid has no reading: 0/0
+    if fine == 0.0:
+        return None                     # a MEASURED zero denominator: the ratio
+        #                                 has no finite value, but the reading
+        #                                 itself is on the row as 0.0, not lost
     return float(coarse / fine)
 
 
@@ -543,6 +766,10 @@ def score_row(tag, case, bench):
     both = okb & okL & np.isfinite(b_tot).all(axis=(1, 2))
     viol, _ = realisability_violation(np.nan_to_num(b_tot[both]), tol=1e-6)
     div_over_grad = float(np.sqrt((divU ** 2).mean()) / gscale)
+    # amendment A3, repair 2: the grid-coarsening channel, read ONCE and turned
+    # into a ratio by the SAME helper `grid_ratio` uses, so the two cannot drift.
+    gr_fine, gr_coarse = grid_readings(C, U)
+    gr_ratio = ratio_from_readings(gr_fine, gr_coarse)
     row = {
         "time": lt, "n_cells": int(n),
         "u_rms": float(np.sqrt((e ** 2).mean()) / uref),
@@ -567,7 +794,12 @@ def score_row(tag, case, bench):
                                                  <= CONTINUITY_MAX),
         # the two NON-GATING corroboration channels (amendment A2).
         "producer_continuity_sum_local": producer_continuity(case),
-        "divU_grid_ratio_2h_over_h": grid_ratio(C, U),
+        "divU_grid_ratio_2h_over_h": gr_ratio,
+        # amendment A3, repair 2: the two RAW readings the ratio is built from,
+        # recorded unconditionally.  A measured zero is now visible AS a zero,
+        # and a ratio of None can be told apart from a reading that never was.
+        "divU_grid_reading_h": gr_fine,
+        "divU_grid_reading_2h": gr_coarse,
     }
     keep, thin = plane_axes(C)
     if tag in SEC_LES_PCT:
@@ -893,6 +1125,209 @@ def selftest():
          "unmoved duct bar", 1.1425e-04 > continuity_bar("AR_1_Ret_360"))
     note("AG-C5 CBFS13700 stays in the denominator: N_INSCOPE and MIN_CASES "
          "unchanged", N_INSCOPE == 3 and MIN_CASES == 2)
+
+    # ---- 0a. AMENDMENT A3, REPAIR 1: continuity_bar's log10 operands.
+    # Each probe is DRIVEN to a REGISTERED refusal (sys.exit 2), not an
+    # exception and not a silent return.  _fires returns False for BOTH.
+    def _probe_bar(barval, floorval=1e-9):
+        CONTINUITY_BAR["_probe"] = barval
+        CONTINUITY_FLOOR["_probe"] = floorval
+        try:
+            return _fires(continuity_bar, "_probe")
+        finally:
+            CONTINUITY_BAR.pop("_probe", None)
+            CONTINUITY_FLOOR.pop("_probe", None)
+
+    note("A3-1 continuity_bar REFUSES a tabulated bar of 0.0 (before A3: "
+         "ValueError: math domain error, an UNREGISTERED exception)",
+         _probe_bar(0.0))
+    note("A3-1 continuity_bar REFUSES a tabulated bar of -1.0 (before A3: "
+         "ValueError: math domain error)", _probe_bar(-1.0))
+    note("A3-1 continuity_bar REFUSES a tabulated bar of nan (before A3 the "
+         "WORST of the four: it RETURNED nan in silence, because every "
+         "comparison against nan is False)", _probe_bar(float("nan")))
+    note("A3-1 continuity_bar REFUSES a tabulated bar of inf",
+         _probe_bar(float("inf")))
+    note("A3-1 continuity_bar REFUSES a floor of nan (before A3: ValueError: "
+         "cannot convert float NaN to integer)", _probe_bar(1e-1, float("nan")))
+    note("A3-1 continuity_bar REFUSES a floor of inf (before A3: OverflowError)",
+         _probe_bar(1e-1, float("inf")))
+    note("A3-1 continuity_bar REFUSES a floor of 0.0", _probe_bar(1e-1, 0.0))
+    note("A3-1 CONTROL: the guards did not swallow the REGISTERED drift "
+         "refusal -- a positive finite bar off the rule still refuses",
+         _probe_bar(1.0))
+    note("A3-1 CONTROL: a positive finite bar ON the rule is NOT refused and "
+         "returns its own value -- the guards are not a blanket",
+         (lambda: (CONTINUITY_BAR.__setitem__("_probe", 1e-4),
+                   CONTINUITY_FLOOR.__setitem__("_probe", 1e-9),
+                   continuity_bar("_probe") == 1e-4,
+                   CONTINUITY_BAR.pop("_probe", None),
+                   CONTINUITY_FLOOR.pop("_probe", None))[2])())
+    note("A3-1 the THREE REGISTERED BARS are undisturbed by every probe above",
+         continuity_bar("AR_1_Ret_360") == 1e-4
+         and continuity_bar("AR_3_Ret_360") == 1e-4
+         and continuity_bar("CBFS13700") == 1e-1
+         and CONTINUITY_MAX == 1e-4)
+
+    # ---- 0b. AMENDMENT A3, REPAIR 2: the non-gating grid channel cannot raise.
+    _gs, _gf = 16, 16
+    _x = np.linspace(0.0, 1.0, _gs)
+    _y = np.linspace(0.0, 1.0, _gf)
+    _X, _Y = np.meshgrid(_x, _y, indexing="ij")
+    _C = np.stack([_X.ravel(), _Y.ravel(), np.zeros(_gs * _gf)], axis=1)
+    # (b) the REAL trigger: fine gradient scale non-zero, COARSE scale zero.
+    # A period-2 field decimates 2x to a CONSTANT.  A UNIFORM field does NOT
+    # trigger it -- measured 5.3033e+00 fine / 0.0000e+00 coarse here, against
+    # 0/0 for uniform.
+    _alt = (np.where((np.arange(_gs) % 2) == 0, 0.0, 1.0)[:, None]
+            * np.ones((1, _gf)))
+    _U_alt = np.stack([_alt.ravel(), np.zeros(_gs * _gf),
+                       np.zeros(_gs * _gf)], axis=1)
+    _U_uni = np.tile(np.array([1.0, 0.0, 0.0]), (_gs * _gf, 1))
+    # (a) exactly solenoidal (u=y, v=-x): div == 0 with a NON-ZERO gradient
+    # scale, so the fine reading is a MEASURED ZERO, not an absent one.
+    _U_sol = np.stack([_Y.ravel(), -_X.ravel(), np.zeros(_gs * _gf)], axis=1)
+    _U_div = np.stack([_X.ravel(), _Y.ravel(), np.zeros(_gs * _gf)], axis=1)
+
+    def _no_raise(fn, *a):
+        try:
+            return (True, fn(*a))
+        except BaseException as exc:
+            return (False, type(exc).__name__ + ": " + str(exc))
+
+    _ok_alt, _v_alt = _no_raise(grid_ratio, _C, _U_alt)
+    note("A3-2b grid_ratio does NOT RAISE when the COARSE reading does not "
+         "exist (before A3: TypeError: unsupported operand type(s) for /: "
+         "'NoneType' and 'float', straight out of score_row)",
+         _ok_alt and _v_alt is None, "returned " + repr(_v_alt))
+    note("A3-2b the readings behind it are told apart: coarse ABSENT (0/0), "
+         "fine PRESENT and non-zero",
+         grid_readings(_C, _U_alt)[1] is None
+         and (grid_readings(_C, _U_alt)[0] or 0.0) > 0.0,
+         "readings " + repr(grid_readings(_C, _U_alt)))
+    _ok_sol, _v_sol = _no_raise(grid_readings, _C, _U_sol)
+    note("A3-2a a MEASURED ZERO is reported AS 0.0 and not as 'could not "
+         "compute' (before A3 the truthiness test `if not fine` silenced it)",
+         _ok_sol and _v_sol[0] == 0.0 and _v_sol[0] is not None,
+         "fine reading " + repr(_v_sol[0] if _ok_sol else _v_sol))
+    note("A3-2a CONTROL: an ABSENT reading is still None, so 0.0 and None are "
+         "not the same answer", grid_readings(_C, _U_uni)[0] is None)
+    note("A3-2 CONTROL: the channel is NOT blind -- a genuinely divergent "
+         "field still returns a real ratio",
+         grid_ratio(_C, _U_div) == 1.0,
+         "ratio " + repr(grid_ratio(_C, _U_div)))
+    note("A3-2 ratio_from_readings is the ONE rule score_row and grid_ratio "
+         "share", ratio_from_readings(2.0, 8.0) == 4.0
+         and ratio_from_readings(0.0, 8.0) is None
+         and ratio_from_readings(None, 8.0) is None
+         and ratio_from_readings(2.0, None) is None)
+
+    # ---- 0c. AMENDMENT A3, REPAIR 3: the floor's OWN provenance.
+    _prov = bars["floor_provenance"]
+    note("A3-3 every registered floor RE-DERIVES from the artifact it names, "
+         "by this module's own clause-8 formula, inside the stated band",
+         all(r <= FLOOR_PROVENANCE_REL_TOL for _, _, r in _prov.values())
+         and set(_prov) == set(CONTINUITY_FLOOR),
+         "; ".join("%s tab %.4e got %.6e rel %.2e" % (t, a, b, r)
+                   for t, (a, b, r) in sorted(_prov.items())))
+    note("A3-3 the re-derivation runs on the SAME mesh score_row scores on: "
+         "floor_mesh_centres_path is byte-identical to load_case's own C",
+         all(np.array_equal(
+             np.asarray(SB.load_case(t, *B.CASES[t])["C"], float).reshape(-1, 3),
+             np.asarray(read_field(floor_mesh_centres_path(t)),
+                        float).reshape(-1, 3)) for t in sorted(B.CASES)))
+
+    def _mutate_floor(tag, val):
+        keep = CONTINUITY_FLOOR[tag]
+        CONTINUITY_FLOOR[tag] = val
+        try:
+            return _fires(check_floor_provenance)
+        finally:
+            CONTINUITY_FLOOR[tag] = keep
+
+    note("A3-3 a floor MISTYPED BY ONE DECADE is REFUSED -- the defect the "
+         "check exists to catch, driven on CBFS13700, whose floor is the whole "
+         "justification for its 1e-1 bar",
+         _mutate_floor("CBFS13700", 9.6193e-02))
+    note("A3-3 the same mistype in the OTHER direction is REFUSED",
+         _mutate_floor("CBFS13700", 9.6193e-04))
+    note("A3-3 a duct floor mistyped by one decade is REFUSED too",
+         _mutate_floor("AR_1_Ret_360", 8.6010e-17))
+    note("A3-3 CONTROL: a perturbation INSIDE the stated transcription band is "
+         "NOT refused -- the tolerance is a band, not a rubber stamp",
+         not _mutate_floor("CBFS13700", 9.6193e-03 * (1.0 + 2e-5)))
+    note("A3-3 CONTROL: a perturbation just OUTSIDE the band IS refused",
+         _mutate_floor("CBFS13700", 9.6193e-03 * (1.0 + 5e-4)))
+
+    def _absent_artifact(tag):
+        keep = CONTINUITY_FLOOR_ARTIFACT[tag]
+        CONTINUITY_FLOOR_ARTIFACT[tag] = (os.path.join(
+            keep[0], "no_such_artifact", "U"),) + keep[1:]
+        try:
+            return _fires(rederive_continuity_floor, tag)
+        finally:
+            CONTINUITY_FLOOR_ARTIFACT[tag] = keep
+
+    # A3-3, THE NARROWING.  The severity originally put on this defect was that
+    # "a floor mistyped by one decade would pass every guard and the bar would
+    # move with it".  DRIVEN on the pre-A3 module, that scenario DOES NOT
+    # EXIST, and the record says so rather than flattering the repair:
+    #   * CBFS13700 floor x10 UP with its bar moved consistently to 1e0, and
+    #     x10 DOWN with its bar moved to 1e-2: BOTH were ALREADY REFUSED before
+    #     A3, by AG-C1, whose named readings 2.9031e-02 and 3.0663e-01 bracket
+    #     the bar and pin it to exactly 1e-1 -- no decade but 1e-1 fits between
+    #     them, so no floor error can move THAT bar past AG-C1.
+    #   * both duct floors are FLOORED at the registered 1e-4 by the rule, so
+    #     their bars do not move at all: driven at x10 and at x1e12, the bar
+    #     stayed 1e-4 and the pre-A3 module PASSED both.
+    # What A3 actually closes is therefore NARROWER and still worth closing: the
+    # floor is a MEASURED CLAIM standing on the record with no artifact behind
+    # it -- the number amendment A2 cites as its entire justification -- and the
+    # two constants that pin the bar (AG_ADMIT / AG_REJECT) are transcriptions
+    # from THE SAME census, so they cross-check the bar, not the floor.  A3 is
+    # the only path in this file that reaches the named artifact at all.
+    def _pre_a3_would_have_passed(tag, floor_val, bar_val=None):
+        """Does EVERY guard OTHER than A3's provenance check accept this?"""
+        keepf, keepb = CONTINUITY_FLOOR[tag], CONTINUITY_BAR[tag]
+        CONTINUITY_FLOOR[tag] = floor_val
+        if bar_val is not None:
+            CONTINUITY_BAR[tag] = bar_val
+        try:
+            for t in sorted(CONTINUITY_BAR):
+                b = continuity_bar(t)
+                if not CONTINUITY_AG_ADMIT[t] <= b < CONTINUITY_AG_REJECT[t]:
+                    return False
+            return True
+        except SystemExit:
+            return False
+        finally:
+            CONTINUITY_FLOOR[tag], CONTINUITY_BAR[tag] = keepf, keepb
+
+    note("A3-3 NARROWING: a CBFS decade mistype with the bar moved WITH it was "
+         "ALREADY caught pre-A3 by AG-C1 -- the original severity is withdrawn",
+         not _pre_a3_would_have_passed("CBFS13700", 9.6193e-02, 1e0)
+         and not _pre_a3_would_have_passed("CBFS13700", 9.6193e-04, 1e-2))
+    note("A3-3 NARROWING: what WAS undefended and now is -- a duct floor wrong "
+         "by twelve decades, bar unmoved at 1e-4, passed every pre-A3 guard",
+         _pre_a3_would_have_passed("AR_1_Ret_360", 8.6010e-06)
+         and _mutate_floor("AR_1_Ret_360", 8.6010e-06))
+    note("A3-3 NARROWING: and a CBFS floor wrong INSIDE its own decade window "
+         "(5.0e-03 for 9.6193e-03), bar unmoved at 1e-1, passed every pre-A3 "
+         "guard -- this is the number A2's justification is written on",
+         _pre_a3_would_have_passed("CBFS13700", 5.0e-03)
+         and _mutate_floor("CBFS13700", 5.0e-03))
+
+    note("A3-3 an ABSENT floor artifact is REFUSED, not skipped",
+         all(_absent_artifact(t) for t in sorted(CONTINUITY_FLOOR_ARTIFACT)))
+    note("A3-3 a case that names no floor artifact at all is REFUSED",
+         _fires(rederive_continuity_floor, "NASA_2DWMH"))
+    note("A3-3 the floors and artifacts are restored after every probe above, "
+         "and the THREE REGISTERED BARS are still 1e-4 / 1e-4 / 1e-1",
+         all(r <= FLOOR_PROVENANCE_REL_TOL
+             for _, _, r in check_floor_provenance().values())
+         and continuity_bar("AR_1_Ret_360") == 1e-4
+         and continuity_bar("AR_3_Ret_360") == 1e-4
+         and continuity_bar("CBFS13700") == 1e-1)
     note("no fixture row carries the retired hardcoded 1e-6",
          all(v != 1e-6 for v in FIXTURE_DIV.values()))
 

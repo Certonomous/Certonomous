@@ -1299,3 +1299,235 @@ floor, with the direction of the change printed on every scoring pass.**
 dispatch. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
 nothing may run against it. Zero solver compute produced this amendment. Nothing
 sent, filed, uploaded, registered, posted or commented.*
+
+---
+
+## AMENDMENT A3 — 2026-09-12. PRE-FIRST-COMPUTE. Three defects found in `rc3_ceiling.py` BY DRIVING THEM, repaired; and one severity WITHDRAWN.
+
+**Document version: DRAFT v1.3** (was DRAFT v1.2 at amendment A2; DRAFT v1.1 at
+amendment A1; DRAFT v1.0 as landed at commit `4e3c5bc6`).
+**lines whose number changed above this section: 0** — this amendment is appended
+at the foot and edits no line above it. The assertion is not a claim: the file's
+first **79,402 bytes (1,301 lines)** were hashed before and after the append
+inside a **single shell invocation**, with the whole-file digest shown to move in
+the same invocation so the hasher is demonstrably not returning a constant, and
+with the prefix compared line-wise against `git show HEAD:<path>`. All four
+digests and the control are recorded in the commit that carries this amendment.
+
+**THIS AMENDMENT IS NOT THE FREEZE.** It changes no gate, no threshold, no cap
+and no label. **The registered numbers do not move**: `CONTINUITY_MAX` is
+`1e-4`, and the three per-case bars are `AR_1_Ret_360` `1e-4`, `AR_3_Ret_360`
+`1e-4`, `CBFS13700` `1e-1` — re-printed from the instrument after every repair
+and unchanged. What A3 adds is **refusals** and one **re-derivation**; it
+removes nothing and loosens nothing. The DRAFT/UNFROZEN token still occurs
+**exactly once** in this file (measured: 1; controls, counted AFTER this
+append — `REGISTERED CAP` 6, an absent string 0), and this amendment deliberately does not write that token
+string again, so the supervisor's single substitution at the freeze still clears
+`build_rc3_ladder.refuse_if_unfrozen()` in one edit. Both instrument entry
+points were re-driven after the repairs and both returned `rc = 2`:
+`build_rc3_ladder.refuse_if_unfrozen()` and `rc3_ceiling.score_all()`.
+
+### A3.0 The rule-2 condition, and how it was checked — freshly, at this amendment
+
+**Condition: RC3 has had ZERO compute. The run root registered by its own
+instrument does not exist.** Checked **2026-09-12T00:44:57Z**, by this lane, at
+zero compute — every row carries the control that FIRED on the positive case:
+
+| check | result | control that FIRED (same command shape, positive case) |
+|---|---|---|
+| `/home/ubuntu/closure-data/rc3` (`build_rc3_ladder.py:102`) | **ABSENT** | `/home/ubuntu/closure-data` **PRESENT** |
+| `/home/ubuntu/closure-data/rc3/wu2018` | **ABSENT** | `/home/ubuntu/closure-data/aposteriori_frozenk/wu2018` **PRESENT** |
+| `find /home/ubuntu/closure-data -maxdepth 1 -name 'rc[34]*'` | **0 hits** | the same `find` with `-name 'rc2*'` returns **1 hit** |
+| `find verification/runs -maxdepth 2 -iname '*rc3*'` | **0 hits** | the same `find` with `-iname '*T-family*'` returns **1 hit** |
+| any `RESULTS.md`, `scores.json` or run artifact beside this registration | **none** — the directory holds `PREREGISTRATION.md`, `build_rc3_ladder.py`, `rc3_ceiling.py`, `rc3_fixedpoint.py`, `rc3_run.py` and nothing else | the sibling `Wu2018_PIML_RF/aposteriori_frozenk/RESULTS.md` **does** exist, so the listing is not blind to result files |
+
+Amendments before first compute are legal under standing rule 2, and this is
+one. Nothing here could have been chosen to fit an answer, because there is no
+answer: no row has been scored and no solver has been started.
+
+### A3.1 THE WITHDRAWAL — stated first, because it cuts AGAINST this amendment
+
+The third defect was put to this lane with the severity *"if a floor were
+mistyped by one decade, every guard in the file would still pass and the bar
+would move with it."* **DRIVEN against the pre-A3 module, that scenario does not
+exist, and the severity is WITHDRAWN.** Measured, both directions, on the
+unmodified predecessor file:
+
+| scenario, mutated in process on the PRE-A3 module | pre-A3 outcome |
+|---|---|
+| `CBFS13700` floor ×10 **up** (`9.6193e-02`) with its bar moved consistently to `1e0` | **ALREADY REFUSED** — `sys.exit(2)` |
+| `CBFS13700` floor ×10 **down** (`9.6193e-04`) with its bar moved consistently to `1e-2` | **ALREADY REFUSED** — `sys.exit(2)` |
+| `AR_1_Ret_360` floor ×10 up (`8.6010e-17`), bar unmoved | PASSED |
+| `AR_1_Ret_360` floor ×10¹² up (`8.6010e-06`), bar unmoved | PASSED |
+| `CBFS13700` floor wrong **inside its own decade window** (`5.0e-03` for `9.6193e-03`), bar unmoved | PASSED |
+| CONTROL: nothing mutated | PASSED |
+
+The reason the decade mistype was already caught is **AG-C1**: its two named
+readings `2.9031e-02` and `3.0663e-01` bracket `CBFS13700`'s bar, and `1e-1` is
+the only decade that fits between them, so **no floor error can move that bar
+past AG-C1.** And both duct bars are held at the registered `1e-4` by
+`max(CONTINUITY_MAX, …)`, so their floors can be wrong by twelve decades without
+the bar moving at all.
+
+**What is therefore actually true, and is what A3 closes:** the floor is a
+**measured claim standing on the record with no artifact behind it** — it is the
+number §A2 cites as its entire justification for `CBFS13700`'s bar standing at
+`1e-1` rather than `1e-4` — and the two constants that pin the bar
+(`CONTINUITY_AG_ADMIT`, `CONTINUITY_AG_REJECT`) are transcriptions **from the
+same census as the floor**, so they cross-check the *bar*, not the *floor*. A3's
+re-derivation is the only path in the instrument that reaches the named artifact
+at all. That is a narrower claim than the one this lane was given, and it is the
+one the evidence supports.
+
+### A3.2 Repair 1 — `continuity_bar()`: both `log10` operands guarded, BEFORE either call
+
+Registered as an anti-gaming and refusal-hygiene repair against §11's
+requirement that **every registered refusal is a `sys.exit(2)`, never an assert
+and never an exception**. Pre-A3, the drift check took `math.log10(tabulated)`
+before the tabulated bar was guarded at all; the floor was guarded only against
+`<= 0.0`. DRIVEN in process, pre-A3 against post-A3, same probes:
+
+| probe on a `_probe` tag | pre-A3 | post-A3 |
+|---|---|---|
+| tabulated bar `0.0` | `ValueError: math domain error` — **unregistered** | `sys.exit(2)` `BAR_NOT_POSITIVE_FINITE` |
+| tabulated bar `-1.0` | `ValueError: math domain error` — **unregistered** | `sys.exit(2)` `BAR_NOT_POSITIVE_FINITE` |
+| tabulated bar `nan` | **RETURNED `nan`** — no refusal at all | `sys.exit(2)` `BAR_NOT_POSITIVE_FINITE` |
+| tabulated bar `inf` | `sys.exit(2)` (via drift) | `sys.exit(2)` |
+| floor `nan` | `ValueError: cannot convert float NaN to integer` | `sys.exit(2)` `FLOOR_NOT_POSITIVE_FINITE` |
+| floor `inf` | `OverflowError` | `sys.exit(2)` `FLOOR_NOT_POSITIVE_FINITE` |
+| floor `0.0` | `sys.exit(2)` | `sys.exit(2)` |
+| CONTROL: positive finite bar **off** the rule | `sys.exit(2)` drift | `sys.exit(2)` drift — **not swallowed** |
+| CONTROL: positive finite bar **on** the rule | returns its value | returns its value — **not a blanket** |
+
+The `nan` row is the one that matters and it was not in the brief: because every
+comparison against `nan` is `False`, a `nan` bar passed the drift check, the
+never-tighter check and the 10×-floor check **in silence** and was returned, and
+`div <= nan` is then `False` on **every** row — a manufactured universal clause-8
+failure with no refusal anywhere. The asymmetry that hid it is that the FLOOR
+was guarded immediately before its `log10` and the BAR was not: the author
+thought of it once and not twice.
+
+### A3.3 Repair 2 — `grid_ratio()`: a NON-GATING channel that could kill a GATING pass
+
+`grid_ratio()` is a corroboration channel whose own docstring says it has **no
+gate power**, and it is called from `score_row()`. Pre-A3 it could raise out of
+`score_row()` and destroy a whole scoring pass, discarding gate findings already
+computed — the same shape as the crash repaired in
+`scripts/check_bar_above_floor.py`. Two defects, both DRIVEN on synthetic
+structured fields at zero compute:
+
+**(a) a truthiness test on a measured float.** `if not fine: return None` — and
+`not 0.0` is `True`. Driven on an exactly solenoidal field (`u = y`, `v = −x`),
+whose gradient scale is `1.414214e+00` so the reading genuinely exists: the
+metric measured **`0.000000e+00`** and the channel reported "could not compute".
+A real reading laundered into a silence.
+
+**(b) an unguarded division.** Driven on a period-2 alternating field, whose 2×
+decimation is **constant**: fine gradient scale `5.3033e+00`, coarse gradient
+scale `0.0000e+00`, and the channel raised `TypeError: unsupported operand
+type(s) for /: 'NoneType' and 'float'`. **The mechanism named in the brief — a
+uniform field — does NOT trigger this**: a uniform field has zero gradient scale
+on *both* grids, short-circuits at the truthiness test in (a) and returns `None`
+cleanly. The trigger is fine-scale non-zero **with** coarse-scale zero. This is
+recorded because the wrong mechanism would have made the repair look unnecessary
+to anyone who tried the uniform case and saw `None`.
+
+Repaired by splitting the reading from the ratio. `grid_readings(C, U)` returns
+the two raw readings and **never raises**; a reading is `None` **if and only if**
+that grid's gradient scale is zero or non-finite, which makes the reading `0/0`
+— a reading that *does not exist*, which is not the same thing as a reading *of*
+zero. `ratio_from_readings(fine, coarse)` is the single place the two become a
+ratio, shared by `grid_ratio()` and `score_row()` so the rule cannot drift
+between them. Both raw readings are now recorded on every row as
+`divU_grid_reading_h` and `divU_grid_reading_2h`, so a measured zero is visible
+**as a zero** and a `None` ratio can be told apart from a reading that never was.
+These are **reported, non-gating** row fields: like the producer channel and the
+ratio itself they can neither rescue nor condemn a row, and no gate reads them.
+
+Post-A3, driven: coarse-absent → `None`, no raise; solenoidal → readings
+`(0.0, 0.0)`, the zero reported as a zero; CONTROL, a genuinely divergent field
+→ ratio `1.0`, so the channel is not blind.
+
+### A3.4 Repair 3 — AG-C7: the floor RE-DERIVED FROM THE ARTIFACT IT NAMES
+
+**The finding.** The chain `artifact → floor → bar` was defended at its second
+link and undefended at its first. `continuity_bar()` recomputes the bar from the
+floor by the registered rule and refuses on drift; **nothing re-derived the
+floor from the artifact it names.** Driven by AST with a control:
+`check_continuity_bars()` and `continuity_bar()` contain **zero** file-IO calls,
+while the controls `producer_continuity()` (`exists`/`open`/`read`) and
+`score_row()` (`read_field`/`read_field_expand`) do — so the probe is not blind.
+`CONTINUITY_FLOOR_ARTIFACT` named a real `U` file per case and no executable
+path ever opened one. Severity as narrowed at §A3.1.
+
+**The repair.** `rederive_continuity_floor(tag)` reads the `U` file the table
+names and the cell centres `sst_baseline_metrics.load_case:79-85` would pick,
+and applies **this module's own clause-8 formula** — the identical three lines
+`score_row()` uses (`structured_gradient`, `einsum("nii->n")`, RMS over the
+gradient scale). `check_floor_provenance()` runs it for every registered floor
+and is called at the **top** of `check_continuity_bars()`, which `score_all()`
+already runs before any row is scored, on every pass. It **refuses**
+(`sys.exit(2)`) on `FLOOR_ARTIFACT_ABSENT`, `FLOOR_MESH_ABSENT`,
+`FLOOR_ARTIFACT_UNREADABLE`, `FLOOR_ARTIFACT_SHAPE`, `FLOOR_GRADIENT_SCALE`,
+`FLOOR_REDERIVED_NON_FINITE`, and `FLOOR_PROVENANCE` on disagreement.
+
+**ZERO SOLVER COMPUTE.** It reads three `U` files and three `C` files already on
+disk; measured cost of the whole check is well under one second of wall time and
+it starts no solver. That the re-derivation runs on the **same mesh**
+`score_row()` scores on is proved, not assumed: `selftest` compares
+`floor_mesh_centres_path(tag)`'s array against `load_case`'s own `C` for all
+three cases and they are **byte-identical**.
+
+**MEASURED — the re-derived floors beside the tabulated ones:**
+
+| case | tabulated `CONTINUITY_FLOOR` | RE-DERIVED FROM THE NAMED ARTIFACT | relative | artifact |
+|---|---|---|---|---|
+| `AR_1_Ret_360` | `8.6010e-18` | `8.600960e-18` | `4.63e-06` | `/home/ubuntu/closure-data/aposteriori/wu2018/AR_1_Ret_360/null/200000/U` |
+| `AR_3_Ret_360` | `1.1100e-17` | `1.109988e-17` | `1.06e-05` | `/home/ubuntu/closure-data/aposteriori/wu2018/AR_3_Ret_360/null/99000/U` |
+| `CBFS13700` | `9.6193e-03` | `9.619317e-03` | `1.75e-06` | `/home/ubuntu/closure-data/aposteriori_frozenk/wu2018/CBFS13700/L_null/1969/U` |
+
+**All three AGREE.** No tabulated floor is wrong, so §A2's bar move rests on a
+number that re-derives from its own artifact. Planted control, run in the same
+invocation on all three: perturbing one cell of the artifact field by the lab's
+comparator constant `1.234e-03` MOVED every re-derived value (visibly on
+`CBFS13700`, `9.619317e-03 → 9.619381e-03`), so the reader is demonstrably not
+returning a constant and these are not three false agreements.
+
+**THE TOLERANCE, `FLOOR_PROVENANCE_REL_TOL = 1e-4`, stated and justified.** The
+re-derivation is **deterministic** — the same six files, the same formula, no
+solver and no randomness — so it is not a fudge band for numerical noise. The
+only genuine source of disagreement is that the tabulated constants are
+**5-significant-figure transcriptions** of the re-derived floats, whose rounding
+band is at most `0.5e-4` relative (worst case, mantissa 1). The largest
+disagreement actually measured is `1.06e-05`. `1e-4` is that transcription band
+with one factor of two of headroom; the error it exists to catch is `9e-1`
+relative, roughly four orders of magnitude outside the band. Driven both ways:
+a perturbation of `+2e-5` relative is **NOT** refused and one of `+5e-4`
+relative **IS** — the tolerance is a band, not a rubber stamp.
+
+### A3.5 What this amendment did NOT do
+
+It did not freeze, launch, queue or advance RC3; the closure line remains paused
+under `CASE_PROTOCOL_CHARTER` §7 and this is instrument repair inside a draft.
+It moved no gate, no threshold, no cap and no label, and it moved no registered
+number — `CONTINUITY_MAX = 1e-4` and the bars `1e-4 / 1e-4 / 1e-1` are re-printed
+from the instrument in the commit that carries this amendment and are unchanged.
+It edited no frozen file and no charter. It did not pin a sha.
+
+`rc3_ceiling.py` selftest after the repairs: **75/75 PASS**, up from 46/46, green
+under **both** `python3` and `python3 -O`, `__pycache__` cleared before every
+invocation, `ast.Assert` counted by independent AST parse and **still 0**. The
+three sibling instruments are unchanged and still green
+(`build_rc3_ladder.py` 29/29, `rc3_fixedpoint.py` 17/17, `rc3_run.py` 25/25).
+
+**No `docs/COST_CALIBRATION.md` row: zero solver compute, so there is no actual
+to compare against an estimate.** No `docs/LESSONS.md`, `docs/DOCKET.md` or
+`docs/LAB_STATE.md` row was written by this lane — those files are contended
+this session and belong to other lanes; the supervisor is asked to land the
+lesson in A3.1 and A3.3 (a wrong-mechanism reproduction, and a severity
+withdrawn on driving) through whoever owns them.
+
+*Appended 2026-09-12 by a closure `lab-lane` at the closure-supervisor's
+dispatch. **THIS IS NOT THE FREEZE.** The document remains DRAFT / UNFROZEN and
+nothing may run against it. Zero solver compute produced this amendment. Nothing
+sent, filed, uploaded, registered, posted or commented.*
