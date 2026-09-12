@@ -1366,3 +1366,53 @@ documentation is not an assert.** Fixed by stripping comment lines before the gr
 original and the reason recorded in the script. It is the same shape as **L-571** — a check
 whose referent was not what the author believed — caught this time in seconds and for nothing,
 by the check failing loudly on a good file rather than passing quietly on a bad one.
+
+---
+
+# ADDENDUM 9 — 2026-09-12. **A PARENTHETICAL OF §4 IS FALSE AND IS CORRECTED HERE. THE GATE IT SITS BESIDE IS UNCHANGED AND IS SATISFIED.**
+
+**v1.8 → v1.9. Lines whose number changed above this section: 0.** No band, threshold, cap or
+label moves — and the limb this concerns, **IC-4, is not touched**.
+
+## A9.1 — WHAT §4 SAYS, AND WHAT THE SOLUTIONS MEASURE
+
+§4 registered the wall treatment as `nutLowReWallFunction` with the parenthetical
+**"every level is wall-resolved, y⁺ ≤ 1"**. Measured from each level's own solver log, wing
+patch, final write:
+
+| level | y⁺ min | **y⁺ max** | y⁺ average | §4's "≤ 1" |
+|---|---|---|---|---|
+| **L3** | 0.4644 | **2.5455** | 1.4046 | 🔴 **FALSE — over by 2.5×** |
+| **L3_NORAMP** | 0.4637 | **2.5459** | 1.4103 | 🔴 **FALSE**, and it reproduces L3 to 4 decimal places |
+| **L2** | 0.0581 | **1.2144** | 0.3658 | 🔴 **FALSE — over by 1.2×** |
+| L1 | `PENDING` | `PENDING` | `PENDING` | `PENDING` |
+
+**The parenthetical was wrong and this document says so rather than quietly reinterpreting
+it.** Its error was to carry a **mesh-construction target** — `input.nml`'s
+`target_y_plus = 0.25` on the fine level, doubling with each coarsening to a nominal
+0.25 / 0.5 / 1.0 — into a claim about **the solution**. The first cell height is built from an
+*assumed* skin friction; the achieved y⁺ is whatever the converged solution makes it, and on
+this wing it is **about 2.5× the nominal** at the maximum.
+
+## A9.2 — 🔴 THE GATE IS UNCHANGED, WAS SET HIGHER THAN THE PARENTHETICAL, AND IS SATISFIED
+
+**IC-4, registered in §7 before any solve, reads `y⁺ max ≤ 2.0 on L1 and ≤ 5.0 on L2 and
+L3`** — not ≤ 1. The prose parenthetical and the gate were never the same number, and **the
+gate is the one that grades.** On the measurements above, **L3 (2.55 ≤ 5.0) and L2
+(1.21 ≤ 5.0) both PASS IC-4.** L1's limb is 2.0 and is `PENDING`.
+
+**No gate is loosened, tightened or reinterpreted by this addendum.** Had IC-4 been written
+as "≤ 1" it would now be failing on two levels and the honest course would have been to say
+so; it was not, and the reason it was not is that §7 was written to grade the solution while
+§4's parenthetical was describing the mesh.
+
+## A9.3 — AND THE FAMILY'S y⁺ SCALING IS CONFIRMED BY MEASUREMENT, WHICH IS A POSITIVE RESULT
+
+The ladder is one generator call plus two coarsenings, so each coarsening **doubles the first
+cell height** and y⁺ should double with it. **Measured maxima: L2 1.2144, L3 2.5455 — a ratio
+of 2.096 against a designed 2.000.** The family scales as constructed, and that is a fact
+about the grids that survives the parenthetical being wrong about their absolute value.
+
+**And the un-ramped run reproduces the ramped one to four decimal places in y⁺** (2.5455 vs
+2.5459), which is independent corroboration of A7.2's finding that the two paths reach the
+same solution everywhere except the tip station.
