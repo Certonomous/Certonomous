@@ -1706,3 +1706,112 @@ reached. **The +50 s is not clearance of the 352 s question.**
 `LAUNCH_BUDGET_S` ceases to be `floor((TMO-1)/2)` (cap-derived) and becomes `ceil(2.0 × (255.93 + 3.0e-5 × cells))` — **MEASURED**, `WITNESS_CALIBRATION_20260912/`: mesh-independent `dafoam`+TensorFlow import **255.930 s** at box load1 69→97, `decomposePar` **1.337 s at 44,544 cells** (L2 is *faster* than L1's cold 7.074 s at 5,568, refuting the linear-in-cells scaling ADDENDUM 1 and `L2_CONVERGENCE_PREDICTION_REGISTERED_BEFORE_RUN.txt` §5 both assumed) — and **exceeding it now writes a `D8G_LAUNCH_ESCALATION` line and keeps waiting rather than returning 89**, because Sanaa ruled 2026-09-12T01:10Z *"i dont want any cap on any run"* and the old form was arithmetically certain to kill a live L2-P (392 s budget against a 255.9 s mesh-independent import alone); **`rc=88` (container exited, evaluated before this clock) and `rc=90` (reader unreadable) are untouched and remain real refusals, `rc=89` is retired, the in-container deadline `TMO` and every gate, band, threshold, cap and label stand exactly as frozen, and no gate reads this number (ADDENDUM 1: *"no gate reads it"*; `d8g_grade.py` is untouched at `12688063e20cbb6fa79cf08d0996d4e1`).**
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## ADDENDUM 7 — 2026-09-12 — **THE R3 REPAIR PACKAGE IS APPLIED TO L1-P ON A FRESH ROOT. THE TRANSFER TO THE CRM WING-BODY IS UNTESTED AND IS REGISTERED AS UNTESTED.**
+
+**Lines whose number changed above this section: 0.**
+
+### 7.1 What was measured, and what the graded root actually says
+
+The graded root `CURRICULUM-D8G-a6-grid-triple/` carries **`NOT A RESULT`**
+(`D8G_grade_20260911T234701Z.json`). **Its refusal cites the LEDGER, not the physics** — a
+`PRESENT-BUT-GARBAGE` row from *attempt 1* (`launched: false`, `launch_rc=88`,
+`never_started_container_exited after 248s`, `solver_call_seen=no`). **Attempt 2 did run**:
+`L1-P_20260911T234236Z_2435242.log` reaches `Time = 1000` and prints
+`Primal min residual 0.000407398155493068 did not satisfy the prescribed tolerance 1e-08`
+→ `Primal solution failed!` → rc=1, `wall_s=241`, `ExecutionTime = 8.41 s`.
+**Two distinct failures sit under one verdict** and the earlier framing conflated them.
+
+**The binding field is `nuTilda`, plateaued at 4.0740e-04** against the registered accept product
+`primalMinResTol × primalMinResTolDiff = 1e-08 × 1e4 = 1.0e-04` → **4.074x above floor**.
+`CD 0.044201` / `CL 0.358286` were steady to six digits over the last 30 iterations: **the
+integrals converged and the turbulence field did not.**
+
+### 7.2 The repair, and an honest correction to how it was briefed
+
+The fix is imported from **A2 `curriculum_D6RF10` rung R3**, which drove its binding field from
+1.681e-05 (GATE FAIL, plateaued) to **6.323e-06**, below floor and plateaued.
+
+It was briefed to this lane as a **package of six** — `DARhoSimpleCFoam`, `nNonOrthogonalCorrectors 12`,
+`relax_p 0.70`, `relax_eqn 0.70`, `endTime 2000`, LIMITED `fvSchemes`. **That enumeration is
+incomplete, and the omission is load-bearing here.** R3's six are *deltas applied on top of the
+`d6rf7_fvSolution` base*, and that base carries a **tightened linear-solver stopping rule** its own
+comments name **"THE nuTilda REPAIR (D6RF4 section 1.5)"**: GAMG `relTol 0.001` / `tolerance 1e-12` /
+`minIter 5`, smoothSolver `relTol 0.001` / `tolerance 1e-09` / `nSweeps 3`.
+
+**D8G's archive `fvSolution` carries the LOOSE rule that block was written to replace** — GAMG
+`relTol 0.1` / `tolerance 0`, smoothSolver `relTol 0.1` / `tolerance 0` / `nSweeps 1`. The D8G log
+shows that rule setting the plateau directly, line by line:
+`nuTilda initRes: 4.07e-04 finalRes: 3.31e-05 **nIters: 1**` — one sweep, ~12x reduction, stop.
+**Transferring only the six would have left the mechanism that produces the D8G plateau in place.**
+The tightened stopping rule is therefore applied as part of the repair and is named here rather
+than smuggled in under "the SIMPLEC fix".
+
+**Applied to `L1-P-R1` (each edit read back from disk after writing):**
+
+| # | Knob | Was | Now |
+|---|---|---|---|
+| 1 | `solverName` | `DARhoSimpleCFoam` | unchanged — **already SIMPLEC**; no credit is claimed for it |
+| 2 | `nNonOrthogonalCorrectors` (SIMPLE scope only) | 0 | **12** (`potentialFlow` 20 untouched) |
+| 3 | `relaxationFactors/fields "(p\|rho)"` | 1.0 | **0.70** |
+| 4 | `relaxationFactors/equations "(U\|T\|e\|h\|nuTilda\|k\|epsilon\|omega)"` | 0.80 | **0.70** |
+| 5 | `controlDict endTime` | 1000 | **2000** |
+| 6 | `fvSchemes` | archive | **`d6rf7_fvSchemes_LIMITED`, md5 `fbca617a0808c56113a34d156c5890b9`** — R3's registered pin |
+| 7 | GAMG p | `relTol 0.1`, `tolerance 0` | **`relTol 0.001`, `tolerance 1e-12`, `minIter 5`** |
+| 8 | smoothSolver | `relTol 0.1`, `tolerance 0`, `nSweeps 1` | **`relTol 0.001`, `tolerance 1e-09`, `nSweeps 3`** |
+
+**Div-scheme coverage was checked before staging, not after a FOAM FATAL:** every one of the 13
+`div` schemes D8G's archive declares is present in the LIMITED file (`comm -23` → empty). The
+superseded LIMITED md5 `8374443e…` present on disk **lacks `div(phid,p)`** and would have aborted
+`DARhoSimpleCFoam`; the pinned `fbca617a…` is the one R3 actually passed on.
+
+**`d8g_of.py` refuses `endTime != 1000` at `:744`** (`REGISTERED_CONTROLDICT`, `:125`), so knob 5
+could not reach the solver unaided. The frozen `d8g_of.py` is **not edited** and stands at
+`f17b4a26fc5dcbbb44e9c820ba16df6c`; a repair copy **`d8g_of_R1.py`** (`654bd80bcc7e9fd6c4f370f72346176f`)
+carries **exactly one delta**, `diff`-verified to a single line: `endTime 1000.0 → 2000.0`.
+The plateau-window forecast is computed from the controlDict, not hardcoded, so it tracks the change.
+
+### 7.3 The prediction, registered before the solver starts
+
+**Predicted: the run clears.** `nuTilda` falls below 1.0e-04 and plateaus, the primal returns rc=0,
+and `CD`/`CL` shift from the 0.044201 / 0.358286 baseline (expected — `limited 0.333` trades spatial
+accuracy for non-orthogonal robustness; **reported, not gated**).
+
+**REGISTERED AS UNTESTED.** **A6 CRM wing-body is a different geometry from the A2 MACH wing and
+this transfer has never been run.** If `nuTilda` does **not** clear, the correct reading is **not**
+"the run failed": it is that **the R3 package is case-specific**, which is **a larger finding than a
+pass** and is what the ladder most needs to know. Either outcome is informative and neither is
+re-run at a different setting to get a nicer number.
+
+### 7.4 No cap, of any kind
+
+Sanaa ruled on 2026-09-12 — her fourth such ruling — *"NOOO CAP. NO MORE CAPS. NO RUN GETS STOPPED
+BC OF A TIME OR BUDGET CAP."* **Stripped for this launch, and none is replaced by an equivalent:**
+the in-container `timeout` / `-k 60` (`d8g_run_arm.sh:326/:485`), the `cap_core_min` → `TMO`
+derivation, the `rc=124`/`rc=137` path, `LAUNCH_KILL=yes` (`:629`) with `la_kill()` (`:776`) and the
+`exit 88` refusal branch (`:917`), `LAUNCH_BUDGET_S` (`:874`), the `--memory` / `--memory-swap` /
+`--oom-score-adj=500` OOM posture, and the `--cpuset-cpus` pin. **Nothing in this launch path can
+signal, kill or renice the solver**; the watcher records and does nothing else.
+
+**The cost survives only as a reported ledger figure and stops nothing.**
+**Estimate: ~35 core-min** (4 ranks; prior arm measured 16.1 core-min gross at `endTime 1000` on the
+loose rule, of which ~16.5 core-min is fixed per-run overhead — container start, TensorFlow import
+~255.9 s, `decomposePar`; the solve itself was 8.41 s `ExecutionTime`). **Basis: derived from the
+prior arm's measured overhead and a 2x-endTime × higher-work-per-iteration solve; NOT measured.**
+Actual-versus-estimate lands in `docs/COST_CALIBRATION.md` at completion, per rule 12.
+
+### 7.5 Fresh root; the graded root is evidence and is not touched
+
+The run root is **`/home/ubuntu/certonomous-runs/CURRICULUM-D8G-R1-a6-grid-triple/`**, arm
+**`L1-P-R1`**, staged from `base_L1` (cells 5568 = registered 5568, `Mesh OK.`, mesh byte-identical
+to the graded arm's). **`CURRICULUM-D8G-a6-grid-triple/` is not written to, moved or overwritten** —
+it holds a graded `NOT A RESULT` and a sibling lane has already lost graded fields to its own
+successor once. G-COLD (no time dir, no `processor*`, no `d8g_P.json`) and the rule-4 age guard
+(`0/` touched last, every artifact must be strictly newer than `0/U`) are asserted at launch.
+
+**ALTERS NO** gate, band, threshold or label. **Knob 5 changes a registered `endTime`** and that is
+stated plainly rather than described as something smaller. **`d8g_grade.py` is untouched.**
+
+**SUBMISSIONS PARKED.**
