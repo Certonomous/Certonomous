@@ -1,0 +1,5 @@
+{
+ "item": "CURRICULUM-D8G",
+ "verdict": "NOT A RESULT",
+ "refusal": "{\"REFUSE\": \"ledger\", \"detail\": {\"note\": \"PRESENT-BUT-GARBAGE row: refused, never skipped\", \"row_unparseable\": \"ARM=L1-P-R1 ROW=D8G-R1 rc=0 inspect(exit,oom)=[0|false] wall_s=3293 ranks=4 core_min=219.533 stamp=20260912T044934Z log=L1-P-R1_20260912T044934Z.log\"}}"
+}
