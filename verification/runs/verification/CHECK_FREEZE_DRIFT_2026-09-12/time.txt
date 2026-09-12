@@ -1,0 +1,2 @@
+sweep_wall_s=7.789  sweep_core_min=0.129815
+selftest_wall_s=0.874  selftest_core_min=0.014572

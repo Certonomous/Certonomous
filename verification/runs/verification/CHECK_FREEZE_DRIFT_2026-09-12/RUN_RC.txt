@@ -1,0 +1,2 @@
+sweep_rc=3
+selftest_rc=0

@@ -1,0 +1,45 @@
+FREEZE-DRIFT SWEEP -- is the frozen file the file on disk? (standing rule 2)
+  repo=/home/ubuntu/Certonomous
+  INSTRUMENTS: `git rev-parse <HEAD>:<path>` vs `git hash-object <path>`, plus one `git ls-tree -r` for the population. NO status, NO diff, NO ls-files, NO show -- all consult the SHARED INDEX, which misreports on this box and does so stably. The allowlist RAISES.
+  POPULATION PATTERNS: *PREREGISTRATION*.md, *_AMENDMENT.md (matched on basename)
+CONTROLS (rule 3 -- all FIVE states planted in a THROWAWAY repo and read back through the REAL classifier; no real pre-registration is touched):
+  control P1        PASS: expected IDENTICAL              got IDENTICAL
+  control P2        PASS: expected DRIFTED                got DRIFTED
+  control P3        PASS: expected ABSENT-FROM-DISK       got ABSENT-FROM-DISK
+  control P4        PASS: expected UNTRACKED-ON-DISK      got UNTRACKED-ON-DISK
+  control P5a       PASS: expected DIVERGENT (both paths IDENTICAL per-path) got DIVERGENT (both IDENTICAL per-path: True)
+  control P5b       PASS: expected MIRRORED               got MIRRORED
+  control P5c       PASS: expected unique basename: no group got no group
+  control P5d       PASS: expected generic basename: not grouped, not gated got not grouped
+  control POP       PASS: expected README.md excluded     got excluded
+  control ALLOWLIST PASS: expected git status refused     got refused
+  control limbs: 10/10 PASS  (8 state limbs P1-P5c, plus POP and ALLOWLIST as structural assertions)
+HEAD PINNED ONCE for the whole sweep: b4da42fe1af43d1037aa1c699d70b1caf99b8f71
+POPULATION: 543 paths in the union (tracked at HEAD: 530, on disk and matching: 543)
+  IDENTICAL               529   the freeze holds: disk bytes == committed blob
+  DRIFTED                   1   THE FINDING: a reader opening this path does NOT read what was frozen
+  ABSENT-FROM-DISK          0   tracked at HEAD, no file on disk
+  UNTRACKED-ON-DISK        13   frozen document existing nowhere but this working tree
+ROLL CALL -- DRIFTED (1):
+    DRIFTED        HEAD=5cced3e6eaf2  disk=17a2090d6392  verification/campaign/CRM_WINGALONE_FLOW_PREREGISTRATION.md
+ROLL CALL -- UNTRACKED-ON-DISK (13):
+    UNTRACKED-ON-DISK HEAD=(none)  disk=b10e1c589fa9  cases/RANS_LES_closure_models/Bae2022_SciMARL_GPU/PREREGISTRATION_DRAFT.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=60a46d7be470  cases/RANS_LES_closure_models/Sirignano2020_DPM_GPU/PREREGISTRATION_DRAFT.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=a5707a4c540c  cases/ansys_verification/VMFL008/D5D6_PREREGISTRATION.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=7d668df3cd3b  cases/ansys_verification/VMFL008/PREREGISTRATION.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=f2b029394a31  cases/ansys_verification/VMFL024/PREREGISTRATION.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=769b699024f5  cases/ansys_verification/VMFL072-R4-A/PREREGISTRATION_FOOTPRINTFIX_SUCCESSOR_DRAFT.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=c96791761bb7  cases/ansys_verification/VMFL078/PREREGISTRATION.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=38718e1b05f9  cases/dafoam/ladder-a/A2/curriculum_D14/PREREGISTRATION_DRAFT.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=d28609ab4764  docs/campaigns/T-family/T10a_PREREGISTRATION_DRAFT.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=ce163c2b4a36  verification/campaign/DRIVAER_R2_LAYERED_PREREGISTRATION.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=27281f1fe8ca  verification/campaign/M6_GRIDA_LE_CLUSTERED_M6I_PREREGISTRATION.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=358dbe64b984  verification/campaign/M6_OWN_FAMILY_AR_CONTROLLED_TRIPLE_PREREGISTRATION.md
+    UNTRACKED-ON-DISK HEAD=(none)  disk=673a1af43e08  verification/campaign/M6_OWN_FAMILY_NUMERICS_RULEOUT_PREREGISTRATION.md
+DUPLICATE-BASENAME: 1 basename(s) at two or more tracked paths -- 1 DIVERGENT (GATED: two freezes for one document that DISAGREE), 0 MIRRORED (reported, NOT gated: byte-identical copies are redundancy, not a contradiction)
+  NOT GROUPED (generic basename, identity is the DIRECTORY -- grouping these would fire on the normal case): PREREGISTRATION.md x222, PREREGISTRATION_DRAFT.md x6
+ROLL CALL -- DUPLICATE-BASENAME / DIVERGENT (1):
+    PRD_E1_PREREGISTRATION.md  -- 2 paths, 2 distinct blob(s)
+        blob=65dc864325e6  per-path=IDENTICAL        docs/campaigns/navier_class/PRD/PRD_E1_PREREGISTRATION.md
+        blob=5255e4f8743a  per-path=IDENTICAL        verification/campaign/PRD_E1_PREREGISTRATION.md
+RESULT: 2 finding(s) -- DRIFTED, ABSENT-FROM-DISK or DIVERGENT duplicate basename. This is a MEASUREMENT AND A ROLL CALL, not a repair order and not a defect verdict on any team: an uncommitted difference is somebody's unfinished work and is inspected, NEVER reverted (standing rule 10). Each file belongs to the team that froze it.

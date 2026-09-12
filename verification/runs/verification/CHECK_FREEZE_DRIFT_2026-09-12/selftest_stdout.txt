@@ -1,0 +1,17 @@
+FREEZE-DRIFT SWEEP -- is the frozen file the file on disk? (standing rule 2)
+  repo=/home/ubuntu/Certonomous
+  INSTRUMENTS: `git rev-parse <HEAD>:<path>` vs `git hash-object <path>`, plus one `git ls-tree -r` for the population. NO status, NO diff, NO ls-files, NO show -- all consult the SHARED INDEX, which misreports on this box and does so stably. The allowlist RAISES.
+  POPULATION PATTERNS: *PREREGISTRATION*.md, *_AMENDMENT.md (matched on basename)
+CONTROLS (rule 3 -- all FIVE states planted in a THROWAWAY repo and read back through the REAL classifier; no real pre-registration is touched):
+  control P1        PASS: expected IDENTICAL              got IDENTICAL
+  control P2        PASS: expected DRIFTED                got DRIFTED
+  control P3        PASS: expected ABSENT-FROM-DISK       got ABSENT-FROM-DISK
+  control P4        PASS: expected UNTRACKED-ON-DISK      got UNTRACKED-ON-DISK
+  control P5a       PASS: expected DIVERGENT (both paths IDENTICAL per-path) got DIVERGENT (both IDENTICAL per-path: True)
+  control P5b       PASS: expected MIRRORED               got MIRRORED
+  control P5c       PASS: expected unique basename: no group got no group
+  control P5d       PASS: expected generic basename: not grouped, not gated got not grouped
+  control POP       PASS: expected README.md excluded     got excluded
+  control ALLOWLIST PASS: expected git status refused     got refused
+  control limbs: 10/10 PASS  (8 state limbs P1-P5c, plus POP and ALLOWLIST as structural assertions)
+SELFTEST: PASS -- 10/10 limbs
