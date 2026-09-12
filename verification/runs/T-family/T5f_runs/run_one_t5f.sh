@@ -64,6 +64,7 @@ set -eu
 
 usage() {
     cat >&2 <<'U'
+PROPOSED, NOT APPLIED -- run_one_t5f_NOCAP_PROPOSED.sh
 usage: run_one_t5f.sh --level c|m|f --cap-core-min N [--no-detach]
        run_one_t5f.sh --drive-cap-kill     (driven proof that the cap KILLS)
        run_one_t5f.sh --show-caps          (print the registered caps + arithmetic)
@@ -245,9 +246,9 @@ write_status() {   # rc wall capped checkmesh_rc note
     tmp="$STATUS.tmp.$$"
     rss="absent"
     [ -f "$CASE_DIR/log.solve.time" ] && rss="$(awk -F': ' '/Maximum resident set size/{print $2}' "$CASE_DIR/log.solve.time")"
-    printf 'case=%s\nlevel=%s\nrc=%s\nwall_s=%s\nranks=%s\ncore_min=%s\ncap_core_min=%s\ntimeout_s=%s\ncapped=%s\ncheckMesh_rc=%s\nsolver=%s\nsolver_path=%s\nregistration=%s\nregistration_sha256=%s\npeak_rss_kb=%s\nload_at_start=%s\nload_at_end=%s\nprocs_running_at_start=%s\nnproc=%s\nnote=%s\n' \
+    printf 'case=%s\nlevel=%s\nrc=%s\nwall_s=%s\nranks=%s\ncore_min=%s\nsolver_rc=%s\nrc_source=obtained_by_WAITING_on_the_solver_in_this_shell\nwrapper_exit_status=NOT_RECORDED_and_never_named_rc\ncap_core_min_ESTIMATE_ONLY=%s\ntimeout_s_NOT_ENFORCED=%s\ncap_enforcement=%s\ncheckMesh_rc=%s\nsolver=%s\nsolver_path=%s\nregistration=%s\nregistration_sha256=%s\npeak_rss_kb=%s\nload_at_start=%s\nload_at_end=%s\nprocs_running_at_start=%s\nnproc=%s\nnote=%s\n' \
         "$CASE" "$LEVEL" "$1" "$2" "$RANKS" \
-        "$(awk -v w="$2" -v r="$RANKS" 'BEGIN{printf "%.3f", w*r/60.0}')" \
+        "$(awk -v w="$2" -v r="$RANKS" 'BEGIN{printf "%.3f", w*r/60.0}')" "$1" \
         "$CAP_CORE_MIN" "$TIMEOUT_S" "$3" "$4" "$SOLVER" "${SOLVER_PATH:-unresolved}" \
         "docs/campaigns/T-family/T5f_PREREGISTRATION.md" "$REG_SHA" "$rss" \
         "$LOAD_START" "$(cut -d' ' -f1-3 /proc/loadavg)" "$PR_START" "$(nproc)" "$5" > "$tmp"
@@ -347,36 +348,67 @@ LOAD_START="$(cut -d' ' -f1-3 /proc/loadavg)"
 PR_START="$(awk '/^procs_running/{print $2}' /proc/stat)"
 TIME_BIN=""
 [ -x /usr/bin/time ] && TIME_BIN=/usr/bin/time
-set +e
+# =========================================================================
+# PARTS 1-4.  THE BUDGET STOP IS GONE AND -- THE POINT -- THE rc CAPTURE IS
+# RESTORED BY THE SAME DELETION.
+#
+# AN INTERMEDIARY EITHER PROPAGATES THE CHILD'S STATUS OR SUBSTITUTES ITS OWN.
+#   `mpirun`        PROPAGATES: its exit status reflects the ranks.
+#   `/usr/bin/time` PROPAGATES: GNU time returns the child's status.
+#   `timeout`       SUBSTITUTES: 124 on expiry, and its OWN death when killed.
+# That substitution is how STATUS.T5F_CUBE_m came to assert `rc=137` about a
+# solver that never failed: at 04:21Z the guard was killed, the wrapper died
+# with it, and the rc it recorded was THE GUARD'S.  `analyse_t5e.py:534-536`
+# reads that field and fails the level on it as PHYSICS-CRITICAL, so a
+# physically perfect run becomes ungradeable.  REMOVING THE `timeout` IS
+# THEREFORE NOT ONLY A BUDGET CHANGE: with no substituting intermediary left,
+# `RC=$?` after the solver IS the solver's own status.  That is the strongest
+# argument for this diff and it is not a budget argument.
+#
+# THE FAILURE MODE IS MADE ABSENT RATHER THAN WRONG.  RULING R-RC (Sanaa,
+# 2026-08-27, analyse_t5b.py:79-80) FORGIVES an ABSENT STATUS -- NOT MEASURED,
+# rc=0 a labelled INFERENCE -- and does NOT forgive a present STATUS carrying a
+# WRONG rc.  So ONLY THIS WAITING SHELL EVER WRITES THE rc, and if it dies NO
+# STATUS IS WRITTEN AT ALL.  The heartbeat records liveness to a SEPARATE file
+# and is STRUCTURALLY INCAPABLE of writing an rc: it never learns one.
+# =========================================================================
 T0=$(date +%s)
+( while kill -0 $$ 2>/dev/null; do
+    printf '%s pid=%s elapsed_s=%s last_time=%s\n' \
+      "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$$" "$(( $(date +%s) - T0 ))" \
+      "$(grep -a '^Time = ' "$CASE_DIR/log.solve" 2>/dev/null | tail -1 | awk '{print $3}')" \
+      > "$CASE_DIR/PROGRESS.txt"
+    sleep 30
+  done ) & HB=$!
+
+set +e
 if [ -n "$TIME_BIN" ]; then
-    timeout --kill-after=120 --signal=TERM "$TIMEOUT_S" \
-        "$TIME_BIN" -v -o "$CASE_DIR/log.solve.time" \
+    "$TIME_BIN" -v -o "$CASE_DIR/log.solve.time" \
         "$SOLVER_PATH" -case "$CASE_DIR" > "$CASE_DIR/log.solve" 2>&1
     RC=$?
 else
-    timeout --kill-after=120 --signal=TERM "$TIMEOUT_S" "$SOLVER_PATH" -case "$CASE_DIR" > "$CASE_DIR/log.solve" 2>&1
+    "$SOLVER_PATH" -case "$CASE_DIR" > "$CASE_DIR/log.solve" 2>&1
     RC=$?
 fi
 T1=$(date +%s)
 set -e
+kill "$HB" 2>/dev/null || true
 WALL=$((T1 - T0))
 
-CAPPED=0
-[ "$WALL" -ge "$TIMEOUT_S" ] && CAPPED=1
-
+# PART 3: the cap is DATA.  `cap_enforcement=none` is EXPLICIT so no reader can
+# mistake the absence of a stop for the absence of a budget.
+CAPPED=none
 NOTE=clean
-if [ "$CAPPED" = "1" ]; then
-    NOTE=CAP_ENFORCED_run_STOPPED_at_registered_cap
-    printf '%s CAP ENFORCED: %s was STOPPED at the registered cap %s core-min (%s s wall at %s rank(s)). CLAUDE.md rule 12: an overrun stops the run; it does not get a new budget. This is a right-censored PENDING, not a failure.\n' \
-        "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$CASE" "$CAP_CORE_MIN" "$TIMEOUT_S" "$RANKS" > "$CASE_DIR/CAP_ENFORCED.txt"
-elif [ "$RC" = "124" ]; then
-    NOTE=CHILD_EXIT_124_NOT_an_expiry_wall_under_cap
-elif [ "$RC" -gt 128 ] 2>/dev/null; then
-    NOTE="KILLED_BY_SIGNAL_$((RC - 128))"
+# THE CAP_ENFORCED.txt WRITE IS DELETED, NOT DISABLED.  It asserted a run had
+# been STOPPED at the registered cap; with no enforcement there is nothing it
+# could truthfully say, and a completed f would have written it (~56,400 s
+# against a TIMEOUT_S of 47,952).  Dead-but-present code is a claim waiting to
+# be re-enabled by accident.
+if [ "$RC" -gt 128 ] 2>/dev/null; then
+    NOTE="SOLVER_KILLED_BY_SIGNAL_$((RC - 128))"
 elif [ "$RC" != "0" ]; then
     NOTE=SOLVER_NONZERO_EXIT
 fi
 write_status "$RC" "$WALL" "$CAPPED" "$CHECKMESH_RC" "$NOTE"
-echo "$CASE finished: rc=$RC wall=${WALL}s capped=$CAPPED checkMesh_rc=$CHECKMESH_RC note=$NOTE -> $STATUS"
+echo "$CASE finished: solver_rc=$RC wall=${WALL}s cap_enforcement=none checkMesh_rc=$CHECKMESH_RC note=$NOTE -> $STATUS"
 exit "$RC"
