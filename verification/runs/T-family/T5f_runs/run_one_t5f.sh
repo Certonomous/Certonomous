@@ -288,6 +288,21 @@ echo "SETUP ASSERTION PASS for $CASE (see SETUP_ASSERTION.txt)"
 
 # --- checkMesh AT LAUNCH: real rc, strict flags, its OWN log, same gate ----
 # NOT `log.checkMesh` -- that is the build's strict log and it is evidence.
+#
+# MEASURED 2026-09-12: `checkMesh -allTopology` on a mappedWall case WRITES
+# `postProcessing/<region>/checkMesh/*.vtp` AMI debug surfaces into the case.
+# `build_t5.py` deletes `postProcessing` after meshing for exactly this reason,
+# and a `--dry-run` of this launcher was re-creating it -- a directory under the
+# NAME the solver's own function objects write into, describing a mesh check
+# rather than a solve. That is the "artifact for a version that no longer
+# exists, under the name its replacement will use" shape. So:
+#   - a `postProcessing` that PREDATES this launch is a REFUSAL (stale output of
+#     some earlier run of this case; a grader cannot tell which run it meant);
+#   - one that checkMesh creates HERE is removed again, in both dry and real
+#     runs, so the solver starts on a case with no postProcessing at all.
+HAD_PP=no
+[ -e "$CASE_DIR/postProcessing" ] && HAD_PP=yes
+[ "$HAD_PP" = "no" ] || { echo "REFUSE: $CASE_DIR/postProcessing already exists before this launch. It is output from an earlier run of this case and a grader sweeping postProcessing/air/yPlus cannot tell which run it belongs to. Inspect it and move it aside by hand; it is not deleted here." >&2; exit 2; }
 set +e
 checkMesh -case "$CASE_DIR" -allRegions -allTopology -allGeometry > "$CASE_DIR/log.checkMesh.launch" 2>&1
 CHECKMESH_RC=$?
@@ -296,10 +311,15 @@ set +e
 python3 "$SELF_DIR/build_t5f.py" --drive-checkmesh "$CASE_DIR/log.checkMesh.launch" >> "$CASE_DIR/SETUP_ASSERTION.txt" 2>&1
 GATE_RC=$?
 set -e
+# checkMesh's own AMI debug output, created seconds ago by the line above and by
+# nothing else, goes again.  It is not evidence; log.checkMesh.launch is.
+[ "$HAD_PP" = "no" ] && rm -rf "$CASE_DIR/postProcessing"
+[ -e "$CASE_DIR/postProcessing" ] && { echo "REFUSE: could not clear the checkMesh postProcessing output at $CASE_DIR/postProcessing" >&2; exit 2; }
 [ "$GATE_RC" = "0" ] || { echo "REFUSE: a checkMesh limb other than the cell determinant FAILED at launch. Registration S6 makes that a HARD STOP and a FINDING for the supervisor; it is not worked around. See $CASE_DIR/SETUP_ASSERTION.txt" >&2; exit 2; }
 
 if [ "$DRY_RUN" = "1" ]; then
     echo "DRY RUN: every launch precondition PASSES for $CASE."
+    echo "DRY RUN: postProcessing/ left absent (checkMesh's AMI debug output cleared)."
     echo "DRY RUN: nothing is armed (no 0/ created), no solver started, no STATUS written."
     echo "DRY RUN: an authorised launch would run $SOLVER_PATH under timeout ${TIMEOUT_S} s."
     exit 0
