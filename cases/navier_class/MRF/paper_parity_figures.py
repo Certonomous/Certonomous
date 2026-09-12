@@ -229,10 +229,13 @@ def fig_globals():
             ax.text(0.02, 0.965,
                     "our fine Np 4.38 is 17.3 to 21.8 % below Reid's band 5.3-5.6\n"
                     "and 2.6 % below Beshay's measurement at our own ratios, 4.50\n"
-                    "both are true and they are different tanks",
-                    transform=ax.transAxes, va="top", ha="left", fontsize=6.4,
+                    "both are true and they are different tanks\n"
+                    "the MRF zone is not the cause, on two independent readings:\n"
+                    "their Fig. 12 has Np rising through our 1.20 D zone, and our own\n"
+                    "production sits on the blade tips with no ring on the interface",
+                    transform=ax.transAxes, va="top", ha="left", fontsize=5.9,
                     bbox=dict(fc="w", ec="#8b0000", alpha=.92))
-            ax.set_ylim(0, 8.2)
+            ax.set_ylim(0, 9.6)
         ax.legend(loc="lower right")
     cap(fig, "Our intensity uses tip speed; grey values are printed labels on their figure.")
     fig.savefig(f"{F}/fig06_global_parameters.png"); plt.close(fig)

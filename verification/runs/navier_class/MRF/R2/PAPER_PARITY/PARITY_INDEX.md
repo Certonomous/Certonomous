@@ -26,6 +26,14 @@ were believed.
 > and 2.6 % BELOW the thickness-corrected Beshay (2001) measurement at our own
 > tank ratios, 4.50. BOTH ARE TRUE AND THEY ARE DIFFERENT TANKS.**
 
+**And the zone is not the cause, on two independent readings**, both printed on
+that same panel: Reid's own Fig. 12 has `Np` **rising** through our 1.20 D zone,
+so the zone-size mechanism predicts the wrong sign; and our own turbulence
+production sits on the **blade tips with no ring on the MRF interface**
+(`figures/fig19_production_impeller_plane.png`), which is what their interface
+artefact would look like if we had it. The two readings come by different routes —
+one from their figure, one from our fields.
+
 This sentence is printed on the power-number figure itself
 (`figures/fig06_global_parameters.png`), not only here, because it is the single
 thing a reader is most likely to misread. Reid's tank differs from ours in three
