@@ -74,8 +74,31 @@ DUR=${BS_DUR:-$R2/TRIPLE_R2_RECORD.txt}          # THE durable record. One per r
 LOCK=${BS_LOCK:-$R2/.backstop_triple_r2.lock}    # atomic claim
 LOG=${BS_LOG:-$R2/backstop_triple_r2.log}
 
+# The two modules grade_triple_r2.py IMPORTS and that do the actual rule-4 and
+# measurement work. THE FREEZE DOES NOT COVER THEM: on_triple.sh hashes ONLY
+# grade_triple_r2.py, and grade_triple_r2.py verifies no blob of its own imports.
+# So an edit to either would change WHAT IS GRADED while every existing hash check
+# still printed IDENTICAL. Pinned here, to the blobs verified == HEAD == the
+# sha256 prefixes the case's own COST_CALIBRATION_ROW_PENDING.md records as having
+# graded the 4000 family (2a443bfe731ea43e / 3c7bcfabca1fda81), measured 2026-09-12
+# BEFORE fine landed. This can only make the backstop REFUSE where it would
+# otherwise have graded: fail-closed, never fail-open.
+IMPORT_PINS=${BS_IMPORT_PINS:-"cases/navier_class/MRF/grade_mrf_np.py=c128ad32aaf942d076c18353c1c9c4fdf74d34ed cases/navier_class/MRF/measure_states_mrf.py=2c4f545f1b854b11e1128439bef8d950bf987885"}
+
 POLL=${BS_POLL:-60}
-MAX_WAIT_RC=${BS_MAX_WAIT_RC:-21600}  # 6 h ceiling on waiting for fine's rc
+# CEILING -- DERIVED, NOT A LITERAL, and the arithmetic is visible so the next
+# reader can see it was derived and not guessed. Sanaa 2026-09-12: no cap stops any
+# run, so a ceiling sized against a capped run is under-sized by construction.
+# Derived from the run this is actually waiting on, measured 2026-09-12T01:20Z:
+#   fine advanced 6,827 -> 6,833 in 60 wall s under box load ~60 = 10.00 s/iteration
+#   remaining 8000 - 6833 = 1,167 iterations
+#   1167 x 10.00 s x 2.0 margin = 23,340 s = 6.5 h
+# The x2.0 margin is for further rate degradation under peer load, which is the
+# only observed direction tonight (5.4 -> 10.0 s/iteration over the evening).
+# This is a REPORTING ceiling on the GRADER's patience, never on the solver: this
+# script holds no kill or signal primitive of any kind.
+MAX_WAIT_RC=${BS_MAX_WAIT_RC:-23340}
+EXIT_ON_CEILING=${BS_EXIT_ON_CEILING:-1}
 SETTLE=${BS_SETTLE:-180}              # let reconstructPar finish writing endTime fields
 GRACE=${BS_GRACE:-1500}               # 25 min for the incumbent to produce its artifact
 GRACE_POLL=${BS_GRACE_POLL:-30}
@@ -119,13 +142,21 @@ trap 'rm -f "$LOCK/pid" 2>/dev/null; rmdir "$LOCK" 2>/dev/null' EXIT
 log "ARMED. waiting on $F/rc (poll ${POLL}s, ceiling ${MAX_WAIT_RC}s). incumbent artifact watched at $INC"
 
 # --- wait for fine's completion artifact -------------------------------
-waited=0
+waited=0; reported=0
 while [ ! -f "$F/rc" ]; do
-  if [ "$waited" -ge "$MAX_WAIT_RC" ]; then
-    log "CEILING REACHED after ${waited}s with no rc sidecar. NOT grading. A run that"
-    log "  has not written its completion artifact is not done; this is a finding for triage,"
-    log "  not a timeout to absorb."
-    exit 3
+  if [ "$waited" -ge "$MAX_WAIT_RC" ] && [ "$waited" -ge "$reported" ]; then
+    if [ "$EXIT_ON_CEILING" = "1" ]; then
+      log "CEILING REACHED after ${waited}s with no rc sidecar. NOT grading. A run that"
+      log "  has not written its completion artifact is not done; this is a finding for triage,"
+      log "  not a timeout to absorb."
+      exit 3
+    fi
+    log "STILL WAITING after ${waited}s with no rc sidecar -- REPORTING, NOT GIVING UP."
+    log "  A run that has not written its completion artifact is not done; this is a finding"
+    log "  for triage, not a timeout to absorb -- and giving up here would produce NO RECORD"
+    log "  for a run that may yet complete, which is a cap-stop in spirit however little it"
+    log "  kills (Sanaa 2026-09-12: no cap stops any run). Last solver time: $(grep '^Time = ' "$F/log.simpleFoam" 2>/dev/null | tail -1)"
+    reported=$((waited + MAX_WAIT_RC))
   fi
   sleep "$POLL"; waited=$((waited + POLL))
 done
@@ -207,6 +238,24 @@ fi
     exit 2
   fi
   echo "###   IDENTICAL -- the frozen grader is the file that grades."
+  echo "### THE GRADER'S IMPORTS, pinned here because NOTHING ELSE PINS THEM:"
+  echo "###   on_triple.sh hashes only grade_triple_r2.py, and grade_triple_r2.py verifies"
+  echo "###   no blob of its own imports -- so an edit to either module below would change"
+  echo "###   WHAT IS GRADED while every existing hash check still printed IDENTICAL."
+  for pin in $IMPORT_PINS; do
+    ip="${pin%%=*}"; want="${pin#*=}"; got=$(git hash-object "$ip" 2>/dev/null)
+    echo "###   $ip"
+    echo "###     disk $got"
+    echo "###     pin  $want"
+    if [ "$got" != "$want" ]; then
+      echo "REFUSE: an IMPORTED grading module changed after the pin was taken. The top-level"
+      echo "grader hashes clean, so no other check in this chain would have noticed. A grading"
+      echo "path that changed after the run cannot be shown to be the path that would have"
+      echo "graded it. NOT A RESULT."
+      exit 2
+    fi
+  done
+  echo "###   ALL IMPORTS IDENTICAL."
   echo "### fine completion artifacts, COPIED from the run's own sidecars (not computed):"
   echo "###   rc=$(cat "$F/rc" 2>/dev/null) core_min=$(cat "$F/CORE_MINUTES.txt" 2>/dev/null) wall_s=$(cat "$F/WALL_SECONDS_SOLVE.txt" 2>/dev/null) ranks=$(cat "$F/RANKS.txt" 2>/dev/null)"
   echo

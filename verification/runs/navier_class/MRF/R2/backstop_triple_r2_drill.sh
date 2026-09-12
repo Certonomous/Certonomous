@@ -14,6 +14,7 @@ mkcase() {  # $1 = name -> echoes the sandbox dir
   cat > $d/grade.py <<'EOF'
 print("STUB GRADER OUTPUT -- the frozen grader's bytes would be here")
 EOF
+  echo "IMPORTED MODULE" > $d/imp.py
   echo "0" > $d/fine/rc; echo "1234.56" > $d/fine/CORE_MINUTES.txt
   echo "12345" > $d/fine/WALL_SECONDS_SOLVE.txt; echo "6" > $d/fine/RANKS.txt
   echo $d
@@ -29,6 +30,8 @@ run() {  # run the backstop against sandbox $1 with fast intervals
   BS_R2=$d BS_F=$d/fine BS_G=$d/grade.py \
   BS_FROZEN_BLOB=${BLOB:-$(git hash-object $d/grade.py)} \
   BS_INC=$d/INC.out BS_DUR=$d/DUR.txt BS_LOCK=$d/.lock BS_LOG=$d/bs.log \
+  BS_IMPORT_PINS="${PINS:-$d/imp.py=$(git hash-object $d/imp.py)}" \
+  BS_EXIT_ON_CEILING=${EOC:-1} \
   BS_POLL=1 BS_MAX_WAIT_RC=${MW:-5} BS_SETTLE=0 BS_GRACE=${GR:-2} BS_GRACE_POLL=1 \
   bash $BS; echo $?
 }
@@ -74,7 +77,7 @@ ck "B rc=0" "$rc" "0"
 ck "B the backstop DID grade" "$(grep -c 'STUB GRADER OUTPUT' $d/DUR.txt)" "1"
 ck "B record says the incumbent produced NO artifact" "$(grep -c 'produced NO artifact' $d/DUR.txt)" "1"
 ck "B record does NOT mis-describe absent as partial (counter-case to H)" "$(grep -c 'PARTIAL artifact' $d/DUR.txt)" "0"
-ck "B frozen-blob check printed IDENTICAL" "$(grep -c 'IDENTICAL' $d/DUR.txt)" "1"
+ck "B frozen-blob check printed IDENTICAL" "$(grep -c 'IDENTICAL -- the frozen grader is the file that grades' $d/DUR.txt)" "1"
 ck "B fine sidecars copied, not computed" "$(grep -c 'core_min=1234.56' $d/DUR.txt)" "1"
 
 # (C) grader blob DOES NOT match the frozen pin -> REFUSE, no verdict.
@@ -119,14 +122,48 @@ ck "K a pid-less lock is reclaimed" "$(grep -c 'STALE LOCK RECLAIMED' $d/bs.log)
 ck "K and it says no pid was recorded" "$(grep -c '<none recorded>' $d/bs.log)" "1"
 
 # (F) fine never writes rc -> ceiling, exit 3, NO record invented.
-d=$T/f; mkdir -p $d/fine; echo 'print("x")' > $d/grade.py
-rc=$(MW=3 run $d)
+d=$T/f; mkdir -p $d/fine; echo 'print("x")' > $d/grade.py; echo "IMPORTED MODULE" > $d/imp.py
+rc=$(MW=3 run $d)   # EXIT_ON_CEILING defaults to 1
 ck "F rc=3 (ceiling, not a verdict)" "$rc" "3"
 ck "F no record invented from an unfinished run" "$([ -e $d/DUR.txt ] && echo yes || echo no)" "no"
 ck "F log calls it a finding, not a timeout to absorb" "$(grep -c 'not a timeout to absorb' $d/bs.log)" "1"
 
+
+# (L) AN IMPORTED GRADING MODULE CHANGED after the pin -> REFUSE. Nothing else in
+# the chain would notice: on_triple.sh hashes only the top-level grader, and the
+# top-level grader verifies no blob of its own imports.
+d=$(mkcase l)
+rc=$(PINS="$d/imp.py=deadbeefdeadbeefdeadbeefdeadbeefdeadbeef" run $d)
+ck "L rc=2 (REFUSE on a changed import)" "$rc" "2"
+ck "L record says NOT A RESULT" "$(grep -c 'NOT A RESULT' $d/DUR.txt)" "1"
+ck "L names the import that moved" "$(grep -c 'IMPORTED grading module changed' $d/DUR.txt)" "1"
+ck "L the grader was NOT run on a changed path" "$(grep -c 'STUB GRADER OUTPUT' $d/DUR.txt)" "0"
+
+# (M) counter-case to L: MATCHING import pins -> the grader IS run and the record
+# says every import is identical. Without this, L alone could pass on a script
+# that refuses unconditionally.
+d=$(mkcase m)
+rc=$(run $d)
+ck "M rc=0 with matching import pins" "$rc" "0"
+ck "M the grader WAS run (counter-case to L)" "$(grep -c 'STUB GRADER OUTPUT' $d/DUR.txt)" "1"
+ck "M record confirms ALL IMPORTS IDENTICAL" "$(grep -c 'ALL IMPORTS IDENTICAL' $d/DUR.txt)" "1"
+
+# (N) THE CEILING REPORTS AND KEEPS WAITING (the default). rc is absent when the
+# ceiling passes; it appears later; the backstop must still be there to grade it.
+# The old behaviour would have exited 3 and produced NO RECORD for a run that
+# completed -- a cap-stop in spirit. Counter-case is F, which sets EOC=1.
+d=$T/n; mkdir -p $d/fine; cp $T/m/grade.py $d/grade.py 2>/dev/null || echo 'print("STUB GRADER OUTPUT -- the frozen grader'"'"'s bytes would be here")' > $d/grade.py
+echo "IMPORTED MODULE" > $d/imp.py
+echo "1234.56" > $d/fine/CORE_MINUTES.txt; echo "12345" > $d/fine/WALL_SECONDS_SOLVE.txt; echo "6" > $d/fine/RANKS.txt
+( sleep 6; echo 0 > $d/fine/rc ) &
+rc=$(MW=2 EOC=0 run $d); wait
+ck "N rc=0 -- it waited through the ceiling and graded" "$rc" "0"
+ck "N log REPORTS rather than giving up" "$([ "$(grep -c 'REPORTING, NOT GIVING UP' $d/bs.log)" -ge 1 ] && echo yes || echo no)" "yes"
+ck "N log did NOT take the exit-3 path" "$(grep -c 'CEILING REACHED' $d/bs.log)" "0"
+ck "N a record exists for the run that completed late" "$(grep -c 'STUB GRADER OUTPUT' $d/DUR.txt)" "1"
+
 # (G) the lock is RELEASED on every exit path (else a rerun would stand down forever)
-for c in a b d h i j k; do
+for c in a b d h i j k l m n; do
   ck "G lock released in case $c" "$([ -e $T/$c/.lock ] && echo held || echo free)" "free"
 done
 
