@@ -502,3 +502,149 @@ upgrade path and nothing more.
 
 *Appended by a cfd `lab-lane`, 2026-09-12, answering the cfd-supervisor's written
 question. Submissions parked. No agent's message is Sanaa's consent.*
+
+---
+
+# DATED SECTION, 2026-09-12 (later still) — **THE PAPER'S ONLY EXPERIMENTAL ANCHOR, MEASURED BOTH WAYS: OUR TKE PROFILE AND THEIR OWN, AGAINST THE SAME ELEVEN WU & PATTERSON POINTS**
+
+Appended, not inserted: **lines whose number changed above this section: 0.**
+Alters no gate, threshold, band, cap or label. **Registers no band and produces no
+verdict.** Filed by a cfd `lab-lane` at the cfd-supervisor's dispatch; no solver ran.
+
+## 12.0 🔴 THESE NUMBERS ARE **PENDING** THE SUPERVISOR'S SCRIPT READ
+
+The instrument below is a **new measurement script**. Under the cfd-supervisor's
+standing condition, a script that produces a measured number is **not believed until the
+supervisor has read its diff personally** — a check that is not delegable. The unified
+diff has been sent. **Until it is read, every number in §12 is `PENDING`**, in the
+display sense of rule 1, and may not be quoted as a measurement.
+
+## 12.1 WHY THIS COMPARISON AND NOT ANOTHER
+
+**The paper reports no experimental power number at all** (§2.3). Its one external
+experimental anchor is **Wu & Patterson (1989) LDA velocity and TKE**. So the question
+"how good is our solve" cannot honestly be answered by the `Np` gap alone, which is a
+gap against **their CFD**. The answerable question is: *against the same experiment, how
+far is our TKE profile, and how far is theirs?* Both curves are measured against the
+**identical eleven digitised LDA points** by the identical reader.
+
+## 12.2 RESULT
+
+Station: `r/D = 0.538`, the station matched to the paper's r = 5 cm (§6). Quantity
+`k/Utip²`. Deviations expressed in units of **each LDA point's own stated half-width**,
+which is Wu & Patterson's **15 %** TKE uncertainty as the paper states it.
+
+| | **ours, fine level** | **Reid 2025, their MRF Zone 1** |
+|---|---:|---:|
+| LDA points evaluated | 11 of 11 | 11 of 11 |
+| **points inside the experiment's own error bar** | **7** | **1** |
+| RMS deviation, in half-widths | **1.12** | **6.40** |
+| RMS deviation, absolute `k/Utip²` | **0.00713** | **0.00918** |
+| mean signed relative deviation | **−5.26 %** | **+66.42 %** |
+
+Per point, `dev/half-width` (positive = above the experiment):
+
+| 2z/W | LDA k/Utip² | **ours** | in bar? | **their Zone 1** | in bar? |
+|---:|---:|---:|:--:|---:|:--:|
+| −2.053 | 0.00316 | +1.87 | no | **+14.07** | no |
+| −1.549 | 0.00417 | +0.93 | **YES** | **+13.11** | no |
+| −1.036 | 0.01903 | −0.84 | **YES** | +1.11 | no |
+| −0.491 | 0.04909 | −0.98 | **YES** | +2.23 | no |
+| −0.209 | 0.05418 | −1.33 | no | +1.22 | no |
+| +0.001 | 0.03547 | +0.12 | **YES** | +2.21 | no |
+| +0.201 | 0.03886 | −0.46 | **YES** | +2.75 | no |
+| +0.526 | 0.07185 | −1.79 | no | +0.06 | **YES** |
+| +1.100 | 0.01802 | +0.29 | **YES** | +1.25 | no |
+| +1.604 | 0.00652 | −1.60 | no | **+4.10** | no |
+| +2.117 | 0.00382 | −0.04 | **YES** | **+6.50** | no |
+
+**THE CLEAN SIGNAL IS THE SIGN, NOT THE SIZE.** The paper's own Zone 1 curve is **above
+the experiment at every one of the eleven points** — a systematic positive bias, present
+in the peak region (+1.1 to +2.8 half-widths) as well as in the tails. Ours **straddles**
+the data, both signs, within ±1.9 half-widths everywhere. A systematic one-sided bias at
+11 of 11 points is not a tail artifact.
+
+## 12.3 WHAT THIS DOES **NOT** MEAN — and each of these is load-bearing
+
+1. **IT DOES NOT MAKE OUR SOLVE A RESULT.** The R2 `ET8000` row is **`NOT A RESULT`** and
+   stays so: the fine level is **not iteratively converged** and the triple
+   4.193 → 4.281 → 4.382 is **`DIVERGENT`** at observed order −0.297. Rule 5 runs one way.
+   **§12 is a deviation computed on an ungraded number and cannot upgrade it.**
+2. **IT DOES NOT MAKE OUR SOLVE "BETTER THAN THE PAPER'S".** The tanks differ: Wu &
+   Patterson / Reid are T = 0.27 m, D = 0.093 m, Re 28,830; ours is T = 0.30 m,
+   D = 0.100 m, Re 50,000, with **3× wider baffles and 4× thicker blades relative to D**
+   (§3). Their Zone-1 curve is at r = 5 cm in **their** tank against LDA taken in **their**
+   tank — an internally matched comparison. Ours is at the matched `r/D` in **ours**. A
+   smaller deviation across different tanks is **one number, on one profile**, and is not
+   evidence of a better method.
+3. **TWO OF THE THREE STATISTICS ARE TAIL-SENSITIVE AND THAT IS SAID HERE, NOT LEFT TO BE
+   FOUND.** The half-width is 15 % of each point's own value, so both `dev/half-width` and
+   the mean signed relative % are amplified where `k` is small. The **least tail-sensitive**
+   statistic is the absolute RMS, and on that one ours is **22 % lower** (0.00713 vs
+   0.00918) — a far more modest gap than 1.12 vs 6.40 suggests. **The honest headline is
+   the absolute figure plus the one-sided sign, not the half-width ratio.**
+4. **IT REGISTERS NO BAND.** §3.1 records this comparison as measured-tier with **no gate**.
+   Nothing here is turned into one after seeing the answer (rule 2).
+
+## 12.4 INSTRUMENT AND ITS PLANTED CONTROLS (rule 3)
+
+`cases/navier_class/MRF/tke_vs_wu_patterson.py`, output
+`verification/runs/navier_class/MRF/R2/PAPER_PARITY/TKE_VS_WU_PATTERSON.json`.
+
+| control | what is planted | what must move | result |
+|---|---|---|---|
+| our-profile reader | `PLANT = 1.234e-03` added to **every** `k/Utip²` value in a **copy on disk** of `PAPER_PARITY_RESULTS.json`, re-read through the same reader the numbers come from | every returned `k` by exactly `PLANT` | **PASSED**, worst error < 1e-12 |
+| reference reader | `PLANT` added to **every** Zone-1 ordinate in a **copy on disk** of the digitised file | **the deviation statistic the conclusion is built on** — not merely the raw array — by the predicted amount | **PASSED** |
+| **arming proof** | one LDA point's `half_width_k_over_Utip2` set to `null` in the real file | the script must **REFUSE**, never treat a missing error bar as a zero-width one | **REFUSED, exit 2**; the file was then restored and verified **byte-identical to HEAD** |
+
+The script also **refuses rather than extrapolating**: an LDA point outside a curve's span
+is reported as `OUTSIDE THE CURVE'S SPAN — not evaluated, not zero`, and an empty
+comparison refuses rather than returning a zero deviation. All 11 points fell inside both
+spans, so no point was skipped.
+
+## 12.5 INDEPENDENT RECOMPUTATION OF `Np`, DONE BEFORE ANY OF THE ABOVE WAS BELIEVED
+
+Before using any number from `PAPER_PARITY_RESULTS.json`, this lane recomputed `Np` from
+the run's **own** `postProcessing/impellerForces/0/moment.dat`, by a reimplementation
+written without reference to the peer script: `Np = 2π|M_z| / (ρ N² D⁵)`, with
+`ρ = 998 kg/m³` read from the case's own `forces` dictionary (`rhoInf 998`), `N = 5.0`
+rev/s from `constant/MRFProperties` (`omega 31.4159`), `D = 0.1 m`.
+
+| level | last `|M_z|` (N·m) | **Np, this lane** | **Np, peer script** | agreement |
+|---|---:|---:|---:|---|
+| coarse | 0.166519986 | 4.193491 | 4.193491 | **7 significant figures** |
+| medium | 0.170000157 | 4.281132 | 4.281132 | **7 significant figures** |
+| fine | 0.173994385 | 4.381719 | 4.381719 | **7 significant figures** |
+
+**The peer's `Np` is confirmed by an independent route.** One observation recorded
+against it, not as a defect: the values are taken from the **last** sample of
+`moment.dat`, not from a trailing window. A trailing-500 mean gives 4.211 / 4.228 / 4.418
+— up to **1.25 %** away on the medium level. The plateau states were graded `PLATEAUED`
+on coarse and medium, so the last value is defensible; **the 1.25 % is the scale of the
+choice and is stated so a reader knows it exists.**
+
+## 12.6 THE GRADE OF 4.38 — ARITHMETIC RE-DERIVED, AND ONE INTERNAL INCONSISTENCY CORRECTED
+
+| against | value | deviation |
+|---|---:|---:|
+| registered band low, 5.3 | 4.381719 | **−17.33 %** |
+| registered band high, 5.6 | 4.381719 | **−21.76 %** |
+| their fine level, 5.49 | 4.381719 | **−20.19 %** |
+| Rushton correlation plateau ≈ 5.0 (**SECONDARY** reference) | 4.381719 | **−12.37 %** |
+
+**§4.1's headline reads "17.3 % to 22.0 % LOW" while its own parenthetical reads
+"−21.8 %".** The correct upper figure is **−21.76 %, i.e. 21.8 %, not 22.0 %.** Recorded
+as a correction of a rounding inconsistency inside §4.1; **§4.1 is not rewritten** (rule 6)
+and the substance — `4.38` is **clearly outside** the registered band, and a reader of the
+superseded `[4.0, 6.0]` line would wrongly believe we had a passing number — is unchanged.
+
+## 12.7 COMPUTE (rule 12)
+
+**No solver ran.** Post-processing of fields already on disk plus one Python script: 1
+rank, **under 2 core-minutes**, ≈ **$0.002 DERIVED, NOT MEASURED** at $0.0513/core-h,
+owner-stated — the box cannot read its own billing. No pre-registered estimate exists for
+a desk task, so **no estimate-versus-actual calibration row is owed for §12**.
+
+*Appended by a cfd `lab-lane`, 2026-09-12. Registers no band, alters no gate, threshold,
+cap or label. Numbers `PENDING` the supervisor's non-delegable read of the instrument
+diff. No agent's message is Sanaa's consent. Submissions parked.*

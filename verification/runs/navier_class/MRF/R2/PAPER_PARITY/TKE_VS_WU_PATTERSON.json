@@ -1,0 +1,244 @@
+{
+ "what": "k/Utip^2 at the station matched to the paper's r = 5 cm (r/D = 0.538), our FINE level and the paper's MRF Zone 1 curve, each measured against the SAME 11 digitised Wu & Patterson (1989) LDA points",
+ "NOT_A_GATE": "No band is registered for this comparison (MRF_PAPER_REGISTRATION_REID2025.md sec.3.1). These are deviations, not a verdict. No PASS, no GATE FAIL is produced or implied.",
+ "station": "0.0538",
+ "plant": 0.001234,
+ "planted_controls": {
+  "ours": {
+   "passed": true,
+   "planted": 0.001234,
+   "n_values": 101,
+   "worst_abs_error": 2.3852447794681098e-18,
+   "reader": "read_ours(k_over_Utip2)",
+   "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/PAPER_PARITY/PAPER_PARITY_RESULTS.json"
+  },
+  "reference": {
+   "passed": true,
+   "planted": 0.001234,
+   "statistic": "mean_signed_rel_pct of the Zone-1 curve vs the LDA points",
+   "expected_move_pct": 13.304301928405335,
+   "observed_move_pct": 13.304301928405351,
+   "reader": "read_reference -> deviations",
+   "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/PAPER_PARITY/REID2025_FIG16_DIGITISED.json"
+  }
+ },
+ "ours_vs_LDA": {
+  "n_points": 11,
+  "n_evaluated": 11,
+  "n_inside_error_bar": 7,
+  "rms_abs": 0.007134909053816811,
+  "rms_in_half_widths": 1.1231695183792647,
+  "mean_signed_rel_pct": -5.256627723040904
+ },
+ "paper_Zone1_vs_LDA": {
+  "n_points": 11,
+  "n_evaluated": 11,
+  "n_inside_error_bar": 1,
+  "rms_abs": 0.00918145803100411,
+  "rms_in_half_widths": 6.400271250250829,
+  "mean_signed_rel_pct": 66.42379644959885
+ },
+ "per_point_ours": [
+  {
+   "two_z_over_W": -2.0528,
+   "lda": 0.003164,
+   "model": 0.00404108919570362,
+   "abs_dev": 0.0008770891957036201,
+   "rel_dev_pct": 27.720897462187743,
+   "dev_in_half_widths": 1.8661472249013196,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": -1.5487,
+   "lda": 0.004167,
+   "model": 0.004755322284384095,
+   "abs_dev": 0.0005883222843840949,
+   "rel_dev_pct": 14.118605336791335,
+   "dev_in_half_widths": 0.9308896904811629,
+   "inside_error_bar": true
+  },
+  {
+   "two_z_over_W": -1.0362,
+   "lda": 0.019025,
+   "model": 0.016634430460330068,
+   "abs_dev": -0.0023905695396699324,
+   "rel_dev_pct": -12.565411509434597,
+   "dev_in_half_widths": -0.8364484043631675,
+   "inside_error_bar": true
+  },
+  {
+   "two_z_over_W": -0.4908,
+   "lda": 0.049091,
+   "model": 0.041851308286791705,
+   "abs_dev": -0.0072396917132082975,
+   "rel_dev_pct": -14.747492846363482,
+   "dev_in_half_widths": -0.9831194613264934,
+   "inside_error_bar": true
+  },
+  {
+   "two_z_over_W": -0.2088,
+   "lda": 0.054175,
+   "model": 0.04337565467386735,
+   "abs_dev": -0.01079934532613265,
+   "rel_dev_pct": -19.93418611191998,
+   "dev_in_half_widths": -1.328823099068863,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": 0.0012,
+   "lda": 0.035475,
+   "model": 0.0361028626023421,
+   "abs_dev": 0.0006278626023420997,
+   "rel_dev_pct": 1.7698734385964754,
+   "dev_in_half_widths": 0.11795277143379668,
+   "inside_error_bar": true
+  },
+  {
+   "two_z_over_W": 0.2006,
+   "lda": 0.038857,
+   "model": 0.03619232970455747,
+   "abs_dev": -0.0026646702954425325,
+   "rel_dev_pct": -6.857632589861628,
+   "dev_in_half_widths": -0.4574541279729669,
+   "inside_error_bar": true
+  },
+  {
+   "two_z_over_W": 0.5258,
+   "lda": 0.071847,
+   "model": 0.052520248223852914,
+   "abs_dev": -0.01932675177614708,
+   "rel_dev_pct": -26.899873030393866,
+   "dev_in_half_widths": -1.7930004430974191,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": 1.1003,
+   "lda": 0.018021,
+   "model": 0.018800249568954642,
+   "abs_dev": 0.000779249568954643,
+   "rel_dev_pct": 4.324119465926659,
+   "dev_in_half_widths": 0.28807747465975714,
+   "inside_error_bar": true
+  },
+  {
+   "two_z_over_W": 1.6042,
+   "lda": 0.006524,
+   "model": 0.004948820254768836,
+   "abs_dev": -0.0015751797452311644,
+   "rel_dev_pct": -24.144386039717418,
+   "dev_in_half_widths": -1.6040526937180901,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": 2.1169,
+   "lda": 0.003818,
+   "model": 0.003794808760552808,
+   "abs_dev": -2.3191239447192206e-05,
+   "rel_dev_pct": -0.6074185292611892,
+   "dev_in_half_widths": -0.04005395414022834,
+   "inside_error_bar": true
+  }
+ ],
+ "per_point_paper_Zone1": [
+  {
+   "two_z_over_W": -2.0528,
+   "lda": 0.003164,
+   "model": 0.009778583509513744,
+   "abs_dev": 0.006614583509513744,
+   "rel_dev_pct": 209.05763304405005,
+   "dev_in_half_widths": 14.073581935135627,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": -1.5487,
+   "lda": 0.004167,
+   "model": 0.012450338266384777,
+   "abs_dev": 0.008283338266384777,
+   "rel_dev_pct": 198.78421565598217,
+   "dev_in_half_widths": 13.106547889849331,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": -1.0362,
+   "lda": 0.019025,
+   "model": 0.02219112262156448,
+   "abs_dev": 0.003166122621564481,
+   "rel_dev_pct": 16.641906026620138,
+   "dev_in_half_widths": 1.1078105743752558,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": -0.4908,
+   "lda": 0.049091,
+   "model": 0.0655143853065539,
+   "abs_dev": 0.0164233853065539,
+   "rel_dev_pct": 33.45498218930944,
+   "dev_in_half_widths": 2.2302261415744025,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": -0.2088,
+   "lda": 0.054175,
+   "model": 0.06410149471458773,
+   "abs_dev": 0.00992649471458773,
+   "rel_dev_pct": 18.323017470397286,
+   "dev_in_half_widths": 1.221421768744645,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": 0.0012,
+   "lda": 0.035475,
+   "model": 0.04724784204909285,
+   "abs_dev": 0.011772842049092853,
+   "rel_dev_pct": 33.18630598757675,
+   "dev_in_half_widths": 2.211693039468881,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": 0.2006,
+   "lda": 0.038857,
+   "model": 0.054846980972515856,
+   "abs_dev": 0.015989980972515853,
+   "rel_dev_pct": 41.15083761617174,
+   "dev_in_half_widths": 2.7450611111615197,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": 0.5258,
+   "lda": 0.071847,
+   "model": 0.07252168076109936,
+   "abs_dev": 0.000674680761099361,
+   "rel_dev_pct": 0.9390520983469889,
+   "dev_in_half_widths": 0.06259214779658234,
+   "inside_error_bar": true
+  },
+  {
+   "two_z_over_W": 1.1003,
+   "lda": 0.018021,
+   "model": 0.02141498731501057,
+   "abs_dev": 0.003393987315010571,
+   "rel_dev_pct": 18.83351265196477,
+   "dev_in_half_widths": 1.2547088040704513,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": 1.6042,
+   "lda": 0.006524,
+   "model": 0.010552454545454545,
+   "abs_dev": 0.004028454545454545,
+   "rel_dev_pct": 61.74823031046206,
+   "dev_in_half_widths": 4.102295871134975,
+   "inside_error_bar": false
+  },
+  {
+   "two_z_over_W": 2.1169,
+   "lda": 0.003818,
+   "model": 0.007580336152219875,
+   "abs_dev": 0.0037623361522198745,
+   "rel_dev_pct": 98.54206789470598,
+   "dev_in_half_widths": 6.497989900207037,
+   "inside_error_bar": false
+  }
+ ],
+ "caveat": "DIFFERENT TANKS. Wu & Patterson and Reid 2025 are T = 0.27 m, D = 0.093 m, Re 28,830; ours is T = 0.30 m, D = 0.100 m, Re 50,000, with 3x wider baffles and 4x thicker blades relative to D. NO MATCH IS EXPECTED and none is claimed. A smaller deviation here is NOT evidence that our solve is better; it is one number, on one profile, between two tanks that differ."
+}
