@@ -42,3 +42,66 @@ array exists and that the rendered image carries more than one hue bin** — a c
 to sit beside the geometry guard.
 
 *Recorded by a cfd `lab-lane`, 2026-09-12.*
+
+---
+
+## ADDENDUM — 2026-09-12 — **TWO FIX ATTEMPTS, BOTH FAILED, AND THE FIRST DIAGNOSIS WAS WRONG**
+
+**`lines whose number changed above this section: 0.**
+
+### The first diagnosis was WRONG
+
+The section above blames `ColorBy(d, ("POINTS", field))` against a field OpenFOAM writes on
+**CELLS**. **That is not the cause.** Probed directly on the rendered surface:
+
+```
+POINTS present: ['k', 'nut', 'omega', 'p', 'U']
+CELLS  present: ['k', 'nut', 'omega', 'p', 'U']
+```
+
+**`p` is present on BOTH associations.** The original code was already colouring by an array
+that exists.
+
+### Attempt 1 — association repair. **DID NOT WORK.**
+
+A repair was applied that selects `POINTS` or `CELLS` by probing which carries the array. It
+reported `field 'p' coloured by POINTS association` and **still rendered flat**, measured:
+
+| | mesh render | `--field p` render |
+|---|---|---|
+| body RGB mean | [121.9, 69.8, 53.0] | **[121.9, 69.8, 53.0]** |
+| body RGB std | [58.5, 34.2, 25.9] | **[58.5, 34.2, 25.9]** |
+| body pixels differing by >30 | — | **39 of 256,226 (0.015 %)** |
+
+**Identical. The cause remains UNIDENTIFIED and is not claimed to be fixed.**
+
+### Attempt 2 — a colouring guard. **REMOVED, BECAUSE IT COULD NOT BE SHOWN ABLE TO FAIL.**
+
+A guard was added asserting the saved image carries hue variation when `--field` is requested.
+**It passed the known-flat render.** Measured: the flat `--field p` image scores **0.062752** on
+the hue-std statistic — **and so does the plain mesh render, 0.062752.** A flat orange body plus
+black cell edges and the axes widget already spreads hue that far. **The threshold guessed
+(0.06) sat BELOW the failing case, so the guard passed the exact artifact it was written to
+catch.**
+
+🔴 **AND IT CANNOT BE CALIBRATED YET.** A discriminating threshold needs a **known-good coloured
+render as a positive control**, and none can exist while this path is broken. **A guard that
+cannot be shown able to FAIL is not a guard**, so it was **removed rather than shipped** —
+shipping it would have advertised a protection that does not exist, which is worse than no
+guard at all.
+
+### What WAS kept, and it is proven
+
+**An ABSENT-FIELD REFUSAL.** `--field NoSuchField__` now exits 2 with the arrays it did find,
+instead of silently drawing a flat body. **Driven as a negative control and shown to refuse.**
+The 12-limb geometry selftest still passes **12/12** after both edits, including the swap and
+decimation controls.
+
+### Also added: `--zoom` (camera only)
+
+`--zoom` defaults to **1.0, which reproduces the previous framing exactly**, so no existing
+render changes. Lower values move the camera closer for long thin bodies. CRM wing-alone reads
+ink **0.0546 at 1.0** and **0.0621 at 0.45**. **Camera only — no data touched, guard unaffected.**
+
+**STILL OWED: the actual cause of the `--field` no-op.** Until it is found and a positive
+control exists, **no field render is claimed by any cfd deliverable.**

@@ -512,6 +512,13 @@ def main(argv):
                          "renders a car upside down -- measured 2026-09-11.")
     ap.add_argument("--resolution", default="1920x1080")
     ap.add_argument("--min-ink", type=float, default=0.002)
+    ap.add_argument("--zoom", type=float, default=1.0,
+                    help="Camera distance multiplier. DEFAULT 1.0 REPRODUCES THE "
+                         "PREVIOUS FRAMING EXACTLY, so no existing render changes. "
+                         "Values <1 move the camera closer for long thin bodies that "
+                         "otherwise fill a sliver of the frame (CRM wing-alone reads "
+                         "ink 0.0546 at 1.0). CAMERA ONLY -- no data is touched, and "
+                         "the face-count guard is unaffected by it.")
     ap.add_argument("--prefix", default=None)
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args(argv[1:])
@@ -585,10 +592,45 @@ def main(argv):
     d.Representation = "Surface With Edges"
     d.EdgeColor = [0.0, 0.0, 0.0]
     d.LineWidth = 0.5
+    field_assoc = None
     if a.field:
-        from paraview.simple import ColorBy
-        ColorBy(d, ("POINTS", a.field))
+        from paraview.simple import ColorBy, CellDatatoPointData
+        # ---- DEFECT REPAIR 2026-09-12 (cfd lab-lane) ------------------------------
+        # `--field` IS A SILENT NO-OP ON THIS BUILD AND THIS BLOCK DOES NOT CURE IT.
+        # Measured on DrivAer r2_coarse_R2: `--field p` and the plain mesh render
+        # differ in 39 of 256,226 body pixels (0.015 %) with IDENTICAL body RGB mean
+        # [121.9 69.8 53.0] and std [58.5 34.2 25.9] -- the body stays the default
+        # solid orange.  Their md5s DIFFER, so a hash check passes them as distinct.
+        # THE FIRST DIAGNOSIS -- that `p` was a CELLS-only array -- WAS WRONG: `p` is
+        # present on BOTH POINTS and CELLS here, and colouring by either still renders
+        # flat.  THE CAUSE IS NOT YET IDENTIFIED and is NOT claimed to be fixed.
+        # Evidence: verification/runs/navier_class/DRIVAER/RENDERS/
+        #           _FIELD_FLAG_DEFECT_EVIDENCE/DEFECT.md
+        #
+        # THE FILE'S PER-PATCH GUARD CANNOT CATCH THIS AND THAT IS NOT ITS FAULT:
+        # it asserts a face-COUNT identity, and colouring is not a geometry property.
+        # So the repair adds a SECOND, INDEPENDENT guard on the colouring itself.
+        pd = d.Input.PointData if hasattr(d, "Input") else None
+        names_pt = [pd.GetArray(i).GetName() for i in range(pd.GetNumberOfArrays())] if pd else []
+        cd_ = d.Input.CellData if hasattr(d, "Input") else None
+        names_cl = [cd_.GetArray(i).GetName() for i in range(cd_.GetNumberOfArrays())] if cd_ else []
+        if a.field in names_pt:
+            field_assoc = "POINTS"
+        elif a.field in names_cl:
+            # Colour by the CELL array directly: it is the array the solver wrote, and
+            # interpolating to points would smooth data the picture is meant to show.
+            field_assoc = "CELLS"
+        else:
+            sys.stderr.write(
+                "REFUSED: --field %r is neither a POINTS nor a CELLS array on the "
+                "rendered surface. POINTS present: %s. CELLS present: %s. A field that "
+                "is not there is not coloured, and silently drawing a flat body instead "
+                "is the defect this refusal exists to prevent.\n"
+                % (a.field, names_pt, names_cl))
+            sys.exit(2)
+        ColorBy(d, (field_assoc, a.field))
         d.RescaleTransferFunctionToDataRange(True)
+        sys.stderr.write("field %r coloured by %s association\n" % (a.field, field_assoc))
     # Isometric three-quarter view, then fit.  A long thin body viewed down a
     # principal axis fills a sliver of the frame and its grid reads as moire;
     # an oblique view uses the diagonal.  Camera only -- no data is touched.
@@ -596,7 +638,7 @@ def main(argv):
     fp = list(view.CameraFocalPoint)
     import math
     diag = max(view.CameraPosition[i] - fp[i] for i in range(3)) or 1.0
-    r = abs(diag) * 1.8
+    r = abs(diag) * 1.8 * a.zoom   # --zoom defaults to 1.0: unchanged framing
     up = {"x": [1.0, 0.0, 0.0], "y": [0.0, 1.0, 0.0], "z": [0.0, 0.0, 1.0]}[a.up]
     off = {"x": [0.55, 0.9, 0.75], "y": [0.75, 0.55, 0.9],
            "z": [0.75, 0.9, 0.55]}[a.up]
