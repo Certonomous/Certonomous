@@ -1142,3 +1142,128 @@ on the face of every row, **no observed order, no GCI, no family band, no Roache
 **L1 41.67** on the two diverged levels = **57.9 core-minutes**, against a family estimate of
 1,184 and a family cap of 3,551. **Waste is named, not absorbed: 52.5 core-minutes bought
 three stack traces and one mechanism.**
+
+---
+
+# ADDENDUM 7 — 2026-09-12. **THE EXPERIMENT ANSWERED BOTH LIMBS. THIS LANE'S READING SURVIVED AND ITS SUPERVISOR'S DID NOT — AND THE SECOND LIMB FAILED AT EXACTLY ONE STATION.**
+
+**v1.6 → v1.7. Lines whose number changed above this section: 0.** No band, threshold, cap or
+label above moves.
+
+## A7.1 — 🔴 READING A IS REFUTED. THE 87° GRID CARRIES THE REGISTERED SECOND-ORDER SCHEMES PERFECTLY WELL.
+
+`M6I-R1-L3-NORAMP`, pid 71585, launched 22:35:21Z. **`rc = 0`. 3,000 iterations
+(200 + 2,800). `End` line present.** Registered second-order schemes and registered
+relaxation **from iteration 1, with no ramp at all**, on a grid whose maximum
+non-orthogonality is **87.66°**:
+
+| LC-1 peak `CellsPercent` | LC-2 `bounding nuTilda` lines | final Ux initial residual |
+|---|---|---|
+| **0.00 %** over 5,600 reported lines | **zero** | **4.50e-07** |
+
+**Not one clipped cell. Not one bounded ν̃. Not one sign of distress.**
+
+**READING A — that `linearUpwind` under `limited corrected 0.33` at 87.7° is unstable *as
+such*, shock or no shock — IS REFUTED BY THIS RUN.** It was the cfd supervisor's reading and
+it was registered as theirs. **READING B — that the instability requires a shock — survives.**
+It was this lane's, registered in A6.3 explicitly against its own supervisor's stated
+expectation, and it held. **The ramp is not what makes the schemes survivable; the absence of
+a shock is.**
+
+**What this means for the family, and it is the opposite of a cosmetic finding.** L1 and L2
+did not die of a generic scheme-plus-mesh incompatibility that a gentler scheme would cure
+everywhere. **They died when and because a shock formed.** The instability is a
+shock-capturing failure of an unbounded second-order upwind scheme, and the ladder's next
+rung is therefore **a bounded (TVD) convection scheme**, which is §A5.4's pre-declared
+candidate — **now selected on evidence rather than on order**, and that reordering is
+registered here with its reason as A6.4 required.
+
+## A7.2 — 🔴 THE SECOND LIMB FAILED, AT ONE STATION, AND IT IS THE STATION EVERYTHING ELSE POINTED AT
+
+A6.3's free limb: two converged solutions of the same discrete equations cannot depend on the
+path taken to them, so the ramped and un-ramped L3 must agree to **max|ΔCp| ≤ 0.01 at every
+station**. Measured, same extractor, same 24 points per station:
+
+| η | 0.20 | 0.44 | 0.65 | 0.80 | 0.90 | **0.96** |
+|---|---|---|---|---|---|---|
+| **max\|ΔCp\|** | 0.000306 | 0.000571 | 0.001703 | 0.002156 | 0.006339 | **0.016502** |
+| RMS ΔCp | 0.000108 | 0.000174 | 0.000638 | 0.000968 | 0.002007 | 0.006674 |
+| limb | PASS | PASS | PASS | PASS | PASS | 🔴 **FAIL** |
+
+**Five stations agree to better than 0.0022. The sixth misses the registered 0.01 by 65 %.**
+And the deviation is **monotone outboard** — 0.0003 → 0.0006 → 0.0017 → 0.0022 → 0.0063 →
+0.0165, a factor of **54 from root to tip**.
+
+**Three independently registered things point at η = 0.96, and none of them knew about the
+others:**
+1. **A1.4**, registered before any Cp existed: *"if the Cp bands miss, they miss at η = 0.96
+   first"* — because **12,464 of L1's 191,794 faces over 70° sit within |Δη| < 0.02 of 0.96**,
+   against 84, 62 and 116 at η = 0.20, 0.44 and 0.65.
+2. **§4's disclosed geometry difference**: the generator's semispan/root-chord ratio is
+   1.47602 against the TMR/AGARD nominal 1.48443, **0.57 % apart**, which bites hardest at the
+   outermost station.
+3. **§A7.3's rank co-location**, measured after both: the MPI rank that raised SIGFPE on
+   **both** L1 and L2 is the rank owning η > 0.96.
+
+**THE REGISTERED CONSEQUENCE, APPLIED.** A6.3 fixed it in advance: a larger difference *"would
+mean the ramped L3 was not converged and would put L3's `GATE FAIL` itself in question"*.
+Applied at the narrowest honest scope:
+
+- **η = 0.96's two rows carry `NOT A RESULT — PATH-DEPENDENT` beside their values** on both
+  L3 runs. Their RMS values (0.4111 ramped, 0.4092 un-ramped, upper surface) are printed and
+  are not verdicts.
+- **The other ten rows keep `GATE FAIL`.** They agree between the two runs to ≤ 0.0022 in
+  max|ΔCp| and they miss the 0.050 band by factors of **3.4 to 8.7** — a 0.0022 path
+  difference cannot flip a row that misses by 0.35.
+- **The level's overall verdict remains `GATE FAIL`**, carried by the five clean stations.
+- 🔴 **REFERRED, NOT RULED BY THIS LANE:** whether a **row**-level `NOT A RESULT` under a
+  lane's own additional limb should promote to the **level** verdict. The frozen §5 B3 makes
+  `NOT A RESULT` an override **for §6 preconditions and the §7 plant**, both of which passed
+  here (M∞ exact, `End` line present, six stations present, **planted control seen on both
+  runs**). This limb is this lane's own addition and can only tighten. **The promotion
+  question is a standards question and goes to the verification supervisor.** Nothing is
+  reported as settled in the meantime.
+
+**And the un-ramped level was graded by the frozen grader too, with its own planted control
+seen:** `GATE FAIL`, 12 rows, RMS agreeing with the ramped run to three decimals at five
+stations. **Both paths reach the same verdict; only the tip station's value is path-dependent.**
+
+## A7.3 — 🔴 THE FAILING MPI RANK OWNS THE TIP ON BOTH LEVELS
+
+Both L1 and L2 raised SIGFPE on **rank 3**. Measured from each level's own preserved
+decomposition (`ATTEMPT1_DIVERGED/processor*/constant/polyMesh/points`), near-field points
+(r < 3 root chords):
+
+| level | rank 3's near-field η range | fraction of its near field at **η > 0.96** |
+|---|---|---|
+| **L1** | 0.965 – 1.962 | **100.0 %** (129,641 of 129,641) |
+| **L2** | 0.952 – 1.970 | **99.8 %** (16,787 of 16,813) |
+
+For contrast, rank 0 holds 5.1 % / 6.4 % of its near field outboard of η = 0.96.
+**Rank 3 is the outboard-and-aft octant — the tip cap, where A1.4 measured the median
+non-orthogonal face at η = 1.009.**
+
+**Stated with its strength and no more.** SIGFPE is raised on whichever rank first evaluates
+the bad number, and MPI then aborts the job, so the failing rank locates **where the
+excursion first became non-finite**, not necessarily where it originated. Two of two landing
+on rank 3 specifically has a **1-in-16 chance** under a uniform null; two of two landing on
+either *outboard* rank (2 or 3) has a 1-in-4 chance. **This is strong co-location and it is
+not proof.** What it does do is remove "the 87° is out in the far field and cannot matter"
+from the table: **zero of the >70° faces lie beyond r = 5 on any level**, and the rank that
+owns them is the rank that died, twice.
+
+## A7.4 — COST, AND WHAT THE EXPERIMENT WAS WORTH
+
+| item | core-min |
+|---|---|
+| L3 completed (graded) | 5.40 |
+| L3 attempts 1 and 2, SIGFPE — **waste, named** | 0.26 |
+| **L2 diverged — waste, named** | **10.60** |
+| **L1 diverged — waste, named** | **41.67** |
+| **L3_NORAMP, the discriminating experiment** | **~5.4** |
+| **total** | **≈ 63.3** of a 1,184 family estimate and a 3,551 family cap |
+
+**The experiment cost about five core-minutes and refuted a hypothesis that would otherwise
+have been fixed by changing the convection scheme everywhere and calling the family cured.**
+A rule-12 estimate-versus-actual row is owed to `docs/COST_CALIBRATION.md` when the family
+closes, and it will carry the 2.7× iteration-rate misprediction of A4.2 as its main term.
