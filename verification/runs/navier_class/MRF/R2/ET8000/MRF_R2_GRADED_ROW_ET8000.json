@@ -1,0 +1,195 @@
+{
+  "band": [
+    4.0,
+    6.0
+  ],
+  "band_verdict": "PASS",
+  "dim": 3,
+  "fs": 1.25,
+  "iterative_convergence": {
+    "coarse": "CONVERGED",
+    "fine": "NOT_CONVERGED",
+    "medium": "CONVERGED"
+  },
+  "levels": [
+    {
+      "cells": 154715,
+      "name": "coarse",
+      "value": 4.193490698945692
+    },
+    {
+      "cells": 601696,
+      "name": "medium",
+      "value": 4.2811322191608125
+    },
+    {
+      "cells": 2418780,
+      "name": "fine",
+      "value": 4.381719292039071
+    }
+  ],
+  "levels_detail": [
+    {
+      "cells": 154715,
+      "completion": {
+        "age_guard": "PASS",
+        "case_dir": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/coarse",
+        "deltaT": 1.0,
+        "endTime": 8000,
+        "end_line": true,
+        "exec_count": 8000,
+        "fields": [
+          "U",
+          "p",
+          "phi",
+          "k",
+          "omega",
+          "nut"
+        ],
+        "last_time": 8000.0,
+        "rc": 0
+      },
+      "iterative_state": "CONVERGED",
+      "moment_dat": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/coarse/postProcessing/impellerForces/0/moment.dat",
+      "name": "coarse",
+      "plant_control": {
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/coarse/postProcessing/impellerForces/0/moment.dat",
+        "level": null,
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000000129,
+        "reader": "read_axial_torque",
+        "reader_delta": 0.0012340000000000129
+      },
+      "plateau_state": "PLATEAUED",
+      "torque": -0.166519986,
+      "value": 4.193490698945692
+    },
+    {
+      "cells": 601696,
+      "completion": {
+        "age_guard": "PASS",
+        "case_dir": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/medium",
+        "deltaT": 1.0,
+        "endTime": 8000,
+        "end_line": true,
+        "exec_count": 8000,
+        "fields": [
+          "U",
+          "p",
+          "phi",
+          "k",
+          "omega",
+          "nut"
+        ],
+        "last_time": 8000.0,
+        "rc": 0
+      },
+      "iterative_state": "CONVERGED",
+      "moment_dat": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/medium/postProcessing/impellerForces/0/moment.dat",
+      "name": "medium",
+      "plant_control": {
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/medium/postProcessing/impellerForces/0/moment.dat",
+        "level": null,
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000000129,
+        "reader": "read_axial_torque",
+        "reader_delta": 0.0012340000000000129
+      },
+      "plateau_state": "PLATEAUED",
+      "torque": -0.170000157,
+      "value": 4.2811322191608125
+    },
+    {
+      "cells": 2418780,
+      "completion": {
+        "age_guard": "PASS",
+        "case_dir": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/fine",
+        "deltaT": 1.0,
+        "endTime": 8000,
+        "end_line": true,
+        "exec_count": 8000,
+        "fields": [
+          "U",
+          "p",
+          "phi",
+          "k",
+          "omega",
+          "nut"
+        ],
+        "last_time": 8000.0,
+        "rc": 0
+      },
+      "iterative_state": "NOT_CONVERGED",
+      "moment_dat": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/fine/postProcessing/impellerForces/0/moment.dat",
+      "name": "fine",
+      "plant_control": {
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/fine/postProcessing/impellerForces/0/moment.dat",
+        "level": null,
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000000129,
+        "reader": "read_axial_torque",
+        "reader_delta": 0.0012340000000000129
+      },
+      "plateau_state": "PLATEAUED",
+      "torque": -0.173994385,
+      "value": 4.381719292039071
+    }
+  ],
+  "monotone": true,
+  "orders": [
+    -0.2970723057121996
+  ],
+  "planted_zero": {
+    "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/fine/postProcessing/impellerForces/0/moment.dat",
+    "level": null,
+    "passed": true,
+    "planted": 0.001234,
+    "read_back_delta": 0.0012340000000000129,
+    "reader": "read_axial_torque",
+    "reader_delta": 0.0012340000000000129
+  },
+  "plateau": {
+    "coarse": "PLATEAUED",
+    "fine": "PLATEAUED",
+    "medium": "PLATEAUED"
+  },
+  "quantity": "Rushton Np (MRF)",
+  "reference": 5.0,
+  "states": [
+    "DIVERGENT"
+  ],
+  "triples": [
+    {
+      "cells": [
+        154715,
+        601696,
+        2418780
+      ],
+      "dim": 3,
+      "e21": -0.10058707287825808,
+      "e32": -0.0876415202151204,
+      "form": "unequal",
+      "levels": [
+        "coarse",
+        "medium",
+        "fine"
+      ],
+      "order": -0.2970723057121996,
+      "r21": 1.5900340140320233,
+      "r32": 1.5725877955742265,
+      "ratio_gap": 0.017446218457796814,
+      "state": "DIVERGENT",
+      "values": [
+        4.193490698945692,
+        4.2811322191608125,
+        4.381719292039071
+      ]
+    }
+  ],
+  "value": 4.381719292039071,
+  "verdict": "NOT A RESULT",
+  "why": "levels fine are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+}

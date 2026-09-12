@@ -1,0 +1,63 @@
+###############################################################################
+# MRF R2 ET8000 TRIPLE -- DURABLE RECORD
+# PROVENANCE: this is a VERBATIM COPY of the INCUMBENT grader's output.
+#   incumbent : on_triple.sh, pid 2381356, another session's scratchpad
+#   source    : /tmp/claude-1000/-home-ubuntu-Certonomous/80f960ef-5d3e-4c55-8964-1a39e21031b0/scratchpad/mrf_disk_watch/TRIPLE_R2.out
+#   copied by : backstop_triple_r2.sh at 2026-09-12T04:39:52Z
+# THE BACKSTOP GRADED NOTHING. It stood down so that one run yields one record.
+# Everything below this banner is the incumbent's bytes, unedited.
+###############################################################################
+### MRF R2 TRIPLE, emitted 2026-09-12T04:38:45Z on fine's rc sidecar appearing
+### grader frozen at 5c6869f7 BEFORE fine landed; verifying it is unmodified:
+###   disk b3758cc5427b12bec76f8c23b2188276401a1db8
+###   frozen blob b3758cc5427b12bec76f8c23b2188276401a1db8
+### fine rc=0 core_min=4110.30 wall_s=41103 ranks=6
+==============================================================================
+MRF R2 ET8000 -- ROACHE TRIPLE. Grader frozen before fine landed.
+==============================================================================
+  rule-4 coarse  PASS  (rc=0 last_time=8000.0 exec=8000 age_guard=PASS)
+  rule-4 medium  PASS  (rc=0 last_time=8000.0 exec=8000 age_guard=PASS)
+  rule-4 fine    PASS  (rc=0 last_time=8000.0 exec=8000 age_guard=PASS)
+  [rule 3] plant PASS on coarse's own moment.dat (total_z resolved by name)
+  [rule 3] plant PASS on medium's own moment.dat (total_z resolved by name)
+  [rule 3] plant PASS on fine's own moment.dat (total_z resolved by name)
+
+  cells  coarse 154,715  medium 601,696  fine 2,418,780
+  REFINEMENT RATIO IN CELL LAYERS (cube root of the cell-count ratio, 3-D):
+    r21 = 1.572588   r32 = 1.590034   -- UNEQUAL, so the iterative
+    Celik order is used and the simple log-ratio form does NOT apply.
+
+  PER-LEVEL STATE (S12 needs BOTH limbs; the drift limb alone is not S12):
+    coarse  drift -2.591013e-03  monotone 0.4917  w=2000  -> PLATEAUED  [drift limb OVER 1e-3]
+            stopping-point spread: Np window-mean range 5.187192e-03, drift range 4.862826e-03 = 4.9x the 1e-3 limb, limb cleared at 28/41
+    medium  drift +1.310541e-03  monotone 0.5128  w=2000  -> PLATEAUED  [drift limb OVER 1e-3]
+            stopping-point spread: Np window-mean range 2.591881e-03, drift range 5.736344e-03 = 5.7x the 1e-3 limb, limb cleared at 15/41
+    fine    drift -5.103926e-03  monotone 0.5053  w=2000  -> PLATEAUED  [drift limb OVER 1e-3]
+            stopping-point spread: Np window-mean range 7.554827e-03, drift range 4.218822e-03 = 4.2x the 1e-3 limb, limb cleared at 0/41
+
+  THE TWO ESTIMATORS -- BOTH PRINTED, NEITHER QUOTED ALONE:
+    SETTLED (S12 window mean): coarse 4.22831554  medium 4.23167983  fine 4.43548645
+      e21 +3.364298e-03   e32 +2.038066e-01   ratio e32/e21 +60.579239
+      TRIPLE = DIVERGENT    observed order p = 8.845670
+      GCI NOT QUOTED -- the three values are not monotone-convergent, and a GCI off a non-monotone triple is meaningless.
+    RAW endpoint at 8000     : coarse 4.19349070  medium 4.28113222  fine 4.38171929
+      e21 +8.764152e-02   e32 +1.005871e-01   ratio e32/e21 +1.147710
+      TRIPLE = DIVERGENT    observed order p = 0.248048
+      GCI NOT QUOTED -- the three values are not monotone-convergent, and a GCI off a non-monotone triple is meaningless.
+
+  SIGNAL AGAINST NOISE (the question MRF_R2_TRIPLE_PRESTATEMENT_2026-09-11.md
+  registered BEFORE fine landed, predicting the triple would be computable
+  but meaningless):
+    |d21| settled 3.364298e-03   |d32| settled 2.038066e-01
+    worst within-level stopping-point range 7.554827e-03
+    signal/noise: d21 0.445   d32 26.977
+    => the pre-statement is UPHELD: a gap does NOT exceed the noise
+    A triple whose level-to-level differences are smaller than each level's
+    own variation across nearby stopping points is ARITHMETICALLY COMPUTABLE
+    AND PHYSICALLY MEANINGLESS. The numbers above are printed so the claim
+    can be checked -- they are NOT a grid-convergence result.
+
+  TRIPLE CHARACTER: settled=DIVERGENT  raw=DIVERGENT
+NOT A RESULT: the triple is DIVERGENT, printed above with both
+triples and both orders beside it, per the gating order.
+### grader rc=2

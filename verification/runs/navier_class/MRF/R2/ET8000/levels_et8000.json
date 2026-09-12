@@ -1,0 +1,26 @@
+[
+  {
+    "name": "coarse",
+    "case_dir": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/coarse",
+    "cells": 154715,
+    "end_time": 8000,
+    "iterative_state": "CONVERGED",
+    "plateau_state": "PLATEAUED"
+  },
+  {
+    "name": "medium",
+    "case_dir": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/medium",
+    "cells": 601696,
+    "end_time": 8000,
+    "iterative_state": "CONVERGED",
+    "plateau_state": "PLATEAUED"
+  },
+  {
+    "name": "fine",
+    "case_dir": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R2/ET8000/fine",
+    "cells": 2418780,
+    "end_time": 8000,
+    "iterative_state": "NOT_CONVERGED",
+    "plateau_state": "PLATEAUED"
+  }
+]
