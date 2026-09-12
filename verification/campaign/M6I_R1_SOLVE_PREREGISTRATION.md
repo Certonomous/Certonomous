@@ -1492,3 +1492,101 @@ L2 under rung 4: **`endTime` 5000 reached.** Its predecessor's diverged attempt 
 core-minutes and is named as waste, unchanged. The rule-12 row for this level is owed when
 the family closes and will carry the rung-4 actual against the registration's 85.3 estimate
 and 256 cap.
+
+---
+
+# ADDENDUM 11 — 2026-09-12. **MY OWN REGISTERED FALSIFIER FIRED. THE TVD SCHEME MOVES Cp BY 0.12 ON A SHOCK-FREE SOLUTION, AND THAT WEAKENS THE RUNG-4 READING BY THE EXACT ROUTE A8.1 NAMED.**
+
+**v1.10 → v1.11. Lines whose number changed above this section: 0.** No band, threshold, cap
+or label moves.
+
+## A11.1 — 🔴 THE PREDICTION FAILED, AT EVERY STATION, BY UP TO 6×
+
+`M6I-R1-L3-TVD`, pid 104873, **`rc = 0`**, C1 **PASS**, C2 **FAIL** (rise 0.0690 / 0.0434,
+`x_shock` 0.9531 / 0.9233). The C2 half went as predicted. **The other half did not.**
+
+ADDENDUM 10 §A10.3 registered, before this run: *"L3_TVD's Cp matches the un-ramped L3's to
+`max|ΔCp| ≤ 0.02` at η = 0.20–0.90."* Measured, η = 0.96 excluded because it is already
+`NOT A RESULT — PATH-DEPENDENT`:
+
+| η | 0.20 | 0.44 | 0.65 | 0.80 | 0.90 | (0.96, excluded) |
+|---|---|---|---|---|---|---|
+| **max\|ΔCp\|** | **0.1213** | **0.1084** | **0.1003** | **0.0698** | **0.0527** | 0.0410 |
+| vs band 0.02 | **FAIL 6.1×** | **FAIL 5.4×** | **FAIL 5.0×** | **FAIL 3.5×** | **FAIL 2.6×** | — |
+
+**🔴 THE CONSEQUENCE WAS REGISTERED IN ADVANCE AND IS NOW OWED.** A10.3's own words: *"A
+larger difference would mean the convection scheme moves Cp on a **shock-free** solution,
+which would weaken the rung-4 reading and is registered here as a way for it to fail."*
+**It moved Cp on a shock-free solution. The rung-4 reading is weakened, by this lane's own
+registered test, and the weakening is recorded before anything is built on top of it.**
+
+`limitedLinear 1` is supposed to be second-order where the solution is smooth and to limit
+**only** near a discontinuity. **On a shock-free L3 it changed the answer by up to 0.12 in
+Cp.** Either the solution is not smooth in the limiter's sense, or the limiter's gradient
+ratio is being corrupted — and on a grid at **87.66° maximum non-orthogonality with aspect
+ratios to 1,244**, the second is entirely plausible: the ratio is formed from neighbouring
+cell values across exactly those faces.
+
+**Registered as a hypothesis, not asserted:** **(c) the limiter over-limits in smooth regions
+on this grid**, depressing suction and flattening gradients everywhere, which would explain
+both the 0.12 shift and the absence of a shock. **It is not tested by anything run so far.**
+
+## A11.2 — 🔴 THE TRACE ANSWERS THE (a)-versus-(b) QUESTION DIRECTLY, FROM A FILE ALREADY ON DISK, AND IT ANSWERS (b)
+
+A10.2 left open whether L2 **smeared** a shock (a) or **never had one** (b). The test costs
+nothing: *is there any local compression near the experiment's shock at x/c **0.4752**, however
+weak?* Read from L2's own `cp_extracted.json`, upper surface, both shock stations:
+
+**There is not.** At η = 0.65 the upper surface runs from its suction peak at x/c 0.0295
+(Cp −0.7324) to the trailing edge as **one continuous, monotone recovery** — successive
+rises 0.054, 0.088, 0.059, 0.040, 0.033, 0.051, 0.093, **0.119**, 0.112, 0.086, 0.054,
+0.030, 0.016, 0.009 — with **no local feature of any size at or near 0.4752**. η = 0.90 is the
+same shape. **The steepest segment sits at x/c 0.646–0.768**, far aft of the experimental
+shock, and is the **trailing-edge recovery** — the same feature D1 correctly identified on L3.
+
+**A smeared shock would show a local MAXIMUM of `dCp/dx` near the shock location, standing
+above the background recovery. There is none.** The gradient rises monotonically to its peak
+two-thirds of the way back and then decays. **Reading (b) is supported directly from an
+artifact: there is no shock to smear**, and the detector's 0.8851 is the steepest part of a
+smooth recovery ramp, not a captured discontinuity.
+
+**And this does not rescue rung 4** — §A11.1 stands independently. The scheme is moving Cp by
+0.12 **somewhere other than a shock**, and (b) explains the missing shock without explaining
+that.
+
+## A11.3 — THE DECONFOUNDED COMPARISON IS NOW CLEAN AND THE REFINEMENT TREND IS REAL
+
+**Same scheme (rung 4), same everything, 8× the cells.** L3_TVD → L2, upper-surface Cp RMS:
+
+| η | 0.20 | 0.44 | 0.65 | 0.80 | 0.90 | 0.96 |
+|---|---|---|---|---|---|---|
+| **L3_TVD** (15,360) | 0.2806 | 0.3580 | 0.3978 | 0.4275 | 0.4365 | 0.4196 |
+| **L2** (122,880) | **0.1506** | **0.2085** | **0.2453** | **0.2667** | **0.2785** | **0.2670** |
+| factor | 1.86 | 1.72 | 1.62 | 1.60 | 1.57 | 1.57 |
+
+**The improvement A10.2 declined to bank is real and it is refinement**, now measured at fixed
+scheme: RMS falls by **1.57–1.86×** across an 8× cell increase, and the shock rise at η = 0.65
+goes **0.0690 → 0.1031 (+49 %)** with `x_shock` moving forward **0.9531 → 0.8851** toward the
+experiment's 0.4752. **Still no observed order is computed** — two levels, and A3.1's
+admissibility condition is unmet because neither is shock-bearing.
+
+## A11.4 — 🔴 THE L1 BRANCHES, REGISTERED BEFORE L1's NUMBERS EXIST
+
+L1 is at stage-2 iteration ~444 of 7,800. **Both outcomes are fixed now so that neither is a
+consolation written afterwards.**
+
+- **IF L1's C2 ALSO FAILS** — `cfd_cp_rise_at_shock` below 0.212 at η = 0.65 or below 0.320 at
+  η = 0.90 — then **the registered family-level conclusion is: THE M6I TMR-GENERATOR GRID
+  FAMILY, AT 15,360 / 122,880 / 983,040 CELLS, CANNOT CARRY THE ONERA M6 SHOCK AT THE AGARD
+  TEST 2308 CONDITION UNDER THIS SOLVER AND MODEL.** That is a **result about the grid family
+  and the solver chain**, reported as one under Sanaa's standing instruction that OpenFOAM and
+  mesh issues are **surfaced as runs, not worked around** (2026-09-10). It is **not** a result
+  about the ONERA M6, about AGARD AR-138, or about the lab's method, and the report will say so.
+- **IF L1's C2 PASSES** — both limbs, both stations — **the family is judged capable at 983,040
+  cells and not below**, L1 is graded against the 14 bands as a **single shock-bearing level**,
+  and A5.3's single-level disclosure governs: **no observed order, no GCI, no family band**,
+  because L3 and L2 are not shock-bearing and A3.1 bars a triple assembled from incomparable
+  levels.
+- **EITHER WAY**, §A11.1's finding stands: the rung-4 scheme moves Cp by up to 0.12 on a
+  shock-free solution, and any L1 number inherits that as a disclosed, unquantified scheme
+  sensitivity until hypothesis **(c)** is tested.

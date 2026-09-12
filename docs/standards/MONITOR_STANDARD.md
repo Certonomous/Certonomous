@@ -2245,3 +2245,57 @@ somebody opened the artifact.**
 | md5 of this file's HEAD blob before this append | `fb931e7dd16b5a61d902ee5a79310169` |
 | md5 of this file's first **2189** lines after it | `fb931e7dd16b5a61d902ee5a79310169` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 9. 🔴 MEMBER 8 — **A PRE-REGISTERED LABEL THAT ASSERTS A MECHANISM ITS OWN TRIGGERING CONDITION CANNOT ESTABLISH.** THE SUBCLASS'S MOST DANGEROUS FORM.
+
+Members 1–7 are **instruments** measuring a correlate. **Member 8 is a LABEL**, frozen in a
+pre-registration, and it is worse than any of them **because the freeze makes it harder to
+question, not easier**.
+
+| | |
+|---|---|
+| instrument | `evaluate_m6i_level.sh`, printing a verdict label frozen at `9f289da9` |
+| quantity the rule **NAMES** | **"the scheme bought stability by smearing the shock"** — a claim about a **mechanism** |
+| correlate it **EVALUATES** | **"C1 held and C2 failed"** — the run completed, and no shock was detected |
+| divergence condition | **a level that never had a shock to smear.** C1∧¬C2 is equally true of *"the limiter flattened a captured shock"* and *"the grid could never carry one"* |
+| the wrong answer | fired on `M6I-R1-L2-TVD` and asserted smearing. **The distinguishing comparison did not exist** — that level's own unbounded-scheme run had **diverged and produced no Cp**, so there was no "before". A direct read of the Cp trace then showed **one continuous monotone recovery from the suction peak to the trailing edge, with no local compression of any size at the experiment's shock location** — i.e. **there was no shock to smear**, and the label was asserting a mechanism that was not operating |
+| provenance | **MEASURED HERE**, `verification/campaign/M6I_R1_SOLVE_PREREGISTRATION.md` ADDENDUM 10 §A10.2 and ADDENDUM 11 §A11.2 |
+
+### 🔴 WHY THE FREEZE MAKES IT WORSE, AND WHAT PRE-REGISTRATION DOES *NOT* PROTECT AGAINST
+
+> **Pre-registration protects against fitting the GATE to the answer. It does NOT protect
+> against a registered LABEL asserting a MECHANISM the gate cannot establish — and because
+> the label was frozen in advance, it arrives carrying the authority of the freeze.**
+
+A label written after the fact invites the question *"how do you know?"*. **The same label
+written in advance deflects it**, because everyone can see it was not chosen to fit. That is
+the whole point of a freeze and it is exactly the protection being borrowed illegitimately
+here: **the freeze proves the label was not fitted; it proves nothing about whether the
+triggering condition entails the mechanism the label names.**
+
+**THE ADDITIONAL REQUIREMENT, and it is cheap:**
+
+> **A pre-registered verdict LABEL states only what its triggering condition ENTAILS.**
+> Where the label names a **mechanism**, the registration must also name **the observation
+> that would distinguish that mechanism from its alternatives** — and if that observation is
+> not available for a given run, **the label is reported with the alternatives beside it, as
+> an inference, not as a finding.**
+
+Registering the label **and** its discriminating observation costs one sentence at freeze
+time. Omitting it costs a mechanism asserted on a correlation, with a freeze date vouching
+for it.
+
+**Caught, as all eight were, by reading the artifact**: the lane that had written the frozen
+label read the Cp trace rather than its own evaluator's output, found no compression feature
+at the experimental shock location, and **withdrew the label's claim in a dated addendum
+against its own registration.**
+
+| addendum to the v1.14 record | |
+|---|---|
+| sections added | **1** (§9) — appended below §8; §§1–8 and both record tables unchanged |
+| members carried | **8** — **4 measured by the drafting lane, 4 relayed and NOT verified here** |
+| thresholds, clauses or provenance altered | **0** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before this append | `b2d78df04d8107ec2ee03173f8570686` |
+| md5 of this file's first **2247** lines after it | `b2d78df04d8107ec2ee03173f8570686` |
+| the two digests | **EQUAL — assertion MEASURED** |
