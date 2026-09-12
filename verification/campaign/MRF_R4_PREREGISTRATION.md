@@ -433,3 +433,39 @@ completion as a row in `docs/COST_CALIBRATION.md`.
 
 *Drafted by a cfd `lab-lane`, 2026-09-12, freeze-ready. NOT FROZEN. NOT LAUNCHED.
 Submissions parked. No agent's message is Sanaa's consent.*
+
+---
+
+# §11. FREEZE ATTESTATION — cfd-SUPERVISOR, CHECK 4, PERSONAL AND UNDELEGATED — 2026-09-12T20:18:24Z
+
+Appended under rule 6. **`lines whose number changed above this section: 0`.** The §0 banner reading *"FREEZE-READY DRAFT. NOT FROZEN"* is **superseded by this section and left in place, legible**, because other records cite this document by line.
+
+## §11.1 LITERAL PINS — VALUES, NEVER COMMANDS
+
+```
+FROZEN BY:          cfd-supervisor, PERSONALLY (check 4, undelegated)
+DATE (UTC):         2026-09-12T20:18:24Z
+REGISTRATION BLOB:  fa0069709d19511e601aeb20a9694d7c3b6353c3   (this document at the parent of the freeze commit)
+FREEZE COMMIT:      the commit carrying THIS section, whose PARENT is ac9e70ace34e734cb6fe5cd43fb5bc99b8ef6639
+MESH CERTIFICATE:   verification/runs/navier_class/MRF/R4/fine/MESH_BIRTH_CERTIFICATE.json
+  sha256:           508a28a527347faafefaa38939286dbacaee9f4c166761dfd0a98623e43fe27d
+```
+
+## §11.2 §8.1 SATISFIED — THE GRADED MESH EXISTS AND I READ ITS GATES
+
+Build rc=0, 1,337 s wall (22.3 core-min), **3,641,246 cells**, 21 % under the registered 4.6 M projection. `MESH_STANDARD` §3, read from `checkMesh` output rather than from dictionaries: **max non-orthogonality 49.622 ≤ 70** (average 6.096); **max skewness 3.041 ≤ 4**; aspect ratio 4.399. **ADMISSIBLE.**
+
+🔴 **`checkMesh` reports "Failed 1 mesh checks" and it is NOT buried: 62,538 concave cells, 1.72 %.** Concave cells are **not** one of §3 gates. It is the **family signature, measured not assumed** — every R2 level failed the same single check and R2 was graded on those meshes: **coarse 2.72 %, medium 2.13 %, fine 1.10 %.** R4 sits inside the range the family already spans. **Disclosed here so no reader meets it first in a log.**
+
+## §11.3 THE ONE REGISTERED CHANGE IS IN THE MESH — TWO INDEPENDENT READ-BACKS
+
+1. **Blade thickness measured from the STL THIS BUILD WROTE** (max |y| on the theta=0 blade beyond the disc rim): **1.550 mm, t/D = 0.0155** — the registered value, read back from the artifact rather than from the request that produced it.
+2. **A check nobody asked for, and the better of the two:** thinner solids displace less liquid, so mesh volume **must** rise. Geometry alone predicts **+1.082e-04 m3** against R2 fine; `checkMesh` measures **+1.071e-04 m3**. **Agreement to 1 %.** Two independent quantities, one of them a physical consequence rather than a restatement.
+
+## §11.4 WHAT THIS AUTHORISES
+
+The **single graded fine level** may be queued **through the runner only** (item 19 — a hand launch is not a case), at the registered rank count, checkpoints inside the ceiling. **It authorises no grid-convergence claim of any kind**: §2.1 fixes the available vocabulary before the run, and **`PASS` is not among them** — rule 1 reserves `PASS` for a CONVERGING triple inside a pre-registered band, and this rung has one grid by ruling. The band is **`Np` in [5.29, 5.53]**; the +/-16 % envelope is **reported, never gated**.
+
+**The cost re-derivation from the BUILT mesh is accepted:** 7.735 s/it measured against 9.8 projected, total **6,275 core-min against the frozen 8,130 — 23 % below**, so the cap is untouched and needs no amendment. **Calibration point owed at completion and already in hand: the meshing term was estimated at 250 core-min and MEASURED at 22.3 — an 11x over-estimate, attributed to misprediction, not contention and not waste.**
+
+*Signed by the cfd-supervisor, personally, 2026-09-12T20:18:24Z. Submissions parked. No agent message is Sanaa consent.*
