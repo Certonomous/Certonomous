@@ -382,3 +382,64 @@ No cap of any kind. Memory containment at 12g, `--memory-swap` equal, `--oom-sco
 and enqueues only when the DAFoam-optimisation class's kill-and-resume proof returns `PASS`.**
 
 *`MP_A5R` Addendum 3, 2026-09-12. A model registered, not a number moved.*
+
+---
+
+## ADDENDUM 4 — 2026-09-12 — **A WARNING ATTACHED TO §4, AND IT INVERTS THE CONCLUSION: ARM `B` PAYS NO COLORING, SO CALIBRATING THE FIXED COST FROM ARM `B` RETURNS ZERO AND "PROVES" THE SETUP IS FREE.**
+
+**Lines whose number changed above this section: 0.** **NO GATE, THRESHOLD, BAND, WEIGHT, SCENARIO,
+PREDICTION, LABEL, CAP OR REGISTERED COST ESTIMATE IS ALTERED.** §4's `≈ 1,140 core-min` and
+`NO CAP OF ANY KIND` stand as frozen; `mpa5r_grade.py` is byte-identical to its original freeze,
+`895f2146ab203e41b2767aa9a3ed248a`. **This item is still NOT LAUNCHED.** This addendum adds **no
+number at all** — it exists to put one warning where the person doing the calibration will be
+standing.
+
+**It is raised to its own addendum, rather than left inside Addendum 3 §A3.2, on the
+dafoam-supervisor's instruction, because a trap buried in a sub-clause of a cost derivation is a trap
+that gets sprung.**
+
+### A4.1 THE TRAP
+
+**§4's arm-`B` line reads `≈ 5.7 core-min`. That figure contains NO adjoint Jacobian coloring, and
+the reason is structural, not incidental.**
+
+Arm `B` is `-task=run_model` (`mpa5r_stage_and_run.sh`, `run_stage B "-task=run_model"`). A
+`run_model` is **a primal evaluation with no adjoint**. The coloring is a property of the *adjoint*
+Jacobian; nothing in arm `B` ever builds one.
+
+**Only arm `O` (`-task=run_driver`) pays it, and it pays it three times — once per scenario.**
+
+> **Therefore: anyone who calibrates the fixed term `F` from arm `B`'s measured cost will measure
+> ZERO, and will conclude that the setup is free.** It is not free. It is the single largest fixed
+> cost in the item, it is paid per condition, it does not scale with `endTime`, and — per Addendum 3
+> §A3.3, verified in the installed `pyoptsparse` source — **it is re-paid in full on every hot-started
+> resume.**
+
+### A4.2 WHY THIS IS THE SAME ERROR ONE LEVEL DOWN
+
+Addendum 3 §A3.1 recorded that Addendum 1 took `59.2667 / 33 = 1.80 core-min per evaluation` and used
+that **mean** as a **marginal rate**, silently smearing a one-time setup across every evaluation.
+
+**Calibrating `F` from arm `B` is the identical mistake wearing the opposite sign**: instead of
+spreading the fixed cost everywhere, it measures a quantity that structurally *cannot contain* the
+fixed cost and reads the absence as a value. Both errors come from taking a number whose **shape** was
+never checked and using it as though it answered a different question.
+
+**The shape is the thing to check.** `total = F + n·m`. Arm `B` measures a point where `F` is
+**absent by construction**, not small. A measurement that cannot see a quantity is not a measurement
+of that quantity being zero — **which is the planted-zero principle (standing rule 3) applied to a
+cost figure rather than to a residual.**
+
+### A4.3 WHERE `F` FOR THIS ITEM WILL ACTUALLY COME FROM
+
+**Not from arm `B`. Not from a peer's figure.** Addendum 3 §A3.2 refused to register an `F` for this
+item and that refusal stands: the peer's `≈ 180 core-min` was measured at **4 ranks on a different
+geometry**, this item runs **np = 1**, core-minutes are wall × ranks, and **nobody has measured how
+the coloring parallelises.**
+
+**`F` for `MP_A5R` becomes measurable at exactly one place: arm `O`'s own first evaluation** — the
+interval between the driver starting and the first objective value appearing, which is setup and
+nothing else. **That figure is owed to `docs/COST_CALIBRATION.md` at completion, named separately from
+the marginal term and never folded into it** (CLAUDE.md rule 12).
+
+*`MP_A5R` Addendum 4, 2026-09-12. A warning, not a number. Nothing launched.*
