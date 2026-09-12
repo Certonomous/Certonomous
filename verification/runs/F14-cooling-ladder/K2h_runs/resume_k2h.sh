@@ -84,22 +84,32 @@ done
 say "  G-02 OK: all 4 ranks agree on latest time t=$LATEST, 8 fields each, banner-closed, 0/ present"
 
 # --- G-02b THE ACCUMULATOR. The clause that would poison the number silently. --
-TSTART=$(sed -e 's://.*::' "$CD" | sed -n 's/^[[:space:]]*timeStart[[:space:]]\+\([0-9.]\+\)[[:space:]]*;.*/\1/p' | head -1)
-[ -n "$TSTART" ] || refuse "G-02b: controlDict carries no fieldAverage timeStart"
-ACC=$(find "$CASE" -name 'fieldAverageProperties*' 2>/dev/null | head -1)
-if [ -n "$ACC" ]; then
-  # An accumulator EXISTS. It must be inside the resume time directory of EVERY
-  # rank, or the average resumes from a partial state on some ranks and a blank
-  # one on others -- a wrong number, not a crash.
-  for r in 0 1 2 3; do
-    [ -f "$CASE/processor$r/$LATEST/uniform/fieldAverageProperties" ] \
-      || refuse "G-02b: an accumulator exists somewhere in this case but processor$r/$LATEST/uniform/fieldAverageProperties is ABSENT. Resuming would average a partial window on some ranks and a blank one on others. STOP and triage."
-  done
-  say "  G-02b OK: accumulator present on all 4 ranks at t=$LATEST; the average RESUMES"
-else
-  awk -v t="$LATEST" -v s="$TSTART" 'BEGIN{exit !(t+0 < s+0)}' \
-    || refuse "G-02b: NO fieldAverageProperties exists anywhere, but the latest time $LATEST is at or past the registered timeStart $TSTART. Averaging should have begun and left an accumulator. Its absence is then a DEFECT, not a normal state. STOP and triage."
-  say "  G-02b OK: no accumulator, and none is DUE -- latest time $LATEST is before the registered timeStart $TSTART, so averaging has not begun. Absence here is EXPECTED, and this guard proves it rather than assuming it."
+#
+# REWRITTEN 2026-09-12.  THE VERSION THIS REPLACES COULD NEVER FIRE CORRECTLY.
+# It searched `find "$CASE" -name 'fieldAverageProperties*'`, and that file DOES
+# NOT EXIST IN OpenFOAM 2606 -- the name is pre-2016.  `fieldAverage` writes its
+# state to <time>/uniform/functionObjects/functionObjectProperties
+# (functionObjectList.C:98-100).  So the search ALWAYS returned empty, the
+# else-branch ALWAYS ran, and the moment this run passes the registered
+# timeStart 42 that branch would REFUSE every future resume with a reason that
+# is FALSE BY CONSTRUCTION, about a file this OpenFOAM never writes.  The
+# refusal would have looked authoritative.  Nothing about the run was wrong;
+# the guard was.
+#
+# The check now lives in `check_accumulator_k2h.py`, BESIDE this script, because
+# a guard that cannot be DRIVEN cannot be shown able to say no.  That file is
+# driven through seven cases -- three passes and four refusals, including one
+# rank missing the block and the past-timeStart absence this guard exists for.
+# It gates on the fieldAverage function object's own SUB-DICTIONARY, not on the
+# file, because the file exists from t=5 carrying the other function objects;
+# it derives the function object's name and timeStart from controlDict rather
+# than hardcoding them; and it REPORTS EVERY PATH IT TRIED, so an ABSENT reading
+# never stands without the evidence of where it was looked for.
+ACC_OUT=$(python3 "$HERE/check_accumulator_k2h.py" "$CASE" "$LATEST" 2>&1)
+ACC_RC=$?
+printf '%s\n' "$ACC_OUT"
+if [ "$ACC_RC" != "0" ]; then
+  refuse "G-02b accumulator guard refused (exit $ACC_RC) -- see the lines above for every path it tried"
 fi
 
 # --- G-03 every OTHER registered value asserted UNCHANGED ---------------------
