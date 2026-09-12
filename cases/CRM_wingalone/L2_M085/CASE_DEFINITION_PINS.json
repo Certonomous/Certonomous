@@ -1,0 +1,22 @@
+{
+  "note": "CASE DEFINITION, CRM wing-alone L2 at M=0.85, rhoSimpleFoam k-omega SST. The run dir gitignores 0/ and constant/polyMesh/, so the DEFINITION is filed here (case inputs live under cases/) and sha256-pinned against the live case, so the run is provably from these bytes.",
+  "live_case": "/home/ubuntu/Certonomous/verification/runs/CRM_WINGALONE_runs/SOLVE_L2",
+  "sha256": {
+    "0/T": "7a6b056be3ac87b093c1ae097a2ce1d9853e19f9964cc73ffc0418149c1ab81d",
+    "0/U": "104f9777e681435a5111225c4fd8bb94f73fc65e205dbdcb93e76412fda77957",
+    "0/alphat": "deab5ef479945068b41a4bebb0d9a102573d564fc7e834e6f56d7195e6e0346f",
+    "0/k": "00666b2e339551e1e033de3c229e8f61625d037c380f7f7d4288972ec2903b12",
+    "0/nut": "69d6d1a4c6029e30064f5356fcc65df579a03a2cc30ea764e56fcda244c47fda",
+    "0/omega": "da8a0e518cbcec87e635030718fbd18233aab80bc572abb6fdcfaec51265ea32",
+    "0/p": "b2bbcc3e231711961f91476f2aa594dda017f4c918461bf3127c70b1ca672b2a",
+    "system/controlDict": "084904c5edc40137606fcfe699f9f0c676faec1bbd744ecf2a66bcfbab9eac19",
+    "system/createPatchDict": "2695fc7be2fba3f09f378f915762648756706cef03a27a6eb703bf6cf96ab2e4",
+    "system/decomposeParDict": "0bf93699fa5d363603b11b87606271b5a2bfa318601f88a089d27862c0d9d026",
+    "system/fvOptions": "087d7d7ad2947b1a5ccabf3be85ec4e7ec4735727c76b4d825e896f0d40b9948",
+    "system/fvSchemes": "33e24200676c6d54a0d9be9c513de1663fc3395af88312c81c998d3ca62c781a",
+    "system/fvSolution": "7022ce46581287032d0b567543c28ee68c660150cfdcf2bbf004fd9507b1114e",
+    "constant/thermophysicalProperties": "1c918d9397fff866ffcadd61956eab516736d65c7cdaa64e764c0208f64452f9",
+    "constant/turbulenceProperties": "6df384d904139243910d0b7d485ad2168c0166ffe09c511cc0f2f9cc4c12098c"
+  },
+  "mismatches": []
+}

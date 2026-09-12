@@ -1,0 +1,24 @@
+BOUNDARY defaultFaces nFaces=36416 startFace=3456224
+
+PREDICTED (ADDENDUM 2 A2.4, registered before this ran) vs ACHIEVED
+  wing      predicted  11136   achieved  11136   MATCH
+  farfield  predicted  11136   achieved  11136   MATCH
+  symmetry  predicted  14144   achieved  14144   MATCH
+
+GEOMETRIC ASSERTION -- IN THE QUANTITIES §2 REGISTERS
+  max wing face-centre distance from the BODY AXIS =    3.7809   gate <= 4.3  -> PASS
+  min farfield face-centre |r| from the ORIGIN      =   80.4423   gate >= 80.0  -> PASS
+
+PLANTED CONTROL (rule 3) -- BOTH ARMS, because a control that cannot fail is not one
+   face 3808: class before = farfield (|r| 80.465)
+   plant applied = True -> class after = wing (|r| 1.609)
+   restored -> class = farfield (|r| 80.465)
+   classifier responded to the input change: True
+   POSITIVE ARM (plant applied, must detect): PASS
+   face 3808: class before = farfield (|r| 80.465)
+   plant applied = False -> class after = farfield (|r| 80.465)
+   restored -> class = farfield (|r| 80.465)
+   classifier responded to the input change: False
+   NEGATIVE ARM (plant withheld, must NOT detect): PASS
+
+P1C PASS

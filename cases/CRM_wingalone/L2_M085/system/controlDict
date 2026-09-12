@@ -1,0 +1,58 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     rhoSimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         4000;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   4000;
+purgeWrite      0;
+writeFormat     binary;
+writePrecision  8;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    forceCoeffs
+    {
+        type            forceCoeffs;
+        libs            (forces);
+        writeControl    timeStep;
+        writeInterval   1;
+        log             yes;
+        patches         (wing);
+        rho             rhoInf;
+        rhoInf          0.311747;
+        magUInf         295.1104;
+        lRef            1.004150;      // Cref in MESH-UNITS -- NOT 1.0 (the 0.415 % unit trap)
+        Aref            3.941770;      // Sref/2, half model, in mesh-units^2
+        // dragDir and liftDir are MANDATORY here -- forceCoeffs calls
+        // setCoordinateSystem(dict,"liftDir","dragDir") and forces.C reads BOTH with
+        // get<vector>, which has NO default.  The header documents defaults the code does
+        // not implement; omitting them aborts at iteration zero (measured on SUBOFF A1b).
+        CofR            (4.827420 1.706655 0.647892);   // MRC in mesh-units
+        dragDir         (0.9993908 0 0.0348995);        // alpha = 2.0 deg
+        liftDir         (-0.0348995 0 0.9993908);
+    }
+    residuals
+    {
+        type            solverInfo;
+        libs            (utilityFunctionObjects);
+        writeControl    timeStep;
+        writeInterval   1;
+        fields          (U e p k omega);
+    }
+    yPlus
+    {
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        writeFields     yes;
+        executeControl  writeTime;
+        writeControl    writeTime;
+        log             yes;
+    }
+}

@@ -1,0 +1,18 @@
+{
+  "source": "/home/ubuntu/Certonomous/verification/runs/CRM_WINGALONE_runs/L2/foam",
+  "sha256_polyMesh_at_copy": {
+    "points": "f45cd1cfe4d1f603b34980ed5b8cdd344816139b5e5b67213aceaca7f4e0fe81",
+    "faces": "9e5c32660fc4eac1582f5d46b4ec1bf419b9b2fbd0b5a149f7ade4d407964e2a",
+    "owner": "da96ec8902a51d91edcaa919411c482422fc2116bc9342e58ac81c08ffc46a12",
+    "neighbour": "ebde0ad89409805f5ae28f658e552f5e82d0aa65f4d1632e8bad93eac00d7807",
+    "boundary": "370ddab17d9885438de3e13e2aec2b11e4009b84b3bb97cdd0ff1ccec45fd1b4"
+  },
+  "counts": {
+    "wing": 11136,
+    "farfield": 11136,
+    "symmetry": 14144
+  },
+  "mesh_unit_m": 6.976368,
+  "tip_y_mesh_units": 3.766668152,
+  "authorised_by": "ADDENDUM 2 A2.5, commit 122398334"
+}

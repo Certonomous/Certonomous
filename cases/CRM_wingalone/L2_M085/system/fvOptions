@@ -1,0 +1,12 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvOptions; }
+// ADDED 2026-09-12 after a 4-rank smoke died rc=136 (SIGFPE) at iteration 2, with the
+// stack inside libfluidThermophysicalModels and a libm frame -- the thermo evaluating a
+// non-physical temperature (Sutherland takes sqrt(T)).  This is the limiter the
+// compressible external-aero tutorial carries and which I had not copied.
+limitT
+{
+    type            limitTemperature;
+    min             101;
+    max             1000;
+    selectionMode   all;
+}
