@@ -1353,3 +1353,35 @@ the supervisor's and is not taken here.**
 
 *Appended 2026-09-12 by a cfd `lab-lane`, ahead of an instance stop for a 96-core upgrade.
 `a07` is named unfinished rather than estimated. No new march was started.*
+
+---
+
+## §17.7 ADDENDUM — `a07` COMPLETED AFTER §17.6 WAS WRITTEN. **BOTH OUT-OF-SAMPLE PREDICTIONS HELD.**
+
+**Appended under rule 6. `lines whose number changed above this section: 0`.** §17.6 named
+`a07` unfinished rather than estimating it; it completed afterwards and this records it.
+
+| run | `CLUSTER_ALPHA` | jump | **predicted** | **measured** | error | non-ortho | max aspect (cells) |
+|---|---:|---:|---:|---:|---:|---:|---|
+| `a00` | 0.0 | 59.5 | *(fit)* | 15.3696 | — | 89.2744 | 1592 (274) |
+| `a03` | 0.3 | 42.1 | *(fit)* | 13.8954 | — | 88.9882 | 6734 (1494) |
+| `a05` | 0.5 | 30.5 | 12.4 | **12.9554** | **+4.5 %** | 88.6375 | 3833 (740) |
+| `a07` | 0.7 | 18.9 | 11.3 | **12.0496** | **+6.6 %** | 88.9950 | 3224 (18) |
+
+**Both out-of-sample points held**, on a two-point linear fit committed before either
+returned. `a07` cost 70 s march + 7 s convert + 12 s `checkMesh`, and delivered
+1,228,800 cells like every other.
+
+### 🔴 THE CONCLUSION IS NOW COMPLETE AND IT IS NEGATIVE
+
+**Skewness across the entire usable range of `CLUSTER_ALPHA`: 15.37 → 13.90 → 12.96 →
+12.05. H-G1's gate is ≤ 4.** Monotone, slow, and **three times the gate at the best value
+that marches.** Non-orthogonality does not move at all — 89.27 / 88.99 / 88.64 / 89.00 —
+**so the parameter that moves skewness leaves the other failing gate exactly where it was.**
+
+**CLUSTERING IS EXHAUSTED AS A LEVER.** `H-G1`'s `checkMesh` clause is **`NOT A RESULT` at
+every `CLUSTER_ALPHA` tested**, and §17.5e's three levers are untouched: **all open, none
+taken.**
+
+*Appended 2026-09-12 by a cfd `lab-lane`. The route decision is the supervisor's and is not
+taken here.*
