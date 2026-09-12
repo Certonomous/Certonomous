@@ -1,0 +1,29 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }
+ddtSchemes      { default steadyState; }
+gradSchemes
+{
+    default         Gauss linear;
+    limitedGrad     cellLimited Gauss linear 1;
+    grad(U)         $limitedGrad;
+    grad(nuTilda)   $limitedGrad;
+    grad(e)         $limitedGrad;
+}
+divSchemes
+{
+    default         none;
+    div(phi,U)      bounded Gauss linearUpwind limitedGrad;
+    div(phi,e)      bounded Gauss linearUpwind limitedGrad;
+    div(phi,K)      bounded Gauss linearUpwind limitedGrad;
+    div(phi,Ekp)    bounded Gauss linearUpwind limitedGrad;
+    div(phi,nuTilda) bounded Gauss upwind;
+    div(phid,p)     Gauss upwind;
+    div((phi|interpolate(rho)),p) bounded Gauss upwind;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
+// max non-orthogonality on this family is 86.5-87.7 deg on EVERY level (R0_RESULTS
+// section 3).  'limited corrected 0.33' is the registered remedy and it is applied
+// identically on all three levels so the family stays similar.
+laplacianSchemes { default Gauss linear limited corrected 0.33; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default limited corrected 0.33; }
+wallDist        { method meshWave; }

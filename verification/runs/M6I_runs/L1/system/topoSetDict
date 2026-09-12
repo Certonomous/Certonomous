@@ -1,0 +1,13 @@
+FoamFile { version 2.0; format ascii; class dictionary; object topoSetDict; }
+actions
+(
+    { name symmetry; type faceSet; action new;    source boundaryToFace; }
+    { name symmetry; type faceSet; action subset; source boxToFace; box (-200 -1e-8 -200) (200 1e-8 200); }
+
+    { name wing;     type faceSet; action new;    source boundaryToFace; }
+    { name wing;     type faceSet; action subset; source boxToFace; box (-3 1e-6 -1) (4 3 1); }
+
+    { name farfield; type faceSet; action new;    source boundaryToFace; }
+    { name farfield; type faceSet; action subtract; source faceToFace; sets (symmetry); }
+    { name farfield; type faceSet; action subtract; source faceToFace; sets (wing); }
+);

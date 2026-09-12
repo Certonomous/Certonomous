@@ -1,0 +1,36 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-9;
+        relTol          0.01;
+        nCellsInCoarsestLevel 100;
+    }
+    "(U|e|nuTilda)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0.01;
+    }
+}
+SIMPLE
+{
+    nNonOrthogonalCorrectors 2;
+    pMinFactor      0.2;
+    pMaxFactor      2.0;
+    transonic       yes;
+    consistent      yes;
+    // NO residualControl BY REGISTRATION.  A residualControl exit stops the solver
+    // BEFORE endTime, and rule 4's completion clause reads last time == endTime.
+    // Convergence is graded from the residual and coefficient histories instead
+    // (IC-1..IC-4 of the pre-registration), never by letting the solver decide.
+}
+relaxationFactors
+{
+    fields    { p 1; rho 0.05; }
+    equations { p 1; U 0.7; e 0.7; nuTilda 0.7; }
+}

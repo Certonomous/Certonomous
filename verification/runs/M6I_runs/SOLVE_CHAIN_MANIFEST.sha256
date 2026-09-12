@@ -1,0 +1,67 @@
+# M6I solve-chain manifest -- sha256 of every dictionary and initial field the
+# registered chain consists of, including the 0.orig/ fields, which .gitignore
+# line 59 (verification/runs/*_runs/*/[0-9]*/) excludes from the tree because
+# '0.orig' matches '[0-9]*'.  They are reproducible from build_m6i_solve_chain.sh,
+# and this manifest is what pins them at the freeze.
+# written 2026-09-12T21:58:00Z
+473c5918fb1e520c84358c51e8b5822c8e55989f4093ac0961ad16d57230ba62  L1/0.orig/T
+6d0856b789112d355880f68b5eeca48c79fd5e7802b113b8481f7436b8fbff98  L1/0.orig/U
+9c3a43e00e9ffc63e72659fa1cb7f6686f59e7d5d79c9c11c9fb42265f5c3405  L1/0.orig/alphat
+2be0782fca09912dc8730ab83770bb1880a1ce3adfc562a623e272d84affd308  L1/0.orig/nuTilda
+48584f666cf658b4bbec7c1ef71f71f4b3156eea1c1deb8ac4067d19c24f011f  L1/0.orig/nut
+86c2b34d93f06959700b3e0b90a4e9d0b2e0de1ec570ca2fe37ef707c52c6c24  L1/0.orig/p
+2a2eb84925ac9ca743da19751e8a545b413ffed2c6652c10d239be530c0ed2dd  L1/system/controlDict
+01ff031d0e7208648773cd1b5950e17f29540ed607e3ff5d78da0898d79def3e  L1/system/fvSchemes
+068714722a6079e525397d04214a24371d32284ee0479e95613414f7601219bc  L1/system/fvSolution
+5bb760345372be4372bf3e4ced64192881ad2964130bd0206c0a4c5d2900410b  L1/system/decomposeParDict
+6715b5f0c35c87c46fb288b530577769559afe3b107f62e5a2424e1443214ba7  L1/system/topoSetDict
+c9f02d635cdb7686d3854491197991a3d0e1b7378e8edda938b7e11f8ac9691a  L1/system/createPatchDict
+5f7368215bf2d4d69f38c75a8bf2766deb1d9bc0dee9d3d765e5b593a29e3498  L1/constant/thermophysicalProperties
+fd9cbdfaff5ebe1c62943df6bb5516b2295d9de1912caf3910c1b1d15ff605a1  L1/constant/turbulenceProperties
+473c5918fb1e520c84358c51e8b5822c8e55989f4093ac0961ad16d57230ba62  L2/0.orig/T
+6d0856b789112d355880f68b5eeca48c79fd5e7802b113b8481f7436b8fbff98  L2/0.orig/U
+9c3a43e00e9ffc63e72659fa1cb7f6686f59e7d5d79c9c11c9fb42265f5c3405  L2/0.orig/alphat
+2be0782fca09912dc8730ab83770bb1880a1ce3adfc562a623e272d84affd308  L2/0.orig/nuTilda
+48584f666cf658b4bbec7c1ef71f71f4b3156eea1c1deb8ac4067d19c24f011f  L2/0.orig/nut
+86c2b34d93f06959700b3e0b90a4e9d0b2e0de1ec570ca2fe37ef707c52c6c24  L2/0.orig/p
+4af1a3de4bca0a1a31aec58fdbbfc4957c9572d275dade34ef16df49b94b6a0f  L2/system/controlDict
+01ff031d0e7208648773cd1b5950e17f29540ed607e3ff5d78da0898d79def3e  L2/system/fvSchemes
+068714722a6079e525397d04214a24371d32284ee0479e95613414f7601219bc  L2/system/fvSolution
+5bb760345372be4372bf3e4ced64192881ad2964130bd0206c0a4c5d2900410b  L2/system/decomposeParDict
+6715b5f0c35c87c46fb288b530577769559afe3b107f62e5a2424e1443214ba7  L2/system/topoSetDict
+c9f02d635cdb7686d3854491197991a3d0e1b7378e8edda938b7e11f8ac9691a  L2/system/createPatchDict
+5f7368215bf2d4d69f38c75a8bf2766deb1d9bc0dee9d3d765e5b593a29e3498  L2/constant/thermophysicalProperties
+fd9cbdfaff5ebe1c62943df6bb5516b2295d9de1912caf3910c1b1d15ff605a1  L2/constant/turbulenceProperties
+473c5918fb1e520c84358c51e8b5822c8e55989f4093ac0961ad16d57230ba62  L3/0.orig/T
+6d0856b789112d355880f68b5eeca48c79fd5e7802b113b8481f7436b8fbff98  L3/0.orig/U
+9c3a43e00e9ffc63e72659fa1cb7f6686f59e7d5d79c9c11c9fb42265f5c3405  L3/0.orig/alphat
+2be0782fca09912dc8730ab83770bb1880a1ce3adfc562a623e272d84affd308  L3/0.orig/nuTilda
+48584f666cf658b4bbec7c1ef71f71f4b3156eea1c1deb8ac4067d19c24f011f  L3/0.orig/nut
+86c2b34d93f06959700b3e0b90a4e9d0b2e0de1ec570ca2fe37ef707c52c6c24  L3/0.orig/p
+6f9901be079e4e722d0a095dd709e6122d7fb88ff718f7e44327d4b2b02ff606  L3/system/controlDict
+01ff031d0e7208648773cd1b5950e17f29540ed607e3ff5d78da0898d79def3e  L3/system/fvSchemes
+068714722a6079e525397d04214a24371d32284ee0479e95613414f7601219bc  L3/system/fvSolution
+5bb760345372be4372bf3e4ced64192881ad2964130bd0206c0a4c5d2900410b  L3/system/decomposeParDict
+6715b5f0c35c87c46fb288b530577769559afe3b107f62e5a2424e1443214ba7  L3/system/topoSetDict
+c9f02d635cdb7686d3854491197991a3d0e1b7378e8edda938b7e11f8ac9691a  L3/system/createPatchDict
+5f7368215bf2d4d69f38c75a8bf2766deb1d9bc0dee9d3d765e5b593a29e3498  L3/constant/thermophysicalProperties
+fd9cbdfaff5ebe1c62943df6bb5516b2295d9de1912caf3910c1b1d15ff605a1  L3/constant/turbulenceProperties
+b7586a3e6045fd1f64b49bcc31bee4064583765b7ed8ac6c136f6d409a3e4ace  FREESTREAM_M6I.json
+67a19762088adfe7c50259623c0ee6370c5646af9060e51ccae68767ea71f12e  build_m6i_solve_chain.sh
+fe0af4476dd2ab2b99535d61ed37274877fa406117ea533307b59692118726c5  launch_m6i.sh
+cb4550dccb684ddc357f22d13fcc6036473b45bf3bc4762d47885c90ab95d04e  extract_cp_m6i.py
+# L1 polyMesh md5 78fd269f698e175bd805b4faacca48c6  constant/polyMesh/points
+# L1 polyMesh md5 e72c15aca4242cfd195f83592c30fa3b  constant/polyMesh/faces
+# L1 polyMesh md5 9d05c38f088ae7538775b104704d0617  constant/polyMesh/owner
+# L1 polyMesh md5 149a01310d4161af1037b94e8fa51996  constant/polyMesh/neighbour
+# L1 polyMesh md5 b77a74a6a73765fa1868b0b91bf763f7  constant/polyMesh/boundary
+# L2 polyMesh md5 5a60c96c7dd15d01b17706ce0a61050b  constant/polyMesh/points
+# L2 polyMesh md5 9f2bf62e0772c78dfddf9fd6c45b0aab  constant/polyMesh/faces
+# L2 polyMesh md5 f1dc7c96327f07f1aee1db7da176a5c8  constant/polyMesh/owner
+# L2 polyMesh md5 45353a2e46f258bfb87bd7ab62a553ea  constant/polyMesh/neighbour
+# L2 polyMesh md5 d6fec6dd16cfd78211bdfeed587bce8c  constant/polyMesh/boundary
+# L3 polyMesh md5 e404b87c26129c005e2e668207a5a40b  constant/polyMesh/points
+# L3 polyMesh md5 96a0647bec87b50b14482b7d08aba393  constant/polyMesh/faces
+# L3 polyMesh md5 64616ea48f84e02619d0d88c56f1fa67  constant/polyMesh/owner
+# L3 polyMesh md5 eaed5663eee53142ed841cc0daedc040  constant/polyMesh/neighbour
+# L3 polyMesh md5 7b08b17be15580f932ada09c5dc02178  constant/polyMesh/boundary
