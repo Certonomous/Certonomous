@@ -547,36 +547,122 @@ def d_stationary(case):
     return ("STATIONARY" if d <= STATIONARY_TOL else "NOT STATIONARY"), detail
 
 
-def accumulator_agreement(case, time=ENDTIME):
-    """The four ranks' `fieldAverageProperties` must AGREE, not merely exist.
+#: THE ACCUMULATOR'S REAL HOME, READ OUT OF OpenFOAM's OWN SOURCE RATHER THAN
+#: ASSUMED.  The brief this lane was given named
+#: `processor*/<t>/uniform/fieldAverageProperties`.  THAT FILE DOES NOT EXIST IN
+#: OpenFOAM 2606 AND NEVER WILL.  `fieldAverage::writeAveragingProperties()`
+#: calls `item.writeState(propsDict)` and then `setProperty(...)`, and
+#: `functionObjectList::createPropertiesDict()` builds that object at
+#:
+#:     <time>/uniform/functionObjects/functionObjectProperties
+#:
+#: (`functionObjectList.C:98-100`).  `writeState` adds exactly the keys
+#: `totalIter` and `totalTime` (`fieldAverageItem.C:208`).  VERIFIED ON DISK:
+#: `processor0/15/uniform/functionObjects/functionObjectProperties` already
+#: exists, and all four ranks are byte-identical at md5
+#: 8f01b63599b6571c9a73e8e68099fd38.
+#:
+#: TWO CONSEQUENCES, AND THE SECOND IS THE DANGEROUS ONE.
+#:   (1) A check on the old path would have reported ABSENT ON ALL RANKS at
+#:       t = 45 and returned a FALSE `NOT A RESULT` after the whole spend.
+#:   (2) A PRESENCE TEST ON THE FILE IS NOW WORTHLESS, because the file exists
+#:       from the first write at t = 5 carrying the OTHER function objects'
+#:       state.  What must be checked is the `dpAverage` SUB-DICTIONARY inside
+#:       it, and the `totalIter`/`totalTime` VALUES under each averaged field.
+FA_FO_NAME = "dpAverage"            # system/controlDict:39, the fieldAverage FO
+FA_PATHS = (os.path.join("uniform", "functionObjects",
+                         "functionObjectProperties"),   # v1706+ and 2606
+            os.path.join("uniform", "fieldAverageProperties"))  # pre-2016
 
-    Four present-but-disagreeing accumulators pass a presence test and still give
-    a wrong mean, so the start time and the step count are read back and compared.
+
+def _block(txt, key):
+    """The brace-balanced body of `key { ... }`, or None."""
+    m = re.search(r"(?m)^\s*" + re.escape(key) + r"\s*$\s*\{", txt)
+    if m is None:
+        m = re.search(re.escape(key) + r"\s*\{", txt)
+        if m is None:
+            return None
+    depth, j = 1, m.end()
+    while depth and j < len(txt):
+        depth += (txt[j] == "{") - (txt[j] == "}")
+        j += 1
+    return txt[m.end():j - 1]
+
+
+def accumulator_agreement(case, time=ENDTIME):
+    """The four ranks must AGREE on the averaging state, not merely carry a file.
+
+    Four present-but-DISAGREEING accumulators pass a presence test and still
+    produce a wrong mean, so `totalIter` and `totalTime` are read back per
+    averaged field and compared across ranks.  Where the instrument looked is
+    always reported, so an ABSENT reading never stands without the evidence of
+    where it was looked for.
     """
     tname = FR._tname(case, time)
-    rows = {}
-    for p in sorted(glob.glob(os.path.join(case, "processor*"))):
-        fp = os.path.join(p, tname, "uniform", "fieldAverageProperties")
-        b = os.path.basename(p)
-        if not os.path.exists(fp):
+    rows, looked = {}, []
+    for pdir in sorted(glob.glob(os.path.join(case, "processor*"))):
+        b = os.path.basename(pdir)
+        found = None
+        for rel in FA_PATHS:
+            fp = os.path.join(pdir, tname, rel)
+            looked.append(fp)
+            if os.path.exists(fp):
+                found = fp
+                break
+        if found is None:
             rows[b] = None
             continue
-        txt = open(fp, errors="replace").read()
-        rows[b] = {
-            "totalTime": sorted(set(re.findall(r"totalTime\s+([-\d.eE+]+)\s*;", txt))),
-            "totalIter": sorted(set(re.findall(r"totalIter\s+(\d+)\s*;", txt))),
-        }
-    present = [k for k, r in rows.items() if r is not None]
+        blk = _block(open(found, errors="replace").read(), FA_FO_NAME)
+        if blk is None:
+            rows[b] = {"file": found, "dpAverage": "ABSENT FROM THE FILE"}
+            continue
+        fields = {}
+        for fm in re.finditer(r"(\w+)\s*\{([^{}]*)\}", blk):
+            name, body = fm.group(1), fm.group(2)
+            it = re.search(r"totalIter\s+(\d+)\s*;", body)
+            tt = re.search(r"totalTime\s+([-\d.eE+]+)\s*;", body)
+            if it or tt:
+                fields[name] = {"totalIter": int(it.group(1)) if it else None,
+                                "totalTime": float(tt.group(1)) if tt else None}
+        rows[b] = {"file": found, "fields": fields}
+
+    detail = {"rows": rows, "looked_in": sorted(set(looked)),
+              "fo_name": FA_FO_NAME}
+
     absent = [k for k, r in rows.items() if r is None]
-    if absent and present:
-        return "SPLIT", {"rows": rows, "present": present, "absent": absent,
-                         "note": "PRESENT ON SOME RANKS AND NOT OTHERS -- this is "
-                                 "a WRONG NUMBER, not a crash"}
+    no_block = [k for k, r in rows.items()
+                if r is not None and r.get("dpAverage") == "ABSENT FROM THE FILE"]
+    good = {k: r for k, r in rows.items() if r is not None and "fields" in r}
+
+    if not rows:
+        return "NO RANKS", detail
+    if absent and len(absent) != len(rows):
+        detail["note"] = ("the properties FILE is present on some ranks and not "
+                          "others -- a WRONG NUMBER, not a crash")
+        return "SPLIT", detail
+    if len(no_block) and len(no_block) != len(rows):
+        detail["note"] = ("the %r accumulator is present on some ranks and not "
+                          "others -- a WRONG NUMBER, not a crash" % FA_FO_NAME)
+        return "SPLIT", detail
     if absent:
-        return "ABSENT ON ALL RANKS", {"rows": rows, "absent": absent}
-    sig = {k: (tuple(r["totalTime"]), tuple(r["totalIter"])) for k, r in rows.items()}
-    agree = len(set(sig.values())) == 1
-    return ("AGREE" if agree else "DISAGREE"), {"rows": rows, "signature": sig}
+        return "PROPERTIES FILE ABSENT ON ALL RANKS", detail
+    if no_block:
+        detail["note"] = ("the file exists on every rank but carries no %r "
+                          "block. Before S-WINDOW opens at t = %g this is the "
+                          "CORRECT state; at or after it, it means averaging "
+                          "never started." % (FA_FO_NAME, WIN_LO))
+        return "ACCUMULATOR ABSENT ON ALL RANKS", detail
+
+    sig = {k: tuple(sorted((f, v["totalIter"], v["totalTime"])
+                           for f, v in r["fields"].items()))
+           for k, r in good.items()}
+    detail["signature"] = {k: list(v) for k, v in sig.items()}
+    if len(set(sig.values())) != 1:
+        detail["note"] = ("the four ranks carry DIFFERENT totalIter/totalTime; "
+                          "four present-but-disagreeing accumulators pass a "
+                          "presence test and still give a wrong mean")
+        return "DISAGREE", detail
+    return "AGREE", detail
 
 
 # ---------------------------------------------------------------------------
@@ -623,7 +709,7 @@ def main():
             out["verdict"] = "NOT A RESULT"
             out["verdict_reason"] = ("D-COMPLETE failed: " + "; ".join(why))
             return _emit(out, EXIT_NAR)
-        if acc not in ("AGREE",):
+        if acc != "AGREE":
             out["verdict"] = "NOT A RESULT"
             out["verdict_reason"] = (
                 "the fieldAverage accumulator is %s across the four ranks; the "

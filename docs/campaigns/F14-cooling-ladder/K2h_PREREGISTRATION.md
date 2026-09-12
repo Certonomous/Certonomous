@@ -744,3 +744,88 @@ in AD2.3 and is **not** re-decided here.
 
 *Nothing in this rung is sent, filed, uploaded, registered, posted or commented
 outside this box (rule 7).*
+
+---
+
+## ADDENDUM 4 — 2026-09-12 ~22:35Z, MID-RUN: THE ACCUMULATOR FILE THIS DOCUMENT KEEPS NAMING DOES NOT EXIST IN OpenFOAM 2606, AND TWO EARLIER ADDENDA ARE RIGHT FOR THE WRONG REASON
+
+**Version 1.4 → 1.5. Dated post-freeze addendum. Appended at the foot; lines
+whose number changed above this section: 0.** **No gate, threshold, band, cap or
+label is touched.** What is corrected is **this document's own description of
+where the averaging state lives**, which appears in **§AD1.2** and **§AD2.4** and
+is wrong in both.
+
+### AD4.1 THE FACT, VERIFIED AT THE SOURCE ON THIS BOX
+
+**`fieldAverageProperties` APPEARS NOWHERE IN
+`/usr/lib/openfoam/openfoam2606`.** The name is pre-2016. What OpenFOAM 2606
+actually does, read from the installed source rather than from recollection:
+
+- `fieldAverage.C:211` — `item.writeState(propsDict)`.
+- `fieldAverageItem.C` — `writeState` adds exactly **`totalIter`** and
+  **`totalTime`**.
+- `functionObjectList.C` — that dictionary is
+  **`<time>/uniform/functionObjects/functionObjectProperties`**.
+
+**HAD THE CHECK BEEN MADE AS §AD2.4 WROTE IT, IT WOULD HAVE REPORTED A FALSE
+ABSENCE AT t = 45 AND THE GRADER WOULD HAVE RETURNED A FALSE `NOT A RESULT`
+AFTER THE ENTIRE SPEND.**
+
+### AD4.2 AND A PRESENCE TEST ON THE REAL FILE IS WORTHLESS IN BOTH DIRECTIONS
+
+`processor*/20/uniform/functionObjects/functionObjectProperties` **already
+exists** — twenty-two simulated seconds before averaging is due — because it
+carries the **other** function objects' state (`dp_tile`, `dp_return`, `U_ha`,
+`T_ca`, `T_in_0..3`), byte-identical across the four ranks. **So: on the name
+this document used, the test is ALWAYS absent and calls a healthy run broken; on
+the real file, the test is ALWAYS present and calls the run fine — INCLUDING in
+the case where averaging silently never started.** **Either way it carries no
+information while looking as though it does.**
+
+**WHAT IS CHECKED INSTEAD:** the **`dpAverage` SUB-DICTIONARY** inside that file
+(`dpAverage` is the `fieldAverage` function object's name at
+`system/controlDict:39`) and the **`totalIter` and `totalTime` VALUES** under
+each averaged field, **compared across the four ranks**. **Both paths are
+searched, new first, and the instrument REPORTS EVERY PATH IT LOOKED IN — so an
+ABSENT reading can never stand without the evidence of where it was looked
+for.** That last clause is the general repair, not the instance.
+
+### AD4.3 WHAT THIS CORRECTS IN THE EARLIER ADDENDA — AND WHAT SURVIVES
+
+**§AD1.2 said:** "`fieldAverageProperties` does not exist anywhere in the case
+tree: averaging is not DUE until t = 42 and the run reached ≈ 7.6. **Nothing
+partial exists, so nothing partial can be inherited.**" ***THE CONCLUSION
+SURVIVES AND THE REASON DOES NOT.*** Nothing partial existed — but **not
+because averaging was not yet due; because that file is never written under any
+circumstances in this version.** **A conclusion that is right for the wrong
+reason is one nobody can re-derive**, and that is why this is corrected rather
+than left standing on its result.
+
+**§AD2.4's t = 45 clause survives with its path corrected.** `timeStart 42` with
+`writeControl writeTime` still means the first write at or past the start is
+**t = 45**, so a four-rank check at t = 42 would still manufacture a false
+mismatch by construction. Only the file it names changes.
+
+### AD4.4 THE LIVE TRAP THIS CREATED IN `resume_k2h.sh`, NAMED BEFORE IT FIRES
+
+**`resume_k2h.sh`'s G-02b searches `find "$CASE" -name 'fieldAverageProperties*'`
+— which on this OpenFOAM CAN NEVER HIT.** The guard therefore always takes its
+else-branch, which **REFUSES when the latest time is at or past `timeStart`
+42**. At t = 20 that branch passes and nothing shows. **THE MOMENT THIS RUN
+PASSES t = 42, ANY FUTURE RESUME OF IT WOULD BE REFUSED BY G-02b FOR A REASON
+FALSE BY CONSTRUCTION** — it would call a file's absence a defect when this
+version never writes that file, and the refusal would read as authoritative.
+**Repaired on disk before it can fire**, searching both paths, gating on the
+`dpAverage` **block** rather than on the file (which exists from t = 5 onward
+for unrelated reasons), keeping **both** refusal directions armed, and **driven
+to its refusing side** per **L-570**.
+
+### AD4.5 ONE THING OpenFOAM'S OWN STATE CORROBORATES
+
+That same file records `dp_return { scalar { areaAverage(return,p_rgh) 0; } }`.
+**The solver itself writes the structural zero** — independent corroboration of
+the `DP_module` disclosure now riding in the grading output, and not a reading of
+the fields by any agent.
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*

@@ -40,6 +40,28 @@ def parse():
                     or 'diverg' in ll):
                     if len(cur['bad'])<200: cur['bad'].append(l.rstrip()[:300])
     return segs
+# THE ACCUMULATOR'S REAL PATH, read out of OpenFOAM 2606's own source, NOT the
+# path this lane's brief named.  `fieldAverage::writeAveragingProperties` ->
+# `setProperty` -> `functionObjectList::createPropertiesDict` (functionObjectList.C
+# :98-100) puts the state in <time>/uniform/functionObjects/functionObjectProperties.
+# `<time>/uniform/fieldAverageProperties` DOES NOT EXIST in this version and a
+# watcher looking for it would have escalated a FALSE absence at t=45.
+#
+# AND A PRESENCE TEST ON THAT FILE IS WORTHLESS: it exists from the first write
+# at t=5, carrying the OTHER function objects' state.  What is counted here is
+# the `dpAverage` BLOCK inside it -- the fieldAverage function object named in
+# system/controlDict:39.
+FA_REL = os.path.join("uniform", "functionObjects", "functionObjectProperties")
+FA_FO  = "dpAverage"
+
+def _has_block(path, key):
+    try:
+        txt = open(path, errors="replace").read()
+    except OSError:
+        return False
+    return re.search(r"(?m)^\s*" + re.escape(key) + r"\s*$\s*\{", txt) is not None \
+        or re.search(re.escape(key) + r"\s*\{", txt) is not None
+
 def fa_ranks():
     r={}
     for i in range(RANKS):
@@ -49,7 +71,8 @@ def fa_ranks():
             for d in os.listdir(pd):
                 try: t=float(d)
                 except: continue
-                if os.path.exists(os.path.join(pd,d,"uniform","fieldAverageProperties")):
+                fp=os.path.join(pd,d,FA_REL)
+                if os.path.exists(fp) and _has_block(fp, FA_FO):
                     hits.append(t)
         r[i]=sorted(hits)
     return r
