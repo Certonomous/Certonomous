@@ -1,0 +1,44 @@
+D6RF11 — READ THIS BEFORE YOU READ THE NUMBERS
+Written 2026-09-12, BEFORE this item started a container and before any number existed.
+Registration: cases/dafoam/ladder-a/A2/curriculum_D6RF11/PREREGISTRATION.md, freeze e21e748b2915b16be41cecc36ad65b5a03ddc129 (grading path in the same commit).
+
+WHAT THIS RUN IS FOR
+  G3 — at least one FD sample row — is the genuinely open gate.
+  THIS TERRITORY HAS NEVER PRODUCED AN FD SAMPLE ON A 3D CASE.
+  The charter's bright line is that a DAFoam gradient is not a result until a
+  finite-difference table stands beside it at a step proved to lie in the plateau.
+  D6RF11 is the run that would give dafoam its FIRST 3D FD ROW. That is worth far
+  more than its registered 1,236 core-min and $1.06 derived.
+
+HOW TO READ A FAILURE, AND THIS IS THE PART THAT IS EASY TO GET BACKWARDS
+  IF G1 OR G2 FAILS, THE FINDING IS BIGGER THAN A PASS.
+  G1 (zero "Primal solution failed!") and G2 (last p initRes < 1.0e-05) are PREDICTED
+  to pass, and the prediction is not hope: D6RF10's R3 leg drove this EXACT design's
+  binding field to 6.323e-06 — below the floor and plateaued, late-window relative
+  spread 1.47e-05 % over times 1500-2000 (R3_autograde.json, binding verdict PASS).
+  The design point is identical to the bit: shape (96 DVs), twist (7) and
+  patchV_cl04/05/06 (6) all max_abs_diff = 0.000e+00, same _final_J
+  0.022238800232340834, same _n_major_rows 88, and D6R's O_mp, D6RF3's F_mp and
+  D6RF10's P_conv all carry ONE OptView.hst md5, 70fafa07bdee618fef13039433c01114.
+
+  So if G1 or G2 nevertheless fails, it means the R3 config DOES NOT SURVIVE THE FD
+  DRIVER'S OWN PATH even at the design where it was measured — which puts the blocker
+  in the DRIVER, not in the primal config. That relocates the whole 3D adjoint problem
+  and is a larger result than the pass would have been. Do not file it as a
+  disappointment.
+
+WHAT THIS RUN MAY NOT CLAIM, whatever its numbers say
+  PATCHED ROW ONLY — no shipped row, so this is not a verdict about DAFoam
+  (charter two-row rule).
+  ONE FD SAMPLE IS A PROBE, NOT A TABLE — it does not discharge the bright line, and
+  it does not verify the adjoint. The step has not been proved to lie in the plateau.
+  IT ISOLATES NOTHING — the change is a PACKAGE OF SIX installed together
+  (DARhoSimpleCFoam, nNonOrth 12, relax_p 0.70, relax_eqn 0.70, endTime 2000, the
+  LIMITED fvSchemes), because that is what R3 actually measured. Calling it "the
+  SIMPLEC fix" would be a quiet overclaim. Which member does the work is a later item.
+
+THE FLOOR DOES NOT MOVE
+  1.0e-05 = primalMinResTol 1e-8 x primalMinResTolDiff 1e3 (N-D43: the floor is the
+  PRODUCT), carried UNCHANGED from D6RF3 (d6rf3_opt_runScript.py:67-68).
+  Loosening primalMinResTolDiff would clear the floor by moving the floor. It does not
+  move for this run or for any successor.
