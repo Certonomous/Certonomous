@@ -673,3 +673,58 @@ on Amendment 1 would search the grading path for `mode=`, **not find it**, and r
 either that the registration was never implemented or that the wrong path was invoked. **A wrong
 identifier in a frozen document is a trap for the next reader even when the behaviour beneath it is
 right.**
+
+---
+
+## AMENDMENT 4 — 2026-09-12, cfd `lab-lane`. **THE `Np ∈ [4.0, 6.0]` BAND IS STRUCK AND LEFT LEGIBLE. A TITLE-VERIFIED SOURCE NOW EXISTS, AND UNDER IT OUR NUMBER READS 17–22 % LOW RATHER THAN INSIDE.**
+
+**lines whose number changed above this section: 0.** Nothing above is edited.
+This section is appended at the foot, as rule 6 requires.
+
+**What is struck.** §2's *"documented literature spread of roughly 5.0–6.0"* and
+§3's
+
+> `PASS band:  Np ∈ [4.0, 6.0]`
+
+are **STRUCK**. They remain on the page, unaltered, because other records cite
+this document by line and because a reader must be able to see what the band
+used to say.
+
+**What replaces them, and on whose authority.** Sanaa's [SANAA-DIRECT] addendum
+of 2026-09-12 ~19:10Z (`docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md:81`)
+registers **`Np ∈ [5.3, 5.6]`** from the mesh family of Reid, Rossi, Cottini &
+Benassi (2025), arXiv:2508.03176 — **5.46 / 5.44 / 5.49**, their Table 2 — **with
+the Rushton correlation demoted to a secondary reference**. The paper is now on
+this box at `docs/papers/CFD_simulation_rushton.pdf`, its `.txt` sidecar is
+written, and its **title page has been verified by rendering and reading page 1**
+(rule 15), which **§A1.13 of the R2 addendum could not do for want of the
+source**. That gap is now closed for this reference, though **not** for
+Rushton/Costich/Everett 1950, which is still not on the box.
+
+**THE ONE SENTENCE A READER OF THE OLD LINE NEEDS.**
+
+> **Under the struck band `[4.0, 6.0]`, this case's fine-level `Np = 4.38` was
+> INSIDE the band. Under `[5.3, 5.6]` it is 17.3 % to 22.0 % LOW and CLEARLY
+> OUTSIDE IT.** Anyone reading the struck line alone would believe we had a
+> passing number. **We did not, on the reference that now stands.**
+
+**NO VERDICT MOVES, AND NOT BECAUSE OF THE BAND.** R1's verdict was, and remains,
+**`NOT A RESULT`** — its grid triple refused before any band was consulted. Rule 5
+is one-way: a band may turn a result **into** `NOT A RESULT` and never the
+reverse. **Re-grading R1 against the new band is therefore meaningless and is not
+done here.** What changes is the honest description of the value, which is what
+this amendment exists to correct.
+
+**NO GATE, THRESHOLD, CAP OR LABEL OF THIS DOCUMENT IS ALTERED BY THIS
+AMENDMENT.** R1 is graded and closed; its band is struck for the benefit of
+readers, not re-armed. A **new** band, if one is ever gated on this case, belongs
+to a **new registration**, frozen before its own compute.
+
+**Where the full reading lives.**
+`verification/campaign/MRF_PAPER_REGISTRATION_REID2025.md` — including the
+finding that the two tanks are **NOT geometrically similar** (our baffles are 3×
+wider and our blades 4× thicker relative to `D`), so the 5.3–5.6 band is
+registered there **as context for `Np`, not as a gate**.
+
+*Appended by a cfd `lab-lane`, 2026-09-12. Submissions parked. No agent's message
+is Sanaa's consent.*

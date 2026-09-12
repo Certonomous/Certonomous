@@ -1383,3 +1383,77 @@ direction. Two numbers in A1.14 were re-derived from disk rather than accepted f
 brief that supplied them, and one differs (the flip point is 9,000, not 10,000). No gate,
 threshold, cap, band or label is altered. Submissions parked. No agent's message is Sanaa's
 consent.*
+
+---
+
+## ADDENDUM 1, SECTION A1.15 — 2026-09-12 — **THE `Np ∈ [4.0, 6.0]` BAND IS STRUCK AND LEFT LEGIBLE; THE `ET8000` VALUE 4.38 READS 17–22 % LOW UNDER THE BAND THAT NOW STANDS; AND §A1.13's RULE-15 FAILURE IS PARTLY CLOSED**
+
+**lines whose number changed above this section: 0.** Nothing above is edited.
+
+**1. What is struck.** Every occurrence in this document of the pre-registered
+PASS band
+
+> `Np ∈ [4.0, 6.0]`
+
+is **STRUCK**, and so is the `band_verdict: "PASS"` field that the graded rows
+`MRF_R2_TRIPLE_AT_4000.json` and `ET8000/MRF_R2_GRADED_ROW_ET8000.json` carry
+against it. Those files are **run artifacts and are not edited**; the field in
+them is to be read as **struck**, and this section is the record that strikes it.
+**That `band_verdict` was never the row's verdict** — both rows read
+`"verdict": "NOT A RESULT"` — but a reader scanning for the word `PASS` would
+find it, and that is exactly the reader this section is written for.
+
+**2. What replaces it.** `Np ∈ [5.3, 5.6]`, from the mesh family (5.46 / 5.44 /
+5.49, Table 2) of Reid, Rossi, Cottini & Benassi (2025), arXiv:2508.03176, per
+Sanaa's [SANAA-DIRECT] addendum of 2026-09-12 ~19:10Z; the Rushton correlation is
+demoted to secondary.
+
+**3. THE HONEST GRADE, STATED SO THE OLD LINE CANNOT MISLEAD.**
+
+> **Under the struck band `[4.0, 6.0]`, the `ET8000` fine-level `Np = 4.3817` was
+> INSIDE. Under `[5.3, 5.6]` it is 17.3 % low against 5.3, 21.8 % low against
+> 5.6, and 20.2 % low against their fine-mesh 5.49 — CLEARLY OUTSIDE.**
+
+**4. NO VERDICT MOVES.** `ET8000` was `NOT A RESULT` before this band existed, for
+two reasons that sit above any band: the **fine level is not iteratively
+converged**, and the triple 4.1935 → 4.2811 → 4.3817 is **`DIVERGENT`** at
+observed order **−0.297**. Rule 5 is one-way. The per-cent figures in item 3 are
+therefore a **description of an ungraded number**, never an accuracy, and may not
+be quoted as one.
+
+**5. §A1.13 IS PARTLY CLOSED, AND ONLY PARTLY.** A1.13 recorded that the rule-15
+title-page verification of the `Np` anchor **failed for want of the source**.
+A title-verified source now exists on the box — `docs/papers/CFD_simulation_rushton.pdf`,
+page 1 rendered and read, sidecar `docs/papers/CFD_simulation_rushton.txt`. **The
+disavowal in A1.13 is NOT lifted**, for two reasons stated plainly:
+(a) Rushton/Costich/Everett 1950 is **still not on the box**, and it is the
+correlation A1.13 was about; (b) the new source reports **no experimental power
+number at all** — its 5.46/5.44/5.49 are its own CFD on its own geometry. So the
+anchor is now **a title-verified CFD reference**, which is a real upgrade over a
+manifest value and is **still not an experiment**.
+
+**6. AND THE BAND DOES NOT CLEANLY TRANSFER.** Measured from disk, the two tanks
+are **not geometrically similar**: our baffle width is `0.300 D` against their
+`0.100 D` (**3×**), and our blade, disc and baffle thickness is `0.040 D` against
+their `0.010 D` (**4×**; their body text says `T/100`, which would make it 1.4×,
+and the paper contradicts its own figure on this dimension). Both are first-order
+drivers of a Rushton `Np`. The band is therefore registered as **context for
+`Np`, not as a gate**, in
+`verification/campaign/MRF_PAPER_REGISTRATION_REID2025.md`, which also records
+what would falsify the transfer.
+
+**7. AND THE ZONE-SIZE MECHANISM DOES NOT EXPLAIN OUR VALUE.** Read from this
+run's own `system/topoSetDict`, our MRF zone is **1.200 D in diameter and 2.00 W
+thick**. The paper's own Fig. 12 gives `Np` = 5.4 at 1.10 D **rising** to 6.2 at
+1.26 D. Our 1.20 D sits on that rise, so if their curve transferred it would
+predict `Np` **at or above** 5.3–5.6 — the opposite sign to our 20 % shortfall.
+The zone is still worth a sensitivity of its own; that draft is
+`cases/navier_class/MRF/R3/MRF_R3_ZONE_SENSITIVITY_DRAFT.md`, **NOT FROZEN, NOT
+LAUNCHED**.
+
+**NO GATE, THRESHOLD, CAP OR LABEL OF THIS DOCUMENT IS ALTERED.** This section
+strikes a superseded band for readers and records a reference; it re-arms
+nothing.
+
+*Appended by a cfd `lab-lane`, 2026-09-12. Submissions parked. No agent's message
+is Sanaa's consent.*

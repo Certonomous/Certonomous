@@ -1,0 +1,26 @@
+{
+  "coarse": {
+    "base_cell_mm": 10.0,
+    "n_cells": 154715,
+    "min_cell_mm": 0.7795,
+    "max_cell_mm": 11.2455,
+    "median_cell_mm": 2.5044,
+    "total_volume_m3": 0.020935767143309705
+  },
+  "medium": {
+    "base_cell_mm": 6.275,
+    "n_cells": 601696,
+    "min_cell_mm": 0.4492,
+    "max_cell_mm": 6.7637,
+    "median_cell_mm": 1.5728,
+    "total_volume_m3": 0.020929193355519154
+  },
+  "fine": {
+    "base_cell_mm": 3.902,
+    "n_cells": 2418780,
+    "min_cell_mm": 0.2733,
+    "max_cell_mm": 4.2951,
+    "median_cell_mm": 0.9765,
+    "total_volume_m3": 0.0209312259047787
+  }
+}

@@ -1,0 +1,3031 @@
+================================================================================
+SIDECAR PROVENANCE HEADER -- written 2026-09-12 by a cfd lab-lane.
+Everything below the second rule is machine-extracted text; nothing in it has
+been edited, re-ordered or summarised.
+
+PDF ...... docs/papers/CFD_simulation_rushton.pdf
+Extractor  pdftotext -layout (poppler), whole document, 62 pages
+sha256 ... 9d28d6971a7bdaf7b1bcfeb230af16bf088afe47739b80137b251b139b18220e
+bytes .... 6279570
+
+TITLE-PAGE VERIFICATION (CLAUDE.md rule 15 / L-144) -- DONE, AND NOT BY
+FILENAME, FILE TYPE OR HASH. Page 1 was rendered to an image at 90 dpi and read
+directly. It carries, as printed:
+
+  title    "CFD simulation of a Rushton turbine stirred-tank using open-source
+            software with critical evaluation of MRF-based rotation modeling"
+  authors  Alfred Reid (1*), Riccardo Rossi (1), Ciro Cottini (2),
+           Andrea Benassi (2,3)
+  affil.   1* Red Fluid Dynamics, Cagliari, Italy
+           2  Chiesi Farmaceutici S.p.A., Parma, Italy
+           3  International School for Advanced Studies (SISSA), Trieste, Italy
+  contact  areid@red-fluid.com
+  stamp    arXiv:2508.03176v1 [physics.flu-dyn] 5 Aug 2025
+  keywords CFD, Stirred tank, Rushton turbine, MRF, OpenFOAM, RANS
+
+That is the paper the directive names, and the identification rests on the
+rendered title page, not on the file's name or its checksum.
+
+FILING NOTE, disclosed and not silently fixed: FILING_CHARTER / CLAUDE.md
+"WHERE THINGS LIVE" asks for docs/papers/<topic>/author_year_identifier.pdf.
+This PDF is filed at the papers root under a descriptive name. It is left where
+it is because the [SANAA-DIRECT] instruction of 2026-09-12 names that exact
+path and other records now cite it; the deviation is recorded here rather than
+repaired by a move that would break those citations.
+
+WHAT THIS PAPER IS AND IS NOT, FOR A READER WHO WILL QUOTE A NUMBER FROM IT:
+  * It reports NO experimental power number. The values 5.46 / 5.44 / 5.49
+    (its Table 2) are its OWN CFD, on ITS OWN geometry, all three computed with
+    its SMALLEST MRF zone ("Zone 1", 1.10 D) -- see sidecar text at
+    "The base MRF zone used for the mesh sensitivity study ... is the Zone 1".
+  * Its external experimental anchor is Wu & Patterson (1989) LDA VELOCITY and
+    TKE data, with a stated uncertainty of 4 % on velocity and 15 % on TKE.
+  * Its tank is T = 27 cm, D = 9.3 cm, N = 3.33 rev/s, Re = 28,830, baffle
+    width D/10, blade/disc/baffle thickness D/100 (Fig. 1 labels; the body text
+    at "For the blades, disc and baffles thickness" says T/100 instead -- the
+    paper is internally inconsistent on this one dimension and BOTH readings
+    are recorded here rather than one of them chosen).
+================================================================================
+
+                                                  CFD simulation of a Rushton turbine stirred-tank
+
+                                                  using open-source software with critical evaluation
+arXiv:2508.03176v1 [physics.flu-dyn] 5 Aug 2025
+
+
+
+
+                                                               of MRF-based rotation modeling
+                                                  Alfred Reid1*, Riccardo Rossi1 , Ciro Cottini2 , Andrea Benassi2,3
+                                                                     1* Red Fluid Dynamics,         Cagliari, Italy.
+                                                                   2 Chiesi Farmaceutici S.p.A., Parma, Italy.
+                                                    3 International School for Advanced Studies (SISSA), Trieste, Italy.
+
+
+
+
+                                                        *Corresponding author(s). E-mail(s): areid@red-fluid.com;
+
+
+                                                                                        Abstract
+                                                   A critical evaluation of the impact of the Multiple Reference Frame (MRF)
+                                                   technique on steady RANS simulations of a Rushton turbine stirred-tanks is pre-
+                                                   sented. The analysis, based on the open source software OpenFOAM, is focused
+                                                   on the choice of the diameter and thickness of the MRF region and on their effect
+                                                   on the predicted velocity field and mixing times in the tank. Five diameters of
+                                                   the MRF region are compared for the same operating conditions of the turbine,
+                                                   showing limited differences in velocity profiles, which are found in general good
+                                                   agreement with available experimental data. Significant differences are nonethe-
+                                                   less found in the predicted levels of turbulence intensity within the tank, with a
+                                                   considerable amount of artificially generated turbulence at the boundary of the
+                                                   MRF region for the largest diameters. The impact of the different predictions of
+                                                   the turbulent field on the modeling of the mixing process in the tank is evaluated
+                                                   by simulating the release of a passive scalar, using the frozen-flow field hypothesis.
+                                                   The results show changes in mixing times up to a factor of three when compar-
+                                                   ing MRF regions of different size. Thus, the present investigation highlights the
+                                                   importance of assessing the effect of the MRF zone size on numerical results as
+                                                   a standard practice in RANS based simulations of stirred-tanks.
+
+                                                   Keywords: CFD, Stirred tank, Rushton turbine, MRF, OpenFOAM, RANS
+
+
+
+
+                                                                                             1
+1 Introduction
+
+Stirred tanks are widely used in several industrial sectors such as chemicals, pharma-
+
+ceuticals and food and beverage. They play a major role when it comes to mixing
+
+or dissolution processes, and they are responsible for a significant part of the total
+
+energy consumption [1]. There is thus the need to develop design tools able to predict
+
+accurately and optimize the performance of these devices.
+
+   Several types of stirred-tanks exist but they usually consist of one or more impeller
+
+systems (shaft, disc and blades), baffles on the inner skirt of the tank walls, and case-
+
+specific measuring or controlling devices like probes and injection systems. Even tough
+
+a stirred-tank may appear as a simple apparatus, the flow generated by the impeller
+
+and its interactions with the other components is often complex and highly unsteady
+
+[2, 3]. More specifically, there are numerous parameters that have an influence on the
+
+flow field such as the tank geometry (impeller, blades, baffles) or the operating condi-
+
+tions (stirring speed, type of fluid, thermodynamics effects, chemical reactions) which
+
+increase the difficulty to predict the behaviour of a given stirred-tank setup. Signifi-
+
+cant experimental efforts have been made in the past decades towards understanding
+
+the flow in stirred-tanks and quantifying the mixing, dissolution and reaction phenom-
+
+ena taking place within the tank volume. However, experimental techniques present
+
+some inherent limitations. For example, it is usually impossible to obtain data in the
+
+whole tank volume and therefore only a limited zone is analyzed. Additionally, some
+
+methods may also perturb the flow and it is not always possible to run experiments
+
+on industrial-scale reactors leading to limited data for scale-up of a specific design.
+
+Lastly, laboratory experiments are expensive and potentially complex to run, hence
+
+the amount of iterations is often limited.
+
+   Thanks to the evolution of numerical techniques, Computational Fluid Dynam-
+
+ics (CFD) has become widely used to perform simulations of stirred-tanks and go
+
+beyond the limitations of experimental methods, as it provides a more efficient way
+
+
+
+                                             2
+to obtain qualitative and quantitative data. Both Large-Eddy-Simulation (LES) and
+
+Reynolds-Averaged Navier Stokes (RANS) simulations are reported in the literature,
+
+even though the latter is still the most commonly adopted for industrial applications
+
+[1]. In fact, even though LES is usually more accurate by solving directly a wide spec-
+
+trum of scales of the flow, it also requires a significantly larger computational effort.
+
+On the other hand, RANS methods have shown to be sufficiently accurate in numer-
+
+ous industrial applications, where time to solution requirements are more stringent.
+
+Nonetheless, a proper assessment of potential limitations of RANS approaches, which
+
+compared to LES use a broader range of empirical models, is necessary. Moreover even
+
+if several papers have been dedicated to analyzing the impact of modeling parameters
+
+on numerical results, there is still the need for addressing some of the hypothesis and
+
+models adopted within the RANS framework.
+
+   Among the several modeling challenges posed by the simulation of stirred-tanks,
+
+the impeller rotation is one of the most crucial. Numerous methods are available to
+
+model the impeller rotation [4], but they can be separated into two main categories:
+
+steady and unsteady. RANS-based steady methods are particularly interesting in
+
+industrial applications because of the lower computational effort, allowing for more in-
+
+depth optimization processes. Although different techniques exist such as the Impeller
+
+Boundary Condition (IBC) [5, 6], the Inner-Outer (IO) method [4] or the Snapshot
+
+approach [7], the most versatile and most commonly employed is the Multiple Refer-
+
+ence Frame (MRF) approach [8]. In this approach, the geometry studied is separated
+
+into a stationary frame and a rotating frame and, instead of explicitly rotating the
+
+impeller, a different set of equations is solved in each zone to account for the blades
+
+motion. The MRF approach thus requires the user to select the rotating frame dimen-
+
+sion and although some application-specific recommendations exist, the choice of the
+
+MRF region extent is often overlooked. For example, existing studies have compared
+
+
+
+
+                                           3
+different MRF sizes for axial fans [9, 10] but no general guidelines are provided regard-
+
+ing the ideal MRF zone size. Nevertheless, these studies stress the importance of
+
+choosing the appropriate MRF region size as it is found to have noticeable impact on
+
+the flow.
+
+   When reviewing the existing literature, it should be noted that most stirred-tank
+
+studies using the MRF approach do not specify the rotating frame diameter and height
+
+dimensions [11]. Moreover, only few studies have compared different MRF zones sizes
+
+in agitated vessels and they all highlighted significant variations in the numerical
+
+results.
+
+   For example, Patil et al. [12] undertook a sensitivity study comparing six MRF
+
+zones with increasing diameter (from 1.1D to 2.2D, D being the impeller diameter)
+
+and thickness (from 2.1W to 3.3W, W being the blade width). Although they focused
+
+their analysis on the three velocity components profiles in the proximity of the shaft,
+
+they still found significant differences in the three velocity components profiles when
+
+comparing with experimental data.
+
+   It is interesting to note that the smallest zone used, having the diameter of the
+
+impeller, gave the worst results. Likewise, De La Concha et al. [13] compared six dif-
+
+ferent MRF zones, from 1.11D to 1.43D in diameter and from 3.1W to 6.35W in
+
+thickness. They found that at very low Reynolds number, based on the impeller diam-
+
+eter and rotation speed, the rotating frame size had a significant impact on results and
+
+recommended to increase the diameter and height of the MRF zone as the Reynolds
+
+number increases. Moreover, they report how local velocity profiles and power number
+
+were more sensitive to the MRF zone size than to the mesh resolution. More recently,
+
+Kuschel et al. [14] observed a sharp increase in power number when the MRF zone
+
+was below 1.5D in diameter and below 1.5W in thickness. They also found the power
+
+number decreased when the MRF diameter was over 2D.
+
+
+
+
+                                           4
+   Even though it appears there are no established guidelines for the MRF zone size
+
+selection in the literature, there seems to be a general consensus on some practices.
+
+For example, the work of Jaszczur and Mlynarczykowska [1] suggests the rotating zone
+
+should not be located in a region where gradients are high. Similarly, Zadravec et al.
+
+[15] suggested that the rotating frame boundary should include the point where the
+
+fluid motion shifts from accelerating to decelerating, which can be difficult to achieve in
+
+practice. Additionally, other authors recommend having the rotating frame boundary
+
+positioned midway between the blade tip and the baffles [1, 16, 17]. In the literature,
+
+the diameter of the MRF zones ranges from 1.05D [18] to 2D [19, 20], and the thickness
+
+ranges from 1.18W [21] to 6.35W [13] which emphasizes the heterogeneity of the MRF
+
+dimensions used in the existing CFD studies of stirred-tanks.
+
+   Despite the aforementioned studies, the impact of the size of the MRF zone on
+
+the turbulent kinetic energy and mixing time predictions has never been addressed
+
+before and, to the best of our knowledge, remains an open point. In this work, we thus
+
+present a critical evaluation of the impact of the MRF region size on the velocity field
+
+prediction as well as on the predicted turbulent kinetic energy field using steady RANS
+
+models. Moreover, mixing times are also qualitatively compared in order to highlight
+
+the consequences of MRF-based variations of turbulence and velocity fields on mixing
+
+dynamics when using a frozen-flow approach. With the objective of contributing to
+
+open research and innovation, the CFD model of the Rushton turbine is developed
+
+using the open-source software OpenFOAM, for which no existing research with a
+
+focus on the MRF approach is reported in the literature.
+
+
+2 Computational methodology
+
+2.1 Stirred tank configuration
+
+In this work, the geometry studied is the one used by Wu and Patterson [22]. It is
+
+a 27 cm baffled tank stirred with a 6-blades Rushton turbine whose dimensions are
+
+
+                                            5
+detailed in Fig. 1. The tank is filled with water to a height H, the impeller diameter
+
+D is 9.3 cm, the blade length and width are respectively L = D/4 and W = D/5
+
+and the impeller clearance is C = T /3. It is important to remind that in the reference
+
+paper, the authors did not mention the shaft diameter, the thicknesses of the blades,
+
+disc and baffles, as well as the disc diameter. Therefore, these dimensions are set based
+
+on other similar studies. The disc diameter was estimated using one of the figures in
+
+the reference paper and was found to be 7.2 cm, giving a ratio to the tank height of
+
+about T /4. The same value was found in the literature [23, 24] which corroborates this
+
+measurement. For the blades, disc and baffles thickness, there is no standard value
+
+in the literature but T /100 has been used in several publications [23, 25]. Lastly, the
+
+shaft diameter ranges from D/4 [26] to D/10 [27] in the literature, so an intermediate
+
+value of 1.5 cm (D/6.2) was chosen. Fillets were added on the blades edges (0.1 mm
+
+radius) and on the disc edges (0.6 mm radius) to make the meshing process easier.
+
+The impeller and shaft are rotated in the positive direction in the coordinate system
+
+at 3.33 s−1 (200 RPM) which corresponds to a Reynolds number of 28830 defined as:
+
+
+                                             N D2
+                                      Re =                                           (1)
+                                              ν
+
+
+where N is the rotation speed and ν the kinematic viscosity of water. Given the large
+
+extent of the experimental data available, this setup was adopted in the numerical
+
+studies of Qi et al. [28], Malik et al. [27], Jaszczur et al. [29], and Patil et al. [30]
+
+allowing a wide range of comparisons and validation.
+
+
+2.2 Governing equations
+
+The flow governing equations are solved using the ESI v2206 release [31] of the open-
+
+source software OpenFOAM [32], based on the unstructured finite-volume method.
+
+The simpleFoam solver used in the present work adopts the SIMPLE (Semi-Implicit
+
+
+
+                                           6
+method for Pressure Linked Equations) algorithm by Caretto et al. [33] to perform
+
+steady-state calculations. The consistent variation of this algorithm (SIMPLEC) pro-
+
+posed by Van Doormaal and Raithby [34] is also used in some of the computations to
+
+speed-up the convergence of the numerical solution.
+
+   The impeller rotation is modeled using the MRF approach, with the impeller
+
+fixed in one position in space relative to the baffles. In the static reference frame the
+
+standard steady-state incompressible Reynolds-averaged Navier-Stokes equations are
+
+solved, more specifically the continuity equation:
+
+
+
+                                       ∇·U=0                                         (2)
+
+
+
+and the momentum equation:
+
+
+                                  1
+                      ∇ · (UU) = − ∇P + ∇ · (ν∇U) + ∇ · R                            (3)
+                                  ρ
+
+
+with ρ the fluid density, P the time-averaged pressure field and U the absolute velocity
+
+vector and R the Reynolds stress tensor defined as:
+
+
+
+                                      R = −U′ U′                                     (4)
+
+
+         ′
+where U is the fluctuating velocity vector.
+
+   In the rotating frame, in order to account for the relative angular velocity in the
+
+MRF zone, Eq. (3) is solved with the additional Coriolis and centrifugal terms. With a
+
+specific rearrangement of the equation that facilitates the computation, the momentum
+
+equation solved in the rotating frame is expressed as:
+
+
+                                1
+                  ∇ · (Ur U) = − ∇P + ∇ · (ν∇U) − ΩU + ∇ · R                         (5)
+                                ρ
+
+
+
+                                           7
+with the relative velocity vector Ur given by:
+
+
+
+                                    Ur = U − Ω × r                                   (6)
+
+
+
+where Ω is the angular velocity vector of the rotating frame and r is the distance from
+
+the cell centroid to the rotation axis.
+
+   The MRF method should be limited to configurations where the blades and baffle
+
+interaction is weak, a condition verified when D < 2T according to Oshinowo et al.
+
+[17]. The impact of the impeller angular position in the present setup is investigated
+
+in Appendix A.
+
+   The main turbulence model used in this study is the k-ω SST proposed by Menter
+
+[35, 36] because of its versatility and generally higher-accuracy for wall-bounded flows.
+
+In the OpenFOAM release adopted in this work the following modified formulation of
+
+the turbulent kinetic energy and energy dissipation rate transport equations proposed
+
+by Menter et al. [37] are solved, written as in the OpenFOAM documentation [38]:
+
+
+
+                        ∇ · (ρkU) = ∇2 (ρDk k) + ρG − ρβ ∗ ωk                        (7)
+
+
+                                            ργG
+              ∇ · (ρωU) = ∇2 (ρDω ω) +          − ρβω 2 − ρ(F1 − 1)CDkω              (8)
+                                             ν
+with Dk and Dω the turbulent diffusion coefficients for k and ω respectively, CDkω
+
+the cross diffusion term, F1 the blending factor, β, β ∗ , γ model constants and G the
+
+production term defined as:
+
+                                          G=R⊗S                                      (9)
+
+where S is the strain rate tensor defined in Eq. (10).
+
+
+                                          1
+                                  S=        (∇U + ∇UT )                             (10)
+                                          2
+
+
+
+                                             8
+   Lastly, the kinematic turbulent viscosity is defined with a viscosity limiter as:
+
+
+                                                k
+                               νt = a1                                               (11)
+                                         max(a1 ω, b1 F23 S)
+
+
+where α1 and b1 are model constants, F23 is a blending factor and S is magnitude of
+
+the strain rate tensor.
+
+
+2.3 Numerical mesh
+
+The computational meshes adopted in the present study are created using the built-
+
+in OpenFOAM utility snappyHexMesh. Different hexahedral-dominant meshes, as the
+
+one shown in Fig. 2, are generated ranging from 1.5 to 11.8 million elements, the
+
+different mesh characteristics are detailed in Table 1. A 5.76 million elements mesh was
+
+selected for the simulations after the mesh sensitivity analysis presented in Section 3.1
+
+was performed. This mesh has a base cell size of 5 mm and is refined in the impeller
+
+region on a vertical distance of 1.075D (∼2 cm) above and below the impeller center
+
+line. The cells refined in this region are four times smaller in size than the base cells.
+
+A surface refinement was also added on all solid surfaces, with three refinement levels
+
+on the blades disc and shaft, and two levels on the tank walls, leading to cell sizes
+
+around 0.6 mm and 1.25 mm respectively. Note that the same refinement strategy has
+
+been employed with respect to the base cell size for all meshes. Lastly, in order to
+
+model the boundary layer, four prism layers are generated on all solid surfaces with
+
+an expansion ratio of 1.2. The dimensionless wall distance y + is defined as:
+
+
+                                                 yuτ
+                                         y+ =                                        (12)
+                                                  ν
+
+
+
+
+                                             9
+where y is the wall distance and uτ is the friction velocity defined as:
+
+                                               r
+                                                   τω
+                                        uτ =                                           (13)
+                                                    ρ
+
+
+where τω is the wall shear stress. The average y + value obtained on the blades, tank
+
+and shaft surfaces for the final mesh is y + ∼ 4.13. On the blades surface only, an
+
+average y + = 7 is achieved with maximum values around 35 near the blades edges
+
+and minimum values close to 0.1 near the re-circulation zones of the baffles.
+
+
+2.4 Numerical setup
+
+For the fluid velocity field at the tank walls, baffles, disk and blades a no-slip condition
+
+has been adopted. A rotating wall velocity is applied to the shaft surface using the same
+
+rotation speed of the impeller. The free surface condition at the top of the geometry
+
+is set as symmetry as often reported in the literature [13, 28]. With this choice it is
+
+not necessary to explicitly model the air-water interface and a single-phase solver can
+
+be adopted, which is significantly less computationally expensive than a multiphase
+
+setup. Given the range of y + values obtained in the tank, the choice of a wall modeling
+
+approach with y + insensitive wall functions is made. More specifically, the model uses
+
+the OpenFOAM boundary conditions kqRWallFunction for k, omegaWallFunction for
+
+ω, and nutUWallFunction for the turbulent viscosity νt on all solid surfaces.
+
+   The simulations are started using first order discretization schemes (bounded Gauss
+
+upwind) and Under Relaxation Factors (URF) of 0.4 for all quantities to ensure stabil-
+
+ity during the initial solving phase. After 250 iterations the schemes for all quantities
+
+are changed to second order (bounded Gauss linearUpwind) and at 350 iterations
+
+URF are increased to 0.7 for all quantities, except for pressure which under-relaxation
+
+is slightly reduced to a standard value of 0.3. This strategy was adopted based on
+
+
+
+
+                                            10
+a trial-and-error approach depending on the instabilities encountered and provided a
+
+satisfactory compromise between convergence speed and stability.
+
+   Nevertheless, the overall convergence of the steady-state solver appears to be
+
+impacted by the underlying unsteadiness of the flow generated by the periodicity of
+
+the blade and baffles interaction as well as the fully confined flow configuration (no
+
+inlet or outlet) when switching to higher-order schemes and higher URF setup with
+
+the k − ω SST model. This is also due to the limited numerical diffusivity associated
+
+with hex-dominant meshes typically used by OpenFOAM, which are known to allow
+
+for the onset of velocity fluctuations in the flow even when solving for the steady
+
+formulation of the RANS equations. The numerical setup was made more stable by
+
+using bounded schemes and non orthogonal correctors, nonetheless the residuals do
+
+not drop below 10−3 for velocity and for the turbulent kinetic energy k and below
+
+10−4 for pressure and the specific dissipation rate ω as shown in Fig. 3a, where the
+
+pseudo time-dependent behavior of the numerical solution can be observed. Fig 3b
+
+shows the evolution of the main quantities monitored with respect to the iterations:
+
+the amplitude of the oscillations after 1000 iterations is less than 5% of the final value
+
+for all quantities and a statistically steady behavior is observed. Therefore, all the
+
+results presented in this study are averaged over the last 2000 iterations.
+
+
+2.5 Performance metrics
+
+In this section, the main indicators selected to perform the quantitative comparison of
+
+the MRF zones and the validation of the model are presented. The power number is
+
+one of the most important parameters for a stirred tank and consists of a dimensionless
+
+number often used for scale-up purposes that quantifies the power consumption and
+
+efficiency of an impeller, defined as:
+
+
+                                              P
+                                     Np =                                            (14)
+                                            ρN 3 D5
+
+
+
+                                            11
+where P is the power in Watts. When comparing different stirring-tanks setup, low
+
+power number values indicate more efficient stirring configurations.
+
+   There are three main methods to compute the power number in a CFD simulation.
+
+The first one consists in computing the torque by integrating the sum of the normal
+
+pressure and normal viscous forces on the impeller [16]. The second method uses the
+
+pressure difference between the two sides of each blades to compute the torque as
+
+done by Qi et al. [28]. The third method directly estimates the power by integrating
+
+the turbulent dissipation rate over the whole liquid volume [18]. The latter is based
+
+on the assumption that the amount of energy per unit time introduced in the reactor
+
+by the impeller is equal to the total energy dissipation rate [39]. Because this specific
+
+energy balance is not rigorously verified in RANS models [5], this method has shown
+
+to significantly underpredict the power number [40, 41]. In this work, the first method
+
+is used and the power is calculated as follows:
+
+
+
+                                      P = 2πM N                                     (15)
+
+
+
+where the torque around the vertical axis M is computed by integrating the sum
+
+of pressure and viscous forces F over each surface element dA of the impeller blade
+
+surface S as follows:
+                                           Z
+                                    M=          F r dA                              (16)
+                                            S
+
+where r is the radial distance from the surface element to the shaft center line.
+
+   Another metric that can be used to quantify the quality of the mixing in stirred
+
+vessels is the agitation index proposed by Mavros and Baudou [42]. It is a way to
+
+represent the spatially averaged mean velocity in the tank volume Û as a percentage
+
+of the tip velocity Utip and is expressed as follows:
+
+
+                                            Û
+                                    Ig =        × 100                               (17)
+                                           Utip
+
+
+                                            12
+where
+
+                                                Utip = πN D                           (18)
+
+   Similar to the agitation index, the turbulence intensity is a measure of the mag-
+
+nitude of velocity fluctuations with respect to the flow mean velocity. It is commonly
+
+used to quantify the intensity of turbulent fluctuations in the flow and is defined as
+
+follows:
+                                                       u′
+                                                  I=                                  (19)
+                                                          Û
+where u′ is the root mean square of the characteristics turbulent velocity fluctuations
+
+given by:
+
+                                        r                            r
+                                    ′       1 ′2                         2
+                                              ux + u′y 2 + u′z 2 =
+                                                                
+                                u =                                        k          (20)
+                                            3                            3
+            2     2             2
+where u′x , u′y       and u′z       are the components of the root mean square of velocity
+
+fluctuations.
+
+
+3 Results and analysis
+
+3.1 Mesh sensitivity study
+
+Three different meshes with significantly different resolutions are compared to assess
+
+the impact on the numerical solution. The refinement zones dimensions and refinement
+
+levels are kept constant for all meshes and only the base cell size is changed. The
+
+base MRF zone used for the mesh sensitivity study and for the turbulence model
+
+comparison is the Zone 1 defined in Sec. 3.3.1. The maximum element size (base
+
+cell size), minimum cell size (cell size in the impeller stream refinement region) and
+
+cell count of each mesh are detailed in Table 1 along with the minimum, mean and
+
+maximum y + values on the solid surfaces.
+
+   The power number is often used to check the validity of CFD models for stirred-
+
+tanks, but in order to investigate the mesh sensitivity in greater details, the agitation
+
+
+                                                     13
+                             Mesh             Coarse      Medium     Fine
+                    Max element size (mm)       7            5        4
+                    Min element size (mm)      0.44        0.31      0.25
+                     Nr. of elements (Mo)      1.51        3.33      5.76
+                            Min y +            0.13        0.11      0.07
+                          Average y +          6.5          5.1      4.1
+                            Max y +            55.3        39.9      29.9
+                     Table 1: Mesh sensitivity study parameters
+
+
+index as well as mean turbulence intensity are also computed and compared. Accord-
+
+ing to Deglon and Meyer [19], the overall structure of the flow field and the mean
+
+velocity are not strongly influenced by the mesh size whereas the power number and
+
+the turbulent kinetic energy predictions should be more impacted. Table 2 shows the
+
+evolution of the mixing performance parameters for the different meshes: the relative
+
+differences are below 2.6% for the power number and agitation index and below 4.2%
+
+for the average turbulence intensity. When comparing the medium and fine meshes,
+
+the discrepancies drop to 0.9% for power number and turbulence intensity and 2.2%
+
+for agitation index. Therefore, the mesh resolution has a relatively low impact on these
+
+parameters.
+
+                   Grid    Coarse   Medium        Fine    Relative variation
+                                                           medium vs fine
+                  Np (-)   5.46      5.44         5.49          0.9%
+                  Ig (%)   13.70     13.61        13.33         2.2%
+                   I (%)   6.18      6.29         6.34          0.8%
+                 Table 2: Power number, agitation index, volume-
+                 average turbulence intensity obtained for the three
+                 grids studied along with the relative error between
+                 medium and fine mesh
+
+
+
+   A more stringent assessment can be made by comparing velocity and turbulent
+
+kinetic energy profiles at three radial distances from the shaft axis (namely 5, 6 and 7
+
+cm) with the experimental results of Wu and Patterson [22]. In the reference experi-
+
+ments the velocities are measured on the 45° plane; however when using a steady-state
+
+
+
+
+                                             14
+approach in a baffled tank it is not possible to completely model or average angle-
+
+resolved features since the blades are not explicitly rotating. The simulations are thus
+
+executed at a given position of the impeller relative to the baffles and profiles of veloc-
+
+ity and turbulent kinetic energy are averaged over the circumference of the tank from
+
+0° to 350° by 10° steps. The velocity and turbulent kinetic energy profiles are extracted
+
+at three radial distances from the shaft (5, 6 and 7 cm) on a vertical distance of 2.5W
+
+(4.65 cm).
+
+   Fig. 4 shows the profiles of the three velocity components in the impeller discharge
+
+stream at a radial distance of 5 cm for the three meshes. The vertical distance z is
+
+computed based on the origin of the system defined in Fig. 1, which is located at
+
+the center of the impeller. Similarly to the observations of Deglon and Meyer [19],
+
+the velocity profiles are not significantly impacted by the mesh resolution and only
+
+small discrepancies are found between the three meshes studied (maximum deviation
+
+∼ 6%). Additionally, it can be observed in Fig. 5 that the turbulent kinetic energy
+
+profiles, extracted at a radial distance of 5 cm, are not fully converged, despite exhibit-
+
+ing a converging behavior when increasing the mesh resolution. However, given the
+
+industrial-type application and the uncertainty in the reference experimental data, the
+
+finest mesh adopted in this study is deemed accurate enough for the purpose of the
+
+present work as shown in Sec. 3. Similarly to the results of Coroneo et al. [16], the
+
+turbulence levels are higher when using a finer mesh; nonetheless the typical double
+
+peak profile is captured with all three meshes. Based on the mesh sensitivity study
+
+performed, all the results analyzed are computed using the fine mesh in the following
+
+sections of the present work.
+
+
+
+
+                                            15
+3.2 Turbulence model comparison
+
+The k-ω SST model adopted in this work was developed to support wide ranges of y + ,
+
+a feature particularly relevant for stirred-tanks where large velocity gradients in dif-
+
+ferent regions of the tank exist. However, in the present configuration it is challenging
+
+to obtain a smooth numerical convergence and perfectly steady solution as shown in
+
+section 2.4. A comparison with the k-ϵ model [43, 44], which is known by CFD prac-
+
+titioners for promoting convergence and stability of the numerical solution, is thus
+
+performed to investigate and evaluate the partial convergence of the k − ω SST model.
+
+The model settings, boundary conditions and operating conditions are kept the same
+
+as those described in Sec. 2.4.
+
+   It is interesting to note that the instabilities discussed in Sec. 2.4 do not appear
+
+when using the k-ϵ turbulence model, as shown in Fig. 6a. The residuals reach 10−6
+
+after 5000 iterations, while the physical quantities in Fig. 6b show no oscillation at
+
+all. The significantly higher values of kinematic turbulent viscosity obtained with the
+
+k − ϵ with respect to the k − ω SST model, shown in Fig. 7, illustrate the increased
+
+stability obtained with the former by dampening the potential large scale velocity
+
+fluctuations. However, the k-ϵ model comes at the cost of less flexibility for near wall
+
+treatment and a greater approximation for generally less accurate numerical solutions
+
+according to the literature, especially for turbulent quantities [1, 20, 40].
+
+   The radial velocity profiles obtained using k-ϵ and k-ω SST turbulence models at
+
+5 cm and 7 cm away from the shaft center line are shown in Fig. 8. The error bars
+
+shown for the experimental measurements of Wu and Patterson [22] are based on
+
+their global error estimation computed using the inflow and outflow imbalances. They
+
+estimate the uncertainty to be within 4% for velocity and 15% for the turbulent kinetic
+
+energy. Overall, the two models give a reasonable agreement with the experiments
+
+and very similar results for the profiles further away from the impeller. However, near
+
+the impeller the k-ω SST model better predicts the peak value of radial velocity. It
+
+
+
+                                           16
+is also worth noting that the under-prediction of the radial velocity when moving
+
+away from the impeller, reported by Singh et al. [45] for both models, is not observed
+
+here. Moreover, the radial velocity is underpredicted by the k-ϵ model instead of being
+
+overpredicted as found in their study.
+
+   The turbulent kinetic energy profiles in the impeller discharge stream for both
+
+turbulent models are shown in Fig. 9 and compared to experimental data from Wu
+
+and Patterson [22]. The k-ϵ model over-predicts the overall turbulent kinetic energy
+
+and does not clearly capture the typical double peak profile. On the other hand, the k-
+
+ω SST model yields a satisfactory prediction although it overpredicts the peak under
+
+the impeller center line. These results are in agreement with those of Singh et al. [45]
+
+where it was also found that the k-ϵ model overpredicted k close to the impeller and
+
+that the k-ω SST model resulted in a more accurate prediction.
+
+   Fig. 10 shows the turbulent kinetic energy on two different horizontal planes
+
+obtained with the k − ω SST and the k − ϵ turbulence models. The latter shows higher
+
+global levels of turbulent fluctuations and also displays a less concentrated distribu-
+
+tion of the turbulent kinetic energy. On the other hand, while still maintaining similar
+
+basic turbulent features, the k − ω SST yields a closer agreement with the LES sim-
+
+ulations reported in the work of Derksen and Van den Akker [46]. More specifically,
+
+the turbulence levels are found significantly lower near the disc and blades on both
+
+horizontal planes, and the regions of high-turbulence generated by each blade are sep-
+
+arated by lower turbulence zones on the plane 2z/w = −0.35 in Fig. 10a. The better
+
+near-wall behavior of the k − ω SST model likely contributes to its improved agree-
+
+ment with the LES data in the vicinity of the disc and blades. Nonetheless, as one can
+
+expect, none of the two turbulence models is able to fully predict all the flow features
+
+obtained in the LES reference data as the present results are computed with a steady
+
+RANS approach.
+
+
+
+
+                                          17
+   Despite showing a less optimal convergence behavior compared to the k − ϵ model,
+
+the results obtained with the k − ω SST are in good agreement with the reference
+
+data and are consistent with the k − ϵ results. Based on these results, the k − ω SST
+
+turbulence model is considered to have sufficient robustness to effectively support the
+
+MRF zone comparison of the present work.
+
+
+3.3 MRF zone size analysis
+
+3.3.1 Impact on the flow field
+
+In order to assess the influence of the MRF zone on the predicted flow field, five
+
+different zones are compared with diameters of 1.10D, 1.26D, 1.49D, 1.70D and 1.93D
+
+with a constant thickness of 1.55W. In order to facilitate their identification, an ID is
+
+assigned to each zone in Fig. 11, ranging from 1 to 5, from the smallest to the largest
+
+zone. The volume of the smallest zone adopted in this work is slightly greater than
+
+the volume swept by the impeller, thus limiting the rotation effect to the impeller
+
+vicinity. The increasing larger zones extend farther in the tank volume up to Zone 5,
+
+having the largest diameter and being the closest to the baffles location. Most studies
+
+reported in the literature use MRF regions with dimensions within those of Zone 3
+
+and Zone 5 [1, 11, 16, 20, 41].
+
+   The impact of the MRF zone diameter on the global performance parameters is
+
+shown in Fig 12. A sharp increase of more than 10% in power number and agitation
+
+index can be seen between Zone 1 and Zone 2, while a slightly more gradual and linear
+
+increase occurs for the turbulence intensity in the tank with a maximum variation of
+
+19% between Zone 1 and Zone 5. Maximum values are reached with Zone 4 for power
+
+number and agitation index. The radial, tangential and axial velocity profiles at 5 cm
+
+from the shaft obtained with the five different MRF zones are shown in Fig. 13. The
+
+radial velocity prediction is consistent with the experiments of Wu and Patterson [22]
+
+and although slight variations in the profile are observed for the Zone 1, the differences
+
+
+
+                                           18
+in radial velocity when changing the MRF zone diameter are low. Similar observations
+
+can be made for the tangential and axial velocity components, except some larger
+
+differences occurring between the Zone 1 and the other zones. As shown in Fig. 14,
+
+when moving farther away, at 6 cm from the impeller, the smallest MRF region (Zone
+
+1) gives lower peak values for the radial velocity and tangential velocities, thus being
+
+the only zone underpredicting the radial velocity peak but, on the other hand, not
+
+overshooting the tangential velocity peak as much as the others zones.
+
+   Even though circumferentially-averaged velocity profiles near the impeller blades
+
+show limited differences between the different zones, the global velocity field obtained
+
+shows some different features, as shown in Fig. 15. The flow field computed with Zone
+
+1 displays a radial distribution of the high velocity stream generated by the blades,
+
+which results from the absence of additional rotational velocity term when the flow
+
+moves outside of the MRF region. On the other hand, Zone 5 shows the high velocity
+
+stream bending when moving away from the impeller. Without a consistent reference
+
+data set for the velocity field, making a definitive assertion regarding which of the
+
+two zones produces more realistic results is challenging. However, when observing the
+
+results of past experimental studies [26, 47, 48] and numerical simulations [4, 14, 15,
+
+23, 46, 49, 50], the flow features of a standard Rushton turbine seem to align more
+
+closely with those computed with Zone 5. The velocity field distribution obtained with
+
+the smaller zones may be influenced by the fact that they do not strictly satisfy the
+
+suggestions of Jaszczur and Mlynarczykowska [1] and Zadravec et al. [15], as discussed
+
+in the introduction. On the other hand, all the MRF zones show good agreement with
+
+the reference experimental data, Zone 1 even being closer to the reference data in
+
+some of the profiles.
+
+   Additionally, one can observe small non-physical velocity variations on the MRF
+
+zone boundary for both Zone 1 and 5, although they are greater with Zone 5. The
+
+
+
+
+                                          19
+mesh elements orientation with respect to the MRF interface normal direction may
+
+impact these spurious velocities, as this can lead to making interpolation errors.
+
+   The profiles computed for the turbulent kinetic energy using the different MRF
+
+zones are presented in Fig. 16, where Zone 1 yields a closer prediction to reference data
+
+than the other zones. The decrease of turbulence above and below the main peaks is
+
+overpredicted with all the zones, although Zone 1 shows a notable better agreement.
+
+Nonetheless, the predicted TKE peak below the impeller generated by the lower part
+
+of the blades has the same order of magnitude than the upper peak, while in the data of
+
+Wu and Patterson [22] it is approximately 20% lower. However, since the reference data
+
+do not include enough measurement points near the peaks, the lower peak location can
+
+potentially be slightly misplaced, thus resulting in a lower maximum value. Moreover,
+
+an unexpected non-monotonous evolution of the profile is observed, with Zone 2 and
+
+5 showing the lowest peak values, while Zone 3 and 4 have substantially higher peak
+
+values. In fact, the two most different TKE profiles are those of Zone 1 and Zone
+
+2 which are the zones with the lowest geometrical differences. This result can be
+
+explained by the proximity of Zone 1 with the 5 cm probing location where k profiles
+
+are extracted, while for the other zones this location is at a gradually greater distance
+
+from the MRF boundary as shown in Fig. 17. Additionally, depending on where the
+
+MRF boundary is located with respect to the main flow features generated by the
+
+blades, the high velocity and turbulence zones differs and thus is expected to be the
+
+cause of the non-monotonous evolution of the profiles.
+
+   Another major effect associated with the size of the MRF region is the creation
+
+of an artificial turbulent kinetic energy region at the boundary of the MRF zone.
+
+Fig. 18 shows the flow volume with turbulence intensity levels over 20% for Zone 1,
+
+2, 4 and 5. From Zone 3 to Zone 5, a gradually larger and more defined outskirt of
+
+high turbulent kinetic energy is present at the boundary of the MRF zone. To the
+
+knowledge of the authors, this behavior has not yet been reported in the literature. In
+
+
+
+                                           20
+the RANS formulation of Eq. (7), the turbulent kinetic energy production is based on
+
+the Reynolds stress tensor and strain rate tensor components as described in Eq. (9),
+
+which depends on the velocity gradients. In the rotating frame, additional momentum
+
+terms are added and thus the larger the zone the larger the added term since the
+
+distance to the rotation axis is greater. Also, because of the proximity of the MRF
+
+zone boundary to the tank wall and baffles spurious velocity jumps can appear at the
+
+interface, especially for larger zones as shown in Fig. 15. This effect of the velocity
+
+gradient on the turbulent kinetic energy can be observed in Fig. 19, where artificially-
+
+created spikes of turbulent kinetic energy production term G are obtained at the
+
+interface of Zone 5. This phenomenon can be highly problematic when the prediction
+
+of turbulence levels in the tank is important, and thus for mixing processes where
+
+turbulence is a key-factor in promoting mixing. In such cases, a larger MRF zone with
+
+an artificial outskirt of high turbulent kinetic energy could numerically reduce the
+
+mixing time. Additionally, the turbulent shear stresses play a critical role in certain
+
+bioprocesses where the integrity of cell cultures is of paramount importance. For such
+
+applications, smaller MRF diameters may be more suitable since it accurately predicts
+
+the velocity profiles and turbulent kinetic energy profiles without creating an artificial
+
+ring of high turbulent kinetic energy around the MRF boundary. However, this comes
+
+with the drawback of potentially impacting the spatial flow distribution for velocities
+
+as discussed previously.
+
+   Following the diameter sensitivity, the thickness of the MRF zone is investigated by
+
+comparing Zone 1 to Zone 6, which have the same diameter but respective thicknesses
+
+of 1.55W and 3.1W. For this purpose, the region of the mesh that is refined has been
+
+increased vertically in order to encompass the thicker MRF zone. Fig. 20 shows the
+
+largest differences between the two zones in terms of velocity, with smoother profiles
+
+above and below the impeller center line predicted with Zone 6. Overall, there are
+
+no significant difference for velocity profiles in the peak region, but there are slight
+
+
+
+                                           21
+variations in radial and tangential velocities near the blades corners at 5 cm away
+
+from the impeller rotating axis. Similarly, very little differences are observed for the
+
+turbulent kinetic energy profiles when changing the MRF zone thickness. The main
+
+differences are found near the blades top corner (in the highest turbulence zone) where
+
+the thicker zone predicts slightly higher TKE values, as well as one blade width above
+
+the impeller, where Zone 1 yields lower TKE values and gives a closer match to the
+
+reference data, as shown in Fig. 21.
+
+
+3.3.2 Impact on mixing
+
+In this section, the impact of the size of the MRF region on the mixing in the stirred-
+
+tank is investigated by modeling the release of a passive scalar and by computing and
+
+comparing the mixing time associated with the calculated flow field using different
+
+MRF zones. The following form of the scalar transport equation is solved using a
+
+custom solver adapted from the native pimpleFoam solver:
+
+
+                            ∂C
+                               + ∇ · (UC) = ∇ · [Def f ∇C]                             (21)
+                            ∂t
+
+
+where C is the scalar concentration and the Def f effective diffusivity, defined as:
+
+
+
+                                    Def f = Dl + Dt                                    (22)
+
+
+
+where Dl is the laminar diffusivity, Dt is the turbulent diffusivity defined using the
+
+turbulent Schmidt number Sct as:
+
+
+
+                                       Dt = νt /Sct                                    (23)
+
+
+
+Typically, it is difficult to pre-determine Sct values able to represent the mixing process
+
+occurring in different applications and geometries [51]. For example Gualtieri et al.
+
+
+                                            22
+[52] noted that some studies used values ranging from 0.3 to 1. However, given the
+
+comparative character of the present analysis, the most common value of Sct = 0.7
+
+adopted in the literature [16, 18, 24, 52] has been employed.
+
+   The transport equation (21) is solved by adopting the frozen-flow hypothesis, where
+
+the pre-computed velocity field is used to model the convective transport of the pas-
+
+sive scalar. This flow/tracer uncoupling method was used by Bujalski et al. [53] and
+
+Duan et al. [18], in the former paper the authors compared this approach with a cou-
+
+pled approach and found little differences in the predicted mixing times. The main
+
+discrepancies found in their work were due to the tracer feed position. Nevertheless,
+
+this technique remains recognized as a viable method for assessing mixing performance
+
+in stirred-tank systems, as outlined in chapter 5-6.4.3 of the handbook of Industrial
+
+Mixing [54].
+
+   Similarly to Bujalski et al. [53], the passive scalar is injected in the tank from the
+
+top by initializing the tracer concentration in a sphere near the free surface, as shown
+
+in Fig. 22. The center of the sphere is located at a radial distance of ∼0.1 m from the
+
+shaft axis (0.07 m in the x-direction and 0.07 m in the y-direction) and at 0.01 m from
+
+the free surface and has a radius of 0.026 m. A series of probes are set to measure
+
+the evolution of the concentration of the scalar in time. Their position in the tank is
+
+shown in Fig. 22 and detailed in Table 3, where all the distances are specified with
+
+respect to the origin point of the reference system.
+
+                             Probe   x (m)        y (m)    z (m)
+                               1      0.07         0.07     0.15
+                               2     -0.07         -0.07   -0.04
+                               3     -0.08           0       0
+                               4       0           0.08      0
+                               5       0             0     -0.05
+                               6     -0.06         0.06     0.1
+                               7     -0.06         -0.06    0.1
+                               8     0.003        -0.133   0.007
+                            Table 3: Coordinates of the
+                            numerical probes location in
+                            the tank
+
+
+
+                                             23
+   The mixing time is defined in a single point location using the 95% threshold,
+
+which is the time after which the normalized scalar concentration Cnorm = C(t)/C∞
+
+remains within 5% of its final value, with the final concentration level C∞ defined as:
+
+                                               Z
+                                        1
+                               C∞ =                       CdV                      (24)
+                                      Vtank       Vtank
+
+
+
+While Cnorm is used to track the normalized concentration at a single point, the global
+
+mixing index Ctank can be used to group each probe data into a global concentration
+
+for the whole tank. This index is based on the definition of Hartmann et al. [24] and
+
+slightly modified to better suit a numerical setup. It is used to determine the global
+
+mixing time at 95% of the final concentration and is defined as the variance of the
+
+tracer concentrations at all probes location:
+
+                                         n
+                                      1X i             2
+                            Ctank =         C (t) − C∞                             (25)
+                                      n i=1
+
+
+where n denotes the total number of probes, C i (t) the concentration at the ith probe
+
+location and C∞ the final concentration level in the tank. As the tracer is mixed in
+
+the tank, this index decreases and reaches 0 for a perfectly mixed tracer. This method
+
+works best with a large amount of probing points, producing in such case an accurate
+
+representation of the global mixing quality.
+
+   When analyzing the MRF zone impact on the tracer mixing, some differences
+
+were found in the evolution of single-probe concentrations when changing the zone
+
+thickness between Zone 1 and Zone 6; however, the global mixing times obtained were
+
+the same. Therefore, the analysis will be focused on the MRF zone diameter only. Fig.
+
+23 shows the time evolution of the normalized concentration of the tracer for both
+
+MRF Zone 1 (smallest diameter) and Zone 5 (largest diameter), measured at probe 2
+
+(opposite part of the tank compared to the initialization sphere). A clear difference is
+
+
+
+                                             24
+observed between both zones; for instance, the mixing time computed at probe 1 is
+
+9.5 s for Zone 5 and 19.5 s for Zone 1. Thus, in this setup, the use of a larger MRF
+
+zone yields local mixing times two to six times lower than when using a smaller MRF
+
+zone. This finding could potentially be the reason for the overprediction of mixing
+
+time found by Duan et al. [18]. Moreover, the tracer concentration evolution at the
+
+different probing points is more dampened with the larger zone, and more oscillatory
+
+with the smaller zone. The global mixing index Ctank is shown in Fig. 24 for both
+
+Zone 1 and Zone 5, resulting in global mixing times of θ5 = 5.5 s for Zone 5 (largest)
+
+and θ1 = 15.9 s for Zone 1 (smallest). The same behavior can be observed in Fig. 25,
+
+where the global mixing is performed under 20 s for Zone 5 (with only residual areas
+
+near the baffles having a concentration above 5% of the equilibrium value). On the
+
+other hand, when using Zone 1 there is still a significant part of the tank that is not
+
+fully mixed after 20 s. Such large differences can be explained by two main factors:
+
+increased overall velocities (10% increase in the agitation index from Zone 1 to Zone
+
+5) and increased turbulence levels when using larger MRF zones (19% increase in the
+
+averaged turbulence intensity from Zone 1 to Zone 5).
+
+
+4 Conclusions
+
+In this study, the MRF technique was used to model the flow in a baffled Rushton
+
+turbine with a steady-state approach using the CFD code OpenFOAM. The main
+
+objective of the work was to carry out a critical evaluation of the effect of the MRF
+
+region size on the predicted flow field and mixing process in the stirred-tank.
+
+   Five MRF zone diameters were compared on the basis of global quantities (power
+
+number, mixing index and turbulence intensity) and local data (velocity profiles at
+
+three radial distances and turbulent kinetic energy profiles near the blades). The
+
+smallest zone predicted lower power number than the other zones (more than 12%),
+
+while also predicting lower agitation index and turbulence intensity in the tank. Minor
+
+
+
+                                          25
+discrepancies were found in the velocity profiles between all the zones, and good agree-
+
+ment with the data of Wu and Patterson [22] was observed overall. However, the
+
+spatial distribution of high velocity streams differed when changing the MRF zone
+
+diameter, possibly due to the MRF interface crossing the blade wake structure. This
+
+point remains an open-subject and despite the impact on the spatial velocity distribu-
+
+tion, the size of the MRF region had limited effect on the circumferentially-averaged
+
+profiles. Spurious high velocity spots were found at the boundary of the MRF region,
+
+especially for larger MRF zones. On the other hand, major differences appeared in the
+
+turbulent kinetic energy profiles, for which the smallest zone yielded a more accurate
+
+prediction of the characteristic double peak profile compared to the other zones. A
+
+non-monotonous evolution in the profiles of turbulent kinetic energy was found when
+
+increasing the MRF zone diameter, with Zone 1 and Zone 2 showing the largest differ-
+
+ence (∼ 85%) between their TKE peak value with respect to the other zones. Moreover,
+
+artificial creation of turbulent kinetic energy was found at the MRF interface, with
+
+increasing presence for larger MRF diameters. To the knowledge of the authors this
+
+phenomenon has not yet been reported in the literature and seems to originate from
+
+the spurious velocity gradients at the MRF boundary. This artifact becomes larger as
+
+the MRF interface gets closer to the baffles and tank walls.
+
+   Additionally, Zone 1 was used as a basis to investigate the impact of two different
+
+MRF zone thicknesses on the flow. It was shown that this parameter had a limited
+
+influence on the global results. However, small differences in velocity and turbulent
+
+kinetic energy were found near the upper and lower edges of the blades, where the
+
+thicker zone provided slightly closer velocity predictions when compared with the
+
+literature data. Nonetheless, the thinner zone yielded better turbulent kinetic energy
+
+predictions.
+
+   Lastly, unsteady scalar mixing simulations were performed based on the frozen-
+
+flow field computed with the smallest and largest MRF zones in order to assess the
+
+
+
+                                          26
+impact of the MRF region diameter on the mixing time predictions. Large differences
+
+in mixing time were found between the two zones, with values ranging from 3.8 s up
+
+to 23.6 s when switching from the largest to the smallest region, because of the greater
+
+average velocities and artificially generated turbulence associated with the larger one.
+
+   The k-ω SST and k-ϵ turbulence model were also compared in terms of stability and
+
+accuracy, the former was found to be less stable and captured some of the unsteady-
+
+based oscillations in the residuals and physical quantities. However, while no major
+
+difference was found in the velocity profiles between the turbulence models, the k-ω
+
+SST predicted more accurately the turbulent kinetic energy profiles compared to the
+
+k-ϵ, with a maximum difference of almost 80% in the blade center region.
+
+   To conclude, this paper highlighted the impact of the MRF zone dimensions on
+
+the stirred-tank simulation accuracy and stresses the need for additional numerical
+
+studies based on the MRF method to address the effect of selected the MRF region
+
+on numerical results. Similarly to the standard grid sensitivity analysis, the authors
+
+believe systematic MRF sensitivity studies will lead to more reliable and standardized
+
+practices.
+
+
+Declarations
+
+Acknowledgments
+
+The authors would like to thank the organizing committee of the 18th OpenFOAM
+
+Workshop for the valuable discussions on the topic during the conference, which greatly
+
+contributed to the preparation of this manuscript
+
+
+Competing interest
+
+• A.B. and C.C. are Chiesi Farmaceutici employees.
+
+• A.R. and R.R. are consultants/contractors currently engaged by Chiesi Farmaceu-
+
+  tici.
+
+
+                                          27
+Author contribution
+
+A. Reid: data curation, formal analysis, investigation, writing – original draft, writing
+
+– review & editing, visualization.
+
+R. Rossi: conceptualization, writing – original draft, writing – review & editing, super-
+
+vision.
+
+C. Cottini: conceptualization, project administration, resources, supervision, writing
+
+– review & editing.
+
+A. Benassi: conceptualization, investigation, project administration, resources, super-
+
+vision, visualization, writing – review & editing.
+
+
+Data, material and code availability
+
+Data supporting this study can be made available upon request. The access is subject
+
+to approval and a data sharing agreement.
+
+
+Appendix A              Blade angular sensitivity
+
+Simulations have been ran with different impeller positions with respect to the baffles
+
+in order to assess the impact on the performance parameters of this study. Five angular
+
+position of the blades have been tested, starting from the base position (defined as
+
+0deg) displayed in Fig. 1 and then rotating the impeller by 10° up to 50°. Fig. A1 shows
+
+the velocity profiles for five different angular positions and similarly to the findings
+
+of Harvey et al. [55] only minor differences are observed. On the other hand, Fig. A2
+
+shows k profiles at 5 cm radial distance from the shaft center line for the five angular
+
+position tested and non-negligible differences can be seen in k peak regions.
+
+
+References
+
+ [1] Jaszczur, M., Mlynarczykowska, A.: A General Review of the Current Develop-
+
+     ment of Mechanically Agitated Vessels. Processes 8(8) (2020) https://doi.org/10.
+
+
+                                           28
+   3390/pr8080982
+
+
+[2] Sommerfeld, M., Decker, S.: State of the Art and Future Trends in CFD Sim-
+
+   ulation of Stirred Vessel Hydrodynamics. Chemical Engineering & Technology
+
+   27(3), 215–224 (2004) https://doi.org/10.1002/ceat.200402007
+
+
+[3] Ranade, V.V.: An efficient computational model for simulating flow in stirred
+
+   vessels: a case of Rushton turbine. Chemical Engineering Science 52(24), 4473–
+
+   4484 (1997) https://doi.org/10.1016/S0009-2509(97)00292-3
+
+
+[4] Brucato, A., Ciofalo, M., Grisafi, F., Micale, G.: Numerical prediction of flow
+
+   fields in baffled stirred vessels: A comparison of alternative modelling approaches.
+
+   Chemical Engineering Science 53(21), 3653–3684 (1998) https://doi.org/10.1016/
+
+   S0009-2509(98)00149-3
+
+
+[5] Joshi, J.B., Nere, N.K., Rane, C.V., Murthy, B.N., Mathpati, C.S., Patwardhan,
+
+   A.W., Ranade, V.V.: CFD simulation of stirred tanks: Comparison of turbu-
+
+   lence models. Part I: Radial flow impellers. The Canadian Journal of Chemical
+
+   Engineering 89(1), 23–82 (2011) https://doi.org/10.1002/cjce.20446
+
+
+[6] Kresta, S.M., Wood, P.E.: The flow field produced by a pitched blade tur-
+
+   bine: Characterization of the turbulence and estimation of the dissipation rate.
+
+   Chemical Engineering Science 48(10), 1761–1774 (1993) https://doi.org/10.1016/
+
+   0009-2509(93)80346-R
+
+
+[7] Ranade, V., Dommeti, S.M.S.: Computational snapshot of flow generated by axial
+
+   impellers in baffled stirred vessels. Chemical Engineering Research & Design 74,
+
+   476–484 (1996)
+
+
+[8] Luo, Y.J., Issa, R.I., Gosman, A.D.: Prediction of Impeller Induced Flows in
+
+   Mixing Vessels Using Multiple Frames of Reference. I. Chem. E. Symposium Series
+
+
+                                         29
+    136, 549–556 (1994)
+
+
+ [9] Franzke, R., Sebben, S., Bark, T., Willeson, E., Broniewicz, A.: Evaluation of the
+
+    Multiple Reference Frame Approach for the Modelling of an Axial Cooling Fan.
+
+    Energies 12(15), 2934 (2019) https://doi.org/10.3390/en12152934 . Number: 15
+
+    Publisher: Multidisciplinary Digital Publishing Institute
+
+
+[10] Peng, W., Li, G., Geng, J., Yan, W.: A strategy for the partition of MRF
+
+    zones in axial fan simulation. International Journal of Ventilation 18(1), 64–
+
+    78 (2019) https://doi.org/10.1080/14733315.2018.1431361 . Publisher: Taylor &
+
+    Francis eprint: https://doi.org/10.1080/14733315.2018.1431361
+
+
+[11] Mittal, G., Issao Kikugawa, R.: Computational fluid dynamics simulation of a
+
+    stirred tank reactor. Materials Today: Proceedings 46, 11015–11019 (2021) https:
+
+    //doi.org/10.1016/j.matpr.2021.02.102
+
+
+[12] Patil, H., Patel, A., Pant, H., Ananthula, V.: CFD simulation model for mixing
+
+    tank using multiple reference frame (MRF) impeller rotation. ISH Journal of
+
+    Hydraulic Engineering 27, 1–10 (2018) https://doi.org/10.1080/09715010.2018.
+
+    1535921
+
+
+[13] De La Concha, A., Munoz, J., M B, V.E., Perez, H., Alonso-Gómez, A.:
+
+    Effect of the rotating reference frame size for simulating a mixing straight-
+
+    blade impeller in a baffled stirred tank. Revista Mexicana de Ingenierı́a Quı́mica
+
+    18, 1143–1160 (2019) https://doi.org/10.24275/uam/izt/dcbi/revmexingquim/
+
+    2019v18n3/DeLaConcha
+
+
+[14] Kuschel, M., Fitschen, J., Hoffmann, M., Kameke, A., Schlüter, M., Wucherpfen-
+
+    nig, T.: Validation of Novel Lattice Boltzmann Large Eddy Simulations (LB
+
+    LES) for Equipment Characterization in Biopharma. Processes 9(6), 950 (2021)
+
+
+
+                                          30
+    https://doi.org/10.3390/pr9060950
+
+
+[15] Zadravec, M., S, B., Hriberšek, M.: The influence of rotating domain size in
+
+    a rotating frame of reference approach for simulation of rotating impeller in a
+
+    mixing vessel. Journal of Engineering Science and Technology 2 (2007)
+
+
+[16] Coroneo, M., Montante, G., Paglianti, A., Magelli, F.: CFD prediction of fluid
+
+    flow and mixing in stirred tanks: Numerical issues about the RANS simulations.
+
+    Computers & Chemical Engineering 35(10), 1959–1968 (2011) https://doi.org/
+
+    10.1016/j.compchemeng.2010.12.007
+
+
+[17] Oshinowo, L., Jaworski, Z., Dyster, K.N., Marshall, E., Nienow, A.W.: Predicting
+
+    the tangential velocity field in stirred tanks using the Multiple Reference Frames
+
+    (MRF) model with validation by LDA measurements. In: Akker, H.E.A., Derk-
+
+    sen, J.J. (eds.) 10th European Conference on Mixing. Chapter 35, pp. 281–288,
+
+    Amsterdam (2000). https://doi.org/10.1016/B978-044450476-0/50036-4
+
+
+[18] Duan, X., Feng, X., Mao, Z.-S., Yang, C.: Numerical simulation of reactive mixing
+
+    process in a stirred reactor with the DQMOM-IEM model. Chemical Engineering
+
+    Journal 360, 1177–1187 (2019) https://doi.org/10.1016/j.cej.2018.10.156
+
+
+[19] Deglon, D.A., Meyer, C.J.: CFD modelling of stirred tanks: Numerical consider-
+
+    ations. Minerals Engineering 19(10), 1059–1068 (2006) https://doi.org/10.1016/
+
+    j.mineng.2006.04.001
+
+
+[20] Kysela, B., Chara, Z., Konfrst, J., Tomasek, K., Sulc, R.: CFD study of flow
+
+    similarities in turbulent regime in a stirred tank. AIP Conference Proceedings
+
+    1978(1), 030028 (2018) https://doi.org/10.1063/1.5043678
+
+
+[21] Glover, G., Fitzpatrick, J.: Modelling Vortex Formation in Unbaffled Stirred Tank
+
+    Reactors. Chemical Engineering Journal 127, 11–22 (2013) https://doi.org/10.
+
+
+                                         31
+     1016/j.cej.2006.09.019
+
+
+[22] Wu, H., Patterson, G.K.: Laser-Doppler measurements of turbulent-flow param-
+
+     eters in a stirred mixer. Chemical Engineering Science 44(10), 2207–2221 (1989)
+
+     https://doi.org/10.1016/0009-2509(89)85155-3
+
+
+[23] Yeoh, S.L., Papadakis, G., Yianneskis, M.: Numerical Simulation of Turbulent
+
+     Flow Characteristics in a Stirred Vessel Using the LES and RANS Approaches
+
+     with the Sliding/Deforming Mesh Methodology. Chemical Engineering Research
+
+     and Design 82(7), 834–848 (2004) https://doi.org/10.1205/0263876041596751
+
+
+[24] Hartmann, H., Derksen, J.J., Akker, H.E.A.: Mixing times in a turbulent stirred
+
+     tank by means of LES. AIChE Journal 52(11), 3696–3706 (2006) https://doi.
+
+     org/10.1002/aic.10997
+
+
+[25] Distelhoff, M., Marquis, A., Nouri, J., Whitelaw, J.: Scalar Mixing Measurements
+
+     in Batch Operated Stirred Tanks. The Canadian Journal of Chemical Engineering
+
+     75, 641–652 (1997) https://doi.org/10.1002/cjce.5450750401
+
+
+[26] Stoots, C.M., Calabrese, R.V.: Mean velocity field relative to a Rushton turbine
+
+     blade. AIChE Journal 41(1), 1–11 (1995) https://doi.org/10.1002/aic.690410102
+
+
+[27] Malik, S., Lévêque, E., Bouaifi, M., Gamet, L., Flottes, E., Simoëns, S., El-Hajem,
+
+     M.: Shear improved Smagorinsky model for large eddy simulation of flow in a
+
+     stirred tank with a Rushton disk turbine. Chemical Engineering Research and
+
+     Design 108, 69–80 (2016) https://doi.org/10.1016/j.cherd.2016.02.035
+
+
+[28] Qi, N., Wang, H., Zhang, K., Zhang, H.: Numerical simulation of fluid dynam-
+
+     ics in the stirred tank by the SSG Reynolds Stress Model. Frontiers of
+
+     Chemical Engineering in China 4(4), 506–514 (2010) https://doi.org/10.1007/
+
+     s11705-010-0508-7
+
+
+                                            32
+[29] Jaszczur, M., Mlynarczykowska, A., Demurtas, L.: An experimental and numer-
+
+    ical analysis of the fluid flow in a mechanically agitated vessel. E3S Web of
+
+    Conferences 128, 08002 (2019) https://doi.org/10.1051/e3sconf/201912808002 .
+
+    Publisher: EDP Sciences
+
+
+[30] Patil, H., Patel, A.K., Pant, H.J., Venu Vinod, A.: Numerical modelling of stirred
+
+    tank and its validation by Radioactive Particle Tracking (RPT) technique. ISH
+
+    Journal of Hydraulic Engineering 28, 327–340 (2020) https://doi.org/10.1080/
+
+    09715010.2020.1797543
+
+
+[31] OpenCFD,          ESI:       OpenFOAM            Documentation          overview.
+
+    https://www.openfoam.com/documentation/overview (2022)
+
+
+[32] Weller, H.G., Tabor, G., Jasak, H., Fureby, C.: A tensorial approach to com-
+
+    putational continuum mechanics using object-oriented techniques. Computer in
+
+    Physics 12(6), 620–631 (1998) https://doi.org/10.1063/1.168744
+
+
+[33] Caretto, L.S., Gosman, A.D., Patankar, S.V., Spalding, D.B.: Two calculation
+
+    procedures for steady, three-dimensional flows with recirculation. In: Cabannes,
+
+    H., Temam, R. (eds.) Proceedings of the Third International Conference on
+
+    Numerical Methods in Fluid Mechanics. Lecture Notes in Physics, pp. 60–68.
+
+    Springer, Berlin, Heidelberg (1973). https://doi.org/10.1007/BFb0112677
+
+
+[34] Van Doormaal, J.P., Raithby, G.D.: Enhancements of the Simple Method for
+
+    Predicting Incompressible Fluid Flows. Numerical Heat Transfer 7(2), 147–163
+
+    (1984) https://doi.org/10.1080/01495728408961817
+
+
+[35] Menter, F.R.: Improved two-equation k-omega turbulence models for aero-
+
+    dynamic flows. Technical Report A-92183, NASA (National Aeronautics and
+
+    Space Administration) (October 1992). NTRS Author Affiliations: NASA Ames
+
+    Research Center NTRS Document ID: 19930013620 NTRS Research Center:
+
+                                          33
+    Legacy CDMS (CDMS)
+
+
+[36] Menter, F.R.: Two-equation eddy-viscosity turbulence models for engineering
+
+    applications. AIAA Journal 32(8), 1598–1605 (1994) https://doi.org/10.2514/3.
+
+    12149
+
+
+[37] Menter, F., Kuntz, M., Langtry, R.: Ten years of industrial experience with the
+
+    SST turbulence model. Heat and Mass Transfer 4 (2003)
+
+
+[38] OpenCFD:     OpenFOAM      User   Guide:   k-omega    Shear   Stress   Transport
+
+    (SST).     https://www.openfoam.com/documentation/guides/latest/doc/guide-
+
+    turbulence-ras-k-omega-sst.html (2017)
+
+
+[39] Gradov, D.V., Laari, A., Turunen, I., Koiranen, T.: Experimentally Validated
+
+    CFD Model for Gas-Liquid Flow in a Round-Bottom Stirred Tank Equipped with
+
+    Rushton Turbine. International Journal of Chemical Reactor Engineering 15(2)
+
+    (2017) https://doi.org/10.1515/ijcre-2015-0215
+
+
+[40] Murthy, B.N., Joshi, J.B.: Assessment of standard k–epsilon, RSM and LES tur-
+
+    bulence models in a baffled stirred vessel agitated by various impeller designs.
+
+    Chemical Engineering Science 63(22), 5468–5495 (2008) https://doi.org/10.1016/
+
+    j.ces.2008.06.019
+
+
+[41] Lane, G.L., Schwarz, M.P., Evans, G.M.: Chapter 34 - Comparison of CFD
+
+    Methods for Modelling of Stirred Tanks. In: Akker, H.E.A., Derksen, J.J. (eds.)
+
+    10th European Conference on Mixing, pp. 273–280. Elsevier Science, Amsterdam
+
+    (2000). https://doi.org/10.1016/B978-044450476-0/50035-2
+
+
+[42] Mavros, P., Baudou, C.: Quantification of the Performance of Agitators In Stirred
+
+    Vessels: Definition and Use of an Agitation Index. Chemical Engineering Research
+
+    and Design 75(8), 737–745 (1997) https://doi.org/10.1205/026387697524407
+
+
+                                         34
+[43] Launder, B.E., Spalding, D.B.: The numerical computation of turbulent flows.
+
+    Computer Methods in Applied Mechanics and Engineering 3(2), 269–289 (1974)
+
+    https://doi.org/10.1016/0045-7825(74)90029-2
+
+
+[44] Tahry, S.H.E.: k-epsilon equation for compressible reciprocating engine flows.
+
+    Journal of Energy 7(4), 345–353 (1983) https://doi.org/10.2514/3.48086
+
+
+[45] Singh, H., Fletcher, D.F., Nijdam, J.J.: An assessment of different turbulence
+
+    models for predicting flow in a baffled tank stirred with a Rushton turbine. Chem-
+
+    ical Engineering Science 66(23), 5976–5988 (2011) https://doi.org/10.1016/j.ces.
+
+    2011.08.018
+
+
+[46] Derksen, J., Akker, H.E.A.: Large eddy simulations on the flow driven by a Rush-
+
+    ton turbine. AIChE Journal 45(2), 209–221 (1999) https://doi.org/10.1002/aic.
+
+    690450202
+
+
+[47] Van’t Riet, K., Smith, J.M.: The behaviour of gas—liquid mixtures near Rushton
+
+    turbine blades. Chemical Engineering Science 28(4), 1031–1037 (1973) https://
+
+    doi.org/10.1016/0009-2509(73)80005-3
+
+
+[48] Ng, K., Fentiman, N.J., Lee, K.C., Yianneskis, M.: Assessment of Sliding Mesh
+
+    CFD Predictions and LDA Measurements of the Flow in a Tank Stirred by a
+
+    Rushton Impeller. Chemical Engineering Research and Design 76(6), 737–747
+
+    (1998) https://doi.org/10.1205/026387698525315
+
+
+[49] Delafosse, A., Morchain, J., Guiraud, P., Liné, A.: Trailing vortices generated by
+
+    a Rushton turbine: Assessment of URANS and large Eddy simulations. Chemical
+
+    Engineering Research and Design 87(4), 401–411 (2009) https://doi.org/10.1016/
+
+    j.cherd.2008.12.018
+
+
+[50] Ranade, V.V., Tayalia, Y., Krishnan, H.: CFD predictions of flow near
+
+
+                                          35
+    impeller blades in baffled stirred vessels: Assessment of computational snap-
+
+    shot approach. Chemical Engineering Communications 189(7), 895–922 (2002)
+
+    https://doi.org/10.1080/00986440213134 . Publisher: Taylor & Francis eprint:
+
+    https://doi.org/10.1080/00986440213134
+
+
+[51] Idžakovičová, K., Haidl, J., Gebouský, O., Isoz, M.: Mixing Characteristics of a
+
+    Magnetically Driven Rushton Turbine in an Unbaffled Stirred Tank Reactor. In:
+
+    Topical Problems of Fluid Mechanics 2023, Prague, p. 5 (2023). https://doi.org/
+
+    10.14311/TPFM.2023.009
+
+
+[52] Gualtieri, C., Angeloudis, A., Bombardelli, F., Jha, S., Stoesser, T.: On the Val-
+
+    ues for the Turbulent Schmidt Number in Environmental Flows. Fluids 2(2), 17
+
+    (2017) https://doi.org/10.3390/fluids2020017
+
+
+[53] Bujalski, J.M., Jaworski, Z., Bujalski, W., Nienow, A.W.: The Influence of the
+
+    Addition Position of a Tracer on CFD Simulated Mixing Times in a Vessel Agi-
+
+    tated by a Rushton Turbine. Chemical Engineering Research and Design 80(8),
+
+    824–831 (2002) https://doi.org/10.1205/026387602321143354
+
+
+[54] Marshall, E.M., Bakker, A.: Handbook of Industrial Mixing, pp. 257–343. John
+
+    Wiley & Sons, Ltd, ??? (2003)
+
+
+[55] Harvey, A.D., Lee, C.K., Rogers, S.E.: Steady-state modeling and experimental
+
+    measurement of a baffled impeller stirred tank. AIChE Journal 41(10), 2177–2186
+
+    (1995) https://doi.org/10.1002/aic.690411002
+
+
+
+
+                                           36
+                1.5cm
+
+
+
+                                      D/10
+H=T
+                   D/4
+
+                                      W=D/5
+                    Origin
+           C=T/3              D/100
+
+
+
+                        T=27cm
+
+
+
+
+                         7.2cm
+
+                                       D/100
+
+
+
+
+                        D=9.3cm
+
+
+
+
+  Fig. 1: Dimensions of the Rushton turbine studied
+
+
+
+
+                         37
+Fig. 2: Example of hex-dominant grid adopted in the present study: top, side view;
+bottom, top view at impeller level
+
+
+
+
+                                       38
+                       100                                                                                1.2
+                                                                  p
+                                                                  k
+                                                              omega                                         1
+                                                                 Ux
+                       10-1
+                                                                 Uy
+
+
+
+
+                                                                                  Normalized quantities
+Normalized residuals
+
+
+
+
+                                                                 Uz                                       0.8
+
+
+                       10-2                                                                               0.6
+
+
+                                                                                                          0.4
+                       10-3                                                                                                          Turbulent kinetic energy
+                                                                                                          0.2                                Velocity (global)
+                                                                                                                                       Velocity (in MRF zone)
+                                                                                                                                        Moment on the z-axis
+                       10-4                                                                                0
+                                  1000     2000        3000   4000         5000                                      1000    2000         3000         4000      5000
+                                              Iterations                                                                        Iterations
+
+                                         (a) Residuals                                                          (b) Volume-averaged flow quantities
+
+                              Fig. 3: Convergence obtained with the k-ω SST turbulence model
+
+
+
+
+                                                                      39
+                          2.5
+                                                                                coarse
+                            2                                                  medium
+                                                                                   fine
+                          1.5
+
+                            1
+
+                          0.5
+
+
+
+
+                   2z/w
+                            0
+
+                          -0.5
+
+                           -1
+
+                          -1.5
+
+                           -2
+
+                          -2.5
+                                 -0.1   0   0.1   0.2    0.3       0.4   0.5    0.6       0.7   0.8
+                                                         Ur/Utip
+
+
+                          2.5
+                                                                                coarse
+                            2                                                  medium
+                                                                                   fine
+                          1.5
+
+                            1
+
+                          0.5
+                   2z/w
+
+
+
+
+                            0
+
+                          -0.5
+
+                           -1
+
+                          -1.5
+
+                           -2
+
+                          -2.5
+                                 -0.1   0   0.1   0.2    0.3       0.4   0.5    0.6       0.7   0.8
+                                                         Uθ/Utip
+
+
+                          2.5
+                                                                                coarse
+                            2                                                  medium
+                                                                                   fine
+                          1.5
+
+                            1
+
+                          0.5
+                   2z/w
+
+
+
+
+                            0
+
+                          -0.5
+
+                           -1
+
+                          -1.5
+
+                           -2
+
+                          -2.5
+                                 -0.1   0   0.1   0.2    0.3       0.4   0.5    0.6       0.7   0.8
+                                                         Uz/Utip
+
+
+Fig. 4: Effect of the grid size on predicted vertical profiles of velocity components
+normalized by the blade tip velocity Utip at 5 cm from the shaft axis: top, radial
+velocity Ur ; middle, tangential velocity Uθ ; bottom, axial velocity Uz
+
+
+
+
+                                                        40
+                         2.5
+                                                                                                                                             coarse
+                               2                                                                                                            medium
+                                                                                                                                                fine
+
+                         1.5
+
+                               1
+
+                         0.5
+2z/w
+
+
+
+
+                               0
+
+                        -0.5
+
+                           -1
+
+                        -1.5
+
+                           -2
+
+                        -2.5
+                                   0      0.01        0.02        0.03         0.04            0.05                           0.06      0.07     0.08        0.09
+                                                                                    k/Utip2
+
+
+Fig. 5: Effect of the mesh size on the predicted vertical profile of turbulent kinetic
+energy at 5 cm from the shaft axis
+
+
+
+                        100                                                                                                   1.2
+                                                                               p
+                        10-1                                                   k
+                                                                         epsilon                                                1
+                                                                              Ux
+                        10-2                                                  Uy
+                                                                                                      Normalized quantities
+ Normalized residuals
+
+
+
+
+                                                                              Uz                                              0.8
+
+                        10-3
+                                                                                                                              0.6
+                        10-4
+
+                                                                                                                              0.4
+                        10-5
+                                                                                                                                                           Turbulent kinetic energy
+                                                                                                                              0.2                                  Velocity (global)
+                        10-6                                                                                                                                 Velocity (in MRF zone)
+                                                                                                                                                              Moment on the z-axis
+                        10-7                                                                                                   0
+                                        1000       2000        3000       4000          5000                                              1000     2000         3000         4000      5000
+                                                      Iterations                                                                                      Iterations
+
+                                                 (a) Residuals                                                                       (b) Volume-averaged flow quantities
+
+                                       Fig. 6: Convergence obtained with the k-ϵ turbulence model
+
+
+
+
+                                                                                   41
+Fig. 7: Values of kinematic turbulent viscosity νt for both turbulence models on
+horizontal and vertical planes: left, k − ω SST; right, k − ϵ
+
+
+
+
+                                      42
+                2.5
+                                                     Wu and Patterson (LDA)
+                  2                                                      k-ε
+                                                                   k-ω SST
+                1.5
+
+                  1
+
+                0.5
+         2z/w
+
+
+
+
+                  0
+
+                -0.5
+
+                 -1
+
+                -1.5
+
+                 -2
+
+                -2.5
+                       -0.1   0   0.1   0.2    0.3       0.4   0.5    0.6      0.7   0.8
+                                               Ur/Utip
+
+
+                2.5
+                                                     Wu and Patterson (LDA)
+                  2                                                      k-ε
+                                                                   k-ω SST
+                1.5
+
+                  1
+
+                0.5
+         2z/w
+
+
+
+
+                  0
+
+                -0.5
+
+                 -1
+
+                -1.5
+
+                 -2
+
+                -2.5
+                       -0.1   0   0.1   0.2    0.3       0.4   0.5    0.6      0.7   0.8
+                                               Ur/Utip
+
+Fig. 8: Computed vertical profiles of radial velocity at a distance of 5 cm (top) and
+7 cm (bottom) from the shaft using the k-ϵ and k-ω SST turbulence models
+
+
+
+
+                                              43
+        2.5
+                                               Wu and Patterson (LDA)
+          2                                                        k-ε
+                                                             k-ω SST
+        1.5
+
+          1
+
+        0.5
+ 2z/w
+
+
+
+
+          0
+
+        -0.5
+
+         -1
+
+        -1.5
+
+         -2
+
+        -2.5
+               0   0.01   0.02   0.03   0.04    0.05   0.06   0.07       0.08   0.09
+                                          k/Utip   2
+
+
+Fig. 9: Computed vertical profiles of turbulent kinetic energy at a distance of 5 cm
+from the shaft using the k-ϵ and k-ω SST turbulence models
+
+
+
+
+                                         44
+                     (a) Horizontal plane located at 2z/w=-0.35
+
+
+
+
+                      (b) Horizontal plane located at 2z/w=1.0
+
+Fig. 10: Impact of turbulence models on the development of turbulent kinetic energy
+normalized by the square of the impeller tip velocity: left, k-ω SST; right, k-ϵ
+
+
+                                        45
+Fig. 11: Size of the different MRF zones compared in this study ranging from 1 to 5,
+from the smallest to the largest zone
+
+
+
+
+                                        46
+Fig. 12: Effect of the MRF zone on the power number, agitation index and average
+turbulence intensity in the tank
+
+
+
+
+                                      47
+                           2.5
+                                                                Wu and Patterson (LDA)
+                             2                                                  Zone 1
+                                                                                Zone 2
+                           1.5
+                                                                                Zone 3
+                             1                                                  Zone 4
+                                                                                Zone 5
+                           0.5
+
+
+
+
+                    2z/w
+                             0
+
+                           -0.5
+
+                            -1
+
+                           -1.5
+
+                            -2
+
+                           -2.5
+                                  -0.1   0   0.1   0.2    0.3       0.4   0.5   0.6      0.7   0.8
+                                                          Ur/Utip
+
+
+                           2.5
+                                                                Wu and Patterson (LDA)
+                             2                                                  Zone 1
+                                                                                Zone 2
+                           1.5
+                                                                                Zone 3
+                             1                                                  Zone 4
+                                                                                Zone 5
+                           0.5
+                    2z/w
+
+
+
+
+                             0
+
+                           -0.5
+
+                            -1
+
+                           -1.5
+
+                            -2
+
+                           -2.5
+                                  -0.1   0   0.1   0.2    0.3       0.4   0.5   0.6      0.7   0.8
+                                                          Uθ/Utip
+
+
+                           2.5
+                                                                Wu and Patterson (LDA)
+                             2                                                  Zone 1
+                                                                                Zone 2
+                           1.5
+                                                                                Zone 3
+                             1                                                  Zone 4
+                                                                                Zone 5
+                           0.5
+                    2z/w
+
+
+
+
+                             0
+
+                           -0.5
+
+                            -1
+
+                           -1.5
+
+                            -2
+
+                           -2.5
+                                  -0.1   0   0.1   0.2    0.3       0.4   0.5   0.6      0.7   0.8
+                                                          Uz/Utip
+
+
+Fig. 13: Influence of the MRF zone diameter on the vertical profiles of vertical profiles
+of velocity components at a distance of 5 cm from the shaft center line: top, radial
+velocity; middle, tangential velocity; bottom, axial velocity
+
+
+
+
+                                                         48
+            2.5
+                                                 Wu and Patterson (LDA)
+              2                                                  Zone 1
+                                                                 Zone 2
+            1.5
+                                                                 Zone 3
+              1                                                  Zone 4
+                                                                 Zone 5
+            0.5
+     2z/w
+
+
+
+
+              0
+
+            -0.5
+
+             -1
+
+            -1.5
+
+             -2
+
+            -2.5
+                   -0.1   0   0.1   0.2    0.3       0.4   0.5   0.6      0.7   0.8
+                                           Ur/Utip
+
+
+            2.5
+                                                 Wu and Patterson (LDA)
+              2                                                  Zone 1
+                                                                 Zone 2
+            1.5
+                                                                 Zone 3
+              1                                                  Zone 4
+                                                                 Zone 5
+            0.5
+     2z/w
+
+
+
+
+              0
+
+            -0.5
+
+             -1
+
+            -1.5
+
+             -2
+
+            -2.5
+                   -0.1   0   0.1   0.2    0.3       0.4   0.5   0.6      0.7   0.8
+                                           Uθ/Utip
+
+Fig. 14: Effect of the MRF zone diameter on the velocity at 6 cm of the shaft axis:
+top, radial velocity; bottom, tangential velocity
+
+
+
+
+                                          49
+Fig. 15: Velocity contours from 0.3 to 1.5 m/s for Zone 1 and Zone 5. The boundary
+of the MRF zone is shown in black lines: left, Zone 1; right, Zone 5
+
+
+
+
+                                       50
+       2.5
+                                             Wu and Patterson (LDA)
+         2                                                  Zone 1
+                                                            Zone 2
+        1.5                                                 Zone 3
+                                                            Zone 4
+                                                            Zone 5
+          1
+
+       0.5
+2z/w
+
+
+
+
+         0
+
+       -0.5
+
+         -1
+
+       -1.5
+
+        -2
+
+       -2.5
+              0   0.01   0.02   0.03   0.04 0.05     0.06    0.07     0.08   0.09
+                                         k/Utip2
+
+Fig. 16: Effect of the MRF zone diameter on vertical profiles of turbulent kinetic
+energy at 5 cm from the shaft axis
+
+
+
+
+                                        51
+Fig. 17: High turbulence intensity zones (above 20%) for Zone 1 and Zone 2. The
+boundary of the MRF zone is shown in white, the three probing locations (5, 6 and 7
+cm) are shown as black points: left, Zone 1; right, Zone 2
+
+
+
+
+                                        52
+Fig. 18: Impact of the MRF zone diameter on the high turbulence intensity zones
+(over 20%): red, Zone 1; blue, Zone 2; green, Zone 3; grey, Zone 4; yellow, Zone 5
+
+
+
+
+                                       53
+Fig. 19: Impact of the MRF zone on the production term G in the impeller plane.
+Transparent contours represent isosurface of G = 1e − 7 m2 /s3 : left, Zone 1; right,
+Zone 5
+
+
+
+
+                                         54
+                2.5
+                                                     Wu and Patterson (LDA)
+                  2                                                  Zone 1
+                                                                     Zone 6
+                1.5
+
+                  1
+
+                0.5
+         2z/w
+
+
+
+
+                  0
+
+                -0.5
+
+                 -1
+
+                -1.5
+
+                 -2
+
+                -2.5
+                       -0.1   0   0.1   0.2    0.3       0.4   0.5   0.6      0.7   0.8
+                                               Ur/Utip
+
+
+                2.5
+                                                     Wu and Patterson (LDA)
+                  2                                                  Zone 1
+                                                                     Zone 6
+                1.5
+
+                  1
+
+                0.5
+         2z/w
+
+
+
+
+                  0
+
+                -0.5
+
+                 -1
+
+                -1.5
+
+                 -2
+
+                -2.5
+                       -0.1   0   0.1   0.2    0.3       0.4   0.5   0.6      0.7   0.8
+                                               Uθ/Utip
+
+
+Fig. 20: Impact of the MRF zone thickness on the vertical velocity profiles at 5 cm
+of the shaft axis: top, Zone 1; bottom, Zone 6
+
+
+
+
+                                              55
+        2.5
+                                               Wu and Patterson (LDA)
+          2                                                    Zone 1
+                                                               Zone 6
+        1.5
+
+          1
+
+        0.5
+ 2z/w
+
+
+
+
+          0
+
+        -0.5
+
+         -1
+
+        -1.5
+
+         -2
+
+        -2.5
+               0   0.01   0.02   0.03   0.04    0.05   0.06   0.07      0.08   0.09
+                                          k/Utip2
+
+Fig. 21: Impact of the MRF zone thickness on the turbulent kinetic energy profiles
+at 5 cm of the shaft axis
+
+
+
+
+                                        56
+                                                      Probe 1
+
+
+                                                     Init. sphere
+
+                             Probes 6,7
+
+
+
+                                                 Probe 8
+                          Probe 3
+
+                                                 Probe 4
+
+                            Probe 2
+             z                             Probe 5
+                  x
+
+
+
+
+                                                      Probe 1
+
+
+                              Probe 6                Init. sphere
+
+
+
+                          Probe 3
+                                                     Probe 5
+                              Probe 7
+
+                            Probe 2
+              y                            Probe 4
+
+                  x                            Probe 8
+Fig. 22: Position of monitoring probes and initialization sphere for the mixing time
+analysis
+
+
+
+
+                                          57
+                     1.4
+
+
+                     1.2
+
+
+                       1
+
+
+                     0.8
+             Cnorm
+
+
+
+
+                     0.6
+                                                             Probe1
+                                                             Probe2
+                     0.4                                     Probe3
+                                                             Probe4
+                                                             Probe5
+                     0.2                                     Probe6
+                                                             Probe7
+                                                             Probe8
+                      0
+                           0   5   10    15        20   25        30   35
+                                           Time (s)
+                     1.4
+
+
+                     1.2
+
+
+                       1
+
+
+                     0.8
+             Cnorm
+
+
+
+
+                     0.6
+                                                             Probe1
+                                                             Probe2
+                     0.4                                     Probe3
+                                                             Probe4
+                                                             Probe5
+                     0.2                                     Probe6
+                                                             Probe7
+                                                             Probe8
+                      0
+                           0   5   10    15        20   25        30   35
+                                           Time (s)
+Fig. 23: Influence of the MRF zone diameter on the global concentration index Cnorm
+of the tracer measured at the monitoring probes: blue to green scale plot, Zone 1; blue
+to red scale plot, Zone 5; grey area, ±5% of final value
+
+
+
+
+                                          58
+          2
+                                                                Zone 1
+                                                                Zone 5
+
+         1.5
+ Ctank
+
+
+
+
+          1
+
+
+
+
+         0.5
+
+
+
+
+          0
+               0      5          10           15         20          25          30
+                                          Time (s)
+Fig. 24: Influence of the MRF zone diameter on the global normalized concentration
+Ctank of the tracer measured at the monitoring probes: blue, Zone 1; red, Zone 5; grey
+area, ±5% of final value
+
+
+
+
+                                         59
+Fig. 25: Effect of the MRF zone diameter on the evolution of mixing of the passive
+tracer. Volume with the tracer concentration over 0.5% of its equilibrium value at 10
+s and 20 s: left, Zone 1; right, Zone 5
+
+
+
+
+                                         60
+                           2.5
+                                                                                           Wu and Patterson (LDA)
+                             2                                                                               0deg
+                                                                                                           10deg
+                           1.5
+                                                                                                           20deg
+                             1                                                                             30deg
+                                                                                                           40deg
+                           0.5                                                                             50deg
+
+
+
+
+                    2z/w
+                             0
+
+                           -0.5
+
+                            -1
+
+                           -1.5
+
+                            -2
+
+                           -2.5
+                                      -0.1         0         0.1         0.2         0.3         0.4         0.5         0.6         0.7         0.8
+                                                                                     Ur/Utip
+
+
+                           2.5
+                                                                                           Wu and Patterson (LDA)
+                             2                                                                               0deg
+                                                                                                           10deg
+                           1.5
+                                                                                                           20deg
+                             1                                                                             30deg
+                                                                                                           40deg
+                           0.5                                                                             50deg
+                    2z/w
+
+
+
+
+                             0
+
+                           -0.5
+
+                            -1
+
+                           -1.5
+
+                            -2
+
+                           -2.5
+                                  0          0.1       0.2         0.3         0.4         0.5         0.6         0.7         0.8         0.9
+                                                                                     Uθ/Utip
+
+
+                           2.5
+                                                                                           Wu and Patterson (LDA)
+                             2                                                                               0deg
+                                                                                                           10deg
+                           1.5
+                                                                                                           20deg
+                             1                                                                             30deg
+                                                                                                           40deg
+                           0.5                                                                             50deg
+                    2z/w
+
+
+
+
+                             0
+
+                           -0.5
+
+                            -1
+
+                           -1.5
+
+                            -2
+
+                           -2.5
+                              -0.1            0        0.1          0.2         0.3          0.4         0.5         0.6             0.7         0.8
+                                                                                     Uz/Utip
+
+
+Fig. A1: Vertical profiles of velocity components at a distance of 5 cm from the shaft
+axis for the five tested angular positions of the blades: top, radial velocity; middle,
+tangential velocity; bottom, axial velocity
+
+
+
+
+                                                                                61
+            2.5
+                                               Wu and Patterson (LDA)
+              2                                                  0deg
+                                                               10deg
+            1.5
+                                                               20deg
+              1                                                30deg
+                                                               40deg
+            0.5                                                50deg
+     2z/w
+
+
+
+
+              0
+
+            -0.5
+
+             -1
+
+            -1.5
+
+             -2
+
+            -2.5
+                   0     0.02        0.04             0.06     0.08         0.1
+                                            k/Utip2
+
+Fig. A2: Comparison of vertical profiles of turbulent kinetic energy at a distance of
+5 cm from the shaft axis for the five tested angular positions of the blades
+
+
+
+
+                                         62
+

@@ -1,0 +1,381 @@
+# MRF — REGISTRATION OF Reid, Rossi, Cottini & Benassi (2025), arXiv:2508.03176
+
+**STATUS: REGISTRATION OF A REFERENCE, NOT A GATE FREEZE.** This document records
+what an external paper says, what of it transfers to our tank and what does not,
+and it **supersedes the earlier `Np ∈ [4.0, 6.0]` band instruction**. It does not
+by itself re-open, re-grade or re-freeze any pre-registration: the R1 and R2
+pre-registrations are struck-and-legible by dated amendment at their own feet
+(CLAUDE.md rule 6), not rewritten here. **No compute was run to produce this
+document** — every one of our numbers is post-processing of fields already on
+disk from the R2 `ET8000` tree.
+
+- **Authority:** `docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md` §addendum
+  ~19:10Z, and her clarification the same evening relayed by the cfd-supervisor:
+  *"It might be that we dont have exactly the same dimensions as them in which
+  case we dont need to get the same values, but i want all the results in there
+  presented for our case. And the paper registered."*
+- **Paper:** `docs/papers/CFD_simulation_rushton.pdf`, sidecar
+  `docs/papers/CFD_simulation_rushton.txt` (written with this registration).
+- **Our case:** `cases/navier_class/MRF/`, run tree
+  `verification/runs/navier_class/MRF/R2/ET8000/`.
+- **Our parity outputs:** `verification/runs/navier_class/MRF/R2/PAPER_PARITY/`.
+
+---
+
+## 1. Title-page verification (CLAUDE.md rule 15 / L-144) — DONE
+
+Page 1 of the PDF was **rendered to an image and read**, not identified by file
+name, file type or checksum. It carries, as printed: *"CFD simulation of a
+Rushton turbine stirred-tank using open-source software with critical evaluation
+of MRF-based rotation modeling"*; Alfred Reid, Riccardo Rossi, Ciro Cottini,
+Andrea Benassi; Red Fluid Dynamics / Chiesi Farmaceutici / SISSA;
+`arXiv:2508.03176v1 [physics.flu-dyn] 5 Aug 2025`. That is the paper the
+directive names. sha256 of the PDF, recorded for later re-identification only
+and **not** used as the identification: `9d28d6971a7bdaf7b1bcfeb230af16bf088afe47739b80137b251b139b18220e`.
+
+---
+
+## 2. WHAT THE PAPER REGISTERS — its own numbers, and where each one comes from
+
+### 2.1 MRF zone diameter and thickness (the directive's item 1)
+
+| zone | diameter | thickness | source |
+|---|---|---|---|
+| Zone 1 | **1.10 D** | **1.55 W** (W = blade width = D/5, so 0.31 D) | §3.3.1, sidecar "five different zones are compared with diameters of 1.10D, 1.26D, 1.49D, 1.70D and 1.93D with a constant thickness of 1.55W" |
+| Zone 2 | 1.26 D | 1.55 W | same |
+| Zone 3 | 1.49 D | 1.55 W | same |
+| Zone 4 | 1.70 D | 1.55 W | same |
+| Zone 5 | 1.93 D | 1.55 W | same |
+| Zone 6 | 1.10 D | **3.1 W** (0.62 D) | §3.3.1, "comparing Zone 1 to Zone 6, which have the same diameter but respective thicknesses of 1.55W and 3.1W" |
+
+Zone 1 is described as *"slightly greater than the volume swept by the impeller"*.
+
+### 2.2 y+ per surface (the directive's item 1)
+
+- Final (fine) mesh, **average over blades, tank and shaft surfaces: y+ ≈ 4.13**.
+- **On the blades only: average y+ = 7**, maximum ≈ **35** near the blade edges,
+  minimum ≈ **0.1** near the baffle recirculation zones.
+- Their Table 1, per mesh, over all solid surfaces:
+
+| mesh | coarse | medium | fine |
+|---|---|---|---|
+| max element size (mm) | 7 | 5 | 4 |
+| min element size (mm) | 0.44 | 0.31 | 0.25 |
+| cells (million) | 1.51 | 3.33 | 5.76 |
+| min y+ | 0.13 | 0.11 | 0.07 |
+| **average y+** | **6.5** | **5.1** | **4.1** |
+| max y+ | 55.3 | 39.9 | 29.9 |
+
+Wall treatment: y+-insensitive wall functions (`kqRWallFunction`,
+`omegaWallFunction`, `nutUWallFunction`), k-ω SST, `simpleFoam`, OpenFOAM ESI
+v2206.
+
+### 2.3 The Np band (the directive's item 1) — and the one thing about it a reader must know
+
+Their Table 2, the **mesh family**:
+
+| grid | coarse | medium | fine | medium-vs-fine |
+|---|---|---|---|---|
+| **Np (-)** | **5.46** | **5.44** | **5.49** | 0.9 % |
+| Ig (%) | 13.70 | 13.61 | 13.33 | 2.2 % |
+| I (%) | 6.18 | 6.29 | 6.34 | 0.8 % |
+
+**REGISTERED BAND: `Np ∈ [5.3, 5.6]`**, from that family, as the directive
+instructs. **The Rushton/Costich/Everett (1950) correlation plateau value
+`Np ≈ 5.0` is registered as a SECONDARY reference only**, not as the anchor.
+
+Three facts about this band are registered **with** it, because a reader who
+quotes it without them will quote it wrongly:
+
+1. **It is a CFD-to-CFD band, not an experimental one.** The paper reports **no
+   measured power number at all**; a text search of the whole sidecar for a
+   reference, correlation or experimental Np returns nothing. Its external
+   experimental anchor is Wu & Patterson (1989) **velocity and TKE**, not power.
+2. **All three values in it were computed with Zone 1 — the paper's SMALLEST MRF
+   zone, 1.10 D** (sidecar, §3.1: *"The base MRF zone used for the mesh
+   sensitivity study and for the turbulence model comparison is the Zone 1"*).
+   The band is therefore a **1.10 D-zone band**, not a general one. The paper's
+   own Fig. 12 gives, as **printed data labels on the bars** (so: printed
+   values, not digitised, ±0.05 rounding): Np = **5.4, 6.2, 6.3, 6.3, 6.1** for
+   Zones 1 to 5. **At every zone larger than 1.10 D the paper's own Np is ABOVE
+   the registered band.**
+3. **The triple 5.46 → 5.44 → 5.49 is not monotone.** Under this lab's rule 5 it
+   is an `OSCILLATORY` triple, and no Richardson order or GCI may be quoted from
+   it. It is a **scatter band across three meshes**, which is how it is
+   registered here, and never a converged value with an uncertainty.
+
+### 2.4 The other quantities the paper defines
+
+- `Np = P/(ρN³D⁵)`, `P = 2πMN`, torque `M` by integrating pressure + viscous
+  force over the **impeller blade surfaces** (their method 1 of three).
+- Agitation index `Ig = Û/Utip × 100`, `Utip = πND`, `Û` the spatially averaged
+  mean velocity.
+- Turbulence intensity `I = u'/Û × 100`, `u' = sqrt(2k/3)`.
+- Profiles: **circumferentially averaged from 0° to 350° in 10° steps**, at
+  r = 5, 6 and 7 cm from the shaft, over a vertical extent 2.5 W, plotted
+  against `2z/W`; velocities normalised by `Utip`, TKE by `Utip²`.
+- Wu & Patterson uncertainty, as the paper states it: **4 % on velocity, 15 % on
+  turbulent kinetic energy**.
+
+**A DEFINITIONAL AMBIGUITY IN THE PAPER, REGISTERED RATHER THAN RESOLVED
+SILENTLY.** Their eq. 19 writes `I = u'/Û`, i.e. normalised by the **mean
+velocity**. Their Table 2 then reports `I ≈ 6.2–6.3 %` alongside `Ig ≈ 13.3–13.7 %`.
+Taking both at face value gives `u' = 0.0634 × 0.1297 = 0.0082 m/s`, hence a
+whole-tank `k̄/Utip² ≈ 1.1e-04` — **two to three orders below the `k/Utip²` of
+0.01 to 0.07 their own Fig. 16 plots near the impeller**, which is not credible
+for a volume average. Reading `I = u'/Utip` instead gives
+`k̄/Utip² ≈ 6.0e-03`, which **is** consistent with their Fig. 16 and with our own
+measured `5.1e-03`. **Both readings are therefore computed for our case and both
+are reported**; only the tip-speed reading reconciles the paper with itself, and
+that is recorded as our reading of their ambiguity, not as their statement.
+
+---
+
+## 3. THE SIMILARITY QUESTION — and it is a finding, not a formality
+
+The directive calls this paper *"our exact geometry"*. **On the numbers it is
+not.** Every ratio below is computed from artifacts on disk: ours from
+`cases/navier_class/MRF/mesh/generate_geometry.py` lines 21–38 and
+`verification/campaign/MRF_R1_PREREGISTRATION.md` §4; theirs from the paper's
+§2.1 and the dimension labels on its Fig. 1.
+
+| ratio | ours | Reid 2025 | ours / theirs |
+|---|---|---|---|
+| T/D | 3.0000 | 2.9032 | 1.033 |
+| C/D | 1.0000 | 0.9677 | 1.033 |
+| H/T | 1.0000 | 1.0000 | 1.000 |
+| blade L/D | 0.2500 | 0.2500 | 1.000 |
+| blade W/D | 0.2000 | 0.2000 | 1.000 |
+| disc diameter / D | 0.7500 | 0.7742 | 0.969 |
+| shaft diameter / D | 0.2000 | 0.1613 | 1.240 |
+| **baffle width / D** | **0.3000** | **0.1000** | **3.000** |
+| **blade & baffle thickness / D** | **0.0400** | **0.0100** | **4.000** |
+| number of baffles | 4 | 4 | 1.000 |
+| Re = N D²/ν | 5.00e4 | 2.883e4 | 1.734 |
+| Utip = πND (m/s) | 1.5708 | 0.9729 | 1.615 |
+
+**THE TWO TANKS ARE NOT GEOMETRICALLY SIMILAR.** Impeller, clearance, fill
+height and blade aspect transfer to within 3.3 %. **Baffle width and blade
+thickness do not**: our baffles are **three times wider relative to D** and our
+blades, disc and baffles are **four times thicker relative to D**.
+
+Two caveats on that last row, both disclosed:
+
+- **The paper contradicts itself on thickness.** Its Fig. 1 labels the blade,
+  disc and baffle thickness **D/100**; its body text at *"For the blades, disc
+  and baffles thickness, there is no standard value in the literature but T/100
+  has been used"* says **T/100**. Under the figure reading we are **4.0×**
+  thicker; under the text reading, **1.38×**. Both are recorded; neither is
+  chosen. **We are thicker either way.**
+- Blade thickness and baffle width are both documented first-order drivers of a
+  Rushton `Np` in the mixing literature (thicker blades lower it; baffling
+  raises it toward the fully-baffled plateau). **No such source is on this box
+  and none is cited here as a measurement.** The *direction* is stated as
+  background; the *magnitude* is **NOT REGISTERED** and would need its own
+  title-verified reference or its own solve.
+
+### 3.1 What this means for band transfer — the per-quantity call
+
+Sanaa's clarification removes the requirement to match and replaces it with the
+requirement to present. So the band is registered **per quantity**, and each
+quantity carries its own match / no-match call:
+
+| quantity | geometry match? | band registered? |
+|---|---|---|
+| `Np` | **NO** — baffle width 3×, blade thickness 4× (or 1.4×), both first-order for `Np` | **NO BAND.** `Np ∈ [5.3,5.6]` is recorded as **context, not a gate**, and our value is reported beside it with the difference stated in per cent |
+| `Ig` (agitation index) | partial — a velocity-scale quantity, normalised by `Utip`; the drivers that break `Np` act on it far more weakly | context band 13.3–15.4 % across their zones; **no gate** |
+| `I` (turbulence intensity) | partial, and the definition is ambiguous (§2.4) | context only; **no gate** |
+| velocity profiles at matched `r/D` | **partial** — impeller and station geometry match; baffle/thickness differ | Wu & Patterson LDA with their stated **4 %** is the honest external reference; **no gate registered tonight** |
+| TKE profile at matched `r/D` | partial, as above | Wu & Patterson LDA with their stated **15 %**; **no gate registered tonight** |
+| y+ per surface | **NO** — a deliberate design difference: they resolve (`y+ ≈ 4`), we wall-function (`y+` 26–60) | no band; reported per patch as a fact |
+| MRF zone diameter / thickness | comparable, both in units of D and W | no band; registered as a **parameter with a sensitivity** (§5) |
+
+**What would falsify the transfer assumption if anyone ever did register the
+band as a gate:** a solve of **our** geometry with the blade/baffle thickness cut
+to `D/100` and the baffle width cut to `D/10`, holding everything else, landing
+`Np` inside 5.3–5.6. That is the experiment; it has not been run, and until it
+is, `Np` band transfer stays **unregistered**.
+
+---
+
+## 4. OUR NUMBERS, AND THE HONEST GRADE OF 4.38
+
+All values from `verification/runs/navier_class/MRF/R2/PAPER_PARITY/PAPER_PARITY_RESULTS.json`,
+computed from `…/R2/ET8000/<level>/8000/` under a **planted-zero control that
+passed on all three readers** (planted 1.234e-03; volume-average reader, profile-k
+reader and profile-velocity reader each recovered it to 1e-17).
+
+| quantity | coarse | medium | fine | Reid 2025 (fine, Zone 1) |
+|---|---|---|---|---|
+| cells | 154,715 | 601,696 | 2,418,780 | 5,760,000 |
+| base cell (mm) | 10.00 | 6.28 | 3.90 | 4 |
+| min cell (mm) | 0.78 | 0.45 | 0.27 | 0.25 |
+| **Np** | **4.194** | **4.281** | **4.382** | **5.49** |
+| **Ig (%)** | **14.90** | **14.80** | **14.65** | **13.33** |
+| **I = u'/Utip (%)** | **4.63** | **5.37** | **5.83** | **6.34** |
+| I = u'/Û (%) | 31.07 | 36.28 | 39.79 | — (see §2.4) |
+| k̄/Utip² | 3.22e-03 | 4.33e-03 | 5.10e-03 | ≈6.0e-03 (implied) |
+| mean y+, all walls | 59.5 | 39.7 | 25.9 | 4.1 |
+| liquid volume (m³) | 0.020936 | 0.020929 | 0.020931 | — |
+
+### 4.1 THE GRADE — said plainly, because the old line would mislead a reader
+
+> **Under the superseded band `Np ∈ [4.0, 6.0]`, our fine-level `Np = 4.38` was
+> INSIDE the band. Under the band registered here, `Np ∈ [5.3, 5.6]`, it is
+> 17.3 % to 22.0 % LOW and CLEARLY OUTSIDE IT.**
+
+(4.382 against 5.3 is −17.3 %; against 5.6, −21.8 %; against their fine 5.49,
+−20.2 %.) A reader of the old line would believe we had a passing number. **We
+did not, on the reference that now stands.**
+
+**THE VERDICT DOES NOT FLIP, AND NOT BECAUSE THE BAND CHANGED.** The R2 `ET8000`
+row is **`NOT A RESULT`** and was already `NOT A RESULT` before any of this, for
+two independent reasons that sit **above** any band under rule 5: the fine level
+is graded **not iteratively converged**, and the grid triple
+4.193 → 4.281 → 4.382 is **`DIVERGENT`** at observed order **−0.297**. Rule 5 is
+one-way — a gate may only turn a result **into** `NOT A RESULT` — so the new band
+changes the honest description of the number and changes **nothing** about the
+verdict. Artifact: `…/R2/ET8000/MRF_R2_GRADED_ROW_ET8000.json`.
+
+**The per-cent figures above are therefore a DESCRIPTION OF AN UNGRADED NUMBER,
+not a graded error.** They may be quoted as "our ungraded fine-level value sits
+17–22 % below the paper's band"; they may not be quoted as an accuracy.
+
+---
+
+## 5. THE ZONE-SIZE MECHANISM — VERIFIED FROM DISK, AND IT DOES NOT EXPLAIN 4.38
+
+**Our zone, read by this lane from the run's own dictionary**
+(`verification/runs/navier_class/MRF/R2/ET8000/fine/system/topoSetDict`, and
+identically in `cases/navier_class/MRF/R2/system/topoSetDict`):
+`cylinderToCell`, `radius 0.060`, `point1 (0 0 0.080)`, `point2 (0 0 0.120)`.
+
+- diameter **0.120 m = 1.200 D**
+- axial extent **0.040 m = 0.400 D = 2.00 W**
+- blade swept volume: r ≤ 0.050 (1.00 D), z 0.090…0.110 (1.00 W)
+
+So our zone is **1.20 D in diameter and 2.00 W thick**. Against the paper's
+family it sits **between Zone 1 (1.10 D) and Zone 2 (1.26 D)** in diameter, and
+**between Zone 1 (1.55 W) and Zone 6 (3.1 W)** in thickness.
+
+**THIS REFUTES THE MECHANISM THE BRIEF PROPOSED, AND THE REFUTATION IS THE POINT.**
+
+1. **The paper recommends no 1.3–1.5 D zone.** The only range it names is
+   *"Most studies reported in the literature use MRF regions with dimensions
+   within those of Zone 3 and Zone 5"* — i.e. **1.49 D to 1.93 D**, and that is a
+   description of the literature, not a recommendation. Its own conclusion runs
+   the other way: the **smallest** zone gave the best turbulent kinetic energy
+   prediction and the clearest double peak, and larger zones **manufacture**
+   turbulence at the MRF interface. A "recommended 1.3–1.5 D" is not in the paper.
+2. **Their Np RISES with zone diameter through exactly our zone size.** Fig. 12,
+   printed labels: 1.10 D → 5.4, 1.26 D → 6.2. Our 1.20 D sits on the steep part
+   of that rise. If their zone-size curve transferred at all, a 1.20 D zone would
+   predict `Np` **at or above** the 5.3–5.6 band — **not 20 % below it**. The
+   zone-size mechanism predicts the wrong sign of the error for our case.
+3. **What the geometry table actually points at** is §3: baffles 3× wider and
+   blades 4× (or 1.4×) thicker relative to D — both first-order `Np` drivers, and
+   both large. **That is a hypothesis, not a finding**, and it is registered as
+   the leading candidate to be tested, not as an explanation to be believed.
+
+**A zone sensitivity is still worth running** — the paper's central result is
+that zone size moves `Np` by >12 % and mixing time by a factor of three, and we
+have never measured that sensitivity on *our* tank. It is drafted at
+`cases/navier_class/MRF/R3/MRF_R3_ZONE_SENSITIVITY_DRAFT.md`, **NOT FROZEN AND
+NOT LAUNCHED** — the freeze is the cfd-supervisor's check 4 and is not this
+lane's to take.
+
+---
+
+## 6. MEASURED-TIER CHECKS ADDED (the directive's item 4)
+
+Registered as **measured-tier checks**, computed and plotted, **ungated** until a
+supervisor freezes a band for them:
+
+- radial, tangential and axial velocity at **r/D = 0.538** (our 5.38 cm, the
+  station matched to the paper's 5 cm), plus **0.645** and **0.753**, and the
+  paper's **absolute** 5, 6, 7 cm for completeness;
+- turbulent kinetic energy at the same stations, against Wu & Patterson (1989)
+  LDA **digitised exactly from the paper's Fig. 16 vector paths**;
+- **agitation index and mean turbulence intensity reported beside Np** in the
+  table of §4 and in `figures/fig06_global_parameters.png`.
+
+**A station caveat that matters.** The paper's r = 5 cm is `r/D = 0.538` — about
+one blade width outside its blade tip. **Our blade tip is at exactly r = 5 cm**,
+so the paper's *absolute* radius is our *tip circle*, not a discharge-stream
+station. The matched station is `r/D = 0.538` → **r = 5.38 cm**, and that is the
+one used for every comparison; the absolute 5 cm profile is plotted separately
+and labelled as the tip circle.
+
+**Sampling method, disclosed:** nearest-cell values at 36 azimuths × 101 heights
+per station, circumferentially averaged exactly as the paper does (0° to 350° in
+10° steps). Nearest-cell, **not** interpolated — which is why our curves are
+visibly stepped where the paper's are smooth. The azimuthal standard deviation
+over the 36 samples is plotted as a shaded band and is a real uncertainty channel
+the paper does not report.
+
+---
+
+## 7. DIGITISATION PROVENANCE (the directive's honesty constraint)
+
+| paper value used here | provenance |
+|---|---|
+| Np 5.46 / 5.44 / 5.49; Ig 13.70 / 13.61 / 13.33; I 6.18 / 6.29 / 6.34 | **TABULATED** — their Table 2 |
+| mesh sizes, cell counts, y+ min/avg/max | **TABULATED** — their Table 1 |
+| zone diameters 1.10–1.93 D, thicknesses 1.55 W / 3.1 W | **TEXT** — their §3.3.1 |
+| Np 5.4/6.2/6.3/6.3/6.1, Ig 13.7/14.8/15.1/15.4/15.1, I 6.3/6.6/7.0/7.4/7.5 per zone | **PRINTED DATA LABELS on their Fig. 12** — printed, not digitised; uncertainty is rounding only, ±0.05 |
+| Wu & Patterson LDA k/Utip² points and their Zone 1 curve | **DIGITISED** — and **exactly**, from the PDF's own vector path coordinates, not from pixels and not by eye; script `cases/navier_class/MRF/digitise_reid2025_fig16.py`, output `…/PAPER_PARITY/REID2025_FIG16_DIGITISED.json` |
+
+The digitiser carries its own reader control: the axis calibration comes from the
+tick-mark path coordinates in the same content stream, and **every recovered
+error bar has a half-width of 15.0 ± 0.4 % of its own centre value** — which is
+precisely the Wu & Patterson TKE uncertainty the paper states. The script
+**exits 2** if any bar violates that. Eleven points were recovered; all eleven
+passed.
+
+---
+
+## 8. WHAT IS NOT AVAILABLE FOR OUR CASE, AND WHY
+
+Reported as **NOT AVAILABLE with the reason**, never estimated, never left as a
+silent gap in a figure that has a slot for it:
+
+| the paper's item | our status |
+|---|---|
+| Fig. 6, 7, 8, 9 — k-ε comparison | **NOT AVAILABLE** — no k-ε solve exists for this case; k-ω SST only |
+| Fig. 11–14, 16–19 — the five-zone sweep | **NOT AVAILABLE** — one zone (1.20 D) solved; this is exactly what the §5 draft proposes to fix |
+| Fig. 20, 21 — zone thickness sweep | **NOT AVAILABLE** — one thickness (2.00 W) solved |
+| Fig. 22–25, Table 3 — passive-scalar mixing time | **NOT AVAILABLE** — no scalar transport run; would need a fresh registration and fresh compute |
+| Fig. A1, A2 — blade angular sensitivity | **NOT AVAILABLE** — one frozen-rotor position solved; the position dependence is already a disclosed ungated uncertainty in the R1 pre-registration §4 |
+| an experimental power number | **NOT AVAILABLE IN THE PAPER EITHER** — it reports none (§2.3) |
+
+---
+
+## 9. COMPUTE (rule 12)
+
+**No solver ran.** All of this is post-processing of fields already on disk.
+Measured cost: `postProcess -func writeCellCentres/writeCellVolumes` on three
+levels plus the Python extraction and figures, **1 rank**, wall time under
+25 minutes end to end ⇒ **under 25 core-minutes**, derived ≈ **$0.02** at
+$0.0513/core-h — **derived, not measured**, the box cannot read its own billing.
+No pre-registered estimate existed for a desk task, so **no estimate-vs-actual
+calibration row is owed**; the row that IS owed remains the R2 solve's, at
+`verification/runs/navier_class/MRF/R2/COST_CALIBRATION_ROW_PENDING.md`.
+
+---
+
+## 10. ARTIFACTS
+
+| artifact | path |
+|---|---|
+| paper | `docs/papers/CFD_simulation_rushton.pdf` |
+| sidecar (new) | `docs/papers/CFD_simulation_rushton.txt` |
+| our parity numbers | `verification/runs/navier_class/MRF/R2/PAPER_PARITY/PAPER_PARITY_RESULTS.json` |
+| our mesh table | `verification/runs/navier_class/MRF/R2/PAPER_PARITY/MESH_TABLE_OURS.json` |
+| exact Fig. 16 digitisation | `verification/runs/navier_class/MRF/R2/PAPER_PARITY/REID2025_FIG16_DIGITISED.json` |
+| figures | `verification/runs/navier_class/MRF/R2/PAPER_PARITY/figures/` |
+| extraction script | `cases/navier_class/MRF/paper_parity_extract.py` |
+| work-copy setup | `cases/navier_class/MRF/paper_parity_setup.sh` |
+| figure script | `cases/navier_class/MRF/paper_parity_figures.py` |
+| digitiser | `cases/navier_class/MRF/digitise_reid2025_fig16.py` |
+| graded row this grades against | `verification/runs/navier_class/MRF/R2/ET8000/MRF_R2_GRADED_ROW_ET8000.json` |
+| zone sensitivity draft (NOT FROZEN) | `cases/navier_class/MRF/R3/MRF_R3_ZONE_SENSITIVITY_DRAFT.md` |

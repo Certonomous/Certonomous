@@ -1,0 +1,255 @@
+{
+  "source_pdf": "/home/ubuntu/Certonomous/docs/papers/CFD_simulation_rushton.pdf",
+  "figure": "Fig. 16",
+  "printed_page": 51,
+  "method": "exact digitisation from the PDF vector path coordinates; axis calibration from the tick-mark coordinates in the same content stream; NOT read off pixels and NOT read by eye",
+  "reader_control": "every recovered error bar has a half-width of 15.0 +/- 0.4 % of its own centre value, which is the Wu & Patterson TKE uncertainty the paper states; the script exits 2 if any bar violates it",
+  "quantity": "k / Utip^2 at r = 5 cm, vs 2z/W",
+  "wu_patterson_1989_LDA": [
+    {
+      "two_z_over_W": -2.0528,
+      "k_over_Utip2": 0.003164,
+      "half_width_k_over_Utip2": 0.00047,
+      "half_width_pct": 14.86
+    },
+    {
+      "two_z_over_W": -1.5487,
+      "k_over_Utip2": 0.004167,
+      "half_width_k_over_Utip2": 0.000632,
+      "half_width_pct": 15.17
+    },
+    {
+      "two_z_over_W": -1.0362,
+      "k_over_Utip2": 0.019025,
+      "half_width_k_over_Utip2": 0.002858,
+      "half_width_pct": 15.02
+    },
+    {
+      "two_z_over_W": -0.4908,
+      "k_over_Utip2": 0.049091,
+      "half_width_k_over_Utip2": 0.007364,
+      "half_width_pct": 15.0
+    },
+    {
+      "two_z_over_W": -0.2088,
+      "k_over_Utip2": 0.054175,
+      "half_width_k_over_Utip2": 0.008127,
+      "half_width_pct": 15.0
+    },
+    {
+      "two_z_over_W": 0.0012,
+      "k_over_Utip2": 0.035475,
+      "half_width_k_over_Utip2": 0.005323,
+      "half_width_pct": 15.0
+    },
+    {
+      "two_z_over_W": 0.2006,
+      "k_over_Utip2": 0.038857,
+      "half_width_k_over_Utip2": 0.005825,
+      "half_width_pct": 14.99
+    },
+    {
+      "two_z_over_W": 0.5258,
+      "k_over_Utip2": 0.071847,
+      "half_width_k_over_Utip2": 0.010779,
+      "half_width_pct": 15.0
+    },
+    {
+      "two_z_over_W": 1.1003,
+      "k_over_Utip2": 0.018021,
+      "half_width_k_over_Utip2": 0.002705,
+      "half_width_pct": 15.01
+    },
+    {
+      "two_z_over_W": 1.6042,
+      "k_over_Utip2": 0.006524,
+      "half_width_k_over_Utip2": 0.000982,
+      "half_width_pct": 15.05
+    },
+    {
+      "two_z_over_W": 2.1169,
+      "k_over_Utip2": 0.003818,
+      "half_width_k_over_Utip2": 0.000579,
+      "half_width_pct": 15.16
+    }
+  ],
+  "paper_MRF_Zone1_curve": [
+    {
+      "two_z_over_W": -2.5,
+      "k_over_Utip2": 0.006828
+    },
+    {
+      "two_z_over_W": -2.4896,
+      "k_over_Utip2": 0.006917
+    },
+    {
+      "two_z_over_W": -2.395,
+      "k_over_Utip2": 0.007659
+    },
+    {
+      "two_z_over_W": -2.3004,
+      "k_over_Utip2": 0.007941
+    },
+    {
+      "two_z_over_W": -2.1112,
+      "k_over_Utip2": 0.00901
+    },
+    {
+      "two_z_over_W": -2.0166,
+      "k_over_Utip2": 0.010255
+    },
+    {
+      "two_z_over_W": -1.9238,
+      "k_over_Utip2": 0.011018
+    },
+    {
+      "two_z_over_W": -1.8274,
+      "k_over_Utip2": 0.011564
+    },
+    {
+      "two_z_over_W": -1.6399,
+      "k_over_Utip2": 0.012218
+    },
+    {
+      "two_z_over_W": -1.5453,
+      "k_over_Utip2": 0.012459
+    },
+    {
+      "two_z_over_W": -1.4507,
+      "k_over_Utip2": 0.012828
+    },
+    {
+      "two_z_over_W": -1.2615,
+      "k_over_Utip2": 0.015228
+    },
+    {
+      "two_z_over_W": -1.1669,
+      "k_over_Utip2": 0.017519
+    },
+    {
+      "two_z_over_W": -1.0723,
+      "k_over_Utip2": 0.020509
+    },
+    {
+      "two_z_over_W": -0.9777,
+      "k_over_Utip2": 0.024917
+    },
+    {
+      "two_z_over_W": -0.7901,
+      "k_over_Utip2": 0.03779
+    },
+    {
+      "two_z_over_W": -0.6955,
+      "k_over_Utip2": 0.0468
+    },
+    {
+      "two_z_over_W": -0.6009,
+      "k_over_Utip2": 0.056487
+    },
+    {
+      "two_z_over_W": -0.4117,
+      "k_over_Utip2": 0.072
+    },
+    {
+      "two_z_over_W": -0.317,
+      "k_over_Utip2": 0.071477
+    },
+    {
+      "two_z_over_W": -0.2224,
+      "k_over_Utip2": 0.065519
+    },
+    {
+      "two_z_over_W": -0.1278,
+      "k_over_Utip2": 0.055659
+    },
+    {
+      "two_z_over_W": 0.0596,
+      "k_over_Utip2": 0.04344
+    },
+    {
+      "two_z_over_W": 0.1542,
+      "k_over_Utip2": 0.049046
+    },
+    {
+      "two_z_over_W": 0.2488,
+      "k_over_Utip2": 0.060873
+    },
+    {
+      "two_z_over_W": 0.438,
+      "k_over_Utip2": 0.073331
+    },
+    {
+      "two_z_over_W": 0.5326,
+      "k_over_Utip2": 0.072459
+    },
+    {
+      "two_z_over_W": 0.6273,
+      "k_over_Utip2": 0.065782
+    },
+    {
+      "two_z_over_W": 0.7219,
+      "k_over_Utip2": 0.055877
+    },
+    {
+      "two_z_over_W": 0.9093,
+      "k_over_Utip2": 0.03504
+    },
+    {
+      "two_z_over_W": 1.0039,
+      "k_over_Utip2": 0.027491
+    },
+    {
+      "two_z_over_W": 1.0968,
+      "k_over_Utip2": 0.021578
+    },
+    {
+      "two_z_over_W": 1.1914,
+      "k_over_Utip2": 0.017172
+    },
+    {
+      "two_z_over_W": 1.3806,
+      "k_over_Utip2": 0.012568
+    },
+    {
+      "two_z_over_W": 1.4752,
+      "k_over_Utip2": 0.01141
+    },
+    {
+      "two_z_over_W": 1.5698,
+      "k_over_Utip2": 0.010735
+    },
+    {
+      "two_z_over_W": 1.759,
+      "k_over_Utip2": 0.009731
+    },
+    {
+      "two_z_over_W": 1.8536,
+      "k_over_Utip2": 0.009228
+    },
+    {
+      "two_z_over_W": 1.95,
+      "k_over_Utip2": 0.00875
+    },
+    {
+      "two_z_over_W": 2.0446,
+      "k_over_Utip2": 0.007964
+    },
+    {
+      "two_z_over_W": 2.2338,
+      "k_over_Utip2": 0.00696
+    },
+    {
+      "two_z_over_W": 2.3284,
+      "k_over_Utip2": 0.006719
+    },
+    {
+      "two_z_over_W": 2.423,
+      "k_over_Utip2": 0.00624
+    },
+    {
+      "two_z_over_W": 2.5022,
+      "k_over_Utip2": 0.005673
+    }
+  ],
+  "CAVEAT": "these are the PAPER's tank: T = 0.27 m, D = 0.093 m, N = 3.33 rev/s, Re = 28830. OUR tank is T = 0.30 m, D = 0.100 m, N = 5.0 rev/s, Re = 50000, with 3x wider baffles and 4x thicker blades relative to D. DIFFERENT DIMENSIONS -- NO MATCH EXPECTED."
+}

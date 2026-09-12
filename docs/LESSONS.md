@@ -27299,3 +27299,71 @@ the rule never clears itself. Clear the CONDITION (`swapoff -a; swapon -a`), nev
 precondition, since nothing counting ranks against cores can see a saturated volume; and a
 core-min figure booked as "CPU contention" may be I/O wait — **the two have different
 remedies, and a wave scheduler fixes only the first.**
+
+---
+
+## L-561 — AN MRF ZONE SIZE IS A REGISTERED PARAMETER WITH A MEASURED SENSITIVITY, NEVER A DEFAULT — AND THE FIRST THING A SENSITIVITY BUYS YOU IS THE RIGHT TO RULE ITS OWN MECHANISM OUT (2026-09-12, cfd)
+
+**The rule.** In a frozen-rotor MRF solve, the size of the rotating cell zone is a
+**modelling parameter that moves the graded quantity**, not a meshing convenience.
+It goes in the registration with its diameter and thickness **in units of the
+impeller diameter `D` and the blade width `W`**, and it does not get to be a
+default. A registration that names `radius 0.060` and nothing else has registered
+a number, not a parameter.
+
+**What it cost, and what it nearly cost.** Our Rushton `Np` case
+(`cases/navier_class/MRF/`) chose its zone once, in the R1 pre-registration §4, as
+*"a cylinder of radius ~0.6 D"*. No sensitivity sat behind that choice, so when
+the fine level came back **20 % below** a newly registered external band, the zone
+was the obvious suspect and the brief that reached the lane said so outright: *the
+signature matches*. **It did not match.** Read from the run's own
+`system/topoSetDict`, the zone is **1.200 D in diameter and 2.00 W thick**. The
+paper that supplied the band (Reid, Rossi, Cottini & Benassi 2025,
+arXiv:2508.03176) reports `Np` **rising** from **5.4 at 1.10 D to 6.2 at 1.26 D**.
+Our zone sits on that rise. **If the mechanism transferred it would put our `Np`
+at or ABOVE the band — the opposite sign to our shortfall.** An hour of desk work
+on artifacts already on disk turned a plausible mechanism into a refuted one,
+before any core-minute was spent re-running a fine level to test it.
+
+**The second half of the lesson, which is the expensive one.** Because the zone
+had never been registered as a parameter, **there was no sensitivity to consult**,
+and the only way to answer "is it the zone?" was to reason from somebody else's
+tank. That is how a default becomes load-bearing: not when it is chosen, but when
+a result goes wrong and the choice has no evidence behind it to exonerate it.
+**The sensitivity is worth running precisely so that the next time it can be ruled
+out in a minute instead of argued.** Drafted at
+`cases/navier_class/MRF/R3/MRF_R3_ZONE_SENSITIVITY_DRAFT.md`, **not frozen, not
+launched** — and deliberately **not** proposed as a fix for `Np`, because §1 of
+that draft is the refutation above.
+
+**What "registered" has to mean, concretely.** Diameter and thickness in `D` and
+`W`; the interface radius stated against **two checkable clearances** — clear of
+the baffle inner edge by a registered margin, and beyond the blade-tip wake decay
+length — with both expressed as numbers the mesh can be measured against rather
+than as adjectives; and the graded quantity's sensitivity to the parameter
+reported **beside** the quantity, not instead of it.
+
+**The generalisation, which is not about MRF.** Every model parameter that is
+chosen once and never varied is a **default masquerading as a registration**, and
+its failure mode is identical: it is the first suspect when a number goes wrong
+and the last thing anyone can exonerate. The tell is textual and easy to grep
+for — **a registration that gives a parameter an absolute value with no ratio, no
+band and no sensitivity**. `radius 0.060` is that tell. `1.20 D, measured
+sensitivity dNp/d(dia/D) = …` is not.
+
+**A companion fact worth carrying separately.** The band we were handed to grade
+against — `Np ∈ [5.3, 5.6]` from that paper's Table 2 — was itself computed
+**entirely with the paper's SMALLEST zone (1.10 D)**. A band lifted from a mesh
+study is a band **at that study's parameter settings**, and those settings travel
+with it or the band is misquoted. Ours would have been.
+
+**Related.** CLAUDE.md rule 2 (a registration fixes the gate **and its
+conditions**); rule 5 (the triple refused here long before any band mattered, and
+the band changed only the honest description of the number); L-144 / rule 15
+(title-page verification, done on this paper by rendering page 1).
+
+**Sources.** `verification/runs/navier_class/MRF/R2/ET8000/fine/system/topoSetDict`;
+`verification/runs/navier_class/MRF/R2/ET8000/MRF_R2_GRADED_ROW_ET8000.json`;
+`verification/campaign/MRF_PAPER_REGISTRATION_REID2025.md`;
+`docs/papers/CFD_simulation_rushton.txt` §3.3.1 and Fig. 12;
+`verification/runs/navier_class/MRF/R2/PAPER_PARITY/`.

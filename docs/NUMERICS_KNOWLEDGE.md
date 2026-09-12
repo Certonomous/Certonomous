@@ -6906,3 +6906,85 @@ id before its silence was accepted as agreement.** After the append, must-be-pre
 | N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3, N-X4 |
 
 FAMILIES 7 TOTAL 143
+
+---
+
+## N-C13. AN MRF-ZONE-SIZE BAND LIFTED FROM A PUBLISHED MESH STUDY TRAVELS WITH THAT STUDY'S ZONE, AND IN Reid 2025 THAT ZONE IS THE SMALLEST OF FIVE: ITS `Np` BAND 5.3–5.6 IS A **1.10 D-ZONE** BAND, WHILE ITS OWN Fig. 12 GIVES 6.2 AT 1.26 D AND 6.3 AT 1.49 D — MEASURED FROM THE PAPER, AND OUR 1.20 D ZONE SITS ON THE RISE
+
+**CLAIM.** Three claims, each separable:
+
+1. **The band is a parameter-conditioned band.** Reid, Rossi, Cottini & Benassi
+   (2025) report `Np` = **5.46 / 5.44 / 5.49** across coarse / medium / fine
+   (their Table 2). All three were computed with **Zone 1, the smallest of their
+   five MRF zones, at 1.10 D** — their §3.1 says so in one sentence: *"The base
+   MRF zone used for the mesh sensitivity study and for the turbulence model
+   comparison is the Zone 1."* Quoting 5.3–5.6 without "at a 1.10 D zone"
+   misquotes it. Their own Fig. 12 printed labels give `Np` = **5.4, 6.2, 6.3,
+   6.3, 6.1** at **1.10, 1.26, 1.49, 1.70, 1.93 D** — **every larger zone lies
+   above the band**.
+2. **That triple is `OSCILLATORY`, so it is a scatter band, not a converged
+   value.** 5.46 → 5.44 → 5.49 is not monotone. Under rule 5 no Richardson order
+   and no GCI may be quoted from it, and the paper quotes only a relative
+   difference (0.9 %), which is what it is entitled to.
+3. **The paper reports NO experimental power number.** Its external anchor is
+   Wu & Patterson (1989) **velocity and TKE** (stated uncertainty 4 % and 15 %).
+   A power-number band taken from it is **CFD-to-CFD**, and a case graded against
+   it is code-comparison tier, never experiment-validated.
+
+**SOURCE.** `docs/papers/CFD_simulation_rushton.pdf` (title page rendered and
+read, rule 15) and its sidecar `docs/papers/CFD_simulation_rushton.txt`: §2.1
+geometry, §3.1 mesh study and its base zone, Table 1, Table 2, §3.3.1 zone
+definitions, Fig. 12 printed data labels, Fig. 16 (digitised exactly from the
+PDF's vector path coordinates, `cases/navier_class/MRF/digitise_reid2025_fig16.py`,
+output `verification/runs/navier_class/MRF/R2/PAPER_PARITY/REID2025_FIG16_DIGITISED.json`,
+whose reader control is that every recovered error bar is 15.0 ± 0.4 % of its own
+centre — the paper's stated Wu & Patterson TKE uncertainty).
+
+**GATE.** Three gate consequences, written as rules a grader can apply:
+
+- **A band quoted from a published mesh study is registered WITH the model
+  parameters that study held fixed**, or it is not registered. For this band the
+  parameters are: MRF zone **1.10 D × 1.55 W**, k-ω SST with y+-insensitive wall
+  functions at mean wall `y+ ≈ 4.1`, `simpleFoam`, OpenFOAM ESI v2206, tank
+  `T/D = 2.903`, baffle width `0.100 D`, blade/disc/baffle thickness `0.010 D`
+  (their Fig. 1; their body text says `T/100` instead and the paper contradicts
+  itself on this one dimension).
+- **Geometric similarity is checked ratio by ratio before a dimensionless band is
+  transferred, and the check is a table, not an adjective.** Measured against our
+  own tank (`cases/navier_class/MRF/mesh/generate_geometry.py:21–38`): `T/D`,
+  `C/D`, `H/T`, blade `L/D` and `W/D` all transfer to within 3.3 %; **baffle
+  width/D is 0.300 against 0.100 (3×)** and **blade thickness/D is 0.040 against
+  0.010 (4×)** — both first-order `Np` drivers. **The band therefore does not
+  transfer to our tank and is registered as CONTEXT, not as a gate**
+  (`verification/campaign/MRF_PAPER_REGISTRATION_REID2025.md` §3.1).
+- **A zone-size explanation of a low `Np` must be checked for SIGN before it is
+  believed.** Our zone, read from `verification/runs/navier_class/MRF/R2/ET8000/fine/system/topoSetDict`,
+  is **1.200 D × 2.00 W**, sitting on the steep rise between their Zone 1 and
+  Zone 2. Their curve would put a 1.20 D zone **at or above** 5.3–5.6, while our
+  measured fine-level value is **4.382**, i.e. **17.3 % to 22.0 % below** the
+  band. The mechanism predicts the wrong sign and is **ruled out**, not adopted.
+
+**WHAT THIS ENTRY DOES NOT CLAIM.** It does not say what *does* explain our 4.382.
+The leading candidates are the two geometry ratios above; no source for their
+quantitative effect is on this box, so the direction is background and the
+magnitude is **unregistered**. Nor does it move any verdict: the R2 `ET8000` row
+is `NOT A RESULT` on a `DIVERGENT` triple at observed order −0.297 with the fine
+level not iteratively converged, and rule 5 is one-way.
+
+## FAMILY INDEX — regenerated 2026-09-12 (supersedes any earlier FAMILY INDEX block above)
+
+Appended by a cfd `lab-lane` **in the same commit as the `N-C13` row above**. Controls
+ran BEFORE the row was believed, because a generated index is a reader's output
+(`CLAUDE.md` rule 3): `--selftest` **PASS, 0 failures** across all four planted controls.
+Before this append the checker reported `DIVERGENCE  N-C: missing from index ['N-C13']` —
+**the reader was shown able to see the new id before its silence was accepted as agreement.**
+
+| N-AV | Ansys Fluid Dynamics Verification Manual — VMFL cases reproduced in the lab's own solvers as pre-registered verdicts | N-AV1, N-AV2, N-AV3, N-AV4, N-AV5, N-AV6, N-AV7, N-AV8, N-AV9, N-AV10, N-AV11, N-AV12, N-AV13, N-AV14, N-AV15, N-AV16, N-AV17 |
+| N-B | Closure line (RANS/LES): β-field correction, feature-library, clip-repair and injection numerics | N-B1, N-B2, N-B3, N-B4, N-B5, N-B6, N-B7, N-B8, N-B9, N-B10, N-B11, N-B12, N-B13, N-B14, N-B15, N-B16, N-B17, N-B18, N-B19, N-B20, N-B22, N-B23, N-B24, N-B25, N-B26, N-B27, N-B28, N-B29, N-B30, N-B31, N-B32, N-B33, N-B34, N-B35, N-B36, N-B37, N-B38, N-B39, N-B40, N-B41, N-B42 |
+| N-C | General CFD meshing: snappyHexMesh / grid-family facts (a LEVEL step is not a grid refinement) | N-C1, N-C2, N-C3, N-C4, N-C5, N-C6, N-C7, N-C8, N-C9, N-C10, N-C11, N-C12, N-C13 |
+| N-D | DAFoam adjoint & optimisation: primal/adjoint solver behaviour, gradient verification, optimiser and cost numerics | N-D1, N-D2, N-D3, N-D4, N-D5, N-D6, N-D7, N-D8, N-D9, N-D10, N-D11, N-D12, N-D13, N-D14, N-D15, N-D16, N-D17, N-D18, N-D19, N-D20, N-D21, N-D22, N-D23, N-D24, N-D25, N-D26, N-D27, N-D28, N-D29, N-D30, N-D31, N-D32, N-D33, N-D34, N-D35, N-D36, N-D37, N-D38, N-D39, N-D40, N-D41, N-D42, N-D43, N-D44, N-D45, N-D46, N-D47 |
+| N-K | Data-driven closure benchmark numerics: Pope tensor-basis rank, TBNN / SpaRTA conditioning | N-K1, N-K2, N-K3, N-K4, N-K5, N-K6, N-K7, N-K8, N-K9, N-K10 |
+| N-T | T-family heat-transfer ladder: GCI / Richardson, thermal grid-convergence numerics | N-T1, N-T2, N-T3, N-T4, N-T5, N-T6, N-T7, N-T8, N-T9, N-T10, N-T11, N-T12 |
+| N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3, N-X4 |
+
+FAMILIES 7 TOTAL 144
