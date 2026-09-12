@@ -45197,6 +45197,39 @@ short-window stop would have taken it for one.** That is the argument for `resid
 reasoned correctly from it, and only a measurement stopped it becoming a written finding.
 **LIVE: SUBOFF `SOLVE_L1` 51 iterations; MRF fine ~7,100/8,000; DrivAer coarse 630/2000 and medium
 7/2000. L2 `BLOCKED`, launcher PROVEN POLLING at reading 11.**
+
+<!-- BOARD-BLOCK-ID: 192-RESUME-STATE-PENDING-VERDICTS-AND-THEIR-ARTIFACT-PATHS -->
+### Block 192 — resume state: what is running, what verdict is pending WHERE, 2026-09-12T06:19:55Z
+
+**STATE ONLY, per [SANAA-DIRECT]:** *"everythign recorded lust be enough for the teams memory and enough to start from next time the lfeet gets turned on again, but thats about it."* No analysis here.
+
+**A LANE CORRECTED ME AND THIS BLOCK EXISTS BECAUSE OF IT: a lane that has ended cannot report.** Asking for "four lines when it lands" asks a dead agent to speak — *"waiting on my monitor"* is the dead-agent tell (L-186 family). **The durable channel is the detached watchers plus these paths.** Whoever is awake reads them; no intermediate step.
+
+#### PENDING VERDICTS — READ THESE FILES, DO NOT RE-DERIVE
+| pending | read |
+|---|---|
+| **C2** layer probe (E1/E2) | `verification/runs/navier_class/DRIVAER/LAYERFIX_C2_coarse_absoluteFirstLayer_5mm/C2_EXIT_VERDICT.md` (+`.json`, `C2_WATCH.log`) |
+| **B2** blending active? | `.../DRIVAER/r2c_coarse_blended/GRADE_STAGE_A_blended.json` vs control `.../r2_coarse/GRADE_STAGE_A_coarse.json` |
+| **B1** coarse vs medium | `.../DRIVAER/r2c_medium_blended/GRADE_STAGE_A_medium_blended.json` |
+| **CRM L2** G-S1/G-S2 | `verification/runs/CRM_WINGALONE_runs/SOLVE_L2/` grader output; cost row `COST_ROW.txt` |
+| **SUBOFF L1** | `verification/runs/navier_class/SUBOFF_A1/` autograder output |
+`DRIFT_WINDOWS.tsv` sits beside each, **8 window lengths — one window is never evidence.** Every grader **REFUSES (exit 2) rather than degrading**, so a missing artifact is a refusal, never a silent pass.
+
+#### RUNNING at this stamp (all verified by `/proc/<pid>/cwd`, never by pattern — `pkill`/`pgrep` banned, L-559)
+CRM L2 `rhoSimpleFoam` 6 ranks ~704/4000, lands ~13:00Z · DrivAer control 1149/2000 · blended coarse 131/2000 · blended medium 53/2000 · SUBOFF L1 302/3000 (~33 h) · C2 in snappy, `RUN_RC` absent.
+Watchers all `ppid 1`: CRM grader 2918833 + cost writer 2933829 · DrivAer 2739550, 2881618, 2905893, 2913632 · SUBOFF 2665991, 2736088, 2754216, 2754283.
+
+#### VERDICTS THIS SESSION
+**MRF R2 ET8000 `NOT A RESULT`** — band `PASS` 4.3817 in [4.0,6.0], turned by rule 5; two independent routes (fine NOT_CONVERGED; triple DIVERGENT both estimators, settled e32/e21 60.58). **CRM P1B `GATE FAIL` → P1C `PASS`** — the gate measured distance from the ORIGIN while §2 registers distance from the BODY AXIS; quantity corrected, **no threshold moved**. **C1 layer probe `GATE FAIL`** coverage 32.390 % vs 50 % floor. **DrivAer r2_medium solve `BLOCKED`** — stopped 05:21:54Z by Sanaa's own hand; mesh grading untouched.
+
+#### BLOCKED, WITH THE REASON
+**SUBOFF L2** memory (13 GiB vs a 19 GiB gate — **gate NOT lowered**) · **SUBOFF L3** unconditional (37–49 GiB vs 30) · **DrivAer r2_fine** stood down, current spec yields an uncitable Cd · **M6H1** — **NOT FROZEN**; §12's five fields are placeholders and **3 of 4 instruments in §10 DO NOT EXIST**. I called it "frozen, check 4 discharged" and was wrong — I had hashed two blobs, which is not a freeze. A lane is writing the instruments.
+
+#### 🔴 OPEN HAZARD NEEDING A PERSON
+**The shared index carries a staged DELETION of `verification/campaign/DRIVAER_R2C_BLENDED_WALL_TREATMENT_PREREGISTRATION.md`** — the registration THREE LIVE RUNS are executing under. Safe at HEAD (blob `2a8c98a086`, sha256 `6dc537a1…`). **Any bare `git commit` destroys it.** Four agents have inspected and none reverted it. Also: worktree `CRM_WINGALONE_FLOW_PREREGISTRATION.md` is 236 lines vs HEAD's 459 — **staging it destroys two signed addenda.**
+
+#### OWED BY ME
+§10.2 of the CRM registration stores a **recipe** (`the commit that carries the signature`) instead of a literal sha, so rule 2's hash-against-the-blob cannot be performed from it. Deferred, named, not lost. Also mine: the C2 registration never wrote its coverage formula and a lane had to derive it.
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
