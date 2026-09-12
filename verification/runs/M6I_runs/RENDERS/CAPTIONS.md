@@ -121,3 +121,82 @@ or label. No agent's message is Sanaa's consent. Submissions parked.*
 > Produced by `scripts/plot_m6i_cp.py`. The upper/lower split is **transcribed from the
 > frozen grader** `scripts/grade_m6_agard_cp.py:cfd_curve()`, not re-decided here; the
 > experiment's split is its own Z/L sign, already resolved in the data file.
+
+---
+
+# ADDENDUM 1 — 2026-09-12 — **THE MESH RENDER ABOVE WAS SILENTLY COLOURED BY PRESSURE, AND THE CAPTION CALLING IT A MESH WAS WRONG. RE-RENDERED, AND THE FIELDS HALF OF HER DIRECTIVE IS NOW ACTUALLY SATISFIED.**
+
+Appended, not inserted: **lines whose number changed above this section: 0.**
+
+## A1.1 WHAT WAS WRONG WITH THE IMAGE I SHIPPED
+
+`scripts/render_openfoam_3d_paraview.py` called ParaView's `Show()` and never disabled its
+**automatic colouring**. Measured with `pvbatch` on this very case: **immediately after
+`Show()` and before any `ColorBy` call, `d.ColorArrayName` already reads
+`['POINTS', 'p']`.** The blue-to-white gradient across the wing in the first version of
+`M6I_R1_L3_mesh_surface.png` **was the pressure field**, not lighting — **unlabelled, with
+no colour bar, under a caption that called it a mesh render.**
+
+**That caption was wrong and this addendum says so rather than quietly replacing the file.**
+The image has been re-rendered with colouring explicitly disabled; the mesh render is now a
+genuine neutral-grey surface with black cell edges, and the caption above is true of it.
+
+## A1.2 AND THE FIELDS HALF OF HER DIRECTIVE IS NOW SATISFIED, NOT WORKED AROUND
+
+Sanaa, ~20:30Z: *"all fields should be stored as the fine mesh result fields (whenever we
+have it)."* The head of this file recorded that half as unavailable because `--field` was
+believed to be a silent no-op. **It never was** — see `A1.3`. A second image is therefore
+saved beside the mesh render:
+
+> **`M6I_R1_L3_field_p_surface.png` — ONERA M6 wing, surface pressure, level L3, 480 wing
+> faces.** `p` coloured by its **CELLS** association (the array the solver wrote;
+> interpolating to points would smooth the data the picture exists to show), range
+> **[50 974.4, 147 628.9] Pa**, with a **scalar bar carrying the field name and its
+> numbers** so the colours can be decoded. Planted colour control **PASSED — the
+> collapsed-map plant moved 94.31 % of body pixels.**
+> 🔴 **THE CAVEAT AT THE HEAD OF THIS FILE APPLIES UNCHANGED AND APPLIES HARDER TO A FIELD
+> PICTURE: THIS RUN CARRIES NO SHOCK.** A pressure picture of a shockless transonic wing
+> shows a smooth expansion where the literature shows a lambda foot. **It is not a
+> validated M6 pressure field and must never be captioned as one.**
+> **Fields are L3's own**, because L3 remains the only completed level — `L2` is dead at
+> `rc = 136` (SIGFPE) and `L1` has produced nothing.
+
+## A1.3 HOW THE DEFECT SURVIVED TWO FIX ATTEMPTS — THE CONTROL WAS NOT A CONTROL
+
+`_FIELD_FLAG_DEFECT_EVIDENCE/DEFECT.md` concluded `--field` was a silent no-op because
+`--field p` and "the plain mesh render" came out identical. **They came out identical
+because the plain mesh render was ALREADY `p`.** The comparison had no uncoloured arm, so
+it could not have shown a difference whatever the tool did.
+
+**This is the third instance tonight of one mechanism: an instrument reporting on a proxy
+instead of the registered quantity.** The face-count guard passed an image with no wing in
+it; the hue-std guard passed the exact artifact it was written to catch; and this control
+compared a thing against itself. In each case the number was real and the thing it stood
+for was not.
+
+**`--field` works and always did**: colouring by `T` instead of `p` moves **7.07 %** of
+frame pixels, measured.
+
+## A1.4 THE REPAIR AND ITS CONTROLS — `25caef4c6`
+
+| behaviour | result |
+|---|---|
+| no `--field` | **solid neutral surface**; ParaView auto-colouring explicitly disabled |
+| `--field p` | coloured by CELLS, rescaled, **scalar bar shown** |
+| `--field alphat` (range 0, 0) | **REFUSED, exit 2** — a constant field paints one flat colour that reads as a field picture and shows nothing |
+| `--field NoSuchField__` | **REFUSED, exit 2**, listing the arrays actually present |
+| planted colour control | **collapse the colour map to one value, re-render, read the PNG back off disk.** Varying fields move 96.17 % / 96.58 % of body pixels; the CONSTANT field moves **0.00 %** — a demonstrated failing case. Floor 10 %. |
+| 12-limb geometry selftest | **12/12**, unchanged |
+
+**A control that does not discriminate was measured and rejected before shipping:** "does
+the field render differ from a solid render" **fails**, because the constant field differs
+from solid by **96.24 %** — a constant maps to one *end* of the colormap, nowhere near grey.
+
+## A1.5 WHAT IS STILL OWED, AND IT IS AGAINST US
+
+**The three DrivAer renders are in the same class** — shipped as mesh renders while
+silently carrying an auto-picked field — and **have not yet been re-rendered.** Named here
+so the defect is not closed while mislabelled images stand.
+
+*Appended by a cfd `lab-lane`, 2026-09-12. No solver launched. Alters no gate, threshold,
+cap or label. Submissions parked.*

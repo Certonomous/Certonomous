@@ -1,0 +1,39 @@
+{
+  "tool": "render_openfoam_3d_paraview.py",
+  "case": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/L3",
+  "patches": [
+    "wing"
+  ],
+  "expected_faces_from_boundary": 480,
+  "rendered_faces_measured": 480,
+  "per_patch": {
+    "wing": 480
+  },
+  "guard": "rendered surface cells == sum(nFaces) over rendered patches; equality MEASURED, not assumed",
+  "graded_tree_census_before": "1cae877b7fdd4d9da58d24d8cad03127",
+  "graded_tree_census_after": "1cae877b7fdd4d9da58d24d8cad03127",
+  "graded_tree_untouched": true,
+  "image": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/RENDERS/M6I_R1_L3_field_p_surface.png",
+  "field": "p",
+  "field_association": "CELLS",
+  "field_range": [
+    50974.37109375,
+    147628.875
+  ],
+  "surface_colour": "coloured by the field named above, with a scalar bar",
+  "planted_colour_control": {
+    "passed": true,
+    "plant": "colour transfer function collapsed to a single value",
+    "collapsed_to": 99301.623046875,
+    "original_range": [
+      50974.37109375,
+      147628.875
+    ],
+    "body_pixels": 160343,
+    "body_pixels_changed": 151222,
+    "body_fraction_changed": 0.9431156957272846,
+    "floor": 0.1,
+    "reader": "the saved PNG, read back off disk"
+  },
+  "utc": "2026-09-12T22:54:33Z"
+}
