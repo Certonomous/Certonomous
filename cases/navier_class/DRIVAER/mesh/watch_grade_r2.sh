@@ -115,26 +115,60 @@ fi
 python3 - "$ROOT" > "$ROOT/DRIFT_WINDOWS.tsv" 2>> "$LOG" <<'PY'
 import sys, glob, os
 root = sys.argv[1]
-dats = sorted(glob.glob(os.path.join(root, "postProcessing", "forceCoeffs*", "*", "coefficient.dat")))
-if not dats:
-    print("NO coefficient.dat"); raise SystemExit(0)
-lines = open(dats[-1]).read().splitlines()
+# THE SEGMENT IS CHOSEN NUMERICALLY, NEVER LEXICALLY.  `sorted()` over the
+# time-directory names is a COIN FLIP: segments "0", "100", "20" sort to
+# ["0", "100", "20"] and [-1] is the "20" segment -- an EARLIER slice of the run,
+# picked silently, printing a plausible table off the wrong data.  OpenFOAM renames
+# coefficient.dat into a NEW time directory on any restart collision, so this fires
+# the first time either level restarts and it fires QUIETLY.  Sort by float(segment).
+cands = glob.glob(os.path.join(root, "postProcessing", "forceCoeffs*", "*", "coefficient.dat"))
+if not cands:
+    print("NO coefficient.dat under %s -- NOT_EVALUABLE, no table produced" % root)
+    raise SystemExit(0)
+def _seg(p):
+    b = os.path.basename(os.path.dirname(p))
+    try: return float(b)
+    except ValueError: return float("-inf")   # unparseable segment sorts FIRST, never wins
+dats = sorted(cands, key=_seg)
+dat = dats[-1]
+if _seg(dat) == float("-inf"):
+    print("REFUSE: no coefficient.dat sits in a numeric time directory; the segment "
+          "cannot be identified and a table off an unidentified segment is not evidence")
+    raise SystemExit(0)
+lines = open(dat).read().splitlines()
 cols = None
 for h in reversed([l for l in lines if l.startswith("#")]):
     t = h.lstrip("#").split()
     if "Cd" in t: cols = t; break
+if cols is None:
+    print("REFUSE: no Cd column header in %s" % dat); raise SystemExit(0)
 rows = [l.split() for l in lines if l and not l.startswith("#")]
 print("# multi-window drift. excursion=(max-min)/|mean|; endpoint=(last-first)/|mean|")
 print("# A SINGLE WINDOW IS NOT EVIDENCE OF A PLATEAU. The grader's registered limb is W=10% of endTime.")
-print("artifact\t%s\trows\t%d" % (dats[-1], len(rows)))
+print("# THE SEGMENT THIS TABLE CAME FROM IS NAMED ON THE NEXT LINE. A reader must never")
+print("# have to infer which slice of the run these numbers describe.")
+print("chosen_artifact\t%s" % dat)
+print("chosen_segment_time\t%g\tof_segments\t%s" % (
+      _seg(dat), ",".join("%g" % _seg(p) for p in dats)))
+print("rows\t%d" % len(rows))
 print("quantity\twindow\tmean\tmin\tmax\texcursion_rel\tendpoint_drift_rel")
 for q in ("Cd", "Cl"):
+    if q not in cols:
+        print("%s\tNA\tNA\tNA\tNA\tNOT_EVALUABLE\tno %s column in the chosen artifact" % (q, q))
+        continue
     ci = cols.index(q)
     v = [float(r[ci]) for r in rows if len(r) > ci]
     for W in (10, 20, 30, 50, 100, 200, 300, 500):
-        if len(v) < W: continue
+        if len(v) < W:
+            # A SILENTLY ABSENT ROW READS AS A ROW THAT WAS FINE.  Print it.
+            print("%s\t%d\tNA\tNA\tNA\tNOT_EVALUABLE\tonly %d rows exist" % (q, W, len(v)))
+            continue
         w = v[-W:]; m = sum(w)/W
-        if m == 0: continue
+        if m == 0:
+            print("%s\t%d\t%.8g\t%.8g\t%.8g\tNOT_EVALUABLE\twindow mean is exactly "
+                  "zero; a relative excursion is undefined and is NOT floored to an "
+                  "absolute tolerance" % (q, W, m, min(w), max(w)))
+            continue
         print("%s\t%d\t%.8g\t%.8g\t%.8g\t%.6e\t%+.6e" % (q, W, m, min(w), max(w),
               (max(w)-min(w))/abs(m), (w[-1]-w[0])/abs(m)))
 PY
