@@ -1180,3 +1180,87 @@ warm-start protection they exist for is **strictly stronger** after this change 
 **NOT TOUCHED**. **The six `G-COMPLETE` clauses remain UNVERIFIED against a real solve.**
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## AMENDMENT 7 — 2026-09-12 — **A PIN CORRECTION, NOT A GATE CHANGE. AMENDMENT 5's `a3gc_genmesh.sh` HASH WAS MOVED BY A LATER COMMIT OF THIS TEAM'S OWN AND THE RECORD WAS NEVER UPDATED, SO THE L1 LAUNCHER HAS BEEN REFUSING EVERY LAUNCH SINCE 05:27Z.**
+
+**Lines whose number changed above this section: 0.** No gate, band, threshold, cap, tolerance,
+cost, prediction, weight, level, surface or label is altered by this amendment. `a3gc_grade.py`
+(`73dbe368934956700da87e5a1f44ea0c`) and `a3gc_grade_selftest.sh`
+(`3a709fa46edfe996a7cd5d1de2100bab`) are **NOT TOUCHED** and are byte-identical to their freezes.
+**Nothing is launched by this amendment.** **SUBMISSIONS PARKED.**
+
+### A7.1 The defect, stated so the next reader cannot mistake who did it
+
+AMENDMENT 5's re-freeze table pins `a3gc_genmesh.sh` at **`9fa240d9643308f5e9a4988614b58884`**, and
+`/home/ubuntu/certonomous-runs/A3GC-L1-launch/a3gc_L1_wrapper.sh` re-verifies that hash **inside the
+detached process** and `exit 90`s on a mismatch — deliberately, because "a check made in a shell that
+has already exited is not a check on what actually ran".
+
+**The file at HEAD and on disk is `2a1f45c06aa8912f5eb84d929fa54df1`.**
+
+| | |
+|---|---|
+| L1 stage 1 launched | **2026-09-12 01:36Z** — the pin matched then, and the run was legal |
+| generator changed | **commit `8b16844fa`, 2026-09-12T05:27:25Z** — *"A3GC AR1 level tables committed"* |
+| gap | **~3 h 51 min AFTER the launch** |
+
+**This was the dafoam-supervisor's own commit, and it is named here rather than left to inference.**
+The commit is not the error — committing an instrument that is executing is exactly right, and its
+message says so. **The error is that the pin record was not moved with it**, so from 05:27Z onward
+the lab held an enforcing instrument pointed at a blob that no longer existed. The failure mode is
+**fail-closed and therefore safe** — a refusal, never a silent wrong launch — but nobody chose it and
+it would have been discovered only by someone wondering why L1 would not start.
+
+### A7.2 The change was verified additive BY THIS LANE, not accepted on the commit message
+
+A pin is only correctable to a value somebody has checked. The commit message asserts the change is
+"purely additive; no existing level's entry is touched". **That assertion was tested rather than
+believed**, in the direction that could falsify it:
+
+* the whole-file diff across `8b16844fa` for this instrument is **one hunk, 4 lines removed and 4
+  added**, every one of them a `declare -A` table line;
+* **stripping every `[AR1]=…` token out of the HEAD file reproduces the pre-`8b16844fa` blob
+  EXACTLY** — `diff` empty. If anything else had moved, that diff would be non-empty.
+
+So `[AR1]` is the entire delta: `COARSEN_PASSES 2`, `N_LAYERS 65`, `WANT_CELLS 399360`,
+`WANT_WING 6240`. **No registered level's numbers changed.** §2.5's 99,840 / 798,720 / 6,389,760 and
+their wing counts are untouched, and `G-SYS`'s cell-count ratio clause reads the same values it did
+at the freeze.
+
+### A7.3 THE CORRECTED PIN
+
+| instrument | AMENDMENT 5 | **corrected, this amendment** |
+|---|---|---|
+| `a3gc_genmesh.sh` | `9fa240d9643308f5e9a4988614b58884` | **`2a1f45c06aa8912f5eb84d929fa54df1`** |
+| `a3gc_grade.py` | `73dbe368934956700da87e5a1f44ea0c` | unchanged — **NOT TOUCHED** |
+| `a3gc_grade_selftest.sh` | `3a709fa46edfe996a7cd5d1de2100bab` | unchanged — **NOT TOUCHED** |
+
+`2a1f45c0…` is the hash of the blob at HEAD **and** of the file on disk, checked against each other
+rather than assumed equal.
+
+**AMENDMENT 5's table is NOT edited.** It records what was true on 2026-09-11 and stays true as a
+record of that date; this amendment supersedes its first row from 2026-09-12 forward. A record that
+rewrites its own history is not a record.
+
+### A7.4 WHAT IS DELIBERATELY *NOT* REPAIRED, AND WHY — READ THIS BEFORE "FINISHING THE JOB"
+
+**`a3gc_L1_wrapper.sh`'s own `PIN=` line is LEFT AT `9fa240d9…`, so that wrapper still refuses.**
+That is intentional and is not an oversight:
+
+1. **That wrapper launches a FULL L1 REGENERATION**, which begins by refusing when the run root
+   exists (`a3gc_genmesh.sh:237-243`) and, if it were given a clean root, would redo the pyHyp
+   hyperbolic extrusion whose **437,206,919-byte output is preserved on disk**. Re-pinning it would
+   arm the one path that throws away the expensive artefact the resize did **not** destroy.
+2. **The registered path for finishing L1 is the re-entry**, `a3gc_l1_plot3d_reentry.sh`, which uses
+   no pinned generator, converts the preserved `volumeMesh.xyz` and measures the result against
+   **A3GC's own already-frozen counts** — 6,389,760 cells and 99,840 wing faces.
+
+So the wrapper's refusal, which was wrong for its original reason, is now **right for a different
+one**. That is recorded explicitly because a later reader who sees a corrected pin in this document
+and a stale one in the wrapper will otherwise assume somebody forgot. **If the supervisor wants the
+wrapper re-pinned as well, it is a one-line change — but it should be taken as a decision to permit a
+full regeneration, not as tidying.**
+
+*A3GC PREREGISTRATION v1.7, 2026-09-12. Pin corrected. No gate moved. Nothing launched.*
