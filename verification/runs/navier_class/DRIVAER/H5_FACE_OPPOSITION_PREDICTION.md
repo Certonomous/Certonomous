@@ -321,3 +321,29 @@ it is kept.
   **structurally untestable on the blocked patches**: where layers are not forming there
   is no achieved stack to measure. **You cannot diagnose a failure-to-produce by measuring
   the thing that was not produced.** Recorded as a limit, not a gap to route around.
+---
+
+## CORRECTION 2 — 2026-09-12 — the retrodiction points the OTHER WAY.
+*Lines whose number changed above this section: 0.*
+
+Correction 1 kept the `r1_coarse` 27.3× result as *"an independent retrodiction of the A1
+finding from another family's physics."* **That direction is wrong.**
+
+**Both DrivAer ratios are functions of the dict alone.** `relativeSizes false` +
+`firstLayerThickness 0.00075` → 1.831 mm against a 50 mm cell → 27.3×. `relativeSizes
+true` + `f = 0.5` → 2.00. Neither number touches a built mesh. **A re-encoding of the
+input cannot be independent evidence about the outcome that input produced.**
+
+**What the exercise actually validates is M6's 2–4× BAND.** The threshold is the one
+genuinely independent element — derived from M6's boundary-layer physics with no
+knowledge of DrivAer — and it correctly separates a **known-zero-layer** configuration
+(27.3×, outside) from a **known-50 %** one (2.00×, inside).
+
+> **The band is validated against a known outcome pair. DrivAer learns nothing about
+> itself.** That is a genuine gift to M6 and it is **not** a finding about these patches.
+
+**Status of the criterion, final:** a **dict-level screen** computable before any build,
+not a measurement of an achieved mesh — and therefore structurally incapable of
+explaining why specific patches fail. Its diagnostic form (total **achieved** stack
+against local boundary-layer thickness, on the achieved mesh) remains untestable here:
+where layers are not forming there is no achieved stack to measure.
