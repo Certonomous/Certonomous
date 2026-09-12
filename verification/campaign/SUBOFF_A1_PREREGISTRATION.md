@@ -1223,3 +1223,517 @@ therefore not *"SUBOFF is broken"* but a costed decision:
 The instance decision is Sanaa's alone; the family ruling is the cfd-supervisor's.**
 
 *§12.9 ends.*
+
+---
+
+# §13. AMENDMENT — 2026-09-12 — **THE SOLVE GATES**, REGISTERED BEFORE THE FIRST SOLVER ITERATION; AND `L0c`, THE NEW COARSEST LEVEL
+
+**Written by a cfd `lab-lane` on `HEAD = a0201730d`, committed blob of this document
+`40b6c94b0a24d0cbd77f29f800f6c306759129b0`. Appended at the foot. Nothing above this
+section was renumbered, reworded or deleted: `lines whose number changed above this
+section: 0`** — proved by `git diff` in the same shell invocation as the commit, not
+asserted.
+
+**Authority for the work:** Sanaa, 2026-09-10, verbatim: *"3D SUBOFF. Papers read and
+mesh selected accordingly. Also must run asap."* **The family ruling that shapes §13.4
+and §13.7 is the cfd-supervisor's and is recorded `[lab-attributed]`; it is NOT
+attributed to Sanaa and was not asked of her.**
+
+---
+
+## 13.0 THE RULE-2 PRE-COMPUTE CONDITION FOR **THESE** GATES, CHECKED BY `ls`, NOT ASSERTED
+
+§11.0 restated the rule-2 condition as the absence of a **solver result**. For the gates
+registered below the condition is checked afresh, at the time of writing:
+
+| path | read from disk |
+|---|---|
+| `verification/runs/navier_class/SUBOFF_A1/SOLVE_L1/` | **DOES NOT EXIST** |
+| `verification/runs/navier_class/SUBOFF_A1/SOLVE_L2/` | **DOES NOT EXIST** |
+| `verification/runs/navier_class/SUBOFF_A1/L0c/` | **DOES NOT EXIST** |
+| `.../L1/` and `.../L2/` | carry **none** of `0/`, a time directory, `processor*`, `log.simpleFoam`, `rc`, `RC.txt`, `postProcessing/` |
+
+**No solver has been invoked under this document. Every gate, threshold, band, label and
+cap in §13 is registered before its first solver iteration.**
+
+**🔴 A CITATION CORRECTION, RECORDED BECAUSE THE GRADING PATH DEPENDS ON IT.** A briefing
+this lane received named this document's committed blob as `b0f441fdee05`. That blob is
+real but **four commits stale** — it was the content at `8ce6f67f2` (2026-09-11 17:07Z is
+`277ef664e`; `8ce6f67f2` is 15:49Z). The blob at `HEAD = a0201730d` is
+**`40b6c94b0a24d0cbd77f29f800f6c306759129b0`**, and the worktree copy is byte-identical to
+it. **Rule 2 requires the frozen file to be verified by hashing it against the committed
+blob; hashing against a stale blob is the check appearing to run while comparing the
+wrong thing.** Corrected here rather than carried.
+
+---
+
+## 13.1 THE OPENING DRAFT BANNER IS STILL FALSE, AND THE FIGURE IN §12'S CORRECTION IS NOW ALSO STALE
+
+The banner asserts `NO COMPUTE HAS RUN UNDER THIS DOCUMENT`. §12 corrected that to
+**372.67 core-min**; §12.8 then raised it to **442.80**. Both are now superseded:
+
+> **MESH COMPUTE UNDER THIS DOCUMENT TO DATE: 442.80 core-min** — L1 77.07, L2 228.53,
+> `L1_DECOMP4` 67.07, `L1_SHIFT` 70.13, each from its own `STATUS.mesh`. **Plus the
+> rank-1 reference-anchor read of §13.10, ~0.4 core-min**, giving **443.2 core-min**.
+
+**The `DRAFT` / `UNFROZEN` status remains correct** — no solver has been invoked. **The
+banner is NOT edited (rule 6);** it is disclosed here, in a dated amendment at the foot,
+for the third time. **That it has now needed disclosing three times is itself the
+finding:** a stale claim survives where a human reads it while every fix lands where the
+code reads a value, and no passing test sees the difference.
+
+---
+
+## 13.2 THE MESH GATES ARE CLOSED, AND THE TWO VERDICTS ARE STATED IN THE FIXED VOCABULARY
+
+**For a mesh-admission gate, first compute was the mesh build.** Gate M grades meshes and
+the meshes cost 442.80 core-min, so **M-a, M-b, M-c and M-d are closed and no threshold
+in them moves in either direction.** `minDeterminant 1.0e-03` at M-d is `snappyHexMesh`'s
+own generation default, recorded at `docs/standards/MESH_STANDARD.md:139`, and therefore
+**cannot have been fitted to this mesh**: raising it to force a pass would be fitting,
+lowering it is precisely what must be refused. **It is not touched.**
+
+| level | limb | measured | **verdict** |
+|---|---|---|---|
+| **L1** | **M-d**, minimum cell determinant | **8.6227045e-04** against a floor of **1.0e-03** — **one cell in 3,268,613**, invariant to partitioning (`L1_DECOMP4`) *and* to alignment (`L1_SHIFT`) to five significant figures | **GATE FAIL** |
+| L1 | M-a / M-b / M-c | nonOrtho 64.953 ≤ 70, skew 2.913 ≤ 4, `3 geometric (non-empty/wedge) directions`, TE base full-equivalent min 8 / median 10 against a floor of 8, 590+ hull axial faces | PASS on those limbs |
+| **L2** | all four limbs | nonOrtho 64.906, skew 3.126, determinant **1.5198839e-03**, 3 geometric directions | **PASS** |
+| **L3** | — | 25.45 M cells, predicted peak **41.7 GiB** on a **30 GiB** box | **BLOCKED** (RAM; an instance change is Sanaa's alone) |
+
+**Gate M as a whole is `GATE FAIL`**, because §5.1 registers it as *"`PASS` iff M-a, M-b,
+M-c and M-d all hold at L1, L2 and L3."*
+
+---
+
+## 13.3 🔴 THE COLLISION THIS LANE CANNOT RESOLVE, PUT TO THE SUPERVISOR IN THE OPEN
+
+§5.1's Gate M carries a launch bar, verbatim: *"Any limb failing at any level ⇒ `GATE
+FAIL`, **and no solver is launched**."* **L1 fails M-d. Read literally, that clause bars
+the L1 solve — and, since it is a family gate, the L2 solve with it.**
+
+**This lane does not read its way around it.** The two readings, stated at equal strength:
+
+| reading | what it says |
+|---|---|
+| **NARROW (the clause bars only what it protects)** | the bar exists to stop solver compute being spent **chasing Gate D2** on a family whose mesh cannot support a verdict. A solve registered **in advance** as incapable of producing D2 — as §13.7 registers these — is not that thing. |
+| **LITERAL (the clause says what it says)** | "no solver is launched" has no exception written into it, and **reading a closed gate narrowly in order to permit compute is exactly the move that requires a supervisor rather than a lane** (rule 9). |
+
+> **THE RULING IS THE cfd-SUPERVISOR'S. The freeze — check 4, personal and undelegated —
+> IS that ruling. If the supervisor confirms the freeze sha, the narrow reading is
+> adopted on the supervisor's authority and recorded `[lab-attributed]`. If not, both
+> solves are `BLOCKED` on Gate M and this lane reports them so.**
+
+**What this lane will NOT do, whichever way it goes:** move M-d, drop L1 from the family
+to make the gate pass, or relabel the L1 solve as belonging to some other rung that the
+failing gate happens not to reach. A rung invented to escape a gate is the gate not
+applying to itself.
+
+---
+
+## 13.4 `L0c` — THE NEW COARSEST LEVEL, REGISTERED WITH ITS PREDICTION AND ITS KNOWN COST
+
+**The cfd-supervisor's ruling, implemented here, recorded `[lab-attributed]`:** the
+registered 25.45 M L3 cannot be built on this box, and shrinking it to fit yields
+`r₂₃ = 1.13` or `1.006`, which Celik cannot discriminate with — so the triple is built
+**downward** instead, with a new coarsest level.
+
+**THE GENERATING RULE, SET ONCE, NOT SEARCHED.** `L0c` applies the family's **own**
+generating rule one step downward: base cell **× 1.5** (0.0787 → **0.11805 m**),
+`nSurfaceLayers` **− 1** (6 → **5**), and **every octree level, every refinement region,
+every snap control and the entire `meshQualityControls` block byte-identical to L1**
+(verified by `diff`; `minDeterminant` is untouched in both the strict and the `relaxed`
+block). **`d0` is not tuned toward a target cell count.** Searching `d0` until the
+delivered ratio came out at 1.4079 would be fitting the mesh to the family — the mirror
+image of §12.5's ONE-SHIFT limit — so the rule sets it and **the delivered ratio is
+MEASURED afterwards, from built cell counts, never assumed.**
+
+**REGISTERED PREDICTIONS FOR `L0c`, EACH WITH A FALSIFIER THAT PARTITIONS THE OUTCOME
+SPACE.** *(§4.3 of the status table records a prediction in this very case that holds at
+L1 and is UNCLASSIFIABLE at L2 because its falsifier named two points inside the outcome
+space instead of cutting it. Every falsifier below cuts it.)*
+
+| # | PREDICTION | **FALSIFIED BY — the complement, not a second point** |
+|---|---|---|
+| **P9** | built cells land in **[1.05 M, 1.30 M]**, i.e. a delivered ratio against L1 in **[1.36, 1.46]** | **any built count outside [1.05 M, 1.30 M].** Above ⇒ the octree is less sensitive to `d0` downward than upward; below ⇒ more. Either way the family's delivered ratio is **measured and reported**, and if it falls below **1.3** the triple is inadmissible on Celik and this lane says so. |
+| **P10** | **cells across the truncated TE base fall BELOW Gate M-b-1's floor of 8** — predicted **5.69** from the octree arithmetic (230.57 µm cells across a 1.310895 mm base) | **a measured full-base-equivalent count ≥ 8.** Anything < 8 confirms P10 **and is a `GATE FAIL` on `L0c`'s M-b-1 limb**, reported as one. |
+| **P11** | `L0c` clears **M-d**: minimum cell determinant **≥ 1.0e-03** | **a measured minimum determinant < 1.0e-03.** *(Basis: L1 at 3.27 M fails and L2 at 9.12 M passes, so the degeneracy is not monotone in resolution and a coarser level is a genuine draw, not a foregone one. §12.8 established only that ~3.27 M reproducibly fails, never that everything below it does.)* |
+| **P12** | peak `snappyHexMesh` memory lands in **[2.2, 4.6 GiB]** — predicted **3.19 GiB** from the two-point fit `peak = 2.799 × Mcell^0.835`, ±45 % | **a measured peak outside [2.2, 4.6 GiB].** **This is the point of the build beyond the mesh.** The fit is a **two-point extrapolation run BACKWARDS**, and **the same fit is what the whole `L3 is BLOCKED on RAM` finding rests on** (41.7 GiB at 25.45 M). A material miss here is **a finding about the fit that partly underwrites our L3 report**, and it is flagged, not filed. |
+| **P13** | hull axial faces **≥ 400** (M-b-1's hull limb) — predicted **590** | **fewer than 400 measured faces along the hull generator.** |
+
+**🔴 THE KNOWN COST, STATED IN ADVANCE AND NOT HIDDEN.** P10 says **`L0c` is expected to
+FAIL Gate M-b-1**. That is registered here, before the build, so that it cannot later be
+presented as a surprise or quietly dropped. **The floor of 8 is not moved. The limb is not
+dropped. `L0c` will be reported as a `GATE FAIL` on M-b-1 if it measures below 8.**
+
+**WHAT THAT DOES TO THE TRIPLE'S ADMISSIBILITY — STATED FOR THE SUPERVISOR'S RULING, NOT
+RULED HERE.** Three facts, all measured or registered, and they do not point the same way:
+
+1. **§5.1 M-b-1 registers the floor "at L1", and non-decreasing with refinement.** In the
+   downward family the coarsest level is `L0c`, not L1. A reading on which the floor binds
+   only the level named L1 would leave the triple's M-b-1 limb intact — **and this lane
+   does not adopt that reading, because it is lawyering: the floor's stated purpose is
+   that a blunt-base recirculation be representable, and it is not representable at 5.69
+   cells whatever the level is called.**
+2. **The downward triple seats the M-d-FAILING L1 in its MIDDLE.** §12.9 already put this
+   on record. A triple whose middle level is inadmissible is not repaired by its ends.
+3. **§12.9.2's upward family {L2, L3, L4} at equal delivered ratio 1.407873 is clean at
+   every level and does not fit on this machine** — 98.3 GiB predicted at L4, **ESTIMATED,
+   not measured**, from the same backwards-extrapolating fit P12 tests.
+
+> **This lane's honest summary, offered as input: on the evidence now on record, the
+> downward triple is expected to be inadmissible on TWO independent limbs — M-b-1 at
+> `L0c` and M-d at L1 — and `L0c`'s value is therefore mostly (a) the third point on the
+> memory curve (P12) and (b) settling P10 and P11 with measurements instead of
+> arithmetic. It is ~28 core-min and it is worth that. It is NOT expected to yield an
+> admissible triple, and registering the build as if it were would be the same defect as
+> a gate that cannot fail.** The family ruling is the supervisor's.
+
+**`L0c` COST: ~27.6 core-min estimated**, scaled from L1's **measured** 77.07 core-min by
+the delivered cell-count ratio 2.790553 at equal ranks. `cost_basis`: **DERIVED from this
+case's own measured L1 build, not from a rate card.**
+
+**MEMORY GATE, BINDING ON THE LAUNCH:** `free -g` is read **immediately before** the build
+and the figure is stated in the report. If `available − 4 GiB` is below the predicted
+3.19 GiB peak, the build is **`BLOCKED`** with the measured number beside it and is not
+attempted. **A build that OOMs another team's multi-day solve is touching a running solver
+by another route.**
+
+---
+
+## 13.5 🔴 THE `y+` PREDICTION, COMPUTED FROM `M`, `Re` AND HULL LENGTH **BEFORE A SINGLE CORE-MINUTE**
+
+**Registered before the solver, as M6CP1's most valuable output was.** M6 computed
+`y⁺ ≈ 9,447` this way — **31× the top of the wall-function range** — and that arithmetic
+forbade every aerodynamic claim **in advance**. **SUBOFF A1's arithmetic comes out
+differently, and it is registered either way.**
+
+**The condition, from `Re`, `ν` and `L` alone:** `U = Re·ν/L = 2.7547576 m/s` on
+`L = 4.3561001 m`; ITTC-1957 `Cf = 0.075/(log₁₀Re − 2)² = 2.90719285e-03`;
+**`u_τ = U·√(Cf/2) = 0.1050281 m/s`.**
+
+**The first-cell height, MEASURED from each BUILT level's own layer stack** — the
+`near-wall` column of that level's `log.snappyHexMesh` layer table, **not** predicted:
+
+| level | hull `y₁` | sail `y₁` | **hull `y⁺` at the cell centre** | sail `y⁺` | **hull `y⁺` local max, estimated** |
+|---|---|---|---|---|---|
+| **`L0c`** *(PREDICTED — not built)* | 1719.0 µm | 330.1 µm | **90.3** | 17.3 | **156** |
+| **L1** *(measured stack)* | **953.0 µm** | **183.0 µm** | **50.0** | **9.6** | **87** |
+| **L2** *(measured stack)* | **532.0 µm** | **102.0 µm** | **27.9** | **5.4** | **48** |
+
+The local-maximum column applies **√3 to `y⁺`** for a local `Cf` up to 3× the plate mean
+near the bow, where the boundary layer is thinnest. **It is an ESTIMATE with its mechanism
+named, not a measurement**, and it is registered so that a measured maximum can falsify it.
+
+> **🟢 THE ANSWER, REGISTERED IN ADVANCE: `y⁺` DOES NOT FORBID ANY CLAIM HERE.** Every
+> level sits inside `nutUSpaldingWallFunction`'s valid range (viscous sublayer through log
+> layer) and **every level's estimated local maximum is below Gate W's ceiling of 300** —
+> L1 at 87, L2 at 48, even the unbuilt `L0c` at 156. **Gate W is expected to PASS.** This
+> is registered **before** the solve precisely so that a `PASS` cannot later be read as
+> the gate having been easy to satisfy by accident: the arithmetic said so first.
+
+**🔴 AND IT FALSIFIES A REGISTERED PREDICTION OF THIS DOCUMENT, BEFORE ANY COMPUTE.**
+§11.7's **P5** predicts measured hull `y⁺` within **±50 %** of §11.5's 30 / 20 / 13.3, i.e.
+**L1 ∈ [15, 45]** and **L2 ∈ [10, 30]**.
+
+> **P5 IS PREDICTED TO BE FALSIFIED AT L1 (50.0 lies outside [15, 45]) AND TO HOLD AT L2
+> (27.9 lies inside [10, 30]).**
+
+**P5 IS NOT TOUCHED, WIDENED OR RESTATED.** Amending a registered prediction to match an
+arithmetic result obtained afterwards is fitting, whether or not compute has run. It will
+be **reported as falsified when it is falsified**, per §11.7's own requirement that
+*"a falsified prediction is written up as falsified, not quietly dropped."*
+
+**WHY P5's BASIS WAS WRONG, since naming the mechanism is the transferable part.** §11.5
+derived `y₁ = 286 / 191 / 127 µm` for the family as sized in §4 (0.95 M / 3.21 M / 10.83 M).
+**The built family is different and its layers are `relativeSizes true`**, so `y₁` is set
+by `0.5 × (hull surface cell) / 1.2^(nLayers−1)` and not by any absolute target. That
+formula reproduces the measured `y₁` at **L1 to 96.4 %** and at **L2 to 96.8 %** (the layer
+squeeze), which is why the `L0c` row above is a prediction worth making. **§11.5's number
+was never wrong arithmetic; it was arithmetic about a mesh that was not built.**
+
+---
+
+## 13.6 🔴 A NEW FINDING FOR THE TRIPLE: THE NEAR-WALL SPACING AND THE CELL COUNT REFINE AT **DIFFERENT RATES**
+
+Falls out of §13.5's measured stacks and is **not** on record anywhere above:
+
+| quantity | L1 → L2 | `L0c` → L1 (predicted) |
+|---|---|---|
+| **delivered cell-count ratio** `r = (N₂/N₁)^(1/3)` | **1.4079** | 1.36–1.46 (P9) |
+| **near-wall first-cell ratio** `y₁,coarse / y₁,fine` | **1.7914** | **1.8038** |
+
+**The mechanism, and it is deliberate in the family's own generating rule:** `nSurfaceLayers`
+goes 5 → 6 → 7 → 8 down the family, so each level gains a layer **on top of** the 1.5
+surface-cell refinement, giving `1.5 × 1.2 = 1.80` at the wall while the volume grows at
+1.4079.
+
+> **A family whose boundary layer refines at 1.80 while its bulk refines at 1.41 is not
+> geometrically similar, and Roache's `p` assumes it is.** This is registered as a
+> **named weakness of any triple built from this family**, on either the downward or the
+> upward reading, and it is **new information for the supervisor's family ruling**. It is
+> **not** ruled on here and **no threshold is moved because of it**.
+
+---
+
+## 13.7 🔴 THE SOLVE GATES — REGISTERED NOW, BEFORE THE SOLVER STARTS
+
+**Scope:** `SOLVE_L1` (3,268,613 cells) and `SOLVE_L2` (9,121,237 cells), `simpleFoam`,
+`kOmegaSST`, `nutUSpaldingWallFunction` on both wall patches, half-model at zero drift,
+`endTime 3000`, `deltaT 1`.
+
+**THE SOLVE CASES ARE SEPARATE DIRECTORIES AND THE GUARD IS SATISFIED LITERALLY.** Monitor
+stop **S5** refuses a case where `0/` or a time directory exists and says *"Never clear the
+directory."* **A guard is satisfied by MOVING the case, never by disabling the guard**, so
+the solver runs in fresh `SOLVE_L1/` and `SOLVE_L2/` with the polyMesh copied and **every
+polyMesh file pinned by `sha256` in source and destination, the builder refusing on any
+mismatch.** Three registered consequences: the mesh-graded trees `L1/` and `L2/` whose
+determinant evidence §12.8 rests on stay **byte-untouched**; commit `0bdf38639`'s weakness
+(a post-processor writing into a graded tree is invisible to the age guard) cannot arise;
+and the mesh-build dicts survive as provenance instead of being overwritten.
+
+**🔴 `residualControl` IS REGISTERED ABSENT, AND THE REASON IS A COLLISION BETWEEN TWO
+REGISTERED CLAUSES.** §7's completion rule requires **`last time == endTime`** *and*
+**`ExecutionTime count == round(endTime/deltaT)`**. A `residualControl` exit satisfies
+**neither** — it stops early and writes below `endTime`. **A converged run would therefore
+have been graded incomplete.** Convergence is judged by the registered plateau test (S3)
+and the residual record, **never by the solver stopping itself**. `writeInterval` is set
+equal to `endTime`, because a `writeInterval` that does not divide `endTime` writes **no
+fields at all**, which the completion rule reads as an incomplete run.
+
+### Gate S-C — COMPLETION (§7 + §11.4 limb 6)
+
+> **`PASS` iff all of:** `solve_rc = 0`; an `End` line in `log.simpleFoam`; **last
+> `Time` == 3000**; fields **`p U k omega nut phi`** present in `3000/`; `ExecutionTime`
+> count **== 3000**; every field in `3000/` strictly **newer** than the case's own `0/U`;
+> **limb 6.2** every `processor*/3000/` field newer than `0/U`, none stale, none missing;
+> **limb 6.3** `log.decomposePar.solve` **older** than those fields and
+> `log.reconstructPar.solve` **newer**. **Any clause failing ⇒ the run is NOT COMPLETE and
+> every gate behind it is `BLOCKED`.**
+> **WHAT WOULD HAVE FAILED THIS:** any one of the eight clauses. The comparator prints
+> each clause's boolean and the age margins in seconds, so a pass is readable as eight
+> passes and not as one summary word.
+
+### Gate S-W — THE WALL TREATMENT MUST BE VALID WHERE IT IS USED (§5.2, armed per §11.2)
+
+> **ARMED** iff `postProcessing/yPlus/0/yPlus.dat` exists **and** both `hull` and `sail`
+> appear in it **and** both wall patches in `0/nut` carry `nutUSpaldingWallFunction`.
+> **UNARMED ⇒ `BLOCKED`, never `PASS`.**
+> **`PASS` iff `max(y⁺) < 300` over both wall patches at `endTime`; else `GATE FAIL`.**
+> `y⁺` min/max/average is **REPORTED per patch whatever the outcome**, from the `.dat`
+> file **and independently from the solver log**, both in the record.
+> **WHAT WOULD HAVE FAILED THIS:** any wall-patch `y⁺` maximum ≥ 300, **or** either wall
+> patch carrying any other `nut` boundary condition. Both branches and the `BLOCKED`
+> branch are **demonstrated on synthetic cases** before the run (§13.10).
+
+### Gate S-CT — 🔴 `CT` IS PRE-COMMITTED TO `NOT A RESULT`, AND THE COMPARATOR HAS NO PATH TO ANYTHING ELSE
+
+> **REGISTERED BEFORE ANY COMPUTE: `CT` from `SOLVE_L1` and `SOLVE_L2` is `NOT A RESULT`,
+> whatever its value.**
+
+Not a hedge — **CLAUDE.md rule 5 applied honestly in advance.** §5.3's Gate D2 grades
+*"the finest grid of a **CONVERGING** Roache triple"*, and **there is no triple**: Gate M
+is `GATE FAIL` at L1 on M-d (§13.2) and L3 is `BLOCKED` on RAM. A row whose triple is not
+CONVERGING is `NOT A RESULT` whatever its value, and **the gate can only turn a `PASS` or
+`GATE FAIL` into `NOT A RESULT`, never the reverse.**
+
+- **`CT` is REPORTED** beside the label because §5.3 requires it reported, together with
+  `CT_ref = 3.691617e-03` and the frozen ±15 % band **[3.137874e-03, 4.245359e-03]**,
+  computed and committed **before** the solve (§13.10).
+- **The comparator contains no code path that can emit `PASS` or `GATE FAIL` on this
+  gate.** Demonstrated: on a synthetic complete, plateaued case whose `CT` lands at
+  `3.70007e-03` — **inside the band** — the comparator returns **`NOT A RESULT`**. A gate
+  that cannot be talked into a pass by a number in band is the property being registered.
+- **WHAT WOULD HAVE FAILED THIS TEST: nothing this run can produce**, and that is stated
+  as the gate's own limitation rather than disguised. **An unreachable gate is declared
+  unreachable.** It becomes reachable only when a CONVERGING triple of admissible levels
+  exists — the supervisor's family ruling, not this comparator's.
+
+### Monitor stops, as they will be graded
+
+| # | state | action |
+|---|---|---|
+| **S1** | any worst initial residual **higher** than its value 500 iterations earlier | **RECORD `RISING`.** This is R1b's signature and it is the answer, not an obstacle. No re-run with different relaxation — that is a second action on the same state. |
+| **S3** | **linear regression** of `Cd` over the final **500** iterations, drift across the window **> 5 %** of the window mean | **RECORD `NOT PLATEAUED`.** R1b's medium drifted −10.02 % per hundred iterations and its **two-point** comparator still called it `PLATEAUED`; this test is a regression and cannot be fooled that way. Both branches demonstrated (§13.10). |
+| **S5** | `0/`-adjacent time dir or a solver artifact present at launch | **REFUSE to launch.** Never clear the directory. |
+
+---
+
+## 13.8 THE THREE CLASSES OF FALSIFIER — **CAP EXHAUSTION FIRST**
+
+*Registrations in this family carry three classes and this one does too. We were bitten by
+the third class twice in one evening.*
+
+### CLASS 3 — EXECUTION AND TERMINATION (registered FIRST, deliberately)
+
+| # | the way it may not complete | **what is reported when it does** |
+|---|---|---|
+| **X1 — CAP EXHAUSTION** | spend reaches the level's sub-cap before `endTime` | **STOP the level.** Write `CAP_STOP.txt` with core-min spent, iterations reached, the sub-cap and the UTC time; report **`NOT A RESULT`** — the run did not reach `endTime` so Gate S-C fails and every gate behind it is `BLOCKED`. **An overrun does not get a new budget, and a cap is a ceiling, not a quota:** if the remaining budget cannot reach `endTime`, the level is stopped and reported rather than spent to arrive short. **🔴 THIS IS STRICTER THAN §11.8.** §11.8 reads Sanaa's 3-D exemption as `record and continue` for the *family* cap. **The cfd-supervisor has instructed a hard stop for these solves and this lane adopts it: stricter than a registered rule is always permitted, looser never is.** Recorded `[lab-attributed]`. |
+| **X2 — OOM or memory refusal** | `free -g` `available − 4 GiB` below the level's predicted footprint at launch, or an OOM kill during the run | the launcher **REFUSES before starting** and writes `VERDICT=BLOCKED, reason=memory` with the measured `available`; a kill mid-run is reported as **`BLOCKED`** with the `dmesg` evidence. **Not retried into a busier box.** |
+| **X3 — solver crash or divergence** | non-zero `simpleFoam` rc, a floating-point exception, or an unbounded field | **a crash is a FINDING until triage says otherwise.** Reported as the finding with its last iteration and residual history, **never as "the run failed, re-running"**. *Note for triage: `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE)` is the STARTUP BANNER saying trapping is ARMED — it is the opposite of an exception and it appears in every healthy log.* |
+| **X4 — the run is killed with the session** | the fleet dies on a usage limit | the solver is `setsid`-detached and **rc is captured INSIDE the detached wrapper** (`setsid timeout cmd` exits 0 for every outcome, so an rc captured around the setsid line is always a lie). A dead watcher is **reattached, never restarted**; a re-run would violate S5 and the age guard. |
+| **X5 — contention makes the wall clock meaningless** | the box is ~3.7× oversubscribed by other teams | core-minutes are reported **gross**, and **contention is attributed as its own named line in the rule-12 calibration row, never absorbed into the actual/predicted ratio.** A gap caused by contention and a gap caused by misprediction are two different facts about this lab's estimator and averaging them destroys both. |
+
+### CLASS 2 — THE ARTIFACT'S USABILITY
+
+| # | the way the artifact may be unusable **even though the run completed** | reported as |
+|---|---|---|
+| **A1** | `coefficient.dat` absent, or present with no column **named** `Cd` | the reader **REFUSES (exit 2)**; the column is matched by **name**, never positionally, so a changed `forceCoeffs` column set cannot be silently mis-read as `Cd`. Gate S-CT's `CT` reads **absent**, not zero. |
+| **A2** | `yPlus.dat` absent, or the wall patches missing from it | **Gate S-W `BLOCKED`** — never `PASS`. "No disagreement found" and "nothing was compared" must not read the same. |
+| **A3** | fewer than 500 `Cd` rows | **S3 `BLOCKED`**, with the reason printed. A 400-row regression is not the registered test. |
+| **A4** | the run is **serial**, so there is no `processor*/` anchor | **limbs 6.2 and 6.3 `BLOCKED`**, per §11.4's own stated limitation. Both levels run in parallel, so the anchor is available. |
+| **A5** | a wall patch carries a `nut` BC other than `nutUSpaldingWallFunction` | **Gate S-W `BLOCKED`.** Demonstrated: substituting `nutkWallFunction` in an otherwise passing synthetic case flips `PASS` → `BLOCKED`. |
+
+### CLASS 1 — THE HYPOTHESIS OUTCOME SPACE
+
+**Each falsifier below is the COMPLEMENT of its prediction over the whole outcome space.**
+
+| # | PREDICTION | **FALSIFIED BY** |
+|---|---|---|
+| **P14** | **Both levels reach `endTime = 3000` and clear all eight clauses of Gate S-C.** | **any clause failing at either level.** |
+| **P15** | **Gate S-W `PASS` at both levels**: `max(y⁺) < 300` on `hull` and `sail`. *(Basis: §13.5's arithmetic gives estimated local maxima of 87 at L1 and 48 at L2.)* | **`max(y⁺) ≥ 300` at either level**, which would falsify the ITTC `u_τ` anchor and with it §11.5's whole wall-treatment argument — not merely a number. |
+| **P16** | **Measured hull `y⁺` at the cell centre lands within ±40 % of §13.5's table** — L1 within **[30.0, 70.1]**, L2 within **[16.8, 39.1]**. | **a measured average hull `y⁺` outside those intervals at either level.** *(This is a NEW prediction against the BUILT layer stacks. It does not replace, widen or restate §11.7's P5, which stands unaltered and is expected to be falsified at L1 — see §13.5.)* |
+| **P17** | **A1 marches where R1b blew up.** R1b's `CT` ran 0.011283 / 0.339200 / 4.732715 against a band of [0.00324, 0.00396] with worst residuals **RISING** under refinement. A1 at both levels shows **`S1 = NOT RISING`** and **`S3 = PLATEAUED`**. | **`S1 = RISING` or `S3 = NOT PLATEAUED` at either level.** Either outcome says the §1 diagnosis (scale-invariant mesh degeneracy + a wall treatment refining out of validity) did **not** account for R1b's anomaly, and **the anomaly stays OPEN and gets larger, not smaller**. |
+| **P18** | **Reported `CT` at L2 lands inside the frozen ±15 % band [3.137874e-03, 4.245359e-03].** | **a reported `CT` outside that band.** **🔴 NEITHER OUTCOME CHANGES THE LABEL.** Gate S-CT is `NOT A RESULT` either way (no triple). P18 is registered **only** so that a number in band cannot later be presented as agreement, and a number out of band cannot be presented as a failure of the physics rather than of the family. **It is a prediction about a number, not a gate.** |
+
+---
+
+## 13.9 COST (rule 12) — THE ANCHOR IS MEASURED, THE MARGIN IS ITEMISED
+
+**THE ANCHOR, MEASURED ON THIS BOX TONIGHT, NOT RECALLED.** `simpleFoam` at
+`verification/runs/navier_class/MRF/R2/ET8000/fine/log.simpleFoam`, read at **00:35Z**:
+**6,431 iterations**, **ClockTime 26,805 s**, **6 ranks**, **2,418,780 cells**
+(`constant/polyMesh/owner` header note) ⇒
+
+> **0.172322 core-min per iteration per Mcell** (wall × ranks ÷ 60).
+
+**It is the same solver class, the same box, the same night, and it already contains the
+contention** — the anchor was measured while the box was oversubscribed, which makes it
+conservative for a quiet box and honest for a busy one.
+
+**THE ITEMISED CORRECTION, ×1.55, each term named with its mechanism** — SUBOFF's
+registered `fvSolution` is more expensive per iteration than MRF's:
+
+| term | MRF | SUBOFF | effect |
+|---|---|---|---|
+| `nNonOrthogonalCorrectors` | 1 (2 pressure solves/iteration) | **2 (3 solves)** | ×1.5 on pressure work ⇒ **×1.33** overall at ~65 % pressure share |
+| `p` `relTol` | 0.05 | **0.01** | ~1–2 more GAMG cycles ⇒ **×1.16** overall |
+| **combined** | | | **×1.55** |
+
+⇒ **0.267099 core-min/iteration/Mcell** for SUBOFF.
+
+| level | cells | iterations | **expected core-min** | **SUB-CAP (×1.45)** |
+|---|---:|---:|---:|---:|
+| `SOLVE_L1` | 3,268,613 | 3,000 | **2,619** | **3,800** |
+| `SOLVE_L2` | 9,121,237 | 3,000 | **7,309** | **10,600** |
+| **solve total** | | | **9,928** | **14,400** |
+
+**Derived USD: expected `9,928 ÷ 60 × $0.0513 = $8.49`; at the cap `$12.31`.**
+**`cost_basis`: DERIVED, NOT MEASURED.** Rate **$0.0513/core-h** is **owner-stated**
+(Sanaa 2026-08-21/22; corroborated `Xiao2016_EnKF/PREREGISTRATION.md:197`); **the box
+cannot read its own billing** (`COMPUTE_BUDGET_CHARTER` §5). Under $25 and therefore
+pre-authorised — **and still costed here, because a blanket is not a per-item read**
+(rule 9).
+
+**🔴 THE MARGIN'S BASIS, AND ITS HONEST LIMIT.** The ×1.45 is **not** a round number
+chosen for comfort; it is two named terms:
+
+- **×1.20 — mesh-quality-driven GAMG cost.** L1 carries **65,027 concave cells** and max
+  non-orthogonality **64.95**; GAMG needs more cycles on a poorer mesh. **Nothing measures
+  this, and it is named as the weak term.**
+- **×1.20 — contention variance.** The box's load moved from **10.4 at 00:30Z to 56.9 at
+  00:44Z** — a 5.5× swing in fourteen minutes. **A 20 % band on an already-contended
+  anchor is thin and this lane says so rather than letting the arithmetic imply
+  confidence.**
+
+**The warning this margin is written against, quoted so it is not forgotten: a deliberately
+generous 2.8× margin was still insufficient on a transonic rung, and naming the weak term
+correctly did not make the number right.** The margin here is smaller **only** because the
+anchor is same-solver / same-box / same-night rather than a cross-solver extrapolation, and
+because the correction is itemised by mechanism instead of applied as a blanket. **That is
+a reason, not a guarantee.** If the actual exceeds the sub-cap, X1 fires: the level stops
+and is reported `NOT A RESULT`, and **the miss is a calibration finding reported in
+`docs/COST_CALIBRATION.md` with contention attributed on its own line.**
+
+**Rule-12 calibration is owed at every process completion** — each level graded, and the
+family at closure.
+
+---
+
+## 13.10 THE INSTRUMENTS, AND WHAT EACH PLANTED CONTROL ACTUALLY EXERCISES
+
+**Four instruments, all under `cases/navier_class/SUBOFF_A1/`, all committed with this
+document so the grading path is fixed at the pre-registration commit (rule 2).**
+
+| instrument | produces |
+|---|---|
+| `suboff_a1_polymesh.py` | the **wall-patch area** of a built mesh — Gate D2's `Aref` |
+| `make_reference_ct.py` | `verification/runs/navier_class/SUBOFF_A1/CT_REFERENCE.json` — `CT_ref` and the frozen band |
+| `setup_solve.py` | one `SOLVE_<level>/` case; **runs nothing**; refuses on S5, on a missing patch, on a `symm` that is not a `symmetryPlane`, and on any `sha256` mismatch after the mesh copy |
+| `grade_suboff_a1.py` | the comparator: Gate S-C, Gate S-W, S1, S3, Gate S-CT |
+
+**FOUR PLANTED CONTROLS (rule 3). Each runs on EVERY invocation, BEFORE any case is read,
+reads its plant back FROM DISK, and REFUSES (exit 2) if the reader cannot see it.**
+
+| plant | the code path it exercises | **could the phenomenon arrive by another path?** |
+|---|---|---|
+| **area, 12.345 m²** behind a **decoy patch of 6.1725 m²** at `startFace 0` | the polygon area formula **and** the `startFace` indexing | **Yes — and both are covered.** A wrong area can come from the area formula **or** from reading the wrong face window. The decoy separates them: a 0.2 % mutation of the area formula refuses at `rel err 2.0e-03`; a mutation that ignores `startFace` refuses at `rel err 5.0e-01` reading the decoy. **Both mutations verified to exit 2; the clean control verified to exit 0 with `__pycache__` cleared first.** |
+| **`Cd = 1.234e-03`** at `endTime` behind a **decoy `5.678e-03`** at `t = 1` | column lookup **by header name** + row selection **by time** | **Yes.** A wrong `Cd` can also arrive from `forceCoeffs` writing a different column set, which is why the header is matched **by name** and a file without a `Cd` column is **refused rather than guessed at positionally**. |
+| **`y⁺ max = 987.654`** on `hull`, with a decoy `sail` row | patch-name filtering + the max reduction | **Yes — and it is read twice.** A wrong `y⁺` can also arrive from the **log** parser, so the log is parsed **independently** and both numbers go in the record. The plant additionally verifies the filter is not inert: a patch **absent** from the file must return `None`, not a number. |
+| **age guard**: the same synthetic case built **stale** and then **fresh** | the `mtime` comparison that is the whole content of rule 4's limb 6 | **Yes, in the dangerous direction.** A "pass" here can also arrive from a checker that never looked, which is why the plant is run **twice**: the stale case must be reported **FAILED** and the fresh case **PASSED**. A checker that returns one answer to both refuses. |
+
+**TWO-SIDEDNESS DEMONSTRATED BEFORE THE RUN, on synthetic cases, because a gate with only
+one reachable branch is empty however clean its arithmetic:**
+
+| instrument | `PASS` branch | `GATE FAIL` branch | `BLOCKED` branch |
+|---|---|---|---|
+| Gate S-C completion | ✅ complete synthetic case, limbs 6.2 and 6.3 both `PASS` | ✅ empty case | ✅ serial case (no `processor*`) |
+| Gate S-W | ✅ `y⁺ max 141.7` | ✅ `y⁺ max 412.9` | ✅ `nutkWallFunction` substituted |
+| S3 plateau | ✅ `PLATEAUED` at drift 0.13 % | ✅ `NOT PLATEAUED` at drift **12.2 %** | ✅ fewer than 500 rows |
+| S1 residual | ✅ `NOT RISING` on falling residuals | ✅ `RISING` on rising residuals | — |
+| Gate S-CT | **unreachable by construction** | **unreachable by construction** | — |
+
+**`CT_ref`, COMPUTED AND COMMITTED BEFORE THE SOLVE (§5.3's requirement, discharged):**
+
+| quantity | value | how |
+|---|---|---|
+| `S_hull` (half-model) | **2.9841723 m²** | **measured** from L2's built `hull` patch |
+| `S_sail` (half-model) | **0.0919234 m²** | **measured** from L2's built `sail` patch |
+| `S_total` = `Aref` | **3.0760958 m²** | their sum |
+| independent cross-check | `hull.stl` facet area at `z ≥ 0` = **2.9940442 m²**; ratio **0.99670** | **the sign is the registered one**: the built patch is **smaller** than the bare-hull STL half-area because the sail footprint is cut out of it by the union. **A ratio ≥ 1 would have been a finding, not a pass.** |
+| hull limb | `Cf_ITTC(1.2e7) = 2.9071929e-03`, anchor `3.6e-03` ⇒ implied `(1+k) = 1.2383` | R1's inherited anchor |
+| sail limb | `Re_c = 1.0145766e+06`, `Cf = 4.6728042e-03`, `(1+k) = 1 + 2(t/c) + 60(t/c)⁴ = 1.4265` ⇒ `CD_sail = 6.6658337e-03` | **the same engineering method** |
+| **`CT_ref`** | **3.6916168e-03** | area-weighted |
+| **frozen band ±15 %** | **[3.1378743e-03, 4.2453593e-03]** | §5.3 |
+
+**IT IS A MANIFEST / ENGINEERING ANCHOR AND STAYS ONE.** No title-verified SUBOFF force
+measurement is on disk (§2.2: Huang et al. 1992, Liu & Huang 1998, Crook 1990 all **NOT
+OBTAINED**, `.url` stubs only, and **rule 15 forbids treating a stub as a source**). Gate
+D2 is **BOUNDED-AGREEMENT against a manifest anchor and is NOT experiment-validated.**
+
+**Cost of the reference read: ~0.4 core-min at rank 1**, on the built L2 mesh, read-only.
+
+**[INFERRED] — one input has no source on disk and is labelled so.** The freestream
+turbulence convention `k_∞ = 1e-6 U²`, `ω_∞ = 5U/L` (giving `ν_t/ν = 2.400` in the
+freestream) is a working convention from this lane's knowledge. **No paper behind it is on
+disk and rule 15 forbids dressing that up as a citation.**
+
+---
+
+## 13.11 WHAT §13 DOES NOT CLAIM
+
+- It does **not** claim a graded `CT` for SUBOFF A1. **There is no triple**, Gate S-CT is
+  `NOT A RESULT` by construction, and §13.7 says so before the solver starts.
+- It does **not** claim the downward triple is admissible. §13.4 predicts it fails on
+  **two** independent limbs and hands the ruling to the supervisor.
+- It does **not** move `minDeterminant`, the M-b-1 floor of 8, Gate W's ceiling of 300,
+  Gate D2's ±15 % band, or §11.7's P5. **No threshold in this document is altered by §13.**
+- It does **not** resolve §13.3's launch-bar collision. That is the supervisor's check-4
+  ruling and the freeze commit is where it is made.
+- It does **not** claim agreement with experiment at any level. §6's tier and its
+  disavowal stand.
+- A `PASS` on Gates S-C and S-W means **a source-faithful 3-D SUBOFF mesh exists, marches
+  to `endTime`, and uses a wall treatment valid where it is applied.** It means nothing
+  about experiment and nothing about grid convergence.
+
+*§13 ends. No gate, threshold, cap or label registered above this section is altered by
+it, and no verdict on any measured quantity is issued in it.*

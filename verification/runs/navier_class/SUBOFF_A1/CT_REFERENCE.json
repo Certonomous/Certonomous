@@ -1,0 +1,58 @@
+{
+  "WHAT_THIS_IS": "Gate D2 reference anchor.  MANIFEST / ENGINEERING ANCHOR, NOT a measurement and NOT experiment-validated.  No title-verified SUBOFF force measurement is on disk (SUBOFF_A1_PREREGISTRATION.md 2.2).",
+  "written_utc": "2026-09-12T00:46:07Z",
+  "level_dir_Aref_read_from": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1/L2",
+  "rule3_plant": {
+    "PLANT_AREA_m2": 12.345,
+    "returned_m2": 12.345,
+    "decoy_area_m2": 6.1725,
+    "rel_err": 0.0,
+    "tol_rel": 1e-12,
+    "verdict": "ARMED"
+  },
+  "condition": {
+    "Re_L": 12000000.0,
+    "L_m": 4.3561001016,
+    "nu_m2_s": 1e-06,
+    "U_m_s": 2.7547576318534066,
+    "rho_kg_m3": 998.2,
+    "rho_note": "CT is a ratio; rhoInf cancels between force and reference force and changes no verdict."
+  },
+  "wetted_area_HALF_MODEL_measured_m2": {
+    "hull": 2.9841723236885898,
+    "sail": 0.09192343471589827,
+    "total": 3.076095758404488,
+    "source": "constant/polyMesh of the built level, via suboff_a1_polymesh.patch_area (rule-3 plant ARMED above)"
+  },
+  "hull_limb": {
+    "Cf_ITTC57_at_Re_L": 0.002907192853386463,
+    "CT_hull_anchor": 0.0036,
+    "implied_form_factor_1_plus_k": 1.2383079422496914,
+    "provenance": "SUBOFF_A1_PREREGISTRATION.md 5.3, inherited from SUBOFF R1's ITTC-1957 + form-factor anchor"
+  },
+  "sail_limb": {
+    "chord_m": 0.3682999,
+    "t_over_c": 0.181035,
+    "Re_chord": 1014576.9603358466,
+    "Cf_ITTC57_at_Re_chord": 0.0046728041861995,
+    "form_factor_1_plus_k": 1.4265168115338636,
+    "form_factor_form": "1 + 2(t/c) + 60(t/c)^4",
+    "CD_sail_on_sail_wetted_area": 0.006665833728619401,
+    "method_note": "THE SAME ENGINEERING METHOD as the hull limb: ITTC-1957 friction line at the component's own Reynolds number, times a classical form factor. It is an estimate stacked on an estimate, which is why 5.3 registers the band at +/-15 %, not R1's +/-10 %."
+  },
+  "CT_ref": 0.003691616772928005,
+  "GATE_D2_BAND": {
+    "form": "|CT_cfd - CT_ref| <= 0.15 * CT_ref",
+    "lo": 0.003137874256988804,
+    "hi": 0.004245359288867205,
+    "frozen_by": "SUBOFF_A1_PREREGISTRATION.md 5.3"
+  },
+  "Aref_rule": "Each level uses ITS OWN measured (hull + sail) wall-patch area as forceCoeffs Aref.  CT_ref above uses the FINEST BUILT level's hull/sail split and is the SAME number for every level.",
+  "cross_check_independent": {
+    "hull_stl_facet_area_z_ge_0_m2": 2.9940441701186877,
+    "n_facets_total": 355840,
+    "measured_hull_patch_m2": 2.9841723236885898,
+    "ratio_patch_over_stl": 0.9967028387461275,
+    "EXPECTED_SIGN": "the built hull PATCH must be SMALLER than the bare-hull STL half-area, because the sail footprint is cut out of it by the union.  A ratio >= 1 is a finding, not a pass."
+  }
+}

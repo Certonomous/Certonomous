@@ -47,6 +47,14 @@ def w(path, cls, obj, body):
 
 LEVELS = {
     # name : (base cell size m, hull lvl, sail lvl, TE box lvl, junction lvl, nLayers)
+    # L0c is an INSERTION, not a replacement: the three rows below are byte-unchanged.
+    # It applies THE FAMILY'S OWN GENERATING RULE one step DOWNWARD -- base cell x1.5,
+    # nLayers -1, every octree level identical -- so the delivered ratio against L1 is
+    # produced by the same mechanism that delivered 1.4079 from L1 to L2, and is NOT
+    # tuned toward a target cell count.  Searching d0 until a count came out right
+    # would be fitting the mesh to the family (the mirror of 12.5's ONE-SHIFT limit),
+    # so d0 is set ONCE, by the rule, and the delivered ratio is MEASURED afterwards.
+    "L0c": (0.11805, 4, 6, 9, 6, 5),
     "L1": (0.0787, 4, 6, 9, 6, 6),
     "L2": (0.0525, 4, 6, 9, 6, 7),
     "L3": (0.0350, 4, 6, 9, 6, 8),
