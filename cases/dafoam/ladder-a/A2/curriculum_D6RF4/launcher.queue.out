@@ -1,10 +1,84 @@
+D6RF4_STAGE_ROOT begin utc=20260906T190037Z pid=83500 item=D6RF4 arm=P_conv base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe launches=NOTHING
+D6RF4_STAGE_ROOT launcher=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_run_arm.sh md5=af7d8c56bec6b11a7823e8714b4157d9 (READ, not pinned here -- this file never re-pins the launcher)
+D6RF4_STAGE_ROOT DERIVED 9 $BASE-side assertion(s) from the launcher's own bytes, at lines [518,519,520,521,522,523,524,526,527]; MD5_REF_MESH=0fb1935a9b8781b73ac4ccb136e3ec68
+D6RF4_STAGE_ROOT SOURCE OK d6rf4_opt_runScript.py md5=137539e0a99be27f27fdb69e063b2a87 (MD5_RUNSCRIPT6)
+D6RF4_STAGE_ROOT SOURCE OK d6rf4_fd_endpoint.py md5=06ac0a171bde0ac3b17192f1819fa0ca (MD5_FD)
+D6RF4_STAGE_ROOT SOURCE OK d6rf4_extract_endpoint.py md5=c5aace65e1830fddace55e1bac2761c9 (MD5_EXTRACT6)
+D6RF4_STAGE_ROOT SOURCE OK d6rf4_endpoint_locus.py md5=341189ca866f302a7e1bba8eefad3a57 (MD5_LOCUS6)
+D6RF4_STAGE_ROOT SOURCE OK d6rf4_endpoint_physical.py md5=c09094a098f993430185d17e2cb4a0f5 (MD5_PHYS6)
+D6RF4_STAGE_ROOT SOURCE OK d6rf4_units_assert.py md5=8ee53841aed3dfd10f2cf414be39518a (MD5_UNITS)
+D6RF4_STAGE_ROOT SOURCE OK d6rf4_anchor_gate.py md5=f5a5216a557ff8c34ac084c96feabc39 (MD5_ANCHOR_GATE)
+D6RF4_STAGE_ROOT SOURCE OK d6rf4_fvSolution_TIGHT md5=0ac5bd00c63b9109d22a8e73b0795aa4 (MD5_FVSOL_TIGHT)
+D6RF4_STAGE_ROOT SOURCE OK d6rf4_fvSolution_D6RF3_ORIGINAL md5=9e2669956be778acf7e7d8aa67a90ff6 (MD5_FVSOL_ORIG)
+D6RF4_STAGE_ROOT SOURCE OK base=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/base mesh=points.gz md5=0fb1935a9b8781b73ac4ccb136e3ec68 FFD/wingFFD.xyz present
+D6RF4_STAGE_ROOT LIVE_READ docker=MEASURED same_arm_containers=[none]
+D6RF4_ROOT_STAGED base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe stamp=20260906T190037Z mode=777 instruments=9 base_src=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/base
+D6RF4_STAGE_ROOT (1/3) OK /home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe exists, mode=777 -- d6rf4_run_arm.sh:515 satisfied
+D6RF4_STAGE_ROOT (2/3) OK all 9 staged instrument md5s match the launcher's own pins at /home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe -- d6rf4_run_arm.sh:518,519,520,521,522,523,524,526,527 satisfied
+D6RF4_STAGE_ROOT (3/3) OK /home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/base/constant/polyMesh/points.gz md5=0fb1935a9b8781b73ac4ccb136e3ec68, FFD/wingFFD.xyz present -- d6rf4_run_arm.sh:632 satisfied
+D6RF4_STAGE_ROOT LEDGER OK exact ITEM=D6RF4 line present, no foreign item, no SHIPPED row -- G-ROOT.3 now passes on EVIDENCE, not on an absent file
+D6RF4_STAGE_ROOT CEILING OK cap=54.00 ceiling=54.00 guard_rc=0 | ITEM_CEILING label=D6RF4/P_conv state=WITHIN_CEILING spent_core_min=0.000 cap_core_min=54.000 proj_core_min=54.000 ceiling_core_min=54.000 rows=0 uncounted_field_lines=0
+D6RF4_STAGE_ROOT COMPLETE base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe staged_now=yes instruments=9 mode=777 utc=20260906T190037Z
+D6RF4_STAGE_ROOT THIS FILE LAUNCHED NOTHING.  The re-fire is the dafoam-supervisor's decision.
 D6RF4_G_FREEZE_PASS permission=648a6ea1289e6b1f103dcd7aee2a712a8553f5a0 assignments=1 shape=40hex resolved=648a6ea1289e6b1f103dcd7aee2a712a8553f5a0 prereg_blob_at_freeze=05c5b9b7f97587dd389f94c3137575cfb22f533e checked=RESOLVED
 D6RF4_G_ROOT_PASS item=D6RF4 base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe ledger_clean=yes
 D6RF4_G_ACCEPT_FLOOR_PASS planted_control_seen=1 real_assignments=0 -- the launcher sets neither primalMinResTol nor primalMinResTolDiff; the accept floor stays 1e-08 x 1000 = 1.0e-05
 D6RF4_G_ROOT5_PASS arm=P_conv live_same_arm_containers=none driver_pidfile=absent
 D6RF4_CAP_FRAME arm=P_conv registered_core_min=54.00 ranks=4 deadline_in_container_s=720 frame_allowance_s=90 kill_grace_s=60 worst_case_host_core_min=54.000000 enforced_in_frame=container graded_in_frame=host_bracket_T0_T1
 D4_CAP_ASSERT arm=P_conv registered_core_min=54.00 ranks=4 enforced_wall_s=720 enforced_core_min=54.000000 memory=20g
-D6RF4_HOST_PRE arm=P_conv MemAvailable_GiB=28.93 load1=0.04 cpuset=2,3,4,14 siblings_pre=[]
-stat: cannot statx '/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe': No such file or directory
-stat: cannot statx '/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe': No such file or directory
-ABORT L-251 run root mode 
+D6RF4_HOST_PRE arm=P_conv MemAvailable_GiB=28.86 load1=0.14 cpuset=2,3,4,14 siblings_pre=[]
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/d6rf4_opt_runScript.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/d6rf4_fd_endpoint.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/d6rf4_extract_endpoint.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/d6rf4_endpoint_locus.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/d6rf4_endpoint_physical.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/d6rf4_units_assert.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/d6rf4_anchor_gate.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/d6rf4_fvSolution_TIGHT: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/d6rf4_fvSolution_D6RF3_ORIGINAL: OK
+D6RF4_G_ROW_PASS row=PATCHED digest=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
+D6RF4_STAGE arm=P_conv utc=20260906T190038Z base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe permission=648a6ea1289e6b1f103dcd7aee2a712a8553f5a0
+D6RF4_STAGE_P_conv (S1) OK src=/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/O_mp exists, OptView.hst present, dst=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv does not exist
+D6RF4_STAGE_P_conv (S3) OK undeformed reference mesh md5 0fb1935a9b8781b73ac4ccb136e3ec68 on base and on mp04 mp05 mp06 -- double-deformation confound eliminated by MEASUREMENT
+D6RF4_STAGE_P_conv (S4) source pre-copy: OptView.hst md5=70fafa07bdee618fef13039433c01114, entries under mp04/processor0 = 78
+D6RF4_STAGE_P_conv (S4) OK cp -a (mtimes PRESERVED), copy_epoch=1788721239, SOURCE INTACT after the copy -- and the comparison COUNTED 78 entries on both sides, so it cannot have passed on a pair of false zeros
+S5 mp04/0 OK U present as U in /home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp04/0
+S5 mp04/processor0/0 OK U present as U.gz in /home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp04/processor0/0
+S5 mp05/0 OK U present as U in /home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp05/0
+S5 mp05/processor0/0 OK U present as U.gz in /home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp05/processor0/0
+S5 mp06/0 OK U present as U in /home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp06/0
+S5 mp06/processor0/0 OK U present as U.gz in /home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp06/processor0/0
+D6RF4_STAGE_P_conv (S5) OK dropped 912 of 912 output time directories from the COPY, 0 remain (required 0); 0/, 0.orig/ and processor*/0/ KEPT and asserted; OptView.hst and dRdWColoring_4.bin KEPT; SOURCE INTACT (75 pseudo-time dirs still under /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/O_mp/mp04/processor0)
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_extract_endpoint.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_fd_endpoint.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_opt_runScript.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_endpoint_locus.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_endpoint_physical.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_units_assert.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_anchor_gate.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_fvSolution_TIGHT: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_fvSolution_D6RF3_ORIGINAL: OK
+D6RF4_STAGE_P_conv (S6) OK SEVEN instruments and BOTH fvSolution files staged, every md5 asserted on BOTH sides of the copy; d6rf4_ref_off.py DELIBERATELY NOT STAGED (REF_off is not registered at this freeze)
+D6RF4_STAGE_P_conv (S7) OK this arm's registered products swept from the copy, INCLUDING the `.partial` temporaries the DEF-7 incremental writer renames from -- a stale `.partial` is a half-written product wearing a product's name
+D6RF4_STAGE_P_conv (S9) site system  pre=9e2669956be778acf7e7d8aa67a90ff6 -> post=0ac5bd00c63b9109d22a8e73b0795aa4
+D6RF4_STAGE_P_conv (S9) site mp04/system  pre=9e2669956be778acf7e7d8aa67a90ff6 -> post=0ac5bd00c63b9109d22a8e73b0795aa4
+D6RF4_STAGE_P_conv (S9) site mp05/system  pre=9e2669956be778acf7e7d8aa67a90ff6 -> post=0ac5bd00c63b9109d22a8e73b0795aa4
+D6RF4_STAGE_P_conv (S9) site mp06/system  pre=9e2669956be778acf7e7d8aa67a90ff6 -> post=0ac5bd00c63b9109d22a8e73b0795aa4
+D6RF4_STAGE_P_conv (S9) OK tightened fvSolution installed at 4 of 4 ENUMERATED sites, pre-image asserted = 9e2669956be778acf7e7d8aa67a90ff6 at every one; READ-BACK over the whole tree found 4 tight and 0 loose
+D6RF4_G_DELIVERY OK 9 required instruments (9 level-0, 0 by closure) derived, all present, and no staged instrument references an absent file: d6rf4_anchor_gate.py d6rf4_endpoint_locus.py d6rf4_endpoint_physical.py d6rf4_extract_endpoint.py d6rf4_fd_endpoint.py d6rf4_fvSolution_D6RF3_ORIGINAL d6rf4_fvSolution_TIGHT d6rf4_opt_runScript.py d6rf4_units_assert.py
+D6RF4_UNITS_CALLSITE_1 arm=P_conv no endpoint artefact survived the sweep (expected on a first fire); call site 2 grades the one the wrapper writes
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_anchor_gate.py: OK
+D6RF4 G-ANCHOR -- 1 anchor-scoped readers, on the bytes they will actually read
+  d6rf4_fd_endpoint.py       producer=d6rf4_opt_runScript.py md5=137539e0a99b... anchor='# OpenMDAO setup' count=1 header=10536 chars, all 6 symbols present
+D6RF4_ANCHOR_PASS readers=1 producer=d6rf4_opt_runScript.py
+D6RF4_G_ANCHOR OK arm=P_conv -- every anchor-scoped reader's sentinel is unique in the producer it will read, and the header it yields carries every symbol it execs
+D6RF4_G_COLD OK arm=P_conv age_datum_epoch=1788721243.273408212 (every registered product must be strictly newer)
+D6RF4_CMD_LEGS_PRESENT arm=P_conv legs=L1,L2(--mode P_conv) L3(--mode F5_loose) fvSolution_swaps=2
+D6RF4_CMDFILE arm=P_conv md5=9e48ed8052252f3c5128c23a7f177cf6 deadline_in_container_s=720 units_gate=present
+D6RF4_RUNAWAY_GUARD arm=P_conv cap_core_min=54.00 ceiling_core_min=162.0 mode=report_then_graceful_stop_at_ceiling
+D6RF4_CONTAINER_CLOCK arm=P_conv started_at=2026-09-06T19:00:43.414784593Z finished_at=2026-09-06T19:01:58.583249575Z container_wall_s=75 host_wall_s_bracket_T0_T1=81
+ARM=P_conv ROW=PATCHED IMG=dafoam-idwarp-rot:v1 DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 rc=1 wall_s=81 ranks=4 core_min=5.4 cap_core_min=54.00 enforced_wall_s=720 enforced_core_min=54.000000 memory=20g inspect(exit,oomkilled)=[1 false] container_wall_s=75 frame_allowance_s=90 memavail_GiB=28.86 memavail_pre_GiB=28.86 memavail_post_GiB=28.85 cpuset=2,3,4,14 delivered_cores_mean=[3.3475 n=4 max_nr_throttled=220] siblings_pre=[] siblings_post=[] ceiling_hit=no log=P_conv_20260906T190038Z_83499.log stamp=20260906T190038Z_83499
+D4S_CONTAINER_UID: 0
+D4S_IDWARP_SO_MD5: 85f59e87253e0a71a813f64ca6e4c425
+D4S_DEADLINE_IN_CONTAINER_S: 720
+STAMP=20260906T190038Z_83499 RC=1 CORE_MIN=5.4

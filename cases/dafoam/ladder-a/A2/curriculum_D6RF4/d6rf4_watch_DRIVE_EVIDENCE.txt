@@ -12,6 +12,7 @@ D6RF4 P_conv WATCHER -- READERS DRIVEN IN BOTH DIRECTIONS
   OK    direction 6  ROOT ABSENT rc=0     state=ROOT_ABSENT_UNEXPLAINED -- a sustained ABSENT is legible as its CAUSE, not as one undifferentiated fault
   OK    direction 6  ROOT PRESENT       state=ROOT_PRESENT mode=775 -- and the mode is REPORTED because L-251 gates on it
   OK    direction 7  FLOOR CONTROL   state=CONTROL_RAN rc=2 -- the watcher CALLS the frozen instrument; it does not re-implement the floor reader, so there is only ever ONE answer
+  OK    direction 8  SELF-TERMINATE  8/8 input combos as specified; terminal ONLY on (no container, rc present, log settled); a live container or a still-growing log KEEPS the watch -- so it cannot become a corpse watching a corpse, and cannot exit on a run still spinning up
 
 RESULT ALL DIRECTIONS AS REGISTERED
-driven 2026-09-06T16:38:08Z
+driven 2026-09-06T18:11:11Z

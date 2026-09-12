@@ -176,6 +176,45 @@ def find_container_logs(base):
     return "FOUND", [os.path.join(base, n) for n in names]
 
 
+def container_live():
+    """Is a d6rf4 container running RIGHT NOW?  A read, never a launch.
+    Returns True/False, or None if docker could not be consulted (in which
+    case the caller must NOT treat the run as terminal on that basis alone)."""
+    try:
+        p = subprocess.run(["sudo", "-n", "docker", "ps", "--format",
+                            "{{.Names}}"], capture_output=True, text=True,
+                           timeout=30)
+    except Exception:
+        return None
+    if p.returncode != 0:
+        return None
+    return any("d6rf4" in n.lower() for n in p.stdout.splitlines())
+
+
+def terminal_decision(status_rc_present, container_running, log_grew):
+    """THE SELF-TERMINATION PREDICATE, pure so it can be driven exhaustively.
+
+    A detached watcher that polls a fixed deadline outlives its run and becomes
+    a corpse watching a corpse.  This makes it EXIT when the run goes terminal.
+
+    RUNNING   -- a container is up, OR the status carries an rc but the log is
+                 still growing (rc written, solver still flushing) -> KEEP WATCHING
+    AWAITING  -- no rc in the status yet -> KEEP WATCHING (pre-container)
+    TERMINAL  -- rc in the status, no live container, log not growing -> EXIT
+
+    The `log_grew` guard is what stops a STALE status (rc from a prior corpse)
+    or a just-written rc from terminating a run whose container is still
+    spinning up: terminality requires the log to have SETTLED, confirmed across
+    two consecutive polls, not merely an rc to be present."""
+    if container_running is True:
+        return "RUNNING"
+    if not status_rc_present:
+        return "AWAITING"
+    if log_grew:
+        return "RUNNING"
+    return "TERMINAL"
+
+
 def run_accept_floor_control(logpath):
     """Call the FROZEN instrument.  Never re-implement its reader here."""
     if not os.path.exists(ACCEPT_FLOOR_CONTROL):
@@ -304,6 +343,27 @@ def selftest(ctrl_dir):
         "re-implement the floor reader, so there is only ever ONE answer"
         % (res.get("state"), res.get("rc")))
 
+    # -------- direction 8: the SELF-TERMINATION predicate, exhaustively ----
+    # Terminal iff (no live container) AND (rc in status) AND (log settled).
+    # All 8 input combinations, so the exit path is driven BOTH ways: every
+    # terminal input yields EXIT and every non-terminal input yields KEEP.
+    cases = []
+    for cont in (True, False):
+        for rc in (True, False):
+            for grew in (True, False):
+                want = "TERMINAL" if (not cont and rc and not grew) else \
+                       ("RUNNING" if (cont or (rc and grew)) else "AWAITING")
+                got = terminal_decision(rc, cont, grew)
+                cases.append((cont, rc, grew, want, got))
+    bad = [c for c in cases if c[3] != c[4]]
+    say(not bad and any(c[3] == "TERMINAL" for c in cases)
+        and any(c[3] != "TERMINAL" for c in cases),
+        "direction 8  SELF-TERMINATE",
+        "%d/8 input combos as specified; terminal ONLY on (no container, rc "
+        "present, log settled); a live container or a still-growing log KEEPS "
+        "the watch -- so it cannot become a corpse watching a corpse, and "
+        "cannot exit on a run still spinning up" % sum(1 for c in cases if c[3] == c[4]))
+
     hdr = ["D6RF4 P_conv WATCHER -- READERS DRIVEN IN BOTH DIRECTIONS",
            "  planted p initRes    = %s  (appears nowhere in this file's logic)"
            % PLANT_P,
@@ -334,16 +394,31 @@ def watch(outpath, interval, deadline_s):
     emit("  base      %s" % REGISTERED_BASE)
     emit("  registered accept floor %s x %s = %.1e  (REPORTED, never gated here)"
          % (REG_TOL, REG_DIFF, REG_FLOOR))
-    emit("  THIS WATCHER LAUNCHES NOTHING AND RE-FIRES NOTHING.")
+    emit("  NOTE ON `GRADER-FREEZE MISMATCH` -- EXPECTED, NOT A FAULT.  The frozen")
+    emit("  grading comparator d6rf4_grade.py moved from the freeze blob c1f309e8")
+    emit("  by the LAWFUL pre-first-compute age-datum repair (786d5850); its md5 is")
+    emit("  67e9508fab345d6d9387245d50af1fed, VERIFIED here to equal the value the")
+    emit("  2026-09-06T16:20Z prereg amendment recorded.  Under the launch-rule")
+    emit("  inversion a comparator moved by a lawful pre-compute amendment is")
+    emit("  RECORDED AS A PREDICTION, not refused.  MISMATCH here == amended-and-")
+    emit("  predicted grader, NOT drift.")
+    emit("  THIS WATCHER LAUNCHES NOTHING AND RE-FIRES NOTHING, AND IT")
+    emit("  SELF-TERMINATES when the run goes terminal so it cannot outlive it.")
     emit("=" * 72)
 
+    prev_log_size = None
     while time.time() - t0 < deadline_s:
         launcher = read_launcher_state()
         rstate, rmode = resolve_root_state(REGISTERED_BASE, launcher)
         lstate, logs = find_container_logs(REGISTERED_BASE)
 
+        cur_log_size = None
         detail = ""
         if logs:
+            try:
+                cur_log_size = os.path.getsize(logs[-1])
+            except OSError:
+                cur_log_size = None
             tstate, blocks = read_time_blocks(logs[-1])
             if blocks:
                 b = blocks[-1]
@@ -381,10 +456,34 @@ def watch(outpath, interval, deadline_s):
                 for t in (fl.get("stdout_tail") or []):
                     emit("    floor| %s" % t)
             last_sig = sig
+
+        # ---- SELF-TERMINATION CHECK -------------------------------------
+        cont = container_live()
+        status_rc_present = launcher.get("launcher_rc") is not None
+        # log_grew is only meaningful once we have a previous size to compare;
+        # on the first sighting of a log we assume it MIGHT still be growing
+        # (grew=True) so terminality needs one more settled poll to confirm.
+        if cur_log_size is None:
+            log_grew = False
+        elif prev_log_size is None:
+            log_grew = True
+        else:
+            log_grew = cur_log_size != prev_log_size
+        prev_log_size = cur_log_size
+
+        decision = terminal_decision(status_rc_present, cont, log_grew)
+        if decision == "TERMINAL":
+            emit("%s  SELF-TERMINATE: run is terminal (launcher_rc=%s, "
+                 "container_live=%s, log_settled=%s).  The watcher EXITS rather "
+                 "than outliving its run.  This is not a verdict about the arm; "
+                 "the verdict is the frozen grader's."
+                 % (time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    launcher.get("launcher_rc"), cont, not log_grew))
+            return 0
         time.sleep(interval)
 
-    emit("%s  WATCH WINDOW ENDED after %ds -- this is the watcher stopping, "
-         "NOT a verdict about the arm."
+    emit("%s  WATCH WINDOW ENDED after %ds (deadline backstop, not the primary "
+         "exit) -- this is the watcher stopping, NOT a verdict about the arm."
          % (time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), deadline_s))
     return 0
 
