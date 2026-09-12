@@ -26629,3 +26629,58 @@ A peer found it in one read of **`/proc/<pid>/io`** (`write_bytes`), the measure
 **And the direction of the error matters.** I was hunting the hazard while being it, and my chosen instrument returned "not me." *When a sweep clears you of a problem you are actively investigating, that is the moment to change instrument, not to report the clearance.* I had already escalated the false attribution upward before the real cause was found.
 
 **Corollary for instruments.** A selftest's DISK FOOTPRINT is part of its correctness. Bound fixtures to one reused scratch root torn down between cases, cap cumulative bytes and inodes with an explicit refusal (never a warning), have the suite self-report its measured peak from `/proc/self/io`, and prove the cap load-bearing with a control that goes red when the cap is removed.
+
+## L-549 — A planted-failure selftest proves only the fixtures its author thought of, and inherits the author's blind spot EXACTLY: nine planted failures shipped with `check_bar_above_floor.py` v1.0, and NOT ONE OF THEM WAS EMPTY — so the instrument written to discharge L-529 still contained L-529's own defect
+
+**2026-09-12, closure.** `scripts/check_bar_above_floor.py` v1.0 was written to
+discharge **L-530**, by an author who had **just read L-529**, and it shipped with a
+**nine-fixture planted-failure selftest** — nine deliberately broken tables, each one
+caught. It was, by the lab's usual standard, a well-defended instrument.
+
+**It still contained L-529's defect, unchanged.** An **EMPTY** table read **CLEAN**
+(`rc=0`) and printed a verdict asserting that **every registered bar cleared its
+floor** — a universal sentence emitted from the **ABSENCE of a reading**. Three
+further limbs fell to the identical reasoning:
+
+- a module limb with an **empty floor dict** — no floors, therefore no violations,
+  therefore green;
+- a **global-bar reading over 0 meshes** — nothing to disagree with the bar;
+- a table carrying floors but **no registered bar** — nothing to compare, therefore
+  nothing below.
+
+Four independent green-from-nothing paths in an instrument whose entire purpose was
+to make green-from-nothing impossible.
+
+**The root cause is one sentence: not one of the nine fixtures was EMPTY.** The
+author enumerated the ways a table can be *wrong* — a bar under its floor, a floor
+mis-keyed, a stale sha — because those were the failures he could picture. He could
+not picture the failure he was personally blind to, **and that is exactly the
+failure his own fixtures were drawn from.** A planted-failure suite is a portrait of
+its author's imagination. Where the imagination has a hole, the suite has the same
+hole, in the same place, and the green it returns is *louder* for having nine
+fixtures behind it.
+
+**THE REMEDY IS STRUCTURAL, NOT ANOTHER FIXTURE.** Adding a tenth, empty, fixture
+would have closed this hole and left the class open. What the **v1.1 repair** landed
+instead: **make the clean verdict impossible to print without the SIZE OF THE
+POPULATION IT READ.** The instrument no longer says *"every registered bar clears
+its floor"*; it says *"N bars checked against M floors over K meshes, all clear"* —
+and N=0 is then a sentence no reader can mistake for a result, because it says so
+out loud in the verdict itself.
+
+**A guard is local; an unutterable verdict is structural.** A guard is one more
+`if` in a list of `if`s, and the next blind spot walks past it. Forcing the
+denominator into the output means **there is no phrasing of a green that omits how
+much was read** — the failure mode is not caught, it is **inexpressible**.
+
+**The discriminating question, for any selftest anywhere in this lab:** *what is the
+EMPTY case, and is it in the fixture list?* Empty input, empty registry, empty
+match set, zero rows, zero meshes, zero files. It is the fixture an author never
+plants, because to plant it he must first suspect that nothing is a thing.
+
+**Related.** L-529 (the defect this instrument inherited while discharging its
+successor); L-530 (the obligation it was written for); standing rule 3 — the
+planted-zero control, of which this is the selftest-shaped case: **a suite that
+cannot show itself refusing an empty population has not shown its reader can see.**
+L-542 (a positive control is only as good as the blindness it was chosen to
+expose).
