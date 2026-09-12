@@ -1,0 +1,52 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// VMFL078 - 3-D lid-driven CUBIC cavity, Re = 1000.  VM2026R1 p.223-224.
+//
+// THE HALF DOMAIN, as the manual specifies it: "A half domain is modeled with height
+// = 1 m, length = 1 m and breadth = 0.5 m using symmetry boundary condition."  The
+// physical cavity is the unit CUBE (the reference is Wang & Wan, "3D Lid-driven CUBIC
+// Cavity Flows"); the manual halves it across its mid-span plane.  Here:
+//     x in [0,1]   length
+//     y in [0,1]   height, lid at y = 1
+//     z in [0,0.5] breadth = HALF of the cube's 1 m span
+// so z = 0.5 IS THE MID-SPAN PLANE OF THE FULL CUBE and carries symmetryPlane, and
+// z = 0 is a REAL stationary end wall of the cube.  Getting this the wrong way round
+// would model a 1 x 1 x 0.5 box, not half a cube, and the comparator gates on it.
+//
+// __NX__/__NY__/__NZ__ are substituted per level by run_vmfl078.sh.  The r = 2 family
+// is L1 32x32x16, L2 64x64x32, L3 128x128x64: the 1:1:0.5 count ratio matches the
+// 1:1:0.5 edge-length ratio EXACTLY, so every cell is a CUBE of side 1/NX at every
+// level and refinement halves all three cell dimensions systematically -- the
+// condition a Roache triple requires.  Uniform grading (1 1 1), no stretching.
+scale 1;
+
+vertices
+(
+    (0.0 0.0 0.0)   // 0
+    (1.0 0.0 0.0)   // 1
+    (1.0 1.0 0.0)   // 2
+    (0.0 1.0 0.0)   // 3
+    (0.0 0.0 0.5)   // 4
+    (1.0 0.0 0.5)   // 5
+    (1.0 1.0 0.5)   // 6
+    (0.0 1.0 0.5)   // 7
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (__NX__ __NY__ __NZ__) simpleGrading (1 1 1)
+);
+
+edges ();
+
+boundary
+(
+    lid      { type wall;          faces ( (3 7 6 2) ); }   // y = 1, moving +x
+    floor    { type wall;          faces ( (0 1 5 4) ); }   // y = 0, stationary
+    sideXmin { type wall;          faces ( (0 4 7 3) ); }   // x = 0, stationary
+    sideXmax { type wall;          faces ( (1 2 6 5) ); }   // x = 1, stationary
+    wallZmin { type wall;          faces ( (0 3 2 1) ); }   // z = 0, stationary end wall
+    symmetry { type symmetryPlane; faces ( (4 5 6 7) ); }   // z = 0.5, cube mid-span
+);
+
+mergePatchPairs ();

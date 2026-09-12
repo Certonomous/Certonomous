@@ -1,0 +1,21 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// VMFL078: 3-D lid-driven cubic cavity, Re = 1000.  VM2026R1 p.223-224 (PDF p.237-238).
+// The manual, verbatim: "Moving boundary condition is at the top of the domain with a
+// velocity= 1 m/s" / "All other walls are stationary" / "A half domain is modeled with
+// height = 1 m, length = 1 m and breadth = 0.5 m using symmetry boundary condition."
+//
+// Geometry as registered: x in [0,1] (length), y in [0,1] (height), z in [0,0.5]
+// (breadth = HALF the 1 m span of the cubic cavity).  The plane z = 0.5 is therefore the
+// MID-SPAN plane of the full cube and is the symmetry plane; z = 0 is a REAL end wall.
+// rho = 1 kg/m3, mu = 0.001 kg/m-s => nu = 0.001 m2/s => Re = U*L/nu = 1*1/0.001 = 1000.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (0 0 0);
+boundaryField
+{
+    lid          { type fixedValue; value uniform (1 0 0); }   // y = 1, moves +x at 1 m/s
+    floor        { type noSlip; }                              // y = 0
+    sideXmin     { type noSlip; }                              // x = 0
+    sideXmax     { type noSlip; }                              // x = 1
+    wallZmin     { type noSlip; }                              // z = 0, the cube's end wall
+    symmetry     { type symmetryPlane; }                       // z = 0.5, mid-span
+}
