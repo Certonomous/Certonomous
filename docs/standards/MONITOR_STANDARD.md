@@ -2054,3 +2054,136 @@ blanket suspicion, and blanket suspicion changes no behaviour.**
 | md5 of this file's HEAD blob before the append | `1cee90211390dc85944e8695936386d7` |
 | md5 of this file's first 1,879 lines after the append | `1cee90211390dc85944e8695936386d7` |
 | the two digests | `**EQUAL — assertion MEASURED**` |
+
+---
+
+## Amendment (2026-09-12) — **THE PROXY SUBCLASS: AN INSTRUMENT THAT EVALUATES A CORRELATE OF ITS REGISTERED QUANTITY AGREES WITH IT ON EVERY ORDINARY CASE AND DIVERGES EXACTLY AT THE ONE IT EXISTS TO CATCH**
+
+**Appended at the foot, append-only. Nothing above is edited, struck, widened or narrowed.
+`lines whose number changed above this section: 0` — MEASURED, not recited; the two digests
+are in the amendment record below and the append refused to proceed unless they were equal.**
+The header still reads `Version 1.12` and v1.13 deliberately left it so; the authoritative
+version is **v1.14** and line 3 is again not edited, for the same reason.
+
+**THIS AMENDMENT GATES NOTHING UNTIL THE VERIFICATION TEAM HAS READ ITS DIFF PERSONALLY.
+Drafted by a cfd lane at the cfd supervisor's request; not in force until that read.**
+
+### 1. 🔴 THIS IS **NOT** A NEW CLASS, AND SAYING SO IS THE FIRST HONEST THING IN IT
+
+**v1.13 §1 already owns the general class** — *"an instrument that answers a different
+question than the one asked, and whose WRONG answer is the well-formed one"* — and every
+member below is one of those. **This amendment does not restate that class, does not widen
+it, and claims no new territory.**
+
+**What it adds is a SUBCLASS with a different remedy**, and the difference is the whole
+justification for another clause:
+
+> In v1.13's members the two propositions are **unrelated** — *"what iteration is the solver
+> on?"* versus *"what did the last worker thread happen to print?"* Writing them side by side
+> exposes the gap immediately, which is why **"name the proposition and compare it word by
+> word"** is a sufficient remedy there.
+>
+> **In the proxy subclass the two propositions are CORRELATED.** *"How many cells are
+> clipped?"* really does track *"is the solution diverging?"* — **until it doesn't.** An
+> author who performs v1.13's test **sees the gap, judges it immaterial, and ships** — often
+> correctly, because the proxy is cheaper and agrees everywhere they have looked.
+> **v1.13's test can PASS and the defect still ships.**
+
+🔴 **And the correlation does not break at random. It breaks at the unusual case, because
+the unusual case is what breaks the correlation — and the unusual case is precisely what the
+instrument was installed to catch.** A proxy monitor is therefore **at its least reliable
+exactly when it is being relied on**, and it fails **silently and in the safe-looking
+direction**: it reports the ordinary answer.
+
+### 2. THE CLAUSE
+
+> ## A MONITOR OR GATE EVALUATES **THE QUANTITY ITS REGISTERED RULE NAMES**, IN THAT RULE'S UNITS, WITH THAT RULE'S COMPARISON.
+>
+> Where a proxy is used for cost or convenience, three things are **required in the record
+> beside the instrument**, and an instrument carrying fewer than three is not cleared:
+>
+> 1. **THE PROXY IS DECLARED** — the registered quantity and the measured stand-in, named
+>    separately, in their own units.
+> 2. **THE DIVERGENCE CONDITION IS NAMED** — the stated circumstance under which the proxy
+>    and the quantity part company. *"I could not think of one"* is not a divergence
+>    condition; it is the absence of the check.
+> 3. **THE PROXY IS CHECKED AGAINST THE REAL QUANTITY AT LEAST ONCE ON REAL DATA** — both
+>    values printed, on a case where the answer is independently known. **A planted control
+>    is the strongest form** (rule 3): drive the proxy into the divergence condition on
+>    purpose and require the instrument to notice.
+
+**And the negative limb, because a rule that only fires is not a rule** (v1.13 §5's own
+discipline): an instrument that reports the registered quantity **directly** — the same
+number, the same units, the same comparison — needs none of the three and is cleared by
+inspection. **The clause costs nothing where a proxy was never introduced.**
+
+### 3. THE MEMBERS — registered quantity, proxy evaluated, divergence condition, the wrong answer
+
+🔴 **Provenance is separated strictly, on v1.13 §3's own precedent, and the split is
+unfavourable to this amendment: THREE of seven were measured by the drafting lane; FOUR are
+relayed by the cfd supervisor and were NOT verified here.** A relayed check is a summary, not
+a check. **The four relayed rows carry their numbers as reported and MUST be cited to their
+own records before this amendment is described as seven measured instances.**
+
+| # | instrument | quantity its rule **NAMES** | correlate it **EVALUATED** | divergence condition | the wrong answer | provenance |
+|---|---|---|---|---|---|---|
+| **1** | this lane's live watcher on M6I | **LC-2: `bounding nuTilda` with `max > 1e6`** — a magnitude | **the PRESENCE of a `bounding nuTilda` line** — a count | a healthy compressible run clips small negative undershoots routinely; presence and magnitude part company on **every** healthy run | fired **`LC-2-BREACH, 32 lines`** on a run whose actual worst `max` was **0.0317** — **seven orders of magnitude inside** the registered threshold, at stage-2 iteration 35 of a run that went on past 1,600 iterations healthily | **MEASURED HERE**, `verification/runs/M6I_runs/L2/log.rhoSimpleFoam` |
+| **2** | this lane's fault watcher on M6I | **did a floating-point exception FIRE?** | **does the log contain the string `Floating point exception`?** | **line 29 of EVERY healthy OpenFOAM log** reads `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).` — the correlate is true of every run that ever armed the trap | **`FPE-DETECTED` reported three times on two runs that were healthy and advancing** (`Time = 426`, eight live solvers, `rc.stage1 = 0`, no `RC.txt`). Had it been believed it would have parked two live runs | **MEASURED HERE** |
+| **3** | `build_m6i_rung4_tvd.sh`'s own post-substitution assert | **does the CODE still select `linearUpwind`?** | **does the FILE contain the string `linearUpwind`?** | the script inserts a comment **explaining the removal**, three lines above the schemes, **containing the word** | **refused on a correctly patched file.** An assert that matches its own documentation is not an assert | **MEASURED HERE**, fixed by stripping comment lines before the grep |
+| **4** | a completion reader | **distinct physics steps** | **`ExecutionTime` LINES** | a **resume** writes both segments' lines | **double-counted a resume by two**; would have failed a sound run on bookkeeping | relayed; **NOT verified here** |
+| **5** | a mesh-quality exposure metric | **AREA share on the graded surface** | **CELL share** | cells near a graded surface are not of uniform area | **overstated by a factor of 12.7**, and *both the supervisor and the lane reasoned from it without noticing* | relayed; **NOT verified here** |
+| **6** | the render face-count guard | **what is VISIBLE in the image** | **what was LOADED into the pipeline** | a camera or opacity fault loads everything and shows nothing | **passed exactly on an image containing no wing** | relayed; **NOT verified here** |
+| **7** | the queue runner's comparator-freeze match | **is the pinned comparator the frozen CONTENT?** | **does the PATH match?** | a content-honest pin under a different path | labelled a content-honest pin **`ABSENT-AT-FREEZE`**, **on which a supervisor wrongly rebuked a lane** | relayed; **NOT verified here** |
+
+### 4. WHAT THE SEVEN HAVE IN COMMON, AND IT IS NOT THE TOOL
+
+**Seven instruments, seven different technologies — a shell watcher, a log grep, a build
+assert, a completion reader, a mesh metric, a render guard, a queue gate — and no two share a
+line of code.** The mechanism is not in any of them. **It is in the step where a quantity
+that was registered got replaced, at implementation time, by something easier to measure that
+usually agrees with it.**
+
+🔴 **Every one of the seven was caught by reading the ARTIFACT rather than the INSTRUMENT.**
+Members 1, 2 and 3 were caught because the drafting lane opened the log, the process table
+and the patched file before reporting what its own watcher said. **That is the other half of
+this clause and it is not optional:** an instrument's output is a claim about an artifact,
+and the artifact is on disk.
+
+**No failure rate is quoted and that is deliberate** (v1.13 §4's discipline): seven members
+is a floor on the count, not an estimate of prevalence. Nobody has swept the fleet's
+instruments for proxies, and **this amendment does not pretend the seven are all of them.**
+
+### 5. CONTROLS, BOTH LIMBS
+
+- **POSITIVE** — member 1's corrected watcher now evaluates `max` and reports `within
+  threshold` at 0.0389 on the same live run its predecessor called a breach. **Shown able to
+  return the right answer on the case that broke it.**
+- **NEGATIVE, and it is the limb usually omitted** — the corrected watcher must still **fire**
+  when the registered quantity really is crossed. **Driven on real data:** run against L2's
+  *earlier* log, where `nuTilda` reached **3.08e43**, it returns **`**BREACHED** -> NOT A
+  RESULT`**. Against L1's, at **3.63e44**, likewise. **An instrument that cannot fail is
+  worth less than an honest gap, because a reader relies on it.**
+
+### 6. WHAT THIS AMENDMENT DOES NOT DO
+
+1. **It alters no threshold, no monitor signature and no existing clause.** v1.13's class and
+   test stand unchanged and are the parent of this subclass.
+2. **It gates nothing** until the verification team reads its diff personally.
+3. **It does not claim seven measured instances.** Three are measured; **four are relayed and
+   are labelled as such in the table**, and they need their own records cited before anyone
+   quotes the figure seven.
+4. **It sweeps no other instrument.** No claim is made about how many proxies the fleet's
+   monitors carry, because nobody has looked.
+
+| amendment record | **v1.14** |
+|---|---|
+| monitor signatures added | **0** |
+| thresholds altered | **0** |
+| existing clauses altered, widened or narrowed | **0** |
+| standing clauses added | **1** (§2, three required declarations + a negative limb) |
+| members carried | **7** — **3 measured by the drafting lane, 4 relayed and NOT verified here** |
+| controls shipped | **2** — positive and negative, both driven on real logs (§5) |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `b041ab5181b542c3974ccab06033c435` |
+| md5 of this file's first 2,056 lines after the append | `b041ab5181b542c3974ccab06033c435` |
+| the two digests | **EQUAL — assertion MEASURED** |
