@@ -103,23 +103,41 @@
   "field": "p",
   "field_association": "CELLS",
   "field_range": [
-    -3776.598388671875,
-    809.0353393554688
+    -3777.335205078125,
+    809.56005859375
+  ],
+  "field_units": "m^2/s^2  (KINEMATIC -- not Pa)",
+  "field_units_source": "the field file's own `dimensions` header at the loaded time -- NEVER inferred from the field name; `p` is Pa in a compressible solve and kinematic m^2/s^2 in an incompressible one",
+  "field_dimensions_kg_m_s_K_mol_A_cd": [
+    0,
+    2,
+    -2,
+    0,
+    0,
+    0,
+    0
+  ],
+  "time_loaded": 2000.0,
+  "times_available": [
+    1750.0,
+    2000.0
   ],
   "surface_colour": "coloured by the field named above, with a scalar bar",
   "planted_colour_control": {
     "passed": true,
     "plant": "colour transfer function collapsed to a single value",
-    "collapsed_to": -1483.7815246582031,
+    "collapsed_to": -1483.8875732421875,
     "original_range": [
-      -3776.598388671875,
-      809.0353393554688
+      -3777.335205078125,
+      809.56005859375
     ],
-    "body_pixels": 265531,
-    "body_pixels_changed": 225197,
-    "body_fraction_changed": 0.8481005984235362,
+    "body_pixels": 266741,
+    "body_pixels_changed": 225340,
+    "body_fraction_changed": 0.8447895149227153,
     "floor": 0.1,
     "reader": "the saved PNG, read back off disk"
   },
-  "utc": "2026-09-12T23:03:30Z"
+  "q_ref_half_U2": 756.1771605000001,
+  "q_ref_note": "q = 0.5*magUInf^2 with magUInf 38.889 read from system/forceCoeffs; for this KINEMATIC pressure Cp = p/q, so the bar's numbers divide by this to give Cp",
+  "utc": "2026-09-12T23:15:10Z"
 }

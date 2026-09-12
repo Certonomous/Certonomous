@@ -201,3 +201,68 @@ correct number pointing at a wrong cause.
 
 *Appended by a cfd `lab-lane`, 2026-09-12. No solver launched. Alters no gate, threshold,
 cap or label. Submissions parked.*
+
+---
+
+# ADDENDUM 3 — 2026-09-12 — **THE FIELD RENDER IN ADDENDUM 2 WAS ITERATION 1750, NOT 2000. `--time` WAS A DECLARED ARGUMENT THAT WAS NEVER READ.**
+
+Appended, not inserted: **lines whose number changed above this section: 0.**
+
+## A3.1 THE DEFECT
+
+`grep -n "a\.time"` in `scripts/render_openfoam_3d_paraview.py` returned **nothing**.
+`--time` was declared, documented, passed by every caller, and **never consulted**;
+ParaView's OpenFOAM reader used its own default.
+
+**MEASURED, NOT INFERRED.** This case holds times `0 / 1750 / 2000` and the reader lists
+`[1750.0, 2000.0]`. The image filed under ADDENDUM 2 reported `p` ∈ [−3776.5985, 809.0353].
+Read off disk: **`1750/p` is EXACTLY that**, and `2000/p` is [−3777.3351, 809.5600].
+
+> **THE FIELD IMAGE SHIPPED IN `40eff4e18`, CAPTIONED "the finest completed level", WAS
+> ITERATION 1750 OF A RUN WHOSE GRADED `endTime` IS 2000.** It is re-rendered at 2000, and
+> this addendum records the error rather than silently replacing the file.
+
+**The three MESH renders are unaffected — geometry does not change with time**, and their
+face counts (17,780 / 17,780 / 64,228) are unchanged again.
+
+## A3.2 THE CORRECTED IMAGE, AND IT NOW STATES ITS OWN UNITS
+
+> **`r2c_medium_blended_R2_field_p_surface.png` — DrivAer notchback, surface KINEMATIC
+> pressure, MEDIUM level, 44 vehicle patches, 64,228 faces, at `time 2000`.**
+> Renderer output, verbatim: `time 2000 loaded (available: [1750.0, 2000.0])` and
+> `field 'p' coloured by CELLS association, range [-3777.34, 809.56] m^2/s^2 (KINEMATIC -- not Pa)`.
+> Planted colour control **PASSED at 84.48 %** of body pixels moved.
+> **THE UNIT ON THE BAR IS DERIVED FROM THE FIELD FILE'S OWN `dimensions` HEADER
+> (`[0 2 -2 0 0 0 0]`), NEVER FROM THE FIELD'S NAME.** The M6I field render in the adjacent
+> campaign is a *compressible* solve, `dimensions [1 -1 -2 ...]`, and its bar genuinely reads
+> **Pa**. Two field renders, two different physical quantities, one one-letter name — and
+> the artifact now says which it is instead of leaving the reader to supply a unit.
+> Every caveat in ADDENDUM 2 stands unchanged: `Cd` **`NOT A RESULT`**, **MIXED** wall
+> treatment over 19.65 % of wetted area, mesh **non-conforming**.
+
+## A3.3 THE THIRD REPAIR, WHICH MATTERS MOST FOR EVERY OTHER TEAM
+
+The staging directory was a **fixed** `<out>/_stage`. Two lanes rendering into one `RENDERS/`
+— which is what every team does — staged into the **same path**. Measured when two of this
+lane's own checks shared an `--out`: *"per-patch identity failed for 43 of 44 patches"*.
+
+**The guard caught it, which is the only reason it was a nuisance and not a wrong picture.
+But a tool that needs its guard to survive normal concurrent use is relying on the guard for
+CORRECTNESS instead of for VERIFICATION** — a guard doing routine work has already spent the
+margin it was meant to hold in reserve. Now `_stage_<pid>`.
+
+## A3.4 THE HONEST TALLY ON THIS ONE TOOL, IN ONE NIGHT
+
+1. a per-patch face-count guard that passed an image **with no wing in it**;
+2. `Show()` auto-colouring, shipping **unlabelled scalar fields captioned as meshes**;
+3. a "control" that compared `--field p` against a default that **was already `p`**;
+4. `--field` declared broken **while working**;
+5. **`--time` declared and never read** — two of these are the same mechanical class, with
+   `--min-ink` before them;
+6. a stage name that **collides under normal concurrent use**.
+
+**That is not bad luck. It is a tool that had never been read adversarially.** Recorded here
+because the next person to trust one of its outputs should know what its history is.
+
+*Appended by a cfd `lab-lane`, 2026-09-12. No solver launched. Alters no gate, threshold,
+cap or label. Submissions parked.*
