@@ -1655,3 +1655,88 @@ is what makes it a verdict rather than an artefact. The rung-4 work built on L3 
   **registered and untested.**
 - **The η = 0.96 geometric limb** (§A8.4, the 0.57 % semispan-ratio difference) is
   **untested** and no scheme is expected to move it.
+
+---
+
+# ADDENDUM 13 — 2026-09-12. **L1 STOPPED AT ITERATION 844 WITH `rc = 1` AND HEALTHY PHYSICS. THE CAUSE IS UNDETERMINED AND I WILL NOT INVENT ONE. IT RESUMES FROM 800.**
+
+**v1.12 → v1.13. Lines whose number changed above this section: 0.** No band, threshold, cap
+or label moves. The only change to any instrument is **instrumentation**, §A13.3.
+
+## A13.1 — WHAT STOPPED, AND WHAT WAS TRUE WHEN IT DID
+
+`M6I-R1-L1-TVD`, pid 93486. Stage 1 `rc = 0`. **Stage 2 stopped mid-iteration at
+`Time = 844` with `rc = 1`** — **not 136**, so **no SIGFPE**. `End` lines: **0**.
+
+**The physics was in good order at the stop**, read from the run's own final lines: Uz initial
+residual **2.06e-05**, e **1.15e-04**, GAMG on p converging in **10** iterations;
+`limitTemperature` reporting **zero** limited cells at **both** bounds with `UnlimitedTmin`
+**184.30 K** and `UnlimitedTmax` **339.64 K**, both physical; `pressureControl: p max`
+**234,754 Pa** — **2.32× freestream** and unremarkable; the worst of 487 `bounding nuTilda`
+lines reading `min −2.30e-05  max 0.0212`, **four decades below L2's 3.08e+43**. Cl 0.2512,
+Cd 0.0320 at iteration 843. **Nothing in the physics was going wrong.**
+
+## A13.2 — 🔴 THE CAUSE IS UNDETERMINED. HERE IS EVERYTHING IT IS **NOT**, MEASURED.
+
+I was asked to report the cause and not just the resume. **I could not determine it, and that
+is the report.** What is excluded is excluded by measurement, not by argument:
+
+| candidate | verdict | evidence |
+|---|---|---|
+| SIGFPE / the L2–L3 divergence fault | **EXCLUDED** | `rc = 1`, not 136; **zero** `exited on signal`, `Primary job`, `sigFpe` or `FOAM FATAL` strings in the solver log |
+| a truncated / half-written log | **EXCLUDED** | the final line ends with a complete `\n` (`od -c`); the solver wrote a whole GAMG line and stopped |
+| the CRM lane's cause — `set -u` round the bashrc with stderr sent to `/dev/null` | **EXCLUDED** | `launch_m6i_v2.sh` sends the bashrc to `log.env` and **checks `ENV_RC`**; its only `/dev/null` uses are on `find`/`pgrep`/`grep`/`command -v` probes — **never on the solver or the environment stream** |
+| the `foamDictionary -entry endTime -set` `#include`-inlining hazard | **EXCLUDED** | `system/controlDict` contains **0** `#include` directives and the launcher makes **0** `foamDictionary` calls — it uses `sed -i` with a read-back assert |
+| a box-wide event | **EXCLUDED** | **no other `RC.txt` anywhere under `verification/runs` or `cases` was written in the window**; 46 solver processes were alive afterwards; `uptime -s` shows no reboot since 21:32:17Z |
+| disk | **EXCLUDED** | 53 % used, 460 G free |
+| **the OOM killer** | 🔴 **NEITHER CONFIRMED NOR EXCLUDED** | `dmesg` is not readable from this lane without privilege. **This is a gap, not a clearance**, and it is the single most plausible remaining candidate given the box was running 46 solvers |
+
+**What it was: `mpirun` returned 1 with no message, no signal report and no solver error,
+after a complete line, with healthy fields.** A rank exiting non-zero silently, or being
+removed, both fit. **I am not choosing between them on no evidence.**
+
+## A13.3 — 🔴 SO THE RESUME CARRIES INSTRUMENTATION, BECAUSE A CAUSE I CANNOT NAME WILL RECUR
+
+`launch_m6i_v3.sh` — **a new file, not an edit of v2**, precondition checked by testing the
+script **argument** (`ps -eo pid,cmd | grep 'bash .*launch_m6i_v[0-9]*\.sh'`) rather than
+`pgrep -f`, which matches its own shell: **no launcher process held the script, and every M6I
+case had written `RC.txt`.**
+
+**IT ADDS INSTRUMENTATION AND NOTHING ELSE.** Asserted mechanically, not claimed: the v2→v3
+diff touches **no** line containing `fvSchemes`, `fvSolution`, `endTime`, `writeInterval`,
+`purgeWrite`, `RASModel`, `transonic`, `decomposePar` or `relaxation`. **What the solver
+computes is byte-for-byte v2's.**
+
+1. **The solver's stderr goes to its own file.** v2 merged it into a stdout that four ranks
+   write concurrently — 1.4 MB of it — where a dying rank's message can be interleaved or
+   lost. **That is exactly the shape of "rc = 1 with no message".**
+2. **On any non-zero rc the wrapper writes `FAILURE_CONTEXT.<n>.txt`** — rc, UTC, the last
+   `Time` line, the solver stderr, `free -g`, `df -h`, `/proc/loadavg`, live solver counts, a
+   `dmesg` attempt for the OOM killer, and both stream tails — **captured at the moment of
+   failure, while it is still true.** §A13.2's OOM gap exists precisely because nobody
+   captured this at 23:18.
+
+## A13.4 — THE RESUME, AND THE CHECKPOINT VERIFIED BY FIELD NAME RATHER THAN BY FILE COUNT
+
+Sanaa, ~21:25Z: *"make sure now that we are able to resume all runs"*, with her standing
+ruling that **a bookkeeping failure never voids physics**. **844 iterations on 983,040 cells
+is real compute and it is recoverable.**
+
+**Checkpoint 800 is COMPLETE IN ALL FOUR RANK TREES, verified BY FIELD NAME:** every one of
+`processor{0,1,2,3}/800` holds `T U alphat nuTilda nut p phi rho uniform yPlus`, all written
+**23:16:26Z**, well after the 22:43:33Z launch. **600 is a complete fallback in all four.**
+All four trees agree that 800 is their latest, `0/` is present in the cwd and in every
+processor tree (rule 4's age datum survives), and `system/controlDict` carries
+**`startFrom latestTime`**.
+
+**It resumes through the runner, never by hand** (directive item 19). The entry declares
+**`resume_from: "800"`** with **`resume_fields`**, which is the validator's own declared-resume
+path: the age guard steps aside **only** for a well-formed declaration, and `check_resume`
+then verifies RESUME-LATEST, RESUME-FIELDS, RESUME-ZERO and RESUME-STARTFROM **against the
+disk**, refusing if the declaration is not true. **Nothing is deleted to make room for it.**
+
+**Budget:** the resume adds iterations 801→8000 to the 844 already spent. §A4.2's registered
+cost consequence is unchanged and is **not** re-decided here: if the cap of 3,277 core-minutes
+is crossed the row grades **`NOT A RESULT` on cost**, the cap is **never raised**, and
+**nothing is killed** (directive #17). `launch_m6i_v3.sh` adds no timeout, clock check or
+spend check — the v2→v3 diff is instrumentation only.
