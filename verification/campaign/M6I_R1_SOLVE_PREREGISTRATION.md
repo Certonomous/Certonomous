@@ -1590,3 +1590,68 @@ consolation written afterwards.**
 - **EITHER WAY**, §A11.1's finding stands: the rung-4 scheme moves Cp by up to 0.12 on a
   shock-free solution, and any L1 number inherits that as a disclosed, unquantified scheme
   sensitivity until hypothesis **(c)** is tested.
+
+---
+
+# ADDENDUM 12 — 2026-09-12. **A DEFECT THIS LANE REPORTED UPWARD DOES NOT EXIST, AND THE SOLUTION-SOUNDNESS QUESTION IT RAISED IS CLOSED IN L3's FAVOUR.**
+
+**v1.11 → v1.12. Lines whose number changed above this section: 0.** No band, threshold, cap
+or label moves.
+
+## A12.1 — 🔴 CORRECTION: `--field` IS NOT A SILENT NO-OP, AND THIS LANE SAID IT WAS
+
+This lane reported upward — in commit message `a7dc58fd` and in its reports — that the
+ParaView route to the **fields** half of Sanaa's ~20:30Z render directive was *"blocked by a
+disclosed defect"*, namely that `render_openfoam_3d_paraview.py --field` was a **silent
+no-op**. **That is false.**
+
+**Measured by the cfd render lane** (`25caef4c6`; **relayed here, not verified by this lane**):
+`--field` **works and always did**. The original defect finding compared `--field p` against
+*"the plain mesh render"* and found them identical — **because ParaView auto-colours by the
+first array it finds, so the "plain" arm was already coloured by `p`.** Immediately after
+`Show()` and **before any `ColorBy` call**, `d.ColorArrayName` already reads `['POINTS','p']`.
+**The comparison had no uncoloured arm.** With a true solid-colour reference, colouring by `T`
+instead of `p` moves **7.07 %** of frame pixels.
+
+**How this lane got it wrong, stated plainly: it read a script's header, found the defect
+described there, and reported it as known — without verifying it.** The header was honestly
+written and honestly wrong, and the lane treated **a document about a measurement as the
+measurement**. *"A relayed check is a summary, not a check"* is usually aimed at a supervisor
+accepting a lane's word; **it applies identically to a lane accepting a document's word.**
+Carried into `MONITOR_STANDARD.md` v1.14 §10 as the amendment's own unflattering example, and
+recorded here because the claim was made from this document's lane and travelled upward.
+
+**No artifact of this registration depends on the false claim.** The Cp figure
+`RENDERS/M6I_R1_L3_cp_vs_agard.png` was produced by `scripts/plot_m6i_cp.py` from the graded
+`cp_extracted.json` and is unaffected; the render lane owns and has already corrected
+`RENDERS/CAPTIONS.md`.
+
+## A12.2 — THE ZERO-FIELD QUESTION AGAINST L3 IS CLOSED, AND L3's SOLUTION IS SOUND
+
+A question was raised upstream as to whether L3's velocity and turbulence fields were
+degenerate. **They are not, and the premise was a locus confusion.** Measured by the render
+lane by **raw binary read of the `internalField` block** (`c2c46be07`; **relayed, not verified
+by this lane**):
+
+| field | boundary value on `wing` | **internalField range** |
+|---|---|---|
+| `U` | `noSlip` — zero **by boundary condition** | **1.11 – 360.13 m/s**, against a freestream of 291.44 |
+| `nuTilda` | `fixedValue uniform 0` — a wall value | **5.24e-06 – 0.0431**, with `nut` tracking it |
+
+**The renderer draws BOUNDARY PATCHES.** `U` reads zero there by no-slip while `p` reads
+non-zero by `zeroGradient`; **those were never the same locus.** **The Spalart–Allmaras model
+worked, the velocity field is alive, and L3's `GATE FAIL` rests on a sound solution** — which
+is what makes it a verdict rather than an artefact. The rung-4 work built on L3 stands.
+
+## A12.3 — WHAT IS STILL OPEN AT THIS DOCUMENT'S LAST ENTRY
+
+- **L1 under rung 4 is RUNNING** — stage-2 iteration ~636 of 7,800, `rc` not yet written,
+  LC-1 peak **0.00 %**, LC-2 worst ν̃ **0.0730** against 1e6, Ux initial residual **8.33e-06**.
+  Detached under the runner and parented to init, so it survives any agent ending.
+  **Its branches are pre-registered at §A11.4 and `evaluate_m6i_level.sh L1` produces its
+  verdict mechanically.**
+- **Hypothesis (c)** — that `limitedLinear` over-limits in smooth regions on this
+  non-orthogonal grid, per §A11.1's measured 0.12 Cp shift on a shock-free solution — is
+  **registered and untested.**
+- **The η = 0.96 geometric limb** (§A8.4, the 0.57 % semispan-ratio difference) is
+  **untested** and no scheme is expected to move it.

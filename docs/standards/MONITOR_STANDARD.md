@@ -2299,3 +2299,95 @@ against its own registration.**
 | md5 of this file's HEAD blob before this append | `b2d78df04d8107ec2ee03173f8570686` |
 | md5 of this file's first **2247** lines after it | `b2d78df04d8107ec2ee03173f8570686` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 10. MEMBERS 9 AND 10, FROM THE RENDER LANE — AND A RECOUNT, BECAUSE THE PROVENANCE SPLIT MOVED AGAINST THIS DRAFT
+
+Contributed by the cfd render lane and relayed here by the cfd supervisor; **that lane
+measured both itself and cited them to commits rather than to anyone's summary.**
+**Neither is verified by this drafting lane**, and they join the relayed column, not the
+measured one.
+
+#### MEMBER 9 — 🔴 **THE CONTROL WAS NOT A CONTROL** (cite `25caef4c6`)
+
+**The proxy mechanism applied to a control's REFERENCE ARM**, which is why it belongs here
+and not in a separate clause: the reference was a stand-in for *"an uncoloured render"* and
+was **secretly the same thing as the test arm**, so the comparison could not register a
+difference whatever the instrument did.
+
+| | |
+|---|---|
+| quantity the rule **NAMES** | *does `--field` colour the surface?* |
+| correlate **EVALUATED** | *does `--field p` differ from "the plain mesh render"?* |
+| divergence condition | **ParaView auto-colours by the first array it finds.** Measured immediately after `Show()` and **before any `ColorBy` call**, `d.ColorArrayName` already reads `['POINTS','p']` — so the "plain" arm **was already coloured by `p`** |
+| the wrong answer | `--field` declared **a silent no-op**. It **works and always did**: colouring by `T` instead of `p` moves **7.07 %** of frame pixels; `p` against a genuinely solid surface, **6.47 %** |
+| cost | **two failed fix attempts and a withdrawn guard** before anyone rendered a true solid-colour arm |
+| provenance | the render lane's own measurement, `25caef4c6`; **NOT verified by this drafting lane** |
+
+> **THE TEST: before trusting a control, ask what the reference arm would show if the
+> instrument were working perfectly, AND if it were dead. If the answer is the same picture,
+> it is not a control.**
+
+This is rule 3's planted-zero discipline pointed at the **reference** instead of the reader:
+a control whose two arms cannot differ is a control that cannot fail.
+
+#### MEMBER 10 — **USABILITY IS PART OF RELIABILITY** (cite `c2c46be07`)
+
+🔴 **This one EXTENDS the subclass rather than instantiating it, and the contributing lane
+flagged that itself.** It is carried with that distinction intact rather than flattened into
+the count.
+
+**A guard that fires CORRECTLY, but whose message does not tell the reader what to do next,
+is read as a tool defect — then worked around or deleted. A guard that is worked around
+protects nothing. AN INSTRUMENT CAN FAIL BY BEING IGNORED AS EASILY AS BY BEING WRONG.**
+
+Case: a degenerate-range refusal **correctly** blocked `--field U` on a **no-slip wall patch**,
+where `U` is exactly zero by boundary condition and a picture of it shows nothing. The terse
+message read as a bug. It now names the case — *the tool renders **boundary patches**; `U` on
+a no-slip wall is zero by construction; `nut`/`nuTilda`/`alphat`/`k`/`omega` are wall-function
+zeros; **the volume field is not zero**; use `p`/`T`/`rho` or a slice* — with the evidence in
+the code comment at the branch it explains: `3000/U` `boundaryField[wing] = noSlip` against an
+**internalField |U| of 1.11–360.13 m/s**; `3000/nuTilda` `fixedValue uniform 0` against an
+internalField **5.24e-06–0.0431**.
+
+> **THE TEST: read every refusal's message as a stranger at 2 a.m. If it does not say what to
+> do next, it will be worked around.**
+
+Provenance: the render lane's own measurement, `c2c46be07`; **NOT verified by this drafting
+lane.** (Member 6's citation, also that lane's, is `114a67ee3`.)
+
+#### 🔴 AND THE DRAFTING LANE RELAYED MEMBER 9's WRONG CONCLUSION UPWARD WITHOUT VERIFYING IT
+
+Recorded because it is this clause's own subject matter and it is unflattering. **This lane
+read `render_on_completion.sh`'s header, found `--field` described as a silent no-op, and
+reported that upward as a known defect blocking half of a standing directive** — in a commit
+message (`a7dc58fd`) and in its reports. **It never verified the claim, and the claim was
+false.** The header was honestly written and honestly wrong; the lane treated a **document
+about a measurement** as the measurement.
+
+**`SUPERVISION_CHARTER.md` §3's "a relayed check is a summary, not a check" is usually aimed
+at a supervisor accepting a lane's word. It applies identically to a lane accepting a
+document's word**, and the six relayed rows of this amendment's table are labelled as they are
+for exactly this reason. **The lane's restraint in not patching a shared tool mid-session was
+correct; its confidence in the defect's existence was not.**
+
+#### RECOUNT — NOT AN ADDITION TO THE OLD TOTAL
+
+| | |
+|---|---|
+| **members now** | **10** |
+| measured by the drafting lane | **4** — §3 members 1, 2, 3 and §9's member 8 |
+| **relayed and NOT verified here** | **6** — §3 members 4, 5, 6, 7 and §10's members 9, 10 |
+| of which extend rather than instantiate the subclass | **1** — member 10, flagged as such by its contributing lane |
+
+**The split moved against this amendment**: it opened at 3 measured of 7 and now stands at
+**4 of 10**, so **a clear majority of the evidence is second-hand and the table says so on its
+face.** The figure **ten** must not be quoted as ten measured instances.
+
+| addendum to the v1.14 record | |
+|---|---|
+| sections added | **1** (§10) — appended below §9; §§1–9 and all record tables unchanged |
+| thresholds, clauses or provenance of existing members altered | **0** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before this append | `6eb5186cb5e54432c2bd43c75d0765e9` |
+| md5 of this file's first **2301** lines after it | `6eb5186cb5e54432c2bd43c75d0765e9` |
+| the two digests | **EQUAL — assertion MEASURED** |
