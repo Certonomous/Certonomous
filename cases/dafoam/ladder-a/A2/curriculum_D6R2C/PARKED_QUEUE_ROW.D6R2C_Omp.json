@@ -1,0 +1,57 @@
+{
+  "_PARKED": "PARKED, NOT ENQUEUED. This row lives under the case directory and NOT under verification/queue/dafoam/. It is moved (never copied, so one row exists for one run) into the queue by dafoam-supervisor AFTER two things are true: (1) scripts/queue_runner.py carries Sanaa's 2026-09-12 Launch guards (item 6 uid, item 7 memory, item 8 cores, item 18 load and swap, items 1-4 checkpoint preconditions) and its guard sha is named here; and (2) the kill-and-resume proof of PREREGISTRATION.md section 5 reads PASS. ENQUEUEING IS NOT AUTHORISATION TO LAUNCH BY HAND. Item 19: the runner is the only launcher and nothing launched by hand counts as a case.",
+  "_BLOCKED_ON": [
+    "runner guard sha -- NOT YET LANDED at the time this row was written",
+    "D6R2C kill-and-resume proof verdict -- section 5b; a GATE FAIL or NOT A RESULT there BLOCKS this launch",
+    "ARM0 parallelism health verdict -- section 7; O_mp does not launch until ARM0 reads PASS"
+  ],
+  "team": "dafoam",
+  "case_id": "D6R2C",
+  "prereg_commit": "FILL AT ENQUEUE -- the commit that introduces cases/dafoam/ladder-a/A2/curriculum_D6R2C/PREREGISTRATION.md together with its five instruments and the grading path",
+  "prereg_path": "cases/dafoam/ladder-a/A2/curriculum_D6R2C/PREREGISTRATION.md",
+  "prereg_note": "Rule 2 check to discharge AT ENQUEUE, not now: hash the disk file against the HEAD blob of that path at that commit and refuse on any difference.",
+  "launch_cmd": [
+    "bash",
+    "-lc",
+    "bash /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R2C/d6r2c_run_arm.sh ARM0_4R dafoam-idwarp-rot:v1 && bash /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R2C/d6r2c_run_arm.sh ARM0_2R dafoam-idwarp-rot:v1 && python3 /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R2C/d6r2c_arm0_gradient_health.py --compare /home/ubuntu/certonomous-runs/CURRICULUM-D6R2C-a2-wing-multipoint-transonic-restartable/ARM0_4R/arm0_totals.json /home/ubuntu/certonomous-runs/CURRICULUM-D6R2C-a2-wing-multipoint-transonic-restartable/ARM0_2R/arm0_totals.json --json-out /home/ubuntu/certonomous-runs/CURRICULUM-D6R2C-a2-wing-multipoint-transonic-restartable/ARM0_VERDICT.json && bash /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R2C/d6r2c_run_arm.sh O_mp dafoam-idwarp-rot:v1"
+  ],
+  "launch_cmd_note": "The separators are `&&` AND THAT IS REGISTERED, NOT A CONVENIENCE. PREREGISTRATION.md section 7: `O_mp does not launch until ARM0 reads PASS`. The arm-0 comparator exits non-zero on anything but PASS, so `&&` is what makes that sentence executable rather than decorative. This is the OPPOSITE of the A1WRT row's registered `;`, and the difference is deliberate: there the control's failure must not suppress the points the item exists to buy; here the gradient-health check IS a precondition of the optimisation being meaningful.",
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R2C",
+  "ranks": 4,
+  "memory_footprint_gb": 17,
+  "memory_floor_gb": 17.0,
+  "cap_core_min_registered": 2464.5,
+  "cost_core_min_estimate": 821.5,
+  "cost_basis": "821.5 core-min = ARM0_4R 15.0 + ARM0_2R 20.0 + O_mp 786.5, from the MEASURED anchor of 31.258 core-min per IPOPT major at 4 ranks (C-188, 8262f123). 821.5 core-min = 13.692 core-h = $0.7024 DERIVED, NOT MEASURED, at the owner-stated c7a.4xlarge rate of $0.0513/core-h; cost_basis class REPORTED-BY-OWNER -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). The box is now an r7a.4xlarge and the rate on record is the c7a.4xlarge figure, used unchanged rather than invented; that substitution is named, not buried. THE CAP IS NOT THE ESTIMATE: 2464.5 core-min is 3.00x, = 41.08 core-h = $2.107 DERIVED, under the $25 pre-authorisation. A CROSSED CAP IS REPORTED AND THE ROW IS GRADED NOT A RESULT; THE CAP IS NEVER RAISED AND NOTHING KILLS ON IT (Sanaa 2026-09-12 directive #17 read with her item 7). No wrapper carries a timeout and every container prints D6R2C_DEADLINE_IN_CONTAINER_S: NONE. Calibration row OWED to docs/COST_CALIBRATION.md at completion per rule 12.",
+  "enqueued_by": "PARKED by dafoam lab-lane 2026-09-12. NOT YET ENQUEUED and NOT signed off. SUPERVISION_CHARTER section 3 check 4 (pre-registration committed before compute) and check 1 (measurement and launch path read AS A DIFF) are dafoam-supervisor's PERSONALLY and are NOT discharged by this lane writing that they should be.",
+  "sanaa_2026_09_12_launch_items": {
+    "item_6_as_ubuntu_never_root": "--user 1000:1000 --group-add 1002 -e HOME=/tmp, and mpirun WITHOUT --allow-run-as-root. MEASURED at the freeze by execution: uid 1000 is named `ubuntu` inside dafoam-idwarp-rot:v1; /home/dafoamuser is mode 0750 owned by uid 1002, so gid 1002 is added as a SUPPLEMENTARY group for traverse while the PRIMARY gid stays 1000 and every file lands ubuntu:ubuntu on the host. The run script refuses (exit 72) if getuid()==0, the launcher counts root-owned files written after the age datum into the ledger row, and production gate G5 refuses the item on any non-zero count. The run this replaces wrote 3,456 root-owned files and nothing in its registration could see it.",
+    "item_7_memory_guard": "memory_footprint_gb 17 DECLARED and checked against MemAvailable by the launcher before start (exit 19); cgroup limit 20g with memory-swap equal so the cgroup cannot swap.",
+    "item_8_core_guard": "4 solver ranks against nproc 16. The runner's own core guard applies on top.",
+    "item_9_detached": "launched by the runner daemon, parented to init. The fleet dying, a supervisor ending or an ssh session closing never touches the solver.",
+    "item_10_registration_frozen": "PREREGISTRATION.md sections 1, 1a, 4, 8, 9. Iteration cap 25 stated EXPLICITLY as a cap and not a tolerance (section 1a); the convergence tolerances are separately tol=1e-5 and constr_viol_tol=1e-5 and this problem is REGISTERED AS EXPECTED TO TERMINATE AT THE CAP.",
+    "item_18_box_hygiene": "the launcher REFUSES TO START (exit 18) if load1 > nproc or if any swap is in use. It is a LAUNCH PRECONDITION and never stops a running solver.",
+    "checkpoints_items_1_to_3": "the primal writes fields at the end of every design major (controlDict endTime 1000, writeInterval 1000) at a MEASURED 7.81 wall-min per major, inside 30 minutes by 3.8x; on top of that the launcher's rotator snapshots history, design vector, evaluation log and the latest primal time every 1800 s wall and KEEPS THE LAST TWO, PURGING OLDER. The optimiser writes its history and design vector every evaluation (pyoptsparse hist_file) and hot-starts from them (-hotstart).",
+    "checkpoints_item_5_proof": "PREREGISTRATION.md section 5. Solver class: DAFoam optimisation. VERDICT MUST READ PASS BEFORE THIS ROW IS ENQUEUED."
+  },
+  "instrument_md5s_at_freeze": {
+    "d6r2c_opt_runScript.py": "0558fb194b013b54c725d3d49a9dd0a1",
+    "d6r2c_run_arm.sh": "f92865b3cba5d3ae49bcd1dcfb0919f6",
+    "d6r2c_kr_compare.py": "e3f78650b2995cd5aeaa3cc2e5755b04",
+    "d6r2c_monitor.py": "fd927f36ee47acef09fc8a08b790ccbe",
+    "d6r2c_arm0_gradient_health.py": "7da73e35a50b146247dd1b214d4e69c8",
+    "_pinned_and_driven": "the launcher PINS d6r2c_opt_runScript.py by the md5 above and refuses (exit 4, G-FREEZE) on any difference. The other four were DRIVEN at the freeze: KR comparator 13 controls PASS, monitor 13 controls PASS (three of them on the REAL objective sequence of the dead D6R2 run), arm-0 comparator 6 controls PASS."
+  },
+  "image": "dafoam-idwarp-rot:v1 (PATCHED) sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 -- G-IMG refuses any other digest.",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D6R2C-a2-wing-multipoint-transonic-restartable -- a NEW root. The launcher's G-ROOT.2 names the D6R2 root FIRST among the roots it must never write, because D6R2/O_mp holds the root-owned artefacts of the run that died at 17:32:57Z and staging over them would destroy the census's own evidence.",
+  "gates": "G1 optimiser terminated at its registered budget; G2 Jf <= 0.90 J0; G3 max_i |CL_i - target_i| <= 1.0e-3; G4 results saved and newer than the age datum; G5 ZERO root-owned files. Verdict class OPTIMISATION OUTCOME, single grid, no Roache triple and no GCI.",
+  "_WHAT_THIS_RUN_IS_NOT": [
+    "IT IS NOT A CONTINUATION OF THE D6R2 RUN THAT DIED AT 17:32:57Z. That run's OptView.hst holds twelve completed IPOPT majors and this run does not read it. Ruled by dafoam-supervisor 2026-09-12 on three grounds: the dead run executed as root in violation of Sanaa's Launch item 6; this registration adds arm 0, the restart machinery and the checkpoint policy and is therefore a different item; and adopting a prior run's state into a registration frozen after that run started is the adoption the supervisor refused on A3GC L2 the same night. THE PRODUCTION RUN STARTS AT ITERATION 0.",
+    "THE HOT-START CAPABILITY IS NOT THE DEAD RUN'S STATE. The capability is built and proved on this item's own artefacts by the kill-and-resume test; proving a mechanism works is not a licence to feed it a run that is not a result.",
+    "REACHING max_iter 25 IS NOT CONVERGENCE. It is the registered budget being spent. On D6R2's measured trajectory the constraint violation at major 12 was 3.87e-03, three decades above constr_viol_tol=1e-5, so termination at the cap is the REGISTERED EXPECTATION and EXIT: Maximum Number of Iterations Exceeded. is what G1 requires.",
+    "ARM 0 IS NOT A GRADIENT ACCURACY CHECK. It compares the gradient to ITSELF at another rank count -- a decomposition check. The finite-difference verification is the F_mp / D6RF family and is a different item.",
+    "IT CARRIES NO GRID-CONVERGED VALUE AND NO BAND FROM A TRIPLE. Single mesh, disclosed. Rule 5 does not apply and nothing here will be dressed as grid convergence.",
+    "IT DOES NOT TAKE THE DARhoSimpleCFoam SOLVER CHANGE. D6RF10 measured that this configuration misses the A2 accept floor (1.681e-05 against 1.0e-5) and that the CFoam configuration meets it (6.323e-06). That change is D6R3, a separate registered successor; its adjoint has never been exercised on this case and an untested adjoint is not what an overnight run to a demo should carry."
+  ],
+  "verdict_state": "PENDING"
+}
