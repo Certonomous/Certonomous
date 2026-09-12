@@ -357,3 +357,38 @@ completion and attributed to the instrument defect above, **named as waste and n
 the actual/predicted ratio** (`COMPUTE_BUDGET_CHARTER.md` §6).
 
 *`MP_A5` v1.1, 2026-09-12.*
+
+### A1.5 — 2026-09-12, a defect in repair 2 itself, found in its own relaunch
+
+**Lines whose number changed above this section: 0.** No gate, threshold, band, label or prediction is
+altered. `mpa5_grade.py` remains byte-identical to its freeze, md5 `2624c493f11fce8a18ed786c8004c340`.
+
+The relaunch stamped `20260912T062734Z_2941689` staged **correctly** — `RUN_DIRS_DERIVED_FROM_RUNSCRIPT=[mp0 mp1 mp2]`,
+the three isolated case copies present, `P2_APPLIED … in the arm root and in mp0 mp1 mp2`, and
+`COLDSTART_PROVED … no time dir in the arm root or in any of [mp0 mp1 mp2]`. **But its chain.out also
+carried:**
+
+```
+mpa5_stage_and_run.sh: line 140: prove_time_dir_guard: command not found
+```
+
+**The cold-start control silently did not run, and the chain proceeded anyway.** The call had been
+placed above the function definitions; bash reached it before the definition was executed, printed to
+stderr, and — with `set -uo pipefail` and no `-e` — carried on. **A control that can quietly not run
+is not a control**, and this is the same failure class as a reader never shown able to see a non-zero:
+the assertion is absent, not false, which is harder to notice.
+
+**Repair 2a:** the call now sits below both definitions, and a **guard of the guard** precedes it —
+`declare -F prove_time_dir_guard` and `declare -F stale_time_dirs`, each **fatal** if the function is
+missing. Driven before relaunch: ordering verified (definitions at lines 148 and 157, call at line
+289) and the fatal path exercised in a shell where the function is absent, which exits non-zero.
+
+**The run was stopped by me, deliberately, and only mine.** `docker stop` on the exact container name
+`mpa5_B_20260912T062734Z_2941689` and `kill` on the exact wrapper pid `2941684`; no pattern match, no
+sibling touched — `d6r2_O_mp`, `d6rf11_F_probe`, `d8g_L1-P` and the two unpinned containers all
+verified still running afterwards. **The stopped run root is kept as evidence and not deleted.**
+
+**Waste carried: a further ~0.2 core-min**, named as waste and never absorbed into the
+actual/predicted ratio. Running total of instrument waste on this item: **≈ 1.1 core-min**.
+
+*`MP_A5` v1.2, 2026-09-12.*

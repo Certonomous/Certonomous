@@ -136,9 +136,6 @@ print(' '.join(rd[s] for s in scen))
 [ -n "$RUN_DIR_NAMES" ] || { echo "ABORT: RUN_DIRS derived empty"; exit 1; }
 echo "RUN_DIRS_DERIVED_FROM_RUNSCRIPT=[$RUN_DIR_NAMES] (per-scenario isolation, addendum 1)" | tee -a "$LEDGER"
 
-# MPA5-L6  prove the cold-start guard can refuse BEFORE staging anything.
-prove_time_dir_guard
-
 # ---------------------------------------------------------------------------
 # MPA5-L6  ADDENDUM 1 -- THE TIME-DIRECTORY PREDICATE, AND A CONTROL THAT PROVES
 # IT CAN REFUSE.  A guard never shown able to fail is not evidence, exactly as a
@@ -275,6 +272,21 @@ except Exception:
   echo "$wall" > "$BASE/.wall_${name}"
   return $rc
 }
+
+# ===========================================================================
+# MPA5-L6  ADDENDUM 1a -- PROVE THE COLD-START GUARD CAN REFUSE, BEFORE ANY ARM
+# IS STAGED.  The call sits HERE, below the function definitions, because on the
+# first relaunch it sat ABOVE them and bash reported
+# `prove_time_dir_guard: command not found` -- the control SILENTLY DID NOT RUN
+# and the chain proceeded anyway.  A control that can quietly not run is not a
+# control, so the two lines below make a missing function FATAL: the guard of the
+# guard.
+# ===========================================================================
+declare -F prove_time_dir_guard >/dev/null \
+  || { echo "ABORT: prove_time_dir_guard is not defined at its call site; the cold-start control cannot run and the chain must not proceed without it"; exit 1; }
+declare -F stale_time_dirs >/dev/null \
+  || { echo "ABORT: stale_time_dirs is not defined at its call site"; exit 1; }
+prove_time_dir_guard
 
 # ===========================================================================
 # ARM B -- the three baselines, at shape = 0, UNNORMALISED.
