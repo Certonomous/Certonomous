@@ -1264,3 +1264,27 @@ wrapper re-pinned as well, it is a one-line change — but it should be taken as
 full regeneration, not as tidying.**
 
 *A3GC PREREGISTRATION v1.7, 2026-09-12. Pin corrected. No gate moved. Nothing launched.*
+
+### A7.5 — appended to AMENDMENT 7 later the same day, 2026-09-12, on the dafoam-supervisor's ruling
+
+**§A7.4's text above is NOT rewritten and no line of it moves.** This is a sub-clause added at the
+foot, naming one residual risk that §A7.4 does not close.
+
+**§A7.4 leaves `a3gc_L1_wrapper.sh`'s pin stale on purpose, and the reason is now written into that
+file beside its `PIN=` line** (comment lines only; every executable line, the pin value included,
+verified byte-identical before and after). That places the warning where the repair would be
+attempted. If `/home/ubuntu/certonomous-runs/` is wiped the wrapper goes with the note, so there is
+then nothing to "fix" and the failure mode cannot fire.
+
+> **THE ONE PATH WHERE THE WARNING AND THE WRAPPER SEPARATE, NAMED RATHER THAN FIXED: if a fresh
+> wrapper is ever GENERATED from a repository template, it arrives carrying the pin and NOT the
+> note.** A reader of that fresh file sees a stale hash, sees no reason beside it, repairs it, and the
+> repair is silent and destructive — it arms the full L1 regeneration that discards the preserved
+> 437,206,919-byte pyHyp output.
+
+**It is named here and deliberately not chased further.** No template that generates this wrapper is
+known to exist; building a guard against a generator nobody has written would be speculative work
+against a speculative defect. **What this clause buys is that the next reader who does write such a
+template has been told, in the durable record, what the template must carry.**
+
+*A3GC PREREGISTRATION v1.7.1, 2026-09-12. One risk named. No gate moved. Nothing launched.*
