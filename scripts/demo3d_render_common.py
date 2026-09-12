@@ -217,6 +217,33 @@ CASE_FACTS = {
         "source": "autograde.K2f_L3.out: mark_done_k2f NOT DONE (clauses 3, 5); "
                   "analyse_k2g REFUSED exit 2",
     },
+    # ------------------------------------------------------------------
+    # K2h_L3 -- the SAME 664,848-cell mesh as K2f_L3, REUSED BIT FOR BIT
+    # (K2h_PREREGISTRATION.md section 4), solved TRANSIENT because K2g's own
+    # stop rule R4 voted the physics unsteady.  INSERTED, never replacing an
+    # existing key: no other entry's values are touched by this addition.
+    #
+    # `allowed_verdicts` IS THE FULL SET SECTION 6 PERMITS AND IS FIXED HERE
+    # BEFORE THE NUMBER EXISTS.  Section 6 admits exactly three outcomes for
+    # this level -- PASS inside G-DPBAR, GATE FAIL outside it, NOT A RESULT on
+    # D-COMPLETE or D-STATIONARY -- so all three are allowed and none is
+    # chosen.  Narrowing this set after seeing DPbar would be choosing the
+    # permissible caption to fit the answer, which is the same defect as
+    # choosing a gate to fit it.  GATE REACHED is NOT admitted: this level has
+    # a value-in-band gate, not a rung ceiling.
+    "K2h_L3": {
+        "case_dir": os.path.join(REPO, "verification", "runs",
+                                 "F14-cooling-ladder", "K2h_runs", "K2h_L3"),
+        "cells": 664848,                 # K2h_PREREGISTRATION.md section 4
+        "mesh_words": "664848 cells, fine level, transient",
+        "solver": "buoyantBoussinesqPimpleFoam",   # section 4
+        "end_time": "112",               # section 5 E-ENDTIME
+        "fields": ("TMean", "p_rghMean", "UMean", "T", "U", "p_rgh"),
+        "allowed_verdicts": {"PASS", "GATE FAIL", "NOT A RESULT"},
+        "verdict_stamp": "PENDING",      # replaced by the comparator's own word
+        "source": "K2h_PREREGISTRATION.md section 6 (G-DPBAR, D-STATIONARY, "
+                  "D-COMPLETE); AMENDMENT 1, ADDENDUM 1, its ERRATUM, ADDENDUM 2",
+    },
 }
 
 
