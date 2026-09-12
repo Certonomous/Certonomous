@@ -546,3 +546,127 @@ and single-grid regardless, exactly as `4c931d97c` fixes it.
 
 The rule-12 estimate-versus-actual row is owed to `docs/COST_CALIBRATION.md` at each
 level's completion and is not written from a projection.
+
+---
+
+# ADDENDUM 2 — 2026-09-12, after the second L3 stop. **IT OPENS BY WITHDRAWING ADDENDUM 1's CENTRAL CLAIM.**
+
+**v1.1 → v1.2. Lines whose number changed above this section: 0.** No gate, threshold, cap
+or label moves. The 14 bands, six stations, verdict rule, preconditions, planted control,
+iteration budgets, cost estimates and caps are exactly as frozen at `47537c99`.
+
+## A2.1 — 🔴 ADDENDUM 1 SECTION A1.2 IS WRONG AND IS WITHDRAWN. A MEASUREMENT REFUTED IT, NOT AN ARGUMENT.
+
+A1.2 asserted that `consistent` is *"silently ignored by `rhoSimpleFoam`"* — a dead lever —
+and that `relaxationFactors.equations.p` is likewise unread. **Both halves are false, and
+the error was mine.** The evidence for it was a grep of **one file**, `pEqn.H`, and one file
+was not the program.
+
+| A1.2 claimed | What the source actually says |
+|---|---|
+| `consistent` is dead in `rhoSimpleFoam` | **`rhoSimpleFoam.C:78`: `if (simple.consistent()) { #include "pcEqn.H" } else { #include "pEqn.H" }`.** `pcEqn.H` exists and carries **10** occurrences of `rAtU`. The lever selects an entirely different pressure equation and is **fully live**. |
+| `equations.p` is unread by SIMPLE | **`pEqn.H:35-36`: `// Relax the pressure equation to ensure diagonal-dominance` / `pEqn.relax();`.** `fvMatrix::relax()` with no argument does **nothing at all** when no factor is registered for that field, and `relax(1.0)` is **not** a no-op — it sets `D = max(|D|, sumMagOffDiag)` *before* dividing by α. |
+
+**The consequence was measured, and it is the reason this is a withdrawal rather than a
+footnote.** Deleting `equations { p 1; }` stripped the diagonal-dominance enforcement that
+the **transonic** pressure equation needs, because `fvm::div(phid, p)` is asymmetric:
+
+| | pressure branch | `equations.p` | `fields.p` | **`pressureControl: p max`** | outcome |
+|---|---|---|---|---|---|
+| attempt 1 | **pcEqn.H (SIMPLEC)** | 1 | 1 | **417,018 Pa** | SIGFPE it. 2 |
+| attempt 2 | **pEqn.H (SIMPLE)** | *absent* | 0.3 | **22,368,256 Pa** | SIGFPE it. 2 |
+
+**The repair made it 54× worse**, against a freestream of 101,325 Pa. A1.3 predicted the
+change would fix the crash; it did not, and the direction of the miss is what exposed the
+wrong premise. Recorded in full because the seductive part was never the dead keyword — it
+was how confident the inference sounded.
+
+**What survives from A1.2:** nothing about `consistent`. **What survives from all of
+ADDENDUM 1:** A1.1's finding that iteration 1 completes physically with **CL positive**
+(the §8 sign check, still passed), and A1.4's face count and location, which were
+measurements and are untouched by this.
+
+## A2.2 — THE FAULT ITSELF, NOW PROVED RATHER THAN INFERRED
+
+`sutherlandTransportI.H:120` — **`mu = As*sqrt(T)/(1.0 + Ts/T)`.** A **negative T** makes
+`sqrt(T)` raise SIGFPE inside `libm`, which is **exactly** the frame sitting directly
+beneath `libfluidThermophysicalModels` in both stack traces. T goes negative because the
+energy equation is solved on a pressure field that has already left physics. **Both stops
+have one cause and it is the transonic cold start, not the mesh and not the model.**
+
+The trap firing is the instrument **working**: `FOAM_SIGFPE` turned what would otherwise
+have been a NaN propagating quietly into a Cp we would later have graded into a crash at
+iteration 2. Registered as a finding, not an annoyance.
+
+## A2.3 — TWO STOPS ON ONE CAUSE → THE LADDER IS CLIMBED (her item 13). RUNG 3.
+
+The rung is the one **pre-declared in A1.3 before either pressure number was known**, so it
+cannot be presented as a fresh idea. Built by
+`verification/runs/M6I_runs/build_m6i_rung3.sh`, applied **identically to L1, L2 and L3**:
+
+1. **`relaxationFactors.equations.p 1` RESTORED** — the diagonal-dominance relaxation
+   `pEqn.H:36` asks for by name. A correction of A2.1's error, not a new lever.
+   `consistent` stays **absent**: attempt 1 ran correct SIMPLEC and crashed anyway, so
+   SIMPLEC is neither the fault nor the fix.
+2. **THE THERMO IS BOUNDED.** `constant/fvOptions` on every level:
+   `limitTemperature`, `selectionMode all`, **`min 100`, `max 1500` K**. A startup
+   excursion now **clips** instead of **faulting**. The window is **wide on purpose**: at
+   M = 0.8395 with T∞ = 300 K the stagnation temperature is **342 K**, so [100, 1500]
+   cannot clip any physical state this case can reach — **a clip therefore MEANS the
+   solution left physics**, and is evidence rather than a silent rescue.
+3. **A 200-ITERATION FIRST-ORDER STARTUP RAMP**, then the registered second-order schemes.
+   Sanaa's CRM instruction §6 prescribes a robust-startup ramp for exactly this solver
+   class. `system/fvSchemes.startup` puts every convective term on `bounded Gauss upwind`;
+   `system/fvSolution.startup` tightens relaxation to p 0.2 / U 0.5 / e 0.5 / ν̃ 0.5.
+
+**🔴 THE NON-ORTHOGONALITY TREATMENT IS NOT TOUCHED.** `limited corrected 0.33` is
+byte-identical in the startup and registered schemes. It survived iteration 1 intact in
+both attempts, so changing it now would be a change made **against** the evidence.
+
+**`launch_m6i_v2.sh`** runs the two stages. It is a **new file, not an edit of v1** —
+precondition checked before writing, `pgrep -x rhoSimpleFoam` returned **0** live solvers.
+It keeps `system/controlDict.registered` pristine, moves `endTime` **only** between the two
+stages, and asserts the restored `fvSchemes`, `fvSolution` and `controlDict` **md5-identical
+to the registered ones** before stage 2 begins. **THE GRADED ANSWER IS PRODUCED BY THE
+REGISTERED SECOND-ORDER SCHEMES**, from iteration 201 to `endTime`; the ramp only removes
+the cold-start pressure pulse. Total iterations are unchanged: 200 + (endTime − 200).
+
+## A2.4 — IC-5, A NEW CONVERGENCE LIMB THAT ONLY EVER TIGHTENS
+
+Added because rung 3 introduces a limiter, and an unwatched limiter is how a bounded
+solution passes for a converged one:
+
+- **IC-5** — over the **last 600 iterations** (absolute, never a fraction of `endTime`), the
+  `limitTemperature` fvOption must report **ZERO** clipping events. A level still clipping
+  at the end is **`NOT A RESULT`**, and `endTime` is never extended to outrun it.
+
+IC-1 to IC-4 are unchanged. IC-5 can only make a verdict worse, never better.
+
+## A2.5 — 🔴 PREDICTIONS FOR ATTEMPT 3, REGISTERED BEFORE IT RUNS
+
+1. **Stage 1 completes 200 iterations with rc = 0 and no SIGFPE.**
+2. **`pressureControl: p max` stays below 5 × 10⁵ Pa at every iteration of stage 1** —
+   i.e. under 5 × freestream, against 4.12× and 221× on the two failed attempts.
+3. **Iteration 1's Cd reproduces 0.2400 ± 0.03 and Cl reproduces 0.3710 ± 0.05.** Stage 1's
+   first iteration differs from attempt 1's only in relaxation and in first-order
+   convection, and iteration 1 from a uniform field is dominated by neither.
+4. **`limitTemperature` clips on fewer than 20 of the 200 startup iterations, and on none
+   of the last 600 iterations of stage 2** (IC-5).
+
+**A third stop on the same cause exhausts this rung.** The next and last numerics rung is
+named here in advance: a `potentialFoam` initialisation of U and φ before iteration 1.
+After that the ladder is exhausted and the case is **parked with its action history and a
+lesson filed**, per her item 13.
+
+## A2.6 — COST
+
+| item | core-min | note |
+|---|---|---|
+| L3 attempt 1 — SIGFPE | 0.13 | **waste, named separately, never absorbed** |
+| L3 attempt 2 — SIGFPE | 0.13 | **waste, named separately, never absorbed** |
+| **total waste so far** | **0.26** | against L3's 6.4 core-minute estimate and 19.2 cap |
+
+Both attempts are preserved whole and undeleted at
+`verification/runs/M6I_runs/L3/ATTEMPT1_FPE/` and `ATTEMPT2_FPE/`. **Two dead smoke runs
+cost 0.26 core-minutes. The same two stack traces on L1 would have cost 1,092.** Holding L2
+and L1 in `held/` is what that number bought.

@@ -37,6 +37,6 @@ relaxationFactors
     // equations.p 1 is the DIAGONAL-DOMINANCE relaxation pEqn.H:35 asks for by name.
     // It is not a no-op at 1.0: fvMatrix::relax sets D = max(|D|, sumMagOffDiag) BEFORE
     // dividing by alpha.  Deleting it is what made attempt 2 worse than attempt 1.
-    fields    { p 0.3; rho 0.05; }
-    equations { p 1; U 0.7; e 0.7; nuTilda 0.7; }
+    fields    { p 0.2; rho 0.02; }
+    equations { p 1; U 0.5; e 0.5; nuTilda 0.5; }
 }
