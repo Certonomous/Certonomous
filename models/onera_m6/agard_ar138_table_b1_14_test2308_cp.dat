@@ -1,0 +1,325 @@
+# AGARD AR-138 (1979), Appendix B1 (V. Schmitt and F. Charpin, ONERA),
+# TABLE B1-14, printed page B1-20 == PDF page 346 of
+#   docs/papers/benchmark_test_cases/agard_1979_ar138_experimental_data_base.pdf
+# TEST 2308:  M0 = .8395   ALPHA = 3.06   REC = 11.72*10**6
+#   -- all four read from the printed page header, not from the OCR sidecar.
+#
+# Read from the PAGE IMAGE (pdfimages -> native 1648x2330 1-bit 200 dpi scan).
+# The PDF's OCR TEXT LAYER FOR THIS PAGE CONTAINS ONLY THE HEADER AND NO TABLE BODY --
+# see models/onera_m6/PROVENANCE_TABLE_B1_14.md sections 2 and 3.  NOT read from the .txt sidecar.
+#
+# COLUMNS (the format compare_cp.py declares it wants, cases/navier_class/M6H1/compare_cp.py
+# docstring "INPUT FORMAT"):  section_id  y_over_b  surface  x_over_c  Cp
+#
+# section_id  : SECTION 1..7 exactly as the table's own column headers name them.
+# y_over_b    : AGARD AR-138 B1 section 5.1.1, printed page B1-4 == PDF page 330, READ FROM
+#               THE PAGE IMAGE: "271 pressure orifices divided in 7 sections
+#               (y/b = 0.20/0.44/0.65/0.80/0.90/0.96 and 0.99)".  NOTE 0.96, NOT 0.95.
+# surface     : from the SIGN OF THE TABLE'S OWN Z/L COLUMN (Z/L < 0 -> lower, Z/L >= 0 -> upper).
+#               Not assumed from row order.  The one Z/L == 0 row (SECTION 4, NP 1, x/l = 0)
+#               is the leading-edge orifice and is filed 'upper'; see PROVENANCE section 6.
+# x_over_c    : the table's X/L column (x measured along the LOCAL chord from the local
+#               leading edge -- AR-138 B1 section 8 list of symbols, PDF page 332).
+# Cp          : the table's CP column for TEST 2308.
+#
+# ROW COUNT 271 == the orifice count AR-138 B1 section 5.1.1 states on the page ("271 pressure
+# orifices"), reached independently by segmenting the page: 4 x 34 + 3 x 45 = 271.
+#
+# HOW EVERY DIGIT WAS CROSS-CHECKED, AND WHAT IS STILL UNRESOLVED:
+#   see models/onera_m6/PROVENANCE_TABLE_B1_14.md.  Summary:
+#   - x_over_c and Cp were each read TWICE INDEPENDENTLY (a human read of magnified page crops,
+#     and a template classifier trained ONLY on this page's own NP column); every disagreement
+#     was adjudicated by a third, higher-magnification look.
+#   - x_over_c was additionally checked against the SAME orifice coordinates printed on ten
+#     OTHER, cleaner pages of the same report (the orifice X/L and Z/L are identical in every
+#     M6 table; only CP changes with the test).
+#   - every (x_over_c, Z/L) pair was checked against the independently committed, title-page
+#     verified ONERA D section table models/onera_m6/agard_ar138_table_b1_1_section_coordinates.dat:
+#     MEDIAN RESIDUAL 6.8e-05, MAXIMUM 5.9e-04 over all 271 rows, ZERO rows above 7e-04.
+#   - THREE x_over_c values carry an UNRESOLVED 4th/5th decimal digit and are marked
+#     'UNRESOLVED-XDIGIT' in the provenance file.  They are NOT marked in this data file because
+#     the format has no comment column; the provenance file names them.  Cp is unaffected.
+#   - NO Cp VALUE IS EMITTED THAT THE TWO INDEPENDENT READS DID NOT AGREE ON AFTER ADJUDICATION.
+#
+# NOTHING WAS SENT, FETCHED OR FILED.  The source PDF was already on this box.
+#
+# section  y_over_b  surface  x_over_c   Cp
+
+# ---- SECTION 1  (y/b = 0.20) ----
+SECTION1  0.20  lower  0.95030  +0.101
+SECTION1  0.20  lower  0.81597  -0.079
+SECTION1  0.20  lower  0.66593  -0.171
+SECTION1  0.20  lower  0.56588  -0.229
+SECTION1  0.20  lower  0.46599  -0.263
+SECTION1  0.20  lower  0.36590  -0.215
+SECTION1  0.20  lower  0.26579  -0.164
+SECTION1  0.20  lower  0.16594  -0.092
+SECTION1  0.20  lower  0.04993  -0.046
+SECTION1  0.20  lower  0.02002  -0.034
+SECTION1  0.20  lower  0.00593  +0.549
+SECTION1  0.20  upper  0.00034  +0.801
+SECTION1  0.20  upper  0.00216  +0.444
+SECTION1  0.20  upper  0.00866  -0.168
+SECTION1  0.20  upper  0.02037  -0.707
+SECTION1  0.20  upper  0.03525  -1.069
+SECTION1  0.20  upper  0.06036  -0.629
+SECTION1  0.20  upper  0.09959  -0.465
+SECTION1  0.20  upper  0.15037  -0.442
+SECTION1  0.20  upper  0.20044  -0.455
+SECTION1  0.20  upper  0.25039  -0.459
+SECTION1  0.20  upper  0.30050  -0.462
+SECTION1  0.20  upper  0.35050  -0.480
+SECTION1  0.20  upper  0.40047  -0.505
+SECTION1  0.20  upper  0.45030  -0.547
+SECTION1  0.20  upper  0.50039  -0.576
+SECTION1  0.20  upper  0.55025  -0.580
+SECTION1  0.20  upper  0.60029  -0.397
+SECTION1  0.20  upper  0.65032  -0.307
+SECTION1  0.20  upper  0.71026  -0.238
+SECTION1  0.20  upper  0.78026  -0.160
+SECTION1  0.20  upper  0.85021  -0.058
+SECTION1  0.20  upper  0.92027  +0.059
+SECTION1  0.20  upper  0.98518  +0.176
+# ---- SECTION 2  (y/b = 0.44) ----
+SECTION2  0.44  lower  0.94937  +0.143
+SECTION2  0.44  lower  0.81705  -0.036
+SECTION2  0.44  lower  0.66698  -0.151
+SECTION2  0.44  lower  0.56705  -0.228
+SECTION2  0.44  lower  0.46706  -0.269
+SECTION2  0.44  lower  0.36705  -0.233
+SECTION2  0.44  lower  0.26735  -0.181
+SECTION2  0.44  lower  0.16699  -0.130
+SECTION2  0.44  lower  0.04909  -0.045
+SECTION2  0.44  lower  0.01922  -0.007
+SECTION2  0.44  lower  0.00520  +0.565
+SECTION2  0.44  upper  0.00031  +0.781
+SECTION2  0.44  upper  0.00109  +0.388
+SECTION2  0.44  upper  0.00789  -0.256
+SECTION2  0.44  upper  0.01906  -0.842
+SECTION2  0.44  upper  0.03402  -1.127
+SECTION2  0.44  upper  0.05911  -1.092
+SECTION2  0.44  upper  0.09913  -0.889
+SECTION2  0.44  upper  0.14927  -0.488
+SECTION2  0.44  upper  0.19909  -0.538
+SECTION2  0.44  upper  0.25080  -0.561
+SECTION2  0.44  upper  0.29925  -0.559
+SECTION2  0.44  upper  0.34927  -0.580
+SECTION2  0.44  upper  0.39931  -0.614
+SECTION2  0.44  upper  0.44897  -0.647
+SECTION2  0.44  upper  0.49927  -0.701
+SECTION2  0.44  upper  0.54927  -0.374
+SECTION2  0.44  upper  0.59931  -0.263
+SECTION2  0.44  upper  0.64917  -0.213
+SECTION2  0.44  upper  0.70897  -0.151
+SECTION2  0.44  upper  0.77912  -0.081
+SECTION2  0.44  upper  0.84903  +0.010
+SECTION2  0.44  upper  0.91929  +0.109
+SECTION2  0.44  upper  0.98387  +0.211
+# ---- SECTION 3  (y/b = 0.65) ----
+SECTION3  0.65  lower  0.94999  +0.157
+SECTION3  0.65  lower  0.81986  -0.016
+SECTION3  0.65  lower  0.67008  -0.143
+SECTION3  0.65  lower  0.57033  -0.213
+SECTION3  0.65  lower  0.47037  -0.279
+SECTION3  0.65  lower  0.37009  -0.270
+SECTION3  0.65  lower  0.27010  -0.196
+SECTION3  0.65  lower  0.17010  -0.121
+SECTION3  0.65  lower  0.05016  -0.009
+SECTION3  0.65  lower  0.02010  +0.026
+SECTION3  0.65  lower  0.00591  +0.590
+SECTION3  0.65  upper  0.00042  +0.752
+SECTION3  0.65  upper  0.00222  +0.325
+SECTION3  0.65  upper  0.00914  -0.324
+SECTION3  0.65  upper  0.02036  -0.918
+SECTION3  0.65  upper  0.03508  -1.181
+SECTION3  0.65  upper  0.06022  -1.140
+SECTION3  0.65  upper  0.10029  -1.031
+SECTION3  0.65  upper  0.15032  -0.941
+SECTION3  0.65  upper  0.20029  -0.544
+SECTION3  0.65  upper  0.25024  -0.594
+SECTION3  0.65  upper  0.30008  -0.632
+SECTION3  0.65  upper  0.35024  -0.664
+SECTION3  0.65  upper  0.40037  -0.692
+SECTION3  0.65  upper  0.45010  -0.725
+SECTION3  0.65  upper  0.50024  -0.301
+SECTION3  0.65  upper  0.55042  -0.236
+SECTION3  0.65  upper  0.60071  -0.205
+SECTION3  0.65  upper  0.65026  -0.164
+SECTION3  0.65  upper  0.71034  -0.121
+SECTION3  0.65  upper  0.78008  -0.052
+SECTION3  0.65  upper  0.85001  +0.032
+SECTION3  0.65  upper  0.92012  +0.123
+SECTION3  0.65  upper  0.98611  +0.227
+# ---- SECTION 4  (y/b = 0.80) ----
+SECTION4  0.80  lower  0.94987  +0.162
+SECTION4  0.80  lower  0.82223  -0.005
+SECTION4  0.80  lower  0.67216  -0.131
+SECTION4  0.80  lower  0.57230  -0.205
+SECTION4  0.80  lower  0.47220  -0.285
+SECTION4  0.80  lower  0.37235  -0.283
+SECTION4  0.80  lower  0.27230  -0.230
+SECTION4  0.80  lower  0.17242  -0.143
+SECTION4  0.80  lower  0.05017  -0.027
+SECTION4  0.80  lower  0.01999  +0.025
+SECTION4  0.80  lower  0.00611  +0.580
+SECTION4  0.80  upper  0.00000  +0.752
+SECTION4  0.80  upper  0.00210  +0.304
+SECTION4  0.80  upper  0.00893  -0.324
+SECTION4  0.80  upper  0.02012  -0.976
+SECTION4  0.80  upper  0.03530  -1.206
+SECTION4  0.80  upper  0.06011  -1.161
+SECTION4  0.80  upper  0.10019  -1.058
+SECTION4  0.80  upper  0.15024  -0.996
+SECTION4  0.80  upper  0.20016  -0.954
+SECTION4  0.80  upper  0.25021  -0.618
+SECTION4  0.80  upper  0.30021  -0.628
+SECTION4  0.80  upper  0.35015  -0.677
+SECTION4  0.80  upper  0.39977  -0.303
+SECTION4  0.80  upper  0.45009  -0.245
+SECTION4  0.80  upper  0.50020  -0.244
+SECTION4  0.80  upper  0.55033  -0.222
+SECTION4  0.80  upper  0.60018  -0.181
+SECTION4  0.80  upper  0.65015  -0.139
+SECTION4  0.80  upper  0.70977  -0.097
+SECTION4  0.80  upper  0.78012  -0.031
+SECTION4  0.80  upper  0.85010  +0.043
+SECTION4  0.80  upper  0.92005  +0.132
+SECTION4  0.80  upper  0.98498  +0.225
+# ---- SECTION 5  (y/b = 0.90) ----
+SECTION5  0.90  lower  0.94977  +0.150
+SECTION5  0.90  lower  0.84954  +0.030
+SECTION5  0.90  lower  0.75003  -0.062
+SECTION5  0.90  lower  0.64988  -0.130
+SECTION5  0.90  lower  0.54983  -0.270
+SECTION5  0.90  lower  0.44990  -0.268
+SECTION5  0.90  lower  0.35016  -0.288
+SECTION5  0.90  lower  0.25012  -0.277
+SECTION5  0.90  lower  0.15054  -0.182
+SECTION5  0.90  lower  0.10029  -0.121
+SECTION5  0.90  lower  0.06550  -0.078
+SECTION5  0.90  lower  0.04030  -0.079
+SECTION5  0.90  lower  0.02030  -0.018
+SECTION5  0.90  lower  0.00587  +0.562
+SECTION5  0.90  upper  0.00057  +0.726
+SECTION5  0.90  upper  0.00184  -0.182
+SECTION5  0.90  upper  0.00626  -0.181
+SECTION5  0.90  upper  0.01229  -0.576
+SECTION5  0.90  upper  0.02006  -0.985
+SECTION5  0.90  upper  0.02988  -1.187
+SECTION5  0.90  upper  0.04966  -1.194
+SECTION5  0.90  upper  0.07448  -1.140
+SECTION5  0.90  upper  0.09994  -1.093
+SECTION5  0.90  upper  0.13996  -1.048
+SECTION5  0.90  upper  0.17979  -1.002
+SECTION5  0.90  upper  0.22001  -0.999
+SECTION5  0.90  upper  0.25964  -0.981
+SECTION5  0.90  upper  0.29988  -0.341
+SECTION5  0.90  upper  0.33985  -0.195
+SECTION5  0.90  upper  0.37986  -0.180
+SECTION5  0.90  upper  0.41959  -0.208
+SECTION5  0.90  upper  0.45975  -0.238
+SECTION5  0.90  upper  0.49960  -0.220
+SECTION5  0.90  upper  0.53959  -0.200
+SECTION5  0.90  upper  0.57961  -0.162
+SECTION5  0.90  upper  0.61987  -0.138
+SECTION5  0.90  upper  0.65968  -0.107
+SECTION5  0.90  upper  0.69970  -0.085
+SECTION5  0.90  upper  0.73940  -0.057
+SECTION5  0.90  upper  0.77960  -0.021
+SECTION5  0.90  upper  0.81937  +0.021
+SECTION5  0.90  upper  0.85955  +0.059
+SECTION5  0.90  upper  0.89940  +0.099
+SECTION5  0.90  upper  0.94727  +0.156
+SECTION5  0.90  upper  0.98506  +0.211
+# ---- SECTION 6  (y/b = 0.96) ----
+SECTION6  0.96  lower  0.94953  +0.126
+SECTION6  0.96  lower  0.84934  +0.021
+SECTION6  0.96  lower  0.74963  -0.056
+SECTION6  0.96  lower  0.64980  -0.121
+SECTION6  0.96  lower  0.54955  -0.173
+SECTION6  0.96  lower  0.44998  -0.240
+SECTION6  0.96  lower  0.34990  -0.254
+SECTION6  0.96  lower  0.24997  -0.301
+SECTION6  0.96  lower  0.15016  -0.293
+SECTION6  0.96  lower  0.10019  -0.241
+SECTION6  0.96  lower  0.06521  -0.170
+SECTION6  0.96  lower  0.03999  -0.158
+SECTION6  0.96  lower  0.01985  -0.074
+SECTION6  0.96  lower  0.00567  +0.510
+SECTION6  0.96  upper  0.00068  +0.690
+SECTION6  0.96  upper  0.00190  +0.229
+SECTION6  0.96  upper  0.00623  -0.152
+SECTION6  0.96  upper  0.01209  -0.598
+SECTION6  0.96  upper  0.01983  -0.983
+SECTION6  0.96  upper  0.02991  -1.196
+SECTION6  0.96  upper  0.04972  -1.227
+SECTION6  0.96  upper  0.07488  -1.177
+SECTION6  0.96  upper  0.09991  -1.136
+SECTION6  0.96  upper  0.13983  -1.127
+SECTION6  0.96  upper  0.17999  -1.136
+SECTION6  0.96  upper  0.22010  -0.559
+SECTION6  0.96  upper  0.25996  -0.282
+SECTION6  0.96  upper  0.29994  -0.159
+SECTION6  0.96  upper  0.34009  -0.179
+SECTION6  0.96  upper  0.37994  -0.218
+SECTION6  0.96  upper  0.41988  -0.238
+SECTION6  0.96  upper  0.45976  -0.242
+SECTION6  0.96  upper  0.49994  -0.216
+SECTION6  0.96  upper  0.53988  -0.197
+SECTION6  0.96  upper  0.57991  -0.152
+SECTION6  0.96  upper  0.61970  -0.126
+SECTION6  0.96  upper  0.65979  -0.104
+SECTION6  0.96  upper  0.69976  -0.074
+SECTION6  0.96  upper  0.73970  -0.056
+SECTION6  0.96  upper  0.77962  -0.027
+SECTION6  0.96  upper  0.81965  +0.009
+SECTION6  0.96  upper  0.85980  +0.040
+SECTION6  0.96  upper  0.89977  +0.072
+SECTION6  0.96  upper  0.94861  +0.122
+SECTION6  0.96  upper  0.98462  +0.178
+# ---- SECTION 7  (y/b = 0.99) ----
+SECTION7  0.99  lower  0.94966  +0.070
+SECTION7  0.99  lower  0.84958  -0.009
+SECTION7  0.99  lower  0.75002  -0.072
+SECTION7  0.99  lower  0.64957  -0.118
+SECTION7  0.99  lower  0.54967  -0.165
+SECTION7  0.99  lower  0.44970  -0.217
+SECTION7  0.99  lower  0.34973  -0.230
+SECTION7  0.99  lower  0.24976  -0.274
+SECTION7  0.99  lower  0.14996  -0.318
+SECTION7  0.99  lower  0.10039  -0.342
+SECTION7  0.99  lower  0.06536  -0.376
+SECTION7  0.99  lower  0.04025  -0.336
+SECTION7  0.99  lower  0.01985  -0.227
+SECTION7  0.99  lower  0.00578  +0.315
+SECTION7  0.99  upper  0.00050  +0.636
+SECTION7  0.99  upper  0.00193  +0.210
+SECTION7  0.99  upper  0.00630  -0.254
+SECTION7  0.99  upper  0.01265  -0.651
+SECTION7  0.99  upper  0.02012  -1.018
+SECTION7  0.99  upper  0.02999  -1.244
+SECTION7  0.99  upper  0.04995  -1.291
+SECTION7  0.99  upper  0.07482  -1.275
+SECTION7  0.99  upper  0.09990  -1.209
+SECTION7  0.99  upper  0.13976  -0.918
+SECTION7  0.99  upper  0.17991  -0.785
+SECTION7  0.99  upper  0.21990  -0.245
+SECTION7  0.99  upper  0.25976  -0.207
+SECTION7  0.99  upper  0.29986  -0.219
+SECTION7  0.99  upper  0.33979  -0.234
+SECTION7  0.99  upper  0.37976  -0.246
+SECTION7  0.99  upper  0.41988  -0.272
+SECTION7  0.99  upper  0.45970  -0.245
+SECTION7  0.99  upper  0.49987  -0.233
+SECTION7  0.99  upper  0.53975  -0.213
+SECTION7  0.99  upper  0.57985  -0.192
+SECTION7  0.99  upper  0.61976  -0.182
+SECTION7  0.99  upper  0.65966  -0.176
+SECTION7  0.99  upper  0.69979  -0.175
+SECTION7  0.99  upper  0.73980  -0.182
+SECTION7  0.99  upper  0.77942  -0.195
+SECTION7  0.99  upper  0.81985  -0.218
+SECTION7  0.99  upper  0.85943  -0.238
+SECTION7  0.99  upper  0.89961  -0.256
+SECTION7  0.99  upper  0.94959  -0.280
+SECTION7  0.99  upper  0.98455  -0.218
