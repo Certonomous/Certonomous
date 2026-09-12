@@ -32,6 +32,13 @@
 # nothing in it can be dated wrong by finishing the step that was interrupted.
 #
 # NO CAP, NO TIMEOUT, NO KILL PATH (Sanaa directive #17, 2026-09-12).
+# NO `sudo`, DELIBERATELY.  `id ubuntu` carries 113(docker) and /var/run/docker.sock is
+# 660 root:docker, so the unprivileged client reaches the same daemon with the same
+# rights -- MEASURED: plain `docker ps` as ubuntu returns rc=0 and lists the live peer
+# container.  The container's user is set by `--user`, never by the client, so an
+# escalation here would be pure surplus.  dafoam-supervisor's required change on the
+# MP_A5R repair, applied to this instrument for the same measured reason.
+#
 # NOT ROOT (Sanaa item 6): -u 1000:1000 --group-add 1002.  uid 1000 AND gid 1000
 # are BOTH ubuntu, so every artifact lands ubuntu:ubuntu.  1002 is the IMAGE's
 # dafoamuser group, carried as a SUPPLEMENTARY group for one purpose: traversing
@@ -81,7 +88,7 @@ done
 say "GUARD OK: no constant/polyMesh, no time directory -- nothing graded is at risk"
 
 # --- PRECONDITION 4.  The image is named BY HASH, never by tag (DAFOAM_CHARTER Sec.6).
-sudo -n docker image inspect "$IMAGE_DIGEST" >/dev/null 2>&1 \
+docker image inspect "$IMAGE_DIGEST" >/dev/null 2>&1 \
   || refuse "IMAGE" "the pinned image $IMAGE_DIGEST is not present.  No silent fallback to a tag."
 say "IMAGE OK: $IMAGE_DIGEST"
 
@@ -110,7 +117,7 @@ RUN() {   # RUN <name> <command...>
   # --memory is KEPT as blast-radius containment and --memory-swap is held EQUAL to
   # it, which DISABLES container swap (Sanaa item 18: swap above zero for a solver
   # job is a defect).  Containment is not a cap: nothing here signals or stops.
-  sudo -n docker run --rm --name "$cname" \
+  docker run --rm --name "$cname" \
       -u 1000:1000 --group-add 1002 -e MPLCONFIGDIR=/tmp \
       --memory="$MEM_CEILING" --memory-swap="$MEM_CEILING" \
       -v "$WD":/w -w /w "$IMAGE_DIGEST" \

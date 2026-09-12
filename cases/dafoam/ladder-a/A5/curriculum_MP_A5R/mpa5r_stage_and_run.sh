@@ -119,7 +119,11 @@ CPUSET="${CPUSET:-}"
 if [ "${MPA5R_DETACHED:-0}" != "1" ]; then
   [ -e "$BASE" ] && { echo "ABORT: $BASE already exists; guards refuse a case whose run directory exists. Use a fresh timestamped dir; NEVER delete an interrupted tree."; exit 1; }
   mkdir -p "$BASE" || { echo "ABORT: cannot mkdir $BASE"; exit 1; }
-  chmod 777 "$BASE"
+  # MP_A5R-4  ADDENDUM 2.  WAS `chmod 777`.  777 existed only because the container
+  # ran as a uid that did not own this tree.  It now runs as uid 1000, which OWNS
+  # it, so a world-writable run root buys nothing and is a hygiene defect.  A fix
+  # whose justification disappears with the defect it served disappears with it.
+  chmod 2775 "$BASE"
   setsid bash -c "
     MPA5R_DETACHED=1 IMG='$IMG' BASE='$BASE' SRC='$SRC' RUNPY='$RUNPY' CPUSET='$CPUSET' \
       bash '$SELF' > '$BASE/chain.out' 2>&1
@@ -176,12 +180,18 @@ sys.exit(0 if float('$MEMAVAIL_GIB') >= float('$REQUIRED_MEMAVAILABLE_GIB') else
   echo "REFUSING TO START: MemAvailable ${MEMAVAIL_GIB} GiB < ${REQUIRED_MEMAVAILABLE_GIB} GiB required." | tee -a "$LEDGER"
   echo "  This is NOT a cap and nothing running is touched: it is a refusal to LAUNCH a ${REGISTERED_MEMORY} container into memory a live sibling is relying on." | tee -a "$LEDGER"
   echo "  Live containers at this refusal:" | tee -a "$LEDGER"
-  sudo -n docker ps --format '    {{.Names}} {{.Status}}' 2>/dev/null | tee -a "$LEDGER"
+  # MP_A5R-4  ADDENDUM 2.  THE ESCALATION IS DROPPED FROM EVERY docker CALL IN THIS
+  # FILE, not only from the `docker run` line: all four reached the same daemon with
+  # the same rights and none of them needed it.  Removing two and leaving two would be
+  # incoherent, and a later reader would copy the ones left.  SCOPE NOTE: the
+  # supervisor required two; this is four.  Recorded in ADDENDUM 2 Sec.A2.7, not done
+  # quietly.
+  docker ps --format '    {{.Names}} {{.Status}}' 2>/dev/null | tee -a "$LEDGER"
   exit 75
 }
 echo "MEMAVAILABLE_PRECONDITION PASSED: ${MEMAVAIL_GIB} GiB available >= ${REQUIRED_MEMAVAILABLE_GIB} GiB required" | tee -a "$LEDGER"
 
-IMGID=$(sudo -n docker images --no-trunc --format '{{.ID}}' "$IMG" 2>/dev/null | head -1)
+IMGID=$(docker images --no-trunc --format '{{.ID}}' "$IMG" 2>/dev/null | head -1)
 [ -n "$IMGID" ] || { echo "ABORT: cannot resolve image ID for $IMG"; exit 1; }
 echo "IMAGE $IMG ID=$IMGID" | tee -a "$LEDGER"
 
@@ -329,18 +339,42 @@ run_stage() {
   local t0 t1 wall rc
 
   t0=$(date +%s)
-  sudo -n docker run --name "$cname" --user 0:0 \
+  # MP_A5R-4  ADDENDUM 2.  WAS `sudo -n docker run --name "$cname" --user 0:0`.
+  # TWO SEPARATE PRIVILEGE DEFECTS ON ONE LINE, REPAIRED TOGETHER.
+  #
+  # (a) THE CONTAINER RAN AS ROOT.  Sanaa 2026-09-12 item 6: "As ubuntu.  Never
+  #     root.  Container jobs included."  uid 1000 AND gid 1000 ARE BOTH `ubuntu`,
+  #     so every artifact lands ubuntu:ubuntu.  1002 is the IMAGE's dafoamuser
+  #     group, added as a SUPPLEMENTARY group for one purpose: /home/dafoamuser is
+  #     drwxr-x--- dafoamuser dafoamuser, so uid 1000 needs group rights merely to
+  #     TRAVERSE it.  MEASURED: `-u 1000:1000` ALONE dies "Permission denied"
+  #     sourcing loadDAFoam.sh; with `--group-add 1002` it reaches LOADED_OK.
+  #     CORROBORATED BY A LIVE PEER RUN on the same image -- container
+  #     d6r2c_KR_REF_20260912T184838Z_79250, User=1000:1000, GroupAdd=["1002"].
+  #     NOT `-u 1000:1002`, which also works but moves the PRIMARY group to a gid
+  #     with no host user behind it.
+  #
+  # (b) THE CLIENT RAN AS ROOT FOR NO REASON.  `id ubuntu` carries 113(docker) and
+  #     /var/run/docker.sock is 660 root:docker, so the unprivileged client reaches
+  #     the SAME daemon with the SAME rights -- MEASURED: plain `docker ps` as
+  #     ubuntu returns rc=0 and lists the live peer container.  The container's
+  #     user is set by `--user`, never by the client, so the privilege escalation
+  #     here was PURE SURPLUS WITH ZERO BEHAVIOURAL CHANGE.  Shipping a
+  #     root-execution repair with a needless escalation on the same line would
+  #     undercut the repair.  dafoam-supervisor, check 1, 2026-09-12.
+  docker run --name "$cname" -u 1000:1000 --group-add 1002 \
+      -e MPLCONFIGDIR=/tmp \
       --cpuset-cpus="$CPUSET" --cpus=1 --memory="$REGISTERED_MEMORY" --memory-swap="$REGISTERED_MEMORY" --oom-score-adj=500 \
       -e PYTHONHASHSEED=0 \
       -v "$arm":/mnt -w /mnt "$IMG" \
-      bash -lc "source /home/dafoamuser/dafoam/loadDAFoam.sh && mpirun --allow-run-as-root -np 1 -x PYTHONPATH -x PYTHONHASHSEED python runScript.py $*" \
+      bash -lc "source /home/dafoamuser/dafoam/loadDAFoam.sh && mpirun -np 1 -x PYTHONPATH -x PYTHONHASHSEED python runScript.py $*" \
       > "$log" 2>&1
   rc=$?
   t1=$(date +%s)
   wall=$((t1 - t0))
 
   local insp
-  insp=$(sudo -n docker inspect -f '{{.State.ExitCode}} {{.State.OOMKilled}}' "$cname" 2>/dev/null)
+  insp=$(docker inspect -f '{{.State.ExitCode}} {{.State.OOMKilled}}' "$cname" 2>/dev/null)
   [ -n "$insp" ] || insp="NA NA"
 
   local cm

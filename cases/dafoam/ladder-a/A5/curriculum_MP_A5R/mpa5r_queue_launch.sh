@@ -32,7 +32,7 @@ LAUNCHER="$CASE_DIR/mpa5r_stage_and_run.sh"
 #     whatever is at the path is not a wrapper, it is a hole.  The pin is the
 #     post-Addendum-2 hash and MUST be filled in by whoever applies the diff, in
 #     the same commit.  UNFILLED, THIS WRAPPER REFUSES -- fail closed.
-PIN="__FILL_IN_POST_ADDENDUM_2_MD5_OF_mpa5r_stage_and_run.sh__"
+PIN="5f36035beca8aaeab206d27583801f6d"   # post-ADDENDUM-2 md5, filled 2026-09-12 after the repairs were applied
 GOT=$(md5sum "$LAUNCHER" | awk '{print $1}')
 if [ "$GOT" != "$PIN" ]; then
   echo "REFUSE [PIN] mpa5r_stage_and_run.sh md5 $GOT != registered pin $PIN.  NOT LAUNCHING."
@@ -41,16 +41,33 @@ fi
 
 # --- Sanaa item 6, asserted HERE too, not only inside the launcher: if the
 #     Addendum-2 uid repair is not in the file we are about to run, we do not run it.
-grep -q -- '--user 0:0' "$LAUNCHER" && {
-  echo "REFUSE [ROOT] the launcher still carries '--user 0:0'.  Sanaa 2026-09-12 item 6:"
+# *** EXECUTABLE LINES ONLY, AND THIS IS NOT FUSSINESS -- IT WAS MEASURED FAILING.
+#     The first spelling of this guard was `grep -q -- '--user 0:0'`, and it REFUSED the
+#     correctly repaired launcher, because that file now carries a COMMENT saying
+#     `WAS ... --user 0:0`.  A guard that greps a whole file for the name of the defect
+#     fires on the record of the defect being fixed, which means the better the fix is
+#     documented the more certainly the guard blocks it.  Twice tonight: the same shape
+#     also fired on the `sudo` assertion's own explanatory comment.  Every guard below
+#     therefore anchors on `^[[:space:]]*` and tests what BASH WOULD RUN. ***
+if grep -qE '^[[:space:]]*[^#]*--user 0:0' "$LAUNCHER"; then
+  echo "REFUSE [ROOT] the launcher still EXECUTES '--user 0:0'.  Sanaa 2026-09-12 item 6:"
   echo "               'As ubuntu.  Never root.  Container jobs included.'  NOT LAUNCHING."
   exit 91
-}
+fi
 grep -q -- '-u 1000:1000 --group-add 1002' "$LAUNCHER" || {
   echo "REFUSE [ROOT] the launcher does not carry the measured non-root spelling"
   echo "               -u 1000:1000 --group-add 1002.  NOT LAUNCHING."
   exit 91
 }
+
+# --- the `sudo` escalation must stay gone.  A COMMENT that NAMES it is not one, so
+#     this tests EXECUTABLE lines only -- the same distinction that made an earlier,
+#     cruder version of this assertion fire on its own explanatory comment.
+if grep -qE '^[[:space:]]*(sudo |[A-Za-z_]+=\$\(sudo )' "$LAUNCHER"; then
+  echo "REFUSE [PRIV] the launcher has grown back an executable sudo call.  ubuntu is in"
+  echo "              113(docker) and the socket is 660 root:docker, so it buys nothing."
+  exit 93
+fi
 
 # --- Sanaa checkpoint item 2, asserted on the run script that will actually run.
 grep -q 'hist_file' "$CASE_DIR/mpa5r_run_script.py" || {

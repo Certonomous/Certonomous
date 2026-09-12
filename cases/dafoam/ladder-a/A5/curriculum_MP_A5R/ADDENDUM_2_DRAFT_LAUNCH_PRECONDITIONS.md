@@ -1,14 +1,16 @@
-# `MP_A5R` ADDENDUM 2 — **DRAFT, NOT FROZEN, NOT COMMITTED, NOT APPLIED**
+# `MP_A5R` ADDENDUM 2 — **APPLIED 2026-09-12. STILL NOT LAUNCHED.**
 
 **Drafted 2026-09-12 by a dafoam `lab-lane` on the dafoam-supervisor's brief, against
 Sanaa's `docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md`. THIS ITEM IS STILL
 UNLAUNCHED AND THIS LANE LAUNCHED NOTHING.** No run root matching
 `/home/ubuntu/certonomous-runs/CURRICULUM-MP_A5R-*` exists.
 
-**Nothing below is in force.** Gates, thresholds, bands and labels are untouched and
-unreadable from here; this addendum is confined to *launch preconditions*. It has authority
-only once the dafoam-supervisor reads the accompanying diff **as a diff, personally**
-(`SUPERVISION_CHARTER.md` §3 check 1, not delegable) and freezes it by commit.
+**IN FORCE, AND CONFINED TO LAUNCH PRECONDITIONS.** Gates, thresholds, bands and labels are
+untouched and unreadable from here. `dafoam-supervisor` read the accompanying diff **as a diff,
+personally** (`SUPERVISION_CHARTER.md` §3 check 1, not delegable) on 2026-09-12, approved the four
+hunks and **required one change — drop the `sudo` escalation** (§A2.7). The repairs are applied and
+this document is frozen with them in one commit. **The item is STILL NOT LAUNCHED and check 4 on
+this addendum is still owed.**
 
 **Lines whose number changed above this section: 0.** No line of `PREREGISTRATION.md` is
 edited by this draft; it is a separate file precisely so that assertion is trivially true.
@@ -103,7 +105,7 @@ driver construction leaves an optimisation that has been running for hours with 
 resume from**, and nothing in the chain notices. Addendum 1 correctly diagnosed that the
 recorder was what was *growing*; it did not make the recorder *mandatory*.
 
-**Proposed repair (in the diff, NOT APPLIED):** the `except` becomes a **refusal** — the arm
+**Repair, APPLIED 2026-09-12 (hunk 4):** the `except` becomes a **refusal** — the arm
 aborts before `run_driver()` rather than running unrecorded. This is a *stop-before-start*,
 not a cap: it never signals, throttles or shortens anything that is running.
 
@@ -121,7 +123,7 @@ why twelve completed design iterations were lost at the reboot. **`MP_A5R` would
 same way, and at `endTime 5000` each evaluation costs ≈ 9.0 core-min (Addendum 1 §A1.6), so
 33 evaluations is ≈ 297 core-min thrown away by one reboot.**
 
-**Proposed repair (in the diff, NOT APPLIED):** set `prob.driver.hist_file =
+**Repair, APPLIED 2026-09-12 (hunk 4):** set `prob.driver.hist_file =
 "mpa5r_opt.hst"` unconditionally, and `prob.driver.hotstart_file` to the same path **only
 when the file already exists at start-up**, recording in the JSON record which of the two
 branches was taken. Arm `O`'s stage directory is already a fresh timestamped tree, so a
@@ -219,16 +221,83 @@ instrument, carrying the post-change hashes. Included as §A2.6 below for this a
 * Any gate, threshold, band, weight, scenario or label. **None is touched.**
 * Anything leaving this box. **SUBMISSIONS PARKED.**
 
-## A2.6 INSTRUMENT HASHES — the state this draft was written AGAINST
+## A2.6 INSTRUMENT HASHES — BEFORE AND AFTER, BOTH RECORDED
 
-| file | md5 **before** any Addendum-2 change (= on disk = `d72bee62a`) |
+§A2.4 found that Addendum 1 changed two instruments and never recorded the new hashes, so §0's table
+now points at blobs that exist nowhere. **This addendum does not repeat that**, and the table below is
+the repair pattern §A2.4 proposed, applied to itself first.
+
+| file | md5 **before** (= `d72bee62a`) | md5 **after** (this commit) |
+|---|---|---|
+| `mpa5r_grade.py` | `895f2146ab203e41b2767aa9a3ed248a` | `895f2146ab203e41b2767aa9a3ed248a` — **byte-identical, untouched** |
+| `mpa5r_run_script.py` | `36ec1afa94c28347419042f4aaad543b` | **`24d6b505ac68a8b9d1af45698e8af92c`** |
+| `mpa5r_stage_and_run.sh` | `a6a9761613e71e0c9c29b40f40d9bf6a` | **`5f36035beca8aaeab206d27583801f6d`** |
+
+**The comparator is byte-identical to its original freeze.** No gate, threshold, band, weight,
+scenario, prediction or label moved; every change is a launch precondition.
+
+`mpa5r_queue_launch.sh`'s `PIN` is filled with `5f36035beca8aaeab206d27583801f6d`. If the launcher
+changes again the wrapper refuses (exit 90) until somebody deliberately re-pins it.
+
+---
+
+## A2.7 — THE SUPERVISOR'S REQUIRED CHANGE: **THE `sudo` ESCALATION IS GONE**
+
+Check 1 approved the four hunks and required one thing: **drop `sudo`.** It is dropped.
+
+**Verified independently by this lane rather than taken on the supervisor's word**, because a
+delegate's measurement is evidence and a supervisor's message is not this lane's authority:
+
+| probe | result |
 |---|---|
-| `mpa5r_grade.py` | `895f2146ab203e41b2767aa9a3ed248a` |
-| `mpa5r_run_script.py` | `36ec1afa94c28347419042f4aaad543b` |
-| `mpa5r_stage_and_run.sh` | `a6a9761613e71e0c9c29b40f40d9bf6a` |
+| `id ubuntu` | `uid=1000(ubuntu) … 27(sudo),**113(docker)**` |
+| `stat /var/run/docker.sock` | **`660 root:docker`** |
+| plain `docker ps` as this unprivileged process | **`rc=0`, and it listed the live peer container `d6r2c_KR_REF_…`** |
 
-The post-change hashes are computed and written **by whoever applies the diff**, in the same
-commit, and are deliberately left blank here: a hash written before the edit is a prediction,
-not a record.
+The third row is the one that matters: it is a **live positive control**. A `docker ps` that returned
+nothing would have proved only that the reader was blind; it returned the container that is actually
+running, so the unprivileged client is shown reaching the daemon and *seeing* something.
 
-*`MP_A5R` Addendum 2 — DRAFT v0.1, 2026-09-12. Not frozen. Not applied. Not launched.*
+The container's user is set by `--user`, never by the client, so the escalation bought **zero
+behavioural change**. **Shipping a root-execution repair with a needless privilege escalation on the
+same line would undercut the repair.**
+
+### A2.7.1 SCOPE — THIS IS FOUR CALLS, NOT THE TWO THE SUPERVISOR NAMED
+
+Recorded here rather than done quietly, because approval of an item is approval of *its* cap and not
+a new ceiling. The supervisor said the diff "still carries it twice". **The launcher had four**
+(`docker ps` :179, `docker images` :184, `docker run` :332, `docker inspect` :343) and **all four are
+now plain.** The reason for exceeding the letter of the instruction: removing two and leaving two in
+the same file is incoherent, and the next reader copies the ones left. The change is strictly
+privilege-**reducing** and measured behaviour-neutral, **reverting the two read-only calls is a
+one-line change, and nothing has launched.** If the supervisor meant exactly two, say so and it goes
+back.
+
+The same escalation is dropped from this lane's own new A3GC instrument,
+`a3gc_l1_plot3d_reentry.sh`, for the identical measured reason.
+
+---
+
+## A2.8 — A DEFECT THIS LANE PUT IN ITS OWN GUARD, FOUND BY DRIVING IT, AND WORTH A LESSON
+
+`mpa5r_queue_launch.sh` refuses to launch a launcher that still runs as root. Its first spelling was
+`grep -q -- '--user 0:0' "$LAUNCHER"`. **Driven against the correctly repaired launcher, it
+REFUSED** — because the repaired file carries a comment reading ``WAS `… --user 0:0` ``.
+
+**A guard that greps a whole file for the name of a defect fires on the record of that defect being
+fixed.** The better the repair is documented, the more certainly the guard blocks it. **This happened
+twice in one hour**: the same shape also fired on the `sudo` assertion's own explanatory comment
+while the diff was being built.
+
+Every guard in the wrapper now anchors on `^[[:space:]]*` and tests **what bash would run**, and each
+was **driven in both directions** before being trusted:
+
+| control | result |
+|---|---|
+| real repaired launcher | **passes** |
+| launcher with `--user 0:0` planted back as an executable line | **refuses** |
+| launcher with `sudo -n` planted back as an executable line | **refuses** |
+
+A control that only ever shows green is as useless as one that only ever shows red.
+
+*`MP_A5R` Addendum 2 v1.0, 2026-09-12. Applied. **NOT LAUNCHED.** Check 4 owed.*

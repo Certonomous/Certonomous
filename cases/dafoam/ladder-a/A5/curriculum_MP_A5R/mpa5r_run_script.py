@@ -468,7 +468,43 @@ if args.task == "run_driver":
         # than done quietly, because it departs from the shape asked for.
         prob.driver.recording_options["includes"] = []
     except Exception as e:
+        # MP_A5R-5  ADDENDUM 2.  THIS WAS `rec["recorder_error"] = repr(e)` AND THE
+        # ARM RAN ON.  Sanaa 2026-09-12 checkpoint item 2: "Every optimization
+        # writes its history and design vector every iteration and can hot-start
+        # from them."  A history that is ALLOWED to be absent is not a checkpoint.
+        # An optimiser that has run for hours with a silently dead recorder has
+        # nothing to resume from and nothing notices.  REFUSING TO START IS NOT A
+        # CAP: it never signals, throttles or shortens anything already running.
         rec["recorder_error"] = repr(e)
+        rec["status"] = "REFUSED_NO_RECORDER"
+        if MPI.COMM_WORLD.rank == 0:
+            with open(args.out, "w") as f:
+                json.dump(rec, f, indent=2, sort_keys=True)
+            print("MPA5R_REFUSE: driver recorder could not be attached: %r" % (e,))
+        exit(3)
+
+    # MP_A5R-5  ADDENDUM 2 -- HOT START.  pyOptSparse restarts from ITS OWN `.hst`
+    # history, reached through the driver's `hist_file` / `hotstart_file`
+    # attributes.  An OpenMDAO SqliteRecorder is a RECORD, not a RESTART, and
+    # cannot feed it; `mpa5r_hist.sql` never could.  This is the identical defect
+    # the 2026-09-12 census found in D6R2, which lost twelve completed design
+    # iterations at the reboot for exactly this reason.
+    #
+    # hist_file is set UNCONDITIONALLY -- writing the history is not optional.
+    # hotstart_file is set ONLY when a history is already on disk, so a hot start
+    # is an explicit act on a pre-populated tree and never an accident on a fresh
+    # one.  WHICH BRANCH WAS TAKEN IS RECORDED, so the record can never be read as
+    # a cold start that silently resumed, or a resume that silently cold-started.
+    _hst = os.path.abspath("mpa5r_opt.hst")
+    prob.driver.hist_file = _hst
+    rec["opt_hist_file"] = _hst
+    if os.path.exists(_hst):
+        prob.driver.hotstart_file = _hst
+        rec["hot_start"] = True
+        rec["hot_start_bytes_at_entry"] = os.path.getsize(_hst)
+    else:
+        rec["hot_start"] = False
+
     failed = prob.run_driver()
     rec["driver_failed"] = bool(failed)
     rec["driver_iter_count"] = int(getattr(prob.driver, "iter_count", -1))

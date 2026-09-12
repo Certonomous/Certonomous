@@ -1,0 +1,160 @@
+# MP_A5R ADDENDUM 2 -- THE REPAIRS, **APPLIED 2026-09-12** after dafoam-supervisor's check 1.
+#
+# STATUS: APPLIED.  This file is kept as the record of exactly what changed and why, so a
+# later reader can see the repair as a diff without reconstructing it from two commits.
+# It was read AS A DIFF, personally, by dafoam-supervisor (SUPERVISION_CHARTER Sec.3
+# check 1, not delegable), who APPROVED the four hunks below and REQUIRED one change:
+# drop the `sudo` escalation.  That change is hunk 5.
+#
+# Built against, and only valid against, the PRE-REPAIR state:
+#     mpa5r_stage_and_run.sh   md5 a6a9761613e71e0c9c29b40f40d9bf6a
+#     mpa5r_run_script.py      md5 36ec1afa94c28347419042f4aaad543b
+# which is the state at commit d72bee62aa07f89a48b35a8dae21f9cfda089f2c.
+# The POST-REPAIR hashes are recorded in ADDENDUM 2 Sec.A2.6.
+#
+# CHECKED BEFORE APPLYING, on the edited copies: `bash -n` clean on the shell script,
+# `python3 -m py_compile` clean on the run script.  Re-checked on the real files after.
+#
+# FIVE HUNKS:
+#   1. --user 0:0 -> -u 1000:1000 --group-add 1002 -e MPLCONFIGDIR=/tmp  (Sanaa item 6)
+#   2. mpirun --allow-run-as-root -> mpirun            (no longer root; keeps it honest)
+#   3. chmod 777 "$BASE" -> chmod 2775                 (777 was only ever a uid workaround)
+#   4. recorder except -> REFUSE(3), plus hist_file / hotstart_file  (Sanaa checkpoint item 2)
+#   5. the `sudo` escalation dropped from ALL FOUR docker calls in the launcher.
+#      MEASURED: `id ubuntu` carries 113(docker), /var/run/docker.sock is 660 root:docker,
+#      and plain `docker ps` as ubuntu returns rc=0 listing the live peer container.  The
+#      container's user is set by `--user`, never by the client.
+#      *** SCOPE: the supervisor required TWO.  THIS IS FOUR.  Removing two and leaving
+#      two in the same file would be incoherent and a later reader would copy the ones
+#      left.  Recorded here and in Sec.A2.7 rather than done quietly; reverting the two
+#      read-only calls is a one-line change and nothing has launched. ***
+#
+# NO GATE, THRESHOLD, BAND, WEIGHT, SCENARIO OR LABEL IS TOUCHED BY ANY HUNK.
+--- a/mpa5r_stage_and_run.sh	2026-09-12 19:05:35.531957601 +0000
++++ b/mpa5r_stage_and_run.sh	2026-09-12 19:05:35.562645548 +0000
+@@ -119,7 +119,11 @@
+ if [ "${MPA5R_DETACHED:-0}" != "1" ]; then
+   [ -e "$BASE" ] && { echo "ABORT: $BASE already exists; guards refuse a case whose run directory exists. Use a fresh timestamped dir; NEVER delete an interrupted tree."; exit 1; }
+   mkdir -p "$BASE" || { echo "ABORT: cannot mkdir $BASE"; exit 1; }
+-  chmod 777 "$BASE"
++  # MP_A5R-4  ADDENDUM 2.  WAS `chmod 777`.  777 existed only because the container
++  # ran as a uid that did not own this tree.  It now runs as uid 1000, which OWNS
++  # it, so a world-writable run root buys nothing and is a hygiene defect.  A fix
++  # whose justification disappears with the defect it served disappears with it.
++  chmod 2775 "$BASE"
+   setsid bash -c "
+     MPA5R_DETACHED=1 IMG='$IMG' BASE='$BASE' SRC='$SRC' RUNPY='$RUNPY' CPUSET='$CPUSET' \
+       bash '$SELF' > '$BASE/chain.out' 2>&1
+@@ -176,12 +180,18 @@
+   echo "REFUSING TO START: MemAvailable ${MEMAVAIL_GIB} GiB < ${REQUIRED_MEMAVAILABLE_GIB} GiB required." | tee -a "$LEDGER"
+   echo "  This is NOT a cap and nothing running is touched: it is a refusal to LAUNCH a ${REGISTERED_MEMORY} container into memory a live sibling is relying on." | tee -a "$LEDGER"
+   echo "  Live containers at this refusal:" | tee -a "$LEDGER"
+-  sudo -n docker ps --format '    {{.Names}} {{.Status}}' 2>/dev/null | tee -a "$LEDGER"
++  # MP_A5R-4  ADDENDUM 2.  THE ESCALATION IS DROPPED FROM EVERY docker CALL IN THIS
++  # FILE, not only from the `docker run` line: all four reached the same daemon with
++  # the same rights and none of them needed it.  Removing two and leaving two would be
++  # incoherent, and a later reader would copy the ones left.  SCOPE NOTE: the
++  # supervisor required two; this is four.  Recorded in ADDENDUM 2 Sec.A2.7, not done
++  # quietly.
++  docker ps --format '    {{.Names}} {{.Status}}' 2>/dev/null | tee -a "$LEDGER"
+   exit 75
+ }
+ echo "MEMAVAILABLE_PRECONDITION PASSED: ${MEMAVAIL_GIB} GiB available >= ${REQUIRED_MEMAVAILABLE_GIB} GiB required" | tee -a "$LEDGER"
+ 
+-IMGID=$(sudo -n docker images --no-trunc --format '{{.ID}}' "$IMG" 2>/dev/null | head -1)
++IMGID=$(docker images --no-trunc --format '{{.ID}}' "$IMG" 2>/dev/null | head -1)
+ [ -n "$IMGID" ] || { echo "ABORT: cannot resolve image ID for $IMG"; exit 1; }
+ echo "IMAGE $IMG ID=$IMGID" | tee -a "$LEDGER"
+ 
+@@ -329,18 +339,42 @@
+   local t0 t1 wall rc
+ 
+   t0=$(date +%s)
+-  sudo -n docker run --name "$cname" --user 0:0 \
++  # MP_A5R-4  ADDENDUM 2.  WAS `sudo -n docker run --name "$cname" --user 0:0`.
++  # TWO SEPARATE PRIVILEGE DEFECTS ON ONE LINE, REPAIRED TOGETHER.
++  #
++  # (a) THE CONTAINER RAN AS ROOT.  Sanaa 2026-09-12 item 6: "As ubuntu.  Never
++  #     root.  Container jobs included."  uid 1000 AND gid 1000 ARE BOTH `ubuntu`,
++  #     so every artifact lands ubuntu:ubuntu.  1002 is the IMAGE's dafoamuser
++  #     group, added as a SUPPLEMENTARY group for one purpose: /home/dafoamuser is
++  #     drwxr-x--- dafoamuser dafoamuser, so uid 1000 needs group rights merely to
++  #     TRAVERSE it.  MEASURED: `-u 1000:1000` ALONE dies "Permission denied"
++  #     sourcing loadDAFoam.sh; with `--group-add 1002` it reaches LOADED_OK.
++  #     CORROBORATED BY A LIVE PEER RUN on the same image -- container
++  #     d6r2c_KR_REF_20260912T184838Z_79250, User=1000:1000, GroupAdd=["1002"].
++  #     NOT `-u 1000:1002`, which also works but moves the PRIMARY group to a gid
++  #     with no host user behind it.
++  #
++  # (b) THE CLIENT RAN AS ROOT FOR NO REASON.  `id ubuntu` carries 113(docker) and
++  #     /var/run/docker.sock is 660 root:docker, so the unprivileged client reaches
++  #     the SAME daemon with the SAME rights -- MEASURED: plain `docker ps` as
++  #     ubuntu returns rc=0 and lists the live peer container.  The container's
++  #     user is set by `--user`, never by the client, so the privilege escalation
++  #     here was PURE SURPLUS WITH ZERO BEHAVIOURAL CHANGE.  Shipping a
++  #     root-execution repair with a needless escalation on the same line would
++  #     undercut the repair.  dafoam-supervisor, check 1, 2026-09-12.
++  docker run --name "$cname" -u 1000:1000 --group-add 1002 \
++      -e MPLCONFIGDIR=/tmp \
+       --cpuset-cpus="$CPUSET" --cpus=1 --memory="$REGISTERED_MEMORY" --memory-swap="$REGISTERED_MEMORY" --oom-score-adj=500 \
+       -e PYTHONHASHSEED=0 \
+       -v "$arm":/mnt -w /mnt "$IMG" \
+-      bash -lc "source /home/dafoamuser/dafoam/loadDAFoam.sh && mpirun --allow-run-as-root -np 1 -x PYTHONPATH -x PYTHONHASHSEED python runScript.py $*" \
++      bash -lc "source /home/dafoamuser/dafoam/loadDAFoam.sh && mpirun -np 1 -x PYTHONPATH -x PYTHONHASHSEED python runScript.py $*" \
+       > "$log" 2>&1
+   rc=$?
+   t1=$(date +%s)
+   wall=$((t1 - t0))
+ 
+   local insp
+-  insp=$(sudo -n docker inspect -f '{{.State.ExitCode}} {{.State.OOMKilled}}' "$cname" 2>/dev/null)
++  insp=$(docker inspect -f '{{.State.ExitCode}} {{.State.OOMKilled}}' "$cname" 2>/dev/null)
+   [ -n "$insp" ] || insp="NA NA"
+ 
+   local cm
+--- a/mpa5r_run_script.py	2026-09-12 19:05:35.532016202 +0000
++++ b/mpa5r_run_script.py	2026-09-12 19:05:54.437829884 +0000
+@@ -468,7 +468,43 @@
+         # than done quietly, because it departs from the shape asked for.
+         prob.driver.recording_options["includes"] = []
+     except Exception as e:
++        # MP_A5R-5  ADDENDUM 2.  THIS WAS `rec["recorder_error"] = repr(e)` AND THE
++        # ARM RAN ON.  Sanaa 2026-09-12 checkpoint item 2: "Every optimization
++        # writes its history and design vector every iteration and can hot-start
++        # from them."  A history that is ALLOWED to be absent is not a checkpoint.
++        # An optimiser that has run for hours with a silently dead recorder has
++        # nothing to resume from and nothing notices.  REFUSING TO START IS NOT A
++        # CAP: it never signals, throttles or shortens anything already running.
+         rec["recorder_error"] = repr(e)
++        rec["status"] = "REFUSED_NO_RECORDER"
++        if MPI.COMM_WORLD.rank == 0:
++            with open(args.out, "w") as f:
++                json.dump(rec, f, indent=2, sort_keys=True)
++            print("MPA5R_REFUSE: driver recorder could not be attached: %r" % (e,))
++        exit(3)
++
++    # MP_A5R-5  ADDENDUM 2 -- HOT START.  pyOptSparse restarts from ITS OWN `.hst`
++    # history, reached through the driver's `hist_file` / `hotstart_file`
++    # attributes.  An OpenMDAO SqliteRecorder is a RECORD, not a RESTART, and
++    # cannot feed it; `mpa5r_hist.sql` never could.  This is the identical defect
++    # the 2026-09-12 census found in D6R2, which lost twelve completed design
++    # iterations at the reboot for exactly this reason.
++    #
++    # hist_file is set UNCONDITIONALLY -- writing the history is not optional.
++    # hotstart_file is set ONLY when a history is already on disk, so a hot start
++    # is an explicit act on a pre-populated tree and never an accident on a fresh
++    # one.  WHICH BRANCH WAS TAKEN IS RECORDED, so the record can never be read as
++    # a cold start that silently resumed, or a resume that silently cold-started.
++    _hst = os.path.abspath("mpa5r_opt.hst")
++    prob.driver.hist_file = _hst
++    rec["opt_hist_file"] = _hst
++    if os.path.exists(_hst):
++        prob.driver.hotstart_file = _hst
++        rec["hot_start"] = True
++        rec["hot_start_bytes_at_entry"] = os.path.getsize(_hst)
++    else:
++        rec["hot_start"] = False
++
+     failed = prob.run_driver()
+     rec["driver_failed"] = bool(failed)
+     rec["driver_iter_count"] = int(getattr(prob.driver, "iter_count", -1))
