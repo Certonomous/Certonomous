@@ -90,6 +90,17 @@ COLD = (HOTSTART == "")
 EVAL_LOG = "d6r2c_evals.jsonl"
 X0_FILE = "d6r2c_x0.json"
 X0_MATCH_TOL = 1.0e-12   # REGISTERED (PREREGISTRATION.md section 5)
+# ---- ADDENDUM 1 (2026-09-12), REGISTERED: the guard compares in ONE NAMED SPACE
+# ---- and REFUSES when it cannot see.  See PREREGISTRATION.md ADDENDUM 1.
+X0_SPACE = "driver-scaled"   # the space pyoptsparse's history stores
+X0_INFORMATIVE_FLOOR = 6     # REGISTERED: this problem has exactly 6 non-zero DV
+                             # components at x0 (3 conditions x [U, AoA]).  shape
+                             # (96) and twist (7) are ALL ZERO at x0 and are
+                             # therefore IDENTICAL UNDER EVERY UNIT CONVENTION --
+                             # they cannot discriminate.  If fewer than 6
+                             # components are informative, the guard has less
+                             # discriminating power than it was registered with
+                             # and MUST refuse rather than pass quietly.
 
 # =============================================================================
 # Input Parameters
@@ -410,21 +421,69 @@ def _dv_snapshot():
     return _jsonable(d)
 
 
+def _dv_scalers():
+    """The AUTHORITATIVE scaler per design variable, read from OpenMDAO's own
+    metadata rather than re-typed from the add_design_var calls above.  A second
+    hand-written copy of a number is a second thing that can drift (L-221/222)."""
+    meta = prob.model.get_design_vars(recurse=True, get_sizes=True, use_prom_ivc=True)
+    out = {}
+    for k, v in meta.items():
+        sc = v.get("total_scaler")
+        if sc is None:
+            sc = v.get("scaler")
+        out[k.split(".")[-1]] = 1.0 if sc is None else float(sc)
+    return out
+
+
 def _hotstart_x0_guard():
-    """D6R2C DELTA D4.  REFUSE, BEFORE ANY COMPUTE, if the history we are about
-    to hot-start from did not begin where the cold reference began.  pyoptsparse
-    restores x0 from call counter 0 of this same file, so a mismatch here means
-    the resumed run would silently be a different optimisation."""
+    """D6R2C DELTA D4, REPAIRED BY ADDENDUM 1.  REFUSE, BEFORE ANY COMPUTE, if the
+    history we are about to hot-start from did not begin where the cold reference
+    began.  pyoptsparse restores x0 from call counter 0 of this same file, so a
+    mismatch means the resumed run would silently be a different optimisation.
+
+    THE DEFECT THIS REPAIRS, MEASURED ON KR_RES AT 2026-09-12T20:56Z.  The first
+    version compared pyoptsparse's history against `prob.get_val()`.  THOSE ARE
+    TWO DIFFERENT SPACES: the history stores the DRIVER-SCALED design vector and
+    `prob.get_val()` returns the PHYSICAL one.  With patchV registered at
+    scaler = 0.1 the guard reported worst_abs_diff = 9.000e+01 -- exactly
+    100.0 - 10.0 -- and refused a resume that was never wrong.  rc=73, 21 s.
+
+    AND THE DEEPER DEFECT, WHICH A UNITS-ONLY FIX WOULD HAVE LEFT IN PLACE.  Of
+    the 109 DV components, 103 (all shape, all twist) are EXACTLY ZERO at x0.
+    Zero times any scaler is zero, so those 103 MATCH UNDER EITHER CONVENTION and
+    are blind to the error.  All of the discriminating power lived in the 6
+    non-zero patchV components.  Had the trim returned AoA = 0 the guard would
+    have passed and been believed.  So this version COUNTS the components that
+    could actually detect a disagreement and REFUSES below the registered floor:
+    a guard that cannot see must say so rather than pass quietly."""
     if not os.path.exists(X0_FILE):
         print("D6R2C REFUSE: hot start without a staged %s to check the history against." % X0_FILE)
         sys.exit(73)
-    ref = json.load(open(X0_FILE))["dv"]
+    blob = json.load(open(X0_FILE))
+    scalers = _dv_scalers()
+
+    # Build the reference IN THE HISTORY'S OWN SPACE, and say which path was used.
+    if "dv_driver_scaled" in blob:
+        ref = blob["dv_driver_scaled"]
+        ref_path = "x0.json carried dv_driver_scaled directly"
+    else:
+        ref = {}
+        for k, v in blob["dv"].items():
+            sc = scalers.get(k, 1.0)
+            ref[k] = [float(x) * sc for x in np.asarray(v, dtype=float).flatten()]
+        ref_path = ("x0.json carried PHYSICAL dv only (pre-ADDENDUM-1 file); converted with "
+                    "OpenMDAO's own total_scaler per DV: "
+                    + ";".join("%s=%g" % (k, scalers.get(k, 1.0)) for k in sorted(blob["dv"])))
+
     from pyoptsparse.pyOpt_history import History
     h = History(HOTSTART, temp=False, flag="r")
     got = h.getValues(names=h.getDVNames(), callCounters=[0], major=False, allowSens=True)
     h.close()
+
     worst = 0.0
     seen = []
+    informative = 0
+    total = 0
     for k, v in ref.items():
         cand = [n for n in got if n == k or n.endswith("." + k) or n.split(".")[-1] == k]
         if not cand:
@@ -436,17 +495,35 @@ def _hotstart_x0_guard():
         if g.size != r.size:
             print("D6R2C REFUSE: %s size %d in history vs %d in %s" % (k, g.size, r.size, X0_FILE))
             sys.exit(73)
+        # A component is INFORMATIVE if it is non-zero on either side: a component
+        # that is zero in both carries no evidence about units or about anything else.
+        informative += int(np.count_nonzero((g != 0.0) | (r != 0.0)))
+        total += int(r.size)
         d = float(np.max(np.abs(g - r))) if r.size else 0.0
         seen.append((k, d))
         worst = max(worst, d)
-    print("D6R2C_X0_GUARD worst_abs_diff=%.3e tol=%.1e per_dv=%s"
-          % (worst, X0_MATCH_TOL, ";".join("%s:%.3e" % t for t in seen)))
+
+    print("D6R2C_X0_GUARD space=%s reference=%s" % (X0_SPACE, ref_path))
+    print("D6R2C_X0_GUARD informative_components=%d of %d (registered floor %d) "
+          "worst_abs_diff=%.3e tol=%.1e per_dv=%s"
+          % (informative, total, X0_INFORMATIVE_FLOOR, worst, X0_MATCH_TOL,
+             ";".join("%s:%.3e" % t for t in seen)))
+    _emit({"kind": "X0_GUARD", "space": X0_SPACE, "reference_path": ref_path,
+           "informative_components": informative, "total_components": total,
+           "informative_floor": X0_INFORMATIVE_FLOOR,
+           "worst_abs_diff": worst, "tol": X0_MATCH_TOL,
+           "per_dv": dict(seen), "hotstart_file": HOTSTART})
+
+    if informative < X0_INFORMATIVE_FLOOR:
+        print("D6R2C REFUSE: only %d of %d design-variable components are non-zero at x0, below the "
+              "registered floor of %d. Components that are zero on both sides match under EVERY unit "
+              "convention and prove nothing; this guard cannot see well enough to certify the resume."
+              % (informative, total, X0_INFORMATIVE_FLOOR))
+        sys.exit(73)
     if worst > X0_MATCH_TOL:
         print("D6R2C REFUSE: hot-start history call-0 design vector differs from the cold "
-              "reference x0 by %.3e > %.1e." % (worst, X0_MATCH_TOL))
+              "reference x0 by %.3e > %.1e in the %s space." % (worst, X0_MATCH_TOL, X0_SPACE))
         sys.exit(73)
-    _emit({"kind": "X0_GUARD", "worst_abs_diff": worst, "tol": X0_MATCH_TOL,
-           "per_dv": dict(seen), "hotstart_file": HOTSTART})
 
 
 if args.task == "run_driver":
@@ -459,9 +536,19 @@ if args.task == "run_driver":
         # D6R2C DELTA D4: the trimmed starting point IS the optimisation's x0,
         # and a restart must be able to prove it began there.
         if _RANK0:
+            _scal = _dv_scalers()
+            _drv = {k.split(".")[-1]: [float(x) for x in np.asarray(v).flatten()]
+                    for k, v in prob.driver.get_design_var_values().items()}
             with open(X0_FILE, "w") as fh:
                 json.dump({"dv": _dv_snapshot(),
-                           "note": "design vector AFTER findFeasibleDesign; this is IPOPT's x0"},
+                           "dv_driver_scaled": _drv,
+                           "scalers": _scal,
+                           "spaces": {"dv": "physical (prob.get_val)",
+                                      "dv_driver_scaled": "driver-scaled (prob.driver.get_design_var_values) "
+                                                          "-- THE SPACE pyoptsparse's HISTORY STORES"},
+                           "note": "design vector AFTER findFeasibleDesign; this is IPOPT's x0. "
+                                   "BOTH SPACES ARE RECORDED (ADDENDUM 1) because comparing one "
+                                   "against the other is the defect that produced rc=73 on KR_RES."},
                           fh, indent=1, sort_keys=True)
                 fh.flush()
                 os.fsync(fh.fileno())

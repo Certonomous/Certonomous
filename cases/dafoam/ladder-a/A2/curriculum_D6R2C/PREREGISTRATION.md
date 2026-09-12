@@ -405,3 +405,125 @@ The launcher **pins `d6r2c_opt_runScript.py` by md5 and refuses (exit 4) on any 
 (`G-FREEZE`), so the instrument that runs is the instrument that was frozen. **The grading path
 (`d6r2c_kr_compare.py`, `d6r2c_arm0_gradient_health.py`) is in THIS COMMIT**, fixed before any
 compute, per rule 2.
+
+---
+
+# ADDENDUM 1 — 2026-09-12, after KR_RES refused at rc=73 on a defect in this item's OWN GUARD
+
+**Version 1.1.** **Lines whose number changed above this section: 0.** This addendum is appended,
+never inserted; nothing above it is edited (rule 6). **It alters no gate, no threshold, no cap and
+no label** (rule 2): `KR-G1`–`KR-G4`, the section 5a tolerances, the section 4 production gates and
+every cap in section 8 stand exactly as frozen at `7f685867d`.
+
+## A1.1 The verdict that stands, and is not rewritten
+
+**The kill-and-resume proof of section 5 is `NOT A RESULT`.** Section 5b: *"`NOT A RESULT` = KR-G1
+or KR-G4 fails."* `KR_RES` exited `rc = 73`; KR-G4 requires `rc = 0`. **That row is closed at
+`NOT A RESULT` and this addendum does not touch it.** The repaired attempt below produces a **new**
+row, graded by the **untouched** comparator.
+
+| arm | rc | wall s | core-min | cap | root-owned |
+|---|---|---|---|---|---|
+| `KR_REF` | 0 | 4073 | 271.533 | 420.0 | 0 |
+| `KR_KILL` | 137 | 3595 | **239.667** | **234.0 — CROSSED by 5.667 (2.4 %)** | 0 |
+| `KR_RES` | **73** | 21 | 1.400 | 420.0 | 0 |
+
+`D6R2C_CAP_CROSSED` is in the ledger for `KR_KILL`, as registered, and **the cap is not raised.**
+Attribution (rule 12, named separately, never blended): `KR_KILL` reached major 0 in 3120 s against
+`KR_REF`'s 2682 s, a **measured** contention factor of **1.163** from the unpinned `K2h_L3`
+neighbour sharing cpuset 2,3,4,5. De-contended, `KR_KILL` is **206.0 core-min — inside 234**. The
+crossing is **contention, not misprediction**; the row still crossed and is reported as crossed.
+
+## A1.2 The defect, and why it is in this item's guard and not in the restart machinery
+
+The x0 identity guard compared **pyoptsparse's history against `prob.get_val()`**. Those are **two
+different spaces**: the history stores the **driver-scaled** design vector; `prob.get_val()` returns
+the **physical** one. `patchV` is registered at `scaler = 0.1`, so:
+
+```
+history  call-0 patchV_cl04 = [ 10.0, 0.29303833722365635]   driver-scaled
+d6r2c_x0.json   patchV_cl04 = [100.0, 2.9303833722365633 ]   physical
+ratio = 10.0 exactly on every component = 1 / scaler
+worst_abs_diff = 90.0 exactly = 100.0 − 10.0
+```
+
+**The resume was never wrong. The guard was.** Driven on the real artefacts after the repair, the
+comparison in the history's own space returns **`worst_abs_diff = 0.000e+00` — bitwise identical.**
+
+## A1.3 The deeper defect a units-only fix would have left in place
+
+Of the **109** design-variable components, **103 — all 96 `shape` and all 7 `twist` — are exactly
+zero at x0.** Zero times any scaler is zero, so **those 103 match under every unit convention and
+are blind to the error.** All discriminating power sat in the **6** non-zero `patchV` components.
+**Had the trim returned AoA = 0, the guard would have passed and been believed.** The guard's
+controls were built on **synthetic dictionaries and never touched a real history**, which is
+precisely why this survived to launch.
+
+## A1.4 The repair, under `VERIFICATION_CHARTER` §2d.1
+
+§2d governs changes **on the grading path**; the grading path here is `d6r2c_kr_compare.py`, which
+is **untouched**. The guard is a **launch precondition**. §2d therefore does not strictly bind, and
+its discipline is **invoked anyway** as the conservative choice. The four conditions:
+
+1. **Demonstrable error, not preference** — the ratio is exactly `1/scaler` on all six informative
+   components and exactly 0 on the 103 uninformative ones. Arithmetic, not taste.
+2. **Established by an instrument independent of the hypothesis, that grades nothing** — the x0
+   guard is a precondition refusal, no part of `KR-G1`–`KR-G4`, and it produced **the least
+   convenient outcome available: `NOT A RESULT` on this lane's own item.** It cannot have been
+   selected to move a verdict in a wanted direction.
+3. **Disclosed here, instrument named, movement quantified** — this section.
+4. **Pre-repair values recorded beside the published ones** — the table in A1.1 and the `90.0` above.
+
+**The repair, and its three parts:**
+- **One named space.** The guard compares in `X0_SPACE = "driver-scaled"` and **prints which space
+  and how the reference was obtained.** A comparison whose units are implicit is the bug itself.
+- **Scalers read from OpenMDAO's own metadata** (`prob.model.get_design_vars(...)['total_scaler']`),
+  **never re-typed** from the `add_design_var` calls — a second hand-written copy of a number is a
+  second thing that can drift (L-221/222).
+- **The blindness floor, registered: `X0_INFORMATIVE_FLOOR = 6`.** A component is *informative* only
+  if non-zero on either side. The guard **counts** them, **prints** the count, and **REFUSES below
+  the floor**: *a guard that cannot see must say so rather than pass quietly.* Six because this
+  problem has exactly 6 non-zero DV components at x0 (3 conditions × `[U, AoA]`).
+- Going forward `d6r2c_x0.json` records **both** spaces plus the scalers. The pre-addendum file
+  carries physical only; the guard converts it and **says that it did.**
+
+## A1.5 The control that did not exist before, driven on REAL artefacts
+
+`d6r2c_x0_guard_selftest.py` reads `KR_KILL/OptView.hst` (1,077,248 bytes) and
+`KR_KILL/d6r2c_x0.json` — **the actual files, not synthetic stand-ins** — and drives **11 controls
+in both directions**. Result at this addendum: **`D6R2C_X0_SELFTEST PASS`.**
+
+- correct space on the real history → `PASS`, `worst = 0.000e+00`
+- **the historical defect reproduced to the exact `90.0`** → `REFUSE_MISMATCH`
+- four planted `1.234e-03` disagreements, in `patchV`, `twist` and `shape` → all `REFUSE_MISMATCH`
+- **an all-zero design vector → `REFUSE_BLIND`**, and **`shape`+`twist` only → `REFUSE_BLIND`**
+  — *under the original guard both of these would have PASSED*
+- floor boundary: 6 informative against a floor of 6 → `PASS`; against 7 → `REFUSE_BLIND`
+
+## A1.6 What is re-run, and what is not
+
+**`KR_RES` ONLY.** `KR_REF` (`rc=0`) and `KR_KILL` (`rc=137`, killed as designed at IPOPT major 2)
+are **not re-run**: their artefacts are intact, `KR_KILL`'s history holds majors 0–2, and re-running
+them would spend ~511 core-min to repair a defect in a precondition. The repaired `KR_RES` is graded
+by `d6r2c_kr_compare.py` **unchanged**, at the md5 frozen at `7f685867d`.
+
+**Instrument hashes after this addendum:**
+
+| file | md5 at freeze `7f685867d` | md5 at ADDENDUM 1 |
+|---|---|---|
+| `d6r2c_opt_runScript.py` | `0558fb194b013b54c725d3d49a9dd0a1` | **`2f2ae43a627146cf8e0f065b035ada4b`** |
+| `d6r2c_run_arm.sh` | `f92865b3cba5d3ae49bcd1dcfb0919f6` | **`85a296e562ed54700ead608fd698f802`** (md5 pin only) |
+| `d6r2c_kr_compare.py` | `e3f78650b2995cd5aeaa3cc2e5755b04` | **UNCHANGED — the grading path** |
+| `d6r2c_monitor.py` | `fd927f36ee47acef09fc8a08b790ccbe` | UNCHANGED |
+| `d6r2c_arm0_gradient_health.py` | `7da73e35a50b146247dd1b214d4e69c8` | UNCHANGED |
+| `d6r2c_x0_guard_selftest.py` | — | **`c20ca4514bade1fc596447c8655d69de`** (new control) |
+
+## A1.7 What this addendum does not claim
+
+- **It does not claim the hot start works.** `KR_RES` never reached one evaluation, so `KR-G1`,
+  `KR-G2` and `KR-G3` remain **untested**. That pyoptsparse restores x0 self-consistently is an
+  **inspection**, and refusing to trust inspection is the whole reason this test exists.
+- **It does not rewrite the `NOT A RESULT` verdict** of A1.1, and no number from `KR_RES`'s refused
+  21-second run is quoted as a result.
+- **It does not widen a band or relax a tolerance.** `X0_MATCH_TOL` stays `1.0e-12`; the repaired
+  comparison meets it at **0.000e+00**.

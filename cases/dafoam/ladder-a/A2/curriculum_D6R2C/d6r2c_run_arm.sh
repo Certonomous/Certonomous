@@ -104,7 +104,11 @@ echo "D6R2C_G_BOX_PASS load1=$LOAD1/$NCPU swap_used_kB=$SWAPUSED_KB memavail_GiB
 
 # ---- REGISTERED TOOLCHAIN, BY DIGEST, never by tag (DAFOAM_CHARTER 6) ------
 IMG_PATCHED_DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
-MD5_RUNSCRIPT=0558fb194b013b54c725d3d49a9dd0a1
+# ADDENDUM 1 (2026-09-12): the x0 guard was repaired after KR_RES refused at rc=73
+# on a UNIT MISMATCH of its own making.  The pin moves with it; the PREVIOUS value is
+# kept beside it so the repair is auditable from this file alone.
+# MD5_RUNSCRIPT_PRE_ADDENDUM_1=0558fb194b013b54c725d3d49a9dd0a1
+MD5_RUNSCRIPT=2f2ae43a627146cf8e0f065b035ada4b
 
 # ---- arms.  cap_core_min is REGISTERED and REPORTS; it never kills. --------
 # CAPS ARE 3.00x THE REGISTERED ESTIMATE (PREREGISTRATION.md section 8).  They
