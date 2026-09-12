@@ -273,3 +273,76 @@ forces go stationary, `checkMesh` reports a clean mesh, and the Roache triple ca
 CONVERGING — converging on the tessellation's geometry rather than the propeller's. **There is
 no residual signature for this failure.** It is caught by measuring the input, before the
 solve, or it is not caught.
+
+---
+
+## CORRECTION 1 — ADDENDUM A, 2026-09-12. THE REPLACEMENT TESSELLATION IS PREDICTED TO FAIL THE FINE LEVEL, AND IS KILLED ON THAT PREDICTION RATHER THAN ON ITS RESULT
+
+*lines whose number changed above this section: 0*
+
+Written **while the job is still running**, before its STL exists. The prediction below is
+therefore falsifiable against a result nobody has seen.
+
+### A.1 Calibration — turning a gmsh knob into the quantity the gate measures
+
+Two tessellations already on disk are uniform (curvature off), so the size setting is the only
+control and the mapping can be measured rather than assumed:
+
+| gmsh setting | blades, area-weighted p50 | p90 | p99 | max |
+|---|---|---|---|---|
+| 3.0 mm | 2.7895 | 3.2204 | 3.5502 | 3.9082 |
+| 0.8 mm | 0.7580 | 0.8667 | 0.9562 | 1.0845 |
+
+**achieved / setting: p50 = 0.930 and 0.947 (mean 0.939); p90 = 1.073 and 1.083 (mean 1.078).**
+The ratio is stable across a factor of 3.75 in setting, so it extrapolates. The achieved
+distribution clusters *tightly around* the setting — which is exactly why a cap just above a
+threshold is the worst place to sit.
+
+### A.2 The prediction
+
+Applying the calibrated shape at each candidate setting, against the derived surface cell
+sizes (coarse 0.625 mm, medium 0.417 mm, **fine 0.278 mm**):
+
+| setting | coarse | medium | **fine** | verdict at fine |
+|---|---|---|---|---|
+| **0.30 mm (the RUNNING job)** | 0.0% | 0.0% | **58.1%** | **TESSELLATION-LIMITED** |
+| 0.25 mm | 0.0% | 0.0% | 6.2% | MARGINAL |
+| **0.20 mm** | 0.0% | 0.0% | **0.0%** | **PASS** |
+| 0.15 mm | 0.0% | 0.0% | 0.0% | PASS |
+
+**The running job cannot deliver the fine level.** Not marginally — 58.1% of blade area would
+sit on oversized facets, because a 0.30 mm cap puts the bulk of the distribution at
+0.28–0.32 mm, straddling the 0.278 mm threshold. My earlier expectation that 0.30 would
+"clear comfortably" was wrong for the same reason the original error was wrong: the
+distribution's *shape* matters, not a single representative number.
+
+**And fine is the level that carries the act.** Pre-registration §4.8: *"the act's headline
+gate is the design point J = 1.2021 on the FINE level of the family."*
+
+### A.3 Action — killed on the prediction
+
+The job is stopped now rather than in three hours. A run that cannot produce the level the
+headline gate sits on has no expected value, and stopping it is not waste.
+
+### A.4 The replacement — resolution follows the geometry, not one global knob
+
+Driving `MeshSizeMax` globally tessellates the hub, cap and shaft at blade resolution for no
+benefit: they are **smooth bodies of revolution**, which is precisely what this case's own
+patch classifier established about them (§2.1), and a cylinder does not need 0.2 mm panels.
+The replacement uses a **radial size field**:
+
+    size(r) = 0.6 - 0.4 * tanh((r - 38) / 2)      [mm, r = sqrt(y^2 + z^2)]
+
+giving ≈1.0 mm on the axis, cap and shaft, ≈0.6 mm at the hub radius, and **0.20 mm on the
+blades beyond r ≈ 43 mm**, with curvature refinement still active below it at the leading and
+trailing edges (`MeshSizeMin` 0.08 mm). This is the only route that gets **fine to PASS rather
+than scrape**, and it *reduces* total facet count and wall time rather than increasing them.
+
+Estimated ≈5.3 M facets on the blades and ≈0.24 M elsewhere; written **binary**.
+
+### A.5 The gate becomes per-level AND per-patch
+
+`check_tessellation_adequacy.py` already reports per patch; the registered verdict is now
+taken **per level per patch**, because the blades carry KQ and the graded blade loading while
+the hub, cap and shaft carry only thrust and are geometrically trivial. A patch may be
+disclosed MARGINAL where a blade may not.
