@@ -1,0 +1,13 @@
+=== MRF_R4 build 2026-09-12T19:51:05Z rundir=/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R4/fine block=(82 82 92) NCBL=8
+blockMeshDict background block -> (82 82 92), matched once and read back once
+snappyHexMeshDict nCellsBetweenLevels -> 8 ; base cell dx = 3.90244 mm ; shell = 31.22 mm
+delivered nCells = 3641246
+cap check OK: delivered 3641246 << maxLocalCells 40000000
+rc: blockMesh=0 sfe=0 snappy=0 topoSet=0 checkMesh=0
+blockMesh 3
+surfaceFeatureExtract 0
+snappyHexMesh 1255
+topoSet 13
+checkMesh 66
+TOTAL 1337
+DONE build_level_r2 /home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R4/fine  2026-09-12T20:13:22Z

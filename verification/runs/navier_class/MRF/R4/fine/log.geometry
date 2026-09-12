@@ -1,0 +1,8 @@
+wrote tankWall.stl  (128 facets)
+wrote tankBottom.stl  (64 facets)
+wrote tankLid.stl  (64 facets)
+wrote baffles.stl  (48 facets)
+wrote shaft.stl  (256 facets)
+wrote impeller.stl  (328 facets)
+# analytic tank wall+bottom area = 0.353429 m^2
+# impeller: disc R=0.037500000000000006, blades r[0.025,0.05] z[0.09000000000000001,0.11]

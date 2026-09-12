@@ -1,0 +1,51 @@
+{
+  "rung": "MRF_R4",
+  "level": "fine (the single graded level -- no grid family, by ruling)",
+  "registration": "verification/campaign/MRF_R4_PREREGISTRATION.md",
+  "built_utc": "2026-09-12T19:51:05Z -> 2026-09-12T20:13:22Z",
+  "rc_build": 0,
+  "wall_seconds_build": 1337,
+  "core_minutes_build": 22.28,
+  "points_sha256": "907d898a3c0aafb0eee402065802cb13bb5a744e504f7c5b4bfda6415c6462b4",
+  "n_cells": 3641246,
+  "max_non_orthogonality": 49.622217,
+  "avg_non_orthogonality": 6.0964953,
+  "max_skewness": 3.041411,
+  "max_aspect_ratio": 4.3994073,
+  "min_cell_volume_m3": 2.6283961e-12,
+  "max_cell_volume_m3": 7.9233853e-08,
+  "cell_volume_ratio": 30145.324367206296,
+  "total_mesh_volume_m3": 0.021038303,
+  "mrf_cellzone_cells": 2085686,
+  "MESH_STANDARD_3_GATES": {
+    "max_non_orthogonality_le_70": true,
+    "max_skewness_le_4": true,
+    "verdict": "ADMISSIBLE"
+  },
+  "checkMesh_failed_checks": {
+    "count": 1,
+    "which": "concave cells (using face planes): 62538",
+    "fraction_of_cells": 0.017174890133761906,
+    "IS_THIS_AN_R4_REGRESSION": "NO -- IT IS THE FAMILY SIGNATURE, MEASURED, NOT ASSUMED. EVERY level of the R2 family failed the SAME single check and R2 was graded on those meshes: coarse 4216/154715 = 2.72 %, medium 12847/601696 = 2.13 %, fine 26633/2418780 = 1.10 %. R4 fine is 62538/3641246 = 1.72 %, INSIDE the range the family already spans -- above its fine level and below its coarse. Concave cells are NOT one of MESH_STANDARD section 3's two gates. Recorded here rather than left for a reader to find in the log.",
+    "R2_comparison_fractions": {
+      "coarse": 0.027250105031832724,
+      "medium": 0.021351313620166994,
+      "fine": 0.011010922861938664
+    }
+  },
+  "geometry_read_back_from_the_built_surface": {
+    "blade_disc_baffle_thickness_m": 0.00155,
+    "t_over_D": 0.0155,
+    "registered": 0.00155,
+    "match": true,
+    "method": "max |y| on the theta = 0 blade beyond the disc rim, measured from constant/triSurface/impeller.stl AS THIS BUILD WROTE IT -- never from the requested value (MESH_STANDARD section 9.2 read-back clause)"
+  },
+  "volume_cross_check": {
+    "R4_total_m3": 0.021038303,
+    "R2_fine_total_m3": 0.0209312259047787,
+    "difference_m3": 0.00010707709522130016,
+    "predicted_from_thinner_solids_m3": 0.00010819999999999999,
+    "note": "INDEPENDENT confirmation that the one registered change actually landed: thinner baffles, blades and disc displace less liquid, so the mesh volume must RISE by the displaced difference. Predicted ~1.08e-04 m3 from the geometry alone; measured 1.071e-04 m3."
+  },
+  "_NOT_A_FREEZE": "This certificate discharges MESH_STANDARD section 8.1's BUILD-BEFORE-FREEZE precondition and NOTHING ELSE. The freeze is the cfd-supervisor's check 4 and may not be delegated (SUPERVISION_CHARTER section 3, CLAUDE.md rule 2). NO COMPUTE HAS RUN under MRF_R4_PREREGISTRATION.md: this directory holds a mesh and no time directory."
+}
