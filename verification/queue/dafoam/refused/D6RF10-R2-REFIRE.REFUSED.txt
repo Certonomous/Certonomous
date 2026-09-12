@@ -1,0 +1,2 @@
+2026-09-12T19:44:06Z REFUSED by queue_runner; validator reasons:
+GATE A CHECKPOINT: gate A: solver_class='dafoam-primal-containerised' is not one of openfoam-steady / openfoam-transient / optimisation / utility, so no limb of the checkpoint policy could be selected. Nothing on disk was tested and nothing on disk is implicated by this refusal.
