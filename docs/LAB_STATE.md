@@ -45236,6 +45236,37 @@ Watchers all `ppid 1`: CRM grader 2918833 + cost writer 2933829 · DrivAer 27395
 
 #### OWED BY ME
 §10.2 of the CRM registration stores a **recipe** (`the commit that carries the signature`) instead of a literal sha, so rule 2's hash-against-the-blob cannot be performed from it. Deferred, named, not lost. Also mine: the C2 registration never wrote its coverage formula and a lane had to derive it.
+
+<!-- BOARD-BLOCK-ID: 193-RESUME-STATE-QUEUE-ERA -->
+### Block 193 — resume state under the runner, 2026-09-12T20:08:24Z
+
+**STATE ONLY.** Runner daemon is the only launcher (Sanaa item 19); a hand launch is not a case.
+
+#### RUNNING / QUEUED
+| item | state |
+|---|---|
+| **CRM wing-alone L2R** | RUNNING pid 92643, 6 ranks, ~2540/4000, ~42 it/min, lands ~20:40Z |
+| **DrivAer r2c_medium_blended_R2** | RUNNING, 4 ranks, ~290/2000 |
+| **MRF-R4 t/D=0.0155 fine mesh** | BUILDING, snap 3.64 M cells vs 4.6 M projected |
+| **SUBOFF-A1B-SOLVE-L2 / -L1-R2** | QUEUED, all gates dry-run PASS, HELD on busy ceiling only |
+| **M6H1** | generator passes H-G0; march yields NaN while pyHyp exits 0 |
+
+#### VERDICTS / FINDINGS THIS SESSION
+**MRF:** zone hypothesis **REFUTED** — ours is 1.20 D and the paper's Np *rises* through it, wrong sign. **Beshay 2001 retrieved** (experiment at our exact ratios, Po 5.41); thickness-corrected to our t/D gives **4.497 vs our 4.382 = −2.6 %**, against −17/−22 % on Reid's band. Torque is **99.98 % pressure**, so near-wall causes are ruled out. Reid figure set **30/30 complete**.
+**SUBOFF:** no admissible Roache triple on this box — **nobody had costed the SOLVE footprint**; L4 needs 148–239 GiB vs ~120. Defect cell 376945 located; **four mechanisms examined, four ruled out by measurement**; distribution scan deferred until the ceiling clears.
+**CRM:** P1C , patches written,  stands beside its verdict.
+
+#### PENDING VERDICTS — READ THE FILE, DO NOT RE-DERIVE
+CRM → `verification/runs/CRM_WINGALONE_runs/SOLVE_L2R/` grader + `COST_ROW.txt` · DrivAer B1/B2 → `GRADE_STAGE_A_*.json` + `DRIFT_WINDOWS.tsv` · SUBOFF → autograder output. Every grader **refuses (exit 2) rather than degrading**.
+
+#### 🔴 OPEN HAZARDS NEEDING SOMEONE ELSE
+1. **A lane's commit was DENIED** ("Modify Shared Resources" at `update-ref`). Uncommitted: `launch_suboff_level.sh`, both entry drafts, `SOLVE_L1_R2`. Manifest + message: `cases/navier_class/SUBOFF_A1/UNCOMMITTED_WORK_2026-09-12.md`. **Runs unaffected — the queue reads files, not git.**
+2. **The runner records `launcher_rc` and surfaces a non-zero one NOWHERE.** K2h_L3 (heat-transfer) refused at its own gate 19:48:29Z, `launcher_rc=2`, no artifacts — and the log says LAUNCHED with Gate F certifying detachment of a process that was exiting. **A refused launch is indistinguishable from a running one.**
+3. **AGE-GUARD and gate A cannot both be satisfied by any fresh OpenFOAM case** — `0/` matches TIME_DIR, and gate A needs `cwd` to be the case. Case-level workaround only.
+4. **Shared index carries 102 staged deletions**, including live registrations and queue entries. A bare `git commit` destroys them.
+
+#### OWED BY ME
+M6H1 re-freeze in one pass (Amendment 2, §4's over-determined `r`, the ungated flat tip, H-G0's two unimplemented clauses). SUBOFF A1c §8 and A1d freeze blocks. **"I sign on sight" is WITHDRAWN — a lane caught me about to sign a mechanism it had already disproved.**
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
