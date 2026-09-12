@@ -26962,3 +26962,72 @@ is gone is not a result — here the artifact was present and the verdict was
 obsolete, the mirror case); the `clock audit before rate judgments` pattern; standing
 rule 6 (frozen files are never edited; departures are dated amendments **appended**,
 precisely so that a line citation into a frozen file stays valid).
+
+## L-555 — A check that compares a COPY WITH ITS OWN SOURCE cannot fail, and the claim it licenses can still be TRUE: my byte-identity assertion was a tautology for four hours, the files really were identical, and only the one level where those two facts diverge ever found out
+
+**What I asserted, and what the assertion did.** The DrivAer R2 build wrapper assembled
+each mesh level from the graded R1 level of the same name and asserted that the family
+differed in exactly one file. The assertion was:
+
+    cp -p "$SRC/system/$f" "$R/system/$f"
+    cmp -s "$SRC/system/$f" "$R/system/$f" || { echo "REFUSE: $f differs"; exit 2; }
+
+**It compares the copy with its own source, one line after making the copy.** It cannot
+fail, at any level, for any file, on any machine, ever. I wrote it, I read it back while
+drafting a pre-registration around it, I reported it to my supervisor as *"every other
+`system/` file and both STL and eMesh verified byte-identical by `cmp`"*, and he read it
+too. Four eyes and a freeze commit, and the thing asserted nothing.
+
+**The part that makes this worth a lesson rather than a typo.** The claim it licensed
+**was true**. The coarse and medium levels' dicts really were byte-identical to the
+graded family's. A supervisor re-ran the comparison the honest way — across cases, `A1`
+against `r1_coarse` — and all five files matched, so the A1 `GATE FAIL` at 50.057 % and
+the B1 `H1 REFUTED` verdict **stand on verified facts**. **THE CLAIM WAS TRUE AND THE
+CHECK WAS WORTHLESS. THOSE ARE TWO DIFFERENT FACTS AND NEITHER REDEEMS THE OTHER.**
+
+**Why it survived: it was true by luck of level.** Only `r1_fine/system/` had been
+mutated — R1 Stage A replaced its `controlDict`, `fvSchemes` and `fvSolution` with
+*solver* versions and left the mesh-build originals beside them as `*.meshbuild`. So
+`controlDict` **names two different files depending on the level**. At coarse and medium
+the tautology and the truth agree; at fine they disagree, and `r1_fine`'s solver
+`controlDict` carries `#include "forceCoeffs"`, which is not a mesh-build input.
+**Had the first LAYERFIX arm been run at fine, we would have shipped a wrong verdict and
+the check would have printed green.**
+
+**What actually found it.** Not its author re-reading it. Not the pre-registration
+review. **`blockMesh` refused to start**, rc=1, on a missing include. This is the
+**second** check-with-no-failing-branch in this family in one night — the first being a
+transition criterion that computed last-layer/local-cell under `relativeSizes true`,
+where the requested last layer **is** *f* × the local cell *by definition*, so the ratio
+is 1/*f* always, at every level, and it was read as a cross-check because it came out
+identical at two refinement levels. **Neither was found by reading. Both were found by
+something REFUSING TO RUN.**
+
+**The rules.**
+1. **AN ASSERTION MUST NAME THE STATE IT REJECTS, AND YOU MUST CONFIRM YOUR FIXTURE CAN
+   PRODUCE THAT STATE.** If you cannot write down an input that makes it fail, it is not
+   a check. This is the planted-zero discipline (standing rule 3) applied to assertions
+   rather than to readers: *a pass from a check not shown able to fail is not evidence.*
+2. **COMPARE ACROSS THE AXIS THE CLAIM IS ABOUT.** "The family differs only in
+   `blockMeshDict`" is a claim about *levels*, so the comparison must be **level against
+   level** (`r2_fine/system/<f>` vs `r1_coarse/system/<f>`), never copy against source.
+   A comparison along the wrong axis is the commonest way to build a tautology that reads
+   like a guarantee.
+3. **A QUANTITY IDENTICAL AT TWO REFINEMENT LEVELS IS NOT MEASURING THE MESH.** Sameness
+   across levels is the signature of a definitional identity, not of a converged family.
+4. **A FAMILY IS NOT UNIFORM JUST BECAUSE ITS FILES SHARE NAMES.** A level that has been
+   *solved* has had its `system/` mutated by the solve. Prefer an explicit
+   `*.meshbuild` variant where one exists, refuse any mesh-build dict carrying an
+   `#include` (a mesh-build dict must be self-contained — that limb catches the class,
+   not tonight's instance), and write a `SYSTEM_PROVENANCE.txt` naming, per file, which
+   source was taken and what it was verified against.
+
+**The generalisation worth carrying.** **The compiler of last resort in this lab is the
+solver.** A check that only fails when the solver would have failed anyway has bought
+nothing — it has only moved the discovery earlier in the log. The checks that earn their
+place are the ones that fail on inputs the solver would happily accept.
+
+**Related.** Standing rule 3 (a zero from a reader not shown able to see a non-zero);
+L-544 (a freeze verifies bytes, never that anything calls them); L-529 (an owed
+executable check must be driven in **both** directions on real numbers); L-221/L-222 (a
+lesson is not applied until every call site asserts it).
