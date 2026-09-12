@@ -70,10 +70,46 @@ if grep -qE '^[[:space:]]*(sudo |[A-Za-z_]+=\$\(sudo )' "$LAUNCHER"; then
 fi
 
 # --- Sanaa checkpoint item 2, asserted on the run script that will actually run.
-grep -q 'hist_file' "$CASE_DIR/mpa5r_run_script.py" || {
-  echo "REFUSE [CHECKPOINT] mpa5r_run_script.py has no pyOptSparse hist_file; Sanaa item 2"
-  echo "                    requires the optimisation to write its history and design vector"
-  echo "                    every iteration AND be able to hot-start from them.  NOT LAUNCHING."
+#
+# THE REGISTERED RESTART ARTIFACTS, NAMED HERE BECAUSE THIS FILE IS THE LAUNCH TARGET
+# THE QUEUE GATE READS.  gate A limb (iii) resolves `launch_cmd` to a file and refuses
+# if the entry's registered history and design-vector BASENAMES do not appear in it:
+# "a claim no artifact carries is not a declaration".  These two names must therefore
+# match the entry's `restart` object exactly.
+#   history       : OptView.hst        (pyoptsparse; what hotstart_file reads back)
+#   design_vector : mpa5r_hist.sql     (OpenMDAO SqliteRecorder; desvars per driver iteration)
+RESTART_HISTORY="OptView.hst"
+RESTART_DESIGN_VECTOR="mpa5r_hist.sql"
+
+# NAMING THEM IS NOT ENOUGH -- the gate checks THIS file, so THIS file must check the
+# one that would actually have to write them.  Otherwise the coupling the gate is
+# testing for stops at my own text.
+for _art in "$RESTART_HISTORY" "$RESTART_DESIGN_VECTOR"; do
+  grep -qF "$_art" "$CASE_DIR/mpa5r_run_script.py" || {
+    echo "REFUSE [CHECKPOINT] mpa5r_run_script.py never mentions $_art, which this entry"
+    echo "                    REGISTERS as a restart artifact.  NOT LAUNCHING."
+    exit 92
+  }
+done
+
+# The READING side is the half that was actually missing: hist_file alone writes a
+# history nothing ever reads back.  Both sides are required.
+grep -qE '^[^#]*hotstart_file' "$CASE_DIR/mpa5r_run_script.py" || {
+  echo "REFUSE [CHECKPOINT] mpa5r_run_script.py has no executable hotstart_file; it would"
+  echo "                    WRITE a history and never READ one.  Sanaa item 2 requires both."
+  exit 92
+}
+
+# ONE history filename, from ONE constant, checked at BOTH call sites (L-221/L-222).
+# ADDENDUM 2 added a second hist_file assignment without noticing the first, which
+# silently renamed the history; a resume would have found nothing and cold-started.
+[ "$(grep -cE '^[^#]*prob\.driver\.hist_file' "$CASE_DIR/mpa5r_run_script.py")" = "2" ] || {
+  echo "REFUSE [CHECKPOINT] the number of executable prob.driver.hist_file assignments is not"
+  echo "                    the expected 2.  Re-read MP_A5R ADDENDUM 5 before changing this."
+  exit 92
+}
+grep -qF '_HIST_BASENAME = "OptView.hst"' "$CASE_DIR/mpa5r_run_script.py" || {
+  echo "REFUSE [CHECKPOINT] the single-source-of-truth history constant is gone."
   exit 92
 }
 

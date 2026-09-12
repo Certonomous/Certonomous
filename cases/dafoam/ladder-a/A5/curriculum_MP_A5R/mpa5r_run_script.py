@@ -388,7 +388,14 @@ else:
 
 prob.driver.options["debug_print"] = ["nl_cons", "objs", "desvars"]
 prob.driver.options["print_opt_prob"] = True
-prob.driver.hist_file = "OptView.hst"
+# MP_A5R-6  ADDENDUM 5.  ONE SOURCE OF TRUTH FOR THE HISTORY FILENAME.
+# THIS LINE ALREADY EXISTED AND I MISSED IT.  ADDENDUM 2 recorded that a grep for
+# `hist_file` over this file "returns NOTHING"; run for real it returns THIS LINE.
+# The pyoptsparse history was ALREADY being written; what was missing was the
+# READING side, `hotstart_file`.  ADDENDUM 2 then added a SECOND assignment below,
+# which is the L-221/L-222 shape exactly: two call sites, one changed.
+_HIST_BASENAME = "OptView.hst"
+prob.driver.hist_file = _HIST_BASENAME
 
 if args.dvFile:
     with open(args.dvFile) as _f:
@@ -495,7 +502,25 @@ if args.task == "run_driver":
     # is an explicit act on a pre-populated tree and never an accident on a fresh
     # one.  WHICH BRANCH WAS TAKEN IS RECORDED, so the record can never be read as
     # a cold start that silently resumed, or a resume that silently cold-started.
-    _hst = os.path.abspath("mpa5r_opt.hst")
+    # MP_A5R-6  ADDENDUM 5.  WAS `_hst = os.path.abspath("mpa5r_opt.hst")`, which
+    # SILENTLY RENAMED the history: the assignment above writes OptView.hst and this
+    # one overrode it with a different basename.  A resume against a tree written
+    # under the old name would have found nothing and cold-started without saying so.
+    # Now ONE basename, from ONE constant, used at BOTH sites -- and the second site
+    # CHECKS the first rather than assuming it (L-221/L-222: a lesson is not applied
+    # until EVERY call site asserts it).  Not `assert`: stripped under python -O.
+    _prior = getattr(prob.driver, "hist_file", None)
+    if _prior is None or os.path.basename(str(_prior)) != _HIST_BASENAME:
+        rec["status"] = "REFUSED_HIST_FILE_DISAGREEMENT"
+        rec["hist_file_prior"] = repr(_prior)
+        rec["hist_file_expected_basename"] = _HIST_BASENAME
+        if MPI.COMM_WORLD.rank == 0:
+            with open(args.out, "w") as f:
+                json.dump(rec, f, indent=2, sort_keys=True)
+            print("MPA5R_REFUSE: two call sites disagree on the history filename: "
+                  "driver.hist_file=%r, expected basename %r" % (_prior, _HIST_BASENAME))
+        exit(3)
+    _hst = os.path.abspath(_HIST_BASENAME)
     prob.driver.hist_file = _hst
     rec["opt_hist_file"] = _hst
     if os.path.exists(_hst):
