@@ -1737,3 +1737,186 @@ disk and rule 15 forbids dressing that up as a citation.**
 
 *§13 ends. No gate, threshold, cap or label registered above this section is altered by
 it, and no verdict on any measured quantity is issued in it.*
+
+---
+
+# §14. DATED ADDENDUM — 2026-09-12 — **X1 IS WITHDRAWN BY THE OWNER.** AND THE L0c RESULT.
+
+**Appended at the foot. Nothing above this section was renumbered, reworded or deleted:
+`lines whose number changed above this section: 0`** — proved by `git diff` in the same
+shell invocation as the commit, not asserted. **No gate, threshold, band or label
+registered above is altered by this addendum**; the one thing it changes was itself
+introduced by §13 and is struck in place rather than removed.
+
+## 14.1 🔴 FALSIFIER X1 — **WITHDRAWN**. THE ORIGINAL IS STRUCK AND LEFT LEGIBLE.
+
+§13.8 registered **X1 — CAP EXHAUSTION** as a **hard stop**: *"STOP the level … report
+`NOT A RESULT` … an overrun does not get a new budget."* It was marked
+`[lab-attributed]` to the cfd-supervisor and was **deliberately stricter than §11.8's own
+`record and continue`**.
+
+> ~~**X1 as registered in §13.8: spend reaching a sub-cap STOPS the level.**~~
+> **STRUCK 2026-09-12. WITHDRAWN BY THE OWNER, ABOVE THE AUTHORITY THAT SET IT.**
+>
+> **Sanaa, her own session turn ~2026-09-12T01:10Z, verbatim:** *"dont forget i dont want
+> any cap on any run, and that i bumped the volume to 1000 gib"*.
+
+**Consequences, and what is NOT changed:**
+
+- **§11.8's ORIGINAL `M3 REPORTING` — record and continue — STANDS AS WRITTEN.** The
+  stricter reading laid over it by §13.8 is gone; the registered one returns.
+- **The caps do not die — they become CALIBRATION FIGURES.** §13.9's 3,800 / 10,600 /
+  14,400 core-min remain registered, every run is still costed in its pre-registration,
+  and actual is still compared against predicted at completion under rule 12 with
+  contention on its own line. **A CAP IS NOW A PREDICTION TO BE SCORED, NEVER A KILL.**
+- **X1 IS NOT DELETED FROM THE RECORD.** A withdrawn falsifier that is still legible is
+  how a reader sees that the reasoning changed and why. Rule 6: struck, never rewritten.
+- **NOTHING ELSE IS LOOSENED.** X2 (memory) stands, and so does the fleet headroom rule
+  `available − 4 GiB`: **she lifted caps, she did not add RAM to this box.** A memory wall
+  is physics, not a budget. X3, X4 and X5 stand. **A run still stops for PHYSICS and for
+  TRIAGE** — divergence, garbage, a refusing mesh are FINDINGS and are stopped and triaged
+  as always. What is disarmed is stopping a **healthy** run because it got expensive.
+- **Disk is no longer a constraint**: root volume 1000 GiB, 505 G free.
+
+## 14.2 `L0c` BUILT AND GRADED — FOUR PREDICTIONS SETTLED, ONE NOT GRADABLE BY MY OWN FAULT
+
+Built 2026-09-12T01:04:27Z → 01:27:17Z, rc = 0, **1370 s × 4 ranks = 91.33 core-min**.
+`free -g` read **immediately before launch**: available **17 GiB**, ceiling
+`available − 4 = 13 GiB`, predicted peak 3.19 GiB ⇒ proceeded, clear by ~4×.
+
+| | measured |
+|---|---|
+| cells | **1,206,389** |
+| **delivered ratio against L1** | **1.394094** — against L1→L2's own **1.407873**, within **1.0 %** |
+| **minimum cell determinant** | **3.4590623e-03** — **3.5× ABOVE** the `1.0e-03` floor; `checkMesh`: *"Cell determinant check OK."* |
+| max non-orthogonality | **69.582824** (ceiling 70) — see §14.3 |
+| max skewness | 2.9867018 (ceiling 4) |
+| geometric directions | **3** `(1 1 1)` |
+| layers | hull 4.91/5, sail 4.86/5 — 98.6 % / 97.3 % thickness |
+| **hull near-wall `y₁`** | **1700 µm** — **PREDICTED 1719 µm, accurate to 1.1 %** |
+| **cells across the truncated TE base** | **6** (min and median), floor **8** |
+| **peak `Memory per-node`** | **4,081,884 kB = 3.8928 GiB** |
+
+| # | prediction | verdict |
+|---|---|---|
+| **P9** | cells ∈ [1.05 M, 1.30 M] | **HOLDS** — 1,206,389, ratio 1.394094 inside [1.36, 1.46]. **The generating rule reproduced the family's own delivered ratio WITHOUT BEING TUNED TO IT**: `d0` was set once by the rule and the ratio measured afterwards. That refusal to search is what makes the number evidence. |
+| **P10** | TE-base count **below** the floor of 8 | **CONFIRMED** — predicted 5.69, **measured 6**. ⇒ **`GATE FAIL` on `L0c`'s M-b-1 limb**, reported as the failure registered in advance. The floor was not moved and the limb was not dropped. The probe's rule-3 plant returned **13 of 13** with the excluded window returning **0**, so the counter was shown able to see a non-zero before its 6 was believed. |
+| **P11** | `L0c` clears M-d | **HOLDS — and it is the most important line in this section (§14.4).** |
+| **P12** | peak ∈ [2.2, 4.6] GiB | **HOLDS — 3.8928 measured against 3.2734 predicted, ratio 1.1892 (§14.5).** |
+| **P13** | hull axial faces ≥ 400 | **🔴 NOT GRADED — AND THAT IS A DEFECT IN MY OWN REGISTRATION.** **No instrument in the frozen grading path emits a hull-generator face count.** `probe_suboff_a1_features.py` measures TE-base, LE and junction counts and does not measure this one. **I registered a prediction whose falsifier nothing could fire** — the same defect as §4.3 of the status table, in my own document, one section after I wrote the repair for it. Building an instrument now to grade it would fix the grading path **after** the compute (rule 2), so **P13 stays NOT GRADED** and is recorded as a miss of method rather than quietly derived from octree arithmetic that is the prediction itself. |
+
+## 14.3 TWO MEASUREMENTS ABOUT `L0c` THAT A TABLE WOULD HIDE
+
+**`L0c` FINISHED MESHING WITH 123 ILLEGAL FACES.** Its closing line is *"Finished meshing
+with 123 illegal faces (concave, zero area or negative cell pyramid volume)"*, where **L1
+and L2 both close with "Finished meshing without any errors"**. A **difference in kind**
+between the coarsest level and the two above it, and the first time this family has ended a
+build that way. **The concave count is NOT the new part** — `checkMesh` flags concave cells
+at every level (34,450 / 65,027 / 131,728). **Flagged, not filed.**
+
+**MAX NON-ORTHOGONALITY 69.582824 AGAINST A CEILING OF 70 — it passes by 0.42°.** L1 and L2
+sit at 64.953 and 64.906, so **the coarsest level is 4.6° worse than both and is the only
+level anywhere near the ceiling.** Passing by 0.42° is passing, and it is said here in prose
+because inside a table a margin that thin disappears.
+
+> **`L0c` WAS BUILT FOR THE MEMORY CURVE AND FOR P10/P11, AND IT IS NOT SOLVE-READY.** It
+> fails M-b-1 and it closes with illegal faces. Its registered purpose was discharged the
+> moment its `Memory per-node` and its determinant were read.
+
+## 14.4 🟢 **P11 — L1 IS AN ISLAND, NOT A FLOOR. THE NATURAL READING OF §12.8 IS MEASURED FALSE.**
+
+| level | cells | min cell determinant | floor `1.0e-03` |
+|---|---:|---|---|
+| **`L0c`** | 1,206,389 | **3.4590623e-03** | **CLEAR by 3.5×** |
+| **L1** | 3,268,613 | **8.6227045e-04** | **FAILS, by 13.8 %** |
+| **L2** | 9,121,237 | **1.5198839e-03** | CLEAR |
+
+**1.21 M clean, 3.27 M degenerate, 9.12 M clean. THE DEGENERACY IS NOT MONOTONE IN
+RESOLUTION.**
+
+§12.8 established, correctly, that **~3.27 M reproducibly fails** — invariant to
+partitioning and to alignment. **It never established that everything at or below 3.27 M
+fails, and that is what anyone would have assumed from it.** §12.9.1 already warned once
+that §12.4 *"claimed more than the return of one cell can carry"*; **this is the second
+time the same document's broader reading has outrun its evidence, and this time a
+measurement settled it instead of an argument.**
+
+**It also sharpens what the L1 failure IS.** Not *"coarse meshes degenerate"* but
+**something specific to that one build** — which is consistent with the instrument
+disagreement already on record at §4.2 of the status table, where `snappyHexMesh` reports
+*"faces on cells with determinant < 0.001 : 0"* and *"Finished meshing without any errors"*
+on the very mesh `checkMesh` flags with one such cell.
+
+## 14.5 P12 — THE MEMORY CURVE NOW HAS A THIRD POINT, AND THE LAB'S FIGURE BECOMES A RANGE
+
+| Mcell | **measured `Memory per-node`** |
+|---:|---|
+| 1.206389 | **3.8928 GiB** |
+| 3.268613 | **7.5215 GiB** |
+| 9.121237 | **17.7137 GiB** |
+
+The two-point fit on record, `peak = 2.7989 × Mcell^0.83467`, predicts **3.2734 GiB** at
+`L0c`'s actual built size. Measured **3.8928**. **Ratio 1.1892 — the fit UNDER-predicts by
+18.9 % at the low end**, and P12's registered band [2.2, 4.6] GiB **HOLDS**.
+
+Refitting all three points by log-log least squares gives **`peak = 3.2831 × Mcell^0.74943`**
+— the exponent **drops** and the coefficient rises; residuals −2.9 %, +6.0 %, −2.8 %.
+
+> **🔴 THE 41.7 GiB FIGURE IS RETIRED FROM QUOTATION. THE LAB'S STATEMENT FOR L3 AT
+> 25.453 Mcell IS A RANGE: 37–49 GiB** — three-point fit **37.13**, two-point fit **41.72**,
+> pure linear scaling from L2 as a pessimistic bound **49.43**.
+>
+> **EVERY MEMBER OF THAT RANGE EXCEEDS 30 GiB OF RAM. Gate M and the `BLOCKED` ruling are
+> untouched, and a range that still clears the decision threshold is a STRONGER argument
+> than a point estimate, not a weaker one** — it says the conclusion survives our own
+> uncertainty about the curve.
+
+**AND THE CAVEAT, UNSOFTENED, BECAUSE A FAVOURABLE TEST IS EXACTLY WHEN AN OVERCLAIM SLIPS
+THROUGH.** `L0c` sits **BELOW** both fitted points and constrains the curve's **LOW** end;
+L3 is a **FORWARD** extrapolation **2.8× beyond the highest measured point** and L4 is
+**7.8×** beyond it. **THE TWO EXTRAPOLATIONS RUN IN OPPOSITE DIRECTIONS AND MUST NOT BE READ
+AS ONE VALIDATION.** What P12 genuinely establishes is narrower and still worth 91 core-min:
+**the curve is smooth and monotone across 1.21–9.12 Mcell, it has no knee in that span, and
+the model form is not wrong in kind.** For L4 the three-point fit gives **80.13 GiB** against
+the 98.25 on record, with the linear bound at 137.94 — so **a 128 GiB instance still survives
+being wrong about the fit and 96 GiB is still a bet**, exactly as §12.9.2 said.
+
+## 14.6 RULE-12 CALIBRATION FOR `L0c`, WITH CONTENTION ON ITS OWN LINE
+
+**PREDICTED 27.62 core-min** (scaled from L1's measured 77.07 by the delivered cell-count
+ratio at equal ranks). **ACTUAL 91.33 core-min.** **RATIO 3.31×.** Derived **$0.0781** at
+the owner-stated $0.0513/core-h — **DERIVED, NOT MEASURED**; the box cannot read its own
+billing.
+
+**ATTRIBUTION, and the two halves are kept apart because averaging them would hide both:**
+
+- **MISPREDICTION: small.** The same cell-count scaling predicted **peak memory to 18.9 %**
+  and **near-wall first-cell height to 1.1 %**. The estimator's physics is sound.
+- **CONTENTION: essentially the whole gap.** The build ran through a window in which load
+  average went **64.69 → 76.41 on 16 cores**, against the **~20–25** that prevailed when
+  L1's 77.07 core-min anchor was taken — **3.1–3.7× oversubscription** by other teams' work.
+
+**A direct observation of the box's delivery, recorded with its qualifier:** a **`nice`-15,
+`ionice`-3, single-threaded** python process was measured at **13.8 % of one core** at
+01:03Z. **That is a FLOOR on starvation for a low-priority thread and NOT the share a
+normal-priority solver receives** — it is an observation of the output rather than a
+fair-share model computed from a thread count, and it must not be quoted as the general
+slowdown.
+
+## 14.7 AN INSTRUMENT DEFECT OF MINE, CAUGHT BEFORE IT PRODUCED A NUMBER
+
+The independent memory sampler's first version selected ranks **by process name** and summed
+**every** `snappyHexMesh` on the box — folding heat-transfer's T26 build (~0.43 GiB) into
+this level's total. **It would have read as a P12 near-miss that was entirely my
+instrument's fault.** It was caught by the `n_ranks` column reading **5** where this case has
+**4**. Corrected to select by **`/proc/<pid>/cwd`**: **scope the measurement the way the JOB
+is scoped, not the way the process table is.** The contaminated file was **moved and
+labelled, not deleted** (`MEM_SAMPLES_CONTAMINATED_DO_NOT_USE.txt`).
+
+**The corrected sampler's peak is 3.568 GiB of total RSS. That is a DIFFERENT METRIC from
+`Memory per-node` and the two are NOT calibrated against each other**, so **3.8928 GiB from
+the log is the number of record and 3.568 is corroboration only. Two uncalibrated numbers
+agreeing is not a cross-check.**
+
+*§14 ends. No gate, threshold, cap or label is altered except X1, which is struck above by
+the owner's own words and left legible.*
