@@ -27435,3 +27435,52 @@ rendering page 1); N-C13 and its Addendum 1.
 Table 1, Table 3, §2, eq. (5); `verification/campaign/MRF_PAPER_REGISTRATION_REID2025.md` §11;
 `verification/runs/navier_class/MRF/R2/ET8000/*/postProcessing/impellerForces/0/moment.dat`;
 `cases/navier_class/MRF/mesh/generate_geometry.py:21–38`.
+
+---
+
+## L-563 — A retrieval that "succeeded" can hand you a 1,408-byte maintenance page, and the only thing that catches it is asserting the file's MAGIC BYTES
+
+**2026-09-12, cfd, SUBOFF A1c.** Four DARPA SUBOFF reports were fetched from
+`apps.dtic.mil` by the two documented URL patterns (`/sti/pdfs/<AD>.pdf` and
+`/sti/tr/pdf/<AD>.pdf`). **Every one returned HTTP 200 with a non-empty file.**
+Every one was an HTML page reading **"Under Maintenance"**, 1,408 bytes.
+
+**Why the usual checks all pass.** `curl` exits 0. The file exists. Its size is
+non-zero. A `-s` test passes. A downloader that logs "retrieved 1,408 bytes"
+looks like it worked, and a manifest built from those filenames is **internally
+consistent and externally false** — which is rule 15's exact failure mode, now
+seen at the *fetch* step rather than the *read* step.
+
+**What caught it:** the fetch asserted the **magic bytes**, not the size:
+
+```bash
+if [ -s "$f" ] && head -c 5 "$f" | grep -q '%PDF'; then ...   # else: MISS
+```
+
+**The working route when DTIC is down** — and it is the mirror, not a scraper:
+`https://archive.org/download/DTIC_<ADnumber>/DTIC_<ADnumber>.pdf`. All four
+reports came back intact this way (AD-A227 715, AD-A218 797, ADA359226,
+AD 653 861).
+
+**Three rule-15 catches from the same hour, because retrieval is where citations
+get laundered.**
+1. The local bibliography called a report `NSWCCD/HD-1298-11`; **the title page
+   reads `CRDKNSWC/HD-1298-11`**, and the month was June, not the July a search
+   engine asserted.
+2. A search engine offered `ADA246217` as the full text of Huang et al. 1992. Its
+   title page says **`DTRC/SHD-1355-03`, a different report series** on turbulence
+   ingestion. **Discarded, not filed** — it would have entered the library under a
+   filename claiming to be something it is not.
+3. Gertler & Hagen's cover carries **no institution and no report number**. The
+   "2510" everyone cites comes from third-party bibliographies. It was filed with
+   that fact **recorded as unverified** rather than laundered into a citation.
+
+**The general rule.** *Assert the thing you actually need, not a proxy for it.* A
+non-zero size is a proxy for "a PDF arrived"; `%PDF` is the thing. This is the
+same shape as the planted-zero rule (rule 3): a reader that has not been shown
+able to fail is not evidence that it passed.
+
+**Related.** Rule 15 (title-page verification); rule 3 (planted zero); L-144.
+
+**Sources.** `verification/campaign/SUBOFF_A1c_PREREGISTRATION.md` §0;
+`docs/papers/benchmark_test_cases/{roddy_1990_dtrc_shd1298_08_darpa_suboff_captive_model,huang_1989_dtrc_shd1298_02_darpa_suboff_experiments,liu_1998_crdknswc_hd1298_11_darpa_suboff_data_summary,gertler_1967_nsrdc_2510_submarine_equations_of_motion}.pdf`.
