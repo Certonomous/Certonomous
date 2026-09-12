@@ -666,3 +666,47 @@ uid 1000 and gid 1000 are both `ubuntu`, so artifacts land `ubuntu:ubuntu`; **gi
 | re-fire scope | `D6RF10_RERUN_RUNG=R2` → a fresh `…​.RERUN-R2-<UTC>` sibling root | the graded root remains the authority for R1 and R3 and is never written to |
 
 Nothing here is sent, filed, uploaded, registered or posted. **SUBMISSIONS PARKED.**
+
+### 11. 🔴 CORRECTION, same day — **§10 SAYS "THE ENTRY IS PLACED". IT WAS NOT. IT WAS REFUSED.**
+
+**§10 above was written before the entry met the runner, and it asserts an accomplished
+fact that did not happen.** It is corrected here rather than left standing, because a
+record that asserts something untrue is worse than one that says less.
+
+**What actually happened:** the entry was written, `scripts/queue_entry_check.py` returned
+`ACCEPTED`, and **`scripts/queue_runner.py` REFUSED it at GATE A** and moved it to
+`verification/queue/dafoam/refused/D6RF10-R2-REFIRE.json`. Two causes, one mine:
+
+1. **A lane error:** the entry declared `solver_class: dafoam-primal-containerised`, which
+   is not one of the four the runner registers. The correct value is **`openfoam-steady`**.
+2. **A structural blocker that survives fixing (1):** gate A's controlDict limb reads
+   `<cwd>/system/controlDict` **before launch**, and this launcher has **no case directory
+   at rest** — it creates its root at launch, stages into it, and installs the controlDict
+   **inside the container**. The re-fire root does not exist yet (and `G-ROOT.3` refuses one
+   that does); the repo has no `system/`; and the staging source is **D6RF7's graded root**,
+   which measures `writeInterval 1000` / `purgeWrite 0` (refusing both limbs) and which
+   `G-ROOT.2` forbids writing to.
+
+**Full analysis, including the option that was refused on principle:**
+`D6RF10_R2_QUEUE_BLOCKER.md`, beside this file.
+
+**SUPERVISOR RULING, 2026-09-12 [lab-attributed]: OPTION (2). `G-ROOT.3`/`.4` ARE NOT
+RESTRUCTURED AND R2 WAITS.** The stated reason is recorded because it outranks this rung:
+`G-ROOT.3` exists to stop a launcher staging over graded evidence, and **that failure was
+found live the same night in D8G's launcher, which was silently `rm -rf`-ing a completed
+arm as root at every launch behind a `2>/dev/null`.** A fourth campaign unmeasured is a
+cost; **a graded root staged over is unrecoverable.** The fix is gate A gaining a registered
+limb for stage-then-install launchers — pinning the md5 of the `install_config` that does
+the work, giving the gate **proof of what WILL be installed rather than a reading of what
+IS installed** — and it is **escalated to verification as a shared cross-team gate
+question**, since every stage-then-install launcher in `cases/dafoam/` meets the same wall.
+
+**Recorded because it was refused deliberately and the refusal is the point:** pointing
+`cwd` at a case-shaped directory the run does not use would have passed gate A by having it
+read a controlDict **with no causal connection to the solve** — a green light with the
+30-minute loss bound never verified. **That option was available, was not taken, and is
+recorded as not taken.**
+
+**STATE: R2 is `BLOCKED` pending verification's ruling on gate A. Nothing launches.** The
+cap removal, the non-root spelling and the checkpoint repair in §§2, 8 and 9 above are
+committed and stand on their own; they are not contingent on the queue entry.
