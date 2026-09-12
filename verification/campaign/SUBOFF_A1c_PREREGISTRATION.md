@@ -5,6 +5,14 @@ personally, undelegated (check 4). No solver has been started by this document a
 queue entries it implies do not exist yet.
 
 **Author:** cfd `lab-lane`, 2026-09-12.
+
+**AMENDMENT CONDITION (rule 2), STATED AND CHECKED.** This document has been amended since
+first drafting — B2/B4/B5 moved to `PENDING`, §7.1 rewritten, §6.1/§6.2 added, §5 extended.
+Amendments before first compute are legal, **and the condition is that no compute has
+occurred**. Checked, not assumed: the run directories this document registers in §5 —
+`verification/runs/navier_class/SUBOFF_A1/A1c_ALPHA_*` — **do not exist**, and no queue entry
+references A1c. The pre-existing `SOLVE_L1`/`SOLVE_L2` are A1b's, are not A1c runs, and are
+shown in §6.1 to be incomplete in any case.
 **Predecessor:** `SUBOFF_A1b_PREREGISTRATION.md` (frozen; §11 freeze block completed
 2026-09-12T19:17:53Z). A1c does not move, narrow or revive any A1b gate.
 
@@ -197,10 +205,10 @@ sweep but **excluded from the fit** and reported separately as the linearity che
 | # | Quantity | Registered band | Tier | Source of the band |
 |---|---|---|---|---|
 | **B1** | `Z_w'` — **BARE HULL**, if a bare-hull arm is run | `[−0.006186, −0.005710]` (= −0.005948 ± 4%) | **MEASURED** | Roddy Table 4 Config 3 `Y_v'`, via axisymmetric plane-equivalence; width from Roddy App. C |
-| **B2** | `\|M_w'\|` — **BARE HULL**, if a bare-hull arm is run | `[0.012283, 0.013307]` (= 0.012795 ± 4%) | **MEASURED**, sign UNVERIFIED (§7.1) | Roddy Table 4 Config 3 `N_v'`; width from Roddy App. C |
+| **B2** | `M_w'` — **BARE HULL** | **`PENDING`** — value `+0.012795 ± 4%` held unfrozen | **`PENDING`** pending the supervisor's ruling on §7.1 | Roddy Table 4 Config 3 `N_v'`; width from Roddy App. C |
 | **B3** | `Z_w'` — **HULL + SAIL, our geometry** | `[−0.008847, −0.005710]` | 🔴 **LAB-CONSTRUCTED BRACKET — NOT A RODDY BAND** | §3.3 |
-| **B4** | `\|M_w'\|` — **HULL + SAIL, our geometry** | `[0.012283, 0.013734]` | 🔴 **LAB-CONSTRUCTED BRACKET — NOT A RODDY BAND** | §3.3 |
-| **B5** | `x_np/L` — **HULL + SAIL** | `[1.43, 2.34]` | 🔴 **LAB-CONSTRUCTED BRACKET** | propagated from B3/B4 |
+| **B4** | `M_w'` — **HULL + SAIL** | **`PENDING`** — bracket `[+0.012283, +0.013734]` held unfrozen | **`PENDING`** pending §7.1 | §3.3 |
+| **B5** | `x_np/L` — **HULL + SAIL** | **`PENDING`** — bracket `[1.43, 2.34]` held unfrozen | **`PENDING`** pending §7.1 | propagated from B3/B4 |
 | **B6** | `Cp(x/L)` at α = 0 | — | **`PENDING`** | §3.1 — data files not held |
 | **B7** | Sweep antisymmetry: `Z(+α) = −Z(−α)`, `M(+α) = −M(−α)` to within 2% of the α = 8 value | `≤ 2%` | **CODE-VERIFIED** (internal consistency, no experiment) | §5 |
 
@@ -271,6 +279,18 @@ Carried from A1b §3 unchanged except for incidence: `simpleFoam`, `kOmegaSST`,
 inlet velocity vector in the `x–y` plane, mesh unchanged between points (the mesh is
 identical for all seven; only `0/U` and the `forceCoeffs` `liftDir`/`dragDir` rotate).
 
+**THE SWEEP DOES NOT SHRINK WHEN `M_w'` GOES `PENDING` — IT GETS MORE LOAD-BEARING, AND IT
+COSTS NOTHING TO KEEP.** Three reasons, in order of force:
+1. **Zero compute is saved.** `Z` and `M` come out of the *same* solve and the *same*
+   `forceCoeffs`. Grading `M_w'` or not changes no run, no rank-hour and no field write.
+   `M` is still **recorded** at all seven points; it is simply not **graded**.
+2. **The fit is untouched.** `Z_w'` is fit over the five points |α| ≤ 8. Dropping the moment
+   channel removes none of them.
+3. **B7 becomes the ONLY internal falsifier in the document**, and B7 is evaluated on the
+   symmetric ±4/±8/±12 pairs. Deleting ±12 would leave A1c with one gradeable number against
+   a bracket the lab built for itself and **no independent check on the rotation
+   convention** — the configuration most likely to yield a confident wrong answer.
+
 **`B7` is why the sweep is symmetric rather than one-sided.** Seven points where five would
 fit the derivative buys an internal falsifier: the geometry is symmetric about `y = 0` in
 the hull but **not** in the sail (dorsal), so `Z(+α) ≠ −Z(−α)` is *physically expected* at
@@ -300,29 +320,96 @@ to be scored at completion under rule 12**, against actuals in core-minutes from
 with contention attributed on its own line and never absorbed into the actual/predicted
 ratio, landing as a row in `docs/COST_CALIBRATION.md`.
 
-**Two honest reductions available to the supervisor, neither taken unilaterally:** α = 0 at
-both levels may already exist from A1b's `SOLVE_L1`/`SOLVE_L2` (−1 point each, if and only
-if the age guard and the completion rule pass on those runs); and L2 need not run all seven
-points if L1's sweep falsifies B3 outright.
+### 6.1 THE TWO CANDIDATE REDUCTIONS — **ONE IS DEAD ON THE EVIDENCE, AND IS RETRACTED HERE**
+
+**RETRACTED — reuse of an existing α = 0 solve. IT DOES NOT EXIST.** An earlier draft of
+this section offered "α = 0 may already exist from A1b's `SOLVE_L1`/`SOLVE_L2`, −1 point per
+level". **This lane checked the two directories rather than assuming, and the reduction is
+not available:**
+
+- `verification/runs/navier_class/SUBOFF_A1/SOLVE_L1/` — the **only** time directory is `0`.
+  `log.simpleFoam` stops at `Time = 369` (the iteration-368 stall triaged in A1b §10.4),
+  carries **no `End` line**, and has **368 `ExecutionTime` entries against `endTime 3000`**.
+  It fails the strict completion rule (rule 4) on every clause that can be checked.
+- `verification/runs/navier_class/SUBOFF_A1/SOLVE_L2/` — **no time directories at all and no
+  solver log.** It never produced a field.
+
+> **There is no reusable α = 0 field at either level. The claimed saving of 23,820 core-min
+> / $20.37 is withdrawn, and the §6 table stands at its full seven points per level.**
+> Recorded rather than silently deleted, because an offered saving that evaporates on
+> inspection is exactly the kind of number that otherwise survives into a plan.
+
+**STANDS — stage L1 before committing L2.** Run L1's seven points, grade B3 and B7, and
+commit L2's **122,780 core-min / $104.98** only if L1 survives. In the falsification branch
+this is the whole L2 spend; in the pass branch it costs nothing but latency. **This is a
+sequencing decision, not a cap, and it stops no run** (directive #17).
+
+### 6.2 🔴 A COST *INCREASE* THE SUPERVISOR SHOULD SEE: **B1 IS CURRENTLY UNREACHABLE**
+
+`B1` (and `B2`, if §7.1 is ruled) are the **only MEASURED-tier rows in this document** — the
+only place the lab can hold a SUBOFF force number against a real experiment. **They are
+graded on a BARE HULL, and §5 runs hull+sail only. No bare-hull arm exists in this campaign
+or in any costing.**
+
+> **The recommendation, and it is the substantive one in this section:** a **bare-hull α
+> sweep** is the only route from CODE-VERIFIED to **MEASURED** tier on SUBOFF forces. It is
+> a *new* arm with its own mesh and its own cost — but the bare hull is a simpler geometry
+> than hull+sail, and Roddy's Config 3 hands it a measured band with a measured 4% width.
+> **Without it, every gradeable row in A1c is a bracket this lab constructed for itself.**
+> This is a campaign-scope call and is referred, not taken.
 
 ---
 
 ## 7. WHAT A1c DOES NOT CLAIM, AND WHAT THIS LANE COULD NOT VERIFY
 
-### 7.1 🔴 The `M_w'` SIGN CONVENTION IS UNVERIFIED, AND IT IS LOAD-BEARING FOR B2/B4/B5
+### 7.1 THE `M_w'` SIGN CONVENTION — **B2/B4/B5 HELD AT `PENDING`**, WITH THE EVIDENCE FOR A RULING
 
-The mapping `|M_w'|(bare hull) = |N_v'|` is safe in **magnitude** by axisymmetry. Its
-**sign** depends on the axis and moment-reference conventions, which Roddy takes from
-Gertler & Hagen. **This lane retrieved and title-page-verified Gertler & Hagen 1967 but did
-NOT verify the sign mapping from it** — the scan's OCR of the nomenclature tables is
-badly degraded and this lane did not render and read the axes/nomenclature pages. The §2.4
-consistency check supports the assumed convention but does not prove it.
+**B2, B4 and B5 are `PENDING` and this lane does not freeze them.** The evidence below is
+submitted for the cfd-supervisor's ruling; the tier moves only on their signature.
 
-> **Recommendation to the cfd-supervisor, for check 4:** either render and read Gertler &
-> Hagen's axes/sign-convention and nomenclature pages before freezing B2/B4/B5, **or freeze
-> only `Z_w'` (B1/B3), whose sign is unambiguous, and carry `M_w'` and `x_np/L` as
-> `PENDING`.** Freezing a moment band on an unverified sign is the same class of error as
-> citing a band to a paper we do not hold.
+**WHAT IS VERIFIED — read from the rendered page, not the text layer.** Gertler & Hagen,
+report p. 4 (PDF p. 17 of the filed file), rendered at 150 dpi and read:
+
+> "The Standard Equations are referred to a **right-hand orthogonal system of moving axes,
+> fixed in the body, with its origin located at the center of mass CG** of the body. The
+> **xz plane is the principal plane of symmetry (vertical center-plane for submarines)**;
+> the x axis is parallel to the baseline of the body. The **positive directions of the axes
+> are specified as follows: x-forward, y-starboard, and z-downward.** The remaining sign
+> conventions follow from the **right-hand-screw rule**."
+
+**Figure 1** (report p. 5, PDF p. 18) was located and rendered — *"Sketch Showing Positive
+Directions of Axes, Angles, Velocities, Forces, and Moments"*. The axis, force and moment
+arrows are present and labelled (`Z,w`; `M,q`; `Y,v`; `N,r`; `K,p`). **Disclosed: at this
+scan quality the arrow HEADINGS are not legible enough to read the moment senses off the
+figure.** Figure 1 therefore confirms the figure's existence and labelling but is **not**
+counted as independent confirmation below.
+
+**WHAT IS DERIVED — this lane's arithmetic from the verified axes, not a Gertler sentence.**
+With x-forward, y-starboard, z-down and right-handed, a force acting at longitudinal station
+`x` produces `M_y = −x·Z` and `N_z = +x·Y`. **The two planes carry OPPOSITE moment signs.**
+Since axisymmetry gives `Z_w = Y_v`, it follows that
+
+> **`M_w' = −N_v'`**, hence bare-hull `M_w' = −(−0.012795) = **+0.012795**`.
+
+**THE DISCRIMINATOR, AND IT IS DECISIVE.** The competing mapping `M_w' = +N_v'` would give
+`−0.012795` — **negative**. Every `M_w'` Roddy actually measured is **positive**
+(Config 1: `+0.010324`). So the competing mapping contradicts the sign of the one
+vertical-plane moment derivative in the report, measured independently of anything used
+here. **The two candidate signs are not equally supported; one of them is excluded by
+Roddy's own data.**
+
+**Two further corroborations, consistent with `M_w' = −N_v'`:**
+1. `M_w' > 0` is the destabilising bow-up Munk moment — the correct physics for a slender
+   body, and precisely what Roddy concludes (unstable in the vertical plane).
+2. `x_np/L = −M_w'/Z_w'` then gives 2.151 (bare hull) → 0.742 (fully appended): the neutral
+   point moves **aft** as appendages are added, tracking `G` from −20.385 to −1.163.
+
+> **The ruling this lane invites, and does not take:** the sign is settled to this lane's
+> satisfaction by the verified axes plus a discriminator that would otherwise invert every
+> measured `M_w'` in Roddy. **But the final step is this lane's derivation, not a quoted
+> sentence, and Figure 1 could not independently confirm it.** If the cfd-supervisor accepts
+> that chain, B2/B4/B5 freeze by dated addendum at the values held above. If not, they stay
+> `PENDING` — **and one defensible derivative beats three with an unverified sign.**
 
 ### 7.2 Sources named by Sanaa or by the bibliography that were **NOT** retrieved
 
