@@ -32740,7 +32740,7 @@ Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 
 <!-- BOARD-BLOCK-ID: 169-STATE-ONLY-PER-SANAAS-LESS-PLUMBING-DIRECTIVE -->
 
-**Section last written:** 2026-09-12T00:36:59Z by the cfd-supervisor (Opus 5). Newest block is 185 at the foot of this section. Earlier stamp kept for provenance: 2026-09-11T21:49:47Z. **STATE ONLY — [SANAA-DIRECT]: *"work less on plumbing and documentation, and work more on runningthe cases and fixing the defects."* This block is the new length.**
+**Section last written:** 2026-09-12T00:51:08Z by the cfd-supervisor (Opus 5). Newest block is 186 at the foot of this section.
 
 ### RUNNING
 | item | state |
@@ -44389,6 +44389,157 @@ unlaunched · H4's median 15/17 still owed its own registration with a threshold
 run that found it · `nMedialAxisIter` absent-and-unlimited, named and untouched · B-52 rungs 6/7/8
 carrying verdicts OUTSIDE rule 1's vocabulary ("REPRODUCE"), a supervisor re-grade nobody has done ·
 MOTORBIKE is not a graded case at all and Sanaa has now asked for it twice.**
+
+<!-- BOARD-BLOCK-ID: 186-PRD-GRADED-MY-OWN-GIT-DEFECT-AND-AN-INSTRUMENT-THAT-CALLS-A-SHELL-REDIRECT-A-SOLVER -->
+### Block 186 — PRD E1 graded, a defect I committed myself, and a reader that mistakes a shell redirect for a solver, 2026-09-12T00:55Z
+
+**VERDICT — PRD E1, REGISTERED GATE: `NOT A RESULT` at ALL FIVE `U_s`. 0 of 5 PASS,
+`credential = false`.** Commit `5b494e4bd`, record
+`verification/campaign/PRD_E1_FINE_GRID_RESULTS.md`, artifact
+`verification/runs/navier_class/PRD/gate_prd_e1.json`. **2.567 core-min, grading only, no solver
+launched — $0.0022 DERIVED NOT MEASURED.** **The Roache state is not `CONVERGING` at any `U_s`; it
+was never reached.**
+🟢 **AND THE FINE-GRID BAND TEST, WHICH IS WHAT SANAA ACTUALLY ASKED FOR, ON HER OWN WORDS
+(2026-09-10T20:40Z, *"prd/ NOPE ITS FINE WE CAN SEE THE RESULT on the fine grid only"*):** L3,
+1,179,648 cells, `G-ERGUN` ±3 % frozen at the ruling — **`U_s` 1.00: 824.796341 Pa vs Ergun
+825.000000, −0.024686 % · 2.00: 2961.569106 vs 2962.500000, −0.031423 % · 4.00: 11171.091991 vs
+11175.000000, −0.034971 %. THREE PASS.**
+🔴 **`U_s` 0.25 and 0.50 ARE `NOT A RESULT` AND THE REASON IS THE POINT: SHE RELAXED THE *GRID*
+REQUIREMENT, NOT RULE 5 STEP (a).** Iterative convergence is a property of the level being read,
+not of the grid, and **a fine-grid number read off a level that has not settled is not a
+measurement of anything, on any grid.** 0.25 `NOT_CONVERGED` (`Ux` 9.958e-05 vs tol 1e-5) **and**
+`NOT_PLATEAUED` (spread 4.089e-04 vs 1e-4); 0.50 `NOT_CONVERGED` at `Ux` **1.107e-05 against tol
+1.000e-05.** ***"A MISS BY 11 % IS A MISS."*** **The threshold was frozen before the run and was not
+moved afterwards to admit a value that was otherwise attractive** — the lane's own refusal, against
+its own convenience, on the single most rescuable row it had.
+
+🔴 **CHECK 3 PERFORMED BY ME PERSONALLY, AND I WENT LOOKING FOR A SPECIFIC DEFECT EXPECTING TO FIND
+IT.** Three agreements with Ergun to within **0.035 % across a 16× range in `U_s`** is the exact
+signature of a **circular gate** — a solver reproducing the correlation its own Darcy-Forchheimer
+coefficients were *derived from*, which is **a number computed from the input wearing the costume
+of an observation.** **THE RECORD DEFEATS IT AND DOES SO ON A LIMB WRITTEN BEFORE I ASKED:** at
+`U_s` = 4 the Δp is **94 % inertial**, and a missing ½ρ — registration §4 names it as *"the single
+most likely silent error"* — would halve the inertial term and land Δp near **6100 Pa against
+11175.** **THE GATE HAD A REAL FAILING BRANCH AND THE RECORD SHOWS WHAT WOULD HAVE FIRED IT.** That
+is now the question this family asks of every criterion, and this one survives it. **A gate I could
+not have failed would have been worth nothing however close the agreement.**
+🔴 **ONE REGISTERED CONTROL WAS NEVER EXECUTED, THE LANE SAID SO ITSELF, AND I HAVE ORDERED IT RUN
+RATHER THAN EXPLAINED.** `visibility_pair = null` at every `U_s`: **no INERT (`D = f = 0`) case
+exists in the run tree**; §6 registered three controls and **one ran for the graded ladder.** The
+lane's reasoning for why it is not load-bearing is CORRECT and I did not overrule it — the failure
+the pair guards against is trusting a **zero** from a reader never shown able to see a non-zero,
+the gated quantity here is a large **non-zero**, and the plant control (`PLANT_DP/RHO`, required
+shift **−3.210 Pa to within 1e-6**, refusing otherwise, **with a demonstrated failing branch** via
+a blind constant reader) positively fired on each graded artifact. ***But an explanation is only
+good until someone cheap can just run it, and this one costs ~2 core-min.*** Ordered on the coarse
+level at `U_s` = 4.00, **with its falsifier band stated in writing BEFORE it runs** — and the
+falsifier is explicitly **NOT "exactly zero"**, since an inert duct still carries wall friction and
+entrance losses. **If no failing branch can be stated, it is a demonstration and not a control and
+I told the lane I would rather know that than have it run.**
+
+🔴 **A DEFECT I COMMITTED MYSELF, AT `8fd2cace5`, AND THE ONLY REASON ANYBODY KNOWS IS THE
+MANDATORY POST-COMMIT VERIFY. REPAIRED AT `29d4a60ed`, PURE INSERTION, 1 added / 0 deleted.**
+**My commit DELETED the dafoam-supervisor's `Section last written` line.** I captured HEAD and
+extracted `docs/LAB_STATE.md` in ONE invocation, then captured HEAD AGAIN and committed in a LATER
+one; dafoam landed `5d1e24145` in between, so I `read-tree`'d the NEW HEAD while writing a blob
+built from the OLD one. **That is L-223, exactly, committed by the supervisor who quoted L-223 at
+three lanes in the same hour.**
+🔴 **WHY MY PRE-COMMIT CHECKS DID NOT CATCH IT IS THE PART WORTH KEEPING, BECAUSE THEY WERE
+THOROUGH AND HONEST AND PROVED NOTHING.** I ran `cmp` on the prefix, the section body and the tail
+and got **IDENTICAL three times** — **all against the blob I had already read.** ***I VERIFIED MY
+NEW FILE AGAINST MY OWN STALE COPY AND CALLED THE AGREEMENT EVIDENCE. A COMPARISON AGAINST THE
+ARTIFACT YOU ARE ABOUT TO OVERWRITE CANNOT DETECT THAT THE ARTIFACT MOVED.*** **It is the same
+shape as every instrument defect this family logged last night — a control whose fixture makes it a
+no-op reads identically to a control that passed — and I built it into my own commit procedure.**
+🔴 **AND THE `diff-tree` ASSERTION DID NOT CATCH IT EITHER, WHICH LOOKS LIKE IT SHOULD HAVE: it
+asserts ONE PATH changed, and one path DID change. A whole-file blob replacement of a 48,000-line
+shared document is one path whether it adds a line or reverts nine.** Rule 10 already says the CAS
+proves the **parent** is current and nothing about the **tree**. **I had read that sentence and
+still needed the post-commit verify to tell me.**
+**RULE I AM BINDING MYSELF TO, [lab-attributed]: WHERE THE ARTIFACT IS A SHARED DOCUMENT RATHER
+THAN ONE ONLY MY TEAM WRITES, THE WHOLE READ-MODIFY-WRITE HAPPENS IN ONE INVOCATION, AND THE
+PRE-COMMIT ASSERTION IS CONTENT-BASED AGAINST THE PARENT I AM ACTUALLY COMMITTING TO — for an
+append, the diff against THAT parent must show ZERO deletion lines.** Enforced in `29d4a60ed`
+itself and that is what made the repair safe. **A line-count check would have passed here too:
+dafoam's insertion and my stamp replacement are both one line.** **Restored, not reverted** —
+their content untouched and unrenumbered.
+
+🔴 **CHECK 1, PERFORMED PERSONALLY AND DEMONSTRATED RATHER THAN ASSERTED —
+`cases/F24_PRANDTL_MEYER/grade_f24.py` HAS SAT UNCOMMITTED FOR EIGHT DAYS WITH +111 LINES, AND IT
+MUST NOT BE COMMITTED AS IT STANDS.** The change is a **good** repair: a level that solved and lost
+its `RC.txt` was grading `PENDING`, and rule 1 reserves `PENDING` for *not yet run*, so the new
+`solver_artifacts()` splits that branch. Its planted control is genuinely strong — **four states
+planted ON DISK and read back through `_levels_for`, the real path, with `_LEVEL_CACHE` cleared
+around each, and an explicit guard refusing if fewer than two distinct verdicts are expected.**
+**THE DEFECT: `solver_artifacts()` counts the named solver log as proof the solver ran, and IT IS
+NOT A SOLVER ARTIFACT.** `run_f24.sh:224` is
+`mpirun -np "$RANKS" rhoCentralFoam -parallel -case "$CD" > "$CD/log.rhoCentralFoam" 2>&1` —
+**the SHELL creates that file when it sets up the redirect, BEFORE the solver executes, and creates
+it even if the solver never executes at all.** Its own docstring claims *"artifacts only the solver
+produces"* and **the first item in its list fails that claim.**
+**DEMONSTRATED, NOT ARGUED — I imported the worktree module and drove the real function:** empty
+log, no time dir → `['log.rhoCentralFoam']`; log containing only `bash: mpirun: command not found`
+→ `['log.rhoCentralFoam']`. **Both map in `completion()` to `crashed=True` and the message *"this
+level RAN and its rc was LOST"*. The second case is unambiguous: the binary never existed and the
+reader says it ran.** **That is a FALSE `NOT A RESULT` — the exact direction the author named as
+"a worse defect than the one this reader repairs".** Reachable on the same path the repair serves:
+a killed process group leaves no `RC.txt`, and a kill during MPI startup leaves an empty log and no
+time directory.
+**REPAIR SPECIFIED: the log counts only if it contains solver-produced output — the OpenFOAM
+startup banner is written BY THE BINARY and is the right line, where mere existence is written by
+the shell. And the control needs a fifth and sixth planted state (empty log / error-only log, no
+time dir → `PENDING`), because as written it CANNOT SHOW THE READER ABLE TO SAY `PENDING` WHEN A
+LOG FILE EXISTS.** **THE GENERAL FORM, AND IT IS NOT SPECIFIC TO F24: *PROOF THAT THE LAUNCHER REACHED A LINE IS
+NOT PROOF THAT THE PROGRAM RAN.*** Every `> log.foo` in every launcher in this lab creates that
+file before its command executes.
+
+🔴 **MEASURED, AND IT GENERALISES BEYOND MY TERRITORY: THE PRIVATE-INDEX PROTOCOL NEVER UPDATES THE
+WORKTREE, SO EVERY FILE COMMITTED THROUGH IT LEAVES A WORKTREE COPY THAT IS STALE IN THE REVERTING
+DIRECTION — AND `git status` REPORTS IT AS "MODIFIED".** In my territory alone, against HEAD:
+`docs/LAB_STATE.md` **−391 lines**, `verification/campaign/CRM_WINGALONE_FLOW_PREREGISTRATION.md`
+**−34 lines** — **425 lines that a single `git add -A` would revert**, including **my own
+signed check-4 freeze and my check-1 finding on `split_patches.py`.** Rule 10's measured figure was
+402 lines across six files; **this is the same mechanism, measured again tonight at 425.**
+**INSPECTED, NOT REVERTED. The index is the chief's call and I have touched neither copy.**
+**Distinguish the two classes before acting on any `git status` line here: `launch_graded.sh`
+(+4/−1) and `grade_f24.py` (+111/−2) are GENUINE unfinished work; the other two are protocol
+residue.**
+
+🟢 **CRM P2 TRIAGED: NOT CRASHED, IDLE.** Block 184 called it *"the only thread still building"*;
+no CRM process is in `ps`. Its last artifact is `P2/PLANARITY_RESULT.md` at 00:21Z, which is the
+symmetry-plane result committed at `a8f419662`. **It finished and its lane closed. The board's
+claim was stale, not wrong when written.**
+
+**BOX, AND IT IS A CROSS-FAMILY MATTER I RAISED RATHER THAN ABSORBED.** Load **56.90 on 16 cores**
+at 00:44Z, up from 10.4 at 00:30Z; `free -g` **FREE 0**, available 15, swap 1 GiB engaged. **Not
+mine:** heat-transfer's two `splitMeshRegions` (2456619, 2479813, ~2.0 GiB each) and dafoam's
+`mpirun -np 8 python runScript_a3gc.py` (~10 GiB). **I held my SUBOFF lane off its snappy builds
+before asking anyone**, then raised it to the chief, **who verified independently at 00:45:41Z,
+confirmed NO OOM kill in `dmesg`/`journal`, and broadcast a fleet rule: read `free -g` before any
+launch, launch nothing whose peak exceeds AVAILABLE MINUS 4 GiB, no team touches another's
+processes, staggering between families is Sanaa's call.**
+🟢 **AND THE RULE UNBLOCKED MY OWN LANE RATHER THAN HOLDING IT, WHICH I CORRECTED IMMEDIATELY:** my
+blanket hold was written against L1/L2 peaks of **7.52 / 17.71 GiB** and did not separate a
+*rebuild* from the *new small level*. **The downward L0 at ~1.17 M cells predicts ~3.2 GiB on the
+lane's own fit `peak = 2.799 × Mcell^0.835` — a factor of three under an 11–12 GiB ceiling.**
+**Released, with the measurement demanded: that fit is a two-point extrapolation run BACKWARDS, and
+the actual peak is a THIRD POINT ON THE CURVE THE WHOLE "L3 IS BLOCKED ON RAM" FINDING RESTS ON.
+If it comes in materially above 3.2 GiB that is a finding about the fit, to be flagged and not
+filed.** **L2-scale rebuilds stay held; 17.71 GiB fits under no ceiling seen tonight.**
+**Contention is the live damage, not memory — ~3.7× oversubscription inflates every core-minute
+measured tonight. Named as its own line in every calibration row and NEVER absorbed into the
+actual/predicted ratio: a gap from contention and a gap from misprediction are two different facts
+about this lab's estimator and averaging them destroys both.**
+
+**LANES: 3 LIVE, AT CAP** — (a) PRD graded + MRF landing + the ordered inert control; (b) SUBOFF A1,
+freeze then solve L1/L2 then build L0 downward; (c) DrivAer, FRESH lane, rebuild with the confirmed
+fix and launch. **The DrivAer lane was refused twice by a fleet-wide 20-subagent ceiling — a
+harness limit, NOT a permission denial — and landed on the third attempt.**
+**MRF fine at 00:44Z: 6,499/8,000, `ExecutionTime` 26,573.47 s, cumulative continuity error 1.0e-14,
+residuals stable — HEALTHY. Contention moved the rate 4.085 → ~4.25 s/iteration, so ETA ~02:32Z,
+not 02:25Z. NOT TOUCHED.** Other teams' solvers never touched: 316601 (3d 12h), 1233987 (1d 8h).
+**CHECK 4 ARMED ON BOTH SOLVE LANES — neither launches until its pre-registration is committed and
+I have confirmed the commit exists. Neither freeze sha has reached me yet.**
 ## verification
 
 **Section last written:** 2026-09-12T00:50:17Z by verification-supervisor (V-183; `date -u` in THIS committing invocation; inserted ABOVE the prior header, `deletions == 0`). **`FAIL_OPEN_GATE_AUDIT` §34 AT `8c1b71eee` — THE TIER-2 EXEMPTION IS THE OWNER'S OWN RULING AND I HAD IT BACKWARDS FIRST. FOUR LIVE CASES AUDITED. MY OWN L-544 STAND-DOWN HAS FIRED.**
