@@ -1,0 +1,4 @@
+blockMesh rc=1
+blockMesh 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.12
+blockMesh 	Maximum resident set size (kbytes): 34932
+blockMesh FAILED rc=1

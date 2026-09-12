@@ -31,10 +31,44 @@ if awk -v p="$PRED_GIB" -v c="$CEIL" 'BEGIN{exit !(p>c)}'; then
 fi
 
 mkdir -p "$R/system" "$R/constant/triSurface"
-for f in blockMeshDict controlDict fvSchemes fvSolution meshQualityDict surfaceFeatureExtractDict; do
-  cp -p "$SRC/system/$f" "$R/system/$f"
-  cmp -s "$SRC/system/$f" "$R/system/$f" || { echo "REFUSE: $f differs from the graded r1_$LVL"; exit 2; }
+
+# ---------------------------------------------------------------------------
+# TRIAGE FINDING 2026-09-12, r2_fine blockMesh rc=1 -- AND THE REASON THE OLD
+# ASSERTION COULD NOT CATCH IT.
+#
+# r1_fine's system/ was MUTATED by Stage A: controlDict, fvSchemes and fvSolution
+# were replaced by SOLVER versions and the mesh-build originals survive beside
+# them as *.meshbuild.  r1_coarse and r1_medium were never solved and carry only
+# the mesh-build versions.  So `controlDict` means two different files depending
+# on the level, and r1_fine's carries `#include "forceCoeffs"`, which is not a
+# mesh-build input and was not copied -- blockMesh died on the missing include.
+#
+# THE OLD ASSERTION WAS `cmp $SRC/system/$f $R/system/$f` IMMEDIATELY AFTER
+# COPYING $SRC -> $R.  IT COMPARED THE COPY WITH ITS OWN SOURCE AND COULD NEVER
+# FAIL, AT ANY LEVEL, FOR ANY FILE.  That is the same defect class this campaign
+# exists to hunt: a check with no failing branch.
+#
+# THE REPAIR: take *.meshbuild where it exists, and assert the CHOSEN file is
+# byte-identical to r1_COARSE's -- a comparison ACROSS levels, which CAN fail and
+# which is what "the family differs only in blockMeshDict" actually asserts.
+# blockMeshDict is excluded because it is per-level BY DESIGN (h_bg halves).
+# ---------------------------------------------------------------------------
+REF="$D/r1_coarse"
+cp -p "$SRC/system/blockMeshDict" "$R/system/blockMeshDict"
+for f in controlDict fvSchemes fvSolution meshQualityDict surfaceFeatureExtractDict; do
+  src="$SRC/system/$f"
+  [ -f "$SRC/system/$f.meshbuild" ] && src="$SRC/system/$f.meshbuild"
+  cp -p "$src" "$R/system/$f"
+  cmp -s "$REF/system/$f" "$R/system/$f" || {
+    echo "REFUSE: $f taken from $src is NOT byte-identical to the graded r1_coarse/system/$f."
+    echo "        The family is supposed to differ only in blockMeshDict."
+    exit 2; }
+  echo "$f <- $src (byte-identical to r1_coarse/system/$f)" >> "$R/SYSTEM_PROVENANCE.txt"
 done
+grep -l '#include' "$R/system/"* 2>/dev/null | while read -r g; do
+  echo "REFUSE: $g carries an #include; a mesh-build dict must be self-contained"; exit 2
+done
+grep -q '#include' "$R/system/controlDict" && { echo "REFUSE: controlDict carries an #include -- this is a SOLVER controlDict, not a mesh-build one"; exit 2; }
 cp -p "$A1/system/snappyHexMeshDict" "$R/system/snappyHexMeshDict"
 cmp -s "$A1/system/snappyHexMeshDict" "$R/system/snappyHexMeshDict" || { echo "REFUSE: snappyHexMeshDict is not byte-identical to the A1 dict"; exit 2; }
 cp -p "$SRC/constant/triSurface/drivaer_466.stl" "$R/constant/triSurface/"
