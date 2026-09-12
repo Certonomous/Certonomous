@@ -21,5 +21,10 @@ SIMPLE
 relaxationFactors
 {
     fields  { p 0.3; rho 0.05; }
-    equations { U 0.5; e 0.5; nuTilda 0.5; }
+    // The energy variable is `h`: the thermo is `sensibleEnthalpy`. Relaxing only `e` left the
+    // h equation with relaxation 1.0 and therefore no diagonal boost, and on this steady
+    // adiabatic-wall case that made the matrix singular -- "Solving for h: solution
+    // singularity" on the first iteration, followed by SIGFPE inside the thermophysical model.
+    // Both names are relaxed so the case cannot depend on which the thermo selects.
+    equations { U 0.5; e 0.5; h 0.5; nuTilda 0.5; }
 }

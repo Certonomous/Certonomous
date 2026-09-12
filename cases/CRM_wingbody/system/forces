@@ -11,7 +11,8 @@ forceCoeffs
     log             yes;
 
     patches         (wing body);
-    rho             rho;            // compressible: density is a field, not rhoInf
+    rho             rho;
+    rhoInf          0.04503298815;
 
     CofR            (33.67786 11.90625 4.51993);
     dragDir         (0.998848386485 0 0.047978128521);
@@ -31,5 +32,6 @@ forces
     log             yes;
     patches         (wing body);
     rho             rho;
+    rhoInf          0.04503298815;
     CofR            (33.67786 11.90625 4.51993);
 }
