@@ -948,3 +948,70 @@ iterations is simply what this pressure equation costs on this mesh.
 **And the honest ledger: the ramp has still never been tested. Every run before V3 measured
 something other than the question; V3 is the first that got far enough to fail in the right
 place.**
+
+---
+
+# ADDENDUM 6 — 2026-09-13, THE A5.4 PREDICTION HELD. Version 1.6.
+
+**lines whose number changed above this section: 0**
+
+**Alters no gate, threshold, cap or label.** It records the outcome of a registered prediction.
+
+## A6.1 THE PREDICTION, AND WHAT IT RETURNED
+
+A5.4, written **before** the run: *if the initial field is the problem, a `potentialFoam`-initialised
+stage 1 will **COMPLETE ITS FIRST PRESSURE SOLVE**; if it still faults before emitting a line, the
+hypothesis is wrong, the rung was mis-aimed, and the ladder climbs elsewhere.*
+
+`CRM-WB-D8G-SMOKE-T-V4-POTENTIAL`, runner-launched 00:09:55Z, stage 0 rc=0
+(`log.potentialFoam`: continuity error 3.36×10⁻⁸, `End`):
+
+| | first pressure solve of stage 1 |
+|---|---|
+| V3, uniform start | **zero** `Solving for p` lines — faulted *inside* the solve |
+| **V4, potentialFoam** | **0.999999889 → 0.00877 in 14 iterations — COMPLETED** |
+
+**THE PREDICTION HELD.** It could have refuted the ground on which the rung was fired; it did not.
+
+## A6.2 🔴 THE NUMBER FOR THE CERTIFICATE — A FINDING ABOUT THIS GRID FAMILY, NOT ABOUT THIS RUN
+
+First-iteration pressure excursion, same mesh, same solver, same schemes, same relaxation — **only
+the field the solver starts from differs**:
+
+| configuration | `p max` | × freestream |
+|---|---|---|
+| P4, no ramp, uniform start | 11,727,428 Pa | **2,926×** |
+| V2 stage 2, uniform start | 11,694,309 Pa | 2,918× |
+| V2 stage 1, ramp **+ `maxIter` cap** | 4.41×10²⁴ Pa | — |
+| V3, ramp, uniform start | *never reported — faulted inside the solve* | — |
+| **V4, `potentialFoam` + ramp** | **8,811 Pa** | **2.20×** |
+
+**A reduction of three orders of magnitude, and far below the 40,074 Pa (10×) trigger of A5.2.**
+The solve also became *ordinary*: **14 iterations**, against the 231 that uncapped GAMG needed from
+a uniform start and against the fault that no iteration count could get past.
+
+**THE REGISTERED QUESTION IS ANSWERED: THE INITIAL FIELD WAS THE PROBLEM.** A uniform freestream
+with a wing-body in it is not an inaccurate guess — it is *inconsistent with the geometry*, and the
+first pressure solve had to invent the entire flow at once.
+
+**This and the `bounded`/`div(phid,p)` finding of A2.2 belong together on the certificate: the two
+of them are the whole reason five runs measured something other than the question.**
+
+## A6.3 WHAT IS STILL NOT ESTABLISHED
+
+- 🔴 **Nothing from stage 1 is a result.** It is first-order with heavy relaxation. **The graded
+  answer comes from stage 2 only.**
+- 🔴 **No cost figure may be taken from stage 1.** Its per-iteration cost says nothing about the
+  registered schemes — the same error as the `maxIter` probe (A2.1). **The cost of Tiny remains
+  UNKNOWN** and is measured on stage 2, at steady state, from differences.
+- 🔴 **The M6I warning is now the live risk.** M6I's L1 and L2 both cleared startup and then died
+  in **stage 2**, at iterations 296 and 668, when a shock formed. That is the **middle row of the
+  A3.5 table — a different rung**, not a startup failure. The handover assertion proves stage 2
+  inherited a real field; it cannot prove the registered schemes survive a shock on this grid.
+
+## A6.4 THE TEMPERATURE LIMITER IS DOING WORK HERE, UNLIKE ON M6I
+
+At stage-1 iteration 2: `LimitedCells=18` (lower) and `2` (upper), of 20,657,615. On M6I the
+equivalent limiter reported zero limited cells on 5,968 of 5,997 iterations. **It is still not
+credited with the fix** — the excursion fell three orders before the limiter touched anything — but
+its activity is recorded rather than assumed idle, and the count is reported every iteration.
