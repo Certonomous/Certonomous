@@ -28559,3 +28559,36 @@ error caught it, re-audited with a sound predicate, and then volunteered that it
 right by luck rather than by evidence**. A correct reading obtained by an unsound method
 is not a verification; it is a coincidence that has not been noticed yet, and the honest
 move is to say so about the earlier report too.
+
+## L-581 — a silent log is not a stalled run: OpenFOAM's stdout is BLOCK-BUFFERED when redirected, and a stall diagnosed from a quiet log is a guess
+
+**What happened.** A lane watched `snappyHexMesh` on 8 ranks at 99.8 % CPU with its log frozen
+at 7,405 bytes for eight minutes, read it as pathological, and **came one decision away from
+killing a healthy run.** The log was **block-buffered**: redirecting OpenFOAM's stdout to a file
+switches libc from line buffering to 4 KiB block buffering, so output appears in bursts. **A long
+phase and a hang are indistinguishable from outside.** Relaunched with `stdbuf -oL`, the same
+build showed feature-refinement iterations ticking normally.
+
+**The fix is one token:** `stdbuf -oL` on the solver or mesher line.
+
+**Exposure, measured — and narrower than it first looks, in a more dangerous place.**
+`scripts/queue_runner.py` was checked directly: its only `st_mtime` reads are on **queue JSON
+files**, for ordering and for naming an archived entry — **not on solver logs, and not for
+liveness.** The runner is **not** exposed and this is **not** a defect in the lab's stall
+detection. The charter's 3600-wall-second rule is a ledger-row rule, not a log-silence rule.
+
+**The exposure is to AGENT JUDGEMENT, which is worse, because nothing gates it.** The lane that
+decides whether to kill a run reads the log with its eyes. **Exactly 1 file in the whole
+repository uses `stdbuf`, `unbuffer` or `PYTHONUNBUFFERED`** — the one this lesson came from.
+Every other log an agent watches can go quiet for reasons that have nothing to do with progress.
+
+**The rule:** liveness is decided from **CPU time advancing** (`ps`, `/proc/<pid>/stat`), from
+the **force or residual channel**, or from written time directories — **never from log file size
+or mtime.** If a log is the only evidence available, relaunch with `stdbuf -oL` before drawing
+any conclusion from its silence.
+
+*Sibling of L-577 (same night, same act): there the defect was in what OpenFOAM does with your
+arguments, here in what libc does with your output. Both are invisible until a control fires.*
+*Relates to the standing lesson that a red with an innocent explanation is the easiest failure to
+wave through — this is its mirror: a silence with a guilty-looking explanation is the easiest
+healthy run to kill.*
