@@ -2803,3 +2803,76 @@ about two unrelated things.
 | rules added | **L6** (§17.3), **L7** (§17.7) |
 | **lines whose number changed above this section** | **0** — *to be MEASURED by the appending commit:* md5 of this file's first 2,429 lines before the append and after it must be **EQUAL**; at draft time that md5 is `2ee7cf76f8c8c10adfc465885a04df1c` |
 | nothing written to `docs/physics_rules.yaml` | correct — §17 binds by being quoted, at §16's maturity |
+
+---
+
+## 18. §16 AND §17 REST ON TWO "MEASURED POINTS" AND **BOTH ARE WRONG** (v1.13, 2026-09-13)
+
+**Lines whose number changed above this section: 0** — measured, not asserted. This
+section **corrects the empirical basis of §16.3 and §17**, which are committed and which
+rule 6 forbids editing. It changes no gate: §16's rules L1–L5 and §17's L6–L7 stand on
+their mechanisms, not on these two numbers.
+
+### 18.1 The claim, as it stands in §16.3 and is repeated in §17.6
+
+> *"two measured points, 0.480 extrudes, 1.6808 collapses"*, and
+> *"0.794 is nearer to the only stack this lab has measured EXTRUDING — our own 0.480"*.
+
+**Both halves are false, and both fail in the direction that flatters this lab's
+reasoning.**
+
+### 18.2 **"1.6808 collapses" — MEASURED, AND IT DOES NOT COLLAPSE. IT PARTIALLY EXTRUDES.**
+
+| case | achieved | layers |
+|---|---|---|
+| `r2_medium/log.snappyHexMesh` | **`Extruding 64470 out of 80974 faces (79.618149%)`** | 2.895 of 5 |
+| `r2_coarse/log.snappyHexMesh` | **`Extruding 16887 out of 23365 faces (72.27477%)`** | 2.503 of 5 |
+
+**A 1.68-cell stack gives 72–80 % coverage and roughly half the requested layers. That is
+partial delivery, not collapse.**
+
+### 18.3 **The zero belongs to a different case AND a different cause**
+
+`F360_coarse/log.snappyHexMesh` reads **`Extruding 0 out of 724711 faces (0%)`** — PPTC,
+not DrivAer. **And its stack was not 1.68 cells: its requested thickness was poisoned
+95.53× by `getLevel0EdgeLength()` returning a 2 mm axis rod's azimuthal chord** (§16.2).
+**Those layers were degenerate, not too thick.** **It is not a data point about stack
+thickness at all**, and using it as one conflated two unrelated failures.
+
+### 18.4 **"Our 0.480" is not ours and was never built here**
+
+0.480 is **DrivAerML's 12 mm stack expressed on our 25 mm cell** — a conversion, not a
+measurement. **This lab has never built it.** R5's registered 0.474 has never been built
+either: the sizing probe ran **`addLayers false` by design**, and the layered build has
+not reached the layer phase.
+
+### 18.5 **THE CORRECTED EMPIRICAL BASIS, which is thinner than either section implies**
+
+**This lab has ONE measured stack-versus-coverage point: 1.6808 → 72–80 % coverage.**
+There is **no measured extruding point below it**, and **no measured collapse at any
+thickness.** **The one-local-cell rule is a DESIGN RULE imported from published practice
+and a mechanism, with a single supporting measurement that is a partial success.** §16.9
+already forbade calling it a calibrated threshold; **this section states that even its two
+anchors were not what they claimed.**
+
+### 18.6 Consequences that do **not** follow, stated so nobody draws them
+
+**PRISM-A2's S = 0.794 is unaffected as a registered value** — it was chosen to sit low in
+published practice and further from our only measured point, and **that reasoning survives
+intact**; only the word "extruding" attached to 0.480 was wrong. **No gate, threshold, cap
+or label moves in any registration.** And **§17.2's finding stands in its narrow form**:
+none of the six cases behind the stack table ships a `snappyHexMesh` log — **though six
+Alletto membrane test cases elsewhere in the same tree do, so the blanket claim "no
+retrieved tree ships a log" is false and must not be repeated.**
+
+### 18.7 How it happened
+
+**Three claims were handed to a lane for inclusion in a Sanaa-facing document. The lane
+checked all three instead of writing them, and all three were wrong in the flattering
+direction.** They originated with this supervisor, who **conflated PPTC's poisoned-length
+zero with DrivAer's partial coverage**, and **carried a converted figure as a measurement
+because a registration's own prose called it one.** The standard was written twice tonight
+on that basis.
+
+**The rule: a number that has travelled through two documents is not a measurement. Read
+the log.**
